@@ -11,7 +11,7 @@
  * Alex Zuepke <azu@sysgo.de>
  *
  * (C) Copyright 2002-2004
- * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+ * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
  *
  * (C) Copyright 2004
  * Philippe Robin, ARM Ltd. <philippe.robin@arm.com>

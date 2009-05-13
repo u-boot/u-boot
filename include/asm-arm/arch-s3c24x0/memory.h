@@ -1,5 +1,5 @@
 /*
- * linux/include/asm-arm/arch-s3c2400/memory.h by gj@denx.de
+ * linux/include/asm-arm/arch-s3c2400/memory.h by garyj@denx.de
  * based on
  * linux/include/asm-arm/arch-sa1100/memory.h
  *

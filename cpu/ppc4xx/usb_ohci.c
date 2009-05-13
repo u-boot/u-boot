@@ -2,7 +2,7 @@
  * URB OHCI HCD (Host Controller Driver) for USB on the PPC440EP.
  *
  * (C) Copyright 2003-2004
- * Gary Jennejohn, DENX Software Engineering <gj@denx.de>
+ * Gary Jennejohn, DENX Software Engineering <garyj@denx.de>
  *
  * (C) Copyright 2004
  * Pierre Aubert, Staubli Faverges <p.aubert@staubli.com>

@@ -11,7 +11,7 @@
  *   (C) Copyright 2001 Denis Peter, MPL AG Switzerland
  *
  * For BBB support (C) Copyright 2003
- * Gary Jennejohn, DENX Software Engineering <gj@denx.de>
+ * Gary Jennejohn, DENX Software Engineering <garyj@denx.de>
  *
  * BBB support based on /sys/dev/usb/umass.c from
  * FreeBSD.

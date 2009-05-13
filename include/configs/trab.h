@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002-2005
- * Gary Jennejohn <gj@denx.de>
+ * Gary Jennejohn <garyj@denx.de>
  *
  * Configuation settings for the TRAB board.
  *

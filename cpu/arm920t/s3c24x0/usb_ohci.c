@@ -2,7 +2,7 @@
  * URB OHCI HCD (Host Controller Driver) for USB on the S3C2400.
  *
  * (C) Copyright 2003
- * Gary Jennejohn, DENX Software Engineering <gj@denx.de>
+ * Gary Jennejohn, DENX Software Engineering <garyj@denx.de>
  *
  * Note: Much of this code has been derived from Linux 2.4
  * (C) Copyright 1999 Roman Weissgaerber <weissg@vienna.at>

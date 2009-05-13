@@ -3,7 +3,7 @@
  * Martin Krause, TQ-Systems GmbH, <martin.krause@tqs.de>
  *
  * Based on cpu/arm920t/serial.c, by Gary Jennejohn
- * (C) Copyright 2002 Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+ * (C) Copyright 2002 Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

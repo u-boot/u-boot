@@ -8,7 +8,7 @@
  * Zhang Wei, Freescale Semiconductor, Inc. <wei.zhang@freescale.com>
  *
  * (C) Copyright 2003
- * Gary Jennejohn, DENX Software Engineering <gj@denx.de>
+ * Gary Jennejohn, DENX Software Engineering <garyj@denx.de>
  *
  * Note: Much of this code has been derived from Linux 2.4
  * (C) Copyright 1999 Roman Weissgaerber <weissg@vienna.at>

@@ -1,6 +1,6 @@
 #
 # (C) Copyright 2002
-# Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+# Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
 # David Mueller, ELSOFT AG, <d.mueller@elsoft.ch>
 #
 # SAMSUNG SMDK2410 board with S3C2410X (ARM920T) cpu

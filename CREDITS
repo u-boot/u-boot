@@ -222,7 +222,7 @@ E: mpfj@mimc.co.uk
 D: Port to MIMC200 board
 
 N: Gary Jennejohn
-E: garyj@jennejohn.org, gj@denx.de
+E: garyj@jennejohn.org
 D: Support for Samsung ARM920T S3C2400X, ARM920T "TRAB"
 W: www.denx.de
 

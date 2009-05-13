@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
+ * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
  * (C) Copyright 2005
  * Ladislav Michl, 2N Telekomunikace, <michl@2n.cz>
  *
