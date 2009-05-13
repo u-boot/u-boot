@@ -28,6 +28,54 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/io.h>
 
+void at91_serial0_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PC8, 1);		/* TXD0 */
+	at91_set_A_periph(AT91_PIN_PC9, 0);		/* RXD0 */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9261_ID_US0);
+}
+
+void at91_serial1_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PC12, 1);		/* TXD1 */
+	at91_set_A_periph(AT91_PIN_PC13, 0);		/* RXD1 */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9261_ID_US1);
+}
+
+void at91_serial2_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PC14, 1);		/* TXD2 */
+	at91_set_A_periph(AT91_PIN_PC15, 0);		/* RXD2 */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9261_ID_US2);
+}
+
+void at91_serial3_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PA9, 0);		/* DRXD */
+	at91_set_A_periph(AT91_PIN_PA10, 1);		/* DTXD */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_SYS);
+}
+
+void at91_serial_hw_init(void)
+{
+#ifdef CONFIG_USART0
+	at91_serial0_hw_init();
+#endif
+
+#ifdef CONFIG_USART1
+	at91_serial1_hw_init();
+#endif
+
+#ifdef CONFIG_USART2
+	at91_serial2_hw_init();
+#endif
+
+#ifdef CONFIG_USART3	/* DBGU */
+	at91_serial3_hw_init();
+#endif
+}
+
+#ifdef CONFIG_HAS_DATAFLASH
 void at91_spi0_hw_init(unsigned long cs_mask)
 {
 	at91_set_A_periph(AT91_PIN_PA0, 0);	/* SPI0_MISO */
@@ -97,3 +145,4 @@ void at91_spi1_hw_init(unsigned long cs_mask)
 		at91_set_gpio_output(AT91_PIN_PA26, 1);
 	}
 }
+#endif

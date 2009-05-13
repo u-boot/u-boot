@@ -28,6 +28,54 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/io.h>
 
+void at91_serial0_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PB4, 1);		/* TXD0 */
+	at91_set_A_periph(AT91_PIN_PB5, 0);		/* RXD0 */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_US0);
+}
+
+void at91_serial1_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PB6, 1);		/* TXD1 */
+	at91_set_A_periph(AT91_PIN_PB7, 0);		/* RXD1 */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_US1);
+}
+
+void at91_serial2_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PB8, 1);		/* TXD2 */
+	at91_set_A_periph(AT91_PIN_PB9, 0);		/* RXD2 */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_US2);
+}
+
+void at91_serial3_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PB14, 0);		/* DRXD */
+	at91_set_A_periph(AT91_PIN_PB15, 1);		/* DTXD */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_SYS);
+}
+
+void at91_serial_hw_init(void)
+{
+#ifdef CONFIG_USART0
+	at91_serial0_hw_init();
+#endif
+
+#ifdef CONFIG_USART1
+	at91_serial1_hw_init();
+#endif
+
+#ifdef CONFIG_USART2
+	at91_serial2_hw_init();
+#endif
+
+#ifdef CONFIG_USART3	/* DBGU */
+	at91_serial3_hw_init();
+#endif
+}
+
+#ifdef CONFIG_HAS_DATAFLASH
 void at91_spi0_hw_init(unsigned long cs_mask)
 {
 	at91_set_A_periph(AT91_PIN_PA0, 0);	/* SPI0_MISO */
@@ -97,3 +145,40 @@ void at91_spi1_hw_init(unsigned long cs_mask)
 		at91_set_gpio_output(AT91_PIN_PC3, 1);
 	}
 }
+#endif
+
+#ifdef CONFIG_MACB
+void at91_macb_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PA19, 0);	/* ETXCK_EREFCK */
+	at91_set_A_periph(AT91_PIN_PA17, 0);	/* ERXDV */
+	at91_set_A_periph(AT91_PIN_PA14, 0);	/* ERX0 */
+	at91_set_A_periph(AT91_PIN_PA15, 0);	/* ERX1 */
+	at91_set_A_periph(AT91_PIN_PA18, 0);	/* ERXER */
+	at91_set_A_periph(AT91_PIN_PA16, 0);	/* ETXEN */
+	at91_set_A_periph(AT91_PIN_PA12, 0);	/* ETX0 */
+	at91_set_A_periph(AT91_PIN_PA13, 0);	/* ETX1 */
+	at91_set_A_periph(AT91_PIN_PA21, 0);	/* EMDIO */
+	at91_set_A_periph(AT91_PIN_PA20, 0);	/* EMDC */
+
+#ifndef CONFIG_RMII
+	at91_set_B_periph(AT91_PIN_PA28, 0);	/* ECRS */
+	at91_set_B_periph(AT91_PIN_PA29, 0);	/* ECOL */
+	at91_set_B_periph(AT91_PIN_PA25, 0);	/* ERX2 */
+	at91_set_B_periph(AT91_PIN_PA26, 0);	/* ERX3 */
+	at91_set_B_periph(AT91_PIN_PA27, 0);	/* ERXCK */
+#if defined(CONFIG_AT91SAM9260EK)
+	/*
+	 * use PA10, PA11 for ETX2, ETX3.
+	 * PA23 and PA24 are for TWI EEPROM
+	 */
+	at91_set_B_periph(AT91_PIN_PA10, 0);	/* ETX2 */
+	at91_set_B_periph(AT91_PIN_PA11, 0);	/* ETX3 */
+#else
+	at91_set_B_periph(AT91_PIN_PA23, 0);	/* ETX2 */
+	at91_set_B_periph(AT91_PIN_PA24, 0);	/* ETX3 */
+#endif
+	at91_set_B_periph(AT91_PIN_PA22, 0);	/* ETXER */
+#endif
+}
+#endif

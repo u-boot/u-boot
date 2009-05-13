@@ -25,35 +25,12 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
-ifdef CONFIG_AT91CAP9
-COBJS-$(CONFIG_MACB)		+= at91cap9_macb.o
-COBJS-y				+= at91cap9_serial.o
-COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91cap9_spi.o
-endif
-ifdef CONFIG_AT91SAM9260
-COBJS-$(CONFIG_MACB)		+= at91sam9260_macb.o
-COBJS-y				+= at91sam9260_serial.o
-COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9260_spi.o
-endif
-ifdef CONFIG_AT91SAM9G20
-COBJS-$(CONFIG_MACB)		+= at91sam9260_macb.o
-COBJS-y				+= at91sam9260_serial.o
-COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9260_spi.o
-endif
-ifdef CONFIG_AT91SAM9261
-COBJS-y				+= at91sam9261_serial.o
-COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9261_spi.o
-endif
-ifdef CONFIG_AT91SAM9263
-COBJS-$(CONFIG_MACB)		+= at91sam9263_macb.o
-COBJS-y				+= at91sam9263_serial.o
-COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9263_spi.o
-COBJS-$(CONFIG_USB_OHCI_NEW)	+= at91sam9263_usb.o
-endif
-ifdef CONFIG_AT91SAM9RL
-COBJS-y				+= at91sam9rl_serial.o
-COBJS-$(CONFIG_HAS_DATAFLASH)	+= at91sam9rl_spi.o
-endif
+COBJS-$(CONFIG_AT91CAP9)	+= at91cap9_devices.o
+COBJS-$(CONFIG_AT91SAM9260)	+= at91sam9260_devices.o
+COBJS-$(CONFIG_AT91SAM9G20)	+= at91sam9260_devices.o
+COBJS-$(CONFIG_AT91SAM9261)	+= at91sam9261_devices.o
+COBJS-$(CONFIG_AT91SAM9263)	+= at91sam9263_devices.o
+COBJS-$(CONFIG_AT91SAM9RL)	+= at91sam9rl_devices.o
 COBJS-$(CONFIG_AT91_LED)	+= led.o
 COBJS-y += clock.o
 COBJS-y += cpu.o

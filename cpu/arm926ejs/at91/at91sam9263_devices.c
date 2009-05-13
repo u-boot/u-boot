@@ -28,6 +28,54 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/io.h>
 
+void at91_serial0_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PA26, 1);		/* TXD0 */
+	at91_set_A_periph(AT91_PIN_PA27, 0);		/* RXD0 */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_US0);
+}
+
+void at91_serial1_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PD0, 1);		/* TXD1 */
+	at91_set_A_periph(AT91_PIN_PD1, 0);		/* RXD1 */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_US1);
+}
+
+void at91_serial2_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PD2, 1);		/* TXD2 */
+	at91_set_A_periph(AT91_PIN_PD3, 0);		/* RXD2 */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_US2);
+}
+
+void at91_serial3_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PC30, 0);		/* DRXD */
+	at91_set_A_periph(AT91_PIN_PC31, 1);		/* DTXD */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_SYS);
+}
+
+void at91_serial_hw_init(void)
+{
+#ifdef CONFIG_USART0
+	at91_serial0_hw_init();
+#endif
+
+#ifdef CONFIG_USART1
+	at91_serial1_hw_init();
+#endif
+
+#ifdef CONFIG_USART2
+	at91_serial2_hw_init();
+#endif
+
+#ifdef CONFIG_USART3	/* DBGU */
+	at91_serial3_hw_init();
+#endif
+}
+
+#ifdef CONFIG_HAS_DATAFLASH
 void at91_spi0_hw_init(unsigned long cs_mask)
 {
 	at91_set_B_periph(AT91_PIN_PA0, 0);	/* SPI0_MISO */
@@ -97,3 +145,40 @@ void at91_spi1_hw_init(unsigned long cs_mask)
 		at91_set_gpio_output(AT91_PIN_PB18, 1);
 	}
 }
+#endif
+
+#ifdef CONFIG_MACB
+void at91_macb_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PE21, 0);	/* ETXCK_EREFCK */
+	at91_set_B_periph(AT91_PIN_PC25, 0);	/* ERXDV */
+	at91_set_A_periph(AT91_PIN_PE25, 0);	/* ERX0 */
+	at91_set_A_periph(AT91_PIN_PE26, 0);	/* ERX1 */
+	at91_set_A_periph(AT91_PIN_PE27, 0);	/* ERXER */
+	at91_set_A_periph(AT91_PIN_PE28, 0);	/* ETXEN */
+	at91_set_A_periph(AT91_PIN_PE23, 0);	/* ETX0 */
+	at91_set_A_periph(AT91_PIN_PE24, 0);	/* ETX1 */
+	at91_set_A_periph(AT91_PIN_PE30, 0);	/* EMDIO */
+	at91_set_A_periph(AT91_PIN_PE29, 0);	/* EMDC */
+
+#ifndef CONFIG_RMII
+	at91_set_A_periph(AT91_PIN_PE22, 0);	/* ECRS */
+	at91_set_B_periph(AT91_PIN_PC26, 0);	/* ECOL */
+	at91_set_B_periph(AT91_PIN_PC22, 0);	/* ERX2 */
+	at91_set_B_periph(AT91_PIN_PC23, 0);	/* ERX3 */
+	at91_set_B_periph(AT91_PIN_PC27, 0);	/* ERXCK */
+	at91_set_B_periph(AT91_PIN_PC20, 0);	/* ETX2 */
+	at91_set_B_periph(AT91_PIN_PC21, 0);	/* ETX3 */
+	at91_set_B_periph(AT91_PIN_PC24, 0);	/* ETXER */
+#endif
+}
+#endif
+
+#ifdef CONFIG_USB_OHCI_NEW
+void at91_uhp_hw_init(void)
+{
+	/* Enable VBus on UHP ports */
+	at91_set_gpio_output(AT91_PIN_PA21, 0);
+	at91_set_gpio_output(AT91_PIN_PA24, 0);
+}
+#endif
