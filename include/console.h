@@ -33,6 +33,4 @@
 extern device_t	*stdio_devices[] ;
 extern char *stdio_names[MAX_FILES] ;
 
-int console_realloc(int top);
-
 #endif
