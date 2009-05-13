@@ -24,9 +24,6 @@
  */
 
 #include <config.h>
-
-#if defined(CONFIG_API)
-
 #include <common.h>
 #include <api_public.h>
 
@@ -391,5 +388,3 @@ lbasize_t dev_read_stor(void *cookie, void *buf, lbasize_t len, lbastart_t start
 
 	return (dd->block_read(dev_stor_index(dd), start, len, buf));
 }
-
-#endif /* CONFIG_API */

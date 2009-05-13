@@ -28,9 +28,6 @@
  */
 
 #include <config.h>
-
-#if defined(CONFIG_API)
-
 #include <linux/types.h>
 #include <api_public.h>
 

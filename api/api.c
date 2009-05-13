@@ -24,9 +24,6 @@
  */
 
 #include <config.h>
-
-#if defined(CONFIG_API)
-
 #include <command.h>
 #include <common.h>
 #include <malloc.h>
@@ -665,5 +662,3 @@ void platform_set_mr(struct sys_info *si, unsigned long start, unsigned long siz
 			return;
 		}
 }
-
-#endif /* CONFIG_API */

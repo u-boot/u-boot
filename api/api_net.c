@@ -24,9 +24,6 @@
  */
 
 #include <config.h>
-
-#if defined(CONFIG_API)
-
 #include <common.h>
 #include <net.h>
 #include <linux/types.h>
@@ -109,5 +106,3 @@ int dev_read_net(void *cookie, void *buf, int len)
 
 	return eth_receive(buf, len);
 }
-
-#endif /* CONFIG_API */
