@@ -166,15 +166,6 @@
 #endif /* CONFIG_TQM8541 || CONFIG_TQM8555 || CONFIG_TQM8548 */
 
 /*
- * Old TQM85xx boards have 'M' type Spansion Flashes from the S29GLxxxM
- * series while new boards have 'N' type Flashes from the S29GLxxxN
- * series, which have bigger sectors: 2 x 128 instead of 2 x 64 KB.
- */
-#ifdef CONFIG_TQM8548
-#define CONFIG_TQM_FLASH_N_TYPE
-#endif /* CONFIG_TQM8548 */
-
-/*
  * Flash on the Local Bus
  */
 #ifdef CONFIG_TQM_BIGFLASH
@@ -547,11 +538,7 @@
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
 
-#ifdef CONFIG_TQM_FLASH_N_TYPE
 #define CONFIG_ENV_SECT_SIZE	0x40000 /* 256K (one sector) for env	*/
-#else /* !CONFIG_TQM_FLASH_N_TYPE */
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) for env	*/
-#endif /* CONFIG_TQM_FLASH_N_TYPE */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
