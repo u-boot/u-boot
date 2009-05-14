@@ -146,9 +146,9 @@ extern int tqm834x_num_flash_banks;
 #define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
-#define CONFIG_SYS_RAMBOOT
+# define CONFIG_SYS_RAMBOOT
 #else
-#undef  CONFIG_SYS_RAMBOOT
+# undef  CONFIG_SYS_RAMBOOT
 #endif
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
@@ -275,12 +275,7 @@ extern int tqm834x_num_flash_banks;
 /*
  * Environment
  */
-#ifdef CONFIG_SYS_RAMBOOT
-# define CONFIG_SYS_NO_FLASH		1	/* Flash is not usable now */
-#else
-# define CONFIG_ENV_IS_IN_FLASH		1
-#endif
-
+#define CONFIG_ENV_IS_IN_FLASH		1
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_ENV_SECT_SIZE		0x20000	/* 128K (one sector) for env */
 #define CONFIG_ENV_SIZE			0x8000	/*  32K max size */
@@ -304,14 +299,18 @@ extern int tqm834x_num_flash_banks;
  */
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_NFS
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_REGINFO
+#define CONFIG_CMD_SNTP
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI
@@ -347,6 +346,11 @@ extern int tqm834x_num_flash_banks;
 #define CONFIG_SYS_HZ			1000		/* decrementer freq: 1ms ticks */
 
 #undef CONFIG_WATCHDOG				/* watchdog disabled */
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /*
  * For booting Linux, the board info and command line data
@@ -492,20 +496,35 @@ extern int tqm834x_num_flash_banks;
 	"addip=setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off panic=1\0"			\
-	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"flash_nfs=run nfsargs addip addtty;"				\
+	"addcons=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
+	"flash_nfs_old=run nfsargs addip addcons;"			\
 		"bootm ${kernel_addr}\0"				\
-	"flash_self=run ramargs addip addtty;"				\
+	"flash_nfs=run nfsargs addip addcons;"				\
+		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
+	"flash_self_old=run ramargs addip addcons;"			\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"net_nfs=tftp 400000 ${bootfile};run nfsargs addip addtty;"     \
-		"bootm\0"						\
+	"flash_self=run ramargs addip addcons;"				\
+		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
+	"net_nfs_old=tftp 400000 ${bootfile};"				\
+		"run nfsargs addip addcons;bootm\0"			\
+	"net_nfs=tftp ${kernel_addr_r} ${bootfile}; "			\
+		"tftp ${fdt_addr_r} ${fdt_file}; "			\
+		"run nfsargs addip addcons; "				\
+		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
-	"bootfile=/tftpboot/tqm834x/uImage\0"				\
-	"kernel_addr=80060000\0"					\
-	"ramdisk_addr=80160000\0"					\
-	"load=tftp 100000 /tftpboot/tqm834x/u-boot.bin\0"		\
-	"update=protect off 80000000 8003ffff; "			\
-		"era 80000000 8003ffff; cp.b 100000 80000000 40000\0"	\
+	"bootfile=tqm834x/uImage\0"					\
+	"fdtfile=tqm834x/tqm834x.dtb\0"					\
+	"kernel_addr_r=400000\0"					\
+	"fdt_addr_r=600000\0"						\
+	"ramdisk_addr_r=800000\0"					\
+	"kernel_addr=800C0000\0"					\
+	"fdt_addr=800A0000\0"						\
+	"ramdisk_addr=80300000\0"					\
+	"u-boot=tqm834x/u-boot.bin\0"					\
+	"load=tftp 200000 ${u-boot}\0"					\
+	"update=protect off 80000000 +${filesize};"			\
+		"era 80000000 +${filesize};"				\
+		"cp.b 200000 80000000 ${filesize}\0"			\
 	"upd=run load update\0"						\
 	""
 
