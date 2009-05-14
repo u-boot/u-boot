@@ -159,8 +159,8 @@ extern int tqm834x_num_flash_banks;
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
-#define CONFIG_SYS_MALLOC_LEN		(256 * 1024) /* Reserve 256 kB for malloc */
+#define CONFIG_SYS_MONITOR_LEN		(384 * 1024) /* Reserve 384 kB = 3 sect. for Mon */
+#define CONFIG_SYS_MALLOC_LEN		(512 * 1024) /* Reserve 512 kB for malloc */
 
 /*
  * Serial Port
@@ -275,22 +275,20 @@ extern int tqm834x_num_flash_banks;
 /*
  * Environment
  */
-#define CONFIG_ENV_OVERWRITE
-
-#ifndef CONFIG_SYS_RAMBOOT
-	#define CONFIG_ENV_IS_IN_FLASH	1
-	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x40000)
-	#define CONFIG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
-	#define CONFIG_ENV_SIZE		0x2000
+#ifdef CONFIG_SYS_RAMBOOT
+# define CONFIG_SYS_NO_FLASH		1	/* Flash is not usable now */
 #else
-	#define CONFIG_SYS_NO_FLASH		1	/* Flash is not usable now */
-	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
-	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
-	#define CONFIG_ENV_SIZE		0x2000
+# define CONFIG_ENV_IS_IN_FLASH		1
 #endif
 
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
+#define CONFIG_ENV_SECT_SIZE		0x20000	/* 128K (one sector) for env */
+#define CONFIG_ENV_SIZE			0x8000	/*  32K max size */
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
+
 #define CONFIG_LOADS_ECHO		1	/* echo on for serial download */
-#define CONFIG_SYS_LOADS_BAUD_CHANGE		1	/* allow baudrate change */
+#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
 /*
  * BOOTP options
