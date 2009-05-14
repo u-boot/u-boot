@@ -149,8 +149,8 @@ int get_clocks (void)
 
 	case CPU_750GX:
 	case CPU_750FX:
-		clock = gd->bus_clk *
-			hid1_fx_multipliers_x_10[get_hid1 () >> 27] / 10;
+		clock = (gd->bus_clk / 10) *
+			hid1_fx_multipliers_x_10[get_hid1 () >> 27];
 		break;
 
 	case CPU_7450:
