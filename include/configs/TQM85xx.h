@@ -667,7 +667,7 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_ENV_BOOTFILE						\
 	CONFIG_ENV_FDT_FILE						\
-	CONFIG_ENV_CONSDEV							\
+	CONFIG_ENV_CONSDEV						\
 	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$serverip:$rootpath\0"				\
@@ -691,12 +691,11 @@
 	"fdt_addr=ffec0000\0"						\
 	"kernel_addr=ffd00000\0"					\
 	"ramdisk_addr=ff800000\0"					\
-	CONFIG_ENV_UBOOT							\
+	CONFIG_ENV_UBOOT						\
 	"load=tftp 100000 $uboot\0"					\
 	"update=protect off $uboot_addr +$filesize;"			\
 		"erase $uboot_addr +$filesize;"				\
-		"cp.b 100000 $uboot_addr $filesize;"			\
-		"setenv filesize;saveenv\0"				\
+		"cp.b 100000 $uboot_addr $filesize"			\
 	"upd=run load update\0"						\
 	""
 #define CONFIG_BOOTCOMMAND	"run flash_self"
