@@ -136,7 +136,7 @@ int misc_init_r (void)
 		/* Redundant environment protection ON by default */
 		flash_protect (FLAG_PROTECT_SET,
 			       CONFIG_ENV_ADDR_REDUND,
-			       CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SIZE_REDUND - 1,
+			       CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
 			       &flash_info[CONFIG_SYS_MAX_FLASH_BANKS - 1]);
 	}
 

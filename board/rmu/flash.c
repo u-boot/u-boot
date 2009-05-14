@@ -85,18 +85,18 @@ unsigned long flash_init (void)
 	/* ENV protection ON by default */
 	flash_protect(FLAG_PROTECT_SET,
 		      CONFIG_ENV_ADDR,
-		      CONFIG_ENV_ADDR+CONFIG_ENV_SIZE-1,
+		      CONFIG_ENV_ADDR+CONFIG_ENV_SECT_SIZE-1,
 		      &flash_info[0]);
 #endif
 
 #if defined(CONFIG_ENV_ADDR_REDUND) || defined(CONFIG_ENV_OFFSET_REDUND)
 	debug ("Protect redundand environment: %08lx ... %08lx\n",
 		(ulong)CONFIG_ENV_ADDR_REDUND,
-		(ulong)CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SIZE - 1);
+		(ulong)CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1);
 
 	flash_protect(FLAG_PROTECT_SET,
 		      CONFIG_ENV_ADDR_REDUND,
-		      CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SIZE_REDUND - 1,
+		      CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
 		      &flash_info[0]);
 #endif
 

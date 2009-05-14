@@ -2098,7 +2098,7 @@ unsigned long flash_init (void)
 #ifdef CONFIG_ENV_ADDR_REDUND
 	flash_protect (FLAG_PROTECT_SET,
 		       CONFIG_ENV_ADDR_REDUND,
-		       CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SIZE_REDUND - 1,
+		       CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
 		       flash_get_info(CONFIG_ENV_ADDR_REDUND));
 #endif
 
