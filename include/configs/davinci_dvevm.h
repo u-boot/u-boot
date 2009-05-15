@@ -52,6 +52,7 @@
 #define DV_EVM
 #define CONFIG_SYS_NAND_SMALLPAGE
 #define CONFIG_SYS_USE_NOR
+#define CONFIG_DISPLAY_CPUINFO
 /*===================*/
 /* SoC Configuration */
 /*===================*/

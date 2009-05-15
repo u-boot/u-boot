@@ -28,6 +28,7 @@
 #include <net.h>
 #include <asm/arch/hardware.h>
 
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
@@ -36,18 +37,6 @@ int dram_init(void)
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 
 	return(0);
-}
-
-static int dv_get_pllm_output(uint32_t pllm)
-{
-	return (pllm + 1) * (CONFIG_SYS_HZ_CLOCK / 1000000);
-}
-
-void dv_display_clk_infos(void)
-{
-	printf("ARM Clock: %dMHz\n", dv_get_pllm_output(REG(PLL1_PLLM)) / 2);
-	printf("DDR Clock: %dMHz\n", dv_get_pllm_output(REG(PLL2_PLLM)) /
-	       ((REG(PLL2_DIV2) & 0x1f) + 1) / 2);
 }
 
 #ifdef CONFIG_DRIVER_TI_EMAC

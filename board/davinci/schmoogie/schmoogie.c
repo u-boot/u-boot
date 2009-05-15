@@ -104,8 +104,6 @@ int misc_init_r(void)
 			0xb6, 0xe8, 0x0a, 0x54, 0xd7, 0x89, 0x6b, 0x35
 		};
 
-	dv_display_clk_infos();
-
 	/* Set serial number from UID chip */
 	if (i2c_read(CONFIG_SYS_UID_ADDR, 0, 1, buf, 8)) {
 		printf("\nUID @ 0x%02x read FAILED!!!\n", CONFIG_SYS_UID_ADDR);

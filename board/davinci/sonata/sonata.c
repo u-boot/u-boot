@@ -66,8 +66,6 @@ int misc_init_r(void)
 {
 	uint8_t eeprom_enetaddr[6];
 
-	dv_display_clk_infos();
-
 	/* Read Ethernet MAC address from EEPROM if available. */
 	if (dvevm_read_mac_address(eeprom_enetaddr))
 		dv_configure_mac_address(eeprom_enetaddr);

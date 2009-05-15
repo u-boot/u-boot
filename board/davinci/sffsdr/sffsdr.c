@@ -131,8 +131,6 @@ int misc_init_r(void)
 	/* EMIF-A CS3 configuration for FPGA. */
 	REG(DAVINCI_A3CR) = DAVINCI_A3CR_VAL;
 
-	dv_display_clk_infos();
-
 	/* Configure I2C switch (PCA9543) to enable channel 0. */
 	i2cbuf = CONFIG_SYS_I2C_PCA9543_ENABLE_CH0;
 	if (i2c_write(CONFIG_SYS_I2C_PCA9543_ADDR, 0,

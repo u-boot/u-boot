@@ -27,6 +27,7 @@
 #define SCHMOOGIE
 #define CONFIG_SYS_NAND_LARGEPAGE
 #define CONFIG_SYS_USE_NAND
+#define CONFIG_DISPLAY_CPUINFO
 /*===================*/
 /* SoC Configuration */
 /*===================*/
