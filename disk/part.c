@@ -114,6 +114,11 @@ void dev_print (block_dev_desc_t *dev_desc)
 	lbaint_t lba512;
 #endif
 
+	if (dev_desc->type == DEV_TYPE_UNKNOWN) {
+		puts ("not available\n");
+		return;
+	}
+
 	switch (dev_desc->if_type) {
 	case IF_TYPE_SCSI:
 		printf ("(%d:%d) Vendor: %s Prod.: %s Rev: %s\n",
