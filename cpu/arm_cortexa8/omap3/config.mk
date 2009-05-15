@@ -34,3 +34,5 @@ PLATFORM_CPPFLAGS +=$(call cc-option)
 PLATFORM_CPPFLAGS +=$(call cc-option,-mno-thumb-interwork,)
 PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,\
 		    $(call cc-option,-malignment-traps,))
+
+LDSCRIPT := $(SRCTREE)/cpu/arm_cortexa8/omap3/u-boot.lds

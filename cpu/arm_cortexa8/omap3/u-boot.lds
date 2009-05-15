@@ -1,6 +1,6 @@
 /*
  * January 2004 - Changed to support H4 device
- * Copyright (c) 2004 Texas Instruments
+ * Copyright (c) 2004-2008 Texas Instruments
  *
  * (C) Copyright 2002
  * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
@@ -15,7 +15,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -40,11 +40,6 @@ SECTIONS
 
 	. = ALIGN(4);
 	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
-
-	.ARM.extab	: { *(.ARM.extab* .gnu.linkonce.armextab.*) }
-	__exidx_start = .;
-	.ARM.exidx	: { *(.ARM.exidx* .gnu.linkonce.armexidx.*) }
-	__exidx_end = .;
 
 	. = ALIGN(4);
 	.data : { *(.data) }
