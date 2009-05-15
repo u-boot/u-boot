@@ -45,6 +45,22 @@
 #define status_dcc(x)	\
 		__asm__ volatile ("mrc p14, 0, %0, c0, c1, 0\n" : "=r" (x))
 
+#elif defined(CONFIG_CPU_XSCALE)
+/*
+ * XSCALE
+ */
+#define DCC_RBIT	(1 << 31)
+#define DCC_WBIT	(1 << 28)
+
+#define write_dcc(x)	\
+		__asm__ volatile ("mcr p14, 0, %0, c8, c0, 0\n" : : "r" (x))
+
+#define read_dcc(x)	\
+		__asm__ volatile ("mrc p14, 0, %0, c9, c0, 0\n" : "=r" (x))
+
+#define status_dcc(x)	\
+		__asm__ volatile ("mrc p14, 0, %0, c14, c0, 0\n" : "=r" (x))
+
 #else
 #define DCC_RBIT	(1 << 0)
 #define DCC_WBIT	(1 << 1)
