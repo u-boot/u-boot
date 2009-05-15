@@ -34,6 +34,7 @@
 #define CONFIG_SYS_TIMERBASE		0x01c21400	/* use timer 0 */
 #define CONFIG_SYS_HZ_CLOCK		27000000	/* Timer Input clock freq */
 #define CONFIG_SYS_HZ			1000
+#define CONFIG_SOC_DM644X
 /*=============*/
 /* Memory Info */
 /*=============*/
