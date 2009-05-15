@@ -84,6 +84,38 @@ For all other commands see
 
 help
 
+Interfaces
+==========
+
+gpio
+
+To set a bit :
+
+	if (!omap_request_gpio(N)) {
+		omap_set_gpio_direction(N, 0);
+		omap_set_gpio_dataout(N, 1);
+	}
+
+To clear a bit :
+
+	if (!omap_request_gpio(N)) {
+		omap_set_gpio_direction(N, 0);
+		omap_set_gpio_dataout(N, 0);
+	}
+
+To read a bit :
+
+	if (!omap_request_gpio(N)) {
+		omap_set_gpio_direction(NULL, 1);
+		val = omap_get_gpio_datain(N);
+		omap_free_gpio(N);
+	}
+	if (val)
+		printf("GPIO N is set\n");
+	else
+		printf("GPIO N is clear\n");
+
+
 Acknowledgements
 ================
 
