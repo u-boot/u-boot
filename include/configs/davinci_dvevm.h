@@ -120,6 +120,12 @@
 #ifdef CONFIG_SYS_NAND_SMALLPAGE
 #define CONFIG_ENV_SECT_SIZE	512	/* Env sector Size */
 #define CONFIG_ENV_SIZE		SZ_16K
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT		\
+	"nand0=davinci_nand.0"
+#define MTDPARTS_DEFAULT	\
+	"mtdparts=davinci_nand.0:384k(bootloader)ro,4m(kernel),-(filesystem)"
 #else
 #define CONFIG_ENV_SECT_SIZE	2048	/* Env sector Size */
 #define CONFIG_ENV_SIZE		SZ_128K
@@ -127,6 +133,7 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */
 #define CONFIG_SKIP_RELOCATE_UBOOT	/* to a proper address, init done */
 #define CONFIG_SYS_NAND_BASE		0x02000000
+#define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_HW_ECC
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
 #define CONFIG_ENV_OFFSET		0x0	/* Block 0--not used by bootcode */
