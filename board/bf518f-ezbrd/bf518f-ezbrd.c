@@ -72,7 +72,7 @@ static void board_init_enetaddr(uchar *mac_addr)
 #define KSZ_REG_P3C0  0x30	/* Register 48: Port 3 Control 0 */
 
 static int ksz8893m_transfer(struct spi_slave *slave, uchar dir, uchar reg,
-                             uchar data, uchar result[3])
+			     uchar data, uchar result[3])
 {
 	unsigned char dout[3] = { dir, reg, data, };
 	return spi_xfer(slave, sizeof(dout) * 8, dout, result, SPI_XFER_BEGIN | SPI_XFER_END);

@@ -1,8 +1,279 @@
-commit d45bb538e8898ff0f2dcfed6b95e97c7b9afed9d
+commit af75a45d23b72a59ac5cc0427696c7f634fdc94b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 15 09:27:58 2009 +0200
+
+    IDE: bail out of dev_print() for unknown device types
+
+    Commit 574b319512 introduced a subtle bug by mixing a list of tests
+    for "dev_desc->type" and "dev_desc->if_type" into one switch(), which
+    then mostly did not work because "dev_desc->type" cannot take any
+    "IF_*" type values. A later fix in commit 8ec6e332ea changed the
+    switch() into testing "dev_desc->if_type", but at this point the
+    initial test for unknown device types was completely lost, which
+    resulted in output like that for IDE ports without device attached:
+
+      Device 1: Model:	Firm:  Ser#:
+		Type: # 1F #
+		Capacity: not available
+
+    This patch re-introduces the missing test for unknown device types.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Stefan Roese <sr@denx.de>
+    Cc: Detlev Zundel <dzu@denx.de>
+    Tested-by: Stefan Roese <sr@denx.de>
+
+commit c21f62d8483fbab44cd98d93ff2e9355a330d225
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu May 14 07:25:13 2009 +0200
+
+    74xx_7xx: Fix rounding problem in CPU frequency calculation
+
+    This patch fixes a problem in the CPU frequency calculation. Without it
+    a 798MHz CPU is displayed as 368.503 MHz. And with it it's 798 MHz.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 3ad8a0517b724782ab36f2b554a94de4c00c1adb
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed May 13 22:24:12 2009 +0200
+
+    console.h: remove unused prototype 'console_realloc'
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 84bf7ca522e94ec402a1264b01971b924b7e268f
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Wed May 13 22:16:31 2009 +0200
+
+    api: remove un-needed ifdef CONFIG_API already handle by the Makefile
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 792a09eb9d5d8c4f74b7e9f2e887316d511a4e80
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed May 13 10:54:10 2009 +0200
+
+    Fix e-mail address of Gary Jennejohn.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 5e2c08c3ac90808e9be64856916bfd6df984823c
+Author: Emil Medve <Emilian.Medve@Freescale.com>
+Date:	Tue May 12 13:48:32 2009 -0500
+
+    Remove inline qualifier from show_boot_progress()
+
+    The 'inline' is conflicting with the semantic of 'weak' attribute and with the
+    way the show_boot_progress() function is used.
+
+    Also gcc 4.4 is complaining about it:
+
+    main.c:51: error: inline function 'show_boot_progress' cannot be declared weak
+
+    Signed-off-by: Emil Medve <Emilian.Medve@Freescale.com>
+
+commit fe6da4837308aa33d537ac3e7f36c2d66e3d9a36
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue May 12 15:17:35 2009 +0200
+
+    MPC8260: fixup device tree by property instead of path
+
+    cpu/mpc8260/cpu.c used to use do_fixup_by_path_u32() to update the
+    clock frequencies in the device tree, using a CPU path
+    "/cpus/OF_CPU", with OF_CPU beind defined in the board config file.
+
+    However, this does not work when one board config file (here:
+    MPC8260ADS.h) is intended to be used for several diffrent CPUs and
+    therefor contains a generic definition like "cpu@0", as the device
+    trees that will then be loaded will contain specific names like
+    "PowerPC,8272@0".
+
+    We switch to using do_fixup_by_prop_u32() instead, so we can search
+    for device_type="cpu", as it is done in other architectures, too.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Heiko Schocher <hs@denx.de>
+    Acked-by: Heiko Schocher <hs@denx.de>
+    Tested-by: Heiko Schocher <hs@denx.de>
+
+commit 12a6753155716e5c3c181a8f40e8b2d3d669aefd
+Author: Rohit Hagargundgi <h.rohit@samsung.com>
+Date:	Mon Mar 9 19:45:46 2009 +0530
+
+    Fix OneNAND ipl to read CONFIG_SYS_MONITOR_LEN
+
+    Add CONFIG_SYS_MONITOR_LEN macro to apollon board config.
+    CONFIG_SYS_MONITOR_LEN defines the U-Boot image size.
+    and is used by OneNAND ipl when reading U-Boot image.
+
+    Signed-off-by: Rohit Hagargundgi <h.rohit at samsung.com>
+    Acked-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit c404cc5884b0c82fd82d751dbd8e8b3f8919a23a
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Tue Apr 28 17:04:51 2009 -0700
+
+    Schedule removal of non-CONFIG_NET_MULTI net driver API
+
+    This will make CONFIG_NET_MULTI the only net driver configuration and
+    we'll be able to remove this option.
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 60bbcf0cc6e55095dd186e59a557d584b9b56eb1
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Tue May 5 16:04:06 2009 +0200
+
+    powerpc/inka4x0: Remove left-over ide reset code.
+
+    The pin which was used in preliminary versions of the board for ide
+    reset is really connected to the rtc clock.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit f578a2da6770951239ad91ee9a1875fdc71dbe48
+Author: Marco Stornelli <marco.stornelli@gmail.com>
+Date:	Tue Apr 28 19:04:02 2009 +0200
+
+    Add imls utility command
+
+    This patch adds, under tools folder, a new command called imls. Its
+    goal is the same of UBoot's imls but it can be used as Linux shell
+    command. It reads from raw mtd partition and prints the list of the
+    stored images.
+
+    Signed-off-by: Marco Stornelli <marco.stornelli@gmail.com>
+
+commit da95427ce431908714ae5e9f663ee6e2bc3bcc33
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Apr 28 08:36:11 2009 +0200
+
+    netloop: updates for NetLoop
+
+    Fix some issues introduced from commit:
+    2f70c49e5b9813635ad73666aa30f304c7fdeda9
+    suggested by Mike Frysinger.
+
+    - added some comment for the env_id variable in common_cmd_nvedit.c
+    - moved some variables in fn scope instead of file scope
+    - NetInitLoop now static void
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 3c1d89545de11822f8b5afb5646a57757620bd95
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Apr 28 07:48:39 2009 +0200
+
+    82xx, ids8247: added ids8247 board to MAKEALL script
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 890a017a8a995c921d1e889d360e8d6538ceecfe
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Thu May 7 13:08:55 2009 +0200
+
+    arm/imx31_phycore: Fix bi_arch_number
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+    Cc: Sascha Hauer <s.hauer@pengutronix.de>
+
+commit ee47bfabefeb25bdfc83f49ef3bae0f325d3e69e
+Author: Sascha Hauer <s.hauer@pengutronix.de>
+Date:	Fri May 15 10:21:33 2009 +0200
+
+    remove myself as phycore/litekit Maintainer
+
+    I never acked a patch that adds me as phycore i.MX31 maintainer nor was
+    it me who pushed the patches, so remove myself from the maintainer list
+    so that other people do not longer wait for my ack.
+
+    Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+
+commit c63254ef5628efe1c77cb2fdba20753f9666f55d
+Author: Sergey Lapin <slapin@ossfans.org>
+Date:	Tue May 12 12:25:14 2009 +0400
+
+    AFEB9260 network fix
+
+    AFEB9260 uses PA10, PA11 for ETX2 and ETX3.
+    Also, due to extarnal pull-up on IRQ line, Micrel PHY ID is 1 after reset sequence,
+    not 0.
+
+    Signed-off-by: Sergey Lapin <slapin@ossfans.org>
+
+commit f8ddcd58221cab63dd25c2324dd2032487f748b1
+Author: Graf Yang <graf.yang@analog.com>
+Date:	Tue May 5 02:26:27 2009 -0400
+
+    Blackfin: bf518f-ezbrd: reset ethernet PHY during init
+
+    We don't know what state the ethernet PHY is in when starting up, so make
+    sure we set it to a sane state.  This fixes troubles seen when Linux boots
+    up, configures the PHY is a non-default state, and then the system reboots
+    into U-Boot which previously expected a reset state only.
+
+    Signed-off-by: Graf Yang <graf.yang@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 53310b88eaa27fb5cb83144d0b22389190ad87a1
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue May 5 01:35:41 2009 -0400
+
+    Blackfin: bf527-ezkit: fix SPI flash env params
+
+    The BF527-EZKIT settings for storing the environment in SPI flash wasn't
+    using the correct sector settings for the SPI flash part that is actually
+    on the board.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit f58bf804a14324c6c9186a7a664fa23281780e8b
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Apr 24 23:54:19 2009 -0400
+
+    Blackfin: avoid get_sclk() with early serial debug
+
+    When the clock functions were changed to use cached values (and thereby
+    avoiding expensive math functions), early serial debug broke because the
+    baud programming is called before external memory is available.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 02778f2f1b4b1a28b492367477db27c58d45ae35
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Apr 24 23:39:41 2009 -0400
+
+    Blackfin: fix booting with older bootroms (no EVT1)
+
+    When dropping jump block support, the assumption was that all bootroms
+    supported entry point redirection via the EVT1 register.  Unfortunately,
+    this turned out to be incorrect for the oldest Blackfin parts (BF533-0.2
+    and older and BF561).  No one really noticed earlier because these parts
+    usually are booted by bypassing the bootrom entirely, and older BF533
+    parts are not supported at all (too many anomalies).
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit af2c37378f203857d5e6c957e77a14c2da5b59d2
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Apr 24 23:22:48 2009 -0400
+
+    Blackfin: recurse with early serial initcode
+
+    Make sure we recurse through serial_putc() rather than bang on the UART
+    transmit register directly to avoid hardware overflows when using \n.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 6b8edfde22acc574b5532e9f086e6a7287a9bc78
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Fri May 1 21:59:12 2009 +0200
 
     Prepare v2009.06-rc1
+
+    Update CHANGELOG.
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
