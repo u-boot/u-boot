@@ -41,7 +41,7 @@ void davinci_enable_uart0(void)
 	lpsc_on(DAVINCI_LPSC_UART0);
 
 	/* Bringup UART0 out of reset */
-	REG(UART0_PWREMU_MGMT) = 0x0000e003;
+	REG(UART0_PWREMU_MGMT) = 0x00006001;
 
 	/* Enable UART0 MUX lines */
 	REG(PINMUX1) |= PINMUX1_UART0;
@@ -62,6 +62,7 @@ void davinci_enable_emac(void)
 }
 #endif
 
+#ifdef CONFIG_DRIVER_DAVINCI_I2C
 void davinci_enable_i2c(void)
 {
 	lpsc_on(DAVINCI_LPSC_I2C);
@@ -69,6 +70,7 @@ void davinci_enable_i2c(void)
 	/* Enable I2C pin Mux */
 	REG(PINMUX1) |= PINMUX1_I2C;
 }
+#endif
 
 void davinci_errata_workarounds(void)
 {
