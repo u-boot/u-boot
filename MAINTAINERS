@@ -610,6 +610,10 @@ Stelian Pop <stelian.pop@leadtechdesign.com>
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
 
+Tom Rix <Tom.Rix@windriver.com>
+
+	omap3_zoom2	ARM CORTEX-A8 (OMAP3xx SoC)
+
 Stefan Roese <sr@denx.de>
 
 	ixdpg425	xscale

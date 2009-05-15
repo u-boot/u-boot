@@ -19,6 +19,8 @@ Currently the following boards are supported:
 
 * TI/Logic PD Zoom MDK [6]
 
+* TI/Logic PD Zoom 2 [7]
+
 Toolchain
 =========
 
@@ -54,6 +56,11 @@ make
 make omap3_zoom1_config
 make
 
+* Zoom 2:
+
+make omap3_zoom2_config
+make
+
 Custom commands
 ===============
 
@@ -80,7 +87,7 @@ help
 Acknowledgements
 ================
 
-OMAP3 U-Boot is based on U-Boot tar ball [7] for BeagleBoard and EVM done by
+OMAP3 U-Boot is based on U-Boot tar ball [8] for BeagleBoard and EVM done by
 several TI employees.
 
 Links
@@ -111,6 +118,10 @@ http://openpandora.org/
 
 http://www.logicpd.com/products/devkit/ti/zoom_mobile_development_kit
 
-[7] TI OMAP3 U-Boot:
+[7] TI/Logic PD Zoom 2
+
+http://www.logicpd.com/sites/default/files/1012659A_Zoom_OMAP34x-II_MDP_Brief.pdf
+[8] TI OMAP3 U-Boot:
 
 http://beagleboard.googlecode.com/files/u-boot_beagle_revb.tar.gz
+
