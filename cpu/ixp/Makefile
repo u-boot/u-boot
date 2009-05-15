@@ -27,9 +27,10 @@ LIB	= $(obj)lib$(CPU).a
 
 START	= start.o
 COBJS-y	+= cpu.o
-COBJS-y	+= interrupts.o
 ifndef CONFIG_USE_IRQ
 COBJS-y	+= timer.o
+else
+COBJS-y	+= interrupts.o
 endif
 
 SRCS	:= $(START:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)

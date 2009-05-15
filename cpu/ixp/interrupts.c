@@ -31,8 +31,6 @@
 
 #include <common.h>
 #include <asm/arch/ixp425.h>
-
-#ifdef CONFIG_USE_IRQ
 #include <asm/proc-armv/ptrace.h>
 
 /*
@@ -85,20 +83,15 @@ void reset_timer (void)
 	timestamp = 0;
 }
 
-#endif /* #ifdef CONFIG_USE_IRQ */
-
-#ifdef CONFIG_USE_IRQ
 void do_irq (struct pt_regs *pt_regs)
 {
 	int irq = next_irq();
 
 	IRQ_HANDLER[irq].m_func(IRQ_HANDLER[irq].m_data);
 }
-#endif
 
 int interrupt_init (void)
 {
-#ifdef CONFIG_USE_IRQ
 	int i;
 
 	/* install default interrupt handlers */
@@ -119,7 +112,6 @@ int interrupt_init (void)
 
 	/* enable timer irq */
 	*IXP425_ICMR = (1 << IXP425_TIMER_2_IRQ);
-#endif
 
 	return (0);
 }
