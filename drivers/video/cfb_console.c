@@ -1335,48 +1335,37 @@ int drv_video_init (void)
 	int skip_dev_init;
 	device_t console_dev;
 
-	skip_dev_init = 0;
-
 	/* Init video chip - returns with framebuffer cleared */
-	if (video_init () == -1)
-		skip_dev_init = 1;
+	skip_dev_init = (video_init () == -1);
 
-#ifdef CONFIG_VGA_AS_SINGLE_DEVICE
-	/* Devices VGA and Keyboard will be assigned seperately */
-	/* Init vga device */
-	if (!skip_dev_init) {
-		memset (&console_dev, 0, sizeof (console_dev));
-		strcpy (console_dev.name, "vga");
-		console_dev.ext = DEV_EXT_VIDEO;	/* Video extensions */
-		console_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_SYSTEM;
-		console_dev.putc = video_putc;	/* 'putc' function */
-		console_dev.puts = video_puts;	/* 'puts' function */
-		console_dev.tstc = NULL;	/* 'tstc' function */
-		console_dev.getc = NULL;	/* 'getc' function */
-
-		if (device_register (&console_dev) == 0)
-			return 1;
-	}
-#else
+#if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
 	PRINTD ("KBD: Keyboard init ...\n");
-	if (VIDEO_KBD_INIT_FCT == -1)
-		skip_dev_init = 1;
+	skip_dev_init |= (VIDEO_KBD_INIT_FCT == -1);
+#endif
 
-	/* Init console device */
-	if (!skip_dev_init) {
-		memset (&console_dev, 0, sizeof (console_dev));
-		strcpy (console_dev.name, "vga");
-		console_dev.ext = DEV_EXT_VIDEO;	/* Video extensions */
-		console_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-		console_dev.putc = video_putc;	/* 'putc' function */
-		console_dev.puts = video_puts;	/* 'puts' function */
-		console_dev.tstc = VIDEO_TSTC_FCT;	/* 'tstc' function */
-		console_dev.getc = VIDEO_GETC_FCT;	/* 'getc' function */
+	if (skip_dev_init)
+		return 0;
 
-		if (device_register (&console_dev) == 0)
-			return 1;
-	}
+	/* Init vga device */
+	memset (&console_dev, 0, sizeof (console_dev));
+	strcpy (console_dev.name, "vga");
+	console_dev.ext = DEV_EXT_VIDEO;	/* Video extensions */
+	console_dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_SYSTEM;
+	console_dev.putc = video_putc;	/* 'putc' function */
+	console_dev.puts = video_puts;	/* 'puts' function */
+	console_dev.tstc = NULL;	/* 'tstc' function */
+	console_dev.getc = NULL;	/* 'getc' function */
+
+#if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
+	/* Also init console device */
+	console_dev.flags |= DEV_FLAGS_INPUT;
+	console_dev.tstc = VIDEO_TSTC_FCT;	/* 'tstc' function */
+	console_dev.getc = VIDEO_GETC_FCT;	/* 'getc' function */
 #endif /* CONFIG_VGA_AS_SINGLE_DEVICE */
-	/* No console dev available */
-	return 0;
+
+	if (device_register (&console_dev) != 0)
+		return 0;
+
+	/* Return success */
+	return 1;
 }
