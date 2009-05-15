@@ -136,6 +136,10 @@ void inline __yellow_LED_on(void) {}
 void inline yellow_LED_on(void)__attribute__((weak, alias("__yellow_LED_on")));
 void inline __yellow_LED_off(void) {}
 void inline yellow_LED_off(void)__attribute__((weak, alias("__yellow_LED_off")));
+void inline __blue_LED_on(void) {}
+void inline blue_LED_on(void)__attribute__((weak, alias("__blue_LED_on")));
+void inline __blue_LED_off(void) {}
+void inline blue_LED_off(void)__attribute__((weak, alias("__blue_LED_off")));
 
 /************************************************************************
  * Init Utilities							*
