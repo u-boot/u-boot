@@ -26,7 +26,6 @@
 
 #include <common.h>
 #include <asm/arch/hardware.h>
-#include "../common/psc.h"
 #include "../common/misc.h"
 
 DECLARE_GLOBAL_DATA_PTR;

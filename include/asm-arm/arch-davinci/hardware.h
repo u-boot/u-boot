@@ -133,6 +133,14 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_LPSC_GEM		39
 #define DAVINCI_LPSC_IMCOP		40
 
+void lpsc_on(unsigned int id);
+void dsp_on(void);
+
+void davinci_enable_uart0(void);
+void davinci_enable_emac(void);
+void davinci_enable_i2c(void);
+void davinci_errata_workarounds(void);
+
 /* Some PSC defines */
 #define PSC_CHP_SHRTSW			(0x01c40038)
 #define PSC_GBLCTL			(0x01c41010)

@@ -27,7 +27,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
-COBJS	= timer.o ether.o lxt972.o dp83848.o
+COBJS	= timer.o ether.o lxt972.o dp83848.o psc.o
 SOBJS	= reset.o
 
 ifndef CONFIG_SKIP_LOWLEVEL_INIT
