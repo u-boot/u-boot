@@ -30,7 +30,6 @@
  */
 
 #include <common.h>
-#include <arm920t.h>
 #include <lh7a40x.h>
 
 static ulong timer_load_val = 0;

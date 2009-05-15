@@ -31,7 +31,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <arm926ejs.h>
 #include <asm/system.h>
 
 #ifdef CONFIG_USE_IRQ

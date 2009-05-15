@@ -32,7 +32,6 @@
 #include <common.h>
 #if defined (CONFIG_IMX)
 
-#include <arm920t.h>
 #include <asm/arch/imx-regs.h>
 
 int timer_init (void)

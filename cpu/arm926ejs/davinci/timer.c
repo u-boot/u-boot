@@ -38,7 +38,6 @@
  */
 
 #include <common.h>
-#include <arm926ejs.h>
 
 typedef volatile struct {
 	u_int32_t	pid12;

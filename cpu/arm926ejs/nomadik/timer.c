@@ -37,7 +37,6 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <arm926ejs.h>
 
 #define TIMER_LOAD_VAL 0xffffffff
 

@@ -30,7 +30,6 @@
  */
 
 #include <common.h>
-#include <arm920t.h>
 
 #ifdef CONFIG_USE_IRQ
 #include <asm/proc-armv/ptrace.h>
