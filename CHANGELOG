@@ -1,3 +1,28 @@
+commit f4317ea91942f44cc1c433277927b61618e9b0a5
+Author: Daniel Mack <daniel@caiaq.de>
+Date:	Tue May 5 12:48:29 2009 +0200
+
+    ARM: fix PXA build by defining UP2OCR
+
+    U-Boot does not currently build for PXA platforms with USB support
+    enabled:
+
+    usb.c:46: error: 'UP2OCR' undeclared (first use in this function)
+
+    Signed-off-by: Daniel Mack <daniel@caiaq.de>
+    Cc: Markus Klotzbuecher <mk@denx.de>
+
+    Edited commit message.
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e26ad0eabd10a8cda51920fbcfe4da5b4ccf0c98
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 15 22:32:57 2009 +0200
+
+    Minor Coding Style fix; update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit af75a45d23b72a59ac5cc0427696c7f634fdc94b
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Fri May 15 09:27:58 2009 +0200
