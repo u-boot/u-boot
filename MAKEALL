@@ -528,6 +528,7 @@ LIST_ARM9="			\
 	davinci_schmoogie	\
 	davinci_sffsdr		\
 	davinci_sonata		\
+	davinci_dm355evm	\
 "
 
 #########################################################################
