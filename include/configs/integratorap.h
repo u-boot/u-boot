@@ -44,7 +44,7 @@
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r during start up */
 
-#undef CONFIG_INIT_CRITICAL
+#define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_CM_INIT		1
 #define CONFIG_CM_REMAP		1
 #undef CONFIG_CM_SPD_DETECT

@@ -131,7 +131,7 @@ reset:
 	 * we do sys-critical inits only at reboot,
 	 * not when booting from ram!
 	 */
-#ifdef CONFIG_INIT_CRITICAL
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 	bl	cpu_init_crit
 #endif
 
@@ -188,11 +188,13 @@ _start_armboot:
  *************************************************************************
  */
 
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 cpu_init_crit:
 	/*  arm_int_generic assumes the ARM boot monitor, or user software,
 	 * has initialized the platform
 	 */
 	mov	pc, lr		/* back to my caller */
+#endif
 /*
  *************************************************************************
  *
