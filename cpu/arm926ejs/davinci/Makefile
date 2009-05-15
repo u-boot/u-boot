@@ -27,15 +27,17 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
-COBJS	= timer.o ether.o lxt972.o dp83848.o psc.o
+COBJS-y				+= timer.o psc.o
+COBJS-$(CONFIG_DRIVER_TI_EMAC)	+= ether.o lxt972.o dp83848.o
+
 SOBJS	= reset.o
 
 ifndef CONFIG_SKIP_LOWLEVEL_INIT
 SOBJS	+= lowlevel_init.o
 endif
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y) $(SOBJS))
 START	:= $(addprefix $(obj),$(START))
 
 all:	$(obj).depend $(LIB)
