@@ -27,7 +27,7 @@
 
 void enable_8569mds_flash_write()
 {
-	setbits_8((u8 *)(CONFIG_SYS_BCSR_BASE + 11), BCSR17_FLASH_nWP);
+	setbits_8((u8 *)(CONFIG_SYS_BCSR_BASE + 17), BCSR17_FLASH_nWP);
 }
 
 void disable_8569mds_flash_write()
