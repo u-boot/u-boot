@@ -1330,10 +1330,25 @@ static int video_init (void)
 
 /*****************************************************************************/
 
+/*
+ * Implement a weak default function for boards that optionally
+ * need to skip the video initialization.
+ */
+int __board_video_skip(void)
+{
+	/* As default, don't skip test */
+	return 0;
+}
+int board_video_skip(void) __attribute__((weak, alias("__board_video_skip")));
+
 int drv_video_init (void)
 {
 	int skip_dev_init;
 	device_t console_dev;
+
+	/* Check if video initialization should be skipped */
+	if (board_video_skip())
+		return 0;
 
 	/* Init video chip - returns with framebuffer cleared */
 	skip_dev_init = (video_init () == -1);
