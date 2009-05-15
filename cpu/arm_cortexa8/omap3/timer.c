@@ -50,7 +50,7 @@ static gptimer_t *timer_base = (gptimer_t *)CONFIG_SYS_TIMERBASE;
 #define TIMER_CLOCK	(V_SCLK / (2 << CONFIG_SYS_PTV))
 #define TIMER_LOAD_VAL	0xffffffff
 
-int interrupt_init(void)
+int timer_init(void)
 {
 	/* start the counter ticking up, reload value on overflow */
 	writel(TIMER_LOAD_VAL, &timer_base->tldr);

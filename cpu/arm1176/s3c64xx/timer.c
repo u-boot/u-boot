@@ -66,7 +66,7 @@ static unsigned long lastdec;
 /* Monotonic incrementing timer */
 static unsigned long long timestamp;
 
-int interrupt_init(void)
+int timer_init(void)
 {
 	s3c64xx_timers *const timers = s3c64xx_get_base_timers();
 

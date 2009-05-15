@@ -1,14 +1,15 @@
 /*
  * (C) Copyright 2002
+ * Lineo, Inc. <www.lineo.com>
+ * Bernhard Kuhn <bkuhn@lineo.com>
+ *
+ * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
  *
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Alex Zuepke <azu@sysgo.de>
- *
- * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -30,21 +31,39 @@
  */
 
 #include <common.h>
-#if defined (CONFIG_IMX)
+/*#include <asm/io.h>*/
+#include <asm/arch/hardware.h>
+/*#include <asm/proc/ptrace.h>*/
 
-#include <arm920t.h>
-#include <asm/arch/imx-regs.h>
+/* the number of clocks per CONFIG_SYS_HZ */
+#define TIMER_LOAD_VAL (CONFIG_SYS_HZ_CLOCK/CONFIG_SYS_HZ)
 
-int interrupt_init (void)
+/* macro to read the 16 bit timer */
+#define READ_TIMER (tmr->TC_CV & 0x0000ffff)
+AT91PS_TC tmr;
+
+static ulong timestamp;
+static ulong lastinc;
+
+int timer_init (void)
 {
-	int i;
-	/* setup GP Timer 1 */
-	TCTL1 = TCTL_SWR;
-	for ( i=0; i<100; i++) TCTL1 = 0; /* We have no udelay by now */
-	TPRER1 = get_PERCLK1() / 1000000; /* 1 MHz */
-	TCTL1 |= TCTL_FRR | (1<<1); /* Freerun Mode, PERCLK1 input */
+	tmr = AT91C_BASE_TC0;
 
-	reset_timer_masked();
+	/* enables TC1.0 clock */
+	*AT91C_PMC_PCER = 1 << AT91C_ID_TC0;  /* enable clock */
+
+	*AT91C_TCB0_BCR = 0;
+	*AT91C_TCB0_BMR = AT91C_TCB_TC0XC0S_NONE | AT91C_TCB_TC1XC1S_NONE | AT91C_TCB_TC2XC2S_NONE;
+	tmr->TC_CCR = AT91C_TC_CLKDIS;
+#define AT91C_TC_CMR_CPCTRG (1 << 14)
+	/* set to MCLK/2 and restart the timer when the vlaue in TC_RC is reached */
+	tmr->TC_CMR = AT91C_TC_TIMER_DIV1_CLOCK | AT91C_TC_CMR_CPCTRG;
+
+	tmr->TC_IDR = ~0ul;
+	tmr->TC_RC = TIMER_LOAD_VAL;
+	lastinc = 0;
+	tmr->TC_CCR = AT91C_TC_SWTRG | AT91C_TC_CLKEN;
+	timestamp = 0;
 
 	return (0);
 }
@@ -60,39 +79,63 @@ void reset_timer (void)
 
 ulong get_timer (ulong base)
 {
-	return get_timer_masked() - base;
+	return get_timer_masked () - base;
 }
 
 void set_timer (ulong t)
 {
-	/* nop */
-}
-
-void reset_timer_masked (void)
-{
-	TCTL1 &= ~TCTL_TEN;
-	TCTL1 |= TCTL_TEN; /* Enable timer */
-}
-
-ulong get_timer_masked (void)
-{
-	return TCN1;
-}
-
-void udelay_masked (unsigned long usec)
-{
-	ulong endtime = get_timer_masked() + usec;
-	signed long diff;
-
-	do {
-		ulong now = get_timer_masked ();
-		diff = endtime - now;
-	} while (diff >= 0);
+	timestamp = t;
 }
 
 void udelay (unsigned long usec)
 {
 	udelay_masked(usec);
+}
+
+void reset_timer_masked (void)
+{
+	/* reset time */
+	lastinc = READ_TIMER;
+	timestamp = 0;
+}
+
+ulong get_timer_raw (void)
+{
+	ulong now = READ_TIMER;
+
+	if (now >= lastinc) {
+		/* normal mode */
+		timestamp += now - lastinc;
+	} else {
+		/* we have an overflow ... */
+		timestamp += now + TIMER_LOAD_VAL - lastinc;
+	}
+	lastinc = now;
+
+	return timestamp;
+}
+
+ulong get_timer_masked (void)
+{
+	return get_timer_raw()/TIMER_LOAD_VAL;
+}
+
+void udelay_masked (unsigned long usec)
+{
+	ulong tmo;
+	ulong endtime;
+	signed long diff;
+
+	tmo = CONFIG_SYS_HZ_CLOCK / 1000;
+	tmo *= usec;
+	tmo /= 1000;
+
+	endtime = get_timer_raw () + tmo;
+
+	do {
+		ulong now = get_timer_raw ();
+		diff = endtime - now;
+	} while (diff >= 0);
 }
 
 /*
@@ -113,27 +156,5 @@ ulong get_tbclk (void)
 	ulong tbclk;
 
 	tbclk = CONFIG_SYS_HZ;
-
 	return tbclk;
 }
-
-/*
- * Reset the cpu by setting up the watchdog timer and let him time out
- */
-void reset_cpu (ulong ignored)
-{
-	/* Disable watchdog and set Time-Out field to 0 */
-	WCR = 0x00000000;
-
-	/* Write Service Sequence */
-	WSR = 0x00005555;
-	WSR = 0x0000AAAA;
-
-	/* Enable watchdog */
-	WCR = 0x00000001;
-
-	while (1);
-	/*NOTREACHED*/
-}
-
-#endif /* defined (CONFIG_IMX) */

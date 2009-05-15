@@ -33,22 +33,12 @@
 #include <asm/arch/ixp425.h>
 #include <asm/proc-armv/ptrace.h>
 
-/*
- * When interrupts are enabled, use timer 2 for time/delay generation...
- */
-
-#define FREQ		66666666
-#define CLOCK_TICK_RATE	(((FREQ / CONFIG_SYS_HZ & ~IXP425_OST_RELOAD_MASK) + 1) * CONFIG_SYS_HZ)
-#define LATCH		((CLOCK_TICK_RATE + CONFIG_SYS_HZ/2) / CONFIG_SYS_HZ)	/* For divider */
-
 struct _irq_handler {
 	void                *m_data;
 	void (*m_func)( void *data);
 };
 
 static struct _irq_handler IRQ_HANDLER[N_IRQS];
-
-static volatile ulong timestamp;
 
 static void default_isr(void *data)
 {
@@ -61,28 +51,6 @@ static int next_irq(void)
 	return (((*IXP425_ICIH & 0x000000fc) >> 2) - 1);
 }
 
-static void timer_isr(void *data)
-{
-	unsigned int *pTime = (unsigned int *)data;
-
-	(*pTime)++;
-
-	/*
-	 * Reset IRQ source
-	 */
-	*IXP425_OSST = IXP425_OSST_TIMER_2_PEND;
-}
-
-ulong get_timer (ulong base)
-{
-	return timestamp - base;
-}
-
-void reset_timer (void)
-{
-	timestamp = 0;
-}
-
 void do_irq (struct pt_regs *pt_regs)
 {
 	int irq = next_irq();
@@ -90,28 +58,25 @@ void do_irq (struct pt_regs *pt_regs)
 	IRQ_HANDLER[irq].m_func(IRQ_HANDLER[irq].m_data);
 }
 
+void irq_install_handler (int irq, interrupt_handler_t handle_irq, void *data)
+{
+	if (irq >= N_IRQS || !handle_irq)
+		return;
+
+	IRQ_HANDLER[irq].m_data = data;
+	IRQ_HANDLER[irq].m_func = handle_irq;
+}
+
 int interrupt_init (void)
 {
 	int i;
 
 	/* install default interrupt handlers */
-	for (i = 0; i < N_IRQS; i++) {
-		IRQ_HANDLER[i].m_data = (void *)i;
-		IRQ_HANDLER[i].m_func = default_isr;
-	}
-
-	/* install interrupt handler for timer */
-	IRQ_HANDLER[IXP425_TIMER_2_IRQ].m_data = (void *)&timestamp;
-	IRQ_HANDLER[IXP425_TIMER_2_IRQ].m_func = timer_isr;
-
-	/* setup the Timer counter value */
-	*IXP425_OSRT2 = (LATCH & ~IXP425_OST_RELOAD_MASK) | IXP425_OST_ENABLE;
+	for (i = 0; i < N_IRQS; i++)
+		irq_install_handler(i, default_isr, (void *)i);
 
 	/* configure interrupts for IRQ mode */
 	*IXP425_ICLR = 0x00000000;
-
-	/* enable timer irq */
-	*IXP425_ICMR = (1 << IXP425_TIMER_2_IRQ);
 
 	return (0);
 }

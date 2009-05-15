@@ -22,7 +22,6 @@
 #ifndef __MISC_H
 #define __MISC_H
 
-extern void timer_init(void);
 extern int eth_hw_init(void);
 
 void dv_display_clk_infos(void);

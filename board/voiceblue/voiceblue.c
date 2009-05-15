@@ -43,7 +43,7 @@ int dram_init(void)
 	/* Take the Ethernet controller out of reset and wait
 	 * for the EEPROM load to complete. */
 	*((volatile unsigned short *) GPIO_DATA_OUTPUT_REG) |= 0x80;
-	udelay(10);	/* doesn't work before interrupt_init call */
+	udelay(10);	/* doesn't work before timer_init call */
 	*((volatile unsigned short *) GPIO_DATA_OUTPUT_REG) &= ~0x80;
 	udelay(500);
 

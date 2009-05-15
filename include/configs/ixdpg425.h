@@ -55,6 +55,7 @@
  */
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 #define CONFIG_USE_IRQ          1	/* we need IRQ stuff for timer	*/
+#define CONFIG_TIMER_IRQ
 
 #define CONFIG_BOOTCOUNT_LIMIT		/* support for bootcount limit	*/
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x60003000 /* inside qmrg sram		*/

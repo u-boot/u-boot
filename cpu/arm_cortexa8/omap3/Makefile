@@ -32,7 +32,7 @@ COBJS	+= clock.o
 COBJS	+= mem.o
 COBJS	+= syslib.o
 COBJS	+= sys_info.o
-COBJS	+= interrupts.o
+COBJS	+= timer.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))

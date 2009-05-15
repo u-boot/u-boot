@@ -42,8 +42,7 @@
 static ulong timestamp;
 static ulong lastinc;
 
-/* nothing really to do with interrupts, just starts up a counter. */
-int interrupt_init (void)
+int timer_init (void)
 {
 	int32_t val;
 

@@ -26,7 +26,10 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(CPU).a
 
 START	= start.o
-COBJS	= cache.o cpu.o interrupts.o
+
+COBJS	+= cache.o
+COBJS	+= cpu.o
+COBJS	+= timer.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

@@ -47,7 +47,7 @@ static uint32_t timestamp;
 static uint32_t lastdec;
 
 /* nothing really to do with interrupts, just starts up a counter. */
-int interrupt_init (void)
+int timer_init (void)
 {
 	/* Start the decrementer ticking down from 0xffffffff */
 	__raw_writel(TIMER_LOAD_VAL, CONFIG_SYS_TIMERBASE + LOAD_TIM);

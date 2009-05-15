@@ -89,9 +89,8 @@ static inline unsigned long long us_to_tick(unsigned long long us)
 }
 #endif
 
-/* nothing really to do with interrupts, just starts up a counter. */
 /* The 32768Hz 32-bit timer overruns in 131072 seconds */
-int interrupt_init (void)
+int timer_init (void)
 {
 	int i;
 

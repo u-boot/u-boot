@@ -30,50 +30,43 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB)
-
 #include <arm920t.h>
-#if defined(CONFIG_S3C2400)
-#include <s3c2400.h>
-#elif defined(CONFIG_S3C2410)
-#include <s3c2410.h>
-#endif
+#include <lh7a40x.h>
 
-int timer_load_val = 0;
+static ulong timer_load_val = 0;
 
 /* macro to read the 16 bit timer */
 static inline ulong READ_TIMER(void)
 {
-	S3C24X0_TIMERS * const timers = S3C24X0_GetBase_TIMERS();
+	lh7a40x_timers_t* timers = LH7A40X_TIMERS_PTR;
+	lh7a40x_timer_t* timer = &timers->timer1;
 
-	return (timers->TCNTO4 & 0xffff);
+	return (timer->value & 0x0000ffff);
 }
 
 static ulong timestamp;
 static ulong lastdec;
 
-int interrupt_init (void)
+int timer_init (void)
 {
-	S3C24X0_TIMERS * const timers = S3C24X0_GetBase_TIMERS();
+	lh7a40x_timers_t* timers = LH7A40X_TIMERS_PTR;
+	lh7a40x_timer_t* timer = &timers->timer1;
 
-	/* use PWM Timer 4 because it has no output */
-	/* prescaler for Timer 4 is 16 */
-	timers->TCFG0 = 0x0f00;
-	if (timer_load_val == 0)
-	{
+	/* a periodic timer using the 508kHz source */
+	timer->control = (TIMER_PER | TIMER_CLK508K);
+
+	if (timer_load_val == 0) {
 		/*
-		 * for 10 ms clock period @ PCLK with 4 bit divider = 1/2
-		 * (default) and prescaler = 16. Should be 10390
-		 * @33.25MHz and 15625 @ 50 MHz
+		 * 10ms period with 508.469kHz clock = 5084
 		 */
-		timer_load_val = get_PCLK()/(2 * 16 * 100);
+		timer_load_val = CONFIG_SYS_HZ/100;
 	}
+
 	/* load value for 10 ms timeout */
-	lastdec = timers->TCNTB4 = timer_load_val;
-	/* auto load, manual update of Timer 4 */
-	timers->TCON = (timers->TCON & ~0x0700000) | 0x600000;
-	/* auto load, start Timer 4 */
-	timers->TCON = (timers->TCON & ~0x0700000) | 0x500000;
+	lastdec = timer->load = timer_load_val;
+
+	/* auto load, start timer */
+	timer->control = timer->control | TIMER_EN;
 	timestamp = 0;
 
 	return (0);
@@ -90,7 +83,7 @@ void reset_timer (void)
 
 ulong get_timer (ulong base)
 {
-	return get_timer_masked () - base;
+	return (get_timer_masked() - base);
 }
 
 void set_timer (ulong t)
@@ -100,15 +93,31 @@ void set_timer (ulong t)
 
 void udelay (unsigned long usec)
 {
-	ulong tmo;
-	ulong start = get_timer(0);
+	ulong tmo,tmp;
 
-	tmo = usec / 1000;
-	tmo *= (timer_load_val * 100);
-	tmo /= 1000;
+	/* normalize */
+	if (usec >= 1000) {
+		tmo = usec / 1000;
+		tmo *= CONFIG_SYS_HZ;
+		tmo /= 1000;
+	}
+	else {
+		if (usec > 1) {
+			tmo = usec * CONFIG_SYS_HZ;
+			tmo /= (1000*1000);
+		}
+		else
+			tmo = 1;
+	}
 
-	while ((ulong)(get_timer_masked () - start) < tmo)
-		/*NOP*/;
+	/* check for rollover during this delay */
+	tmp = get_timer (0);
+	if ((tmp + tmo) < tmp )
+		reset_timer_masked();  /* timer would roll over */
+	else
+		tmo += tmp;
+
+	while (get_timer_masked () < tmo);
 }
 
 void reset_timer_masked (void)
@@ -124,10 +133,10 @@ ulong get_timer_masked (void)
 
 	if (lastdec >= now) {
 		/* normal mode */
-		timestamp += lastdec - now;
+		timestamp += (lastdec - now);
 	} else {
 		/* we have an overflow ... */
-		timestamp += lastdec + timer_load_val - now;
+		timestamp += ((lastdec + timer_load_val) - now);
 	}
 	lastdec = now;
 
@@ -140,13 +149,18 @@ void udelay_masked (unsigned long usec)
 	ulong endtime;
 	signed long diff;
 
+	/* normalize */
 	if (usec >= 1000) {
 		tmo = usec / 1000;
-		tmo *= (timer_load_val * 100);
+		tmo *= CONFIG_SYS_HZ;
 		tmo /= 1000;
 	} else {
-		tmo = usec * (timer_load_val * 100);
-		tmo /= (1000*1000);
+		if (usec > 1) {
+			tmo = usec * CONFIG_SYS_HZ;
+			tmo /= (1000*1000);
+		} else {
+			tmo = 1;
+		}
 	}
 
 	endtime = get_timer_masked () + tmo;
@@ -174,55 +188,7 @@ ulong get_tbclk (void)
 {
 	ulong tbclk;
 
-#if defined(CONFIG_SMDK2400) || defined(CONFIG_TRAB)
 	tbclk = timer_load_val * 100;
-#elif defined(CONFIG_SBC2410X) || \
-      defined(CONFIG_SMDK2410) || \
-      defined(CONFIG_VCMA9)
-	tbclk = CONFIG_SYS_HZ;
-#else
-#	error "tbclk not configured"
-#endif
 
 	return tbclk;
 }
-
-/*
- * reset the cpu by setting up the watchdog timer and let him time out
- */
-void reset_cpu (ulong ignored)
-{
-	volatile S3C24X0_WATCHDOG * watchdog;
-
-#ifdef CONFIG_TRAB
-	extern void disable_vfd (void);
-
-	disable_vfd();
-#endif
-
-	watchdog = S3C24X0_GetBase_WATCHDOG();
-
-	/* Disable watchdog */
-	watchdog->WTCON = 0x0000;
-
-	/* Initialize watchdog timer count register */
-	watchdog->WTCNT = 0x0001;
-
-	/* Enable watchdog timer; assert reset at timer timeout */
-	watchdog->WTCON = 0x0021;
-
-	while(1);	/* loop forever and wait for reset to happen */
-
-	/*NOTREACHED*/
-}
-
-#ifdef CONFIG_USE_IRQ
-void s3c2410_irq(void)
-{
-	S3C24X0_INTERRUPT * irq = S3C24X0_GetBase_INTERRUPT();
-	u_int32_t intpnd = irq->INTPND;
-
-}
-#endif /* USE_IRQ */
-
-#endif /* defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB) */

@@ -7,6 +7,9 @@
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Alex Zuepke <azu@sysgo.de>
  *
+ * (C) Copyright 2002
+ * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -27,40 +30,28 @@
  */
 
 #include <common.h>
-#include <asm/arch/pxa-regs.h>
-#include <div64.h>
+#if defined (CONFIG_IMX)
 
-#ifdef CONFIG_USE_IRQ
-#error: interrupts not implemented yet
-#endif
+#include <arm920t.h>
+#include <asm/arch/imx-regs.h>
 
-#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
-#define TIMER_FREQ_HZ 3250000
-#elif defined(CONFIG_PXA250)
-#define TIMER_FREQ_HZ 3686400
-#else
-#error "Timer frequency unknown - please config PXA CPU type"
-#endif
-
-static inline unsigned long long tick_to_time(unsigned long long tick)
+int timer_init (void)
 {
-	tick *= CONFIG_SYS_HZ;
-	do_div(tick, TIMER_FREQ_HZ);
-	return tick;
-}
+	int i;
+	/* setup GP Timer 1 */
+	TCTL1 = TCTL_SWR;
+	for ( i=0; i<100; i++) TCTL1 = 0; /* We have no udelay by now */
+	TPRER1 = get_PERCLK1() / 1000000; /* 1 MHz */
+	TCTL1 |= TCTL_FRR | (1<<1); /* Freerun Mode, PERCLK1 input */
 
-static inline unsigned long long us_to_tick(unsigned long long us)
-{
-	us = us * TIMER_FREQ_HZ + 999999;
-	do_div(us, 1000000);
-	return us;
-}
+	reset_timer_masked();
 
-int interrupt_init (void)
-{
-	/* nothing happens here - we don't setup any IRQs */
 	return (0);
 }
+
+/*
+ * timer without interrupts
+ */
 
 void reset_timer (void)
 {
@@ -69,7 +60,7 @@ void reset_timer (void)
 
 ulong get_timer (ulong base)
 {
-	return get_timer_masked () - base;
+	return get_timer_masked() - base;
 }
 
 void set_timer (ulong t)
@@ -77,33 +68,31 @@ void set_timer (ulong t)
 	/* nop */
 }
 
-void udelay (unsigned long usec)
-{
-	udelay_masked (usec);
-}
-
-
 void reset_timer_masked (void)
 {
-	OSCR = 0;
+	TCTL1 &= ~TCTL_TEN;
+	TCTL1 |= TCTL_TEN; /* Enable timer */
 }
 
 ulong get_timer_masked (void)
 {
-	return tick_to_time(get_ticks());
+	return TCN1;
 }
 
 void udelay_masked (unsigned long usec)
 {
-	unsigned long long tmp;
-	ulong tmo;
+	ulong endtime = get_timer_masked() + usec;
+	signed long diff;
 
-	tmo = us_to_tick(usec);
-	tmp = get_ticks() + tmo;	/* get current timestamp */
+	do {
+		ulong now = get_timer_masked ();
+		diff = endtime - now;
+	} while (diff >= 0);
+}
 
-	while (get_ticks() < tmp)	/* loop till event */
-		 /*NOP*/;
-
+void udelay (unsigned long usec)
+{
+	udelay_masked(usec);
 }
 
 /*
@@ -112,7 +101,7 @@ void udelay_masked (unsigned long usec)
  */
 unsigned long long get_ticks(void)
 {
-	return OSCR;
+	return get_timer(0);
 }
 
 /*
@@ -122,6 +111,29 @@ unsigned long long get_ticks(void)
 ulong get_tbclk (void)
 {
 	ulong tbclk;
-	tbclk = TIMER_FREQ_HZ;
+
+	tbclk = CONFIG_SYS_HZ;
+
 	return tbclk;
 }
+
+/*
+ * Reset the cpu by setting up the watchdog timer and let him time out
+ */
+void reset_cpu (ulong ignored)
+{
+	/* Disable watchdog and set Time-Out field to 0 */
+	WCR = 0x00000000;
+
+	/* Write Service Sequence */
+	WSR = 0x00005555;
+	WSR = 0x0000AAAA;
+
+	/* Enable watchdog */
+	WCR = 0x00000001;
+
+	while (1);
+	/*NOTREACHED*/
+}
+
+#endif /* defined (CONFIG_IMX) */

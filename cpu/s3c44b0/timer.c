@@ -1,11 +1,9 @@
 /*
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
- *
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Alex Zuepke <azu@sysgo.de>
+ * (C) Copyright 2004
+ * DAVE Srl
+ * http://www.dave-tech.it
+ * http://www.wawnet.biz
+ * mailto:info@wawnet.biz
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -27,13 +25,40 @@
  */
 
 #include <common.h>
-#include <SA-1100.h>
+#include <asm/hardware.h>
 
-int interrupt_init (void)
+/* we always count down the max. */
+#define TIMER_LOAD_VAL 0xffff
+
+/* macro to read the 16 bit timer */
+#define READ_TIMER (TCNTO1 & 0xffff)
+
+#ifdef CONFIG_USE_IRQ
+#error CONFIG_USE_IRQ NOT supported
+#endif
+
+static ulong timestamp;
+static ulong lastdec;
+
+int timer_init (void)
 {
-	/* nothing happens here - we don't setup any IRQs */
-	return (0);
+	TCFG0 = 0x000000E9;
+	TCFG1 = 0x00000004;
+	TCON = 0x00000900;
+	TCNTB1 = TIMER_LOAD_VAL;
+	TCMPB1 = 0;
+	TCON = 0x00000B00;
+	TCON = 0x00000900;
+
+
+	lastdec = TCNTB1 = TIMER_LOAD_VAL;
+	timestamp = 0;
+	return 0;
 }
+
+/*
+ * timer without interrupts
+ */
 
 void reset_timer (void)
 {
@@ -42,28 +67,49 @@ void reset_timer (void)
 
 ulong get_timer (ulong base)
 {
-	return get_timer_masked ();
+	return get_timer_masked () - base;
 }
 
 void set_timer (ulong t)
 {
-	/* nop */
+	timestamp = t;
 }
 
 void udelay (unsigned long usec)
 {
-	udelay_masked (usec);
-}
+	ulong tmo;
 
+	tmo = usec / 1000;
+	tmo *= CONFIG_SYS_HZ;
+	tmo /= 8;
+
+	tmo += get_timer (0);
+
+	while (get_timer_masked () < tmo)
+		/*NOP*/;
+}
 
 void reset_timer_masked (void)
 {
-	OSCR = 0;
+	/* reset time */
+	lastdec = READ_TIMER;
+	timestamp = 0;
 }
 
 ulong get_timer_masked (void)
 {
-	return OSCR;
+	ulong now = READ_TIMER;
+
+	if (lastdec >= now) {
+		/* normal mode */
+		timestamp += lastdec - now;
+	} else {
+		/* we have an overflow ... */
+		timestamp += lastdec + TIMER_LOAD_VAL - now;
+	}
+	lastdec = now;
+
+	return timestamp;
 }
 
 void udelay_masked (unsigned long usec)
@@ -75,37 +121,16 @@ void udelay_masked (unsigned long usec)
 	if (usec >= 1000) {
 		tmo = usec / 1000;
 		tmo *= CONFIG_SYS_HZ;
-		tmo /= 1000;
+		tmo /= 8;
 	} else {
 		tmo = usec * CONFIG_SYS_HZ;
-		tmo /= (1000*1000);
+		tmo /= (1000*8);
 	}
 
-	endtime = get_timer_masked () + tmo;
+	endtime = get_timer(0) + tmo;
 
 	do {
 		ulong now = get_timer_masked ();
 		diff = endtime - now;
 	} while (diff >= 0);
-}
-
-/*
- * This function is derived from PowerPC code (read timebase as long long).
- * On ARM it just returns the timer value.
- */
-unsigned long long get_ticks(void)
-{
-	return get_timer(0);
-}
-
-/*
- * This function is derived from PowerPC code (timebase clock frequency).
- * On ARM it returns the number of timer ticks per second.
- */
-ulong get_tbclk (void)
-{
-	ulong tbclk;
-
-	tbclk = CONFIG_SYS_HZ;
-	return tbclk;
 }

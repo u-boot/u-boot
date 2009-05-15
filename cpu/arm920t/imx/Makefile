@@ -25,7 +25,9 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
-COBJS	= generic.o interrupts.o speed.o
+COBJS	+= generic.o
+COBJS	+= speed.o
+COBJS	+= timer.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

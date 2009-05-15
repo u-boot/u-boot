@@ -29,13 +29,13 @@
 #define	ks8695_read(a)    *((volatile ulong *) (KS8695_IO_BASE + (a)))
 #define	ks8695_write(a,v) *((volatile ulong *) (KS8695_IO_BASE + (a))) = (v)
 
-int timer_inited;
 ulong timer_ticks;
 
-int interrupt_init (void)
+int timer_init (void)
 {
-	/* nothing happens here - we don't setup any IRQs */
-	return (0);
+	reset_timer();
+
+	return 0;
 }
 
 /*
@@ -53,7 +53,6 @@ void reset_timer_masked(void)
 	ks8695_write(KS8695_TIMER1_PCOUNT, TIMER_PULSE);
 	ks8695_write(KS8695_TIMER_CTRL, 0x2);
 	timer_ticks = 0;
-	timer_inited++;
 }
 
 void reset_timer(void)
@@ -86,9 +85,6 @@ void udelay(ulong usec)
 {
 	ulong start = get_timer_masked();
 	ulong end;
-
-	if (!timer_inited)
-		reset_timer();
 
 	/* Only 1ms resolution :-( */
 	end = usec / 1000;
