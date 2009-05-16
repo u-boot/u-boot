@@ -25,7 +25,7 @@
  */
 
 #include <common.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <watchdog.h>
 #include <net.h>
 #ifdef CONFIG_STATUS_LED
@@ -161,7 +161,7 @@ void board_init (void)
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
 
 	WATCHDOG_RESET ();
-	devices_init();
+	stdio_init();
 	jumptable_init();
 	console_init_r();
 

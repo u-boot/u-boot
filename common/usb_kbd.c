@@ -25,7 +25,7 @@
  *
  */
 #include <common.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <asm/byteorder.h>
 
 #include <usb.h>
@@ -153,7 +153,7 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum);
 int drv_usb_kbd_init(void)
 {
 	int error,i;
-	device_t usb_kbd_dev,*old_dev;
+	struct stdio_dev usb_kbd_dev,*old_dev;
 	struct usb_device *dev;
 	char *stdinname  = getenv ("stdin");
 
@@ -168,7 +168,7 @@ int drv_usb_kbd_init(void)
 			if(usb_kbd_probe(dev,0)==1) { /* Ok, we found a keyboard */
 				/* check, if it is already registered */
 				USB_KBD_PRINTF("USB KBD found set up device.\n");
-				old_dev = device_get_by_name(DEVNAME);
+				old_dev = stdio_get_by_name(DEVNAME);
 				if(old_dev) {
 					/* ok, already registered, just return ok */
 					USB_KBD_PRINTF("USB KBD is already registered.\n");
@@ -176,7 +176,7 @@ int drv_usb_kbd_init(void)
 				}
 				/* register the keyboard */
 				USB_KBD_PRINTF("USB KBD register.\n");
-				memset (&usb_kbd_dev, 0, sizeof(device_t));
+				memset (&usb_kbd_dev, 0, sizeof(struct stdio_dev));
 				strcpy(usb_kbd_dev.name, DEVNAME);
 				usb_kbd_dev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
 				usb_kbd_dev.putc = NULL;
@@ -184,7 +184,7 @@ int drv_usb_kbd_init(void)
 				usb_kbd_dev.getc = usb_kbd_getc;
 				usb_kbd_dev.tstc = usb_kbd_testc;
 				usb_kbd_dev.priv = (void *)dev;
-				error = device_register (&usb_kbd_dev);
+				error = stdio_register (&usb_kbd_dev);
 				if(error==0) {
 					/* check if this is the standard input device */
 					if(strcmp(stdinname,DEVNAME)==0) {
@@ -212,8 +212,8 @@ int drv_usb_kbd_init(void)
 /* deregistering the keyboard */
 int usb_kbd_deregister(void)
 {
-#ifdef CONFIG_SYS_DEVICE_DEREGISTER
-	return device_deregister(DEVNAME);
+#ifdef CONFIG_SYS_STDIO_DEREGISTER
+	return stdio_deregister(DEVNAME);
 #else
 	return 1;
 #endif

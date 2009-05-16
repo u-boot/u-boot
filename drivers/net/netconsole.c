@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -243,7 +243,7 @@ int nc_tstc (void)
 
 int drv_nc_init (void)
 {
-	device_t dev;
+	struct stdio_dev dev;
 	int rc;
 
 	memset (&dev, 0, sizeof (dev));
@@ -256,7 +256,7 @@ int drv_nc_init (void)
 	dev.getc = nc_getc;
 	dev.tstc = nc_tstc;
 
-	rc = device_register (&dev);
+	rc = stdio_register (&dev);
 
 	return (rc == 0) ? 1 : rc;
 }

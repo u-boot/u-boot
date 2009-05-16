@@ -34,7 +34,7 @@
 #include <command.h>
 #include <stdarg.h>
 #include <linux/types.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #if defined(CONFIG_POST)
 #include <post.h>
 #endif
@@ -355,7 +355,7 @@ static void test_pattern (void)
 
 int drv_lcd_init (void)
 {
-	device_t lcddev;
+	struct stdio_dev lcddev;
 	int rc;
 
 	lcd_base = (void *)(gd->fb_base);
@@ -373,7 +373,7 @@ int drv_lcd_init (void)
 	lcddev.putc  = lcd_putc;		/* 'putc' function */
 	lcddev.puts  = lcd_puts;		/* 'puts' function */
 
-	rc = device_register (&lcddev);
+	rc = stdio_register (&lcddev);
 
 	return (rc == 0) ? 1 : rc;
 }

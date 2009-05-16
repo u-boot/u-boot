@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <pci.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <i8042.h>
 #include <asm/ptrace.h>
 #include <asm/realmode.h>
@@ -168,8 +168,8 @@ int video_init(void)
 {
 	u16 pos;
 
-	static device_t vga_dev;
-	static device_t kbd_dev;
+	static struct stdio_dev vga_dev;
+	static struct stdio_dev kbd_dev;
 
 	vidmem = (char *) 0xb8000;
 	vidport = 0x3d4;
@@ -203,7 +203,7 @@ int video_init(void)
 	vga_dev.tstc  = NULL;              /* 'tstc' function */
 	vga_dev.getc  = NULL;              /* 'getc' function */
 
-	if (device_register(&vga_dev) == 0) {
+	if (stdio_register(&vga_dev) == 0) {
 	    return 1;
 	}
 
@@ -220,7 +220,7 @@ int video_init(void)
 	kbd_dev.tstc  = i8042_tstc;  /* 'tstc' function */
 	kbd_dev.getc  = i8042_getc;  /* 'getc' function */
 
-	if (device_register(&kbd_dev) == 0) {
+	if (stdio_register(&kbd_dev) == 0) {
 	    return 1;
 	}
 	return 0;

@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <serial.h>
-#include <devices.h>
+#include <stdio_dev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -142,9 +142,9 @@ void serial_initialize (void)
 	serial_assign (default_serial_console ()->name);
 }
 
-void serial_devices_init (void)
+void serial_stdio_init (void)
 {
-	device_t dev;
+	struct stdio_dev dev;
 	struct serial_device *s = serial_devices;
 
 	while (s) {
@@ -159,7 +159,7 @@ void serial_devices_init (void)
 		dev.getc = s->getc;
 		dev.tstc = s->tstc;
 
-		device_register (&dev);
+		stdio_register (&dev);
 
 		s = s->next;
 	}

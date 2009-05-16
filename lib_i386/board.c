@@ -31,7 +31,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <timestamp.h>
 #include <version.h>
 #include <malloc.h>
@@ -299,7 +299,7 @@ void start_i386boot (void)
 	show_boot_progress(0x27);
 
 
-	devices_init ();
+	stdio_init ();
 
 	jumptable_init ();
 

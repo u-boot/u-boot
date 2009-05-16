@@ -29,7 +29,7 @@
 void iomux_printdevs(const int console)
 {
 	int i;
-	device_t *dev;
+	struct stdio_dev *dev;
 
 	for (i = 0; i < cd_count[console]; i++) {
 		dev = console_devices[console][i];
@@ -43,8 +43,8 @@ int iomux_doenv(const int console, const char *arg)
 {
 	char *console_args, *temp, **start;
 	int i, j, k, io_flag, cs_idx, repeat;
-	device_t *dev;
-	device_t **cons_set;
+	struct stdio_dev *dev;
+	struct stdio_dev **cons_set;
 
 	console_args = strdup(arg);
 	if (console_args == NULL)
@@ -85,7 +85,7 @@ int iomux_doenv(const int console, const char *arg)
 		*temp = '\0';
 		start[i] = temp + 1;
 	}
-	cons_set = (device_t **)calloc(i, sizeof(device_t *));
+	cons_set = (struct stdio_dev **)calloc(i, sizeof(struct stdio_dev *));
 	if (cons_set == NULL) {
 		free(start);
 		free(console_args);
@@ -158,14 +158,14 @@ int iomux_doenv(const int console, const char *arg)
 	} else {
 		/* Works even if console_devices[console] is NULL. */
 		console_devices[console] =
-			(device_t **)realloc(console_devices[console],
-			cs_idx * sizeof(device_t *));
+			(struct stdio_dev **)realloc(console_devices[console],
+			cs_idx * sizeof(struct stdio_dev *));
 		if (console_devices[console] == NULL) {
 			free(cons_set);
 			return 1;
 		}
 		memcpy(console_devices[console], cons_set, cs_idx *
-			sizeof(device_t *));
+			sizeof(struct stdio_dev *));
 
 		cd_count[console] = cs_idx;
 	}

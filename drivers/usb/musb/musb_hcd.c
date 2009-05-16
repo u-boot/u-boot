@@ -801,7 +801,7 @@ int submit_int_msg(struct usb_device *dev, unsigned long pipe,
  */
 void usb_event_poll()
 {
-	device_t *dev;
+	struct stdio_dev *dev;
 	struct usb_device *usb_kbd_dev;
 	struct usb_interface_descriptor *iface;
 	struct usb_endpoint_descriptor *ep;
@@ -809,7 +809,7 @@ void usb_event_poll()
 	int maxp;
 
 	/* Get the pointer to USB Keyboard device pointer */
-	dev = device_get_by_name("usbkbd");
+	dev = stdio_get_by_name("usbkbd");
 	usb_kbd_dev = (struct usb_device *)dev->priv;
 	iface = &usb_kbd_dev->config.if_desc[0];
 	ep = &iface->ep_desc[0];

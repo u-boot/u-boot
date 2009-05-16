@@ -18,7 +18,7 @@
 #include <asm/mach-common/bits/dma.h>
 #include <i2c.h>
 #include <linux/types.h>
-#include <devices.h>
+#include <stdio_dev.h>
 
 int gunzip(void *, int, unsigned char *, unsigned long *);
 
@@ -154,7 +154,7 @@ static void video_init(char *NTSCFrame)
 
 int drv_video_init(void)
 {
-	device_t videodev;
+	struct stdio_dev videodev;
 
 	video_init((void *)NTSC_FRAME_ADDR);
 
@@ -163,5 +163,5 @@ int drv_video_init(void)
 	videodev.ext = DEV_EXT_VIDEO;
 	videodev.flags = DEV_FLAGS_SYSTEM;
 
-	return device_register(&videodev);
+	return stdio_register(&videodev);
 }

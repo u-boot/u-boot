@@ -361,7 +361,7 @@
 #define CONFIG_USB_STORAGE
 
 /* Enable needed helper functions */
-#define CONFIG_SYS_DEVICE_DEREGISTER		/* needs device_deregister */
+#define CONFIG_SYS_STDIO_DEREGISTER		/* needs stdio_deregister */
 
 /************************************************************
  * Debug support

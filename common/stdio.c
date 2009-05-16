@@ -25,7 +25,7 @@
 #include <common.h>
 #include <stdarg.h>
 #include <malloc.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <serial.h>
 #ifdef CONFIG_LOGBUFFER
 #include <logbuff.h>
@@ -36,8 +36,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static device_t devs;
-device_t *stdio_devices[] = { NULL, NULL, NULL };
+static struct stdio_dev devs;
+struct stdio_dev *stdio_devices[] = { NULL, NULL, NULL };
 char *stdio_names[MAX_FILES] = { "stdin", "stdout", "stderr" };
 
 #if defined(CONFIG_SPLASH_SCREEN) && !defined(CONFIG_SYS_DEVICE_NULLDEV)
@@ -70,7 +70,7 @@ int nulldev_input(void)
 
 static void drv_system_init (void)
 {
-	device_t dev;
+	struct stdio_dev dev;
 
 	memset (&dev, 0, sizeof (dev));
 
@@ -88,7 +88,7 @@ static void drv_system_init (void)
 	dev.tstc = serial_tstc;
 #endif
 
-	device_register (&dev);
+	stdio_register (&dev);
 
 #ifdef CONFIG_SYS_DEVICE_NULLDEV
 	memset (&dev, 0, sizeof (dev));
@@ -100,7 +100,7 @@ static void drv_system_init (void)
 	dev.getc = nulldev_input;
 	dev.tstc = nulldev_input;
 
-	device_register (&dev);
+	stdio_register (&dev);
 #endif
 }
 
@@ -108,21 +108,21 @@ static void drv_system_init (void)
  * DEVICES
  **************************************************************************
  */
-struct list_head* device_get_list(void)
+struct list_head* stdio_get_list(void)
 {
 	return &(devs.list);
 }
 
-device_t* device_get_by_name(char* name)
+struct stdio_dev* stdio_get_by_name(char* name)
 {
 	struct list_head *pos;
-	device_t *dev;
+	struct stdio_dev *dev;
 
 	if(!name)
 		return NULL;
 
 	list_for_each(pos, &(devs.list)) {
-		dev = list_entry(pos, device_t, list);
+		dev = list_entry(pos, struct stdio_dev, list);
 		if(strcmp(dev->name, name) == 0)
 			return dev;
 	}
@@ -130,29 +130,29 @@ device_t* device_get_by_name(char* name)
 	return NULL;
 }
 
-device_t* device_clone(device_t *dev)
+struct stdio_dev* stdio_clone(struct stdio_dev *dev)
 {
-	device_t *_dev;
+	struct stdio_dev *_dev;
 
 	if(!dev)
 		return NULL;
 
-	_dev = calloc(1, sizeof(device_t));
+	_dev = calloc(1, sizeof(struct stdio_dev));
 
 	if(!_dev)
 		return NULL;
 
-	memcpy(_dev, dev, sizeof(device_t));
+	memcpy(_dev, dev, sizeof(struct stdio_dev));
 	strncpy(_dev->name, dev->name, 16);
 
 	return _dev;
 }
 
-int device_register (device_t * dev)
+int stdio_register (struct stdio_dev * dev)
 {
-	device_t *_dev;
+	struct stdio_dev *_dev;
 
-	_dev = device_clone(dev);
+	_dev = stdio_clone(dev);
 	if(!_dev)
 		return -1;
 	list_add_tail(&(_dev->list), &(devs.list));
@@ -162,15 +162,15 @@ int device_register (device_t * dev)
 /* deregister the device "devname".
  * returns 0 if success, -1 if device is assigned and 1 if devname not found
  */
-#ifdef	CONFIG_SYS_DEVICE_DEREGISTER
-int device_deregister(char *devname)
+#ifdef	CONFIG_SYS_STDIO_DEREGISTER
+int stdio_deregister(char *devname)
 {
 	int l;
 	struct list_head *pos;
-	device_t *dev;
+	struct stdio_dev *dev;
 	char temp_names[3][8];
 
-	dev = device_get_by_name(devname);
+	dev = stdio_get_by_name(devname);
 
 	if(!dev) /* device not found */
 		return -1;
@@ -189,7 +189,7 @@ int device_deregister(char *devname)
 
 	/* reassign Device list */
 	list_for_each(pos, &(devs.list)) {
-		dev = list_entry(pos, device_t, list);
+		dev = list_entry(pos, struct stdio_dev, list);
 		for (l=0 ; l< MAX_FILES; l++) {
 			if(strcmp(dev->name, temp_names[l]) == 0)
 				stdio_devices[l] = dev;
@@ -197,9 +197,9 @@ int device_deregister(char *devname)
 	}
 	return 0;
 }
-#endif	/* CONFIG_SYS_DEVICE_DEREGISTER */
+#endif	/* CONFIG_SYS_STDIO_DEREGISTER */
 
-int devices_init (void)
+int stdio_init (void)
 {
 #ifndef CONFIG_ARM	/* already relocated for current ARM implementation */
 	ulong relocation_offset = gd->reloc_off;
@@ -235,7 +235,7 @@ int devices_init (void)
 #endif
 	drv_system_init ();
 #ifdef CONFIG_SERIAL_MULTI
-	serial_devices_init ();
+	serial_stdio_init ();
 #endif
 #ifdef CONFIG_USB_TTY
 	drv_usbtty_init ();

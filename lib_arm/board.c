@@ -41,7 +41,7 @@
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <timestamp.h>
 #include <version.h>
 #include <net.h>
@@ -389,7 +389,7 @@ void start_armboot (void)
 	/* IP Address */
 	gd->bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
 
-	devices_init ();	/* get the devices list going. */
+	stdio_init ();	/* get the devices list going. */
 
 	jumptable_init ();
 

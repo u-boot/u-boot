@@ -36,7 +36,7 @@
 #include <version.h>
 #include <stdarg.h>
 #include <linux/types.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <s3c2400.h>
 
 DECLARE_GLOBAL_DATA_PTR;

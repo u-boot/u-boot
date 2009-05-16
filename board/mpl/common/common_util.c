@@ -29,7 +29,7 @@
 #include <asm/processor.h>
 #include <asm/byteorder.h>
 #include <i2c.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <pci.h>
 #include <malloc.h>
 #include <bzlib.h>

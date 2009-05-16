@@ -27,7 +27,7 @@
  */
 
 #include <common.h>
-#include <devices.h>
+#include <stdio_dev.h>
 
 #if defined(CONFIG_CPU_V6)
 /*
@@ -148,7 +148,7 @@ int arm_dcc_tstc(void)
 }
 
 #ifdef CONFIG_ARM_DCC_MULTI
-static device_t arm_dcc_dev;
+static struct stdio_dev arm_dcc_dev;
 
 int drv_arm_dcc_init(void)
 {
@@ -165,6 +165,6 @@ int drv_arm_dcc_init(void)
 	arm_dcc_dev.putc = arm_dcc_putc;	/* 'putc' function */
 	arm_dcc_dev.puts = arm_dcc_puts;	/* 'puts' function */
 
-	return device_register(&arm_dcc_dev);
+	return stdio_register(&arm_dcc_dev);
 }
 #endif

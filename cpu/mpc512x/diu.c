@@ -31,7 +31,7 @@
 #include "../../board/freescale/common/fsl_diu_fb.h"
 
 #if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-#include <devices.h>
+#include <stdio_dev.h>
 #include <video_fb.h>
 #endif
 

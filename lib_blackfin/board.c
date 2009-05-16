@@ -11,7 +11,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <environment.h>
 #include <malloc.h>
 #include <net.h>
@@ -354,8 +354,8 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	/* relocate environment function pointers etc. */
 	env_relocate();
 
-	/* Initialize devices */
-	devices_init();
+	/* Initialize stdio devices */
+	stdio_init();
 	jumptable_init();
 
 	/* Initialize the console (after the relocation and devices init) */

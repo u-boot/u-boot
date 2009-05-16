@@ -32,7 +32,6 @@ COBJS-y += main.o
 COBJS-y += circbuf.o
 COBJS-y += console.o
 COBJS-y += command.o
-COBJS-y += devices.o
 COBJS-y += dlmalloc.o
 COBJS-y += exports.o
 COBJS-$(CONFIG_SYS_HUSH_PARSER) += hush.o
@@ -40,6 +39,7 @@ COBJS-y += image.o
 COBJS-y += memsize.o
 COBJS-y += s_record.o
 COBJS-$(CONFIG_SERIAL_MULTI) += serial.o
+COBJS-y += stdio.o
 COBJS-y += xyzModem.o
 
 # core command

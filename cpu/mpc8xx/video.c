@@ -36,7 +36,7 @@
 #include <timestamp.h>
 #include <i2c.h>
 #include <linux/types.h>
-#include <devices.h>
+#include <stdio_dev.h>
 
 #ifdef CONFIG_VIDEO
 
@@ -1287,7 +1287,7 @@ int drv_video_init (void)
 {
 	int error, devices = 1;
 
-	device_t videodev;
+	struct stdio_dev videodev;
 
 	video_init ((void *)(gd->fb_base));	/* Video initialization */
 
@@ -1301,7 +1301,7 @@ int drv_video_init (void)
 	videodev.putc = video_putc;	/* 'putc' function */
 	videodev.puts = video_puts;	/* 'puts' function */
 
-	error = device_register (&videodev);
+	error = stdio_register (&videodev);
 
 	return (error == 0) ? devices : error;
 }

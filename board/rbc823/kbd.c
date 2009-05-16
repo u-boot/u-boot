@@ -30,7 +30,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <commproc.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <lcd.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -249,18 +249,18 @@ int smc1_tstc(void)
 int drv_keyboard_init(void)
 {
 	int error = 0;
-	device_t kbd_dev;
+	struct stdio_dev kbd_dev;
 
 	if (0) {
 		/* register the keyboard */
-		memset (&kbd_dev, 0, sizeof(device_t));
+		memset (&kbd_dev, 0, sizeof(struct stdio_dev));
 		strcpy(kbd_dev.name, "kbd");
 		kbd_dev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
 		kbd_dev.putc = NULL;
 		kbd_dev.puts = NULL;
 		kbd_dev.getc = smc1_getc;
 		kbd_dev.tstc = smc1_tstc;
-		error = device_register (&kbd_dev);
+		error = stdio_register (&kbd_dev);
 	} else {
 		lcd_is_enabled = 0;
 		lcd_disable();

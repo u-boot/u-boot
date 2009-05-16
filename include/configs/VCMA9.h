@@ -129,7 +129,7 @@
 #define CONFIG_DOS_PARTITION	1
 
 /* Enable needed helper functions */
-#define CONFIG_SYS_DEVICE_DEREGISTER		/* needs device_deregister */
+#define CONFIG_SYS_STDIO_DEREGISTER		/* needs stdio_deregister */
 
 /************************************************************
  * RTC

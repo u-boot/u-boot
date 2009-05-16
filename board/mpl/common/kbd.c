@@ -28,7 +28,7 @@
  */
 #include <common.h>
 #include <asm/processor.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include "isa.h"
 #include "kbd.h"
 
@@ -215,7 +215,7 @@ int overwrite_console (void)
 int drv_isa_kbd_init (void)
 {
 	int error;
-	device_t kbddev ;
+	struct stdio_dev kbddev ;
 	char *stdinname  = getenv ("stdin");
 
 	if(isa_kbd_init()==-1)
@@ -228,7 +228,7 @@ int drv_isa_kbd_init (void)
 	kbddev.getc = kbd_getc ;
 	kbddev.tstc = kbd_testc ;
 
-	error = device_register (&kbddev);
+	error = stdio_register (&kbddev);
 	if(error==0) {
 		/* check if this is the standard input device */
 		if(strcmp(stdinname,DEVNAME)==0) {

@@ -24,7 +24,7 @@
 #include <common.h>
 #include <stdarg.h>
 #include <malloc.h>
-#include <console.h>
+#include <stdio_dev.h>
 #include <exports.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -48,7 +48,7 @@ extern int overwrite_console(void);
 
 #endif /* CONFIG_SYS_CONSOLE_IS_IN_ENV */
 
-static int console_setfile(int file, device_t * dev)
+static int console_setfile(int file, struct stdio_dev * dev)
 {
 	int error = 0;
 
@@ -96,8 +96,8 @@ static int console_setfile(int file, device_t * dev)
 #if defined(CONFIG_CONSOLE_MUX)
 /** Console I/O multiplexing *******************************************/
 
-static device_t *tstcdev;
-device_t **console_devices[MAX_FILES];
+static struct stdio_dev *tstcdev;
+struct stdio_dev **console_devices[MAX_FILES];
 int cd_count[MAX_FILES];
 
 /*
@@ -119,7 +119,7 @@ static int console_getc(int file)
 static int console_tstc(int file)
 {
 	int i, ret;
-	device_t *dev;
+	struct stdio_dev *dev;
 
 	disable_ctrlc(1);
 	for (i = 0; i < cd_count[file]; i++) {
@@ -141,7 +141,7 @@ static int console_tstc(int file)
 static void console_putc(int file, const char c)
 {
 	int i;
-	device_t *dev;
+	struct stdio_dev *dev;
 
 	for (i = 0; i < cd_count[file]; i++) {
 		dev = console_devices[file][i];
@@ -153,7 +153,7 @@ static void console_putc(int file, const char c)
 static void console_puts(int file, const char *s)
 {
 	int i;
-	device_t *dev;
+	struct stdio_dev *dev;
 
 	for (i = 0; i < cd_count[file]; i++) {
 		dev = console_devices[file][i];
@@ -167,7 +167,7 @@ static inline void console_printdevs(int file)
 	iomux_printdevs(file);
 }
 
-static inline void console_doenv(int file, device_t *dev)
+static inline void console_doenv(int file, struct stdio_dev *dev)
 {
 	iomux_doenv(file, dev->name);
 }
@@ -197,7 +197,7 @@ static inline void console_printdevs(int file)
 	printf("%s\n", stdio_devices[file]->name);
 }
 
-static inline void console_doenv(int file, device_t *dev)
+static inline void console_doenv(int file, struct stdio_dev *dev)
 {
 	console_setfile(file, dev);
 }
@@ -479,11 +479,11 @@ inline void dbg(const char *fmt, ...)
 
 /** U-Boot INIT FUNCTIONS *************************************************/
 
-device_t *search_device(int flags, char *name)
+struct stdio_dev *search_device(int flags, char *name)
 {
-	device_t *dev;
+	struct stdio_dev *dev;
 
-	dev = device_get_by_name(name);
+	dev = stdio_get_by_name(name);
 
 	if (dev && (dev->flags & flags))
 		return dev;
@@ -494,7 +494,7 @@ device_t *search_device(int flags, char *name)
 int console_assign(int file, char *devname)
 {
 	int flag;
-	device_t *dev;
+	struct stdio_dev *dev;
 
 	/* Check for valid file */
 	switch (file) {
@@ -537,7 +537,7 @@ int console_init_f(void)
 int console_init_r(void)
 {
 	char *stdinname, *stdoutname, *stderrname;
-	device_t *inputdev = NULL, *outputdev = NULL, *errdev = NULL;
+	struct stdio_dev *inputdev = NULL, *outputdev = NULL, *errdev = NULL;
 #ifdef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 	int i;
 #endif /* CONFIG_SYS_CONSOLE_ENV_OVERWRITE */
@@ -645,11 +645,11 @@ done:
 /* Called after the relocation - use desired console functions */
 int console_init_r(void)
 {
-	device_t *inputdev = NULL, *outputdev = NULL;
+	struct stdio_dev *inputdev = NULL, *outputdev = NULL;
 	int i;
-	struct list_head *list = device_get_list();
+	struct list_head *list = stdio_get_list();
 	struct list_head *pos;
-	device_t *dev;
+	struct stdio_dev *dev;
 
 #ifdef CONFIG_SPLASH_SCREEN
 	/*
@@ -662,7 +662,7 @@ int console_init_r(void)
 
 	/* Scan devices looking for input and output devices */
 	list_for_each(pos, list) {
-		dev = list_entry(pos, device_t, list);
+		dev = list_entry(pos, struct stdio_dev, list);
 
 		if ((dev->flags & DEV_FLAGS_INPUT) && (inputdev == NULL)) {
 			inputdev = dev;

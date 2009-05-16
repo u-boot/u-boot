@@ -32,7 +32,7 @@
 #include <version.h>
 #include <stdarg.h>
 #include <linux/types.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <lcd.h>
 #include <asm/arch/pxa-regs.h>
 

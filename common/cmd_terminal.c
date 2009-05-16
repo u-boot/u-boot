@@ -26,19 +26,19 @@
  */
 #include <common.h>
 #include <command.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <serial.h>
 
 int do_terminal(cmd_tbl_t * cmd, int flag, int argc, char *argv[])
 {
 	int last_tilde = 0;
-	device_t *dev = NULL;
+	struct stdio_dev *dev = NULL;
 
 	if (argc < 1)
 		return -1;
 
 	/* Scan for selected output/input device */
-	dev = device_get_by_name(argv[1]);
+	dev = stdio_get_by_name(argv[1]);
 	if (!dev)
 		return -1;
 

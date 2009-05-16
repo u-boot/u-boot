@@ -26,7 +26,7 @@
 
 #include "musb_core.h"
 #ifdef CONFIG_USB_KEYBOARD
-#include <devices.h>
+#include <stdio_dev.h>
 extern unsigned char new[];
 #endif
 

@@ -22,7 +22,7 @@
  */
 #include <common.h>
 #include <ns16550.h>
-#include <console.h>
+#include <stdio_dev.h>
 
 /* Button codes from the AVR */
 #define PWRR			0x20		/* Power button release	*/

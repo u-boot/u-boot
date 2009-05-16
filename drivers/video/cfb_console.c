@@ -183,7 +183,7 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 
 #include <version.h>
 #include <linux/types.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <video_font.h>
 
 #if defined(CONFIG_CMD_DATE)
@@ -1378,7 +1378,7 @@ int board_video_skip(void) __attribute__((weak, alias("__board_video_skip")));
 int drv_video_init (void)
 {
 	int skip_dev_init;
-	device_t console_dev;
+	struct stdio_dev console_dev;
 
 	/* Check if video initialization should be skipped */
 	if (board_video_skip())
@@ -1412,7 +1412,7 @@ int drv_video_init (void)
 	console_dev.getc = VIDEO_GETC_FCT;	/* 'getc' function */
 #endif /* CONFIG_VGA_AS_SINGLE_DEVICE */
 
-	if (device_register (&console_dev) != 0)
+	if (stdio_register (&console_dev) != 0)
 		return 0;
 
 	/* Return success */

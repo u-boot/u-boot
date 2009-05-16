@@ -46,7 +46,7 @@
 
 #include <common.h>
 #include <mpc5xx.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <pci_ids.h>
 #define PLX9056_LOC
 #include "plx9056.h"
@@ -447,7 +447,7 @@ int checkboard (void)
 int recbuf[REC_BUFFER_SIZE];
 static int r_ptr = 0;
 int w_ptr;
-device_t pci_con_dev;
+struct stdio_dev pci_con_dev;
 int conn=0;
 int buff_full=0;
 
@@ -584,7 +584,7 @@ void pci_con_connect(void)
 	pci_con_dev.puts = pci_con_puts;
 	pci_con_dev.getc = pci_con_getc;
 	pci_con_dev.tstc = pci_con_tstc;
-	device_register (&pci_con_dev);
+	stdio_register (&pci_con_dev);
 	printf("PATI ready for PCI connection, type ctrl-c for exit\n");
 	do {
 		udelay(10);

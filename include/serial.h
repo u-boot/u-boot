@@ -55,7 +55,7 @@ extern struct serial_device serial_btuart_device;
 extern struct serial_device serial_stuart_device;
 
 extern void serial_initialize(void);
-extern void serial_devices_init(void);
+extern void serial_stdio_init(void);
 extern int serial_assign(char * name);
 extern void serial_reinit_all(void);
 

@@ -22,7 +22,7 @@
  */
 
 #include <common.h>
-#include <console.h>
+#include <stdio_dev.h>
 #include <watchdog.h>
 #include <post.h>
 

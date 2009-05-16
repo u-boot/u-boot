@@ -21,7 +21,7 @@
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <timestamp.h>
 #include <version.h>
 #include <watchdog.h>
@@ -150,7 +150,7 @@ init_fnc_t *init_sequence[] =
 	sh_flash_init,	/* Flash memory(NOR) init*/
 	INIT_FUNC_NAND_INIT/* Flash memory (NAND) init */
 	INIT_FUNC_PCI_INIT	/* PCI init */
-	devices_init,
+	stdio_init,
 	console_init_r,
 	interrupt_init,
 #ifdef BOARD_LATE_INIT

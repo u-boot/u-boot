@@ -26,22 +26,22 @@
  */
 #include <common.h>
 #include <command.h>
-#include <devices.h>
+#include <stdio_dev.h>
 
 extern void _do_coninfo (void);
 int do_coninfo (cmd_tbl_t * cmd, int flag, int argc, char *argv[])
 {
 	int l;
-	struct list_head *list = device_get_list();
+	struct list_head *list = stdio_get_list();
 	struct list_head *pos;
-	device_t *dev;
+	struct stdio_dev *dev;
 
 	/* Scan for valid output and input devices */
 
 	puts ("List of available devices:\n");
 
 	list_for_each(pos, list) {
-		dev = list_entry(pos, device_t, list);
+		dev = list_entry(pos, struct stdio_dev, list);
 
 		printf ("%-8s %08x %c%c%c ",
 			dev->name,

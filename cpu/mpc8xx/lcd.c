@@ -35,7 +35,7 @@
 #include <stdarg.h>
 #include <lcdvideo.h>
 #include <linux/types.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #if defined(CONFIG_POST)
 #include <post.h>
 #endif

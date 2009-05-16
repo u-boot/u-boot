@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -21,13 +21,13 @@
  * MA 02111-1307 USA
  */
 
+#ifndef _STDIO_DEV_H_
+#define _STDIO_DEV_H_
+
 #include <linux/list.h>
 
-#ifndef _DEVICES_H_
-#define _DEVICES_H_
-
 /*
- * CONSOLE DEVICES
+ * STDIO DEVICES
  */
 
 #define DEV_FLAGS_INPUT	 0x00000001	/* Device can be used as input	console */
@@ -36,7 +36,7 @@
 #define DEV_EXT_VIDEO	 0x00000001	/* Video extensions supported		*/
 
 /* Device information */
-typedef struct {
+struct stdio_dev {
 	int	flags;			/* Device flags: input/output/system	*/
 	int	ext;			/* Supported extensions			*/
 	char	name[16];		/* Device name				*/
@@ -60,7 +60,7 @@ typedef struct {
 
 	void *priv;			/* Private extensions			*/
 	struct list_head list;
-} device_t;
+};
 
 /*
  * VIDEO EXTENSIONS
@@ -83,20 +83,20 @@ typedef struct {
 /*
  * VARIABLES
  */
-extern device_t *stdio_devices[];
+extern struct stdio_dev *stdio_devices[];
 extern char *stdio_names[MAX_FILES];
 
 /*
  * PROTOTYPES
  */
-int	device_register (device_t * dev);
-int	devices_init (void);
-#ifdef CONFIG_SYS_DEVICE_DEREGISTER
-int	device_deregister(char *devname);
+int	stdio_register (struct stdio_dev * dev);
+int	stdio_init (void);
+#ifdef CONFIG_SYS_STDIO_DEREGISTER
+int	stdio_deregister(char *devname);
 #endif
-struct list_head* device_get_list(void);
-device_t* device_get_by_name(char* name);
-device_t* device_clone(device_t *dev);
+struct list_head* stdio_get_list(void);
+struct stdio_dev* stdio_get_by_name(char* name);
+struct stdio_dev* stdio_clone(struct stdio_dev *dev);
 
 #ifdef CONFIG_ARM_DCC_MULTI
 int drv_arm_dcc_init(void);
@@ -123,4 +123,4 @@ int	drv_nc_init (void);
 int drv_jtag_console_init (void);
 #endif
 
-#endif	/* _DEVICES_H_ */
+#endif

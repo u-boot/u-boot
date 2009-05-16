@@ -26,7 +26,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include "isa.h"
 #include "piix4_pci.h"
 #include "kbd.h"

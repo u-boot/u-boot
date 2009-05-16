@@ -24,7 +24,7 @@
 #include <common.h>
 #include <config.h>
 #include <circbuf.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include "usbtty.h"
 #include "usb_cdc_acm.h"
 #include "usbdescriptors.h"
@@ -70,7 +70,7 @@ static circbuf_t usbtty_output;
 /*
  * Instance variables
  */
-static device_t usbttydev;
+static struct stdio_dev usbttydev;
 static struct usb_device_instance device_instance[1];
 static struct usb_bus_instance bus_instance[1];
 static struct usb_configuration_instance config_instance[NUM_CONFIGS];
@@ -570,7 +570,7 @@ int drv_usbtty_init (void)
 	usbttydev.putc = usbtty_putc;	/* 'putc' function */
 	usbttydev.puts = usbtty_puts;	/* 'puts' function */
 
-	rc = device_register (&usbttydev);
+	rc = stdio_register (&usbttydev);
 
 	return (rc == 0) ? 1 : rc;
 }

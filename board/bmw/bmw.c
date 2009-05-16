@@ -26,7 +26,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <malloc.h>
-#include <devices.h>
+#include <stdio_dev.h>
 #include <net.h>
 #include <timestamp.h>
 #include <dtt.h>

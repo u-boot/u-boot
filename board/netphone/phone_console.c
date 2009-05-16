@@ -37,7 +37,7 @@
 
 #include <version.h>
 #include <linux/types.h>
-#include <devices.h>
+#include <stdio_dev.h>
 
 #include <sed156x.h>
 
@@ -325,7 +325,7 @@ int phone_getc(void)
 
 int drv_phone_init(void)
 {
-	device_t console_dev;
+	struct stdio_dev console_dev;
 
 	console_init();
 
@@ -340,7 +340,7 @@ int drv_phone_init(void)
 	console_dev.tstc = phone_tstc;	/* 'tstc' function */
 	console_dev.getc = phone_getc;	/* 'getc' function */
 
-	if (device_register(&console_dev) == 0)
+	if (stdio_register(&console_dev) == 0)
 		return 1;
 
 	return 0;
