@@ -21,15 +21,15 @@
  */
 
 /*
- * ADS5121 board configuration file
+ * MPC5121ADS board configuration file
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_ADS5121 1
+#define CONFIG_MPC5121ADS 1
 /*
- * Memory map for the ADS5121 board:
+ * Memory map for the MPC5121ADS board:
  *
  * 0x0000_0000 - 0x0FFF_FFFF	DDR RAM (256 MB)
  * 0x3000_0000 - 0x3001_FFFF	SRAM (128 KB)
@@ -59,7 +59,7 @@
 
 /* CONFIG_PCI is defined at config time */
 
-#ifdef CONFIG_ADS5121_REV2
+#ifdef CONFIG_MPC5121ADS_REV2
 #define CONFIG_SYS_MPC512X_CLKIN	66000000	/* in Hz */
 #else
 #define CONFIG_SYS_MPC512X_CLKIN	33333333	/* in Hz */
@@ -78,7 +78,7 @@
 /*
  * DDR Setup - manually set all parameters as there's no SPD etc.
  */
-#ifdef CONFIG_ADS5121_REV2
+#ifdef CONFIG_MPC5121ADS_REV2
 #define CONFIG_SYS_DDR_SIZE		256		/* MB */
 #else
 #define CONFIG_SYS_DDR_SIZE		512		/* MB */
@@ -130,7 +130,7 @@
  *	[09:05]	DRAM tRP:
  *	[04:00] DRAM tRPA
  */
-#ifdef CONFIG_ADS5121_REV2
+#ifdef CONFIG_MPC5121ADS_REV2
 #define CONFIG_SYS_MDDRC_SYS_CFG	0xF8604A00
 #define CONFIG_SYS_MDDRC_SYS_CFG_RUN	0xE8604A00
 #define CONFIG_SYS_MDDRC_TIME_CFG1	0x54EC1168
@@ -433,8 +433,8 @@
  */
 #define CONFIG_TIMESTAMP
 
-#define CONFIG_HOSTNAME		ads5121
-#define CONFIG_BOOTFILE		ads5121/uImage
+#define CONFIG_HOSTNAME		mpc5121ads
+#define CONFIG_BOOTFILE		mpc5121ads/uImage
 #define CONFIG_ROOTPATH		/opt/eldk/ppc_6xx
 
 #define CONFIG_LOADADDR		400000	/* default location for tftp and bootm */
@@ -457,10 +457,10 @@
 	"kernel_addr=FFC40000\0"					\
 	"fdt_addr=FFEC0000\0"						\
 	"ramdisk_addr=FC040000\0"					\
-	"ramdiskfile=ads5121/uRamdisk\0"				\
-	"u-boot=ads5121/u-boot.bin\0"					\
-	"bootfile=ads5121/uImage\0"					\
-	"fdtfile=ads5121/ads5121.dtb\0"					\
+	"ramdiskfile=mpc5121ads/uRamdisk\0"				\
+	"u-boot=mpc5121ads/u-boot.bin\0"				\
+	"bootfile=mpc5121ads/uImage\0"					\
+	"fdtfile=mpc5121ads/mpc5121ads.dtb\0"				\
 	"rootpath=/opt/eldk/ppc_6xx\n"					\
 	"netdev=eth0\0"							\
 	"consdev=ttyPSC0\0"						\

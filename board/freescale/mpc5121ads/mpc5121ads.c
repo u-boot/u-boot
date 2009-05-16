@@ -33,6 +33,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern int mpc5121_diu_init(void);
+
 /* Clocks in use */
 #define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
 			 CLOCK_SCCR1_LPC_EN |				\
@@ -216,7 +218,6 @@ long int fixed_sdram (void)
 int misc_init_r(void)
 {
 	u8 tmp_val;
-	extern int mpc5121_diu_init(void);
 
 	/* Using this for DIU init before the driver in linux takes over
 	 *  Enable the TFP410 Encoder (I2C address 0x38)
@@ -238,13 +239,13 @@ int misc_init_r(void)
 	debug("DVI Encoder Read: 0x%02lx\n", tmp_val);
 
 #ifdef CONFIG_FSL_DIU_FB
-#if	!(defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE))
+# if	!(defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE))
 	mpc5121_diu_init();
+# endif
 #endif
-#endif
-
 	return 0;
 }
+
 static  iopin_t ioregs_init[] = {
 	/* FUNC1=FEC_RX_DV Sets Next 3 to FEC pads */
 	{
@@ -312,12 +313,12 @@ int checkboard (void)
 
 	printf ("Board: ADS5121 rev. 0x%04x (CPLD rev. 0x%02x)\n",
 		brd_rev, cpld_rev);
-	/* initialize function mux & slew rate IO inter alia on IO Pins  */
 
-	iopin_initialize(ioregs_init, sizeof(ioregs_init) / sizeof(ioregs_init[0]));
-	if (SVR_MJREV (im->sysconf.spridr) >= 2) {
+	/* initialize function mux & slew rate IO inter alia on IO Pins  */
+	iopin_initialize(ioregs_init, ARRAY_SIZE(ioregs_init));
+
+	if (SVR_MJREV (im->sysconf.spridr) >= 2)
 		iopin_initialize(rev2_silicon_pci_ioregs_init, 1);
-	}
 
 	return 0;
 }
