@@ -137,8 +137,15 @@
 #define MTD_WRITEABLE_CMD		1
 
 /* current active device and partition number */
-static struct mtd_device *current_dev = NULL;
-static u8 current_partnum = 0;
+#ifdef CONFIG_CMD_MTDPARTS
+/* Use the ones declared in cmd_mtdparts.c */
+extern struct mtd_device *current_mtd_dev;
+extern u8 current_mtd_partnum;
+#else
+/* Use local ones */
+struct mtd_device *current_mtd_dev = NULL;
+u8 current_mtd_partnum = 0;
+#endif
 
 #if defined(CONFIG_CMD_CRAMFS)
 extern int cramfs_check (struct part_info *info);
@@ -346,6 +353,9 @@ static inline u32 get_part_sector_size(struct mtdids *id, struct part_info *part
  * Parse and initialize global mtdids mapping and create global
  * device/partition list.
  *
+ * 'Static' version of command line mtdparts_init() routine. Single partition on
+ * a single device configuration.
+ *
  * @return 0 on success, 1 otherwise
  */
 int mtdparts_init(void)
@@ -360,18 +370,18 @@ int mtdparts_init(void)
 		struct part_info *part;
 
 		initialized = 1;
-		current_dev = (struct mtd_device *)
+		current_mtd_dev = (struct mtd_device *)
 			malloc(sizeof(struct mtd_device) +
 					sizeof(struct part_info) +
 					sizeof(struct mtdids));
-		if (!current_dev) {
+		if (!current_mtd_dev) {
 			printf("out of memory\n");
 			return 1;
 		}
-		memset(current_dev, 0, sizeof(struct mtd_device) +
-					sizeof(struct part_info) + sizeof(struct mtdids));
+		memset(current_mtd_dev, 0, sizeof(struct mtd_device) +
+		       sizeof(struct part_info) + sizeof(struct mtdids));
 
-		id = (struct mtdids *)(current_dev + 1);
+		id = (struct mtdids *)(current_mtd_dev + 1);
 		part = (struct part_info *)(id + 1);
 
 		/* id */
@@ -386,7 +396,7 @@ int mtdparts_init(void)
 		if ((mtd_id_parse(dev_name, NULL, &id->type, &id->num) != 0) ||
 				(mtd_device_validate(id->type, id->num, &size) != 0)) {
 			printf("incorrect device: %s%d\n", MTD_DEV_TYPE(id->type), id->num);
-			free(current_dev);
+			free(current_mtd_dev);
 			return 1;
 		}
 		id->size = size;
@@ -413,7 +423,7 @@ int mtdparts_init(void)
 
 		part->sector_size = get_part_sector_size(id, part);
 
-		part->dev = current_dev;
+		part->dev = current_mtd_dev;
 		INIT_LIST_HEAD(&part->link);
 
 		/* recalculate size if needed */
@@ -424,11 +434,11 @@ int mtdparts_init(void)
 				part->name, part->size, part->offset);
 
 		/* device */
-		current_dev->id = id;
-		INIT_LIST_HEAD(&current_dev->link);
-		current_dev->num_parts = 1;
-		INIT_LIST_HEAD(&current_dev->parts);
-		list_add(&part->link, &current_dev->parts);
+		current_mtd_dev->id = id;
+		INIT_LIST_HEAD(&current_mtd_dev->link);
+		current_mtd_dev->num_parts = 1;
+		INIT_LIST_HEAD(&current_mtd_dev->parts);
+		list_add(&part->link, &current_mtd_dev->parts);
 	}
 
 	return 0;
@@ -516,7 +526,7 @@ int do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (mtdparts_init() !=0)
 		return 1;
 
-	if ((part = jffs2_part_info(current_dev, current_partnum))){
+	if ((part = jffs2_part_info(current_mtd_dev, current_mtd_partnum))){
 
 		/* check partition type for cramfs */
 		fsname = (cramfs_check(part) ? "CRAMFS" : "JFFS2");
@@ -567,7 +577,7 @@ int do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (mtdparts_init() !=0)
 		return 1;
 
-	if ((part = jffs2_part_info(current_dev, current_partnum))){
+	if ((part = jffs2_part_info(current_mtd_dev, current_mtd_partnum))){
 
 		/* check partition type for cramfs */
 		if (cramfs_check(part)) {
@@ -602,7 +612,7 @@ int do_jffs2_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (mtdparts_init() !=0)
 		return 1;
 
-	if ((part = jffs2_part_info(current_dev, current_partnum))){
+	if ((part = jffs2_part_info(current_mtd_dev, current_mtd_partnum))){
 
 		/* check partition type for cramfs */
 		fsname = (cramfs_check(part) ? "CRAMFS" : "JFFS2");

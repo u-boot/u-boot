@@ -166,8 +166,8 @@ struct list_head mtdids;
 struct list_head devices;
 
 /* current active device and partition number */
-static struct mtd_device *current_dev = NULL;
-static u8 current_partnum = 0;
+struct mtd_device *current_mtd_dev = NULL;
+u8 current_mtd_partnum = 0;
 
 static struct part_info* mtd_part_info(struct mtd_device *dev, unsigned int part_num);
 
@@ -251,12 +251,12 @@ static void index_partitions(void)
 
 	DEBUGF("--- index partitions ---\n");
 
-	if (current_dev) {
+	if (current_mtd_dev) {
 		mtddevnum = 0;
 		list_for_each(dentry, &devices) {
 			dev = list_entry(dentry, struct mtd_device, link);
-			if (dev == current_dev) {
-				mtddevnum += current_partnum;
+			if (dev == current_mtd_dev) {
+				mtddevnum += current_mtd_partnum;
 				sprintf(buf, "%d", mtddevnum);
 				setenv("mtddevnum", buf);
 				break;
@@ -264,7 +264,7 @@ static void index_partitions(void)
 			mtddevnum += dev->num_parts;
 		}
 
-		part = mtd_part_info(current_dev, current_partnum);
+		part = mtd_part_info(current_mtd_dev, current_mtd_partnum);
 		setenv("mtddevname", part->name);
 
 		DEBUGF("=> mtddevnum %d,\n=> mtddevname %s\n", mtddevnum, part->name);
@@ -285,9 +285,9 @@ static void current_save(void)
 
 	DEBUGF("--- current_save ---\n");
 
-	if (current_dev) {
-		sprintf(buf, "%s%d,%d", MTD_DEV_TYPE(current_dev->id->type),
-					current_dev->id->num, current_partnum);
+	if (current_mtd_dev) {
+		sprintf(buf, "%s%d,%d", MTD_DEV_TYPE(current_mtd_dev->id->type),
+					current_mtd_dev->id->num, current_mtd_partnum);
 
 		setenv("partition", buf);
 		strncpy(last_partition, buf, 16);
@@ -498,18 +498,18 @@ static int part_del(struct mtd_device *dev, struct part_info *part)
 
 	/* otherwise just delete this partition */
 
-	if (dev == current_dev) {
+	if (dev == current_mtd_dev) {
 		/* we are modyfing partitions for the current device,
 		 * update current */
 		struct part_info *curr_pi;
-		curr_pi = mtd_part_info(current_dev, current_partnum);
+		curr_pi = mtd_part_info(current_mtd_dev, current_mtd_partnum);
 
 		if (curr_pi) {
 			if (curr_pi == part) {
 				printf("current partition deleted, resetting current to 0\n");
-				current_partnum = 0;
+				current_mtd_partnum = 0;
 			} else if (part->offset <= curr_pi->offset) {
-				current_partnum--;
+				current_mtd_partnum--;
 			}
 			current_save_needed = 1;
 		}
@@ -579,8 +579,8 @@ static int part_sort_add(struct mtd_device *dev, struct part_info *part)
 
 	/* get current partition info if we are updating current device */
 	curr_pi = NULL;
-	if (dev == current_dev)
-		curr_pi = mtd_part_info(current_dev, current_partnum);
+	if (dev == current_mtd_dev)
+		curr_pi = mtd_part_info(current_mtd_dev, current_mtd_partnum);
 
 	list_for_each(entry, &dev->parts) {
 		struct part_info *pi;
@@ -600,7 +600,7 @@ static int part_sort_add(struct mtd_device *dev, struct part_info *part)
 			if (curr_pi && (pi->offset <= curr_pi->offset)) {
 				/* we are modyfing partitions for the current
 				 * device, update current */
-				current_partnum++;
+				current_mtd_partnum++;
 				current_save();
 			} else {
 				index_partitions();
@@ -842,15 +842,15 @@ static int device_del(struct mtd_device *dev)
 	list_del(&dev->link);
 	free(dev);
 
-	if (dev == current_dev) {
+	if (dev == current_mtd_dev) {
 		/* we just deleted current device */
 		if (list_empty(&devices)) {
-			current_dev = NULL;
+			current_mtd_dev = NULL;
 		} else {
 			/* reset first partition from first dev from the
 			 * devices list as current */
-			current_dev = list_entry(devices.next, struct mtd_device, link);
-			current_partnum = 0;
+			current_mtd_dev = list_entry(devices.next, struct mtd_device, link);
+			current_mtd_partnum = 0;
 		}
 		current_save();
 		return 0;
@@ -893,8 +893,8 @@ static void device_add(struct mtd_device *dev)
 	u8 current_save_needed = 0;
 
 	if (list_empty(&devices)) {
-		current_dev = dev;
-		current_partnum = 0;
+		current_mtd_dev = dev;
+		current_mtd_partnum = 0;
 		current_save_needed = 1;
 	}
 
@@ -1050,7 +1050,7 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
 static int mtd_devices_init(void)
 {
 	last_parts[0] = '\0';
-	current_dev = NULL;
+	current_mtd_dev = NULL;
 	current_save();
 
 	return device_delall(&devices);
@@ -1330,13 +1330,13 @@ static void list_partitions(void)
 	if (list_empty(&devices))
 		printf("no partitions defined\n");
 
-	/* current_dev is not NULL only when we have non empty device list */
-	if (current_dev) {
-		part = mtd_part_info(current_dev, current_partnum);
+	/* current_mtd_dev is not NULL only when we have non empty device list */
+	if (current_mtd_dev) {
+		part = mtd_part_info(current_mtd_dev, current_mtd_partnum);
 		if (part) {
 			printf("\nactive partition: %s%d,%d - (%s) 0x%08x @ 0x%08x\n",
-					MTD_DEV_TYPE(current_dev->id->type),
-					current_dev->id->num, current_partnum,
+					MTD_DEV_TYPE(current_mtd_dev->id->type),
+					current_mtd_dev->id->num, current_mtd_partnum,
 					part->name, part->size, part->offset);
 		} else {
 			printf("could not get current partition info\n\n");
@@ -1709,13 +1709,13 @@ int mtdparts_init(void)
 		strncpy(last_parts, parts, MTDPARTS_MAXLEN);
 
 		/* reset first partition from first dev from the list as current */
-		current_dev = list_entry(devices.next, struct mtd_device, link);
-		current_partnum = 0;
+		current_mtd_dev = list_entry(devices.next, struct mtd_device, link);
+		current_mtd_partnum = 0;
 		current_save();
 
-		DEBUGF("mtdparts_init: current_dev  = %s%d, current_partnum = %d\n",
-				MTD_DEV_TYPE(current_dev->id->type),
-				current_dev->id->num, current_partnum);
+		DEBUGF("mtdparts_init: current_mtd_dev  = %s%d, current_mtd_partnum = %d\n",
+				MTD_DEV_TYPE(current_mtd_dev->id->type),
+				current_mtd_dev->id->num, current_mtd_partnum);
 	}
 
 	/* mtdparts variable was reset to NULL, delete all devices/partitions */
@@ -1735,8 +1735,8 @@ int mtdparts_init(void)
 		DEBUGF("--- getting current partition: %s\n", tmp_ep);
 
 		if (find_dev_and_part(tmp_ep, &cdev, &pnum, &p) == 0) {
-			current_dev = cdev;
-			current_partnum = pnum;
+			current_mtd_dev = cdev;
+			current_mtd_partnum = pnum;
 			current_save();
 		}
 	} else if (getenv("partition") == NULL) {
@@ -1820,8 +1820,8 @@ int do_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (find_dev_and_part(argv[1], &dev, &pnum, &part) != 0)
 		return 1;
 
-	current_dev = dev;
-	current_partnum = pnum;
+	current_mtd_dev = dev;
+	current_mtd_partnum = pnum;
 	current_save();
 
 	printf("partition changed to %s%d,%d\n",
