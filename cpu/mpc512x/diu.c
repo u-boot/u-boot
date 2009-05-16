@@ -95,7 +95,7 @@ int mpc5121_diu_init(void)
 		bmp = valid_bmp(bmp_env);
 	}
 	if (!bmp)
-		bmp = FSL_Logo_BMP;
+		bmp = (char *)FSL_Logo_BMP;
 	return fsl_diu_init(xres, pixel_format, 0, (unsigned char *)bmp);
 }
 
