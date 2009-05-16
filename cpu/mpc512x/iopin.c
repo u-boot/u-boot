@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <linux/types.h>
-#include <asm/immap_512x.h>
+#include <asm/io.h>
 
 void iopin_initialize(iopin_t *ioregs_init, int len)
 {
@@ -40,9 +40,9 @@ void iopin_initialize(iopin_t *ioregs_init, int len)
 		for (p = 0, j = ioregs_init[i].p_offset / sizeof(u_long);
 			p < ioregs_init[i].nr_pins; p++, j++) {
 			if (ioregs_init[i].bit_or)
-				reg[j] |= ioregs_init[i].val;
+				setbits_be32(reg + j, ioregs_init[i].val);
 			else
-				reg[j] = ioregs_init[i].val;
+				out_be32 (reg + j, ioregs_init[i].val);
 		}
 	}
 	return;

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003 - 2007
+ * (C) Copyright 2003 - 2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -31,8 +32,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #include <mpc512x.h>
 #include <i2c.h>
-
-#define immr ((immap_t *)CONFIG_SYS_IMMR)
 
 /* by default set I2C bus 0 active */
 static unsigned int bus_num = 0;
@@ -56,29 +55,24 @@ static int  mpc_get_fdr(int);
 
 static int mpc_reg_in (volatile u32 *reg)
 {
-	int ret = *reg >> 24;
-	__asm__ __volatile__ ("eieio");
+	int ret = in_be32(reg) >> 24;
+
 	return ret;
 }
 
 static void mpc_reg_out (volatile u32 *reg, int val, int mask)
 {
-	int tmp;
-
 	if (!mask) {
-		*reg = val << 24;
+		out_be32(reg, val << 24);
 	} else {
-		tmp = mpc_reg_in (reg);
-		*reg = ((tmp & ~mask) | (val & mask)) << 24;
+		clrsetbits_be32(reg, mask << 24, (val & mask) << 24);
 	}
-	__asm__ __volatile__ ("eieio");
-
-	return;
 }
 
 static int wait_for_bb (void)
 {
-	i2c512x_dev_t *regs = &immr->i2c.dev[bus_num];
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile i2c512x_dev_t *regs = &im->i2c.dev[bus_num];
 	int timeout = I2C_TIMEOUT;
 	int status;
 
@@ -101,7 +95,8 @@ static int wait_for_bb (void)
 
 static int wait_for_pin (int *status)
 {
-	i2c512x_dev_t *regs = &immr->i2c.dev[bus_num];
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile i2c512x_dev_t *regs = &im->i2c.dev[bus_num];
 	int timeout = I2C_TIMEOUT;
 
 	*status = mpc_reg_in (&regs->msr);
@@ -122,7 +117,8 @@ static int wait_for_pin (int *status)
 
 static int do_address (uchar chip, char rdwr_flag)
 {
-	i2c512x_dev_t *regs = &immr->i2c.dev[bus_num];
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile i2c512x_dev_t *regs = &im->i2c.dev[bus_num];
 	int status;
 
 	chip <<= 1;
@@ -147,7 +143,8 @@ static int do_address (uchar chip, char rdwr_flag)
 
 static int send_bytes (uchar chip, char *buf, int len)
 {
-	i2c512x_dev_t *regs = &immr->i2c.dev[bus_num];
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile i2c512x_dev_t *regs = &im->i2c.dev[bus_num];
 	int wrcount;
 	int status;
 
@@ -170,7 +167,8 @@ static int send_bytes (uchar chip, char *buf, int len)
 
 static int receive_bytes (uchar chip, char *buf, int len)
 {
-	i2c512x_dev_t *regs = &immr->i2c.dev[bus_num];
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile i2c512x_dev_t *regs = &im->i2c.dev[bus_num];
 	int dummy   = 1;
 	int rdcount = 0;
 	int status;
@@ -208,9 +206,12 @@ static int receive_bytes (uchar chip, char *buf, int len)
 
 void i2c_init (int speed, int saddr)
 {
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	int i;
-	for(i = 0; i < I2C_BUS_CNT; i++){
-		i2c512x_dev_t *regs = &immr->i2c.dev[i];
+
+	for (i = 0; i < I2C_BUS_CNT; i++){
+		volatile i2c512x_dev_t *regs = &im->i2c.dev[i];
+
 		mpc_reg_out (&regs->mcr, 0, 0);
 
 		/* Set clock */
@@ -223,10 +224,10 @@ void i2c_init (int speed, int saddr)
 	}
 
 	/* Disable interrupts */
-	immr->i2c.icr = 0;
+	out_be32(&im->i2c.icr, 0);
+
 	/* Turn off filters */
-	immr->i2c.mifr = 0;
-	return;
+	out_be32(&im->i2c.mifr, 0);
 }
 
 static int mpc_get_fdr (int speed)
@@ -281,7 +282,8 @@ static int mpc_get_fdr (int speed)
 
 int i2c_probe (uchar chip)
 {
-	i2c512x_dev_t *regs = &immr->i2c.dev[bus_num];
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile i2c512x_dev_t *regs = &im->i2c.dev[bus_num];
 	int i;
 
 	for (i = 0; i < I2C_RETRIES; i++) {
@@ -302,8 +304,9 @@ int i2c_probe (uchar chip)
 
 int i2c_read (uchar chip, uint addr, int alen, uchar *buf, int len)
 {
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile i2c512x_dev_t *regs = &im->i2c.dev[bus_num];
 	char xaddr[4];
-	i2c512x_dev_t *regs = &immr->i2c.dev[bus_num];
 	int ret = -1;
 
 	xaddr[0] = (addr >> 24) & 0xFF;
@@ -346,8 +349,9 @@ Done:
 
 int i2c_write (uchar chip, uint addr, int alen, uchar *buf, int len)
 {
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile i2c512x_dev_t *regs = &im->i2c.dev[bus_num];
 	char xaddr[4];
-	i2c512x_dev_t *regs = &immr->i2c.dev[bus_num];
 	int ret = -1;
 
 	xaddr[0] = (addr >> 24) & 0xFF;

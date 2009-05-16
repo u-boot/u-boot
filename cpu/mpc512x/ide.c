@@ -23,47 +23,46 @@
 
 #include <common.h>
 #include <command.h>
+#include <asm/io.h>
 #include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_IDE_RESET)
 
+void ide_set_reset (int idereset)
+{
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	debug ("ide_set_reset(%d)\n", idereset);
+
+	if (idereset) {
+		out_be32(&im->pata.pata_ata_control, 0);
+	} else {
+		out_be32(&im->pata.pata_ata_control, FSL_ATA_CTRL_ATA_RST_B);
+	}
+	udelay(100);
+}
+
 void init_ide_reset (void)
 {
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	debug ("init_ide_reset\n");
 
 	/*
 	 * Clear the reset bit to reset the interface
 	 * cf. RefMan MPC5121EE: 28.4.1 Resetting the ATA Bus
 	 */
-	immr->pata.pata_ata_control = 0;
-	udelay(100);
+	ide_set_reset(1);
+
 	/* Assert the reset bit to enable the interface */
-	immr->pata.pata_ata_control = FSL_ATA_CTRL_ATA_RST_B;
-	udelay(100);
-}
+	ide_set_reset(0);
 
-void ide_set_reset (int idereset)
-{
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	debug ("ide_set_reset(%d)\n", idereset);
-
-	if (idereset) {
-		immr->pata.pata_ata_control = 0;
-		udelay(100);
-	} else {
-		immr->pata.pata_ata_control = FSL_ATA_CTRL_ATA_RST_B;
-		udelay(100);
-	}
 }
 
 #define CALC_TIMING(t) (t + period - 1) / period
 
 int ide_preinit (void)
 {
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	long t;
 	const struct {
 		short t0;
@@ -92,13 +91,13 @@ int ide_preinit (void)
 			u8 field3;
 			u8 field4;
 		}bytes;
-	}cfg;
+	} cfg;
 
 	debug ("IDE preinit using PATA peripheral at IMMR-ADDR %08x\n",
-		(u32)&immr->pata);
+		(u32)&im->pata);
 
 	/* Set the reset bit to 1 to enable the interface */
-	immr->pata.pata_ata_control = FSL_ATA_CTRL_ATA_RST_B;
+	ide_set_reset(0);
 
 	/* Init timings : we use PIO mode 0 timings */
 	t = 1000000000 / gd->ips_clk;	/* period in ns */
@@ -107,19 +106,20 @@ int ide_preinit (void)
 	cfg.bytes.field3 = (pio_specs.t1 + t) / t;
 	cfg.bytes.field4 = (pio_specs.t2_8 + t) / t;
 
-	immr->pata.pata_time1 = cfg.config;
+	out_be32(&im->pata.pata_time1, cfg.config);
 
 	cfg.bytes.field1 = (pio_specs.t2_8 + t) / t;
 	cfg.bytes.field2 = (pio_specs.tA + t) / t + 2;
 	cfg.bytes.field3 = 1;
 	cfg.bytes.field4 = (pio_specs.t4 + t) / t;
 
-	immr->pata.pata_time2 = cfg.config;
+	out_be32(&im->pata.pata_time2, cfg.config);
 
-	cfg.config = immr->pata.pata_time3;
+	cfg.config = in_be32(&im->pata.pata_time3);
 	cfg.bytes.field1 = (pio_specs.t9 + t) / t;
 
-	immr->pata.pata_time3 = cfg.config;
+	out_be32(&im->pata.pata_time3, cfg.config);
+
 	debug ("PATA preinit complete.\n");
 
 	return 0;

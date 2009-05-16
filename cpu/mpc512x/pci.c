@@ -1,5 +1,6 @@
 /*
  * Copyright (C) Freescale Semiconductor, Inc. 2006, 2007. All rights reserved.
+ * Copyright (C) 2009 DENX Software Engineering <wd@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,6 +23,7 @@
 
 #include <common.h>
 
+#include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/global_data.h>
 #include <pci.h>
@@ -46,7 +48,7 @@ static struct pci_controller pci_hose;
 void
 pci_init_board(void)
 {
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile law512x_t *pci_law;
 	volatile pot512x_t *pci_pot;
 	volatile pcictrl512x_t *pci_ctrl;
@@ -58,24 +60,29 @@ pci_init_board(void)
 	struct pci_controller *hose;
 
 	/* Set PCI divider for 33MHz */
-	reg32 = immr->clk.scfr[0];
+	reg32 = im->clk.scfr[0];
 	reg32 &= ~(SCFR1_PCI_DIV_MASK);
 	reg32 |= SCFR1_PCI_DIV << SCFR1_PCI_DIV_SHIFT;
-	immr->clk.scfr[0] = reg32;
+	im->clk.scfr[0] = reg32;
 
-	pci_law = immr->sysconf.pcilaw;
-	pci_pot = immr->ios.pot;
-	pci_ctrl = &immr->pci_ctrl;
-	pci_conf = &immr->pci_conf;
+	clrsetbits_be32(&im->clk.scfr[0],
+			SCFR1_PCI_DIV_MASK,
+			SCFR1_PCI_DIV << SCFR1_PCI_DIV_SHIFT
+	);
+
+	pci_law = im->sysconf.pcilaw;
+	pci_pot = im->ios.pot;
+	pci_ctrl = &im->pci_ctrl;
+	pci_conf = &im->pci_conf;
 
 	hose = &pci_hose;
 
 	/*
 	 * Release PCI RST Output signal
 	 */
-	pci_ctrl->gcr = 0;
+	out_be32(&pci_ctrl->gcr, 0);
 	udelay(2000);
-	pci_ctrl->gcr = 1;
+	out_be32(&pci_ctrl->gcr, 1);
 
 	/* We need to wait at least a 1sec based on PCI specs */
 	for (i = 0; i < 1000; i++)
@@ -84,30 +91,39 @@ pci_init_board(void)
 	/*
 	 * Configure PCI Local Access Windows
 	 */
-	pci_law[0].bar = CONFIG_SYS_PCI_MEM_PHYS & LAWBAR_BAR;
-	pci_law[0].ar = LAWAR_EN | LAWAR_SIZE_512M;
+	out_be32(&pci_law[0].bar, CONFIG_SYS_PCI_MEM_PHYS & LAWBAR_BAR);
+	out_be32(&pci_law[0].ar, LAWAR_EN | LAWAR_SIZE_512M);
 
-	pci_law[1].bar = CONFIG_SYS_PCI_IO_PHYS & LAWBAR_BAR;
-	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_16M;
+	out_be32(&pci_law[1].bar, CONFIG_SYS_PCI_IO_PHYS & LAWBAR_BAR);
+	out_be32(&pci_law[1].ar, LAWAR_EN | LAWAR_SIZE_16M);
 
 	/*
 	 * Configure PCI Outbound Translation Windows
 	 */
 
 	/* PCI mem space - prefetch */
-	pci_pot[0].potar = (CONFIG_SYS_PCI_MEM_BASE >> 12) & POTAR_TA_MASK;
-	pci_pot[0].pobar = (CONFIG_SYS_PCI_MEM_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[0].pocmr = POCMR_EN | POCMR_PRE | POCMR_CM_256M;
+	out_be32(&pci_pot[0].potar,
+		(CONFIG_SYS_PCI_MEM_BASE >> 12) & POTAR_TA_MASK);
+	out_be32(&pci_pot[0].pobar,
+		(CONFIG_SYS_PCI_MEM_PHYS >> 12) & POBAR_BA_MASK);
+	out_be32(&pci_pot[0].pocmr,
+		POCMR_EN | POCMR_PRE | POCMR_CM_256M);
 
 	/* PCI IO space */
-	pci_pot[1].potar = (CONFIG_SYS_PCI_IO_BASE >> 12) & POTAR_TA_MASK;
-	pci_pot[1].pobar = (CONFIG_SYS_PCI_IO_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[1].pocmr = POCMR_EN | POCMR_IO | POCMR_CM_16M;
+	out_be32(&pci_pot[1].potar,
+		(CONFIG_SYS_PCI_IO_BASE >> 12) & POTAR_TA_MASK);
+	out_be32(&pci_pot[1].pobar,
+		(CONFIG_SYS_PCI_IO_PHYS >> 12) & POBAR_BA_MASK);
+	out_be32(&pci_pot[1].pocmr,
+		POCMR_EN | POCMR_IO | POCMR_CM_16M);
 
 	/* PCI mmio - non-prefetch mem space */
-	pci_pot[2].potar = (CONFIG_SYS_PCI_MMIO_BASE >> 12) & POTAR_TA_MASK;
-	pci_pot[2].pobar = (CONFIG_SYS_PCI_MMIO_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[2].pocmr = POCMR_EN | POCMR_CM_256M;
+	out_be32(&pci_pot[2].potar,
+		(CONFIG_SYS_PCI_MMIO_BASE >> 12) & POTAR_TA_MASK);
+	out_be32(&pci_pot[2].pobar,
+		(CONFIG_SYS_PCI_MMIO_PHYS >> 12) & POBAR_BA_MASK);
+	out_be32(&pci_pot[2].pocmr,
+		POCMR_EN | POCMR_CM_256M);
 
 	/*
 	 * Configure PCI Inbound Translation Windows
@@ -115,11 +131,12 @@ pci_init_board(void)
 
 	/* we need RAM mapped to PCI space for the devices to
 	 * access main memory */
-	pci_ctrl[0].pitar1 = 0x0;
-	pci_ctrl[0].pibar1 = 0x0;
-	pci_ctrl[0].piebar1 = 0x0;
-	pci_ctrl[0].piwar1 = PIWAR_EN | PIWAR_PF | PIWAR_RTT_SNOOP |
-	    PIWAR_WTT_SNOOP | (__ilog2(gd->ram_size) - 1);
+	out_be32(&pci_ctrl[0].pitar1, 0x0);
+	out_be32(&pci_ctrl[0].pibar1, 0x0);
+	out_be32(&pci_ctrl[0].piebar1, 0x0);
+	out_be32(&pci_ctrl[0].piwar1,
+		PIWAR_EN | PIWAR_PF | PIWAR_RTT_SNOOP |
+		PIWAR_WTT_SNOOP | (__ilog2(gd->ram_size) - 1));
 
 	hose->first_busno = 0;
 	hose->last_busno = 0xff;
