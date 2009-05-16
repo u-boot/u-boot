@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007 DENX Software Engineering
+ * (C) Copyright 2007-2009 DENX Software Engineering
  *
  * MPC512x Internal Memory Map
  *
@@ -151,7 +151,14 @@ typedef struct pmc512x {
  * General purpose I/O module
  */
 typedef struct gpio512x {
-	u8 fixme[0x100];
+	u32 gpdir;
+	u32 gpodr;
+	u32 gpdat;
+	u32 gpier;
+	u32 gpimr;
+	u32 gpicr1;
+	u32 gpicr2;
+	u8 res0[0xE4];
 } gpio512x_t;
 
 /*
@@ -380,7 +387,49 @@ typedef struct cfm512x {
  * FEC
  */
 typedef struct fec512x {
-	u8 fixme[0x800];
+	u32	fec_id;		/* FEC_ID register */
+	u32	ievent;		/* Interrupt event register */
+	u32	imask;		/* Interrupt mask register */
+	u32	reserved_01;
+	u32	r_des_active;	/* Receive ring updated flag */
+	u32	x_des_active;	/* Transmit ring updated flag */
+	u32	reserved_02[3];
+	u32	ecntrl;		/* Ethernet control register */
+	u32	reserved_03[6];
+	u32	mii_data;	/* MII data register */
+	u32	mii_speed;	/* MII speed register */
+	u32	reserved_04[7];
+	u32	mib_control;	/* MIB control/status register */
+	u32	reserved_05[7];
+	u32	r_cntrl;	/* Receive control register */
+	u32	r_hash;		/* Receive hash */
+	u32	reserved_06[14];
+	u32	x_cntrl;	/* Transmit control register */
+	u32	reserved_07[7];
+	u32	paddr1;		/* Physical address low */
+	u32	paddr2;		/* Physical address high + type field */
+	u32	op_pause;	/* Opcode + pause duration */
+	u32	reserved_08[10];
+	u32	iaddr1;		/* Upper 32 bits of individual hash table */
+	u32	iaddr2;		/* Lower 32 bits of individual hash table */
+	u32	gaddr1;		/* Upper 32 bits of group hash table */
+	u32	gaddr2;		/* Lower 32 bits of group hash table */
+	u32	reserved_09[7];
+	u32	x_wmrk;		/* Transmit FIFO watermark */
+	u32	reserved_10;
+	u32	r_bound;	/* End of RAM */
+	u32	r_fstart;	/* Receive FIFO start address */
+	u32	reserved_11[11];
+	u32	r_des_start;	/* Beginning of receive descriptor ring */
+	u32	x_des_start;	/* Pointer to beginning of transmit descriptor ring */
+	u32	r_buff_size;	/* Receive buffer size */
+	u32	reserved_12[26];
+	u32	dma_control;	/* DMA control for IP bus, AMBA IF + DMA revision */
+	u32	reserved_13[2];
+
+	u32	mib[128];	/* MIB Block Counters */
+
+	u32	fifo[256];	/*  used by FEC, can only be accessed by DMA */
 } fec512x_t;
 
 /*
@@ -408,7 +457,200 @@ typedef struct pcidma512x {
  * IO Control
  */
 typedef struct ioctrl512x {
-	u32 regs[0x400];
+	u32	io_control_mem;			/* MEM pad ctrl reg */
+	u32	io_control_gp;			/* GP pad ctrl reg */
+	u32	io_control_lpc_clk;		/* LPC_CLK pad ctrl reg */
+	u32	io_control_lpc_oe;		/* LPC_OE pad ctrl reg */
+	u32	io_control_lpc_rw;		/* LPC_R/W pad ctrl reg */
+	u32	io_control_lpc_ack;		/* LPC_ACK pad ctrl reg */
+	u32	io_control_lpc_cs0;		/* LPC_CS0 pad ctrl reg */
+	u32	io_control_nfc_ce0;		/* NFC_CE0 pad ctrl reg */
+	u32	io_control_lpc_cs1;		/* LPC_CS1 pad ctrl reg */
+	u32	io_control_lpc_cs2;		/* LPC_CS2 pad ctrl reg */
+	u32	io_control_lpc_ax03;		/* LPC_AX03 pad ctrl reg */
+	u32	io_control_emb_ax02;		/* EMB_AX02 pad ctrl reg */
+	u32	io_control_emb_ax01;		/* EMB_AX01 pad ctrl reg */
+	u32	io_control_emb_ax00;		/* EMB_AX00 pad ctrl reg */
+	u32	io_control_emb_ad31;		/* EMB_AD31 pad ctrl reg */
+	u32	io_control_emb_ad30;		/* EMB_AD30 pad ctrl reg */
+	u32	io_control_emb_ad29;		/* EMB_AD29 pad ctrl reg */
+	u32	io_control_emb_ad28;		/* EMB_AD28 pad ctrl reg */
+	u32	io_control_emb_ad27;		/* EMB_AD27 pad ctrl reg */
+	u32	io_control_emb_ad26;		/* EMB_AD26 pad ctrl reg */
+	u32	io_control_emb_ad25;		/* EMB_AD25 pad ctrl reg */
+	u32	io_control_emb_ad24;		/* EMB_AD24 pad ctrl reg */
+	u32	io_control_emb_ad23;		/* EMB_AD23 pad ctrl reg */
+	u32	io_control_emb_ad22;		/* EMB_AD22 pad ctrl reg */
+	u32	io_control_emb_ad21;		/* EMB_AD21 pad ctrl reg */
+	u32	io_control_emb_ad20;		/* EMB_AD20 pad ctrl reg */
+	u32	io_control_emb_ad19;		/* EMB_AD19 pad ctrl reg */
+	u32	io_control_emb_ad18;		/* EMB_AD18 pad ctrl reg */
+	u32	io_control_emb_ad17;		/* EMB_AD17 pad ctrl reg */
+	u32	io_control_emb_ad16;		/* EMB_AD16 pad ctrl reg */
+	u32	io_control_emb_ad15;		/* EMB_AD15 pad ctrl reg */
+	u32	io_control_emb_ad14;		/* EMB_AD14 pad ctrl reg */
+	u32	io_control_emb_ad13;		/* EMB_AD13 pad ctrl reg */
+	u32	io_control_emb_ad12;		/* EMB_AD12 pad ctrl reg */
+	u32	io_control_emb_ad11;		/* EMB_AD11 pad ctrl reg */
+	u32	io_control_emb_ad10;		/* EMB_AD10 pad ctrl reg */
+	u32	io_control_emb_ad09;		/* EMB_AD09 pad ctrl reg */
+	u32	io_control_emb_ad08;		/* EMB_AD08 pad ctrl reg */
+	u32	io_control_emb_ad07;		/* EMB_AD07 pad ctrl reg */
+	u32	io_control_emb_ad06;		/* EMB_AD06 pad ctrl reg */
+	u32	io_control_emb_ad05;		/* EMB_AD05 pad ctrl reg */
+	u32	io_control_emb_ad04;		/* EMB_AD04 pad ctrl reg */
+	u32	io_control_emb_ad03;		/* EMB_AD03 pad ctrl reg */
+	u32	io_control_emb_ad02;		/* EMB_AD02 pad ctrl reg */
+	u32	io_control_emb_ad01;		/* EMB_AD01 pad ctrl reg */
+	u32	io_control_emb_ad00;		/* EMB_AD00 pad ctrl reg */
+	u32	io_control_pata_ce1;		/* PATA_CE1 pad ctrl reg */
+	u32	io_control_pata_ce2;		/* PATA_CE2 pad ctrl reg */
+	u32	io_control_pata_isolate;	/* PATA_ISOLATE pad ctrl reg */
+	u32	io_control_pata_ior;		/* PATA_IOR pad ctrl reg */
+	u32	io_control_pata_iow;		/* PATA_IOW pad ctrl reg */
+	u32	io_control_pata_iochrdy;	/* PATA_IOCHRDY pad ctrl reg */
+	u32	io_control_pata_intrq;		/* PATA_INTRQ pad ctrl reg */
+	u32	io_control_pata_drq;		/* PATA_DRQ pad ctrl reg */
+	u32	io_control_pata_dack;		/* PATA_DACK pad ctrl reg */
+	u32	io_control_nfc_wp;		/* NFC_WP pad ctrl reg */
+	u32	io_control_nfc_rb;		/* NFC_RB pad ctrl reg */
+	u32	io_control_nfc_ale;		/* NFC_ALE pad ctrl reg */
+	u32	io_control_nfc_cle;		/* NFC_CLE pad ctrl reg */
+	u32	io_control_nfc_we;		/* NFC_WE pad ctrl reg */
+	u32	io_control_nfc_re;		/* NFC_RE pad ctrl reg */
+	u32	io_control_pci_ad31;		/* PCI_AD31 pad ctrl reg */
+	u32	io_control_pci_ad30;		/* PCI_AD30 pad ctrl reg */
+	u32	io_control_pci_ad29;		/* PCI_AD29 pad ctrl reg */
+	u32	io_control_pci_ad28;		/* PCI_AD28 pad ctrl reg */
+	u32	io_control_pci_ad27;		/* PCI_AD27 pad ctrl reg */
+	u32	io_control_pci_ad26;		/* PCI_AD26 pad ctrl reg */
+	u32	io_control_pci_ad25;		/* PCI_AD25 pad ctrl reg */
+	u32	io_control_pci_ad24;		/* PCI_AD24 pad ctrl reg */
+	u32	io_control_pci_ad23;		/* PCI_AD23 pad ctrl reg */
+	u32	io_control_pci_ad22;		/* PCI_AD22 pad ctrl reg */
+	u32	io_control_pci_ad21;		/* PCI_AD21 pad ctrl reg */
+	u32	io_control_pci_ad20;		/* PCI_AD20 pad ctrl reg */
+	u32	io_control_pci_ad19;		/* PCI_AD19 pad ctrl reg */
+	u32	io_control_pci_ad18;		/* PCI_AD18 pad ctrl reg */
+	u32	io_control_pci_ad17;		/* PCI_AD17 pad ctrl reg */
+	u32	io_control_pci_ad16;		/* PCI_AD16 pad ctrl reg */
+	u32	io_control_pci_ad15;		/* PCI_AD15 pad ctrl reg */
+	u32	io_control_pci_ad14;		/* PCI_AD14 pad ctrl reg */
+	u32	io_control_pci_ad13;		/* PCI_AD13 pad ctrl reg */
+	u32	io_control_pci_ad12;		/* PCI_AD12 pad ctrl reg */
+	u32	io_control_pci_ad11;		/* PCI_AD11 pad ctrl reg */
+	u32	io_control_pci_ad10;		/* PCI_AD10 pad ctrl reg */
+	u32	io_control_pci_ad09;		/* PCI_AD09 pad ctrl reg */
+	u32	io_control_pci_ad08;		/* PCI_AD08 pad ctrl reg */
+	u32	io_control_pci_ad07;		/* PCI_AD07 pad ctrl reg */
+	u32	io_control_pci_ad06;		/* PCI_AD06 pad ctrl reg */
+	u32	io_control_pci_ad05;		/* PCI_AD05 pad ctrl reg */
+	u32	io_control_pci_ad04;		/* PCI_AD04 pad ctrl reg */
+	u32	io_control_pci_ad03;		/* PCI_AD03 pad ctrl reg */
+	u32	io_control_pci_ad02;		/* PCI_AD02 pad ctrl reg */
+	u32	io_control_pci_ad01;		/* PCI_AD01 pad ctrl reg */
+	u32	io_control_pci_ad00;		/* PCI_AD00 pad ctrl reg */
+	u32	io_control_pci_cbe0;		/* PCI_CBE0 pad ctrl reg */
+	u32	io_control_pci_cbe1;		/* PCI_CBE1 pad ctrl reg */
+	u32	io_control_pci_cbe2;		/* PCI_CBE2 pad ctrl reg */
+	u32	io_control_pci_cbe3;		/* PCI_CBE3 pad ctrl reg */
+	u32	io_control_pci_grant2;		/* PCI_GRANT2 pad ctrl reg */
+	u32	io_control_pci_req2;		/* PCI_REQ2 pad ctrl reg */
+	u32	io_control_pci_grant1;		/* PCI_GRANT1 pad ctrl reg */
+	u32	io_control_pci_req1;		/* PCI_REQ1 pad ctrl reg */
+	u32	io_control_pci_grant0;		/* PCI_GRANT0 pad ctrl reg */
+	u32	io_control_pci_req0;		/* PCI_REQ0 pad ctrl reg */
+	u32	io_control_pci_inta;		/* PCI_INTA pad ctrl reg */
+	u32	io_control_pci_clk;		/* PCI_CLK pad ctrl reg */
+	u32	io_control_pci_rst;		/* PCI_RST- pad ctrl reg */
+	u32	io_control_pci_frame;		/* PCI_FRAME pad ctrl reg */
+	u32	io_control_pci_idsel;		/* PCI_IDSEL pad ctrl reg */
+	u32	io_control_pci_devsel;		/* PCI_DEVSEL pad ctrl reg */
+	u32	io_control_pci_irdy;		/* PCI_IRDY pad ctrl reg */
+	u32	io_control_pci_trdy;		/* PCI_TRDY pad ctrl reg */
+	u32	io_control_pci_stop;		/* PCI_STOP pad ctrl reg */
+	u32	io_control_pci_par;		/* PCI_PAR pad ctrl reg */
+	u32	io_control_pci_perr;		/* PCI_PERR pad ctrl reg */
+	u32	io_control_pci_serr;		/* PCI_SERR pad ctrl reg */
+	u32	io_control_spdif_txclk;		/* SPDIF_TXCLK pad ctrl reg */
+	u32	io_control_spdif_tx;		/* SPDIF_TX pad ctrl reg */
+	u32	io_control_spdif_rx;		/* SPDIF_RX pad ctrl reg */
+	u32	io_control_i2c0_scl;		/* I2C0_SCL pad ctrl reg */
+	u32	io_control_i2c0_sda;		/* I2C0_SDA pad ctrl reg */
+	u32	io_control_i2c1_scl;		/* I2C1_SCL pad ctrl reg */
+	u32	io_control_i2c1_sda;		/* I2C1_SDA pad ctrl reg */
+	u32	io_control_i2c2_scl;		/* I2C2_SCL pad ctrl reg */
+	u32	io_control_i2c2_sda;		/* I2C2_SDA pad ctrl reg */
+	u32	io_control_irq0;		/* IRQ0 pad ctrl reg */
+	u32	io_control_irq1;		/* IRQ1 pad ctrl reg */
+	u32	io_control_can1_tx;		/* CAN1_TX pad ctrl reg */
+	u32	io_control_can2_tx;		/* CAN2_TX pad ctrl reg */
+	u32	io_control_j1850_tx;		/* J1850_TX pad ctrl reg */
+	u32	io_control_j1850_rx;		/* J1850_RX pad ctrl reg */
+	u32	io_control_psc_mclk_in;		/* PSC_MCLK_IN pad ctrl reg */
+	u32	io_control_psc0_0;		/* PSC0_0 pad ctrl reg */
+	u32	io_control_psc0_1;		/* PSC0_1 pad ctrl reg */
+	u32	io_control_psc0_2;		/* PSC0_2 pad ctrl reg */
+	u32	io_control_psc0_3;		/* PSC0_3 pad ctrl reg */
+	u32	io_control_psc0_4;		/* PSC0_4 pad ctrl reg */
+	u32	io_control_psc1_0;		/* PSC1_0 pad ctrl reg */
+	u32	io_control_psc1_1;		/* PSC1_1 pad ctrl reg */
+	u32	io_control_psc1_2;		/* PSC1_2 pad ctrl reg */
+	u32	io_control_psc1_3;		/* PSC1_3 pad ctrl reg */
+	u32	io_control_psc1_4;		/* PSC1_4 pad ctrl reg */
+	u32	io_control_psc2_0;		/* PSC2_0 pad ctrl reg */
+	u32	io_control_psc2_1;		/* PSC2_1 pad ctrl reg */
+	u32	io_control_psc2_2;		/* PSC2_2 pad ctrl reg */
+	u32	io_control_psc2_3;		/* PSC2_3 pad ctrl reg */
+	u32	io_control_psc2_4;		/* PSC2_4 pad ctrl reg */
+	u32	io_control_psc3_0;		/* PSC3_0 pad ctrl reg */
+	u32	io_control_psc3_1;		/* PSC3_1 pad ctrl reg */
+	u32	io_control_psc3_2;		/* PSC3_2 pad ctrl reg */
+	u32	io_control_psc3_3;		/* PSC3_3 pad ctrl reg */
+	u32	io_control_psc3_4;		/* PSC3_4 pad ctrl reg */
+	u32	io_control_psc4_0;		/* PSC4_0 pad ctrl reg */
+	u32	io_control_psc4_1;		/* PSC4_1 pad ctrl reg */
+	u32	io_control_psc4_2;		/* PSC4_2 pad ctrl reg */
+	u32	io_control_psc4_3;		/* PSC4_3 pad ctrl reg */
+	u32	io_control_psc4_4;		/* PSC4_4 pad ctrl reg */
+	u32	io_control_psc5_0;		/* PSC5_0 pad ctrl reg */
+	u32	io_control_psc5_1;		/* PSC5_1 pad ctrl reg */
+	u32	io_control_psc5_2;		/* PSC5_2 pad ctrl reg */
+	u32	io_control_psc5_3;		/* PSC5_3 pad ctrl reg */
+	u32	io_control_psc5_4;		/* PSC5_4 pad ctrl reg */
+	u32	io_control_psc6_0;		/* PSC6_0 pad ctrl reg */
+	u32	io_control_psc6_1;		/* PSC6_1 pad ctrl reg */
+	u32	io_control_psc6_2;		/* PSC6_2 pad ctrl reg */
+	u32	io_control_psc6_3;		/* PSC6_3 pad ctrl reg */
+	u32	io_control_psc6_4;		/* PSC6_4 pad ctrl reg */
+	u32	io_control_psc7_0;		/* PSC7_0 pad ctrl reg */
+	u32	io_control_psc7_1;		/* PSC7_1 pad ctrl reg */
+	u32	io_control_psc7_2;		/* PSC7_2 pad ctrl reg */
+	u32	io_control_psc7_3;		/* PSC7_3 pad ctrl reg */
+	u32	io_control_psc7_4;		/* PSC7_4 pad ctrl reg */
+	u32	io_control_psc8_0;		/* PSC8_0 pad ctrl reg */
+	u32	io_control_psc8_1;		/* PSC8_1 pad ctrl reg */
+	u32	io_control_psc8_2;		/* PSC8_2 pad ctrl reg */
+	u32	io_control_psc8_3;		/* PSC8_3 pad ctrl reg */
+	u32	io_control_psc8_4;		/* PSC8_4 pad ctrl reg */
+	u32	io_control_psc9_0;		/* PSC9_0 pad ctrl reg */
+	u32	io_control_psc9_1;		/* PSC9_1 pad ctrl reg */
+	u32	io_control_psc9_2;		/* PSC9_2 pad ctrl reg */
+	u32	io_control_psc9_3;		/* PSC9_3 pad ctrl reg */
+	u32	io_control_psc9_4;		/* PSC9_4 pad ctrl reg */
+	u32	io_control_psc10_0;		/* PSC10_0 pad ctrl reg */
+	u32	io_control_psc10_1;		/* PSC10_1 pad ctrl reg */
+	u32	io_control_psc10_2;		/* PSC10_2 pad ctrl reg */
+	u32	io_control_psc10_3;		/* PSC10_3 pad ctrl reg */
+	u32	io_control_psc10_4;		/* PSC10_4 pad ctrl reg */
+	u32	io_control_psc11_0;		/* PSC11_0 pad ctrl reg */
+	u32	io_control_psc11_1;		/* PSC11_1 pad ctrl reg */
+	u32	io_control_psc11_2;		/* PSC11_2 pad ctrl reg */
+	u32	io_control_psc11_3;		/* PSC11_3 pad ctrl reg */
+	u32	io_control_psc11_4;		/* PSC11_4 pad ctrl reg */
+	u32	io_control_ckstp_out;		/* CKSTP_OUT pad ctrl reg */
+	u32	io_control_usb_phy_drvvbus;	/* USB2_DRVVBUS pad ctrl reg */
+	u8	reserved[0x0cfc];		/* fill to 4096 bytes size */
 } ioctrl512x_t;
 
 /*
@@ -447,7 +689,8 @@ typedef struct lpc512x {
 	u32	cs_bcr;		/* Chip Select Burst Control Register */
 	u32	cs_dccr;	/* Chip Select Deadcycle Control Register */
 	u32	cs_hccr;	/* Chip Select Holdcycle Control Register */
-	u8	res0[0xcc];
+	u32	altr;		/* Address Latch Timing Register */
+	u8	res0[0xc8];
 	u32	sclpc_psr;	/* SCLPC Packet Size Register */
 	u32	sclpc_sar;	/* SCLPC Start Address Register */
 	u32	sclpc_cr;	/* SCLPC Control Register */

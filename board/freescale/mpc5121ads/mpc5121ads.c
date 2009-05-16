@@ -134,7 +134,7 @@ long int fixed_sdram (void)
 	u32 i;
 
 	/* Initialize IO Control */
-	im->io_ctrl.regs[IOCTL_MEM/4] = IOCTRL_MUX_DDR;
+	im->io_ctrl.io_control_mem = IOCTRL_MUX_DDR;
 
 	/* Initialize DDR Local Window */
 	im->sysconf.ddrlaw.bar = CONFIG_SYS_DDR_BASE & 0xFFFFF000;
