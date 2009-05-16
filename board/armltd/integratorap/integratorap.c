@@ -38,8 +38,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-void flash__init (void);
-void ether__init (void);
 void peripheral_power_enable (void);
 
 #if defined(CONFIG_SHOW_BOOT_PROGRESS)
@@ -50,13 +48,6 @@ void show_boot_progress(int progress)
 #endif
 
 #define COMP_MODE_ENABLE ((unsigned int)0x0000EAEF)
-
-static inline void delay (unsigned long loops)
-{
-	__asm__ volatile ("1:\n"
-		"subs %0, %1, #1\n"
-		"bne 1b":"=r" (loops):"0" (loops));
-}
 
 /*
  * Miscellaneous platform dependent initialisations
@@ -79,10 +70,8 @@ extern void cm_remap(void);
 
 	icache_enable ();
 
-	flash__init ();
 	return 0;
 }
-
 
 int misc_init_r (void)
 {
@@ -91,23 +80,6 @@ int misc_init_r (void)
 #endif
 	setenv("verify", "n");
 	return (0);
-}
-
-
-/******************************
- Routine:
- Description:
-******************************/
-void flash__init (void)
-{
-}
-/*************************************************************
- Routine:ether__init
- Description: take the Ethernet controller out of reset and wait
-			   for the EEPROM load to complete.
-*************************************************************/
-void ether__init (void)
-{
 }
 
 /******************************
