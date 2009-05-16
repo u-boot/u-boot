@@ -821,6 +821,9 @@ v38b_config: unconfig
 ## MPC512x Systems
 #########################################################################
 
+aria_config:	unconfig
+	@$(MKCONFIG) -a aria ppc mpc512x aria davedenx
+
 mpc5121ads_config \
 mpc5121ads_rev2_config	\
 	: unconfig
@@ -829,7 +832,6 @@ mpc5121ads_rev2_config	\
 		echo "#define CONFIG_ADS5121_REV2 1" > $(obj)include/config.h; \
 	fi
 	@$(MKCONFIG) -a mpc5121ads ppc mpc512x mpc5121ads freescale
-
 
 #########################################################################
 ## MPC8xx Systems

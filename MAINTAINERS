@@ -75,6 +75,8 @@ Wolfgang Denk <wd@denx.de>
 	IceCube_5100	MGT5100
 	IceCube_5200	MPC5200
 
+	ARIA		MPC5121e
+
 	AMX860		MPC860
 	ETX094		MPC850
 	FPS850L		MPC850
