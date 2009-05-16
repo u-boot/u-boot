@@ -50,6 +50,7 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_PXA_SERIAL
 #define CONFIG_FFUART		1	/* we use FFUART on CSB226 */
 
 /* allow to overwrite serial and ethaddr */
