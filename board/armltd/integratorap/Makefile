@@ -32,7 +32,6 @@ LIB	= $(obj)lib$(BOARD).a
 SOBJS-y	:= lowlevel_init.o
 
 COBJS-y	:= integratorap.o
-COBJS-y	+= flash.o
 COBJS-$(CONFIG_PCI) += pci.o
 COBJS-y += timer.o
 
