@@ -27,10 +27,8 @@
 #include <command.h>
 #include <asm/io.h>
 
-#ifdef CONFIG_FSL_DIU_FB
-
-#include "../freescale/common/pixis.h"
-#include "../freescale/common/fsl_diu_fb.h"
+#include "../../board/freescale/common/pixis.h"
+#include "../../board/freescale/common/fsl_diu_fb.h"
 
 #if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
 #include <devices.h>
@@ -81,7 +79,7 @@ char *valid_bmp(char *addr)
 		return (char *)h_addr;
 }
 
-int ads5121_diu_init(void)
+int mpc5121_diu_init(void)
 {
 	unsigned int pixel_format;
 	char *bmp = NULL;
@@ -91,7 +89,7 @@ int ads5121_diu_init(void)
 	yres = 768;
 	pixel_format = 0x88883316;
 
-	debug("ads5121_diu_init\n");
+	debug("mpc5121_diu_init\n");
 	bmp_env = getenv("diu_bmp_addr");
 	if (bmp_env) {
 		bmp = valid_bmp(bmp_env);
@@ -101,7 +99,7 @@ int ads5121_diu_init(void)
 	return fsl_diu_init(xres, pixel_format, 0, (unsigned char *)bmp);
 }
 
-int ads5121diu_init_show_bmp(cmd_tbl_t *cmdtp,
+int mpc5121diu_init_show_bmp(cmd_tbl_t *cmdtp,
 			     int flag, int argc, char *argv[])
 {
 	unsigned int addr;
@@ -116,7 +114,7 @@ int ads5121diu_init_show_bmp(cmd_tbl_t *cmdtp,
 		fsl_diu_clear_screen();
 		drv_video_init();
 #else
-		return ads5121_diu_init();
+		return mpc5121_diu_init();
 #endif
 	} else {
 		addr = simple_strtoul(argv[1], NULL, 16);
@@ -128,7 +126,7 @@ int ads5121diu_init_show_bmp(cmd_tbl_t *cmdtp,
 }
 
 U_BOOT_CMD(
-	diufb, CONFIG_SYS_MAXARGS, 1, ads5121diu_init_show_bmp,
+	diufb, CONFIG_SYS_MAXARGS, 1, mpc5121diu_init_show_bmp,
 	"Init or Display BMP file",
 	"init\n    - initialize DIU\n"
 	"addr\n    - display bmp at address 'addr'"
@@ -146,7 +144,7 @@ void *video_hw_init(void)
 	GraphicDevice *pGD = (GraphicDevice *) &ctfb;
 	struct fb_info *info;
 
-	if (ads5121_diu_init() < 0)
+	if (mpc5121_diu_init() < 0)
 		return;
 
 	/* fill in Graphic device struct */
@@ -189,5 +187,3 @@ void video_set_lut
 }
 
 #endif /* defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE) */
-
-#endif /* CONFIG_FSL_DIU_FB */

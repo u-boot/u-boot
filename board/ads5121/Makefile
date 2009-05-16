@@ -28,10 +28,6 @@ $(shell mkdir -p $(OBJTREE)/board/freescale/common)
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS-y	:= $(BOARD).o
-COBJS-${CONFIG_FSL_DIU_FB} += ads5121_diu.o
-COBJS-${CONFIG_FSL_DIU_FB} += ../freescale/common/fsl_diu_fb.o
-COBJS-${CONFIG_FSL_DIU_FB} += ../freescale/common/fsl_logo_bmp.o
-COBJS-$(CONFIG_PCI) += pci.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
