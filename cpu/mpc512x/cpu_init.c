@@ -25,7 +25,6 @@
  */
 
 #include <common.h>
-#include <mpc512x.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 

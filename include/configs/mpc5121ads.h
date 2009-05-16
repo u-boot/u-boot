@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007, 2008 DENX Software Engineering
+ * (C) Copyright 2007-2009 DENX Software Engineering
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -519,7 +519,7 @@
 #define CONFIG_SYS_IDE_MAXDEVICE	2	/* max. 1 drive per IDE bus	*/
 
 #define CONFIG_SYS_ATA_IDE0_OFFSET	0x0000
-#define CONFIG_SYS_ATA_BASE_ADDR	MPC512X_PATA
+#define CONFIG_SYS_ATA_BASE_ADDR	get_pata_base()
 
 /* Offset for data I/O			RefMan MPC5121EE Table 28-10	*/
 #define CONFIG_SYS_ATA_DATA_OFFSET	(0x00A0)
@@ -533,7 +533,7 @@
 /* Interval between registers	*/
 #define CONFIG_SYS_ATA_STRIDE		4
 
-#define ATA_BASE_ADDR		MPC512X_PATA
+#define ATA_BASE_ADDR			get_pata_base()
 
 /*
  * Control register bit definitions

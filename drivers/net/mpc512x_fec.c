@@ -7,7 +7,6 @@
  */
 
 #include <common.h>
-#include <mpc512x.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
@@ -27,11 +26,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #if (DEBUG & 0x40)
-static uint32 local_crc32(char *string, unsigned int crc_value, int len);
+static u32 local_crc32(char *string, unsigned int crc_value, int len);
 #endif
 
-int fec512x_miiphy_read(char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal);
-int fec512x_miiphy_write(char *devname, uint8 phyAddr, uint8 regAddr, uint16 data);
+int fec512x_miiphy_read(char *devname, u8 phyAddr, u8 regAddr, u16 * retVal);
+int fec512x_miiphy_write(char *devname, u8 phyAddr, u8 regAddr, u16 data);
 int mpc512x_fec_init_phy(struct eth_device *dev, bd_t * bis);
 
 static uchar rx_buff[FEC_BUFFER_SIZE];
@@ -41,9 +40,9 @@ static int rx_buff_idx = 0;
 #if (DEBUG & 0x2)
 static void mpc512x_fec_phydump (char *devname)
 {
-	uint16 phyStatus, i;
-	uint8 phyAddr = CONFIG_PHY_ADDR;
-	uint8 reg_mask[] = {
+	u16 phyStatus, i;
+	u8 phyAddr = CONFIG_PHY_ADDR;
+	u8 reg_mask[] = {
 		/* regs to print: 0...8, 21,27,31 */
 		1, 1, 1, 1,  1, 1, 1, 1,     1, 0, 0, 0,  0, 0, 0, 0,
 		0, 0, 0, 0,  0, 1, 0, 0,     0, 0, 0, 1,  0, 0, 0, 1,
@@ -68,7 +67,7 @@ static int mpc512x_fec_bd_init (mpc512x_fec_priv *fec)
 	 */
 	for (ix = 0; ix < FEC_RBD_NUM; ix++) {
 		fec->bdBase->rbd[ix].dataPointer =
-				(uint32)&fec->bdBase->recv_frames[ix];
+				(u32)&fec->bdBase->recv_frames[ix];
 		fec->bdBase->rbd[ix].status = FEC_RBD_EMPTY;
 		fec->bdBase->rbd[ix].dataLength = 0;
 	}
@@ -167,10 +166,10 @@ static void mpc512x_fec_tbd_scrub (mpc512x_fec_priv *fec)
 /********************************************************************/
 static void mpc512x_fec_set_hwaddr (mpc512x_fec_priv *fec, char *mac)
 {
-	uint8 currByte;			/* byte for which to compute the CRC */
+	u8 currByte;			/* byte for which to compute the CRC */
 	int byte;			/* loop - counter */
 	int bit;			/* loop - counter */
-	uint32 crc = 0xffffffff;	/* initial value */
+	u32 crc = 0xffffffff;		/* initial value */
 
 	/*
 	 * The algorithm used is the following:
@@ -257,8 +256,8 @@ static int mpc512x_fec_init (struct eth_device *dev, bd_t * bis)
 	out_be32(&fec->eth->r_buff_size, FEC_BUFFER_SIZE);
 
 	/* Setup BD base addresses */
-	out_be32(&fec->eth->r_des_start, (uint32)fec->bdBase->rbd);
-	out_be32(&fec->eth->x_des_start, (uint32)fec->bdBase->tbd);
+	out_be32(&fec->eth->r_des_start, (u32)fec->bdBase->rbd);
+	out_be32(&fec->eth->x_des_start, (u32)fec->bdBase->tbd);
 
 	/* DMA Control */
 	out_be32(&fec->eth->dma_control, 0xc0000000);
@@ -282,9 +281,9 @@ static int mpc512x_fec_init (struct eth_device *dev, bd_t * bis)
 int mpc512x_fec_init_phy (struct eth_device *dev, bd_t * bis)
 {
 	mpc512x_fec_priv *fec = (mpc512x_fec_priv *)dev->priv;
-	const uint8 phyAddr = CONFIG_PHY_ADDR;	/* Only one PHY */
+	const u8 phyAddr = CONFIG_PHY_ADDR;	/* Only one PHY */
 	int timeout = 1;
-	uint16 phyStatus;
+	u16 phyStatus;
 
 #if (DEBUG & 0x1)
 	printf ("mpc512x_fec_init_phy... Begin\n");
@@ -495,7 +494,7 @@ static int mpc512x_fec_send (struct eth_device *dev, volatile void *eth_data,
 	 */
 	pTbd = &fec->bdBase->tbd[fec->tbdIndex];
 	pTbd->dataLength = data_length;
-	pTbd->dataPointer = (uint32)eth_data;
+	pTbd->dataPointer = (u32)eth_data;
 	pTbd->status |= FEC_TBD_LAST | FEC_TBD_TC | FEC_TBD_READY;
 	fec->tbdIndex = (fec->tbdIndex + 1) % FEC_TBD_NUM;
 
@@ -581,7 +580,7 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 				printf ("recv data length 0x%08x data hdr: ",
 					pRbd->dataLength);
 				for (i = 0; i < 14; i++)
-					printf ("%x ", *((uint8*)pRbd->dataPointer + i));
+					printf ("%x ", *((u8*)pRbd->dataPointer + i));
 				printf("\n");
 			}
 #endif
@@ -647,14 +646,15 @@ int mpc512x_fec_initialize (bd_t * bis)
 #endif
 
 	/* Clean up space FEC's MIB and FIFO RAM ...*/
-	memset ((void *) MPC512X_FEC + 0x200, 0x00, 0x400);
+	memset ((void *)&im->fec.mib,  0x00, sizeof(im->fec.mib));
+	memset ((void *)&im->fec.fifo, 0x00, sizeof(im->fec.fifo));
 
 	/*
 	 * Malloc space for BDs  (must be quad word-aligned)
 	 * this pointer is lost, so cannot be freed
 	 */
 	bd = malloc (sizeof(mpc512x_buff_descs) + 0x1f);
-	fec->bdBase = (mpc512x_buff_descs*)((uint32)bd & 0xfffffff0);
+	fec->bdBase = (mpc512x_buff_descs*)((u32)bd & 0xfffffff0);
 	memset ((void *) bd, 0x00, sizeof(mpc512x_buff_descs) + 0x1f);
 
 	/*
@@ -691,12 +691,12 @@ int mpc512x_fec_initialize (bd_t * bis)
 
 /* MII-interface related functions */
 /********************************************************************/
-int fec512x_miiphy_read (char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal)
+int fec512x_miiphy_read (char *devname, u8 phyAddr, u8 regAddr, u16 * retVal)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile fec512x_t *eth = &im->fec;
-	uint32 reg;		/* convenient holder for the PHY register */
-	uint32 phy;		/* convenient holder for the PHY */
+	u32 reg;		/* convenient holder for the PHY register */
+	u32 phy;		/* convenient holder for the PHY */
 	int timeout = 0xffff;
 
 	/*
@@ -732,18 +732,18 @@ int fec512x_miiphy_read (char *devname, uint8 phyAddr, uint8 regAddr, uint16 * r
 	/*
 	 * it's now safe to read the PHY's register
 	 */
-	*retVal = (uint16) in_be32(&eth->mii_data);
+	*retVal = (u16) in_be32(&eth->mii_data);
 
 	return 0;
 }
 
 /********************************************************************/
-int fec512x_miiphy_write (char *devname, uint8 phyAddr, uint8 regAddr, uint16 data)
+int fec512x_miiphy_write (char *devname, u8 phyAddr, u8 regAddr, u16 data)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile fec512x_t *eth = &im->fec;
-	uint32 reg;		/* convenient holder for the PHY register */
-	uint32 phy;		/* convenient holder for the PHY */
+	u32 reg;		/* convenient holder for the PHY register */
+	u32 phy;		/* convenient holder for the PHY */
 	int timeout = 0xffff;
 
 	reg = regAddr << FEC_MII_DATA_RA_SHIFT;
@@ -776,7 +776,7 @@ int fec512x_miiphy_write (char *devname, uint8 phyAddr, uint8 regAddr, uint16 da
 }
 
 #if (DEBUG & 0x40)
-static uint32 local_crc32 (char *string, unsigned int crc_value, int len)
+static u32 local_crc32 (char *string, unsigned int crc_value, int len)
 {
 	int i;
 	char c;

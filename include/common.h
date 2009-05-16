@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2007
+ * (C) Copyright 2000-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -66,7 +66,6 @@ typedef volatile unsigned char	vu_char;
 #elif defined(CONFIG_MPC5xxx)
 #include <mpc5xxx.h>
 #elif defined(CONFIG_MPC512X)
-#include <mpc512x.h>
 #include <asm/immap_512x.h>
 #elif defined(CONFIG_MPC8220)
 #include <asm/immap_8220.h>

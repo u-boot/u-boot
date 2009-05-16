@@ -9,23 +9,18 @@
 #define __MPC512X_FEC_H
 
 #include <common.h>
-#include <mpc512x.h>
-
-typedef unsigned long uint32;
-typedef unsigned short uint16;
-typedef unsigned char uint8;
 
 /* Receive & Transmit Buffer Descriptor definitions */
 typedef struct BufferDescriptor {
-	uint16 status;
-	uint16 dataLength;
-	uint32 dataPointer;
+	u16 status;
+	u16 dataLength;
+	u32 dataPointer;
 } FEC_RBD;
 
 typedef struct {
-	uint16 status;
-	uint16 dataLength;
-	uint32 dataPointer;
+	u16 status;
+	u16 dataLength;
+	u32 dataPointer;
 } FEC_TBD;
 
 /* private structure */
@@ -46,7 +41,7 @@ typedef enum {
 #define FEC_BUFFER_SIZE		((FEC_MAX_FRAME_LEN + 0x10) & (~0xf))
 
 typedef struct {
-	uint8 frame[FEC_BUFFER_SIZE];
+	u8 frame[FEC_BUFFER_SIZE];
 } mpc512x_frame;
 
 typedef struct {
@@ -59,10 +54,10 @@ typedef struct {
 	volatile fec512x_t *eth;
 	xceiver_type xcv_type;		/* transceiver type */
 	mpc512x_buff_descs *bdBase;	/* BD rings and recv buffer */
-	uint16 rbdIndex;		/* next receive BD to read */
-	uint16 tbdIndex;		/* next transmit BD to send */
-	uint16 usedTbdIndex;		/* next transmit BD to clean */
-	uint16 cleanTbdNum;		/* the number of available transmit BDs */
+	u16 rbdIndex;			/* next receive BD to read */
+	u16 tbdIndex;			/* next transmit BD to send */
+	u16 usedTbdIndex;		/* next transmit BD to clean */
+	u16 cleanTbdNum;		/* the number of available transmit BDs */
 } mpc512x_fec_priv;
 
 /* RBD bits definitions */

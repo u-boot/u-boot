@@ -45,10 +45,6 @@
 #include <mpc5xxx.h>
 #endif
 
-#ifdef CONFIG_MPC512X
-#include <mpc512x.h>
-#endif
-
 #include <ide.h>
 #include <ata.h>
 

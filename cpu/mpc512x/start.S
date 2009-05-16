@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 1998  Dan Malek <dmalek@jlc.net>
  * Copyright (C) 1999  Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
- * Copyright (C) 2000, 2001, 2002, 2007 Wolfgang Denk <wd@denx.de>
+ * Copyright (C) 2000-2009 Wolfgang Denk <wd@denx.de>
  * Copyright Freescale Semiconductor, Inc. 2004, 2006. All rights reserved.
  *
  * See file CREDITS for list of people who contributed to this
@@ -30,11 +30,13 @@
  */
 
 #include <config.h>
-#include <mpc512x.h>
 #include <timestamp.h>
 #include <version.h>
 
 #define CONFIG_521X	1		/* needed for Linux kernel header files*/
+
+#include <asm/immap_512x.h>
+#include "asm-offsets.h"
 
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>

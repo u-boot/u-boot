@@ -30,7 +30,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_HARD_I2C
 
-#include <mpc512x.h>
 #include <i2c.h>
 
 /* by default set I2C bus 0 active */
