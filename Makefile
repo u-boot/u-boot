@@ -2809,7 +2809,7 @@ ap720t_config		\
 ap920t_config		\
 ap926ejs_config		\
 ap946es_config: unconfig
-	@board/armltd/integratorap/split_by_variant.sh $@
+	@board/armltd/integrator/split_by_variant.sh ap $@
 
 integratorcp_config	\
 cp_config		\
@@ -2821,7 +2821,7 @@ cp966_config		\
 cp922_config		\
 cp922_XA10_config	\
 cp1026_config: unconfig
-	@board/armltd/integratorcp/split_by_variant.sh $@
+	@board/armltd/integrator/split_by_variant.sh cp $@
 
 davinci_dvevm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dvevm davinci davinci

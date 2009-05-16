@@ -36,6 +36,13 @@
 #include <common.h>
 #include <div64.h>
 
+#ifdef CONFIG_ARCH_CINTEGRATOR
+#define DIV_CLOCK_INIT	1
+#define TIMER_LOAD_VAL	0xFFFFFFFFL
+#else
+#define DIV_CLOCK_INIT	256
+#define TIMER_LOAD_VAL	0x0000FFFFL
+#endif
 /* The Integrator/CP timer1 is clocked at 1MHz
  * can be divided by 16 or 256
  * and can be set up as a 32-bit timer
@@ -44,14 +51,14 @@
 /* Keep total timer count to avoid losing decrements < div_timer */
 static unsigned long long total_count = 0;
 static unsigned long long lastdec;	 /* Timer reading at last call	   */
-static unsigned long long div_clock = 1; /* Divisor applied to timer clock */
+/* Divisor applied to timer clock */
+static unsigned long long div_clock = DIV_CLOCK_INIT;
 static unsigned long long div_timer = 1; /* Divisor to convert timer reading
 					  * change to U-Boot ticks
 					  */
 /* CONFIG_SYS_HZ = CONFIG_SYS_HZ_CLOCK/(div_clock * div_timer) */
-static ulong timestamp;		/* U-Boot ticks since startup	      */
+static ulong timestamp;		/* U-Boot ticks since startup */
 
-#define TIMER_LOAD_VAL ((ulong)0xFFFFFFFF)
 #define READ_TIMER (*(volatile ulong *)(CONFIG_SYS_TIMERBASE+4))
 
 /* all function return values in U-Boot ticks i.e. (1/CONFIG_SYS_HZ) sec
@@ -64,22 +71,35 @@ int timer_init (void)
 {
 	/* Load timer with initial value */
 	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 0) = TIMER_LOAD_VAL;
+#ifdef CONFIG_ARCH_CINTEGRATOR
 	/* Set timer to be
-	 *	enabled		  1
-	 *	periodic	  1
-	 *	no interrupts	  0
-	 *	X		  0
-	 *	divider 1	 00 == less rounding error
-	 *	32 bit		  1
-	 *	wrapping	  0
+	 *	enabled		 1
+	 *	periodic	 1
+	 *	no interrupts	 0
+	 *	X		 0
+	 *	divider 1	00 == less rounding error
+	 *	32 bit		 1
+	 *	wrapping	 0
 	 */
 	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 8) = 0x000000C2;
+#else
+	/* Set timer to be
+	 *	enabled		 1
+	 *	free-running	 0
+	 *	XX		00
+	 *	divider 256	10
+	 *	XX		00
+	 */
+	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 8) = 0x00000088;
+#endif
+
 	/* init the timestamp */
 	total_count = 0ULL;
 	reset_timer_masked();
 
-	div_timer  = (unsigned long long)(CONFIG_SYS_HZ_CLOCK / CONFIG_SYS_HZ);
-	div_timer /= div_clock;
+	div_timer = CONFIG_SYS_HZ_CLOCK;
+	do_div(div_timer, CONFIG_SYS_HZ);
+	do_div(div_timer, div_clock);
 
 	return (0);
 }
@@ -100,7 +120,7 @@ ulong get_timer (ulong base_ticks)
 void set_timer (ulong ticks)
 {
 	timestamp   = ticks;
-	total_count = (unsigned long long)ticks * div_timer;
+	total_count = ticks * div_timer;
 }
 
 /* delay usec useconds */
@@ -123,7 +143,7 @@ void udelay (unsigned long usec)
 void reset_timer_masked (void)
 {
 	/* capure current decrementer value    */
-	lastdec	  = (unsigned long long)READ_TIMER;
+	lastdec	  = READ_TIMER;
 	/* start "advancing" time stamp from 0 */
 	timestamp = 0L;
 }
@@ -133,7 +153,7 @@ void reset_timer_masked (void)
 ulong get_timer_masked (void)
 {
 	/* get current count */
-	unsigned long long now = (unsigned long long)READ_TIMER;
+	unsigned long long now = READ_TIMER;
 
 	if(now > lastdec) {
 		/* Must have wrapped */
@@ -141,7 +161,7 @@ ulong get_timer_masked (void)
 	} else {
 		total_count += lastdec - now;
 	}
-	lastdec	  = now;
+	lastdec	= now;
 
 	/* Reuse "now" */
 	now = total_count;
@@ -163,7 +183,7 @@ void udelay_masked (unsigned long usec)
  */
 unsigned long long get_ticks(void)
 {
-	return (unsigned long long)get_timer(0);
+	return get_timer(0);
 }
 
 /*
@@ -172,5 +192,9 @@ unsigned long long get_ticks(void)
  */
 ulong get_tbclk (void)
 {
-	return (ulong)(((unsigned long long)CONFIG_SYS_HZ_CLOCK)/div_clock);
+	unsigned long long tmp = CONFIG_SYS_HZ_CLOCK;
+
+	do_div(tmp, div_clock);
+
+	return tmp;
 }

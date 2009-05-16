@@ -34,6 +34,9 @@
  */
 
 #include <common.h>
+#ifdef CONFIG_PCI
+#include <netdev.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -55,7 +58,11 @@ void show_boot_progress(int progress)
 int board_init (void)
 {
 	/* arch number of Integrator Board */
+#ifdef CONFIG_ARCH_CINTEGRATOR
 	gd->bd->bi_arch_number = MACH_TYPE_CINTEGRATOR;
+#else
+	gd->bd->bi_arch_number = MACH_TYPE_INTEGRATOR;
+#endif
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;
@@ -74,6 +81,9 @@ extern void cm_remap(void);
 
 int misc_init_r (void)
 {
+#ifdef CONFIG_PCI
+	pci_init();
+#endif
 	setenv("verify", "n");
 	return (0);
 }
@@ -88,7 +98,7 @@ int dram_init (void)
 	gd->bd->bi_dram[0].size	 = PHYS_SDRAM_1_SIZE;
 
 #ifdef CONFIG_CM_SPD_DETECT
-    {
+	{
 extern void dram_query(void);
 	unsigned long cm_reg_sdram;
 	unsigned long sdram_shift;
@@ -111,8 +121,15 @@ extern void dram_query(void);
 	sdram_shift		 = ((cm_reg_sdram & 0x0000001C)/4)%4;
 	gd->bd->bi_dram[0].size	 = 0x01000000 << sdram_shift;
 
-    }
+	}
 #endif /* CM_SPD_DETECT */
 
 	return 0;
 }
+
+#ifdef CONFIG_PCI
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}
+#endif
