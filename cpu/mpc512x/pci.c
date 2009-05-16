@@ -54,6 +54,7 @@ pci_init_board(void)
 	u16 reg16;
 	u32 reg32;
 	u32 dev;
+	int i;
 	struct pci_controller *hose;
 
 	/* Set PCI divider for 33MHz */
@@ -77,12 +78,8 @@ pci_init_board(void)
 	pci_ctrl->gcr = 1;
 
 	/* We need to wait at least a 1sec based on PCI specs */
-	{
-		int i;
-
-		for (i = 0; i < 1000; i++)
-			udelay(1000);
-	}
+	for (i = 0; i < 1000; i++)
+		udelay(1000);
 
 	/*
 	 * Configure PCI Local Access Windows
