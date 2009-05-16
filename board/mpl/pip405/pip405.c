@@ -28,6 +28,7 @@
 #include "pip405.h"
 #include <asm/processor.h>
 #include <i2c.h>
+#include <stdio_dev.h>
 #include "../common/isa.h"
 #include "../common/common_util.h"
 
@@ -705,7 +706,7 @@ int last_stage_init (void)
 {
 	print_pip405_rev ();
 	isa_init ();
-	show_stdio_dev ();
+	stdio_print_current_devices ();
 	check_env();
 	return 0;
 }

@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <s3c2410.h>
+#include <stdio_dev.h>
 #include <i2c.h>
 
 #include "vcma9.h"
@@ -316,7 +317,7 @@ int last_stage_init(void)
 {
 	mem_test_reloc();
 	checkboard();
-	show_stdio_dev();
+	stdio_print_current_devices();
 	check_env();
 	return 0;
 }

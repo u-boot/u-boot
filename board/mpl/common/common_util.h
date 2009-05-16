@@ -37,7 +37,6 @@ void get_backup_values(backup_t *buf);
 #define BOOT_PCI	0x02
 #endif
 
-void show_stdio_dev(void);
 void check_env(void);
 #if defined(CONFIG_CMD_DOC)
 void doc_init (void);

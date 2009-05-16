@@ -29,7 +29,6 @@
 #include <asm/processor.h>
 #include <asm/byteorder.h>
 #include <i2c.h>
-#include <stdio_dev.h>
 #include <pci.h>
 #include <malloc.h>
 #include <bzlib.h>
@@ -425,35 +424,6 @@ void check_env(void)
 		if(strncmp(back.signature,"MPL\0",4)!=0) {
 			set_backup_values(0);
 		}
-	}
-}
-
-
-extern struct stdio_dev *stdio_devices[];
-extern char *stdio_names[];
-
-void show_stdio_dev(void)
-{
-	/* Print information */
-	puts("In:    ");
-	if (stdio_devices[stdin] == NULL) {
-		puts("No input devices available!\n");
-	} else {
-		printf ("%s\n", stdio_devices[stdin]->name);
-	}
-
-	puts("Out:   ");
-	if (stdio_devices[stdout] == NULL) {
-		puts("No output devices available!\n");
-	} else {
-		printf ("%s\n", stdio_devices[stdout]->name);
-	}
-
-	puts("Err:   ");
-	if (stdio_devices[stderr] == NULL) {
-		puts("No error devices available!\n");
-	} else {
-		printf ("%s\n", stdio_devices[stderr]->name);
 	}
 }
 
