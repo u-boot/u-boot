@@ -25,8 +25,11 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= integratorcp.o flash.o
 SOBJS	:= lowlevel_init.o
+
+COBJS	:= integratorcp.o
+COBJS	+= flash.o
+COBJS	+= timer.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
