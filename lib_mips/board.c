@@ -323,9 +323,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #ifndef CONFIG_ENV_IS_NOWHERE
 	extern char * env_name_spec;
 #endif
-	char *s, *e;
+	char *s;
 	bd_t *bd;
-	int i;
 
 	gd = id;
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
