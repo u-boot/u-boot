@@ -532,6 +532,33 @@ int console_init_f(void)
 	return 0;
 }
 
+void stdio_print_current_devices(void)
+{
+#ifdef CONFIG_SYS_CONSOLE_INFO_QUIET
+	/* Print information */
+	puts("In:    ");
+	if (stdio_devices[stdin] == NULL) {
+		puts("No input devices available!\n");
+	} else {
+		printf ("%s\n", stdio_devices[stdin]->name);
+	}
+
+	puts("Out:   ");
+	if (stdio_devices[stdout] == NULL) {
+		puts("No output devices available!\n");
+	} else {
+		printf ("%s\n", stdio_devices[stdout]->name);
+	}
+
+	puts("Err:   ");
+	if (stdio_devices[stderr] == NULL) {
+		puts("No error devices available!\n");
+	} else {
+		printf ("%s\n", stdio_devices[stderr]->name);
+	}
+#endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
+}
+
 #ifdef CONFIG_SYS_CONSOLE_IS_IN_ENV
 /* Called after the relocation - use desired console functions */
 int console_init_r(void)
@@ -601,29 +628,7 @@ done:
 
 	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
 
-#ifndef CONFIG_SYS_CONSOLE_INFO_QUIET
-	/* Print information */
-	puts("In:    ");
-	if (stdio_devices[stdin] == NULL) {
-		puts("No input devices available!\n");
-	} else {
-		console_printdevs(stdin);
-	}
-
-	puts("Out:   ");
-	if (stdio_devices[stdout] == NULL) {
-		puts("No output devices available!\n");
-	} else {
-		console_printdevs(stdout);
-	}
-
-	puts("Err:   ");
-	if (stdio_devices[stderr] == NULL) {
-		puts("No error devices available!\n");
-	} else {
-		console_printdevs(stderr);
-	}
-#endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
+	stdio_print_current_devices();
 
 #ifdef CONFIG_SYS_CONSOLE_ENV_OVERWRITE
 	/* set the environment variables (will overwrite previous env settings) */
@@ -694,29 +699,7 @@ int console_init_r(void)
 
 	gd->flags |= GD_FLG_DEVINIT;	/* device initialization completed */
 
-#ifndef CONFIG_SYS_CONSOLE_INFO_QUIET
-	/* Print information */
-	puts("In:    ");
-	if (stdio_devices[stdin] == NULL) {
-		puts("No input devices available!\n");
-	} else {
-		printf("%s\n", stdio_devices[stdin]->name);
-	}
-
-	puts("Out:   ");
-	if (stdio_devices[stdout] == NULL) {
-		puts("No output devices available!\n");
-	} else {
-		printf("%s\n", stdio_devices[stdout]->name);
-	}
-
-	puts("Err:   ");
-	if (stdio_devices[stderr] == NULL) {
-		puts("No error devices available!\n");
-	} else {
-		printf("%s\n", stdio_devices[stderr]->name);
-	}
-#endif /* CONFIG_SYS_CONSOLE_INFO_QUIET */
+	stdio_print_current_devices();
 
 	/* Setting environment variables */
 	for (i = 0; i < 3; i++) {

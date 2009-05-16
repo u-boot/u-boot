@@ -91,6 +91,7 @@ extern char *stdio_names[MAX_FILES];
  */
 int	stdio_register (struct stdio_dev * dev);
 int	stdio_init (void);
+void	stdio_print_current_devices(void);
 #ifdef CONFIG_SYS_STDIO_DEREGISTER
 int	stdio_deregister(char *devname);
 #endif
