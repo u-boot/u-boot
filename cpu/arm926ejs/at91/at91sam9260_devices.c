@@ -167,7 +167,7 @@ void at91_macb_hw_init(void)
 	at91_set_B_periph(AT91_PIN_PA25, 0);	/* ERX2 */
 	at91_set_B_periph(AT91_PIN_PA26, 0);	/* ERX3 */
 	at91_set_B_periph(AT91_PIN_PA27, 0);	/* ERXCK */
-#if defined(CONFIG_AT91SAM9260EK)
+#if defined(CONFIG_AT91SAM9260EK) || defined(CONFIG_AFEB9260)
 	/*
 	 * use PA10, PA11 for ETX2, ETX3.
 	 * PA23 and PA24 are for TWI EEPROM
