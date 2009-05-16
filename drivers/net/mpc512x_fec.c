@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2007
+ * (C) Copyright 2003-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * Derived from the MPC8xx FEC driver.
@@ -613,6 +613,7 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 /********************************************************************/
 int mpc512x_fec_initialize (bd_t * bis)
 {
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	mpc512x_fec_priv *fec;
 	struct eth_device *dev;
 	int i;
@@ -623,7 +624,7 @@ int mpc512x_fec_initialize (bd_t * bis)
 	dev = (struct eth_device *) malloc (sizeof(*dev));
 	memset (dev, 0, sizeof *dev);
 
-	fec->eth = (ethernet_regs *) MPC512X_FEC;
+	fec->eth = &im->fec;
 
 # ifndef CONFIG_FEC_10MBIT
 	fec->xcv_type = MII100;
@@ -631,7 +632,7 @@ int mpc512x_fec_initialize (bd_t * bis)
 	fec->xcv_type = MII10;
 # endif
 	dev->priv = (void *)fec;
-	dev->iobase = MPC512X_FEC;
+	dev->iobase = (int)&im->fec;
 	dev->init = mpc512x_fec_init;
 	dev->halt = mpc512x_fec_halt;
 	dev->send = mpc512x_fec_send;
@@ -692,7 +693,8 @@ int mpc512x_fec_initialize (bd_t * bis)
 /********************************************************************/
 int fec512x_miiphy_read (char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal)
 {
-	ethernet_regs *eth = (ethernet_regs *) MPC512X_FEC;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile fec512x_t *eth = &im->fec;
 	uint32 reg;		/* convenient holder for the PHY register */
 	uint32 phy;		/* convenient holder for the PHY */
 	int timeout = 0xffff;
@@ -738,7 +740,8 @@ int fec512x_miiphy_read (char *devname, uint8 phyAddr, uint8 regAddr, uint16 * r
 /********************************************************************/
 int fec512x_miiphy_write (char *devname, uint8 phyAddr, uint8 regAddr, uint16 data)
 {
-	ethernet_regs *eth = (ethernet_regs *) MPC512X_FEC;
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile fec512x_t *eth = &im->fec;
 	uint32 reg;		/* convenient holder for the PHY register */
 	uint32 phy;		/* convenient holder for the PHY */
 	int timeout = 0xffff;
