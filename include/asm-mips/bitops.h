@@ -60,7 +60,7 @@
  * Note that @nr may be almost arbitrarily large; this function is not
  * restricted to acting on a single-word quantity.
  */
-extern __inline__ void
+static __inline__ void
 set_bit(int nr, volatile void *addr)
 {
 	unsigned long *m = ((unsigned long *) addr) + (nr >> 5);
@@ -84,7 +84,7 @@ set_bit(int nr, volatile void *addr)
  * If it's called on the same region of memory simultaneously, the effect
  * may be that only one operation succeeds.
  */
-extern __inline__ void __set_bit(int nr, volatile void * addr)
+static __inline__ void __set_bit(int nr, volatile void * addr)
 {
 	unsigned long * m = ((unsigned long *) addr) + (nr >> 5);
 
@@ -101,7 +101,7 @@ extern __inline__ void __set_bit(int nr, volatile void * addr)
  * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
  * in order to ensure changes are visible on other processors.
  */
-extern __inline__ void
+static __inline__ void
 clear_bit(int nr, volatile void *addr)
 {
 	unsigned long *m = ((unsigned long *) addr) + (nr >> 5);
@@ -125,7 +125,7 @@ clear_bit(int nr, volatile void *addr)
  * Note that @nr may be almost arbitrarily large; this function is not
  * restricted to acting on a single-word quantity.
  */
-extern __inline__ void
+static __inline__ void
 change_bit(int nr, volatile void *addr)
 {
 	unsigned long *m = ((unsigned long *) addr) + (nr >> 5);
@@ -149,7 +149,7 @@ change_bit(int nr, volatile void *addr)
  * If it's called on the same region of memory simultaneously, the effect
  * may be that only one operation succeeds.
  */
-extern __inline__ void __change_bit(int nr, volatile void * addr)
+static __inline__ void __change_bit(int nr, volatile void * addr)
 {
 	unsigned long * m = ((unsigned long *) addr) + (nr >> 5);
 
@@ -164,7 +164,7 @@ extern __inline__ void __change_bit(int nr, volatile void * addr)
  * This operation is atomic and cannot be reordered.
  * It also implies a memory barrier.
  */
-extern __inline__ int
+static __inline__ int
 test_and_set_bit(int nr, volatile void *addr)
 {
 	unsigned long *m = ((unsigned long *) addr) + (nr >> 5);
@@ -194,7 +194,7 @@ test_and_set_bit(int nr, volatile void *addr)
  * If two examples of this operation race, one can appear to succeed
  * but actually fail.  You must protect multiple accesses with a lock.
  */
-extern __inline__ int __test_and_set_bit(int nr, volatile void * addr)
+static __inline__ int __test_and_set_bit(int nr, volatile void * addr)
 {
 	int mask, retval;
 	volatile int *a = addr;
@@ -215,7 +215,7 @@ extern __inline__ int __test_and_set_bit(int nr, volatile void * addr)
  * This operation is atomic and cannot be reordered.
  * It also implies a memory barrier.
  */
-extern __inline__ int
+static __inline__ int
 test_and_clear_bit(int nr, volatile void *addr)
 {
 	unsigned long *m = ((unsigned long *) addr) + (nr >> 5);
@@ -246,7 +246,7 @@ test_and_clear_bit(int nr, volatile void *addr)
  * If two examples of this operation race, one can appear to succeed
  * but actually fail.  You must protect multiple accesses with a lock.
  */
-extern __inline__ int __test_and_clear_bit(int nr, volatile void * addr)
+static __inline__ int __test_and_clear_bit(int nr, volatile void * addr)
 {
 	int	mask, retval;
 	volatile int	*a = addr;
@@ -267,7 +267,7 @@ extern __inline__ int __test_and_clear_bit(int nr, volatile void * addr)
  * This operation is atomic and cannot be reordered.
  * It also implies a memory barrier.
  */
-extern __inline__ int
+static __inline__ int
 test_and_change_bit(int nr, volatile void *addr)
 {
 	unsigned long *m = ((unsigned long *) addr) + (nr >> 5);
@@ -297,7 +297,7 @@ test_and_change_bit(int nr, volatile void *addr)
  * If two examples of this operation race, one can appear to succeed
  * but actually fail.  You must protect multiple accesses with a lock.
  */
-extern __inline__ int __test_and_change_bit(int nr, volatile void * addr)
+static __inline__ int __test_and_change_bit(int nr, volatile void * addr)
 {
 	int	mask, retval;
 	volatile int	*a = addr;
@@ -322,7 +322,7 @@ extern __inline__ int __test_and_change_bit(int nr, volatile void * addr)
  * Note that @nr may be almost arbitrarily large; this function is not
  * restricted to acting on a single-word quantity.
  */
-extern __inline__ void set_bit(int nr, volatile void * addr)
+static __inline__ void set_bit(int nr, volatile void * addr)
 {
 	int	mask;
 	volatile int	*a = addr;
@@ -344,7 +344,7 @@ extern __inline__ void set_bit(int nr, volatile void * addr)
  * If it's called on the same region of memory simultaneously, the effect
  * may be that only one operation succeeds.
  */
-extern __inline__ void __set_bit(int nr, volatile void * addr)
+static __inline__ void __set_bit(int nr, volatile void * addr)
 {
 	int	mask;
 	volatile int	*a = addr;
@@ -364,7 +364,7 @@ extern __inline__ void __set_bit(int nr, volatile void * addr)
  * you should call smp_mb__before_clear_bit() and/or smp_mb__after_clear_bit()
  * in order to ensure changes are visible on other processors.
  */
-extern __inline__ void clear_bit(int nr, volatile void * addr)
+static __inline__ void clear_bit(int nr, volatile void * addr)
 {
 	int	mask;
 	volatile int	*a = addr;
@@ -386,7 +386,7 @@ extern __inline__ void clear_bit(int nr, volatile void * addr)
  * Note that @nr may be almost arbitrarily large; this function is not
  * restricted to acting on a single-word quantity.
  */
-extern __inline__ void change_bit(int nr, volatile void * addr)
+static __inline__ void change_bit(int nr, volatile void * addr)
 {
 	int	mask;
 	volatile int	*a = addr;
@@ -408,7 +408,7 @@ extern __inline__ void change_bit(int nr, volatile void * addr)
  * If it's called on the same region of memory simultaneously, the effect
  * may be that only one operation succeeds.
  */
-extern __inline__ void __change_bit(int nr, volatile void * addr)
+static __inline__ void __change_bit(int nr, volatile void * addr)
 {
 	unsigned long * m = ((unsigned long *) addr) + (nr >> 5);
 
@@ -423,7 +423,7 @@ extern __inline__ void __change_bit(int nr, volatile void * addr)
  * This operation is atomic and cannot be reordered.
  * It also implies a memory barrier.
  */
-extern __inline__ int test_and_set_bit(int nr, volatile void * addr)
+static __inline__ int test_and_set_bit(int nr, volatile void * addr)
 {
 	int	mask, retval;
 	volatile int	*a = addr;
@@ -448,7 +448,7 @@ extern __inline__ int test_and_set_bit(int nr, volatile void * addr)
  * If two examples of this operation race, one can appear to succeed
  * but actually fail.  You must protect multiple accesses with a lock.
  */
-extern __inline__ int __test_and_set_bit(int nr, volatile void * addr)
+static __inline__ int __test_and_set_bit(int nr, volatile void * addr)
 {
 	int	mask, retval;
 	volatile int	*a = addr;
@@ -469,7 +469,7 @@ extern __inline__ int __test_and_set_bit(int nr, volatile void * addr)
  * This operation is atomic and cannot be reordered.
  * It also implies a memory barrier.
  */
-extern __inline__ int test_and_clear_bit(int nr, volatile void * addr)
+static __inline__ int test_and_clear_bit(int nr, volatile void * addr)
 {
 	int	mask, retval;
 	volatile int	*a = addr;
@@ -494,7 +494,7 @@ extern __inline__ int test_and_clear_bit(int nr, volatile void * addr)
  * If two examples of this operation race, one can appear to succeed
  * but actually fail.  You must protect multiple accesses with a lock.
  */
-extern __inline__ int __test_and_clear_bit(int nr, volatile void * addr)
+static __inline__ int __test_and_clear_bit(int nr, volatile void * addr)
 {
 	int	mask, retval;
 	volatile int	*a = addr;
@@ -515,7 +515,7 @@ extern __inline__ int __test_and_clear_bit(int nr, volatile void * addr)
  * This operation is atomic and cannot be reordered.
  * It also implies a memory barrier.
  */
-extern __inline__ int test_and_change_bit(int nr, volatile void * addr)
+static __inline__ int test_and_change_bit(int nr, volatile void * addr)
 {
 	int	mask, retval;
 	volatile int	*a = addr;
@@ -540,7 +540,7 @@ extern __inline__ int test_and_change_bit(int nr, volatile void * addr)
  * If two examples of this operation race, one can appear to succeed
  * but actually fail.  You must protect multiple accesses with a lock.
  */
-extern __inline__ int __test_and_change_bit(int nr, volatile void * addr)
+static __inline__ int __test_and_change_bit(int nr, volatile void * addr)
 {
 	int	mask, retval;
 	volatile int	*a = addr;
@@ -565,7 +565,7 @@ extern __inline__ int __test_and_change_bit(int nr, volatile void * addr)
  * @nr: bit number to test
  * @addr: Address to start counting from
  */
-extern __inline__ int test_bit(int nr, volatile void *addr)
+static __inline__ int test_bit(int nr, volatile void *addr)
 {
 	return ((1UL << (nr & 31)) & (((const unsigned int *) addr)[nr >> 5])) != 0;
 }
@@ -582,7 +582,7 @@ extern __inline__ int test_bit(int nr, volatile void *addr)
  * Returns the bit-number of the first zero bit, not the number of the byte
  * containing a bit.
  */
-extern __inline__ int find_first_zero_bit (void *addr, unsigned size)
+static __inline__ int find_first_zero_bit (void *addr, unsigned size)
 {
 	unsigned long dummy;
 	int res;
@@ -633,7 +633,7 @@ extern __inline__ int find_first_zero_bit (void *addr, unsigned size)
  * @offset: The bitnumber to start searching at
  * @size: The maximum size to search
  */
-extern __inline__ int find_next_zero_bit (void * addr, int size, int offset)
+static __inline__ int find_next_zero_bit (void * addr, int size, int offset)
 {
 	unsigned int *p = ((unsigned int *) addr) + (offset >> 5);
 	int set = 0, bit = offset & 31, res;
@@ -679,7 +679,7 @@ extern __inline__ int find_next_zero_bit (void * addr, int size, int offset)
  *
  * Undefined if no zero exists, so code should check against ~0UL first.
  */
-extern __inline__ unsigned long ffz(unsigned long word)
+static __inline__ unsigned long ffz(unsigned long word)
 {
 	unsigned int	__res;
 	unsigned int	mask = 1;
@@ -736,7 +736,7 @@ extern __inline__ unsigned long ffz(unsigned long word)
  * @offset: The bitnumber to start searching at
  * @size: The maximum size to search
  */
-extern __inline__ int find_next_zero_bit(void *addr, int size, int offset)
+static __inline__ int find_next_zero_bit(void *addr, int size, int offset)
 {
 	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
 	unsigned long result = offset & ~31UL;
@@ -785,7 +785,7 @@ found_middle:
  * Returns the bit-number of the first zero bit, not the number of the byte
  * containing a bit.
  */
-extern int find_first_zero_bit (void *addr, unsigned size);
+static int find_first_zero_bit (void *addr, unsigned size);
 #endif
 
 #define find_first_zero_bit(addr, size) \
@@ -796,7 +796,7 @@ extern int find_first_zero_bit (void *addr, unsigned size);
 /* Now for the ext2 filesystem bit operations and helper routines. */
 
 #ifdef __MIPSEB__
-extern __inline__ int ext2_set_bit(int nr, void * addr)
+static __inline__ int ext2_set_bit(int nr, void * addr)
 {
 	int		mask, retval, flags;
 	unsigned char	*ADDR = (unsigned char *) addr;
@@ -810,7 +810,7 @@ extern __inline__ int ext2_set_bit(int nr, void * addr)
 	return retval;
 }
 
-extern __inline__ int ext2_clear_bit(int nr, void * addr)
+static __inline__ int ext2_clear_bit(int nr, void * addr)
 {
 	int		mask, retval, flags;
 	unsigned char	*ADDR = (unsigned char *) addr;
@@ -824,7 +824,7 @@ extern __inline__ int ext2_clear_bit(int nr, void * addr)
 	return retval;
 }
 
-extern __inline__ int ext2_test_bit(int nr, const void * addr)
+static __inline__ int ext2_test_bit(int nr, const void * addr)
 {
 	int			mask;
 	const unsigned char	*ADDR = (const unsigned char *) addr;
@@ -837,7 +837,7 @@ extern __inline__ int ext2_test_bit(int nr, const void * addr)
 #define ext2_find_first_zero_bit(addr, size) \
 	ext2_find_next_zero_bit((addr), (size), 0)
 
-extern __inline__ unsigned long ext2_find_next_zero_bit(void *addr, unsigned long size, unsigned long offset)
+static __inline__ unsigned long ext2_find_next_zero_bit(void *addr, unsigned long size, unsigned long offset)
 {
 	unsigned long *p = ((unsigned long *) addr) + (offset >> 5);
 	unsigned long result = offset & ~31UL;
