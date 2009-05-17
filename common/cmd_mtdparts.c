@@ -137,14 +137,12 @@
 #if defined(MTDIDS_DEFAULT)
 static const char *const mtdids_default = MTDIDS_DEFAULT;
 #else
-#warning "MTDIDS_DEFAULT not defined!"
 static const char *const mtdids_default = NULL;
 #endif
 
 #if defined(MTDPARTS_DEFAULT)
 static const char *const mtdparts_default = MTDPARTS_DEFAULT;
 #else
-#warning "MTDPARTS_DEFAULT not defined!"
 static const char *const mtdparts_default = NULL;
 #endif
 
@@ -1264,8 +1262,10 @@ static void list_partitions(void)
 	}
 
 	printf("\ndefaults:\n");
-	printf("mtdids  : %s\n", mtdids_default);
-	printf("mtdparts: %s\n", mtdparts_default);
+	printf("mtdids  : %s\n",
+		mtdids_default ? mtdids_default : "none");
+	printf("mtdparts: %s\n",
+		mtdparts_default ? mtdparts_default : "none");
 }
 
 /**
