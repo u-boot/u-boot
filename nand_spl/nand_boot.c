@@ -246,6 +246,16 @@ void nand_boot(void)
 	ret = nand_load(&nand_info, CONFIG_SYS_NAND_U_BOOT_OFFS, CONFIG_SYS_NAND_U_BOOT_SIZE,
 			(uchar *)CONFIG_SYS_NAND_U_BOOT_DST);
 
+#ifdef CONFIG_NAND_ENV_DST
+	nand_load(&nand_info, CONFIG_ENV_OFFSET, CONFIG_ENV_SIZE,
+		  (uchar *)CONFIG_NAND_ENV_DST);
+
+#ifdef CONFIG_ENV_OFFSET_REDUND
+	nand_load(&nand_info, CONFIG_ENV_OFFSET_REDUND, CONFIG_ENV_SIZE,
+		  (uchar *)CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE);
+#endif
+#endif
+
 	if (nand_chip.select_chip)
 		nand_chip.select_chip(&nand_info, -1);
 

@@ -68,9 +68,11 @@ extern int default_environment_size;
 char * env_name_spec = "NAND";
 
 
-#ifdef ENV_IS_EMBEDDED
+#if defined(ENV_IS_EMBEDDED)
 extern uchar environment[];
 env_t *env_ptr = (env_t *)(&environment[0]);
+#elif defined(CONFIG_NAND_ENV_DST)
+env_t *env_ptr = (env_t *)CONFIG_NAND_ENV_DST;
 #else /* ! ENV_IS_EMBEDDED */
 env_t *env_ptr = 0;
 #endif /* ENV_IS_EMBEDDED */
@@ -102,23 +104,33 @@ uchar env_get_char_spec (int index)
  */
 int env_init(void)
 {
-#if defined(ENV_IS_EMBEDDED)
+#if defined(ENV_IS_EMBEDDED) || defined(CONFIG_NAND_ENV_DST)
 	int crc1_ok = 0, crc2_ok = 0;
-	env_t *tmp_env1, *tmp_env2;
+	env_t *tmp_env1;
+
+#ifdef CONFIG_ENV_OFFSET_REDUND
+	env_t *tmp_env2;
+
+	tmp_env2 = (env_t *)((ulong)env_ptr + CONFIG_ENV_SIZE);
+	crc2_ok = (crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc);
+#endif
 
 	tmp_env1 = env_ptr;
-	tmp_env2 = (env_t *)((ulong)env_ptr + CONFIG_ENV_SIZE);
 
 	crc1_ok = (crc32(0, tmp_env1->data, ENV_SIZE) == tmp_env1->crc);
-	crc2_ok = (crc32(0, tmp_env2->data, ENV_SIZE) == tmp_env2->crc);
 
-	if (!crc1_ok && !crc2_ok)
+	if (!crc1_ok && !crc2_ok) {
+		gd->env_addr  = 0;
 		gd->env_valid = 0;
-	else if(crc1_ok && !crc2_ok)
+
+		return 0;
+	} else if (crc1_ok && !crc2_ok) {
 		gd->env_valid = 1;
-	else if(!crc1_ok && crc2_ok)
+	}
+#ifdef CONFIG_ENV_OFFSET_REDUND
+	else if (!crc1_ok && crc2_ok) {
 		gd->env_valid = 2;
-	else {
+	} else {
 		/* both ok - check serial */
 		if(tmp_env1->flags == 255 && tmp_env2->flags == 0)
 			gd->env_valid = 2;
@@ -132,14 +144,19 @@ int env_init(void)
 			gd->env_valid = 1;
 	}
 
+	if (gd->env_valid == 2)
+		env_ptr = tmp_env2;
+	else
+#endif
 	if (gd->env_valid == 1)
 		env_ptr = tmp_env1;
-	else if (gd->env_valid == 2)
-		env_ptr = tmp_env2;
-#else /* ENV_IS_EMBEDDED */
+
+	gd->env_addr = (ulong)env_ptr->data;
+
+#else /* ENV_IS_EMBEDDED || CONFIG_NAND_ENV_DST */
 	gd->env_addr  = (ulong)&default_environment[0];
 	gd->env_valid = 1;
-#endif /* ENV_IS_EMBEDDED */
+#endif /* ENV_IS_EMBEDDED || CONFIG_NAND_ENV_DST */
 
 	return (0);
 }
