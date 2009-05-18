@@ -103,11 +103,8 @@ uchar env_get_char_spec (int index)
 int env_init(void)
 {
 #if defined(ENV_IS_EMBEDDED)
-	size_t total;
 	int crc1_ok = 0, crc2_ok = 0;
 	env_t *tmp_env1, *tmp_env2;
-
-	total = CONFIG_ENV_SIZE;
 
 	tmp_env1 = env_ptr;
 	tmp_env2 = (env_t *)((ulong)env_ptr + CONFIG_ENV_SIZE);
@@ -183,12 +180,10 @@ int writeenv(size_t offset, u_char *buf)
 #ifdef CONFIG_ENV_OFFSET_REDUND
 int saveenv(void)
 {
-	size_t total;
 	int ret = 0;
 	nand_erase_options_t nand_erase_options;
 
 	env_ptr->flags++;
-	total = CONFIG_ENV_SIZE;
 
 	nand_erase_options.length = CONFIG_ENV_RANGE;
 	nand_erase_options.quiet = 0;
@@ -226,7 +221,6 @@ int saveenv(void)
 #else /* ! CONFIG_ENV_OFFSET_REDUND */
 int saveenv(void)
 {
-	size_t total;
 	int ret = 0;
 	nand_erase_options_t nand_erase_options;
 
@@ -243,7 +237,6 @@ int saveenv(void)
 		return 1;
 
 	puts ("Writing to Nand... ");
-	total = CONFIG_ENV_SIZE;
 	if (writeenv(CONFIG_ENV_OFFSET, (u_char *) env_ptr)) {
 		puts("FAILED!\n");
 		return 1;
@@ -287,11 +280,8 @@ int readenv (size_t offset, u_char * buf)
 void env_relocate_spec (void)
 {
 #if !defined(ENV_IS_EMBEDDED)
-	size_t total;
 	int crc1_ok = 0, crc2_ok = 0;
 	env_t *tmp_env1, *tmp_env2;
-
-	total = CONFIG_ENV_SIZE;
 
 	tmp_env1 = (env_t *) malloc(CONFIG_ENV_SIZE);
 	tmp_env2 = (env_t *) malloc(CONFIG_ENV_SIZE);
