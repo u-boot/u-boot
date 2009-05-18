@@ -55,8 +55,8 @@
 extern unsigned long get_clock_freq(void);
 #endif
 /* Replace a call to get_clock_freq (after it is implemented)*/
-#define CONFIG_SYS_CLK_FREQ	66000000
-#define CONFIG_DDR_CLK_FREQ	66000000
+#define CONFIG_SYS_CLK_FREQ	66666666
+#define CONFIG_DDR_CLK_FREQ	CONFIG_SYS_CLK_FREQ
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
