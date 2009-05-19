@@ -297,7 +297,6 @@
 #define CONFIG_SYS_JFFS2_NUM_BANKS	1
 
 #ifndef __ASSEMBLY__
-extern gpmc_csx_t *nand_cs_base;
 extern gpmc_t *gpmc_cfg_base;
 extern unsigned int boot_flash_base;
 extern volatile unsigned int boot_flash_env_addr;

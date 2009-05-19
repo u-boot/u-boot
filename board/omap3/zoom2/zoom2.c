@@ -50,8 +50,8 @@
  * The details of the setting of the serial gpmc setup are not available.
  * The values were provided by another party.
  */
-extern void enable_gpmc_config(u32 *gpmc_config, gpmc_csx_t *gpmc_cs_base,
-			       u32 base, u32 size);
+void enable_gpmc_cs_config(u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
+			u32 size);
 
 static u32 gpmc_serial_TL16CP754C[GPMC_MAX_REG] = {
 	0x00011000,
@@ -123,19 +123,15 @@ void zoom2_identify(void)
 int board_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	gpmc_csx_t *serial_cs_base;
+	gpmc_t *gpmc = (gpmc_t *)GPMC_BASE;
 	u32 *gpmc_config;
 
 	gpmc_init ();		/* in SRAM or SDRAM, finish GPMC */
 
 	/* Configure console support on zoom2 */
 	gpmc_config = gpmc_serial_TL16CP754C;
-	serial_cs_base = (gpmc_csx_t *) (GPMC_CONFIG_CS0_BASE +
-					 (3 * GPMC_CONFIG_WIDTH));
-	enable_gpmc_config(gpmc_config,
-			   serial_cs_base,
-			   SERIAL_TL16CP754C_BASE,
-			   GPMC_SIZE_16M);
+	enable_gpmc_cs_config(gpmc_config, &gpmc->cs[4],
+			SERIAL_TL16CP754C_BASE, GPMC_SIZE_16M);
 
 	/* board id for Linux */
 	gd->bd->bi_arch_number = MACH_TYPE_OMAP_ZOOM2;

@@ -93,17 +93,17 @@ void set_muxconf_regs(void)
 static void setup_net_chip(void)
 {
 	gpio_t *gpio3_base = (gpio_t *)OMAP34XX_GPIO3_BASE;
-	gpmc_csx_t *gpmc_cs5_base = (gpmc_csx_t *)GPMC_CONFIG_CS5_BASE;
+	gpmc_t *gpmc = (gpmc_t *)GPMC_BASE;
 	ctrl_t *ctrl_base = (ctrl_t *)OMAP34XX_CTRL_BASE;
 
 	/* Configure GPMC registers */
-	writel(NET_GPMC_CONFIG1, &gpmc_cs5_base->config1);
-	writel(NET_GPMC_CONFIG2, &gpmc_cs5_base->config2);
-	writel(NET_GPMC_CONFIG3, &gpmc_cs5_base->config3);
-	writel(NET_GPMC_CONFIG4, &gpmc_cs5_base->config4);
-	writel(NET_GPMC_CONFIG5, &gpmc_cs5_base->config5);
-	writel(NET_GPMC_CONFIG6, &gpmc_cs5_base->config6);
-	writel(NET_GPMC_CONFIG7, &gpmc_cs5_base->config7);
+	writel(NET_GPMC_CONFIG1, &gpmc->cs[5].config1);
+	writel(NET_GPMC_CONFIG2, &gpmc->cs[5].config2);
+	writel(NET_GPMC_CONFIG3, &gpmc->cs[5].config3);
+	writel(NET_GPMC_CONFIG4, &gpmc->cs[5].config4);
+	writel(NET_GPMC_CONFIG5, &gpmc->cs[5].config5);
+	writel(NET_GPMC_CONFIG6, &gpmc->cs[5].config6);
+	writel(NET_GPMC_CONFIG7, &gpmc->cs[5].config7);
 
 	/* Enable off mode for NWE in PADCONF_GPMC_NWE register */
 	writew(readw(&ctrl_base ->gpmc_nwe) | 0x0E00, &ctrl_base->gpmc_nwe);

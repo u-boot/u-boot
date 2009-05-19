@@ -81,30 +81,38 @@ typedef struct ctrl_id {
 #define HS_DEVICE		0x2
 #define GP_DEVICE		0x3
 
-/* GPMC CS3/cs4/cs6 not avaliable */
 #define GPMC_BASE		(OMAP34XX_GPMC_BASE)
 #define GPMC_CONFIG_CS0		0x60
-#define GPMC_CONFIG_CS5		0x150
-
-#define GPMC_CONFIG_CS0_BASE	(GPMC_BASE + GPMC_CONFIG_CS0)
-#define GPMC_CONFIG_CS5_BASE	(GPMC_BASE + GPMC_CONFIG_CS5)
-#define GPMC_CONFIG_WP		0x10
-
-#define GPMC_CONFIG_WIDTH	0x30
 
 #ifndef __ASSEMBLY__
+struct gpmc_cs {
+	unsigned int config1;		/* 0x00 */
+	unsigned int config2;		/* 0x04 */
+	unsigned int config3;		/* 0x08 */
+	unsigned int config4;		/* 0x0C */
+	unsigned int config5;		/* 0x10 */
+	unsigned int config6;		/* 0x14 */
+	unsigned int config7;		/* 0x18 */
+	unsigned int nand_cmd;		/* 0x1C */
+	unsigned int nand_adr;		/* 0x20 */
+	unsigned int nand_dat;		/* 0x24 */
+	unsigned char res[8];		/* blow up to 0x30 byte */
+};
+
 typedef struct gpmc {
 	unsigned char res1[0x10];
 	unsigned int sysconfig;		/* 0x10 */
 	unsigned char res2[0x4];
 	unsigned int irqstatus;		/* 0x18 */
-	unsigned int irqenable; 	/* 0x1C */
+	unsigned int irqenable;		/* 0x1C */
 	unsigned char res3[0x20];
 	unsigned int timeout_control; 	/* 0x40 */
 	unsigned char res4[0xC];
 	unsigned int config;		/* 0x50 */
 	unsigned int status;		/* 0x54 */
-	unsigned char res5[0x19C];
+	unsigned char res5[0x8];
+	struct gpmc_cs cs[8];	/* 0x60, 0x90, .. */
+	unsigned char res6[0x18];
 	unsigned int ecc_config;	/* 0x1F4 */
 	unsigned int ecc_control;	/* 0x1F8 */
 	unsigned int ecc_size_config;	/* 0x1FC */
@@ -118,19 +126,6 @@ typedef struct gpmc {
 	unsigned int ecc8_result;	/* 0x21C */
 	unsigned int ecc9_result;	/* 0x220 */
 } gpmc_t;
-
-typedef struct gpmc_csx {
-	unsigned int config1;		/* 0x00 */
-	unsigned int config2;		/* 0x04 */
-	unsigned int config3;		/* 0x08 */
-	unsigned int config4;		/* 0x0C */
-	unsigned int config5;		/* 0x10 */
-	unsigned int config6;		/* 0x14 */
-	unsigned int config7;		/* 0x18 */
-	unsigned int nand_cmd;		/* 0x1C */
-	unsigned int nand_adr;		/* 0x20 */
-	unsigned int nand_dat;		/* 0x24 */
-} gpmc_csx_t;
 #else /* __ASSEMBLY__ */
 #define GPMC_CONFIG1		0x00
 #define GPMC_CONFIG2		0x04

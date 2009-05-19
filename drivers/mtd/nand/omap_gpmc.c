@@ -31,7 +31,6 @@
 
 static uint8_t cs;
 static gpmc_t *gpmc_base = (gpmc_t *)GPMC_BASE;
-static gpmc_csx_t *gpmc_cs_base;
 static struct nand_ecclayout hw_nand_oob = GPMC_NAND_HW_ECC_LAYOUT;
 
 /*
@@ -49,13 +48,13 @@ static void omap_nand_hwcontrol(struct mtd_info *mtd, int32_t cmd,
 	 */
 	switch (ctrl) {
 	case NAND_CTRL_CHANGE | NAND_CTRL_CLE:
-		this->IO_ADDR_W = (void __iomem *)&gpmc_cs_base->nand_cmd;
+		this->IO_ADDR_W = (void __iomem *)&gpmc_base->cs[cs].nand_cmd;
 		break;
 	case NAND_CTRL_CHANGE | NAND_CTRL_ALE:
-		this->IO_ADDR_W = (void __iomem *)&gpmc_cs_base->nand_adr;
+		this->IO_ADDR_W = (void __iomem *)&gpmc_base->cs[cs].nand_adr;
 		break;
 	case NAND_CTRL_CHANGE | NAND_NCE:
-		this->IO_ADDR_W = (void __iomem *)&gpmc_cs_base->nand_dat;
+		this->IO_ADDR_W = (void __iomem *)&gpmc_base->cs[cs].nand_dat;
 		break;
 	}
 
@@ -311,15 +310,8 @@ int board_nand_init(struct nand_chip *nand)
 	 * devices.
 	 */
 	while (cs < GPMC_MAX_CS) {
-		/*
-		 * Each GPMC set for a single CS is at offset 0x30
-		 * - already remapped for us
-		 */
-		gpmc_cs_base = (gpmc_csx_t *)(GPMC_CONFIG_CS0_BASE +
-				(cs * GPMC_CONFIG_WIDTH));
 		/* Check if NAND type is set */
-		if ((readl(&gpmc_cs_base->config1) & 0xC00) ==
-		     0x800) {
+		if ((readl(&gpmc_base->cs[cs].config1) & 0xC00) == 0x800) {
 			/* Found it!! */
 			break;
 		}
@@ -336,13 +328,13 @@ int board_nand_init(struct nand_chip *nand)
 	gpmc_config |= 0x10;
 	writel(gpmc_config, &gpmc_base->config);
 
-	nand->IO_ADDR_R = (void __iomem *)&gpmc_cs_base->nand_dat;
-	nand->IO_ADDR_W = (void __iomem *)&gpmc_cs_base->nand_cmd;
+	nand->IO_ADDR_R = (void __iomem *)&gpmc_base->cs[cs].nand_dat;
+	nand->IO_ADDR_W = (void __iomem *)&gpmc_base->cs[cs].nand_cmd;
 
 	nand->cmd_ctrl = omap_nand_hwcontrol;
 	nand->options = NAND_NO_PADDING | NAND_CACHEPRG | NAND_NO_AUTOINCR;
 	/* If we are 16 bit dev, our gpmc config tells us that */
-	if ((readl(gpmc_cs_base) & 0x3000) == 0x1000)
+	if ((readl(&gpmc_base->cs[cs].config1) & 0x3000) == 0x1000)
 		nand->options |= NAND_BUSWIDTH_16;
 
 	nand->chip_delay = 100;

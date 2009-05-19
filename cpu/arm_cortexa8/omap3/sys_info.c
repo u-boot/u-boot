@@ -32,7 +32,7 @@
 #include <i2c.h>
 
 extern omap3_sysinfo sysinfo;
-static gpmc_csx_t *gpmc_cs_base = (gpmc_csx_t *)GPMC_CONFIG_CS0_BASE;
+static gpmc_t *gpmc_base = (gpmc_t *)GPMC_BASE;
 static sdrc_t *sdrc_base = (sdrc_t *)OMAP34XX_SDRC_BASE;
 static ctrl_t *ctrl_base = (ctrl_t *)OMAP34XX_CTRL_BASE;
 static char *rev_s[CPU_3XX_MAX_REV] = {
@@ -160,7 +160,7 @@ u32 get_gpmc0_base(void)
 {
 	u32 b;
 
-	b = readl(&gpmc_cs_base->config7);
+	b = readl(&gpmc_base->cs[0].config7);
 	b &= 0x1F;		/* keep base [5:0] */
 	b = b << 24;		/* ret 0x0b000000 */
 	return b;
