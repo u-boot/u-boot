@@ -300,6 +300,9 @@ int	misc_init_r   (void);
 /* common/exports.c */
 void	jumptable_init(void);
 
+/* common/kallsysm.c */
+const char *symbol_lookup(unsigned long addr, unsigned long *caddr);
+
 /* api/api.c */
 void	api_init (void);
 

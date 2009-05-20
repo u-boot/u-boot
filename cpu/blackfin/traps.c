@@ -171,38 +171,13 @@ void trap_c(struct pt_regs *regs)
 # define ENABLE_DUMP 0
 #endif
 
-#ifdef CONFIG_DEBUG_DUMP_SYMS
-# define ENABLE_DUMP_SYMS 1
-#else
-# define ENABLE_DUMP_SYMS 0
-#endif
-
-static const char *symbol_lookup(unsigned long addr, unsigned long *caddr)
+#ifndef CONFIG_KALLSYMS
+const char *symbol_lookup(unsigned long addr, unsigned long *caddr)
 {
-	if (!ENABLE_DUMP_SYMS)
-		return NULL;
-
-	extern const char system_map[] __attribute__((__weak__));
-	const char *sym, *csym;
-	char *esym;
-	unsigned long sym_addr;
-
-	sym = system_map;
-	csym = NULL;
-	*caddr = 0;
-
-	while (*sym) {
-		sym_addr = simple_strtoul(sym, &esym, 16);
-		sym = esym;
-		if (sym_addr > addr)
-			break;
-		*caddr = sym_addr;
-		csym = sym;
-		sym += strlen(sym) + 1;
-	}
-
-	return csym;
+	*caddr = addr;
+	return "N/A";
 }
+#endif
 
 static void decode_address(char *buf, unsigned long address)
 {
