@@ -46,6 +46,13 @@
 #define CONFIG_SDRAM_PPC4xx_IBM_DDR2	/* IBM DDR(2) controller */
 #endif
 
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR) ||	\
+    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) ||	\
+    defined(CONFIG_405EZ) || defined(CONFIG_405EX) ||	\
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define CONFIG_NAND_NDFC
+#endif
+
 /* PLB4 CrossBar Arbiter Core supported across PPC4xx families */
 #if defined(CONFIG_405EX) || \
     defined(CONFIG_440EP) || defined(CONFIG_440EPX) || \

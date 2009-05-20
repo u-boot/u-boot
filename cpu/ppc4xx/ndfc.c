@@ -1,9 +1,9 @@
 /*
  * Overview:
  *   Platform independend driver for NDFC (NanD Flash Controller)
- *   integrated into EP440 cores
+ *   integrated into IBM/AMCC PPC4xx cores
  *
- * (C) Copyright 2006-2007
+ * (C) Copyright 2006-2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * Based on original work by
@@ -32,10 +32,7 @@
 #include <common.h>
 
 #if defined(CONFIG_CMD_NAND) && !defined(CONFIG_NAND_LEGACY) && \
-	(defined(CONFIG_440EP) || defined(CONFIG_440GR) ||	     \
-	 defined(CONFIG_440EPX) || defined(CONFIG_440GRX) ||	     \
-	 defined(CONFIG_405EZ) || defined(CONFIG_405EX) ||	     \
-	 defined(CONFIG_460EX) || defined(CONFIG_460GT))
+    defined(CONFIG_NAND_NDFC)
 
 #include <nand.h>
 #include <linux/mtd/ndfc.h>
