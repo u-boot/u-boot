@@ -327,7 +327,7 @@ static int ubi_volume_read(char *volume, char *buf, size_t size)
 	}
 	if (i == ubi->vtbl_slots) {
 		printf("%s volume not found\n", volume);
-		return 0;
+		return -ENODEV;
 	}
 
 	printf("read %i bytes from volume %d to %x(buf address)\n",
