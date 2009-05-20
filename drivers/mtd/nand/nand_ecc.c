@@ -48,6 +48,11 @@
 #include <asm/errno.h>
 #include <linux/mtd/mtd.h>
 
+/* The PPC4xx NDFC uses Smart Media (SMC) bytes order */
+#ifdef CONFIG_NAND_NDFC
+#define CONFIG_MTD_NAND_ECC_SMC
+#endif
+
 /*
  * NAND-SPL has no sofware ECC for now, so don't include nand_calculate_ecc(),
  * only nand_correct_data() is needed
