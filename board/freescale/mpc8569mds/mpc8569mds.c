@@ -77,6 +77,36 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{2,  3, 2, 0, 1}, /* ENET2_GRXCLK              */
 	{2,  2, 1, 0, 2}, /* ENET2_GTXCLK              */
 
+	/* UCC_3_RGMII */
+	{2, 11, 2, 0, 1}, /* CLK12 */
+	{0, 29, 1, 0, 2}, /* ENET3_TXD0_SER3_TXD0      */
+	{0, 30, 1, 0, 3}, /* ENET3_TXD1_SER3_TXD1      */
+	{0, 31, 1, 0, 2}, /* ENET3_TXD2_SER3_TXD2      */
+	{1,  0, 1, 0, 3}, /* ENET3_TXD3_SER3_TXD3      */
+	{1,  3, 2, 0, 3}, /* ENET3_RXD0_SER3_RXD0      */
+	{1,  4, 2, 0, 1}, /* ENET3_RXD1_SER3_RXD1      */
+	{1,  5, 2, 0, 2}, /* ENET3_RXD2_SER3_RXD2      */
+	{1,  6, 2, 0, 3}, /* ENET3_RXD3_SER3_RXD3      */
+	{1,  1, 1, 0, 1}, /* ENET3_TX_EN_SER3_RTS_B    */
+	{1,  9, 2, 0, 3}, /* ENET3_RX_DV_SER3_CTS_B    */
+	{2,  9, 2, 0, 2}, /* ENET3_GRXCLK              */
+	{2, 25, 1, 0, 2}, /* ENET3_GTXCLK              */
+
+	/* UCC_4_RGMII */
+	{2, 16, 2, 0, 3}, /* CLK17 */
+	{1, 12, 1, 0, 2}, /* ENET4_TXD0_SER4_TXD0      */
+	{1, 13, 1, 0, 2}, /* ENET4_TXD1_SER4_TXD1      */
+	{1, 14, 1, 0, 1}, /* ENET4_TXD2_SER4_TXD2      */
+	{1, 15, 1, 0, 2}, /* ENET4_TXD3_SER4_TXD3      */
+	{1, 18, 2, 0, 2}, /* ENET4_RXD0_SER4_RXD0      */
+	{1, 19, 2, 0, 1}, /* ENET4_RXD1_SER4_RXD1      */
+	{1, 20, 2, 0, 1}, /* ENET4_RXD2_SER4_RXD2      */
+	{1, 21, 2, 0, 2}, /* ENET4_RXD3_SER4_RXD3      */
+	{1, 16, 1, 0, 2}, /* ENET4_TX_EN_SER4_RTS_B    */
+	{1, 24, 2, 0, 3}, /* ENET4_RX_DV_SER4_CTS_B    */
+	{2, 17, 2, 0, 2}, /* ENET4_GRXCLK              */
+	{2, 24, 1, 0, 2}, /* ENET4_GTXCLK              */
+
 	/* UART1 is muxed with QE PortF bit [9-12].*/
 	{5, 12, 2, 0, 3}, /* UART1_SIN */
 	{5, 9,  1, 0, 3}, /* UART1_SOUT */

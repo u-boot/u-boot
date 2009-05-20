@@ -312,6 +312,29 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_UEC2_INTERFACE_MODE ENET_1000_RGMII_ID
 #endif
 
+#define CONFIG_UEC_ETH3         /* GETH3 */
+#define CONFIG_HAS_ETH2
+
+#ifdef CONFIG_UEC_ETH3
+#define CONFIG_SYS_UEC3_UCC_NUM        2       /* UCC3 */
+#define CONFIG_SYS_UEC3_RX_CLK         QE_CLK_NONE
+#define CONFIG_SYS_UEC3_TX_CLK         QE_CLK12
+#define CONFIG_SYS_UEC3_ETH_TYPE       GIGA_ETH
+#define CONFIG_SYS_UEC3_PHY_ADDR       2
+#define CONFIG_SYS_UEC3_INTERFACE_MODE ENET_1000_RGMII_ID
+#endif
+
+#define CONFIG_UEC_ETH4         /* GETH4 */
+#define CONFIG_HAS_ETH3
+
+#ifdef CONFIG_UEC_ETH4
+#define CONFIG_SYS_UEC4_UCC_NUM        3       /* UCC4 */
+#define CONFIG_SYS_UEC4_RX_CLK         QE_CLK_NONE
+#define CONFIG_SYS_UEC4_TX_CLK         QE_CLK17
+#define CONFIG_SYS_UEC4_ETH_TYPE       GIGA_ETH
+#define CONFIG_SYS_UEC4_PHY_ADDR       3
+#define CONFIG_SYS_UEC4_INTERFACE_MODE ENET_1000_RGMII_ID
+#endif
 #endif /* CONFIG_QE */
 
 #if defined(CONFIG_PCI)

@@ -41,6 +41,10 @@ void enable_8569mds_qe_mdio()
 			BCSR7_UCC1_GETH_EN | BCSR7_UCC1_RGMII_EN);
 	setbits_8((u8 *)(CONFIG_SYS_BCSR_BASE + 8),
 			BCSR8_UCC2_GETH_EN | BCSR8_UCC2_RGMII_EN);
+	setbits_8((u8 *)(CONFIG_SYS_BCSR_BASE + 9),
+			BCSR9_UCC3_GETH_EN | BCSR9_UCC3_RGMII_EN);
+	setbits_8((u8 *)(CONFIG_SYS_BCSR_BASE + 10),
+			BCSR10_UCC4_GETH_EN | BCSR10_UCC4_RGMII_EN);
 }
 
 void disable_8569mds_brd_eeprom_write_protect()
