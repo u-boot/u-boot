@@ -282,6 +282,8 @@ extern unsigned long get_clock_freq(void);
 /*
  * QE UEC ethernet configuration
  */
+#define CONFIG_SYS_UCC_RGMII_MODE	/* Set UCC work at RGMII by default */
+#undef CONFIG_SYS_UCC_RMII_MODE		/* Set UCC work at RMII mode */
 
 #define CONFIG_MIIM_ADDRESS	(CONFIG_SYS_CCSRBAR + 0x82120)
 #define CONFIG_UEC_ETH
@@ -294,11 +296,18 @@ extern unsigned long get_clock_freq(void);
 #ifdef CONFIG_UEC_ETH1
 #define CONFIG_SYS_UEC1_UCC_NUM        0       /* UCC1 */
 #define CONFIG_SYS_UEC1_RX_CLK         QE_CLK_NONE
+#if defined(CONFIG_SYS_UCC_RGMII_MODE)
 #define CONFIG_SYS_UEC1_TX_CLK         QE_CLK12
 #define CONFIG_SYS_UEC1_ETH_TYPE       GIGA_ETH
 #define CONFIG_SYS_UEC1_PHY_ADDR       7
 #define CONFIG_SYS_UEC1_INTERFACE_MODE ENET_1000_RGMII_ID
-#endif
+#elif defined(CONFIG_SYS_UCC_RMII_MODE)
+#define CONFIG_SYS_UEC1_TX_CLK         QE_CLK16	/* CLK16 for RMII */
+#define CONFIG_SYS_UEC1_ETH_TYPE       FAST_ETH
+#define CONFIG_SYS_UEC1_PHY_ADDR       8	/* 0x8 for RMII */
+#define CONFIG_SYS_UEC1_INTERFACE_MODE ENET_100_RMII
+#endif /* CONFIG_SYS_UCC_RGMII_MODE */
+#endif /* CONFIG_UEC_ETH1 */
 
 #define CONFIG_UEC_ETH2         /* GETH2 */
 #define CONFIG_HAS_ETH1
@@ -306,11 +315,18 @@ extern unsigned long get_clock_freq(void);
 #ifdef CONFIG_UEC_ETH2
 #define CONFIG_SYS_UEC2_UCC_NUM        1       /* UCC2 */
 #define CONFIG_SYS_UEC2_RX_CLK         QE_CLK_NONE
+#if defined(CONFIG_SYS_UCC_RGMII_MODE)
 #define CONFIG_SYS_UEC2_TX_CLK         QE_CLK17
 #define CONFIG_SYS_UEC2_ETH_TYPE       GIGA_ETH
 #define CONFIG_SYS_UEC2_PHY_ADDR       1
 #define CONFIG_SYS_UEC2_INTERFACE_MODE ENET_1000_RGMII_ID
-#endif
+#elif defined(CONFIG_SYS_UCC_RMII_MODE)
+#define CONFIG_SYS_UEC2_TX_CLK         QE_CLK16	/* CLK 16 for RMII */
+#define CONFIG_SYS_UEC2_ETH_TYPE       FAST_ETH
+#define CONFIG_SYS_UEC2_PHY_ADDR       0x9	/* 0x9 for RMII */
+#define CONFIG_SYS_UEC2_INTERFACE_MODE ENET_100_RMII
+#endif /* CONFIG_SYS_UCC_RGMII_MODE */
+#endif /* CONFIG_UEC_ETH2 */
 
 #define CONFIG_UEC_ETH3         /* GETH3 */
 #define CONFIG_HAS_ETH2
@@ -318,11 +334,18 @@ extern unsigned long get_clock_freq(void);
 #ifdef CONFIG_UEC_ETH3
 #define CONFIG_SYS_UEC3_UCC_NUM        2       /* UCC3 */
 #define CONFIG_SYS_UEC3_RX_CLK         QE_CLK_NONE
+#if defined(CONFIG_SYS_UCC_RGMII_MODE)
 #define CONFIG_SYS_UEC3_TX_CLK         QE_CLK12
 #define CONFIG_SYS_UEC3_ETH_TYPE       GIGA_ETH
 #define CONFIG_SYS_UEC3_PHY_ADDR       2
 #define CONFIG_SYS_UEC3_INTERFACE_MODE ENET_1000_RGMII_ID
-#endif
+#elif defined(CONFIG_SYS_UCC_RMII_MODE)
+#define CONFIG_SYS_UEC3_TX_CLK		QE_CLK16 /* CLK_16 for RMII */
+#define CONFIG_SYS_UEC3_ETH_TYPE	FAST_ETH
+#define CONFIG_SYS_UEC3_PHY_ADDR	0xA     /* 0xA for RMII */
+#define CONFIG_SYS_UEC3_INTERFACE_MODE ENET_100_RMII
+#endif /* CONFIG_SYS_UCC_RGMII_MODE */
+#endif /* CONFIG_UEC_ETH3 */
 
 #define CONFIG_UEC_ETH4         /* GETH4 */
 #define CONFIG_HAS_ETH3
@@ -330,11 +353,18 @@ extern unsigned long get_clock_freq(void);
 #ifdef CONFIG_UEC_ETH4
 #define CONFIG_SYS_UEC4_UCC_NUM        3       /* UCC4 */
 #define CONFIG_SYS_UEC4_RX_CLK         QE_CLK_NONE
+#if defined(CONFIG_SYS_UCC_RGMII_MODE)
 #define CONFIG_SYS_UEC4_TX_CLK         QE_CLK17
 #define CONFIG_SYS_UEC4_ETH_TYPE       GIGA_ETH
 #define CONFIG_SYS_UEC4_PHY_ADDR       3
 #define CONFIG_SYS_UEC4_INTERFACE_MODE ENET_1000_RGMII_ID
-#endif
+#elif defined(CONFIG_SYS_UCC_RMII_MODE)
+#define CONFIG_SYS_UEC4_TX_CLK		QE_CLK16 /* CLK16 for RMII */
+#define CONFIG_SYS_UEC4_ETH_TYPE	FAST_ETH
+#define CONFIG_SYS_UEC4_PHY_ADDR	0xB     /* 0xB for RMII */
+#define CONFIG_SYS_UEC4_INTERFACE_MODE ENET_100_RMII
+#endif /* CONFIG_SYS_UCC_RGMII_MODE */
+#endif /* CONFIG_UEC_ETH4 */
 #endif /* CONFIG_QE */
 
 #if defined(CONFIG_PCI)

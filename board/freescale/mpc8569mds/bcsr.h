@@ -76,7 +76,7 @@
 
 void enable_8569mds_flash_write(void);
 void disable_8569mds_flash_write(void);
-void enable_8569mds_qe_mdio(void);
+void enable_8569mds_qe_uec(void);
 void disable_8569mds_brd_eeprom_write_protect(void);
 
 #endif	/* __BCSR_H_ */
