@@ -582,9 +582,12 @@ typedef struct qe_immap {
 	u8 res14[0x300];
 	u8 res15[0x3A00];
 	u8 res16[0x8000];	/* 0x108000 -  0x110000 */
-#if defined(CONFIG_MPC8568)||defined(CONFIG_MPC8569)
+#if defined(CONFIG_MPC8568)
 	u8 muram[0x10000];	/* 0x1_0000 -  0x2_0000 Multi-user RAM */
 	u8 res17[0x20000];	/* 0x2_0000 -  0x4_0000 */
+#elif defined(CONFIG_MPC8569)
+	u8 muram[0x20000];	/* 0x1_0000 -  0x3_0000 Multi-user RAM */
+	u8 res17[0x10000];	/* 0x3_0000 -  0x4_0000 */
 #else
 	u8 muram[0xC000];	/* 0x110000 -  0x11C000 Multi-user RAM */
 	u8 res17[0x24000];	/* 0x11C000 -  0x140000 */
@@ -594,8 +597,10 @@ typedef struct qe_immap {
 
 extern qe_map_t *qe_immr;
 
-#if defined(CONFIG_MPC8568) || defined(CONFIG_MPC8569)
+#if defined(CONFIG_MPC8568)
 #define QE_MURAM_SIZE		0x10000UL
+#elif defined(CONFIG_MPC8569)
+#define QE_MURAM_SIZE		0x20000UL
 #elif defined(CONFIG_MPC8360)
 #define QE_MURAM_SIZE		0xc000UL
 #elif defined(CONFIG_MPC832X)
