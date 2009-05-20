@@ -77,6 +77,12 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{2,  3, 2, 0, 1}, /* ENET2_GRXCLK              */
 	{2,  2, 1, 0, 2}, /* ENET2_GTXCLK              */
 
+	/* UART1 is muxed with QE PortF bit [9-12].*/
+	{5, 12, 2, 0, 3}, /* UART1_SIN */
+	{5, 9,  1, 0, 3}, /* UART1_SOUT */
+	{5, 10, 2, 0, 3}, /* UART1_CTS_B */
+	{5, 11, 1, 0, 2}, /* UART1_RTS_B */
+
 	{0,  0, 0, 0, QE_IOP_TAB_END} /* END of table */
 };
 
