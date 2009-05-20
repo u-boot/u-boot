@@ -156,9 +156,17 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_BR0_PRELIM		0xfe000801
 #define	CONFIG_SYS_OR0_PRELIM		0xfe000ff7
 
-/*Chip slelect 1 - BCSR*/
+/*Chip select 1 - BCSR*/
 #define CONFIG_SYS_BR1_PRELIM		0xf8000801
 #define	CONFIG_SYS_OR1_PRELIM		0xffffe9f7
+
+/*Chip select 4 - PIB*/
+#define CONFIG_SYS_BR4_PRELIM		0xf8008801
+#define CONFIG_SYS_OR4_PRELIM		0xffffe9f7
+
+/*Chip select 5 - PIB*/
+#define CONFIG_SYS_BR5_PRELIM		0xf8010801
+#define CONFIG_SYS_OR5_PRELIM		0xffffe9f7
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* sectors per device */
