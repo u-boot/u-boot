@@ -186,6 +186,10 @@ int checkcpu (void)
 	printf("CPM:   %s MHz\n", strmhz(buf1, sysinfo.freqSystemBus));
 #endif
 
+#ifdef CONFIG_QE
+	printf("       QE:%-4s MHz\n", strmhz(buf1, sysinfo.freqQE));
+#endif
+
 	puts("L1:    D-cache 32 kB enabled\n       I-cache 32 kB enabled\n");
 
 	return 0;

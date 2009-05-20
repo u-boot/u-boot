@@ -1596,6 +1596,8 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORPLLSR_DDR_RATIO	0x00003e00
 #define MPC85xx_PORPLLSR_DDR_RATIO_SHIFT	9
 #endif
+#define MPC85xx_PORPLLSR_QE_RATIO	0x3e000000
+#define MPC85xx_PORPLLSR_QE_RATIO_SHIFT		25
 	uint	porbmsr;	/* 0xe0004 - POR boot mode status register */
 #define MPC85xx_PORBMSR_HA		0x00070000
 	uint	porimpscr;	/* 0xe0008 - POR I/O impedance status and control register */
