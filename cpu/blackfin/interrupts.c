@@ -95,11 +95,12 @@ void udelay(unsigned long usec)
 int timer_init(void)
 {
 	*pTCNTL = 0x1;
+	CSYNC();
 	*pTSCALE = 0x0;
 	*pTCOUNT = MAX_TIM_LOAD;
 	*pTPERIOD = MAX_TIM_LOAD;
 	*pTCNTL = 0x7;
-	asm("CSYNC;");
+	CSYNC();
 
 	timestamp = 0;
 	last_time = 0;
@@ -151,5 +152,5 @@ ulong get_timer(ulong base)
 
 void reset_timer(void)
 {
-	timestamp = 0;
+	timer_init();
 }
