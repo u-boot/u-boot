@@ -365,6 +365,31 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_UEC4_INTERFACE_MODE ENET_100_RMII
 #endif /* CONFIG_SYS_UCC_RGMII_MODE */
 #endif /* CONFIG_UEC_ETH4 */
+
+#undef CONFIG_UEC_ETH6         /* GETH6 */
+#define CONFIG_HAS_ETH5
+
+#ifdef CONFIG_UEC_ETH6
+#define CONFIG_SYS_UEC6_UCC_NUM        5       /* UCC6 */
+#define CONFIG_SYS_UEC6_RX_CLK         QE_CLK_NONE
+#define CONFIG_SYS_UEC6_TX_CLK         QE_CLK_NONE
+#define CONFIG_SYS_UEC6_ETH_TYPE       GIGA_ETH
+#define CONFIG_SYS_UEC6_PHY_ADDR       4
+#define CONFIG_SYS_UEC6_INTERFACE_MODE ENET_1000_SGMII
+#endif /* CONFIG_UEC_ETH6 */
+
+#undef CONFIG_UEC_ETH8         /* GETH8 */
+#define CONFIG_HAS_ETH7
+
+#ifdef CONFIG_UEC_ETH8
+#define CONFIG_SYS_UEC8_UCC_NUM        7       /* UCC8 */
+#define CONFIG_SYS_UEC8_RX_CLK         QE_CLK_NONE
+#define CONFIG_SYS_UEC8_TX_CLK         QE_CLK_NONE
+#define CONFIG_SYS_UEC8_ETH_TYPE       GIGA_ETH
+#define CONFIG_SYS_UEC8_PHY_ADDR       6
+#define CONFIG_SYS_UEC8_INTERFACE_MODE ENET_1000_SGMII
+#endif /* CONFIG_UEC_ETH8 */
+
 #endif /* CONFIG_QE */
 
 #if defined(CONFIG_PCI)
