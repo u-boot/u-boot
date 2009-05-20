@@ -3,7 +3,7 @@
  * The Internal Memory Map for devices with QE on them. This
  * is the superset of all QE devices (8360, etc.).
  *
- * Copyright (c) 2006 Freescale Semiconductor, Inc.
+ * Copyright (c) 2006-2009 Freescale Semiconductor, Inc.
  * Author: Shlomi Gridih <gridish@freescale.com>
  *
  * This program is free software; you can redistribute  it and/or modify it
@@ -609,10 +609,13 @@ extern qe_map_t *qe_immr;
 
 #if defined(CONFIG_MPC8323)
 #define MAX_QE_RISC     1
+#define QE_NUM_OF_SNUM	28
 #elif defined(CONFIG_MPC8569)
 #define MAX_QE_RISC     4
+#define QE_NUM_OF_SNUM	46
 #else
 #define MAX_QE_RISC	2
+#define QE_NUM_OF_SNUM	28
 #endif
 
 #endif				/* __IMMAP_QE_H__ */

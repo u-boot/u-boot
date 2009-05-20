@@ -25,7 +25,6 @@
 
 #include "common.h"
 
-#define QE_NUM_OF_SNUM	28
 #define QE_NUM_OF_BRGS	16
 #define UCC_MAX_NUM	8
 
