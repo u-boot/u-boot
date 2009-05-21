@@ -266,26 +266,28 @@ reset_85xx_watchdog(void)
 
 #if defined(CONFIG_DDR_ECC)
 void dma_init(void) {
-	volatile ccsr_dma_t *dma = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
+	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
+	volatile fsl_dma_t *dma = &dma_base->dma[0];
 
-	dma->satr0 = 0x02c40000;
-	dma->datr0 = 0x02c40000;
-	dma->sr0 = 0xfffffff; /* clear any errors */
+	dma->satr = 0x02c40000;
+	dma->datr = 0x02c40000;
+	dma->sr = 0xfffffff; /* clear any errors */
 	asm("sync; isync; msync");
 	return;
 }
 
 uint dma_check(void) {
-	volatile ccsr_dma_t *dma = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
-	volatile uint status = dma->sr0;
+	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
+	volatile fsl_dma_t *dma = &dma_base->dma[0];
+	volatile uint status = dma->sr;
 
 	/* While the channel is busy, spin */
 	while((status & 4) == 4) {
-		status = dma->sr0;
+		status = dma->sr;
 	}
 
 	/* clear MR0[CS] channel start bit */
-	dma->mr0 &= 0x00000001;
+	dma->mr &= 0x00000001;
 	asm("sync;isync;msync");
 
 	if (status != 0) {
@@ -295,14 +297,15 @@ uint dma_check(void) {
 }
 
 int dma_xfer(void *dest, uint count, void *src) {
-	volatile ccsr_dma_t *dma = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
+	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
+	volatile fsl_dma_t *dma = &dma_base->dma[0];
 
-	dma->dar0 = (uint) dest;
-	dma->sar0 = (uint) src;
-	dma->bcr0 = count;
-	dma->mr0 = 0xf000004;
+	dma->dar = (uint) dest;
+	dma->sar = (uint) src;
+	dma->bcr = count;
+	dma->mr = 0xf000004;
 	asm("sync;isync;msync");
-	dma->mr0 = 0xf000005;
+	dma->mr = 0xf000005;
 	asm("sync;isync;msync");
 	return dma_check();
 }
