@@ -27,7 +27,7 @@
 #include <asm/bitops.h>
 
 #include "ehci.h"
-#include "ehci-fsl.h"
+#include <usb/ehci-fsl.h>
 #include "ehci-core.h"
 
 /*
