@@ -607,4 +607,12 @@ extern qe_map_t *qe_immr;
 #define QE_MURAM_SIZE		0x4000UL
 #endif
 
+#if defined(CONFIG_MPC8323)
+#define MAX_QE_RISC     1
+#elif defined(CONFIG_MPC8569)
+#define MAX_QE_RISC     4
+#else
+#define MAX_QE_RISC	2
+#endif
+
 #endif				/* __IMMAP_QE_H__ */

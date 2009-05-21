@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Freescale Semiconductor, Inc.
+ * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
  *
  * Dave Liu <daveliu@freescale.com>
  *
@@ -46,8 +46,13 @@ static uec_info_t eth1_uec_info = {
 	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
 #endif
+#if (MAX_QE_RISC == 4)
+	.risc_tx			= QE_RISC_ALLOCATION_FOUR_RISCS,
+	.risc_rx			= QE_RISC_ALLOCATION_FOUR_RISCS,
+#else
 	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+#endif
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
 	.phy_address		= CONFIG_SYS_UEC1_PHY_ADDR,
@@ -69,8 +74,13 @@ static uec_info_t eth2_uec_info = {
 	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
 #endif
+#if (MAX_QE_RISC == 4)
+	.risc_tx			= QE_RISC_ALLOCATION_FOUR_RISCS,
+	.risc_rx			= QE_RISC_ALLOCATION_FOUR_RISCS,
+#else
 	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+#endif
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
 	.phy_address		= CONFIG_SYS_UEC2_PHY_ADDR,
@@ -92,8 +102,13 @@ static uec_info_t eth3_uec_info = {
 	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
 #endif
+#if (MAX_QE_RISC == 4)
+	.risc_tx			= QE_RISC_ALLOCATION_FOUR_RISCS,
+	.risc_rx			= QE_RISC_ALLOCATION_FOUR_RISCS,
+#else
 	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+#endif
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
 	.phy_address		= CONFIG_SYS_UEC3_PHY_ADDR,
@@ -115,8 +130,13 @@ static uec_info_t eth4_uec_info = {
 	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
 #endif
+#if (MAX_QE_RISC == 4)
+	.risc_tx			= QE_RISC_ALLOCATION_FOUR_RISCS,
+	.risc_rx			= QE_RISC_ALLOCATION_FOUR_RISCS,
+#else
 	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+#endif
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
 	.phy_address		= CONFIG_SYS_UEC4_PHY_ADDR,
@@ -138,8 +158,13 @@ static uec_info_t eth5_uec_info = {
 	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
 #endif
+#if (MAX_QE_RISC == 4)
+	.risc_tx			= QE_RISC_ALLOCATION_FOUR_RISCS,
+	.risc_rx			= QE_RISC_ALLOCATION_FOUR_RISCS,
+#else
 	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+#endif
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
 	.phy_address		= CONFIG_SYS_UEC5_PHY_ADDR,
@@ -161,8 +186,13 @@ static uec_info_t eth6_uec_info = {
 	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
 #endif
+#if (MAX_QE_RISC == 4)
+	.risc_tx			= QE_RISC_ALLOCATION_FOUR_RISCS,
+	.risc_rx			= QE_RISC_ALLOCATION_FOUR_RISCS,
+#else
 	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+#endif
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
 	.phy_address		= CONFIG_SYS_UEC6_PHY_ADDR,

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Freescale Semiconductor, Inc.
+ * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
  *
  * Dave Liu <daveliu@freescale.com>
  * based on source code of Shlomi Gridish
@@ -46,11 +46,16 @@ typedef struct qe_snum {
 
 /* QE RISC allocation
 */
-typedef enum qe_risc_allocation {
-	QE_RISC_ALLOCATION_RISC1		= 1,  /* RISC 1 */
-	QE_RISC_ALLOCATION_RISC2		= 2,  /* RISC 2 */
-	QE_RISC_ALLOCATION_RISC1_AND_RISC2	= 3   /* RISC 1 or RISC 2 */
-} qe_risc_allocation_e;
+#define	QE_RISC_ALLOCATION_RISC1	0x1  /* RISC 1 */
+#define	QE_RISC_ALLOCATION_RISC2	0x2  /* RISC 2 */
+#define	QE_RISC_ALLOCATION_RISC3	0x4  /* RISC 3 */
+#define	QE_RISC_ALLOCATION_RISC4	0x8  /* RISC 4 */
+#define	QE_RISC_ALLOCATION_RISC1_AND_RISC2 	(QE_RISC_ALLOCATION_RISC1 | \
+						 QE_RISC_ALLOCATION_RISC2)
+#define	QE_RISC_ALLOCATION_FOUR_RISCS	(QE_RISC_ALLOCATION_RISC1 | \
+					 QE_RISC_ALLOCATION_RISC2 | \
+					 QE_RISC_ALLOCATION_RISC3 | \
+					 QE_RISC_ALLOCATION_RISC4)
 
 /* QE CECR commands for UCC fast.
 */

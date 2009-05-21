@@ -258,9 +258,6 @@ int qe_set_mii_clk_src(int ucc_num)
 	return 0;
 }
 
-/* The maximum number of RISCs we support */
-#define MAX_QE_RISC     2
-
 /* Firmware information stored here for qe_get_firmware_info() */
 static struct qe_firmware_info qe_firmware_info;
 

@@ -654,8 +654,8 @@ typedef struct uec_info {
 	ucc_fast_info_t			uf_info;
 	uec_num_of_threads_e		num_threads_tx;
 	uec_num_of_threads_e		num_threads_rx;
-	qe_risc_allocation_e		risc_tx;
-	qe_risc_allocation_e		risc_rx;
+	unsigned int			risc_tx;
+	unsigned int			risc_rx;
 	u16				rx_bd_ring_len;
 	u16				tx_bd_ring_len;
 	u8				phy_address;
