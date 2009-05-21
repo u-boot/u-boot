@@ -1,7 +1,7 @@
 /*
  * MPC85xx Internal Memory Map
  *
- * Copyright 2007 Freescale Semiconductor.
+ * Copyright 2007-2009 Freescale Semiconductor, Inc.
  *
  * Copyright(c) 2002,2003 Motorola Inc.
  * Xianghua Xiao (x.xiao@motorola.com)
@@ -1732,5 +1732,8 @@ typedef struct ccsr_gur {
 #define CONFIG_SYS_MPC85xx_SERDES1_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES2_OFFSET)
 #define CONFIG_SYS_MPC85xx_SERDES2_OFFSET	(0xE3100)
 #define CONFIG_SYS_MPC85xx_SERDES2_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES2_OFFSET)
+#define CONFIG_SYS_MPC85xx_USB_OFFSET		0x22000
+#define CONFIG_SYS_MPC85xx_USB_ADDR \
+			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_USB_OFFSET)
 
 #endif /*__IMMAP_85xx__*/

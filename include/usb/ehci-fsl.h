@@ -87,6 +87,8 @@
 
 #if defined(CONFIG_MPC83XX)
 #define CONFIG_SYS_MPC8xxx_USB_ADDR CONFIG_SYS_MPC83xx_USB_ADDR
+#elif defined(CONFIG_MPC85xx)
+#define CONFIG_SYS_MPC8xxx_USB_ADDR CONFIG_SYS_MPC85xx_USB_ADDR
 #endif
 
 /*
