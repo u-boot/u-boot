@@ -81,10 +81,6 @@ int ehci_hcd_init(void)
 	out_be32((void *)(addr + FSL_SOC_USB_AGECNTTHRSH), 0x00000040);
 	out_be32((void *)(addr + FSL_SOC_USB_SICTRL), 0x00000001);
 
-	/* Enable interface. */
-	temp = in_be32((void *)(addr + FSL_SOC_USB_CTRL));
-	out_be32((void *)(addr + FSL_SOC_USB_CTRL), temp | USB_EN);
-
 	temp = in_le32((void *)(addr + FSL_SOC_USB_USBMODE));
 
 	return 0;
