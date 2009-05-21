@@ -182,20 +182,19 @@ watchdog_reset(void)
 void
 dma_init(void)
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile ccsr_dma_t *dma_base = &immap->im_dma;
+	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC86xx_DMA_ADDR);
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
 
 	dma->satr = 0x00040000;
 	dma->datr = 0x00040000;
+	dma->sr = 0xffffffff; /* clear any errors */
 	asm("sync; isync");
 }
 
 uint
 dma_check(void)
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile ccsr_dma_t *dma_base = &immap->im_dma;
+	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC86xx_DMA_ADDR);
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
 	volatile uint status = dma->sr;
 
@@ -203,6 +202,10 @@ dma_check(void)
 	while ((status & 4) == 4) {
 		status = dma->sr;
 	}
+
+	/* clear MR[CS] channel start bit */
+	dma->mr &= 0x00000001;
+	asm("sync;isync");
 
 	if (status != 0) {
 		printf("DMA Error: status = %x\n", status);
@@ -213,8 +216,7 @@ dma_check(void)
 int
 dma_xfer(void *dest, uint count, void *src)
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile ccsr_dma_t *dma_base = &immap->im_dma;
+	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC86xx_DMA_ADDR);
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
 
 	dma->dar = (uint) dest;

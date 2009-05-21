@@ -269,9 +269,9 @@ void dma_init(void) {
 	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
 
-	dma->satr = 0x02c40000;
-	dma->datr = 0x02c40000;
-	dma->sr = 0xfffffff; /* clear any errors */
+	dma->satr = 0x00040000;
+	dma->datr = 0x00040000;
+	dma->sr = 0xffffffff; /* clear any errors */
 	asm("sync; isync; msync");
 	return;
 }
@@ -286,7 +286,7 @@ uint dma_check(void) {
 		status = dma->sr;
 	}
 
-	/* clear MR0[CS] channel start bit */
+	/* clear MR[CS] channel start bit */
 	dma->mr &= 0x00000001;
 	asm("sync;isync;msync");
 
