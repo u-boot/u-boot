@@ -46,8 +46,8 @@ static uec_info_t eth1_uec_info = {
 	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
 #endif
-	.riscTx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
 	.phy_address		= CONFIG_SYS_UEC1_PHY_ADDR,
@@ -69,8 +69,8 @@ static uec_info_t eth2_uec_info = {
 	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
 #endif
-	.riscTx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
 	.phy_address		= CONFIG_SYS_UEC2_PHY_ADDR,
@@ -92,8 +92,8 @@ static uec_info_t eth3_uec_info = {
 	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
 #endif
-	.riscTx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
 	.phy_address		= CONFIG_SYS_UEC3_PHY_ADDR,
@@ -115,8 +115,8 @@ static uec_info_t eth4_uec_info = {
 	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
 #endif
-	.riscTx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
 	.phy_address		= CONFIG_SYS_UEC4_PHY_ADDR,
@@ -138,8 +138,8 @@ static uec_info_t eth5_uec_info = {
 	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
 #endif
-	.riscTx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
 	.phy_address		= CONFIG_SYS_UEC5_PHY_ADDR,
@@ -161,8 +161,8 @@ static uec_info_t eth6_uec_info = {
 	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
 	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
 #endif
-	.riscTx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-	.riscRx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
 	.tx_bd_ring_len		= 16,
 	.rx_bd_ring_len		= 16,
 	.phy_address		= CONFIG_SYS_UEC6_PHY_ADDR,
@@ -1020,7 +1020,7 @@ static int uec_issue_init_enet_rxtx_cmd(uec_private_t *uec,
 
 	/* Init Rx global parameter pointer */
 	p_init_enet_param->rgftgfrxglobal |= uec->rx_glbl_pram_offset |
-						 (u32)uec_info->riscRx;
+						 (u32)uec_info->risc_rx;
 
 	/* Init Rx threads */
 	for (i = 0; i < (thread_rx + 1); i++) {
@@ -1038,13 +1038,13 @@ static int uec_issue_init_enet_rxtx_cmd(uec_private_t *uec,
 		}
 
 		entry_val = ((u32)snum << ENET_INIT_PARAM_SNUM_SHIFT) |
-				 init_enet_offset | (u32)uec_info->riscRx;
+				 init_enet_offset | (u32)uec_info->risc_rx;
 		p_init_enet_param->rxthread[i] = entry_val;
 	}
 
 	/* Init Tx global parameter pointer */
 	p_init_enet_param->txglobal = uec->tx_glbl_pram_offset |
-					 (u32)uec_info->riscTx;
+					 (u32)uec_info->risc_tx;
 
 	/* Init Tx threads */
 	for (i = 0; i < thread_tx; i++) {
@@ -1057,7 +1057,7 @@ static int uec_issue_init_enet_rxtx_cmd(uec_private_t *uec,
 						 UEC_THREAD_TX_PRAM_ALIGNMENT);
 
 		entry_val = ((u32)snum << ENET_INIT_PARAM_SNUM_SHIFT) |
-				 init_enet_offset | (u32)uec_info->riscTx;
+				 init_enet_offset | (u32)uec_info->risc_tx;
 		p_init_enet_param->txthread[i] = entry_val;
 	}
 
