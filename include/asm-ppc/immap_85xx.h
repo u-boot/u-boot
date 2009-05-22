@@ -1530,6 +1530,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORPLLSR_QE_RATIO_SHIFT		25
 	uint	porbmsr;	/* 0xe0004 - POR boot mode status register */
 #define MPC85xx_PORBMSR_HA		0x00070000
+#define MPC85xx_PORBMSR_HA_SHIFT	16
 	uint	porimpscr;	/* 0xe0008 - POR I/O impedance status and control register */
 	uint	pordevsr;	/* 0xe000c - POR I/O device status regsiter */
 #define MPC85xx_PORDEVSR_SGMII1_DIS	0x20000000
@@ -1539,6 +1540,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORDEVSR_SRDS2_IO_SEL   0x38000000
 #define MPC85xx_PORDEVSR_PCI1		0x00800000
 #define MPC85xx_PORDEVSR_IO_SEL		0x00780000
+#define MPC85xx_PORDEVSR_IO_SEL_SHIFT	19
 #define MPC85xx_PORDEVSR_PCI2_ARB	0x00040000
 #define MPC85xx_PORDEVSR_PCI1_ARB	0x00020000
 #define MPC85xx_PORDEVSR_PCI1_PCI32	0x00010000
