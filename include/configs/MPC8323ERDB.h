@@ -15,7 +15,7 @@
 #define CONFIG_E300		1	/* E300 family */
 #define CONFIG_QE		1	/* Has QE */
 #define CONFIG_MPC83xx		1	/* MPC83xx family */
-#define CONFIG_MPC832X		1	/* MPC832x CPU specific */
+#define CONFIG_MPC832x		1	/* MPC832x CPU specific */
 
 #define CONFIG_PCI		1
 #define CONFIG_83XX_GENERIC_PCI	1

@@ -34,7 +34,7 @@
  */
 #define CONFIG_E300	1
 #define CONFIG_MPC83xx	1
-#define CONFIG_MPC834X	1
+#define CONFIG_MPC834x	1
 #define CONFIG_MPC8343	1
 
 #define CONFIG_SYS_IMMR		0xE0000000

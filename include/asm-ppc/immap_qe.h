@@ -603,7 +603,7 @@ extern qe_map_t *qe_immr;
 #define QE_MURAM_SIZE		0x20000UL
 #elif defined(CONFIG_MPC8360)
 #define QE_MURAM_SIZE		0xc000UL
-#elif defined(CONFIG_MPC832X)
+#elif defined(CONFIG_MPC832x)
 #define QE_MURAM_SIZE		0x4000UL
 #endif
 

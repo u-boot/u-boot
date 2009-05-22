@@ -54,7 +54,7 @@
 #define BR_MS_UPMA			0x00000080	/* UPMA */
 #define BR_MS_UPMB			0x000000A0	/* UPMB */
 #define BR_MS_UPMC			0x000000C0	/* UPMC */
-#if !defined(CONFIG_MPC834X)
+#if !defined(CONFIG_MPC834x)
 #define BR_ATOM				0x0000000C
 #define BR_ATOM_SHIFT			2
 #endif
@@ -65,7 +65,7 @@
 #define UPMB			1
 #define UPMC			2
 
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834x)
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_V)
 #else
 #define BR_RES				~(BR_BA | BR_PS | BR_DECC | BR_WP | BR_MSEL | BR_ATOM | BR_V)

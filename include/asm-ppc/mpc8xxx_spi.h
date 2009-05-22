@@ -27,10 +27,10 @@
 
 #include <asm/types.h>
 
-#if defined(CONFIG_MPC834X) || \
+#if defined(CONFIG_MPC834x) || \
 	defined(CONFIG_MPC8313) || \
 	defined(CONFIG_MPC8315) || \
-	defined(CONFIG_MPC837X)
+	defined(CONFIG_MPC837x)
 
 typedef struct spi8xxx {
 	u8 res0[0x20];	/* 0x0-0x01f reserved */

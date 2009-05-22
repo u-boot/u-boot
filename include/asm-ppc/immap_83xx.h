@@ -656,7 +656,7 @@ typedef struct tdmdmac83xx {
 	u8 fixme[0x2000];
 } tdmdmac83xx_t;
 
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834x)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */
@@ -773,7 +773,7 @@ typedef struct immap {
 	u8			res12[0x1CF00];
 } immap_t;
 
-#elif defined(CONFIG_MPC837X)
+#elif defined(CONFIG_MPC837x)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */
@@ -857,7 +857,7 @@ typedef struct immap {
 	u8			qe[0x100000];	/* QE block */
 } immap_t;
 
-#elif defined(CONFIG_MPC832X)
+#elif defined(CONFIG_MPC832x)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */

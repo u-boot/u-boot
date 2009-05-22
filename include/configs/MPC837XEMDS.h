@@ -26,7 +26,7 @@
  */
 #define CONFIG_E300		1 /* E300 family */
 #define CONFIG_MPC83xx		1 /* MPC83xx family */
-#define CONFIG_MPC837X		1 /* MPC837X CPU specific */
+#define CONFIG_MPC837x		1 /* MPC837x CPU specific */
 #define CONFIG_MPC837XEMDS	1 /* MPC837XEMDS board specific */
 
 /*

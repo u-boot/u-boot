@@ -403,7 +403,7 @@ int pciauto_config_device(struct pci_controller *hose, pci_dev_t dev)
 		       PCI_DEV(dev));
 		break;
 #endif
-#ifdef CONFIG_MPC834X
+#ifdef CONFIG_MPC834x
 	case PCI_CLASS_BRIDGE_OTHER:
 		/*
 		 * The host/PCI bridge 1 seems broken in 8349 - it presents
