@@ -23,7 +23,6 @@
 
 #include <common.h>
 #include <pci.h>
-#include <asm/immap_85xx.h>
 #include <asm/fsl_pci.h>
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -112,6 +111,63 @@ struct io_port_cfg_t {
 	{{0}, 4},
 	{{8}, 0},
 };
+#elif defined CONFIG_MPC86xx
+/* Correlate host/agent POR bits to usable info. Table 4-17 */
+struct host_agent_cfg_t {
+	uchar pcie_root[2];
+	uchar rio_host;
+} host_agent_cfg[8] = {
+	{{0, 0}, 0},
+	{{1, 0}, 1},
+	{{0, 1}, 0},
+	{{1, 1}, 1}
+};
+
+/* Correlate port width POR bits to usable info. Table 4-16 */
+struct io_port_cfg_t {
+	uchar pcie_width[2];
+	uchar rio_width;
+} io_port_cfg[16] = {
+	{{0, 0}, 0},
+	{{0, 0}, 0},
+	{{8, 0}, 0},
+	{{8, 8}, 0},
+	{{0, 0}, 0},
+	{{8, 0}, 4},
+	{{8, 0}, 4},
+	{{8, 0}, 4},
+	{{0, 0}, 0},
+	{{0, 0}, 4},
+	{{0, 0}, 4},
+	{{0, 0}, 4},
+	{{0, 0}, 0},
+	{{0, 0}, 0},
+	{{0, 8}, 0},
+	{{8, 8}, 0},
+};
+#endif
+
+/*
+ * 85xx and 86xx share naming conventions, but different layout.
+ * Correlate names to CPU-specific values to share common
+ * PCI code.
+ */
+#if defined(CONFIG_MPC85xx)
+#define MPC8xxx_DEVDISR_PCIE1		MPC85xx_DEVDISR_PCIE
+#define MPC8xxx_DEVDISR_PCIE2		MPC85xx_DEVDISR_PCIE2
+#define MPC8xxx_DEVDISR_PCIE3		MPC85xx_DEVDISR_PCIE3
+#define MPC8xxx_PORDEVSR_IO_SEL		MPC85xx_PORDEVSR_IO_SEL
+#define MPC8xxx_PORDEVSR_IO_SEL_SHIFT	MPC85xx_PORDEVSR_IO_SEL_SHIFT
+#define MPC8xxx_PORBMSR_HA		MPC85xx_PORBMSR_HA
+#define MPC8xxx_PORBMSR_HA_SHIFT	MPC85xx_PORBMSR_HA_SHIFT
+#elif defined(CONFIG_MPC86xx)
+#define MPC8xxx_DEVDISR_PCIE1		MPC86xx_DEVDISR_PCIEX1
+#define MPC8xxx_DEVDISR_PCIE2		MPC86xx_DEVDISR_PCIEX2
+#define MPC8xxx_DEVDISR_PCIE3	 	0	/* 8641 doesn't have PCIe3 */
+#define MPC8xxx_PORDEVSR_IO_SEL		MPC8641_PORDEVSR_IO_SEL
+#define MPC8xxx_PORDEVSR_IO_SEL_SHIFT	MPC8641_PORDEVSR_IO_SEL_SHIFT
+#define MPC8xxx_PORBMSR_HA		MPC8641_PORBMSR_HA
+#define MPC8xxx_PORBMSR_HA_SHIFT	MPC8641_PORBMSR_HA_SHIFT
 #endif
 
 void pci_init_board(void)
@@ -120,10 +176,17 @@ void pci_init_board(void)
 	volatile ccsr_fsl_pci_t *pci;
 	int width;
 	int host;
+#if defined(CONFIG_MPC85xx)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#elif defined(CONFIG_MPC86xx)
+	immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
+	volatile ccsr_gur_t *gur = &immap->im_gur;
+#endif
 	uint devdisr = gur->devdisr;
-	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
+	uint io_sel = (gur->pordevsr & MPC8xxx_PORDEVSR_IO_SEL) >>
+			MPC8xxx_PORDEVSR_IO_SEL_SHIFT;
+	uint host_agent = (gur->porbmsr & MPC8xxx_PORBMSR_HA) >>
+			MPC8xxx_PORBMSR_HA_SHIFT;
 	struct pci_region *r;
 
 #ifdef CONFIG_PCI1
@@ -196,7 +259,7 @@ void pci_init_board(void)
 	width = io_port_cfg[io_sel].pcie_width[0];
 	r = hose->regions;
 
-	if (width && !(devdisr & MPC85xx_DEVDISR_PCIE)) {
+	if (width && !(devdisr & MPC8xxx_DEVDISR_PCIE1)) {
 		printf("\n    PCIE1 connected as %s (x%d)",
 			host ? "Root Complex" : "End Point", width);
 		if (pci->pme_msg_det) {
@@ -240,7 +303,7 @@ void pci_init_board(void)
 				hose->first_busno, hose->last_busno);
 	}
 #else
-	gur->devdisr |= MPC85xx_DEVDISR_PCIE; /* disable */
+	gur->devdisr |= MPC8xxx_DEVDISR_PCIE1; /* disable */
 #endif /* CONFIG_PCIE1 */
 
 #ifdef CONFIG_PCIE2
@@ -250,7 +313,7 @@ void pci_init_board(void)
 	width = io_port_cfg[io_sel].pcie_width[1];
 	r = hose->regions;
 
-	if (width && !(devdisr & MPC85xx_DEVDISR_PCIE2)) {
+	if (width && !(devdisr & MPC8xxx_DEVDISR_PCIE2)) {
 		printf("\n    PCIE2 connected as %s (x%d)",
 			host ? "Root Complex" : "End Point", width);
 		if (pci->pme_msg_det) {
@@ -294,7 +357,7 @@ void pci_init_board(void)
 				hose->first_busno, hose->last_busno);
 	}
 #else
-	gur->devdisr |= MPC85xx_DEVDISR_PCIE2; /* disable */
+	gur->devdisr |= MPC8xxx_DEVDISR_PCIE2; /* disable */
 #endif /* CONFIG_PCIE2 */
 
 #ifdef CONFIG_PCIE3
@@ -304,7 +367,7 @@ void pci_init_board(void)
 	width = io_port_cfg[io_sel].pcie_width[2];
 	r = hose->regions;
 
-	if (width && !(devdisr & MPC85xx_DEVDISR_PCIE3)) {
+	if (width && !(devdisr & MPC8xxx_DEVDISR_PCIE3)) {
 		printf("\n    PCIE3 connected as %s (x%d)",
 			host ? "Root Complex" : "End Point", width);
 		if (pci->pme_msg_det) {
@@ -348,7 +411,7 @@ void pci_init_board(void)
 				hose->first_busno, hose->last_busno);
 	}
 #else
-	gur->devdisr |= MPC85xx_DEVDISR_PCIE3; /* disable */
+	gur->devdisr |= MPC8xxx_DEVDISR_PCIE3; /* disable */
 #endif /* CONFIG_PCIE3 */
 }
 
