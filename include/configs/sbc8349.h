@@ -35,7 +35,7 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
-#define CONFIG_MPC83XX		1	/* MPC83XX family */
+#define CONFIG_MPC83xx		1	/* MPC83xx family */
 #define CONFIG_MPC834X		1	/* MPC834X family */
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_SBC8349		1	/* WRS SBC8349 board specific */

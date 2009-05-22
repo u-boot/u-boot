@@ -495,7 +495,7 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 }
 #endif /* CONFIG_HAS_FSL_DR_USB */
 
-#if defined(CONFIG_MPC83XX) || defined(CONFIG_MPC85xx)
+#if defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx)
 /*
  * update crypto node properties to a specified revision of the SEC
  * called with sec_rev == 0 if not on an mpc8xxxE processor
@@ -580,7 +580,7 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev)
 		printf("WARNING: could not set crypto property: %s\n",
 		       fdt_strerror(err));
 }
-#endif /* defined(CONFIG_MPC83XX) || defined(CONFIG_MPC85xx) */
+#endif /* defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx) */
 
 /* Resize the fdt to its actual size + a bit of padding */
 int fdt_resize(void *blob)

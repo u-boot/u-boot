@@ -33,7 +33,7 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300	1
-#define CONFIG_MPC83XX	1
+#define CONFIG_MPC83xx	1
 #define CONFIG_MPC834X	1
 #define CONFIG_MPC8343	1
 

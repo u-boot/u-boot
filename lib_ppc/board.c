@@ -321,7 +321,7 @@ init_fnc_t *init_sequence[] = {
 	prt_8260_rsr,
 	prt_8260_clks,
 #endif /* CONFIG_8260 */
-#if defined(CONFIG_MPC83XX)
+#if defined(CONFIG_MPC83xx)
 	prt_83xx_rsr,
 #endif
 	checkcpu,
@@ -408,7 +408,7 @@ void board_init_f (ulong bootflag)
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
-#if !defined(CONFIG_CPM2) && !defined(CONFIG_MPC83XX) && \
+#if !defined(CONFIG_CPM2) && !defined(CONFIG_MPC83xx) && \
     !defined(CONFIG_MPC85xx) && !defined(CONFIG_MPC86xx)
 	/* Clear initial global data */
 	memset ((void *) gd, 0, sizeof (gd_t));
@@ -570,7 +570,7 @@ void board_init_f (ulong bootflag)
 #if defined(CONFIG_MPC5xxx)
 	bd->bi_mbar_base = CONFIG_SYS_MBAR;	/* base of internal registers */
 #endif
-#if defined(CONFIG_MPC83XX)
+#if defined(CONFIG_MPC83xx)
 	bd->bi_immrbar = CONFIG_SYS_IMMR;
 #endif
 #if defined(CONFIG_MPC8220)
@@ -750,7 +750,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	WATCHDOG_RESET();
 
-#if defined(CONFIG_SYS_DELAYED_ICACHE) || defined(CONFIG_MPC83XX)
+#if defined(CONFIG_SYS_DELAYED_ICACHE) || defined(CONFIG_MPC83xx)
 	icache_enable ();	/* it's time to enable the instruction cache */
 #endif
 

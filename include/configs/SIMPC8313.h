@@ -32,7 +32,7 @@
 #define CONFIG_NAND_U_BOOT
 
 #define CONFIG_E300			1
-#define CONFIG_MPC83XX			1
+#define CONFIG_MPC83xx			1
 #define CONFIG_MPC831X			1
 #define CONFIG_MPC8313			1
 

@@ -81,7 +81,7 @@ Freescale MPC8360EMDS Board
 
 	include/configs/MPC8360EMDS.h
 
-    CONFIG_MPC83XX	    MPC83xx family for both MPC8349 and MPC8360
+    CONFIG_MPC83xx	    MPC83xx family for both MPC8349 and MPC8360
     CONFIG_MPC8360	    MPC8360 specific
     CONFIG_MPC8360EMDS	    MPC8360EMDS board specific
 

@@ -56,7 +56,7 @@ typedef	struct	global_data {
 #endif
 #endif
 	unsigned long   mem_clk;
-#if defined(CONFIG_MPC83XX)
+#if defined(CONFIG_MPC83xx)
 	/* There are other clocks in the MPC83XX */
 	u32 csb_clk;
 #if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
@@ -92,7 +92,7 @@ typedef	struct	global_data {
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	u32 lbc_clk;
 #endif /* CONFIG_MPC85xx || CONFIG_MPC86xx */
-#if defined(CONFIG_MPC83XX) || defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
+#if defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	u32 i2c1_clk;
 	u32 i2c2_clk;
 #endif
@@ -125,7 +125,7 @@ typedef	struct	global_data {
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	reset_status;	/* reset status register at boot	*/
-#if defined(CONFIG_MPC83XX)
+#if defined(CONFIG_MPC83xx)
 	unsigned long	arbiter_event_attributes;
 	unsigned long	arbiter_event_address;
 #endif
