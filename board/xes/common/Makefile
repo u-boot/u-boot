@@ -30,7 +30,8 @@ endif
 LIB	= $(obj)lib$(VENDOR).a
 
 COBJS-$(CONFIG_FSL_PCI_INIT)	+= fsl_8xxx_pci.o
-COBJS-$(CONFIG_MPC8572)		+= fsl_8572_clk.o
+COBJS-$(CONFIG_MPC8572)		+= fsl_8xxx_clk.o
+COBJS-$(CONFIG_MPC86xx)		+= fsl_8xxx_clk.o
 COBJS-$(CONFIG_FSL_DDR2)	+= fsl_8xxx_ddr.o
 COBJS-$(CONFIG_NAND_ACTL)	+= actl_nand.o
 

@@ -27,7 +27,12 @@
  */
 unsigned long get_board_sys_clk(ulong dummy)
 {
+#if defined(CONFIG_MPC85xx)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#elif defined(CONFIG_MPC86xx)
+	immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
+	volatile ccsr_gur_t *gur = &immap->im_gur;
+#endif
 	u32 gpporcr = gur->gpporcr;
 
 	if (gpporcr & 0x10000)
@@ -36,8 +41,10 @@ unsigned long get_board_sys_clk(ulong dummy)
 		return 50000000;
 }
 
+#ifdef CONFIG_MPC85xx
 /*
  * Return DDR input clock - synchronous with SYSCLK or 66 MHz
+ * Note: 86xx doesn't support asynchronous DDR clk
  */
 unsigned long get_board_ddr_clk(ulong dummy)
 {
@@ -49,3 +56,4 @@ unsigned long get_board_ddr_clk(ulong dummy)
 
 	return 66666666;
 }
+#endif
