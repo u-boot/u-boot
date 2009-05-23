@@ -483,6 +483,7 @@ $(obj)include/autoconf.mk: $(obj)include/config.h
 	mv $@.tmp $@
 
 sinclude $(obj)include/autoconf.mk.dep
+sinclude $(obj)include/autoconf.mk
 
 #########################################################################
 else	# !config.mk
