@@ -286,21 +286,7 @@ int _do_help (cmd_tbl_t *cmd_start, int cmd_items, cmd_tbl_t * cmdtp, int
 	 */
 	for (i = 1; i < argc; ++i) {
 		if ((cmdtp = find_cmd_tbl (argv[i], cmd_start, cmd_items )) != NULL) {
-#ifdef	CONFIG_SYS_LONGHELP
-			/* found - print (long) help info */
-			puts (cmdtp->name);
-			putc (' ');
-			if (cmdtp->help) {
-				puts (cmdtp->help);
-			} else {
-				puts ("- No help available.\n");
-				rcode = 1;
-			}
-			putc ('\n');
-#else	/* no long help available */
-			if (cmdtp->usage)
-				printf ("%s - %s\n", cmdtp->name, cmdtp->usage);
-#endif	/* CONFIG_SYS_LONGHELP */
+			rcode |= cmd_usage(cmdtp);
 		} else {
 			printf ("Unknown command '%s' - try 'help'"
 				" without arguments for list of all"
@@ -386,9 +372,22 @@ cmd_tbl_t *find_cmd (const char *cmd)
 	return find_cmd_tbl(cmd, &__u_boot_cmd_start, len);
 }
 
-void cmd_usage(cmd_tbl_t *cmdtp)
+int cmd_usage(cmd_tbl_t *cmdtp)
 {
-	printf("Usage:\n%s - %s\n\n", cmdtp->name, cmdtp->usage);
+	printf("%s - %s\n\n", cmdtp->name, cmdtp->usage);
+
+#ifdef	CONFIG_SYS_LONGHELP
+	printf("Usage:\n%s ", cmdtp->name);
+
+	if (!cmdtp->help) {
+		puts ("- No additional help available.\n");
+		return 1;
+	}
+
+	puts (cmdtp->help);
+	putc ('\n');
+#endif	/* CONFIG_SYS_LONGHELP */
+	return 0;
 }
 
 #ifdef CONFIG_AUTO_COMPLETE
