@@ -439,14 +439,14 @@ static int do_inkadiag_help(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 cmd_tbl_t cmd_inkadiag_sub[] = {
 	U_BOOT_CMD_MKENT(io, 1, 1, do_inkadiag_io, "read digital input",
-	 "<drawer1|drawer2|other> [value] - get or set specified signal\n"),
+	 "<drawer1|drawer2|other> [value] - get or set specified signal"),
 	U_BOOT_CMD_MKENT(serial, 4, 1, do_inkadiag_serial, "test serial port",
 	 "<num> <mode> <baudrate> <msg>  - test uart num [0..11] in mode\n"
-	 "and baudrate with msg\n"),
+	 "and baudrate with msg"),
 	U_BOOT_CMD_MKENT(buzzer, 2, 1, do_inkadiag_buzzer, "activate buzzer",
-	 "<period> <freq> - turn buzzer on for period ms with freq hz\n"),
+	 "<period> <freq> - turn buzzer on for period ms with freq hz"),
 	U_BOOT_CMD_MKENT(help, 4, 1, do_inkadiag_help, "get help",
-	 "[command] - get help for command\n"),
+	 "[command] - get help for command"),
 };
 
 static int do_inkadiag_help(cmd_tbl_t *cmdtp, int flag,
@@ -483,7 +483,7 @@ U_BOOT_CMD(inkadiag, 6, 1, do_inkadiag,
 	   "inkadiag - inka diagnosis\n",
 	   "[inkadiag what ...]\n"
 	   "    - perform a diagnosis on inka hardware\n"
-	   "'inkadiag' performs hardware tests.\n\n");
+	   "'inkadiag' performs hardware tests.");
 
 /* Relocate the command table function pointers when running in RAM */
 int inkadiag_init_r (void) {

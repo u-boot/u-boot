@@ -307,19 +307,19 @@ int barcobcd_boot_image (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD (
 		try_working, 1, 1, barcobcd_boot_image,
 		"check flash value and boot the appropriate image",
-		"\n"
+		""
 	  );
 
 U_BOOT_CMD (
 		boot_working, 1, 1, barcobcd_boot_image,
 		"check flash value and boot the appropriate image",
-		"\n"
+		""
 	  );
 
 U_BOOT_CMD (
 		boot_default, 1, 1, barcobcd_boot_image,
 		"check flash value and boot the appropriate image",
-		"\n"
+		""
 	  );
 /*
  * We are not using serial communication, so just provide empty functions

@@ -1863,7 +1863,7 @@ U_BOOT_CMD(
 	chpart,	2,	0,	do_chpart,
 	"change active partition",
 	"part-id\n"
-	"    - change active partition (e.g. part-id = nand0,1)\n"
+	"    - change active partition (e.g. part-id = nand0,1)"
 );
 
 U_BOOT_CMD(
@@ -1898,6 +1898,6 @@ U_BOOT_CMD(
 	"<size>     := standard linux memsize OR '-' to denote all remaining space\n"
 	"<offset>   := partition start offset within the device\n"
 	"<name>     := '(' NAME ')'\n"
-	"<ro-flag>  := when set to 'ro' makes partition read-only (not used, passed to kernel)\n"
+	"<ro-flag>  := when set to 'ro' makes partition read-only (not used, passed to kernel)"
 );
 /***************************************************/

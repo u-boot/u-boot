@@ -443,6 +443,6 @@ U_BOOT_CMD(
 	"fkt rs232 number\n"
 	"     - Test RS232 (loopback plug(s) for RS232 required)\n"
 	"fkt usb\n"
-	"     - Test USB communication\n"
+	"     - Test USB communication"
 );
 #endif /* CONFIG_CMD_BSP */

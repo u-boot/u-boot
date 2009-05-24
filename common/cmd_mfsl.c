@@ -394,8 +394,7 @@ U_BOOT_CMD (frd, 3, 1, do_frd,
 		" 0 - non blocking data read\n"
 		" 1 - non blocking control read\n"
 		" 2 - blocking data read\n"
-		" 3 - blocking control read\n");
-
+		" 3 - blocking control read");
 
 U_BOOT_CMD (fwr, 4, 1, do_fwr,
 		"write data to FSL",
@@ -403,11 +402,11 @@ U_BOOT_CMD (fwr, 4, 1, do_fwr,
 		" 0 - non blocking data write\n"
 		" 1 - non blocking control write\n"
 		" 2 - blocking data write\n"
-		" 3 - blocking control write\n");
+		" 3 - blocking control write");
 
 U_BOOT_CMD (rspr, 3, 1, do_rspr,
 		"read/write special purpose register",
 		"- reg_num [write value] read/write special purpose register\n"
 		" 1 - MSR - Machine status register\n"
 		" 3 - EAR - Exception address register\n"
-		" 5 - ESR - Exception status register\n");
+		" 5 - ESR - Exception status register");

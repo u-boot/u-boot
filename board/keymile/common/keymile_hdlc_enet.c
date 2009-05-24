@@ -591,7 +591,7 @@ int hdlc_enet_stest(struct cmd_tbl_s *a, int b, int c, char **d)
 U_BOOT_CMD(
 	stest, 1, 1, hdlc_enet_stest,
 	"simple send test for hdlc_enet",
-	"no arguments\n"
+	""
 );
 /* simple receive test routine */
 int hdlc_enet_rtest(struct cmd_tbl_s *a, int b, int c, char **d)
@@ -613,7 +613,7 @@ int hdlc_enet_rtest(struct cmd_tbl_s *a, int b, int c, char **d)
 U_BOOT_CMD(
 	rtest, 1, 1, hdlc_enet_rtest,
 	"simple receive test for hdlc_enet",
-	"no arguments\n"
+	""
 );
 #endif
 

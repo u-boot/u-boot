@@ -381,5 +381,5 @@ U_BOOT_CMD(
 	"wpeeprom 1\n"
 	"    - enable I2C EEPROM write protection\n"
 	"wpeeprom 0\n"
-	"    - disable I2C EEPROM write protection\n"
-	);
+	"    - disable I2C EEPROM write protection"
+);

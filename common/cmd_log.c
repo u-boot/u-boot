@@ -256,7 +256,7 @@ U_BOOT_CMD(
 	"info   - show pointer details\n"
 	"log reset  - clear contents\n"
 	"log show   - show contents\n"
-	"log append <msg> - append <msg> to the logbuffer\n"
+	"log append <msg> - append <msg> to the logbuffer"
 );
 
 static int logbuff_printk(const char *line)

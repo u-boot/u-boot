@@ -60,7 +60,7 @@ U_BOOT_CMD(
 	  vpd,	2,	1,	do_vpd,
 	  "Read Vital Product Data",
 	  "[dev_addr]\n"
-	  "        - Read VPD Data from default address, or device address 'dev_addr'.\n"
+	  "        - Read VPD Data from default address, or device address 'dev_addr'."
 );
 
 #endif

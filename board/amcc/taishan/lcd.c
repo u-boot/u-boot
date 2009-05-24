@@ -254,18 +254,18 @@ static int do_lcd_cur(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-U_BOOT_CMD(lcd_test, 1, 1, do_lcd_test, "lcd test display", NULL);
-U_BOOT_CMD(lcd_cls, 1, 1, do_lcd_clear, "lcd clear display", NULL);
+U_BOOT_CMD(lcd_test, 1, 1, do_lcd_test, "lcd test display", "");
+U_BOOT_CMD(lcd_cls, 1, 1, do_lcd_clear, "lcd clear display", "");
 U_BOOT_CMD(lcd_puts, 2, 1, do_lcd_puts,
 	   "display string on lcd",
-	   "<string> - <string> to be displayed\n");
+	   "<string> - <string> to be displayed");
 U_BOOT_CMD(lcd_putc, 2, 1, do_lcd_putc,
 	   "display char on lcd",
-	   "<char> - <char> to be displayed\n");
+	   "<char> - <char> to be displayed");
 U_BOOT_CMD(lcd_cur, 3, 1, do_lcd_cur,
 	   "shift cursor on lcd",
 	   "<count> <dir>- shift cursor on lcd <count> times, direction is <dir> \n"
-	   " <count> - 0~31\n" " <dir> - 0,backward; 1, forward\n");
+	   " <count> - 0~31\n" " <dir> - 0,backward; 1, forward");
 
 #if 0 /* test-only */
 void set_phy_loopback_mode(void)
@@ -373,8 +373,8 @@ static int do_led_test_on(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(ledon, 1, 1, do_led_test_on,
-	   "led test light on", NULL);
+	   "led test light on", "");
 
 U_BOOT_CMD(ledoff, 1, 1, do_led_test_off,
-	   "led test light off", NULL);
+	   "led test light off", "");
 #endif

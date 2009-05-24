@@ -686,14 +686,14 @@ U_BOOT_CMD(
 	"usb part [dev] - print partition table of one or all USB storage"
 	" devices\n"
 	"usb read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
-	"    to memory address `addr'\n"
+	"    to memory address `addr'"
 );
 
 
 U_BOOT_CMD(
 	usbboot,	3,	1,	do_usbboot,
 	"boot from USB device",
-	"loadAddr dev:part\n"
+	"loadAddr dev:part"
 );
 
 #else
@@ -702,6 +702,6 @@ U_BOOT_CMD(
 	"USB sub-system",
 	"reset - reset (rescan) USB controller\n"
 	"usb  tree  - show USB device tree\n"
-	"usb  info [dev] - show available USB devices\n"
+	"usb  info [dev] - show available USB devices"
 );
 #endif

@@ -331,5 +331,5 @@ U_BOOT_CMD(
 	l2cache,   2,   1,     do_l2cache,
 	"enable or disable L2 cache",
 	"[on, off]\n"
-	"    - enable or disable L2 cache\n"
-	);
+	"    - enable or disable L2 cache"
+);

@@ -609,5 +609,5 @@ U_BOOT_CMD(ubi, 6, 1, do_ubi,
 	"[Legends]\n"
 	" volume: charater name\n"
 	" size: KiB, MiB, GiB, and bytes\n"
-	" type: s[tatic] or d[ynamic] (default=dynamic)\n"
+	" type: s[tatic] or d[ynamic] (default=dynamic)"
 );

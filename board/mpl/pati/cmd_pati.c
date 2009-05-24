@@ -443,7 +443,7 @@ U_BOOT_CMD(
 	"    era   - erase PCI EEPROM (write all word to 0xffff)\n"
 	"    reload- Reload PCI Bridge with EEPROM Values\n"
 	"    NOTE: <addr> must start on word boundary\n"
-	"          <offset> and <size> must be even byte values\n"
+	"          <offset> and <size> must be even byte values"
 );
 
 /* ------------------------------------------------------------------------- */

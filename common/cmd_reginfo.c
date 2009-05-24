@@ -383,5 +383,6 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	reginfo,	2,	1,	do_reginfo,
 	"print register information",
+	""
 );
 #endif

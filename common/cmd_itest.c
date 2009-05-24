@@ -191,5 +191,5 @@ int do_itest ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
 U_BOOT_CMD(
 	itest, 4, 0, do_itest,
 	"return true/false on integer compare",
-	"[.b, .w, .l, .s] [*]value1 <op> [*]value2\n"
+	"[.b, .w, .l, .s] [*]value1 <op> [*]value2"
 );

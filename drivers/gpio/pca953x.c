@@ -221,7 +221,7 @@ U_BOOT_CMD(
 	"pca953x invert pin 0|1\n"
 	"	- disable/enable polarity inversion for reads\n"
 	"pca953x intput pin\n"
-	"	- set pin as input and read value\n"
+	"	- set pin as input and read value"
 );
 
 #endif /* CONFIG_CMD_PCA953X */

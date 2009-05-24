@@ -230,7 +230,7 @@ U_BOOT_CMD(
 	pci9054, 3, 1, do_pci9054,
 	"PLX PCI9054 EEPROM access",
 	"pci9054 info - print EEPROM values\n"
-	"pci9054 update - updates EEPROM with default values\n"
+	"pci9054 update - updates EEPROM with default values"
 );
 
 /* ------------------------------------------------------------------------- */

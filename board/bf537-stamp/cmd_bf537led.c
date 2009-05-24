@@ -33,7 +33,7 @@
 	"led <number> <action>\n" \
 	"    <number>  - Index (0-5) of LED to change, or \"all\"\n" \
 	"    <action>  - Must be one of:\n" \
-	"		on off toggle\n"
+	"		on off toggle"
 
 /* Number of LEDs supported by the board */
 #define NUMBER_LEDS     6
@@ -191,7 +191,7 @@ void set_led_state(int index, int state)
 /* Display usage information */
 void show_cmd_usage()
 {
-	printf("Usage:\n%s", USAGE_LONG);
+	printf("Usage:\n%s\n", USAGE_LONG);
 }
 
 /* Register information for u-boot to find this command */

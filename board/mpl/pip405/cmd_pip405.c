@@ -63,7 +63,7 @@ U_BOOT_CMD(
 	"PIP405 specific Cmds",
 	"flash mem [SrcAddr] - updates U-Boot with image in memory\n"
 	"pip405 flash floppy [SrcAddr] - updates U-Boot with image from floppy\n"
-	"pip405 flash mps - updates U-Boot with image from MPS\n"
+	"pip405 flash mps - updates U-Boot with image from MPS"
 );
 
 /* ------------------------------------------------------------------------- */

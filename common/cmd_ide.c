@@ -2108,11 +2108,11 @@ U_BOOT_CMD(
 	"ide read  addr blk# cnt\n"
 	"ide write addr blk# cnt - read/write `cnt'"
 	" blocks starting at block `blk#'\n"
-	"    to/from memory address `addr'\n"
+	"    to/from memory address `addr'"
 );
 
 U_BOOT_CMD(
 	diskboot,	3,	1,	do_diskboot,
 	"boot from IDE device",
-	"loadAddr dev:part\n"
+	"loadAddr dev:part"
 );

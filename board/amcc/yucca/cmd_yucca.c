@@ -282,5 +282,5 @@ static int setBootStrapClock(cmd_tbl_t *cmdtp, int incrflag, int flag,
 U_BOOT_CMD(
 	evb440spe,	3,	1,	do_evb440spe,
 	"program the serial device strap",
-	"wrclk [prom0|prom1] - program the serial device strap\n"
+	"wrclk [prom0|prom1] - program the serial device strap"
 );

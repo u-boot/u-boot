@@ -129,7 +129,7 @@ int do_idpcmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(idpcmd, CONFIG_SYS_MAXARGS, 0, do_idpcmd,
 	   "custom IDP command",
-	   "no args at this time\n"
+	   "no args at this time"
 );
 
 #endif

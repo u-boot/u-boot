@@ -389,6 +389,6 @@ U_BOOT_CMD(
 	"			    no args for entire bank\n"
 	"fuse prog <frow_bit> 	- program fuse at row <frow>, bit <_bit>\n"
 	"			    <frow> is 0-31, <bit> is 0-7; eg. 13_2 \n"
-	"			  WARNING - this is permanent\n"
-	);
+	"			  WARNING - this is permanent"
+);
 #endif /* CONFIG_CMD_FUSE */

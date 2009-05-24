@@ -71,7 +71,7 @@ U_BOOT_CMD(
 	"/N\n"
 	"    - load bitmap N to the VFDs (N is _decimal_ !!!)\n"
 	"vfd ADDR\n"
-	"    - load bitmap at address ADDR\n"
+	"    - load bitmap at address ADDR"
 );
 #endif
 

@@ -853,7 +853,7 @@ U_BOOT_CMD(
 	pic,	4,	1,	do_pic,
 	"read and write PIC registers",
 	"read  reg      - read PIC register `reg'\n"
-	"pic write reg val  - write value `val' to PIC register `reg'\n"
+	"pic write reg val  - write value `val' to PIC register `reg'"
 );
 
 /***********************************************************************
@@ -911,7 +911,7 @@ int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	kbd,	1,	1,	do_kbd,
 	"read keyboard status",
-	NULL
+	""
 );
 
 /* Read and set LSB switch */
@@ -985,7 +985,7 @@ U_BOOT_CMD(
 	"check and set LSB switch",
 	"on  - switch LSB on\n"
 	"lsb off - switch LSB off\n"
-	"lsb     - print current setting\n"
+	"lsb     - print current setting"
 );
 
 #endif

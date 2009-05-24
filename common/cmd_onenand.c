@@ -486,5 +486,5 @@ U_BOOT_CMD(
 	"onenand test [off size] - test 'size' bytes from\n"
 	"    offset 'off' (entire device if not specified)\n"
 	"onenand dump[.oob] off - dump page\n"
-	"onenand markbad off - mark bad block at offset (UNSAFE)\n"
+	"onenand markbad off [...] - mark bad block(s) at offset (UNSAFE)"
 );

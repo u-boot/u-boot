@@ -239,7 +239,7 @@ U_BOOT_CMD(
 	"check and set watchdog",
 	"on   - switch watchDog on\n"
 	"wd off  - switch watchdog off\n"
-	"wd      - print current status\n"
+	"wd      - print current status"
 );
 
 #endif

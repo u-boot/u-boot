@@ -233,4 +233,5 @@ U_BOOT_CMD(otp, 7, 0, do_otp,
 	"otp write [--force] <addr> <page> [count] [half]\n"
 	" - write 'count' half-pages starting at 'page' (offset 'half') from 'addr'\n"
 	"otp lock <page> <count>\n"
-	" - lock 'count' pages starting at 'page'\n");
+	" - lock 'count' pages starting at 'page'"
+);

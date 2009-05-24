@@ -1869,4 +1869,4 @@ U_BOOT_CMD(
 	cpld,	2,	1,	do_cpld,
 	"program onboard CPLD",
 	"<xsvf-addr>"
-	);
+);

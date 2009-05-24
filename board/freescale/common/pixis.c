@@ -279,9 +279,10 @@ int pixis_disable_watchdog_cmd(cmd_tbl_t *cmdtp,
 }
 
 U_BOOT_CMD(
-	   diswd, 1, 0, pixis_disable_watchdog_cmd,
-	   "Disable watchdog timer",
-	   NULL);
+	diswd, 1, 0, pixis_disable_watchdog_cmd,
+	"Disable watchdog timer",
+	""
+);
 
 #ifdef CONFIG_PIXIS_SGMII_CMD
 int pixis_set_sgmii(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -343,14 +344,15 @@ int pixis_set_sgmii(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(
-		pixis_set_sgmii, CONFIG_SYS_MAXARGS, 1, pixis_set_sgmii,
-		"pixis_set_sgmii"
-		" - Enable or disable SGMII mode for a given TSEC \n",
-		"\npixis_set_sgmii [TSEC num] <on|off|switch>\n"
-		"    TSEC num: 1,2,3,4 or 'all'.  'all' is default.\n"
-		"    on - enables SGMII\n"
-		"    off - disables SGMII\n"
-		"    switch - use switch settings\n");
+	pixis_set_sgmii, CONFIG_SYS_MAXARGS, 1, pixis_set_sgmii,
+	"pixis_set_sgmii"
+	" - Enable or disable SGMII mode for a given TSEC \n",
+	"\npixis_set_sgmii [TSEC num] <on|off|switch>\n"
+	"    TSEC num: 1,2,3,4 or 'all'.  'all' is default.\n"
+	"    on - enables SGMII\n"
+	"    off - disables SGMII\n"
+	"    switch - use switch settings"
+);
 #endif
 
 /*
@@ -544,5 +546,5 @@ U_BOOT_CMD(
 	"    pixis_reset [altbank]\n"
 	"    pixis_reset altbank wd\n"
 	"    pixis_reset altbank cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>\n"
-	"    pixis_reset cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>\n"
-	);
+	"    pixis_reset cf <SYSCLK freq> <COREPLL ratio> <MPXPLL ratio>"
+);

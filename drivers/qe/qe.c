@@ -473,5 +473,6 @@ U_BOOT_CMD(
 	qe, 4, 0, qe_cmd,
 	"QUICC Engine commands",
 	"fw <addr> [<length>] - Upload firmware binary at address <addr> to "
-		"the QE,\n\twith optional length <length> verification.\n"
-	);
+		"the QE,\n"
+	"\twith optional length <length> verification."
+);

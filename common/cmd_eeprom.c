@@ -424,7 +424,7 @@ U_BOOT_CMD(
 	"EEPROM sub-system",
 	"read  devaddr addr off cnt\n"
 	"eeprom write devaddr addr off cnt\n"
-	"       - read/write `cnt' bytes from `devaddr` EEPROM at offset `off'\n"
+	"       - read/write `cnt' bytes from `devaddr` EEPROM at offset `off'"
 );
 #else /* One EEPROM */
 U_BOOT_CMD(
@@ -432,7 +432,7 @@ U_BOOT_CMD(
 	"EEPROM sub-system",
 	"read  addr off cnt\n"
 	"eeprom write addr off cnt\n"
-	"       - read/write `cnt' bytes at EEPROM offset `off'\n"
+	"       - read/write `cnt' bytes at EEPROM offset `off'"
 );
 #endif /* CONFIG_SYS_I2C_MULTI_EEPROMS */
 

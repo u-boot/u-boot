@@ -131,7 +131,7 @@ U_BOOT_CMD(
 	diufb, CONFIG_SYS_MAXARGS, 1, ads5121diu_init_show_bmp,
 	"Init or Display BMP file",
 	"init\n    - initialize DIU\n"
-	"addr\n    - display bmp at address 'addr'\n"
+	"addr\n    - display bmp at address 'addr'"
 	);
 
 

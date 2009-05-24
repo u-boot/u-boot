@@ -247,9 +247,8 @@ int do_digtest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	digtest,	3,	1,	do_digtest,
 	"Test digital in-/output",
-	NULL
-	);
-
+	""
+);
 
 #define ERROR_DELTA     256
 
@@ -341,8 +340,8 @@ int do_anatest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	anatest,	2,	1,	do_anatest,
 	"Test analog in-/output",
-	NULL
-	);
+	""
+);
 
 
 int counter = 0;
@@ -408,6 +407,6 @@ int do_inctest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	inctest,	3,	1,	do_inctest,
 	"Test incremental encoder inputs",
-	NULL
-	);
+	""
+);
 #endif

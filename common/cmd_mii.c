@@ -460,5 +460,5 @@ U_BOOT_CMD(
 	"mii read   <addr> <reg>        - read  MII PHY <addr> register <reg>\n"
 	"mii write  <addr> <reg> <data> - write MII PHY <addr> register <reg>\n"
 	"mii dump   <addr> <reg>        - pretty-print <addr> <reg> (0-5 only)\n"
-	"Addr and/or reg may be ranges, e.g. 2-7.\n"
+	"Addr and/or reg may be ranges, e.g. 2-7."
 );

@@ -607,8 +607,8 @@ int do_dcf77(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	dcf77, 1, 1, do_dcf77,
 	"Check DCF77 receiver",
-	NULL
-	);
+	""
+);
 
 /*
  * initialize USB hub via I2C1
@@ -657,8 +657,8 @@ int do_hubinit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	hubinit, 1, 1, do_hubinit,
 	"Initialize USB hub",
-	NULL
-	);
+	""
+);
 #endif /* CONFIG_I2C_MULTI_BUS */
 
 #define CONFIG_SYS_BOOT_EEPROM_PAGE_WRITE_BITS 3
@@ -790,8 +790,8 @@ int do_setup_boot_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	sbe, 2, 0, do_setup_boot_eeprom,
 	"setup boot eeprom",
-	NULL
-	);
+	""
+);
 
 #if defined(CONFIG_SYS_EEPROM_WREN)
 /*
@@ -863,8 +863,9 @@ int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(eepwren, 2, 0, do_eep_wren,
-	   "Enable / disable / query EEPROM write access",
-	   NULL);
+	"Enable / disable / query EEPROM write access",
+	""
+);
 #endif /* #if defined(CONFIG_SYS_EEPROM_WREN) */
 
 static int got_pldirq;
@@ -916,8 +917,8 @@ int do_waitpwrirq(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	wpi,	1,	1,	do_waitpwrirq,
 	"Wait for power change interrupt",
-	NULL
-	);
+	""
+);
 
 /*
  * initialize DVI panellink transmitter
@@ -961,8 +962,8 @@ int do_dviinit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	dviinit, 1, 1, do_dviinit,
 	"Initialize DVI Panellink transmitter",
-	NULL
-	);
+	""
+);
 
 /*
  * TODO: 'time' command might be useful for others as well.
@@ -1001,8 +1002,8 @@ int do_time(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	time,	CONFIG_SYS_MAXARGS,	1,	do_time,
 	"run command and output execution time",
-	NULL
-	);
+	""
+);
 
 extern void video_hw_rectfill (
 	unsigned int bpp,		/* bytes per pixel */
@@ -1051,5 +1052,5 @@ int do_gfxdemo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	gfxdemo,	CONFIG_SYS_MAXARGS,	1,	do_gfxdemo,
 	"demo",
-	NULL
-	);
+	""
+);

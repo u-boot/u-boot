@@ -78,7 +78,7 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	"     Default for r3 is <num> and r6 is 0\n" \
 	"\n" \
 	"     When cpu <num> is released r4 and r5 = 0.\n" \
-	"     r7 will contain the size of the initial mapped area\n"
+	"     r7 will contain the size of the initial mapped area"
 #endif
 
 U_BOOT_CMD(
@@ -86,8 +86,9 @@ U_BOOT_CMD(
 	"Multiprocessor CPU boot manipulation and release",
 	    "<num> reset                 - Reset cpu <num>\n"
 	"cpu <num> status                - Status of cpu <num>\n"
-	"cpu <num> release <addr> [args] - Release cpu <num> at <addr> with [args]\n"
+	"cpu <num> release <addr> [args] - Release cpu <num> at <addr> with [args]"
 #ifdef CPU_ARCH_HELP
+	"\n"
 	CPU_ARCH_HELP
 #endif
-	);
+);

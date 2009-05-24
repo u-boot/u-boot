@@ -297,7 +297,7 @@ U_BOOT_CMD(
 	"fpga info\n"
 	"  - print information about the Hymod FPGA, namely the\n"
 	"    memory addresses at which the four FPGA local bus\n"
-	"    address spaces appear in the physical address space\n"
+	"    address spaces appear in the physical address space"
 );
 /* ------------------------------------------------------------------------- */
 int
@@ -340,7 +340,7 @@ U_BOOT_CMD(
 	"[type]\n"
 	"  - write zeroes into the EEPROM on the board of type `type'\n"
 	"    (`type' is either `main' or `mezz' - default `main')\n"
-	"    Note: the EEPROM write enable jumper must be installed\n"
+	"    Note: the EEPROM write enable jumper must be installed"
 );
 
 /* ------------------------------------------------------------------------- */

@@ -140,8 +140,8 @@ U_BOOT_CMD(
 	diufb, CONFIG_SYS_MAXARGS, 1, mpc8610diu_init_show_bmp,
 	"Init or Display BMP file",
 	"init\n    - initialize DIU\n"
-	"addr\n    - display bmp at address 'addr'\n"
-	);
+	"addr\n    - display bmp at address 'addr'"
+);
 
 
 #if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)

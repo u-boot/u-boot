@@ -168,7 +168,7 @@ int do_show_xbridge_info(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(xbriinfo, 1, 1, do_show_xbridge_info,
-	   "Show PCIX bridge info", NULL);
+	   "Show PCIX bridge info", "");
 
 #define TAISHAN_PCI_DEV_ID0 0x800
 #define TAISHAN_PCI_DEV_ID1 0x1000
@@ -222,7 +222,7 @@ int do_show_pcix_device_info(cmd_tbl_t * cmdtp, int flag, int argc,
 }
 
 U_BOOT_CMD(xdevinfo, 1, 1, do_show_pcix_device_info,
-	   "Show PCIX Device info", NULL);
+	   "Show PCIX Device info", "");
 
 extern void show_reset_reg(void);
 
@@ -233,4 +233,4 @@ int do_show_reset_reg_info(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(resetinfo, 1, 1, do_show_reset_reg_info,
-	   "Show Reset REG info", NULL);
+	   "Show Reset REG info", "");

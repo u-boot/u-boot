@@ -200,4 +200,5 @@ U_BOOT_CMD(
 	"sata device [dev] - show or set current device\n"
 	"sata part [dev] - print partition table\n"
 	"sata read addr blk# cnt\n"
-	"sata write addr blk# cnt\n");
+	"sata write addr blk# cnt"
+);

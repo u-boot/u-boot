@@ -763,7 +763,7 @@ U_BOOT_CMD(
 	"              0x02 = DIAG 2 on\n"
 	"              0x04 = DIAG 3 on\n"
 	"              0x08 = DIAG 4 on\n"
-	"              > 0x100 set the LED, who are on, to state blinking\n"
+	"              > 0x100 set the LED, who are on, to state blinking"
 );
 
 #if defined(CONFIG_SHA1_CHECK_UB_IMG)
@@ -823,7 +823,7 @@ U_BOOT_CMD(
 	"calculate the SHA1 Sum",
 	"address len [addr]  calculate the SHA1 sum [save at addr]\n"
 	"     -p calculate the SHA1 sum from the U-Boot image in flash and print\n"
-	"     -c check the U-Boot image in flash\n"
+	"     -c check the U-Boot image in flash"
 );
 #endif
 

@@ -142,5 +142,5 @@ U_BOOT_CMD(
 	"<device> <bit_len> <dout> - Send <bit_len> bits from <dout> out the SPI\n"
 	"<device>  - Identifies the chip select of the device\n"
 	"<bit_len> - Number of bits to send (base 10)\n"
-	"<dout>    - Hexadecimal string that gets sent\n"
+	"<dout>    - Hexadecimal string that gets sent"
 );

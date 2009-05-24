@@ -670,14 +670,14 @@ U_BOOT_CMD (temp, 6, 0, do_temp_sensor,
 	    "        - Set config options.\n"
 	    "\n"
 	    "All values can be decimal or hex (hex preceded with 0x).\n"
-	    "Only whole numbers are supported for external limits.\n");
+	    "Only whole numbers are supported for external limits.");
 
 #if 0
 U_BOOT_CMD (loadace, 2, 0, do_loadace,
 	    "load fpga configuration from System ACE compact flash",
 	    "N\n"
 	    "    - Load configuration N (0-7) from System ACE compact flash\n"
-	    "loadace\n" "    - loads default configuration\n");
+	    "loadace\n" "    - loads default configuration");
 #endif
 
 U_BOOT_CMD (swconfig, 2, 0, do_swconfigbyte,
@@ -685,19 +685,19 @@ U_BOOT_CMD (swconfig, 2, 0, do_swconfigbyte,
 	    "N [ADDRESS]\n"
 	    "    - set software configuration byte to N, optionally use ADDRESS as\n"
 	    "      location of buffer for flash copy\n"
-	    "swconfig\n" "    - display software configuration byte\n");
+	    "swconfig\n" "    - display software configuration byte");
 
 U_BOOT_CMD (pause, 2, 0, do_pause,
 	    "sleep processor until any key is pressed with poll time of N seconds",
 	    "N\n"
 	    "    - sleep processor until any key is pressed with poll time of N seconds\n"
 	    "pause\n"
-	    "    - sleep processor until any key is pressed with poll time of 1 second\n");
+	    "    - sleep processor until any key is pressed with poll time of 1 second");
 
 U_BOOT_CMD (swrecon, 1, 0, do_swreconfig,
 	    "trigger a board reconfigure to the software selected configuration",
 	    "\n"
-	    "    - trigger a board reconfigure to the software selected configuration\n");
+	    "    - trigger a board reconfigure to the software selected configuration");
 
 int board_eth_init(bd_t *bis)
 {

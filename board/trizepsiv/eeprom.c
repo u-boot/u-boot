@@ -81,4 +81,5 @@ U_BOOT_CMD(
 	"\tdm9000ee read \n"
 	"\tword:\t\t00-02 : MAC Address\n"
 	"\t\t\t03-07 : DM9000 Configuration\n"
-	"\t\t\t08-63 : User data\n");
+	"\t\t\t08-63 : User data"
+);

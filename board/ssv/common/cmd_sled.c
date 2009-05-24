@@ -157,6 +157,6 @@ int do_sled (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD (sled, 3, 0, do_sled,
 	    "check and set status led",
-	    "sled [name [state]]\n" __NAME_STR "    - state: on|off|blink\n");
+	    "sled [name [state]]\n" __NAME_STR "    - state: on|off|blink");
 #endif
 #endif	/* CONFIG_STATUS_LED */

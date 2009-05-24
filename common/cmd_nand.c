@@ -476,25 +476,26 @@ usage:
 	return 1;
 }
 
-U_BOOT_CMD(nand, 5, 1, do_nand,
-	   "NAND sub-system",
-	   "info - show available NAND devices\n"
-	   "nand device [dev] - show or set current device\n"
-	   "nand read - addr off|partition size\n"
-	   "nand write - addr off|partition size\n"
-	   "    read/write 'size' bytes starting at offset 'off'\n"
-	   "    to/from memory address 'addr', skipping bad blocks.\n"
-	   "nand erase [clean] [off size] - erase 'size' bytes from\n"
-	   "    offset 'off' (entire device if not specified)\n"
-	   "nand bad - show bad blocks\n"
-	   "nand dump[.oob] off - dump page\n"
-	   "nand scrub - really clean NAND erasing bad blocks (UNSAFE)\n"
-	   "nand markbad off - mark bad block at offset (UNSAFE)\n"
-	   "nand biterr off - make a bit error at offset (UNSAFE)\n"
+U_BOOT_CMD(nand, CONFIG_SYS_MAXARGS, 1, do_nand,
+	"NAND sub-system",
+	"info - show available NAND devices\n"
+	"nand device [dev] - show or set current device\n"
+	"nand read - addr off|partition size\n"
+	"nand write - addr off|partition size\n"
+	"    read/write 'size' bytes starting at offset 'off'\n"
+	"    to/from memory address 'addr', skipping bad blocks.\n"
+	"nand erase [clean] [off size] - erase 'size' bytes from\n"
+	"    offset 'off' (entire device if not specified)\n"
+	"nand bad - show bad blocks\n"
+	"nand dump[.oob] off - dump page\n"
+	"nand scrub - really clean NAND erasing bad blocks (UNSAFE)\n"
+	"nand markbad off [...] - mark bad block(s) at offset (UNSAFE)\n"
+	"nand biterr off - make a bit error at offset (UNSAFE)"
 #ifdef CONFIG_CMD_NAND_LOCK_UNLOCK
-	   "nand lock [tight] [status]\n"
-	   "    bring nand to lock state or display locked pages\n"
-	   "nand unlock [offset] [size] - unlock section\n"
+	"\n"
+	"nand lock [tight] [status]\n"
+	"    bring nand to lock state or display locked pages\n"
+	"nand unlock [offset] [size] - unlock section"
 #endif
 );
 
@@ -673,8 +674,8 @@ usage:
 
 U_BOOT_CMD(nboot, 4, 1, do_nandboot,
 	"boot from NAND device",
-	"[partition] | [[[loadAddr] dev] offset]\n");
-
+	"[partition] | [[[loadAddr] dev] offset]"
+);
 #endif
 
 #else /* CONFIG_NAND_LEGACY */
@@ -941,7 +942,7 @@ U_BOOT_CMD(
 	"    offset `off' (entire device if not specified)\n"
 	"nand bad - show bad blocks\n"
 	"nand read.oob addr off size - read out-of-band data\n"
-	"nand write.oob addr off size - read out-of-band data\n"
+	"nand write.oob addr off size - read out-of-band data"
 );
 
 int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -1081,7 +1082,7 @@ int do_nandboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	nboot,	4,	1,	do_nandboot,
 	"boot from NAND device",
-	"loadAddr dev\n"
+	"loadAddr dev"
 );
 
 #endif

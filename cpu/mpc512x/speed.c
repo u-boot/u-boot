@@ -138,7 +138,7 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(clocks, 1, 0, do_clocks,
 	"print clock configuration",
-	"    clocks\n"
+	"    clocks"
 );
 
 int prt_mpc512x_clks (void)

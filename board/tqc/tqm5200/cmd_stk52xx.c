@@ -1201,21 +1201,21 @@ U_BOOT_CMD(
 	"sound square [duration] [freq] [channel]\n"
 	"    - generate squarewave for 'duration' ms with frequency 'freq'\n"
 	"      on left \"l\" or right \"r\" channel\n"
-	"pcm1772 reg val\n"
+	"pcm1772 reg val"
 );
 
 U_BOOT_CMD(
 	wav ,    3,    1,     cmd_wav,
 	"play wav file",
 	"[addr] [bytes]\n"
-	"    - play wav file at address 'addr' with length 'bytes'\n"
+	"    - play wav file at address 'addr' with length 'bytes'"
 );
 
 U_BOOT_CMD(
 	beep ,    2,    1,     cmd_beep,
 	"play short beep",
 	"[channel]\n"
-	"    - play short beep on \"l\"eft or \"r\"ight channel\n"
+	"    - play short beep on \"l\"eft or \"r\"ight channel"
 );
 #endif /* CONFIG_STK52XX  || CONFIG_FO300 */
 
@@ -1228,10 +1228,11 @@ U_BOOT_CMD(
 	"fkt can\n"
 	"     - loopback plug for X83 required\n"
 	"fkt rs232 number\n"
-	"     - loopback plug(s) for X2 required\n"
+	"     - loopback plug(s) for X2 required"
 #ifndef CONFIG_TQM5200S
+	"\n"
 	"fkt backlight on/off\n"
-	"     - switch backlight on or off\n"
+	"     - switch backlight on or off"
 #endif /* !CONFIG_TQM5200S */
 );
 #elif defined(CONFIG_FO300)
@@ -1241,7 +1242,7 @@ U_BOOT_CMD(
 	"fkt can\n"
 	"     - loopback plug for X16/X29 required\n"
 	"fkt rs232 number\n"
-	"     - loopback plug(s) for X21/X22 required\n"
+	"     - loopback plug(s) for X21/X22 required"
 );
 #endif
 #endif

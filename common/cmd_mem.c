@@ -1172,39 +1172,39 @@ int do_unzip ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	md,	3,	1,	do_mem_md,
 	"memory display",
-	"[.b, .w, .l] address [# of objects]\n	  - memory display\n"
+	"[.b, .w, .l] address [# of objects]"
 );
 
 
 U_BOOT_CMD(
 	mm,	2,	1,	do_mem_mm,
-	"memory modify (auto-incrementing)",
-	"[.b, .w, .l] address\n" "    - memory modify, auto increment address\n"
+	"memory modify (auto-incrementing address)",
+	"[.b, .w, .l] address"
 );
 
 
 U_BOOT_CMD(
 	nm,	2,	1,	do_mem_nm,
 	"memory modify (constant address)",
-	"[.b, .w, .l] address\n    - memory modify, read and keep address\n"
+	"[.b, .w, .l] address"
 );
 
 U_BOOT_CMD(
 	mw,	4,	1,	do_mem_mw,
 	"memory write (fill)",
-	"[.b, .w, .l] address value [count]\n	- write memory\n"
+	"[.b, .w, .l] address value [count]"
 );
 
 U_BOOT_CMD(
 	cp,	4,	1,	do_mem_cp,
 	"memory copy",
-	"[.b, .w, .l] source target count\n    - copy memory\n"
+	"[.b, .w, .l] source target count"
 );
 
 U_BOOT_CMD(
 	cmp,	4,	1,	do_mem_cmp,
 	"memory compare",
-	"[.b, .w, .l] addr1 addr2 count\n    - compare memory\n"
+	"[.b, .w, .l] addr1 addr2 count"
 );
 
 #ifndef CONFIG_CRC32_VERIFY
@@ -1212,7 +1212,7 @@ U_BOOT_CMD(
 U_BOOT_CMD(
 	crc32,	4,	1,	do_mem_crc,
 	"checksum calculation",
-	"address count [addr]\n    - compute CRC32 checksum [save at addr]\n"
+	"address count [addr]\n    - compute CRC32 checksum [save at addr]"
 );
 
 #else	/* CONFIG_CRC32_VERIFY */
@@ -1221,7 +1221,7 @@ U_BOOT_CMD(
 	crc32,	5,	1,	do_mem_crc,
 	"checksum calculation",
 	"address count [addr]\n    - compute CRC32 checksum [save at addr]\n"
-	"-v address count crc\n    - verify crc of memory area\n"
+	"-v address count crc\n    - verify crc of memory area"
 );
 
 #endif	/* CONFIG_CRC32_VERIFY */
@@ -1230,43 +1230,40 @@ U_BOOT_CMD(
 	base,	2,	1,	do_mem_base,
 	"print or set address offset",
 	"\n    - print address offset for memory commands\n"
-	"base off\n    - set address offset for memory commands to 'off'\n"
+	"base off\n    - set address offset for memory commands to 'off'"
 );
 
 U_BOOT_CMD(
 	loop,	3,	1,	do_mem_loop,
 	"infinite loop on address range",
-	"[.b, .w, .l] address number_of_objects\n"
-	"    - loop on a set of addresses\n"
+	"[.b, .w, .l] address number_of_objects"
 );
 
 #ifdef CONFIG_LOOPW
 U_BOOT_CMD(
 	loopw,	4,	1,	do_mem_loopw,
 	"infinite write loop on address range",
-	"[.b, .w, .l] address number_of_objects data_to_write\n"
-	"    - loop on a set of addresses\n"
+	"[.b, .w, .l] address number_of_objects data_to_write"
 );
 #endif /* CONFIG_LOOPW */
 
 U_BOOT_CMD(
 	mtest,	5,	1,	do_mem_mtest,
-	"simple RAM test",
-	"[start [end [pattern [iterations]]]]\n"
-	"    - simple RAM read/write test\n"
+	"simple RAM read/write test",
+	"[start [end [pattern [iterations]]]]"
 );
 
 #ifdef CONFIG_MX_CYCLIC
 U_BOOT_CMD(
 	mdc,	4,	1,	do_mem_mdc,
 	"memory display cyclic",
-	"[.b, .w, .l] address count delay(ms)\n    - memory display cyclic\n"
+	"[.b, .w, .l] address count delay(ms)"
 );
 
 U_BOOT_CMD(
 	mwc,	4,	1,	do_mem_mwc,
 	"memory write cyclic",
-	"[.b, .w, .l] address value delay(ms)\n    - memory write cyclic\n"
+	"[.b, .w, .l] address value delay(ms)"
 );
 #endif /* CONFIG_MX_CYCLIC */
 
@@ -1274,6 +1271,6 @@ U_BOOT_CMD(
 U_BOOT_CMD(
 	unzip,	4,	1,	do_unzip,
 	"unzip a memory region",
-	"srcaddr dstaddr [dstsize]\n"
+	"srcaddr dstaddr [dstsize]"
 );
 #endif /* CONFIG_CMD_UNZIP */

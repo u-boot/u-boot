@@ -74,5 +74,5 @@ U_BOOT_CMD(
 	"display string on dot matrix display",
 	"[<string>]\n"
 	"    - with <string> argument: display <string> on dot matrix display\n"
-	"    - without arguments: clear dot matrix display\n"
+	"    - without arguments: clear dot matrix display"
 );

@@ -228,7 +228,7 @@ int do_fpga(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	fpga,     2,     0,      do_fpga,
 	"boot FPGA",
-	"address size\n    - boot FPGA with gzipped image at <address>\n"
+	"address size\n    - boot FPGA with gzipped image at <address>"
 );
 
 #if defined(CONFIG_CMD_PCI) || defined(CONFIG_PCI)

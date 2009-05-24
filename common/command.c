@@ -39,7 +39,7 @@ do_version (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	version,	1,		1,	do_version,
 	"print monitor version",
-	NULL
+	""
 );
 
 #if defined(CONFIG_CMD_ECHO)
@@ -73,7 +73,7 @@ U_BOOT_CMD(
 	echo,	CONFIG_SYS_MAXARGS,	1,	do_echo,
 	"echo args to console",
 	"[args..]\n"
-	"    - echo args to console; \\c suppresses newline\n"
+	"    - echo args to console; \\c suppresses newline"
 );
 
 #endif
@@ -204,8 +204,7 @@ do_test (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	test,	CONFIG_SYS_MAXARGS,	1,	do_test,
 	"minimal test like /bin/sh",
-	"[args..]\n"
-	"    - test functionality\n"
+	"[args..]"
 );
 
 int
@@ -223,7 +222,7 @@ do_exit (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	exit,	2,	1,	do_exit,
 	"exit script",
-	"    - exit functionality\n"
+	""
 );
 
 
@@ -314,15 +313,15 @@ U_BOOT_CMD(
 	"'help' prints online help for the monitor commands.\n\n"
 	"Without arguments, it prints a short usage message for all commands.\n\n"
 	"To get detailed help information for specific commands you can type\n"
-  "'help' with one or more command names as arguments.\n"
+	"'help' with one or more command names as arguments."
 );
 
-/* This do not ust the U_BOOT_CMD macro as ? can't be used in symbol names */
+/* This does not use the U_BOOT_CMD macro as ? can't be used in symbol names */
 #ifdef  CONFIG_SYS_LONGHELP
 cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
 	"?",	CONFIG_SYS_MAXARGS,	1,	do_help,
 	"alias for 'help'",
-	NULL
+	""
 };
 #else
 cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {

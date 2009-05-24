@@ -3627,7 +3627,7 @@ U_BOOT_CMD(
 	"print local hushshell variables",
 	"\n    - print values of all hushshell variables\n"
 	"showvar name ...\n"
-	"    - print value of hushshell variable 'name'\n"
+	"    - print value of hushshell variable 'name'"
 );
 
 #endif

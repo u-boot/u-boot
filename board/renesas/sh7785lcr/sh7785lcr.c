@@ -82,6 +82,6 @@ U_BOOT_CMD(
 	pmb,	1,	1,	do_pmb,
 	"pmb     - PMB setting\n",
 	"\n"
-	"    - PMB setting for all SDRAM mapping\n"
+	"    - PMB setting for all SDRAM mapping"
 );
 #endif

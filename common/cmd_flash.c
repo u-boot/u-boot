@@ -712,7 +712,7 @@ U_BOOT_CMD(
 	flinfo,    2,    1,    do_flinfo,
 	"print FLASH memory information",
 	"\n    - print information for all FLASH memory banks\n"
-	"flinfo N\n    - print information for FLASH memory bank # N\n"
+	"flinfo N\n    - print information for FLASH memory bank # N"
 );
 
 U_BOOT_CMD(
@@ -726,7 +726,7 @@ U_BOOT_CMD(
 	"erase N:SF[-SL]\n    - erase sectors SF-SL in FLASH bank # N\n"
 	"erase bank N\n    - erase FLASH bank # N\n"
 	TMP_ERASE
-	"erase all\n    - erase all FLASH banks\n"
+	"erase all\n    - erase all FLASH banks"
 );
 
 U_BOOT_CMD(
@@ -751,7 +751,7 @@ U_BOOT_CMD(
 	"    - make sectors SF-SL writable in FLASH bank # N\n"
 	"protect off bank N\n    - make FLASH bank # N writable\n"
 	TMP_PROT_OFF
-	"protect off all\n    - make all FLASH banks writable\n"
+	"protect off all\n    - make all FLASH banks writable"
 );
 
 #undef	TMP_ERASE

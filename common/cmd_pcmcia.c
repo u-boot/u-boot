@@ -90,8 +90,8 @@ U_BOOT_CMD(
 	pinit,	2,	0,	do_pinit,
 	"PCMCIA sub-system",
 	"on  - power on PCMCIA socket\n"
-			"pinit off - power off PCMCIA socket\n"
-	  );
+	"pinit off - power off PCMCIA socket"
+);
 
 #endif
 

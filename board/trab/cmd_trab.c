@@ -262,7 +262,7 @@ U_BOOT_CMD(
 	"\n"
 	"    -  start burn-in test application\n"
 	"       The burn-in test could took a while to finish!\n"
-	"       The content of the onboard EEPROM is modified!\n"
+	"       The content of the onboard EEPROM is modified!"
 );
 
 
@@ -295,7 +295,7 @@ U_BOOT_CMD(
 	"read dip switch on TRAB",
 	"\n"
 	"    - read state of dip switch (S1) on TRAB board\n"
-	"      read sequence: 1-2-3-4; ON=1; OFF=0; e.g.: \"0100\"\n"
+	"      read sequence: 1-2-3-4; ON=1; OFF=0; e.g.: \"0100\""
 );
 
 
@@ -323,7 +323,7 @@ U_BOOT_CMD(
 	vcc5v,	1,	1,	do_vcc5v,
 	"read VCC5V on TRAB",
 	"\n"
-	"    - read actual value of voltage VCC5V\n"
+	"    - read actual value of voltage VCC5V"
 );
 
 
@@ -347,7 +347,7 @@ int do_contact_temp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	c_temp,	1,	1,	do_contact_temp,
 	"read contact temperature on TRAB",
-	"\n"
+	""
 	"    -  reads the onboard temperature (=contact temperature)\n"
 );
 
@@ -401,7 +401,7 @@ U_BOOT_CMD(
 	"print burn in status on TRAB",
 	"\n"
 	"    -  prints the status variables of the last burn in test\n"
-	"       stored in the onboard EEPROM on TRAB board\n"
+	"       stored in the onboard EEPROM on TRAB board"
 );
 
 static int read_dip (void)
@@ -890,7 +890,7 @@ U_BOOT_CMD(
 	"delay\n"
 	"    - contact temperature [1/100 C] is printed endlessly to console\n"
 	"      <delay> specifies the seconds to wait between two measurements\n"
-	"      For each measurment a timestamp is printeted\n"
+	"      For each measurment a timestamp is printeted"
 );
 
 #endif

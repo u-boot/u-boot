@@ -118,7 +118,7 @@ U_BOOT_CMD(
 	ext2ls,	4,	1,	do_ext2ls,
 	"list files in a directory (default /)",
 	"<interface> <dev[:part]> [directory]\n"
-	"    - list files from 'dev' on 'interface' in a 'directory'\n"
+	"    - list files from 'dev' on 'interface' in a 'directory'"
 );
 
 /******************************************************************************
@@ -256,5 +256,5 @@ U_BOOT_CMD(
 	"load binary file from a Ext2 filesystem",
 	"<interface> <dev[:part]> [addr] [filename] [bytes]\n"
 	"    - load binary file 'filename' from 'dev' on 'interface'\n"
-	"      to address 'addr' from ext2 filesystem\n"
+	"      to address 'addr' from ext2 filesystem"
 );

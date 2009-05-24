@@ -204,19 +204,17 @@ U_BOOT_CMD(
 	zinit,	 1,	 0,	 do_zuma_init_pbb,
 	"init zuma pbb",
 	"\n"
-	"    - init zuma pbb\n"
 );
 U_BOOT_CMD(
 	zdtest,	  3,	  1,	  do_zuma_test_dma,
 	"run dma test",
 	"[cmd [count]]\n"
-	"    - run dma cmd (w=0,v=1,cp=2,cmp=3,wi=4,vi=5), count bytes\n"
+	"    - run dma cmd (w=0,v=1,cp=2,cmp=3,wi=4,vi=5), count bytes"
 );
 U_BOOT_CMD(
 	zminit,	  1,	  0,	  do_zuma_init_mbox,
 	"init zuma mbox",
 	"\n"
-	"    - init zuma mbox\n"
 );
 
 #endif

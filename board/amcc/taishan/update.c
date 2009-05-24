@@ -74,5 +74,5 @@ int do_update_boot_eeprom(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(update_boot_eeprom, 1, 1, do_update_boot_eeprom,
-	   "update bootstrap eeprom content", NULL);
+	   "update bootstrap eeprom content", "");
 #endif

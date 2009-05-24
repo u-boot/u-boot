@@ -1315,9 +1315,10 @@ U_BOOT_CMD(
 	"i2c crc32 chip address[.0, .1, .2] count - compute CRC32 checksum\n"
 	"i2c probe - show devices on the I2C bus\n"
 	"i2c reset - re-init the I2C Controller\n"
-	"i2c loop chip address[.0, .1, .2] [# of objects] - looping read of device\n"
+	"i2c loop chip address[.0, .1, .2] [# of objects] - looping read of device"
 #if defined(CONFIG_CMD_SDRAM)
-	"i2c sdram chip - print SDRAM configuration information\n"
+	"\n"
+	"i2c sdram chip - print SDRAM configuration information"
 #endif
 );
 

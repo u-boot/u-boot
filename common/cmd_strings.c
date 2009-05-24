@@ -43,4 +43,5 @@ int do_strings(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(strings, 3, 1, do_strings,
 	"display strings",
 	"<addr> [byte count]\n"
-	"    - display strings at <addr> for at least [byte count] or first double NUL\n");
+	"    - display strings at <addr> for at least [byte count] or first double NUL"
+);

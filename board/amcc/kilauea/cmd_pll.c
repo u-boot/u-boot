@@ -291,7 +291,7 @@ U_BOOT_CMD(
 	RCONF: Read current eeprom configuration.      \n\
 	-----------------------------------------------\n\
 	WTEST: Test EEPROM write with predefined values\n\
-	-----------------------------------------------\n"
-	);
+	-----------------------------------------------"
+);
 
 #endif	/* CONFIG_CMD_EEPROM */

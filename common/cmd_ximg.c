@@ -180,11 +180,12 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(imxtract, 4, 1, do_imgextract,
-	   "extract a part of a multi-image",
-	   "addr part [dest]\n"
-	   "    - extract <part> from legacy image at <addr> and copy to <dest>\n"
+	"extract a part of a multi-image",
+	"addr part [dest]\n"
+	"    - extract <part> from legacy image at <addr> and copy to <dest>"
 #if defined(CONFIG_FIT)
-	   "addr uname [dest]\n"
-	   "    - extract <uname> subimage from FIT image at <addr> and copy to <dest>\n"
+	"\n"
+	"addr uname [dest]\n"
+	"    - extract <uname> subimage from FIT image at <addr> and copy to <dest>"
 #endif
 );

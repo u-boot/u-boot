@@ -104,7 +104,7 @@ U_BOOT_CMD(
 	reiserls,	4,	1,	do_reiserls,
 	"list files in a directory (default /)",
 	"<interface> <dev[:part]> [directory]\n"
-	"    - list files from 'dev' on 'interface' in a 'directory'\n"
+	"    - list files from 'dev' on 'interface' in a 'directory'"
 );
 
 /******************************************************************************
@@ -235,5 +235,5 @@ U_BOOT_CMD(
 	"load binary file from a Reiser filesystem",
 	"<interface> <dev[:part]> [addr] [filename] [bytes]\n"
 	"    - load binary file 'filename' from 'dev' on 'interface'\n"
-	"      to address 'addr' from dos filesystem\n"
+	"      to address 'addr' from dos filesystem"
 );

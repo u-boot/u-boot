@@ -48,7 +48,7 @@
 	"asmi write addr offset count\n"\
 	"    - write count bytes to offset from addr.\n"\
 	"asmi verify addr offset count\n"\
-	"    - verify count bytes at offset from addr.\n"
+	"    - verify count bytes at offset from addr."
 
 
 /*-----------------------------------------------------------------------*/
