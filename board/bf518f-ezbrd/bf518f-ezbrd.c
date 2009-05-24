@@ -146,3 +146,19 @@ int misc_init_r(void)
 
 	return 0;
 }
+
+int board_early_init_f(void)
+{
+#if !defined(CONFIG_SYS_NO_FLASH)
+	/* setup BF518-EZBRD GPIO pin PG11 to AMS2. */
+	bfin_write_PORTG_MUX((bfin_read_PORTG_MUX() & ~PORT_x_MUX_6_MASK) | PORT_x_MUX_6_FUNC_2);
+	bfin_write_PORTG_FER(bfin_read_PORTG_FER() | PG11);
+
+# if !defined(CONFIG_BFIN_SPI)
+	/* setup BF518-EZBRD GPIO pin PG15 to AMS3. */
+	bfin_write_PORTG_MUX((bfin_read_PORTG_MUX() & ~PORT_x_MUX_7_MASK) | PORT_x_MUX_7_FUNC_3);
+	bfin_write_PORTG_FER(bfin_read_PORTG_FER() | PG15);
+# endif
+#endif
+	return 0;
+}
