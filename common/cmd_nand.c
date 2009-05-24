@@ -414,18 +414,29 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	}
 
 	if (strcmp(cmd, "markbad") == 0) {
-		addr = (ulong)simple_strtoul(argv[2], NULL, 16);
+		argc -= 2;
+		argv += 2;
 
-		int ret = nand->block_markbad(nand, addr);
-		if (ret == 0) {
-			printf("block 0x%08lx successfully marked as bad\n",
-			       (ulong) addr);
-			return 0;
-		} else {
-			printf("block 0x%08lx NOT marked as bad! ERROR %d\n",
-			       (ulong) addr, ret);
+		if (argc <= 0)
+			goto usage;
+
+		while (argc > 0) {
+			addr = simple_strtoul(*argv, NULL, 16);
+
+			if (nand->block_markbad(nand, addr)) {
+				printf("block 0x%08lx NOT marked "
+					"as bad! ERROR %d\n",
+					addr, ret);
+				ret = 1;
+			} else {
+				printf("block 0x%08lx successfully "
+					"marked as bad\n",
+					addr);
+			}
+			--argc;
+			++argv;
 		}
-		return 1;
+		return ret;
 	}
 
 	if (strcmp(cmd, "biterr") == 0) {
