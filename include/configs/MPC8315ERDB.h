@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2007-2009 Freescale Semiconductor, Inc.
  *
  * Dave Liu <daveliu@freescale.com>
  *
@@ -345,6 +345,14 @@
 #endif
 
 #define CONFIG_HAS_FSL_DR_USB
+#define CONFIG_SYS_SCCR_USBDRCM		3
+
+#define CONFIG_CMD_USB
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_FSL
+#define CONFIG_USB_PHY_TYPE 	"utmi"
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 
 /*
  * TSEC
@@ -569,6 +577,7 @@
    "ramdiskfile=ramfs.83xx\0"						\
    "fdtaddr=400000\0"							\
    "fdtfile=mpc8315erdb.dtb\0"						\
+   "usb_phy_type=utmi\0"						\
    ""
 
 #define CONFIG_NFSBOOTCOMMAND						\
