@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2009 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -462,6 +462,15 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_CMD_EXT2
 #endif
 
+/*
+ * USB
+ */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_FSL
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+
 #if defined(CONFIG_TSEC_ENET)
 
 #ifndef CONFIG_NET_MULTI
@@ -627,7 +636,8 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  "ramdiskfile=8536ds/ramdisk.uboot\0"		\
  "fdtaddr=c00000\0"				\
  "fdtfile=8536ds/mpc8536ds.dtb\0"		\
- "bdev=sda3\0"
+ "bdev=sda3\0"					\
+ "usb_phy_type=ulpi\0"
 
 #define CONFIG_HDBOOT				\
  "setenv bootargs root=/dev/$bdev rw "		\
