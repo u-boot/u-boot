@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2009 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,6 +23,10 @@
 #include <common.h>
 #include <mpc83xx.h>
 #include <ioports.h>
+#ifdef CONFIG_USB_EHCI_FSL
+#include <asm/io.h>
+#include <usb/ehci-fsl.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -293,6 +297,19 @@ void cpu_init_f (volatile immap_t * im)
 #ifdef CONFIG_SYS_GPIO2_PRELIM
 	im->gpio[1].dat = CONFIG_SYS_GPIO2_DAT;
 	im->gpio[1].dir = CONFIG_SYS_GPIO2_DIR;
+#endif
+#ifdef CONFIG_USB_EHCI_FSL
+	uint32_t temp;
+	struct usb_ehci *ehci = (struct usb_ehci *)CONFIG_SYS_MPC8xxx_USB_ADDR;
+
+	/* Configure interface. */
+	setbits_be32((void *)ehci->control, REFSEL_16MHZ | UTMI_PHY_EN);
+
+	/* Wait for clock to stabilize */
+	do {
+		temp = in_be32((void *)ehci->control);
+		udelay(1000);
+	} while (!(temp & PHY_CLK_VALID));
 #endif
 }
 

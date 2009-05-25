@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 freescale semiconductor
+ * Copyright (c) 2005, 2009 Freescale Semiconductor, Inc
  * Copyright (c) 2005 MontaVista Software
  * Copyright (c) 2008 Excito Elektronik i Sk=E5ne AB
  *
@@ -21,6 +21,8 @@
 
 #ifndef _EHCI_FSL_H
 #define _EHCI_FSL_H
+
+#include <asm/processor.h>
 
 /* Global offsets */
 #define FSL_SKIP_PCI		0x100
@@ -82,5 +84,64 @@
 #define MPC83XX_SCCR_USB_DRCM_11	0x00300000
 #define MPC83XX_SCCR_USB_DRCM_01	0x00100000
 #define MPC83XX_SCCR_USB_DRCM_10	0x00200000
+
+#if defined(CONFIG_MPC83XX)
+#define CONFIG_SYS_MPC8xxx_USB_ADDR CONFIG_SYS_MPC83xx_USB_ADDR
+#endif
+
+/*
+ * USB Registers
+ */
+struct usb_ehci {
+	u8	res1[0x100];
+	u16	caplength;	/* 0x100 - Capability Register Length */
+	u16	hciversion;	/* 0x102 - Host Interface Version */
+	u32	hcsparams;	/* 0x104 - Host Structural Parameters */
+	u32	hccparams;	/* 0x108 - Host Capability Parameters */
+	u8	res2[0x14];
+	u32	dciversion;	/* 0x120 - Device Interface Version */
+	u32	dciparams;	/* 0x124 - Device Controller Params */
+	u8	res3[0x18];
+	u32	usbcmd;		/* 0x140 - USB Command */
+	u32	usbsts;		/* 0x144 - USB Status */
+	u32	usbintr;	/* 0x148 - USB Interrupt Enable */
+	u32	frindex;	/* 0x14C - USB Frame Index */
+	u8	res4[0x4];
+	u32	perlistbase;	/* 0x154 - Periodic List Base
+					 - USB Device Address */
+	u32	ep_list_addr;	/* 0x158 - Next Asynchronous List
+					 - End Point Address */
+	u8	res5[0x4];
+	u32	burstsize;	/* 0x160 - Programmable Burst Size */
+	u32	txfilltuning;	/* 0x164 - Host TT Transmit
+					   pre-buffer packet tuning */
+	u8	res6[0x8];
+	u32	ulpi_viewpoint;	/* 0x170 - ULPI Reister Access */
+	u8	res7[0xc];
+	u32	config_flag;	/* 0x180 - Configured Flag Register */
+	u32	portsc;		/* 0x184 - Port status/control */
+	u8	res8[0x20];
+	u32	usbmode;	/* 0x1a8 - USB Device Mode */
+	u32	epsetupstat;	/* 0x1ac - End Point Setup Status */
+	u32	epprime;	/* 0x1b0 - End Point Init Status */
+	u32	epflush;	/* 0x1b4 - End Point De-initlialize */
+	u32	epstatus;	/* 0x1b8 - End Point Status */
+	u32	epcomplete;	/* 0x1bc - End Point Complete */
+	u32	epctrl0;	/* 0x1c0 - End Point Control 0 */
+	u32	epctrl1;	/* 0x1c4 - End Point Control 1 */
+	u32	epctrl2;	/* 0x1c8 - End Point Control 2 */
+	u32	epctrl3;	/* 0x1cc - End Point Control 3 */
+	u32	epctrl4;	/* 0x1d0 - End Point Control 4 */
+	u32	epctrl5;	/* 0x1d4 - End Point Control 5 */
+	u8	res9[0x228];
+	u32	snoop1;		/* 0x400 - Snoop 1 */
+	u32	snoop2;		/* 0x404 - Snoop 2 */
+	u32	age_cnt_limit;	/* 0x408 - Age Count Threshold */
+	u32	prictrl;	/* 0x40c - Priority Control */
+	u32	sictrl;		/* 0x410 - System Interface Control */
+	u8	res10[0xEC];
+	u32	control;	/* 0x500 - Control */
+	u8	res11[0xafc];
+};
 
 #endif /* _EHCI_FSL_H */
