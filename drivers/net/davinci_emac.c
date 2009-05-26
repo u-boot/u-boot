@@ -40,17 +40,12 @@
 #include <command.h>
 #include <net.h>
 #include <miiphy.h>
+#include <malloc.h>
 #include <asm/arch/emac_defs.h>
 
 unsigned int	emac_dbg = 0;
 #define debug_emac(fmt,args...)	if (emac_dbg) printf(fmt,##args)
 
-/* Internal static functions */
-static int davinci_eth_hw_init (void);
-static int davinci_eth_open (void);
-static int davinci_eth_close (void);
-static int davinci_eth_send_packet (volatile void *packet, int length);
-static int davinci_eth_rcv_packet (void);
 static void davinci_eth_mdio_enable(void);
 
 static int gen_init_phy(int phy_addr);
@@ -58,38 +53,10 @@ static int gen_is_phy_connected(int phy_addr);
 static int gen_get_link_speed(int phy_addr);
 static int gen_auto_negotiate(int phy_addr);
 
-/* Wrappers exported to the U-Boot proper */
-int eth_hw_init(void)
-{
-	return(davinci_eth_hw_init());
-}
-
-int eth_init(bd_t * bd)
-{
-	return(davinci_eth_open());
-}
-
-void eth_halt(void)
-{
-	davinci_eth_close();
-}
-
-int eth_send(volatile void *packet, int length)
-{
-	return(davinci_eth_send_packet(packet, length));
-}
-
-int eth_rx(void)
-{
-	return(davinci_eth_rcv_packet());
-}
-
 void eth_mdio_enable(void)
 {
 	davinci_eth_mdio_enable();
 }
-/* End of wrappers */
-
 
 static u_int8_t davinci_eth_mac_addr[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 
@@ -279,17 +246,11 @@ static int davinci_mii_phy_write(char *devname, unsigned char addr, unsigned cha
 	return(davinci_eth_phy_write(addr, reg, value) ? 0 : 1);
 }
 
-int davinci_eth_miiphy_initialize(bd_t *bis)
-{
-	miiphy_register(phy.name, davinci_mii_phy_read, davinci_mii_phy_write);
-
-	return(1);
-}
 #endif
 
 
 /* Eth device open */
-static int davinci_eth_open(void)
+static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 {
 	dv_reg_p		addr;
 	u_int32_t		clkdiv, cnt;
@@ -441,7 +402,7 @@ static void davinci_eth_ch_teardown(int ch)
 }
 
 /* Eth device close */
-static int davinci_eth_close(void)
+static void davinci_eth_close(struct eth_device *dev)
 {
 	debug_emac("+ emac_close\n");
 
@@ -453,7 +414,6 @@ static int davinci_eth_close(void)
 	adap_ewrap->EWCTL = 0;
 
 	debug_emac("- emac_close\n");
-	return(1);
 }
 
 static int tx_send_loop = 0;
@@ -462,7 +422,8 @@ static int tx_send_loop = 0;
  * This function sends a single packet on the network and returns
  * positive number (number of bytes transmitted) or negative for error
  */
-static int davinci_eth_send_packet (volatile void *packet, int length)
+static int davinci_eth_send_packet (struct eth_device *dev,
+					volatile void *packet, int length)
 {
 	int ret_status = -1;
 
@@ -509,7 +470,7 @@ static int davinci_eth_send_packet (volatile void *packet, int length)
 /*
  * This function handles receipt of a packet from the network
  */
-static int davinci_eth_rcv_packet (void)
+static int davinci_eth_rcv_packet (struct eth_device *dev)
 {
 	volatile emac_desc *rx_curr_desc;
 	volatile emac_desc *curr_desc;
@@ -580,11 +541,27 @@ static int davinci_eth_rcv_packet (void)
  * EMAC modules power or pin multiplexors, that is done by board_init()
  * much earlier in bootup process. Returns 1 on success, 0 otherwise.
  */
-static int davinci_eth_hw_init(void)
+int davinci_emac_initialize(void)
 {
 	u_int32_t	phy_id;
 	u_int16_t	tmp;
 	int		i;
+	struct eth_device *dev;
+
+	dev = malloc(sizeof *dev);
+
+	if (dev == NULL)
+		return -1;
+
+	memset(dev, 0, sizeof *dev);
+
+	dev->iobase = 0;
+	dev->init = davinci_eth_open;
+	dev->halt = davinci_eth_close;
+	dev->send = davinci_eth_send_packet;
+	dev->recv = davinci_eth_rcv_packet;
+
+	eth_register(dev);
 
 	davinci_eth_mdio_enable();
 
@@ -643,5 +620,6 @@ static int davinci_eth_hw_init(void)
 
 	printf("Ethernet PHY: %s\n", phy.name);
 
+	miiphy_register(phy.name, davinci_mii_phy_read, davinci_mii_phy_write);
 	return(1);
 }

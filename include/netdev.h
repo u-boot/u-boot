@@ -44,6 +44,7 @@ int cpu_eth_init(bd_t *bis);
 int au1x00_enet_initialize(bd_t*);
 int bfin_EMAC_initialize(bd_t *bis);
 int dc21x4x_initialize(bd_t *bis);
+int davinci_emac_initialize(void);
 int dnet_eth_initialize(int id, void *regs, unsigned int phy_addr);
 int e1000_initialize(bd_t *bis);
 int eepro100_initialize(bd_t *bis);
