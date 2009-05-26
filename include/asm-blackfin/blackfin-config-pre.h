@@ -55,7 +55,7 @@ static inline const char *get_bfin_boot_mode(int bfin_boot)
 #endif
 
 /* Most bootroms allow for EVT1 redirection */
-#if (defined(__ADSPBF531__) || defined(__ADSPBF532__) || defined(__ADSPBF533__) \
+#if ((defined(__ADSPBF531__) || defined(__ADSPBF532__) || defined(__ADSPBF533__)) \
      && __SILICON_REVISION__ < 3) || defined(__ADSPBF561__)
 # undef CONFIG_BFIN_BOOTROM_USES_EVT1
 #else
