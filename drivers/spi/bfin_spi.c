@@ -156,7 +156,7 @@ static void spi_portmux(struct spi_slave *slave)
 			case 1: SET_MUX(f, 2, 1); f_fer |= PF7;  break;
 			case 2: /* see G above */ g_fer |= PG15; break;
 			case 3: SET_MUX(h, 1, 3); f_fer |= PH4;  break;
-			case 4: /* no muxing */                  break;
+			case 4: /* no muxing */   h_fer |= PH8;  break;
 			case 5: SET_MUX(g, 1, 3); h_fer |= PG3;  break;
 			case 6: /* no muxing */                  break;
 			case 7: /* no muxing */                  break;
