@@ -115,6 +115,14 @@
 /* Optional value */
 #define STATUS_LED_BOOT			STATUS_LED_BIT
 
+/* GPIO banks */
+#ifdef CONFIG_STATUS_LED
+#define CONFIG_OMAP3_GPIO_2 /* ZOOM2_LED_BLUE2 */
+#define CONFIG_OMAP3_GPIO_6 /* ZOOM2_LED_RED */
+#endif
+#define CONFIG_OMAP3_GPIO_3 /* board revision */
+#define CONFIG_OMAP3_GPIO_5 /* debug board detection, ZOOM2_LED_BLUE */
+
 /* commands to include */
 #include <config_cmd_default.h>
 
