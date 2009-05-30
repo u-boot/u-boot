@@ -137,6 +137,14 @@ ifeq ($(ARCH),powerpc)
 ARCH = ppc
 endif
 
+# The "tools" are needed early, so put this first
+# Don't include stuff already done in $(LIBS)
+SUBDIRS	= tools \
+	  examples \
+	  api_examples
+
+.PHONY : $(SUBDIRS)
+
 ifeq ($(obj)include/config.mk,$(wildcard $(obj)include/config.mk))
 
 # load ARCH, BOARD, and CPU configuration
@@ -281,14 +289,6 @@ LIBBOARD := $(addprefix $(obj),$(LIBBOARD))
 
 # Add GCC lib
 PLATFORM_LIBS += -L $(shell dirname `$(CC) $(CFLAGS) -print-libgcc-file-name`) -lgcc
-
-# The "tools" are needed early, so put this first
-# Don't include stuff already done in $(LIBS)
-SUBDIRS	= tools \
-	  examples \
-	  api_examples
-
-.PHONY : $(SUBDIRS)
 
 ifeq ($(CONFIG_NAND_U_BOOT),y)
 NAND_SPL = nand_spl
