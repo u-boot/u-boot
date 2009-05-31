@@ -25,10 +25,12 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= zoom2.o \
-	debug_board.o \
-	zoom2_serial.o
+COBJS-y := $(BOARD).o
+COBJS-y += debug_board.o
+COBJS-y += zoom2_serial.o
+COBJS-$(CONFIG_STATUS_LED) += led.o
 
+COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 

@@ -29,6 +29,9 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#ifdef CONFIG_STATUS_LED
+#include <status_led.h>
+#endif
 #include <asm/io.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
@@ -86,7 +89,6 @@ int board_init (void)
 #if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
 	status_led_set (STATUS_LED_BOOT, STATUS_LED_ON);
 #endif
-
 	return 0;
 }
 

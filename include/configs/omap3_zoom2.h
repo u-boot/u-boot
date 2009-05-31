@@ -93,6 +93,22 @@
 #define CONFIG_OMAP3_MMC		1
 #define CONFIG_DOS_PARTITION		1
 
+/* Status LED */
+#define CONFIG_STATUS_LED		1 /* Status LED enabled	*/
+#define CONFIG_BOARD_SPECIFIC_LED	1
+#define STATUS_LED_BLUE			0
+#define STATUS_LED_RED			1
+/* Blue */
+#define STATUS_LED_BIT			STATUS_LED_BLUE
+#define STATUS_LED_STATE		STATUS_LED_ON
+#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
+/* Red */
+#define STATUS_LED_BIT1			STATUS_LED_RED
+#define STATUS_LED_STATE1		STATUS_LED_OFF
+#define STATUS_LED_PERIOD1		(CONFIG_SYS_HZ / 2)
+/* Optional value */
+#define STATUS_LED_BOOT			STATUS_LED_BIT
+
 /* commands to include */
 #include <config_cmd_default.h>
 
