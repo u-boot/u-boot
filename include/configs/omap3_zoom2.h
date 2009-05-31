@@ -69,26 +69,26 @@
 
 /*
  * NS16550 Configuration
+ * Zoom2 uses the TL16CP754C on the debug board
  */
-#define V_NS16550_CLK			48000000	/* 48MHz (APLL96/2) */
+#define CONFIG_SERIAL_MULTI		1
+/*
+ * 0 - 1 : first  USB with respect to the left edge of the debug board
+ * 2 - 3 : second USB with respect to the left edge of the debug board
+ */
+#define ZOOM2_DEFAULT_SERIAL_DEVICE	(&zoom2_serial_device0)
+
+#define V_NS16550_CLK			(1843200)	/* 1.8432 Mhz */
 
 #define CONFIG_SYS_NS16550
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
+#define CONFIG_SYS_NS16550_REG_SIZE	(-2)
 #define CONFIG_SYS_NS16550_CLK		V_NS16550_CLK
-
-/*
- * select serial console configuration
- */
-#define CONFIG_CONS_INDEX		3
-#define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
-#define CONFIG_SERIAL3			3	/* UART3 */
+#define CONFIG_BAUDRATE			115200
+#define CONFIG_SYS_BAUDRATE_TABLE	{115200}
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
-					115200}
+
 #define CONFIG_MMC			1
 #define CONFIG_OMAP3_MMC		1
 #define CONFIG_DOS_PARTITION		1

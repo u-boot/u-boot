@@ -26,7 +26,8 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS	:= zoom2.o \
-	debug_board.o
+	debug_board.o \
+	zoom2_serial.o
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

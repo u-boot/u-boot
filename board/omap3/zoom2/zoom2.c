@@ -30,10 +30,32 @@
  */
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-types.h>
 #include "zoom2.h"
+#include "zoom2_serial.h"
+
+/*
+ * This the the zoom2, board specific, gpmc configuration for the
+ * quad uart on the debug board.   The more general gpmc configurations
+ * are setup at the cpu level in cpu/arm_cortexa8/omap3/mem.c
+ *
+ * The details of the setting of the serial gpmc setup are not available.
+ * The values were provided by another party.
+ */
+extern void enable_gpmc_config(u32 *gpmc_config, gpmc_csx_t *gpmc_cs_base,
+			       u32 base, u32 size);
+
+static u32 gpmc_serial_TL16CP754C[GPMC_MAX_REG] = {
+	0x00011000,
+	0x001F1F01,
+	0x00080803,
+	0x1D091D09,
+	0x041D1F1F,
+	0x1D0904C4, 0
+};
 
 /*
  * Routine: board_init
@@ -42,12 +64,28 @@
 int board_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
+	gpmc_csx_t *serial_cs_base;
+	u32 *gpmc_config;
 
 	gpmc_init ();		/* in SRAM or SDRAM, finish GPMC */
+
+	/* Configure console support on zoom2 */
+	gpmc_config = gpmc_serial_TL16CP754C;
+	serial_cs_base = (gpmc_csx_t *) (GPMC_CONFIG_CS0_BASE +
+					 (3 * GPMC_CONFIG_WIDTH));
+	enable_gpmc_config(gpmc_config,
+			   serial_cs_base,
+			   SERIAL_TL16CP754C_BASE,
+			   GPMC_SIZE_16M);
+
 	/* board id for Linux */
 	gd->bd->bi_arch_number = MACH_TYPE_OMAP_ZOOM2;
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
+
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+	status_led_set (STATUS_LED_BOOT, STATUS_LED_ON);
+#endif
 
 	return 0;
 }
