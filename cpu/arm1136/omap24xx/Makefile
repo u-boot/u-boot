@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
-SOBJS	= start.o
+SOBJS	= reset.o
 
 COBJS	= timer.o
 
