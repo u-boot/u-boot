@@ -124,5 +124,9 @@
 #define AT91SAM9263_DMAC_BASE	0x00800000	/* DMA Controller */
 #define AT91SAM9263_UHP_BASE	0x00a00000	/* USB Host controller */
 
+/*
+ * Cpu Name
+ */
+#define AT91_CPU_NAME	"AT91SAM9263"
 
 #endif

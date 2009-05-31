@@ -112,4 +112,9 @@
 #define AT91SAM9RL_LCDC_BASE	0x00500000	/* LCD Controller */
 #define AT91SAM9RL_UDPHS_BASE	0x00600000	/* USB Device HS controller */
 
+/*
+ * Cpu Name
+ */
+#define AT91_CPU_NAME	"AT91SAM9RL"
+
 #endif
