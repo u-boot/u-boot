@@ -43,6 +43,7 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_LH7A40X_SERIAL
 #define CONFIG_CONSOLE_UART2	/* UART2 LH7A40x for console */
 
 /* allow to overwrite serial and ethaddr */
