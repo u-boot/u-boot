@@ -29,6 +29,7 @@
 #define __CONFIG_H
 
 /* ARM asynchronous clock */
+#define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
 #define MASTER_PLL_DIV		15
