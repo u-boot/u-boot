@@ -42,6 +42,7 @@ int	cleanup_before_linux(void);
 
 /* cpu/.../arch/cpu.c */
 int	arch_cpu_init(void);
+int	arch_misc_init(void);
 
 /* board/.../... */
 int	board_init(void);

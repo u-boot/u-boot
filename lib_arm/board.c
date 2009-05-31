@@ -399,6 +399,10 @@ void start_armboot (void)
 
 	console_init_r ();	/* fully init console as a device */
 
+#if defined(CONFIG_ARCH_MISC_INIT)
+	/* miscellaneous arch dependent initialisations */
+	arch_misc_init ();
+#endif
 #if defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */
 	misc_init_r ();
