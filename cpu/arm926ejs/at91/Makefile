@@ -34,6 +34,7 @@ COBJS-$(CONFIG_AT91SAM9RL)	+= at91sam9rl_devices.o
 COBJS-$(CONFIG_AT91_LED)	+= led.o
 COBJS-y += clock.o
 COBJS-y += cpu.o
+COBJS-y	+= reset.o
 COBJS-y	+= timer.o
 
 SRCS    := $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
