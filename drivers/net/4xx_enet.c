@@ -871,6 +871,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
     defined(CONFIG_405EX)
+	u32 opbfreq;
 	sys_info_t sysinfo;
 #if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
@@ -997,12 +998,13 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	/* Whack the M1 register */
 	mode_reg = 0x0;
 	mode_reg &= ~0x00000038;
-	if (sysinfo.freqOPB <= 50000000);
-	else if (sysinfo.freqOPB <= 66666667)
+	opbfreq = sysinfo.freqOPB / 1000000;
+	if (opbfreq <= 50);
+	else if (opbfreq <= 66)
 		mode_reg |= EMAC_M1_OBCI_66;
-	else if (sysinfo.freqOPB <= 83333333)
+	else if (opbfreq <= 83)
 		mode_reg |= EMAC_M1_OBCI_83;
-	else if (sysinfo.freqOPB <= 100000000)
+	else if (opbfreq <= 100)
 		mode_reg |= EMAC_M1_OBCI_100;
 	else
 		mode_reg |= EMAC_M1_OBCI_GT100;
