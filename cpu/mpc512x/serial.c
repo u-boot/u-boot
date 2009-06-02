@@ -60,12 +60,24 @@ static void fifo_init (volatile psc512x_t *psc)
 	__asm__ volatile ("sync");
 }
 
+void serial_setbrg(void)
+{
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
+	unsigned long baseclk, div;
+
+	/* calculate dividor for setting PSC CTUR and CTLR registers */
+	baseclk = (gd->ips_clk + 8) / 16;
+	div = (baseclk + (gd->baudrate / 2)) / gd->baudrate;
+
+	out_8(&psc->ctur, (div >> 8) & 0xff);
+	out_8(&psc->ctlr,  div & 0xff); /* set baudrate */
+}
+
 int serial_init(void)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
-	unsigned long baseclk;
-	int div;
 
 	fifo_init (psc);
 
@@ -87,13 +99,8 @@ int serial_init(void)
 	/* now, mode register points to mr2 */
 	out_8(&psc->mode, PSC_MODE_1_STOPBIT);
 
-	/* calculate dividor for setting PSC CTUR and CTLR registers */
-	baseclk = (gd->ips_clk + 8) / 16;
-	div = (baseclk + (gd->baudrate / 2)) / gd->baudrate;
-
-	out_8(&psc->ctur, (div >> 8) & 0xff);
 	/* set baudrate */
-	out_8(&psc->ctlr, div & 0xff);
+	serial_setbrg();
 
 	/* disable all interrupts */
 	out_be16(&psc->psc_imr, 0);
@@ -159,19 +166,6 @@ int serial_tstc (void)
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 
 	return !(in_be32(&psc->rfstat) & PSC_FIFO_EMPTY);
-}
-
-void serial_setbrg (void)
-{
-	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
-	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
-	unsigned long baseclk, div;
-
-	baseclk = (gd->ips_clk + 8) / 16;
-	div = (baseclk + (gd->baudrate / 2)) / gd->baudrate;
-
-	out_8(&psc->ctur, (div >> 8) & 0xFF);
-	out_8(&psc->ctlr,  div & 0xff); /* set baudrate */
 }
 
 void serial_setrts(int s)
