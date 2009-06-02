@@ -134,7 +134,7 @@ unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 	unsigned int tlb_size;
 	unsigned int ram_tlb_index = CONFIG_SYS_DDR_TLB_START;
 	unsigned int ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
-	unsigned int max_cam = (mfspr(SPRN_TLB1CFG) >> 16) & 0xff;
+	unsigned int max_cam = (mfspr(SPRN_TLB1CFG) >> 16) & 0xf;
 	u64 size, memsize = (u64)memsize_in_meg << 20;
 
 	size = min(memsize, CONFIG_MAX_MEM_MAPPED);
