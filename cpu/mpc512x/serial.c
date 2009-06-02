@@ -167,7 +167,7 @@ void serial_setbrg (void)
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 	unsigned long baseclk, div;
 
-	baseclk = (gd->csb_clk + 8) / 16;
+	baseclk = (gd->ips_clk + 8) / 16;
 	div = (baseclk + (gd->baudrate / 2)) / gd->baudrate;
 
 	out_8(&psc->ctur, (div >> 8) & 0xFF);
