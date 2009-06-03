@@ -106,7 +106,7 @@ To clear a bit :
 To read a bit :
 
 	if (!omap_request_gpio(N)) {
-		omap_set_gpio_direction(NULL, 1);
+		omap_set_gpio_direction(N, 1);
 		val = omap_get_gpio_datain(N);
 		omap_free_gpio(N);
 	}
