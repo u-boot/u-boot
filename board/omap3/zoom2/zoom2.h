@@ -32,6 +32,15 @@ const omap3_sysinfo sysinfo = {
 	"NAND",
 };
 
+typedef enum {
+	ZOOM2_REVISION_UNKNOWN = 0,
+	ZOOM2_REVISION_ALPHA,
+	ZOOM2_REVISION_BETA,
+	ZOOM2_REVISION_PRODUCTION
+} zoom2_revision;
+
+zoom2_revision zoom2_get_revision(void);
+
 /*
  * IEN	- Input Enable
  * IDIS	- Input Disable

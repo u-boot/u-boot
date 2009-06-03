@@ -33,6 +33,7 @@
 #include <status_led.h>
 #endif
 #include <asm/io.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
@@ -59,6 +60,60 @@ static u32 gpmc_serial_TL16CP754C[GPMC_MAX_REG] = {
 	0x041D1F1F,
 	0x1D0904C4, 0
 };
+
+/* Used to track the revision of the board */
+static zoom2_revision revision = ZOOM2_REVISION_UNKNOWN;
+
+/*
+ * Routine: zoom2_get_revision
+ * Description: Return the revision of the Zoom2 this code is running on.
+ */
+zoom2_revision zoom2_get_revision(void)
+{
+	return revision;
+}
+
+/*
+ * Routine: zoom2_identify
+ * Description: Detect which version of Zoom2 we are running on.
+ */
+void zoom2_identify(void)
+{
+	/*
+	 * To check for production board vs beta board,
+	 * check if gpio 94 is clear.
+	 *
+	 * No way yet to check for alpha board identity.
+	 * Alpha boards were produced in very limited quantities
+	 * and they are not commonly used.  They are mentioned here
+	 * only for completeness.
+	 */
+	if (!omap_request_gpio(94)) {
+		unsigned int val;
+
+		omap_set_gpio_direction(94, 1);
+		val = omap_get_gpio_datain(94);
+		omap_free_gpio(94);
+
+		if (val)
+			revision = ZOOM2_REVISION_BETA;
+		else
+			revision = ZOOM2_REVISION_PRODUCTION;
+	}
+
+	printf("Board revision ");
+	switch (revision) {
+	case ZOOM2_REVISION_PRODUCTION:
+		printf("Production\n");
+		break;
+	case ZOOM2_REVISION_BETA:
+		printf("Beta\n");
+		break;
+	default:
+		printf("Unknown\n");
+		break;
+	}
+}
 
 /*
  * Routine: board_init
@@ -96,10 +151,11 @@ int board_init (void)
  * Routine: misc_init_r
  * Description: Configure zoom board specific configurations
  */
-int misc_init_r (void)
+int misc_init_r(void)
 {
-	power_init_r ();
-	dieid_num_r ();
+	zoom2_identify();
+	power_init_r();
+	dieid_num_r();
 	return 0;
 }
 
