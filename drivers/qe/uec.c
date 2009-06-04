@@ -31,176 +31,34 @@
 #include "uec_phy.h"
 #include "miiphy.h"
 
+static uec_info_t uec_info[] = {
 #ifdef CONFIG_UEC_ETH1
-static uec_info_t eth1_uec_info = {
-	.uf_info		= {
-		.ucc_num	= CONFIG_SYS_UEC1_UCC_NUM,
-		.rx_clock	= CONFIG_SYS_UEC1_RX_CLK,
-		.tx_clock	= CONFIG_SYS_UEC1_TX_CLK,
-		.eth_type	= CONFIG_SYS_UEC1_ETH_TYPE,
-	},
-#if (CONFIG_SYS_UEC1_ETH_TYPE == FAST_ETH)
-	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
-	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
-#else
-	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
-	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
-#endif
-#if (MAX_QE_RISC == 4)
-	.risc_tx			= QE_RISC_ALLOCATION_FOUR_RISCS,
-	.risc_rx			= QE_RISC_ALLOCATION_FOUR_RISCS,
-#else
-	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-#endif
-	.tx_bd_ring_len		= 16,
-	.rx_bd_ring_len		= 16,
-	.phy_address		= CONFIG_SYS_UEC1_PHY_ADDR,
-	.enet_interface		= CONFIG_SYS_UEC1_INTERFACE_MODE,
-};
+	STD_UEC_INFO(1),	/* UEC1 */
 #endif
 #ifdef CONFIG_UEC_ETH2
-static uec_info_t eth2_uec_info = {
-	.uf_info		= {
-		.ucc_num	= CONFIG_SYS_UEC2_UCC_NUM,
-		.rx_clock	= CONFIG_SYS_UEC2_RX_CLK,
-		.tx_clock	= CONFIG_SYS_UEC2_TX_CLK,
-		.eth_type	= CONFIG_SYS_UEC2_ETH_TYPE,
-	},
-#if (CONFIG_SYS_UEC2_ETH_TYPE == FAST_ETH)
-	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
-	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
-#else
-	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
-	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
-#endif
-#if (MAX_QE_RISC == 4)
-	.risc_tx			= QE_RISC_ALLOCATION_FOUR_RISCS,
-	.risc_rx			= QE_RISC_ALLOCATION_FOUR_RISCS,
-#else
-	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-#endif
-	.tx_bd_ring_len		= 16,
-	.rx_bd_ring_len		= 16,
-	.phy_address		= CONFIG_SYS_UEC2_PHY_ADDR,
-	.enet_interface		= CONFIG_SYS_UEC2_INTERFACE_MODE,
-};
+	STD_UEC_INFO(2),	/* UEC2 */
 #endif
 #ifdef CONFIG_UEC_ETH3
-static uec_info_t eth3_uec_info = {
-	.uf_info		= {
-		.ucc_num	= CONFIG_SYS_UEC3_UCC_NUM,
-		.rx_clock	= CONFIG_SYS_UEC3_RX_CLK,
-		.tx_clock	= CONFIG_SYS_UEC3_TX_CLK,
-		.eth_type	= CONFIG_SYS_UEC3_ETH_TYPE,
-	},
-#if (CONFIG_SYS_UEC3_ETH_TYPE == FAST_ETH)
-	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
-	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
-#else
-	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
-	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
-#endif
-#if (MAX_QE_RISC == 4)
-	.risc_tx			= QE_RISC_ALLOCATION_FOUR_RISCS,
-	.risc_rx			= QE_RISC_ALLOCATION_FOUR_RISCS,
-#else
-	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-#endif
-	.tx_bd_ring_len		= 16,
-	.rx_bd_ring_len		= 16,
-	.phy_address		= CONFIG_SYS_UEC3_PHY_ADDR,
-	.enet_interface		= CONFIG_SYS_UEC3_INTERFACE_MODE,
-};
+	STD_UEC_INFO(3),	/* UEC3 */
 #endif
 #ifdef CONFIG_UEC_ETH4
-static uec_info_t eth4_uec_info = {
-	.uf_info		= {
-		.ucc_num	= CONFIG_SYS_UEC4_UCC_NUM,
-		.rx_clock	= CONFIG_SYS_UEC4_RX_CLK,
-		.tx_clock	= CONFIG_SYS_UEC4_TX_CLK,
-		.eth_type	= CONFIG_SYS_UEC4_ETH_TYPE,
-	},
-#if (CONFIG_SYS_UEC4_ETH_TYPE == FAST_ETH)
-	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
-	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
-#else
-	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
-	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
-#endif
-#if (MAX_QE_RISC == 4)
-	.risc_tx			= QE_RISC_ALLOCATION_FOUR_RISCS,
-	.risc_rx			= QE_RISC_ALLOCATION_FOUR_RISCS,
-#else
-	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-#endif
-	.tx_bd_ring_len		= 16,
-	.rx_bd_ring_len		= 16,
-	.phy_address		= CONFIG_SYS_UEC4_PHY_ADDR,
-	.enet_interface		= CONFIG_SYS_UEC4_INTERFACE_MODE,
-};
+	STD_UEC_INFO(4),	/* UEC4 */
 #endif
 #ifdef CONFIG_UEC_ETH5
-static uec_info_t eth5_uec_info = {
-	.uf_info		= {
-		.ucc_num	= CONFIG_SYS_UEC5_UCC_NUM,
-		.rx_clock	= CONFIG_SYS_UEC5_RX_CLK,
-		.tx_clock	= CONFIG_SYS_UEC5_TX_CLK,
-		.eth_type	= CONFIG_SYS_UEC5_ETH_TYPE,
-	},
-#if (CONFIG_SYS_UEC5_ETH_TYPE == FAST_ETH)
-	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
-	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
-#else
-	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
-	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
-#endif
-#if (MAX_QE_RISC == 4)
-	.risc_tx			= QE_RISC_ALLOCATION_FOUR_RISCS,
-	.risc_rx			= QE_RISC_ALLOCATION_FOUR_RISCS,
-#else
-	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-#endif
-	.tx_bd_ring_len		= 16,
-	.rx_bd_ring_len		= 16,
-	.phy_address		= CONFIG_SYS_UEC5_PHY_ADDR,
-	.enet_interface		= CONFIG_SYS_UEC5_INTERFACE_MODE,
-};
+	STD_UEC_INFO(5),	/* UEC5 */
 #endif
 #ifdef CONFIG_UEC_ETH6
-static uec_info_t eth6_uec_info = {
-	.uf_info		= {
-		.ucc_num	= CONFIG_SYS_UEC6_UCC_NUM,
-		.rx_clock	= CONFIG_SYS_UEC6_RX_CLK,
-		.tx_clock	= CONFIG_SYS_UEC6_TX_CLK,
-		.eth_type	= CONFIG_SYS_UEC6_ETH_TYPE,
-	},
-#if (CONFIG_SYS_UEC6_ETH_TYPE == FAST_ETH)
-	.num_threads_tx		= UEC_NUM_OF_THREADS_1,
-	.num_threads_rx		= UEC_NUM_OF_THREADS_1,
-#else
-	.num_threads_tx		= UEC_NUM_OF_THREADS_4,
-	.num_threads_rx		= UEC_NUM_OF_THREADS_4,
+	STD_UEC_INFO(6),	/* UEC6 */
 #endif
-#if (MAX_QE_RISC == 4)
-	.risc_tx			= QE_RISC_ALLOCATION_FOUR_RISCS,
-	.risc_rx			= QE_RISC_ALLOCATION_FOUR_RISCS,
-#else
-	.risc_tx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
-	.risc_rx			= QE_RISC_ALLOCATION_RISC1_AND_RISC2,
+#ifdef CONFIG_UEC_ETH7
+	STD_UEC_INFO(7),	/* UEC7 */
 #endif
-	.tx_bd_ring_len		= 16,
-	.rx_bd_ring_len		= 16,
-	.phy_address		= CONFIG_SYS_UEC6_PHY_ADDR,
-	.enet_interface		= CONFIG_SYS_UEC6_INTERFACE_MODE,
+#ifdef CONFIG_UEC_ETH8
+	STD_UEC_INFO(8),	/* UEC8 */
+#endif
 };
-#endif
 
-#define MAXCONTROLLERS	(6)
+#define MAXCONTROLLERS	(8)
 
 static struct eth_device *devlist[MAXCONTROLLERS];
 
@@ -1447,12 +1305,11 @@ static int uec_recv(struct eth_device* dev)
 	return 1;
 }
 
-int uec_initialize(int index)
+int uec_initialize(bd_t *bis, uec_info_t *uec_info)
 {
 	struct eth_device	*dev;
 	int			i;
 	uec_private_t		*uec;
-	uec_info_t		*uec_info;
 	int			err;
 
 	dev = (struct eth_device *)malloc(sizeof(struct eth_device));
@@ -1467,42 +1324,17 @@ int uec_initialize(int index)
 	}
 	memset(uec, 0, sizeof(uec_private_t));
 
-	/* Init UEC private struct, they come from board.h */
-	uec_info = NULL;
-	if (index == 0) {
-#ifdef CONFIG_UEC_ETH1
-		uec_info = &eth1_uec_info;
+	/* Adjust uec_info */
+#if (MAX_QE_RISC == 4)
+	uec_info->risc_tx = QE_RISC_ALLOCATION_FOUR_RISCS;
+	uec_info->risc_rx = QE_RISC_ALLOCATION_FOUR_RISCS;
 #endif
-	} else if (index == 1) {
-#ifdef CONFIG_UEC_ETH2
-		uec_info = &eth2_uec_info;
-#endif
-	} else if (index == 2) {
-#ifdef CONFIG_UEC_ETH3
-		uec_info = &eth3_uec_info;
-#endif
-	} else if (index == 3) {
-#ifdef CONFIG_UEC_ETH4
-		uec_info = &eth4_uec_info;
-#endif
-	} else if (index == 4) {
-#ifdef CONFIG_UEC_ETH5
-		uec_info = &eth5_uec_info;
-#endif
-	} else if (index == 5) {
-#ifdef CONFIG_UEC_ETH6
-		uec_info = &eth6_uec_info;
-#endif
-	} else {
-		printf("%s: index is illegal.\n", __FUNCTION__);
-		return -EINVAL;
-	}
 
-	devlist[index] = dev;
+	devlist[uec_info->uf_info.ucc_num] = dev;
 
 	uec->uec_info = uec_info;
 
-	sprintf(dev->name, "FSL UEC%d", index);
+	sprintf(dev->name, "FSL UEC%d", uec_info->uf_info.ucc_num);
 	dev->iobase = 0;
 	dev->priv = (void *)uec;
 	dev->init = uec_init;
@@ -1529,3 +1361,20 @@ int uec_initialize(int index)
 
 	return 1;
 }
+
+int uec_eth_init(bd_t *bis, uec_info_t *uecs, int num)
+{
+	int i;
+
+	for (i = 0; i < num; i++)
+		uec_initialize(bis, &uecs[i]);
+
+	return 0;
+}
+
+int uec_standard_init(bd_t *bis)
+{
+	return uec_eth_init(bis, uec_info, ARRAY_SIZE(uec_info));
+}
+
+

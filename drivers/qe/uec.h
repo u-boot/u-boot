@@ -650,6 +650,24 @@ typedef enum enet_interface {
 
 /* UEC initialization info struct
 */
+#define STD_UEC_INFO(num) \
+{			\
+	.uf_info		= {	\
+		.ucc_num	= CONFIG_SYS_UEC##num##_UCC_NUM,\
+		.rx_clock	= CONFIG_SYS_UEC##num##_RX_CLK,	\
+		.tx_clock	= CONFIG_SYS_UEC##num##_TX_CLK,	\
+		.eth_type	= CONFIG_SYS_UEC##num##_ETH_TYPE,\
+	},	\
+	.num_threads_tx		= UEC_NUM_OF_THREADS_1,	\
+	.num_threads_rx		= UEC_NUM_OF_THREADS_1,	\
+	.risc_tx		= QE_RISC_ALLOCATION_RISC1_AND_RISC2, \
+	.risc_rx		= QE_RISC_ALLOCATION_RISC1_AND_RISC2, \
+	.tx_bd_ring_len		= 16,	\
+	.rx_bd_ring_len		= 16,	\
+	.phy_address		= CONFIG_SYS_UEC##num##_PHY_ADDR, \
+	.enet_interface		= CONFIG_SYS_UEC##num##_INTERFACE_MODE, \
+}
+
 typedef struct uec_info {
 	ucc_fast_info_t			uf_info;
 	uec_num_of_threads_e		num_threads_tx;
@@ -716,4 +734,7 @@ typedef struct uec_private {
 	int				oldlink;
 } uec_private_t;
 
+int uec_initialize(bd_t *bis, uec_info_t *uec_info);
+int uec_eth_init(bd_t *bis, uec_info_t *uecs, int num);
+int uec_standard_init(bd_t *bis);
 #endif /* __UEC_H__ */
