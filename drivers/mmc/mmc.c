@@ -31,6 +31,7 @@
 #include <malloc.h>
 #include <linux/list.h>
 #include <mmc.h>
+#include <div64.h>
 
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
@@ -155,8 +156,8 @@ int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
 	char *buffer;
 	int i;
 	int blklen = mmc->read_bl_len;
-	int startblock = src / blklen;
-	int endblock = (src + size - 1) / blklen;
+	int startblock = lldiv(src, mmc->read_bl_len);
+	int endblock = lldiv(src + size - 1, mmc->read_bl_len);
 	int err = 0;
 
 	/* Make a buffer big enough to hold all the blocks we might read */
@@ -291,7 +292,7 @@ sd_send_op_cond(struct mmc *mmc)
 	if (mmc->version != SD_VERSION_2)
 		mmc->version = SD_VERSION_1_0;
 
-	mmc->ocr = ((uint *)(cmd.response))[0];
+	mmc->ocr = cmd.response[0];
 
 	mmc->high_capacity = ((mmc->ocr & OCR_HCS) == OCR_HCS);
 	mmc->rca = 0;
@@ -326,7 +327,7 @@ int mmc_send_op_cond(struct mmc *mmc)
 		return UNUSABLE_ERR;
 
 	mmc->version = MMC_VERSION_UNKNOWN;
-	mmc->ocr = ((uint *)(cmd.response))[0];
+	mmc->ocr = cmd.response[0];
 
 	mmc->high_capacity = ((mmc->ocr & OCR_HCS) == OCR_HCS);
 	mmc->rca = 0;
@@ -486,8 +487,8 @@ retry_scr:
 		return err;
 	}
 
-	mmc->scr[0] = scr[0];
-	mmc->scr[1] = scr[1];
+	mmc->scr[0] = __be32_to_cpu(scr[0]);
+	mmc->scr[1] = __be32_to_cpu(scr[1]);
 
 	switch ((mmc->scr[0] >> 24) & 0xf) {
 		case 0:
@@ -517,7 +518,7 @@ retry_scr:
 			return err;
 
 		/* The high-speed function is busy.  Try again */
-		if (!switch_status[7] & SD_HIGHSPEED_BUSY)
+		if (!(__be32_to_cpu(switch_status[7]) & SD_HIGHSPEED_BUSY))
 			break;
 	}
 
@@ -525,7 +526,7 @@ retry_scr:
 		mmc->card_caps |= MMC_MODE_4BIT;
 
 	/* If high-speed isn't supported, we return */
-	if (!(switch_status[3] & SD_HIGHSPEED_SUPPORTED))
+	if (!(__be32_to_cpu(switch_status[3]) & SD_HIGHSPEED_SUPPORTED))
 		return 0;
 
 	err = sd_switch(mmc, SD_SWITCH_SWITCH, 0, 1, (u8 *)&switch_status);
@@ -533,7 +534,7 @@ retry_scr:
 	if (err)
 		return err;
 
-	if ((switch_status[4] & 0x0f000000) == 0x01000000)
+	if ((__be32_to_cpu(switch_status[4]) & 0x0f000000) == 0x01000000)
 		mmc->card_caps |= MMC_MODE_HS;
 
 	return 0;
@@ -631,7 +632,7 @@ int mmc_startup(struct mmc *mmc)
 		return err;
 
 	if (IS_SD(mmc))
-		mmc->rca = (((uint *)(cmd.response))[0] >> 16) & 0xffff;
+		mmc->rca = (cmd.response[0] >> 16) & 0xffff;
 
 	/* Get the Card-Specific Data */
 	cmd.cmdidx = MMC_CMD_SEND_CSD;
@@ -644,13 +645,13 @@ int mmc_startup(struct mmc *mmc)
 	if (err)
 		return err;
 
-	mmc->csd[0] = ((uint *)(cmd.response))[0];
-	mmc->csd[1] = ((uint *)(cmd.response))[1];
-	mmc->csd[2] = ((uint *)(cmd.response))[2];
-	mmc->csd[3] = ((uint *)(cmd.response))[3];
+	mmc->csd[0] = cmd.response[0];
+	mmc->csd[1] = cmd.response[1];
+	mmc->csd[2] = cmd.response[2];
+	mmc->csd[3] = cmd.response[3];
 
 	if (mmc->version == MMC_VERSION_UNKNOWN) {
-		int version = (cmd.response[0] >> 2) & 0xf;
+		int version = (cmd.response[0] >> 26) & 0xf;
 
 		switch (version) {
 			case 0:
@@ -675,17 +676,17 @@ int mmc_startup(struct mmc *mmc)
 	}
 
 	/* divide frequency by 10, since the mults are 10x bigger */
-	freq = fbase[(cmd.response[3] & 0x7)];
-	mult = multipliers[((cmd.response[3] >> 3) & 0xf)];
+	freq = fbase[(cmd.response[0] & 0x7)];
+	mult = multipliers[((cmd.response[0] >> 3) & 0xf)];
 
 	mmc->tran_speed = freq * mult;
 
-	mmc->read_bl_len = 1 << ((((uint *)(cmd.response))[1] >> 16) & 0xf);
+	mmc->read_bl_len = 1 << ((cmd.response[1] >> 16) & 0xf);
 
 	if (IS_SD(mmc))
 		mmc->write_bl_len = mmc->read_bl_len;
 	else
-		mmc->write_bl_len = 1 << ((((uint *)(cmd.response))[3] >> 22) & 0xf);
+		mmc->write_bl_len = 1 << ((cmd.response[3] >> 22) & 0xf);
 
 	if (mmc->high_capacity) {
 		csize = (mmc->csd[1] & 0x3f) << 16
@@ -789,14 +790,14 @@ int mmc_startup(struct mmc *mmc)
 	mmc->block_dev.lun = 0;
 	mmc->block_dev.type = 0;
 	mmc->block_dev.blksz = mmc->read_bl_len;
-	mmc->block_dev.lba = mmc->capacity/mmc->read_bl_len;
-	sprintf(mmc->block_dev.vendor,"Man %02x%02x%02x Snr %02x%02x%02x%02x",
-			mmc->cid[0], mmc->cid[1], mmc->cid[2],
-			mmc->cid[9], mmc->cid[10], mmc->cid[11], mmc->cid[12]);
-	sprintf(mmc->block_dev.product,"%c%c%c%c%c", mmc->cid[3],
-			mmc->cid[4], mmc->cid[5], mmc->cid[6], mmc->cid[7]);
-	sprintf(mmc->block_dev.revision,"%d.%d", mmc->cid[8] >> 4,
-			mmc->cid[8] & 0xf);
+	mmc->block_dev.lba = lldiv(mmc->capacity, mmc->read_bl_len);
+	sprintf(mmc->block_dev.vendor, "Man %06x Snr %08x", mmc->cid[0] >> 8,
+			(mmc->cid[2] << 8) | (mmc->cid[3] >> 24));
+	sprintf(mmc->block_dev.product, "%c%c%c%c%c", mmc->cid[0] & 0xff,
+			(mmc->cid[1] >> 24), (mmc->cid[1] >> 16) & 0xff,
+			(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff);
+	sprintf(mmc->block_dev.revision, "%d.%d", mmc->cid[2] >> 28,
+			(mmc->cid[2] >> 24) & 0xf);
 	init_part(&mmc->block_dev);
 
 	return 0;
@@ -818,7 +819,7 @@ int mmc_send_if_cond(struct mmc *mmc)
 	if (err)
 		return err;
 
-	if ((((uint *)(cmd.response))[0] & 0xff) != 0xaa)
+	if ((cmd.response[0] & 0xff) != 0xaa)
 		return UNUSABLE_ERR;
 	else
 		mmc->version = SD_VERSION_2;
@@ -846,7 +847,7 @@ block_dev_desc_t *mmc_get_dev(int dev)
 {
 	struct mmc *mmc = find_mmc_device(dev);
 
-	return &mmc->block_dev;
+	return mmc ? &mmc->block_dev : NULL;
 }
 
 int mmc_init(struct mmc *mmc)

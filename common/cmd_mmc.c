@@ -135,8 +135,9 @@ int do_mmcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-U_BOOT_CMD(mmcinfo, 2, 0, do_mmcinfo, "mmcinfo <dev num>-- display MMC info\n",
-		NULL);
+U_BOOT_CMD(mmcinfo,	2,	0,	do_mmcinfo,
+	"print MMC information",
+	"<dev num>\n");
 
 int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -147,6 +148,9 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (strcmp(argv[1], "rescan") == 0) {
 			int dev = simple_strtoul(argv[2], NULL, 10);
 			struct mmc *mmc = find_mmc_device(dev);
+
+			if (!mmc)
+				return 1;
 
 			mmc_init(mmc);
 
@@ -174,6 +178,9 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			u32 blk = simple_strtoul(argv[4], NULL, 16);
 			struct mmc *mmc = find_mmc_device(dev);
 
+			if (!mmc)
+				return 1;
+
 			printf("\nMMC read: dev # %d, block # %d, count %d ... ",
 				dev, blk, cnt);
 
@@ -195,6 +202,9 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			struct mmc *mmc = find_mmc_device(dev);
 
 			int blk = simple_strtoul(argv[4], NULL, 16);
+
+			if (!mmc)
+				return 1;
 
 			printf("\nMMC write: dev # %d, block # %d, count %d ... ",
 				dev, blk, cnt);
@@ -218,8 +228,8 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	mmc, 6, 1, do_mmcops,
 	"MMC sub system",
-	"mmc read <device num> addr blk# cnt\n"
+	"read <device num> addr blk# cnt\n"
 	"mmc write <device num> addr blk# cnt\n"
 	"mmc rescan <device num>\n"
-	"mmc list - lists available devices\n");
+	"mmc list - list available devices\n");
 #endif

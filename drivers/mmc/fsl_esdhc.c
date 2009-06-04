@@ -206,12 +206,12 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 		cmdrsp2 = in_be32(&regs->cmdrsp2);
 		cmdrsp1 = in_be32(&regs->cmdrsp1);
 		cmdrsp0 = in_be32(&regs->cmdrsp0);
-		((uint *)(cmd->response))[0] = (cmdrsp3 << 8) | (cmdrsp2 >> 24);
-		((uint *)(cmd->response))[1] = (cmdrsp2 << 8) | (cmdrsp1 >> 24);
-		((uint *)(cmd->response))[2] = (cmdrsp1 << 8) | (cmdrsp0 >> 24);
-		((uint *)(cmd->response))[3] = (cmdrsp0 << 8);
+		cmd->response[0] = (cmdrsp3 << 8) | (cmdrsp2 >> 24);
+		cmd->response[1] = (cmdrsp2 << 8) | (cmdrsp1 >> 24);
+		cmd->response[2] = (cmdrsp1 << 8) | (cmdrsp0 >> 24);
+		cmd->response[3] = (cmdrsp0 << 8);
 	} else
-		((uint *)(cmd->response))[0] = in_be32(&regs->cmdrsp0);
+		cmd->response[0] = in_be32(&regs->cmdrsp0);
 
 	/* Wait until all of the blocks are transferred */
 	if (data) {
