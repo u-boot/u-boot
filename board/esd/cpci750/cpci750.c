@@ -451,13 +451,12 @@ int misc_init_r ()
 
 void after_reloc (ulong dest_addr, gd_t * gd)
 {
+	memoryMapDeviceSpace (BOOT_DEVICE, CONFIG_SYS_BOOT_SPACE, CONFIG_SYS_BOOT_SIZE);
 
-  memoryMapDeviceSpace (BOOT_DEVICE, CONFIG_SYS_BOOT_SPACE, CONFIG_SYS_BOOT_SIZE);
-
-  display_mem_map ();
-  /* now, jump to the main ppcboot board init code */
-  board_init_r (gd, dest_addr);
-  /* NOTREACHED */
+	display_mem_map ();
+	/* now, jump to the main ppcboot board init code */
+	board_init_r (gd, dest_addr);
+	/* NOTREACHED */
 }
 
 /* ------------------------------------------------------------------------- */
