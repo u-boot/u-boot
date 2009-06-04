@@ -3529,8 +3529,9 @@ sh7763rdp_config  :   unconfig
 xtract_sh7785lcr = $(subst _32bit,,$(subst _config,,$1))
 sh7785lcr_32bit_config \
 sh7785lcr_config  :   unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_SH7785LCR 1" >> include/config.h
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/renesas/sh7785lcr
+	@echo "#define CONFIG_SH7785LCR 1" > $(obj)include/config.h
 	@if [ "$(findstring 32bit, $@)" ] ; then \
 		echo "#define CONFIG_SH_32BIT 1" >> $(obj)include/config.h ; \
 		cp $(obj)board/renesas/sh7785lcr/u-boot_32bit \

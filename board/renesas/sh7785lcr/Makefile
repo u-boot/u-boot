@@ -18,7 +18,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= $(obj)lib$(BOARD).a
 
 COBJS	:= sh7785lcr.o selfcheck.o rtl8169_mac.o
 SOBJS	:= lowlevel_init.o
