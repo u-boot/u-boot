@@ -122,6 +122,9 @@ static char show_config_tab[][15] = {{"PCI0DLL_2     "},  /* 31 */
 
 extern flash_info_t flash_info[];
 
+extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
+extern int do_bootvx (cmd_tbl_t *, int, int, char *[]);
+
 /* ------------------------------------------------------------------------- */
 
 /* this is the current GT register space location */
@@ -537,6 +540,79 @@ int display_mem_map (void)
 		base, size >> 20, width);
 	return (0);
 }
+
+/*
+ * Command loadpci: wait for signal from host and boot image.
+ */
+int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	volatile unsigned int *ptr;
+	int count = 0;
+	int count2 = 0;
+	int status;
+	char addr[16];
+	char str[] = "\\|/-";
+	char *local_args[2];
+
+	/*
+	 * Mark sync address
+	 */
+	ptr = 0;
+	ptr[0] = 0xffffffff;
+	ptr[1] = 0xffffffff;
+	puts("\nWaiting for image from pci host -");
+
+	/*
+	 * Wait for host to write the start address
+	 */
+	while (*ptr == 0xffffffff) {
+		count++;
+		if (!(count % 100)) {
+			count2++;
+			putc(0x08); /* backspace */
+			putc(str[count2 % 4]);
+		}
+
+		/* Abort if ctrl-c was pressed */
+		if (ctrlc()) {
+			puts("\nAbort\n");
+			return 0;
+		}
+
+		udelay(1000);
+	}
+
+	sprintf(addr, "%08x", *ptr);
+	printf("\nBooting Image at addr 0x%s ...\n", addr);
+	setenv("loadaddr", addr);
+
+	switch (ptr[1] == 0) {
+	case 0:
+		/*
+		 * Boot image via bootm
+		 */
+		local_args[0] = argv[0];
+		local_args[1] = NULL;
+		status = do_bootm (cmdtp, 0, 1, local_args);
+		break;
+	case 1:
+		/*
+		 * Boot image via bootvx
+		 */
+		local_args[0] = argv[0];
+		local_args[1] = NULL;
+		status = do_bootvx (cmdtp, 0, 1, local_args);
+		break;
+	}
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	loadpci,	1,	1,	do_loadpci,
+	"loadpci - Wait for pci-image and boot it\n",
+	NULL
+	);
 
 /* DRAM check routines copied from gw8260 */
 
