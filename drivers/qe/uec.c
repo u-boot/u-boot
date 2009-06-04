@@ -379,6 +379,10 @@ static int uec_set_mac_if_mode(uec_private_t *uec, enet_interface_e if_mode)
 			maccfg2 |= MACCFG2_INTERFACE_MODE_NIBBLE;
 			upsmr |= (UPSMR_R10M | UPSMR_RMM);
 			break;
+		case ENET_1000_SGMII:
+			maccfg2 |= MACCFG2_INTERFACE_MODE_BYTE;
+			upsmr |= UPSMR_SGMM;
+			break;
 		default:
 			return -EINVAL;
 			break;
@@ -1078,6 +1082,18 @@ static int uec_startup(uec_private_t *uec)
 
 	out_be32(&uec_regs->utbipar, utbipar);
 
+	/* Configure the TBI for SGMII operation */
+	if (uec->uec_info->enet_interface == ENET_1000_SGMII) {
+		uec_write_phy_reg(uec->dev, uec_regs->utbipar,
+			ENET_TBI_MII_ANA, TBIANA_SETTINGS);
+
+		uec_write_phy_reg(uec->dev, uec_regs->utbipar,
+			ENET_TBI_MII_TBICON, TBICON_CLK_SELECT);
+
+		uec_write_phy_reg(uec->dev, uec_regs->utbipar,
+			ENET_TBI_MII_CR, TBICR_SETTINGS);
+	}
+
 	/* Allocate Tx BDs */
 	length = ((uec_info->tx_bd_ring_len * SIZEOFBD) /
 		 UEC_TX_BD_RING_SIZE_MEMORY_ALIGNMENT) *
@@ -1333,6 +1349,7 @@ int uec_initialize(bd_t *bis, uec_info_t *uec_info)
 	devlist[uec_info->uf_info.ucc_num] = dev;
 
 	uec->uec_info = uec_info;
+	uec->dev = dev;
 
 	sprintf(dev->name, "FSL UEC%d", uec_info->uf_info.ucc_num);
 	dev->iobase = 0;
