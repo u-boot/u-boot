@@ -554,10 +554,8 @@ static int do_readpage(struct ubifs_info *c, struct inode *inode, struct page *p
 	}
 
 	dn = kmalloc(UBIFS_MAX_DATA_NODE_SZ, GFP_NOFS);
-	if (!dn) {
-		err = -ENOMEM;
-		goto error;
-	}
+	if (!dn)
+		return -ENOMEM;
 
 	i = 0;
 	while (1) {
