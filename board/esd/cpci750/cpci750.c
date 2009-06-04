@@ -140,6 +140,15 @@ void board_prebootm_init (void);
 unsigned int INTERNAL_REG_BASE_ADDR = CONFIG_SYS_GT_REGS;
 int display_mem_map (void);
 
+/*
+ * Skip video initialization on slave variant.
+ * This function will overwrite the weak default in cfb_console.c
+ */
+int board_video_skip(void)
+{
+	return CPCI750_SLAVE_TEST;
+}
+
 /* ------------------------------------------------------------------------- */
 
 /*

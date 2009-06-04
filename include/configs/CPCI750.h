@@ -627,4 +627,6 @@
 
 #define CONFIG_SYS_BOARD_ASM_INIT	1
 
+#define CPCI750_SLAVE_TEST	(((in8(0xf0300000) & 0x80) == 0) ? 0 : 1)
+
 #endif	/* __CONFIG_H */

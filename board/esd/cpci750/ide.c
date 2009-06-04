@@ -39,6 +39,8 @@ int ide_preinit (void)
 	int l;
 
 	status = 1;
+	if (CPCI750_SLAVE_TEST != 0)
+		return status;
 	for (l = 0; l < CONFIG_SYS_IDE_MAXBUS; l++) {
 		ide_bus_offset[l] = -ATA_STATUS;
 	}
@@ -57,7 +59,7 @@ int ide_preinit (void)
 		ide_bus_offset[1] &= 0xfffffffe;
 		ide_bus_offset[1] += CONFIG_SYS_PCI0_IO_SPACE;
 	}
-	return (status);
+	return status;
 }
 
 void ide_set_reset (int flag) {
