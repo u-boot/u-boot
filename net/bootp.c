@@ -687,7 +687,7 @@ BootpRequest (void)
 	 * Calculate proper packet lengths taking into account the
 	 * variable size of the options field
 	 */
-	pktlen = BOOTP_SIZE - sizeof(bp->bp_vend) + ext_len;
+	pktlen = ((int)(pkt-NetTxPacket)) + BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + ext_len;
 	iplen = BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + ext_len;
 	NetSetIP(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
 	NetSetTimeout(SELECT_TIMEOUT, BootpTimeout);
@@ -860,7 +860,7 @@ static void DhcpSendRequestPkt(Bootp_t *bp_offer)
 	NetCopyIP(&OfferedIP, &bp_offer->bp_yiaddr);
 	extlen = DhcpExtended((u8 *)bp->bp_vend, DHCP_REQUEST, NetDHCPServerIP, OfferedIP);
 
-	pktlen = BOOTP_SIZE - sizeof(bp->bp_vend) + extlen;
+	pktlen = ((int)(pkt-NetTxPacket)) + BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + extlen;
 	iplen = BOOTP_HDR_SIZE - sizeof(bp->bp_vend) + extlen;
 	NetSetIP(iphdr, 0xFFFFFFFFL, PORT_BOOTPS, PORT_BOOTPC, iplen);
 
