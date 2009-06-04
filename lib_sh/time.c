@@ -69,10 +69,10 @@ static void tmu_timer_stop (unsigned int timer)
 
 int timer_init (void)
 {
-	/* Divide clock by TMU_CLK_DIVIDER */
+	/* Divide clock by CONFIG_SYS_TMU_CLK_DIV */
 	u16 bit = 0;
 
-	switch (TMU_CLK_DIVIDER) {
+	switch (CONFIG_SYS_TMU_CLK_DIV) {
 	case 1024:
 		bit = 4;
 		break;
