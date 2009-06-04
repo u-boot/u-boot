@@ -76,7 +76,8 @@
 
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
-#define CONFIG_AUTO_COMPLETE 1
+#define CONFIG_CMDLINE_EDITING		/* add command line history	*/
+#define CONFIG_AUTO_COMPLETE		/* add autocompletion support	*/
 
 /* Define which ETH port will be used for connecting the network */
 #define CONFIG_SYS_ETH_PORT		ETH_0
