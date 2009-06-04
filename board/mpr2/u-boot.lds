@@ -34,16 +34,9 @@ ENTRY(_start)
 SECTIONS
 {
 	/*
-	   Base address of internal SDRAM is 0x8C000000.
-	   U-Boot resides in the last 256 kB of the 64 MB.
-
-	   NOTE: This address must match with the definition of
-	   TEXT_BASE in config.mk (in this directory).
-
-	*/
-	. = 0x8C000000 + (64*1024*1024) - (256*1024);
-
-	PROVIDE (reloc_dst = .);
+	 * entry and reloct_dst will be provided via ldflags
+	 */
+	. = .;
 
 	PROVIDE (_ftext = .);
 	PROVIDE (_fcode = .);

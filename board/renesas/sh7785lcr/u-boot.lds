@@ -28,9 +28,10 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 0x88000000 + (128 * 1024 * 1024) - (512 * 1024);
-
-	PROVIDE (reloc_dst = .);
+	/*
+	 * entry and reloct_dst will be provided via ldflags
+	 */
+	. = .;
 
 	PROVIDE (_ftext = .);
 	PROVIDE (_fcode = .);

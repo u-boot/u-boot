@@ -3534,14 +3534,9 @@ sh7785lcr_config  :   unconfig
 	@echo "#define CONFIG_SH7785LCR 1" > $(obj)include/config.h
 	@if [ "$(findstring 32bit, $@)" ] ; then \
 		echo "#define CONFIG_SH_32BIT 1" >> $(obj)include/config.h ; \
-		cp $(obj)board/renesas/sh7785lcr/u-boot_32bit \
-			$(obj)board/renesas/sh7785lcr/u-boot.lds ; \
 		echo "TEXT_BASE = 0x8ff80000" > \
 			$(obj)board/renesas/sh7785lcr/config.tmp ; \
 		  $(XECHO) " ... enable 32-Bit Address Extended Mode" ; \
-	else \
-		cp $(obj)board/renesas/sh7785lcr/u-boot_29bit \
-			$(obj)board/renesas/sh7785lcr/u-boot.lds ; \
 	fi
 	@$(MKCONFIG) -a $(call xtract_sh7785lcr,$@) sh sh4 sh7785lcr renesas
 

@@ -28,18 +28,9 @@ ENTRY(_start)
 SECTIONS
 {
 	/*
-	   Base address of internal SDRAM is 0x88000000.
-	   Although size of SDRAM can be either 16 or 32 MBytes,
-	   we assume 16 MBytes (ie ignore upper half if the full
-	   32 MBytes is present).
-
-	   NOTE: This address must match with the definition of
-	   TEXT_BASE in config.mk (in this directory).
-
-	*/
-	. = 0x88000000 + (128*1024*1024) - (256*1024);
-
-	PROVIDE (reloc_dst = .);
+	 * entry and reloct_dst will be provided via ldflags
+	 */
+	. = .;
 
 	PROVIDE (_ftext = .);
 	PROVIDE (_fcode = .);
