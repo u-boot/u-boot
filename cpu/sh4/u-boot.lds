@@ -1,6 +1,9 @@
 /*
- * Copyrigth (c) 2007
+ * Copyright (C) 2007
  * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ *
+ * Copyright (C) 2008-2009
+ * Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
