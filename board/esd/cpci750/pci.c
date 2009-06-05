@@ -768,11 +768,12 @@ static int gt_read_config_dword (struct pci_controller *hose,
 	int bus = PCI_BUS (dev);
 
 	if ((bus == local_buses[0]) || (bus == local_buses[1])) {
-		*value = pciReadConfigReg ((PCI_HOST) hose->cfg_addr, offset,
+	        *value = pciReadConfigReg ((PCI_HOST) hose->cfg_addr,
+					   offset | (PCI_FUNC(dev) << 8),
 					   PCI_DEV (dev));
 	} else {
-		*value = pciOverBridgeReadConfigReg ((PCI_HOST) hose->
-						     cfg_addr, offset,
+		*value = pciOverBridgeReadConfigReg ((PCI_HOST) hose->cfg_addr,
+						     offset | (PCI_FUNC(dev) << 8),
 						     PCI_DEV (dev), bus);
 	}
 
@@ -785,13 +786,16 @@ static int gt_write_config_dword (struct pci_controller *hose,
 	int bus = PCI_BUS (dev);
 
 	if ((bus == local_buses[0]) || (bus == local_buses[1])) {
-		pciWriteConfigReg ((PCI_HOST) hose->cfg_addr, offset,
+		pciWriteConfigReg ((PCI_HOST) hose->cfg_addr,
+				   offset | (PCI_FUNC(dev) << 8),
 				   PCI_DEV (dev), value);
 	} else {
 		pciOverBridgeWriteConfigReg ((PCI_HOST) hose->cfg_addr,
-					     offset, PCI_DEV (dev), bus,
+					     offset | (PCI_FUNC(dev) << 8),
+					     PCI_DEV (dev), bus,
 					     value);
 	}
+
 	return 0;
 }
 

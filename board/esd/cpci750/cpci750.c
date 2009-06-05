@@ -187,6 +187,7 @@ original ppcboot 1.1.6 source end */
 static void gt_pci_config (void)
 {
 	unsigned int stat;
+	unsigned int data;
 	unsigned int val = 0x00fff864;	/* DINK32: BusNum 23:16,  DevNum 15:11, FuncNum 10:8, RegNum 7:2 */
 
 	/* In PCIX mode devices provide their own bus and device numbers. We query the Discovery II's
@@ -254,10 +255,15 @@ static void gt_pci_config (void)
 
 /*ronen update the pci internal registers base address.*/
 #ifdef MAP_PCI
-	for (stat = 0; stat <= PCI_HOST1; stat++)
+	for (stat = 0; stat <= PCI_HOST1; stat++) {
+		data = pciReadConfigReg(stat,
+					PCI_INTERNAL_REGISTERS_MEMORY_MAPPED_BASE_ADDRESS,
+					SELF);
+		data = (data & 0x0f) | CONFIG_SYS_GT_REGS;
 		pciWriteConfigReg (stat,
 				   PCI_INTERNAL_REGISTERS_MEMORY_MAPPED_BASE_ADDRESS,
-				   SELF, CONFIG_SYS_GT_REGS);
+				   SELF, data);
+	}
 #endif
 
 }
@@ -451,9 +457,13 @@ int misc_init_r ()
 
 void after_reloc (ulong dest_addr, gd_t * gd)
 {
-	memoryMapDeviceSpace (BOOT_DEVICE, CONFIG_SYS_BOOT_SPACE, CONFIG_SYS_BOOT_SIZE);
+	memoryMapDeviceSpace (BOOT_DEVICE, CONFIG_SYS_BOOT_SPACE,
+			      CONFIG_SYS_BOOT_SIZE);
 
 	display_mem_map ();
+	GT_REG_WRITE (PCI_0BASE_ADDRESS_REGISTERS_ENABLE, 0xfffffdfe);
+	GT_REG_WRITE (PCI_1BASE_ADDRESS_REGISTERS_ENABLE, 0xfffffdfe);
+
 	/* now, jump to the main ppcboot board init code */
 	board_init_r (gd, dest_addr);
 	/* NOTREACHED */
