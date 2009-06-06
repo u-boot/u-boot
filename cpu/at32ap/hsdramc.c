@@ -21,7 +21,6 @@
  */
 #include <common.h>
 
-#ifdef CONFIG_SYS_HSDRAMC
 #include <asm/io.h>
 #include <asm/sdram.h>
 
@@ -116,5 +115,3 @@ unsigned long sdram_init(void *sdram_base, const struct sdram_config *config)
 
 	return sdram_size;
 }
-
-#endif /* CONFIG_SYS_HSDRAMC */

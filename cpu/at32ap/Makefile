@@ -30,7 +30,7 @@ LIB	:= $(obj)lib$(CPU).a
 START-y			+= start.o
 
 COBJS-y			+= cpu.o
-COBJS-y			+= hsdramc.o
+COBJS-$(CONFIG_SYS_HSDRAMC) += hsdramc.o
 COBJS-y			+= exception.o
 COBJS-y			+= cache.o
 COBJS-y			+= interrupts.o
