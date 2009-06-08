@@ -18,7 +18,12 @@
  */
 
 #include <common.h>
+#ifdef CONFIG_MX31
 #include <asm/arch/mx31.h>
+#else
+#include <asm/arch/imx-regs.h>
+#include <asm/arch/clock.h>
+#endif
 
 #define __REG(x)     (*((volatile u32 *)(x)))
 
@@ -32,6 +37,18 @@
 #define UART_PHYS 0x43fb0000
 #elif defined(CONFIG_SYS_MX31_UART5)
 #define UART_PHYS 0x43fb4000
+#elif defined(CONFIG_SYS_MX27_UART1)
+#define UART_PHYS 0x1000a000
+#elif defined(CONFIG_SYS_MX27_UART2)
+#define UART_PHYS 0x1000b000
+#elif defined(CONFIG_SYS_MX27_UART3)
+#define UART_PHYS 0x1000c000
+#elif defined(CONFIG_SYS_MX27_UART4)
+#define UART_PHYS 0x1000d000
+#elif defined(CONFIG_SYS_MX27_UART5)
+#define UART_PHYS 0x1001b000
+#elif defined(CONFIG_SYS_MX27_UART6)
+#define UART_PHYS 0x1001c000
 #else
 #error "define CONFIG_SYS_MX31_UARTx to use the mx31 UART driver"
 #endif
@@ -149,7 +166,11 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void serial_setbrg (void)
 {
+#ifdef CONFIG_MX31
 	u32 clk = mx31_get_ipg_clk();
+#else
+	u32 clk = imx_get_perclk1();
+#endif
 
 	if (!gd->baudrate)
 		gd->baudrate = CONFIG_BAUDRATE;
