@@ -23,6 +23,9 @@
 #include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
+#ifdef CONFIG_MXC_MMC
+#include <asm/arch/mxcmmc.h>
+#endif
 
 /*
  *  get the system pll clock in Hz
@@ -164,6 +167,19 @@ int cpu_eth_init(bd_t *bis)
 {
 #if defined(CONFIG_FEC_MXC)
 	return fecmxc_initialize(bis);
+#else
+	return 0;
+#endif
+}
+
+/*
+ * Initializes on-chip MMC controllers.
+ * to override, implement board_mmc_init()
+ */
+int cpu_mmc_init(bd_t *bis)
+{
+#ifdef CONFIG_MXC_MMC
+	return mxc_mmc_init(bis);
 #else
 	return 0;
 #endif
