@@ -33,7 +33,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #include <i2c.h>
 
 /* by default set I2C bus 0 active */
-static unsigned int bus_num = 0;
+static unsigned int bus_num __attribute__ ((section (".data"))) = 0;
 
 #define I2C_TIMEOUT	100
 #define I2C_RETRIES	3
