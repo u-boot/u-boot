@@ -48,6 +48,7 @@
 #include <serial.h>
 #include <nand.h>
 #include <onenand_uboot.h>
+#include <mmc.h>
 
 #ifdef CONFIG_DRIVER_SMC91111
 #include "../drivers/net/smc91111.h"
@@ -449,6 +450,12 @@ extern void davinci_eth_set_mac_addr (const u_int8_t *addr);
 #ifdef BOARD_LATE_INIT
 	board_late_init ();
 #endif
+
+#ifdef CONFIG_GENERIC_MMC
+	puts ("MMC:   ");
+	mmc_initialize (gd->bd);
+#endif
+
 #if defined(CONFIG_CMD_NET)
 #if defined(CONFIG_NET_MULTI)
 	puts ("Net:   ");
