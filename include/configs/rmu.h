@@ -190,7 +190,8 @@
 
 #define	CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_ADDR		((TEXT_BASE) + 0x40000)
-#define	CONFIG_ENV_SIZE		0x40000	/* Total Size of Environment Sector	*/
+#define	CONFIG_ENV_SECT_SIZE	0x40000		/* Total Size of Environment Sector	*/
+#define	CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE	/* Used size for environment	*/
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR+CONFIG_ENV_SIZE)
