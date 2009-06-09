@@ -824,6 +824,9 @@ v38b_config: unconfig
 aria_config:	unconfig
 	@$(MKCONFIG) -a aria ppc mpc512x aria davedenx
 
+mecp5123_config:	unconfig
+	@$(MKCONFIG) -a mecp5123 ppc mpc512x mecp5123 esd
+
 mpc5121ads_config \
 mpc5121ads_rev2_config	\
 	: unconfig
