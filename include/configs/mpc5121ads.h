@@ -200,6 +200,26 @@
 #undef CONFIG_SYS_FLASH_CHECKSUM
 
 /*
+ * NAND FLASH
+ * drivers/mtd/nand/mpc5121_mpc.c (rev 2 silicon only)
+ */
+#define CONFIG_CMD_NAND
+#define CONFIG_NAND_MPC5121_NFC
+#define CONFIG_SYS_NAND_BASE            0x40000000
+
+#define CONFIG_SYS_MAX_NAND_DEVICE      2
+#define NAND_MAX_CHIPS                  CONFIG_SYS_MAX_NAND_DEVICE
+#define CONFIG_SYS_NAND_SELECT_DEVICE	/* driver supports mutipl. chips */
+
+/*
+ * Configuration parameters for MPC5121 NAND driver
+ */
+#define CONFIG_FSL_NFC_WIDTH 1
+#define CONFIG_FSL_NFC_WRITE_SIZE 2048
+#define CONFIG_FSL_NFC_SPARE_SIZE 64
+#define CONFIG_FSL_NFC_CHIPS CONFIG_SYS_MAX_NAND_DEVICE
+
+/*
  * CPLD registers area is really only 32 bytes in size, but the smallest possible LP
  * window is 64KB
  */
@@ -222,7 +242,7 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 #define CONFIG_SYS_MONITOR_BASE	TEXT_BASE		/* Start of monitor */
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)		/* Reserve 256 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)		/* Reserve 512 kB for Mon */
 #ifdef	CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_MALLOC_LEN		(6 * 1024 * 1024)	/* Reserved for malloc */
 #else

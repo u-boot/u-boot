@@ -31,6 +31,9 @@
 #include <i2c.h>
 #endif
 
+#include <linux/mtd/mtd.h>
+#include <linux/mtd/nand.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 extern int mpc5121_diu_init(void);
@@ -38,24 +41,48 @@ extern void ide_set_reset(int idereset);
 
 /* Clocks in use */
 #define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
-			 CLOCK_SCCR1_LPC_EN |				\
-			 CLOCK_SCCR1_PSC_EN(CONFIG_PSC_CONSOLE) |	\
-			 CLOCK_SCCR1_PSCFIFO_EN |			\
 			 CLOCK_SCCR1_DDR_EN |				\
 			 CLOCK_SCCR1_FEC_EN |				\
+			 CLOCK_SCCR1_LPC_EN |				\
+			 CLOCK_SCCR1_NFC_EN |				\
 			 CLOCK_SCCR1_PATA_EN |				\
 			 CLOCK_SCCR1_PCI_EN |				\
+			 CLOCK_SCCR1_PSC_EN(CONFIG_PSC_CONSOLE) |	\
+			 CLOCK_SCCR1_PSCFIFO_EN |			\
 			 CLOCK_SCCR1_TPR_EN)
 
-#define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_MEM_EN |		\
-			 CLOCK_SCCR2_SPDIF_EN |		\
-			 CLOCK_SCCR2_DIU_EN |		\
-			 CLOCK_SCCR2_I2C_EN)
+#define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_DIU_EN |		\
+			 CLOCK_SCCR2_I2C_EN |		\
+			 CLOCK_SCCR2_MEM_EN |		\
+			 CLOCK_SCCR2_SPDIF_EN)
 
 #define CSAW_START(start)	((start) & 0xFFFF0000)
 #define CSAW_STOP(start, size)	(((start) + (size) - 1) >> 16)
 
 long int fixed_sdram(void);
+void __mpc5121_nfc_select_chip(struct mtd_info *mtd, int chip);
+
+/* Active chip number set in board_nand_select_device() (mpc5121_nfc.c) */
+extern int mpc5121_nfc_chip;
+
+/* Control chips select signal on MPC5121ADS board */
+void mpc5121_nfc_select_chip(struct mtd_info *mtd, int chip)
+{
+	unsigned char *csreg = (u8 *)CONFIG_SYS_CPLD_BASE + 0x09;
+	u8 v;
+
+	v = in_8(csreg);
+	v |= 0x0F;
+
+	if (chip >= 0) {
+		__mpc5121_nfc_select_chip(mtd, 0);
+		v &= ~(1 << mpc5121_nfc_chip);
+	} else {
+		__mpc5121_nfc_select_chip(mtd, -1);
+	}
+
+	out_8(csreg, v);
+}
 
 int board_early_init_f (void)
 {
