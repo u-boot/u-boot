@@ -26,6 +26,8 @@
 #ifndef  __FSL_ESDHC_H__
 #define	__FSL_ESDHC_H__
 
+#include <asm/errno.h>
+
 /* FSL eSDHC-specific constants */
 #define SYSCTL			0x0002e02c
 #define SYSCTL_INITA		0x08000000
@@ -140,6 +142,12 @@
 #define ESDHC_HOSTCAPBLT_DMAS	0x00400000
 #define ESDHC_HOSTCAPBLT_HSS	0x00200000
 
+#ifdef CONFIG_FSL_ESDHC
 int fsl_esdhc_mmc_init(bd_t *bis);
+void fdt_fixup_esdhc(void *blob, bd_t *bd);
+#else
+static inline int fsl_esdhc_mmc_init(bd_t *bis) { return -ENOSYS; }
+static inline void fdt_fixup_esdhc(void *blob, bd_t *bd) {}
+#endif /* CONFIG_FSL_ESDHC */
 
 #endif  /* __FSL_ESDHC_H__ */

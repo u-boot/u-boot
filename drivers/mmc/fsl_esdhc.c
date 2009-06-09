@@ -28,11 +28,13 @@
 #include <config.h>
 #include <common.h>
 #include <command.h>
+#include <hwconfig.h>
 #include <mmc.h>
 #include <part.h>
 #include <malloc.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
+#include <fdt_support.h>
 #include <asm/io.h>
 
 
@@ -345,4 +347,21 @@ static int esdhc_initialize(bd_t *bis)
 int fsl_esdhc_mmc_init(bd_t *bis)
 {
 	return esdhc_initialize(bis);
+}
+
+void fdt_fixup_esdhc(void *blob, bd_t *bd)
+{
+	const char *compat = "fsl,esdhc";
+	const char *status = "okay";
+
+	if (!hwconfig("esdhc")) {
+		status = "disabled";
+		goto out;
+	}
+
+	do_fixup_by_compat_u32(blob, compat, "clock-frequency",
+			       gd->sdhc_clk, 1);
+out:
+	do_fixup_by_compat(blob, compat, "status", status,
+			   strlen(status) + 1, 1);
 }
