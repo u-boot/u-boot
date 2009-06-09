@@ -111,6 +111,7 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F /* call board_pre_init */
 #define CONFIG_BOARD_EARLY_INIT_R
+#define CONFIG_HWCONFIG
 
 /*
  * IMMR new address
