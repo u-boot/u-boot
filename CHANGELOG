@@ -1,3 +1,576 @@
+commit 3a76ab5c166d5956885f803ce975e7151cc0ca0e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jun 10 00:15:11 2009 +0200
+
+    rmu board: fix error: 'CONFIG_ENV_SECT_SIZE' undeclared
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 165f9859b64ff59f0cfae3cc70a7e7ded7aaa4a7
+Author: Daniel Mack <daniel@caiaq.de>
+Date:	Thu Jun 4 19:44:12 2009 +0200
+
+    ubifs: fix small error path mismatch
+
+    In do_readpage(), don't free 'dn' if its allocation failed.
+
+    Signed-off-by: Daniel Mack <daniel@caiaq.de>
+
+commit de7cf709ebd3c01fbd094e8853dabb410c0370a1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jun 4 00:31:07 2009 +0200
+
+    EP88x: fix broken linker script
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Tested-by: Mikhail Zaturenskiy <mzaturenskiy@shoppertrak.com>
+
+commit 7a2063bd80d3b58b2dd5d5e58f4411f8d250576c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 15 00:16:02 2009 +0200
+
+    TQM85xx: minor config file cleanup
+
+    Remove "saveenv" from "update" definition: the environment is outside
+    the U-Boot image on TQM85xx and therefor not affected by updates.
+
+    Also "beautify" code a bit (vertical alignment).
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c0296b1801fc9426d772fa75fe58458db605dfee
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 15 00:16:01 2009 +0200
+
+    TQM85xx: adapt for new flash types
+
+    Old TQM85xx boards had 'M' type Spansion Flashes from the S29GLxxxM
+    series while new boards have 'N' type Flashes from the S29GLxxxN
+    series, which have bigger sectors: 2 x 128 instead of 2 x 64 KB.
+
+    We now change the configuration to the new flash types for all
+    boards; this also works on old boards - we just waste two flash
+    sectors for the environment which could be smaller there.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 6735104924f06340071a6914a9ee3345607fc102
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Mon May 18 17:49:23 2009 +0800
+
+    85xx: Fix the wrong SYS_CLK_IN for 8569MDS
+
+    The SYS_CLK_IN of MPC8569MDS is 66.66MHz,
+    The DDR_CLK_IN is same with SYS_CLK_IN in 8569 processor.
+    so, change the SYS_CLK_IN from 66MHz to 66.66MHz.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 16e7559c08b6f29db4596d795b92914c01e6a1b3
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Fri May 15 10:27:44 2009 +0800
+
+    85xx: Fix the wrong BCSR address of 8569MDS
+
+    The BCSR17[7] = 1 will unlock the write protect of FLASH.
+    The WP# pin only controls the write protect of top/bottom sector,
+    That is why we can save env, but we can't write the first sector
+    before the patch.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit 90d13b8ac3d515349626d7c8a3dc34ef38c43fa6
+Author: Fredrik Arnerup <fredrik.arnerup@edgeware.tv>
+Date:	Tue Jun 2 16:27:10 2009 -0500
+
+    85xx: bugfix for reading maximum TLB size on mpc85xx
+
+    The MAXSIZE field in the TLB1CFG register is 4 bits, not 8 bits.
+    This made setup_ddr_tlbs() try to set up a TLB larger than the e500 maximum
+    (256 MB)
+    which made u-boot hang in board_init_f() when trying to create a new stack
+    in RAM.
+    I have an mpc8540 with one 1GB dimm.
+
+    Signed-off-by: Fredrik Arnerup <fredrik.arnerup@edgeware.tv>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 1b5291dddf5f16c7ae10e3cb165882fa96038b26
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Fri Mar 27 14:32:43 2009 +0800
+
+    85xx: Fix the clock adjust of mpc8569mds board
+
+    Currently the clk_adj is 6 (3/4 cycle), The settings will cause
+    the DDR controller hang at the data init. Change the clk_adj
+    from 6 to 4 (1/2 cycle), make the memory system stable.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit faa14babd7466dfade358f9cac128ae246b9bf1b
+Author: RONETIX - Ilko Iliev <iliev@ronetix.at>
+Date:	Fri Jun 5 16:54:31 2009 +0200
+
+    at91: fix a USB problem for AT91SAM9261
+
+    This patch corrects the missing PLLB initialization in usb_cpu_init()
+    for AT91SAM9261.
+    Because of the missing PLLB initialization, the USB support for all
+    AT91SAM9261 based boards will work only if the PLLB is configured by a
+    precedent bootloader.
+
+    Signed-off-by: Ilko Iliev <iliev@ronetix.at>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 0c24dec550ddb7d86b8bfdd8645b18479f73e6e2
+Author: Felix Radensky <felix@embedded-sol.com>
+Date:	Sun May 31 20:44:15 2009 +0300
+
+    ppc4xx/net: Fix MDIO clock setup
+
+    This patch fixes MDIO clock setup in case when OPB frequency is 100MHz.
+    Current code assumes that the value of sysinfo.freqOPB is 100000000
+    when OPB frequency is 100MHz. In reality it is 100000001. As a result
+    MDIO clock is set to incorrect value, larger than 2.5MHz, thus violating
+    the standard. This in not a problem on boards equipped with Marvell PHYs
+    (e.g. Canyonlands), since those PHYs support MDIO clocks up to 8.3MHz,
+    but can be a problem for other PHYs (e.g. Realtek ones).
+
+    Signed-off-by: Felix Radensky <felix@embedded-sol.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit d65e34d12514de2bbe3b8f519761d641c081bad0
+Author: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+Date:	Wed Feb 25 14:27:29 2009 +0900
+
+    rtl8169: fix PCI system memory address
+
+    When PCI device use system memory, some PCI host controller should be
+    set physical memory address.
+
+    Signed-off-by: Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit ca9c8a1e10fac01e6a1129f82a7ce18bd818fa43
+Author: Manikandan Pillai <mani.pillai@ti.com>
+Date:	Wed Apr 8 09:14:35 2009 +0530
+
+    SMC911x driver fixed for NFS boot
+
+    eth_halt() function in the smc911x drivers used to call the
+    smc911x_reset() function. eth_halt() used to be called after
+    tftp transfers. This used to put the ethernet chip in reset
+    while the linux boots up resulting in the ethernet driver
+    not coming up. NFS boot used to fail as a result.
+
+    This patch calls smc911x_shutdown() instead of smc911x_reset().
+    Some comments received has also been fixed.
+
+    Signed-off-by: Manikandan Pillai <mani.pillai@ti.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit e5a3bc2401a23f1890611f020f57f94824a534db
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Sun May 3 12:11:40 2009 +0200
+
+    Add config option for disabling DM9000-SROM support.
+
+    Some boards do not have SROM support for the DM9000 network adapter.
+    Instead of listing these board names in the driver code, make this
+    option configurable from the board config file.
+
+    It also removes a build warning for the at91sam9261ek board:
+    'dm9000x.c:545: warning: 'read_srom_word' defined but not used'
+
+    And it repaires the trizepsiv board build which was broken around the
+    same routines
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 2c0234fa79122a5aa77c4e17c33eb2fe184b61a7
+Author: Daniel Mack <daniel@caiaq.de>
+Date:	Wed Apr 8 13:23:37 2009 +0200
+
+    smc911x: write back the manually set MAC address
+
+    If the MAX address is given by the environment, write it back to the
+    hardware.
+
+    Signed-off-by: Daniel Mack <daniel@caiaq.de>
+    Cc: Sascha Hauer <s.hauer@pengutronix.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit dfcd7f21607fd847236b04bb1a8d59a7c10ab99c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 15 00:16:03 2009 +0200
+
+    Redundant Environment: protect full sector size
+
+    Several boards used different ways to specify the size of the
+    protected area when enabling flash write protection for the sectors
+    holding the environment variables: some used CONFIG_ENV_SIZE and
+    CONFIG_ENV_SIZE_REDUND, some used CONFIG_ENV_SECT_SIZE, and some even
+    a mix of both for the "normal" and the "redundant" areas.
+
+    Normally, this makes no difference at all. However, things are
+    different when you have to deal with boards that can come with
+    different types of flash chips, which may have different sector
+    sizes.
+
+    Here we may have to chose CONFIG_ENV_SECT_SIZE such that it fits the
+    biggest sector size, which may include several sectors on boards using
+    the smaller sector flash types. In such a case, using CONFIG_ENV_SIZE
+    or CONFIG_ENV_SIZE_REDUND to enable the protection may lead to the
+    case that only the first of these sectors get protected, while the
+    following ones aren't.
+
+    This is no real problem, but it can be confusing for the user -
+    especially on boards that use CONFIG_ENV_SECT_SIZE to protect the
+    "normal" areas, while using CONFIG_ENV_SIZE_REDUND for the
+    "redundant" area.
+
+    To avoid such inconsistencies, I changed all sucn boards that I found
+    to consistently use CONFIG_ENV_SECT_SIZE for protection. This should
+    not cause any functional changes to the code.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Paul Ruhland
+    Cc: Pantelis Antoniou <panto@intracom.gr>
+    Cc: Stefan Roese <sr@denx.de>
+    Cc: Gary Jennejohn <garyj@denx.de>
+    Cc: Dave Ellis <DGE@sixnetio.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit b81830f6e3b3e6ed114d071eb107965e49fa9b5a
+Author: Ilya Yanok <yanok@emcraft.com>
+Date:	Thu May 14 14:03:09 2009 +0400
+
+    mmc: it's safe to ignore mmc_send_if_cond() return value
+
+    Return value of mmc_send_if_cond() can be safely ignored (as it is
+    done in Linux). This makes older cards work with MXC MCI controller.
+
+    Signed-off-by: Ilya Yanok <yanok@emcraft.com>
+
+commit dba6fcf6517faa5dda7df8109febe03c9c72a6f5
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon May 11 15:54:13 2009 +0200
+
+    cfi_mtd: Fix bug in last sector detection
+
+    This patch now enabled this cfi-mtd wrapper to correctly detect and
+    erase the last sector in an NOR FLASH device.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4e3d89ba948eef801ffd46ef862cdede5b3f8320
+Author: Yauhen Kharuzhy <jekhor@gmail.com>
+Date:	Thu May 7 00:43:30 2009 +0300
+
+    mmc: Fix decoding of SCR & function switch data on little-endian machines
+
+    SCR & switch data are read from card as big-endian words and should be
+    converted to CPU byte order.
+
+    Signed-off-by: Yauhen Kharuzhy <jekhor@gmail.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit f33cb34b3971dabe3720d577b0e1b8601c09fe17
+Author: Yauhen Kharuzhy <jekhor@gmail.com>
+Date:	Thu May 7 13:08:53 2009 +0300
+
+    mmc: Remove return from mmc_init for non SD 2.0 compatible cards.
+
+    Cards which are not compatible with SD 2.0 standard, may return response
+    for CMD8 command, but it will be invalid in terms of SD 2.0. We should
+    accept this case as admissible, just like Linux does.
+
+    Signed-off-by: Yauhen Kharuzhy <jekhor@gmail.com>
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+
+commit 998be3dd59ed0af4bec38324047fecfa88ac45db
+Author: Rabin Vincent <rabin@rab.in>
+Date:	Sun Apr 5 13:30:56 2009 +0530
+
+    mmc: drop unnecessary casts
+
+    Now that response is a uint, we can drop all the casts.
+
+    Signed-off-by: Rabin Vincent <rabin@rab.in>
+
+commit 0b453ffe28bb9227d86ddbe0893bd19c93f04ed7
+Author: Rabin Vincent <rabin@rab.in>
+Date:	Sun Apr 5 13:30:55 2009 +0530
+
+    mmc: fix response decoding on little endian
+
+    The mmc code defines the response as an array of chars.  However, it
+    access the response bytes both as (i) an array of four uints (with
+    casts) and (ii) as individual chars.  The former case is used more
+    often, including by the driver when it assigns the response.
+
+    The char-wise accesses are broken on little endian systems because they
+    assume that the bytes in the uints are in big endian byte order.
+
+    This patch fixes this by changing the response to be an array of four
+    uints and replacing the char-wise accesses with equivalent uint-wise
+    accesses.
+
+    Signed-off-by: Rabin Vincent <rabin@rab.in>
+
+commit 9b1f942c09dd942e6de3185caa81c111b14de567
+Author: Rabin Vincent <rabin@rab.in>
+Date:	Sun Apr 5 13:30:54 2009 +0530
+
+    mmc: use lldiv to fix arm eabi build
+
+    The generic MMC core uses direct long long divisions, which do not build
+    with ARM EABI toolchains.  Use lldiv() instead, which works everywhere.
+
+    Signed-off-by: Rabin Vincent <rabin@rab.in>
+
+commit e85649c7e683faea1ccfddc9fa9abc62f38e4201
+Author: Rabin Vincent <rabin@rab.in>
+Date:	Sun Apr 5 13:30:53 2009 +0530
+
+    mmc: check find_mmc_device return value
+
+    find_mmc_device returns NULL if an invalid device number is specified.
+    Check for this to avoid dereferencing NULL pointers.
+
+    Signed-off-by: Rabin Vincent <rabin@rab.in>
+
+commit ac0865ff33870cdf2cd480165045e1bc311e9fa2
+Author: Rabin Vincent <rabin@rab.in>
+Date:	Sun Apr 5 13:30:52 2009 +0530
+
+    mmc: clean up help texts
+
+    Remove some repeated words and superfluous newlines in the mmc command
+    help entries.
+
+    Signed-off-by: Rabin Vincent <rabin@rab.in>
+
+commit 7d6900ebe16d679c0e03f8d1584b64057a64ce39
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri May 29 17:01:48 2009 -0400
+
+    Blackfin: spi: fix pin handling of SPI0 SSEL4
+
+    CS4 on SPI0 has a dedicated PH8 pin which needs to be enabled as a
+    peripheral in order to work.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 2157359dad2533987f5eb0181ef543693fad6a33
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue May 26 02:51:57 2009 -0400
+
+    Blackfin: fix if() logic in bootrom evt1 check
+
+    A missing set of parenthesis caused the silicon revision to apply only to
+    the BF533 and not the BF531/BF532 variants.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 76b5883da2cf049cd410901c04ea450e5f5c27c3
+Author: Stefan Roese <sr@denx.de>
+Date:	Sat May 16 12:04:22 2009 +0200
+
+    jffs2/mtdparts: Fix problem with usage from JFFS2 and MTDPARTS together
+
+    Currently using JFFS2 with MTDPARTS enabled doesn't work. This is because
+    mtdparts_init() is available in both files, cmd_mtdparts.c and
+    cmd_jffs2.c. Please note that in the original cmd_jffs2.c file (before
+    the jffs2/mtdparts command/file split those 2 different versions
+    already existed. So this is nothing new. The main problem is that the
+    variables "current_dev" and "current_partnum" are declared in both
+    files now. This doesn't work.
+
+    This patch now changes the names of those variable to more specific
+    names: "current_mtd_dev" and "current_mtd_partnum". This is because
+    this patch also changes the declaration from static to global, so
+    that they can be used from both files.
+
+    Please note that my first tests were not successful. The MTD devices
+    selected via mtdparts are now accessed but I'm failing to see the
+    directory listed via the "ls" command. Nothing is displayed. Perhaps
+    I didn't generate the JFFS2 image correctly (I never used JFFS2 in
+    U-Boot before). Not sure. Perhaps somebody else could take a look at
+    this as well. I'll continue looking into this on Monday.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Cc: Wolfgang Denk <wd@denx.de>
+    Cc: Detlev Zundel <dzu@denx.de>
+    Cc: Ilya Yanok <yanok@emcraft.com>
+    Cc: Renaud barbier <renaud.barbier@ge.com>
+
+commit ab687907980fa28940a1a992d3f1c5d17cdbbf5d
+Author: Graf Yang <graf.yang@analog.com>
+Date:	Sun May 24 02:34:34 2009 -0400
+
+    Blackfin: bf518f-ezbrd: setup portmux for async flash
+
+    The pins for async memory where parallel flash lives are not enabled by
+    default, so make sure we mux them as needed.
+
+    Signed-off-by: Graf Yang <graf.yang@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit f40f6db278f602b55820693634a7256b0b4e4b80
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed May 20 10:58:03 2009 +0200
+
+    nand: Fix problem with ECC ordering for PPC4xx NDFC platforms
+
+    This patch enables Smart Media (SMC) ECC byte ordering which is used
+    on the PPC4xx NAND FLASH controller (NDFC). Without this patch we have
+    incompatible ECC byte ordering to the Linux kernel NDFC driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Acked-by: Scott Wood <scottwood@freescale.com>
+
+commit 399aab7748bef053d59612211e1bd7a3fabfce18
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed May 20 10:58:02 2009 +0200
+
+    ppc4xx: Fix problem with ECC ordering for PPC4xx NDFC platforms
+
+    This patch now uses the correct ECC byte order (Smart Media - SMC)
+    to be used on the 4xx NAND FLASH driver. Without this patch we have
+    incompatible ECC byte ordering to the Linux kernel NDFC driver.
+
+    Please note that we also have to enable CONFIG_MTD_NAND_ECC_SMC in
+    drivers/mtd/nand/nand_ecc.c for correct operation. This is done with
+    a seperate patch.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Acked-by: Scott Wood <scottwood@freescale.com>
+
+commit 5d841fac8249a2b3f9a814da2140132be0a9f60d
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed May 20 10:58:01 2009 +0200
+
+    ppc4xx: Move definition for PPC4xx NAND FLASH controller to header
+
+    This patch moves the definition for the PPC4xx NAND FLASH controller
+    (NDFC) CONFIG_NAND_NDFC into include/ppc4xx.h. This is needed for the
+    upcoming fix for the ECC byte ordering of the NDFC driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Acked-by: Scott Wood <scottwood@freescale.com>
+
+commit 2df72b82bc9e17b88dc82735a067749220beb025
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue May 19 12:53:36 2009 -0500
+
+    common: fix inline--weak error spotted by gcc 4.4
+
+    cmd_ide.c:547: error: inline function 'ide_inb' cannot be declared weak
+
+    removing the inline attribute fixes it.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 9fd9abedcc3c10cf89353265cbe05f58609d51f3
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue May 19 12:53:32 2009 -0500
+
+    TQM834x: remove defines causing gcc4.4 warnings
+
+    Configuring for TQM834x board...
+    cpu_init.c: In function 'cpu_init_f':
+    cpu_init.c:262: warning: array subscript is above array bounds
+    cpu_init.c:263: warning: array subscript is above array bounds
+    cpu_init.c:270: warning: array subscript is above array bounds
+    ...
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 0850301747228a3327f2815a85284d26ade3de95
+Author: Andreas Huber <andreas.huber@keymile.com>
+Date:	Tue May 19 11:06:30 2009 +0200
+
+    UBI: fix return code in ubi_volume_read
+
+    Return -ENODEV instead of 0 when trying to read from a non existing volume.
+
+    Signed-off-by: Andreas Huber <andreas.huber@keymile.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ec01481ddc4cf302c7f6d760b776ca94819ec21e
+Author: Graf Yang <graf.yang@analog.com>
+Date:	Tue May 19 04:40:08 2009 -0400
+
+    Blackfin: fix timer_init()/timer_reset()
+
+    The timer_init() function was not using the right csync instruction, nor
+    was it doing it right after disabling the core timer.
+
+    The timer_reset() function would reset the timestamp, but not the actual
+    timer, so there was a common edge case where get_timer() return a jump of
+    one timestamp (couple milliseconds) right after resetting.	This caused
+    many functions to improperly timeout right away.
+
+    Signed-off-by: Graf Yang <graf.yang@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit c06326c73bf90e48a8e1cf8893ad31c575423f50
+Author: Shinya Kuribayashi <skuribay@pobox.com>
+Date:	Sat May 16 09:12:09 2009 +0900
+
+    MIPS: lib_mips/board.c: Remove unused variables
+
+    This fixes the following build warnings:
+
+    board.c: In function 'board_init_r':
+    board.c:328: warning: unused variable 'i'
+    board.c:326: warning: unused variable 'e'
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@pobox.com>
+
+commit 47f6a36cc3f3427cc8e4f1d0f3e6678be6f33769
+Author: Shinya Kuribayashi <skuribay@pobox.com>
+Date:	Sat May 16 09:12:09 2009 +0900
+
+    MIPS: Make all extern-ed functions in bitops.h static
+
+    All these functions are expected to be static inline-ed.
+    This patch also fixes the following build warnings on MIPS targets:
+
+    include/asm/bitops.h: In function 'ext2_find_next_zero_bit':
+    include/asm/bitops.h:862: warning: '__fswab32' is static but used in inline function 'ext2_find_next_zero_bit' which is not static
+    include/asm/bitops.h:885: warning: '__fswab32' is static but used in inline function 'ext2_find_next_zero_bit' which is not static
+    include/asm/bitops.h:887: warning: '__fswab32' is static but used in inline function 'ext2_find_next_zero_bit' which is not static
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@pobox.com>
+
+commit 87423d740b91329b8d1d0b73cafd6930993b558a
+Author: Thomas Lange <thomas@corelatus.se>
+Date:	Fri Apr 24 16:22:16 2009 +0200
+
+    MIPS: Implement ethernet halt for au1x00
+
+    Implement ethernet halt() by putting MAC0 in reset.
+    If we do not do this, we will get memory corruption
+    when ethernet frames are received during early OS boot.
+
+    Signed-off-by: Thomas Lange <thomas@corelatus.se>
+    Signed-off-by: Shinya Kuribayashi <skuribay@pobox.com>
+
+commit a2e0ffcf2d9a22c582a93e84a4bef20fd3877f47
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 15 23:29:23 2009 +0200
+
+    Prepare v2009.06-rc2
+
+    Update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit f4317ea91942f44cc1c433277927b61618e9b0a5
 Author: Daniel Mack <daniel@caiaq.de>
 Date:	Tue May 5 12:48:29 2009 +0200
