@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <hwconfig.h>
 #include <i2c.h>
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -176,20 +177,15 @@ void pci_init_board(void)
 #if defined(CONFIG_OF_BOARD_SETUP)
 void fdt_tsec1_fixup(void *fdt, bd_t *bd)
 {
-	char *mpc8315erdb = getenv("mpc8315erdb");
 	const char disabled[] = "disabled";
 	const char *path;
 	int ret;
 
-	if (!mpc8315erdb)
+	if (hwconfig_arg_cmp("board_type", "tsec1")) {
 		return;
-
-	if (!strcmp(mpc8315erdb, "tsec1")) {
-		return;
-	} else if (strcmp(mpc8315erdb, "ulpi")) {
-		printf("WARNING: wrong `mpc8315erdb' environment "
-		       "variable specified: `%s'. Should be `ulpi' "
-		       "or `tsec1'.\n", mpc8315erdb);
+	} else if (!hwconfig_arg_cmp("board_type", "ulpi")) {
+		printf("NOTICE: No or unknown board_type hwconfig specified.\n"
+		       "        Assuming board with TSEC1.\n");
 		return;
 	}
 
