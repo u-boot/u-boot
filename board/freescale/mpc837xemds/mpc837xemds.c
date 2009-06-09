@@ -292,10 +292,9 @@ int board_pci_host_broken(void)
 {
 	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
 	const u32 rcw_mask = HRCWH_PCI1_ARBITER_ENABLE | HRCWH_PCI_HOST;
-	const char *pci_ea = getenv("pci_external_arbiter");
 
 	/* It's always OK in case of external arbiter. */
-	if (pci_ea && !strcmp(pci_ea, "yes"))
+	if (hwconfig_subarg_cmp("pci", "arbiter", "external"))
 		return 0;
 
 	if ((in_be32(&im->reset.rcwh) & rcw_mask) != rcw_mask)
