@@ -13,12 +13,14 @@
  */
 
 #include <common.h>
+#include <hwconfig.h>
 #include <i2c.h>
 #include <asm/io.h>
 #include <asm/fsl_serdes.h>
 #include <fdt_support.h>
 #include <spd_sdram.h>
 #include <vsc7385.h>
+#include <fsl_esdhc.h>
 
 #if defined(CONFIG_SYS_DRAM_TEST)
 int
@@ -166,6 +168,21 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#ifdef CONFIG_FSL_ESDHC
+int board_mmc_init(bd_t *bd)
+{
+	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
+
+	if (!hwconfig("esdhc"))
+		return 0;
+
+	clrsetbits_be32(&im->sysconf.sicrl, SICRL_USB_B, SICRL_USB_B_SD);
+	clrsetbits_be32(&im->sysconf.sicrh, SICRH_SPI, SICRH_SPI_SD);
+
+	return fsl_esdhc_mmc_init(bd);
+}
+#endif
+
 /*
  * Miscellaneous late-boot configurations
  *
@@ -195,5 +212,6 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 	ft_cpu_setup(blob, bd);
 	fdt_fixup_dr_usb(blob, bd);
+	fdt_fixup_esdhc(blob, bd);
 }
 #endif /* CONFIG_OF_BOARD_SETUP */

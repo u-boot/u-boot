@@ -34,6 +34,7 @@
 
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_MISC_INIT_R
+#define CONFIG_HWCONFIG
 
 /*
  * On-board devices
@@ -229,6 +230,7 @@
 #endif
 
 #define CONFIG_SYS_MONITOR_LEN		(384 * 1024) /* Reserve 384 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN		(320 * 1024) /* Reserve 320 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024) /* Reserved for malloc */
 
 /*
@@ -341,6 +343,9 @@
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 #define CONFIG_OF_STDOUT_VIA_ALIAS 1
+
+#define CONFIG_SYS_64BIT_STRTOUL		1
+#define CONFIG_SYS_64BIT_VSPRINTF		1
 
 /* I2C */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
@@ -509,6 +514,18 @@
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
+
+#define CONFIG_MMC     1
+
+#ifdef CONFIG_MMC
+#define CONFIG_FSL_ESDHC
+#define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC83xx_ESDHC_ADDR
+#define CONFIG_CMD_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
 
 /*
  * Miscellaneous configurable options
