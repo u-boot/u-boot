@@ -34,7 +34,8 @@ int usb_cpu_init(void)
 {
 
 #if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \
-    defined(CONFIG_AT91SAM9263) || defined(CONFIG_AT91SAM9G20)
+    defined(CONFIG_AT91SAM9263) || defined(CONFIG_AT91SAM9G20) || \
+    defined(CONFIG_AT91SAM9261)
 	/* Enable PLLB */
 	at91_sys_write(AT91_CKGR_PLLBR, get_pllb_init());
 	while ((at91_sys_read(AT91_PMC_SR) & AT91_PMC_LOCKB) != AT91_PMC_LOCKB)
