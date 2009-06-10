@@ -110,7 +110,7 @@ struct ext2_block_group {
 	uint32_t inode_table_id;
 	uint16_t free_blocks;
 	uint16_t free_inodes;
-	uint16_t pad;
+	uint16_t used_dir_cnt;
 	uint32_t reserved[3];
 };
 
@@ -182,14 +182,22 @@ int indir2_blkno = -1;
 
 static int ext2fs_blockgroup
 	(struct ext2_data *data, int group, struct ext2_block_group *blkgrp) {
+	unsigned int blkno;
+	unsigned int blkoff;
+	unsigned int desc_per_blk;
+
+	desc_per_blk = EXT2_BLOCK_SIZE(data) / sizeof(struct ext2_block_group);
+
+	blkno = __le32_to_cpu(data->sblock.first_data_block) + 1 +
+	group / desc_per_blk;
+	blkoff = (group % desc_per_blk) * sizeof(struct ext2_block_group);
 #ifdef DEBUG
-	printf ("ext2fs read blockgroup\n");
+	printf ("ext2fs read %d group descriptor (blkno %d blkoff %d)\n",
+		group, blkno, blkoff);
 #endif
-	return (ext2fs_devread
-		(((__le32_to_cpu (data->sblock.first_data_block) +
-		   1) << LOG2_EXT2_BLOCK_SIZE (data)),
-		 group * sizeof (struct ext2_block_group),
-		 sizeof (struct ext2_block_group), (char *) blkgrp));
+	return (ext2fs_devread (blkno << LOG2_EXT2_BLOCK_SIZE(data),
+		blkoff, sizeof(struct ext2_block_group), (char *)blkgrp));
+
 }
 
 
@@ -203,34 +211,37 @@ static int ext2fs_read_inode
 	unsigned int blkno;
 	unsigned int blkoff;
 
-	/* It is easier to calculate if the first inode is 0.  */
-	ino--;
 #ifdef DEBUG
 	printf ("ext2fs read inode %d\n", ino);
 #endif
-	status = ext2fs_blockgroup (data,
-				    ino /
-				    __le32_to_cpu (sblock->inodes_per_group),
-				    &blkgrp);
+	/* It is easier to calculate if the first inode is 0.  */
+	ino--;
+	status = ext2fs_blockgroup (data, ino / __le32_to_cpu
+				    (sblock->inodes_per_group), &blkgrp);
 	if (status == 0) {
 		return (0);
 	}
-	inodes_per_block = EXT2_BLOCK_SIZE (data) / 128;
-	blkno = (ino % __le32_to_cpu (sblock->inodes_per_group)) /
-		inodes_per_block;
-	blkoff = (ino % __le32_to_cpu (sblock->inodes_per_group)) %
-		inodes_per_block;
+
+	inodes_per_block = EXT2_BLOCK_SIZE(data) / __le16_to_cpu(sblock->inode_size);
+
+#ifdef DEBUG
+	printf ("ext2fs read inode blkno %d blkoff %d\n", blkno, blkoff);
+#endif
+
+	blkno = __le32_to_cpu (blkgrp.inode_table_id) +
+		(ino % __le32_to_cpu (sblock->inodes_per_group))
+		/ inodes_per_block;
+	blkoff = (ino % inodes_per_block) * __le16_to_cpu (sblock->inode_size);
 #ifdef DEBUG
 	printf ("ext2fs read inode blkno %d blkoff %d\n", blkno, blkoff);
 #endif
 	/* Read the inode.  */
-	status = ext2fs_devread (((__le32_to_cpu (blkgrp.inode_table_id) +
-				   blkno) << LOG2_EXT2_BLOCK_SIZE (data)),
-				 sizeof (struct ext2_inode) * blkoff,
+	status = ext2fs_devread (blkno << LOG2_EXT2_BLOCK_SIZE (data), blkoff,
 				 sizeof (struct ext2_inode), (char *) inode);
 	if (status == 0) {
 		return (0);
 	}
+
 	return (1);
 }
 
