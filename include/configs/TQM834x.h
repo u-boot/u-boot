@@ -393,7 +393,7 @@ extern int tqm834x_num_flash_banks;
 #endif
 
 /* System IO Config */
-#define CONFIG_SYS_SICRH	SICRH_TSOBI1
+#define CONFIG_SYS_SICRH	0
 #define CONFIG_SYS_SICRL	SICRL_LDP_A
 
 /* i-cache and d-cache disabled */
