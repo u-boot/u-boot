@@ -370,6 +370,7 @@
 #ifdef CONFIG_SYS_FLASH_CFI
 
 #	define CONFIG_FLASH_CFI_DRIVER	1
+#	define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
 #	define CONFIG_SYS_FLASH_SIZE		0x1000000	/* Max size that the board might have */
 #	define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
 #	define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of memory banks */
