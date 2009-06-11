@@ -2108,18 +2108,15 @@ M5373EVB_config :	unconfig
 	@$(MKCONFIG) -a M5373EVB m68k mcf532x m5373evb freescale
 
 M54451EVB_config \
-M54451EVB_spansion_config \
 M54451EVB_stmicro_config :	unconfig
 	@case "$@" in \
-	M54451EVB_config)		FLASH=SPANSION;; \
-	M54451EVB_spansion_config)	FLASH=SPANSION;; \
+	M54451EVB_config)		FLASH=NOR;; \
 	M54451EVB_stmicro_config)	FLASH=STMICRO;; \
 	esac; \
-	if [ "$${FLASH}" = "SPANSION" ] ; then \
-		echo "#define CONFIG_SYS_SPANSION_BOOT"	>> $(obj)include/config.h ; \
+	if [ "$${FLASH}" = "NOR" ] ; then \
 		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54451evb/config.tmp ; \
 		cp $(obj)board/freescale/m54451evb/u-boot.spa $(obj)board/freescale/m54451evb/u-boot.lds ; \
-		$(XECHO) "... with SPANSION boot..." ; \
+		$(XECHO) "... with NOR boot..." ; \
 	fi; \
 	if [ "$${FLASH}" = "STMICRO" ] ; then \
 		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \

@@ -159,12 +159,10 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 			dspi_rx();
 			return 0;
 		case 0x05:	/* Read Status */
-			if (len == 4)
-				if ((spi_wr[1] == 0xFF) && (spi_wr[2] == 0xFF)
-				    && (spi_wr[3] == 0xFF)) {
-					dspi_tx(slave->cs, 0x80, *spi_wr);
-					dspi_rx();
-				}
+			if (len == 1) {
+				dspi_tx(slave->cs, 0x80, *spi_wr);
+				dspi_rx();
+			}
 			return 0;
 		case 0x06:	/* WREN */
 			dspi_tx(slave->cs, 0x00, *spi_wr);

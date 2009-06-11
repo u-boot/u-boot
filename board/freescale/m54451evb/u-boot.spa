@@ -56,10 +56,13 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     cpu/mcf5445x/start.o		(.text)
-    lib_m68k/traps.o		(.text)
-    lib_m68k/interrupts.o	(.text)
+    cpu/mcf5445x/libmcf5445x.a	(.text)
+    lib_m68k/libm68k.a		(.text)
+    common/cmd_flash.o		(.text)
     common/dlmalloc.o		(.text)
-    lib_generic/zlib.o		(.text)
+    common/main.o		(.text)
+    common/image.o		(.text)
+    lib_generic/libgeneric.a	(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.text)

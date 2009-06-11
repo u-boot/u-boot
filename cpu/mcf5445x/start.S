@@ -149,9 +149,35 @@ asm_sbf_img_hdr:
 	.long	0x00030000	/* image length */
 	.long	TEXT_BASE	/* image to be relocated at */
 
+
+
 asm_dram_init:
+	move.w #0x2700,%sr		/* Mask off Interrupt */
+
+	move.l	#CONFIG_SYS_INIT_RAM_ADDR, %d0
+	movec	%d0, %VBR
+
 	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_CTRL), %d0
-	movec	%d0, %RAMBAR1	/* init Rambar */
+	movec	%d0, %RAMBAR1
+
+	/* initialize general use internal ram */
+	move.l #0, %d0
+	move.l #(CACR_STATUS), %a1	/* CACR */
+	move.l #(ICACHE_STATUS), %a2	/* icache */
+	move.l #(DCACHE_STATUS), %a3	/* dcache */
+	move.l %d0, (%a1)
+	move.l %d0, (%a2)
+	move.l %d0, (%a3)
+
+	/* invalidate and disable cache */
+	move.l	#0x01004100, %d0	/* Invalidate cache cmd */
+	movec	%d0, %CACR		/* Invalidate cache */
+	move.l	#0, %d0
+	movec	%d0, %ACR0
+	movec	%d0, %ACR1
+	movec	%d0, %ACR2
+	movec	%d0, %ACR3
+
 	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET), %sp
 	clr.l %sp@-
 
@@ -163,10 +189,7 @@ asm_dram_init:
 	move.l	#0xFC008004, %a1
 	move.l	#(CONFIG_SYS_CS0_MASK), (%a1)
 
-	/*
-	 * Dram Initialization
-	 * a1, a2, and d0
-	 */
+	/* Dram Initialization a1, a2, and d0 */
 	/* mscr sdram */
 	move.l	#0xFC0A4074, %a1
 	move.b	#(CONFIG_SYS_SDRAM_DRV_STRENGTH), (%a1)
@@ -209,23 +232,20 @@ dramsz_loop:
 	move.l	#0xFC0B8000, %a1	/* Mode */
 	move.l	#0xFC0B8004, %a2	/* Ctrl */
 
-#ifdef CONFIG_M54455EVB
 	/* Issue PALL */
 	move.l	#(CONFIG_SYS_SDRAM_CTRL + 2), (%a2)
 	nop
 
+#ifdef CONFIG_M54455EVB
 	/* Issue LEMR */
 	move.l	#(CONFIG_SYS_SDRAM_EMOD + 0x408), (%a1)
 	nop
 	move.l	#(CONFIG_SYS_SDRAM_MODE + 0x300), (%a1)
 	nop
-
-	move.l	#1000, %d0
-wait1000:
-	nop
-	subq.l	#1, %d0
-	bne	wait1000
 #endif
+
+	move.l	#1000, %d1
+	jsr	asm_delay
 
 	/* Issue PALL */
 	move.l	#(CONFIG_SYS_SDRAM_CTRL + 2), (%a2)
@@ -246,24 +266,23 @@ wait1000:
 	move.l	#(CONFIG_SYS_SDRAM_MODE), (%a1)
 	nop
 	move.l	#(CONFIG_SYS_SDRAM_EMOD), (%a1)
-	nop
 #endif
 
-	move.l	#500, %d0
-wait500:
-	nop
-	subq.l	#1, %d0
-	bne	wait500
+	move.l	#500, %d1
+	jsr	asm_delay
 
-	move.l	#(CONFIG_SYS_SDRAM_CTRL), %d0
-	and.l	#0x7FFFFFFF, %d0
+	move.l	#(CONFIG_SYS_SDRAM_CTRL), %d1
+	and.l	#0x7FFFFFFF, %d1
 #ifdef CONFIG_M54455EVB
-	or.l	#0x10000c00, %d0
+	or.l	#0x10000C00, %d1
 #elif defined(CONFIG_M54451EVB)
-	or.l	#0x10000000, %d0
+	or.l	#0x10000C00, %d1
 #endif
-	move.l	%d0, (%a2)
+	move.l	%d1, (%a2)
 	nop
+
+	move.l	#2000, %d1
+	jsr	asm_delay
 
 	/*
 	 * DSPI Initialization
@@ -274,6 +293,7 @@ wait500:
 	 * a4 - Dst addr
 	 */
 	/* Enable pins for DSPI mode - chip-selects are enabled later */
+asm_dspi_init:
 	move.l	#0xFC0A4063, %a0
 	move.b	#0x7F, (%a0)
 
@@ -367,27 +387,29 @@ asm_dspi_rd_status:
 
 	move.b	(%a3), %d1
 	rts
+
+asm_delay:
+	nop
+	subq.l	#1, %d1
+	bne	asm_delay
+	rts
 #endif			/* CONFIG_CF_SBF */
 
 	.text
 	. = 0x400
 	.globl	_start
 _start:
+#if !defined(CONFIG_CF_SBF)
 	nop
 	nop
 	move.w #0x2700,%sr		/* Mask off Interrupt */
 
 	/* Set vector base register at the beginning of the Flash */
-#if defined(CONFIG_CF_SBF)
-	move.l	#TEXT_BASE, %d0
-	movec	%d0, %VBR
-#else
 	move.l	#CONFIG_SYS_FLASH_BASE, %d0
 	movec	%d0, %VBR
 
 	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_CTRL), %d0
 	movec	%d0, %RAMBAR1
-#endif
 
 	/* initialize general use internal ram */
 	move.l #0, %d0
@@ -411,6 +433,7 @@ _start:
 	   the first c-code */
 	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET), %sp
 	clr.l %sp@-
+#endif
 
 	move.l #__got_start, %a5	/* put relocation table address to a5 */
 
@@ -532,7 +555,7 @@ icache_enable:
 	move.l	#0x00040100, %d0	/* Invalidate icache */
 	movec	%d0, %CACR
 
-	move.l	#(CONFIG_SYS_SDRAM_BASE + 0x1c000), %d0	/* Setup icache */
+	move.l	#(CONFIG_SYS_SDRAM_BASE + 0xC000), %d0	/* Setup icache */
 	movec	%d0, %ACR2
 
 	move.l	#0x04088020, %d0	/* Enable bcache and icache */
