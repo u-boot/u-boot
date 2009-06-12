@@ -11,7 +11,7 @@
 #include <asm/blackfin.h>
 
 #ifndef CONFIG_JTAG_CONSOLE_TIMEOUT
-# define CONFIG_JTAG_CONSOLE_TIMEOUT 100
+# define CONFIG_JTAG_CONSOLE_TIMEOUT 500
 #endif
 
 /* The Blackfin tends to be much much faster than the JTAG hardware. */
