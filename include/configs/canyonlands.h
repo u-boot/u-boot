@@ -453,6 +453,7 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PCI
+#define CONFIG_CMD_SATA
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SNTP
 #define CONFIG_CMD_USB
@@ -517,6 +518,19 @@
 #undef CONFIG_PPC4XX_RAPIDIO_LOOPBACK
 #endif /* CONFIG_ARCHES */
 #endif /* CONFIG_460GT */
+
+/*
+ * SATA driver setup
+ */
+#ifdef CONFIG_CMD_SATA
+#define CONFIG_SATA_DWC
+#define CONFIG_LIBATA
+#define SATA_BASE_ADDR		0xe20d1000	/* PPC460EX SATA Base Address */
+#define SATA_DMA_REG_ADDR	0xe20d0800	/* PPC460EX SATA Base Address */
+#define CONFIG_SYS_SATA_MAX_DEVICE	1	/* SATA MAX DEVICE */
+/* Convert sectorsize to wordsize */
+#define ATA_SECTOR_WORDS (ATA_SECT_SIZE/2)
+#endif
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup
