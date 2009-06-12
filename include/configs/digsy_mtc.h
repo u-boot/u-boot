@@ -100,6 +100,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SAVES
+#define CONFIG_CMD_SPI
 #define CONFIG_CMD_USB
 
 #if (TEXT_BASE == 0xFF000000)
@@ -135,6 +136,12 @@
 		"cp.b 200000 FFF00000 ${filesize};"	\
 		"protect on FFF00000 +${filesize}\0"	\
 	""
+
+/*
+ * SPI configuration
+ */
+#define CONFIG_HARD_SPI		1
+#define CONFIG_MPC52XX_SPI	1
 
 /*
  * I2C configuration
