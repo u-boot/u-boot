@@ -26,6 +26,35 @@
 #ifndef __IMMAP_H
 #define __IMMAP_H
 
+#if defined(CONFIG_MCF520x)
+#include <asm/immap_520x.h>
+#include <asm/m520x.h>
+
+#define CONFIG_SYS_FEC0_IOBASE		(MMAP_FEC0)
+#define CONFIG_SYS_UART_BASE		(MMAP_UART0 + (CONFIG_SYS_UART_PORT * 0x4000))
+
+/* Timer */
+#ifdef CONFIG_MCFTMR
+#define CONFIG_SYS_UDELAY_BASE		(MMAP_DTMR0)
+#define CONFIG_SYS_TMR_BASE		(MMAP_DTMR1)
+#define CONFIG_SYS_TMRPND_REG		(((volatile int0_t *)(CONFIG_SYS_INTR_BASE))->iprh0)
+#define CONFIG_SYS_TMRINTR_NO		(INT0_HI_DTMR1)
+#define CONFIG_SYS_TMRINTR_MASK		(INTC_IPRH_INT33)
+#define CONFIG_SYS_TMRINTR_PEND		(CONFIG_SYS_TMRINTR_MASK)
+#define CONFIG_SYS_TMRINTR_PRI		(6)
+#define CONFIG_SYS_TIMER_PRESCALER	(((gd->bus_clk / 1000000) - 1) << 8)
+#endif
+
+#ifdef CONFIG_MCFPIT
+#define CONFIG_SYS_UDELAY_BASE		(MMAP_PIT0)
+#define CONFIG_SYS_PIT_BASE		(MMAP_PIT1)
+#define CONFIG_SYS_PIT_PRESCALE	(6)
+#endif
+
+#define CONFIG_SYS_INTR_BASE		(MMAP_INTC0)
+#define CONFIG_SYS_NUM_IRQS		(128)
+#endif				/* CONFIG_M520x */
+
 #ifdef CONFIG_M52277
 #include <asm/immap_5227x.h>
 #include <asm/m5227x.h>

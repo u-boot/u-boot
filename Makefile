@@ -2004,6 +2004,9 @@ ZPC1900_config: unconfig
 ## Coldfire
 #########################################################################
 
+M5208EVBE_config :		unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5208evbe freescale
+
 M52277EVB_config \
 M52277EVB_spansion_config \
 M52277EVB_stmicro_config :	unconfig

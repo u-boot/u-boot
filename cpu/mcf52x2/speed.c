@@ -30,11 +30,16 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * get_clocks() fills in gd->cpu_clock and gd->bus_clk
- */
+/* get_clocks() fills in gd->cpu_clock and gd->bus_clk */
 int get_clocks (void)
 {
+#if defined(CONFIG_M5208)
+	volatile pll_t *pll = (pll_t *) MMAP_PLL;
+
+	pll->odr = CONFIG_SYS_PLL_ODR;
+	pll->fdr = CONFIG_SYS_PLL_FDR;
+#endif
+
 #if defined(CONFIG_M5249) || defined(CONFIG_M5253)
 	volatile unsigned long cpll = mbar2_readLong(MCFSIM_PLLCR);
 	unsigned long pllcr;
@@ -77,7 +82,7 @@ int get_clocks (void)
 #endif
 
 	gd->cpu_clk = CONFIG_SYS_CLK;
-#if defined(CONFIG_M5249) || defined(CONFIG_M5253) || \
+#if defined(CONFIG_M5208) || defined(CONFIG_M5249) || defined(CONFIG_M5253) || \
     defined(CONFIG_M5271) || defined(CONFIG_M5275)
 	gd->bus_clk = gd->cpu_clk / 2;
 #else
