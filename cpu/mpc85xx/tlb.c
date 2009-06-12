@@ -165,7 +165,7 @@ unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 	}
 
 	if (memsize)
-		printf("%lldM left unmapped\n", memsize >> 20);
+		print_size(memsize, " left unmapped\n");
 
 	/*
 	 * Confirm that the requested amount of memory was mapped.
