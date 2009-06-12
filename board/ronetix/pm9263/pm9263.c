@@ -239,7 +239,7 @@ static int pm9263_lcd_hw_psram_init(void)
 	at91_sys_write( AT91_MATRIX_SCFG5, AT91_MATRIX_ARBT_FIXED_PRIORITY |
 				(AT91_MATRIX_FIXED_DEFMSTR & (5 << 18)) |
 				AT91_MATRIX_DEFMSTR_TYPE_FIXED |
-				(AT91_MATRIX_SLOT_CYCLE & (0x80 << 0)));
+				(AT91_MATRIX_SLOT_CYCLE & (0xFF << 0)));
 
 	return 0;
 }

@@ -65,6 +65,7 @@
 #define			AT91_PMC_USBDIV_2		(1 << 28)
 #define			AT91_PMC_USBDIV_4		(2 << 28)
 #define		AT91_PMC_USB96M		(1     << 28)		/* Divider by 2 Enable (PLLB only) */
+#define		AT91_PMC_PLLA_WR_ERRATA	(1     << 29)		/* Bit 29 must always be set to 1 when programming the CKGR_PLLAR register */
 
 #define	AT91_PMC_MCKR		(AT91_PMC + 0x30)	/* Master Clock Register */
 #define		AT91_PMC_CSS		(3 <<  0)		/* Master Clock Selection */

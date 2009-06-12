@@ -87,7 +87,7 @@ POS1:
  */
 	ldr	r1, =(AT91_BASE_SYS + AT91_CKGR_MOR)
 	ldr	r2, =(AT91_BASE_SYS + AT91_PMC_SR)
-	ldr	r0, =0x0000FF01
+	ldr	r0, =CONFIG_SYS_MOR_VAL
 	str	r0, [r1]	/* Enable main oscillator, OSCOUNT = 0xFF */
 
 	/* Reading the PMC Status to detect when the Main Oscillator is enabled */
