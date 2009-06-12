@@ -64,12 +64,22 @@ __fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 			   unsigned int memctl_interleaved,
 			   unsigned int ctrl_num)
 {
+	unsigned long long base = memctl_common_params->base_address;
+	unsigned long long size = memctl_common_params->total_mem;
+
 	/*
 	 * If no DIMMs on this controller, do not proceed any further.
 	 */
 	if (!memctl_common_params->ndimms_present) {
 		return;
 	}
+
+#if !defined(CONFIG_PHYS_64BIT)
+	if (base >= CONFIG_MAX_MEM_MAPPED)
+		return;
+	if ((base + size) >= CONFIG_MAX_MEM_MAPPED)
+		size = CONFIG_MAX_MEM_MAPPED - base;
+#endif
 
 	if (ctrl_num == 0) {
 		/*
@@ -78,16 +88,12 @@ __fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 		unsigned int lawbar1_target_id = memctl_interleaved
 			? LAW_TRGT_IF_DDR_INTRLV : LAW_TRGT_IF_DDR_1;
 
-		if (set_ddr_laws(memctl_common_params->base_address,
-				memctl_common_params->total_mem,
-				lawbar1_target_id) < 0) {
+		if (set_ddr_laws(base, size, lawbar1_target_id) < 0) {
 			printf("ERROR\n");
 			return ;
 		}
 	} else if (ctrl_num == 1) {
-		if (set_ddr_laws(memctl_common_params->base_address,
-				memctl_common_params->total_mem,
-				LAW_TRGT_IF_DDR_2) < 0) {
+		if (set_ddr_laws(base, size, LAW_TRGT_IF_DDR_2) < 0) {
 			printf("ERROR\n");
 			return ;
 		}

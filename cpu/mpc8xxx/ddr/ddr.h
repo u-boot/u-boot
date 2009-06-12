@@ -54,7 +54,7 @@ typedef struct {
 #define STEP_PROGRAM_REGS            (1 << 6)
 #define STEP_ALL                     0xFFF
 
-extern phys_size_t
+extern unsigned long long
 fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step);
 
 extern const char * step_to_string(unsigned int step);

@@ -1199,8 +1199,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 
 	/* Chip Select Memory Bounds (CSn_BNDS) */
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
-		phys_size_t sa = 0;
-		phys_size_t ea = 0;
+		unsigned long long ea = 0, sa = 0;
 
 		if (popts->ba_intlv_ctl && (i > 0) &&
 			((popts->ba_intlv_ctl & 0x60) != FSL_DDR_CS2_CS3 )) {

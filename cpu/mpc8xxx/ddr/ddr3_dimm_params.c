@@ -52,10 +52,10 @@
  * 	011		32bits
  *
  */
-static phys_size_t
+static unsigned long long
 compute_ranksize(const ddr3_spd_eeprom_t *spd)
 {
-	phys_size_t bsize;
+	unsigned long long bsize;
 
 	int nbit_sdram_cap_bsize = 0;
 	int nbit_primary_bus_width = 0;

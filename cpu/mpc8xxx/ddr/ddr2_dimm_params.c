@@ -32,10 +32,10 @@
  * 2 or 5 bits off and shifting them up to the top.
  *
  */
-static phys_size_t
+static unsigned long long
 compute_ranksize(unsigned int mem_type, unsigned char row_dens)
 {
-	phys_size_t bsize;
+	unsigned long long bsize;
 
 	/* Bottom 5 bits up to the top. */
 	bsize = ((row_dens >> 5) | ((row_dens & 31) << 3));
