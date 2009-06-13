@@ -41,8 +41,10 @@
 #define CONFIG_SETUP_MEMORY_TAGS 1
 #define CONFIG_INITRD_TAG	1
 
+#ifndef CONFIG_SYS_USE_BOOT_NORFLASH
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SKIP_RELOCATE_UBOOT
+#endif
 
 /*
  * Hardware drivers
@@ -113,15 +115,143 @@
 #define DATAFLASH_TCHS			(0x1 << 24)
 
 /* NOR flash, if populated */
-#if 1
-#define CONFIG_SYS_NO_FLASH			1
-#else
+#ifdef CONFIG_SYS_USE_NORFLASH
 #define CONFIG_SYS_FLASH_CFI			1
-#define CONFIG_FLASH_CFI_DRIVER		1
-#define PHYS_FLASH_1			0x10000000
+#define CONFIG_FLASH_CFI_DRIVER			1
+#define PHYS_FLASH_1				0x10000000
 #define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
 #define CONFIG_SYS_MAX_FLASH_SECT		256
 #define CONFIG_SYS_MAX_FLASH_BANKS		1
+
+#define CONFIG_SYS_MONITOR_SEC	1:0-3
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_MONITOR_LEN	(256 << 10)
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x007FE000)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SIZE)
+
+/* Address and size of Primary Environment Sector */
+#define CONFIG_ENV_SIZE		0x2000
+
+#define xstr(s)   str(s)
+#define str(s)	#s
+
+#define CONFIG_EXTRA_ENV_SETTINGS	\
+	"monitor_base=" xstr(CONFIG_SYS_MONITOR_BASE) "\0" \
+	"update=" \
+		"protect off ${monitor_base} +${filesize};" \
+		"erase ${monitor_base} +${filesize};" \
+		"cp.b ${load_addr} ${monitor_base} ${filesize};" \
+		"protect on ${monitor_base} +${filesize}\0"
+
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+#define MASTER_PLL_MUL		171
+#define MASTER_PLL_DIV		14
+
+/* clocks */
+#define CONFIG_SYS_MOR_VAL						\
+		(AT91_PMC_MOSCEN |					\
+		 (255 << 8))		/* Main Oscillator Start-up Time */
+#define CONFIG_SYS_PLLAR_VAL						\
+		(AT91_PMC_PLLA_WR_ERRATA | /* Bit 29 must be 1 when prog */ \
+		 AT91_PMC_OUT |						\
+		 AT91_PMC_PLLCOUNT |	/* PLL Counter */		\
+		 (2 << 28) |		/* PLL Clock Frequency Range */	\
+		 ((MASTER_PLL_MUL - 1) << 16) | (MASTER_PLL_DIV))
+
+/* PCK/2 = MCK Master Clock from PLLA */
+#define	CONFIG_SYS_MCKR1_VAL		\
+		(AT91_PMC_CSS_SLOW |	\
+		 AT91_PMC_PRES_1 |	\
+		 AT91SAM9_PMC_MDIV_2 |	\
+		 AT91_PMC_PDIV_1)
+/* PCK/2 = MCK Master Clock from PLLA */
+#define	CONFIG_SYS_MCKR2_VAL		\
+		(AT91_PMC_CSS_PLLA |	\
+		 AT91_PMC_PRES_1 |	\
+		 AT91SAM9_PMC_MDIV_2 |	\
+		 AT91_PMC_PDIV_1)
+
+/* define PDC[31:16] as DATA[31:16] */
+#define CONFIG_SYS_PIOD_PDR_VAL1	0xFFFF0000
+/* no pull-up for D[31:16] */
+#define CONFIG_SYS_PIOD_PPUDR_VAL	0xFFFF0000
+/* EBI0_CSA, CS1 SDRAM, CS3 NAND Flash, 3.3V memories */
+#define CONFIG_SYS_MATRIX_EBI0CSA_VAL					\
+	(AT91_MATRIX_EBI0_DBPUC | AT91_MATRIX_EBI0_VDDIOMSEL_3_3V |	\
+	 AT91_MATRIX_EBI0_CS1A_SDRAMC)
+
+/* SDRAM */
+/* SDRAMC_MR Mode register */
+#define CONFIG_SYS_SDRC_MR_VAL1		0
+/* SDRAMC_TR - Refresh Timer register */
+#define CONFIG_SYS_SDRC_TR_VAL1		0x13C
+/* SDRAMC_CR - Configuration register*/
+#define CONFIG_SYS_SDRC_CR_VAL							\
+		(AT91_SDRAMC_NC_9 |						\
+		 AT91_SDRAMC_NR_13 |						\
+		 AT91_SDRAMC_NB_4 |						\
+		 AT91_SDRAMC_CAS_3 |						\
+		 AT91_SDRAMC_DBW_32 |						\
+		 (1 <<  8) |		/* Write Recovery Delay */		\
+		 (7 << 12) |		/* Row Cycle Delay */			\
+		 (2 << 16) |		/* Row Precharge Delay */		\
+		 (2 << 20) |		/* Row to Column Delay */		\
+		 (5 << 24) |		/* Active to Precharge Delay */		\
+		 (1 << 28))		/* Exit Self Refresh to Active Delay */
+
+/* Memory Device Register -> SDRAM */
+#define CONFIG_SYS_SDRC_MDR_VAL		AT91_SDRAMC_MD_SDRAM
+#define CONFIG_SYS_SDRC_MR_VAL2		AT91_SDRAMC_MODE_PRECHARGE
+#define CONFIG_SYS_SDRAM_VAL1		0		/* SDRAM_BASE */
+#define CONFIG_SYS_SDRC_MR_VAL3		AT91_SDRAMC_MODE_REFRESH
+#define CONFIG_SYS_SDRAM_VAL2		0		/* SDRAM_BASE */
+#define CONFIG_SYS_SDRAM_VAL3		0		/* SDRAM_BASE */
+#define CONFIG_SYS_SDRAM_VAL4		0		/* SDRAM_BASE */
+#define CONFIG_SYS_SDRAM_VAL5		0		/* SDRAM_BASE */
+#define CONFIG_SYS_SDRAM_VAL6		0		/* SDRAM_BASE */
+#define CONFIG_SYS_SDRAM_VAL7		0		/* SDRAM_BASE */
+#define CONFIG_SYS_SDRAM_VAL8		0		/* SDRAM_BASE */
+#define CONFIG_SYS_SDRAM_VAL9		0		/* SDRAM_BASE */
+#define CONFIG_SYS_SDRC_MR_VAL4		AT91_SDRAMC_MODE_LMR
+#define CONFIG_SYS_SDRAM_VAL10		0		/* SDRAM_BASE */
+#define CONFIG_SYS_SDRC_MR_VAL5		AT91_SDRAMC_MODE_NORMAL
+#define CONFIG_SYS_SDRAM_VAL11		0		/* SDRAM_BASE */
+#define CONFIG_SYS_SDRC_TR_VAL2		1200		/* SDRAM_TR */
+#define CONFIG_SYS_SDRAM_VAL12		0		/* SDRAM_BASE */
+
+/* setup SMC0, CS0 (NOR Flash) - 16-bit, 15 WS */
+#define CONFIG_SYS_SMC0_SETUP0_VAL					\
+		(AT91_SMC_NWESETUP_(10) | AT91_SMC_NCS_WRSETUP_(10) |	\
+		 AT91_SMC_NRDSETUP_(10) | AT91_SMC_NCS_RDSETUP_(10))
+#define CONFIG_SYS_SMC0_PULSE0_VAL					\
+		(AT91_SMC_NWEPULSE_(11) | AT91_SMC_NCS_WRPULSE_(11) |	\
+		 AT91_SMC_NRDPULSE_(11) | AT91_SMC_NCS_RDPULSE_(11))
+#define CONFIG_SYS_SMC0_CYCLE0_VAL	\
+		(AT91_SMC_NWECYCLE_(22) | AT91_SMC_NRDCYCLE_(22))
+#define CONFIG_SYS_SMC0_MODE0_VAL				\
+		(AT91_SMC_READMODE | AT91_SMC_WRITEMODE |	\
+		 AT91_SMC_DBW_16 |				\
+		 AT91_SMC_TDFMODE |				\
+		 AT91_SMC_TDF_(6))
+
+/* user reset enable */
+#define CONFIG_SYS_RSTC_RMR_VAL			\
+		(AT91_RSTC_KEY |		\
+		AT91_RSTC_PROCRST |		\
+		AT91_RSTC_RSTTYP_WAKEUP |	\
+		AT91_RSTC_RSTTYP_WATCHDOG)
+
+/* Disable Watchdog */
+#define CONFIG_SYS_WDTC_WDMR_VAL				\
+		(AT91_WDT_WDIDLEHLT | AT91_WDT_WDDBGHLT |	\
+		 AT91_WDT_WDV |					\
+		 AT91_WDT_WDDIS |				\
+		 AT91_WDT_WDD)
+#endif
+
+#else
+#define CONFIG_SYS_NO_FLASH			1
 #endif
 
 /* NAND flash */
@@ -175,7 +305,7 @@
 				"mtdparts=at91_nand:-(root) "\
 				"rw rootfstype=jffs2"
 
-#else /* CONFIG_SYS_USE_NANDFLASH */
+#elif CONFIG_SYS_USE_NANDFLASH
 
 /* bootstrap + u-boot + env + linux in nandflash */
 #define CONFIG_ENV_IS_IN_NAND	1

@@ -196,9 +196,16 @@ static void at91sam9263ek_lcd_hw_init(void)
 #include <nand.h>
 #include <version.h>
 
+#ifndef CONFIG_SYS_NO_FLASH
+extern flash_info_t flash_info[];
+#endif
+
 void lcd_show_board_info(void)
 {
 	ulong dram_size, nand_size;
+#ifndef CONFIG_SYS_NO_FLASH
+	ulong flash_size;
+#endif
 	int i;
 	char temp[32];
 
@@ -215,9 +222,19 @@ void lcd_show_board_info(void)
 	nand_size = 0;
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
 		nand_size += nand_info[i].size;
-	lcd_printf ("  %ld MB SDRAM, %ld MB NAND\n",
+#ifndef CONFIG_SYS_NO_FLASH
+	flash_size = 0;
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++)
+		flash_size += flash_info[i].size;
+#endif
+	lcd_printf ("  %ld MB SDRAM, %ld MB NAND",
 		dram_size >> 20,
 		nand_size >> 20 );
+#ifndef CONFIG_SYS_NO_FLASH
+	lcd_printf (",\n  %ld MB NOR",
+		flash_size >> 20);
+#endif
+	lcd_puts ("\n");
 }
 #endif /* CONFIG_LCD_INFO */
 #endif

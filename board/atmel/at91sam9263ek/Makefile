@@ -32,10 +32,13 @@ LIB	= $(obj)lib$(BOARD).a
 COBJS-y += at91sam9263ek.o
 COBJS-y += led.o
 COBJS-$(CONFIG_HAS_DATAFLASH) += partition.o
+ifndef CONFIG_SKIP_LOWLEVEL_INIT
+SOBJS-y += lowlevel_init.o
+endif
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)

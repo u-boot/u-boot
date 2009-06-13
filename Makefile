@@ -2754,6 +2754,8 @@ at91sam9261ek_config	:	unconfig
 	fi;
 	@$(MKCONFIG) -a at91sam9261ek arm arm926ejs at91sam9261ek atmel at91
 
+at91sam9263ek_norflash_config \
+at91sam9263ek_norflash_boot_config \
 at91sam9263ek_nandflash_config \
 at91sam9263ek_dataflash_config \
 at91sam9263ek_dataflash_cs0_config \
@@ -2762,9 +2764,16 @@ at91sam9263ek_config	:	unconfig
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
+	elif [ "$(findstring norflash,$@)" ] ; then \
+		echo "#define CONFIG_SYS_USE_NORFLASH 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... with environment variable in NOR FLASH" ; \
 	else \
 		echo "#define CONFIG_SYS_USE_DATAFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in SPI DATAFLASH CS0" ; \
+	fi;
+	@if [ "$(findstring norflash_boot,$@)" ] ; then \
+		echo "#define CONFIG_SYS_USE_BOOT_NORFLASH 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... and boot from NOR FLASH" ; \
 	fi;
 	@$(MKCONFIG) -a at91sam9263ek arm arm926ejs at91sam9263ek atmel at91
 
