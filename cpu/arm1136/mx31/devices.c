@@ -1,5 +1,7 @@
 /*
  *
+ * (C) Copyright 2009 Magnus Lilja <lilja.magnus@gmail.com>
+ *
  * (c) 2007 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
  *
  * See file CREDITS for list of people who contributed to this
@@ -21,33 +23,34 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ASM_ARCH_MX31_H
-#define __ASM_ARCH_MX31_H
+#include <common.h>
+#include <asm/arch/mx31-regs.h>
+#include <asm/arch/mx31.h>
 
-extern u32 mx31_get_ipg_clk(void);
-extern void mx31_gpio_mux(unsigned long mode);
-
-enum mx31_gpio_direction {
-	MX31_GPIO_DIRECTION_IN,
-	MX31_GPIO_DIRECTION_OUT,
-};
-
-#ifdef CONFIG_MX31_GPIO
-extern int mx31_gpio_direction(unsigned int gpio,
-			       enum mx31_gpio_direction direction);
-extern void mx31_gpio_set(unsigned int gpio, unsigned int value);
-#else
-static inline int mx31_gpio_direction(unsigned int gpio,
-				      enum mx31_gpio_direction direction)
+#ifdef CONFIG_SYS_MX31_UART1
+void mx31_uart1_hw_init(void)
 {
-	return 1;
-}
-static inline void mx31_gpio_set(unsigned int gpio, unsigned int value)
-{
+	/* setup pins for UART1 */
+	mx31_gpio_mux(MUX_RXD1__UART1_RXD_MUX);
+	mx31_gpio_mux(MUX_TXD1__UART1_TXD_MUX);
+	mx31_gpio_mux(MUX_RTS1__UART1_RTS_B);
+	mx31_gpio_mux(MUX_CTS1__UART1_CTS_B);
 }
 #endif
 
-void mx31_uart1_hw_init(void);
-void mx31_spi2_hw_init(void);
+#ifdef CONFIG_MXC_SPI
+void mx31_spi2_hw_init(void)
+{
+	/* SPI2 */
+	mx31_gpio_mux(MUX_CSPI2_SS2__CSPI2_SS2_B);
+	mx31_gpio_mux(MUX_CSPI2_SCLK__CSPI2_CLK);
+	mx31_gpio_mux(MUX_CSPI2_SPI_RDY__CSPI2_DATAREADY_B);
+	mx31_gpio_mux(MUX_CSPI2_MOSI__CSPI2_MOSI);
+	mx31_gpio_mux(MUX_CSPI2_MISO__CSPI2_MISO);
+	mx31_gpio_mux(MUX_CSPI2_SS0__CSPI2_SS0_B);
+	mx31_gpio_mux(MUX_CSPI2_SS1__CSPI2_SS1_B);
 
-#endif /* __ASM_ARCH_MX31_H */
+	/* start SPI2 clock */
+	__REG(CCM_CGR2) = __REG(CCM_CGR2) | (3 << 4);
+}
+#endif
