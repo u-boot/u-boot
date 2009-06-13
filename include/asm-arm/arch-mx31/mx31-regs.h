@@ -194,4 +194,9 @@
 #define CS5_BASE	0xB6000000
 #define PCMCIA_MEM_BASE	0xC0000000
 
+/*
+ * NAND controller
+ */
+#define NFC_BASE_ADDR	0xB8000000
+
 #endif /* __ASM_ARCH_MX31_REGS_H */

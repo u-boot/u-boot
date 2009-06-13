@@ -200,12 +200,15 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
 
 	ldr	pc, _start_armboot
 
+#ifdef CONFIG_NAND_SPL
+_start_armboot: .word nand_boot
+#else
 #ifdef CONFIG_ONENAND_IPL
 _start_armboot: .word start_oneboot
 #else
 _start_armboot: .word start_armboot
-#endif
-
+#endif /* CONFIG_ONENAND_IPL */
+#endif /* CONFIG_NAND_SPL */
 
 /*
  *************************************************************************
@@ -217,6 +220,7 @@ _start_armboot: .word start_armboot
  *
  *************************************************************************
  */
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 cpu_init_crit:
 	/*
 	 * flush v4 I/D caches
@@ -243,6 +247,7 @@ cpu_init_crit:
 	bl	lowlevel_init	/* go setup pll,mux,memory */
 	mov	lr, ip		/* restore link */
 	mov	pc, lr		/* back to my caller */
+#endif /* CONFIG_SKIP_LOWLEVEL_INIT */
 
 #ifndef CONFIG_PRELOADER
 /*
