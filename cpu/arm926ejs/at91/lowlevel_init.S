@@ -5,7 +5,7 @@
  *		       Jan-Derk Bakker (J.D.Bakker@its.tudelft.nl)
  *
  * Copyright (C) 2008 Ronetix Ilko Iliev (www.ronetix.at)
- * Copyright (C) 2009 Jean-Christopher PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+ * Copyright (C) 2009 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -33,9 +33,9 @@
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/at91_wdt.h>
+#include <asm/arch/at91sam9_matrix.h>
 #include <asm/arch/at91sam9_sdramc.h>
 #include <asm/arch/at91sam9_smc.h>
-#include <asm/arch/at91sam9263_matrix.h>
 
 _TEXT_BASE:
 	.word	TEXT_BASE
@@ -87,8 +87,9 @@ POS1:
  */
 	ldr	r1, =(AT91_BASE_SYS + AT91_CKGR_MOR)
 	ldr	r2, =(AT91_BASE_SYS + AT91_PMC_SR)
+	/* Main oscillator Enable register PMC_MOR: */
 	ldr	r0, =CONFIG_SYS_MOR_VAL
-	str	r0, [r1]	/* Enable main oscillator, OSCOUNT = 0xFF */
+	str	r0, [r1]
 
 	/* Reading the PMC Status to detect when the Main Oscillator is enabled */
 	mov	r4, #AT91_PMC_MOSCS
@@ -119,7 +120,7 @@ MOSCS_Loop1:
 /* ----------------------------------------------------------------------------
  * PMC Init Step 3.
  * ----------------------------------------------------------------------------
- * - Switch on the Main Oscillator 16.367 MHz
+ * - Switch on the Main Oscillator
  * ----------------------------------------------------------------------------
  */
 	ldr	r1, =(AT91_BASE_SYS + AT91_PMC_MCKR)
@@ -185,15 +186,28 @@ SMRDATA:
 	.word (AT91_BASE_SYS + AT91_WDT_MR)
 	.word CONFIG_SYS_WDTC_WDMR_VAL
 
+	/* configure PIOx as EBI0 D[16-31] */
+#if defined(CONFIG_AT91SAM9263)
 	.word (AT91_BASE_SYS + AT91_PIOD + PIO_PDR)
 	.word CONFIG_SYS_PIOD_PDR_VAL1
 	.word (AT91_BASE_SYS + AT91_PIOD + PIO_PUDR)
 	.word CONFIG_SYS_PIOD_PPUDR_VAL
 	.word (AT91_BASE_SYS + AT91_PIOD + PIO_ASR)
 	.word CONFIG_SYS_PIOD_PPUDR_VAL
+#elif defined(CONFIG_AT91SAM9261)
+	.word (AT91_BASE_SYS + AT91_PIOC + PIO_PDR)
+	.word CONFIG_SYS_PIOC_PDR_VAL1
+	.word (AT91_BASE_SYS + AT91_PIOC + PIO_PUDR)
+	.word CONFIG_SYS_PIOC_PPUDR_VAL
+#endif
 
+#if defined(AT91_MATRIX_EBI0CSA)
 	.word (AT91_BASE_SYS + AT91_MATRIX_EBI0CSA)
 	.word CONFIG_SYS_MATRIX_EBI0CSA_VAL
+#else /* AT91_MATRIX_EBICSA */
+	.word (AT91_BASE_SYS + AT91_MATRIX_EBICSA)
+	.word CONFIG_SYS_MATRIX_EBICSA_VAL
+#endif
 
 	/* flash */
 	.word (AT91_BASE_SYS + AT91_SMC_MODE(0))

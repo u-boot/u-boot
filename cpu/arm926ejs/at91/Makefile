@@ -37,8 +37,12 @@ COBJS-y += cpu.o
 COBJS-y	+= reset.o
 COBJS-y	+= timer.o
 
-SRCS    := $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
-OBJS    := $(addprefix $(obj),$(SOBJS) $(COBJS-y))
+ifndef CONFIG_SKIP_LOWLEVEL_INIT
+SOBJS-y	:= lowlevel_init.o
+endif
+
+SRCS    := $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS    := $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 all:	$(obj).depend $(LIB)
 
