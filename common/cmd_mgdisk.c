@@ -70,7 +70,7 @@ U_BOOT_CMD(
 	"    - random read : mgd read [from] [to] [size]\n"
 	"    - random write : mgd write [from] [to] [size]\n"
 	"    - sector read : mgd readsec [sector] [to] [counts]\n"
-	"    - sector write : mgd writesec [from] [sector] [counts]\n"
+	"    - sector write : mgd writesec [from] [sector] [counts]"
 );
 
 #endif

@@ -25,7 +25,9 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <net.h>
 #include <asm/arch/hardware.h>
+
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -37,17 +39,7 @@ int dram_init(void)
 	return(0);
 }
 
-static int dv_get_pllm_output(uint32_t pllm)
-{
-	return (pllm + 1) * (CONFIG_SYS_HZ_CLOCK / 1000000);
-}
-
-void dv_display_clk_infos(void)
-{
-	printf("ARM Clock: %dMHz\n", dv_get_pllm_output(REG(PLL1_PLLM)) / 2);
-	printf("DDR Clock: %dMHz\n", dv_get_pllm_output(REG(PLL2_PLLM)) /
-	       ((REG(PLL2_DIV2) & 0x1f) + 1) / 2);
-}
+#ifdef CONFIG_DRIVER_TI_EMAC
 
 /* Read ethernet MAC address from EEPROM for DVEVM compatible boards.
  * Returns 1 if found, 0 otherwise.
@@ -60,8 +52,8 @@ int dvevm_read_mac_address(uint8_t *buf)
 		     (uint8_t *) &buf[0], 6))
 		goto i2cerr;
 
-	/* Check that MAC address is not null. */
-	if (memcmp(buf, "\0\0\0\0\0\0", 6) == 0)
+	/* Check that MAC address is valid. */
+	if (!is_valid_ether_addr(buf))
 		goto err;
 
 	return 1; /* Found */
@@ -75,11 +67,11 @@ err:
 }
 
 /* If there is a MAC address in the environment, and if it is not identical to
- * the MAC address in the ROM, then a warning is printed and the MAC address
+ * the MAC address in the EEPROM, then a warning is printed and the MAC address
  * from the environment is used.
  *
  * If there is no MAC address in the environment, then it will be initialized
- * (silently) from the value in the ROM.
+ * (silently) from the value in the EEPROM.
  */
 void dv_configure_mac_address(uint8_t *rom_enetaddr)
 {
@@ -96,31 +88,24 @@ void dv_configure_mac_address(uint8_t *rom_enetaddr)
 			tmp = (*end) ? end+1 : end;
 	}
 
-	/* Check if ROM and U-Boot environment MAC addresses match. */
+	/* Check if EEPROM and U-Boot environment MAC addresses match. */
 	if (memcmp(env_enetaddr, "\0\0\0\0\0\0", 6) != 0 &&
 	    memcmp(env_enetaddr, rom_enetaddr, 6) != 0) {
 		printf("Warning: MAC addresses don't match:\n");
-		printf("  ROM MAC address: %02X:%02X:%02X:%02X:%02X:%02X\n",
-		       rom_enetaddr[0], rom_enetaddr[1],
-		       rom_enetaddr[2], rom_enetaddr[3],
-		       rom_enetaddr[4], rom_enetaddr[5]);
-		printf("  \"ethaddr\" value: %02X:%02X:%02X:%02X:%02X:%02X\n",
-		       env_enetaddr[0], env_enetaddr[1],
-		       env_enetaddr[2], env_enetaddr[3],
-		       env_enetaddr[4], env_enetaddr[5]) ;
+		printf("  EEPROM MAC address: %pM\n", rom_enetaddr);
+		printf("     \"ethaddr\" value: %pM\n", env_enetaddr) ;
 		debug("### Using MAC address from environment\n");
 	}
 	if (!tmp) {
 		char ethaddr[20];
 
 		/* There is no MAC address in the environment, so we initialize
-		 * it from the value in the ROM. */
-		sprintf(ethaddr, "%02X:%02X:%02X:%02X:%02X:%02X",
-			rom_enetaddr[0], rom_enetaddr[1],
-			rom_enetaddr[2], rom_enetaddr[3],
-			rom_enetaddr[4], rom_enetaddr[5]) ;
-		debug("### Setting environment from ROM MAC address = \"%s\"\n",
+		 * it from the value in the EEPROM. */
+		sprintf(ethaddr, "%pM", rom_enetaddr) ;
+		debug("### Setting environment from EEPROM MAC address = \"%s\"\n",
 		      ethaddr);
 		setenv("ethaddr", ethaddr);
 	}
 }
+
+#endif	/* DAVINCI_EMAC */

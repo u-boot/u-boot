@@ -636,18 +636,17 @@ U_BOOT_CMD(
 	"load binary file from a filesystem image",
 	"[ off ] [ filename ]\n"
 	"    - load binary file from flash bank\n"
-	"      with offset 'off'\n"
+	"      with offset 'off'"
 );
 U_BOOT_CMD(
 	ls,	2,	1,	do_jffs2_ls,
 	"list files in a directory (default /)",
-	"[ directory ]\n"
-	"    - list files in a directory.\n"
+	"[ directory ]"
 );
 
 U_BOOT_CMD(
 	fsinfo,	1,	1,	do_jffs2_fsinfo,
 	"print information about filesystems",
-	"    - print information about filesystems\n"
+	""
 );
 /***************************************************/

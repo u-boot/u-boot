@@ -188,4 +188,5 @@ U_BOOT_CMD(
 	"				  `offset' to memory at `addr'\n"
 	"sf write addr offset len	- write `len' bytes from memory\n"
 	"				  at `addr' to flash at `offset'\n"
-	"sf erase offset len		- erase `len' bytes from `offset'\n");
+	"sf erase offset len		- erase `len' bytes from `offset'"
+);

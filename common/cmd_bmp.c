@@ -141,7 +141,7 @@ U_BOOT_CMD(
 	bmp,	5,	1,	do_bmp,
 	"manipulate BMP image data",
 	"info <imageAddr>          - display image info\n"
-	"bmp display <imageAddr> [x y] - display image at x,y\n"
+	"bmp display <imageAddr> [x y] - display image at x,y"
 );
 
 /*

@@ -231,7 +231,7 @@ int do_iploop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	addr = simple_strtol (argv[1], NULL, 16);
 
-	printf("iprobe looping on addr 0x%lx (cntrl-c aborts)...\n", addr);
+	printf("i2c probe looping on addr 0x%lx (cntrl-c aborts)...\n", addr);
 
 	for (;;) {
 		i2c_probe(addr);
@@ -249,9 +249,9 @@ int do_iploop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 U_BOOT_CMD(
 	iploop,	2,	1,	do_iploop,
-	"iprobe loop <addr>",
-	NULL
-	);
+	"i2c probe loop <addr>",
+	""
+);
 
 /*
  */
@@ -303,8 +303,8 @@ int do_codec(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	codec,	1,	1,	do_codec,
 	"Enable codec",
-	NULL
-	);
+	""
+);
 
 /*
  */
@@ -336,8 +336,8 @@ int do_saa(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	saa,	5,	1,	do_saa,
 	"Write to SAA1064 <addr> <instr> <cntrl> <data>",
-	NULL
-	);
+	""
+);
 
 /*
  */
@@ -375,8 +375,8 @@ int do_iwrite(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	iwrite,	6,	1,	do_iwrite,
 	"Write n bytes to I2C-device",
-	"addr cnt data0 ... datan\n"
-	);
+	"addr cnt data0 ... datan"
+);
 
 /*
  */
@@ -407,8 +407,8 @@ int do_iread(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	iread,	3,	1,	do_iread,
 	"Read from I2C <addr> <cnt>",
-	NULL
-	);
+	""
+);
 
 /*
  */
@@ -445,6 +445,6 @@ int do_ireadl(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	ireadl,	2,	1,	do_ireadl,
 	"Read-loop from I2C <addr>",
-	NULL
-	);
+	""
+);
 #endif

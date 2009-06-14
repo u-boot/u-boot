@@ -146,8 +146,8 @@ init_fnc_t *init_sequence[] =
 	checkboard,		/* Check support board */
 	dram_init,		/* SDRAM init */
 	timer_init,		/* SuperH Timer (TCNT0 only) init */
-	sh_flash_init,	/* Flash memory(NOR) init*/
 	sh_mem_env_init,
+	sh_flash_init,	/* Flash memory(NOR) init*/
 	INIT_FUNC_NAND_INIT/* Flash memory (NAND) init */
 	INIT_FUNC_PCI_INIT	/* PCI init */
 	devices_init,

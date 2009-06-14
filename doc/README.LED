@@ -1,0 +1,78 @@
+Status LED
+========================================
+
+This README describes the status LED API.
+
+The API is defined by the include file include/status_led.h
+
+The first step is to define CONFIG_STATUS_LED in the board config file.
+
+If the LED support is only for a single board, define CONFIG_BOARD_SPECIFIC_LED
+in the board config file.
+
+At a minimum, these macros must be defined at 
+STATUS_LED_BIT
+STATUS_LED_STATE
+STATUS_LED_PERIOD
+
+If there are multiple status LED's define
+STATUS_LED_BIT<n>
+STATUS_LED_STATE<n>
+STATUS_LED_PERIOD<n>
+
+Where <n> can a integer 1 through 3. 
+
+STATUS_LED_BIT is passed into the __led_* functions to identify which LED is
+being acted on.  As such, the value choose must be unique with with respect to
+the other STATUS_LED_BIT's.  Mapping the value to a physical LED is the
+reponsiblity of the __led_* function.
+
+STATUS_LED_STATE is the initial state of the LED. It should be set to one of
+these values: STATUS_LED_OFF or STATUS_LED_ON.
+
+STATUS_LED_PERIOD is how long is the LED blink period.  This usually set to
+(CONFIG_SYS_HZ / <N>) where <N> is the frequency of the blink. Typical values
+range from 2 to 10.
+
+Some other LED macros
+
+STATUS_LED_BOOT is the LED to light when the board is booting.  This must be a
+valid STATUS_LED_BIT value. 
+
+STATUS_LED_RED is the red LED.  It is used signal errors. This must be a valid
+STATUS_LED_BIT value. Other similar color LED's are STATUS_LED_YELLOW and
+STATUS_LED_BLUE.  
+
+These board must define these functions
+
+__led_init is called once to initialize the LED to STATUS_LED_STATE. One time
+start up code should be placed here.
+
+__led_set is called to change the state of the LED. 
+
+__led_toggle is called to toggle the current state of the LED.
+
+Colour LED
+========================================
+
+Colour LED's are at present only used by ARM. 
+
+The functions names explain their purpose.
+
+coloured_LED_init
+red_LED_on
+red_LED_off
+green_LED_on
+green_LED_off
+yellow_LED_on
+yellow_LED_off
+blue_LED_on
+blue_LED_off
+
+These are weakly defined in lib_arm/board.c to noops. Where applicable, define
+these functions in the board specific source.
+
+TBD : Describe older board dependent macros similar to what is done for
+CONFIG_TQM8xxL.
+
+TBD : Describe general support via asm/status_led.h

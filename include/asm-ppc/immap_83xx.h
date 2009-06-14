@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2004-2007 Freescale Semiconductor, Inc.
+ * (C) Copyright 2004-2009 Freescale Semiconductor, Inc.
  *
  * MPC83xx Internal Memory Map
  *
@@ -656,7 +656,7 @@ typedef struct tdmdmac83xx {
 	u8 fixme[0x2000];
 } tdmdmac83xx_t;
 
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834x)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */
@@ -773,7 +773,7 @@ typedef struct immap {
 	u8			res12[0x1CF00];
 } immap_t;
 
-#elif defined(CONFIG_MPC837X)
+#elif defined(CONFIG_MPC837x)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */
@@ -857,7 +857,7 @@ typedef struct immap {
 	u8			qe[0x100000];	/* QE block */
 } immap_t;
 
-#elif defined(CONFIG_MPC832X)
+#elif defined(CONFIG_MPC832x)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */
@@ -897,4 +897,7 @@ typedef struct immap {
 
 #define CONFIG_SYS_MPC83xx_ESDHC_OFFSET	(0x2e000)
 #define CONFIG_SYS_MPC83xx_ESDHC_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_ESDHC_OFFSET)
+#define CONFIG_SYS_MPC83xx_USB_OFFSET	0x23000
+#define CONFIG_SYS_MPC83xx_USB_ADDR \
+			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_USB_OFFSET)
 #endif				/* __IMMAP_83xx__ */

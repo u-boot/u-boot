@@ -38,7 +38,7 @@
 int fixed_sdram(void);
 void sdram_init(void);
 
-#if defined(CONFIG_DDR_ECC) && defined(CONFIG_MPC83XX)
+#if defined(CONFIG_DDR_ECC) && defined(CONFIG_MPC83xx)
 void ddr_enable_ecc(unsigned int dram_size);
 #endif
 

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2007
+ * (C) Copyright 2000-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -66,7 +66,6 @@ typedef volatile unsigned char	vu_char;
 #elif defined(CONFIG_MPC5xxx)
 #include <mpc5xxx.h>
 #elif defined(CONFIG_MPC512X)
-#include <mpc512x.h>
 #include <asm/immap_512x.h>
 #elif defined(CONFIG_MPC8220)
 #include <asm/immap_8220.h>
@@ -90,7 +89,7 @@ typedef volatile unsigned char	vu_char;
 #include <mpc85xx.h>
 #include <asm/immap_85xx.h>
 #endif
-#ifdef CONFIG_MPC83XX
+#ifdef CONFIG_MPC83xx
 #include <mpc83xx.h>
 #include <asm/immap_83xx.h>
 #endif
@@ -300,6 +299,9 @@ int	misc_init_r   (void);
 /* common/exports.c */
 void	jumptable_init(void);
 
+/* common/kallsysm.c */
+const char *symbol_lookup(unsigned long addr, unsigned long *caddr);
+
 /* api/api.c */
 void	api_init (void);
 
@@ -410,7 +412,7 @@ void	trap_init     (ulong);
     defined (CONFIG_MPC8220)	|| \
     defined (CONFIG_MPC85xx)	|| \
     defined (CONFIG_MPC86xx)	|| \
-    defined (CONFIG_MPC83XX)
+    defined (CONFIG_MPC83xx)
 unsigned char	in8(unsigned int);
 void		out8(unsigned int, unsigned char);
 unsigned short	in16(unsigned int);
@@ -431,7 +433,7 @@ unsigned short	in16(unsigned int);
 void		out16(unsigned int, unsigned short value);
 #endif
 
-#if defined (CONFIG_MPC83XX)
+#if defined (CONFIG_MPC83xx)
 void		ppcDWload(unsigned int *addr, unsigned int *ret);
 void		ppcDWstore(unsigned int *addr, unsigned int *value);
 #endif
@@ -548,7 +550,7 @@ void	cpu_init_f    (void);
 int	cpu_init_r    (void);
 #if defined(CONFIG_8260)
 int	prt_8260_rsr  (void);
-#elif defined(CONFIG_MPC83XX)
+#elif defined(CONFIG_MPC83xx)
 int	prt_83xx_rsr  (void);
 #endif
 

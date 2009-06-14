@@ -384,5 +384,5 @@ static void print_str(const char *name, const char *str)
 U_BOOT_CMD(
 	bdinfo,	1,	1,	do_bdinfo,
 	"print Board Info structure",
-	NULL
+	""
 );

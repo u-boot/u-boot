@@ -50,6 +50,10 @@ reset_cpu:
 	str	r1, [r0]
 	ldr	r1, WDTCR_VAL2
 	str	r1, [r0]
+	/* Write an invalid value to the WDKEY field to trigger
+	 * an immediate watchdog reset */
+	mov     r1, $0x4000
+	str     r1, [r0]
 	nop
 	nop
 	nop

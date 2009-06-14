@@ -266,7 +266,6 @@
 
 #ifdef CONFIG_HARD_I2C
 #define CONFIG_CMD_I2C
-#define CONFIG_I2C_CMD_TREE
 #define CONFIG_SYS_I2C_SPEED		0	/* not used */
 #define CONFIG_SYS_I2C_SLAVE		0	/* not used */
 #endif

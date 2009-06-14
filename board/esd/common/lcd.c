@@ -373,5 +373,5 @@ int do_esdbmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	esdbmp,	2,	1,	do_esdbmp,
 	"display BMP image",
-	"<imageAddr> - display image\n"
+	"<imageAddr> - display image"
 );

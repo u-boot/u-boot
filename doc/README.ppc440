@@ -88,7 +88,7 @@ I2C
 =================
 
 The i2c utilities have been tested on both Rev B. and Rev C. and
-look good. The iprobe command implementation has been updated to
+look good. The 'i2c probe' command implementation has been updated to
 allow for 'skipped' addresses. Some i2c slaves are write only and
 cause problems when a probe (read) is performed (for example the
 CDCV850 clock controller at address 0x69 on the ebony board).
@@ -97,7 +97,7 @@ To prevent probing certain addresses you can define the
 CONFIG_SYS_I2C_NOPROBES macro in your board-specific header file. When
 defined, all specified addresses are skipped during a probe.
 The addresses that are skipped will be displayed in the output
-of the iprobe command.
+of the 'i2c probe' command.
 
 For example, to prevent probing address 0x69, define the macro as
 follows:

@@ -33,6 +33,7 @@
 /*
  * Select serial console configuration
  */
+#define CONFIG_PXA_SERIAL
 #define CONFIG_BTUART          1       /* BTUART is default on WEP dev board */
 #define CONFIG_BAUDRATE   115200
 

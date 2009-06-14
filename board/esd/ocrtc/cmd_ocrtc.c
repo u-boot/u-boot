@@ -55,7 +55,7 @@ int do_setdevice(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	setdevice,	1,	1,	do_setdevice,
 	"Set device number on pci adapter boards",
-	NULL
+	""
 );
 
 
@@ -78,7 +78,7 @@ int do_getdevice(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	getdevice,	1,	1,	do_getdevice,
 	"Get device number and set slot env variable",
-	NULL
+	""
 );
 
 #endif

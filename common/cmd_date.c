@@ -218,5 +218,5 @@ U_BOOT_CMD(
 	"[MMDDhhmm[[CC]YY][.ss]]\ndate reset\n"
 	"  - without arguments: print date & time\n"
 	"  - with numeric argument: set the system date & time\n"
-	"  - with 'reset' argument: reset the RTC\n"
+	"  - with 'reset' argument: reset the RTC"
 );

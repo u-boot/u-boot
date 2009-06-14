@@ -27,10 +27,15 @@
 
 #include <asm/timer.h>
 #include <asm/immap.h>
+#include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static ulong timestamp;
+static volatile ulong timestamp = 0;
+
+#ifndef CONFIG_SYS_WATCHDOG_FREQ
+#define CONFIG_SYS_WATCHDOG_FREQ (CONFIG_SYS_HZ / 2)
+#endif
 
 #if defined(CONFIG_MCFTMR)
 #ifndef CONFIG_SYS_UDELAY_BASE
@@ -76,6 +81,12 @@ void dtimer_interrupt(void *not_used)
 	if ((CONFIG_SYS_TMRPND_REG & CONFIG_SYS_TMRINTR_MASK) == CONFIG_SYS_TMRINTR_PEND) {
 		timerp->ter = (DTIM_DTER_CAP | DTIM_DTER_REF);
 		timestamp++;
+
+		#if defined(CONFIG_WATCHDOG) || defined (CONFIG_HW_WATCHDOG)
+		if ((timestamp % (CONFIG_SYS_WATCHDOG_FREQ)) == 0) {
+			WATCHDOG_RESET ();
+		}
+		#endif    /* CONFIG_WATCHDOG || CONFIG_HW_WATCHDOG */
 		return;
 	}
 }

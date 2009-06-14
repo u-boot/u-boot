@@ -163,7 +163,7 @@ static ulong timestamp;		/* U-Boot ticks since startup	      */
 
 /* starts up a counter
  * - the Integrator/CP timer can be set up to issue an interrupt */
-int interrupt_init (void)
+int timer_init (void)
 {
 	/* Load timer with initial value */
 	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 0) = TIMER_LOAD_VAL;

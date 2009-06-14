@@ -328,7 +328,7 @@ int do_set_default(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	setdef,	4,	1,	do_set_default,
 	"write board-specific values to EEPROM (ethaddr...)",
-	"ethaddr eth1addr serial#\n    - write board-specific values to EEPROM\n"
+	"ethaddr eth1addr serial#\n    - write board-specific values to EEPROM"
 	);
 
 static inline int sw_reset_pressed(void)
@@ -419,7 +419,7 @@ int do_chkreset(cmd_tbl_t* cmdtp, int flag, int argc, char* argv[])
 U_BOOT_CMD (
 	chkreset, 1, 1, do_chkreset,
 	"Check for status of SW-reset button and act accordingly",
-	NULL
+	""
 );
 
 #if defined(CONFIG_POST)

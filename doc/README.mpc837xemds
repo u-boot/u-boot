@@ -60,8 +60,8 @@ Freescale MPC837xEMDS Board
 
 	include/configs/MPC837XEMDS.h
 
-    CONFIG_MPC83XX	    MPC83xx family for both MPC837x and MPC8360
-    CONFIG_MPC837X	    MPC837x specific
+    CONFIG_MPC83xx	    MPC83xx family for both MPC837x and MPC8360
+    CONFIG_MPC837x	    MPC837x specific
     CONFIG_MPC837XEMDS	    MPC837XEMDS board specific
 
 4. Compilation

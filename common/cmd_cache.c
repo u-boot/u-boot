@@ -99,14 +99,14 @@ U_BOOT_CMD(
 	icache,   2,   1,     do_icache,
 	"enable or disable instruction cache",
 	"[on, off]\n"
-	"    - enable or disable instruction cache\n"
+	"    - enable or disable instruction cache"
 );
 
 U_BOOT_CMD(
 	dcache,   2,   1,     do_dcache,
 	"enable or disable data cache",
 	"[on, off]\n"
-	"    - enable or disable data (writethrough) cache\n"
+	"    - enable or disable data (writethrough) cache"
 );
 
 #endif

@@ -91,13 +91,13 @@ int cmd_backlight(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	led ,	2,	1,	cmd_led,
 	"switch status LED on or off",
-	"on/off\n"
+	"on/off"
 );
 
 U_BOOT_CMD(
 	backlight ,	2,	1,	cmd_backlight,
 	"switch backlight on or off",
-	"on/off\n"
+	"on/off"
 	);
 
 #endif /* CONFIG_STK52XX */

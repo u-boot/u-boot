@@ -27,7 +27,7 @@
  */
 #define CONFIG_E300		1 /* E300 family */
 #define CONFIG_QE		1 /* Has QE */
-#define CONFIG_MPC83XX		1 /* MPC83XX family */
+#define CONFIG_MPC83xx		1 /* MPC83xx family */
 #define CONFIG_MPC8360		1 /* MPC8360 CPU specific */
 #define CONFIG_MPC8360EMDS	1 /* MPC8360EMDS board specific */
 #undef CONFIG_PQ_MDS_PIB /* POWERQUICC MDS Platform IO Board */

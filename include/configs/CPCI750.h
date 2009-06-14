@@ -76,7 +76,8 @@
 
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
-#define CONFIG_AUTO_COMPLETE 1
+#define CONFIG_CMDLINE_EDITING		/* add command line history	*/
+#define CONFIG_AUTO_COMPLETE		/* add autocompletion support	*/
 
 /* Define which ETH port will be used for connecting the network */
 #define CONFIG_SYS_ETH_PORT		ETH_0
@@ -625,5 +626,7 @@
 #define BOOTFLAG_WARM	0x02		/* Software reboot		    */
 
 #define CONFIG_SYS_BOARD_ASM_INIT	1
+
+#define CPCI750_SLAVE_TEST	(((in8(0xf0300000) & 0x80) == 0) ? 0 : 1)
 
 #endif	/* __CONFIG_H */

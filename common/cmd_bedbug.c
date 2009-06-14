@@ -108,7 +108,7 @@ int do_bedbug_dis (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD (ds, 3, 1, do_bedbug_dis,
 	    "disassemble memory",
-	    "ds <address> [# instructions]\n");
+	    "ds <address> [# instructions]");
 
 /* ======================================================================
  * Entry point from the interpreter to the assembler.  Assembles
@@ -160,7 +160,7 @@ int do_bedbug_asm (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }				/* do_bedbug_asm */
 
 U_BOOT_CMD (as, 2, 0, do_bedbug_asm,
-	    "assemble memory", "as <address>\n");
+	    "assemble memory", "as <address>");
 
 /* ======================================================================
  * Used to set a break point from the interpreter.  Simply calls into the
@@ -181,7 +181,7 @@ U_BOOT_CMD (break, 3, 0, do_bedbug_break,
 	    " - Set or clear a breakpoint\n"
 	    "break <address> - Break at an address\n"
 	    "break off <bp#> - Disable breakpoint.\n"
-	    "break show      - List breakpoints.\n");
+	    "break show      - List breakpoints.");
 
 /* ======================================================================
  * Called from the debug interrupt routine.  Simply calls the CPU-specific
@@ -278,7 +278,7 @@ int do_bedbug_continue (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD (continue, 1, 0, do_bedbug_continue,
 	    "continue from a breakpoint",
-	    " - continue from a breakpoint.\n");
+	    "");
 
 /* ======================================================================
  * Interpreter command to continue to the next instruction, stepping into
@@ -309,7 +309,7 @@ int do_bedbug_step (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD (step, 1, 1, do_bedbug_step,
 	    "single step execution.",
-	    " - single step execution.\n");
+	    "");
 
 /* ======================================================================
  * Interpreter command to continue to the next instruction, stepping over
@@ -340,7 +340,7 @@ int do_bedbug_next (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD (next, 1, 1, do_bedbug_next,
 	    "single step execution, stepping over subroutines.",
-	    " - single step execution, stepping over subroutines.\n");
+	    "");
 
 /* ======================================================================
  * Interpreter command to print the current stack.  This assumes an EABI
@@ -385,7 +385,7 @@ int do_bedbug_stack (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD (where, 1, 1, do_bedbug_stack,
 	    "Print the running stack.",
-	    " - Print the running stack.\n");
+	    "");
 
 /* ======================================================================
  * Interpreter command to dump the registers.  Calls the CPU-specific
@@ -405,7 +405,7 @@ int do_bedbug_rdump (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }				/* do_bedbug_rdump */
 
 U_BOOT_CMD (rdump, 1, 1, do_bedbug_rdump,
-	    "Show registers.", " - Show registers.\n");
+	    "Show registers.", "");
 /* ====================================================================== */
 
 

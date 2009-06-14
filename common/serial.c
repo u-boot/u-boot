@@ -68,6 +68,8 @@ struct serial_device *__default_serial_console (void)
 #else
 #error "CONFIG_SERIAL? missing."
 #endif
+#elif defined(CONFIG_OMAP3_ZOOM2)
+		return ZOOM2_DEFAULT_SERIAL_DEVICE;
 #else
 #error No default console
 #endif

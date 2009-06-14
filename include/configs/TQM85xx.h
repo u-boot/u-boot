@@ -567,6 +567,8 @@
 #define	CONFIG_JFFS2_NAND	1
 
 #ifdef CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+#define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT		"nand0=TQM85xx-nand"
 #define MTDPARTS_DEFAULT	"mtdparts=TQM85xx-nand:-"
 #else

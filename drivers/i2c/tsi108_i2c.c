@@ -41,6 +41,15 @@
 /* All functions assume that Tsi108 I2C block is the only master on the bus */
 /* I2C read helper function */
 
+void i2c_init(int speed, int slaveaddr)
+{
+	/*
+	 * The TSI108 has a fixed I2C clock rate and doesn't support slave
+	 * operation.  This function only exists as a stub to fit into the
+	 * U-Boot I2C API.
+	 */
+}
+
 static int i2c_read_byte (
 		uint i2c_chan,	/* I2C channel number: 0 - main, 1 - SDC SPD */
 		uchar chip_addr,/* I2C device address on the bus */
@@ -120,7 +129,7 @@ static int i2c_read_byte (
  *   chip_addr: I2C chip address, range 0..127
  *                  (to read from SPD channel EEPROM use (0xD0 ... 0xD7)
  *              NOTE: The bit 7 in the chip_addr serves as a channel select.
- *              This hack is for enabling "isdram" command on Tsi108 boards
+ *              This hack is for enabling "i2c sdram" command on Tsi108 boards
  *              without changes to common code. Used for I2C reads only.
  *   byte_addr: Memory or register address within the chip
  *   alen:      Number of bytes to use for addr (typically 1, 2 for larger

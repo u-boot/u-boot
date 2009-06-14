@@ -382,15 +382,8 @@ int board_eth_init(bd_t *bis)
 int checkboard (void)
 {
 	char *ss;
-	char buf[32];
 
 	printf ("Board : Ronetix PM9263\n");
-	printf ("Crystal frequency: %8s MHz\n",
-					strmhz(buf, get_main_clk_rate()));
-	printf ("CPU clock        : %8s MHz\n",
-					strmhz(buf, get_cpu_clk_rate()));
-	printf ("Master clock     : %8s MHz\n",
-					strmhz(buf, get_mck_clk_rate()));
 
 	switch (gd->fb_base) {
 	case PHYS_PSRAM:

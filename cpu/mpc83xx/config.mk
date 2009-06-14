@@ -22,7 +22,7 @@
 
 PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi
 
-PLATFORM_CPPFLAGS += -DCONFIG_MPC83XX -DCONFIG_E300 \
+PLATFORM_CPPFLAGS += -DCONFIG_MPC83xx -DCONFIG_E300 \
 			-ffixed-r2 -msoft-float
 
 # Use default linker script.  Board port can override in board/*/config.mk

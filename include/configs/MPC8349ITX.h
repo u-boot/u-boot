@@ -63,7 +63,7 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_MPC834X		/* MPC834x family (8343, 8347, 8349) */
+#define CONFIG_MPC834x		/* MPC834x family (8343, 8347, 8349) */
 #define CONFIG_MPC8349		/* MPC8349 specific */
 
 #define CONFIG_SYS_IMMR		0xE0000000	/* The IMMR is relocated to here */
@@ -95,7 +95,6 @@
 
 #define CONFIG_FSL_I2C
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_I2C_CMD_TREE
 #define CONFIG_SYS_I2C_OFFSET		0x3000
 #define CONFIG_SYS_I2C2_OFFSET		0x3100
 #define CONFIG_SYS_SPD_BUS_NUM		1	/* The I2C bus for SPD */

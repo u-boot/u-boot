@@ -382,5 +382,5 @@ U_BOOT_CMD(
 	"                                      03 -> Configuration Space\n"
 	"    [vdw] = VMEbus Maximum Datawidth: 01 -> D8 Data Width\n"
 	"                                      02 -> D16 Data Width\n"
-	"                                      03 -> D32 Data Width\n"
+	"                                      03 -> D32 Data Width"
 );

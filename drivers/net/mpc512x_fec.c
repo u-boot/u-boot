@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2007
+ * (C) Copyright 2003-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * Derived from the MPC8xx FEC driver.
@@ -7,11 +7,11 @@
  */
 
 #include <common.h>
-#include <mpc512x.h>
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
 #include <miiphy.h>
+#include <asm/io.h>
 #include "mpc512x_fec.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -26,11 +26,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #if (DEBUG & 0x40)
-static uint32 local_crc32(char *string, unsigned int crc_value, int len);
+static u32 local_crc32(char *string, unsigned int crc_value, int len);
 #endif
 
-int fec512x_miiphy_read(char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal);
-int fec512x_miiphy_write(char *devname, uint8 phyAddr, uint8 regAddr, uint16 data);
+int fec512x_miiphy_read(char *devname, u8 phyAddr, u8 regAddr, u16 * retVal);
+int fec512x_miiphy_write(char *devname, u8 phyAddr, u8 regAddr, u16 data);
 int mpc512x_fec_init_phy(struct eth_device *dev, bd_t * bis);
 
 static uchar rx_buff[FEC_BUFFER_SIZE];
@@ -40,9 +40,9 @@ static int rx_buff_idx = 0;
 #if (DEBUG & 0x2)
 static void mpc512x_fec_phydump (char *devname)
 {
-	uint16 phyStatus, i;
-	uint8 phyAddr = CONFIG_PHY_ADDR;
-	uint8 reg_mask[] = {
+	u16 phyStatus, i;
+	u8 phyAddr = CONFIG_PHY_ADDR;
+	u8 reg_mask[] = {
 		/* regs to print: 0...8, 21,27,31 */
 		1, 1, 1, 1,  1, 1, 1, 1,     1, 0, 0, 0,  0, 0, 0, 0,
 		0, 0, 0, 0,  0, 1, 0, 0,     0, 0, 0, 1,  0, 0, 0, 1,
@@ -66,7 +66,8 @@ static int mpc512x_fec_bd_init (mpc512x_fec_priv *fec)
 	 * Receive BDs init
 	 */
 	for (ix = 0; ix < FEC_RBD_NUM; ix++) {
-		fec->bdBase->rbd[ix].dataPointer = (uint32)&fec->bdBase->recv_frames[ix];
+		fec->bdBase->rbd[ix].dataPointer =
+				(u32)&fec->bdBase->recv_frames[ix];
 		fec->bdBase->rbd[ix].status = FEC_RBD_EMPTY;
 		fec->bdBase->rbd[ix].dataLength = 0;
 	}
@@ -119,8 +120,9 @@ static void mpc512x_fec_rbd_clean (mpc512x_fec_priv *fec, volatile FEC_RBD * pRb
 
 	/*
 	 * Now, we have an empty RxBD, notify FEC
+	 * Set Descriptor polling active
 	 */
-	fec->eth->r_des_active = 0x01000000;	/* Descriptor polling active */
+	out_be32(&fec->eth->r_des_active, 0x01000000);
 }
 
 /********************************************************************/
@@ -164,10 +166,10 @@ static void mpc512x_fec_tbd_scrub (mpc512x_fec_priv *fec)
 /********************************************************************/
 static void mpc512x_fec_set_hwaddr (mpc512x_fec_priv *fec, char *mac)
 {
-	uint8 currByte;			/* byte for which to compute the CRC */
+	u8 currByte;			/* byte for which to compute the CRC */
 	int byte;			/* loop - counter */
 	int bit;			/* loop - counter */
-	uint32 crc = 0xffffffff;	/* initial value */
+	u32 crc = 0xffffffff;		/* initial value */
 
 	/*
 	 * The algorithm used is the following:
@@ -203,18 +205,20 @@ static void mpc512x_fec_set_hwaddr (mpc512x_fec_priv *fec, char *mac)
 	 * Set individual hash table register
 	 */
 	if (crc >= 32) {
-		fec->eth->iaddr1 = (1 << (crc - 32));
-		fec->eth->iaddr2 = 0;
+		out_be32(&fec->eth->iaddr1, (1 << (crc - 32)));
+		out_be32(&fec->eth->iaddr2, 0);
 	} else {
-		fec->eth->iaddr1 = 0;
-		fec->eth->iaddr2 = (1 << crc);
+		out_be32(&fec->eth->iaddr1, 0);
+		out_be32(&fec->eth->iaddr2, (1 << crc));
 	}
 
 	/*
 	 * Set physical address
 	 */
-	fec->eth->paddr1 = (mac[0] << 24) + (mac[1] << 16) + (mac[2] << 8) + mac[3];
-	fec->eth->paddr2 = (mac[4] << 24) + (mac[5] << 16) + 0x8808;
+	out_be32(&fec->eth->paddr1, (mac[0] << 24) + (mac[1] << 16) +
+				    (mac[2] <<  8) + mac[3]);
+	out_be32(&fec->eth->paddr2, (mac[4] << 24) + (mac[5] << 16) +
+				     0x8808);
 }
 
 /********************************************************************/
@@ -227,45 +231,45 @@ static int mpc512x_fec_init (struct eth_device *dev, bd_t * bis)
 #endif
 
 	/* Set interrupt mask register */
-	fec->eth->imask = 0x00000000;
+	out_be32(&fec->eth->imask, 0x00000000);
 
 	/* Clear FEC-Lite interrupt event register(IEVENT) */
-	fec->eth->ievent = 0xffffffff;
+	out_be32(&fec->eth->ievent, 0xffffffff);
 
 	/* Set transmit fifo watermark register(X_WMRK), default = 64 */
-	fec->eth->x_wmrk = 0x0;
+	out_be32(&fec->eth->x_wmrk, 0x0);
 
 	/* Set Opcode/Pause Duration Register */
-	fec->eth->op_pause = 0x00010020;
+	out_be32(&fec->eth->op_pause, 0x00010020);
 
 	/* Frame length=1522; MII mode */
-	fec->eth->r_cntrl = (FEC_MAX_FRAME_LEN << 16) | 0x24;
+	out_be32(&fec->eth->r_cntrl, (FEC_MAX_FRAME_LEN << 16) | 0x24);
 
 	/* Half-duplex, heartbeat disabled */
-	fec->eth->x_cntrl = 0x00000000;
+	out_be32(&fec->eth->x_cntrl, 0x00000000);
 
 	/* Enable MIB counters */
-	fec->eth->mib_control = 0x0;
+	out_be32(&fec->eth->mib_control, 0x0);
 
 	/* Setup recv fifo start and buff size */
-	fec->eth->r_fstart = 0x500;
-	fec->eth->r_buff_size = FEC_BUFFER_SIZE;
+	out_be32(&fec->eth->r_fstart, 0x500);
+	out_be32(&fec->eth->r_buff_size, FEC_BUFFER_SIZE);
 
 	/* Setup BD base addresses */
-	fec->eth->r_des_start = (uint32)fec->bdBase->rbd;
-	fec->eth->x_des_start = (uint32)fec->bdBase->tbd;
+	out_be32(&fec->eth->r_des_start, (u32)fec->bdBase->rbd);
+	out_be32(&fec->eth->x_des_start, (u32)fec->bdBase->tbd);
 
 	/* DMA Control */
-	fec->eth->dma_control = 0xc0000000;
+	out_be32(&fec->eth->dma_control, 0xc0000000);
 
 	/* Enable FEC */
-	fec->eth->ecntrl |= 0x00000006;
+	setbits_be32(&fec->eth->ecntrl, 0x00000006);
 
 	/* Initilize addresses and status words of BDs */
 	mpc512x_fec_bd_init (fec);
 
 	 /* Descriptor polling active */
-	fec->eth->r_des_active = 0x01000000;
+	out_be32(&fec->eth->r_des_active, 0x01000000);
 
 #if (DEBUG & 0x1)
 	printf("mpc512x_fec_init... Done \n");
@@ -277,9 +281,9 @@ static int mpc512x_fec_init (struct eth_device *dev, bd_t * bis)
 int mpc512x_fec_init_phy (struct eth_device *dev, bd_t * bis)
 {
 	mpc512x_fec_priv *fec = (mpc512x_fec_priv *)dev->priv;
-	const uint8 phyAddr = CONFIG_PHY_ADDR;	/* Only one PHY */
+	const u8 phyAddr = CONFIG_PHY_ADDR;	/* Only one PHY */
 	int timeout = 1;
-	uint16 phyStatus;
+	u16 phyStatus;
 
 #if (DEBUG & 0x1)
 	printf ("mpc512x_fec_init_phy... Begin\n");
@@ -288,19 +292,20 @@ int mpc512x_fec_init_phy (struct eth_device *dev, bd_t * bis)
 	/*
 	 * Clear FEC-Lite interrupt event register(IEVENT)
 	 */
-	fec->eth->ievent = 0xffffffff;
+	out_be32(&fec->eth->ievent, 0xffffffff);
 
 	/*
 	 * Set interrupt mask register
 	 */
-	fec->eth->imask = 0x00000000;
+	out_be32(&fec->eth->imask, 0x00000000);
 
 	if (fec->xcv_type != SEVENWIRE) {
 		/*
 		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
 		 * and do not drop the Preamble.
 		 */
-		fec->eth->mii_speed = (((gd->ips_clk / 1000000) / 5) + 1) << 1;
+		out_be32(&fec->eth->mii_speed,
+			 (((gd->ips_clk / 1000000) / 5) + 1) << 1);
 
 		/*
 		 * Reset PHY, then delay 300ns
@@ -414,27 +419,28 @@ static void mpc512x_fec_halt (struct eth_device *dev)
 	/*
 	 * mask FEC chip interrupts
 	 */
-	fec->eth->imask = 0;
+	out_be32(&fec->eth->imask, 0);
 
 	/*
 	 * issue graceful stop command to the FEC transmitter if necessary
 	 */
-	fec->eth->x_cntrl |= 0x00000001;
+	setbits_be32(&fec->eth->x_cntrl, 0x00000001);
 
 	/*
 	 * wait for graceful stop to register
 	 */
-	while ((counter--) && (!(fec->eth->ievent & 0x10000000))) ;
+	while ((counter--) && (!(in_be32(&fec->eth->ievent) & 0x10000000)))
+		;
 
 	/*
 	 * Disable the Ethernet Controller
 	 */
-	fec->eth->ecntrl &= 0xfffffffd;
+	clrbits_be32(&fec->eth->ecntrl, 0x00000002);
 
 	/*
 	 * Issue a reset command to the FEC chip
 	 */
-	fec->eth->ecntrl |= 0x1;
+	setbits_be32(&fec->eth->ecntrl, 0x1);
 
 	/*
 	 * wait at least 16 clock cycles
@@ -488,12 +494,12 @@ static int mpc512x_fec_send (struct eth_device *dev, volatile void *eth_data,
 	 */
 	pTbd = &fec->bdBase->tbd[fec->tbdIndex];
 	pTbd->dataLength = data_length;
-	pTbd->dataPointer = (uint32)eth_data;
+	pTbd->dataPointer = (u32)eth_data;
 	pTbd->status |= FEC_TBD_LAST | FEC_TBD_TC | FEC_TBD_READY;
 	fec->tbdIndex = (fec->tbdIndex + 1) % FEC_TBD_NUM;
 
 	/* Activate transmit Buffer Descriptor polling */
-	fec->eth->x_des_active = 0x01000000;	/* Descriptor polling active	*/
+	out_be32(&fec->eth->x_des_active, 0x01000000);
 
 #if (DEBUG & 0x8)
 	printf ( "+" );
@@ -536,8 +542,8 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 	/*
 	 * Check if any critical events have happened
 	 */
-	ievent = fec->eth->ievent;
-	fec->eth->ievent = ievent;
+	ievent = in_be32(&fec->eth->ievent);
+	out_be32(&fec->eth->ievent, ievent);
 	if (ievent & 0x20060000) {
 		/* BABT, Rx/Tx FIFO errors */
 		mpc512x_fec_halt (dev);
@@ -546,13 +552,13 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 	}
 	if (ievent & 0x80000000) {
 		/* Heartbeat error */
-		fec->eth->x_cntrl |= 0x00000001;
+		setbits_be32(&fec->eth->x_cntrl, 0x00000001);
 	}
 	if (ievent & 0x10000000) {
 		/* Graceful stop complete */
-		if (fec->eth->x_cntrl & 0x00000001) {
+		if (in_be32(&fec->eth->x_cntrl) & 0x00000001) {
 			mpc512x_fec_halt (dev);
-			fec->eth->x_cntrl &= ~0x00000001;
+			clrbits_be32(&fec->eth->x_cntrl, 0x00000001);;
 			mpc512x_fec_init (dev, NULL);
 		}
 	}
@@ -574,7 +580,7 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 				printf ("recv data length 0x%08x data hdr: ",
 					pRbd->dataLength);
 				for (i = 0; i < 14; i++)
-					printf ("%x ", *((uint8*)pRbd->dataPointer + i));
+					printf ("%x ", *((u8*)pRbd->dataPointer + i));
 				printf("\n");
 			}
 #endif
@@ -598,13 +604,15 @@ static int mpc512x_fec_recv (struct eth_device *dev)
 	}
 
 	/* Try to fill Buffer Descriptors */
-	fec->eth->r_des_active = 0x01000000;	/* Descriptor polling active */
+	out_be32(&fec->eth->r_des_active, 0x01000000);
+
 	return frame_length;
 }
 
 /********************************************************************/
 int mpc512x_fec_initialize (bd_t * bis)
 {
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	mpc512x_fec_priv *fec;
 	struct eth_device *dev;
 	int i;
@@ -615,7 +623,7 @@ int mpc512x_fec_initialize (bd_t * bis)
 	dev = (struct eth_device *) malloc (sizeof(*dev));
 	memset (dev, 0, sizeof *dev);
 
-	fec->eth = (ethernet_regs *) MPC512X_FEC;
+	fec->eth = &im->fec;
 
 # ifndef CONFIG_FEC_10MBIT
 	fec->xcv_type = MII100;
@@ -623,7 +631,7 @@ int mpc512x_fec_initialize (bd_t * bis)
 	fec->xcv_type = MII10;
 # endif
 	dev->priv = (void *)fec;
-	dev->iobase = MPC512X_FEC;
+	dev->iobase = (int)&im->fec;
 	dev->init = mpc512x_fec_init;
 	dev->halt = mpc512x_fec_halt;
 	dev->send = mpc512x_fec_send;
@@ -638,25 +646,26 @@ int mpc512x_fec_initialize (bd_t * bis)
 #endif
 
 	/* Clean up space FEC's MIB and FIFO RAM ...*/
-	memset ((void *) MPC512X_FEC + 0x200, 0x00, 0x400);
+	memset ((void *)&im->fec.mib,  0x00, sizeof(im->fec.mib));
+	memset ((void *)&im->fec.fifo, 0x00, sizeof(im->fec.fifo));
 
 	/*
 	 * Malloc space for BDs  (must be quad word-aligned)
 	 * this pointer is lost, so cannot be freed
 	 */
 	bd = malloc (sizeof(mpc512x_buff_descs) + 0x1f);
-	fec->bdBase = (mpc512x_buff_descs*)((uint32)bd & 0xfffffff0);
+	fec->bdBase = (mpc512x_buff_descs*)((u32)bd & 0xfffffff0);
 	memset ((void *) bd, 0x00, sizeof(mpc512x_buff_descs) + 0x1f);
 
 	/*
 	 * Set interrupt mask register
 	 */
-	fec->eth->imask = 0x00000000;
+	out_be32(&fec->eth->imask, 0x00000000);
 
 	/*
 	 * Clear FEC-Lite interrupt event register(IEVENT)
 	 */
-	fec->eth->ievent = 0xffffffff;
+	out_be32(&fec->eth->ievent, 0xffffffff);
 
 	/*
 	 * Try to set the mac address now. The fec mac address is
@@ -671,8 +680,8 @@ int mpc512x_fec_initialize (bd_t * bis)
 				tmp = (*end) ? end+1 : end;
 		}
 		mpc512x_fec_set_hwaddr (fec, env_enetaddr);
-		fec->eth->gaddr1 = 0x00000000;
-		fec->eth->gaddr2 = 0x00000000;
+		out_be32(&fec->eth->gaddr1, 0x00000000);
+		out_be32(&fec->eth->gaddr2, 0x00000000);
 	}
 
 	mpc512x_fec_init_phy (dev, bis);
@@ -682,11 +691,12 @@ int mpc512x_fec_initialize (bd_t * bis)
 
 /* MII-interface related functions */
 /********************************************************************/
-int fec512x_miiphy_read (char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal)
+int fec512x_miiphy_read (char *devname, u8 phyAddr, u8 regAddr, u16 * retVal)
 {
-	ethernet_regs *eth = (ethernet_regs *) MPC512X_FEC;
-	uint32 reg;		/* convenient holder for the PHY register */
-	uint32 phy;		/* convenient holder for the PHY */
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile fec512x_t *eth = &im->fec;
+	u32 reg;		/* convenient holder for the PHY register */
+	u32 phy;		/* convenient holder for the PHY */
 	int timeout = 0xffff;
 
 	/*
@@ -696,12 +706,16 @@ int fec512x_miiphy_read (char *devname, uint8 phyAddr, uint8 regAddr, uint16 * r
 	reg = regAddr << FEC_MII_DATA_RA_SHIFT;
 	phy = phyAddr << FEC_MII_DATA_PA_SHIFT;
 
-	eth->mii_data = (FEC_MII_DATA_ST | FEC_MII_DATA_OP_RD | FEC_MII_DATA_TA | phy | reg);
+	out_be32(&eth->mii_data, FEC_MII_DATA_ST |
+				 FEC_MII_DATA_OP_RD |
+				 FEC_MII_DATA_TA |
+				 phy | reg);
 
 	/*
 	 * wait for the related interrupt
 	 */
-	while ((timeout--) && (!(eth->ievent & 0x00800000))) ;
+	while ((timeout--) && (!(in_be32(&eth->ievent) & 0x00800000)))
+		;
 
 	if (timeout == 0) {
 #if (DEBUG & 0x2)
@@ -713,34 +727,38 @@ int fec512x_miiphy_read (char *devname, uint8 phyAddr, uint8 regAddr, uint16 * r
 	/*
 	 * clear mii interrupt bit
 	 */
-	eth->ievent = 0x00800000;
+	out_be32(&eth->ievent, 0x00800000);
 
 	/*
 	 * it's now safe to read the PHY's register
 	 */
-	*retVal = (uint16) eth->mii_data;
+	*retVal = (u16) in_be32(&eth->mii_data);
 
 	return 0;
 }
 
 /********************************************************************/
-int fec512x_miiphy_write (char *devname, uint8 phyAddr, uint8 regAddr, uint16 data)
+int fec512x_miiphy_write (char *devname, u8 phyAddr, u8 regAddr, u16 data)
 {
-	ethernet_regs *eth = (ethernet_regs *) MPC512X_FEC;
-	uint32 reg;		/* convenient holder for the PHY register */
-	uint32 phy;		/* convenient holder for the PHY */
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile fec512x_t *eth = &im->fec;
+	u32 reg;		/* convenient holder for the PHY register */
+	u32 phy;		/* convenient holder for the PHY */
 	int timeout = 0xffff;
 
 	reg = regAddr << FEC_MII_DATA_RA_SHIFT;
 	phy = phyAddr << FEC_MII_DATA_PA_SHIFT;
 
-	eth->mii_data = (FEC_MII_DATA_ST | FEC_MII_DATA_OP_WR |
-			FEC_MII_DATA_TA | phy | reg | data);
+	out_be32(&eth->mii_data, FEC_MII_DATA_ST |
+				 FEC_MII_DATA_OP_WR |
+				 FEC_MII_DATA_TA |
+				 phy | reg | data);
 
 	/*
 	 * wait for the MII interrupt
 	 */
-	while ((timeout--) && (!(eth->ievent & 0x00800000))) ;
+	while ((timeout--) && (!(in_be32(&eth->ievent) & 0x00800000)))
+		;
 
 	if (timeout == 0) {
 #if (DEBUG & 0x2)
@@ -752,13 +770,13 @@ int fec512x_miiphy_write (char *devname, uint8 phyAddr, uint8 regAddr, uint16 da
 	/*
 	 * clear MII interrupt bit
 	 */
-	eth->ievent = 0x00800000;
+	out_be32(&eth->ievent, 0x00800000);
 
 	return 0;
 }
 
 #if (DEBUG & 0x40)
-static uint32 local_crc32 (char *string, unsigned int crc_value, int len)
+static u32 local_crc32 (char *string, unsigned int crc_value, int len)
 {
 	int i;
 	char c;

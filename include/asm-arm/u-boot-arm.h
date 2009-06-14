@@ -42,6 +42,7 @@ int	cleanup_before_linux(void);
 
 /* cpu/.../arch/cpu.c */
 int	arch_cpu_init(void);
+int	arch_misc_init(void);
 
 /* board/.../... */
 int	board_init(void);
@@ -58,8 +59,12 @@ void	setup_revision_tag (struct tag **params);
 int	setenv		(char *, char *);
 
 /* cpu/.../interrupt.c */
+int	arch_interrupt_init	(void);
 void	reset_timer_masked	(void);
 ulong	get_timer_masked	(void);
 void	udelay_masked		(unsigned long usec);
+
+/* cpu/.../timer.c */
+int	timer_init		(void);
 
 #endif	/* _U_BOOT_ARM_H_ */

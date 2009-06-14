@@ -295,7 +295,7 @@ U_BOOT_CMD(
 	"access FPGA(s)",
 	"fpga status [name] - print FPGA status\n"
 	"fpga reset  [name] - reset FPGA\n"
-	"fpga load [name] addr - load FPGA configuration data\n"
+	"fpga load [name] addr - load FPGA configuration data"
 );
 
 #endif

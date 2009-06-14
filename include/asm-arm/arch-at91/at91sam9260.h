@@ -121,4 +121,13 @@
 #define AT91SAM9XE_FLASH_BASE	0x00200000	/* Internal FLASH base address */
 #define AT91SAM9XE_SRAM_BASE	0x00300000	/* Internal SRAM base address */
 
+/*
+ * Cpu Name
+ */
+#if defined(CONFIG_AT91SAM9260)
+#define AT91_CPU_NAME	"AT91SAM9260"
+#elif defined(CONFIG_AT91SAM9G20)
+#define AT91_CPU_NAME	"AT91SAM9G20"
+#endif
+
 #endif

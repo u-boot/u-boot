@@ -83,8 +83,8 @@ Freescale MPC832XEMDS Board
 
 	include/configs/MPC832XEPB.h
 
-    CONFIG_MPC83XX	MPC83XX family for MPC8349, MPC8360 and MPC832X
-    CONFIG_MPC832X	MPC832X specific
+    CONFIG_MPC83xx	MPC83xx family for MPC8349, MPC8360 and MPC832x
+    CONFIG_MPC832x	MPC832x specific
     CONFIG_MPC832XEMDS	MPC832XEMDS board specific
 
 4. Compilation
@@ -97,7 +97,7 @@ Freescale MPC832XEMDS Board
 		make MPC832XEMDS_config
 		make
 
-	MPC832X support PCI 33MHz and PCI 66MHz, to make u-boot support PCI:
+	MPC832x support PCI 33MHz and PCI 66MHz, to make u-boot support PCI:
 
 		1)Make sure the DIP SW support PCI mode as described in Section 1.1.
 

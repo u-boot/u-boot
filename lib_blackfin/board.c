@@ -324,6 +324,10 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	post_reloc();
 #endif
 
+	/* initialize malloc() area */
+	mem_malloc_init();
+	malloc_bin_reloc();
+
 #if	!defined(CONFIG_SYS_NO_FLASH)
 	/* Initialize the flash and protect u-boot by default */
 	extern flash_info_t flash_info[];
@@ -341,9 +345,6 @@ void board_init_r(gd_t * id, ulong dest_addr)
 	bd->bi_flashsize = 0;
 	bd->bi_flashoffset = 0;
 #endif
-	/* initialize malloc() area */
-	mem_malloc_init();
-	malloc_bin_reloc();
 
 #ifdef CONFIG_CMD_NAND
 	puts("NAND:  ");

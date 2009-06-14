@@ -56,17 +56,17 @@ typedef	struct	global_data {
 #endif
 #endif
 	unsigned long   mem_clk;
-#if defined(CONFIG_MPC83XX)
+#if defined(CONFIG_MPC83xx)
 	/* There are other clocks in the MPC83XX */
 	u32 csb_clk;
-#if defined(CONFIG_MPC834X) || defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
+#if defined(CONFIG_MPC834x) || defined(CONFIG_MPC831x) || defined(CONFIG_MPC837x)
 	u32 tsec1_clk;
 	u32 tsec2_clk;
 	u32 usbdr_clk;
 #endif
-#if defined (CONFIG_MPC834X)
+#if defined (CONFIG_MPC834x)
 	u32 usbmph_clk;
-#endif /* CONFIG_MPC834X */
+#endif /* CONFIG_MPC834x */
 #if defined(CONFIG_MPC8315)
 	u32 tdm_clk;
 #endif
@@ -75,24 +75,24 @@ typedef	struct	global_data {
 	u32 lbiu_clk;
 	u32 lclk_clk;
 	u32 pci_clk;
-#if defined(CONFIG_MPC837X) || defined(CONFIG_MPC831X)
+#if defined(CONFIG_MPC837x) || defined(CONFIG_MPC831x)
 	u32 pciexp1_clk;
 	u32 pciexp2_clk;
 #endif
-#if defined(CONFIG_MPC837X) || defined(CONFIG_MPC8315)
+#if defined(CONFIG_MPC837x) || defined(CONFIG_MPC8315)
 	u32 sata_clk;
 #endif
 #if defined(CONFIG_MPC8360)
 	u32  mem_sec_clk;
 #endif /* CONFIG_MPC8360 */
 #endif
-#if defined(CONFIG_MPC837X) || defined(CONFIG_MPC8536)
+#if defined(CONFIG_MPC837x) || defined(CONFIG_MPC8536)
 	u32 sdhc_clk;
 #endif
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	u32 lbc_clk;
 #endif /* CONFIG_MPC85xx || CONFIG_MPC86xx */
-#if defined(CONFIG_MPC83XX) || defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
+#if defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 	u32 i2c1_clk;
 	u32 i2c2_clk;
 #endif
@@ -125,7 +125,7 @@ typedef	struct	global_data {
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	reset_status;	/* reset status register at boot	*/
-#if defined(CONFIG_MPC83XX)
+#if defined(CONFIG_MPC83xx)
 	unsigned long	arbiter_event_attributes;
 	unsigned long	arbiter_event_address;
 #endif

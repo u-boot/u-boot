@@ -94,7 +94,7 @@ int do_portio_out (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	out,	3,	1,	do_portio_out,
 	"write datum to IO port",
-	"[.b, .w, .l] port value\n    - output to IO port\n"
+	"[.b, .w, .l] port value\n    - output to IO port"
 );
 
 int do_portio_in (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
@@ -159,5 +159,5 @@ U_BOOT_CMD(
 	in,	2,	1,	do_portio_in,
 	"read data from an IO port",
 	"[.b, .w, .l] port\n"
-	"    - read datum from IO port\n"
+	"    - read datum from IO port"
 );

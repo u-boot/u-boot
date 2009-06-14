@@ -26,7 +26,12 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(CPU).a
 
 START	= start.o
-COBJS	= serial.o interrupts.o cpu.o i2c.o pxafb.o usb.o
+
+COBJS	+= cpu.o
+COBJS	+= i2c.o
+COBJS	+= pxafb.o
+COBJS	+= timer.o
+COBJS	+= usb.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

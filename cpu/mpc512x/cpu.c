@@ -29,7 +29,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <mpc512x.h>
 #include <net.h>
 #include <netdev.h>
 #include <asm/processor.h>

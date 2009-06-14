@@ -690,8 +690,8 @@ int do_onewire(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	onewire,	1,	1,	do_onewire,
 	"Read 1-write ID",
-	NULL
-	);
+	""
+);
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR_2 0x51 /* EEPROM CAT24WC32 */
 #define CONFIG_ENV_SIZE_2 0x800 /* 2048 bytes may be used for env vars */
@@ -751,8 +751,8 @@ int do_get_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	getbpip,	1,	1,	do_get_bpip,
 	"Update IP-Address with Backplane IP-Address",
-	NULL
-	);
+	""
+);
 
 /*
  * Set and print backplane ip...
@@ -787,7 +787,7 @@ int do_set_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	setbpip,	2,	1,	do_set_bpip,
 	"Write Backplane IP-Address",
-	NULL
-	);
+	""
+);
 
 #endif /* CONFIG_CPCI405AB */

@@ -127,7 +127,7 @@ int board_init(void)
 	m501sk_gpio_init();
 
 	/* Do interrupt init here, because flash needs timers */
-	interrupt_init();
+	timer_init();
 	flash_init();
 
 	return 0;

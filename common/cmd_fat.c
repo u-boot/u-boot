@@ -91,7 +91,7 @@ U_BOOT_CMD(
 	"load binary file from a dos filesystem",
 	"<interface> <dev[:part]>  <addr> <filename> [bytes]\n"
 	"    - load binary file 'filename' from 'dev' on 'interface'\n"
-	"      to address 'addr' from dos filesystem\n"
+	"      to address 'addr' from dos filesystem"
 );
 
 int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -138,7 +138,7 @@ U_BOOT_CMD(
 	fatls,	4,	1,	do_fat_ls,
 	"list files in a directory (default /)",
 	"<interface> <dev[:part]> [directory]\n"
-	"    - list files from 'dev' on 'interface' in a 'directory'\n"
+	"    - list files from 'dev' on 'interface' in a 'directory'"
 );
 
 int do_fat_fsinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -176,7 +176,7 @@ U_BOOT_CMD(
 	fatinfo,	3,	1,	do_fat_fsinfo,
 	"print information about filesystem",
 	"<interface> <dev[:part]>\n"
-	"    - print information about filesystem from 'dev' on 'interface'\n"
+	"    - print information about filesystem from 'dev' on 'interface'"
 );
 
 #ifdef NOT_IMPLEMENTED_YET

@@ -623,11 +623,11 @@ U_BOOT_CMD(
 	"scsi device [dev] - show or set current device\n"
 	"scsi part [dev] - print partition table of one or all SCSI devices\n"
 	"scsi read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
-	"     to memory address `addr'\n"
+	"     to memory address `addr'"
 );
 
 U_BOOT_CMD(
 	scsiboot, 3, 1, do_scsiboot,
 	"boot from SCSI device",
-	"loadAddr dev:part\n"
+	"loadAddr dev:part"
 );

@@ -57,7 +57,7 @@ static void nand_init_chip(struct mtd_info *mtd, struct nand_chip *nand,
 			else
 				mtd->name += gd->reloc_off;
 
-#ifdef CONFIG_MTD_PARTITIONS
+#ifdef CONFIG_MTD_DEVICE
 			/*
 			 * Add MTD device so that we can reference it later
 			 * via the mtdcore infrastructure (e.g. ubi).

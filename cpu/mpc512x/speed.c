@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2007
+ * (C) Copyright 2000-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
@@ -26,8 +26,8 @@
  */
 
 #include <common.h>
-#include <mpc512x.h>
 #include <command.h>
+#include <asm/io.h>
 #include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -75,29 +75,37 @@ int get_clocks (void)
 	u32 csb_clk;
 	u32 ips_clk;
 	u32 pci_clk;
+	u32 reg;
 
-	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
+	reg = in_be32(&im->sysconf.immrbar);
+	if ((reg & IMMRBAR_BASE_ADDR) != (u32) im)
 		return -1;
 
-	spmf = (im->clk.spmr & SPMR_SPMF) >> SPMR_SPMF_SHIFT;
+	reg = in_be32(&im->clk.spmr);
+	spmf = (reg & SPMR_SPMF) >> SPMR_SPMF_SHIFT;
 	spll = ref_clk * spmf_mult[spmf];
 
-	sys_div = (im->clk.scfr[1] & SCFR2_SYS_DIV) >> SCFR2_SYS_DIV_SHIFT;
+	reg = in_be32(&im->clk.scfr[1]);
+	sys_div = (reg & SCFR2_SYS_DIV) >> SCFR2_SYS_DIV_SHIFT;
 	sys_clk = (spll * sys_dividors[sys_div][1]) / sys_dividors[sys_div][0];
 
 	csb_clk = sys_clk / 2;
 
-	cpmf = (im->clk.spmr & SPMR_CPMF) >> SPMR_CPMF_SHIFT;
+	reg = in_be32(&im->clk.spmr);
+	cpmf = (reg & SPMR_CPMF) >> SPMR_CPMF_SHIFT;
 	core_clk = (csb_clk * cpmf_mult[cpmf][0]) / cpmf_mult[cpmf][1];
 
-	ips_div = (im->clk.scfr[0] & SCFR1_IPS_DIV_MASK) >> SCFR1_IPS_DIV_SHIFT;
+	reg = in_be32(&im->clk.scfr[0]);
+	ips_div = (reg & SCFR1_IPS_DIV_MASK) >> SCFR1_IPS_DIV_SHIFT;
 	if (ips_div != 0) {
 		ips_clk = csb_clk / ips_div;
 	} else {
 		/* in case we cannot get a sane IPS divisor, fail gracefully */
 		ips_clk = 0;
 	}
-	pci_div = (im->clk.scfr[0] & SCFR1_PCI_DIV_MASK) >> SCFR1_PCI_DIV_SHIFT;
+
+	reg = in_be32(&im->clk.scfr[0]);
+	pci_div = (reg & SCFR1_PCI_DIV_MASK) >> SCFR1_PCI_DIV_SHIFT;
 	if (pci_div != 0) {
 		pci_clk = csb_clk / pci_div;
 	} else {
@@ -138,7 +146,7 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(clocks, 1, 0, do_clocks,
 	"print clock configuration",
-	"    clocks\n"
+	"    clocks"
 );
 
 int prt_mpc512x_clks (void)

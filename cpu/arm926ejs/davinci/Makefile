@@ -27,11 +27,19 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
-COBJS	= timer.o ether.o lxt972.o dp83848.o
-SOBJS	= lowlevel_init.o reset.o
+COBJS-y				+= cpu.o timer.o psc.o
+COBJS-$(CONFIG_SOC_DM355)	+= dm355.o
+COBJS-$(CONFIG_SOC_DM644X)	+= dm644x.o
+COBJS-$(CONFIG_DRIVER_TI_EMAC)	+= ether.o lxt972.o dp83848.o
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
+SOBJS	= reset.o
+
+ifndef CONFIG_SKIP_LOWLEVEL_INIT
+SOBJS	+= lowlevel_init.o
+endif
+
+SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y) $(SOBJS))
 START	:= $(addprefix $(obj),$(START))
 
 all:	$(obj).depend $(LIB)

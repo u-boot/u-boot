@@ -29,68 +29,65 @@
 #include <common.h>
 #include <devices.h>
 
-#define DCC_ARM9_RBIT	(1 << 0)
-#define DCC_ARM9_WBIT	(1 << 1)
-#define DCC_ARM11_RBIT	(1 << 30)
-#define DCC_ARM11_WBIT	(1 << 29)
-
-#define read_core_id(x)	do {						\
-		__asm__ ("mrc p15, 0, %0, c0, c0, 0\n" : "=r" (x));	\
-		x = (x >> 4) & 0xFFF;					\
-		} while (0);
-
+#if defined(CONFIG_CPU_V6)
 /*
- * ARM9
+ * ARMV6
  */
-#define write_arm9_dcc(x)	\
-		__asm__ volatile ("mcr p14, 0, %0, c1, c0, 0\n" : : "r" (x))
+#define DCC_RBIT	(1 << 30)
+#define DCC_WBIT	(1 << 29)
 
-#define read_arm9_dcc(x)	\
-		__asm__ volatile ("mrc p14, 0, %0, c1, c0, 0\n" : "=r" (x))
-
-#define status_arm9_dcc(x)	\
-		__asm__ volatile ("mrc p14, 0, %0, c0, c0, 0\n" : "=r" (x))
-
-#define can_read_arm9_dcc(x)	do {	\
-		status_arm9_dcc(x);	\
-		x &= DCC_ARM9_RBIT;	\
-		} while (0);
-
-#define can_write_arm9_dcc(x)	do {	\
-		status_arm9_dcc(x);	\
-		x &= DCC_ARM9_WBIT;	\
-		x = (x == 0);		\
-		} while (0);
-
-/*
- * ARM11
- */
-#define write_arm11_dcc(x)	\
+#define write_dcc(x)	\
 		__asm__ volatile ("mcr p14, 0, %0, c0, c5, 0\n" : : "r" (x))
 
-#define read_arm11_dcc(x)	\
+#define read_dcc(x)	\
 		__asm__ volatile ("mrc p14, 0, %0, c0, c5, 0\n" : "=r" (x))
 
-#define status_arm11_dcc(x)	\
+#define status_dcc(x)	\
 		__asm__ volatile ("mrc p14, 0, %0, c0, c1, 0\n" : "=r" (x))
 
-#define can_read_arm11_dcc(x)	do {	\
-		status_arm11_dcc(x);	\
-		x &= DCC_ARM11_RBIT;	\
+#elif defined(CONFIG_CPU_XSCALE)
+/*
+ * XSCALE
+ */
+#define DCC_RBIT	(1 << 31)
+#define DCC_WBIT	(1 << 28)
+
+#define write_dcc(x)	\
+		__asm__ volatile ("mcr p14, 0, %0, c8, c0, 0\n" : : "r" (x))
+
+#define read_dcc(x)	\
+		__asm__ volatile ("mrc p14, 0, %0, c9, c0, 0\n" : "=r" (x))
+
+#define status_dcc(x)	\
+		__asm__ volatile ("mrc p14, 0, %0, c14, c0, 0\n" : "=r" (x))
+
+#else
+#define DCC_RBIT	(1 << 0)
+#define DCC_WBIT	(1 << 1)
+
+#define write_dcc(x)	\
+		__asm__ volatile ("mcr p14, 0, %0, c1, c0, 0\n" : : "r" (x))
+
+#define read_dcc(x)	\
+		__asm__ volatile ("mrc p14, 0, %0, c1, c0, 0\n" : "=r" (x))
+
+#define status_dcc(x)	\
+		__asm__ volatile ("mrc p14, 0, %0, c0, c0, 0\n" : "=r" (x))
+
+#endif
+
+#define can_read_dcc(x)	do {	\
+		status_dcc(x);	\
+		x &= DCC_RBIT;	\
 		} while (0);
 
-#define can_write_arm11_dcc(x)	do {	\
-		status_arm11_dcc(x);	\
-		x &= DCC_ARM11_WBIT;	\
-		x = (x == 0);		\
+#define can_write_dcc(x) do {	\
+		status_dcc(x);	\
+		x &= DCC_WBIT;	\
+		x = (x == 0);	\
 		} while (0);
 
 #define TIMEOUT_COUNT 0x4000000
-
-static enum {
-	arm9_and_earlier,
-	arm11_and_later
-} arm_type = arm9_and_earlier;
 
 #ifndef CONFIG_ARM_DCC_MULTI
 #define arm_dcc_init serial_init
@@ -103,15 +100,6 @@ void serial_setbrg(void) {}
 
 int arm_dcc_init(void)
 {
-	register unsigned int id;
-
-	read_core_id(id);
-
-	if (id >= 0xb00)
-		arm_type = arm11_and_later;
-	else
-		arm_type = arm9_and_earlier;
-
 	return 0;
 }
 
@@ -120,22 +108,10 @@ int arm_dcc_getc(void)
 	int ch;
 	register unsigned int reg;
 
-	switch (arm_type) {
-	case arm11_and_later:
-		do {
-			can_read_arm11_dcc(reg);
-		} while (!reg);
-		read_arm11_dcc(ch);
-		break;
-
-	case arm9_and_earlier:
-	default:
-		do {
-			can_read_arm9_dcc(reg);
-		} while (!reg);
-		read_arm9_dcc(ch);
-		break;
-	}
+	do {
+		can_read_dcc(reg);
+	} while (!reg);
+	read_dcc(ch);
 
 	return ch;
 }
@@ -145,32 +121,15 @@ void arm_dcc_putc(char ch)
 	register unsigned int reg;
 	unsigned int timeout_count = TIMEOUT_COUNT;
 
-	switch (arm_type) {
-	case arm11_and_later:
-		while (--timeout_count) {
-			can_write_arm11_dcc(reg);
-			if (reg)
-				break;
-		}
-		if (timeout_count == 0)
-			return;
-		else
-			write_arm11_dcc(ch);
-		break;
-
-	case arm9_and_earlier:
-	default:
-		while (--timeout_count) {
-			can_write_arm9_dcc(reg);
-			if (reg)
-				break;
-		}
-		if (timeout_count == 0)
-			return;
-		else
-			write_arm9_dcc(ch);
-		break;
+	while (--timeout_count) {
+		can_write_dcc(reg);
+		if (reg)
+			break;
 	}
+	if (timeout_count == 0)
+		return;
+	else
+		write_dcc(ch);
 }
 
 void arm_dcc_puts(const char *s)
@@ -183,15 +142,7 @@ int arm_dcc_tstc(void)
 {
 	register unsigned int reg;
 
-	switch (arm_type) {
-	case arm11_and_later:
-		can_read_arm11_dcc(reg);
-		break;
-	case arm9_and_earlier:
-	default:
-		can_read_arm9_dcc(reg);
-		break;
-	}
+	can_read_dcc(reg);
 
 	return reg;
 }
@@ -214,13 +165,6 @@ int drv_arm_dcc_init(void)
 	arm_dcc_dev.putc = arm_dcc_putc;	/* 'putc' function */
 	arm_dcc_dev.puts = arm_dcc_puts;	/* 'puts' function */
 
-	rc = device_register(&arm_dcc_dev);
-
-	if (rc == 0) {
-		arm_dcc_init();
-		return 1;
-	}
-
-	return 0;
+	return device_register(&arm_dcc_dev);
 }
 #endif

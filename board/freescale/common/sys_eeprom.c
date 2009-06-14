@@ -1,5 +1,5 @@
 /*
- * Copyright 2006, 2008 Freescale Semiconductor
+ * Copyright 2006, 2008-2009 Freescale Semiconductor
  * York Sun (yorksun@freescale.com)
  * Haiying Wang (haiying.wang@freescale.com)
  * Timur Tabi (timur@freescale.com)
@@ -34,6 +34,8 @@
 #error "Please define either CONFIG_SYS_I2C_EEPROM_CCID or CONFIG_SYS_I2C_EEPROM_NXID"
 #endif
 
+#define MAX_NUM_PORTS	8	/* This value must be 8 as defined in doc */
+
 /**
  * static eeprom: EEPROM layout for CCID or NXID formats
  *
@@ -50,7 +52,7 @@ static struct __attribute__ ((__packed__)) eeprom {
 	u8 res_0[40];     /* 0x18 - 0x3f Reserved */
 	u8 mac_count;     /* 0x40        Number of MAC addresses */
 	u8 mac_flag;      /* 0x41        MAC table flags */
-	u8 mac[8][6];     /* 0x42 - 0x71 MAC addresses */
+	u8 mac[MAX_NUM_PORTS][6];     /* 0x42 - 0x71 MAC addresses */
 	u32 crc;          /* 0x72        CRC32 checksum */
 #endif
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
@@ -66,7 +68,7 @@ static struct __attribute__ ((__packed__)) eeprom {
 	u8 res_1[21];     /* 0x2b - 0x3f Reserved */
 	u8 mac_count;     /* 0x40        Number of MAC addresses */
 	u8 mac_flag;      /* 0x41        MAC table flags */
-	u8 mac[8][6];     /* 0x42 - 0x71 MAC addresses */
+	u8 mac[MAX_NUM_PORTS][6];     /* 0x42 - 0x71 MAC addresses */
 	u32 crc;          /* 0x72        CRC32 checksum */
 #endif
 } e;
@@ -119,7 +121,8 @@ static void show_eeprom(void)
 		e.date[3] & 0x80 ? "PM" : "");
 
 	/* Show MAC addresses  */
-	for (i = 0; i < min(e.mac_count, 8); i++) {
+	for (i = 0; i < min(e.mac_count, MAX_NUM_PORTS); i++) {
+
 		u8 *p = e.mac[i];
 
 		printf("Eth%u: %02x:%02x:%02x:%02x:%02x:%02x\n", i,
@@ -404,7 +407,17 @@ int mac_read_from_eeprom(void)
 		}
 	}
 
-	for (i = 0; i < min(4, e.mac_count); i++) {
+	/* Check the number of MAC addresses which is limited to
+	 * MAX_NUM_PORTS.
+	 */
+	if (e.mac_count > MAX_NUM_PORTS) {
+		printf("Warning: The number of MAC addresses is greater"
+			" than %u, force it to %u.\n", MAX_NUM_PORTS,
+			MAX_NUM_PORTS);
+		e.mac_count = MAX_NUM_PORTS;
+	}
+
+	for (i = 0; i < e.mac_count; i++) {
 		if (memcmp(&e.mac[i], "\0\0\0\0\0\0", 6) &&
 		    memcmp(&e.mac[i], "\xFF\xFF\xFF\xFF\xFF\xFF", 6)) {
 			char ethaddr[18];

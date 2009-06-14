@@ -344,12 +344,19 @@ $(obj)u-boot.sha1:	$(obj)u-boot.bin
 $(obj)u-boot.dis:	$(obj)u-boot
 		$(OBJDUMP) -d $< > $@
 
-$(obj)u-boot:		depend $(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT)
+GEN_UBOOT = \
 		UNDEF_SYM=`$(OBJDUMP) -x $(LIBBOARD) $(LIBS) | \
 		sed  -n -e 's/.*\($(SYM_PREFIX)__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
 		cd $(LNDIR) && $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \
 			--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 			-Map u-boot.map -o u-boot
+$(obj)u-boot:		depend $(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT)
+		$(GEN_UBOOT)
+ifeq ($(CONFIG_KALLSYMS),y)
+		smap=`$(call SYSTEM_MAP,u-boot) | awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\0"}'` ; \
+		$(CC) $(CFLAGS) -DSYSTEM_MAP="\"$${smap}\"" -c common/system_map.c -o $(obj)common/system_map.o
+		$(GEN_UBOOT) $(obj)common/system_map.o
+endif
 
 $(OBJS):	depend
 		$(MAKE) -C cpu/$(CPU) $(if $(REMOTE_BUILD),$@,$(notdir $@))
@@ -448,10 +455,12 @@ cscope:
 						> cscope.files
 		cscope -b -q -k
 
-$(obj)System.map:	$(obj)u-boot
-		@$(NM) $< | \
+SYSTEM_MAP = \
+		$(NM) $1 | \
 		grep -v '\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)' | \
-		sort > $(obj)System.map
+		LC_ALL=C sort
+$(obj)System.map:	$(obj)u-boot
+		@$(call SYSTEM_MAP,$<) > $(obj)System.map
 
 #
 # Auto-generate the autoconf.mk file (which is included by all makefiles)
@@ -812,15 +821,20 @@ v38b_config: unconfig
 ## MPC512x Systems
 #########################################################################
 
-ads5121_config \
-ads5121_rev2_config	\
+aria_config:	unconfig
+	@$(MKCONFIG) -a aria ppc mpc512x aria davedenx
+
+mecp5123_config:	unconfig
+	@$(MKCONFIG) -a mecp5123 ppc mpc512x mecp5123 esd
+
+mpc5121ads_config \
+mpc5121ads_rev2_config	\
 	: unconfig
 	@mkdir -p $(obj)include
 	@if [ "$(findstring rev2,$@)" ] ; then \
 		echo "#define CONFIG_ADS5121_REV2 1" > $(obj)include/config.h; \
 	fi
-	@$(MKCONFIG) -a ads5121 ppc mpc512x ads5121
-
+	@$(MKCONFIG) -a mpc5121ads ppc mpc512x mpc5121ads freescale
 
 #########################################################################
 ## MPC8xx Systems
@@ -1532,6 +1546,17 @@ rainier_nand_config: unconfig
 	@$(MKCONFIG) -n $@ -a sequoia ppc ppc4xx sequoia amcc
 	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
+sequoia_ramboot_config \
+rainier_ramboot_config: unconfig
+	@mkdir -p $(obj)include $(obj)board/amcc/sequoia
+	@echo "#define CONFIG_SYS_RAMBOOT" > $(obj)include/config.h
+	@echo "#define CONFIG_$$(echo $(subst ,,$(@:_config=)) | \
+		tr '[:lower:]' '[:upper:]')" >> $(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a sequoia ppc ppc4xx sequoia amcc
+	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
+	@echo "LDSCRIPT = board/amcc/sequoia/u-boot-ram.lds" >> \
+		$(obj)board/amcc/sequoia/config.tmp
 
 taihu_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx taihu amcc
@@ -2456,6 +2481,15 @@ MPC8572DS_config:       unconfig
 	fi
 	@$(MKCONFIG) -a MPC8572DS ppc mpc85xx mpc8572ds freescale
 
+P2020DS_36BIT_config \
+P2020DS_config:		unconfig
+	@mkdir -p $(obj)include
+	@if [ "$(findstring _36BIT_,$@)" ] ; then \
+		echo "#define CONFIG_PHYS_64BIT" >>$(obj)include/config.h ; \
+		$(XECHO) "... enabling 36-bit physical addressing." ; \
+	fi
+	@$(MKCONFIG) -a P2020DS ppc mpc85xx p2020ds freescale
+
 PM854_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx pm854
 
@@ -2790,6 +2824,9 @@ davinci_sffsdr_config :	unconfig
 davinci_sonata_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs sonata davinci davinci
 
+davinci_dm355evm_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs dm355evm davinci davinci
+
 lpd7a400_config \
 lpd7a404_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm lh7a40x lpd7a40x
@@ -2982,6 +3019,9 @@ omap3_pandora_config :	unconfig
 
 omap3_zoom1_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom1 omap3 omap3
+
+omap3_zoom2_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom2 omap3 omap3
 
 #########################################################################
 ## XScale Systems

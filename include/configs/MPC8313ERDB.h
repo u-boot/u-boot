@@ -30,8 +30,8 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300		1
-#define CONFIG_MPC83XX		1
-#define CONFIG_MPC831X		1
+#define CONFIG_MPC83xx		1
+#define CONFIG_MPC831x		1
 #define CONFIG_MPC8313		1
 #define CONFIG_MPC8313ERDB	1
 
@@ -321,7 +321,6 @@
 #define CONFIG_HARD_I2C			/* I2C with hardware support*/
 #define CONFIG_FSL_I2C
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_I2C_CMD_TREE
 #define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 #define CONFIG_SYS_I2C_NOPROBES	{{0,0x69}} /* Don't probe these addrs */

@@ -42,6 +42,13 @@ extern struct serial_device s3c24xx_serial1_device;
 extern struct serial_device s3c24xx_serial2_device;
 #endif
 
+#if defined(CONFIG_OMAP3_ZOOM2)
+extern struct serial_device zoom2_serial_device0;
+extern struct serial_device zoom2_serial_device1;
+extern struct serial_device zoom2_serial_device2;
+extern struct serial_device zoom2_serial_device3;
+#endif
+
 extern struct serial_device serial_ffuart_device;
 extern struct serial_device serial_btuart_device;
 extern struct serial_device serial_stuart_device;

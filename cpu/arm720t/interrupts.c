@@ -110,9 +110,34 @@ static void timer_isr( void *data) {
 static ulong timestamp;
 static ulong lastdec;
 
-int interrupt_init (void)
+#if defined(CONFIG_USE_IRQ) && defined(CONFIG_S3C4510B)
+int arch_interrupt_init (void)
 {
+	int i;
 
+	/* install default interrupt handlers */
+	for ( i = 0; i < N_IRQS; i++) {
+		IRQ_HANDLER[i].m_data = (void *)i;
+		IRQ_HANDLER[i].m_func = default_isr;
+	}
+
+	/* configure interrupts for IRQ mode */
+	PUT_REG( REG_INTMODE, 0x0);
+	/* clear any pending interrupts */
+	PUT_REG( REG_INTPEND, 0x1FFFFF);
+
+	lastdec = 0;
+
+	/* install interrupt handler for timer */
+	IRQ_HANDLER[INT_TIMER0].m_data = (void *)&timestamp;
+	IRQ_HANDLER[INT_TIMER0].m_func = timer_isr;
+
+	return 0;
+}
+#endif
+
+int timer_init (void)
+{
 #if defined(CONFIG_NETARM)
 	/* disable all interrupts */
 	IRQEN = 0;
@@ -137,25 +162,6 @@ int interrupt_init (void)
 	/* set timer 1 counter */
 	lastdec = IO_TC1D = TIMER_LOAD_VAL;
 #elif defined(CONFIG_S3C4510B)
-	int i;
-
-	/* install default interrupt handlers */
-	for ( i = 0; i < N_IRQS; i++) {
-		IRQ_HANDLER[i].m_data = (void *)i;
-		IRQ_HANDLER[i].m_func = default_isr;
-	}
-
-	/* configure interrupts for IRQ mode */
-	PUT_REG( REG_INTMODE, 0x0);
-	/* clear any pending interrupts */
-	PUT_REG( REG_INTPEND, 0x1FFFFF);
-
-	lastdec = 0;
-
-	/* install interrupt handler for timer */
-	IRQ_HANDLER[INT_TIMER0].m_data = (void *)&timestamp;
-	IRQ_HANDLER[INT_TIMER0].m_func = timer_isr;
-
 	/* configure free running timer 0 */
 	PUT_REG( REG_TMOD, 0x0);
 	/* Stop timer 0 */
@@ -187,7 +193,7 @@ int interrupt_init (void)
 	PUT32(T0TCR, 1);	/* enable timer0 */
 
 #else
-#error No interrupt_init() defined for this CPU type
+#error No timer_init() defined for this CPU type
 #endif
 	timestamp = 0;
 

@@ -214,5 +214,5 @@ static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	bootstrap,	3,	1,	do_bootstrap,
 	"program the serial device strap",
-	"wrclk [prom0|prom1] - program the serial device strap\n"
-	);
+	"wrclk [prom0|prom1] - program the serial device strap"
+);

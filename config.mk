@@ -206,23 +206,11 @@ export	TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS AFLAGS
 
 #########################################################################
 
-ifndef REMOTE_BUILD
-
-%.s:	%.S
-	$(CPP) $(AFLAGS) -o $@ $<
-%.o:	%.S
-	$(CC) $(AFLAGS) -c -o $@ $<
-%.o:	%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-else
-
 $(obj)%.s:	%.S
 	$(CPP) $(AFLAGS) -o $@ $<
 $(obj)%.o:	%.S
 	$(CC) $(AFLAGS) -c -o $@ $<
 $(obj)%.o:	%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
-endif
 
 #########################################################################

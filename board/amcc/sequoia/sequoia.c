@@ -33,7 +33,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if !defined(CONFIG_SYS_NO_FLASH)
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
+#endif
 
 extern void __ft_board_setup(void *blob, bd_t *bd);
 ulong flash_get_size(ulong base, int banknum);
@@ -122,16 +124,19 @@ int board_early_init_f(void)
 
 int misc_init_r(void)
 {
+#if !defined(CONFIG_SYS_NO_FLASH)
 	uint pbcr;
 	int size_val = 0;
-	u32 reg;
+#endif
 #ifdef CONFIG_440EPX
 	unsigned long usb2d0cr = 0;
 	unsigned long usb2phy0cr, usb2h0cr = 0;
 	unsigned long sdr0_pfc1;
 	char *act = getenv("usbact");
 #endif
+	u32 reg;
 
+#if !defined(CONFIG_SYS_NO_FLASH)
 	/* Re-do flash sizing to get full correct info */
 
 	/* adjust flash start and offset */
@@ -171,6 +176,7 @@ int misc_init_r(void)
 			    CONFIG_ENV_ADDR_REDUND + 2*CONFIG_ENV_SECT_SIZE - 1,
 			    &flash_info[0]);
 #endif
+#endif /* CONFIG_SYS_NO_FLASH */
 
 	/*
 	 * USB suff...
@@ -515,7 +521,7 @@ int post_hotkeys_pressed(void)
 }
 #endif /* CONFIG_POST */
 
-#if defined(CONFIG_NAND_U_BOOT)
+#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_SYS_RAMBOOT)
 /*
  * On NAND-booting sequoia, we need to patch the chips select numbers
  * in the dtb (CS0 - NAND, CS3 - NOR)

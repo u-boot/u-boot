@@ -431,3 +431,14 @@ static void set_ddr_config(void) {
 #endif
 	}
 }
+
+#ifdef CONFIG_OF_BOARD_SETUP
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+
+#ifdef CONFIG_PCI
+	ft_pci_setup(blob, bd);
+#endif	/* CONFIG_PCI */
+}
+#endif	/* CONFIG_OF_BOARD_SETUP */

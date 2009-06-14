@@ -577,7 +577,7 @@ int metroboxRecover(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(mbsetup, 1, 1, metroboxSetupVars,
-	   "Set environment to factory defaults", NULL);
+	   "Set environment to factory defaults", "");
 
 U_BOOT_CMD(mbrecover, 1, 1, metroboxRecover,
-	   "Set environment to allow for fs recovery", NULL);
+	   "Set environment to allow for fs recovery", "");

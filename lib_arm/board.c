@@ -136,6 +136,10 @@ void inline __yellow_LED_on(void) {}
 void inline yellow_LED_on(void)__attribute__((weak, alias("__yellow_LED_on")));
 void inline __yellow_LED_off(void) {}
 void inline yellow_LED_off(void)__attribute__((weak, alias("__yellow_LED_off")));
+void inline __blue_LED_on(void) {}
+void inline blue_LED_on(void)__attribute__((weak, alias("__blue_LED_on")));
+void inline __blue_LED_off(void) {}
+void inline blue_LED_off(void)__attribute__((weak, alias("__blue_LED_off")));
 
 /************************************************************************
  * Init Utilities							*
@@ -261,12 +265,14 @@ typedef int (init_fnc_t) (void);
 int print_cpuinfo (void);
 
 init_fnc_t *init_sequence[] = {
-	cpu_init,		/* basic cpu dependent setup */
 #if defined(CONFIG_ARCH_CPU_INIT)
 	arch_cpu_init,		/* basic arch cpu dependent setup */
 #endif
 	board_init,		/* basic board dependent setup */
+#if defined(CONFIG_USE_IRQ)
 	interrupt_init,		/* set up exceptions */
+#endif
+	timer_init,		/* initialize timer */
 	env_init,		/* initialize environment */
 	init_baudrate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
@@ -316,6 +322,9 @@ void start_armboot (void)
 		}
 	}
 
+	/* armboot_start is defined in the board-specific linker script */
+	mem_malloc_init (_armboot_start - CONFIG_SYS_MALLOC_LEN);
+
 #ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */
 	display_flash_config (flash_init ());
@@ -349,9 +358,6 @@ void start_armboot (void)
 		gd->fb_base = addr;
 	}
 #endif /* CONFIG_LCD */
-
-	/* armboot_start is defined in the board-specific linker script */
-	mem_malloc_init (_armboot_start - CONFIG_SYS_MALLOC_LEN);
 
 #if defined(CONFIG_CMD_NAND)
 	puts ("NAND:  ");
@@ -393,6 +399,10 @@ void start_armboot (void)
 
 	console_init_r ();	/* fully init console as a device */
 
+#if defined(CONFIG_ARCH_MISC_INIT)
+	/* miscellaneous arch dependent initialisations */
+	arch_misc_init ();
+#endif
 #if defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */
 	misc_init_r ();
@@ -462,102 +472,3 @@ void hang (void)
 	puts ("### ERROR ### Please RESET the board ###\n");
 	for (;;);
 }
-
-#ifdef CONFIG_MODEM_SUPPORT
-static inline void mdm_readline(char *buf, int bufsiz);
-
-/* called from main loop (common/main.c) */
-extern void  dbg(const char *fmt, ...);
-int mdm_init (void)
-{
-	char env_str[16];
-	char *init_str;
-	int i;
-	extern char console_buffer[];
-	extern void enable_putc(void);
-	extern int hwflow_onoff(int);
-
-	enable_putc(); /* enable serial_putc() */
-
-#ifdef CONFIG_HWFLOW
-	init_str = getenv("mdm_flow_control");
-	if (init_str && (strcmp(init_str, "rts/cts") == 0))
-		hwflow_onoff (1);
-	else
-		hwflow_onoff(-1);
-#endif
-
-	for (i = 1;;i++) {
-		sprintf(env_str, "mdm_init%d", i);
-		if ((init_str = getenv(env_str)) != NULL) {
-			serial_puts(init_str);
-			serial_puts("\n");
-			for(;;) {
-				mdm_readline(console_buffer, CONFIG_SYS_CBSIZE);
-				dbg("ini%d: [%s]", i, console_buffer);
-
-				if ((strcmp(console_buffer, "OK") == 0) ||
-					(strcmp(console_buffer, "ERROR") == 0)) {
-					dbg("ini%d: cmd done", i);
-					break;
-				} else /* in case we are originating call ... */
-					if (strncmp(console_buffer, "CONNECT", 7) == 0) {
-						dbg("ini%d: connect", i);
-						return 0;
-					}
-			}
-		} else
-			break; /* no init string - stop modem init */
-
-		udelay(100000);
-	}
-
-	udelay(100000);
-
-	/* final stage - wait for connect */
-	for(;i > 1;) { /* if 'i' > 1 - wait for connection
-				  message from modem */
-		mdm_readline(console_buffer, CONFIG_SYS_CBSIZE);
-		dbg("ini_f: [%s]", console_buffer);
-		if (strncmp(console_buffer, "CONNECT", 7) == 0) {
-			dbg("ini_f: connected");
-			return 0;
-		}
-	}
-
-	return 0;
-}
-
-/* 'inline' - We have to do it fast */
-static inline void mdm_readline(char *buf, int bufsiz)
-{
-	char c;
-	char *p;
-	int n;
-
-	n = 0;
-	p = buf;
-	for(;;) {
-		c = serial_getc();
-
-		/*		dbg("(%c)", c); */
-
-		switch(c) {
-		case '\r':
-			break;
-		case '\n':
-			*p = '\0';
-			return;
-
-		default:
-			if(n++ > bufsiz) {
-				*p = '\0';
-				return; /* sanity check */
-			}
-			*p = c;
-			p++;
-			break;
-		}
-	}
-}
-#endif	/* CONFIG_MODEM_SUPPORT */

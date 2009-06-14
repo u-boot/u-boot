@@ -404,12 +404,14 @@ U_BOOT_CMD(
 	"ds4510 pullup pin 0|1\n"
 	"	- disable/enable pullup on specified pin\n"
 	"ds4510 nv 0|1\n"
-	"	- make gpio and seeprom writes volatile/non-volatile\n"
+	"	- make gpio and seeprom writes volatile/non-volatile"
 #ifdef CONFIG_CMD_DS4510_RST
+	"\n"
 	"ds4510 rstdelay 0-3\n"
-	"	- set reset output delay\n"
+	"	- set reset output delay"
 #endif
 #ifdef CONFIG_CMD_DS4510_MEM
+	"\n"
 	"ds4510 eeprom read addr off cnt\n"
 	"ds4510 eeprom write addr off cnt\n"
 	"	- read/write 'cnt' bytes at EEPROM offset 'off'\n"
@@ -418,7 +420,7 @@ U_BOOT_CMD(
 	"	- read/write 'cnt' bytes at SRAM-shadowed EEPROM offset 'off'\n"
 	"ds4510 sram read addr off cnt\n"
 	"ds4510 sram write addr off cnt\n"
-	"	- read/write 'cnt' bytes at SRAM offset 'off'\n"
+	"	- read/write 'cnt' bytes at SRAM offset 'off'"
 #endif
 );
 #endif /* CONFIG_CMD_DS4510 */

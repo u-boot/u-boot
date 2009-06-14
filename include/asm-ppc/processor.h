@@ -923,7 +923,7 @@
 #if defined(CONFIG_MPC85xx)
 #define IS_E_PROCESSOR(svr)	(svr & 0x80000)
 #else
-#if defined(CONFIG_MPC83XX)
+#if defined(CONFIG_MPC83xx)
 #define IS_E_PROCESSOR(spridr)	(!(spridr & 0x00010000))
 #endif
 #endif
@@ -934,6 +934,8 @@
 
 #define SVR_8533	0x803400
 #define SVR_8533_E	0x803C00
+#define SVR_8535	0x803701
+#define SVR_8535_E	0x803F01
 #define SVR_8536	0x803700
 #define SVR_8536_E	0x803F00
 #define SVR_8540	0x803000
@@ -1023,7 +1025,7 @@ struct cpu_type *identify_cpu(u32 ver);
 #define CPU_TYPE_ENTRY(n, v) \
 	{ .name = #n, .soc_ver = SVR_##v, }
 #else
-#if defined(CONFIG_MPC83XX)
+#if defined(CONFIG_MPC83xx)
 #define CPU_TYPE_ENTRY(x) {#x, SPR_##x}
 #endif
 #endif

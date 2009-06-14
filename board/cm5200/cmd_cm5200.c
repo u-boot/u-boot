@@ -29,7 +29,7 @@
 
 #ifdef CONFIG_CMD_BSP
 
-int do_i2c(char *argv[])
+static int do_i2c_test(char *argv[])
 {
 	unsigned char temp, temp1;
 
@@ -57,7 +57,7 @@ int do_i2c(char *argv[])
 	return 0;
 }
 
-int do_usbtest(char *argv[])
+static int do_usb_test(char *argv[])
 {
 	int i;
 	static int usb_stor_curr_dev = -1; /* current device */
@@ -90,7 +90,7 @@ int do_usbtest(char *argv[])
 	return 0;
 }
 
-int do_led(char *argv[])
+static int do_led_test(char *argv[])
 {
 	int i = 0;
 	struct mpc5xxx_gpt_0_7 *gpt = (struct mpc5xxx_gpt_0_7 *)MPC5XXX_GPT;
@@ -134,7 +134,7 @@ int do_led(char *argv[])
 	return 0;
 }
 
-int do_rs232(char *argv[])
+static int do_rs232_test(char *argv[])
 {
 	int error_status = 0;
 	struct mpc5xxx_gpio *gpio = (struct mpc5xxx_gpio *)MPC5XXX_GPIO;
@@ -397,22 +397,22 @@ int do_rs232(char *argv[])
 	return error_status;
 }
 
-int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int rcode = -1;
 
 	switch (argc) {
 	case 2:
 		if (strncmp(argv[1], "i2c", 3) == 0)
-			rcode = do_i2c(argv);
+			rcode = do_i2c_test(argv);
 		else if (strncmp(argv[1], "led", 3) == 0)
-			rcode = do_led(argv);
+			rcode = do_led_test(argv);
 		else if (strncmp(argv[1], "usb", 3) == 0)
-			rcode = do_usbtest(argv);
+			rcode = do_usb_test(argv);
 		break;
 	case 3:
 		if (strncmp(argv[1], "rs232", 3) == 0)
-			rcode = do_rs232(argv);
+			rcode = do_rs232_test(argv);
 		break;
 	}
 
@@ -443,6 +443,6 @@ U_BOOT_CMD(
 	"fkt rs232 number\n"
 	"     - Test RS232 (loopback plug(s) for RS232 required)\n"
 	"fkt usb\n"
-	"     - Test USB communication\n"
+	"     - Test USB communication"
 );
 #endif /* CONFIG_CMD_BSP */

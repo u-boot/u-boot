@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2004, 2007-2009 Freescale Semiconductor Inc.
  * (C) Copyright 2003 Motorola Inc.
  * Xianghua Xiao, (X.Xiao@motorola.com)
  *
@@ -40,6 +40,9 @@ void get_sys_info (sys_info_t * sysInfo)
 	uint plat_ratio,e500_ratio,half_freqSystemBus;
 	uint lcrr_div;
 	int i;
+#ifdef CONFIG_QE
+	u32 qe_ratio;
+#endif
 
 	plat_ratio = (gur->porpllsr) & 0x0000003e;
 	plat_ratio >>= 1;
@@ -63,6 +66,12 @@ void get_sys_info (sys_info_t * sysInfo)
 		if (ddr_ratio != 0x7)
 			sysInfo->freqDDRBus = ddr_ratio * CONFIG_DDR_CLK_FREQ;
 	}
+#endif
+
+#ifdef CONFIG_QE
+	qe_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_QE_RATIO)
+			>> MPC85xx_PORPLLSR_QE_RATIO_SHIFT;
+	sysInfo->freqQE = qe_ratio * CONFIG_SYS_CLK_FREQ;
 #endif
 
 #if defined(CONFIG_SYS_LBC_LCRR)
@@ -112,6 +121,10 @@ int get_clocks (void)
 	gd->mem_clk = sys_info.freqDDRBus;
 	gd->lbc_clk = sys_info.freqLocalBus;
 
+#ifdef CONFIG_QE
+	gd->qe_clk = sys_info.freqQE;
+	gd->brg_clk = gd->qe_clk / 2;
+#endif
 	/*
 	 * The base clock for I2C depends on the actual SOC.  Unfortunately,
 	 * there is no pattern that can be used to determine the frequency, so

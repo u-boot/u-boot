@@ -357,9 +357,10 @@ U_BOOT_CMD (fpga, 6, 1, do_fpga,
 	    "\tload\tLoad device from memory buffer\n"
 	    "\tloadb\tLoad device from bitstream buffer (Xilinx devices only)\n"
 	    "\tloadmk\tLoad device generated with mkimage\n"
-	    "\tdump\tLoad device to memory buffer\n"
+	    "\tdump\tLoad device to memory buffer"
 #if defined(CONFIG_FIT)
+	    "\n"
 	    "\tFor loadmk operating on FIT format uImage address must include\n"
-	    "\tsubimage unit name in the form of addr:<subimg_uname>\n"
+	    "\tsubimage unit name in the form of addr:<subimg_uname>"
 #endif
 );

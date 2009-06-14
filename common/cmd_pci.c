@@ -555,5 +555,5 @@ U_BOOT_CMD(
 	"pci modify[.b, .w, .l] b.d.f address\n"
 	"    -  modify, auto increment CFG address\n"
 	"pci write[.b, .w, .l] b.d.f address value\n"
-	"    - write to CFG address\n"
+	"    - write to CFG address"
 );

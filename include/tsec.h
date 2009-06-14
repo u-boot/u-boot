@@ -28,7 +28,7 @@
 
 /* FIXME:  Should these be pushed back to 83xx and 85xx config files? */
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) \
-	|| defined(CONFIG_MPC83XX)
+	|| defined(CONFIG_MPC83xx)
     #define TSEC_BASE_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_TSEC1_OFFSET)
 #endif
 

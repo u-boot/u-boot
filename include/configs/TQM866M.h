@@ -266,6 +266,8 @@
  * Dynamic MTD partition support
  */
 #define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+#define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT		"nor0=TQM8xxM-0"
 
 #define MTDPARTS_DEFAULT	"mtdparts=TQM8xxM-0:512k(u-boot),"	\

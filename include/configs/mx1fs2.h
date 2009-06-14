@@ -183,6 +183,8 @@
 /* mtdparts command line support */
 /* Note: fake mtd_id used, no linux mtd map file */
 #define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+#define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT		"nor0=mx1fs2-0"
 
 #ifdef BUS32BIT_VERSION

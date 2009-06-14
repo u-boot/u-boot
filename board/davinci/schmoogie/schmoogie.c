@@ -27,7 +27,6 @@
 #include <common.h>
 #include <i2c.h>
 #include <asm/arch/hardware.h>
-#include "../common/psc.h"
 #include "../common/misc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -104,8 +103,6 @@ int misc_init_r(void)
 			0x74, 0x2a, 0xc8, 0x96, 0x15, 0x4b, 0xa9, 0xf7,
 			0xb6, 0xe8, 0x0a, 0x54, 0xd7, 0x89, 0x6b, 0x35
 		};
-
-	dv_display_clk_infos();
 
 	/* Set serial number from UID chip */
 	if (i2c_read(CONFIG_SYS_UID_ADDR, 0, 1, buf, 8)) {

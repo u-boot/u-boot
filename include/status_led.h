@@ -397,6 +397,8 @@ extern void	green_LED_on(void);
 extern void	green_LED_off(void);
 extern void	yellow_LED_on(void);
 extern void	yellow_LED_off(void);
+extern void	blue_LED_on(void);
+extern void	blue_LED_off(void);
 #else
 	.extern LED_init
 	.extern red_LED_on
@@ -405,6 +407,8 @@ extern void	yellow_LED_off(void);
 	.extern yellow_LED_off
 	.extern green_LED_on
 	.extern green_LED_off
+	.extern blue_LED_on
+	.extern blue_LED_off
 #endif
 
 #endif	/* CONFIG_STATUS_LED	*/

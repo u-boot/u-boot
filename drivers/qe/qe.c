@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Freescale Semiconductor, Inc.
+ * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
  *
  * Dave Liu <daveliu@freescale.com>
  * based on source code of Shlomi Gridish
@@ -108,14 +108,23 @@ static void qe_sdma_init(void)
 	out_be32(&p->sdmr, QE_SDMR_GLB_1_MSK | (0x3 << QE_SDMR_CEN_SHIFT));
 }
 
-static u8 thread_snum[QE_NUM_OF_SNUM] = {
+/* This table is a list of the serial numbers of the Threads, taken from the
+ * "SNUM Table" chart in the QE Reference Manual. The order is not important,
+ * we just need to know what the SNUMs are for the threads.
+ */
+static u8 thread_snum[] = {
 	0x04, 0x05, 0x0c, 0x0d,
 	0x14, 0x15, 0x1c, 0x1d,
 	0x24, 0x25, 0x2c, 0x2d,
 	0x34, 0x35, 0x88, 0x89,
 	0x98, 0x99, 0xa8, 0xa9,
 	0xb8, 0xb9, 0xc8, 0xc9,
-	0xd8, 0xd9, 0xe8, 0xe9
+	0xd8, 0xd9, 0xe8, 0xe9,
+	0x08, 0x09, 0x18, 0x19,
+	0x28, 0x29, 0x38, 0x39,
+	0x48, 0x49, 0x58, 0x59,
+	0x68, 0x69, 0x78, 0x79,
+	0x80, 0x81
 };
 
 static void qe_snums_init(void)
@@ -257,9 +266,6 @@ int qe_set_mii_clk_src(int ucc_num)
 
 	return 0;
 }
-
-/* The maximum number of RISCs we support */
-#define MAX_QE_RISC     2
 
 /* Firmware information stored here for qe_get_firmware_info() */
 static struct qe_firmware_info qe_firmware_info;
@@ -473,5 +479,6 @@ U_BOOT_CMD(
 	qe, 4, 0, qe_cmd,
 	"QUICC Engine commands",
 	"fw <addr> [<length>] - Upload firmware binary at address <addr> to "
-		"the QE,\n\twith optional length <length> verification.\n"
-	);
+		"the QE,\n"
+	"\twith optional length <length> verification."
+);

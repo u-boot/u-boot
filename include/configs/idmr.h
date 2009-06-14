@@ -230,6 +230,8 @@
 
 /* Dynamic MTD partition support */
 #define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+#define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT		"nor0=idmr-0"
 
 #define MTDPARTS_DEFAULT	"mtdparts=idmr-0:128k(u-boot),"	\

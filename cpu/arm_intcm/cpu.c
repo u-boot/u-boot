@@ -33,22 +33,6 @@
 #include <common.h>
 #include <command.h>
 
-#ifdef CONFIG_USE_IRQ
-DECLARE_GLOBAL_DATA_PTR;
-#endif
-
-int cpu_init (void)
-{
-	/*
-	 * setup up stacks if necessary
-	 */
-#ifdef CONFIG_USE_IRQ
-	IRQ_STACK_START = _armboot_start - CONFIG_SYS_MALLOC_LEN - CONFIG_SYS_GBL_DATA_SIZE - 4;
-	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
-#endif
-	return 0;
-}
-
 int cleanup_before_linux (void)
 {
 	/*

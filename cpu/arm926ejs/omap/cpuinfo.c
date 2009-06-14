@@ -11,7 +11,6 @@
 
 #include <common.h>
 #include <command.h>
-#include <arm926ejs.h>
 
 #if defined(CONFIG_DISPLAY_CPUINFO) && defined(CONFIG_OMAP)
 

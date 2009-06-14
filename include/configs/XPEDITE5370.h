@@ -244,7 +244,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_I2C_OFFSET		0x3000
 #define CONFIG_SYS_I2C2_OFFSET		0x3100
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_I2C_CMD_TREE
 
 /* PEX8518 slave I2C interface */
 #define CONFIG_SYS_I2C_PEX8518_ADDR	0x70

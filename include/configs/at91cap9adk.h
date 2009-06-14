@@ -28,7 +28,6 @@
 #define __CONFIG_H
 
 /* ARM asynchronous clock */
-#define AT91_CPU_NAME		"AT91CAP9"
 #define AT91_MAIN_CLOCK		12000000	/* 12 MHz crystal */
 #define CONFIG_SYS_HZ		1000
 

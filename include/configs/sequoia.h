@@ -112,13 +112,26 @@
 /*
  * Environment
  */
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
-#define CONFIG_ENV_IS_IN_FLASH	1	/* use FLASH for environ vars	*/
+#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
+#define CONFIG_ENV_IS_IN_NAND		/* use NAND for environ vars	*/
+#define CONFIG_ENV_IS_EMBEDDED		/* use embedded environment	*/
+#elif defined(CONFIG_SYS_RAMBOOT)
+#define CONFIG_ENV_IS_NOWHERE		/* Store env in memory only	*/
+#define CONFIG_ENV_SIZE		(8 << 10)
+/*
+ * In RAM-booting version, we have no environment storage. So we need to
+ * provide at least preliminary MAC addresses for the 4xx EMAC driver to
+ * register the interfaces. Those two addresses are generated via the
+ * tools/gen_eth_addr tool and should only be used in a closed laboratory
+ * environment.
+ */
+#define	CONFIG_ETHADDR		4a:56:49:22:3e:43
+#define	CONFIG_ETH1ADDR		02:93:53:d5:06:98
 #else
-#define CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environ vars	*/
-#define CONFIG_ENV_IS_EMBEDDED	1	/* use embedded environment	*/
+#define CONFIG_ENV_IS_IN_FLASH		/* use FLASH for environ vars	*/
 #endif
 
+#if defined(CONFIG_CMD_FLASH)
 /*
  * FLASH related
  */
@@ -148,6 +161,7 @@
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 #endif
+#endif /* CONFIG_CMD_FLASH */
 
 /*
  * IPL (Initial Program Loader, integrated inside CPU)
@@ -211,7 +225,8 @@
  * DDR SDRAM
  */
 #define CONFIG_SYS_MBYTES_SDRAM        (256)	/* 256MB			*/
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
+#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL) && \
+    !defined(CONFIG_SYS_RAMBOOT)
 #define CONFIG_DDR_DATA_EYE		/* use DDR2 optimization	*/
 #endif
 #define CONFIG_SYS_MEM_TOP_HIDE	(4 << 10) /* don't use last 4kbytes	*/
@@ -306,7 +321,7 @@
  * overwrite part of the U-Boot image which is already loaded from NAND
  * to SDRAM.
  */
-#if defined(CONFIG_NAND_U_BOOT)
+#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_SYS_RAMBOOT)
 #define CONFIG_SYS_POST_MEMORY_ON	0
 #else
 #define CONFIG_SYS_POST_MEMORY_ON	CONFIG_SYS_POST_MEMORY
@@ -354,7 +369,8 @@
 /*
  * On Sequoia CS0 and CS3 are switched when configuring for NAND booting
  */
-#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
+#if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL) && \
+    !defined(CONFIG_SYS_RAMBOOT)
 #define CONFIG_SYS_NAND_CS		3	/* NAND chip connected to CSx	*/
 /* Memory Bank 0 (NOR-FLASH) initialization				*/
 #define CONFIG_SYS_EBC_PB0AP		0x03017200

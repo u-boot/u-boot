@@ -62,6 +62,7 @@
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0	/* PHY address			*/
 #define CONFIG_PHY_RESET_DELAY	300	/* Intel LXT971A needs this	*/
+#define CONFIG_NET_MULTI
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"bootargs=emac(0,0)host:/T221ppc/target/config/sbc405/vxWorks.st " \

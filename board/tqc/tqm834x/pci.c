@@ -24,7 +24,15 @@
 
 #include <asm/mmu.h>
 #include <common.h>
+#include <asm/global_data.h>
 #include <pci.h>
+#include <asm/mpc8349_pci.h>
+#if defined(CONFIG_OF_LIBFDT)
+#include <libfdt.h>
+#include <fdt_support.h>
+#endif
+
+DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_PCI
 
@@ -217,4 +225,41 @@ pci_init_board(void)
 	 */
 	hose->last_busno = pci_hose_scan(hose);
 }
+
+#if defined(CONFIG_OF_LIBFDT)
+void ft_pci_setup(void *blob, bd_t *bd)
+{
+	int nodeoffset;
+	int tmp[2];
+	const char *path;
+
+	nodeoffset = fdt_path_offset(blob, "/aliases");
+	if (nodeoffset >= 0) {
+		path = fdt_getprop(blob, nodeoffset, "pci0", NULL);
+		if (path) {
+			tmp[0] = cpu_to_be32(pci1_hose.first_busno);
+			tmp[1] = cpu_to_be32(pci1_hose.last_busno);
+			do_fixup_by_path(blob, path, "bus-range",
+				&tmp, sizeof(tmp), 1);
+
+			tmp[0] = cpu_to_be32(gd->pci_clk);
+			do_fixup_by_path(blob, path, "clock-frequency",
+				&tmp, sizeof(tmp[0]), 1);
+		}
+#ifdef CONFIG_MPC83XX_PCI2
+		path = fdt_getprop(blob, nodeoffset, "pci1", NULL);
+		if (path) {
+			tmp[0] = cpu_to_be32(pci2_hose.first_busno);
+			tmp[1] = cpu_to_be32(pci2_hose.last_busno);
+			do_fixup_by_path(blob, path, "bus-range",
+				&tmp, sizeof(tmp), 1);
+
+			tmp[0] = cpu_to_be32(gd->pci_clk);
+			do_fixup_by_path(blob, path, "clock-frequency",
+				&tmp, sizeof(tmp[0]), 1);
+		}
+#endif
+	}
+}
+#endif /* CONFIG_OF_LIBFDT */
 #endif /* CONFIG_PCI */

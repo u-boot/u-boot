@@ -124,7 +124,7 @@ int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	loadpci,	1,	1,	do_loadpci,
 	"Wait for pci bootcmd and boot it",
-	NULL
-	);
+	""
+);
 
 #endif

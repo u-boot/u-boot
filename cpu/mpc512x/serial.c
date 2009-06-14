@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000 - 2007
+ * (C) Copyright 2000 - 2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -30,6 +30,8 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
+#include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,66 +42,73 @@ static void fifo_init (volatile psc512x_t *psc)
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* reset Rx & Tx fifo slice */
-	psc->rfcmd = PSC_FIFO_RESET_SLICE;
-	psc->tfcmd = PSC_FIFO_RESET_SLICE;
+	out_be32(&psc->rfcmd, PSC_FIFO_RESET_SLICE);
+	out_be32(&psc->tfcmd, PSC_FIFO_RESET_SLICE);
 
 	/* disable Tx & Rx FIFO interrupts */
-	psc->rfintmask = 0;
-	psc->tfintmask = 0;
+	out_be32(&psc->rfintmask, 0);
+	out_be32(&psc->tfintmask, 0);
 
-	psc->tfsize = CONSOLE_FIFO_TX_SIZE | (CONSOLE_FIFO_TX_ADDR << 16);
-	psc->rfsize = CONSOLE_FIFO_RX_SIZE | (CONSOLE_FIFO_RX_ADDR << 16);
+	out_be32(&psc->tfsize, CONSOLE_FIFO_TX_SIZE | (CONSOLE_FIFO_TX_ADDR << 16));
+	out_be32(&psc->rfsize, CONSOLE_FIFO_RX_SIZE | (CONSOLE_FIFO_RX_ADDR << 16));
 
 	/* enable Tx & Rx FIFO slice */
-	psc->rfcmd = PSC_FIFO_ENABLE_SLICE;
-	psc->tfcmd = PSC_FIFO_ENABLE_SLICE;
+	out_be32(&psc->rfcmd, PSC_FIFO_ENABLE_SLICE);
+	out_be32(&psc->tfcmd, PSC_FIFO_ENABLE_SLICE);
 
-	im->fifoc.fifoc_cmd = FIFOC_DISABLE_CLOCK_GATE;
+	out_be32(&im->fifoc.fifoc_cmd, FIFOC_DISABLE_CLOCK_GATE);
 	__asm__ volatile ("sync");
+}
+
+void serial_setbrg(void)
+{
+	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
+	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
+	unsigned long baseclk, div;
+
+	/* calculate dividor for setting PSC CTUR and CTLR registers */
+	baseclk = (gd->ips_clk + 8) / 16;
+	div = (baseclk + (gd->baudrate / 2)) / gd->baudrate;
+
+	out_8(&psc->ctur, (div >> 8) & 0xff);
+	out_8(&psc->ctlr,  div & 0xff); /* set baudrate */
 }
 
 int serial_init(void)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
-	unsigned long baseclk;
-	int div;
 
 	fifo_init (psc);
 
 	/* set MR register to point to MR1 */
-	psc->command = PSC_SEL_MODE_REG_1;
+	out_8(&psc->command, PSC_SEL_MODE_REG_1);
 
 	/* disable Tx/Rx */
-	psc->command = PSC_TX_DISABLE | PSC_RX_DISABLE;
+	out_8(&psc->command, PSC_TX_DISABLE | PSC_RX_DISABLE);
 
 	/* choose the prescaler	by 16 for the Tx/Rx clock generation */
-	psc->psc_clock_select =  0xdd00;
+	out_be16(&psc->psc_clock_select, 0xdd00);
 
 	/* switch to UART mode */
-	psc->sicr = 0;
+	out_be32(&psc->sicr, 0);
 
 	/* mode register points to mr1 */
 	/* configure parity, bit length and so on in mode register 1*/
-	psc->mode = PSC_MODE_8_BITS | PSC_MODE_PARNONE;
+	out_8(&psc->mode, PSC_MODE_8_BITS | PSC_MODE_PARNONE);
 	/* now, mode register points to mr2 */
-	psc->mode = PSC_MODE_1_STOPBIT;
+	out_8(&psc->mode, PSC_MODE_1_STOPBIT);
 
-	/* calculate dividor for setting PSC CTUR and CTLR registers */
-	baseclk = (gd->ips_clk + 8) / 16;
-	div = (baseclk + (gd->baudrate / 2)) / gd->baudrate;
-
-	psc->ctur = (div >> 8) & 0xff;
 	/* set baudrate */
-	psc->ctlr = div & 0xff;
+	serial_setbrg();
 
 	/* disable all interrupts */
-	psc->psc_imr = 0;
+	out_be16(&psc->psc_imr, 0);
 
 	/* reset and enable Rx/Tx */
-	psc->command = PSC_RST_RX;
-	psc->command = PSC_RST_TX;
-	psc->command = PSC_RX_ENABLE | PSC_TX_ENABLE;
+	out_8(&psc->command, PSC_RST_RX);
+	out_8(&psc->command, PSC_RST_TX);
+	out_8(&psc->command, PSC_RX_ENABLE | PSC_TX_ENABLE);
 
 	return 0;
 }
@@ -113,7 +122,7 @@ void serial_putc (const char c)
 		serial_putc ('\r');
 
 	/* Wait for last character to go. */
-	while (!(psc->psc_status & PSC_SR_TXEMP))
+	while (!(in_be16(&psc->psc_status) & PSC_SR_TXEMP))
 		;
 
 	psc->tfdata_8 = c;
@@ -125,7 +134,7 @@ void serial_putc_raw (const char c)
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 
 	/* Wait for last character to go. */
-	while (!(psc->psc_status & PSC_SR_TXEMP))
+	while (!(in_be16(&psc->psc_status) & PSC_SR_TXEMP))
 		;
 
 	psc->tfdata_8 = c;
@@ -145,7 +154,7 @@ int serial_getc (void)
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 
 	/* Wait for a character to arrive. */
-	while (psc->rfstat & PSC_FIFO_EMPTY)
+	while (in_be32(&psc->rfstat) & PSC_FIFO_EMPTY)
 		;
 
 	return psc->rfdata_8;
@@ -156,20 +165,7 @@ int serial_tstc (void)
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 
-	return !(psc->rfstat & PSC_FIFO_EMPTY);
-}
-
-void serial_setbrg (void)
-{
-	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
-	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
-	unsigned long baseclk, div;
-
-	baseclk = (gd->csb_clk + 8) / 16;
-	div = (baseclk + (gd->baudrate / 2)) / gd->baudrate;
-
-	psc->ctur = (div >> 8) & 0xFF;
-	psc->ctlr =  div & 0xff; /* set baudrate */
+	return !(in_be32(&psc->rfstat) & PSC_FIFO_EMPTY);
 }
 
 void serial_setrts(int s)
@@ -179,11 +175,11 @@ void serial_setrts(int s)
 
 	if (s) {
 		/* Assert RTS (become LOW) */
-		psc->op1 = 0x1;
+		out_8(&psc->op1, 0x1);
 	}
 	else {
 		/* Negate RTS (become HIGH) */
-		psc->op0 = 0x1;
+		out_8(&psc->op0, 0x1);
 	}
 }
 
@@ -192,6 +188,6 @@ int serial_getcts(void)
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile psc512x_t *psc = (psc512x_t *) &im->psc[CONFIG_PSC_CONSOLE];
 
-	return (psc->ip & 0x1) ? 0 : 1;
+	return (in_8(&psc->ip) & 0x1) ? 0 : 1;
 }
 #endif /* CONFIG_PSC_CONSOLE */

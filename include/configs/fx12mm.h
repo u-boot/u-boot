@@ -38,6 +38,8 @@
 /* cmd config */
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+#define CONFIG_FLASH_CFI_MTD
 #undef CONFIG_CMD_NET
 
 /* sdram */

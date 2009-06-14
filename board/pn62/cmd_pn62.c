@@ -54,8 +54,8 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	led    ,	3,	1,	do_led,
 	"set LED 0..11 on the PN62 board",
-	"i fun\n"
-	"    - set 'i'th LED to function 'fun'\n"
+	"i fun"
+	"    - set 'i'th LED to function 'fun'"
 );
 
 /*
@@ -177,7 +177,7 @@ U_BOOT_CMD(
 	loadpci,	2,	1,	do_loadpci,
 	"load binary file over PCI",
 	"[addr]\n"
-	"    - load binary file over PCI to address 'addr'\n"
+	"    - load binary file over PCI to address 'addr'"
 );
 
 #endif

@@ -61,7 +61,6 @@ static void at91cap9_slowclock_hw_init(void)
 	if (at91_sys_read(AT91_PMC_VER) == ARCH_ID_AT91CAP9_REVC) {
 		unsigned i, tmp = at91_sys_read(AT91_SCKCR);
 		if ((tmp & AT91CAP9_SCKCR_OSCSEL) == AT91CAP9_SCKCR_OSCSEL_RC) {
-			extern void timer_init(void);
 			timer_init();
 			tmp |= AT91CAP9_SCKCR_OSC32EN;
 			at91_sys_write(AT91_SCKCR, tmp);

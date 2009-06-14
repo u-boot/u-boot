@@ -357,6 +357,28 @@ void per_clocks_enable(void)
 	sr32(&prcm_base->fclken_per, 11, 1, 0x1);
 	sr32(&prcm_base->iclken_per, 11, 1, 0x1);
 #endif
+
+#ifdef CONFIG_OMAP3_GPIO_2
+	sr32(&prcm_base->fclken_per, 13, 1, 1);
+	sr32(&prcm_base->iclken_per, 13, 1, 1);
+#endif
+#ifdef CONFIG_OMAP3_GPIO_3
+	sr32(&prcm_base->fclken_per, 14, 1, 1);
+	sr32(&prcm_base->iclken_per, 14, 1, 1);
+#endif
+#ifdef CONFIG_OMAP3_GPIO_4
+	sr32(&prcm_base->fclken_per, 15, 1, 1);
+	sr32(&prcm_base->iclken_per, 15, 1, 1);
+#endif
+#ifdef CONFIG_OMAP3_GPIO_5
+	sr32(&prcm_base->fclken_per, 16, 1, 1);
+	sr32(&prcm_base->iclken_per, 16, 1, 1);
+#endif
+#ifdef CONFIG_OMAP3_GPIO_6
+	sr32(&prcm_base->fclken_per, 17, 1, 1);
+	sr32(&prcm_base->iclken_per, 17, 1, 1);
+#endif
+
 #ifdef CONFIG_DRIVER_OMAP34XX_I2C
 	/* Turn on all 3 I2C clocks */
 	sr32(&prcm_base->fclken1_core, 15, 3, 0x7);

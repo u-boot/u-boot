@@ -39,7 +39,7 @@ do_version (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	version,	1,		1,	do_version,
 	"print monitor version",
-	NULL
+	""
 );
 
 #if defined(CONFIG_CMD_ECHO)
@@ -73,7 +73,7 @@ U_BOOT_CMD(
 	echo,	CONFIG_SYS_MAXARGS,	1,	do_echo,
 	"echo args to console",
 	"[args..]\n"
-	"    - echo args to console; \\c suppresses newline\n"
+	"    - echo args to console; \\c suppresses newline"
 );
 
 #endif
@@ -204,8 +204,7 @@ do_test (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	test,	CONFIG_SYS_MAXARGS,	1,	do_test,
 	"minimal test like /bin/sh",
-	"[args..]\n"
-	"    - test functionality\n"
+	"[args..]"
 );
 
 int
@@ -223,7 +222,7 @@ do_exit (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	exit,	2,	1,	do_exit,
 	"exit script",
-	"    - exit functionality\n"
+	""
 );
 
 
@@ -286,21 +285,7 @@ int _do_help (cmd_tbl_t *cmd_start, int cmd_items, cmd_tbl_t * cmdtp, int
 	 */
 	for (i = 1; i < argc; ++i) {
 		if ((cmdtp = find_cmd_tbl (argv[i], cmd_start, cmd_items )) != NULL) {
-#ifdef	CONFIG_SYS_LONGHELP
-			/* found - print (long) help info */
-			puts (cmdtp->name);
-			putc (' ');
-			if (cmdtp->help) {
-				puts (cmdtp->help);
-			} else {
-				puts ("- No help available.\n");
-				rcode = 1;
-			}
-			putc ('\n');
-#else	/* no long help available */
-			if (cmdtp->usage)
-				printf ("%s - %s\n", cmdtp->name, cmdtp->usage);
-#endif	/* CONFIG_SYS_LONGHELP */
+			rcode |= cmd_usage(cmdtp);
 		} else {
 			printf ("Unknown command '%s' - try 'help'"
 				" without arguments for list of all"
@@ -328,15 +313,15 @@ U_BOOT_CMD(
 	"'help' prints online help for the monitor commands.\n\n"
 	"Without arguments, it prints a short usage message for all commands.\n\n"
 	"To get detailed help information for specific commands you can type\n"
-  "'help' with one or more command names as arguments.\n"
+	"'help' with one or more command names as arguments."
 );
 
-/* This do not ust the U_BOOT_CMD macro as ? can't be used in symbol names */
+/* This does not use the U_BOOT_CMD macro as ? can't be used in symbol names */
 #ifdef  CONFIG_SYS_LONGHELP
 cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
 	"?",	CONFIG_SYS_MAXARGS,	1,	do_help,
 	"alias for 'help'",
-	NULL
+	""
 };
 #else
 cmd_tbl_t __u_boot_cmd_question_mark Struct_Section = {
@@ -386,9 +371,22 @@ cmd_tbl_t *find_cmd (const char *cmd)
 	return find_cmd_tbl(cmd, &__u_boot_cmd_start, len);
 }
 
-void cmd_usage(cmd_tbl_t *cmdtp)
+int cmd_usage(cmd_tbl_t *cmdtp)
 {
-	printf("Usage:\n%s - %s\n\n", cmdtp->name, cmdtp->usage);
+	printf("%s - %s\n\n", cmdtp->name, cmdtp->usage);
+
+#ifdef	CONFIG_SYS_LONGHELP
+	printf("Usage:\n%s ", cmdtp->name);
+
+	if (!cmdtp->help) {
+		puts ("- No additional help available.\n");
+		return 1;
+	}
+
+	puts (cmdtp->help);
+	putc ('\n');
+#endif	/* CONFIG_SYS_LONGHELP */
+	return 0;
 }
 
 #ifdef CONFIG_AUTO_COMPLETE

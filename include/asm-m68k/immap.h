@@ -149,7 +149,7 @@
 #define CONFIG_SYS_TMRINTR_NO		(INT0_LO_DTMR3)
 #define CONFIG_SYS_TMRINTR_MASK	(INTC_IPRL_INT22)
 #define CONFIG_SYS_TMRINTR_PEND	(CONFIG_SYS_TMRINTR_MASK)
-#define CONFIG_SYS_TMRINTR_PRI		(0)		/* Level must include inorder to work */
+#define CONFIG_SYS_TMRINTR_PRI		(0x1E) /* Interrupt level 3, priority 6 */
 #define CONFIG_SYS_TIMER_PRESCALER	(((gd->bus_clk / 1000000) - 1) << 8)
 #endif
 

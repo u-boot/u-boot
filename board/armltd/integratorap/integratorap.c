@@ -540,7 +540,7 @@ static ulong div_timer	 = 1;	/* Divisor to convert timer reading
  * - the Integrator/AP timer issues an interrupt
  *   each time it reaches zero
  */
-int interrupt_init (void)
+int timer_init (void)
 {
 	/* Load timer with initial value */
 	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 0) = TIMER_LOAD_VAL;

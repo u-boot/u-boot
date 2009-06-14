@@ -948,7 +948,7 @@ U_BOOT_CMD(
 	"\tbdt     - OS specific bd_t processing\n"
 	"\tcmdline - OS specific command line processing/setup\n"
 	"\tprep    - OS specific prep before relocation or go\n"
-	"\tgo      - start OS\n"
+	"\tgo      - start OS"
 );
 
 /*******************************************************************/
@@ -973,14 +973,14 @@ int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	boot,	1,	1,	do_bootd,
 	"boot default, i.e., run 'bootcmd'",
-	NULL
+	""
 );
 
 /* keep old command name "bootd" for backward compatibility */
 U_BOOT_CMD(
 	bootd, 1,	1,	do_bootd,
 	"boot default, i.e., run 'bootcmd'",
-	NULL
+	""
 );
 
 #endif
@@ -1068,7 +1068,7 @@ U_BOOT_CMD(
 	"addr [addr ...]\n"
 	"    - print header information for application image starting at\n"
 	"      address 'addr' in memory; this includes verification of the\n"
-	"      image contents (magic number, header and payload checksums)\n"
+	"      image contents (magic number, header and payload checksums)"
 );
 #endif
 
@@ -1135,7 +1135,7 @@ U_BOOT_CMD(
 	"list all images found in flash",
 	"\n"
 	"    - Prints information about all images found at sector\n"
-	"      boundaries in flash.\n"
+	"      boundaries in flash."
 );
 #endif
 

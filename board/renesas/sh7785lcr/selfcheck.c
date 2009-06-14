@@ -168,5 +168,5 @@ U_BOOT_CMD(
 	"hwtest sm107 - output SM107 version\n"
 	"hwtest net   - check RTL8110 ID\n"
 	"hwtest sata  - check SiI3512 ID\n"
-	"hwtest pci   - output PCI slot device ID\n"
+	"hwtest pci   - output PCI slot device ID"
 );

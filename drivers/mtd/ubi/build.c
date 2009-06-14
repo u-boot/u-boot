@@ -46,6 +46,10 @@
 #include <ubi_uboot.h>
 #include "ubi.h"
 
+#if (CONFIG_SYS_MALLOC_LEN < (512 << 10))
+#error Malloc area too small for UBI, increase CONFIG_SYS_MALLOC_LEN to >= 512k
+#endif
+
 /* Maximum length of the 'mtd=' parameter */
 #define MTD_PARAM_LEN_MAX 64
 

@@ -28,6 +28,7 @@ Pantelis Antoniou <panto@intracom.gr>
 Reinhard Arlt <reinhard.arlt@esd-electronics.com>
 
 	cpci5200	MPC5200
+	mecp5123	MPC5121
 	mecp5200	MPC5200
 	pf5200		MPC5200
 
@@ -74,6 +75,8 @@ Wolfgang Denk <wd@denx.de>
 
 	IceCube_5100	MGT5100
 	IceCube_5200	MPC5200
+
+	ARIA		MPC5121e
 
 	AMX860		MPC860
 	ETX094		MPC850
@@ -609,6 +612,10 @@ Stelian Pop <stelian.pop@leadtechdesign.com>
 	at91sam9261ek	ARM926EJS (AT91SAM9261 SoC)
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
+
+Tom Rix <Tom.Rix@windriver.com>
+
+	omap3_zoom2	ARM CORTEX-A8 (OMAP3xx SoC)
 
 Stefan Roese <sr@denx.de>
 

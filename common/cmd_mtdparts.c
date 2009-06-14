@@ -90,7 +90,8 @@
 #include <jffs2/load_kernel.h>
 #include <linux/list.h>
 #include <linux/ctype.h>
-#include <cramfs/cramfs_fs.h>
+#include <linux/err.h>
+#include <linux/mtd/mtd.h>
 
 #if defined(CONFIG_CMD_NAND)
 #ifdef CONFIG_NAND_LEGACY
@@ -102,7 +103,6 @@
 #endif
 
 #if defined(CONFIG_CMD_ONENAND)
-#include <linux/mtd/mtd.h>
 #include <linux/mtd/onenand.h>
 #include <onenand_uboot.h>
 #endif
@@ -137,14 +137,12 @@
 #if defined(MTDIDS_DEFAULT)
 static const char *const mtdids_default = MTDIDS_DEFAULT;
 #else
-#warning "MTDIDS_DEFAULT not defined!"
 static const char *const mtdids_default = NULL;
 #endif
 
 #if defined(MTDPARTS_DEFAULT)
 static const char *const mtdparts_default = MTDPARTS_DEFAULT;
 #else
-#warning "MTDPARTS_DEFAULT not defined!"
 static const char *const mtdparts_default = NULL;
 #endif
 
@@ -303,137 +301,91 @@ static void current_save(void)
 }
 
 /**
- * Performs sanity check for supplied NOR flash partition. Table of existing
- * NOR flash devices is searched and partition device is located. Alignment
- * with the granularity of NOR flash sectors is verified.
- *
- * @param id of the parent device
- * @param part partition to validate
- * @return 0 if partition is valid, 1 otherwise
- */
-static int part_validate_nor(struct mtdids *id, struct part_info *part)
-{
-#if defined(CONFIG_CMD_FLASH)
-	/* info for FLASH chips */
-	extern flash_info_t flash_info[];
-	flash_info_t *flash;
-	int offset_aligned;
-	u32 end_offset, sector_size = 0;
-	int i;
-
-	flash = &flash_info[id->num];
-
-	/* size of last sector */
-	part->sector_size = flash->size -
-		(flash->start[flash->sector_count-1] - flash->start[0]);
-
-	offset_aligned = 0;
-	for (i = 0; i < flash->sector_count; i++) {
-		if ((flash->start[i] - flash->start[0]) == part->offset) {
-			offset_aligned = 1;
-			break;
-		}
-	}
-	if (offset_aligned == 0) {
-		printf("%s%d: partition (%s) start offset alignment incorrect\n",
-				MTD_DEV_TYPE(id->type), id->num, part->name);
-		return 1;
-	}
-
-	end_offset = part->offset + part->size;
-	offset_aligned = 0;
-	for (i = 0; i < flash->sector_count; i++) {
-		if (i) {
-			sector_size = flash->start[i] - flash->start[i-1];
-			if (part->sector_size < sector_size)
-				part->sector_size = sector_size;
-		}
-		if ((flash->start[i] - flash->start[0]) == end_offset)
-			offset_aligned = 1;
-	}
-
-	if (offset_aligned || flash->size == end_offset)
-		return 0;
-
-	printf("%s%d: partition (%s) size alignment incorrect\n",
-			MTD_DEV_TYPE(id->type), id->num, part->name);
-#endif
-	return 1;
-}
-
-/**
- * Performs sanity check for supplied NAND flash partition. Table of existing
- * NAND flash devices is searched and partition device is located. Alignment
- * with the granularity of nand erasesize is verified.
- *
- * @param id of the parent device
- * @param part partition to validate
- * @return 0 if partition is valid, 1 otherwise
- */
-static int part_validate_nand(struct mtdids *id, struct part_info *part)
-{
-#if defined(CONFIG_CMD_NAND)
-	/* info for NAND chips */
-	nand_info_t *nand;
-
-	nand = &nand_info[id->num];
-
-	part->sector_size = nand->erasesize;
-
-	if ((unsigned long)(part->offset) % nand->erasesize) {
-		printf("%s%d: partition (%s) start offset alignment incorrect\n",
-				MTD_DEV_TYPE(id->type), id->num, part->name);
-		return 1;
-	}
-
-	if (part->size % nand->erasesize) {
-		printf("%s%d: partition (%s) size alignment incorrect\n",
-				MTD_DEV_TYPE(id->type), id->num, part->name);
-		return 1;
-	}
-
-	return 0;
-#else
-	return 1;
-#endif
-}
-
-/**
- * Performs sanity check for supplied OneNAND flash partition.
- * Table of existing OneNAND flash devices is searched and partition device
+ * Performs sanity check for supplied flash partition.
+ * Table of existing MTD flash devices is searched and partition device
  * is located. Alignment with the granularity of nand erasesize is verified.
  *
  * @param id of the parent device
  * @param part partition to validate
  * @return 0 if partition is valid, 1 otherwise
  */
-static int part_validate_onenand(struct mtdids *id, struct part_info *part)
+static int part_validate_eraseblock(struct mtdids *id, struct part_info *part)
 {
-#if defined(CONFIG_CMD_ONENAND)
-	/* info for OneNAND chips */
 	struct mtd_info *mtd;
+	char mtd_dev[16];
+	int i, j;
+	ulong start;
 
-	mtd = &onenand_mtd;
+	sprintf(mtd_dev, "%s%d", MTD_DEV_TYPE(id->type), id->num);
+	mtd = get_mtd_device_nm(mtd_dev);
+	if (IS_ERR(mtd)) {
+		printf("Partition %s not found on device %s!\n", part->name, mtd_dev);
+		return 1;
+	}
 
 	part->sector_size = mtd->erasesize;
 
-	if ((unsigned long)(part->offset) % mtd->erasesize) {
-		printf("%s%d: partition (%s) start offset"
-			"alignment incorrect\n",
-				MTD_DEV_TYPE(id->type), id->num, part->name);
-		return 1;
-	}
+	if (!mtd->numeraseregions) {
+		/*
+		 * Only one eraseregion (NAND, OneNAND or uniform NOR),
+		 * checking for alignment is easy here
+		 */
+		if ((unsigned long)part->offset % mtd->erasesize) {
+			printf("%s%d: partition (%s) start offset"
+			       "alignment incorrect\n",
+			       MTD_DEV_TYPE(id->type), id->num, part->name);
+			return 1;
+		}
 
-	if (part->size % mtd->erasesize) {
-		printf("%s%d: partition (%s) size alignment incorrect\n",
-				MTD_DEV_TYPE(id->type), id->num, part->name);
+		if (part->size % mtd->erasesize) {
+			printf("%s%d: partition (%s) size alignment incorrect\n",
+			       MTD_DEV_TYPE(id->type), id->num, part->name);
+			return 1;
+		}
+	} else {
+		/*
+		 * Multiple eraseregions (non-uniform NOR),
+		 * checking for alignment is more complex here
+		 */
+
+		/* Check start alignment */
+		for (i = 0; i < mtd->numeraseregions; i++) {
+			start = mtd->eraseregions[i].offset;
+			for (j = 0; j < mtd->eraseregions[i].numblocks; j++) {
+				if (part->offset == start)
+					goto start_ok;
+				start += mtd->eraseregions[i].erasesize;
+			}
+		}
+
+		printf("%s%d: partition (%s) start offset alignment incorrect\n",
+		       MTD_DEV_TYPE(id->type), id->num, part->name);
 		return 1;
+
+	start_ok:
+
+		/* Check end/size alignment */
+		for (i = 0; i < mtd->numeraseregions; i++) {
+			start = mtd->eraseregions[i].offset;
+			for (j = 0; j < mtd->eraseregions[i].numblocks; j++) {
+				if ((part->offset + part->size) == start)
+					goto end_ok;
+				start += mtd->eraseregions[i].erasesize;
+			}
+		}
+		/* Check last sector alignment */
+		if ((part->offset + part->size) == start)
+			goto end_ok;
+
+		printf("%s%d: partition (%s) size alignment incorrect\n",
+		       MTD_DEV_TYPE(id->type), id->num, part->name);
+		return 1;
+
+	end_ok:
+		return 0;
 	}
 
 	return 0;
-#else
-	return 1;
-#endif
 }
 
 
@@ -469,16 +421,11 @@ static int part_validate(struct mtdids *id, struct part_info *part)
 		return 1;
 	}
 
-	if (id->type == MTD_DEV_TYPE_NAND)
-		return part_validate_nand(id, part);
-	else if (id->type == MTD_DEV_TYPE_NOR)
-		return part_validate_nor(id, part);
-	else if (id->type == MTD_DEV_TYPE_ONENAND)
-		return part_validate_onenand(id, part);
-	else
-		DEBUGF("part_validate: invalid dev type\n");
-
-	return 1;
+	/*
+	 * Now we need to check if the partition starts and ends on
+	 * sector (eraseblock) regions
+	 */
+	return part_validate_eraseblock(id, part);
 }
 
 /**
@@ -762,48 +709,19 @@ static int part_parse(const char *const partdef, const char **ret, struct part_i
  */
 int mtd_device_validate(u8 type, u8 num, u32 *size)
 {
-	if (type == MTD_DEV_TYPE_NOR) {
-#if defined(CONFIG_CMD_FLASH)
-		if (num < CONFIG_SYS_MAX_FLASH_BANKS) {
-			extern flash_info_t flash_info[];
-			*size = flash_info[num].size;
+	struct mtd_info *mtd;
+	char mtd_dev[16];
 
-			return 0;
-		}
+	sprintf(mtd_dev, "%s%d", MTD_DEV_TYPE(type), num);
+	mtd = get_mtd_device_nm(mtd_dev);
+	if (IS_ERR(mtd)) {
+		printf("Device %s not found!\n", mtd_dev);
+		return 1;
+	}
 
-		printf("no such FLASH device: %s%d (valid range 0 ... %d\n",
-				MTD_DEV_TYPE(type), num, CONFIG_SYS_MAX_FLASH_BANKS - 1);
-#else
-		printf("support for FLASH devices not present\n");
-#endif
-	} else if (type == MTD_DEV_TYPE_NAND) {
-#if defined(CONFIG_CMD_NAND)
-		if (num < CONFIG_SYS_MAX_NAND_DEVICE) {
-#ifndef CONFIG_NAND_LEGACY
-			*size = nand_info[num].size;
-#else
-			extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
-			*size = nand_dev_desc[num].totlen;
-#endif
-			return 0;
-		}
+	*size = mtd->size;
 
-		printf("no such NAND device: %s%d (valid range 0 ... %d)\n",
-				MTD_DEV_TYPE(type), num, CONFIG_SYS_MAX_NAND_DEVICE - 1);
-#else
-		printf("support for NAND devices not present\n");
-#endif
-	} else if (type == MTD_DEV_TYPE_ONENAND) {
-#if defined(CONFIG_CMD_ONENAND)
-		*size = onenand_mtd.size;
-		return 0;
-#else
-		printf("support for OneNAND devices not present\n");
-#endif
-	} else
-		printf("Unknown defice type %d\n", type);
-
-	return 1;
+	return 0;
 }
 
 /**
@@ -1344,8 +1262,10 @@ static void list_partitions(void)
 	}
 
 	printf("\ndefaults:\n");
-	printf("mtdids  : %s\n", mtdids_default);
-	printf("mtdparts: %s\n", mtdparts_default);
+	printf("mtdids  : %s\n",
+		mtdids_default ? mtdids_default : "none");
+	printf("mtdparts: %s\n",
+		mtdparts_default ? mtdparts_default : "none");
 }
 
 /**
@@ -1943,7 +1863,7 @@ U_BOOT_CMD(
 	chpart,	2,	0,	do_chpart,
 	"change active partition",
 	"part-id\n"
-	"    - change active partition (e.g. part-id = nand0,1)\n"
+	"    - change active partition (e.g. part-id = nand0,1)"
 );
 
 U_BOOT_CMD(
@@ -1978,6 +1898,6 @@ U_BOOT_CMD(
 	"<size>     := standard linux memsize OR '-' to denote all remaining space\n"
 	"<offset>   := partition start offset within the device\n"
 	"<name>     := '(' NAME ')'\n"
-	"<ro-flag>  := when set to 'ro' makes partition read-only (not used, passed to kernel)\n"
+	"<ro-flag>  := when set to 'ro' makes partition read-only (not used, passed to kernel)"
 );
 /***************************************************/

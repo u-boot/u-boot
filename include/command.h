@@ -71,7 +71,7 @@ int _do_help (cmd_tbl_t *cmd_start, int cmd_items, cmd_tbl_t * cmdtp, int
 cmd_tbl_t *find_cmd(const char *cmd);
 cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len);
 
-extern void cmd_usage(cmd_tbl_t *cmdtp);
+extern int cmd_usage(cmd_tbl_t *cmdtp);
 
 #ifdef CONFIG_AUTO_COMPLETE
 extern void install_auto_complete(void);

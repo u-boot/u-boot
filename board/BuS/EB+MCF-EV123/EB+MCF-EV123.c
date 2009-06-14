@@ -156,7 +156,7 @@ int do_vcimage (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	vcimage,	2,	0,	do_vcimage,
 	"loads an image to Display",
-	"vcimage addr\n"
+	"vcimage addr"
 );
 
 /* EOF EB+MCF-EV123c */

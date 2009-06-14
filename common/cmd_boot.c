@@ -66,7 +66,7 @@ U_BOOT_CMD(
 	go, CONFIG_SYS_MAXARGS, 1,	do_go,
 	"start application at address 'addr'",
 	"addr [arg ...]\n    - start application at address 'addr'\n"
-	"      passing 'arg' as arguments\n"
+	"      passing 'arg' as arguments"
 );
 
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
@@ -74,5 +74,5 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 U_BOOT_CMD(
 	reset, 1, 0,	do_reset,
 	"Perform RESET of the CPU",
-	NULL
+	""
 );

@@ -597,7 +597,7 @@ int checkcpu (void)
 	printf ("       Internal PCI arbiter %sabled", pci_arbiter_enabled() ? "en" : "dis");
 #endif
 
-#if defined(PCI_ASYNC)
+#if defined(CONFIG_PCI) && defined(PCI_ASYNC)
 	if (pci_async_enabled()) {
 		printf (", PCI async ext clock used");
 	} else {

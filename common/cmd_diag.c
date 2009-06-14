@@ -72,5 +72,5 @@ U_BOOT_CMD(
 	"         - print information about specified tests\n"
 	"diag run - run all available tests\n"
 	"diag run [test1 [test2]]\n"
-	"         - run specified tests\n"
+	"         - run specified tests"
 );

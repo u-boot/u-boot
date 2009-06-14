@@ -140,28 +140,6 @@ dirdelim(char *str)
 	return -1;
 }
 
-
-/*
- * Match volume_info fs_type strings.
- * Return 0 on match, -1 otherwise.
- */
-static int
-compare_sign(char *str1, char *str2)
-{
-	char *end = str1+SIGNLEN;
-
-	while (str1 != end) {
-		if (*str1 != *str2) {
-			return -1;
-		}
-		str1++;
-		str2++;
-	}
-
-	return 0;
-}
-
-
 /*
  * Extract zero terminated short name from a directory entry.
  */
@@ -673,7 +651,6 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 {
 	__u8 block[FS_BLOCK_SIZE];
 	volume_info *vistart;
-	char *fstype;
 
 	if (disk_read(0, 1, block) < 0) {
 		FAT_DPRINT("Error: reading block\n");
@@ -706,23 +683,16 @@ read_bootsectandvi(boot_sector *bs, volume_info *volinfo, int *fatsize)
 	}
 	memcpy(volinfo, vistart, sizeof(volume_info));
 
-	/*
-	 * Terminate fs_type string. Writing past the end of vistart
-	 * is ok - it's just the buffer.
-	 */
-	fstype = vistart->fs_type;
-	fstype[8] = '\0';
-
 	if (*fatsize == 32) {
-		if (compare_sign(FAT32_SIGN, vistart->fs_type) == 0) {
+		if (strncmp(FAT32_SIGN, vistart->fs_type, SIGNLEN) == 0) {
 			return 0;
 		}
 	} else {
-		if (compare_sign(FAT12_SIGN, vistart->fs_type) == 0) {
+		if (strncmp(FAT12_SIGN, vistart->fs_type, SIGNLEN) == 0) {
 			*fatsize = 12;
 			return 0;
 		}
-		if (compare_sign(FAT16_SIGN, vistart->fs_type) == 0) {
+		if (strncmp(FAT16_SIGN, vistart->fs_type, SIGNLEN) == 0) {
 			*fatsize = 16;
 			return 0;
 		}

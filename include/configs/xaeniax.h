@@ -55,6 +55,7 @@
 /*
  * select serial console configuration
  */
+#define CONFIG_PXA_SERIAL
 #define CONFIG_BTUART	       1       /* we use BTUART on XAENIAX */
 
 

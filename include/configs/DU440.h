@@ -170,7 +170,6 @@
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged	        */
 #define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed and slave address  */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
-#define CONFIG_I2C_CMD_TREE     1
 #define CONFIG_I2C_MULTI_BUS    1
 
 #define CONFIG_SYS_SPD_BUS_NUM         0

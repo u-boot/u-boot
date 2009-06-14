@@ -33,8 +33,8 @@
  * High Level Configuration Options
  */
 #define CONFIG_E300	1
-#define CONFIG_MPC83XX	1
-#define CONFIG_MPC834X	1
+#define CONFIG_MPC83xx	1
+#define CONFIG_MPC834x	1
 #define CONFIG_MPC8343	1
 
 #define CONFIG_SYS_IMMR		0xE0000000
@@ -53,7 +53,6 @@
 
 #define CONFIG_FSL_I2C
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_I2C_CMD_TREE
 #define CONFIG_SYS_I2C_OFFSET		0x3000
 #define CONFIG_SYS_I2C2_OFFSET		0x3100
 

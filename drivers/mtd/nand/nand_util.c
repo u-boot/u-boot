@@ -36,11 +36,14 @@
 #include <malloc.h>
 #include <div64.h>
 
-
 #include <asm/errno.h>
 #include <linux/mtd/mtd.h>
 #include <nand.h>
 #include <jffs2/jffs2.h>
+
+#if !defined(CONFIG_SYS_64BIT_VSPRINTF)
+#warning Please define CONFIG_SYS_64BIT_VSPRINTF for correct output!
+#endif
 
 typedef struct erase_info erase_info_t;
 typedef struct mtd_info	  mtd_info_t;
@@ -127,7 +130,7 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 			if (ret > 0) {
 				if (!opts->quiet)
 					printf("\rSkipping bad block at  "
-					       "0x%08x                   "
+					       "0x%08llx                 "
 					       "                         \n",
 					       erase.addr);
 				continue;
@@ -181,11 +184,11 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 			if (percent != percent_complete) {
 				percent_complete = percent;
 
-				printf("\rErasing at 0x%x -- %3d%% complete.",
+				printf("\rErasing at 0x%llx -- %3d%% complete.",
 				       erase.addr, percent);
 
 				if (opts->jffs2 && result == 0)
-					printf(" Cleanmarker written at 0x%x.",
+					printf(" Cleanmarker written at 0x%llx.",
 					       erase.addr);
 			}
 		}

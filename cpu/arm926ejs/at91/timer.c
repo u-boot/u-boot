@@ -26,7 +26,6 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pit.h>
 #include <asm/arch/at91_pmc.h>
-#include <asm/arch/at91_rstc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/io.h>
 #include <div64.h>
@@ -138,18 +137,4 @@ ulong get_tbclk(void)
 
 	tbclk = CONFIG_SYS_HZ;
 	return tbclk;
-}
-
-/*
- * Reset the cpu by setting up the watchdog timer and let him time out.
- */
-void reset_cpu(ulong ignored)
-{
-	/* this is the way Linux does it */
-	at91_sys_write(AT91_RSTC_CR, AT91_RSTC_KEY |
-				     AT91_RSTC_PROCRST |
-				     AT91_RSTC_PERRST);
-
-	while (1);
-	/* Never reached */
 }

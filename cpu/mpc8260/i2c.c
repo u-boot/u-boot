@@ -58,9 +58,6 @@ static unsigned int i2c_bus_num __attribute__ ((section (".data"))) = 0;
 #define	CONFIG_SYS_I2C_SPEED	50000
 #endif
 
-#ifndef	CONFIG_SYS_I2C_SLAVE
-#define	CONFIG_SYS_I2C_SLAVE	0xFE
-#endif
 /*-----------------------------------------------------------------------
  */
 
@@ -781,19 +778,6 @@ int i2c_set_bus_num(unsigned int bus)
 		return -1;
 	i2c_bus_num = bus;
 #endif
-	return 0;
-}
-/* TODO: add 100/400k switching */
-unsigned int i2c_get_bus_speed(void)
-{
-	return CONFIG_SYS_I2C_SPEED;
-}
-
-int i2c_set_bus_speed(unsigned int speed)
-{
-	if (speed != CONFIG_SYS_I2C_SPEED)
-		return -1;
-
 	return 0;
 }
 

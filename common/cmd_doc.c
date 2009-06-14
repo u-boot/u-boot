@@ -202,7 +202,7 @@ U_BOOT_CMD(
 	"doc write addr off size - read/write `size'"
 	" bytes starting at offset `off'\n"
 	"    to/from memory address `addr'\n"
-	"doc erase off size - erase `size' bytes of DOC from offset `off'\n"
+	"doc erase off size - erase `size' bytes of DOC from offset `off'"
 );
 
 int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -342,7 +342,7 @@ int do_docboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	docboot,	4,	1,	do_docboot,
 	"boot from DOC device",
-	"loadAddr dev\n"
+	"loadAddr dev"
 );
 
 int doc_rw (struct DiskOnChip* this, int cmd,

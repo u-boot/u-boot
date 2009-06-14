@@ -384,11 +384,11 @@ static int do_eeprom_save_mac(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 }
 
 U_BOOT_CMD(smcee, 1, 0, do_eeprom_erase_all,
-	   "smcee   - Erase content of SMC EEPROM\n",);
+	   "smcee   - Erase content of SMC EEPROM",);
 
 U_BOOT_CMD(smced, 1, 0, do_eeprom_dump,
-	   "smced   - Dump content of SMC EEPROM\n",);
+	   "smced   - Dump content of SMC EEPROM",);
 
 U_BOOT_CMD(smcew, 2, 0, do_eeprom_save_mac,
 	   "smcew   - Write MAC address to SMC EEPROM\n",
-	   "aa:bb:cc:dd:ee:ff  new mac address\n");
+	   "aa:bb:cc:dd:ee:ff  new mac address");

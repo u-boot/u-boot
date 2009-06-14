@@ -1,4 +1,6 @@
 /*
+ * (C) Copyright 2009 Freescale Semiconductor, Inc.
+ *
  * (C) Copyright 2008, Excito Elektronik i Sk=E5ne AB
  *
  * Author: Tor Krill tor@excito.com
@@ -22,12 +24,10 @@
 #include <common.h>
 #include <pci.h>
 #include <usb.h>
-#include <mpc83xx.h>
 #include <asm/io.h>
-#include <asm/bitops.h>
+#include <usb/ehci-fsl.h>
 
 #include "ehci.h"
-#include "ehci-fsl.h"
 #include "ehci-core.h"
 
 /*
@@ -38,54 +38,33 @@
  */
 int ehci_hcd_init(void)
 {
-	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-	uint32_t addr, temp;
+	struct usb_ehci *ehci;
 
-	addr = (uint32_t)&(im->usb[0]);
-	hccr = (struct ehci_hccr *)(addr + FSL_SKIP_PCI);
+	ehci = (struct usb_ehci *)CONFIG_SYS_MPC8xxx_USB_ADDR;
+	hccr = (struct ehci_hccr *)((uint32_t)ehci->caplength);
 	hcor = (struct ehci_hcor *)((uint32_t) hccr +
 			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
-	/* Configure clock */
-	clrsetbits_be32(&(im->clk.sccr), MPC83XX_SCCR_USB_MASK,
-			MPC83XX_SCCR_USB_DRCM_11);
-
-	/* Confgure interface. */
-	temp = in_be32((void *)(addr + FSL_SOC_USB_CTRL));
-	out_be32((void *)(addr + FSL_SOC_USB_CTRL), temp
-		 | REFSEL_16MHZ | UTMI_PHY_EN);
-
-	/* Wait for clock to stabilize */
-	do {
-		temp = in_be32((void *)(addr + FSL_SOC_USB_CTRL));
-		udelay(1000);
-	} while (!(temp & PHY_CLK_VALID));
-
 	/* Set to Host mode */
-	temp = in_le32((void *)(addr + FSL_SOC_USB_USBMODE));
-	out_le32((void *)(addr + FSL_SOC_USB_USBMODE), temp | CM_HOST);
+	setbits_le32((void *)ehci->usbmode, CM_HOST);
 
-	out_be32((void *)(addr + FSL_SOC_USB_SNOOP1), SNOOP_SIZE_2GB);
-	out_be32((void *)(addr + FSL_SOC_USB_SNOOP2),
-		 0x80000000 | SNOOP_SIZE_2GB);
+	out_be32((void *)ehci->snoop1, SNOOP_SIZE_2GB);
+	out_be32((void *)ehci->snoop2, 0x80000000 | SNOOP_SIZE_2GB);
 
 	/* Init phy */
-	/* TODO: handle different phys? */
-	out_le32(&(hcor->or_portsc[0]), PORT_PTS_UTMI);
+	if (!strcmp(getenv("usb_phy_type"), "utmi"))
+		out_le32(&(hcor->or_portsc[0]), PORT_PTS_UTMI);
+	else
+		out_le32(&(hcor->or_portsc[0]), PORT_PTS_ULPI);
 
 	/* Enable interface. */
-	temp = in_be32((void *)(addr + FSL_SOC_USB_CTRL));
-	out_be32((void *)(addr + FSL_SOC_USB_CTRL), temp | USB_EN);
+	setbits_be32((void *)ehci->control, USB_EN);
 
-	out_be32((void *)(addr + FSL_SOC_USB_PRICTRL), 0x0000000c);
-	out_be32((void *)(addr + FSL_SOC_USB_AGECNTTHRSH), 0x00000040);
-	out_be32((void *)(addr + FSL_SOC_USB_SICTRL), 0x00000001);
+	out_be32((void *)ehci->prictrl, 0x0000000c);
+	out_be32((void *)ehci->age_cnt_limit, 0x00000040);
+	out_be32((void *)ehci->sictrl, 0x00000001);
 
-	/* Enable interface. */
-	temp = in_be32((void *)(addr + FSL_SOC_USB_CTRL));
-	out_be32((void *)(addr + FSL_SOC_USB_CTRL), temp | USB_EN);
-
-	temp = in_le32((void *)(addr + FSL_SOC_USB_USBMODE));
+	in_le32((void *)ehci->usbmode);
 
 	return 0;
 }

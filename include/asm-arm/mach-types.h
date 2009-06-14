@@ -1807,7 +1807,7 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_JADE                 1821
 #define MACH_TYPE_KS8695_SOFTPLC       1822
 #define MACH_TYPE_GPRISC3              1823
-#define MACH_TYPE_STAMP9260            1824
+#define MACH_TYPE_STAMP9G20            1824
 #define MACH_TYPE_SMDK6430             1825
 #define MACH_TYPE_SMDKC100             1826
 #define MACH_TYPE_TAVOREVB             1827
@@ -1990,6 +1990,136 @@ extern unsigned int __machine_arch_type;
 #define MACH_TYPE_BLAZE                2004
 #define MACH_TYPE_LINKSTATION_LS_HGL   2005
 #define MACH_TYPE_HTCVENUS             2006
+#define MACH_TYPE_SONY_PRS505          2007
+#define MACH_TYPE_HANLIN_V3            2008
+#define MACH_TYPE_SAPPHIRA             2009
+#define MACH_TYPE_DACK_SDA_01          2010
+#define MACH_TYPE_ARMBOX               2011
+#define MACH_TYPE_HARRIS_RVP           2012
+#define MACH_TYPE_RIBALDO              2013
+#define MACH_TYPE_AGORA                2014
+#define MACH_TYPE_OMAP3_MINI           2015
+#define MACH_TYPE_A9SAM6432_B          2016
+#define MACH_TYPE_USG2410              2017
+#define MACH_TYPE_PC72052_I10_REVB     2018
+#define MACH_TYPE_MX35_EXM32           2019
+#define MACH_TYPE_TOPAS910             2020
+#define MACH_TYPE_HYENA                2021
+#define MACH_TYPE_POSPAX               2022
+#define MACH_TYPE_HDL_GX               2023
+#define MACH_TYPE_CTERA_4BAY           2024
+#define MACH_TYPE_CTERA_PLUG_C         2025
+#define MACH_TYPE_CRWEA_PLUG_I         2026
+#define MACH_TYPE_EGAUGE2              2027
+#define MACH_TYPE_DIDJ                 2028
+#define MACH_TYPE_MEISTER              2029
+#define MACH_TYPE_HTCBLACKSTONE        2030
+#define MACH_TYPE_CPUAT9G20            2031
+#define MACH_TYPE_SMDK6440             2032
+#define MACH_TYPE_OMAP_35XX_MVP        2033
+#define MACH_TYPE_CTERA_PLUG_I         2034
+#define MACH_TYPE_PVG610               2035
+#define MACH_TYPE_HPRW6815             2036
+#define MACH_TYPE_OMAP3_OSWALD         2037
+#define MACH_TYPE_NAS4220B             2038
+#define MACH_TYPE_HTCRAPHAEL_CDMA      2039
+#define MACH_TYPE_HTCDIAMOND_CDMA      2040
+#define MACH_TYPE_SCALER               2041
+#define MACH_TYPE_ZYLONITE2            2042
+#define MACH_TYPE_ASPENITE             2043
+#define MACH_TYPE_TETON                2044
+#define MACH_TYPE_TTC_DKB              2045
+#define MACH_TYPE_BISHOP2              2046
+#define MACH_TYPE_IPPV5                2047
+#define MACH_TYPE_FARM926              2048
+#define MACH_TYPE_MMCCPU               2049
+#define MACH_TYPE_SGMSFL               2050
+#define MACH_TYPE_TT8000               2051
+#define MACH_TYPE_ZRN4300LP            2052
+#define MACH_TYPE_MPTC                 2053
+#define MACH_TYPE_H6051                2054
+#define MACH_TYPE_PVG610_101           2055
+#define MACH_TYPE_STAMP9261_PC_EVB     2056
+#define MACH_TYPE_PELCO_ODYSSEUS       2057
+#define MACH_TYPE_TNY_A9260            2058
+#define MACH_TYPE_TNY_A9G20            2059
+#define MACH_TYPE_AESOP_MP2530F        2060
+#define MACH_TYPE_DX900                2061
+#define MACH_TYPE_CPODC2               2062
+#define MACH_TYPE_TILT_8925            2063
+#define MACH_TYPE_DAVINCI_DM357_EVM    2064
+#define MACH_TYPE_SWORDFISH            2065
+#define MACH_TYPE_CORVUS               2066
+#define MACH_TYPE_TAURUS               2067
+#define MACH_TYPE_AXM                  2068
+#define MACH_TYPE_AXC                  2069
+#define MACH_TYPE_BABY                 2070
+#define MACH_TYPE_MP200                2071
+#define MACH_TYPE_PCM043               2072
+#define MACH_TYPE_HANLIN_V3C           2073
+#define MACH_TYPE_KBK9G20              2074
+#define MACH_TYPE_ADSTURBOG5           2075
+#define MACH_TYPE_AVENGER_LITE1        2076
+#define MACH_TYPE_SUC                  2077
+#define MACH_TYPE_AT91SAM7S256         2078
+#define MACH_TYPE_MENDOZA              2079
+#define MACH_TYPE_KIRA                 2080
+#define MACH_TYPE_MX1HBM               2081
+#define MACH_TYPE_QUATRO43XX           2082
+#define MACH_TYPE_QUATRO4230           2083
+#define MACH_TYPE_NSB400               2084
+#define MACH_TYPE_DRP255               2085
+#define MACH_TYPE_THOTH                2086
+#define MACH_TYPE_FIRESTONE            2087
+#define MACH_TYPE_ASUSP750             2088
+#define MACH_TYPE_CTERA_DL             2089
+#define MACH_TYPE_SOCR                 2090
+#define MACH_TYPE_HTCOXYGEN            2091
+#define MACH_TYPE_HEROC                2092
+#define MACH_TYPE_ZENO6800             2093
+#define MACH_TYPE_SC2MCS               2094
+#define MACH_TYPE_GENE100              2095
+#define MACH_TYPE_AS353X               2096
+#define MACH_TYPE_SHEEVAPLUG           2097
+#define MACH_TYPE_AT91SAM9G20          2098
+#define MACH_TYPE_MV88F6192GTW_FE      2099
+#define MACH_TYPE_CC9200               2100
+#define MACH_TYPE_SM9200               2101
+#define MACH_TYPE_TP9200               2102
+#define MACH_TYPE_SNAPPERDV            2103
+#define MACH_TYPE_AVENGERS_LITE        2104
+#define MACH_TYPE_AVENGERS_LITE1       2105
+#define MACH_TYPE_OMAP3AXON            2106
+#define MACH_TYPE_MA8XX                2107
+#define MACH_TYPE_MP201EK              2108
+#define MACH_TYPE_DAVINCI_TUX          2109
+#define MACH_TYPE_MPA1600              2110
+#define MACH_TYPE_PELCO_TROY           2111
+#define MACH_TYPE_NSB667               2112
+#define MACH_TYPE_ROVERS5_4MPIX        2113
+#define MACH_TYPE_TWOCOM               2114
+#define MACH_TYPE_UBISYS_P9_RCU3R2     2115
+#define MACH_TYPE_HERO_ESPRESSO        2116
+#define MACH_TYPE_AFEUSB               2117
+#define MACH_TYPE_T830                 2118
+#define MACH_TYPE_SPD8020_CC           2119
+#define MACH_TYPE_OM_3D7K              2120
+#define MACH_TYPE_PICOCOM2             2121
+#define MACH_TYPE_UWG4MX27             2122
+#define MACH_TYPE_UWG4MX31             2123
+#define MACH_TYPE_CHERRY               2124
+#define MACH_TYPE_MX51_BABBAGE         2125
+#define MACH_TYPE_S3C2440TURKIYE       2126
+#define MACH_TYPE_TX37                 2127
+#define MACH_TYPE_SBC2800_9G20         2128
+#define MACH_TYPE_BENZGLB              2129
+#define MACH_TYPE_BENZTD               2130
+#define MACH_TYPE_CARTESIO_PLUS        2131
+#define MACH_TYPE_SOLRAD_G20           2132
+#define MACH_TYPE_MX27WALLACE          2133
+#define MACH_TYPE_FMZWEBMODUL          2134
+#define MACH_TYPE_RD78X00_MASA         2135
+#define MACH_TYPE_SMALLOGGER           2136
 
 #ifdef CONFIG_ARCH_EBSA110
 # ifdef machine_arch_type
@@ -23531,16 +23661,16 @@ extern unsigned int __machine_arch_type;
 # define machine_is_gprisc3()	(0)
 #endif
 
-#ifdef CONFIG_MACH_STAMP9260
+#ifdef CONFIG_MACH_STAMP9G20
 # ifdef machine_arch_type
 #  undef machine_arch_type
 #  define machine_arch_type	__machine_arch_type
 # else
-#  define machine_arch_type	MACH_TYPE_STAMP9260
+#  define machine_arch_type	MACH_TYPE_STAMP9G20
 # endif
-# define machine_is_stamp9260()	(machine_arch_type == MACH_TYPE_STAMP9260)
+# define machine_is_stamp9g20()	(machine_arch_type == MACH_TYPE_STAMP9G20)
 #else
-# define machine_is_stamp9260()	(0)
+# define machine_is_stamp9g20()	(0)
 #endif
 
 #ifdef CONFIG_MACH_SMDK6430
@@ -25722,9 +25852,1569 @@ extern unsigned int __machine_arch_type;
 # else
 #  define machine_arch_type	MACH_TYPE_HTCVENUS
 # endif
-# define machine_is_htcvenus()	(machine_arch_type == MACH_TYPE_HTCVENUS)
+# define machine_is_htckovsky()	(machine_arch_type == MACH_TYPE_HTCVENUS)
 #else
-# define machine_is_htcvenus()	(0)
+# define machine_is_htckovsky()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SONY_PRS505
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SONY_PRS505
+# endif
+# define machine_is_sony_prs505()	(machine_arch_type == MACH_TYPE_SONY_PRS505)
+#else
+# define machine_is_sony_prs505()	(0)
+#endif
+
+#ifdef CONFIG_MACH_HANLIN_V3
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_HANLIN_V3
+# endif
+# define machine_is_hanlin_v3()	(machine_arch_type == MACH_TYPE_HANLIN_V3)
+#else
+# define machine_is_hanlin_v3()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SAPPHIRA
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SAPPHIRA
+# endif
+# define machine_is_sapphira()	(machine_arch_type == MACH_TYPE_SAPPHIRA)
+#else
+# define machine_is_sapphira()	(0)
+#endif
+
+#ifdef CONFIG_MACH_DACK_SDA_01
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_DACK_SDA_01
+# endif
+# define machine_is_dack_sda_01()	(machine_arch_type == MACH_TYPE_DACK_SDA_01)
+#else
+# define machine_is_dack_sda_01()	(0)
+#endif
+
+#ifdef CONFIG_MACH_ARMBOX
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_ARMBOX
+# endif
+# define machine_is_armbox()	(machine_arch_type == MACH_TYPE_ARMBOX)
+#else
+# define machine_is_armbox()	(0)
+#endif
+
+#ifdef CONFIG_MACH_HARRIS_RVP
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_HARRIS_RVP
+# endif
+# define machine_is_harris_rvp()	(machine_arch_type == MACH_TYPE_HARRIS_RVP)
+#else
+# define machine_is_harris_rvp()	(0)
+#endif
+
+#ifdef CONFIG_MACH_RIBALDO
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_RIBALDO
+# endif
+# define machine_is_ribaldo()	(machine_arch_type == MACH_TYPE_RIBALDO)
+#else
+# define machine_is_ribaldo()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AGORA
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AGORA
+# endif
+# define machine_is_agora()	(machine_arch_type == MACH_TYPE_AGORA)
+#else
+# define machine_is_agora()	(0)
+#endif
+
+#ifdef CONFIG_MACH_OMAP3_MINI
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_OMAP3_MINI
+# endif
+# define machine_is_omap3_mini()	(machine_arch_type == MACH_TYPE_OMAP3_MINI)
+#else
+# define machine_is_omap3_mini()	(0)
+#endif
+
+#ifdef CONFIG_MACH_A9SAM6432_B
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_A9SAM6432_B
+# endif
+# define machine_is_a9sam6432_b()	(machine_arch_type == MACH_TYPE_A9SAM6432_B)
+#else
+# define machine_is_a9sam6432_b()	(0)
+#endif
+
+#ifdef CONFIG_MACH_USG2410
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_USG2410
+# endif
+# define machine_is_usg2410()	(machine_arch_type == MACH_TYPE_USG2410)
+#else
+# define machine_is_usg2410()	(0)
+#endif
+
+#ifdef CONFIG_MACH_PC72052_I10_REVB
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_PC72052_I10_REVB
+# endif
+# define machine_is_pc72052_i10_revb()	(machine_arch_type == MACH_TYPE_PC72052_I10_REVB)
+#else
+# define machine_is_pc72052_i10_revb()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MX35_EXM32
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MX35_EXM32
+# endif
+# define machine_is_mx35_exm32()	(machine_arch_type == MACH_TYPE_MX35_EXM32)
+#else
+# define machine_is_mx35_exm32()	(0)
+#endif
+
+#ifdef CONFIG_MACH_TOPAS910
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_TOPAS910
+# endif
+# define machine_is_topas910()	(machine_arch_type == MACH_TYPE_TOPAS910)
+#else
+# define machine_is_topas910()	(0)
+#endif
+
+#ifdef CONFIG_MACH_HYENA
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_HYENA
+# endif
+# define machine_is_hyena()	(machine_arch_type == MACH_TYPE_HYENA)
+#else
+# define machine_is_hyena()	(0)
+#endif
+
+#ifdef CONFIG_MACH_POSPAX
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_POSPAX
+# endif
+# define machine_is_pospax()	(machine_arch_type == MACH_TYPE_POSPAX)
+#else
+# define machine_is_pospax()	(0)
+#endif
+
+#ifdef CONFIG_MACH_HDL_GX
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_HDL_GX
+# endif
+# define machine_is_hdl_gx()	(machine_arch_type == MACH_TYPE_HDL_GX)
+#else
+# define machine_is_hdl_gx()	(0)
+#endif
+
+#ifdef CONFIG_MACH_CTERA_4BAY
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_CTERA_4BAY
+# endif
+# define machine_is_ctera_4bay()	(machine_arch_type == MACH_TYPE_CTERA_4BAY)
+#else
+# define machine_is_ctera_4bay()	(0)
+#endif
+
+#ifdef CONFIG_MACH_CTERA_PLUG_C
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_CTERA_PLUG_C
+# endif
+# define machine_is_ctera_plug_c()	(machine_arch_type == MACH_TYPE_CTERA_PLUG_C)
+#else
+# define machine_is_ctera_plug_c()	(0)
+#endif
+
+#ifdef CONFIG_MACH_CRWEA_PLUG_I
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_CRWEA_PLUG_I
+# endif
+# define machine_is_crwea_plug_i()	(machine_arch_type == MACH_TYPE_CRWEA_PLUG_I)
+#else
+# define machine_is_crwea_plug_i()	(0)
+#endif
+
+#ifdef CONFIG_MACH_EGAUGE2
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_EGAUGE2
+# endif
+# define machine_is_egauge2()	(machine_arch_type == MACH_TYPE_EGAUGE2)
+#else
+# define machine_is_egauge2()	(0)
+#endif
+
+#ifdef CONFIG_MACH_DIDJ
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_DIDJ
+# endif
+# define machine_is_didj()	(machine_arch_type == MACH_TYPE_DIDJ)
+#else
+# define machine_is_didj()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MEISTER
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MEISTER
+# endif
+# define machine_is_m_s3c2443()	(machine_arch_type == MACH_TYPE_MEISTER)
+#else
+# define machine_is_m_s3c2443()	(0)
+#endif
+
+#ifdef CONFIG_MACH_HTCBLACKSTONE
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_HTCBLACKSTONE
+# endif
+# define machine_is_htcblackstone()	(machine_arch_type == MACH_TYPE_HTCBLACKSTONE)
+#else
+# define machine_is_htcblackstone()	(0)
+#endif
+
+#ifdef CONFIG_MACH_CPUAT9G20
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_CPUAT9G20
+# endif
+# define machine_is_cpuat9g20()	(machine_arch_type == MACH_TYPE_CPUAT9G20)
+#else
+# define machine_is_cpuat9g20()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SMDK6440
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SMDK6440
+# endif
+# define machine_is_smdk6440()	(machine_arch_type == MACH_TYPE_SMDK6440)
+#else
+# define machine_is_smdk6440()	(0)
+#endif
+
+#ifdef CONFIG_MACH_OMAP_35XX_MVP
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_OMAP_35XX_MVP
+# endif
+# define machine_is_omap_35xx_mvp()	(machine_arch_type == MACH_TYPE_OMAP_35XX_MVP)
+#else
+# define machine_is_omap_35xx_mvp()	(0)
+#endif
+
+#ifdef CONFIG_MACH_CTERA_PLUG_I
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_CTERA_PLUG_I
+# endif
+# define machine_is_ctera_plug_i()	(machine_arch_type == MACH_TYPE_CTERA_PLUG_I)
+#else
+# define machine_is_ctera_plug_i()	(0)
+#endif
+
+#ifdef CONFIG_MACH_PVG610
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_PVG610
+# endif
+# define machine_is_pvg610_100()	(machine_arch_type == MACH_TYPE_PVG610)
+#else
+# define machine_is_pvg610_100()	(0)
+#endif
+
+#ifdef CONFIG_MACH_HPRW6815
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_HPRW6815
+# endif
+# define machine_is_hprw6815()	(machine_arch_type == MACH_TYPE_HPRW6815)
+#else
+# define machine_is_hprw6815()	(0)
+#endif
+
+#ifdef CONFIG_MACH_OMAP3_OSWALD
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_OMAP3_OSWALD
+# endif
+# define machine_is_omap3_oswald()	(machine_arch_type == MACH_TYPE_OMAP3_OSWALD)
+#else
+# define machine_is_omap3_oswald()	(0)
+#endif
+
+#ifdef CONFIG_MACH_NAS4220B
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_NAS4220B
+# endif
+# define machine_is_nas4220b()	(machine_arch_type == MACH_TYPE_NAS4220B)
+#else
+# define machine_is_nas4220b()	(0)
+#endif
+
+#ifdef CONFIG_MACH_HTCRAPHAEL_CDMA
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_HTCRAPHAEL_CDMA
+# endif
+# define machine_is_htcraphael_cdma()	(machine_arch_type == MACH_TYPE_HTCRAPHAEL_CDMA)
+#else
+# define machine_is_htcraphael_cdma()	(0)
+#endif
+
+#ifdef CONFIG_MACH_HTCDIAMOND_CDMA
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_HTCDIAMOND_CDMA
+# endif
+# define machine_is_htcdiamond_cdma()	(machine_arch_type == MACH_TYPE_HTCDIAMOND_CDMA)
+#else
+# define machine_is_htcdiamond_cdma()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SCALER
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SCALER
+# endif
+# define machine_is_scaler()	(machine_arch_type == MACH_TYPE_SCALER)
+#else
+# define machine_is_scaler()	(0)
+#endif
+
+#ifdef CONFIG_MACH_ZYLONITE2
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_ZYLONITE2
+# endif
+# define machine_is_zylonite2()	(machine_arch_type == MACH_TYPE_ZYLONITE2)
+#else
+# define machine_is_zylonite2()	(0)
+#endif
+
+#ifdef CONFIG_MACH_ASPENITE
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_ASPENITE
+# endif
+# define machine_is_aspenite()	(machine_arch_type == MACH_TYPE_ASPENITE)
+#else
+# define machine_is_aspenite()	(0)
+#endif
+
+#ifdef CONFIG_MACH_TETON
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_TETON
+# endif
+# define machine_is_teton()	(machine_arch_type == MACH_TYPE_TETON)
+#else
+# define machine_is_teton()	(0)
+#endif
+
+#ifdef CONFIG_MACH_TTC_DKB
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_TTC_DKB
+# endif
+# define machine_is_ttc_dkb()	(machine_arch_type == MACH_TYPE_TTC_DKB)
+#else
+# define machine_is_ttc_dkb()	(0)
+#endif
+
+#ifdef CONFIG_MACH_BISHOP2
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_BISHOP2
+# endif
+# define machine_is_bishop2()	(machine_arch_type == MACH_TYPE_BISHOP2)
+#else
+# define machine_is_bishop2()	(0)
+#endif
+
+#ifdef CONFIG_MACH_IPPV5
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_IPPV5
+# endif
+# define machine_is_ippv5()	(machine_arch_type == MACH_TYPE_IPPV5)
+#else
+# define machine_is_ippv5()	(0)
+#endif
+
+#ifdef CONFIG_MACH_FARM926
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_FARM926
+# endif
+# define machine_is_farm926()	(machine_arch_type == MACH_TYPE_FARM926)
+#else
+# define machine_is_farm926()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MMCCPU
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MMCCPU
+# endif
+# define machine_is_mmccpu()	(machine_arch_type == MACH_TYPE_MMCCPU)
+#else
+# define machine_is_mmccpu()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SGMSFL
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SGMSFL
+# endif
+# define machine_is_sgmsfl()	(machine_arch_type == MACH_TYPE_SGMSFL)
+#else
+# define machine_is_sgmsfl()	(0)
+#endif
+
+#ifdef CONFIG_MACH_TT8000
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_TT8000
+# endif
+# define machine_is_tt8000()	(machine_arch_type == MACH_TYPE_TT8000)
+#else
+# define machine_is_tt8000()	(0)
+#endif
+
+#ifdef CONFIG_MACH_ZRN4300LP
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_ZRN4300LP
+# endif
+# define machine_is_zrn4300lp()	(machine_arch_type == MACH_TYPE_ZRN4300LP)
+#else
+# define machine_is_zrn4300lp()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MPTC
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MPTC
+# endif
+# define machine_is_mptc()	(machine_arch_type == MACH_TYPE_MPTC)
+#else
+# define machine_is_mptc()	(0)
+#endif
+
+#ifdef CONFIG_MACH_H6051
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_H6051
+# endif
+# define machine_is_h6051()	(machine_arch_type == MACH_TYPE_H6051)
+#else
+# define machine_is_h6051()	(0)
+#endif
+
+#ifdef CONFIG_MACH_PVG610_101
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_PVG610_101
+# endif
+# define machine_is_pvg610_101()	(machine_arch_type == MACH_TYPE_PVG610_101)
+#else
+# define machine_is_pvg610_101()	(0)
+#endif
+
+#ifdef CONFIG_MACH_STAMP9261_PC_EVB
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_STAMP9261_PC_EVB
+# endif
+# define machine_is_stamp9261_pc_evb()	(machine_arch_type == MACH_TYPE_STAMP9261_PC_EVB)
+#else
+# define machine_is_stamp9261_pc_evb()	(0)
+#endif
+
+#ifdef CONFIG_MACH_PELCO_ODYSSEUS
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_PELCO_ODYSSEUS
+# endif
+# define machine_is_pelco_odysseus()	(machine_arch_type == MACH_TYPE_PELCO_ODYSSEUS)
+#else
+# define machine_is_pelco_odysseus()	(0)
+#endif
+
+#ifdef CONFIG_MACH_TNY_A9260
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_TNY_A9260
+# endif
+# define machine_is_tny_a9260()	(machine_arch_type == MACH_TYPE_TNY_A9260)
+#else
+# define machine_is_tny_a9260()	(0)
+#endif
+
+#ifdef CONFIG_MACH_TNY_A9G20
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_TNY_A9G20
+# endif
+# define machine_is_tny_a9g20()	(machine_arch_type == MACH_TYPE_TNY_A9G20)
+#else
+# define machine_is_tny_a9g20()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AESOP_MP2530F
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AESOP_MP2530F
+# endif
+# define machine_is_aesop_mp2530f()	(machine_arch_type == MACH_TYPE_AESOP_MP2530F)
+#else
+# define machine_is_aesop_mp2530f()	(0)
+#endif
+
+#ifdef CONFIG_MACH_DX900
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_DX900
+# endif
+# define machine_is_dx900()	(machine_arch_type == MACH_TYPE_DX900)
+#else
+# define machine_is_dx900()	(0)
+#endif
+
+#ifdef CONFIG_MACH_CPODC2
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_CPODC2
+# endif
+# define machine_is_cpodc2()	(machine_arch_type == MACH_TYPE_CPODC2)
+#else
+# define machine_is_cpodc2()	(0)
+#endif
+
+#ifdef CONFIG_MACH_TILT_8925
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_TILT_8925
+# endif
+# define machine_is_tilt_8925()	(machine_arch_type == MACH_TYPE_TILT_8925)
+#else
+# define machine_is_tilt_8925()	(0)
+#endif
+
+#ifdef CONFIG_MACH_DAVINCI_DM357_EVM
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_DAVINCI_DM357_EVM
+# endif
+# define machine_is_davinci_dm357_evm()	(machine_arch_type == MACH_TYPE_DAVINCI_DM357_EVM)
+#else
+# define machine_is_davinci_dm357_evm()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SWORDFISH
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SWORDFISH
+# endif
+# define machine_is_swordfish()	(machine_arch_type == MACH_TYPE_SWORDFISH)
+#else
+# define machine_is_swordfish()	(0)
+#endif
+
+#ifdef CONFIG_MACH_CORVUS
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_CORVUS
+# endif
+# define machine_is_corvus()	(machine_arch_type == MACH_TYPE_CORVUS)
+#else
+# define machine_is_corvus()	(0)
+#endif
+
+#ifdef CONFIG_MACH_TAURUS
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_TAURUS
+# endif
+# define machine_is_taurus()	(machine_arch_type == MACH_TYPE_TAURUS)
+#else
+# define machine_is_taurus()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AXM
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AXM
+# endif
+# define machine_is_axm()	(machine_arch_type == MACH_TYPE_AXM)
+#else
+# define machine_is_axm()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AXC
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AXC
+# endif
+# define machine_is_axc()	(machine_arch_type == MACH_TYPE_AXC)
+#else
+# define machine_is_axc()	(0)
+#endif
+
+#ifdef CONFIG_MACH_BABY
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_BABY
+# endif
+# define machine_is_baby()	(machine_arch_type == MACH_TYPE_BABY)
+#else
+# define machine_is_baby()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MP200
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MP200
+# endif
+# define machine_is_mp200()	(machine_arch_type == MACH_TYPE_MP200)
+#else
+# define machine_is_mp200()	(0)
+#endif
+
+#ifdef CONFIG_MACH_PCM043
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_PCM043
+# endif
+# define machine_is_pcm043()	(machine_arch_type == MACH_TYPE_PCM043)
+#else
+# define machine_is_pcm043()	(0)
+#endif
+
+#ifdef CONFIG_MACH_HANLIN_V3C
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_HANLIN_V3C
+# endif
+# define machine_is_hanlin_v3c()	(machine_arch_type == MACH_TYPE_HANLIN_V3C)
+#else
+# define machine_is_hanlin_v3c()	(0)
+#endif
+
+#ifdef CONFIG_MACH_KBK9G20
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_KBK9G20
+# endif
+# define machine_is_kbk9g20()	(machine_arch_type == MACH_TYPE_KBK9G20)
+#else
+# define machine_is_kbk9g20()	(0)
+#endif
+
+#ifdef CONFIG_MACH_ADSTURBOG5
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_ADSTURBOG5
+# endif
+# define machine_is_adsturbog5()	(machine_arch_type == MACH_TYPE_ADSTURBOG5)
+#else
+# define machine_is_adsturbog5()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AVENGER_LITE1
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AVENGER_LITE1
+# endif
+# define machine_is_avenger_lite1()	(machine_arch_type == MACH_TYPE_AVENGER_LITE1)
+#else
+# define machine_is_avenger_lite1()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SUC
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SUC
+# endif
+# define machine_is_suc82x()	(machine_arch_type == MACH_TYPE_SUC)
+#else
+# define machine_is_suc82x()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AT91SAM7S256
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AT91SAM7S256
+# endif
+# define machine_is_at91sam7s256()	(machine_arch_type == MACH_TYPE_AT91SAM7S256)
+#else
+# define machine_is_at91sam7s256()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MENDOZA
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MENDOZA
+# endif
+# define machine_is_mendoza()	(machine_arch_type == MACH_TYPE_MENDOZA)
+#else
+# define machine_is_mendoza()	(0)
+#endif
+
+#ifdef CONFIG_MACH_KIRA
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_KIRA
+# endif
+# define machine_is_kira()	(machine_arch_type == MACH_TYPE_KIRA)
+#else
+# define machine_is_kira()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MX1HBM
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MX1HBM
+# endif
+# define machine_is_mx1hbm()	(machine_arch_type == MACH_TYPE_MX1HBM)
+#else
+# define machine_is_mx1hbm()	(0)
+#endif
+
+#ifdef CONFIG_MACH_QUATRO43XX
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_QUATRO43XX
+# endif
+# define machine_is_quatro43xx()	(machine_arch_type == MACH_TYPE_QUATRO43XX)
+#else
+# define machine_is_quatro43xx()	(0)
+#endif
+
+#ifdef CONFIG_MACH_QUATRO4230
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_QUATRO4230
+# endif
+# define machine_is_quatro4230()	(machine_arch_type == MACH_TYPE_QUATRO4230)
+#else
+# define machine_is_quatro4230()	(0)
+#endif
+
+#ifdef CONFIG_MACH_NSB400
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_NSB400
+# endif
+# define machine_is_nsb400()	(machine_arch_type == MACH_TYPE_NSB400)
+#else
+# define machine_is_nsb400()	(0)
+#endif
+
+#ifdef CONFIG_MACH_DRP255
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_DRP255
+# endif
+# define machine_is_drp255()	(machine_arch_type == MACH_TYPE_DRP255)
+#else
+# define machine_is_drp255()	(0)
+#endif
+
+#ifdef CONFIG_MACH_THOTH
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_THOTH
+# endif
+# define machine_is_thoth()	(machine_arch_type == MACH_TYPE_THOTH)
+#else
+# define machine_is_thoth()	(0)
+#endif
+
+#ifdef CONFIG_MACH_FIRESTONE
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_FIRESTONE
+# endif
+# define machine_is_firestone()	(machine_arch_type == MACH_TYPE_FIRESTONE)
+#else
+# define machine_is_firestone()	(0)
+#endif
+
+#ifdef CONFIG_MACH_ASUSP750
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_ASUSP750
+# endif
+# define machine_is_asusp750()	(machine_arch_type == MACH_TYPE_ASUSP750)
+#else
+# define machine_is_asusp750()	(0)
+#endif
+
+#ifdef CONFIG_MACH_CTERA_DL
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_CTERA_DL
+# endif
+# define machine_is_ctera_dl()	(machine_arch_type == MACH_TYPE_CTERA_DL)
+#else
+# define machine_is_ctera_dl()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SOCR
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SOCR
+# endif
+# define machine_is_socr()	(machine_arch_type == MACH_TYPE_SOCR)
+#else
+# define machine_is_socr()	(0)
+#endif
+
+#ifdef CONFIG_MACH_HTCOXYGEN
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_HTCOXYGEN
+# endif
+# define machine_is_htcoxygen()	(machine_arch_type == MACH_TYPE_HTCOXYGEN)
+#else
+# define machine_is_htcoxygen()	(0)
+#endif
+
+#ifdef CONFIG_MACH_HEROC
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_HEROC
+# endif
+# define machine_is_heroc()	(machine_arch_type == MACH_TYPE_HEROC)
+#else
+# define machine_is_heroc()	(0)
+#endif
+
+#ifdef CONFIG_MACH_ZENO6800
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_ZENO6800
+# endif
+# define machine_is_zeno6800()	(machine_arch_type == MACH_TYPE_ZENO6800)
+#else
+# define machine_is_zeno6800()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SC2MCS
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SC2MCS
+# endif
+# define machine_is_sc2mcs()	(machine_arch_type == MACH_TYPE_SC2MCS)
+#else
+# define machine_is_sc2mcs()	(0)
+#endif
+
+#ifdef CONFIG_MACH_GENE100
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_GENE100
+# endif
+# define machine_is_gene100()	(machine_arch_type == MACH_TYPE_GENE100)
+#else
+# define machine_is_gene100()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AS353X
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AS353X
+# endif
+# define machine_is_as353x()	(machine_arch_type == MACH_TYPE_AS353X)
+#else
+# define machine_is_as353x()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SHEEVAPLUG
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SHEEVAPLUG
+# endif
+# define machine_is_sheevaplug()	(machine_arch_type == MACH_TYPE_SHEEVAPLUG)
+#else
+# define machine_is_sheevaplug()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AT91SAM9G20
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AT91SAM9G20
+# endif
+# define machine_is_at91sam9g20()	(machine_arch_type == MACH_TYPE_AT91SAM9G20)
+#else
+# define machine_is_at91sam9g20()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MV88F6192GTW_FE
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MV88F6192GTW_FE
+# endif
+# define machine_is_mv88f6192gtw_fe()	(machine_arch_type == MACH_TYPE_MV88F6192GTW_FE)
+#else
+# define machine_is_mv88f6192gtw_fe()	(0)
+#endif
+
+#ifdef CONFIG_MACH_CC9200
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_CC9200
+# endif
+# define machine_is_cc9200()	(machine_arch_type == MACH_TYPE_CC9200)
+#else
+# define machine_is_cc9200()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SM9200
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SM9200
+# endif
+# define machine_is_sm9200()	(machine_arch_type == MACH_TYPE_SM9200)
+#else
+# define machine_is_sm9200()	(0)
+#endif
+
+#ifdef CONFIG_MACH_TP9200
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_TP9200
+# endif
+# define machine_is_tp9200()	(machine_arch_type == MACH_TYPE_TP9200)
+#else
+# define machine_is_tp9200()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SNAPPERDV
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SNAPPERDV
+# endif
+# define machine_is_snapperdv()	(machine_arch_type == MACH_TYPE_SNAPPERDV)
+#else
+# define machine_is_snapperdv()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AVENGERS_LITE
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AVENGERS_LITE
+# endif
+# define machine_is_avengers_lite()	(machine_arch_type == MACH_TYPE_AVENGERS_LITE)
+#else
+# define machine_is_avengers_lite()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AVENGERS_LITE1
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AVENGERS_LITE1
+# endif
+# define machine_is_avengers_lite1()	(machine_arch_type == MACH_TYPE_AVENGERS_LITE1)
+#else
+# define machine_is_avengers_lite1()	(0)
+#endif
+
+#ifdef CONFIG_MACH_OMAP3AXON
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_OMAP3AXON
+# endif
+# define machine_is_omap3axon()	(machine_arch_type == MACH_TYPE_OMAP3AXON)
+#else
+# define machine_is_omap3axon()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MA8XX
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MA8XX
+# endif
+# define machine_is_ma8xx()	(machine_arch_type == MACH_TYPE_MA8XX)
+#else
+# define machine_is_ma8xx()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MP201EK
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MP201EK
+# endif
+# define machine_is_mp201ek()	(machine_arch_type == MACH_TYPE_MP201EK)
+#else
+# define machine_is_mp201ek()	(0)
+#endif
+
+#ifdef CONFIG_MACH_DAVINCI_TUX
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_DAVINCI_TUX
+# endif
+# define machine_is_davinci_tux()	(machine_arch_type == MACH_TYPE_DAVINCI_TUX)
+#else
+# define machine_is_davinci_tux()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MPA1600
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MPA1600
+# endif
+# define machine_is_mpa1600()	(machine_arch_type == MACH_TYPE_MPA1600)
+#else
+# define machine_is_mpa1600()	(0)
+#endif
+
+#ifdef CONFIG_MACH_PELCO_TROY
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_PELCO_TROY
+# endif
+# define machine_is_pelco_troy()	(machine_arch_type == MACH_TYPE_PELCO_TROY)
+#else
+# define machine_is_pelco_troy()	(0)
+#endif
+
+#ifdef CONFIG_MACH_NSB667
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_NSB667
+# endif
+# define machine_is_nsb667()	(machine_arch_type == MACH_TYPE_NSB667)
+#else
+# define machine_is_nsb667()	(0)
+#endif
+
+#ifdef CONFIG_MACH_ROVERS5_4MPIX
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_ROVERS5_4MPIX
+# endif
+# define machine_is_rovers5_4mpix()	(machine_arch_type == MACH_TYPE_ROVERS5_4MPIX)
+#else
+# define machine_is_rovers5_4mpix()	(0)
+#endif
+
+#ifdef CONFIG_MACH_TWOCOM
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_TWOCOM
+# endif
+# define machine_is_twocom()	(machine_arch_type == MACH_TYPE_TWOCOM)
+#else
+# define machine_is_twocom()	(0)
+#endif
+
+#ifdef CONFIG_MACH_UBISYS_P9_RCU3R2
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_UBISYS_P9_RCU3R2
+# endif
+# define machine_is_ubisys_p9_rcu3r2()	(machine_arch_type == MACH_TYPE_UBISYS_P9_RCU3R2)
+#else
+# define machine_is_ubisys_p9_rcu3r2()	(0)
+#endif
+
+#ifdef CONFIG_MACH_HERO_ESPRESSO
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_HERO_ESPRESSO
+# endif
+# define machine_is_hero_espresso()	(machine_arch_type == MACH_TYPE_HERO_ESPRESSO)
+#else
+# define machine_is_hero_espresso()	(0)
+#endif
+
+#ifdef CONFIG_MACH_AFEUSB
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_AFEUSB
+# endif
+# define machine_is_afeusb()	(machine_arch_type == MACH_TYPE_AFEUSB)
+#else
+# define machine_is_afeusb()	(0)
+#endif
+
+#ifdef CONFIG_MACH_T830
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_T830
+# endif
+# define machine_is_t830()	(machine_arch_type == MACH_TYPE_T830)
+#else
+# define machine_is_t830()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SPD8020_CC
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SPD8020_CC
+# endif
+# define machine_is_spd8020_cc()	(machine_arch_type == MACH_TYPE_SPD8020_CC)
+#else
+# define machine_is_spd8020_cc()	(0)
+#endif
+
+#ifdef CONFIG_MACH_OM_3D7K
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_OM_3D7K
+# endif
+# define machine_is_om_3d7k()	(machine_arch_type == MACH_TYPE_OM_3D7K)
+#else
+# define machine_is_om_3d7k()	(0)
+#endif
+
+#ifdef CONFIG_MACH_PICOCOM2
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_PICOCOM2
+# endif
+# define machine_is_picocom2()	(machine_arch_type == MACH_TYPE_PICOCOM2)
+#else
+# define machine_is_picocom2()	(0)
+#endif
+
+#ifdef CONFIG_MACH_UWG4MX27
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_UWG4MX27
+# endif
+# define machine_is_uwg4mx27()	(machine_arch_type == MACH_TYPE_UWG4MX27)
+#else
+# define machine_is_uwg4mx27()	(0)
+#endif
+
+#ifdef CONFIG_MACH_UWG4MX31
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_UWG4MX31
+# endif
+# define machine_is_uwg4mx31()	(machine_arch_type == MACH_TYPE_UWG4MX31)
+#else
+# define machine_is_uwg4mx31()	(0)
+#endif
+
+#ifdef CONFIG_MACH_CHERRY
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_CHERRY
+# endif
+# define machine_is_cherry()	(machine_arch_type == MACH_TYPE_CHERRY)
+#else
+# define machine_is_cherry()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MX51_BABBAGE
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MX51_BABBAGE
+# endif
+# define machine_is_mx51_babbage()	(machine_arch_type == MACH_TYPE_MX51_BABBAGE)
+#else
+# define machine_is_mx51_babbage()	(0)
+#endif
+
+#ifdef CONFIG_MACH_S3C2440TURKIYE
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_S3C2440TURKIYE
+# endif
+# define machine_is_s3c2440turkiye()	(machine_arch_type == MACH_TYPE_S3C2440TURKIYE)
+#else
+# define machine_is_s3c2440turkiye()	(0)
+#endif
+
+#ifdef CONFIG_MACH_TX37
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_TX37
+# endif
+# define machine_is_tx37()	(machine_arch_type == MACH_TYPE_TX37)
+#else
+# define machine_is_tx37()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SBC2800_9G20
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SBC2800_9G20
+# endif
+# define machine_is_sbc2800_9g20()	(machine_arch_type == MACH_TYPE_SBC2800_9G20)
+#else
+# define machine_is_sbc2800_9g20()	(0)
+#endif
+
+#ifdef CONFIG_MACH_BENZGLB
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_BENZGLB
+# endif
+# define machine_is_benzglb()	(machine_arch_type == MACH_TYPE_BENZGLB)
+#else
+# define machine_is_benzglb()	(0)
+#endif
+
+#ifdef CONFIG_MACH_BENZTD
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_BENZTD
+# endif
+# define machine_is_benztd()	(machine_arch_type == MACH_TYPE_BENZTD)
+#else
+# define machine_is_benztd()	(0)
+#endif
+
+#ifdef CONFIG_MACH_CARTESIO_PLUS
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_CARTESIO_PLUS
+# endif
+# define machine_is_cartesio_plus()	(machine_arch_type == MACH_TYPE_CARTESIO_PLUS)
+#else
+# define machine_is_cartesio_plus()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SOLRAD_G20
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SOLRAD_G20
+# endif
+# define machine_is_solrad_g20()	(machine_arch_type == MACH_TYPE_SOLRAD_G20)
+#else
+# define machine_is_solrad_g20()	(0)
+#endif
+
+#ifdef CONFIG_MACH_MX27WALLACE
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_MX27WALLACE
+# endif
+# define machine_is_mx27wallace()	(machine_arch_type == MACH_TYPE_MX27WALLACE)
+#else
+# define machine_is_mx27wallace()	(0)
+#endif
+
+#ifdef CONFIG_MACH_FMZWEBMODUL
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_FMZWEBMODUL
+# endif
+# define machine_is_fmzwebmodul()	(machine_arch_type == MACH_TYPE_FMZWEBMODUL)
+#else
+# define machine_is_fmzwebmodul()	(0)
+#endif
+
+#ifdef CONFIG_MACH_RD78X00_MASA
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_RD78X00_MASA
+# endif
+# define machine_is_rd78x00_masa()	(machine_arch_type == MACH_TYPE_RD78X00_MASA)
+#else
+# define machine_is_rd78x00_masa()	(0)
+#endif
+
+#ifdef CONFIG_MACH_SMALLOGGER
+# ifdef machine_arch_type
+#  undef machine_arch_type
+#  define machine_arch_type	__machine_arch_type
+# else
+#  define machine_arch_type	MACH_TYPE_SMALLOGGER
+# endif
+# define machine_is_smallogger()	(machine_arch_type == MACH_TYPE_SMALLOGGER)
+#else
+# define machine_is_smallogger()	(0)
 #endif
 
 /*

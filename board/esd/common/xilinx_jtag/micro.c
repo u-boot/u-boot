@@ -66,10 +66,7 @@
 #include "lenval.h"
 #include "ports.h"
 
-
-extern const unsigned char fpgadata[];
-extern int filesize;
-
+const unsigned char *xsvfdata;
 
 /*============================================================================
  * XSVF #define
@@ -1838,12 +1835,23 @@ int do_cpld(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	unsigned long duration;
 	unsigned long long startClock, endClock;
 
+	if (argc == 2)
+		xsvfdata = (unsigned char *)simple_strtoul(argv[1], NULL, 16);
+	else {
+#ifdef CONFIG_SYS_XSVF_DEFAULT_ADDR
+		xsvfdata = (unsigned char *)CONFIG_SYS_XSVF_DEFAULT_ADDR;
+#else
+		printf("Usage:\ncpld %s\n", cmdtp->help);
+		return -1;
+#endif
+	}
+
 	iErrorCode          = XSVF_ERRORCODE( XSVF_ERROR_NONE );
 	pzXsvfFileName      = 0;
 	xsvf_iDebugLevel    = 0;
 
 	printf("XSVF Player v%s, Xilinx, Inc.\n", XSVF_VERSION);
-	printf("XSVF Filesize = %d bytes\n", filesize);
+	printf("Reading XSVF data @ %p\n", xsvfdata);
 
 	/* Initialize the I/O.  SetPort initializes I/O on first call */
 	setPort( TMS, 1 );
@@ -1858,7 +1866,7 @@ int do_cpld(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return( iErrorCode );
 }
 U_BOOT_CMD(
-	cpld,	1,	1,	do_cpld,
-	"Program onboard CPLD",
-	NULL
-	);
+	cpld,	2,	1,	do_cpld,
+	"program onboard CPLD",
+	"<xsvf-addr>"
+);

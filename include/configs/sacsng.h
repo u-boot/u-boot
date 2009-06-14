@@ -408,9 +408,9 @@
     "echo hostname  ${hostname}\0" \
 "ana=run adc ; run dac\0" \
 "adc=run adc-12 ; run adc-34\0" \
-"adc-12=echo ### ADC-12 ; imd.b e 81 e\0" \
-"adc-34=echo ### ADC-34 ; imd.b f 81 e\0" \
-"dac=echo ### DAC ; imd.b 11 81 5\0" \
+"adc-12=echo ### ADC-12 ; i2c md e 81 e\0" \
+"adc-34=echo ### ADC-34 ; i2c md f 81 e\0" \
+"dac=echo ### DAC ; i2c md 11 81 5\0" \
 "boot-hook=echo\0"
 
 /* What should the console's baud rate be? */

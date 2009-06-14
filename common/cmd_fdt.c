@@ -840,5 +840,5 @@ U_BOOT_CMD(
 	"fdt chosen [<start> <end>]          - Add/update the /chosen branch in the tree\n"
 	"                                        <start>/<end> - initrd start/end addr\n"
 	"NOTE: Dereference aliases by omiting the leading '/', "
-		"e.g. fdt print ethernet0.\n"
+		"e.g. fdt print ethernet0."
 );

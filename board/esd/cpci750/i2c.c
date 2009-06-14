@@ -27,6 +27,7 @@
 #include <common.h>
 #include <mpc8xx.h>
 #include <malloc.h>
+#include <i2c.h>
 #include "../../Marvell/include/mv_gen_reg.h"
 #include "../../Marvell/include/core.h"
 
@@ -41,7 +42,7 @@
 
 /* Assuming that there is only one master on the bus (us) */
 
-static void i2c_init (int speed, int slaveaddr)
+void i2c_init (int speed, int slaveaddr)
 {
 	unsigned int n, m, freq, margin, power;
 	unsigned int actualN = 0, actualM = 0;
@@ -375,7 +376,7 @@ i2c_set_dev_offset (uchar dev_addr, unsigned int offset, int ten_bit,
 	return 0;		/* sucessful completion */
 }
 
-uchar
+int
 i2c_read (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 	  int len)
 {
@@ -384,7 +385,8 @@ i2c_read (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 
 	DP (puts ("i2c_read\n"));
 
-	i2c_init (i2cFreq, 0);	/* set the i2c frequency */
+	/* set the i2c frequency */
+	i2c_init (i2cFreq, CONFIG_SYS_I2C_SLAVE);
 
 	status = i2c_set_dev_offset (dev_addr, offset, 0, alen);	/* send the slave address + offset */
 	if (status) {
@@ -423,7 +425,7 @@ void i2c_stop (void)
 }
 
 
-uchar
+int
 i2c_write (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 	   int len)
 {
@@ -432,7 +434,8 @@ i2c_write (uchar dev_addr, unsigned int offset, int alen, uchar * data,
 
 	DP (puts ("i2c_write\n"));
 
-	i2c_init (i2cFreq, 0);	/* set the i2c frequency */
+	/* set the i2c frequency */
+	i2c_init (i2cFreq, CONFIG_SYS_I2C_SLAVE);
 
 	status = i2c_set_dev_offset (dev_addr, offset, 0, alen);	/* send the slave address + offset */
 	if (status) {
@@ -468,7 +471,8 @@ int i2c_probe (uchar chip)
 
 	DP (puts ("i2c_probe\n"));
 
-	i2c_init (i2cFreq, 0);	/* set the i2c frequency */
+	/* set the i2c frequency */
+	i2c_init (i2cFreq, CONFIG_SYS_I2C_SLAVE);
 
 	status = i2c_set_dev_offset (chip, 0, 0, 0);	/* send the slave address + no offset */
 	if (status) {

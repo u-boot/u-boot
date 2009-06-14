@@ -52,8 +52,8 @@ Freescale MPC837xE-RDB Board
 
 	include/configs/MPC837XERDB.h
 
-    CONFIG_MPC83XX	    MPC83xx family for both MPC8349 and MPC8360
-    CONFIG_MPC837X	    MPC837x specific
+    CONFIG_MPC83xx	    MPC83xx family for both MPC8349 and MPC8360
+    CONFIG_MPC837x	    MPC837x specific
     CONFIG_MPC837XERDB	    MPC837xE-RDB board specific
 
 

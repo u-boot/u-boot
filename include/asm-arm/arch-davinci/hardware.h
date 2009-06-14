@@ -44,13 +44,16 @@ typedef volatile unsigned int *	dv_reg_p;
 
 /*
  * Base register addresses
+ *
+ * NOTE:  some of these DM6446-specific addresses DO NOT WORK
+ * on other DaVinci chips.  Double check them before you try
+ * using the addresses ... or PSC module identifiers, etc.
  */
 #define DAVINCI_DMA_3PCC_BASE			(0x01c00000)
 #define DAVINCI_DMA_3PTC0_BASE			(0x01c10000)
 #define DAVINCI_DMA_3PTC1_BASE			(0x01c10400)
 #define DAVINCI_UART0_BASE			(0x01c20000)
 #define DAVINCI_UART1_BASE			(0x01c20400)
-#define DAVINCI_UART2_BASE			(0x01c20800)
 #define DAVINCI_I2C_BASE			(0x01c21000)
 #define DAVINCI_TIMER0_BASE			(0x01c21400)
 #define DAVINCI_TIMER1_BASE			(0x01c21800)
@@ -62,30 +65,47 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_PLL_CNTRL0_BASE			(0x01c40800)
 #define DAVINCI_PLL_CNTRL1_BASE			(0x01c40c00)
 #define DAVINCI_PWR_SLEEP_CNTRL_BASE		(0x01c41000)
-#define DAVINCI_SYSTEM_DFT_BASE			(0x01c42000)
 #define DAVINCI_ARM_INTC_BASE			(0x01c48000)
-#define DAVINCI_IEEE1394_BASE			(0x01c60000)
 #define DAVINCI_USB_OTG_BASE			(0x01c64000)
 #define DAVINCI_CFC_ATA_BASE			(0x01c66000)
 #define DAVINCI_SPI_BASE			(0x01c66800)
 #define DAVINCI_GPIO_BASE			(0x01c67000)
-#define DAVINCI_UHPI_BASE			(0x01c67800)
 #define DAVINCI_VPSS_REGS_BASE			(0x01c70000)
-#define DAVINCI_EMAC_CNTRL_REGS_BASE		(0x01c80000)
-#define DAVINCI_EMAC_WRAPPER_CNTRL_REGS_BASE	(0x01c81000)
-#define DAVINCI_EMAC_WRAPPER_RAM_BASE		(0x01c82000)
-#define DAVINCI_MDIO_CNTRL_REGS_BASE		(0x01c84000)
-#define DAVINCI_IMCOP_BASE			(0x01cc0000)
-#define DAVINCI_ASYNC_EMIF_CNTRL_BASE		(0x01e00000)
-#define DAVINCI_VLYNQ_BASE			(0x01e01000)
-#define DAVINCI_MCBSP_BASE			(0x01e02000)
-#define DAVINCI_MMC_SD_BASE			(0x01e10000)
-#define DAVINCI_MS_BASE				(0x01e20000)
 #define DAVINCI_ASYNC_EMIF_DATA_CE0_BASE	(0x02000000)
 #define DAVINCI_ASYNC_EMIF_DATA_CE1_BASE	(0x04000000)
 #define DAVINCI_ASYNC_EMIF_DATA_CE2_BASE	(0x06000000)
 #define DAVINCI_ASYNC_EMIF_DATA_CE3_BASE	(0x08000000)
-#define DAVINCI_VLYNQ_REMOTE_BASE		(0x0c000000)
+#define DAVINCI_DDR_BASE			(0x80000000)
+
+#ifdef CONFIG_SOC_DM644X
+#define DAVINCI_UART2_BASE			0x01c20800
+#define DAVINCI_UHPI_BASE			0x01c67800
+#define DAVINCI_EMAC_CNTRL_REGS_BASE		0x01c80000
+#define DAVINCI_EMAC_WRAPPER_CNTRL_REGS_BASE	0x01c81000
+#define DAVINCI_EMAC_WRAPPER_RAM_BASE		0x01c82000
+#define DAVINCI_MDIO_CNTRL_REGS_BASE		0x01c84000
+#define DAVINCI_IMCOP_BASE			0x01cc0000
+#define DAVINCI_ASYNC_EMIF_CNTRL_BASE		0x01e00000
+#define DAVINCI_VLYNQ_BASE			0x01e01000
+#define DAVINCI_ASP_BASE			0x01e02000
+#define DAVINCI_MMC_SD_BASE			0x01e10000
+#define DAVINCI_MS_BASE				0x01e20000
+#define DAVINCI_VLYNQ_REMOTE_BASE		0x0c000000
+
+#elif defined(CONFIG_SOC_DM355)
+#define DAVINCI_MMC_SD1_BASE			0x01e00000
+#define DAVINCI_ASP0_BASE			0x01e02000
+#define DAVINCI_ASP1_BASE			0x01e04000
+#define DAVINCI_UART2_BASE			0x01e06000
+#define DAVINCI_ASYNC_EMIF_CNTRL_BASE		0x01e10000
+#define DAVINCI_MMC_SD0_BASE			0x01e11000
+
+#elif defined(CONFIG_SOC_DM365)
+#define DAVINCI_MMC_SD1_BASE			0x01d00000
+#define DAVINCI_ASYNC_EMIF_CNTRL_BASE		0x01d10000
+#define DAVINCI_MMC_SD0_BASE			0x01d11000
+
+#endif
 
 /* Power and Sleep Controller (PSC) Domains */
 #define DAVINCI_GPSC_ARMDOMAIN		0
@@ -133,6 +153,14 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_LPSC_GEM		39
 #define DAVINCI_LPSC_IMCOP		40
 
+void lpsc_on(unsigned int id);
+void dsp_on(void);
+
+void davinci_enable_uart0(void);
+void davinci_enable_emac(void);
+void davinci_enable_i2c(void);
+void davinci_errata_workarounds(void);
+
 /* Some PSC defines */
 #define PSC_CHP_SHRTSW			(0x01c40038)
 #define PSC_GBLCTL			(0x01c41010)
@@ -153,14 +181,16 @@ typedef volatile unsigned int *	dv_reg_p;
 
 #define PSC_SILVER_BULLET		(0x01c41a20)
 
-/* Some PLL defines */
-#define PLL1_PLLM			(0x01c40910)
-#define PLL2_PLLM			(0x01c40d10)
-#define PLL2_DIV2			(0x01c40d1c)
-
 /* Miscellania... */
 #define VBPR				(0x20000020)
-#define PINMUX0				(0x01c40000)
-#define PINMUX1				(0x01c40004)
+
+/* NOTE:  system control modules are *highly* chip-specific, both
+ * as to register content (e.g. for muxing) and which registers exist.
+ */
+#define PINMUX0				0x01c40000
+#define PINMUX1				0x01c40004
+#define PINMUX2				0x01c40008
+#define PINMUX3				0x01c4000c
+#define PINMUX4				0x01c40010
 
 #endif /* __ASM_ARCH_HARDWARE_H */

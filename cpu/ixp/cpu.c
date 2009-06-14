@@ -38,10 +38,6 @@
 
 ulong loops_per_jiffy;
 
-#ifdef CONFIG_USE_IRQ
-DECLARE_GLOBAL_DATA_PTR;
-#endif
-
 static void cache_flush(void);
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
@@ -78,19 +74,6 @@ int print_cpuinfo (void)
 	return 0;
 }
 #endif /* CONFIG_DISPLAY_CPUINFO */
-
-int cpu_init (void)
-{
-	/*
-	 * setup up stacks if necessary
-	 */
-#ifdef CONFIG_USE_IRQ
-	IRQ_STACK_START = _armboot_start - CONFIG_SYS_MALLOC_LEN - CONFIG_SYS_GBL_DATA_SIZE - 4;
-	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
-#endif
-
-	return 0;
-}
 
 int cleanup_before_linux (void)
 {

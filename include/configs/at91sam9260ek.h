@@ -34,10 +34,8 @@
 #define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
 
 #ifdef CONFIG_AT91SAM9G20EK
-#define AT91_CPU_NAME		"AT91SAM9G20"
 #define CONFIG_AT91SAM9G20	1	/* It's an Atmel AT91SAM9G20 SoC*/
 #else
-#define AT91_CPU_NAME		"AT91SAM9260"
 #define CONFIG_AT91SAM9260	1	/* It's an Atmel AT91SAM9260 SoC*/
 #endif
 

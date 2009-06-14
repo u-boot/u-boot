@@ -109,7 +109,7 @@ int saveenv(void)
 
 	if (onenand_write(&onenand_mtd, env_addr, onenand_mtd.writesize, &retlen,
 	     (u_char *) env_ptr)) {
-		printf("OneNAND: write failed at 0x%08x\n", instr.addr);
+		printf("OneNAND: write failed at 0x%llx\n", instr.addr);
 		return 2;
 	}
 

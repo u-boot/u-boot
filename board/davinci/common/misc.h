@@ -22,10 +22,8 @@
 #ifndef __MISC_H
 #define __MISC_H
 
-extern void timer_init(void);
 extern int eth_hw_init(void);
 
-void dv_display_clk_infos(void);
 int dvevm_read_mac_address(uint8_t *buf);
 void dv_configure_mac_address(uint8_t *rom_enetaddr);
 

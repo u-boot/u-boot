@@ -1315,11 +1315,6 @@ The following options need to be configured:
 		clock chips. See common/cmd_i2c.c for a description of the
 		command line interface.
 
-		CONFIG_I2C_CMD_TREE is a recommended option that places
-		all I2C commands under a single 'i2c' root command.  The
-		older 'imm', 'imd', 'iprobe' etc. commands are considered
-		deprecated and may disappear in the future.
-
 		CONFIG_HARD_I2C selects a hardware I2C controller.
 
 		CONFIG_SOFT_I2C configures u-boot to use a software (aka
@@ -1435,9 +1430,9 @@ The following options need to be configured:
 		CONFIG_SYS_I2C_NOPROBES
 
 		This option specifies a list of I2C devices that will be skipped
-		when the 'i2c probe' command is issued (or 'iprobe' using the legacy
-		command).  If CONFIG_I2C_MULTI_BUS is set, specify a list of bus-device
-		pairs.	Otherwise, specify a 1D array of device addresses
+		when the 'i2c probe' command is issued.  If CONFIG_I2C_MULTI_BUS
+		is set, specify a list of bus-device pairs.  Otherwise, specify
+		a 1D array of device addresses
 
 		e.g.
 			#undef	CONFIG_I2C_MULTI_BUS
@@ -1850,6 +1845,17 @@ The following options need to be configured:
 
 		These options enable and control the auto-update feature;
 		for a more detailed description refer to doc/README.update.
+
+- MTD Support (mtdparts command, UBI support)
+		CONFIG_MTD_DEVICE
+
+		Adds the MTD device infrastructure from the Linux kernel.
+		Needed for mtdparts command support.
+
+		CONFIG_MTD_PARTITIONS
+
+		Adds the MTD partitioning infrastructure from the Linux
+		kernel. Needed for UBI support.
 
 Legacy uImage format:
 
@@ -2871,14 +2877,7 @@ mw	- memory write (fill)
 cp	- memory copy
 cmp	- memory compare
 crc32	- checksum calculation
-imd	- i2c memory display
-imm	- i2c memory modify (auto-incrementing)
-inm	- i2c memory modify (constant address)
-imw	- i2c memory write (fill)
-icrc32	- i2c checksum calculation
-iprobe	- probe to discover valid I2C chip addresses
-iloop	- infinite loop on address range
-isdram	- print SDRAM configuration information
+i2c	- I2C sub-system
 sspi	- SPI utility commands
 base	- print or set address offset
 printenv- print environment variables

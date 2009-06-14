@@ -60,7 +60,7 @@ U_BOOT_CMD(
 	"mip405 flash mps - updates U-Boot with image from MPS\n"
 	"mip405 info      - displays board information\n"
 	"mip405 led <on>  - switches LED on (on=1) or off (on=0)\n"
-	"mip405 mem [cnt] - Memory Test <cnt>-times, <cnt> = -1 loop forever\n"
+	"mip405 mem [cnt] - Memory Test <cnt>-times, <cnt> = -1 loop forever"
 );
 
 /* ------------------------------------------------------------------------- */

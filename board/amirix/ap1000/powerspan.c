@@ -487,7 +487,7 @@ U_BOOT_CMD (eeprom, 4, 0, do_eeprom,
 	    "    - store contents of eeprom at address ADD\n"
 	    "eeprom p ADD\n"
 	    "    - put data stored at address ADD into the eeprom\n"
-	    "eeprom d\n" "    - return eeprom to default contents\n");
+	    "eeprom d\n" "    - return eeprom to default contents");
 
 unsigned int PowerSpanRead (unsigned int theOffset)
 {

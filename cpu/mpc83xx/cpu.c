@@ -367,24 +367,10 @@ int dma_xfer(void *dest, u32 count, void *src)
  */
 int cpu_eth_init(bd_t *bis)
 {
-#if defined(CONFIG_UEC_ETH1)
-	uec_initialize(0);
+#if defined(CONFIG_UEC_ETH)
+	uec_standard_init(bis);
 #endif
-#if defined(CONFIG_UEC_ETH2)
-	uec_initialize(1);
-#endif
-#if defined(CONFIG_UEC_ETH3)
-	uec_initialize(2);
-#endif
-#if defined(CONFIG_UEC_ETH4)
-	uec_initialize(3);
-#endif
-#if defined(CONFIG_UEC_ETH5)
-	uec_initialize(4);
-#endif
-#if defined(CONFIG_UEC_ETH6)
-	uec_initialize(5);
-#endif
+
 #if defined(CONFIG_TSEC_ENET)
 	tsec_standard_init(bis);
 #endif

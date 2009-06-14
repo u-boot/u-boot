@@ -101,5 +101,9 @@
 #define AT91SAM9261_UHP_BASE	0x00500000	/* USB Host controller */
 #define AT91SAM9261_LCDC_BASE	0x00600000	/* LDC controller */
 
+/*
+ * Cpu Name
+ */
+#define AT91_CPU_NAME	"AT91SAM9261"
 
 #endif

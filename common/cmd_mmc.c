@@ -89,7 +89,7 @@ U_BOOT_CMD(
 	mmc, 3, 1, do_mmc,
 	"MMC sub-system",
 	"init [dev] - init MMC sub system\n"
-	"mmc device [dev] - show or set current device\n"
+	"mmc device [dev] - show or set current device"
 );
 #else /* !CONFIG_GENERIC_MMC */
 
@@ -135,9 +135,10 @@ int do_mmcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-U_BOOT_CMD(mmcinfo,	2,	0,	do_mmcinfo,
-	"print MMC information",
-	"<dev num>\n");
+U_BOOT_CMD(mmcinfo, 2, 0, do_mmcinfo,
+	"mmcinfo <dev num>-- display MMC info\n",
+	""
+);
 
 int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -231,5 +232,5 @@ U_BOOT_CMD(
 	"read <device num> addr blk# cnt\n"
 	"mmc write <device num> addr blk# cnt\n"
 	"mmc rescan <device num>\n"
-	"mmc list - list available devices\n");
+	"mmc list - lists available devices");
 #endif

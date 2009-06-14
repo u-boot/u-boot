@@ -54,7 +54,7 @@
 #define SPRIDR_PARTID			0xFFFF0000	/* Part Id */
 #define SPRIDR_REVID			0x0000FFFF	/* Revision Id */
 
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834x)
 #define REVID_MAJOR(spridr)		((spridr & 0x0000FF00) >> 8)
 #define REVID_MINOR(spridr)		(spridr & 0x000000FF)
 #else
@@ -100,7 +100,7 @@
 #define SPCR_COREPR			0x00300000	/* E300 PowerPC Core system bus request priority */
 #define SPCR_COREPR_SHIFT		(31-11)
 
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834x)
 /* SPCR bits - MPC8349 specific */
 #define SPCR_TSEC1DP			0x00003000	/* TSEC1 data priority */
 #define SPCR_TSEC1DP_SHIFT		(31-19)
@@ -115,7 +115,7 @@
 #define SPCR_TSEC2EP			0x00000003	/* TSEC2 emergency priority */
 #define SPCR_TSEC2EP_SHIFT		(31-31)
 
-#elif defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
+#elif defined(CONFIG_MPC831x) || defined(CONFIG_MPC837x)
 /* SPCR bits - MPC831x and MPC837x specific */
 #define SPCR_TSECDP			0x00003000	/* TSEC data priority */
 #define SPCR_TSECDP_SHIFT		(31-19)
@@ -127,7 +127,7 @@
 
 /* SICRL/H - System I/O Configuration Register Low/High
  */
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834x)
 /* SICRL bits - MPC8349 specific */
 #define SICRL_LDP_A			0x80000000
 #define SICRL_USB1			0x40000000
@@ -190,8 +190,8 @@
 #define SICRH_UC2E1OBI			0x00000002
 #define SICRH_UC2E2OBI			0x00000001
 
-#elif defined(CONFIG_MPC832X)
-/* SICRL bits - MPC832X specific */
+#elif defined(CONFIG_MPC832x)
+/* SICRL bits - MPC832x specific */
 #define SICRL_LDP_LCS_A			0x80000000
 #define SICRL_IRQ_CKS			0x20000000
 #define SICRL_PCI_MSRC			0x10000000
@@ -262,7 +262,7 @@
 #define SICRH_TSOBI1			0x00000002
 #define SICRH_TSOBI2			0x00000001
 
-#elif defined(CONFIG_MPC837X)
+#elif defined(CONFIG_MPC837x)
 /* SICRL bits - MPC837x specific */
 #define SICRL_USB_A			0xC0000000
 #define SICRL_USB_B			0x30000000
@@ -424,7 +424,7 @@
 #define HRCWL_CORE_TO_CSB_2_5X1		0x00050000
 #define HRCWL_CORE_TO_CSB_3X1		0x00060000
 
-#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832X)
+#if defined(CONFIG_MPC8360) || defined(CONFIG_MPC832x)
 #define HRCWL_CEVCOD			0x000000C0
 #define HRCWL_CEVCOD_SHIFT		6
 #define HRCWL_CE_PLL_VCO_DIV_4		0x00000000
@@ -478,7 +478,7 @@
 #define HRCWL_SVCOD_DIV_8		0x20000000
 #define HRCWL_SVCOD_DIV_1		0x30000000
 
-#elif defined(CONFIG_MPC837X)
+#elif defined(CONFIG_MPC837x)
 #define HRCWL_SVCOD			0x30000000
 #define HRCWL_SVCOD_SHIFT		28
 #define HRCWL_SVCOD_DIV_4		0x00000000
@@ -493,7 +493,7 @@
 #define HRCWH_PCI_HOST_SHIFT		31
 #define HRCWH_PCI_AGENT			0x00000000
 
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834x)
 #define HRCWH_32_BIT_PCI		0x00000000
 #define HRCWH_64_BIT_PCI		0x40000000
 #endif
@@ -504,7 +504,7 @@
 #define HRCWH_PCI_ARBITER_DISABLE	0x00000000
 #define HRCWH_PCI_ARBITER_ENABLE	0x20000000
 
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834x)
 #define HRCWH_PCI2_ARBITER_DISABLE	0x00000000
 #define HRCWH_PCI2_ARBITER_ENABLE	0x10000000
 
@@ -528,17 +528,17 @@
 
 #define HRCWH_ROM_LOC_DDR_SDRAM		0x00000000
 #define HRCWH_ROM_LOC_PCI1		0x00100000
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834x)
 #define HRCWH_ROM_LOC_PCI2		0x00200000
 #endif
-#if defined(CONFIG_MPC837X)
+#if defined(CONFIG_MPC837x)
 #define HRCWH_ROM_LOC_ON_CHIP_ROM	0x00300000
 #endif
 #define HRCWH_ROM_LOC_LOCAL_8BIT	0x00500000
 #define HRCWH_ROM_LOC_LOCAL_16BIT	0x00600000
 #define HRCWH_ROM_LOC_LOCAL_32BIT	0x00700000
 
-#if defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
+#if defined(CONFIG_MPC831x) || defined(CONFIG_MPC837x)
 #define HRCWH_ROM_LOC_NAND_SP_8BIT	0x00100000
 #define HRCWH_ROM_LOC_NAND_SP_16BIT	0x00200000
 #define HRCWH_ROM_LOC_NAND_LP_8BIT	0x00500000
@@ -562,7 +562,7 @@
 #define HRCWH_TSEC2M_IN_SGMII		0x00001800
 #endif
 
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834x)
 #define HRCWH_TSEC1M_IN_RGMII		0x00000000
 #define HRCWH_TSEC1M_IN_RTBI		0x00004000
 #define HRCWH_TSEC1M_IN_GMII		0x00008000
@@ -589,7 +589,7 @@
 
 /* RSR - Reset Status Register
  */
-#if defined(CONFIG_MPC831X) || defined(CONFIG_MPC837X)
+#if defined(CONFIG_MPC831x) || defined(CONFIG_MPC837x)
 #define RSR_RSTSRC			0xF0000000	/* Reset source */
 #define RSR_RSTSRC_SHIFT		28
 #else
@@ -682,7 +682,7 @@
 #define SCCR_PCICM			0x00010000
 #define SCCR_PCICM_SHIFT		16
 
-#if defined(CONFIG_MPC834X)
+#if defined(CONFIG_MPC834x)
 /* SCCR bits - MPC834x specific */
 #define SCCR_TSEC1CM			0xc0000000
 #define SCCR_TSEC1CM_SHIFT		30
@@ -770,7 +770,7 @@
 #define SCCR_TDMCM_2			0x00000020
 #define SCCR_TDMCM_3			0x00000030
 
-#elif defined(CONFIG_MPC837X)
+#elif defined(CONFIG_MPC837x)
 /* SCCR bits - MPC837x specific */
 #define SCCR_TSEC1CM			0xc0000000
 #define SCCR_TSEC1CM_SHIFT		30

@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
- * (C) Copyright 2007 DENX Software Engineering
+ * Copyright (C) 2007-2009 DENX Software Engineering
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -25,7 +25,8 @@
  */
 
 #include <common.h>
-#include <mpc512x.h>
+#include <asm/io.h>
+#include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -46,30 +47,34 @@ void cpu_init_f (volatile immap_t * im)
 
 #ifdef CONFIG_SYS_ACR_PIPE_DEP
 	/* Arbiter pipeline depth */
-	im->arbiter.acr = (im->arbiter.acr & ~ACR_PIPE_DEP) |
-			  (CONFIG_SYS_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT);
+	out_be32(&im->arbiter.acr,
+		(im->arbiter.acr & ~ACR_PIPE_DEP) |
+		(CONFIG_SYS_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT)
+	);
 #endif
 
 #ifdef CONFIG_SYS_ACR_RPTCNT
 	/* Arbiter repeat count */
-	im->arbiter.acr = ((im->arbiter.acr & ~(ACR_RPTCNT)) |
-			   (CONFIG_SYS_ACR_RPTCNT << ACR_RPTCNT_SHIFT));
+	out_be32(im->arbiter.acr,
+		(im->arbiter.acr & ~(ACR_RPTCNT)) |
+		(CONFIG_SYS_ACR_RPTCNT << ACR_RPTCNT_SHIFT)
+	);
 #endif
 
 	/* RSR - Reset Status Register - clear all status */
 	gd->reset_status = im->reset.rsr;
-	im->reset.rsr = ~(RSR_RES);
+	out_be32(&im->reset.rsr, ~RSR_RES);
 
 	/*
 	 * RMR - Reset Mode Register - enable checkstop reset
 	 */
-	im->reset.rmr = (RMR_CSRE & (1 << RMR_CSRE_SHIFT));
+	out_be32(&im->reset.rmr, RMR_CSRE & (1 << RMR_CSRE_SHIFT));
 
 	/* Set IPS-CSB divider: IPS = 1/2 CSB */
-	ips_div = im->clk.scfr[0];
+	ips_div = in_be32(&im->clk.scfr[0]);
 	ips_div &= ~(SCFR1_IPS_DIV_MASK);
 	ips_div |= SCFR1_IPS_DIV << SCFR1_IPS_DIV_SHIFT;
-	im->clk.scfr[0] = ips_div;
+	out_be32(&im->clk.scfr[0], ips_div);
 
 	/*
 	 * Enable Time Base/Decrementer
@@ -78,7 +83,7 @@ void cpu_init_f (volatile immap_t * im)
 	 * have udelay() working; if not enabled, usually leads to a hang, like
 	 * during FLASH chip identification etc.
 	 */
-	im->sysconf.spcr |= SPCR_TBEN;
+	setbits_be32(&im->sysconf.spcr, SPCR_TBEN);
 }
 
 int cpu_init_r (void)

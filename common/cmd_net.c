@@ -40,7 +40,7 @@ int do_bootp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	bootp,	3,	1,	do_bootp,
 	"boot image via network using BOOTP/TFTP protocol",
-	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
+	"[loadAddress] [[hostIPaddr:]bootfilename]"
 );
 
 int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -51,7 +51,7 @@ int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	tftpboot,	3,	1,	do_tftpb,
 	"boot image via network using TFTP protocol",
-	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
+	"[loadAddress] [[hostIPaddr:]bootfilename]"
 );
 
 int do_rarpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -62,7 +62,7 @@ int do_rarpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	rarpboot,	3,	1,	do_rarpb,
 	"boot image via network using RARP/TFTP protocol",
-	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
+	"[loadAddress] [[hostIPaddr:]bootfilename]"
 );
 
 #if defined(CONFIG_CMD_DHCP)
@@ -74,7 +74,7 @@ int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	dhcp,	3,	1,	do_dhcp,
 	"boot image via network using DHCP/TFTP protocol",
-	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
+	"[loadAddress] [[hostIPaddr:]bootfilename]"
 );
 #endif
 
@@ -87,7 +87,7 @@ int do_nfs (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	nfs,	3,	1,	do_nfs,
 	"boot image via network using NFS protocol",
-	"[loadAddress] [[hostIPaddr:]bootfilename]\n"
+	"[loadAddress] [[hostIPaddr:]bootfilename]"
 );
 #endif
 
@@ -269,7 +269,7 @@ int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	ping,	2,	1,	do_ping,
 	"send ICMP ECHO_REQUEST to network host",
-	"pingAddress\n"
+	"pingAddress"
 );
 #endif
 

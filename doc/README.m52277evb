@@ -204,16 +204,10 @@ erase   - erase FLASH memory
 flinfo  - print FLASH memory information
 go      - start application at address 'addr'
 help    - print online help
+i2c     - I2C sub-system
 icache  - enable or disable instruction cache
-icrc32  - checksum calculation
-iloop   - infinite loop on address range
-imd     - i2c memory display
 iminfo  - print header information for application image
 imls    - list all images found in flash
-imm     - i2c memory modify (auto-incrementing)
-imw     - memory write (fill)
-inm     - memory modify (constant address)
-iprobe  - probe to discover valid I2C chip addresses
 itest	- return true/false on integer compare
 loadb   - load binary file over serial line (kermit mode)
 loads   - load S-Record file over serial line

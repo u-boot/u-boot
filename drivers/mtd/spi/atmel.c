@@ -196,6 +196,75 @@ static int dataflash_read_fast_at45(struct spi_flash *flash,
 	return spi_flash_read_common(flash, cmd, sizeof(cmd), buf, len);
 }
 
+/*
+ * TODO: the two write funcs (_p2/_at45) should get unified ...
+ */
+static int dataflash_write_p2(struct spi_flash *flash,
+		u32 offset, size_t len, const void *buf)
+{
+	struct atmel_spi_flash *asf = to_atmel_spi_flash(flash);
+	unsigned long page_size;
+	u32 addr = offset;
+	size_t chunk_len;
+	size_t actual;
+	int ret;
+	u8 cmd[4];
+
+	/*
+	 * TODO: This function currently uses only page buffer #1.  We can
+	 * speed this up by using both buffers and loading one buffer while
+	 * the other is being programmed into main memory.
+	 */
+
+	page_size = (1 << asf->params->l2_page_size);
+
+	ret = spi_claim_bus(flash->spi);
+	if (ret) {
+		debug("SF: Unable to claim SPI bus\n");
+		return ret;
+	}
+
+	for (actual = 0; actual < len; actual += chunk_len) {
+		chunk_len = min(len - actual, page_size - (addr % page_size));
+
+		/* Use the same address bits for both commands */
+		cmd[0] = CMD_AT45_LOAD_BUF1;
+		cmd[1] = addr >> 16;
+		cmd[2] = addr >> 8;
+		cmd[3] = addr;
+
+		ret = spi_flash_cmd_write(flash->spi, cmd, 4,
+				buf + actual, chunk_len);
+		if (ret < 0) {
+			debug("SF: Loading AT45 buffer failed\n");
+			goto out;
+		}
+
+		cmd[0] = CMD_AT45_PROG_BUF1;
+		ret = spi_flash_cmd_write(flash->spi, cmd, 4, NULL, 0);
+		if (ret < 0) {
+			debug("SF: AT45 page programming failed\n");
+			goto out;
+		}
+
+		ret = at45_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+		if (ret < 0) {
+			debug("SF: AT45 page programming timed out\n");
+			goto out;
+		}
+
+		addr += chunk_len;
+	}
+
+	debug("SF: AT45: Successfully programmed %zu bytes @ 0x%x\n",
+			len, offset);
+	ret = 0;
+
+out:
+	spi_release_bus(flash->spi);
+	return ret;
+}
+
 static int dataflash_write_at45(struct spi_flash *flash,
 		u32 offset, size_t len, const void *buf)
 {
@@ -208,6 +277,12 @@ static int dataflash_write_at45(struct spi_flash *flash,
 	size_t actual;
 	int ret;
 	u8 cmd[4];
+
+	/*
+	 * TODO: This function currently uses only page buffer #1.  We can
+	 * speed this up by using both buffers and loading one buffer while
+	 * the other is being programmed into main memory.
+	 */
 
 	page_shift = asf->params->l2_page_size;
 	page_size = (1 << page_shift) + (1 << (page_shift - 5));
@@ -255,6 +330,68 @@ static int dataflash_write_at45(struct spi_flash *flash,
 	}
 
 	debug("SF: AT45: Successfully programmed %zu bytes @ 0x%x\n",
+			len, offset);
+	ret = 0;
+
+out:
+	spi_release_bus(flash->spi);
+	return ret;
+}
+
+/*
+ * TODO: the two erase funcs (_p2/_at45) should get unified ...
+ */
+int dataflash_erase_p2(struct spi_flash *flash, u32 offset, size_t len)
+{
+	struct atmel_spi_flash *asf = to_atmel_spi_flash(flash);
+	unsigned long page_size;
+
+	size_t actual;
+	int ret;
+	u8 cmd[4];
+
+	/*
+	 * TODO: This function currently uses page erase only. We can
+	 * probably speed things up by using block and/or sector erase
+	 * when possible.
+	 */
+
+	page_size = (1 << asf->params->l2_page_size);
+
+	if (offset % page_size || len % page_size) {
+		debug("SF: Erase offset/length not multiple of page size\n");
+		return -1;
+	}
+
+	cmd[0] = CMD_AT45_ERASE_PAGE;
+	cmd[3] = 0x00;
+
+	ret = spi_claim_bus(flash->spi);
+	if (ret) {
+		debug("SF: Unable to claim SPI bus\n");
+		return ret;
+	}
+
+	for (actual = 0; actual < len; actual += page_size) {
+		cmd[1] = offset >> 16;
+		cmd[2] = offset >> 8;
+
+		ret = spi_flash_cmd_write(flash->spi, cmd, 4, NULL, 0);
+		if (ret < 0) {
+			debug("SF: AT45 page erase failed\n");
+			goto out;
+		}
+
+		ret = at45_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
+		if (ret < 0) {
+			debug("SF: AT45 page erase timed out\n");
+			goto out;
+		}
+
+		offset += page_size;
+	}
+
+	debug("SF: AT45: Successfully erased %zu bytes @ 0x%x\n",
 			len, offset);
 	ret = 0;
 
@@ -382,6 +519,8 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 			page_size += 1 << (params->l2_page_size - 5);
 		} else {
 			asf->flash.read = dataflash_read_fast_p2;
+			asf->flash.write = dataflash_write_p2;
+			asf->flash.erase = dataflash_erase_p2;
 		}
 
 		break;

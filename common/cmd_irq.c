@@ -45,6 +45,5 @@ int do_interrupts(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	interrupts, 5, 0, do_interrupts,
 	"enable or disable interrupts",
-	"[on, off]\n"
-	"    - enable or disable interrupts\n"
+	"[on, off]"
 );

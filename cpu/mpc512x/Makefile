@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2007 DENX Software Engineering
+# (C) Copyright 2007-2009 DENX Software Engineering
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -22,14 +22,20 @@
 
 include $(TOPDIR)/config.mk
 
+$(shell mkdir -p $(OBJTREE)/board/freescale/common)
+
 LIB	= $(obj)lib$(CPU).a
 
 START	= start.o
-COBJS	= traps.o cpu.o cpu_init.o speed.o interrupts.o serial.o i2c.o iopin.o
-ifdef CONFIG_IIM
-COBJS	+= iim.o
-endif
+COBJS-y	:= traps.o cpu.o cpu_init.o speed.o interrupts.o serial.o i2c.o iopin.o
+COBJS-${CONFIG_FSL_DIU_FB} += diu.o
+COBJS-${CONFIG_FSL_DIU_FB} += ../../board/freescale/common/fsl_diu_fb.o
+COBJS-${CONFIG_FSL_DIU_FB} += ../../board/freescale/common/fsl_logo_bmp.o
+COBJS-${CONFIG_CMD_IDE} += ide.o
+COBJS-${CONFIG_IIM} += iim.o
+COBJS-$(CONFIG_PCI) += pci.o
 
+COBJS	:= $(COBJS-y)
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 START	:= $(addprefix $(obj),$(START))

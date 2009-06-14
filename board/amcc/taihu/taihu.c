@@ -94,8 +94,8 @@ static int do_sw_stat(cmd_tbl_t* cmd_tp, int flags, int argc, char *argv[])
 U_BOOT_CMD (
 	sw2_stat, 1, 1, do_sw_stat,
 	"show status of switch 2",
-	NULL
-	);
+	""
+);
 
 static int do_led_ctl(cmd_tbl_t* cmd_tp, int flags, int argc, char *argv[])
 {
@@ -134,8 +134,8 @@ U_BOOT_CMD (
 	led_ctl, 3, 1, do_led_ctl,
 	"make led 1 or 2  on or off",
 	"<led_no> <on/off>	-  make led <led_no> on/off,\n"
-	"\tled_no is 1 or 2\t"
-	);
+	"\tled_no is 1 or 2"
+);
 
 #define SPI_CS_GPIO0	0
 #define SPI_SCLK_GPIO14	14

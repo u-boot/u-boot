@@ -25,7 +25,7 @@
  */
 #define CONFIG_E300		1 /* E300 family */
 #define CONFIG_QE		1 /* Has QE */
-#define CONFIG_MPC83XX		1 /* MPC83XX family */
+#define CONFIG_MPC83xx		1 /* MPC83xx family */
 #define CONFIG_MPC8360		1 /* MPC8360 CPU specific */
 #define CONFIG_KMETER1		1 /* KMETER1 board specific */
 #define CONFIG_HOSTNAME		kmeter1
@@ -314,7 +314,6 @@
 #define CONFIG_SYS_I2C_SLAVE	0x7F
 #define CONFIG_SYS_I2C_OFFSET	0x3000
 #define CONFIG_I2C_MULTI_BUS	1
-#define CONFIG_I2C_CMD_TREE	1
 #define CONFIG_SYS_MAX_I2C_BUS		2
 #define CONFIG_I2C_MUX		1
 

@@ -278,12 +278,9 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	if (!IS_E_PROCESSOR(get_svr()))
 		fdt_fixup_crypto_node(blob, 0);
 
-#if defined(CONFIG_HAS_ETH0) || defined(CONFIG_HAS_ETH1) ||\
-    defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3)
 	fdt_fixup_ethernet(blob);
 
 	fdt_add_enet_stashing(blob);
-#endif
 
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
 		"timebase-frequency", bd->bi_busfreq / 8, 1);

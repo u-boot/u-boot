@@ -134,4 +134,9 @@
 
 #define CONFIG_DRAM_BASE	AT91_CHIPSELECT_6
 
+/*
+ * Cpu Name
+ */
+#define AT91_CPU_NAME	"AT91CAP9"
+
 #endif

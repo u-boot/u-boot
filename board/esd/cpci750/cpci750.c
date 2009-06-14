@@ -122,6 +122,9 @@ static char show_config_tab[][15] = {{"PCI0DLL_2     "},  /* 31 */
 
 extern flash_info_t flash_info[];
 
+extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
+extern int do_bootvx (cmd_tbl_t *, int, int, char *[]);
+
 /* ------------------------------------------------------------------------- */
 
 /* this is the current GT register space location */
@@ -136,6 +139,15 @@ extern flash_info_t flash_info[];
 void board_prebootm_init (void);
 unsigned int INTERNAL_REG_BASE_ADDR = CONFIG_SYS_GT_REGS;
 int display_mem_map (void);
+
+/*
+ * Skip video initialization on slave variant.
+ * This function will overwrite the weak default in cfb_console.c
+ */
+int board_video_skip(void)
+{
+	return CPCI750_SLAVE_TEST;
+}
 
 /* ------------------------------------------------------------------------- */
 
@@ -184,6 +196,7 @@ original ppcboot 1.1.6 source end */
 static void gt_pci_config (void)
 {
 	unsigned int stat;
+	unsigned int data;
 	unsigned int val = 0x00fff864;	/* DINK32: BusNum 23:16,  DevNum 15:11, FuncNum 10:8, RegNum 7:2 */
 
 	/* In PCIX mode devices provide their own bus and device numbers. We query the Discovery II's
@@ -251,10 +264,15 @@ static void gt_pci_config (void)
 
 /*ronen update the pci internal registers base address.*/
 #ifdef MAP_PCI
-	for (stat = 0; stat <= PCI_HOST1; stat++)
+	for (stat = 0; stat <= PCI_HOST1; stat++) {
+		data = pciReadConfigReg(stat,
+					PCI_INTERNAL_REGISTERS_MEMORY_MAPPED_BASE_ADDRESS,
+					SELF);
+		data = (data & 0x0f) | CONFIG_SYS_GT_REGS;
 		pciWriteConfigReg (stat,
 				   PCI_INTERNAL_REGISTERS_MEMORY_MAPPED_BASE_ADDRESS,
-				   SELF, CONFIG_SYS_GT_REGS);
+				   SELF, data);
+	}
 #endif
 
 }
@@ -448,13 +466,16 @@ int misc_init_r ()
 
 void after_reloc (ulong dest_addr, gd_t * gd)
 {
+	memoryMapDeviceSpace (BOOT_DEVICE, CONFIG_SYS_BOOT_SPACE,
+			      CONFIG_SYS_BOOT_SIZE);
 
-  memoryMapDeviceSpace (BOOT_DEVICE, CONFIG_SYS_BOOT_SPACE, CONFIG_SYS_BOOT_SIZE);
+	display_mem_map ();
+	GT_REG_WRITE (PCI_0BASE_ADDRESS_REGISTERS_ENABLE, 0xfffffdfe);
+	GT_REG_WRITE (PCI_1BASE_ADDRESS_REGISTERS_ENABLE, 0xfffffdfe);
 
-  display_mem_map ();
-  /* now, jump to the main ppcboot board init code */
-  board_init_r (gd, dest_addr);
-  /* NOTREACHED */
+	/* now, jump to the main ppcboot board init code */
+	board_init_r (gd, dest_addr);
+	/* NOTREACHED */
 }
 
 /* ------------------------------------------------------------------------- */
@@ -537,6 +558,79 @@ int display_mem_map (void)
 		base, size >> 20, width);
 	return (0);
 }
+
+/*
+ * Command loadpci: wait for signal from host and boot image.
+ */
+int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	volatile unsigned int *ptr;
+	int count = 0;
+	int count2 = 0;
+	int status;
+	char addr[16];
+	char str[] = "\\|/-";
+	char *local_args[2];
+
+	/*
+	 * Mark sync address
+	 */
+	ptr = 0;
+	ptr[0] = 0xffffffff;
+	ptr[1] = 0xffffffff;
+	puts("\nWaiting for image from pci host -");
+
+	/*
+	 * Wait for host to write the start address
+	 */
+	while (*ptr == 0xffffffff) {
+		count++;
+		if (!(count % 100)) {
+			count2++;
+			putc(0x08); /* backspace */
+			putc(str[count2 % 4]);
+		}
+
+		/* Abort if ctrl-c was pressed */
+		if (ctrlc()) {
+			puts("\nAbort\n");
+			return 0;
+		}
+
+		udelay(1000);
+	}
+
+	sprintf(addr, "%08x", *ptr);
+	printf("\nBooting Image at addr 0x%s ...\n", addr);
+	setenv("loadaddr", addr);
+
+	switch (ptr[1] == 0) {
+	case 0:
+		/*
+		 * Boot image via bootm
+		 */
+		local_args[0] = argv[0];
+		local_args[1] = NULL;
+		status = do_bootm (cmdtp, 0, 1, local_args);
+		break;
+	case 1:
+		/*
+		 * Boot image via bootvx
+		 */
+		local_args[0] = argv[0];
+		local_args[1] = NULL;
+		status = do_bootvx (cmdtp, 0, 1, local_args);
+		break;
+	}
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	loadpci,	1,	1,	do_loadpci,
+	"loadpci - Wait for pci-image and boot it\n",
+	NULL
+	);
 
 /* DRAM check routines copied from gw8260 */
 
@@ -994,5 +1088,5 @@ int do_show_config(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	show_config,	1,	1,	do_show_config,
 	"Show Marvell strapping register",
-	"Show Marvell strapping register (ResetSampleLow ResetSampleHigh)\n"
-	);
+	"Show Marvell strapping register (ResetSampleLow ResetSampleHigh)"
+);

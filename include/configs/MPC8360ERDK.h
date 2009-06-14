@@ -22,7 +22,7 @@
  */
 #define CONFIG_E300		1 /* E300 family */
 #define CONFIG_QE		1 /* Has QE */
-#define CONFIG_MPC83XX		1 /* MPC83XX family */
+#define CONFIG_MPC83xx		1 /* MPC83xx family */
 #define CONFIG_MPC8360		1 /* MPC8360 CPU specific */
 #define CONFIG_MPC8360ERDK	1 /* MPC8360ERDK board specific */
 
@@ -265,7 +265,6 @@
 #undef	CONFIG_SOFT_I2C		/* I2C bit-banged */
 #define CONFIG_FSL_I2C
 #define CONFIG_I2C_MULTI_BUS
-#define CONFIG_I2C_CMD_TREE
 #define CONFIG_SYS_I2C_SPEED	400000	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE	0x7F
 #define CONFIG_SYS_I2C_NOPROBES	{{0x52}} /* Don't probe these addrs */

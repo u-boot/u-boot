@@ -66,10 +66,6 @@
 #define CONFIG_SYS_I2C_SPEED	50000
 #endif
 
-#ifndef CONFIG_SYS_I2C_SLAVE
-#define CONFIG_SYS_I2C_SLAVE	0xFE
-#endif
-
 #define ONE_BILLION	1000000000
 
 /*
