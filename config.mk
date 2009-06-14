@@ -206,11 +206,13 @@ export	TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS AFLAGS
 
 #########################################################################
 
+# Allow boards to use custom optimize flags on a per dir/file basis
+BCURDIR := $(notdir $(CURDIR))
 $(obj)%.s:	%.S
-	$(CPP) $(AFLAGS) -o $@ $<
+	$(CPP) $(AFLAGS) $(AFLAGS_$(@F)) $(AFLAGS_$(BCURDIR)) -o $@ $<
 $(obj)%.o:	%.S
-	$(CC) $(AFLAGS) -c -o $@ $<
+	$(CC)  $(AFLAGS) $(AFLAGS_$(@F)) $(AFLAGS_$(BCURDIR)) -o $@ $< -c
 $(obj)%.o:	%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC)  $(CFLAGS) $(CFLAGS_$(@F)) $(CFLAGS_$(BCURDIR)) -o $@ $< -c
 
 #########################################################################
