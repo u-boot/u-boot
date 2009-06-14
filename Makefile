@@ -3571,11 +3571,7 @@ clean:
 	       $(obj)board/netstar/{eeprom,crcek,crcit,*.srec,*.bin}	  \
 	       $(obj)board/trab/trab_fkt   $(obj)board/voiceblue/eeprom   \
 	       $(obj)board/armltd/{integratorap,integratorcp}/u-boot.lds  \
-	       $(obj)board/bf5{18f,26,27,33,38f,48,61}-ez{brd,kit}/u-boot.lds \
-	       $(obj)board/bf5{33,37}-stamp/u-boot.lds			  \
-	       $(obj)board/{bf537-{minotaur,pnav,srv1},blackstamp}/u-boot.lds \
-	       $(obj)board/{,t}cm-bf5{27,33,37e,48,61}/u-boot.lds	  \
-	       $(obj)board/ibf-dsp561/u-boot.lds			  \
+	       $(obj)lib_blackfin/u-boot.lds				  \
 	       $(obj)cpu/blackfin/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h
 	@rm -f $(obj)nand_spl/{u-boot-spl,u-boot-spl.map,System.map}

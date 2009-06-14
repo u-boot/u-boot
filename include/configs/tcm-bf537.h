@@ -95,6 +95,21 @@
 #else
 #define ENV_IS_EMBEDDED_CUSTOM
 #endif
+#ifdef ENV_IS_EMBEDDED
+/* WARNING - the following is hand-optimized to fit within
+ * the sector before the environment sector. If it throws
+ * an error during compilation remove an object here to get
+ * it linked after the configuration sector.
+ */
+# define LDS_BOARD_TEXT \
+	cpu/blackfin/traps.o		(.text .text.*); \
+	cpu/blackfin/interrupt.o	(.text .text.*); \
+	cpu/blackfin/serial.o		(.text .text.*); \
+	common/dlmalloc.o		(.text .text.*); \
+	lib_generic/crc32.o		(.text .text.*); \
+	. = DEFINED(env_offset) ? env_offset : .; \
+	common/env_embedded.o		(.text .text.*);
+#endif
 
 
 /*

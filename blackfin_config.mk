@@ -56,3 +56,7 @@ LDR_FLAGS += --quiet
 endif
 
 LDR_FLAGS += $(LDR_FLAGS-y)
+
+ifeq ($(wildcard $(TOPDIR)/board/$(BOARD)/u-boot.lds*),)
+LDSCRIPT = $(obj)lib_$(ARCH)/u-boot.lds
+endif

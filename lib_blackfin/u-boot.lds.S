@@ -31,6 +31,10 @@
 #undef ENTRY
 #undef bfin
 
+#ifndef LDS_BOARD_TEXT
+# define LDS_BOARD_TEXT
+#endif
+
 /* If we don't actually load anything into L1 data, this will avoid
  * a syntax error.  If we do actually load something into L1 data,
  * we'll get a linker memory load error (which is what we'd want).
@@ -42,19 +46,12 @@
 # define L1_DATA_B_SRAM_SIZE 0
 #endif
 
-/* The 0xC offset is so we don't clobber the tiny LDR jump block. */
-#ifdef CONFIG_BFIN_BOOTROM_USES_EVT1
-# define L1_CODE_ORIGIN L1_INST_SRAM
-#else
-# define L1_CODE_ORIGIN L1_INST_SRAM + 0xC
-#endif
-
 OUTPUT_ARCH(bfin)
 
 MEMORY
 {
 	ram     : ORIGIN = CONFIG_SYS_MONITOR_BASE, LENGTH = CONFIG_SYS_MONITOR_LEN
-	l1_code : ORIGIN = L1_CODE_ORIGIN,          LENGTH = L1_INST_SRAM_SIZE
+	l1_code : ORIGIN = L1_INST_SRAM,            LENGTH = L1_INST_SRAM_SIZE
 	l1_data : ORIGIN = L1_DATA_B_SRAM,          LENGTH = L1_DATA_B_SRAM_SIZE
 }
 
@@ -65,22 +62,7 @@ SECTIONS
 	{
 		cpu/blackfin/start.o (.text .text.*)
 
-#ifdef ENV_IS_EMBEDDED
-		/* WARNING - the following is hand-optimized to fit within
-		 * the sector before the environment sector. If it throws
-		 * an error during compilation remove an object here to get
-		 * it linked after the configuration sector.
-		 */
-
-		cpu/blackfin/traps.o		(.text .text.*)
-		cpu/blackfin/interrupt.o	(.text .text.*)
-		cpu/blackfin/serial.o		(.text .text.*)
-		common/dlmalloc.o		(.text .text.*)
-		lib_generic/crc32.o		(.text .text.*)
-
-		. = DEFINED(env_offset) ? env_offset : .;
-		common/env_embedded.o	(.text .text.*)
-#endif
+		LDS_BOARD_TEXT
 
 		__initcode_start = .;
 		cpu/blackfin/initcode.o (.text .text.*)

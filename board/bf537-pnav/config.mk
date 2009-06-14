@@ -26,7 +26,5 @@
 # This is not actually used for Blackfin boards so do not change it
 #TEXT_BASE = do-not-use-me
 
-LDSCRIPT = $(obj)board/$(BOARDDIR)/u-boot.lds
-
 # Set some default LDR flags based on boot mode.
 LDR_FLAGS += $(LDR_FLAGS-$(CONFIG_BFIN_BOOT_MODE))
