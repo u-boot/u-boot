@@ -123,26 +123,83 @@
  *	[09:05]	DRAM tRP:
  *	[04:00] DRAM tRPA
  */
-#define CONFIG_SYS_MDDRC_SYS_CFG	0xF8604A00
-#define CONFIG_SYS_MDDRC_SYS_CFG_RUN	0xE8604A00
-/*#define CONFIG_SYS_MDDRC_TIME_CFG1	0x54EC1168 */
-  #define CONFIG_SYS_MDDRC_TIME_CFG1	0x55D81189
-/*#define CONFIG_SYS_MDDRC_TIME_CFG2	0x35210864 */
-  #define CONFIG_SYS_MDDRC_TIME_CFG2	0x34790863
+#define CONFIG_SYS_MDDRC_SYS_CFG     (	(1 << 31) |	/* RST_B */ \
+					(1 << 30) |	/* CKE */ \
+					(1 << 29) |	/* CLK_ON */ \
+					(1 << 28) |	/* CMD_MODE */ \
+					(4 << 25) |	/* DRAM_ROW_SELECT */ \
+					(3 << 21) |	/* DRAM_BANK_SELECT */ \
+					(0 << 18) |	/* SELF_REF_EN */ \
+					(0 << 17) |	/* 16BIT_MODE */ \
+					(2 << 13) |	/* RDLY */ \
+					(0 << 12) |	/* HALF_DQS_DLY */ \
+					(1 << 11) |	/* QUART_DQS_DLY */ \
+					(2 <<  8) |	/* WDLY */ \
+					(0 <<  7) |	/* EARLY_ODT */ \
+					(1 <<  6) |	/* ON_DIE_TERMINATE */ \
+					(0 <<  5) |	/* FIFO_OV_CLEAR */ \
+					(0 <<  4) |	/* FIFO_UV_CLEAR */ \
+					(0 <<  1) |	/* FIFO_OV_EN */ \
+					(0 <<  0) 	/* FIFO_UV_EN */ \
+				     )
+
+#define CONFIG_SYS_MDDRC_SYS_CFG_RUN	(CONFIG_SYS_MDDRC_SYS_CFG & ~(1 << 28))
+#define CONFIG_SYS_MDDRC_TIME_CFG1	0x55D81189
+#define CONFIG_SYS_MDDRC_TIME_CFG2	0x34790863
 
 #define CONFIG_SYS_MDDRC_SYS_CFG_EN	0xF0000000
 #define CONFIG_SYS_MDDRC_TIME_CFG0	0x00003D2E
-/*#define CONFIG_SYS_MDDRC_TIME_CFG0_RUN	0x06183D2E */
 #define CONFIG_SYS_MDDRC_TIME_CFG0_RUN	0x030C3D2E
 
 #define CONFIG_SYS_MICRON_NOP		0x01380000
 #define CONFIG_SYS_MICRON_PCHG_ALL	0x01100400
-#define CONFIG_SYS_MICRON_EM2		0x01020000
-#define CONFIG_SYS_MICRON_EM3		0x01030000
-#define CONFIG_SYS_MICRON_EN_DLL	0x01010000
+#define CONFIG_SYS_MICRON_EMR	     (	(1 << 24) |	/* CMD_REQ */ \
+					(0 << 22) |	/* DRAM_CS */ \
+					(0 << 21) |	/* DRAM_RAS */ \
+					(0 << 20) |	/* DRAM_CAS */ \
+					(0 << 19) |	/* DRAM_WEB */ \
+					(1 << 16) |	/* DRAM_BS[2:0] */ \
+					(0 << 15) |	/* */ \
+					(0 << 12) |	/* A12->out */ \
+					(0 << 11) |	/* A11->RDQS */ \
+					(0 << 10) |	/* A10->DQS# */ \
+					(0 <<  7) |	/* OCD program */ \
+					(0 <<  6) |	/* Rtt1 */ \
+					(0 <<  3) |	/* posted CAS# */ \
+					(0 <<  2) |	/* Rtt0 */ \
+					(1 <<  1) |	/* ODS */ \
+					(0 <<  0)	/* DLL */ \
+				     )
+#define CONFIG_SYS_MICRON_EMR2		0x01020000
+#define CONFIG_SYS_MICRON_EMR3		0x01030000
 #define CONFIG_SYS_MICRON_RFSH		0x01080000
 #define CONFIG_SYS_MICRON_INIT_DEV_OP	0x01000432
-#define CONFIG_SYS_MICRON_OCD_DEFAULT	0x01010780
+#define CONFIG_SYS_MICRON_EMR_OCD    (	(1 << 24) |	/* CMD_REQ */ \
+					(0 << 22) |	/* DRAM_CS */ \
+					(0 << 21) |	/* DRAM_RAS */ \
+					(0 << 20) |	/* DRAM_CAS */ \
+					(0 << 19) |	/* DRAM_WEB */ \
+					(1 << 16) |	/* DRAM_BS[2:0] */ \
+					(0 << 15) |	/* */ \
+					(0 << 12) |	/* A12->out */ \
+					(0 << 11) |	/* A11->RDQS */ \
+					(1 << 10) |	/* A10->DQS# */ \
+					(7 <<  7) |	/* OCD program */ \
+					(0 <<  6) |	/* Rtt1 */ \
+					(0 <<  3) |	/* posted CAS# */ \
+					(1 <<  2) |	/* Rtt0 */ \
+					(0 <<  1) |	/* ODS (Output Drive Strength) */ \
+					(0 <<  0)	/* DLL */ \
+				     )
+
+/*
+ * Backward compatible definitions,
+ * so we do not have to change cpu/mpc512x/fixed_sdram.c
+ */
+#define	CONFIG_SYS_MICRON_EM2		(CONFIG_SYS_MICRON_EMR2)
+#define CONFIG_SYS_MICRON_EM3		(CONFIG_SYS_MICRON_EMR3)
+#define CONFIG_SYS_MICRON_EN_DLL	(CONFIG_SYS_MICRON_EMR)
+#define CONFIG_SYS_MICRON_OCD_DEFAULT	(CONFIG_SYS_MICRON_EMR_OCD)
 
 /* DDR Priority Manager Configuration */
 #define CONFIG_SYS_MDDRCGRP_PM_CFG1	0x00077777
@@ -187,8 +244,10 @@
 #define CONFIG_SYS_SRAM_BASE		0x30000000
 #define CONFIG_SYS_SRAM_SIZE		0x00020000	/* 128 KB */
 
-#define CONFIG_SYS_ARIA_SRAM_BASE	0x30020000
-#define CONFIG_SYS_ARIA_SRAM_SIZE	0x20000		/* 128 KB */
+/* Make two SRAM regions contiguous */
+#define CONFIG_SYS_ARIA_SRAM_BASE	(CONFIG_SYS_SRAM_BASE + \
+					 CONFIG_SYS_SRAM_SIZE)
+#define CONFIG_SYS_ARIA_SRAM_SIZE	0x00100000	/* reserve 1MB-window */
 
 #define CONFIG_SYS_ARIA_FPGA_BASE	(CONFIG_SYS_ARIA_SRAM_BASE + \
 					 CONFIG_SYS_ARIA_SRAM_SIZE)
