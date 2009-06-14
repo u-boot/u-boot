@@ -79,6 +79,7 @@ int board_early_init_f(void)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 spridr;
+	int i;
 
 	/*
 	 * Initialize Local Window for NOR FLASH access
@@ -129,14 +130,10 @@ int board_early_init_f(void)
 	/*
 	 * Configure MSCAN clocks
 	 */
-	out_be32(&im->clk.m1ccr, 0x00300000);
-	out_be32(&im->clk.m2ccr, 0x00300000);
-	out_be32(&im->clk.m3ccr, 0x00300000);
-	out_be32(&im->clk.m4ccr, 0x00300000);
-	out_be32(&im->clk.m1ccr, 0x00310000);
-	out_be32(&im->clk.m2ccr, 0x00310000);
-	out_be32(&im->clk.m3ccr, 0x00310000);
-	out_be32(&im->clk.m4ccr, 0x00310000);
+	for (i=0; i<4; ++i) {
+		out_be32(&im->clk.msccr[i], 0x00300000);
+		out_be32(&im->clk.msccr[i], 0x00310000);
+	}
 
 	/*
 	 * Configure GPIO's
