@@ -411,6 +411,10 @@ Andre Schwarz <andre.schwarz@matrix-vision.de>
 	mvbc_p		MPC5200
 	mvblm7		MPC8343
 
+Jon Smirl <jonsmirl@gmail.com>
+
+	pcm030		MPC5200
+
 Timur Tabi <timur@freescale.com>
 
 	MPC8349E-mITX	MPC8349

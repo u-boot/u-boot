@@ -695,6 +695,15 @@ MVBC_P_config: unconfig
 o2dnt_config:	unconfig
 	@$(MKCONFIG) o2dnt ppc mpc5xxx o2dnt
 
+pcm030_config \
+pcm030_LOWBOOT_config:	unconfig
+	@ >include/config.h
+	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
+		{ echo "TEXT_BASE = 0xFF000000"	>$(obj)board/phytec/pcm030/config.tmp ; \
+		  echo "... with LOWBOOT configuration" ; \
+		}
+	@$(MKCONFIG) -a pcm030 ppc mpc5xxx pcm030 phytec
+
 pf5200_config:	unconfig
 	@$(MKCONFIG) pf5200  ppc mpc5xxx pf5200 esd
 
