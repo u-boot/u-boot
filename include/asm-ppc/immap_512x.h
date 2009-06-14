@@ -185,10 +185,11 @@ typedef struct clk512x {
 	u8 res0[4];
 	u32 bcr;		/* Bread Crumb Register */
 	u32 pscccr[12];		/* PSC0-11 Clock Control Registers */
-	u32 spccr;		/* SPDIF Clock Control Registers */
-	u32 cccr;		/* CFM Clock Control Registers */
-	u32 dccr;		/* DIU Clock Control Registers */
-	u8 res1[0xa8];
+	u32 spccr;		/* SPDIF Clock Control Register */
+	u32 cccr;		/* CFM Clock Control Register */
+	u32 dccr;		/* DIU Clock Control Register */
+	u32 msccr[4];		/* MSCAN1-4 Clock Control Registers */
+	u8 res1[0x98];
 } clk512x_t;
 
 /* SPMR - System PLL Mode Register */
