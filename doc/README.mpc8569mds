@@ -75,4 +75,3 @@ hangs at "Net:"
 
 Please note the above two steps(setting mac addresses and programming ucode) are
 very important to get the board booting up and working properly.
-

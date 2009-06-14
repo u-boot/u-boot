@@ -1,3 +1,128 @@
+commit c3147c1762f8caf99649051116a2411bdf887c10
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jun 14 20:31:36 2009 +0200
+
+    Revert "SMC911x driver fixed for NFS boot"
+
+    This reverts commit ca9c8a1e10fac01e6a1129f82a7ce18bd818fa43,
+    which causes compile warnings ("large integer implicitly truncated
+    to unsigned type") on all systems that use this driver. The warning
+    results from passing long constants (TX_CFG, RX_CFG) into
+    smc911x_set_mac_csr() which is declared to accept "unsigned
+    character" arguments only.
+
+    Being close to a release, with nobody available to actually test the
+    code or the suggested fixes, it seems better to revert the patch.
+
+commit e7563aff174f77aa61dab1ef5d9b47bebaa43702
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Jun 11 23:42:35 2009 -0500
+
+    fsl-ddr: Fix handling of >4G of memory when !CONFIG_PHYS_64BIT
+
+    The ddr code computes most things as 64-bit quantities and had some places
+    in the middle that it was using phy_addr_t and phys_size_t.
+
+    Instead we use unsigned long long through out and only at the last stage of
+    setting the LAWs and reporting the amount of memory to the board code do we
+    truncate down to what we can cover via phys_size_t.
+
+    This has the added benefit that the DDR controller itself is always setup
+    the same way regardless of how much memory we have.  Its only the LAW
+    setup that limits what is visible to the system.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit d4b130dc80761b430dc5b410159cd158fca1a348
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Jun 11 23:40:34 2009 -0500
+
+    85xx: Use print_size to report amount of memory not mapped by TLBs
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 6e2aebc33fa740c068fe28d40eaf0319b7c7287e
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Wed May 20 12:30:42 2009 -0400
+
+    85xx: Add README for MPC8569MDS
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit b2aab386e957ba684d4f2a466bfaa91770e5058a
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Wed May 20 12:30:33 2009 -0400
+
+    85xx: Add UART1 support for MPC8569MDS
+
+    MPC8569 UART1 signals are muxed with PortF bit[9-12], we need to define
+    those pins before using UART1.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 399b53cbab0b377ac4c5c16c19c6e41b68a9c719
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Wed May 20 12:30:32 2009 -0400
+
+    85xx: Add PIB support at CS4/CS5 for MPC8569MDS
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Yu Liu <Yu.Liu@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit fb27949059f1bc84381a6216a819090f0cdbaa70
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Thu Jun 4 16:12:39 2009 -0400
+
+    85xx: Fix some settings for MPC8569MDS board
+
+    - Increase the size of malloc to 512KB because MPC8569MDS needs more memory for
+    malloc to support up to eight Ethernet interfaces.
+    - Move Environment address out of uboot thus the saved environment variables
+    will not be erased after u-boot is re-programmed.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit c7f60fd29f2d638d080cdf1a49ad985b85f9429d
+Author: Haiying Wang <Haiying.Wang@freescale.com>
+Date:	Wed May 20 12:30:30 2009 -0400
+
+    85xx: Fix MURAM size for MPC8569
+
+    MPC8569 has 128K bytes MURAM.
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit a53c997dd7fc858f2a27f5a47b200567b9343ae5
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri May 22 20:23:51 2009 +0200
+
+    at91/cpu.c: add missing Copyright & GPL header
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit aa446a591aca46ef2b53cc6598ea8091feb45444
+Author: Shinya Kuribayashi <skuribay@ruby.dti.ne.jp>
+Date:	Sun Jun 7 21:45:16 2009 +0900
+
+    apollon: Fix a OBJCFLAGS typo
+
+    Signed-off-by: Shinya Kuribayashi <skuribay@pobox.com>
+
+commit 580611cb0932143fc2d7a735cfa9ce1ef34d6002
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jun 10 00:19:28 2009 +0200
+
+    Prepare 2009.06-rc3
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 3a76ab5c166d5956885f803ce975e7151cc0ca0e
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Wed Jun 10 00:15:11 2009 +0200
@@ -189,6 +314,26 @@ Date:	Sun May 3 12:11:40 2009 +0200
 
     Signed-off-by: Remy Bohmer <linux@bohmer.net>
     Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 3c9b1ee17e19bd6d80344678d41a85e52b0be713
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Jun 5 14:11:33 2009 -0500
+
+    mpc83xx: don't set SICRH_TSOBI1 to RMII/RTBI operation
+
+    In GMII mode (which operates at 3.3V) both SICRH TSEC1/2 output buffer
+    impedance bits should be clear, i.e., SICRH[TSIOB1] = 0 and SICRH[TSIOB2] = 0.
+    SICRH[TSIOB1] was erroneously being set high.
+
+    U-Boot always operated this PHY interface in GMII mode.  It is assumed this
+    was missed in the clean up by the original board porters, and copied along
+    to the TQM and sbc boards.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+    Acked-by: Ira Snyder <iws@ovro.caltech.edu>
+    Reviewed-by: David Hawkins <dwh@ovro.caltech.edu>
+    Tested-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+    CC: Dave Liu <DaveLiu@freescale.com>
 
 commit 2c0234fa79122a5aa77c4e17c33eb2fe184b61a7
 Author: Daniel Mack <daniel@caiaq.de>
