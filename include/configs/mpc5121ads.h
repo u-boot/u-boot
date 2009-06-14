@@ -201,7 +201,7 @@
 
 /*
  * NAND FLASH
- * drivers/mtd/nand/mpc5121_mpc.c (rev 2 silicon only)
+ * drivers/mtd/nand/mpc5121_nfc.c (rev 2 silicon only)
  */
 #define CONFIG_CMD_NAND
 #define CONFIG_NAND_MPC5121_NFC
