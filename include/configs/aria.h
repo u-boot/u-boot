@@ -245,7 +245,9 @@
  * NAND FLASH support
  * drivers/mtd/nand/mpc5121_nfc.c (rev 2 silicon only)
  */
-#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NAND					/* enable NAND support */
+#define CONFIG_JFFS2_NAND				/* with JFFS2 on it */
+
 
 #define CONFIG_NAND_MPC5121_NFC
 #define CONFIG_SYS_NAND_BASE		0x40000000
@@ -433,6 +435,7 @@
 #undef CONFIG_CMD_FUSE
 #define CONFIG_CMD_I2C
 #undef CONFIG_CMD_IDE
+#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
@@ -442,11 +445,37 @@
 #define CONFIG_CMD_PCI
 #endif
 
-#if defined(CONFIG_CMD_IDE)
+#if defined(CONFIG_CMD_IDE) || defined(CONFIG_CMD_EXT2)
 #define CONFIG_DOS_PARTITION
 #define CONFIG_MAC_PARTITION
 #define CONFIG_ISO_PARTITION
 #endif /* defined(CONFIG_CMD_IDE) */
+
+/*
+ * Dynamic MTD partition support
+ */
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+#define CONFIG_FLASH_CFI_MTD
+#define MTDIDS_DEFAULT		"nor0=f8000000.flash,nand0=mpc5121.nand"
+
+/*
+ * NOR flash layout:
+ *
+ * F8000000 - FEAFFFFF	107 MiB		User Data
+ * FEB00000 - FFAFFFFF	 16 MiB		Root File System
+ * FFB00000 - FFFEFFFF	  4 MiB		Linux Kernel
+ * FFF00000 - FFFBFFFF	768 KiB		U-Boot (up to 512 KiB) and 2 x * env
+ * FFFC0000 - FFFFFFFF	256 KiB		Device Tree
+ *
+ * NAND flash layout: one big partition
+ */
+#define MTDPARTS_DEFAULT	"mtdparts=f8000000.flash:107m(user),"	\
+						"16m(rootfs),"		\
+						"4m(kernel),"		\
+						"768k(u-boot),"		\
+						"256k(dtb);"		\
+					"mpc5121.nand:-(data)"
 
 /*
  * Watchdog timeout = CONFIG_SYS_WATCHDOG_VALUE * 65536 / IPS clock.
@@ -541,9 +570,9 @@
 	"fdt_addr_r=880000\0"						\
 	"ramdisk_addr_r=900000\0"					\
 	"u-boot_addr=FFF00000\0"					\
-	"kernel_addr=FFC40000\0"					\
-	"fdt_addr=FFEC0000\0"						\
-	"ramdisk_addr=FC040000\0"					\
+	"kernel_addr=FFB00000\0"					\
+	"fdt_addr=FFFC0000\0"						\
+	"ramdisk_addr=FEB00000\0"					\
 	"ramdiskfile=aria/uRamdisk\0"				\
 	"u-boot=aria/u-boot.bin\0"					\
 	"fdtfile=aria/aria.dtb\0"					\
