@@ -203,7 +203,8 @@
  * NAND FLASH
  * drivers/mtd/nand/mpc5121_nfc.c (rev 2 silicon only)
  */
-#define CONFIG_CMD_NAND
+#define CONFIG_CMD_NAND					/* enable NAND support */
+#define CONFIG_JFFS2_NAND				/* with JFFS2 on it */
 #define CONFIG_NAND_MPC5121_NFC
 #define CONFIG_SYS_NAND_BASE            0x40000000
 
@@ -367,23 +368,52 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_EXT2
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_IDE
+#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_DATE
+
 #undef CONFIG_CMD_FUSE
-#define CONFIG_CMD_IDE
-#define CONFIG_CMD_EXT2
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
 #endif
 
-#if defined(CONFIG_CMD_IDE)
+/*
+ * Dynamic MTD partition support
+ */
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
+#define CONFIG_FLASH_CFI_MTD
+#define MTDIDS_DEFAULT		"nor0=fc000000.flash,nand0=mpc5121.nand"
+
+/*
+ * NOR flash layout:
+ *
+ * FC000000 - FEABFFFF 42.75 MiB	User Data
+ * FEAC0000 - FFABFFFF  16 MiB		Root File System
+ * FFAC0000 - FFEBFFFF   4 MiB		Linux Kernel
+ * FFEC0000 - FFEFFFFF 256 KiB		Device Tree
+ * FFF00000 - FFFFFFFF   1 MiB		U-Boot (up to 512 KiB) and 2 x * env
+ *
+ * NAND flash layout: one big partition
+ */
+#define MTDPARTS_DEFAULT	"mtdparts=fc000000.flash:43776k(user),"	\
+						"16m(rootfs),"		\
+						"4m(kernel),"		\
+						"256k(dtb),"		\
+						"1m(u-boot);"		\
+					"mpc5121.nand:-(data)"
+
+
+#if defined(CONFIG_CMD_IDE) || defined(CONFIG_CMD_EXT2)
 #define CONFIG_DOS_PARTITION
 #define CONFIG_MAC_PARTITION
 #define CONFIG_ISO_PARTITION
@@ -476,9 +506,9 @@
 	"fdt_addr_r=880000\0"						\
 	"ramdisk_addr_r=900000\0"					\
 	"u-boot_addr=FFF00000\0"					\
-	"kernel_addr=FFC40000\0"					\
+	"kernel_addr=FFAC0000\0"					\
 	"fdt_addr=FFEC0000\0"						\
-	"ramdisk_addr=FC040000\0"					\
+	"ramdisk_addr=FEAC0000\0"					\
 	"ramdiskfile=mpc5121ads/uRamdisk\0"				\
 	"u-boot=mpc5121ads/u-boot.bin\0"				\
 	"bootfile=mpc5121ads/uImage\0"					\
