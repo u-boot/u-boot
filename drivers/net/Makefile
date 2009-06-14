@@ -40,6 +40,7 @@ COBJS-$(CONFIG_ENC28J60) += enc28j60.o
 COBJS-$(CONFIG_FSLDMAFEC) += fsl_mcdmafec.o mcfmii.o
 COBJS-$(CONFIG_GRETH) += greth.o
 COBJS-$(CONFIG_INCA_IP_SWITCH) += inca-ip_sw.o
+COBJS-$(CONFIG_KIRKWOOD_EGIGA) += kirkwood_egiga.o
 COBJS-$(CONFIG_DRIVER_KS8695ETH) += ks8695eth.o
 COBJS-$(CONFIG_DRIVER_LAN91C96) += lan91c96.o
 COBJS-$(CONFIG_MACB) += macb.o
