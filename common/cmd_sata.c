@@ -28,7 +28,7 @@
 #include <part.h>
 #include <sata.h>
 
-int curr_device = -1;
+int sata_curr_device = -1;
 block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
 
 int __sata_initialize(void)
@@ -52,7 +52,7 @@ int __sata_initialize(void)
 		if ((sata_dev_desc[i].lba > 0) && (sata_dev_desc[i].blksz > 0))
 			init_part(&sata_dev_desc[i]);
 	}
-	curr_device = 0;
+	sata_curr_device = 0;
 	return rc;
 }
 int sata_initialize(void) __attribute__((weak,alias("__sata_initialize")));
@@ -70,7 +70,7 @@ int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return sata_initialize();
 
 	/* If the user has not yet run `sata init`, do it now */
-	if (curr_device == -1)
+	if (sata_curr_device == -1)
 		if (sata_initialize())
 			return 1;
 
@@ -91,12 +91,12 @@ int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			}
 			return 0;
 		} else if (strncmp(argv[1],"dev", 3) == 0) {
-			if ((curr_device < 0) || (curr_device >= CONFIG_SYS_SATA_MAX_DEVICE)) {
+			if ((sata_curr_device < 0) || (sata_curr_device >= CONFIG_SYS_SATA_MAX_DEVICE)) {
 				puts("\nno SATA devices available\n");
 				return 1;
 			}
-			printf("\nSATA device %d: ", curr_device);
-			dev_print(&sata_dev_desc[curr_device]);
+			printf("\nSATA device %d: ", sata_curr_device);
+			dev_print(&sata_dev_desc[sata_curr_device]);
 			return 0;
 		} else if (strncmp(argv[1],"part",4) == 0) {
 			int dev, ok;
@@ -131,7 +131,7 @@ int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			if (sata_dev_desc[dev].type == DEV_TYPE_UNKNOWN)
 				return 1;
 
-			curr_device = dev;
+			sata_curr_device = dev;
 
 			puts("... is now current device\n");
 
@@ -158,12 +158,12 @@ int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			lbaint_t blk = simple_strtoul(argv[3], NULL, 16);
 
 			printf("\nSATA read: device %d block # %ld, count %ld ... ",
-				curr_device, blk, cnt);
+				sata_curr_device, blk, cnt);
 
-			n = sata_read(curr_device, blk, cnt, (u32 *)addr);
+			n = sata_read(sata_curr_device, blk, cnt, (u32 *)addr);
 
 			/* flush cache after read */
-			flush_cache(addr, cnt * sata_dev_desc[curr_device].blksz);
+			flush_cache(addr, cnt * sata_dev_desc[sata_curr_device].blksz);
 
 			printf("%ld blocks read: %s\n",
 				n, (n==cnt) ? "OK" : "ERROR");
@@ -176,9 +176,9 @@ int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			lbaint_t blk = simple_strtoul(argv[3], NULL, 16);
 
 			printf("\nSATA write: device %d block # %ld, count %ld ... ",
-				curr_device, blk, cnt);
+				sata_curr_device, blk, cnt);
 
-			n = sata_write(curr_device, blk, cnt, (u32 *)addr);
+			n = sata_write(sata_curr_device, blk, cnt, (u32 *)addr);
 
 			printf("%ld blocks written: %s\n",
 				n, (n == cnt) ? "OK" : "ERROR");

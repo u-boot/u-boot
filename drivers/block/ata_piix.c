@@ -36,7 +36,7 @@
 #include <ata.h>
 
 extern block_dev_desc_t sata_dev_desc[CONFIG_SYS_SATA_MAX_DEVICE];
-extern int curr_device;
+extern int sata_curr_device;
 
 #define DEBUG_SATA 0		/*For debug prints set DEBUG_SATA to 1 */
 
@@ -204,8 +204,8 @@ init_sata (int dev)
 				dev_print (&sata_dev_desc[devno]);
 				/* initialize partition type */
 				init_part (&sata_dev_desc[devno]);
-				if (curr_device < 0)
-					curr_device =
+				if (sata_curr_device < 0)
+					sata_curr_device =
 					    i * CONFIG_SYS_SATA_DEVS_PER_BUS + j;
 			}
 		}
