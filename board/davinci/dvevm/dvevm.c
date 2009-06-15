@@ -73,9 +73,6 @@ int misc_init_r(void)
 	if (dvevm_read_mac_address(eeprom_enetaddr))
 		dv_configure_mac_address(eeprom_enetaddr);
 
-	if (!eth_hw_init())
-		printf("ethernet init failed!\n");
-
 	i2c_read(0x39, 0x00, 1, &video_mode, 1);
 
 	setenv("videostd", ((video_mode & 0x80) ? "pal" : "ntsc"));

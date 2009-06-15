@@ -270,7 +270,7 @@ void __mii_init(void)
 		if ((status & linkgood) == linkgood)
 			break;
 
-		udelay(500);
+		udelay(1);
 	}
 	if (i >= MCFFEC_TOUT_LOOP) {
 		printf("Link UP timeout\n");

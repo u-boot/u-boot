@@ -36,6 +36,7 @@
 #include <atmel_lcdc.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_DRIVER_DM9000)
 #include <net.h>
+#include <netdev.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -227,6 +228,12 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_DRIVER_DM9000
+ int board_eth_init(bd_t *bis)
+ {
+	return dm9000_initialize(bis);
+ }
+ #endif
 int dram_init(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM;
