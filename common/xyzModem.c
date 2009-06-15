@@ -544,7 +544,7 @@ xyzModem_stream_open (connection_info_t * info, int *err)
 			  xyzModem_CHAR_TIMEOUT);
 #else
 /* TODO: CHECK ! */
-  int dummy;
+  int dummy = 0;
   xyz.__chan = &dummy;
 #endif
   xyz.len = 0;
