@@ -26,7 +26,7 @@
 #include <mmc.h>
 
 #ifndef CONFIG_GENERIC_MMC
-int curr_device = -1;
+static int curr_device = -1;
 
 int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
