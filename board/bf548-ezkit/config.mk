@@ -26,6 +26,9 @@
 # This is not actually used for Blackfin boards so do not change it
 #TEXT_BASE = do-not-use-me
 
+CFLAGS_lib_generic += -O2
+CFLAGS_lzma += -O2
+
 # Set some default LDR flags based on boot mode.
 LDR_FLAGS-BFIN_BOOT_PARA       := --dma 6
 LDR_FLAGS-BFIN_BOOT_FIFO       := --dma 1
