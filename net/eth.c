@@ -501,10 +501,8 @@ char *eth_get_name (void)
 #elif defined(CONFIG_CMD_NET) && !defined(CONFIG_NET_MULTI)
 
 extern int at91rm9200_miiphy_initialize(bd_t *bis);
-extern int emac4xx_miiphy_initialize(bd_t *bis);
 extern int mcf52x2_miiphy_initialize(bd_t *bis);
 extern int ns7520_miiphy_initialize(bd_t *bis);
-extern int davinci_eth_miiphy_initialize(bd_t *bis);
 
 
 int eth_initialize(bd_t *bis)
@@ -516,17 +514,11 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_AT91RM9200)
 	at91rm9200_miiphy_initialize(bis);
 #endif
-#if defined(CONFIG_PPC4xx_EMAC)
-	emac4xx_miiphy_initialize(bis);
-#endif
 #if defined(CONFIG_MCF52x2)
 	mcf52x2_miiphy_initialize(bis);
 #endif
 #if defined(CONFIG_DRIVER_NS7520_ETHERNET)
 	ns7520_miiphy_initialize(bis);
-#endif
-#if defined(CONFIG_DRIVER_TI_EMAC)
-	davinci_eth_miiphy_initialize(bis);
 #endif
 	return 0;
 }

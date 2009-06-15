@@ -143,8 +143,5 @@ int misc_init_r(void)
 	if (sffsdr_read_mac_address(eeprom_enetaddr))
 		dv_configure_mac_address(eeprom_enetaddr);
 
-	if (!eth_hw_init())
-		printf("Ethernet init failed\n");
-
 	return(0);
 }

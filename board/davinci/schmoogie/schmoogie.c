@@ -130,8 +130,5 @@ int misc_init_r(void)
 		forceenv("serial#", (char *)&tmp[0]);
 	}
 
-	if (!eth_hw_init())
-		printf("ethernet init failed!\n");
-
 	return(0);
 }

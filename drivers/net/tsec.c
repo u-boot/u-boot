@@ -468,6 +468,18 @@ uint mii_parse_link(uint mii_reg, struct tsec_private *priv)
 }
 
 /*
+ * "Ethernet@Wirespeed" needs to be enabled to achieve link in certain
+ * circumstances.  eg a gigabit TSEC connected to a gigabit switch with
+ * a 4-wire ethernet cable.  Both ends advertise gigabit, but can't
+ * link.  "Ethernet@Wirespeed" reduces advertised speed until link
+ * can be achieved.
+ */
+uint mii_BCM54xx_wirespeed(uint mii_reg, struct tsec_private *priv)
+{
+	return (read_phy_reg(priv, mii_reg) & 0x8FFF) | 0x8010;
+}
+
+/*
  * Parse the BCM54xx status register for speed and duplex information.
  * The linux sungem_phy has this information, but in a table format.
  */
@@ -1070,6 +1082,34 @@ struct phy_info phy_info_BCM5464S = {
 	},
 };
 
+struct phy_info phy_info_BCM5482S =  {
+	0x0143bcb,
+	"Broadcom BCM5482S",
+	4,
+	(struct phy_cmd[]) { /* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		/* Setup read from auxilary control shadow register 7 */
+		{MIIM_BCM54xx_AUXCNTL, MIIM_BCM54xx_AUXCNTL_ENCODE(7), NULL},
+		/* Read Misc Control register and or in Ethernet@Wirespeed */
+		{MIIM_BCM54xx_AUXCNTL, 0, &mii_BCM54xx_wirespeed},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_BCM54xx_AUXSTATUS, miim_read, &mii_parse_BCM54xx_sr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	},
+};
+
 struct phy_info phy_info_M88E1011S = {
 	0x01410c6,
 	"Marvell 88E1011S",
@@ -1611,6 +1651,7 @@ struct phy_info *phy_info[] = {
 	&phy_info_cis8201,
 	&phy_info_BCM5461S,
 	&phy_info_BCM5464S,
+	&phy_info_BCM5482S,
 	&phy_info_M88E1011S,
 	&phy_info_M88E1111S,
 	&phy_info_M88E1118,

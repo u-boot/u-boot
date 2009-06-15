@@ -33,6 +33,7 @@
 
 #include <common.h>
 #include <asm/arch/pxa-regs.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -144,3 +145,10 @@ int dram_init (void)
 
 	return 0;
 }
+
+#ifdef CONFIG_DRIVER_DM9000
+int board_eth_init(bd_t *bis)
+{
+	return dm9000_initialize(bis);
+}
+#endif

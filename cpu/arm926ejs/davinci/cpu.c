@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <asm/arch/hardware.h>
 
 
@@ -129,3 +130,14 @@ int print_cpuinfo(void)
 
 #endif
 
+/*
+ * Initializes on-chip ethernet controllers.
+ * to override, implement board_eth_init()
+ */
+int cpu_eth_init(bd_t *bis)
+{
+#if defined(CONFIG_DRIVER_TI_EMAC)
+	davinci_emac_initialize();
+#endif
+	return 0;
+}

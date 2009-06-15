@@ -152,6 +152,8 @@
 #define MIIM_EXT_PAGE_ACCESS	0x1f
 
 /* Broadcom BCM54xx -- taken from linux sungem_phy */
+#define MIIM_BCM54xx_AUXCNTL			0x18
+#define MIIM_BCM54xx_AUXCNTL_ENCODE(val)	((val & 0x7) << 12)|(val & 0x7)
 #define MIIM_BCM54xx_AUXSTATUS			0x19
 #define MIIM_BCM54xx_AUXSTATUS_LINKMODE_MASK	0x0700
 #define MIIM_BCM54xx_AUXSTATUS_LINKMODE_SHIFT	8
