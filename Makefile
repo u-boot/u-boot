@@ -151,50 +151,10 @@ ifeq ($(obj)include/config.mk,$(wildcard $(obj)include/config.mk))
 include $(obj)include/config.mk
 export	ARCH CPU BOARD VENDOR SOC
 
-ifndef CROSS_COMPILE
+# set default to nothing for native builds
 ifeq ($(HOSTARCH),$(ARCH))
-CROSS_COMPILE =
-else
-ifeq ($(ARCH),ppc)
-CROSS_COMPILE = ppc_8xx-
+CROSS_COMPILE ?=
 endif
-ifeq ($(ARCH),arm)
-CROSS_COMPILE = arm-linux-
-endif
-ifeq ($(ARCH),i386)
-CROSS_COMPILE = i386-linux-
-endif
-ifeq ($(ARCH),mips)
-CROSS_COMPILE = mips_4KC-
-endif
-ifeq ($(ARCH),nios)
-CROSS_COMPILE = nios-elf-
-endif
-ifeq ($(ARCH),nios2)
-CROSS_COMPILE = nios2-elf-
-endif
-ifeq ($(ARCH),m68k)
-CROSS_COMPILE = m68k-elf-
-endif
-ifeq ($(ARCH),microblaze)
-CROSS_COMPILE = mb-
-endif
-ifeq ($(ARCH),blackfin)
-CROSS_COMPILE = bfin-uclinux-
-endif
-ifeq ($(ARCH),avr32)
-CROSS_COMPILE = avr32-linux-
-endif
-ifeq ($(ARCH),sh)
-CROSS_COMPILE = sh4-linux-
-endif
-ifeq ($(ARCH),sparc)
-CROSS_COMPILE = sparc-elf-
-endif	# sparc
-endif	# HOSTARCH,ARCH
-endif	# CROSS_COMPILE
-
-export	CROSS_COMPILE
 
 # load other configuration
 include $(TOPDIR)/config.mk

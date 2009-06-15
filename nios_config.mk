@@ -22,4 +22,6 @@
 # MA 02111-1307 USA
 #
 
+CROSS_COMPILE ?= nios-elf-
+
 PLATFORM_CPPFLAGS += -m32 -DCONFIG_NIOS -D__NIOS__ -ffixed-g7 -gstabs

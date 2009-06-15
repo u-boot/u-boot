@@ -24,4 +24,6 @@
 # MA 02111-1307 USA
 #
 
+CROSS_COMPILE ?= mb-
+
 PLATFORM_CPPFLAGS += -ffixed-r31 -D__microblaze__

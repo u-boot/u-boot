@@ -21,6 +21,8 @@
 # MA 02111-1307 USA
 #
 
+CROSS_COMPILE ?= arm-linux-
+
 PLATFORM_CPPFLAGS += -DCONFIG_ARM -D__ARM__
 
 LDSCRIPT := $(SRCTREE)/cpu/$(CPU)/u-boot.lds

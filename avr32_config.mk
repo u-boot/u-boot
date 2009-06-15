@@ -21,5 +21,7 @@
 # MA 02111-1307 USA
 #
 
+CROSS_COMPILE ?= avr32-linux-
+
 PLATFORM_RELFLAGS	+= -ffixed-r5 -fPIC -mno-init-got -mrelax
 PLATFORM_LDFLAGS	+= --relax

@@ -21,4 +21,6 @@
 # MA 02111-1307 USA
 #
 
+CROSS_COMPILE ?= sparc-elf-
+
 PLATFORM_CPPFLAGS += -DCONFIG_SPARC -D__sparc__
