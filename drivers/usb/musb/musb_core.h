@@ -307,10 +307,4 @@ extern void musb_configure_ep(struct musb_epinfo *epinfo, u8 cnt);
 extern void write_fifo(u8 ep, u32 length, void *fifo_data);
 extern void read_fifo(u8 ep, u32 length, void *fifo_data);
 
-/* extern functions */
-extern inline void musb_writew(u32 offset, u16 value);
-extern inline void musb_writeb(u32 offset, u8 value);
-extern inline u16 musb_readw(u32 offset);
-extern inline u8 musb_readb(u32 offset);
-
 #endif	/* __MUSB_HDRC_DEFS_H__ */
