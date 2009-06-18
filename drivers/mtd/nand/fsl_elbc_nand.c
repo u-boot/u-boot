@@ -766,6 +766,9 @@ int board_nand_init(struct nand_chip *nand)
 	nand->waitfunc = fsl_elbc_wait;
 
 	/* set up nand options */
+	/* redirect the pointer of bbt pattern to RAM */
+	bbt_main_descr.pattern = bbt_pattern;
+	bbt_mirror_descr.pattern = mirror_pattern;
 	nand->bbt_td = &bbt_main_descr;
 	nand->bbt_md = &bbt_mirror_descr;
 
@@ -812,6 +815,7 @@ int board_nand_init(struct nand_chip *nand)
 	/* Large-page-specific setup */
 	if (or & OR_FCM_PGS) {
 		priv->page_size = 1;
+		largepage_memorybased.pattern = scan_ff_pattern;
 		nand->badblock_pattern = &largepage_memorybased;
 
 		/* adjust ecc setup if needed */
