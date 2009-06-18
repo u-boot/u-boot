@@ -178,9 +178,28 @@
 /*
  * CF-CARD IDE-HDD Support
  */
-/* #define CONFIG_BFIN_TRUE_IDE */	/* Add CF flash card support */
-/* #define CONFIG_BFIN_CF_IDE */	/* Add CF flash card support */
-/* #define CONFIG_BFIN_HDD_IDE */	/* Add IDE Disk Drive (HDD) support */
+
+/*
+ * Add CF flash card support in TRUE-IDE Mode (CF-IDE-NAND Card)
+ * Strange address mapping Blackfin A13 connects to CF_A0
+ */
+
+/* #define CONFIG_BFIN_TRUE_IDE */
+
+/*
+ * Add CF flash card support in Common Memory Mode (CF-IDE-NAND Card)
+ * This should be the preferred mode
+ */
+
+/* #define CONFIG_BFIN_CF_IDE */
+
+/*
+ * Add IDE Disk Drive (HDD) support
+ * See example interface here:
+ * http://docs.blackfin.uclinux.org/doku.php?id=linux-kernel:drivers:ide-blackfin
+ */
+
+/* #define CONFIG_BFIN_HDD_IDE */
 
 #if defined(CONFIG_BFIN_CF_IDE) || \
     defined(CONFIG_BFIN_HDD_IDE) || \
@@ -218,7 +237,7 @@
 #define CONFIG_SYS_ATA_DATA_OFFSET	0x0020	/* data I/O */
 #define CONFIG_SYS_ATA_REG_OFFSET	0x0020	/* normal register accesses */
 #define CONFIG_SYS_ATA_ALT_OFFSET	0x001C	/* alternate registers */
-#define CONFIG_SYS_ATA_STRIDE		2	/* CF.A0 --> Blackfin.Ax */
+#define CONFIG_SYS_ATA_STRIDE		2	/* CF.A0 --> Blackfin.A13 */
 
 #elif defined(CONFIG_BFIN_CF_IDE)
 #define CONFIG_SYS_ATA_BASE_ADDR	0x20211800
@@ -226,7 +245,7 @@
 #define CONFIG_SYS_ATA_DATA_OFFSET	0x0000	/* data I/O */
 #define CONFIG_SYS_ATA_REG_OFFSET	0x0000	/* normal register accesses */
 #define CONFIG_SYS_ATA_ALT_OFFSET	0x000E	/* alternate registers */
-#define CONFIG_SYS_ATA_STRIDE		1	/* CF.A0 --> Blackfin.Ax */
+#define CONFIG_SYS_ATA_STRIDE		1	/* CF_A0=0, with /CE1 /CE2 odd/even byte selects */
 
 #elif defined(CONFIG_BFIN_HDD_IDE)
 #define CONFIG_SYS_ATA_BASE_ADDR	0x20314000
