@@ -404,7 +404,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /* controller 3, direct to uli, tgtid 3, Base address 8000 */
 #define CONFIG_SYS_PCIE3_MEM_VIRT	0x80000000
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE3_MEM_BUS	0xc0000000
+#define CONFIG_SYS_PCIE3_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE3_MEM_PHYS	0xc00000000ull
 #else
 #define CONFIG_SYS_PCIE3_MEM_BUS	0x80000000
@@ -423,7 +423,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /* controller 2, Slot 2, tgtid 2, Base address 9000 */
 #define CONFIG_SYS_PCIE2_MEM_VIRT	0xa0000000
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE2_MEM_BUS	0xc0000000
+#define CONFIG_SYS_PCIE2_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE2_MEM_PHYS	0xc20000000ull
 #else
 #define CONFIG_SYS_PCIE2_MEM_BUS	0xa0000000
@@ -442,7 +442,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 /* controller 1, Slot 1, tgtid 1, Base address a000 */
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xc0000000
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xc0000000
+#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xc40000000ull
 #else
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xc0000000
