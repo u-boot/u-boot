@@ -31,6 +31,21 @@
 #include <tsec.h>
 #include <asm/fsl_law.h>
 
+struct cpu_type cpu_type_list [] = {
+	CPU_TYPE_ENTRY(8610, 8610),
+	CPU_TYPE_ENTRY(8641, 8641),
+	CPU_TYPE_ENTRY(8641D, 8641D),
+};
+
+struct cpu_type *identify_cpu(u32 ver)
+{
+	int i;
+	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
+		if (cpu_type_list[i].soc_ver == ver)
+			return &cpu_type_list[i];
+
+	return NULL;
+}
 
 /*
  * Default board reset function
@@ -53,6 +68,7 @@ checkcpu(void)
 	char buf1[32], buf2[32];
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
+	struct cpu_type *cpu;
 	uint msscr0 = mfspr(MSSCR0);
 
 	svr = get_svr();
@@ -62,20 +78,13 @@ checkcpu(void)
 
 	puts("CPU:   ");
 
-	switch (ver) {
-	case SVR_8641:
-		puts("8641");
-		break;
-	case SVR_8641D:
-		puts("8641D");
-		break;
-	case SVR_8610:
-		puts("8610");
-		break;
-	default:
+	cpu = identify_cpu(ver);
+	if (cpu) {
+		puts(cpu->name);
+	} else {
 		puts("Unknown");
-		break;
 	}
+
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, svr);
 	puts("Core:  ");
 
