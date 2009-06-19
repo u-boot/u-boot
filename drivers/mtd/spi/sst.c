@@ -55,6 +55,22 @@ static inline struct sst_spi_flash *to_sst_spi_flash(struct spi_flash *flash)
 #define SST_SECTOR_SIZE (4 * 1024)
 static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 	{
+		.idcode1 = 0x8d,
+		.nr_sectors = 128,
+		.name = "SST25VF040B",
+	},{
+		.idcode1 = 0x8e,
+		.nr_sectors = 256,
+		.name = "SST25VF080B",
+	},{
+		.idcode1 = 0x41,
+		.nr_sectors = 512,
+		.name = "SST25VF016B",
+	},{
+		.idcode1 = 0x4a,
+		.nr_sectors = 1024,
+		.name = "SST25VF032B",
+	},{
 		.idcode1 = 0x01,
 		.nr_sectors = 16,
 		.name = "SST25WF512",
