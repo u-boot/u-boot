@@ -85,7 +85,6 @@
 #	define CONFIG_SYS_ATA_REG_OFFSET	0xA0	/* Offset for normal register accesses */
 #	define CONFIG_SYS_ATA_ALT_OFFSET	0xC0	/* Offset for alternate registers */
 #	define CONFIG_SYS_ATA_STRIDE		4	/* Interval between registers */
-#	define _IO_BASE			0
 #endif
 
 #define CONFIG_NET_MULTI		1

@@ -123,7 +123,5 @@
  */
 #define CONFIG_NET_MULTI
 #define CONFIG_RTL8139
-#define _IO_BASE		0x00000000
-#define KSEG1ADDR(x)		(x)
 
 #endif /* __CONFIG_H */

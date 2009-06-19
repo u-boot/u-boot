@@ -103,9 +103,7 @@
 #define PCI_ENET1_MEMADDR	0x81000000
 
 #define CONFIG_RTL8139
-#define _IO_BASE	    0x00000000
-/* This macro is used by RTL8139 but not defined in PPC architecture */
-#define KSEG1ADDR(x)	    (x)
+
 /* Make sure the ethaddr can be overwritten
    TODO: Remove this on final product
 */

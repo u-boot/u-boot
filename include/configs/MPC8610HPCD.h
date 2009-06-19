@@ -280,10 +280,6 @@
 #define CONFIG_SYS_PCI1_IO_VIRT	0xe1000000
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
 
-/* For RTL8139 */
-#define KSEG1ADDR(x)	({u32 _x = le32_to_cpu(*(u32 *)(x)); (&_x); })
-#define _IO_BASE		0x00000000
-
 /* controller 1, Base address 0xa000 */
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	CONFIG_SYS_PCIE1_MEM_BUS

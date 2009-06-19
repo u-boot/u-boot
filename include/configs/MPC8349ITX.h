@@ -360,15 +360,8 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_PCI2_IO_SIZE	0x01000000	/* 16M */
 #endif
 
-#define _IO_BASE		0x00000000	/* points to PCI I/O space */
-
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
-
-#ifdef CONFIG_RTL8139
-/* This macro is used by RTL8139 but not defined in PPC architecture */
-#define KSEG1ADDR(x)	    (x)
-#endif
 
 #ifndef CONFIG_PCI_PNP
     #define PCI_ENET0_IOADDR	0x00000000

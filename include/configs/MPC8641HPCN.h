@@ -348,10 +348,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 				 | CONFIG_SYS_PHYS_ADDR_HIGH)
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00010000	/* 64K */
 
-/* For RTL8139 */
-#define KSEG1ADDR(x)		({u32 _x=le32_to_cpu(*(u32 *)(x)); (&_x);})
-#define _IO_BASE		0x00000000
-
 #ifdef CONFIG_PHYS_64BIT
 /*
  * Use the same PCI bus address on PCI1 and PCI2 if we have PHYS_64BIT.
