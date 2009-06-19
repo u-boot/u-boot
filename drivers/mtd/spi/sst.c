@@ -56,19 +56,19 @@ static inline struct sst_spi_flash *to_sst_spi_flash(struct spi_flash *flash)
 static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 	{
 		.idcode1 = 0x01,
-		.nr_sectors = 128,
+		.nr_sectors = 16,
 		.name = "SST25WF512",
 	},{
 		.idcode1 = 0x02,
-		.nr_sectors = 256,
+		.nr_sectors = 32,
 		.name = "SST25WF010",
 	},{
 		.idcode1 = 0x03,
-		.nr_sectors = 512,
+		.nr_sectors = 64,
 		.name = "SST25WF020",
 	},{
 		.idcode1 = 0x04,
-		.nr_sectors = 1024,
+		.nr_sectors = 128,
 		.name = "SST25WF040",
 	},
 };
