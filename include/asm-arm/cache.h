@@ -38,4 +38,8 @@ static inline void invalidate_l2_cache(void)
 		: : "r" (val) : "cc");
 	isb();
 }
+
+void l2_cache_enable(void);
+void l2_cache_disable(void);
+
 #endif /* _ASM_CACHE_H */
