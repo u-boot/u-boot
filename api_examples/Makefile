@@ -44,7 +44,6 @@ OUTPUT	:= $(OUTPUT-y)
 COBJS	:= $(COBJS-y)
 SOBJS	:= $(SOBJS-y)
 
-LIB	= $(obj)libglue.a
 LIBCOBJS-$(CONFIG_API) += glue.o
 LIBCOBJS-$(CONFIG_API) += crc32.o
 LIBCOBJS-$(CONFIG_API) += ctype.o
@@ -54,6 +53,7 @@ LIBCOBJS-$(CONFIG_API) += libgenwrap.o
 LIBCOBJS := $(LIBCOBJS-y)
 
 LIBOBJS	+= $(addprefix $(obj),$(SOBJS))
+LIBOBJS	+= $(addprefix $(obj),$(COBJS))
 LIBOBJS	+= $(addprefix $(obj),$(LIBCOBJS))
 
 SRCS	+= $(COBJS:.o=.c)
@@ -65,17 +65,12 @@ gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
 CPPFLAGS += -I..
 
-all:	$(obj).depend $(OBJS) $(LIB) $(OUTPUT)
+all:	$(obj).depend $(OBJS) $(OUTPUT)
 
 #########################################################################
-$(LIB):	$(obj).depend $(LIBOBJS)
-		$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 
-$(OUTPUT):
-$(obj)%:	$(obj)%.o $(LIB)
-		$(LD) $(obj)crt0.o -Ttext $(LOAD_ADDR) \
-			-o $@ $< $(LIB) \
-			-L$(gcclibdir) -lgcc
+$(OUTPUT):	$(LIBOBJS)
+		$(LD) -Ttext $(LOAD_ADDR) -o $@ $^ -L$(gcclibdir) -lgcc
 		$(OBJCOPY) -O binary $@ $(OUTPUT).bin 2>/dev/null
 
 $(obj)crc32.c:
