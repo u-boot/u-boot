@@ -30,9 +30,8 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_USE_IRQ
 #include <asm/proc-armv/ptrace.h>
+
 void do_irq (struct pt_regs *pt_regs)
 {
 #if defined (ARM920_IRQ_CALLBACK)
@@ -46,4 +45,3 @@ void do_irq (struct pt_regs *pt_regs)
 #error do_irq() not defined for this cpu type
 #endif
 }
-#endif
