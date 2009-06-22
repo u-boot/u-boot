@@ -45,13 +45,20 @@ COBJS	:= $(COBJS-y)
 SOBJS	:= $(SOBJS-y)
 
 LIB	= $(obj)libglue.a
-LIBCOBJS-$(CONFIG_API) += glue.o crc32.o ctype.o string.o vsprintf.o \
-				libgenwrap.o
+LIBCOBJS-$(CONFIG_API) += glue.o
+LIBCOBJS-$(CONFIG_API) += crc32.o
+LIBCOBJS-$(CONFIG_API) += ctype.o
+LIBCOBJS-$(CONFIG_API) += string.o
+LIBCOBJS-$(CONFIG_API) += vsprintf.o
+LIBCOBJS-$(CONFIG_API) += libgenwrap.o
 LIBCOBJS := $(LIBCOBJS-y)
 
-LIBOBJS	= $(addprefix $(obj),$(SOBJS) $(LIBCOBJS))
+LIBOBJS	+= $(addprefix $(obj),$(SOBJS))
+LIBOBJS	+= $(addprefix $(obj),$(LIBCOBJS))
 
-SRCS	:= $(COBJS:.o=.c) $(LIBCOBJS:.o=.c) $(SOBJS:.o=.S)
+SRCS	+= $(COBJS:.o=.c)
+SRCS	+= $(LIBCOBJS:.o=.c)
+SRCS	+= $(SOBJS:.o=.S)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 ELF	:= $(addprefix $(obj),$(ELF))
 BIN	:= $(addprefix $(obj),$(BIN))
