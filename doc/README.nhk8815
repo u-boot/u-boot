@@ -15,6 +15,16 @@ SDRAM configuration, PLL setup and initial loading from NAND is
 implemented in the X-Loader, so U-Boot is already running in SDRAM
 when control is handed over to it.
 
+The Makefile offers two different configurations to be used if you
+boot from Nand or OneNand.
+
+    make nhk8815_config
+    make nhk8815_onenand_config
+
+Both support OneNand and Nand. Since U-Boot, running in RAM, can't know
+where it was loaded from, the configurations differ in where the filesystem
+is looked for by default.
+
 
 On www.st.com/nomadik and on www.stnwireless.com there are documents,
 summary data and white papers on Nomadik. The full datasheet for

@@ -2860,9 +2860,9 @@ nhk8815_onenand_config:	unconfig
 	@ > $(obj)include/config.h
 	@if [ "$(findstring _onenand, $@)" ] ; then \
 		echo "#define CONFIG_BOOT_ONENAND" >> $(obj)include/config.h; \
-		$(XECHO) "... configured for OneNand Flash"; \
+		$(XECHO) "... configured to boot from OneNand Flash"; \
 	else \
-		$(XECHO) "... configured for Nand Flash"; \
+		$(XECHO) "... configured to boot from Nand Flash"; \
 	fi
 	@$(MKCONFIG) -a nhk8815 arm arm926ejs nhk8815 st nomadik
 

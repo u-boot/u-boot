@@ -53,6 +53,10 @@ int board_init(void)
 	writel(0x0000305b, REG_FSMC_BCR1);
 	writel(0x00033f33, REG_FSMC_BTR1);
 
+	/* Set up SMCS0 for OneNand: sram-like once again */
+	writel(0x000030db, NOMADIK_FSMC_BASE + 0x00); /* FSMC_BCR0 */
+	writel(0x02100551, NOMADIK_FSMC_BASE + 0x04); /* FSMC_BTR0 */
+
 	icache_enable();
 	return 0;
 }

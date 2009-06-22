@@ -55,6 +55,7 @@
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT		"Nomadik> "
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
+#define CONFIG_CMDLINE_EDITING
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE \
 					+ sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -90,6 +91,7 @@
 #define CONFIG_SYS_MEMTEST_END		0x0FFFFFFF
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 256 * 1024)
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* for initial data */
+#define CONFIG_SYS_64BIT_VSPRINTF	/* mtd desires this */
 
 #define CONFIG_MISC_INIT_R	/* call misc_init_r during start up */
 
@@ -120,43 +122,54 @@
 #define CONFIG_SMC_USE_32_BIT
 #define CONFIG_BOOTFILE		"uImage"
 
-/* flash memory and filesystem information */
-#define CONFIG_DOS_PARTITION
+/* Storage information: onenand and nand */
+#define CONFIG_CMD_ONENAND
 #define CONFIG_MTD_ONENAND_VERIFY_WRITE
 #define CONFIG_SYS_ONENAND_BASE		0x30000000
+
+#define CONFIG_CMD_NAND
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x40000000 /* SMPS0n */
 
+/*
+ * Filesystem information
+ *
+ * Since U-Boot has been loaded to RAM by vendor code, we could use
+ * either or both OneNand and Nand. However, we need to know where the
+ * filesystem lives. Comments below report vendor-selected partitions
+ */
 #ifdef CONFIG_BOOT_ONENAND
-
-#   define CONFIG_CMD_ONENAND /* Temporary: nand and onenand can't coexist */
    /* Partition				Size	Start
     * XloaderTOC + X-Loader		256KB	0x00000000
     * Memory init function		256KB	0x00040000
-    * U-Boot				2MB	0x00080000
+    * U-Boot + env			2MB	0x00080000
     * Sysimage (kernel + ramdisk)	4MB	0x00280000
     * JFFS2 Root filesystem		22MB	0x00680000
     * JFFS2 User Data			227.5MB	0x01C80000
     */
-#   define CONFIG_JFFS2_PART_SIZE	0x400000
-#   define CONFIG_JFFS2_PART_OFFSET	0x280000
-
+#   define CONFIG_JFFS2_DEV		"onenand0"
+#   define CONFIG_JFFS2_PART_SIZE	0x01600000
+#   define CONFIG_JFFS2_PART_OFFSET	0x00680000
 #   define CONFIG_ENV_IS_IN_ONENAND
-#   define CONFIG_ENV_SIZE		(256 * 1024)
-#   define CONFIG_ENV_ADDR		0x30300000
+#   define CONFIG_ENV_SIZE		0x20000 /* 128 Kb - one sector */
+#   define CONFIG_ENV_ADDR		(0x00280000 - CONFIG_ENV_SIZE)
 
-#else /* ! CONFIG_BOOT_ONENAND */
-
-#   define CONFIG_CMD_NAND /* Temporary: nand and onenand can't coexist */
-
+#else /*  BOOT_NAND */
+   /* Partition				Size	Start
+    * XloaderTOC + X-Loader		256KB	0x00000000
+    * Memory init function		256KB	0x00040000
+    * U-Boot + env			2MB	0x00080000
+    * Kernel Image			3MB	0x00280000
+    * JFFS2 Root filesystem		22MB	0x00580000
+    * JFFS2 User Data			100.5MB	0x01b80000
+    */
 #   define CONFIG_JFFS2_DEV		"nand0"
 #   define CONFIG_JFFS2_NAND		1 /* For the jffs2 support*/
-#   define CONFIG_JFFS2_PART_SIZE	0x00300000
-#   define CONFIG_JFFS2_PART_OFFSET	0x00280000
-
+#   define CONFIG_JFFS2_PART_SIZE	0x01600000
+#   define CONFIG_JFFS2_PART_OFFSET	0x00580000
 #   define CONFIG_ENV_IS_IN_NAND
 #   define CONFIG_ENV_SIZE		0x20000 /* 128 Kb - one sector */
-#   define CONFIG_ENV_OFFSET		(0x8000000 - CONFIG_ENV_SIZE)
+#   define CONFIG_ENV_OFFSET		(0x00280000 - CONFIG_ENV_SIZE)
 
 #endif /* CONFIG_BOOT_ONENAND */
 
