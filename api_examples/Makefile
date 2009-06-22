@@ -29,18 +29,18 @@ endif
 
 include $(TOPDIR)/config.mk
 
-ELF-$(CONFIG_API) += demo
-BIN-$(CONFIG_API) += demo.bin
-ELF	:= $(ELF-y)
-BIN	:= $(BIN-y)
+# Resulting ELF and binary exectuables will be named demo and demo.bin
+OUTPUT-$(CONFIG_API) = $(obj)demo
 
 #CFLAGS += -v
 
-COBJS-$(CONFIG_API) += $(ELF:=.o)
 SOBJS-$(CONFIG_API) += crt0.o
+COBJS-$(CONFIG_API) += demo.o
 ifeq ($(ARCH),ppc)
 SOBJS-$(CONFIG_API) += ppcstring.o
 endif
+
+OUTPUT	:= $(OUTPUT-y)
 COBJS	:= $(COBJS-y)
 SOBJS	:= $(SOBJS-y)
 
@@ -60,28 +60,23 @@ SRCS	+= $(COBJS:.o=.c)
 SRCS	+= $(LIBCOBJS:.o=.c)
 SRCS	+= $(SOBJS:.o=.S)
 OBJS	:= $(addprefix $(obj),$(COBJS))
-ELF	:= $(addprefix $(obj),$(ELF))
-BIN	:= $(addprefix $(obj),$(BIN))
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
 CPPFLAGS += -I..
 
-all:	$(obj).depend $(OBJS) $(LIB) $(ELF) $(BIN)
+all:	$(obj).depend $(OBJS) $(LIB) $(OUTPUT)
 
 #########################################################################
 $(LIB):	$(obj).depend $(LIBOBJS)
 		$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 
-$(ELF):
+$(OUTPUT):
 $(obj)%:	$(obj)%.o $(LIB)
 		$(LD) $(obj)crt0.o -Ttext $(LOAD_ADDR) \
 			-o $@ $< $(LIB) \
 			-L$(gcclibdir) -lgcc
-
-$(BIN):
-$(obj)%.bin:	$(obj)%
-		$(OBJCOPY) -O binary $< $@ 2>/dev/null
+		$(OBJCOPY) -O binary $@ $(OUTPUT).bin 2>/dev/null
 
 $(obj)crc32.c:
 	@rm -f $(obj)crc32.c
