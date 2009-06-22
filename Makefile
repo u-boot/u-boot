@@ -3627,7 +3627,6 @@ clobber:	clean
 	@rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -name "*" -type l -print | xargs rm -f
 	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -name "*" -type l -print | xargs rm -f
-	@[ ! -d $(obj)api_examples ] || find $(obj)api_examples -name "*" -type l -print | xargs rm -f
 
 ifeq ($(OBJTREE),$(SRCTREE))
 mrproper \

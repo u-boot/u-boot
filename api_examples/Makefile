@@ -31,69 +31,54 @@ include $(TOPDIR)/config.mk
 
 # Resulting ELF and binary exectuables will be named demo and demo.bin
 OUTPUT-$(CONFIG_API) = $(obj)demo
+OUTPUT = $(OUTPUT-y)
 
-#CFLAGS += -v
+# Source files located in the api_examples directory
+SOBJ_FILES-$(CONFIG_API) += crt0.o
+COBJ_FILES-$(CONFIG_API) += demo.o
+COBJ_FILES-$(CONFIG_API) += glue.o
+COBJ_FILES-$(CONFIG_API) += libgenwrap.o
 
-SOBJS-$(CONFIG_API) += crt0.o
-COBJS-$(CONFIG_API) += demo.o
+# Source files which exist outside the api_examples directory
+EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/crc32.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/ctype.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/string.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/vsprintf.o
 ifeq ($(ARCH),ppc)
-SOBJS-$(CONFIG_API) += ppcstring.o
+EXT_SOBJ_FILES-$(CONFIG_API) += lib_ppc/ppcstring.o
 endif
 
-OUTPUT	:= $(OUTPUT-y)
-COBJS	:= $(COBJS-y)
-SOBJS	:= $(SOBJS-y)
+# Create a list of source files so their dependencies can be auto-generated
+SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_COBJ_FILES-y:.o=.c))
+SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_SOBJ_FILES-y:.o=.S))
+SRCS	+= $(addprefix $(SRCTREE)/api_examples/,$(COBJ_FILES-y:.o=.c))
+SRCS	+= $(addprefix $(SRCTREE)/api_examples/,$(SOBJ_FILES-y:.o=.S))
 
-LIBCOBJS-$(CONFIG_API) += glue.o
-LIBCOBJS-$(CONFIG_API) += crc32.o
-LIBCOBJS-$(CONFIG_API) += ctype.o
-LIBCOBJS-$(CONFIG_API) += string.o
-LIBCOBJS-$(CONFIG_API) += vsprintf.o
-LIBCOBJS-$(CONFIG_API) += libgenwrap.o
-LIBCOBJS := $(LIBCOBJS-y)
-
-LIBOBJS	+= $(addprefix $(obj),$(SOBJS))
-LIBOBJS	+= $(addprefix $(obj),$(COBJS))
-LIBOBJS	+= $(addprefix $(obj),$(LIBCOBJS))
-
-SRCS	+= $(COBJS:.o=.c)
-SRCS	+= $(LIBCOBJS:.o=.c)
-SRCS	+= $(SOBJS:.o=.S)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+# Create a list of object files to be compiled
+OBJS	+= $(addprefix $(obj),$(SOBJ_FILES-y))
+OBJS	+= $(addprefix $(obj),$(COBJ_FILES-y))
+OBJS	+= $(addprefix $(obj),$(notdir $(EXT_COBJ_FILES-y)))
+OBJS	+= $(addprefix $(obj),$(notdir $(EXT_SOBJ_FILES-y)))
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
 CPPFLAGS += -I..
 
-all:	$(obj).depend $(OBJS) $(OUTPUT)
+all:	$(obj).depend $(OUTPUT)
 
 #########################################################################
 
-$(OUTPUT):	$(LIBOBJS)
+$(OUTPUT):	$(OBJS)
 		$(LD) -Ttext $(LOAD_ADDR) -o $@ $^ -L$(gcclibdir) -lgcc
 		$(OBJCOPY) -O binary $@ $(OUTPUT).bin 2>/dev/null
 
-$(obj)crc32.c:
-	@rm -f $(obj)crc32.c
-	ln -s $(src)../lib_generic/crc32.c $(obj)crc32.c
+# Rule to build generic library C files
+$(obj)%.o: $(SRCTREE)/lib_generic/%.c
+	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)ctype.c:
-	@rm -f $(obj)ctype.c
-	ln -s $(src)../lib_generic/ctype.c $(obj)ctype.c
-
-$(obj)string.c:
-	@rm -f $(obj)string.c
-	ln -s $(src)../lib_generic/string.c $(obj)string.c
-
-$(obj)vsprintf.c:
-	@rm -f $(obj)vsprintf.c
-	ln -s $(src)../lib_generic/vsprintf.c $(obj)vsprintf.c
-
-ifeq ($(ARCH),ppc)
-$(obj)ppcstring.S:
-	@rm -f $(obj)ppcstring.S
-	ln -s $(src)../lib_ppc/ppcstring.S $(obj)ppcstring.S
-endif
+# Rule to build architecture-specific library assembly files
+$(obj)%.o: $(SRCTREE)/lib_$(ARCH)/%.S
+	$(CC) -g $(CFLAGS) -c -o $@ $<
 
 #########################################################################
 
