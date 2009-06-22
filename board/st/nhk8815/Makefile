@@ -29,7 +29,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= nmdk8815.o
+COBJS	:= nhk8815.o
 SOBJS	:= platform.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)

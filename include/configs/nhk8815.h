@@ -1,7 +1,8 @@
 /*
  * (C) Copyright 2005
  * STMicroelectronics.
- * Configuration settings for the STn8815 nomadik board.
+ * Configuration settings for the "Nomadik Hardware Kit" NHK-8815,
+ * the evaluation board for the Nomadik 8815 System on Chip.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
