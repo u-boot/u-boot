@@ -8,7 +8,7 @@
  * Alex Zuepke <azu@sysgo.de>
  *
  * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
+ * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -30,14 +30,17 @@
  */
 
 #include <common.h>
+
+#if defined(CONFIG_S3C2400)
+#include <s3c2400.h>
+#elif defined(CONFIG_S3C2410)
+#include <s3c2410.h>
+#endif
 #include <asm/proc-armv/ptrace.h>
 
-#if defined (CONFIG_ARCH_INTEGRATOR)
 void do_irq (struct pt_regs *pt_regs)
 {
-	/* ASSUMED to be a timer interrupt  */
-	/* Just clear it - count handled in */
-	/* integratorap.c                   */
-	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 0x0C) = 0;
+	S3C24X0_INTERRUPT * irq = S3C24X0_GetBase_INTERRUPT();
+	u_int32_t intpnd = irq->INTPND;
+
 }
-#endif
