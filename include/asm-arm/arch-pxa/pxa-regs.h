@@ -1952,6 +1952,7 @@ typedef void		(*ExcpHndlr) (void) ;
 #define CKENA_2_USBHOST	(1 << 2)	/* USB Host Unit Clock Enable */
 #define CKENA_1_LCD	(1 << 1)	/* LCD Unit Clock Enable */
 
+#define CKENB_9_SYSBUS2	(1 << 9)	/* System bus 2 */
 #define CKENB_8_1WIRE	((1 << 8) + 32) /* One Wire Interface Unit Clock Enable */
 #define CKENB_7_GPIO	((1 << 7) + 32)	/* GPIO Clock Enable */
 #define CKENB_6_IRQ	((1 << 6) + 32)	/* Interrupt Controller Clock Enable */
