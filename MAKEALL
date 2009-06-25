@@ -848,6 +848,7 @@ LIST_sh4="		\
 	sh7763rdp	\
 	sh7785lcr	\
 	ap325rxa	\
+	espt		\
 "
 
 LIST_sh="		\

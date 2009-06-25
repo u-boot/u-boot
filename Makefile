@@ -3545,6 +3545,11 @@ ap325rxa_config  :   unconfig
 	@echo "#define CONFIG_AP325RXA 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh4 ap325rxa renesas
 
+espt_config  :   unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_ESPT 1" > $(obj)include/config.h
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 espt
+
 #========================================================================
 # SPARC
 #========================================================================
