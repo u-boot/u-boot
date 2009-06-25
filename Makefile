@@ -2743,12 +2743,22 @@ at91sam9xeek_config	:	unconfig
 at91sam9261ek_nandflash_config \
 at91sam9261ek_dataflash_cs0_config \
 at91sam9261ek_dataflash_cs3_config \
-at91sam9261ek_config	:	unconfig
+at91sam9261ek_config \
+at91sam9g10ek_nandflash_config \
+at91sam9g10ek_dataflash_cs0_config \
+at91sam9g10ek_dataflash_cs3_config \
+at91sam9g10ek_config	:	unconfig
 	@mkdir -p $(obj)include
+	@if [ "$(findstring 9g10,$@)" ] ; then \
+		echo "#define CONFIG_AT91SAM9G10EK 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... 9G10 Variant" ; \
+	else \
+		echo "#define CONFIG_AT91SAM9261EK 1"	>>$(obj)include/config.h ; \
+	fi;
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
-	elif [ "$(findstring dataflash_cs3,$@)" ] ; then \
+	elif [ "$(findstring dataflash_cs0,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_DATAFLASH_CS3 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in SPI DATAFLASH CS3" ; \
 	else \
