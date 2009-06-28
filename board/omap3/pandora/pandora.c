@@ -30,6 +30,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <twl4030.h>
 #include <asm/io.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
@@ -64,7 +65,8 @@ int misc_init_r(void)
 	gpio_t *gpio5_base = (gpio_t *)OMAP34XX_GPIO5_BASE;
 	gpio_t *gpio6_base = (gpio_t *)OMAP34XX_GPIO6_BASE;
 
-	power_init_r();
+	twl4030_power_init();
+	twl4030_led_init();
 
 	/* Configure GPIOs to output */
 	writel(~(GPIO14 | GPIO15 | GPIO16 | GPIO23), &gpio1_base->oe);

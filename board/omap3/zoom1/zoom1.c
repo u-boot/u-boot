@@ -61,7 +61,8 @@ int board_init(void)
  */
 int misc_init_r(void)
 {
-	power_init_r();
+	twl4030_power_init();
+	twl4030_led_init();
 	dieid_num_r();
 
 	/*

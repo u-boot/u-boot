@@ -119,6 +119,12 @@
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 
 /*
+ * TWL4030
+ */
+#define CONFIG_TWL4030_POWER		1
+#define CONFIG_TWL4030_LED		1
+
+/*
  * Board NAND Info.
  */
 #define CONFIG_NAND_OMAP_GPMC

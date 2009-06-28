@@ -17,9 +17,24 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  *
- * Derived from code on omapzoom, git://git.omapzoom.com/repo/u-boot.git
+ * twl4030_power_reset_init is derived from code on omapzoom,
+ * git://git.omapzoom.com/repo/u-boot.git
  *
  * Copyright (C) 2007-2009 Texas Instruments, Inc.
+ *
+ * twl4030_power_init is from cpu/omap3/common.c, power_init_r
+ *
+ * (C) Copyright 2004-2008
+ * Texas Instruments, <www.ti.com>
+ *
+ * Author :
+ *	Sunil Kumar <sunilsaini05 at gmail.com>
+ *	Shashi Ranjan <shashiranjanmca05 at gmail.com>
+ *
+ * Derived from Beagle Board and 3430 SDP code by
+ *	Richard Woodruff <r-woodruff2 at ti.com>
+ *	Syed Mohammed Khasim <khasim at ti.com>
+ *
  */
 
 #include <twl4030.h>
@@ -44,4 +59,42 @@ void twl4030_power_reset_init(void)
 	}
 }
 
+
+/*
+ * Power Init
+ */
+#define DEV_GRP_P1		0x20
+#define VAUX3_VSEL_28		0x03
+#define DEV_GRP_ALL		0xE0
+#define VPLL2_VSEL_18		0x05
+#define VDAC_VSEL_18		0x03
+
+void twl4030_power_init(void)
+{
+	unsigned char byte;
+
+	/* set VAUX3 to 2.8V */
+	byte = DEV_GRP_P1;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
+			     TWL4030_PM_RECEIVER_VAUX3_DEV_GRP);
+	byte = VAUX3_VSEL_28;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
+			     TWL4030_PM_RECEIVER_VAUX3_DEDICATED);
+
+	/* set VPLL2 to 1.8V */
+	byte = DEV_GRP_ALL;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
+			     TWL4030_PM_RECEIVER_VPLL2_DEV_GRP);
+	byte = VPLL2_VSEL_18;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
+			     TWL4030_PM_RECEIVER_VPLL2_DEDICATED);
+
+	/* set VDAC to 1.8V */
+	byte = DEV_GRP_P1;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
+			     TWL4030_PM_RECEIVER_VDAC_DEV_GRP);
+	byte = VDAC_VSEL_18;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
+			     TWL4030_PM_RECEIVER_VDAC_DEDICATED);
+}
 
