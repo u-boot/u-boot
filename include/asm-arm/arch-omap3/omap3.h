@@ -181,39 +181,4 @@ typedef struct gpio {
 #define WIDTH_8BIT		0x0000
 #define WIDTH_16BIT		0x1000	/* bit pos for 16 bit in gpmc */
 
-/* I2C power management companion definitions */
-#define PWRMGT_ADDR_ID1		0x48
-#define PWRMGT_ADDR_ID2		0x49
-#define PWRMGT_ADDR_ID3		0x4A
-#define PWRMGT_ADDR_ID4		0x4B
-
-/* I2C ID3 (slave3) register */
-#define LEDEN			0xEE
-
-#define LEDAON			(0x1 << 0)
-#define LEDBON			(0x1 << 1)
-#define LEDAPWM			(0x1 << 4)
-#define LEDBPWM			(0x1 << 5)
-
-/* I2C ID4 (slave4) register */
-#define VAUX2_DEV_GRP		0x76
-#define VAUX2_DEDICATED		0x79
-#define VAUX3_DEV_GRP		0x7A
-#define VAUX3_DEDICATED		0x7D
-#define VMMC1_DEV_GRP		0x82
-#define VMMC1_DEDICATED		0x85
-#define VPLL2_DEV_GRP		0x8E
-#define VPLL2_DEDICATED		0x91
-#define VDAC_DEV_GRP		0x96
-#define VDAC_DEDICATED		0x99
-
-#define DEV_GRP_P1		0x20
-#define DEV_GRP_ALL		0xE0
-
-#define VAUX2_VSEL_28		0x09
-#define VAUX3_VSEL_28		0x03
-#define VPLL2_VSEL_18		0x05
-#define VDAC_VSEL_18		0x03
-#define VMMC1_VSEL_30		0x02
-
 #endif
