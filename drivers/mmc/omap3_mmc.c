@@ -28,6 +28,7 @@
 #include <mmc.h>
 #include <part.h>
 #include <i2c.h>
+#include <twl4030.h>
 #include <asm/io.h>
 #include <asm/arch/mmc.h>
 
@@ -58,21 +59,11 @@ block_dev_desc_t *mmc_get_dev(int dev)
 	return (block_dev_desc_t *) &mmc_blk_dev;
 }
 
-void twl4030_mmc_config(void)
-{
-	unsigned char data;
-
-	data = DEV_GRP_P1;
-	i2c_write(PWRMGT_ADDR_ID4, VMMC1_DEV_GRP, 1, &data, 1);
-	data = VMMC1_VSEL_30;
-	i2c_write(PWRMGT_ADDR_ID4, VMMC1_DEDICATED, 1, &data, 1);
-}
-
 unsigned char mmc_board_init(void)
 {
 	t2_t *t2_base = (t2_t *)T2_BASE;
 
-	twl4030_mmc_config();
+	twl4030_power_mmc_init();
 
 	writel(readl(&t2_base->pbias_lite) | PBIASLITEPWRDNZ1 |
 		PBIASSPEEDCTRL0 | PBIASLITEPWRDNZ0,

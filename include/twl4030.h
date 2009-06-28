@@ -390,6 +390,9 @@ static inline int twl4030_i2c_read_u8(u8 chip_no, u8 *val, u8 reg)
 void twl4030_power_reset_init(void);
 /* For initializing power device */
 void twl4030_power_init(void);
+/* For initializing mmc power */
+void twl4030_power_mmc_init(void);
+
 /*
  * LED
  */

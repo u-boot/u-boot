@@ -98,3 +98,18 @@ void twl4030_power_init(void)
 			     TWL4030_PM_RECEIVER_VDAC_DEDICATED);
 }
 
+#define VMMC1_VSEL_30		0x02
+
+void twl4030_power_mmc_init(void)
+{
+	unsigned char byte;
+
+	byte = DEV_GRP_P1;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
+			     TWL4030_PM_RECEIVER_VMMC1_DEV_GRP);
+
+	/* 3 Volts */
+	byte = VMMC1_VSEL_30;
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
+			     TWL4030_PM_RECEIVER_VMMC1_DEDICATED);
+}
