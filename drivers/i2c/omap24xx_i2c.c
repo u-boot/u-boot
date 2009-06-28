@@ -31,7 +31,69 @@ static void flush_fifo(void);
 
 void i2c_init (int speed, int slaveadd)
 {
-	u16 scl;
+	int psc, fsscll, fssclh;
+	int hsscll = 0, hssclh = 0;
+	u32 scll, sclh;
+
+	/* Only handle standard, fast and high speeds */
+	if ((speed != OMAP_I2C_STANDARD) &&
+	    (speed != OMAP_I2C_FAST_MODE) &&
+	    (speed != OMAP_I2C_HIGH_SPEED)) {
+		printf("Error : I2C unsupported speed %d\n", speed);
+		return;
+	}
+
+	psc = I2C_IP_CLK / I2C_INTERNAL_SAMPLING_CLK;
+	psc -= 1;
+	if (psc < I2C_PSC_MIN) {
+		printf("Error : I2C unsupported prescalar %d\n", psc);
+		return;
+	}
+
+	if (speed == OMAP_I2C_HIGH_SPEED) {
+		/* High speed */
+
+		/* For first phase of HS mode */
+		fsscll = fssclh = I2C_INTERNAL_SAMPLING_CLK /
+			(2 * OMAP_I2C_FAST_MODE);
+
+		fsscll -= I2C_HIGHSPEED_PHASE_ONE_SCLL_TRIM;
+		fssclh -= I2C_HIGHSPEED_PHASE_ONE_SCLH_TRIM;
+		if (((fsscll < 0) || (fssclh < 0)) ||
+		    ((fsscll > 255) || (fssclh > 255))) {
+			printf("Error : I2C initializing first phase clock\n");
+			return;
+		}
+
+		/* For second phase of HS mode */
+		hsscll = hssclh = I2C_INTERNAL_SAMPLING_CLK / (2 * speed);
+
+		hsscll -= I2C_HIGHSPEED_PHASE_TWO_SCLL_TRIM;
+		hssclh -= I2C_HIGHSPEED_PHASE_TWO_SCLH_TRIM;
+		if (((fsscll < 0) || (fssclh < 0)) ||
+		    ((fsscll > 255) || (fssclh > 255))) {
+			printf("Error : I2C initializing second phase clock\n");
+			return;
+		}
+
+		scll = (unsigned int)hsscll << 8 | (unsigned int)fsscll;
+		sclh = (unsigned int)hssclh << 8 | (unsigned int)fssclh;
+
+	} else {
+		/* Standard and fast speed */
+		fsscll = fssclh = I2C_INTERNAL_SAMPLING_CLK / (2 * speed);
+
+		fsscll -= I2C_FASTSPEED_SCLL_TRIM;
+		fssclh -= I2C_FASTSPEED_SCLH_TRIM;
+		if (((fsscll < 0) || (fssclh < 0)) ||
+		    ((fsscll > 255) || (fssclh > 255))) {
+			printf("Error : I2C initializing clock\n");
+			return;
+		}
+
+		scll = (unsigned int)fsscll;
+		sclh = (unsigned int)fssclh;
+	}
 
 	writew(0x2, I2C_SYSC); /* for ES2 after soft reset */
 	udelay(1000);
@@ -42,12 +104,10 @@ void i2c_init (int speed, int slaveadd)
 		udelay (50000);
 	}
 
-	/* 12MHz I2C module clock */
-	writew (0, I2C_PSC);
-	speed = speed/1000;		    /* 100 or 400 */
-	scl = ((12000/(speed*2)) - 7);	/* use 7 when PSC = 0 */
-	writew (scl, I2C_SCLL);
-	writew (scl, I2C_SCLH);
+	writew(psc, I2C_PSC);
+	writew(scll, I2C_SCLL);
+	writew(sclh, I2C_SCLH);
+
 	/* own address */
 	writew (slaveadd, I2C_OA);
 	writew (I2C_CON_EN, I2C_CON);
