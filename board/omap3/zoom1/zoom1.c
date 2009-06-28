@@ -31,6 +31,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <twl4030.h>
 #include <asm/io.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
@@ -62,6 +63,14 @@ int misc_init_r(void)
 {
 	power_init_r();
 	dieid_num_r();
+
+	/*
+	 * Board Reset
+	 * The board is reset by holding the red button on the
+	 * top right front face for eight seconds.
+	 */
+	twl4030_power_reset_init();
+
 	return 0;
 }
 

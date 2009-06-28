@@ -242,4 +242,7 @@ static inline int twl4030_i2c_read_u8(u8 chip_no, u8 *val, u8 reg)
 	return i2c_read(chip_no, reg, 1, val, 1);
 }
 
+/* For hardware resetting */
+void twl4030_power_reset_init(void);
+
 #endif /* TWL4030_H */

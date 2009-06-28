@@ -221,6 +221,7 @@ LIBS += drivers/net/phy/libphy.a
 LIBS += drivers/net/sk98lin/libsk98lin.a
 LIBS += drivers/pci/libpci.a
 LIBS += drivers/pcmcia/libpcmcia.a
+LIBS += drivers/power/libpower.a
 LIBS += drivers/spi/libspi.a
 ifeq ($(CPU),mpc83xx)
 LIBS += drivers/qe/qe.a
