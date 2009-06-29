@@ -96,7 +96,7 @@
 #define CONFIG_MISC_INIT_R	/* call misc_init_r during start up */
 
 /* timing informazion */
-#define CONFIG_SYS_HZ		(2400000 / 256)	/* Timer0: 2.4Mhz + divider */
+#define CONFIG_SYS_HZ		1000 /* Mandatory... */
 #define CONFIG_SYS_TIMERBASE	0x101E2000
 
 /* serial port (PL011) configuration */
