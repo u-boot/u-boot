@@ -42,6 +42,9 @@ short console_row;
 /* configurable parameters */
 #define ATMEL_LCDC_CVAL_DEFAULT		0xc8
 #define ATMEL_LCDC_DMA_BURST_LEN	8
+#ifndef ATMEL_LCDC_GUARD_TIME
+#define ATMEL_LCDC_GUARD_TIME		1
+#endif
 
 #if defined(CONFIG_AT91SAM9263) || defined(CONFIG_AT91CAP9)
 #define ATMEL_LCDC_FIFO_SIZE		2048
@@ -69,7 +72,7 @@ void lcd_ctrl_init(void *lcdbase)
 
 	/* Turn off the LCD controller and the DMA controller */
 	lcdc_writel(panel_info.mmio, ATMEL_LCDC_PWRCON,
-		    1 << ATMEL_LCDC_GUARDT_OFFSET);
+		    ATMEL_LCDC_GUARD_TIME << ATMEL_LCDC_GUARDT_OFFSET);
 
 	/* Wait for the LCDC core to become idle */
 	while (lcdc_readl(panel_info.mmio, ATMEL_LCDC_PWRCON) & ATMEL_LCDC_BUSY)
@@ -150,7 +153,7 @@ void lcd_ctrl_init(void *lcdbase)
 
 	lcdc_writel(panel_info.mmio, ATMEL_LCDC_DMACON, ATMEL_LCDC_DMAEN);
 	lcdc_writel(panel_info.mmio, ATMEL_LCDC_PWRCON,
-		    (1 << ATMEL_LCDC_GUARDT_OFFSET) | ATMEL_LCDC_PWR);
+		    (ATMEL_LCDC_GUARD_TIME << ATMEL_LCDC_GUARDT_OFFSET) | ATMEL_LCDC_PWR);
 }
 
 ulong calc_fbsize(void)
