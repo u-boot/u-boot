@@ -164,7 +164,7 @@ static int i2c_transfer(uchar chip, uint addr, int alen, uchar *buffer, int len,
 
 	/* prime the pump */
 	if (msg.alen) {
-		len = msg.alen;
+		len = (msg.flags & I2C_M_COMBO) ? msg.alen : msg.alen + len;
 		debugi("first byte=0x%02x", *msg.abuf);
 		bfin_write_TWI_XMT_DATA8(*(msg.abuf++));
 		--msg.alen;
@@ -275,7 +275,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
  *	@chip: i2c chip addr
  *	@addr: memory (register) address in the chip
  *	@alen: byte size of address
- *	@buffer: buffer to store data read from chip
+ *	@buffer: buffer holding data to write to chip
  *	@len: how many bytes to write
  *	@return: 0 on success, non-0 on failure
  */
