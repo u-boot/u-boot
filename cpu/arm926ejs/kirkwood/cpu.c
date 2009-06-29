@@ -74,7 +74,7 @@ unsigned char get_random_hex(void)
  * 64 KByte granularity (e.g., a value of 0x00FF specifies 256 = 16 MByte).
  * NOTE: A value of 0x0 specifies 64-KByte size.
  */
-static unsigned int kw_winctrl_calcsize(unsigned int sizeval)
+unsigned int kw_winctrl_calcsize(unsigned int sizeval)
 {
 	int i;
 	unsigned int j = 0;
@@ -86,10 +86,6 @@ static unsigned int kw_winctrl_calcsize(unsigned int sizeval)
 	}
 	return (0x0000ffff & j);
 }
-
-/* prepares data to be loaded in win_Ctrl register */
-#define KWCPU_WIN_CTRL_DATA(size, target, attr, en) (en | (target << 4) \
-			| (attr << 8) | (kw_winctrl_calcsize(size) << 16))
 
 /*
  * kw_config_adr_windows - Configure address Windows

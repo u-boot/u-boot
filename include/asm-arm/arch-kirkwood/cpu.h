@@ -29,6 +29,9 @@
 
 #ifndef __ASSEMBLY__
 
+#define KWCPU_WIN_CTRL_DATA(size, target, attr, en) (en | (target << 4) \
+			| (attr << 8) | (kw_winctrl_calcsize(size) << 16))
+
 #define KWGBE_PORT_SERIAL_CONTROL1_REG(_x)	\
 		((_x ? KW_EGIGA0_BASE : KW_EGIGA1_BASE) + 0x44c)
 
@@ -57,6 +60,10 @@ enum kwcpu_target {
 
 enum kwcpu_attrib {
 	KWCPU_ATTR_SASRAM = 0x01,
+	KWCPU_ATTR_DRAM_CS0 = 0x0e,
+	KWCPU_ATTR_DRAM_CS1 = 0x0d,
+	KWCPU_ATTR_DRAM_CS2 = 0x0b,
+	KWCPU_ATTR_DRAM_CS3 = 0x07,
 	KWCPU_ATTR_NANDFLASH = 0x2f,
 	KWCPU_ATTR_SPIFLASH = 0x1e,
 	KWCPU_ATTR_BOOTROM = 0x1d,
@@ -155,5 +162,6 @@ int kw_config_mpp(unsigned int mpp0_7, unsigned int mpp8_15,
 		unsigned int mpp16_23, unsigned int mpp24_31,
 		unsigned int mpp32_39, unsigned int mpp40_47,
 		unsigned int mpp48_55);
+unsigned int kw_winctrl_calcsize(unsigned int sizeval);
 #endif /* __ASSEMBLY__ */
 #endif /* _KWCPU_H */
