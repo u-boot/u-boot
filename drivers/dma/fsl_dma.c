@@ -72,8 +72,8 @@ static uint dma_check(void) {
 void dma_init(void) {
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
 
-	out_be32(&dma->satr, FSL_DMA_SATR_SREAD_NO_SNOOP);
-	out_be32(&dma->datr, FSL_DMA_DATR_DWRITE_NO_SNOOP);
+	out_be32(&dma->satr, FSL_DMA_SATR_SREAD_SNOOP);
+	out_be32(&dma->datr, FSL_DMA_DATR_DWRITE_SNOOP);
 	out_be32(&dma->sr, 0xffffffff); /* clear any errors */
 	dma_sync();
 }
