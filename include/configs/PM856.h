@@ -98,6 +98,7 @@
 #undef CONFIG_DDR_SPD
 #define CONFIG_DDR_DLL                      /* possible DLL fix needed */
 #define CONFIG_DDR_ECC			    /* only for ECC DDR module */
+#define CONFIG_FSL_DMA			    /* use DMA to init DDR ECC  */
 
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 

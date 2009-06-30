@@ -264,53 +264,6 @@ reset_85xx_watchdog(void)
 }
 #endif	/* CONFIG_WATCHDOG */
 
-#if defined(CONFIG_DDR_ECC)
-void dma_init(void) {
-	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
-	volatile fsl_dma_t *dma = &dma_base->dma[0];
-
-	dma->satr = 0x00040000;
-	dma->datr = 0x00040000;
-	dma->sr = 0xffffffff; /* clear any errors */
-	asm("sync; isync; msync");
-	return;
-}
-
-uint dma_check(void) {
-	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
-	volatile fsl_dma_t *dma = &dma_base->dma[0];
-	volatile uint status = dma->sr;
-
-	/* While the channel is busy, spin */
-	while((status & 4) == 4) {
-		status = dma->sr;
-	}
-
-	/* clear MR[CS] channel start bit */
-	dma->mr &= 0x00000001;
-	asm("sync;isync;msync");
-
-	if (status != 0) {
-		printf ("DMA Error: status = %x\n", status);
-	}
-	return status;
-}
-
-int dma_xfer(void *dest, uint count, void *src) {
-	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
-	volatile fsl_dma_t *dma = &dma_base->dma[0];
-
-	dma->dar = (uint) dest;
-	dma->sar = (uint) src;
-	dma->bcr = count;
-	dma->mr = 0xf000004;
-	asm("sync;isync;msync");
-	dma->mr = 0xf000005;
-	asm("sync;isync;msync");
-	return dma_check();
-}
-#endif
-
 /*
  * Configures a UPM. The function requires the respective MxMR to be set
  * before calling this function. "size" is the number or entries, not a sizeof.

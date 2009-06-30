@@ -29,4 +29,11 @@
 #endif
 #endif
 
+#ifndef CONFIG_FSL_DMA
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER) && \
+	(defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx))
+#define CONFIG_FSL_DMA
 #endif
+#endif
+
+#endif /* _ASM_CONFIG_H_ */
