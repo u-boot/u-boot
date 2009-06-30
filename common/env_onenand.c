@@ -58,7 +58,7 @@ uchar env_get_char_spec(int index)
 
 void env_relocate_spec(void)
 {
-	unsigned long env_addr;
+	loff_t env_addr;
 	int use_default = 0;
 	size_t retlen;
 
