@@ -27,12 +27,13 @@
 
 #include <config.h>
 #include <common.h>
+#include <asm/io.h>
 #include <asm/fsl_dma.h>
 
 #if defined(CONFIG_MPC85xx)
-volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
+ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
 #elif defined(CONFIG_MPC86xx)
-volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC86xx_DMA_ADDR);
+ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC86xx_DMA_ADDR);
 #else
 #error "Freescale DMA engine not supported on your processor"
 #endif
@@ -48,14 +49,15 @@ static void dma_sync(void)
 
 static uint dma_check(void) {
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
-	volatile uint status = dma->sr;
+	uint status;
 
 	/* While the channel is busy, spin */
-	while (status & FSL_DMA_SR_CB)
-		status = dma->sr;
+	do {
+		status = in_be32(&dma->sr);
+	} while (status & FSL_DMA_SR_CB);
 
 	/* clear MR[CS] channel start bit */
-	dma->mr &= FSL_DMA_MR_CS;
+	out_be32(&dma->mr, in_be32(&dma->mr) & FSL_DMA_MR_CS);
 	dma_sync();
 
 	if (status != 0)
@@ -67,25 +69,27 @@ static uint dma_check(void) {
 void dma_init(void) {
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
 
-	dma->satr = FSL_DMA_SATR_SREAD_NO_SNOOP;
-	dma->datr = FSL_DMA_DATR_DWRITE_NO_SNOOP;
-	dma->sr = 0xffffffff; /* clear any errors */
+	out_be32(&dma->satr, FSL_DMA_SATR_SREAD_NO_SNOOP);
+	out_be32(&dma->datr, FSL_DMA_DATR_DWRITE_NO_SNOOP);
+	out_be32(&dma->sr, 0xffffffff); /* clear any errors */
 	dma_sync();
 }
 
 int dma_xfer(void *dest, uint count, void *src) {
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
 
-	dma->dar = (uint) dest;
-	dma->sar = (uint) src;
-	dma->bcr = count;
+	out_be32(&dma->dar, (uint) dest);
+	out_be32(&dma->sar, (uint) src);
+	out_be32(&dma->bcr, count);
 
 	/* Disable bandwidth control, use direct transfer mode */
-	dma->mr = FSL_DMA_MR_BWC_DIS | FSL_DMA_MR_CTM_DIRECT;
+	out_be32(&dma->mr, FSL_DMA_MR_BWC_DIS | FSL_DMA_MR_CTM_DIRECT);
 	dma_sync();
 
 	/* Start the transfer */
-	dma->mr = FSL_DMA_MR_BWC_DIS | FSL_DMA_MR_CTM_DIRECT | FSL_DMA_MR_CS;
+	out_be32(&dma->mr, FSL_DMA_MR_BWC_DIS |
+			FSL_DMA_MR_CTM_DIRECT |
+			FSL_DMA_MR_CS);
 	dma_sync();
 
 	return dma_check();
