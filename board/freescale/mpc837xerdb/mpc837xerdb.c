@@ -59,7 +59,7 @@ testdram(void)
 }
 #endif
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 void ddr_enable_ecc(unsigned int dram_size);
 #endif
 int fixed_sdram(void);
@@ -78,7 +78,7 @@ phys_size_t initdram(int board_type)
 	msize = fixed_sdram();
 #endif
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	/* Initialize DDR ECC byte */
 	ddr_enable_ecc(msize * 1024 * 1024);
 #endif

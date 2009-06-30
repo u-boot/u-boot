@@ -830,7 +830,7 @@ long int spd_sdram()
 }
 #endif /* CONFIG_SPD_EEPROM */
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 /*
  * Use timebase counter, get_timer() is not availabe
  * at this point of initialization yet.
