@@ -94,4 +94,9 @@ typedef struct fsl_dma {
 	char	res4[56];
 } fsl_dma_t;
 
+#ifdef CONFIG_FSL_DMA
+void dma_init(void);
+int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t n);
+#endif
+
 #endif	/* _ASM_DMA_H_ */

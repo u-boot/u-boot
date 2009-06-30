@@ -66,10 +66,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 }
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-extern void dma_init(void);
-extern uint dma_check(void);
-extern int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t n);
-
 /*
  * Initialize all of memory for ECC, then enable errors.
  */
