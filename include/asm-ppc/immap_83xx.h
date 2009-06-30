@@ -650,6 +650,12 @@ typedef struct immap {
 	u8			res7[0xC0000];
 } immap_t;
 
+#ifdef CONFIG_HAS_FSL_MPH_USB
+#define CONFIG_SYS_MPC83xx_USB_OFFSET  0x22000	/* use the MPH controller */
+#else
+#define CONFIG_SYS_MPC83xx_USB_OFFSET  0x23000	/* use the DR controller */
+#endif
+
 #elif defined(CONFIG_MPC8313)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
@@ -856,7 +862,10 @@ typedef struct immap {
 #define CONFIG_SYS_MPC83xx_DMA_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_DMA_OFFSET)
 #define CONFIG_SYS_MPC83xx_ESDHC_OFFSET	(0x2e000)
 #define CONFIG_SYS_MPC83xx_ESDHC_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_ESDHC_OFFSET)
-#define CONFIG_SYS_MPC83xx_USB_OFFSET	0x23000
+
+#ifndef CONFIG_SYS_MPC83xx_USB_OFFSET
+#define CONFIG_SYS_MPC83xx_USB_OFFSET  0x23000
+#endif
 #define CONFIG_SYS_MPC83xx_USB_ADDR \
 			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_USB_OFFSET)
 #endif				/* __IMMAP_83xx__ */
