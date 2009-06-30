@@ -2791,6 +2791,9 @@ at91sam9rlek_config	:	unconfig
 	fi;
 	@$(MKCONFIG) -a at91sam9rlek arm arm926ejs at91sam9rlek atmel at91
 
+meesc_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs meesc esd at91
+
 pm9261_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs pm9261 ronetix at91
 
