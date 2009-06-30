@@ -37,7 +37,7 @@
 #include <common.h>
 #include <net.h>
 #include "mv_regs.h"
-#include "ppc_error_no.h"
+#include <asm/errno.h>
 #include "../../Marvell/include/core.h"
 
 /*************************************************************************
