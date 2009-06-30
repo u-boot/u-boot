@@ -78,7 +78,7 @@ void dma_init(void) {
 	dma_sync();
 }
 
-int dma_xfer(void *dest, uint count, void *src) {
+int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t count) {
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
 	uint xfer_size;
 

@@ -68,7 +68,7 @@ void board_add_ram_info(int use_default)
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
 extern void dma_init(void);
 extern uint dma_check(void);
-extern int dma_xfer(void *dest, uint count, void *src);
+extern int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t n);
 #endif
 
 #ifndef	CONFIG_SYS_READ_SPD
@@ -898,20 +898,19 @@ void ddr_enable_ecc(unsigned int dram_size)
 	/* Initialise DMA for direct transfer */
 	dma_init();
 	/* Start DMA to transfer */
-	dma_xfer((uint *)0x2000, 0x2000, (uint *)0); /* 8K */
-	dma_xfer((uint *)0x4000, 0x4000, (uint *)0); /* 16K */
-	dma_xfer((uint *)0x8000, 0x8000, (uint *)0); /* 32K */
-	dma_xfer((uint *)0x10000, 0x10000, (uint *)0); /* 64K */
-	dma_xfer((uint *)0x20000, 0x20000, (uint *)0); /* 128K */
-	dma_xfer((uint *)0x40000, 0x40000, (uint *)0); /* 256K */
-	dma_xfer((uint *)0x80000, 0x80000, (uint *)0); /* 512K */
-	dma_xfer((uint *)0x100000, 0x100000, (uint *)0); /* 1M */
-	dma_xfer((uint *)0x200000, 0x200000, (uint *)0); /* 2M */
-	dma_xfer((uint *)0x400000, 0x400000, (uint *)0); /* 4M */
+	dmacpy(0x2000, 0, 0x2000); /* 8K */
+	dmacpy(0x4000, 0, 0x4000); /* 16K */
+	dmacpy(0x8000, 0, 0x8000); /* 32K */
+	dmacpy(0x10000, 0, 0x10000); /* 64K */
+	dmacpy(0x20000, 0, 0x20000); /* 128K */
+	dmacpy(0x40000, 0, 0x40000); /* 256K */
+	dmacpy(0x80000, 0, 0x80000); /* 512K */
+	dmacpy(0x100000, 0, 0x100000); /* 1M */
+	dmacpy(0x200000, 0, 0x200000); /* 2M */
+	dmacpy(0x400000, 0, 0x400000); /* 4M */
 
-	for (i = 1; i < dram_size / 0x800000; i++) {
-		dma_xfer((uint *)(0x800000*i), 0x800000, (uint *)0);
-	}
+	for (i = 1; i < dram_size / 0x800000; i++)
+		dmacpy(0x800000 * i, 0, 0x800000);
 #endif
 
 	t_end = get_tbms();

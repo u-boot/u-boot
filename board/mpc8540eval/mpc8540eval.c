@@ -148,29 +148,28 @@ phys_size_t initdram (int board_type)
 		}
 
 		/* 8K */
-		dma_xfer((uint *)0x2000,0x2000,(uint *)0);
+		dmacpy(0x2000, 0, 0x2000);
 		/* 16K */
-		dma_xfer((uint *)0x4000,0x4000,(uint *)0);
+		dmacpy(0x4000, 0, 0x4000);
 		/* 32K */
-		dma_xfer((uint *)0x8000,0x8000,(uint *)0);
+		dmacpy(0x8000, 0, 0x8000);
 		/* 64K */
-		dma_xfer((uint *)0x10000,0x10000,(uint *)0);
+		dmacpy(0x10000, 0, 0x10000);
 		/* 128k */
-		dma_xfer((uint *)0x20000,0x20000,(uint *)0);
+		dmacpy(0x20000, 0, 0x20000);
 		/* 256k */
-		dma_xfer((uint *)0x40000,0x40000,(uint *)0);
+		dmacpy(0x40000, 0, 0x40000);
 		/* 512k */
-		dma_xfer((uint *)0x80000,0x80000,(uint *)0);
+		dmacpy(0x80000, 0, 0x80000);
 		/* 1M */
-		dma_xfer((uint *)0x100000,0x100000,(uint *)0);
+		dmacpy(0x100000, 0, 0x100000);
 		/* 2M */
-		dma_xfer((uint *)0x200000,0x200000,(uint *)0);
+		dmacpy(0x200000, 0, 0x200000);
 		/* 4M */
-		dma_xfer((uint *)0x400000,0x400000,(uint *)0);
+		dmacpy(0x400000, 0, 0x400000);
 
-		for (i = 1; i < dram_size / 0x800000; i++) {
-			dma_xfer((uint *)(0x800000*i),0x800000,(uint *)0);
-		}
+		for (i = 1; i < dram_size / 0x800000; i++)
+			dmacpy(0x800000 * i, 0, 0x800000);
 
 		/* Enable errors for ECC */
 		ddr->err_disable = 0x00000000;

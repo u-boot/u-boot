@@ -68,7 +68,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void dma_init(void);
 extern uint dma_check(void);
-extern int dma_xfer(void *dest, uint count, void *src);
+extern int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t n);
 
 /*
  * Initialize all of memory for ECC, then enable errors.
@@ -93,20 +93,19 @@ ddr_enable_ecc(unsigned int dram_size)
 		}
 	}
 
-	dma_xfer((uint *)0x002000, 0x002000, (uint *)0); /* 8K */
-	dma_xfer((uint *)0x004000, 0x004000, (uint *)0); /* 16K */
-	dma_xfer((uint *)0x008000, 0x008000, (uint *)0); /* 32K */
-	dma_xfer((uint *)0x010000, 0x010000, (uint *)0); /* 64K */
-	dma_xfer((uint *)0x020000, 0x020000, (uint *)0); /* 128k */
-	dma_xfer((uint *)0x040000, 0x040000, (uint *)0); /* 256k */
-	dma_xfer((uint *)0x080000, 0x080000, (uint *)0); /* 512k */
-	dma_xfer((uint *)0x100000, 0x100000, (uint *)0); /* 1M */
-	dma_xfer((uint *)0x200000, 0x200000, (uint *)0); /* 2M */
-	dma_xfer((uint *)0x400000, 0x400000, (uint *)0); /* 4M */
+	dmacpy(0x002000, 0, 0x2000); /* 8K */
+	dmacpy(0x004000, 0, 0x4000); /* 16K */
+	dmacpy(0x008000, 0, 0x8000); /* 32K */
+	dmacpy(0x010000, 0, 0x10000); /* 64K */
+	dmacpy(0x020000, 0, 0x20000); /* 128K */
+	dmacpy(0x040000, 0, 0x40000); /* 256K */
+	dmacpy(0x080000, 0, 0x80000); /* 512K */
+	dmacpy(0x100000, 0, 0x100000); /* 1M */
+	dmacpy(0x200000, 0, 0x200000); /* 2M */
+	dmacpy(0x400000, 0, 0x400000); /* 4M */
 
-	for (i = 1; i < dram_size / 0x800000; i++) {
-		dma_xfer((uint *)(0x800000*i), 0x800000, (uint *)0);
-	}
+	for (i = 1; i < dram_size / 0x800000; i++)
+		dmacpy(0x800000 *i, 0, 0x800000);
 
 	/*
 	 * Enable errors for ECC.

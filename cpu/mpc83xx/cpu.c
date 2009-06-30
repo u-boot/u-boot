@@ -327,7 +327,7 @@ uint dma_check(void)
 	return status;
 }
 
-int dma_xfer(void *dest, u32 count, void *src)
+int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t count)
 {
 	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile dma83xx_t *dma = &immap->dma;
@@ -336,7 +336,7 @@ int dma_xfer(void *dest, u32 count, void *src)
 	/* initialize DMASARn, DMADAR and DMAABCRn */
 	dma->dmadar0 = swab32((u32)dest);
 	dma->dmasar0 = swab32((u32)src);
-	dma->dmabcr0 = swab32(count);
+	dma->dmabcr0 = swab32((u32)count);
 
 	__asm__ __volatile__ ("sync");
 	__asm__ __volatile__ ("isync");
