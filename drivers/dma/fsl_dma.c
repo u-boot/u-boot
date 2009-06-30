@@ -51,11 +51,11 @@ static uint dma_check(void) {
 	volatile uint status = dma->sr;
 
 	/* While the channel is busy, spin */
-	while (status & 4)
+	while (status & FSL_DMA_SR_CB)
 		status = dma->sr;
 
 	/* clear MR[CS] channel start bit */
-	dma->mr &= 1;
+	dma->mr &= FSL_DMA_MR_CS;
 	dma_sync();
 
 	if (status != 0)
@@ -67,8 +67,8 @@ static uint dma_check(void) {
 void dma_init(void) {
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
 
-	dma->satr = 0x00040000;
-	dma->datr = 0x00040000;
+	dma->satr = FSL_DMA_SATR_SREAD_NO_SNOOP;
+	dma->datr = FSL_DMA_DATR_DWRITE_NO_SNOOP;
 	dma->sr = 0xffffffff; /* clear any errors */
 	dma_sync();
 }
@@ -81,11 +81,11 @@ int dma_xfer(void *dest, uint count, void *src) {
 	dma->bcr = count;
 
 	/* Disable bandwidth control, use direct transfer mode */
-	dma->mr = 0xf000004;
+	dma->mr = FSL_DMA_MR_BWC_DIS | FSL_DMA_MR_CTM_DIRECT;
 	dma_sync();
 
 	/* Start the transfer */
-	dma->mr = 0xf000005;
+	dma->mr = FSL_DMA_MR_BWC_DIS | FSL_DMA_MR_CTM_DIRECT | FSL_DMA_MR_CS;
 	dma_sync();
 
 	return dma_check();
