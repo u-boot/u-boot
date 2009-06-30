@@ -33,7 +33,16 @@
 /* Controller can only transfer 2^26 - 1 bytes at a time */
 #define FSL_DMA_MAX_SIZE	(0x3ffffff)
 
-#if defined(CONFIG_MPC85xx)
+#if defined(CONFIG_MPC83xx)
+#define FSL_DMA_MR_DEFAULT (FSL_DMA_MR_CTM_DIRECT | FSL_DMA_MR_DMSEN)
+#else
+#define FSL_DMA_MR_DEFAULT (FSL_DMA_MR_BWC_DIS | FSL_DMA_MR_CTM_DIRECT)
+#endif
+
+
+#if defined(CONFIG_MPC83xx)
+dma83xx_t *dma_base = (void *)(CONFIG_SYS_MPC83xx_DMA_ADDR);
+#elif defined(CONFIG_MPC85xx)
 ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
 #elif defined(CONFIG_MPC86xx)
 ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC86xx_DMA_ADDR);
@@ -50,17 +59,35 @@ static void dma_sync(void)
 #endif
 }
 
+static void out_dma32(volatile unsigned *addr, int val)
+{
+#if defined(CONFIG_MPC83xx)
+	out_le32(addr, val);
+#else
+	out_be32(addr, val);
+#endif
+}
+
+static uint in_dma32(volatile unsigned *addr)
+{
+#if defined(CONFIG_MPC83xx)
+	return in_le32(addr);
+#else
+	return in_be32(addr);
+#endif
+}
+
 static uint dma_check(void) {
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
 	uint status;
 
 	/* While the channel is busy, spin */
 	do {
-		status = in_be32(&dma->sr);
+		status = in_dma32(&dma->sr);
 	} while (status & FSL_DMA_SR_CB);
 
 	/* clear MR[CS] channel start bit */
-	out_be32(&dma->mr, in_be32(&dma->mr) & ~FSL_DMA_MR_CS);
+	out_dma32(&dma->mr, in_dma32(&dma->mr) & ~FSL_DMA_MR_CS);
 	dma_sync();
 
 	if (status != 0)
@@ -69,14 +96,16 @@ static uint dma_check(void) {
 	return status;
 }
 
+#if !defined(CONFIG_MPC83xx)
 void dma_init(void) {
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
 
-	out_be32(&dma->satr, FSL_DMA_SATR_SREAD_SNOOP);
-	out_be32(&dma->datr, FSL_DMA_DATR_DWRITE_SNOOP);
-	out_be32(&dma->sr, 0xffffffff); /* clear any errors */
+	out_dma32(&dma->satr, FSL_DMA_SATR_SREAD_SNOOP);
+	out_dma32(&dma->datr, FSL_DMA_DATR_DWRITE_SNOOP);
+	out_dma32(&dma->sr, 0xffffffff); /* clear any errors */
 	dma_sync();
 }
+#endif
 
 int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t count) {
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
@@ -85,18 +114,17 @@ int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t count) {
 	while (count) {
 		xfer_size = MIN(FSL_DMA_MAX_SIZE, count);
 
-		out_be32(&dma->dar, (uint) dest);
-		out_be32(&dma->sar, (uint) src);
-		out_be32(&dma->bcr, xfer_size);
+		out_dma32(&dma->dar, (uint) dest);
+		out_dma32(&dma->sar, (uint) src);
+		out_dma32(&dma->bcr, xfer_size);
+		dma_sync();
 
-		/* Disable bandwidth control, use direct transfer mode */
-		out_be32(&dma->mr, FSL_DMA_MR_BWC_DIS | FSL_DMA_MR_CTM_DIRECT);
+		/* Prepare mode register */
+		out_dma32(&dma->mr, FSL_DMA_MR_DEFAULT);
 		dma_sync();
 
 		/* Start the transfer */
-		out_be32(&dma->mr, FSL_DMA_MR_BWC_DIS |
-				FSL_DMA_MR_CTM_DIRECT |
-				FSL_DMA_MR_CS);
+		out_dma32(&dma->mr, FSL_DMA_MR_DEFAULT | FSL_DMA_MR_CS);
 
 		count -= xfer_size;
 		src += xfer_size;
@@ -111,7 +139,13 @@ int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t count) {
 	return 0;
 }
 
-#if (defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER))
+/*
+ * 85xx/86xx use dma to initialize SDRAM when !CONFIG_ECC_INIT_VIA_DDRCONTROLLER
+ * while 83xx uses dma to initialize SDRAM when CONFIG_DDR_ECC_INIT_VIA_DMA
+ */
+#if ((!defined CONFIG_MPC83xx && defined(CONFIG_DDR_ECC) &&	\
+	!defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)) ||		\
+	(defined(CONFIG_MPC83xx) && defined(CONFIG_DDR_ECC_INIT_VIA_DMA)))
 void dma_meminit(uint val, uint size)
 {
 	uint *p = 0;

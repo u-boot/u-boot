@@ -64,13 +64,6 @@ void board_add_ram_info(int use_default)
 }
 
 #ifdef CONFIG_SPD_EEPROM
-
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
-extern void dma_init(void);
-extern uint dma_check(void);
-extern int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t n);
-#endif
-
 #ifndef	CONFIG_SYS_READ_SPD
 #define CONFIG_SYS_READ_SPD	i2c_read
 #endif
@@ -863,7 +856,6 @@ static __inline__ unsigned long get_tbms (void)
 /*
  * Initialize all of memory for ECC, then enable errors.
  */
-/* #define CONFIG_DDR_ECC_INIT_VIA_DMA */
 void ddr_enable_ecc(unsigned int dram_size)
 {
 	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
@@ -872,45 +864,21 @@ void ddr_enable_ecc(unsigned int dram_size)
 	register u64 *p;
 	register uint size;
 	unsigned int pattern[2];
-#if defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
-	uint i;
-#endif
+
 	icache_enable();
 	t_start = get_tbms();
 	pattern[0] = 0xdeadbeef;
 	pattern[1] = 0xdeadbeef;
 
-#if !defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
+#if defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
+	dma_meminit(pattern[0], dram_size);
+#else
 	debug("ddr init: CPU FP write method\n");
 	size = dram_size;
 	for (p = 0; p < (u64*)(size); p++) {
 		ppcDWstore((u32*)p, pattern);
 	}
 	__asm__ __volatile__ ("sync");
-#else
-	debug("ddr init: DMA method\n");
-	size = 0x2000;
-	for (p = 0; p < (u64*)(size); p++) {
-		ppcDWstore((u32*)p, pattern);
-	}
-	__asm__ __volatile__ ("sync");
-
-	/* Initialise DMA for direct transfer */
-	dma_init();
-	/* Start DMA to transfer */
-	dmacpy(0x2000, 0, 0x2000); /* 8K */
-	dmacpy(0x4000, 0, 0x4000); /* 16K */
-	dmacpy(0x8000, 0, 0x8000); /* 32K */
-	dmacpy(0x10000, 0, 0x10000); /* 64K */
-	dmacpy(0x20000, 0, 0x20000); /* 128K */
-	dmacpy(0x40000, 0, 0x40000); /* 256K */
-	dmacpy(0x80000, 0, 0x80000); /* 512K */
-	dmacpy(0x100000, 0, 0x100000); /* 1M */
-	dmacpy(0x200000, 0, 0x200000); /* 2M */
-	dmacpy(0x400000, 0, 0x400000); /* 4M */
-
-	for (i = 1; i < dram_size / 0x800000; i++)
-		dmacpy(0x800000 * i, 0, 0x800000);
 #endif
 
 	t_end = get_tbms();

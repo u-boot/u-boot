@@ -27,6 +27,41 @@
 
 #include <asm/types.h>
 
+#ifdef CONFIG_MPC83xx
+typedef struct fsl_dma {
+	uint	mr;		/* DMA mode register */
+#define FSL_DMA_MR_CS		0x00000001	/* Channel start */
+#define FSL_DMA_MR_CC		0x00000002	/* Channel continue */
+#define FSL_DMA_MR_CTM		0x00000004	/* Channel xfer mode */
+#define FSL_DMA_MR_CTM_DIRECT	0x00000004	/* Direct channel xfer mode */
+#define FSL_DMA_MR_EOTIE	0x00000080	/* End-of-transfer interrupt en */
+#define FSL_DMA_MR_PRC_MASK	0x00000c00	/* PCI read command */
+#define FSL_DMA_MR_SAHE		0x00001000	/* Source addr hold enable */
+#define FSL_DMA_MR_DAHE		0x00002000	/* Dest addr hold enable */
+#define FSL_DMA_MR_SAHTS_MASK	0x0000c000	/* Source addr hold xfer size */
+#define FSL_DMA_MR_DAHTS_MASK	0x00030000	/* Dest addr hold xfer size */
+#define FSL_DMA_MR_EMS_EN	0x00040000	/* Ext master start en */
+#define FSL_DMA_MR_IRQS		0x00080000	/* Interrupt steer */
+#define FSL_DMA_MR_DMSEN	0x00100000	/* Direct mode snooping en */
+#define FSL_DMA_MR_BWC_MASK	0x00e00000	/* Bandwidth/pause ctl */
+#define FSL_DMA_MR_DRCNT	0x0f000000	/* DMA request count */
+	uint	sr;		/* DMA status register */
+#define FSL_DMA_SR_EOCDI	0x00000001	/* End-of-chain/direct interrupt */
+#define FSL_DMA_SR_EOSI		0x00000002	/* End-of-segment interrupt */
+#define FSL_DMA_SR_CB		0x00000004	/* Channel busy */
+#define FSL_DMA_SR_TE		0x00000080	/* Transfer error */
+	uint	cdar;		/* DMA current descriptor address register */
+	char	res0[4];
+	uint	sar;		/* DMA source address register */
+	char	res1[4];
+	uint	dar;		/* DMA destination address register */
+	char	res2[4];
+	uint	bcr;		/* DMA byte count register */
+	uint	ndar;		/* DMA next descriptor address register */
+	uint	gsr;		/* DMA general status register (DMA3 ONLY!) */
+	char	res3[84];
+} fsl_dma_t;
+#else
 typedef struct fsl_dma {
 	uint	mr;		/* DMA mode register */
 #define FSL_DMA_MR_CS		0x00000001	/* Channel start */
@@ -93,6 +128,7 @@ typedef struct fsl_dma {
 	uint	dsr;		/* DMA destination stride register */
 	char	res4[56];
 } fsl_dma_t;
+#endif /* !CONFIG_MPC83xx */
 
 #ifdef CONFIG_FSL_DMA
 void dma_init(void);

@@ -30,8 +30,9 @@
 #endif
 
 #ifndef CONFIG_FSL_DMA
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER) && \
-	(defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx))
+#if ((!defined CONFIG_MPC83xx && defined(CONFIG_DDR_ECC) &&	\
+	!defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)) ||		\
+	(defined(CONFIG_MPC83xx) && defined(CONFIG_DDR_ECC_INIT_VIA_DMA)))
 #define CONFIG_FSL_DMA
 #endif
 #endif

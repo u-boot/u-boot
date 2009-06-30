@@ -32,6 +32,7 @@
 #include <asm/fsl_i2c.h>
 #include <asm/mpc8xxx_spi.h>
 #include <asm/fsl_lbc.h>
+#include <asm/fsl_dma.h>
 
 /*
  * Local Access Window
@@ -367,51 +368,7 @@ typedef struct dma83xx {
 	u32 imisr;		/* 0x80 Inbound message interrupt status register */
 	u32 imimr;		/* 0x84 Inbound message interrupt mask register */
 	u32 res4[0x1E];		/* 0x88-0x99 reserved */
-	u32 dmamr0;		/* 0x100 DMA 0 mode register */
-	u32 dmasr0;		/* 0x104 DMA 0 status register */
-	u32 dmacdar0;		/* 0x108 DMA 0 current descriptor address register */
-	u32 res5;		/* 0x10C reserved */
-	u32 dmasar0;		/* 0x110 DMA 0 source address register */
-	u32 res6;		/* 0x114 reserved */
-	u32 dmadar0;		/* 0x118 DMA 0 destination address register */
-	u32 res7;		/* 0x11C reserved */
-	u32 dmabcr0;		/* 0x120 DMA 0 byte count register */
-	u32 dmandar0;		/* 0x124 DMA 0 next descriptor address register */
-	u32 res8[0x16];		/* 0x128-0x179 reserved */
-	u32 dmamr1;		/* 0x180 DMA 1 mode register */
-	u32 dmasr1;		/* 0x184 DMA 1 status register */
-	u32 dmacdar1;		/* 0x188 DMA 1 current descriptor address register */
-	u32 res9;		/* 0x18C reserved */
-	u32 dmasar1;		/* 0x190 DMA 1 source address register */
-	u32 res10;		/* 0x194 reserved */
-	u32 dmadar1;		/* 0x198 DMA 1 destination address register */
-	u32 res11;		/* 0x19C reserved */
-	u32 dmabcr1;		/* 0x1A0 DMA 1 byte count register */
-	u32 dmandar1;		/* 0x1A4 DMA 1 next descriptor address register */
-	u32 res12[0x16];	/* 0x1A8-0x199 reserved */
-	u32 dmamr2;		/* 0x200 DMA 2 mode register */
-	u32 dmasr2;		/* 0x204 DMA 2 status register */
-	u32 dmacdar2;		/* 0x208 DMA 2 current descriptor address register */
-	u32 res13;		/* 0x20C reserved */
-	u32 dmasar2;		/* 0x210 DMA 2 source address register */
-	u32 res14;		/* 0x214 reserved */
-	u32 dmadar2;		/* 0x218 DMA 2 destination address register */
-	u32 res15;		/* 0x21C reserved */
-	u32 dmabcr2;		/* 0x220 DMA 2 byte count register */
-	u32 dmandar2;		/* 0x224 DMA 2 next descriptor address register */
-	u32 res16[0x16];	/* 0x228-0x279 reserved */
-	u32 dmamr3;		/* 0x280 DMA 3 mode register */
-	u32 dmasr3;		/* 0x284 DMA 3 status register */
-	u32 dmacdar3;		/* 0x288 DMA 3 current descriptor address register */
-	u32 res17;		/* 0x28C reserved */
-	u32 dmasar3;		/* 0x290 DMA 3 source address register */
-	u32 res18;		/* 0x294 reserved */
-	u32 dmadar3;		/* 0x298 DMA 3 destination address register */
-	u32 res19;		/* 0x29C reserved */
-	u32 dmabcr3;		/* 0x2A0 DMA 3 byte count register */
-	u32 dmandar3;		/* 0x2A4 DMA 3 next descriptor address register */
-	u32 dmagsr;		/* 0x2A8 DMA general status register */
-	u32 res20[0x15];	/* 0x2AC-0x2FF reserved */
+	struct fsl_dma dma[4];
 } dma83xx_t;
 
 /*
@@ -895,6 +852,8 @@ typedef struct immap {
 } immap_t;
 #endif
 
+#define CONFIG_SYS_MPC83xx_DMA_OFFSET	(0x8000)
+#define CONFIG_SYS_MPC83xx_DMA_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_DMA_OFFSET)
 #define CONFIG_SYS_MPC83xx_ESDHC_OFFSET	(0x2e000)
 #define CONFIG_SYS_MPC83xx_ESDHC_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_ESDHC_OFFSET)
 #define CONFIG_SYS_MPC83xx_USB_OFFSET	0x23000
