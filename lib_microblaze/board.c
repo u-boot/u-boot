@@ -112,10 +112,6 @@ void board_init (void)
 #if defined(CONFIG_CMD_FLASH)
 	ulong flash_size = 0;
 #endif
-#if defined(CONFIG_CMD_NET)
-	char *s, *e;
-	int i;
-#endif
 	asm ("nop");	/* FIXME gd is not initialize - wait */
 	memset ((void *)gd, 0, CONFIG_SYS_GBL_DATA_SIZE);
 	gd->bd = (bd_t *) (gd + 1);	/* At end of global data */
