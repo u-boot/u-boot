@@ -27,7 +27,9 @@
 
    I think this is a symptom of a bug in mb-gcc.  JW 20040303
 */
-static __inline__ __const__ __u16 ___arch__swab16 (__u16 half_word)
+
+
+static __inline__ __u16 ___arch__swab16 (__u16 half_word)
 {
 	/* 32 bit temp to cast result, forcing clearing of high word */
 	__u32 temp;
