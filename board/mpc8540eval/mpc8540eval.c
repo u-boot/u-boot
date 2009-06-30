@@ -140,7 +140,7 @@ phys_size_t initdram (int board_type)
 		uint *p = 0;
 		uint i = 0;
 		volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
-		dma_init();
+
 		for (*p = 0; p < (uint *)(8 * 1024); p++) {
 			if (((unsigned int)p & 0x1f) == 0) { dcbz(p); }
 			*p = (unsigned int)0xdeadbeef;
