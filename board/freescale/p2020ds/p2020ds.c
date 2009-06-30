@@ -36,6 +36,7 @@
 #include <tsec.h>
 #include <asm/fsl_law.h>
 #include <asm/mp.h>
+#include <netdev.h>
 
 #include "../common/pixis.h"
 #include "../common/sgmii_riser.h"
@@ -594,7 +595,7 @@ int board_eth_init(bd_t *bis)
 
 	tsec_eth_init(bis, tsec_info, num);
 
-	return 0;
+	return pci_eth_init(bis);
 }
 #endif
 
