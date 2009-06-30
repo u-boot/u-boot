@@ -30,6 +30,9 @@
 #include <asm/io.h>
 #include <asm/fsl_dma.h>
 
+/* Controller can only transfer 2^26 - 1 bytes at a time */
+#define FSL_DMA_MAX_SIZE	(0x3ffffff)
+
 #if defined(CONFIG_MPC85xx)
 ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC85xx_DMA_ADDR);
 #elif defined(CONFIG_MPC86xx)
@@ -77,20 +80,33 @@ void dma_init(void) {
 
 int dma_xfer(void *dest, uint count, void *src) {
 	volatile fsl_dma_t *dma = &dma_base->dma[0];
+	uint xfer_size;
 
-	out_be32(&dma->dar, (uint) dest);
-	out_be32(&dma->sar, (uint) src);
-	out_be32(&dma->bcr, count);
+	while (count) {
+		xfer_size = MIN(FSL_DMA_MAX_SIZE, count);
 
-	/* Disable bandwidth control, use direct transfer mode */
-	out_be32(&dma->mr, FSL_DMA_MR_BWC_DIS | FSL_DMA_MR_CTM_DIRECT);
-	dma_sync();
+		out_be32(&dma->dar, (uint) dest);
+		out_be32(&dma->sar, (uint) src);
+		out_be32(&dma->bcr, xfer_size);
 
-	/* Start the transfer */
-	out_be32(&dma->mr, FSL_DMA_MR_BWC_DIS |
-			FSL_DMA_MR_CTM_DIRECT |
-			FSL_DMA_MR_CS);
-	dma_sync();
+		/* Disable bandwidth control, use direct transfer mode */
+		out_be32(&dma->mr, FSL_DMA_MR_BWC_DIS | FSL_DMA_MR_CTM_DIRECT);
+		dma_sync();
 
-	return dma_check();
+		/* Start the transfer */
+		out_be32(&dma->mr, FSL_DMA_MR_BWC_DIS |
+				FSL_DMA_MR_CTM_DIRECT |
+				FSL_DMA_MR_CS);
+
+		count -= xfer_size;
+		src += xfer_size;
+		dest += xfer_size;
+
+		dma_sync();
+
+		if (dma_check())
+			return -1;
+	}
+
+	return 0;
 }
