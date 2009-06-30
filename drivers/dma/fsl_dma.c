@@ -60,7 +60,7 @@ static uint dma_check(void) {
 	} while (status & FSL_DMA_SR_CB);
 
 	/* clear MR[CS] channel start bit */
-	out_be32(&dma->mr, in_be32(&dma->mr) & FSL_DMA_MR_CS);
+	out_be32(&dma->mr, in_be32(&dma->mr) & ~FSL_DMA_MR_CS);
 	dma_sync();
 
 	if (status != 0)
