@@ -84,6 +84,8 @@
 #define IPU_CONF_IC_EN		(1<<1)
 #define IPU_CONF_SCI_EN		(1<<0)
 
+#define ARM_PPMRR		0x40000015
+
 #define WDOG_BASE		0x53FDC000
 
 /*

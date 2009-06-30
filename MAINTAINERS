@@ -529,6 +529,10 @@ Thomas Elste <info@elste.org>
 
 	modnet50	ARM720T (NET+50)
 
+Fabio Estevam <Fabio.Estevam@freescale.com>
+
+	mx31pdk		i.MX31
+
 Peter Figuli <peposh@etc.sk>
 
 	wepep250	xscale

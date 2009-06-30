@@ -3135,6 +3135,9 @@ imx31_phycore_config	: unconfig
 mx31ads_config		: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 mx31ads freescale mx31
 
+mx31pdk_config		: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm1136 mx31pdk freescale mx31
+
 omap2420h4_config	: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4 NULL omap24xx
 
