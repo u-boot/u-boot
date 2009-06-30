@@ -73,33 +73,9 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 void
 ddr_enable_ecc(unsigned int dram_size)
 {
-	uint *p = 0;
-	uint i = 0;
 	volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 
-	for (*p = 0; p < (uint *)(8 * 1024); p++) {
-		if (((unsigned int)p & 0x1f) == 0) {
-			ppcDcbz((unsigned long) p);
-		}
-		*p = (unsigned int)CONFIG_MEM_INIT_VALUE;
-		if (((unsigned int)p & 0x1c) == 0x1c) {
-			ppcDcbf((unsigned long) p);
-		}
-	}
-
-	dmacpy(0x002000, 0, 0x2000); /* 8K */
-	dmacpy(0x004000, 0, 0x4000); /* 16K */
-	dmacpy(0x008000, 0, 0x8000); /* 32K */
-	dmacpy(0x010000, 0, 0x10000); /* 64K */
-	dmacpy(0x020000, 0, 0x20000); /* 128K */
-	dmacpy(0x040000, 0, 0x40000); /* 256K */
-	dmacpy(0x080000, 0, 0x80000); /* 512K */
-	dmacpy(0x100000, 0, 0x100000); /* 1M */
-	dmacpy(0x200000, 0, 0x200000); /* 2M */
-	dmacpy(0x400000, 0, 0x400000); /* 4M */
-
-	for (i = 1; i < dram_size / 0x800000; i++)
-		dmacpy(0x800000 *i, 0, 0x800000);
+	dma_meminit(CONFIG_MEM_INIT_VALUE, dram_size);
 
 	/*
 	 * Enable errors for ECC.

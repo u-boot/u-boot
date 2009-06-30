@@ -338,39 +338,9 @@ phys_size_t initdram (int board_type)
 	{
 		/* Initialize all of memory for ECC, then
 		 * enable errors */
-		uint *p = 0;
-		uint i = 0;
 		volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 
-		for (*p = 0; p < (uint *)(8 * 1024); p++) {
-			if (((unsigned int)p & 0x1f) == 0) { dcbz(p); }
-			*p = (unsigned int)0xdeadbeef;
-			if (((unsigned int)p & 0x1c) == 0x1c) { dcbf(p); }
-		}
-
-		/* 8K */
-		dmacpy(0x2000, 0, 0x2000);
-		/* 16K */
-		dmacpy(0x4000, 0, 0x4000);
-		/* 32K */
-		dmacpy(0x8000, 0, 0x8000);
-		/* 64K */
-		dmacpy(0x10000, 0, 0x10000);
-		/* 128k */
-		dmacpy(0x20000, 0, 0x20000);
-		/* 256k */
-		dmacpy(0x40000, 0, 0x40000);
-		/* 512k */
-		dmacpy(0x80000, 0, 0x80000);
-		/* 1M */
-		dmacpy(0x100000, 0, 0x100000);
-		/* 2M */
-		dmacpy(0x200000, 0, 0x200000);
-		/* 4M */
-		dmacpy(0x400000, 0, 0x400000);
-
-		for (i = 1; i < dram_size / 0x800000; i++)
-			dmacpy(0x800000 * i, 0, 0x800000);
+		dma_meminit(CONFIG_MEM_INIT_VALUE, dram_size);
 
 		/* Enable errors for ECC */
 		ddr->err_disable = 0x00000000;

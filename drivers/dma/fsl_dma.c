@@ -110,3 +110,35 @@ int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t count) {
 
 	return 0;
 }
+
+#if (defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER))
+void dma_meminit(uint val, uint size)
+{
+	uint *p = 0;
+	uint i = 0;
+
+	for (*p = 0; p < (uint *)(8 * 1024); p++) {
+		if (((uint)p & 0x1f) == 0)
+			ppcDcbz((ulong)p);
+
+		*p = (uint)CONFIG_MEM_INIT_VALUE;
+
+		if (((uint)p & 0x1c) == 0x1c)
+			ppcDcbf((ulong)p);
+	}
+
+	dmacpy(0x002000, 0, 0x002000); /* 8K */
+	dmacpy(0x004000, 0, 0x004000); /* 16K */
+	dmacpy(0x008000, 0, 0x008000); /* 32K */
+	dmacpy(0x010000, 0, 0x010000); /* 64K */
+	dmacpy(0x020000, 0, 0x020000); /* 128K */
+	dmacpy(0x040000, 0, 0x040000); /* 256K */
+	dmacpy(0x080000, 0, 0x080000); /* 512K */
+	dmacpy(0x100000, 0, 0x100000); /* 1M */
+	dmacpy(0x200000, 0, 0x200000); /* 2M */
+	dmacpy(0x400000, 0, 0x400000); /* 4M */
+
+	for (i = 1; i < size / 0x800000; i++)
+		dmacpy((0x800000 * i), 0, 0x800000);
+}
+#endif
