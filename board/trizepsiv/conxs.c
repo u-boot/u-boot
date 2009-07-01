@@ -44,6 +44,11 @@ extern struct serial_device serial_ffuart_device;
 extern struct serial_device serial_btuart_device;
 extern struct serial_device serial_stuart_device;
 
+#if CONFIG_POLARIS
+#define BOOT_CONSOLE	"serial_stuart"
+#else
+#define BOOT_CONSOLE	"serial_ffuart"
+#endif
 /* ------------------------------------------------------------------------- */
 
 /*
@@ -113,17 +118,14 @@ int board_late_init(void)
 #if defined(CONFIG_SERIAL_MULTI)
 	char *console=getenv("boot_console");
 
-	if ((strcmp(console,"serial_btuart") == 0) ||
-		(strcmp(console,"serial_stuart") == 0) ||
-		(strcmp(console,"serial_ffuart") == 0)) {
-			setenv("stdout",console);
-			setenv("stdin", console);
-			setenv("stderr",console);
-	} else {
-		setenv("stdout", "serial");
-		setenv("stdin", "serial");
-		setenv("stderr", "serial");
+	if ((console == NULL) || (strcmp(console,"serial_btuart") &&
+		strcmp(console,"serial_stuart") &&
+		strcmp(console,"serial_ffuart"))) {
+			console = BOOT_CONSOLE;
 	}
+	setenv("stdout",console);
+	setenv("stdin", console);
+	setenv("stderr",console);
 #endif
 	return 0;
 }

@@ -501,6 +501,11 @@ Rowel Atienza <rowel@diwalabs.com>
 
 	armadillo	ARM720T
 
+Stefano Babic <sbabic@denx.de>
+
+	polaris		xscale
+	trizepsiv	xscale
+
 Dirk Behme <dirk.behme@gmail.com>
 
 	omap3_beagle	ARM CORTEX-A8 (OMAP3530 SoC)

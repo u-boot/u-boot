@@ -3095,8 +3095,13 @@ scpu_config:	unconfig
 pxa255_idp_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa pxa255_idp
 
+polaris_config \
 trizepsiv_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm pxa trizepsiv
+	@mkdir -p $(obj)include
+	@if [ "$(findstring polaris,$@)" ] ; then \
+		echo "#define CONFIG_POLARIS 1"	>>$(obj)include/config.h ; \
+	fi;
+	@$(MKCONFIG) -a trizepsiv arm pxa trizepsiv
 
 wepep250_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa wepep250
