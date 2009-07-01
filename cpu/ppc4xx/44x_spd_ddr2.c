@@ -60,6 +60,14 @@
 		       "SDRAM_" #mnemonic, SDRAM_##mnemonic, data);	\
 	} while (0)
 
+#define PPC4xx_IBM_DDR2_DUMP_MQ_REGISTER(mnemonic)			\
+	do {								\
+		u32 data;						\
+		data = mfdcr(SDRAM_##mnemonic);				\
+		printf("%20s[%02x] = 0x%08X\n",				\
+		       "SDRAM_" #mnemonic, SDRAM_##mnemonic, data);	\
+	} while (0)
+
 #if defined(CONFIG_440)
 /*
  * This DDR2 setup code can dynamically setup the TLB entries for the DDR2
@@ -714,11 +722,11 @@ static void check_mem_type(unsigned long *dimm_populated,
 				spd_ddr_init_hang ();
 				break;
 			case 7:
-				debug("DIMM slot %d: DDR1 SDRAM detected\n", dimm_num);
+				debug("DIMM slot %lu: DDR1 SDRAM detected\n", dimm_num);
 				dimm_populated[dimm_num] = SDRAM_DDR1;
 				break;
 			case 8:
-				debug("DIMM slot %d: DDR2 SDRAM detected\n", dimm_num);
+				debug("DIMM slot %lu: DDR2 SDRAM detected\n", dimm_num);
 				dimm_populated[dimm_num] = SDRAM_DDR2;
 				break;
 			default:
@@ -796,7 +804,7 @@ static void check_frequency(unsigned long *dimm_populated,
 			else
 				cycle_time = (((tcyc_reg & 0xF0) >> 4) * 100) +
 					((tcyc_reg & 0x0F)*10);
-			debug("cycle_time=%d [10 picoseconds]\n", cycle_time);
+			debug("cycle_time=%lu [10 picoseconds]\n", cycle_time);
 
 			if  (cycle_time > (calc_cycle_time + 10)) {
 				/*
@@ -1407,7 +1415,7 @@ static void program_mode(unsigned long *dimm_populated,
 
 	mfsdr(SDR0_DDR0, sdr_ddrpll);
 	sdram_freq = MULDIV64((board_cfg.freqPLB), SDR0_DDR0_DDRM_DECODE(sdr_ddrpll), 1);
-	debug("sdram_freq=%d\n", sdram_freq);
+	debug("sdram_freq=%lu\n", sdram_freq);
 
 	/*------------------------------------------------------------------
 	 * Handle the timing.  We need to find the worst case timing of all
@@ -1437,7 +1445,7 @@ static void program_mode(unsigned long *dimm_populated,
 
 			/* t_wr_ns = max(t_wr_ns, (unsigned long)dimm_spd[dimm_num][36] >> 2); */ /*  not used in this loop. */
 			cas_bit = spd_read(iic0_dimm_addr[dimm_num], 18);
-			debug("cas_bit[SPD byte 18]=%02x\n", cas_bit);
+			debug("cas_bit[SPD byte 18]=%02lx\n", cas_bit);
 
 			/* For a particular DIMM, grab the three CAS values it supports */
 			for (cas_index = 0; cas_index < 3; cas_index++) {
@@ -1469,7 +1477,7 @@ static void program_mode(unsigned long *dimm_populated,
 						(((tcyc_reg & 0xF0) >> 4) * 100) +
 						((tcyc_reg & 0x0F)*10);
 				}
-				debug("cas_index=%d: cycle_time_ns_x_100=%d\n", cas_index,
+				debug("cas_index=%lu: cycle_time_ns_x_100=%lu\n", cas_index,
 				      cycle_time_ns_x_100[cas_index]);
 			}
 
@@ -1580,9 +1588,9 @@ static void program_mode(unsigned long *dimm_populated,
 	cycle_3_0_clk = MULDIV64(ONE_BILLION, 100, max_3_0_tcyc_ns_x_100) + 10;
 	cycle_4_0_clk = MULDIV64(ONE_BILLION, 100, max_4_0_tcyc_ns_x_100) + 10;
 	cycle_5_0_clk = MULDIV64(ONE_BILLION, 100, max_5_0_tcyc_ns_x_100) + 10;
-	debug("cycle_3_0_clk=%d\n", cycle_3_0_clk);
-	debug("cycle_4_0_clk=%d\n", cycle_4_0_clk);
-	debug("cycle_5_0_clk=%d\n", cycle_5_0_clk);
+	debug("cycle_3_0_clk=%lu\n", cycle_3_0_clk);
+	debug("cycle_4_0_clk=%lu\n", cycle_4_0_clk);
+	debug("cycle_5_0_clk=%lu\n", cycle_5_0_clk);
 
 	if (sdram_ddr1 == TRUE) { /* DDR1 */
 		if ((cas_2_0_available == TRUE) && (sdram_freq <= cycle_2_0_clk)) {
@@ -2797,13 +2805,13 @@ calibration_loop:
 	}
 
 	mfsdram(SDRAM_DLCR, val);
-	debug("%s[%d] DLCR: 0x%08X\n", __FUNCTION__, __LINE__, val);
+	debug("%s[%d] DLCR: 0x%08lX\n", __FUNCTION__, __LINE__, val);
 	mfsdram(SDRAM_RQDC, val);
-	debug("%s[%d] RQDC: 0x%08X\n", __FUNCTION__, __LINE__, val);
+	debug("%s[%d] RQDC: 0x%08lX\n", __FUNCTION__, __LINE__, val);
 	mfsdram(SDRAM_RFDC, val);
-	debug("%s[%d] RFDC: 0x%08X\n", __FUNCTION__, __LINE__, val);
+	debug("%s[%d] RFDC: 0x%08lX\n", __FUNCTION__, __LINE__, val);
 	mfsdram(SDRAM_RDCC, val);
-	debug("%s[%d] RDCC: 0x%08X\n", __FUNCTION__, __LINE__, val);
+	debug("%s[%d] RDCC: 0x%08lX\n", __FUNCTION__, __LINE__, val);
 }
 #else /* calibration test with hardvalues */
 /*-----------------------------------------------------------------------------+
@@ -3196,10 +3204,10 @@ inline void ppc4xx_ibm_ddr2_register_dump(void)
 
 #if (defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
      defined(CONFIG_460EX) || defined(CONFIG_460GT))
-	PPC4xx_IBM_DDR2_DUMP_REGISTER(R0BAS);
-	PPC4xx_IBM_DDR2_DUMP_REGISTER(R1BAS);
-	PPC4xx_IBM_DDR2_DUMP_REGISTER(R2BAS);
-	PPC4xx_IBM_DDR2_DUMP_REGISTER(R3BAS);
+	PPC4xx_IBM_DDR2_DUMP_MQ_REGISTER(R0BAS);
+	PPC4xx_IBM_DDR2_DUMP_MQ_REGISTER(R1BAS);
+	PPC4xx_IBM_DDR2_DUMP_MQ_REGISTER(R2BAS);
+	PPC4xx_IBM_DDR2_DUMP_MQ_REGISTER(R3BAS);
 #endif /* (defined(CONFIG_440SP) || ... */
 #if defined(CONFIG_405EX)
 	PPC4xx_IBM_DDR2_DUMP_REGISTER(BESR);
