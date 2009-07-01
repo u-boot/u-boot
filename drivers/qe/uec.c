@@ -31,6 +31,11 @@
 #include "uec_phy.h"
 #include "miiphy.h"
 
+/* Default UTBIPAR SMI address */
+#ifndef CONFIG_UTBIPAR_INIT_TBIPA
+#define CONFIG_UTBIPAR_INIT_TBIPA 0x1F
+#endif
+
 static uec_info_t uec_info[] = {
 #ifdef CONFIG_UEC_ETH1
 	STD_UEC_INFO(1),	/* UEC1 */
@@ -1071,15 +1076,11 @@ static int uec_startup(uec_private_t *uec)
 	utbipar = in_be32(&uec_regs->utbipar);
 	utbipar &= ~UTBIPAR_PHY_ADDRESS_MASK;
 	enet_interface = uec->uec_info->enet_interface;
-	if (enet_interface == ENET_1000_TBI ||
-		 enet_interface == ENET_1000_RTBI) {
-		utbipar |=  (uec_info->phy_address + uec_info->uf_info.ucc_num)
-						 << UTBIPAR_PHY_ADDRESS_SHIFT;
-	} else {
-		utbipar |=  (0x10 + uec_info->uf_info.ucc_num)
-						 << UTBIPAR_PHY_ADDRESS_SHIFT;
-	}
 
+	/* Initialize UTBIPAR address to CONFIG_UTBIPAR_INIT_TBIPA for ALL UEC.
+	 * This frees up the remaining SMI addresses for use.
+	 */
+	utbipar |= CONFIG_UTBIPAR_INIT_TBIPA << UTBIPAR_PHY_ADDRESS_SHIFT;
 	out_be32(&uec_regs->utbipar, utbipar);
 
 	/* Configure the TBI for SGMII operation */
