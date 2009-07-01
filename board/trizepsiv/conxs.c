@@ -50,7 +50,7 @@ extern struct serial_device serial_stuart_device;
  * Miscelaneous platform dependent initialisations
  */
 
-void usb_board_init(void)
+int usb_board_init(void)
 {
 	UHCHR = (UHCHR | UHCHR_PCPL | UHCHR_PSPL) &
 		~(UHCHR_SSEP0 | UHCHR_SSEP1 | UHCHR_SSEP2 | UHCHR_SSE);
@@ -71,6 +71,8 @@ void usb_board_init(void)
 
 	/* Set port power control mask bits, only 3 ports. */
 	UHCRHDB |= (0x7<<17);
+
+	return 0;
 }
 
 void usb_board_init_fail(void)
@@ -89,7 +91,6 @@ void usb_board_stop(void)
 
 	CKEN &= ~CKEN10_USBHOST;
 
-	puts("Called USB STOP\n");
 	return;
 }
 
