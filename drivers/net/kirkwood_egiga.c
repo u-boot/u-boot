@@ -662,3 +662,4 @@ int kirkwood_egiga_initialize(bd_t * bis)
 #endif
 	}
 	return 0;
+}
