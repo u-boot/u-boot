@@ -52,6 +52,7 @@
 |  INCLUDES
 |*************************************************************************/
 
+#include "os_support.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,8 +61,6 @@
 #include <elf.h>
 #include <unistd.h>
 #include <errno.h>
-
-extern int errno;
 
 /*************************************************************************
 |  DEFINES

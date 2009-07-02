@@ -96,11 +96,7 @@
 # endif
 #endif /* CONFIG_ENV_IS_IN_MG_DISK */
 
-#ifdef USE_HOSTCC
-# include <stdint.h>
-#else
-# include <linux/types.h>
-#endif
+#include "compiler.h"
 
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # define ENV_HEADER_SIZE	(sizeof(uint32_t) + 1)

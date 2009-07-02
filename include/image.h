@@ -33,10 +33,9 @@
 #ifndef __IMAGE_H__
 #define __IMAGE_H__
 
-#if USE_HOSTCC
-#ifndef __MINGW32__
-#include <endian.h>
-#endif
+#include "compiler.h"
+
+#ifdef USE_HOSTCC
 
 /* new uImage format support enabled on host */
 #define CONFIG_FIT		1
@@ -46,9 +45,7 @@
 #else
 
 #include <lmb.h>
-#include <linux/string.h>
 #include <asm/u-boot.h>
-#include <asm/byteorder.h>
 
 #endif /* USE_HOSTCC */
 
@@ -284,8 +281,8 @@ typedef struct bootm_headers {
 #define CHUNKSZ_SHA1 (64 * 1024)
 #endif
 
-#define uimage_to_cpu(x)		ntohl(x)
-#define cpu_to_uimage(x)		htonl(x)
+#define uimage_to_cpu(x)		be32_to_cpu(x)
+#define cpu_to_uimage(x)		cpu_to_be32(x)
 
 const char *genimg_get_os_name (uint8_t os);
 const char *genimg_get_arch_name (uint8_t arch);

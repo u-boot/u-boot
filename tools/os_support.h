@@ -19,6 +19,8 @@
 #ifndef __OS_SUPPORT_H_
 #define __OS_SUPPORT_H_
 
+#include "compiler.h"
+
 /*
  * Include additional files required for supporting different operating systems
  */

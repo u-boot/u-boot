@@ -25,12 +25,6 @@
 #include "mkimage.h"
 #include <image.h>
 
-extern int errno;
-
-#ifndef MAP_FAILED
-#define MAP_FAILED (void *)(-1)
-#endif
-
 extern	unsigned long	crc32 (unsigned long crc, const char *buf, unsigned int len);
 static	void		copy_file (int, const char *, int);
 static	void		usage (void);
@@ -502,7 +496,7 @@ image_verify_header (char *ptr, int image_size)
 	 */
 	memcpy (hdr, ptr, sizeof(image_header_t));
 
-	if (ntohl(hdr->ih_magic) != IH_MAGIC) {
+	if (be32_to_cpu(hdr->ih_magic) != IH_MAGIC) {
 		fprintf (stderr,
 			"%s: Bad Magic Number: \"%s\" is no valid image\n",
 			cmdname, imagefile);
@@ -512,8 +506,8 @@ image_verify_header (char *ptr, int image_size)
 	data = (char *)hdr;
 	len  = sizeof(image_header_t);
 
-	checksum = ntohl(hdr->ih_hcrc);
-	hdr->ih_hcrc = htonl(0);	/* clear for re-calculation */
+	checksum = be32_to_cpu(hdr->ih_hcrc);
+	hdr->ih_hcrc = cpu_to_be32(0);	/* clear for re-calculation */
 
 	if (crc32 (0, data, len) != checksum) {
 		fprintf (stderr,
@@ -525,7 +519,7 @@ image_verify_header (char *ptr, int image_size)
 	data = ptr + sizeof(image_header_t);
 	len  = image_size - sizeof(image_header_t) ;
 
-	if (crc32 (0, data, len) != ntohl(hdr->ih_dcrc)) {
+	if (crc32 (0, data, len) != be32_to_cpu(hdr->ih_dcrc)) {
 		fprintf (stderr,
 			"%s: ERROR: \"%s\" has corrupted data!\n",
 			cmdname, imagefile);

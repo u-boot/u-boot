@@ -21,56 +21,13 @@
 #ifndef _LIBFDT_ENV_H
 #define _LIBFDT_ENV_H
 
-#ifdef USE_HOSTCC
-#include <stdint.h>
-#include <string.h>
-#ifdef __MINGW32__
-#include <linux/types.h>
-#include <linux/byteorder/swab.h>
-#else
-#include <endian.h>
-#include <byteswap.h>
-#endif /* __MINGW32__ */
-#else
-#include <linux/string.h>
-#include <linux/types.h>
-#include <asm/byteorder.h>
-#endif /* USE_HOSTCC */
+#include "compiler.h"
 
-#include <stddef.h>
 extern struct fdt_header *working_fdt;  /* Pointer to the working fdt */
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
-#ifdef __MINGW32__
-#define fdt32_to_cpu(x)		___swab32(x)
-#define cpu_to_fdt32(x)		___swab32(x)
-#define fdt64_to_cpu(x)		___swab64(x)
-#define cpu_to_fdt64(x)		___swab64(x)
-#else
-#define fdt32_to_cpu(x)		bswap_32(x)
-#define cpu_to_fdt32(x)		bswap_32(x)
-#define fdt64_to_cpu(x)		bswap_64(x)
-#define cpu_to_fdt64(x)		bswap_64(x)
-#endif
-#else
-#define fdt32_to_cpu(x)		(x)
-#define cpu_to_fdt32(x)		(x)
-#define fdt64_to_cpu(x)		(x)
-#define cpu_to_fdt64(x)		(x)
-#endif
-
-#ifndef USE_HOSTCC
-/*
- * Types for `void *' pointers.
- *
- * Note: libfdt uses this definition from /usr/include/stdint.h.
- * Define it here rather than pulling in all of stdint.h.
- */
-#if __WORDSIZE == 64
-typedef unsigned long int       uintptr_t;
-#else
-typedef unsigned int            uintptr_t;
-#endif
-#endif /* not USE_HOSTCC */
+#define fdt32_to_cpu(x)		be32_to_cpu(x)
+#define cpu_to_fdt32(x)		cpu_to_be32(x)
+#define fdt64_to_cpu(x)		be64_to_cpu(x)
+#define cpu_to_fdt64(x)		cpu_to_be64(x)
 
 #endif /* _LIBFDT_ENV_H */

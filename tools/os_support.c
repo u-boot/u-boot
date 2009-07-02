@@ -19,6 +19,7 @@
 /*
  * Include additional files required for supporting different operating systems
  */
+#include "compiler.h"
 #ifdef __MINGW32__
 #include "mingw_support.c"
 #endif

@@ -26,14 +26,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef __WIN32__
-#include <netinet/in.h>		/* for host / network byte order conversions	*/
-#endif
-#ifdef __MINGW32__
-#include <stdint.h>
-#else
-#include <sys/mman.h>
-#endif
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
@@ -53,28 +45,3 @@
 #define MKIMAGE_DEFAULT_DTC_OPTIONS	"-I dts -O dtb -p 500"
 #define MKIMAGE_MAX_DTC_CMDLINE_LEN	512
 #define MKIMAGE_DTC			"dtc"   /* assume dtc is in $PATH */
-
-#if defined(__BEOS__) || defined(__NetBSD__) || defined(__APPLE__)
-#include <inttypes.h>
-#endif
-
-#ifdef __WIN32__
-typedef unsigned int __u32;
-
-#define SWAP_LONG(x) \
-	((__u32)( \
-		(((__u32)(x) & (__u32)0x000000ffUL) << 24) | \
-		(((__u32)(x) & (__u32)0x0000ff00UL) <<  8) | \
-		(((__u32)(x) & (__u32)0x00ff0000UL) >>  8) | \
-		(((__u32)(x) & (__u32)0xff000000UL) >> 24) ))
-typedef		unsigned char	uint8_t;
-typedef		unsigned short	uint16_t;
-typedef		unsigned int	uint32_t;
-
-#define     ntohl(a)	SWAP_LONG(a)
-#define     htonl(a)	SWAP_LONG(a)
-#endif	/* __WIN32__ */
-
-#ifndef	O_BINARY		/* should be define'd on __WIN32__ */
-#define O_BINARY	0
-#endif

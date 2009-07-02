@@ -1,15 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-
-#if defined(__linux__)
-#include <stdint.h>
-#else
-#ifdef __CYGWIN__
-#include "elf.h"
-#else
-#include <inttypes.h>
-#endif
-#endif
+#include "compiler.h"
 
 typedef struct bitmap_s {		/* bitmap description */
 	uint16_t width;

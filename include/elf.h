@@ -33,15 +33,7 @@
 #ifndef _ELF_H
 #define _ELF_H
 
-#if defined(__BEOS__)	 || \
-    defined(__NetBSD__)  || \
-    defined(__FreeBSD__) || \
-    defined(__sun__)	 || \
-    defined(__APPLE__)
-#include <inttypes.h>
-#elif (defined(__linux__) && defined(USE_HOSTCC)) || defined(__WIN32__)
-#include <stdint.h>
-#endif
+#include "compiler.h"
 
 /*
  *  This version doesn't work for 64-bit ABIs - Erik.

@@ -34,9 +34,6 @@
 #define MAP_SHARED	0x01		/* Share changes */
 #define MAP_PRIVATE	0x02		/* Changes are private */
 
-/* Return value of `mmap' in case of an error */
-#define MAP_FAILED	((void *) -1)
-
 /* Windows 64-bit access macros */
 #define LODWORD(x) ((DWORD)((DWORDLONG)(x)))
 #define HIDWORD(x) ((DWORD)(((DWORDLONG)(x) >> 32) & 0xffffffff))
