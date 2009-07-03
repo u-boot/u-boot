@@ -78,12 +78,14 @@ static int has_been_read = 0;
 
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
 /* Is this a valid NXID EEPROM? */
-#define is_valid (*((u32 *)e.id) == (('N' << 24) | ('X' << 16) | ('I' << 8) | 'D'))
+#define is_valid ((e.id[0] == 'N') || (e.id[1] == 'X') || \
+		  (e.id[2] == 'I') || (e.id[3] == 'D'))
 #endif
 
 #ifdef CONFIG_SYS_I2C_EEPROM_CCID
 /* Is this a valid CCID EEPROM? */
-#define is_valid (*((u32 *)e.id) == (('C' << 24) | ('C' << 16) | ('I' << 8) | 'D'))
+#define is_valid ((e.id[0] == 'C') || (e.id[1] == 'C') || \
+		  (e.id[2] == 'I') || (e.id[3] == 'D'))
 #endif
 
 /**
