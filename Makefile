@@ -3143,8 +3143,16 @@ imx31_phycore_config	: unconfig
 mx31ads_config		: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 mx31ads freescale mx31
 
-mx31pdk_config		: unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm1136 mx31pdk freescale mx31
+mx31pdk_config \
+mx31pdk_nand_config	: unconfig
+	@mkdir -p $(obj)include
+	@if [ -n "$(findstring _nand_,$@)" ]; then					\
+		echo "#define CONFIG_NAND_U_BOOT" >> $(obj)include/config.h;		\
+	else										\
+		echo "#define CONFIG_SKIP_LOWLEVEL_INIT" >> $(obj)include/config.h;	\
+		echo "#define CONFIG_SKIP_RELOCATE_UBOOT" >> $(obj)include/config.h;	\
+	fi
+	@$(MKCONFIG) -a mx31pdk arm arm1136 mx31pdk freescale mx31
 
 omap2420h4_config	: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4 NULL omap24xx

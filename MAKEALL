@@ -555,6 +555,7 @@ LIST_ARM11="			\
 	imx31_phycore_eet	\
 	mx31ads			\
 	mx31pdk			\
+	mx31pdk_nand		\
 	qong			\
 	smdk6400		\
 "

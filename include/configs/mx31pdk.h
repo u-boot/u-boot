@@ -43,10 +43,10 @@
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
 
-/* No support for NAND boot for i.MX31 PDK yet, so we rely on some other
- * program to initialize the SDRAM.
- */
+#if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SKIP_RELOCATE_UBOOT
+#endif
 
 /*
  * Size of malloc() pool
@@ -158,5 +158,42 @@
 #define CONFIG_ENV_IS_NOWHERE	1
 
 #define CONFIG_ENV_SIZE		(128 * 1024)
+
+/* NAND configuration for the NAND_SPL */
+
+/* Start copying real U-boot from the second page */
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	0x800
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	0x30000
+/* Load U-Boot to this address */
+#define CONFIG_SYS_NAND_U_BOOT_DST	0x87f00000
+#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
+
+#define CONFIG_SYS_NAND_PAGE_SIZE	0x800
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
+#define CONFIG_SYS_NAND_PAGE_COUNT	64
+#define CONFIG_SYS_NAND_SIZE		(256 * 1024 * 1024)
+#define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
+
+
+/* Configuration of lowlevel_init.S (clocks and SDRAM) */
+#define CCM_CCMR_SETUP		0x074B0BF5
+#define CCM_PDR0_SETUP_532MHZ	(PDR0_CSI_PODF(0x1ff) | PDR0_PER_PODF(7) | \
+				 PDR0_HSP_PODF(3) | PDR0_NFC_PODF(5) |     \
+				 PDR0_IPG_PODF(1) | PDR0_MAX_PODF(3) |     \
+				 PDR0_MCU_PODF(0))
+#define CCM_MPCTL_SETUP_532MHZ	(PLL_PD(0) | PLL_MFD(51) | PLL_MFI(10) |   \
+				 PLL_MFN(12))
+
+#define ESDMISC_MDDR_SETUP	0x00000004
+#define ESDMISC_MDDR_RESET_DL	0x0000000c
+#define ESDCFG0_MDDR_SETUP	0x006ac73a
+
+#define ESDCTL_ROW_COL		(ESDCTL_SDE | ESDCTL_ROW(2) | ESDCTL_COL(2))
+#define ESDCTL_SETTINGS		(ESDCTL_ROW_COL | ESDCTL_SREFR(3) | \
+				 ESDCTL_DSIZ(2) | ESDCTL_BL(1))
+#define ESDCTL_PRECHARGE	(ESDCTL_ROW_COL | ESDCTL_CMD_PRECHARGE)
+#define ESDCTL_AUTOREFRESH	(ESDCTL_ROW_COL | ESDCTL_CMD_AUTOREFRESH)
+#define ESDCTL_LOADMODEREG	(ESDCTL_ROW_COL | ESDCTL_CMD_LOADMODEREG)
+#define ESDCTL_RW		ESDCTL_SETTINGS
 
 #endif /* __CONFIG_H */
