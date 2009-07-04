@@ -512,7 +512,8 @@ LIST_ARM9="			\
 	mx1ads			\
 	mx1fs2			\
 	netstar			\
-	nmdk8815		\
+	nhk8815			\
+	nhk8815_onenand		\
 	omap1510inn		\
 	omap1610h2		\
 	omap1610inn		\
