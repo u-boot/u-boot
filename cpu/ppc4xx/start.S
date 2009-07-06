@@ -2021,6 +2021,7 @@ pci_wait:
 ! Output r3 = none
 !-----------------------------------------------------------------------------
 */
+	.globl	pll_write
 pll_write:
 	mfdcr  r5, CPC0_UCR
 	andis. r5,r5,0xFFFF
