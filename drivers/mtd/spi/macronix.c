@@ -49,18 +49,10 @@
 #define CMD_MX25XX_DP		0xb9	/* Deep Power-down */
 #define CMD_MX25XX_RES		0xab	/* Release from DP, and Read Signature */
 
-#define MXIC_ID_MX2516		0x15
-#define MXIC_ID_MX2520		0x12
-#define MXIC_ID_MX2532		0x16
-#define MXIC_ID_MX2540		0x13
-#define MXIC_ID_MX2564		0x17
-#define MXIC_ID_MX2580		0x14
-#define MXIC_ID_MX25128		0x18
-
 #define MACRONIX_SR_WIP		(1 << 0)	/* Write-in-Progress */
 
 struct macronix_spi_flash_params {
-	u8 idcode1;
+	u16 idcode;
 	u16 page_size;
 	u16 pages_per_sector;
 	u16 sectors_per_block;
@@ -81,12 +73,44 @@ static inline struct macronix_spi_flash *to_macronix_spi_flash(struct spi_flash
 
 static const struct macronix_spi_flash_params macronix_spi_flash_table[] = {
 	{
-		.idcode1 = MXIC_ID_MX25128,
+		.idcode = 0x2015,
+		.page_size = 256,
+		.pages_per_sector = 16,
+		.sectors_per_block = 16,
+		.nr_blocks = 32,
+		.name = "MX25L1605D",
+	},
+	{
+		.idcode = 0x2016,
+		.page_size = 256,
+		.pages_per_sector = 16,
+		.sectors_per_block = 16,
+		.nr_blocks = 64,
+		.name = "MX25L3205D",
+	},
+	{
+		.idcode = 0x2017,
+		.page_size = 256,
+		.pages_per_sector = 16,
+		.sectors_per_block = 16,
+		.nr_blocks = 128,
+		.name = "MX25L6405D",
+	},
+	{
+		.idcode = 0x2018,
 		.page_size = 256,
 		.pages_per_sector = 16,
 		.sectors_per_block = 16,
 		.nr_blocks = 256,
 		.name = "MX25L12805D",
+	},
+	{
+		.idcode = 0x2618,
+		.page_size = 256,
+		.pages_per_sector = 16,
+		.sectors_per_block = 16,
+		.nr_blocks = 256,
+		.name = "MX25L12855E",
 	},
 };
 
@@ -277,15 +301,16 @@ struct spi_flash *spi_flash_probe_macronix(struct spi_slave *spi, u8 *idcode)
 	const struct macronix_spi_flash_params *params;
 	struct macronix_spi_flash *mcx;
 	unsigned int i;
+	u16 id = idcode[2] | idcode[1] << 8;
 
 	for (i = 0; i < ARRAY_SIZE(macronix_spi_flash_table); i++) {
 		params = &macronix_spi_flash_table[i];
-		if (params->idcode1 == idcode[2])
+		if (params->idcode == id)
 			break;
 	}
 
 	if (i == ARRAY_SIZE(macronix_spi_flash_table)) {
-		debug("SF: Unsupported Macronix ID %02x\n", idcode[1]);
+		debug("SF: Unsupported Macronix ID %04x\n", id);
 		return NULL;
 	}
 
