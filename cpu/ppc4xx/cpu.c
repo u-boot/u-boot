@@ -54,6 +54,7 @@ int __get_cpu_num(void)
 }
 int get_cpu_num(void) __attribute__((weak, alias("__get_cpu_num")));
 
+#if defined(CONFIG_PCI)
 #if defined(CONFIG_405GP) || \
     defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
@@ -76,6 +77,7 @@ static int pci_async_enabled(void)
 #endif
 }
 #endif
+#endif /* CONFIG_PCI */
 
 #if defined(CONFIG_PCI) && !defined(CONFIG_IOP480) && \
     !defined(CONFIG_405) && !defined(CONFIG_405EX)
