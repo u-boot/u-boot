@@ -100,6 +100,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SAVES
+#define CONFIG_CMD_SPI
 #define CONFIG_CMD_USB
 
 #if (TEXT_BASE == 0xFF000000)
@@ -135,6 +136,12 @@
 		"cp.b 200000 FFF00000 ${filesize};"	\
 		"protect on FFF00000 +${filesize}\0"	\
 	""
+
+/*
+ * SPI configuration
+ */
+#define CONFIG_HARD_SPI		1
+#define CONFIG_MPC52XX_SPI	1
 
 /*
  * I2C configuration
@@ -241,6 +248,22 @@
 
 /*
  * GPIO configuration
+ * use pin gpio_wkup_6 as second SDRAM chip select (mem_cs1)
+ *  Bit 0   (mask 0x80000000) : 0x1
+ * SPI on Tmr2/3/4/5 pins
+ *  Bit 2:3 (mask 0x30000000) : 0x2
+ * ATA cs0/1 on csb_4/5
+ *  Bit 6:7 (mask 0x03000000) : 0x2
+ * Ethernet 100Mbit with MD
+ *  Bits 12:15 (mask 0x000f0000): 0x5
+ * USB - Two UARTs
+ *  Bits 18:19 (mask 0x00003000) : 0x2
+ * PSC3 - USB2 on PSC3
+ *  Bits 20:23 (mask 0x00000f00) : 0x1
+ * PSC2 - CAN1&2 on PSC2 pins
+ *  Bits 25:27 (mask 0x00000070) : 0x1
+ * PSC1 - AC97 functionality
+ *  Bits 29:31 (mask 0x00000007) : 0x2
  */
 #define CONFIG_SYS_GPS_PORT_CONFIG	0xA2552112
 

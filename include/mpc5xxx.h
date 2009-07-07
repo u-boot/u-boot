@@ -392,6 +392,24 @@
 #define I2C_IF		0x02
 #define I2C_RXAK	0x01
 
+/* SPI control register 1 bits */
+#define SPI_CR_LSBFE	0x01
+#define SPI_CR_SSOE	0x02
+#define SPI_CR_CPHA	0x04
+#define SPI_CR_CPOL	0x08
+#define SPI_CR_MSTR	0x10
+#define SPI_CR_SWOM	0x20
+#define SPI_CR_SPE	0x40
+#define SPI_CR_SPIE	0x80
+
+/* SPI status register bits */
+#define SPI_SR_MODF	0x10
+#define SPI_SR_WCOL	0x40
+#define SPI_SR_SPIF	0x80
+
+/* SPI port data register bits */
+#define SPI_PDR_SS	0x08
+
 /* Programmable Serial Controller (PSC) status register bits */
 #define PSC_SR_CDE		0x0080
 #define PSC_SR_RXRDY		0x0100
