@@ -111,7 +111,7 @@ static void de_wait (void)
 	while (DE_RD_REG (GC_CTR) & 0x00000131)
 		if (lc-- < 0) {
 			gdc_sw_reset ();
-			printf ("gdc reset done after drawing engine lock.\n");
+			puts ("gdc reset done after drawing engine lock.\n");
 			break;
 		}
 }
@@ -125,7 +125,7 @@ static void de_wait_slots (int slots)
 	while (DE_RD_REG (GC_IFCNT) < slots)
 		if (lc-- < 0) {
 			gdc_sw_reset ();
-			printf ("gdc reset done after drawing engine lock.\n");
+			puts ("gdc reset done after drawing engine lock.\n");
 			break;
 		}
 }
@@ -183,7 +183,7 @@ unsigned int pci_video_init (void)
 	pci_dev_t devbusfn;
 
 	if ((devbusfn = pci_find_devices (supported, 0)) < 0) {
-		printf ("PCI video controller not found!\n");
+		puts ("PCI video controller not found!\n");
 		return 0;
 	}
 
@@ -194,7 +194,7 @@ unsigned int pci_video_init (void)
 	dev->frameAdrs = pci_mem_to_phys (devbusfn, dev->frameAdrs);
 
 	if (dev->frameAdrs == 0) {
-		printf ("PCI config: failed to get base address\n");
+		puts ("PCI config: failed to get base address\n");
 		return 0;
 	}
 
@@ -223,7 +223,7 @@ unsigned int card_init (void)
 	if (!pci_video_init ())
 		return 0;
 
-	printf ("CoralP\n");
+	puts ("CoralP\n");
 
 	tmp = 0;
 	videomode = 0x310;
@@ -252,7 +252,7 @@ unsigned int card_init (void)
 		res_mode = (struct ctfb_res_modes *)
 			   &res_mode_init[vesa_modes[i].resindex];
 		if (vesa_modes[i].resindex > 2) {
-			printf ("\tUnsupported resolution, using default\n");
+			puts ("\tUnsupported resolution, using default\n");
 			bpp = vesa_modes[1].bits_per_pixel;
 			div = fr_div[1];
 		}
@@ -296,7 +296,7 @@ unsigned int card_init (void)
 	default:
 		printf ("\t%d bpp configured, but only 8,15 and 16 supported\n",
 			bpp);
-		printf ("\tSwitching back to 15bpp\n");
+		puts ("\tfallback to 15bpp\n");
 		dev->gdfIndex = GDF_15BIT_555RGB;
 		dev->gdfBytesPP = 2;
 	}
@@ -344,7 +344,7 @@ void *video_hw_init (void)
 {
 	GraphicDevice *dev = &mb862xx;
 
-	printf ("Video: Fujitsu ");
+	puts ("Video: Fujitsu ");
 
 	memset (dev, 0, sizeof (GraphicDevice));
 
@@ -357,10 +357,10 @@ void *video_hw_init (void)
 	 * retrieve base address
 	 */
 	if ((dev->frameAdrs = board_video_init ()) == 0) {
-		printf ("Controller not found!\n");
+		puts ("Controller not found!\n");
 		return NULL;
 	} else
-		printf ("Lime\n");
+		puts ("Lime\n");
 #endif
 
 	de_init ();
