@@ -242,13 +242,15 @@ const omap3_sysinfo sysinfo = {
 							 /* - WIFI_IRQ*/\
  MUX_VAL(CP(MCBSP1_FSX),	(IEN  | PTD | DIS | M4)) /*GPIO_161*/\
 							 /* - nIRQ_NUB1*/\
- MUX_VAL(CP(CAM_WEN),		(IEN  | PTU | DIS | M4)) /*GPIO_167*/\
+ MUX_VAL(CP(MCBSP1_CLKX),	(IEN  | PTU | DIS | M4)) /*GPIO_162*/\
 							 /* - nIRQ_NUB2*/\
  /*Various other stuff*/\
  MUX_VAL(CP(UART3_CTS_RCTX),	(IEN  | PTD | DIS | M4)) /*GPIO_163*/\
 							 /* - nOC_USB5*/\
  MUX_VAL(CP(ETK_D8_ES2),	(IEN  | PTD | DIS | M4)) /*GPIO_22*/\
 							 /* - MSECURE*/\
+ MUX_VAL(CP(CSI2_DY1),		(IEN  | PTD | DIS | M4)) /*GPIO_115*/\
+							 /* - POP_OVERHEAT*/\
  /*External Resets and Enables*/\
  MUX_VAL(CP(ETK_D0_ES2),	(IDIS | PTD | DIS | M4)) /*GPIO_14*/\
 							 /* - nHDPHN_SHUTDOWN*/\
@@ -262,6 +264,13 @@ const omap3_sysinfo sysinfo = {
 							 /* - RESET_NUBS*/\
  MUX_VAL(CP(UART3_RTS_SD),	(IDIS | PTU | EN  | M4)) /*GPIO_164*/\
 							 /* - EN_USB_5V*/\
+ /*Spare GPIOs*/\
+ MUX_VAL(CP(GPMC_NCS7),		(IEN  | PTD | EN  | M4)) /*GPIO_58*/\
+ MUX_VAL(CP(GPMC_WAIT2),	(IEN  | PTD | EN  | M4)) /*GPIO_64*/\
+ MUX_VAL(CP(GPMC_WAIT3),	(IEN  | PTD | EN  | M4)) /*GPIO_65*/\
+ MUX_VAL(CP(CAM_VS),		(IEN  | PTU | EN  | M4)) /*GPIO_95*/\
+ MUX_VAL(CP(CAM_WEN),		(IEN  | PTD | EN  | M4)) /*GPIO_167*/\
+ MUX_VAL(CP(HDQ_SIO),		(IEN  | PTD | EN  | M4)) /*GPIO_170*/\
  /*HS USB OTG Port (connects to HSUSB0)*/\
  MUX_VAL(CP(HSUSB0_CLK),	(IEN  | PTD | DIS | M0)) /*HSUSB0_CLK*/\
  MUX_VAL(CP(HSUSB0_STP),	(IDIS | PTU | EN  | M0)) /*HSUSB0_STP*/\
