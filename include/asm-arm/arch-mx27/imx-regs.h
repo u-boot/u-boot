@@ -1,5 +1,4 @@
 /*
- *
  * (c) 2007 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
  * (c) 2009 Ilya Yanok, Emcraft Systems <yanok@emcraft.com>
  *
@@ -506,4 +505,3 @@ struct iim_regs {
 #define IIM1_SUID		1
 
 #endif				/* _IMX_REGS_H */
-

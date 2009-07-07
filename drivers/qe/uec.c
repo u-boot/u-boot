@@ -1393,5 +1393,3 @@ int uec_standard_init(bd_t *bis)
 {
 	return uec_eth_init(bis, uec_info, ARRAY_SIZE(uec_info));
 }
-
-

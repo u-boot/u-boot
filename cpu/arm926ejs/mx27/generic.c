@@ -238,4 +238,3 @@ void imx_gpio_mode(int gpio_mode)
 				&regs->port[port].iconfb2);
 	}
 }
-

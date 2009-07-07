@@ -93,4 +93,3 @@ void l2_cache_disable(void)
 		__asm__ __volatile__("mov r12, %0":"=r"(j));
 	}
 }
-

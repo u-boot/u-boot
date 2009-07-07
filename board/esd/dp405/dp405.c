@@ -101,28 +101,28 @@ int checkboard (void)
 	id1 = trans[(~(in_be32((void *)GPIO0_IR) >> 5)) & 0x0000000f];
 	id2 = trans[(~(in_be32((void *)GPIO0_IR) >> 9)) & 0x0000000f];
 
-        rev = in_8((void *)0xf0001000);
-        if (rev & 0x10) /* old DP405 compatibility */
-                rev = in_8((void *)0xf0000800);
+	rev = in_8((void *)0xf0001000);
+	if (rev & 0x10) /* old DP405 compatibility */
+		rev = in_8((void *)0xf0000800);
 
-        switch (rev & 0xc0) {
-        case 0x00:
-                puts(" (HW=DP405");
-                break;
-        case 0x80:
-                puts(" (HW=DP405/CO");
-                break;
-        case 0xc0:
-                puts(" (HW=DN405");
-                break;
-        }
-        printf(", ID=0x%1X%1X, PLD=0x%02X", id2, id1, rev & 0x0f);
+	switch (rev & 0xc0) {
+	case 0x00:
+		puts(" (HW=DP405");
+		break;
+	case 0x80:
+		puts(" (HW=DP405/CO");
+		break;
+	case 0xc0:
+		puts(" (HW=DN405");
+		break;
+	}
+	printf(", ID=0x%1X%1X, PLD=0x%02X", id2, id1, rev & 0x0f);
 
-        if ((rev & 0xc0) == 0xc0) {
-                printf(", C5V=%s",
-                       in_be32((void *)GPIO0_IR) & 0x40000000 ? "off" : "on");
-        }
-        puts(")\n");
+	if ((rev & 0xc0) == 0xc0) {
+		printf(", C5V=%s",
+		       in_be32((void *)GPIO0_IR) & 0x40000000 ? "off" : "on");
+	}
+	puts(")\n");
 
 	return 0;
 }

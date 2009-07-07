@@ -333,18 +333,18 @@ int cmd_mtc(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(mtc, 5, 1, cmd_mtc,
-	   "mtc     - special commands for digsyMTC\n",
-	   "[subcommand] [args...]\n"
-	   "Subcommands list:\n"
-	   "led [ledname] [state] [blink] - set state of leds\n"
-	   "  [ledname]: diag can1 can2 can3 can4 usbpwr usbbusy user1 user2\n"
-	   "  [state]: off red green orange\n"
-	   "  [blink]: blink interval in 100ms steps (1 - 10; 0 = static)\n"
-	   "key - returns state of user key\n"
-	   "version - returns firmware version of supervisor uC\n"
-	   "appreg - reads appreg value and stores in environment variable"
-	   " 'appreg'\n"
-	   "digin [channel] - returns state of digital input (1 or 2)\n"
-	   "digout <on|off> <on|off> - sets state of two digital outputs\n"
-	   "help [subcommand] - get help for subcommand\n");
-
+	"mtc     - special commands for digsyMTC\n",
+	"[subcommand] [args...]\n"
+	"Subcommands list:\n"
+	"led [ledname] [state] [blink] - set state of leds\n"
+	"  [ledname]: diag can1 can2 can3 can4 usbpwr usbbusy user1 user2\n"
+	"  [state]: off red green orange\n"
+	"  [blink]: blink interval in 100ms steps (1 - 10; 0 = static)\n"
+	"key - returns state of user key\n"
+	"version - returns firmware version of supervisor uC\n"
+	"appreg - reads appreg value and stores in environment variable"
+	" 'appreg'\n"
+	"digin [channel] - returns state of digital input (1 or 2)\n"
+	"digout <on|off> <on|off> - sets state of two digital outputs\n"
+	"help [subcommand] - get help for subcommand\n"
+);

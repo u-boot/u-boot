@@ -176,7 +176,7 @@ void set_timer (ulong t)
 	timestamp = time_to_tick(t);
 }
 
-/* delay x useconds AND perserve advance timstamp value */
+/* delay x useconds AND preserve advance timstamp value */
 void udelay (unsigned long usec)
 {
 	unsigned long long tmp;
@@ -188,4 +188,3 @@ void udelay (unsigned long usec)
 	while (get_ticks() < tmp)	/* loop till event */
 		 /*NOP*/;
 }
-

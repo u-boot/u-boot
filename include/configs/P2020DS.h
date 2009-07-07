@@ -110,7 +110,9 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 #define CONFIG_FSL_DDR3		1
 #undef CONFIG_FSL_DDR_INTERACTIVE
 
-// #define	CONFIG_DDR_ECC /* ECC will be enabled based on perf_mode environment variable */
+/* ECC will be enabled based on perf_mode environment variable */
+/* #define	CONFIG_DDR_ECC */
+
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 
@@ -126,7 +128,6 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 #define SPD_EEPROM_ADDRESS1	0x51	/* CTLR 0 DIMM 0 */
 
 /* These are used when DDR doesn't use SPD.  */
-//#define CONFIG_SYS_SDRAM_SIZE		512		/* DDR is 512MB */
 #define CONFIG_SYS_SDRAM_SIZE		1024		/* DDR is 1GB */
 
 /* Default settings for "stable" mode */

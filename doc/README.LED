@@ -10,7 +10,7 @@ The first step is to define CONFIG_STATUS_LED in the board config file.
 If the LED support is only for a single board, define CONFIG_BOARD_SPECIFIC_LED
 in the board config file.
 
-At a minimum, these macros must be defined at 
+At a minimum, these macros must be defined at
 STATUS_LED_BIT
 STATUS_LED_STATE
 STATUS_LED_PERIOD
@@ -20,7 +20,7 @@ STATUS_LED_BIT<n>
 STATUS_LED_STATE<n>
 STATUS_LED_PERIOD<n>
 
-Where <n> can a integer 1 through 3. 
+Where <n> can a integer 1 through 3.
 
 STATUS_LED_BIT is passed into the __led_* functions to identify which LED is
 being acted on.  As such, the value choose must be unique with with respect to
@@ -37,25 +37,25 @@ range from 2 to 10.
 Some other LED macros
 
 STATUS_LED_BOOT is the LED to light when the board is booting.  This must be a
-valid STATUS_LED_BIT value. 
+valid STATUS_LED_BIT value.
 
 STATUS_LED_RED is the red LED.  It is used signal errors. This must be a valid
 STATUS_LED_BIT value. Other similar color LED's are STATUS_LED_YELLOW and
-STATUS_LED_BLUE.  
+STATUS_LED_BLUE.
 
 These board must define these functions
 
 __led_init is called once to initialize the LED to STATUS_LED_STATE. One time
 start up code should be placed here.
 
-__led_set is called to change the state of the LED. 
+__led_set is called to change the state of the LED.
 
 __led_toggle is called to toggle the current state of the LED.
 
 Colour LED
 ========================================
 
-Colour LED's are at present only used by ARM. 
+Colour LED's are at present only used by ARM.
 
 The functions names explain their purpose.
 
