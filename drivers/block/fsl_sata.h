@@ -289,52 +289,6 @@ typedef struct cmd_desc {
 #define SATA_HC_CMD_DESC_ALIGN		4
 
 /*
-* CFIS - Command FIS, which is H2D register FIS, the struct defination
-* of Non-Queued command is different than NCQ command. see them is sata2.h
-*/
-typedef struct cfis {
-	u8 fis_type;
-	u8 pm_port_c;
-	u8 command;
-	u8 features;
-	u8 lba_low;
-	u8 lba_mid;
-	u8 lba_high;
-	u8 device;
-	u8 lba_low_exp;
-	u8 lba_mid_exp;
-	u8 lba_high_exp;
-	u8 features_exp;
-	u8 sector_count;
-	u8 sector_count_exp;
-	u8 res1;
-	u8 control;
-	u8 res2[4];
-} __attribute__ ((packed)) cfis_t;
-
-/*
-* SFIS - Status FIS, which is D2H register FIS.
-*/
-typedef struct sfis {
-	u8 fis_type;
-	u8 pm_port_i;
-	u8 status;
-	u8 error;
-	u8 lba_low;
-	u8 lba_mid;
-	u8 lba_high;
-	u8 device;
-	u8 lba_low_exp;
-	u8 lba_mid_exp;
-	u8 lba_high_exp;
-	u8 res1;
-	u8 sector_count;
-	u8 sector_count_exp;
-	u8 res2[2];
-	u8 res3[4];
-} __attribute__ ((packed)) sfis_t;
-
-/*
  * SATA device driver info
  */
 typedef struct fsl_sata_info {

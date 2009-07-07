@@ -81,7 +81,7 @@ void dprint_buffer(unsigned char *buf, int len)
 	printf("\n\r");
 }
 
-static void fsl_sata_dump_sfis(struct sfis *s)
+static void fsl_sata_dump_sfis(struct sata_fis_d2h *s)
 {
 	printf("Status FIS dump:\n\r");
 	printf("fis_type:		%02x\n\r", s->fis_type);
@@ -347,7 +347,7 @@ static void fsl_sata_dump_regs(fsl_sata_reg_t *reg)
 	printf("SYSPR:          %08x\n\r", in_be32(&reg->syspr));
 }
 
-static int fsl_ata_exec_ata_cmd(struct fsl_sata *sata, struct cfis *cfis,
+static int fsl_ata_exec_ata_cmd(struct fsl_sata *sata, struct sata_fis_h2d *cfis,
 				int is_ncq, int tag, u8 *buffer, u32 len)
 {
 	cmd_hdr_entry_t *cmd_hdr;
@@ -483,7 +483,7 @@ static int fsl_ata_exec_ata_cmd(struct fsl_sata *sata, struct cfis *cfis,
 
 	if (val32) {
 		u32 der;
-		fsl_sata_dump_sfis((struct sfis *)cmd_desc->sfis);
+		fsl_sata_dump_sfis((struct sata_fis_d2h *)cmd_desc->sfis);
 		printf("CE at device\n\r");
 		fsl_sata_dump_regs(reg);
 		der = in_le32(&reg->der);
@@ -498,13 +498,13 @@ static int fsl_ata_exec_ata_cmd(struct fsl_sata *sata, struct cfis *cfis,
 	return len;
 }
 
-static int fsl_ata_exec_reset_cmd(struct fsl_sata *sata, struct cfis *cfis,
+static int fsl_ata_exec_reset_cmd(struct fsl_sata *sata, struct sata_fis_h2d *cfis,
 				 int tag, u8 *buffer, u32 len)
 {
 	return 0;
 }
 
-static int fsl_sata_exec_cmd(struct fsl_sata *sata, struct cfis *cfis,
+static int fsl_sata_exec_cmd(struct fsl_sata *sata, struct sata_fis_h2d *cfis,
 		 enum cmd_type command_type, int tag, u8 *buffer, u32 len)
 {
 	int rc;
@@ -539,11 +539,9 @@ static int fsl_sata_exec_cmd(struct fsl_sata *sata, struct cfis *cfis,
 static void fsl_sata_identify(int dev, u16 *id)
 {
 	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d;
-	struct cfis *cfis;
+	struct sata_fis_h2d h2d, *cfis = &h2d;
 
-	cfis = (struct cfis *)&h2d;
-	memset((void *)cfis, 0, sizeof(struct cfis));
+	memset(cfis, 0, sizeof(struct sata_fis_h2d));
 
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
@@ -566,12 +564,10 @@ static void fsl_sata_xfer_mode(int dev, u16 *id)
 static void fsl_sata_set_features(int dev)
 {
 	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d;
-	struct cfis *cfis;
+	struct sata_fis_h2d h2d, *cfis = &h2d;
 	u8 udma_cap;
 
-	cfis = (struct cfis *)&h2d;
-	memset((void *)cfis, 0, sizeof(struct cfis));
+	memset(cfis, 0, sizeof(struct sata_fis_h2d));
 
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
@@ -597,14 +593,12 @@ static void fsl_sata_set_features(int dev)
 static u32 fsl_sata_rw_cmd(int dev, u32 start, u32 blkcnt, u8 *buffer, int is_write)
 {
 	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d;
-	struct cfis *cfis;
+	struct sata_fis_h2d h2d, *cfis = &h2d;
 	u32 block;
 
 	block = start;
-	cfis = (struct cfis *)&h2d;
 
-	memset((void *)cfis, 0, sizeof(struct cfis));
+	memset(cfis, 0, sizeof(struct sata_fis_h2d));
 
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
@@ -624,12 +618,9 @@ static u32 fsl_sata_rw_cmd(int dev, u32 start, u32 blkcnt, u8 *buffer, int is_wr
 void fsl_sata_flush_cache(int dev)
 {
 	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d;
-	struct cfis *cfis;
+	struct sata_fis_h2d h2d, *cfis = &h2d;
 
-	cfis = (struct cfis *)&h2d;
-
-	memset((void *)cfis, 0, sizeof(struct cfis));
+	memset(cfis, 0, sizeof(struct sata_fis_h2d));
 
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
@@ -641,14 +632,12 @@ void fsl_sata_flush_cache(int dev)
 static u32 fsl_sata_rw_cmd_ext(int dev, u32 start, u32 blkcnt, u8 *buffer, int is_write)
 {
 	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d;
-	struct cfis *cfis;
+	struct sata_fis_h2d h2d, *cfis = &h2d;
 	u64 block;
 
 	block = (u64)start;
-	cfis = (struct cfis *)&h2d;
 
-	memset((void *)cfis, 0, sizeof(struct cfis));
+	memset(cfis, 0, sizeof(struct sata_fis_h2d));
 
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
@@ -673,8 +662,7 @@ static u32 fsl_sata_rw_cmd_ext(int dev, u32 start, u32 blkcnt, u8 *buffer, int i
 u32 fsl_sata_rw_ncq_cmd(int dev, u32 start, u32 blkcnt, u8 *buffer, int is_write)
 {
 	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d;
-	struct cfis *cfis;
+	struct sata_fis_h2d h2d, *cfis = &h2d;
 	int ncq_channel;
 	u64 block;
 
@@ -684,9 +672,8 @@ u32 fsl_sata_rw_ncq_cmd(int dev, u32 start, u32 blkcnt, u8 *buffer, int is_write
 	}
 
 	block = (u64)start;
-	cfis = (struct cfis *)&h2d;
 
-	memset((void *)cfis, 0, sizeof(struct cfis));
+	memset(cfis, 0, sizeof(struct sata_fis_h2d));
 
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
@@ -718,12 +705,9 @@ u32 fsl_sata_rw_ncq_cmd(int dev, u32 start, u32 blkcnt, u8 *buffer, int is_write
 void fsl_sata_flush_cache_ext(int dev)
 {
 	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
-	struct sata_fis_h2d h2d;
-	struct cfis *cfis;
+	struct sata_fis_h2d h2d, *cfis = &h2d;
 
-	cfis = (struct cfis *)&h2d;
-
-	memset((void *)cfis, 0, sizeof(struct cfis));
+	memset(cfis, 0, sizeof(struct sata_fis_h2d));
 
 	cfis->fis_type = SATA_FIS_TYPE_REGISTER_H2D;
 	cfis->pm_port_c = 0x80; /* is command */
