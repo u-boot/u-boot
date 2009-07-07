@@ -107,15 +107,6 @@ const omap3_sysinfo sysinfo = {
  MUX_VAL(CP(GPMC_D15),		(IEN  | PTD | DIS | M0)) /*GPMC_D15*/\
  MUX_VAL(CP(GPMC_NCS0),		(IDIS | PTU | EN  | M0)) /*GPMC_nCS0*/\
  MUX_VAL(CP(GPMC_NCS1),		(IDIS | PTU | EN  | M0)) /*GPMC_nCS1*/\
- MUX_VAL(CP(GPMC_NCS2),		(IDIS | PTU | EN  | M0)) /*GPMC_nCS2*/\
- MUX_VAL(CP(GPMC_NCS3),		(IDIS | PTU | EN  | M0)) /*GPMC_nCS3*/\
- MUX_VAL(CP(GPMC_NCS4),		(IDIS | PTU | EN  | M0))\
- MUX_VAL(CP(GPMC_NCS5),		(IDIS | PTD | DIS | M0))\
- MUX_VAL(CP(GPMC_NCS6),		(IEN  | PTD | DIS | M1))\
- MUX_VAL(CP(GPMC_NCS7),		(IEN  | PTU | EN  | M1))\
- MUX_VAL(CP(GPMC_NBE1),		(IEN  | PTD | DIS | M0))\
- MUX_VAL(CP(GPMC_WAIT2),	(IEN  | PTU | EN  | M0))\
- MUX_VAL(CP(GPMC_WAIT3),	(IEN  | PTU | EN  | M0))\
  MUX_VAL(CP(GPMC_CLK),		(IDIS | PTD | DIS | M0)) /*GPMC_CLK*/\
  MUX_VAL(CP(GPMC_NADV_ALE),	(IDIS | PTD | DIS | M0)) /*GPMC_nADV_ALE*/\
  MUX_VAL(CP(GPMC_NOE),		(IDIS | PTD | DIS | M0)) /*GPMC_nOE*/\
@@ -254,16 +245,10 @@ const omap3_sysinfo sysinfo = {
  MUX_VAL(CP(CAM_WEN),		(IEN  | PTU | DIS | M4)) /*GPIO_167*/\
 							 /* - nIRQ_NUB2*/\
  /*Various other stuff*/\
- MUX_VAL(CP(CAM_VS),		(IEN  | PTU | DIS | M4)) /*GPIO_95*/\
-							 /* - nTOUCH_BUSY*/\
  MUX_VAL(CP(UART3_CTS_RCTX),	(IEN  | PTD | DIS | M4)) /*GPIO_163*/\
 							 /* - nOC_USB5*/\
- MUX_VAL(CP(MCBSP1_CLKX),	(IDIS | PTD | DIS | M4)) /*GPIO_162*/\
-							 /* - START_ADC*/\
  MUX_VAL(CP(ETK_D8_ES2),	(IEN  | PTD | DIS | M4)) /*GPIO_22*/\
 							 /* - MSECURE*/\
- MUX_VAL(CP(CAM_STROBE),	(IEN  | PTU | DIS | M4)) /*GPIO_126*/\
-							 /* - HP_DETECT*/\
  /*External Resets and Enables*/\
  MUX_VAL(CP(ETK_D0_ES2),	(IDIS | PTD | DIS | M4)) /*GPIO_14*/\
 							 /* - nHDPHN_SHUTDOWN*/\
@@ -277,14 +262,6 @@ const omap3_sysinfo sysinfo = {
 							 /* - RESET_NUBS*/\
  MUX_VAL(CP(UART3_RTS_SD),	(IDIS | PTU | EN  | M4)) /*GPIO_164*/\
 							 /* - EN_USB_5V*/\
- /*Unused*/\
- MUX_VAL(CP(HDQ_SIO),		(IEN  | PTU | EN  | M0)) /*HDQ_SIO - NC*/\
- MUX_VAL(CP(CSI2_DX0),		(IEN  | PTD | DIS | M0)) /*CSI2_DX0 - NC*/\
- MUX_VAL(CP(CSI2_DY0),		(IEN  | PTD | DIS | M0)) /*CSI2_DY0 - NC*/\
- MUX_VAL(CP(CSI2_DX1),		(IEN  | PTD | DIS | M0)) /*CSI2_DX1 - NC*/\
- MUX_VAL(CP(CSI2_DY1),		(IEN  | PTD | DIS | M0)) /*CSI2_DY1 - NC*/\
- MUX_VAL(CP(I2C2_SCL),		(IEN  | PTU | EN  | M0)) /*I2C2_SCL - NC*/\
- MUX_VAL(CP(I2C2_SDA),		(IEN  | PTU | EN  | M0)) /*I2C2_SDA - NC*/\
  /*HS USB OTG Port (connects to HSUSB0)*/\
  MUX_VAL(CP(HSUSB0_CLK),	(IEN  | PTD | DIS | M0)) /*HSUSB0_CLK*/\
  MUX_VAL(CP(HSUSB0_STP),	(IDIS | PTU | EN  | M0)) /*HSUSB0_STP*/\
@@ -338,8 +315,6 @@ const omap3_sysinfo sysinfo = {
  MUX_VAL(CP(SYS_BOOT5),		(IEN  | PTD | DIS | M4)) /*GPIO_7*/\
  MUX_VAL(CP(SYS_BOOT6),		(IEN  | PTD | DIS | M4)) /*GPIO_8*/\
  MUX_VAL(CP(SYS_OFF_MODE),	(IEN  | PTD | DIS | M0)) /*SYS_OFF_MODE*/\
- MUX_VAL(CP(SYS_CLKOUT1),	(IEN  | PTD | DIS | M4)) /*SYS_CLKOUT1 - NC*/\
- MUX_VAL(CP(SYS_CLKOUT2),	(IEN  | PTD | DIS | M4)) /*SYS_CLKOUT2 - NC*/\
  /*JTAG*/\
  MUX_VAL(CP(JTAG_nTRST),	(IEN  | PTD | DIS | M0)) /*JTAG_nTRST*/\
  MUX_VAL(CP(JTAG_TCK),		(IEN  | PTD | DIS | M0)) /*JTAG_TCK*/\
