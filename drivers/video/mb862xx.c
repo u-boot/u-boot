@@ -70,29 +70,30 @@ unsigned int fr_div[] = { 0x00000f00, 0x00000900, 0x00000500 };
 #define	wr_io(addr, val)	out_be32((volatile unsigned *)(addr), (val))
 #endif
 
-#define HOST_RD_REG(off)	rd_io((dev->frameAdrs + 0x01fc0000 + (off)))
-#define HOST_WR_REG(off, val)	wr_io((dev->frameAdrs + 0x01fc0000 + (off)), \
+#define HOST_RD_REG(off)	rd_io((dev->frameAdrs + GC_HOST_BASE + (off)))
+#define HOST_WR_REG(off, val)	wr_io((dev->frameAdrs + GC_HOST_BASE + (off)), \
 				      (val))
-#define DISP_RD_REG(off)	rd_io((dev->frameAdrs + 0x01fd0000 + (off)))
-#define DISP_WR_REG(off, val)	wr_io((dev->frameAdrs + 0x01fd0000 + (off)), \
+#define DISP_RD_REG(off)	rd_io((dev->frameAdrs + GC_DISP_BASE + (off)))
+#define DISP_WR_REG(off, val)	wr_io((dev->frameAdrs + GC_DISP_BASE + (off)), \
 				      (val))
 #define DE_RD_REG(off)		rd_io((dev->dprBase + (off)))
 #define DE_WR_REG(off, val)	wr_io((dev->dprBase + (off)), (val))
 
 #if defined(CONFIG_VIDEO_CORALP)
-#define DE_WR_FIFO(val)		wr_io((dev->dprBase + (0x8400)), (val))
+#define DE_WR_FIFO(val)		wr_io((dev->dprBase + (GC_GEO_FIFO)), (val))
 #else
-#define DE_WR_FIFO(val)		wr_io((dev->dprBase + (0x04a0)), (val))
+#define DE_WR_FIFO(val)		wr_io((dev->dprBase + (GC_FIFO)), (val))
 #endif
 
-#define L0PAL_WR_REG(idx, val)	wr_io((dev->frameAdrs + 0x01fd0400 + \
+#define L0PAL_WR_REG(idx, val)	wr_io((dev->frameAdrs + \
+				       (GC_DISP_BASE | GC_L0PAL0) + \
 				       ((idx) << 2)), (val))
 
 static void gdc_sw_reset (void)
 {
 	GraphicDevice *dev = &mb862xx;
 
-	HOST_WR_REG (0x002c, 0x00000001);
+	HOST_WR_REG (GC_SRST, 0x1);
 	udelay (500);
 	video_hw_init ();
 }
@@ -107,7 +108,7 @@ static void de_wait (void)
 	 * Sync with software writes to framebuffer,
 	 * try to reset if engine locked
 	 */
-	while (DE_RD_REG (0x0400) & 0x00000131)
+	while (DE_RD_REG (GC_CTR) & 0x00000131)
 		if (lc-- < 0) {
 			gdc_sw_reset ();
 			printf ("gdc reset done after drawing engine lock.\n");
@@ -121,7 +122,7 @@ static void de_wait_slots (int slots)
 	int lc = 0x10000;
 
 	/* Wait for free fifo slots */
-	while (DE_RD_REG (0x0408) < slots)
+	while (DE_RD_REG (GC_IFCNT) < slots)
 		if (lc-- < 0) {
 			gdc_sw_reset ();
 			printf ("gdc reset done after drawing engine lock.\n");
@@ -150,21 +151,21 @@ static void de_init (void)
 	GraphicDevice *dev = &mb862xx;
 	int cf = (dev->gdfBytesPP == 1) ? 0x0000 : 0x8000;
 
-	dev->dprBase = dev->frameAdrs + 0x01ff0000;
+	dev->dprBase = dev->frameAdrs + GC_DRAW_BASE;
 
 	/* Setup mode and fbbase, xres, fg, bg */
 	de_wait_slots (2);
 	DE_WR_FIFO (0xf1010108);
 	DE_WR_FIFO (cf | 0x0300);
-	DE_WR_REG (0x0440, 0x0000);
-	DE_WR_REG (0x0444, dev->winSizeX);
-	DE_WR_REG (0x0480, 0x0000);
-	DE_WR_REG (0x0484, 0x0000);
+	DE_WR_REG (GC_FBR, 0x0);
+	DE_WR_REG (GC_XRES, dev->winSizeX);
+	DE_WR_REG (GC_FC, 0x0);
+	DE_WR_REG (GC_BC, 0x0);
 	/* Reset clipping */
-	DE_WR_REG (0x0454, 0x0000);
-	DE_WR_REG (0x0458, dev->winSizeX);
-	DE_WR_REG (0x045c, 0x0000);
-	DE_WR_REG (0x0460, dev->winSizeY);
+	DE_WR_REG (GC_CXMIN, 0x0);
+	DE_WR_REG (GC_CXMAX, dev->winSizeX);
+	DE_WR_REG (GC_CYMIN, 0x0);
+	DE_WR_REG (GC_CYMAX, dev->winSizeY);
 
 	/* Clear framebuffer using drawing engine */
 	de_wait_slots (3);
@@ -200,9 +201,9 @@ unsigned int pci_video_init (void)
 	dev->pciBase = dev->frameAdrs;
 
 	/* Setup clocks and memory mode for Coral-P Eval. Board */
-	HOST_WR_REG (0x0038, 0x00090000);
+	HOST_WR_REG (GC_CCF, 0x00090000);
 	udelay (200);
-	HOST_WR_REG (0xfffc, 0x11d7fa13);
+	HOST_WR_REG (GC_MMR, 0x11d7fa13);
 	udelay (100);
 	return dev->frameAdrs;
 }
@@ -301,36 +302,39 @@ unsigned int card_init (void)
 	}
 
 	/* Setup dot clock (internal pll, division rate) */
-	DISP_WR_REG (0x0100, div);
+	DISP_WR_REG (GC_DCM1, div);
 	/* L0 init */
 	cf = (dev->gdfBytesPP == 1) ? 0x00000000 : 0x80000000;
-	DISP_WR_REG (0x0020, ((dev->winSizeX * dev->gdfBytesPP) / 64) << 16 |
+	DISP_WR_REG (GC_L0M, ((dev->winSizeX * dev->gdfBytesPP) / 64) << 16 |
 			     (dev->winSizeY - 1) | cf);
-	DISP_WR_REG (0x0024, 0x00000000);
-	DISP_WR_REG (0x0028, 0x00000000);
-	DISP_WR_REG (0x002c, 0x00000000);
-	DISP_WR_REG (0x0110, 0x00000000);
-	DISP_WR_REG (0x0114, 0x00000000);
-	DISP_WR_REG (0x0118, (dev->winSizeY - 1) << 16 | dev->winSizeX);
+	DISP_WR_REG (GC_L0OA0, 0x0);
+	DISP_WR_REG (GC_L0DA0, 0x0);
+	DISP_WR_REG (GC_L0DY_L0DX, 0x0);
+	DISP_WR_REG (GC_L0EM, 0x0);
+	DISP_WR_REG (GC_L0WY_L0WX, 0x0);
+	DISP_WR_REG (GC_L0WH_L0WW, (dev->winSizeY - 1) << 16 | dev->winSizeX);
 
 	/* Display timing init */
-	DISP_WR_REG (0x0004, (dev->winSizeX +
-			      res_mode->left_margin +
-			      res_mode->right_margin +
-			      res_mode->hsync_len - 1) << 16);
-	DISP_WR_REG (0x0008, (dev->winSizeX - 1) << 16 | (dev->winSizeX - 1));
-	DISP_WR_REG (0x000c, (res_mode->vsync_len - 1) << 24 |
-			     (res_mode->hsync_len - 1) << 16 |
-			     (dev->winSizeX + res_mode->right_margin - 1));
-	DISP_WR_REG (0x0010, (dev->winSizeY + res_mode->lower_margin +
-			      res_mode->upper_margin +
-			      res_mode->vsync_len - 1) << 16);
-	DISP_WR_REG (0x0014, (dev->winSizeY-1) << 16 |
-			     (dev->winSizeY + res_mode->lower_margin - 1));
-	DISP_WR_REG (0x0018, 0x00000000);
-	DISP_WR_REG (0x001c, dev->winSizeY << 16 | dev->winSizeX);
+	DISP_WR_REG (GC_HTP_A, (dev->winSizeX +
+				res_mode->left_margin +
+				res_mode->right_margin +
+				res_mode->hsync_len - 1) << 16);
+	DISP_WR_REG (GC_HDB_HDP_A, (dev->winSizeX - 1) << 16 |
+				   (dev->winSizeX - 1));
+	DISP_WR_REG (GC_VSW_HSW_HSP_A,  (res_mode->vsync_len - 1) << 24 |
+					(res_mode->hsync_len - 1) << 16 |
+					(dev->winSizeX +
+					 res_mode->right_margin - 1));
+	DISP_WR_REG (GC_VTR_A, (dev->winSizeY + res_mode->lower_margin +
+				res_mode->upper_margin +
+				res_mode->vsync_len - 1) << 16);
+	DISP_WR_REG (GC_VDP_VSP_A, (dev->winSizeY-1) << 16 |
+				   (dev->winSizeY +
+				    res_mode->lower_margin - 1));
+	DISP_WR_REG (GC_WY_WX, 0x0);
+	DISP_WR_REG (GC_WH_WW, dev->winSizeY << 16 | dev->winSizeX);
 	/* Display enable, L0 layer */
-	DISP_WR_REG (0x0100, 0x80010000 | div);
+	DISP_WR_REG (GC_DCM1, 0x80010000 | div);
 
 	return dev->frameAdrs;
 }
@@ -395,7 +399,7 @@ void video_hw_rectfill (unsigned int bpp, unsigned int dst_x,
 	GraphicDevice *dev = &mb862xx;
 
 	de_wait_slots (3);
-	DE_WR_REG (0x0480, color);
+	DE_WR_REG (GC_FC, color);
 	DE_WR_FIFO (0x09410000);
 	DE_WR_FIFO ((dst_y << 16) | dst_x);
 	DE_WR_FIFO ((dim_y << 16) | dim_x);
