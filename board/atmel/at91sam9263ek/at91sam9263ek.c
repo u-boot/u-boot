@@ -91,6 +91,8 @@ static void at91sam9263ek_nand_hw_init(void)
 #ifdef CONFIG_MACB
 static void at91sam9263ek_macb_hw_init(void)
 {
+	unsigned long rstc;
+
 	/* Enable clock */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_EMAC);
 
@@ -108,6 +110,8 @@ static void at91sam9263ek_macb_hw_init(void)
 	       pin_to_mask(AT91_PIN_PE26),
 	       pin_to_controller(AT91_PIN_PE0) + PIO_PUDR);
 
+	rstc = at91_sys_read(AT91_RSTC_MR) & AT91_RSTC_ERSTL;
+
 	/* Need to reset PHY -> 500ms reset */
 	at91_sys_write(AT91_RSTC_MR, AT91_RSTC_KEY |
 				     (AT91_RSTC_ERSTL & (0x0D << 8)) |
@@ -120,7 +124,7 @@ static void at91sam9263ek_macb_hw_init(void)
 
 	/* Restore NRST value */
 	at91_sys_write(AT91_RSTC_MR, AT91_RSTC_KEY |
-				     (AT91_RSTC_ERSTL & (0x0 << 8)) |
+				     (rstc) |
 				     AT91_RSTC_URSTEN);
 
 	/* Re-enable pull-up */
@@ -196,9 +200,16 @@ static void at91sam9263ek_lcd_hw_init(void)
 #include <nand.h>
 #include <version.h>
 
+#ifndef CONFIG_SYS_NO_FLASH
+extern flash_info_t flash_info[];
+#endif
+
 void lcd_show_board_info(void)
 {
 	ulong dram_size, nand_size;
+#ifndef CONFIG_SYS_NO_FLASH
+	ulong flash_size;
+#endif
 	int i;
 	char temp[32];
 
@@ -215,9 +226,19 @@ void lcd_show_board_info(void)
 	nand_size = 0;
 	for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++)
 		nand_size += nand_info[i].size;
-	lcd_printf ("  %ld MB SDRAM, %ld MB NAND\n",
+#ifndef CONFIG_SYS_NO_FLASH
+	flash_size = 0;
+	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++)
+		flash_size += flash_info[i].size;
+#endif
+	lcd_printf ("  %ld MB SDRAM, %ld MB NAND",
 		dram_size >> 20,
 		nand_size >> 20 );
+#ifndef CONFIG_SYS_NO_FLASH
+	lcd_printf (",\n  %ld MB NOR",
+		flash_size >> 20);
+#endif
+	lcd_puts ("\n");
 }
 #endif /* CONFIG_LCD_INFO */
 #endif

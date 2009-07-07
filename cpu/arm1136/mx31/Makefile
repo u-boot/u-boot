@@ -27,6 +27,7 @@ LIB	= $(obj)lib$(SOC).a
 
 COBJS	+= generic.o
 COBJS	+= timer.o
+COBJS	+= devices.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

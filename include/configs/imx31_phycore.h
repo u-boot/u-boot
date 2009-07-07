@@ -64,7 +64,7 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		0xfe
 
-#define CONFIG_MX31_UART	1
+#define CONFIG_MXC_UART	1
 #define CONFIG_SYS_MX31_UART1		1
 
 /* allow to overwrite serial and ethaddr */

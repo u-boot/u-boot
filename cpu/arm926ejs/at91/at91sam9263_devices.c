@@ -3,6 +3,10 @@
  * Stelian Pop <stelian.pop@leadtechdesign.com>
  * Lead Tech Design <www.leadtechdesign.com>
  *
+ * (C) Copyright 2009
+ * Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
+ * esd electronic system design gmbh <www.esd.eu>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -180,5 +184,16 @@ void at91_uhp_hw_init(void)
 	/* Enable VBus on UHP ports */
 	at91_set_gpio_output(AT91_PIN_PA21, 0);
 	at91_set_gpio_output(AT91_PIN_PA24, 0);
+}
+#endif
+
+#ifdef CONFIG_AT91_CAN
+void at91_can_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PA13, 0);	/* CAN_TX */
+	at91_set_A_periph(AT91_PIN_PA14, 1);	/* CAN_RX */
+
+	/* Enable clock */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_CAN);
 }
 #endif

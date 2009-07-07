@@ -165,6 +165,27 @@ void lcd_disable(void)
 static int pm9263_lcd_hw_psram_init(void)
 {
 	volatile uint16_t x;
+	unsigned long csa;
+
+	/* Enable CS3  3.3v, no pull-ups */
+	csa = at91_sys_read(AT91_MATRIX_EBI1CSA);
+	at91_sys_write(AT91_MATRIX_EBI1CSA,
+		       csa | AT91_MATRIX_EBI1_DBPUC |
+		       AT91_MATRIX_EBI1_VDDIOMSEL_3_3V);
+
+	/* Configure SMC1 CS0 for PSRAM - 16-bit */
+	at91_sys_write(AT91_SMC1_SETUP(0),
+		       AT91_SMC_NWESETUP_(0) | AT91_SMC_NCS_WRSETUP_(0) |
+		       AT91_SMC_NRDSETUP_(0) | AT91_SMC_NCS_RDSETUP_(0));
+	at91_sys_write(AT91_SMC1_PULSE(0),
+		       AT91_SMC_NWEPULSE_(7) | AT91_SMC_NCS_WRPULSE_(7) |
+		       AT91_SMC_NRDPULSE_(2) | AT91_SMC_NCS_RDPULSE_(7));
+	at91_sys_write(AT91_SMC1_CYCLE(0),
+		       AT91_SMC_NWECYCLE_(8) | AT91_SMC_NRDCYCLE_(8));
+	at91_sys_write(AT91_SMC1_MODE(0),
+		       AT91_SMC_DBW_16 |
+		       AT91_SMC_PMEN |
+		       AT91_SMC_PS_32);
 
 	/* setup PB29 as output */
 	at91_set_gpio_output(PSRAM_CRE_PIN, 1);
@@ -218,7 +239,7 @@ static int pm9263_lcd_hw_psram_init(void)
 	at91_sys_write( AT91_MATRIX_SCFG5, AT91_MATRIX_ARBT_FIXED_PRIORITY |
 				(AT91_MATRIX_FIXED_DEFMSTR & (5 << 18)) |
 				AT91_MATRIX_DEFMSTR_TYPE_FIXED |
-				(AT91_MATRIX_SLOT_CYCLE & (0x80 << 0)));
+				(AT91_MATRIX_SLOT_CYCLE & (0xFF << 0)));
 
 	return 0;
 }

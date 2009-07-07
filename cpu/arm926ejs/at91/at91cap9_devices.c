@@ -3,6 +3,10 @@
  * Stelian Pop <stelian.pop@leadtechdesign.com>
  * Lead Tech Design <www.leadtechdesign.com>
  *
+ * (C) Copyright 2009
+ * Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
+ * esd electronic system design gmbh <www.esd.eu>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -172,5 +176,16 @@ void at91_macb_hw_init(void)
 	at91_set_B_periph(AT91_PIN_PC21, 0);	/* ETX3 */
 	at91_set_B_periph(AT91_PIN_PC24, 0);	/* ETXER */
 #endif
+}
+#endif
+
+#ifdef CONFIG_AT91_CAN
+void at91_can_hw_init(void)
+{
+	at91_set_A_periph(AT91_PIN_PA12, 0);	/* CAN_TX */
+	at91_set_A_periph(AT91_PIN_PA13, 1);	/* CAN_RX */
+
+	/* Enable clock */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_CAN);
 }
 #endif

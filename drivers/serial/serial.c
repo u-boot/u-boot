@@ -27,6 +27,9 @@
 #ifdef CONFIG_NS87308
 #include <ns87308.h>
 #endif
+#ifdef CONFIG_KIRKWOOD
+#include <asm/arch/kirkwood.h>
+#endif
 
 #if defined (CONFIG_SERIAL_MULTI)
 #include <serial.h>

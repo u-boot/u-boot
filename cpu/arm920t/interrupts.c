@@ -30,20 +30,14 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_USE_IRQ
 #include <asm/proc-armv/ptrace.h>
+
+#if defined (CONFIG_ARCH_INTEGRATOR)
 void do_irq (struct pt_regs *pt_regs)
 {
-#if defined (ARM920_IRQ_CALLBACK)
-	ARM920_IRQ_CALLBACK();
-#elif defined (CONFIG_ARCH_INTEGRATOR)
 	/* ASSUMED to be a timer interrupt  */
 	/* Just clear it - count handled in */
 	/* integratorap.c                   */
 	*(volatile ulong *)(CONFIG_SYS_TIMERBASE + 0x0C) = 0;
-#else
-#error do_irq() not defined for this cpu type
-#endif
 }
 #endif

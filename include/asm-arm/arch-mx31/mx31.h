@@ -47,4 +47,7 @@ static inline void mx31_gpio_set(unsigned int gpio, unsigned int value)
 }
 #endif
 
+void mx31_uart1_hw_init(void);
+void mx31_spi2_hw_init(void);
+
 #endif /* __ASM_ARCH_MX31_H */

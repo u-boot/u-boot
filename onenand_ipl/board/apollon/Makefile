@@ -4,8 +4,8 @@ include $(TOPDIR)/onenand_ipl/board/$(BOARDDIR)/config.mk
 
 LDSCRIPT= $(TOPDIR)/onenand_ipl/board/$(BOARDDIR)/u-boot.onenand.lds
 LDFLAGS	= -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)
-AFLAGS	+= -DCONFIG_ONENAND_IPL
-CFLAGS	+= -DCONFIG_ONENAND_IPL
+AFLAGS	+= -DCONFIG_PRELOADER -DCONFIG_ONENAND_IPL
+CFLAGS	+= -DCONFIG_PRELOADER -DCONFIG_ONENAND_IPL
 OBJCFLAGS += --gap-fill=0x00
 
 SOBJS	:= low_levelinit.o

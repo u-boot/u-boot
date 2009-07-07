@@ -1,0 +1,32 @@
+
+The Nomadik 8815 CPU has a "secure" boot mode where no external access
+(not even JTAG) is allowed.  The "remap" bits in the evaluation board
+are configured in order to boot from the internal ROM memory (in
+secure mode).
+
+The boot process as defined by the manufacturer executes external code
+(loaded from NAND or OneNAND) that that disables such "security" in
+order to run u-boot and later the kernel without constraints. Such
+code is a proprietary initial boot loader, called "X-Loader" (in case
+anyone wonders, it has no relations with other loaders with the same
+name and there is no GPL code inside the ST X-Loader).
+
+SDRAM configuration, PLL setup and initial loading from NAND is
+implemented in the X-Loader, so U-Boot is already running in SDRAM
+when control is handed over to it.
+
+The Makefile offers two different configurations to be used if you
+boot from Nand or OneNand.
+
+    make nhk8815_config
+    make nhk8815_onenand_config
+
+Both support OneNand and Nand. Since U-Boot, running in RAM, can't know
+where it was loaded from, the configurations differ in where the filesystem
+is looked for by default.
+
+
+On www.st.com/nomadik and on www.stnwireless.com there are documents,
+summary data and white papers on Nomadik. The full datasheet for
+STn8815 is not currently available on line but under specific request
+to the local ST sales offices.

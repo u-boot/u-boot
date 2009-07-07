@@ -513,7 +513,8 @@ LIST_ARM9="			\
 	mx1ads			\
 	mx1fs2			\
 	netstar			\
-	nmdk8815		\
+	nhk8815			\
+	nhk8815_onenand		\
 	omap1510inn		\
 	omap1610h2		\
 	omap1610inn		\
@@ -555,6 +556,8 @@ LIST_ARM11="			\
 	imx31_phycore		\
 	imx31_phycore_eet	\
 	mx31ads			\
+	mx31pdk			\
+	mx31pdk_nand		\
 	qong			\
 	smdk6400		\
 "
@@ -588,8 +591,10 @@ LIST_at91="		\
 	cmc_pu2		\
 	csb637		\
 	kb9202		\
+	meesc		\
 	mp2usb		\
 	m501sk		\
+	pm9261		\
 	pm9263		\
 "
 
@@ -605,7 +610,9 @@ LIST_pxa="		\
 	innokom		\
 	lubbock		\
 	pleb2		\
+	polaris		\
 	pxa255_idp	\
+	trizepsiv	\
 	wepep250	\
 	xaeniax		\
 	xm250		\

@@ -46,13 +46,6 @@ void show_boot_progress(int progress)
 
 #define COMP_MODE_ENABLE ((unsigned int)0x0000EAEF)
 
-static inline void delay (unsigned long loops)
-{
-	__asm__ volatile ("1:\n"
-		"subs %0, %1, #1\n"
-		"bne 1b":"=r" (loops):"0" (loops));
-}
-
 /*
  * Miscellaneous platform dependent initialisations
  */

@@ -209,6 +209,7 @@ Klaus Heydeck <heydeck@kieback-peter.de>
 
 Ilko Iliev <iliev@ronetix.at>
 
+	PM9261		AT91SAM9261
 	PM9263		AT91SAM9263
 
 Gary Jennejohn <garyj@denx.de>
@@ -501,6 +502,11 @@ Rowel Atienza <rowel@diwalabs.com>
 
 	armadillo	ARM720T
 
+Stefano Babic <sbabic@denx.de>
+
+	polaris		xscale
+	trizepsiv	xscale
+
 Dirk Behme <dirk.behme@gmail.com>
 
 	omap3_beagle	ARM CORTEX-A8 (OMAP3530 SoC)
@@ -529,9 +535,17 @@ Thomas Elste <info@elste.org>
 
 	modnet50	ARM720T (NET+50)
 
+Fabio Estevam <Fabio.Estevam@freescale.com>
+
+	mx31pdk		i.MX31
+
 Peter Figuli <peposh@etc.sk>
 
 	wepep250	xscale
+
+Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
+
+	meesc		ARM926EJS (AT91SAM9263 SoC)
 
 Marius Gröger <mag@sysgo.de>
 

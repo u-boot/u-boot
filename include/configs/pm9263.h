@@ -32,8 +32,8 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
-#define MASTER_PLL_DIV		15
-#define MASTER_PLL_MUL		162
+#define MASTER_PLL_DIV		6
+#define MASTER_PLL_MUL		65
 #define MAIN_PLL_DIV		2	/* 2 or 4 */
 #define AT91_MAIN_CLOCK	18432000
 
@@ -46,41 +46,76 @@
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 
 /* clocks */
-#define CONFIG_SYS_MOR_VAL	0x00002001	/* CKGR_MOR - enable main osc. */
-#define CONFIG_SYS_PLLAR_VAL	\
-		(0x2000BF00 | ((MASTER_PLL_MUL - 1) << 16) | (MASTER_PLL_DIV))
+#define CONFIG_SYS_MOR_VAL						\
+		(AT91_PMC_MOSCEN |					\
+		 (255 << 8))		/* Main Oscillator Start-up Time */
+#define CONFIG_SYS_PLLAR_VAL						\
+		(AT91_PMC_PLLA_WR_ERRATA | /* Bit 29 must be 1 when prog */ \
+		 AT91_PMC_OUT |						\
+		 AT91_PMC_PLLCOUNT |	/* PLL Counter */		\
+		 (2 << 28) |		/* PLL Clock Frequency Range */	\
+		 ((MASTER_PLL_MUL - 1) << 16) | (MASTER_PLL_DIV))
 
 #if (MAIN_PLL_DIV == 2)
 /* PCK/2 = MCK Master Clock from PLLA */
-#define CONFIG_SYS_MCKR1_VAL		0x00000100
+#define	CONFIG_SYS_MCKR1_VAL		\
+		(AT91_PMC_CSS_SLOW |	\
+		 AT91_PMC_PRES_1 |	\
+		 AT91SAM9_PMC_MDIV_2 |	\
+		 AT91_PMC_PDIV_1)
 /* PCK/2 = MCK Master Clock from PLLA */
-#define CONFIG_SYS_MCKR2_VAL		0x00000102
+#define	CONFIG_SYS_MCKR2_VAL		\
+		(AT91_PMC_CSS_PLLA |	\
+		 AT91_PMC_PRES_1 |	\
+		 AT91SAM9_PMC_MDIV_2 |	\
+		 AT91_PMC_PDIV_1)
 #else
 /* PCK/4 = MCK Master Clock from PLLA */
-#define CONFIG_SYS_MCKR1_VAL		0x00000200
+#define	CONFIG_SYS_MCKR1_VAL			\
+		(AT91_PMC_CSS_SLOW |		\
+		 AT91_PMC_PRES_1 |		\
+		 AT91RM9200_PMC_MDIV_3 |	\
+		 AT91_PMC_PDIV_1)
 /* PCK/4 = MCK Master Clock from PLLA */
-#define CONFIG_SYS_MCKR2_VAL		0x00000202
+#define	CONFIG_SYS_MCKR2_VAL			\
+		(AT91_PMC_CSS_PLLA |		\
+		 AT91_PMC_PRES_1 |		\
+		 AT91RM9200_PMC_MDIV_3 |	\
+		 AT91_PMC_PDIV_1)
 #endif
 /* define PDC[31:16] as DATA[31:16] */
 #define CONFIG_SYS_PIOD_PDR_VAL1	0xFFFF0000
 /* no pull-up for D[31:16] */
 #define CONFIG_SYS_PIOD_PPUDR_VAL	0xFFFF0000
 /* EBI0_CSA, CS1 SDRAM, CS3 NAND Flash, 3.3V memories */
-#define CONFIG_SYS_MATRIX_EBI0CSA_VAL	0x0001010A
-/* EBI1_CSA, 3.3v, no pull-ups */
-#define CONFIG_SYS_MATRIX_EBI1CSA_VAL	0x00010100
+#define CONFIG_SYS_MATRIX_EBI0CSA_VAL					\
+	(AT91_MATRIX_EBI0_DBPUC | AT91_MATRIX_EBI0_VDDIOMSEL_3_3V |	\
+	 AT91_MATRIX_EBI0_CS1A_SDRAMC)
 
 /* SDRAM */
 /* SDRAMC_MR Mode register */
 #define CONFIG_SYS_SDRC_MR_VAL1		0
 /* SDRAMC_TR - Refresh Timer register */
-#define CONFIG_SYS_SDRC_TR_VAL1		0x13C
-#define CONFIG_SYS_SDRC_CR_VAL		0x85227279	/*CL3*/
+#define CONFIG_SYS_SDRC_TR_VAL1		0x3AA
+/* SDRAMC_CR - Configuration register*/
+#define CONFIG_SYS_SDRC_CR_VAL							\
+		(AT91_SDRAMC_NC_9 |						\
+		 AT91_SDRAMC_NR_13 |						\
+		 AT91_SDRAMC_NB_4 |						\
+		 AT91_SDRAMC_CAS_2 |						\
+		 AT91_SDRAMC_DBW_32 |						\
+		 (2 <<  8) |	/* tWR -  Write Recovery Delay */		\
+		 (7 << 12) |	/* tRC -  Row Cycle Delay */			\
+		 (2 << 16) |	/* tRP -  Row Precharge Delay */		\
+		 (2 << 20) |	/* tRCD - Row to Column Delay */		\
+		 (5 << 24) |	/* tRAS - Active to Precharge Delay */		\
+		 (8 << 28))	/* tXSR - Exit Self Refresh to Active Delay */
+
 /* Memory Device Register -> SDRAM */
-#define CONFIG_SYS_SDRC_MDR_VAL		0
-#define CONFIG_SYS_SDRC_MR_VAL2		0x00000002	/* SDRAMC_MR */
+#define CONFIG_SYS_SDRC_MDR_VAL		AT91_SDRAMC_MD_SDRAM
+#define CONFIG_SYS_SDRC_MR_VAL2		AT91_SDRAMC_MODE_PRECHARGE
 #define CONFIG_SYS_SDRAM_VAL1		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRC_MR_VAL3		4		/* SDRC_MR */
+#define CONFIG_SYS_SDRC_MR_VAL3		AT91_SDRAMC_MODE_REFRESH
 #define CONFIG_SYS_SDRAM_VAL2		0		/* SDRAM_BASE */
 #define CONFIG_SYS_SDRAM_VAL3		0		/* SDRAM_BASE */
 #define CONFIG_SYS_SDRAM_VAL4		0		/* SDRAM_BASE */
@@ -89,31 +124,41 @@
 #define CONFIG_SYS_SDRAM_VAL7		0		/* SDRAM_BASE */
 #define CONFIG_SYS_SDRAM_VAL8		0		/* SDRAM_BASE */
 #define CONFIG_SYS_SDRAM_VAL9		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRC_MR_VAL4		3		/* SDRC_MR */
+#define CONFIG_SYS_SDRC_MR_VAL4		AT91_SDRAMC_MODE_LMR
 #define CONFIG_SYS_SDRAM_VAL10		0		/* SDRAM_BASE */
-#define CONFIG_SYS_SDRC_MR_VAL5		0		/* SDRC_MR */
+#define CONFIG_SYS_SDRC_MR_VAL5		AT91_SDRAMC_MODE_NORMAL
 #define CONFIG_SYS_SDRAM_VAL11		0		/* SDRAM_BASE */
 #define CONFIG_SYS_SDRC_TR_VAL2		1200		/* SDRAM_TR */
 #define CONFIG_SYS_SDRAM_VAL12		0		/* SDRAM_BASE */
 
 /* setup SMC0, CS0 (NOR Flash) - 16-bit, 15 WS */
-#define CONFIG_SYS_SMC0_SETUP0_VAL	0x0A0A0A0A	/* SMC_SETUP */
-#define CONFIG_SYS_SMC0_PULSE0_VAL	0x0B0B0B0B	/* SMC_PULSE */
-#define CONFIG_SYS_SMC0_CYCLE0_VAL	0x00160016	/* SMC_CYCLE */
-#define CONFIG_SYS_SMC0_CTRL0_VAL	0x00161003	/* SMC_MODE */
+#define CONFIG_SYS_SMC0_SETUP0_VAL					\
+		(AT91_SMC_NWESETUP_(10) | AT91_SMC_NCS_WRSETUP_(10) |	\
+		 AT91_SMC_NRDSETUP_(10) | AT91_SMC_NCS_RDSETUP_(10))
+#define CONFIG_SYS_SMC0_PULSE0_VAL					\
+		(AT91_SMC_NWEPULSE_(11) | AT91_SMC_NCS_WRPULSE_(11) |	\
+		 AT91_SMC_NRDPULSE_(11) | AT91_SMC_NCS_RDPULSE_(11))
+#define CONFIG_SYS_SMC0_CYCLE0_VAL	\
+		(AT91_SMC_NWECYCLE_(22) | AT91_SMC_NRDCYCLE_(22))
+#define CONFIG_SYS_SMC0_MODE0_VAL				\
+		(AT91_SMC_READMODE | AT91_SMC_WRITEMODE |	\
+		 AT91_SMC_DBW_16 |				\
+		 AT91_SMC_TDFMODE |				\
+		 AT91_SMC_TDF_(6))
 
-/* setup SMC1, CS0 (PSRAM) - 16-bit */
-#define CONFIG_SYS_SMC1_SETUP0_VAL	0x00000000	/* SMC_SETUP */
-#define CONFIG_SYS_SMC1_PULSE0_VAL	0x07020707	/* SMC_PULSE */
-#define CONFIG_SYS_SMC1_CYCLE0_VAL	0x00080008	/* SMC_CYCLE */
-#define CONFIG_SYS_SMC1_CTRL0_VAL	0x31001000	/* SMC_MODE */
+/* user reset enable */
+#define CONFIG_SYS_RSTC_RMR_VAL			\
+		(AT91_RSTC_KEY |		\
+		AT91_RSTC_PROCRST |		\
+		AT91_RSTC_RSTTYP_WAKEUP |	\
+		AT91_RSTC_RSTTYP_WATCHDOG)
 
-#define CONFIG_SYS_RSTC_RMR_VAL		0xA5000301	/* user reset enable */
-
-/* Watchdog */
-#define CONFIG_SYS_WDTC_WDMR_VAL	0x3fff8fff	/* disable watchdog */
-
-/* */
+/* Disable Watchdog */
+#define CONFIG_SYS_WDTC_WDMR_VAL				\
+		(AT91_WDT_WDIDLEHLT | AT91_WDT_WDDBGHLT |	\
+		 AT91_WDT_WDV |					\
+		 AT91_WDT_WDDIS |				\
+		 AT91_WDT_WDD)
 
 #define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS 1

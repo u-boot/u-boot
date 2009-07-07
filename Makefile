@@ -2757,6 +2757,8 @@ at91sam9261ek_config	:	unconfig
 	fi;
 	@$(MKCONFIG) -a at91sam9261ek arm arm926ejs at91sam9261ek atmel at91
 
+at91sam9263ek_norflash_config \
+at91sam9263ek_norflash_boot_config \
 at91sam9263ek_nandflash_config \
 at91sam9263ek_dataflash_config \
 at91sam9263ek_dataflash_cs0_config \
@@ -2765,9 +2767,16 @@ at91sam9263ek_config	:	unconfig
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
+	elif [ "$(findstring norflash,$@)" ] ; then \
+		echo "#define CONFIG_SYS_USE_NORFLASH 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... with environment variable in NOR FLASH" ; \
 	else \
 		echo "#define CONFIG_SYS_USE_DATAFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in SPI DATAFLASH CS0" ; \
+	fi;
+	@if [ "$(findstring norflash_boot,$@)" ] ; then \
+		echo "#define CONFIG_SYS_USE_BOOT_NORFLASH 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... and boot from NOR FLASH" ; \
 	fi;
 	@$(MKCONFIG) -a at91sam9263ek arm arm926ejs at91sam9263ek atmel at91
 
@@ -2785,6 +2794,12 @@ at91sam9rlek_config	:	unconfig
 	fi;
 	@$(MKCONFIG) -a at91sam9rlek arm arm926ejs at91sam9rlek atmel at91
 
+meesc_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs meesc esd at91
+
+pm9261_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs pm9261 ronetix at91
+
 pm9263_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs pm9263 ronetix at91
 
@@ -2800,7 +2815,7 @@ ap720t_config		\
 ap920t_config		\
 ap926ejs_config		\
 ap946es_config: unconfig
-	@board/armltd/integratorap/split_by_variant.sh $@
+	@board/armltd/integrator/split_by_variant.sh ap $@
 
 integratorcp_config	\
 cp_config		\
@@ -2812,7 +2827,7 @@ cp966_config		\
 cp922_config		\
 cp922_XA10_config	\
 cp1026_config: unconfig
-	@board/armltd/integratorcp/split_by_variant.sh $@
+	@board/armltd/integrator/split_by_variant.sh cp $@
 
 davinci_dvevm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dvevm davinci davinci
@@ -2842,17 +2857,17 @@ mx1fs2_config	:	unconfig
 netstar_config:		unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm925t netstar
 
-nmdk8815_config \
-nmdk8815_onenand_config:	unconfig
+nhk8815_config \
+nhk8815_onenand_config:	unconfig
 	@mkdir -p $(obj)include
 	@ > $(obj)include/config.h
 	@if [ "$(findstring _onenand, $@)" ] ; then \
 		echo "#define CONFIG_BOOT_ONENAND" >> $(obj)include/config.h; \
-		$(XECHO) "... configured for OneNand Flash"; \
+		$(XECHO) "... configured to boot from OneNand Flash"; \
 	else \
-		$(XECHO) "... configured for Nand Flash"; \
+		$(XECHO) "... configured to boot from Nand Flash"; \
 	fi
-	@$(MKCONFIG) -a nmdk8815 arm arm926ejs nmdk8815 st nomadik
+	@$(MKCONFIG) -a nhk8815 arm arm926ejs nhk8815 st nomadik
 
 omap1510inn_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm925t omap1510inn
@@ -3083,8 +3098,13 @@ scpu_config:	unconfig
 pxa255_idp_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa pxa255_idp
 
+polaris_config \
 trizepsiv_config	:	unconfig
-	@$(MKCONFIG) $(@:_config=) arm pxa trizepsiv
+	@mkdir -p $(obj)include
+	@if [ "$(findstring polaris,$@)" ] ; then \
+		echo "#define CONFIG_POLARIS 1"	>>$(obj)include/config.h ; \
+	fi;
+	@$(MKCONFIG) -a trizepsiv arm pxa trizepsiv
 
 wepep250_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm pxa wepep250
@@ -3125,6 +3145,17 @@ imx31_phycore_config	: unconfig
 
 mx31ads_config		: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 mx31ads freescale mx31
+
+mx31pdk_config \
+mx31pdk_nand_config	: unconfig
+	@mkdir -p $(obj)include
+	@if [ -n "$(findstring _nand_,$@)" ]; then					\
+		echo "#define CONFIG_NAND_U_BOOT" >> $(obj)include/config.h;		\
+	else										\
+		echo "#define CONFIG_SKIP_LOWLEVEL_INIT" >> $(obj)include/config.h;	\
+		echo "#define CONFIG_SKIP_RELOCATE_UBOOT" >> $(obj)include/config.h;	\
+	fi
+	@$(MKCONFIG) -a mx31pdk arm arm1136 mx31pdk freescale mx31
 
 omap2420h4_config	: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4 NULL omap24xx

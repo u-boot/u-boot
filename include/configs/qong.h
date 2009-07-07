@@ -49,7 +49,7 @@
  * Hardware drivers
  */
 
-#define CONFIG_MX31_UART	1
+#define CONFIG_MXC_UART	1
 #define CONFIG_SYS_MX31_UART1	1
 
 /* FPGA */

@@ -386,9 +386,6 @@ static int nand_davinci_waitfunc(struct mtd_info *mtd, struct nand_chip *this)
 static void nand_flash_init(void)
 {
 	u_int32_t	acfg1 = 0x3ffffffc;
-	u_int32_t	acfg2 = 0x3ffffffc;
-	u_int32_t	acfg3 = 0x3ffffffc;
-	u_int32_t	acfg4 = 0x3ffffffc;
 	emifregs	emif_regs;
 
 	/*------------------------------------------------------------------*
@@ -413,12 +410,9 @@ static void nand_flash_init(void)
 
 	emif_regs = (emifregs)DAVINCI_ASYNC_EMIF_CNTRL_BASE;
 
-	emif_regs->AWCCR |= 0x10000000;
-	emif_regs->AB1CR = acfg1;	/* 0x08244128 */;
-	emif_regs->AB2CR = acfg2;
-	emif_regs->AB3CR = acfg3;
-	emif_regs->AB4CR = acfg4;
-	emif_regs->NANDFCR = 0x00000101;
+	emif_regs->AB1CR = acfg1; /* CS2 */
+
+	emif_regs->NANDFCR = 0x00000101; /* NAND flash on CS2 */
 }
 
 int board_nand_init(struct nand_chip *nand)
