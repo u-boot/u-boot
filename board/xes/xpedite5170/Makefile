@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2006
+# (C) Copyright 2001
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,25 +23,30 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libdma.a
+LIB	= $(obj)lib$(BOARD).a
 
-COBJS-$(CONFIG_FSLDMAFEC) += MCD_tasksInit.o MCD_dmaApi.o MCD_tasks.o
-COBJS-$(CONFIG_FSL_DMA) += fsl_dma.o
+COBJS-y	+= $(BOARD).o
+COBJS-y	+= ddr.o
+COBJS-y	+= law.o
 
-COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
+SOBJS	:= $(addprefix $(obj),$(SOBJS-y))
 
-all:	$(LIB)
-
-$(LIB):	$(obj).depend $(OBJS)
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+clean:
+	rm -f $(OBJS) $(SOBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
 # defines $(obj).depend target
 include $(SRCTREE)/rules.mk
 
-sinclude $(obj).depend
+sinclude ($obj).depend
 
 #########################################################################

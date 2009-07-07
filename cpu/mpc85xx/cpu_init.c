@@ -261,7 +261,9 @@ void cpu_init_f (void)
 #if defined(CONFIG_MPC8536)
 	fsl_serdes_init();
 #endif
-
+#if defined(CONFIG_FSL_DMA)
+	dma_init();
+#endif
 }
 
 

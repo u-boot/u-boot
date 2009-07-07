@@ -113,6 +113,9 @@ void cpu_init_f(void)
 	memctl->or7 = CONFIG_SYS_OR7_PRELIM;
 	memctl->br7 = CONFIG_SYS_BR7_PRELIM;
 #endif
+#if defined(CONFIG_FSL_DMA)
+	dma_init();
+#endif
 
 	/* enable the timebase bit in HID0 */
 	set_hid0(get_hid0() | 0x4000000);

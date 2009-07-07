@@ -2580,6 +2580,9 @@ MPC8641HPCN_config:    unconfig
 sbc8641d_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc86xx sbc8641d
 
+XPEDITE5170_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc mpc86xx xpedite5170 xes
+
 #########################################################################
 ## 74xx/7xx Systems
 #########################################################################

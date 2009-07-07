@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Copyright 2009 Extreme Engineering Solutions, Inc.
+# Copyright 2007-2008 Freescale Semiconductor, Inc.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -21,27 +21,12 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#
+# XPedite5170
+#
+TEXT_BASE = 0xfff00000
 
-LIB	:= $(obj)libdma.a
+PLATFORM_RELFLAGS += -mrelocatable
 
-COBJS-$(CONFIG_FSLDMAFEC) += MCD_tasksInit.o MCD_dmaApi.o MCD_tasks.o
-COBJS-$(CONFIG_FSL_DMA) += fsl_dma.o
-
-COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-
-all:	$(LIB)
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+PLATFORM_CPPFLAGS += -DCONFIG_MPC86xx=1
+PLATFORM_CPPFLAGS += -DCONFIG_MPC8641=1 -maltivec -mabi=altivec -msoft-float

@@ -268,7 +268,7 @@ int fixed_sdram(void)
 
 phys_size_t initdram(int board_type)
 {
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	extern void ddr_enable_ecc(unsigned int dram_size);
 #endif
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
@@ -281,7 +281,7 @@ phys_size_t initdram(int board_type)
 	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
 	msize = fixed_sdram();
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	/*
 	 * Initialize DDR ECC byte
 	 */

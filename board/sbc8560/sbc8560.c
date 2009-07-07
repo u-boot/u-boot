@@ -338,40 +338,9 @@ phys_size_t initdram (int board_type)
 	{
 		/* Initialize all of memory for ECC, then
 		 * enable errors */
-		uint *p = 0;
-		uint i = 0;
 		volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
-		dma_init();
-		for (*p = 0; p < (uint *)(8 * 1024); p++) {
-			if (((unsigned int)p & 0x1f) == 0) { dcbz(p); }
-			*p = (unsigned int)0xdeadbeef;
-			if (((unsigned int)p & 0x1c) == 0x1c) { dcbf(p); }
-		}
 
-		/* 8K */
-		dma_xfer((uint *)0x2000,0x2000,(uint *)0);
-		/* 16K */
-		dma_xfer((uint *)0x4000,0x4000,(uint *)0);
-		/* 32K */
-		dma_xfer((uint *)0x8000,0x8000,(uint *)0);
-		/* 64K */
-		dma_xfer((uint *)0x10000,0x10000,(uint *)0);
-		/* 128k */
-		dma_xfer((uint *)0x20000,0x20000,(uint *)0);
-		/* 256k */
-		dma_xfer((uint *)0x40000,0x40000,(uint *)0);
-		/* 512k */
-		dma_xfer((uint *)0x80000,0x80000,(uint *)0);
-		/* 1M */
-		dma_xfer((uint *)0x100000,0x100000,(uint *)0);
-		/* 2M */
-		dma_xfer((uint *)0x200000,0x200000,(uint *)0);
-		/* 4M */
-		dma_xfer((uint *)0x400000,0x400000,(uint *)0);
-
-		for (i = 1; i < dram_size / 0x800000; i++) {
-			dma_xfer((uint *)(0x800000*i),0x800000,(uint *)0);
-		}
+		dma_meminit(CONFIG_MEM_INIT_VALUE, dram_size);
 
 		/* Enable errors for ECC */
 		ddr->err_disable = 0x00000000;

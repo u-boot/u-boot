@@ -31,6 +31,21 @@
 #include <tsec.h>
 #include <asm/fsl_law.h>
 
+struct cpu_type cpu_type_list [] = {
+	CPU_TYPE_ENTRY(8610, 8610),
+	CPU_TYPE_ENTRY(8641, 8641),
+	CPU_TYPE_ENTRY(8641D, 8641D),
+};
+
+struct cpu_type *identify_cpu(u32 ver)
+{
+	int i;
+	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
+		if (cpu_type_list[i].soc_ver == ver)
+			return &cpu_type_list[i];
+
+	return NULL;
+}
 
 /*
  * Default board reset function
@@ -53,6 +68,7 @@ checkcpu(void)
 	char buf1[32], buf2[32];
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
+	struct cpu_type *cpu;
 	uint msscr0 = mfspr(MSSCR0);
 
 	svr = get_svr();
@@ -62,20 +78,13 @@ checkcpu(void)
 
 	puts("CPU:   ");
 
-	switch (ver) {
-	case SVR_8641:
-		puts("8641");
-		break;
-	case SVR_8641D:
-		puts("8641D");
-		break;
-	case SVR_8610:
-		puts("8610");
-		break;
-	default:
+	cpu = identify_cpu(ver);
+	if (cpu) {
+		puts(cpu->name);
+	} else {
 		puts("Unknown");
-		break;
 	}
+
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, svr);
 	puts("Core:  ");
 
@@ -176,61 +185,6 @@ watchdog_reset(void)
 #endif
 }
 #endif	/* CONFIG_WATCHDOG */
-
-
-#if defined(CONFIG_DDR_ECC)
-void
-dma_init(void)
-{
-	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC86xx_DMA_ADDR);
-	volatile fsl_dma_t *dma = &dma_base->dma[0];
-
-	dma->satr = 0x00040000;
-	dma->datr = 0x00040000;
-	dma->sr = 0xffffffff; /* clear any errors */
-	asm("sync; isync");
-}
-
-uint
-dma_check(void)
-{
-	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC86xx_DMA_ADDR);
-	volatile fsl_dma_t *dma = &dma_base->dma[0];
-	volatile uint status = dma->sr;
-
-	/* While the channel is busy, spin */
-	while ((status & 4) == 4) {
-		status = dma->sr;
-	}
-
-	/* clear MR[CS] channel start bit */
-	dma->mr &= 0x00000001;
-	asm("sync;isync");
-
-	if (status != 0) {
-		printf("DMA Error: status = %x\n", status);
-	}
-	return status;
-}
-
-int
-dma_xfer(void *dest, uint count, void *src)
-{
-	volatile ccsr_dma_t *dma_base = (void *)(CONFIG_SYS_MPC86xx_DMA_ADDR);
-	volatile fsl_dma_t *dma = &dma_base->dma[0];
-
-	dma->dar = (uint) dest;
-	dma->sar = (uint) src;
-	dma->bcr = count;
-	dma->mr = 0xf000004;
-	asm("sync;isync");
-	dma->mr = 0xf000005;
-	asm("sync;isync");
-	return dma_check();
-}
-
-#endif	/* CONFIG_DDR_ECC */
-
 
 /*
  * Print out the state of various machine registers.

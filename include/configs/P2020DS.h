@@ -46,6 +46,7 @@
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
+#define CONFIG_E1000		1	/* Defind e1000 pci Ethernet card*/
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
@@ -437,7 +438,7 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 /* controller 3, Slot 1, tgtid 3, Base address b000 */
 #define CONFIG_SYS_PCIE3_MEM_VIRT	0x80000000
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE3_MEM_BUS	0xc0000000
+#define CONFIG_SYS_PCIE3_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE3_MEM_PHYS	0xc00000000ull
 #else
 #define CONFIG_SYS_PCIE3_MEM_BUS	0x80000000
@@ -456,7 +457,7 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 /* controller 2, direct to uli, tgtid 2, Base address 9000 */
 #define CONFIG_SYS_PCIE2_MEM_VIRT	0xa0000000
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE2_MEM_BUS	0xc0000000
+#define CONFIG_SYS_PCIE2_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE2_MEM_PHYS	0xc20000000ull
 #else
 #define CONFIG_SYS_PCIE2_MEM_BUS	0xa0000000
@@ -475,7 +476,7 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 /* controller 1, Slot 2, tgtid 1, Base address a000 */
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xc0000000
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_PCIE1_MEM_BUS	0xc0000000
+#define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xc40000000ull
 #else
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xc0000000

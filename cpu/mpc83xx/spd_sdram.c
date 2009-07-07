@@ -64,13 +64,6 @@ void board_add_ram_info(int use_default)
 }
 
 #ifdef CONFIG_SPD_EEPROM
-
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
-extern void dma_init(void);
-extern uint dma_check(void);
-extern int dma_xfer(void *dest, uint count, void *src);
-#endif
-
 #ifndef	CONFIG_SYS_READ_SPD
 #define CONFIG_SYS_READ_SPD	i2c_read
 #endif
@@ -830,7 +823,7 @@ long int spd_sdram()
 }
 #endif /* CONFIG_SPD_EEPROM */
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRC)
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 /*
  * Use timebase counter, get_timer() is not availabe
  * at this point of initialization yet.
@@ -863,7 +856,6 @@ static __inline__ unsigned long get_tbms (void)
 /*
  * Initialize all of memory for ECC, then enable errors.
  */
-/* #define CONFIG_DDR_ECC_INIT_VIA_DMA */
 void ddr_enable_ecc(unsigned int dram_size)
 {
 	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
@@ -872,46 +864,21 @@ void ddr_enable_ecc(unsigned int dram_size)
 	register u64 *p;
 	register uint size;
 	unsigned int pattern[2];
-#if defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
-	uint i;
-#endif
+
 	icache_enable();
 	t_start = get_tbms();
 	pattern[0] = 0xdeadbeef;
 	pattern[1] = 0xdeadbeef;
 
-#if !defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
+#if defined(CONFIG_DDR_ECC_INIT_VIA_DMA)
+	dma_meminit(pattern[0], dram_size);
+#else
 	debug("ddr init: CPU FP write method\n");
 	size = dram_size;
 	for (p = 0; p < (u64*)(size); p++) {
 		ppcDWstore((u32*)p, pattern);
 	}
 	__asm__ __volatile__ ("sync");
-#else
-	debug("ddr init: DMA method\n");
-	size = 0x2000;
-	for (p = 0; p < (u64*)(size); p++) {
-		ppcDWstore((u32*)p, pattern);
-	}
-	__asm__ __volatile__ ("sync");
-
-	/* Initialise DMA for direct transfer */
-	dma_init();
-	/* Start DMA to transfer */
-	dma_xfer((uint *)0x2000, 0x2000, (uint *)0); /* 8K */
-	dma_xfer((uint *)0x4000, 0x4000, (uint *)0); /* 16K */
-	dma_xfer((uint *)0x8000, 0x8000, (uint *)0); /* 32K */
-	dma_xfer((uint *)0x10000, 0x10000, (uint *)0); /* 64K */
-	dma_xfer((uint *)0x20000, 0x20000, (uint *)0); /* 128K */
-	dma_xfer((uint *)0x40000, 0x40000, (uint *)0); /* 256K */
-	dma_xfer((uint *)0x80000, 0x80000, (uint *)0); /* 512K */
-	dma_xfer((uint *)0x100000, 0x100000, (uint *)0); /* 1M */
-	dma_xfer((uint *)0x200000, 0x200000, (uint *)0); /* 2M */
-	dma_xfer((uint *)0x400000, 0x400000, (uint *)0); /* 4M */
-
-	for (i = 1; i < dram_size / 0x800000; i++) {
-		dma_xfer((uint *)(0x800000*i), 0x800000, (uint *)0);
-	}
 #endif
 
 	t_end = get_tbms();
