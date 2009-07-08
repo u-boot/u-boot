@@ -575,15 +575,17 @@ int misc_init_r(void)
 #endif	/* !defined(CONFIG_ARCHES) */
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+extern void __ft_board_setup(void *blob, bd_t *bd);
+
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	u32 val[4];
 	int rc;
 
-	ft_cpu_setup(blob, bd);
+	__ft_board_setup(blob, bd);
 
 	/* Fixup NOR mapping */
-	val[0] = 0;				/* chip select number */
+	val[0] = CONFIG_SYS_NOR_CS;		/* chip select number */
 	val[1] = 0;				/* always 0 */
 	val[2] = CONFIG_SYS_FLASH_BASE_PHYS_L;		/* we fixed up this address */
 	val[3] = gd->bd->bi_flashsize;

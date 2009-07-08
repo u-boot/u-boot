@@ -164,7 +164,7 @@ void pic_irq_enable(unsigned int vec)
 	else if (vec >= 96)
 		mtdcr(uic3er, mfdcr(uic3er) | UIC_MASK(vec));
 
-	debug("Install interrupt for vector %d ==> %p\n", vec, handler);
+	debug("Install interrupt vector %d\n", vec);
 }
 
 void pic_irq_disable(unsigned int vec)
