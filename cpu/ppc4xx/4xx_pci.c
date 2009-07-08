@@ -99,6 +99,19 @@ ushort pmc405_pci_subsys_deviceid(void);
 
 /*#define DEBUG*/
 
+int __is_pci_host(struct pci_controller *hose)
+{
+#if defined(CONFIG_405GP)
+	if (mfdcr(strap) & PSR_PCI_ARBIT_EN)
+		return 1;
+#elif defined (CONFIG_405EP)
+	if (mfdcr(cpc0_pci) & CPC0_PCI_ARBIT_EN)
+		return 1;
+#endif
+	return 0;
+}
+int is_pci_host(struct pci_controller *hose) __attribute__((weak, alias("__is_pci_host")));
+
 /*-----------------------------------------------------------------------------+
  * pci_init.  Initializes the 405GP PCI Configuration regs.
  *-----------------------------------------------------------------------------*/
@@ -270,7 +283,7 @@ void pci_405gp_init(struct pci_controller *hose)
 	 */
 	pci_write_config_word(PCIDEVID_405GP, PCI_SUBSYSTEM_VENDOR_ID, CONFIG_SYS_PCI_SUBSYS_VENDORID);
 #ifdef CONFIG_CPCI405
-	if (mfdcr(strap) & PSR_PCI_ARBIT_EN)
+	if (is_pci_host(hose))
 		pci_write_config_word(PCIDEVID_405GP, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_DEVICEID);
 	else
 		pci_write_config_word(PCIDEVID_405GP, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_DEVICEID2);
@@ -295,7 +308,7 @@ void pci_405gp_init(struct pci_controller *hose)
 
 #if (CONFIG_PCI_HOST != PCI_HOST_ADAPTER)
 #if (CONFIG_PCI_HOST == PCI_HOST_AUTO)
-	if ((mfdcr(strap) & PSR_PCI_ARBIT_EN) ||
+	if (is_pci_host(hose) ||
 	    (((s = getenv("pciscan")) != NULL) && (strcmp(s, "yes") == 0)))
 #endif
 	{
@@ -325,7 +338,7 @@ void pci_405gp_init(struct pci_controller *hose)
 	 * Scan the PCI bus and configure devices found.
 	 *--------------------------------------------------------------------------*/
 #if (CONFIG_PCI_HOST == PCI_HOST_AUTO)
-	if ((mfdcr(strap) & PSR_PCI_ARBIT_EN) ||
+	if (is_pci_host(hose) ||
 	    (((s = getenv("pciscan")) != NULL) && (strcmp(s, "yes") == 0)))
 #endif
 	{

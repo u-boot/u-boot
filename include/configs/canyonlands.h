@@ -132,9 +132,11 @@
  */
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define	CONFIG_ENV_IS_IN_FLASH	1	/* use FLASH for environment vars */
+#define CONFIG_SYS_NOR_CS		0	/* NOR chip connected to CSx */
 #define CONFIG_SYS_NAND_CS		3	/* NAND chip connected to CSx */
 #else
 #define	CONFIG_ENV_IS_IN_NAND	1	/* use NAND for environment vars  */
+#define CONFIG_SYS_NOR_CS		3	/* NOR chip connected to CSx */
 #define CONFIG_SYS_NAND_CS		0	/* NAND chip connected to CSx */
 #define CONFIG_ENV_IS_EMBEDDED	1	/* use embedded environment */
 #endif
