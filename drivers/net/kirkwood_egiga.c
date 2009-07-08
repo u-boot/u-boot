@@ -49,7 +49,7 @@ static int smi_reg_read(char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
 	struct kwgbe_registers *regs = dkwgbe->regs;
 	u32 smi_reg;
-	volatile u32 timeout;
+	u32 timeout;
 
 	/* Phyadr read request */
 	if (phy_adr == 0xEE && reg_ofs == 0xEE) {
@@ -124,7 +124,7 @@ static int smi_reg_write(char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
 	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
 	struct kwgbe_registers *regs = dkwgbe->regs;
 	u32 smi_reg;
-	volatile u32 timeout;
+	u32 timeout;
 
 	/* Phyadr write request*/
 	if (phy_adr == 0xEE && reg_ofs == 0xEE) {
@@ -370,7 +370,7 @@ static void port_uc_addr_set(struct kwgbe_registers *regs, u8 * p_addr)
  */
 static void kwgbe_init_rx_desc_ring(struct kwgbe_device *dkwgbe)
 {
-	volatile struct kwgbe_rxdesc *p_rx_desc;
+	struct kwgbe_rxdesc *p_rx_desc;
 	int i;
 
 	/* initialize the Rx descriptors ring */
@@ -487,6 +487,7 @@ static int kwgbe_send(struct eth_device *dev, volatile void *dataptr,
 	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
 	struct kwgbe_registers *regs = dkwgbe->regs;
 	struct kwgbe_txdesc *p_txdesc = dkwgbe->p_txdesc;
+	u32 cmd_sts;
 
 	if ((u32) dataptr & 0x07) {
 		printf("Err..(%s) xmit dataptr not 64bit aligned\n",
@@ -507,21 +508,24 @@ static int kwgbe_send(struct eth_device *dev, volatile void *dataptr,
 	/*
 	 * wait for packet xmit completion
 	 */
-	while (p_txdesc->cmd_sts & KWGBE_BUFFER_OWNED_BY_DMA) {
+	cmd_sts = readl(&p_txdesc->cmd_sts);
+	while (cmd_sts & KWGBE_BUFFER_OWNED_BY_DMA) {
 		/* return fail if error is detected */
-		if (p_txdesc->cmd_sts & (KWGBE_UR_ERROR | KWGBE_RL_ERROR)) {
+		if (cmd_sts & (KWGBE_UR_ERROR | KWGBE_RL_ERROR)) {
 			printf("Err..(%s) in xmit packet\n", __FUNCTION__);
 			return -1;
 		}
+		cmd_sts = readl(&p_txdesc->cmd_sts);
 	};
 	return 0;
 }
 
 static int kwgbe_recv(struct eth_device *dev)
 {
-	volatile struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
-	volatile struct kwgbe_rxdesc *p_rxdesc_curr = dkwgbe->p_rxdesc_curr;
-	volatile u32 timeout = 0;
+	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
+	struct kwgbe_rxdesc *p_rxdesc_curr = dkwgbe->p_rxdesc_curr;
+	u32 cmd_sts;
+	u32 timeout = 0;
 
 	/* wait untill rx packet available or timeout */
 	do {
@@ -531,7 +535,7 @@ static int kwgbe_recv(struct eth_device *dev)
 			debug("%s time out...\n", __FUNCTION__);
 			return -1;
 		}
-	} while (p_rxdesc_curr->cmd_sts & KWGBE_BUFFER_OWNED_BY_DMA);
+	} while (readl(&p_rxdesc_curr->cmd_sts) & KWGBE_BUFFER_OWNED_BY_DMA);
 
 	if (p_rxdesc_curr->byte_cnt != 0) {
 		debug("%s: Received %d byte Packet @ 0x%x (cmd_sts= %08x)\n",
@@ -545,14 +549,16 @@ static int kwgbe_recv(struct eth_device *dev)
 	 * OR the error summary bit is on,
 	 * the packets needs to be dropeed.
 	 */
-	if ((p_rxdesc_curr->cmd_sts &
+	cmd_sts = readl(&p_rxdesc_curr->cmd_sts);
+
+	if ((cmd_sts &
 		(KWGBE_RX_FIRST_DESC | KWGBE_RX_LAST_DESC))
 		!= (KWGBE_RX_FIRST_DESC | KWGBE_RX_LAST_DESC)) {
 
 		printf("Err..(%s) Dropping packet spread on"
 			" multiple descriptors\n", __FUNCTION__);
 
-	} else if (p_rxdesc_curr->cmd_sts & KWGBE_ERROR_SUMMARY) {
+	} else if (cmd_sts & KWGBE_ERROR_SUMMARY) {
 
 		printf("Err..(%s) Dropping packet with errors\n",
 			__FUNCTION__);
@@ -574,7 +580,8 @@ static int kwgbe_recv(struct eth_device *dev)
 	p_rxdesc_curr->buf_size = PKTSIZE_ALIGN;
 	p_rxdesc_curr->byte_cnt = 0;
 
-	dkwgbe->p_rxdesc_curr = p_rxdesc_curr->nxtdesc_p;
+	writel((unsigned)p_rxdesc_curr->nxtdesc_p, &dkwgbe->p_rxdesc_curr);
+
 	return 0;
 }
 
