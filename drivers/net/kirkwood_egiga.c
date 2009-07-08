@@ -511,7 +511,9 @@ static int kwgbe_send(struct eth_device *dev, volatile void *dataptr,
 	cmd_sts = readl(&p_txdesc->cmd_sts);
 	while (cmd_sts & KWGBE_BUFFER_OWNED_BY_DMA) {
 		/* return fail if error is detected */
-		if (cmd_sts & (KWGBE_UR_ERROR | KWGBE_RL_ERROR)) {
+		if ((cmd_sts & (KWGBE_ERROR_SUMMARY | KWGBE_TX_LAST_FRAME)) ==
+				(KWGBE_ERROR_SUMMARY | KWGBE_TX_LAST_FRAME) &&
+				cmd_sts & (KWGBE_UR_ERROR | KWGBE_RL_ERROR)) {
 			printf("Err..(%s) in xmit packet\n", __FUNCTION__);
 			return -1;
 		}
