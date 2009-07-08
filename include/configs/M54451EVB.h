@@ -94,7 +94,7 @@
 #	define MCFFEC_TOUT_LOOP 50000
 
 #	define CONFIG_BOOTDELAY	1	/* autoboot after 5 seconds */
-#	define CONFIG_BOOTARGS		"root=/dev/mtdblock1 rw rootfstype=jffs2 ip=none mtdparts=physmap-flash.0:5M(kernel)ro,-(jffs2)"
+#	define CONFIG_BOOTARGS		"root=/dev/mtdblock1 rw rootfstype=jffs2 ip=none mtdparts=physmap-flash.0:2M(kernel)ro,-(jffs2)"
 #	define CONFIG_ETHADDR		00:e0:0c:bc:e5:60
 #	define CONFIG_ETHPRIME		"FEC0"
 #	define CONFIG_IPADDR		192.162.1.2
