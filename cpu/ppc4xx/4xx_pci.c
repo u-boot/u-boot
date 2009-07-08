@@ -337,8 +337,15 @@ void pci_405gp_init(struct pci_controller *hose)
 	}
 #endif
 
-#if defined(CONFIG_405EP) /* on ppc405ep vendor id is not set */
-	pci_write_config_word(PCIDEVID_405GP, PCI_VENDOR_ID, 0x1014); /* IBM */
+#if defined(CONFIG_405EP)
+	/*
+	 * on ppc405ep vendor/device id is not set
+	 * The user manual says 0x1014 (IBM) / 0x0156 (405GP!)
+	 * are the correct values.
+	 */
+	pci_write_config_word(PCIDEVID_405GP, PCI_VENDOR_ID, PCI_VENDOR_ID_IBM);
+	pci_write_config_word(PCIDEVID_405GP,
+			      PCI_DEVICE_ID, PCI_DEVICE_ID_IBM_405GP);
 #endif
 
 	/*
