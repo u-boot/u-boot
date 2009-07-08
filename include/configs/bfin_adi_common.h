@@ -38,6 +38,9 @@
 #  define CONFIG_CMD_USB_STORAGE
 #  define CONFIG_DOS_PARTITION
 # endif
+# ifdef CONFIG_NAND_PLAT
+#  define CONFIG_CMD_NAND
+# endif
 # ifdef CONFIG_POST
 #  define CONFIG_CMD_DIAG
 # endif

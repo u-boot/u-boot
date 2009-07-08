@@ -2428,6 +2428,12 @@ to save the current settings.
 	to a block boundary, and CONFIG_ENV_SIZE must be a multiple of
 	the NAND devices block size.
 
+- CONFIG_NAND_ENV_DST
+
+	Defines address in RAM to which the nand_spl code should copy the
+	environment. If redundant environment is used, it will be copied to
+	CONFIG_NAND_ENV_DST + CONFIG_ENV_SIZE.
+
 - CONFIG_SYS_SPI_INIT_OFFSET
 
 	Defines offset to the initial SPI buffer area in DPRAM. The

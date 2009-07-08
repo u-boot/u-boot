@@ -151,36 +151,28 @@
 /*
  * NAND Settings
  */
-/* #define CONFIG_BF537_NAND */
-#ifdef CONFIG_BF537_NAND
-# define CONFIG_CMD_NAND
-#endif
-
-#define CONFIG_SYS_NAND_ADDR		0x20212000
-#define CONFIG_SYS_NAND_BASE		CONFIG_SYS_NAND_ADDR
+/* #define CONFIG_NAND_PLAT */
+#define CONFIG_SYS_NAND_BASE		0x20212000
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define SECTORSIZE		512
-#define ADDR_COLUMN		1
-#define ADDR_PAGE		2
-#define ADDR_COLUMN_PAGE	3
-#define NAND_ChipID_UNKNOWN	0x00
-#define NAND_MAX_FLOORS		1
-#define BFIN_NAND_READY		PF3
 
-#define NAND_WAIT_READY(nand) \
+#define BFIN_NAND_CLE(chip) ((unsigned long)(chip)->IO_ADDR_W | (1 << 2))
+#define BFIN_NAND_ALE(chip) ((unsigned long)(chip)->IO_ADDR_W | (1 << 1))
+#define BFIN_NAND_READY     PF3
+#define BFIN_NAND_WRITE(addr, cmd) \
 	do { \
-		int timeout = 0; \
-		while (!(*pPORTFIO & PF3)) \
-			if (timeout++ > 100000) \
-				break; \
+		bfin_write8(addr, cmd); \
+		SSYNC(); \
 	} while (0)
 
-#define BFIN_NAND_CLE		(1 << 2)	/* A2 -> Command Enable */
-#define BFIN_NAND_ALE		(1 << 1)	/* A1 -> Address Enable */
-#define WRITE_NAND_COMMAND(d, adr) bfin_write8(adr | BFIN_NAND_CLE, d)
-#define WRITE_NAND_ADDRESS(d, adr) bfin_write8(adr | BFIN_NAND_ALE, d)
-#define WRITE_NAND(d, adr)         bfin_write8(adr, d)
-#define READ_NAND(adr)             bfin_read8(adr)
+#define NAND_PLAT_WRITE_CMD(chip, cmd) BFIN_NAND_WRITE(BFIN_NAND_CLE(chip), cmd)
+#define NAND_PLAT_WRITE_ADR(chip, cmd) BFIN_NAND_WRITE(BFIN_NAND_ALE(chip), cmd)
+#define NAND_PLAT_DEV_READY(chip)      (bfin_read_PORTFIO() & BFIN_NAND_READY)
+#define NAND_PLAT_INIT() \
+	do { \
+		bfin_write_PORTF_FER(bfin_read_PORTF_FER() & ~BFIN_NAND_READY); \
+		bfin_write_PORTFIO_DIR(bfin_read_PORTFIO_DIR() & ~BFIN_NAND_READY); \
+		bfin_write_PORTFIO_INEN(bfin_read_PORTFIO_INEN() | BFIN_NAND_READY); \
+	} while (0)
 
 
 /*

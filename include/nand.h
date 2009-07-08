@@ -38,22 +38,22 @@ typedef struct mtd_info nand_info_t;
 extern int nand_curr_device;
 extern nand_info_t nand_info[];
 
-static inline int nand_read(nand_info_t *info, off_t ofs, size_t *len, u_char *buf)
+static inline int nand_read(nand_info_t *info, loff_t ofs, size_t *len, u_char *buf)
 {
 	return info->read(info, ofs, *len, (size_t *)len, buf);
 }
 
-static inline int nand_write(nand_info_t *info, off_t ofs, size_t *len, u_char *buf)
+static inline int nand_write(nand_info_t *info, loff_t ofs, size_t *len, u_char *buf)
 {
 	return info->write(info, ofs, *len, (size_t *)len, buf);
 }
 
-static inline int nand_block_isbad(nand_info_t *info, off_t ofs)
+static inline int nand_block_isbad(nand_info_t *info, loff_t ofs)
 {
 	return info->block_isbad(info, ofs);
 }
 
-static inline int nand_erase(nand_info_t *info, off_t off, size_t size)
+static inline int nand_erase(nand_info_t *info, loff_t off, size_t size)
 {
 	struct erase_info instr;
 
@@ -110,9 +110,9 @@ struct nand_erase_options {
 
 typedef struct nand_erase_options nand_erase_options_t;
 
-int nand_read_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
+int nand_read_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 		       u_char *buffer);
-int nand_write_skip_bad(nand_info_t *nand, size_t offset, size_t *length,
+int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 			u_char *buffer);
 int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts);
 
@@ -122,7 +122,7 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts);
 
 int nand_lock( nand_info_t *meminfo, int tight );
 int nand_unlock( nand_info_t *meminfo, ulong start, ulong length );
-int nand_get_lock_status(nand_info_t *meminfo, ulong offset);
+int nand_get_lock_status(nand_info_t *meminfo, loff_t offset);
 
 #ifdef CONFIG_SYS_NAND_SELECT_DEVICE
 void board_nand_select_device(struct nand_chip *nand, int chip);

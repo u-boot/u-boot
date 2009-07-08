@@ -25,6 +25,8 @@
  */
 
 #include <common.h>
+#include <nand.h>
+#include <asm/arch/nand_defs.h>
 #include <asm/arch/hardware.h>
 #include "../common/misc.h"
 
@@ -72,3 +74,29 @@ int misc_init_r(void)
 
 	return(0);
 }
+
+#ifdef CONFIG_NAND_DAVINCI
+
+/* Set WP on deselect, write enable on select */
+static void nand_sonata_select_chip(struct mtd_info *mtd, int chip)
+{
+#define GPIO_SET_DATA01	0x01c67018
+#define GPIO_CLR_DATA01	0x01c6701c
+#define GPIO_NAND_WP	(1 << 4)
+#ifdef SONATA_BOARD_GPIOWP
+	if (chip < 0) {
+		REG(GPIO_CLR_DATA01) |= GPIO_NAND_WP;
+	} else {
+		REG(GPIO_SET_DATA01) |= GPIO_NAND_WP;
+	}
+#endif
+}
+
+int board_nand_init(struct nand_chip *nand)
+{
+	davinci_nand_init(nand);
+	nand->select_chip = nand_sonata_select_chip;
+	return 0;
+}
+
+#endif /* CONFIG_NAND_DAVINCI */
