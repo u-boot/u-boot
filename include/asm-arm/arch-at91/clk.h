@@ -49,6 +49,11 @@ static inline unsigned long get_lcdc_clk_rate(unsigned int dev_id)
 	return get_mck_clk_rate();
 }
 
+static inline unsigned long get_spi_clk_rate(unsigned int dev_id)
+{
+	return get_mck_clk_rate();
+}
+
 static inline unsigned long get_twi_clk_rate(unsigned int dev_id)
 {
 	return get_mck_clk_rate();

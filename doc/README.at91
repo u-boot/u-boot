@@ -75,6 +75,26 @@ Environment variables
 
 
 ------------------------------------------------------------------------------
+AT91SAM9M10G45EK
+------------------------------------------------------------------------------
+
+Memory map
+	0x20000000 - 23FFFFFF	SDRAM (64 MB)
+	0xC0000000 - Cxxxxxxx	Atmel Dataflash card (J12)
+
+Environment variables
+
+	U-Boot environment variables can be stored at different places:
+		- Dataflash on SPI chip select 0 (dataflash card)
+		- Nand flash.
+
+	You can choose your storage location at config step (here for at91sam9m10g45ek) :
+		make at91sam9m10g45ek_config			- use data flash (spi cs0) (default)
+		make at91sam9m10g45ek_nandflash_config		- use nand flash
+		make at91sam9m10g45ek_dataflash_cs0_config	- use data flash (spi cs0)
+
+
+------------------------------------------------------------------------------
 AT91SAM9RLEK
 ------------------------------------------------------------------------------
 
