@@ -292,7 +292,6 @@
 #define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env */
-#define CONFIG_ENV_SIZE		0x20000
 #define CONFIG_ENV_OFFSET	(CONFIG_SYS_MONITOR_LEN)
 
 /* Address and size of Redundant Environment Sector	*/
@@ -314,7 +313,6 @@
 #define CONFIG_SYS_I2C_SLAVE	0x7F
 #define CONFIG_SYS_I2C_OFFSET	0x3000
 #define CONFIG_I2C_MULTI_BUS	1
-#define CONFIG_SYS_MAX_I2C_BUS		2
 #define CONFIG_I2C_MUX		1
 
 /* EEprom support */
@@ -326,7 +324,7 @@
 #define CONFIG_SYS_DTT_MAX_TEMP	70
 #define CONFIG_SYS_DTT_LOW_TEMP	-30
 #define CONFIG_SYS_DTT_HYSTERESIS	3
-#define CONFIG_SYS_DTT_BUS_NUM		(2)
+#define CONFIG_SYS_DTT_BUS_NUM		(CONFIG_SYS_MAX_I2C_BUS)
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
@@ -433,7 +431,7 @@
 
 #define CONFIG_PRAM	512	/* protected RAM [KBytes] */
 
-#define MTDIDS_DEFAULT		"nor0=app"
+#define MTDIDS_DEFAULT		"nor2=app"
 #define MTDPARTS_DEFAULT \
 	"mtdparts=app:256k(u-boot),128k(env),128k(envred),"	\
 	"1536k(esw0),8704k(rootfs0),1536k(esw1),2432k(rootfs1),640k(var),768k(cfg)"

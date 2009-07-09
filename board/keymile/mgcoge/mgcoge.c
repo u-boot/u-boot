@@ -312,42 +312,71 @@ int hush_init_var (void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-extern int fdt_set_node_and_value (void *blob,
-				char *nodename,
-				char *regname,
-				void *var,
-				int size);
-
 /*
  * update "memory" property in the blob
  */
 void ft_blob_update (void *blob, bd_t *bd)
 {
 	ulong memory_data[2] = {0};
-	ulong flash_data[8] = {0};
+	ulong *flash_data = NULL;
+	ulong	flash_reg[6] = {0};
 	flash_info_t	*info;
-	uchar enetaddr[6];
+	int	len;
+	int	size;
+	int	i = 0;
 
 	memory_data[0] = cpu_to_be32 (bd->bi_memstart);
 	memory_data[1] = cpu_to_be32 (bd->bi_memsize);
 	fdt_set_node_and_value (blob, "/memory", "reg", memory_data,
 				sizeof (memory_data));
 
+	len = fdt_get_node_and_value (blob, "/localbus", "ranges",
+					(void *)&flash_data);
+
+	if (flash_data == NULL) {
+		printf ("%s: error /localbus/ranges entry\n", __FUNCTION__);
+		return;
+	}
+
 	/* update Flash addr, size */
-	info = flash_get_info(CONFIG_SYS_FLASH_BASE);
-	flash_data[2] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE);
-	flash_data[3] = cpu_to_be32 (info->size);
-	flash_data[4] = cpu_to_be32 (5);
-	flash_data[5] = cpu_to_be32 (0);
-	info = flash_get_info(CONFIG_SYS_FLASH_BASE_1);
-	flash_data[6] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE_1);
-	flash_data[7] = cpu_to_be32 (info->size);
+	while ( i < (len / 4)) {
+		switch (flash_data[i]) {
+		case 0:
+			info = flash_get_info(CONFIG_SYS_FLASH_BASE);
+			flash_data[i + 1] = 0;
+			flash_data[i + 2] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE);
+			flash_data[i + 3] = cpu_to_be32 (info->size);
+			break;
+		case 5:
+			info = flash_get_info(CONFIG_SYS_FLASH_BASE_1);
+			size = info->size;
+			info = flash_get_info(CONFIG_SYS_FLASH_BASE_2);
+			size += info->size;
+			flash_data[i + 1] = 0;
+			flash_data[i + 2] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE_1);
+			flash_data[i + 3] = cpu_to_be32 (size);
+			break;
+		default:
+			break;
+		}
+		i += 4;
+	}
 	fdt_set_node_and_value (blob, "/localbus", "ranges", flash_data,
-				sizeof (flash_data));
+				len);
+
+	info = flash_get_info(CONFIG_SYS_FLASH_BASE_1);
+	flash_reg[0] = cpu_to_be32 (5);
+	flash_reg[2] = cpu_to_be32 (info->size);
+	flash_reg[3] = flash_reg[0];
+	flash_reg[4] = flash_reg[2];
+	info = flash_get_info(CONFIG_SYS_FLASH_BASE_2);
+	flash_reg[5] = cpu_to_be32 (info->size);
+	fdt_set_node_and_value (blob, "/localbus/flash@5,0", "reg", flash_reg,
+				sizeof (flash_reg));
+
 	/* MAC addr */
-	eth_getenv_enetaddr("ethaddr", enetaddr);
 	fdt_set_node_and_value (blob, "/soc/cpm/ethernet", "mac-address",
-				enetaddr, sizeof (u8) * 6);
+				bd->bi_enetaddr, sizeof (u8) * 6);
 }
 
 void ft_board_setup (void *blob, bd_t *bd)

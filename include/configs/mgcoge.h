@@ -98,13 +98,11 @@
 	"addcon=setenv bootargs ${bootargs} "				\
 		"console=ttyCPM0,${baudrate}\0"				\
 	"mtdids=nor0=boot,nor1=app \0"					\
-	"mtdparts=mtdparts=boot:384k(u-boot),128k(env),128k(envred),"	\
-		"3456k(free);app:3m(esw0),10m(rootfs0),3m(esw1),"	\
-		"10m(rootfs1),1m(var),5m(cfg) \0"			\
 	"partition=nor1,5 \0"						\
 	"new_env=prot off FE060000 FE09FFFF; era FE060000 FE09FFFF \0" 	\
 	"EEprom_ivm=pca9544a:70:4 \0"					\
-	"mtdparts=" MK_STR(MTDPARTS_DEFAULT) "\0"				\
+	"mtdparts=" MK_STR(MTDPARTS_DEFAULT) "\0"			\
+	"unlock=yes\0"							\
 	""
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
@@ -112,13 +110,17 @@
 #define CONFIG_SYS_FLASH_SIZE		32
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max num of flash banks	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	3	/* max num of flash banks	*/
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* max num of sects on one chip */
 
 #define CONFIG_SYS_FLASH_BASE_1	0x50000000
-#define CONFIG_SYS_FLASH_SIZE_1	64
+#define CONFIG_SYS_FLASH_SIZE_1	32
+#define CONFIG_SYS_FLASH_BASE_2	0x52000000
+#define CONFIG_SYS_FLASH_SIZE_2	32
 
-#define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE_1 }
+#define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE, \
+					CONFIG_SYS_FLASH_BASE_1, \
+					CONFIG_SYS_FLASH_BASE_2 }
 
 #define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
@@ -193,7 +195,6 @@
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM		0x02	/* Software reboot                  */
 
-#define CONFIG_SYS_MALLOC_LEN		(4096 << 10)	/* Reserve 4 MB for malloc()	*/
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 #define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC8260 CPUs */
@@ -333,9 +334,10 @@
 #define CONFIG_SYS_BR5_PRELIM	((CONFIG_SYS_FLASH_BASE_1 & BRx_BA_MSK) |\
 			 BRx_PS_16 | BRx_MS_GPCM_P | BRx_V)
 
-#define CONFIG_SYS_OR5_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE_1) |\
-			 ORxG_CSNT | ORxG_ACS_DIV2 |\
-			 ORxG_SCY_5_CLK | ORxG_TRLX )
+#define CONFIG_SYS_OR5_PRELIM	(MEG_TO_AM(CONFIG_SYS_FLASH_SIZE_1 + \
+				 CONFIG_SYS_FLASH_SIZE_2) |\
+				 ORxG_CSNT | ORxG_ACS_DIV2 |\
+				 ORxG_SCY_5_CLK | ORxG_TRLX )
 
 #define	CONFIG_SYS_RESET_ADDRESS 0xFDFFFFFC	/* "bad" address		*/
 

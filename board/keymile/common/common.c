@@ -203,8 +203,9 @@ static int ivm_check_crc (unsigned char *buf, int block)
 	crceeprom = (buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN - 1] + \
 			buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN - 2] * 256);
 	if (crc != crceeprom) {
-		printf ("Error CRC Block: %d EEprom: calculated: %lx EEprom: %lx\n",
-			block, crc, crceeprom);
+		if (block == 0)
+			printf ("Error CRC Block: %d EEprom: calculated: \
+			%lx EEprom: %lx\n", block, crc, crceeprom);
 		return -1;
 	}
 	return 0;
@@ -287,7 +288,7 @@ int ivm_analyze_eeprom (unsigned char *buf, int len)
 	GET_STRING("IVM_CustomerProductID", IVM_POS_CUSTOMER_PROD_ID, 32)
 
 	if (ivm_check_crc (&buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN * 2], 2) != 0)
-		return -2;
+		return 0;
 	ivm_analyze_block2 (&buf[CONFIG_SYS_IVM_EEPROM_PAGE_LEN * 2], CONFIG_SYS_IVM_EEPROM_PAGE_LEN);
 
 	return 0;
@@ -526,6 +527,34 @@ int fdt_set_node_and_value (void *blob,
 			"err:%s\n", nodename, fdt_strerror (nodeoffset));
 	}
 	return ret;
+}
+int fdt_get_node_and_value (void *blob,
+				char *nodename,
+				char *propname,
+				void **var)
+{
+	int len;
+	int nodeoffset = 0;
+
+	nodeoffset = fdt_path_offset (blob, nodename);
+	if (nodeoffset >= 0) {
+		*var = (void *)fdt_getprop (blob, nodeoffset, propname, &len);
+		if (len == 0) {
+			/* no value */
+			printf ("%s no value\n", __FUNCTION__);
+			return -1;
+		} else if (len > 0) {
+			return len;
+		} else {
+			printf ("libfdt fdt_getprop(): %s\n",
+				fdt_strerror(len));
+			return -2;
+		}
+	} else {
+		printf("%s: cannot find %s node err:%s\n", __FUNCTION__,
+			nodename, fdt_strerror (nodeoffset));
+		return -3;
+	}
 }
 #endif
 
