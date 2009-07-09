@@ -61,6 +61,9 @@ extern u_long get_sclk(void);
 
 # define bfin_revid() (*pCHIPID >> 28)
 
+extern bool bfin_os_log_check(void);
+extern void bfin_os_log_dump(void);
+
 extern void blackfin_icache_flush_range(const void *, const void *);
 extern void blackfin_dcache_flush_range(const void *, const void *);
 extern void blackfin_icache_dcache_flush_range(const void *, const void *);

@@ -384,6 +384,12 @@ void board_init_r(gd_t * id, ulong dest_addr)
 		post_run(NULL, POST_RAM | post_bootmode_get(0));
 #endif
 
+	if (bfin_os_log_check()) {
+		puts("\nLog buffer from operating system:\n");
+		bfin_os_log_dump();
+		puts("\n");
+	}
+
 	/* main_loop() can return to retry autoboot, if so just run it again. */
 	for (;;)
 		main_loop();
