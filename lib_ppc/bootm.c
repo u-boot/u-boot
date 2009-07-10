@@ -38,11 +38,6 @@
 #include <fdt.h>
 #include <libfdt.h>
 #include <fdt_support.h>
-
-#endif
-
-#ifdef CONFIG_SYS_INIT_RAM_LOCK
-#include <asm/cache.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -70,10 +65,6 @@ static void boot_jump_linux(bootm_headers_t *images)
 		(ulong)kernel);
 
 	show_boot_progress (15);
-
-#if defined(CONFIG_SYS_INIT_RAM_LOCK) && !defined(CONFIG_E500)
-	unlock_ram_in_cache();
-#endif
 
 #if defined(CONFIG_OF_LIBFDT)
 	if (of_flat_tree) {	/* device tree; boot new style */
