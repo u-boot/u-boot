@@ -140,7 +140,7 @@ endif
 # The "tools" are needed early, so put this first
 # Don't include stuff already done in $(LIBS)
 SUBDIRS	= tools \
-	  examples \
+	  examples/standalone \
 	  api_examples
 
 .PHONY : $(SUBDIRS)
@@ -3592,11 +3592,15 @@ grsim_leon2_config : unconfig
 #########################################################################
 
 clean:
-	@rm -f $(obj)examples/82559_eeprom $(obj)examples/eepro100_eeprom \
-	       $(obj)examples/hello_world  $(obj)examples/interrupt	  \
-	       $(obj)examples/mem_to_mem_idma2intr			  \
-	       $(obj)examples/sched	   $(obj)examples/smc91111_eeprom \
-	       $(obj)examples/test_burst   $(obj)examples/timer
+	@rm -f $(obj)examples/standalone/82559_eeprom			  \
+	       $(obj)examples/standalone/eepro100_eeprom		  \
+	       $(obj)examples/standalone/hello_world			  \
+	       $(obj)examples/standalone/interrupt			  \
+	       $(obj)examples/standalone/mem_to_mem_idma2intr		  \
+	       $(obj)examples/standalone/sched				  \
+	       $(obj)examples/standalone/smc91111_eeprom		  \
+	       $(obj)examples/standalone/test_burst			  \
+	       $(obj)examples/standalone/timer
 	@rm -f $(obj)tools/bmp_logo	   $(obj)tools/easylogo/easylogo  \
 	       $(obj)tools/env/{fw_printenv,fw_setenv}			  \
 	       $(obj)tools/envcrc					  \
