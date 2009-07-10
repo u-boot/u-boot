@@ -160,8 +160,8 @@
 		"nand write $(loadaddr) 0 0x40000"
 # else
 #  define UBOOT_ENV_UPDATE \
-		"protect off 0x20000000 0x2003FFFF;" \
-		"erase 0x20000000 0x2003FFFF;" \
+		"protect off 0x20000000 +$(filesize);" \
+		"erase 0x20000000 +$(filesize);" \
 		"cp.b $(loadaddr) 0x20000000 $(filesize)"
 # endif
 # define NETWORK_ENV_SETTINGS \
