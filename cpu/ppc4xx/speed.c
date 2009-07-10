@@ -867,6 +867,8 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 
 	sysInfo->freqEBC = sysInfo->freqPLB / sysInfo->pllExtBusDiv;
 
+	sysInfo->freqOPB = sysInfo->freqPLB / sysInfo->pllOpbDiv;
+
 	sysInfo->freqUART = sysInfo->freqProcessor * pllmr0_ccdv;
 }
 
