@@ -21,6 +21,8 @@
 #include <asm/arch/at91sam9rl_matrix.h>
 #elif defined(CONFIG_AT91CAP9)
 #include <asm/arch/at91cap9_matrix.h>
+#elif defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
+#include <asm/arch/at91sam9g45_matrix.h>
 #else
 #error "Unsupported AT91SAM9/CAP9 processor"
 #endif

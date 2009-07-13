@@ -21,15 +21,21 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#ifndef __ASM_ARM_ARCH_MEMORYMAP_H__
-#define __ASM_ARM_ARCH_MEMORYMAP_H__
 
-#include <asm/arch/hardware.h>
+#include <common.h>
+#include <asm/arch/at91sam9g45.h>
+#include <asm/arch/at91_pmc.h>
+#include <asm/arch/gpio.h>
+#include <asm/arch/io.h>
 
-#define USART0_BASE AT91_USART0
-#define USART1_BASE AT91_USART1
-#define USART2_BASE AT91_USART2
-#define USART3_BASE (AT91_BASE_SYS + AT91_DBGU)
-#define SPI0_BASE	AT91_BASE_SPI
+void coloured_LED_init(void)
+{
+	/* Enable clock */
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9G45_ID_PIODE);
 
-#endif /* __ASM_ARM_ARCH_MEMORYMAP_H__ */
+	at91_set_gpio_output(CONFIG_RED_LED, 1);
+	at91_set_gpio_output(CONFIG_GREEN_LED, 1);
+
+	at91_set_gpio_value(CONFIG_RED_LED, 0);
+	at91_set_gpio_value(CONFIG_GREEN_LED, 1);
+}

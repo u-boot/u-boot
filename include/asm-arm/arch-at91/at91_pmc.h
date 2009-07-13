@@ -89,6 +89,7 @@
 #define			AT91SAM9_PMC_MDIV_1		(0 << 8)	/* [SAM9,CAP9 only] */
 #define			AT91SAM9_PMC_MDIV_2		(1 << 8)
 #define			AT91SAM9_PMC_MDIV_4		(2 << 8)
+#define			AT91SAM9_PMC_MDIV_3		(3 << 8)	/* [some SAM9 only] */
 #define			AT91SAM9_PMC_MDIV_6		(3 << 8)
 #define		AT91_PMC_PDIV		(1 << 12)		/* Processor Clock Division [some SAM9 only] */
 #define			AT91_PMC_PDIV_1			(0 << 12)

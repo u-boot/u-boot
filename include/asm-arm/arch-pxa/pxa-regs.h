@@ -1952,12 +1952,13 @@ typedef void		(*ExcpHndlr) (void) ;
 #define CKENA_2_USBHOST	(1 << 2)	/* USB Host Unit Clock Enable */
 #define CKENA_1_LCD	(1 << 1)	/* LCD Unit Clock Enable */
 
-#define CKENB_8_1WIRE	((1 << 8) + 32) /* One Wire Interface Unit Clock Enable */
-#define CKENB_7_GPIO	((1 << 7) + 32)	/* GPIO Clock Enable */
-#define CKENB_6_IRQ	((1 << 6) + 32)	/* Interrupt Controller Clock Enable */
-#define CKENB_4_I2C	((1 << 4) + 32)	/* I2C Unit Clock Enable */
-#define CKENB_1_PWM1	((1 << 1) + 32)	/* PWM2 & PWM3 Clock Enable */
-#define CKENB_0_PWM0	((1 << 0) + 32)	/* PWM0 & PWM1 Clock Enable */
+#define CKENB_9_SYSBUS2	(1 << 9)	/* System bus 2 */
+#define CKENB_8_1WIRE	(1 << 8)	/* One Wire Interface Unit Clock Enable */
+#define CKENB_7_GPIO	(1 << 7)	/* GPIO Clock Enable */
+#define CKENB_6_IRQ	(1 << 6)	/* Interrupt Controller Clock Enable */
+#define CKENB_4_I2C	(1 << 4)	/* I2C Unit Clock Enable */
+#define CKENB_1_PWM1	(1 << 1)	/* PWM2 & PWM3 Clock Enable */
+#define CKENB_0_PWM0	(1 << 0)	/* PWM0 & PWM1 Clock Enable */
 
 #else /* if defined CONFIG_CPU_MONAHANS */
 
