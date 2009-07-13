@@ -1,7 +1,2 @@
-crc32.c
-ctype.c
 demo
 demo.bin
-ppcstring.S
-string.c
-vsprintf.c

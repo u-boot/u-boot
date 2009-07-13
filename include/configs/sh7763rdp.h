@@ -114,8 +114,8 @@
 
 /* Clock */
 #define CONFIG_SYS_CLK_FREQ	66666666
-#define TMU_CLK_DIVIDER		(4)	/* 4 (default), 16, 64, 256 or 1024 */
-#define CONFIG_SYS_HZ				(CONFIG_SYS_CLK_FREQ / TMU_CLK_DIVIDER)
+#define CONFIG_SYS_TMU_CLK_DIV		(4)	/* 4 (default), 16, 64, 256 or 1024 */
+#define CONFIG_SYS_HZ		1000
 
 /* Ether */
 #define CONFIG_NET_MULTI 1

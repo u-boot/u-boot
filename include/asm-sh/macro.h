@@ -29,7 +29,7 @@
 
 .macro	write16, addr, data
 	mov.l \addr ,r1
-	mov.l \data ,r0
+	mov.w \data ,r0
 	mov.w r0, @r1
 .endm
 

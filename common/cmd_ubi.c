@@ -395,11 +395,13 @@ static int ubi_volume_read(char *volume, char *buf, size_t size)
 	return err ? err : count_save - size;
 }
 
-static int ubi_dev_scan(struct mtd_info *info, char *ubidev)
+static int ubi_dev_scan(struct mtd_info *info, char *ubidev,
+		const char *vid_header_offset)
 {
 	struct mtd_device *dev;
 	struct part_info *part;
 	struct mtd_partition mtd_part;
+	char ubi_mtd_param_buffer[80];
 	u8 pnum;
 	int err;
 
@@ -413,7 +415,11 @@ static int ubi_dev_scan(struct mtd_info *info, char *ubidev)
 	mtd_part.offset = part->offset;
 	add_mtd_partitions(info, &mtd_part, 1);
 
-	err = ubi_mtd_param_parse(buffer, NULL);
+	strcpy(ubi_mtd_param_buffer, buffer);
+	if (vid_header_offset)
+		sprintf(ubi_mtd_param_buffer, "mtd=%d,%s", pnum,
+				vid_header_offset);
+	err = ubi_mtd_param_parse(ubi_mtd_param_buffer, NULL);
 	if (err) {
 		del_mtd_partitions(info);
 		return err;
@@ -450,6 +456,7 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		char mtd_dev[16];
 		struct mtd_device *dev;
 		struct part_info *part;
+		const char *vid_header_offset = NULL;
 		u8 pnum;
 
 		/* Print current partition */
@@ -497,8 +504,11 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 		ubi_dev.selected = 1;
 
+		if (argc > 3)
+			vid_header_offset = argv[3];
 		strcpy(ubi_dev.part_name, argv[2]);
-		err = ubi_dev_scan(ubi_dev.mtd_info, ubi_dev.part_name);
+		err = ubi_dev_scan(ubi_dev.mtd_info, ubi_dev.part_name,
+				vid_header_offset);
 		if (err) {
 			printf("UBI init error %d\n", err);
 			ubi_dev.selected = 0;
@@ -594,8 +604,9 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(ubi, 6, 1, do_ubi,
 	"ubi commands",
-	"part [part]"
-		" - Show or set current partition\n"
+	"part [part] [offset]\n"
+		" - Show or set current partition (with optional VID"
+		" header offset)\n"
 	"ubi info [l[ayout]]"
 		" - Display volume and ubi layout information\n"
 	"ubi create[vol] volume [size] [type]"

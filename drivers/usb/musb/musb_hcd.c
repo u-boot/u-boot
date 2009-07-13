@@ -111,6 +111,7 @@ static int wait_until_ep0_ready(struct usb_device *dev, u32 bit_mask)
 {
 	u16 csr;
 	int result = 1;
+	int timeout = CONFIG_MUSB_TIMEOUT;
 
 	while (result > 0) {
 		csr = readw(&musbr->txcsr);
@@ -152,7 +153,17 @@ static int wait_until_ep0_ready(struct usb_device *dev, u32 bit_mask)
 			}
 			break;
 		}
+
+		/* Check the timeout */
+		if (--timeout)
+			udelay(1);
+		else {
+			dev->status = USB_ST_CRC_ERR;
+			result = -1;
+			break;
+		}
 	}
+
 	return result;
 }
 
@@ -162,6 +173,7 @@ static int wait_until_ep0_ready(struct usb_device *dev, u32 bit_mask)
 static u8 wait_until_txep_ready(struct usb_device *dev, u8 ep)
 {
 	u16 csr;
+	int timeout = CONFIG_MUSB_TIMEOUT;
 
 	do {
 		if (check_stall(ep, 1)) {
@@ -174,6 +186,15 @@ static u8 wait_until_txep_ready(struct usb_device *dev, u8 ep)
 			dev->status = USB_ST_CRC_ERR;
 			return 0;
 		}
+
+		/* Check the timeout */
+		if (--timeout)
+			udelay(1);
+		else {
+			dev->status = USB_ST_CRC_ERR;
+			return -1;
+		}
+
 	} while (csr & MUSB_TXCSR_TXPKTRDY);
 	return 1;
 }
@@ -184,6 +205,7 @@ static u8 wait_until_txep_ready(struct usb_device *dev, u8 ep)
 static u8 wait_until_rxep_ready(struct usb_device *dev, u8 ep)
 {
 	u16 csr;
+	int timeout = CONFIG_MUSB_TIMEOUT;
 
 	do {
 		if (check_stall(ep, 0)) {
@@ -196,6 +218,15 @@ static u8 wait_until_rxep_ready(struct usb_device *dev, u8 ep)
 			dev->status = USB_ST_CRC_ERR;
 			return 0;
 		}
+
+		/* Check the timeout */
+		if (--timeout)
+			udelay(1);
+		else {
+			dev->status = USB_ST_CRC_ERR;
+			return -1;
+		}
+
 	} while (!(csr & MUSB_RXCSR_RXPKTRDY));
 	return 1;
 }

@@ -80,8 +80,8 @@
  * SuperH Clock setting
  */
 #define CONFIG_SYS_CLK_FREQ	60000000
-#define TMU_CLK_DIVIDER		4
-#define CONFIG_SYS_HZ			(CONFIG_SYS_CLK_FREQ / TMU_CLK_DIVIDER)
+#define CONFIG_SYS_TMU_CLK_DIV		4
+#define CONFIG_SYS_HZ		1000
 #define	CONFIG_SYS_PLL_SETTLING_TIME	100/* in us */
 
 /*
@@ -123,7 +123,5 @@
  */
 #define CONFIG_NET_MULTI
 #define CONFIG_RTL8139
-#define _IO_BASE		0x00000000
-#define KSEG1ADDR(x)		(x)
 
 #endif /* __CONFIG_H */

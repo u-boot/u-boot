@@ -352,7 +352,7 @@ GEN_UBOOT = \
 $(obj)u-boot:		depend $(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT)
 		$(GEN_UBOOT)
 ifeq ($(CONFIG_KALLSYMS),y)
-		smap=`$(call SYSTEM_MAP,u-boot) | awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\0"}'` ; \
+		smap=`$(call SYSTEM_MAP,u-boot) | awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\\\000"}'` ; \
 		$(CC) $(CFLAGS) -DSYSTEM_MAP="\"$${smap}\"" -c common/system_map.c -o $(obj)common/system_map.o
 		$(GEN_UBOOT) $(obj)common/system_map.o
 endif
@@ -2752,12 +2752,22 @@ at91sam9xeek_config	:	unconfig
 at91sam9261ek_nandflash_config \
 at91sam9261ek_dataflash_cs0_config \
 at91sam9261ek_dataflash_cs3_config \
-at91sam9261ek_config	:	unconfig
+at91sam9261ek_config \
+at91sam9g10ek_nandflash_config \
+at91sam9g10ek_dataflash_cs0_config \
+at91sam9g10ek_dataflash_cs3_config \
+at91sam9g10ek_config	:	unconfig
 	@mkdir -p $(obj)include
+	@if [ "$(findstring 9g10,$@)" ] ; then \
+		echo "#define CONFIG_AT91SAM9G10EK 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... 9G10 Variant" ; \
+	else \
+		echo "#define CONFIG_AT91SAM9261EK 1"	>>$(obj)include/config.h ; \
+	fi;
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
-	elif [ "$(findstring dataflash_cs3,$@)" ] ; then \
+	elif [ "$(findstring dataflash_cs0,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_DATAFLASH_CS3 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in SPI DATAFLASH CS3" ; \
 	else \
@@ -2808,6 +2818,31 @@ meesc_config	:	unconfig
 
 pm9261_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs pm9261 ronetix at91
+
+at91sam9m10g45ek_nandflash_config \
+at91sam9m10g45ek_dataflash_config \
+at91sam9m10g45ek_dataflash_cs0_config \
+at91sam9m10g45ek_config \
+at91sam9g45ekes_nandflash_config \
+at91sam9g45ekes_dataflash_config \
+at91sam9g45ekes_dataflash_cs0_config \
+at91sam9g45ekes_config	:	unconfig
+	@mkdir -p $(obj)include
+		@if [ "$(findstring 9m10,$@)" ] ; then \
+		echo "#define CONFIG_AT91SAM9M10G45EK 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... 9M10G45 Variant" ; \
+	else \
+		echo "#define CONFIG_AT91SAM9G45EKES 1"	>>$(obj)include/config.h ; \
+	fi;
+
+	@if [ "$(findstring _nandflash,$@)" ] ; then \
+		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... with environment variable in NAND FLASH" ; \
+	else \
+		echo "#define CONFIG_ATMEL_SPI 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... with environment variable in SPI DATAFLASH CS0" ; \
+	fi;
+	@$(MKCONFIG) -a at91sam9m10g45ek arm arm926ejs at91sam9m10g45ek atmel at91
 
 pm9263_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs pm9263 ronetix at91
@@ -3538,18 +3573,14 @@ sh7763rdp_config  :   unconfig
 xtract_sh7785lcr = $(subst _32bit,,$(subst _config,,$1))
 sh7785lcr_32bit_config \
 sh7785lcr_config  :   unconfig
-	@ >include/config.h
-	@echo "#define CONFIG_SH7785LCR 1" >> include/config.h
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/renesas/sh7785lcr
+	@echo "#define CONFIG_SH7785LCR 1" > $(obj)include/config.h
 	@if [ "$(findstring 32bit, $@)" ] ; then \
 		echo "#define CONFIG_SH_32BIT 1" >> $(obj)include/config.h ; \
-		cp $(obj)board/renesas/sh7785lcr/u-boot_32bit \
-			$(obj)board/renesas/sh7785lcr/u-boot.lds ; \
 		echo "TEXT_BASE = 0x8ff80000" > \
 			$(obj)board/renesas/sh7785lcr/config.tmp ; \
 		  $(XECHO) " ... enable 32-Bit Address Extended Mode" ; \
-	else \
-		cp $(obj)board/renesas/sh7785lcr/u-boot_29bit \
-			$(obj)board/renesas/sh7785lcr/u-boot.lds ; \
 	fi
 	@$(MKCONFIG) -a $(call xtract_sh7785lcr,$@) sh sh4 sh7785lcr renesas
 
@@ -3557,6 +3588,11 @@ ap325rxa_config  :   unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_AP325RXA 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $(@:_config=) sh sh4 ap325rxa renesas
+
+espt_config  :   unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_ESPT 1" > $(obj)include/config.h
+	@$(MKCONFIG) -a $(@:_config=) sh sh4 espt
 
 #========================================================================
 # SPARC
@@ -3636,7 +3672,6 @@ clobber:	clean
 	@rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -name "*" -type l -print | xargs rm -f
 	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -name "*" -type l -print | xargs rm -f
-	@[ ! -d $(obj)api_examples ] || find $(obj)api_examples -name "*" -type l -print | xargs rm -f
 
 ifeq ($(OBJTREE),$(SRCTREE))
 mrproper \

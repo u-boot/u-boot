@@ -519,12 +519,6 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 #undef CONFIG_TULIP
 #define CONFIG_RTL8139
 
-#ifdef CONFIG_RTL8139
-/* This macro is used by RTL8139 but not defined in PPC architecture */
-#define KSEG1ADDR(x)		(x)
-#define _IO_BASE	0x00000000
-#endif
-
 #ifndef CONFIG_PCI_PNP
 	#define PCI_ENET0_IOADDR	CONFIG_SYS_PCIE3_IO_BUS
 	#define PCI_ENET0_MEMADDR	CONFIG_SYS_PCIE3_IO_BUS

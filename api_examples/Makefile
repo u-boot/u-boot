@@ -29,74 +29,56 @@ endif
 
 include $(TOPDIR)/config.mk
 
-ELF-$(CONFIG_API) += demo
-BIN-$(CONFIG_API) += demo.bin
-ELF	:= $(ELF-y)
-BIN	:= $(BIN-y)
+# Resulting ELF and binary exectuables will be named demo and demo.bin
+OUTPUT-$(CONFIG_API) = $(obj)demo
+OUTPUT = $(OUTPUT-y)
 
-#CFLAGS += -v
+# Source files located in the api_examples directory
+SOBJ_FILES-$(CONFIG_API) += crt0.o
+COBJ_FILES-$(CONFIG_API) += demo.o
+COBJ_FILES-$(CONFIG_API) += glue.o
+COBJ_FILES-$(CONFIG_API) += libgenwrap.o
 
-COBJS-$(CONFIG_API) += $(ELF:=.o)
-SOBJS-$(CONFIG_API) += crt0.o
+# Source files which exist outside the api_examples directory
+EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/crc32.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/ctype.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/string.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/vsprintf.o
 ifeq ($(ARCH),ppc)
-SOBJS-$(CONFIG_API) += ppcstring.o
+EXT_SOBJ_FILES-$(CONFIG_API) += lib_ppc/ppcstring.o
 endif
-COBJS	:= $(COBJS-y)
-SOBJS	:= $(SOBJS-y)
 
-LIB	= $(obj)libglue.a
-LIBCOBJS-$(CONFIG_API) += glue.o crc32.o ctype.o string.o vsprintf.o \
-				libgenwrap.o
-LIBCOBJS := $(LIBCOBJS-y)
+# Create a list of source files so their dependencies can be auto-generated
+SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_COBJ_FILES-y:.o=.c))
+SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_SOBJ_FILES-y:.o=.S))
+SRCS	+= $(addprefix $(SRCTREE)/api_examples/,$(COBJ_FILES-y:.o=.c))
+SRCS	+= $(addprefix $(SRCTREE)/api_examples/,$(SOBJ_FILES-y:.o=.S))
 
-LIBOBJS	= $(addprefix $(obj),$(SOBJS) $(LIBCOBJS))
-
-SRCS	:= $(COBJS:.o=.c) $(LIBCOBJS:.o=.c) $(SOBJS:.o=.S)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-ELF	:= $(addprefix $(obj),$(ELF))
-BIN	:= $(addprefix $(obj),$(BIN))
+# Create a list of object files to be compiled
+OBJS	+= $(addprefix $(obj),$(SOBJ_FILES-y))
+OBJS	+= $(addprefix $(obj),$(COBJ_FILES-y))
+OBJS	+= $(addprefix $(obj),$(notdir $(EXT_COBJ_FILES-y)))
+OBJS	+= $(addprefix $(obj),$(notdir $(EXT_SOBJ_FILES-y)))
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
 
 CPPFLAGS += -I..
 
-all:	$(obj).depend $(OBJS) $(LIB) $(ELF) $(BIN)
+all:	$(obj).depend $(OUTPUT)
 
 #########################################################################
-$(LIB):	$(obj).depend $(LIBOBJS)
-		$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 
-$(ELF):
-$(obj)%:	$(obj)%.o $(LIB)
-		$(LD) $(obj)crt0.o -Ttext $(LOAD_ADDR) \
-			-o $@ $< $(LIB) \
-			-L$(gcclibdir) -lgcc
+$(OUTPUT):	$(OBJS)
+		$(LD) -Ttext $(LOAD_ADDR) -o $@ $^ -L$(gcclibdir) -lgcc
+		$(OBJCOPY) -O binary $@ $(OUTPUT).bin 2>/dev/null
 
-$(BIN):
-$(obj)%.bin:	$(obj)%
-		$(OBJCOPY) -O binary $< $@ 2>/dev/null
+# Rule to build generic library C files
+$(obj)%.o: $(SRCTREE)/lib_generic/%.c
+	$(CC) -g $(CFLAGS) -c -o $@ $<
 
-$(obj)crc32.c:
-	@rm -f $(obj)crc32.c
-	ln -s $(src)../lib_generic/crc32.c $(obj)crc32.c
-
-$(obj)ctype.c:
-	@rm -f $(obj)ctype.c
-	ln -s $(src)../lib_generic/ctype.c $(obj)ctype.c
-
-$(obj)string.c:
-	@rm -f $(obj)string.c
-	ln -s $(src)../lib_generic/string.c $(obj)string.c
-
-$(obj)vsprintf.c:
-	@rm -f $(obj)vsprintf.c
-	ln -s $(src)../lib_generic/vsprintf.c $(obj)vsprintf.c
-
-ifeq ($(ARCH),ppc)
-$(obj)ppcstring.S:
-	@rm -f $(obj)ppcstring.S
-	ln -s $(src)../lib_ppc/ppcstring.S $(obj)ppcstring.S
-endif
+# Rule to build architecture-specific library assembly files
+$(obj)%.o: $(SRCTREE)/lib_$(ARCH)/%.S
+	$(CC) -g $(CFLAGS) -c -o $@ $<
 
 #########################################################################
 

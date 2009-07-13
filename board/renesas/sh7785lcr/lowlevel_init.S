@@ -233,35 +233,6 @@ DBSC2_DBRFCNT0_D:	.long	0x00010000
 WAIT_200US:	.long	33333
 
 /*------- GPIO -------*/
-#define GPIO_BASE	0xffe70000
-PACR_A:		.long	GPIO_BASE + 0x00
-PBCR_A:		.long	GPIO_BASE + 0x02
-PCCR_A:		.long	GPIO_BASE + 0x04
-PDCR_A:		.long	GPIO_BASE + 0x06
-PECR_A:		.long	GPIO_BASE + 0x08
-PFCR_A:		.long	GPIO_BASE + 0x0a
-PGCR_A:		.long	GPIO_BASE + 0x0c
-PHCR_A:		.long	GPIO_BASE + 0x0e
-PJCR_A:		.long	GPIO_BASE + 0x10
-PKCR_A:		.long	GPIO_BASE + 0x12
-PLCR_A:		.long	GPIO_BASE + 0x14
-PMCR_A:		.long	GPIO_BASE + 0x16
-PNCR_A:		.long	GPIO_BASE + 0x18
-PPCR_A:		.long	GPIO_BASE + 0x1a
-PQCR_A:		.long	GPIO_BASE + 0x1c
-PRCR_A:		.long	GPIO_BASE + 0x1e
-PEPUPR_A:	.long	GPIO_BASE + 0x48
-PHPUPR_A:	.long	GPIO_BASE + 0x4e
-PJPUPR_A:	.long	GPIO_BASE + 0x50
-PKPUPR_A:	.long	GPIO_BASE + 0x52
-PLPUPR_A:	.long	GPIO_BASE + 0x54
-PMPUPR_A:	.long	GPIO_BASE + 0x56
-PNPUPR_A:	.long	GPIO_BASE + 0x58
-PPUPR1_A:	.long	GPIO_BASE + 0x60
-PPUPR2_A:	.long	GPIO_BASE + 0x62
-P1MSELR_A:	.long	GPIO_BASE + 0x80
-P2MSELR_A:	.long	GPIO_BASE + 0x82
-
 PACR_D:		.long	0x0000
 PBCR_D:		.long	0x0000
 PCCR_D:		.long	0x0000
@@ -290,6 +261,35 @@ PPUPR1_D:	.long	0xffbf
 PPUPR2_D:	.long	0xff00
 P1MSELR_D:	.long	0x3780
 P2MSELR_D:	.long	0x0000
+
+#define GPIO_BASE	0xffe70000
+PACR_A:		.long	GPIO_BASE + 0x00
+PBCR_A:		.long	GPIO_BASE + 0x02
+PCCR_A:		.long	GPIO_BASE + 0x04
+PDCR_A:		.long	GPIO_BASE + 0x06
+PECR_A:		.long	GPIO_BASE + 0x08
+PFCR_A:		.long	GPIO_BASE + 0x0a
+PGCR_A:		.long	GPIO_BASE + 0x0c
+PHCR_A:		.long	GPIO_BASE + 0x0e
+PJCR_A:		.long	GPIO_BASE + 0x10
+PKCR_A:		.long	GPIO_BASE + 0x12
+PLCR_A:		.long	GPIO_BASE + 0x14
+PMCR_A:		.long	GPIO_BASE + 0x16
+PNCR_A:		.long	GPIO_BASE + 0x18
+PPCR_A:		.long	GPIO_BASE + 0x1a
+PQCR_A:		.long	GPIO_BASE + 0x1c
+PRCR_A:		.long	GPIO_BASE + 0x1e
+PEPUPR_A:	.long	GPIO_BASE + 0x48
+PHPUPR_A:	.long	GPIO_BASE + 0x4e
+PJPUPR_A:	.long	GPIO_BASE + 0x50
+PKPUPR_A:	.long	GPIO_BASE + 0x52
+PLPUPR_A:	.long	GPIO_BASE + 0x54
+PMPUPR_A:	.long	GPIO_BASE + 0x56
+PNPUPR_A:	.long	GPIO_BASE + 0x58
+PPUPR1_A:	.long	GPIO_BASE + 0x60
+PPUPR2_A:	.long	GPIO_BASE + 0x62
+P1MSELR_A:	.long	GPIO_BASE + 0x80
+P2MSELR_A:	.long	GPIO_BASE + 0x82
 
 /*------- LBSC -------*/
 PASCR_A:		.long	0xff000070
