@@ -602,7 +602,7 @@ static int ata_scsiop_read10(ccb * pccb)
  */
 static int ata_scsiop_read_capacity10(ccb *pccb)
 {
-	u8 buf[8];
+	u32 cap;
 
 	if (!ataid[pccb->target]) {
 		printf("scsi_ahci: SCSI READ CAPACITY10 command failure. "
@@ -611,14 +611,12 @@ static int ata_scsiop_read_capacity10(ccb *pccb)
 		return -EPERM;
 	}
 
-	memset(buf, 0, 8);
+	cap = le32_to_cpu(ataid[pccb->target]->lba_capacity);
+	memcpy(pccb->pdata, &cap, sizeof(cap));
 
-	*(u32 *) buf = le32_to_cpu(ataid[pccb->target]->lba_capacity);
-
-	buf[6] = 512 >> 8;
-	buf[7] = 512 & 0xff;
-
-	memcpy(pccb->pdata, buf, 8);
+	pccb->pdata[4] = pccb->pdata[5] = 0;
+	pccb->pdata[6] = 512 >> 8;
+	pccb->pdata[7] = 512 & 0xff;
 
 	return 0;
 }
