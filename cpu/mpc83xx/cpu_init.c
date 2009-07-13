@@ -303,11 +303,11 @@ void cpu_init_f (volatile immap_t * im)
 	struct usb_ehci *ehci = (struct usb_ehci *)CONFIG_SYS_MPC8xxx_USB_ADDR;
 
 	/* Configure interface. */
-	setbits_be32((void *)ehci->control, REFSEL_16MHZ | UTMI_PHY_EN);
+	setbits_be32(&ehci->control, REFSEL_16MHZ | UTMI_PHY_EN);
 
 	/* Wait for clock to stabilize */
 	do {
-		temp = in_be32((void *)ehci->control);
+		temp = in_be32(&ehci->control);
 		udelay(1000);
 	} while (!(temp & PHY_CLK_VALID));
 #endif

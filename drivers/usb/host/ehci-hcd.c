@@ -716,7 +716,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			goto unknown;
 		}
 		/* unblock posted writes */
-		ehci_readl(&hcor->or_usbcmd);
+		(void) ehci_readl(&hcor->or_usbcmd);
 		break;
 	case USB_REQ_CLEAR_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
 		reg = ehci_readl(status_reg);
@@ -745,7 +745,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		}
 		ehci_writel(status_reg, reg);
 		/* unblock posted write */
-		ehci_readl(&hcor->or_usbcmd);
+		(void) ehci_readl(&hcor->or_usbcmd);
 		break;
 	default:
 		debug("Unknown request\n");
