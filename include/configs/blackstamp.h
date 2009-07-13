@@ -83,10 +83,9 @@
 #endif
 
 #define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_OFFSET	0x4000
+#define CONFIG_ENV_OFFSET	0x40000
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_SECT_SIZE	0x40000
-#define ENV_IS_EMBEDDED_CUSTOM
 
 /*
  * SDRAM settings & memory map
@@ -245,9 +244,9 @@
  * Serial Flash Infomation
  */
 #define CONFIG_BFIN_SPI
-/* For the M25P64 SCK Should be Kept < 20Mhz */
-#define CONFIG_ENV_SPI_MAX_HZ	20000000
-#define CONFIG_SF_DEFAULT_SPEED	20000000
+/* For the M25P64 SCK Should be Kept < 15Mhz */
+#define CONFIG_ENV_SPI_MAX_HZ	15000000
+#define CONFIG_SF_DEFAULT_SPEED	15000000
 #define CONFIG_SPI_FLASH
 #define CONFIG_SPI_FLASH_STMICRO
 
