@@ -33,7 +33,7 @@ ifeq ($(ARCH),arm)
 ifeq ($(BOARD),omap2420h4)
 LOAD_ADDR = 0x80300000
 else
-ifeq ($(CPU),omap3)
+ifeq ($(SOC),omap3)
 LOAD_ADDR = 0x80300000
 else
 LOAD_ADDR = 0xc100000
