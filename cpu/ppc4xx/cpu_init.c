@@ -174,11 +174,6 @@ cpu_init_f (void)
 	 * Set EMAC noise filter bits
 	 */
 	mtdcr(cpc0_epctl, CPC0_EPRCSR_E0NFE | CPC0_EPRCSR_E1NFE);
-
-	/*
-	 * Enable the internal PCI arbiter
-	 */
-	mtdcr(cpc0_pci, mfdcr(cpc0_pci) | CPC0_PCI_HOST_CFG_EN | CPC0_PCI_ARBIT_EN);
 #endif /* CONFIG_405EP */
 
 #if defined(CONFIG_SYS_4xx_GPIO_TABLE)
