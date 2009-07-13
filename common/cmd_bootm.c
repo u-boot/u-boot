@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2006
+ * (C) Copyright 2000-2009
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -548,7 +548,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (!relocated) {
 		int i;
 		for (i = 0; i < ARRAY_SIZE(boot_os); i++)
-			boot_os[i] += gd->reloc_off;
+			if (boot_os[i] != NULL)
+				boot_os[i] += gd->reloc_off;
 		relocated = 1;
 	}
 
@@ -636,6 +637,16 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 
 	boot_fn = boot_os[images.os.os];
+
+	if (boot_fn == NULL) {
+		if (iflag)
+			enable_interrupts();
+		printf ("ERROR: booting os '%s' (%d) is not supported\n",
+			genimg_get_os_name(images.os.os), images.os.os);
+		show_boot_progress (-8);
+		return 1;
+	}
+
 	boot_fn(0, argc, argv, &images);
 
 	show_boot_progress (-9);
