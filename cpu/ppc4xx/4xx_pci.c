@@ -87,6 +87,20 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int __pci_pre_init(struct pci_controller *hose)
 {
+#if defined (CONFIG_405EP)
+	/*
+	 * Enable the internal PCI arbiter by default.
+	 *
+	 * On 405EP CPUs the internal arbiter can be controlled
+	 * by the I2C strapping EEPROM. If you want to do so
+	 * or if you want to disable the arbiter pci_pre_init()
+	 * must be reimplemented without enabling the arbiter.
+	 * The arbiter is enabled in this place because of
+	 * compatibility reasons.
+	 */
+	mtdcr(cpc0_pci, mfdcr(cpc0_pci) | CPC0_PCI_ARBIT_EN);
+#endif /* CONFIG_405EP */
+
 	return 1;
 }
 int pci_pre_init(struct pci_controller *hose) __attribute__((weak, alias("__pci_pre_init")));
@@ -323,8 +337,15 @@ void pci_405gp_init(struct pci_controller *hose)
 	}
 #endif
 
-#if defined(CONFIG_405EP) /* on ppc405ep vendor id is not set */
-	pci_write_config_word(PCIDEVID_405GP, PCI_VENDOR_ID, 0x1014); /* IBM */
+#if defined(CONFIG_405EP)
+	/*
+	 * on ppc405ep vendor/device id is not set
+	 * The user manual says 0x1014 (IBM) / 0x0156 (405GP!)
+	 * are the correct values.
+	 */
+	pci_write_config_word(PCIDEVID_405GP, PCI_VENDOR_ID, PCI_VENDOR_ID_IBM);
+	pci_write_config_word(PCIDEVID_405GP,
+			      PCI_DEVICE_ID, PCI_DEVICE_ID_IBM_405GP);
 #endif
 
 	/*
