@@ -1,5 +1,8 @@
 /*
- * Copyright (C) 2008 Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+ * Copyright (C) 2009 Renesas Solutions Corp.
+ * Copyright (C) 2009 Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+ *
+ * board/espt/espt.c
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,36 +20,31 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __MACRO_H__
-#define __MACRO_H__
-#ifdef __ASSEMBLY__
+#include <common.h>
+#include <asm/io.h>
+#include <asm/processor.h>
 
-.macro	write32, addr, data
-	mov.l \addr ,r1
-	mov.l \data ,r0
-	mov.l r0, @r1
-.endm
+int checkboard(void)
+{
+	puts("BOARD: ESPT-GIGA\n");
+	return 0;
+}
 
-.macro	write16, addr, data
-	mov.l \addr ,r1
-	mov.w \data ,r0
-	mov.w r0, @r1
-.endm
+int board_init(void)
+{
+	return 0;
+}
 
-.macro	write8, addr, data
-	mov.l \addr ,r1
-	mov.l \data ,r0
-	mov.b r0, @r1
-.endm
+int dram_init(void)
+{
+	DECLARE_GLOBAL_DATA_PTR;
 
-.macro	wait_timer, time
-	mov.l	\time ,r3
-1:
-	nop
-	tst	r3, r3
-	bf/s	1b
-	dt	r3
-.endm
+	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
+	gd->bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
+	printf("DRAM:  %dMB\n", CONFIG_SYS_SDRAM_SIZE / (1024 * 1024));
+	return 0;
+}
 
-#endif /* __ASSEMBLY__ */
-#endif /* __MACRO_H__ */
+void led_set_state(unsigned short value)
+{
+}

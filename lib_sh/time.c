@@ -1,4 +1,7 @@
 /*
+ * (C) Copyright 2009
+ * Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+ *
  * (C) Copyright 2007-2008
  * Nobobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
@@ -25,11 +28,30 @@
  */
 
 #include <common.h>
+#include <div64.h>
 #include <asm/processor.h>
+#include <asm/clk.h>
 #include <asm/io.h>
 
 #define TMU_MAX_COUNTER (~0UL)
-static int clk_adj = 1;
+
+static ulong timer_freq;
+
+static inline unsigned long long tick_to_time(unsigned long long tick)
+{
+	tick *= CONFIG_SYS_HZ;
+	do_div(tick, timer_freq);
+
+	return tick;
+}
+
+static inline unsigned long long usec_to_tick(unsigned long long usec)
+{
+	usec *= timer_freq;
+	do_div(usec, 1000000);
+
+	return usec;
+}
 
 static void tmu_timer_start (unsigned int timer)
 {
@@ -47,10 +69,10 @@ static void tmu_timer_stop (unsigned int timer)
 
 int timer_init (void)
 {
-	/* Divide clock by TMU_CLK_DIVIDER */
+	/* Divide clock by CONFIG_SYS_TMU_CLK_DIV */
 	u16 bit = 0;
 
-	switch (TMU_CLK_DIVIDER) {
+	switch (CONFIG_SYS_TMU_CLK_DIV) {
 	case 1024:
 		bit = 4;
 		break;
@@ -65,15 +87,12 @@ int timer_init (void)
 		break;
 	case 4:
 	default:
-		bit = 0;
 		break;
 	}
 	writew(readw(TCR0) | bit, TCR0);
 
-	/* Clock adjustment calc */
-	clk_adj = (int)(1.0 / ((1.0 / CONFIG_SYS_HZ) * 1000000));
-	if (clk_adj < 1)
-		clk_adj = 1;
+	/* Calc clock rate */
+	timer_freq = get_tmu0_clk_rate() >> ((bit + 1) * 2);
 
 	tmu_timer_stop(0);
 	tmu_timer_start(0);
@@ -86,24 +105,22 @@ unsigned long long get_ticks (void)
 	return 0 - readl(TCNT0);
 }
 
-static unsigned long get_usec (void)
-{
-	return (0 - readl(TCNT0));
-}
-
 void udelay (unsigned long usec)
 {
-	unsigned int start = get_usec();
-	unsigned int end = start + (usec * clk_adj);
+	unsigned long long tmp;
+	ulong tmo;
 
-	while (get_usec() < end)
-		continue;
+	tmo = usec_to_tick(usec);
+	tmp = get_ticks() + tmo;	/* get current timestamp */
+
+	while (get_ticks() < tmp)	/* loop till event */
+		 /*NOP*/;
 }
 
 unsigned long get_timer (unsigned long base)
 {
 	/* return msec */
-	return ((get_usec() / clk_adj) / 1000) - base;
+	return tick_to_time(get_ticks()) - base;
 }
 
 void set_timer (unsigned long t)
@@ -120,5 +137,5 @@ void reset_timer (void)
 
 unsigned long get_tbclk (void)
 {
-	return CONFIG_SYS_HZ;
+	return timer_freq;
 }
