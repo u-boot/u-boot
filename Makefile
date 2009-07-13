@@ -2743,12 +2743,22 @@ at91sam9xeek_config	:	unconfig
 at91sam9261ek_nandflash_config \
 at91sam9261ek_dataflash_cs0_config \
 at91sam9261ek_dataflash_cs3_config \
-at91sam9261ek_config	:	unconfig
+at91sam9261ek_config \
+at91sam9g10ek_nandflash_config \
+at91sam9g10ek_dataflash_cs0_config \
+at91sam9g10ek_dataflash_cs3_config \
+at91sam9g10ek_config	:	unconfig
 	@mkdir -p $(obj)include
+	@if [ "$(findstring 9g10,$@)" ] ; then \
+		echo "#define CONFIG_AT91SAM9G10EK 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... 9G10 Variant" ; \
+	else \
+		echo "#define CONFIG_AT91SAM9261EK 1"	>>$(obj)include/config.h ; \
+	fi;
 	@if [ "$(findstring _nandflash,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in NAND FLASH" ; \
-	elif [ "$(findstring dataflash_cs3,$@)" ] ; then \
+	elif [ "$(findstring dataflash_cs0,$@)" ] ; then \
 		echo "#define CONFIG_SYS_USE_DATAFLASH_CS3 1"	>>$(obj)include/config.h ; \
 		$(XECHO) "... with environment variable in SPI DATAFLASH CS3" ; \
 	else \
@@ -2799,6 +2809,31 @@ meesc_config	:	unconfig
 
 pm9261_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs pm9261 ronetix at91
+
+at91sam9m10g45ek_nandflash_config \
+at91sam9m10g45ek_dataflash_config \
+at91sam9m10g45ek_dataflash_cs0_config \
+at91sam9m10g45ek_config \
+at91sam9g45ekes_nandflash_config \
+at91sam9g45ekes_dataflash_config \
+at91sam9g45ekes_dataflash_cs0_config \
+at91sam9g45ekes_config	:	unconfig
+	@mkdir -p $(obj)include
+		@if [ "$(findstring 9m10,$@)" ] ; then \
+		echo "#define CONFIG_AT91SAM9M10G45EK 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... 9M10G45 Variant" ; \
+	else \
+		echo "#define CONFIG_AT91SAM9G45EKES 1"	>>$(obj)include/config.h ; \
+	fi;
+
+	@if [ "$(findstring _nandflash,$@)" ] ; then \
+		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... with environment variable in NAND FLASH" ; \
+	else \
+		echo "#define CONFIG_ATMEL_SPI 1"	>>$(obj)include/config.h ; \
+		$(XECHO) "... with environment variable in SPI DATAFLASH CS0" ; \
+	fi;
+	@$(MKCONFIG) -a at91sam9m10g45ek arm arm926ejs at91sam9m10g45ek atmel at91
 
 pm9263_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs pm9263 ronetix at91

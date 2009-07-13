@@ -57,6 +57,16 @@ static void at91sam9261ek_nand_hw_init(void)
 		       csa | AT91_MATRIX_CS3A_SMC_SMARTMEDIA);
 
 	/* Configure SMC CS3 for NAND/SmartMedia */
+#ifdef CONFIG_AT91SAM9G10EK
+	at91_sys_write(AT91_SMC_SETUP(3),
+		       AT91_SMC_NWESETUP_(2) | AT91_SMC_NCS_WRSETUP_(0) |
+		       AT91_SMC_NRDSETUP_(2) | AT91_SMC_NCS_RDSETUP_(0));
+	at91_sys_write(AT91_SMC_PULSE(3),
+		       AT91_SMC_NWEPULSE_(3) | AT91_SMC_NCS_WRPULSE_(7) |
+		       AT91_SMC_NRDPULSE_(3) | AT91_SMC_NCS_RDPULSE_(7));
+	at91_sys_write(AT91_SMC_CYCLE(3),
+		       AT91_SMC_NWECYCLE_(7) | AT91_SMC_NRDCYCLE_(7));
+#else
 	at91_sys_write(AT91_SMC_SETUP(3),
 		       AT91_SMC_NWESETUP_(1) | AT91_SMC_NCS_WRSETUP_(0) |
 		       AT91_SMC_NRDSETUP_(1) | AT91_SMC_NCS_RDSETUP_(0));
@@ -65,6 +75,7 @@ static void at91sam9261ek_nand_hw_init(void)
 		       AT91_SMC_NRDPULSE_(3) | AT91_SMC_NCS_RDPULSE_(3));
 	at91_sys_write(AT91_SMC_CYCLE(3),
 		       AT91_SMC_NWECYCLE_(5) | AT91_SMC_NRDCYCLE_(5));
+#endif
 	at91_sys_write(AT91_SMC_MODE(3),
 		       AT91_SMC_READMODE | AT91_SMC_WRITEMODE |
 		       AT91_SMC_EXNWMODE_DISABLE |
@@ -92,6 +103,21 @@ static void at91sam9261ek_nand_hw_init(void)
 static void at91sam9261ek_dm9000_hw_init(void)
 {
 	/* Configure SMC CS2 for DM9000 */
+#ifdef CONFIG_AT91SAM9G10EK
+	at91_sys_write(AT91_SMC_SETUP(2),
+		       AT91_SMC_NWESETUP_(3) | AT91_SMC_NCS_WRSETUP_(0) |
+		       AT91_SMC_NRDSETUP_(3) | AT91_SMC_NCS_RDSETUP_(0));
+	at91_sys_write(AT91_SMC_PULSE(2),
+		       AT91_SMC_NWEPULSE_(6) | AT91_SMC_NCS_WRPULSE_(8) |
+		       AT91_SMC_NRDPULSE_(6) | AT91_SMC_NCS_RDPULSE_(8));
+	at91_sys_write(AT91_SMC_CYCLE(2),
+		       AT91_SMC_NWECYCLE_(20) | AT91_SMC_NRDCYCLE_(20));
+	at91_sys_write(AT91_SMC_MODE(2),
+		       AT91_SMC_READMODE | AT91_SMC_WRITEMODE |
+		       AT91_SMC_EXNWMODE_DISABLE |
+		       AT91_SMC_BAT_WRITE | AT91_SMC_DBW_16 |
+		       AT91_SMC_TDF_(1));
+#else
 	at91_sys_write(AT91_SMC_SETUP(2),
 		       AT91_SMC_NWESETUP_(2) | AT91_SMC_NCS_WRSETUP_(0) |
 		       AT91_SMC_NRDSETUP_(2) | AT91_SMC_NCS_RDSETUP_(0));
@@ -105,6 +131,7 @@ static void at91sam9261ek_dm9000_hw_init(void)
 		       AT91_SMC_EXNWMODE_DISABLE |
 		       AT91_SMC_BAT_WRITE | AT91_SMC_DBW_16 |
 		       AT91_SMC_TDF_(1));
+#endif
 
 	/* Configure Reset signal as output */
 	at91_set_gpio_output(AT91_PIN_PC10, 0);
@@ -169,7 +196,11 @@ static void at91sam9261ek_lcd_hw_init(void)
 
 	at91_sys_write(AT91_PMC_SCER, AT91_PMC_HCK1);
 
+#ifdef CONFIG_AT91SAM9G10EK
+	gd->fb_base = CONFIG_AT91SAM9G10_LCD_BASE;
+#else
 	gd->fb_base = AT91SAM9261_SRAM_BASE;
+#endif
 }
 
 #ifdef CONFIG_LCD_INFO
@@ -207,8 +238,13 @@ int board_init(void)
 	/* Enable Ctrlc */
 	console_init_f();
 
+#ifdef CONFIG_AT91SAM9G10EK
+	/* arch number of AT91SAM9G10EK-Board */
+	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9G10EK;
+#else
 	/* arch number of AT91SAM9261EK-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9261EK;
+#endif
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 

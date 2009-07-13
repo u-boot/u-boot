@@ -183,15 +183,23 @@ int at91_clock_init(unsigned long main_clock)
 	 * For now, assume this parentage won't change.
 	 */
 	mckr = at91_sys_read(AT91_PMC_MCKR);
+#if defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
+	/* plla divisor by 2 */
+	plla_rate_hz /= (1 << ((mckr & 1 << 12) >> 12));
+#endif
 	freq = mck_rate_hz = at91_css_to_rate(mckr & AT91_PMC_CSS);
+
 	freq /= (1 << ((mckr & AT91_PMC_PRES) >> 2));			/* prescale */
 #if defined(CONFIG_AT91RM9200)
 	mck_rate_hz = freq / (1 + ((mckr & AT91_PMC_MDIV) >> 8));	/* mdiv */
 #elif defined(CONFIG_AT91SAM9G20)
 	mck_rate_hz = (mckr & AT91_PMC_MDIV) ?
-		freq / ((mckr & AT91_PMC_MDIV) >> 7) : freq;	/* mdiv ; (x >> 7) = ((x >> 8) * 2) */
+		freq / ((mckr & AT91_PMC_MDIV) >> 7) : freq;		/* mdiv ; (x >> 7) = ((x >> 8) * 2) */
 	if (mckr & AT91_PMC_PDIV)
-		freq /= 2;		/* processor clock division */
+		freq /= 2;						/* processor clock division */
+#elif defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
+	mck_rate_hz = (mckr & AT91_PMC_MDIV) == AT91SAM9_PMC_MDIV_3 ?
+		freq / 3 : freq / (1 << ((mckr & AT91_PMC_MDIV) >> 8));	/* mdiv */
 #else
 	mck_rate_hz = freq / (1 << ((mckr & AT91_PMC_MDIV) >> 8));	/* mdiv */
 #endif
