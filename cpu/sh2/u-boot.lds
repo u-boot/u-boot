@@ -1,7 +1,6 @@
 /*
- * Copyrigth (c) 2007
- * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
- * Copyrigth (c) 2008 Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+ * Copyright (C) 2008 Nobuhiro Iwamatsu
+ * Copyright (C) 2008 Renesas Solutions Corp.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -28,9 +27,10 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 0x08000000 + (128 * 1024 * 1024) - (512 * 1024);
-
-	PROVIDE (reloc_dst = .);
+	/*
+	 * entry and reloct_dst will be provided via ldflags
+	 */
+	. = .;
 
 	PROVIDE (_ftext = .);
 	PROVIDE (_fcode = .);
@@ -38,7 +38,7 @@ SECTIONS
 
 	.text :
 	{
-		cpu/sh4/start.o		(.text)
+		cpu/sh2/start.o		(.text)
 		. = ALIGN(8192);
 		common/env_embedded.o	(.ppcenv)
 		. = ALIGN(8192);
@@ -50,7 +50,7 @@ SECTIONS
 	PROVIDE (_ecode = .);
 	.rodata :
 	{
-		*(.rodata)
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
 		. = ALIGN(4);
 	}
 	PROVIDE (_etext = .);
@@ -81,7 +81,6 @@ SECTIONS
 	PROVIDE (__u_boot_cmd_end = .);
 
 	PROVIDE (reloc_dst_end = .);
-	/* _reloc_dst_end = .; */
 
 	PROVIDE (bss_start = .);
 	PROVIDE (__bss_start = .);

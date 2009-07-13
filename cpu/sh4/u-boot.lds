@@ -1,7 +1,9 @@
 /*
- * Copyrigth (c) 2007
+ * Copyright (C) 2007
  * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
- * Copyrigth (c) 2008-2009 Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+ *
+ * Copyright (C) 2008-2009
+ * Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -28,9 +30,10 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 0x88000000 + (128 * 1024 * 1024) - (512 * 1024);
-
-	PROVIDE (reloc_dst = .);
+	/*
+	 * entry and reloct_dst will be provided via ldflags
+	 */
+	. = .;
 
 	PROVIDE (_ftext = .);
 	PROVIDE (_fcode = .);
@@ -85,7 +88,7 @@ SECTIONS
 
 	PROVIDE (bss_start = .);
 	PROVIDE (__bss_start = .);
-	.bss :
+	.bss (NOLOAD) :
 	{
 		*(.bss)
 		. = ALIGN(4);

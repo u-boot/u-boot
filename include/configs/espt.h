@@ -1,5 +1,5 @@
 /*
- * Configuation settings for the Renesas SH7763RDP board
+ * Configuation settings for the ESPT-GIGA board
  *
  * Copyright (C) 2008 Renesas Solutions Corp.
  * Copyright (C) 2008 Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
@@ -23,13 +23,13 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __SH7763RDP_H
-#define __SH7763RDP_H
+#ifndef __ESPT_H
+#define __ESPT_H
 
 #define CONFIG_SH		1
 #define CONFIG_SH4		1
 #define CONFIG_CPU_SH7763	1
-#define CONFIG_SH7763RDP	1
+#define CONFIG_ESPT	1
 #define __LITTLE_ENDIAN		1
 
 /*
@@ -40,21 +40,21 @@
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_SAVEENV
+#define CONFIG_CMD_ENV
 #define CONFIG_CMD_NFS
-#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_SAVEENV
 
 #define CONFIG_BOOTDELAY        -1
-#define CONFIG_BOOTARGS         "console=ttySC2,115200 root=1f01"
+#define CONFIG_BOOTARGS         "console=ttySC0,115200 root=1f01"
 #define CONFIG_ENV_OVERWRITE    1
 
 #define CONFIG_VERSION_VARIABLE
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
 /* SCIF */
-#define CONFIG_SCIF_CONSOLE        1
+#define CONFIG_SCIF_CONSOLE		1
 #define CONFIG_BAUDRATE         115200
-#define CONFIG_CONS_SCIF2		1
+#define CONFIG_CONS_SCIF0		1
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
@@ -72,11 +72,11 @@
 #define CONFIG_SYS_MEMTEST_START	(CONFIG_SYS_SDRAM_BASE)
 #define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + (60 * 1024 * 1024))
 
-/* Flash(NOR) */
+/* Flash(NOR) S29JL064H */
 #define CONFIG_SYS_FLASH_BASE		(0xA0000000)
 #define CONFIG_SYS_FLASH_CFI_WIDTH (FLASH_CFI_16BIT)
 #define CONFIG_SYS_MAX_FLASH_BANKS (1)
-#define CONFIG_SYS_MAX_FLASH_SECT  (520)
+#define CONFIG_SYS_MAX_FLASH_SECT  (150)
 
 /* U-boot setting */
 #define CONFIG_SYS_LOAD_ADDR		(CONFIG_SYS_SDRAM_BASE + 4 * 1024 * 1024)
@@ -114,13 +114,13 @@
 
 /* Clock */
 #define CONFIG_SYS_CLK_FREQ	66666666
-#define CONFIG_SYS_TMU_CLK_DIV		(4)	/* 4 (default), 16, 64, 256 or 1024 */
-#define CONFIG_SYS_HZ		1000
+#define CONFIG_SYS_TMU_CLK_DIV      4
+#define CONFIG_SYS_HZ       1000
 
 /* Ether */
 #define CONFIG_NET_MULTI 1
 #define CONFIG_SH_ETHER 1
 #define CONFIG_SH_ETHER_USE_PORT (1)
-#define CONFIG_SH_ETHER_PHY_ADDR (0x01)
+#define CONFIG_SH_ETHER_PHY_ADDR (0x00)
 
 #endif /* __SH7763RDP_H */

@@ -1,5 +1,8 @@
 #
-# Copyright (C) 2008  Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+# Copyright (C) 2009 Renesas Solutions Corp.
+# Copyright (C) 2009 Nobuhiro Iwamatsu <iwamatsu.nobuhiro@renesas.com>
+#
+# board/espt/Makefile
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -15,16 +18,21 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
+#
 
 include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= sh7785lcr.o selfcheck.o rtl8169_mac.o
+COBJS	:= espt.o
 SOBJS	:= lowlevel_init.o
 
-$(LIB):	$(obj).depend $(COBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(COBJS) $(SOBJS)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+$(LIB):	$(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

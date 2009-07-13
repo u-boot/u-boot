@@ -1,5 +1,8 @@
 /*
- * Copyright (C) 2008 Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+ * Copyright (C) 2009 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -8,7 +11,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -16,37 +19,17 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+#ifndef __ASM_SH_CLK_H__
+#define __ASM_SH_CLK_H__
 
-#ifndef __MACRO_H__
-#define __MACRO_H__
-#ifdef __ASSEMBLY__
+static inline unsigned long get_peripheral_clk_rate(void)
+{
+	return CONFIG_SYS_CLK_FREQ;
+}
 
-.macro	write32, addr, data
-	mov.l \addr ,r1
-	mov.l \data ,r0
-	mov.l r0, @r1
-.endm
+static inline unsigned long get_tmu0_clk_rate(void)
+{
+	return CONFIG_SYS_CLK_FREQ;
+}
 
-.macro	write16, addr, data
-	mov.l \addr ,r1
-	mov.w \data ,r0
-	mov.w r0, @r1
-.endm
-
-.macro	write8, addr, data
-	mov.l \addr ,r1
-	mov.l \data ,r0
-	mov.b r0, @r1
-.endm
-
-.macro	wait_timer, time
-	mov.l	\time ,r3
-1:
-	nop
-	tst	r3, r3
-	bf/s	1b
-	dt	r3
-.endm
-
-#endif /* __ASSEMBLY__ */
-#endif /* __MACRO_H__ */
+#endif /* __ASM_SH_CLK_H__ */
