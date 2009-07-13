@@ -182,7 +182,7 @@ static void nand_flash_init(void)
 	 * knowledge of the clocks and what devices are hooked up ... and
 	 * don't even do that unless no UBL handled it.
 	 */
-#ifdef CONFIG_SOC_DM6446
+#ifdef CONFIG_SOC_DM644X
 	u_int32_t	acfg1 = 0x3ffffffc;
 
 	/*------------------------------------------------------------------*
