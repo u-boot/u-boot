@@ -417,6 +417,24 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	return 0;
 }
 
+static int bootm_start_standalone(ulong iflag, int argc, char *argv[])
+{
+	char  *s;
+	int   (*appl)(int, char *[]);
+
+	/* Don't start if "autostart" is set to "no" */
+	if (((s = getenv("autostart")) != NULL) && (strcmp(s, "no") == 0)) {
+		char buf[32];
+		sprintf(buf, "%lX", images.os.image_len);
+		setenv("filesize", buf);
+		return 0;
+	}
+	appl = (int (*)(int, char *[]))ntohl(images.ep);
+	(*appl)(argc-1, &argv[1]);
+
+	return 0;
+}
+
 /* we overload the cmd field with our state machine info instead of a
  * function pointer */
 cmd_tbl_t cmd_bootm_sub[] = {
@@ -629,6 +647,14 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	lmb_reserve(&images.lmb, images.os.load, (load_end - images.os.load));
 
+	if (images.os.type == IH_TYPE_STANDALONE) {
+		if (iflag)
+			enable_interrupts();
+		/* This may return when 'autostart' is 'no' */
+		bootm_start_standalone(iflag, argc, argv);
+		return 0;
+	}
+
 	show_boot_progress (8);
 
 #ifdef CONFIG_SILENT_CONSOLE
@@ -827,6 +853,13 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 			break;
 		case IH_TYPE_MULTI:
 			image_multi_getimg (hdr, 0, os_data, os_len);
+			break;
+		case IH_TYPE_STANDALONE:
+			if (argc >2) {
+				hdr->ih_load = htonl(simple_strtoul(argv[2], NULL, 16));
+			}
+			*os_data = image_get_data (hdr);
+			*os_len = image_get_data_size (hdr);
 			break;
 		default:
 			printf ("Wrong Image Type for %s command\n", cmdtp->name);
