@@ -450,9 +450,14 @@ skip_debug_init:
 	/* Clear all TLB entries -- TID = 0, TS = 0 */
 	/*----------------------------------------------------------------*/
 	addis	r0,0,0x0000
-	li	r1,0x003f	/* 64 TLB entries */
-	mtctr	r1
+#ifdef CONFIG_SYS_RAMBOOT
 	li	r4,0		/* Start with TLB #0 */
+#else
+	li	r4,1		/* Start with TLB #1 */
+#endif
+	li	r1,64		/* 64 TLB entries */
+	sub	r1,r1,r4	/* calculate last TLB # */
+	mtctr	r1
 rsttlb:
 #ifdef CONFIG_SYS_RAMBOOT
 	tlbre	r3,r4,0		/* Read contents from TLB word #0 to get EPN */
