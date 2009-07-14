@@ -394,17 +394,20 @@ restart:
 #if defined(CONFIG_CMD_DHCP)
 		case DHCP:
 			BootpTry = 0;
+			NetOurIP = 0;
 			DhcpRequest();		/* Basically same as BOOTP */
 			break;
 #endif
 
 		case BOOTP:
 			BootpTry = 0;
+			NetOurIP = 0;
 			BootpRequest ();
 			break;
 
 		case RARP:
 			RarpTry = 0;
+			NetOurIP = 0;
 			RarpRequest ();
 			break;
 #if defined(CONFIG_CMD_PING)
