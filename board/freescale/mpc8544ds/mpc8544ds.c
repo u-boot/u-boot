@@ -43,14 +43,22 @@ int checkboard (void)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
+	u8 vboot;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
 	if ((uint)&gur->porpllsr != 0xe00e0000) {
 		printf("immap size error %lx\n",(ulong)&gur->porpllsr);
 	}
-	printf ("Board: MPC8544DS, System ID: 0x%02x, "
-		"System Version: 0x%02x, FPGA Version: 0x%02x\n",
-		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
-		in8(PIXIS_BASE + PIXIS_PVER));
+	printf ("Board: MPC8544DS, Sys ID: 0x%02x, "
+		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
+		in_8(pixis_base + PIXIS_ID), in_8(pixis_base + PIXIS_VER),
+		in_8(pixis_base + PIXIS_PVER));
+
+	vboot = in_8(pixis_base + PIXIS_VBOOT);
+	if (vboot & PIXIS_VBOOT_FMAP)
+		printf ("vBank: %d\n", ((vboot & PIXIS_VBOOT_FBANK) >> 6));
+	else
+		puts ("Promjet\n");
 
 	lbc->ltesr = 0xffffffff;	/* Clear LBC error interrupts */
 	lbc->lteir = 0xffffffff;	/* Enable LBC error interrupts */

@@ -282,6 +282,11 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 #define PIXIS_VWATCH		0x24	/* Watchdog Register */
 #define PIXIS_LED		0x25	/* LED Register */
 
+#define PIXIS_SW(x)		0x20 + (x - 1) * 2
+#define PIXIS_EN(x)		0x21 + (x - 1) * 2
+#define PIXIS_SW7_LBMAP		0xc0	/* SW7 - cfg_lbmap */
+#define PIXIS_SW7_VBANK		0x30	/* SW7 - cfg_vbank */
+
 /* old pixis referenced names */
 #define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
 #define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */

@@ -47,14 +47,31 @@ phys_size_t fixed_sdram(void);
 
 int checkboard(void)
 {
+	u8 sw7;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
 	puts("Board: P2020DS ");
 #ifdef CONFIG_PHYS_64BIT
 	puts("(36-bit addrmap) ");
 #endif
+
 	printf("Sys ID: 0x%02x, "
-		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x\n",
-		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
-		in8(PIXIS_BASE + PIXIS_PVER));
+		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
+		in_8(pixis_base + PIXIS_ID), in_8(pixis_base + PIXIS_VER),
+		in_8(pixis_base + PIXIS_PVER));
+
+	sw7 = in_8(pixis_base + PIXIS_SW(7));
+	switch ((sw7 & PIXIS_SW7_LBMAP) >> 6) {
+		case 0:
+		case 1:
+			printf ("vBank: %d\n", ((sw7 & PIXIS_SW7_VBANK) >> 4));
+			break;
+		case 2:
+		case 3:
+			puts ("Promjet\n");
+			break;
+	}
+
 	return 0;
 }
 

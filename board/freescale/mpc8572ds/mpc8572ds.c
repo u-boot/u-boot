@@ -42,14 +42,34 @@ long int fixed_sdram(void);
 
 int checkboard (void)
 {
+	u8 vboot;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
 	puts ("Board: MPC8572DS ");
 #ifdef CONFIG_PHYS_64BIT
 	puts ("(36-bit addrmap) ");
 #endif
 	printf ("Sys ID: 0x%02x, "
-		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x\n",
-		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
-		in8(PIXIS_BASE + PIXIS_PVER));
+		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
+		in_8(pixis_base + PIXIS_ID), in_8(pixis_base + PIXIS_VER),
+		in_8(pixis_base + PIXIS_PVER));
+
+	vboot = in_8(pixis_base + PIXIS_VBOOT);
+	switch ((vboot & PIXIS_VBOOT_LBMAP) >> 6) {
+		case PIXIS_VBOOT_LBMAP_NOR0:
+			puts ("vBank: 0\n");
+			break;
+		case PIXIS_VBOOT_LBMAP_PJET:
+			puts ("Promjet\n");
+			break;
+		case PIXIS_VBOOT_LBMAP_NAND:
+			puts ("NAND\n");
+			break;
+		case PIXIS_VBOOT_LBMAP_NOR1:
+			puts ("vBank: 1\n");
+			break;
+	}
+
 	return 0;
 }
 

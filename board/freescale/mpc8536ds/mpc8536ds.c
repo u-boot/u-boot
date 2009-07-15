@@ -60,10 +60,41 @@ int board_early_init_f (void)
 
 int checkboard (void)
 {
-	printf ("Board: MPC8536DS, System ID: 0x%02x, "
-		"System Version: 0x%02x, FPGA Version: 0x%02x\n",
-		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
-		in8(PIXIS_BASE + PIXIS_PVER));
+	u8 vboot;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
+	puts("Board: MPC8536DS ");
+#ifdef CONFIG_PHYS_64BIT
+	puts("(36-bit addrmap) ");
+#endif
+
+	printf ("Sys ID: 0x%02x, "
+		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
+		in_8(pixis_base + PIXIS_ID), in_8(pixis_base + PIXIS_VER),
+		in_8(pixis_base + PIXIS_PVER));
+
+	vboot = in_8(pixis_base + PIXIS_VBOOT);
+	switch ((vboot & PIXIS_VBOOT_LBMAP) >> 5) {
+		case PIXIS_VBOOT_LBMAP_NOR0:
+			puts ("vBank: 0\n");
+			break;
+		case PIXIS_VBOOT_LBMAP_NOR1:
+			puts ("vBank: 1\n");
+			break;
+		case PIXIS_VBOOT_LBMAP_NOR2:
+			puts ("vBank: 2\n");
+			break;
+		case PIXIS_VBOOT_LBMAP_NOR3:
+			puts ("vBank: 3\n");
+			break;
+		case PIXIS_VBOOT_LBMAP_PJET:
+			puts ("Promjet\n");
+			break;
+		case PIXIS_VBOOT_LBMAP_NAND:
+			puts ("NAND\n");
+			break;
+	}
+
 	return 0;
 }
 
