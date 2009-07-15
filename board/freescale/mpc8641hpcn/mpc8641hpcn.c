@@ -42,10 +42,20 @@ int board_early_init_f(void)
 
 int checkboard(void)
 {
-	printf ("Board: MPC8641HPCN, System ID: 0x%02x, "
-		"System Version: 0x%02x, FPGA Version: 0x%02x\n",
-		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
-		in8(PIXIS_BASE + PIXIS_PVER));
+	u8 vboot;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
+	printf ("Board: MPC8641HPCN, Sys ID: 0x%02x, "
+		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
+		in_8(pixis_base + PIXIS_ID), in_8(pixis_base + PIXIS_VER),
+		in_8(pixis_base + PIXIS_PVER));
+
+	vboot = in_8(pixis_base + PIXIS_VBOOT);
+	if (vboot & PIXIS_VBOOT_FMAP)
+		printf ("vBank: %d\n", ((vboot & PIXIS_VBOOT_FBANK) >> 6));
+	else
+		puts ("Promjet\n");
+
 #ifdef CONFIG_PHYS_64BIT
 	printf ("       36-bit physical address map\n");
 #endif

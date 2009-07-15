@@ -224,6 +224,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define PIXIS_VCFGEN0		0x12	/* VELA Config Enable 0 */
 #define PIXIS_VCFGEN1		0x13	/* VELA Config Enable 1 */
 #define PIXIS_VBOOT		0x16	/* VELA VBOOT Register */
+#define PIXIS_VBOOT_FMAP	0x80	/* VBOOT - CFG_FLASHMAP */
+#define PIXIS_VBOOT_FBANK	0x40	/* VBOOT - CFG_FLASHBANK */
 #define PIXIS_VSPEED0		0x17	/* VELA VSpeed 0 */
 #define PIXIS_VSPEED1		0x18	/* VELA VSpeed 1 */
 #define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
