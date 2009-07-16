@@ -3992,15 +3992,15 @@ U-Boot Porting Guide:
 list, October 2002]
 
 
-int main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 	sighandler_t no_more_time;
 
-	signal (SIGALRM, no_more_time);
-	alarm (PROJECT_DEADLINE - toSec (3 * WEEK));
+	signal(SIGALRM, no_more_time);
+	alarm(PROJECT_DEADLINE - toSec (3 * WEEK));
 
 	if (available_money > available_manpower) {
-		pay consultant to port U-Boot;
+		Pay consultant to port U-Boot;
 		return 0;
 	}
 
@@ -4008,35 +4008,47 @@ int main (int argc, char *argv[])
 
 	Subscribe to u-boot mailing list;
 
-	if (clueless) {
-		email ("Hi, I am new to U-Boot, how do I get started?");
-	}
+	if (clueless)
+		email("Hi, I am new to U-Boot, how do I get started?");
 
 	while (learning) {
 		Read the README file in the top level directory;
-		Read http://www.denx.de/twiki/bin/view/DULG/Manual ;
+		Read http://www.denx.de/twiki/bin/view/DULG/Manual;
+		Read applicable doc/*.README;
 		Read the source, Luke;
+		/* find . -name "*.[chS]" | xargs grep -i <keyword> */
 	}
 
-	if (available_money > toLocalCurrency ($2500)) {
-		Buy a BDI2000;
-	} else {
+	if (available_money > toLocalCurrency ($2500))
+		Buy a BDI3000;
+	else
 		Add a lot of aggravation and time;
+
+	if (a similar board exists) {	/* hopefully... */
+		cp -a board/<similar> board/<myboard>
+		cp include/configs/<similar>.h include/configs/<myboard>.h
+	} else {
+		Create your own board support subdirectory;
+		Create your own board include/configs/<myboard>.h file;
 	}
+	Edit new board/<myboard> files
+	Edit new include/configs/<myboard>.h
 
-	Create your own board support subdirectory;
-
-	Create your own board config file;
-
-	while (!running) {
-		do {
-			Add / modify source code;
-		} until (compiles);
-		Debug;
-		if (clueless)
-			email ("Hi, I am having problems...");
+	while (!accepted) {
+		while (!running) {
+			do {
+				Add / modify source code;
+			} until (compiles);
+			Debug;
+			if (clueless)
+				email("Hi, I am having problems...");
+		}
+		Send patch file to the U-Boot email list;
+		if (reasonable critiques)
+			Incorporate improvements from email list code review;
+		else
+			Defend code as written;
 	}
-	Send patch file to Wolfgang;
 
 	return 0;
 }
