@@ -523,6 +523,7 @@ LIST_ARM9="			\
 	omap730p2		\
 	sbc2410x		\
 	scb9328			\
+	sheevaplug		\
 	smdk2400		\
 	smdk2410		\
 	trab			\

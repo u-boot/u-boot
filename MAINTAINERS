@@ -685,6 +685,10 @@ Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 
 	SFFSDR		ARM926EJS
 
+Prafulla Wadaskar <prafulla@marvell.com>
+
+	sheevaplug	ARM926EJS (Kirkwood SoC)
+
 Richard Woodruff <r-woodruff2@ti.com>
 
 	omap2420h4	ARM1136EJS
