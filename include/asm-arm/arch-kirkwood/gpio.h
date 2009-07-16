@@ -37,6 +37,8 @@
 /*
  * Kirkwood-specific GPIO API
  */
+
+void kw_gpio_set_valid(unsigned pin, int mode);
 int kw_gpio_is_valid(unsigned pin, int mode);
 int kw_gpio_direction_input(unsigned pin);
 int kw_gpio_direction_output(unsigned pin, int value);
