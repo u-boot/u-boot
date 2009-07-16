@@ -211,7 +211,7 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /* CONFIG_SYS_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN		(384 * 1024)	/* Reserve 384 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024)	/* Reserved for malloc */
 
 /*
@@ -236,6 +236,7 @@
 #define CONFIG_CMD_NAND 1
 #define CONFIG_NAND_FSL_ELBC 1
 #define CONFIG_SYS_NAND_BLOCK_SIZE 16384
+#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 
 #define CONFIG_SYS_NAND_U_BOOT_SIZE  (512 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST   0x00100000

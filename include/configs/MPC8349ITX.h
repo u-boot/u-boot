@@ -79,6 +79,7 @@
 #define CONFIG_COMPACT_FLASH	/* The CF card interface on the back of the board */
 #define CONFIG_VSC7385_ENET	/* VSC7385 ethernet support */
 #define CONFIG_SATA_SIL3114	/* SIL3114 SATA controller */
+#define CONFIG_SYS_USB_HOST	/* use the EHCI USB controller */
 #endif
 
 #define CONFIG_PCI
@@ -152,6 +153,25 @@
 #define CONFIG_SYS_SATA_MAX_DEVICE      4
 #define CONFIG_LIBATA
 #define CONFIG_LBA48
+
+#endif
+
+#ifdef CONFIG_SYS_USB_HOST
+/*
+ * Support USB
+ */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_STORAGE
+#define CONFIG_USB_EHCI
+#define CONFIG_USB_EHCI_FSL
+
+/* Current USB implementation supports the only USB controller,
+ * so we have to choose between the MPH or the DR ones */
+#if 1
+#define CONFIG_HAS_FSL_MPH_USB
+#else
+#define CONFIG_HAS_FSL_DR_USB
+#endif
 
 #endif
 
@@ -288,7 +308,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /* CONFIG_SYS_MONITOR_LEN must be a multiple of CONFIG_ENV_SECT_SIZE */
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN		(384 * 1024) /* Reserve 384 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024) /* Reserved for malloc */
 
 /*
@@ -456,9 +476,11 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_SDRAM
 
-#if defined(CONFIG_COMPACT_FLASH) || defined(CONFIG_SATA_SIL3114)
+#if defined(CONFIG_COMPACT_FLASH) || defined(CONFIG_SATA_SIL3114) \
+    || defined(CONFIG_USB_STORAGE)
     #define CONFIG_DOS_PARTITION
     #define CONFIG_CMD_FAT
+    #define CONFIG_SUPPORT_VFAT
 #endif
 
 #ifdef CONFIG_COMPACT_FLASH
@@ -467,6 +489,9 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #ifdef CONFIG_SATA_SIL3114
     #define CONFIG_CMD_SATA
+#endif
+
+#if defined(CONFIG_SATA_SIL3114) || defined(CONFIG_USB_STORAGE)
     #define CONFIG_CMD_EXT2
 #endif
 
@@ -560,12 +585,14 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_SPCR_TSEC2EP	3	/* TSEC2 emergency priority (0-3) */
 #define CONFIG_SYS_SCCR_TSEC1CM	1	/* TSEC1 clock mode (0-3) */
 #define CONFIG_SYS_SCCR_TSEC2CM	1	/* TSEC2 & I2C0 clock mode (0-3) */
+#define CONFIG_SYS_SCCR_USBMPHCM 3	/* USB MPH controller's clock */
+#define CONFIG_SYS_SCCR_USBDRCM	0	/* USB DR controller's clock */
 
 /*
  * System IO Config
  */
 #define CONFIG_SYS_SICRH SICRH_TSOBI1	/* Needed for gigabit to work on TSEC 1 */
-#define CONFIG_SYS_SICRL (SICRL_LDP_A | SICRL_USB1)
+#define CONFIG_SYS_SICRL (SICRL_LDP_A | SICRL_USB1)	/* USB DR as device + USB MPH as host */
 
 #define CONFIG_SYS_HID0_INIT	0x000000000
 #define CONFIG_SYS_HID0_FINAL	CONFIG_SYS_HID0_INIT

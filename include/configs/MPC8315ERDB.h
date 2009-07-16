@@ -226,6 +226,7 @@
 #define CONFIG_MTD_NAND_VERIFY_WRITE	1
 #define CONFIG_CMD_NAND			1
 #define CONFIG_NAND_FSL_ELBC		1
+#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 
 #define CONFIG_SYS_BR1_PRELIM	( CONFIG_SYS_NAND_BASE \
 				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \

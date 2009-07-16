@@ -299,6 +299,7 @@ void cpu_init_f (volatile immap_t * im)
 	im->gpio[1].dir = CONFIG_SYS_GPIO2_DIR;
 #endif
 #ifdef CONFIG_USB_EHCI_FSL
+#ifndef CONFIG_MPC834x
 	uint32_t temp;
 	struct usb_ehci *ehci = (struct usb_ehci *)CONFIG_SYS_MPC8xxx_USB_ADDR;
 
@@ -310,6 +311,7 @@ void cpu_init_f (volatile immap_t * im)
 		temp = in_be32(&ehci->control);
 		udelay(1000);
 	} while (!(temp & PHY_CLK_VALID));
+#endif
 #endif
 }
 
