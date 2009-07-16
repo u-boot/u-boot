@@ -51,7 +51,6 @@ COBJS	+= fdt.o
 COBJS	+= i2c.o
 COBJS	+= interrupts.o
 COBJS	+= iop480_uart.o
-COBJS	+= ndfc.o
 COBJS	+= sdram.o
 COBJS	+= speed.o
 COBJS	+= tlb.o

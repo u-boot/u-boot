@@ -64,7 +64,7 @@ $(nandobj)u-boot-spl:	$(OBJS)
 # from cpu directory
 $(obj)ndfc.c:
 	@rm -f $(obj)ndfc.c
-	ln -s $(SRCTREE)/cpu/ppc4xx/ndfc.c $(obj)ndfc.c
+	ln -s $(SRCTREE)/drivers/mtd/nand/ndfc.c $(obj)ndfc.c
 
 $(obj)resetvec.S:
 	@rm -f $(obj)resetvec.S
