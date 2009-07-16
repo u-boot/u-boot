@@ -2893,6 +2893,9 @@ lpd7a400_config \
 lpd7a404_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm lh7a40x lpd7a40x
 
+mv88f6281gtw_ge_config: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs $(@:_config=) Marvell kirkwood
+
 mx1ads_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t mx1ads NULL imx
 

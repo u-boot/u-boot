@@ -687,6 +687,7 @@ Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 
 Prafulla Wadaskar <prafulla@marvell.com>
 
+	mv88f6281gtw_ge	ARM926EJS (Kirkwood SoC)
 	sheevaplug	ARM926EJS (Kirkwood SoC)
 
 Richard Woodruff <r-woodruff2@ti.com>

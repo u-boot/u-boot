@@ -511,6 +511,7 @@ LIST_ARM9="			\
 	cp946es			\
 	cp966			\
 	lpd7a400		\
+	mv88f6281gtw_ge		\
 	mx1ads			\
 	mx1fs2			\
 	netstar			\
