@@ -38,6 +38,7 @@ COBJS-$(CONFIG_DRIVER_NAND_BFIN) += bfin_nand.o
 COBJS-$(CONFIG_NAND_DAVINCI) += davinci_nand.o
 COBJS-$(CONFIG_NAND_FSL_ELBC) += fsl_elbc_nand.o
 COBJS-$(CONFIG_NAND_FSL_UPM) += fsl_upm.o
+COBJS-$(CONFIG_NAND_KB9202) += kb9202_nand.o
 COBJS-$(CONFIG_NAND_KIRKWOOD) += kirkwood_nand.o
 COBJS-$(CONFIG_NAND_MPC5121_NFC) += mpc5121_nfc.o
 COBJS-$(CONFIG_NAND_NDFC) += ndfc.o
