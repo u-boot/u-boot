@@ -2961,6 +2961,9 @@ omap730p2_cs3boot_config :	unconfig
 	fi;
 	@$(MKCONFIG) -a $(call xtract_omap730p2,$@) arm arm926ejs omap730p2 NULL omap
 
+rd6281a_config: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs $(@:_config=) Marvell kirkwood
+
 sbc2410x_config: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t sbc2410x NULL s3c24x0
 
