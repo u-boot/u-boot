@@ -1,6 +1,7 @@
 /*
- * (C) Copyright 2003
- * Ingo Assmus <ingo.assmus@keymile.com>
+ * U-boot - errno.h Error number defines
+ *
+ * Copyright (c) 2005-2007 Analog Devices Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -17,25 +18,22 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
-/*
- * BK Id: SCCS/s.errno.h 1.9 06/05/01 21:45:21 paulus
- */
-#ifndef _MV_PPC_ERRNO_H
-#define _MV_PPC_ERRNO_H
+#ifndef _GENERIC_ERRNO_H
+#define _GENERIC_ERRNO_H
 
-#define	EPERM		 1	/* Operation not permitted */
-#define	ENOENT		 2	/* No such file or directory */
-#define	ESRCH		 3	/* No such process */
-#define	EINTR		 4	/* Interrupted system call */
-#define	EIO		 5	/* I/O error */
-#define	ENXIO		 6	/* No such device or address */
-#define	E2BIG		 7	/* Arg list too long */
-#define	ENOEXEC		 8	/* Exec format error */
-#define	EBADF		 9	/* Bad file number */
+#define	EPERM		1	/* Operation not permitted */
+#define	ENOENT		2	/* No such file or directory */
+#define	ESRCH		3	/* No such process */
+#define	EINTR		4	/* Interrupted system call */
+#define	EIO		5	/* I/O error */
+#define	ENXIO		6	/* No such device or address */
+#define	E2BIG		7	/* Argument list too long */
+#define	ENOEXEC		8	/* Exec format error */
+#define	EBADF		9	/* Bad file number */
 #define	ECHILD		10	/* No child processes */
 #define	EAGAIN		11	/* Try again */
 #define	ENOMEM		12	/* Out of memory */
@@ -84,7 +82,9 @@
 #define	ENOANO		55	/* No anode */
 #define	EBADRQC		56	/* Invalid request code */
 #define	EBADSLT		57	/* Invalid slot */
-#define	EDEADLOCK	58	/* File locking deadlock error */
+
+#define	EDEADLOCK	EDEADLK
+
 #define	EBFONT		59	/* Bad font file format */
 #define	ENOSTR		60	/* Device not a stream */
 #define	ENODATA		61	/* No data available */
@@ -149,16 +149,7 @@
 #define	EISNAM		120	/* Is a named type file */
 #define	EREMOTEIO	121	/* Remote I/O error */
 #define	EDQUOT		122	/* Quota exceeded */
-
 #define	ENOMEDIUM	123	/* No medium found */
 #define	EMEDIUMTYPE	124	/* Wrong medium type */
-
-/* Should never be seen by user programs */
-#define ERESTARTSYS	512
-#define ERESTARTNOINTR	513
-#define ERESTARTNOHAND	514	/* restart if no handler.. */
-#define ENOIOCTLCMD	515	/* No ioctl command */
-
-#define _LAST_ERRNO	515
 
 #endif
