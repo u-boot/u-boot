@@ -311,7 +311,6 @@ struct bd_info_ext {
  */
 #define CONFIG_SYS_HZ_CLOCK (AT91C_MASTER_CLOCK / 2)
 
-#define ROUND(A, B)		(((A) + (B)) & ~((B) - 1))
 /*
  * Size of malloc() pool
  */
