@@ -555,21 +555,6 @@ int board_early_init_f(void)
 	return 0;
 }
 
-#if defined(CONFIG_CMD_NAND) && defined(CONFIG_NAND_LEGACY)
-
-#include <linux/mtd/nand_legacy.h>
-
-extern ulong nand_probe(ulong physadr);
-extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
-
-void nand_init(void)
-{
-	unsigned long totlen = nand_probe(CONFIG_SYS_NAND_BASE);
-
-	printf ("%4lu MB\n", totlen >> 20);
-}
-#endif
-
 #if defined(CONFIG_CMD_PCMCIA)
 
 int pcmcia_init(void)

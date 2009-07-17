@@ -162,11 +162,6 @@
 #define CONFIG_SYS_PROMPT_HUSH_PS2	    ">>"
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	0 /* Max number of NAND devices */
-#define SECTORSIZE			     512
-
-#define ADDR_COLUMN		1
-#define ADDR_PAGE		2
-#define ADDR_COLUMN_PAGE	3
 
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM		0x20000000

@@ -220,8 +220,6 @@
 /*
  * NAND Flash
  */
-#undef CONFIG_NAND_LEGACY
-
 #define CONFIG_SYS_NAND0_BASE		0x0 /* 0x43100040 */ /* 0x10000000 */
 #undef CONFIG_SYS_NAND1_BASE
 
@@ -254,13 +252,6 @@
 
 #define CONFIG_MTD_DEBUG
 #define CONFIG_MTD_DEBUG_VERBOSE 1
-
-#define ADDR_COLUMN		1
-#define ADDR_PAGE		2
-#define ADDR_COLUMN_PAGE	3
-
-#define NAND_ChipID_UNKNOWN	0x00
-#define NAND_MAX_FLOORS		1
 
 #define CONFIG_SYS_NO_FLASH		1
 

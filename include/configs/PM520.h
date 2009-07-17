@@ -86,12 +86,6 @@
 #define CONFIG_USB_STORAGE
 #endif
 
-#if !defined(CONFIG_BOOT_ROM)
-/* DoC requires legacy NAND for now */
-#define CONFIG_NAND_LEGACY
-#endif
-
-
 /*
  * BOOTP options
  */
@@ -116,10 +110,6 @@
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_SNTP
 #define CONFIG_CMD_USB
-
-#if !defined(CONFIG_BOOT_ROM)
-#define CONFIG_CMD_DOC
-#endif
 
 #if defined(CONFIG_MPC5200)
 #define CONFIG_CMD_PCI
@@ -186,15 +176,6 @@
 #define CONFIG_RTC_PCF8563
 #define CONFIG_SYS_I2C_RTC_ADDR		0x51
 
-/*
- * Disk-On-Chip configuration
- */
-
-#define CONFIG_SYS_DOC_SHORT_TIMEOUT
-#define CONFIG_SYS_MAX_DOC_DEVICE	1	/* Max number of DOC devices	*/
-
-#define CONFIG_SYS_DOC_SUPPORT_2000
-#define CONFIG_SYS_DOC_SUPPORT_MILLENNIUM
 #define CONFIG_SYS_DOC_BASE		0xE0000000
 #define CONFIG_SYS_DOC_SIZE		0x00100000
 

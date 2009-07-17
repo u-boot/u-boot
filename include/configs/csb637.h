@@ -121,38 +121,6 @@
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_PING
 
-#ifdef	NAND_SUPPORT_HAS_BEEN_FIXED	/* NAND support is broken / unimplemented */
-
-#define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
-#define SECTORSIZE 512
-
-#define ADDR_COLUMN 1
-#define ADDR_PAGE 2
-#define ADDR_COLUMN_PAGE 3
-
-#define NAND_ChipID_UNKNOWN	0x00
-#define NAND_MAX_FLOORS 1
-
-#define AT91_SMART_MEDIA_ALE (1 << 22)	/* our ALE is AD22 */
-#define AT91_SMART_MEDIA_CLE (1 << 21)	/* our CLE is AD21 */
-
-#include <asm/arch/AT91RM9200.h>	/* needed for port definitions */
-#define NAND_DISABLE_CE(nand) do { *AT91C_PIOC_SODR = AT91C_PIO_PC0;} while(0)
-#define NAND_ENABLE_CE(nand) do { *AT91C_PIOC_CODR = AT91C_PIO_PC0;} while(0)
-
-#define NAND_WAIT_READY(nand) while (!(*AT91C_PIOC_PDSR & AT91C_PIO_PC2))
-
-#define WRITE_NAND_COMMAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr | AT91_SMART_MEDIA_CLE) = (__u8)(d); } while(0)
-#define WRITE_NAND_ADDRESS(d, adr) do{ *(volatile __u8 *)((unsigned long)adr | AT91_SMART_MEDIA_ALE) = (__u8)(d); } while(0)
-#define WRITE_NAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)d; } while(0)
-#define READ_NAND(adr) ((volatile unsigned char)(*(volatile __u8 *)(unsigned long)adr))
-/* the following are NOP's in our implementation */
-#define NAND_CTL_CLRALE(nandptr)
-#define NAND_CTL_SETALE(nandptr)
-#define NAND_CTL_CLRCLE(nandptr)
-#define NAND_CTL_SETCLE(nandptr)
-
-#endif	/* NAND_SUPPORT_HAS_BEEN_FIXED */
 
 #define CONFIG_NR_DRAM_BANKS 1
 #define PHYS_SDRAM			0x20000000

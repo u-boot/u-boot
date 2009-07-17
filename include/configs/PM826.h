@@ -169,7 +169,6 @@
 #define CONFIG_CMD_BEDBUG
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_DOC
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_NFS
@@ -178,19 +177,6 @@
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
 #endif
-
-
-#define CONFIG_NAND_LEGACY
-
-/*
- * Disk-On-Chip configuration
- */
-
-#define CONFIG_SYS_DOC_SHORT_TIMEOUT
-#define CONFIG_SYS_MAX_DOC_DEVICE	1	/* Max number of DOC devices	*/
-
-#define CONFIG_SYS_DOC_SUPPORT_2000
-#define CONFIG_SYS_DOC_SUPPORT_MILLENNIUM
 
 /*
  * Miscellaneous configurable options

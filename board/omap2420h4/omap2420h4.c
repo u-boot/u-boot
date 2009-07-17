@@ -31,10 +31,6 @@
 #include <asm/arch/mem.h>
 #include <i2c.h>
 #include <asm/mach-types.h>
-#if defined(CONFIG_CMD_NAND)
-#include <linux/mtd/nand_legacy.h>
-extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -846,22 +842,3 @@ void update_mux(u32 btype,u32 mtype)
 		}
 	}
 }
-
-#if defined(CONFIG_CMD_NAND)
-void nand_init(void)
-{
-    extern flash_info_t flash_info[];
-
-    nand_probe(CONFIG_SYS_NAND_ADDR);
-    if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-		print_size(nand_dev_desc[0].totlen, "\n");
-    }
-
-#ifdef CONFIG_SYS_JFFS2_MEM_NAND
-    flash_info[CONFIG_SYS_JFFS2_FIRST_BANK].flash_id = nand_dev_desc[0].id;
-    flash_info[CONFIG_SYS_JFFS2_FIRST_BANK].size = 1024*1024*2;      /* only read kernel single meg partition */
-	flash_info[CONFIG_SYS_JFFS2_FIRST_BANK].sector_count = 1024;   /* 1024 blocks in 16meg chip (use less for raw/copied partition) */
-    flash_info[CONFIG_SYS_JFFS2_FIRST_BANK].start[0] = 0x80200000; /* ?, ram for now, open question, copy to RAM or adapt for NAND */
-#endif
-}
-#endif

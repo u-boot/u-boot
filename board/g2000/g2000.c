@@ -148,21 +148,6 @@ phys_size_t initdram (int board_type)
 	return ret;
 }
 
-
-#if defined(CONFIG_CMD_NAND)
-#include <linux/mtd/nand_legacy.h>
-extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
-
-void nand_init(void)
-{
-	nand_probe(CONFIG_SYS_NAND_BASE);
-	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN) {
-		print_size(nand_dev_desc[0].totlen, "\n");
-	}
-}
-#endif
-
-
 #if 0 /* test-only !!! */
 int do_dumpebc(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {

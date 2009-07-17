@@ -196,32 +196,12 @@
  *-----------------------------------------------------------------------
  */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
-#define SECTORSIZE 512
-
-#define ADDR_COLUMN 1
-#define ADDR_PAGE 2
-#define ADDR_COLUMN_PAGE 3
-
-#define NAND_ChipID_UNKNOWN	0x00
-#define NAND_MAX_FLOORS 1
 
 #define CONFIG_SYS_NAND_CE  (0x80000000 >> 1)	/* our CE is GPIO1 */
 #define CONFIG_SYS_NAND_CLE (0x80000000 >> 2)	/* our CLE is GPIO2 */
 #define CONFIG_SYS_NAND_ALE (0x80000000 >> 3)	/* our ALE is GPIO3 */
 #define CONFIG_SYS_NAND_RDY (0x80000000 >> 4)	/* our RDY is GPIO4 */
 
-#define NAND_DISABLE_CE(nand) do { out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_NAND_CE);} while(0)
-#define NAND_ENABLE_CE(nand) do { out32(GPIO0_OR, in32(GPIO0_OR) & ~CONFIG_SYS_NAND_CE);} while(0)
-#define NAND_CTL_CLRALE(nandptr) do { out32(GPIO0_OR, in32(GPIO0_OR) & ~CONFIG_SYS_NAND_ALE);} while(0)
-#define NAND_CTL_SETALE(nandptr) do { out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_NAND_ALE);} while(0)
-#define NAND_CTL_CLRCLE(nandptr) do { out32(GPIO0_OR, in32(GPIO0_OR) & ~CONFIG_SYS_NAND_CLE);} while(0)
-#define NAND_CTL_SETCLE(nandptr) do { out32(GPIO0_OR, in32(GPIO0_OR) | CONFIG_SYS_NAND_CLE);} while(0)
-#define NAND_WAIT_READY(nand) while (!(in32(GPIO0_IR) & CONFIG_SYS_NAND_RDY))
-
-#define WRITE_NAND_COMMAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)(d); } while(0)
-#define WRITE_NAND_ADDRESS(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)(d); } while(0)
-#define WRITE_NAND(d, adr) do{ *(volatile __u8 *)((unsigned long)adr) = (__u8)d; } while(0)
-#define READ_NAND(adr) ((volatile unsigned char)(*(volatile __u8 *)(unsigned long)adr))
 #endif
 
 /*-----------------------------------------------------------------------

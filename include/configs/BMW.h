@@ -81,12 +81,8 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DOC
 #define CONFIG_CMD_ELF
 
-
-/* CONFIG_CMD_DOC required legacy NAND support */
-#define CONFIG_NAND_LEGACY
 
 #if 0
 #define CONFIG_PCI		1
