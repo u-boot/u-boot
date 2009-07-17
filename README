@@ -1074,6 +1074,26 @@ The following options need to be configured:
 		allows for a "silent" boot where a splash screen is
 		loaded very quickly after power-on.
 
+		CONFIG_SPLASH_SCREEN_ALIGN
+
+		If this option is set the splash image can be freely positioned
+		on the screen. Environment variable "splashpos" specifies the
+		position as "x,y". If a positive number is given it is used as
+		number of pixel from left/top. If a negative number is given it
+		is used as number of pixel from right/bottom. You can also
+		specify 'm' for centering the image.
+
+		Example:
+		setenv splashpos m,m
+			=> image at center of screen
+
+		setenv splashpos 30,20
+			=> image at x = 30 and y = 20
+
+		setenv splashpos -10,m
+			=> vertically centered image
+			   at x = dspWidth - bmpWidth - 9
+
 - Gzip compressed BMP image support: CONFIG_VIDEO_BMP_GZIP
 
 		If this option is set, additionally to standard BMP

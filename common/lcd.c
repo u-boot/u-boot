@@ -620,6 +620,11 @@ void bitmap_plot (int x, int y)
  * Display the BMP file located at address bmp_image.
  * Only uncompressed.
  */
+
+#ifdef CONFIG_SPLASH_SCREEN_ALIGN
+#define BMP_ALIGN_CENTER	0x7FFF
+#endif
+
 int lcd_display_bitmap(ulong bmp_image, int x, int y)
 {
 #if !defined(CONFIG_MCC200)
@@ -731,6 +736,19 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 #endif
 
 	padded_line = (width&0x3) ? ((width&~0x3)+4) : (width);
+
+#ifdef CONFIG_SPLASH_SCREEN_ALIGN
+	if (x == BMP_ALIGN_CENTER)
+		x = max(0, (pwidth - width) / 2);
+	else if (x < 0)
+		x = max(0, pwidth - width + x + 1);
+
+	if (y == BMP_ALIGN_CENTER)
+		y = max(0, (panel_info.vl_row - height) / 2);
+	else if (y < 0)
+		y = max(0, panel_info.vl_row - height + y + 1);
+#endif /* CONFIG_SPLASH_SCREEN_ALIGN */
+
 	if ((x + width)>pwidth)
 		width = pwidth - x;
 	if ((y + height)>panel_info.vl_row)
@@ -809,8 +827,25 @@ static void *lcd_logo (void)
 	static int do_splash = 1;
 
 	if (do_splash && (s = getenv("splashimage")) != NULL) {
-		addr = simple_strtoul(s, NULL, 16);
+		int x = 0, y = 0;
 		do_splash = 0;
+
+		addr = simple_strtoul (s, NULL, 16);
+#ifdef CONFIG_SPLASH_SCREEN_ALIGN
+		if ((s = getenv ("splashpos")) != NULL) {
+			if (s[0] == 'm')
+				x = BMP_ALIGN_CENTER;
+			else
+				x = simple_strtol (s, NULL, 0);
+
+			if ((s = strchr (s + 1, ',')) != NULL) {
+				if (s[1] == 'm')
+					y = BMP_ALIGN_CENTER;
+				else
+					y = simple_strtol (s + 1, NULL, 0);
+			}
+		}
+#endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
 #ifdef CONFIG_VIDEO_BMP_GZIP
 		bmp_image_t *bmp = (bmp_image_t *)addr;
@@ -822,7 +857,7 @@ static void *lcd_logo (void)
 		}
 #endif
 
-		if (lcd_display_bitmap (addr, 0, 0) == 0) {
+		if (lcd_display_bitmap (addr, x, y) == 0) {
 			return ((void *)lcd_base);
 		}
 	}
