@@ -68,9 +68,9 @@
 #define MV_VCI			mvBlueCOUGAR-P
 #define MV_FPGA_DATA		0xff860000
 #define MV_FPGA_SIZE		0x0003c886
-#define MV_KERNEL_ADDR		0xffc00000
+#define MV_KERNEL_ADDR		0xffd00000
 #define MV_INITRD_ADDR		0xff900000
-#define MV_INITRD_LENGTH	0x00300000
+#define MV_INITRD_LENGTH	0x00400000
 #define MV_SCRATCH_ADDR		0x00000000
 #define MV_SCRATCH_LENGTH	MV_INITRD_LENGTH
 #define MV_SOURCE_ADDR		0xff840000
@@ -105,6 +105,7 @@
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_FPGA
+#define CONFIG_CMD_I2C
 
 #undef CONFIG_WATCHDOG
 
@@ -182,6 +183,7 @@
 	"propdev_debug=0\0"					\
 	"gevss_debug=0\0"					\
 	"watchdog=1\0"						\
+	"sensor_cnt=1\0"					\
 	""
 
 #undef XMK_STR
@@ -247,6 +249,14 @@
 #define CONFIG_SYS_MONITOR_LEN		(512 << 10)
 #define CONFIG_SYS_MALLOC_LEN		(512 << 10)
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)
+
+/*
+ * I2C configuration
+ */
+#define CONFIG_HARD_I2C		1
+#define CONFIG_SYS_I2C_MODULE	1
+#define CONFIG_SYS_I2C_SPEED	86000
+#define CONFIG_SYS_I2C_SLAVE	0x7F
 
 /*
  * Ethernet configuration
