@@ -618,7 +618,7 @@ U_BOOT_CMD(ubi, 6, 1, do_ubi,
 	"ubi remove[vol] volume"
 		" - Remove volume\n"
 	"[Legends]\n"
-	" volume: charater name\n"
-	" size: KiB, MiB, GiB, and bytes\n"
+	" volume: character name\n"
+	" size: specified in bytes\n"
 	" type: s[tatic] or d[ynamic] (default=dynamic)"
 );
