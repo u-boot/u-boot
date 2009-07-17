@@ -120,6 +120,7 @@
 #include <jffs2/jffs2.h>
 #include <jffs2/jffs2_1pass.h>
 #include <linux/mtd/compat.h>
+#include <asm/errno.h>
 
 #include "jffs2_private.h"
 
@@ -1200,8 +1201,30 @@ jffs2_1pass_rescan_needed(struct part_info *part)
 	return 0;
 }
 
+#ifdef CONFIG_JFFS2_SUMMARY
+static u32 sum_get_unaligned32(u32 *ptr)
+{
+	u32 val;
+	u8 *p = (u8 *)ptr;
+
+	val = *p | (*(p + 1) << 8) | (*(p + 2) << 16) | (*(p + 3) << 24);
+
+	return __le32_to_cpu(val);
+}
+
+static u16 sum_get_unaligned16(u16 *ptr)
+{
+	u16 val;
+	u8 *p = (u8 *)ptr;
+
+	val = *p | (*(p + 1) << 8);
+
+	return __le16_to_cpu(val);
+}
+
 #define dbg_summary(...) do {} while (0);
-/* Process the stored summary information - helper function for
+/*
+ * Process the stored summary information - helper function for
  * jffs2_sum_scan_sumnode()
  */
 
@@ -1210,54 +1233,64 @@ static int jffs2_sum_process_sum_data(struct part_info *part, uint32_t offset,
 				struct b_lists *pL)
 {
 	void *sp;
-	int i;
+	int i, pass;
+	void *ret;
 
-	sp = summary->sum;
+	for (pass = 0; pass < 2; pass++) {
+		sp = summary->sum;
 
-	for (i = 0; i < summary->sum_num; i++) {
-		dbg_summary("processing summary index %d\n", i);
+		for (i = 0; i < summary->sum_num; i++) {
+			struct jffs2_sum_unknown_flash *spu = sp;
+			dbg_summary("processing summary index %d\n", i);
 
-		switch (((struct jffs2_sum_unknown_flash *)sp)->nodetype) {
-			case JFFS2_NODETYPE_INODE: {
+			switch (sum_get_unaligned16(&spu->nodetype)) {
+				case JFFS2_NODETYPE_INODE: {
 				struct jffs2_sum_inode_flash *spi;
-				spi = sp;
+					if (pass) {
+						spi = sp;
 
-				dbg_summary("Inode at 0x%08x-0x%08x\n",
-					    offset + spi->offset,
-					    offset + spi->offset + spi->totlen);
+						ret = insert_node(&pL->frag,
+							(u32)part->offset +
+							offset +
+							sum_get_unaligned32(
+								&spi->offset));
+						if (ret == NULL)
+							return -1;
+					}
 
-				if (insert_node(&pL->frag, (u32) part->offset +
-						offset + spi->offset) == NULL)
-					return -1;
+					sp += JFFS2_SUMMARY_INODE_SIZE;
 
-				sp += JFFS2_SUMMARY_INODE_SIZE;
+					break;
+				}
+				case JFFS2_NODETYPE_DIRENT: {
+					struct jffs2_sum_dirent_flash *spd;
+					spd = sp;
+					if (pass) {
+						ret = insert_node(&pL->dir,
+							(u32) part->offset +
+							offset +
+							sum_get_unaligned32(
+								&spd->offset));
+						if (ret == NULL)
+							return -1;
+					}
 
-				break;
-			}
+					sp += JFFS2_SUMMARY_DIRENT_SIZE(
+							spd->nsize);
 
-			case JFFS2_NODETYPE_DIRENT: {
-				struct jffs2_sum_dirent_flash *spd;
-				spd = sp;
-
-				dbg_summary("Dirent at 0x%08x-0x%08x\n",
-					    offset + spd->offset,
-					    offset + spd->offset + spd->totlen);
-
-				if (insert_node(&pL->dir, (u32) part->offset +
-						offset + spd->offset) == NULL)
-					return -1;
-
-				sp += JFFS2_SUMMARY_DIRENT_SIZE(spd->nsize);
-
-				break;
-			}
-			default : {
-				uint16_t nodetype =
-					((struct jffs2_sum_unknown_flash *)
-					 sp)->nodetype;
-				printf("Unsupported node type %x found in "
-						"summary!\n", nodetype);
-				break;
+					break;
+				}
+				default : {
+					uint16_t nodetype = sum_get_unaligned16(
+								&spu->nodetype);
+					printf("Unsupported node type %x found"
+							" in summary!\n",
+							nodetype);
+					if ((nodetype & JFFS2_COMPAT_MASK) ==
+							JFFS2_FEATURE_INCOMPAT)
+						return -EIO;
+					return -EBADMSG;
+				}
 			}
 		}
 	}
@@ -1315,6 +1348,8 @@ int jffs2_sum_scan_sumnode(struct part_info *part, uint32_t offset,
 		dbg_summary("Summary : CLEANMARKER node \n");
 
 	ret = jffs2_sum_process_sum_data(part, offset, summary, pL);
+	if (ret == -EBADMSG)
+		return 0;
 	if (ret)
 		return ret;		/* real error */
 
@@ -1325,6 +1360,7 @@ crc_err:
 
 	return 0;
 }
+#endif /* CONFIG_JFFS2_SUMMARY */
 
 #ifdef DEBUG_FRAGMENTS
 static void
@@ -1430,13 +1466,16 @@ jffs2_1pass_build_lists(struct part_info * part)
 		uint32_t buf_ofs = sector_ofs;
 		uint32_t buf_len;
 		uint32_t ofs, prevofs;
+#ifdef CONFIG_JFFS2_SUMMARY
 		struct jffs2_sum_marker *sm;
 		void *sumptr = NULL;
 		uint32_t sumlen;
 		int ret;
+#endif
 
 		WATCHDOG_RESET();
 
+#ifdef CONFIG_JFFS2_SUMMARY
 		buf_len = sizeof(*sm);
 
 		/* Read as much as we want into the _end_ of the preallocated
@@ -1489,6 +1528,7 @@ jffs2_1pass_build_lists(struct part_info * part)
 				continue;
 
 		}
+#endif /* CONFIG_JFFS2_SUMMARY */
 
 		buf_len = EMPTY_SCAN_SIZE(part->sector_size);
 
