@@ -154,7 +154,7 @@ phys_size_t fixed_sdram(void)
 	ddr->timing_cfg_0 = 0x00260802;
 	ddr->timing_cfg_1 = 0x3935d322;
 	ddr->timing_cfg_2 = 0x14904cc8;
-	ddr->sdram_mode_1 = 0x00480432;
+	ddr->sdram_mode = 0x00480432;
 	ddr->sdram_mode_2 = 0x00000000;
 	ddr->sdram_interval = 0x06180fff; /* 0x06180100; */
 	ddr->sdram_data_init = 0xDEADBEEF;
@@ -170,7 +170,7 @@ phys_size_t fixed_sdram(void)
 
 	udelay(500);
 
-	ddr->sdram_cfg_1 = 0xc3000000; /* 0xe3008000;*/
+	ddr->sdram_cfg = 0xc3000000; /* 0xe3008000;*/
 
 
 #if defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)

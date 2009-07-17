@@ -127,9 +127,9 @@ long int fixed_sdram (void)
 	ddr->timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
 	ddr->timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
 	ddr->timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
-	ddr->sdram_cfg_1 = CONFIG_SYS_DDR_CFG_1A;
+	ddr->sdram_cfg = CONFIG_SYS_DDR_CFG_1A;
 	ddr->sdram_cfg_2 = CONFIG_SYS_DDR_CFG_2;
-	ddr->sdram_mode_1 = CONFIG_SYS_DDR_MODE_1;
+	ddr->sdram_mode = CONFIG_SYS_DDR_MODE_1;
 	ddr->sdram_mode_2 = CONFIG_SYS_DDR_MODE_2;
 	ddr->sdram_mode_cntl = CONFIG_SYS_DDR_MODE_CTL;
 	ddr->sdram_interval = CONFIG_SYS_DDR_INTERVAL;
@@ -140,7 +140,7 @@ long int fixed_sdram (void)
 
 	udelay (500);
 
-	ddr->sdram_cfg_1 = CONFIG_SYS_DDR_CFG_1B;
+	ddr->sdram_cfg = CONFIG_SYS_DDR_CFG_1B;
 	asm ("sync; isync");
 
 	udelay (500);
@@ -158,9 +158,9 @@ long int fixed_sdram (void)
 	ddr->timing_cfg_0 = CONFIG_SYS_DDR2_TIMING_0;
 	ddr->timing_cfg_1 = CONFIG_SYS_DDR2_TIMING_1;
 	ddr->timing_cfg_2 = CONFIG_SYS_DDR2_TIMING_2;
-	ddr->sdram_cfg_1 = CONFIG_SYS_DDR2_CFG_1A;
+	ddr->sdram_cfg = CONFIG_SYS_DDR2_CFG_1A;
 	ddr->sdram_cfg_2 = CONFIG_SYS_DDR2_CFG_2;
-	ddr->sdram_mode_1 = CONFIG_SYS_DDR2_MODE_1;
+	ddr->sdram_mode = CONFIG_SYS_DDR2_MODE_1;
 	ddr->sdram_mode_2 = CONFIG_SYS_DDR2_MODE_2;
 	ddr->sdram_mode_cntl = CONFIG_SYS_DDR2_MODE_CTL;
 	ddr->sdram_interval = CONFIG_SYS_DDR2_INTERVAL;
@@ -171,7 +171,7 @@ long int fixed_sdram (void)
 
 	udelay (500);
 
-	ddr->sdram_cfg_1 = CONFIG_SYS_DDR2_CFG_1B;
+	ddr->sdram_cfg = CONFIG_SYS_DDR2_CFG_1B;
 	asm ("sync; isync");
 
 	udelay (500);

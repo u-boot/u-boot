@@ -101,7 +101,7 @@ fixed_sdram(void)
 	ddr->timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
 	ddr->timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
 	ddr->timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
-	ddr->sdram_mode_1 = CONFIG_SYS_DDR_MODE_1;
+	ddr->sdram_mode = CONFIG_SYS_DDR_MODE_1;
 	ddr->sdram_mode_2 = CONFIG_SYS_DDR_MODE_2;
 	ddr->sdram_interval = CONFIG_SYS_DDR_INTERVAL;
 	ddr->sdram_data_init = CONFIG_SYS_DDR_DATA_INIT;
@@ -119,9 +119,9 @@ fixed_sdram(void)
 
 #if defined (CONFIG_DDR_ECC)
 	/* Enable ECC checking */
-	ddr->sdram_cfg_1 = (CONFIG_SYS_DDR_CONTROL | 0x20000000);
+	ddr->sdram_cfg = (CONFIG_SYS_DDR_CONTROL | 0x20000000);
 #else
-	ddr->sdram_cfg_1 = CONFIG_SYS_DDR_CONTROL;
+	ddr->sdram_cfg = CONFIG_SYS_DDR_CONTROL;
 	ddr->sdram_cfg_2 = CONFIG_SYS_DDR_CONTROL2;
 #endif
 	asm("sync; isync");
