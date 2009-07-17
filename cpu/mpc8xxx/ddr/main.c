@@ -162,27 +162,8 @@ int step_assign_addresses(fsl_ddr_info_t *pinfo,
 			j++;
 		}
 	}
-	if (j == 2) {
+	if (j == 2)
 		*memctl_interleaving = 1;
-
-		printf("\nMemory controller interleaving enabled: ");
-
-		switch (pinfo->memctl_opts[0].memctl_interleaving_mode) {
-		case FSL_DDR_CACHE_LINE_INTERLEAVING:
-			printf("Cache-line interleaving!\n");
-			break;
-		case FSL_DDR_PAGE_INTERLEAVING:
-			printf("Page interleaving!\n");
-			break;
-		case FSL_DDR_BANK_INTERLEAVING:
-			printf("Bank interleaving!\n");
-			break;
-		case FSL_DDR_SUPERBANK_INTERLEAVING:
-			printf("Super bank interleaving\n");
-		default:
-			break;
-		}
-	}
 
 	/* Check that all controllers are rank interleaving. */
 	j = 0;
@@ -191,28 +172,8 @@ int step_assign_addresses(fsl_ddr_info_t *pinfo,
 			j++;
 		}
 	}
-	if (j == 2) {
+	if (j == 2)
 		*rank_interleaving = 1;
-
-		printf("Bank(chip-select) interleaving enabled: ");
-
-		switch (pinfo->memctl_opts[0].ba_intlv_ctl &
-						FSL_DDR_CS0_CS1_CS2_CS3) {
-		case FSL_DDR_CS0_CS1_CS2_CS3:
-			printf("CS0+CS1+CS2+CS3\n");
-			break;
-		case FSL_DDR_CS0_CS1:
-			printf("CS0+CS1\n");
-			break;
-		case FSL_DDR_CS2_CS3:
-			printf("CS2+CS3\n");
-			break;
-		case FSL_DDR_CS0_CS1_AND_CS2_CS3:
-			printf("CS0+CS1 and CS2+CS3\n");
-		default:
-			break;
-		}
-	}
 
 	if (*memctl_interleaving) {
 		unsigned long long addr, total_mem_per_ctlr = 0;
