@@ -81,6 +81,7 @@ LoopOsc:
 	bne	0b
 	/* delay - this is all done by guess */
 	ldr	r0, =0x00010000
+	/* (vs reading PMC_SR for LOCKA, LOCKB ... or MOSCS earlier) */
 1:
 	subs	r0, r0, #1
 	bhi	1b
@@ -108,16 +109,6 @@ LoopOsc:
 	.ltorg
 
 SMRDATA:
-	.word AT91C_MC_PUIA
-	.word CONFIG_SYS_MC_PUIA_VAL
-	.word AT91C_MC_PUP
-	.word CONFIG_SYS_MC_PUP_VAL
-	.word AT91C_MC_PUER
-	.word CONFIG_SYS_MC_PUER_VAL
-	.word AT91C_MC_ASR
-	.word CONFIG_SYS_MC_ASR_VAL
-	.word AT91C_MC_AASR
-	.word CONFIG_SYS_MC_AASR_VAL
 	.word AT91C_EBI_CFGR
 	.word CONFIG_SYS_EBI_CFGR_VAL
 	.word AT91C_SMC_CSR0
@@ -128,8 +119,7 @@ SMRDATA:
 	.word CONFIG_SYS_PLLBR_VAL
 	.word AT91C_MCKR
 	.word CONFIG_SYS_MCKR_VAL
-	/* SMRDATA is 80 bytes long */
-	/* here there's a delay of 100 */
+	/* here there's a delay */
 SMRDATA1:
 	.word AT91C_PIOC_ASR
 	.word CONFIG_SYS_PIOC_ASR_VAL
