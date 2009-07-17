@@ -1297,6 +1297,9 @@ csb472_config:	unconfig
 DASA_SIM_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx dasa_sim esd
 
+dlvision_config: unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx dlvision gdsys
+
 DP405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx dp405 esd
 
