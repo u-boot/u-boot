@@ -143,11 +143,6 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
 
-#define CONFIG_BOOTARGS		"root=/dev/hda1 "
-#define CONFIG_BOOTCOMMAND	"bootm ffc00000"	/* autoboot command */
-#define CONFIG_BOOTDELAY	5			/* disable autoboot */
-#define CONFIG_BAUDRATE		9600
-
 #define CONFIG_LOADS_ECHO	1		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
 
@@ -175,17 +170,21 @@ extern void out32(unsigned int, unsigned long);
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_PCI
-#define CONFIG_CMD_IRQ
-#define CONFIG_CMD_I2C
+#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_BEDBUG
+#define CONFIG_CMD_DHCP
 #define CONFIG_CMD_EEPROM
-#define CONFIG_CMD_PING
 #define CONFIG_CMD_ELF
+#define CONFIG_CMD_SAVEENV
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_IRQ
+#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_DIAG
-#define CONFIG_CMD_FAT
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PCI
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_SNTP
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
@@ -243,4 +242,103 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
+
+/*
+ * Flash memory map:
+ * fff80000 - ffffffff	U-Boot (512 KB)
+ * fff40000 - fff7ffff	U-Boot Environment (256 KB)
+ * fff00000 - fff3ffff	FDT (256KB)
+ * ffc00000 - ffefffff	OS image (3MB)
+ * ff000000 - ffbfffff	OS Use/Filesystem (12MB)
+ */
+
+#define CONFIG_UBOOT_ENV_ADDR	MK_STR(TEXT_BASE)
+#define CONFIG_FDT_ENV_ADDR	MK_STR(0xfff00000)
+#define CONFIG_OS_ENV_ADDR	MK_STR(0xffc00000)
+
+#define CONFIG_PROG_UBOOT						\
+	"$download_cmd $loadaddr $ubootfile; "				\
+	"if test $? -eq 0; then "					\
+		"protect off "CONFIG_UBOOT_ENV_ADDR" +80000; "		\
+		"erase "CONFIG_UBOOT_ENV_ADDR" +80000; "		\
+		"cp.w $loadaddr "CONFIG_UBOOT_ENV_ADDR" 40000; "	\
+		"protect on "CONFIG_UBOOT_ENV_ADDR" +80000; "		\
+		"cmp.b $loadaddr "CONFIG_UBOOT_ENV_ADDR" 80000; "	\
+		"if test $? -ne 0; then "				\
+			"echo PROGRAM FAILED; "				\
+		"else; "						\
+			"echo PROGRAM SUCCEEDED; "			\
+		"fi; "							\
+	"else; "							\
+		"echo DOWNLOAD FAILED; "				\
+	"fi;"
+
+#define CONFIG_BOOT_OS_NET						\
+	"$download_cmd $osaddr $osfile; "				\
+	"if test $? -eq 0; then "					\
+		"if test -n $fdtaddr; then "				\
+			"$download_cmd $fdtaddr $fdtfile; "		\
+			"if test $? -eq 0; then "			\
+				"bootm $osaddr - $fdtaddr; "		\
+			"else; "					\
+				"echo FDT DOWNLOAD FAILED; "		\
+			"fi; "						\
+		"else; "						\
+			"bootm $osaddr; "				\
+		"fi; "							\
+	"else; "							\
+		"echo OS DOWNLOAD FAILED; "				\
+	"fi;"
+
+#define CONFIG_PROG_OS							\
+	"$download_cmd $osaddr $osfile; "				\
+	"if test $? -eq 0; then "					\
+		"erase "CONFIG_OS_ENV_ADDR" +$filesize; "		\
+		"cp.b $osaddr "CONFIG_OS_ENV_ADDR" $filesize; "		\
+		"cmp.b $osaddr "CONFIG_OS_ENV_ADDR" $filesize; "	\
+		"if test $? -ne 0; then "				\
+			"echo OS PROGRAM FAILED; "			\
+		"else; "						\
+			"echo OS PROGRAM SUCCEEDED; "			\
+		"fi; "							\
+	"else; "							\
+		"echo OS DOWNLOAD FAILED; "				\
+	"fi;"
+
+#define CONFIG_PROG_FDT							\
+	"$download_cmd $fdtaddr $fdtfile; "				\
+	"if test $? -eq 0; then "					\
+		"erase "CONFIG_FDT_ENV_ADDR" +$filesize;"		\
+		"cp.b $fdtaddr "CONFIG_FDT_ENV_ADDR" $filesize; "	\
+		"cmp.b $fdtaddr "CONFIG_FDT_ENV_ADDR" $filesize; "	\
+		"if test $? -ne 0; then "				\
+			"echo FDT PROGRAM FAILED; "			\
+		"else; "						\
+			"echo FDT PROGRAM SUCCEEDED; "			\
+		"fi; "							\
+	"else; "							\
+		"echo FDT DOWNLOAD FAILED; "				\
+	"fi;"
+
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"autoload=yes\0"						\
+	"download_cmd=tftp\0"						\
+	"console_args=console=ttyS0,115200\0"				\
+	"root_args=root=/dev/nfs rw\0"					\
+	"misc_args=ip=on\0"						\
+	"set_bootargs=setenv bootargs ${console_args} ${root_args} ${misc_args}\0" \
+	"bootfile=/home/user/file\0"					\
+	"osfile=/home/user/uImage-XPedite1000\0"			\
+	"fdtfile=/home/user/xpedite1000.dtb\0"				\
+	"ubootfile=/home/user/u-boot.bin\0"				\
+	"fdtaddr=c00000\0"						\
+	"osaddr=0x1000000\0"						\
+	"loadaddr=0x1000000\0"						\
+	"prog_uboot="CONFIG_PROG_UBOOT"\0"				\
+	"prog_os="CONFIG_PROG_OS"\0"					\
+	"prog_fdt="CONFIG_PROG_FDT"\0"					\
+	"bootcmd_net=run set_bootargs; "CONFIG_BOOT_OS_NET"\0"		\
+	"bootcmd_flash=run set_bootargs; "				\
+		"bootm "CONFIG_OS_ENV_ADDR" - "CONFIG_FDT_ENV_ADDR"\0"	\
+	"bootcmd=run bootcmd_flash\0"
 #endif	/* __CONFIG_H */
