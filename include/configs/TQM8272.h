@@ -439,6 +439,8 @@
 	WRITE_NAND(d, addr); \
 } while(0)
 
+#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
+
 #endif /* CONFIG_CMD_NAND */
 
 #define	CONFIG_PCI

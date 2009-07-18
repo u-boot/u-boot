@@ -426,6 +426,7 @@ extern unsigned long offsetOfEnvironment;
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		0x77D00000
 
+#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 
 #define CONFIG_JFFS2_NAND 1			/* jffs2 on nand support */
 

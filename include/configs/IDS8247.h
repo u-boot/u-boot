@@ -265,6 +265,8 @@
 #define CONFIG_SYS_NAND0_BASE 0xE1000000
 #define CONFIG_SYS_MAX_NAND_DEVICE     1       /* Max number of NAND devices           */
 
+#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
+
 #endif /* CONFIG_CMD_NAND */
 
 /*-----------------------------------------------------------------------

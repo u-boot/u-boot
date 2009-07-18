@@ -210,6 +210,9 @@
  * NAND-FLASH stuff
  *-----------------------------------------------------------------------
  */
+
+#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
+
 /*
  * nand device 1 on dave (PPChameleonEVB) needs more time,
  * so we just introduce additional wait in nand_wait(),

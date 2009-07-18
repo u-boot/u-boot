@@ -374,6 +374,8 @@
 
 #define NAND_BIG_DELAY_US		25	/* max tR for Samsung devices	*/
 
+#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
+
 #endif /* CONFIG_NAND */
 
 /*
