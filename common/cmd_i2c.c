@@ -1282,17 +1282,17 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		return do_i2c_crc(cmdtp, flag, argc, argv);
 	if (!strncmp(argv[0], "pr", 2))
 		return do_i2c_probe(cmdtp, flag, argc, argv);
-	if (!strncmp(argv[0], "re", 2))
+	if (!strncmp(argv[0], "re", 2)) {
 		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 		return 0;
+	}
 	if (!strncmp(argv[0], "lo", 2))
 		return do_i2c_loop(cmdtp, flag, argc, argv);
 #if defined(CONFIG_CMD_SDRAM)
 	if (!strncmp(argv[0], "sd", 2))
 		return do_sdram(cmdtp, flag, argc, argv);
 #endif
-	else
-		cmd_usage(cmdtp);
+	cmd_usage(cmdtp);
 	return 0;
 }
 
