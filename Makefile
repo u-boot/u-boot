@@ -1607,8 +1607,8 @@ xilinx-ppc440-generic_config: unconfig
 		>> $(obj)board/xilinx/ppc440-generic/config.tmp
 	@$(MKCONFIG) xilinx-ppc440-generic ppc ppc4xx ppc440-generic xilinx
 
-XPEDITE1K_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx xpedite1k
+XPEDITE1000_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx xpedite1000 xes
 
 yosemite_config \
 yellowstone_config: unconfig
