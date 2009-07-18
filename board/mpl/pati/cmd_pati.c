@@ -276,7 +276,7 @@ static int pati_pci_eeprom_write(unsigned short offset, unsigned long addr, unsi
 static int pati_pci_eeprom_read(unsigned short offset, unsigned long addr, unsigned short size)
 {
 	int i;
-	unsigned short value;
+	unsigned short value = 0;
 	unsigned short *buffer =(unsigned short *)addr;
 	if((offset + size) > PATI_EEPROM_LAST_OFFSET) {
 		size = PATI_EEPROM_LAST_OFFSET - offset;

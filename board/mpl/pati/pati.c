@@ -347,8 +347,8 @@ int last_stage_init (void)
 
 int checkboard (void)
 {
-	unsigned char s[50];
-	unsigned long reg;
+	char s[50];
+	ulong reg;
 	char rev;
 	int i;
 

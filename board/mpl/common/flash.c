@@ -819,12 +819,16 @@ static FLASH_WORD_SIZE *read_val = (FLASH_WORD_SIZE *)0x200000;
 
 static int write_word (flash_info_t *info, ulong dest, ulong data)
 {
-	volatile FLASH_WORD_SIZE *addr2 = (FLASH_WORD_SIZE *)(info->start[0]);
-	volatile FLASH_WORD_SIZE *dest2 = (FLASH_WORD_SIZE *)dest;
-	volatile FLASH_WORD_SIZE *data2 = (FLASH_WORD_SIZE *)&data;
+	volatile FLASH_WORD_SIZE *addr2 = (volatile FLASH_WORD_SIZE *)(info->start[0]);
+	volatile FLASH_WORD_SIZE *dest2 = (volatile FLASH_WORD_SIZE *)dest;
+	volatile FLASH_WORD_SIZE *data2;
 	ulong start;
+	ulong *data_p;
 	int flag;
 	int i;
+
+	data_p = &data;
+	data2 = (volatile FLASH_WORD_SIZE *)data_p;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*((volatile FLASH_WORD_SIZE *)dest) &
