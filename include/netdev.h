@@ -73,6 +73,7 @@ int scc_initialize(bd_t *bis);
 int skge_initialize(bd_t *bis);
 int tsi108_eth_initialize(bd_t *bis);
 int uec_initialize(int index);
+int uec_standard_init(bd_t *bis);
 int uli526x_initialize(bd_t *bis);
 int sh_eth_initialize(bd_t *bis);
 int dm9000_initialize(bd_t *bis);
