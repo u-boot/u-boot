@@ -52,9 +52,9 @@
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_SDRAM_BASE	    0x00000000		/* _must_ be 0		*/
-#define CONFIG_SYS_FLASH_BASE	    0xfff80000		/* start of FLASH	*/
+#define CONFIG_SYS_FLASH_BASE	    0xff000000		/* start of FLASH	*/
 
-#define CONFIG_SYS_MONITOR_BASE    CONFIG_SYS_FLASH_BASE	/* start of monitor	*/
+#define CONFIG_SYS_MONITOR_BASE	    TEXT_BASE		/* start of monitor	*/
 #define CONFIG_SYS_PCI_MEMBASE	    0x80000000		/* mapped pci memory	*/
 #define CONFIG_SYS_PERIPHERAL_BASE 0xe0000000		/* internal peripherals */
 #define CONFIG_SYS_ISRAM_BASE	    0xc0000000		/* internal SRAM	*/
@@ -128,7 +128,11 @@ extern void out32(unsigned int, unsigned long);
  * FLASH related
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_MAX_FLASH_BANKS	1		    /* number of banks	    */
-#define CONFIG_SYS_MAX_FLASH_SECT	8		    /* sectors per device   */
+#define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE}
+#define CONFIG_SYS_MAX_FLASH_SECT	128		    /* sectors per device   */
+#define CONFIG_FLASH_CFI_DRIVER
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
 #undef	CONFIG_SYS_FLASH_CHECKSUM
 #define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms)	*/

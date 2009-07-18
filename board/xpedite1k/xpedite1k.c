@@ -50,12 +50,10 @@ int board_early_init_f(void)
 	/*--------------------------------------------------------------------
 	 * Setup the external bus controller/chip selects
 	 *-------------------------------------------------------------------*/
-
-	/* set the bus controller */
-	mtebc (pb0ap, 0x04055200);	/* FLASH/SRAM */
-	mtebc (pb0cr, 0xfff18000);	/* BAS=0xfff 1MB R/W 8-bit */
-	mtebc (pb1ap, 0x04055200);	/* FLASH/SRAM */
-	mtebc (pb1cr, 0xfe098000);	/* BAS=0xff8 16MB R/W 8-bit */
+	mtebc (pb0ap, 0x04055200);	/* 16MB Strata FLASH */
+	mtebc (pb0cr, 0xff098000);	/* BAS=0xff0 16MB R/W 8-bit */
+	mtebc (pb1ap, 0x04055200);	/* 512KB Socketed AMD FLASH */
+	mtebc (pb1cr, 0xfe018000);	/* BAS=0xfe0 1MB R/W 8-bit */
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
