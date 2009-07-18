@@ -467,18 +467,18 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	flash_info_t *info;
 	ulong bank;
 	int i, n, sect_first, sect_last;
-#endif /* CONFIG_SYS_NO_FLASH */
 	ulong addr_first, addr_last;
-	int p;
+#endif /* CONFIG_SYS_NO_FLASH */
 #if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_CMD_MTDPARTS)
 	struct mtd_device *dev;
 	struct part_info *part;
 	u8 dev_type, dev_num, pnum;
 #endif
-	int rcode = 0;
 #ifdef CONFIG_HAS_DATAFLASH
 	int status;
 #endif
+	int p;
+	int rcode = 0;
 
 	if (argc < 3) {
 		cmd_usage(cmdtp);
