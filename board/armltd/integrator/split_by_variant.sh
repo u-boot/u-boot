@@ -231,5 +231,5 @@ fi # ap
 # ---------------------------------------------------------
 # Complete the configuration
 # ---------------------------------------------------------
-$MKCONFIG -a integrator$1 arm $cpu integrator armltd;
-echo "Variant:: $variant with core $cpu"
+$MKCONFIG -a -n "${2%%_config}" integrator$1 arm $cpu integrator armltd
+echo "Variant: $variant with core $cpu"
