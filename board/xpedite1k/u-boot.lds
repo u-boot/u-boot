@@ -78,9 +78,6 @@ SECTIONS
     lib_ppc/extable.o	(.text)
     lib_generic/zlib.o		(.text)
 
-/*    . = env_offset;*/
-/*    common/env_embedded.o(.text)*/
-
     *(.text)
     *(.fixup)
     *(.got1)
