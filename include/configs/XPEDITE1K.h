@@ -129,10 +129,15 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_SYS_I2C_SLAVE		0x7f
 #define CONFIG_SYS_I2C_NOPROBES	{0x55,0x56,0x57,0x58,0x59,0x5a,0x5b,0x5c,0x69}
 
-/* Environment */
-#define CONFIG_ENV_IS_IN_EEPROM		1
-#define CONFIG_ENV_SIZE			0x100	/* Size of Environment vars */
-#define CONFIG_ENV_OFFSET		0x100
+/*
+ * Environment Configuration
+ */
+#define CONFIG_ENV_IS_IN_FLASH	1
+#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128k (one sector) for env */
+#define CONFIG_ENV_SIZE		0x8000
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - (256 * 1024))
+
+/* EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
