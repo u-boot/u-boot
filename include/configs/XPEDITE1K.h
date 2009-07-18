@@ -153,8 +153,7 @@ extern void out32(unsigned int, unsigned long);
 
 #define CONFIG_PPC4xx_EMAC
 #define CONFIG_MII		1	/* MII PHY management */
-#define CONFIG_PHY_ADDR		0	/* PHY address phy0 not populated */
-#define CONFIG_PHY1_ADDR	1	/* PHY address phy1 not populated */
+#define CONFIG_PHY_ADDR		4	/* PHY address phy0 not populated */
 #define CONFIG_PHY2_ADDR	4	/* PHY address phy2 */
 #define CONFIG_PHY3_ADDR	8	/* PHY address phy3 */
 #define CONFIG_NET_MULTI	1
@@ -162,7 +161,6 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_PHY_RESET	1	/* reset phy upon startup */
 #define CONFIG_SYS_RX_ETH_BUFFER 32	/* Number of ethernet rx buffers & descriptors */
 
-#define CONFIG_HAS_ETH1		1	/* add support for "eth1addr" */
 #define CONFIG_HAS_ETH2		1	/* add support for "eth2addr" */
 #define CONFIG_HAS_ETH3		1	/* add support for "eth3addr" */
 
