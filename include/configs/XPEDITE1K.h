@@ -32,6 +32,7 @@
 
 /* High Level Configuration Options */
 #define CONFIG_XPEDITE1K	1		/* Board is XPedite 1000 */
+#define CONFIG_SYS_BOARD_NAME	"XPedite1000"
 #define CONFIG_4xx		1		/* ... PPC4xx family */
 #define CONFIG_440		1
 #define CONFIG_440GX		1		/* 440 GX */

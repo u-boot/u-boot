@@ -112,7 +112,20 @@ int board_early_init_f(void)
 
 int checkboard(void)
 {
-	printf("Board: XES XPedite1000 440GX\n");
+	char *s;
+
+	printf("Board: X-ES %s PMC SBC\n", CONFIG_SYS_BOARD_NAME);
+	printf("       ");
+	s = getenv("board_rev");
+	if (s)
+		printf("Rev %s, ", s);
+	s = getenv("serial#");
+	if (s)
+		printf("Serial# %s, ", s);
+	s = getenv("board_cfg");
+	if (s)
+		printf("Cfg %s", s);
+	printf("\n");
 
 	return 0;
 }
