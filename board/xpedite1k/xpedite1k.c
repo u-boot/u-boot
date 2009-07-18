@@ -46,6 +46,10 @@ int board_early_init_f(void)
 	mtebc(pb0cr, 0xff098000);	/* BAS=0xff0 16MB R/W 8-bit */
 	mtebc(pb1ap, 0x04055200);	/* 512KB Socketed AMD FLASH */
 	mtebc(pb1cr, 0xfe018000);	/* BAS=0xfe0 1MB R/W 8-bit */
+	mtebc(pb6ap, 0x05006400);	/* 32-64MB AMD MirrorBit FLASH */
+	mtebc(pb6cr, 0xf00da000);	/* BAS=0xf00 64MB R/W i6-bit */
+	mtebc(pb7ap, 0x05006400);	/* 32-64MB AMD MirrorBit FLASH */
+	mtebc(pb7cr, 0xf40da000);	/* BAS=0xf40 64MB R/W 16-bit */
 
 	/*
 	 * Setup the interrupt controller polarities, triggers, etc.

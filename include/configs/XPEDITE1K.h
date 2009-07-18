@@ -106,12 +106,13 @@ extern void out32(unsigned int, unsigned long);
 /*
  * FLASH related
  */
-#define CONFIG_SYS_MAX_FLASH_BANKS	1		    /* number of banks	    */
-#define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE}
-#define CONFIG_SYS_MAX_FLASH_SECT	128		    /* sectors per device   */
+#define CONFIG_SYS_MAX_FLASH_BANKS	3
+#define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_FLASH_BASE, 0xf0000000, 0xf4000000 }
+#define CONFIG_SYS_MAX_FLASH_SECT	512	/* sectors per device */
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
+#define CONFIG_SYS_FLASH_QUIET_TEST		/* MirrorBit flashes are optional */
 
 #undef	CONFIG_SYS_FLASH_CHECKSUM
 #define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms) */
