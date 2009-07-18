@@ -32,9 +32,18 @@ int board_early_init_f(void)
 {
 	unsigned long sdrreg;
 
-	/* TBS: Setup the GPIO access for the user LEDs */
+	/*
+	 * Enable GPIO for pins 18 - 24
+	 * 18 = SEEPROM_WP
+	 * 19 = #M_RST
+	 * 20 = #MONARCH
+	 * 21 = #LED_ALARM
+	 * 22 = #LED_ACT
+	 * 23 = #LED_STATUS1
+	 * 24 = #LED_STATUS2
+	 */
 	mfsdr(sdr_pfc0, sdrreg);
-	mtsdr(sdr_pfc0, (sdrreg & ~0x00000100) | 0x00000E00);
+	mtsdr(sdr_pfc0, (sdrreg & ~SDR0_PFC0_TRE_ENABLE) | 0x00003e00);
 	out32(CONFIG_SYS_GPIO_BASE + 0x018, (USR_LED0 | USR_LED1 | USR_LED2 | USR_LED3));
 	LED0_OFF();
 	LED1_OFF();
