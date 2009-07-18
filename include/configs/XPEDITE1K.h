@@ -62,6 +62,7 @@
 /*
  * Diagnostics
  */
+#define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x0400000
 #define CONFIG_SYS_MEMTEST_END		0x0C00000
 
@@ -104,17 +105,23 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_POST_WORD_ADDR
 
-#define CONFIG_SYS_MONITOR_LEN	(256 * 1024)	/* Reserve 256 kB for Mon */
-#define CONFIG_SYS_MALLOC_LEN	(128 * 1024)	/* Reserve 128 kB for malloc */
+#define CONFIG_SYS_MONITOR_LEN	(512 * 1024)	/* Reserve 512 KB for Mon */
+#define CONFIG_SYS_MALLOC_LEN	(1024 * 1024)	/* Reserved for malloc */
 
 /*
  * Serial Port
  */
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400}
-#define CONFIG_BAUDRATE			9600
+#define CONFIG_BAUDRATE			115200
 #define CONFIG_LOADS_ECHO		1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
+
+/*
+ * Use the HUSH parser
+ */
+#define CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 
 /*
  * NOR flash configuration
@@ -126,8 +133,6 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_QUIET_TEST		/* MirrorBit flashes are optional */
-
-#undef	CONFIG_SYS_FLASH_CHECKSUM
 #define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase (in ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms) */
 
@@ -137,7 +142,7 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_HARD_I2C			1	/* I2C with hardware support */
 #define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE		0x7f
-#define CONFIG_SYS_I2C_NOPROBES	{0x55,0x56,0x57,0x58,0x59,0x5a,0x5b,0x5c,0x69}
+#define CONFIG_I2C_MULTI_BUS
 
 /* I2C EEPROM */
 #define CONFIG_SYS_I2C_EEPROM_ADDR		0x50
@@ -214,16 +219,19 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
 #define CONFIG_SYS_LOAD_ADDR	0x100000	/* default load address */
 #define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size */
-#else
 #define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size */
-#endif
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size */
 #define CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks */
-#define CONFIG_SYS_EXTBDINFO		1	/* To use extended board_into (bd_t) */
+#define CONFIG_CMDLINE_EDITING	1		/* Command-line editing */
+#define CONFIG_BOOTDELAY	3		/* -1 disables auto-boot */
+#define CONFIG_PANIC_HANG			/* do not reset board on panic */
+#define CONFIG_PREBOOT				/* enable preboot variable */
+#define CONFIG_FIT		1
+#define CONFIG_FIT_VERBOSE	1
+#define CONFIG_INTEGRITY			/* support booting INTEGRITY OS */
+#define CONFIG_SYS_EXTBDINFO	1		/* To use extended board_into (bd_t) */
 
 /*
  * For booting Linux, the board info and command line data
@@ -237,14 +245,6 @@ extern void out32(unsigned int, unsigned long);
  */
 #define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
 #define BOOTFLAG_WARM	0x02		/* Software reboot */
-
-/*
- * KGDB configuration
- */
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
-#endif
 
 /*
  * Environment Configuration
