@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,7 +20,6 @@
 #include <asm/fsl_i2c.h>
 #include <asm/fsl_serdes.h>
 
-#if defined(CONFIG_PCI)
 static struct pci_region pci_regions[] = {
 	{
 		bus_start: CONFIG_SYS_PCI_MEM_BASE,
@@ -152,4 +151,3 @@ void ft_pcie_fixup(void *blob, bd_t *bd)
 	do_fixup_by_path(blob, "pci2", "status", status,
 			 strlen(status) + 1, 1);
 }
-#endif /* CONFIG_PCI */
