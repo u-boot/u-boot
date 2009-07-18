@@ -206,6 +206,8 @@
 #define CONFIG_SYS_NAND_SENDCMD_RETRY	3
 #undef NAND_ALLOW_ERASE_ALL	/* Allow erasing bad blocks - don't use */
 
+#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
+
 /* NAND Timing Parameters (in ns) */
 #define NAND_TIMING_tCH		10
 #define NAND_TIMING_tCS		0

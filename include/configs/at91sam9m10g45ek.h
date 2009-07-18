@@ -118,6 +118,7 @@
 /* NOR flash, if populated */
 #ifndef CONFIG_CMD_NAND
 #define CONFIG_SYS_NO_FLASH		1
+#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 #else
 #define CONFIG_SYS_FLASH_CFI		1
 #define CONFIG_FLASH_CFI_DRIVER		1
@@ -140,6 +141,8 @@
 #define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
 #define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PC14
 #define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PC8
+
+#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 #endif
 
 /* Ethernet */

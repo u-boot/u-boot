@@ -158,6 +158,8 @@
 #define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
+#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
+
 /* Environment information */
 #define CONFIG_BOOTDELAY		10
 

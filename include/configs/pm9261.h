@@ -236,6 +236,8 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PC14
 #define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PA16
 
+#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
+
 
 /* NOR flash */
 #define CONFIG_SYS_FLASH_CFI			1

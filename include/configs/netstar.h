@@ -110,6 +110,8 @@
 #define CONFIG_SYS_NAND_BASE		0x04000000 + (2 << 23)
 #define NAND_ALLOW_ERASE_ALL		1
 
+#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
+
 #define CONFIG_HARD_I2C
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		1
