@@ -29,12 +29,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define BOOT_SMALL_FLASH	32	/* 00100000 */
-#define FLASH_ONBD_N		2	/* 00000010 */
-#define FLASH_SRAM_SEL		1	/* 00000001 */
-
-long int fixed_sdram (void);
-
 int board_early_init_f(void)
 {
 	unsigned long sdrreg;
@@ -117,64 +111,8 @@ int checkboard (void)
 
 phys_size_t initdram (int board_type)
 {
-	long dram_size = 0;
-
-#if defined(CONFIG_SPD_EEPROM)
-	dram_size = spd_sdram ();
-#else
-	dram_size = fixed_sdram ();
-#endif
-	return dram_size;
+	return spd_sdram();
 }
-
-#if !defined(CONFIG_SPD_EEPROM)
-/*************************************************************************
- *  fixed sdram init -- doesn't use serial presence detect.
- *
- *  Assumes:	128 MB, non-ECC, non-registered
- *		PLB @ 133 MHz
- *
- ************************************************************************/
-long int fixed_sdram (void)
-{
-	uint reg;
-
-	/*--------------------------------------------------------------------
-	 * Setup some default
-	 *------------------------------------------------------------------*/
-	mtsdram (mem_uabba, 0x00000000);	/* ubba=0 (default)		*/
-	mtsdram (mem_slio, 0x00000000);		/* rdre=0 wrre=0 rarw=0		*/
-	mtsdram (mem_devopt, 0x00000000);	/* dll=0 ds=0 (normal)		*/
-	mtsdram (mem_wddctr, 0x00000000);	/* wrcp=0 dcd=0			*/
-	mtsdram (mem_clktr, 0x40000000);	/* clkp=1 (90 deg wr) dcdt=0	*/
-
-	/*--------------------------------------------------------------------
-	 * Setup for board-specific specific mem
-	 *------------------------------------------------------------------*/
-	/*
-	 * Following for CAS Latency = 2.5 @ 133 MHz PLB
-	 */
-	mtsdram (mem_b0cr, 0x000a4001); /* SDBA=0x000 128MB, Mode 3, enabled */
-	mtsdram (mem_tr0, 0x410a4012);	/* WR=2	 WD=1 CL=2.5 PA=3 CP=4 LD=2 */
-	/* RA=10 RD=3			    */
-	mtsdram (mem_tr1, 0x8080082f);	/* SS=T2 SL=STAGE 3 CD=1 CT=0x02f   */
-	mtsdram (mem_rtr, 0x08200000);	/* Rate 15.625 ns @ 133 MHz PLB	    */
-	mtsdram (mem_cfg1, 0x00000000); /* Self-refresh exit, disable PM    */
-	udelay (400);			/* Delay 200 usecs (min)	    */
-
-	/*--------------------------------------------------------------------
-	 * Enable the controller, then wait for DCEN to complete
-	 *------------------------------------------------------------------*/
-	mtsdram (mem_cfg0, 0x86000000); /* DCEN=1, PMUD=1, 64-bit	    */
-	for (;;) {
-		mfsdram (mem_mcsts, reg);
-		if (reg & 0x80000000)
-			break;
-	}
-
-	return (128 * 1024 * 1024);	/* 128 MB			    */
-}
-#endif	/* !defined(CONFIG_SPD_EEPROM) */
 
 
 /*************************************************************************
