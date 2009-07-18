@@ -698,7 +698,7 @@ o2dnt_config:	unconfig
 
 pcm030_config \
 pcm030_LOWBOOT_config:	unconfig
-	@ >include/config.h
+	@ >$(obj)include/config.h
 	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
 		{ echo "TEXT_BASE = 0xFF000000"	>$(obj)board/phytec/pcm030/config.tmp ; \
 		  echo "... with LOWBOOT configuration" ; \
