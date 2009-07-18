@@ -429,7 +429,7 @@ void check_env(void)
 }
 
 
-extern device_t *stdio_devices[];
+extern struct stdio_dev *stdio_devices[];
 extern char *stdio_names[];
 
 void show_stdio_dev(void)
