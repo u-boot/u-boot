@@ -107,17 +107,6 @@ ulong virt_to_phy_smdk6400(ulong addr)
 }
 #endif
 
-#if defined(CONFIG_CMD_NAND) && defined(CONFIG_SYS_NAND_LEGACY)
-#include <linux/mtd/nand.h>
-extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
-void nand_init(void)
-{
-	nand_probe(CONFIG_SYS_NAND_BASE);
-	if (nand_dev_desc[0].ChipID != NAND_ChipID_UNKNOWN)
-		print_size(nand_dev_desc[0].totlen, "\n");
-}
-#endif
-
 ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t *info)
 {
 	if (banknum == 0) {	/* non-CFI boot flash */

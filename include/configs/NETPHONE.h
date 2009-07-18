@@ -497,95 +497,9 @@
 #define DSP_BASE	0xF1000000
 #define NAND_BASE	0xF1010000
 
-/****************************************************************/
-
-/* NAND */
-#define CONFIG_NAND_LEGACY
-#define CONFIG_SYS_NAND_BASE		NAND_BASE
-#define CONFIG_MTD_NAND_ECC_JFFS2
-#define CONFIG_MTD_NAND_VERIFY_WRITE
-#define CONFIG_MTD_NAND_UNSAFE
-
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
-
-#define SECTORSIZE		512
-#define ADDR_COLUMN		1
-#define ADDR_PAGE		2
-#define ADDR_COLUMN_PAGE	3
-#define NAND_ChipID_UNKNOWN	0x00
-#define NAND_MAX_FLOORS		1
-
-/* ALE = PD17, CLE = PE18, CE = PE20, F_RY_BY = PE31 */
-#define NAND_DISABLE_CE(nand) \
-	do { \
-		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pedat) |=  (1 << (31 - 20)); \
-	} while(0)
-
-#define NAND_ENABLE_CE(nand) \
-	do { \
-		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pedat) &= ~(1 << (31 - 20)); \
-	} while(0)
-
-#define NAND_CTL_CLRALE(nandptr) \
-	do { \
-		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pedat) &= ~(1 << (31 - 17)); \
-	} while(0)
-
-#define NAND_CTL_SETALE(nandptr) \
-	do { \
-		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pedat) |=  (1 << (31 - 17)); \
-	} while(0)
-
-#define NAND_CTL_CLRCLE(nandptr) \
-	do { \
-		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pedat) &= ~(1 << (31 - 18)); \
-	} while(0)
-
-#define NAND_CTL_SETCLE(nandptr) \
-	do { \
-		(((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pedat) |=  (1 << (31 - 18)); \
-	} while(0)
-
-#if CONFIG_NETPHONE_VERSION == 1
-#define NAND_WAIT_READY(nand) \
-	do { \
-		int _tries = 0; \
-		while ((((volatile immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_pedat & (1 << (31 - 31))) == 0) \
-			if (++_tries > 100000) \
-				break; \
-	} while (0)
-#elif CONFIG_NETPHONE_VERSION == 2
-#define NAND_WAIT_READY(nand) \
-	do { \
-		int _tries = 0; \
-		while ((((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pcdat & (1 << (15 - 15))) == 0) \
-			if (++_tries > 100000) \
-				break; \
-	} while (0)
-#endif
-
-#define WRITE_NAND_COMMAND(d, adr) \
-	do { \
-		*(volatile unsigned char *)((unsigned long)(adr)) = (unsigned char)(d); \
-	} while(0)
-
-#define WRITE_NAND_ADDRESS(d, adr) \
-	do { \
-		*(volatile unsigned char *)((unsigned long)(adr)) = (unsigned char)(d); \
-	} while(0)
-
-#define WRITE_NAND(d, adr) \
-	do { \
-		*(volatile unsigned char *)((unsigned long)(adr)) = (unsigned char)(d); \
-	} while(0)
-
-#define READ_NAND(adr) \
-	((unsigned char)(*(volatile unsigned char *)(unsigned long)(adr)))
-
 /*****************************************************************************/
 
 #define CONFIG_SYS_DIRECT_FLASH_TFTP
-#define CONFIG_SYS_DIRECT_NAND_TFTP
 
 /*****************************************************************************/
 

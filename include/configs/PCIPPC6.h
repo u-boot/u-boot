@@ -75,7 +75,6 @@
 #define CONFIG_CMD_BSP
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_DOC
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_NFS
 #define CONFIG_CMD_PCI
@@ -85,8 +84,6 @@
 
 #define CONFIG_PCI		1
 #define CONFIG_PCI_PNP		1	/* PCI plug-and-play */
-
-#define CONFIG_NAND_LEGACY
 
 /*
  * Miscellaneous configurable options
@@ -251,15 +248,6 @@
  */
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM		0x02	/* Software reboot			*/
-
-/*-----------------------------------------------------------------------
- * Disk-On-Chip configuration
- */
-
-#define CONFIG_SYS_MAX_DOC_DEVICE	1	/* Max number of DOC devices		*/
-
-#define CONFIG_SYS_DOC_SUPPORT_2000
-#undef CONFIG_SYS_DOC_SUPPORT_MILLENNIUM
 
 /*-----------------------------------------------------------------------
   RTC m48t59

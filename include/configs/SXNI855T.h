@@ -163,74 +163,7 @@
 
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_JFFS2
-#define CONFIG_CMD_NAND
 #define CONFIG_CMD_DATE
-
-
-#define CONFIG_SYS_JFFS2_SORT_FRAGMENTS
-
-/*
- * JFFS2 partitions
- *
- */
-/* No command line, one static partition */
-#undef CONFIG_CMD_MTDPARTS
-
-/*
-#define CONFIG_JFFS2_DEV		"nor0"
-#define CONFIG_JFFS2_PART_SIZE		0x00780000
-#define CONFIG_JFFS2_PART_OFFSET	0x00080000
-*/
-
-#define CONFIG_JFFS2_DEV		"nand0"
-#define CONFIG_JFFS2_PART_SIZE		0x00200000
-#define CONFIG_JFFS2_PART_OFFSET	0x00000000
-
-/* mtdparts command line support */
-/* Note: fake mtd_id used, no linux mtd map file */
-/*
-#define CONFIG_CMD_MTDPARTS
-#define MTDIDS_DEFAULT		"nor0=sixnet-0,nand0=sixnet-nand"
-#define MTDPARTS_DEFAULT	"mtdparts=sixnet-0:7680k@512k();sixnet-nand:2m(jffs2-nand)"
-*/
-
-/* NAND flash support */
-#define CONFIG_NAND_LEGACY
-#define CONFIG_MTD_NAND_ECC_JFFS2
-#define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices	*/
-#define SECTORSIZE 512
-
-#define ADDR_COLUMN 1
-#define ADDR_PAGE 2
-#define ADDR_COLUMN_PAGE 3
-
-#define NAND_ChipID_UNKNOWN	0x00
-#define NAND_MAX_FLOORS 1
-
-/* DFBUSY is available on Port C, bit 12; 0 if busy */
-#define NAND_WAIT_READY(nand)	\
-	while (!(((volatile immap_t *)CONFIG_SYS_IMMR)->im_ioport.iop_pcdat & 0x0008));
-#define WRITE_NAND_COMMAND(d, adr) WRITE_NAND((d), (adr))
-#define WRITE_NAND_ADDRESS(d, adr) WRITE_NAND((d), (adr))
-#define WRITE_NAND(d, adr)	\
-	 do { (*(volatile uint8_t *)(adr) = (uint8_t)(d)); } while (0)
-#define READ_NAND(adr) (*(volatile uint8_t *)(adr))
-#define	CLE_LO	0x01	/* 0 selects CLE mode (CLE high) */
-#define	ALE_LO	0x02	/* 0 selects ALE mode (ALE high) */
-#define	CE_LO	0x04	/* 1 selects chip (CE low) */
-#define	nand_setcr(cr, val) do {*(volatile uint8_t*)(cr) = (val);} while (0)
-#define NAND_DISABLE_CE(nand) \
-	nand_setcr((nand)->IO_ADDR + 1, ALE_LO | CLE_LO)
-#define NAND_ENABLE_CE(nand) \
-	nand_setcr((nand)->IO_ADDR + 1, CE_LO | ALE_LO | CLE_LO)
-#define NAND_CTL_CLRALE(nandptr) \
-	nand_setcr((nandptr) + 1, CE_LO | ALE_LO | CLE_LO)
-#define NAND_CTL_SETALE(nandptr) \
-	nand_setcr((nandptr) + 1, CE_LO | CLE_LO)
-#define NAND_CTL_CLRCLE(nandptr) \
-	nand_setcr((nandptr) + 1, CE_LO | ALE_LO | CLE_LO)
-#define NAND_CTL_SETCLE(nandptr) \
-	nand_setcr((nandptr) + 1, CE_LO | ALE_LO)
 
 /*
  * Miscellaneous configurable options

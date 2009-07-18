@@ -33,11 +33,6 @@
 # include <status_led.h>
 #endif
 
-#if defined(CONFIG_CMD_NAND)
-#include <linux/mtd/nand_legacy.h>
-extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #define ORMASK(size) ((-size) & OR_AM_MSK)

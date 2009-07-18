@@ -147,11 +147,7 @@
 
 #define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_DOC
 #define CONFIG_CMD_DATE
-
-
-#define CONFIG_NAND_LEGACY
 
 /*
  * Miscellaneous configurable options

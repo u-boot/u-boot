@@ -244,10 +244,6 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_BEDBUG
 
-#if !defined(CONFIG_SC)
-    #define CONFIG_CMD_DOC
-#endif
-
 #ifdef CONFIG_POST
 #define CONFIG_CMD_DIAG
 #endif
@@ -278,9 +274,6 @@
 #define CONFIG_FPGA_XILINX
 #define CONFIG_FPGA_VIRTEX2
 #define CONFIG_SYS_FPGA_PROG_FEEDBACK
-
-
-#define CONFIG_NAND_LEGACY
 
 /*
  * Verbose help from command monitor.
@@ -736,16 +729,6 @@
  */
 #define	BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH	*/
 #define BOOTFLAG_WARM	0x02	/* Software reboot					*/
-
-/*
- * Disk On Chip (millenium) configuration
- */
-#if !defined(CONFIG_SC)
-#define CONFIG_SYS_MAX_DOC_DEVICE	1
-#undef	CONFIG_SYS_DOC_SUPPORT_2000
-#define CONFIG_SYS_DOC_SUPPORT_MILLENNIUM
-#undef	CONFIG_SYS_DOC_PASSIVE_PROBE
-#endif
 
 /*
  * FEC interrupt assignment

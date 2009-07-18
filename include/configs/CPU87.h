@@ -182,16 +182,12 @@
 
 #define CONFIG_CMD_BEDBUG
 #define CONFIG_CMD_DATE
-#define CONFIG_CMD_DOC
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 
 #ifdef CONFIG_PCI
     #define CONFIG_CMD_PCI
 #endif
-
-
-#define CONFIG_NAND_LEGACY
 
 /*
  * Miscellaneous configurable options

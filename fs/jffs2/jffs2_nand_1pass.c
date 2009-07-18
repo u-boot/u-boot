@@ -1,7 +1,5 @@
 #include <common.h>
 
-#if !defined(CONFIG_NAND_LEGACY)
-
 #include <malloc.h>
 #include <linux/stat.h>
 #include <linux/time.h>
@@ -1034,5 +1032,3 @@ jffs2_1pass_info(struct part_info * part)
 	}
 	return 1;
 }
-
-#endif

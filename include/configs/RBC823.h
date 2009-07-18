@@ -114,7 +114,6 @@
 #define CONFIG_CMD_CDP
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
-#define CONFIG_CMD_DOC
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_FAT
@@ -328,14 +327,6 @@
 #define CONFIG_SYS_ATA_ALT_OFFSET	0x0100
 
 #endif
-
-/************************************************************
- * Disk-On-Chip configuration
- ************************************************************/
-#define CONFIG_SYS_MAX_DOC_DEVICE	1	/* Max number of DOC devices		*/
-#define CONFIG_SYS_DOC_SHORT_TIMEOUT
-#define CONFIG_SYS_DOC_SUPPORT_2000
-#define CONFIG_SYS_DOC_SUPPORT_MILLENNIUM
 
 /*-----------------------------------------------------------------------
  *

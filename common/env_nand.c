@@ -57,10 +57,6 @@
 #define CONFIG_ENV_RANGE	CONFIG_ENV_SIZE
 #endif
 
-int nand_legacy_rw (struct nand_chip* nand, int cmd,
-	    size_t start, size_t len,
-	    size_t * retlen, u_char * buf);
-
 /* references to names in env_common.c */
 extern uchar default_environment[];
 extern int default_environment_size;

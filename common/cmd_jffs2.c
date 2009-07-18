@@ -96,12 +96,8 @@
 #include <cramfs/cramfs_fs.h>
 
 #if defined(CONFIG_CMD_NAND)
-#ifdef CONFIG_NAND_LEGACY
-#include <linux/mtd/nand_legacy.h>
-#else /* !CONFIG_NAND_LEGACY */
 #include <linux/mtd/nand.h>
 #include <nand.h>
-#endif /* !CONFIG_NAND_LEGACY */
 #endif
 
 #if defined(CONFIG_CMD_ONENAND)
@@ -187,12 +183,7 @@ static int mtd_device_validate(u8 type, u8 num, u32 *size)
 	} else if (type == MTD_DEV_TYPE_NAND) {
 #if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
 		if (num < CONFIG_SYS_MAX_NAND_DEVICE) {
-#ifndef CONFIG_NAND_LEGACY
 			*size = nand_info[num].size;
-#else
-			extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
-			*size = nand_dev_desc[num].totlen;
-#endif
 			return 0;
 		}
 
@@ -267,17 +258,11 @@ static int mtd_id_parse(const char *id, const char **ret_id, u8 *dev_type, u8 *d
 static inline u32 get_part_sector_size_nand(struct mtdids *id)
 {
 #if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
-#if defined(CONFIG_NAND_LEGACY)
-	extern struct nand_chip nand_dev_desc[CONFIG_SYS_MAX_NAND_DEVICE];
-
-	return nand_dev_desc[id->num].erasesize;
-#else
 	nand_info_t *nand;
 
 	nand = &nand_info[id->num];
 
 	return nand->erasesize;
-#endif
 #else
 	BUG();
 	return 0;

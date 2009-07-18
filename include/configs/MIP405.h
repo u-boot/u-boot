@@ -84,11 +84,8 @@
 
 #if !defined(CONFIG_MIP405T)
     #define CONFIG_CMD_USB
-    #define CONFIG_CMD_DOC
 #endif
 
-
-#define CONFIG_NAND_LEGACY
 
 #define	 CONFIG_SYS_HUSH_PARSER
 #define	 CONFIG_SYS_PROMPT_HUSH_PS2 "> "
@@ -383,13 +380,6 @@
 #define CONFIG_MAC_PARTITION
 #define CONFIG_ISO_PARTITION /* Experimental */
 
-/************************************************************
- * Disk-On-Chip configuration
- ************************************************************/
-#define CONFIG_SYS_MAX_DOC_DEVICE	1	/* Max number of DOC devices		*/
-#define CONFIG_SYS_DOC_SHORT_TIMEOUT
-#define CONFIG_SYS_DOC_SUPPORT_2000
-#define CONFIG_SYS_DOC_SUPPORT_MILLENNIUM
 /************************************************************
  * Keyboard support
  ************************************************************/

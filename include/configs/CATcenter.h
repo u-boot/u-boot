@@ -209,15 +209,7 @@
 
 /* For CATcenter there is only NAND on the module */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices		*/
-#define SECTORSIZE 512
 #define NAND_NO_RB
-
-#define ADDR_COLUMN 1
-#define ADDR_PAGE 2
-#define ADDR_COLUMN_PAGE 3
-
-#define NAND_ChipID_UNKNOWN	0x00
-#define NAND_MAX_FLOORS 1
 
 #define CONFIG_SYS_NAND0_CE  (0x80000000 >> 1)	 /* our CE is GPIO1 */
 #define CONFIG_SYS_NAND0_CLE (0x80000000 >> 2)	 /* our CLE is GPIO2 */

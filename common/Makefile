@@ -83,7 +83,6 @@ ifdef CONFIG_POST
 COBJS-$(CONFIG_CMD_DIAG) += cmd_diag.o
 endif
 COBJS-$(CONFIG_CMD_DISPLAY) += cmd_display.o
-COBJS-$(CONFIG_CMD_DOC) += cmd_doc.o
 COBJS-$(CONFIG_CMD_DTT) += cmd_dtt.o
 COBJS-$(CONFIG_ENV_IS_IN_EEPROM) += cmd_eeprom.o
 COBJS-$(CONFIG_CMD_EEPROM) += cmd_eeprom.o
@@ -150,7 +149,6 @@ COBJS-$(CONFIG_VFD) += cmd_vfd.o
 
 # others
 COBJS-$(CONFIG_DDR_SPD) += ddr_spd.o
-COBJS-$(CONFIG_CMD_DOC) += docecc.o
 COBJS-$(CONFIG_HWCONFIG) += hwconfig.o
 COBJS-$(CONFIG_CONSOLE_MUX) += iomux.o
 COBJS-y += flash.o

@@ -147,42 +147,6 @@
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_BOOTPATH
 
-
-/*
- *  Board NAND Info.
- */
-#define CONFIG_NAND_LEGACY
-#define CONFIG_SYS_NAND_ADDR 0x04000000  /* physical address to access nand at CS0*/
-
-#define CONFIG_SYS_MAX_NAND_DEVICE 1	/* Max number of NAND devices */
-#define SECTORSIZE          512
-
-#define ADDR_COLUMN         1
-#define ADDR_PAGE           2
-#define ADDR_COLUMN_PAGE    3
-
-#define NAND_ChipID_UNKNOWN 0x00
-#define NAND_MAX_FLOORS     1
-
-#define WRITE_NAND_COMMAND(d, adr) do {*(volatile u16 *)0x6800A07C = d;} while(0)
-#define WRITE_NAND_ADDRESS(d, adr) do {*(volatile u16 *)0x6800A080 = d;} while(0)
-#define WRITE_NAND(d, adr) do {*(volatile u16 *)0x6800A084 = d;} while(0)
-#define READ_NAND(adr) (*(volatile u16 *)0x6800A084)
-#define NAND_WAIT_READY(nand)  udelay(10)
-
-#define NAND_NO_RB          1
-
-#define CONFIG_SYS_NAND_WP
-#define NAND_WP_OFF()  do {*(volatile u32 *)(0x6800A050) |= 0x00000010;} while(0)
-#define NAND_WP_ON()  do {*(volatile u32 *)(0x6800A050) &= ~0x00000010;} while(0)
-
-#define NAND_CTL_CLRALE(nandptr)
-#define NAND_CTL_SETALE(nandptr)
-#define NAND_CTL_CLRCLE(nandptr)
-#define NAND_CTL_SETCLE(nandptr)
-#define NAND_DISABLE_CE(nand)
-#define NAND_ENABLE_CE(nand)
-
 #define CONFIG_BOOTDELAY         3
 
 #ifdef NFS_BOOT_DEFAULTS

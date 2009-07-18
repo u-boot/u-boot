@@ -146,11 +146,7 @@ static struct part_info *current_part;
 
 #if (defined(CONFIG_JFFS2_NAND) && \
      defined(CONFIG_CMD_NAND) )
-#if defined(CONFIG_NAND_LEGACY)
-#include <linux/mtd/nand_legacy.h>
-#else
 #include <nand.h>
-#endif
 /*
  * Support for jffs2 on top of NAND-flash
  *
@@ -160,12 +156,6 @@ static struct part_info *current_part;
  * here do.
  *
  */
-
-#if defined(CONFIG_NAND_LEGACY)
-/* this one defined in nand_legacy.c */
-int read_jffs2_nand(size_t start, size_t len,
-		size_t * retlen, u_char * buf, int nanddev);
-#endif
 
 #define NAND_PAGE_SIZE 512
 #define NAND_PAGE_SHIFT 9
@@ -201,15 +191,6 @@ static int read_nand_cached(u32 off, u32 size, u_char *buf)
 				}
 			}
 
-#if defined(CONFIG_NAND_LEGACY)
-			if (read_jffs2_nand(nand_cache_off, NAND_CACHE_SIZE,
-						&retlen, nand_cache, id->num) < 0 ||
-					retlen != NAND_CACHE_SIZE) {
-				printf("read_nand_cached: error reading nand off %#x size %d bytes\n",
-						nand_cache_off, NAND_CACHE_SIZE);
-				return -1;
-			}
-#else
 			retlen = NAND_CACHE_SIZE;
 			if (nand_read(&nand_info[id->num], nand_cache_off,
 						&retlen, nand_cache) != 0 ||
@@ -218,7 +199,6 @@ static int read_nand_cached(u32 off, u32 size, u_char *buf)
 						nand_cache_off, NAND_CACHE_SIZE);
 				return -1;
 			}
-#endif
 		}
 		cpy_bytes = nand_cache_off + NAND_CACHE_SIZE - (off + bytes_read);
 		if (cpy_bytes > size - bytes_read)

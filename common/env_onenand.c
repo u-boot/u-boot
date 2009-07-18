@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005-2007 Samsung Electronics
+ * (C) Copyright 2005-2009 Samsung Electronics
  * Kyungmin Park <kyungmin.park@samsung.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -37,15 +37,16 @@ extern struct onenand_chip onenand_chip;
 /* References to names in env_common.c */
 extern uchar default_environment[];
 
-#define ONENAND_ENV_SIZE(mtd)	(mtd.writesize - ENV_HEADER_SIZE)
-
 char *env_name_spec = "OneNAND";
+
+#define ONENAND_MAX_ENV_SIZE	4096
+#define ONENAND_ENV_SIZE(mtd)	(ONENAND_MAX_ENV_SIZE - ENV_HEADER_SIZE)
 
 #ifdef ENV_IS_EMBEDDED
 extern uchar environment[];
 env_t *env_ptr = (env_t *) (&environment[0]);
 #else /* ! ENV_IS_EMBEDDED */
-static unsigned char onenand_env[MAX_ONENAND_PAGESIZE];
+static unsigned char onenand_env[ONENAND_MAX_ENV_SIZE];
 env_t *env_ptr = (env_t *) onenand_env;
 #endif /* ENV_IS_EMBEDDED */
 
@@ -58,6 +59,7 @@ uchar env_get_char_spec(int index)
 
 void env_relocate_spec(void)
 {
+	struct mtd_info *mtd = &onenand_mtd;
 	loff_t env_addr;
 	int use_default = 0;
 	size_t retlen;
@@ -65,22 +67,21 @@ void env_relocate_spec(void)
 	env_addr = CONFIG_ENV_ADDR;
 
 	/* Check OneNAND exist */
-	if (onenand_mtd.writesize)
+	if (mtd->writesize)
 		/* Ignore read fail */
-		onenand_read(&onenand_mtd, env_addr, onenand_mtd.writesize,
+		mtd->read(mtd, env_addr, ONENAND_MAX_ENV_SIZE,
 			     &retlen, (u_char *) env_ptr);
 	else
-		onenand_mtd.writesize = MAX_ONENAND_PAGESIZE;
+		mtd->writesize = MAX_ONENAND_PAGESIZE;
 
-	if (crc32(0, env_ptr->data, ONENAND_ENV_SIZE(onenand_mtd)) !=
-	    env_ptr->crc)
+	if (crc32(0, env_ptr->data, ONENAND_ENV_SIZE(mtd)) != env_ptr->crc)
 		use_default = 1;
 
 	if (use_default) {
 		memcpy(env_ptr->data, default_environment,
-		       ONENAND_ENV_SIZE(onenand_mtd));
+		       ONENAND_ENV_SIZE(mtd));
 		env_ptr->crc =
-		    crc32(0, env_ptr->data, ONENAND_ENV_SIZE(onenand_mtd));
+		    crc32(0, env_ptr->data, ONENAND_ENV_SIZE(mtd));
 	}
 
 	gd->env_addr = (ulong) & env_ptr->data;
@@ -89,7 +90,8 @@ void env_relocate_spec(void)
 
 int saveenv(void)
 {
-	unsigned long env_addr = CONFIG_ENV_ADDR;
+	struct mtd_info *mtd = &onenand_mtd;
+	loff_t env_addr = CONFIG_ENV_ADDR;
 	struct erase_info instr = {
 		.callback	= NULL,
 	};
@@ -97,17 +99,16 @@ int saveenv(void)
 
 	instr.len = CONFIG_ENV_SIZE;
 	instr.addr = env_addr;
-	instr.mtd = &onenand_mtd;
-	if (onenand_erase(&onenand_mtd, &instr)) {
+	instr.mtd = mtd;
+	if (mtd->erase(mtd, &instr)) {
 		printf("OneNAND: erase failed at 0x%08lx\n", env_addr);
 		return 1;
 	}
 
 	/* update crc */
-	env_ptr->crc =
-	    crc32(0, env_ptr->data, ONENAND_ENV_SIZE(onenand_mtd));
+	env_ptr->crc = crc32(0, env_ptr->data, ONENAND_ENV_SIZE(mtd));
 
-	if (onenand_write(&onenand_mtd, env_addr, onenand_mtd.writesize, &retlen,
+	if (mtd->write(mtd, env_addr, ONENAND_MAX_ENV_SIZE, &retlen,
 	     (u_char *) env_ptr)) {
 		printf("OneNAND: write failed at 0x%llx\n", instr.addr);
 		return 2;
