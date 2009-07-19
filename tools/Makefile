@@ -36,18 +36,18 @@ TOOLSUBDIRS =
 # -multiply_defined suppress option to turn off this error.
 #
 
-HOST_CFLAGS = -Wall
+HOSTCFLAGS = -Wall
 HOST_LDFLAGS =
 
 ifeq ($(HOSTOS)-$(HOSTARCH),darwin-ppc)
-HOST_CFLAGS += -traditional-cpp
+HOSTCFLAGS += -traditional-cpp
 HOST_LDFLAGS += -multiply_defined suppress
 else
-HOST_CFLAGS += -pedantic
+HOSTCFLAGS += -pedantic
 endif
 
 ifeq ($(HOSTOS),cygwin)
-HOST_CFLAGS += -ansi
+HOSTCFLAGS += -ansi
 endif
 
 #
@@ -148,7 +148,7 @@ CPPFLAGS   = -idirafter $(SRCTREE)/include \
 		-I $(SRCTREE)/tools \
 		-DTEXT_BASE=$(TEXT_BASE) -DUSE_HOSTCC \
 		-D__KERNEL_STRICT_NAMES
-CFLAGS     = $(HOST_CFLAGS) $(CPPFLAGS) -O
+CFLAGS     = $(HOSTCFLAGS) $(CPPFLAGS) -O
 
 # No -pedantic switch to avoid libfdt compilation warnings
 FIT_CFLAGS = -Wall $(CPPFLAGS) -O
@@ -227,7 +227,7 @@ else
 	    $(MAKE) \
 		HOSTOS=$(HOSTOS) \
 		HOSTARCH=$(HOSTARCH) \
-		HOST_CFLAGS="$(HOST_CFLAGS)" \
+		HOSTCFLAGS="$(HOSTCFLAGS)" \
 		HOST_LDFLAGS="$(HOST_LDFLAGS)" \
 		-C $$dir || exit 1 ; \
 	done

@@ -31,7 +31,7 @@ endif
 
 INCS		:=
 CFLAGS		+= $(INCS)
-HOST_CFLAGS	+= $(INCS)
+HOSTCFLAGS	+= $(INCS)
 
 LIB	= $(obj)lib$(BOARD).a
 

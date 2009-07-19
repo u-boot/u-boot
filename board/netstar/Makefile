@@ -42,7 +42,7 @@ LOAD_ADDR = 0x10400000
 LDSCRIPT = $(TOPDIR)/board/$(BOARDDIR)/eeprom.lds
 lnk = $(if $(obj),$(obj),.)
 
-HOST_CFLAGS = -Wall -pedantic -I$(TOPDIR)/include
+HOSTCFLAGS = -Wall -pedantic -I$(TOPDIR)/include
 
 all:	$(obj).depend $(LIB) $(obj)eeprom.srec $(obj)eeprom.bin \
 		$(obj)crcek.srec $(obj)crcek.bin $(obj)crcit
@@ -70,13 +70,13 @@ $(obj)crcek.bin:	$(obj)crcek.srec
 	$(OBJCOPY) -I srec -O binary $< $@ 2>/dev/null
 
 $(obj)crcit:		$(obj)crcit.o $(obj)crc32.o
-	$(HOSTCC) $(HOST_CFLAGS) -o $@ $^
+	$(HOSTCC) $(HOSTCFLAGS) -o $@ $^
 
 $(obj)crcit.o:	crcit.c
-	$(HOSTCC) $(HOST_CFLAGS) -o $@ -c $<
+	$(HOSTCC) $(HOSTCFLAGS) -o $@ -c $<
 
 $(obj)crc32.o:	$(SRCTREE)/lib_generic/crc32.c
-	$(HOSTCC) $(HOST_CFLAGS) -DUSE_HOSTCC -o $@ -c $<
+	$(HOSTCC) $(HOSTCFLAGS) -DUSE_HOSTCC -o $@ -c $<
 
 clean:
 	rm -f $(SOBJS) $(OBJS) $(obj)eeprom $(obj)eeprom.srec \

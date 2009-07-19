@@ -30,7 +30,7 @@ endif
 
 INCS		:= -I../common -I../xilinx_enet -I../xilinx_iic
 CFLAGS		+= $(INCS)
-HOST_CFLAGS	+= $(INCS)
+HOSTCFLAGS	+= $(INCS)
 
 LIB	= $(obj)lib$(BOARD).a
 

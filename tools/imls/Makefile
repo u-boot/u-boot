@@ -19,7 +19,7 @@
 
 include $(TOPDIR)/config.mk
 
-HOST_CFLAGS = -Wall -pedantic
+HOSTCFLAGS = -Wall -pedantic
 
 # Generated executable files
 BIN_FILES-y += imls
@@ -57,7 +57,7 @@ CPPFLAGS   = -idirafter $(SRCTREE)/include \
 	        -I $(SRCTREE)/libfdt \
 		-I $(SRCTREE)/tools \
 		-DUSE_HOSTCC -D__KERNEL_STRICT_NAMES
-CFLAGS     = $(HOST_CFLAGS) $(CPPFLAGS) -O
+CFLAGS     = $(HOSTCFLAGS) $(CPPFLAGS) -O
 
 # No -pedantic switch to avoid libfdt compilation warnings
 FIT_CFLAGS = -Wall $(CPPFLAGS) -O

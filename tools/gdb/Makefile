@@ -38,7 +38,7 @@ BINS	:= $(addprefix $(obj),$(BINS))
 # Use native tools and options
 #
 CPPFLAGS   = -I$(BFD_ROOT_DIR)/include
-CFLAGS     = $(HOST_CFLAGS) -O $(CPPFLAGS)
+CFLAGS     = $(HOSTCFLAGS) -O $(CPPFLAGS)
 CC	   = $(HOSTCC)
 MAKEDEPEND = makedepend
 

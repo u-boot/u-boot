@@ -22,7 +22,7 @@ EXTRA_CFLAGS += -I. -I./include -I$(TOPDIR)/include \
 	-D__PPC__  -D__BIG_ENDIAN__
 
 CFLAGS += $(EXTRA_CFLAGS)
-HOST_CFLAGS += $(EXTRA_CFLAGS)
+HOSTCFLAGS += $(EXTRA_CFLAGS)
 
 all:	$(LIB)
 
