@@ -43,6 +43,18 @@ extern void *lcd_console_address;	/* Start of console buffer	*/
 
 extern short console_col;
 extern short console_row;
+extern struct vidinfo panel_info;
+
+extern void lcd_ctrl_init (void *lcdbase);
+extern void lcd_enable (void);
+
+/* setcolreg used in 8bpp/16bpp; initcolregs used in monochrome */
+extern void lcd_setcolreg (ushort regno,
+				ushort red, ushort green, ushort blue);
+extern void lcd_initcolregs (void);
+
+/* gunzip_bmp used if CONFIG_VIDEO_BMP_GZIP */
+extern struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp);
 
 #if defined CONFIG_MPC823
 /*

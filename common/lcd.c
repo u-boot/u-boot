@@ -79,25 +79,13 @@ static inline void lcd_putc_xy (ushort x, ushort y, uchar  c);
 static int lcd_init (void *lcdbase);
 
 static int lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[]);
-extern void lcd_ctrl_init (void *lcdbase);
-extern void lcd_enable (void);
 static void *lcd_logo (void);
-
-
-#if (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16)
-extern void lcd_setcolreg (ushort regno,
-				ushort red, ushort green, ushort blue);
-#endif
-#if LCD_BPP == LCD_MONOCHROME
-extern void lcd_initcolregs (void);
-#endif
 
 static int lcd_getbgcolor (void);
 static void lcd_setfgcolor (int color);
 static void lcd_setbgcolor (int color);
 
 char lcd_is_enabled = 0;
-extern vidinfo_t panel_info;
 
 #ifdef	NOT_USED_SO_FAR
 static void lcd_getcolreg (ushort regno,
@@ -813,10 +801,6 @@ int lcd_display_bitmap(ulong bmp_image, int x, int y)
 
 	return (0);
 }
-#endif
-
-#ifdef CONFIG_VIDEO_BMP_GZIP
-extern bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp);
 #endif
 
 static void *lcd_logo (void)
