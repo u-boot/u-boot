@@ -139,8 +139,8 @@ uchar		NetServerEther[6] =	/* Boot server enet address		*/
 			{ 0, 0, 0, 0, 0, 0 };
 IPaddr_t	NetOurIP;		/* Our IP addr (0 = unknown)		*/
 IPaddr_t	NetServerIP;		/* Server IP addr (0 = unknown)		*/
-volatile uchar *NetRxPkt;		/* Current receive packet		*/
-int		NetRxPktLen;		/* Current rx packet length		*/
+volatile uchar *NetRxPacket;		/* Current receive packet		*/
+int		NetRxPacketLen;		/* Current rx packet length		*/
 unsigned	NetIPID;		/* IP packet ID				*/
 uchar		NetBcastAddr[6] =	/* Ethernet bcast address		*/
 			{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
@@ -1122,8 +1122,8 @@ NetReceive(volatile uchar * inpkt, int len)
 	printf("packet received\n");
 #endif
 
-	NetRxPkt = inpkt;
-	NetRxPktLen = len;
+	NetRxPacket = inpkt;
+	NetRxPacketLen = len;
 	et = (Ethernet_t *)inpkt;
 
 	/* too small packet? */
