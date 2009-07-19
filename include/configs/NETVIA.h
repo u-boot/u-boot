@@ -107,7 +107,7 @@
 #define CONFIG_CMD_PING
 
 #if defined(CONFIG_NETVIA_VERSION) && CONFIG_NETVIA_VERSION >= 2
-#define CONFIG_CMD_NAND
+/* #define CONFIG_CMD_NAND */ /* disabled */
 #endif
 
 

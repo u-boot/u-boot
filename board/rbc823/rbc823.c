@@ -256,6 +256,7 @@ static long int dram_size (long int mamr_value, long int *base,
 	return (get_ram_size (base, maxsize));
 }
 
+#ifdef CONFIG_CMD_DOC
 void doc_init (void)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
@@ -267,3 +268,4 @@ void doc_init (void)
 
 	doc_probe (FLASH_BASE1_PRELIM);
 }
+#endif

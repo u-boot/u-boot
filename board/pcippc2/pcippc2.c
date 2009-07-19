@@ -147,10 +147,12 @@ void pci_init_board (void)
 	cpc710_pci_enable_timeout ();
 }
 
+#ifdef CONFIG_CMD_DOC
 void doc_init (void)
 {
 	doc_probe (pcippc2_fpga1_phys + HW_FPGA1_DOC);
 }
+#endif
 
 void pcippc2_cpci3264_init (void)
 {
