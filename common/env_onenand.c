@@ -101,7 +101,7 @@ int saveenv(void)
 	instr.addr = env_addr;
 	instr.mtd = mtd;
 	if (mtd->erase(mtd, &instr)) {
-		printf("OneNAND: erase failed at 0x%08lx\n", env_addr);
+		printf("OneNAND: erase failed at 0x%08llx\n", env_addr);
 		return 1;
 	}
 
