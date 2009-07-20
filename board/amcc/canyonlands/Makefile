@@ -25,10 +25,11 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= $(BOARD).o
-COBJS	+= bootstrap.o
+COBJS-y	:= $(BOARD).o
+COBJS-$(CONFIG_CMD_CHIP_CONFIG) += chip_config.o
 SOBJS	:= init.o
 
+COBJS   := $(COBJS-y)
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
