@@ -17,8 +17,14 @@ EXTRA    :=
 CEXTRA   := initcode.o
 SEXTRA   := start.o
 SOBJS    := interrupt.o cache.o
-COBJS-y  := cpu.o traps.o interrupts.o reset.o serial.o watchdog.o
+COBJS-y  += cpu.o
+COBJS-y  += interrupts.o
 COBJS-$(CONFIG_JTAG_CONSOLE) += jtag-console.o
+COBJS-y  += os_log.o
+COBJS-y  += reset.o
+COBJS-y  += serial.o
+COBJS-y  += traps.o
+COBJS-y  += watchdog.o
 
 ifeq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
 COBJS-y  += initcode.o

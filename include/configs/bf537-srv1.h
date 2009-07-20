@@ -87,9 +87,8 @@
 
 #define CONFIG_SYS_AUTOLOAD	"no"
 #define CONFIG_ROOTPATH		/romfs
-/* Use a fixed MAC address for booting up. Firstboot linux
- * must fetch a valid MAC from the production server. */
-#define CONFIG_ETHADDR	02:80:ad:20:31:42
+/* Uncomment next line to use fixed MAC address */
+/* #define CONFIG_ETHADDR	02:80:ad:20:31:42 */
 
 
 /*
