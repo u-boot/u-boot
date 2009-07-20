@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Freescale Semiconductor, Inc.
+ * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -13,65 +13,79 @@
 /*
  * PCI Configuration space access support for MPC83xx PCI Bridge
  */
+
 #include <asm/mmu.h>
 #include <asm/io.h>
 #include <common.h>
+#include <mpc83xx.h>
 #include <pci.h>
 #include <i2c.h>
-#if defined(CONFIG_OF_LIBFDT)
-#include <libfdt.h>
-#include <fdt_support.h>
-#endif
-
 #include <asm/fsl_i2c.h>
+#include "../common/pq-mds-pib.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_PCI)
-#define PCI_FUNCTION_CONFIG   0x44
-#define PCI_FUNCTION_CFG_LOCK 0x20
-
-/*
- * Initialize PCI Devices, report devices found
- */
-#ifndef CONFIG_PCI_PNP
-static struct pci_config_table pci_mpc83xxemds_config_table[] = {
+static struct pci_region pci1_regions[] = {
 	{
-	 PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
-	 pci_cfgfunc_config_device,
-	 {PCI_ENET0_IOADDR,
-	  PCI_ENET0_MEMADDR,
-	  PCI_COMMON_MEMORY | PCI_COMMAND_MASTER}
-	 },
-	{}
-}
-#endif
-static struct pci_controller hose[] = {
+		bus_start: CONFIG_SYS_PCI1_MEM_BASE,
+		phys_start: CONFIG_SYS_PCI1_MEM_PHYS,
+		size: CONFIG_SYS_PCI1_MEM_SIZE,
+		flags: PCI_REGION_MEM | PCI_REGION_PREFETCH
+	},
 	{
-#ifndef CONFIG_PCI_PNP
-	      config_table:pci_mpc83xxemds_config_table,
-#endif
-	 },
+		bus_start: CONFIG_SYS_PCI1_IO_BASE,
+		phys_start: CONFIG_SYS_PCI1_IO_PHYS,
+		size: CONFIG_SYS_PCI1_IO_SIZE,
+		flags: PCI_REGION_IO
+	},
+	{
+		bus_start: CONFIG_SYS_PCI1_MMIO_BASE,
+		phys_start: CONFIG_SYS_PCI1_MMIO_PHYS,
+		size: CONFIG_SYS_PCI1_MMIO_SIZE,
+		flags: PCI_REGION_MEM
+	},
 };
 
-/**********************************************************************
- * pci_init_board()
- *********************************************************************/
+#ifdef CONFIG_MPC83XX_PCI2
+static struct pci_region pci2_regions[] = {
+	{
+		bus_start: CONFIG_SYS_PCI2_MEM_BASE,
+		phys_start: CONFIG_SYS_PCI2_MEM_PHYS,
+		size: CONFIG_SYS_PCI2_MEM_SIZE,
+		flags: PCI_REGION_MEM | PCI_REGION_PREFETCH
+	},
+	{
+		bus_start: CONFIG_SYS_PCI2_IO_BASE,
+		phys_start: CONFIG_SYS_PCI2_IO_PHYS,
+		size: CONFIG_SYS_PCI2_IO_SIZE,
+		flags: PCI_REGION_IO
+	},
+	{
+		bus_start: CONFIG_SYS_PCI2_MMIO_BASE,
+		phys_start: CONFIG_SYS_PCI2_MMIO_PHYS,
+		size: CONFIG_SYS_PCI2_MMIO_SIZE,
+		flags: PCI_REGION_MEM
+	},
+};
+#endif
+
 void pci_init_board(void)
 #ifdef CONFIG_PCISLAVE
 {
-	u16 reg16;
-	volatile immap_t *immr;
-	volatile law83xx_t *pci_law;
-	volatile pot83xx_t *pci_pot;
-	volatile pcictrl83xx_t *pci_ctrl;
-	volatile pciconf83xx_t *pci_conf;
+	volatile immap_t *immr = (volatile immap_t *)CONFIG_SYS_IMMR;
+	volatile law83xx_t *pci_law = immr->sysconf.pcilaw;
+	volatile pcictrl83xx_t *pci_ctrl = &immr->pci_ctrl[0];
+	struct pci_region *reg[] = { pci1_regions };
 
-	immr = (immap_t *) CONFIG_SYS_IMMR;
-	pci_law = immr->sysconf.pcilaw;
-	pci_pot = immr->ios.pot;
-	pci_ctrl = immr->pci_ctrl;
-	pci_conf = immr->pci_conf;
+	/* Configure PCI Local Access Windows */
+	pci_law[0].bar = CONFIG_SYS_PCI1_MEM_PHYS & LAWBAR_BAR;
+	pci_law[0].ar = LAWAR_EN | LAWAR_SIZE_512M;
+
+	pci_law[1].bar = CONFIG_SYS_PCI1_IO_PHYS & LAWBAR_BAR;
+	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_1M;
+
+	mpc83xx_pci_init(1, reg, 0);
+
 	/*
 	 * Configure PCI Inbound Translation Windows
 	 */
@@ -90,61 +104,24 @@ void pci_init_board(void)
 	pci_ctrl[0].piebar2 = 0x0;
 	pci_ctrl[0].piwar2 &= ~PIWAR_EN;
 
-	hose[0].first_busno = 0;
-	hose[0].last_busno = 0xff;
-	pci_setup_indirect(&hose[0],
-			   (CONFIG_SYS_IMMR + 0x8300), (CONFIG_SYS_IMMR + 0x8304));
-	reg16 = 0xff;
-
-	pci_hose_read_config_word(&hose[0], PCI_BDF(0, 0, 0),
-				  PCI_COMMAND, &reg16);
-	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MEMORY;
-	pci_hose_write_config_word(&hose[0], PCI_BDF(0, 0, 0),
-				   PCI_COMMAND, reg16);
-
-	/*
-	 * Clear non-reserved bits in status register.
-	 */
-	pci_hose_write_config_word(&hose[0], PCI_BDF(0, 0, 0),
-				   PCI_STATUS, 0xffff);
-	pci_hose_write_config_byte(&hose[0], PCI_BDF(0, 0, 0),
-				   PCI_LATENCY_TIMER, 0x80);
-
-	/*
-	 * Unlock configuration lock in PCI function configuration register.
-	 */
-	pci_hose_read_config_word(&hose[0], PCI_BDF(0, 0, 0),
-				  PCI_FUNCTION_CONFIG, &reg16);
-	reg16 &= ~(PCI_FUNCTION_CFG_LOCK);
-	pci_hose_write_config_word(&hose[0], PCI_BDF(0, 0, 0),
-				   PCI_FUNCTION_CONFIG, reg16);
-
-	printf("Enabled PCI 32bit Agent Mode\n");
+	/* Unlock the configuration bit */
+	mpc83xx_pcislave_unlock(0);
+	printf("PCI:   Agent mode enabled\n");
 }
 #else
 {
-	volatile immap_t *immr;
-	volatile clk83xx_t *clk;
-	volatile law83xx_t *pci_law;
-	volatile pot83xx_t *pci_pot;
-	volatile pcictrl83xx_t *pci_ctrl;
-	volatile pciconf83xx_t *pci_conf;
+	volatile immap_t *immr = (volatile immap_t *)CONFIG_SYS_IMMR;
+	volatile clk83xx_t *clk = (volatile clk83xx_t *)&immr->clk;
+	volatile law83xx_t *pci_law = immr->sysconf.pcilaw;
+#ifndef CONFIG_MPC83XX_PCI2
+	struct pci_region *reg[] = { pci1_regions };
+#else
+	struct pci_region *reg[] = { pci1_regions, pci2_regions };
+#endif
 
-	u16 reg16;
-	u32 val32;
-	u32 dev;
+	/* initialize the PCA9555PW IO expander on the PIB board */
+	pib_init();
 
-	immr = (immap_t *) CONFIG_SYS_IMMR;
-	clk = (clk83xx_t *) & immr->clk;
-	pci_law = immr->sysconf.pcilaw;
-	pci_pot = immr->ios.pot;
-	pci_ctrl = immr->pci_ctrl;
-	pci_conf = immr->pci_conf;
-	/*
-	 * Configure PCI controller and PCI_CLK_OUTPUT both in 66M mode
-	 */
-	val32 = clk->occr;
-	udelay(2000);
 #if defined(PCI_66M)
 	clk->occr = OCCR_PCICOE0 | OCCR_PCICOE1 | OCCR_PCICOE2;
 	printf("PCI clock is 66MHz\n");
@@ -158,129 +135,19 @@ void pci_init_board(void)
 #endif
 	udelay(2000);
 
-	/*
-	 * Configure PCI Local Access Windows
-	 */
-	pci_law[0].bar = CONFIG_SYS_PCI_MEM_PHYS & LAWBAR_BAR;
+	/* Configure PCI Local Access Windows */
+	pci_law[0].bar = CONFIG_SYS_PCI1_MEM_PHYS & LAWBAR_BAR;
 	pci_law[0].ar = LAWAR_EN | LAWAR_SIZE_512M;
 
-	pci_law[1].bar = CONFIG_SYS_PCI_IO_PHYS & LAWBAR_BAR;
+	pci_law[1].bar = CONFIG_SYS_PCI1_IO_PHYS & LAWBAR_BAR;
 	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_1M;
 
-	/*
-	 * Configure PCI Outbound Translation Windows
-	 */
-
-	/* PCI mem space - prefetch */
-	pci_pot[0].potar = (CONFIG_SYS_PCI_MEM_BASE >> 12) & POTAR_TA_MASK;
-	pci_pot[0].pobar = (CONFIG_SYS_PCI_MEM_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[0].pocmr =
-	    POCMR_EN | POCMR_SE | (POCMR_CM_256M & POCMR_CM_MASK);
-
-	/* PCI mmio - non-prefetch mem space */
-	pci_pot[1].potar = (CONFIG_SYS_PCI_MMIO_BASE >> 12) & POTAR_TA_MASK;
-	pci_pot[1].pobar = (CONFIG_SYS_PCI_MMIO_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[1].pocmr = POCMR_EN | (POCMR_CM_256M & POCMR_CM_MASK);
-
-	/* PCI IO space */
-	pci_pot[2].potar = (CONFIG_SYS_PCI_IO_BASE >> 12) & POTAR_TA_MASK;
-	pci_pot[2].pobar = (CONFIG_SYS_PCI_IO_PHYS >> 12) & POBAR_BA_MASK;
-	pci_pot[2].pocmr = POCMR_EN | POCMR_IO | (POCMR_CM_1M & POCMR_CM_MASK);
-
-	/*
-	 * Configure PCI Inbound Translation Windows
-	 */
-	pci_ctrl[0].pitar1 = (CONFIG_SYS_PCI_SLV_MEM_LOCAL >> 12) & PITAR_TA_MASK;
-	pci_ctrl[0].pibar1 = (CONFIG_SYS_PCI_SLV_MEM_BUS >> 12) & PIBAR_MASK;
-	pci_ctrl[0].piebar1 = 0x0;
-	pci_ctrl[0].piwar1 =
-	    PIWAR_EN | PIWAR_PF | PIWAR_RTT_SNOOP | PIWAR_WTT_SNOOP |
-	    PIWAR_IWS_2G;
-
-	/*
-	 * Release PCI RST Output signal
-	 */
-	udelay(2000);
-	pci_ctrl[0].gcr = 1;
 	udelay(2000);
 
-	hose[0].first_busno = 0;
-	hose[0].last_busno = 0xff;
-
-	/* PCI memory prefetch space */
-	pci_set_region(hose[0].regions + 0,
-		       CONFIG_SYS_PCI_MEM_BASE,
-		       CONFIG_SYS_PCI_MEM_PHYS,
-		       CONFIG_SYS_PCI_MEM_SIZE, PCI_REGION_MEM | PCI_REGION_PREFETCH);
-
-	/* PCI memory space */
-	pci_set_region(hose[0].regions + 1,
-		       CONFIG_SYS_PCI_MMIO_BASE,
-		       CONFIG_SYS_PCI_MMIO_PHYS, CONFIG_SYS_PCI_MMIO_SIZE, PCI_REGION_MEM);
-
-	/* PCI IO space */
-	pci_set_region(hose[0].regions + 2,
-		       CONFIG_SYS_PCI_IO_BASE,
-		       CONFIG_SYS_PCI_IO_PHYS, CONFIG_SYS_PCI_IO_SIZE, PCI_REGION_IO);
-
-	/* System memory space */
-	pci_set_region(hose[0].regions + 3,
-		       CONFIG_SYS_PCI_SLV_MEM_LOCAL,
-		       CONFIG_SYS_PCI_SLV_MEM_BUS,
-		       CONFIG_SYS_PCI_SLV_MEM_SIZE,
-		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-
-	hose[0].region_count = 4;
-
-	pci_setup_indirect(&hose[0],
-			   (CONFIG_SYS_IMMR + 0x8300), (CONFIG_SYS_IMMR + 0x8304));
-
-	pci_register_hose(hose);
-
-	/*
-	 * Write command register
-	 */
-	reg16 = 0xff;
-	dev = PCI_BDF(0, 0, 0);
-	pci_hose_read_config_word(&hose[0], dev, PCI_COMMAND, &reg16);
-	reg16 |= PCI_COMMAND_SERR | PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY;
-	pci_hose_write_config_word(&hose[0], dev, PCI_COMMAND, reg16);
-
-	/*
-	 * Clear non-reserved bits in status register.
-	 */
-	pci_hose_write_config_word(&hose[0], dev, PCI_STATUS, 0xffff);
-	pci_hose_write_config_byte(&hose[0], dev, PCI_LATENCY_TIMER, 0x80);
-	pci_hose_write_config_byte(&hose[0], dev, PCI_CACHE_LINE_SIZE, 0x08);
-
-	/*
-	 * Hose scan.
-	 */
-	hose->last_busno = pci_hose_scan(hose);
+#ifndef CONFIG_MPC83XX_PCI2
+	mpc83xx_pci_init(1, reg, 0);
+#else
+	mpc83xx_pci_init(2, reg, 0);
+#endif
 }
 #endif				/* CONFIG_PCISLAVE */
-
-#if defined(CONFIG_OF_LIBFDT)
-void ft_pci_setup(void *blob, bd_t *bd)
-{
-	int nodeoffset;
-	int tmp[2];
-	const char *path;
-
-	nodeoffset = fdt_path_offset(blob, "/aliases");
-	if (nodeoffset >= 0) {
-		path = fdt_getprop(blob, nodeoffset, "pci0", NULL);
-		if (path) {
-			tmp[0] = cpu_to_be32(hose[0].first_busno);
-			tmp[1] = cpu_to_be32(hose[0].last_busno);
-			do_fixup_by_path(blob, path, "bus-range",
-				&tmp, sizeof(tmp), 1);
-
-			tmp[0] = cpu_to_be32(gd->pci_clk);
-			do_fixup_by_path(blob, path, "clock-frequency",
-				&tmp, sizeof(tmp[0]), 1);
-		}
-	}
-}
-#endif				/* CONFIG_OF_LIBFDT */
-#endif				/* CONFIG_PCI */

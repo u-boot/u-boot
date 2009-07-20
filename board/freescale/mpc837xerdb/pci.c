@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -15,7 +15,6 @@
 #include <pci.h>
 #include <asm/io.h>
 
-#if defined(CONFIG_PCI)
 static struct pci_region pci_regions[] = {
 	{
 		bus_start: CONFIG_SYS_PCI_MEM_BASE,
@@ -113,4 +112,3 @@ void pci_init_board(void)
 
 	mpc83xx_pcie_init(2, pcie_reg, 0);
 }
-#endif	/* CONFIG_PCI */

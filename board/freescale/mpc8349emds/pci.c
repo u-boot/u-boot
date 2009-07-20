@@ -1,4 +1,6 @@
 /*
+ * Copyright (C) 2006-2009 Freescale Semiconductor, Inc.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -28,8 +30,6 @@
 #include <asm/fsl_i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-#ifdef CONFIG_PCI
 
 static struct pci_region pci1_regions[] = {
 	{
@@ -207,5 +207,3 @@ void pci_init_board(void)
 	printf("PCI:   Agent mode enabled\n");
 }
 #endif /* CONFIG_PCISLAVE */
-
-#endif /* CONFIG_PCI */

@@ -329,6 +329,7 @@
 
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
+#define CONFIG_83XX_GENERIC_PCI
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
