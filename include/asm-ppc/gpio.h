@@ -24,6 +24,8 @@
 #ifndef __ASM_PPC_GPIO_H
 #define __ASM_PPC_GPIO_H
 
+#include <asm/types.h>
+
 /* 4xx PPC's have 2 GPIO controllers */
 #if defined(CONFIG_405EZ) ||					\
 	defined(CONFIG_440EP) || defined(CONFIG_440GR) ||	\
@@ -33,6 +35,28 @@
 #else
 #define GPIO_GROUP_MAX	1
 #endif
+
+/* GPIO controller */
+struct ppc4xx_gpio {
+	u32 or;		/* Output Control */
+	u32 tcr;	/* Tri-State Control */
+	u32 osl;	/* Output Select 16..31 */
+	u32 osh;	/* Output Select 0..15 */
+	u32 tsl;	/* Tri-State Select 16..31 */
+	u32 tsh;	/* Tri-State Select 0..15 */
+	u32 odr;	/* Open Drain */
+	u32 ir;		/* Input */
+	u32 rr1;	/* Receive Register 1 */
+	u32 rr2;	/* Receive Register 2 */
+	u32 rr3;	/* Receive Register 3 */
+	u32 reserved;
+	u32 is1l;	/* Input Select 1 16..31 */
+	u32 is1h;	/* Input Select 1 0..15 */
+	u32 is2l;	/* Input Select 2 16..31 */
+	u32 is2h;	/* Input Select 2 0..15 */
+	u32 is3l;	/* Input Select 3 16..31 */
+	u32 is3h;	/* Input Select 3 0..15 */
+};
 
 /* Offsets */
 #define GPIOx_OR	0x00		/* GPIO Output Register */
