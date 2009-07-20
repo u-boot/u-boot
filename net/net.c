@@ -92,6 +92,9 @@
 #if defined(CONFIG_CDP_VERSION)
 #include <timestamp.h>
 #endif
+#if defined(CONFIG_CMD_DNS)
+#include "dns.h"
+#endif
 
 #if defined(CONFIG_CMD_NET)
 
@@ -291,6 +294,9 @@ NetInitLoop(proto_t protocol)
 		NetServerIP = getenv_IPaddr ("serverip");
 		NetOurNativeVLAN = getenv_VLAN("nvlan");
 		NetOurVLAN = getenv_VLAN("vlan");
+#if defined(CONFIG_CMD_DNS)
+		NetOurDNSIP = getenv_IPaddr("dnsip");
+#endif
 		env_changed_id = env_id;
 	}
 
@@ -424,6 +430,11 @@ restart:
 #if defined(CONFIG_CMD_SNTP)
 		case SNTP:
 			SntpStart();
+			break;
+#endif
+#if defined(CONFIG_CMD_DNS)
+		case DNS:
+			DnsStart();
 			break;
 #endif
 		default:
@@ -1518,6 +1529,14 @@ static int net_check_prereq (proto_t protocol)
 		}
 		goto common;
 #endif
+#if defined(CONFIG_CMD_DNS)
+	case DNS:
+		if (NetOurDNSIP == 0) {
+			puts("*** ERROR: DNS server address not given\n");
+			return 1;
+		}
+		goto common;
+#endif
 #if defined(CONFIG_CMD_NFS)
 	case NFS:
 #endif
@@ -1679,6 +1698,16 @@ void copy_filename (char *dst, char *src, int size)
 	*dst = '\0';
 }
 
+#endif
+
+#if defined(CONFIG_CMD_NFS) || defined(CONFIG_CMD_SNTP) || defined(CONFIG_CMD_DNS)
+/*
+ * make port a little random, but use something trivial to compute
+ */
+unsigned int random_port(void)
+{
+	return 1024 + (get_timer(0) % 0x8000);;
+}
 #endif
 
 void ip_to_string (IPaddr_t x, char *s)

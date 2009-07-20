@@ -27,13 +27,14 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)libnet.a
 
-COBJS-y += net.o
-COBJS-y += tftp.o
 COBJS-y += bootp.o
-COBJS-y += rarp.o
+COBJS-$(CONFIG_CMD_DNS)  += dns.o
 COBJS-y += eth.o
+COBJS-y += net.o
 COBJS-y += nfs.o
+COBJS-y += rarp.o
 COBJS-$(CONFIG_CMD_SNTP) += sntp.o
+COBJS-y += tftp.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
