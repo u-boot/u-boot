@@ -17,13 +17,11 @@ fi
 
 BASENAME=`basename $1 .tar.bz2`
 TMPDIR=/tmp/tmp_lib_$BASENAME
-FILES="C/Compress/Lzma/LzmaDecode.h
-      C/Compress/Lzma/LzmaTypes.h
-      C/Compress/Lzma/LzmaDecode.c
+FILES="C/LzmaDec.h
+      C/Types.h
+      C/LzmaDec.c
       history.txt
-      LGPL.txt
       lzma.txt"
-
 
 mkdir -p $TMPDIR
 echo "Untar $1 -> $TMPDIR"

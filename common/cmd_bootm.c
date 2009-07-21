@@ -52,9 +52,8 @@
 #endif
 
 #ifdef CONFIG_LZMA
-#define _7ZIP_BYTE_DEFINED /* Byte already defined by zlib */
 #include <lzma/LzmaTypes.h>
-#include <lzma/LzmaDecode.h>
+#include <lzma/LzmaDec.h>
 #include <lzma/LzmaTools.h>
 #endif /* CONFIG_LZMA */
 
@@ -390,7 +389,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		int ret = lzmaBuffToBuffDecompress(
 			(unsigned char *)load, &unc_len,
 			(unsigned char *)image_start, image_len);
-		if (ret != LZMA_RESULT_OK) {
+		if (ret != SZ_OK) {
 			printf ("LZMA: uncompress or overwrite error %d "
 				"- must RESET board to recover\n", ret);
 			show_boot_progress (-6);

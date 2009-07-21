@@ -1,7 +1,7 @@
 /*
  * Fake include for LzmaTools.h
  *
- * Copyright (C) 2007-2008 Industrie Dial Face S.p.A.
+ * Copyright (C) 2007-2009 Industrie Dial Face S.p.A.
  * Luigi 'Comio' Mantellini (luigi.mantellini@idf-hit.com)
  *
  * See file CREDITS for list of people who contributed to this

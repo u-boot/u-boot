@@ -1,7 +1,7 @@
 /*
- * Fake include for LzmaDecode.h
+ * Fake include for LzmaDec.h
  *
- * Copyright (C) 2007-2008 Industrie Dial Face S.p.A.
+ * Copyright (C) 2007-2009 Industrie Dial Face S.p.A.
  * Luigi 'Comio' Mantellini (luigi.mantellini@idf-hit.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -23,9 +23,9 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __LZMADECODE_H__FAKE__
-#define __LZMADECODE_H__FAKE__
+#ifndef __LZMADEC_H__FAKE__
+#define __LZMADEC_H__FAKE__
 
-#include "../../lib_generic/lzma/LzmaDecode.h"
+#include "../../lib_generic/lzma/LzmaDec.h"
 
 #endif

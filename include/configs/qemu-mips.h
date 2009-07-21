@@ -163,6 +163,8 @@
 
 #undef CONFIG_MEMSIZE_IN_BYTES
 
+#define CONFIG_LZMA
+
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */

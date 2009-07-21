@@ -30,7 +30,9 @@ LIB	= $(obj)liblzma.a
 
 SOBJS	=
 
-COBJS-$(CONFIG_LZMA) += LzmaDecode.o LzmaTools.o
+CFLAGS += -D_LZMA_PROB32 -I$(TOPDIR)/include/linux
+
+COBJS-$(CONFIG_LZMA) += LzmaDec.o LzmaTools.o
 
 COBJS	= $(COBJS-y)
 SRCS 	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
