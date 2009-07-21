@@ -82,6 +82,8 @@
 #define CONFIG_DISABLE_CONSOLE		1	/* disable console */
 #define CONFIG_SYS_DEVICE_NULLDEV		1	/* include nulldev device */
 
+#define CONFIG_LCD			1
+
 /*
  * Only interrupt autoboot if <space> is pressed. Otherwise, garbage
  * data on the serial line may interrupt the boot sequence.
@@ -126,6 +128,20 @@
 #define CONFIG_SYS_HSDRAMC			1
 #define CONFIG_MMC			1
 #define CONFIG_ATMEL_MCI		1
+
+#if defined(CONFIG_LCD)
+#define CONFIG_CMD_BMP
+#define CONFIG_ATMEL_LCD		1
+#define LCD_BPP				LCD_COLOR16
+#define CONFIG_BMP_16BPP		1
+#define CONFIG_FB_ADDR			0x10600000
+#define CONFIG_WHITE_ON_BLACK		1
+#define CONFIG_VIDEO_BMP_GZIP 		1
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE		262144
+#define CONFIG_ATMEL_LCD_BGR555		1
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
+#define CONFIG_SPLASH_SCREEN		1
+#endif
 
 #define CONFIG_SYS_DCACHE_LINESZ		32
 #define CONFIG_SYS_ICACHE_LINESZ		32
