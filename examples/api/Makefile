@@ -33,13 +33,13 @@ include $(TOPDIR)/config.mk
 OUTPUT-$(CONFIG_API) = $(obj)demo
 OUTPUT = $(OUTPUT-y)
 
-# Source files located in the api_examples directory
+# Source files located in the examples/api directory
 SOBJ_FILES-$(CONFIG_API) += crt0.o
 COBJ_FILES-$(CONFIG_API) += demo.o
 COBJ_FILES-$(CONFIG_API) += glue.o
 COBJ_FILES-$(CONFIG_API) += libgenwrap.o
 
-# Source files which exist outside the api_examples directory
+# Source files which exist outside the examples/api directory
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/crc32.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/ctype.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/string.o
@@ -51,8 +51,8 @@ endif
 # Create a list of source files so their dependencies can be auto-generated
 SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_COBJ_FILES-y:.o=.c))
 SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_SOBJ_FILES-y:.o=.S))
-SRCS	+= $(addprefix $(SRCTREE)/api_examples/,$(COBJ_FILES-y:.o=.c))
-SRCS	+= $(addprefix $(SRCTREE)/api_examples/,$(SOBJ_FILES-y:.o=.S))
+SRCS	+= $(addprefix $(SRCTREE)/examples/api/,$(COBJ_FILES-y:.o=.c))
+SRCS	+= $(addprefix $(SRCTREE)/examples/api/,$(SOBJ_FILES-y:.o=.S))
 
 # Create a list of object files to be compiled
 OBJS	+= $(addprefix $(obj),$(SOBJ_FILES-y))

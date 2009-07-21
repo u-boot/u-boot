@@ -141,7 +141,7 @@ endif
 # Don't include stuff already done in $(LIBS)
 SUBDIRS	= tools \
 	  examples/standalone \
-	  api_examples
+	  examples/api
 
 .PHONY : $(SUBDIRS)
 
@@ -3601,6 +3601,7 @@ clean:
 	       $(obj)examples/standalone/smc91111_eeprom		  \
 	       $(obj)examples/standalone/test_burst			  \
 	       $(obj)examples/standalone/timer
+	@rm -f $(obj)examples/api/demo{,.bin}
 	@rm -f $(obj)tools/bmp_logo	   $(obj)tools/easylogo/easylogo  \
 	       $(obj)tools/env/{fw_printenv,fw_setenv}			  \
 	       $(obj)tools/envcrc					  \
@@ -3617,7 +3618,7 @@ clean:
 	@rm -f $(obj)include/bmp_logo.h
 	@rm -f $(obj)nand_spl/{u-boot-spl,u-boot-spl.map,System.map}
 	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl-2k.bin,ipl-4k.bin,ipl.map}
-	@rm -f $(obj)api_examples/demo $(TIMESTAMP_FILE) $(VERSION_FILE)
+	@rm -f $(TIMESTAMP_FILE) $(VERSION_FILE)
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
 		-o -name '*.o'	-o -name '*.a' -o -name '*.exe'	\) -print \
