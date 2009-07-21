@@ -20,6 +20,7 @@
 
 #include <common.h>
 #include <div64.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 
@@ -158,6 +159,15 @@ int print_cpuinfo (void)
 	return 0;
 }
 #endif
+
+int cpu_eth_init(bd_t *bis)
+{
+#if defined(CONFIG_FEC_MXC)
+	return fecmxc_initialize(bis);
+#else
+	return 0;
+#endif
+}
 
 void imx_gpio_mode(int gpio_mode)
 {

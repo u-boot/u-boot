@@ -50,6 +50,7 @@ int e1000_initialize(bd_t *bis);
 int eepro100_initialize(bd_t *bis);
 int eth_3com_initialize (bd_t * bis);
 int fec_initialize (bd_t *bis);
+int fecmxc_initialize (bd_t *bis);
 int greth_initialize(bd_t *bis);
 void gt6426x_eth_initialize(bd_t *bis);
 int inca_switch_initialize(bd_t *bis);
