@@ -1010,7 +1010,7 @@ int onenand_bbt_read_oob(struct mtd_info *mtd, loff_t from,
 		if (ret)
 			break;
 
-		this->read_spareram(mtd, 0, ONENAND_SPARERAM, buf, column, thislen);
+		this->read_bufferram(mtd, 0, ONENAND_SPARERAM, buf, column, thislen);
 		read += thislen;
 		if (read == len)
 			break;
@@ -2104,8 +2104,6 @@ int onenand_scan(struct mtd_info *mtd, int maxchips)
 
 	if (!this->read_bufferram)
 		this->read_bufferram = onenand_read_bufferram;
-	if (!this->read_spareram)
-		this->read_spareram = onenand_read_bufferram;
 	if (!this->write_bufferram)
 		this->write_bufferram = onenand_write_bufferram;
 
