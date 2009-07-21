@@ -83,9 +83,8 @@ struct onenand_chip {
 			size_t len);
 	int (*wait) (struct mtd_info *mtd, int state);
 	int (*bbt_wait) (struct mtd_info *mtd, int state);
+	void (*unlock_all)(struct mtd_info *mtd);
 	int (*read_bufferram) (struct mtd_info *mtd, loff_t addr, int area,
-			       unsigned char *buffer, int offset, size_t count);
-	int (*read_spareram) (struct mtd_info *mtd, loff_t addr, int area,
 			       unsigned char *buffer, int offset, size_t count);
 	int (*write_bufferram) (struct mtd_info *mtd, loff_t addr, int area,
 				const unsigned char *buffer, int offset,
