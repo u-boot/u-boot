@@ -40,6 +40,7 @@ COBJS-$(CONFIG_NAND_FSL_ELBC) += fsl_elbc_nand.o
 COBJS-$(CONFIG_NAND_FSL_UPM) += fsl_upm.o
 COBJS-$(CONFIG_NAND_KB9202) += kb9202_nand.o
 COBJS-$(CONFIG_NAND_KIRKWOOD) += kirkwood_nand.o
+COBJS-$(CONFIG_NAND_KMETER1) += kmeter1_nand.o
 COBJS-$(CONFIG_NAND_MPC5121_NFC) += mpc5121_nfc.o
 COBJS-$(CONFIG_NAND_NDFC) += ndfc.o
 COBJS-$(CONFIG_NAND_NOMADIK) += nomadik.o
