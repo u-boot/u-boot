@@ -106,9 +106,10 @@
 	"bootcmd_net=run bootargs_base bootargs_mtd bootargs_nfs; "	\
 		"tftpboot 0x81000000 uImage-mx31; bootm\0"
 
-#define CONFIG_DRIVER_SMC911X		1
-#define CONFIG_DRIVER_SMC911X_BASE	0xB6000000
-#define CONFIG_DRIVER_SMC911X_32_BIT	1
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC911X		1
+#define CONFIG_SMC911X_BASE	0xB6000000
+#define CONFIG_SMC911X_32_BIT	1
 
 /*
  * Miscellaneous configurable options

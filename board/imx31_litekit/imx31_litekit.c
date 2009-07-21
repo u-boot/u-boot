@@ -23,6 +23,7 @@
 
 
 #include <common.h>
+#include <netdev.h>
 #include <asm/arch/mx31.h>
 #include <asm/arch/mx31-regs.h>
 
@@ -74,4 +75,13 @@ int checkboard (void)
 {
 	printf("Board: i.MX31 Litekit\n");
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_SMC911X
+	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+#endif
+	return rc;
 }

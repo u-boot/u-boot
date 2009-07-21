@@ -71,6 +71,7 @@ int rtl8139_initialize(bd_t *bis);
 int rtl8169_initialize(bd_t *bis);
 int scc_initialize(bd_t *bis);
 int skge_initialize(bd_t *bis);
+int smc911x_initialize(u8 dev_num, int base_addr);
 int tsi108_eth_initialize(bd_t *bis);
 int uec_initialize(int index);
 int uec_standard_init(bd_t *bis);
