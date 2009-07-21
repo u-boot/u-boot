@@ -1287,6 +1287,15 @@ NetReceive(volatile uchar * inpkt, int len)
 			/* are we waiting for a reply */
 			if (!NetArpWaitPacketIP || !NetArpWaitPacketMAC)
 				break;
+
+#ifdef CONFIG_KEEP_SERVERADDR
+			if (NetServerIP == NetArpWaitPacketIP) {
+				char buf[20];
+				sprintf(buf, "%pM", arp->ar_data);
+				setenv("serveraddr", buf);
+			}
+#endif
+
 #ifdef ET_DEBUG
 			printf("Got ARP REPLY, set server/gtwy eth addr (%pM)\n",
 				arp->ar_data);
