@@ -202,3 +202,93 @@ void portmux_enable_spi1(unsigned long cs_mask, unsigned long drive_strength)
 			PORTMUX_DIR_OUTPUT | PORTMUX_INIT_HIGH);
 }
 #endif
+
+#ifdef AT32AP700x_CHIP_HAS_LCDC
+void portmux_enable_lcdc(int pin_config)
+{
+	unsigned long portc_mask = 0;
+	unsigned long portd_mask = 0;
+	unsigned long porte_mask = 0;
+
+	switch (pin_config) {
+	case 0:
+		portc_mask = (1 << 19)	/* CC     */
+			| (1 << 20)	/* HSYNC  */
+			| (1 << 21)	/* PCLK   */
+			| (1 << 22)	/* VSYNC  */
+			| (1 << 23)	/* DVAL   */
+			| (1 << 24)	/* MODE   */
+			| (1 << 25)	/* PWR    */
+			| (1 << 26)	/* DATA0  */
+			| (1 << 27)	/* DATA1  */
+			| (1 << 28)	/* DATA2  */
+			| (1 << 29)	/* DATA3  */
+			| (1 << 30)	/* DATA4  */
+			| (1 << 31);	/* DATA5  */
+
+		portd_mask = (1 << 0)	/* DATA6  */
+			| (1 << 1)	/* DATA7  */
+			| (1 << 2)	/* DATA8  */
+			| (1 << 3)	/* DATA9  */
+			| (1 << 4)	/* DATA10 */
+			| (1 << 5)	/* DATA11 */
+			| (1 << 6)	/* DATA12 */
+			| (1 << 7)	/* DATA13 */
+			| (1 << 8)	/* DATA14 */
+			| (1 << 9)	/* DATA15 */
+			| (1 << 10)	/* DATA16 */
+			| (1 << 11)	/* DATA17 */
+			| (1 << 12)	/* DATA18 */
+			| (1 << 13)	/* DATA19 */
+			| (1 << 14)	/* DATA20 */
+			| (1 << 15)	/* DATA21 */
+			| (1 << 16)	/* DATA22 */
+			| (1 << 17);	/* DATA23 */
+		break;
+
+	case 1:
+		portc_mask = (1 << 20)	/* HSYNC  */
+			| (1 << 21)	/* PCLK   */
+			| (1 << 22)	/* VSYNC  */
+			| (1 << 25)	/* PWR    */
+			| (1 << 31);	/* DATA5  */
+
+		portd_mask = (1 << 0)	/* DATA6  */
+			| (1 << 1)	/* DATA7  */
+			| (1 << 7)	/* DATA13 */
+			| (1 << 8)	/* DATA14 */
+			| (1 << 9)	/* DATA15 */
+			| (1 << 16)	/* DATA22 */
+			| (1 << 17);	/* DATA23 */
+
+		porte_mask = (1 << 0)	/* CC     */
+			| (1 << 1)	/* DVAL   */
+			| (1 << 2)	/* MODE   */
+			| (1 << 3)	/* DATA0  */
+			| (1 << 4)	/* DATA1  */
+			| (1 << 5)	/* DATA2  */
+			| (1 << 6)	/* DATA3  */
+			| (1 << 7)	/* DATA4  */
+			| (1 << 8)	/* DATA8  */
+			| (1 << 9)	/* DATA9  */
+			| (1 << 10)	/* DATA10 */
+			| (1 << 11)	/* DATA11 */
+			| (1 << 12)	/* DATA12 */
+			| (1 << 13)	/* DATA16 */
+			| (1 << 14)	/* DATA17 */
+			| (1 << 15)	/* DATA18 */
+			| (1 << 16)	/* DATA19 */
+			| (1 << 17)	/* DATA20 */
+			| (1 << 18);	/* DATA21 */
+		break;
+	}
+
+	/* REVISIT: Some pins are probably pure outputs */
+	portmux_select_peripheral(PORTMUX_PORT_C, portc_mask,
+			PORTMUX_FUNC_A, PORTMUX_BUSKEEPER);
+	portmux_select_peripheral(PORTMUX_PORT_D, portd_mask,
+			PORTMUX_FUNC_A, PORTMUX_BUSKEEPER);
+	portmux_select_peripheral(PORTMUX_PORT_E, porte_mask,
+			PORTMUX_FUNC_B, PORTMUX_BUSKEEPER);
+}
+#endif

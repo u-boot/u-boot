@@ -85,5 +85,8 @@ void portmux_enable_mmci(unsigned int slot, unsigned long flags,
 void portmux_enable_spi0(unsigned long cs_mask, unsigned long drive_strength);
 void portmux_enable_spi1(unsigned long cs_mask, unsigned long drive_strength);
 #endif
+#ifdef AT32AP700x_CHIP_HAS_LCDC
+void portmux_enable_lcdc(int pin_config);
+#endif
 
 #endif /* __ASM_AVR32_ARCH_PORTMUX_H__ */

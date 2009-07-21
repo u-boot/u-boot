@@ -65,6 +65,11 @@ void clk_init(void)
 #ifdef CONFIG_PLL
 	/* Use PLL0 as main clock */
 	sm_writel(PM_MCCTRL, SM_BIT(PLLSEL));
+
+#ifdef CONFIG_LCD
+	/* Set up pixel clock for the LCDC */
+	sm_writel(PM_GCCTRL(7), SM_BIT(PLLSEL) | SM_BIT(CEN));
+#endif
 #endif
 }
 

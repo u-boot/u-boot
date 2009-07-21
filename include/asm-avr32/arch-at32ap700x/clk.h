@@ -83,6 +83,12 @@ static inline unsigned long get_spi_clk_rate(unsigned int dev_id)
 	return get_pba_clk_rate();
 }
 #endif
+#ifdef AT32AP700x_CHIP_HAS_LCDC
+static inline unsigned long get_lcdc_clk_rate(unsigned int dev_id)
+{
+	return get_hsb_clk_rate();
+}
+#endif
 
 extern void clk_init(void);
 
