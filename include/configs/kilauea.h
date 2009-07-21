@@ -379,6 +379,11 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
 
+/* I2C bootstrap EEPROM */
+#define CONFIG_4xx_CONFIG_I2C_EEPROM_ADDR	0x52
+#define CONFIG_4xx_CONFIG_I2C_EEPROM_OFFSET	0
+#define CONFIG_4xx_CONFIG_BLOCKSIZE		16
+
 /* Standard DTT sensor configuration */
 #define CONFIG_DTT_DS1775	1
 #define CONFIG_DTT_SENSORS	{ 0 }
@@ -427,6 +432,7 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
+#define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_LOG
 #define CONFIG_CMD_NAND
