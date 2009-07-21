@@ -46,7 +46,7 @@ int gunzip(void *, int, unsigned char *, unsigned long *);
  * didn't contain a valid BMP signature.
  */
 #ifdef CONFIG_VIDEO_BMP_GZIP
-static bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp)
+bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp)
 {
 	void *dst;
 	unsigned long len;
@@ -85,7 +85,7 @@ static bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp)
 	return bmp;
 }
 #else
-static bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp)
+bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp)
 {
 	return NULL;
 }
