@@ -326,7 +326,7 @@ void lcd_show_board_info(void);
 #if LCD_BPP == LCD_MONOCHROME
 # define COLOR_MASK(c)		((c)	  | (c) << 1 | (c) << 2 | (c) << 3 | \
 				 (c) << 4 | (c) << 5 | (c) << 6 | (c) << 7)
-#elif LCD_BPP == LCD_COLOR8
+#elif (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16)
 # define COLOR_MASK(c)		(c)
 #else
 # error Unsupported LCD BPP.
