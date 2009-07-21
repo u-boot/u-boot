@@ -24,8 +24,6 @@
  * MA 02111-1307 USA
  */
 
-#define DEBUG
-
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
@@ -40,10 +38,10 @@
 typedef struct _TSI148_DEV TSI148_DEV;
 
 struct _TSI148_DEV {
-	int            bus;
-	pci_dev_t      busdevfn;
-	TSI148        *uregs;
-	unsigned int   pci_bs;
+	int           bus;
+	pci_dev_t     busdevfn;
+	TSI148       *uregs;
+	unsigned int  pci_bs;
 };
 
 static TSI148_DEV *dev;
@@ -84,11 +82,12 @@ int tsi148_init(void)
 
 	debug("Tsi148: Base    : %p\n", dev->uregs);
 
-	/* check mapping  */
-	debug("Tsi148: Read via mapping, PCI_ID = %08X\n", readl(&dev->uregs->pci_id));
-	if (((PCI_DEVICE << 16) | PCI_VENDOR) !=  readl(&dev->uregs->pci_id)) {
+	/* check mapping */
+	debug("Tsi148: Read via mapping, PCI_ID = %08X\n",
+	      readl(&dev->uregs->pci_id));
+	if (((PCI_DEVICE << 16) | PCI_VENDOR) != readl(&dev->uregs->pci_id)) {
 		printf("Tsi148: Cannot read PCI-ID via Mapping: %08x\n",
-			readl(&dev->uregs->pci_id));
+		       readl(&dev->uregs->pci_id));
 		result = -1;
 		goto break_30;
 	}
@@ -106,10 +105,12 @@ int tsi148_init(void)
 	/* Tsi148 VME timeout etc */
 	__raw_writel(htonl(0x00000084), &dev->uregs->vctrl);
 
+#ifdef DEBUG
 	if ((__raw_readl(&dev->uregs->vstat) & 0x00000100) != 0)
-		debug("Tsi148: System Controller!\n");
+		printf("Tsi148: System Controller!\n");
 	else
-		debug("Tsi148: Not System Controller!\n");
+		printf("Tsi148: Not System Controller!\n");
+#endif
 
 	/*
 	 * Lets turn off interrupts
@@ -126,7 +127,7 @@ int tsi148_init(void)
 	__raw_writel(htonl(0x00000000), &dev->uregs->intm2);
 	eieio();
 
-	val  = __raw_readl(&dev->uregs->vstat);
+	val = __raw_readl(&dev->uregs->vstat);
 	val &= ~(0x00004000);
 	__raw_writel(val, &dev->uregs->vstat);
 	eieio();
@@ -147,7 +148,8 @@ int tsi148_init(void)
 /*
  * Create pci slave window (access: pci -> vme)
  */
-int tsi148_pci_slave_window(unsigned int pciAddr, unsigned int vmeAddr, int size, int vam, int vdw)
+int tsi148_pci_slave_window(unsigned int pciAddr, unsigned int vmeAddr,
+			    int size, int vam, int vdw)
 {
 	int result, i;
 	unsigned int ctl = 0;
@@ -172,13 +174,12 @@ int tsi148_pci_slave_window(unsigned int pciAddr, unsigned int vmeAddr, int size
 
 	printf("Tsi148: Pci addr %08x\n", pciAddr);
 
-
-	__raw_writel(htonl(pciAddr) , &dev->uregs->outbound[i].otsal);
-	__raw_writel(0x00000000 , &dev->uregs->outbound[i].otsau);
+	__raw_writel(htonl(pciAddr), &dev->uregs->outbound[i].otsal);
+	__raw_writel(0x00000000, &dev->uregs->outbound[i].otsau);
 	__raw_writel(htonl(pciAddr + size), &dev->uregs->outbound[i].oteal);
-	__raw_writel(0x00000000 , &dev->uregs->outbound[i].oteau);
+	__raw_writel(0x00000000, &dev->uregs->outbound[i].oteau);
 	__raw_writel(htonl(vmeAddr - pciAddr), &dev->uregs->outbound[i].otofl);
-	__raw_writel(0x00000000 , &dev->uregs->outbound[i].otofu);
+	__raw_writel(0x00000000, &dev->uregs->outbound[i].otofu);
 
 	switch (vam & VME_AM_Axx) {
 	case VME_AM_A16:
@@ -213,7 +214,7 @@ int tsi148_pci_slave_window(unsigned int pciAddr, unsigned int vmeAddr, int size
 		break;
 	}
 
-	ctl |= 0x80040000;    /* enable, no prefetch */
+	ctl |= 0x80040000;	/* enable, no prefetch */
 
 	__raw_writel(htonl(ctl), &dev->uregs->outbound[i].otat);
 
@@ -272,7 +273,8 @@ unsigned int tsi148_eval_vam(int vam)
 /*
  * Create vme slave window (access: vme -> pci)
  */
-int tsi148_vme_slave_window(unsigned int vmeAddr, unsigned int pciAddr, int size, int vam)
+int tsi148_vme_slave_window(unsigned int vmeAddr, unsigned int pciAddr,
+			    int size, int vam)
 {
 	int result, i;
 	unsigned int ctl = 0;
@@ -306,13 +308,13 @@ int tsi148_vme_slave_window(unsigned int vmeAddr, unsigned int pciAddr, int size
 		__raw_writel(0x00000000, &dev->uregs->inbound[i].itofu);
 
 	ctl = tsi148_eval_vam(vam);
-	ctl |= 0x80000000;    /* enable */
+	ctl |= 0x80000000;	/* enable */
 	__raw_writel(htonl(ctl), &dev->uregs->inbound[i].itat);
 
 	debug("Tsi148: window-addr                =%p\n",
 	      &dev->uregs->inbound[i].itsau);
 	debug("Tsi148: vme slave window[%d] attr  =%08x\n",
-	      i, ntohl(__raw_readl(&dev->uregs->inbound[i].itat))) ;
+	      i, ntohl(__raw_readl(&dev->uregs->inbound[i].itat)));
 	debug("Tsi148: vme slave window[%d] start =%08x\n",
 	      i, ntohl(__raw_readl(&dev->uregs->inbound[i].itsal)));
 	debug("Tsi148: vme slave window[%d] end   =%08x\n",
@@ -339,12 +341,12 @@ int tsi148_vme_gcsr_window(unsigned int vmeAddr, int vam)
 	if (NULL == dev) {
 		result = 1;
 	} else {
-	       __raw_writel(htonl(vmeAddr), &dev->uregs->gbal);
-	       __raw_writel(0x00000000, &dev->uregs->gbau);
+		__raw_writel(htonl(vmeAddr), &dev->uregs->gbal);
+		__raw_writel(0x00000000, &dev->uregs->gbau);
 
-	       ctl = tsi148_eval_vam(vam);
-	       ctl |= 0x00000080;    /* enable */
-	       __raw_writel(htonl(ctl), &dev->uregs->gcsrat);
+		ctl = tsi148_eval_vam(vam);
+		ctl |= 0x00000080;	/* enable */
+		__raw_writel(htonl(ctl), &dev->uregs->gcsrat);
 	}
 
 	return result;
@@ -363,16 +365,15 @@ int tsi148_vme_crcsr_window(unsigned int vmeAddr)
 	if (NULL == dev) {
 		result = 1;
 	} else {
-	       __raw_writel(htonl(vmeAddr), &dev->uregs->crol);
-	       __raw_writel(0x00000000, &dev->uregs->crou);
+		__raw_writel(htonl(vmeAddr), &dev->uregs->crol);
+		__raw_writel(0x00000000, &dev->uregs->crou);
 
-	       ctl = 0x00000080;    /* enable */
-	       __raw_writel(htonl(ctl), &dev->uregs->crat);
+		ctl = 0x00000080;	/* enable */
+		__raw_writel(htonl(ctl), &dev->uregs->crat);
 	}
 
 	return result;
 }
-
 
 /*
  * Create vme slave window (access: vme -> crg)
@@ -387,12 +388,12 @@ int tsi148_vme_crg_window(unsigned int vmeAddr, int vam)
 	if (NULL == dev) {
 		result = 1;
 	} else {
-	       __raw_writel(htonl(vmeAddr), &dev->uregs->cbal);
-	       __raw_writel(0x00000000, &dev->uregs->cbau);
+		__raw_writel(htonl(vmeAddr), &dev->uregs->cbal);
+		__raw_writel(0x00000000, &dev->uregs->cbau);
 
-	       ctl = tsi148_eval_vam(vam);
-	       ctl |= 0x00000080;    /* enable */
-	       __raw_writel(htonl(ctl), &dev->uregs->crgat);
+		ctl = tsi148_eval_vam(vam);
+		ctl |= 0x00000080;	/* enable */
+		__raw_writel(htonl(ctl), &dev->uregs->crgat);
 	}
 
 	return result;
@@ -424,11 +425,13 @@ int do_tsi148(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	case 'c':
 		if (strcmp(argv[1], "crg") == 0) {
 			vam = addr2;
-			printf("Tsi148: Configuring VME CRG Window (VME->CRG):\n");
+			printf("Tsi148: Configuring VME CRG Window "
+			       "(VME->CRG):\n");
 			printf("  vme=%08lx vam=%02lx\n", addr1, vam);
 			tsi148_vme_crg_window(addr1, vam);
 		} else {
-			printf("Tsi148: Configuring VME CR/CSR Window (VME->CR/CSR):\n");
+			printf("Tsi148: Configuring VME CR/CSR Window "
+			       "(VME->CR/CSR):\n");
 			printf("  pci=%08lx\n", addr1);
 			tsi148_vme_crcsr_window(addr1);
 		}
@@ -463,7 +466,7 @@ int do_tsi148(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 U_BOOT_CMD(
 	tsi148,	8,	1,	do_tsi148,
-	"tsi148  - initialize and configure Turndra Tsi148\n",
+	"initialize and configure Turndra Tsi148\n",
 	"init\n"
 	"    - initialize tsi148\n"
 	"tsi148 vme   [vme_addr] [pci_addr] [size] [vam]\n"
