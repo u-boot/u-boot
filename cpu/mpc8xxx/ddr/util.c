@@ -107,3 +107,99 @@ __attribute__((weak, alias("__fsl_ddr_set_lawbar"))) void
 fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 			 unsigned int memctl_interleaved,
 			 unsigned int ctrl_num);
+
+void board_add_ram_info(int use_default)
+{
+#if defined(CONFIG_MPC85xx)
+	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
+#elif defined(CONFIG_MPC86xx)
+	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC86xx_DDR_ADDR);
+#endif
+#if (CONFIG_NUM_DDR_CONTROLLERS > 1)
+	uint32_t cs0_config = in_be32(&ddr->cs0_config);
+#endif
+	uint32_t sdram_cfg = in_be32(&ddr->sdram_cfg);
+	int cas_lat;
+
+	puts(" (DDR");
+	switch ((sdram_cfg & SDRAM_CFG_SDRAM_TYPE_MASK) >>
+		SDRAM_CFG_SDRAM_TYPE_SHIFT) {
+	case SDRAM_TYPE_DDR1:
+		puts("1");
+		break;
+	case SDRAM_TYPE_DDR2:
+		puts("2");
+		break;
+	case SDRAM_TYPE_DDR3:
+		puts("3");
+		break;
+	default:
+		puts("?");
+		break;
+	}
+
+	if (sdram_cfg & SDRAM_CFG_32_BE)
+		puts(", 32-bit");
+	else
+		puts(", 64-bit");
+
+	/* Calculate CAS latency based on timing cfg values */
+	cas_lat = ((in_be32(&ddr->timing_cfg_1) >> 16) & 0xf) + 1;
+	if ((in_be32(&ddr->timing_cfg_3) >> 12) & 1)
+		cas_lat += (8 << 1);
+	printf(", CL=%d", cas_lat >> 1);
+	if (cas_lat & 0x1)
+		puts(".5");
+
+	if (sdram_cfg & SDRAM_CFG_ECC_EN)
+		puts(", ECC on)");
+	else
+		puts(", ECC off)");
+
+#if (CONFIG_NUM_DDR_CONTROLLERS > 1)
+	if (cs0_config & 0x20000000) {
+		puts("\n");
+		puts("       DDR Controller Interleaving Mode: ");
+
+		switch ((cs0_config >> 24) & 0xf) {
+		case FSL_DDR_CACHE_LINE_INTERLEAVING:
+			puts("cache line");
+			break;
+		case FSL_DDR_PAGE_INTERLEAVING:
+			puts("page");
+			break;
+		case FSL_DDR_BANK_INTERLEAVING:
+			puts("bank");
+			break;
+		case FSL_DDR_SUPERBANK_INTERLEAVING:
+			puts("super-bank");
+			break;
+		default:
+			puts("invalid");
+			break;
+		}
+	}
+#endif
+
+	if ((sdram_cfg >> 8) & 0x7f) {
+		puts("\n");
+		puts("       DDR Chip-Select Interleaving Mode: ");
+		switch(sdram_cfg >> 8 & 0x7f) {
+		case FSL_DDR_CS0_CS1_CS2_CS3:
+			puts("CS0+CS1+CS2+CS3");
+			break;
+		case FSL_DDR_CS0_CS1:
+			puts("CS0+CS1");
+			break;
+		case FSL_DDR_CS2_CS3:
+			puts("CS2+CS3");
+			break;
+		case FSL_DDR_CS0_CS1_AND_CS2_CS3:
+			puts("CS0+CS1 and CS2+CS3");
+			break;
+		default:
+			puts("invalid");
+			break;
+		}
+	}
+}

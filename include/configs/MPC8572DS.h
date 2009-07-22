@@ -237,6 +237,11 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define PIXIS_VCFGEN1		0x13	/* VELA Config Enable 1 */
 #define PIXIS_VCORE0	 	0x14	/* VELA VCORE0 Register */
 #define PIXIS_VBOOT		0x16	/* VELA VBOOT Register */
+#define PIXIS_VBOOT_LBMAP	0xc0	/* VBOOT - CFG_LBMAP */
+#define PIXIS_VBOOT_LBMAP_NOR0	0x00	/* cfg_lbmap - boot from NOR 0 */
+#define PIXIS_VBOOT_LBMAP_PJET	0x01	/* cfg_lbmap - boot from projet */
+#define PIXIS_VBOOT_LBMAP_NAND	0x02	/* cfg_lbmap - boot from NAND */
+#define PIXIS_VBOOT_LBMAP_NOR1	0x03	/* cfg_lbmap - boot from NOR 1 */
 #define PIXIS_VSPEED0		0x17	/* VELA VSpeed 0 */
 #define PIXIS_VSPEED1		0x18	/* VELA VSpeed 1 */
 #define PIXIS_VSPEED2		0x19	/* VELA VSpeed 2 */
@@ -607,10 +612,10 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 16 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTMAPSZ	(16 << 20)	/* Initial Memory map for Linux*/
 
 /*
  * Internal Definitions

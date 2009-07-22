@@ -47,14 +47,31 @@ phys_size_t fixed_sdram(void);
 
 int checkboard(void)
 {
+	u8 sw7;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
 	puts("Board: P2020DS ");
 #ifdef CONFIG_PHYS_64BIT
 	puts("(36-bit addrmap) ");
 #endif
+
 	printf("Sys ID: 0x%02x, "
-		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x\n",
-		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
-		in8(PIXIS_BASE + PIXIS_PVER));
+		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
+		in_8(pixis_base + PIXIS_ID), in_8(pixis_base + PIXIS_VER),
+		in_8(pixis_base + PIXIS_PVER));
+
+	sw7 = in_8(pixis_base + PIXIS_SW(7));
+	switch ((sw7 & PIXIS_SW7_LBMAP) >> 6) {
+		case 0:
+		case 1:
+			printf ("vBank: %d\n", ((sw7 & PIXIS_SW7_VBANK) >> 4));
+			break;
+		case 2:
+		case 3:
+			puts ("Promjet\n");
+			break;
+	}
+
 	return 0;
 }
 
@@ -462,10 +479,12 @@ unsigned long
 calculate_board_sys_clk(ulong dummy)
 {
 	ulong val;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
 	val = ics307_clk_freq(
-	    in8(PIXIS_BASE + PIXIS_VSYSCLK0),
-	    in8(PIXIS_BASE + PIXIS_VSYSCLK1),
-	    in8(PIXIS_BASE + PIXIS_VSYSCLK2));
+	    in_8(pixis_base + PIXIS_VSYSCLK0),
+	    in_8(pixis_base + PIXIS_VSYSCLK1),
+	    in_8(pixis_base + PIXIS_VSYSCLK2));
 	debug("sysclk val = %lu\n", val);
 	return val;
 }
@@ -474,10 +493,12 @@ unsigned long
 calculate_board_ddr_clk(ulong dummy)
 {
 	ulong val;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
 	val = ics307_clk_freq(
-	    in8(PIXIS_BASE + PIXIS_VDDRCLK0),
-	    in8(PIXIS_BASE + PIXIS_VDDRCLK1),
-	    in8(PIXIS_BASE + PIXIS_VDDRCLK2));
+	    in_8(pixis_base + PIXIS_VDDRCLK0),
+	    in_8(pixis_base + PIXIS_VDDRCLK1),
+	    in_8(pixis_base + PIXIS_VDDRCLK2));
 	debug("ddrclk val = %lu\n", val);
 	return val;
 }
@@ -486,8 +507,9 @@ unsigned long get_board_sys_clk(ulong dummy)
 {
 	u8 i;
 	ulong val = 0;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	i = in8(PIXIS_BASE + PIXIS_SPD);
+	i = in_8(pixis_base + PIXIS_SPD);
 	i &= 0x07;
 
 	switch (i) {
@@ -524,8 +546,9 @@ unsigned long get_board_ddr_clk(ulong dummy)
 {
 	u8 i;
 	ulong val = 0;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	i = in8(PIXIS_BASE + PIXIS_SPD);
+	i = in_8(pixis_base + PIXIS_SPD);
 	i &= 0x38;
 	i >>= 3;
 

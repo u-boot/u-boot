@@ -114,9 +114,9 @@ typedef struct ccsr_ddr {
 	uint	timing_cfg_0;		/* 0x2104 - DDR SDRAM Timing Configuration Register 0 */
 	uint	timing_cfg_1;		/* 0x2108 - DDR SDRAM Timing Configuration Register 1 */
 	uint	timing_cfg_2;		/* 0x210c - DDR SDRAM Timing Configuration Register 2 */
-	uint	sdram_cfg_1;		/* 0x2110 - DDR SDRAM Control Configuration 1 */
+	uint	sdram_cfg;		/* 0x2110 - DDR SDRAM Control Configuration 1 */
 	uint    sdram_cfg_2;            /* 0x2114 - DDR SDRAM Control Configuration 2 */
-	uint	sdram_mode_1;		/* 0x2118 - DDR SDRAM Mode Configuration 1 */
+	uint	sdram_mode;		/* 0x2118 - DDR SDRAM Mode Configuration 1 */
 	uint    sdram_mode_2;		/* 0x211c - DDR SDRAM Mode Configuration 2 */
 	uint    sdram_mode_cntl;        /* 0x2120 - DDR SDRAM Mode Control */
 	uint	sdram_interval;		/* 0x2124 - DDR SDRAM Interval Configuration */

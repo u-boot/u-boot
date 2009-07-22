@@ -55,16 +55,17 @@ int board_early_init_f(void)
 int misc_init_r(void)
 {
 	u8 tmp_val, version;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
 	/*Do not use 8259PIC*/
-	tmp_val = in8(PIXIS_BASE + PIXIS_BRDCFG0);
-	out8(PIXIS_BASE + PIXIS_BRDCFG0, tmp_val | 0x80);
+	tmp_val = in_8(pixis_base + PIXIS_BRDCFG0);
+	out_8(pixis_base + PIXIS_BRDCFG0, tmp_val | 0x80);
 
 	/*For FPGA V7 or higher, set the IRQMAPSEL to 0 to use MAP0 interrupt*/
-	version = in8(PIXIS_BASE + PIXIS_PVER);
+	version = in_8(pixis_base + PIXIS_PVER);
 	if(version >= 0x07) {
-		tmp_val = in8(PIXIS_BASE + PIXIS_BRDCFG0);
-		out8(PIXIS_BASE + PIXIS_BRDCFG0, tmp_val & 0xbf);
+		tmp_val = in_8(pixis_base + PIXIS_BRDCFG0);
+		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val & 0xbf);
 	}
 
 	/* Using this for DIU init before the driver in linux takes over
@@ -96,11 +97,12 @@ int checkboard(void)
 {
 	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
 	printf ("Board: MPC8610HPCD, System ID: 0x%02x, "
 		"System Version: 0x%02x, FPGA Version: 0x%02x\n",
-		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
-		in8(PIXIS_BASE + PIXIS_PVER));
+		in_8(pixis_base + PIXIS_ID), in_8(pixis_base + PIXIS_VER),
+		in_8(pixis_base + PIXIS_PVER));
 
 	mcm->abcr |= 0x00010000; /* 0 */
 	mcm->hpmr3 = 0x80000008; /* 4c */
@@ -154,7 +156,7 @@ phys_size_t fixed_sdram(void)
 	ddr->timing_cfg_0 = 0x00260802;
 	ddr->timing_cfg_1 = 0x3935d322;
 	ddr->timing_cfg_2 = 0x14904cc8;
-	ddr->sdram_mode_1 = 0x00480432;
+	ddr->sdram_mode = 0x00480432;
 	ddr->sdram_mode_2 = 0x00000000;
 	ddr->sdram_interval = 0x06180fff; /* 0x06180100; */
 	ddr->sdram_data_init = 0xDEADBEEF;
@@ -170,7 +172,7 @@ phys_size_t fixed_sdram(void)
 
 	udelay(500);
 
-	ddr->sdram_cfg_1 = 0xc3000000; /* 0xe3008000;*/
+	ddr->sdram_cfg = 0xc3000000; /* 0xe3008000;*/
 
 
 #if defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
@@ -438,10 +440,9 @@ get_board_sys_clk(ulong dummy)
 {
 	u8 i;
 	ulong val = 0;
-	ulong a;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	a = PIXIS_BASE + PIXIS_SPD;
-	i = in8(a);
+	i = in_8(pixis_base + PIXIS_SPD);
 	i &= 0x07;
 
 	switch (i) {
@@ -481,7 +482,9 @@ int board_eth_init(bd_t *bis)
 
 void board_reset(void)
 {
-	out8(PIXIS_BASE + PIXIS_RST, 0);
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
+	out_8(pixis_base + PIXIS_RST, 0);
 
 	while (1)
 		;

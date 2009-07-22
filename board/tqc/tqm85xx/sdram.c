@@ -374,31 +374,6 @@ long int sdram_setup (int casl)
 	return (i < N_DDR_CS_CONF) ? ddr_cs_conf[i].size : 0;
 }
 
-void board_add_ram_info (int use_default)
-{
-	int casl;
-
-	if (use_default)
-		casl = CONFIG_DDR_DEFAULT_CL;
-	else
-		casl = cas_latency ();
-
-	puts (" (CL=");
-	switch (casl) {
-	case 20:
-		puts ("2)");
-		break;
-
-	case 25:
-		puts ("2.5)");
-		break;
-
-	case 30:
-		puts ("3)");
-		break;
-	}
-}
-
 phys_size_t initdram (int board_type)
 {
 	long dram_size = 0;
@@ -438,11 +413,9 @@ phys_size_t initdram (int board_type)
 		/*
 		 * Try again with default CAS latency
 		 */
-		puts ("Problem with CAS lantency");
-		board_add_ram_info (1);
-		puts (", using default CL!\n");
-		casl = CONFIG_DDR_DEFAULT_CL;
-		dram_size = sdram_setup (casl);
+		printf ("Problem with CAS lantency, using default CL %d/10!\n",
+			CONFIG_DDR_DEFAULT_CL);
+		dram_size = sdram_setup (CONFIG_DDR_DEFAULT_CL);
 		puts ("       ");
 	}
 

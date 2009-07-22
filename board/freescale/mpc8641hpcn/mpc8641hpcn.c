@@ -42,10 +42,20 @@ int board_early_init_f(void)
 
 int checkboard(void)
 {
-	printf ("Board: MPC8641HPCN, System ID: 0x%02x, "
-		"System Version: 0x%02x, FPGA Version: 0x%02x\n",
-		in8(PIXIS_BASE + PIXIS_ID), in8(PIXIS_BASE + PIXIS_VER),
-		in8(PIXIS_BASE + PIXIS_PVER));
+	u8 vboot;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
+	printf ("Board: MPC8641HPCN, Sys ID: 0x%02x, "
+		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
+		in_8(pixis_base + PIXIS_ID), in_8(pixis_base + PIXIS_VER),
+		in_8(pixis_base + PIXIS_PVER));
+
+	vboot = in_8(pixis_base + PIXIS_VBOOT);
+	if (vboot & PIXIS_VBOOT_FMAP)
+		printf ("vBank: %d\n", ((vboot & PIXIS_VBOOT_FBANK) >> 6));
+	else
+		puts ("Promjet\n");
+
 #ifdef CONFIG_PHYS_64BIT
 	printf ("       36-bit physical address map\n");
 #endif
@@ -91,7 +101,7 @@ fixed_sdram(void)
 	ddr->timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
 	ddr->timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
 	ddr->timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
-	ddr->sdram_mode_1 = CONFIG_SYS_DDR_MODE_1;
+	ddr->sdram_mode = CONFIG_SYS_DDR_MODE_1;
 	ddr->sdram_mode_2 = CONFIG_SYS_DDR_MODE_2;
 	ddr->sdram_interval = CONFIG_SYS_DDR_INTERVAL;
 	ddr->sdram_data_init = CONFIG_SYS_DDR_DATA_INIT;
@@ -109,9 +119,9 @@ fixed_sdram(void)
 
 #if defined (CONFIG_DDR_ECC)
 	/* Enable ECC checking */
-	ddr->sdram_cfg_1 = (CONFIG_SYS_DDR_CONTROL | 0x20000000);
+	ddr->sdram_cfg = (CONFIG_SYS_DDR_CONTROL | 0x20000000);
 #else
-	ddr->sdram_cfg_1 = CONFIG_SYS_DDR_CONTROL;
+	ddr->sdram_cfg = CONFIG_SYS_DDR_CONTROL;
 	ddr->sdram_cfg_2 = CONFIG_SYS_DDR_CONTROL2;
 #endif
 	asm("sync; isync");
@@ -300,11 +310,12 @@ get_board_sys_clk(ulong dummy)
 {
 	u8 i, go_bit, rd_clks;
 	ulong val = 0;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	go_bit = in8(PIXIS_BASE + PIXIS_VCTL);
+	go_bit = in_8(pixis_base + PIXIS_VCTL);
 	go_bit &= 0x01;
 
-	rd_clks = in8(PIXIS_BASE + PIXIS_VCFGEN0);
+	rd_clks = in_8(pixis_base + PIXIS_VCFGEN0);
 	rd_clks &= 0x1C;
 
 	/*
@@ -315,11 +326,11 @@ get_board_sys_clk(ulong dummy)
 
 	if (go_bit) {
 		if (rd_clks == 0x1c)
-			i = in8(PIXIS_BASE + PIXIS_AUX);
+			i = in_8(pixis_base + PIXIS_AUX);
 		else
-			i = in8(PIXIS_BASE + PIXIS_SPD);
+			i = in_8(pixis_base + PIXIS_SPD);
 	} else {
-		i = in8(PIXIS_BASE + PIXIS_SPD);
+		i = in_8(pixis_base + PIXIS_SPD);
 	}
 
 	i &= 0x07;
@@ -363,7 +374,9 @@ int board_eth_init(bd_t *bis)
 
 void board_reset(void)
 {
-	out8(PIXIS_BASE + PIXIS_RST, 0);
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
+	out_8(pixis_base + PIXIS_RST, 0);
 
 	while (1)
 		;
