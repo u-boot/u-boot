@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	=  $(obj)lib$(SOC).a
 
 SOBJS	:= lowlevel_init.o
+SOBJS	+= reset.o
 
 COBJS	+= board.o
 COBJS	+= cache.o

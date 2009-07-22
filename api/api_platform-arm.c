@@ -53,5 +53,3 @@ int platform_sys_info(struct sys_info *si)
 
 	return 1;
 }
-
-#endif /* CONFIG_API */

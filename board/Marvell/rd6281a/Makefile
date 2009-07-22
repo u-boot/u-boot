@@ -1,6 +1,7 @@
 #
-# Copyright 2000-2008
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# (C) Copyright 2009
+# Marvell Semiconductor <www.marvell.com>
+# Written-by: Prafulla Wadaskar <prafulla@marvell.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -12,32 +13,33 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301 USA
 #
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libgpio.a
+LIB	= $(obj)lib$(BOARD).a
 
-COBJS-$(CONFIG_KIRKWOOD_GPIO)	+= kw_gpio.o
-COBJS-$(CONFIG_MX31_GPIO)	+= mx31_gpio.o
-COBJS-$(CONFIG_PCA953X)		+= pca953x.o
+COBJS	:= rd6281a.o
 
-COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-all:	$(LIB)
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
 
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
@@ -46,4 +48,4 @@ include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend
 
-########################################################################
+#########################################################################
