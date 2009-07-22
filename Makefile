@@ -1459,6 +1459,9 @@ PLU405_config:	unconfig
 PMC405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx pmc405 esd
 
+PMC405DE_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) ppc ppc4xx pmc405de esd
+
 PMC440_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx pmc440 esd
 

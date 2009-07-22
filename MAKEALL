@@ -238,6 +238,7 @@ LIST_4xx="		\
 	PIP405		\
 	PLU405		\
 	PMC405		\
+	PMC405DE	\
 	PMC440		\
 	PPChameleonEVB	\
 	quad100hd	\
