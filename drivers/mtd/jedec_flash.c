@@ -68,6 +68,17 @@
 #define SST39SF010A	0x00B5
 #define SST39SF020A	0x00B6
 
+/* MXIC */
+#define MX29LV040	0x004F
+
+/* WINBOND */
+#define W39L040A	0x00D6
+
+/* AMIC */
+#define A29L040		0x0092
+
+/* EON */
+#define EN29LV040A	0x004F
 
 /*
  * Unlock address sets for AMD command sets.
@@ -223,6 +234,62 @@ static const struct amd_flash_info jedec_table[] = {
 		.NumEraseRegions= 1,
 		.regions	= {
 			ERASEINFO(0x10000,8),
+		}
+	},
+	{
+		.mfr_id		= (u16)MX_MANUFACT,
+		.dev_id		= MX29LV040,
+		.name		= "MXIC MX29LV040",
+		.uaddr		= {
+			[0] = MTD_UADDR_0x0555_0x02AA /* x8 */
+		},
+		.DevSize	= SIZE_512KiB,
+		.CmdSet		= P_ID_AMD_STD,
+		.NumEraseRegions= 1,
+		.regions	= {
+			ERASEINFO(0x10000, 8),
+		}
+	},
+	{
+		.mfr_id		= (u16)WINB_MANUFACT,
+		.dev_id		= W39L040A,
+		.name		= "WINBOND W39L040A",
+		.uaddr		= {
+			[0] = MTD_UADDR_0x5555_0x2AAA /* x8 */
+		},
+		.DevSize	= SIZE_512KiB,
+		.CmdSet		= P_ID_AMD_STD,
+		.NumEraseRegions= 1,
+		.regions	= {
+			ERASEINFO(0x10000, 8),
+		}
+	},
+	{
+		.mfr_id		= (u16)AMIC_MANUFACT,
+		.dev_id		= A29L040,
+		.name		= "AMIC A29L040",
+		.uaddr		= {
+			[0] = MTD_UADDR_0x0555_0x02AA /* x8 */
+		},
+		.DevSize	= SIZE_512KiB,
+		.CmdSet		= P_ID_AMD_STD,
+		.NumEraseRegions= 1,
+		.regions	= {
+			ERASEINFO(0x10000, 8),
+		}
+	},
+	{
+		.mfr_id		= (u16)EON_MANUFACT,
+		.dev_id		= EN29LV040A,
+		.name		= "EON EN29LV040A",
+		.uaddr		= {
+			[0] = MTD_UADDR_0x0555_0x02AA /* x8 */
+		},
+		.DevSize	= SIZE_512KiB,
+		.CmdSet		= P_ID_AMD_STD,
+		.NumEraseRegions= 1,
+		.regions	= {
+			ERASEINFO(0x10000, 8),
 		}
 	},
 #endif

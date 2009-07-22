@@ -46,7 +46,7 @@ typedef struct {
 	ushort	cmd_reset;		/* vendor specific reset command	*/
 	ushort	interface;		/* used for x8/x16 adjustments		*/
 	ushort	legacy_unlock;		/* support Intel legacy (un)locking	*/
-	uchar	manufacturer_id;	/* manufacturer id			*/
+	ushort	manufacturer_id;	/* manufacturer id			*/
 	ushort	device_id;		/* device id				*/
 	ushort	device_id2;		/* extended device id			*/
 	ushort	ext_addr;		/* extended query table address		*/
@@ -154,6 +154,7 @@ extern flash_info_t *flash_get_info(ulong base);
  * Device IDs
  */
 
+/* Manufacturers inside bank 0 have ids like 0x00xx00xx */
 #define AMD_MANUFACT	0x00010001	/* AMD	   manuf. ID in D23..D16, D7..D0 */
 #define FUJ_MANUFACT	0x00040004	/* FUJITSU manuf. ID in D23..D16, D7..D0 */
 #define ATM_MANUFACT	0x001F001F	/* ATMEL */
@@ -166,6 +167,13 @@ extern flash_info_t *flash_get_info(ulong base);
 #define TOSH_MANUFACT	0x00980098	/* TOSHIBA manuf. ID in D23..D16, D7..D0 */
 #define MT2_MANUFACT	0x002C002C	/* alternate MICRON manufacturer ID*/
 #define EXCEL_MANUFACT	0x004A004A	/* Excel Semiconductor			*/
+#define AMIC_MANUFACT	0x00370037	/* AMIC    manuf. ID in D23..D16, D7..D0 */
+#define WINB_MANUFACT	0x00DA00DA	/* Winbond manuf. ID in D23..D16, D7..D0 */
+
+/* Manufacturers inside bank 1 have ids like 0x01xx01xx */
+#define EON_MANUFACT	0x011C011C	/* EON     manuf. ID in D23..D16, D7..D0 */
+
+/* Manufacturers inside bank 2 have ids like 0x02xx02xx */
 
 					/* Micron Technologies (INTEL compat.)	*/
 #define MT_ID_28F400_T	0x44704470	/* 28F400B3 ID ( 4 M, top boot sector)	*/
