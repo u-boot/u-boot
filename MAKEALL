@@ -511,6 +511,7 @@ LIST_ARM9="			\
 	cp946es			\
 	cp966			\
 	lpd7a400		\
+	mv88f6281gtw_ge		\
 	mx1ads			\
 	mx1fs2			\
 	netstar			\
@@ -521,8 +522,10 @@ LIST_ARM9="			\
 	omap1610inn		\
 	omap5912osk		\
 	omap730p2		\
+	rd6281a			\
 	sbc2410x		\
 	scb9328			\
+	sheevaplug		\
 	smdk2400		\
 	smdk2410		\
 	trab			\
