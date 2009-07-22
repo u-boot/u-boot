@@ -1,7 +1,7 @@
 /*
- * Usefuls routines based on the LzmaTest.c file from LZMA SDK 4.57
+ * Usefuls routines based on the LzmaTest.c file from LZMA SDK 4.65
  *
- * Copyright (C) 2007-2008 Industrie Dial Face S.p.A.
+ * Copyright (C) 2007-2009 Industrie Dial Face S.p.A.
  * Luigi 'Comio' Mantellini (luigi.mantellini@idf-hit.com)
  *
  * Copyright (C) 1999-2005 Igor Pavlov
@@ -40,103 +40,88 @@
 #ifdef CONFIG_LZMA
 
 #define LZMA_PROPERTIES_OFFSET 0
-#define LZMA_SIZE_OFFSET       LZMA_PROPERTIES_SIZE
+#define LZMA_SIZE_OFFSET       LZMA_PROPS_SIZE
 #define LZMA_DATA_OFFSET       LZMA_SIZE_OFFSET+sizeof(uint64_t)
 
 #include "LzmaTools.h"
-#include "LzmaDecode.h"
+#include "LzmaDec.h"
 
 #include <linux/string.h>
 #include <malloc.h>
 
+static void *SzAlloc(void *p, size_t size) { p = p; return malloc(size); }
+static void SzFree(void *p, void *address) { p = p; free(address); }
+
 int lzmaBuffToBuffDecompress (unsigned char *outStream, SizeT *uncompressedSize,
-			      unsigned char *inStream,  SizeT  length)
+                  unsigned char *inStream,  SizeT  length)
 {
-	int res = LZMA_RESULT_DATA_ERROR;
-	int i;
+    int res = SZ_ERROR_DATA;
+    int i;
+    ISzAlloc g_Alloc;
 
-	SizeT outSizeFull = 0xFFFFFFFF; /* 4GBytes limit */
-	SizeT inProcessed;
-	SizeT outProcessed;
-	SizeT outSize;
-	SizeT outSizeHigh;
-	CLzmaDecoderState state;  /* it's about 24-80 bytes structure, if int is 32-bit */
-	unsigned char properties[LZMA_PROPERTIES_SIZE];
-	SizeT compressedSize = (SizeT)(length - LZMA_DATA_OFFSET);
+    SizeT outSizeFull = 0xFFFFFFFF; /* 4GBytes limit */
+    SizeT inProcessed;
+    SizeT outProcessed;
+    SizeT outSize;
+    SizeT outSizeHigh;
+    ELzmaStatus state;
+    SizeT compressedSize = (SizeT)(length - LZMA_PROPS_SIZE);
 
-	debug ("LZMA: Image address............... 0x%lx\n", inStream);
-	debug ("LZMA: Properties address.......... 0x%lx\n", inStream + LZMA_PROPERTIES_OFFSET);
-	debug ("LZMA: Uncompressed size address... 0x%lx\n", inStream + LZMA_SIZE_OFFSET);
-	debug ("LZMA: Compressed data address..... 0x%lx\n", inStream + LZMA_DATA_OFFSET);
-	debug ("LZMA: Destination address......... 0x%lx\n", outStream);
+    debug ("LZMA: Image address............... 0x%lx\n", inStream);
+    debug ("LZMA: Properties address.......... 0x%lx\n", inStream + LZMA_PROPERTIES_OFFSET);
+    debug ("LZMA: Uncompressed size address... 0x%lx\n", inStream + LZMA_SIZE_OFFSET);
+    debug ("LZMA: Compressed data address..... 0x%lx\n", inStream + LZMA_DATA_OFFSET);
+    debug ("LZMA: Destination address......... 0x%lx\n", outStream);
 
-	memcpy(properties, inStream + LZMA_PROPERTIES_OFFSET, LZMA_PROPERTIES_SIZE);
+    memset(&state, 0, sizeof(state));
 
-	memset(&state, 0, sizeof(state));
-	res = LzmaDecodeProperties(&state.Properties,
-				 properties,
-				 LZMA_PROPERTIES_SIZE);
-	if (res != LZMA_RESULT_OK) {
-		return res;
-	}
+    outSize = 0;
+    outSizeHigh = 0;
+    /* Read the uncompressed size */
+    for (i = 0; i < 8; i++) {
+        unsigned char b = inStream[LZMA_SIZE_OFFSET + i];
+            if (i < 4) {
+                outSize     += (UInt32)(b) << (i * 8);
+        } else {
+                outSizeHigh += (UInt32)(b) << ((i - 4) * 8);
+        }
+    }
 
-	outSize = 0;
-	outSizeHigh = 0;
-	/* Read the uncompressed size */
-	for (i = 0; i < 8; i++) {
-		unsigned char b = inStream[LZMA_SIZE_OFFSET + i];
-	        if (i < 4) {
-		        outSize     += (UInt32)(b) << (i * 8);
-		} else {
-	                outSizeHigh += (UInt32)(b) << ((i - 4) * 8);
-		}
-	}
+    outSizeFull = (SizeT)outSize;
+    if (sizeof(SizeT) >= 8) {
+        /*
+         * SizeT is a 64 bit uint => We can manage files larger than 4GB!
+         *
+         */
+            outSizeFull |= (((SizeT)outSizeHigh << 16) << 16);
+    } else if (outSizeHigh != 0 || (UInt32)(SizeT)outSize != outSize) {
+        /*
+         * SizeT is a 32 bit uint => We cannot manage files larger than
+         * 4GB!
+         *
+         */
+        debug ("LZMA: 64bit support not enabled.\n");
+        return SZ_ERROR_DATA;
+    }
 
-	outSizeFull = (SizeT)outSize;
-	if (sizeof(SizeT) >= 8) {
-		/*
-	         * SizeT is a 64 bit uint => We can manage files larger than 4GB!
-		 *
-		 */
-	        outSizeFull |= (((SizeT)outSizeHigh << 16) << 16);
-	} else if (outSizeHigh != 0 || (UInt32)(SizeT)outSize != outSize) {
-	        /*
-		 * SizeT is a 32 bit uint => We cannot manage files larger than
-		 * 4GB!
-		 *
-		 */
-		debug ("LZMA: 64bit support not enabled.\n");
-	        return LZMA_RESULT_DATA_ERROR;
-	}
+    debug ("LZMA: Uncompresed size............ 0x%lx\n", outSizeFull);
+    debug ("LZMA: Compresed size.............. 0x%lx\n", compressedSize);
 
-	debug ("LZMA: Uncompresed size............ 0x%lx\n", outSizeFull);
-	debug ("LZMA: Compresed size.............. 0x%lx\n", compressedSize);
-	debug ("LZMA: Dynamic memory needed....... 0x%lx", LzmaGetNumProbs(&state.Properties) * sizeof(CProb));
+    g_Alloc.Alloc = SzAlloc;
+    g_Alloc.Free = SzFree;
 
-	state.Probs = (CProb *)malloc(LzmaGetNumProbs(&state.Properties) * sizeof(CProb));
+    /* Decompress */
+    outProcessed = outSizeFull;
+    res = LzmaDecode(
+        outStream, &outProcessed,
+        inStream + LZMA_DATA_OFFSET, &compressedSize,
+        inStream, LZMA_PROPS_SIZE, LZMA_FINISH_ANY, &state, &g_Alloc);
+    *uncompressedSize = outProcessed;
+    if (res != SZ_OK)  {
+        return res;
+    }
 
-	if (state.Probs == 0
-	    || (outStream == 0 && outSizeFull != 0)
-	    || (inStream == 0 && compressedSize != 0)) {
-		free(state.Probs);
-		debug ("\n");
-		return LZMA_RESULT_DATA_ERROR;
-	}
-
-	debug (" allocated.\n");
-
-	/* Decompress */
-
-	res = LzmaDecode(&state,
-		inStream + LZMA_DATA_OFFSET, compressedSize, &inProcessed,
-		outStream, outSizeFull,  &outProcessed);
-	if (res != LZMA_RESULT_OK)  {
-		return res;
-	}
-
-	*uncompressedSize = outProcessed;
-	free(state.Probs);
-	return res;
+    return res;
 }
 
 #endif

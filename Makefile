@@ -140,8 +140,8 @@ endif
 # The "tools" are needed early, so put this first
 # Don't include stuff already done in $(LIBS)
 SUBDIRS	= tools \
-	  examples \
-	  api_examples
+	  examples/standalone \
+	  examples/api
 
 .PHONY : $(SUBDIRS)
 
@@ -3592,11 +3592,16 @@ grsim_leon2_config : unconfig
 #########################################################################
 
 clean:
-	@rm -f $(obj)examples/82559_eeprom $(obj)examples/eepro100_eeprom \
-	       $(obj)examples/hello_world  $(obj)examples/interrupt	  \
-	       $(obj)examples/mem_to_mem_idma2intr			  \
-	       $(obj)examples/sched	   $(obj)examples/smc91111_eeprom \
-	       $(obj)examples/test_burst   $(obj)examples/timer
+	@rm -f $(obj)examples/standalone/82559_eeprom			  \
+	       $(obj)examples/standalone/eepro100_eeprom		  \
+	       $(obj)examples/standalone/hello_world			  \
+	       $(obj)examples/standalone/interrupt			  \
+	       $(obj)examples/standalone/mem_to_mem_idma2intr		  \
+	       $(obj)examples/standalone/sched				  \
+	       $(obj)examples/standalone/smc91111_eeprom		  \
+	       $(obj)examples/standalone/test_burst			  \
+	       $(obj)examples/standalone/timer
+	@rm -f $(obj)examples/api/demo{,.bin}
 	@rm -f $(obj)tools/bmp_logo	   $(obj)tools/easylogo/easylogo  \
 	       $(obj)tools/env/{fw_printenv,fw_setenv}			  \
 	       $(obj)tools/envcrc					  \
@@ -3613,7 +3618,7 @@ clean:
 	@rm -f $(obj)include/bmp_logo.h
 	@rm -f $(obj)nand_spl/{u-boot-spl,u-boot-spl.map,System.map}
 	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl-2k.bin,ipl-4k.bin,ipl.map}
-	@rm -f $(obj)api_examples/demo $(TIMESTAMP_FILE) $(VERSION_FILE)
+	@rm -f $(TIMESTAMP_FILE) $(VERSION_FILE)
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
 		-o -name '*.o'	-o -name '*.a' -o -name '*.exe'	\) -print \

@@ -47,7 +47,9 @@
 #define I2C_RXTX_LEN	128	/* maximum tx/rx buffer length */
 
 #if defined(CONFIG_I2C_MULTI_BUS)
+#if !defined(CONFIG_SYS_MAX_I2C_BUS)
 #define CONFIG_SYS_MAX_I2C_BUS		2
+#endif
 #define I2C_GET_BUS()		i2c_get_bus_num()
 #define I2C_SET_BUS(a)		i2c_set_bus_num(a)
 #else

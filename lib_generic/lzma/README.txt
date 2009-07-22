@@ -7,14 +7,14 @@ Author:         Igor Pavlov
 The import is made using the import_lzmasdk.sh script that:
 
 * untars the lzmaXYY.tar.bz2 file (from the download web page)
-* copies the files LzmaDecode.h, LzmaTypes.h, LzmaDecode.c, history.txt,
-  LGPL.txt, and lzma.txt from source archive into the lib_lzma directory (pwd).
+* copies the files LzmaDec.h, Types.h, LzmaDec.c, history.txt,
+  and lzma.txt from source archive into the lib_lzma directory (pwd).
 
 Example:
 
- ./import_lzmasdk.sh ~/lzma457.tar.bz2
+ . import_lzmasdk.sh ~/lzma465.tar.bz2
 
-Notice: The files from lzma sdk are not _modified_ by this script!
+Notice: The files from lzma sdk are _not modified_ by this script!
 
 The files LzmaTools.{c,h} are provided to export the lzmaBuffToBuffDecompress()
 function that wraps the complex LzmaDecode() function from the LZMA SDK. The

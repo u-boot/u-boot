@@ -45,6 +45,7 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
 #define CONFIG_JFFS2_CMDLINE
+#define CONFIG_CMD_MTDPARTS
 
 #undef	CONFIG_WATCHDOG			/* disable platform specific watchdog */
 
@@ -97,7 +98,7 @@
 #define CONFIG_SYS_SLOT_ID_MASK		(0x3f)	/* mask for slot ID bits */
 
 #define CONFIG_I2C_MULTI_BUS	1
-#define CONFIG_SYS_MAX_I2C_BUS		2
+#define CONFIG_SYS_MAX_I2C_BUS		1
 #define CONFIG_SYS_I2C_INIT_BOARD	1
 #define CONFIG_I2C_MUX		1
 
@@ -121,6 +122,20 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
+
+#define CONFIG_ENV_SIZE		0x04000 /* Size of Environment */
+
+#define CONFIG_SYS_MALLOC_LEN	(1024 * 1024)	/* Reserved for malloc */
+
+#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for UBI/UBIFS */
+
+/* UBI Support for all Keymile boards */
+#define CONFIG_CMD_UBI
+#define CONFIG_RBTREE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_FLASH_CFI_MTD
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_CONCAT
 
 /* define this to use the keymile's io muxing feature */
 /*#define CONFIG_IO_MUXING */

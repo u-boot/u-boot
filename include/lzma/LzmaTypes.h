@@ -1,7 +1,7 @@
 /*
- * Fake include for LzmaTypes.h
+ * Fake include for Types.h
  *
- * Copyright (C) 2007-2008 Industrie Dial Face S.p.A.
+ * Copyright (C) 2007-2009 Industrie Dial Face S.p.A.
  * Luigi 'Comio' Mantellini (luigi.mantellini@idf-hit.com)
  *
  * See file CREDITS for list of people who contributed to this
@@ -23,9 +23,14 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __LZMATYPES_H__FAKE__
-#define __LZMATYPES_H__FAKE__
+#ifndef __TYPES_H__FAKE__
+#define __TYPES_H__FAKE__
 
-#include "../../lib_generic/lzma/LzmaTypes.h"
+/*
+ *This avoids the collition with zlib.h Byte definition
+ */
+#define Byte LZByte
+
+#include "../../lib_generic/lzma/Types.h"
 
 #endif

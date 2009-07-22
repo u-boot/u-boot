@@ -54,6 +54,7 @@ series
 cscope.*
 
 # tags files
+/tags
 /ctags
 /etags
 
