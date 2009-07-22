@@ -172,7 +172,7 @@
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 "			\
 				"root=/dev/mtdblock1 "			\
 				"mtdparts=physmap-flash.0:-(nor);"	\
-				"at91_nand:-(root) "			\
+				"atmel_nand:-(root) "			\
 				"rw rootfstype=jffs2"
 
 #else
@@ -188,7 +188,7 @@
 				"root=/dev/mtdblock4 "			\
 				"mtdparts=physmap-flash.0:16k(bootstrap)ro,"\
 				"16k(env),224k(uboot)ro,-(linux);"	\
-				"at91_nand:-(root) "			\
+				"atmel_nand:-(root) "			\
 				"rw rootfstype=jffs2"
 
 #endif

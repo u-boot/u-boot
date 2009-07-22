@@ -142,7 +142,7 @@
 #define CONFIG_BOOTCOMMAND	"cp.b 0xC0042000 0x22000000 0x210000; bootm"
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
 				"root=/dev/mtdblock0 " \
-				"mtdparts=at91_nand:-(root) "\
+				"mtdparts=atmel_nand:-(root) "\
 				"rw rootfstype=jffs2"
 
 #else /* CONFIG_SYS_USE_NANDFLASH */
@@ -155,7 +155,7 @@
 #define CONFIG_BOOTCOMMAND	"nand read 0x22000000 0xA0000 0x200000; bootm"
 #define CONFIG_BOOTARGS		"console=ttyS0,115200 " \
 				"root=/dev/mtdblock5 " \
-				"mtdparts=at91_nand:128k(bootstrap)ro,256k(uboot)ro,128k(env1)ro,128k(env2)ro,2M(linux),-(root) " \
+				"mtdparts=atmel_nand:128k(bootstrap)ro,256k(uboot)ro,128k(env1)ro,128k(env2)ro,2M(linux),-(root) " \
 				"rw rootfstype=jffs2"
 
 #endif
