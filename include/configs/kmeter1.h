@@ -33,7 +33,6 @@
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 
-#undef CONFIG_SYS_I2C_INIT_BOARD
 #define CONFIG_MISC_INIT_R	1
 /*
  * System Clock Setup

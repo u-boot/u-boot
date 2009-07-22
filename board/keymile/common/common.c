@@ -424,6 +424,7 @@ static int get_scl (void)
 
 #endif
 
+#if !defined(CONFIG_KMETER1)
 static void writeStartSeq (void)
 {
 	set_sda (1);
@@ -474,6 +475,7 @@ static int i2c_make_abort (void)
 	get_sda ();
 	return ret;
 }
+#endif
 
 /**
  * i2c_init_board - reset i2c bus. When the board is powercycled during a
@@ -481,6 +483,23 @@ static int i2c_make_abort (void)
  */
 void i2c_init_board(void)
 {
+#if defined(CONFIG_KMETER1)
+	struct fsl_i2c *dev;
+	dev = (struct fsl_i2c *) (CONFIG_SYS_IMMR + CONFIG_SYS_I2C_OFFSET);
+	uchar	dummy;
+
+	out_8 (&dev->cr, (I2C_CR_MSTA));
+	out_8 (&dev->cr, (I2C_CR_MEN | I2C_CR_MSTA));
+	dummy = in_8(&dev->dr);
+	dummy = in_8(&dev->dr);
+	if (dummy != 0xff) {
+		dummy = in_8(&dev->dr);
+	}
+	out_8 (&dev->cr, (I2C_CR_MEN));
+	out_8 (&dev->cr, 0x00);
+	out_8 (&dev->cr, (I2C_CR_MEN));
+
+#else
 #if defined(CONFIG_HARD_I2C)
 	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR ;
 	volatile i2c8260_t *i2c	= (i2c8260_t *)&immap->im_i2c;
@@ -499,6 +518,7 @@ void i2c_init_board(void)
 #if defined(CONFIG_HARD_I2C)
 	/* Set the PortPins back to use for I2C */
 	setports (0);
+#endif
 #endif
 }
 #endif

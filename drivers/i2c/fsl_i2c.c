@@ -178,6 +178,12 @@ i2c_init(int speed, int slaveadd)
 	struct fsl_i2c *dev;
 	unsigned int temp;
 
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
+	/* call board specific i2c bus reset routine before accessing the   */
+	/* environment, which might be in a chip on that bus. For details   */
+	/* about this problem see doc/I2C_Edge_Conditions.                  */
+	i2c_init_board();
+#endif
 	dev = (struct fsl_i2c *) (CONFIG_SYS_IMMR + CONFIG_SYS_I2C_OFFSET);
 
 	writeb(0, &dev->cr);			/* stop I2C controller */
