@@ -117,7 +117,6 @@ int cpu_init_r(void)
 #ifdef CONFIG_MCFRTC
 	volatile rtc_t *rtc = (volatile rtc_t *)(CONFIG_SYS_MCFRTC_BASE);
 	volatile rtcex_t *rtcex = (volatile rtcex_t *)&rtc->extended;
-	u32 oscillator = CONFIG_SYS_RTC_OSCILLATOR;
 
 	rtcex->gocu = (CONFIG_SYS_RTC_OSCILLATOR >> 16) & 0xFFFF;
 	rtcex->gocl = CONFIG_SYS_RTC_OSCILLATOR & 0xFFFF;

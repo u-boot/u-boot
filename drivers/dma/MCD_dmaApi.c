@@ -486,7 +486,8 @@ int MCD_startDma(int channel, s8 * srcAddr, s16 srcIncr, s8 * destAddr,
 		    MCD_modelTaskTable[TASK_FECTX].TDTstart;
 		MCD_taskTable[channel].TDTend =
 		    MCD_modelTaskTable[TASK_FECTX].TDTend;
-		MCD_startDmaENetXmit(srcAddr, srcAddr, destAddr, MCD_taskTable,
+		MCD_startDmaENetXmit((char *)srcAddr, (char *)srcAddr,
+				     (char *)destAddr, MCD_taskTable,
 				     channel);
 	} else if (flags & MCD_FECRX_DMA) {
 		/* TDTStart and TDTEnd */
@@ -494,7 +495,8 @@ int MCD_startDma(int channel, s8 * srcAddr, s16 srcIncr, s8 * destAddr,
 		    MCD_modelTaskTable[TASK_FECRX].TDTstart;
 		MCD_taskTable[channel].TDTend =
 		    MCD_modelTaskTable[TASK_FECRX].TDTend;
-		MCD_startDmaENetRcv(srcAddr, srcAddr, destAddr, MCD_taskTable,
+		MCD_startDmaENetRcv((char *)srcAddr, (char *)srcAddr,
+				    (char *)destAddr, MCD_taskTable,
 				    channel);
 	} else if (flags & MCD_SINGLE_DMA) {
 		/* this buffer descriptor is used for storing off initial
@@ -532,8 +534,9 @@ int MCD_startDma(int channel, s8 * srcAddr, s16 srcIncr, s8 * destAddr,
 			    MCD_modelTaskTable[TASK_SINGLENOEU].TDTstart;
 			MCD_taskTable[channel].TDTend =
 			    MCD_modelTaskTable[TASK_SINGLENOEU].TDTend;
-			MCD_startDmaSingleNoEu(srcAddr, srcIncr, destAddr,
-					       destIncr, dmaSize, xferSizeIncr,
+			MCD_startDmaSingleNoEu((char *)srcAddr, srcIncr,
+					       (char *)destAddr, destIncr,
+					       (int)dmaSize, xferSizeIncr,
 					       flags, (int *)
 					       &(MCD_relocBuffDesc[channel]),
 					       cSave, MCD_taskTable, channel);
@@ -543,8 +546,9 @@ int MCD_startDma(int channel, s8 * srcAddr, s16 srcIncr, s8 * destAddr,
 			    MCD_modelTaskTable[TASK_SINGLEEU].TDTstart;
 			MCD_taskTable[channel].TDTend =
 			    MCD_modelTaskTable[TASK_SINGLEEU].TDTend;
-			MCD_startDmaSingleEu(srcAddr, srcIncr, destAddr,
-					     destIncr, dmaSize, xferSizeIncr,
+			MCD_startDmaSingleEu((char *)srcAddr, srcIncr,
+					     (char *)destAddr, destIncr,
+					     (int)dmaSize, xferSizeIncr,
 					     flags, (int *)
 					     &(MCD_relocBuffDesc[channel]),
 					     cSave, MCD_taskTable, channel);
