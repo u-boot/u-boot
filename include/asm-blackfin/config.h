@@ -79,6 +79,11 @@
 # define CONFIG_ENV_SPI_CS BFIN_BOOT_SPI_SSEL
 #endif
 
+/* We need envcrc to embed the env into LDRs */
+#ifdef CONFIG_ENV_IS_EMBEDDED_IN_LDR
+# define CONFIG_BUILD_ENVCRC
+#endif
+
 /* Default/common Blackfin memory layout */
 #ifndef CONFIG_SYS_SDRAM_BASE
 # define CONFIG_SYS_SDRAM_BASE 0
