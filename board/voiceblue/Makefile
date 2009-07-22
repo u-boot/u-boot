@@ -47,7 +47,7 @@ $(LIB):	$(OBJS) $(SOBJS)
 $(obj)eeprom.srec:	$(obj)eeprom.o $(obj)eeprom_start.o
 	cd $(lnk) && $(LD) -T $(LDSCRIPT) -g -Ttext $(LOAD_ADDR) \
 		-o $(<:.o=) -e eeprom eeprom.o eeprom_start.o \
-		-L$(obj)../../examples -lstubs \
+		-L$(obj)../../examples/standalone -lstubs \
 		-L$(obj)../../lib_generic -lgeneric \
 		-L$(gcclibdir) -lgcc
 	$(OBJCOPY) -O srec $(<:.o=) $@
