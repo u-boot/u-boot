@@ -22,18 +22,19 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif
 
 #ifdef CONFIG_SYS_64BIT_VSPRINTF
+#include <div64.h>
 # define NUM_TYPE long long
 #else
 # define NUM_TYPE long
-#endif
-#define noinline __attribute__((noinline))
-
 #define do_div(n, base) ({ \
 	unsigned int __res; \
 	__res = ((unsigned NUM_TYPE) n) % base; \
 	n = ((unsigned NUM_TYPE) n) / base; \
 	__res; \
 })
+#endif
+#define noinline __attribute__((noinline))
+
 
 const char hex_asc[] = "0123456789abcdef";
 #define hex_asc_lo(x)   hex_asc[((x) & 0x0f)]
