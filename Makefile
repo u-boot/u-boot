@@ -147,6 +147,13 @@ SUBDIRS	= tools \
 
 ifeq ($(obj)include/config.mk,$(wildcard $(obj)include/config.mk))
 
+# Include autoconf.mk before config.mk so that the config options are available
+# to all top level build files.  We need the dummy all: target to prevent the
+# dependency target in autoconf.mk.dep from being the default.
+all:
+sinclude $(obj)include/autoconf.mk.dep
+sinclude $(obj)include/autoconf.mk
+
 # load ARCH, BOARD, and CPU configuration
 include $(obj)include/config.mk
 export	ARCH CPU BOARD VENDOR SOC
@@ -439,9 +446,6 @@ $(obj)include/autoconf.mk: $(obj)include/config.h
 	$(CPP) $(CFLAGS) -DDO_DEPS_ONLY -dM include/common.h | \
 		sed -n -f tools/scripts/define2mk.sed > $@.tmp && \
 	mv $@.tmp $@
-
-sinclude $(obj)include/autoconf.mk.dep
-sinclude $(obj)include/autoconf.mk
 
 #########################################################################
 else	# !config.mk
