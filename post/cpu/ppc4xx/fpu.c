@@ -34,7 +34,7 @@
 
 int fpu_status(void)
 {
-	if (mfspr(ccr0) & CCR0_DAPUIB)
+	if (mfspr(SPRN_CCR0) & CCR0_DAPUIB)
 		return 0; /* Disabled */
 	else
 		return 1; /* Enabled */
@@ -43,14 +43,14 @@ int fpu_status(void)
 
 void fpu_disable(void)
 {
-	mtspr(ccr0, mfspr(ccr0) | CCR0_DAPUIB);
+	mtspr(SPRN_CCR0, mfspr(SPRN_CCR0) | CCR0_DAPUIB);
 	mtmsr(mfmsr() & ~MSR_FP);
 }
 
 
 void fpu_enable(void)
 {
-	mtspr(ccr0, mfspr(ccr0) & ~CCR0_DAPUIB);
+	mtspr(SPRN_CCR0, mfspr(SPRN_CCR0) & ~CCR0_DAPUIB);
 	mtmsr(mfmsr() | MSR_FP);
 }
 

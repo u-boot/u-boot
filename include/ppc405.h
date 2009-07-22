@@ -32,61 +32,6 @@
 #define CONFIG_SYS_DCACHE_SIZE		(2 << 10)	/* For PLX IOP480 (403)	*/
 #endif
 
-/*--------------------------------------------------------------------- */
-/* Special Purpose Registers						*/
-/*--------------------------------------------------------------------- */
-	#define  srr2  0x3de	  /* save/restore register 2 */
-	#define  srr3  0x3df	  /* save/restore register 3 */
-
-	/*
-	 * 405 does not really have CSRR0/1 but SRR2/3 are used during critical
-	 * exception for the exact same purposes - let's alias them and have a
-	 * common handling in crit_return() and CRIT_EXCEPTION
-	 */
-	#define  csrr0 srr2
-	#define  csrr1 srr3
-
-	#define  dbsr  0x3f0	  /* debug status register */
-	#define  dbcr0 0x3f2	  /* debug control register 0 */
-	#define  dbcr1 0x3bd	  /* debug control register 1 */
-	#define  iac1  0x3f4	  /* instruction address comparator 1 */
-	#define  iac2  0x3f5	  /* instruction address comparator 2 */
-	#define  iac3  0x3b4	  /* instruction address comparator 3 */
-	#define  iac4  0x3b5	  /* instruction address comparator 4 */
-	#define  dac1  0x3f6	  /* data address comparator 1 */
-	#define  dac2  0x3f7	  /* data address comparator 2 */
-	#define  dccr  0x3fa	  /* data cache control register */
-	#define  iccr  0x3fb	  /* instruction cache control register */
-	#define  esr   0x3d4	  /* execption syndrome register */
-	#define  dear  0x3d5	  /* data exeption address register */
-	#define  evpr  0x3d6	  /* exeption vector prefix register */
-	#define  tsr   0x3d8	  /* timer status register */
-	#define  tcr   0x3da	  /* timer control register */
-	#define  pit   0x3db	  /* programmable interval timer */
-	#define  sgr   0x3b9	  /* storage guarded reg      */
-	#define  dcwr  0x3ba	  /* data cache write-thru reg*/
-	#define  sler  0x3bb	  /* storage little-endian reg */
-	#define  cdbcr 0x3d7	  /* cache debug cntrl reg    */
-	#define  icdbdr 0x3d3	  /* instr cache dbug data reg*/
-	#define  ccr0  0x3b3	  /* core configuration register */
-	#define  dvc1  0x3b6	  /* data value compare register 1 */
-	#define  dvc2  0x3b7	  /* data value compare register 2 */
-	#define  pid   0x3b1	  /* process ID */
-	#define  su0r  0x3bc	  /* storage user-defined register 0 */
-	#define  zpr   0x3b0	  /* zone protection regsiter */
-
-	#define  tbl   0x11c	  /* time base lower - privileged write */
-	#define  tbu   0x11d	  /* time base upper - privileged write */
-
-	#define  sprg4r 0x104	  /* Special purpose general 4 - read only */
-	#define  sprg5r 0x105	  /* Special purpose general 5 - read only */
-	#define  sprg6r 0x106	  /* Special purpose general 6 - read only */
-	#define  sprg7r 0x107	  /* Special purpose general 7 - read only */
-	#define  sprg4w 0x114	  /* Special purpose general 4 - write only */
-	#define  sprg5w 0x115	  /* Special purpose general 5 - write only */
-	#define  sprg6w 0x116	  /* Special purpose general 6 - write only */
-	#define  sprg7w 0x117	  /* Special purpose general 7 - write only */
-
 /******************************************************************************
  * Special for PPC405GP
  ******************************************************************************/

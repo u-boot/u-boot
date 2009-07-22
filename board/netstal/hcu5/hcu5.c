@@ -89,8 +89,8 @@ int board_early_init_f(void)
 		/*
 		 * Initiate system reset in debug control register DBCR
 		 */
-		dbcr = mfspr(dbcr0);
-		mtspr(dbcr0, dbcr | CHIP_RESET);
+		dbcr = mfspr(SPRN_DBCR0);
+		mtspr(SPRN_DBCR0, dbcr | CHIP_RESET);
 	}
 	mtsdr(SDR0_CP440, 0x0EAAEA02);  /* [Nto1] = 1*/
 #endif
@@ -307,14 +307,14 @@ int misc_init_r(void)
 	/* We cannot easily enable trace before, as there are other
 	 * routines messing around with sdr0_pfc1. And I do not need it.
 	 */
-	if (mfspr(dbcr0) & 0x80000000) {
+	if (mfspr(SPRN_DBCR0) & 0x80000000) {
 		/* External debugger alive
 		 * enable trace facilty for Lauterbach
 		 * CCR0[DTB]=0		Enable broadcast of trace information
 		 * SDR0_PFC0[TRE]	Trace signals are enabled instead of
 		 *			GPIO49-63
 		 */
-	        mtspr(ccr0, mfspr(ccr0)  &~ (CCR0_DTB));
+	        mtspr(SPRN_CCR0, mfspr(SPRN_CCR0)  &~ (CCR0_DTB));
 		mtsdr(SDR0_PFC0, sdr0_pfc1 | SDR0_PFC0_TRE_ENABLE);
 	}
 	return 0;

@@ -102,15 +102,15 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 	 * Init PIT
 	 */
 #if defined(CONFIG_440)
-	val = mfspr( tcr );
+	val = mfspr( SPRN_TCR );
 	val &= (~0x04400000);		/* clear DIS & ARE */
-	mtspr( tcr, val );
-	mtspr( dec, 0 );		/* Prevent exception after TSR clear*/
-	mtspr( decar, 0 );		/* clear reload */
-	mtspr( tsr, 0x08000000 );	/* clear DEC status */
+	mtspr( SPRN_TCR, val );
+	mtspr( SPRN_DEC, 0 );		/* Prevent exception after TSR clear*/
+	mtspr( SPRN_DECAR, 0 );		/* clear reload */
+	mtspr( SPRN_TSR, 0x08000000 );	/* clear DEC status */
 	val = gd->bd->bi_intfreq/1000;	/* 1 msec */
-	mtspr( decar, val );		/* Set auto-reload value */
-	mtspr( dec, val );		/* Set inital val */
+	mtspr( SPRN_DECAR, val );		/* Set auto-reload value */
+	mtspr( SPRN_DEC, val );		/* Set inital val */
 #else
 	set_pit(gd->bd->bi_intfreq / 1000);
 #endif
@@ -126,9 +126,9 @@ int interrupt_init_cpu (unsigned *decrementer_count)
 	/*
 	 * Enable PIT
 	 */
-	val = mfspr(tcr);
+	val = mfspr(SPRN_TCR);
 	val |= 0x04400000;
-	mtspr(tcr, val);
+	mtspr(SPRN_TCR, val);
 
 	/*
 	 * Set EVPR to 0
