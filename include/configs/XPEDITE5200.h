@@ -129,6 +129,7 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500		/* Flash Write Timeout (ms) */
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_AUTOPROTECT_LIST	{ {0xfff40000, 0xc0000}, \
 						  {0xfbf40000, 0xc0000} }
 #define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
@@ -369,6 +370,7 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(16 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTM_LEN	(16 << 20)	/* Increase max gunzip size */
 
 /*
  * Boot Flags

@@ -56,7 +56,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->timing_cfg_1, regs->timing_cfg_1);
 	out_be32(&ddr->timing_cfg_2, regs->timing_cfg_2);
 	out_be32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
-	out_be32(&ddr->sdram_mode_1, regs->ddr_sdram_mode);
+	out_be32(&ddr->sdram_mode, regs->ddr_sdram_mode);
 	out_be32(&ddr->sdram_mode_2, regs->ddr_sdram_mode_2);
 	out_be32(&ddr->sdram_mode_cntl, regs->ddr_sdram_md_cntl);
 	out_be32(&ddr->sdram_interval, regs->ddr_sdram_interval);
@@ -74,7 +74,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	udelay(200);
 	asm volatile("sync;isync");
 
-	out_be32(&ddr->sdram_cfg_1, regs->ddr_sdram_cfg);
+	out_be32(&ddr->sdram_cfg, regs->ddr_sdram_cfg);
 
 	/*
 	 * Poll DDR_SDRAM_CFG_2[D_INIT] bit until auto-data init is done

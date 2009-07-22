@@ -282,6 +282,11 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 #define PIXIS_VWATCH		0x24	/* Watchdog Register */
 #define PIXIS_LED		0x25	/* LED Register */
 
+#define PIXIS_SW(x)		0x20 + (x - 1) * 2
+#define PIXIS_EN(x)		0x21 + (x - 1) * 2
+#define PIXIS_SW7_LBMAP		0xc0	/* SW7 - cfg_lbmap */
+#define PIXIS_SW7_VBANK		0x30	/* SW7 - cfg_vbank */
+
 /* old pixis referenced names */
 #define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
 #define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */
@@ -636,10 +641,10 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 16 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTMAPSZ	(16 << 20)	/* Initial Memory map for Linux*/
 
 /*
  * Internal Definitions
