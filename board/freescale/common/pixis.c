@@ -39,7 +39,8 @@ static ulong strfractoint(uchar *strptr);
  */
 void pixis_reset(void)
 {
-    out8(PIXIS_BASE + PIXIS_RST, 0);
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+	out_8(pixis_base + PIXIS_RST, 0);
 }
 
 
@@ -49,6 +50,7 @@ void pixis_reset(void)
 int set_px_sysclk(ulong sysclk)
 {
 	u8 sysclk_s, sysclk_r, sysclk_v, vclkh, vclkl, sysclk_aux;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
 	switch (sysclk) {
 	case 33:
@@ -107,10 +109,10 @@ int set_px_sysclk(ulong sysclk)
 	vclkh = (sysclk_s << 5) | sysclk_r;
 	vclkl = sysclk_v;
 
-	out8(PIXIS_BASE + PIXIS_VCLKH, vclkh);
-	out8(PIXIS_BASE + PIXIS_VCLKL, vclkl);
+	out_8(pixis_base + PIXIS_VCLKH, vclkh);
+	out_8(pixis_base + PIXIS_VCLKL, vclkl);
 
-	out8(PIXIS_BASE + PIXIS_AUX, sysclk_aux);
+	out_8(pixis_base + PIXIS_AUX, sysclk_aux);
 
 	return 1;
 }
@@ -120,6 +122,7 @@ int set_px_mpxpll(ulong mpxpll)
 {
 	u8 tmp;
 	u8 val;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
 	switch (mpxpll) {
 	case 2:
@@ -137,9 +140,9 @@ int set_px_mpxpll(ulong mpxpll)
 		return 0;
 	}
 
-	tmp = in8(PIXIS_BASE + PIXIS_VSPEED1);
+	tmp = in_8(pixis_base + PIXIS_VSPEED1);
 	tmp = (tmp & 0xF0) | (val & 0x0F);
-	out8(PIXIS_BASE + PIXIS_VSPEED1, tmp);
+	out_8(pixis_base + PIXIS_VSPEED1, tmp);
 
 	return 1;
 }
@@ -149,6 +152,7 @@ int set_px_corepll(ulong corepll)
 {
 	u8 tmp;
 	u8 val;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
 	switch ((int)corepll) {
 	case 20:
@@ -174,9 +178,9 @@ int set_px_corepll(ulong corepll)
 		return 0;
 	}
 
-	tmp = in8(PIXIS_BASE + PIXIS_VSPEED0);
+	tmp = in_8(pixis_base + PIXIS_VSPEED0);
 	tmp = (tmp & 0xE0) | (val & 0x1F);
-	out8(PIXIS_BASE + PIXIS_VSPEED0, tmp);
+	out_8(pixis_base + PIXIS_VSPEED0, tmp);
 
 	return 1;
 }
@@ -184,27 +188,29 @@ int set_px_corepll(ulong corepll)
 
 void read_from_px_regs(int set)
 {
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 	u8 mask = 0x1C;	/* COREPLL, MPXPLL, SYSCLK controlled by PIXIS */
-	u8 tmp = in8(PIXIS_BASE + PIXIS_VCFGEN0);
+	u8 tmp = in_8(pixis_base + PIXIS_VCFGEN0);
 
 	if (set)
 		tmp = tmp | mask;
 	else
 		tmp = tmp & ~mask;
-	out8(PIXIS_BASE + PIXIS_VCFGEN0, tmp);
+	out_8(pixis_base + PIXIS_VCFGEN0, tmp);
 }
 
 
 void read_from_px_regs_altbank(int set)
 {
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 	u8 mask = 0x04;	/* FLASHBANK and FLASHMAP controlled by PIXIS */
-	u8 tmp = in8(PIXIS_BASE + PIXIS_VCFGEN1);
+	u8 tmp = in_8(pixis_base + PIXIS_VCFGEN1);
 
 	if (set)
 		tmp = tmp | mask;
 	else
 		tmp = tmp & ~mask;
-	out8(PIXIS_BASE + PIXIS_VCFGEN1, tmp);
+	out_8(pixis_base + PIXIS_VCFGEN1, tmp);
 }
 
 #ifndef CONFIG_SYS_PIXIS_VBOOT_MASK
@@ -214,50 +220,54 @@ void read_from_px_regs_altbank(int set)
 void clear_altbank(void)
 {
 	u8 tmp;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	tmp = in8(PIXIS_BASE + PIXIS_VBOOT);
+	tmp = in_8(pixis_base + PIXIS_VBOOT);
 	tmp &= ~CONFIG_SYS_PIXIS_VBOOT_MASK;
 
-	out8(PIXIS_BASE + PIXIS_VBOOT, tmp);
+	out_8(pixis_base + PIXIS_VBOOT, tmp);
 }
 
 
 void set_altbank(void)
 {
 	u8 tmp;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	tmp = in8(PIXIS_BASE + PIXIS_VBOOT);
+	tmp = in_8(pixis_base + PIXIS_VBOOT);
 	tmp |= CONFIG_SYS_PIXIS_VBOOT_MASK;
 
-	out8(PIXIS_BASE + PIXIS_VBOOT, tmp);
+	out_8(pixis_base + PIXIS_VBOOT, tmp);
 }
 
 
 void set_px_go(void)
 {
 	u8 tmp;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	tmp = in8(PIXIS_BASE + PIXIS_VCTL);
+	tmp = in_8(pixis_base + PIXIS_VCTL);
 	tmp = tmp & 0x1E;			/* clear GO bit */
-	out8(PIXIS_BASE + PIXIS_VCTL, tmp);
+	out_8(pixis_base + PIXIS_VCTL, tmp);
 
-	tmp = in8(PIXIS_BASE + PIXIS_VCTL);
+	tmp = in_8(pixis_base + PIXIS_VCTL);
 	tmp = tmp | 0x01;	/* set GO bit - start reset sequencer */
-	out8(PIXIS_BASE + PIXIS_VCTL, tmp);
+	out_8(pixis_base + PIXIS_VCTL, tmp);
 }
 
 
 void set_px_go_with_watchdog(void)
 {
 	u8 tmp;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	tmp = in8(PIXIS_BASE + PIXIS_VCTL);
+	tmp = in_8(pixis_base + PIXIS_VCTL);
 	tmp = tmp & 0x1E;
-	out8(PIXIS_BASE + PIXIS_VCTL, tmp);
+	out_8(pixis_base + PIXIS_VCTL, tmp);
 
-	tmp = in8(PIXIS_BASE + PIXIS_VCTL);
+	tmp = in_8(pixis_base + PIXIS_VCTL);
 	tmp = tmp | 0x09;
-	out8(PIXIS_BASE + PIXIS_VCTL, tmp);
+	out_8(pixis_base + PIXIS_VCTL, tmp);
 }
 
 
@@ -265,15 +275,16 @@ int pixis_disable_watchdog_cmd(cmd_tbl_t *cmdtp,
 			       int flag, int argc, char *argv[])
 {
 	u8 tmp;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	tmp = in8(PIXIS_BASE + PIXIS_VCTL);
+	tmp = in_8(pixis_base + PIXIS_VCTL);
 	tmp = tmp & 0x1E;
-	out8(PIXIS_BASE + PIXIS_VCTL, tmp);
+	out_8(pixis_base + PIXIS_VCTL, tmp);
 
 	/* setting VCTL[WDEN] to 0 to disable watch dog */
-	tmp = in8(PIXIS_BASE + PIXIS_VCTL);
+	tmp = in_8(pixis_base + PIXIS_VCTL);
 	tmp &= ~0x08;
-	out8(PIXIS_BASE + PIXIS_VCTL, tmp);
+	out_8(pixis_base + PIXIS_VCTL, tmp);
 
 	return 0;
 }
@@ -288,6 +299,7 @@ U_BOOT_CMD(
 int pixis_set_sgmii(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int which_tsec = -1;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 	uchar mask;
 	uchar switch_mask;
 
@@ -328,17 +340,15 @@ int pixis_set_sgmii(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* Toggle whether the switches or FPGA control the settings */
 	if (!strcmp(argv[argc - 1], "switch"))
-		clrbits_8((unsigned char *)PIXIS_BASE + PIXIS_VCFGEN1,
-			switch_mask);
+		clrbits_8(pixis_base + PIXIS_VCFGEN1, switch_mask);
 	else
-		setbits_8((unsigned char *)PIXIS_BASE + PIXIS_VCFGEN1,
-			switch_mask);
+		setbits_8(pixis_base + PIXIS_VCFGEN1, switch_mask);
 
 	/* If it's not the switches, enable or disable SGMII, as specified */
 	if (!strcmp(argv[argc - 1], "on"))
-		clrbits_8((unsigned char *)PIXIS_BASE + PIXIS_VSPEED2, mask);
+		clrbits_8(pixis_base + PIXIS_VSPEED2, mask);
 	else if (!strcmp(argv[argc - 1], "off"))
-		setbits_8((unsigned char *)PIXIS_BASE + PIXIS_VSPEED2, mask);
+		setbits_8(pixis_base + PIXIS_VSPEED2, mask);
 
 	return 0;
 }

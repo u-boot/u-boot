@@ -69,9 +69,10 @@ void mpc8610hpcd_diu_init(void)
 	unsigned int pixel_format;
 	unsigned char tmp_val;
 	unsigned char pixis_arch;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	tmp_val = in8(PIXIS_BASE + PIXIS_BRDCFG0);
-	pixis_arch = in8(PIXIS_BASE + PIXIS_VER);
+	tmp_val = in_8(pixis_base + PIXIS_BRDCFG0);
+	pixis_arch = in_8(pixis_base + PIXIS_VER);
 
 	monitor_port = getenv("monitor");
 	if (!strncmp(monitor_port, "0", 1)) {	/* 0 - DVI */
@@ -82,28 +83,28 @@ void mpc8610hpcd_diu_init(void)
 		else
 			pixel_format = 0x88883316;
 		gamma_fix = 0;
-		out8(PIXIS_BASE + PIXIS_BRDCFG0, tmp_val | 0x08);
+		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val | 0x08);
 
 	} else if (!strncmp(monitor_port, "1", 1)) { /* 1 - Single link LVDS */
 		xres = 1024;
 		yres = 768;
 		pixel_format = 0x88883316;
 		gamma_fix = 0;
-		out8(PIXIS_BASE + PIXIS_BRDCFG0, (tmp_val & 0xf7) | 0x10);
+		out_8(pixis_base + PIXIS_BRDCFG0, (tmp_val & 0xf7) | 0x10);
 
 	} else if (!strncmp(monitor_port, "2", 1)) { /* 2 - Double link LVDS */
 		xres = 1280;
 		yres = 1024;
 		pixel_format = 0x88883316;
 		gamma_fix = 1;
-		out8(PIXIS_BASE + PIXIS_BRDCFG0, tmp_val & 0xe7);
+		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val & 0xe7);
 
 	} else {	/* DVI */
 		xres = 1280;
 		yres = 1024;
 		pixel_format = 0x88882317;
 		gamma_fix = 0;
-		out8(PIXIS_BASE + PIXIS_BRDCFG0, tmp_val | 0x08);
+		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val | 0x08);
 	}
 
 	fsl_diu_init(xres, pixel_format, gamma_fix,

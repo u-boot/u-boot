@@ -310,11 +310,12 @@ get_board_sys_clk(ulong dummy)
 {
 	u8 i, go_bit, rd_clks;
 	ulong val = 0;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	go_bit = in8(PIXIS_BASE + PIXIS_VCTL);
+	go_bit = in_8(pixis_base + PIXIS_VCTL);
 	go_bit &= 0x01;
 
-	rd_clks = in8(PIXIS_BASE + PIXIS_VCFGEN0);
+	rd_clks = in_8(pixis_base + PIXIS_VCFGEN0);
 	rd_clks &= 0x1C;
 
 	/*
@@ -325,11 +326,11 @@ get_board_sys_clk(ulong dummy)
 
 	if (go_bit) {
 		if (rd_clks == 0x1c)
-			i = in8(PIXIS_BASE + PIXIS_AUX);
+			i = in_8(pixis_base + PIXIS_AUX);
 		else
-			i = in8(PIXIS_BASE + PIXIS_SPD);
+			i = in_8(pixis_base + PIXIS_SPD);
 	} else {
-		i = in8(PIXIS_BASE + PIXIS_SPD);
+		i = in_8(pixis_base + PIXIS_SPD);
 	}
 
 	i &= 0x07;
@@ -373,7 +374,9 @@ int board_eth_init(bd_t *bis)
 
 void board_reset(void)
 {
-	out8(PIXIS_BASE + PIXIS_RST, 0);
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
+	out_8(pixis_base + PIXIS_RST, 0);
 
 	while (1)
 		;

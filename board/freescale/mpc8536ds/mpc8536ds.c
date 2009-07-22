@@ -529,20 +529,24 @@ ics307_clk_freq (unsigned char cw0, unsigned char cw1, unsigned char cw2)
 unsigned long
 get_board_sys_clk(ulong dummy)
 {
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
 	return ics307_clk_freq (
-	    in8(PIXIS_BASE + PIXIS_VSYSCLK0),
-	    in8(PIXIS_BASE + PIXIS_VSYSCLK1),
-	    in8(PIXIS_BASE + PIXIS_VSYSCLK2)
+	    in_8(pixis_base + PIXIS_VSYSCLK0),
+	    in_8(pixis_base + PIXIS_VSYSCLK1),
+	    in_8(pixis_base + PIXIS_VSYSCLK2)
 	);
 }
 
 unsigned long
 get_board_ddr_clk(ulong dummy)
 {
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
+
 	return ics307_clk_freq (
-	    in8(PIXIS_BASE + PIXIS_VDDRCLK0),
-	    in8(PIXIS_BASE + PIXIS_VDDRCLK1),
-	    in8(PIXIS_BASE + PIXIS_VDDRCLK2)
+	    in_8(pixis_base + PIXIS_VDDRCLK0),
+	    in_8(pixis_base + PIXIS_VDDRCLK1),
+	    in_8(pixis_base + PIXIS_VDDRCLK2)
 	);
 }
 #else
@@ -551,8 +555,9 @@ get_board_sys_clk(ulong dummy)
 {
 	u8 i;
 	ulong val = 0;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	i = in8(PIXIS_BASE + PIXIS_SPD);
+	i = in_8(pixis_base + PIXIS_SPD);
 	i &= 0x07;
 
 	switch (i) {
@@ -590,8 +595,9 @@ get_board_ddr_clk(ulong dummy)
 {
 	u8 i;
 	ulong val = 0;
+	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	i = in8(PIXIS_BASE + PIXIS_SPD);
+	i = in_8(pixis_base + PIXIS_SPD);
 	i &= 0x38;
 	i >>= 3;
 
