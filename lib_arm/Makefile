@@ -29,6 +29,7 @@ LIBGCC	= $(obj)libgcc.a
 GLSOBJS	+= _ashldi3.o
 GLSOBJS	+= _ashrdi3.o
 GLSOBJS	+= _divsi3.o
+GLSOBJS	+= _lshrdi3.o
 GLSOBJS	+= _modsi3.o
 GLSOBJS	+= _udivsi3.o
 GLSOBJS	+= _umodsi3.o
