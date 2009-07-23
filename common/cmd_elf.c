@@ -287,7 +287,7 @@ unsigned long load_elf_image (unsigned long addr)
 		}
 
 		if (strtab) {
-			printf ("%sing %s @ 0x%08lx (%ld bytes)\n",
+			debug("%sing %s @ 0x%08lx (%ld bytes)\n",
 				(shdr->sh_type == SHT_NOBITS) ?
 					"Clear" : "Load",
 				&strtab[shdr->sh_name],
