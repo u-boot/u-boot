@@ -36,7 +36,7 @@
  * By default single chip mode is configured
  * multichip mode operation can be configured in board header
  */
-static int mv88e61xx_busychk_multic(u32 devaddr)
+static int mv88e61xx_busychk_multic(char *name, u32 devaddr)
 {
 	u32 reg = 0;
 	u32 timeout = MV88E61XX_PHY_TIMEOUT;
@@ -58,11 +58,11 @@ static void mv88e61xx_wr_phy(char *name, u32 phy_adr, u32 reg_ofs, u16 data)
 	u32 mii_dev_addr;
 
 	/* command to read PHY dev address */
-	if (!miiphy_read(name, 0xEE, 0xEE, &mii_dev_addr)) {
+	if (miiphy_read(name, 0xEE, 0xEE, &mii_dev_addr)) {
 		printf("Error..could not read PHY dev address\n");
 		return;
 	}
-	mv88e61xx_busychk_multic(mii_dev_addr);
+	mv88e61xx_busychk_multic(name, mii_dev_addr);
 	/* Write data to Switch indirect data register */
 	miiphy_write(name, mii_dev_addr, 0x1, data);
 	/* Write command to Switch indirect command register (write) */
@@ -77,18 +77,18 @@ static void mv88e61xx_rd_phy(char *name, u32 phy_adr, u32 reg_ofs, u16 * data)
 	u32 mii_dev_addr;
 
 	/* command to read PHY dev address */
-	if (!miiphy_read(name, 0xEE, 0xEE, &mii_dev_addr)) {
+	if (miiphy_read(name, 0xEE, 0xEE, &mii_dev_addr)) {
 		printf("Error..could not read PHY dev address\n");
 		return;
 	}
-	mv88e61xx_busychk_multic(mii_dev_addr);
+	mv88e61xx_busychk_multic(name, mii_dev_addr);
 	/* Write command to Switch indirect command register (read) */
 	miiphy_write(name, mii_dev_addr, 0x0,
-		     reg_ofs | (phy_adr << 5) | (1 << 10) | (1 << 12) | (1 <<
+		     reg_ofs | (phy_adr << 5) | (1 << 11) | (1 << 12) | (1 <<
 									 15));
-	mv88e61xx_busychk_multic(mii_dev_addr);
+	mv88e61xx_busychk_multic(name, mii_dev_addr);
 	/* Read data from Switch indirect data register */
-	miiphy_read(name, mii_dev_addr, 0x1, (u16 *) & data);
+	miiphy_read(name, mii_dev_addr, 0x1, data);
 }
 #endif /* CONFIG_MV88E61XX_MULTICHIP_ADRMODE */
 
@@ -212,7 +212,7 @@ static int mv88e61xx_busychk(char *name)
 			printf("SMI busy timeout\n");
 			return -1;
 		}
-	} while (reg & 1 << 28);	/* busy mask */
+	} while (reg & 1 << 15);	/* busy mask */
 	return 0;
 }
 

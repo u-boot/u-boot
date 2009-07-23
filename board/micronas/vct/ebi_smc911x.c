@@ -18,6 +18,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include "vct.h"
 
@@ -45,10 +46,11 @@ int ebi_init_smc911x(void)
  * Accessor functions replacing the "weak" functions in
  * drivers/net/smc911x.c
  */
-u32 smc911x_reg_read(u32 addr)
+u32 smc911x_reg_read(struct eth_device *dev, u32 addr)
 {
 	volatile u32 data;
 
+	addr += dev->iobase;
 	reg_write(EBI_DEV1_CONFIG2(EBI_BASE), 0x0000004F);
 	ebi_wait();
 	reg_write(EBI_CPU_IO_ACCS(EBI_BASE), (EXT_DEVICE_CHANNEL_1 | addr));
@@ -58,8 +60,9 @@ u32 smc911x_reg_read(u32 addr)
 	return (data);
 }
 
-void smc911x_reg_write(u32 addr, u32 data)
+void smc911x_reg_write(struct eth_device *dev, u32 addr, u32 data)
 {
+	addr += dev->iobase;
 	reg_write(EBI_DEV1_CONFIG2(EBI_BASE), 0x0000004F);
 	ebi_wait();
 	reg_write(EBI_IO_ACCS_DATA(EBI_BASE), data);
@@ -68,8 +71,9 @@ void smc911x_reg_write(u32 addr, u32 data)
 	ebi_wait();
 }
 
-void pkt_data_push(u32 addr, u32 data)
+void pkt_data_push(struct eth_device *dev, u32 addr, u32 data)
 {
+	addr += dev->iobase;
 	reg_write(EBI_DEV1_CONFIG2(EBI_BASE), 0x0000004A);
 	ebi_wait();
 	reg_write(EBI_IO_ACCS_DATA(EBI_BASE), data);
@@ -80,10 +84,11 @@ void pkt_data_push(u32 addr, u32 data)
 	return;
 }
 
-u32 pkt_data_pull(u32 addr)
+u32 pkt_data_pull(struct eth_device *dev, u32 addr)
 {
 	volatile u32 data;
 
+	addr += dev->iobase;
 	reg_write(EBI_DEV1_CONFIG2(EBI_BASE), 0x0000004A);
 	ebi_wait();
 	reg_write(EBI_CPU_IO_ACCS(EBI_BASE), (EXT_DEVICE_CHANNEL_1 | addr));
@@ -91,4 +96,13 @@ u32 pkt_data_pull(u32 addr)
 	data = reg_read(EBI_IO_ACCS_DATA(EBI_BASE));
 
 	return data;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_SMC911X
+	rc = smc911x_initialize(0, CONFIG_DRIVER_SMC911X_BASE);
+#endif
+	return rc;
 }

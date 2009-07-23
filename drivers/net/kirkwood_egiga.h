@@ -256,6 +256,7 @@
 #define KWGBE_UR_ERROR			(1 << 1)
 #define KWGBE_RL_ERROR			(1 << 2)
 #define KWGBE_LLC_SNAP_FORMAT		(1 << 9)
+#define KWGBE_TX_LAST_FRAME		(1 << 20)
 
 /* Rx descriptors status */
 #define KWGBE_CRC_ERROR			0

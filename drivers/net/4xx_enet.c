@@ -870,7 +870,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
     defined(CONFIG_405EX)
 	u32 opbfreq;
 	sys_info_t sysinfo;
-#if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
+#if defined(CONFIG_440GX) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
     defined(CONFIG_405EX)
@@ -1119,7 +1119,6 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 
 #if defined(CONFIG_440GX) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
     defined(CONFIG_405EX)
 

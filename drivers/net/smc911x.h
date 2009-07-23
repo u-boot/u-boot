@@ -27,45 +27,51 @@
 
 #include <linux/types.h>
 
-#if defined (CONFIG_DRIVER_SMC911X_32_BIT) && \
-	defined (CONFIG_DRIVER_SMC911X_16_BIT)
-#error "SMC911X: Only one of CONFIG_DRIVER_SMC911X_32_BIT and \
-	CONFIG_DRIVER_SMC911X_16_BIT shall be set"
+#define DRIVERNAME "smc911x"
+
+#if defined (CONFIG_SMC911X_32_BIT) && \
+	defined (CONFIG_SMC911X_16_BIT)
+#error "SMC911X: Only one of CONFIG_SMC911X_32_BIT and \
+	CONFIG_SMC911X_16_BIT shall be set"
 #endif
 
-#if defined (CONFIG_DRIVER_SMC911X_32_BIT)
-static inline u32 __smc911x_reg_read(u32 addr)
+#if defined (CONFIG_SMC911X_32_BIT)
+static inline u32 __smc911x_reg_read(struct eth_device *dev, u32 offset)
 {
-	return *(volatile u32*)addr;
+	return *(volatile u32*)(dev->iobase + offset);
 }
-u32 smc911x_reg_read(u32 addr) __attribute__((weak, alias("__smc911x_reg_read")));
+u32 smc911x_reg_read(struct eth_device *dev, u32 offset)
+	__attribute__((weak, alias("__smc911x_reg_read")));
 
-static inline void __smc911x_reg_write(u32 addr, u32 val)
+static inline void __smc911x_reg_write(struct eth_device *dev,
+					u32 offset, u32 val)
 {
-	*(volatile u32*)addr = val;
+	*(volatile u32*)(dev->iobase + offset) = val;
 }
-void smc911x_reg_write(u32 addr, u32 val) __attribute__((weak, alias("__smc911x_reg_write")));
-#elif defined (CONFIG_DRIVER_SMC911X_16_BIT)
-static inline u32 smc911x_reg_read(u32 addr)
+void smc911x_reg_write(struct eth_device *dev, u32 offset, u32 val)
+	__attribute__((weak, alias("__smc911x_reg_write")));
+#elif defined (CONFIG_SMC911X_16_BIT)
+static inline u32 smc911x_reg_read(struct eth_device *dev, u32 offset)
 {
-	volatile u16 *addr_16 = (u16 *)addr;
+	volatile u16 *addr_16 = (u16 *)(dev->iobase + offset);
 	return ((*addr_16 & 0x0000ffff) | (*(addr_16 + 1) << 16));
 }
-static inline void smc911x_reg_write(u32 addr, u32 val)
+static inline void smc911x_reg_write(struct eth_device *dev,
+					u32 offset, u32 val)
 {
-	*(volatile u16*)addr = (u16)val;
-	*(volatile u16*)(addr + 2) = (u16)(val >> 16);
+	*(volatile u16 *)(dev->iobase + offset) = (u16)val;
+	*(volatile u16 *)(dev->iobase + offset + 2) = (u16)(val >> 16);
 }
 #else
 #error "SMC911X: undefined bus width"
-#endif /* CONFIG_DRIVER_SMC911X_16_BIT */
+#endif /* CONFIG_SMC911X_16_BIT */
 
 /* Below are the register offsets and bit definitions
  * of the Lan911x memory space
  */
-#define RX_DATA_FIFO		 (CONFIG_DRIVER_SMC911X_BASE + 0x00)
+#define RX_DATA_FIFO		 		0x00
 
-#define TX_DATA_FIFO		 (CONFIG_DRIVER_SMC911X_BASE + 0x20)
+#define TX_DATA_FIFO		 		0x20
 #define	TX_CMD_A_INT_ON_COMP			0x80000000
 #define	TX_CMD_A_INT_BUF_END_ALGN		0x03000000
 #define	TX_CMD_A_INT_4_BYTE_ALGN		0x00000000
@@ -80,7 +86,7 @@ static inline void smc911x_reg_write(u32 addr, u32 val)
 #define	TX_CMD_B_DISABLE_PADDING		0x00001000
 #define	TX_CMD_B_PKT_BYTE_LENGTH		0x000007FF
 
-#define RX_STATUS_FIFO		(CONFIG_DRIVER_SMC911X_BASE + 0x40)
+#define RX_STATUS_FIFO				0x40
 #define	RX_STS_PKT_LEN				0x3FFF0000
 #define	RX_STS_ES				0x00008000
 #define	RX_STS_BCST				0x00002000
@@ -94,8 +100,8 @@ static inline void smc911x_reg_write(u32 addr, u32 val)
 #define	RX_STS_MII_ERR				0x00000008
 #define	RX_STS_DRIBBLING			0x00000004
 #define	RX_STS_CRC_ERR				0x00000002
-#define RX_STATUS_FIFO_PEEK	(CONFIG_DRIVER_SMC911X_BASE + 0x44)
-#define TX_STATUS_FIFO		(CONFIG_DRIVER_SMC911X_BASE + 0x48)
+#define RX_STATUS_FIFO_PEEK			0x44
+#define TX_STATUS_FIFO				0x48
 #define	TX_STS_TAG				0xFFFF0000
 #define	TX_STS_ES				0x00008000
 #define	TX_STS_LOC				0x00000800
@@ -106,21 +112,23 @@ static inline void smc911x_reg_write(u32 addr, u32 val)
 #define	TX_STS_MANY_DEFER			0x00000004
 #define	TX_STS_UNDERRUN				0x00000002
 #define	TX_STS_DEFERRED				0x00000001
-#define TX_STATUS_FIFO_PEEK	(CONFIG_DRIVER_SMC911X_BASE + 0x4C)
-#define ID_REV			(CONFIG_DRIVER_SMC911X_BASE + 0x50)
+#define TX_STATUS_FIFO_PEEK			0x4C
+#define ID_REV					0x50
 #define	ID_REV_CHIP_ID				0xFFFF0000  /* RO */
 #define	ID_REV_REV_ID				0x0000FFFF  /* RO */
 
-#define INT_CFG			(CONFIG_DRIVER_SMC911X_BASE + 0x54)
+#define INT_CFG					0x54
 #define	INT_CFG_INT_DEAS			0xFF000000  /* R/W */
 #define	INT_CFG_INT_DEAS_CLR			0x00004000
 #define	INT_CFG_INT_DEAS_STS			0x00002000
 #define	INT_CFG_IRQ_INT				0x00001000  /* RO */
 #define	INT_CFG_IRQ_EN				0x00000100  /* R/W */
-#define	INT_CFG_IRQ_POL				0x00000010  /* R/W Not Affected by SW Reset */
-#define	INT_CFG_IRQ_TYPE			0x00000001  /* R/W Not Affected by SW Reset */
+					/* R/W Not Affected by SW Reset */
+#define	INT_CFG_IRQ_POL				0x00000010
+					/* R/W Not Affected by SW Reset */
+#define	INT_CFG_IRQ_TYPE			0x00000001
 
-#define INT_STS			(CONFIG_DRIVER_SMC911X_BASE + 0x58)
+#define INT_STS					0x58
 #define	INT_STS_SW_INT				0x80000000  /* R/WC */
 #define	INT_STS_TXSTOP_INT			0x02000000  /* R/WC */
 #define	INT_STS_RXSTOP_INT			0x01000000  /* R/WC */
@@ -149,7 +157,7 @@ static inline void smc911x_reg_write(u32 addr, u32 val)
 #define	INT_STS_GPIO2_INT			0x00000004  /* R/WC */
 #define	INT_STS_GPIO1_INT			0x00000002  /* R/WC */
 #define	INT_STS_GPIO0_INT			0x00000001  /* R/WC */
-#define INT_EN			(CONFIG_DRIVER_SMC911X_BASE + 0x5C)
+#define INT_EN					0x5C
 #define	INT_EN_SW_INT_EN			0x80000000  /* R/W */
 #define	INT_EN_TXSTOP_INT_EN			0x02000000  /* R/W */
 #define	INT_EN_RXSTOP_INT_EN			0x01000000  /* R/W */
@@ -179,14 +187,14 @@ static inline void smc911x_reg_write(u32 addr, u32 val)
 #define	INT_EN_GPIO1_INT			0x00000002  /* R/W */
 #define	INT_EN_GPIO0_INT			0x00000001  /* R/W */
 
-#define BYTE_TEST		(CONFIG_DRIVER_SMC911X_BASE + 0x64)
-#define FIFO_INT		(CONFIG_DRIVER_SMC911X_BASE + 0x68)
+#define BYTE_TEST				0x64
+#define FIFO_INT				0x68
 #define	FIFO_INT_TX_AVAIL_LEVEL			0xFF000000  /* R/W */
 #define	FIFO_INT_TX_STS_LEVEL			0x00FF0000  /* R/W */
 #define	FIFO_INT_RX_AVAIL_LEVEL			0x0000FF00  /* R/W */
 #define	FIFO_INT_RX_STS_LEVEL			0x000000FF  /* R/W */
 
-#define RX_CFG			(CONFIG_DRIVER_SMC911X_BASE + 0x6C)
+#define RX_CFG					0x6C
 #define	RX_CFG_RX_END_ALGN			0xC0000000  /* R/W */
 #define		RX_CFG_RX_END_ALGN4		0x00000000  /* R/W */
 #define		RX_CFG_RX_END_ALGN16		0x40000000  /* R/W */
@@ -196,16 +204,17 @@ static inline void smc911x_reg_write(u32 addr, u32 val)
 #define	RX_CFG_RXDOFF				0x00001F00  /* R/W */
 /*#define	RX_CFG_RXBAD			0x00000001*/  /* R/W */
 
-#define TX_CFG			(CONFIG_DRIVER_SMC911X_BASE + 0x70)
+#define TX_CFG					0x70
 /*#define	TX_CFG_TX_DMA_LVL		0xE0000000*/	 /* R/W */
-/*#define	TX_CFG_TX_DMA_CNT		0x0FFF0000*/	 /* R/W Self Clearing */
+						 /* R/W Self Clearing */
+/*#define	TX_CFG_TX_DMA_CNT		0x0FFF0000*/
 #define	TX_CFG_TXS_DUMP				0x00008000  /* Self Clearing */
 #define	TX_CFG_TXD_DUMP				0x00004000  /* Self Clearing */
 #define	TX_CFG_TXSAO				0x00000004  /* R/W */
 #define	TX_CFG_TX_ON				0x00000002  /* R/W */
 #define	TX_CFG_STOP_TX				0x00000001  /* Self Clearing */
 
-#define HW_CFG			(CONFIG_DRIVER_SMC911X_BASE + 0x74)
+#define HW_CFG					0x74
 #define	HW_CFG_TTM				0x00200000  /* R/W */
 #define	HW_CFG_SF				0x00100000  /* R/W */
 #define	HW_CFG_TX_FIF_SZ			0x000F0000  /* R/W */
@@ -221,24 +230,25 @@ static inline void smc911x_reg_write(u32 addr, u32 val)
 #define	HW_CFG_SRST_TO				0x00000002  /* RO */
 #define	HW_CFG_SRST				0x00000001  /* Self Clearing */
 
-#define RX_DP_CTRL		(CONFIG_DRIVER_SMC911X_BASE + 0x78)
+#define RX_DP_CTRL				0x78
 #define	RX_DP_CTRL_RX_FFWD			0x80000000  /* R/W */
 #define	RX_DP_CTRL_FFWD_BUSY			0x80000000  /* RO */
 
-#define RX_FIFO_INF		(CONFIG_DRIVER_SMC911X_BASE + 0x7C)
+#define RX_FIFO_INF				0x7C
 #define	 RX_FIFO_INF_RXSUSED			0x00FF0000  /* RO */
 #define	 RX_FIFO_INF_RXDUSED			0x0000FFFF  /* RO */
 
-#define TX_FIFO_INF		(CONFIG_DRIVER_SMC911X_BASE + 0x80)
+#define TX_FIFO_INF				0x80
 #define	TX_FIFO_INF_TSUSED			0x00FF0000  /* RO */
 #define	TX_FIFO_INF_TDFREE			0x0000FFFF  /* RO */
 
-#define PMT_CTRL		(CONFIG_DRIVER_SMC911X_BASE + 0x84)
+#define PMT_CTRL				0x84
 #define	PMT_CTRL_PM_MODE			0x00003000  /* Self Clearing */
 #define	PMT_CTRL_PHY_RST			0x00000400  /* Self Clearing */
 #define	PMT_CTRL_WOL_EN				0x00000200  /* R/W */
 #define	PMT_CTRL_ED_EN				0x00000100  /* R/W */
-#define	PMT_CTRL_PME_TYPE			0x00000040  /* R/W Not Affected by SW Reset */
+					/* R/W Not Affected by SW Reset */
+#define	PMT_CTRL_PME_TYPE			0x00000040
 #define	PMT_CTRL_WUPS				0x00000030  /* R/WC */
 #define	PMT_CTRL_WUPS_NOWAKE			0x00000000  /* R/WC */
 #define	PMT_CTRL_WUPS_ED			0x00000010  /* R/WC */
@@ -246,10 +256,11 @@ static inline void smc911x_reg_write(u32 addr, u32 val)
 #define	PMT_CTRL_WUPS_MULTI			0x00000030  /* R/WC */
 #define	PMT_CTRL_PME_IND			0x00000008  /* R/W */
 #define	PMT_CTRL_PME_POL			0x00000004  /* R/W */
-#define	PMT_CTRL_PME_EN				0x00000002  /* R/W Not Affected by SW Reset */
+					/* R/W Not Affected by SW Reset */
+#define	PMT_CTRL_PME_EN				0x00000002
 #define	PMT_CTRL_READY				0x00000001  /* RO */
 
-#define GPIO_CFG		(CONFIG_DRIVER_SMC911X_BASE + 0x88)
+#define GPIO_CFG				0x88
 #define	GPIO_CFG_LED3_EN			0x40000000  /* R/W */
 #define	GPIO_CFG_LED2_EN			0x20000000  /* R/W */
 #define	GPIO_CFG_LED1_EN			0x10000000  /* R/W */
@@ -269,23 +280,23 @@ static inline void smc911x_reg_write(u32 addr, u32 val)
 #define	GPIO_CFG_GPIOD1				0x00000002  /* R/W */
 #define	GPIO_CFG_GPIOD0				0x00000001  /* R/W */
 
-#define GPT_CFG			(CONFIG_DRIVER_SMC911X_BASE + 0x8C)
+#define GPT_CFG					0x8C
 #define	GPT_CFG_TIMER_EN			0x20000000  /* R/W */
 #define	GPT_CFG_GPT_LOAD			0x0000FFFF  /* R/W */
 
-#define GPT_CNT			(CONFIG_DRIVER_SMC911X_BASE + 0x90)
+#define GPT_CNT					0x90
 #define	GPT_CNT_GPT_CNT				0x0000FFFF  /* RO */
 
-#define ENDIAN			(CONFIG_DRIVER_SMC911X_BASE + 0x98)
-#define FREE_RUN		(CONFIG_DRIVER_SMC911X_BASE + 0x9C)
-#define RX_DROP			(CONFIG_DRIVER_SMC911X_BASE + 0xA0)
-#define MAC_CSR_CMD		(CONFIG_DRIVER_SMC911X_BASE + 0xA4)
+#define ENDIAN					0x98
+#define FREE_RUN				0x9C
+#define RX_DROP					0xA0
+#define MAC_CSR_CMD				0xA4
 #define	 MAC_CSR_CMD_CSR_BUSY			0x80000000  /* Self Clearing */
 #define	 MAC_CSR_CMD_R_NOT_W			0x40000000  /* R/W */
 #define	 MAC_CSR_CMD_CSR_ADDR			0x000000FF  /* R/W */
 
-#define MAC_CSR_DATA		(CONFIG_DRIVER_SMC911X_BASE + 0xA8)
-#define AFC_CFG			(CONFIG_DRIVER_SMC911X_BASE + 0xAC)
+#define MAC_CSR_DATA				0xA8
+#define AFC_CFG					0xAC
 #define		AFC_CFG_AFC_HI			0x00FF0000  /* R/W */
 #define		AFC_CFG_AFC_LO			0x0000FF00  /* R/W */
 #define		AFC_CFG_BACK_DUR		0x000000F0  /* R/W */
@@ -294,7 +305,7 @@ static inline void smc911x_reg_write(u32 addr, u32 val)
 #define		AFC_CFG_FCADD			0x00000002  /* R/W */
 #define		AFC_CFG_FCANY			0x00000001  /* R/W */
 
-#define E2P_CMD			(CONFIG_DRIVER_SMC911X_BASE + 0xB0)
+#define E2P_CMD					0xB0
 #define		E2P_CMD_EPC_BUSY		0x80000000  /* Self Clearing */
 #define		E2P_CMD_EPC_CMD			0x70000000  /* R/W */
 #define		E2P_CMD_EPC_CMD_READ		0x00000000  /* R/W */
@@ -309,7 +320,7 @@ static inline void smc911x_reg_write(u32 addr, u32 val)
 #define		E2P_CMD_MAC_ADDR_LOADED		0x00000100  /* RO */
 #define		E2P_CMD_EPC_ADDR		0x000000FF  /* R/W */
 
-#define E2P_DATA		(CONFIG_DRIVER_SMC911X_BASE + 0xB4)
+#define E2P_DATA				0xB4
 #define	E2P_DATA_EEPROM_DATA			0x000000FF  /* R/W */
 /* end of LAN register offsets and bit definitions */
 
@@ -382,6 +393,7 @@ static inline void smc911x_reg_write(u32 addr, u32 val)
 #define CHIP_9216	0x116a
 #define CHIP_9217	0x117a
 #define CHIP_9218	0x118a
+#define CHIP_9221	0x9221
 
 struct chip_id {
 	u16 id;
@@ -398,44 +410,43 @@ static const struct chip_id chip_ids[] =  {
 	{ CHIP_9216, "LAN9216" },
 	{ CHIP_9217, "LAN9217" },
 	{ CHIP_9218, "LAN9218" },
+	{ CHIP_9221, "LAN9221" },
 	{ 0, NULL },
 };
 
-
-#define DRIVERNAME "smc911x"
-
-static u32 smc911x_get_mac_csr(u8 reg)
+static u32 smc911x_get_mac_csr(struct eth_device *dev, u8 reg)
 {
-	while (smc911x_reg_read(MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
+	while (smc911x_reg_read(dev, MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
 		;
-	smc911x_reg_write(MAC_CSR_CMD, MAC_CSR_CMD_CSR_BUSY | MAC_CSR_CMD_R_NOT_W | reg);
-	while (smc911x_reg_read(MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
+	smc911x_reg_write(dev, MAC_CSR_CMD,
+			MAC_CSR_CMD_CSR_BUSY | MAC_CSR_CMD_R_NOT_W | reg);
+	while (smc911x_reg_read(dev, MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
 		;
 
-	return smc911x_reg_read(MAC_CSR_DATA);
+	return smc911x_reg_read(dev, MAC_CSR_DATA);
 }
 
-static void smc911x_set_mac_csr(u8 reg, u32 data)
+static void smc911x_set_mac_csr(struct eth_device *dev, u8 reg, u32 data)
 {
-	while (smc911x_reg_read(MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
+	while (smc911x_reg_read(dev, MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
 		;
-	smc911x_reg_write(MAC_CSR_DATA, data);
-	smc911x_reg_write(MAC_CSR_CMD, MAC_CSR_CMD_CSR_BUSY | reg);
-	while (smc911x_reg_read(MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
+	smc911x_reg_write(dev, MAC_CSR_DATA, data);
+	smc911x_reg_write(dev, MAC_CSR_CMD, MAC_CSR_CMD_CSR_BUSY | reg);
+	while (smc911x_reg_read(dev, MAC_CSR_CMD) & MAC_CSR_CMD_CSR_BUSY)
 		;
 }
 
-static int smc911x_detect_chip(void)
+static int smc911x_detect_chip(struct eth_device *dev)
 {
 	unsigned long val, i;
 
-	val = smc911x_reg_read(BYTE_TEST);
+	val = smc911x_reg_read(dev, BYTE_TEST);
 	if (val != 0x87654321) {
 		printf(DRIVERNAME ": Invalid chip endian 0x%08lx\n", val);
 		return -1;
 	}
 
-	val = smc911x_reg_read(ID_REV) >> 16;
+	val = smc911x_reg_read(dev, ID_REV) >> 16;
 	for (i = 0; chip_ids[i].id != 0; i++) {
 		if (chip_ids[i].id == val) break;
 	}
@@ -449,18 +460,19 @@ static int smc911x_detect_chip(void)
 	return 0;
 }
 
-static void smc911x_reset(void)
+static void smc911x_reset(struct eth_device *dev)
 {
 	int timeout;
 
 	/* Take out of PM setting first */
-	if (smc911x_reg_read(PMT_CTRL) & PMT_CTRL_READY) {
+	if (smc911x_reg_read(dev, PMT_CTRL) & PMT_CTRL_READY) {
 		/* Write to the bytetest will take out of powerdown */
-		smc911x_reg_write(BYTE_TEST, 0x0);
+		smc911x_reg_write(dev, BYTE_TEST, 0x0);
 
 		timeout = 10;
 
-		while (timeout-- && !(smc911x_reg_read(PMT_CTRL) & PMT_CTRL_READY))
+		while (timeout-- &&
+			!(smc911x_reg_read(dev, PMT_CTRL) & PMT_CTRL_READY))
 			udelay(10);
 		if (!timeout) {
 			printf(DRIVERNAME
@@ -470,12 +482,12 @@ static void smc911x_reset(void)
 	}
 
 	/* Disable interrupts */
-	smc911x_reg_write(INT_EN, 0);
+	smc911x_reg_write(dev, INT_EN, 0);
 
-	smc911x_reg_write(HW_CFG, HW_CFG_SRST);
+	smc911x_reg_write(dev, HW_CFG, HW_CFG_SRST);
 
 	timeout = 1000;
-	while (timeout-- && smc911x_reg_read(E2P_CMD) & E2P_CMD_EPC_BUSY)
+	while (timeout-- && smc911x_reg_read(dev, E2P_CMD) & E2P_CMD_EPC_BUSY)
 		udelay(10);
 
 	if (!timeout) {
@@ -484,11 +496,11 @@ static void smc911x_reset(void)
 	}
 
 	/* Reset the FIFO level and flow control settings */
-	smc911x_set_mac_csr(FLOW, FLOW_FCPT | FLOW_FCEN);
-	smc911x_reg_write(AFC_CFG, 0x0050287F);
+	smc911x_set_mac_csr(dev, FLOW, FLOW_FCPT | FLOW_FCEN);
+	smc911x_reg_write(dev, AFC_CFG, 0x0050287F);
 
 	/* Set to LED outputs */
-	smc911x_reg_write(GPIO_CFG, 0x70070000);
+	smc911x_reg_write(dev, GPIO_CFG, 0x70070000);
 }
 
 #endif

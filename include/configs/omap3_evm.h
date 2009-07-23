@@ -302,9 +302,10 @@ extern unsigned int boot_flash_type;
  */
 #if defined(CONFIG_CMD_NET)
 
-#define CONFIG_DRIVER_SMC911X
-#define CONFIG_DRIVER_SMC911X_32_BIT
-#define CONFIG_DRIVER_SMC911X_BASE	0x2C000000
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC911X
+#define CONFIG_SMC911X_32_BIT
+#define CONFIG_SMC911X_BASE	0x2C000000
 
 #endif /* (CONFIG_CMD_NET) */
 

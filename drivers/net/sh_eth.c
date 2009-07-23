@@ -546,7 +546,7 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 	/* Configure phy */
 	ret = sh_eth_phy_config(eth);
 	if (ret) {
-		printf(SHETHER_NAME ":i phy config timeout\n");
+		printf(SHETHER_NAME ": phy config timeout\n");
 		goto err_phy_cfg;
 	}
 	/* Read phy status to finish configuring the e-mac */

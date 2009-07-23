@@ -92,6 +92,9 @@
 #if defined(CONFIG_CDP_VERSION)
 #include <timestamp.h>
 #endif
+#if defined(CONFIG_CMD_DNS)
+#include "dns.h"
+#endif
 
 #if defined(CONFIG_CMD_NET)
 
@@ -139,8 +142,8 @@ uchar		NetServerEther[6] =	/* Boot server enet address		*/
 			{ 0, 0, 0, 0, 0, 0 };
 IPaddr_t	NetOurIP;		/* Our IP addr (0 = unknown)		*/
 IPaddr_t	NetServerIP;		/* Server IP addr (0 = unknown)		*/
-volatile uchar *NetRxPkt;		/* Current receive packet		*/
-int		NetRxPktLen;		/* Current rx packet length		*/
+volatile uchar *NetRxPacket;		/* Current receive packet		*/
+int		NetRxPacketLen;		/* Current rx packet length		*/
 unsigned	NetIPID;		/* IP packet ID				*/
 uchar		NetBcastAddr[6] =	/* Ethernet bcast address		*/
 			{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
@@ -291,6 +294,9 @@ NetInitLoop(proto_t protocol)
 		NetServerIP = getenv_IPaddr ("serverip");
 		NetOurNativeVLAN = getenv_VLAN("nvlan");
 		NetOurVLAN = getenv_VLAN("vlan");
+#if defined(CONFIG_CMD_DNS)
+		NetOurDNSIP = getenv_IPaddr("dnsip");
+#endif
 		env_changed_id = env_id;
 	}
 
@@ -388,17 +394,20 @@ restart:
 #if defined(CONFIG_CMD_DHCP)
 		case DHCP:
 			BootpTry = 0;
+			NetOurIP = 0;
 			DhcpRequest();		/* Basically same as BOOTP */
 			break;
 #endif
 
 		case BOOTP:
 			BootpTry = 0;
+			NetOurIP = 0;
 			BootpRequest ();
 			break;
 
 		case RARP:
 			RarpTry = 0;
+			NetOurIP = 0;
 			RarpRequest ();
 			break;
 #if defined(CONFIG_CMD_PING)
@@ -424,6 +433,11 @@ restart:
 #if defined(CONFIG_CMD_SNTP)
 		case SNTP:
 			SntpStart();
+			break;
+#endif
+#if defined(CONFIG_CMD_DNS)
+		case DNS:
+			DnsStart();
 			break;
 #endif
 		default:
@@ -1122,8 +1136,8 @@ NetReceive(volatile uchar * inpkt, int len)
 	printf("packet received\n");
 #endif
 
-	NetRxPkt = inpkt;
-	NetRxPktLen = len;
+	NetRxPacket = inpkt;
+	NetRxPacketLen = len;
 	et = (Ethernet_t *)inpkt;
 
 	/* too small packet? */
@@ -1273,6 +1287,15 @@ NetReceive(volatile uchar * inpkt, int len)
 			/* are we waiting for a reply */
 			if (!NetArpWaitPacketIP || !NetArpWaitPacketMAC)
 				break;
+
+#ifdef CONFIG_KEEP_SERVERADDR
+			if (NetServerIP == NetArpWaitPacketIP) {
+				char buf[20];
+				sprintf(buf, "%pM", arp->ar_data);
+				setenv("serveraddr", buf);
+			}
+#endif
+
 #ifdef ET_DEBUG
 			printf("Got ARP REPLY, set server/gtwy eth addr (%pM)\n",
 				arp->ar_data);
@@ -1518,6 +1541,14 @@ static int net_check_prereq (proto_t protocol)
 		}
 		goto common;
 #endif
+#if defined(CONFIG_CMD_DNS)
+	case DNS:
+		if (NetOurDNSIP == 0) {
+			puts("*** ERROR: DNS server address not given\n");
+			return 1;
+		}
+		goto common;
+#endif
 #if defined(CONFIG_CMD_NFS)
 	case NFS:
 #endif
@@ -1679,6 +1710,16 @@ void copy_filename (char *dst, char *src, int size)
 	*dst = '\0';
 }
 
+#endif
+
+#if defined(CONFIG_CMD_NFS) || defined(CONFIG_CMD_SNTP) || defined(CONFIG_CMD_DNS)
+/*
+ * make port a little random, but use something trivial to compute
+ */
+unsigned int random_port(void)
+{
+	return 1024 + (get_timer(0) % 0x8000);;
+}
 #endif
 
 void ip_to_string (IPaddr_t x, char *s)

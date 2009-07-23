@@ -5,7 +5,7 @@
  * terms of the GNU Public License, Version 2, incorporated
  * herein by reference.
  *
- * Copyright 2004, 2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2009 Freescale Semiconductor, Inc. All rights reserved.
  * (C) Copyright 2003, Motorola, Inc.
  * author Andy Fleming
  *
@@ -197,7 +197,10 @@ int tsec_init(struct eth_device *dev, bd_t * bd)
 	for (i = 0; i < MAC_ADDR_LEN; i++) {
 		tmpbuf[MAC_ADDR_LEN - 1 - i] = dev->enetaddr[i];
 	}
-	regs->macstnaddr1 = *((uint *) (tmpbuf));
+	tempval = (tmpbuf[0] << 24) | (tmpbuf[1] << 16) | (tmpbuf[2] << 8) |
+		  tmpbuf[3];
+
+	regs->macstnaddr1 = tempval;
 
 	tempval = *((uint *) (tmpbuf + 4));
 
@@ -1426,6 +1429,54 @@ struct phy_info phy_info_VSC8244 = {
 			   },
 };
 
+struct phy_info phy_info_VSC8641 = {
+	0x7043,
+	"Vitesse VSC8641",
+	4,
+	(struct phy_cmd[]){	/* config */
+			   /* Configure some basic stuff */
+			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+			   {miim_end,}
+			   },
+	(struct phy_cmd[]){	/* startup */
+			   /* Read the Status (2x to make sure link is right) */
+			   {MIIM_STATUS, miim_read, NULL},
+			   /* Auto-negotiate */
+			   {MIIM_STATUS, miim_read, &mii_parse_sr},
+			   /* Read the status */
+			   {MIIM_VSC8244_AUX_CONSTAT, miim_read,
+			    &mii_parse_vsc8244},
+			   {miim_end,}
+			   },
+	(struct phy_cmd[]){	/* shutdown */
+			   {miim_end,}
+			   },
+};
+
+struct phy_info phy_info_VSC8221 = {
+	0xfc55,
+	"Vitesse VSC8221",
+	4,
+	(struct phy_cmd[]){	/* config */
+			   /* Configure some basic stuff */
+			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+			   {miim_end,}
+			   },
+	(struct phy_cmd[]){	/* startup */
+			   /* Read the Status (2x to make sure link is right) */
+			   {MIIM_STATUS, miim_read, NULL},
+			   /* Auto-negotiate */
+			   {MIIM_STATUS, miim_read, &mii_parse_sr},
+			   /* Read the status */
+			   {MIIM_VSC8244_AUX_CONSTAT, miim_read,
+			    &mii_parse_vsc8244},
+			   {miim_end,}
+			   },
+	(struct phy_cmd[]){	/* shutdown */
+			   {miim_end,}
+			   },
+};
+
 struct phy_info phy_info_VSC8601 = {
 		0x00007042,
 		"Vitesse VSC8601",
@@ -1663,6 +1714,8 @@ struct phy_info *phy_info[] = {
 	&phy_info_VSC8211,
 	&phy_info_VSC8244,
 	&phy_info_VSC8601,
+	&phy_info_VSC8641,
+	&phy_info_VSC8221,
 	&phy_info_dp83865,
 	&phy_info_rtl8211b,
 	&phy_info_generic,	/* must be last; has ID 0 and 32 bit mask */

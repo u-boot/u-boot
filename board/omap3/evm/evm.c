@@ -28,6 +28,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
@@ -121,4 +122,13 @@ static void setup_net_chip(void)
 	writel(GPIO0, &gpio3_base->cleardataout);
 	udelay(1);
 	writel(GPIO0, &gpio3_base->setdataout);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_SMC911X
+	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+#endif
+	return rc;
 }

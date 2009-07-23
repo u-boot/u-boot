@@ -9,6 +9,7 @@
 #include <common.h>
 #include <config.h>
 #include <command.h>
+#include <netdev.h>
 #include <asm/blackfin.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -76,4 +77,13 @@ int board_early_init_f(void)
 	bfin_write_PORTI_DIR_SET(0x7fff);
 
 	return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_SMC911X
+	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+#endif
+	return rc;
 }

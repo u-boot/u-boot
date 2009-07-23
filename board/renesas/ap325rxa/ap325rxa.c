@@ -19,6 +19,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 
@@ -159,4 +160,13 @@ void ide_set_reset(int idereset)
 	outw(FPGA_NAND_RST, FPGA_NAND_CTL);	/* NAND RESET */
 	udelay(FPGA_NAND_RST_WAIT);
 	outw(FPGA_NAND_INIT, FPGA_NAND_CTL);
+}
+
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_SMC911X
+	rc = smc911x_initialize(0, CONFIG_SMC911X_BASE);
+#endif
+	return rc;
 }

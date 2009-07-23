@@ -24,6 +24,7 @@
 #include <at91rm9200_net.h>
 #include <net.h>
 #include <miiphy.h>
+#include <asm/mach-types.h>
 
 /* ----- Ethernet Buffer definitions ----- */
 
@@ -184,7 +185,7 @@ int eth_init (bd_t * bd)
 
 	p_mac->EMAC_CFG |= AT91C_EMAC_CSR;	/* Clear statistics */
 
-	/* Init Ehternet buffers */
+	/* Init Ethernet buffers */
 	for (i = 0; i < RBF_FRAMEMAX; i++) {
 		rbfdt[i].addr = (unsigned long)rbf_framebuf[i];
 		rbfdt[i].size = 0;
@@ -193,9 +194,22 @@ int eth_init (bd_t * bd)
 	rbfp = &rbfdt[0];
 
 	eth_getenv_enetaddr("ethaddr", enetaddr);
-	p_mac->EMAC_SA2L = (enetaddr[3] << 24) | (enetaddr[2] << 16)
-			 | (enetaddr[1] <<  8) | (enetaddr[0]);
-	p_mac->EMAC_SA2H = (enetaddr[5] <<  8) | (enetaddr[4]);
+
+	/* The CSB337 originally used a version of the MicroMonitor bootloader
+	 * which saved Ethernet addresses in the "wrong" order.  Operating
+	 * systems (like Linux) know this, and apply a workaround.  Replicate
+	 * that MicroMonitor behavior so we avoid needing to make such OS code
+	 * care about which bootloader was used.
+	 */
+	if (machine_is_csb337()) {
+		p_mac->EMAC_SA2H = (enetaddr[0] <<  8) | (enetaddr[1]);
+		p_mac->EMAC_SA2L = (enetaddr[2] << 24) | (enetaddr[3] << 16)
+				 | (enetaddr[4] <<  8) | (enetaddr[5]);
+	} else {
+		p_mac->EMAC_SA2L = (enetaddr[3] << 24) | (enetaddr[2] << 16)
+				 | (enetaddr[1] <<  8) | (enetaddr[0]);
+		p_mac->EMAC_SA2H = (enetaddr[5] <<  8) | (enetaddr[4]);
+	}
 
 	p_mac->EMAC_RBQP = (long) (&rbfdt[0]);
 	p_mac->EMAC_RSR &= ~(AT91C_EMAC_RSR_OVR | AT91C_EMAC_REC | AT91C_EMAC_BNA);

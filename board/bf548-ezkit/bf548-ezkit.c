@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <config.h>
 #include <command.h>
 #include <asm/blackfin.h>
@@ -77,3 +78,10 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_SMC911X
+int board_eth_init(bd_t *bis)
+{
+	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
+}
+#endif

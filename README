@@ -1184,6 +1184,11 @@ The following options need to be configured:
 		Defines a default value for the IP address of a TFTP
 		server to contact when using the "tftboot" command.
 
+		CONFIG_KEEP_SERVERADDR
+
+		Keeps the server's MAC address, in the env 'serveraddr'
+		for passing to bootargs (like Linux's netconsole option)
+
 - Multicast TFTP Mode:
 		CONFIG_MCAST_TFTP
 

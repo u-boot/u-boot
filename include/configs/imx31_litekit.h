@@ -104,9 +104,10 @@
 	"prg_uboot=tftpboot 0x80000000 u-boot-imx31_litekit.bin; protect off all; erase 0xa00d0000 0xa01effff; cp.b 0x80000000 0xa00d0000 $(filesize)\0"
 
 
-#define CONFIG_DRIVER_SMC911X		1
-#define CONFIG_DRIVER_SMC911X_BASE	(CS4_BASE + 0x00020000)
-#define CONFIG_DRIVER_SMC911X_32_BIT	1
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC911X		1
+#define CONFIG_SMC911X_BASE	(CS4_BASE + 0x00020000)
+#define CONFIG_SMC911X_32_BIT	1
 
 /*
  * Miscellaneous configurable options

@@ -127,6 +127,11 @@ int bb_miiphy_read (char *devname, unsigned char addr,
 	volatile ioport_t *iop = ioport_addr ((immap_t *) CONFIG_SYS_IMMR, MDIO_PORT);
 #endif
 
+	if (value == NULL) {
+		puts("NULL value pointer\n");
+		return (-1);
+	}
+
 	miiphy_pre (1, addr, reg);
 
 	/* tri-state our MDIO I/O pin so we can read */
@@ -145,6 +150,8 @@ int bb_miiphy_read (char *devname, unsigned char addr,
 			MDC (1);
 			MIIDELAY;
 		}
+		/* There is no PHY, set value to 0xFFFF and return */
+		*value = 0xFFFF;
 		return (-1);
 	}
 

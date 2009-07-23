@@ -49,7 +49,7 @@
 #define MV88E61XX_ADDR_OFST		5
 
 #ifdef CONFIG_MV88E61XX_MULTICHIP_ADRMODE
-static int mv88e61xx_busychk_multic(u32 devaddr);
+static int mv88e61xx_busychk_multic(char *name, u32 devaddr);
 static void mv88e61xx_wr_phy(char *name, u32 phy_adr, u32 reg_ofs, u16 data);
 static void mv88e61xx_rd_phy(char *name, u32 phy_adr, u32 reg_ofs, u16 * data);
 #define WR_PHY mv88e61xx_wr_phy

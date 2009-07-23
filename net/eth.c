@@ -500,6 +500,8 @@ char *eth_get_name (void)
 }
 #elif defined(CONFIG_CMD_NET) && !defined(CONFIG_NET_MULTI)
 
+#warning Ethernet driver is deprecated.  Please update to use CONFIG_NET_MULTI
+
 extern int at91rm9200_miiphy_initialize(bd_t *bis);
 extern int mcf52x2_miiphy_initialize(bd_t *bis);
 extern int ns7520_miiphy_initialize(bd_t *bis);

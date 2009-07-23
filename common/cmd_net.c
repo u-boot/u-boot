@@ -353,3 +353,52 @@ U_BOOT_CMD(
 	"[NTP server IP]\n"
 );
 #endif
+
+#if defined(CONFIG_CMD_DNS)
+int do_dns(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	if (argc == 1) {
+		cmd_usage(cmdtp);
+		return -1;
+	}
+
+	/*
+	 * We should check for a valid hostname:
+	 * - Each label must be between 1 and 63 characters long
+	 * - the entire hostname has a maximum of 255 characters
+	 * - only the ASCII letters 'a' through 'z' (case-insensitive),
+	 *   the digits '0' through '9', and the hyphen
+	 * - cannot begin or end with a hyphen
+	 * - no other symbols, punctuation characters, or blank spaces are
+	 *   permitted
+	 * but hey - this is a minimalist implmentation, so only check length
+	 * and let the name server deal with things.
+	 */
+	if (strlen(argv[1]) >= 255) {
+		printf("dns error: hostname too long\n");
+		return 1;
+	}
+
+	NetDNSResolve = argv[1];
+
+	if (argc == 3)
+		NetDNSenvvar = argv[2];
+	else
+		NetDNSenvvar = NULL;
+
+	if (NetLoop(DNS) < 0) {
+		printf("dns lookup of %s failed, check setup\n", argv[1]);
+		return 1;
+	}
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	dns,	3,	1,	do_dns,
+	"lookup the IP of a hostname",
+	"hostname [envvar]"
+);
+
+#endif	/* CONFIG_CMD_DNS */
+
