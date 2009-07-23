@@ -37,7 +37,6 @@
 #define CONFIG_MPC8313			1
 
 #define CONFIG_PCI
-#define CONFIG_83XX_GENERIC_PCI
 
 #define CONFIG_MISC_INIT_R
 

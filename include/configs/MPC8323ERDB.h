@@ -18,7 +18,6 @@
 #define CONFIG_MPC832x		1	/* MPC832x CPU specific */
 
 #define CONFIG_PCI		1
-#define CONFIG_83XX_GENERIC_PCI	1
 
 /*
  * System Clock Setup
