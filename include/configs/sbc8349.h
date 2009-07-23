@@ -651,8 +651,8 @@
 	"net_nfs=tftp 200000 ${bootfile};run nfsargs addip addtty;"	\
 		"bootm\0"						\
 	"load=tftp 100000 /tftpboot/sbc8349/u-boot.bin\0"		\
-	"update=protect off fff00000 fff3ffff; "			\
-		"era fff00000 fff3ffff; cp.b 100000 fff00000 ${filesize}\0"	\
+	"update=protect off ff800000 ff83ffff; "			\
+		"era ff800000 ff83ffff; cp.b 100000 ff800000 ${filesize}\0"	\
 	"upd=run load update\0"						\
 	"fdtaddr=400000\0"						\
 	"fdtfile=sbc8349.dtb\0"						\

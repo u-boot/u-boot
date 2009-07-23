@@ -21,15 +21,22 @@ Flash Details:
 
 The flash type is intel 28F640Jx (4096x16) [one device].  Base address
 is 0xFF80_0000 which is also where the Hardware Reset Configuration
-Word (HRCW) is stored.  Caution should be used to not overwrite the
-HRCW, or "CF RCW" with a Wind River ICE will be required to restore
-the HRCW and allow the board to enter background mode for further
-steps in the flash process.
+Word (HRCW) is stored.  Caution should be used to not reset the
+board without having a valid HRCW in place (i.e. erased flash) as
+then a Wind River ICE will be required to restore the HRCW and flash
+image.
 
 
 Restoring a corrupted or missing flash image:
 =============================================
 
+Note that U-boot versions up to and including 2009.06 had essentially
+two copies of u-boot in flash; one at the very beginning, which set
+the HRCW, and one at the very end, which was the image that was run.
+As of this point in time, the two have been combined into just one
+at the beginning of flash, which provides both the HRCW, and the image
+that is executed.  This frees up the remainder of flash for other uses.
+Use of the u-boot command "fli" will indicate what parts are in use.
 Details for storing U-boot to flash using a Wind River ICE can be found
 on page 19 of the board manual (request ERG-00328-001).  The following
 is a summary of that information:
@@ -39,9 +46,9 @@ is a summary of that information:
   - Select the appropriate flash type (listed above)
   - Prepare a u-boot image by using the Wind River Convert utility;
     by using "Convert and Add file" on the ELF file from your build.
-    Convert from FFF0_0000 to FFFF_FFFF (or to FFF3_FFFF if you are
-    trying to preserve your old environment settings).
-  - Set the start address of the erase/flash process to FFF0_0000
+    Convert from FF80_0000 to FFFF_FFFF (or to FF83_FFFF if you are
+    trying to preserve your old environment settings and user flash).
+  - Set the start address of the erase/flash process to FF80_0000
   - Set the target RAM required to 64kB.
   - Select sectors for erasing (see note on enviroment below)
   - Select Erase and Reprogram.
@@ -59,7 +66,7 @@ beginning with "SCGA TSEC1" and "SCGA TSEC2".  This allows you to
 use all the remaining register file content.
 
 If you wish to preserve your prior U-Boot environment settings,
-then convert (and erase to) 0xFFF3FFFF instead of 0xFFFFFFFF.
+then convert (and erase to) 0xFF83FFFF instead of 0xFFFFFFFF.
 The size for converting (and erasing) must be at least as large
 as u-boot.bin.
 
@@ -73,10 +80,13 @@ has been copied to the TFTP server, the commands are:
 
 	tftp 200000 u-boot.bin
 	protect off all
-	erase fff00000 fff3ffff
-	cp.b 200000 fff00000 3ffff
+	erase ff800000 ff83ffff
+	cp.b 200000 ff800000 40000
 	protect on all
 
+You may wish to do a "md ff800000 20" operation as a prefix and postfix
+to the above steps to inspect/compare the HRCW before/after as an extra
+safety check before resetting the board upon completion of the reflash.
 
 PCI:
 ====
