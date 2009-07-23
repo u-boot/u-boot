@@ -208,4 +208,3 @@ DnsStart(void)
 
 	DnsSend();
 }
-

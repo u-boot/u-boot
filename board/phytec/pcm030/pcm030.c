@@ -217,4 +217,3 @@ void ide_set_reset(int idereset)
 		setbits_be32(&wu_gpio->dvo, GPIO_PSC2_4);
 }
 #endif /* defined(CONFIG_CMD_IDE) && defined(CONFIG_IDE_RESET) */
-

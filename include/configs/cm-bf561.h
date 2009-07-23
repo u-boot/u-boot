@@ -65,7 +65,7 @@
 #define CONFIG_SMC91111_BASE	0x28000300
 /* The next 3 lines are for use with EXT-BF5xx-USB-ETH2 */
 /* #define CONFIG_DRIVER_SMC911X 1 */
-/* #define CONFIG_DRIVER_SMC911X_BASE 0x24080000 // AMS1 */
+/* #define CONFIG_DRIVER_SMC911X_BASE 0x24080000 /! AMS1 */
 /* #define CONFIG_DRIVER_SMC911X_32_BIT 1 */
 #define CONFIG_HOSTNAME		cm-bf561
 /* Uncomment next line to use fixed MAC address */

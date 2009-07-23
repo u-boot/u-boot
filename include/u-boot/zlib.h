@@ -200,7 +200,7 @@ extern "C" {
 #endif
 
 /* The memory requirements for deflate are (in bytes):
-            (1 << (windowBits+2)) +  (1 << (memLevel+9))
+	    (1 << (windowBits+2)) +  (1 << (memLevel+9))
  that is: 128K for windowBits=15  +  128K for memLevel = 8  (default values)
  plus a few kilobytes for small objects. For example, if you want to reduce
  the default memory requirements from 256K to 128K, compile with
@@ -212,7 +212,7 @@ extern "C" {
  for small objects.
 */
 
-                        /* Type declarations */
+			/* Type declarations */
 
 #ifndef OF /* function prototypes */
 #  ifdef STDC
@@ -461,7 +461,7 @@ typedef struct gz_header_s {
 
 typedef gz_header FAR *gz_headerp;
 
-                        /* constants */
+			/* constants */
 #define Z_NO_FLUSH      0
 #define Z_PARTIAL_FLUSH 1 /* will be removed, use Z_SYNC_FLUSH instead */
 #define Z_SYNC_FLUSH    2
@@ -507,7 +507,7 @@ typedef gz_header FAR *gz_headerp;
 
 #define Z_NULL  0  /* for initializing zalloc, zfree, opaque */
 
-                        /* basic functions */
+			/* basic functions */
 
 /* The application can compare zlibVersion and ZLIB_VERSION for consistency.
    If the first character differs, the library code actually used is
@@ -627,11 +627,11 @@ ZEXTERN int ZEXPORT inflateEnd OF((z_streamp strm));
    static string (which must not be deallocated).
 */
 
-                        /* Advanced functions */
+			/* Advanced functions */
 
 ZEXTERN int ZEXPORT inflateReset OF((z_streamp strm));
 
-                        /* utility functions */
+			/* utility functions */
 
 /*
      The following utility functions are implemented on top of the
@@ -681,7 +681,7 @@ ZEXTERN  uInt ZEXPORT crc32  OF((uInt crc, const Bytef *buf, uInt len));
 */
 
 ZEXTERN int ZEXPORT inflateInit2_ OF((z_streamp strm, int  windowBits,
-                                      const char *version, int stream_size));
+				      const char *version, int stream_size));
 #define inflateInit(strm) \
 	inflateInit_((strm), ZLIB_VERSION, sizeof(z_stream))
 #define inflateInit2(strm, windowBits) \

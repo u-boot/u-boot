@@ -401,4 +401,3 @@ U_BOOT_CMD(
 );
 
 #endif	/* CONFIG_CMD_DNS */
-

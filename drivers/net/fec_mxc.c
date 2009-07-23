@@ -739,4 +739,3 @@ int fecmxc_initialize(bd_t *bd)
 
 	return lout;
 }
-

@@ -1,3 +1,60 @@
+commit 2632c008e2c2cd61fefb622ed671ea3e6bd2e2a6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Jul 21 22:59:36 2009 -0400
+
+    autoconf.mk: include before config.mk for top level files
+
+    By including autoconf.mk before config.mk, all top level files can use any
+    config options it sets up (like <arch>_config.mk) or the Makefile itself
+    without being forced to use lazy evaluation.
+
+commit c01171eaecc963d2c1f56a0984a0cbcdd8a3ab3c
+Author: Mark Jackson <mpfj-list@mimc.co.uk>
+Date:	Tue Jul 21 11:30:53 2009 +0100
+
+    Remove static declaration from gunzip_bmp()
+
+    This patch removes the static declaration from gunzip_bmp()
+
+    Without it, the gunzip_bmp() function is not visible to
+    common/lcd.c and fails to compile with an error.
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+
+commit 2d4a43e230a3c8bfd03b9beaa0eb2a95e779c03b
+Author: Peter Tyser <ptyser@gmail.com>
+Date:	Mon Jul 20 21:51:38 2009 -0500
+
+    cmd_tsi148: General cleanup
+
+    - Fix command help message
+    - Disable DEBUG by default
+    - Fix whitespace issues
+    - Fix lines > 80 characters
+
+    Signed-off-by: Peter Tyser <ptyser@gmail.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 9aef73888509d10193615ee5cd9cf439ca44e937
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Jul 19 15:17:03 2009 -0400
+
+    unify HOST_CFLAGS and HOSTCFLAGS
+
+    The top build system sets up HOSTCFLAGS a bit and exports it, but other
+    places use HOST_CFLAGS instead.  Unify the two as HOSTCFLAGS so that the
+    values stay in sync.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 2e9393f500065f940e5e4ac7fe375e4c0b77b936
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 23 21:16:59 2009 +0200
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit e3b39f84e974df70065fa248f0f63993b1708c9d
 Author: André Schwarz <andre.schwarz@matrix-vision.de>
 Date:	Fri Jul 17 14:50:24 2009 +0200
