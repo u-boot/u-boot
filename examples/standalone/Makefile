@@ -86,6 +86,10 @@ ELF	= hello_world
 SREC	= hello_world.srec
 BIN	= hello_world.bin
 
+ELF	+= atmel_df_pow2
+SREC	+= atmel_df_pow2.srec
+BIN	+= atmel_df_pow2.bin
+
 ifeq ($(CPU),mpc8xx)
 ELF	+= test_burst
 SREC	+= test_burst.srec
