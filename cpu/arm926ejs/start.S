@@ -32,6 +32,7 @@
 
 
 #include <config.h>
+#include <common.h>
 #include <version.h>
 
 #if defined(CONFIG_OMAP1610)

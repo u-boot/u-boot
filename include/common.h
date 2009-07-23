@@ -27,6 +27,8 @@
 #undef	_LINUX_CONFIG_H
 #define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
 
+#ifndef __ASSEMBLY__		/* put C only stuff in this section */
+
 typedef unsigned char		uchar;
 typedef volatile unsigned long	vu_long;
 typedef volatile unsigned short vu_short;
@@ -104,6 +106,9 @@ typedef volatile unsigned char	vu_char;
 #endif
 #ifdef CONFIG_BLACKFIN
 #include <asm/blackfin.h>
+#endif
+#ifdef CONFIG_STATUS_LED
+#include <status_led.h>
 #endif
 
 #include <part.h>
@@ -636,11 +641,9 @@ int	disable_ctrlc (int);	/* 1 to disable, 0 to enable Control-C detect */
 /*
  * STDIO based functions (can always be used)
  */
-
 /* serial stuff */
 void	serial_printf (const char *fmt, ...)
 		__attribute__ ((format (__printf__, 1, 2)));
-
 /* stdin */
 int	getc(void);
 int	tstc(void);
@@ -660,7 +663,6 @@ void	vprintf(const char *fmt, va_list args);
 /*
  * FILE based functions (can only be used AFTER relocation!)
  */
-
 #define stdin		0
 #define stdout		1
 #define stderr		2
@@ -682,13 +684,25 @@ int	fgetc(int file);
 
 int	pcmcia_init (void);
 
-#ifdef CONFIG_STATUS_LED
-# include <status_led.h>
-#endif
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
  */
 void show_boot_progress(int val);
+
+/* Multicore arch functions */
+#ifdef CONFIG_MP
+int cpu_status(int nr);
+int cpu_reset(int nr);
+int cpu_release(int nr, int argc, char *argv[]);
+#endif
+
+#endif /* __ASSEMBLY__ */
+
+/* Put only stuff here that the assembler can digest */
+
+#ifdef CONFIG_POST
+#define CONFIG_HAS_POST
+#endif
 
 #ifdef CONFIG_INIT_CRITICAL
 #error CONFIG_INIT_CRITICAL is deprecated!
@@ -704,16 +718,5 @@ void show_boot_progress(int val);
 
 #define ALIGN(x,a)		__ALIGN_MASK((x),(typeof(x))(a)-1)
 #define __ALIGN_MASK(x,mask)	(((x)+(mask))&~(mask))
-
-/* Multicore arch functions */
-#ifdef CONFIG_MP
-int cpu_status(int nr);
-int cpu_reset(int nr);
-int cpu_release(int nr, int argc, char *argv[]);
-#endif
-
-#ifdef CONFIG_POST
-#define CONFIG_HAS_POST
-#endif
 
 #endif	/* __COMMON_H_ */
