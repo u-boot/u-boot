@@ -46,12 +46,19 @@
 # define L1_DATA_B_SRAM_SIZE 0
 #endif
 
+/* The 0xC offset is so we don't clobber the tiny LDR jump block. */
+#ifdef CONFIG_BFIN_BOOTROM_USES_EVT1
+# define L1_CODE_ORIGIN L1_INST_SRAM
+#else
+# define L1_CODE_ORIGIN L1_INST_SRAM + 0xC
+#endif
+
 OUTPUT_ARCH(bfin)
 
 MEMORY
 {
 	ram     : ORIGIN = CONFIG_SYS_MONITOR_BASE, LENGTH = CONFIG_SYS_MONITOR_LEN
-	l1_code : ORIGIN = L1_INST_SRAM,            LENGTH = L1_INST_SRAM_SIZE
+	l1_code : ORIGIN = L1_CODE_ORIGIN,          LENGTH = L1_INST_SRAM_SIZE
 	l1_data : ORIGIN = L1_DATA_B_SRAM,          LENGTH = L1_DATA_B_SRAM_SIZE
 }
 
