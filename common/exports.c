@@ -38,4 +38,12 @@ void jumptable_init (void)
 	gd->jt[XF_i2c_write] = (void *) i2c_write;
 	gd->jt[XF_i2c_read] = (void *) i2c_read;
 #endif
+#ifdef CONFIG_CMD_SPI
+	gd->jt[XF_spi_init] = (void *) spi_init;
+	gd->jt[XF_spi_setup_slave] = (void *) spi_setup_slave;
+	gd->jt[XF_spi_free_slave] = (void *) spi_free_slave;
+	gd->jt[XF_spi_claim_bus] = (void *) spi_claim_bus;
+	gd->jt[XF_spi_release_bus] = (void *) spi_release_bus;
+	gd->jt[XF_spi_xfer] = (void *) spi_xfer;
+#endif
 }

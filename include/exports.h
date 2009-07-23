@@ -33,6 +33,7 @@ void forceenv (char *varname, char *varvalue);
 int i2c_write (uchar, uint, int , uchar* , int);
 int i2c_read (uchar, uint, int , uchar* , int);
 #endif
+#include <spi.h>
 
 void app_startup(char **);
 
@@ -46,7 +47,7 @@ enum {
 	XF_MAX
 };
 
-#define XF_VERSION	4
+#define XF_VERSION	5
 
 #if defined(CONFIG_I386)
 extern gd_t *global_data;
