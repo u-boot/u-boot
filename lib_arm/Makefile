@@ -24,13 +24,16 @@
 include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(ARCH).a
+LIBGCC	= $(obj)libgcc.a
 
-SOBJS-y	+= _ashldi3.o
-SOBJS-y	+= _ashrdi3.o
-SOBJS-y	+= _divsi3.o
-SOBJS-y	+= _modsi3.o
-SOBJS-y	+= _udivsi3.o
-SOBJS-y	+= _umodsi3.o
+GLSOBJS	+= _ashldi3.o
+GLSOBJS	+= _ashrdi3.o
+GLSOBJS	+= _divsi3.o
+GLSOBJS	+= _modsi3.o
+GLSOBJS	+= _udivsi3.o
+GLSOBJS	+= _umodsi3.o
+
+GLCOBJS	+= div0.o
 
 COBJS-y	+= board.o
 COBJS-y	+= bootm.o
@@ -38,15 +41,26 @@ COBJS-y	+= cache.o
 ifndef CONFIG_SYS_NO_CP15_CACHE
 COBJS-y	+= cache-cp15.o
 endif
-COBJS-y	+= div0.o
 COBJS-y	+= interrupts.o
 COBJS-y	+= reset.o
 
-SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+SRCS	:= $(GLSOBJS:.o=.S) $(GLCOBJS:.o=.c) \
+	   $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
+LGOBJS	:= $(addprefix $(obj),$(GLSOBJS)) \
+	   $(addprefix $(obj),$(GLCOBJS))
+
+ifdef USE_PRIVATE_LIBGCC
+all:	$(LIB) $(LIBGCC)
+else
+all:	$(LIB)
+endif
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+$(LIBGCC): $(obj).depend $(LGOBJS)
+	$(AR) $(ARFLAGS) $@ $(LGOBJS)
 
 #########################################################################
 
