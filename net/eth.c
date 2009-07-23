@@ -263,7 +263,7 @@ void eth_set_enetaddr(int num, char *addr) {
 	struct eth_device *dev;
 	unsigned char enetaddr[6];
 
-	debug ("eth_set_enetaddr(num=%d, addr=%s)\n", num, addr);
+	debug("eth_set_enetaddr(num=%d, addr=%s)\n", num, addr);
 
 	if (!eth_devices)
 		return;
@@ -278,7 +278,7 @@ void eth_set_enetaddr(int num, char *addr) {
 			return;
 	}
 
-	debug ( "Setting new HW address on %s\n"
+	debug("Setting new HW address on %s\n"
 		"New Address is             %pM\n",
 		dev->name, enetaddr);
 
@@ -341,14 +341,14 @@ int eth_init(bd_t *bis)
 
 	old_current = eth_current;
 	do {
-		debug ("Trying %s\n", eth_current->name);
+		debug("Trying %s\n", eth_current->name);
 
 		if (eth_current->init(eth_current,bis) >= 0) {
 			eth_current->state = ETH_STATE_ACTIVE;
 
 			return 0;
 		}
-		debug  ("FAIL\n");
+		debug("FAIL\n");
 
 		eth_try_another(0);
 	} while (old_current != eth_current);

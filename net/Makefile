@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-# CFLAGS += -DET_DEBUG -DDEBUG
+# CFLAGS += -DDEBUG
 
 LIB	= $(obj)libnet.a
 

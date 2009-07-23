@@ -10,8 +10,6 @@
 #include "tftp.h"
 #include "bootp.h"
 
-#undef	ET_DEBUG
-
 #if defined(CONFIG_CMD_NET)
 
 #define WELL_KNOWN_PORT	69		/* Well known TFTP port #		*/
@@ -196,9 +194,7 @@ TftpSend (void)
 		strcpy ((char *)pkt, "timeout");
 		pkt += 7 /*strlen("timeout")*/ + 1;
 		sprintf((char *)pkt, "%lu", TIMEOUT / 1000);
-#ifdef ET_DEBUG
-		printf("send option \"timeout %s\"\n", (char *)pkt);
-#endif
+		debug("send option \"timeout %s\"\n", (char *)pkt);
 		pkt += strlen((char *)pkt) + 1;
 		/* try for more effic. blk size */
 		pkt += sprintf((char *)pkt,"blksize%c%d%c",
@@ -295,9 +291,7 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		break;
 
 	case TFTP_OACK:
-#ifdef ET_DEBUG
-		printf("Got OACK: %s %s\n", pkt, pkt+strlen(pkt)+1);
-#endif
+		debug("Got OACK: %s %s\n", pkt, pkt+strlen(pkt)+1);
 		TftpState = STATE_OACK;
 		TftpServerPort = src;
 		/*
@@ -309,10 +303,8 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			if (strcmp ((char*)pkt+i,"blksize") == 0) {
 				TftpBlkSize = (unsigned short)
 					simple_strtoul((char*)pkt+i+8,NULL,10);
-#ifdef ET_DEBUG
-				printf ("Blocksize ack: %s, %d\n",
+				debug("Blocksize ack: %s, %d\n",
 					(char*)pkt+i+8,TftpBlkSize);
-#endif
 				break;
 			}
 		}
@@ -348,11 +340,8 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			}
 		}
 
-#ifdef ET_DEBUG
-		if (TftpState == STATE_RRQ) {
-			puts ("Server did not acknowledge timeout option!\n");
-		}
-#endif
+		if (TftpState == STATE_RRQ)
+			debug("Server did not acknowledge timeout option!\n");
 
 		if (TftpState == STATE_RRQ || TftpState == STATE_OACK) {
 			/* first block received */

@@ -113,10 +113,6 @@ DECLARE_GLOBAL_DATA_PTR;
 # define ARP_TIMEOUT_COUNT	CONFIG_NET_RETRY_COUNT
 #endif
 
-#if 0
-#define ET_DEBUG
-#endif
-
 /** BOOTP EXTENTIONS **/
 
 IPaddr_t	NetOurSubnetMask=0;		/* Our subnet mask (0=unknown)	*/
@@ -218,9 +214,8 @@ void ArpRequest (void)
 	volatile uchar *pkt;
 	ARP_t *arp;
 
-#ifdef ET_DEBUG
-	printf ("ARP broadcast %d\n", NetArpWaitTry);
-#endif
+	debug("ARP broadcast %d\n", NetArpWaitTry);
+
 	pkt = NetTxPacket;
 
 	pkt += NetSetEther (pkt, NetBcastAddr, PROT_ARP);
@@ -644,9 +639,8 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 	/* if MAC address was not discovered yet, save the packet and do an ARP request */
 	if (memcmp(ether, NetEtherNullAddr, 6) == 0) {
 
-#ifdef ET_DEBUG
-		printf("sending ARP for %08lx\n", dest);
-#endif
+		debug("sending ARP for %08lx\n", dest);
+
 		NetArpWaitPacketIP = dest;
 		NetArpWaitPacketMAC = ether;
 
@@ -666,9 +660,7 @@ NetSendUDPPacket(uchar *ether, IPaddr_t dest, int dport, int sport, int len)
 		return 1;	/* waiting */
 	}
 
-#ifdef ET_DEBUG
-	printf("sending UDP to %08lx/%pM\n", dest, ether);
-#endif
+	debug("sending UDP to %08lx/%pM\n", dest, ether);
 
 	pkt = (uchar *)NetTxPacket;
 	pkt += NetSetEther (pkt, ether, PROT_IP);
@@ -692,9 +684,7 @@ int PingSend(void)
 
 	memcpy(mac, NetEtherNullAddr, 6);
 
-#ifdef ET_DEBUG
-	printf("sending ARP for %08lx\n", NetPingIP);
-#endif
+	debug("sending ARP for %08lx\n", NetPingIP);
 
 	NetArpWaitPacketIP = NetPingIP;
 	NetArpWaitPacketMAC = mac;
@@ -1132,9 +1122,7 @@ NetReceive(volatile uchar * inpkt, int len)
 #endif
 	ushort cti = 0, vlanid = VLAN_NONE, myvlanid, mynvlanid;
 
-#ifdef ET_DEBUG
-	printf("packet received\n");
-#endif
+	debug("packet received\n");
 
 	NetRxPacket = inpkt;
 	NetRxPacketLen = len;
@@ -1165,9 +1153,7 @@ NetReceive(volatile uchar * inpkt, int len)
 
 	x = ntohs(et->et_protlen);
 
-#ifdef ET_DEBUG
-	printf("packet received\n");
-#endif
+	debug("packet received\n");
 
 	if (x < 1514) {
 		/*
@@ -1185,9 +1171,8 @@ NetReceive(volatile uchar * inpkt, int len)
 	} else {			/* VLAN packet */
 		VLAN_Ethernet_t *vet = (VLAN_Ethernet_t *)et;
 
-#ifdef ET_DEBUG
-		printf("VLAN packet received\n");
-#endif
+		debug("VLAN packet received\n");
+
 		/* too small packet? */
 		if (len < VLAN_ETHER_HDR_SIZE)
 			return;
@@ -1208,9 +1193,7 @@ NetReceive(volatile uchar * inpkt, int len)
 		len -= VLAN_ETHER_HDR_SIZE;
 	}
 
-#ifdef ET_DEBUG
-	printf("Receive from protocol 0x%x\n", x);
-#endif
+	debug("Receive from protocol 0x%x\n", x);
 
 #if defined(CONFIG_CMD_CDP)
 	if (iscdp) {
@@ -1239,9 +1222,8 @@ NetReceive(volatile uchar * inpkt, int len)
 		 *   address; so if we receive such a packet, we set
 		 *   the server ethernet address
 		 */
-#ifdef ET_DEBUG
-		puts ("Got ARP\n");
-#endif
+		debug("Got ARP\n");
+
 		arp = (ARP_t *)ip;
 		if (len < ARP_HDR_SIZE) {
 			printf("bad length %d < %d\n", len, ARP_HDR_SIZE);
@@ -1270,9 +1252,7 @@ NetReceive(volatile uchar * inpkt, int len)
 
 		switch (ntohs(arp->ar_op)) {
 		case ARPOP_REQUEST:		/* reply with our IP address	*/
-#ifdef ET_DEBUG
-			puts ("Got ARP REQUEST, return our IP\n");
-#endif
+			debug("Got ARP REQUEST, return our IP\n");
 			pkt = (uchar *)et;
 			pkt += NetSetEther(pkt, et->et_src, PROT_ARP);
 			arp->ar_op = htons(ARPOP_REPLY);
@@ -1296,18 +1276,14 @@ NetReceive(volatile uchar * inpkt, int len)
 			}
 #endif
 
-#ifdef ET_DEBUG
-			printf("Got ARP REPLY, set server/gtwy eth addr (%pM)\n",
+			debug("Got ARP REPLY, set server/gtwy eth addr (%pM)\n",
 				arp->ar_data);
-#endif
 
 			tmp = NetReadIP(&arp->ar_data[6]);
 
 			/* matched waiting packet's address */
 			if (tmp == NetArpWaitReplyIP) {
-#ifdef ET_DEBUG
-				puts ("Got it\n");
-#endif
+				debug("Got it\n");
 				/* save address for later use */
 				memcpy(NetArpWaitPacketMAC, &arp->ar_data[0], 6);
 
@@ -1326,17 +1302,13 @@ NetReceive(volatile uchar * inpkt, int len)
 			}
 			return;
 		default:
-#ifdef ET_DEBUG
-			printf("Unexpected ARP opcode 0x%x\n", ntohs(arp->ar_op));
-#endif
+			debug("Unexpected ARP opcode 0x%x\n", ntohs(arp->ar_op));
 			return;
 		}
 		break;
 
 	case PROT_RARP:
-#ifdef ET_DEBUG
-		puts ("Got RARP\n");
-#endif
+		debug("Got RARP\n");
 		arp = (ARP_t *)ip;
 		if (len < ARP_HDR_SIZE) {
 			printf("bad length %d < %d\n", len, ARP_HDR_SIZE);
@@ -1360,11 +1332,9 @@ NetReceive(volatile uchar * inpkt, int len)
 		break;
 
 	case PROT_IP:
-#ifdef ET_DEBUG
-		puts ("Got IP\n");
-#endif
+		debug("Got IP\n");
 		if (len < IP_HDR_SIZE) {
-			debug ("len bad %d < %lu\n", len, (ulong)IP_HDR_SIZE);
+			debug("len bad %d < %lu\n", len, (ulong)IP_HDR_SIZE);
 			return;
 		}
 		if (len < ntohs(ip->ip_len)) {
@@ -1372,9 +1342,8 @@ NetReceive(volatile uchar * inpkt, int len)
 			return;
 		}
 		len = ntohs(ip->ip_len);
-#ifdef ET_DEBUG
-		printf("len=%d, v=%02x\n", len, ip->ip_hl_v & 0xff);
-#endif
+		debug("len=%d, v=%02x\n", len, ip->ip_hl_v & 0xff);
+
 		if ((ip->ip_hl_v & 0xf0) != 0x40) {
 			return;
 		}
@@ -1432,10 +1401,9 @@ NetReceive(volatile uchar * inpkt, int len)
 				(*packetHandler)((uchar *)ip, 0, 0, 0);
 				return;
 			case ICMP_ECHO_REQUEST:
-#ifdef ET_DEBUG
-				printf ("Got ICMP ECHO REQUEST, return %d bytes \n",
+				debug("Got ICMP ECHO REQUEST, return %d bytes \n",
 					ETHER_HDR_SIZE + len);
-#endif
+
 				memcpy (&et->et_dest[0], &et->et_src[0], 6);
 				memcpy (&et->et_src[ 0], NetOurEther, 6);
 

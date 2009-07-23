@@ -29,8 +29,6 @@
 #include "nfs.h"
 #include "bootp.h"
 
-/*#define NFS_DEBUG*/
-
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_CMD_NFS)
 
 #define HASHES_PER_LINE 65	/* Number of "loading" hashes per line	*/
@@ -357,9 +355,7 @@ RPC request dispatcher
 static void
 NfsSend (void)
 {
-#ifdef NFS_DEBUG
-	printf ("%s\n", __FUNCTION__);
-#endif
+	debug("%s\n", __func__);
 
 	switch (NfsState) {
 	case STATE_PRCLOOKUP_PROG_MOUNT_REQ:
@@ -397,9 +393,7 @@ rpc_lookup_reply (int prog, uchar *pkt, unsigned len)
 
 	memcpy ((unsigned char *)&rpc_pkt, pkt, len);
 
-#ifdef NFS_DEBUG
-	printf ("%s\n", __FUNCTION__);
-#endif
+	debug("%s\n", __func__);
 
 	if (ntohl(rpc_pkt.u.reply.id) != rpc_id)
 		return -1;
@@ -427,9 +421,7 @@ nfs_mount_reply (uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
 
-#ifdef NFS_DEBUG
-	printf ("%s\n", __FUNCTION__);
-#endif
+	debug("%s\n", __func__);
 
 	memcpy ((unsigned char *)&rpc_pkt, pkt, len);
 
@@ -454,9 +446,7 @@ nfs_umountall_reply (uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
 
-#ifdef NFS_DEBUG
-	printf ("%s\n", __FUNCTION__);
-#endif
+	debug("%s\n", __func__);
 
 	memcpy ((unsigned char *)&rpc_pkt, pkt, len);
 
@@ -480,9 +470,7 @@ nfs_lookup_reply (uchar *pkt, unsigned len)
 {
 	struct rpc_t rpc_pkt;
 
-#ifdef NFS_DEBUG
-	printf ("%s\n", __FUNCTION__);
-#endif
+	debug("%s\n", __func__);
 
 	memcpy ((unsigned char *)&rpc_pkt, pkt, len);
 
@@ -507,9 +495,7 @@ nfs_readlink_reply (uchar *pkt, unsigned len)
 	struct rpc_t rpc_pkt;
 	int rlen;
 
-#ifdef NFS_DEBUG
-	printf ("%s\n", __FUNCTION__);
-#endif
+	debug("%s\n", __func__);
 
 	memcpy ((unsigned char *)&rpc_pkt, pkt, len);
 
@@ -544,9 +530,7 @@ nfs_read_reply (uchar *pkt, unsigned len)
 	struct rpc_t rpc_pkt;
 	int rlen;
 
-#ifdef NFS_DEBUG_nop
-	printf ("%s\n", __FUNCTION__);
-#endif
+	debug("%s\n", __func__);
 
 	memcpy ((uchar *)&rpc_pkt, pkt, sizeof(rpc_pkt.u.reply));
 
@@ -601,9 +585,7 @@ NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 {
 	int rlen;
 
-#ifdef NFS_DEBUG
-	printf ("%s\n", __FUNCTION__);
-#endif
+	debug("%s\n", __func__);
 
 	if (dest != NfsOurPort) return;
 
@@ -661,9 +643,7 @@ NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 			NfsState = STATE_UMOUNT_REQ;
 			NfsSend ();
 		} else {
-#ifdef NFS_DEBUG
-			printf ("Symlink --> %s\n", nfs_path);
-#endif
+			debug("Symlink --> %s\n", nfs_path);
 			nfs_filename = basename (nfs_path);
 			nfs_path     = dirname (nfs_path);
 
@@ -696,9 +676,7 @@ NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 void
 NfsStart (void)
 {
-#ifdef NFS_DEBUG
-	printf ("%s\n", __FUNCTION__);
-#endif
+	debug("%s\n", __func__);
 	NfsDownloadState = NETLOOP_FAIL;
 
 	NfsServerIP = NetServerIP;
