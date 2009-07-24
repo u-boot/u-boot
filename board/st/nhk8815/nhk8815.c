@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -61,9 +62,20 @@ int board_init(void)
 	return 0;
 }
 
-int misc_init_r(void)
+int board_late_init(void)
 {
-	setenv("verify", "n");
+	/* Set the two I2C gpio lines to be gpio high */
+	nmk_gpio_set(__SCL, 1);	nmk_gpio_set(__SDA, 1);
+	nmk_gpio_dir(__SCL, 1);	nmk_gpio_dir(__SDA, 1);
+	nmk_gpio_af(__SCL, GPIO_GPIO); nmk_gpio_af(__SDA, GPIO_GPIO);
+
+	/* Reset the I2C port expander, on GPIO77 */
+	nmk_gpio_af(77, GPIO_GPIO);
+	nmk_gpio_dir(77, 1);
+	nmk_gpio_set(77, 0);
+	udelay(10);
+	nmk_gpio_set(77, 1);
+
 	return 0;
 }
 
