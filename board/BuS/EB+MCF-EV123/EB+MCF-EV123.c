@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005
+ * (C) Copyright 2005-2009
  * BuS Elektronik GmbH & Co.KG <esw@bus-elektonik.de>
  *
  * (C) Copyright 2000-2003
@@ -27,7 +27,18 @@
 #include <common.h>
 #include <command.h>
 #include "asm/m5282.h"
-#include "VCxK.h"
+#include <bmp_layout.h>
+#include <status_led.h>
+#include <bus_vcxk.h>
+
+/*---------------------------------------------------------------------------*/
+
+DECLARE_GLOBAL_DATA_PTR;
+
+unsigned long display_width;
+unsigned long display_height;
+
+/*---------------------------------------------------------------------------*/
 
 int checkboard (void)
 {
@@ -89,7 +100,6 @@ phys_size_t initdram (int board_type)
 	return size;
 }
 
-
 #if defined(CONFIG_SYS_DRAM_TEST)
 int testdram (void)
 {
@@ -126,37 +136,99 @@ int testdram (void)
 
 int misc_init_r(void)
 {
-	init_vcxk();
+#ifdef	CONFIG_HW_WATCHDOG
+	hw_watchdog_init();
+#endif
+#ifndef CONFIG_VIDEO
+	vcxk_init(16, 16);
+#endif
 	return 1;
 }
 
+#if defined(CONFIG_VIDEO)
+
+/*
+ ****h* EB+CPU5282-T1/drv_video_init
+ * FUNCTION
+ ***
+ */
+
+int drv_video_init(void)
+{
+	char *s;
+	unsigned long splash;
+
+	printf("Init Video as ");
+
+	if ((s = getenv("displaywidth")) != NULL)
+		display_width = simple_strtoul(s, NULL, 10);
+	else
+		display_width = 256;
+
+	if ((s = getenv("displayheight")) != NULL)
+		display_height = simple_strtoul(s, NULL, 10);
+	else
+		display_height = 256;
+
+	printf("%lu x %lu pixel matrix\n", display_width, display_height);
+
+	MCFCCM_CCR &= ~MCFCCM_CCR_SZEN;
+	MCFGPIO_PEPAR &= ~MCFGPIO_PEPAR_PEPA2;
+
+	vcxk_init(display_width, display_height);
+
+#ifdef CONFIG_SPLASH_SCREEN
+	if ((s = getenv("splashimage")) != NULL) {
+		debug("use splashimage: %s\n", s);
+		splash = simple_strtoul(s, NULL, 16);
+		debug("use splashimage: %x\n", splash);
+		vcxk_acknowledge_wait();
+		video_display_bitmap(splash, 0, 0);
+	}
+#endif
+	return 0;
+}
+#endif
+
 /*---------------------------------------------------------------------------*/
 
-int do_vcimage (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+#ifdef CONFIG_VIDEO
+int do_brightness(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int rcode = 0;
-	ulong source;
+	ulong side;
+	ulong bright;
 
 	switch (argc) {
-	case 2:
-		source = simple_strtoul(argv[1],NULL,16);
-		vcxk_loadimage(source);
-		rcode = 0;
+	case 3:
+		side = simple_strtoul(argv[1], NULL, 10);
+		bright = simple_strtoul(argv[2], NULL, 10);
+		if ((side >= 0) && (side <= 3) &&
+			(bright >= 0) && (bright <= 1000)) {
+			vcxk_setbrightness(side, bright);
+			rcode = 0;
+		} else {
+			printf("parameters out of range\n");
+			printf("Usage:\n%s\n", cmdtp->usage);
+			rcode = 1;
+		}
 		break;
 	default:
-		cmd_usage(cmdtp);
+		printf("Usage:\n%s\n", cmdtp->usage);
 		rcode = 1;
 		break;
 	}
 	return rcode;
 }
 
-/***************************************************/
+/*---------------------------------------------------------------------------*/
 
 U_BOOT_CMD(
-	vcimage,	2,	0,	do_vcimage,
-	"loads an image to Display",
-	"vcimage addr"
+	bright,	3,	0,	do_brightness,
+	"sets the display brightness\n",
+	" <side> <0..1000>\n        side: 0/3=both; 1=first; 2=second\n"
 );
 
-/* EOF EB+MCF-EV123c */
+#endif
+
+/* EOF EB+MCF-EV123.c */
