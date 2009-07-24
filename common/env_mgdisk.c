@@ -29,7 +29,6 @@
 
 /* references to names in env_common.c */
 extern uchar default_environment[];
-extern int default_environment_size;
 
 char * env_name_spec = "MG_DISK";
 

@@ -47,7 +47,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* references to names in env_common.c */
 extern uchar default_environment[];
-extern int default_environment_size;
 
 char * env_name_spec = "SPI Flash";
 env_t *env_ptr;
@@ -143,16 +142,7 @@ err_probe:
 err_crc:
 	puts("*** Warning - bad CRC, using default environment\n\n");
 
-	if (default_environment_size > CONFIG_ENV_SIZE) {
-		gd->env_valid = 0;
-		puts("*** Error - default environment is too large\n\n");
-		return;
-	}
-
-	memset(env_ptr, 0, sizeof(env_t));
-	memcpy(env_ptr->data, default_environment, default_environment_size);
-	env_ptr->crc = crc32(0, env_ptr->data, ENV_SIZE);
-	gd->env_valid = 1;
+	set_default_env();
 }
 
 int env_init(void)
