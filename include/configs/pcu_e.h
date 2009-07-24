@@ -231,7 +231,6 @@
 #define CONFIG_ENV_SIZE		0x2000	/* Total Size of Environment		*/
 #define CONFIG_ENV_ADDR	    0xFFFFE000	/* Address    of Environment Sector	*/
 #define CONFIG_ENV_SECT_SIZE	0x2000	/* use the top-most 8k boot sector	*/
-#define	CONFIG_ENV_IS_EMBEDDED	1	/* short-cut compile-time test		*/
 #else
 /* Final version: environment in EEPROM */
 #define CONFIG_ENV_IS_IN_EEPROM	1

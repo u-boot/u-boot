@@ -255,7 +255,6 @@
 #	define CONFIG_ENV_IS_IN_FLASH	1
 #endif
 #define CONFIG_ENV_OVERWRITE		1
-#undef CONFIG_ENV_IS_EMBEDDED
 
 /*-----------------------------------------------------------------------
  * FLASH organization
