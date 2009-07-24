@@ -36,6 +36,7 @@
 
 #include <config.h>
 #include <common.h>
+#include <watchdog.h>
 
 #ifdef CONFIG_LZMA
 
@@ -112,6 +113,9 @@ int lzmaBuffToBuffDecompress (unsigned char *outStream, SizeT *uncompressedSize,
 
     /* Decompress */
     outProcessed = outSizeFull;
+
+    WATCHDOG_RESET();
+
     res = LzmaDecode(
         outStream, &outProcessed,
         inStream + LZMA_DATA_OFFSET, &compressedSize,

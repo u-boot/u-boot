@@ -1,6 +1,9 @@
 /* LzmaDec.c -- LZMA Decoder
 2008-11-06 : Igor Pavlov : Public domain */
 
+#include <config.h>
+#include <common.h>
+#include <watchdog.h>
 #include "LzmaDec.h"
 
 #include <string.h>
@@ -156,6 +159,8 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
   UInt32 range = p->range;
   UInt32 code = p->code;
 
+  WATCHDOG_RESET();
+
   do
   {
     CLzmaProb *prob;
@@ -176,6 +181,9 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
       if (state < kNumLitStates)
       {
         symbol = 1;
+
+        WATCHDOG_RESET();
+
         do { GET_BIT(prob + symbol, symbol) } while (symbol < 0x100);
       }
       else
@@ -183,6 +191,9 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
         unsigned matchByte = p->dic[(dicPos - rep0) + ((dicPos < rep0) ? dicBufSize : 0)];
         unsigned offs = 0x100;
         symbol = 1;
+
+        WATCHDOG_RESET();
+
         do
         {
           unsigned bit;
@@ -316,6 +327,9 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
             {
               UInt32 mask = 1;
               unsigned i = 1;
+
+              WATCHDOG_RESET();
+
               do
               {
                 GET_BIT2(prob + i, i, ; , distance |= mask);
@@ -327,6 +341,9 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
           else
           {
             numDirectBits -= kNumAlignBits;
+
+            WATCHDOG_RESET();
+
             do
             {
               NORMALIZE
@@ -399,12 +416,18 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
           ptrdiff_t src = (ptrdiff_t)pos - (ptrdiff_t)dicPos;
           const Byte *lim = dest + curLen;
           dicPos += curLen;
+
+          WATCHDOG_RESET();
+
           do
             *(dest) = (Byte)*(dest + src);
           while (++dest != lim);
         }
         else
         {
+
+          WATCHDOG_RESET();
+
           do
           {
             dic[dicPos++] = dic[pos];
@@ -417,6 +440,9 @@ static int MY_FAST_CALL LzmaDec_DecodeReal(CLzmaDec *p, SizeT limit, const Byte 
     }
   }
   while (dicPos < limit && buf < bufLimit);
+
+  WATCHDOG_RESET();
+
   NORMALIZE;
   p->buf = buf;
   p->range = range;
