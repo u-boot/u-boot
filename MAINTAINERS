@@ -32,6 +32,8 @@ Reinhard Arlt <reinhard.arlt@esd-electronics.com>
 	mecp5200	MPC5200
 	pf5200		MPC5200
 
+	vme8349		MPC8349
+
 	CPCI750		PPC750FX/GX
 
 Yuli Barcohen <yuli@arabellasw.com>

@@ -364,6 +364,7 @@ LIST_83xx="		\
 	sbc8349		\
 	SIMPC8313_LP	\
 	TQM834x		\
+	vme8349		\
 "
 
 
