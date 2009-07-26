@@ -239,6 +239,18 @@ void board_init_f(ulong board_type)
 	addr -= CONFIG_SYS_DMA_ALLOC_LEN;
 #endif
 
+#ifdef CONFIG_LCD
+#ifdef CONFIG_FB_ADDR
+	printf("LCD: Frame buffer allocated at preset 0x%08x\n",
+	       CONFIG_FB_ADDR);
+	gd->fb_base = (void *)CONFIG_FB_ADDR;
+#else
+	addr = lcd_setmem(addr);
+	printf("LCD: Frame buffer allocated at 0x%08lx\n", addr);
+	gd->fb_base = (void *)addr;
+#endif /* CONFIG_FB_ADDR */
+#endif /* CONFIG_LCD */
+
 	/* Allocate a Board Info struct on a word boundary */
 	addr -= sizeof(bd_t);
 	addr &= ~3UL;

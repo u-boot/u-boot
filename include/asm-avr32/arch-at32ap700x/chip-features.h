@@ -32,4 +32,9 @@
 #define AT32AP700x_CHIP_HAS_MACB
 #endif
 
+/* AP7000 and AP7002 have LCD controller, but AP7001 does not */
+#if defined(CONFIG_AT32AP7000) || defined(CONFIG_AT32AP7002)
+#define AT32AP700x_CHIP_HAS_LCDC
+#endif
+
 #endif /* __ASM_AVR32_ARCH_CHIP_FEATURES_H__ */

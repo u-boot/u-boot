@@ -26,6 +26,7 @@
  */
 
 #include <common.h>
+#include <lcd.h>
 #include <bmp_layout.h>
 #include <command.h>
 #include <asm/byteorder.h>

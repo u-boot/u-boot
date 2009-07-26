@@ -43,6 +43,18 @@ extern void *lcd_console_address;	/* Start of console buffer	*/
 
 extern short console_col;
 extern short console_row;
+extern struct vidinfo panel_info;
+
+extern void lcd_ctrl_init (void *lcdbase);
+extern void lcd_enable (void);
+
+/* setcolreg used in 8bpp/16bpp; initcolregs used in monochrome */
+extern void lcd_setcolreg (ushort regno,
+				ushort red, ushort green, ushort blue);
+extern void lcd_initcolregs (void);
+
+/* gunzip_bmp used if CONFIG_VIDEO_BMP_GZIP */
+extern struct bmp_image *gunzip_bmp(unsigned long addr, unsigned long *lenp);
 
 #if defined CONFIG_MPC823
 /*
@@ -74,8 +86,6 @@ typedef struct vidinfo {
 	u_char	vl_lcdac;	/* LCD AC timing */
 	u_char	vl_wbf;		/* Wait between frames */
 } vidinfo_t;
-
-extern vidinfo_t panel_info;
 
 #elif defined CONFIG_PXA250
 /*
@@ -146,8 +156,6 @@ typedef struct vidinfo {
 	struct	pxafb_info pxa;
 } vidinfo_t;
 
-extern vidinfo_t panel_info;
-
 #elif defined(CONFIG_ATMEL_LCD)
 
 typedef struct vidinfo {
@@ -173,8 +181,6 @@ typedef struct vidinfo {
 	u_long	mmio;		/* Memory mapped registers */
 } vidinfo_t;
 
-extern vidinfo_t panel_info;
-
 #else
 
 typedef struct vidinfo {
@@ -189,6 +195,8 @@ typedef struct vidinfo {
 } vidinfo_t;
 
 #endif /* CONFIG_MPC823, CONFIG_PXA250 or CONFIG_MCC200 or CONFIG_ATMEL_LCD */
+
+extern vidinfo_t panel_info;
 
 /* Video functions */
 
@@ -314,7 +322,7 @@ void lcd_show_board_info(void);
 #if LCD_BPP == LCD_MONOCHROME
 # define COLOR_MASK(c)		((c)	  | (c) << 1 | (c) << 2 | (c) << 3 | \
 				 (c) << 4 | (c) << 5 | (c) << 6 | (c) << 7)
-#elif LCD_BPP == LCD_COLOR8
+#elif (LCD_BPP == LCD_COLOR8) || (LCD_BPP == LCD_COLOR16)
 # define COLOR_MASK(c)		(c)
 #else
 # error Unsupported LCD BPP.

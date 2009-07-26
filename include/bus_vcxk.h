@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2005
- * BuS Elektronik GmbH & Co.KG <esw@bus-elektonik.de>
+ * (C) Copyright 2005-2009
+ * Jens Scharsig @ BuS Elektronik GmbH & Co. KG, <esw@bus-elektronik.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,28 +21,16 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __VCXK_H_
-#define __VCXK_H_
+#ifndef __BUS_VCXK_H_
+#define __BUS_VCXK_H_
 
-extern int init_vcxk(void);
-void	vcxk_loadimage(ulong source);
-
-#define VIDEO_ACKNOWLEDGE_PORT	MCFGPTB_GPTPORT
-#define VIDEO_ACKNOWLEDGE_DDR	MCFGPTB_GPTDDR
-#define VIDEO_ACKNOWLEDGE_PIN	0x0001
-
-#define VIDEO_ENABLE_PORT	MCFGPTB_GPTPORT
-#define VIDEO_ENABLE_DDR	MCFGPTB_GPTDDR
-#define VIDEO_ENABLE_PIN	0x0002
-
-#define VIDEO_REQUEST_PORT	MCFGPTB_GPTPORT
-#define VIDEO_REQUEST_DDR	MCFGPTB_GPTDDR
-#define VIDEO_REQUEST_PIN	0x0004
-
-#define VIDEO_Invert_CFG	MCFGPIO_PEPAR
-#define VIDEO_Invert_IO		MCFGPIO_PEPAR_PEPA2
-#define VIDEO_INVERT_PORT	MCFGPIO_PORTE
-#define VIDEO_INVERT_DDR	MCFGPIO_DDRE
-#define VIDEO_INVERT_PIN	MCFGPIO_PORT2
+extern int vcxk_init(unsigned long width, unsigned long height);
+extern void vcxk_setpixel(int x, int y, unsigned long color);
+extern int vcxk_acknowledge_wait(void);
+extern int vcxk_request(void);
+extern void vcxk_loadimage(ulong source);
+extern int vcxk_display_bitmap(ulong addr, int x, int y);
+extern void vcxk_setbrightness(unsigned int side, short brightness);
+extern int video_display_bitmap(ulong addr, int x, int y);
 
 #endif

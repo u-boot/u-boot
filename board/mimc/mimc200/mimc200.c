@@ -28,9 +28,39 @@
 #include <asm/arch/gpio.h>
 #include <asm/arch/hmatrix.h>
 #include <asm/arch/portmux.h>
+#include <atmel_lcdc.h>
 #include <lcd.h>
 
 #include "../../../cpu/at32ap/hsmc3.h"
+
+#if defined(CONFIG_LCD)
+/* 480x272x16 @ 72 Hz */
+vidinfo_t panel_info = {
+	.vl_col			= 480,		/* Number of columns */
+	.vl_row			= 272,		/* Number of rows */
+	.vl_clk			= 10000000,	/* pixel clock in ps */
+	.vl_sync		= ATMEL_LCDC_INVCLK_INVERTED |
+				  ATMEL_LCDC_INVLINE_INVERTED |
+				  ATMEL_LCDC_INVFRAME_INVERTED,
+	.vl_bpix		= LCD_COLOR16,	/* Bits per pixel, BPP = 2^n */
+	.vl_tft			= 1,		/* 0 = passive, 1 = TFT */
+	.vl_hsync_len		= 42,		/* Length of horizontal sync */
+	.vl_left_margin		= 1,		/* Time from sync to picture */
+	.vl_right_margin	= 1,		/* Time from picture to sync */
+	.vl_vsync_len		= 1,		/* Length of vertical sync */
+	.vl_upper_margin	= 12,		/* Time from sync to picture */
+	.vl_lower_margin	= 1,		/* Time from picture to sync */
+	.mmio			= LCDC_BASE,	/* Memory mapped registers */
+};
+
+void lcd_enable(void)
+{
+}
+
+void lcd_disable(void)
+{
+}
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -108,6 +138,10 @@ int board_early_init_f(void)
 
 #if defined(CONFIG_MMC)
 	portmux_enable_mmci(0, PORTMUX_MMCI_4BIT, PORTMUX_DRIVE_LOW);
+#endif
+
+#if defined(CONFIG_LCD)
+	portmux_enable_lcdc(1);
 #endif
 
 	return 0;
