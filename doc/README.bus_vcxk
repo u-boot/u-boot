@@ -82,4 +82,3 @@ CONFIG_SYS_VCXK_<xxxx>_DDR
 
 	defines the register which configures the direction
 	for valid values for <xxxx> see CONFIG_SYS_VCXK_<xxxx>_PIN
-

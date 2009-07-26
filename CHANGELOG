@@ -1,3 +1,641 @@
+commit fafbb2c3e4b35b60ca303ed2ad1c6cf400cd9a22
+Author: rhabarber1848@web.de <rhabarber1848@web.de>
+Date:	Fri Jul 24 08:16:30 2009 +0200
+
+    add WATCHDOG_RESET to allow LZMA kernel decompression on slow machines
+
+    Signed-off-by: rhabarber1848@web.de
+
+commit 3c972849f2becbf19c13a24f090d293f37ecf616
+Author: Niklaus Giger <niklaus.giger@member.fsf.org>
+Date:	Thu Jul 23 23:31:58 2009 +0200
+
+    Less verbose output when loading vxworks 6.x images
+
+    Loading vxWorks 5.x images resulted just into 3 or 4 lines of output.
+    With vxWorks 6.x and the new GCC it emits about 30 lines, which is
+    far too noisy in my opinion.
+
+    Signed-off-by: Niklaus Giger <niklaus.giger@member.fsf.org>
+
+commit fcd3c87e495f3c48b70c919869fb1e0b93d4880b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jul 24 00:17:48 2009 +0200
+
+    Make include/common.h usable by assembler code
+
+    Commit 70ebf316 factored out the ROUND() macro into include/common.h,
+    not realizing that the primary use of this macro on AT91 systems was
+    in start.S where common.h was not included, and could not be included
+    because it contains a lot of C code which the assembler doesn't
+    understand.
+
+    This patch wraps such code in common.h in a "#ifndef __ASSEMBLY__"
+    construct, and then adds an include to cpu/arm926ejs/start.S thus
+    solving the problem.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit deec15b3064d3bb0189aede3c2921fd7ee401a0f
+Author: Heiko Schocher <heiko.schocher@invitel.hu>
+Date:	Thu Jul 23 13:27:04 2009 +0200
+
+    arm: add _lshrdi3.S
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 52b1bf2c5cd2f8af880dab503d0039b35570665b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 23 13:15:59 2009 +0200
+
+    Make linking against libgcc configurable
+
+    Many (especially ARM) tool chains seem to come with broken or
+    otherwise unusable (for the purposes of builing U-Boot) run-time
+    support libraries `libgcc.a'. By using the "USE_PRIVATE_LIBGCC"
+    setting we allow to use alternative libraries instead.
+
+    "USE_PRIVATE_LIBGCC" can either be set as an environment variable in
+    the shell, or as a command line argument when running "make", i. e.
+	$ make USE_PRIVATE_LIBGCC=yes
+    or
+	$ USE_PRIVATE_LIBGCC=yes
+	$ export USE_PRIVATE_LIBGCC
+	$ make
+
+    The value of "USE_PRIVATE_LIBGCC" is the name of the directory which
+    contains the alternative run-time support library `libgcc.a'. The
+    special value "yes" selects the directory $(OBJTREE)/lib_$(ARCH) .
+
+    Note that not all architectures provide an alternative `libgcc.a' in
+    their lib_$(ARCH) directories - so far, only ARM does.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Cc: Prafulla Wadaskar <prafulla@marvell.com>
+    cc: Stefan Roese <sr@denx.de>
+
+commit 479105065d965121f57b55dcfe83a940cba46ac1
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Wed Jul 22 17:51:56 2009 +0200
+
+    Use do_div from div64.h for vsprintf
+
+    Use do_div from div64.h for vsprintf in case of 64bit division.
+    For 32bit division, do_div from div64.h can't be used as it
+    needs a 64bit parameter.
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+    CC: Simon Kagstrom <simon.kagstrom@netinsight.net>
+
+commit 48287792384a93d77d43aaaa1c06cac275bbe1bb
+Author: Kyungmin Park <kmpark@infradead.org>
+Date:	Mon Jul 20 09:47:47 2009 +0900
+
+    Fix compiler warnings after loff_t change
+
+    Now 'env_addr' type is loff_t so use correct field type.
+
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit 9c67352f727a5b5eff531c852f9cff59fcb17f7f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jul 26 23:28:02 2009 +0200
+
+    Revert "ppc: Unlock cache-as-ram in a consistent manner"
+
+    This reverts commit 982adfc610669482a32127282fe489857a92cfe3.
+
+    This patch causes problems on MPC83xx boards - flash recognition stops
+    working.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 35cf3b57eafe3ee1f693e24267e0ecfefab60251
+Author: Jens Scharsig <esw@bus-elektronik.de>
+Date:	Fri Jul 24 10:31:48 2009 +0200
+
+    update the EB+MCF-EV123 board support
+
+    This patch updates the support for EB+MCF-EV123 board and needs
+    the [PATCH 1/2 V3] new video driver for bus vcxk framebuffers
+
+    * remove the board framebuffer driver
+    * use the common bus_vcxk framebuffer driver
+    * adds bmp support
+    * adds splashimage support
+    * fix serveral cosmetical errors
+
+    Signed-off-by: Jens Scharsig <esw@bus-elektronik.de>
+    [agust@denx.de: fixed some style issues before applying]
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 04538cdb752eeea8fd23cf7ac3394439f189fb77
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sun Jul 26 12:05:25 2009 +0200
+
+    video: bus_vcxk.c: fix style issues added by 50217dee
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 50217deeb07911d686790d34d468eb9a5245f68d
+Author: Jens Scharsig <esw@bus-elektronik.de>
+Date:	Fri Jul 24 10:09:02 2009 +0200
+
+    new video driver for bus vcxk framebuffers
+
+    This patch adds a new video driver
+
+    * adds common bus_vcxk framebuffer driver
+
+    Signed-off-by: Jens Scharsig <esw@bus-elektronik.de>
+    [agust@denx.de: fixed lots of style issues before applying]
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 60e97419246d0a3615758ad6af40680aefb5f7f1
+Author: Alessandro Rubini <rubini@gnudd.com>
+Date:	Tue Jul 21 14:09:45 2009 +0200
+
+    lcd.h: define extern vidinfo_t for all cases
+
+    include/lcd.h has different vidinfo for different platforms,
+    and several extern declaration, but one for the default case was
+    missing. This makes them a single extern declaration for everyone.
+
+    Signed-off-by: Alessandro Rubini <rubini@gnudd.com>
+
+commit bcf0b5248952c6b03081dc5cc4ff9e0b2299c5fa
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sun Jul 26 11:04:59 2009 +0200
+
+    mimc200.c: fix too long lines added by f68378d6
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit f68378d60a905d43155f2e89bf81999d3c93a90a
+Author: Mark Jackson <mpfj-list@mimc.co.uk>
+Date:	Tue Jul 21 11:35:22 2009 +0100
+
+    Add LCD support to MIMC200 board
+
+    This patch updates the MIMC200 files to enable the LCD.
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+
+commit 69f32e6c24d41fcdf347ff64e9c13b25059ace58
+Author: Mark Jackson <mpfj-list@mimc.co.uk>
+Date:	Tue Jul 21 11:18:44 2009 +0100
+
+    Add 16bit colour support in lcd.h
+
+    This patch adds support for LCD_COLOR16 in include/lcd.h.
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+
+commit bdc873ea063b8cc6d44c6ab748b7723a97d8d7b3
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sun Jul 26 10:34:58 2009 +0200
+
+    lib_avr32/board.c: fix too long line added by 716ece1d
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 716ece1de9a7d43a61d8698ac41b71b64f66f9e9
+Author: Mark Jackson <mpfj-list@mimc.co.uk>
+Date:	Tue Jul 21 11:11:37 2009 +0100
+
+    Add AVR32 LCD support
+
+    This patch adds support for the AVR32 LCD controller.  This patch is
+    based off the latest u-boot-video.
+
+    A quick summary of what's going on:-
+
+    Enable LCDC pixel clock
+    Enable LCDC port pins
+    Add framebuffer pointer to global_data struct
+    Allocate framebuffer
+
+    To use the new code, update your board config to include something like
+    this:-
+
+    #define CONFIG_LCD			1
+
+    #if defined(CONFIG_LCD)
+    #define CONFIG_CMD_BMP
+    #define CONFIG_ATMEL_LCD		1
+    #define LCD_BPP				LCD_COLOR16
+    #define CONFIG_BMP_16BPP		1
+    #define CONFIG_FB_ADDR			0x10600000
+    #define CONFIG_WHITE_ON_BLACK		1
+    #define CONFIG_VIDEO_BMP_GZIP		1
+    #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE		262144
+    #define CONFIG_ATMEL_LCD_BGR555		1
+    #define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
+    #define CONFIG_SPLASH_SCREEN		1
+    #endif
+
+    The standard U-Boot BMP and Splash-screen features should just work.
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+    [agust@denx.de: fixed some style issues]
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 6111722a9281c6e04a7304d502556afff6a5a1f8
+Author: Alessandro Rubini <rubini@gnudd.com>
+Date:	Sun Jul 19 17:52:27 2009 +0200
+
+    video: move extern declarations from C to headers
+
+    This moves some extern declaration from lcd.c to lcd.h, removing
+    unneeded ifdef around a pair of them.  Additionally, since
+    gunzip_bmp() was declared static in cmd_bmp.c but extern in lcd.c, I
+    removed the static.  The extra "#include <lcd.h>" in cmd_bmp.c is
+    added to ensure the header is consistent with the source.
+
+    This has been compile-tested on both ARM (at91 boards) and PowerPC
+    (HH405_config, TQM823L_LCD_config, mcc200_config), to test all use
+    combinations.
+
+    Signed-off-by: Alessandro Rubini <rubini@gnudd.it>
+    [agust@denx.de: removed gunzip_bmp() fixes as commit c01171ea did it]
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit f51e001143c58447eb50e7aefa2b09eb4cc1410c
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Jul 23 16:26:58 2009 -0400
+
+    Blackfin: restore EVT1 handling in linker script
+
+    Sadly, the Blackfin linker script unification lost a small #ifdef logic
+    needed on older parts.  Restore that CONFIG_BFIN_BOOTROM_USES_EVT1 logic.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit f33b325af666b12eafa9ab235b2cd59832d6e51c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jul 24 14:24:07 2009 +0200
+
+    Revert "zlib: updated to v.1.2.3"
+
+    This reverts commit b201171f2b4d509f3ad510b214bee70ff902e3d6.
+
+    The commit caused problems for example when unpacking kernel images:
+
+	   Uncompressing Kernel Image ... Error: inflate() returned -2
+	   GUNZIP: uncompress, out-of-mem or overwrite error - must
+	   RESET board to recover
+
+    Conflicts:
+
+	include/u-boot/zlib.h
+	lib_generic/zlib.c
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 4b1389e0ceb19e9b50b96fd3908483a6c2274fb0
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jul 21 14:06:29 2009 +0200
+
+    ppc4xx: Add chip_config command to AMCC Kilauea eval board
+
+    This patch removes the "alterpll" command and replaces it with the now
+    ppc4xx standard "chip_config" command to configure the I2C bootstrap
+    EEPROM.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f6af8ce0c80327cb6aaa347642026ad838335c23
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jul 21 14:33:52 2009 +0200
+
+    ppc4xx: Fix EEPROM configuration on Kilauea
+
+    Kilauea has an AT24C02 EEPROM which has an 8 byte page. Without defining
+    CONFIG_SYS_EEPROM_PAGE_WRITE_BITS to 3 the "eeprom" command doesn't
+    work correctly.
+
+    Additionally the page write delay (CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS)
+    is set to a more defensive value of 10ms.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 99d8b23bc7e2be04fcbf49c5cec9f5ae76df290c
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Wed Jul 22 13:56:21 2009 +0200
+
+    ppc4xx: Add 405EP based PMC405DE board
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit da799f66ad1d4fc36dd20cc2d7e584493fda8546
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Mon Jul 20 12:15:38 2009 +0200
+
+    ppc4xx: Add struct for 4xx GPIO controller registers
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 58ea142fb2e969f32306c8da1dabfaebd6fa141a
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Wed Jul 22 17:27:56 2009 +0200
+
+    ppc4xx: Replace 4xx lowercase SPR references
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 87c0b72908e05662b8b415e26e1042f4779629da
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 20 06:57:27 2009 +0200
+
+    Add "chip_config" command for PPC4xx bootstrap configuration
+
+    This patch adds a generic command for programming I2C bootstrap
+    eeproms on PPC4xx. An implementation for Canyonlands board is
+    included.
+
+    The command name is intentionally chosen not to be PPC4xx specific.
+    This way other CPU's/SoC's can implement a similar command under
+    the same name, perhaps with a different syntax.
+
+    Usage on Canyonlands:
+
+    => chip_config
+    Available configurations (I2C address 0x52):
+    600-nor	     - NOR  CPU: 600 PLB: 200 OPB: 100 EBC: 100
+    600-nand	     - NAND CPU: 600 PLB: 200 OPB: 100 EBC: 100
+    800-nor	     - NOR  CPU: 800 PLB: 200 OPB: 100 EBC: 100
+    800-nand	     - NAND CPU: 800 PLB: 200 OPB: 100 EBC: 100
+    1000-nor	     - NOR  CPU:1000 PLB: 200 OPB: 100 EBC: 100
+    1000-nand	     - NAND CPU:1000 PLB: 200 OPB: 100 EBC: 100
+    1066-nor	     - NOR  CPU:1066 PLB: 266 OPB:  88 EBC:  88 ***
+    1066-nand	     - NAND CPU:1066 PLB: 266 OPB:  88 EBC:  88
+    => chip_config 600-nor
+    Using configuration:
+    600-nor	     - NOR  CPU: 600 PLB: 200 OPB: 100 EBC: 100
+    done (dump via 'i2c md 52 0.1 10')
+    Reset the board for the changes to take effect
+
+    Other 4xx boards will be migrated to use this command soon
+    as well.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Dirk Eibach <eibach@gdsys.de>
+    Acked-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+
+commit 10c1b218556ed9871f36bc0c407f4f2f6196353b
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:16 2009 -0500
+
+    xpedite1k: Move to X-ES vendor directory
+
+    The XPedite1000 is an X-ES product thus it can be put in board/xes along
+    with other X-ES boards.  Along with the move, the board was renamed to
+    XPedite1000 from XPedite1K to fit X-ES's standard naming convention.
+    Maintainership was also transfered to Peter Tyser.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 54381b79d268e1bead5d78ed8423df31a3cb0e2c
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:15 2009 -0500
+
+    xpedite1k: Sync checkboard() with other X-ES boards
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9b4ef1f5dc0daab64f46249a32e67279c4d44fd2
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:14 2009 -0500
+
+    xpedite1k: Sync up board config options with other X-ES boards
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4cdad5f43ae67e4ceeac69ef4af4392bd2f7381f
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:13 2009 -0500
+
+    xpedite1k: Sync organization of board config with other X-ES boards
+
+    This change should have no functional effect
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c4ae1a0257a0f5008ee2686e8aa92fba3992f279
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:12 2009 -0500
+
+    xpedite1k: Sync up commands and environment with other X-ES boards
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fbc7951ea84c2fe6da0f6007b672ed35bae91acb
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:11 2009 -0500
+
+    xpedite1k: Disable unused ethernet port 1
+
+    The XPedite1000 only has 2 available ethernet ports:
+    ppc_4xx_eth2 (EMAC2) and ppc_4xx_eth3 (EMAC3)
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 767e32ad369d83f55f950e6938e68b6dba7fa65f
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:10 2009 -0500
+
+    xpedite1k: Store environment in flash
+
+    Previously an I2C EEPROM was used.	The EEPROM had size, reliability,
+    and access issues which are resolved by storing the environment in
+    flash.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b88da157f9990cd2cb081e4faea4b9581b5d0e2f
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:09 2009 -0500
+
+    xpedite1k: Add support for additional GPIO pins
+
+    Enable GPIO pins for an I2C EEPROM write protect, a system reset pin,
+    and a PMC #MONARCH pin.  These pins are not currently used in U-Boot,
+    but are used in OSes and may be used in U-Boot in the future.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 42735815dd9ba39efe51203868aebce04053c8de
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:08 2009 -0500
+
+    xpedite1k: Add support for optional flashes
+
+    The XPedite1000 can be built with 4 total flashes:
+    - 512KB AMD socketed
+    - 16MB Intel soldered
+    - 2 x 32MB AMD MirrorBit flashes
+
+    Add support for the optional 2 32MB CFI-compliant AMD flashes
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit e02990764c7415c84668823a0fc8c5b4dd8d8cf0
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:07 2009 -0500
+
+    xpedite1k: Cleanup coding style
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 086ff34a3a7e5e595630d658c1c13778399452d1
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:06 2009 -0500
+
+    xpedite1k: Remove support for reading MACs from EEPROM
+
+    By default, the XPedite1000 comes installed with xMon, a proprietary
+    bootloader.  xMon stores its MAC address in an onboard EEPROM.  Rather
+    than requiring a non-standard location in the EEPROM to be reserved for
+    MAC addresses, store the MAC addresses in U-Boot's standard environment.
+    A U-Boot application or OS application can be used to migrate xMon MAC
+    addresses to U-Boot's environment if necessary.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 108d6d0099372f9f6532c3198fbaacabc121c9b3
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:05 2009 -0500
+
+    xpedite1k: Remove support for fixed SDRAM configuration
+
+    All XPedite1000's have SPD EEPROMs present and no fixed configuration
+    parameters are currently defined or used
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c86d00a2ed923002f1ab0bfb0a925522628302e9
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:04 2009 -0500
+
+    xpedite1k: Remove CONFIG_SYS_DRAM_TEST support
+
+    POST or command line tests provide similar functionality
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 11ad309c183b176d8866944026a63c0f1c626f56
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Fri Jul 17 19:01:03 2009 -0500
+
+    xpedite1k: Use standard CFI flash driver
+
+    Using the CFI flash driver will allow write access to the 16MB Intel
+    StrataFlash present on the XPedite1000.  The 512KB socketed (non
+    CFI-compliant flash) will no longer be writable.
+
+    The mapping of the 16MB Strata flash was moved to 0xff000000 and the
+    512KB AMD socketed flash was moved to 0xfe000000.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit d4d2e79bb433fc7ec18c68cc49cc6b7433d1320c
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Thu Jul 16 22:13:57 2009 +0200
+
+    ppc4xx: Cleanup PLU405 board code
+
+    Some Coding style cleanup (braces, whitespaces, long lines)
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b209a114829dc8a7a0e39a9335b6e4aebf9742cb
+Author: Dirk Eibach <eibach@gdsys.de>
+Date:	Fri Jul 17 14:16:40 2009 +0200
+
+    ppc4xx: Add DL-Vision 405EP board support
+
+    Board support for the Guntermann & Drunck DL-Vision.
+
+    Signed-off-by: Dirk Eibach <eibach@gdsys.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9b1b8c8a1bf52e9b65e1958e5205838576066cbc
+Author: Dirk Eibach <eibach@gdsys.de>
+Date:	Fri Jul 10 14:47:32 2009 +0200
+
+    ppc4xx: Fix missing freqOPB for 405EP
+
+    In cpu/ppc4xx/speed.c initialization of sysInfo->freqOPB for 405EP was
+    left out for no obvious reason.
+
+    Signed-off-by: Dirk Eibach <eibach@gdsys.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 0a371ca08908c9b2a58171223a79bffea1f7c6f5
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jul 14 15:53:08 2009 +0200
+
+    ppc4xx: Fix TLB reset problem with recent 44x images
+
+    Patch d873133f [ppc4xx: Add Sequoia RAM-booting target] broke "normal"
+    booting on some 44x platforms. This breakage is only noticed in some
+    cases while powercycling. As it seems, the code in question in start.S
+    didn't invalidate TLB #0. This makes sense since this TLB is used for
+    the bootrom mapping. With the patch mentioned above even TLB #0 got
+    invalidated resulting in an error later on.
+
+    This patch now fixes this issue by only invalidating TLB #0 in the RAM-
+    booting case.
+
+    Tested succesfully on Sequoia and Canyonlands.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Cc: Dirk Eibach <Eibach@gdsys.de>
+
+commit 44259bb9e696d22bf1773181111855a29f00cf33
+Author: Prafulla Wadaskar <prafulla@marvell.com>
+Date:	Fri Jul 17 19:56:30 2009 +0530
+
+    usb: bugfix driver/usb/host/ehci-hcd.c function ehci_submit_root
+
+    This change is cheked in Linux source and fix found to be in sync.
+    This patch is tested for USB host interface on Kirkwood based
+    Sheevaplug platform (ARM little endian board)
+
+    Risk: the impact of this patch is not validated on big endian board.
+    This need to be checked...
+
+    Signed-off-by: Prafulla Wadaskar <prafulla@marvell.com>
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 28958b8bea4c66629c5a22fd3c8b0d49df90383d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Jul 23 22:23:23 2009 +0200
+
+    Coding Style cleanup; update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 2632c008e2c2cd61fefb622ed671ea3e6bd2e2a6
 Author: Mike Frysinger <vapier@gentoo.org>
 Date:	Tue Jul 21 22:59:36 2009 -0400
