@@ -241,7 +241,8 @@ void board_init_f(ulong board_type)
 
 #ifdef CONFIG_LCD
 #ifdef CONFIG_FB_ADDR
-	printf("LCD: Frame buffer allocated at preset 0x%08x\n", CONFIG_FB_ADDR);
+	printf("LCD: Frame buffer allocated at preset 0x%08x\n",
+	       CONFIG_FB_ADDR);
 	gd->fb_base = (void *)CONFIG_FB_ADDR;
 #else
 	addr = lcd_setmem(addr);
