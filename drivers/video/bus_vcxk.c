@@ -131,7 +131,7 @@ int vcxk_init(unsigned long width, unsigned long height)
 #endif
 
 #ifdef CONFIG_SYS_VCXK_DOUBLEBUFFERED
-	double_bws_word  = (u_short *) double_bws;
+	double_bws_word  = (u_short *)double_bws;
 	double_bws_long  = (u_long *)double_bws;
 	debug("%lx %lx %lx \n", double_bws, double_bws_word, double_bws_long);
 #endif
@@ -152,7 +152,8 @@ int vcxk_init(unsigned long width, unsigned long height)
 	vcxk_bws_long[1] = 0x0;
 	vcxk_bws_long[1] = 0x55AAAA55;
 	vcxk_bws_long[5] = 0x0;
-	if (vcxk_bws_long[1] == 0x55AAAA55)	VC4K16 = 1;
+	if (vcxk_bws_long[1] == 0x55AAAA55)
+		VC4K16 = 1;
 #else
 	VC4K16 = 1;
 	debug("No autodetect: use vc4k\n");
@@ -261,6 +262,7 @@ void vcxk_cls(void)
 void vcxk_clear(void)
 {
 	int cnt;
+
 	for (cnt = 0; cnt < (16384 / 4); cnt++) {
 		VCXK_BWS_LONG(cnt, 0)
 	}
@@ -317,7 +319,8 @@ int vcxk_request(void)
 
 int vcxk_acknowledge_wait(void)
 {
-	while (VCXK_ACKNOWLEDGE);
+	while (VCXK_ACKNOWLEDGE)
+		;
 	return 1;
 }
 
@@ -332,7 +335,7 @@ int vcxk_acknowledge_wait(void)
  ***
  */
 
-void vcxk_draw_mono(unsigned char *dataptr, unsigned long  linewidth,
+void vcxk_draw_mono(unsigned char *dataptr, unsigned long linewidth,
 	unsigned long  cp_width, unsigned long cp_height)
 {
 	unsigned char *lineptr;
@@ -346,7 +349,8 @@ void vcxk_draw_mono(unsigned char *dataptr, unsigned long  linewidth,
 			else
 				vcxk_setpixel(xcnt, ycnt-1, 0);
 
-			if ((xcnt % 8) == 7) lineptr++;
+			if ((xcnt % 8) == 7)
+				lineptr++;
 		} /* endfor xcnt */
 		dataptr = dataptr + linewidth;
 	} /* endfor ycnt */
@@ -403,12 +407,12 @@ int vcxk_display_bitmap(ulong addr, int x, int y)
 		if (c_height < height)
 			dataptr = dataptr + lw * (height - c_height);
 		switch (bpp) {
-			case 1:
-				vcxk_draw_mono(dataptr, lw, c_width, c_height);
-				break;
-			default:
-				printf("Error: %ld bit per pixel "
-					"not supported by VCxK\n", bpp);
+		case 1:
+			vcxk_draw_mono(dataptr, lw, c_width, c_height);
+			break;
+		default:
+			printf("Error: %ld bit per pixel "
+				"not supported by VCxK\n", bpp);
 			return 0;
 		}
 	} else	{
