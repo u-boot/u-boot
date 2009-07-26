@@ -1,8 +1,9 @@
 /*
- * (C) Copyright 2007
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * (C) Copyright 2008-2009
+ * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
- * Author: Sergei Poselenov <sposelenov@emcraft.com>
+ * (C) Copyright 2009
+ * Dirk Eibach,  Guntermann & Drunck GmbH, eibach@gdsys.de
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,37 +22,21 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
+ *
  */
 
-#include <config.h>
+#ifndef __PPC4xx_CONFIG_H
+#define __PPC4xx_CONFIG_H
 
-#if defined(CONFIG_440EP) || \
-    defined(CONFIG_440EPX)
+#include <common.h>
 
-#include <asm/processor.h>
-#include <ppc4xx.h>
+struct ppc4xx_config {
+	char label[16];
+	char description[64];
+	u8 val[CONFIG_4xx_CONFIG_BLOCKSIZE];
+};
 
+extern struct ppc4xx_config ppc4xx_config_val[];
+extern int ppc4xx_config_count;
 
-int fpu_status(void)
-{
-	if (mfspr(SPRN_CCR0) & CCR0_DAPUIB)
-		return 0; /* Disabled */
-	else
-		return 1; /* Enabled */
-}
-
-
-void fpu_disable(void)
-{
-	mtspr(SPRN_CCR0, mfspr(SPRN_CCR0) | CCR0_DAPUIB);
-	mtmsr(mfmsr() & ~MSR_FP);
-}
-
-
-void fpu_enable(void)
-{
-	mtspr(SPRN_CCR0, mfspr(SPRN_CCR0) & ~CCR0_DAPUIB);
-	mtmsr(mfmsr() | MSR_FP);
-}
-
-#endif
+#endif /* __PPC4xx_CONFIG_H */

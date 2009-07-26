@@ -142,7 +142,7 @@ int board_early_init_f(void)
 		reg |= CPR0_ICFG_RLI_MASK;
 		mtcpr(clk_icfg, reg);
 
-		mtspr(dbcr0, 0x20000000); /* do chip reset */
+		mtspr(SPRN_DBCR0, 0x20000000); /* do chip reset */
 	}
 
 	/*

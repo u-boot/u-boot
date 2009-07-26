@@ -77,7 +77,7 @@ int board_early_init_f (void)
 	out32(GPIO0_OR,		CONFIG_SYS_GPIO0_OR );
 	out32(GPIO0_TCR,	CONFIG_SYS_GPIO0_TCR);
 	out32(GPIO0_ODR,	CONFIG_SYS_GPIO0_ODR);
-	mtspr(ccr0,      0x00700000);
+	mtspr(SPRN_CCR0,      0x00700000);
 
 	return 0;
 }

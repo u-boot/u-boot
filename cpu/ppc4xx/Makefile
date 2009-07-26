@@ -41,6 +41,9 @@ endif
 COBJS	+= 4xx_pci.o
 COBJS	+= 4xx_pcie.o
 COBJS	+= bedbug_405.o
+ifdef CONFIG_CMD_CHIP_CONFIG
+COBJS	+= cmd_chip_config.o
+endif
 COBJS	+= commproc.o
 COBJS	+= cpu.o
 COBJS	+= cpu_init.o

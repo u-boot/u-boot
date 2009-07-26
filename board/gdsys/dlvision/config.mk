@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2008
-# Stefan Roese, DENX Software Engineering, sr@denx.de.
+# (C) Copyright 2000
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,33 +21,4 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(BOARD).a
-
-COBJS-y	:= $(BOARD).o
-COBJS-$(CONFIG_CMD_CHIP_CONFIG) += chip_config.o
-SOBJS	:= init.o
-
-COBJS   := $(COBJS-y)
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
-
-$(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+TEXT_BASE = 0xFFFC0000

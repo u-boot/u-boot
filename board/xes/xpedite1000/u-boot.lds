@@ -26,6 +26,16 @@ OUTPUT_ARCH(powerpc)
    __DYNAMIC = 0;    */
 SECTIONS
 {
+  .resetvec 0xFFFFFFFC :
+  {
+    *(.resetvec)
+  } = 0xffff
+
+  .bootpg 0xFFFFF000 :
+  {
+    cpu/ppc4xx/start.o	(.bootpg)
+  } = 0xffff
+
   /* Read-only sections, merged into text segment: */
   . = + SIZEOF_HEADERS;
   .interp : { *(.interp) }
@@ -56,7 +66,7 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     cpu/ppc4xx/start.o	(.text)
-    board/xpedite1k/init.o (.text)
+    board/xes/xpedite1000/init.o	(.text)
     cpu/ppc4xx/kgdb.o	(.text)
     cpu/ppc4xx/traps.o	(.text)
     cpu/ppc4xx/interrupts.o	(.text)
@@ -67,8 +77,6 @@ SECTIONS
     lib_generic/crc32.o		(.text)
     lib_ppc/extable.o	(.text)
     lib_generic/zlib.o		(.text)
-
-/*    common/env_embedded.o(.text) */
 
     *(.text)
     *(.fixup)
@@ -86,7 +94,7 @@ SECTIONS
   .dtors     : { *(.dtors)   }
 
   /* Read-write section, merged into data segment: */
-  . = (. + 0x0FFF) & 0xFFFFF000;
+  . = (. + 0x00FF) & 0xFFFFFF00;
   _erotext = .;
   PROVIDE (erotext = .);
   .reloc   :
@@ -112,11 +120,13 @@ SECTIONS
   _edata  =  .;
   PROVIDE (edata = .);
 
+  . = .;
   __u_boot_cmd_start = .;
   .u_boot_cmd : { *(.u_boot_cmd) }
   __u_boot_cmd_end = .;
 
 
+  . = .;
   __start___ex_table = .;
   __ex_table : { *(__ex_table) }
   __stop___ex_table = .;
@@ -129,12 +139,13 @@ SECTIONS
   __init_end = .;
 
   __bss_start = .;
-  .bss       :
+  .bss (NOLOAD)       :
   {
    *(.sbss) *(.scommon)
    *(.dynbss)
    *(.bss)
    *(COMMON)
+   . = ALIGN(4);
   }
   _end = . ;
   PROVIDE (end = .);

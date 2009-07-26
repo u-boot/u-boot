@@ -688,7 +688,7 @@ int misc_init_r (void)
 	start=get_timer(0);
 	/* if MIP405 has booted from PCI, reset CCR0[24] as described in errata PCI_18 */
 	if (mfdcr(strap) & PSR_ROM_LOC)
-	       mtspr(ccr0, (mfspr(ccr0) & ~0x80));
+	       mtspr(SPRN_CCR0, (mfspr(SPRN_CCR0) & ~0x80));
 
 	return (0);
 }

@@ -135,6 +135,7 @@ Jon Diekema <jon.diekema@smiths-aerospace.com>
 
 Dirk Eibach <eibach@gdsys.de>
 
+	dlvision        PPC405EP
 	gdppc440etx	PPC440EP/GR
 	neo		PPC405EP
 
@@ -171,6 +172,7 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	PCI405		PPC405GP
 	PLU405		PPC405EP
 	PMC405		PPC405GP
+	PMC405DE	PPC405EP
 	PMC440		PPC440EPx
 	VOH405		PPC405EP
 	VOM405		PPC405EP
@@ -381,7 +383,6 @@ Travis Sawyer (travis.sawyer@sandburst.com>
 
 	KAREF		PPC440GX
 	METROBOX	PPC440GX
-	XPEDITE1K	PPC440GX
 
 Georg Schardt <schardt@team-ctech.de>
 
@@ -436,6 +437,7 @@ Rune Torgersen <runet@innovsys.com>
 
 Peter Tyser <ptyser@xes-inc.com>
 
+	XPEDITE1000	PPC440GX
 	XPEDITE5170	MPC8640
 	XPEDITE5200	MPC8548
 	XPEDITE5370	MPC8572

@@ -27,10 +27,7 @@
 #include <command.h>
 #include <malloc.h>
 
-
-#if 0
-#define FPGA_DEBUG
-#endif
+#undef FPGA_DEBUG
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -47,7 +44,6 @@ const unsigned char fpgadata[] =
  * include common fpga code (for esd boards)
  */
 #include "../common/fpga.c"
-
 
 /*
  * include common auto-update code (for esd boards)
@@ -68,7 +64,7 @@ int N_AU_IMAGES = (sizeof(au_image) / sizeof(au_image[0]));
 /* Prototypes */
 int gunzip(void *, int, unsigned char *, unsigned long *);
 
-int board_early_init_f (void)
+int board_early_init_f(void)
 {
 	/*
 	 * IRQ 0-15  405GP internally generated; active high; level sensitive
@@ -94,15 +90,13 @@ int board_early_init_f (void)
 	 * EBC Configuration Register: set ready timeout to
 	 * 512 ebc-clks -> ca. 15 us
 	 */
-	mtebc (epcr, 0xa8400000); /* ebc always driven */
+	mtebc(epcr, 0xa8400000); /* ebc always driven */
 
 	return 0;
 }
 
-int misc_init_r (void)
+int misc_init_r(void)
 {
-	unsigned char *duart0_mcr = (unsigned char *)((ulong)DUART0_BA + 4);
-	unsigned char *duart1_mcr = (unsigned char *)((ulong)DUART1_BA + 4);
 	unsigned char *dst;
 	unsigned char fctr;
 	ulong len = sizeof(fpgadata);
@@ -115,9 +109,10 @@ int misc_init_r (void)
 	gd->bd->bi_flashoffset = 0;
 
 	dst = malloc(CONFIG_SYS_FPGA_MAX_SIZE);
-	if (gunzip (dst, CONFIG_SYS_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
-		printf ("GUNZIP ERROR - must RESET board to recover\n");
-		do_reset (NULL, 0, 0, NULL);
+	if (gunzip(dst, CONFIG_SYS_FPGA_MAX_SIZE,
+		   (uchar *)fpgadata, &len) != 0) {
+		printf("GUNZIP ERROR - must RESET board to recover\n");
+		do_reset(NULL, 0, 0, NULL);
 	}
 
 	status = fpga_boot(dst, len);
@@ -152,7 +147,7 @@ int misc_init_r (void)
 			for (index=0;index<1000;index++)
 				udelay(1000);
 		}
-		putc ('\n');
+		putc('\n');
 		do_reset(NULL, 0, 0, NULL);
 	}
 
@@ -165,7 +160,7 @@ int misc_init_r (void)
 		printf("%s ", &(dst[index+1]));
 		index += len+3;
 	}
-	putc ('\n');
+	putc('\n');
 
 	free(dst);
 
@@ -180,29 +175,35 @@ int misc_init_r (void)
 	/*
 	 * Reset external DUARTs
 	 */
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CONFIG_SYS_DUART_RST);
+	out_be32((void*)GPIO0_OR,
+		 in_be32((void*)GPIO0_OR) | CONFIG_SYS_DUART_RST);
 	udelay(10);
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) & ~CONFIG_SYS_DUART_RST);
+	out_be32((void*)GPIO0_OR,
+		 in_be32((void*)GPIO0_OR) & ~CONFIG_SYS_DUART_RST);
 	udelay(1000);
 
 	/*
 	 * Set NAND-FLASH GPIO signals to default
 	 */
 	out_be32((void*)GPIO0_OR,
-		 in_be32((void*)GPIO0_OR) & ~(CONFIG_SYS_NAND_CLE | CONFIG_SYS_NAND_ALE));
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CONFIG_SYS_NAND_CE);
+		 in_be32((void*)GPIO0_OR) &
+		 ~(CONFIG_SYS_NAND_CLE | CONFIG_SYS_NAND_ALE));
+	out_be32((void*)GPIO0_OR,
+		 in_be32((void*)GPIO0_OR) | CONFIG_SYS_NAND_CE);
 
 	/*
 	 * Setup EEPROM write protection
 	 */
-	out_be32((void*)GPIO0_OR, in_be32((void*)GPIO0_OR) | CONFIG_SYS_EEPROM_WP);
-	out_be32((void*)GPIO0_TCR, in_be32((void*)GPIO0_TCR) | CONFIG_SYS_EEPROM_WP);
+	out_be32((void*)GPIO0_OR,
+		 in_be32((void*)GPIO0_OR) | CONFIG_SYS_EEPROM_WP);
+	out_be32((void*)GPIO0_TCR,
+		 in_be32((void*)GPIO0_TCR) | CONFIG_SYS_EEPROM_WP);
 
 	/*
 	 * Enable interrupts in exar duart mcr[3]
 	 */
-	out_8(duart0_mcr, 0x08);
-	out_8(duart1_mcr, 0x08);
+	out_8((void *)DUART0_BA + 4, 0x08);
+	out_8((void *)DUART1_BA + 4, 0x08);
 
 	/*
 	 * Enable auto RS485 mode in 2nd external uart
@@ -213,26 +214,25 @@ int misc_init_r (void)
 	out_8((void *)DUART1_BA + 1, fctr); /* write FCTR */
 	out_8((void *)DUART1_BA + 3, 0);    /* write LCR */
 
-	return (0);
+	return 0;
 }
 
 /*
  * Check Board Identity:
  */
-int checkboard (void)
+int checkboard(void)
 {
 	char str[64];
-	int i = getenv_r ("serial#", str, sizeof(str));
+	int i = getenv_r("serial#", str, sizeof(str));
 
-	puts ("Board: ");
+	puts("Board: ");
 
-	if (i == -1) {
-		puts ("### No HW ID - assuming PLU405");
-	} else {
+	if (i == -1)
+		puts("### No HW ID - assuming PLU405");
+	else
 		puts(str);
-	}
 
-	putc ('\n');
+	putc('\n');
 	return 0;
 }
 
@@ -245,10 +245,12 @@ void ide_set_reset(int on)
 	 */
 	if (on) {		/* assert RESET */
 		out_be16((void *)FPGA_CTRL,
-			 in_be16((void *)FPGA_CTRL) & ~CONFIG_SYS_FPGA_CTRL_CF_RESET);
+			 in_be16((void *)FPGA_CTRL) &
+			 ~CONFIG_SYS_FPGA_CTRL_CF_RESET);
 	} else {		/* release RESET */
 		out_be16((void *)FPGA_CTRL,
-			 in_be16((void *)FPGA_CTRL) | CONFIG_SYS_FPGA_CTRL_CF_RESET);
+			 in_be16((void *)FPGA_CTRL) |
+			 CONFIG_SYS_FPGA_CTRL_CF_RESET);
 	}
 }
 #endif /* CONFIG_IDE_RESET */
@@ -266,14 +268,14 @@ void reset_phy(void)
 
 #if defined(CONFIG_SYS_EEPROM_WREN)
 /* Input: <dev_addr>  I2C address of EEPROM device to enable.
- *         <state>     -1: deliver current state
- *	               0: disable write
- *		       1: enable write
- *  Returns:           -1: wrong device address
- *                      0: dis-/en- able done
- *		     0/1: current state if <state> was -1.
+ *	       <state> -1: deliver current state
+ *			0: disable write
+ *			1: enable write
+ *  Returns:	       -1: wrong device address
+ *			0: dis-/en- able done
+ *		      0/1: current state if <state> was -1.
  */
-int eeprom_write_enable (unsigned dev_addr, int state)
+int eeprom_write_enable(unsigned dev_addr, int state)
 {
 	if (CONFIG_SYS_I2C_EEPROM_ADDR != dev_addr) {
 		return -1;
@@ -282,51 +284,55 @@ int eeprom_write_enable (unsigned dev_addr, int state)
 		case 1:
 			/* Enable write access, clear bit GPIO0. */
 			out_be32((void*)GPIO0_OR,
-				 in_be32((void*)GPIO0_OR) & ~CONFIG_SYS_EEPROM_WP);
+				 in_be32((void*)GPIO0_OR) &
+				 ~CONFIG_SYS_EEPROM_WP);
 			state = 0;
 			break;
 		case 0:
 			/* Disable write access, set bit GPIO0. */
 			out_be32((void*)GPIO0_OR,
-				 in_be32((void*)GPIO0_OR) | CONFIG_SYS_EEPROM_WP);
+				 in_be32((void*)GPIO0_OR) |
+				 CONFIG_SYS_EEPROM_WP);
 			state = 0;
 			break;
 		default:
 			/* Read current status back. */
-			state = (0 == (in_be32((void*)GPIO0_OR) &
-				       CONFIG_SYS_EEPROM_WP));
+			state = ((in_be32((void*)GPIO0_OR) &
+				       CONFIG_SYS_EEPROM_WP) == 0);
 			break;
 		}
 	}
 	return state;
 }
 
-int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_eep_wren(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int query = argc == 1;
 	int state = 0;
 
 	if (query) {
 		/* Query write access state. */
-		state = eeprom_write_enable (CONFIG_SYS_I2C_EEPROM_ADDR, -1);
+		state = eeprom_write_enable(CONFIG_SYS_I2C_EEPROM_ADDR, -1);
 		if (state < 0) {
-			puts ("Query of write access state failed.\n");
+			puts("Query of write access state failed.\n");
 		} else {
-			printf ("Write access for device 0x%0x is %sabled.\n",
-				CONFIG_SYS_I2C_EEPROM_ADDR, state ? "en" : "dis");
+			printf("Write access for device 0x%0x is %sabled.\n",
+			       CONFIG_SYS_I2C_EEPROM_ADDR,
+			       state ? "en" : "dis");
 			state = 0;
 		}
 	} else {
-		if ('0' == argv[1][0]) {
+		if (argv[1][0] == '0') {
 			/* Disable write access. */
-			state = eeprom_write_enable (CONFIG_SYS_I2C_EEPROM_ADDR, 0);
+			state = eeprom_write_enable(CONFIG_SYS_I2C_EEPROM_ADDR,
+						    0);
 		} else {
 			/* Enable write access. */
-			state = eeprom_write_enable (CONFIG_SYS_I2C_EEPROM_ADDR, 1);
+			state = eeprom_write_enable(CONFIG_SYS_I2C_EEPROM_ADDR,
+						    1);
 		}
-		if (state < 0) {
-			puts ("Setup of write access state failed.\n");
-		}
+		if (state < 0)
+			puts("Setup of write access state failed.\n");
 	}
 
 	return state;

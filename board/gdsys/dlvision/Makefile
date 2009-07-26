@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2002-2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# (C) Copyright 2007
+# Stefan Roese, DENX Software Engineering, sr@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -25,15 +25,15 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	= $(BOARD).o flash.o
-SOBJS	= init.o
+COBJS	= $(BOARD).o
+SOBJS   =
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

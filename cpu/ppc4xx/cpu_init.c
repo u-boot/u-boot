@@ -123,7 +123,7 @@ void reconfigure_pll(u32 new_cpu_freq)
 	/* Reset processor if configuration changed */
 	if (reset_needed) {
 		__asm__ __volatile__ ("sync; isync");
-		mtspr(dbcr0, 0x20000000);
+		mtspr(SPRN_DBCR0, 0x20000000);
 	}
 #endif
 }

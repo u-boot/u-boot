@@ -272,7 +272,7 @@ static int do_chip_reset (unsigned long sys0, unsigned long sys1)
 	mtdcr (cpc0_sys0, sys0);
 	mtdcr (cpc0_sys1, sys1);
 	mtdcr (cntrl0, mfdcr (cntrl0) & ~0x80000000);	/* Clr SWE */
-	mtspr (dbcr0, 0x20000000);	/* Reset the chip */
+	mtspr (SPRN_DBCR0, 0x20000000);	/* Reset the chip */
 
 	return 1;
 }
@@ -654,12 +654,12 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	board_reset();
 #else
 #if defined(CONFIG_SYS_4xx_RESET_TYPE)
-	mtspr(dbcr0, CONFIG_SYS_4xx_RESET_TYPE << 28);
+	mtspr(SPRN_DBCR0, CONFIG_SYS_4xx_RESET_TYPE << 28);
 #else
 	/*
 	 * Initiate system reset in debug control register DBCR
 	 */
-	mtspr(dbcr0, 0x30000000);
+	mtspr(SPRN_DBCR0, 0x30000000);
 #endif /* defined(CONFIG_SYS_4xx_RESET_TYPE) */
 #endif /* defined(CONFIG_BOARD_RESET) */
 
@@ -697,7 +697,7 @@ void reset_4xx_watchdog(void)
 	/*
 	 * Clear TSR(WIS) bit
 	 */
-	mtspr(tsr, 0x40000000);
+	mtspr(SPRN_TSR, 0x40000000);
 }
 #endif	/* CONFIG_WATCHDOG */
 

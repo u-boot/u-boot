@@ -394,7 +394,8 @@ void get_sys_info (sys_info_t *sysInfo)
 	sysInfo->freqUART = sysInfo->freqPLB;
 
 	/* Figure which timer source to use */
-	if (mfspr(ccr1) & 0x0080) { /* External Clock, assume same as SYS_CLK */
+	if (mfspr(SPRN_CCR1) & 0x0080) {
+		/* External Clock, assume same as SYS_CLK */
 		temp = sysInfo->freqProcessor / 2;  /* Max extern clock speed */
 		if (CONFIG_SYS_CLK_FREQ > temp)
 			sysInfo->freqTmrClk = temp;
@@ -866,6 +867,8 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 	sysInfo->freqPLB = sysInfo->freqProcessor / sysInfo->pllPlbDiv;
 
 	sysInfo->freqEBC = sysInfo->freqPLB / sysInfo->pllExtBusDiv;
+
+	sysInfo->freqOPB = sysInfo->freqPLB / sysInfo->pllOpbDiv;
 
 	sysInfo->freqUART = sysInfo->freqProcessor * pllmr0_ccdv;
 }

@@ -96,6 +96,10 @@
 #define CONFIG_BOOKE
 #endif
 
+#define SPRN_CCR0	0x3B3	/* Core Configuration Register 0 */
+#ifdef CONFIG_BOOKE
+#define SPRN_CCR1	0x378	/* Core Configuration Register for 440 only */
+#endif
 #define SPRN_CDBCR	0x3D7	/* Cache Debug Control Register */
 #define SPRN_CTR	0x009	/* Count Register */
 #define SPRN_DABR	0x3F5	/* Data Address Breakpoint Register */
@@ -166,6 +170,9 @@
 #define SPRN_DBSR	0x3F0	/* Debug Status Register */
 #else
 #define SPRN_DBCR1	0x135		/* Book E Debug Control Register 1 */
+#ifdef CONFIG_BOOKE
+#define	SPRN_DBDR	0x3f3		/* Debug Data Register */
+#endif
 #define SPRN_DBSR	0x130		/* Book E Debug Status Register */
 #define   DBSR_IC	    0x08000000	/* Book E Instruction Completion  */
 #define   DBSR_TIE	    0x01000000	/* Book E Trap Instruction Event */
@@ -173,6 +180,10 @@
 #define SPRN_DCCR	0x3FA	/* Data Cache Cacheability Register */
 #define   DCCR_NOCACHE		0	/* Noncacheable */
 #define   DCCR_CACHE		1	/* Cacheable */
+#ifndef CONFIG_BOOKE
+#define	SPRN_DCDBTRL	0x39c	/* Data Cache Debug Tag Register Low */
+#define	SPRN_DCDBTRH	0x39d	/* Data Cache Debug Tag Register High */
+#endif
 #define SPRN_DCMP	0x3D1	/* Data TLB Compare Register */
 #define SPRN_DCWR	0x3BA	/* Data Cache Write-thru Register */
 #define   DCWR_COPY		0	/* Copy-back */
@@ -184,7 +195,20 @@
 #endif /* CONFIG_BOOKE */
 #define SPRN_DEC	0x016	/* Decrement Register */
 #define SPRN_DMISS	0x3D0	/* Data TLB Miss Register */
+#ifdef CONFIG_BOOKE
+#define	SPRN_DNV0	0x390	/* Data Cache Normal Victim 0 */
+#define	SPRN_DNV1	0x391	/* Data Cache Normal Victim 1 */
+#define	SPRN_DNV2	0x392	/* Data Cache Normal Victim 2 */
+#define	SPRN_DNV3	0x393	/* Data Cache Normal Victim 3 */
+#endif
 #define SPRN_DSISR	0x012	/* Data Storage Interrupt Status Register */
+#ifdef CONFIG_BOOKE
+#define	SPRN_DTV0	0x394	/* Data Cache Transient Victim 0 */
+#define	SPRN_DTV1	0x395	/* Data Cache Transient Victim 1 */
+#define	SPRN_DTV2	0x396	/* Data Cache Transient Victim 2 */
+#define	SPRN_DTV3	0x397	/* Data Cache Transient Victim 3 */
+#define	SPRN_DVLIM	0x398	/* Data Cache Victim Limit */
+#endif
 #define SPRN_EAR	0x11A	/* External Address Register */
 #ifndef CONFIG_BOOKE
 #define SPRN_ESR	0x3D4	/* Exception Syndrome Register */
@@ -269,16 +293,34 @@
 #define   ICCR_NOCACHE		0	/* Noncacheable */
 #define   ICCR_CACHE		1	/* Cacheable */
 #define SPRN_ICDBDR	0x3D3	/* Instruction Cache Debug Data Register */
+#ifdef CONFIG_BOOKE
+#define SPRN_ICDBTRL	0x39e	/* instruction cache debug tag register low */
+#define	SPRN_ICDBTRH	0x39f	/* instruction cache debug tag register high */
+#endif
 #define SPRN_ICMP	0x3D5	/* Instruction TLB Compare Register */
 #define SPRN_ICTC	0x3FB	/* Instruction Cache Throttling Control Reg */
 #define SPRN_IMISS	0x3D4	/* Instruction TLB Miss Register */
 #define SPRN_IMMR	0x27E	/* Internal Memory Map Register */
+#ifdef CONFIG_BOOKE
+#define	SPRN_INV0	0x370	/* Instruction Cache Normal Victim 0 */
+#define	SPRN_INV1	0x371	/* Instruction Cache Normal Victim 1 */
+#define	SPRN_INV2	0x372	/* Instruction Cache Normal Victim 2 */
+#define	SPRN_INV3	0x373	/* Instruction Cache Normal Victim 3 */
+#define	SPRN_ITV0	0x374	/* Instruction Cache Transient Victim 0 */
+#define	SPRN_ITV1	0x375	/* Instruction Cache Transient Victim 1 */
+#define	SPRN_ITV2	0x376	/* Instruction Cache Transient Victim 2 */
+#define	SPRN_ITV3	0x377	/* Instruction Cache Transient Victim 3 */
+#define	SPRN_IVLIM	0x399	/* Instruction Cache Victim Limit */
+#endif
 #define SPRN_LDSTCR	0x3F8	/* Load/Store Control Register */
 #define SPRN_L2CR	0x3F9	/* Level 2 Cache Control Regsiter */
 #define SPRN_LR		0x008	/* Link Register */
 #define SPRN_MBAR	0x137	/* System memory base address */
 #define SPRN_MMCR0	0x3B8	/* Monitor Mode Control Register 0 */
 #define SPRN_MMCR1	0x3BC	/* Monitor Mode Control Register 1 */
+#ifdef CONFIG_BOOKE
+#define	SPRN_MMUCR	0x3b2	/* MMU Control Register */
+#endif
 #define SPRN_PBL1	0x3FC	/* Protection Bound Lower 1 */
 #define SPRN_PBL2	0x3FE	/* Protection Bound Lower 2 */
 #define SPRN_PBU1	0x3FD	/* Protection Bound Upper 1 */
@@ -297,6 +339,9 @@
 #define SPRN_PMC4	0x3BE	/* Performance Counter Register 4 */
 #define SPRN_PVR	0x11F	/* Processor Version Register */
 #define SPRN_RPA	0x3D6	/* Required Physical Address Register */
+#ifdef CONFIG_BOOKE
+#define	SPRN_RSTCFG	0x39b	/* Reset Configuration */
+#endif
 #define SPRN_SDA	0x3BF	/* Sampled Data Address Register */
 #define SPRN_SDR1	0x019	/* MMU Hash Base Register */
 #define SPRN_SGR	0x3B9	/* Storage Guarded Register */
@@ -315,6 +360,7 @@
 #define SPRN_SRR1	0x01B	/* Save/Restore Register 1 */
 #define SPRN_SRR2	0x3DE	/* Save/Restore Register 2 */
 #define SPRN_SRR3	0x3DF	/* Save/Restore Register 3 */
+
 #ifdef CONFIG_BOOKE
 #define SPRN_SVR	0x3FF	/* System Version Register */
 #else
