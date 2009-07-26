@@ -550,9 +550,9 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	      req->requesttype, req->requesttype,
 	      le16_to_cpu(req->value), le16_to_cpu(req->index));
 
-	typeReq = req->request << 8 | req->requesttype;
+	typeReq = req->request | req->requesttype << 8;
 
-	switch (le16_to_cpu(typeReq)) {
+	switch (typeReq) {
 	case DeviceRequest | USB_REQ_GET_DESCRIPTOR:
 		switch (le16_to_cpu(req->value) >> 8) {
 		case USB_DT_DEVICE:
