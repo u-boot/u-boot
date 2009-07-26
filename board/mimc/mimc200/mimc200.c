@@ -36,21 +36,21 @@
 #if defined(CONFIG_LCD)
 /* 480x272x16 @ 72 Hz */
 vidinfo_t panel_info = {
-	.vl_col			= 480,			/* Number of columns */
-	.vl_row			= 272,			/* Number of rows */
-	.vl_clk			= 10000000,		/* pixel clock in ps */
+	.vl_col			= 480,		/* Number of columns */
+	.vl_row			= 272,		/* Number of rows */
+	.vl_clk			= 10000000,	/* pixel clock in ps */
 	.vl_sync		= ATMEL_LCDC_INVCLK_INVERTED |
 				  ATMEL_LCDC_INVLINE_INVERTED |
 				  ATMEL_LCDC_INVFRAME_INVERTED,
-	.vl_bpix		= LCD_COLOR16,		/* Bits per pixel, 0 = 1, 1 = 2, 2 = 4, 3 = 8, 4 = 16 */
-	.vl_tft			= 1,			/* 0 = passive, 1 = TFT */
-	.vl_hsync_len		= 42,			/* Length of horizontal sync */
-	.vl_left_margin		= 1,			/* Time from sync to picture */
-	.vl_right_margin	= 1,			/* Time from picture to sync */
-	.vl_vsync_len		= 1,			/* Length of vertical sync */
-	.vl_upper_margin	= 12,			/* Time from sync to picture */
-	.vl_lower_margin	= 1,			/* Time from picture to sync */
-	.mmio			= LCDC_BASE,		/* Memory mapped registers */
+	.vl_bpix		= LCD_COLOR16,	/* Bits per pixel, BPP = 2^n */
+	.vl_tft			= 1,		/* 0 = passive, 1 = TFT */
+	.vl_hsync_len		= 42,		/* Length of horizontal sync */
+	.vl_left_margin		= 1,		/* Time from sync to picture */
+	.vl_right_margin	= 1,		/* Time from picture to sync */
+	.vl_vsync_len		= 1,		/* Length of vertical sync */
+	.vl_upper_margin	= 12,		/* Time from sync to picture */
+	.vl_lower_margin	= 1,		/* Time from picture to sync */
+	.mmio			= LCDC_BASE,	/* Memory mapped registers */
 };
 
 void lcd_enable(void)
