@@ -68,7 +68,7 @@
 #if defined(CONFIG_LOGBUFFER)
 #include <logbuff.h>
 #endif
-#if defined(CONFIG_SYS_INIT_RAM_LOCK)
+#if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
 #include <asm/cache.h>
 #endif
 #ifdef CONFIG_PS2KBD
@@ -754,8 +754,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	icache_enable ();	/* it's time to enable the instruction cache */
 #endif
 
-#if defined(CONFIG_SYS_INIT_RAM_LOCK)
-	unlock_ram_in_cache();	/* it's time to unlock D-cache */
+#if defined(CONFIG_SYS_INIT_RAM_LOCK) && defined(CONFIG_E500)
+	unlock_ram_in_cache();	/* it's time to unlock D-cache in e500 */
 #endif
 
 #if defined(CONFIG_BAB7xx) || defined(CONFIG_CPC45)
