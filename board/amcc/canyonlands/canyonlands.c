@@ -40,6 +40,24 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BOARD_GLACIER		3
 #define BOARD_ARCHES		4
 
+/*
+ * Override the default functions in cpu/ppc4xx/44x_spd_ddr2.c with
+ * board specific values.
+ */
+#if defined(CONFIG_ARCHES)
+u32 ddr_wrdtr(u32 default_val) {
+	return (SDRAM_WRDTR_LLWP_1_CYC | SDRAM_WRDTR_WTR_0_DEG | 0x823);
+}
+#else
+u32 ddr_wrdtr(u32 default_val) {
+	return (SDRAM_WRDTR_LLWP_1_CYC | SDRAM_WRDTR_WTR_180_DEG_ADV | 0x823);
+}
+
+u32 ddr_clktr(u32 default_val) {
+	return (SDRAM_CLKTR_CLKP_90_DEG_ADV);
+}
+#endif
+
 #if defined(CONFIG_ARCHES)
 /*
  * FPGA read/write helper macros
@@ -285,18 +303,6 @@ int checkboard(void)
 	return 0;
 }
 #endif	/* !defined(CONFIG_ARCHES) */
-
-/*
- * Override the default functions in cpu/ppc4xx/44x_spd_ddr2.c with
- * board specific values.
- */
-u32 ddr_wrdtr(u32 default_val) {
-	return (SDRAM_WRDTR_LLWP_1_CYC | SDRAM_WRDTR_WTR_180_DEG_ADV | 0x823);
-}
-
-u32 ddr_clktr(u32 default_val) {
-	return (SDRAM_CLKTR_CLKP_90_DEG_ADV);
-}
 
 #if defined(CONFIG_NAND_U_BOOT)
 /*
