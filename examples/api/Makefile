@@ -42,6 +42,7 @@ COBJ_FILES-$(CONFIG_API) += libgenwrap.o
 # Source files which exist outside the examples/api directory
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/crc32.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/ctype.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/div64.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/string.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/vsprintf.o
 ifeq ($(ARCH),ppc)
