@@ -380,7 +380,6 @@ int vcxk_display_bitmap(ulong addr, int x, int y)
 	unsigned long c_width;
 	unsigned long c_height;
 	unsigned char *dataptr;
-	unsigned char *lineptr;
 
 	bmp = (bmp_image_t *) addr;
 	if ((bmp->header.signature[0] == 'B') &&
