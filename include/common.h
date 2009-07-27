@@ -107,9 +107,6 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_BLACKFIN
 #include <asm/blackfin.h>
 #endif
-#ifdef CONFIG_STATUS_LED
-#include <status_led.h>
-#endif
 
 #include <part.h>
 #include <flash.h>
@@ -684,6 +681,9 @@ int	fgetc(int file);
 
 int	pcmcia_init (void);
 
+#ifdef CONFIG_STATUS_LED
+# include <status_led.h>
+#endif
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
  */
