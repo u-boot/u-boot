@@ -26,8 +26,8 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS-y	= $(BOARD).o
-COBJS-y	+= ../common/cmd_loadpci.o
 COBJS-$(CONFIG_CMD_CHIP_CONFIG) += chip_config.o
+COBJS	+= ../common/cmd_loadpci.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
