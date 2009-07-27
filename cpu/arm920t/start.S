@@ -24,9 +24,8 @@
  * MA 02111-1307 USA
  */
 
+#include <common.h>
 #include <config.h>
-#include <version.h>
-#include <status_led.h>
 
 /*
  *************************************************************************
