@@ -130,7 +130,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
 #define CONFIG_SYS_NAND_BASE			0x40000000
 #define CONFIG_SYS_NAND_DBW_8			1
-#endif
 
 #define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 #endif
