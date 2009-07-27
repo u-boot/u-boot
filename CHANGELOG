@@ -1,3 +1,64 @@
+commit 9689ddcca6e01f3637b4442fa8575f29ef4d7aa3
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 27 10:06:39 2009 +0200
+
+    cpu/arm920t/start.S: include <common.h> to have ROUND() defined
+
+    Commit fcd3c87e made include/common.h usable by assembler code but
+    failed to update cpu/arm920t/start.S
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c9ed38cb6de50fdb4aaa60b668c555002903b211
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 27 10:01:11 2009 +0200
+
+    at91cap9adk: fix #ifdef/#endif pairing (2nd try)
+
+    Commit 7024aa14 was supposed to fix the #ifdef/#endif pairing in
+    include/configs/at91cap9adk.h, but did not cate all problems.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit fb364bec5f29164d3ee681fcd9d187be8435db12
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 27 09:58:14 2009 +0200
+
+    Fix include/common.h for boards with CONFIG_STATUS_LED
+
+    The reordering of include/common.h by commit fcd3c87e495f3c48 broke
+    boards with status LED support, resulting in
+	error: #error Status LED configuration missing
+    errors. Undo this reordering to avoid this issue.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 942828a0980b3cea7db698784cc7f6a3e7740b2b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 27 09:19:15 2009 +0200
+
+    ABI: fix build problems due to now needed div64 routine.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 85d6bf0bdc8ccad2d67a9160472f6f8c6bb482fb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 27 08:50:59 2009 +0200
+
+    PMC405DE: fix out of tree building
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 10c7604d021949464b1e4ba903df95e6b2f0d2ff
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 27 00:24:55 2009 +0200
+
+    Prepare 2009.08-rc1
+
+    Update CHANGELOG, minor coding style fix.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit fafbb2c3e4b35b60ca303ed2ad1c6cf400cd9a22
 Author: rhabarber1848@web.de <rhabarber1848@web.de>
 Date:	Fri Jul 24 08:16:30 2009 +0200
