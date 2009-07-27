@@ -1282,6 +1282,14 @@ CATcenter_33_config:	unconfig
 CMS700_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cms700 esd
 
+# Compact-Center & DevCon-Center use different U-Boot images
+compactcenter_config \
+devconcenter_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_$$(echo $(subst ,,$(@:_config=)) | \
+		tr '[:lower:]' '[:upper:]')" >$(obj)include/config.h
+	@$(MKCONFIG) -n $@ -a compactcenter ppc ppc4xx compactcenter gdsys
+
 CPCI2DP_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx cpci2dp esd
 

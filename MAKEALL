@@ -184,6 +184,7 @@ LIST_4xx="		\
 	canyonlands	\
 	canyonlands_nand \
 	CMS700		\
+	compactcenter	\
 	CPCI2DP		\
 	CPCI405		\
 	CPCI4052	\
@@ -194,6 +195,7 @@ LIST_4xx="		\
 	csb272		\
 	csb472		\
 	DASA_SIM	\
+	devconcenter	\
 	dlvision	\
 	DP405		\
 	DU405		\
