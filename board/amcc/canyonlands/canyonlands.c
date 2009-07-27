@@ -585,22 +585,7 @@ extern void __ft_board_setup(void *blob, bd_t *bd);
 
 void ft_board_setup(void *blob, bd_t *bd)
 {
-	u32 val[4];
-	int rc;
-
 	__ft_board_setup(blob, bd);
-
-	/* Fixup NOR mapping */
-	val[0] = CONFIG_SYS_NOR_CS;		/* chip select number */
-	val[1] = 0;				/* always 0 */
-	val[2] = CONFIG_SYS_FLASH_BASE_PHYS_L;		/* we fixed up this address */
-	val[3] = gd->bd->bi_flashsize;
-	rc = fdt_find_and_setprop(blob, "/plb/opb/ebc", "ranges",
-				  val, sizeof(val), 1);
-	if (rc) {
-		printf("Unable to update property NOR mapping, err=%s\n",
-		       fdt_strerror(rc));
-	}
 
 	if (gd->board_type == BOARD_CANYONLANDS_SATA) {
 		/*
