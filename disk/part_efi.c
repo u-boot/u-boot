@@ -169,7 +169,7 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 		     - info->start;
 	info->blksz = GPT_BLOCK_SIZE;
 
-	sprintf((char *)info->name, "%s%d\n", GPT_ENTRY_NAME, part);
+	sprintf((char *)info->name, "%s%d", GPT_ENTRY_NAME, part);
 	sprintf((char *)info->type, "U-Boot");
 
 	debug("%s: start 0x%lX, size 0x%lX, name %s", __FUNCTION__,

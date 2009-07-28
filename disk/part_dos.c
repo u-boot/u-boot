@@ -198,19 +198,24 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 				case IF_TYPE_IDE:
 				case IF_TYPE_SATA:
 				case IF_TYPE_ATAPI:
-					sprintf ((char *)info->name, "hd%c%d\n", 'a' + dev_desc->dev, part_num);
+					sprintf ((char *)info->name, "hd%c%d",
+						'a' + dev_desc->dev, part_num);
 					break;
 				case IF_TYPE_SCSI:
-					sprintf ((char *)info->name, "sd%c%d\n", 'a' + dev_desc->dev, part_num);
+					sprintf ((char *)info->name, "sd%c%d",
+						'a' + dev_desc->dev, part_num);
 					break;
 				case IF_TYPE_USB:
-					sprintf ((char *)info->name, "usbd%c%d\n", 'a' + dev_desc->dev, part_num);
+					sprintf ((char *)info->name, "usbd%c%d",
+						'a' + dev_desc->dev, part_num);
 					break;
 				case IF_TYPE_DOC:
-					sprintf ((char *)info->name, "docd%c%d\n", 'a' + dev_desc->dev, part_num);
+					sprintf ((char *)info->name, "docd%c%d",
+						'a' + dev_desc->dev, part_num);
 					break;
 				default:
-					sprintf ((char *)info->name, "xx%c%d\n", 'a' + dev_desc->dev, part_num);
+					sprintf ((char *)info->name, "xx%c%d",
+						'a' + dev_desc->dev, part_num);
 					break;
 			}
 			/* sprintf(info->type, "%d, pt->sys_ind); */
