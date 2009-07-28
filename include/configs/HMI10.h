@@ -45,8 +45,8 @@
 #endif
 
 #define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
-#undef	CONFIG_8xx_CONS_SMC2
-#undef	CONFIG_8xx_CONS_NONE
+#define CONFIG_SYS_SMC_RXBUFLEN	128
+#define CONFIG_SYS_MAXIDLE	10
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115kbps	*/
 
 #define CONFIG_PS2KBD			/* AT-PS/2 Keyboard		*/

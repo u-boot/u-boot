@@ -38,6 +38,8 @@
 #define CONFIG_NSCU		1
 
 #define	CONFIG_8xx_CONS_SCC1	1	/* Console is on SMC1		*/
+#define CONFIG_SYS_SMC_RXBUFLEN	128
+#define CONFIG_SYS_MAXIDLE	10
 
 #define	CONFIG_66MHz		1	/* running at 66 MHz, 1:1 clock	*/
 
