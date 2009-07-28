@@ -30,7 +30,7 @@ LIB	= $(obj)liblzma.a
 
 SOBJS	=
 
-CFLAGS += -D_LZMA_PROB32 -I$(TOPDIR)/include/linux
+CFLAGS += -D_LZMA_PROB32
 
 COBJS-$(CONFIG_LZMA) += LzmaDec.o LzmaTools.o
 

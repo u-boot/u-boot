@@ -61,7 +61,6 @@ int lzmaBuffToBuffDecompress (unsigned char *outStream, SizeT *uncompressedSize,
     ISzAlloc g_Alloc;
 
     SizeT outSizeFull = 0xFFFFFFFF; /* 4GBytes limit */
-    SizeT inProcessed;
     SizeT outProcessed;
     SizeT outSize;
     SizeT outSizeHigh;
