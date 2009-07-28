@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008
+ * (C) Copyright 2008-2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -26,6 +26,17 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 
+/*
+ * This code can configure those two Crucial SODIMM's:
+ *
+ * Crucial CT6464AC667.4FE - 512MB SO-DIMM (single rank)
+ * Crucial CT6464AC667.8FB - 512MB SO-DIMM (dual rank)
+ *
+ */
+
+#define TEST_ADDR	0x10000000
+#define TEST_MAGIC	0x11223344
+
 static void wait_init_complete(void)
 {
 	u32 val;
@@ -35,7 +46,13 @@ static void wait_init_complete(void)
 	} while (!(val & 0x80000000));
 }
 
-phys_size_t initdram(int board_type)
+static void ddr_start(void)
+{
+	mtsdram(SDRAM_MCOPT2, 0x28000000);
+	wait_init_complete();
+}
+
+static void ddr_init_common(void)
 {
 	/*
 	 * Reset the DDR-SDRAM controller.
@@ -49,17 +66,12 @@ phys_size_t initdram(int board_type)
 	 * enabled. This will only work for the same memory
 	 * configuration as used here:
 	 *
-	 * Crucial CT6464AC667.8FB - 512MB SO-DIMM
-	 *
 	 */
 	mtsdram(SDRAM_MCOPT2, 0x00000000);
-	mtsdram(SDRAM_MCOPT1, 0x05122000);
 	mtsdram(SDRAM_MODT0, 0x01000000);
-	mtsdram(SDRAM_CODT, 0x02800021);
 	mtsdram(SDRAM_WRDTR, 0x82000823);
 	mtsdram(SDRAM_CLKTR, 0x40000000);
 	mtsdram(SDRAM_MB0CF, 0x00000201);
-	mtsdram(SDRAM_MB1CF, 0x00000201);
 	mtsdram(SDRAM_RTR, 0x06180000);
 	mtsdram(SDRAM_SDTR1, 0x80201000);
 	mtsdram(SDRAM_SDTR2, 0x42103243);
@@ -82,17 +94,56 @@ phys_size_t initdram(int board_type)
 	mtsdram(SDRAM_INITPLR13, 0x80810040);
 	mtsdram(SDRAM_INITPLR14, 0x00000000);
 	mtsdram(SDRAM_INITPLR15, 0x00000000);
-
-	mtsdram(SDRAM_MCOPT2, 0x28000000);
-
-	wait_init_complete();
-
-	mtdcr(SDRAM_R0BAS, 0x0000F800);		/* MQ0_B0BAS */
-	mtdcr(SDRAM_R1BAS, 0x0400F800);		/* MQ0_B1BAS */
-
 	mtsdram(SDRAM_RDCC, 0x40000000);
 	mtsdram(SDRAM_RQDC, 0x80000038);
 	mtsdram(SDRAM_RFDC, 0x00000257);
+
+	mtdcr(SDRAM_R0BAS, 0x0000F800);		/* MQ0_B0BAS */
+	mtdcr(SDRAM_R1BAS, 0x0400F800);		/* MQ0_B1BAS */
+}
+
+phys_size_t initdram(int board_type)
+{
+	/*
+	 * First try init for this module:
+	 *
+	 * Crucial CT6464AC667.8FB - 512MB SO-DIMM (dual rank)
+	 */
+
+	ddr_init_common();
+
+	/*
+	 * Crucial CT6464AC667.8FB - 512MB SO-DIMM
+	 */
+	mtdcr(SDRAM_R0BAS, 0x0000F800);
+	mtdcr(SDRAM_R1BAS, 0x0400F800);
+	mtsdram(SDRAM_MCOPT1, 0x05122000);
+	mtsdram(SDRAM_CODT, 0x02800021);
+	mtsdram(SDRAM_MB1CF, 0x00000201);
+
+	ddr_start();
+
+	/*
+	 * Now test if the dual-ranked module is really installed
+	 * by checking an address in the upper 256MByte region
+	 */
+	out_be32((void *)TEST_ADDR, TEST_MAGIC);
+	if (in_be32((void *)TEST_ADDR) != TEST_MAGIC) {
+		/*
+		 * The test failed, so we assume that the single
+		 * ranked module is installed:
+		 *
+		 * Crucial CT6464AC667.4FE - 512MB SO-DIMM (single rank)
+		 */
+
+		ddr_init_common();
+
+		mtdcr(SDRAM_R0BAS, 0x0000F000);
+		mtsdram(SDRAM_MCOPT1, 0x05322000);
+		mtsdram(SDRAM_CODT, 0x00800021);
+
+		ddr_start();
+	}
 
 	return CONFIG_SYS_MBYTES_SDRAM << 20;
 }
