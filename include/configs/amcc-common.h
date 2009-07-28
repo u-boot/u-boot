@@ -137,10 +137,11 @@
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
- * the maximum mapped by the Linux kernel during initialization.
+ * have to be in the first 16 MB of memory, since this is
+ * the maximum mapped by the 40x Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ		(8 << 20) /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(16 << 20) /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTM_LEN		(16 << 20) /* Increase max gunzip size */
 
 /*
  * Internal Definitions
