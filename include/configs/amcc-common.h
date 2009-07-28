@@ -215,9 +215,9 @@
 		" console=" xstr(CONFIG_USE_TTY) ",${baudrate}\0"	\
 	CONFIG_ADDMISC							\
 	"initrd_high=30000000\0"					\
-	"kernel_addr_r=400000\0"					\
-	"fdt_addr_r=800000\0"						\
-	"ramdisk_addr_r=C00000\0"					\
+	"kernel_addr_r=1000000\0"					\
+	"fdt_addr_r=1800000\0"						\
+	"ramdisk_addr_r=1900000\0"					\
 	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
 	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
 	"ramdisk_file=" xstr(CONFIG_HOSTNAME) "/uRamdisk\0"		\
