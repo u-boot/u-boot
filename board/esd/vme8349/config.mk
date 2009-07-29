@@ -1,5 +1,6 @@
 #
-# Copyright (c) 2006 Wind River Systems, Inc.
+# (C) Copyright 2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,7 +22,7 @@
 #
 
 #
-# SBC8349E
+# VME8349E
 #
 
-TEXT_BASE  =   0xFF800000
+TEXT_BASE  =   0xFFF00000

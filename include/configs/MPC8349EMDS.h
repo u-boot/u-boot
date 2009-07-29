@@ -38,9 +38,6 @@
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_MPC8349EMDS	1	/* MPC8349EMDS board specific */
 
-#undef CONFIG_PCI
-#undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
-
 #define PCI_66M
 #ifdef PCI_66M
 #define CONFIG_83XX_CLKIN	66000000	/* in Hz */
@@ -374,7 +371,6 @@
 
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
-#define CONFIG_83XX_GENERIC_PCI
 #define CONFIG_83XX_PCI_STREAMING
 
 #undef CONFIG_EEPRO100

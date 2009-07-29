@@ -49,8 +49,7 @@
 #define CONFIG_83XX_PCICLK	66666667 /* in HZ */
 #else
 #define CONFIG_83XX_CLKIN	66666667 /* in Hz */
-#define CONFIG_83XX_GENERIC_PCI	1
-#define CONFIG_83XX_GENERIC_PCIE	1
+#define CONFIG_PCIE
 #endif
 
 #ifndef CONFIG_SYS_CLK_FREQ

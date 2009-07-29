@@ -332,8 +332,7 @@
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00800000
 
 #define CONFIG_PCI
-#define CONFIG_83XX_GENERIC_PCI	1 /* Use generic PCI setup */
-#define CONFIG_83XX_GENERIC_PCIE	1
+#define CONFIG_PCIE
 
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */

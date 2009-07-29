@@ -247,7 +247,6 @@ extern int tqm834x_num_flash_banks;
 #if defined(CONFIG_PCI)
 
 #define CONFIG_PCI_PNP                  /* do pci plug-and-play */
-#define CONFIG_83XX_GENERIC_PCI
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup */
 
 /* PCI1 host bridge */
