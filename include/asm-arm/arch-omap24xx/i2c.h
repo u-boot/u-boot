@@ -104,4 +104,48 @@
 #define I2C_SYSTEST_SDA_I       (1 << 1)        /* SDA line sense input value */
 #define I2C_SYSTEST_SDA_O       (1 << 0)        /* SDA line drive output value */
 
+/* These values were copied from omap3, include/asm-arm/arch-omap3/i2c.h. */
+#define OMAP_I2C_STANDARD		100000
+#define OMAP_I2C_FAST_MODE		400000
+#define OMAP_I2C_HIGH_SPEED		3400000
+
+#define SYSTEM_CLOCK_12			12000000
+#define SYSTEM_CLOCK_13			13000000
+#define SYSTEM_CLOCK_192		19200000
+#define SYSTEM_CLOCK_96			96000000
+
+#ifndef I2C_IP_CLK
+#define I2C_IP_CLK			SYSTEM_CLOCK_96
+#endif
+
+#ifndef I2C_INTERNAL_SAMPLING_CLK
+#define I2C_INTERNAL_SAMPLING_CLK	19200000
+#endif
+
+/* These are the trim values for standard and fast speed */
+#ifndef I2C_FASTSPEED_SCLL_TRIM
+#define I2C_FASTSPEED_SCLL_TRIM		6
+#endif
+#ifndef I2C_FASTSPEED_SCLH_TRIM
+#define I2C_FASTSPEED_SCLH_TRIM		6
+#endif
+
+/* These are the trim values for high speed */
+#ifndef I2C_HIGHSPEED_PHASE_ONE_SCLL_TRIM
+#define I2C_HIGHSPEED_PHASE_ONE_SCLL_TRIM	I2C_FASTSPEED_SCLL_TRIM
+#endif
+#ifndef I2C_HIGHSPEED_PHASE_ONE_SCLH_TRIM
+#define I2C_HIGHSPEED_PHASE_ONE_SCLH_TRIM	I2C_FASTSPEED_SCLH_TRIM
+#endif
+#ifndef I2C_HIGHSPEED_PHASE_TWO_SCLL_TRIM
+#define I2C_HIGHSPEED_PHASE_TWO_SCLL_TRIM	I2C_FASTSPEED_SCLL_TRIM
+#endif
+#ifndef I2C_HIGHSPEED_PHASE_TWO_SCLH_TRIM
+#define I2C_HIGHSPEED_PHASE_TWO_SCLH_TRIM	I2C_FASTSPEED_SCLH_TRIM
+#endif
+
+#define I2C_PSC_MAX			0x0f
+#define I2C_PSC_MIN			0x00
+
+
 #endif

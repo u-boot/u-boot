@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Copyright (c) 2009 Wind River Systems, Inc.
+# Tom Rix <Tom.Rix at windriver.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,26 +23,19 @@
 
 include $(TOPDIR)/config.mk
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)board/$(VENDOR)/common)
-endif
+LIB 	:= $(obj)libpower.a
 
-LIB	= $(obj)lib$(VENDOR).a
-
-COBJS-$(CONFIG_OMAP3_BEAGLE) += power.o
-COBJS-$(CONFIG_OMAP3_OVERO) += power.o
-COBJS-$(CONFIG_OMAP3_PANDORA) += power.o
-COBJS-$(CONFIG_OMAP3_ZOOM1) += power.o
-COBJS-$(CONFIG_OMAP3_ZOOM2) += power.o
+COBJS-$(CONFIG_TWL4030_POWER)	+= twl4030.o
 
 COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
+SRCS 	:= $(COBJS:.o=.c)
+OBJS 	:= $(addprefix $(obj),$(COBJS))
 
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
+
 
 #########################################################################
 
@@ -51,4 +44,4 @@ include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend
 
-#########################################################################
+########################################################################

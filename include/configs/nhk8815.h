@@ -93,7 +93,7 @@
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* for initial data */
 #define CONFIG_SYS_64BIT_VSPRINTF	/* mtd desires this */
 
-#define CONFIG_MISC_INIT_R	/* call misc_init_r during start up */
+#define BOARD_LATE_INIT		/* call board_late_init during start up */
 
 /* timing informazion */
 #define CONFIG_SYS_HZ		1000 /* Mandatory... */
@@ -109,6 +109,22 @@
 
 #define CONFIG_PL01x_PORTS	{ (void *)CFG_SERIAL0, (void *)CFG_SERIAL1 }
 #define CONFIG_PL011_CLOCK	48000000
+
+/* i2c, for the port extenders (uses gpio.c in board directory) */
+#ifndef __ASSEMBLY__
+#include <asm/arch/gpio.h>
+#define CONFIG_CMD_I2C
+#define CONFIG_SOFT_I2C
+#define CONFIG_SYS_I2C_SPEED	400000
+#define __SDA			63
+#define __SCL			62
+#define I2C_SDA(x)		nmk_gpio_set(__SDA, x)
+#define I2C_SCL(x)		nmk_gpio_set(__SCL, x)
+#define I2C_READ		(nmk_gpio_get(__SDA)!=0)
+#define I2C_ACTIVE		nmk_gpio_dir(__SDA, 1)
+#define I2C_TRISTATE		nmk_gpio_dir(__SDA, 0)
+#define I2C_DELAY     (udelay(2))
+#endif /* __ASSEMBLY__ */
 
 /* Ethernet */
 #define PCI_MEMORY_VADDR	0xe8000000

@@ -32,6 +32,7 @@
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
 #endif
+#include <twl4030.h>
 #include <asm/io.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mem.h>
@@ -154,8 +155,22 @@ int board_init (void)
 int misc_init_r(void)
 {
 	zoom2_identify();
-	power_init_r();
+	twl4030_power_init();
+	twl4030_led_init();
 	dieid_num_r();
+
+	/*
+	 * Board Reset
+	 * The board is reset by holding the the large button
+	 * on the top right side of the main board for
+	 * eight seconds.
+	 *
+	 * There are reported problems of some beta boards
+	 * continously resetting.  For those boards, disable resetting.
+	 */
+	if (ZOOM2_REVISION_PRODUCTION <= zoom2_get_revision())
+		twl4030_power_reset_init();
+
 	return 0;
 }
 
