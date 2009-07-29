@@ -94,13 +94,23 @@ static inline void board_cpld_write(int offset, int data)
 	out_8((void *)(CONFIG_SYS_CPLD_ADDR), offset);
 	out_8((void *)(CONFIG_SYS_CPLD_DATA), data);
 }
+#else
+static int pvr_460ex(void)
+{
+	u32 pvr = get_pvr();
+
+	if ((pvr == PVR_460EX_RA) || (pvr == PVR_460EX_SE_RA) ||
+	    (pvr == PVR_460EX_RB))
+		return 1;
+
+	return 0;
+}
 #endif	/* defined(CONFIG_ARCHES) */
 
 int board_early_init_f(void)
 {
 #if !defined(CONFIG_ARCHES)
 	u32 sdr0_cust0;
-	u32 pvr = get_pvr();
 #endif
 
 	/*
@@ -175,7 +185,7 @@ int board_early_init_f(void)
 	mtdcr(AHB_TOP, 0x8000004B);
 	mtdcr(AHB_BOT, 0x8000004B);
 
-	if ((pvr == PVR_460EX_RA) || (pvr == PVR_460EX_SE_RA)) {
+	if (pvr_460ex()) {
 		/*
 		 * Configure USB-STP pins as alternate and not GPIO
 		 * It seems to be neccessary to configure the STP pins as GPIO
@@ -234,17 +244,16 @@ int get_cpu_num(void)
 int checkboard(void)
 {
 	char *s = getenv("serial#");
-	u32 pvr = get_pvr();
 
-	if ((pvr == PVR_460GT_RA) || (pvr == PVR_460GT_SE_RA)) {
-		printf("Board: Glacier - AMCC PPC460GT Evaluation Board");
-		gd->board_type = BOARD_GLACIER;
-	} else {
+	if (pvr_460ex()) {
 		printf("Board: Canyonlands - AMCC PPC460EX Evaluation Board");
 		if (in_8((void *)(CONFIG_SYS_BCSR_BASE + 3)) & CONFIG_SYS_BCSR3_PCIE)
 			gd->board_type = BOARD_CANYONLANDS_PCIE;
 		else
 			gd->board_type = BOARD_CANYONLANDS_SATA;
+	} else {
+		printf("Board: Glacier - AMCC PPC460GT Evaluation Board");
+		gd->board_type = BOARD_GLACIER;
 	}
 
 	switch (gd->board_type) {
@@ -498,7 +507,6 @@ int misc_init_r(void)
 {
 	u32 sdr0_srst1 = 0;
 	u32 eth_cfg;
-	u32 pvr = get_pvr();
 	u8 val;
 
 	/*
@@ -513,7 +521,7 @@ int misc_init_r(void)
 	/* Set the for 2 RGMII mode */
 	/* GMC0 EMAC4_0, GMC0 EMAC4_1, RGMII Bridge 0 */
 	eth_cfg &= ~SDR0_ETH_CFG_GMC0_BRIDGE_SEL;
-	if ((pvr == PVR_460EX_RA) || (pvr == PVR_460EX_SE_RA))
+	if (pvr_460ex())
 		eth_cfg |= SDR0_ETH_CFG_GMC1_BRIDGE_SEL;
 	else
 		eth_cfg &= ~SDR0_ETH_CFG_GMC1_BRIDGE_SEL;
