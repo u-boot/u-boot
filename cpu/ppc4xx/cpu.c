@@ -285,6 +285,9 @@ int checkcpu (void)
 	uint pvr = get_pvr();
 	ulong clock = gd->cpu_clk;
 	char buf[32];
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+	u32 reg;
+#endif
 
 #if !defined(CONFIG_IOP480)
 	char addstr[64] = "";
@@ -526,6 +529,7 @@ int checkcpu (void)
 		strcpy(addstr, "No RAID 6 support");
 		break;
 
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	case PVR_460EX_RA:
 		puts("EX Rev. A");
 		strcpy(addstr, "No Security/Kasumi support");
@@ -534,6 +538,15 @@ int checkcpu (void)
 	case PVR_460EX_SE_RA:
 		puts("EX Rev. A");
 		strcpy(addstr, "Security/Kasumi support");
+		break;
+
+	case PVR_460EX_RB:
+		puts("EX Rev. B");
+		mfsdr(SDR0_ECID3, reg);
+		if (reg & 0x00100000)
+			strcpy(addstr, "No Security/Kasumi support");
+		else
+			strcpy(addstr, "Security/Kasumi support");
 		break;
 
 	case PVR_460GT_RA:
@@ -545,6 +558,16 @@ int checkcpu (void)
 		puts("GT Rev. A");
 		strcpy(addstr, "Security/Kasumi support");
 		break;
+
+	case PVR_460GT_RB:
+		puts("GT Rev. B");
+		mfsdr(SDR0_ECID3, reg);
+		if (reg & 0x00100000)
+			strcpy(addstr, "No Security/Kasumi support");
+		else
+			strcpy(addstr, "Security/Kasumi support");
+		break;
+#endif
 
 	case PVR_460SX_RA:
 		puts("SX Rev. A");

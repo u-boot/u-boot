@@ -1156,6 +1156,11 @@
 #define SDR0_PFC1_SIS_SCP_SEL	0x00000000	/* SCP Selected */
 #define SDR0_PFC1_SIS_IIC1_SEL	0x00020000	/* IIC1 Selected */
 
+#define SDR0_ECID0		0x0080
+#define SDR0_ECID1		0x0081
+#define SDR0_ECID2		0x0082
+#define SDR0_ECID3		0x0083
+
 /* Ethernet PLL Configuration Register (SDR0_ETH_PLL) */
 #define SDR0_ETH_PLL		0x4102
 #define SDR0_ETH_PLL_PLLLOCK	 0x80000000	/*Ethernet PLL lock indication*/

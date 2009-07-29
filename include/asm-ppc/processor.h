@@ -883,8 +883,10 @@
 #define PVR_440SPe_RB	0x53521891 /* 440SPe rev B without RAID 6 support	*/
 #define PVR_460EX_SE_RA	0x130218A2 /* 460EX rev A with Security Engine	  */
 #define PVR_460EX_RA	0x130218A3 /* 460EX rev A without Security Engine */
+#define PVR_460EX_RB	0x130218A4 /* 460EX rev B with and without Sec Eng*/
 #define PVR_460GT_SE_RA	0x130218A0 /* 460GT rev A with Security Engine	  */
 #define PVR_460GT_RA	0x130218A1 /* 460GT rev A without Security Engine */
+#define PVR_460GT_RB	0x130218A5 /* 460GT rev B with and without Sec Eng*/
 #define PVR_460SX_RA    0x13541800 /* 460SX rev A                   */
 #define PVR_460SX_RA_V1 0x13541801 /* 460SX rev A Variant 1 Security disabled */
 #define PVR_460GX_RA    0x13541802 /* 460GX rev A                   */
