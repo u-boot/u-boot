@@ -1040,6 +1040,8 @@ z_streamp strm;
     state->hold = 0;
     state->bits = 0;
     state->lencode = state->distcode = state->next = state->codes;
+    if (strm->outcb != Z_NULL)
+	(*strm->outcb)(Z_NULL, 0);
     Tracev((stderr, "inflate: reset\n"));
     return Z_OK;
 }
@@ -1952,7 +1954,11 @@ z_streamp strm;
     if (strm == Z_NULL || strm->state == Z_NULL || strm->zfree == (free_func)0)
         return Z_STREAM_ERROR;
     state = (struct inflate_state FAR *)strm->state;
-    if (state->window != Z_NULL) ZFREE(strm, state->window);
+    if (state->window != Z_NULL) {
+	if (strm->outcb != Z_NULL)
+		(*strm->outcb)(Z_NULL, 0);
+	ZFREE(strm, state->window);
+    }
     ZFREE(strm, strm->state);
     strm->state = Z_NULL;
     Tracev((stderr, "inflate: end\n"));
