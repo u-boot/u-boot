@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Freescale Semiconductor, Inc. 2006, 2007. All rights reserved.
+ * Copyright (C) Freescale Semiconductor, Inc. 2006, 2007.
  * Copyright (C) 2009 DENX Software Engineering <wd@denx.de>
  *
  * See file CREDITS for list of people who contributed to this

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Freescale Semicondutor, Inc. All rights reserved.
+ * Copyright (C) 2008 Freescale Semicondutor, Inc.
  *	Dave Liu <daveliu@freescale.com>
  *
  * This program is free software; you can redistribute  it and/or modify it

@@ -1,5 +1,5 @@
 #
-# Copyright (C) Freescale Semiconductor, Inc. 2006. All rights reserved.
+# Copyright (C) Freescale Semiconductor, Inc. 2006.
 #
 # See file CREDITS for list of people who contributed to this
 # project.

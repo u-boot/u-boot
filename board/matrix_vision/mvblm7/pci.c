@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Freescale Semiconductor, Inc. 2006. All rights reserved.
+ * Copyright (C) Freescale Semiconductor, Inc. 2006.
  *
  * (C) Copyright 2008
  * Andre Schwarz, Matrix Vision GmbH, andre.schwarz@matrix-vision.de

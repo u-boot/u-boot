@@ -2,7 +2,7 @@
 *
 *			Realmode X86 Emulator Library
 *
-*  Copyright (C) 2007 Freescale Semiconductor, Inc. All rights reserved.
+*  Copyright (C) 2007 Freescale Semiconductor, Inc.
 *  Jason Jin <Jason.jin@freescale.com>
 *
 *		Copyright (C) 1991-2004 SciTech Software, Inc.

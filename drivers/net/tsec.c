@@ -5,7 +5,7 @@
  * terms of the GNU Public License, Version 2, incorporated
  * herein by reference.
  *
- * Copyright (C) 2004-2009 Freescale Semiconductor, Inc. All rights reserved.
+ * Copyright (C) 2004-2009 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * author Andy Fleming
  *

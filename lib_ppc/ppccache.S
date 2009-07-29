@@ -2,7 +2,7 @@
  * Copyright (C) 1998  Dan Malek <dmalek@jlc.net>
  * Copyright (C) 1999  Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
  * Copyright (C) 2000, 2001,2002 Wolfgang Denk <wd@denx.de>
- * Copyright Freescale Semiconductor, Inc. 2004, 2006. All rights reserved.
+ * Copyright Freescale Semiconductor, Inc. 2004, 2006.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
