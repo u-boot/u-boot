@@ -1217,7 +1217,7 @@ typedef void		(*ExcpHndlr) (void) ;
 #define GCFER3		__REG(0x40E004AC) /* Clr Falling Edge Det. Enable[127:96] */
 
 #define GSDR(x)		__REG2(0x40E00400, ((x) & 0x60) >> 3)
-#define GCDR(x)		__REG2(0x40300420, ((x) & 0x60) >> 3)
+#define GCDR(x)		__REG2(0x40E00420, ((x) & 0x60) >> 3)
 
 /* Multi-funktion Pin Registers, uncomplete, only:
  *    - GPIO
