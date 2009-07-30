@@ -41,8 +41,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_early_init_f(void)
 {
-	u32 pvr = get_pvr();
-
 	/*
 	 * Setup the interrupt controller polarities, triggers, etc.
 	 */
@@ -95,16 +93,14 @@ int board_early_init_f(void)
 	mtdcr(AHB_TOP, 0x8000004B);
 	mtdcr(AHB_BOT, 0x8000004B);
 
-	if ((pvr == PVR_460EX_RA) || (pvr == PVR_460EX_SE_RA)) {
-		/*
-		 * Configure USB-STP pins as alternate and not GPIO
-		 * It seems to be neccessary to configure the STP pins as GPIO
-		 * input at powerup (perhaps while USB reset is asserted). So
-		 * we configure those pins to their "real" function now.
-		 */
-		gpio_config(16, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
-		gpio_config(19, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
-	}
+	/*
+	* Configure USB-STP pins as alternate and not GPIO
+	* It seems to be neccessary to configure the STP pins as GPIO
+	* input at powerup (perhaps while USB reset is asserted). So
+	* we configure those pins to their "real" function now.
+	*/
+	gpio_config(16, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
+	gpio_config(19, GPIO_OUT, GPIO_ALT1, GPIO_OUT_1);
 
 	/* Trigger board component reset */
 	out_le16((void *)CONFIG_SYS_IO_BASE, 0xffff);
@@ -250,7 +246,6 @@ int misc_init_r(void)
 {
 	u32 sdr0_srst1 = 0;
 	u32 eth_cfg;
-	u32 pvr = get_pvr();
 
 	/*
 	 * Set EMAC mode/configuration (GMII, SGMII, RGMII...).
@@ -264,10 +259,7 @@ int misc_init_r(void)
 	/* Set the for 2 RGMII mode */
 	/* GMC0 EMAC4_0, GMC0 EMAC4_1, RGMII Bridge 0 */
 	eth_cfg &= ~SDR0_ETH_CFG_GMC0_BRIDGE_SEL;
-	if ((pvr == PVR_460EX_RA) || (pvr == PVR_460EX_SE_RA))
-		eth_cfg |= SDR0_ETH_CFG_GMC1_BRIDGE_SEL;
-	else
-		eth_cfg &= ~SDR0_ETH_CFG_GMC1_BRIDGE_SEL;
+	eth_cfg |= SDR0_ETH_CFG_GMC1_BRIDGE_SEL;
 	mtsdr(SDR0_ETH_CFG, eth_cfg);
 
 	/*
