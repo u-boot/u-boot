@@ -135,19 +135,19 @@ _go_to_speed: .word go_to_speed
 /* these constants need to be close for PIC code */
 /* The Nor has to be in the Flash Base CS0 for this condition to happen */
 flash_cfg1_addr:
-	.word (GPMC_CONFIG_CS0 + GPMC_CONFIG1)
+	.word (GPMC_CONFIG_CS0_BASE + GPMC_CONFIG1)
 flash_cfg3_addr:
-	.word (GPMC_CONFIG_CS0 + GPMC_CONFIG3)
+	.word (GPMC_CONFIG_CS0_BASE + GPMC_CONFIG3)
 flash_cfg3_val:
 	.word STNOR_GPMC_CONFIG3
 flash_cfg4_addr:
-	.word (GPMC_CONFIG_CS0 + GPMC_CONFIG4)
+	.word (GPMC_CONFIG_CS0_BASE + GPMC_CONFIG4)
 flash_cfg4_val:
 	.word STNOR_GPMC_CONFIG4
 flash_cfg5_val:
 	.word STNOR_GPMC_CONFIG5
 flash_cfg5_addr:
-	.word (GPMC_CONFIG_CS0 + GPMC_CONFIG5)
+	.word (GPMC_CONFIG_CS0_BASE + GPMC_CONFIG5)
 pll_ctl_add:
 	.word CM_CLKEN_PLL
 pll_div_add1:
