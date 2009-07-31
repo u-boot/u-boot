@@ -30,6 +30,8 @@
 #include <mpc86xx.h>
 #include <asm/fsl_law.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Default board reset function
  */
@@ -61,12 +63,12 @@ checkcpu(void)
 
 	puts("CPU:   ");
 
-	cpu = identify_cpu(ver);
-	if (cpu) {
+	cpu = gd->cpu;
+
+	if (cpu->name)
 		puts(cpu->name);
-	} else {
+	else
 		puts("Unknown");
-	}
 
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, svr);
 	puts("Core:  ");

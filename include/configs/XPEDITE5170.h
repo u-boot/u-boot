@@ -34,7 +34,6 @@
 #define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_XPEDITE5140	1	/* MPC8641HPCN board specific */
 #define CONFIG_SYS_BOARD_NAME	"XPedite5170"
-#define CONFIG_NUM_CPUS		1	/* Number of CPUs in the system */
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
 #define CONFIG_RELOC_FIXUP_WORKS	/* Fully relocate to SDRAM */

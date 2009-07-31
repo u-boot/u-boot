@@ -1065,13 +1065,14 @@ n:
 struct cpu_type {
 	char name[15];
 	u32 soc_ver;
+	u32 num_cores;
 };
 
 struct cpu_type *identify_cpu(u32 ver);
 
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
-#define CPU_TYPE_ENTRY(n, v) \
-	{ .name = #n, .soc_ver = SVR_##v, }
+#define CPU_TYPE_ENTRY(n, v, nc) \
+	{ .name = #n, .soc_ver = SVR_##v, .num_cores = (nc), }
 #else
 #if defined(CONFIG_MPC83xx)
 #define CPU_TYPE_ENTRY(x) {#x, SPR_##x}

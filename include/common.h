@@ -441,6 +441,8 @@ void		ppcDWstore(unsigned int *addr, unsigned int *value);
 #endif
 
 /* $(CPU)/cpu.c */
+int	cpu_numcores  (void);
+int	probecpu      (void);
 int	checkcpu      (void);
 int	checkicache   (void);
 int	checkdcache   (void);

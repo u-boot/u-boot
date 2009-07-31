@@ -38,4 +38,11 @@
 #endif
 #endif
 
+#if defined(CONFIG_MPC8572) || defined(CONFIG_P2020) \
+	|| defined(CONFIG_MPC8641)
+#define CONFIG_MAX_CPUS        2
+#else
+#define CONFIG_MAX_CPUS        1
+#endif
+
 #endif /* _ASM_CONFIG_H_ */

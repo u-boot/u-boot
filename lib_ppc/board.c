@@ -291,6 +291,9 @@ init_fnc_t *init_sequence[] = {
 	board_early_init_f,
 #endif
 
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
+	probecpu,
+#endif
 #if !defined(CONFIG_8xx_CPUCLK_DEFAULT)
 	get_clocks,		/* get CPU and bus clocks (etc.) */
 #if defined(CONFIG_TQM8xxL) && !defined(CONFIG_TQM866M) \

@@ -54,24 +54,23 @@ int checkcpu (void)
 	int i;
 
 	svr = get_svr();
-	ver = SVR_SOC_VER(svr);
 	major = SVR_MAJ(svr);
 #ifdef CONFIG_MPC8536
 	major &= 0x7; /* the msb of this nibble is a mfg code */
 #endif
 	minor = SVR_MIN(svr);
 
-#if (CONFIG_NUM_CPUS > 1)
-	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
-	printf("CPU%d:  ", pic->whoami);
-#else
-	puts("CPU:   ");
-#endif
+	if (cpu_numcores() > 1) {
+		volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+		printf("CPU%d:  ", pic->whoami);
+	} else {
+		puts("CPU:   ");
+	}
 
-	cpu = identify_cpu(ver);
-	if (cpu) {
+	cpu = gd->cpu;
+
+	if (cpu->name) {
 		puts(cpu->name);
-
 		if (IS_E_PROCESSOR(svr))
 			puts("E");
 	} else {
@@ -104,7 +103,7 @@ int checkcpu (void)
 	get_sys_info(&sysinfo);
 
 	puts("Clock Configuration:");
-	for (i = 0; i < CONFIG_NUM_CPUS; i++) {
+	for (i = 0; i < cpu_numcores(); i++) {
 		if (!(i & 3))
 			printf ("\n       ");
 		printf("CPU%d:%-4s MHz, ",

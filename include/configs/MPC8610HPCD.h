@@ -17,7 +17,6 @@
 #define CONFIG_MPC86xx		1	/* MPC86xx */
 #define CONFIG_MPC8610		1	/* MPC8610 specific */
 #define CONFIG_MPC8610HPCD	1	/* MPC8610HPCD board specific */
-#define CONFIG_NUM_CPUS		1	/* Number of CPUs in the system */
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
 
 #define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
