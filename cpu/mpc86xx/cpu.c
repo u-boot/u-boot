@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Freescale Semiconductor
+ * Copyright 2006,2009 Freescale Semiconductor, Inc.
  * Jeff Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
@@ -28,24 +28,7 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 #include <mpc86xx.h>
-#include <tsec.h>
 #include <asm/fsl_law.h>
-
-struct cpu_type cpu_type_list [] = {
-	CPU_TYPE_ENTRY(8610, 8610),
-	CPU_TYPE_ENTRY(8641, 8641),
-	CPU_TYPE_ENTRY(8641D, 8641D),
-};
-
-struct cpu_type *identify_cpu(u32 ver)
-{
-	int i;
-	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
-		if (cpu_type_list[i].soc_ver == ver)
-			return &cpu_type_list[i];
-
-	return NULL;
-}
 
 /*
  * Default board reset function
@@ -208,17 +191,4 @@ void mpc86xx_reginfo(void)
 	printf("\tBR6\t0x%08X\tOR6\t0x%08X \n", in_be32(&lbc->br6), in_be32(&lbc->or6));
 	printf("\tBR7\t0x%08X\tOR7\t0x%08X \n", in_be32(&lbc->br7), in_be32(&lbc->or7));
 
-}
-
-/*
- * Initializes on-chip ethernet controllers.
- * to override, implement board_eth_init()
- */
-int cpu_eth_init(bd_t *bis)
-{
-#if defined(CONFIG_TSEC_ENET)
-	tsec_standard_init(bis);
-#endif
-
-	return 0;
 }
