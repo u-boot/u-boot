@@ -133,7 +133,7 @@ int fsl_pci_setup_inbound_windows(struct pci_region *r)
 	return r - rgn_base;
 }
 
-void fsl_pci_init(struct pci_controller *hose)
+void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 {
 	u16 temp16;
 	u32 temp32;
@@ -144,7 +144,7 @@ void fsl_pci_init(struct pci_controller *hose)
 	int r;
 	int bridge;
 	int inbound = 0;
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) hose->cfg_addr;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)cfg_addr;
 	pci_dev_t dev = PCI_BDF(busno,0,0);
 
 	/* Initialize ATMU registers based on hose regions and flags */
@@ -154,6 +154,8 @@ void fsl_pci_init(struct pci_controller *hose)
 #ifdef DEBUG
 	int neg_link_w;
 #endif
+
+	pci_setup_indirect(hose, cfg_addr, cfg_data);
 
 	for (r=0; r<hose->region_count; r++) {
 		u32 sz = (__ilog2_u64((u64)hose->regions[r].size) - 1);

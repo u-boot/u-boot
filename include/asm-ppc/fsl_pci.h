@@ -21,7 +21,7 @@
 #define __FSL_PCI_H_
 
 int fsl_pci_setup_inbound_windows(struct pci_region *r);
-void fsl_pci_init(struct pci_controller *hose);
+void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data);
 void fsl_pci_config_unlock(struct pci_controller *hose);
 void ft_fsl_pci_setup(void *blob, const char *pci_alias,
 			struct pci_controller *hose);

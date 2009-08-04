@@ -244,9 +244,7 @@ pci_init_board(void)
 		hose->region_count = r - hose->regions;
 		hose->first_busno=first_free_busno;
 
-		pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
-
-		fsl_pci_init(hose);
+		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 
 		first_free_busno=hose->last_busno+1;
 		printf("    PCIE1 on bus %02x - %02x\n",
@@ -302,9 +300,8 @@ pci_init_board(void)
 			       PCI_REGION_IO);
 		hose->region_count = r - hose->regions;
 		hose->first_busno=first_free_busno;
-		pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
 
-		fsl_pci_init(hose);
+		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 		first_free_busno=hose->last_busno+1;
 		printf ("PCI1 on bus %02x - %02x\n",
 			hose->first_busno,hose->last_busno);
@@ -338,9 +335,8 @@ pci_init_board(void)
 			       PCI_REGION_IO);
 		hose->region_count = r - hose->regions;
 		hose->first_busno=first_free_busno;
-		pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
 
-		fsl_pci_init(hose);
+		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 		first_free_busno=hose->last_busno+1;
 		printf ("PCI2 on bus %02x - %02x\n",
 			hose->first_busno,hose->last_busno);
