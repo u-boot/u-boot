@@ -256,14 +256,13 @@ pci_init_board(void)
 	} else {
 		printf ("    PCIE3: disabled\n");
 	}
-
- }
+}
 #else
 	gur->devdisr |= MPC85xx_DEVDISR_PCIE3; /* disable */
 #endif
 
 #ifdef CONFIG_PCIE1
- {
+{
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 	struct pci_controller *hose = &pcie1_hose;
 	int pcie_ep = (host_agent == 5);
@@ -315,14 +314,13 @@ pci_init_board(void)
 	} else {
 		printf ("    PCIE1: disabled\n");
 	}
-
- }
+}
 #else
 	gur->devdisr |= MPC85xx_DEVDISR_PCIE; /* disable */
 #endif
 
 #ifdef CONFIG_PCIE2
- {
+{
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE2_ADDR;
 	struct pci_controller *hose = &pcie2_hose;
 	int pcie_ep = (host_agent == 3);
@@ -372,12 +370,10 @@ pci_init_board(void)
 	} else {
 		printf ("    PCIE2: disabled\n");
 	}
-
- }
+}
 #else
 	gur->devdisr |= MPC85xx_DEVDISR_PCIE2; /* disable */
 #endif
-
 
 #ifdef CONFIG_PCI1
 {
@@ -390,7 +386,6 @@ pci_init_board(void)
 	uint pci_32 = 1;
 	uint pci_arb = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;	/* PORDEVSR[14] */
 	uint pci_clk_sel = gur->porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;	/* PORPLLSR[16] */
-
 
 	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
 		printf ("\n    PCI: %d bit, %s MHz, %s, %s, %s (base address %x)\n",
@@ -440,7 +435,6 @@ pci_init_board(void)
 	gur->devdisr |= MPC85xx_DEVDISR_PCI1; /* disable */
 #endif
 }
-
 
 int board_early_init_r(void)
 {
