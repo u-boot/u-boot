@@ -28,41 +28,37 @@ SECTIONS
 {
   /* Read-only sections, merged into text segment: */
   . = + SIZEOF_HEADERS;
-  .interp : { *(.interp) }
+  .interp        : { *(.interp)		}
   .hash          : { *(.hash)		}
   .dynsym        : { *(.dynsym)		}
   .dynstr        : { *(.dynstr)		}
-  .rel.text      : { *(.rel.text)		}
+  .rel.text      : { *(.rel.text)	}
   .rela.text     : { *(.rela.text)	}
-  .rel.data      : { *(.rel.data)		}
+  .rel.data      : { *(.rel.data)	}
   .rela.data     : { *(.rela.data)	}
   .rel.rodata    : { *(.rel.rodata)	}
   .rela.rodata   : { *(.rela.rodata)	}
-  .rel.got       : { *(.rel.got)		}
-  .rela.got      : { *(.rela.got)		}
+  .rel.got       : { *(.rel.got)	}
+  .rela.got      : { *(.rela.got)	}
   .rel.ctors     : { *(.rel.ctors)	}
   .rela.ctors    : { *(.rela.ctors)	}
   .rel.dtors     : { *(.rel.dtors)	}
   .rela.dtors    : { *(.rela.dtors)	}
-  .rel.bss       : { *(.rel.bss)		}
-  .rela.bss      : { *(.rela.bss)		}
-  .rel.plt       : { *(.rel.plt)		}
-  .rela.plt      : { *(.rela.plt)		}
-  .init          : { *(.init)	}
-  .plt : { *(.plt) }
+  .rel.bss       : { *(.rel.bss)	}
+  .rela.bss      : { *(.rela.bss)	}
+  .rel.plt       : { *(.rel.plt)	}
+  .rela.plt      : { *(.rela.plt)	}
+  .init          : { *(.init)		}
+  .plt           : { *(.plt)		}
   .text      :
   {
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mcf5445x/start.o		(.text)
-    cpu/mcf5445x/libmcf5445x.a	(.text)
+    cpu/mcf52x2/start.o		(.text)
+    cpu/mcf52x2/libmcf52x2.a	(.text)
     lib_m68k/libm68k.a		(.text)
-    common/cmd_flash.o		(.text)
     common/dlmalloc.o		(.text)
-    common/main.o		(.text)
-    common/image.o		(.text)
-    lib_generic/libgeneric.a	(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.text)
@@ -131,7 +127,7 @@ SECTIONS
   __init_end = .;
 
   __bss_start = .;
-  .bss       :
+  .bss (NOLOAD)       :
   {
    _sbss = .;
    *(.sbss) *(.scommon)

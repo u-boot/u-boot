@@ -1,5 +1,5 @@
 /*
- * Configuation settings for the Freescale MCF53017EVB.
+ * Configuation settings for the Freescale MCF5208EVBe.
  *
  * Copyright (C) 2004-2008 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
@@ -23,19 +23,15 @@
  * MA 02111-1307 USA
  */
 
-/*
- * board/config.h - configuration options, board specific
- */
-
-#ifndef _M53017EVB_H
-#define _M53017EVB_H
+#ifndef _M5208EVBE_H
+#define _M5208EVBE_H
 
 /*
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_MCF5301x		/* define processor family */
-#define CONFIG_M53015		/* define processor type */
+#define CONFIG_MCF520x		/* define processor family */
+#define CONFIG_M5208		/* define processor type */
 
 #define CONFIG_MCFUART
 #define CONFIG_SYS_UART_PORT		(0)
@@ -49,7 +45,6 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_DATE
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_FLASH
 #undef CONFIG_CMD_I2C
@@ -59,8 +54,6 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
-
-#define CONFIG_SYS_UNIFY_CACHE
 
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
@@ -74,12 +67,7 @@
 
 #	define CONFIG_SYS_FEC0_PINMUX	0
 #	define CONFIG_SYS_FEC0_MIIBASE	CONFIG_SYS_FEC0_IOBASE
-#	define CONFIG_SYS_FEC1_PINMUX	0
-#	define CONFIG_SYS_FEC1_MIIBASE	CONFIG_SYS_FEC1_IOBASE
 #	define MCFFEC_TOUT_LOOP		50000
-
-#	define CONFIG_BOOTARGS		"root=/dev/mtdblock3 rw rootfstype=jffs2"
-
 /* If CONFIG_SYS_DISCOVER_PHY is not defined - hardcoded */
 #	ifndef CONFIG_SYS_DISCOVER_PHY
 #		define FECDUPLEX	FULL
@@ -90,11 +78,6 @@
 #		endif
 #	endif			/* CONFIG_SYS_DISCOVER_PHY */
 #endif
-
-#define CONFIG_MCFRTC
-#undef RTC_DEBUG
-#define CONFIG_SYS_RTC_CNT		(0x8000)
-#define CONFIG_SYS_RTC_SETUP		(RTC_OCEN_OSCBYP | RTC_OCEN_CLKEN)
 
 /* Timer */
 #define CONFIG_MCFTMR
@@ -114,15 +97,14 @@
 
 #ifdef CONFIG_MCFFEC
 #	define CONFIG_ETHADDR	00:e0:0c:bc:e5:60
-#	define CONFIG_ETH1ADDR	00:e0:0c:bc:e5:61
 #	define CONFIG_IPADDR	192.162.1.2
 #	define CONFIG_NETMASK	255.255.255.0
 #	define CONFIG_SERVERIP	192.162.1.1
 #	define CONFIG_GATEWAYIP	192.162.1.1
 #	define CONFIG_OVERWRITE_ETHADDR_ONCE
-#endif				/* FEC_ENET */
+#endif				/* CONFIG_MCFFEC */
 
-#define CONFIG_HOSTNAME		M53017
+#define CONFIG_HOSTNAME		M5208EVBe
 #define CONFIG_EXTRA_ENV_SETTINGS		\
 	"netdev=eth0\0"				\
 	"loadaddr=40010000\0"			\
@@ -151,8 +133,9 @@
 #define CONFIG_SYS_LOAD_ADDR	0x40010000
 
 #define CONFIG_SYS_HZ		1000
-#define CONFIG_SYS_CLK		80000000
-#define CONFIG_SYS_CPU_CLK	CONFIG_SYS_CLK * 3
+#define CONFIG_SYS_CLK		166666666	/* CPU Core Clock */
+#define CONFIG_SYS_PLL_ODR	0x36
+#define CONFIG_SYS_PLL_FDR	0x7D
 
 #define CONFIG_SYS_MBAR		0xFC000000
 
@@ -161,12 +144,10 @@
  * (address mappings, register initial values, etc.)
  * You should know what you are doing if you make changes here.
  */
-/*
- * Definitions for initial stack pointer and data area (in DPRAM)
- */
+/* Definitions for initial stack pointer and data area (in DPRAM) */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x80000000
-#define CONFIG_SYS_INIT_RAM_END		0x20000	/* End of used area in internal SRAM */
-#define CONFIG_SYS_INIT_RAM_CTRL	0x21
+#define CONFIG_SYS_INIT_RAM_END		0x4000	/* End of used area in internal SRAM */
+#define CONFIG_SYS_INIT_RAM_CTRL	0x221
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 #define CONFIG_SYS_GBL_DATA_OFFSET	((CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE) - 0x10)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
@@ -201,53 +182,42 @@
 #define CONFIG_SYS_BOOTMAPSZ		(CONFIG_SYS_SDRAM_BASE + (CONFIG_SYS_SDRAM_SIZE << 20))
 #define CONFIG_SYS_BOOTM_LEN		(CONFIG_SYS_SDRAM_SIZE << 20)
 
-/*-----------------------------------------------------------------------
- * FLASH organization
- */
+/* FLASH organization */
 #define CONFIG_SYS_FLASH_CFI
 #ifdef CONFIG_SYS_FLASH_CFI
 #	define CONFIG_FLASH_CFI_DRIVER		1
-#	define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
-#	define CONFIG_FLASH_SPANSION_S29WS_N	1
-#	define CONFIG_SYS_FLASH_SIZE		0x1000000	/* Max size that the board might have */
+#	define CONFIG_SYS_FLASH_SIZE		0x800000	/* Max size that the board might have */
 #	define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #	define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
-#	define CONFIG_SYS_MAX_FLASH_SECT	137	/* max number of sectors on one chip */
+#	define CONFIG_SYS_MAX_FLASH_SECT	254	/* max number of sectors on one chip */
 #	define CONFIG_SYS_FLASH_PROTECTION	/* "Real" (hardware) sectors protection */
 #endif
 
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE
 
-/* Configuration for environment
+/*
+ * Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
-#define CONFIG_ENV_OFFSET		0x8000
+#define CONFIG_ENV_OFFSET		0x2000
 #define CONFIG_ENV_SIZE			0x1000
-#define CONFIG_ENV_SECT_SIZE		0x8000
+#define CONFIG_ENV_SECT_SIZE		0x2000
 #define CONFIG_ENV_IS_IN_FLASH		1
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
+/* Cache Configuration */
 #define CONFIG_SYS_CACHELINE_SIZE	16
 
-/*-----------------------------------------------------------------------
- * Chipselect bank definitions
- */
+/* Chipselect bank definitions */
 /*
  * CS0 - NOR Flash
- * CS1 - Ext SRAM
+ * CS1 - Available
  * CS2 - Available
  * CS3 - Available
  * CS4 - Available
  * CS5 - Available
  */
 #define CONFIG_SYS_CS0_BASE		0
-#define CONFIG_SYS_CS0_MASK		0x00FF0001
+#define CONFIG_SYS_CS0_MASK		0x007F0001
 #define CONFIG_SYS_CS0_CTRL		0x00001FA0
 
-#define CONFIG_SYS_CS1_BASE		0xC0000000
-#define CONFIG_SYS_CS1_MASK		0x00070001
-#define CONFIG_SYS_CS1_CTRL		0x00001FA0
-
-#endif				/* _M53017EVB_H */
+#endif				/* _M5208EVBE_H */

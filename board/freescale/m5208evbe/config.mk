@@ -1,6 +1,7 @@
 #
-# (C) Copyright 2000-2004
+# (C) Copyright 2000-2003
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Coldfire contribution by Bernhard Kuhn <bkuhn@metrowerks.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,28 +22,4 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-# CFLAGS += -DET_DEBUG
-
-LIB	= lib$(CPU).a
-
-START	= start.o
-COBJS	= cpu.o speed.o cpu_init.o interrupts.o pci.o
-
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
-START	:= $(addprefix $(obj),$(START))
-
-all:	$(obj).depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-#########################################################################
-
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+TEXT_BASE = 0

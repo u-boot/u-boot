@@ -101,6 +101,95 @@ void init_fbcs(void)
 }
 #endif
 
+#if defined(CONFIG_M5208)
+void cpu_init_f(void)
+{
+	volatile scm1_t *scm1 = (scm1_t *) MMAP_SCM1;
+
+#ifndef CONFIG_WATCHDOG
+	volatile wdog_t *wdg = (wdog_t *) MMAP_WDOG;
+
+	/* Disable the watchdog if we aren't using it */
+	wdg->cr = 0;
+#endif
+
+	scm1->mpr = 0x77777777;
+	scm1->pacra = 0;
+	scm1->pacrb = 0;
+	scm1->pacrc = 0;
+	scm1->pacrd = 0;
+	scm1->pacre = 0;
+	scm1->pacrf = 0;
+
+	/* FlexBus Chipselect */
+	init_fbcs();
+
+	icache_enable();
+}
+
+/* initialize higher level parts of CPU like timers */
+int cpu_init_r(void)
+{
+	return (0);
+}
+
+void uart_port_conf(void)
+{
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+
+	/* Setup Ports: */
+	switch (CONFIG_SYS_UART_PORT) {
+	case 0:
+		gpio->par_uart &= GPIO_PAR_UART0_MASK;
+		gpio->par_uart |= (GPIO_PAR_UART_U0TXD | GPIO_PAR_UART_U0RXD);
+		break;
+	case 1:
+		gpio->par_uart &= GPIO_PAR_UART0_MASK;
+		gpio->par_uart |= (GPIO_PAR_UART_U1TXD | GPIO_PAR_UART_U1RXD);
+		break;
+	case 2:
+#ifdef CONFIG_SYS_UART2_PRI_GPIO
+		gpio->par_timer &=
+		    (GPIO_PAR_TMR_TIN0_MASK | GPIO_PAR_TMR_TIN1_MASK);
+		gpio->par_timer |=
+		    (GPIO_PAR_TMR_TIN0_U2TXD | GPIO_PAR_TMR_TIN1_U2RXD);
+#endif
+#ifdef CONFIG_SYS_UART2_ALT1_GPIO
+		gpio->par_feci2c &=
+		    (GPIO_PAR_FECI2C_MDC_MASK | GPIO_PAR_FECI2C_MDIO_MASK);
+		gpio->par_feci2c |=
+		    (GPIO_PAR_FECI2C_MDC_U2TXD | GPIO_PAR_FECI2C_MDIO_U2RXD);
+#endif
+#ifdef CONFIG_SYS_UART2_ALT1_GPIO
+		gpio->par_feci2c &=
+		    (GPIO_PAR_FECI2C_SDA_MASK | GPIO_PAR_FECI2C_SCL_MASK);
+		gpio->par_feci2c |=
+		    (GPIO_PAR_FECI2C_SDA_U2TXD | GPIO_PAR_FECI2C_SCL_U2RXD);
+#endif
+		break;
+	}
+}
+
+#if defined(CONFIG_CMD_NET)
+int fecpin_setclear(struct eth_device *dev, int setclear)
+{
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+
+	if (setclear) {
+		gpio->par_fec |=
+		    GPIO_PAR_FEC_7W_FEC | GPIO_PAR_FEC_MII_FEC;
+		gpio->par_feci2c |=
+		    GPIO_PAR_FECI2C_MDC_MDC | GPIO_PAR_FECI2C_MDIO_MDIO;
+	} else {
+		gpio->par_fec &=
+		    (GPIO_PAR_FEC_7W_MASK & GPIO_PAR_FEC_MII_MASK);
+		gpio->par_feci2c &= GPIO_PAR_FECI2C_RMII_MASK;
+	}
+	return 0;
+}
+#endif				/* CONFIG_CMD_NET */
+#endif				/* CONFIG_M5208 */
+
 #if defined(CONFIG_M5253)
 /*
  * Breath some life into the CPU...

@@ -70,6 +70,7 @@
 #define CONFIG_CMD_MISC
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
+#define CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SPI
@@ -93,7 +94,7 @@
 #	define MCFFEC_TOUT_LOOP 50000
 
 #	define CONFIG_BOOTDELAY	1	/* autoboot after 5 seconds */
-#	define CONFIG_BOOTARGS		"root=/dev/mtdblock1 rw rootfstype=jffs2 ip=none mtdparts=physmap-flash.0:5M(kernel)ro,-(jffs2)"
+#	define CONFIG_BOOTARGS		"root=/dev/mtdblock1 rw rootfstype=jffs2 ip=none mtdparts=physmap-flash.0:2M(kernel)ro,-(jffs2)"
 #	define CONFIG_ETHADDR		00:e0:0c:bc:e5:60
 #	define CONFIG_ETHPRIME		"FEC0"
 #	define CONFIG_IPADDR		192.162.1.2
@@ -163,35 +164,33 @@
 #define CONFIG_SYS_I2C_SPEED		80000	/* I2C speed and slave address  */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 #define CONFIG_SYS_I2C_OFFSET		0x58000
-#define CONFIG_SYS_IMMR		CONFIG_SYS_MBAR
+#define CONFIG_SYS_IMMR			CONFIG_SYS_MBAR
 
 /* DSPI and Serial Flash */
+#define CONFIG_CF_SPI
 #define CONFIG_CF_DSPI
 #define CONFIG_SERIAL_FLASH
 #define CONFIG_HARD_SPI
-#define CONFIG_SYS_SER_FLASH_BASE	0x01000000
 #define CONFIG_SYS_SBFHDR_SIZE		0x7
 #ifdef CONFIG_CMD_SPI
 #	define CONFIG_SPI_FLASH
 #	define CONFIG_SPI_FLASH_STMICRO
 
-#	define CONFIG_SYS_DSPI_DCTAR0		(DSPI_DCTAR_TRSZ(7) | \
-					 DSPI_DCTAR_CPOL | \
-					 DSPI_DCTAR_CPHA | \
-					 DSPI_DCTAR_PCSSCK_1CLK | \
-					 DSPI_DCTAR_PASC(0) | \
-					 DSPI_DCTAR_PDT(0) | \
-					 DSPI_DCTAR_CSSCK(0) | \
-					 DSPI_DCTAR_ASC(0) | \
-					 DSPI_DCTAR_PBR(0) | \
-					 DSPI_DCTAR_DT(1) | \
-					 DSPI_DCTAR_BR(1))
+#	define CONFIG_SYS_DSPI_CTAR0	(DSPI_CTAR_TRSZ(7) | \
+					 DSPI_CTAR_PCSSCK_1CLK | \
+					 DSPI_CTAR_PASC(0) | \
+					 DSPI_CTAR_PDT(0) | \
+					 DSPI_CTAR_CSSCK(0) | \
+					 DSPI_CTAR_ASC(0) | \
+					 DSPI_CTAR_DT(1))
+#	define CONFIG_SYS_DSPI_CTAR1	(CONFIG_SYS_DSPI_CTAR0)
+#	define CONFIG_SYS_DSPI_CTAR2	(CONFIG_SYS_DSPI_CTAR0)
 #endif
 
 /* Input, PCI, Flexbus, and VCO */
 #define CONFIG_EXTRA_CLOCK
 
-#define CONFIG_PRAM		2048	/* 2048 KB */
+#define CONFIG_PRAM			2048	/* 2048 KB */
 
 #define CONFIG_SYS_PROMPT		"-> "
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
@@ -209,7 +208,7 @@
 
 #define CONFIG_SYS_HZ			1000
 
-#define CONFIG_SYS_MBAR		0xFC000000
+#define CONFIG_SYS_MBAR			0xFC000000
 
 /*
  * Low Level Configuration Settings
@@ -265,7 +264,7 @@
 /* Configuration for environment
  * Environment is embedded in u-boot in the second sector of the flash
  */
-#if defined(CONFIG_CF_SBF)
+#if defined(CONFIG_SYS_STMICRO_BOOT)
 #	define CONFIG_ENV_IS_IN_SPI_FLASH	1
 #	define CONFIG_ENV_SPI_CS		1
 #	define CONFIG_ENV_OFFSET		0x20000
@@ -273,30 +272,21 @@
 #	define CONFIG_ENV_SECT_SIZE	0x10000
 #else
 #	define CONFIG_ENV_IS_IN_FLASH	1
-#	define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x4000)
-#	define CONFIG_ENV_SECT_SIZE	0x2000
+#	define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x8000)
+#	define CONFIG_ENV_SIZE		0x2000
+#	define CONFIG_ENV_SECT_SIZE	0x8000
 #endif
 #undef CONFIG_ENV_OVERWRITE
 #undef CONFIG_ENV_IS_EMBEDDED
 
-/*-----------------------------------------------------------------------
- * FLASH organization
- */
-#ifdef CONFIG_SYS_STMICRO_BOOT
-#	define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_SER_FLASH_BASE
-#	define CONFIG_SYS_FLASH0_BASE		CONFIG_SYS_SER_FLASH_BASE
-#	define CONFIG_SYS_FLASH1_BASE		CONFIG_SYS_CS0_BASE
-#endif
-#ifdef CONFIG_SYS_SPANSION_BOOT
-#	define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE
-#	define CONFIG_SYS_FLASH0_BASE		CONFIG_SYS_CS0_BASE
-#	define CONFIG_SYS_FLASH1_BASE		CONFIG_SYS_SER_FLASH_BASE
-#endif
+/* FLASH organization */
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_CS0_BASE
 
 #define CONFIG_SYS_FLASH_CFI
 #ifdef CONFIG_SYS_FLASH_CFI
 
 #	define CONFIG_FLASH_CFI_DRIVER	1
+#	define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
 #	define CONFIG_SYS_FLASH_SIZE		0x1000000	/* Max size that the board might have */
 #	define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #	define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks */
@@ -311,27 +301,20 @@
  * This is setting for JFFS2 support in u-boot.
  * NOTE: Enable CONFIG_CMD_JFFS2 for JFFS2 support.
  */
-#ifdef CONFIG_SYS_SPANSION_BOOT
-#	define CONFIG_JFFS2_DEV		"nor0"
-#	define CONFIG_JFFS2_PART_SIZE	0x01000000
-#	define CONFIG_JFFS2_PART_OFFSET	(CONFIG_SYS_FLASH0_BASE + 0x500000)
-#endif
-#ifdef CONFIG_SYS_STMICRO_BOOT
+#ifdef CONFIG_CMD_JFFS2
 #	define CONFIG_JFFS2_DEV		"nor0"
 #	define CONFIG_JFFS2_PART_SIZE	0x01000000
 #	define CONFIG_JFFS2_PART_OFFSET	(CONFIG_SYS_FLASH0_BASE + 0x500000)
 #endif
 
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
+/* Cache Configuration */
 #define CONFIG_SYS_CACHELINE_SIZE		16
 
 /*-----------------------------------------------------------------------
  * Memory bank definitions
  */
 /*
- * CS0 - NOR Flash 8MB
+ * CS0 - NOR Flash 16MB
  * CS1 - Available
  * CS2 - Available
  * CS3 - Available
@@ -339,10 +322,10 @@
  * CS5 - Available
  */
 
- /* SPANSION Flash */
+ /* Flash */
 #define CONFIG_SYS_CS0_BASE		0x00000000
-#define CONFIG_SYS_CS0_MASK		0x007F0001
-#define CONFIG_SYS_CS0_CTRL		0x00001180
+#define CONFIG_SYS_CS0_MASK		0x00FF0001
+#define CONFIG_SYS_CS0_CTRL		0x00004D80
 
 #define CONFIG_SYS_SPANSION_BASE	CONFIG_SYS_CS0_BASE
 

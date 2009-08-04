@@ -59,13 +59,19 @@ void dtimer_intr_setup(void)
 #endif				/* CONFIG_MCFTMR */
 #endif				/* CONFIG_M5272 */
 
-#if defined(CONFIG_M5282) || defined(CONFIG_M5271) || defined(CONFIG_M5275)
+#if defined(CONFIG_M5208) || defined(CONFIG_M5282) || \
+    defined(CONFIG_M5271) || defined(CONFIG_M5275)
 int interrupt_init(void)
 {
 	volatile int0_t *intp = (int0_t *) (CONFIG_SYS_INTR_BASE);
 
 	/* Make sure all interrupts are disabled */
+#if defined(CONFIG_M5208)
+	intp->imrl0 = 0xFFFFFFFF;
+	intp->imrh0 = 0xFFFFFFFF;
+#else
 	intp->imrl0 |= 0x1;
+#endif
 
 	enable_interrupts();
 	return 0;

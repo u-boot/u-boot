@@ -171,3 +171,69 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_CF_DSPI
+void cfspi_port_conf(void)
+{
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+
+	gpio->par_dspi = GPIO_PAR_DSPI_SIN_SIN | GPIO_PAR_DSPI_SOUT_SOUT |
+	    GPIO_PAR_DSPI_SCK_SCK;
+}
+
+int cfspi_claim_bus(uint bus, uint cs)
+{
+	volatile dspi_t *dspi = (dspi_t *) MMAP_DSPI;
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+
+	if ((dspi->sr & DSPI_SR_TXRXS) != DSPI_SR_TXRXS)
+		return -1;
+
+	/* Clear FIFO and resume transfer */
+	dspi->mcr &= ~(DSPI_MCR_CTXF | DSPI_MCR_CRXF);
+
+	switch (cs) {
+	case 0:
+		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS0_PCS0;
+		gpio->par_dspi |= GPIO_PAR_DSPI_PCS0_PCS0;
+		break;
+	case 1:
+		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS1_PCS1;
+		gpio->par_dspi |= GPIO_PAR_DSPI_PCS1_PCS1;
+		break;
+	case 2:
+		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS2_PCS2;
+		gpio->par_dspi |= GPIO_PAR_DSPI_PCS2_PCS2;
+		break;
+	case 5:
+		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS5_PCS5;
+		gpio->par_dspi |= GPIO_PAR_DSPI_PCS5_PCS5;
+		break;
+	}
+
+	return 0;
+}
+
+void cfspi_release_bus(uint bus, uint cs)
+{
+	volatile dspi_t *dspi = (dspi_t *) MMAP_DSPI;
+	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
+
+	dspi->mcr &= ~(DSPI_MCR_CTXF | DSPI_MCR_CRXF);	/* Clear FIFO */
+
+	switch (cs) {
+	case 0:
+		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS0_PCS0;
+		break;
+	case 1:
+		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS1_PCS1;
+		break;
+	case 2:
+		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS2_PCS2;
+		break;
+	case 5:
+		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS5_PCS5;
+		break;
+	}
+}
+#endif

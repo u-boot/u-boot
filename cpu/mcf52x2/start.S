@@ -120,6 +120,12 @@ _start:
 	nop
 	move.w #0x2700,%sr
 
+#if defined(CONFIG_M5208)
+	/* Initialize RAMBAR: locate SRAM and validate it */
+	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_CTRL), %d0
+	movec	%d0, %RAMBAR1
+#endif
+
 #if defined(CONFIG_M5272) || defined(CONFIG_M5249) || defined(CONFIG_M5253)
 	move.l	#(CONFIG_SYS_MBAR + 1), %d0		/* set MBAR address + valid flag */
 	move.c	%d0, %MBAR
@@ -193,15 +199,6 @@ _after_flashbar_copy:
 	/* Initialize RAMBAR: locate SRAM and validate it */
 	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + 0x21), %d0
 	movec	%d0, %RAMBAR1
-#endif
-
-#if 0
-	/* invalidate and disable cache */
-	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
-	movec	%d0, %CACR			/* Invalidate cache */
-	move.l	#0, %d0
-	movec	%d0, %ACR0
-	movec	%d0, %ACR1
 #endif
 
 	/* set stackpointer to end of internal ram to get some stackspace for the first c-code */
@@ -340,6 +337,24 @@ _int_handler:
 
 /*------------------------------------------------------------------------------*/
 /* cache functions */
+#ifdef	CONFIG_M5208
+	.globl	icache_enable
+icache_enable:
+	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
+	movec	%d0, %CACR			/* Invalidate cache */
+	move.l	#(CONFIG_SYS_SDRAM_BASE + 0xC000), %d0	/* Setup cache mask */
+	movec	%d0, %ACR0			/* Enable cache */
+
+	move.l	#0x80000200, %d0		/* Setup cache mask */
+	movec	%d0, %CACR			/* Enable cache */
+	nop
+
+	move.l #(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-8), %a1
+	moveq	#1, %d0
+	move.l	%d0, (%a1)
+	rts
+#endif
+
 #ifdef	CONFIG_M5271
 	.globl	icache_enable
 icache_enable:

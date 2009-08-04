@@ -34,6 +34,72 @@
 #include <asm/immap.h>
 #include <netdev.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef	CONFIG_M5208
+int do_reset(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
+{
+	volatile rcm_t *rcm = (rcm_t *)(MMAP_RCM);
+
+	udelay(1000);
+
+	rcm->rcr = RCM_RCR_SOFTRST;
+
+	/* we don't return! */
+	return 0;
+};
+
+int checkcpu(void)
+{
+	char buf1[32], buf2[32];
+
+	printf("CPU:   Freescale Coldfire MCF5208\n"
+	       "       CPU CLK %s MHz BUS CLK %s MHz\n",
+	       strmhz(buf1, gd->cpu_clk),
+	       strmhz(buf2, gd->bus_clk));
+	return 0;
+};
+
+#if defined(CONFIG_WATCHDOG)
+/* Called by macro WATCHDOG_RESET */
+void watchdog_reset(void)
+{
+	volatile wdog_t *wdt = (volatile wdog_t *)(MMAP_WDOG);
+	wdt->sr = 0x5555;
+	wdt->sr = 0xAAAA;
+}
+
+int watchdog_disable(void)
+{
+	volatile wdog_t *wdt = (volatile wdog_t *)(MMAP_WDOG);
+
+	wdt->sr = 0x5555; /* reset watchdog counteDECLARE_GLOBAL_DATA_PTR;
+r */
+	wdt->sr = 0xAAAA;
+	wdt->cr = 0;	/* disable watchdog timer */
+
+	puts("WATCHDOG:disabled\n");
+	return (0);
+}
+
+int watchdog_init(void)
+{
+	volatile wdog_t *wdt = (volatile wdog_t *)(MMAP_WDOG);
+
+	wdt->cr = 0;	/* disable watchdog */
+
+	/* set timeout and enable watchdog */
+	wdt->mr =
+		((CONFIG_WATCHDOG_TIMEOUT * CONFIG_SYS_HZ) / (32768 * 1000)) - 1;
+	wdt->sr = 0x5555; /* reset watchdog counter */
+	wdt->sr = 0xAAAA;
+
+	puts("WATCHDOG:enabled\n");
+	return (0);
+}
+#endif				/* #ifdef CONFIG_WATCHDOG */
+#endif				/* #ifdef CONFIG_M5208 */
+
 #ifdef  CONFIG_M5271
 /*
  * Both MCF5270 and MCF5271 are members of the MPC5271 family. Try to
