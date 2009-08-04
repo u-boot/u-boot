@@ -377,10 +377,6 @@ pci_init_board(void)
 			pci_arb ? "arbiter" : "external-arbiter"
 			);
 
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 			       CONFIG_SYS_PCI1_MEM_BASE,
@@ -460,13 +456,6 @@ pci_init_board(void)
 			debug (" with errors.  Clearing.  Now 0x%08x",pci->pme_msg_det);
 		}
 		printf ("\n");
-
-		/* inbound */
-		pci_set_region(r++,
-			       CONFIG_SYS_PCI_MEMORY_BUS,
-			       CONFIG_SYS_PCI_MEMORY_PHYS,
-			       CONFIG_SYS_PCI_MEMORY_SIZE,
-			       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
 
 		/* outbound memory */
 		pci_set_region(r++,

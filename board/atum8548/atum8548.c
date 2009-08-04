@@ -216,9 +216,6 @@ pci_init_board(void)
 		}
 		printf ("\n");
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 			       CONFIG_SYS_PCIE1_MEM_BASE,
@@ -282,9 +279,6 @@ pci_init_board(void)
 			(uint)pci
 			);
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 			       CONFIG_SYS_PCI1_MEM_BASE,
@@ -320,8 +314,6 @@ pci_init_board(void)
 	struct pci_region *r = hose->regions;
 
 	if (!(devdisr & MPC85xx_DEVDISR_PCI2)) {
-		r += fsl_pci_setup_inbound_windows(r);
-
 		pci_set_region(r++,
 			       CONFIG_SYS_PCI2_MEM_BASE,
 			       CONFIG_SYS_PCI2_MEM_PHYS,

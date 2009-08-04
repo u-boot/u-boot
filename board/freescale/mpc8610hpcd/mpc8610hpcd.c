@@ -260,9 +260,6 @@ void pci_init_board(void)
 		if (pci->pme_msg_det)
 			pci->pme_msg_det = 0xffffffff;
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 			 CONFIG_SYS_PCIE1_MEM_BUS,
@@ -313,9 +310,6 @@ void pci_init_board(void)
 		if (pci->pme_msg_det)
 			pci->pme_msg_det = 0xffffffff;
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 			 CONFIG_SYS_PCIE2_MEM_BUS,
@@ -359,9 +353,6 @@ void pci_init_board(void)
 			" (base address %x)\n",
 			pci_agent ? "Agent" : "Host",
 			(uint)pci);
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
 		pci_set_region(r++,

@@ -60,7 +60,7 @@ void pciauto_config_init(struct pci_controller *hose);
 #define CONFIG_SYS_PCI64_MEMORY_BUS (64ull*1024*1024*1024)
 #endif
 
-int fsl_pci_setup_inbound_windows(struct pci_region *r)
+static int fsl_pci_setup_inbound_windows(struct pci_region *r)
 {
 	struct pci_region *rgn_base = r;
 	u64 sz = min((u64)gd->ram_size, (1ull << 32) - 1);
@@ -145,6 +145,7 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 	int bridge;
 	int inbound = 0;
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)cfg_addr;
+	struct pci_region *reg = hose->regions + hose->region_count;
 	pci_dev_t dev = PCI_BDF(busno,0,0);
 
 	/* Initialize ATMU registers based on hose regions and flags */
@@ -156,6 +157,11 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 #endif
 
 	pci_setup_indirect(hose, cfg_addr, cfg_data);
+
+	/* inbound */
+	reg += fsl_pci_setup_inbound_windows(reg);
+
+	hose->region_count = reg - hose->regions;
 
 	for (r=0; r<hose->region_count; r++) {
 		u32 sz = (__ilog2_u64((u64)hose->regions[r].size) - 1);

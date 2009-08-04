@@ -213,9 +213,6 @@ void pci_init_board(void)
 			host ? "host" : "agent",
 			pci_arb ? "arbiter" : "external-arbiter");
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 				CONFIG_SYS_PCI1_MEM_BASE,
@@ -267,9 +264,6 @@ void pci_init_board(void)
 		}
 		printf("\n");
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 				CONFIG_SYS_PCIE1_MEM_BASE,
@@ -319,9 +313,6 @@ void pci_init_board(void)
 		}
 		printf("\n");
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 				CONFIG_SYS_PCIE2_MEM_BASE,
@@ -370,9 +361,6 @@ void pci_init_board(void)
 				pci->pme_msg_det);
 		}
 		printf("\n");
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
 		pci_set_region(r++,

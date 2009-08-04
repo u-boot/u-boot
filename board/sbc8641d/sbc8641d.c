@@ -239,9 +239,6 @@ void pci_init_board(void)
 		}
 		debug("\n");
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 			       CONFIG_SYS_PCI1_MEM_BUS,
@@ -279,10 +276,6 @@ void pci_init_board(void)
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI2_ADDR;
 	struct pci_controller *hose = &pci2_hose;
 	struct pci_region *r = hose->regions;
-
-
-	/* inbound */
-	r += fsl_pci_setup_inbound_windows(r);
 
 	/* outbound memory */
 	pci_set_region(r++,

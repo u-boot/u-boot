@@ -187,9 +187,6 @@ void pci_init_board(void)
 			       CONFIG_SYS_PCI1_IO_SIZE,
 			       PCI_REGION_IO);
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		hose->region_count = r - hose->regions;
 
 		hose->first_busno=first_free_busno;
@@ -234,9 +231,6 @@ void pci_init_board(void)
 		       CONFIG_SYS_PCI2_IO_PHYS,
 		       CONFIG_SYS_PCI2_IO_SIZE,
 		       PCI_REGION_IO);
-
-	/* inbound */
-	r += fsl_pci_setup_inbound_windows(r);
 
 	hose->region_count = r - hose->regions;
 

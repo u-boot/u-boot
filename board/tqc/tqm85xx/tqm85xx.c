@@ -575,10 +575,6 @@ static inline void init_pci1(void)
 			pci_agent ? "agent" : "host",
 			pci_arb ? "arbiter" : "external-arbiter");
 
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region (r++,
 				CONFIG_SYS_PCI1_MEM_BASE,
@@ -650,9 +646,6 @@ static inline void init_pcie1(void)
 			       pci->pme_msg_det);
 		}
 		puts ("\n");
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
 		pci_set_region (r++,

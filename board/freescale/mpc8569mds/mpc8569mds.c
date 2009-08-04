@@ -347,9 +347,6 @@ pci_init_board(void)
 		}
 		printf ("\n");
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 				CONFIG_SYS_PCIE1_MEM_BUS,

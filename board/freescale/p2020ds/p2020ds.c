@@ -235,9 +235,6 @@ void pci_init_board(void)
 		}
 		printf("\n");
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 				CONFIG_SYS_PCIE2_MEM_BUS,
@@ -306,9 +303,6 @@ void pci_init_board(void)
 		}
 		printf("\n");
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 				CONFIG_SYS_PCIE3_MEM_BUS,
@@ -356,9 +350,6 @@ void pci_init_board(void)
 				pci->pme_msg_det);
 		}
 		printf("\n");
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
 		pci_set_region(r++,
