@@ -246,6 +246,34 @@ static int do_mtc_version(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return err;
 }
 
+static int do_mtc_state(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	tx_msp_cmd pcmd;
+	rx_msp_cmd prx;
+	int err = 0;
+
+	memset(&pcmd, 0, sizeof(pcmd));
+	memset(&prx, 0, sizeof(prx));
+
+	pcmd.cmd = CMD_WD_WDSTATE;
+	pcmd.cmd_val2 = 1;
+
+	mtc_calculate_checksum(&pcmd);
+	err = spi_xfer(NULL, MTC_TRANSFER_SIZE, &pcmd, &prx,
+		       SPI_XFER_BEGIN | SPI_XFER_END);
+
+	if (!err) {
+		printf("State     %02Xh\n", prx.state);
+		printf("Input     %02Xh\n", prx.input);
+		printf("UserWD    %02Xh\n", prx.ack2);
+		printf("Sys WD    %02Xh\n", prx.ack3);
+		printf("WD Timout %02Xh\n", prx.ack0);
+		printf("eSysState %02Xh\n", prx.ack1);
+	}
+
+	return err;
+}
+
 static int do_mtc_help(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 cmd_tbl_t cmd_mtc_sub[] = {
@@ -267,6 +295,8 @@ cmd_tbl_t cmd_mtc_sub[] = {
 	U_BOOT_CMD_MKENT(digout, 2, 1, do_mtc_digout,
 	"sets digital outputs",
 	"<on|off> <on|off>- set state of digital output 1 and 2\n"),
+	U_BOOT_CMD_MKENT(state, 0, 1, do_mtc_state,
+	"displays state\n", ""),
 	U_BOOT_CMD_MKENT(help, 4, 1, do_mtc_help, "get help",
 	"[command] - get help for command\n"),
 };

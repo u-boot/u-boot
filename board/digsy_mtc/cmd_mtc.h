@@ -27,6 +27,7 @@
 #define CMD_MTC_H
 
 #define	CMD_WD_PARA		0x02
+#define	CMD_WD_WDSTATE		0x04
 #define	CMD_FW_VERSION		0x10
 #define	CMD_GET_VIM		0x30
 #define	CMD_SET_LED		0x40
