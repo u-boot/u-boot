@@ -44,6 +44,19 @@ static const char *led_names[] = {
 	""
 };
 
+static int msp430_xfer(const void *dout, void *din)
+{
+	int err;
+
+	err = spi_xfer(NULL, MTC_TRANSFER_SIZE, dout, din,
+		       SPI_XFER_BEGIN | SPI_XFER_END);
+
+	/* The MSP chip needs time to ready itself for the next command */
+	udelay(1000);
+
+	return err;
+}
+
 static void mtc_calculate_checksum(tx_msp_cmd *packet)
 {
 	int i;
@@ -59,7 +72,7 @@ static int do_mtc_led(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
-	int err = 0;
+	int err;
 	int i;
 
 	if (argc < 2) {
@@ -102,8 +115,7 @@ static int do_mtc_led(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		pcmd.cmd_val2 = 0;
 
 	mtc_calculate_checksum(&pcmd);
-	err = spi_xfer(NULL, MTC_TRANSFER_SIZE, &pcmd, &prx,
-		       SPI_XFER_BEGIN | SPI_XFER_END);
+	err = msp430_xfer(&pcmd, &prx);
 
 	return err;
 }
@@ -112,7 +124,7 @@ static int do_mtc_key(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
-	int err = 0;
+	int err;
 
 	memset(&pcmd, 0, sizeof(pcmd));
 	memset(&prx, 0, sizeof(prx));
@@ -120,8 +132,7 @@ static int do_mtc_key(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	pcmd.cmd = CMD_GET_VIM;
 
 	mtc_calculate_checksum(&pcmd);
-	err = spi_xfer(NULL, MTC_TRANSFER_SIZE, &pcmd, &prx,
-		       SPI_XFER_BEGIN | SPI_XFER_END);
+	err = msp430_xfer(&pcmd, &prx);
 
 	if (!err) {
 		/* function returns '0' if key is pressed */
@@ -135,7 +146,7 @@ static int do_mtc_digout(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
-	int err = 0;
+	int err;
 	uchar channel_mask = 0;
 
 	if (argc < 3) {
@@ -155,8 +166,7 @@ static int do_mtc_digout(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	pcmd.user_out = channel_mask;
 
 	mtc_calculate_checksum(&pcmd);
-	err = spi_xfer(NULL, MTC_TRANSFER_SIZE, &pcmd, &prx,
-		       SPI_XFER_BEGIN | SPI_XFER_END);
+	err = msp430_xfer(&pcmd, &prx);
 
 	return err;
 }
@@ -165,7 +175,7 @@ static int do_mtc_digin(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
-	int err = 0;
+	int err;
 	uchar channel_num = 0;
 
 	if (argc < 2) {
@@ -185,8 +195,7 @@ static int do_mtc_digin(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	pcmd.cmd = CMD_GET_VIM;
 
 	mtc_calculate_checksum(&pcmd);
-	err = spi_xfer(NULL, MTC_TRANSFER_SIZE, &pcmd, &prx,
-		       SPI_XFER_BEGIN | SPI_XFER_END);
+	err = msp430_xfer(&pcmd, &prx);
 
 	if (!err) {
 		/* function returns '0' when digin is on */
@@ -213,8 +222,8 @@ static int do_mtc_appreg(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	pcmd.cmd_val2 = 0;	/* =0 means read appreg */
 
 	mtc_calculate_checksum(&pcmd);
-	err = spi_xfer(NULL, MTC_TRANSFER_SIZE, &pcmd, &prx,
-		       SPI_XFER_BEGIN | SPI_XFER_END);
+	err = msp430_xfer(&pcmd, &prx);
+
 	if (!err) {
 		sprintf(buf, "%d", prx.ack2);
 		setenv("appreg", buf);
@@ -227,7 +236,7 @@ static int do_mtc_version(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
-	int err = 0;
+	int err;
 
 	memset(&pcmd, 0, sizeof(pcmd));
 	memset(&prx, 0, sizeof(prx));
@@ -235,8 +244,7 @@ static int do_mtc_version(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	pcmd.cmd = CMD_FW_VERSION;
 
 	mtc_calculate_checksum(&pcmd);
-	err = spi_xfer(NULL, MTC_TRANSFER_SIZE, &pcmd, &prx,
-		       SPI_XFER_BEGIN | SPI_XFER_END);
+	err = msp430_xfer(&pcmd, &prx);
 
 	if (!err) {
 		printf("FW V%d.%d.%d / HW %d\n",
@@ -250,7 +258,7 @@ static int do_mtc_state(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
-	int err = 0;
+	int err;
 
 	memset(&pcmd, 0, sizeof(pcmd));
 	memset(&prx, 0, sizeof(prx));
@@ -259,8 +267,7 @@ static int do_mtc_state(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	pcmd.cmd_val2 = 1;
 
 	mtc_calculate_checksum(&pcmd);
-	err = spi_xfer(NULL, MTC_TRANSFER_SIZE, &pcmd, &prx,
-		       SPI_XFER_BEGIN | SPI_XFER_END);
+	err = msp430_xfer(&pcmd, &prx);
 
 	if (!err) {
 		printf("State     %02Xh\n", prx.state);
