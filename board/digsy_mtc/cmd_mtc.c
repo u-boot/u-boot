@@ -284,11 +284,11 @@ cmd_tbl_t cmd_mtc_sub[] = {
 	" - state: off red green orange\n"
 	" - blink: blink interval in 100ms steps (1 - 10; 0 = static)\n"),
 	U_BOOT_CMD_MKENT(key, 0, 1, do_mtc_key,
-	"returns state of user key\n", ""),
+	"returns state of user key", ""),
 	U_BOOT_CMD_MKENT(version, 0, 1, do_mtc_version,
-	"returns firmware version of supervisor uC\n", ""),
+	"returns firmware version of supervisor uC", ""),
 	U_BOOT_CMD_MKENT(appreg, 0, 1, do_mtc_appreg,
-	"reads appreg value and stores in environment variable 'appreg'\n", ""),
+	"reads appreg value and stores in environment variable 'appreg'", ""),
 	U_BOOT_CMD_MKENT(digin, 1, 1, do_mtc_digin,
 	"returns state of digital input",
 	"<channel_num> - get state of digital input (1 or 2)\n"),
@@ -296,7 +296,7 @@ cmd_tbl_t cmd_mtc_sub[] = {
 	"sets digital outputs",
 	"<on|off> <on|off>- set state of digital output 1 and 2\n"),
 	U_BOOT_CMD_MKENT(state, 0, 1, do_mtc_state,
-	"displays state\n", ""),
+	"displays state", ""),
 	U_BOOT_CMD_MKENT(help, 4, 1, do_mtc_help, "get help",
 	"[command] - get help for command\n"),
 };
@@ -363,7 +363,7 @@ int cmd_mtc(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(mtc, 5, 1, cmd_mtc,
-	"mtc     - special commands for digsyMTC\n",
+	"special commands for digsyMTC",
 	"[subcommand] [args...]\n"
 	"Subcommands list:\n"
 	"led [ledname] [state] [blink] - set state of leds\n"
@@ -376,5 +376,6 @@ U_BOOT_CMD(mtc, 5, 1, cmd_mtc,
 	" 'appreg'\n"
 	"digin [channel] - returns state of digital input (1 or 2)\n"
 	"digout <on|off> <on|off> - sets state of two digital outputs\n"
+	"state - displays state\n"
 	"help [subcommand] - get help for subcommand\n"
 );
