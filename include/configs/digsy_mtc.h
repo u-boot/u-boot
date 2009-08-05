@@ -114,28 +114,108 @@
 
 #undef	CONFIG_BOOTARGS
 
-#define CONFIG_EXTRA_ENV_SETTINGS			\
-	"netdev=eth0\0"					\
-	"console=ttyPSC0\0"				\
-	"kernel_addr_r=400000\0"			\
-	"fdt_addr_r=600000\0"				\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "	\
-	"nfsroot=${serverip}:${rootpath}\0"		\
-	"addip=setenv bootargs ${bootargs} "		\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:"\
-		"${netmask}:${hostname}:${netdev}:off panic=1\0"	\
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+	"fw_image=digsyMPC.img\0"					\
+	"mtcb_start=mtc led diag orange; run mtcb_1\0"			\
+	"mtcb_clearled=for x in user1 user2 usbpwr usbbusy; "		\
+		"do mtc led $x; done\0"					\
+	"mtcb_1=if mtc key; then run mtcb_clearled mtcb_update; "	\
+		"else run mtcb_fw; fi\0"				\
+	"mtcb_fw=if bootm ff000000; then echo FIRMWARE OK!; "		\
+		"else echo BAD FIRMWARE CRC!; mtc led diag red; fi\0"	\
+	"mtcb_update=mtc led user1 orange;"				\
+		"while mtc key; do ; done; run mtcb_2;\0"		\
+	"mtcb_2=mtc led user1 green 2; usb reset; run mtcb_usb1;\0"	\
+	"mtcb_usb1=if fatload usb 0 400000 script.img; "		\
+		"then run mtcb_doscript; else run mtcb_usb2; fi\0"	\
+	"mtcb_usb2=if fatload usb 0 400000 $fw_image; "			\
+		"then run mtcb_dousb; else run mtcb_ide; fi\0"		\
+	"mtcb_doscript=run mtcb_usbleds; mtc led user2 orange 2; "	\
+		"run mtcb_wait_flickr mtcb_ds_1;\0"			\
+	"mtcb_ds_1=if imi 400000; then mtc led usbbusy; "		\
+		"source 400000; else run mtcb_error; fi\0"		\
+	"mtcb_dousb=run mtcb_usbleds mtcb_wait_flickr mtcb_du_1;\0"	\
+	"mtcb_du_1=if imi 400000; then run mtcb_du_2; "			\
+		"else run mtcb_error; fi\0"				\
+	"mtcb_du_2=run mtcb_clear mtcb_prog; mtc led usbbusy; "		\
+		"run mtcb_checkfw\0"					\
+	"mtcb_checkfw=if imi ff000000; then run mtcb_success; "		\
+		"else run mtcb_error; fi\0"				\
+	"mtcb_waitkey=mtc key; until test $? -eq 0; do mtc key; done\0"	\
+	"mtcb_wait_flickr=run mtcb_waitkey mtcb_uledflckr\0"		\
+	"mtcb_usbleds=mtc led usbpwr green; mtc led usbbusy orange 1;\0"\
+	"mtcb_uledflckr=mtc led user1 orange 11\0"			\
+	"mtcb_error=mtc led user1 red\0"				\
+	"mtcb_clear=erase ff000000 ff0fffff\0"				\
+	"mtcb_prog=cp.b 400000 ff000000 ${filesize}\0"			\
+	"mtcb_success=mtc led user1 green\0"				\
+	"mtcb_ide=if fatload ide 0 400000 $fw_image;"			\
+		"then run mtcb_doide; else run mtcb_error; fi\0"	\
+	"mtcb_doide=mtc led user2 green 1;"				\
+		"run mtcb_wait_flickr mtcb_di_1;\0"			\
+	"mtcb_di_1=if imi 400000; then run mtcb_di_2;"			\
+		"else run mtcb_error; fi\0"				\
+	"mtcb_di_2=run mtcb_clear; run mtcb_prog mtcb_checkfw\0"	\
+	"ramdisk_num_sector=16\0"					\
+	"flash_base=ff000000\0"						\
+	"flashdisk_size=e00000\0"					\
+	"env_sector=fff60000\0"						\
+	"flashdisk_start=ff100000\0"					\
+	"load_cmd=tftp 400000 digsyMPC.img\0"				\
+	"clear_cmd=erase ff000000 ff0fffff\0"				\
+	"flash_cmd=cp.b 400000 ff000000 ${filesize}\0"			\
+	"update_cmd=run load_cmd; "					\
+	"iminfo 400000; "						\
+	"run clear_cmd flash_cmd; "					\
+	"iminfo ff000000\0"						\
+	"spi_driver=yes\0"						\
+	"spi_watchdog=no\0"						\
+	"ftps_start=yes\0"						\
+	"ftps_user1=admin\0"						\
+	"ftps_pass1=admin\0"						\
+	"ftps_base1=/\0"						\
+	"ftps_home1=/\0"						\
+	"plc_sio_srv=no\0"						\
+	"plc_sio_baud=57600\0"						\
+	"plc_sio_parity=no\0"						\
+	"plc_sio_stop=1\0"						\
+	"plc_sio_com=2\0"						\
+	"plc_eth_srv=yes\0"						\
+	"plc_eth_port=1200\0"						\
+	"plc_root=/ide/\0"						\
+	"diag_level=0\0"						\
+	"webvisu=no\0"							\
+	"plc_can1_routing=no\0"						\
+	"plc_can1_baudrate=250\0"					\
+	"plc_can2_routing=no\0"						\
+	"plc_can2_baudrate=250\0"					\
+	"plc_can3_routing=no\0"						\
+	"plc_can3_baudrate=250\0"					\
+	"plc_can4_routing=no\0"						\
+	"plc_can4_baudrate=250\0"					\
+	"netdev=eth0\0"							\
+	"console=ttyPSC0\0"						\
+	"kernel_addr_r=400000\0"					\
+	"fdt_addr_r=600000\0"						\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+	"nfsroot=${serverip}:${rootpath}\0"				\
+	"addip=setenv bootargs ${bootargs} "				\
+	"ip=${ipaddr}:${serverip}:${gatewayip}:"			\
+	"${netmask}:${hostname}:${netdev}:off panic=1\0"		\
 	"addcons=setenv bootargs ${bootargs} console=${console},${baudrate}\0"\
-	"rootpath=/opt/eldk/ppc_6xx\0"			\
-	"net_nfs=tftp ${kernel_addr_r} ${bootfile};"	\
-		"tftp ${fdt_addr_r} ${fdt_file};"	\
-		"run nfsargs addip addcons;"		\
-		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"	\
-	"load=tftp 200000 ${u-boot}\0"			\
-	"update=protect off FFF00000 +${filesize};"	\
-		"erase FFF00000 +${filesize};"		\
-		"cp.b 200000 FFF00000 ${filesize};"	\
-		"protect on FFF00000 +${filesize}\0"	\
+	"rootpath=/opt/eldk/ppc_6xx\0"					\
+	"net_nfs=tftp ${kernel_addr_r} ${bootfile};"			\
+		"tftp ${fdt_addr_r} ${fdt_file};"			\
+		"run nfsargs addip addcons;"				\
+		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
+	"load=tftp 200000 ${u-boot}\0"					\
+	"update=protect off FFF00000 +${filesize};"			\
+		"erase FFF00000 +${filesize};"				\
+		"cp.b 200000 FFF00000 ${filesize};"			\
+		"protect on FFF00000 +${filesize}\0"			\
 	""
+
+#define CONFIG_BOOTCOMMAND	"run mtcb_start"
 
 /*
  * SPI configuration
