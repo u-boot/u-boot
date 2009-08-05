@@ -35,6 +35,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 
 #include <pci.h>
+#include <asm/io.h>
 #include <asm/fsl_pci.h>
 
 /* Freescale-specific PCI config registers */
@@ -60,35 +61,98 @@ void pciauto_config_init(struct pci_controller *hose);
 #define CONFIG_SYS_PCI64_MEMORY_BUS (64ull*1024*1024*1024)
 #endif
 
-static int fsl_pci_setup_inbound_windows(struct pci_region *r)
+/* Setup one inbound ATMU window.
+ *
+ * We let the caller decide what the window size should be
+ */
+static void set_inbound_window(volatile pit_t *pi,
+				struct pci_region *r,
+				u64 size)
 {
-	struct pci_region *rgn_base = r;
-	u64 sz = min((u64)gd->ram_size, (1ull << 32) - 1);
+	u32 sz = (__ilog2_u64(size) - 1);
+	u32 flag = PIWAR_EN | PIWAR_LOCAL |
+			PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP;
+
+	out_be32(&pi->pitar, r->phys_start >> 12);
+	out_be32(&pi->piwbar, r->bus_start >> 12);
+#ifdef CONFIG_SYS_PCI_64BIT
+	out_be32(&pi->piwbear, r->bus_start >> 44);
+#else
+	out_be32(&pi->piwbear, 0);
+#endif
+	if (r->flags & PCI_REGION_PREFETCH)
+		flag |= PIWAR_PF;
+	out_be32(&pi->piwar, flag | sz);
+}
+
+static int fsl_pci_setup_inbound_windows(struct pci_controller *hose,
+					 u64 out_lo, u8 pcie_cap,
+					 volatile pit_t *pi)
+{
+	struct pci_region *r = hose->regions + hose->region_count;
+	u64 sz = min((u64)gd->ram_size, (1ull << 32));
 
 	phys_addr_t phys_start = CONFIG_SYS_PCI_MEMORY_PHYS;
 	pci_addr_t bus_start = CONFIG_SYS_PCI_MEMORY_BUS;
-	pci_size_t pci_sz = 1ull << __ilog2_u64(sz);
+	pci_size_t pci_sz;
 
-	debug ("R0 bus_start: %llx phys_start: %llx size: %llx\n",
-		(u64)bus_start, (u64)phys_start, (u64)pci_sz);
-	pci_set_region(r++, bus_start, phys_start, pci_sz,
-			PCI_REGION_MEM | PCI_REGION_SYS_MEMORY |
-			PCI_REGION_PREFETCH);
+	/* we have no space available for inbound memory mapping */
+	if (bus_start > out_lo) {
+		printf ("no space for inbound mapping of memory\n");
+		return 0;
+	}
 
-	sz -= pci_sz;
-	bus_start += pci_sz;
-	phys_start += pci_sz;
+	/* limit size */
+	if ((bus_start + sz) > out_lo) {
+		sz = out_lo - bus_start;
+		debug ("limiting size to %llx\n", sz);
+	}
 
 	pci_sz = 1ull << __ilog2_u64(sz);
-	if (sz) {
-		debug ("R1 bus_start: %llx phys_start: %llx size: %llx\n",
-			(u64)bus_start, (u64)phys_start, (u64)pci_sz);
-		pci_set_region(r++, bus_start, phys_start, pci_sz,
+	/*
+	 * we can overlap inbound/outbound windows on PCI-E since RX & TX
+	 * links a separate
+	 */
+	if ((pcie_cap == PCI_CAP_ID_EXP) && (pci_sz < sz)) {
+		debug ("R0 bus_start: %llx phys_start: %llx size: %llx\n",
+			(u64)bus_start, (u64)phys_start, (u64)sz);
+		pci_set_region(r, bus_start, phys_start, sz,
 				PCI_REGION_MEM | PCI_REGION_SYS_MEMORY |
 				PCI_REGION_PREFETCH);
+
+		/* if we aren't an exact power of two match, pci_sz is smaller
+		 * round it up to the next power of two.  We report the actual
+		 * size to pci region tracking.
+		 */
+		if (pci_sz != sz)
+			sz = 2ull << __ilog2_u64(sz);
+
+		set_inbound_window(pi--, r++, sz);
+		sz = 0; /* make sure we dont set the R2 window */
+	} else {
+		debug ("R0 bus_start: %llx phys_start: %llx size: %llx\n",
+			(u64)bus_start, (u64)phys_start, (u64)pci_sz);
+		pci_set_region(r, bus_start, phys_start, pci_sz,
+				PCI_REGION_MEM | PCI_REGION_SYS_MEMORY |
+				PCI_REGION_PREFETCH);
+		set_inbound_window(pi--, r++, pci_sz);
+
 		sz -= pci_sz;
 		bus_start += pci_sz;
 		phys_start += pci_sz;
+
+		pci_sz = 1ull << __ilog2_u64(sz);
+		if (sz) {
+			debug ("R1 bus_start: %llx phys_start: %llx size: %llx\n",
+				(u64)bus_start, (u64)phys_start, (u64)pci_sz);
+			pci_set_region(r, bus_start, phys_start, pci_sz,
+					PCI_REGION_MEM | PCI_REGION_SYS_MEMORY |
+					PCI_REGION_PREFETCH);
+			set_inbound_window(pi--, r++, pci_sz);
+			sz -= pci_sz;
+			bus_start += pci_sz;
+			phys_start += pci_sz;
+		}
 	}
 
 #if defined(CONFIG_PHYS_64BIT) && defined(CONFIG_SYS_PCI_64BIT)
@@ -104,23 +168,25 @@ static int fsl_pci_setup_inbound_windows(struct pci_region *r)
 		(u64)CONFIG_SYS_PCI64_MEMORY_BUS,
 		(u64)CONFIG_SYS_PCI_MEMORY_PHYS,
 		(u64)pci_sz);
-	pci_set_region(r++,
+	pci_set_region(r,
 			CONFIG_SYS_PCI64_MEMORY_BUS,
 			CONFIG_SYS_PCI_MEMORY_PHYS,
 			pci_sz,
 			PCI_REGION_MEM | PCI_REGION_SYS_MEMORY |
 			PCI_REGION_PREFETCH);
+	set_inbound_window(pi--, r++, pci_sz);
 #else
 	pci_sz = 1ull << __ilog2_u64(sz);
 	if (sz) {
 		debug ("R2 bus_start: %llx phys_start: %llx size: %llx\n",
 			(u64)bus_start, (u64)phys_start, (u64)pci_sz);
-		pci_set_region(r++, bus_start, phys_start, pci_sz,
+		pci_set_region(r, bus_start, phys_start, pci_sz,
 				PCI_REGION_MEM | PCI_REGION_SYS_MEMORY |
 				PCI_REGION_PREFETCH);
 		sz -= pci_sz;
 		bus_start += pci_sz;
 		phys_start += pci_sz;
+		set_inbound_window(pi--, r++, pci_sz);
 	}
 #endif
 
@@ -130,7 +196,9 @@ static int fsl_pci_setup_inbound_windows(struct pci_region *r)
 			"inbound windows -- %lld remaining\n", sz);
 #endif
 
-	return r - rgn_base;
+	hose->region_count = r - hose->regions;
+
+	return 1;
 }
 
 void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
@@ -146,7 +214,10 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 
 	/* Initialize ATMU registers based on hose regions and flags */
 	volatile pot_t *po = &pci->pot[1];	/* skip 0 */
-	volatile pit_t *pi = &pci->pit[0];	/* ranges from: 3 to 1 */
+	volatile pit_t *pi = &pci->pit[2];	/* ranges from: 3 to 1 */
+
+	u64 out_hi = 0, out_lo = -1ULL;
+	u32 pcicsrbar, pcicsrbar_sz;
 
 #ifdef DEBUG
 	int neg_link_w;
@@ -154,60 +225,81 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 
 	pci_setup_indirect(hose, cfg_addr, cfg_data);
 
-	/* inbound */
-	reg += fsl_pci_setup_inbound_windows(reg);
-
-	hose->region_count = reg - hose->regions;
-
-	for (r=0; r<hose->region_count; r++) {
+	/* Handle setup of outbound windows first */
+	for (r = 0; r < hose->region_count; r++) {
+		unsigned long flags = hose->regions[r].flags;
 		u32 sz = (__ilog2_u64((u64)hose->regions[r].size) - 1);
-		if (hose->regions[r].flags & PCI_REGION_SYS_MEMORY) { /* inbound */
-			u32 flag = PIWAR_EN | PIWAR_LOCAL |
-					PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP;
-			pi->pitar = (hose->regions[r].phys_start >> 12);
-			pi->piwbar = (hose->regions[r].bus_start >> 12);
+
+		flags &= PCI_REGION_SYS_MEMORY|PCI_REGION_TYPE;
+		if (flags != PCI_REGION_SYS_MEMORY) {
+			u64 start = hose->regions[r].bus_start;
+			u64 end = start + hose->regions[r].size;
+
+			out_be32(&po->powbar, hose->regions[r].phys_start >> 12);
+			out_be32(&po->potar, start >> 12);
 #ifdef CONFIG_SYS_PCI_64BIT
-			pi->piwbear = (hose->regions[r].bus_start >> 44);
+			out_be32(&po->potear, start >> 44);
 #else
-			pi->piwbear = 0;
+			out_be32(&po->potear, 0);
 #endif
-			if (hose->regions[r].flags & PCI_REGION_PREFETCH)
-				flag |= PIWAR_PF;
-			pi->piwar = flag | sz;
-			pi++;
-			inbound = hose->regions[r].size > 0;
-		} else { /* Outbound */
-			po->powbar = (hose->regions[r].phys_start >> 12);
-			po->potar = (hose->regions[r].bus_start >> 12);
-#ifdef CONFIG_SYS_PCI_64BIT
-			po->potear = (hose->regions[r].bus_start >> 44);
-#else
-			po->potear = 0;
-#endif
-			if (hose->regions[r].flags & PCI_REGION_IO)
-				po->powar = POWAR_EN | sz |
-					POWAR_IO_READ | POWAR_IO_WRITE;
-			else
-				po->powar = POWAR_EN | sz |
-					POWAR_MEM_READ | POWAR_MEM_WRITE;
+			if (hose->regions[r].flags & PCI_REGION_IO) {
+				out_be32(&po->powar, POWAR_EN | sz |
+					POWAR_IO_READ | POWAR_IO_WRITE);
+			} else {
+				out_be32(&po->powar, POWAR_EN | sz |
+					POWAR_MEM_READ | POWAR_MEM_WRITE);
+				out_lo = min(start, out_lo);
+				out_hi = max(end, out_hi);
+			}
 			po++;
 		}
 	}
+	debug("Outbound memory range: %llx:%llx\n", out_lo, out_hi);
+
+	/* setup PCSRBAR/PEXCSRBAR */
+	pci_hose_write_config_dword(hose, dev, PCI_BASE_ADDRESS_0, 0xffffffff);
+	pci_hose_read_config_dword (hose, dev, PCI_BASE_ADDRESS_0, &pcicsrbar_sz);
+	pcicsrbar_sz = ~pcicsrbar_sz + 1;
+
+	if (out_hi < (0x100000000ull - pcicsrbar_sz) ||
+		(out_lo > 0x100000000ull))
+		pcicsrbar = 0x100000000ull - pcicsrbar_sz;
+	else
+		pcicsrbar = (out_lo - pcicsrbar_sz) & -pcicsrbar_sz;
+	pci_hose_write_config_dword(hose, dev, PCI_BASE_ADDRESS_0, pcicsrbar);
+
+	out_lo = min(out_lo, (u64)pcicsrbar);
+
+	debug("PCICSRBAR @ 0x%x\n", pcicsrbar);
+
+	pci_set_region(reg++, pcicsrbar, CONFIG_SYS_CCSRBAR_PHYS,
+			pcicsrbar_sz, PCI_REGION_SYS_MEMORY);
+	hose->region_count++;
 
 	/* see if we are a PCIe or PCI controller */
 	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
+
+	/* inbound */
+	inbound = fsl_pci_setup_inbound_windows(hose, out_lo, pcie_cap, pi);
+
+	for (r = 0; r < hose->region_count; r++)
+		debug("PCI reg:%d %016llx:%016llx %016llx %08x\n", r,
+			(u64)hose->regions[r].phys_start,
+			hose->regions[r].bus_start,
+			hose->regions[r].size,
+			hose->regions[r].flags);
 
 	pci_register_hose(hose);
 	pciauto_config_init(hose);	/* grab pci_{mem,prefetch,io} */
 	hose->current_busno = hose->first_busno;
 
-	pci->pedr = 0xffffffff;		/* Clear any errors */
-	pci->peer = ~0x20140;		/* Enable All Error Interupts except
+	out_be32(&pci->pedr, 0xffffffff);	/* Clear any errors */
+	out_be32(&pci->peer, ~0x20140);	/* Enable All Error Interupts except
 					 * - Master abort (pci)
 					 * - Master PERR (pci)
 					 * - ICCA (PCIe)
 					 */
-	pci_hose_read_config_dword (hose, dev, PCI_DCR, &temp32);
+	pci_hose_read_config_dword(hose, dev, PCI_DCR, &temp32);
 	temp32 |= 0xf000e;		/* set URR, FER, NFER (but not CER) */
 	pci_hose_write_config_dword(hose, dev, PCI_DCR, temp32);
 
@@ -218,14 +310,15 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 #ifdef CONFIG_FSL_PCIE_RESET
 		if (ltssm == 1) {
 			int i;
-			debug("....PCIe link error. "
-			      "LTSSM=0x%02x.", ltssm);
-			pci->pdb_stat |= 0x08000000; /* assert PCIe reset */
-			temp32 = pci->pdb_stat;
+			debug("....PCIe link error. " "LTSSM=0x%02x.", ltssm);
+			/* assert PCIe reset */
+			setbits_be32(&pci->pdb_stat, 0x08000000);
+			(void) in_be32(&pci->pdb_stat);
 			udelay(100);
 			debug("  Asserting PCIe reset @%x = %x\n",
-			      &pci->pdb_stat, pci->pdb_stat);
-			pci->pdb_stat &= ~0x08000000; /* clear reset */
+			      &pci->pdb_stat, in_be32(&pci->pdb_stat));
+			/* clear PCIe reset */
+			clrbits_be32(&pci->pdb_stat, 0x08000000);
 			asm("sync;isync");
 			for (i=0; i<100 && ltssm < PCI_LTSSM_L0; i++) {
 				pci_hose_read_config_word(hose, dev, PCI_LTSSM,
@@ -235,6 +328,12 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 				      "LTSSM=0x%02x.\n", ltssm);
 			}
 			enabled = ltssm >= PCI_LTSSM_L0;
+
+			/* we need to re-write the bar0 since a reset will
+			 * clear it
+			 */
+			pci_hose_write_config_dword(hose, dev,
+					PCI_BASE_ADDRESS_0, pcicsrbar);
 		}
 #endif
 
@@ -245,8 +344,8 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 			return;
 		}
 
-		pci->pme_msg_det = 0xffffffff;
-		pci->pme_msg_int_en = 0xffffffff;
+		out_be32(&pci->pme_msg_det, 0xffffffff);
+		out_be32(&pci->pme_msg_int_en, 0xffffffff);
 #ifdef DEBUG
 		pci_hose_read_config_word(hose, dev, PCI_LSR, &temp16);
 		neg_link_w = (temp16 & 0x3f0 ) >> 4;
@@ -299,8 +398,8 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 
 	/* Clear all error indications */
 	if (pcie_cap == PCI_CAP_ID_EXP)
-		pci->pme_msg_det = 0xffffffff;
-	pci->pedr = 0xffffffff;
+		out_be32(&pci->pme_msg_det, 0xffffffff);
+	out_be32(&pci->pedr, 0xffffffff);
 
 	pci_hose_read_config_word (hose, dev, PCI_DSR, &temp16);
 	if (temp16) {
