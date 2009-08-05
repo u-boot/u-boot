@@ -2002,7 +2002,7 @@ static int free_pipe(struct pipe *pi, int indent)
 #ifndef __U_BOOT__
 			globfree(&child->glob_result);
 #else
-			for (a = child->argc;a >= 0;a--) {
+			for (a = 0; a < child->argc; a++) {
 				free(child->argv[a]);
 			}
 					free(child->argv);
