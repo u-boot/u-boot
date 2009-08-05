@@ -137,16 +137,12 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 {
 	u16 temp16;
 	u32 temp32;
-	int busno = hose->first_busno;
-	int enabled;
+	int enabled, r, inbound = 0;
 	u16 ltssm;
-	u8 temp8;
-	int r;
-	int bridge;
-	int inbound = 0;
+	u8 temp8, pcie_cap;
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)cfg_addr;
 	struct pci_region *reg = hose->regions + hose->region_count;
-	pci_dev_t dev = PCI_BDF(busno,0,0);
+	pci_dev_t dev = PCI_BDF(hose->first_busno, 0, 0);
 
 	/* Initialize ATMU registers based on hose regions and flags */
 	volatile pot_t *po = &pci->pot[1];	/* skip 0 */
@@ -198,6 +194,9 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 		}
 	}
 
+	/* see if we are a PCIe or PCI controller */
+	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
+
 	pci_register_hose(hose);
 	pciauto_config_init(hose);	/* grab pci_{mem,prefetch,io} */
 	hose->current_busno = hose->first_busno;
@@ -212,11 +211,7 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 	temp32 |= 0xf000e;		/* set URR, FER, NFER (but not CER) */
 	pci_hose_write_config_dword(hose, dev, PCI_DCR, temp32);
 
-	pci_hose_read_config_byte (hose, dev, PCI_HEADER_TYPE, &temp8);
-	bridge = temp8 & PCI_HEADER_TYPE_BRIDGE; /* Bridge, such as pcie */
-
-	if ( bridge ) {
-
+	if (pcie_cap == PCI_CAP_ID_EXP) {
 		pci_hose_read_config_word(hose, dev, PCI_LTSSM, &ltssm);
 		enabled = ltssm >= PCI_LTSSM_L0;
 
@@ -260,14 +255,12 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 #endif
 		hose->current_busno++; /* Start scan with secondary */
 		pciauto_prescan_setup_bridge(hose, dev, hose->current_busno);
-
 	}
 
 	/* Use generic setup_device to initialize standard pci regs,
 	 * but do not allocate any windows since any BAR found (such
 	 * as PCSRBAR) is not in this cpu's memory space.
 	 */
-
 	pciauto_setup_device(hose, dev, 0, hose->pci_mem,
 			     hose->pci_prefetch, hose->pci_io);
 
@@ -294,7 +287,10 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 		hose->last_busno = hose->current_busno;
 	}
 
-	if ( bridge ) { /* update limit regs and subordinate busno */
+	/* if we are PCIe - update limit regs and subordinate busno
+	 * for the virtual P2P bridge
+	 */
+	if (pcie_cap == PCI_CAP_ID_EXP) {
 		pciauto_postscan_setup_bridge(hose, dev, hose->last_busno);
 	}
 #else
@@ -302,15 +298,13 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 #endif
 
 	/* Clear all error indications */
-
-	if (bridge)
+	if (pcie_cap == PCI_CAP_ID_EXP)
 		pci->pme_msg_det = 0xffffffff;
 	pci->pedr = 0xffffffff;
 
 	pci_hose_read_config_word (hose, dev, PCI_DSR, &temp16);
 	if (temp16) {
-		pci_hose_write_config_word(hose, dev,
-					PCI_DSR, 0xffff);
+		pci_hose_write_config_word(hose, dev, PCI_DSR, 0xffff);
 	}
 
 	pci_hose_read_config_word (hose, dev, PCI_SEC_STATUS, &temp16);
