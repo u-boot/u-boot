@@ -625,7 +625,7 @@ int fdt_resize(void *blob)
 }
 
 #ifdef CONFIG_PCI
-#define CONFIG_SYS_PCI_NR_INBOUND_WIN 3
+#define CONFIG_SYS_PCI_NR_INBOUND_WIN 4
 
 #define FDT_PCI_PREFETCH	(0x40000000)
 #define FDT_PCI_MEM32		(0x02000000)
@@ -655,7 +655,7 @@ int fdt_pci_dma_ranges(void *blob, int phb_off, struct pci_controller *hose) {
 		size = (u64)hose->regions[r].size;
 
 		dma_range[0] = 0;
-		if (size > 0x100000000ull)
+		if (size >= 0x100000000ull)
 			dma_range[0] |= FDT_PCI_MEM64;
 		else
 			dma_range[0] |= FDT_PCI_MEM32;
