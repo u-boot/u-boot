@@ -96,7 +96,9 @@
 
 	.align	5
 .globl __divsi3
+.globl __aeabi_idiv
 __divsi3:
+__aeabi_idiv:
 	cmp	r1, #0
 	eor	ip, r0, r1			@ save the sign of the result.
 	beq	Ldiv0

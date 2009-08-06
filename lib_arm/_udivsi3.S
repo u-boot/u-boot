@@ -11,9 +11,12 @@ curbit		.req	r3
 /* pc		.req	r15	*/
 	.text
 	.globl	 __udivsi3
-	.type  __udivsi3       ,function
+	.type	__udivsi3 ,function
+	.globl	__aeabi_uidiv
+	.type	__aeabi_uidiv ,function
 	.align	0
- __udivsi3      :
+ __udivsi3:
+ __aeabi_uidiv:
 	cmp	divisor, #0
 	beq	Ldiv0
 	mov	curbit, #1
@@ -68,10 +71,23 @@ Ldiv0:
 	mov	r0, #0			@ about as wrong as it could be
 	ldmia	sp!, {pc}
 	.size  __udivsi3       , . -  __udivsi3
-/* # 235 "libgcc1.S" */
-/* # 320 "libgcc1.S" */
-/* # 421 "libgcc1.S" */
-/* # 433 "libgcc1.S" */
-/* # 456 "libgcc1.S" */
-/* # 500 "libgcc1.S" */
-/* # 580 "libgcc1.S" */
+
+.globl __aeabi_uidivmod
+__aeabi_uidivmod:
+
+	stmfd	sp!, {r0, r1, ip, lr}
+	bl	__aeabi_uidiv
+	ldmfd	sp!, {r1, r2, ip, lr}
+	mul	r3, r0, r2
+	sub	r1, r1, r3
+	mov	pc, lr
+
+.globl __aeabi_idivmod
+__aeabi_idivmod:
+
+	stmfd	sp!, {r0, r1, ip, lr}
+	bl	__aeabi_idiv
+	ldmfd	sp!, {r1, r2, ip, lr}
+	mul	r3, r0, r2
+	sub	r1, r1, r3
+	mov	pc, lr
