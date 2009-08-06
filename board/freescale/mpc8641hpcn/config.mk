@@ -26,6 +26,3 @@
 # assume U-Boot is less than 0.5MB
 #
 TEXT_BASE = 0xeff00000
-
-PLATFORM_CPPFLAGS += -DCONFIG_MPC86xx=1
-PLATFORM_CPPFLAGS += -DCONFIG_MPC8641=1 -maltivec -mabi=altivec -msoft-float

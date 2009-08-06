@@ -23,4 +23,5 @@
 
 PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi
 
-PLATFORM_CPPFLAGS += -DCONFIG_MPC86xx -ffixed-r2 -mstring
+PLATFORM_CPPFLAGS += -ffixed-r2 -mstring
+PLATFORM_CPPFLAGS += -maltivec -mabi=altivec -msoft-float
