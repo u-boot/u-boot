@@ -378,6 +378,17 @@ static void dma_bitblit(void *dst, fastimage_t *logo, int x, int y)
 
 }
 
+void video_stop(void)
+{
+	DisablePPI();
+	DisableDMA();
+	DisableTIMER0();
+	DisableTIMER1();
+#ifdef CONFIG_MK_BF527_EZKIT_REV_2_1
+	lq035q1_control(LQ035_SHUT_CTL, LQ035_SHUT);
+#endif
+}
+
 void video_putc(const char c)
 {
 }

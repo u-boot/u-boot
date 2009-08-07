@@ -225,6 +225,12 @@ int video_init(void *dst)
 	return 0;
 }
 
+void video_stop(void)
+{
+	DisablePPI();
+	DisableDMA();
+}
+
 static void dma_bitblit(void *dst, fastimage_t *logo, int x, int y)
 {
 	if (dcache_status())
