@@ -25,3 +25,6 @@ PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi
 
 PLATFORM_CPPFLAGS += -ffixed-r2 -Wa,-me500 -msoft-float -mno-string
 PLATFORM_CPPFLAGS +=$(call cc-option,-mno-spe)
+
+# Use default linker script.  Board port can override in board/*/config.mk
+LDSCRIPT := $(SRCTREE)/cpu/mpc85xx/u-boot.lds
