@@ -71,7 +71,6 @@ ssize_t spi_read (uchar *addr, int alen, uchar *buffer, int len)
 ssize_t spi_write (uchar *addr, int alen, uchar *buffer, int len)
 {
 	struct spi_slave *slave;
-	int i;
 	char buf[3];
 
 	slave = spi_setup_slave(CONFIG_DEFAULT_SPI_BUS, 1, 1000000,
