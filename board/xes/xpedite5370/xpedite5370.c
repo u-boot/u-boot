@@ -71,11 +71,11 @@ static void flash_cs_fixup(void)
 	printf("FLASH: Executed from FLASH%d\n", flash_sel ? 2 : 1);
 
 	if (flash_sel) {
-		lbc->br0 = CONFIG_SYS_BR1_PRELIM;
-		lbc->or0 = CONFIG_SYS_OR1_PRELIM;
+		out_be32(&lbc->br0, CONFIG_SYS_BR1_PRELIM);
+		out_be32(&lbc->or0, CONFIG_SYS_OR1_PRELIM);
 
-		lbc->br1 = CONFIG_SYS_BR0_PRELIM;
-		lbc->or1 = CONFIG_SYS_OR0_PRELIM;
+		out_be32(&lbc->br1, CONFIG_SYS_BR0_PRELIM);
+		out_be32(&lbc->or1, CONFIG_SYS_OR0_PRELIM);
 	}
 }
 

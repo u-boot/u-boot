@@ -40,7 +40,6 @@ int checkboard(void)
 {
 	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
-
 	char *s;
 
 	printf("Board: X-ES %s PMC\n", CONFIG_SYS_BOARD_NAME);
@@ -56,10 +55,10 @@ int checkboard(void)
 		printf("Cfg %s", s);
 	printf("\n");
 
-	lbc->ltesr = 0xffffffff;	/* Clear LBC error interrupts */
-	lbc->lteir = 0xffffffff;	/* Enable LBC error interrupts */
-	ecm->eedr = 0xffffffff;		/* Clear ecm errors */
-	ecm->eeer = 0xffffffff;		/* Enable ecm errors */
+	out_be32(&lbc->ltesr, 0xffffffff);	/* Clear LBC error IRQs */
+	out_be32(&lbc->lteir, 0xffffffff);	/* Enable LBC error IRQs */
+	out_be32(&ecm->eedr, 0xffffffff);	/* Clear ecm errors */
+	out_be32(&ecm->eeer, 0xffffffff);	/* Enable ecm errors */
 
 	return 0;
 }
@@ -79,11 +78,11 @@ static void flash_cs_fixup(void)
 	printf("FLASH: Executed from FLASH%d\n", flash_sel ? 2 : 1);
 
 	if (flash_sel) {
-		lbc->br0 = CONFIG_SYS_BR1_PRELIM;
-		lbc->or0 = CONFIG_SYS_OR1_PRELIM;
+		out_be32(&lbc->br0, CONFIG_SYS_BR1_PRELIM);
+		out_be32(&lbc->or0, CONFIG_SYS_OR1_PRELIM);
 
-		lbc->br1 = CONFIG_SYS_BR0_PRELIM;
-		lbc->or1 = CONFIG_SYS_OR0_PRELIM;
+		out_be32(&lbc->br1, CONFIG_SYS_BR0_PRELIM);
+		out_be32(&lbc->or1, CONFIG_SYS_OR0_PRELIM);
 	}
 }
 
