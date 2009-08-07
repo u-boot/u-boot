@@ -17,8 +17,6 @@
 #ifndef __KIRKWOOD_GPIO_H
 #define __KIRKWOOD_GPIO_H
 
-/* got from kernel include/linux/kernel.h */
-#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
 /* got from kernel include/linux/bitops.h */
 #define BITS_PER_BYTE 8
 #define BITS_TO_LONGS(nr)	DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))
