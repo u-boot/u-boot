@@ -84,8 +84,14 @@ extern flash_info_t flash_info[];
 /* 512 is poor choice for ethernet, MTU is typically 1500.
  * Minus eth.hdrs thats 1468.  Can get 2x better throughput with
  * almost-MTU block sizes.  At least try... fall back to 512 if need be.
+ * (but those using CONFIG_IP_DEFRAG may want to set a larger block in cfg file)
  */
+#ifdef CONFIG_TFTP_BLOCKSIZE
+#define TFTP_MTU_BLOCKSIZE CONFIG_TFTP_BLOCKSIZE
+#else
 #define TFTP_MTU_BLOCKSIZE 1468
+#endif
+
 static unsigned short TftpBlkSize=TFTP_BLOCK_SIZE;
 static unsigned short TftpBlkSizeOption=TFTP_MTU_BLOCKSIZE;
 
@@ -466,9 +472,12 @@ TftpTimeout (void)
 void
 TftpStart (void)
 {
-#ifdef CONFIG_TFTP_PORT
 	char *ep;             /* Environment pointer */
-#endif
+
+	/* Allow the user to choose tftpblocksize */
+	if ((ep = getenv("tftpblocksize")) != NULL)
+		TftpBlkSizeOption = simple_strtol(ep, NULL, 10);
+	debug("tftp block size is %i\n", TftpBlkSizeOption);
 
 	TftpServerIP = NetServerIP;
 	if (BootFile[0] == '\0') {
