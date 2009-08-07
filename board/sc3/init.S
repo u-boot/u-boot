@@ -4,6 +4,9 @@
  *	 (www.eurodsn.de). It's based on the original IBM source code, so
  *	 this follows:
  *
+ *   This source code is dual-licensed.  You may use it under the terms of the
+ *   GNU General Public License version 2, or under the license below.
+ *
  *	 This source code has been made available to you by IBM on an AS-IS
  *	 basis.  Anyone receiving this source is licensed under IBM
  *	 copyrights to use it in any way he or she deems fit, including
