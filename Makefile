@@ -1148,7 +1148,7 @@ SPD823TS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx spd8xx
 
 stxxtc_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc8xx stxxtc
+	@$(MKCONFIG) $(@:_config=) ppc mpc8xx stxxtc stx
 
 svm_sc8xx_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx svm_sc8xx
@@ -2563,7 +2563,7 @@ socrates_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx socrates
 
 stxgp3_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxgp3
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxgp3 stx
 
 stxssa_config		\
 stxssa_4M_config:	unconfig
@@ -2572,7 +2572,7 @@ stxssa_4M_config:	unconfig
 		echo "#define CONFIG_STXSSA_4M" >>$(obj)include/config.h ; \
 		$(XECHO) "... with 4 MiB flash memory" ; \
 	fi
-	@$(MKCONFIG) -a stxssa ppc mpc85xx stxssa
+	@$(MKCONFIG) -a stxssa ppc mpc85xx stxssa stx
 
 TQM8540_config		\
 TQM8541_config		\
