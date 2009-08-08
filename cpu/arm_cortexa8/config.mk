@@ -30,7 +30,6 @@ PLATFORM_CPPFLAGS += -march=armv5
 # Supply options according to compiler version
 #
 # =========================================================================
-PLATFORM_CPPFLAGS +=$(call cc-option)
 PLATFORM_CPPFLAGS +=$(call cc-option,-mno-thumb-interwork,)
 PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,\
 		    $(call cc-option,-malignment-traps,))
