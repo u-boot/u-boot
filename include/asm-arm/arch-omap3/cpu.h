@@ -91,6 +91,7 @@ struct ctrl_id {
 
 #define GPMC_BASE		(OMAP34XX_GPMC_BASE)
 #define GPMC_CONFIG_CS0		0x60
+#define GPMC_CONFIG_CS0_BASE	(GPMC_BASE + GPMC_CONFIG_CS0)
 
 #ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
