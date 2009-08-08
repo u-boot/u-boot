@@ -25,34 +25,40 @@
 #ifndef _CPU_H
 #define _CPU_H
 
+#if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
+#include <asm/types.h>
+#endif /* !(__KERNEL_STRICT_NAMES || __ASSEMBLY__) */
+
 /* Register offsets of common modules */
 /* Control */
+#ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct ctrl {
-	unsigned char res1[0xC0];
-	unsigned short gpmc_nadv_ale;	/* 0xC0 */
-	unsigned short gpmc_noe;	/* 0xC2 */
-	unsigned short gpmc_nwe;	/* 0xC4 */
-	unsigned char res2[0x22A];
-	unsigned int status;		/* 0x2F0 */
-	unsigned int gpstatus;		/* 0x2F4 */
-	unsigned char res3[0x08];
-	unsigned int rpubkey_0;		/* 0x300 */
-	unsigned int rpubkey_1;		/* 0x304 */
-	unsigned int rpubkey_2;		/* 0x308 */
-	unsigned int rpubkey_3;		/* 0x30C */
-	unsigned int rpubkey_4;		/* 0x310 */
-	unsigned char res4[0x04];
-	unsigned int randkey_0;		/* 0x318 */
-	unsigned int randkey_1;		/* 0x31C */
-	unsigned int randkey_2;		/* 0x320 */
-	unsigned int randkey_3;		/* 0x324 */
-	unsigned char res5[0x124];
-	unsigned int ctrl_omap_stat;	/* 0x44C */
+	u8 res1[0xC0];
+	u16 gpmc_nadv_ale;	/* 0xC0 */
+	u16 gpmc_noe;		/* 0xC2 */
+	u16 gpmc_nwe;		/* 0xC4 */
+	u8 res2[0x22A];
+	u32 status;		/* 0x2F0 */
+	u32 gpstatus;		/* 0x2F4 */
+	u8 res3[0x08];
+	u32 rpubkey_0;		/* 0x300 */
+	u32 rpubkey_1;		/* 0x304 */
+	u32 rpubkey_2;		/* 0x308 */
+	u32 rpubkey_3;		/* 0x30C */
+	u32 rpubkey_4;		/* 0x310 */
+	u8 res4[0x04];
+	u32 randkey_0;		/* 0x318 */
+	u32 randkey_1;		/* 0x31C */
+	u32 randkey_2;		/* 0x320 */
+	u32 randkey_3;		/* 0x324 */
+	u8 res5[0x124];
+	u32 ctrl_omap_stat;	/* 0x44C */
 };
 #else /* __ASSEMBLY__ */
 #define CONTROL_STATUS		0x2F0
 #endif /* __ASSEMBLY__ */
+#endif /* __KERNEL_STRICT_NAMES */
 
 /* cpu type */
 #define OMAP3503		0x5c00
@@ -60,18 +66,20 @@ struct ctrl {
 #define OMAP3525		0x4c00
 #define OMAP3530		0x0c00
 
+#ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct ctrl_id {
-	unsigned char res1[0x4];
-	unsigned int idcode;		/* 0x04 */
-	unsigned int prod_id;		/* 0x08 */
-	unsigned char res2[0x0C];
-	unsigned int die_id_0;		/* 0x18 */
-	unsigned int die_id_1;		/* 0x1C */
-	unsigned int die_id_2;		/* 0x20 */
-	unsigned int die_id_3;		/* 0x24 */
+	u8 res1[0x4];
+	u32 idcode;		/* 0x04 */
+	u32 prod_id;		/* 0x08 */
+	u8 res2[0x0C];
+	u32 die_id_0;		/* 0x18 */
+	u32 die_id_1;		/* 0x1C */
+	u32 die_id_2;		/* 0x20 */
+	u32 die_id_3;		/* 0x24 */
 };
 #endif /* __ASSEMBLY__ */
+#endif /* __KERNEL_STRICT_NAMES */
 
 /* device type */
 #define DEVICE_MASK		(0x7 << 8)
@@ -84,47 +92,48 @@ struct ctrl_id {
 #define GPMC_BASE		(OMAP34XX_GPMC_BASE)
 #define GPMC_CONFIG_CS0		0x60
 
+#ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct gpmc_cs {
-	unsigned int config1;		/* 0x00 */
-	unsigned int config2;		/* 0x04 */
-	unsigned int config3;		/* 0x08 */
-	unsigned int config4;		/* 0x0C */
-	unsigned int config5;		/* 0x10 */
-	unsigned int config6;		/* 0x14 */
-	unsigned int config7;		/* 0x18 */
-	unsigned int nand_cmd;		/* 0x1C */
-	unsigned int nand_adr;		/* 0x20 */
-	unsigned int nand_dat;		/* 0x24 */
-	unsigned char res[8];		/* blow up to 0x30 byte */
+	u32 config1;		/* 0x00 */
+	u32 config2;		/* 0x04 */
+	u32 config3;		/* 0x08 */
+	u32 config4;		/* 0x0C */
+	u32 config5;		/* 0x10 */
+	u32 config6;		/* 0x14 */
+	u32 config7;		/* 0x18 */
+	u32 nand_cmd;		/* 0x1C */
+	u32 nand_adr;		/* 0x20 */
+	u32 nand_dat;		/* 0x24 */
+	u8 res[8];		/* blow up to 0x30 byte */
 };
 
 struct gpmc {
-	unsigned char res1[0x10];
-	unsigned int sysconfig;		/* 0x10 */
-	unsigned char res2[0x4];
-	unsigned int irqstatus;		/* 0x18 */
-	unsigned int irqenable;		/* 0x1C */
-	unsigned char res3[0x20];
-	unsigned int timeout_control; 	/* 0x40 */
-	unsigned char res4[0xC];
-	unsigned int config;		/* 0x50 */
-	unsigned int status;		/* 0x54 */
-	unsigned char res5[0x8];
+	u8 res1[0x10];
+	u32 sysconfig;		/* 0x10 */
+	u8 res2[0x4];
+	u32 irqstatus;		/* 0x18 */
+	u32 irqenable;		/* 0x1C */
+	u8 res3[0x20];
+	u32 timeout_control; 	/* 0x40 */
+	u8 res4[0xC];
+	u32 config;		/* 0x50 */
+	u32 status;		/* 0x54 */
+	u8 res5[0x8];
 	struct gpmc_cs cs[8];	/* 0x60, 0x90, .. */
-	unsigned char res6[0x18];
-	unsigned int ecc_config;	/* 0x1F4 */
-	unsigned int ecc_control;	/* 0x1F8 */
-	unsigned int ecc_size_config;	/* 0x1FC */
-	unsigned int ecc1_result;	/* 0x200 */
-	unsigned int ecc2_result;	/* 0x204 */
-	unsigned int ecc3_result;	/* 0x208 */
-	unsigned int ecc4_result;	/* 0x20C */
-	unsigned int ecc5_result;	/* 0x210 */
-	unsigned int ecc6_result;	/* 0x214 */
-	unsigned int ecc7_result;	/* 0x218 */
-	unsigned int ecc8_result;	/* 0x21C */
-	unsigned int ecc9_result;	/* 0x220 */
+	u8 res6[0x18];
+	u32 ecc_config;		/* 0x1F4 */
+	u32 ecc_control;	/* 0x1F8 */
+	u32 ecc_size_config;	/* 0x1FC */
+	u32 ecc1_result;	/* 0x200 */
+	u32 ecc2_result;	/* 0x204 */
+	u32 ecc3_result;	/* 0x208 */
+	u32 ecc4_result;	/* 0x20C */
+	u32 ecc5_result;	/* 0x210 */
+	u32 ecc6_result;	/* 0x214 */
+	u32 ecc7_result;	/* 0x218 */
+	u32 ecc8_result;	/* 0x21C */
+	u32 ecc9_result;	/* 0x220 */
 };
 #else /* __ASSEMBLY__ */
 #define GPMC_CONFIG1		0x00
@@ -135,6 +144,7 @@ struct gpmc {
 #define GPMC_CONFIG6		0x14
 #define GPMC_CONFIG7		0x18
 #endif /* __ASSEMBLY__ */
+#endif /* __KERNEL_STRICT_NAMES */
 
 /* GPMC Mapping */
 #define FLASH_BASE		0x10000000	/* NOR flash, */
@@ -150,54 +160,58 @@ struct gpmc {
 #define ONENAND_MAP		0x20000000	/* OneNand addr */
 						/* (actual size small port) */
 /* SMS */
+#ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct sms {
-	unsigned char res1[0x10];
-	unsigned int sysconfig;		/* 0x10 */
-	unsigned char res2[0x34];
-	unsigned int rg_att0;		/* 0x48 */
-	unsigned char res3[0x84];
-	unsigned int class_arb0;	/* 0xD0 */
+	u8 res1[0x10];
+	u32 sysconfig;		/* 0x10 */
+	u8 res2[0x34];
+	u32 rg_att0;		/* 0x48 */
+	u8 res3[0x84];
+	u32 class_arb0;		/* 0xD0 */
 };
 #endif /* __ASSEMBLY__ */
+#endif /* __KERNEL_STRICT_NAMES */
 
 #define BURSTCOMPLETE_GROUP7	(0x1 << 31)
 
 /* SDRC */
+#ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct sdrc_cs {
-	unsigned int mcfg;		/* 0x80 || 0xB0 */
-	unsigned int mr;		/* 0x84 || 0xB4 */
-	unsigned char res1[0x4];
-	unsigned int emr2;		/* 0x8C || 0xBC */
-	unsigned char res2[0x14];
-	unsigned int rfr_ctrl;		/* 0x84 || 0xD4 */
-	unsigned int manual;		/* 0xA8 || 0xD8 */
-	unsigned char res3[0x4];
+	u32 mcfg;		/* 0x80 || 0xB0 */
+	u32 mr;			/* 0x84 || 0xB4 */
+	u8 res1[0x4];
+	u32 emr2;		/* 0x8C || 0xBC */
+	u8 res2[0x14];
+	u32 rfr_ctrl;		/* 0x84 || 0xD4 */
+	u32 manual;		/* 0xA8 || 0xD8 */
+	u8 res3[0x4];
 };
 
 struct sdrc_actim {
-	unsigned int ctrla;		/* 0x9C || 0xC4 */
-	unsigned int ctrlb;		/* 0xA0 || 0xC8 */
+	u32 ctrla;		/* 0x9C || 0xC4 */
+	u32 ctrlb;		/* 0xA0 || 0xC8 */
 };
 
 struct sdrc {
-	unsigned char res1[0x10];
-	unsigned int sysconfig;		/* 0x10 */
-	unsigned int status;		/* 0x14 */
-	unsigned char res2[0x28];
-	unsigned int cs_cfg;		/* 0x40 */
-	unsigned int sharing;		/* 0x44 */
-	unsigned char res3[0x18];
-	unsigned int dlla_ctrl;		/* 0x60 */
-	unsigned int dlla_status;	/* 0x64 */
-	unsigned int dllb_ctrl;		/* 0x68 */
-	unsigned int dllb_status;	/* 0x6C */
-	unsigned int power;		/* 0x70 */
-	unsigned char res4[0xC];
-	struct sdrc_cs cs[2];		/* 0x80 || 0xB0 */
+	u8 res1[0x10];
+	u32 sysconfig;		/* 0x10 */
+	u32 status;		/* 0x14 */
+	u8 res2[0x28];
+	u32 cs_cfg;		/* 0x40 */
+	u32 sharing;		/* 0x44 */
+	u8 res3[0x18];
+	u32 dlla_ctrl;		/* 0x60 */
+	u32 dlla_status;	/* 0x64 */
+	u32 dllb_ctrl;		/* 0x68 */
+	u32 dllb_status;	/* 0x6C */
+	u32 power;		/* 0x70 */
+	u8 res4[0xC];
+	struct sdrc_cs cs[2];	/* 0x80 || 0xB0 */
 };
 #endif /* __ASSEMBLY__ */
+#endif /* __KERNEL_STRICT_NAMES */
 
 #define DLLPHASE_90		(0x1 << 1)
 #define LOADDLL			(0x1 << 2)
@@ -239,39 +253,43 @@ struct sdrc {
 
 /* timer regs offsets (32 bit regs) */
 
+#ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct gptimer {
-	unsigned int tidr;	/* 0x00 r */
-	unsigned char res[0xc];
-	unsigned int tiocp_cfg;	/* 0x10 rw */
-	unsigned int tistat;	/* 0x14 r */
-	unsigned int tisr;	/* 0x18 rw */
-	unsigned int tier;	/* 0x1c rw */
-	unsigned int twer;	/* 0x20 rw */
-	unsigned int tclr;	/* 0x24 rw */
-	unsigned int tcrr;	/* 0x28 rw */
-	unsigned int tldr;	/* 0x2c rw */
-	unsigned int ttgr;	/* 0x30 rw */
-	unsigned int twpc;	/* 0x34 r*/
-	unsigned int tmar;	/* 0x38 rw*/
-	unsigned int tcar1;	/* 0x3c r */
-	unsigned int tcicr;	/* 0x40 rw */
-	unsigned int tcar2;	/* 0x44 r */
+	u32 tidr;	/* 0x00 r */
+	u8 res[0xc];
+	u32 tiocp_cfg;	/* 0x10 rw */
+	u32 tistat;	/* 0x14 r */
+	u32 tisr;	/* 0x18 rw */
+	u32 tier;	/* 0x1c rw */
+	u32 twer;	/* 0x20 rw */
+	u32 tclr;	/* 0x24 rw */
+	u32 tcrr;	/* 0x28 rw */
+	u32 tldr;	/* 0x2c rw */
+	u32 ttgr;	/* 0x30 rw */
+	u32 twpc;	/* 0x34 r*/
+	u32 tmar;	/* 0x38 rw*/
+	u32 tcar1;	/* 0x3c r */
+	u32 tcicr;	/* 0x40 rw */
+	u32 tcar2;	/* 0x44 r */
 };
 #endif /* __ASSEMBLY__ */
+#endif /* __KERNEL_STRICT_NAMES */
 
 /* enable sys_clk NO-prescale /1 */
 #define GPT_EN			((0x0 << 2) | (0x1 << 1) | (0x1 << 0))
 
 /* Watchdog */
+#ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct watchdog {
-	unsigned char res1[0x34];
-	unsigned int wwps;	/* 0x34 r */
-	unsigned char res2[0x10];
-	unsigned int wspr;	/* 0x48 rw */
+	u8 res1[0x34];
+	u32 wwps;	/* 0x34 r */
+	u8 res2[0x10];
+	u32 wspr;	/* 0x48 rw */
 };
 #endif /* __ASSEMBLY__ */
+#endif /* __KERNEL_STRICT_NAMES */
 
 #define WD_UNLOCK1		0xAAAA
 #define WD_UNLOCK2		0x5555
@@ -279,71 +297,72 @@ struct watchdog {
 /* PRCM */
 #define PRCM_BASE		0x48004000
 
+#ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct prcm {
-	unsigned int fclken_iva2;	/* 0x00 */
-	unsigned int clken_pll_iva2;	/* 0x04 */
-	unsigned char res1[0x1c];
-	unsigned int idlest_pll_iva2;	/* 0x24 */
-	unsigned char res2[0x18];
-	unsigned int clksel1_pll_iva2 ;	/* 0x40 */
-	unsigned int clksel2_pll_iva2;	/* 0x44 */
-	unsigned char res3[0x8bc];
-	unsigned int clken_pll_mpu;	/* 0x904 */
-	unsigned char res4[0x1c];
-	unsigned int idlest_pll_mpu;	/* 0x924 */
-	unsigned char res5[0x18];
-	unsigned int clksel1_pll_mpu;	/* 0x940 */
-	unsigned int clksel2_pll_mpu;	/* 0x944 */
-	unsigned char res6[0xb8];
-	unsigned int fclken1_core;	/* 0xa00 */
-	unsigned char res7[0xc];
-	unsigned int iclken1_core;	/* 0xa10 */
-	unsigned int iclken2_core;	/* 0xa14 */
-	unsigned char res8[0x28];
-	unsigned int clksel_core;	/* 0xa40 */
-	unsigned char res9[0xbc];
-	unsigned int fclken_gfx;	/* 0xb00 */
-	unsigned char res10[0xc];
-	unsigned int iclken_gfx;	/* 0xb10 */
-	unsigned char res11[0x2c];
-	unsigned int clksel_gfx;	/* 0xb40 */
-	unsigned char res12[0xbc];
-	unsigned int fclken_wkup;	/* 0xc00 */
-	unsigned char res13[0xc];
-	unsigned int iclken_wkup;	/* 0xc10 */
-	unsigned char res14[0xc];
-	unsigned int idlest_wkup;	/* 0xc20 */
-	unsigned char res15[0x1c];
-	unsigned int clksel_wkup;	/* 0xc40 */
-	unsigned char res16[0xbc];
-	unsigned int clken_pll;		/* 0xd00 */
-	unsigned char res17[0x1c];
-	unsigned int idlest_ckgen;	/* 0xd20 */
-	unsigned char res18[0x1c];
-	unsigned int clksel1_pll;	/* 0xd40 */
-	unsigned int clksel2_pll;	/* 0xd44 */
-	unsigned int clksel3_pll;	/* 0xd48 */
-	unsigned char res19[0xb4];
-	unsigned int fclken_dss;	/* 0xe00 */
-	unsigned char res20[0xc];
-	unsigned int iclken_dss;	/* 0xe10 */
-	unsigned char res21[0x2c];
-	unsigned int clksel_dss;	/* 0xe40 */
-	unsigned char res22[0xbc];
-	unsigned int fclken_cam;	/* 0xf00 */
-	unsigned char res23[0xc];
-	unsigned int iclken_cam;	/* 0xf10 */
-	unsigned char res24[0x2c];
-	unsigned int clksel_cam;	/* 0xf40 */
-	unsigned char res25[0xbc];
-	unsigned int fclken_per;	/* 0x1000 */
-	unsigned char res26[0xc];
-	unsigned int iclken_per;	/* 0x1010 */
-	unsigned char res27[0x2c];
-	unsigned int clksel_per;	/* 0x1040 */
-	unsigned char res28[0xfc];
-	unsigned int clksel1_emu;	/* 0x1140 */
+	u32 fclken_iva2;	/* 0x00 */
+	u32 clken_pll_iva2;	/* 0x04 */
+	u8 res1[0x1c];
+	u32 idlest_pll_iva2;	/* 0x24 */
+	u8 res2[0x18];
+	u32 clksel1_pll_iva2 ;	/* 0x40 */
+	u32 clksel2_pll_iva2;	/* 0x44 */
+	u8 res3[0x8bc];
+	u32 clken_pll_mpu;	/* 0x904 */
+	u8 res4[0x1c];
+	u32 idlest_pll_mpu;	/* 0x924 */
+	u8 res5[0x18];
+	u32 clksel1_pll_mpu;	/* 0x940 */
+	u32 clksel2_pll_mpu;	/* 0x944 */
+	u8 res6[0xb8];
+	u32 fclken1_core;	/* 0xa00 */
+	u8 res7[0xc];
+	u32 iclken1_core;	/* 0xa10 */
+	u32 iclken2_core;	/* 0xa14 */
+	u8 res8[0x28];
+	u32 clksel_core;	/* 0xa40 */
+	u8 res9[0xbc];
+	u32 fclken_gfx;		/* 0xb00 */
+	u8 res10[0xc];
+	u32 iclken_gfx;		/* 0xb10 */
+	u8 res11[0x2c];
+	u32 clksel_gfx;		/* 0xb40 */
+	u8 res12[0xbc];
+	u32 fclken_wkup;	/* 0xc00 */
+	u8 res13[0xc];
+	u32 iclken_wkup;	/* 0xc10 */
+	u8 res14[0xc];
+	u32 idlest_wkup;	/* 0xc20 */
+	u8 res15[0x1c];
+	u32 clksel_wkup;	/* 0xc40 */
+	u8 res16[0xbc];
+	u32 clken_pll;		/* 0xd00 */
+	u8 res17[0x1c];
+	u32 idlest_ckgen;	/* 0xd20 */
+	u8 res18[0x1c];
+	u32 clksel1_pll;	/* 0xd40 */
+	u32 clksel2_pll;	/* 0xd44 */
+	u32 clksel3_pll;	/* 0xd48 */
+	u8 res19[0xb4];
+	u32 fclken_dss;		/* 0xe00 */
+	u8 res20[0xc];
+	u32 iclken_dss;		/* 0xe10 */
+	u8 res21[0x2c];
+	u32 clksel_dss;		/* 0xe40 */
+	u8 res22[0xbc];
+	u32 fclken_cam;		/* 0xf00 */
+	u8 res23[0xc];
+	u32 iclken_cam;		/* 0xf10 */
+	u8 res24[0x2c];
+	u32 clksel_cam;		/* 0xf40 */
+	u8 res25[0xbc];
+	u32 fclken_per;		/* 0x1000 */
+	u8 res26[0xc];
+	u32 iclken_per;		/* 0x1010 */
+	u8 res27[0x2c];
+	u32 clksel_per;		/* 0x1040 */
+	u8 res28[0xfc];
+	u32 clksel1_emu;	/* 0x1140 */
 };
 #else /* __ASSEMBLY__ */
 #define CM_CLKSEL_CORE		0x48004a40
@@ -353,21 +372,24 @@ struct prcm {
 #define CM_CLKSEL1_PLL		0x48004d40
 #define CM_CLKSEL1_EMU		0x48005140
 #endif /* __ASSEMBLY__ */
+#endif /* __KERNEL_STRICT_NAMES */
 
 #define PRM_BASE		0x48306000
 
+#ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct prm {
-	unsigned char res1[0xd40];
-	unsigned int clksel;		/* 0xd40 */
-	unsigned char res2[0x50c];
-	unsigned int rstctrl;		/* 0x1250 */
-	unsigned char res3[0x1c];
-	unsigned int clksrc_ctrl;	/* 0x1270 */
+	u8 res1[0xd40];
+	u32 clksel;		/* 0xd40 */
+	u8 res2[0x50c];
+	u32 rstctrl;		/* 0x1250 */
+	u8 res3[0x1c];
+	u32 clksrc_ctrl;	/* 0x1270 */
 };
 #else /* __ASSEMBLY__ */
 #define PRM_RSTCTRL		0x48307250
 #endif /* __ASSEMBLY__ */
+#endif /* __KERNEL_STRICT_NAMES */
 
 #define SYSCLKDIV_1		(0x1 << 6)
 #define SYSCLKDIV_2		(0x1 << 7)
@@ -399,22 +421,24 @@ struct prm {
 #define PM_OCM_RAM_BASE_ADDR_ARM	(SMX_APE_BASE + 0x12800)
 #define PM_IVA2_BASE_ADDR_ARM		(SMX_APE_BASE + 0x14000)
 
+#ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct pm {
-	unsigned char res1[0x48];
-	unsigned int req_info_permission_0;	/* 0x48 */
-	unsigned char res2[0x4];
-	unsigned int read_permission_0;		/* 0x50 */
-	unsigned char res3[0x4];
-	unsigned int wirte_permission_0;	/* 0x58 */
-	unsigned char res4[0x4];
-	unsigned int addr_match_1;		/* 0x58 */
-	unsigned char res5[0x4];
-	unsigned int req_info_permission_1;	/* 0x68 */
-	unsigned char res6[0x14];
-	unsigned int addr_match_2;		/* 0x80 */
+	u8 res1[0x48];
+	u32 req_info_permission_0;	/* 0x48 */
+	u8 res2[0x4];
+	u32 read_permission_0;		/* 0x50 */
+	u8 res3[0x4];
+	u32 wirte_permission_0;		/* 0x58 */
+	u8 res4[0x4];
+	u32 addr_match_1;		/* 0x58 */
+	u8 res5[0x4];
+	u32 req_info_permission_1;	/* 0x68 */
+	u8 res6[0x14];
+	u32 addr_match_2;		/* 0x80 */
 };
 #endif /*__ASSEMBLY__ */
+#endif /* __KERNEL_STRICT_NAMES */
 
 /* Permission values for registers -Full fledged permissions to all */
 #define UNLOCK_1			0xFFFFFFFF
