@@ -37,7 +37,7 @@
 
 static ulong timestamp;
 static ulong lastinc;
-static gptimer_t *timer_base = (gptimer_t *)CONFIG_SYS_TIMERBASE;
+static struct gptimer *timer_base = (struct gptimer *)CONFIG_SYS_TIMERBASE;
 
 /*
  * Nothing really to do with interrupts, just starts up a counter.

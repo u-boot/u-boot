@@ -51,7 +51,7 @@ static u32 gpmc_m_nand[GPMC_MAX_REG] = {
 	M_NAND_GPMC_CONFIG6, 0
 };
 
-gpmc_t *gpmc_cfg_base;
+struct gpmc *gpmc_cfg;
 
 #if defined(CONFIG_ENV_IS_IN_NAND)
 #define GPMC_CS 0
@@ -79,7 +79,7 @@ static u32 gpmc_onenand[GPMC_MAX_REG] = {
 
 #endif
 
-static sdrc_t *sdrc_base = (sdrc_t *)OMAP34XX_SDRC_BASE;
+static struct sdrc *sdrc_base = (struct sdrc *)OMAP34XX_SDRC_BASE;
 
 /**************************************************************************
  * make_cs1_contiguous() - for es2 and above remap cs1 behind cs0 to allow
@@ -146,12 +146,12 @@ void sdrc_init(void)
 
 void do_sdrc_init(u32 cs, u32 early)
 {
-	sdrc_actim_t *sdrc_actim_base;
+	struct sdrc_actim *sdrc_actim_base;
 
 	if(cs)
-		sdrc_actim_base = (sdrc_actim_t *)SDRC_ACTIM_CTRL1_BASE;
+		sdrc_actim_base = (struct sdrc_actim *)SDRC_ACTIM_CTRL1_BASE;
 	else
-		sdrc_actim_base = (sdrc_actim_t *)SDRC_ACTIM_CTRL0_BASE;
+		sdrc_actim_base = (struct sdrc_actim *)SDRC_ACTIM_CTRL0_BASE;
 
 	if (early) {
 		/* reset sdrc controller */
@@ -219,7 +219,7 @@ void gpmc_init(void)
 {
 	/* putting a blanket check on GPMC based on ZeBu for now */
 	u32 *gpmc_config = NULL;
-	gpmc_t *gpmc_base = (gpmc_t *)GPMC_BASE;
+	struct gpmc *gpmc_base = (struct gpmc *)GPMC_BASE;
 	u32 base = 0;
 	u32 size = 0;
 	u32 f_off = CONFIG_SYS_MONITOR_LEN;
@@ -243,7 +243,7 @@ void gpmc_init(void)
 
 #if defined(CONFIG_CMD_NAND)	/* CS 0 */
 	gpmc_config = gpmc_m_nand;
-	gpmc_cfg_base = gpmc_base;
+	gpmc_cfg = gpmc_base;
 
 	base = PISMO1_NAND_BASE;
 	size = PISMO1_NAND_SIZE;

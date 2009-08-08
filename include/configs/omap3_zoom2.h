@@ -252,7 +252,7 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	(100 * CONFIG_SYS_HZ)
 
 #ifndef __ASSEMBLY__
-extern gpmc_t *gpmc_cfg_base;
+extern struct gpmc *gpmc_cfg;
 extern unsigned int boot_flash_base;
 extern volatile unsigned int boot_flash_env_addr;
 extern unsigned int boot_flash_off;

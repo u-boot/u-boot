@@ -123,7 +123,7 @@ void zoom2_identify(void)
 int board_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	gpmc_t *gpmc = (gpmc_t *)GPMC_BASE;
+	struct gpmc *gpmc = (struct gpmc *)GPMC_BASE;
 	u32 *gpmc_config;
 
 	gpmc_init ();		/* in SRAM or SDRAM, finish GPMC */

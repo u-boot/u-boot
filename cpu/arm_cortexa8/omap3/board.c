@@ -59,11 +59,11 @@ static inline void delay(unsigned long loops)
  *****************************************************************************/
 void secure_unlock_mem(void)
 {
-	pm_t *pm_rt_ape_base = (pm_t *)PM_RT_APE_BASE_ADDR_ARM;
-	pm_t *pm_gpmc_base = (pm_t *)PM_GPMC_BASE_ADDR_ARM;
-	pm_t *pm_ocm_ram_base = (pm_t *)PM_OCM_RAM_BASE_ADDR_ARM;
-	pm_t *pm_iva2_base = (pm_t *)PM_IVA2_BASE_ADDR_ARM;
-	sms_t *sms_base = (sms_t *)OMAP34XX_SMS_BASE;
+	struct pm *pm_rt_ape_base = (struct pm *)PM_RT_APE_BASE_ADDR_ARM;
+	struct pm *pm_gpmc_base = (struct pm *)PM_GPMC_BASE_ADDR_ARM;
+	struct pm *pm_ocm_ram_base = (struct pm *)PM_OCM_RAM_BASE_ADDR_ARM;
+	struct pm *pm_iva2_base = (struct pm *)PM_IVA2_BASE_ADDR_ARM;
+	struct sms *sms_base = (struct sms *)OMAP34XX_SMS_BASE;
 
 	/* Protection Module Register Target APE (PM_RT) */
 	writel(UNLOCK_1, &pm_rt_ape_base->req_info_permission_1);
@@ -234,7 +234,7 @@ void s_init(void)
  * Routine: wait_for_command_complete
  * Description: Wait for posting to finish on watchdog
  *****************************************************************************/
-void wait_for_command_complete(watchdog_t *wd_base)
+void wait_for_command_complete(struct watchdog *wd_base)
 {
 	int pending = 1;
 	do {
@@ -248,8 +248,8 @@ void wait_for_command_complete(watchdog_t *wd_base)
  *****************************************************************************/
 void watchdog_init(void)
 {
-	watchdog_t *wd2_base = (watchdog_t *)WD2_BASE;
-	prcm_t *prcm_base = (prcm_t *)PRCM_BASE;
+	struct watchdog *wd2_base = (struct watchdog *)WD2_BASE;
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
 
 	/*
 	 * There are 3 watch dogs WD1=Secure, WD2=MPU, WD3=IVA. WD1 is

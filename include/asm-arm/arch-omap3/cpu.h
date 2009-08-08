@@ -28,7 +28,7 @@
 /* Register offsets of common modules */
 /* Control */
 #ifndef __ASSEMBLY__
-typedef struct ctrl {
+struct ctrl {
 	unsigned char res1[0xC0];
 	unsigned short gpmc_nadv_ale;	/* 0xC0 */
 	unsigned short gpmc_noe;	/* 0xC2 */
@@ -49,7 +49,7 @@ typedef struct ctrl {
 	unsigned int randkey_3;		/* 0x324 */
 	unsigned char res5[0x124];
 	unsigned int ctrl_omap_stat;	/* 0x44C */
-} ctrl_t;
+};
 #else /* __ASSEMBLY__ */
 #define CONTROL_STATUS		0x2F0
 #endif /* __ASSEMBLY__ */
@@ -61,7 +61,7 @@ typedef struct ctrl {
 #define OMAP3530		0x0c00
 
 #ifndef __ASSEMBLY__
-typedef struct ctrl_id {
+struct ctrl_id {
 	unsigned char res1[0x4];
 	unsigned int idcode;		/* 0x04 */
 	unsigned int prod_id;		/* 0x08 */
@@ -70,7 +70,7 @@ typedef struct ctrl_id {
 	unsigned int die_id_1;		/* 0x1C */
 	unsigned int die_id_2;		/* 0x20 */
 	unsigned int die_id_3;		/* 0x24 */
-} ctrl_id_t;
+};
 #endif /* __ASSEMBLY__ */
 
 /* device type */
@@ -99,7 +99,7 @@ struct gpmc_cs {
 	unsigned char res[8];		/* blow up to 0x30 byte */
 };
 
-typedef struct gpmc {
+struct gpmc {
 	unsigned char res1[0x10];
 	unsigned int sysconfig;		/* 0x10 */
 	unsigned char res2[0x4];
@@ -125,7 +125,7 @@ typedef struct gpmc {
 	unsigned int ecc7_result;	/* 0x218 */
 	unsigned int ecc8_result;	/* 0x21C */
 	unsigned int ecc9_result;	/* 0x220 */
-} gpmc_t;
+};
 #else /* __ASSEMBLY__ */
 #define GPMC_CONFIG1		0x00
 #define GPMC_CONFIG2		0x04
@@ -151,21 +151,21 @@ typedef struct gpmc {
 						/* (actual size small port) */
 /* SMS */
 #ifndef __ASSEMBLY__
-typedef struct sms {
+struct sms {
 	unsigned char res1[0x10];
 	unsigned int sysconfig;		/* 0x10 */
 	unsigned char res2[0x34];
 	unsigned int rg_att0;		/* 0x48 */
 	unsigned char res3[0x84];
 	unsigned int class_arb0;	/* 0xD0 */
-} sms_t;
+};
 #endif /* __ASSEMBLY__ */
 
 #define BURSTCOMPLETE_GROUP7	(0x1 << 31)
 
 /* SDRC */
 #ifndef __ASSEMBLY__
-typedef struct sdrc_cs {
+struct sdrc_cs {
 	unsigned int mcfg;		/* 0x80 || 0xB0 */
 	unsigned int mr;		/* 0x84 || 0xB4 */
 	unsigned char res1[0x4];
@@ -174,14 +174,14 @@ typedef struct sdrc_cs {
 	unsigned int rfr_ctrl;		/* 0x84 || 0xD4 */
 	unsigned int manual;		/* 0xA8 || 0xD8 */
 	unsigned char res3[0x4];
-} sdrc_cs_t;
+};
 
-typedef struct sdrc_actim {
+struct sdrc_actim {
 	unsigned int ctrla;		/* 0x9C || 0xC4 */
 	unsigned int ctrlb;		/* 0xA0 || 0xC8 */
-} sdrc_actim_t;
+};
 
-typedef struct sdrc {
+struct sdrc {
 	unsigned char res1[0x10];
 	unsigned int sysconfig;		/* 0x10 */
 	unsigned int status;		/* 0x14 */
@@ -195,8 +195,8 @@ typedef struct sdrc {
 	unsigned int dllb_status;	/* 0x6C */
 	unsigned int power;		/* 0x70 */
 	unsigned char res4[0xC];
-	sdrc_cs_t cs[2];		/* 0x80 || 0xB0 */
-} sdrc_t;
+	struct sdrc_cs cs[2];		/* 0x80 || 0xB0 */
+};
 #endif /* __ASSEMBLY__ */
 
 #define DLLPHASE_90		(0x1 << 1)
@@ -240,7 +240,7 @@ typedef struct sdrc {
 /* timer regs offsets (32 bit regs) */
 
 #ifndef __ASSEMBLY__
-typedef struct gptimer {
+struct gptimer {
 	unsigned int tidr;	/* 0x00 r */
 	unsigned char res[0xc];
 	unsigned int tiocp_cfg;	/* 0x10 rw */
@@ -257,7 +257,7 @@ typedef struct gptimer {
 	unsigned int tcar1;	/* 0x3c r */
 	unsigned int tcicr;	/* 0x40 rw */
 	unsigned int tcar2;	/* 0x44 r */
-} gptimer_t;
+};
 #endif /* __ASSEMBLY__ */
 
 /* enable sys_clk NO-prescale /1 */
@@ -265,12 +265,12 @@ typedef struct gptimer {
 
 /* Watchdog */
 #ifndef __ASSEMBLY__
-typedef struct watchdog {
+struct watchdog {
 	unsigned char res1[0x34];
 	unsigned int wwps;	/* 0x34 r */
 	unsigned char res2[0x10];
 	unsigned int wspr;	/* 0x48 rw */
-} watchdog_t;
+};
 #endif /* __ASSEMBLY__ */
 
 #define WD_UNLOCK1		0xAAAA
@@ -280,7 +280,7 @@ typedef struct watchdog {
 #define PRCM_BASE		0x48004000
 
 #ifndef __ASSEMBLY__
-typedef struct prcm {
+struct prcm {
 	unsigned int fclken_iva2;	/* 0x00 */
 	unsigned int clken_pll_iva2;	/* 0x04 */
 	unsigned char res1[0x1c];
@@ -344,7 +344,7 @@ typedef struct prcm {
 	unsigned int clksel_per;	/* 0x1040 */
 	unsigned char res28[0xfc];
 	unsigned int clksel1_emu;	/* 0x1140 */
-} prcm_t;
+};
 #else /* __ASSEMBLY__ */
 #define CM_CLKSEL_CORE		0x48004a40
 #define CM_CLKSEL_GFX		0x48004b40
@@ -357,14 +357,14 @@ typedef struct prcm {
 #define PRM_BASE		0x48306000
 
 #ifndef __ASSEMBLY__
-typedef struct prm {
+struct prm {
 	unsigned char res1[0xd40];
 	unsigned int clksel;		/* 0xd40 */
 	unsigned char res2[0x50c];
 	unsigned int rstctrl;		/* 0x1250 */
 	unsigned char res3[0x1c];
 	unsigned int clksrc_ctrl;	/* 0x1270 */
-} prm_t;
+};
 #else /* __ASSEMBLY__ */
 #define PRM_RSTCTRL		0x48307250
 #endif /* __ASSEMBLY__ */
@@ -400,7 +400,7 @@ typedef struct prm {
 #define PM_IVA2_BASE_ADDR_ARM		(SMX_APE_BASE + 0x14000)
 
 #ifndef __ASSEMBLY__
-typedef struct pm {
+struct pm {
 	unsigned char res1[0x48];
 	unsigned int req_info_permission_0;	/* 0x48 */
 	unsigned char res2[0x4];
@@ -413,7 +413,7 @@ typedef struct pm {
 	unsigned int req_info_permission_1;	/* 0x68 */
 	unsigned char res6[0x14];
 	unsigned int addr_match_2;		/* 0x80 */
-} pm_t;
+};
 #endif /*__ASSEMBLY__ */
 
 /* Permission values for registers -Full fledged permissions to all */

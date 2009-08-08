@@ -79,10 +79,10 @@
 
 #ifndef __ASSEMBLY__
 
-typedef struct s32ktimer {
+struct s32ktimer {
 	unsigned char res[0x10];
 	unsigned int s32k_cr;		/* 0x10 */
-} s32ktimer_t;
+};
 
 #endif /* __ASSEMBLY__ */
 
@@ -95,14 +95,14 @@ typedef struct s32ktimer {
 #define OMAP34XX_GPIO6_BASE		0x49058000
 
 #ifndef __ASSEMBLY__
-typedef struct gpio {
+struct gpio {
 	unsigned char res1[0x34];
 	unsigned int oe;		/* 0x34 */
 	unsigned int datain;		/* 0x38 */
 	unsigned char res2[0x54];
 	unsigned int cleardataout;	/* 0x90 */
 	unsigned int setdataout;	/* 0x94 */
-} gpio_t;
+};
 #endif /* __ASSEMBLY__ */
 
 #define GPIO0				(0x1 << 0)

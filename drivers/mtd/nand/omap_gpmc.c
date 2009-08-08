@@ -30,7 +30,7 @@
 #include <nand.h>
 
 static uint8_t cs;
-static gpmc_t *gpmc_base = (gpmc_t *)GPMC_BASE;
+static struct gpmc *gpmc_base = (struct gpmc *)GPMC_BASE;
 static struct nand_ecclayout hw_nand_oob = GPMC_NAND_HW_ECC_LAYOUT;
 
 /*

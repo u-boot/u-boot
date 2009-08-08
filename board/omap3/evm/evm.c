@@ -92,9 +92,9 @@ void set_muxconf_regs(void)
  */
 static void setup_net_chip(void)
 {
-	gpio_t *gpio3_base = (gpio_t *)OMAP34XX_GPIO3_BASE;
-	gpmc_t *gpmc = (gpmc_t *)GPMC_BASE;
-	ctrl_t *ctrl_base = (ctrl_t *)OMAP34XX_CTRL_BASE;
+	struct gpio *gpio3_base = (struct gpio *)OMAP34XX_GPIO3_BASE;
+	struct gpmc *gpmc = (struct gpmc *)GPMC_BASE;
+	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
 
 	/* Configure GPMC registers */
 	writel(NET_GPMC_CONFIG1, &gpmc->cs[5].config1);

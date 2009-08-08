@@ -41,10 +41,10 @@
 u32 get_osc_clk_speed(void)
 {
 	u32 start, cstart, cend, cdiff, val;
-	prcm_t *prcm_base = (prcm_t *)PRCM_BASE;
-	prm_t *prm_base = (prm_t *)PRM_BASE;
-	gptimer_t *gpt1_base = (gptimer_t *)OMAP34XX_GPT1;
-	s32ktimer_t *s32k_base = (s32ktimer_t *)SYNC_32KTIMER_BASE;
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+	struct prm *prm_base = (struct prm *)PRM_BASE;
+	struct gptimer *gpt1_base = (struct gptimer *)OMAP34XX_GPT1;
+	struct s32ktimer *s32k_base = (struct s32ktimer *)SYNC_32KTIMER_BASE;
 
 	val = readl(&prm_base->clksrc_ctrl);
 
@@ -133,8 +133,8 @@ void prcm_init(void)
 	int xip_safe, p0, p1, p2, p3;
 	u32 osc_clk = 0, sys_clkin_sel;
 	u32 clk_index, sil_index = 0;
-	prm_t *prm_base = (prm_t *)PRM_BASE;
-	prcm_t *prcm_base = (prcm_t *)PRCM_BASE;
+	struct prm *prm_base = (struct prm *)PRM_BASE;
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
 	dpll_param *dpll_param_p;
 
 	f_lock_pll = (void *) ((u32) &_end_vect - (u32) &_start +
@@ -341,7 +341,7 @@ void prcm_init(void)
  *****************************************************************************/
 void per_clocks_enable(void)
 {
-	prcm_t *prcm_base = (prcm_t *)PRCM_BASE;
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
 
 	/* Enable GP2 timer. */
 	sr32(&prcm_base->clksel_per, 0, 1, 0x1);	/* GPT2 = sys clk */

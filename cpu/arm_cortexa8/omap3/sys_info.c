@@ -32,9 +32,9 @@
 #include <i2c.h>
 
 extern omap3_sysinfo sysinfo;
-static gpmc_t *gpmc_base = (gpmc_t *)GPMC_BASE;
-static sdrc_t *sdrc_base = (sdrc_t *)OMAP34XX_SDRC_BASE;
-static ctrl_t *ctrl_base = (ctrl_t *)OMAP34XX_CTRL_BASE;
+static struct gpmc *gpmc_base = (struct gpmc *)GPMC_BASE;
+static struct sdrc *sdrc_base = (struct sdrc *)OMAP34XX_SDRC_BASE;
+static struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
 static char *rev_s[CPU_3XX_MAX_REV] = {
 				"1.0",
 				"2.0",
@@ -47,7 +47,7 @@ static char *rev_s[CPU_3XX_MAX_REV] = {
  *****************************************************************/
 void dieid_num_r(void)
 {
-	ctrl_id_t *id_base = (ctrl_id_t *)OMAP34XX_ID_L4_IO_BASE;
+	struct ctrl_id *id_base = (struct ctrl_id *)OMAP34XX_ID_L4_IO_BASE;
 	char *uid_s, die_id[34];
 	u32 id[4];
 
@@ -82,7 +82,7 @@ u32 get_cpu_type(void)
 u32 get_cpu_rev(void)
 {
 	u32 cpuid = 0;
-	ctrl_id_t *id_base;
+	struct ctrl_id *id_base;
 
 	/*
 	 * On ES1.0 the IDCODE register is not exposed on L4
@@ -93,7 +93,7 @@ u32 get_cpu_rev(void)
 		return CPU_3XX_ES10;
 	else {
 		/* Decode the IDs on > ES1.0 */
-		id_base = (ctrl_id_t *) OMAP34XX_ID_L4_IO_BASE;
+		id_base = (struct ctrl_id *) OMAP34XX_ID_L4_IO_BASE;
 
 		cpuid = (readl(&id_base->idcode) >> CPU_3XX_ID_SHIFT) & 0xf;
 

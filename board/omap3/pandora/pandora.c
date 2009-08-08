@@ -60,10 +60,10 @@ int board_init(void)
  */
 int misc_init_r(void)
 {
-	gpio_t *gpio1_base = (gpio_t *)OMAP34XX_GPIO1_BASE;
-	gpio_t *gpio4_base = (gpio_t *)OMAP34XX_GPIO4_BASE;
-	gpio_t *gpio5_base = (gpio_t *)OMAP34XX_GPIO5_BASE;
-	gpio_t *gpio6_base = (gpio_t *)OMAP34XX_GPIO6_BASE;
+	struct gpio *gpio1_base = (struct gpio *)OMAP34XX_GPIO1_BASE;
+	struct gpio *gpio4_base = (struct gpio *)OMAP34XX_GPIO4_BASE;
+	struct gpio *gpio5_base = (struct gpio *)OMAP34XX_GPIO5_BASE;
+	struct gpio *gpio6_base = (struct gpio *)OMAP34XX_GPIO6_BASE;
 
 	twl4030_power_init();
 	twl4030_led_init();

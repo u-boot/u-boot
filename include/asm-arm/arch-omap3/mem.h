@@ -29,12 +29,12 @@
 #define CS1		0x1 /* mirror CS1 regs appear offset 0x30 from CS0 */
 
 #ifndef __ASSEMBLY__
-typedef enum {
+enum {
 	STACKED = 0,
 	IP_DDR = 1,
 	COMBO_DDR = 2,
 	IP_SDR = 3,
-} mem_t;
+};
 #endif /* __ASSEMBLY__ */
 
 #define EARLY_INIT	1
