@@ -23,7 +23,7 @@ SntpSend (void)
 	int pktlen = SNTP_PACKET_LEN;
 	int sport;
 
-	debug ("%s\n", __FUNCTION__);
+	debug("%s\n", __func__);
 
 	memset (&pkt, 0, sizeof(pkt));
 
@@ -54,7 +54,7 @@ SntpHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 	struct rtc_time tm;
 	ulong seconds;
 
-	debug ("%s\n", __FUNCTION__);
+	debug("%s\n", __func__);
 
 	if (dest != SntpOurPort) return;
 
@@ -78,7 +78,7 @@ SntpHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
 void
 SntpStart (void)
 {
-	debug ("%s\n", __FUNCTION__);
+	debug("%s\n", __func__);
 
 	NetSetTimeout (SNTP_TIMEOUT, SntpTimeout);
 	NetSetHandler(SntpHandler);

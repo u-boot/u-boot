@@ -53,6 +53,13 @@ int eth_setenv_enetaddr(char *name, const uchar *enetaddr)
 
 	return setenv(name, buf);
 }
+
+int eth_getenv_enetaddr_by_index(int index, uchar *enetaddr)
+{
+	char enetvar[32];
+	sprintf(enetvar, index ? "eth%daddr" : "ethaddr", index);
+	return eth_getenv_enetaddr(enetvar, enetaddr);
+}
 #endif
 
 #if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
@@ -180,7 +187,6 @@ int eth_register(struct eth_device* dev)
 
 int eth_initialize(bd_t *bis)
 {
-	char enetvar[32];
 	unsigned char env_enetaddr[6];
 	int eth_number = 0;
 
@@ -221,8 +227,7 @@ int eth_initialize(bd_t *bis)
 				puts (" [PRIME]");
 			}
 
-			sprintf(enetvar, eth_number ? "eth%daddr" : "ethaddr", eth_number);
-			eth_getenv_enetaddr(enetvar, env_enetaddr);
+			eth_getenv_enetaddr_by_index(eth_number, env_enetaddr);
 
 			if (memcmp(env_enetaddr, "\0\0\0\0\0\0", 6)) {
 				if (memcmp(dev->enetaddr, "\0\0\0\0\0\0", 6) &&
@@ -259,31 +264,6 @@ int eth_initialize(bd_t *bis)
 	return eth_number;
 }
 
-void eth_set_enetaddr(int num, char *addr) {
-	struct eth_device *dev;
-	unsigned char enetaddr[6];
-
-	debug ("eth_set_enetaddr(num=%d, addr=%s)\n", num, addr);
-
-	if (!eth_devices)
-		return;
-
-	eth_parse_enetaddr(addr, enetaddr);
-
-	dev = eth_devices;
-	while(num-- > 0) {
-		dev = dev->next;
-
-		if (dev == eth_devices)
-			return;
-	}
-
-	debug ( "Setting new HW address on %s\n"
-		"New Address is             %pM\n",
-		dev->name, enetaddr);
-
-	memcpy(dev->enetaddr, enetaddr, 6);
-}
 #ifdef CONFIG_MCAST_TFTP
 /* Multicast.
  * mcast_addr: multicast ipaddr from which multicast Mac is made
@@ -332,23 +312,37 @@ u32 ether_crc (size_t len, unsigned char const *p)
 
 int eth_init(bd_t *bis)
 {
-	struct eth_device* old_current;
+	int eth_number;
+	struct eth_device *old_current, *dev;
 
 	if (!eth_current) {
 		puts ("No ethernet found.\n");
 		return -1;
 	}
 
+	/* Sync environment with network devices */
+	eth_number = 0;
+	dev = eth_devices;
+	do {
+		uchar env_enetaddr[6];
+
+		if (eth_getenv_enetaddr_by_index(eth_number, env_enetaddr))
+			memcpy(dev->enetaddr, env_enetaddr, 6);
+
+		++eth_number;
+		dev = dev->next;
+	} while (dev != eth_devices);
+
 	old_current = eth_current;
 	do {
-		debug ("Trying %s\n", eth_current->name);
+		debug("Trying %s\n", eth_current->name);
 
 		if (eth_current->init(eth_current,bis) >= 0) {
 			eth_current->state = ETH_STATE_ACTIVE;
 
 			return 0;
 		}
-		debug  ("FAIL\n");
+		debug("FAIL\n");
 
 		eth_try_another(0);
 	} while (old_current != eth_current);
