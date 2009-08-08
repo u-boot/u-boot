@@ -30,7 +30,6 @@
 #include <nand.h>
 
 static uint8_t cs;
-static struct gpmc *gpmc_base = (struct gpmc *)GPMC_BASE;
 static struct nand_ecclayout hw_nand_oob = GPMC_NAND_HW_ECC_LAYOUT;
 
 /*
@@ -48,13 +47,13 @@ static void omap_nand_hwcontrol(struct mtd_info *mtd, int32_t cmd,
 	 */
 	switch (ctrl) {
 	case NAND_CTRL_CHANGE | NAND_CTRL_CLE:
-		this->IO_ADDR_W = (void __iomem *)&gpmc_base->cs[cs].nand_cmd;
+		this->IO_ADDR_W = (void __iomem *)&gpmc_cfg->cs[cs].nand_cmd;
 		break;
 	case NAND_CTRL_CHANGE | NAND_CTRL_ALE:
-		this->IO_ADDR_W = (void __iomem *)&gpmc_base->cs[cs].nand_adr;
+		this->IO_ADDR_W = (void __iomem *)&gpmc_cfg->cs[cs].nand_adr;
 		break;
 	case NAND_CTRL_CHANGE | NAND_NCE:
-		this->IO_ADDR_W = (void __iomem *)&gpmc_base->cs[cs].nand_dat;
+		this->IO_ADDR_W = (void __iomem *)&gpmc_cfg->cs[cs].nand_dat;
 		break;
 	}
 
@@ -74,8 +73,8 @@ static void omap_hwecc_init(struct nand_chip *chip)
 	 * Init ECC Control Register
 	 * Clear all ECC | Enable Reg1
 	 */
-	writel(ECCCLEAR | ECCRESULTREG1, &gpmc_base->ecc_control);
-	writel(ECCSIZE1 | ECCSIZE0 | ECCSIZE0SEL, &gpmc_base->ecc_size_config);
+	writel(ECCCLEAR | ECCRESULTREG1, &gpmc_cfg->ecc_control);
+	writel(ECCSIZE1 | ECCSIZE0 | ECCSIZE0SEL, &gpmc_cfg->ecc_size_config);
 }
 
 /*
@@ -178,7 +177,7 @@ static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
 	u_int32_t val;
 
 	/* Start Reading from HW ECC1_Result = 0x200 */
-	val = readl(&gpmc_base->ecc1_result);
+	val = readl(&gpmc_cfg->ecc1_result);
 
 	ecc_code[0] = val & 0xFF;
 	ecc_code[1] = (val >> 16) & 0xFF;
@@ -188,7 +187,7 @@ static int omap_calculate_ecc(struct mtd_info *mtd, const uint8_t *dat,
 	 * Stop reading anymore ECC vals and clear old results
 	 * enable will be called if more reads are required
 	 */
-	writel(0x000, &gpmc_base->ecc_config);
+	writel(0x000, &gpmc_cfg->ecc_config);
 
 	return 0;
 }
@@ -207,7 +206,7 @@ static void omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
 	case NAND_ECC_READ:
 	case NAND_ECC_WRITE:
 		/* Clear the ecc result registers, select ecc reg as 1 */
-		writel(ECCCLEAR | ECCRESULTREG1, &gpmc_base->ecc_control);
+		writel(ECCCLEAR | ECCRESULTREG1, &gpmc_cfg->ecc_control);
 
 		/*
 		 * Size 0 = 0xFF, Size1 is 0xFF - both are 512 bytes
@@ -215,9 +214,9 @@ static void omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
 		 * we just have a single ECC engine for all CS
 		 */
 		writel(ECCSIZE1 | ECCSIZE0 | ECCSIZE0SEL,
-			&gpmc_base->ecc_size_config);
+			&gpmc_cfg->ecc_size_config);
 		val = (dev_width << 7) | (cs << 1) | (0x1);
-		writel(val, &gpmc_base->ecc_config);
+		writel(val, &gpmc_cfg->ecc_config);
 		break;
 	default:
 		printf("Error: Unrecognized Mode[%d]!\n", mode);
@@ -311,7 +310,7 @@ int board_nand_init(struct nand_chip *nand)
 	 */
 	while (cs < GPMC_MAX_CS) {
 		/* Check if NAND type is set */
-		if ((readl(&gpmc_base->cs[cs].config1) & 0xC00) == 0x800) {
+		if ((readl(&gpmc_cfg->cs[cs].config1) & 0xC00) == 0x800) {
 			/* Found it!! */
 			break;
 		}
@@ -323,18 +322,18 @@ int board_nand_init(struct nand_chip *nand)
 		return -ENODEV;
 	}
 
-	gpmc_config = readl(&gpmc_base->config);
+	gpmc_config = readl(&gpmc_cfg->config);
 	/* Disable Write protect */
 	gpmc_config |= 0x10;
-	writel(gpmc_config, &gpmc_base->config);
+	writel(gpmc_config, &gpmc_cfg->config);
 
-	nand->IO_ADDR_R = (void __iomem *)&gpmc_base->cs[cs].nand_dat;
-	nand->IO_ADDR_W = (void __iomem *)&gpmc_base->cs[cs].nand_cmd;
+	nand->IO_ADDR_R = (void __iomem *)&gpmc_cfg->cs[cs].nand_dat;
+	nand->IO_ADDR_W = (void __iomem *)&gpmc_cfg->cs[cs].nand_cmd;
 
 	nand->cmd_ctrl = omap_nand_hwcontrol;
 	nand->options = NAND_NO_PADDING | NAND_CACHEPRG | NAND_NO_AUTOINCR;
 	/* If we are 16 bit dev, our gpmc config tells us that */
-	if ((readl(&gpmc_base->cs[cs].config1) & 0x3000) == 0x1000)
+	if ((readl(&gpmc_cfg->cs[cs].config1) & 0x3000) == 0x1000)
 		nand->options |= NAND_BUSWIDTH_16;
 
 	nand->chip_delay = 100;

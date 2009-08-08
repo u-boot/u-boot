@@ -123,14 +123,13 @@ void zoom2_identify(void)
 int board_init (void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
-	struct gpmc *gpmc = (struct gpmc *)GPMC_BASE;
 	u32 *gpmc_config;
 
 	gpmc_init ();		/* in SRAM or SDRAM, finish GPMC */
 
 	/* Configure console support on zoom2 */
 	gpmc_config = gpmc_serial_TL16CP754C;
-	enable_gpmc_cs_config(gpmc_config, &gpmc->cs[4],
+	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[4],
 			SERIAL_TL16CP754C_BASE, GPMC_SIZE_16M);
 
 	/* board id for Linux */

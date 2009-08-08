@@ -41,6 +41,8 @@ unsigned int boot_flash_sec;
 unsigned int boot_flash_type;
 volatile unsigned int boot_flash_env_addr;
 
+struct gpmc *gpmc_cfg;
+
 #if defined(CONFIG_CMD_NAND)
 static u32 gpmc_m_nand[GPMC_MAX_REG] = {
 	M_NAND_GPMC_CONFIG1,
@@ -50,8 +52,6 @@ static u32 gpmc_m_nand[GPMC_MAX_REG] = {
 	M_NAND_GPMC_CONFIG5,
 	M_NAND_GPMC_CONFIG6, 0
 };
-
-struct gpmc *gpmc_cfg;
 
 #if defined(CONFIG_ENV_IS_IN_NAND)
 #define GPMC_CS 0
@@ -219,7 +219,7 @@ void gpmc_init(void)
 {
 	/* putting a blanket check on GPMC based on ZeBu for now */
 	u32 *gpmc_config = NULL;
-	struct gpmc *gpmc_base = (struct gpmc *)GPMC_BASE;
+	gpmc_cfg = (struct gpmc *)GPMC_BASE;
 	u32 base = 0;
 	u32 size = 0;
 	u32 f_off = CONFIG_SYS_MONITOR_LEN;
@@ -227,27 +227,26 @@ void gpmc_init(void)
 	u32 config = 0;
 
 	/* global settings */
-	writel(0, &gpmc_base->irqenable); /* isr's sources masked */
-	writel(0, &gpmc_base->timeout_control);/* timeout disable */
+	writel(0, &gpmc_cfg->irqenable); /* isr's sources masked */
+	writel(0, &gpmc_cfg->timeout_control);/* timeout disable */
 
-	config = readl(&gpmc_base->config);
+	config = readl(&gpmc_cfg->config);
 	config &= (~0xf00);
-	writel(config, &gpmc_base->config);
+	writel(config, &gpmc_cfg->config);
 
 	/*
 	 * Disable the GPMC0 config set by ROM code
 	 * It conflicts with our MPDB (both at 0x08000000)
 	 */
-	writel(0, &gpmc_base->cs[0].config7);
+	writel(0, &gpmc_cfg->cs[0].config7);
 	sdelay(1000);
 
 #if defined(CONFIG_CMD_NAND)	/* CS 0 */
 	gpmc_config = gpmc_m_nand;
-	gpmc_cfg = gpmc_base;
 
 	base = PISMO1_NAND_BASE;
 	size = PISMO1_NAND_SIZE;
-	enable_gpmc_cs_config(gpmc_config, &gpmc_base->cs[0], base, size);
+	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[0], base, size);
 #if defined(CONFIG_ENV_IS_IN_NAND)
 	f_off = SMNAND_ENV_OFFSET;
 	f_sec = SZ_128K;
@@ -263,7 +262,7 @@ void gpmc_init(void)
 	gpmc_config = gpmc_onenand;
 	base = PISMO1_ONEN_BASE;
 	size = PISMO1_ONEN_SIZE;
-	enable_gpmc_cs_config(gpmc_config, &gpmc_base->cs[0], base, size);
+	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[0], base, size);
 #if defined(CONFIG_ENV_IS_IN_ONENAND)
 	f_off = ONENAND_ENV_OFFSET;
 	f_sec = SZ_128K;
