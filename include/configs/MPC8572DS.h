@@ -585,7 +585,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
-#define CONFIG_CMD_BEDBUG
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_SCSI
 #define CONFIG_CMD_EXT2
