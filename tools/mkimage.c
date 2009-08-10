@@ -27,7 +27,7 @@
 extern	unsigned long	crc32 (unsigned long crc, const char *buf, unsigned int len);
 static	void		copy_file (int, const char *, int);
 static	void		usage (void);
-static	void		image_verify_header (char *, int);
+static	int		image_verify_header (char *, int);
 static	void		fit_handle_file (void);
 
 char	*datafile;
@@ -59,6 +59,7 @@ main (int argc, char **argv)
 	struct stat sbuf;
 	unsigned char *ptr;
 	char *name = "";
+	int retval;
 
 	cmdname = *argv;
 
@@ -218,24 +219,24 @@ NXTARG:		;
 			exit (EXIT_FAILURE);
 		}
 
-		if (fdt_check_header (ptr)) {
-			/* old-style image */
-			image_verify_header ((char *)ptr, sbuf.st_size);
-			image_print_contents ((image_header_t *)ptr);
-		} else {
+		if (!(retval = fdt_check_header (ptr))) {
 			/* FIT image */
 			fit_print_contents (ptr);
+		} else if (!(retval = image_verify_header ((char *)ptr,
+							   sbuf.st_size))) {
+			/* old-style image */
+			image_print_contents ((image_header_t *)ptr);
 		}
 
 		(void) munmap((void *)ptr, sbuf.st_size);
 		(void) close (ifd);
 
-		exit (EXIT_SUCCESS);
+		exit (retval);
 	} else if (fflag) {
 		/* Flattened Image Tree (FIT) format  handling */
 		debug ("FIT format handling\n");
 		fit_handle_file ();
-		exit (EXIT_SUCCESS);
+		exit (retval);
 	}
 
 	/*
@@ -479,7 +480,7 @@ usage ()
 	exit (EXIT_FAILURE);
 }
 
-static void
+static int
 image_verify_header (char *ptr, int image_size)
 {
 	int len;
@@ -499,7 +500,7 @@ image_verify_header (char *ptr, int image_size)
 		fprintf (stderr,
 			"%s: Bad Magic Number: \"%s\" is no valid image\n",
 			cmdname, imagefile);
-		exit (EXIT_FAILURE);
+		return -FDT_ERR_BADMAGIC;
 	}
 
 	data = (char *)hdr;
@@ -512,7 +513,7 @@ image_verify_header (char *ptr, int image_size)
 		fprintf (stderr,
 			"%s: ERROR: \"%s\" has bad header checksum!\n",
 			cmdname, imagefile);
-		exit (EXIT_FAILURE);
+		return -FDT_ERR_BADSTATE;
 	}
 
 	data = ptr + sizeof(image_header_t);
@@ -522,8 +523,9 @@ image_verify_header (char *ptr, int image_size)
 		fprintf (stderr,
 			"%s: ERROR: \"%s\" has corrupted data!\n",
 			cmdname, imagefile);
-		exit (EXIT_FAILURE);
+		return -FDT_ERR_BADSTRUCTURE;
 	}
+	return 0;
 }
 
 /**
