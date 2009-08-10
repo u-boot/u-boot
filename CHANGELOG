@@ -1,3 +1,927 @@
+commit 53cc18c71b2b920cca171874c6663e274fa80556
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 10 10:38:34 2009 +0200
+
+    Minor coding style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d371708a1beda0f529756e614af785b30461379e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 10 09:59:10 2009 +0200
+
+    net/tftp.c: fix warning: pointer targets differ in signedness
+
+    tftp.c:294: warning: pointer targets in passing argument 1 of 'strlen'
+    differ in signedness
+
+    This was only visible for the utx8245 board which seems to have DEBUG
+    enabled.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 3ed9e943fdfe51174b23989d48563b8c1b7d2ea8
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sat Aug 8 16:06:47 2009 +0200
+
+    ARM Cortex A8: Remove bogus config.mk entries
+
+    Remove bogus config.mk entry, fix newline and remove redundant
+    omap3/config.mk
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit cd3dcba1422d3441503251fbc69cf2437c440781
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sat Aug 8 12:46:09 2009 +0200
+
+    OMAP3: Fix missing GPMC_CONFIG_CS0_BASE
+
+    Applying two indepenent OMAP3 patches resulted in missing
+    GPMC_CONFIG_CS0_BASE. Patch "omap3: embedd gpmc_cs into gpmc
+    config struct" removes GPMC_CONFIG_CS0_BASE, independent patch
+    "omap3: bug fix for NOR boot support" introduces it's usage.
+    Re-introduce GPMC_CONFIG_CS0_BASE.
+
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit ba3dbaf281130029ecb970a922551902c1d80b50
+Author: Ilya Yanok <yanok@emcraft.com>
+Date:	Mon Jun 8 04:12:49 2009 +0400
+
+    mxc-mmc: sdhc host driver for MX2 and MX3 proccessor
+
+    This is a port of Linux driver for SDHC host controller hardware
+    found on Freescale's MX2 and MX3 processors. Uses new generic MMC
+    framework (CONFIG_GENERIC_MMC) and it looks like there are some
+    problems with a framework (at least on LE cpus). Some of these
+    problems are addressed in the following patches.
+
+    Signed-off-by: Ilya Yanok <yanok@emcraft.com>
+
+commit 642d7b63c343633dcafc4e23a20e32604a05ff13
+Author: Alessandro Rubini <rubini-list@gnudd.com>
+Date:	Fri Aug 7 12:35:47 2009 +0200
+
+    kirkwood/gpio.h: remove duplicate definition
+
+    Signed-off-by: Alessandro Rubini <rubini@gnudd.com>
+
+commit 3ac374c0f0b7d856f1a43317a286f2079106bd6a
+Author: Albin Tonnerre <albin.tonnerre@free-electrons.com>
+Date:	Fri Aug 7 12:37:36 2009 +0200
+
+    Add driver for the ST M95xxx SPI EEPROM
+
+    This chip is used in a number of boards manufactured by Calao-Systems
+    which should be supported soon. This driver provides the necessary
+    spi_read and spi_write functions necessary to communicate with the chip.
+
+    Signed-off-by: Albin Tonnerre <albin.tonnerre@free-electrons.com>
+
+commit 30951960bae9a2c33e324a7165962a082e913f9e
+Author: Prafulla Wadaskar <prafulla@marvell.com>
+Date:	Fri Aug 7 22:27:32 2009 +0530
+
+    arm: Sheevaplug: Fixed NAND specific warning
+
+    It is recommended to define the macro CONFIG_SYS_64BIT_VSPRINTF
+    for NAND specific warning removal, same is done in this patch
+
+    Signed-off-by: Prafulla Wadaskar <prafulla@marvell.com>
+
+commit 317734966e763fdee183898c0ed940c9bada2541
+Author: Josh Boyer <jwboyer@linux.vnet.ibm.com>
+Date:	Fri Aug 7 13:53:20 2009 -0400
+
+    Dual-license IBM code contributions
+
+    It was brought to our attention that U-Boot contains code derived from the
+    IBM OpenBIOS source code originally provided with some of the older PowerPC
+    4xx development boards.  As a result, the original license of this code has
+    been carried in the various files for a number of years in the U-Boot project.
+
+    IBM is dual-licensing the IBM code contributions already present in U-Boot
+    under either the terms of the GNU General Public License version 2, or the
+    original code license already present.
+
+    Signed-off-by: Josh Boyer <jwboyer@linux.vnet.ibm.com>
+
+commit cfd700be9f5ed289fd57a9bd61e266319badcb0d
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Aug 5 09:03:54 2009 -0500
+
+    fdt: Fix fdt_pci_dma_ranges handling of 64-bit ranges
+
+    If the size of a region equal to 4G it can't be represnted in a 32-bit
+    BAR so we should have marked that case as MEM64.
+
+    Additionally bump the number of inbound windows up to 4 to handle the
+    fact that Freescale PPCs that have an implicit window for CCSRBAR.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 59b4d7471c42e955bd9846892a0cc7478171778d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Aug 6 21:29:59 2009 +0200
+
+    ARM EABI: add new helper functions resp. function names
+
+    The ARM EABI defines new names for GCC helper functions,
+    and GCC seems to need some new functions as well.
+
+    This patch is a minimal-invasive approach to fix problems with EABI
+    conformant tool chains (to be used with "USE_PRIVATE_LIBGCC=yes").
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Tested-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 197324d7d998a791e5137b8176981b4af25220ae
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Aug 5 16:18:44 2009 -0500
+
+    hush: Fix bogus free() call
+
+    An off-by-one error in hush.c resulted in an unintentional free() call
+    every time a command was executed
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit ff27650bb255e2275a212357b78c3b77cbf1d2e9
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed Aug 5 18:37:45 2009 +0200
+
+    digsy_mtc: Update default environment
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 0b40bd439a33bde9e3cccf1acb5744225d0c6103
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed Aug 5 18:37:44 2009 +0200
+
+    digsy_mtc: Add delay in SPI transfers to the companion controller.
+
+    While at it, remove initialization of variables which will be set
+    before usage in all cases.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 0bf00750e082a004e5fb058925622ae72890cc56
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Wed Aug 5 18:37:43 2009 +0200
+
+    digsy_mtc: minor fixes for mtc command help
+
+    Add mtc state subcommand description to the
+    help of mtc command.
+
+    Remove some newlines in description of commands
+    for proper help formating.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 5cc69084189bf49aa99d13d57515be72d1844bdf
+Author: Grzegorz Bernacki <gjb@semihalf.com>
+Date:	Wed Aug 5 18:37:42 2009 +0200
+
+    digsy_mtc: Add mtc state command.
+
+    Signed-off-by: Grzegorz Bernacki <gjb@semihalf.com>
+
+commit 716655288a53c95fad203ebf21d0b8ffdc2f7525
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Jul 28 22:35:39 2009 +0200
+
+    Partition support: remove newline from partition name
+
+    Remove bogus newline character that got added to the .name field of
+    the disk_partition_t structure.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 3f1649fb0dfb1e5c8890de154c332c394db5cdb5
+Author: Luigi 'Comio' Mantellini <luigi.mantellini@idf-hit.com>
+Date:	Tue Jul 28 09:33:17 2009 +0200
+
+    Fix LZMA string.h header inclusion issue and remove unused variables.
+
+    Signed-off-by: Luigi 'Comio' Mantellini <luigi.mantellini@idf-hit.com>
+
+commit 1c6232f1e2eae87e0e36d489611eb6891dff21e1
+Author: Jens Scharsig <esw@bus-elektronik.de>
+Date:	Mon Jul 27 15:28:42 2009 +0200
+
+    bus_vcxk.c: fix warning: unused variable 'lineptr'
+
+    Signed-off-by: Jens Scharsig <esw@bus-elektronik.de>
+
+commit 18304f7675e84252965b4e24cba279071f1da472
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Jul 24 17:51:27 2009 -0400
+
+    env: kill off default_environment_size
+
+    The only environment type that uses this variable is spi flash, and that is
+    only because it is reimplementing the common set_default_env() function.
+    So fix the spi flash code and kill off the default_environment_size in the
+    process.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit bedd8403f77f790e9876578885eab1200ba2f8d8
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Jul 23 16:37:48 2009 -0400
+
+    export SPI functions to standalone apps
+
+    While we're here, fix the broken #ifdef handling in _exports.h.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 3b9043a7c03290c9bdbef03848307263f5f3472c
+Author: Penda Naveen Kumar <pnaveen@ti.com>
+Date:	Fri Jul 31 00:06:36 2009 +0530
+
+    omap3: bug fix for NOR boot support
+
+    This patch provides bug fix, when omap3 uses nor boot.
+
+    Signed-off-by: Penda Naveen Kumar<pnaveen@ti.com>
+    Acked-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 61c68ae0b43bb5d6ab32958c45289aa197b1a2d1
+Author: Michael Evans <horse_dung@hotmail.com>
+Date:	Mon Jul 13 20:13:45 2009 +0100
+
+    Fix examples for OMAP3 boards...
+
+    The attached patch corrects an error in the examples/Makefile which
+    causes the applications in the examples directory to hang on OMAP3
+    based boards. The current Makefile sets -Ttext during linking to
+    0x0c100000 which is outside of addressable SDRAM memory. The script
+    corrects the existing ifeq...else...endif logic to look at the VENDOR
+    tag rather than the CPU tag.
+
+    The patch affects the following configs: omap3_beagle_config,
+    omap3_overo_config, omap3_evm_config, omap3_pandora_config,
+    omap3_zoom1_config and omap3_zoom2_config.
+
+    Signed-off-by: Michael Evans <horse_dung@hotmail.com>
+
+    Edited commit message.
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a3d1421dfd0bb1a729e171f8a093ac837f92cec6
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sat Aug 8 09:30:23 2009 +0200
+
+    omap3: use only fixed-size types inside ctrl_structs
+
+    replace variable types in ctrl_structs for omap3 by those with
+    fixed size (u8, u16, u32).
+    Additional ifndef-protection is needed by examples which do not
+    compile when including asm/types.h
+
+    Signed-off-by: Matthias Ludwig <mludwig@ultratronik.de>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 894113529e3a04871544dde977d6d7adee05d3bf
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sat Aug 8 09:30:22 2009 +0200
+
+    omap3: replace all instances of gpmc config struct by one global
+
+    Signed-off-by: Matthias Ludwig <mludwig@ultratronik.de>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 97a099eaa48d5c762c4f73c52c3090c513b8b877
+Author: Dirk Behme <dirk.behme@googlemail.com>
+Date:	Sat Aug 8 09:30:21 2009 +0200
+
+    omap3: remove typedefs for configuration structs
+
+    Signed-off-by: Matthias Ludwig <mludwig@ultratronik.de>
+    Signed-off-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit aa0707897c49c330b7d6b8d8362e44f60f224732
+Author: Roy Zang <tie-fei.zang@freescale.com>
+Date:	Fri Jul 31 13:34:02 2009 +0800
+
+    Add Intel E1000 PCIE card support
+
+    Based on Intel PRO/1000 Network Driver 7.3.20-k2
+      Add Intel E1000 PCIE card support. The following cards are added:
+      INTEL_82571EB_COPPER
+      INTEL_82571EB_FIBER,
+      INTEL_82571EB_SERDES
+      INTEL_82571EB_QUAD_COPPER
+      INTEL_82571PT_QUAD_COPPER
+      INTEL_82571EB_QUAD_FIBER
+      INTEL_82571EB_QUAD_COPPER_LOWPROFILE
+      INTEL_82571EB_SERDES_DUAL
+      INTEL_82571EB_SERDES_QUAD
+      INTEL_82572EI_COPPER
+      INTEL_82572EI_FIBER
+      INTEL_82572EI_SERDES
+      INTEL_82572EI
+      INTEL_82573E
+      INTEL_82573E_IAMT
+      INTEL_82573L
+      INTEL_82546GB_QUAD_COPPER_KSP3
+      INTEL_80003ES2LAN_COPPER_DPT
+      INTEL_80003ES2LAN_SERDES_DPT
+      INTEL_80003ES2LAN_COPPER_SPT
+      INTEL_80003ES2LAN_SERDES_SPT
+
+     82571EB_COPPER dual ports,
+     82572EI single port,
+     82572EI_COPPER single port PCIE cards
+     and
+     82545EM_COPPER,
+     82541GI_LF
+     pci cards are tested on both  P2020 board
+     and MPC8544DS board.
+
+     Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 86848a74c3c8eb2f8dd179d039ee604dc45288cf
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Jul 15 21:31:28 2009 -0400
+
+    net: sync env ethaddr to device enetaddr in eth_init()
+
+    In the previous enetaddr refactoring, the assumption with commit 56b555a644
+    was that the eth layer would handle the env -> device enetaddr syncing.
+    This was not the case as eth_initialize() is called only once and the sync
+    occurs there.  So make sure the eth_init() function does the env -> device
+    sync with every network init.
+
+    Reported-by: Andrzej Wolski <awolski@poczta.fm>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 0ebf04c607b54a352629dcf7e76b76f1785dae54
+Author: Robin Getz <rgetz@blackfin.uclinux.org>
+Date:	Thu Jul 23 03:01:03 2009 -0400
+
+    minor debug cleanups in ./net
+
+     Minor ./net cleanups - no functional changes
+      - change #ifdef DEBUG printf(); #endif to just debug()
+      - changed __FUNCTION__ to __func__
+      - got rid of extra whitespace between function and opening brace
+      - removed unnecessary braces on if statements
+
+     gcc dead code elimination should make this functionally/size equivalent
+     when DEBUG is not defined. (confirmed on Blackfin, with gcc 4.3.3).
+
+     Signed-off-by: Robin Getz <rgetz@blackfin.uclinux.org>
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 187af954cf7958c24efcf0fd62289bbdb4f1f24e
+Author: Matthias Ludwig <mludwig@ultratronik.de>
+Date:	Tue May 19 09:09:31 2009 +0200
+
+    omap3: embedd gpmc_cs into gpmc config struct
+
+    Embedd chip select configuration into struct for gpmc config
+    instead of having it completely separated as suggested by
+    Wolfgang Denk on
+    http://lists.denx.de/pipermail/u-boot/2009-May/052247.html
+
+    Signed-off-by: Matthias Ludwig <mludwig@ultratronik.de>
+
+commit 06bffc6ea52d4b390843d295d438b2037d12e5fd
+Author: David Brownell <david-b@pacbell.net>
+Date:	Thu Jul 16 18:40:55 2009 -0700
+
+    rm9200 lowevel_init: don't touch reserved/readonly registers
+
+    For some reason the AT91rm9200 lowlevel init writes to a bunch of
+    reserved or read-only addresses.  All the boards seem to define the
+    value-to-be-written values as zero ... but they shouldn't actually
+    be writing *anything* there.
+
+    No documented erratum justifies these accesses.  It looks like maybe
+    some pre-release BDI-2000 setup code has been carried along by cargo
+    cult programming since at least late 2004 (per GIT history).
+
+    Here's a patch disabling what seems to be bogosity.  Tested on a
+    csb337; there were no behavioral changes.
+
+    Signed-off-by: David Brownell <david-b@pacbell.net>
+
+    on RM9200ek
+    Tested-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 301b7db88fbdf7d118efb79b371b2527a2c31868
+Author: David Hunter <hunterd42@gmail.com>
+Date:	Thu Jul 30 14:32:49 2009 -0700
+
+    pxa: Fix typo in GCDR(x)
+
+    Fix a typo in the GCDR(x) macro. It's a good thing no one was using it.
+
+    Signed-off-by: David Hunter <hunterd42@gmail.com>
+
+commit 3c448e648221879ae0e030e94508b4f9f63b7ab8
+Author: Eric Benard <eric@eukrea.com>
+Date:	Sat Jul 18 23:45:15 2009 +0200
+
+    Add AT91SAM9260 to at91's lowlevel_init.S
+
+    Needed for AT91SAM9260 NOR Boot on Eukrea's CPU9260.
+
+    Signed-off-by: Eric Benard <eric@eukrea.com>
+
+commit 56bdfa961242fc6acaeebc800640a12b28db3899
+Author: Dirk Eibach <eibach@gdsys.de>
+Date:	Thu Jul 30 09:36:33 2009 +0200
+
+    ppc4xx: Remove check for PPC460EX from CompactCenter
+
+    Signed-off-by: Dirk Eibach <eibach@gdsys.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c3fa4f0c8684c862ecd3fb622fab1e17e44e82e1
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jul 29 08:46:10 2009 +0200
+
+    ppc4xx: Add support for PPC460EX/460GT rev B chip to AMCC Canyonlands
+
+    This patch is based on a diff created by Phong Vo from AMCC.
+
+    Signed-off-by: Phong Vo <pvo@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 89bcc4875007ef6608297dc11e7a0d1fbd9900d2
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Jul 29 08:45:27 2009 +0200
+
+    ppc4xx: Add basic support for AMCC PPC460EX/460GT rev B chips
+
+    This patch is based on a diff created by Phong Vo from AMCC.
+
+    Signed-off-by: Phong Vo <pvo@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 82a7edc7ea8f5fe55fed4ff7e127469569e539c4
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jul 28 15:12:04 2009 +0200
+
+    ppc4xx: Canyonlands-NAND-boot: Support 2 Crucial 512MByte SODIMM's
+
+    Some Canyonlands boards are equipped with different SODIMM's. This is no
+    problem with the "normal" NOR booting Canyonlands U-Boot, since it
+    automatically detects the SODIMM's via SPD data and correctly configures
+    them. But the NAND booting version is different. Here we only have 4k
+    of image size to completely setup the hardware, including DDR2 setup.
+    So we need to use a fixed DDR2 setup here. This doesn't work for different
+    SODIMM's right now.
+
+    Currently only this Crucial SODIMM is support:
+    CT6464AC667.8FB (dual ranked)
+
+    Now some boards are shipped with this SODIMM:
+    CT6464AC667.4FE (single ranked)
+
+    This patch now supports both SODIMM's by configuring first for the dual
+    ranked DIMM. A quick shows, if this module is really installed. If this test
+    fails, the DDR2 controller is re-configured for the single
+    ranked SODIMM.
+
+    Tested with those SODIMM's:
+
+    CT6464AC667.8FB (dual ranked)
+    CT6464AC667.4FE (single ranked)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 27dd5f8e1062684f1ba685760409d9b2ab6691bf
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jul 28 10:56:03 2009 +0200
+
+    ppc4xx: amcc: Move "kernel_addr_r" etc to higher locations (> 16MB)
+
+    This patch moves the load addresses for kernel, fdt and ramdisk to higher
+    addresses (>= 16MB). This enables booting of bigger kernel images (e.g.
+    lockdep enabled).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 6942efc2be1b90054fa4afa5cda7023469fe08b9
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Jul 28 10:50:32 2009 +0200
+
+    ppc4xx: amcc: Set CONFIG_SYS_BOOTMAPSZ to 16MB for big kernels
+
+    This patch changes CONFIG_SYS_BOOTMAPSZ from 8MB to 16MB which is the
+    initial TLB on 40x PPC's in the Linux kernel. With this change even bigger
+    Linux kernels (> 8MB) can be booted.
+
+    This patch also sets CONFIG_SYS_BOOTM_LEN to 16MB (default 8MB) to enable
+    decompression of bigger images.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4c2e3da82dc2b7f8b39b7f1d57f570e4bc5caa6d
+Author: Kumar Gala <kumar.gala@freescale.com>
+Date:	Tue Jul 28 21:49:52 2009 -0500
+
+    Update Freescale copyrights to remove "All Rights Reserved"
+
+    "All Rights Reserved" conflicts with the GPL.
+
+    Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+
+commit bb4291e62579dbc611e84eaaf973631e0bf129c7
+Author: Alessandro Rubini <rubini@unipv.it>
+Date:	Fri Jul 24 11:27:14 2009 +0200
+
+    arm nomadik: add i2c
+
+    Signed-off-by: Alessandro Rubini <rubini@unipv.it>
+    Acked-by: Andrea Gallo <andrea.gallo@stericsson.com>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 60cbfbfd0fbebb4682f10ba96f622bfe17317598
+Author: Alessandro Rubini <rubini@unipv.it>
+Date:	Fri Jul 24 11:27:03 2009 +0200
+
+    arm nomadik: add gpio support
+
+    Signed-off-by: Alessandro Rubini <rubini@unipv.it>
+    Acked-by: Andrea Gallo <andrea.gallo@stericsson.com>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 549b98306d897ae5991362d6096a36df50efe686
+Author: Tom Rix <Tom.Rix@windriver.com>
+Date:	Sun Jun 28 12:52:32 2009 -0500
+
+    OMAP3 Remove twl4030 defines
+
+    These defines have been subplanted by the equivelent defines in
+    include/twl4030.h
+
+    Signed-off-by: Tom Rix <Tom.Rix@windriver.com>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Acked-by: Heiko Schocher <hs@denx.de>
+
+commit fccc0fcaaae5154612f8259365d26d04f204859f
+Author: Tom Rix <Tom.Rix@windriver.com>
+Date:	Sun Jun 28 12:52:31 2009 -0500
+
+    OMAP3 Move twl4030 mmc function
+
+    Because twl4030 now has its own device files, move and rename
+    twl4030_mmc_config.
+
+    twl4030_mmc_config initializes the twl4030 power setting to
+    the mmc device.  Because it is in the twl4030 power domain, move
+    it out of drivers/mmc/omap3_mmc.c and into drivers/power/twl4030.c.
+
+    The function was renamed to twl4030_power_mmc_init because all
+    the functions in this file are to have the format
+
+    twl4030_power_<device>_<action>
+
+    In this case the suffix is mmc_init so
+    device : mmc
+    action : init
+
+    Signed-off-by: Tom Rix <Tom.Rix@windriver.com>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Acked-by: Heiko Schocher <hs@denx.de>
+
+commit 2c15513010493435c78f83202940ac3be11de2c3
+Author: Tom Rix <Tom.Rix@windriver.com>
+Date:	Sun Jun 28 12:52:30 2009 -0500
+
+    OMAP3 Move twl4030 power and led functions
+
+    Because twl4030 now has its own device files, move exiting
+    omap3 power_init_r to a new location.
+
+    power_init_r is the only function in board/omap3/common.
+    It initializes the twl4030 power for the board and enables
+    the led.
+
+    The power part of the the function is moved to twl4030_power_init in
+    drivers/power/twl4030.c The power compilation is conditional on the
+    existing config variable CONFIG_TWL4030_POWER.
+
+    The led part is moved to twl4030_led_init in the new file
+    drivers/misc/twl4030_led.c	The led compilation is conditional on
+    the new config variable CONFIG_TWL4030_LED
+
+    The directory board/omap3/common was removed because power_init_r
+    was the only function in it.
+
+    Signed-off-by: Tom Rix <Tom.Rix@windriver.com>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Acked-by: Heiko Schocher <hs@denx.de>
+
+commit 3cb7a4805fc8fb4c09e4801e1c7d531186f20190
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Jul 28 22:13:52 2009 +0200
+
+    TQM8xx* boards: set larger SMC Rx buffer len
+
+    Commit 2b3f12c2 added support for configurable SMC Rx buffer length on
+    8xx systems. Enable this feature on TQM8xx* based boards.
+
+    This fixes the problem that pasting text in the middle of a line
+    (i. e. inserting in edit mode) did not work - only the first two
+    characters got inserted, the rest was lost.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 4b7511478b62a539e5b066d19a986b75e5d9a527
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Jul 28 22:07:37 2009 +0200
+
+    Fix ext2load return code
+
+    Make the ext2load command return 0 on success (instead of the file
+    length).
+
+    Also fix output format (get rid of random newlines) and some coding
+    style issues (long lines etc.).
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 56fdaadc124a8ef9ec0fd8ff578233ec3b1137be
+Author: Weirich, Bernhard <Bernhard.Weirich@riedel.net>
+Date:	Wed Jun 10 14:00:37 2009 +0200
+
+    ext2: fix inode size and calculations
+
+    Signed-off-by: unsik Kim <donari75@gmail.com>
+    Signed-off-by: Bernhard Weirich <bernhard.weirich@riedel.net>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Tested-by: Wolfgang Denk <wd@denx.de>
+
+commit cd7826359ee71e8f6f3d68331930ab9cbe1c990e
+Author: Tom Rix <Tom.Rix@windriver.com>
+Date:	Sun Jun 28 12:52:29 2009 -0500
+
+    TWL4030 Add power reset button
+
+    The Zoom2 power reset button is on the top right side of the
+    main board.  Press and hold for about to 8 seconds to completely
+    reset the board.
+
+    Some of the beta boards have a hardware problem that prevents
+    using this feature.  If is difficult to further characterize the
+    boards that fail.  So disable resetting for all beta boards.
+
+    The Zoom1 reset button is the red circle on the top right,
+    front of the board.  Press and hold the button for 8 seconds to
+    completely reset the board.
+
+    After analyzing beagle, it was determined that other boards
+    that use the twl4030 for power managment can also make use
+    this function.
+
+    The resetting is done by the power management part of the twl4030.
+    Since there is no existing drivers/power, add one.
+
+    The compilation of power/twl4030.h is controlled by the config
+    variable CONFIG_TWL4030_POWER
+
+    Signed-off-by: Tom Rix <Tom.Rix@windriver.com>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Acked-by: Heiko Schocher <hs@denx.de>
+
+commit 8966eb4c1c2d894b2a76174ba904c26c5af815b8
+Author: Tom Rix <Tom.Rix@windriver.com>
+Date:	Sun Jun 28 12:52:28 2009 -0500
+
+    TWL4030 Add initial support
+
+    The TWL4030 supplies many peripherals for OMAP3 boards. These include
+    power management, usb and, keyboard.
+
+    The product description is found here:
+
+    http://focus.ti.com/docs/prod/folders/print/tps65950.html
+
+    Product reference document, tps65950.pdf, is found here:
+
+    http://www.ti.com/lit/gpn/tps65950
+
+    Signed-off-by: Tom Rix <Tom.Rix@windriver.com>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Acked-by: Heiko Schocher <hs@denx.de>
+
+commit 7f79dfb48b7419d5caa1cf932fcff4e2fb7040af
+Author: Tom Rix <Tom.Rix@windriver.com>
+Date:	Sun Jun 28 12:52:27 2009 -0500
+
+    OMAP I2C Fix the sampling clock.
+
+    This problem is seen on Zoom1 and Zoom2 in the startup and
+    when i2c probe is used
+
+    Before :
+
+    In:    serial
+    Out:   serial
+    Err:   serial
+    timed out in wait_for_bb: I2C_STAT=1000
+    timed out in wait_for_bb: I2C_STAT=1000
+    timed out in wait_for_bb: I2C_STAT=1000
+    timed out in wait_for_pin: I2C_STAT=1000
+    I2C read: I/O error
+    timed out in wait_for_bb: I2C_STAT=1000
+    timed out in wait_for_bb: I2C_STAT=1000
+    Die ID #327c00020000000004013ddd05026013
+    Hit any key to stop autoboot:  0
+    OMAP3 Zoom1# i2c probe
+    Valid chip addresses:timed out in wait_for_bb: I2C_STAT=1000
+     02 03 04 05 06 07 08 09 0A 0B 0C 0D <snip>
+
+    After :
+
+    In:    serial
+    Out:   serial
+    Err:   serial
+    Die ID #327c00020000000004013ddd05026013
+    Hit any key to stop autoboot:  0
+    OMAP3 Zoom1# i2c probe
+    Valid chip addresses: 48 49 4A 4B
+
+    The addresses are for the twl4030.
+
+    The prescalar that converts the function clock to the sampling
+    clock is hardcoded to 0.  The reference manual recommends 7
+    if the function clock is 96MHz.
+
+    Instead of just changing the hardcoded values, the prescalar
+    is calculated from the value I2C_IP_CLK.
+
+    The i2c #defines are in kHz.  The speed passed into the
+    i2c init routine is in Hz.	To be consistent, change the
+    defines to be in Hz.
+
+    The timing calculations are based on what is done in the
+    linux 2.6.30 kernel in drivers/i2c/buses/i2c_omap.c as
+    apposed to what is done in TRM.
+
+    The major variables in the timing caculations are
+    specified as #defines that can be overriden as required.
+
+    The variables and their defaults are
+
+    I2C_IP_CLK				SYSTEM_CLOCK_96
+    I2C_INTERNAL_SAMPLING_CLK		19200000
+    I2C_FASTSPEED_SCLL_TRIM			6
+    I2C_FASTSPEED_SCLH_TRIM			6
+    I2C_HIGHSPEED_PHASE_ONE_SCLL_TRIM	I2C_FASTSPEED_SCLL_TRIM
+    I2C_HIGHSPEED_PHASE_ONE_SCLH_TRIM	I2C_FASTSPEED_SCLH_TRIM
+    I2C_HIGHSPEED_PHASE_TWO_SCLL_TRIM	I2C_FASTSPEED_SCLL_TRIM
+    I2C_HIGHSPEED_PHASE_TWO_SCLH		I2C_FASTSPEED_SCLH_TRIM
+
+    This was runtime verified on Zoom1, Zoom2, Beagle and Overo.
+    The 400kHz and 3.4M cases were verifed on test Zoom1,
+    Zoom2, Beagle and Overo configurations.
+
+    Testing for omap2 will be done in a second step as Nishanth
+    and Jean-Christophe commented.
+
+    Signed-off-by: Tom Rix <Tom.Rix@windriver.com>
+    Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Acked-by: Heiko Schocher <hs@denx.de>
+
+commit 4ce5a72851ff2960543b125866c6132e0094e1ee
+Author: Heiko Schocher <hs@denx.de>
+Date:	Mon Jul 20 09:59:37 2009 +0200
+
+    arm, i2c: added support for the TWSI I2C Interface
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 042d01c72e0ea95731708dd24bb8b6cf42e75c80
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 27 09:13:38 2009 +0200
+
+    ppc4xx: Fix problem with NOR range assignment in Canyonlands ft_board_setup
+
+    This patch fixes the problem, that the current fdt board fixup code only
+    set's one range, the one for NOR. By this it's overwriting the already
+    correctly configured values done in __ft_board_setup(). Just remove this
+    now unneeded NOR fixup and all the ranges are correctly defined.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Cc: Dirk Eibach <eibach@gdsys.de>
+    Cc: Felix Radensky <felix@embedded-sol.com>
+
+commit 11a1604f8d0a8d936b42f6435d004b4aa33a5d87
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 27 07:42:48 2009 +0200
+
+    ppc4xx: Add some NAND-booting bootstrap entries to Kilauea chip_config cmd
+
+    This patch adds some I2C bootstrap setting for NAND booting to the Kilauea
+    chip_config command ("533-nand" and "600-nand").
+
+    Additionally some incorrectly indented lines are fixed.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 5b34691ff87821891375b28ec5bcf5154575a735
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 27 07:42:37 2009 +0200
+
+    ppc4xx: Kilauea: Fix SDRAM init in NAND booting version
+
+    DDR2 Auto-calibration needs to be disabled on the NAND booting PPC4xx
+    targets. Otherwise the configured fixed init values for some DDR2
+    controller registers (e.g. RQDC) are not initialized at all resulting
+    in a non working SDRAM.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f3ed3c9b7441cde936d06a1ff7b1490ff0d600e6
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Jul 27 10:53:43 2009 +0200
+
+    ppc4xx: Fix Arches DDR2 initialization
+
+    Testing on AMCC Arches with the latest U-Boot version yielded that DDR2
+    initialization is currently broken. U-Boot hangs upon relocation to SDRAM
+    or crashes with random traps. This patch fixes this problem. Arches now
+    uses a different WRDTR and CLKTR default setting than Canyonlands/Glacier.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit ab4c62c1ba788bf7f673a985d99a76d9c2fd7eca
+Author: Dirk Eibach <eibach@gdsys.de>
+Date:	Mon Jul 27 08:49:48 2009 +0200
+
+    ppc4xx: Add GDsys CompactCenter board support.
+
+    Board support for the Guntermann & Drunck CompactCenter and
+    DevCon-Center.
+    Based on the AMCC Canyonlands board support by Stefan Roese.
+
+    Signed-off-by: Dirk Eibach <eibach@gdsys.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c2e49f706ba13213f3c8da3a33e88010214e1997
+Author: Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+Date:	Sat Jul 25 06:19:12 2009 +0200
+
+    mpc83xx: Add esd VME8349 board support
+
+    This patch adds support for the esd VME8349 board equipped with the
+    MPC8349. It's a VME PMC carrier board equipped with the Tundra
+    TSI148 VME-bridge.
+
+    Signed-off-by: Reinhard Arlt <reinhard.arlt@esd-electronics.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit fe613cdd4eb2c5b257a60d8dfb7759742318c28a
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Thu Jul 23 17:10:55 2009 -0400
+
+    sbc8349: combine HRCW flash and u-boot image flash
+
+    Up to this point in time, the sbc8349 board was storing the u-boot
+    image in flash 2x.	One for the HRCW value at the beginning of
+    flash (0xff80_0000), and once close to the end of flash (0xfff8_0000)
+    for the actual image that got executed.
+
+    This moves the TEXT_BASE to be the beginning of flash, which makes
+    the second copy of the image redundant, and frees up the flash
+    from the end of the environment storage to the end of the flash
+    device itself.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit be9b56df02168ca97562d6b9ec791136e4cd925a
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Jul 23 14:09:38 2009 -0500
+
+    mpc83xx: CONFIG_83XX_GENERIC_PCI is now synonymous with CONFIG_PCI; remove the former
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 94978e19f31d225b4f7d97c4acbac1ecfaeb8f69
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jul 27 10:37:37 2009 +0200
+
+    Prepare 2009.08-rc1 (again, after fixing last minute issues).
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 9689ddcca6e01f3637b4442fa8575f29ef4d7aa3
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Mon Jul 27 10:06:39 2009 +0200
@@ -2567,6 +3491,102 @@ Date:	Mon Jun 15 11:51:47 2009 -0500
     Cc: Dave Liu <daveliu@freescale.com>
     Cc: Ron Madrid <ron_madrid@sbcglobal.net>
     Cc: Anton Vorontsov <avorontsov@ru.mvista.com>
+
+commit 052c08916532d1d9c2f69eb9229709c7b2fc1f02
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Wed Jul 8 07:41:24 2009 +0000
+
+    ColdFire: Update bootargs
+
+    Add a bootargs for M53017EVB and update bootargs
+    for M54451EVB
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit 6e8d58d36691520f8da74cd948661d28d5a5dc66
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Tue Jun 30 14:30:19 2009 +0000
+
+    Command for accessing serial flash update
+
+    Change strtoul number base of argv 3 from 0 to 16
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit ee0a8462466dd284968536eb57c6eef4be0d6aad
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Tue Jun 30 14:18:29 2009 +0000
+
+    ColdFire: Add DSPI support for MCF5227x and MCF5445x
+
+    Remove individual CPU specific DSPI driver.
+    Add required feature for the common DSPI driver in cpu_init and
+    in platform configuration file.
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit dec61c7851baa72151ef1d3657e7bb3b68907d48
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Tue Jun 30 14:09:47 2009 +0000
+
+    Coldfire: Consolidate DSPI driver
+
+    Unify both MCF5227x and MCF5445x DSPI driver in CPU to
+    driver/spi folder for common use.
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit 11d88b26a68bd4bf98b1c962fde6257a50978231
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Fri Jun 12 13:03:34 2009 +0000
+
+    ColdFire: Remove compiler warning messages
+
+    Remove unused variables and printf type mismatch in
+    lib_m68k/board.c
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit 4567c7bff2503fb1a7c738ff9b9f0bd00d274d9a
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Fri Jun 12 11:31:31 2009 +0000
+
+    ColdFire: Fix M53017EVB flash size
+
+    Increase the flash size from 8MB to 16MB
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit bf9a521529e484b15e8fdb583a607cf7945d2f6b
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Fri Jun 12 11:29:00 2009 +0000
+
+    ColdFire: Add M5208EVB and MCF520x CPU support
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit 709b384b6493d9726dce20663ebe31bf7cab2925
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Thu Jun 11 15:39:57 2009 +0000
+
+    ColdFire: Update for M54451EVB
+
+    Update serial boot DRAM's Internal RAM, vector table and DRAM in
+    start.S, serial flash's read status command over SPI and NOR
+    flash.
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit bbf6bbffcaf694c03504c661e58fbd1aefe5bf64
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Thu Jun 11 12:50:05 2009 +0000
+
+    ColdFire: Update configuration file to use flash buffer write
+
+    Update M52277EVB, M53017EVB and M54455EVB platform configuration
+    file to use flash buffer write
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
 
 commit 7d4450a9773673052fcd7fdf0a4a88c089126ac1
 Author: Wolfgang Denk <wd@denx.de>
