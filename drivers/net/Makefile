@@ -39,6 +39,7 @@ COBJS-$(CONFIG_EEPRO100) += eepro100.o
 COBJS-$(CONFIG_ENC28J60) += enc28j60.o
 COBJS-$(CONFIG_FEC_MXC) += fec_mxc.o
 COBJS-$(CONFIG_FSLDMAFEC) += fsl_mcdmafec.o mcfmii.o
+COBJS-$(CONFIG_FTMAC100) += ftmac100.o
 COBJS-$(CONFIG_GRETH) += greth.o
 COBJS-$(CONFIG_INCA_IP_SWITCH) += inca-ip_sw.o
 COBJS-$(CONFIG_KIRKWOOD_EGIGA) += kirkwood_egiga.o
