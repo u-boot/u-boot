@@ -2938,6 +2938,9 @@ davinci_sonata_config :	unconfig
 davinci_dm355evm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dm355evm davinci davinci
 
+imx27lite_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs imx27lite logicpd mx27
+
 lpd7a400_config \
 lpd7a404_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm lh7a40x lpd7a40x

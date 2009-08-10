@@ -264,3 +264,68 @@ void imx_gpio_mode(int gpio_mode)
 				&regs->port[port].iconfb2);
 	}
 }
+
+#ifdef CONFIG_MXC_UART
+void mx27_uart_init_pins(void)
+{
+	int i;
+	unsigned int mode[] = {
+		PE12_PF_UART1_TXD,
+		PE13_PF_UART1_RXD,
+	};
+
+	for (i = 0; i < ARRAY_SIZE(mode); i++)
+		imx_gpio_mode(mode[i]);
+
+}
+#endif /* CONFIG_MXC_UART */
+
+#ifdef CONFIG_FEC_MXC
+void mx27_fec_init_pins(void)
+{
+	int i;
+	unsigned int mode[] = {
+		PD0_AIN_FEC_TXD0,
+		PD1_AIN_FEC_TXD1,
+		PD2_AIN_FEC_TXD2,
+		PD3_AIN_FEC_TXD3,
+		PD4_AOUT_FEC_RX_ER,
+		PD5_AOUT_FEC_RXD1,
+		PD6_AOUT_FEC_RXD2,
+		PD7_AOUT_FEC_RXD3,
+		PD8_AF_FEC_MDIO,
+		PD9_AIN_FEC_MDC | GPIO_PUEN,
+		PD10_AOUT_FEC_CRS,
+		PD11_AOUT_FEC_TX_CLK,
+		PD12_AOUT_FEC_RXD0,
+		PD13_AOUT_FEC_RX_DV,
+		PD14_AOUT_FEC_CLR,
+		PD15_AOUT_FEC_COL,
+		PD16_AIN_FEC_TX_ER,
+		PF23_AIN_FEC_TX_EN,
+	};
+
+	for (i = 0; i < ARRAY_SIZE(mode); i++)
+		imx_gpio_mode(mode[i]);
+}
+#endif /* CONFIG_FEC_MXC */
+
+#ifdef CONFIG_MXC_MMC
+void mx27_sd2_init_pins(void)
+{
+	int i;
+	unsigned int mode[] = {
+		PB4_PF_SD2_D0,
+		PB5_PF_SD2_D1,
+		PB6_PF_SD2_D2,
+		PB7_PF_SD2_D3,
+		PB8_PF_SD2_CMD,
+		PB9_PF_SD2_CLK,
+	};
+
+	for (i = 0; i < ARRAY_SIZE(mode); i++)
+		imx_gpio_mode(mode[i]);
+
+}
+#endif /* CONFIG_MXC_MMC */
+
