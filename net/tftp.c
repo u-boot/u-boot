@@ -291,7 +291,9 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		break;
 
 	case TFTP_OACK:
-		debug("Got OACK: %s %s\n", pkt, pkt+strlen(pkt)+1);
+		debug("Got OACK: %s %s\n",
+			pkt,
+			pkt + strlen((char *)pkt) + 1);
 		TftpState = STATE_OACK;
 		TftpServerPort = src;
 		/*
