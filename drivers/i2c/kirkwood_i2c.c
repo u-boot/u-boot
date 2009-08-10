@@ -481,4 +481,3 @@ unsigned int i2c_get_bus_num(void)
 	return i2c_bus_num;
 #endif
 }
-

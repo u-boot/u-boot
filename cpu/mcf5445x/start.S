@@ -149,8 +149,6 @@ asm_sbf_img_hdr:
 	.long	0x00030000	/* image length */
 	.long	TEXT_BASE	/* image to be relocated at */
 
-
-
 asm_dram_init:
 	move.w #0x2700,%sr		/* Mask off Interrupt */
 

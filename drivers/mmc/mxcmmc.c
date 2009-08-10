@@ -520,4 +520,3 @@ int mxc_mmc_init(bd_t *bis)
 {
 	return mxcmci_initialize(bis);
 }
-
