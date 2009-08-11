@@ -228,6 +228,7 @@ void ft_blob_update (void *blob, bd_t *bd)
 				len);
 
 	info = flash_get_info(CONFIG_SYS_FLASH_BASE);
+	size = info->size;
 	flash_reg[2] = cpu_to_be32 (size);
 	flash_reg[4] = flash_reg[2];
 	info = flash_get_info(CONFIG_SYS_FLASH_BASE_1);
