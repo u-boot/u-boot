@@ -38,7 +38,7 @@
 vidinfo_t panel_info = {
 	.vl_col			= 480,		/* Number of columns */
 	.vl_row			= 272,		/* Number of rows */
-	.vl_clk			= 10000000,	/* pixel clock in ps */
+	.vl_clk			= 5000000,	/* pixel clock in ps */
 	.vl_sync		= ATMEL_LCDC_INVCLK_INVERTED |
 				  ATMEL_LCDC_INVLINE_INVERTED |
 				  ATMEL_LCDC_INVFRAME_INVERTED,
