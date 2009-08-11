@@ -109,7 +109,7 @@ static int _dtt_init(int sensor)
 	if (adr < 0)
 		return 1;
 
-	printf ("DTT:   Found LM81@%x Rev: %d\n", adr, rev);
+	debug ("DTT:   Found LM81@%x Rev: %d\n", adr, rev);
 	return 0;
 } /* _dtt_init() */
 
