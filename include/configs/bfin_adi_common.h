@@ -12,6 +12,13 @@
 # include <config_cmd_default.h>
 # if ADI_CMDS_NETWORK
 #  define CONFIG_CMD_DHCP
+#  define CONFIG_BOOTP_SUBNETMASK
+#  define CONFIG_BOOTP_GATEWAY
+#  define CONFIG_BOOTP_DNS
+#  define CONFIG_BOOTP_NTPSERVER
+#  define CONFIG_BOOTP_RANDOM_DELAY
+#  define CONFIG_KEEP_SERVERADDR
+#  define CONFIG_CMD_DNS
 #  define CONFIG_CMD_PING
 #  ifdef CONFIG_BFIN_MAC
 #   define CONFIG_CMD_MII
@@ -46,6 +53,9 @@
 # endif
 # ifdef CONFIG_RTC_BFIN
 #  define CONFIG_CMD_DATE
+#  if ADI_CMDS_NETWORK
+#   define CONFIG_CMD_SNTP
+#  endif
 # endif
 # ifdef CONFIG_SPI
 #  define CONFIG_CMD_EEPROM
