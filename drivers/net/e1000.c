@@ -126,9 +126,6 @@ static int e1000_write_phy_reg(struct e1000_hw *hw, uint32_t reg_addr,
 static int32_t e1000_phy_hw_reset(struct e1000_hw *hw);
 static int e1000_phy_reset(struct e1000_hw *hw);
 static int e1000_detect_gig_phy(struct e1000_hw *hw);
-static int32_t e1000_read_eeprom(struct e1000_hw *hw, uint16_t offset,
-		uint16_t words,
-		uint16_t *data);
 static void e1000_put_hw_eeprom_semaphore(struct e1000_hw *hw);
 static void e1000_set_media_type(struct e1000_hw *hw);
 
@@ -143,6 +140,9 @@ static int32_t e1000_check_phy_reset_block(struct e1000_hw *hw);
 #define E1000_WRITE_FLUSH(a) {uint32_t x; x = E1000_READ_REG(a, STATUS);}
 
 #ifndef CONFIG_AP1000 /* remove for warnings */
+static int32_t e1000_read_eeprom(struct e1000_hw *hw, uint16_t offset,
+		uint16_t words,
+		uint16_t *data);
 /******************************************************************************
  * Raises the EEPROM's clock input.
  *
@@ -895,6 +895,47 @@ e1000_validate_eeprom_checksum(struct eth_device *nic)
 		DEBUGOUT("EEPROM Checksum Invalid\n");
 		return -E1000_ERR_EEPROM;
 	}
+}
+
+/*****************************************************************************
+ * Set PHY to class A mode
+ * Assumes the following operations will follow to enable the new class mode.
+ *  1. Do a PHY soft reset
+ *  2. Restart auto-negotiation or force link.
+ *
+ * hw - Struct containing variables accessed by shared code
+ ****************************************************************************/
+static int32_t
+e1000_set_phy_mode(struct e1000_hw *hw)
+{
+	int32_t ret_val;
+	uint16_t eeprom_data;
+
+	DEBUGFUNC();
+
+	if ((hw->mac_type == e1000_82545_rev_3) &&
+		(hw->media_type == e1000_media_type_copper)) {
+		ret_val = e1000_read_eeprom(hw, EEPROM_PHY_CLASS_WORD,
+				1, &eeprom_data);
+		if (ret_val)
+			return ret_val;
+
+		if ((eeprom_data != EEPROM_RESERVED_WORD) &&
+			(eeprom_data & EEPROM_PHY_CLASS_A)) {
+			ret_val = e1000_write_phy_reg(hw,
+					M88E1000_PHY_PAGE_SELECT, 0x000B);
+			if (ret_val)
+				return ret_val;
+			ret_val = e1000_write_phy_reg(hw,
+					M88E1000_PHY_GEN_CONTROL, 0x8104);
+			if (ret_val)
+				return ret_val;
+
+			hw->phy_reset_disable = FALSE;
+		}
+	}
+
+	return E1000_SUCCESS;
 }
 #endif /* #ifndef CONFIG_AP1000 */
 
@@ -1997,47 +2038,6 @@ e1000_setup_fiber_link(struct eth_device *nic)
 		return -E1000_ERR_NOLINK;
 	}
 	return 0;
-}
-
-/*****************************************************************************
- * Set PHY to class A mode
- * Assumes the following operations will follow to enable the new class mode.
- *  1. Do a PHY soft reset
- *  2. Restart auto-negotiation or force link.
- *
- * hw - Struct containing variables accessed by shared code
- ****************************************************************************/
-static int32_t
-e1000_set_phy_mode(struct e1000_hw *hw)
-{
-	int32_t ret_val;
-	uint16_t eeprom_data;
-
-	DEBUGFUNC();
-
-	if ((hw->mac_type == e1000_82545_rev_3) &&
-		(hw->media_type == e1000_media_type_copper)) {
-		ret_val = e1000_read_eeprom(hw, EEPROM_PHY_CLASS_WORD,
-				1, &eeprom_data);
-		if (ret_val)
-			return ret_val;
-
-		if ((eeprom_data != EEPROM_RESERVED_WORD) &&
-			(eeprom_data & EEPROM_PHY_CLASS_A)) {
-			ret_val = e1000_write_phy_reg(hw,
-					M88E1000_PHY_PAGE_SELECT, 0x000B);
-			if (ret_val)
-				return ret_val;
-			ret_val = e1000_write_phy_reg(hw,
-					M88E1000_PHY_GEN_CONTROL, 0x8104);
-			if (ret_val)
-				return ret_val;
-
-			hw->phy_reset_disable = FALSE;
-		}
-	}
-
-	return E1000_SUCCESS;
 }
 
 /******************************************************************************

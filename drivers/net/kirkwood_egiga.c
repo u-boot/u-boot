@@ -592,7 +592,7 @@ int kirkwood_egiga_initialize(bd_t * bis)
 	struct kwgbe_device *dkwgbe;
 	struct eth_device *dev;
 	int devnum;
-	char *s, buf[NAMESIZE * 2];
+	char *s;
 	u8 used_ports[MAX_KWGBE_DEVS] = CONFIG_KIRKWOOD_EGIGA_PORTS;
 
 	for (devnum = 0; devnum < MAX_KWGBE_DEVS; devnum++) {
@@ -650,11 +650,14 @@ int kirkwood_egiga_initialize(bd_t * bis)
 		}
 
 		while (!eth_getenv_enetaddr(s, dev->enetaddr)) {
-			/* Generate Ramdom MAC addresses if not set */
-			sprintf(buf, "00:50:43:%02x:%02x:%02x",
-				get_random_hex(), get_random_hex(),
-				get_random_hex());
-			setenv(s, buf);
+			/* Generate Random Private MAC addr if not set */
+			dev->enetaddr[0] = 0x02;
+			dev->enetaddr[1] = 0x50;
+			dev->enetaddr[2] = 0x43;
+			dev->enetaddr[3] = get_random_hex();
+			dev->enetaddr[4] = get_random_hex();
+			dev->enetaddr[5] = get_random_hex();
+			eth_setenv_enetaddr(s, dev->enetaddr);
 		}
 
 		dev->init = (void *)kwgbe_init;

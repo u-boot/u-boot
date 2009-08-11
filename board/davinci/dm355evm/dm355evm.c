@@ -23,7 +23,8 @@
 #include <asm/arch/emif_defs.h>
 #include <asm/arch/nand_defs.h>
 #include "../common/misc.h"
-
+#include <net.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -78,6 +79,13 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_DRIVER_DM9000
+int board_eth_init(bd_t *bis)
+{
+	return dm9000_initialize(bis);
+}
+#endif
 
 #ifdef CONFIG_NAND_DAVINCI
 

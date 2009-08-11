@@ -51,27 +51,28 @@
  *--------------------------------------------------------------------*/
 
 /*
- * Some boards do not have a PHY for each ethernet port. These ports
- * are known as Fixed PHY (or PHY-less) ports. For such ports, set
- * the appropriate CONFIG_PHY_ADDR equal to CONFIG_FIXED_PHY and
- * then define CONFIG_SYS_FIXED_PHY_PORTS to define what the speed and
- * duplex should be for these ports in the board configuration
- * file.
+ * Some boards do not have a PHY for each ethernet port. These ports are known
+ * as Fixed PHY (or PHY-less) ports. For such ports, set the appropriate
+ * CONFIG_SYS_UECx_PHY_ADDR equal to CONFIG_FIXED_PHY_ADDR (an unused address)
+ * When the drver tries to identify the PHYs, CONFIG_FIXED_PHY will be returned
+ * and the driver will search CONFIG_SYS_FIXED_PHY_PORTS to find what network
+ * speed and duplex should be for the port.
  *
- * For Example:
+ * Example board header configuration file:
  *     #define CONFIG_FIXED_PHY   0xFFFFFFFF
+ *     #define CONFIG_SYS_FIXED_PHY_ADDR 0x1E (pick an unused phy address)
  *
- *     #define CONFIG_PHY_ADDR    CONFIG_FIXED_PHY
- *     #define CONFIG_PHY1_ADDR   1
- *     #define CONFIG_PHY2_ADDR   CONFIG_FIXED_PHY
- *     #define CONFIG_PHY3_ADDR   3
+ *     #define CONFIG_SYS_UEC1_PHY_ADDR CONFIG_SYS_FIXED_PHY_ADDR
+ *     #define CONFIG_SYS_UEC2_PHY_ADDR 0x02
+ *     #define CONFIG_SYS_UEC3_PHY_ADDR CONFIG_SYS_FIXED_PHY_ADDR
+ *     #define CONFIG_SYS_UEC4_PHY_ADDR 0x04
  *
- *     #define CONFIG_SYS_FIXED_PHY_PORT(devnum,speed,duplex) \
- *                     {devnum, speed, duplex},
+ *     #define CONFIG_SYS_FIXED_PHY_PORT(name,speed,duplex) \
+ *                 {name, speed, duplex},
  *
  *     #define CONFIG_SYS_FIXED_PHY_PORTS \
- *                     CONFIG_SYS_FIXED_PHY_PORT(0,SPEED_100,DUPLEX_FULL) \
- *                     CONFIG_SYS_FIXED_PHY_PORT(2,SPEED_100,DUPLEX_HALF)
+ *                 CONFIG_SYS_FIXED_PHY_PORT("FSL UEC0",SPEED_100,DUPLEX_FULL) \
+ *                 CONFIG_SYS_FIXED_PHY_PORT("FSL UEC2",SPEED_100,DUPLEX_HALF)
  */
 
 #ifndef CONFIG_FIXED_PHY
@@ -83,7 +84,7 @@
 #endif
 
 struct fixed_phy_port {
-	unsigned int devnum;	/* ethernet port */
+	char name[NAMESIZE];	/* ethernet port name */
 	unsigned int speed;	/* specified speed 10,100 or 1000 */
 	unsigned int duplex;	/* specified duplex FULL or HALF */
 };
@@ -592,7 +593,8 @@ static int fixed_phy_read_status (struct uec_mii_info *mii_info)
 	int i = 0;
 
 	for (i = 0; i < ARRAY_SIZE(fixed_phy_port); i++) {
-		if (mii_info->mii_id == fixed_phy_port[i].devnum) {
+		if (strncmp(mii_info->dev->name, fixed_phy_port[i].name,
+				strlen(mii_info->dev->name)) == 0) {
 			mii_info->speed = fixed_phy_port[i].speed;
 			mii_info->duplex = fixed_phy_port[i].duplex;
 			mii_info->link = 1; /* Link is always UP */

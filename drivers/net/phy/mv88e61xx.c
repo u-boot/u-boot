@@ -38,7 +38,7 @@
  */
 static int mv88e61xx_busychk_multic(char *name, u32 devaddr)
 {
-	u32 reg = 0;
+	u16 reg = 0;
 	u32 timeout = MV88E61XX_PHY_TIMEOUT;
 
 	/* Poll till SMIBusy bit is clear */
@@ -54,8 +54,7 @@ static int mv88e61xx_busychk_multic(char *name, u32 devaddr)
 
 static void mv88e61xx_wr_phy(char *name, u32 phy_adr, u32 reg_ofs, u16 data)
 {
-	u16 reg;
-	u32 mii_dev_addr;
+	u16 mii_dev_addr;
 
 	/* command to read PHY dev address */
 	if (miiphy_read(name, 0xEE, 0xEE, &mii_dev_addr)) {
@@ -73,8 +72,7 @@ static void mv88e61xx_wr_phy(char *name, u32 phy_adr, u32 reg_ofs, u16 data)
 
 static void mv88e61xx_rd_phy(char *name, u32 phy_adr, u32 reg_ofs, u16 * data)
 {
-	u16 reg;
-	u32 mii_dev_addr;
+	u16 mii_dev_addr;
 
 	/* command to read PHY dev address */
 	if (miiphy_read(name, 0xEE, 0xEE, &mii_dev_addr)) {
@@ -357,15 +355,22 @@ int mv88e61xx_switch_initialize(struct mv88e61xx_config *swconfig)
 	}
 
 	RD_PHY(name, MV88E61XX_PRT_OFST, PHY_PHYIDR2, &reg);
-	reg &= 0xfff0;
-	if (reg == 0x1610)
+	switch (reg &= 0xfff0) {
+	case 0x1610:
 		idstr = "88E6161";
-	if (reg == 0x1650)
+		break;
+	case 0x1650:
 		idstr = "88E6165";
-	if (reg == 0x1210) {
+		break;
+	case 0x1210:
 		idstr = "88E6123";
 		/* ports 2,3,4 not available */
 		swconfig->ports_enabled &= 0x023;
+		break;
+	default:
+		/* Could not detect switch id */
+		idstr = "88E61??";
+		break;
 	}
 
 	/* Port based VLANs configuration */
