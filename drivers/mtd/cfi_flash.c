@@ -1001,7 +1001,7 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 #endif
 		flash_write_cmd(info, sector, offset, AMD_CMD_WRITE_TO_BUFFER);
 		cnt = len >> shift;
-		flash_write_cmd(info, sector, offset, (uchar)cnt - 1);
+		flash_write_cmd(info, sector, offset, cnt - 1);
 
 		switch (info->portwidth) {
 		case FLASH_CFI_8BIT:
