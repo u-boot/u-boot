@@ -33,7 +33,6 @@ SECTIONS
 	.text      :
 	{
 	  cpu/arm920t/start.o	(.text)
-	  lib_arm/_umodsi3.o	(.text)
 	  lib_generic/zlib.o	(.text)
 	  lib_generic/crc32.o	(.text)
 	  lib_generic/string.o	(.text)
