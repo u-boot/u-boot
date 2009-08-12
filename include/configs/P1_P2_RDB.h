@@ -378,7 +378,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_CMD_SETEXPR
 
 #if defined(CONFIG_PCI)
-#define CONFIG_CMD_BEDBUG
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_PCI
 #endif
