@@ -1457,6 +1457,8 @@ jffs2_1pass_build_lists(struct part_info * part)
 				if (!sumptr) {
 					putstr("Can't get memory for summary "
 							"node!\n");
+					free(buf);
+					jffs2_free_cache(part);
 					return 0;
 				}
 				memcpy(sumptr + sumlen - buf_len, buf +
@@ -1478,8 +1480,11 @@ jffs2_1pass_build_lists(struct part_info * part)
 
 			if (buf_size && sumlen > buf_size)
 				free(sumptr);
-			if (ret < 0)
+			if (ret < 0) {
+				free(buf);
+				jffs2_free_cache(part);
 				return 0;
+			}
 			if (ret)
 				continue;
 
@@ -1592,8 +1597,11 @@ jffs2_1pass_build_lists(struct part_info * part)
 				       break;
 
 				if (insert_node(&pL->frag, (u32) part->offset +
-						ofs) == NULL)
+						ofs) == NULL) {
+					free(buf);
+					jffs2_free_cache(part);
 					return 0;
+				}
 				if (max_totlen < node->totlen)
 					max_totlen = node->totlen;
 				break;
@@ -1619,8 +1627,11 @@ jffs2_1pass_build_lists(struct part_info * part)
 				if (! (counterN%100))
 					puts ("\b\b.  ");
 				if (insert_node(&pL->dir, (u32) part->offset +
-						ofs) == NULL)
+						ofs) == NULL) {
+					free(buf);
+					jffs2_free_cache(part);
 					return 0;
+				}
 				if (max_totlen < node->totlen)
 					max_totlen = node->totlen;
 				counterN++;
