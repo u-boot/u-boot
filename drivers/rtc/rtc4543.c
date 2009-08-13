@@ -25,7 +25,6 @@
 #include <common.h>
 #include <command.h>
 #include <config.h>
-#include <bcd.h>
 #include <rtc.h>
 #include <tws.h>
 

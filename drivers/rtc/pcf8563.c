@@ -36,8 +36,6 @@
 
 static uchar rtc_read  (uchar reg);
 static void  rtc_write (uchar reg, uchar val);
-static uchar bin2bcd   (unsigned int n);
-static unsigned bcd2bin(uchar c);
 
 /* ------------------------------------------------------------------------- */
 
@@ -135,16 +133,6 @@ static uchar rtc_read (uchar reg)
 static void rtc_write (uchar reg, uchar val)
 {
 	i2c_reg_write (CONFIG_SYS_I2C_RTC_ADDR, reg, val);
-}
-
-static unsigned bcd2bin (uchar n)
-{
-	return ((((n >> 4) & 0x0F) * 10) + (n & 0x0F));
-}
-
-static unsigned char bin2bcd (unsigned int n)
-{
-	return (((n / 10) << 4) | (n % 10));
 }
 
 #endif

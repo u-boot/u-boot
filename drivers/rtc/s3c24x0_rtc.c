@@ -58,16 +58,6 @@ static inline void SetRTC_Access(RTC_ACCESS a)
 	}
 }
 
-static unsigned bcd2bin (uchar n)
-{
-	return ((((n >> 4) & 0x0F) * 10) + (n & 0x0F));
-}
-
-static unsigned char bin2bcd (unsigned int n)
-{
-	return (((n / 10) << 4) | (n % 10));
-}
-
 /* ------------------------------------------------------------------------- */
 
 int rtc_get (struct rtc_time *tmp)

@@ -41,8 +41,6 @@
 
 static uchar    rtc_read(unsigned int addr );
 static void     rtc_write(unsigned int addr, uchar val);
-static uchar    bin2bcd(unsigned int n);
-static unsigned bcd2bin(uchar c);
 
 #define RTC_EPOCH                 2000	/* century */
 
@@ -189,16 +187,6 @@ static void rtc_write( unsigned int addr, uchar val )
 	printf( "rtc_write: %x:%x\n", addr, val );
 #endif
 	*(volatile unsigned char*)(addr) = val;
-}
-
-static unsigned bcd2bin (uchar n)
-{
-	return ((((n >> 4) & 0x0F) * 10) + (n & 0x0F));
-}
-
-static unsigned char bin2bcd (unsigned int n)
-{
-	return (((n / 10) << 4) | (n % 10));
 }
 
 #endif

@@ -32,7 +32,6 @@
 #include <command.h>
 #include <asm/hardware.h>
 #include <rtc.h>
-#include <bcd.h>
 
 int rtc_get (struct rtc_time* tm)
 {

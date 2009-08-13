@@ -37,8 +37,6 @@
 
 static uchar rtc_read  (uchar reg);
 static void  rtc_write (uchar reg, uchar val);
-static uchar bin2bcd   (unsigned int n);
-static unsigned bcd2bin(uchar c);
 
 /* ------------------------------------------------------------------------- */
 
@@ -155,16 +153,6 @@ static void rtc_write (uchar reg, uchar val)
 {
 	*(unsigned char *)
 		((CONFIG_SYS_NVRAM_BASE_ADDR + CONFIG_SYS_NVRAM_SIZE - 8) + reg) = val;
-}
-
-static unsigned bcd2bin (uchar n)
-{
-	return ((((n >> 4) & 0x0F) * 10) + (n & 0x0F));
-}
-
-static unsigned char bin2bcd (unsigned int n)
-{
-	return (((n / 10) << 4) | (n % 10));
 }
 
 #endif

@@ -62,9 +62,6 @@
 
 #define	RTC_USER_RAM_BASE	0x20
 
-static unsigned int bin2bcd (unsigned int n);
-static unsigned char bcd2bin (unsigned char c);
-
 /* ************************************************************************* */
 #ifdef CONFIG_SXNI855T		/* !!! SHOULD BE CHANGED TO NEW CODE !!! */
 
@@ -458,20 +455,5 @@ static void rtc_write (unsigned char reg, unsigned char val)
 }
 
 #endif /* end of code exclusion (see #ifdef CONFIG_SXNI855T above) */
-
-/* ------------------------------------------------------------------------- */
-
-static unsigned char bcd2bin (unsigned char n)
-{
-	return ((((n >> 4) & 0x0F) * 10) + (n & 0x0F));
-}
-
-/* ------------------------------------------------------------------------- */
-
-static unsigned int bin2bcd (unsigned int n)
-{
-	return (((n / 10) << 4) | (n % 10));
-}
-/* ------------------------------------------------------------------------- */
 
 #endif

@@ -76,18 +76,6 @@ static void rtc_write (uchar reg, uchar val)
 # error Board specific rtc access functions should be supplied
 #endif
 
-static unsigned bcd2bin (uchar n)
-{
-	return ((((n >> 4) & 0x0F) * 10) + (n & 0x0F));
-}
-
-static unsigned char bin2bcd (unsigned int n)
-{
-	return (((n / 10) << 4) | (n % 10));
-}
-
-/* ------------------------------------------------------------------------- */
-
 int rtc_get (struct rtc_time *tmp)
 {
 	uchar sec, min, hour, mday, wday, mon, year;

@@ -36,16 +36,6 @@
 
 #if defined(CONFIG_SYS_I2C_RTC_ADDR) && defined(CONFIG_CMD_DATE)
 
-static unsigned bcd2bin(uchar n)
-{
-	return ((((n >> 4) & 0x0F) * 10) + (n & 0x0F));
-}
-
-static unsigned char bin2bcd(unsigned int n)
-{
-	return (((n / 10) << 4) | (n % 10));
-}
-
 /*
  * Convert between century and "century bits" (CB1 and CB0).  These routines
  * assume years are in the range 1900 - 2299.

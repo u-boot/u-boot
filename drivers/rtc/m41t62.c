@@ -31,7 +31,6 @@
 #include <command.h>
 #include <rtc.h>
 #include <i2c.h>
-#include <bcd.h>
 
 #if defined(CONFIG_CMD_DATE)
 

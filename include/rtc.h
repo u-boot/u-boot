@@ -27,6 +27,11 @@
 #ifndef _RTC_H_
 #define _RTC_H_
 
+/* bcd<->bin functions are needed by almost all the RTC drivers, let's include
+ * it there instead of in evey single driver */
+
+#include <bcd.h>
+
 /*
  * The struct used to pass data from the generic interface code to
  * the hardware dependend low-level code ande vice versa. Identical
