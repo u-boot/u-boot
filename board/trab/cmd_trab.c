@@ -106,7 +106,7 @@ extern int i2c_write (uchar, uint, int , uchar* , int);
 extern int i2c_read (uchar, uint, int , uchar* , int);
 extern void tsc2000_reg_init (void);
 extern s32 tsc2000_contact_temp (void);
-extern void spi_init(void);
+extern void tsc2000_spi_init(void);
 
 /* function declarations */
 int do_dip (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
@@ -175,7 +175,7 @@ int do_burn_in (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	led_init ();
 	global_vars_init ();
 	test_function_table_init ();
-	spi_init ();
+	tsc2000_spi_init ();
 
 	if (global_vars_write_to_eeprom () != 0) {
 		printf ("%s: error writing global_vars to eeprom\n",
@@ -336,7 +336,7 @@ int do_contact_temp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	spi_init ();
+	tsc2000_spi_init ();
 
 	contact_temp = tsc2000_contact_temp();
 	printf ("%d degree C * 100\n", contact_temp) ;
@@ -859,7 +859,7 @@ int do_temp_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		delay = simple_strtoul(argv[1], NULL, 10);
 	}
 
-	spi_init ();
+	tsc2000_spi_init ();
 	while (1) {
 
 #if defined(CONFIG_CMD_DATE)

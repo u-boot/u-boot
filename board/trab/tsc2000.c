@@ -42,7 +42,7 @@
  */
 #define MAX_DEVIATION	18	/* unit: DIGITs of adc; 18 DIGIT = 0.5 °C */
 
-void spi_init(void)
+void tsc2000_spi_init(void)
 {
 	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
 	S3C24X0_SPI * const spi = S3C24X0_GetBase_SPI();

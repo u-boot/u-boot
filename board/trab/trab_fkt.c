@@ -729,7 +729,7 @@ int do_dac (char **argv)
 	int brightness;
 
 	/* initialize SPI */
-	spi_init ();
+	tsc2000_spi_init ();
 
 	if  (((brightness = simple_strtoul (argv[2], NULL, 10)) < 0) ||
 	     (brightness > 255)) {

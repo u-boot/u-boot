@@ -121,7 +121,7 @@ void tsc2000_set_range (unsigned int);
 void tsc2000_reg_init (void);
 s32 tsc2000_contact_temp (void);
 void spi_wait_transmit_done (void);
-void spi_init(void);
+void tsc2000_spi_init(void);
 int tsc2000_interpolate(long value, long data[][2], long *result);
 void adc_wait_conversion_done(void);
 
