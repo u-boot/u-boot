@@ -544,6 +544,12 @@ digsy_mtc_RAMBOOT_config:	unconfig
 		}
 	@$(MKCONFIG) -a digsy_mtc  ppc mpc5xxx digsy_mtc
 
+galaxy5200_LOWBOOT_config \
+galaxy5200_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_$(@:_config=) 1" >$(obj)include/config.h
+	@$(MKCONFIG) -a galaxy5200 ppc mpc5xxx galaxy5200
+
 hmi1001_config:	unconfig
 	@$(MKCONFIG) hmi1001 ppc mpc5xxx hmi1001
 

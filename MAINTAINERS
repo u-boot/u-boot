@@ -616,6 +616,10 @@ David Müller <d.mueller@elsoft.ch>
 	smdk2410	ARM920T
 	VCMA9		ARM920T
 
+Eric Millbrandt <emillbrandt@dekaresearch.com>
+
+	galaxy5200	mpc5200
+
 Rolf Offermanns <rof@sysgo.de>
 
 	shannon		SA1100
