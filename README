@@ -858,9 +858,13 @@ The following options need to be configured:
 		MPC5200 USB requires additional defines:
 			CONFIG_USB_CLOCK
 				for 528 MHz Clock: 0x0001bbbb
+			CONFIG_PSC3_USB
+				for USB on PSC3
 			CONFIG_USB_CONFIG
 				for differential drivers: 0x00001000
 				for single ended drivers: 0x00005000
+				for differential drivers on PSC3: 0x00000100
+				for single ended drivers on PSC3: 0x00004100
 			CONFIG_SYS_USB_EVENT_POLL
 				May be defined to allow interrupt polling
 				instead of using asynchronous interrupts
