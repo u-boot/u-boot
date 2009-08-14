@@ -60,7 +60,10 @@ SECTIONS
 	.bss ALIGN(0x4):
 	{
 		__bss_start = .;
+		*(.sbss)
+		*(.scommon)
 		*(.bss)
+		*(COMMON)
 		. = ALIGN(4);
 		__bss_end = .;
 	}
