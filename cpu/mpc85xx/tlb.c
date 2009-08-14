@@ -110,15 +110,31 @@ void init_tlbs(void)
 void init_addr_map(void)
 {
 	int i;
+	unsigned int max_cam = (mfspr(SPRN_TLB1CFG) >> 16) & 0xff;
 
-	for (i = 0; i < num_tlb_entries; i++) {
-		if (tlb_table[i].tlb == 0)
+	/* walk all the entries */
+	for (i = 0; i < max_cam; i++) {
+		unsigned long epn;
+		u32 tsize, _mas1;	
+		phys_addr_t rpn;
+
+		mtspr(MAS0, FSL_BOOKE_MAS0(1, i, 0));
+
+		asm volatile("tlbre;isync");
+		_mas1 = mfspr(MAS1);
+
+		/* if the entry isn't valid skip it */
+		if (!(_mas1 & MAS1_VALID))
 			continue;
 
-		addrmap_set_entry(tlb_table[i].epn,
-			tlb_table[i].rpn,
-			(1UL << ((tlb_table[i].tsize * 2) + 10)),
-			tlb_table[i].esel);
+		tsize = (_mas1 >> 8) & 0xf;
+		epn = mfspr(MAS2) & MAS2_EPN;
+		rpn = mfspr(MAS3) & MAS3_RPN;
+#ifdef CONFIG_ENABLE_36BIT_PHYS
+		rpn |= ((phys_addr_t)mfspr(MAS7)) << 32;
+#endif
+
+		addrmap_set_entry(epn, rpn, (1UL << ((tsize * 2) + 10)), i);
 	}
 
 	return ;
