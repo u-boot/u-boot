@@ -120,9 +120,9 @@ struct gpmc {
 	u8 res4[0xC];
 	u32 config;		/* 0x50 */
 	u32 status;		/* 0x54 */
-	u8 res5[0x8];
+	u8 res5[0x8];	/* 0x58 */
 	struct gpmc_cs cs[8];	/* 0x60, 0x90, .. */
-	u8 res6[0x18];
+	u8 res6[0x14];		/* 0x1E0 */
 	u32 ecc_config;		/* 0x1F4 */
 	u32 ecc_control;	/* 0x1F8 */
 	u32 ecc_size_config;	/* 0x1FC */
