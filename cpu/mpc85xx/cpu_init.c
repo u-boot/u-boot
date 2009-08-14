@@ -375,3 +375,10 @@ int cpu_init_r(void)
 #endif
 	return 0;
 }
+
+extern void setup_ivors(void);
+
+void arch_preboot_os(void)
+{
+	setup_ivors();
+}

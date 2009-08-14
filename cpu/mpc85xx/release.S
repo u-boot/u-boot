@@ -168,6 +168,9 @@ __secondary_start_page:
 	bne	2b
 	isync
 
+	/* setup IVORs to match fixed offsets */
+#include "fixed_ivor.S"
+
 	/* get the upper bits of the addr */
 	lwz	r11,ENTRY_ADDR_UPPER(r10)
 

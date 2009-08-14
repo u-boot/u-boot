@@ -468,6 +468,16 @@
 #define SPRN_IVOR13	0x19d	/* Interrupt Vector Offset Register 13 */
 #define SPRN_IVOR14	0x19e	/* Interrupt Vector Offset Register 14 */
 #define SPRN_IVOR15	0x19f	/* Interrupt Vector Offset Register 15 */
+#define SPRN_IVOR38	0x1b0	/* Interrupt Vector Offset Register 38 */
+#define SPRN_IVOR39	0x1b1	/* Interrupt Vector Offset Register 39 */
+#define SPRN_IVOR40	0x1b2	/* Interrupt Vector Offset Register 40 */
+#define SPRN_IVOR41	0x1b3	/* Interrupt Vector Offset Register 41 */
+#define SPRN_GIVOR2	0x1b8	/* Guest Interrupt Vector Offset Register 2 */
+#define SPRN_GIVOR3	0x1b9	/* Guest Interrupt Vector Offset Register 3 */
+#define SPRN_GIVOR4	0x1ba	/* Guest Interrupt Vector Offset Register 4 */
+#define SPRN_GIVOR8	0x1bb	/* Guest Interrupt Vector Offset Register 8 */
+#define SPRN_GIVOR13	0x1bc	/* Guest Interrupt Vector Offset Register 13 */
+#define SPRN_GIVOR14	0x1bd	/* Guest Interrupt Vector Offset Register 14 */
 
 /* e500 definitions */
 #define SPRN_L1CFG0	0x203	/* L1 Cache Configuration Register 0 */
@@ -513,6 +523,8 @@
 #define SPRN_IVOR33	0x211	/* Interrupt Vector Offset Register 33 */
 #define SPRN_IVOR34	0x212	/* Interrupt Vector Offset Register 34 */
 #define SPRN_IVOR35	0x213	/* Interrupt Vector Offset Register 35 */
+#define SPRN_IVOR36	0x214	/* Interrupt Vector Offset Register 36 */
+#define SPRN_IVOR37	0x215	/* Interrupt Vector Offset Register 37 */
 #define SPRN_SPEFSCR	0x200	/* SPE & Embedded FP Status & Control */
 
 #define SPRN_MCSRR0	0x23a	/* Machine Check Save and Restore Register 0 */
