@@ -288,7 +288,7 @@
 #define	CONFIG_SYS_USR_EXCEP	/* user exception */
 #define CONFIG_SYS_HZ	1000
 
-#define	CONFIG_PREBOOT		"echo U-BOOT for $(hostname);setenv preboot;echo"
+#define	CONFIG_PREBOOT	"echo U-BOOT for ${hostname};setenv preboot;echo"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	"unlock=yes\0" /* hardware flash protection */\
 					"nor0=ml401-0\0"\
@@ -297,5 +297,11 @@
 					"1m(romfs),1m(cramfs),-(jffs2)\0"
 
 #define CONFIG_CMDLINE_EDITING
+
+/* Use the HUSH parser */
+#define CONFIG_SYS_HUSH_PARSER
+#ifdef CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
+#endif
 
 #endif	/* __CONFIG_H */
