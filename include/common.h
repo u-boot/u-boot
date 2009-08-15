@@ -624,9 +624,7 @@ int	vsprintf(char *buf, const char *fmt, va_list args);
 char *	strmhz(char *buf, long hz);
 
 /* lib_generic/crc32.c */
-uint32_t crc32 (uint32_t, const unsigned char *, uint);
-uint32_t crc32_wd (uint32_t, const unsigned char *, uint, uint);
-uint32_t crc32_no_comp (uint32_t, const unsigned char *, uint);
+#include <u-boot/crc.h>
 
 /* common/console.c */
 int	console_init_f(void);	/* Before relocation; uses the serial  stuff	*/
