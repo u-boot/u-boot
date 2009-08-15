@@ -86,8 +86,8 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_NUM_ADDR_MAP		16	/* number of TLB1 entries */
 #endif
 
-#define CONFIG_SYS_MEMTEST_START	0x00000000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x7fffffff
+#define CONFIG_SYS_MEMTEST_START	0x00010000	/* skip exception vectors */
+#define CONFIG_SYS_MEMTEST_END		0x1f000000      /* skip u-boot at top of RAM  */
 #define CONFIG_PANIC_HANG	/* do not reset board on panic */
 
 /*
