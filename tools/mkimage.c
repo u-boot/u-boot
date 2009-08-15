@@ -23,8 +23,8 @@
 
 #include "mkimage.h"
 #include <image.h>
+#include <u-boot/crc.h>
 
-extern	unsigned long	crc32 (unsigned long crc, const char *buf, unsigned int len);
 static	void		copy_file (int, const char *, int);
 static	void		usage (void);
 static	int		image_verify_header (char *, int);
@@ -59,7 +59,7 @@ main (int argc, char **argv)
 	struct stat sbuf;
 	unsigned char *ptr;
 	char *name = "";
-	int retval;
+	int retval = 0;
 
 	cmdname = *argv;
 
@@ -333,7 +333,8 @@ NXTARG:		;
 	hdr = (image_header_t *)ptr;
 
 	checksum = crc32 (0,
-			  (const char *)(ptr + image_get_header_size ()),
+			  (const unsigned char *)(ptr +
+				image_get_header_size ()),
 			  sbuf.st_size - image_get_header_size ()
 			 );
 
@@ -351,7 +352,8 @@ NXTARG:		;
 
 	image_set_name (hdr, name);
 
-	checksum = crc32 (0, (const char *)hdr, image_get_header_size ());
+	checksum = crc32 (0, (const unsigned char *)hdr,
+					image_get_header_size ());
 
 	image_set_hcrc (hdr, checksum);
 
@@ -484,7 +486,7 @@ static int
 image_verify_header (char *ptr, int image_size)
 {
 	int len;
-	char *data;
+	const unsigned char *data;
 	uint32_t checksum;
 	image_header_t header;
 	image_header_t *hdr = &header;
@@ -503,7 +505,7 @@ image_verify_header (char *ptr, int image_size)
 		return -FDT_ERR_BADMAGIC;
 	}
 
-	data = (char *)hdr;
+	data = (const unsigned char *)hdr;
 	len  = sizeof(image_header_t);
 
 	checksum = be32_to_cpu(hdr->ih_hcrc);
@@ -516,7 +518,7 @@ image_verify_header (char *ptr, int image_size)
 		return -FDT_ERR_BADSTATE;
 	}
 
-	data = ptr + sizeof(image_header_t);
+	data = (const unsigned char *)ptr + sizeof(image_header_t);
 	len  = image_size - sizeof(image_header_t) ;
 
 	if (crc32 (0, data, len) != be32_to_cpu(hdr->ih_dcrc)) {
