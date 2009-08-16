@@ -198,7 +198,7 @@ static unsigned long get_delta(unsigned long start)
 static void wait_us(unsigned long us)
 {
 	unsigned long start = OSCR;
-	us *= OSCR_CLK_FREQ;
+	us = DIV_ROUND_UP(us * OSCR_CLK_FREQ, 1000);
 
 	while (get_delta(start) < us) {
 		/* do nothing */
@@ -219,9 +219,11 @@ static unsigned long dfc_wait_event(unsigned long event)
 	if(!event)
 		return 0xff000000;
 	else if(event & (NDSR_CS0_CMDD | NDSR_CS0_BBD))
-		timeout = CONFIG_SYS_NAND_PROG_ERASE_TO * OSCR_CLK_FREQ;
+		timeout = DIV_ROUND_UP(CONFIG_SYS_NAND_PROG_ERASE_TO
+					* OSCR_CLK_FREQ, 1000);
 	else
-		timeout = CONFIG_SYS_NAND_OTHER_TO * OSCR_CLK_FREQ;
+		timeout = DIV_ROUND_UP(CONFIG_SYS_NAND_OTHER_TO
+					* OSCR_CLK_FREQ, 1000);
 
 	while(1) {
 		ndsr = NDSR;

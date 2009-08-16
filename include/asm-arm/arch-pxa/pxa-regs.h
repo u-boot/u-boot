@@ -1094,7 +1094,7 @@ typedef void		(*ExcpHndlr) (void) ;
 #define OMCR10		__REG(0x40A000D8)  /* OS Match Control Register 10 */
 #define OMCR11		__REG(0x40A000DC)  /* OS Match Control Register 11 */
 
-#define OSCR_CLK_FREQ	 3.250		   /* MHz */
+#define OSCR_CLK_FREQ	 3250		   /* kHz = 3.25 MHz */
 #endif /* CONFIG_CPU_MONAHANS */
 
 #define OSSR_M4		(1 << 4)	/* Match status channel 4 */
