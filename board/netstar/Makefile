@@ -50,8 +50,8 @@ all:	$(obj).depend $(LIB) $(obj)eeprom.srec $(obj)eeprom.bin \
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
-$(obj)eeprom.srec:	$(obj)eeprom.o $(obj)eeprom_start.o
-	cd $(lnk) && $(LD) -T $(LDSCRIPT) -g -Ttext $(LOAD_ADDR) \
+$(obj)eeprom.srec:	$(obj)eeprom.o $(obj)eeprom_start.o $(obj)u-boot.lds
+	cd $(lnk) && $(LD) -T $(obj)u-boot.lds -g -Ttext $(LOAD_ADDR) \
 		-o $(<:.o=) -e eeprom eeprom.o eeprom_start.o \
 		-L$(obj)../../examples/standalone -lstubs \
 		-L$(obj)../../lib_generic -lgeneric \
@@ -78,10 +78,13 @@ $(obj)crcit.o:	crcit.c
 $(obj)crc32.o:	$(SRCTREE)/lib_generic/crc32.c
 	$(HOSTCC) $(HOSTCFLAGS) -DUSE_HOSTCC -o $@ -c $<
 
+$(obj)u-boot.lds: $(LDSCRIPT)
+	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
+
 clean:
 	rm -f $(SOBJS) $(OBJS) $(obj)eeprom $(obj)eeprom.srec \
 		$(obj)eeprom.bin $(obj)crcek $(obj)crcek.srec \
-		$(obj)crcek.bin
+		$(obj)crcek.bin $(obj)u-boot.lds
 
 distclean:	clean
 	rm -f $(LIB) core *.bak $(obj).depend

@@ -326,11 +326,13 @@ GEN_UBOOT = \
 		cd $(LNDIR) && $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \
 			--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 			-Map u-boot.map -o u-boot
-$(obj)u-boot:		depend $(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT)
+$(obj)u-boot:	depend $(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
 		$(GEN_UBOOT)
 ifeq ($(CONFIG_KALLSYMS),y)
-		smap=`$(call SYSTEM_MAP,u-boot) | awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\\\000"}'` ; \
-		$(CC) $(CFLAGS) -DSYSTEM_MAP="\"$${smap}\"" -c common/system_map.c -o $(obj)common/system_map.o
+		smap=`$(call SYSTEM_MAP,u-boot) | \
+			awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\\\000"}'` ; \
+		$(CC) $(CFLAGS) -DSYSTEM_MAP="\"$${smap}\"" \
+			-c common/system_map.c -o $(obj)common/system_map.o
 		$(GEN_UBOOT) $(obj)common/system_map.o
 endif
 
@@ -348,6 +350,9 @@ $(SUBDIRS):	depend
 
 $(LDSCRIPT):	depend
 		$(MAKE) -C $(dir $@) $(notdir $@)
+
+$(obj)u-boot.lds: $(LDSCRIPT)
+		$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
 
 $(NAND_SPL):	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
 		$(MAKE) -C nand_spl/board/$(BOARDDIR) all
@@ -3653,10 +3658,12 @@ clean:
 	       $(obj)board/trab/trab_fkt   $(obj)board/voiceblue/eeprom   \
 	       $(obj)board/armltd/{integratorap,integratorcp}/u-boot.lds  \
 	       $(obj)lib_blackfin/u-boot.lds				  \
+	       $(obj)u-boot.lds						  \
 	       $(obj)cpu/blackfin/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h
-	@rm -f $(obj)nand_spl/{u-boot-spl,u-boot-spl.map,System.map}
+	@rm -f $(obj)nand_spl/{u-boot.lds,u-boot-spl,u-boot-spl.map,System.map}
 	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl-2k.bin,ipl-4k.bin,ipl.map}
+	@rm -f $(obj)onenand_ipl/u-boot.lds
 	@rm -f $(TIMESTAMP_FILE) $(VERSION_FILE)
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \

@@ -3,7 +3,7 @@ include $(TOPDIR)/config.mk
 include $(TOPDIR)/onenand_ipl/board/$(BOARDDIR)/config.mk
 
 LDSCRIPT= $(TOPDIR)/onenand_ipl/board/$(BOARDDIR)/u-boot.onenand.lds
-LDFLAGS	= -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)
+LDFLAGS	= -Bstatic -T $(onenandobj)u-boot.lds -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)
 AFLAGS	+= -DCONFIG_PRELOADER -DCONFIG_ONENAND_IPL
 CFLAGS	+= -DCONFIG_PRELOADER -DCONFIG_ONENAND_IPL
 OBJCFLAGS += --gap-fill=0x00
@@ -34,9 +34,12 @@ $(onenandobj)onenand-ipl-4k.bin:	$(onenandobj)onenand-ipl
 $(onenandobj)onenand-ipl.bin:	$(onenandobj)onenand-ipl
 	$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
 
-$(onenandobj)onenand-ipl:	$(OBJS)
+$(onenandobj)onenand-ipl:	$(OBJS) $(onenandobj)u-boot.lds
 	cd $(LNDIR) && $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \
 		-Map $@.map -o $@
+
+$(onenandobj)u-boot.lds:	$(LDSCRIPT)
+	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
 
 # create symbolic links from common files
 
