@@ -46,8 +46,7 @@ tested on both gig copper and gig fiber boards
 
 #define TOUT_LOOP   100000
 
-#undef	virt_to_bus
-#define	virt_to_bus(x)	((unsigned long)x)
+#define virt_to_bus(devno, v)	pci_virt_to_mem(devno, (void *) (v))
 #define bus_to_phys(devno, a)	pci_mem_to_phys(devno, a)
 #define mdelay(n)	udelay((n)*1000)
 
@@ -357,7 +356,7 @@ e1000_acquire_eeprom(struct e1000_hw *hw)
 	struct e1000_eeprom_info *eeprom = &hw->eeprom;
 	uint32_t eecd, i = 0;
 
-	DEBUGOUT();
+	DEBUGFUNC();
 
 	if (e1000_swfw_sync_acquire(hw, E1000_SWFW_EEP_SM))
 		return -E1000_ERR_SWFW_SYNC;
@@ -418,7 +417,7 @@ static int32_t e1000_init_eeprom_params(struct e1000_hw *hw)
 	int32_t ret_val = E1000_SUCCESS;
 	uint16_t eeprom_size;
 
-	DEBUGOUT();
+	DEBUGFUNC();
 
 	switch (hw->mac_type) {
 	case e1000_82542_rev2_0:
@@ -2355,7 +2354,7 @@ e1000_copper_link_igp_setup(struct e1000_hw *hw)
 	int32_t ret_val;
 	uint16_t phy_data;
 
-	DEBUGOUT();
+	DEBUGFUNC();
 
 	if (hw->phy_reset_disable)
 		return E1000_SUCCESS;
@@ -5017,7 +5016,7 @@ e1000_transmit(struct eth_device *nic, volatile void *packet, int length)
 	txp = tx_base + tx_tail;
 	tx_tail = (tx_tail + 1) % 8;
 
-	txp->buffer_addr = cpu_to_le64(virt_to_bus(packet));
+	txp->buffer_addr = cpu_to_le64(virt_to_bus(hw->pdev, packet));
 	txp->lower.data = cpu_to_le32(hw->txd_cmd | length);
 	txp->upper.data = 0;
 	E1000_WRITE_REG(hw, TDT, tx_tail);
@@ -5145,6 +5144,8 @@ e1000_initialize(bd_t * bis)
 	int idx = 0;
 	u32 PciCommandWord;
 
+	DEBUGFUNC();
+
 	while (1) {		/* Find PCI device(s) */
 		if ((devno = pci_find_devices(supported, idx++)) < 0) {
 			break;
@@ -5170,7 +5171,6 @@ e1000_initialize(bd_t * bis)
 		hw = (struct e1000_hw *) malloc(sizeof (*hw));
 		hw->pdev = devno;
 		nic->priv = hw;
-		nic->iobase = bus_to_phys(devno, iobase);
 
 		sprintf(nic->name, "e1000#%d", card_number);
 
@@ -5180,7 +5180,8 @@ e1000_initialize(bd_t * bis)
 		hw->autoneg_failed = 0;
 		hw->autoneg = 1;
 		hw->get_link_status = TRUE;
-		hw->hw_addr = (typeof(hw->hw_addr)) iobase;
+		hw->hw_addr =
+			pci_map_bar(devno, PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
 		hw->mac_type = e1000_undefined;
 
 		/* MAC and Phy settings */
