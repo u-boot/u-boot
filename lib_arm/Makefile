@@ -51,11 +51,20 @@ OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 LGOBJS	:= $(addprefix $(obj),$(GLSOBJS)) \
 	   $(addprefix $(obj),$(GLCOBJS))
 
+# Always build libarm.a
+TARGETS	:= $(LIB)
+
+# Build private libgcc only when asked for
 ifdef USE_PRIVATE_LIBGCC
-all:	$(LIB) $(LIBGCC)
-else
-all:	$(LIB)
+TARGETS	+= $(LIBGCC)
 endif
+
+# For EABI conformant tool chains, provide eabi_compat()
+ifneq (,$(findstring -mabi=aapcs-linux,$(PLATFORM_CPPFLAGS)))
+TARGETS	+= $(obj)eabi_compat.o
+endif
+
+all:	$(TARGETS)
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
