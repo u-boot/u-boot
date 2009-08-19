@@ -183,8 +183,15 @@ $(obj)inca-swap-bytes$(SFX):	$(obj)inca-swap-bytes.o
 	$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 	$(STRIP) $@
 
-$(obj)mkimage$(SFX):	$(obj)crc32.o $(obj)mkimage.o $(obj)image.o $(obj)md5.o $(obj)mkimage.o \
-			$(obj)os_support.o $(obj)sha1.o $(LIBFDT_OBJS)
+$(obj)mkimage$(SFX):	$(obj)crc32.o \
+			$(obj)default_image.o \
+			$(obj)fit_image.o \
+			$(obj)image.o \
+			$(obj)md5.o \
+			$(obj)mkimage.o \
+			$(obj)os_support.o \
+			$(obj)sha1.o \
+			$(LIBFDT_OBJS)
 	$(CC) $(CFLAGS) $(HOST_LDFLAGS) -o $@ $^
 	$(STRIP) $@
 
@@ -200,6 +207,12 @@ $(obj)ubsha1$(SFX):	$(obj)os_support.o $(obj)sha1.o $(obj)ubsha1.o
 	$(CC) $(CFLAGS) -o $@ $^
 
 # Some files complain if compiled with -pedantic, use FIT_CFLAGS
+$(obj)default_image.o: $(SRCTREE)/tools/default_image.c
+	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+
+$(obj)fit_image.o: $(SRCTREE)/tools/fit_image.c
+	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+
 $(obj)image.o: $(SRCTREE)/common/image.c
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
