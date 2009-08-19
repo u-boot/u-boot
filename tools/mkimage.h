@@ -104,7 +104,7 @@ struct image_type_params {
 	 */
 	int (*verify_header) (unsigned char *, int, struct mkimage_params *);
 	/* Prints image information abstracting from image header */
-	void (*print_header) (void *);
+	void (*print_header) (const void *);
 	/*
 	 * The header or image contents need to be set as per image type to
 	 * be generated using this callback function.
