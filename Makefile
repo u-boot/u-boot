@@ -2528,9 +2528,19 @@ P2020DS_config:		unconfig
 	fi
 	@$(MKCONFIG) -a P2020DS ppc mpc85xx p2020ds freescale
 
+P1011RDB_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_P1011" >>$(obj)include/config.h ;
+	@$(MKCONFIG) -a P1_P2_RDB  ppc mpc85xx p1_p2_rdb freescale
+
 P1020RDB_config:	unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_P1020" >>$(obj)include/config.h ;
+	@$(MKCONFIG) -a P1_P2_RDB  ppc mpc85xx p1_p2_rdb freescale
+
+P2010RDB_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_P2010" >>$(obj)include/config.h ;
 	@$(MKCONFIG) -a P1_P2_RDB  ppc mpc85xx p1_p2_rdb freescale
 
 P2020RDB_config:	unconfig
