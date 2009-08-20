@@ -31,15 +31,17 @@
 #include <watchdog.h>
 #include <command.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 
-int interrupt_init_cpu(unsigned long *decrementer_count)
+int interrupt_init_cpu(unsigned int *decrementer_count)
 {
-	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC85xx_PIC_ADDR;
 
-	pic->gcr = MPC85xx_PICGCR_RST;
-	while (pic->gcr & MPC85xx_PICGCR_RST)
+	out_be32(&pic->gcr, MPC85xx_PICGCR_RST);
+	while (in_be32(&pic->gcr) & MPC85xx_PICGCR_RST)
 		;
-	pic->gcr = MPC85xx_PICGCR_M;
+	out_be32(&pic->gcr, MPC85xx_PICGCR_M);
+	in_be32(&pic->gcr);
 
 	*decrementer_count = get_tbclk() / CONFIG_SYS_HZ;
 
