@@ -287,6 +287,7 @@ UnknownException(struct pt_regs *regs)
 	       regs->nip, regs->msr, regs->trap);
 	_exception(0, regs);
 }
+
 void
 ExtIntException(struct pt_regs *regs)
 {
@@ -305,14 +306,6 @@ ExtIntException(struct pt_regs *regs)
 	printf(" irq IACK0@%05x=%d\n",(int)&pic->iack0,vect);
 	show_regs(regs);
 	print_backtrace((unsigned long *)regs->gpr[1]);
-	machinecheck_count++;
-#ifdef EXTINT_NOSKIP
-	printf("Returning back to 0x%08x\n",regs->nip);
-#else
-	regs->nip += 4; /* skip offending instruction */
-	printf("Skipping current instr, Returning to 0x%08lx\n",regs->nip);
-#endif
-
 }
 
 void
