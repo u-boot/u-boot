@@ -38,6 +38,8 @@
 #include <asm/arch/kirkwood.h>
 #include "kirkwood_egiga.h"
 
+#define KIRKWOOD_PHY_ADR_REQUEST 0xee
+
 /*
  * smi_reg_read - miiphy_read callback function.
  *
@@ -52,7 +54,8 @@ static int smi_reg_read(char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 	u32 timeout;
 
 	/* Phyadr read request */
-	if (phy_adr == 0xEE && reg_ofs == 0xEE) {
+	if (phy_adr == KIRKWOOD_PHY_ADR_REQUEST &&
+			reg_ofs == KIRKWOOD_PHY_ADR_REQUEST) {
 		/* */
 		*data = (u16) (KWGBEREG_RD(regs->phyadr) & PHYADR_MASK);
 		return 0;
@@ -127,7 +130,8 @@ static int smi_reg_write(char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
 	u32 timeout;
 
 	/* Phyadr write request*/
-	if (phy_adr == 0xEE && reg_ofs == 0xEE) {
+	if (phy_adr == KIRKWOOD_PHY_ADR_REQUEST &&
+			reg_ofs == KIRKWOOD_PHY_ADR_REQUEST) {
 		KWGBEREG_WR(regs->phyadr, data);
 		return 0;
 	}
@@ -444,7 +448,8 @@ static int kwgbe_init(struct eth_device *dev)
 #if (defined (CONFIG_MII) || defined (CONFIG_CMD_MII)) \
 	 && defined (CONFIG_SYS_FAULT_ECHO_LINK_DOWN)
 	u16 phyadr;
-	miiphy_read(dev->name, 0xEE, 0xEE, &phyadr);
+	miiphy_read(dev->name, KIRKWOOD_PHY_ADR_REQUEST,
+			KIRKWOOD_PHY_ADR_REQUEST, &phyadr);
 	if (!miiphy_link(dev->name, phyadr)) {
 		printf("%s: No link on %s\n", __FUNCTION__, dev->name);
 		return -1;
@@ -670,7 +675,8 @@ int kirkwood_egiga_initialize(bd_t * bis)
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 		miiphy_register(dev->name, smi_reg_read, smi_reg_write);
 		/* Set phy address of the port */
-		miiphy_write(dev->name, 0xEE, 0xEE, PHY_BASE_ADR + devnum);
+		miiphy_write(dev->name, KIRKWOOD_PHY_ADR_REQUEST,
+				KIRKWOOD_PHY_ADR_REQUEST, PHY_BASE_ADR + devnum);
 #endif
 	}
 	return 0;
