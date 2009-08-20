@@ -500,18 +500,26 @@ static int kwgbe_send(struct eth_device *dev, volatile void *dataptr,
 	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
 	struct kwgbe_registers *regs = dkwgbe->regs;
 	struct kwgbe_txdesc *p_txdesc = dkwgbe->p_txdesc;
+	void *p = (void *)dataptr;
 	u32 cmd_sts;
 
+	/* Copy buffer if it's misaligned */
 	if ((u32) dataptr & 0x07) {
-		printf("Err..(%s) xmit dataptr not 64bit aligned\n",
-			__FUNCTION__);
-		return -1;
+		if (datasize > PKTSIZE_ALIGN) {
+			printf("Non-aligned data too large (%d)\n",
+					datasize);
+			return -1;
+		}
+
+		memcpy(dkwgbe->p_aligned_txbuf, p, datasize);
+		p = dkwgbe->p_aligned_txbuf;
 	}
+
 	p_txdesc->cmd_sts = KWGBE_ZERO_PADDING | KWGBE_GEN_CRC;
 	p_txdesc->cmd_sts |= KWGBE_TX_FIRST_DESC | KWGBE_TX_LAST_DESC;
 	p_txdesc->cmd_sts |= KWGBE_BUFFER_OWNED_BY_DMA;
 	p_txdesc->cmd_sts |= KWGBE_TX_EN_INTERRUPT;
-	p_txdesc->buf_ptr = (u8 *) dataptr;
+	p_txdesc->buf_ptr = (u8 *) p;
 	p_txdesc->byte_cnt = datasize;
 
 	/* Apply send command using zeroth RXUQ */
@@ -628,8 +636,13 @@ int kirkwood_egiga_initialize(bd_t * bis)
 							* PKTSIZE_ALIGN + 1)))
 			goto error3;
 
+		if (!(dkwgbe->p_aligned_txbuf = memalign(8, PKTSIZE_ALIGN)))
+			goto error4;
+
 		if (!(dkwgbe->p_txdesc = (struct kwgbe_txdesc *)
 		      memalign(PKTALIGN, sizeof(struct kwgbe_txdesc) + 1))) {
+			free(dkwgbe->p_aligned_txbuf);
+		      error4:
 			free(dkwgbe->p_rxbuf);
 		      error3:
 			free(dkwgbe->p_rxdesc);
