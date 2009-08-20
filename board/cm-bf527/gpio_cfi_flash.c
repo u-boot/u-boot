@@ -51,9 +51,9 @@ u##size flash_read##size(void *addr) \
 	return __raw_read##sfx(gpio_cfi_flash_swizzle(addr)); \
 }
 MAKE_FLASH(8, b)  /* flash_write8()  flash_read8() */
-MAKE_FLASH(16, w) /* flash_write16() flash_write16() */
-MAKE_FLASH(32, l) /* flash_write32() flash_write32() */
-MAKE_FLASH(64, q) /* flash_write64() flash_write64() */
+MAKE_FLASH(16, w) /* flash_write16() flash_read16() */
+MAKE_FLASH(32, l) /* flash_write32() flash_read32() */
+MAKE_FLASH(64, q) /* flash_write64() flash_read64() */
 
 void gpio_cfi_flash_init(void)
 {
