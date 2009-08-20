@@ -278,8 +278,8 @@ _start_e500:
 	msync
 	tlbwe
 
-	lis	r6,MSR_CE|MSR_ME|MSR_DE|MSR_IS|MSR_DS@h
-	ori	r6,r6,MSR_CE|MSR_ME|MSR_DE|MSR_IS|MSR_DS@l
+	lis	r6,MSR_IS|MSR_DS@h
+	ori	r6,r6,MSR_IS|MSR_DS@l
 	lis	r7,switch_as@h
 	ori	r7,r7,switch_as@l
 
