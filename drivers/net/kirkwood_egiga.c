@@ -400,6 +400,7 @@ static int kwgbe_init(struct eth_device *dev)
 {
 	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
 	struct kwgbe_registers *regs = dkwgbe->regs;
+	int i;
 
 	/* setup RX rings */
 	kwgbe_init_rx_desc_ring(dkwgbe);
@@ -447,13 +448,20 @@ static int kwgbe_init(struct eth_device *dev)
 
 #if (defined (CONFIG_MII) || defined (CONFIG_CMD_MII)) \
 	 && defined (CONFIG_SYS_FAULT_ECHO_LINK_DOWN)
-	u16 phyadr;
-	miiphy_read(dev->name, KIRKWOOD_PHY_ADR_REQUEST,
-			KIRKWOOD_PHY_ADR_REQUEST, &phyadr);
-	if (!miiphy_link(dev->name, phyadr)) {
-		printf("%s: No link on %s\n", __FUNCTION__, dev->name);
-		return -1;
+	/* Wait up to 5s for the link status */
+	for (i = 0; i < 5; i++) {
+		u16 phyadr;
+
+		miiphy_read(dev->name, KIRKWOOD_PHY_ADR_REQUEST,
+				KIRKWOOD_PHY_ADR_REQUEST, &phyadr);
+		/* Return if we get link up */
+		if (miiphy_link(dev->name, phyadr))
+			return 0;
+		udelay(1000000);
 	}
+
+	printf("No link on %s\n", dev->name);
+	return -1;
 #endif
 	return 0;
 }
