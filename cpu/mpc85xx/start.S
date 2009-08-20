@@ -156,6 +156,10 @@ _start_e500:
 	mtspr	MCSR,r0			/* machine check syndrome register */
 	mtxer	r0			/* clear integer exception register */
 
+#ifdef CONFIG_SYS_BOOK3E_HV
+	mtspr	MAS8,r0			/* make sure MAS8 is clear */
+#endif
+
 	/* Enable Time Base and Select Time Base Clock */
 	lis	r0,HID0_EMCP@h		/* Enable machine check */
 #if defined(CONFIG_ENABLE_36BIT_PHYS)

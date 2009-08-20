@@ -518,6 +518,7 @@
 #define SPRN_MAS5	0x275	/* MMU Assist Register 5 */
 #define SPRN_MAS6	0x276	/* MMU Assist Register 6 */
 #define SPRN_MAS7	0x3B0	/* MMU Assist Register 7 */
+#define SPRN_MAS8	0x155	/* MMU Assist Register 8 */
 
 #define SPRN_IVOR32	0x210	/* Interrupt Vector Offset Register 32 */
 #define SPRN_IVOR33	0x211	/* Interrupt Vector Offset Register 33 */
@@ -720,6 +721,7 @@
 #define MAS5	SPRN_MAS5
 #define MAS6	SPRN_MAS6
 #define MAS7	SPRN_MAS7
+#define MAS8 	SPRN_MAS8
 
 #if defined(CONFIG_4xx) || defined(CONFIG_44x) || defined(CONFIG_MPC85xx)
 #define DAR_DEAR DEAR

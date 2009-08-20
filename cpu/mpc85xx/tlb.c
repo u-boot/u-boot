@@ -51,6 +51,9 @@ void set_tlb(u8 tlb, u32 epn, u64 rpn,
 #ifdef CONFIG_ENABLE_36BIT_PHYS
 	mtspr(MAS7, _mas7);
 #endif
+#ifdef CONFIG_SYS_BOOK3E_HV
+	mtspr(MAS8, 0);
+#endif
 	asm volatile("isync;msync;tlbwe;isync");
 
 #ifdef CONFIG_ADDR_MAP
