@@ -2380,8 +2380,23 @@ MPC837XERDB_config:	unconfig
 MVBLM7_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx mvblm7 matrix_vision
 
-sbc8349_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc83xx sbc8349
+sbc8349_config \
+sbc8349_PCI_33_config \
+sbc8349_PCI_66_config: unconfig
+	@mkdir -p $(obj)include
+	@if [ "$(findstring _PCI_,$@)" ] ; then \
+		$(XECHO) -n "... PCI HOST at " ; \
+		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
+	fi ; \
+	if [ "$(findstring _33_,$@)" ] ; then \
+		$(XECHO) -n "33MHz... " ; \
+		echo "#define PCI_33M" >>$(obj)include/config.h ; \
+	fi ; \
+	if [ "$(findstring _66_,$@)" ] ; then \
+		$(XECHO) -n "66MHz... " ; \
+		echo "#define PCI_66M" >>$(obj)include/config.h ; \
+	fi ;
+	@$(MKCONFIG) -a sbc8349 ppc mpc83xx sbc8349
 
 SIMPC8313_LP_config \
 SIMPC8313_SP_config: unconfig

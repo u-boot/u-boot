@@ -152,7 +152,6 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase TO (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write TO (ms) */
 
-#define CONFIG_SYS_MID_FLASH_JUMP	0x7F000000
 #define CONFIG_SYS_MONITOR_BASE	        TEXT_BASE	/* start of monitor */
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
@@ -555,7 +554,7 @@
 #define CONFIG_ROOTPATH		/tftpboot/rootfs
 #define CONFIG_BOOTFILE		uImage
 
-#define CONFIG_LOADADDR		500000	/* def location for tftp and bootm */
+#define CONFIG_LOADADDR		800000	/* def location for tftp and bootm */
 
 #define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS			/* boot command will set bootargs */
@@ -582,7 +581,7 @@
 	"update=protect off fff00000 fff3ffff; "			\
 		"era fff00000 fff3ffff; cp.b 100000 fff00000 ${filesize}\0" \
 	"upd=run load update\0"						\
-	"fdtaddr=400000\0"						\
+	"fdtaddr=780000\0"						\
 	"fdtfile=vme8349.dtb\0"						\
 	""
 
