@@ -50,7 +50,8 @@ tested on both gig copper and gig fiber boards
 #define bus_to_phys(devno, a)	pci_mem_to_phys(devno, a)
 #define mdelay(n)	udelay((n)*1000)
 
-#define E1000_DEFAULT_PBA    0x000a0026
+#define E1000_DEFAULT_PCI_PBA	0x00000030
+#define E1000_DEFAULT_PCIE_PBA	0x000a0026
 
 /* NIC specific static variables go here */
 
@@ -1349,8 +1350,15 @@ e1000_reset_hw(struct e1000_hw *hw)
 	uint32_t ctrl_ext;
 	uint32_t icr;
 	uint32_t manc;
+	uint32_t pba = 0;
 
 	DEBUGFUNC();
+
+	/* get the correct pba value for both PCI and PCIe*/
+	if (hw->mac_type <  e1000_82571)
+		pba = E1000_DEFAULT_PCI_PBA;
+	else
+		pba = E1000_DEFAULT_PCIE_PBA;
 
 	/* For 82542 (rev 2.0), disable MWI before issuing a device reset */
 	if (hw->mac_type == e1000_82542_rev2_0) {
@@ -1419,7 +1427,7 @@ e1000_reset_hw(struct e1000_hw *hw)
 	if (hw->mac_type == e1000_82542_rev2_0) {
 		pci_write_config_word(hw->pdev, PCI_COMMAND, hw->pci_cmd_word);
 	}
-	E1000_WRITE_REG(hw, PBA, E1000_DEFAULT_PBA);
+	E1000_WRITE_REG(hw, PBA, pba);
 }
 
 /******************************************************************************
