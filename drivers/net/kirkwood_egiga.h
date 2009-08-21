@@ -499,6 +499,7 @@ struct kwgbe_device {
 	struct kwgbe_rxdesc *p_rxdesc;
 	struct kwgbe_rxdesc *p_rxdesc_curr;
 	u8 *p_rxbuf;
+	u8 *p_aligned_txbuf;
 };
 
 #endif /* __EGIGA_H__ */
