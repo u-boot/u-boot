@@ -250,7 +250,7 @@ extern int tqm834x_num_flash_banks;
 #define CONFIG_PCI_SCAN_SHOW            /* show pci devices on startup */
 
 /* PCI1 host bridge */
-#define CONFIG_SYS_PCI1_MEM_BASE       0x80000000
+#define CONFIG_SYS_PCI1_MEM_BASE       0x90000000
 #define CONFIG_SYS_PCI1_MEM_PHYS       CONFIG_SYS_PCI1_MEM_BASE
 #define CONFIG_SYS_PCI1_MEM_SIZE       0x10000000      /* 256M */
 #define CONFIG_SYS_PCI1_MMIO_BASE      (CONFIG_SYS_PCI1_MEM_BASE + CONFIG_SYS_PCI1_MEM_SIZE)
