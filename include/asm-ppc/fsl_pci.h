@@ -154,4 +154,30 @@ typedef struct ccsr_pci {
 	char	res24[252];
 } ccsr_fsl_pci_t;
 
+struct fsl_pci_info {
+	unsigned long	regs;
+	pci_addr_t	mem_bus;
+	phys_size_t	mem_phys;
+	pci_size_t	mem_size;
+	pci_addr_t	io_bus;
+	phys_size_t	io_phys;
+	pci_size_t	io_size;
+	int		pci_num;
+};
+
+int fsl_pci_init_port(struct fsl_pci_info *pci_info,
+				struct pci_controller *hose, int busno);
+
+#define SET_STD_PCIE_INFO(x, num) \
+{			\
+	x.regs = CONFIG_SYS_PCIE##num##_ADDR;	\
+	x.mem_bus = CONFIG_SYS_PCIE##num##_MEM_BUS; \
+	x.mem_phys = CONFIG_SYS_PCIE##num##_MEM_PHYS; \
+	x.mem_size = CONFIG_SYS_PCIE##num##_MEM_SIZE; \
+	x.io_bus = CONFIG_SYS_PCIE##num##_IO_BUS; \
+	x.io_phys = CONFIG_SYS_PCIE##num##_IO_PHYS; \
+	x.io_size = CONFIG_SYS_PCIE##num##_IO_SIZE; \
+	x.pci_num = num; \
+}
+
 #endif

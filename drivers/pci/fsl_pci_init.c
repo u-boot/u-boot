@@ -412,6 +412,50 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 	}
 }
 
+int fsl_pci_init_port(struct fsl_pci_info *pci_info,
+			struct pci_controller *hose, int busno)
+{
+	volatile ccsr_fsl_pci_t *pci;
+	struct pci_region *r;
+
+	pci = (ccsr_fsl_pci_t *) pci_info->regs;
+
+	/* on non-PCIe controllers we don't have pme_msg_det so this code
+	 * should do nothing since the read will return 0
+	 */
+	if (in_be32(&pci->pme_msg_det)) {
+		out_be32(&pci->pme_msg_det, 0xffffffff);
+		debug (" with errors.  Clearing.  Now 0x%08x",
+			pci->pme_msg_det);
+	}
+
+	r = hose->regions + hose->region_count;
+
+	/* outbound memory */
+	pci_set_region(r++,
+			pci_info->mem_bus,
+			pci_info->mem_phys,
+			pci_info->mem_size,
+			PCI_REGION_MEM);
+
+	/* outbound io */
+	pci_set_region(r++,
+			pci_info->io_bus,
+			pci_info->io_phys,
+			pci_info->io_size,
+			PCI_REGION_IO);
+
+	hose->region_count = r - hose->regions;
+	hose->first_busno = busno;
+
+	fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
+
+	printf("\n    PCIE%x on bus %02x - %02x\n", pci_info->pci_num,
+			hose->first_busno, hose->last_busno);
+
+	return(hose->last_busno + 1);
+}
+
 /* Enable inbound PCI config cycles for agent/endpoint interface */
 void fsl_pci_config_unlock(struct pci_controller *hose)
 {
