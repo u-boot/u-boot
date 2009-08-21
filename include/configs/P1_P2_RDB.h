@@ -35,6 +35,12 @@
 #define CONFIG_E500		1	/* BOOKE e500 family */
 #define CONFIG_MPC85xx		1	/* MPC8540/60/55/41/48/P1020/P2020,etc*/
 #define CONFIG_FSL_ELBC		1	/* Enable eLBC Support */
+#define CONFIG_PCI		1	/* Enable PCI/PCIE */
+#define CONFIG_PCIE1		1	/* PCIE controler 1 (slot 1) */
+#define CONFIG_PCIE2		1	/* PCIE controler 2 (slot 2) */
+#define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
+#define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
+#define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
