@@ -120,7 +120,7 @@ static void nand_load(unsigned int offs, int uboot_size, uchar *dst)
 
 			pos += page_size;
 			offs += page_size;
-		} while (offs & (block_size - 1));
+		} while ((offs & (block_size - 1)) && (pos < uboot_size));
 	}
 }
 
