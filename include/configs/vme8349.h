@@ -152,7 +152,6 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase TO (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write TO (ms) */
 
-#define CONFIG_SYS_MID_FLASH_JUMP	0x7F000000
 #define CONFIG_SYS_MONITOR_BASE	        TEXT_BASE	/* start of monitor */
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
