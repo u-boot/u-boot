@@ -554,7 +554,7 @@
 #define CONFIG_ROOTPATH		/tftpboot/rootfs
 #define CONFIG_BOOTFILE		uImage
 
-#define CONFIG_LOADADDR		500000	/* def location for tftp and bootm */
+#define CONFIG_LOADADDR		800000	/* def location for tftp and bootm */
 
 #define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS			/* boot command will set bootargs */
@@ -581,7 +581,7 @@
 	"update=protect off fff00000 fff3ffff; "			\
 		"era fff00000 fff3ffff; cp.b 100000 fff00000 ${filesize}\0" \
 	"upd=run load update\0"						\
-	"fdtaddr=400000\0"						\
+	"fdtaddr=780000\0"						\
 	"fdtfile=vme8349.dtb\0"						\
 	""
 
