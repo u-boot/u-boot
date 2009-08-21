@@ -38,6 +38,8 @@
 #include <asm/arch/kirkwood.h>
 #include "kirkwood_egiga.h"
 
+#define KIRKWOOD_PHY_ADR_REQUEST 0xee
+
 /*
  * smi_reg_read - miiphy_read callback function.
  *
@@ -52,7 +54,8 @@ static int smi_reg_read(char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 	u32 timeout;
 
 	/* Phyadr read request */
-	if (phy_adr == 0xEE && reg_ofs == 0xEE) {
+	if (phy_adr == KIRKWOOD_PHY_ADR_REQUEST &&
+			reg_ofs == KIRKWOOD_PHY_ADR_REQUEST) {
 		/* */
 		*data = (u16) (KWGBEREG_RD(regs->phyadr) & PHYADR_MASK);
 		return 0;
@@ -127,7 +130,8 @@ static int smi_reg_write(char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
 	u32 timeout;
 
 	/* Phyadr write request*/
-	if (phy_adr == 0xEE && reg_ofs == 0xEE) {
+	if (phy_adr == KIRKWOOD_PHY_ADR_REQUEST &&
+			reg_ofs == KIRKWOOD_PHY_ADR_REQUEST) {
 		KWGBEREG_WR(regs->phyadr, data);
 		return 0;
 	}
@@ -396,6 +400,7 @@ static int kwgbe_init(struct eth_device *dev)
 {
 	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
 	struct kwgbe_registers *regs = dkwgbe->regs;
+	int i;
 
 	/* setup RX rings */
 	kwgbe_init_rx_desc_ring(dkwgbe);
@@ -443,12 +448,20 @@ static int kwgbe_init(struct eth_device *dev)
 
 #if (defined (CONFIG_MII) || defined (CONFIG_CMD_MII)) \
 	 && defined (CONFIG_SYS_FAULT_ECHO_LINK_DOWN)
-	u16 phyadr;
-	miiphy_read(dev->name, 0xEE, 0xEE, &phyadr);
-	if (!miiphy_link(dev->name, phyadr)) {
-		printf("%s: No link on %s\n", __FUNCTION__, dev->name);
-		return -1;
+	/* Wait up to 5s for the link status */
+	for (i = 0; i < 5; i++) {
+		u16 phyadr;
+
+		miiphy_read(dev->name, KIRKWOOD_PHY_ADR_REQUEST,
+				KIRKWOOD_PHY_ADR_REQUEST, &phyadr);
+		/* Return if we get link up */
+		if (miiphy_link(dev->name, phyadr))
+			return 0;
+		udelay(1000000);
 	}
+
+	printf("No link on %s\n", dev->name);
+	return -1;
 #endif
 	return 0;
 }
@@ -487,18 +500,26 @@ static int kwgbe_send(struct eth_device *dev, volatile void *dataptr,
 	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
 	struct kwgbe_registers *regs = dkwgbe->regs;
 	struct kwgbe_txdesc *p_txdesc = dkwgbe->p_txdesc;
+	void *p = (void *)dataptr;
 	u32 cmd_sts;
 
+	/* Copy buffer if it's misaligned */
 	if ((u32) dataptr & 0x07) {
-		printf("Err..(%s) xmit dataptr not 64bit aligned\n",
-			__FUNCTION__);
-		return -1;
+		if (datasize > PKTSIZE_ALIGN) {
+			printf("Non-aligned data too large (%d)\n",
+					datasize);
+			return -1;
+		}
+
+		memcpy(dkwgbe->p_aligned_txbuf, p, datasize);
+		p = dkwgbe->p_aligned_txbuf;
 	}
+
 	p_txdesc->cmd_sts = KWGBE_ZERO_PADDING | KWGBE_GEN_CRC;
 	p_txdesc->cmd_sts |= KWGBE_TX_FIRST_DESC | KWGBE_TX_LAST_DESC;
 	p_txdesc->cmd_sts |= KWGBE_BUFFER_OWNED_BY_DMA;
 	p_txdesc->cmd_sts |= KWGBE_TX_EN_INTERRUPT;
-	p_txdesc->buf_ptr = (u8 *) dataptr;
+	p_txdesc->buf_ptr = (u8 *) p;
 	p_txdesc->byte_cnt = datasize;
 
 	/* Apply send command using zeroth RXUQ */
@@ -615,8 +636,13 @@ int kirkwood_egiga_initialize(bd_t * bis)
 							* PKTSIZE_ALIGN + 1)))
 			goto error3;
 
+		if (!(dkwgbe->p_aligned_txbuf = memalign(8, PKTSIZE_ALIGN)))
+			goto error4;
+
 		if (!(dkwgbe->p_txdesc = (struct kwgbe_txdesc *)
 		      memalign(PKTALIGN, sizeof(struct kwgbe_txdesc) + 1))) {
+			free(dkwgbe->p_aligned_txbuf);
+		      error4:
 			free(dkwgbe->p_rxbuf);
 		      error3:
 			free(dkwgbe->p_rxdesc);
@@ -670,7 +696,8 @@ int kirkwood_egiga_initialize(bd_t * bis)
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 		miiphy_register(dev->name, smi_reg_read, smi_reg_write);
 		/* Set phy address of the port */
-		miiphy_write(dev->name, 0xEE, 0xEE, PHY_BASE_ADR + devnum);
+		miiphy_write(dev->name, KIRKWOOD_PHY_ADR_REQUEST,
+				KIRKWOOD_PHY_ADR_REQUEST, PHY_BASE_ADR + devnum);
 #endif
 	}
 	return 0;

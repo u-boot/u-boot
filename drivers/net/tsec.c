@@ -356,8 +356,8 @@ uint mii_cr_init(uint mii_reg, struct tsec_private * priv)
 		return MIIM_CR_INIT;
 }
 
-/* Parse the status register for link, and then do
- * auto-negotiation
+/*
+ * Wait for auto-negotiation to complete, then determine link
  */
 uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 {
@@ -366,8 +366,7 @@ uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 	 * (ie - we're capable and it's not done)
 	 */
 	mii_reg = read_phy_reg(priv, MIIM_STATUS);
-	if ((mii_reg & MIIM_STATUS_LINK) && (mii_reg & PHY_BMSR_AUTN_ABLE)
-	    && !(mii_reg & PHY_BMSR_AUTN_COMP)) {
+	if ((mii_reg & PHY_BMSR_AUTN_ABLE) && !(mii_reg & PHY_BMSR_AUTN_COMP)) {
 		int i = 0;
 
 		puts("Waiting for PHY auto negotiation to complete");
@@ -388,14 +387,14 @@ uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 			mii_reg = read_phy_reg(priv, MIIM_STATUS);
 		}
 		puts(" done\n");
-		priv->link = 1;
+
+		/* Link status bit is latched low, read it again */
+		mii_reg = read_phy_reg(priv, MIIM_STATUS);
+
 		udelay(500000);	/* another 500 ms (results in faster booting) */
-	} else {
-		if (mii_reg & MIIM_STATUS_LINK)
-			priv->link = 1;
-		else
-			priv->link = 0;
 	}
+
+	priv->link = mii_reg & MIIM_STATUS_LINK ? 1 : 0;
 
 	return 0;
 }
