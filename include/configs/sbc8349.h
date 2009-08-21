@@ -40,24 +40,28 @@
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_SBC8349		1	/* WRS SBC8349 board specific */
 
-#undef CONFIG_PCI
 /* Don't enable PCI2 on sbc834x - it doesn't exist physically. */
 #undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
 
-#define PCI_66M
-#ifdef PCI_66M
-#define CONFIG_83XX_CLKIN	66000000	/* in Hz */
-#else
+/*
+ * The default if PCI isn't enabled, or if no PCI clk setting is given
+ * is 66MHz; this is what the board defaults to when the PCI slot is
+ * physically empty.  The board will automatically (i.e w/o jumpers)
+ * clock down to 33MHz if you insert a 33MHz PCI card.
+ */
+#ifdef PCI_33M
 #define CONFIG_83XX_CLKIN	33000000	/* in Hz */
+#else	/* 66M */
+#define CONFIG_83XX_CLKIN	66000000	/* in Hz */
 #endif
 
 #ifndef CONFIG_SYS_CLK_FREQ
-#ifdef PCI_66M
-#define CONFIG_SYS_CLK_FREQ	66000000
-#define HRCWL_CSB_TO_CLKIN	HRCWL_CSB_TO_CLKIN_4X1
-#else
+#ifdef PCI_33M
 #define CONFIG_SYS_CLK_FREQ	33000000
 #define HRCWL_CSB_TO_CLKIN	HRCWL_CSB_TO_CLKIN_8X1
+#else	/* 66M */
+#define CONFIG_SYS_CLK_FREQ	66000000
+#define HRCWL_CSB_TO_CLKIN	HRCWL_CSB_TO_CLKIN_4X1
 #endif
 #endif
 
