@@ -74,18 +74,6 @@ int __board_early_init_f(void)
 }
 int board_early_init_f(void) __attribute__((weak, alias("__board_early_init_f")));
 
-/*
- * The Malloc area is immediately below the monitor copy in DRAM
- */
-static void mem_malloc_init(ulong start, ulong size)
-{
-	mem_malloc_start = start;
-	mem_malloc_end = start + size;
-	mem_malloc_brk = start;
-
-	memset ((void *)mem_malloc_start, 0, size);
-}
-
 
 static int init_func_ram (void)
 {
@@ -347,7 +335,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	bd = gd->bd;
 
-	/* initialize malloc() area */
+	/* The Malloc area is immediately below the monitor copy in DRAM */
 	mem_malloc_init(CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
 			TOTAL_MALLOC_LEN, TOTAL_MALLOC_LEN);
 	malloc_bin_reloc();

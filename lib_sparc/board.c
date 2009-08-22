@@ -75,25 +75,6 @@ static char *failed = "*** failed ***\n";
 ulong monitor_flash_len;
 
 /************************************************************************
- * Utilities								*
- ************************************************************************
- */
-
-/*
- * The Malloc area is immediately below the monitor copy in RAM
- */
-static void mem_malloc_init(ulong start, ulong size)
-{
-	mem_malloc_start = start;
-	mem_malloc_end = start + size;
-	mem_malloc_brk = start
-
-	memset((void *)mem_malloc_start, 0, size);
-}
-
-/***********************************************************************/
-
-/************************************************************************
  * Init Utilities							*
  ************************************************************************
  * Some of this code should be moved into the core functions,
@@ -313,7 +294,7 @@ void board_init_f(ulong bootflag)
 	 */
 	interrupt_init();
 
-	/* initialize malloc() area */
+	/* The Malloc area is immediately below the monitor copy in RAM */
 	mem_malloc_init(CONFIG_SYS_MALLOC_BASE,
 			CONFIG_SYS_MALLOC_END - CONFIG_SYS_MALLOC_BASE);
 	malloc_bin_reloc();

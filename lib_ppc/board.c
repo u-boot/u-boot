@@ -142,18 +142,6 @@ ulong monitor_flash_len;
  */
 
 /*
- * The Malloc area is immediately below the monitor copy in DRAM
- */
-static void mem_malloc_init(ulong start, ulong size)
-{
-	mem_malloc_start = start;
-	mem_malloc_end = start + size;
-	mem_malloc_brk = start;
-
-	memset ((void *)mem_malloc_start, 0, size);
-}
-
-/*
  * All attempts to come up with a "common" initialization sequence
  * that works for all boards and architectures failed: some of the
  * requirements are just _too_ different. To get rid of the resulting
@@ -657,6 +645,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
+	/* The Malloc area is immediately below the monitor copy in DRAM */
 #if defined(CONFIG_RELOC_FIXUP_WORKS)
 	gd->reloc_off = 0;
 	malloc_start = dest_addr - TOTAL_MALLOC_LEN;
@@ -758,7 +747,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	asm ("sync ; isync");
 
-	/* initialize malloc() area */
 	mem_malloc_init (malloc_start, TOTAL_MALLOC_LEN);
 	malloc_bin_reloc ();
 

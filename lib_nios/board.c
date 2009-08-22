@@ -52,18 +52,6 @@ DECLARE_GLOBAL_DATA_PTR;
 extern void malloc_bin_reloc (void);
 typedef int (init_fnc_t) (void);
 
-/*
- * The Malloc area is immediately below the monitor copy in RAM
- */
-static void mem_malloc_init(ulong start, ulong size)
-{
-	mem_malloc_start = start;
-	mem_malloc_end = start + size;
-	mem_malloc_brk = start;
-
-	memset ((void *)mem_malloc_start, 0, size);
-}
-
 
 /************************************************************************
  * Initialization sequence						*
@@ -124,6 +112,8 @@ void board_init (void)
 	}
 
 	WATCHDOG_RESET ();
+
+	/* The Malloc area is immediately below the monitor copy in RAM */
 	mem_malloc_init(CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
 	malloc_bin_reloc();
 

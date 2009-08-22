@@ -38,15 +38,6 @@ const char version_string[] = U_BOOT_VERSION" ("U_BOOT_DATE" - "U_BOOT_TIME")";
 
 unsigned long monitor_flash_len = CONFIG_SYS_MONITOR_LEN;
 
-static void mem_malloc_init(ulong start, ulong size)
-{
-	mem_malloc_start = start;
-	mem_malloc_end = start + size;
-	mem_malloc_brk = start;
-
-	memset((void *)mem_malloc_start, 0, size);
-}
-
 static int sh_flash_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;

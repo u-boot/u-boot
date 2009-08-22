@@ -49,19 +49,6 @@ static int __do_nothing(void)
 int board_postclk_init(void) __attribute__((weak, alias("__do_nothing")));
 int board_early_init_r(void) __attribute__((weak, alias("__do_nothing")));
 
-/* The malloc area is right below the monitor image in RAM */
-static void mem_malloc_init(ulong start, ulong size)
-{
-	mem_malloc_start = start;
-	mem_malloc_end = start + size;
-	mem_malloc_brk = start;
-
-	printf("malloc: Using memory from 0x%08lx to 0x%08lx\n",
-	       mem_malloc_start, mem_malloc_end);
-
-	memset((void *)mem_malloc_start, 0, size);
-}
-
 #ifdef CONFIG_SYS_DMA_ALLOC_LEN
 #include <asm/arch/cacheflush.h>
 #include <asm/io.h>
@@ -308,6 +295,8 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 #endif
 
 	timer_init();
+
+	/* The malloc area is right below the monitor image in RAM */
 	mem_malloc_init(CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
 			CONFIG_SYS_MALLOC_LEN, CONFIG_SYS_MALLOC_LEN);
 	malloc_bin_reloc();

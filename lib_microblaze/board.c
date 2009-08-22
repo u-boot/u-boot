@@ -47,20 +47,6 @@ extern int getenv_IPaddr (char *);
 #endif
 
 /*
- * The Malloc area is immediately below the monitor copy in DRAM
- * aka CONFIG_SYS_MONITOR_BASE - Note there is no need for reloc_off
- * as our monitory code is run from SDRAM
- */
-static void mem_malloc_init(ulong start, ulong size)
-{
-	mem_malloc_start = start;
-	mem_malloc_end = start + size;
-	mem_malloc_brk = start;
-
-	memset ((void *)mem_malloc_start, 0, size);
-}
-
-/*
  * All attempts to come up with a "common" initialization sequence
  * that works for all boards and architectures failed: some of the
  * requirements are just _too_ different. To get rid of the resulting
@@ -104,7 +90,11 @@ void board_init (void)
 	bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
 	gd->flags |= GD_FLG_RELOC;      /* tell others: relocation done */
 
-	/* Initialise malloc() area */
+	/*
+	 * The Malloc area is immediately below the monitor copy in DRAM
+	 * aka CONFIG_SYS_MONITOR_BASE - Note there is no need for reloc_off
+	 * as our monitory code is run from SDRAM
+	 */
 	mem_malloc_init (CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
