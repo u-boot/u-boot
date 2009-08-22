@@ -48,11 +48,8 @@ COBJS-y	+= string.o
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
-$(LIB):	$(obj).depend $(OBJS) $(obj)u-boot.lds
+$(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-$(obj)u-boot.lds: u-boot.lds.S
-	$(CPP) $(CPPFLAGS) -D__ASSEMBLY__ -P $^ > $@
 
 #########################################################################
 
