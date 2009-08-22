@@ -27,6 +27,7 @@
 /u-boot.ldr
 /u-boot.ldr.hex
 /u-boot.ldr.srec
+/u-boot.lds
 /u-boot-onenand.bin
 /u-boot-flexonenand.bin
 
