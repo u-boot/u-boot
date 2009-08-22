@@ -115,7 +115,7 @@ void init_addr_map(void)
 	/* walk all the entries */
 	for (i = 0; i < max_cam; i++) {
 		unsigned long epn;
-		u32 tsize, _mas1;	
+		u32 tsize, _mas1;
 		phys_addr_t rpn;
 
 		mtspr(MAS0, FSL_BOOKE_MAS0(1, i, 0));

@@ -1,3 +1,634 @@
+commit 5b2da6a309266f21cbb68f06fcfdf9ba141022e7
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Aug 21 06:52:25 2009 +1000
+
+    qemu-mips: Fix Qemu website
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+    Signed-off-by: Michal Simek <michal.simek@petalogix.com>
+    Acked-by: Shinya Kuribayashi <skuribay@pobox.com>
+
+commit 79f516bccc3cff5a5cd4b3dffb7d254e746fdbde
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Aug 21 16:34:38 2009 -0500
+
+    mpc83xx: accommodate larger kernel sizes by default
+
+    linux mpc83xx_defconfig kernels are getting bigger, accommodate for
+    their growth by adjusting default load and fdt addresses.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 8eceeb7fd656d6d071c0a8b615e178aca5775fff
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Aug 21 16:33:15 2009 -0500
+
+    mpc83xx: mpc8377erdb - change DDR settings to those from latest bsp
+
+    when using Linus' 83xx_defconfig, the mpc8377rdb would hang at boot
+    at either:
+
+    NET: Registered protocol family 16
+
+    or the
+
+    io scheduler cfq registered
+
+    message.  Fixing up these DDR settings appears to fix the problem.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 27c5248dd4c9ba4a36899689595956c5e59e349a
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Aug 21 16:31:20 2009 -0500
+
+    mpc83xx: tqm8349 - remove pci & flash window conflict
+
+    commit 9993e196da707a0a1cd4584f1fcef12382c1c144 "mpc83xx: convert all
+    remaining boards over to 83XX_GENERIC_PCI" remapped pci windows on
+    tqm834x to make it more consistent with the other 83xx boards.  During
+    that time however, the author failed to realize that FLASH_BASE was
+    occupying the same range as what PCI1_MEM_BASE was being assigned.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+    Tested-by: Wolfgang Denk <wd@denx.de>
+
+commit 6d2c26ac831f033b0025cfb256365a047f8dd115
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Aug 21 16:30:30 2009 -0500
+
+    mpc83xx: add missing CSCONFIG_ODT_WR_CFG for 832x CPUs
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 193b4cb3f641ed0fd9bb79b8fa4671882c50ffdb
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Fri Aug 21 16:27:05 2009 -0500
+
+    mpc83xx: mpc8349 - delete unused SYS_MID_FLASH_JUMP
+
+    This was introduced with the MPC8349EMDS board, and then copied to
+    a couple other boards by nature of being the reference implementation.
+
+      u-boot$git grep CONFIG_SYS_MID_FLASH_JUMP
+      include/configs/MPC8349EMDS.h:#define CONFIG_SYS_MID_FLASH_JUMP 0x7F000000
+      include/configs/sbc8349.h:#define CONFIG_SYS_MID_FLASH_JUMP     0x7F000000
+      include/configs/vme8349.h:#define CONFIG_SYS_MID_FLASH_JUMP     0x7F000000
+      u-boot$
+
+    It currently isn't used, so delete it before it spreads further.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit c0d660fbbede322648ec79d3e39389e48f5fab24
+Author: Paul Gortmaker <paul.gortmaker@windriver.com>
+Date:	Fri Aug 21 16:21:58 2009 -0500
+
+    mpc83xx: sbc8349 - make enabling PCI more user friendly
+
+    Prior to this commit, to enable PCI, you had to go manually
+    edit the board config header, which isn't really user friendly.
+    This adds the typical PCI make targets to the toplevel Makefile
+    in accordance with what is being done with other boards.
+
+    Signed-off-by: Paul Gortmaker <paul.gortmaker@windriver.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit a3c5057a6c05b4c7235a270486220e4511366133
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Fri Aug 7 23:37:54 2009 +0200
+
+    eeprom_m95xxx: remove unused variable i
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 8cf19b9fec92d8aa22b2fe4b4e6976743b1daa51
+Author: Ilya Yanok <yanok@emcraft.com>
+Date:	Fri Jul 17 15:02:42 2009 +0400
+
+    jffs2: some fixes to summary support
+
+    This patch fixes some issues with JFFS2 summary support in U-Boot.
+    1/ Summary support made compilation configurable (as summary support
+    considered expiremental even in Linux).
+    2/ Summary code can do unaligned 16-bit and 32-bit memory accesses.
+    We need to get data byte by byte to exclude data aborts.
+    3/ Make summary scan in two passes so we can safely fall back to full
+    scan if we found unsupported entry in the summary.
+
+    Signed-off-by: Ilya Yanok <yanok@emcraft.com>
+
+commit 11906936e168d12d684bb3d2930a62693ba3d84e
+Author: Prafulla Wadaskar <prafulla@marvell.com>
+Date:	Mon Aug 10 18:55:54 2009 +0530
+
+    arm: rd6281a: Fixed NAND specific warning
+
+    It is recommended to define the macro CONFIG_SYS_64BIT_VSPRINTF
+    for NAND specific warning removal, same is done in this patch
+
+    Signed-off-by: Prafulla Wadaskar <prafulla@marvell.com>
+
+commit b5ffb193330113d2e00489d96bf8ec1f541ed4e1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Aug 13 00:37:16 2009 +0200
+
+    TRAB: make independent of specific libgcc helper routines
+
+    The TRAB board references local libgcc helper routines
+    (lib_arm/div0.o and lib_arm/_umodsi3.o) which cause build problems
+    when we try to use the normal, compiler provided libgcc instead.
+    Removing these references allows to build both with and without the
+    local libgcc helper routines.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 1aada9cd643567d351667138851e9231ccfa245a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 17 14:00:53 2009 +0200
+
+    Fix all linker scripts for older binutils versions (pre-2.16)
+
+    Commit f62fb99941c6 fixed handling of all rodata sections by using a
+    wildcard combined with calls to ld's builtin functions SORT_BY_ALIGNMENT()
+    and SORT_BY_NAME().  Unfortunately these functions were only
+    introduced with biunutils version 2.16, so the modification broke
+    building with all tool chains using older binutils.
+
+    This patch makes it work again.  This is done by omitting the use of
+    these functions for such old tool chains.  This will result in
+    slightly larger target binaries, as the rodata sections are no longer
+    in optimal order alignment-wise which reauls in unused gaps, but the
+    effect was found to be insignificant - especially compared to the fact
+    that you cannot build U-Boot at all in the current state.
+
+    As ld seems to have no support for conditionals we run the linker
+    script through the C preprocessor which can be easily used to remove
+    the unwanted function calls.
+
+    Note that the C preprocessor must be run with the "-ansi" (or a
+    "-std=") option to make sure all the system-specific predefined
+    macros outside the reserved namespace are suppressed. Otherise, cpp
+    might for example substitute "powerpc" to "1", thus corrupting for
+    example "OUTPUT_ARCH(powerpc)" etc.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Mike Frysinger <vapier@gentoo.org>
+
+commit f772acf8a584067033eff1e231fcd1fb3a00d3d9
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 17 13:17:29 2009 +0200
+
+    ARM: compiler options cleanup - improve tool chain support
+
+    For some time there have been repeated reports about build problems
+    with some ARM (cross) tool chains.	Especially issues about
+    (in)compatibility with the tool chain provided runtime support
+    library libgcc.a caused to add and support a private implementation
+    of such runtime support code in U-Boot.  A closer look at the code
+    indicated that some of these issues are actually home-made.  This
+    patch attempts to clean up some of the most obvious problems and make
+    building of U-Boot with different tool chains easier:
+
+    - Even though all ARM systems basicy used the same compiler options
+      to select a specific ABI from the tool chain, the code for this was
+      distributed over all cpu/*/config.mk files.  We move this one level
+      up into lib_arm/config.mk instead.
+
+    - So far, we only checked if "-mapcs-32" was supported by the tool
+      chain; if yes, this was used, if not, "-mabi=apcs-gnu" was
+      selected, no matter if the tool chain actually understood this
+      option.  There was no support for EABI conformant tool chains.
+      This patch implements the following logic:
+
+      1) If the tool chain supports
+	"-mabi=aapcs-linux -mno-thumb-interwork"
+	 we use these options (EABI conformant tool chain).
+      2) Otherwise, we check first if
+	"-mapcs-32"
+	 is supported, and then check for
+	"-mabi=apcs-gnu"
+	 If one test succeeds, we use the first found option.
+      3) In case 2), we also test if "-mno-thumb-interwork", and use
+	 this if the test succeeds. [For "-mabi=aapcs-linux" we set
+	 "-mno-thumb-interwork" mandatorily.]
+
+      This way we use a similar logic for the compile options as the
+      Linux kernel does.
+
+    - Some EABI conformant tool chains cause external references to
+      utility functions like raise(); such functions are provided in the
+      new file lib_arm/eabi_compat.c
+
+      Note that lib_arm/config.mk gets parsed several times, so we must
+      make sure to add eabi_compat.o only once to the linker list.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Cc: Dirk Behme <dirk.behme@googlemail.com>
+    Cc: Magnus Lilja <lilja.magnus@gmail.com>
+    Cc: Tom Rix <Tom.Rix@windriver.com>
+    Cc: Prafulla Wadaskar <prafulla@marvell.com>
+    Acked-by: Sergey Kubushyn <ksi@koi8.net>
+    Tested-by: Magnus Lilja <lilja.magnus@gmail.com>
+    Tested-by: Andrzej Wolski <awolski@poczta.fm>
+    Tested-by: Gaye Abdoulaye Walsimou <walsimou@walsimou.com>
+    Tested-by: Tom Rix <Tom.Rix@windriver.com>
+    Tested-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 269610f6ba2e4a7bc27d2e53d43160614016964f
+Author: Mingkai Hu <Mingkai.hu@freescale.com>
+Date:	Thu Jul 30 17:56:51 2009 +0800
+
+    NAND boot: fix nand_load overlap issue
+
+    The code copy data from NAND flash block by block, so when
+    the data length isn't a whole-number multiple of the block
+    size, it will overlap the rest space.
+
+    Signed-off-by: Mingkai Hu <Mingkai.hu@freescale.com>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit 1fc1d9aed08f2b3366d634fda6712a710b2cff9a
+Author: Giulio Benetti <giulio.benetti@micronovasrl.com>
+Date:	Fri Jul 31 17:30:34 2009 -0500
+
+    add WATCHDOG_RESET() on nand write and read
+
+    Signed-off-by: giulio.benetti@micronovasrl.com
+    Acked-by: Wolfgang Denk <wd@denx.de>
+    Signed-off-by: Scott Wood <scottwood@freescale.com>
+
+commit b1e849f2201bbbf3ca81fde164f154f9caf7f0e9
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Feb 4 15:14:05 2009 -0600
+
+    tsec: Wait for auto-negotiation to complete without link
+
+    Previously, waiting for auto-negotiation would only occur if a valid
+    link had been detected.  Problems arose when attempting to use a
+    tsec immediately after bootup but before link was achieved, eg:
+    => dhcp
+    Auto-neg error, defaulting to 10BT/HD
+    eTSEC1: No link.
+    Auto-neg error, defaulting to 10BT/HD
+    eTSEC2: No link.
+    =>
+
+    With this patch applied the same operation as above resulted in:
+    => dhcp
+    Waiting for PHY auto negotiation to complete. done
+    Enet starting in 1000BT/FD
+    Speed: 1000, full duplex
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 477fa6378fbd3e47a5e2e83d0dd3970d5b1c8371
+Author: Simon Kagstrom <simon.kagstrom@netinsight.net>
+Date:	Thu Aug 20 10:14:11 2009 +0200
+
+    arm: kirkwood: See to it that sent data is 8-byte aligned
+
+    U-boot might use non-8-byte-aligned addresses for sending data, which
+    the kwgbe_send doesn't accept (bootp does this for me). This patch
+    copies the data to be sent to a malloced temporary buffer if it is
+    non-aligned.
+
+    Signed-off-by: Simon Kagstrom <simon.kagstrom@netinsight.net>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit cad713bf7548b9e90433dac8270165402a6c9cc3
+Author: Simon Kagstrom <simon.kagstrom@netinsight.net>
+Date:	Thu Aug 20 10:13:06 2009 +0200
+
+    Wait for the link to come up on kirkwood network init
+
+    This patch makes the device wait for up to 5 seconds for the link to
+    come up, similar to what many of the other network drivers do. This
+    avoids confusing situations where, e.g., a tftp fails when initiated
+    early after U-boot has started (before the link has come up).
+
+    Signed-off-by: Simon Kagstrom <simon.kagstrom@netinsight.net>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit bb1ca3b27f7fba8c73cb10279a6a8b8b69a308ff
+Author: Simon Kagstrom <simon.kagstrom@netinsight.net>
+Date:	Thu Aug 20 10:12:28 2009 +0200
+
+    arm:kirkwood Define kirkwood phy address magic number
+
+    Signed-off-by: Simon Kagstrom <simon.kagstrom@netinsight.net>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit f81ecb5d3300bf92d17302d3712f30585c182da9
+Author: Timur Tabi <timur@freescale.com>
+Date:	Mon Aug 17 15:55:38 2009 -0500
+
+    e1000: fix PCI memory addressing
+
+    The Intel E1000 driver was making assumptions about the relationship between
+    some virtual, physical, and PCI addresses.
+
+    Also fix some bad usage of the DEBUGOUT macro
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit b644006e1a7baa227aedc606ecdf0bb5eeb24cab
+Author: Ilya Yanok <yanok@emcraft.com>
+Date:	Wed Aug 12 16:42:48 2009 +0400
+
+    jffs2: clean the cache in case of malloc fails in build_lists
+
+    We should call jffs2_clean_cache() if we return from jffs2_build_lists()
+    with an error to prevent usage of incomplete lists. Also we should
+    free() a local buffer to prevent memory leaks.
+
+    Signed-off-by: Ilya Yanok <yanok@emcraft.com>
+
+commit 7ff66bb0be80cadd681be22a72e5eb02ee14c878
+Author: Heiko Schocher <hs@denx.de>
+Date:	Wed Aug 12 10:17:03 2009 +0200
+
+    ppc: trigger WDT before starting Linux
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 918319c705d8a3d6251919a660baef32ff3a829a
+Author: Albin Tonnerre <albin.tonnerre@free-electrons.com>
+Date:	Wed Jul 22 18:30:03 2009 +0200
+
+    Update the mtd driver name in bootargs for at91-based boards
+
+    The name of the atmel nand driver in the kernel changed from at91_nand
+    to atmel_nand back in June 2008, but the at91-based boards config files
+    still refer to at91_nand. This patch updates them with the new name
+
+    Signed-off-by: Albin Tonnerre <albin.tonnerre@free-electrons.com>
+
+commit 8fa656aa5289815d942ebdc26182ccb9f2b9c86f
+Author: Ben Goska <goskab@onid.oregonstate.edu>
+Date:	Fri Aug 14 10:03:36 2009 -0700
+
+    omap3: Fixed a problem with hwecc
+
+    In commit 187af954cf7958c24efcf0fd62289bbdb4f1f24e there
+    was a typo that offset all the ecc registers by 4 bytes, fixed that.
+
+    Signed-off-by: Ben Goska <goskab@onid.oregonstate.edu>
+    Acked-by: Dirk Behme <dirk.behme@googlemail.com>
+
+commit 514bab6609acd1a2a19fdd75c2f6255178db7c96
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Aug 17 16:57:53 2009 +0200
+
+    ppc4xx: Fix "chip_config" command for AMCC Arches
+
+    This patch fixes the "chip_config" command for I2C bootstrap EEPROM
+    configuration. First it changes the I2C bootstrap EEPROM address to
+    0x54 as this is used on Arches (instead of 0x52 on Canyonlands/
+    Glacier). Additionally, the NAND bootstrap settings are removed
+    for Arches since Arches doesn't support NAND-booting.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 4af34177b657e91263919a307fd0b0865a299e52
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Aug 16 23:40:13 2009 +0200
+
+    Monahans: avoid floating point calculations
+
+    Current code for the Monahans CPU defined OSCR_CLK_FREQ as 3.250 (MHz)
+    which caused floating point operations to be used. This resulted in
+    unresolved references to some FP related libgcc functions when using
+    U-Boot's private libgcc functions.
+
+    Change the code to use fixed point math only.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e393e2e9bc5cd3d5484e193d1380e7cd7587ab5c
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Aug 14 16:43:22 2009 -0500
+
+    85xx: Fix addrmap to include memory
+
+    When we init the addrmap based on the TLB we will not end up getting
+    the TLB that covers memory if we are using SPD.  The reason is we
+    haven't relocated at the point that we setup the memory TLB and thus it
+    will not get setup in the addrmap.
+
+    Instead we can just walk over the TLB array after we've relocated and
+    see all the TLBs that have been set and use that information to populate
+    the initial addrmap.  By doing this we insure that we get the TLB
+    entries that cover memory.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 7dedefdf749ff02c1086f7ddb8cb83a77b00d030
+Author: John Schmoller <jschmoller@xes-inc.com>
+Date:	Wed Aug 12 10:55:47 2009 -0500
+
+    flash: Fix CFI buffer size bug
+
+    Fix bug introduced by 9c048b523413ae5f3ff34e00cf57569c3368ab51.
+
+    The cfi_flash.c driver cast the flash buffer size to a uchar in
+    flash_write_cfibuffer(). On some flash parts, (tested on Numonyx
+    part PC32F512M29EWH), the buffer size is 1KB. Remove the cast to
+    uchar to enable buffer sizes to be larger.
+
+    Signed-off-by: John Schmoller <jschmoller@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit f6e3a1fa92f61083885178101e973c86b419a6f7
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 13 00:32:14 2009 -0400
+
+    trab: rename spi_init()
+
+    The local board-specific spi_init() function conflicts with the common SPI
+    layer, so rename it to something board-specific.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 253cb831f5861358a7fa673305cdf7ded1096f44
+Author: Giuseppe CONDORELLI <giuseppe.condorelli@st.com>
+Date:	Wed Jul 29 06:05:20 2009 -0400
+
+    zlib: add watchdog reset call
+
+    This patch adds watchdog reset call to allow its invokation during decompression
+    phase. This control was present on old zlib version and here it is
+    backported for those relevant routines. This patch is sent as a zlib separate
+    one beacuse it was not tested due to specific board lack.
+    zlib patches will be unified just in one when this will be validated through
+    tests.
+
+    Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
+
+commit dce3d797102b6618e8bdd4a09cfd35969f165d86
+Author: Giuseppe CONDORELLI <giuseppe.condorelli@st.com>
+Date:	Wed Jul 29 08:05:08 2009 -0400
+
+    zlib: updated to v.1.2.3
+
+    This patch updates zlib to the latest stable version.
+    Only relevant zlib parts were ported to u-boot tree, as already did for the
+    current zlib (0.95). New zlib guarantees a faster inflate performances
+    other then others improvements as explained at www.zlib.net.
+    It also includes Alessandro Rubini's patches to allow 0 as destination pointer
+    and to call watchdog reset if required by architecture.
+
+    Signed-off-by: Giuseppe Condorelli <giuseppe.condorelli@st.com>
+    Reviewed-by: Angelo Castello <angelo.castello@st.com>
+    Reviewed-by: Alessandro Rubini <rubini-list@gnudd.com>
+
+commit 3426d65daab6af483b177ed502038f52ed2e5aef
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Aug 11 10:37:58 2009 +0200
+
+    dtt, lm81: move unneccessary printf into a debug printf
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 54e399f110bbaa24e662e6dd9e88ddb86989d668
+Author: Mark Jackson <mpfj-list@mimc.co.uk>
+Date:	Tue Aug 11 11:33:47 2009 +0100
+
+    MIMC200: reduce LCD pixclock
+
+    The initial pixclock for the MIMC200 board is wrong (and causes
+    screen corruption due to DMA underruns).
+
+    This patch simply reduces the pixel clock to fix the problem.
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+
+commit 1443cd7e54d6893ab7cc51d93fe7759cdaa8b31f
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Wed Jul 1 14:04:05 2009 -0400
+
+    UEC FIXED PHY: Determine fixed-phy port using UEC interface name.
+
+    Fixed a misunderstanding in the original implementation, 'devnum' that
+    was used in the cpu/ppc4xx/4xx_enet.c implementation was NOT the
+    PHY's SMI address, rather it was the number of the MAC interface on
+    the CPU. The equivalent of this for uec_phy will be the UEC number
+    stored in mii_info->dev->name. Usage example is updated for uec.
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 1a9519373b977ef3f7c9563ad3acb6c6f2424657
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Wed Jul 1 14:03:15 2009 -0400
+
+    Assigned a static SMI address to all UECs TBIPA address.
+
+    It is set to 0x1F by default and can be overwritten on the board
+    header file by defining CONFIG_UTBIPAR_INIT_TBIPA. This allows
+    the CPU to simply "reserve" one SMI address instead of using
+    a different one for each UEC.
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 9fd38a01cbc0ce4a8db41f72677103ed04b23db5
+Author: Prafulla Wadaskar <prafulla@marvell.com>
+Date:	Mon Aug 10 19:43:06 2009 +0530
+
+    net: kirkwood: updates: used eth_setenv_enetaddr api
+
+    eth_setenv_enetaddr is avaible by upper layer
+    using this saves 204 bytes on total image size
+
+    used Local OUI instead of Marvell OUI for
+    random MAC address generation logic
+
+    Signed-off-by: Prafulla Wadaskar <prafulla@marvell.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit ecbd2078a1f56c85b6c56afaaed862bf92ccd3f3
+Author: Roy Zang <tie-fei.zang@freescale.com>
+Date:	Tue Aug 11 03:48:05 2009 +0800
+
+    Fix E1000 build warning on AP1000 board
+
+     Fix E1000 build warning on AP1000 board
+     Fix the build warning on AP1000 board:
+     e1000.c:131: warning: 'e1000_read_eeprom' used but never defined
+     e1000.c:2012: warning: 'e1000_set_phy_mode' defined but not used
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit b3af1d698b031e721bacaee8715d79daaf823de6
+Author: Sandeep Paulraj <s-paulraj@ti.com>
+Date:	Mon Aug 10 12:24:40 2009 -0400
+
+    ARM: Davinci DM355: Enabling DM9000 on DM355 EVM
+
+    Due to recent changes to the NET support on U-boot, DM9000
+    is no longer detected on the DM355 EVM.
+    This minor update enables DM9000 on the DM355 EVM.
+    Tested on the DM355 EVM
+
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 08c2df33f1cd5935938486e968696f94ad406313
+Author: Prafulla Wadaskar <prafulla@marvell.com>
+Date:	Mon Aug 10 19:23:19 2009 +0530
+
+    net: phy: bugfixes: mv88E61xx compiler warnings fixed
+
+    1. mv88E61xx driver compiler warnings fixed
+    2. idstr if-else statements changed to switch() construct
+       and added default case too.
+       This fixed idstr may be uninitialized warning
+
+    Signed-off-by: Prafulla Wadaskar <prafulla@marvell.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 750326e5d540885e3ec36bda9464b8269249f6ce
+Author: Po-Yu Chuang <ratbert@faraday-tech.com>
+Date:	Mon Aug 10 11:00:00 2009 +0800
+
+    arm: A320: driver for FTMAC100 ethernet controller
+
+    This patch adds an FTMAC100 ethernet driver for Faraday A320 evaluation board.
+
+    Signed-off-by: Po-Yu Chuang <ratbert@faraday-tech.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit f90dc43fd67eea71124b999a7d5e617d0d86795b
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Aug 10 16:40:55 2009 -0500
+
+    85xx: Removed BEDBUG support from FSL 85xx boards
+
+    For some reason the MPC8544 enabled BEDBUG if PCI was enabled and that
+    got copied int the MPC8536, MPC8572 and P2020 DS boards.  The BEDBUG
+    support has never been made to work completely on e500/85xx so we
+    just disable it to save space and match the other FSL 85xx boards.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit eb1a4d0a471505c169bef19a73a60f8641f0b875
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Aug 10 10:39:12 2009 +0200
+
+    Prepare 2009.08-rc2
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 53cc18c71b2b920cca171874c6663e274fa80556
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Mon Aug 10 10:38:34 2009 +0200
@@ -526,6 +1157,19 @@ Date:	Tue Jul 28 10:50:32 2009 +0200
     decompression of bigger images.
 
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 901be89a27e11b2627c132ee87c7761bd6886091
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Jul 28 14:53:44 2009 +0200
+
+    83xx, kmeter1, fix: update in the DTS the correct size for the first flash
+
+    When updating the "reg" in the "/localbus/flash@f0000000,0" node
+    size was wrong updated for the first flash, because the total
+    size was filled in, instead of the right size for it.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
 
 commit 4c2e3da82dc2b7f8b39b7f1d57f570e4bc5caa6d
 Author: Kumar Gala <kumar.gala@freescale.com>
