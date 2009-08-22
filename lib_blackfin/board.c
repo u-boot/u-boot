@@ -44,15 +44,6 @@ static inline void serial_early_puts(const char *s)
 #endif
 }
 
-static void mem_malloc_init(ulong start, ulong size)
-{
-	mem_malloc_start = start;
-	mem_malloc_end = start + size;
-	mem_malloc_brk = start;
-
-	memset((void*)mem_malloc_start, 0, size);
-}
-
 static int display_banner(void)
 {
 	printf("\n\n%s\n\n", version_string);

@@ -82,16 +82,6 @@ extern void rtl8019_get_enetaddr (uchar * addr);
 #include <i2c.h>
 #endif
 
-static
-void mem_malloc_init (ulong start, ulong size)
-{
-	mem_malloc_start = start;
-	mem_malloc_end = start + size;
-	mem_malloc_brk = start;
-
-	memset ((void *)mem_malloc_start, 0, size);
-}
-
 
 /************************************************************************
  * Coloured LED functionality
