@@ -44,13 +44,13 @@ static inline void serial_early_puts(const char *s)
 #endif
 }
 
-static void mem_malloc_init(void)
+static void mem_malloc_init(ulong start, ulong size)
 {
-	mem_malloc_start = (ulong)CONFIG_SYS_MALLOC_BASE;
-	mem_malloc_end = (ulong)(CONFIG_SYS_MALLOC_BASE + CONFIG_SYS_MALLOC_LEN);
-	mem_malloc_brk = mem_malloc_start;
+	mem_malloc_start = start;
+	mem_malloc_end = start + size;
+	mem_malloc_brk = start;
 
-	memset((void*)mem_malloc_start, 0, mem_malloc_end - mem_malloc_start);
+	memset((void*)mem_malloc_start, 0, size);
 }
 
 static int display_banner(void)
@@ -311,7 +311,7 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #endif
 
 	/* initialize malloc() area */
-	mem_malloc_init();
+	mem_malloc_init(CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
 	malloc_bin_reloc();
 
 #if	!defined(CONFIG_SYS_NO_FLASH)

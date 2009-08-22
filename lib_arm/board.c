@@ -83,14 +83,13 @@ extern void rtl8019_get_enetaddr (uchar * addr);
 #endif
 
 static
-void mem_malloc_init (ulong dest_addr)
+void mem_malloc_init (ulong start, ulong size)
 {
-	mem_malloc_start = dest_addr;
-	mem_malloc_end = dest_addr + CONFIG_SYS_MALLOC_LEN;
-	mem_malloc_brk = mem_malloc_start;
+	mem_malloc_start = start;
+	mem_malloc_end = start + size;
+	mem_malloc_brk = start;
 
-	memset ((void *) mem_malloc_start, 0,
-			mem_malloc_end - mem_malloc_start);
+	memset ((void *)mem_malloc_start, 0, size);
 }
 
 
@@ -300,7 +299,8 @@ void start_armboot (void)
 	}
 
 	/* armboot_start is defined in the board-specific linker script */
-	mem_malloc_init (_armboot_start - CONFIG_SYS_MALLOC_LEN);
+	mem_malloc_init (_armboot_start - CONFIG_SYS_MALLOC_LEN,
+			CONFIG_SYS_MALLOC_LEN);
 
 #ifndef CONFIG_SYS_NO_FLASH
 	/* configure available FLASH banks */

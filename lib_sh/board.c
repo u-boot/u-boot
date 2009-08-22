@@ -38,14 +38,13 @@ const char version_string[] = U_BOOT_VERSION" ("U_BOOT_DATE" - "U_BOOT_TIME")";
 
 unsigned long monitor_flash_len = CONFIG_SYS_MONITOR_LEN;
 
-static void mem_malloc_init(void)
+static void mem_malloc_init(ulong start, ulong size)
 {
+	mem_malloc_start = start;
+	mem_malloc_end = start + size;
+	mem_malloc_brk = start;
 
-	mem_malloc_start = (TEXT_BASE - CONFIG_SYS_GBL_DATA_SIZE - CONFIG_SYS_MALLOC_LEN);
-	mem_malloc_end = (mem_malloc_start + CONFIG_SYS_MALLOC_LEN - 16);
-	mem_malloc_brk = mem_malloc_start;
-	memset((void *) mem_malloc_start, 0,
-		(mem_malloc_end - mem_malloc_start));
+	memset((void *)mem_malloc_start, 0, size);
 }
 
 static int sh_flash_init(void)
@@ -96,7 +95,8 @@ static int sh_pci_init(void)
 
 static int sh_mem_env_init(void)
 {
-	mem_malloc_init();
+	mem_malloc_init(TEXT_BASE - CONFIG_SYS_GBL_DATA_SIZE -
+			CONFIG_SYS_MALLOC_LEN, CONFIG_SYS_MALLOC_LEN - 16);
 	malloc_bin_reloc();
 	env_relocate();
 	jumptable_init();

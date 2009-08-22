@@ -51,12 +51,13 @@ extern int getenv_IPaddr (char *);
  * aka CONFIG_SYS_MONITOR_BASE - Note there is no need for reloc_off
  * as our monitory code is run from SDRAM
  */
-static void mem_malloc_init (void)
+static void mem_malloc_init(ulong start, ulong size)
 {
-	mem_malloc_end = (CONFIG_SYS_MALLOC_BASE + CONFIG_SYS_MALLOC_LEN);
-	mem_malloc_start = CONFIG_SYS_MALLOC_BASE;
-	mem_malloc_brk = mem_malloc_start;
-	memset ((void *)mem_malloc_start, 0, mem_malloc_end - mem_malloc_start);
+	mem_malloc_start = start;
+	mem_malloc_end = start + size;
+	mem_malloc_brk = start;
+
+	memset ((void *)mem_malloc_start, 0, size);
 }
 
 /*
@@ -104,7 +105,7 @@ void board_init (void)
 	gd->flags |= GD_FLG_RELOC;      /* tell others: relocation done */
 
 	/* Initialise malloc() area */
-	mem_malloc_init ();
+	mem_malloc_init (CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
 
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		WATCHDOG_RESET ();

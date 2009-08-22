@@ -144,17 +144,13 @@ ulong monitor_flash_len;
 /*
  * The Malloc area is immediately below the monitor copy in DRAM
  */
-static void mem_malloc_init (void)
+static void mem_malloc_init(ulong start, ulong size)
 {
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
-	mem_malloc_end = CONFIG_SYS_MONITOR_BASE + gd->reloc_off;
-#endif
-	mem_malloc_start = mem_malloc_end - TOTAL_MALLOC_LEN;
-	mem_malloc_brk = mem_malloc_start;
+	mem_malloc_start = start;
+	mem_malloc_end = start + size;
+	mem_malloc_brk = start;
 
-	memset ((void *) mem_malloc_start,
-		0,
-		mem_malloc_end - mem_malloc_start);
+	memset ((void *)mem_malloc_start, 0, size);
 }
 
 /*
@@ -650,6 +646,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #ifndef CONFIG_ENV_IS_NOWHERE
 	extern char * env_name_spec;
 #endif
+	ulong malloc_start;
 
 #ifndef CONFIG_SYS_NO_FLASH
 	ulong flash_size;
@@ -662,9 +659,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 #if defined(CONFIG_RELOC_FIXUP_WORKS)
 	gd->reloc_off = 0;
-	mem_malloc_end = dest_addr;
+	malloc_start = dest_addr - TOTAL_MALLOC_LEN;
 #else
 	gd->reloc_off = dest_addr - CONFIG_SYS_MONITOR_BASE;
+	malloc_start = CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
+			TOTAL_MALLOC_LEN;
 #endif
 
 #ifdef CONFIG_SERIAL_MULTI
@@ -760,7 +759,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	asm ("sync ; isync");
 
 	/* initialize malloc() area */
-	mem_malloc_init ();
+	mem_malloc_init (malloc_start, TOTAL_MALLOC_LEN);
 	malloc_bin_reloc ();
 
 #if !defined(CONFIG_SYS_NO_FLASH)
