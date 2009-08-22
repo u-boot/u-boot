@@ -74,13 +74,6 @@ static char *failed = "*** failed ***\n";
 
 ulong monitor_flash_len;
 
-/*
- * Begin and End of memory area for malloc(), and current "brk"
- */
-static ulong mem_malloc_start = 0;
-static ulong mem_malloc_end = 0;
-static ulong mem_malloc_brk = 0;
-
 /************************************************************************
  * Utilities								*
  ************************************************************************
@@ -95,18 +88,6 @@ static void mem_malloc_init(void)
 	mem_malloc_end = CONFIG_SYS_MALLOC_END;
 	mem_malloc_brk = mem_malloc_start;
 	memset((void *)mem_malloc_start, 0, mem_malloc_end - mem_malloc_start);
-}
-
-void *sbrk(ptrdiff_t increment)
-{
-	ulong old = mem_malloc_brk;
-	ulong new = old + increment;
-
-	if ((new < mem_malloc_start) || (new > mem_malloc_end)) {
-		return (NULL);
-	}
-	mem_malloc_brk = new;
-	return ((void *)old);
 }
 
 /***********************************************************************/

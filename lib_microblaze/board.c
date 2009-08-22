@@ -47,13 +47,6 @@ extern int getenv_IPaddr (char *);
 #endif
 
 /*
- * Begin and End of memory area for malloc(), and current "brk"
- */
-static ulong mem_malloc_start;
-static ulong mem_malloc_end;
-static ulong mem_malloc_brk;
-
-/*
  * The Malloc area is immediately below the monitor copy in DRAM
  * aka CONFIG_SYS_MONITOR_BASE - Note there is no need for reloc_off
  * as our monitory code is run from SDRAM
@@ -64,18 +57,6 @@ static void mem_malloc_init (void)
 	mem_malloc_start = CONFIG_SYS_MALLOC_BASE;
 	mem_malloc_brk = mem_malloc_start;
 	memset ((void *)mem_malloc_start, 0, mem_malloc_end - mem_malloc_start);
-}
-
-void *sbrk (ptrdiff_t increment)
-{
-	ulong old = mem_malloc_brk;
-	ulong new = old + increment;
-
-	if ((new < mem_malloc_start) || (new > mem_malloc_end)) {
-		return (NULL);
-	}
-	mem_malloc_brk = new;
-	return ((void *)old);
 }
 
 /*

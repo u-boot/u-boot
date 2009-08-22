@@ -1502,7 +1502,23 @@ void malloc_bin_reloc (void)
 		*p++ += gd->reloc_off;
 	}
 }
-
+
+ulong mem_malloc_start = 0;
+ulong mem_malloc_end = 0;
+ulong mem_malloc_brk = 0;
+
+void *sbrk(ptrdiff_t increment)
+{
+	ulong old = mem_malloc_brk;
+	ulong new = old + increment;
+
+	if ((new < mem_malloc_start) || (new > mem_malloc_end))
+		return NULL;
+
+	mem_malloc_brk = new;
+
+	return (void *)old;
+}
 
 /* field-extraction macros */
 
