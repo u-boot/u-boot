@@ -82,13 +82,6 @@ extern void rtl8019_get_enetaddr (uchar * addr);
 #include <i2c.h>
 #endif
 
-/*
- * Begin and End of memory area for malloc(), and current "brk"
- */
-static ulong mem_malloc_start = 0;
-static ulong mem_malloc_end = 0;
-static ulong mem_malloc_brk = 0;
-
 static
 void mem_malloc_init (ulong dest_addr)
 {
@@ -98,19 +91,6 @@ void mem_malloc_init (ulong dest_addr)
 
 	memset ((void *) mem_malloc_start, 0,
 			mem_malloc_end - mem_malloc_start);
-}
-
-void *sbrk (ptrdiff_t increment)
-{
-	ulong old = mem_malloc_brk;
-	ulong new = old + increment;
-
-	if ((new < mem_malloc_start) || (new > mem_malloc_end)) {
-		return (NULL);
-	}
-	mem_malloc_brk = new;
-
-	return ((void *) old);
 }
 
 

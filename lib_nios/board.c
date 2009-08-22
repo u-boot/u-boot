@@ -27,6 +27,7 @@
 #include <common.h>
 #include <stdio_dev.h>
 #include <watchdog.h>
+#include <malloc.h>
 #include <net.h>
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
@@ -52,13 +53,6 @@ extern void malloc_bin_reloc (void);
 typedef int (init_fnc_t) (void);
 
 /*
- * Begin and End of memory area for malloc(), and current "brk"
- */
-static	ulong	mem_malloc_start = 0;
-static	ulong	mem_malloc_end	 = 0;
-static	ulong	mem_malloc_brk	 = 0;
-
-/*
  * The Malloc area is immediately below the monitor copy in RAM
  */
 static void mem_malloc_init (void)
@@ -69,18 +63,6 @@ static void mem_malloc_init (void)
 	memset ((void *) mem_malloc_start,
 		0,
 		mem_malloc_end - mem_malloc_start);
-}
-
-void *sbrk (ptrdiff_t increment)
-{
-	ulong old = mem_malloc_brk;
-	ulong new = old + increment;
-
-	if ((new < mem_malloc_start) || (new > mem_malloc_end)) {
-		return (NULL);
-	}
-	mem_malloc_brk = new;
-	return ((void *) old);
 }
 
 

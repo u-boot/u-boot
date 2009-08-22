@@ -44,27 +44,13 @@ static inline void serial_early_puts(const char *s)
 #endif
 }
 
-static void *mem_malloc_start, *mem_malloc_end, *mem_malloc_brk;
-
 static void mem_malloc_init(void)
 {
-	mem_malloc_start = (void *)CONFIG_SYS_MALLOC_BASE;
-	mem_malloc_end = (void *)(CONFIG_SYS_MALLOC_BASE + CONFIG_SYS_MALLOC_LEN);
+	mem_malloc_start = (ulong)CONFIG_SYS_MALLOC_BASE;
+	mem_malloc_end = (ulong)(CONFIG_SYS_MALLOC_BASE + CONFIG_SYS_MALLOC_LEN);
 	mem_malloc_brk = mem_malloc_start;
-	memset(mem_malloc_start, 0, mem_malloc_end - mem_malloc_start);
-}
 
-void *sbrk(ptrdiff_t increment)
-{
-	void *old = mem_malloc_brk;
-	void *new = old + increment;
-
-	if (new < mem_malloc_start || new > mem_malloc_end)
-		return NULL;
-
-	mem_malloc_brk = new;
-
-	return old;
+	memset((void*)mem_malloc_start, 0, mem_malloc_end - mem_malloc_start);
 }
 
 static int display_banner(void)

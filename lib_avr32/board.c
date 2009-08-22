@@ -41,13 +41,6 @@ const char version_string[] =
 
 unsigned long monitor_flash_len;
 
-/*
- * Begin and end of memory area for malloc(), and current "brk"
- */
-static unsigned long mem_malloc_start = 0;
-static unsigned long mem_malloc_end = 0;
-static unsigned long mem_malloc_brk = 0;
-
 /* Weak aliases for optional board functions */
 static int __do_nothing(void)
 {
@@ -71,18 +64,6 @@ static void mem_malloc_init(void)
 
 	memset ((void *)mem_malloc_start, 0,
 		mem_malloc_end - mem_malloc_start);
-}
-
-void *sbrk(ptrdiff_t increment)
-{
-	unsigned long old = mem_malloc_brk;
-	unsigned long new = old + increment;
-
-	if ((new < mem_malloc_start) || (new > mem_malloc_end))
-		return NULL;
-
-	mem_malloc_brk = new;
-	return ((void *)old);
 }
 
 #ifdef CONFIG_SYS_DMA_ALLOC_LEN

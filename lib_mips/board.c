@@ -60,13 +60,6 @@ const char version_string[] =
 static char *failed = "*** failed ***\n";
 
 /*
- * Begin and End of memory area for malloc(), and current "brk"
- */
-static ulong mem_malloc_start;
-static ulong mem_malloc_end;
-static ulong mem_malloc_brk;
-
-/*
  * mips_io_port_base is the begin of the address space to which x86 style
  * I/O ports are mapped.
  */
@@ -95,18 +88,6 @@ static void mem_malloc_init (void)
 	memset ((void *) mem_malloc_start,
 		0,
 		mem_malloc_end - mem_malloc_start);
-}
-
-void *sbrk (ptrdiff_t increment)
-{
-	ulong old = mem_malloc_brk;
-	ulong new = old + increment;
-
-	if ((new < mem_malloc_start) || (new > mem_malloc_end)) {
-		return (NULL);
-	}
-	mem_malloc_brk = new;
-	return ((void *) old);
 }
 
 
