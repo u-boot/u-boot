@@ -50,20 +50,16 @@ int board_postclk_init(void) __attribute__((weak, alias("__do_nothing")));
 int board_early_init_r(void) __attribute__((weak, alias("__do_nothing")));
 
 /* The malloc area is right below the monitor image in RAM */
-static void mem_malloc_init(void)
+static void mem_malloc_init(ulong start, ulong size)
 {
-	unsigned long monitor_addr;
-
-	monitor_addr = CONFIG_SYS_MONITOR_BASE + gd->reloc_off;
-	mem_malloc_end = monitor_addr;
-	mem_malloc_start = mem_malloc_end - CONFIG_SYS_MALLOC_LEN;
-	mem_malloc_brk = mem_malloc_start;
+	mem_malloc_start = start;
+	mem_malloc_end = start + size;
+	mem_malloc_brk = start;
 
 	printf("malloc: Using memory from 0x%08lx to 0x%08lx\n",
 	       mem_malloc_start, mem_malloc_end);
 
-	memset ((void *)mem_malloc_start, 0,
-		mem_malloc_end - mem_malloc_start);
+	memset((void *)mem_malloc_start, 0, size);
 }
 
 #ifdef CONFIG_SYS_DMA_ALLOC_LEN
@@ -312,7 +308,8 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 #endif
 
 	timer_init();
-	mem_malloc_init();
+	mem_malloc_init(CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
+			CONFIG_SYS_MALLOC_LEN, CONFIG_SYS_MALLOC_LEN);
 	malloc_bin_reloc();
 	dma_alloc_init();
 

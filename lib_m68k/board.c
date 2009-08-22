@@ -109,17 +109,13 @@ ulong monitor_flash_len;
 /*
  * The Malloc area is immediately below the monitor copy in DRAM
  */
-static void mem_malloc_init (void)
+static void mem_malloc_init(ulong start, ulong size)
 {
-	ulong dest_addr = CONFIG_SYS_MONITOR_BASE + gd->reloc_off;
+	mem_malloc_start = start;
+	mem_malloc_end = start + size;
+	mem_malloc_brk = start;
 
-	mem_malloc_end = dest_addr;
-	mem_malloc_start = dest_addr - TOTAL_MALLOC_LEN;
-	mem_malloc_brk = mem_malloc_start;
-
-	memset ((void *) mem_malloc_start,
-		0,
-		mem_malloc_end - mem_malloc_start);
+	memset ((void *)mem_malloc_start, 0, size);
 }
 
 /*
@@ -499,7 +495,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	trap_init (CONFIG_SYS_SDRAM_BASE);
 
 	/* initialize malloc() area */
-	mem_malloc_init ();
+	mem_malloc_init (CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
+			TOTAL_MALLOC_LEN, TOTAL_MALLOC_LEN);
 	malloc_bin_reloc ();
 
 #if !defined(CONFIG_SYS_NO_FLASH)
