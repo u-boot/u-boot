@@ -33,23 +33,23 @@ static struct {
 	u16 level_reg;
 	u8 level_bit;
 } sc520_irq[] = {
-	{ SC520_IRQ0,  SC520_MPICMODE,  0x01 },
-	{ SC520_IRQ1,  SC520_MPICMODE,  0x02 },
-	{ SC520_IRQ2,  SC520_SL1PICMODE, 0x02 },
-	{ SC520_IRQ3,  SC520_MPICMODE,  0x08 },
-	{ SC520_IRQ4,  SC520_MPICMODE,  0x10 },
-	{ SC520_IRQ5,  SC520_MPICMODE,  0x20 },
-	{ SC520_IRQ6,  SC520_MPICMODE,  0x40 },
-	{ SC520_IRQ7,  SC520_MPICMODE,  0x80 },
+	{ SC520_IRQ0,  0, 0x01 },
+	{ SC520_IRQ1,  0, 0x02 },
+	{ SC520_IRQ2,  1, 0x02 },
+	{ SC520_IRQ3,  0, 0x08 },
+	{ SC520_IRQ4,  0, 0x10 },
+	{ SC520_IRQ5,  0, 0x20 },
+	{ SC520_IRQ6,  0, 0x40 },
+	{ SC520_IRQ7,  0, 0x80 },
 
-	{ SC520_IRQ8,  SC520_SL1PICMODE, 0x01 },
-	{ SC520_IRQ9,  SC520_SL1PICMODE, 0x02 },
-	{ SC520_IRQ10, SC520_SL1PICMODE, 0x04 },
-	{ SC520_IRQ11, SC520_SL1PICMODE, 0x08 },
-	{ SC520_IRQ12, SC520_SL1PICMODE, 0x10 },
-	{ SC520_IRQ13, SC520_SL1PICMODE, 0x20 },
-	{ SC520_IRQ14, SC520_SL1PICMODE, 0x40 },
-	{ SC520_IRQ15, SC520_SL1PICMODE, 0x80 }
+	{ SC520_IRQ8,  1, 0x01 },
+	{ SC520_IRQ9,  1, 0x02 },
+	{ SC520_IRQ10, 1, 0x04 },
+	{ SC520_IRQ11, 1, 0x08 },
+	{ SC520_IRQ12, 1, 0x10 },
+	{ SC520_IRQ13, 1, 0x20 },
+	{ SC520_IRQ14, 1, 0x40 },
+	{ SC520_IRQ15, 1, 0x80 }
 };
 
 
@@ -77,34 +77,34 @@ int pci_sc520_set_irq(int pci_pin, int irq)
 
 	/* first disable any non-pci interrupt source that use
 	 * this level */
-	for (i=SC520_GPTMR0MAP;i<=SC520_GP10IMAP;i++) {
-		if (i>=SC520_PCIINTAMAP&&i<=SC520_PCIINTDMAP) {
-			continue;
-		}
-		if (read_mmcr_byte(i) == sc520_irq[irq].priority) {
-			write_mmcr_byte(i, SC520_IRQ_DISABLED);
-		}
+
+	/* PCI interrupt mapping (A through D)*/
+	for (i=0; i<=3 ;i++) {
+		if (sc520_mmcr->pci_int_map[i] == sc520_irq[irq].priority)
+			sc520_mmcr->pci_int_map[i] = SC520_IRQ_DISABLED;
+	}
+
+	/* GP IRQ interrupt mapping */
+	for (i=0; i<=10 ;i++) {
+		if (sc520_mmcr->gp_int_map[i] == sc520_irq[irq].priority)
+			sc520_mmcr->gp_int_map[i] = SC520_IRQ_DISABLED;
 	}
 
 	/* Set the trigger to level */
-	write_mmcr_byte(sc520_irq[irq].level_reg,
-			read_mmcr_byte(sc520_irq[irq].level_reg) | sc520_irq[irq].level_bit);
+	sc520_mmcr->pic_mode[sc520_irq[irq].level_reg] =
+		sc520_mmcr->pic_mode[sc520_irq[irq].level_reg] | sc520_irq[irq].level_bit;
 
 
 	if (pci_pin < 4) {
 		/* PCI INTA-INTD */
 		/* route the interrupt */
-		write_mmcr_byte(SC520_PCIINTAMAP + pci_pin, sc520_irq[irq].priority);
-
-
+		sc520_mmcr->pci_int_map[pci_pin] = sc520_irq[irq].priority;
 	} else {
 		/* GPIRQ0-GPIRQ10 used for additional PCI INTS */
-		write_mmcr_byte(SC520_GP0IMAP + pci_pin - 4, sc520_irq[irq].priority);
+		sc520_mmcr->gp_int_map[pci_pin - 4] = sc520_irq[irq].priority;
 
 		/* also set the polarity in this case */
-		write_mmcr_word(SC520_INTPINPOL,
-				read_mmcr_word(SC520_INTPINPOL) | (1 << (pci_pin-4)));
-
+		sc520_mmcr->intpinpol = sc520_mmcr->intpinpol | (1 << (pci_pin-4));
 	}
 
 	/* register the pin */

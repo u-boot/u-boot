@@ -33,75 +33,35 @@ DECLARE_GLOBAL_DATA_PTR;
 /*
  * utility functions for boards based on the AMD sc520
  *
- * void write_mmcr_byte(u16 mmcr, u8 data)
- * void write_mmcr_word(u16 mmcr, u16 data)
- * void write_mmcr_long(u16 mmcr, u32 data)
- *
- * u8   read_mmcr_byte(u16 mmcr)
- * u16  read_mmcr_word(u16 mmcr)
- * u32  read_mmcr_long(u16 mmcr)
- *
  * void init_sc520(void)
  * unsigned long init_sc520_dram(void)
  */
 
-static u32 mmcr_base= 0xfffef000;
-
-void write_mmcr_byte(u16 mmcr, u8 data)
-{
-	writeb(data, mmcr+mmcr_base);
-}
-
-void write_mmcr_word(u16 mmcr, u16 data)
-{
-	writew(data, mmcr+mmcr_base);
-}
-
-void write_mmcr_long(u16 mmcr, u32 data)
-{
-	writel(data, mmcr+mmcr_base);
-}
-
-u8 read_mmcr_byte(u16 mmcr)
-{
-	return readb(mmcr+mmcr_base);
-}
-
-u16 read_mmcr_word(u16 mmcr)
-{
-	return readw(mmcr+mmcr_base);
-}
-
-u32 read_mmcr_long(u16 mmcr)
-{
-	return readl(mmcr+mmcr_base);
-}
-
+volatile sc520_mmcr_t *sc520_mmcr = (sc520_mmcr_t *)0xfffef000;
 
 void init_sc520(void)
 {
 	/* Set the UARTxCTL register at it's slower,
 	 * baud clock giving us a 1.8432 MHz reference
 	 */
-	write_mmcr_byte(SC520_UART1CTL, 7);
-	write_mmcr_byte(SC520_UART2CTL, 7);
+	sc520_mmcr->uart1ctl = 0x07;
+	sc520_mmcr->uart2ctl = 0x07;
 
 	/* first set the timer pin mapping */
-	write_mmcr_byte(SC520_CLKSEL, 0x72);	/* no clock frequency selected, use 1.1892MHz */
+	sc520_mmcr->clksel = 0x72;	/* no clock frequency selected, use 1.1892MHz */
 
 	/* enable PCI bus arbitrer */
-	write_mmcr_byte(SC520_SYSARBCTL,0x02);  /* enable concurrent mode */
+	sc520_mmcr->sysarbctl = 0x02;	/* enable concurrent mode */
 
-	write_mmcr_word(SC520_SYSARBMENB,0x1f); /* enable external grants */
-	write_mmcr_word(SC520_HBCTL,0x04);      /* enable posted-writes */
-
+	sc520_mmcr->sysarbmenb = 0x1f;	/* enable external grants */
+	sc520_mmcr->hbctl = 0x04;	/* enable posted-writes */
 
 	if (CONFIG_SYS_SC520_HIGH_SPEED) {
-		write_mmcr_byte(SC520_CPUCTL, 0x2);	/* set it to 133 MHz and write back */
+		sc520_mmcr->cpuctl = 0x02;	/* set it to 133 MHz and write back */
 		gd->cpu_clk = 133000000;
 		printf("## CPU Speed set to 133MHz\n");
 	} else {
-		write_mmcr_byte(SC520_CPUCTL, 1);	/* set CPU to 100 MHz and write back cache */
+		sc520_mmcr->cpuctl = 0x01;	/* set it to 100 MHz and write back */
 		printf("## CPU Speed set to 100MHz\n");
 		gd->cpu_clk = 100000000;
 	}
@@ -114,7 +74,7 @@ void init_sc520(void)
 	    "loop 0b\n": : : "ecx");
 
 	/* turn on the SDRAM write buffer */
-	write_mmcr_byte(SC520_DBCTL, 0x11);
+	sc520_mmcr->dbctl = 0x11;
 
 	/* turn on the cache and disable write through */
 	asm("movl	%%cr0, %%eax\n"
@@ -156,10 +116,9 @@ unsigned long init_sc520_dram(void)
 		val = 3;  /* 62.4us */
 	}
 
-	write_mmcr_byte(SC520_DRCCTL, (read_mmcr_byte(SC520_DRCCTL) & 0xcf) | (val<<4));
+	sc520_mmcr->drcctl = (sc520_mmcr->drcctl & 0xcf) | (val<<4);
 
-	val = read_mmcr_byte(SC520_DRCTMCTL);
-	val &= 0xf0;
+	val = sc520_mmcr->drctmctl & 0xf0;
 
 	if (cas_precharge_delay==3) {
 		val |= 0x04;   /* 3T */
@@ -174,12 +133,12 @@ unsigned long init_sc520_dram(void)
 	} else {
 		val |= 1;
 	}
-	write_mmcr_byte(SC520_DRCTMCTL, val);
+	sc520_mmcr->drctmctl = val;
 #endif
 
 	/* We read-back the configuration of the dram
 	 * controller that the assembly code wrote */
-	dram_ctrl = read_mmcr_long(SC520_DRCBENDADR);
+	dram_ctrl = sc520_mmcr->drcbendadr;
 
 	bd->bi_dram[0].start = 0;
 	if (dram_ctrl & 0x80) {
@@ -232,7 +191,7 @@ void reset_cpu(ulong addr)
 {
 	printf("Resetting using SC520 MMCR\n");
 	/* Write a '1' to the SYS_RST of the RESCFG MMCR */
-	write_mmcr_word(SC520_RESCFG, 0x0001);
+	sc520_mmcr->rescfg = 0x01;
 
 	/* NOTREACHED */
 }
