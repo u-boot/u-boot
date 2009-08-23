@@ -109,9 +109,9 @@ void init_sc520(void)
 
 	/* wait at least one millisecond */
 	asm("movl	$0x2000,%%ecx\n"
-	    "wait_loop:	pushl %%ecx\n"
+	    "0:		pushl %%ecx\n"
 	    "popl	%%ecx\n"
-	    "loop wait_loop\n": : : "ecx");
+	    "loop 0b\n": : : "ecx");
 
 	/* turn on the SDRAM write buffer */
 	write_mmcr_byte(SC520_DBCTL, 0x11);
