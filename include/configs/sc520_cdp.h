@@ -30,7 +30,6 @@
 
 #define CONFIG_SKIP_RELOCATE_UBOOT
 
-#define GRUSS_TESTING
 /*
  * High Level Configuration Options
  * (easy to change)
@@ -85,11 +84,7 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_PCI
-#ifndef GRUSS_TESTING
 #define CONFIG_CMD_SATA
-#else
-#undef CONFIG_CMD_SATA
-#endif
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_EEPROM
@@ -181,17 +176,10 @@
 /************************************************************
 *SATA/Native Stuff
 ************************************************************/
-#ifndef GRUSS_TESTING
 #define CONFIG_SYS_SATA_MAXBUS         2       /*Max Sata buses supported */
 #define CONFIG_SYS_SATA_DEVS_PER_BUS   2      /*Max no. of devices per bus/port */
 #define CONFIG_SYS_SATA_MAX_DEVICE     (CONFIG_SYS_SATA_MAXBUS* CONFIG_SYS_SATA_DEVS_PER_BUS)
 #define CONFIG_ATA_PIIX		1       /*Supports ata_piix driver */
-#else
-#undef CONFIG_SYS_SATA_MAXBUS
-#undef CONFIG_SYS_SATA_DEVS_PER_BUS
-#undef CONFIG_SYS_SATA_MAX_DEVICE
-#undef CONFIG_ATA_PIIX
-#endif
 
 
 /************************************************************
@@ -204,13 +192,9 @@
 /************************************************************
  * Video/Keyboard support
  ************************************************************/
-#ifndef GRUSS_TESTING
 #define CONFIG_VIDEO			/* To enable video controller support */
 #define PCI_VIDEO_VENDOR_ID 0		/*Use the appropriate vendor ID*/
 #define PCI_VIDEO_DEVICE_ID 0		/*Use the appropriate Device ID*/
-#else
-#undef CONFIG_VIDEO
-#endif
 #define CONFIG_I8042_KBD
 #define CONFIG_SYS_ISA_IO 0
 
@@ -223,7 +207,6 @@
 /*
  * PCI stuff
  */
-#ifndef GRUSS_TESTING
 #define CONFIG_PCI                                /* include pci support */
 #define CONFIG_PCI_PNP                            /* pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW
@@ -232,11 +215,6 @@
 #define	CONFIG_SYS_SECOND_PCI_IRQ  9
 #define CONFIG_SYS_THIRD_PCI_IRQ   11
 #define	CONFIG_SYS_FORTH_PCI_IRQ   15
-#else
-#undef CONFIG_PCI
-#undef CONFIG_PCI_PNP
-#undef CONFIG_PCI_SCAN_SHOW
-#endif
 
 
 #endif	/* __CONFIG_H */
