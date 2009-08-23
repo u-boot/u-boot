@@ -2987,7 +2987,7 @@ nhk8815_onenand_config:	unconfig
 	@$(MKCONFIG) -a nhk8815 arm arm926ejs nhk8815 st nomadik
 
 omap1510inn_config :	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm925t omap1510inn
+	@$(MKCONFIG) $(@:_config=) arm arm925t omap1510inn ti
 
 xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$(subst _config,,$1))))
 
@@ -3010,10 +3010,10 @@ omap1610h2_cs_autoboot_config:	unconfig
 		echo "#define CONFIG_CS3_BOOT" >> $(obj)include/config.h ; \
 		$(XECHO) "... configured for CS3 boot"; \
 	fi;
-	@$(MKCONFIG) -a $(call xtract_omap1610xxx,$@) arm arm926ejs omap1610inn NULL omap
+	@$(MKCONFIG) -a $(call xtract_omap1610xxx,$@) arm arm926ejs omap1610inn ti omap
 
 omap5912osk_config :	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm926ejs omap5912osk NULL omap
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs omap5912osk ti omap
 
 xtract_omap730p2 = $(subst _cs0boot,,$(subst _cs3boot,, $(subst _config,,$1)))
 
@@ -3028,7 +3028,7 @@ omap730p2_cs3boot_config :	unconfig
 		echo "#define CONFIG_CS3_BOOT" >> $(obj)include/config.h ; \
 		$(XECHO) "... configured for CS3 boot"; \
 	fi;
-	@$(MKCONFIG) -a $(call xtract_omap730p2,$@) arm arm926ejs omap730p2 NULL omap
+	@$(MKCONFIG) -a $(call xtract_omap730p2,$@) arm arm926ejs omap730p2 ti omap
 
 rd6281a_config: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs $(@:_config=) Marvell kirkwood
@@ -3146,13 +3146,13 @@ SMN42_config	:	unconfig
 #########################################################################
 
 omap3_beagle_config :	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 beagle omap3 omap3
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 beagle ti omap3
 
 omap3_overo_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 overo omap3 omap3
 
 omap3_evm_config :	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 evm omap3 omap3
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 evm ti omap3
 
 omap3_pandora_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 pandora omap3 omap3
@@ -3281,7 +3281,7 @@ mx31pdk_nand_config	: unconfig
 	@$(MKCONFIG) -a mx31pdk arm arm1136 mx31pdk freescale mx31
 
 omap2420h4_config	: unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4 NULL omap24xx
+	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4 ti omap24xx
 
 qong_config		: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 qong davedenx mx31
