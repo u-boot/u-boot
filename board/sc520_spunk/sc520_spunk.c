@@ -24,11 +24,13 @@
 
 #include <common.h>
 #include <pci.h>
-#include <ssi.h>
 #include <netdev.h>
+#include <ds1722.h>
 #include <asm/io.h>
 #include <asm/pci.h>
 #include <asm/ic/sc520.h>
+#include <asm/ic/pci.h>
+#include <asm/ic/ssi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -112,7 +114,7 @@ static void pci_sc520_spunk_fixup_irq(struct pci_controller *hose, pci_dev_t dev
 	};
 	static int next_irq_index=0;
 
-	char tmp_pin;
+	uchar tmp_pin;
 	int pin;
 
 	pci_hose_read_config_byte(hose, dev, PCI_INTERRUPT_PIN, &tmp_pin);
@@ -637,6 +639,33 @@ void ssi_chip_select(int dev)
 	}
 }
 
+void spi_eeprom_probe(int x)
+{
+}
+
+int spi_eeprom_read(int x, int offset, uchar *buffer, int len)
+{
+       return 0;
+}
+
+int spi_eeprom_write(int x, int offset, uchar *buffer, int len)
+{
+       return 0;
+}
+
+void mw_eeprom_probe(int x)
+{
+}
+
+int mw_eeprom_read(int x, int offset, uchar *buffer, int len)
+{
+       return 0;
+}
+
+int mw_eeprom_write(int x, int offset, uchar *buffer, int len)
+{
+       return 0;
+}
 
 void spi_init_f(void)
 {
