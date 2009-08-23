@@ -3158,10 +3158,10 @@ omap3_pandora_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 pandora omap3 omap3
 
 omap3_zoom1_config :	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom1 omap3 omap3
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom1 logicpd omap3
 
 omap3_zoom2_config :	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom2 omap3 omap3
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom2 logicpd omap3
 
 #########################################################################
 ## XScale Systems
@@ -3256,7 +3256,7 @@ apollon_config		: unconfig
 	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk
 
 imx31_litekit_config	: unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm1136 imx31_litekit NULL mx31
+	@$(MKCONFIG) $(@:_config=) arm arm1136 imx31_litekit logicpd mx31
 
 imx31_phycore_eet_config \
 imx31_phycore_config	: unconfig
