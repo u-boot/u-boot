@@ -86,6 +86,7 @@
 #define CONFIG_CMD_MISC		/* Misc functions like sleep etc*/
 #undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #undef CONFIG_CMD_NFS		/* NFS support			*/
+#define CONFIG_CMD_PCI		/* PCI support			*/
 #define CONFIG_CMD_RUN		/* run command in env variable	*/
 #define CONFIG_CMD_SAVEENV	/* saveenv			*/
 #define CONFIG_CMD_SETGETDCR	/* DCR support on 4xx		*/
@@ -200,13 +201,12 @@
  /*-----------------------------------------------------------------------
   * PCI configuration
   */
-#undef CONFIG_PCI                                /* include pci support */
-#undef CONFIG_PCI_PNP                            /* pci plug-and-play */
-#undef CONFIG_PCI_SCAN_SHOW
-#undef CONFIG_SYS_FIRST_PCI_IRQ
-#undef CONFIG_SYS_SECOND_PCI_IRQ
-#undef CONFIG_SYS_THIRD_PCI_IRQ
-#undef CONFIG_SYS_FORTH_PCI_IRQ
+#define CONFIG_PCI                                /* include pci support */
+#define CONFIG_PCI_PNP                            /* pci plug-and-play */
+#define CONFIG_SYS_FIRST_PCI_IRQ   10
+#define CONFIG_SYS_SECOND_PCI_IRQ  9
+#define CONFIG_SYS_THIRD_PCI_IRQ   11
+#define CONFIG_SYS_FORTH_PCI_IRQ   15
 
 /*-----------------------------------------------------------------------
  * Hardware watchdog configuration

@@ -32,6 +32,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS-y	+= eNET.o
+COBJS-$(CONFIG_PCI) += eNET_pci.o
 SOBJS-y	+= eNET_start16.o
 SOBJS-y	+= eNET_start.o
 
