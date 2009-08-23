@@ -206,6 +206,8 @@
  ************************************************************/
 #ifndef GRUSS_TESTING
 #define CONFIG_VIDEO			/* To enable video controller support */
+#define PCI_VIDEO_VENDOR_ID 0		/*Use the appropriate vendor ID*/
+#define PCI_VIDEO_DEVICE_ID 0		/*Use the appropriate Device ID*/
 #else
 #undef CONFIG_VIDEO
 #endif

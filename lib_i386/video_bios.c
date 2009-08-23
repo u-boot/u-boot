@@ -76,18 +76,22 @@ void print_bios_bios_stat(void)
 }
 #endif
 
+#ifdef CONFIG_VIDEO
+
 #define PCI_CLASS_VIDEO             3
 #define PCI_CLASS_VIDEO_STD         0
 #define PCI_CLASS_VIDEO_PROG_IF_VGA 0
 
+static struct pci_device_id supported[] = {
+	{PCI_VIDEO_VENDOR_ID, PCI_VIDEO_DEVICE_ID},
+	{}
+};
 
 static u32 probe_pci_video(void)
 {
 	pci_dev_t devbusfn;
 
-	if ((devbusfn = pci_find_class(PCI_CLASS_VIDEO,
-				       PCI_CLASS_VIDEO_STD,
-				       PCI_CLASS_VIDEO_PROG_IF_VGA, 0)) != -1) {
+	if ((devbusfn = pci_find_devices(supported, 0) != -1)) {
 		u32 old;
 		u32 addr;
 
@@ -103,7 +107,7 @@ static u32 probe_pci_video(void)
 
 		/* Test the ROM decoder, do the device support a rom? */
 		pci_read_config_dword(devbusfn, PCI_ROM_ADDRESS, &old);
-		pci_write_config_dword(devbusfn, PCI_ROM_ADDRESS, PCI_ROM_ADDRESS_MASK);
+		pci_write_config_dword(devbusfn, PCI_ROM_ADDRESS, (u32)PCI_ROM_ADDRESS_MASK);
 		pci_read_config_dword(devbusfn, PCI_ROM_ADDRESS, &addr);
 		pci_write_config_dword(devbusfn, PCI_ROM_ADDRESS, old);
 
@@ -132,11 +136,6 @@ static u32 probe_pci_video(void)
 
 	return 0;
 }
-
-
-#endif
-
-#ifdef CONFIG_VIDEO
 
 static int probe_isa_video(void)
 {
@@ -219,4 +218,5 @@ int video_bios_init(void)
 	return 1;
 
 }
+#endif
 #endif
