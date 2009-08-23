@@ -25,9 +25,12 @@
 #include <asm/io.h>
 #include <asm/i8254.h>
 #include <asm/ibmpc.h>
+#include <asm/interrupt.h>
 
 #define TIMER0_VALUE 0x04aa /* 1kHz 1.9318MHz / 1000 */
 #define TIMER2_VALUE 0x0a8e /* 440Hz */
+
+static int timer_init_done = 0;
 
 int timer_init(void)
 {
@@ -51,6 +54,8 @@ int timer_init(void)
 
 	irq_install_handler (0, timer_isr, NULL);
 	unmask_irq (0);
+
+	timer_init_done = 1;
 
 	return 0;
 }
