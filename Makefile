@@ -3145,6 +3145,9 @@ SMN42_config	:	unconfig
 ## ARM CORTEX Systems
 #########################################################################
 
+devkit8000_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 devkit8000 timll omap3
+
 omap3_beagle_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 beagle ti omap3
 

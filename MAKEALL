@@ -581,6 +581,7 @@ LIST_ARM11="			\
 ## ARM Cortex-A8 Systems
 #########################################################################
 LIST_ARM_CORTEX_A8="		\
+	devkit8000		\
 	omap3_beagle		\
 	omap3_overo		\
 	omap3_evm		\
