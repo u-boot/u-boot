@@ -310,7 +310,7 @@ sata_bus_softreset (int num)
 	}
 
 	if (status & ATA_BUSY)
-		printf ("ata%u is slow to respond,plz be patient\n", port);
+		printf ("ata%u is slow to respond,plz be patient\n", num);
 
 	while ((status & ATA_BUSY)) {
 		msleep (100);
@@ -318,7 +318,7 @@ sata_bus_softreset (int num)
 	}
 
 	if (status & ATA_BUSY) {
-		printf ("ata%u failed to respond : ", port);
+		printf ("ata%u failed to respond : ", num);
 		printf ("bus reset failed\n");
 		return 1;
 	}
@@ -389,11 +389,11 @@ sata_identify (int num, int dev)
 		return;
 	}
 
-	sata_cpy (sata_dev_desc[devno].revision, iop->fw_rev,
+	sata_cpy ((unsigned char *)sata_dev_desc[devno].revision, iop->fw_rev,
 		  sizeof (sata_dev_desc[devno].revision));
-	sata_cpy (sata_dev_desc[devno].vendor, iop->model,
+	sata_cpy ((unsigned char *)sata_dev_desc[devno].vendor, iop->model,
 		  sizeof (sata_dev_desc[devno].vendor));
-	sata_cpy (sata_dev_desc[devno].product, iop->serial_no,
+	sata_cpy ((unsigned char *)sata_dev_desc[devno].product, iop->serial_no,
 		  sizeof (sata_dev_desc[devno].product));
 	strswab (sata_dev_desc[devno].revision);
 	strswab (sata_dev_desc[devno].vendor);

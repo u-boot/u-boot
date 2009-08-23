@@ -37,20 +37,7 @@ struct sata_port {
 
 /***********SATA LIBRARY SPECIFIC DEFINITIONS AND DECLARATIONS**************/
 #ifdef SATA_DECL		/*SATA library specific declarations */
-#define ata_id_has_lba48(id)    ((id)[83] & (1 << 10))
-#define ata_id_has_lba(id)      ((id)[49] & (1 << 9))
-#define ata_id_has_dma(id)      ((id)[49] & (1 << 8))
-#define ata_id_u32(id,n)        \
-	(((u32) (id)[(n) + 1] << 16) | ((u32) (id)[(n)]))
-#define ata_id_u64(id,n)        \
-	(((u64) (id)[(n) + 3] << 48) | \
-	((u64) (id)[(n) + 2] << 32) | \
-	((u64) (id)[(n) + 1] << 16) | \
-	((u64) (id)[(n) + 0]) )
-#endif
-
-#ifdef SATA_DECL		/*SATA library specific declarations */
-static inline void
+inline void
 ata_dump_id (u16 * id)
 {
 	PRINTF ("49 = 0x%04x  "
