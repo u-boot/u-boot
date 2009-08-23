@@ -26,7 +26,6 @@
 #include <asm/io.h>
 #include <asm/pci.h>
 
-#ifdef CONFIG_PCI
 #undef PCI_ROM_SCAN_VERBOSE
 
 int pci_shadow_rom(pci_dev_t dev, unsigned char *dest)
@@ -151,5 +150,3 @@ int pci_shadow_rom(pci_dev_t dev, unsigned char *dest)
 
 	return res;
 }
-
-#endif

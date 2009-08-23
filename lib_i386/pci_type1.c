@@ -11,9 +11,6 @@
  */
 
 #include <common.h>
-
-#ifdef CONFIG_PCI
-
 #include <asm/io.h>
 #include <pci.h>
 
@@ -52,5 +49,3 @@ void pci_setup_type1(struct pci_controller* hose, u32 cfg_addr, u32 cfg_data)
 	hose->cfg_addr = (unsigned int *) cfg_addr;
 	hose->cfg_data = (unsigned char *) cfg_data;
 }
-
-#endif

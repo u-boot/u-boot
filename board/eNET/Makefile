@@ -31,12 +31,12 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= eNET.o
-SOBJS	:= eNET_start16.o eNET_start.o
+COBJS-y	+= eNET.o
+SOBJS-y	+= eNET_start16.o
+SOBJS-y	+= eNET_start.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
