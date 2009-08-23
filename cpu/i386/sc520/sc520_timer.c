@@ -30,29 +30,29 @@
 void sc520_timer_isr(void)
 {
 	/* Ack the GP Timer Interrupt */
-	write_mmcr_byte (SC520_GPTMRSTA, 0x02);
+	sc520_mmcr->gptmrsta = 0x02;
 }
 
 int timer_init(void)
 {
 	/* Map GP Timer 1 to Master PIC IR0  */
-	write_mmcr_byte (SC520_GPTMR1MAP, 0x01);
+	sc520_mmcr->gp_tmr_int_map[1] = 0x01;
 
 	/* Disable GP Timers 1 & 2 - Allow configuration writes */
-	write_mmcr_word (SC520_GPTMR1CTL, 0x4000);
-	write_mmcr_word (SC520_GPTMR2CTL, 0x4000);
+	sc520_mmcr->gptmr1ctl = 0x4000;
+	sc520_mmcr->gptmr2ctl = 0x4000;
 
 	/* Reset GP Timers 1 & 2 */
-	write_mmcr_word (SC520_GPTMR1CNT, 0x0000);
-	write_mmcr_word (SC520_GPTMR2CNT, 0x0000);
+	sc520_mmcr->gptmr1cnt = 0x0000;
+	sc520_mmcr->gptmr2cnt = 0x0000;
 
 	/* Setup GP Timer 2 as a 100kHz (10us) prescaler */
-	write_mmcr_word (SC520_GPTMR2MAXCMPA, 83);
-	write_mmcr_word (SC520_GPTMR2CTL, 0xc001);
+	sc520_mmcr->gptmr2maxcmpa = 83;
+	sc520_mmcr->gptmr2ctl = 0xc001;
 
 	/* Setup GP Timer 1 as a 1000 Hz (1ms) interrupt generator */
-	write_mmcr_word (SC520_GPTMR1MAXCMPA, 100);
-	write_mmcr_word (SC520_GPTMR1CTL, 0xe009);
+	sc520_mmcr->gptmr1maxcmpa = 100;
+	sc520_mmcr->gptmr1ctl = 0xe009;
 
 	/* Register the SC520 specific timer interrupt handler */
 	register_timer_isr (sc520_timer_isr);
@@ -62,7 +62,7 @@ int timer_init(void)
 	unmask_irq (0);
 
 	/* Clear the GP Timer 1 status register to get the show rolling*/
-	write_mmcr_byte (SC520_GPTMRSTA, 0x02);
+	sc520_mmcr->gptmrsta = 0x02;
 
 	return 0;
 }
@@ -71,12 +71,13 @@ void udelay(unsigned long usec)
 {
 	int m = 0;
 	long u;
+	long temp;
 
-	read_mmcr_word (SC520_SWTMRMILLI);
-	read_mmcr_word (SC520_SWTMRMICRO);
+	temp = sc520_mmcr->swtmrmilli;
+	temp = sc520_mmcr->swtmrmicro;
 
 	do {
-		m += read_mmcr_word (SC520_SWTMRMILLI);
-		u = read_mmcr_word (SC520_SWTMRMICRO) + (m * 1000);
+		m += sc520_mmcr->swtmrmilli;
+		u = sc520_mmcr->swtmrmicro + (m * 1000);
 	} while (u < usec);
 }

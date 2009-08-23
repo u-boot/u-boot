@@ -61,32 +61,34 @@ int ssi_set_interface(int freq, int lsb_first, int inv_clock, int inv_phase)
 		temp |= PHS_INV_ENB;
 	}
 
-	write_mmcr_byte(SC520_SSICTL, temp);
+	sc520_mmcr->ssictl = temp;
 
 	return 0;
 }
 
 u8 ssi_txrx_byte(u8 data)
 {
-	write_mmcr_byte(SC520_SSIXMIT, data);
-	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
-	write_mmcr_byte(SC520_SSICMD, SSICMD_CMD_SEL_XMITRCV);
-	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
-	return read_mmcr_byte(SC520_SSIRCV);
+	sc520_mmcr->ssixmit = data;
+	while (sc520_mmcr->ssista & SSISTA_BSY);
+	sc520_mmcr->ssicmd = SSICMD_CMD_SEL_XMITRCV;
+	while (sc520_mmcr->ssista & SSISTA_BSY);
+
+	return sc520_mmcr->ssircv;
 }
 
 
 void ssi_tx_byte(u8 data)
 {
-	write_mmcr_byte(SC520_SSIXMIT, data);
-	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
-	write_mmcr_byte(SC520_SSICMD, SSICMD_CMD_SEL_XMIT);
+	sc520_mmcr->ssixmit = data;
+	while (sc520_mmcr->ssista & SSISTA_BSY);
+	sc520_mmcr->ssicmd = SSICMD_CMD_SEL_XMIT;
 }
 
 u8 ssi_rx_byte(void)
 {
-	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
-	write_mmcr_byte(SC520_SSICMD, SSICMD_CMD_SEL_RCV);
-	while ((read_mmcr_byte(SC520_SSISTA)) & SSISTA_BSY);
-	return read_mmcr_byte(SC520_SSIRCV);
+	while (sc520_mmcr->ssista & SSISTA_BSY);
+	sc520_mmcr->ssicmd = SSICMD_CMD_SEL_RCV;
+	while (sc520_mmcr->ssista & SSISTA_BSY);
+
+	return sc520_mmcr->ssircv;
 }

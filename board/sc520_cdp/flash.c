@@ -337,12 +337,12 @@ done:	;
 	unsigned micro; \
 	unsigned milli=0; \
 	\
-	micro = *(volatile u16*)(0xfffef000+SC520_SWTMRMILLI); \
+	micro = sc520_mmcr->swtmrmilli; \
 	 \
 	for (;;) { \
 		\
-		milli += *(volatile u16*)(0xfffef000+SC520_SWTMRMILLI); \
-		micro = *(volatile u16*)(0xfffef000+SC520_SWTMRMICRO); \
+		milli += sc520_mmcr->swtmrmilli; \
+		micro = sc520_mmcr->swtmrmicro; \
 		\
 		if ((delay) <= (micro + (milli * 1000))) { \
 			break; \
@@ -364,12 +364,12 @@ static u32 _amd_erase_flash(u32 addr, u32 sector)
 	/* Sector erase command comes last */
 	*(volatile u32*)(addr + sector) = 0x30303030;
 
-	elapsed = *(volatile u16*)(0xfffef000+SC520_SWTMRMILLI); /* dummy read */
+	elapsed = sc520_mmcr->swtmrmilli; /* dummy read */
 	elapsed = 0;
 	__udelay(50);
 	while (((*(volatile u32*)(addr + sector)) & 0x80808080) != 0x80808080) {
 
-		elapsed += *(volatile u16*)(0xfffef000+SC520_SWTMRMILLI);
+		elapsed += sc520_mmcr->swtmrmilli;
 		if (elapsed > ((CONFIG_SYS_FLASH_ERASE_TOUT/CONFIG_SYS_HZ) * 1000)) {
 			*(volatile u32*)(addr) = 0xf0f0f0f0;
 			return 1;
@@ -487,12 +487,12 @@ static int _amd_write_word(unsigned start, unsigned dest, unsigned data)
 
 	dest2[0] = data;
 
-	elapsed = *(volatile u16*)(0xfffef000+SC520_SWTMRMILLI); /* dummy read */
+	elapsed = sc520_mmcr->swtmrmilli; /* dummy read */
 	elapsed = 0;
 
 	/* data polling for D7 */
 	while ((dest2[0] & 0x80808080) != (data2[0] & 0x80808080)) {
-		elapsed += *(volatile u16*)(0xfffef000+SC520_SWTMRMILLI);
+		elapsed += sc520_mmcr->swtmrmilli;
 		if (elapsed > ((CONFIG_SYS_FLASH_WRITE_TOUT/CONFIG_SYS_HZ) * 1000)) {
 			addr2[0] = 0xf0f0f0f0;
 			return 1;

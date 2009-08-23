@@ -47,53 +47,54 @@ DECLARE_GLOBAL_DATA_PTR;
 static void irq_init(void)
 {
 	/* disable global interrupt mode */
-	write_mmcr_byte(SC520_PICICR, 0x40);
+	sc520_mmcr->picicr = 0x40;
 
 	/* set all irqs to edge */
-	write_mmcr_byte(SC520_MPICMODE, 0x00);
-	write_mmcr_byte(SC520_SL1PICMODE, 0x00);
-	write_mmcr_byte(SC520_SL2PICMODE, 0x00);
+	sc520_mmcr->pic_mode[0] = 0x00;
+	sc520_mmcr->pic_mode[1] = 0x00;
+	sc520_mmcr->pic_mode[2] = 0x00;
 
 	/* active low polarity on PIC interrupt pins,
 	 *  active high polarity on all other irq pins */
-	write_mmcr_word(SC520_INTPINPOL, 0x0000);
+	sc520_mmcr->intpinpol = 0x0000;
 
 	/* set irq number mapping */
-	write_mmcr_byte(SC520_GPTMR0MAP, SC520_IRQ_DISABLED);   /* disable GP timer 0 INT */
-	write_mmcr_byte(SC520_GPTMR1MAP, SC520_IRQ_DISABLED);   /* disable GP timer 1 INT */
-	write_mmcr_byte(SC520_GPTMR2MAP, SC520_IRQ_DISABLED);   /* disable GP timer 2 INT */
-	write_mmcr_byte(SC520_PIT0MAP, SC520_IRQ0);             /* Set PIT timer 0 INT to IRQ0 */
-	write_mmcr_byte(SC520_PIT1MAP, SC520_IRQ_DISABLED);     /* disable PIT timer 1 INT */
-	write_mmcr_byte(SC520_PIT2MAP, SC520_IRQ_DISABLED);     /* disable PIT timer 2 INT */
-	write_mmcr_byte(SC520_PCIINTAMAP, SC520_IRQ_DISABLED);  /* disable PCI INT A */
-	write_mmcr_byte(SC520_PCIINTBMAP, SC520_IRQ_DISABLED);  /* disable PCI INT B */
-	write_mmcr_byte(SC520_PCIINTCMAP, SC520_IRQ_DISABLED);  /* disable PCI INT C */
-	write_mmcr_byte(SC520_PCIINTDMAP, SC520_IRQ_DISABLED);  /* disable PCI INT D */
-	write_mmcr_byte(SC520_DMABCINTMAP, SC520_IRQ_DISABLED); /* disable DMA INT */
-	write_mmcr_byte(SC520_SSIMAP, SC520_IRQ6);              /* Set Synchronius serial INT to IRQ6*/
-	write_mmcr_byte(SC520_WDTMAP, SC520_IRQ_DISABLED);      /* disable Watchdog INT */
-	write_mmcr_byte(SC520_RTCMAP, SC520_IRQ8);              /* Set RTC int to 8 */
-	write_mmcr_byte(SC520_WPVMAP, SC520_IRQ_DISABLED);      /* disable write protect INT */
-	write_mmcr_byte(SC520_ICEMAP, SC520_IRQ1);              /* Set ICE Debug Serielport INT to IRQ1 */
-	write_mmcr_byte(SC520_FERRMAP,SC520_IRQ13);             /* Set FP error INT to IRQ13 */
+	sc520_mmcr->gp_tmr_int_map[0] = SC520_IRQ_DISABLED;	/* disable GP timer 0 INT */
+	sc520_mmcr->gp_tmr_int_map[1] = SC520_IRQ_DISABLED;	/* disable GP timer 1 INT */
+	sc520_mmcr->gp_tmr_int_map[2] = SC520_IRQ_DISABLED;	/* disable GP timer 2 INT */
+	sc520_mmcr->pit_int_map[0] = SC520_IRQ0;		/* Set PIT timer 0 INT to IRQ0 */
+	sc520_mmcr->pit_int_map[1] = SC520_IRQ_DISABLED;	/* disable PIT timer 1 INT */
+	sc520_mmcr->pit_int_map[2] = SC520_IRQ_DISABLED;	/* disable PIT timer 2 INT */
+	sc520_mmcr->pci_int_map[0] = SC520_IRQ_DISABLED;	/* disable PCI INT A */
+	sc520_mmcr->pci_int_map[1] = SC520_IRQ_DISABLED;	/* disable PCI INT B */
+	sc520_mmcr->pci_int_map[2] = SC520_IRQ_DISABLED;	/* disable PCI INT C */
+	sc520_mmcr->pci_int_map[3] = SC520_IRQ_DISABLED;	/* disable PCI INT D */
+	sc520_mmcr->dmabcintmap = SC520_IRQ_DISABLED;		/* disable DMA INT */
+	sc520_mmcr->ssimap = SC520_IRQ6;			/* Set Synchronius serial INT to IRQ6*/
+	sc520_mmcr->wdtmap = SC520_IRQ_DISABLED;		/* disable Watchdog INT */
+	sc520_mmcr->rtcmap = SC520_IRQ8;			/* Set RTC int to 8 */
+	sc520_mmcr->wpvmap = SC520_IRQ_DISABLED;		/* disable write protect INT */
+	sc520_mmcr->icemap = SC520_IRQ1;			/* Set ICE Debug Serielport INT to IRQ1 */
+	sc520_mmcr->ferrmap = SC520_IRQ13; 			/* Set FP error INT to IRQ13 */
 
-	write_mmcr_byte(SC520_UART1MAP, SC520_IRQ4);            /* Set internal UART2 INT to IRQ4 */
-	write_mmcr_byte(SC520_UART2MAP, SC520_IRQ3);            /* Set internal UART2 INT to IRQ3 */
 
-	write_mmcr_byte(SC520_GP0IMAP, SC520_IRQ7);             /* Set GPIRQ0 (PC-Card AUX IRQ) to IRQ7 */
-	write_mmcr_byte(SC520_GP1IMAP, SC520_IRQ14);            /* Set GPIRQ1 (CF IRQ) to IRQ14 */
-	write_mmcr_byte(SC520_GP3IMAP, SC520_IRQ5);             /* Set GPIRQ3 ( CAN IRQ ) ti IRQ5 */
-	write_mmcr_byte(SC520_GP4IMAP, SC520_IRQ_DISABLED);     /* disbale GIRQ4 ( IRR IRQ ) */
-	write_mmcr_byte(SC520_GP5IMAP, SC520_IRQ_DISABLED);     /* disable GPIRQ5 */
-	write_mmcr_byte(SC520_GP6IMAP, SC520_IRQ_DISABLED);     /* disable GPIRQ6 */
-	write_mmcr_byte(SC520_GP7IMAP, SC520_IRQ_DISABLED);     /* disable GPIRQ7 */
-	write_mmcr_byte(SC520_GP8IMAP, SC520_IRQ_DISABLED);     /* disable GPIRQ8 */
-	write_mmcr_byte(SC520_GP9IMAP, SC520_IRQ_DISABLED);     /* disable GPIRQ9 */
-	write_mmcr_byte(SC520_GP2IMAP, SC520_IRQ_DISABLED);     /* disable GPIRQ2 */
-	write_mmcr_byte(SC520_GP10IMAP,SC520_IRQ_DISABLED);     /* disable GPIRQ10 */
+	sc520_mmcr->uart_int_map[0] = SC520_IRQ4;		/* Set internal UART1 INT to IRQ4 */
+	sc520_mmcr->uart_int_map[1] = SC520_IRQ3;		/* Set internal UART2 INT to IRQ3 */
 
-	write_mmcr_word(SC520_PCIHOSTMAP, 0x11f);               /* Map PCI hostbridge INT to NMI */
-	write_mmcr_word(SC520_ECCMAP, 0x100);                   /* Map SDRAM ECC failure INT to NMI */
+	sc520_mmcr->gp_int_map[0] = SC520_IRQ7;			/* Set GPIRQ0 (PC-Card AUX IRQ) to IRQ7 */
+	sc520_mmcr->gp_int_map[1] = SC520_IRQ14;		/* Set GPIRQ1 (CF IRQ) to IRQ14 */
+	sc520_mmcr->gp_int_map[3] = SC520_IRQ5;			/* Set GPIRQ3 ( CAN IRQ ) ti IRQ5 */
+	sc520_mmcr->gp_int_map[4] = SC520_IRQ_DISABLED;		/* disbale GIRQ4 ( IRR IRQ ) */
+	sc520_mmcr->gp_int_map[5] = SC520_IRQ_DISABLED;		/* disable GPIRQ5 */
+	sc520_mmcr->gp_int_map[6] = SC520_IRQ_DISABLED;		/* disable GPIRQ6 */
+	sc520_mmcr->gp_int_map[7] = SC520_IRQ_DISABLED;		/* disable GPIRQ7 */
+	sc520_mmcr->gp_int_map[8] = SC520_IRQ_DISABLED;		/* disable GPIRQ8 */
+	sc520_mmcr->gp_int_map[9] = SC520_IRQ_DISABLED;		/* disable GPIRQ9 */
+	sc520_mmcr->gp_int_map[2] = SC520_IRQ_DISABLED;		/* disable GPIRQ2 */
+	sc520_mmcr->gp_int_map[10] = SC520_IRQ_DISABLED;	/* disable GPIRQ10 */
+
+	sc520_mmcr->pcihostmap = 0x11f;				/* Map PCI hostbridge INT to NMI */
+	sc520_mmcr->eccmap = 0x100;				/* Map SDRAM ECC failure INT to NMI */
 
 }
 
@@ -101,7 +102,7 @@ static void irq_init(void)
 /* PCI stuff */
 static void pci_sc520_spunk_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 {
-	int version = read_mmcr_byte(SC520_SYSINFO);
+	int version = sc520_mmcr->sysinfo;
 
 	/* a configurable lists of irqs to steal
 	 * when we need one (a board with more pci interrupt pins
@@ -255,41 +256,41 @@ static void bus_init(void)
 	 * ??  Hyglo version 0.97 (small board)
 	 * 10  Spunk board
 	 */
-	int version = read_mmcr_byte(SC520_SYSINFO);
+	int version = sc520_mmcr->sysinfo;
 
 	if (version) {
 		/* set up the GP IO pins (for the Spunk board) */
-		write_mmcr_word(SC520_PIOPFS31_16, 0xfff0);	/* set the GPIO pin function 31-16 reg */
-		write_mmcr_word(SC520_PIOPFS15_0,  0x000f);	/* set the GPIO pin function 15-0 reg */
-		write_mmcr_word(SC520_PIODIR31_16, 0x000f);	/* set the GPIO direction 31-16 reg */
-		write_mmcr_word(SC520_PIODIR15_0,  0x1ff0);	/* set the GPIO direction 15-0 reg */
-		write_mmcr_byte(SC520_CSPFS, 0xc0);		/* set the CS pin function reg */
-		write_mmcr_byte(SC520_CLKSEL, 0x70);
+		sc520_mmcr->piopfs31_16 = 0xfff0;	/* set the GPIO pin function 31-16 reg */
+		sc520_mmcr->piopfs15_0 = 0x000f;	/* set the GPIO pin function 15-0 reg */
+		sc520_mmcr->piodir31_16 = 0x000f;	/* set the GPIO direction 31-16 reg */
+		sc520_mmcr->piodir15_0 = 0x1ff0;	/* set the GPIO direction 15-0 reg */
+		sc520_mmcr->cspfs = 0xc0;		/* set the CS pin function reg */
+		sc520_mmcr->clksel = 0x70;
 
-		write_mmcr_word(SC520_PIOCLR31_16, 0x0003);     /* reset SSI chip-selects */
-		write_mmcr_word(SC520_PIOSET31_16, 0x000c);
+		sc520_mmcr->pioclr31_16 = 0x0003;	/* reset SSI chip-selects */
+		sc520_mmcr->pioset31_16 = 0x000c;
 
 	} else {
 		/* set up the GP IO pins (for the Hyglo board) */
-		write_mmcr_word(SC520_PIOPFS31_16, 0xffc0);	/* set the GPIO pin function 31-16 reg */
-		write_mmcr_word(SC520_PIOPFS15_0, 0x1e7f);	/* set the GPIO pin function 15-0 reg */
-		write_mmcr_word(SC520_PIODIR31_16, 0x003f);	/* set the GPIO direction 31-16 reg */
-		write_mmcr_word(SC520_PIODIR15_0, 0xe180);	/* set the GPIO direction 15-0 reg */
-		write_mmcr_byte(SC520_CSPFS, 0x00);		/* set the CS pin function reg */
-		write_mmcr_byte(SC520_CLKSEL, 0x70);
+		sc520_mmcr->piopfs31_16 = 0xffc0;	/* set the GPIO pin function 31-16 reg */
+		sc520_mmcr->piopfs15_0 = 0x1e7f;	/* set the GPIO pin function 15-0 reg */
+		sc520_mmcr->piodir31_16 = 0x003f;	/* set the GPIO direction 31-16 reg */
+		sc520_mmcr->piodir15_0 = 0xe180;	/* set the GPIO direction 15-0 reg */
+		sc520_mmcr->cspfs = 0x00;		/* set the CS pin function reg */
+		sc520_mmcr->clksel = 0x70;
 
-		write_mmcr_word(SC520_PIOCLR15_0, 0x0180);      /* reset SSI chip-selects */
+		sc520_mmcr->pioclr15_0 = 0x0180;	/* reset SSI chip-selects */
 	}
 
-	write_mmcr_byte(SC520_GPCSRT, 1);   /* set the GP CS offset */
-	write_mmcr_byte(SC520_GPCSPW, 3);   /* set the GP CS pulse width */
-	write_mmcr_byte(SC520_GPCSOFF, 1);  /* set the GP CS offset */
-	write_mmcr_byte(SC520_GPRDW, 3);    /* set the RD pulse width */
-	write_mmcr_byte(SC520_GPRDOFF, 1);  /* set the GP RD offset */
-	write_mmcr_byte(SC520_GPWRW, 3);    /* set the GP WR pulse width */
-	write_mmcr_byte(SC520_GPWROFF, 1);  /* set the GP WR offset */
+	sc520_mmcr->gpcsrt = 1;		/* set the GP CS offset */
+	sc520_mmcr->gpcspw = 3;		/* set the GP CS pulse width */
+	sc520_mmcr->gpcsoff = 1;	/* set the GP CS offset */
+	sc520_mmcr->gprdw = 3;		/* set the RD pulse width */
+	sc520_mmcr->gprdoff = 1;	/* set the GP RD offset */
+	sc520_mmcr->gpwrw = 3;		/* set the GP WR pulse width */
+	sc520_mmcr->gpwroff = 1;	/* set the GP WR offset */
 
-	write_mmcr_word(SC520_BOOTCSCTL, 0x0407);		/* set up timing of BOOTCS */
+	sc520_mmcr->bootcsctl = 0x0407;	/* set up timing of BOOTCS */
 
 	/* adjust the memory map:
 	 * by default the first 256MB (0x00000000 - 0x0fffffff) is mapped to SDRAM
@@ -298,17 +299,17 @@ static void bus_init(void)
 
 
 	/* bootcs */
-	write_mmcr_long(SC520_PAR12, 0x8bffe800);
+	sc520_mmcr->par[12] = 0x8bffe800;
 
 	/* IDE0 = GPCS6 1f0-1f7 */
-	write_mmcr_long(SC520_PAR3,  0x380801f0);
+	sc520_mmcr->par[3] = 0x380801f0;
 
 	/* IDE1 = GPCS7 3f6 */
-	write_mmcr_long(SC520_PAR4,  0x3c0003f6);
+	sc520_mmcr->par[4] = 0x3c0003f6;
 
 	asm ("wbinvd\n"); /* Flush cache, req. after setting the unchached attribute ona PAR */
 
-	write_mmcr_byte(SC520_ADDDECCTL, read_mmcr_byte(SC520_ADDDECCTL) & ~(UART2_DIS|UART1_DIS));
+	sc520_mmcr->adddecctl = sc520_mmcr->adddecctl & ~(UART2_DIS|UART1_DIS);
 
 }
 
@@ -361,7 +362,7 @@ u32 isa_map_rom(u32 bus_addr, int size)
 	printf ("setting PAR11 to %x\n", par);
 
 	/* Map rom 0x10000 with PAR1 */
-	write_mmcr_long(SC520_PAR11,  par);
+	sc520_mmcr->par[11] = par;
 
 	return bus_addr;
 }
@@ -373,8 +374,8 @@ u32 isa_map_rom(u32 bus_addr, int size)
 void isa_unmap_rom(u32 addr)
 {
 	printf("isa_unmap_rom asked to unmap %x", addr);
-	if ((addr>>12) == (read_mmcr_long(SC520_PAR11)&0x3ffff)) {
-		write_mmcr_long(SC520_PAR11, 0);
+	if ((addr>>12) == (sc520_mmcr->par[11] & 0x3ffff)) {
+		sc520_mmcr->par[11] = 0;
 		printf(" done\n");
 		return;
 	}
@@ -410,7 +411,7 @@ u32 pci_get_rom_window(struct pci_controller *hose, int size)
 	printf ("setting PAR1 to %x\n", par);
 
 	/* Map rom 0x10000 with PAR1 */
-	write_mmcr_long(SC520_PAR1,  par);
+	sc520_mmcr->par[1] = par;
 
 	return PCI_ROM_TEMP_SPACE;
 }
@@ -423,7 +424,7 @@ void pci_remove_rom_window(struct pci_controller *hose, u32 addr)
 {
 	printf("pci_remove_rom_window: %x", addr);
 	if (addr == PCI_ROM_TEMP_SPACE) {
-		write_mmcr_long(SC520_PAR1, 0);
+		sc520_mmcr->par[1] = 0;
 		printf(" done\n");
 		return;
 	}
@@ -441,11 +442,10 @@ void pci_remove_rom_window(struct pci_controller *hose, u32 addr)
 int pci_enable_legacy_video_ports(struct pci_controller *hose)
 {
 	/* Map video memory to 0xa0000*/
-	write_mmcr_long(SC520_PAR0,  0x7200400a);
+	sc520_mmcr->par[0] = 0x7200400a;
 
 	/* forward all I/O accesses to PCI */
-	write_mmcr_byte(SC520_ADDDECCTL,
-			read_mmcr_byte(SC520_ADDDECCTL) | IO_HOLE_DEST_PCI);
+	sc520_mmcr->adddecctl = sc520_mmcr->adddecctl | IO_HOLE_DEST_PCI;
 
 
 	/* so we map away all io ports to pci (only way to access pci io
@@ -455,22 +455,22 @@ int pci_enable_legacy_video_ports(struct pci_controller *hose)
 	 */
 
 	/* bring 0x100 - 0x2f7 back to ISA using PAR5 */
-	write_mmcr_long(SC520_PAR5, 0x31f70100);
+	sc520_mmcr->par[5] = 0x31f70100;
 
 	/* com2 use 2f8-2ff */
 
 	/* bring 0x300 - 0x3af back to ISA using PAR7 */
-	write_mmcr_long(SC520_PAR7, 0x30af0300);
+	sc520_mmcr->par[7] = 0x30af0300;
 
 	/* vga use 3b0-3bb */
 
 	/* bring 0x3bc - 0x3bf back to ISA using PAR8 */
-	write_mmcr_long(SC520_PAR8, 0x300303bc);
+	sc520_mmcr->par[8] = 0x300303bc;
 
 	/* vga use 3c0-3df */
 
 	/* bring 0x3e0 - 0x3f7 back to ISA using PAR9 */
-	write_mmcr_long(SC520_PAR9, 0x301703e0);
+	sc520_mmcr->par[9] = 0x301703e0;
 
 	/* com1 use 3f8-3ff */
 
@@ -489,12 +489,12 @@ int board_init(void)
 	irq_init();
 
 	/* max drive current on SDRAM */
-	write_mmcr_word(SC520_DSCTL, 0x0100);
+	sc520_mmcr->dsctl = 0x0100;
 
 	/* enter debug mode after next reset (only if jumper is also set) */
-	write_mmcr_byte(SC520_RESCFG, 0x08);
+	sc520_mmcr->rescfg = 0x08;
 	/* configure the software timer to 33.000MHz */
-	write_mmcr_byte(SC520_SWTMRCFG, 1);
+	sc520_mmcr->swtmrcfg = 1;
 	gd->bus_clk = 33000000;
 
 	return 0;
@@ -508,17 +508,15 @@ int dram_init(void)
 
 void show_boot_progress(int val)
 {
-	int version = read_mmcr_byte(SC520_SYSINFO);
+	int version = sc520_mmcr->sysinfo;
 
 	if (val < -32) val = -1;  /* let things compatible */
 	if (version == 0) {
 		/* PIO31-PIO16 Data */
-		write_mmcr_word(SC520_PIODATA31_16,
-				(read_mmcr_word(SC520_PIODATA31_16) & 0xffc0)| ((val&0x7e)>>1)); /* 0x1f8 >> 3 */
+		sc520_mmcr->piodata31_16 = (sc520_mmcr->piodata31_16 & 0xffc0) | ((val&0x7e)>>1); /* 0x1f8 >> 3 */
 
 		/* PIO0-PIO15 Data */
-		write_mmcr_word(SC520_PIODATA15_0,
-				(read_mmcr_word(SC520_PIODATA15_0) & 0x1fff)| ((val&0x7)<<13));
+		sc520_mmcr->piodata15_0 = (sc520_mmcr->piodata15_0 & 0x1fff)| ((val&0x7)<<13);
 	} else {
 		/* newer boards use PIO4-PIO12 */
 		/* PIO0-PIO15 Data */
@@ -527,8 +525,7 @@ void show_boot_progress(int val)
 #else
 		val = (val & 0x007) | ((val & 0x07e) << 2);
 #endif
-		write_mmcr_word(SC520_PIODATA15_0,
-				(read_mmcr_word(SC520_PIODATA15_0) & 0xe00f) | ((val&0x01ff)<<4));
+		sc520_mmcr->piodata15_0 = (sc520_mmcr->piodata15_0 & 0xe00f) | ((val&0x01ff)<<4);
 	}
 }
 
@@ -536,7 +533,7 @@ void show_boot_progress(int val)
 int last_stage_init(void)
 {
 
-	int version = read_mmcr_byte(SC520_SYSINFO);
+	int version = sc520_mmcr->sysinfo;
 
 	printf("Omicron Ceti SC520 Spunk revision %x\n", version);
 
@@ -587,30 +584,30 @@ int last_stage_init(void)
 
 void ssi_chip_select(int dev)
 {
-	int version = read_mmcr_byte(SC520_SYSINFO);
+	int version = sc520_mmcr->sysinfo;
 
 	if (version) {
 		/* Spunk board: EEPROM and CAN are actove-low, TEMP and AUX are active high */
 		switch (dev) {
 		case 1: /* EEPROM */
-			write_mmcr_word(SC520_PIOCLR31_16, 0x0004);
+			sc520_mmcr->pioclr31_16 = 0x0004;
 			break;
 
 		case 2: /* Temp Probe */
-			write_mmcr_word(SC520_PIOSET31_16, 0x0002);
+			sc520_mmcr->pioset31_16 = 0x0002;
 			break;
 
 		case 3: /* CAN */
-			write_mmcr_word(SC520_PIOCLR31_16, 0x0008);
+			sc520_mmcr->pioclr31_16 = 0x0008;
 			break;
 
 		case 4: /* AUX */
-			write_mmcr_word(SC520_PIOSET31_16, 0x0001);
+			sc520_mmcr->pioset31_16 = 0x0001;
 			break;
 
 		case 0:
-			write_mmcr_word(SC520_PIOCLR31_16, 0x0003);
-			write_mmcr_word(SC520_PIOSET31_16, 0x000c);
+			sc520_mmcr->pioclr31_16 = 0x0003;
+			sc520_mmcr->pioset31_16 = 0x000c;
 			break;
 
 		default:
@@ -622,15 +619,15 @@ void ssi_chip_select(int dev)
 
 		switch (dev) {
 		case 1: /* EEPROM */
-			write_mmcr_word(SC520_PIOSET15_0, 0x0100);
+			sc520_mmcr->pioset15_0 = 0x0100;
 			break;
 
 		case 2: /* Temp Probe */
-			write_mmcr_word(SC520_PIOSET15_0, 0x0080);
+			sc520_mmcr->pioset15_0 = 0x0080;
 			break;
 
 		case 0:
-			write_mmcr_word(SC520_PIOCLR15_0, 0x0180);
+			sc520_mmcr->pioclr15_0 = 0x0180;
 			break;
 
 		default:
@@ -669,9 +666,7 @@ int mw_eeprom_write(int x, int offset, uchar *buffer, int len)
 
 void spi_init_f(void)
 {
-	read_mmcr_byte(SC520_SYSINFO) ?
-		spi_eeprom_probe(1) :
-	mw_eeprom_probe(1);
+	sc520_mmcr->sysinfo ? spi_eeprom_probe(1) : mw_eeprom_probe(1);
 
 }
 
@@ -686,7 +681,7 @@ ssize_t spi_read(uchar *addr, int alen, uchar *buffer, int len)
 		offset |= addr[i];
 	}
 
-	return	read_mmcr_byte(SC520_SYSINFO) ?
+	return	sc520_mmcr->sysinfo ?
 		spi_eeprom_read(1, offset, buffer, len) :
 	mw_eeprom_read(1, offset, buffer, len);
 }
@@ -702,7 +697,7 @@ ssize_t spi_write(uchar *addr, int alen, uchar *buffer, int len)
 		offset |= addr[i];
 	}
 
-	return	read_mmcr_byte(SC520_SYSINFO) ?
+	return	sc520_mmcr->sysinfo ?
 		spi_eeprom_write(1, offset, buffer, len) :
 	mw_eeprom_write(1, offset, buffer, len);
 }
