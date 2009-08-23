@@ -54,15 +54,15 @@ int timer_init(void)
 	write_mmcr_word (SC520_GPTMR1MAXCMPA, 100);
 	write_mmcr_word (SC520_GPTMR1CTL, 0xe009);
 
-	/* Clear the GP Timers status register */
-	write_mmcr_byte (SC520_GPTMRSTA, 0x07);
-
 	/* Register the SC520 specific timer interrupt handler */
 	register_timer_isr (sc520_timer_isr);
 
 	/* Install interrupt handler for GP Timer 1 */
 	irq_install_handler (0, timer_isr, NULL);
 	unmask_irq (0);
+
+	/* Clear the GP Timer 1 status register to get the show rolling*/
+	write_mmcr_byte (SC520_GPTMRSTA, 0x02);
 
 	return 0;
 }
