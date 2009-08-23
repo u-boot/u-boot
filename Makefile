@@ -3149,13 +3149,13 @@ omap3_beagle_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 beagle ti omap3
 
 omap3_overo_config :	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 overo omap3 omap3
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 overo NULL omap3
 
 omap3_evm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 evm ti omap3
 
 omap3_pandora_config :	unconfig
-	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 pandora omap3 omap3
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 pandora NULL omap3
 
 omap3_zoom1_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom1 logicpd omap3
