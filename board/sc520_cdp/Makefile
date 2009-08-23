@@ -28,12 +28,14 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= sc520_cdp.o flash.o
-SOBJS	:= sc520_cdp_asm.o sc520_cdp_asm16.o
+COBJS-y	+= sc520_cdp.o
+COBJS-y	+= flash.o
+COBJS-$(CONFIG_PCI) += sc520_cdp_pci.o
+SOBJS-y	+= sc520_cdp_asm.o
+SOBJS-y	+= sc520_cdp_asm16.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
+SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
