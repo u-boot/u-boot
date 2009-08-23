@@ -171,16 +171,6 @@ ifneq ($(TEXT_BASE),)
 LDFLAGS += -Ttext $(TEXT_BASE)
 endif
 
-# Special flags for CPP when processing the linker script
-# Linker versions prior to 2.16 don't understand the builting
-# functions SORT_BY_ALIGNMENT() and SORT_BY_NAME(), so disable these
-ifeq ($(shell $(LD) -v | \
-	sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\) .*/[ \1 -lt 2 ] || [ \2 -lt 16 ] \&\& echo old_ld/p' | \
-	sh),old_ld)
-LDPPFLAGS += -D'SORT_BY_ALIGNMENT(x)=x' -D'SORT_BY_NAME(x)=x'
-endif
-
-
 # Location of a usable BFD library, where we define "usable" as
 # "built for ${HOST}, supports ${TARGET}".  Sensible values are
 # - When cross-compiling: the root of the cross-environment

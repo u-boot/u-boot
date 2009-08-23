@@ -267,6 +267,14 @@ endif
 PLATFORM_LIBS += $(PLATFORM_LIBGCC)
 export PLATFORM_LIBS
 
+# Special flags for CPP when processing the linker script.
+# Pass the version down so we can handle backwards compatibility
+# on the fly.
+LDPPFLAGS += \
+	-include $(TOPDIR)/include/u-boot/u-boot.lds.h \
+	$(shell $(LD) --version | \
+	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
+
 ifeq ($(CONFIG_NAND_U_BOOT),y)
 NAND_SPL = nand_spl
 U_BOOT_NAND = $(obj)u-boot-nand.bin
