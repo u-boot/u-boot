@@ -79,6 +79,7 @@ static __inline__ void __set_bit(int nr, volatile void *addr)
 	mask = 1 << (nr & 0x1f);
 	*a |= mask;
 }
+#define __set_bit
 
 /*
  * clear_bit() doesn't provide any barrier for the compiler.

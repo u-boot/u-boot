@@ -1,6 +1,7 @@
 #ifndef _LINUX_BITOPS_H
 #define _LINUX_BITOPS_H
 
+#include <asm/types.h>
 
 /*
  * ffs: find first bit set. This is defined the same way as
@@ -66,7 +67,44 @@ static inline unsigned int generic_hweight8(unsigned int w)
 	return (res & 0x0F) + ((res >> 4) & 0x0F);
 }
 
+#define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
+#define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
+
 #include <asm/bitops.h>
 
+/* linux/include/asm-generic/bitops/non-atomic.h */
+
+#ifndef __set_bit
+# define __set_bit generic_set_bit
+#endif
+
+#ifndef __clear_bit
+# define __clear_bit generic_clear_bit
+#endif
+
+/**
+ * __set_bit - Set a bit in memory
+ * @nr: the bit to set
+ * @addr: the address to start counting from
+ *
+ * Unlike set_bit(), this function is non-atomic and may be reordered.
+ * If it's called on the same region of memory simultaneously, the effect
+ * may be that only one operation succeeds.
+ */
+static inline void generic_set_bit(int nr, volatile unsigned long *addr)
+{
+	unsigned long mask = BIT_MASK(nr);
+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
+
+	*p  |= mask;
+}
+
+static inline void generic_clear_bit(int nr, volatile unsigned long *addr)
+{
+	unsigned long mask = BIT_MASK(nr);
+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
+
+	*p &= ~mask;
+}
 
 #endif

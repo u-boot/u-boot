@@ -90,6 +90,7 @@ static __inline__ void __set_bit(int nr, volatile void * addr)
 
 	*m |= 1UL << (nr & 31);
 }
+#define __set_bit
 
 /*
  * clear_bit - Clears a bit in memory
