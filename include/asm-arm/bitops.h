@@ -29,6 +29,7 @@ static inline void __set_bit(int nr, volatile void *addr)
 {
 	((unsigned char *) addr)[nr >> 3] |= (1U << (nr & 7));
 }
+#define __set_bit
 
 extern void clear_bit(int nr, volatile void * addr);
 
@@ -36,6 +37,7 @@ static inline void __clear_bit(int nr, volatile void *addr)
 {
 	((unsigned char *) addr)[nr >> 3] &= ~(1U << (nr & 7));
 }
+#define __clear_bit
 
 extern void change_bit(int nr, volatile void * addr);
 
