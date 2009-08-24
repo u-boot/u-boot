@@ -25,61 +25,52 @@
  */
 extern void set_bit(int nr, volatile void * addr);
 
-static inline void __set_bit(int nr, volatile void *addr)
-{
-	((unsigned char *) addr)[nr >> 3] |= (1U << (nr & 7));
-}
-#define __set_bit
-
 extern void clear_bit(int nr, volatile void * addr);
-
-static inline void __clear_bit(int nr, volatile void *addr)
-{
-	((unsigned char *) addr)[nr >> 3] &= ~(1U << (nr & 7));
-}
-#define __clear_bit
 
 extern void change_bit(int nr, volatile void * addr);
 
 static inline void __change_bit(int nr, volatile void *addr)
 {
-	((unsigned char *) addr)[nr >> 3] ^= (1U << (nr & 7));
+	unsigned long mask = BIT_MASK(nr);
+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
+
+	*p ^= mask;
 }
 
 extern int test_and_set_bit(int nr, volatile void * addr);
 
 static inline int __test_and_set_bit(int nr, volatile void *addr)
 {
-	unsigned int mask = 1 << (nr & 7);
-	unsigned int oldval;
+	unsigned long mask = BIT_MASK(nr);
+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
+	unsigned long old = *p;
 
-	oldval = ((unsigned char *) addr)[nr >> 3];
-	((unsigned char *) addr)[nr >> 3] = oldval | mask;
-	return oldval & mask;
+	*p = old | mask;
+	return (old & mask) != 0;
 }
 
 extern int test_and_clear_bit(int nr, volatile void * addr);
 
 static inline int __test_and_clear_bit(int nr, volatile void *addr)
 {
-	unsigned int mask = 1 << (nr & 7);
-	unsigned int oldval;
+	unsigned long mask = BIT_MASK(nr);
+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
+	unsigned long old = *p;
 
-	oldval = ((unsigned char *) addr)[nr >> 3];
-	((unsigned char *) addr)[nr >> 3] = oldval & ~mask;
-	return oldval & mask;
+	*p = old & ~mask;
+	return (old & mask) != 0;
 }
 
 extern int test_and_change_bit(int nr, volatile void * addr);
 
 static inline int __test_and_change_bit(int nr, volatile void *addr)
 {
-	unsigned int mask = 1 << (nr & 7);
-	unsigned int oldval;
+	unsigned long mask = BIT_MASK(nr);
+	unsigned long *p = ((unsigned long *)addr) + BIT_WORD(nr);
+	unsigned long old = *p;
 
-	oldval = ((unsigned char *) addr)[nr >> 3];
-	((unsigned char *) addr)[nr >> 3] = oldval ^ mask;
-	return oldval & mask;
+	*p = old ^ mask;
+	return (old & mask) != 0;
 }
 
 extern int find_first_zero_bit(void * addr, unsigned size);
