@@ -690,6 +690,10 @@ Andrea Scian <andrea.scian@dave-tech.it>
 
 	B2		ARM7TDMI (S3C44B0X)
 
+Albin Tonnerre <albin.tonnerre@free-electrons.com>
+
+	sbc35_a9g20	ARM926EJS (AT91SAM9G20 SoC)
+
 Greg Ungerer <greg.ungerer@opengear.com>
 
 	cm4008		ks8695p

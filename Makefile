@@ -2897,6 +2897,13 @@ at91sam9g45ekes_config	:	unconfig
 pm9263_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs pm9263 ronetix at91
 
+SBC35_A9G20_NANDFLASH_config \
+SBC35_A9G20_EEPROM_config \
+SBC35_A9G20_config	:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_$(@:_config=) 1" >$(obj)include/config.h
+	@$(MKCONFIG) -a sbc35_a9g20 arm arm926ejs sbc35_a9g20 calao at91
+
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.
 integratorap_config	\

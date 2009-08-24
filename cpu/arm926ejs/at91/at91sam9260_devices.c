@@ -75,7 +75,7 @@ void at91_serial_hw_init(void)
 #endif
 }
 
-#ifdef CONFIG_HAS_DATAFLASH
+#if defined(CONFIG_HAS_DATAFLASH) || defined(CONFIG_ATMEL_SPI)
 void at91_spi0_hw_init(unsigned long cs_mask)
 {
 	at91_set_A_periph(AT91_PIN_PA0, 0);	/* SPI0_MISO */
