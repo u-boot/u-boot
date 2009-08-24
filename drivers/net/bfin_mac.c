@@ -186,6 +186,9 @@ static int bfin_EMAC_recv(struct eth_device *dev)
 			printf("Ethernet: bad frame\n");
 			break;
 		}
+
+		debug("%s: len = %d\n", __func__, length - 4);
+
 		NetRxPackets[rxIdx] =
 		    (volatile uchar *)(rxbuf[rxIdx]->FrmData->Dest);
 		NetReceive(NetRxPackets[rxIdx], length - 4);
