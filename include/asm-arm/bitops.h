@@ -17,6 +17,8 @@
 
 #ifdef __KERNEL__
 
+#include <asm/proc/system.h>
+
 #define smp_mb__before_clear_bit()	do { } while (0)
 #define smp_mb__after_clear_bit()	do { } while (0)
 
@@ -37,8 +39,6 @@ static inline void __change_bit(int nr, volatile void *addr)
 	*p ^= mask;
 }
 
-extern int test_and_set_bit(int nr, volatile void * addr);
-
 static inline int __test_and_set_bit(int nr, volatile void *addr)
 {
 	unsigned long mask = BIT_MASK(nr);
@@ -49,7 +49,17 @@ static inline int __test_and_set_bit(int nr, volatile void *addr)
 	return (old & mask) != 0;
 }
 
-extern int test_and_clear_bit(int nr, volatile void * addr);
+static inline int test_and_set_bit(int nr, volatile void * addr)
+{
+	unsigned long flags;
+	int out;
+
+	local_irq_save(flags);
+	out = __test_and_set_bit(nr, addr);
+	local_irq_restore(flags);
+
+	return out;
+}
 
 static inline int __test_and_clear_bit(int nr, volatile void *addr)
 {
@@ -59,6 +69,18 @@ static inline int __test_and_clear_bit(int nr, volatile void *addr)
 
 	*p = old & ~mask;
 	return (old & mask) != 0;
+}
+
+static inline int test_and_clear_bit(int nr, volatile void * addr)
+{
+	unsigned long flags;
+	int out;
+
+	local_irq_save(flags);
+	out = __test_and_clear_bit(nr, addr);
+	local_irq_restore(flags);
+
+	return out;
 }
 
 extern int test_and_change_bit(int nr, volatile void * addr);
