@@ -51,6 +51,7 @@ extern __inline__ int ffs(int x)
 	return r;
 }
 #define __ffs(x) (ffs(x) - 1)
+#define ffs
 
 #endif /* __KERNEL__ */
 

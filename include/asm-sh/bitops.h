@@ -146,6 +146,8 @@ static inline int ffs (int x)
 	}
 	return r;
 }
+#define ffs
+
 #endif /* __KERNEL__ */
 
 #endif /* __ASM_SH_BITOPS_H */

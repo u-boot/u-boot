@@ -178,6 +178,7 @@ static __inline__ int fls(unsigned int x)
 {
 	return __ilog2(x) + 1;
 }
+#define fls
 
 /**
  * fls64 - find last set bit in a 64-bit word
@@ -230,6 +231,7 @@ extern __inline__ int ffs(int x)
 {
 	return __ilog2(x & -x) + 1;
 }
+#define ffs
 
 /*
  * hweightN: returns the hamming weight (i.e. the number
