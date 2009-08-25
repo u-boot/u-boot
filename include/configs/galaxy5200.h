@@ -81,8 +81,8 @@
 #endif
 /* RAMBOOT will be defined automatically in memory section */
 
-#define MTDIDS_DEFAULT 		"nor0=physmap-flash.0"
-#define MTDPARTS_DEFAULT   	"mtdparts=physmap-flash.0:256k(ubootl)," \
+#define MTDIDS_DEFAULT		"nor0=physmap-flash.0"
+#define MTDPARTS_DEFAULT	"mtdparts=physmap-flash.0:256k(ubootl)," \
 	"1792k(kernel),13312k(jffs2),256k(uboot)ro,256k(oftree),-(space)"
 
 /*
@@ -94,7 +94,7 @@
 #undef	CONFIG_BOOTARGS
 
 #define CONFIG_PREBOOT	"echo;"	\
-	"echo Welcome to U-Boot"\
+	"echo Welcome to U-Boot;"\
 	"echo"
 
 /*
@@ -376,7 +376,7 @@
 #define CONFIG_SYS_BOOTCS_START		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_BOOTCS_SIZE		CONFIG_SYS_FLASH_SIZE
 
-#define CONFIG_SYS_RESET_ADDRESS 	0xff000000
+#define CONFIG_SYS_RESET_ADDRESS	0xff000000
 
 /*
  * USB settings
