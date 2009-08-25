@@ -120,11 +120,7 @@
 # define CONFIG_SYS_PROMPT "bfin> "
 #endif
 #ifndef CONFIG_SYS_CBSIZE
-# ifdef CONFIG_CMD_KGDB
-#  define CONFIG_SYS_CBSIZE 1024
-# else
-#  define CONFIG_SYS_CBSIZE 256
-# endif
+# define CONFIG_SYS_CBSIZE 1024
 #endif
 #ifndef CONFIG_SYS_BARGSIZE
 # define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
