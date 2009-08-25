@@ -249,15 +249,17 @@
 	/********************************************/
 	/* !!! CS8900 is __not__ tested on NIOS !!! */
 	/********************************************/
-#define	CONFIG_DRIVER_CS8900			/* Using CS8900		*/
-#define	CS8900_BASE		(CONFIG_SYS_NIOS_CPU_LAN0_BASE + CONFIG_SYS_NIOS_CPU_LAN0_OFFS)
+#define CONFIG_NET_MULTI
+#define	CONFIG_CS8900		/* Using CS8900		*/
+#define	CONFIG_CS8900_BASE	(CONFIG_SYS_NIOS_CPU_LAN0_BASE + \
+				CONFIG_SYS_NIOS_CPU_LAN0_OFFS)
 
 #if	(CONFIG_SYS_NIOS_CPU_LAN0_BUSW == 32)
-#undef	CS8900_BUS16
-#define	CS8900_BUS32		1
+#undef	CONFIG_CS8900_BUS16
+#define	CONFIG_CS8900_BUS32
 #else	/* no */
-#define	CS8900_BUS16		1
-#undef	CS8900_BUS32
+#define	CONFIG_CS8900_BUS16
+#undef	CONFIG_CS8900_BUS32
 #endif
 
 #else

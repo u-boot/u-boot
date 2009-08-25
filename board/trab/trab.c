@@ -24,6 +24,7 @@
 /* #define DEBUG */
 
 #include <common.h>
+#include <netdev.h>
 #include <malloc.h>
 #include <s3c2400.h>
 #include <command.h>
@@ -418,5 +419,16 @@ static void tsc2000_set_brightness(void)
 		: CONFIG_SYS_BRIGHTNESS;
 
 	tsc2000_write(0, 0xb, br & 0xff);
+}
+#endif
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_CS8900
+	rc = cs8900_initialize(0, CONFIG_CS8900_BASE);
+#endif
+	return rc;
 }
 #endif

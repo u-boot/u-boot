@@ -47,10 +47,11 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_DRIVER_CS8900	1	/* we have a CS8900 on-board */
-#define CS8900_BASE		0x20000000
-#define CS8900_BUS16		1
-#undef  CS8900_BUS32
+#define CONFIG_NET_MULTI
+#define CONFIG_CS8900		/* we have a CS8900 on-board */
+#define CONFIG_CS8900_BASE	0x20000000
+#define CONFIG_CS8900_BUS16
+#undef  CONFIG_CS8900_BUS32
 
 /*
  * select serial console configuration

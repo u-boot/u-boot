@@ -99,9 +99,10 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_DRIVER_CS8900	1	/* we have a CS8900 on-board */
-#define CS8900_BASE		0x07000300 /* agrees with WIN CE PA */
-#define CS8900_BUS16		1 /* the Linux driver does accesses as shorts */
+#define CONFIG_NET_MULTI
+#define CONFIG_CS8900		/* we have a CS8900 on-board */
+#define CONFIG_CS8900_BASE	0x07000300 /* agrees with WIN CE PA */
+#define CONFIG_CS8900_BUS16	/* the Linux driver does accesses as shorts */
 
 #define CONFIG_DRIVER_S3C24X0_I2C 1	/* we use the buildin I2C controller */
 
