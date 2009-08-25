@@ -14,6 +14,10 @@
 # error CONFIG_BFIN_CPU: your board config needs to define this
 #endif
 
+#ifndef CONFIG_BFIN_SCRATCH_REG
+# define CONFIG_BFIN_SCRATCH_REG retn
+#endif
+
 /* Make sure the structure is properly aligned */
 #if ((CONFIG_SYS_GBL_DATA_ADDR & -4) != CONFIG_SYS_GBL_DATA_ADDR)
 # error CONFIG_SYS_GBL_DATA_ADDR: must be 4 byte aligned
