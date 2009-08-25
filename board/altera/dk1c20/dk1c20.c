@@ -25,6 +25,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <nios-io.h>
 #if	defined(CONFIG_SEVENSEG)
 #include "../common/sevenseg.h"
@@ -77,5 +78,16 @@ int ide_preinit (void)
 	atasel->data = 0;	/* Put in ATA mode */
 
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_CS8900
+	rc = cs8900_initialize(0, CONFIG_CS8900_BASE);
+#endif
+	return rc;
 }
 #endif

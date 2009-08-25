@@ -17,6 +17,7 @@
 #include <net.h>
 #include <command.h>
 #include <tsec.h>
+#include <asm/errno.h>
 
 #include "miiphy.h"
 
@@ -378,6 +379,12 @@ uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 				puts(" TIMEOUT !\n");
 				priv->link = 0;
 				return 0;
+			}
+
+			if (ctrlc()) {
+				puts("user interrupt!\n");
+				priv->link = 0;
+				return -EINTR;
 			}
 
 			if ((i++ % 1000) == 0) {

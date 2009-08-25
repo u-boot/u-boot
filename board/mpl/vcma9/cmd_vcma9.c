@@ -31,7 +31,7 @@
 #include "vcma9.h"
 #include "../common/common_util.h"
 
-#if defined(CONFIG_DRIVER_CS8900)
+#if defined(CONFIG_CS8900)
 #include <../drivers/net/cs8900.h>
 
 static uchar cs8900_chksum(ushort data)
@@ -56,25 +56,33 @@ extern int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
+	struct eth_device *dev;
+	char cs8900_name[10];
 	if (strcmp(argv[1], "info") == 0)
 	{
 		print_vcma9_info();
 		return 0;
 	}
-#if defined(CONFIG_DRIVER_CS8900)
+#if defined(CONFIG_CS8900)
 	if (strcmp(argv[1], "cs8900") == 0) {
+		sprintf(cs8900_name, "%s-0", CS8900_DRIVERNAME);
+		dev = eth_get_dev_by_name(cs8900_name);
+		if (!dev) {
+			printf("Couldn't find CS8900 driver");
+			return 0;
+		}
 		if (strcmp(argv[2], "read") == 0) {
 			uchar addr; ushort data;
 
 			addr = simple_strtoul(argv[3], NULL, 16);
-			cs8900_e2prom_read(addr, &data);
+			cs8900_e2prom_read(dev, addr, &data);
 			printf("0x%2.2X: 0x%4.4X\n", addr, data);
 		} else if (strcmp(argv[2], "write") == 0) {
 			uchar addr; ushort data;
 
 			addr = simple_strtoul(argv[3], NULL, 16);
 			data = simple_strtoul(argv[4], NULL, 16);
-			cs8900_e2prom_write(addr, data);
+			cs8900_e2prom_write(dev, addr, data);
 		} else if (strcmp(argv[2], "setaddr") == 0) {
 			uchar addr, i, csum; ushort data;
 			uchar ethaddr[6];
@@ -83,22 +91,22 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			if (eth_getenv_enetaddr("ethaddr", ethaddr)) {
 				addr = 1;
 				data = 0x2158;
-				cs8900_e2prom_write(addr, data);
+				cs8900_e2prom_write(dev, addr, data);
 				csum = cs8900_chksum(data);
 				addr++;
 				for (i = 0; i < 6; i+=2) {
 					data = ethaddr[i+1] << 8 |
 					       ethaddr[i];
-					cs8900_e2prom_write(addr, data);
+					cs8900_e2prom_write(dev, addr, data);
 					csum += cs8900_chksum(data);
 					addr++;
 				}
 				/* calculate header link byte */
 				data = 0xA100 | (addr * 2);
-				cs8900_e2prom_write(0, data);
+				cs8900_e2prom_write(dev, 0, data);
 				csum += cs8900_chksum(data);
 				/* write checksum word */
-				cs8900_e2prom_write(addr, (0 - csum) << 8);
+				cs8900_e2prom_write(dev, addr, (0 - csum) << 8);
 			} else {
 				puts("\nplease defined 'ethaddr'\n");
 			}
@@ -106,12 +114,12 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			uchar addr = 0, endaddr, csum; ushort data;
 
 			puts("Dump of CS8900 config device: ");
-			cs8900_e2prom_read(addr, &data);
+			cs8900_e2prom_read(dev, addr, &data);
 			if ((data & 0xE000) == 0xA000) {
 				endaddr = (data & 0x00FF) / 2;
 				csum = cs8900_chksum(data);
 				for (addr = 1; addr <= endaddr; addr++) {
-					cs8900_e2prom_read(addr, &data);
+					cs8900_e2prom_read(dev, addr, &data);
 					printf("\n0x%2.2X: 0x%4.4X", addr, data);
 					csum += cs8900_chksum(data);
 				}

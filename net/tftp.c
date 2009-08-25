@@ -56,6 +56,10 @@ static ulong	TftpLastBlock;		/* last packet sequence number received */
 static ulong	TftpBlockWrap;		/* count of sequence number wraparounds */
 static ulong	TftpBlockWrapOffset;	/* memory offset due to wrapping	*/
 static int	TftpState;
+#ifdef CONFIG_TFTP_TSIZE
+static int	TftpTsize;		/* The file size reported by the server */
+static short	TftpNumchars;		/* The number of hashes we printed      */
+#endif
 
 #define STATE_RRQ	1
 #define STATE_DATA	2
@@ -84,8 +88,14 @@ extern flash_info_t flash_info[];
 /* 512 is poor choice for ethernet, MTU is typically 1500.
  * Minus eth.hdrs thats 1468.  Can get 2x better throughput with
  * almost-MTU block sizes.  At least try... fall back to 512 if need be.
+ * (but those using CONFIG_IP_DEFRAG may want to set a larger block in cfg file)
  */
+#ifdef CONFIG_TFTP_BLOCKSIZE
+#define TFTP_MTU_BLOCKSIZE CONFIG_TFTP_BLOCKSIZE
+#else
 #define TFTP_MTU_BLOCKSIZE 1468
+#endif
+
 static unsigned short TftpBlkSize=TFTP_BLOCK_SIZE;
 static unsigned short TftpBlkSizeOption=TFTP_MTU_BLOCKSIZE;
 
@@ -196,6 +206,10 @@ TftpSend (void)
 		sprintf((char *)pkt, "%lu", TIMEOUT / 1000);
 		debug("send option \"timeout %s\"\n", (char *)pkt);
 		pkt += strlen((char *)pkt) + 1;
+#ifdef CONFIG_TFTP_TSIZE
+		memcpy((char *)pkt, "tsize\0000\0", 8);
+		pkt += 8;
+#endif
 		/* try for more effic. blk size */
 		pkt += sprintf((char *)pkt,"blksize%c%d%c",
 				0,TftpBlkSizeOption,0);
@@ -307,8 +321,14 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 					simple_strtoul((char*)pkt+i+8,NULL,10);
 				debug("Blocksize ack: %s, %d\n",
 					(char*)pkt+i+8,TftpBlkSize);
-				break;
 			}
+#ifdef CONFIG_TFTP_TSIZE
+			if (strcmp ((char*)pkt+i,"tsize") == 0) {
+				TftpTsize = simple_strtoul((char*)pkt+i+6,NULL,10);
+				debug("size = %s, %d\n",
+					 (char*)pkt+i+6, TftpTsize);
+			}
+#endif
 		}
 #ifdef CONFIG_MCAST_TFTP
 		parse_multicast_oack((char *)pkt,len-1);
@@ -334,7 +354,16 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			TftpBlockWrap++;
 			TftpBlockWrapOffset += TftpBlkSize * TFTP_SEQUENCE_SIZE;
 			printf ("\n\t %lu MB received\n\t ", TftpBlockWrapOffset>>20);
-		} else {
+		}
+#ifdef CONFIG_TFTP_TSIZE
+		else if (TftpTsize) {
+			while (TftpNumchars < NetBootFileXferSize * 50 / TftpTsize) {
+				putc('#');
+				TftpNumchars++;
+			}
+		}
+#endif
+		else {
 			if (((TftpBlock - 1) % 10) == 0) {
 				putc ('#');
 			} else if ((TftpBlock % (10 * HASHES_PER_LINE)) == 0) {
@@ -428,6 +457,13 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 			 *	We received the whole thing.  Try to
 			 *	run it.
 			 */
+#ifdef CONFIG_TFTP_TSIZE
+			/* Print out the hash marks for the last packet received */
+			while (TftpTsize && TftpNumchars < 49) {
+				putc('#');
+				TftpNumchars++;
+			}
+#endif
 			puts ("\ndone\n");
 			NetState = NETLOOP_SUCCESS;
 		}
@@ -466,9 +502,12 @@ TftpTimeout (void)
 void
 TftpStart (void)
 {
-#ifdef CONFIG_TFTP_PORT
 	char *ep;             /* Environment pointer */
-#endif
+
+	/* Allow the user to choose tftpblocksize */
+	if ((ep = getenv("tftpblocksize")) != NULL)
+		TftpBlkSizeOption = simple_strtol(ep, NULL, 10);
+	debug("tftp block size is %i\n", TftpBlkSizeOption);
 
 	TftpServerIP = NetServerIP;
 	if (BootFile[0] == '\0') {
@@ -553,6 +592,10 @@ TftpStart (void)
 	TftpBlkSize = TFTP_BLOCK_SIZE;
 #ifdef CONFIG_MCAST_TFTP
 	mcast_cleanup();
+#endif
+#ifdef CONFIG_TFTP_TSIZE
+	TftpTsize = 0;
+	TftpNumchars = 0;
 #endif
 
 	TftpSend ();

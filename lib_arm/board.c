@@ -73,10 +73,6 @@ extern void dataflash_print_info(void);
 const char version_string[] =
 	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")"CONFIG_IDENT_STRING;
 
-#ifdef CONFIG_DRIVER_CS8900
-extern void cs8900_get_enetaddr (void);
-#endif
-
 #ifdef CONFIG_DRIVER_RTL8019
 extern void rtl8019_get_enetaddr (uchar * addr);
 #endif
@@ -421,11 +417,6 @@ extern void davinci_eth_set_mac_addr (const u_int8_t *addr);
 		eth_getenv_enetaddr("ethaddr", enetaddr);
 		davinci_eth_set_mac_addr(enetaddr);
 	}
-#endif
-
-#ifdef CONFIG_DRIVER_CS8900
-	/* XXX: this needs to be moved to board init */
-	cs8900_get_enetaddr ();
 #endif
 
 #if defined(CONFIG_DRIVER_SMC91111) || defined (CONFIG_DRIVER_LAN91C96)

@@ -1,5 +1,10 @@
+#ifndef CS8900_H
+#define CS8900_H
 /*
  * Cirrus Logic CS8900A Ethernet
+ *
+ * (C) 2009 Ben Warren , biggerbadderben@gmail.com
+ *     Converted to use CONFIG_NET_MULTI API
  *
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
@@ -35,33 +40,34 @@
 #include <asm/types.h>
 #include <config.h>
 
-#ifdef CONFIG_DRIVER_CS8900
-
+#define CS8900_DRIVERNAME "CS8900"
 /* although the registers are 16 bit, they are 32-bit aligned on the
    EDB7111. so we have to read them as 32-bit registers and ignore the
    upper 16-bits. i'm not sure if this holds for the EDB7211. */
 
-#ifdef CS8900_BUS16
+#ifdef CONFIG_CS8900_BUS16
   /* 16 bit aligned registers, 16 bit wide */
   #define CS8900_REG u16
-  #define CS8900_OFF 0x02
-  #define CS8900_BUS16_0  *(volatile u8 *)(CS8900_BASE+0x00)
-  #define CS8900_BUS16_1  *(volatile u8 *)(CS8900_BASE+0x01)
-#elif  defined(CS8900_BUS32)
+#elif defined(CONFIG_CS8900_BUS32)
   /* 32 bit aligned registers, 16 bit wide (we ignore upper 16 bits) */
   #define CS8900_REG u32
-  #define CS8900_OFF 0x04
 #else
   #error unknown bussize ...
 #endif
 
-#define CS8900_RTDATA *(volatile CS8900_REG *)(CS8900_BASE+0x00*CS8900_OFF)
-#define CS8900_TxCMD  *(volatile CS8900_REG *)(CS8900_BASE+0x02*CS8900_OFF)
-#define CS8900_TxLEN  *(volatile CS8900_REG *)(CS8900_BASE+0x03*CS8900_OFF)
-#define CS8900_ISQ    *(volatile CS8900_REG *)(CS8900_BASE+0x04*CS8900_OFF)
-#define CS8900_PPTR   *(volatile CS8900_REG *)(CS8900_BASE+0x05*CS8900_OFF)
-#define CS8900_PDATA  *(volatile CS8900_REG *)(CS8900_BASE+0x06*CS8900_OFF)
+struct cs8900_regs {
+	CS8900_REG rtdata;
+	CS8900_REG pad0;
+	CS8900_REG txcmd;
+	CS8900_REG txlen;
+	CS8900_REG isq;
+	CS8900_REG pptr;
+	CS8900_REG pdata;
+};
 
+struct cs8900_priv {
+	struct cs8900_regs *regs;
+};
 
 #define ISQ_RxEvent     0x04
 #define ISQ_TxEvent     0x08
@@ -251,7 +257,8 @@
 #define EEPROM_READ_CMD		0x0200
 #define EEPROM_ERASE_CMD	0x0300
 
-extern int cs8900_e2prom_read(uchar, ushort *);
-extern int cs8900_e2prom_write(uchar, ushort);
+/* Exported functions */
+int cs8900_e2prom_read(struct eth_device *dev, uchar, ushort *);
+int cs8900_e2prom_write(struct eth_device *dev, uchar, ushort);
 
-#endif /* CONFIG_DRIVER_CS8900 */
+#endif  /* CS8900_H */
