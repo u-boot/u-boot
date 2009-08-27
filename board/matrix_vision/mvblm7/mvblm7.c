@@ -42,8 +42,15 @@ int fixed_sdram(void)
 	u32 msize = 0;
 	u32 ddr_size;
 	u32 ddr_size_log2;
+	char *s = getenv("ddr_size");
 
 	msize = CONFIG_SYS_DDR_SIZE;
+	if (s) {
+		u32 env_ddr_size = simple_strtoul(s, NULL, 10);
+		if (env_ddr_size == 512)
+			msize = 512;
+	}
+
 	for (ddr_size = msize << 20, ddr_size_log2 = 0;
 	     (ddr_size > 1);
 	     ddr_size = ddr_size >> 1, ddr_size_log2++) {
@@ -63,14 +70,19 @@ int fixed_sdram(void)
 	im->ddr.sdram_cfg = CONFIG_SYS_DDR_SDRAM_CFG;
 	im->ddr.sdram_cfg2 = CONFIG_SYS_DDR_SDRAM_CFG2;
 	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
+	im->ddr.sdram_mode2 = CONFIG_SYS_DDR_MODE2;
 	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
-	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CNTL;
+	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_SDRAM_CLK_CNTL;
 
-	udelay(300);
+	asm("sync;isync");
+	udelay(600);
 
 	im->ddr.sdram_cfg |= SDRAM_CFG_MEM_EN;
 
-	return CONFIG_SYS_DDR_SIZE;
+	asm("sync;isync");
+	udelay(500);
+
+	return msize;
 }
 
 phys_size_t initdram(int board_type)
@@ -88,40 +100,22 @@ phys_size_t initdram(int board_type)
 	return msize * 1024 * 1024;
 }
 
+int misc_init_r(void)
+{
+	char *s = getenv("reset_env");
+
+	if (s) {
+		mv_reset_environment();
+	}
+
+	return 0;
+}
+
 int checkboard(void)
 {
 	puts("Board: Matrix Vision mvBlueLYNX-M7\n");
 
 	return 0;
-}
-
-u8 *dhcp_vendorex_prep(u8 *e)
-{
-	char *ptr;
-
-	/* DHCP vendor-class-identifier = 60 */
-	ptr = getenv("dhcp_vendor-class-identifier");
-	if (ptr) {
-		*e++ = 60;
-		*e++ = strlen(ptr);
-		while (*ptr)
-			*e++ = *ptr++;
-	}
-	/* DHCP_CLIENT_IDENTIFIER = 61 */
-	ptr = getenv("dhcp_client_id");
-	if (ptr) {
-		*e++ = 61;
-		*e++ = strlen(ptr);
-		while (*ptr)
-			*e++ = *ptr++;
-	}
-
-	return e;
-}
-
-u8 *dhcp_vendorex_proc(u8 *popt)
-{
-	return NULL;
 }
 
 #ifdef CONFIG_HARD_SPI

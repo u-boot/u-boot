@@ -39,6 +39,7 @@
 #include <asm/io.h>
 #include "fpga.h"
 #include "mvbc_p.h"
+#include "../common/mv_common.h"
 
 #define SDRAM_MODE	0x00CD0000
 #define SDRAM_CONTROL	0x504F0000
@@ -134,23 +135,6 @@ void mvbc_init_gpio(void)
 	printf("sint_gpioe  : 0x%08x\n", gpio->sint_gpioe);
 }
 
-void reset_environment(void)
-{
-	char *s, sernr[64];
-
-	printf("\n*** RESET ENVIRONMENT ***\n");
-	memset(sernr, 0, sizeof(sernr));
-	s = getenv("serial#");
-	if (s) {
-		printf("found serial# : %s\n", s);
-		strncpy(sernr, s, 64);
-	}
-	gd->env_valid = 0;
-	env_relocate();
-	if (s)
-		setenv("serial#", sernr);
-}
-
 int misc_init_r(void)
 {
 	char *s = getenv("reset_env");
@@ -166,7 +150,7 @@ int misc_init_r(void)
 			return 0;
 	}
 	printf(" === FACTORY RESET ===\n");
-	reset_environment();
+	mv_reset_environment();
 	saveenv();
 
 	return -1;
@@ -206,19 +190,28 @@ void flash_afterinit(ulong size)
 void pci_mvbc_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 {
 	unsigned char line = 0xff;
+	char *s = getenv("pci_latency");
 	u32 base;
+	u8 val = 0;
+
+	if (s)
+		val = simple_strtoul(s, NULL, 16);
 
 	if (PCI_BUS(dev) == 0) {
 		switch (PCI_DEV (dev)) {
 		case 0xa: /* FPGA */
 			line = 3;
 			pci_hose_read_config_dword(hose, dev, PCI_BASE_ADDRESS_0, &base);
-			printf("found FPA - enable arbitration\n");
+			printf("found FPGA - enable arbitration\n");
 			writel(0x03, (u32*)(base + 0x80c0));
 			writel(0xf0, (u32*)(base + 0x8080));
+			if (val)
+				pci_hose_write_config_byte(hose, dev, PCI_LATENCY_TIMER, val);
 			break;
 		case 0xb: /* LAN */
 			line = 2;
+			if (val)
+				pci_hose_write_config_byte(hose, dev, PCI_LATENCY_TIMER, val);
 			break;
 		case 0x1a:
 			break;
@@ -234,67 +227,13 @@ struct pci_controller hose = {
 	fixup_irq:pci_mvbc_fixup_irq
 };
 
-int mvbc_p_load_fpga(void)
-{
-	size_t data_size = 0;
-	void *fpga_data = NULL;
-	char *datastr = getenv("fpgadata");
-	char *sizestr = getenv("fpgadatasize");
-
-	if (datastr)
-		fpga_data = (void *)simple_strtoul(datastr, NULL, 16);
-	if (sizestr)
-		data_size = (size_t)simple_strtoul(sizestr, NULL, 16);
-
-	return fpga_load(0, fpga_data, data_size);
-}
-
 extern void pci_mpc5xxx_init(struct pci_controller *);
 
 void pci_init_board(void)
 {
-	char *s;
-	int load_fpga = 1;
-
 	mvbc_p_init_fpga();
-	s = getenv("skip_fpga");
-	if (s) {
-		printf("found 'skip_fpga' -> FPGA _not_ loaded !\n");
-		load_fpga = 0;
-	}
-	if (load_fpga) {
-		printf("loading FPGA ... ");
-		mvbc_p_load_fpga();
-		printf("done\n");
-	}
+	mv_load_fpga();
 	pci_mpc5xxx_init(&hose);
-}
-
-u8 *dhcp_vendorex_prep(u8 *e)
-{
-	char *ptr;
-
-	/* DHCP vendor-class-identifier = 60 */
-	if ((ptr = getenv("dhcp_vendor-class-identifier"))) {
-		*e++ = 60;
-		*e++ = strlen(ptr);
-		while (*ptr)
-			*e++ = *ptr++;
-	}
-	/* DHCP_CLIENT_IDENTIFIER = 61 */
-	if ((ptr = getenv("dhcp_client_id"))) {
-		*e++ = 61;
-		*e++ = strlen(ptr);
-		while (*ptr)
-			*e++ = *ptr++;
-	}
-
-	return e;
-}
-
-u8 *dhcp_vendorex_proc (u8 *popt)
-{
-	return NULL;
 }
 
 void show_boot_progress(int val)
@@ -303,16 +242,16 @@ void show_boot_progress(int val)
 
 	switch(val) {
 	case 0: /* FPGA ok */
-		setbits_be32(&gpio->simple_dvo, 0x80);
+		setbits_be32(&gpio->simple_dvo, LED_G0);
 		break;
-	case 1:
-		setbits_be32(&gpio->simple_dvo, 0x40);
+	case 65:
+		setbits_be32(&gpio->simple_dvo, LED_G1);
 		break;
 	case 12:
-		setbits_be32(&gpio->simple_dvo, 0x20);
+		setbits_be32(&gpio->simple_dvo, LED_Y);
 		break;
 	case 15:
-		setbits_be32(&gpio->simple_dvo, 0x10);
+		setbits_be32(&gpio->simple_dvo, LED_R);
 		break;
 	default:
 		break;

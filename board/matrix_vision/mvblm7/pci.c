@@ -32,23 +32,9 @@
 #include <fpga.h>
 #include "mvblm7.h"
 #include "fpga.h"
+#include "../common/mv_common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-int mvblm7_load_fpga(void)
-{
-	size_t data_size = 0;
-	void *fpga_data = NULL;
-	char *datastr = getenv("fpgadata");
-	char *sizestr = getenv("fpgadatasize");
-
-	if (datastr)
-		fpga_data = (void *)simple_strtoul(datastr, NULL, 16);
-	if (sizestr)
-		data_size = (size_t)simple_strtoul(sizestr, NULL, 16);
-
-	return fpga_load(0, fpga_data, data_size);
-}
 
 static struct pci_region pci_regions[] = {
 	{
@@ -73,10 +59,8 @@ static struct pci_region pci_regions[] = {
 
 void pci_init_board(void)
 {
-	char *s;
 	int i;
 	int warmboot;
-	int load_fpga;
 	volatile immap_t *immr;
 	volatile pcictrl83xx_t *pci_ctrl;
 	volatile gpio83xx_t *gpio;
@@ -84,32 +68,23 @@ void pci_init_board(void)
 	volatile law83xx_t *pci_law;
 	struct pci_region *reg[] = { pci_regions };
 
-	load_fpga = 1;
 	immr = (immap_t *) CONFIG_SYS_IMMR;
 	clk = (clk83xx_t *) &immr->clk;
 	pci_ctrl = immr->pci_ctrl;
 	pci_law = immr->sysconf.pcilaw;
 	gpio  = (volatile gpio83xx_t *)&immr->gpio[0];
 
-	s = getenv("skip_fpga");
-	if (s) {
-		printf("found 'skip_fpga' -> FPGA _not_ loaded !\n");
-		load_fpga = 0;
-	}
-
 	gpio->dat = MV_GPIO_DAT;
 	gpio->odr = MV_GPIO_ODE;
-	if (load_fpga)
-		gpio->dir = MV_GPIO_OUT;
-	else
-		gpio->dir = MV_GPIO_OUT & ~(FPGA_DIN|FPGA_CCLK);
+	gpio->dir = MV_GPIO_OUT;
 
 	printf("SICRH / SICRL : 0x%08x / 0x%08x\n", immr->sysconf.sicrh,
 		immr->sysconf.sicrl);
 
 	mvblm7_init_fpga();
-	if (load_fpga)
-		mvblm7_load_fpga();
+	mv_load_fpga();
+
+	gpio->dir = MV_GPIO_OUT & ~(FPGA_DIN|FPGA_CCLK);
 
 	/* Enable PCI_CLK_OUTPUTs 0 and 1 with 1:1 clocking */
 	clk->occr = 0xc0000000;

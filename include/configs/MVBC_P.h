@@ -67,7 +67,7 @@
 #define MV_CI			mvBlueCOUGAR-P
 #define MV_VCI			mvBlueCOUGAR-P
 #define MV_FPGA_DATA		0xff860000
-#define MV_FPGA_SIZE		0x0003c886
+#define MV_FPGA_SIZE		0
 #define MV_KERNEL_ADDR		0xffd00000
 #define MV_INITRD_ADDR		0xff900000
 #define MV_INITRD_LENGTH	0x00400000
