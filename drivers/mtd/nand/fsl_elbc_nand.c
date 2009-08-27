@@ -662,7 +662,7 @@ static int fsl_elbc_wait(struct mtd_info *mtd, struct nand_chip *chip)
 
 static int fsl_elbc_read_page(struct mtd_info *mtd,
 			      struct nand_chip *chip,
-			      uint8_t *buf)
+			      uint8_t *buf, int page)
 {
 	fsl_elbc_read_buf(mtd, buf, mtd->writesize);
 	fsl_elbc_read_buf(mtd, chip->oob_poi, mtd->oobsize);
