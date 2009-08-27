@@ -530,7 +530,7 @@
    "consoledev=ttyS0\0"\
    "loadaddr=a00000\0"\
    "fdtaddr=900000\0"\
-   "fdtfile=dtb\0"\
+   "fdtfile=mpc836x_rdk.dtb\0"\
    "fsfile=fs\0"\
    "ubootfile=u-boot.bin\0"\
    "mtdparts=mtdparts=60000000.nand-flash:4096k(kernel),128k(dtb),-(rootfs)\0"\

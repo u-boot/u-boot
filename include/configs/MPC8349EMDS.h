@@ -732,7 +732,7 @@
 		"era fe000000 fe03ffff; cp.b 100000 fe000000 ${filesize}\0"	\
 	"upd=run load update\0"						\
 	"fdtaddr=780000\0"						\
-	"fdtfile=mpc8349emds.dtb\0"					\
+	"fdtfile=mpc834x_mds.dtb\0"					\
 	""
 
 #define CONFIG_NFSBOOTCOMMAND	                                        \
