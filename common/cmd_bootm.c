@@ -166,6 +166,13 @@ void __arch_lmb_reserve(struct lmb *lmb)
 }
 void arch_lmb_reserve(struct lmb *lmb) __attribute__((weak, alias("__arch_lmb_reserve")));
 
+/* Allow for arch specific config before we boot */
+void __arch_preboot_os(void)
+{
+	/* please define platform specific arch_preboot_os() */
+}
+void arch_preboot_os(void) __attribute__((weak, alias("__arch_preboot_os")));
+
 #if defined(__ARM__)
   #define IH_INITRD_ARCH IH_ARCH_ARM
 #elif defined(__avr32__)
@@ -543,6 +550,7 @@ int do_bootm_subcommand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			break;
 		case BOOTM_STATE_OS_GO:
 			disable_interrupts();
+			arch_preboot_os();
 			boot_fn(BOOTM_STATE_OS_GO, argc, argv, &images);
 			break;
 	}
@@ -672,6 +680,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		show_boot_progress (-8);
 		return 1;
 	}
+
+	arch_preboot_os();
 
 	boot_fn(0, argc, argv, &images);
 
