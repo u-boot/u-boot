@@ -515,7 +515,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
-#define CONFIG_LOADADDR	500000	/* default location for tftp and bootm */
+#define CONFIG_LOADADDR	800000	/* default location for tftp and bootm */
 
 #ifdef CONFIG_MPC8349ITX
 #define CONFIG_SYS_PROMPT	"MPC8349E-mITX> "	/* Monitor Command Prompt */
@@ -708,7 +708,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_FDTFILE		mpc8349emitxgp.dtb
 #endif
 
-#define CONFIG_BOOTDELAY	0
+#define CONFIG_BOOTDELAY	6
 
 #define XMK_STR(x)	#x
 #define MK_STR(x)	XMK_STR(x)
@@ -731,7 +731,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 		"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
 		"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
 		"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
-	"fdtaddr=400000\0"						\
+	"fdtaddr=780000\0"						\
 	"fdtfile=" MK_STR(CONFIG_FDTFILE) "\0"
 
 #define CONFIG_NFSBOOTCOMMAND						\
