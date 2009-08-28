@@ -211,6 +211,11 @@
 #define CONFIG_SYS_CS1_SIZE		0x90000
 #define CONFIG_SYS_CS1_CFG		0x0002d900
 
+/* Chip Select configuration for Epson S1D13513 */
+#define CONFIG_SYS_CS3_START		0x10000000
+#define CONFIG_SYS_CS3_SIZE		0x400000
+#define CONFIG_SYS_CS3_CFG		0xffff3d10
+
 /*
  * Ethernet configuration
  */
