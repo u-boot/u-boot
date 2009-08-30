@@ -534,7 +534,7 @@ int console_init_f(void)
 
 void stdio_print_current_devices(void)
 {
-#ifdef CONFIG_SYS_CONSOLE_INFO_QUIET
+#ifndef CONFIG_SYS_CONSOLE_INFO_QUIET
 	/* Print information */
 	puts("In:    ");
 	if (stdio_devices[stdin] == NULL) {
