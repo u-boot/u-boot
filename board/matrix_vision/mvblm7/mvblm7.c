@@ -34,6 +34,7 @@
 #include <libfdt.h>
 #endif
 
+#include "../common/mv_common.h"
 #include "mvblm7.h"
 
 int fixed_sdram(void)
