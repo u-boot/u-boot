@@ -1,3 +1,189 @@
+commit 632a6dd0b612eb7b143f789f2a0273917468c041
+Author: Andre Schwarz <andre.schwarz@matrix-vision.de>
+Date:	Mon Aug 31 16:18:24 2009 +0200
+
+    Add common code dir for Matrix Vision boards.
+
+    This fixes current build failure.
+
+    Signed-off-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+
+    mvblm7.c: fix warning: implicit declaration of function
+    'mv_reset_environment'
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 52f6c34c85d6c16f2a41433b5000490ecf374992
+Author: David Brownell <dbrownell@users.sourceforge.net>
+Date:	Sun Aug 30 11:05:29 2009 -0700
+
+    bugfix CONFIG_SYS_CONSOLE_INFO_QUIET
+
+    The "console: unify printing current devices" patch goofed:
+    CONFIG_SYS_CONSOLE_INFO_QUIET is supposed to *REMOVE* boot
+    time noise, not add it.  Said patch changed the #ifndefs
+    to #ifdef; this one restores them to the proper sense.
+
+    Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+commit 28887d831b02c66ccc10d7f1379204b5a62f4543
+Author: AndrÃ© Schwarz <andre.schwarz@matrix-vision.de>
+Date:	Thu Aug 27 14:48:35 2009 +0200
+
+    Use common code for Matrix Vision boards
+
+    Clean up existing boards (mvBC-P/MPC5200 and mvBL-M7/MPC8343) by
+    using common code.
+
+    Signed-off-by: André Schwarz <andre.schwarz@matrix-vision.de>
+
+commit 05f91a65abc3180e2896cd8ddee7a34b1d1ce6e0
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Aug 26 21:27:37 2009 -0500
+
+    mpc83xx: mpc8349itx - accommodate larger kernel sizes & unzero the bootdelay
+
+    apparently the ITX was missed last round.
+
+    Also make bootdelay consistent with other boards, so as to give on the
+    opportunity to fix mistakenly set bootcmd without having checked for an
+    bootdelay zero setting first.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit cc861f7127f200e704baaf061a7f508e3c93f2a3
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed Aug 26 21:25:46 2009 -0500
+
+    mpc83xx: match dtb filename references to their dts equivalents in the linux kernel
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 68e74567cf317318df52dbcb2ac170ffc5e7758a
+Author: Feng Kan <fkan@amcc.com>
+Date:	Fri Aug 21 10:59:42 2009 -0700
+
+    ppc4xx: Fix ECC Correction bug with SMC ordering for NDFC driver
+
+    Fix ECC Correction bug where the byte offset location were double
+    flipped causing correction routine to toggle the wrong byte location
+    in the ECC segment. The ndfc_calculate_ecc routine change the order
+    of getting the ECC code.
+	    /* The NDFC uses Smart Media (SMC) bytes order */
+	    ecc_code[0] = p[2];
+	    ecc_code[1] = p[1];
+	    ecc_code[2] = p[3];
+    But in the Correction algorithm when calculating the byte offset
+    location, the s1 is used as the upper part of the address. Which
+    again reverse the order making the final byte offset address
+    location incorrect.
+	byteoffs = (s1 << 0) & 0x80;
+	.
+	.
+	byteoffs |= (s0 >> 4) & 0x08;
+    The order is change to read it in straight and let the correction
+    function to revert it to SMC order.
+
+    Signed-off-by: Feng Kan <fkan@amcc.com>
+    Acked-by: Victor Gallardo <vgallardo@amcc.com>
+    Acked-by: Prodyut Hazarika <phazarika@amcc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 30fc5cd3116cb112d0aab7e6d7c8eef1b67ed075
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Aug 25 12:22:38 2009 +0200
+
+    include/s3c24x0.h: fix S3C24X0_SPI_CHANNEL declaration
+
+    The SPI controller on the S3C24X0 has 8 bit registers, not 32 bit.
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e637385e69f63bc73b9dfd2ddd8d0f383790ca28
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Aug 20 19:17:59 2009 -0400
+
+    Blackfin: fix typos in gpio comments
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit c2fbcb6ae86c10621a386c13be57eaa766221ed5
+Author: Harald Krapfenbauer <Harald.Krapfenbauer@bluetechnix.at>
+Date:	Tue Aug 18 04:49:57 2009 -0400
+
+    Blackfin: cm-bf527/cm-bf537: increase flash sectors
+
+    Newer revisions of these boards have slightly larger flashes, so increase
+    the configured number of sectors so that U-Boot works on all revisions.
+
+    Signed-off-by: Harald Krapfenbauer <Harald.Krapfenbauer@bluetechnix.at>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit a794f59a75bf9fd4a44f1ad2349cae903c42b89c
+Author: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Date:	Sun Aug 23 14:14:52 2009 +0200
+
+    sh/rsk7203: add missing include net.h
+
+    Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+
+commit 6ac9f47977a9fc1876979871eeb14f26ba1bdbe6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Aug 23 02:47:59 2009 -0400
+
+    start a linker script helper file
+
+    Start a common header file for common linker script code (such as
+    workarounds for older linkers) rather than doing this in the build system.
+
+    As fallout, we no longer execute the linker every time config.mk is
+    included by a build file (which can easily be 70+ times), but rather only
+    execute it once.
+
+    This also fixes a bug in the major version checking by creating a macro to
+    easily compare versions and keep people from making the same common
+    mistake (forgetting to check major and minor together).
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 2ed0869d30602eb660569eababb8fedff36bd23a
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Aug 22 19:50:22 2009 -0400
+
+    Blackfin: use common code to preprocess linker script
+
+    Now that the common code preprocesses the linker script, the Blackfin code
+    no longer needs to do it.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 4d3758c835c7e96da2a291e7fb5acfc19bc06e8e
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sat Aug 22 19:48:56 2009 -0400
+
+    .gitignore: ignore generated u-boot.lds
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 79b91de958511840d2a7491be92d435b7ef43f17
+Author: Albin Tonnerre <albin.tonnerre@free-electrons.com>
+Date:	Sat Aug 22 14:21:53 2009 +0200
+
+    include/mmc.h: Fix typo in IS_SD() macro
+
+    Signed-off-by: Albin Tonnerre <albin.tonnerre@free-electrons.com>
+
+commit 963f2f611741f8d9c38bd7caf20ae8c95cab7b3f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Aug 22 23:27:26 2009 +0200
+
+    Prepare 2009.08-rc3
+
+    Update CHANGELOG, minor Coding Style cleanup.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 5b2da6a309266f21cbb68f06fcfdf9ba141022e7
 Author: Michal Simek <monstr@monstr.eu>
 Date:	Fri Aug 21 06:52:25 2009 +1000
