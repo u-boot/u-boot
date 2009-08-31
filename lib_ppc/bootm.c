@@ -172,7 +172,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 
 static void boot_prep_linux(void)
 {
-#if (CONFIG_NUM_CPUS > 1)
+#ifdef CONFIG_MP
 	/* if we are MP make sure to flush the dcache() to any changes are made
 	 * visibile to all other cores */
 	flush_dcache();

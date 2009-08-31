@@ -330,11 +330,12 @@ int cpu_init_r(void)
 		break;
 	}
 
-	if (l2cache->l2ctl & 0x80000000) {
+	if (l2cache->l2ctl & MPC85xx_L2CTL_L2E) {
 		puts("already enabled");
 		l2srbar = l2cache->l2srbar0;
 #ifdef CONFIG_SYS_INIT_L2_ADDR
-		if (l2cache->l2ctl & 0x00010000 && l2srbar >= CONFIG_SYS_FLASH_BASE) {
+		if (l2cache->l2ctl & MPC85xx_L2CTL_L2SRAM_ENTIRE
+				&& l2srbar >= CONFIG_SYS_FLASH_BASE) {
 			l2srbar = CONFIG_SYS_INIT_L2_ADDR;
 			l2cache->l2srbar0 = l2srbar;
 			printf("moving to 0x%08x", CONFIG_SYS_INIT_L2_ADDR);

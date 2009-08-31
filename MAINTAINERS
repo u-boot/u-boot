@@ -17,6 +17,10 @@
 #	Board		CPU						#
 #########################################################################
 
+Poonam Aggrwal <poonam.aggrwal@freescale.com>
+
+	P2020RDB	P2020
+
 Greg Allen <gallen@arlut.utexas.edu>
 
 	UTX8245		MPC8245
@@ -615,6 +619,10 @@ David Müller <d.mueller@elsoft.ch>
 
 	smdk2410	ARM920T
 	VCMA9		ARM920T
+
+Eric Millbrandt <emillbrandt@dekaresearch.com>
+
+	galaxy5200	mpc5200
 
 Rolf Offermanns <rof@sysgo.de>
 

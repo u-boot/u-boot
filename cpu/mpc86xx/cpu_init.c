@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2004,2009 Freescale Semiconductor, Inc.
  * Jeff Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
@@ -129,7 +129,7 @@ void cpu_init_f(void)
  */
 int cpu_init_r(void)
 {
-#if (CONFIG_NUM_CPUS > 1)
+#if defined(CONFIG_MP)
 	setup_mp();
 #endif
 	return 0;

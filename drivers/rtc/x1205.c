@@ -38,7 +38,6 @@
 #include <command.h>
 #include <rtc.h>
 #include <i2c.h>
-#include <bcd.h>
 
 #if defined(CONFIG_CMD_DATE)
 
@@ -116,13 +115,13 @@ int rtc_get(struct rtc_time *tm)
 	      buf[0], buf[1], buf[2], buf[3],
 	      buf[4], buf[5], buf[6], buf[7]);
 
-	tm->tm_sec = BCD2BIN(buf[CCR_SEC]);
-	tm->tm_min = BCD2BIN(buf[CCR_MIN]);
-	tm->tm_hour = BCD2BIN(buf[CCR_HOUR] & 0x3F); /* hr is 0-23 */
-	tm->tm_mday = BCD2BIN(buf[CCR_MDAY]);
-	tm->tm_mon = BCD2BIN(buf[CCR_MONTH]); /* mon is 0-11 */
-	tm->tm_year = BCD2BIN(buf[CCR_YEAR])
-		+ (BCD2BIN(buf[CCR_Y2K]) * 100);
+	tm->tm_sec = bcd2bin(buf[CCR_SEC]);
+	tm->tm_min = bcd2bin(buf[CCR_MIN]);
+	tm->tm_hour = bcd2bin(buf[CCR_HOUR] & 0x3F); /* hr is 0-23 */
+	tm->tm_mday = bcd2bin(buf[CCR_MDAY]);
+	tm->tm_mon = bcd2bin(buf[CCR_MONTH]); /* mon is 0-11 */
+	tm->tm_year = bcd2bin(buf[CCR_YEAR])
+		+ (bcd2bin(buf[CCR_Y2K]) * 100);
 	tm->tm_wday = buf[CCR_WDAY];
 
 	debug("%s: tm is secs=%d, mins=%d, hours=%d, "
@@ -143,21 +142,21 @@ int rtc_set(struct rtc_time *tm)
 	      tm->tm_year, tm->tm_mon, tm->tm_mday, tm->tm_wday,
 	      tm->tm_hour, tm->tm_min, tm->tm_sec);
 
-	buf[CCR_SEC] = BIN2BCD(tm->tm_sec);
-	buf[CCR_MIN] = BIN2BCD(tm->tm_min);
+	buf[CCR_SEC] = bin2bcd(tm->tm_sec);
+	buf[CCR_MIN] = bin2bcd(tm->tm_min);
 
 	/* set hour and 24hr bit */
-	buf[CCR_HOUR] = BIN2BCD(tm->tm_hour) | X1205_HR_MIL;
+	buf[CCR_HOUR] = bin2bcd(tm->tm_hour) | X1205_HR_MIL;
 
-	buf[CCR_MDAY] = BIN2BCD(tm->tm_mday);
+	buf[CCR_MDAY] = bin2bcd(tm->tm_mday);
 
 	/* month, 1 - 12 */
-	buf[CCR_MONTH] = BIN2BCD(tm->tm_mon);
+	buf[CCR_MONTH] = bin2bcd(tm->tm_mon);
 
 	/* year, since the rtc epoch*/
-	buf[CCR_YEAR] = BIN2BCD(tm->tm_year % 100);
+	buf[CCR_YEAR] = bin2bcd(tm->tm_year % 100);
 	buf[CCR_WDAY] = tm->tm_wday & 0x07;
-	buf[CCR_Y2K] = BIN2BCD(tm->tm_year / 100);
+	buf[CCR_Y2K] = bin2bcd(tm->tm_year / 100);
 
 	/* this sequence is required to unlock the chip */
 	rtc_write(X1205_REG_SR, X1205_SR_WEL);

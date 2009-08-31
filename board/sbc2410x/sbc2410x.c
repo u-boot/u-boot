@@ -29,6 +29,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <s3c2410.h>
 
 #if defined(CONFIG_CMD_NAND)
@@ -176,5 +177,16 @@ void nand_init(void)
 	printf("NAND flash probing at 0x%.8lX\n", (ulong)nand);
 #endif
 	printf ("%4lu MB\n", nand_probe((ulong)nand) >> 20);
+}
+#endif
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_CS8900
+	rc = cs8900_initialize(0, CONFIG_CS8900_BASE);
+#endif
+	return rc;
 }
 #endif

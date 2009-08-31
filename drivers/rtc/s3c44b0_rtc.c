@@ -32,29 +32,28 @@
 #include <command.h>
 #include <asm/hardware.h>
 #include <rtc.h>
-#include <bcd.h>
 
 int rtc_get (struct rtc_time* tm)
 {
 	RTCCON |= 1;
-	tm->tm_year  = BCD2BIN(BCDYEAR);
-	tm->tm_mon   = BCD2BIN(BCDMON);
-	tm->tm_wday   = BCD2BIN(BCDDATE);
-	tm->tm_mday   = BCD2BIN(BCDDAY);
-	tm->tm_hour  = BCD2BIN(BCDHOUR);
-	tm->tm_min  = BCD2BIN(BCDMIN);
-	tm->tm_sec  = BCD2BIN(BCDSEC);
+	tm->tm_year  = bcd2bin(BCDYEAR);
+	tm->tm_mon   = bcd2bin(BCDMON);
+	tm->tm_wday   = bcd2bin(BCDDATE);
+	tm->tm_mday   = bcd2bin(BCDDAY);
+	tm->tm_hour  = bcd2bin(BCDHOUR);
+	tm->tm_min  = bcd2bin(BCDMIN);
+	tm->tm_sec  = bcd2bin(BCDSEC);
 
 	if (tm->tm_sec==0) {
 		/* we have to re-read the rtc data because of the "one second deviation" problem */
 		/* see RTC datasheet for more info about it */
-		tm->tm_year  = BCD2BIN(BCDYEAR);
-		tm->tm_mon   = BCD2BIN(BCDMON);
-		tm->tm_mday   = BCD2BIN(BCDDAY);
-		tm->tm_wday   = BCD2BIN(BCDDATE);
-		tm->tm_hour  = BCD2BIN(BCDHOUR);
-		tm->tm_min  = BCD2BIN(BCDMIN);
-		tm->tm_sec  = BCD2BIN(BCDSEC);
+		tm->tm_year  = bcd2bin(BCDYEAR);
+		tm->tm_mon   = bcd2bin(BCDMON);
+		tm->tm_mday   = bcd2bin(BCDDAY);
+		tm->tm_wday   = bcd2bin(BCDDATE);
+		tm->tm_hour  = bcd2bin(BCDHOUR);
+		tm->tm_min  = bcd2bin(BCDMIN);
+		tm->tm_sec  = bcd2bin(BCDSEC);
 	}
 
 	RTCCON &= ~1;
@@ -75,13 +74,13 @@ int rtc_set (struct rtc_time* tm)
 		tm->tm_year -= 2000;
 
 	RTCCON |= 1;
-	BCDYEAR = BIN2BCD(tm->tm_year);
-	BCDMON = BIN2BCD(tm->tm_mon);
-	BCDDAY = BIN2BCD(tm->tm_mday);
-	BCDDATE = BIN2BCD(tm->tm_wday);
-	BCDHOUR = BIN2BCD(tm->tm_hour);
-	BCDMIN = BIN2BCD(tm->tm_min);
-	BCDSEC = BIN2BCD(tm->tm_sec);
+	BCDYEAR = bin2bcd(tm->tm_year);
+	BCDMON = bin2bcd(tm->tm_mon);
+	BCDDAY = bin2bcd(tm->tm_mday);
+	BCDDATE = bin2bcd(tm->tm_wday);
+	BCDHOUR = bin2bcd(tm->tm_hour);
+	BCDMIN = bin2bcd(tm->tm_min);
+	BCDSEC = bin2bcd(tm->tm_sec);
 	RTCCON &= 1;
 
 	return 0;

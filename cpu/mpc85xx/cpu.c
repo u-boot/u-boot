@@ -1,5 +1,5 @@
 /*
- * Copyright 2004,2007,2008 Freescale Semiconductor, Inc.
+ * Copyright 2004,2007-2009 Freescale Semiconductor, Inc.
  * (C) Copyright 2002, 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
  *
@@ -29,57 +29,11 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
-#include <tsec.h>
-#include <netdev.h>
 #include <fsl_esdhc.h>
 #include <asm/cache.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-struct cpu_type cpu_type_list [] = {
-	CPU_TYPE_ENTRY(8533, 8533),
-	CPU_TYPE_ENTRY(8533, 8533_E),
-	CPU_TYPE_ENTRY(8535, 8535),
-	CPU_TYPE_ENTRY(8535, 8535_E),
-	CPU_TYPE_ENTRY(8536, 8536),
-	CPU_TYPE_ENTRY(8536, 8536_E),
-	CPU_TYPE_ENTRY(8540, 8540),
-	CPU_TYPE_ENTRY(8541, 8541),
-	CPU_TYPE_ENTRY(8541, 8541_E),
-	CPU_TYPE_ENTRY(8543, 8543),
-	CPU_TYPE_ENTRY(8543, 8543_E),
-	CPU_TYPE_ENTRY(8544, 8544),
-	CPU_TYPE_ENTRY(8544, 8544_E),
-	CPU_TYPE_ENTRY(8545, 8545),
-	CPU_TYPE_ENTRY(8545, 8545_E),
-	CPU_TYPE_ENTRY(8547, 8547_E),
-	CPU_TYPE_ENTRY(8548, 8548),
-	CPU_TYPE_ENTRY(8548, 8548_E),
-	CPU_TYPE_ENTRY(8555, 8555),
-	CPU_TYPE_ENTRY(8555, 8555_E),
-	CPU_TYPE_ENTRY(8560, 8560),
-	CPU_TYPE_ENTRY(8567, 8567),
-	CPU_TYPE_ENTRY(8567, 8567_E),
-	CPU_TYPE_ENTRY(8568, 8568),
-	CPU_TYPE_ENTRY(8568, 8568_E),
-	CPU_TYPE_ENTRY(8569, 8569),
-	CPU_TYPE_ENTRY(8569, 8569_E),
-	CPU_TYPE_ENTRY(8572, 8572),
-	CPU_TYPE_ENTRY(8572, 8572_E),
-	CPU_TYPE_ENTRY(P2020, P2020),
-	CPU_TYPE_ENTRY(P2020, P2020_E),
-};
-
-struct cpu_type *identify_cpu(u32 ver)
-{
-	int i;
-	for (i = 0; i < ARRAY_SIZE(cpu_type_list); i++)
-		if (cpu_type_list[i].soc_ver == ver)
-			return &cpu_type_list[i];
-
-	return NULL;
-}
 
 int checkcpu (void)
 {
@@ -100,24 +54,23 @@ int checkcpu (void)
 	int i;
 
 	svr = get_svr();
-	ver = SVR_SOC_VER(svr);
 	major = SVR_MAJ(svr);
 #ifdef CONFIG_MPC8536
 	major &= 0x7; /* the msb of this nibble is a mfg code */
 #endif
 	minor = SVR_MIN(svr);
 
-#if (CONFIG_NUM_CPUS > 1)
-	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
-	printf("CPU%d:  ", pic->whoami);
-#else
-	puts("CPU:   ");
-#endif
+	if (cpu_numcores() > 1) {
+		volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+		printf("CPU%d:  ", pic->whoami);
+	} else {
+		puts("CPU:   ");
+	}
 
-	cpu = identify_cpu(ver);
-	if (cpu) {
+	cpu = gd->cpu;
+
+	if (cpu->name) {
 		puts(cpu->name);
-
 		if (IS_E_PROCESSOR(svr))
 			puts("E");
 	} else {
@@ -150,7 +103,7 @@ int checkcpu (void)
 	get_sys_info(&sysinfo);
 
 	puts("Clock Configuration:");
-	for (i = 0; i < CONFIG_NUM_CPUS; i++) {
+	for (i = 0; i < cpu_numcores(); i++) {
 		if (!(i & 3))
 			printf ("\n       ");
 		printf("CPU%d:%-4s MHz, ",
@@ -327,28 +280,6 @@ void upmconfig (uint upm, uint * table, uint size)
 		old_mad = mad;
 	}
 	out_be32(mxmr, (in_be32(mxmr) & 0x4fffffc0) | MxMR_OP_NORM);
-}
-
-
-/*
- * Initializes on-chip ethernet controllers.
- * to override, implement board_eth_init()
- */
-int cpu_eth_init(bd_t *bis)
-{
-#if defined(CONFIG_ETHER_ON_FCC)
-	fec_initialize(bis);
-#endif
-
-#if defined(CONFIG_UEC_ETH)
-	uec_standard_init(bis);
-#endif
-
-#if defined(CONFIG_TSEC_ENET) || defined(CONFIG_MPC85XX_FEC)
-	tsec_standard_init(bis);
-#endif
-
-	return 0;
 }
 
 /*

@@ -41,7 +41,6 @@
 #define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_SBC8641D		1	/* SBC8641D board specific */
 #define CONFIG_MP		1	/* support multiple processors */
-#define CONFIG_NUM_CPUS         2       /* Number of CPUs in the system */
 #define CONFIG_LINUX_RESET_VEC  0x100   /* Reset vector used by Linux */
 
 #ifdef RUN_DIAG
@@ -107,6 +106,7 @@
 
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 #define CONFIG_SYS_CCSRBAR_PHYS_HIGH	0x0
+#define CONFIG_SYS_CCSRBAR_PHYS		CONFIG_SYS_CCSRBAR_PHYS_LOW
 
 #define CONFIG_SYS_PCI1_ADDR		(CONFIG_SYS_CCSRBAR+0x8000)
 #define CONFIG_SYS_PCI2_ADDR		(CONFIG_SYS_CCSRBAR+0x9000)

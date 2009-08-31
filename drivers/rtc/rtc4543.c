@@ -25,7 +25,6 @@
 #include <common.h>
 #include <command.h>
 #include <config.h>
-#include <bcd.h>
 #include <rtc.h>
 #include <tws.h>
 
@@ -49,13 +48,13 @@ int rtc_get(struct rtc_time *tm)
 	/* Read 52 bits into our buffer */
 	tws_read(buffer, 52);
 
-	tm->tm_sec  = BCD2BIN( buffer[0] & 0x7F);
-	tm->tm_min  = BCD2BIN( buffer[1] & 0x7F);
-	tm->tm_hour = BCD2BIN( buffer[2] & 0x3F);
-	tm->tm_wday = BCD2BIN( buffer[3] & 0x07);
-	tm->tm_mday = BCD2BIN((buffer[3] & 0xF0) >> 4 | (buffer[4] & 0x0F) << 4);
-	tm->tm_mon  = BCD2BIN((buffer[4] & 0x30) >> 4 | (buffer[5] & 0x0F) << 4);
-	tm->tm_year = BCD2BIN((buffer[5] & 0xF0) >> 4 | (buffer[6] & 0x0F) << 4) + 2000;
+	tm->tm_sec  = bcd2bin( buffer[0] & 0x7F);
+	tm->tm_min  = bcd2bin( buffer[1] & 0x7F);
+	tm->tm_hour = bcd2bin( buffer[2] & 0x3F);
+	tm->tm_wday = bcd2bin( buffer[3] & 0x07);
+	tm->tm_mday = bcd2bin((buffer[3] & 0xF0) >> 4 | (buffer[4] & 0x0F) << 4);
+	tm->tm_mon  = bcd2bin((buffer[4] & 0x30) >> 4 | (buffer[5] & 0x0F) << 4);
+	tm->tm_year = bcd2bin((buffer[5] & 0xF0) >> 4 | (buffer[6] & 0x0F) << 4) + 2000;
 	tm->tm_yday = 0;
 	tm->tm_isdst = 0;
 
@@ -81,17 +80,17 @@ int rtc_set(struct rtc_time *tm)
 		tm->tm_hour, tm->tm_min, tm->tm_sec);
 
 	memset(buffer, 0, 7);
-	buffer[0] = BIN2BCD(tm->tm_sec);
-	buffer[1] = BIN2BCD(tm->tm_min);
-	buffer[2] = BIN2BCD(tm->tm_hour);
-	buffer[3] = BIN2BCD(tm->tm_wday);
-	tmp = BIN2BCD(tm->tm_mday);
+	buffer[0] = bin2bcd(tm->tm_sec);
+	buffer[1] = bin2bcd(tm->tm_min);
+	buffer[2] = bin2bcd(tm->tm_hour);
+	buffer[3] = bin2bcd(tm->tm_wday);
+	tmp = bin2bcd(tm->tm_mday);
 	buffer[3] |= (tmp & 0x0F) << 4;
 	buffer[4] =  (tmp & 0xF0) >> 4;
-	tmp = BIN2BCD(tm->tm_mon);
+	tmp = bin2bcd(tm->tm_mon);
 	buffer[4] |= (tmp & 0x0F) << 4;
 	buffer[5] =  (tmp & 0xF0) >> 4;
-	tmp = BIN2BCD(tm->tm_year  % 100);
+	tmp = bin2bcd(tm->tm_year  % 100);
 	buffer[5] |= (tmp & 0x0F) << 4;
 	buffer[6] =  (tmp & 0xF0) >> 4;
 

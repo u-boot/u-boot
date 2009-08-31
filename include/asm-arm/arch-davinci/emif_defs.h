@@ -55,6 +55,16 @@ typedef struct {
 	dv_reg		NANDF2ECC;
 	dv_reg		NANDF3ECC;
 	dv_reg		NANDF4ECC;
+	u_int8_t	RSVD2[60];
+	dv_reg		NAND4BITECCLOAD;
+	dv_reg		NAND4BITECC1;
+	dv_reg		NAND4BITECC2;
+	dv_reg		NAND4BITECC3;
+	dv_reg		NAND4BITECC4;
+	dv_reg		NANDERRADD1;
+	dv_reg		NANDERRADD2;
+	dv_reg		NANDERRVAL1;
+	dv_reg		NANDERRVAL2;
 } emif_registers;
 
 typedef emif_registers	*emifregs;

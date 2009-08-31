@@ -1,0 +1,145 @@
+Overview
+--------
+P2020RDB is a Low End Dual core platform supporting the P2020 processor
+of QorIQ series. P2020 is an e500 based dual core SOC.
+
+Building U-boot
+-----------
+To build the u-boot for P2020RDB:
+	make P2020RDB_config
+	make
+
+NOR Flash Banks
+-----------
+RDB board for P2020 has two flash banks. They are both present on boot.
+
+Booting by default is always from the boot bank at 0xef00_0000.
+
+Memory Map
+----------
+0xef00_0000 - 0xef7f_ffff	Alernate bank		8MB
+0xe800_0000 - 0xefff_ffff	Boot bank		8MB
+
+0xef78_0000 - 0xef7f_ffff	Alternate u-boot address	512KB
+0xeff8_0000 - 0xefff_ffff	Boot u-boot address		512KB
+
+Switch settings to boot from the NOR flash banks
+------------------------------------------------
+SW4[8]=0 default NOR Flash bank
+SW4[8]=1 Alternate NOR Flash bank
+
+Flashing Images
+---------------
+To place a new u-boot image in the alternate flash bank and then boot
+with that new image temporarily, use this:
+	tftp 1000000 u-boot.bin
+	erase ef780000 ef7fffff
+	cp.b 1000000 ef780000 80000
+
+Now to boot from the alternate bank change the SW4[8] from 0 to 1.
+
+To program the image in the boot flash bank:
+	tftp 1000000 u-boot.bin
+	protect off all
+	erase eff80000 ffffffff
+	cp.b 1000000 eff80000 80000
+
+Using the Device Tree Source File
+---------------------------------
+To create the DTB (Device Tree Binary) image file,
+use a command similar to this:
+
+	dtc -b 0 -f -I dts -O dtb p2020rdb.dts > p2020rdb.dtb
+
+Likely, that .dts file will come from here;
+
+	linux-2.6/arch/powerpc/boot/dts/p2020rdb.dts
+
+Booting Linux
+-------------
+Place a linux uImage in the TFTP disk area.
+
+	tftp 1000000 uImage.p2020rdb
+	tftp 2000000 rootfs.ext2.gz.uboot
+	tftp c00000 p2020rdb.dtb
+	bootm 1000000 2000000 c00000
+
+Implementing AMP(Asymmetric MultiProcessing)
+---------------------------------------------
+1. Build kernel image for core0:
+
+	a. $ make 85xx/p1_p2_rdb_defconfig
+
+	b. $ make menuconfig
+	   - un-select "Processor support"->
+		"Symetric multi-processing support"
+
+	c. $ make uImage
+
+	d. $ cp arch/powerpc/boot/uImage /tftpboot/uImage.core0
+
+2. Build kernel image for core1:
+
+	a. $ make 85xx/p1_p2_rdb_defconfig
+
+	b. $ make menuconfig
+	   - Un-select "Processor support"->
+		"Symetric multi-processing support"
+	   - Select "Advanced setup" ->
+		"Prompt for advanced kernel configuration options"
+		- Select
+			"Set physical address where the kernel is loaded"
+			and set it to 0x20000000, asssuming core1 will
+			start from 512MB.
+		- Select "Set custom page offset address"
+		- Select "Set custom kernel base address"
+		- Select "Set maximum low memory"
+	   - "Exit" and save the selection.
+
+	c. $ make uImage
+
+	d. $ cp arch/powerpc/boot/uImage /tftpboot/uImage.core1
+
+3. Create dtb for core0:
+
+	$ dtc -I dts -O dtb -f -b 0
+		 arch/powerpc/boot/dts/p2020rdb_camp_core0.dts >
+		 /tftpboot/p2020rdb_camp_core0.dtb
+
+4. Create dtb for core1:
+
+	$ dtc -I dts -O dtb -f -b 1
+		 arch/powerpc/boot/dts/p2020rdb_camp_core1.dts >
+		 /tftpboot/p2020rdb_camp_core1.dtb
+
+5. Bring up two cores separately:
+
+	a. Power on the board, under u-boot prompt:
+		=> setenv <serverip>
+		=> setenv <ipaddr>
+		=> setenv bootargs root=/dev/ram rw console=ttyS0,115200
+	b. Bring up core1's kernel first:
+		=> setenv bootm_low 0x20000000
+		=> setenv bootm_size 0x10000000
+		=> tftp 21000000 uImage.core1
+		=> tftp 22000000 ramdiskfile
+		=> tftp 20c00000 p2020rdb_camp_core1.dtb
+		=> interrupts off
+		=> bootm start 21000000 22000000 20c00000
+		=> bootm loados
+		=> bootm ramdisk
+		=> bootm fdt
+		=> fdt boardsetup
+		=> fdt chosen $initrd_start $initrd_end
+		=> bootm prep
+		=> cpu 1 release $bootm_low - $fdtaddr -
+	c. Bring up core0's kernel(on the same u-boot console):
+		=> setenv bootm_low 0
+		=> setenv bootm_size 0x20000000
+		=> tftp 1000000 uImage.core0
+		=> tftp 2000000 ramdiskfile
+		=> tftp c00000 p2020rdb_camp_core0.dtb
+		=> bootm 1000000 2000000 c00000
+
+Please note only core0 will run u-boot, core1 starts kernel directly
+after "cpu release" command is issued.

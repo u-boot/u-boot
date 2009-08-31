@@ -97,16 +97,6 @@ static void rtc_write (short reg, uchar val)
 # error Board specific rtc access functions should be supplied
 #endif
 
-static unsigned bcd2bin (uchar n)
-{
-	return ((((n >> 4) & 0x0F) * 10) + (n & 0x0F));
-}
-
-static unsigned char bin2bcd (unsigned int n)
-{
-	return (((n / 10) << 4) | (n % 10));
-}
-
 /* ------------------------------------------------------------------------- */
 
 void *nvram_read(void *dest, const short src, size_t count)

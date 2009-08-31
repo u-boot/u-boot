@@ -106,6 +106,8 @@
 #define ATM_CMD_SOFTLOCK_START		0x80
 #define ATM_CMD_LOCK_SECT		0x40
 
+#define FLASH_CONTINUATION_CODE		0x7F
+
 #define FLASH_OFFSET_MANUFACTURER_ID	0x00
 #define FLASH_OFFSET_DEVICE_ID		0x01
 #define FLASH_OFFSET_DEVICE_ID2		0x0E
@@ -1541,13 +1543,22 @@ static int cmdset_intel_init(flash_info_t *info, struct cfi_qry *qry)
 
 static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 {
+	ushort bankId = 0;
+	uchar  manuId;
+
 	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
 	flash_unlock_seq(info, 0);
 	flash_write_cmd(info, 0, info->addr_unlock1, FLASH_CMD_READ_ID);
 	udelay(1000); /* some flash are slow to respond */
 
-	info->manufacturer_id = flash_read_uchar (info,
-					FLASH_OFFSET_MANUFACTURER_ID);
+	manuId = flash_read_uchar (info, FLASH_OFFSET_MANUFACTURER_ID);
+	/* JEDEC JEP106Z specifies ID codes up to bank 7 */
+	while (manuId == FLASH_CONTINUATION_CODE && bankId < 0x800) {
+		bankId += 0x100;
+		manuId = flash_read_uchar (info,
+			bankId | FLASH_OFFSET_MANUFACTURER_ID);
+	}
+	info->manufacturer_id = manuId;
 
 	switch (info->chipwidth){
 	case FLASH_CFI_8BIT:

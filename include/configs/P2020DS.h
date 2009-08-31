@@ -34,7 +34,6 @@
 #define CONFIG_P2020		1
 #define CONFIG_P2020DS		1
 #define CONFIG_MP		1	/* support multiple processors */
-#define CONFIG_NUM_CPUS		2	/* Number of CPUs in the system */
 
 #define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */

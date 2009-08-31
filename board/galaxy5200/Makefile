@@ -1,7 +1,6 @@
-# Modified by Xianghua Xiao, X.Xiao@motorola.com
-# (C) Copyright 2002,2003 Motorola Inc.
 #
-# Copied from ADS85xx for STx GP3 - Dan Malek
+# (C) Copyright 2003-2007
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -22,11 +21,30 @@
 # MA 02111-1307 USA
 #
 
-#
-# default CCARBAR is at 0xff700000
-# assume U-Boot is less than 0.5MB
-#
-TEXT_BASE = 0xfff80000
+include $(TOPDIR)/config.mk
 
-PLATFORM_CPPFLAGS += -DCONFIG_MPC85xx=1
-PLATFORM_CPPFLAGS += -DCONFIG_E500=1
+LIB	= $(obj)lib$(BOARD).a
+
+COBJS	:= $(BOARD).o
+
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################

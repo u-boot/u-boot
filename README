@@ -629,6 +629,8 @@ The following options need to be configured:
 		CONFIG_CMD_KGDB		* kgdb
 		CONFIG_CMD_LOADB	  loadb
 		CONFIG_CMD_LOADS	  loads
+		CONFIG_CMD_MD5SUM	  print md5 message digest
+					  (requires CONFIG_CMD_MEMORY and CONFIG_MD5)
 		CONFIG_CMD_MEMORY	  md, mm, nm, mw, cp, cmp, crc, base,
 					  loop, loopw, mtest
 		CONFIG_CMD_MISC		  Misc functions like sleep etc
@@ -652,6 +654,8 @@ The following options need to be configured:
 					  (requires CONFIG_CMD_I2C)
 		CONFIG_CMD_SETGETDCR	  Support for DCR Register access
 					  (4xx only)
+		CONFIG_CMD_SHA1		  print sha1 memory digest
+					  (requires CONFIG_CMD_MEMORY)
 		CONFIG_CMD_SOURCE	  "source" command Support
 		CONFIG_CMD_SPI		* SPI serial bus support
 		CONFIG_CMD_USB		* USB support
@@ -854,9 +858,13 @@ The following options need to be configured:
 		MPC5200 USB requires additional defines:
 			CONFIG_USB_CLOCK
 				for 528 MHz Clock: 0x0001bbbb
+			CONFIG_PSC3_USB
+				for USB on PSC3
 			CONFIG_USB_CONFIG
 				for differential drivers: 0x00001000
 				for single ended drivers: 0x00005000
+				for differential drivers on PSC3: 0x00000100
+				for single ended drivers on PSC3: 0x00004100
 			CONFIG_SYS_USB_EVENT_POLL
 				May be defined to allow interrupt polling
 				instead of using asynchronous interrupts

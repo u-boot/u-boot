@@ -39,7 +39,6 @@
 void cpu_init_f(void)
 {
 	volatile scm1_t *scm1 = (scm1_t *) MMAP_SCM1;
-	volatile scm2_t *scm2 = (scm2_t *) MMAP_SCM2;
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 	volatile fbcs_t *fbcs = (fbcs_t *) MMAP_FBCS;
 

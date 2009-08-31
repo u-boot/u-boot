@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2009 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -34,9 +34,9 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	}
 
 	cpuid = simple_strtoul(argv[1], NULL, 10);
-	if (cpuid >= CONFIG_NUM_CPUS) {
+	if (cpuid >= cpu_numcores()) {
 		printf ("Core num: %lu is out of range[0..%d]\n",
-				cpuid, CONFIG_NUM_CPUS - 1);
+				cpuid, cpu_numcores() - 1);
 		return 1;
 	}
 

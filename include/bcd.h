@@ -3,18 +3,23 @@
  * at your option.
  */
 
-/* macros to translate to/from binary and binary-coded decimal (frequently
- * found in RTC chips).
+/* inline functions to translate to/from binary and binary-coded decimal
+ * (frequently found in RTC chips).
  */
 
 #ifndef _BCD_H
 #define _BCD_H
 
-#define BCD2BIN(val)	(((val) & 0x0f) + ((val)>>4)*10)
-#define BIN2BCD(val)	((((val)/10)<<4) + (val)%10)
+#include <linux/types.h>
 
-/* backwards compat */
-#define BCD_TO_BIN(val) ((val)=BCD2BIN(val))
-#define BIN_TO_BCD(val) ((val)=BIN2BCD(val))
+static inline unsigned int bcd2bin(u8 val)
+{
+	return ((val) & 0x0f) + ((val) >> 4) * 10;
+}
+
+static inline u8 bin2bcd (unsigned int val)
+{
+	return (((val / 10) << 4) | (val % 10));
+}
 
 #endif /* _BCD_H */

@@ -67,6 +67,10 @@
 # if defined(CONFIG_ENV_ADDR_REDUND) || defined(CONFIG_ENV_OFFSET_REDUND)
 #  define CONFIG_SYS_REDUNDAND_ENVIRONMENT	1
 # endif
+# ifdef CONFIG_ENV_IS_EMBEDDED
+#  error "do not define CONFIG_ENV_IS_EMBEDDED in your board config"
+#  error "it is calculated automatically for you"
+# endif
 #endif	/* CONFIG_ENV_IS_IN_FLASH */
 
 #if defined(CONFIG_ENV_IS_IN_NAND)
@@ -79,9 +83,6 @@
 # ifdef CONFIG_ENV_OFFSET_REDUND
 #  define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # endif
-# ifdef CONFIG_ENV_IS_EMBEDDED
-#  define ENV_IS_EMBEDDED	1
-# endif
 #endif /* CONFIG_ENV_IS_IN_NAND */
 
 #if defined(CONFIG_ENV_IS_IN_MG_DISK)
@@ -91,10 +92,31 @@
 # ifndef CONFIG_ENV_SIZE
 #  error "Need to define CONFIG_ENV_SIZE when using CONFIG_ENV_IS_IN_MG_DISK"
 # endif
-# ifdef CONFIG_ENV_IS_EMBEDDED
-#  error "CONFIG_ENV_IS_EMBEDDED not supported when using CONFIG_ENV_IS_IN_MG_DISK"
-# endif
 #endif /* CONFIG_ENV_IS_IN_MG_DISK */
+
+/* Embedded env is only supported for some flash types */
+#ifdef CONFIG_ENV_IS_EMBEDDED
+# if !defined(CONFIG_ENV_IS_IN_FLASH) && \
+     !defined(CONFIG_ENV_IS_IN_NAND) && \
+     !defined(CONFIG_ENV_IS_IN_ONENAND)
+#  error "CONFIG_ENV_IS_EMBEDDED not supported for your flash type"
+# endif
+#endif
+
+/*
+ * For the flash types where embedded env is supported, but it cannot be
+ * calculated automatically (i.e. NAND), take the board opt-in.
+ */
+#if defined(CONFIG_ENV_IS_EMBEDDED) && !defined(ENV_IS_EMBEDDED)
+# define ENV_IS_EMBEDDED 1
+#endif
+
+/* The build system likes to know if the env is embedded */
+#ifdef DO_DEPS_ONLY
+# ifdef ENV_IS_EMBEDDED
+#  define CONFIG_ENV_IS_EMBEDDED
+# endif
+#endif
 
 #include "compiler.h"
 

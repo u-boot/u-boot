@@ -22,12 +22,8 @@
 # MA 02111-1307 USA
 #
 
+#
 # default CCARBAR is at 0xff700000
 # assume U-Boot is less than 0.5MB
-# U-Boot is less than 256K, so push
-# it further up into the flash
 #
-TEXT_BASE = 0xFFFC0000
-
-PLATFORM_CPPFLAGS += -DCONFIG_MPC85xx=1
-PLATFORM_CPPFLAGS += -DCONFIG_E500=1
+TEXT_BASE = 0xfff80000

@@ -50,6 +50,7 @@ LIST_5xxx="		\
 	digsy_mtc	\
 	EVAL5200	\
 	fo300		\
+	galaxy5200	\
 	icecube_5100	\
 	icecube_5200	\
 	inka4x0		\
@@ -390,6 +391,10 @@ LIST_85xx="		\
 	MPC8572DS_36BIT	\
 	P2020DS		\
 	P2020DS_36BIT	\
+	P1011RDB	\
+	P1020RDB	\
+	P2010RDB	\
+	P2020RDB	\
 	PM854		\
 	PM856		\
 	sbc8540		\

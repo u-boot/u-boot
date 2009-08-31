@@ -29,6 +29,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <s3c6400.h>
 
 /* ------------------------------------------------------------------------- */
@@ -117,3 +118,14 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t *info)
 	} else
 		return 0;
 }
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_CS8900
+	rc = cs8900_initialize(0, CONFIG_CS8900_BASE);
+#endif
+	return rc;
+}
+#endif

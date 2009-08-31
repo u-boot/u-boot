@@ -230,9 +230,6 @@ pci_init_board(void)
 		}
 		printf ("\n");
 
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
-
 		/* outbound memory */
 		pci_set_region(r++,
 			       CONFIG_SYS_PCIE3_MEM_BUS,
@@ -250,9 +247,8 @@ pci_init_board(void)
 		hose->region_count = r - hose->regions;
 
 		hose->first_busno=first_free_busno;
-		pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
 
-		fsl_pci_init(hose);
+		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 
 		first_free_busno=hose->last_busno+1;
 		printf ("    PCIE3 on bus %02x - %02x\n",
@@ -260,14 +256,13 @@ pci_init_board(void)
 	} else {
 		printf ("    PCIE3: disabled\n");
 	}
-
- }
+}
 #else
 	gur->devdisr |= MPC85xx_DEVDISR_PCIE3; /* disable */
 #endif
 
 #ifdef CONFIG_PCIE1
- {
+{
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 	struct pci_controller *hose = &pcie1_hose;
 	int pcie_ep = (host_agent == 5);
@@ -284,9 +279,6 @@ pci_init_board(void)
 			debug (" with errors.  Clearing.  Now 0x%08x",pci->pme_msg_det);
 		}
 		printf ("\n");
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
 		pci_set_region(r++,
@@ -313,9 +305,7 @@ pci_init_board(void)
 		hose->region_count = r - hose->regions;
 		hose->first_busno=first_free_busno;
 
-		pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
-
-		fsl_pci_init(hose);
+		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 
 		first_free_busno=hose->last_busno+1;
 		printf("    PCIE1 on bus %02x - %02x\n",
@@ -324,14 +314,13 @@ pci_init_board(void)
 	} else {
 		printf ("    PCIE1: disabled\n");
 	}
-
- }
+}
 #else
 	gur->devdisr |= MPC85xx_DEVDISR_PCIE; /* disable */
 #endif
 
 #ifdef CONFIG_PCIE2
- {
+{
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE2_ADDR;
 	struct pci_controller *hose = &pcie2_hose;
 	int pcie_ep = (host_agent == 3);
@@ -347,9 +336,6 @@ pci_init_board(void)
 			debug (" with errors.  Clearing.  Now 0x%08x",pci->pme_msg_det);
 		}
 		printf ("\n");
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
 		pci_set_region(r++,
@@ -375,9 +361,8 @@ pci_init_board(void)
 #endif
 		hose->region_count = r - hose->regions;
 		hose->first_busno=first_free_busno;
-		pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
 
-		fsl_pci_init(hose);
+		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 		first_free_busno=hose->last_busno+1;
 		printf ("    PCIE2 on bus %02x - %02x\n",
 			hose->first_busno,hose->last_busno);
@@ -385,12 +370,10 @@ pci_init_board(void)
 	} else {
 		printf ("    PCIE2: disabled\n");
 	}
-
- }
+}
 #else
 	gur->devdisr |= MPC85xx_DEVDISR_PCIE2; /* disable */
 #endif
-
 
 #ifdef CONFIG_PCI1
 {
@@ -404,7 +387,6 @@ pci_init_board(void)
 	uint pci_arb = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;	/* PORDEVSR[14] */
 	uint pci_clk_sel = gur->porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;	/* PORPLLSR[16] */
 
-
 	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
 		printf ("\n    PCI: %d bit, %s MHz, %s, %s, %s (base address %x)\n",
 			(pci_32) ? 32 : 64,
@@ -415,9 +397,6 @@ pci_init_board(void)
 			pci_arb ? "arbiter" : "external-arbiter",
 			(uint)pci
 			);
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
 		pci_set_region(r++,
@@ -443,9 +422,8 @@ pci_init_board(void)
 #endif
 		hose->region_count = r - hose->regions;
 		hose->first_busno=first_free_busno;
-		pci_setup_indirect(hose, (int) &pci->cfg_addr, (int) &pci->cfg_data);
 
-		fsl_pci_init(hose);
+		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 		first_free_busno=hose->last_busno+1;
 		printf ("PCI on bus %02x - %02x\n",
 			hose->first_busno,hose->last_busno);
@@ -457,7 +435,6 @@ pci_init_board(void)
 	gur->devdisr |= MPC85xx_DEVDISR_PCI1; /* disable */
 #endif
 }
-
 
 int board_early_init_r(void)
 {

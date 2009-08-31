@@ -24,6 +24,7 @@
 #include <common.h>
 #include <pci.h>
 #include <asm/fsl_pci.h>
+#include <asm/io.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 
@@ -182,18 +183,18 @@ void pci_init_board(void)
 	immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 #endif
-	uint devdisr = gur->devdisr;
-	uint io_sel = (gur->pordevsr & MPC8xxx_PORDEVSR_IO_SEL) >>
+	uint devdisr = in_be32(&gur->devdisr);
+	uint io_sel = (in_be32(&gur->pordevsr) & MPC8xxx_PORDEVSR_IO_SEL) >>
 			MPC8xxx_PORDEVSR_IO_SEL_SHIFT;
-	uint host_agent = (gur->porbmsr & MPC8xxx_PORBMSR_HA) >>
+	uint host_agent = (in_be32(&gur->porbmsr) & MPC8xxx_PORBMSR_HA) >>
 			MPC8xxx_PORBMSR_HA_SHIFT;
 	struct pci_region *r;
 
 #ifdef CONFIG_PCI1
-	uint pci_spd_norm = (gur->pordevsr & MPC85xx_PORDEVSR_PCI1_SPD);
-	uint pci_32 = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_PCI32;
-	uint pci_arb = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;
-	uint pcix = gur->pordevsr & MPC85xx_PORDEVSR_PCI1;
+	uint pci_spd_norm = in_be32(&gur->pordevsr) & MPC85xx_PORDEVSR_PCI1_SPD;
+	uint pci_32 = in_be32(&gur->pordevsr) & MPC85xx_PORDEVSR_PCI1_PCI32;
+	uint pci_arb = in_be32(&gur->pordevsr) & MPC85xx_PORDEVSR_PCI1_ARB;
+	uint pcix = in_be32(&gur->pordevsr) & MPC85xx_PORDEVSR_PCI1;
 	uint freq = CONFIG_SYS_CLK_FREQ / 1000 / 1000;
 
 	width = 0; /* Silence compiler warning... */
@@ -203,18 +204,14 @@ void pci_init_board(void)
 	host = host_agent_cfg[host_agent].pci_host[0];
 	r = hose->regions;
 
-
 	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
 		printf("\n    PCI1: %d bit %s, %s %d MHz, %s, %s\n",
 			pci_32 ? 32 : 64,
 			pcix ? "PCIX" : "PCI",
-			pci_spd_norm ?  ">=" : "<=",
+			pci_spd_norm ? ">=" : "<=",
 			pcix ? freq * 2 : freq,
 			host ? "host" : "agent",
 			pci_arb ? "arbiter" : "external-arbiter");
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
 		pci_set_region(r++,
@@ -233,10 +230,8 @@ void pci_init_board(void)
 		hose->region_count = r - hose->regions;
 
 		hose->first_busno = first_free_busno;
-		pci_setup_indirect(hose, (int)&pci->cfg_addr,
-				   (int)&pci->cfg_data);
 
-		fsl_pci_init(hose);
+		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 
 		/* Unlock inbound PCI configuration cycles */
 		if (!host)
@@ -250,7 +245,7 @@ void pci_init_board(void)
 	}
 #elif defined CONFIG_MPC8548
 	/* PCI1 not present on MPC8572 */
-	gur->devdisr |= MPC85xx_DEVDISR_PCI1; /* disable */
+	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCI1);
 #endif
 #ifdef CONFIG_PCIE1
 	pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
@@ -262,15 +257,12 @@ void pci_init_board(void)
 	if (width && !(devdisr & MPC8xxx_DEVDISR_PCIE1)) {
 		printf("\n    PCIE1 connected as %s (x%d)",
 			host ? "Root Complex" : "End Point", width);
-		if (pci->pme_msg_det) {
-			pci->pme_msg_det = 0xffffffff;
+		if (in_be32(&pci->pme_msg_det)) {
+			out_be32(&pci->pme_msg_det, 0xffffffff);
 			debug(" with errors.  Clearing.  Now 0x%08x",
-				pci->pme_msg_det);
+				in_be32(&pci->pme_msg_det));
 		}
 		printf("\n");
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
 		pci_set_region(r++,
@@ -289,10 +281,8 @@ void pci_init_board(void)
 		hose->region_count = r - hose->regions;
 
 		hose->first_busno = first_free_busno;
-		pci_setup_indirect(hose, (int)&pci->cfg_addr,
-					(int) &pci->cfg_data);
 
-		fsl_pci_init(hose);
+		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 
 		/* Unlock inbound PCI configuration cycles */
 		if (!host)
@@ -303,7 +293,7 @@ void pci_init_board(void)
 				hose->first_busno, hose->last_busno);
 	}
 #else
-	gur->devdisr |= MPC8xxx_DEVDISR_PCIE1; /* disable */
+	setbits_be32(&gur->devdisr, MPC8xxx_DEVDISR_PCIE1);
 #endif /* CONFIG_PCIE1 */
 
 #ifdef CONFIG_PCIE2
@@ -316,15 +306,12 @@ void pci_init_board(void)
 	if (width && !(devdisr & MPC8xxx_DEVDISR_PCIE2)) {
 		printf("\n    PCIE2 connected as %s (x%d)",
 			host ? "Root Complex" : "End Point", width);
-		if (pci->pme_msg_det) {
-			pci->pme_msg_det = 0xffffffff;
+		if (in_be32(&pci->pme_msg_det)) {
+			out_be32(&pci->pme_msg_det, 0xffffffff);
 			debug(" with errors.  Clearing.  Now 0x%08x",
-				pci->pme_msg_det);
+				in_be32(&pci->pme_msg_det));
 		}
 		printf("\n");
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
 		pci_set_region(r++,
@@ -343,10 +330,8 @@ void pci_init_board(void)
 		hose->region_count = r - hose->regions;
 
 		hose->first_busno = first_free_busno;
-		pci_setup_indirect(hose, (int)&pci->cfg_addr,
-					(int)&pci->cfg_data);
 
-		fsl_pci_init(hose);
+		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 
 		/* Unlock inbound PCI configuration cycles */
 		if (!host)
@@ -357,7 +342,7 @@ void pci_init_board(void)
 				hose->first_busno, hose->last_busno);
 	}
 #else
-	gur->devdisr |= MPC8xxx_DEVDISR_PCIE2; /* disable */
+	setbits_be32(&gur->devdisr, MPC8xxx_DEVDISR_PCIE2);
 #endif /* CONFIG_PCIE2 */
 
 #ifdef CONFIG_PCIE3
@@ -370,15 +355,12 @@ void pci_init_board(void)
 	if (width && !(devdisr & MPC8xxx_DEVDISR_PCIE3)) {
 		printf("\n    PCIE3 connected as %s (x%d)",
 			host ? "Root Complex" : "End Point", width);
-		if (pci->pme_msg_det) {
-			pci->pme_msg_det = 0xffffffff;
+		if (in_be32(&pci->pme_msg_det)) {
+			out_be32(&pci->pme_msg_det, 0xffffffff);
 			debug(" with errors.  Clearing.  Now 0x%08x",
-				pci->pme_msg_det);
+				in_be32(&pci->pme_msg_det));
 		}
 		printf("\n");
-
-		/* inbound */
-		r += fsl_pci_setup_inbound_windows(r);
 
 		/* outbound memory */
 		pci_set_region(r++,
@@ -397,10 +379,8 @@ void pci_init_board(void)
 		hose->region_count = r - hose->regions;
 
 		hose->first_busno = first_free_busno;
-		pci_setup_indirect(hose, (int)&pci->cfg_addr,
-					(int)&pci->cfg_data);
 
-		fsl_pci_init(hose);
+		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 
 		/* Unlock inbound PCI configuration cycles */
 		if (!host)
@@ -411,7 +391,7 @@ void pci_init_board(void)
 				hose->first_busno, hose->last_busno);
 	}
 #else
-	gur->devdisr |= MPC8xxx_DEVDISR_PCIE3; /* disable */
+	setbits_be32(&gur->devdisr, MPC8xxx_DEVDISR_PCIE3);
 #endif /* CONFIG_PCIE3 */
 }
 

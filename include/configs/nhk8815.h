@@ -138,6 +138,10 @@
 #define CONFIG_SMC_USE_32_BIT
 #define CONFIG_BOOTFILE		"uImage"
 
+#define CONFIG_IP_DEFRAG	/* Allows faster download, TFTP and NFS */
+#define CONFIG_TFTP_BLOCKSIZE	4096
+#define CONFIG_NFS_READ_SIZE	4096
+
 /* Storage information: onenand and nand */
 #define CONFIG_CMD_ONENAND
 #define CONFIG_MTD_ONENAND_VERIFY_WRITE

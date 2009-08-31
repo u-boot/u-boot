@@ -411,6 +411,11 @@ typedef struct ccsr_l2cache {
 	char	res15[420];
 } ccsr_l2cache_t;
 
+#define MPC85xx_L2CTL_L2E			0x80000000
+#define MPC85xx_L2CTL_L2SRAM_ENTIRE		0x00010000
+#define MPC85xx_L2ERRDIS_MBECC			0x00000008
+#define MPC85xx_L2ERRDIS_SBECC			0x00000004
+
 /*
  * DMA Registers(0x2_1000-0x2_2000)
  */

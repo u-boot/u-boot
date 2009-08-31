@@ -28,6 +28,10 @@
 
 #include <asm/byteorder.h>
 
+#ifndef _IO_BASE
+#define _IO_BASE 0
+#endif
+
 #define __raw_readb(addr) (*(volatile u8 *)(addr))
 #define __raw_readw(addr) (*(volatile u16 *)(addr))
 #define __raw_readl(addr) (*(volatile u32 *)(addr))

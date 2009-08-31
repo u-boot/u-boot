@@ -36,7 +36,6 @@
 #define CONFIG_MPC8572		1
 #define CONFIG_XPEDITE5370	1
 #define CONFIG_SYS_BOARD_NAME	"XPedite5370"
-#define CONFIG_NUM_CPUS		2	/* 2 Cores */
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
 #define CONFIG_RELOC_FIXUP_WORKS	/* Fully relocate to SDRAM */
 

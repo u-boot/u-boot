@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <asm/arch/pxa-regs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -151,3 +152,14 @@ void show_boot_progress (int status)
 
 	return;
 }
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_CS8900
+	rc = cs8900_initialize(0, CONFIG_CS8900_BASE);
+#endif
+	return rc;
+}
+#endif

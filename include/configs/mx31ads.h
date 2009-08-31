@@ -109,9 +109,10 @@
 		"cp.b ${loadaddr} ${uboot_addr} ${filesize}; "		\
 		"setenv filesize; saveenv\0"
 
-#define CONFIG_DRIVER_CS8900	1
-#define CS8900_BASE		0xb4020300
-#define CS8900_BUS16		1	/* follow the Linux driver */
+#define CONFIG_NET_MULTI
+#define CONFIG_CS8900
+#define CONFIG_CS8900_BASE	0xb4020300
+#define CONFIG_CS8900_BUS16		1	/* follow the Linux driver */
 
 /*
  * The MX31ADS board seems to have a hardware "peculiarity" confirmed under

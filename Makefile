@@ -229,10 +229,12 @@ endif
 ifeq ($(CPU),mpc85xx)
 LIBS += drivers/qe/qe.a
 LIBS += cpu/mpc8xxx/ddr/libddr.a
+LIBS += cpu/mpc8xxx/lib8xxx.a
 TAG_SUBDIRS += cpu/mpc8xxx
 endif
 ifeq ($(CPU),mpc86xx)
 LIBS += cpu/mpc8xxx/ddr/libddr.a
+LIBS += cpu/mpc8xxx/lib8xxx.a
 TAG_SUBDIRS += cpu/mpc8xxx
 endif
 LIBS += drivers/rtc/librtc.a
@@ -543,6 +545,12 @@ digsy_mtc_RAMBOOT_config:	unconfig
 		  echo "... with RAMBOOT configuration" ; \
 		}
 	@$(MKCONFIG) -a digsy_mtc  ppc mpc5xxx digsy_mtc
+
+galaxy5200_LOWBOOT_config \
+galaxy5200_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_$(@:_config=) 1" >$(obj)include/config.h
+	@$(MKCONFIG) -a galaxy5200 ppc mpc5xxx galaxy5200
 
 hmi1001_config:	unconfig
 	@$(MKCONFIG) hmi1001 ppc mpc5xxx hmi1001
@@ -1142,7 +1150,7 @@ SPD823TS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx spd8xx
 
 stxxtc_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc8xx stxxtc
+	@$(MKCONFIG) $(@:_config=) ppc mpc8xx stxxtc stx
 
 svm_sc8xx_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc8xx svm_sc8xx
@@ -2434,8 +2442,11 @@ vme8349_config:		unconfig
 ATUM8548_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx atum8548
 
+MPC8536DS_36BIT_config \
 MPC8536DS_config:       unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8536ds freescale
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_$(@:_config=) 1"	>$(obj)include/config.h
+	@$(MKCONFIG) -a MPC8536DS ppc mpc85xx mpc8536ds freescale
 
 MPC8540ADS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8540ads freescale
@@ -2517,6 +2528,26 @@ P2020DS_config:		unconfig
 	fi
 	@$(MKCONFIG) -a P2020DS ppc mpc85xx p2020ds freescale
 
+P1011RDB_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_P1011" >>$(obj)include/config.h ;
+	@$(MKCONFIG) -a P1_P2_RDB  ppc mpc85xx p1_p2_rdb freescale
+
+P1020RDB_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_P1020" >>$(obj)include/config.h ;
+	@$(MKCONFIG) -a P1_P2_RDB  ppc mpc85xx p1_p2_rdb freescale
+
+P2010RDB_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_P2010" >>$(obj)include/config.h ;
+	@$(MKCONFIG) -a P1_P2_RDB  ppc mpc85xx p1_p2_rdb freescale
+
+P2020RDB_config:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_P2020" >>$(obj)include/config.h ;
+	@$(MKCONFIG) -a P1_P2_RDB  ppc mpc85xx p1_p2_rdb freescale
+
 PM854_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx pm854
 
@@ -2554,7 +2585,7 @@ socrates_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx socrates
 
 stxgp3_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxgp3
+	@$(MKCONFIG) $(@:_config=) ppc mpc85xx stxgp3 stx
 
 stxssa_config		\
 stxssa_4M_config:	unconfig
@@ -2563,7 +2594,7 @@ stxssa_4M_config:	unconfig
 		echo "#define CONFIG_STXSSA_4M" >>$(obj)include/config.h ; \
 		$(XECHO) "... with 4 MiB flash memory" ; \
 	fi
-	@$(MKCONFIG) -a stxssa ppc mpc85xx stxssa
+	@$(MKCONFIG) -a stxssa ppc mpc85xx stxssa stx
 
 TQM8540_config		\
 TQM8541_config		\

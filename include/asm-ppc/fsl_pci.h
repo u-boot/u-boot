@@ -20,8 +20,7 @@
 #ifndef __FSL_PCI_H_
 #define __FSL_PCI_H_
 
-int fsl_pci_setup_inbound_windows(struct pci_region *r);
-void fsl_pci_init(struct pci_controller *hose);
+void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data);
 void fsl_pci_config_unlock(struct pci_controller *hose);
 void ft_fsl_pci_setup(void *blob, const char *pci_alias,
 			struct pci_controller *hose);
@@ -154,5 +153,31 @@ typedef struct ccsr_pci {
 	u32	pdb_stat;	/* 0xf00 - PCIE Debug Status */
 	char	res24[252];
 } ccsr_fsl_pci_t;
+
+struct fsl_pci_info {
+	unsigned long	regs;
+	pci_addr_t	mem_bus;
+	phys_size_t	mem_phys;
+	pci_size_t	mem_size;
+	pci_addr_t	io_bus;
+	phys_size_t	io_phys;
+	pci_size_t	io_size;
+	int		pci_num;
+};
+
+int fsl_pci_init_port(struct fsl_pci_info *pci_info,
+				struct pci_controller *hose, int busno);
+
+#define SET_STD_PCIE_INFO(x, num) \
+{			\
+	x.regs = CONFIG_SYS_PCIE##num##_ADDR;	\
+	x.mem_bus = CONFIG_SYS_PCIE##num##_MEM_BUS; \
+	x.mem_phys = CONFIG_SYS_PCIE##num##_MEM_PHYS; \
+	x.mem_size = CONFIG_SYS_PCIE##num##_MEM_SIZE; \
+	x.io_bus = CONFIG_SYS_PCIE##num##_IO_BUS; \
+	x.io_phys = CONFIG_SYS_PCIE##num##_IO_PHYS; \
+	x.io_size = CONFIG_SYS_PCIE##num##_IO_SIZE; \
+	x.pci_num = num; \
+}
 
 #endif
