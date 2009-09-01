@@ -15,6 +15,7 @@
 #define __UBOOT_UBI_H
 
 #include <common.h>
+#include <compiler.h>
 #include <malloc.h>
 #include <div64.h>
 #include <linux/crc32.h>
@@ -50,9 +51,6 @@ do {									\
 #undef CONFIG_MTD_UBI_DEBUG_MSG_IO
 #undef CONFIG_MTD_UBI_DEBUG_MSG_BLD
 #define CONFIG_MTD_UBI_DEBUG_DISABLE_BGT
-
-/* compiler options */
-#define uninitialized_var(x)		x = x
 
 /* build.c */
 #define get_device(...)
