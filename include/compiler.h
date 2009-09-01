@@ -122,4 +122,7 @@ typedef unsigned int            uintptr_t;
 
 #endif
 
+/* compiler options */
+#define uninitialized_var(x)		x = x
+
 #endif
