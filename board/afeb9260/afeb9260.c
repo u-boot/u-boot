@@ -149,7 +149,7 @@ int board_init(void)
 #ifdef CONFIG_CMD_NAND
 	afeb9260_nand_hw_init();
 #endif
-	at91_spi0_hw_init((1 << 0) || (1 << 1));
+	at91_spi0_hw_init((1 << 0) | (1 << 1));
 #ifdef CONFIG_MACB
 	afeb9260_macb_hw_init();
 #endif
