@@ -204,7 +204,8 @@ static void update_crc(void)
  */
 static int prog_eeprom(void)
 {
-	int ret, i;
+	int ret = 0; /* shut up gcc */
+	int i;
 	void *p;
 #ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	unsigned int bus;
