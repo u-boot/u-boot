@@ -20,8 +20,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-PLATFORM_RELFLAGS += -fno-strict-aliasing -fno-common -ffixed-r8 \
-		     -msoft-float
+PLATFORM_RELFLAGS += -fno-common -ffixed-r8 -msoft-float
 
 # Make ARMv5 to allow more compilers to work, even though its v7a.
 PLATFORM_CPPFLAGS += -march=armv5
