@@ -41,7 +41,7 @@ distclean:	clean
 	rm -f $(LIB) core *.bak $(obj).depend
 
 cam5200_flash.o:	cam5200_flash.c
-	$(CC) $(CFLAGS) -fno-strict-aliasing -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 #########################################################################
 
