@@ -7,7 +7,6 @@ M* Content:       LWMON specific U-Boot commands.
  * (C) Copyright 2001, 2002
  * DENX Software Engineering
  * Wolfgang Denk, wd@denx.de
- * All rights reserved.
  *
 D* Design:        wd@denx.de
 C* Coding:        wd@denx.de
