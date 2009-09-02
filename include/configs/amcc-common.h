@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008
+ * (C) Copyright 2008, 2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * Common configuration options for all AMCC boards
@@ -271,7 +271,8 @@
 		"bootm ${kernel_addr_r}\0"
 
 #define CONFIG_AMCC_DEF_ENV_NOR_UPD					\
-	"load=tftp 200000 " xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"	\
+	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"			\
+	"load=tftp 200000 ${u-boot}\0"					\
 	"update=protect off " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"	\
 		"era " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"		\
 		"cp.b ${fileaddr} " xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize};" \
@@ -279,7 +280,8 @@
 	"upd=run load update\0"						\
 
 #define CONFIG_AMCC_DEF_ENV_NAND_UPD					\
-	"nload=tftp 200000 " xstr(CONFIG_HOSTNAME) "/u-boot-nand.bin\0"	\
+	"u-boot-nand=" xstr(CONFIG_HOSTNAME) "/u-boot-nand.bin\0"	\
+	"nload=tftp 200000 ${u-boot-nand}\0"				\
 	"nupdate=nand erase 0 100000;nand write 200000 0 100000;"	\
 		"setenv filesize;saveenv\0"				\
 	"nupd=run nload nupdate\0"
