@@ -655,6 +655,10 @@ void board_init_r (gd_t *id, ulong dest_addr)
 			TOTAL_MALLOC_LEN;
 #endif
 
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
+	gd->cpu += gd->reloc_off;
+#endif
+
 #ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
 #endif
