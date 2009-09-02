@@ -59,9 +59,8 @@ void pci_init_board(void)
 
 #ifdef CONFIG_PCIE2
 	SET_STD_PCIE_INFO(pci_info[num], 2);
-	pcie_ep = (host_agent == 2) || (host_agent == 4) ||
-		(host_agent == 6) || (host_agent == 0);
-	pcie_configured  = (io_sel == 0xE);
+	pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_2, host_agent);
+	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
 		puts ("\n    PCIE2 connected to Slot 1 as ");
@@ -80,9 +79,8 @@ void pci_init_board(void)
 #ifdef CONFIG_PCIE1
 	SET_STD_PCIE_INFO(pci_info[num], 1);
 
-	pcie_ep = (host_agent <= 1) || (host_agent == 4) ||
-		(host_agent == 5);
-	pcie_configured  = (io_sel == 0xE);
+	pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
+	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
 		puts ("\n    PCIE1 connected to Slot 2 as ");

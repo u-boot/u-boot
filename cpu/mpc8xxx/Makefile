@@ -11,6 +11,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib8xxx.a
 
 COBJS-y	+= cpu.o
+COBJS-$(CONFIG_PCI)	+= pci_cfg.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))

@@ -248,9 +248,8 @@ void pci_init_board(void)
  {
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 	struct pci_controller *hose = &pcie1_hose;
-	int pcie_configured = (io_sel == 1) || (io_sel == 4);
-	int pcie_ep = (host_agent == 0) || (host_agent == 2) ||
-		(host_agent == 5);
+	int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
+	int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
 	struct pci_region *r = hose->regions;
 
 	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIE1)) {
@@ -298,9 +297,8 @@ void pci_init_board(void)
 	struct pci_controller *hose = &pcie2_hose;
 	struct pci_region *r = hose->regions;
 
-	int pcie_configured = (io_sel == 0) || (io_sel == 4);
-	int pcie_ep = (host_agent == 0) || (host_agent == 1) ||
-		(host_agent == 4);
+	int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
+	int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_2, host_agent);
 
 	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIE2)) {
 		printf(" PCI-Express 2 connected to slot as %s" \
@@ -345,7 +343,7 @@ void pci_init_board(void)
  {
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
 	struct pci_controller *hose = &pci1_hose;
-	int pci_agent = (host_agent >= 4) && (host_agent <= 6);
+	int pci_agent = is_fsl_pci_agent(LAW_TRGT_IF_PCI_1, host_agent);
 	struct pci_region *r = hose->regions;
 
 	if ( !(devdisr & MPC86xx_DEVDISR_PCI1)) {

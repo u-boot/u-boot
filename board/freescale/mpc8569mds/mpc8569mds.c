@@ -331,9 +331,9 @@ pci_init_board(void)
 
 	pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 	hose = &pcie1_hose;
-	pcie_ep =  (host_agent == 0) || (host_agent == 2 ) || (host_agent == 3);
+	pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
 	r = hose->regions;
-	pcie_configured  = io_sel >= 1;
+	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 
 	if (pcie_configured && !(gur->devdisr & MPC85xx_DEVDISR_PCIE)){
 		printf ("\n    PCIE connected to slot as %s (base address %x)",

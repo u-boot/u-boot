@@ -283,7 +283,7 @@ pci_init_board(void)
 	uint pci_arb = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;	/* PORDEVSR[14] */
 	uint pci_clk_sel = gur->porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;	/* PORPLLSR[16] */
 
-	uint pci_agent = (host_agent == 3) || (host_agent == 4 ) || (host_agent == 6);
+	uint pci_agent = is_fsl_pci_agent(LAW_TRGT_IF_PCI_1, host_agent);
 
 	uint pci_speed = get_clock_freq ();	/* PCI PSPEED in [4:5] */
 
@@ -361,10 +361,10 @@ pci_init_board(void)
 {
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 	struct pci_controller *hose = &pcie1_hose;
-	int pcie_ep =  (host_agent == 0) || (host_agent == 2 ) || (host_agent == 3);
+	int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
 	struct pci_region *r = hose->regions;
 
-	int pcie_configured  = io_sel >= 1;
+	int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 
 	if (pcie_configured && !(gur->devdisr & MPC85xx_DEVDISR_PCIE)){
 		printf ("\n    PCIE connected to slot as %s (base address %x)",
