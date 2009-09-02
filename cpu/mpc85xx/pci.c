@@ -29,7 +29,7 @@
 #include <asm/cpm_85xx.h>
 #include <pci.h>
 
-#if defined(CONFIG_PCI) && !defined(CONFIG_FSL_PCI_INIT)
+#if !defined(CONFIG_FSL_PCI_INIT)
 
 #ifndef CONFIG_SYS_PCI1_MEM_BUS
 #define CONFIG_SYS_PCI1_MEM_BUS CONFIG_SYS_PCI1_MEM_BASE
@@ -227,4 +227,4 @@ pci_mpc85xx_init(struct pci_controller *board_hose)
 	hose->last_busno = pci_hose_scan(hose);
 #endif
 }
-#endif /* CONFIG_PCI */
+#endif /* !CONFIG_FSL_PCI_INIT */

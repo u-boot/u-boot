@@ -37,7 +37,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_CPM2)
 #if defined(CONFIG_CONS_ON_SCC)
 
 #if CONFIG_CONS_INDEX == 1	/* Console on SCC1 */
@@ -267,5 +266,3 @@ serial_tstc()
 }
 
 #endif	/* CONFIG_CONS_ON_SCC */
-
-#endif /* CONFIG_CPM2 */
