@@ -14,7 +14,7 @@
 #include <asm/mach-common/bits/dma.h>
 #include <i2c.h>
 #include <linux/types.h>
-#include <devices.h>
+#include <stdio_dev.h>
 
 int gunzip(void *, int, unsigned char *, unsigned long *);
 
@@ -291,7 +291,7 @@ void video_puts(const char *s)
 int drv_video_init(void)
 {
 	int error, devices = 1;
-	device_t videodev;
+	struct stdio_dev videodev;
 
 	u8 *dst;
 	u32 fbmem_size =
@@ -331,7 +331,7 @@ int drv_video_init(void)
 	videodev.putc = video_putc;	/* 'putc' function */
 	videodev.puts = video_puts;	/* 'puts' function */
 
-	error = device_register(&videodev);
+	error = stdio_register(&videodev);
 
 	return (error == 0) ? devices : error;
 }
