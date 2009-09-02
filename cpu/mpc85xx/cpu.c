@@ -69,13 +69,9 @@ int checkcpu (void)
 
 	cpu = gd->cpu;
 
-	if (cpu->name) {
-		puts(cpu->name);
-		if (IS_E_PROCESSOR(svr))
-			puts("E");
-	} else {
-		puts("Unknown");
-	}
+	puts(cpu->name);
+	if (IS_E_PROCESSOR(svr))
+		puts("E");
 
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, svr);
 
