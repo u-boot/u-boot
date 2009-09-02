@@ -13,6 +13,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+extern void ft_fixup_num_cores(void *blob);
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 #ifdef CONFIG_MP
@@ -54,4 +56,5 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	if (off < 0)
 		printf("%s: %s\n", __FUNCTION__, fdt_strerror(off));
 #endif
+	ft_fixup_num_cores(blob);
 }
