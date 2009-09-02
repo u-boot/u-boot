@@ -43,7 +43,6 @@ extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 #define CONFIG_SYS_DDR_MODE_CONTROL	0x00000000
 #define CONFIG_SYS_DDR_ZQ_CONTROL	0x00000000
 #define CONFIG_SYS_DDR_WRLVL_CONTROL	0x00000000
-#define CONFIG_SYS_DDR_PD_CONTROL	0x00000000
 #define CONFIG_SYS_DDR_SR_CNTR		0x00000000
 #define CONFIG_SYS_DDR_RCW_1		0x00000000
 #define CONFIG_SYS_DDR_RCW_2		0x00000000
@@ -110,7 +109,6 @@ fsl_ddr_cfg_regs_t ddr_cfg_regs_400 = {
 	.timing_cfg_5 = CONFIG_SYS_DDR_TIMING_5,
 	.ddr_zq_cntl = CONFIG_SYS_DDR_ZQ_CONTROL,
 	.ddr_wrlvl_cntl = CONFIG_SYS_DDR_WRLVL_CONTROL,
-	.ddr_pd_cntl = CONFIG_SYS_DDR_PD_CONTROL,
 	.ddr_sr_cntr = CONFIG_SYS_DDR_SR_CNTR,
 	.ddr_sdram_rcw_1 = CONFIG_SYS_DDR_RCW_1,
 	.ddr_sdram_rcw_2 = CONFIG_SYS_DDR_RCW_2
@@ -138,7 +136,6 @@ fsl_ddr_cfg_regs_t ddr_cfg_regs_533 = {
 	.timing_cfg_5 = CONFIG_SYS_DDR_TIMING_5,
 	.ddr_zq_cntl = CONFIG_SYS_DDR_ZQ_CONTROL,
 	.ddr_wrlvl_cntl = CONFIG_SYS_DDR_WRLVL_CONTROL,
-	.ddr_pd_cntl = CONFIG_SYS_DDR_PD_CONTROL,
 	.ddr_sr_cntr = CONFIG_SYS_DDR_SR_CNTR,
 	.ddr_sdram_rcw_1 = CONFIG_SYS_DDR_RCW_1,
 	.ddr_sdram_rcw_2 = CONFIG_SYS_DDR_RCW_2
@@ -166,7 +163,6 @@ fsl_ddr_cfg_regs_t ddr_cfg_regs_667 = {
 	.timing_cfg_5 = CONFIG_SYS_DDR_TIMING_5,
 	.ddr_zq_cntl = CONFIG_SYS_DDR_ZQ_CONTROL,
 	.ddr_wrlvl_cntl = CONFIG_SYS_DDR_WRLVL_CONTROL,
-	.ddr_pd_cntl = CONFIG_SYS_DDR_PD_CONTROL,
 	.ddr_sr_cntr = CONFIG_SYS_DDR_SR_CNTR,
 	.ddr_sdram_rcw_1 = CONFIG_SYS_DDR_RCW_1,
 	.ddr_sdram_rcw_2 = CONFIG_SYS_DDR_RCW_2
@@ -194,7 +190,6 @@ fsl_ddr_cfg_regs_t ddr_cfg_regs_800 = {
 	.timing_cfg_5 = CONFIG_SYS_DDR_TIMING_5,
 	.ddr_zq_cntl = CONFIG_SYS_DDR_ZQ_CONTROL,
 	.ddr_wrlvl_cntl = CONFIG_SYS_DDR_WRLVL_CONTROL,
-	.ddr_pd_cntl = CONFIG_SYS_DDR_PD_CONTROL,
 	.ddr_sr_cntr = CONFIG_SYS_DDR_SR_CNTR,
 	.ddr_sdram_rcw_1 = CONFIG_SYS_DDR_RCW_1,
 	.ddr_sdram_rcw_2 = CONFIG_SYS_DDR_RCW_2
