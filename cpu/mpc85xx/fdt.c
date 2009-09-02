@@ -27,6 +27,9 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <asm/processor.h>
+#ifdef CONFIG_FSL_ESDHC
+#include <fsl_esdhc.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -326,4 +329,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #endif
 
 	ft_fixup_cache(blob);
+
+#if defined(CONFIG_FSL_ESDHC)
+	fdt_fixup_esdhc(blob, bd);
+#endif
 }
