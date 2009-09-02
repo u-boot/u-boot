@@ -186,9 +186,8 @@ void pci_init_board(void)
 	{
 		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE3_ADDR;
 		struct pci_controller *hose = &pcie3_hose;
-		int pcie_ep = (host_agent == 0) || (host_agent == 3) ||
-			(host_agent == 5) || (host_agent == 6);
-		int pcie_configured  = (io_sel == 0x7);
+		int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_3, host_agent);
+		int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_3, io_sel);
 		struct pci_region *r = hose->regions;
 		u32 temp32;
 
@@ -252,9 +251,8 @@ void pci_init_board(void)
 	{
 		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE2_ADDR;
 		struct pci_controller *hose = &pcie2_hose;
-		int pcie_ep = (host_agent == 2) || (host_agent == 4) ||
-			(host_agent == 6) || (host_agent == 0);
-		int pcie_configured  = (io_sel == 0x3) || (io_sel == 0x7);
+		int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_2, host_agent);
+		int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
 		struct pci_region *r = hose->regions;
 
 		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE2)){
@@ -301,11 +299,8 @@ void pci_init_board(void)
 	{
 		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 		struct pci_controller *hose = &pcie1_hose;
-		int pcie_ep = (host_agent <= 1) || (host_agent == 4) ||
-			(host_agent == 5);
-		int pcie_configured  = (io_sel == 0x2) || (io_sel == 0x3) ||
-					(io_sel == 0x7) || (io_sel == 0xb) ||
-					(io_sel == 0xc) || (io_sel == 0xf);
+		int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
+		int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 		struct pci_region *r = hose->regions;
 
 		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){

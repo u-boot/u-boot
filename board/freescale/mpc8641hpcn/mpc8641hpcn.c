@@ -155,15 +155,14 @@ void pci_init_board(void)
 	uint devdisr = gur->devdisr;
 	uint io_sel = (gur->pordevsr & MPC8641_PORDEVSR_IO_SEL)
 		>> MPC8641_PORDEVSR_IO_SEL_SHIFT;
+	int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 
 #ifdef DEBUG
 	uint host1_agent = (gur->porbmsr & MPC8641_PORBMSR_HA)
 		>> MPC8641_PORBMSR_HA_SHIFT;
 	uint pex1_agent = (host1_agent == 0) || (host1_agent == 1);
 #endif
-	if ((io_sel == 2 || io_sel == 3 || io_sel == 5
-	     || io_sel == 6 || io_sel == 7 || io_sel == 0xF)
-	    && !(devdisr & MPC86xx_DEVDISR_PCIEX1)) {
+	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIEX1)) {
 		debug("PCI-EXPRESS 1: %s \n", pex1_agent ? "Agent" : "Host");
 		debug("0x%08x=0x%08x ", &pci->pme_msg_det, pci->pme_msg_det);
 		if (pci->pme_msg_det) {
