@@ -1034,6 +1034,8 @@
 #define SVR_8641	0x809000
 #define SVR_8641D	0x809001
 
+#define SVR_Unknown	0xFFFFFF
+
 #define _GLOBAL(n)\
 	.globl n;\
 n:
