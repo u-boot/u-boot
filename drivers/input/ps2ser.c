@@ -3,7 +3,6 @@
  * (C) Copyright 2004-2009
  * DENX Software Engineering
  * Wolfgang Denk, wd@denx.de
- * All rights reserved.
  *
  * Simple 16550A serial driver
  *
