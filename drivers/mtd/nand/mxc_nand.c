@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2007 Freescale Semiconductor, Inc. All Rights Reserved.
+ * Copyright 2004-2007 Freescale Semiconductor, Inc.
  * Copyright 2008 Sascha Hauer, kernel@pengutronix.de
  * Copyright 2009 Ilya Yanok, <yanok@emcraft.com>
  *
