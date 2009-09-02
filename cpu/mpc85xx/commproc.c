@@ -26,7 +26,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_CPM2)
 /*
  * because we have stack and init data in dual port ram
  * we must reduce the size
@@ -204,5 +203,3 @@ ulong post_word_load (void)
 }
 
 #endif	/* CONFIG_POST */
-
-#endif /* CONFIG_CPM2 */

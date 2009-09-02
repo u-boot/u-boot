@@ -52,8 +52,6 @@
 #include <miiphy.h>
 #endif
 
-#if defined(CONFIG_CPM2)
-
 #if defined(CONFIG_ETHER_ON_FCC) && defined(CONFIG_CMD_NET) && \
 	defined(CONFIG_NET_MULTI)
 
@@ -469,5 +467,3 @@ int fec_initialize(bd_t *bis)
 }
 
 #endif
-
-#endif /* CONFIG_CPM2 */
