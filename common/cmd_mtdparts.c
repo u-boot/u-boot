@@ -1336,7 +1336,7 @@ static int delete_partition(const char *id)
 
 	if (find_dev_and_part(id, &dev, &pnum, &part) == 0) {
 
-		DEBUGF("delete_partition: device = %s%d, partition %d = (%s) 0x%08lx@0x%08lx\n",
+		DEBUGF("delete_partition: device = %s%d, partition %d = (%s) 0x%08x@0x%08x\n",
 				MTD_DEV_TYPE(dev->id->type), dev->id->num, pnum,
 				part->name, part->size, part->offset);
 
