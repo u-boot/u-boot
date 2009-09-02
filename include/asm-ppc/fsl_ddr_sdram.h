@@ -110,7 +110,6 @@ typedef struct fsl_ddr_cfg_regs_s {
 	unsigned int timing_cfg_5;
 	unsigned int ddr_zq_cntl;
 	unsigned int ddr_wrlvl_cntl;
-	unsigned int ddr_pd_cntl;
 	unsigned int ddr_sr_cntr;
 	unsigned int ddr_sdram_rcw_1;
 	unsigned int ddr_sdram_rcw_2;

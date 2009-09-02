@@ -132,7 +132,7 @@ typedef struct ccsr_ddr {
 	char	reg8_1a[8];
 	uint	ddr_zq_cntl;		/* 0x2170 - DDR ZQ calibration control*/
 	uint	ddr_wrlvl_cntl;		/* 0x2174 - DDR write leveling control*/
-	uint	ddr_pd_cntl;		/* 0x2178 - DDR pre-drive conditioning control*/
+	char	reg8_1aa[4];
 	uint	ddr_sr_cntr;		/* 0x217C - DDR self refresh counter */
 	uint	ddr_sdram_rcw_1;	/* 0x2180 - DDR Register Control Words 1 */
 	uint	ddr_sdram_rcw_2;	/* 0x2184 - DDR Register Control Words 2 */
