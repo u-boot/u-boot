@@ -25,6 +25,7 @@
 #include <ioports.h>
 #include <lmb.h>
 #include <asm/io.h>
+#include <asm/mmu.h>
 #include "mp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -209,8 +210,33 @@ void setup_mp(void)
 	ulong fixup = (ulong)&__secondary_start_page;
 	u32 bootpg = determine_mp_bootpg();
 
-	memcpy((void *)bootpg, (void *)fixup, 4096);
-	flush_cache(bootpg, 4096);
+	/* look for the tlb covering the reset page, there better be one */
+	int i = find_tlb_idx((void *)0xfffff000, 1);
 
-	pq3_mp_up(bootpg);
+	/* we found a match */
+	if (i != -1) {
+		/* map reset page to bootpg so we can copy code there */
+		disable_tlb(i);
+	
+		set_tlb(1, 0xfffff000, bootpg, /* tlb, epn, rpn */
+			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_M, /* perms, wimge */
+			0, i, BOOKE_PAGESZ_4K, 1); /* ts, esel, tsize, iprot */
+
+		memcpy((void *)0xfffff000, (void *)fixup, 4096);
+		flush_cache(0xfffff000, 4096);
+
+		disable_tlb(i);
+
+		/* setup reset page back to 1:1, we'll use HW boot translation
+		 * to map this where we want
+		 */
+		set_tlb(1, 0xfffff000, 0xfffff000, /* tlb, epn, rpn */
+			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I, /* perms, wimge */
+			0, i, BOOKE_PAGESZ_4K, 1); /* ts, esel, tsize, iprot */
+
+		pq3_mp_up(bootpg);
+	} else {
+		puts("WARNING: No reset page TLB. "
+			"Skipping secondary core setup\n");
+	}
 }
