@@ -41,60 +41,62 @@ static struct pci_controller pcie2_hose;
 
 void pci_init_board(void)
 {
-	struct fsl_pci_info pci_info[2];
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	uint devdisr = in_be32(&gur->devdisr);
-	uint io_sel = (in_be32(&gur->pordevsr) & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-	uint host_agent = (in_be32(&gur->porbmsr) & MPC85xx_PORBMSR_HA) >> 16;
-	int num = 0;
+	struct fsl_pci_info pci_info[2];
+	u32 devdisr, pordevsr, io_sel, host_agent;
 	int first_free_busno = 0;
+	int num = 0;
 
 	int pcie_ep, pcie_configured;
+
+	devdisr = in_be32(&gur->devdisr);
+	pordevsr = in_be32(&gur->pordevsr);
+	io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
+	host_agent = (in_be32(&gur->porbmsr) & MPC85xx_PORBMSR_HA) >> 16;
 
 	debug ("   pci_init_board: devdisr=%x, io_sel=%x, host_agent=%x\n",
 			devdisr, io_sel, host_agent);
 
-	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII2_DIS))
+	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII2_DIS))
 		printf ("    eTSEC2 is in sgmii mode.\n");
 
+	puts("\n");
 #ifdef CONFIG_PCIE2
-	SET_STD_PCIE_INFO(pci_info[num], 2);
 	pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_2, host_agent);
 	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
-		puts ("\n    PCIE2 connected to Slot 1 as ");
-		printf ("%s (base address %lx)",
-			pcie_ep ? "End Point": "Root Complex", pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num],
+		SET_STD_PCIE_INFO(pci_info[num], 2);
+		printf("    PCIE2 connected to Slot 1 as %s (base addr %lx)\n",
+				pcie_ep ? "End Point" : "Root Complex",
+				pci_info[num].regs);
+		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie2_hose, first_free_busno);
-		num++;
 	} else {
 		printf ("    PCIE2: disabled\n");
 	}
+	puts("\n");
 #else
-	set_bits32(&gur->devdisr, MPC85xx_DEVDISR_PCIE2); /* disable */
+	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE2); /* disable */
 #endif
 
 #ifdef CONFIG_PCIE1
-	SET_STD_PCIE_INFO(pci_info[num], 1);
-
 	pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
 	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
-		puts ("\n    PCIE1 connected to Slot 2 as ");
-		printf ("%s (base address %lx)",
+		SET_STD_PCIE_INFO(pci_info[num], 1);
+		printf("    PCIE1 connected to Slot 2 as %s (base addr %lx)\n",
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num],
+		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie1_hose, first_free_busno);
-		num++;
 	} else {
 		printf ("    PCIE1: disabled\n");
 	}
+	puts("\n");
 #else
-	set_bits32(&gur->devdisr, MPC85xx_DEVDISR_PCIE); /* disable */
+	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE); /* disable */
 #endif
 }
 
