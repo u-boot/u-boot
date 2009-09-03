@@ -387,8 +387,10 @@ extern void print_bats(void);
  * FSL Book-E support
  */
 
-#define MAS0_TLBSEL(x)	((x << 28) & 0x30000000)
-#define MAS0_ESEL(x)	((x << 16) & 0x0FFF0000)
+#define MAS0_TLBSEL_MSK	0x30000000
+#define MAS0_TLBSEL(x)	((x << 28) & MAS0_TLBSEL_MSK)
+#define MAS0_ESEL_MSK	0x0FFF0000
+#define MAS0_ESEL(x)	((x << 16) & MAS0_ESEL_MSK)
 #define MAS0_NV(x)	((x) & 0x00000FFF)
 
 #define MAS1_VALID	0x80000000
@@ -474,6 +476,7 @@ extern void set_tlb(u8 tlb, u32 epn, u64 rpn,
 extern void disable_tlb(u8 esel);
 extern void invalidate_tlb(u8 tlb);
 extern void init_tlbs(void);
+extern int find_tlb_idx(void *addr, u8 tlbsel);
 
 extern unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg);
 
