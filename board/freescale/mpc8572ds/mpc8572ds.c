@@ -160,189 +160,105 @@ static struct pci_controller pcie2_hose;
 static struct pci_controller pcie3_hose;
 #endif
 
-int first_free_busno=0;
 #ifdef CONFIG_PCI
 void pci_init_board(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	uint devdisr = gur->devdisr;
-	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
+	struct fsl_pci_info pci_info[3];
+	u32 devdisr, pordevsr, io_sel, host_agent, temp32;
+	int first_free_busno = 0;
+	int num = 0;
+
+	int pcie_ep, pcie_configured;
+
+	devdisr = in_be32(&gur->devdisr);
+	pordevsr = in_be32(&gur->pordevsr);
+	io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
+	host_agent = (in_be32(&gur->porbmsr) & MPC85xx_PORBMSR_HA) >> 16;
 
 	debug ("   pci_init_board: devdisr=%x, io_sel=%x, host_agent=%x\n",
 			devdisr, io_sel, host_agent);
 
-	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII1_DIS))
+	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII1_DIS))
 		printf ("    eTSEC1 is in sgmii mode.\n");
-	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII2_DIS))
+	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII2_DIS))
 		printf ("    eTSEC2 is in sgmii mode.\n");
-	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII3_DIS))
+	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII3_DIS))
 		printf ("    eTSEC3 is in sgmii mode.\n");
-	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII4_DIS))
+	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII4_DIS))
 		printf ("    eTSEC4 is in sgmii mode.\n");
 
-
+	puts("\n");
 #ifdef CONFIG_PCIE3
-	{
-		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE3_ADDR;
-		struct pci_controller *hose = &pcie3_hose;
-		int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_3, host_agent);
-		int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_3, io_sel);
-		struct pci_region *r = hose->regions;
-		u32 temp32;
+	pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_3, host_agent);
+	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_3, io_sel);
 
-		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE3)){
-			printf ("\n    PCIE3 connected to ULI as %s (base address %x)",
-					pcie_ep ? "End Point" : "Root Complex",
-					(uint)pci);
-			if (pci->pme_msg_det) {
-				pci->pme_msg_det = 0xffffffff;
-				debug (" with errors.  Clearing.  Now 0x%08x",pci->pme_msg_det);
-			}
-			printf ("\n");
-
-			/* outbound memory */
-			pci_set_region(r++,
-					CONFIG_SYS_PCIE3_MEM_BUS,
-					CONFIG_SYS_PCIE3_MEM_PHYS,
-					CONFIG_SYS_PCIE3_MEM_SIZE,
-					PCI_REGION_MEM);
-
-			/* outbound io */
-			pci_set_region(r++,
-					CONFIG_SYS_PCIE3_IO_BUS,
-					CONFIG_SYS_PCIE3_IO_PHYS,
-					CONFIG_SYS_PCIE3_IO_SIZE,
-					PCI_REGION_IO);
-
-			hose->region_count = r - hose->regions;
-			hose->first_busno=first_free_busno;
-
-			fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
-
-			first_free_busno=hose->last_busno+1;
-			printf ("    PCIE3 on bus %02x - %02x\n",
-					hose->first_busno,hose->last_busno);
-
-			/*
-			 * Activate ULI1575 legacy chip by performing a fake
-			 * memory access.  Needed to make ULI RTC work.
-			 * Device 1d has the first on-board memory BAR.
-			 */
-
-			pci_hose_read_config_dword(hose, PCI_BDF(2, 0x1d, 0 ),
-					PCI_BASE_ADDRESS_1, &temp32);
-			if (temp32 >= CONFIG_SYS_PCIE3_MEM_BUS) {
-				void *p = pci_mem_to_virt(PCI_BDF(2, 0x1d, 0),
-								temp32, 4, 0);
-				debug(" uli1572 read to %p\n", p);
-				in_be32(p);
-			}
-		} else {
-			printf ("    PCIE3: disabled\n");
+	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE3)){
+		SET_STD_PCIE_INFO(pci_info[num], 3);
+		printf ("    PCIE3 connected to ULI as %s (base addr %lx)\n",
+				pcie_ep ? "End Point" : "Root Complex",
+				pci_info[num].regs);
+		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+					&pcie3_hose, first_free_busno);
+		/*
+		 * Activate ULI1575 legacy chip by performing a fake
+		 * memory access.  Needed to make ULI RTC work.
+		 * Device 1d has the first on-board memory BAR.
+		 */
+		pci_hose_read_config_dword(&pcie3_hose, PCI_BDF(2, 0x1d, 0),
+				PCI_BASE_ADDRESS_1, &temp32);
+		if (temp32 >= CONFIG_SYS_PCIE3_MEM_BUS) {
+			void *p = pci_mem_to_virt(PCI_BDF(2, 0x1d, 0),
+					temp32, 4, 0);
+			debug(" uli1572 read to %p\n", p);
+			in_be32(p);
 		}
-
+	} else {
+		printf ("    PCIE3: disabled\n");
 	}
+	puts("\n");
 #else
-	gur->devdisr |= MPC85xx_DEVDISR_PCIE3; /* disable */
+	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE3); /* disable */
 #endif
 
 #ifdef CONFIG_PCIE2
-	{
-		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE2_ADDR;
-		struct pci_controller *hose = &pcie2_hose;
-		int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_2, host_agent);
-		int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
-		struct pci_region *r = hose->regions;
+	pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_2, host_agent);
+	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
 
-		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE2)){
-			printf ("\n    PCIE2 connected to Slot 1 as %s (base address %x)",
-					pcie_ep ? "End Point" : "Root Complex",
-					(uint)pci);
-			if (pci->pme_msg_det) {
-				pci->pme_msg_det = 0xffffffff;
-				debug (" with errors.  Clearing.  Now 0x%08x",pci->pme_msg_det);
-			}
-			printf ("\n");
-
-			/* outbound memory */
-			pci_set_region(r++,
-					CONFIG_SYS_PCIE2_MEM_BUS,
-					CONFIG_SYS_PCIE2_MEM_PHYS,
-					CONFIG_SYS_PCIE2_MEM_SIZE,
-					PCI_REGION_MEM);
-
-			/* outbound io */
-			pci_set_region(r++,
-					CONFIG_SYS_PCIE2_IO_BUS,
-					CONFIG_SYS_PCIE2_IO_PHYS,
-					CONFIG_SYS_PCIE2_IO_SIZE,
-					PCI_REGION_IO);
-
-			hose->region_count = r - hose->regions;
-			hose->first_busno=first_free_busno;
-
-			fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
-			first_free_busno=hose->last_busno+1;
-			printf ("    PCIE2 on bus %02x - %02x\n",
-					hose->first_busno,hose->last_busno);
-
-		} else {
-			printf ("    PCIE2: disabled\n");
-		}
-
+	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE2)){
+		SET_STD_PCIE_INFO(pci_info[num], 2);
+		printf ("    PCIE2 connected to Slot 1 as %s (base addr %lx)\n",
+				pcie_ep ? "End Point" : "Root Complex",
+				pci_info[num].regs);
+		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+					&pcie2_hose, first_free_busno);
+	} else {
+		printf ("    PCIE2: disabled\n");
 	}
+
+	puts("\n");
 #else
-	gur->devdisr |= MPC85xx_DEVDISR_PCIE2; /* disable */
+	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE2); /* disable */
 #endif
+
 #ifdef CONFIG_PCIE1
-	{
-		volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
-		struct pci_controller *hose = &pcie1_hose;
-		int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
-		int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
-		struct pci_region *r = hose->regions;
+	pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
+	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 
-		if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
-			printf ("\n    PCIE1 connected to Slot 2 as %s (base address %x)",
-					pcie_ep ? "End Point" : "Root Complex",
-					(uint)pci);
-			if (pci->pme_msg_det) {
-				pci->pme_msg_det = 0xffffffff;
-				debug (" with errors.  Clearing.  Now 0x%08x",pci->pme_msg_det);
-			}
-			printf ("\n");
-
-			/* outbound memory */
-			pci_set_region(r++,
-					CONFIG_SYS_PCIE1_MEM_BUS,
-					CONFIG_SYS_PCIE1_MEM_PHYS,
-					CONFIG_SYS_PCIE1_MEM_SIZE,
-					PCI_REGION_MEM);
-
-			/* outbound io */
-			pci_set_region(r++,
-					CONFIG_SYS_PCIE1_IO_BUS,
-					CONFIG_SYS_PCIE1_IO_PHYS,
-					CONFIG_SYS_PCIE1_IO_SIZE,
-					PCI_REGION_IO);
-
-			hose->region_count = r - hose->regions;
-			hose->first_busno=first_free_busno;
-
-			fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
-
-			first_free_busno=hose->last_busno+1;
-			printf("    PCIE1 on bus %02x - %02x\n",
-					hose->first_busno,hose->last_busno);
-
-		} else {
-			printf ("    PCIE1: disabled\n");
-		}
-
+	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
+		SET_STD_PCIE_INFO(pci_info[num], 1);
+		printf ("    PCIE1 connected to Slot 2 as %s (base addr %lx)\n",
+				pcie_ep ? "End Point" : "Root Complex",
+				pci_info[num].regs);
+		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+					&pcie1_hose, first_free_busno);
+	} else {
+		printf ("    PCIE1: disabled\n");
 	}
+
+	puts("\n");
 #else
-	gur->devdisr |= MPC85xx_DEVDISR_PCIE; /* disable */
+	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE); /* disable */
 #endif
 }
 #endif
