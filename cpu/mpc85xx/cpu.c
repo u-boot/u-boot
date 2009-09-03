@@ -61,6 +61,10 @@ int checkcpu (void)
 	minor = SVR_MIN(svr);
 
 	if (cpu_numcores() > 1) {
+#ifndef CONFIG_MP
+		puts("Unicore software on multiprocessor system!!\n"
+		     "To enable mutlticore build define CONFIG_MP\n");
+#endif
 		volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
 		printf("CPU%d:  ", pic->whoami);
 	} else {
