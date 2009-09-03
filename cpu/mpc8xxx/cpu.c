@@ -107,12 +107,6 @@ int probecpu (void)
 
 	gd->cpu = identify_cpu(ver);
 
-#ifndef CONFIG_MP
-	if (cpu_numcores() > 1) {
-		puts("Unicore software on multiprocessor system!!\n"
-		     "To enable mutlticore build define CONFIG_MP\n");
-	}
-#endif
 	return 0;
 }
 

@@ -61,6 +61,12 @@ checkcpu(void)
 	major = SVR_MAJ(svr);
 	minor = SVR_MIN(svr);
 
+	if (cpu_numcores() > 1) {
+#ifndef CONFIG_MP
+		puts("Unicore software on multiprocessor system!!\n"
+		     "To enable mutlticore build define CONFIG_MP\n");
+#endif
+	}
 	puts("CPU:   ");
 
 	cpu = gd->cpu;
