@@ -106,6 +106,33 @@ void init_tlbs(void)
 	return ;
 }
 
+static void tlbsx (const volatile unsigned *addr)
+{
+	__asm__ __volatile__ ("tlbsx 0,%0" : : "r" (addr), "m" (*addr));
+}
+
+/* return -1 if we didn't find anything */
+int find_tlb_idx(void *addr, u8 tlbsel)
+{
+	u32 _mas0, _mas1;
+
+	/* zero out Search PID, AS */
+	mtspr(MAS6, 0);
+
+	tlbsx(addr);
+
+	_mas0 = mfspr(MAS0);
+	_mas1 = mfspr(MAS1);
+
+	/* we found something, and its in the TLB we expect */
+	if ((MAS1_VALID & _mas1) &&
+		(MAS0_TLBSEL(tlbsel) == (_mas0 & MAS0_TLBSEL_MSK))) {
+		return ((_mas0 & MAS0_ESEL_MSK) >> 16);
+	}
+
+	return -1;
+}
+
 #ifdef CONFIG_ADDR_MAP
 void init_addr_map(void)
 {
