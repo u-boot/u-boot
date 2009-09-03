@@ -207,6 +207,52 @@ static int receive_bytes(uchar chip, char *buf, int len)
 	return 0;
 }
 
+#if defined(CONFIG_SYS_I2C_INIT_MPC5XXX)
+
+#define FDR510(x) (u8) (((x & 0x20) >> 3) | (x & 0x3))
+#define FDR432(x) (u8) ((x & 0x1C) >> 2)
+/*
+ * Reset any i2c devices that may have been interrupted during a system reset.
+ * Normally this would be accomplished by clocking the line until SCL and SDA
+ * are released and then sending a start condtiion (From an Atmel datasheet).
+ * There is no direct access to the i2c pins so instead create start commands
+ * through the i2c interface.  Send a start command then delay for the SDA Hold
+ * time, repeat this by disabling/enabling the bus a total of 9 times.
+ */
+static void send_reset(void)
+{
+	struct mpc5xxx_i2c *regs = (struct mpc5xxx_i2c *)I2C_BASE;
+	int i;
+	u32 delay;
+	u8 fdr;
+	int SDA_Tap[] = { 3, 3, 4, 4, 1, 1, 2, 2};
+	struct mpc5xxx_i2c_tap scltap[] = {
+		{4, 1},
+		{4, 2},
+		{6, 4},
+		{6, 8},
+		{14, 16},
+		{30, 32},
+		{62, 64},
+		{126, 128}
+	};
+
+	fdr = (u8)mpc_reg_in(&regs->mfdr);
+
+	delay = scltap[FDR432(fdr)].scl2tap + ((SDA_Tap[FDR510(fdr)] - 1) * \
+		scltap[FDR432(fdr)].tap2tap) + 3;
+
+	for (i = 0; i < 9; i++) {
+		mpc_reg_out(&regs->mcr, I2C_EN|I2C_STA|I2C_TX, I2C_INIT_MASK);
+		udelay(delay);
+		mpc_reg_out(&regs->mcr, 0, I2C_INIT_MASK);
+		udelay(delay);
+	}
+
+	mpc_reg_out(&regs->mcr, I2C_EN, I2C_INIT_MASK);
+}
+#endif /* CONFIG_SYS_I2c_INIT_MPC5XXX */
+
 /**************** I2C API ****************/
 
 void i2c_init(int speed, int saddr)
@@ -225,6 +271,9 @@ void i2c_init(int speed, int saddr)
 	mpc_reg_out(&regs->mcr, I2C_EN, I2C_INIT_MASK);
 	mpc_reg_out(&regs->msr, 0, I2C_IF);
 
+#if defined(CONFIG_SYS_I2C_INIT_MPC5XXX)
+	send_reset();
+#endif
 	return;
 }
 
