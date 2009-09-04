@@ -21,65 +21,6 @@
 # MA 02111-1307 USA
 #
 
-ifeq ($(ARCH),ppc)
-LOAD_ADDR = 0x40000
-endif
-
-ifeq ($(ARCH),i386)
-LOAD_ADDR = 0x40000
-endif
-
-ifeq ($(ARCH),arm)
-ifeq ($(BOARD),omap2420h4)
-LOAD_ADDR = 0x80300000
-else
-ifeq ($(SOC),omap3)
-LOAD_ADDR = 0x80300000
-else
-LOAD_ADDR = 0xc100000
-endif
-endif
-endif
-
-ifeq ($(ARCH),mips)
-LOAD_ADDR = 0x80200000 -T mips.lds
-endif
-
-ifeq ($(ARCH),nios)
-LOAD_ADDR = 0x00800000 -L $(gcclibdir)/m32 -T nios.lds
-endif
-
-ifeq ($(ARCH),nios2)
-LOAD_ADDR = 0x02000000 -L $(gcclibdir) -T nios2.lds
-endif
-
-ifeq ($(ARCH),m68k)
-LOAD_ADDR = 0x20000  -L $(clibdir)
-endif
-
-ifeq ($(ARCH),microblaze)
-LOAD_ADDR = 0x80F00000
-endif
-
-ifeq ($(ARCH),blackfin)
-LOAD_ADDR = 0x1000
-endif
-
-ifeq ($(ARCH),avr32)
-LOAD_ADDR = 0x00000000
-endif
-
-ifeq ($(ARCH),sh)
-LOAD_ADDR = 0x8C000000
-ifeq ($(CPU),sh2)
-BIG_ENDIAN=y
-endif
-endif
-
-ifeq ($(ARCH),sparc)
-LOAD_ADDR = 0x00000000 -L $(gcclibdir) -T sparc.lds
-endif
-
 include $(TOPDIR)/config.mk
 
 ELF	= hello_world
@@ -143,9 +84,6 @@ SREC	+= eepro100_eeprom.srec
 BIN	+= eepro100_eeprom.bin
 endif
 
-ifeq ($(BIG_ENDIAN),y)
-EX_LDFLAGS += -EB
-endif
 
 COBJS	:= $(SREC:.srec=.o)
 
@@ -168,7 +106,6 @@ BIN	:= $(addprefix $(obj),$(BIN))
 SREC	:= $(addprefix $(obj),$(SREC))
 
 gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
-clibdir := $(shell dirname `$(CC) $(CFLAGS) -print-file-name=libc.a`)
 
 CPPFLAGS += -I..
 
@@ -180,7 +117,7 @@ $(LIB):	$(obj).depend $(LIBOBJS)
 
 $(ELF):
 $(obj)%:	$(obj)%.o $(LIB)
-		$(LD) -g $(EX_LDFLAGS) -Ttext $(LOAD_ADDR) \
+		$(LD) -g -Ttext $(STANDALONE_LOAD_ADDR) \
 			-o $@ -e $(SYM_PREFIX)$(notdir $(<:.o=)) $< $(LIB) \
 			-L$(gcclibdir) -lgcc
 

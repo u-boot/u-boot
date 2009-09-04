@@ -23,6 +23,8 @@
 
 CROSS_COMPILE ?= bfin-uclinux-
 
+STANDALONE_LOAD_ADDR = 0x1000
+
 CONFIG_BFIN_CPU := $(strip $(subst ",,$(CONFIG_BFIN_CPU)))
 CONFIG_BFIN_BOOT_MODE := $(strip $(subst ",,$(CONFIG_BFIN_BOOT_MODE)))
 CONFIG_ENV_OFFSET := $(strip $(subst ",,$(CONFIG_ENV_OFFSET)))
