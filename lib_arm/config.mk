@@ -23,6 +23,16 @@
 
 CROSS_COMPILE ?= arm-linux-
 
+ifeq ($(BOARD),omap2420h4)
+STANDALONE_LOAD_ADDR = 0x80300000
+else
+ifeq ($(SOC),omap3)
+STANDALONE_LOAD_ADDR = 0x80300000
+else
+STANDALONE_LOAD_ADDR = 0xc100000
+endif
+endif
+
 PLATFORM_CPPFLAGS += -DCONFIG_ARM -D__ARM__
 
 # Explicitly specifiy 32-bit ARM ISA since toolchain default can be -mthumb:
