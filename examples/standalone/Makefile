@@ -23,83 +23,40 @@
 
 include $(TOPDIR)/config.mk
 
-ELF	= hello_world
-SREC	= hello_world.srec
-BIN	= hello_world.bin
+ELF-$(ARCH)  :=
+ELF-$(BOARD) :=
+ELF-$(CPU)   :=
+ELF-y        := hello_world
 
-ELF	+= atmel_df_pow2
-SREC	+= atmel_df_pow2.srec
-BIN	+= atmel_df_pow2.bin
+ELF-$(CONFIG_SMC91111)           += smc91111_eeprom
+ELF-$(CONFIG_SMC911X)            += smc911x_eeprom
+ELF-$(CONFIG_SPI_FLASH_ATMEL)    += atmel_df_pow2
+ELF-i386                         += 82559_eeprom
+ELF-mpc5xxx                      += interrupt
+ELF-mpc8xx                       += test_burst timer
+ELF-mpc8260                      += mem_to_mem_idma2intr
+ELF-ppc                          += sched
+ELF-oxc                          += eepro100_eeprom
 
-ifeq ($(CPU),mpc8xx)
-ELF	+= test_burst
-SREC	+= test_burst.srec
-BIN	+= test_burst.bin
-endif
+ELF := $(ELF-y) $(ELF-$(ARCH)) $(ELF-$(BOARD)) $(ELF-$(CPU))
+SREC = $(addsuffix .srec,$(ELF))
+BIN  = $(addsuffix .bin,$(ELF))
 
-ifeq ($(ARCH),i386)
-ELF	+= 82559_eeprom
-SREC	+= 82559_eeprom.srec
-BIN	+= 82559_eeprom.bin
-endif
-
-ifeq ($(ARCH),ppc)
-ELF	+= sched
-SREC	+= sched.srec
-BIN	+= sched.bin
-endif
-
-ifeq ($(ARCH),blackfin)
-BFIN_BIN = smc91111_eeprom smc911x_eeprom
-ELF	+= $(BFIN_BIN)
-SREC	+= $(addsuffix .srec,$(BFIN_BIN))
-BIN	+= $(addsuffix .bin,$(BFIN_BIN))
-endif
-
-# The following example is pretty 8xx specific...
-ifeq ($(CPU),mpc8xx)
-ELF	+= timer
-SREC	+= timer.srec
-BIN	+= timer.bin
-endif
-
-# The following example is 8260 specific...
-ifeq ($(CPU),mpc8260)
-ELF	+= mem_to_mem_idma2intr
-SREC	+= mem_to_mem_idma2intr.srec
-BIN	+= mem_to_mem_idma2intr.bin
-endif
-
-# Demo for 52xx IRQs
-ifeq ($(CPU),mpc5xxx)
-ELF	+= interrupt
-SREC	+= interrupt.srec
-BIN	+= interrupt.bin
-endif
-
-# Utility for resetting i82559 EEPROM
-ifeq ($(BOARD),oxc)
-ELF	+= eepro100_eeprom
-SREC	+= eepro100_eeprom.srec
-BIN	+= eepro100_eeprom.bin
-endif
-
-
-COBJS	:= $(SREC:.srec=.o)
+COBJS	:= $(ELF:=.o)
 
 LIB	= $(obj)libstubs.a
-LIBAOBJS=
-ifeq ($(ARCH),ppc)
-LIBAOBJS+= $(ARCH)_longjmp.o $(ARCH)_setjmp.o
-endif
-ifeq ($(CPU),mpc8xx)
-LIBAOBJS+= test_burst_lib.o
-endif
-LIBCOBJS= stubs.o
+
+LIBAOBJS-$(ARCH)     :=
+LIBAOBJS-$(CPU)      :=
+LIBAOBJS-ppc         += $(ARCH)_longjmp.o $(ARCH)_setjmp.o
+LIBAOBJS-mpc8xx      += test_burst_lib.o
+LIBAOBJS := $(LIBAOBJS-$(ARCH)) $(LIBAOBJS-$(CPU))
+
+LIBCOBJS = stubs.o
 
 LIBOBJS	= $(addprefix $(obj),$(LIBAOBJS) $(LIBCOBJS))
 
-SRCS	:= $(COBJS:.o=.c) $(LIBCOBJS:.o=.c) $(if $(LIBAOBJS),$(LIBAOBJS:.o=.S))
+SRCS	:= $(COBJS:.o=.c) $(LIBCOBJS:.o=.c) $(LIBAOBJS:.o=.S)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 ELF	:= $(addprefix $(obj),$(ELF))
 BIN	:= $(addprefix $(obj),$(BIN))
