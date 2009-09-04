@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Freescale Semiconductor, Inc.
+ * Copyright 2006,2009 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +26,21 @@
 #include <asm/io.h>
 #include <asm/fsl_i2c.h>	/* HW definitions */
 
-#define I2C_TIMEOUT	(CONFIG_SYS_HZ / 4)
+/* The maximum number of microseconds we will wait until another master has
+ * released the bus.  If not defined in the board header file, then use a
+ * generic value.
+ */
+#ifndef CONFIG_I2C_MBB_TIMEOUT
+#define CONFIG_I2C_MBB_TIMEOUT	100000
+#endif
+
+/* The maximum number of microseconds we will wait for a read or write
+ * operation to complete.  If not defined in the board header file, then use a
+ * generic value.
+ */
+#ifndef CONFIG_I2C_TIMEOUT
+#define CONFIG_I2C_TIMEOUT	10000
+#endif
 
 #define I2C_READ_BIT  1
 #define I2C_WRITE_BIT 0
@@ -213,9 +227,10 @@ static __inline__ int
 i2c_wait4bus(void)
 {
 	unsigned long long timeval = get_ticks();
+	const unsigned long long timeout = usec2ticks(CONFIG_I2C_MBB_TIMEOUT);
 
 	while (readb(&i2c_dev[i2c_bus_num]->sr) & I2C_SR_MBB) {
-		if ((get_ticks() - timeval) > usec2ticks(I2C_TIMEOUT))
+		if ((get_ticks() - timeval) > timeout)
 			return -1;
 	}
 
@@ -227,6 +242,7 @@ i2c_wait(int write)
 {
 	u32 csr;
 	unsigned long long timeval = get_ticks();
+	const unsigned long long timeout = usec2ticks(CONFIG_I2C_TIMEOUT);
 
 	do {
 		csr = readb(&i2c_dev[i2c_bus_num]->sr);
@@ -251,7 +267,7 @@ i2c_wait(int write)
 		}
 
 		return 0;
-	} while ((get_ticks() - timeval) < usec2ticks(I2C_TIMEOUT));
+	} while ((get_ticks() - timeval) < timeout);
 
 	debug("i2c_wait: timed out\n");
 	return -1;
