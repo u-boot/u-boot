@@ -39,6 +39,7 @@
 #endif
 
 int timer_load_val = 0;
+static ulong timer_clk;
 
 /* macro to read the 16 bit timer */
 static inline ulong READ_TIMER(void)
@@ -66,6 +67,7 @@ int timer_init (void)
 		 * @33.25MHz and 15625 @ 50 MHz
 		 */
 		timer_load_val = get_PCLK()/(2 * 16 * 100);
+		timer_clk = get_PCLK() / (2 * 16);
 	}
 	/* load value for 10 ms timeout */
 	lastdec = timers->TCNTB4 = timer_load_val;
@@ -100,13 +102,13 @@ void set_timer (ulong t)
 void udelay (unsigned long usec)
 {
 	ulong tmo;
-	ulong start = get_timer(0);
+	ulong start = get_ticks();
 
 	tmo = usec / 1000;
 	tmo *= (timer_load_val * 100);
 	tmo /= 1000;
 
-	while ((ulong)(get_timer_masked () - start) < tmo)
+	while ((ulong) (get_ticks() - start) < tmo)
 		/*NOP*/;
 }
 
@@ -119,18 +121,9 @@ void reset_timer_masked (void)
 
 ulong get_timer_masked (void)
 {
-	ulong now = READ_TIMER();
+	ulong tmr = get_ticks();
 
-	if (lastdec >= now) {
-		/* normal mode */
-		timestamp += lastdec - now;
-	} else {
-		/* we have an overflow ... */
-		timestamp += lastdec + timer_load_val - now;
-	}
-	lastdec = now;
-
-	return timestamp;
+	return tmr / (timer_clk / CONFIG_SYS_HZ);
 }
 
 void udelay_masked (unsigned long usec)
@@ -148,10 +141,10 @@ void udelay_masked (unsigned long usec)
 		tmo /= (1000*1000);
 	}
 
-	endtime = get_timer_masked () + tmo;
+	endtime = get_ticks() + tmo;
 
 	do {
-		ulong now = get_timer_masked ();
+		ulong now = get_ticks();
 		diff = endtime - now;
 	} while (diff >= 0);
 }
@@ -162,7 +155,18 @@ void udelay_masked (unsigned long usec)
  */
 unsigned long long get_ticks(void)
 {
-	return get_timer(0);
+	ulong now = READ_TIMER();
+
+	if (lastdec >= now) {
+		/* normal mode */
+		timestamp += lastdec - now;
+	} else {
+		/* we have an overflow ... */
+		timestamp += lastdec + timer_load_val - now;
+	}
+	lastdec = now;
+
+	return timestamp;
 }
 
 /*
