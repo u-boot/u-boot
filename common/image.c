@@ -74,12 +74,6 @@ static const image_header_t* image_get_ramdisk (ulong rd_addr, uint8_t arch,
 #include <image.h>
 #endif /* !USE_HOSTCC*/
 
-typedef struct table_entry {
-	int	id;		/* as defined in image.h	*/
-	char	*sname;		/* short (input) name		*/
-	char	*lname;		/* long (output) name		*/
-} table_entry_t;
-
 static table_entry_t uimage_arch[] = {
 	{	IH_ARCH_INVALID,	NULL,		"Invalid ARCH",	},
 	{	IH_ARCH_ALPHA,		"alpha",	"Alpha",	},
@@ -514,7 +508,7 @@ static void genimg_print_time (time_t timestamp)
  *     long entry name if translation succeeds
  *     msg otherwise
  */
-static char *get_table_entry_name (table_entry_t *table, char *msg, int id)
+char *get_table_entry_name (table_entry_t *table, char *msg, int id)
 {
 	for (; table->id >= 0; ++table) {
 		if (table->id == id)
@@ -561,7 +555,7 @@ const char *genimg_get_comp_name (uint8_t comp)
  *     entry id if translation succeeds
  *     -1 otherwise
  */
-static int get_table_entry_id (table_entry_t *table,
+int get_table_entry_id (table_entry_t *table,
 		const char *table_name, const char *name)
 {
 	table_entry_t *t;

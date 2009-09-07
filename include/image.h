@@ -284,6 +284,30 @@ typedef struct bootm_headers {
 #define uimage_to_cpu(x)		be32_to_cpu(x)
 #define cpu_to_uimage(x)		cpu_to_be32(x)
 
+/*
+ * Translation table for entries of a specific type; used by
+ * get_table_entry_id() and get_table_entry_name().
+ */
+typedef struct table_entry {
+	int	id;
+	char	*sname;		/* short (input) name to find table entry */
+	char	*lname;		/* long (output) name to print for messages */
+} table_entry_t;
+
+/*
+ * get_table_entry_id() scans the translation table trying to find an
+ * entry that matches the given short name. If a matching entry is
+ * found, it's id is returned to the caller.
+ */
+int get_table_entry_id (table_entry_t *table,
+		const char *table_name, const char *name);
+/*
+ * get_table_entry_name() scans the translation table trying to find
+ * an entry that matches the given id. If a matching entry is found,
+ * its long name is returned to the caller.
+ */
+char *get_table_entry_name (table_entry_t *table, char *msg, int id);
+
 const char *genimg_get_os_name (uint8_t os);
 const char *genimg_get_arch_name (uint8_t arch);
 const char *genimg_get_type_name (uint8_t type);
