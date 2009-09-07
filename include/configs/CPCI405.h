@@ -171,6 +171,8 @@
 #define CONFIG_SYS_PCI_PTM2MS  0xffc00001      /* 4MB, enable                  */
 #define CONFIG_SYS_PCI_PTM2PCI 0x04000000      /* Host: use this pci address   */
 
+#define CONFIG_PCI_4xx_PTM_OVERWRITE	1 /* overwrite PTMx settings by env */
+
 /*-----------------------------------------------------------------------
  * IDE/ATA stuff
  *-----------------------------------------------------------------------
