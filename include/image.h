@@ -292,6 +292,7 @@ int genimg_get_os_id (const char *name);
 int genimg_get_arch_id (const char *name);
 int genimg_get_type_id (const char *name);
 int genimg_get_comp_id (const char *name);
+void genimg_print_size (uint32_t size);
 
 #ifndef USE_HOSTCC
 /* Image format types, returned by _get_format() routine */
