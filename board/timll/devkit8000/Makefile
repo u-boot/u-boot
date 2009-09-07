@@ -1,8 +1,9 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2000, 2001, 2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
+# (C) Copyright 2009
+# Frederik Kriewitz <frederik@kriewitz.eu>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -25,28 +26,21 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).a
+LIB	= $(obj)lib$(BOARD).a
 
-COBJS-y				+= cpu.o timer.o psc.o
-COBJS-$(CONFIG_SOC_DM355)	+= dm355.o
-COBJS-$(CONFIG_SOC_DM365)	+= dm365.o
-COBJS-$(CONFIG_SOC_DM644X)	+= dm644x.o
-COBJS-$(CONFIG_DRIVER_TI_EMAC)	+= lxt972.o dp83848.o
+COBJS	:= devkit8000.o
 
-SOBJS	= reset.o
+SRCS	:= $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
 
-ifndef CONFIG_SKIP_LOWLEVEL_INIT
-SOBJS	+= lowlevel_init.o
-endif
-
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS-y) $(SOBJS))
-START	:= $(addprefix $(obj),$(START))
-
-all:	$(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+clean:
+	rm -f $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

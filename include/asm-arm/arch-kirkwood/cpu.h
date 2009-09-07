@@ -36,6 +36,8 @@
 		((_x ? KW_EGIGA0_BASE : KW_EGIGA1_BASE) + 0x44c)
 
 #define KW_REG_DEVICE_ID		(KW_MPP_BASE + 0x34)
+#define KW_REG_SYSRST_CNT		(KW_MPP_BASE + 0x50)
+#define SYSRST_CNT_1SEC_VAL		(25*1000000)
 #define KW_REG_MPP_OUT_DRV_REG		(KW_MPP_BASE + 0xE0)
 
 enum memory_bank {

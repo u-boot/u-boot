@@ -28,6 +28,18 @@
 
 extern void imx_gpio_mode (int gpio_mode);
 
+#ifdef CONFIG_MXC_UART
+extern void mx27_uart_init_pins(void);
+#endif /* CONFIG_MXC_UART */
+
+#ifdef CONFIG_FEC_MXC
+extern void mx27_fec_init_pins(void);
+#endif /* CONFIG_FEC_MXC */
+
+#ifdef CONFIG_MXC_MMC
+extern void mx27_sd2_init_pins(void);
+#endif /* CONFIG_MXC_MMC */
+
 /* AIPI */
 struct aipi_regs {
 	u32 psr0;

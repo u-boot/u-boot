@@ -250,6 +250,13 @@ int board_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_DRIVER_DM9000
+int board_eth_init(bd_t *bis)
+{
+	return dm9000_initialize(bis);
+}
+#endif
+
 int dram_init(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM;

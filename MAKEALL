@@ -520,6 +520,7 @@ LIST_ARM9="			\
 	cp926ejs		\
 	cp946es			\
 	cp966			\
+	imx27lite		\
 	lpd7a400		\
 	mv88f6281gtw_ge		\
 	mx1ads			\
@@ -580,6 +581,7 @@ LIST_ARM11="			\
 ## ARM Cortex-A8 Systems
 #########################################################################
 LIST_ARM_CORTEX_A8="		\
+	devkit8000		\
 	omap3_beagle		\
 	omap3_overo		\
 	omap3_evm		\
@@ -612,6 +614,9 @@ LIST_at91="			\
 	m501sk			\
 	pm9261			\
 	pm9263			\
+	SBC35_A9G20		\
+	TNY_A9260		\
+	TNY_A9G20		\
 "
 
 #########################################################################

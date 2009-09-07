@@ -1,8 +1,10 @@
 #
-# (C) Copyright 2000-2006
+# (C) Copyright 2003-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
+# (C) Copyright 2008
+# Stelian Pop <stelian.pop@leadtechdesign.com>
+# Lead Tech Design <www.leadtechdesign.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -14,7 +16,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -25,28 +27,23 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).a
+LIB	= $(obj)lib$(BOARD).a
 
-COBJS-y				+= cpu.o timer.o psc.o
-COBJS-$(CONFIG_SOC_DM355)	+= dm355.o
-COBJS-$(CONFIG_SOC_DM365)	+= dm365.o
-COBJS-$(CONFIG_SOC_DM644X)	+= dm644x.o
-COBJS-$(CONFIG_DRIVER_TI_EMAC)	+= lxt972.o dp83848.o
+COBJS-y	+= sbc35_a9g20.o
+COBJS-$(CONFIG_ATMEL_SPI)	+= spi.o
 
-SOBJS	= reset.o
+SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-ifndef CONFIG_SKIP_LOWLEVEL_INIT
-SOBJS	+= lowlevel_init.o
-endif
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS-y) $(SOBJS))
-START	:= $(addprefix $(obj),$(START))
+clean:
+	rm -f $(SOBJS) $(OBJS)
 
-all:	$(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

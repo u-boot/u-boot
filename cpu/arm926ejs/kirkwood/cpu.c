@@ -195,6 +195,78 @@ int kw_config_mpp(u32 mpp0_7, u32 mpp8_15, u32 mpp16_23, u32 mpp24_31,
 	return 0;
 }
 
+/*
+ * SYSRSTn Duration Counter Support
+ *
+ * Kirkwood SoC implements a hardware-based SYSRSTn duration counter.
+ * When SYSRSTn is asserted low, a SYSRSTn duration counter is running.
+ * The SYSRSTn duration counter is useful for implementing a manufacturer
+ * or factory reset. Upon a long reset assertion that is greater than a
+ * pre-configured environment variable value for sysrstdelay,
+ * The counter value is stored in the SYSRSTn Length Counter Register
+ * The counter is based on the 25-MHz reference clock (40ns)
+ * It is a 29-bit counter, yielding a maximum counting duration of
+ * 2^29/25 MHz (21.4 seconds). When the counter reach its maximum value,
+ * it remains at this value until counter reset is triggered by setting
+ * bit 31 of KW_REG_SYSRST_CNT
+ */
+static void kw_sysrst_action(void)
+{
+	int ret;
+	char *s = getenv("sysrstcmd");
+
+	if (!s) {
+		debug("Error.. %s failed, check sysrstcmd\n",
+			__FUNCTION__);
+		return;
+	}
+
+	debug("Starting %s process...\n", __FUNCTION__);
+#if !defined(CONFIG_SYS_HUSH_PARSER)
+	ret = run_command (s, 0);
+#else
+	ret = parse_string_outer(s, FLAG_PARSE_SEMICOLON
+				  | FLAG_EXIT_FROM_LOOP);
+#endif
+	if (ret < 0)
+		debug("Error.. %s failed\n", __FUNCTION__);
+	else
+		debug("%s process finished\n", __FUNCTION__);
+}
+
+static void kw_sysrst_check(void)
+{
+	u32 sysrst_cnt, sysrst_dly;
+	char *s;
+
+	/*
+	 * no action if sysrstdelay environment variable is not defined
+	 */
+	s = getenv("sysrstdelay");
+	if (s == NULL)
+		return;
+
+	/* read sysrstdelay value */
+	sysrst_dly = (u32) simple_strtoul(s, NULL, 10);
+
+	/* read SysRst Length counter register (bits 28:0) */
+	sysrst_cnt = (0x1fffffff & readl(KW_REG_SYSRST_CNT));
+	debug("H/w Rst hold time: %d.%d secs\n",
+		sysrst_cnt / SYSRST_CNT_1SEC_VAL,
+		sysrst_cnt % SYSRST_CNT_1SEC_VAL);
+
+	/* clear the counter for next valid read*/
+	writel(1 << 31, KW_REG_SYSRST_CNT);
+
+	/*
+	 * sysrst_action:
+	 * if H/w Reset key is pressed and hold for time
+	 * more than sysrst_dly in seconds
+	 */
+	if (sysrst_cnt >= SYSRST_CNT_1SEC_VAL * sysrst_dly)
+		kw_sysrst_action();
+}
+
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
@@ -297,6 +369,9 @@ int arch_misc_init(void)
 	/* Change reset vector to address 0x0 */
 	temp = get_cr();
 	set_cr(temp & ~CR_V);
+
+	/* checks and execute resset to factory event */
+	kw_sysrst_check();
 
 	return 0;
 }

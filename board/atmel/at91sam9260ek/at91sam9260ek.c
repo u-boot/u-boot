@@ -160,7 +160,7 @@ int board_init(void)
 	at91sam9260ek_nand_hw_init();
 #endif
 #ifdef CONFIG_HAS_DATAFLASH
-	at91_spi0_hw_init((1 << 0) || (1 << 1));
+	at91_spi0_hw_init((1 << 0) | (1 << 1));
 #endif
 #ifdef CONFIG_MACB
 	at91sam9260ek_macb_hw_init();
