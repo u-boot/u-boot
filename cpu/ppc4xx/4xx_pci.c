@@ -138,7 +138,7 @@ void pci_405gp_init(struct pci_controller *hose)
 
 	unsigned short temp_short;
 	unsigned long ptmpcila[2] = {CONFIG_SYS_PCI_PTM1PCI, CONFIG_SYS_PCI_PTM2PCI};
-#if defined(CONFIG_CPCI405) || defined(CONFIG_PMC405)
+#if defined(CONFIG_PCI_4xx_PTM_OVERWRITE)
 	char *ptmla_str, *ptmms_str;
 #endif
 	unsigned long ptmla[2]    = {CONFIG_SYS_PCI_PTM1LA, CONFIG_SYS_PCI_PTM2LA};
@@ -160,7 +160,7 @@ void pci_405gp_init(struct pci_controller *hose)
 #endif
 #endif
 
-#if defined(CONFIG_CPCI405) || defined(CONFIG_PMC405)
+#if defined(CONFIG_PCI_4xx_PTM_OVERWRITE)
 	ptmla_str = getenv("ptm1la");
 	ptmms_str = getenv("ptm1ms");
 	if(NULL != ptmla_str && NULL != ptmms_str ) {
