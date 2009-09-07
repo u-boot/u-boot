@@ -110,6 +110,7 @@
 #define CONFIG_SYS_I2C_MODULE 2		/* Select I2C module #1 or #2 */
 #define CONFIG_SYS_I2C_SPEED 100000	/* 100 kHz */
 #define CONFIG_SYS_I2C_SLAVE 0x7F
+#define CONFIG_SYS_I2C_INIT_MPC5XXX	/* Reset devices on i2c bus */
 
 /*
  * EEPROM CAT24WC32 configuration
