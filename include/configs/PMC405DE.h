@@ -164,6 +164,8 @@
 #define CONFIG_SYS_PCI_PTM2MS  0xff000001      /* 16MB, enable=1 */
 #define CONFIG_SYS_PCI_PTM2PCI 0x04000000      /* Host: use this pci address */
 
+#define CONFIG_PCI_4xx_PTM_OVERWRITE	1 /* overwrite PTMx settings by env */
+
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
