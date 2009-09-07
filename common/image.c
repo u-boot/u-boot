@@ -158,7 +158,6 @@ static table_entry_t uimage_comp[] = {
 
 uint32_t crc32 (uint32_t, const unsigned char *, uint);
 uint32_t crc32_wd (uint32_t, const unsigned char *, uint, uint);
-static void genimg_print_size (uint32_t size);
 #if defined(CONFIG_TIMESTAMP) || defined(CONFIG_CMD_DATE) || defined(USE_HOSTCC)
 static void genimg_print_time (time_t timestamp);
 #endif
@@ -473,7 +472,7 @@ void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
 }
 #endif /* !USE_HOSTCC */
 
-static void genimg_print_size (uint32_t size)
+void genimg_print_size (uint32_t size)
 {
 #ifndef USE_HOSTCC
 	printf ("%d Bytes = ", size);
