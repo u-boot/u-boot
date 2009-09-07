@@ -3717,6 +3717,7 @@ grsim_leon2_config : unconfig
 
 clean:
 	@rm -f $(obj)examples/standalone/82559_eeprom			  \
+	       $(obj)examples/standalone/atmel_df_pow2			  \
 	       $(obj)examples/standalone/eepro100_eeprom		  \
 	       $(obj)examples/standalone/hello_world			  \
 	       $(obj)examples/standalone/interrupt			  \
