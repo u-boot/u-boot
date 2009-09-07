@@ -350,7 +350,7 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr, unsigned char reg,
 		return -1;
 
 	sta_reg = in_be32((void *)EMAC_STACR + emac_reg);
-	*value = *(u16 *)(&sta_reg);
+	*value = sta_reg >> 16;
 
 	return 0;
 }
