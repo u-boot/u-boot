@@ -93,7 +93,9 @@ EXT_OBJ_FILES-y += lib_generic/sha1.o
 # Source files located in the tools directory
 OBJ_FILES-$(CONFIG_LCD_LOGO) += bmp_logo.o
 OBJ_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo.o
+OBJ_FILES-y += default_image.o
 OBJ_FILES-$(CONFIG_ENV_IS_EMBEDDED) += envcrc.o
+OBJ_FILES-y += fit_image.o
 OBJ_FILES-$(CONFIG_CMD_NET) += gen_eth_addr.o
 OBJ_FILES-$(CONFIG_CMD_LOADS) += img2srec.o
 OBJ_FILES-$(CONFIG_INCA_IP) += inca-swap-bytes.o
