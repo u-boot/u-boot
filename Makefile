@@ -324,6 +324,10 @@ $(obj)u-boot.img:	$(obj)u-boot.bin
 			sed -e 's/"[	 ]*$$/ for $(BOARD) board"/') \
 		-d $< $@
 
+$(obj)u-boot.kwb:       $(obj)u-boot.bin
+		$(obj)tools/mkimage -n $(KWD_CONFIG) -T kwbimage \
+		-a $(TEXT_BASE) -e $(TEXT_BASE) -d $< $@
+
 $(obj)u-boot.sha1:	$(obj)u-boot.bin
 		$(obj)tools/ubsha1 $(obj)u-boot.bin
 
@@ -3759,6 +3763,7 @@ clobber:	clean
 	@rm -f $(OBJS) $(obj)*.bak $(obj)ctags $(obj)etags $(obj)TAGS \
 		$(obj)cscope.* $(obj)*.*~
 	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL)
+	@rm -f $(obj)u-boot.kwb
 	@rm -f $(obj)tools/{env/crc32.c,inca-swap-bytes}
 	@rm -f $(obj)cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
