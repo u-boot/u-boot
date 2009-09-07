@@ -148,6 +148,8 @@ main (int argc, char **argv)
 	int retval = 0;
 	struct image_type_params *tparams = NULL;
 
+	/* Init Kirkwood Boot image generation/list support */
+	init_kwb_image_type ();
 	/* Init FIT image generation/list support */
 	init_fit_image_type ();
 	/* Init Default image generation/list support */

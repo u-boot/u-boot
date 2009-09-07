@@ -99,6 +99,7 @@ OBJ_FILES-y += fit_image.o
 OBJ_FILES-$(CONFIG_CMD_NET) += gen_eth_addr.o
 OBJ_FILES-$(CONFIG_CMD_LOADS) += img2srec.o
 OBJ_FILES-$(CONFIG_INCA_IP) += inca-swap-bytes.o
+OBJ_FILES-y += kwbimage.o
 OBJ_FILES-y += mkimage.o
 OBJ_FILES-$(CONFIG_NETCONSOLE) += ncb.o
 OBJ_FILES-y += os_support.o
@@ -189,6 +190,7 @@ $(obj)mkimage$(SFX):	$(obj)crc32.o \
 			$(obj)default_image.o \
 			$(obj)fit_image.o \
 			$(obj)image.o \
+			$(obj)kwbimage.o \
 			$(obj)md5.o \
 			$(obj)mkimage.o \
 			$(obj)os_support.o \
@@ -216,6 +218,9 @@ $(obj)fit_image.o: $(SRCTREE)/tools/fit_image.c
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
 $(obj)image.o: $(SRCTREE)/common/image.c
+	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+
+$(obj)kwbimage.o: $(SRCTREE)/tools/kwbimage.c
 	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
 
 $(obj)mkimage.o: $(SRCTREE)/tools/mkimage.c
