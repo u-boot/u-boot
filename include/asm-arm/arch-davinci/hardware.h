@@ -105,6 +105,13 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_ASYNC_EMIF_CNTRL_BASE		0x01d10000
 #define DAVINCI_MMC_SD0_BASE			0x01d11000
 
+#elif defined(CONFIG_SOC_DM646X)
+#define DAVINCI_ASYNC_EMIF_CNTRL_BASE		0x20008000
+#define DAVINCI_ASYNC_EMIF_DATA_CE0_BASE	0x42000000
+#define DAVINCI_ASYNC_EMIF_DATA_CE1_BASE	0x44000000
+#define DAVINCI_ASYNC_EMIF_DATA_CE2_BASE	0x46000000
+#define DAVINCI_ASYNC_EMIF_DATA_CE3_BASE	0x48000000
+
 #endif
 
 /* Power and Sleep Controller (PSC) Domains */
@@ -152,6 +159,10 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_LPSC_CFG5		38
 #define DAVINCI_LPSC_GEM		39
 #define DAVINCI_LPSC_IMCOP		40
+
+#define DAVINCI_DM646X_LPSC_EMAC	14
+#define DAVINCI_DM646X_LPSC_UART0	26
+#define DAVINCI_DM646X_LPSC_I2C		31
 
 void lpsc_on(unsigned int id);
 void dsp_on(void);
