@@ -19,7 +19,6 @@
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
-#include <asm/sizes.h>
 
 /*=======*/
 /* Board */
@@ -86,7 +85,7 @@
 #define CONFIG_NAND_DAVINCI
 #define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
 #define CONFIG_ENV_SECT_SIZE	2048	/* Env sector Size */
-#define CONFIG_ENV_SIZE		SZ_128K
+#define CONFIG_ENV_SIZE		(128 << 10)	/* 128 KiB */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */
 #define CONFIG_SKIP_RELOCATE_UBOOT	/* to a proper address, init done */
 #define CONFIG_SYS_NAND_BASE		0x02000000

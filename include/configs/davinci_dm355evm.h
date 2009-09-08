@@ -19,7 +19,6 @@
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
-#include <asm/sizes.h>
 
 /* Spectrum Digital TMS320DM355 EVM board */
 #define DAVINCI_DM355EVM
@@ -40,7 +39,7 @@
 /* Memory Info */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0x80000000
-#define PHYS_SDRAM_1_SIZE		SZ_128M
+#define PHYS_SDRAM_1_SIZE		(128 << 20)	/* 128 MiB */
 
 /* Serial Driver info: UART0 for console  */
 #define CONFIG_SYS_NS16550
@@ -130,7 +129,7 @@
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_LONGHELP
 
-#define CONFIG_ENV_SIZE		SZ_16K
+#define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KiB */
 
 /* NYET -- #define CONFIG_BOOTDELAY	5 */
 #define CONFIG_BOOTCOMMAND \
@@ -146,8 +145,8 @@
 #define CONFIG_NET_RETRY_COUNT 10
 
 /* U-Boot memory configuration */
-#define CONFIG_STACKSIZE		SZ_256K		/* regular stack */
-#define CONFIG_SYS_MALLOC_LEN		SZ_512K		/* malloc() arena */
+#define CONFIG_STACKSIZE		(256 << 10)	/* 256 KiB */
+#define CONFIG_SYS_MALLOC_LEN		(512 << 10)	/* 512 KiB */
 #define CONFIG_SYS_GBL_DATA_SIZE	128		/* for initial data */
 #define CONFIG_SYS_MEMTEST_START	0x87000000	/* physical address */
 #define CONFIG_SYS_MEMTEST_END		0x88000000	/* test 16MB RAM */
