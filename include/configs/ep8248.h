@@ -50,50 +50,41 @@
 
 #define CONFIG_SYS_BCSR		0xFA000000
 
-/*
- * Select ethernet configuration
- *
- * If either CONFIG_ETHER_ON_SCC or CONFIG_ETHER_ON_FCC is selected,
- * then CONFIG_ETHER_INDEX must be set to the channel number (1-4 for
- * SCC, 1-3 for FCC)
- *
- * If CONFIG_ETHER_NONE is defined, then either the ethernet routines
- * must be defined elsewhere (as for the console), or CONFIG_CMD_NET
- * must be unset.
- */
+/* Pass open firmware flat device tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
+
+#define OF_TBCLK        (bd->bi_busfreq / 4)
+#define OF_STDOUT_PATH  "/soc/cpm/serial <at> 11a80"
+
+/* Select ethernet configuration */
 #undef	CONFIG_ETHER_ON_SCC		/* Ethernet is not on SCC */
 #define CONFIG_ETHER_ON_FCC		/* Ethernet is on FCC     */
 #undef	CONFIG_ETHER_NONE		/* No external Ethernet   */
 
-#ifdef CONFIG_ETHER_ON_FCC
+#define CONFIG_NET_MULTI
+#define CONFIG_SYS_CPMFCR_RAMTYPE	0
+#define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
 
-#define CONFIG_ETHER_INDEX	1	/* FCC1 is used for Ethernet */
-
-#if   (CONFIG_ETHER_INDEX == 1)
-
+#define CONFIG_HAS_ETH0
+#define CONFIG_ETHER_ON_FCC1		1
 /* - Rx clock is CLK10
  * - Tx clock is CLK11
  * - BDs/buffers on 60x bus
  * - Full duplex
  */
-#define CONFIG_SYS_CMXFCR_MASK	(CMXFCR_FC1 | CMXFCR_RF1CS_MSK | CMXFCR_TF1CS_MSK)
-#define CONFIG_SYS_CMXFCR_VALUE	(CMXFCR_RF1CS_CLK10 | CMXFCR_TF1CS_CLK11)
-#define CONFIG_SYS_CPMFCR_RAMTYPE	0
-#define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
+#define CONFIG_SYS_CMXFCR_MASK1	(CMXFCR_FC1 | CMXFCR_RF1CS_MSK | CMXFCR_TF1CS_MSK)
+#define CONFIG_SYS_CMXFCR_VALUE1	(CMXFCR_RF1CS_CLK10 | CMXFCR_TF1CS_CLK11)
 
-#elif (CONFIG_ETHER_INDEX == 2)
-
+#define CONFIG_HAS_ETH1
+#define CONFIG_ETHER_ON_FCC2		1
 /* - Rx clock is CLK13
  * - Tx clock is CLK14
  * - BDs/buffers on 60x bus
  * - Full duplex
  */
-#define CONFIG_SYS_CMXFCR_MASK	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
-#define CONFIG_SYS_CMXFCR_VALUE	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
-#define CONFIG_SYS_CPMFCR_RAMTYPE	0
-#define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE | FCC_PSMR_LPB)
-
-#endif /* CONFIG_ETHER_INDEX */
+#define CONFIG_SYS_CMXFCR_MASK2	(CMXFCR_FC2 | CMXFCR_RF2CS_MSK | CMXFCR_TF2CS_MSK)
+#define CONFIG_SYS_CMXFCR_VALUE2	(CMXFCR_RF2CS_CLK13 | CMXFCR_TF2CS_CLK14)
 
 #define CONFIG_MII			/* MII PHY management        */
 #define CONFIG_BITBANGMII		/* Bit-banged MDIO interface */
@@ -112,8 +103,6 @@
 				else	*(vu_char *)(CONFIG_SYS_BCSR + 8) &= 0xFD
 
 #define MIIDELAY		udelay(1)
-
-#endif /* CONFIG_ETHER_ON_FCC */
 
 #ifndef CONFIG_8260_CLKIN
 #define CONFIG_8260_CLKIN	66000000	/* in Hz */
