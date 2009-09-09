@@ -310,7 +310,6 @@ void ft_blob_update (void *blob, bd_t *bd)
 	int ret, nodeoffset = 0;
 	ulong memory_data[2] = {0};
 	ulong flash_data[4] = {0};
-	ulong freq = 0;
 	ulong	speed = 0;
 
 	memory_data[0] = cpu_to_be32 (bd->bi_memstart);
@@ -356,21 +355,6 @@ void ft_blob_update (void *blob, bd_t *bd)
 	} else {
 		/* memory node is required in dts */
 		printf ("ft_blob_update(): cannot find /soc/cpm/ethernet node "
-			"err:%s\n", fdt_strerror (nodeoffset));
-	}
-
-	/* brg clock */
-	nodeoffset = fdt_path_offset (blob, "/soc/cpm/brg");
-	if (nodeoffset >= 0) {
-		freq = cpu_to_be32 (bd->bi_brgfreq);
-		ret = fdt_setprop (blob, nodeoffset, "clock-frequency", &freq,
-					sizeof (unsigned long));
-	if (ret < 0)
-		printf ("ft_blob_update): cannot set /soc/cpm/brg/clock-frequency "
-			"property err:%s\n", fdt_strerror (ret));
-	} else {
-		/* memory node is required in dts */
-		printf ("ft_blob_update(): cannot find /soc/cpm/brg/clock-frequency node "
 			"err:%s\n", fdt_strerror (nodeoffset));
 	}
 
