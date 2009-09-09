@@ -36,27 +36,9 @@ you can just remove the -p option from the script.
 It turns out that 'netcat' cannot be used to listen to broadcast
 packets. We developed our own tool 'ncb' (see tools directory) that
 listens to broadcast packets on a given port and dumps them to the
-standard output. use it as follows:
-
-+++++++++++++++++++++++++++++++++++++++++++
-#! /bin/bash
-
-[ $# = 1 ] || { echo "Usage: $0 target_ip" >&2 ; exit 1 ; }
-TARGET_IP=$1
-
-stty icanon echo intr ^T
-./ncb &
-nc -u ${TARGET_IP} 6666
-stty icanon echo intr ^C
-kill 0
-+++++++++++++++++++++++++++++++++++++++++++
-
-Again, this script takes exactly one argument, which is interpreted
-as the target IP address (or host name, assuming DNS is working). The
-script can be interrupted by pressing ^T (CTRL-T).
-
-The 'ncb' tool can be found in the tools directory; it will be built
-when compiling for a board which has CONFIG_NETCONSOLE defined.
+standard output.  It will be built when compiling for a board which
+has CONFIG_NETCONSOLE defined.  If the netconsole script can find it
+in PATH or in the same directory, it will be used instead.
 
 For Linux, the network-based console needs special configuration.
 Minimally, the host IP address needs to be specified. This can be
