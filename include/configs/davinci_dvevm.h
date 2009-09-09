@@ -121,6 +121,7 @@
 #define CONFIG_ENV_SECT_SIZE	512	/* Env sector Size */
 #define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KiB */
 #define CONFIG_MTD_PARTITIONS
+#define CONFIG_MTD_DEVICE
 #define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		\
 	"nand0=davinci_nand.0"
