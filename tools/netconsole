@@ -31,12 +31,18 @@ if [ -z "${ip}" ] || [ -n "$3" ] ; then
 fi
 
 for nc in netcat nc ; do
-	type ${nc} >/dev/null && break
+	type ${nc} >/dev/null 2>&1 && break
 done
 
 trap "stty icanon echo intr ^C" 0 2 3 5 10 13 15
 echo "NOTE: the interrupt signal (normally ^C) has been remapped to ^T"
 
 stty -icanon -echo intr ^T
-${nc} -u -l -p ${port} < /dev/null &
-exec ${nc} -u ${ip} ${port}
+(
+while ${nc} -u -l -p ${port} < /dev/null ; do
+	:
+done
+) &
+pid=$!
+${nc} -u ${ip} ${port}
+kill ${pid} 2>/dev/null
