@@ -124,7 +124,7 @@ u32 get_sdr_cs_size(u32 cs)
 	/* get ram size field */
 	size = readl(&sdrc_base->cs[cs].mcfg) >> 8;
 	size &= 0x3FF;		/* remove unwanted bits */
-	size *= SZ_2M;		/* find size in MB */
+	size <<= 21;		/* multiply by 2 MiB to find size in MB */
 	return size;
 }
 

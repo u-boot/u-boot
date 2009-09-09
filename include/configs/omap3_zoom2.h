@@ -29,7 +29,6 @@
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
-#include <asm/sizes.h>
 
 /*
  * High Level Configuration Options
@@ -64,9 +63,9 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_ENV_SIZE			SZ_128K	/* Total Size Environment */
+#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 						/* Sector */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_128K)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
 						/* initial data */
 /*
@@ -201,10 +200,10 @@
  *
  * The stack sizes are set up in start.S using these settings
  */
-#define CONFIG_STACKSIZE	SZ_128K
+#define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
 #ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	SZ_4K
-#define CONFIG_STACKSIZE_FIQ	SZ_4K
+#define CONFIG_STACKSIZE_IRQ	(4 << 10)	/* IRQ stack 4 KiB */
+#define CONFIG_STACKSIZE_FIQ	(4 << 10)	/* FIQ stack 4 KiB */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -212,7 +211,7 @@
  */
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE	SZ_32M	/* at least 32 meg */
+#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 #define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
 
 /* SDRAM Bank Allocation method */
@@ -231,7 +230,7 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	520	/* max number of sectors on */
 						/* one chip */
 #define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of flash banks */
-#define CONFIG_SYS_MONITOR_LEN		SZ_256K	/* Reserve 2 sectors */
+#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
 #define CONFIG_SYS_FLASH_BASE		boot_flash_base
 

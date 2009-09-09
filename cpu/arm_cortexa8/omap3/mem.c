@@ -92,7 +92,7 @@ void make_cs1_contiguous(void)
 	u32 size, a_add_low, a_add_high;
 
 	size = get_sdr_cs_size(CS0);
-	size /= SZ_32M;			/* find size to offset CS1 */
+	size >>= 25;	/* divide by 32 MiB to find size to offset CS1 */
 	a_add_high = (size & 3) << 8;	/* set up low field */
 	a_add_low = (size & 0x3C) >> 2;	/* set up high field */
 	writel((a_add_high | a_add_low), &sdrc_base->cs_cfg);
@@ -249,7 +249,7 @@ void gpmc_init(void)
 	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[0], base, size);
 #if defined(CONFIG_ENV_IS_IN_NAND)
 	f_off = SMNAND_ENV_OFFSET;
-	f_sec = SZ_128K;
+	f_sec = (128 << 10);	/* 128 KiB */
 	/* env setup */
 	boot_flash_base = base;
 	boot_flash_off = f_off;
@@ -265,7 +265,7 @@ void gpmc_init(void)
 	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[0], base, size);
 #if defined(CONFIG_ENV_IS_IN_ONENAND)
 	f_off = ONENAND_ENV_OFFSET;
-	f_sec = SZ_128K;
+	f_sec = (128 << 10);	/* 128 KiB */
 	/* env setup */
 	boot_flash_base = base;
 	boot_flash_off = f_off;
