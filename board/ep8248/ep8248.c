@@ -35,8 +35,8 @@
  * according to the five values podr/pdir/ppar/psor/pdat for that entry
  */
 
-#define CONFIG_SYS_FCC1 (CONFIG_ETHER_INDEX == 1)
-#define CONFIG_SYS_FCC2 (CONFIG_ETHER_INDEX == 2)
+#define CONFIG_SYS_FCC1 (CONFIG_ETHER_ON_FCC1 == 1)
+#define CONFIG_SYS_FCC2 (CONFIG_ETHER_ON_FCC2 == 1)
 
 const iop_conf_t iop_conf_tab[4][32] = {
 
@@ -261,3 +261,11 @@ int checkboard(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup( blob, bd);
+}
+#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
+
