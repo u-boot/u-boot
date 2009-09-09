@@ -58,64 +58,55 @@
  | Clocking Controller
  +----------------------------------------------------------------------------*/
 /* values for clkcfga register - indirect addressing of these regs */
-#define clk_clkukpd	0x0020
-#define clk_pllc	0x0040
-#define clk_plld	0x0060
-#define clk_primad	0x0080
-#define clk_primbd	0x00a0
-#define clk_opbd	0x00c0
-#define clk_perd	0x00e0
-#define clk_mald	0x0100
-#define clk_spcid	0x0120
-#define clk_icfg	0x0140
+#define CPR0_PLLC	0x0040
+#define CPR0_PLLD	0x0060
+#define CPR0_PRIMAD	0x0080
+#define CPR0_PRIMBD	0x00a0
+#define CPR0_OPBD	0x00c0
+#define CPR0_PERD	0x00e0
+#define CPR0_MALD	0x0100
+#define CPR0_SPCID	0x0120
+#define CPR0_ICFG	0x0140
 
 /* 440gx sdr register definations */
-#define sdr_sdstp0	0x0020	    /* */
-#define sdr_sdstp1	0x0021	    /* */
-#define SDR_PINSTP	0x0040
-#define sdr_sdcs	0x0060
-#define sdr_ecid0	0x0080
-#define sdr_ecid1	0x0081
-#define sdr_ecid2	0x0082
-#define sdr_jtag	0x00c0
+#define SDR0_SDSTP0	0x0020	    /* */
+#define SDR0_SDSTP1	0x0021	    /* */
+#define SDR0_PINSTP	0x0040
+#define SDR0_SDCS0	0x0060
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define SDR0_DDRCFG	0x00e0
 #endif /* defined(CONFIG_440EPX) || defined(CONFIG_440GRX) */
-#define sdr_ebc		0x0100
-#define sdr_uart0	0x0120	/* UART0 Config */
-#define sdr_uart1	0x0121	/* UART1 Config */
-#define sdr_uart2	0x0122	/* UART2 Config */
-#define sdr_uart3	0x0123	/* UART3 Config */
-#define sdr_cp440	0x0180
-#define sdr_xcr		0x01c0
-#define sdr_xpllc	0x01c1
-#define sdr_xplld	0x01c2
-#define sdr_srst	0x0200
-#define sdr_slpipe	0x0220
-#define sdr_amp0        0x0240  /* Override PLB4 prioritiy for up to 8 masters */
-#define sdr_amp1        0x0241  /* Override PLB3 prioritiy for up to 8 masters */
-#define sdr_mirq0	0x0260
-#define sdr_mirq1	0x0261
-#define sdr_maltbl	0x0280
-#define sdr_malrbl	0x02a0
-#define sdr_maltbs	0x02c0
-#define sdr_malrbs	0x02e0
-#define sdr_pci0	0x0300
-#define sdr_usb0	0x0320
-#define sdr_cust0	0x4000
-#define sdr_cust1	0x4002
-#define sdr_pfc0	0x4100	/* Pin Function 0 */
-#define sdr_pfc1	0x4101	/* Pin Function 1 */
-#define sdr_plbtr	0x4200
-#define sdr_mfr		0x4300	/* SDR0_MFR reg */
+#define SDR0_EBC	0x0100
+#define SDR0_UART0	0x0120	/* UART0 Config */
+#define SDR0_UART1	0x0121	/* UART1 Config */
+#define SDR0_UART2	0x0122	/* UART2 Config */
+#define SDR0_UART3	0x0123	/* UART3 Config */
+#define SDR0_CP440	0x0180
+#define SDR0_XCR	0x01c0
+#define SDR0_XPLLC	0x01c1
+#define SDR0_XPLLD	0x01c2
+#define SDR0_SRST	0x0200
+#define SD0_AMP0        0x0240  /* Override PLB4 prioritiy for up to 8 masters */
+#define SD0_AMP1        0x0241  /* Override PLB3 prioritiy for up to 8 masters */
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define SDR0_PCI0	0x01c0
+#else
+#define SDR0_PCI0	0x0300
+#endif
+#define SDR0_USB0	0x0320
+#define SDR0_CUST0	0x4000
+#define SDR0_CUST1	0x4002
+#define SDR0_PFC0	0x4100	/* Pin Function 0 */
+#define SDR0_PFC1	0x4101	/* Pin Function 1 */
+#define SDR0_MFR	0x4300	/* SDR0_MFR reg */
 
 #ifdef CONFIG_440GX
-#define sdr_amp		0x0240
-#define sdr_xpllc	0x01c1
-#define sdr_xplld	0x01c2
-#define sdr_xcr		0x01c0
-#define sdr_sdstp2	0x4001
-#define sdr_sdstp3	0x4003
+#define SD0_AMP		0x0240
+#define SDR0_XPLLC	0x01c1
+#define SDR0_XPLLD	0x01c2
+#define SDR0_XCR	0x01c0
+#define SDR0_SDSTP2	0x4001
+#define SDR0_SDSTP3	0x4003
 #endif	/* CONFIG_440GX */
 
 /*----------------------------------------------------------------------------+
@@ -143,101 +134,66 @@
 #define MMUCR_STID_MASK		0x000000FF
 
 #ifdef CONFIG_440SPE
-#undef sdr_sdstp2
-#define sdr_sdstp2	0x0022
-#undef sdr_sdstp3
-#define sdr_sdstp3	0x0023
-#define sdr_ddr0	0x00E1
-#define sdr_uart2	0x0122
-#define sdr_xcr0	0x01c0
-/* #define sdr_xcr1	0x01c3	only one PCIX - SG */
-/* #define sdr_xcr2	0x01c6	only one PCIX - SG */
-#define sdr_xpllc0	0x01c1
-#define sdr_xplld0	0x01c2
-#define sdr_xpllc1	0x01c4	/*notRCW  - SG */
-#define sdr_xplld1	0x01c5	/*notRCW  - SG */
-#define sdr_xpllc2	0x01c7	/*notRCW  - SG */
-#define sdr_xplld2	0x01c8	/*notRCW  - SG */
-#define sdr_amp0	0x0240
-#define sdr_amp1	0x0241
-#define sdr_cust2	0x4004
-#define sdr_cust3	0x4006
-#define sdr_sdstp4	0x4001
-#define sdr_sdstp5	0x4003
-#define sdr_sdstp6	0x4005
-#define sdr_sdstp7	0x4007
+#undef SDR0_SDSTP2
+#define SDR0_SDSTP2	0x0022
+#undef SDR0_SDSTP3
+#define SDR0_SDSTP3	0x0023
+#define SDR0_DDR0	0x00E1
+#define SDR0_UART2	0x0122
+#define SDR0_XCR0	0x01c0
+#define SDR0_XCR1	0x01c3
+#define SDR0_XCR2	0x01c6
+#define SDR0_XPLLC0	0x01c1
+#define SDR0_XPLLD0	0x01c2
+#define SDR0_XPLLC1	0x01c4	/*notRCW  - SG */
+#define SDR0_XPLLD1	0x01c5	/*notRCW  - SG */
+#define SDR0_XPLLC2	0x01c7	/*notRCW  - SG */
+#define SDR0_XPLLD2	0x01c8	/*notRCW  - SG */
+#define SD0_AMP0	0x0240
+#define SD0_AMP1	0x0241
+#define SDR0_CUST2	0x4004
+#define SDR0_CUST3	0x4006
+#define SDR0_SDSTP4	0x4001
+#define SDR0_SDSTP5	0x4003
+#define SDR0_SDSTP6	0x4005
+#define SDR0_SDSTP7	0x4007
 
 #endif /* CONFIG_440SPE */
 
 /*-----------------------------------------------------------------------------
  | External Bus Controller
  +----------------------------------------------------------------------------*/
-/* values for ebccfga register - indirect addressing of these regs */
-#define pb0cr		0x00	/* periph bank 0 config reg		*/
-#define pb1cr		0x01	/* periph bank 1 config reg		*/
-#define pb2cr		0x02	/* periph bank 2 config reg		*/
-#define pb3cr		0x03	/* periph bank 3 config reg		*/
-#define pb4cr		0x04	/* periph bank 4 config reg		*/
-#define pb5cr		0x05	/* periph bank 5 config reg		*/
-#define pb6cr		0x06	/* periph bank 6 config reg		*/
-#define pb7cr		0x07	/* periph bank 7 config reg		*/
-#define pb0ap		0x10	/* periph bank 0 access parameters	*/
-#define pb1ap		0x11	/* periph bank 1 access parameters	*/
-#define pb2ap		0x12	/* periph bank 2 access parameters	*/
-#define pb3ap		0x13	/* periph bank 3 access parameters	*/
-#define pb4ap		0x14	/* periph bank 4 access parameters	*/
-#define pb5ap		0x15	/* periph bank 5 access parameters	*/
-#define pb6ap		0x16	/* periph bank 6 access parameters	*/
-#define pb7ap		0x17	/* periph bank 7 access parameters	*/
-#define pbear		0x20	/* periph bus error addr reg		*/
-#define pbesr		0x21	/* periph bus error status reg		*/
-#define xbcfg		0x23	/* external bus configuration reg	*/
+/* values for EBC0_CFGADDR register - indirect addressing of these regs */
+#define PB0CR		0x00	/* periph bank 0 config reg		*/
+#define PB1CR		0x01	/* periph bank 1 config reg		*/
+#define PB2CR		0x02	/* periph bank 2 config reg		*/
+#define PB3CR		0x03	/* periph bank 3 config reg		*/
+#define PB4CR		0x04	/* periph bank 4 config reg		*/
+#define PB5CR		0x05	/* periph bank 5 config reg		*/
+#define PB6CR		0x06	/* periph bank 6 config reg		*/
+#define PB7CR		0x07	/* periph bank 7 config reg		*/
+#define PB0AP		0x10	/* periph bank 0 access parameters	*/
+#define PB1AP		0x11	/* periph bank 1 access parameters	*/
+#define PB2AP		0x12	/* periph bank 2 access parameters	*/
+#define PB3AP		0x13	/* periph bank 3 access parameters	*/
+#define PB4AP		0x14	/* periph bank 4 access parameters	*/
+#define PB5AP		0x15	/* periph bank 5 access parameters	*/
+#define PB6AP		0x16	/* periph bank 6 access parameters	*/
+#define PB7AP		0x17	/* periph bank 7 access parameters	*/
+#define PBEAR		0x20	/* periph bus error addr reg		*/
+#define PBESR		0x21	/* periph bus error status reg		*/
 #define EBC0_CFG	0x23	/* external bus configuration reg	*/
-#define xbcid		0x24	/* external bus core id reg		*/
 
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 
-/* PLB4 to PLB3 Bridge OUT */
-#define P4P3_DCR_BASE           0x020
-#define p4p3_esr0_read          (P4P3_DCR_BASE+0x0)
-#define p4p3_esr0_write         (P4P3_DCR_BASE+0x1)
-#define p4p3_eadr               (P4P3_DCR_BASE+0x2)
-#define p4p3_euadr              (P4P3_DCR_BASE+0x3)
-#define p4p3_esr1_read          (P4P3_DCR_BASE+0x4)
-#define p4p3_esr1_write         (P4P3_DCR_BASE+0x5)
-#define p4p3_confg              (P4P3_DCR_BASE+0x6)
-#define p4p3_pic                (P4P3_DCR_BASE+0x7)
-#define p4p3_peir               (P4P3_DCR_BASE+0x8)
-#define p4p3_rev                (P4P3_DCR_BASE+0xA)
-
-/* PLB3 to PLB4 Bridge IN */
-#define P3P4_DCR_BASE           0x030
-#define p3p4_esr0_read          (P3P4_DCR_BASE+0x0)
-#define p3p4_esr0_write         (P3P4_DCR_BASE+0x1)
-#define p3p4_eadr               (P3P4_DCR_BASE+0x2)
-#define p3p4_euadr              (P3P4_DCR_BASE+0x3)
-#define p3p4_esr1_read          (P3P4_DCR_BASE+0x4)
-#define p3p4_esr1_write         (P3P4_DCR_BASE+0x5)
-#define p3p4_confg              (P3P4_DCR_BASE+0x6)
-#define p3p4_pic                (P3P4_DCR_BASE+0x7)
-#define p3p4_peir               (P3P4_DCR_BASE+0x8)
-#define p3p4_rev                (P3P4_DCR_BASE+0xA)
-
 /* PLB3 Arbiter */
-#define PLB3_DCR_BASE           0x070
-#define plb3_revid              (PLB3_DCR_BASE+0x2)
-#define plb3_besr               (PLB3_DCR_BASE+0x3)
-#define plb3_bear               (PLB3_DCR_BASE+0x6)
-#define plb3_acr                (PLB3_DCR_BASE+0x7)
+#define PLB3_DCR_BASE		0x070
+#define PLB3_ACR		(PLB3_DCR_BASE + 0x7)
 
 /* PLB4 Arbiter - PowerPC440EP Pass1 */
-#define PLB4_DCR_BASE           0x080
-#define plb4_acr                (PLB4_DCR_BASE+0x1)
-#define plb4_revid              (PLB4_DCR_BASE+0x2)
-#define plb4_besr               (PLB4_DCR_BASE+0x4)
-#define plb4_bearl              (PLB4_DCR_BASE+0x6)
-#define plb4_bearh              (PLB4_DCR_BASE+0x7)
+#define PLB4_DCR_BASE		0x080
+#define PLB4_ACR		(PLB4_DCR_BASE + 0x1)
 
 #define PLB4_ACR_WRP		(0x80000000 >> 7)
 
@@ -578,24 +534,16 @@
 #define CNTRL_DCR_BASE 0x0b0
 #endif
 
-#define cpc0_er		(CNTRL_DCR_BASE+0x00)	/* CPM enable register		*/
-#define cpc0_fr		(CNTRL_DCR_BASE+0x01)	/* CPM force register		*/
-#define cpc0_sr		(CNTRL_DCR_BASE+0x02)	/* CPM status register		*/
+#define CPC0_SYS0	(CNTRL_DCR_BASE+0x30)	/* System configuration reg 0	*/
+#define CPC0_SYS1	(CNTRL_DCR_BASE+0x31)	/* System configuration reg 1	*/
 
-#define cpc0_sys0	(CNTRL_DCR_BASE+0x30)	/* System configuration reg 0	*/
-#define cpc0_sys1	(CNTRL_DCR_BASE+0x31)	/* System configuration reg 1	*/
-#define cpc0_cust0	(CNTRL_DCR_BASE+0x32)	/* Customer configuration reg 0 */
-#define cpc0_cust1	(CNTRL_DCR_BASE+0x33)	/* Customer configuration reg 1 */
+#define CPC0_STRP0	(CNTRL_DCR_BASE+0x34)	/* Power-on config reg 0 (RO)	*/
+#define CPC0_STRP1	(CNTRL_DCR_BASE+0x35)	/* Power-on config reg 1 (RO)	*/
 
-#define cpc0_strp0	(CNTRL_DCR_BASE+0x34)	/* Power-on config reg 0 (RO)	*/
-#define cpc0_strp1	(CNTRL_DCR_BASE+0x35)	/* Power-on config reg 1 (RO)	*/
-#define cpc0_strp2	(CNTRL_DCR_BASE+0x36)	/* Power-on config reg 2 (RO)	*/
-#define cpc0_strp3	(CNTRL_DCR_BASE+0x37)	/* Power-on config reg 3 (RO)	*/
+#define CPC0_GPIO	(CNTRL_DCR_BASE+0x38)	/* GPIO config reg (440GP)	*/
 
-#define cpc0_gpio	(CNTRL_DCR_BASE+0x38)	/* GPIO config reg (440GP)	*/
-
-#define cntrl0		(CNTRL_DCR_BASE+0x3b)	/* Control 0 register		*/
-#define cntrl1		(CNTRL_DCR_BASE+0x3a)	/* Control 1 register		*/
+#define CPC0_CR0		(CNTRL_DCR_BASE+0x3b)	/* Control 0 register		*/
+#define CPC0_CR1		(CNTRL_DCR_BASE+0x3a)	/* Control 1 register		*/
 
 /*-----------------------------------------------------------------------------
  | DMA
@@ -605,91 +553,59 @@
 #else
 #define DMA_DCR_BASE 0x100
 #endif
-#define dmacr0	(DMA_DCR_BASE+0x00)  /* DMA channel control register 0	     */
-#define dmact0	(DMA_DCR_BASE+0x01)  /* DMA count register 0		     */
-#define dmasah0 (DMA_DCR_BASE+0x02)  /* DMA source address high 0	     */
-#define dmasal0 (DMA_DCR_BASE+0x03)  /* DMA source address low 0	     */
-#define dmadah0 (DMA_DCR_BASE+0x04)  /* DMA destination address high 0	     */
-#define dmadal0 (DMA_DCR_BASE+0x05)  /* DMA destination address low 0	     */
-#define dmasgh0 (DMA_DCR_BASE+0x06)  /* DMA scatter/gather desc addr high 0  */
-#define dmasgl0 (DMA_DCR_BASE+0x07)  /* DMA scatter/gather desc addr low 0   */
-#define dmacr1	(DMA_DCR_BASE+0x08)  /* DMA channel control register 1	     */
-#define dmact1	(DMA_DCR_BASE+0x09)  /* DMA count register 1		     */
-#define dmasah1 (DMA_DCR_BASE+0x0a)  /* DMA source address high 1	     */
-#define dmasal1 (DMA_DCR_BASE+0x0b)  /* DMA source address low 1	     */
-#define dmadah1 (DMA_DCR_BASE+0x0c)  /* DMA destination address high 1	     */
-#define dmadal1 (DMA_DCR_BASE+0x0d)  /* DMA destination address low 1	     */
-#define dmasgh1 (DMA_DCR_BASE+0x0e)  /* DMA scatter/gather desc addr high 1  */
-#define dmasgl1 (DMA_DCR_BASE+0x0f)  /* DMA scatter/gather desc addr low 1   */
-#define dmacr2	(DMA_DCR_BASE+0x10)  /* DMA channel control register 2	     */
-#define dmact2	(DMA_DCR_BASE+0x11)  /* DMA count register 2		     */
-#define dmasah2 (DMA_DCR_BASE+0x12)  /* DMA source address high 2	     */
-#define dmasal2 (DMA_DCR_BASE+0x13)  /* DMA source address low 2	     */
-#define dmadah2 (DMA_DCR_BASE+0x14)  /* DMA destination address high 2	     */
-#define dmadal2 (DMA_DCR_BASE+0x15)  /* DMA destination address low 2	     */
-#define dmasgh2 (DMA_DCR_BASE+0x16)  /* DMA scatter/gather desc addr high 2  */
-#define dmasgl2 (DMA_DCR_BASE+0x17)  /* DMA scatter/gather desc addr low 2   */
-#define dmacr3	(DMA_DCR_BASE+0x18)  /* DMA channel control register 2	     */
-#define dmact3	(DMA_DCR_BASE+0x19)  /* DMA count register 2		     */
-#define dmasah3 (DMA_DCR_BASE+0x1a)  /* DMA source address high 2	     */
-#define dmasal3 (DMA_DCR_BASE+0x1b)  /* DMA source address low 2	     */
-#define dmadah3 (DMA_DCR_BASE+0x1c)  /* DMA destination address high 2	     */
-#define dmadal3 (DMA_DCR_BASE+0x1d)  /* DMA destination address low 2	     */
-#define dmasgh3 (DMA_DCR_BASE+0x1e)  /* DMA scatter/gather desc addr high 2  */
-#define dmasgl3 (DMA_DCR_BASE+0x1f)  /* DMA scatter/gather desc addr low 2   */
-#define dmasr	(DMA_DCR_BASE+0x20)  /* DMA status register		     */
-#define dmasgc	(DMA_DCR_BASE+0x23)  /* DMA scatter/gather command register  */
-#define dmaslp	(DMA_DCR_BASE+0x25)  /* DMA sleep mode register		     */
-#define dmapol	(DMA_DCR_BASE+0x26)  /* DMA polarity configuration register  */
+#define DMACR0	(DMA_DCR_BASE+0x00)  /* DMA channel control register 0	     */
+#define DMACT0	(DMA_DCR_BASE+0x01)  /* DMA count register 0		     */
+#define DMACR1	(DMA_DCR_BASE+0x08)  /* DMA channel control register 1	     */
+#define DMACT1	(DMA_DCR_BASE+0x09)  /* DMA count register 1		     */
+#define DMACR2	(DMA_DCR_BASE+0x10)  /* DMA channel control register 2	     */
+#define DMACT2	(DMA_DCR_BASE+0x11)  /* DMA count register 2		     */
+#define DMACR3	(DMA_DCR_BASE+0x18)  /* DMA channel control register 2	     */
+#define DMASR	(DMA_DCR_BASE+0x20)  /* DMA status register		     */
+#define DMASGC	(DMA_DCR_BASE+0x23)  /* DMA scatter/gather command register  */
 
 /*-----------------------------------------------------------------------------
  | Memory Access Layer
  +----------------------------------------------------------------------------*/
 #define MAL_DCR_BASE 0x180
-#define malmcr	    (MAL_DCR_BASE+0x00) /* MAL Config reg		    */
-#define malesr	    (MAL_DCR_BASE+0x01) /* Error Status reg (Read/Clear)    */
-#define malier	    (MAL_DCR_BASE+0x02) /* Interrupt enable reg		    */
-#define maldbr	    (MAL_DCR_BASE+0x03) /* Mal Debug reg (Read only)	    */
-#define maltxcasr   (MAL_DCR_BASE+0x04) /* TX Channel active reg (set)	    */
-#define maltxcarr   (MAL_DCR_BASE+0x05) /* TX Channel active reg (Reset)    */
-#define maltxeobisr (MAL_DCR_BASE+0x06) /* TX End of buffer int status reg  */
-#define maltxdeir   (MAL_DCR_BASE+0x07) /* TX Descr. Error Int reg	    */
-#define maltxtattrr (MAL_DCR_BASE+0x08) /* TX PLB attribute reg		    */
-#define maltxbattr  (MAL_DCR_BASE+0x09) /* TX descriptor base addr reg	    */
-#define malrxcasr   (MAL_DCR_BASE+0x10) /* RX Channel active reg (set)	    */
-#define malrxcarr   (MAL_DCR_BASE+0x11) /* RX Channel active reg (Reset)    */
-#define malrxeobisr (MAL_DCR_BASE+0x12) /* RX End of buffer int status reg  */
-#define malrxdeir   (MAL_DCR_BASE+0x13) /* RX Descr. Error Int reg	    */
-#define malrxtattrr (MAL_DCR_BASE+0x14) /* RX PLB attribute reg		    */
-#define malrxbattr  (MAL_DCR_BASE+0x15) /* RX descriptor base addr reg	    */
-#define maltxctp0r  (MAL_DCR_BASE+0x20) /* TX 0 Channel table pointer reg   */
-#define maltxctp1r  (MAL_DCR_BASE+0x21) /* TX 1 Channel table pointer reg   */
-#define maltxctp2r  (MAL_DCR_BASE+0x22) /* TX 2 Channel table pointer reg   */
-#define maltxctp3r  (MAL_DCR_BASE+0x23) /* TX 3 Channel table pointer reg   */
-#define malrxctp0r  (MAL_DCR_BASE+0x40) /* RX 0 Channel table pointer reg   */
-#define malrxctp1r  (MAL_DCR_BASE+0x41) /* RX 1 Channel table pointer reg   */
-#define malrcbs0    (MAL_DCR_BASE+0x60) /* RX 0 Channel buffer size reg	    */
-#define malrcbs1    (MAL_DCR_BASE+0x61) /* RX 1 Channel buffer size reg	    */
+#define MAL0_CFG	(MAL_DCR_BASE + 0x00)	/* MAL Config reg	*/
+#define MAL0_ESR	(MAL_DCR_BASE + 0x01)	/* Error Status (Read/Clear) */
+#define MAL0_IER	(MAL_DCR_BASE + 0x02)	/* Interrupt enable */
+#define MAL0_TXCASR	(MAL_DCR_BASE + 0x04)	/* TX Channel active (set) */
+#define MAL0_TXCARR	(MAL_DCR_BASE + 0x05)	/* TX Channel active (reset) */
+#define MAL0_TXEOBISR	(MAL_DCR_BASE + 0x06)	/* TX End of buffer int status */
+#define MAL0_TXDEIR	(MAL_DCR_BASE + 0x07)	/* TX Descr. Error Int */
+#define MAL0_TXBADDR	(MAL_DCR_BASE + 0x09)	/* TX descriptor base addr*/
+#define MAL0_RXCASR	(MAL_DCR_BASE + 0x10)	/* RX Channel active (set) */
+#define MAL0_RXCARR	(MAL_DCR_BASE + 0x11)	/* RX Channel active (reset) */
+#define MAL0_RXEOBISR	(MAL_DCR_BASE + 0x12)	/* RX End of buffer int status */
+#define MAL0_RXDEIR	(MAL_DCR_BASE + 0x13)	/* RX Descr. Error Int */
+#define MAL0_RXBADDR	(MAL_DCR_BASE + 0x15)	/* RX descriptor base addr */
+#define MAL0_TXCTP0R	(MAL_DCR_BASE + 0x20)	/* TX 0 Channel table pointer */
+#define MAL0_TXCTP1R	(MAL_DCR_BASE + 0x21)	/* TX 1 Channel table pointer */
+#define MAL0_TXCTP2R	(MAL_DCR_BASE + 0x22)	/* TX 2 Channel table pointer */
+#define MAL0_TXCTP3R	(MAL_DCR_BASE + 0x23)	/* TX 3 Channel table pointer */
+#define MAL0_RXCTP0R	(MAL_DCR_BASE + 0x40)	/* RX 0 Channel table pointer */
+#define MAL0_RXCTP1R	(MAL_DCR_BASE + 0x41)	/* RX 1 Channel table pointer */
+#define MAL0_RCBS0	(MAL_DCR_BASE + 0x60)	/* RX 0 Channel buffer size */
+#define MAL0_RCBS1	(MAL_DCR_BASE + 0x61)	/* RX 1 Channel buffer size */
 #if defined(CONFIG_440GX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define malrxctp2r  (MAL_DCR_BASE+0x42) /* RX 2 Channel table pointer reg   */
-#define malrxctp3r  (MAL_DCR_BASE+0x43) /* RX 3 Channel table pointer reg   */
-#define malrxctp8r  (MAL_DCR_BASE+0x48) /* RX 8 Channel table pointer reg   */
-#define malrxctp16r (MAL_DCR_BASE+0x50) /* RX 16 Channel table pointer reg  */
-#define malrxctp24r (MAL_DCR_BASE+0x58) /* RX 24 Channel table pointer reg  */
-#define malrcbs2    (MAL_DCR_BASE+0x62) /* RX 2 Channel buffer size reg	    */
-#define malrcbs3    (MAL_DCR_BASE+0x63) /* RX 3 Channel buffer size reg	    */
-#define malrcbs8    (MAL_DCR_BASE+0x68) /* RX 8 Channel buffer size reg	    */
-#define malrcbs16   (MAL_DCR_BASE+0x70) /* RX 16 Channel buffer size reg    */
-#define malrcbs24   (MAL_DCR_BASE+0x78) /* RX 24 Channel buffer size reg    */
+#define MAL0_RXCTP2R	(MAL_DCR_BASE + 0x42)	/* RX 2 Channel table pointer */
+#define MAL0_RXCTP3R	(MAL_DCR_BASE + 0x43)	/* RX 3 Channel table pointer */
+#define MAL0_RXCTP8R	(MAL_DCR_BASE + 0x48)	/* RX 8 Channel table pointer */
+#define MAL0_RXCTP16R	(MAL_DCR_BASE + 0x50)	/* RX 16 Channel table pointer*/
+#define MAL0_RXCTP24R	(MAL_DCR_BASE + 0x58)	/* RX 24 Channel table pointer*/
+#define MAL0_RCBS2	(MAL_DCR_BASE + 0x62)	/* RX 2 Channel buffer size */
+#define MAL0_RCBS3	(MAL_DCR_BASE + 0x63)	/* RX 3 Channel buffer size */
+#define MAL0_RCBS8	(MAL_DCR_BASE + 0x68)	/* RX 8 Channel buffer size */
+#define MAL0_RCBS16	(MAL_DCR_BASE + 0x70)	/* RX 16 Channel buffer size */
+#define MAL0_RCBS24	(MAL_DCR_BASE + 0x78)	/* RX 24 Channel buffer size */
 #endif /* CONFIG_440GX */
 
 /*-----------------------------------------------------------------------------+
 |  SDR0 Bit Settings
 +-----------------------------------------------------------------------------*/
 #if defined(CONFIG_440SP)
-#define SDR0_SRST			0x0200
-
 #define SDR0_DDR0			0x00E1
 #define SDR0_DDR0_DPLLRST		0x80000000
 #define SDR0_DDR0_DDRM_MASK		0x60000000
@@ -923,79 +839,6 @@
 #define SDR0_UART0			0x0120
 #define SDR0_UART1			0x0121
 #define SDR0_UART2			0x0122
-#define SDR0_UARTX_UXICS_MASK		0xF0000000
-#define SDR0_UARTX_UXICS_PLB		0x20000000
-#define SDR0_UARTX_UXEC_MASK		0x00800000
-#define SDR0_UARTX_UXEC_INT		0x00000000
-#define SDR0_UARTX_UXEC_EXT		0x00800000
-#define SDR0_UARTX_UXDIV_MASK		0x000000FF
-#define SDR0_UARTX_UXDIV_ENCODE(n)	((((unsigned long)(n))&0xFF)<<0)
-#define SDR0_UARTX_UXDIV_DECODE(n)	((((((unsigned long)(n))>>0)-1)&0xFF)+1)
-
-#define SDR0_CP440			0x0180
-#define SDR0_CP440_ERPN_MASK		0x30000000
-#define SDR0_CP440_ERPN_MASK_HI		0x3000
-#define SDR0_CP440_ERPN_MASK_LO		0x0000
-#define SDR0_CP440_ERPN_EBC		0x10000000
-#define SDR0_CP440_ERPN_EBC_HI		0x1000
-#define SDR0_CP440_ERPN_EBC_LO		0x0000
-#define SDR0_CP440_ERPN_PCI		0x20000000
-#define SDR0_CP440_ERPN_PCI_HI		0x2000
-#define SDR0_CP440_ERPN_PCI_LO		0x0000
-#define SDR0_CP440_ERPN_ENCODE(n)	((((unsigned long)(n))&0x03)<<28)
-#define SDR0_CP440_ERPN_DECODE(n)	((((unsigned long)(n))>>28)&0x03)
-#define SDR0_CP440_NTO1_MASK		0x00000002
-#define SDR0_CP440_NTO1_NTOP		0x00000000
-#define SDR0_CP440_NTO1_NTO1		0x00000002
-#define SDR0_CP440_NTO1_ENCODE(n)	((((unsigned long)(n))&0x01)<<1)
-#define SDR0_CP440_NTO1_DECODE(n)	((((unsigned long)(n))>>1)&0x01)
-
-#define SDR0_XCR0			0x01C0
-#define SDR0_XCR1			0x01C3
-#define SDR0_XCR2			0x01C6
-#define SDR0_XCRn_PAE_MASK		0x80000000
-#define SDR0_XCRn_PAE_DISABLE		0x00000000
-#define SDR0_XCRn_PAE_ENABLE		0x80000000
-#define SDR0_XCRn_PAE_ENCODE(n)		((((unsigned long)(n))&0x01)<<31)
-#define SDR0_XCRn_PAE_DECODE(n)		((((unsigned long)(n))>>31)&0x01)
-#define SDR0_XCRn_PHCE_MASK		0x40000000
-#define SDR0_XCRn_PHCE_DISABLE		0x00000000
-#define SDR0_XCRn_PHCE_ENABLE		0x40000000
-#define SDR0_XCRn_PHCE_ENCODE(n)	((((unsigned long)(n))&0x01)<<30)
-#define SDR0_XCRn_PHCE_DECODE(n)	((((unsigned long)(n))>>30)&0x01)
-#define SDR0_XCRn_PISE_MASK		0x20000000
-#define SDR0_XCRn_PISE_DISABLE		0x00000000
-#define SDR0_XCRn_PISE_ENABLE		0x20000000
-#define SDR0_XCRn_PISE_ENCODE(n)	((((unsigned long)(n))&0x01)<<29)
-#define SDR0_XCRn_PISE_DECODE(n)	((((unsigned long)(n))>>29)&0x01)
-#define SDR0_XCRn_PCWE_MASK		0x10000000
-#define SDR0_XCRn_PCWE_DISABLE		0x00000000
-#define SDR0_XCRn_PCWE_ENABLE		0x10000000
-#define SDR0_XCRn_PCWE_ENCODE(n)	((((unsigned long)(n))&0x01)<<28)
-#define SDR0_XCRn_PCWE_DECODE(n)	((((unsigned long)(n))>>28)&0x01)
-#define SDR0_XCRn_PPIM_MASK		0x0F000000
-#define SDR0_XCRn_PPIM_ENCODE(n)	((((unsigned long)(n))&0x0F)<<24)
-#define SDR0_XCRn_PPIM_DECODE(n)	((((unsigned long)(n))>>24)&0x0F)
-#define SDR0_XCRn_PR64E_MASK		0x00800000
-#define SDR0_XCRn_PR64E_DISABLE		0x00000000
-#define SDR0_XCRn_PR64E_ENABLE		0x00800000
-#define SDR0_XCRn_PR64E_ENCODE(n)	((((unsigned long)(n))&0x01)<<23)
-#define SDR0_XCRn_PR64E_DECODE(n)	((((unsigned long)(n))>>23)&0x01)
-#define SDR0_XCRn_PXFS_MASK		0x00600000
-#define SDR0_XCRn_PXFS_100_133		0x00000000
-#define SDR0_XCRn_PXFS_66_100		0x00200000
-#define SDR0_XCRn_PXFS_50_66		0x00400000
-#define SDR0_XCRn_PXFS_0_33		0x00600000
-#define SDR0_XCRn_PXFS_ENCODE(n)	((((unsigned long)(n))&0x03)<<21)
-#define SDR0_XCRn_PXFS_DECODE(n)	((((unsigned long)(n))>>21)&0x03)
-
-#define SDR0_XPLLC0			0x01C1
-#define SDR0_XPLLD0			0x01C2
-#define SDR0_XPLLC1			0x01C4
-#define SDR0_XPLLD1			0x01C5
-#define SDR0_XPLLC2			0x01C7
-#define SDR0_XPLLD2			0x01C8
-#define SDR0_SRST			0x0200
 #define SDR0_SLPIPE			0x0220
 
 #define SDR0_AMP0			0x0240
@@ -1544,8 +1387,7 @@
 
 #elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
 
-#define SDR0_SRST0		0x0200
-#define SDR0_SRST		SDR0_SRST0 /* for compatability reasons */
+#define SDR0_SRST0		SDR0_SRST  /* for compatability reasons */
 #define SDR0_SRST0_BGO		0x80000000 /* PLB to OPB bridge */
 #define SDR0_SRST0_PLB4		0x40000000 /* PLB4 arbiter */
 #define SDR0_SRST0_EBC		0x20000000 /* External bus controller */
@@ -1606,8 +1448,6 @@
 #define SDR0_SRST1_AHBDMAC	0x00000004 /* AHB DMA controller */
 #define SDR0_SRST1_AHBICM	0x00000002 /* AHB inter-connect matrix */
 #define SDR0_SRST1_SATA		0x00000001 /* Serial ATA controller */
-
-#define SDR0_PCI0		0x1c0		/* PCI Configuration Register */
 
 #else
 

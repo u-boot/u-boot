@@ -87,17 +87,17 @@ ext_bus_cntlr_init:
 	/* Peripheral Bank 0 (Flash) initialization */
 	/*---------------------------------------------------------------------- */
 		/* 0x7F8FFE80 slowest boot */
-	addi    r4,0,pb0ap
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB1AP
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,0x9B01
 	ori     r4,r4,0x5480
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
-	addi    r4,0,pb0cr
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB0CR
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,0xFFC5           /* BAS=0xFFC,BS=0x4(4MB),BU=0x3(R/W), */
 	ori     r4,r4,0x8000          /* BW=0x0( 8 bits) */
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 	blr
 
@@ -125,16 +125,16 @@ ext_bus_cntlr_init:
 		/* all reserved bits=0 */
 	/*---------------------------------------------------------------------- */
 	/*---------------------------------------------------------------------- */
-	addi    r4,0,pb1ap
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB1AP
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,0x0185		/* hiword */
 	ori     r4,r4,0x4380	/* loword */
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
-	addi    r4,0,pb1cr
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB1CR
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,0xF001           /* BAS=0xF00,BS=0x0(1MB),BU=0x3(R/W), */
 	ori     r4,r4,0x8000          /* BW=0x0( 8 bits) */
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 	blr

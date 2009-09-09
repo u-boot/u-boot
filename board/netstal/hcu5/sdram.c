@@ -89,11 +89,11 @@ static int wait_for_dlllock(void)
 	/* -----------------------------------------------------------+
 	 * Wait for the DCC master delay line to finish calibration
 	 * ----------------------------------------------------------*/
-	mtdcr(memcfga, DDR0_17);
+	mtdcr(SDRAM0_CFGADDR, DDR0_17);
 	val = DDR0_17_DLLLOCKREG_UNLOCKED;
 
 	while (wait != 0xffff) {
-		val = mfdcr(memcfgd);
+		val = mfdcr(SDRAM0_CFGDATA);
 		if ((val & DDR0_17_DLLLOCKREG_MASK) ==
 		    DDR0_17_DLLLOCKREG_LOCKED)
 			/* dlllockreg bit on */

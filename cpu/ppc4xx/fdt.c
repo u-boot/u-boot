@@ -51,8 +51,8 @@ void __ft_board_setup(void *blob, bd_t *bd)
 	 * peripheral banks into the OPB/PLB address space
 	 */
 	for (i = 0; i < EBC_NUM_BANKS; i++) {
-		mtdcr(ebccfga, EBC_BXCR(i));
-		bxcr = mfdcr(ebccfgd);
+		mtdcr(EBC0_CFGADDR, EBC_BXCR(i));
+		bxcr = mfdcr(EBC0_CFGDATA);
 
 		if ((bxcr & EBC_BXCR_BU_MASK) != EBC_BXCR_BU_NONE) {
 			*p++ = i;

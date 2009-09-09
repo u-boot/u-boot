@@ -109,10 +109,10 @@
 
 
 #define WDCR_EBC(reg,val) addi    r4,0,reg;\
-	mtdcr   ebccfga,r4;\
+	mtdcr   EBC0_CFGADDR,r4;\
 	addis   r4,0,val@h;\
 	ori     r4,r4,val@l;\
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 /*---------------------------------------------------------------------
  * Function:     ext_bus_cntlr_init
@@ -164,22 +164,22 @@ ext_bus_cntlr_init:
 	 * Memory Bank 0 (Boot Flash) initialization
 	 *---------------------------------------------------------------
 	 */
-	WDCR_EBC(pb0ap, FLASH_32bit_AP)
-	WDCR_EBC(pb0cr, 0xffe38000)
-/*pnc	WDCR_EBC(pb0cr, FLASH_32bit_CR) */
+	WDCR_EBC(PB1AP, FLASH_32bit_AP)
+	WDCR_EBC(PB0CR, 0xffe38000)
+/*pnc	WDCR_EBC(PB0CR, FLASH_32bit_CR) */
 
 	/*---------------------------------------------------------------
 	 * Memory Bank 5 (CPLD) initialization
 	 *---------------------------------------------------------------
 	 */
-	WDCR_EBC(pb5ap, 0x01010040)
-/*jsa recommendation:		WDCR_EBC(pb5ap, 0x00010040) */
-	WDCR_EBC(pb5cr, 0x10038000)
+	WDCR_EBC(PB5AP, 0x01010040)
+/*jsa recommendation:		WDCR_EBC(PB5AP, 0x00010040) */
+	WDCR_EBC(PB5CR, 0x10038000)
 
 	/*--------------------------------------------------------------- */
 	/* Memory Bank 6 (not used) initialization */
 	/*--------------------------------------------------------------- */
-	WDCR_EBC(pb6cr, 0x00000000)
+	WDCR_EBC(PB6CR, 0x00000000)
 
 	/* Read HW ID to determine whether old H2 board or new generic CPU board */
 	addis	r3, 0,  HW_ID_ADDR@h
@@ -196,24 +196,24 @@ setup_genieboard:
 	/*--------------------------------------------------------------- */
 	/* Memory Bank 1 (Application Flash) initialization for generic CPU board */
 	/*--------------------------------------------------------------- */
-/*	WDCR_EBC(pb1ap, 0x7b015480)	/###* T.B.M. */
-/*	WDCR_EBC(pb1ap, 0x7F8FFE80)	/###* T.B.M. */
-	WDCR_EBC(pb1ap, 0x9b015480)	/* hlb-20020207: burst 8 bit 6 cycles  */
+/*	WDCR_EBC(PB1AP, 0x7b015480)	/###* T.B.M. */
+/*	WDCR_EBC(PB1AP, 0x7F8FFE80)	/###* T.B.M. */
+	WDCR_EBC(PB1AP, 0x9b015480)	/* hlb-20020207: burst 8 bit 6 cycles  */
 
-/*	WDCR_EBC(pb1cr, 0x20098000)	/###* 16 MB */
-	WDCR_EBC(pb1cr, 0x200B8000)	/* 32 MB */
+/*	WDCR_EBC(PB1CR, 0x20098000)	/###* 16 MB */
+	WDCR_EBC(PB1CR, 0x200B8000)	/* 32 MB */
 
 	/*--------------------------------------------------------------- */
 	/* Memory Bank 4 (Onboard FPGA) initialization for generic CPU board */
 	/*--------------------------------------------------------------- */
-	WDCR_EBC(pb4ap, 0x01010000)	/*  */
-	WDCR_EBC(pb4cr, 0x1021c000)	/*  */
+	WDCR_EBC(PB4AP, 0x01010000)	/*  */
+	WDCR_EBC(PB4CR, 0x1021c000)	/*  */
 
 	/*--------------------------------------------------------------- */
 	/* Memory Bank 7 (Heathrow chip on Reference board) initialization */
 	/*--------------------------------------------------------------- */
-	WDCR_EBC(pb7ap, 0x200ffe80)	/* No Ready, many wait states (let reflections die out) */
-	WDCR_EBC(pb7cr, 0X4001A000)
+	WDCR_EBC(PB7AP, 0x200ffe80)	/* No Ready, many wait states (let reflections die out) */
+	WDCR_EBC(PB7CR, 0X4001A000)
 
 	bl	setup_continue
 
@@ -222,36 +222,36 @@ setup_h2evalboard:
 	/*--------------------------------------------------------------- */
 	/* Memory Bank 1 (Application Flash) initialization */
 	/*--------------------------------------------------------------- */
-	WDCR_EBC(pb1ap, 0x7b015480)	/* T.B.M. */
-/*3010	WDCR_EBC(pb1ap, 0x7F8FFE80)	/###* T.B.M. */
-	WDCR_EBC(pb1cr, 0x20058000)
+	WDCR_EBC(PB1AP, 0x7b015480)	/* T.B.M. */
+/*3010	WDCR_EBC(PB1AP, 0x7F8FFE80)	/###* T.B.M. */
+	WDCR_EBC(PB1CR, 0x20058000)
 
 	/*--------------------------------------------------------------- */
 	/* Memory Bank 2 (Application Flash) initialization */
 	/*--------------------------------------------------------------- */
-	WDCR_EBC(pb2ap, 0x7b015480)	/* T.B.M. */
-/*3010	WDCR_EBC(pb2ap, 0x7F8FFE80)	/###* T.B.M. */
-	WDCR_EBC(pb2cr, 0x20458000)
+	WDCR_EBC(PB2AP, 0x7b015480)	/* T.B.M. */
+/*3010	WDCR_EBC(PB2AP, 0x7F8FFE80)	/###* T.B.M. */
+	WDCR_EBC(PB2CR, 0x20458000)
 
 	/*--------------------------------------------------------------- */
 	/* Memory Bank 3 (Application Flash) initialization */
 	/*--------------------------------------------------------------- */
-	WDCR_EBC(pb3ap, 0x7b015480)	/* T.B.M. */
-/*3010	WDCR_EBC(pb3ap, 0x7F8FFE80)	/###* T.B.M. */
-	WDCR_EBC(pb3cr, 0x20858000)
+	WDCR_EBC(PB3AP, 0x7b015480)	/* T.B.M. */
+/*3010	WDCR_EBC(PB3AP, 0x7F8FFE80)	/###* T.B.M. */
+	WDCR_EBC(PB3CR, 0x20858000)
 
 	/*--------------------------------------------------------------- */
 	/* Memory Bank 4 (Application Flash) initialization */
 	/*--------------------------------------------------------------- */
-	WDCR_EBC(pb4ap, 0x7b015480)	/* T.B.M. */
-/*3010	WDCR_EBC(pb4ap, 0x7F8FFE80)	/###* T.B.M. */
-	WDCR_EBC(pb4cr, 0x20C58000)
+	WDCR_EBC(PB4AP, 0x7b015480)	/* T.B.M. */
+/*3010	WDCR_EBC(PB4AP, 0x7F8FFE80)	/###* T.B.M. */
+	WDCR_EBC(PB4CR, 0x20C58000)
 
 	/*--------------------------------------------------------------- */
 	/* Memory Bank 7 (Heathrow chip) initialization */
 	/*--------------------------------------------------------------- */
-	WDCR_EBC(pb7ap, 0x02000280)	/* No Ready, 4 wait states */
-	WDCR_EBC(pb7cr, 0X4001A000)
+	WDCR_EBC(PB7AP, 0x02000280)	/* No Ready, 4 wait states */
+	WDCR_EBC(PB7CR, 0X4001A000)
 
 setup_continue:
 
@@ -294,7 +294,7 @@ sdram_init:
 	/* Read  PLL feedback divider and calculate clock period of local bus in */
 	/* granularity of 10 ps. Save clock period in r30 */
 	/*-------------------------------------------------------------- */
-	mfdcr	r4, pllmd
+	mfdcr	r4, CPC0_PLLMR
 	addi	r9, 0, 25
 	srw	r4, r4, r9
 	andi.	r4, r4, 0x07
@@ -383,8 +383,8 @@ sdram_init:
 	/* Set SDTR1  */
 	/*----------------------------------------------------------- */
 	addi    r5,0,mem_sdtr1
-	mtdcr   memcfga,r5
-	mtdcr   memcfgd,r4
+	mtdcr   SDRAM0_CFGADDR,r5
+	mtdcr   SDRAM0_CFGDATA,r4
 
 	/*----------------------------------------------------------- */
 	/* */
@@ -414,8 +414,8 @@ sdram_init:
 	/* Set SDRAM bank 0 register and adjust r6 for next bank */
 	/*------------------------------------------------------ */
 	addi    r7,0,mem_mb0cf
-	mtdcr   memcfga,r7
-	mtdcr   memcfgd,r6
+	mtdcr   SDRAM0_CFGADDR,r7
+	mtdcr   SDRAM0_CFGDATA,r6
 
 	add	r6, r6, r15	/* add bank size to base address for next bank */
 
@@ -425,16 +425,16 @@ sdram_init:
 	bne	b1skip
 
 	addi    r7,0,mem_mb1cf
-	mtdcr   memcfga,r7
-	mtdcr   memcfgd,r6
+	mtdcr   SDRAM0_CFGADDR,r7
+	mtdcr   SDRAM0_CFGDATA,r6
 
 	add	r6, r6, r15	/* add bank size to base address for next bank */
 
 	/* Set SDRAM bank 2 register and adjust r6 for next bank */
 	/*------------------------------------------------------ */
 b1skip:	addi    r7,0,mem_mb2cf
-	mtdcr   memcfga,r7
-	mtdcr   memcfgd,r6
+	mtdcr   SDRAM0_CFGADDR,r7
+	mtdcr   SDRAM0_CFGDATA,r6
 
 	add	r6, r6, r15	/* add bank size to base address for next bank */
 
@@ -444,8 +444,8 @@ b1skip:	addi    r7,0,mem_mb2cf
 	bne	b3skip
 
 	addi    r7,0,mem_mb3cf
-	mtdcr   memcfga,r7
-	mtdcr   memcfgd,r6
+	mtdcr   SDRAM0_CFGADDR,r7
+	mtdcr   SDRAM0_CFGDATA,r6
 b3skip:
 
 	/*----------------------------------------------------------- */
@@ -457,8 +457,8 @@ b3skip:
 	bl	rtr_2
 rtr_1:	addis	r7, 0, 0x03F8
 rtr_2:	addi    r4,0,mem_rtr
-	mtdcr   memcfga,r4
-	mtdcr   memcfgd,r7
+	mtdcr   SDRAM0_CFGADDR,r4
+	mtdcr   SDRAM0_CFGDATA,r7
 
 	/*----------------------------------------------------------- */
 	/* Delay to ensure 200usec have elapsed since reset. Assume worst */
@@ -477,10 +477,10 @@ rtr_2:	addi    r4,0,mem_rtr
 	/* read/prefetch. */
 	/*----------------------------------------------------------- */
 	addi    r4,0,mem_mcopt1
-	mtdcr   memcfga,r4
+	mtdcr   SDRAM0_CFGADDR,r4
 	addis   r4,0,0x80C0             /* set DC_EN=1 */
 	ori     r4,r4,0x0000
-	mtdcr   memcfgd,r4
+	mtdcr   SDRAM0_CFGDATA,r4
 
 
 	/*----------------------------------------------------------- */
@@ -980,9 +980,9 @@ fc07:
 
 /* For CPLD */
 /* 0 + 00000 + 010 + 000 + 00 + 01 + 00 + 00 + 000 + 0 + 0 + 1 + 0 + 00000 */
-/*	WDCR_EBC(pb5ap, 0x01010040) */
-/*jsa recommendation:		WDCR_EBC(pb5ap, 0x00010040) */
-/*	WDCR_EBC(pb5cr, 0X10018000) */
+/*	WDCR_EBC(PB5AP, 0x01010040) */
+/*jsa recommendation:		WDCR_EBC(PB5AP, 0x00010040) */
+/*	WDCR_EBC(PB5CR, 0X10018000) */
 /* Access parms */
 /*   100   3      8          0    0    0 */
 /* 0x100 + 001 + 11 + 00 + 0 0000 0000 0000 = 0x10038000 */
@@ -1003,9 +1003,9 @@ fc07:
 /* Usage:	read/write */
 /* Width:	32 bit */
 
-/* Walnut fpga pb7ap */
+/* Walnut fpga PB7AP */
 /* 0      1      8         1         5         2         8            0 */
 /* 0 + 00000 + 011 + 000 + 00 + 01 + 01 + 01 + 001 + 0 + 1 + 0 + 0 + 00000 */
-/* Walnut fpga pb7cr */
+/* Walnut fpga PB7CR */
 /* 0xF0318000 */
 /*  */

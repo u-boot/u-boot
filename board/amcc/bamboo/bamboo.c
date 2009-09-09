@@ -487,35 +487,35 @@ int pci_pre_init(struct pci_controller *hose)
 	  | Set priority for all PLB3 devices to 0.
 	  | Set PLB3 arbiter to fair mode.
 	  +-------------------------------------------------------------------------*/
-	mfsdr(sdr_amp1, addr);
-	mtsdr(sdr_amp1, (addr & 0x000000FF) | 0x0000FF00);
-	addr = mfdcr(plb3_acr);
-	mtdcr(plb3_acr, addr | 0x80000000);
+	mfsdr(SD0_AMP1, addr);
+	mtsdr(SD0_AMP1, (addr & 0x000000FF) | 0x0000FF00);
+	addr = mfdcr(PLB3_ACR);
+	mtdcr(PLB3_ACR, addr | 0x80000000);
 
 	/*-------------------------------------------------------------------------+
 	  | Set priority for all PLB4 devices to 0.
 	  +-------------------------------------------------------------------------*/
-	mfsdr(sdr_amp0, addr);
-	mtsdr(sdr_amp0, (addr & 0x000000FF) | 0x0000FF00);
-	addr = mfdcr(plb4_acr) | 0xa0000000;	/* Was 0x8---- */
-	mtdcr(plb4_acr, addr);
+	mfsdr(SD0_AMP0, addr);
+	mtsdr(SD0_AMP0, (addr & 0x000000FF) | 0x0000FF00);
+	addr = mfdcr(PLB4_ACR) | 0xa0000000;	/* Was 0x8---- */
+	mtdcr(PLB4_ACR, addr);
 
 	/*-------------------------------------------------------------------------+
 	  | Set Nebula PLB4 arbiter to fair mode.
 	  +-------------------------------------------------------------------------*/
 	/* Segment0 */
-	addr = (mfdcr(plb0_acr) & ~plb0_acr_ppm_mask) | plb0_acr_ppm_fair;
-	addr = (addr & ~plb0_acr_hbu_mask) | plb0_acr_hbu_enabled;
-	addr = (addr & ~plb0_acr_rdp_mask) | plb0_acr_rdp_4deep;
-	addr = (addr & ~plb0_acr_wrp_mask) | plb0_acr_wrp_2deep;
-	mtdcr(plb0_acr, addr);
+	addr = (mfdcr(PLB0_ACR) & ~PLB0_ACR_PPM_MASK) | PLB0_ACR_PPM_FAIR;
+	addr = (addr & ~PLB0_ACR_HBU_MASK) | PLB0_ACR_HBU_ENABLED;
+	addr = (addr & ~PLB0_ACR_RDP_MASK) | PLB0_ACR_RDP_4DEEP;
+	addr = (addr & ~PLB0_ACR_WRP_MASK) | PLB0_ACR_WRP_2DEEP;
+	mtdcr(PLB0_ACR, addr);
 
 	/* Segment1 */
-	addr = (mfdcr(plb1_acr) & ~plb1_acr_ppm_mask) | plb1_acr_ppm_fair;
-	addr = (addr & ~plb1_acr_hbu_mask) | plb1_acr_hbu_enabled;
-	addr = (addr & ~plb1_acr_rdp_mask) | plb1_acr_rdp_4deep;
-	addr = (addr & ~plb1_acr_wrp_mask) | plb1_acr_wrp_2deep;
-	mtdcr(plb1_acr, addr);
+	addr = (mfdcr(PLB1_ACR) & ~PLB1_ACR_PPM_MASK) | PLB1_ACR_PPM_FAIR;
+	addr = (addr & ~PLB1_ACR_HBU_MASK) | PLB1_ACR_HBU_ENABLED;
+	addr = (addr & ~PLB1_ACR_RDP_MASK) | PLB1_ACR_RDP_4DEEP;
+	addr = (addr & ~PLB1_ACR_WRP_MASK) | PLB1_ACR_WRP_2DEEP;
+	mtdcr(PLB1_ACR, addr);
 
 	return 1;
 }
@@ -695,8 +695,8 @@ void ext_bus_cntlr_init(void)
 	  |
 	  +-------------------------------------------------------------------------*/
 	/* NVRAM - FPGA */
-	mtebc(pb5ap, EBC0_BNAP_NVRAM_FPGA);
-	mtebc(pb5cr, EBC0_BNCR_NVRAM_FPGA_CS5);
+	mtebc(PB5AP, EBC0_BNAP_NVRAM_FPGA);
+	mtebc(PB5CR, EBC0_BNCR_NVRAM_FPGA_CS5);
 
 	/*-------------------------------------------------------------------------+
 	  |
@@ -749,7 +749,7 @@ void ext_bus_cntlr_init(void)
 		case SDR0_PSTRP0_BOOTSTRAP_IIC_A4_EN:
 			/* Boot Settings in IIC EEprom address 0xA8 or 0xA4 */
 			/* Read Serial Device Strap Register1 in PPC440EP */
-			mfsdr(sdr_sdstp1, sdr0_sdstp1);
+			mfsdr(SDR0_SDSTP1, sdr0_sdstp1);
 			boot_selection	= sdr0_sdstp1 & SDR0_SDSTP1_BOOT_SEL_MASK;
 			ebc_boot_size	= sdr0_sdstp1 & SDR0_SDSTP1_EBC_ROM_BS_MASK;
 
@@ -822,7 +822,7 @@ void ext_bus_cntlr_init(void)
 			/* Default Strap Settings 5-7 */
 			/* Boot Settings in IIC EEprom address 0xA8 or 0xA4 */
 			/* Read Serial Device Strap Register1 in PPC440EP */
-			mfsdr(sdr_sdstp1, sdr0_sdstp1);
+			mfsdr(SDR0_SDSTP1, sdr0_sdstp1);
 			boot_selection	= sdr0_sdstp1 & SDR0_SDSTP1_BOOT_SEL_MASK;
 			ebc_boot_size	= sdr0_sdstp1 & SDR0_SDSTP1_EBC_ROM_BS_MASK;
 
@@ -1013,8 +1013,8 @@ void ext_bus_cntlr_init(void)
 	/*-------------------------------------------------------------------------+
 	  | Initialize EBC CONFIG
 	  +-------------------------------------------------------------------------*/
-	mtdcr(ebccfga, xbcfg);
-	mtdcr(ebccfgd, EBC0_CFG_EBTC_DRIVEN	   |
+	mtdcr(EBC0_CFGADDR, EBC0_CFG);
+	mtdcr(EBC0_CFGDATA, EBC0_CFG_EBTC_DRIVEN	   |
 	      EBC0_CFG_PTD_ENABLED	  |
 	      EBC0_CFG_RTC_2048PERCLK	  |
 	      EBC0_CFG_EMPL_LOW		  |
@@ -1029,20 +1029,20 @@ void ext_bus_cntlr_init(void)
 	  | Initialize EBC Bank 0-4
 	  +-------------------------------------------------------------------------*/
 	/* EBC Bank0 */
-	mtebc(pb0ap, ebc0_cs0_bnap_value);
-	mtebc(pb0cr, ebc0_cs0_bncr_value);
+	mtebc(PB0AP, ebc0_cs0_bnap_value);
+	mtebc(PB0CR, ebc0_cs0_bncr_value);
 	/* EBC Bank1 */
-	mtebc(pb1ap, ebc0_cs1_bnap_value);
-	mtebc(pb1cr, ebc0_cs1_bncr_value);
+	mtebc(PB1AP, ebc0_cs1_bnap_value);
+	mtebc(PB1CR, ebc0_cs1_bncr_value);
 	/* EBC Bank2 */
-	mtebc(pb2ap, ebc0_cs2_bnap_value);
-	mtebc(pb2cr, ebc0_cs2_bncr_value);
+	mtebc(PB2AP, ebc0_cs2_bnap_value);
+	mtebc(PB2CR, ebc0_cs2_bncr_value);
 	/* EBC Bank3 */
-	mtebc(pb3ap, ebc0_cs3_bnap_value);
-	mtebc(pb3cr, ebc0_cs3_bncr_value);
+	mtebc(PB3AP, ebc0_cs3_bnap_value);
+	mtebc(PB3CR, ebc0_cs3_bncr_value);
 	/* EBC Bank4 */
-	mtebc(pb4ap, ebc0_cs4_bnap_value);
-	mtebc(pb4cr, ebc0_cs4_bncr_value);
+	mtebc(PB4AP, ebc0_cs4_bnap_value);
+	mtebc(PB4CR, ebc0_cs4_bncr_value);
 
 	return;
 }
@@ -1939,10 +1939,10 @@ void configure_ppc440ep_pins(void)
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_UES_MASK) | SDR0_PFC1_UES_USB2D_SEL;
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_UPR_MASK) | SDR0_PFC1_UPR_DISABLE;
 
-		mfsdr(sdr_usb0, sdr0_usb0);
+		mfsdr(SDR0_USB0, sdr0_usb0);
 		sdr0_usb0 = sdr0_usb0 &~SDR0_USB0_USB_DEVSEL_MASK;
 		sdr0_usb0 = sdr0_usb0 | SDR0_USB0_USB20D_DEVSEL;
-		mtsdr(sdr_usb0, sdr0_usb0);
+		mtsdr(SDR0_USB0, sdr0_usb0);
 
 		usb2_device_selection_in_fpga();
 	}
@@ -1950,19 +1950,19 @@ void configure_ppc440ep_pins(void)
 	/* USB1.1 Device Selection */
 	if (ppc440ep_core_selection[USB1_DEVICE] == CORE_SELECTED)
 	{
-		mfsdr(sdr_usb0, sdr0_usb0);
+		mfsdr(SDR0_USB0, sdr0_usb0);
 		sdr0_usb0 = sdr0_usb0 &~SDR0_USB0_USB_DEVSEL_MASK;
 		sdr0_usb0 = sdr0_usb0 | SDR0_USB0_USB11D_DEVSEL;
-		mtsdr(sdr_usb0, sdr0_usb0);
+		mtsdr(SDR0_USB0, sdr0_usb0);
 	}
 
 	/* USB1.1 Host Selection */
 	if (ppc440ep_core_selection[USB1_HOST] == CORE_SELECTED)
 	{
-		mfsdr(sdr_usb0, sdr0_usb0);
+		mfsdr(SDR0_USB0, sdr0_usb0);
 		sdr0_usb0 = sdr0_usb0 &~SDR0_USB0_LEEN_MASK;
 		sdr0_usb0 = sdr0_usb0 | SDR0_USB0_LEEN_ENABLE;
-		mtsdr(sdr_usb0, sdr0_usb0);
+		mtsdr(SDR0_USB0, sdr0_usb0);
 	}
 
 	/* NAND Flash Selection */
@@ -1971,14 +1971,14 @@ void configure_ppc440ep_pins(void)
 		update_ndfc_ios(gpio_tab);
 
 #if !(defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL))
-		mtsdr(sdr_cust0, SDR0_CUST0_MUX_NDFC_SEL   |
+		mtsdr(SDR0_CUST0, SDR0_CUST0_MUX_NDFC_SEL   |
 		      SDR0_CUST0_NDFC_ENABLE	|
 		      SDR0_CUST0_NDFC_BW_8_BIT	|
 		      SDR0_CUST0_NDFC_ARE_MASK	|
 		      SDR0_CUST0_CHIPSELGAT_EN1 |
 		      SDR0_CUST0_CHIPSELGAT_EN2);
 #else
-		mtsdr(sdr_cust0, SDR0_CUST0_MUX_NDFC_SEL   |
+		mtsdr(SDR0_CUST0, SDR0_CUST0_MUX_NDFC_SEL   |
 		      SDR0_CUST0_NDFC_ENABLE	|
 		      SDR0_CUST0_NDFC_BW_8_BIT	|
 		      SDR0_CUST0_NDFC_ARE_MASK	|
@@ -1991,16 +1991,16 @@ void configure_ppc440ep_pins(void)
 	else
 	{
 		/* Set Mux on EMAC */
-		mtsdr(sdr_cust0, SDR0_CUST0_MUX_EMAC_SEL);
+		mtsdr(SDR0_CUST0, SDR0_CUST0_MUX_EMAC_SEL);
 	}
 
 	/* MII Selection */
 	if (ppc440ep_core_selection[MII_SEL] == CORE_SELECTED)
 	{
 		update_zii_ios(gpio_tab);
-		mfsdr(sdr_mfr, sdr0_mfr);
+		mfsdr(SDR0_MFR, sdr0_mfr);
 		sdr0_mfr = (sdr0_mfr & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_MII;
-		mtsdr(sdr_mfr, sdr0_mfr);
+		mtsdr(SDR0_MFR, sdr0_mfr);
 
 		set_phy_configuration_through_fpga(ZMII_CONFIGURATION_IS_MII);
 	}
@@ -2009,9 +2009,9 @@ void configure_ppc440ep_pins(void)
 	if (ppc440ep_core_selection[RMII_SEL] == CORE_SELECTED)
 	{
 		update_zii_ios(gpio_tab);
-		mfsdr(sdr_mfr, sdr0_mfr);
+		mfsdr(SDR0_MFR, sdr0_mfr);
 		sdr0_mfr = (sdr0_mfr & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_RMII_10M;
-		mtsdr(sdr_mfr, sdr0_mfr);
+		mtsdr(SDR0_MFR, sdr0_mfr);
 
 		set_phy_configuration_through_fpga(ZMII_CONFIGURATION_IS_RMII);
 	}
@@ -2020,9 +2020,9 @@ void configure_ppc440ep_pins(void)
 	if (ppc440ep_core_selection[SMII_SEL] == CORE_SELECTED)
 	{
 		update_zii_ios(gpio_tab);
-		mfsdr(sdr_mfr, sdr0_mfr);
+		mfsdr(SDR0_MFR, sdr0_mfr);
 		sdr0_mfr = (sdr0_mfr & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_SMII;
-		mtsdr(sdr_mfr, sdr0_mfr);
+		mtsdr(SDR0_MFR, sdr0_mfr);
 
 		set_phy_configuration_through_fpga(ZMII_CONFIGURATION_IS_SMII);
 	}
@@ -2071,13 +2071,13 @@ void configure_ppc440ep_pins(void)
 	/* Packet Reject Function Enable */
 	if (ppc440ep_core_selection[PACKET_REJ_FUNC_EN] == CORE_SELECTED)
 	{
-		mfsdr(sdr_mfr, sdr0_mfr);
+		mfsdr(SDR0_MFR, sdr0_mfr);
 		sdr0_mfr = (sdr0_mfr & ~SDR0_MFR_PKT_REJ_MASK) | SDR0_MFR_PKT_REJ_EN;;
-		mtsdr(sdr_mfr, sdr0_mfr);
+		mtsdr(SDR0_MFR, sdr0_mfr);
 	}
 
 	/* Perform effective access to hardware */
-	mtsdr(sdr_pfc1, sdr0_pfc1);
+	mtsdr(SDR0_PFC1, sdr0_pfc1);
 	set_chip_gpio_configuration(GPIO0, gpio_tab);
 	set_chip_gpio_configuration(GPIO1, gpio_tab);
 

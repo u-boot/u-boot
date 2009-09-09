@@ -135,7 +135,7 @@ int board_early_init_f (void)
 	/*
 	 * EBC Configuration Register: set ready timeout to 100 us
 	 */
-	mtebc (epcr, 0xb8400000);
+	mtebc (EBC0_CFG, 0xb8400000);
 
 	return 0;
 }
@@ -143,13 +143,13 @@ int board_early_init_f (void)
 
 int misc_init_r (void)
 {
-	unsigned long cntrl0Reg;
+	unsigned long CPC0_CR0Reg;
 
 	/*
 	 * Setup UART1 handshaking: use CTS instead of DSR
 	 */
-	cntrl0Reg = mfdcr(cntrl0);
-	mtdcr(cntrl0, cntrl0Reg | 0x00001000);
+	CPC0_CR0Reg = mfdcr(CPC0_CR0);
+	mtdcr(CPC0_CR0, CPC0_CR0Reg | 0x00001000);
 
 	return (0);
 }

@@ -41,9 +41,9 @@ int board_early_init_f(void)
 	 * and enable the internal PCI arbiter if selected
 	 */
 	if (in_8((void *)FPGA_REG1) & FPGA_REG1_PCI_INT_ARB)
-		mtdcr(cpc0_pci, CPC0_PCI_HOST_CFG_EN | CPC0_PCI_ARBIT_EN);
+		mtdcr(CPC0_PCI, CPC0_PCI_HOST_CFG_EN | CPC0_PCI_ARBIT_EN);
 	else
-		mtdcr(cpc0_pci, CPC0_PCI_HOST_CFG_EN);
+		mtdcr(CPC0_PCI, CPC0_PCI_HOST_CFG_EN);
 
 	return 0;
 }

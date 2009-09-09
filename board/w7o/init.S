@@ -87,48 +87,48 @@ ext_bus_cntlr_init:
 	/********************************************************************
 	 * Setup External Bus Controller (EBC).
 	 *******************************************************************/
-	addi	r3, 0, epcr
-	mtdcr	ebccfga, r3
+	addi	r3, 0, EBC0_CFG
+	mtdcr	EBC0_CFGADDR, r3
 	addis	r4, 0, 0xb040		/* Device base timeout = 1024 cycles */
 	ori	r4, r4, 0x0		/* Drive CS with external master */
-	mtdcr	ebccfgd, r4
+	mtdcr	EBC0_CFGDATA, r4
 
 	/********************************************************************
 	 * Change PCIINT signal to PerWE
 	 *******************************************************************/
-	mfdcr	r4, cntrl1
+	mfdcr	r4, CPC0_CR1
 	ori	r4, r4, 0x4000
-	mtdcr	cntrl1, r4
+	mtdcr	CPC0_CR1, r4
 
 	/********************************************************************
 	 * Memory Bank 0 (Flash Bank 0) initialization
 	 *******************************************************************/
-	addi	r3, 0, pb0ap
-	mtdcr	ebccfga, r3
+	addi	r3, 0, PB1AP
+	mtdcr	EBC0_CFGADDR, r3
 	addis	r4, 0, CONFIG_SYS_W7O_EBC_PB0AP@h
 	ori	r4, r4, CONFIG_SYS_W7O_EBC_PB0AP@l
-	mtdcr	ebccfgd, r4
+	mtdcr	EBC0_CFGDATA, r4
 
-	addi	r3, 0, pb0cr
-	mtdcr	ebccfga, r3
+	addi	r3, 0, PB0CR
+	mtdcr	EBC0_CFGADDR, r3
 	addis	r4, 0, CONFIG_SYS_W7O_EBC_PB0CR@h
 	ori	r4, r4, CONFIG_SYS_W7O_EBC_PB0CR@l
-	mtdcr	ebccfgd, r4
+	mtdcr	EBC0_CFGDATA, r4
 
 	/********************************************************************
 	 * Memory Bank 7 LEDs - NEEDED BECAUSE OF HW WATCHDOG AND LEDs.
 	 *******************************************************************/
-	addi	r3, 0, pb7ap
-	mtdcr	ebccfga, r3
+	addi	r3, 0, PB7AP
+	mtdcr	EBC0_CFGADDR, r3
 	addis	r4, 0, CONFIG_SYS_W7O_EBC_PB7AP@h
 	ori	r4, r4, CONFIG_SYS_W7O_EBC_PB7AP@l
-	mtdcr	ebccfgd, r4
+	mtdcr	EBC0_CFGDATA, r4
 
-	addi	r3, 0, pb7cr
-	mtdcr	ebccfga, r3
+	addi	r3, 0, PB7CR
+	mtdcr	EBC0_CFGADDR, r3
 	addis	r4, 0, CONFIG_SYS_W7O_EBC_PB7CR@h
 	ori	r4, r4, CONFIG_SYS_W7O_EBC_PB7CR@l
-	mtdcr	ebccfgd, r4
+	mtdcr	EBC0_CFGDATA, r4
 
 	/* We are all done */
 	mtlr	r0			/* Restore link register */
@@ -183,35 +183,35 @@ sdram_init:
 	 * values to be changed.
 	 */
 	addi    r3, 0, mem_mcopt1
-	mtdcr   memcfga, r3
+	mtdcr   SDRAM0_CFGADDR, r3
 	addis   r4, 0, 0x0
 	ori     r4, r4, 0x0
-	mtdcr   memcfgd, r4
+	mtdcr   SDRAM0_CFGDATA, r4
 
 	/*
 	 * Set MB0CF for ext bank 0. (0-4MB) Address Mode 5 since 11x8x2
 	 * All other banks are disabled.
 	 */
 	addi	r3, 0, mem_mb0cf
-	mtdcr	memcfga, r3
+	mtdcr	SDRAM0_CFGADDR, r3
 	addis	r4, 0, 0x0000		/* BA=0x0, SZ=4MB */
 	ori	r4, r4, 0x8001		/* Mode is 5, 11x8x2or4, BE=Enabled */
-	mtdcr	memcfgd, r4
+	mtdcr	SDRAM0_CFGDATA, r4
 
 	/* Clear MB1CR,MB2CR,MB3CR to turn other banks off */
 	addi	r4, 0, 0		/* Zero the data reg */
 
 	addi	r3, r3, 4		/* Point to MB1CF reg */
-	mtdcr	memcfga, r3		/* Set the address */
-	mtdcr	memcfgd, r4		/* Zero the reg */
+	mtdcr	SDRAM0_CFGADDR, r3		/* Set the address */
+	mtdcr	SDRAM0_CFGDATA, r4		/* Zero the reg */
 
 	addi	r3, r3, 4		/* Point to MB2CF reg */
-	mtdcr	memcfga, r3		/* Set the address */
-	mtdcr	memcfgd, r4		/* Zero the reg */
+	mtdcr	SDRAM0_CFGADDR, r3		/* Set the address */
+	mtdcr	SDRAM0_CFGDATA, r4		/* Zero the reg */
 
 	addi	r3, r3, 4		/* Point to MB3CF reg */
-	mtdcr	memcfga, r3		/* Set the address */
-	mtdcr	memcfgd, r4		/* Zero the reg */
+	mtdcr	SDRAM0_CFGADDR, r3		/* Set the address */
+	mtdcr	SDRAM0_CFGDATA, r4		/* Zero the reg */
 
 	/********************************************************************
 	 * Set the SDRAM Timing reg, SDTR1 and the refresh timer reg, RTR.
@@ -223,18 +223,18 @@ sdram_init:
 	 * Set up SDTR1
 	 */
 	addi    r3, 0, mem_sdtr1
-	mtdcr   memcfga, r3
+	mtdcr   SDRAM0_CFGADDR, r3
 	addis   r4, 0, 0x0086		/* SDTR1 value for 100Mhz */
 	ori     r4, r4, 0x400D
-	mtdcr   memcfgd, r4
+	mtdcr   SDRAM0_CFGDATA, r4
 
 	/*
 	 * Set RTR
 	 */
 	addi    r3, 0, mem_rtr
-	mtdcr   memcfga, r3
+	mtdcr   SDRAM0_CFGADDR, r3
 	addis   r4, 0, 0x05F0		/* RTR refresh val = 15.625ms@100Mhz */
-	mtdcr   memcfgd, r4
+	mtdcr   SDRAM0_CFGDATA, r4
 
 	/********************************************************************
 	 * Delay to ensure 200usec have elapsed since reset. Assume worst
@@ -251,10 +251,10 @@ sdram_init:
 	 * Set memory controller options reg, MCOPT1.
 	 *******************************************************************/
 	addi    r3, 0, mem_mcopt1
-	mtdcr   memcfga, r3
+	mtdcr   SDRAM0_CFGADDR, r3
 	addis   r4, 0, 0x80E0		/* DC_EN=1,SRE=0,PME=0,MEMCHK=0 */
 	ori     r4, r4, 0x0000		/* REGEN=0,DRW=00,BRPF=01,ECCDD=1 */
-	mtdcr   memcfgd, r4		/* EMDULR=1 */
+	mtdcr   SDRAM0_CFGDATA, r4		/* EMDULR=1 */
 
 ..sdri_done:
 	/* restore and return */

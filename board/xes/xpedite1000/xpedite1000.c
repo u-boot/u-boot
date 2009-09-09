@@ -42,8 +42,8 @@ int board_early_init_f(void)
 	 * 23 = #LED_STATUS1
 	 * 24 = #LED_STATUS2
 	 */
-	mfsdr(sdr_pfc0, sdrreg);
-	mtsdr(sdr_pfc0, (sdrreg & ~SDR0_PFC0_TRE_ENABLE) | 0x00003e00);
+	mfsdr(SDR0_PFC0, sdrreg);
+	mtsdr(SDR0_PFC0, (sdrreg & ~SDR0_PFC0_TRE_ENABLE) | 0x00003e00);
 	out32(CONFIG_SYS_GPIO_BASE + 0x018, (USR_LED0 | USR_LED1 | USR_LED2 | USR_LED3));
 	LED0_OFF();
 	LED1_OFF();
@@ -51,14 +51,14 @@ int board_early_init_f(void)
 	LED3_OFF();
 
 	/* Setup the external bus controller/chip selects */
-	mtebc(pb0ap, 0x04055200);	/* 16MB Strata FLASH */
-	mtebc(pb0cr, 0xff098000);	/* BAS=0xff0 16MB R/W 8-bit */
-	mtebc(pb1ap, 0x04055200);	/* 512KB Socketed AMD FLASH */
-	mtebc(pb1cr, 0xfe018000);	/* BAS=0xfe0 1MB R/W 8-bit */
-	mtebc(pb6ap, 0x05006400);	/* 32-64MB AMD MirrorBit FLASH */
-	mtebc(pb6cr, 0xf00da000);	/* BAS=0xf00 64MB R/W i6-bit */
-	mtebc(pb7ap, 0x05006400);	/* 32-64MB AMD MirrorBit FLASH */
-	mtebc(pb7cr, 0xf40da000);	/* BAS=0xf40 64MB R/W 16-bit */
+	mtebc(PB0AP, 0x04055200);	/* 16MB Strata FLASH */
+	mtebc(PB0CR, 0xff098000);	/* BAS=0xff0 16MB R/W 8-bit */
+	mtebc(PB1AP, 0x04055200);	/* 512KB Socketed AMD FLASH */
+	mtebc(PB1CR, 0xfe018000);	/* BAS=0xfe0 1MB R/W 8-bit */
+	mtebc(PB6AP, 0x05006400);	/* 32-64MB AMD MirrorBit FLASH */
+	mtebc(PB6CR, 0xf00da000);	/* BAS=0xf00 64MB R/W i6-bit */
+	mtebc(PB7AP, 0x05006400);	/* 32-64MB AMD MirrorBit FLASH */
+	mtebc(PB7CR, 0xf40da000);	/* BAS=0xf40 64MB R/W 16-bit */
 
 	/*
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -151,15 +151,15 @@ int pci_pre_init(struct pci_controller * hose)
 	unsigned long strap;
 
 	/* See if we're supposed to setup the pci */
-	mfsdr(sdr_sdstp1, strap);
+	mfsdr(SDR0_SDSTP1, strap);
 	if ((strap & 0x00010000) == 0)
 		return 0;
 
 #if defined(CONFIG_SYS_PCI_FORCE_PCI_CONV)
 	/* Setup System Device Register PCIX0_XCR */
-	mfsdr(sdr_xcr, strap);
+	mfsdr(SDR0_XCR, strap);
 	strap &= 0x0f000000;
-	mtsdr(sdr_xcr, strap);
+	mtsdr(SDR0_XCR, strap);
 #endif
 
 	return 1;

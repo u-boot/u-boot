@@ -70,7 +70,7 @@ int board_early_init_f (void)
 	mtdcr (uicvcr, 0x00000001);	/* set vect base=0,INT0 highest priority */
 	mtdcr (uicsr, 0xFFFFFFFF);	/* clear all ints */
 
-	mtdcr (cntrl0, 0x00002000);	/* set IRQ6 as GPIO23 to generate an interrupt request to the PCP2PCI bridge */
+	mtdcr (CPC0_CR0, 0x00002000);	/* set IRQ6 as GPIO23 to generate an interrupt request to the PCP2PCI bridge */
 
 	out32 (PPC405GP_GPIO0_OR, 0x60000000);	/*fixme is SMB_INT high or low active??; IRQ6 is GPIO23 output */
 	out32 (PPC405GP_GPIO0_TCR, 0x7E400000);

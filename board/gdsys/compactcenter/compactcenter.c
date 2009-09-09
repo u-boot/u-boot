@@ -215,7 +215,7 @@ int board_early_init_r(void)
 		EBC_BXCR_BS_128MB : EBC_BXCR_BS_64MB;
 
 	/* Remap the NOR FLASH to 0xcn00.0000 ... 0xcfff.ffff */
-	mtebc(pb0cr, CONFIG_SYS_FLASH_BASE_PHYS_L
+	mtebc(PB0CR, CONFIG_SYS_FLASH_BASE_PHYS_L
 		| bxcr_bw
 		| EBC_BXCR_BU_RW
 		| EBC_BXCR_BW_16BIT);

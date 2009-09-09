@@ -62,12 +62,12 @@ int board_early_init_f (void)
 
 	/* EBC0_B1AP: BME=1, TWT=2, CSN=0, OEN=1,
 	   WBN=0, WBF=1, TH=0,  RE=0,  SOR=0, BEM=0, PEN=0 */
-	mtdcr (ebccfga, pb1ap);
-	mtdcr (ebccfgd, 0x01011000);
+	mtdcr (EBC0_CFGADDR, PB1AP);
+	mtdcr (EBC0_CFGDATA, 0x01011000);
 
 	/* EBC0_B1CR: BAS=x, BS=0(1MB), BU=3(R/W), BW=0(8bits) */
-	mtdcr (ebccfga, pb1cr);
-	mtdcr (ebccfgd, CONFIG_SYS_SYSTEMACE_BASE | 0x00018000);
+	mtdcr (EBC0_CFGADDR, PB1CR);
+	mtdcr (EBC0_CFGDATA, CONFIG_SYS_SYSTEMACE_BASE | 0x00018000);
 
 	/* Enable the /PerWE output as /PerWE, instead of /PCIINT. */
 	/* CPC0_CR1 |= PCIPW */

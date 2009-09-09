@@ -207,9 +207,9 @@
 #define CONFIG_SYS_EBC_PB5CR   0xFD21A000
 
 /* bank 6 is unused */
-/* pb6ap = 0 */
+/* PB6AP = 0 */
 #define CONFIG_SYS_EBC_PB6AP   0x00000000
-/* pb6cr = 0 */
+/* PB6CR = 0 */
 #define CONFIG_SYS_EBC_PB6CR   0x00000000
 
 /* bank 7 is LED register */

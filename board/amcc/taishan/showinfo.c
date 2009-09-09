@@ -33,60 +33,60 @@ void show_reset_reg(void)
 
 	/* read clock regsiter */
 	printf("===== Display reset and initialize register Start =========\n");
-	mfcpr(clk_pllc,reg);
+	mfcpr(CPR0_PLLC,reg);
 	printf("cpr_pllc   = %#010lx\n",reg);
 
-	mfcpr(clk_plld,reg);
+	mfcpr(CPR0_PLLD,reg);
 	printf("cpr_plld   = %#010lx\n",reg);
 
-	mfcpr(clk_primad,reg);
+	mfcpr(CPR0_PRIMAD,reg);
 	printf("cpr_primad = %#010lx\n",reg);
 
-	mfcpr(clk_primbd,reg);
+	mfcpr(CPR0_PRIMBD,reg);
 	printf("cpr_primbd = %#010lx\n",reg);
 
-	mfcpr(clk_opbd,reg);
+	mfcpr(CPR0_OPBD,reg);
 	printf("cpr_opbd   = %#010lx\n",reg);
 
-	mfcpr(clk_perd,reg);
+	mfcpr(CPR0_PERD,reg);
 	printf("cpr_perd   = %#010lx\n",reg);
 
-	mfcpr(clk_mald,reg);
+	mfcpr(CPR0_MALD,reg);
 	printf("cpr_mald   = %#010lx\n",reg);
 
 	/* read sdr register */
-	mfsdr(sdr_ebc,reg);
-	printf("sdr_ebc    = %#010lx\n",reg);
+	mfsdr(SDR0_EBC,reg);
+	printf("SDR0_EBC    = %#010lx\n",reg);
 
-	mfsdr(sdr_cp440,reg);
-	printf("sdr_cp440  = %#010lx\n",reg);
+	mfsdr(SDR0_CP440,reg);
+	printf("SDR0_CP440  = %#010lx\n",reg);
 
-	mfsdr(sdr_xcr,reg);
-	printf("sdr_xcr    = %#010lx\n",reg);
+	mfsdr(SDR0_XCR,reg);
+	printf("SDR0_XCR    = %#010lx\n",reg);
 
-	mfsdr(sdr_xpllc,reg);
-	printf("sdr_xpllc  = %#010lx\n",reg);
+	mfsdr(SDR0_XPLLC,reg);
+	printf("SDR0_XPLLC  = %#010lx\n",reg);
 
-	mfsdr(sdr_xplld,reg);
-	printf("sdr_xplld  = %#010lx\n",reg);
+	mfsdr(SDR0_XPLLD,reg);
+	printf("SDR0_XPLLD  = %#010lx\n",reg);
 
-	mfsdr(sdr_pfc0,reg);
-	printf("sdr_pfc0   = %#010lx\n",reg);
+	mfsdr(SDR0_PFC0,reg);
+	printf("SDR0_PFC0   = %#010lx\n",reg);
 
-	mfsdr(sdr_pfc1,reg);
-	printf("sdr_pfc1   = %#010lx\n",reg);
+	mfsdr(SDR0_PFC1,reg);
+	printf("SDR0_PFC1   = %#010lx\n",reg);
 
-	mfsdr(sdr_cust0,reg);
-	printf("sdr_cust0  = %#010lx\n",reg);
+	mfsdr(SDR0_CUST0,reg);
+	printf("SDR0_CUST0  = %#010lx\n",reg);
 
-	mfsdr(sdr_cust1,reg);
-	printf("sdr_cust1  = %#010lx\n",reg);
+	mfsdr(SDR0_CUST1,reg);
+	printf("SDR0_CUST1  = %#010lx\n",reg);
 
-	mfsdr(sdr_uart0,reg);
-	printf("sdr_uart0  = %#010lx\n",reg);
+	mfsdr(SDR0_UART0,reg);
+	printf("SDR0_UART0  = %#010lx\n",reg);
 
-	mfsdr(sdr_uart1,reg);
-	printf("sdr_uart1  = %#010lx\n",reg);
+	mfsdr(SDR0_UART1,reg);
+	printf("SDR0_UART1  = %#010lx\n",reg);
 
 	printf("===== Display reset and initialize register End   =========\n");
 }
@@ -96,14 +96,14 @@ void show_xbridge_info(void)
 	unsigned long reg;
 
 	printf("PCI-X chip control registers\n");
-	mfsdr(sdr_xcr, reg);
-	printf("sdr_xcr    = %#010lx\n", reg);
+	mfsdr(SDR0_XCR, reg);
+	printf("SDR0_XCR    = %#010lx\n", reg);
 
-	mfsdr(sdr_xpllc, reg);
-	printf("sdr_xpllc  = %#010lx\n", reg);
+	mfsdr(SDR0_XPLLC, reg);
+	printf("SDR0_XPLLC  = %#010lx\n", reg);
 
-	mfsdr(sdr_xplld, reg);
-	printf("sdr_xplld  = %#010lx\n", reg);
+	mfsdr(SDR0_XPLLD, reg);
+	printf("SDR0_XPLLD  = %#010lx\n", reg);
 
 	printf("PCI-X Bridge Configure registers\n");
 	printf("PCIX0_VENDID            = %#06x\n", in16r(PCIX0_VENDID));

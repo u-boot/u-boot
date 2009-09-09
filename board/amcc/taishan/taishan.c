@@ -47,7 +47,7 @@ int board_early_init_f (void)
 	/*-------------------------------------------------------------------------+
 	  | Initialize EBC CONFIG
 	  +-------------------------------------------------------------------------*/
-	mtebc(xbcfg, EBC_CFG_LE_UNLOCK |
+	mtebc(EBC0_CFG, EBC_CFG_LE_UNLOCK |
 	      EBC_CFG_PTD_ENABLE | EBC_CFG_RTC_64PERCLK |
 	      EBC_CFG_ATC_PREVIOUS | EBC_CFG_DTC_PREVIOUS |
 	      EBC_CFG_CTC_PREVIOUS | EBC_CFG_EMC_DEFAULT |
@@ -56,66 +56,66 @@ int board_early_init_f (void)
 	/*-------------------------------------------------------------------------+
 	  | 64MB FLASH. Initialize bank 0 with default values.
 	  +-------------------------------------------------------------------------*/
-	mtebc(pb0ap, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(15) |
+	mtebc(PB0AP, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(15) |
 	      EBC_BXAP_BCE_DISABLE |
 	      EBC_BXAP_CSN_ENCODE(1) | EBC_BXAP_OEN_ENCODE(1) |
 	      EBC_BXAP_WBN_ENCODE(1) | EBC_BXAP_WBF_ENCODE(1) |
 	      EBC_BXAP_TH_ENCODE(3) | EBC_BXAP_RE_DISABLED |
 	      EBC_BXAP_BEM_WRITEONLY |
 	      EBC_BXAP_PEN_DISABLED);
-	mtebc(pb0cr, EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FLASH_BASE) |
+	mtebc(PB0CR, EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FLASH_BASE) |
 	      EBC_BXCR_BS_64MB | EBC_BXCR_BU_RW|EBC_BXCR_BW_32BIT);
 
 	/*-------------------------------------------------------------------------+
 	  | FPGA. Initialize bank 1 with default values.
 	  +-------------------------------------------------------------------------*/
-	mtebc(pb1ap, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(5) |
+	mtebc(PB1AP, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(5) |
 	      EBC_BXAP_BCE_DISABLE |
 	      EBC_BXAP_CSN_ENCODE(1) | EBC_BXAP_OEN_ENCODE(1) |
 	      EBC_BXAP_WBN_ENCODE(1) | EBC_BXAP_WBF_ENCODE(1) |
 	      EBC_BXAP_TH_ENCODE(3) | EBC_BXAP_RE_DISABLED |
 	      EBC_BXAP_BEM_WRITEONLY |
 	      EBC_BXAP_PEN_DISABLED);
-	mtebc(pb1cr, EBC_BXCR_BAS_ENCODE(0x41000000) |
+	mtebc(PB1CR, EBC_BXCR_BAS_ENCODE(0x41000000) |
 	      EBC_BXCR_BS_1MB | EBC_BXCR_BU_RW | EBC_BXCR_BW_8BIT);
 
 	/*-------------------------------------------------------------------------+
 	  | LCM. Initialize bank 2 with default values.
 	  +-------------------------------------------------------------------------*/
-	mtebc(pb2ap, EBC_BXAP_BME_DISABLED | EBC_BXAP_TWT_ENCODE(64) |
+	mtebc(PB2AP, EBC_BXAP_BME_DISABLED | EBC_BXAP_TWT_ENCODE(64) |
 	      EBC_BXAP_BCE_DISABLE |
 	      EBC_BXAP_CSN_ENCODE(3) | EBC_BXAP_OEN_ENCODE(3) |
 	      EBC_BXAP_WBN_ENCODE(3) | EBC_BXAP_WBF_ENCODE(3) |
 	      EBC_BXAP_TH_ENCODE(7) | EBC_BXAP_RE_DISABLED |
 	      EBC_BXAP_BEM_WRITEONLY |
 	      EBC_BXAP_PEN_DISABLED);
-	mtebc(pb2cr, EBC_BXCR_BAS_ENCODE(0x42000000) |
+	mtebc(PB2CR, EBC_BXCR_BAS_ENCODE(0x42000000) |
 	      EBC_BXCR_BS_1MB | EBC_BXCR_BU_RW|EBC_BXCR_BW_8BIT);
 
 	/*-------------------------------------------------------------------------+
 	  | TMP. Initialize bank 3 with default values.
 	  +-------------------------------------------------------------------------*/
-	mtebc(pb3ap, EBC_BXAP_BME_DISABLED | EBC_BXAP_TWT_ENCODE(128) |
+	mtebc(PB3AP, EBC_BXAP_BME_DISABLED | EBC_BXAP_TWT_ENCODE(128) |
 	      EBC_BXAP_BCE_DISABLE |
 	      EBC_BXAP_CSN_ENCODE(3) | EBC_BXAP_OEN_ENCODE(3) |
 	      EBC_BXAP_WBN_ENCODE(3) | EBC_BXAP_WBF_ENCODE(3) |
 	      EBC_BXAP_TH_ENCODE(7) | EBC_BXAP_RE_DISABLED |
 	      EBC_BXAP_BEM_WRITEONLY |
 	      EBC_BXAP_PEN_DISABLED);
-	mtebc(pb3cr, EBC_BXCR_BAS_ENCODE(0x48000000) |
+	mtebc(PB3CR, EBC_BXCR_BAS_ENCODE(0x48000000) |
 	      EBC_BXCR_BS_64MB | EBC_BXCR_BU_RW | EBC_BXCR_BW_32BIT);
 
 	/*-------------------------------------------------------------------------+
 	  | Connector 4~7. Initialize bank 3~ 7 with default values.
 	  +-------------------------------------------------------------------------*/
-	mtebc(pb4ap,0);
-	mtebc(pb4cr,0);
-	mtebc(pb5ap,0);
-	mtebc(pb5cr,0);
-	mtebc(pb6ap,0);
-	mtebc(pb6cr,0);
-	mtebc(pb7ap,0);
-	mtebc(pb7cr,0);
+	mtebc(PB4AP,0);
+	mtebc(PB4CR,0);
+	mtebc(PB5AP,0);
+	mtebc(PB5CR,0);
+	mtebc(PB6AP,0);
+	mtebc(PB6CR,0);
+	mtebc(PB7AP,0);
+	mtebc(PB7CR,0);
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -164,13 +164,13 @@ int board_early_init_f (void)
 	mtdcr (uic0vr, 0x00000001);	/* */
 
 	/* Enable two GPIO 10~11 and TraceA signal */
-	mfsdr(sdr_pfc0,reg);
+	mfsdr(SDR0_PFC0,reg);
 	reg |= 0x00300000;
-	mtsdr(sdr_pfc0,reg);
+	mtsdr(SDR0_PFC0,reg);
 
-	mfsdr(sdr_pfc1,reg);
+	mfsdr(SDR0_PFC1,reg);
 	reg |= 0x00100000;
-	mtsdr(sdr_pfc1,reg);
+	mtsdr(SDR0_PFC1,reg);
 
 	/* Set GPIO 10 and 11 as output */
 	GpioOdr	= (volatile unsigned int*)(CONFIG_SYS_PERIPHERAL_BASE+0x718);
@@ -230,7 +230,7 @@ int pci_pre_init(struct pci_controller * hose )
 	 *	The ocotea board is always configured as the host & requires the
 	 *	PCI arbiter to be enabled.
 	 *--------------------------------------------------------------------------*/
-	mfsdr(sdr_sdstp1, strap);
+	mfsdr(SDR0_SDSTP1, strap);
 	if( (strap & SDR0_SDSTP1_PAE_MASK) == 0 ){
 		printf("PCI: SDR0_STRP1[%08lX] - PCI Arbiter disabled.\n",strap);
 		return 0;

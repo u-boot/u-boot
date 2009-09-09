@@ -56,8 +56,8 @@ phys_size_t initdram(int board_type)
 	/*
 	 * Soft-reset SDRAM controller.
 	 */
-	mtsdr(sdr_srst, SDR0_SRST_DMC);
-	mtsdr(sdr_srst, 0x00000000);
+	mtsdr(SDR0_SRST, SDR0_SRST_DMC);
+	mtsdr(SDR0_SRST, 0x00000000);
 
 	/*
 	 * Disable memory controller.

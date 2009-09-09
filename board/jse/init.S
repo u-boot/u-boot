@@ -52,8 +52,6 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 
-#define cpc0_cr0 0xB1
-
 	.globl	ext_bus_cntlr_init
 ext_bus_cntlr_init:
 	mflr    r4                      /* save link register */
@@ -84,16 +82,16 @@ ext_bus_cntlr_init:
 	/* Memory Bank 0 (Flash) initialization */
 	/*----------------------------------------------------------------- */
 
-	addi    r4,0,pb0ap
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB1AP
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,0x9B01
 	ori     r4,r4,0x5480
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
-	addi    r4,0,pb0cr
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB0CR
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,0xFFF1           /* BAS=0xFFF,BS=0x0(1MB),BU=0x3(R/W), */
 	ori     r4,r4,0x8000          /* BW=0x0( 8 bits) */
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 	blr

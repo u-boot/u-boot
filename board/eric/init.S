@@ -76,129 +76,129 @@ ext_bus_cntlr_init:
 	/* Memory Bank 0 (Flash) initialization (from openbios) */
 	/*----------------------------------------------------------------------- */
 
-	addi    r4,0,pb0ap
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB1AP
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS0_AP@h
 	ori     r4,r4,CS0_AP@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
-	addi    r4,0,pb0cr
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB0CR
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS0_CR@h
 	ori     r4,r4,CS0_CR@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 	/*----------------------------------------------------------------------- */
 	/* Memory Bank 1 (NVRAM/RTC) initialization */
 	/*----------------------------------------------------------------------- */
 
-	addi    r4,0,pb1ap
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB1AP
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS1_AP@h
 	ori     r4,r4,CS1_AP@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
-	addi    r4,0,pb1cr
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB1CR
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS1_CR@h
 	ori     r4,r4,CS1_CR@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 	/*----------------------------------------------------------------------- */
 	/* Memory Bank 2 (A/D converter) initialization */
 	/*----------------------------------------------------------------------- */
 
-	addi    r4,0,pb2ap
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB2AP
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS2_AP@h
 	ori     r4,r4,CS2_AP@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
-	addi    r4,0,pb2cr
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB2CR
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS2_CR@h
 	ori     r4,r4,CS2_CR@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 	/*----------------------------------------------------------------------- */
 	/* Memory Bank 3 (Ethernet PHY Reset) initialization */
 	/*----------------------------------------------------------------------- */
 
-	addi    r4,0,pb3ap
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB3AP
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS3_AP@h
 	ori     r4,r4,CS3_AP@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
-	addi    r4,0,pb3cr
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB3CR
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS3_CR@h
 	ori     r4,r4,CS3_CR@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 	/*----------------------------------------------------------------------- */
 	/* Memory Bank 4 (PC-MIP PRSNT1#) initialization */
 	/*----------------------------------------------------------------------- */
 
-	addi    r4,0,pb4ap
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB4AP
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS4_AP@h
 	ori     r4,r4,CS4_AP@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
-	addi    r4,0,pb4cr
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB4CR
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS4_CR@h
 	ori     r4,r4,CS4_CR@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 	/*----------------------------------------------------------------------- */
 	/* Memory Bank 5 (PC-MIP PRSNT2#) initialization */
 	/*----------------------------------------------------------------------- */
 
-	addi    r4,0,pb5ap
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB5AP
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS5_AP@h
 	ori     r4,r4,CS5_AP@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
-	addi    r4,0,pb5cr
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB5CR
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS5_CR@h
 	ori     r4,r4,CS5_CR@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 	/*----------------------------------------------------------------------- */
 	/* Memory Bank 6 (CPU LED0) initialization */
 	/*----------------------------------------------------------------------- */
 
-	addi    r4,0,pb6ap
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB6AP
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS6_AP@h
 	ori     r4,r4,CS6_AP@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
-	addi    r4,0,pb6cr
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB6CR
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS6_CR@h
 	ori     r4,r4,CS5_CR@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 	/*----------------------------------------------------------------------- */
 	/* Memory Bank 7 (CPU LED1) initialization */
 	/*----------------------------------------------------------------------- */
 
-	addi    r4,0,pb7ap
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB7AP
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS7_AP@h
 	ori     r4,r4,CS7_AP@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
-	addi    r4,0,pb7cr
-	mtdcr   ebccfga,r4
+	addi    r4,0,PB7CR
+	mtdcr   EBC0_CFGADDR,r4
 	addis   r4,0,CS7_CR@h
 	ori     r4,r4,CS7_CR@l
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 /*	addis   r4,r0,FPGA_BRDC@h */
 /*	ori     r4,r4,FPGA_BRDC@l */
@@ -229,40 +229,40 @@ sdram_init:
 	/*------------------------------------------------------------------- */
 
 	addi    r4,0,mem_mb0cf
-	mtdcr   memcfga,r4
+	mtdcr   SDRAM0_CFGADDR,r4
 	addis   r4,0,MB0CF@h
 	ori     r4,r4,MB0CF@l
-	mtdcr   memcfgd,r4
+	mtdcr   SDRAM0_CFGDATA,r4
 
 	/*------------------------------------------------------------------- */
 	/* Set MB1CF for bank 1. (32MB-64MB) Address Mode 4 since 12x8(2) */
 	/*------------------------------------------------------------------- */
 
 	addi    r4,0,mem_mb1cf
-	mtdcr   memcfga,r4
+	mtdcr   SDRAM0_CFGADDR,r4
 	addis   r4,0,MB1CF@h
 	ori     r4,r4,MB1CF@l
-	mtdcr   memcfgd,r4
+	mtdcr   SDRAM0_CFGDATA,r4
 
 	/*------------------------------------------------------------------- */
 	/* Set MB2CF for bank 2. off */
 	/*------------------------------------------------------------------- */
 
 	addi    r4,0,mem_mb2cf
-	mtdcr   memcfga,r4
+	mtdcr   SDRAM0_CFGADDR,r4
 	addis   r4,0,MB2CF@h
 	ori     r4,r4,MB2CF@l
-	mtdcr   memcfgd,r4
+	mtdcr   SDRAM0_CFGDATA,r4
 
 	/*------------------------------------------------------------------- */
 	/* Set MB3CF for bank 3. off */
 	/*------------------------------------------------------------------- */
 
 	addi    r4,0,mem_mb3cf
-	mtdcr   memcfga,r4
+	mtdcr   SDRAM0_CFGADDR,r4
 	addis   r4,0,MB3CF@h
 	ori     r4,r4,MB3CF@l
-	mtdcr   memcfgd,r4
+	mtdcr   SDRAM0_CFGDATA,r4
 
 	/*------------------------------------------------------------------- */
 	/* Set the SDRAM Timing reg, SDTR1 and the refresh timer reg, RTR. */
@@ -276,7 +276,7 @@ sdram_init:
 	/* maybe 133Mhz. */
 	/*------------------------------------------------------------------- */
 
-	mfdcr   r5,strap                 /* determine FBK divider */
+	mfdcr   r5,CPC0_PSR               /* determine FBK divider */
 					  /* via STRAP reg to calc PLB speed. */
 					  /* SDRAM speed is the same as the PLB */
 					  /* speed. */
@@ -306,15 +306,15 @@ sdram_init:
 	/* Set SDTR1 */
 	/*------------------------------------------------------------------- */
 	addi    r4,0,mem_sdtr1
-	mtdcr   memcfga,r4
-	mtdcr   memcfgd,r6
+	mtdcr   SDRAM0_CFGADDR,r4
+	mtdcr   SDRAM0_CFGDATA,r6
 
 	/*------------------------------------------------------------------- */
 	/* Set RTR */
 	/*------------------------------------------------------------------- */
 	addi    r4,0,mem_rtr
-	mtdcr   memcfga,r4
-	mtdcr   memcfgd,r7
+	mtdcr   SDRAM0_CFGADDR,r4
+	mtdcr   SDRAM0_CFGDATA,r7
 
 	/*------------------------------------------------------------------- */
 	/* Delay to ensure 200usec have elapsed since reset. Assume worst */
@@ -333,10 +333,10 @@ sdram_init:
 	/* read/prefetch. */
 	/*------------------------------------------------------------------- */
 	addi    r4,0,mem_mcopt1
-	mtdcr   memcfga,r4
+	mtdcr   SDRAM0_CFGADDR,r4
 	addis   r4,0,0x8080             /* set DC_EN=1 */
 	ori     r4,r4,0x0000
-	mtdcr   memcfgd,r4
+	mtdcr   SDRAM0_CFGDATA,r4
 
 	/*------------------------------------------------------------------- */
 	/* Delay to ensure 10msec have elapsed since reset. This is */

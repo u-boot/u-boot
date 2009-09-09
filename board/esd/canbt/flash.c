@@ -64,13 +64,13 @@ unsigned long flash_init (void)
 	flash_get_offsets (-size_b0, &flash_info[0]);
 
 	/* Re-do sizing to get full correct info */
-	mtdcr(ebccfga, pb0cr);
-	pbcr = mfdcr(ebccfgd);
-	mtdcr(ebccfga, pb0cr);
+	mtdcr(EBC0_CFGADDR, PB0CR);
+	pbcr = mfdcr(EBC0_CFGDATA);
+	mtdcr(EBC0_CFGADDR, PB0CR);
 	base_b0 = -size_b0;
 	pbcr = (pbcr & 0x0001ffff) | base_b0 | (((size_b0/1024/1024)-1)<<17);
-	mtdcr(ebccfgd, pbcr);
-	/*          printf("pb1cr = %x\n", pbcr); */
+	mtdcr(EBC0_CFGDATA, pbcr);
+	/*          printf("PB1CR = %x\n", pbcr); */
 
 	/* Monitor protection ON by default */
 	(void)flash_protect(FLAG_PROTECT_SET,

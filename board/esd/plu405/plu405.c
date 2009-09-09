@@ -90,7 +90,7 @@ int board_early_init_f(void)
 	 * EBC Configuration Register: set ready timeout to
 	 * 512 ebc-clks -> ca. 15 us
 	 */
-	mtebc(epcr, 0xa8400000); /* ebc always driven */
+	mtebc(EBC0_CFG, 0xa8400000); /* ebc always driven */
 
 	return 0;
 }

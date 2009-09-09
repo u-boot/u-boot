@@ -92,7 +92,7 @@ int N_AU_IMAGES = (sizeof(au_image) / sizeof(au_image[0]));
 
 int board_revision(void)
 {
-	unsigned long cntrl0Reg;
+	unsigned long CPC0_CR0Reg;
 	unsigned long value;
 
 	/*
@@ -100,8 +100,8 @@ int board_revision(void)
 	 */
 
 	/* Setup GPIO pins (CS2/GPIO11, CS3/GPIO12 and CS4/GPIO13 as GPIO) */
-	cntrl0Reg = mfdcr(cntrl0);
-	mtdcr(cntrl0, cntrl0Reg | 0x03800000);
+	CPC0_CR0Reg = mfdcr(CPC0_CR0);
+	mtdcr(CPC0_CR0, CPC0_CR0Reg | 0x03800000);
 	out_be32((void*)GPIO0_ODR, in_be32((void*)GPIO0_ODR) & ~0x001c0000);
 	out_be32((void*)GPIO0_TCR, in_be32((void*)GPIO0_TCR) & ~0x001c0000);
 
@@ -113,7 +113,7 @@ int board_revision(void)
 	/*
 	 * Restore GPIO settings
 	 */
-	mtdcr(cntrl0, cntrl0Reg);
+	mtdcr(CPC0_CR0, CPC0_CR0Reg);
 
 	switch (value) {
 	case 0x001c0000:
@@ -166,7 +166,7 @@ int board_early_init_f (void)
 	/*
 	 * EBC Configuration Register: set ready timeout to 512 ebc-clks
 	 */
-	mtebc(epcr, 0xa8400000); /* ebc always driven */
+	mtebc(EBC0_CFG, 0xa8400000); /* ebc always driven */
 
 	/*
 	 * New boards have a single 32MB flash connected to CS0
@@ -174,12 +174,12 @@ int board_early_init_f (void)
 	 */
 	if (board_revision() >= 8) {
 		/* disable CS1 */
-		mtebc(pb1ap, 0);
-		mtebc(pb1cr, 0);
+		mtebc(PB1AP, 0);
+		mtebc(PB1CR, 0);
 
 		/* resize CS0 to 32MB */
-		mtebc(pb0ap, CONFIG_SYS_EBC_PB0AP_HWREV8);
-		mtebc(pb0cr, CONFIG_SYS_EBC_PB0CR_HWREV8);
+		mtebc(PB0AP, CONFIG_SYS_EBC_PB0AP_HWREV8);
+		mtebc(PB0CR, CONFIG_SYS_EBC_PB0CR_HWREV8);
 	}
 
 	return 0;
@@ -209,7 +209,7 @@ int misc_init_r(void)
 	int status;
 	int index;
 	int i;
-	unsigned long cntrl0Reg;
+	unsigned long CPC0_CR0Reg;
 	char *str;
 	uchar *logo_addr;
 	ulong logo_size;
@@ -219,8 +219,8 @@ int misc_init_r(void)
 	/*
 	 * Setup GPIO pins (CS6+CS7 as GPIO)
 	 */
-	cntrl0Reg = mfdcr(cntrl0);
-	mtdcr(cntrl0, cntrl0Reg | 0x00300000);
+	CPC0_CR0Reg = mfdcr(CPC0_CR0);
+	mtdcr(CPC0_CR0, CPC0_CR0Reg | 0x00300000);
 
 	dst = malloc(CONFIG_SYS_FPGA_MAX_SIZE);
 	if (gunzip(dst, CONFIG_SYS_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {
@@ -265,7 +265,7 @@ int misc_init_r(void)
 	}
 
 	/* restore gpio/cs settings */
-	mtdcr(cntrl0, cntrl0Reg);
+	mtdcr(CPC0_CR0, CPC0_CR0Reg);
 
 	puts("FPGA:  ");
 
