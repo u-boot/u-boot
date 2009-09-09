@@ -129,7 +129,7 @@ int checkboard(void)
 #ifdef CONFIG_DEVCONCENTER
 	printf("Board: DevCon-Center");
 #else
-	printf("Board: CompactCenter");
+	printf("Board: Intip");
 #endif
 
 	if (s != NULL) {
