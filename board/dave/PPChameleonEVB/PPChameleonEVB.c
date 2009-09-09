@@ -65,9 +65,9 @@ int board_early_init_f (void)
 	 * EBC Configuration Register: set ready timeout to 512 ebc-clks -> ca. 15 us
 	 */
 #if 1 /* test-only */
-	mtebc (epcr, 0xa8400000); /* ebc always driven */
+	mtebc (EBC0_CFG, 0xa8400000); /* ebc always driven */
 #else
-	mtebc (epcr, 0x28400000); /* ebc in high-z */
+	mtebc (EBC0_CFG, 0x28400000); /* ebc in high-z */
 #endif
 	return 0;
 }
@@ -101,7 +101,7 @@ int misc_init_r (void)
 	int status;
 	int index;
 	int i;
-	unsigned long cntrl0Reg;
+	unsigned long CPC0_CR0Reg;
 
 	dst = malloc(CONFIG_SYS_FPGA_MAX_SIZE);
 	if (gunzip (dst, CONFIG_SYS_FPGA_MAX_SIZE, (uchar *)fpgadata, &len) != 0) {

@@ -198,8 +198,8 @@ static void init_sdram (void)
  unsigned long tmp;
 
 	/* write SDRAM bank 0 register */
-	mtdcr (memcfga, mem_mb0cf);
-	mtdcr (memcfgd, 0x00062001);
+	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	mtdcr (SDRAM0_CFGDATA, 0x00062001);
 
 /* Set the SDRAM Timing reg, SDTR1 and the refresh timer reg, RTR.	*/
 /* To set the appropriate timings, we need to know the SDRAM speed.	*/
@@ -212,26 +212,26 @@ static void init_sdram (void)
 	/* divisor = ((mfdcr(strap)>> 28) & 0x3); */
 
 /* write SDRAM timing for 100MHz. */
-	mtdcr (memcfga, mem_sdtr1);
-	mtdcr (memcfgd, 0x0086400D);
+	mtdcr (SDRAM0_CFGADDR, mem_sdtr1);
+	mtdcr (SDRAM0_CFGDATA, 0x0086400D);
 
 /* write SDRAM refresh interval register */
-	mtdcr (memcfga, mem_rtr);
-	mtdcr (memcfgd, 0x05F00000);
+	mtdcr (SDRAM0_CFGADDR, mem_rtr);
+	mtdcr (SDRAM0_CFGDATA, 0x05F00000);
 	udelay (200);
 
 /* sdram controller.*/
-	mtdcr (memcfga, mem_mcopt1);
-	mtdcr (memcfgd, 0x90800000);
+	mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+	mtdcr (SDRAM0_CFGDATA, 0x90800000);
 	udelay (200);
 
 /* initially, disable ECC on all banks */
 	udelay (200);
-	mtdcr (memcfga, mem_ecccf);
-	tmp = mfdcr (memcfgd);
+	mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+	tmp = mfdcr (SDRAM0_CFGDATA);
 	tmp &= 0xff0fffff;
-	mtdcr (memcfga, mem_ecccf);
-	mtdcr (memcfgd, tmp);
+	mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+	mtdcr (SDRAM0_CFGDATA, tmp);
 
 	return;
 }
@@ -282,18 +282,18 @@ int testdram (void)
 	}
 	printf ("Enable ECC..");
 
-	mtdcr (memcfga, mem_mcopt1);
-	tmp = (mfdcr (memcfgd) & ~0xFFE00000) | 0x90800000;
-	mtdcr (memcfga, mem_mcopt1);
-	mtdcr (memcfgd, tmp);
+	mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+	tmp = (mfdcr (SDRAM0_CFGDATA) & ~0xFFE00000) | 0x90800000;
+	mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+	mtdcr (SDRAM0_CFGDATA, tmp);
 	udelay (600);
 	for (p = (unsigned long) 0; ((unsigned long) p < L1_MEMSIZE); *p++ = 0L)
 		;
 	udelay (400);
-	mtdcr (memcfga, mem_ecccf);
-	tmp = mfdcr (memcfgd);
+	mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+	tmp = mfdcr (SDRAM0_CFGDATA);
 	tmp |= 0x00800000;
-	mtdcr (memcfgd, tmp);
+	mtdcr (SDRAM0_CFGDATA, tmp);
 	udelay (400);
 	printf ("enabled.\n");
 	return (0);

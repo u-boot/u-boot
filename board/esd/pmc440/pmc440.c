@@ -64,7 +64,7 @@ struct serial_device *default_serial_console(void)
 	 * Use default console on P4 when strapping jumper
 	 * is installed (bootstrap option != 'H').
 	 */
-	mfsdr(SDR_PINSTP, val);
+	mfsdr(SDR0_PINSTP, val);
 	if (((val & 0xf0000000) >> 29) != 7)
 		return &serial1_device;
 
@@ -100,8 +100,8 @@ int board_early_init_f(void)
 	u32 reg;
 
 	/* general EBC configuration (disable EBC timeouts) */
-	mtdcr(ebccfga, xbcfg);
-	mtdcr(ebccfgd, 0xf8400000);
+	mtdcr(EBC0_CFGADDR, EBC0_CFG);
+	mtdcr(EBC0_CFGDATA, 0xf8400000);
 
 	/*
 	 * Setup the GPIO pins
@@ -134,13 +134,13 @@ int board_early_init_f(void)
 	out_be32((void *)GPIO1_ISR3H, 0x00000000);
 
 	/* patch PLB:PCI divider for 66MHz PCI */
-	mfcpr(clk_spcid, reg);
+	mfcpr(CPR0_SPCID, reg);
 	if (pci_is_66mhz() && (reg != 0x02000000)) {
-		mtcpr(clk_spcid, 0x02000000); /* 133MHZ : 2 for 66MHz PCI */
+		mtcpr(CPR0_SPCID, 0x02000000); /* 133MHZ : 2 for 66MHz PCI */
 
-		mfcpr(clk_icfg, reg);
+		mfcpr(CPR0_ICFG, reg);
 		reg |= CPR0_ICFG_RLI_MASK;
-		mtcpr(clk_icfg, reg);
+		mtcpr(CPR0_ICFG, reg);
 
 		mtspr(SPRN_DBCR0, 0x20000000); /* do chip reset */
 	}
@@ -240,19 +240,19 @@ int misc_init_r(void)
 	gd->bd->bi_flashoffset = 0;
 
 #if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
-	mtdcr(ebccfga, pb2cr);
+	mtdcr(EBC0_CFGADDR, PB2CR);
 #else
-	mtdcr(ebccfga, pb0cr);
+	mtdcr(EBC0_CFGADDR, PB0CR);
 #endif
-	pbcr = mfdcr(ebccfgd);
+	pbcr = mfdcr(EBC0_CFGDATA);
 	size_val = ffs(gd->bd->bi_flashsize) - 21;
 	pbcr = (pbcr & 0x0001ffff) | gd->bd->bi_flashstart | (size_val << 17);
 #if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
-	mtdcr(ebccfga, pb2cr);
+	mtdcr(EBC0_CFGADDR, PB2CR);
 #else
-	mtdcr(ebccfga, pb0cr);
+	mtdcr(EBC0_CFGADDR, PB0CR);
 #endif
-	mtdcr(ebccfgd, pbcr);
+	mtdcr(EBC0_CFGDATA, pbcr);
 
 	/*
 	 * Re-check to get correct base address
@@ -424,8 +424,8 @@ int misc_init_r(void)
 	 * This fix will make the MAL burst disabling patch for the Linux
 	 * EMAC driver obsolete.
 	 */
-	reg = mfdcr(plb4_acr) & ~PLB4_ACR_WRP;
-	mtdcr(plb4_acr, reg);
+	reg = mfdcr(PLB4_ACR) & ~PLB4_ACR_WRP;
+	mtdcr(PLB4_ACR, reg);
 
 #ifdef CONFIG_FPGA
 	pmc440_init_fpga();
@@ -507,35 +507,35 @@ int pci_pre_init(struct pci_controller *hose)
 	 * Set priority for all PLB3 devices to 0.
 	 * Set PLB3 arbiter to fair mode.
 	 */
-	mfsdr(sdr_amp1, addr);
-	mtsdr(sdr_amp1, (addr & 0x000000FF) | 0x0000FF00);
-	addr = mfdcr(plb3_acr);
-	mtdcr(plb3_acr, addr | 0x80000000);
+	mfsdr(SD0_AMP1, addr);
+	mtsdr(SD0_AMP1, (addr & 0x000000FF) | 0x0000FF00);
+	addr = mfdcr(PLB3_ACR);
+	mtdcr(PLB3_ACR, addr | 0x80000000);
 
 	/*
 	 * Set priority for all PLB4 devices to 0.
 	 */
-	mfsdr(sdr_amp0, addr);
-	mtsdr(sdr_amp0, (addr & 0x000000FF) | 0x0000FF00);
-	addr = mfdcr(plb4_acr) | 0xa0000000;	/* Was 0x8---- */
-	mtdcr(plb4_acr, addr);
+	mfsdr(SD0_AMP0, addr);
+	mtsdr(SD0_AMP0, (addr & 0x000000FF) | 0x0000FF00);
+	addr = mfdcr(PLB4_ACR) | 0xa0000000;	/* Was 0x8---- */
+	mtdcr(PLB4_ACR, addr);
 
 	/*
 	 * Set Nebula PLB4 arbiter to fair mode.
 	 */
 	/* Segment0 */
-	addr = (mfdcr(plb0_acr) & ~plb0_acr_ppm_mask) | plb0_acr_ppm_fair;
-	addr = (addr & ~plb0_acr_hbu_mask) | plb0_acr_hbu_enabled;
-	addr = (addr & ~plb0_acr_rdp_mask) | plb0_acr_rdp_4deep;
-	addr = (addr & ~plb0_acr_wrp_mask) | plb0_acr_wrp_2deep;
-	mtdcr(plb0_acr, addr);
+	addr = (mfdcr(PLB0_ACR) & ~PLB0_ACR_PPM_MASK) | PLB0_ACR_PPM_FAIR;
+	addr = (addr & ~PLB0_ACR_HBU_MASK) | PLB0_ACR_HBU_ENABLED;
+	addr = (addr & ~PLB0_ACR_RDP_MASK) | PLB0_ACR_RDP_4DEEP;
+	addr = (addr & ~PLB0_ACR_WRP_MASK) | PLB0_ACR_WRP_2DEEP;
+	mtdcr(PLB0_ACR, addr);
 
 	/* Segment1 */
-	addr = (mfdcr(plb1_acr) & ~plb1_acr_ppm_mask) | plb1_acr_ppm_fair;
-	addr = (addr & ~plb1_acr_hbu_mask) | plb1_acr_hbu_enabled;
-	addr = (addr & ~plb1_acr_rdp_mask) | plb1_acr_rdp_4deep;
-	addr = (addr & ~plb1_acr_wrp_mask) | plb1_acr_wrp_2deep;
-	mtdcr(plb1_acr, addr);
+	addr = (mfdcr(PLB1_ACR) & ~PLB1_ACR_PPM_MASK) | PLB1_ACR_PPM_FAIR;
+	addr = (addr & ~PLB1_ACR_HBU_MASK) | PLB1_ACR_HBU_ENABLED;
+	addr = (addr & ~PLB1_ACR_RDP_MASK) | PLB1_ACR_RDP_4DEEP;
+	addr = (addr & ~PLB1_ACR_WRP_MASK) | PLB1_ACR_WRP_2DEEP;
+	mtdcr(PLB1_ACR, addr);
 
 #ifdef CONFIG_PCI_PNP
 	hose->fixup_irq = pmc440_pci_fixup_irq;

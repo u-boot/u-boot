@@ -57,7 +57,7 @@ int board_early_init_f(void)
 
 #if !defined(CONFIG_NAND_U_BOOT)
 	/* don't reinit PLL when booting via I2C bootstrap option */
-	mfsdr(SDR_PINSTP, reg);
+	mfsdr(SDR0_PINSTP, reg);
 	if (reg != 0xf0000000)
 		board_pll_init_f();
 #endif
@@ -65,18 +65,18 @@ int board_early_init_f(void)
 	acadia_gpio_init();
 
 	/* Configure 405EZ for NAND usage */
-	mtsdr(sdrnand0, SDR_NAND0_NDEN | SDR_NAND0_NDAREN | SDR_NAND0_NDRBEN);
-	mfsdr(sdrultra0, reg);
+	mtsdr(SDR0_NAND0, SDR_NAND0_NDEN | SDR_NAND0_NDAREN | SDR_NAND0_NDRBEN);
+	mfsdr(SDR0_ULTRA0, reg);
 	reg &= ~SDR_ULTRA0_CSN_MASK;
 	reg |= (SDR_ULTRA0_CSNSEL0 >> CONFIG_SYS_NAND_CS) |
 		SDR_ULTRA0_NDGPIOBP |
 		SDR_ULTRA0_EBCRDYEN |
 		SDR_ULTRA0_NFSRSTEN;
-	mtsdr(sdrultra0, reg);
+	mtsdr(SDR0_ULTRA0, reg);
 
 	/* USB Host core needs this bit set */
-	mfsdr(sdrultra1, reg);
-	mtsdr(sdrultra1, reg | SDR_ULTRA1_LEDNENABLE);
+	mfsdr(SDR0_ULTRA1, reg);
+	mtsdr(SDR0_ULTRA1, reg | SDR_ULTRA1_LEDNENABLE);
 
 	mtdcr(uicsr, 0xFFFFFFFF);	/* clear all ints */
 	mtdcr(uicer, 0x00000000);	/* disable all ints */

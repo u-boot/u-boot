@@ -192,8 +192,8 @@ long int spd_sdram(void) {
 	/*
 	 * Soft-reset SDRAM controller.
 	 */
-	mtsdr(sdr_srst, SDR0_SRST_DMC);
-	mtsdr(sdr_srst, 0x00000000);
+	mtsdr(SDR0_SRST, SDR0_SRST_DMC);
+	mtsdr(SDR0_SRST, 0x00000000);
 #endif
 
 	/*
@@ -848,11 +848,11 @@ static int short_mem_test(void)
 		 0x55AA55AA, 0x55AA55AA, 0xAA55AA55, 0xAA55AA55}};
 
 	for (bxcr_num = 0; bxcr_num < MAXBXCR; bxcr_num++) {
-		mtdcr(memcfga, mem_b0cr + (bxcr_num << 2));
-		if ((mfdcr(memcfgd) & SDRAM_BXCR_SDBE) == SDRAM_BXCR_SDBE) {
+		mtdcr(SDRAM0_CFGADDR, mem_b0cr + (bxcr_num << 2));
+		if ((mfdcr(SDRAM0_CFGDATA) & SDRAM_BXCR_SDBE) == SDRAM_BXCR_SDBE) {
 			/* Bank is enabled */
 			membase = (unsigned long*)
-				(mfdcr(memcfgd) & SDRAM_BXCR_SDBA_MASK);
+				(mfdcr(SDRAM0_CFGDATA) & SDRAM_BXCR_SDBA_MASK);
 
 			/*
 			 * Run the short memory test
@@ -1086,8 +1086,8 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 	 * Set the BxCR regs.  First, wipe out the bank config registers.
 	 */
 	for (bx_cr_num = 0; bx_cr_num < MAXBXCR; bx_cr_num++) {
-		mtdcr(memcfga, mem_b0cr + (bx_cr_num << 2));
-		mtdcr(memcfgd, 0x00000000);
+		mtdcr(SDRAM0_CFGADDR, mem_b0cr + (bx_cr_num << 2));
+		mtdcr(SDRAM0_CFGDATA, 0x00000000);
 		bank_parms[bx_cr_num].bank_size_bytes = 0;
 	}
 
@@ -1232,12 +1232,12 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 	/* Set the SDRAM0_BxCR regs thanks to sort tables */
 	for (bx_cr_num = 0, bank_base_addr = 0; bx_cr_num < MAXBXCR; bx_cr_num++) {
 		if (bank_parms[sorted_bank_num[bx_cr_num]].bank_size_bytes) {
-			mtdcr(memcfga, mem_b0cr + (sorted_bank_num[bx_cr_num] << 2));
-			temp = mfdcr(memcfgd) & ~(SDRAM_BXCR_SDBA_MASK | SDRAM_BXCR_SDSZ_MASK |
+			mtdcr(SDRAM0_CFGADDR, mem_b0cr + (sorted_bank_num[bx_cr_num] << 2));
+			temp = mfdcr(SDRAM0_CFGDATA) & ~(SDRAM_BXCR_SDBA_MASK | SDRAM_BXCR_SDSZ_MASK |
 						  SDRAM_BXCR_SDAM_MASK | SDRAM_BXCR_SDBE);
 			temp = temp | (bank_base_addr & SDRAM_BXCR_SDBA_MASK) |
 				bank_parms[sorted_bank_num[bx_cr_num]].cr;
-			mtdcr(memcfgd, temp);
+			mtdcr(SDRAM0_CFGDATA, temp);
 			bank_base_addr += bank_parms[sorted_bank_num[bx_cr_num]].bank_size_bytes;
 			debug("SDRAM0_B%dCR=0x%08lx\n", sorted_bank_num[bx_cr_num], temp);
 		}

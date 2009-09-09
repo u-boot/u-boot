@@ -100,7 +100,7 @@ int __pci_pre_init(struct pci_controller *hose)
 	 * The arbiter is enabled in this place because of
 	 * compatibility reasons.
 	 */
-	mtdcr(cpc0_pci, mfdcr(cpc0_pci) | CPC0_PCI_ARBIT_EN);
+	mtdcr(CPC0_PCI, mfdcr(CPC0_PCI) | CPC0_PCI_ARBIT_EN);
 #endif /* CONFIG_405EP */
 
 	return 1;
@@ -118,10 +118,10 @@ ushort pmc405_pci_subsys_deviceid(void);
 int __is_pci_host(struct pci_controller *hose)
 {
 #if defined(CONFIG_405GP)
-	if (mfdcr(strap) & PSR_PCI_ARBIT_EN)
+	if (mfdcr(CPC0_PSR) & PSR_PCI_ARBIT_EN)
 		return 1;
 #elif defined (CONFIG_405EP)
-	if (mfdcr(cpc0_pci) & CPC0_PCI_ARBIT_EN)
+	if (mfdcr(CPC0_PCI) & CPC0_PCI_ARBIT_EN)
 		return 1;
 #endif
 	return 0;
@@ -491,7 +491,7 @@ int pci_440_init (struct pci_controller *hose)
 #if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	unsigned long strap;
 
-	mfsdr(sdr_sdstp1,strap);
+	mfsdr(SDR0_SDSTP1,strap);
 	if ((strap & SDR0_SDSTP1_PISE_MASK) == 0) {
 		printf("PCI: SDR0_STRP1[PISE] not set.\n");
 		printf("PCI: Configuration aborted.\n");
@@ -500,7 +500,7 @@ int pci_440_init (struct pci_controller *hose)
 #elif defined(CONFIG_440GP)
 	unsigned long strap;
 
-	strap = mfdcr(cpc0_strp1);
+	strap = mfdcr(CPC0_STRP1);
 	if ((strap & CPC0_STRP1_PISE_MASK) == 0) {
 		printf("PCI: CPC0_STRP1[PISE] not set.\n");
 		printf("PCI: Configuration aborted.\n");

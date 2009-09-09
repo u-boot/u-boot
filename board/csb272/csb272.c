@@ -95,7 +95,7 @@ int board_early_init_f(void)
 	mtdcr (uicvcr, 0x00000001);  /* set vect base=0,INT0 highest priority */
 	mtdcr (uicsr, 0xFFFFFFFF);   /* clear all ints */
 
-	mtebc (epcr, 0xa8400000);   /* EBC always driven */
+	mtebc (EBC0_CFG, 0xa8400000);   /* EBC always driven */
 
 	return 0; /* success */
 }
@@ -135,29 +135,29 @@ phys_size_t initdram (int board_type)
 
 	tot_size = 0;
 
-	mtdcr (memcfga, mem_mb0cf);
-	tmp = mfdcr (memcfgd);
+	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	tmp = mfdcr (SDRAM0_CFGDATA);
 	if (tmp & 0x00000001) {
 		bank_size = 0x00400000 << ((tmp >> 17) & 0x7);
 		tot_size += bank_size;
 	}
 
-	mtdcr (memcfga, mem_mb1cf);
-	tmp = mfdcr (memcfgd);
+	mtdcr (SDRAM0_CFGADDR, mem_mb1cf);
+	tmp = mfdcr (SDRAM0_CFGDATA);
 	if (tmp & 0x00000001) {
 		bank_size = 0x00400000 << ((tmp >> 17) & 0x7);
 		tot_size += bank_size;
 	}
 
-	mtdcr (memcfga, mem_mb2cf);
-	tmp = mfdcr (memcfgd);
+	mtdcr (SDRAM0_CFGADDR, mem_mb2cf);
+	tmp = mfdcr (SDRAM0_CFGDATA);
 	if (tmp & 0x00000001) {
 		bank_size = 0x00400000 << ((tmp >> 17) & 0x7);
 		tot_size += bank_size;
 	}
 
-	mtdcr (memcfga, mem_mb3cf);
-	tmp = mfdcr (memcfgd);
+	mtdcr (SDRAM0_CFGADDR, mem_mb3cf);
+	tmp = mfdcr (SDRAM0_CFGDATA);
 	if (tmp & 0x00000001) {
 		bank_size = 0x00400000 << ((tmp >> 17) & 0x7);
 		tot_size += bank_size;

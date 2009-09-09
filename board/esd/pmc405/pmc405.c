@@ -60,12 +60,12 @@ int board_early_init_f (void)
 	 * EBC Configuration Register:
 	 * set ready timeout to 512 ebc-clks -> ca. 15 us
 	 */
-	mtebc (epcr, 0xa8400000);
+	mtebc (EBC0_CFG, 0xa8400000);
 
 	/*
 	 * Setup GPIO pins
 	 */
-	mtdcr(cntrl0, mfdcr(cntrl0) | ((CONFIG_SYS_FPGA_INIT |
+	mtdcr(CPC0_CR0, mfdcr(CPC0_CR0) | ((CONFIG_SYS_FPGA_INIT |
 					CONFIG_SYS_FPGA_DONE |
 					CONFIG_SYS_XEREADY |
 					CONFIG_SYS_NONMONARCH |
@@ -73,7 +73,7 @@ int board_early_init_f (void)
 
 	if (!(in_be32((void *)GPIO0_IR) & CONFIG_SYS_REV1_2)) {
 		/* rev 1.2 boards */
-		mtdcr(cntrl0, mfdcr(cntrl0) | ((CONFIG_SYS_INTA_FAKE |
+		mtdcr(CPC0_CR0, mfdcr(CPC0_CR0) | ((CONFIG_SYS_INTA_FAKE |
 						CONFIG_SYS_SELF_RST) << 5));
 	}
 

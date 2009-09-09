@@ -58,17 +58,17 @@ void reconfigure_pll(u32 new_cpu_freq)
 		target_perdv0 = 4;
 		target_spcid0 = 4;
 
-		mfcpr(clk_primbd, reg);
+		mfcpr(CPR0_PRIMBD, reg);
 		temp = (reg & PRBDV_MASK) >> 24;
 		prbdv0 = temp ? temp : 8;
 		if (prbdv0 != target_prbdv0) {
 			reg &= ~PRBDV_MASK;
 			reg |= ((target_prbdv0 == 8 ? 0 : target_prbdv0) << 24);
-			mtcpr(clk_primbd, reg);
+			mtcpr(CPR0_PRIMBD, reg);
 			reset_needed = 1;
 		}
 
-		mfcpr(clk_plld, reg);
+		mfcpr(CPR0_PLLD, reg);
 
 		temp = (reg & PLLD_FWDVA_MASK) >> 16;
 		fwdva = temp ? temp : 16;
@@ -89,35 +89,35 @@ void reconfigure_pll(u32 new_cpu_freq)
 				((target_fwdvb == 8 ? 0 : target_fwdvb) << 8) |
 				((target_fbdv == 32 ? 0 : target_fbdv) << 24) |
 				(target_lfbdv == 64 ? 0 : target_lfbdv);
-			mtcpr(clk_plld, reg);
+			mtcpr(CPR0_PLLD, reg);
 			reset_needed = 1;
 		}
 
-		mfcpr(clk_perd, reg);
+		mfcpr(CPR0_PERD, reg);
 		perdv0 = (reg & CPR0_PERD_PERDV0_MASK) >> 24;
 		if (perdv0 != target_perdv0) {
 			reg &= ~CPR0_PERD_PERDV0_MASK;
 			reg |= (target_perdv0 << 24);
-			mtcpr(clk_perd, reg);
+			mtcpr(CPR0_PERD, reg);
 			reset_needed = 1;
 		}
 
-		mfcpr(clk_spcid, reg);
+		mfcpr(CPR0_SPCID, reg);
 		temp = (reg & CPR0_SPCID_SPCIDV0_MASK) >> 24;
 		spcid0 = temp ? temp : 4;
 		if (spcid0 != target_spcid0) {
 			reg &= ~CPR0_SPCID_SPCIDV0_MASK;
 			reg |= ((target_spcid0 == 4 ? 0 : target_spcid0) << 24);
-			mtcpr(clk_spcid, reg);
+			mtcpr(CPR0_SPCID, reg);
 			reset_needed = 1;
 		}
 
 		/* Set reload inhibit so configuration will persist across
 		 * processor resets */
-		mfcpr(clk_icfg, reg);
+		mfcpr(CPR0_ICFG, reg);
 		reg &= ~CPR0_ICFG_RLI_MASK;
 		reg |= 1 << 31;
-		mtcpr(clk_icfg, reg);
+		mtcpr(CPR0_ICFG, reg);
 	}
 
 	/* Reset processor if configuration changed */
@@ -173,7 +173,7 @@ cpu_init_f (void)
 	/*
 	 * Set EMAC noise filter bits
 	 */
-	mtdcr(cpc0_epctl, CPC0_EPRCSR_E0NFE | CPC0_EPRCSR_E1NFE);
+	mtdcr(CPC0_EPCTL, CPC0_EPRCSR_E0NFE | CPC0_EPRCSR_E1NFE);
 #endif /* CONFIG_405EP */
 
 #if defined(CONFIG_SYS_4xx_GPIO_TABLE)
@@ -204,43 +204,43 @@ cpu_init_f (void)
 	asm volatile("2:	bdnz	2b"		::: "ctr", "cr0");
 #endif
 
-	mtebc(pb0ap, CONFIG_SYS_EBC_PB0AP);
-	mtebc(pb0cr, CONFIG_SYS_EBC_PB0CR);
+	mtebc(PB0AP, CONFIG_SYS_EBC_PB0AP);
+	mtebc(PB0CR, CONFIG_SYS_EBC_PB0CR);
 #endif
 
 #if (defined(CONFIG_SYS_EBC_PB1AP) && defined(CONFIG_SYS_EBC_PB1CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 1))
-	mtebc(pb1ap, CONFIG_SYS_EBC_PB1AP);
-	mtebc(pb1cr, CONFIG_SYS_EBC_PB1CR);
+	mtebc(PB1AP, CONFIG_SYS_EBC_PB1AP);
+	mtebc(PB1CR, CONFIG_SYS_EBC_PB1CR);
 #endif
 
 #if (defined(CONFIG_SYS_EBC_PB2AP) && defined(CONFIG_SYS_EBC_PB2CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 2))
-	mtebc(pb2ap, CONFIG_SYS_EBC_PB2AP);
-	mtebc(pb2cr, CONFIG_SYS_EBC_PB2CR);
+	mtebc(PB2AP, CONFIG_SYS_EBC_PB2AP);
+	mtebc(PB2CR, CONFIG_SYS_EBC_PB2CR);
 #endif
 
 #if (defined(CONFIG_SYS_EBC_PB3AP) && defined(CONFIG_SYS_EBC_PB3CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 3))
-	mtebc(pb3ap, CONFIG_SYS_EBC_PB3AP);
-	mtebc(pb3cr, CONFIG_SYS_EBC_PB3CR);
+	mtebc(PB3AP, CONFIG_SYS_EBC_PB3AP);
+	mtebc(PB3CR, CONFIG_SYS_EBC_PB3CR);
 #endif
 
 #if (defined(CONFIG_SYS_EBC_PB4AP) && defined(CONFIG_SYS_EBC_PB4CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 4))
-	mtebc(pb4ap, CONFIG_SYS_EBC_PB4AP);
-	mtebc(pb4cr, CONFIG_SYS_EBC_PB4CR);
+	mtebc(PB4AP, CONFIG_SYS_EBC_PB4AP);
+	mtebc(PB4CR, CONFIG_SYS_EBC_PB4CR);
 #endif
 
 #if (defined(CONFIG_SYS_EBC_PB5AP) && defined(CONFIG_SYS_EBC_PB5CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 5))
-	mtebc(pb5ap, CONFIG_SYS_EBC_PB5AP);
-	mtebc(pb5cr, CONFIG_SYS_EBC_PB5CR);
+	mtebc(PB5AP, CONFIG_SYS_EBC_PB5AP);
+	mtebc(PB5CR, CONFIG_SYS_EBC_PB5CR);
 #endif
 
 #if (defined(CONFIG_SYS_EBC_PB6AP) && defined(CONFIG_SYS_EBC_PB6CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 6))
-	mtebc(pb6ap, CONFIG_SYS_EBC_PB6AP);
-	mtebc(pb6cr, CONFIG_SYS_EBC_PB6CR);
+	mtebc(PB6AP, CONFIG_SYS_EBC_PB6AP);
+	mtebc(PB6CR, CONFIG_SYS_EBC_PB6CR);
 #endif
 
 #if (defined(CONFIG_SYS_EBC_PB7AP) && defined(CONFIG_SYS_EBC_PB7CR) && !(CONFIG_SYS_INIT_DCACHE_CS == 7))
-	mtebc(pb7ap, CONFIG_SYS_EBC_PB7AP);
-	mtebc(pb7cr, CONFIG_SYS_EBC_PB7CR);
+	mtebc(PB7AP, CONFIG_SYS_EBC_PB7AP);
+	mtebc(PB7CR, CONFIG_SYS_EBC_PB7CR);
 #endif
 
 #if defined (CONFIG_SYS_EBC_CFG)
@@ -276,9 +276,9 @@ cpu_init_f (void)
 	 *       Compatibility mode and Ethernet Clock select are not
 	 *       correct in the manual
 	 */
-	mfsdr(sdr_mfr, val);
+	mfsdr(SDR0_MFR, val);
 	val &= ~0x10000000;
-	mtsdr(sdr_mfr,val);
+	mtsdr(SDR0_MFR,val);
 #endif /* CONFIG_440GX */
 
 #if defined(CONFIG_460EX)
@@ -304,10 +304,10 @@ cpu_init_f (void)
 	/*
 	 * Set PLB4 arbiter (Segment 0 and 1) to 4 deep pipeline read
 	 */
-	mtdcr(plb0_acr, (mfdcr(plb0_acr) & ~plb0_acr_rdp_mask) |
-	      plb0_acr_rdp_4deep);
-	mtdcr(plb1_acr, (mfdcr(plb1_acr) & ~plb1_acr_rdp_mask) |
-	      plb1_acr_rdp_4deep);
+	mtdcr(PLB0_ACR, (mfdcr(PLB0_ACR) & ~PLB0_ACR_RDP_MASK) |
+	      PLB0_ACR_RDP_4DEEP);
+	mtdcr(PLB1_ACR, (mfdcr(PLB1_ACR) & ~PLB1_ACR_RDP_MASK) |
+	      PLB1_ACR_RDP_4DEEP);
 #endif /* CONFIG_440SP/SPE || CONFIG_460EX/GT || CONFIG_405EX */
 }
 
@@ -324,7 +324,7 @@ int cpu_init_r (void)
 	 * for compatibility to existing PPC405GP designs.
 	 */
 	if ((pvr & 0xfffffff0) == (PVR_405GPR_RB & 0xfffffff0)) {
-		mtdcr(ecr, 0x60606000);
+		mtdcr(CPC0_ECR, 0x60606000);
 	}
 #endif  /* defined(CONFIG_405GP) */
 

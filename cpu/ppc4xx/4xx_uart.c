@@ -90,7 +90,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CR0_EXTCLK_ENA  0x00600000
 #define CR0_UDIV_POS    16
 #define UDIV_SUBTRACT	1
-#define UART0_SDR	cntrl0
+#define UART0_SDR	CPC0_CR0
 #define MFREG(a, d)	d = mfdcr(a)
 #define MTREG(a, d)	mtdcr(a, d)
 #else /* #if defined(CONFIG_440GP) */
@@ -99,18 +99,18 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CR0_EXTCLK_ENA  0x00800000
 #define CR0_UDIV_POS    0
 #define UDIV_SUBTRACT	0
-#define UART0_SDR	sdr_uart0
-#define UART1_SDR	sdr_uart1
+#define UART0_SDR	SDR0_UART0
+#define UART1_SDR	SDR0_UART1
 #if defined(CONFIG_440EP) || defined(CONFIG_440EPX) || \
     defined(CONFIG_440GR) || defined(CONFIG_440GRX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define UART2_SDR	sdr_uart2
+#define UART2_SDR	SDR0_UART2
 #endif
 #if defined(CONFIG_440EP) || defined(CONFIG_440EPX) || \
     defined(CONFIG_440GR) || defined(CONFIG_440GRX) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define UART3_SDR	sdr_uart3
+#define UART3_SDR	SDR0_UART3
 #endif
 #define MFREG(a, d)	mfsdr(a, d)
 #define MTREG(a, d)	mtsdr(a, d)
@@ -130,8 +130,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CR0_EXTCLK_ENA	0x00800000
 #define CR0_UDIV_POS	0
 #define UDIV_SUBTRACT	0
-#define UART0_SDR	sdr_uart0
-#define UART1_SDR	sdr_uart1
+#define UART0_SDR	SDR0_UART0
+#define UART1_SDR	SDR0_UART1
 #else /* CONFIG_405GP || CONFIG_405CR */
 #define UART0_BASE      0xef600300
 #define UART1_BASE      0xef600400
@@ -282,7 +282,7 @@ static void serial_divs (int baudrate, unsigned long *pudiv,
 	u32 reg;
 
 	/* check the pll feedback source */
-	mfcpr(cprpllc, cpr_pllc);
+	mfcpr(CPR0_PLLC, cpr_pllc);
 
 	get_sys_info(&sysinfo);
 
@@ -312,10 +312,10 @@ static void serial_divs (int baudrate, unsigned long *pudiv,
 	}
 
 	*pudiv = udiv;
-	mfcpr(cprperd0, reg);
+	mfcpr(CPC0_PERD0, reg);
 	reg &= ~0x0000ffff;
 	reg |= ((udiv - 0) << 8) | (udiv - 0);
-	mtcpr(cprperd0, reg);
+	mtcpr(CPC0_PERD0, reg);
 	*pbdiv = div / udiv;
 }
 #endif /* defined(CONFIG_440) && !defined(CONFIG_SYS_EXT_SERIAL_CLK) */
@@ -412,7 +412,7 @@ int serial_init_dev (unsigned long base)
 	clk = tmp = reg = 0;
 #else
 #ifdef CONFIG_405EP
-	reg = mfdcr(cpc0_ucr) & ~(UCR0_MASK | UCR1_MASK);
+	reg = mfdcr(CPC0_UCR) & ~(UCR0_MASK | UCR1_MASK);
 	clk = gd->cpu_clk;
 	tmp = CONFIG_SYS_BASE_BAUD * 16;
 	udiv = (clk + tmp / 2) / tmp;
@@ -420,9 +420,9 @@ int serial_init_dev (unsigned long base)
 		udiv = UDIV_MAX;
 	reg |= (udiv) << UCR0_UDIV_POS;	        /* set the UART divisor */
 	reg |= (udiv) << UCR1_UDIV_POS;	        /* set the UART divisor */
-	mtdcr (cpc0_ucr, reg);
+	mtdcr (CPC0_UCR, reg);
 #else /* CONFIG_405EP */
-	reg = mfdcr(cntrl0) & ~CR0_MASK;
+	reg = mfdcr(CPC0_CR0) & ~CR0_MASK;
 #ifdef CONFIG_SYS_EXT_SERIAL_CLOCK
 	clk = CONFIG_SYS_EXT_SERIAL_CLOCK;
 	udiv = 1;
@@ -439,7 +439,7 @@ int serial_init_dev (unsigned long base)
 #endif
 #endif
 	reg |= (udiv - 1) << CR0_UDIV_POS;	/* set the UART divisor */
-	mtdcr (cntrl0, reg);
+	mtdcr (CPC0_CR0, reg);
 #endif /* CONFIG_405EP */
 	tmp = gd->baudrate * udiv * 16;
 	bdiv = (clk + tmp / 2) / tmp;

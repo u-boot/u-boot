@@ -167,7 +167,7 @@ int board_early_init_f (void)
 	 |	0x07C00000 - 0 0 000 1 1 1 1 1 0000 0 00000 000000000000
 	 |
 	 +-------------------------------------------------------------------*/
-	mtebc(xbcfg, EBC_CFG_LE_UNLOCK |
+	mtebc(EBC0_CFG, EBC_CFG_LE_UNLOCK |
 			EBC_CFG_PTD_ENABLE |
 			EBC_CFG_RTC_16PERCLK |
 			EBC_CFG_ATC_PREVIOUS |
@@ -188,8 +188,8 @@ int board_early_init_f (void)
 	 | boot type
 	 |
 	 +-------------------------------------------------------------------*/
-	mtebc(pb1ap, EBC_BXAP_FPGA);
-	mtebc(pb1cr, EBC_BXCR_FPGA_CS1);
+	mtebc(PB1AP, EBC_BXAP_FPGA);
+	mtebc(PB1CR, EBC_BXCR_FPGA_CS1);
 
 	/*-------------------------------------------------------------------+
 	 |
@@ -334,10 +334,10 @@ int board_early_init_f (void)
 			break;
 	}
 
-	mtebc(pb0ap, ebc0_cs0_bxap_value);
-	mtebc(pb0cr, ebc0_cs0_bxcr_value);
-	mtebc(pb2ap, ebc0_cs2_bxap_value);
-	mtebc(pb2cr, ebc0_cs2_bxcr_value);
+	mtebc(PB0AP, ebc0_cs0_bxap_value);
+	mtebc(PB0CR, ebc0_cs0_bxcr_value);
+	mtebc(PB2AP, ebc0_cs2_bxap_value);
+	mtebc(PB2CR, ebc0_cs2_bxcr_value);
 
 	/*--------------------------------------------------------------------+
 	 | Interrupt controller setup for the AMCC 440SPe Evaluation board.
@@ -530,9 +530,9 @@ int board_early_init_f (void)
 	mtdcr (uic0sr, 0x00000000);	/* clear all interrupts */
 	mtdcr (uic0sr, 0xffffffff);	/* clear all interrupts */
 
-	mfsdr(sdr_mfr, mfr);
+	mfsdr(SDR0_MFR, mfr);
 	mfr |= SDR0_MFR_FIXD;		/* Workaround for PCI/DMA */
-	mtsdr(sdr_mfr, mfr);
+	mtsdr(SDR0_MFR, mfr);
 
 	fpga_init();
 
@@ -608,7 +608,7 @@ int pci_pre_init(struct pci_controller * hose )
 	 *	The yucca board is always configured as the host & requires the
 	 *	PCI arbiter to be enabled.
 	 *-------------------------------------------------------------------*/
-	mfsdr(sdr_sdstp1, strap);
+	mfsdr(SDR0_SDSTP1, strap);
 	if( (strap & SDR0_SDSTP1_PAE_MASK) == 0 ) {
 		printf("PCI: SDR0_STRP1[%08lX] - PCI Arbiter disabled.\n",strap);
 		return 0;

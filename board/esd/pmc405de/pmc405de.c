@@ -127,7 +127,7 @@ int board_early_init_f(void)
 	 * - set ready timeout to 512 ebc-clks -> ca. 15 us
 	 * - EBC lines are always driven
 	 */
-	mtebc(epcr, 0xa8400000);
+	mtebc(EBC0_CFG, 0xa8400000);
 
 	return 0;
 }

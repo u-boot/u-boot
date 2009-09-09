@@ -31,13 +31,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_early_init_f (void)
 {
-	unsigned long cntrl0Reg;
+	unsigned long CPC0_CR0Reg;
 
 	/*
 	 * Setup GPIO pins
 	 */
-	cntrl0Reg = mfdcr(cntrl0);
-	mtdcr(cntrl0, cntrl0Reg |
+	CPC0_CR0Reg = mfdcr(CPC0_CR0);
+	mtdcr(CPC0_CR0, CPC0_CR0Reg |
 	      ((CONFIG_SYS_EEPROM_WP | CONFIG_SYS_PB_LED |
 		CONFIG_SYS_SELF_RST | CONFIG_SYS_INTA_FAKE) << 5));
 
@@ -72,7 +72,7 @@ int board_early_init_f (void)
 
 int misc_init_r (void)
 {
-	unsigned long cntrl0Reg;
+	unsigned long CPC0_CR0Reg;
 
 	/* adjust flash start and offset */
 	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
@@ -81,8 +81,8 @@ int misc_init_r (void)
 	/*
 	 * Select cts (and not dsr) on uart1
 	 */
-	cntrl0Reg = mfdcr(cntrl0);
-	mtdcr(cntrl0, cntrl0Reg | 0x00001000);
+	CPC0_CR0Reg = mfdcr(CPC0_CR0);
+	mtdcr(CPC0_CR0, CPC0_CR0Reg | 0x00001000);
 
 	return (0);
 }

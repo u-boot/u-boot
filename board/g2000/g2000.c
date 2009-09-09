@@ -58,7 +58,7 @@ int board_early_init_f (void)
 	/*
 	 * EBC Configuration Register: set ready timeout to 512 ebc-clks -> ca. 15 us
 	 */
-	mtebc (epcr, 0xa8400000); /* ebc always driven */
+	mtebc (EBC0_CFG, 0xa8400000); /* ebc always driven */
 #endif
 
 	return 0;
@@ -114,7 +114,7 @@ int checkboard (void)
 
 long int init_sdram_static_settings(void)
 {
-#define mtsdram0(reg, data)  mtdcr(memcfga,reg);mtdcr(memcfgd,data)
+#define mtsdram0(reg, data)  mtdcr(SDRAM0_CFGADDR,reg);mtdcr(SDRAM0_CFGDATA,data)
 	/* disable memcontroller so updates work */
 	mtsdram0( mem_mcopt1, MEM_MCOPT1_INIT_VAL );
 	mtsdram0( mem_rtr   , MEM_RTR_INIT_VAL   );
@@ -154,15 +154,15 @@ int do_dumpebc(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong ap, cr;
 
 	printf("\nEBC registers for PPC405GP:\n");
-	mfebc(pb0ap, ap); mfebc(pb0cr, cr);
+	mfebc(PB0AP, ap); mfebc(PB0CR, cr);
 	printf("0: AP=%08lx CP=%08lx\n", ap, cr);
-	mfebc(pb1ap, ap); mfebc(pb1cr, cr);
+	mfebc(PB1AP, ap); mfebc(PB1CR, cr);
 	printf("1: AP=%08lx CP=%08lx\n", ap, cr);
-	mfebc(pb2ap, ap); mfebc(pb2cr, cr);
+	mfebc(PB2AP, ap); mfebc(PB2CR, cr);
 	printf("2: AP=%08lx CP=%08lx\n", ap, cr);
-	mfebc(pb3ap, ap); mfebc(pb3cr, cr);
+	mfebc(PB3AP, ap); mfebc(PB3CR, cr);
 	printf("3: AP=%08lx CP=%08lx\n", ap, cr);
-	mfebc(pb4ap, ap); mfebc(pb4cr, cr);
+	mfebc(PB4AP, ap); mfebc(PB4CR, cr);
 	printf("4: AP=%08lx CP=%08lx\n", ap, cr);
 	printf("\n");
 

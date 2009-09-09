@@ -85,14 +85,14 @@ int board_early_init_f(void)
 	/*--------------------------------------------------------------------
 	 * Setup the external bus controller/chip selects
 	 *-------------------------------------------------------------------*/
-	mtdcr(ebccfga, xbcfg);
-	reg = mfdcr(ebccfgd);
-	mtdcr(ebccfgd, reg | 0x04000000);	/* Set ATC */
+	mtdcr(EBC0_CFGADDR, EBC0_CFG);
+	reg = mfdcr(EBC0_CFGDATA);
+	mtdcr(EBC0_CFGDATA, reg | 0x04000000);	/* Set ATC */
 
 	/*--------------------------------------------------------------------
 	 * Setup pin multiplexing (GPIO/IRQ...)
 	 *-------------------------------------------------------------------*/
-	mtdcr(cpc0_gpio, 0x03F01F80);
+	mtdcr(CPC0_GPIO, 0x03F01F80);
 
 	out32(GPIO0_ODR, 0x00000000);	/* no open drain pins      */
 	out32(GPIO0_TCR, CONFIG_SYS_GPIO_RDY | CONFIG_SYS_EREADY_IO | CONFIG_SYS_LED_RED | CONFIG_SYS_LED_GREEN);
@@ -153,12 +153,12 @@ int misc_init_r (void)
 	 * Check if only one FLASH bank is available
 	 */
 	if (gd->bd->bi_flashsize != CONFIG_SYS_MAX_FLASH_BANKS * (0 - CONFIG_SYS_FLASH0)) {
-		mtebc(pb1cr, 0);			/* disable cs */
-		mtebc(pb1ap, 0);
-		mtebc(pb2cr, 0);			/* disable cs */
-		mtebc(pb2ap, 0);
-		mtebc(pb3cr, 0);			/* disable cs */
-		mtebc(pb3ap, 0);
+		mtebc(PB1CR, 0);			/* disable cs */
+		mtebc(PB1AP, 0);
+		mtebc(PB2CR, 0);			/* disable cs */
+		mtebc(PB2AP, 0);
+		mtebc(PB3CR, 0);			/* disable cs */
+		mtebc(PB3AP, 0);
 	}
 
 	return 0;
@@ -185,7 +185,7 @@ int pci_pre_init(struct pci_controller *hose)
 	 *	The P3P440 board is always configured as the host & requires the
 	 *	PCI arbiter to be disabled because it's an PMC module.
 	 *--------------------------------------------------------------------------*/
-	strap = mfdcr(cpc0_strp1);
+	strap = mfdcr(CPC0_STRP1);
 	if (strap & 0x00100000) {
 		printf("PCI: CPC0_STRP1[PAE] set.\n");
 		return 0;

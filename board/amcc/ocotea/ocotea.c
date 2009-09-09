@@ -54,7 +54,7 @@ int board_early_init_f (void)
 	/*-------------------------------------------------------------------------+
 	  | Initialize EBC CONFIG
 	  +-------------------------------------------------------------------------*/
-	mtebc(xbcfg, EBC_CFG_LE_UNLOCK |
+	mtebc(EBC0_CFG, EBC_CFG_LE_UNLOCK |
 	      EBC_CFG_PTD_ENABLE | EBC_CFG_RTC_64PERCLK |
 	      EBC_CFG_ATC_PREVIOUS | EBC_CFG_DTC_PREVIOUS |
 	      EBC_CFG_CTC_PREVIOUS | EBC_CFG_EMC_NONDEFAULT |
@@ -63,14 +63,14 @@ int board_early_init_f (void)
 	/*-------------------------------------------------------------------------+
 	  | FPGA. Initialize bank 7 with default values.
 	  +-------------------------------------------------------------------------*/
-	mtebc(pb7ap, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(7)|
+	mtebc(PB7AP, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(7)|
 	      EBC_BXAP_BCE_DISABLE|
 	      EBC_BXAP_CSN_ENCODE(1)|EBC_BXAP_OEN_ENCODE(1)|
 	      EBC_BXAP_WBN_ENCODE(1)|EBC_BXAP_WBF_ENCODE(1)|
 	      EBC_BXAP_TH_ENCODE(1)|EBC_BXAP_RE_DISABLED|
 	      EBC_BXAP_BEM_WRITEONLY|
 	      EBC_BXAP_PEN_DISABLED);
-	mtebc(pb7cr, EBC_BXCR_BAS_ENCODE(0x48300000)|
+	mtebc(PB7CR, EBC_BXCR_BAS_ENCODE(0x48300000)|
 	      EBC_BXCR_BS_1MB|EBC_BXCR_BU_RW|EBC_BXCR_BW_8BIT);
 
 	/* read FPGA base register FPGA_REG0 */
@@ -95,53 +95,53 @@ int board_early_init_f (void)
 	/*-------------------------------------------------------------------------+
 	  | 1 MB FLASH / 1 MB SRAM. Initialize bank 0 with default values.
 	  +-------------------------------------------------------------------------*/
-	mtebc(pb0ap, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(cs0_twt)|
+	mtebc(PB0AP, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(cs0_twt)|
 	      EBC_BXAP_BCE_DISABLE|
 	      EBC_BXAP_CSN_ENCODE(1)|EBC_BXAP_OEN_ENCODE(1)|
 	      EBC_BXAP_WBN_ENCODE(1)|EBC_BXAP_WBF_ENCODE(1)|
 	      EBC_BXAP_TH_ENCODE(1)|EBC_BXAP_RE_DISABLED|
 	      EBC_BXAP_BEM_WRITEONLY|
 	      EBC_BXAP_PEN_DISABLED);
-	mtebc(pb0cr, EBC_BXCR_BAS_ENCODE(cs0_base)|
+	mtebc(PB0CR, EBC_BXCR_BAS_ENCODE(cs0_base)|
 	      cs0_size|EBC_BXCR_BU_RW|EBC_BXCR_BW_8BIT);
 
 	/*-------------------------------------------------------------------------+
 	  | 8KB NVRAM/RTC. Initialize bank 1 with default values.
 	  +-------------------------------------------------------------------------*/
-	mtebc(pb1ap, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(10)|
+	mtebc(PB1AP, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(10)|
 	      EBC_BXAP_BCE_DISABLE|
 	      EBC_BXAP_CSN_ENCODE(1)|EBC_BXAP_OEN_ENCODE(1)|
 	      EBC_BXAP_WBN_ENCODE(1)|EBC_BXAP_WBF_ENCODE(1)|
 	      EBC_BXAP_TH_ENCODE(1)|EBC_BXAP_RE_DISABLED|
 	      EBC_BXAP_BEM_WRITEONLY|
 	      EBC_BXAP_PEN_DISABLED);
-	mtebc(pb1cr, EBC_BXCR_BAS_ENCODE(0x48000000)|
+	mtebc(PB1CR, EBC_BXCR_BAS_ENCODE(0x48000000)|
 	      EBC_BXCR_BS_1MB|EBC_BXCR_BU_RW|EBC_BXCR_BW_8BIT);
 
 	/*-------------------------------------------------------------------------+
 	  | 4 MB FLASH. Initialize bank 2 with default values.
 	  +-------------------------------------------------------------------------*/
-	mtebc(pb2ap, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(cs2_twt)|
+	mtebc(PB2AP, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(cs2_twt)|
 	      EBC_BXAP_BCE_DISABLE|
 	      EBC_BXAP_CSN_ENCODE(1)|EBC_BXAP_OEN_ENCODE(1)|
 	      EBC_BXAP_WBN_ENCODE(1)|EBC_BXAP_WBF_ENCODE(1)|
 	      EBC_BXAP_TH_ENCODE(1)|EBC_BXAP_RE_DISABLED|
 	      EBC_BXAP_BEM_WRITEONLY|
 	      EBC_BXAP_PEN_DISABLED);
-	mtebc(pb2cr, EBC_BXCR_BAS_ENCODE(cs2_base)|
+	mtebc(PB2CR, EBC_BXCR_BAS_ENCODE(cs2_base)|
 	      cs2_size|EBC_BXCR_BU_RW|EBC_BXCR_BW_8BIT);
 
 	/*-------------------------------------------------------------------------+
 	  | FPGA. Initialize bank 7 with default values.
 	  +-------------------------------------------------------------------------*/
-	mtebc(pb7ap, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(7)|
+	mtebc(PB7AP, EBC_BXAP_BME_DISABLED|EBC_BXAP_TWT_ENCODE(7)|
 	      EBC_BXAP_BCE_DISABLE|
 	      EBC_BXAP_CSN_ENCODE(1)|EBC_BXAP_OEN_ENCODE(1)|
 	      EBC_BXAP_WBN_ENCODE(1)|EBC_BXAP_WBF_ENCODE(1)|
 	      EBC_BXAP_TH_ENCODE(1)|EBC_BXAP_RE_DISABLED|
 	      EBC_BXAP_BEM_WRITEONLY|
 	      EBC_BXAP_PEN_DISABLED);
-	mtebc(pb7cr, EBC_BXCR_BAS_ENCODE(0x48300000)|
+	mtebc(PB7CR, EBC_BXCR_BAS_ENCODE(0x48300000)|
 	      EBC_BXCR_BS_1MB|EBC_BXCR_BU_RW|EBC_BXCR_BW_8BIT);
 
 	/*--------------------------------------------------------------------
@@ -189,9 +189,9 @@ int board_early_init_f (void)
 	mtdcr (uic0pr, 0xfc000000); /* */
 	mtdcr (uic0tr, 0x00000000); /* */
 	mtdcr (uic0vr, 0x00000001); /* */
-	mfsdr (sdr_mfr, mfr);
+	mfsdr (SDR0_MFR, mfr);
 	mfr &= ~SDR0_MFR_ECS_MASK;
-/*	mtsdr(sdr_mfr, mfr); */
+/*	mtsdr(SDR0_MFR, mfr); */
 	fpga_init();
 
 	return 0;
@@ -297,7 +297,7 @@ int pci_pre_init(struct pci_controller * hose )
 	 *	The ocotea board is always configured as the host & requires the
 	 *	PCI arbiter to be enabled.
 	 *--------------------------------------------------------------------------*/
-	mfsdr(sdr_sdstp1, strap);
+	mfsdr(SDR0_SDSTP1, strap);
 	if( (strap & SDR0_SDSTP1_PAE_MASK) == 0 ){
 		printf("PCI: SDR0_STRP1[%08lX] - PCI Arbiter disabled.\n",strap);
 		return 0;
@@ -379,8 +379,8 @@ void fpga_init(void)
 	unsigned long sdr0_cust0;
 	unsigned long pvr;
 
-	mfsdr (sdr_pfc0, sdr0_pfc0);
-	mfsdr (sdr_pfc1, sdr0_pfc1);
+	mfsdr (SDR0_PFC0, sdr0_pfc0);
+	mfsdr (SDR0_PFC1, sdr0_pfc1);
 	group = SDR0_PFC1_EPS_DECODE(sdr0_pfc1);
 	pvr = get_pvr ();
 
@@ -390,8 +390,8 @@ void fpga_init(void)
 		sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_CTEMS_MASK) | SDR0_PFC1_CTEMS_EMS;
 		out8(FPGA_REG2, (in8(FPGA_REG2) & ~FPGA_REG2_EXT_INTFACE_MASK) |
 		     FPGA_REG2_EXT_INTFACE_ENABLE);
-		mtsdr (sdr_pfc0, sdr0_pfc0);
-		mtsdr (sdr_pfc1, sdr0_pfc1);
+		mtsdr (SDR0_PFC0, sdr0_pfc0);
+		mtsdr (SDR0_PFC1, sdr0_pfc1);
 	} else {
 		sdr0_pfc0 = (sdr0_pfc0 & ~SDR0_PFC0_TRE_MASK) | SDR0_PFC0_TRE_ENABLE;
 		switch (group)
@@ -403,8 +403,8 @@ void fpga_init(void)
 			out8(FPGA_REG2, (in8(FPGA_REG2) & ~FPGA_REG2_EXT_INTFACE_MASK) |
 			     FPGA_REG2_EXT_INTFACE_ENABLE);
 			sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_CTEMS_MASK) | SDR0_PFC1_CTEMS_EMS;
-			mtsdr (sdr_pfc0, sdr0_pfc0);
-			mtsdr (sdr_pfc1, sdr0_pfc1);
+			mtsdr (SDR0_PFC0, sdr0_pfc0);
+			mtsdr (SDR0_PFC1, sdr0_pfc1);
 			break;
 		case 3:
 		case 4:
@@ -412,8 +412,8 @@ void fpga_init(void)
 		case 6:
 			/* CPU trace B - Over EBMI */
 			sdr0_pfc1 = (sdr0_pfc1 & ~SDR0_PFC1_CTEMS_MASK) | SDR0_PFC1_CTEMS_CPUTRACE;
-			mtsdr (sdr_pfc0, sdr0_pfc0);
-			mtsdr (sdr_pfc1, sdr0_pfc1);
+			mtsdr (SDR0_PFC0, sdr0_pfc0);
+			mtsdr (SDR0_PFC1, sdr0_pfc1);
 			out8(FPGA_REG2, (in8(FPGA_REG2) & ~FPGA_REG2_EXT_INTFACE_MASK) |
 			     FPGA_REG2_EXT_INTFACE_DISABLE);
 			break;
@@ -421,8 +421,8 @@ void fpga_init(void)
 	}
 
 	/* Initialize the ethernet specific functions in the fpga */
-	mfsdr(sdr_pfc1, sdr0_pfc1);
-	mfsdr(sdr_cust0, sdr0_cust0);
+	mfsdr(SDR0_PFC1, sdr0_pfc1);
+	mfsdr(SDR0_CUST0, sdr0_cust0);
 	if ( (SDR0_PFC1_EPS_DECODE(sdr0_pfc1) == 4) &&
 	    ((SDR0_CUST0_RGMII2_DECODE(sdr0_cust0) == RGMII_FER_GMII) ||
 	     (SDR0_CUST0_RGMII2_DECODE(sdr0_cust0) == RGMII_FER_TBI)))

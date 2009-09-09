@@ -94,8 +94,8 @@ int board_early_init_f(void)
 	}
 	mtsdr(SDR0_CP440, 0x0EAAEA02);  /* [Nto1] = 1*/
 #endif
-	mtdcr(ebccfga, xbcfg);
-	mtdcr(ebccfgd, 0xb8400000);
+	mtdcr(EBC0_CFGADDR, EBC0_CFG);
+	mtdcr(EBC0_CFGDATA, 0xb8400000);
 
 	/*
 	 * Setup the GPIO pins
@@ -152,8 +152,8 @@ int board_early_init_f(void)
 	mtdcr(uic2tr, 0x00000000);	/* per ref-board manual */
 	mtdcr(uic2vr, 0x00000000);	/* int31 highest, base=0x000 */
 	mtdcr(uic2sr, 0xffffffff);	/* clear all */
-	mtsdr(sdr_pfc0, 0x00003E00);	/* Pin function:  */
-	mtsdr(sdr_pfc1, 0x00848000);	/* Pin function: UART0 has 4 pins */
+	mtsdr(SDR0_PFC0, 0x00003E00);	/* Pin function:  */
+	mtsdr(SDR0_PFC1, 0x00848000);	/* Pin function: UART0 has 4 pins */
 
 	/* setup BOOT FLASH */
 	mtsdr(SDR0_CUST0, 0xC0082350);
@@ -324,7 +324,7 @@ int board_with_pci(void)
 {
 	u32 reg;
 
-	mfsdr(sdr_pci0, reg);
+	mfsdr(SDR0_PCI0, reg);
 	return (reg & SDR0_XCR_PAE_MASK);
 }
 
@@ -350,28 +350,28 @@ int pci_pre_init(struct pci_controller *hose)
 	 * Set priority for all PLB3 devices to 0.
 	 * Set PLB3 arbiter to fair mode.
 	 */
-	mfsdr(sdr_amp1, addr);
-	mtsdr(sdr_amp1, (addr & 0x000000FF) | 0x0000FF00);
-	addr = mfdcr(plb3_acr);
-	mtdcr(plb3_acr, addr | 0x80000000); /* Sequoia */
+	mfsdr(SD0_AMP1, addr);
+	mtsdr(SD0_AMP1, (addr & 0x000000FF) | 0x0000FF00);
+	addr = mfdcr(PLB3_ACR);
+	mtdcr(PLB3_ACR, addr | 0x80000000); /* Sequoia */
 
 	/*
 	 * Set priority for all PLB4 devices to 0.
 	 */
-	mfsdr(sdr_amp0, addr);
-	mtsdr(sdr_amp0, (addr & 0x000000FF) | 0x0000FF00);
-	addr = mfdcr(plb4_acr) | 0xa0000000;	/* Was 0x8---- */
-	mtdcr(plb4_acr, addr);  /* Sequoia */
+	mfsdr(SD0_AMP0, addr);
+	mtsdr(SD0_AMP0, (addr & 0x000000FF) | 0x0000FF00);
+	addr = mfdcr(PLB4_ACR) | 0xa0000000;	/* Was 0x8---- */
+	mtdcr(PLB4_ACR, addr);  /* Sequoia */
 
 	/*
 	 * As of errata version 0.4, CHIP_8: Incorrect Write to DDR SDRAM.
 	 * Workaround: Disable write pipelining to DDR SDRAM by setting
 	 * PLB0_ACR[WRP] = 0.
 	 */
-	mtdcr(plb0_acr, 0);  /* PATCH HAB: WRITE PIPELINING OFF */
+	mtdcr(PLB0_ACR, 0);  /* PATCH HAB: WRITE PIPELINING OFF */
 
 	/* Segment1 */
-	mtdcr(plb1_acr, 0);  /* PATCH HAB: WRITE PIPELINING OFF */
+	mtdcr(PLB1_ACR, 0);  /* PATCH HAB: WRITE PIPELINING OFF */
 
 	return board_with_pci();
 }

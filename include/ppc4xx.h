@@ -65,49 +65,37 @@
 
 #define PLB_ARBITER_BASE		0x80
 
-#define plb0_revid			(PLB_ARBITER_BASE + 0x00)
-#define plb0_acr			(PLB_ARBITER_BASE + 0x01)
-#define plb0_acr_ppm_mask		0xF0000000
-#define plb0_acr_ppm_fixed		0x00000000
-#define plb0_acr_ppm_fair		0xD0000000
-#define plb0_acr_hbu_mask		0x08000000
-#define plb0_acr_hbu_disabled		0x00000000
-#define plb0_acr_hbu_enabled		0x08000000
-#define plb0_acr_rdp_mask		0x06000000
-#define plb0_acr_rdp_disabled		0x00000000
-#define plb0_acr_rdp_2deep		0x02000000
-#define plb0_acr_rdp_3deep		0x04000000
-#define plb0_acr_rdp_4deep		0x06000000
-#define plb0_acr_wrp_mask		0x01000000
-#define plb0_acr_wrp_disabled		0x00000000
-#define plb0_acr_wrp_2deep		0x01000000
+#define PLB0_ACR			(PLB_ARBITER_BASE + 0x01)
+#define PLB0_ACR_PPM_MASK		0xF0000000
+#define PLB0_ACR_PPM_FIXED		0x00000000
+#define PLB0_ACR_PPM_FAIR		0xD0000000
+#define PLB0_ACR_HBU_MASK		0x08000000
+#define PLB0_ACR_HBU_DISABLED		0x00000000
+#define PLB0_ACR_HBU_ENABLED		0x08000000
+#define PLB0_ACR_RDP_MASK		0x06000000
+#define PLB0_ACR_RDP_DISABLED		0x00000000
+#define PLB0_ACR_RDP_2DEEP		0x02000000
+#define PLB0_ACR_RDP_3DEEP		0x04000000
+#define PLB0_ACR_RDP_4DEEP		0x06000000
+#define PLB0_ACR_WRP_MASK		0x01000000
+#define PLB0_ACR_WRP_DISABLED		0x00000000
+#define PLB0_ACR_WRP_2DEEP		0x01000000
 
-#define plb0_besrl			(PLB_ARBITER_BASE + 0x02)
-#define plb0_besrh			(PLB_ARBITER_BASE + 0x03)
-#define plb0_bearl			(PLB_ARBITER_BASE + 0x04)
-#define plb0_bearh			(PLB_ARBITER_BASE + 0x05)
-#define plb0_ccr			(PLB_ARBITER_BASE + 0x08)
-
-#define plb1_acr			(PLB_ARBITER_BASE + 0x09)
-#define plb1_acr_ppm_mask		0xF0000000
-#define plb1_acr_ppm_fixed		0x00000000
-#define plb1_acr_ppm_fair		0xD0000000
-#define plb1_acr_hbu_mask		0x08000000
-#define plb1_acr_hbu_disabled		0x00000000
-#define plb1_acr_hbu_enabled		0x08000000
-#define plb1_acr_rdp_mask		0x06000000
-#define plb1_acr_rdp_disabled		0x00000000
-#define plb1_acr_rdp_2deep		0x02000000
-#define plb1_acr_rdp_3deep		0x04000000
-#define plb1_acr_rdp_4deep		0x06000000
-#define plb1_acr_wrp_mask		0x01000000
-#define plb1_acr_wrp_disabled		0x00000000
-#define plb1_acr_wrp_2deep		0x01000000
-
-#define plb1_besrl			(PLB_ARBITER_BASE + 0x0A)
-#define plb1_besrh			(PLB_ARBITER_BASE + 0x0B)
-#define plb1_bearl			(PLB_ARBITER_BASE + 0x0C)
-#define plb1_bearh			(PLB_ARBITER_BASE + 0x0D)
+#define PLB1_ACR			(PLB_ARBITER_BASE + 0x09)
+#define PLB1_ACR_PPM_MASK		0xF0000000
+#define PLB1_ACR_PPM_FIXED		0x00000000
+#define PLB1_ACR_PPM_FAIR		0xD0000000
+#define PLB1_ACR_HBU_MASK		0x08000000
+#define PLB1_ACR_HBU_DISABLED		0x00000000
+#define PLB1_ACR_HBU_ENABLED		0x08000000
+#define PLB1_ACR_RDP_MASK		0x06000000
+#define PLB1_ACR_RDP_DISABLED		0x00000000
+#define PLB1_ACR_RDP_2DEEP		0x02000000
+#define PLB1_ACR_RDP_3DEEP		0x04000000
+#define PLB1_ACR_RDP_4DEEP		0x06000000
+#define PLB1_ACR_WRP_MASK		0x01000000
+#define PLB1_ACR_WRP_DISABLED		0x00000000
+#define PLB1_ACR_WRP_2DEEP		0x01000000
 
 #endif /* 440EP/EPX 440GR/GRX 440SP/SPE 460EX/GT/SX 405EX*/
 
@@ -156,35 +144,35 @@
 						     line aligned data. */
 
 #define CPR0_DCR_BASE	0x0C
-#define cprcfga		(CPR0_DCR_BASE+0x0)
-#define cprcfgd		(CPR0_DCR_BASE+0x1)
+#define CPR0_CFGADDR	(CPR0_DCR_BASE + 0x0)
+#define CPR0_CFGDATA	(CPR0_DCR_BASE + 0x1)
 
 #define SDR_DCR_BASE	0x0E
-#define sdrcfga		(SDR_DCR_BASE+0x0)
-#define sdrcfgd		(SDR_DCR_BASE+0x1)
+#define SDR0_CFGADDR	(SDR_DCR_BASE + 0x0)
+#define SDR0_CFGDATA	(SDR_DCR_BASE + 0x1)
 
 #define SDRAM_DCR_BASE	0x10
-#define memcfga		(SDRAM_DCR_BASE+0x0)
-#define memcfgd		(SDRAM_DCR_BASE+0x1)
+#define SDRAM0_CFGADDR	(SDRAM_DCR_BASE + 0x0)
+#define SDRAM0_CFGDATA	(SDRAM_DCR_BASE + 0x1)
 
 #define EBC_DCR_BASE	0x12
-#define ebccfga		(EBC_DCR_BASE+0x0)
-#define ebccfgd		(EBC_DCR_BASE+0x1)
+#define EBC0_CFGADDR	(EBC_DCR_BASE + 0x0)
+#define EBC0_CFGDATA	(EBC_DCR_BASE + 0x1)
 
 /*
  * Macros for indirect DCR access
  */
-#define mtcpr(reg, d)	do { mtdcr(cprcfga,reg);mtdcr(cprcfgd,d); } while (0)
-#define mfcpr(reg, d)	do { mtdcr(cprcfga,reg);d = mfdcr(cprcfgd); } while (0)
+#define mtcpr(reg, d)	do { mtdcr(CPR0_CFGADDR,reg);mtdcr(CPR0_CFGDATA,d); } while (0)
+#define mfcpr(reg, d)	do { mtdcr(CPR0_CFGADDR,reg);d = mfdcr(CPR0_CFGDATA); } while (0)
 
-#define mtebc(reg, d)	do { mtdcr(ebccfga,reg);mtdcr(ebccfgd,d); } while (0)
-#define mfebc(reg, d)	do { mtdcr(ebccfga,reg);d = mfdcr(ebccfgd); } while (0)
+#define mtebc(reg, d)	do { mtdcr(EBC0_CFGADDR,reg);mtdcr(EBC0_CFGDATA,d); } while (0)
+#define mfebc(reg, d)	do { mtdcr(EBC0_CFGADDR,reg);d = mfdcr(EBC0_CFGDATA); } while (0)
 
-#define mtsdram(reg, d)	do { mtdcr(memcfga,reg);mtdcr(memcfgd,d); } while (0)
-#define mfsdram(reg, d)	do { mtdcr(memcfga,reg);d = mfdcr(memcfgd); } while (0)
+#define mtsdram(reg, d)	do { mtdcr(SDRAM0_CFGADDR,reg);mtdcr(SDRAM0_CFGDATA,d); } while (0)
+#define mfsdram(reg, d)	do { mtdcr(SDRAM0_CFGADDR,reg);d = mfdcr(SDRAM0_CFGDATA); } while (0)
 
-#define mtsdr(reg, d)	do { mtdcr(sdrcfga,reg);mtdcr(sdrcfgd,d); } while (0)
-#define mfsdr(reg, d)	do { mtdcr(sdrcfga,reg);d = mfdcr(sdrcfgd); } while (0)
+#define mtsdr(reg, d)	do { mtdcr(SDR0_CFGADDR,reg);mtdcr(SDR0_CFGDATA,d); } while (0)
+#define mfsdr(reg, d)	do { mtdcr(SDR0_CFGADDR,reg);d = mfdcr(SDR0_CFGDATA); } while (0)
 
 #ifndef __ASSEMBLY__
 

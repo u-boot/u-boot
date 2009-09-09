@@ -207,8 +207,8 @@ int board_nand_init(struct nand_chip *nand)
 	 */
 	mtebc(EBC0_CFG, 0xb8400000);
 
-	mtebc(pb0cr, CONFIG_SYS_EBC_PB0CR);
-	mtebc(pb0ap, CONFIG_SYS_EBC_PB0AP);
+	mtebc(PB0CR, CONFIG_SYS_EBC_PB0CR);
+	mtebc(PB0AP, CONFIG_SYS_EBC_PB0AP);
 #endif
 
 	chip++;

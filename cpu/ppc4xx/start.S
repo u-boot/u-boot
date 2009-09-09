@@ -83,64 +83,64 @@
 
 #ifdef CONFIG_SYS_INIT_DCACHE_CS
 # if (CONFIG_SYS_INIT_DCACHE_CS == 0)
-#  define PBxAP pb0ap
-#  define PBxCR pb0cr
+#  define PBxAP PB1AP
+#  define PBxCR PB0CR
 #  if (defined(CONFIG_SYS_EBC_PB0AP) && defined(CONFIG_SYS_EBC_PB0CR))
 #   define PBxAP_VAL CONFIG_SYS_EBC_PB0AP
 #   define PBxCR_VAL CONFIG_SYS_EBC_PB0CR
 #  endif
 # endif
 # if (CONFIG_SYS_INIT_DCACHE_CS == 1)
-#  define PBxAP pb1ap
-#  define PBxCR pb1cr
+#  define PBxAP PB1AP
+#  define PBxCR PB1CR
 #  if (defined(CONFIG_SYS_EBC_PB1AP) && defined(CONFIG_SYS_EBC_PB1CR))
 #   define PBxAP_VAL CONFIG_SYS_EBC_PB1AP
 #   define PBxCR_VAL CONFIG_SYS_EBC_PB1CR
 #  endif
 # endif
 # if (CONFIG_SYS_INIT_DCACHE_CS == 2)
-#  define PBxAP pb2ap
-#  define PBxCR pb2cr
+#  define PBxAP PB2AP
+#  define PBxCR PB2CR
 #  if (defined(CONFIG_SYS_EBC_PB2AP) && defined(CONFIG_SYS_EBC_PB2CR))
 #   define PBxAP_VAL CONFIG_SYS_EBC_PB2AP
 #   define PBxCR_VAL CONFIG_SYS_EBC_PB2CR
 #  endif
 # endif
 # if (CONFIG_SYS_INIT_DCACHE_CS == 3)
-#  define PBxAP pb3ap
-#  define PBxCR pb3cr
+#  define PBxAP PB3AP
+#  define PBxCR PB3CR
 #  if (defined(CONFIG_SYS_EBC_PB3AP) && defined(CONFIG_SYS_EBC_PB3CR))
 #   define PBxAP_VAL CONFIG_SYS_EBC_PB3AP
 #   define PBxCR_VAL CONFIG_SYS_EBC_PB3CR
 #  endif
 # endif
 # if (CONFIG_SYS_INIT_DCACHE_CS == 4)
-#  define PBxAP pb4ap
-#  define PBxCR pb4cr
+#  define PBxAP PB4AP
+#  define PBxCR PB4CR
 #  if (defined(CONFIG_SYS_EBC_PB4AP) && defined(CONFIG_SYS_EBC_PB4CR))
 #   define PBxAP_VAL CONFIG_SYS_EBC_PB4AP
 #   define PBxCR_VAL CONFIG_SYS_EBC_PB4CR
 #  endif
 # endif
 # if (CONFIG_SYS_INIT_DCACHE_CS == 5)
-#  define PBxAP pb5ap
-#  define PBxCR pb5cr
+#  define PBxAP PB5AP
+#  define PBxCR PB5CR
 #  if (defined(CONFIG_SYS_EBC_PB5AP) && defined(CONFIG_SYS_EBC_PB5CR))
 #   define PBxAP_VAL CONFIG_SYS_EBC_PB5AP
 #   define PBxCR_VAL CONFIG_SYS_EBC_PB5CR
 #  endif
 # endif
 # if (CONFIG_SYS_INIT_DCACHE_CS == 6)
-#  define PBxAP pb6ap
-#  define PBxCR pb6cr
+#  define PBxAP PB6AP
+#  define PBxCR PB6CR
 #  if (defined(CONFIG_SYS_EBC_PB6AP) && defined(CONFIG_SYS_EBC_PB6CR))
 #   define PBxAP_VAL CONFIG_SYS_EBC_PB6AP
 #   define PBxCR_VAL CONFIG_SYS_EBC_PB6CR
 #  endif
 # endif
 # if (CONFIG_SYS_INIT_DCACHE_CS == 7)
-#  define PBxAP pb7ap
-#  define PBxCR pb7cr
+#  define PBxAP PB7AP
+#  define PBxCR PB7CR
 #  if (defined(CONFIG_SYS_EBC_PB7AP) && defined(CONFIG_SYS_EBC_PB7CR))
 #   define PBxAP_VAL CONFIG_SYS_EBC_PB7AP
 #   define PBxCR_VAL CONFIG_SYS_EBC_PB7CR
@@ -998,7 +998,7 @@ _start:
 	/*----------------------------------------------------------------------- */
 	addis	r3,r0, 0xFFFF		/* Clear all existing DMA status */
 	ori	r3,r3, 0xFFFF
-	mtdcr	dmasr, r3
+	mtdcr	DMASR, r3
 
 	bl	ppc405ep_init		/* do ppc405ep specific init */
 #endif /* CONFIG_405EP */
@@ -1015,21 +1015,21 @@ _start:
 	lis	r3,CONFIG_SYS_OCM_DATA_ADDR@h	/* OCM location */
 	ori	r3,r3,CONFIG_SYS_OCM_DATA_ADDR@l
 	ori	r3,r3,0x0270		/* 16K for Bank 1, R/W/Enable */
-	mtdcr	ocmplb3cr1,r3		/* Set PLB Access */
+	mtdcr	OCM0_PLBCR1,r3		/* Set PLB Access */
 	ori	r3,r3,0x4000		/* Add 0x4000 for bank 2 */
-	mtdcr	ocmplb3cr2,r3		/* Set PLB Access */
+	mtdcr	OCM0_PLBCR2,r3		/* Set PLB Access */
 	isync
 
 	lis	r3,CONFIG_SYS_OCM_DATA_ADDR@h	/* OCM location */
 	ori	r3,r3,CONFIG_SYS_OCM_DATA_ADDR@l
 	ori	r3,r3,0x0270		/* 16K for Bank 1, R/W/Enable */
-	mtdcr	ocmdscr1, r3		/* Set Data Side */
-	mtdcr	ocmiscr1, r3		/* Set Instruction Side */
+	mtdcr	OCM0_DSRC1, r3		/* Set Data Side */
+	mtdcr	OCM0_ISRC1, r3		/* Set Instruction Side */
 	ori	r3,r3,0x4000		/* Add 0x4000 for bank 2 */
-	mtdcr	ocmdscr2, r3		/* Set Data Side */
-	mtdcr	ocmiscr2, r3		/* Set Instruction Side */
+	mtdcr	OCM0_DSRC2, r3		/* Set Data Side */
+	mtdcr	OCM0_ISRC2, r3		/* Set Instruction Side */
 	addis	r3,0,0x0800		/* OCM Data Parity Disable - 1 Wait State */
-	mtdcr	ocmdsisdpc,r3
+	mtdcr	OCM0_DISDPC,r3
 
 	isync
 #else /* CONFIG_405EZ */
@@ -1039,19 +1039,19 @@ _start:
 	/* Setup OCM */
 	lis	r0, 0x7FFF
 	ori	r0, r0, 0xFFFF
-	mfdcr	r3, ocmiscntl		/* get instr-side IRAM config */
-	mfdcr	r4, ocmdscntl		/* get data-side IRAM config */
+	mfdcr	r3, OCM0_ISCNTL		/* get instr-side IRAM config */
+	mfdcr	r4, OCM0_DSCNTL		/* get data-side IRAM config */
 	and	r3, r3, r0		/* disable data-side IRAM */
 	and	r4, r4, r0		/* disable data-side IRAM */
-	mtdcr	ocmiscntl, r3		/* set instr-side IRAM config */
-	mtdcr	ocmdscntl, r4		/* set data-side IRAM config */
+	mtdcr	OCM0_ISCNTL, r3		/* set instr-side IRAM config */
+	mtdcr	OCM0_DSCNTL, r4		/* set data-side IRAM config */
 	isync
 
 	lis	r3,CONFIG_SYS_OCM_DATA_ADDR@h	/* OCM location */
 	ori	r3,r3,CONFIG_SYS_OCM_DATA_ADDR@l
-	mtdcr	ocmdsarc, r3
+	mtdcr	OCM0_DSARC, r3
 	addis	r4, 0, 0xC000		/* OCM data area enabled */
-	mtdcr	ocmdscntl, r4
+	mtdcr	OCM0_DSCNTL, r4
 	isync
 #endif /* CONFIG_405EZ */
 #endif
@@ -1061,16 +1061,16 @@ _start:
 	/*----------------------------------------------------------------------- */
 #ifdef CONFIG_SYS_INIT_DCACHE_CS
 	li	r4, PBxAP
-	mtdcr	ebccfga, r4
+	mtdcr	EBC0_CFGADDR, r4
 	lis	r4, CONFIG_SYS_INIT_DCACHE_PBxAR@h
 	ori	r4, r4, CONFIG_SYS_INIT_DCACHE_PBxAR@l
-	mtdcr	ebccfgd, r4
+	mtdcr	EBC0_CFGDATA, r4
 
 	addi	r4, 0, PBxCR
-	mtdcr	ebccfga, r4
+	mtdcr	EBC0_CFGADDR, r4
 	lis	r4, CONFIG_SYS_INIT_DCACHE_PBxCR@h
 	ori	r4, r4, CONFIG_SYS_INIT_DCACHE_PBxCR@l
-	mtdcr	ebccfgd, r4
+	mtdcr	EBC0_CFGDATA, r4
 
 	/*
 	 * Enable the data cache for the 128MB storage access control region
@@ -1428,16 +1428,16 @@ relocate_code:
 
 	/* Restore the EBC parameters */
 	li	r3, PBxAP
-	mtdcr	ebccfga, r3
+	mtdcr	EBC0_CFGADDR, r3
 	lis	r3, PBxAP_VAL@h
 	ori	r3, r3, PBxAP_VAL@l
-	mtdcr	ebccfgd, r3
+	mtdcr	EBC0_CFGDATA, r3
 
 	li	r3, PBxCR
-	mtdcr	ebccfga, r3
+	mtdcr	EBC0_CFGADDR, r3
 	lis	r3, PBxCR_VAL@h
 	ori	r3, r3, PBxCR_VAL@l
-	mtdcr	ebccfgd, r3
+	mtdcr	EBC0_CFGDATA, r3
 #endif /* defined(CONFIG_SYS_INIT_DCACHE_CS) */
 
 	/* Restore registers */
@@ -1860,38 +1860,38 @@ ppc405ep_init:
 	ori	r4,r4,CONFIG_SYS_GPIO0_TCR@l
 	stw	r4,0(r3)
 
-	li	r3,pb1ap		/* program EBC bank 1 for RTC access */
-	mtdcr	ebccfga,r3
+	li	r3,PB1AP		/* program EBC bank 1 for RTC access */
+	mtdcr	EBC0_CFGADDR,r3
 	lis	r3,CONFIG_SYS_EBC_PB1AP@h
 	ori	r3,r3,CONFIG_SYS_EBC_PB1AP@l
-	mtdcr	ebccfgd,r3
-	li	r3,pb1cr
-	mtdcr	ebccfga,r3
+	mtdcr	EBC0_CFGDATA,r3
+	li	r3,PB1CR
+	mtdcr	EBC0_CFGADDR,r3
 	lis	r3,CONFIG_SYS_EBC_PB1CR@h
 	ori	r3,r3,CONFIG_SYS_EBC_PB1CR@l
-	mtdcr	ebccfgd,r3
+	mtdcr	EBC0_CFGDATA,r3
 
-	li	r3,pb1ap		/* program EBC bank 1 for RTC access */
-	mtdcr	ebccfga,r3
+	li	r3,PB1AP		/* program EBC bank 1 for RTC access */
+	mtdcr	EBC0_CFGADDR,r3
 	lis	r3,CONFIG_SYS_EBC_PB1AP@h
 	ori	r3,r3,CONFIG_SYS_EBC_PB1AP@l
-	mtdcr	ebccfgd,r3
-	li	r3,pb1cr
-	mtdcr	ebccfga,r3
+	mtdcr	EBC0_CFGDATA,r3
+	li	r3,PB1CR
+	mtdcr	EBC0_CFGADDR,r3
 	lis	r3,CONFIG_SYS_EBC_PB1CR@h
 	ori	r3,r3,CONFIG_SYS_EBC_PB1CR@l
-	mtdcr	ebccfgd,r3
+	mtdcr	EBC0_CFGDATA,r3
 
-	li	r3,pb4ap		/* program EBC bank 4 for FPGA access */
-	mtdcr	ebccfga,r3
+	li	r3,PB4AP		/* program EBC bank 4 for FPGA access */
+	mtdcr	EBC0_CFGADDR,r3
 	lis	r3,CONFIG_SYS_EBC_PB4AP@h
 	ori	r3,r3,CONFIG_SYS_EBC_PB4AP@l
-	mtdcr	ebccfgd,r3
-	li	r3,pb4cr
-	mtdcr	ebccfga,r3
+	mtdcr	EBC0_CFGDATA,r3
+	li	r3,PB4CR
+	mtdcr	EBC0_CFGADDR,r3
 	lis	r3,CONFIG_SYS_EBC_PB4CR@h
 	ori	r3,r3,CONFIG_SYS_EBC_PB4CR@l
-	mtdcr	ebccfgd,r3
+	mtdcr	EBC0_CFGDATA,r3
 #endif
 
 	/*

@@ -42,12 +42,12 @@ int board_early_init_f(void)
 {
 	u32 mfr;
 
-	mtebc( pb0ap,  0x03800000 );	/* set chip selects */
-	mtebc( pb0cr,  0xffc58000 );	/* ebc0_b0cr, 4MB at 0xffc00000 CS0 */
-	mtebc( pb1ap,  0x03800000 );
-	mtebc( pb1cr,  0xff018000 );	/* ebc0_b1cr, 1MB at 0xff000000 CS1 */
-	mtebc( pb2ap,  0x03800000 );
-	mtebc( pb2cr,  0xff838000 );	/* ebc0_b2cr, 2MB at 0xff800000 CS2 */
+	mtebc( PB0AP,  0x03800000 );	/* set chip selects */
+	mtebc( PB0CR,  0xffc58000 );	/* ebc0_b0cr, 4MB at 0xffc00000 CS0 */
+	mtebc( PB1AP,  0x03800000 );
+	mtebc( PB1CR,  0xff018000 );	/* ebc0_b1cr, 1MB at 0xff000000 CS1 */
+	mtebc( PB2AP,  0x03800000 );
+	mtebc( PB2CR,  0xff838000 );	/* ebc0_b2cr, 2MB at 0xff800000 CS2 */
 
 	mtdcr( uic1sr, 0xffffffff );	/* Clear all interrupts */
 	mtdcr( uic1er, 0x00000000 );	/* disable all interrupts */
@@ -67,9 +67,9 @@ int board_early_init_f(void)
 	mtdcr( uic0sr, 0x00000000 );	/* clear all interrupts */
 	mtdcr( uic0sr, 0xffffffff );
 
-	mfsdr(sdr_mfr, mfr);
+	mfsdr(SDR0_MFR, mfr);
 	mfr |= SDR0_MFR_FIXD;		/* Workaround for PCI/DMA */
-	mtsdr(sdr_mfr, mfr);
+	mtsdr(SDR0_MFR, mfr);
 
 	return  0;
 }
@@ -147,7 +147,7 @@ int pci_pre_init( struct pci_controller *hose )
 	 *	The luan board is always configured as the host & requires the
 	 *	PCI arbiter to be enabled.
 	 *--------------------------------------------------------------------------*/
-	mfsdr(sdr_sdstp1, strap);
+	mfsdr(SDR0_SDSTP1, strap);
 	if( (strap & SDR0_SDSTP1_PAE_MASK) == 0 ) {
 		printf("PCI: SDR0_STRP1[%08lX] - PCI Arbiter disabled.\n",strap);
 

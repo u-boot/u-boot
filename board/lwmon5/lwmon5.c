@@ -38,8 +38,8 @@ int board_early_init_f(void)
 	u32 reg;
 
 	/* PLB Write pipelining disabled. Denali Core workaround */
-	mtdcr(plb0_acr, 0xDE000000);
-	mtdcr(plb1_acr, 0xDE000000);
+	mtdcr(PLB0_ACR, 0xDE000000);
+	mtdcr(PLB1_ACR, 0xDE000000);
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -90,9 +90,9 @@ int board_early_init_f(void)
 
 	/* PCI arbiter disabled */
 	/* PCI Host Configuration disbaled */
-	mfsdr(sdr_pci0, reg);
+	mfsdr(SDR0_PCI0, reg);
 	reg = 0;
-	mtsdr(sdr_pci0, 0x00000000 | reg);
+	mtsdr(SDR0_PCI0, 0x00000000 | reg);
 
 	gpio_write_bit(CONFIG_SYS_GPIO_FLASH_WP, 1);
 
@@ -157,7 +157,7 @@ int misc_init_r(void)
 	gd->bd->bi_flashstart = 0 - gd->bd->bi_flashsize;
 	gd->bd->bi_flashoffset = 0;
 
-	mfebc(pb0cr, pbcr);
+	mfebc(PB0CR, pbcr);
 	switch (gd->bd->bi_flashsize) {
 	case 1 << 20:
 		size_val = 0;
@@ -185,7 +185,7 @@ int misc_init_r(void)
 		break;
 	}
 	pbcr = (pbcr & 0x0001ffff) | gd->bd->bi_flashstart | (size_val << 17);
-	mtebc(pb0cr, pbcr);
+	mtebc(PB0CR, pbcr);
 
 	/*
 	 * Re-check to get correct base address
@@ -249,8 +249,8 @@ int misc_init_r(void)
 	 * This fix will make the MAL burst disabling patch for the Linux
 	 * EMAC driver obsolete.
 	 */
-	reg = mfdcr(plb4_acr) & ~PLB4_ACR_WRP;
-	mtdcr(plb4_acr, reg);
+	reg = mfdcr(PLB4_ACR) & ~PLB4_ACR_WRP;
+	mtdcr(PLB4_ACR, reg);
 
 	/*
 	 * Init matrix keyboard
@@ -296,35 +296,35 @@ int pci_pre_init(struct pci_controller *hose)
 	  | Set priority for all PLB3 devices to 0.
 	  | Set PLB3 arbiter to fair mode.
 	  +-------------------------------------------------------------------------*/
-	mfsdr(sdr_amp1, addr);
-	mtsdr(sdr_amp1, (addr & 0x000000FF) | 0x0000FF00);
-	addr = mfdcr(plb3_acr);
-	mtdcr(plb3_acr, addr | 0x80000000);
+	mfsdr(SD0_AMP1, addr);
+	mtsdr(SD0_AMP1, (addr & 0x000000FF) | 0x0000FF00);
+	addr = mfdcr(PLB3_ACR);
+	mtdcr(PLB3_ACR, addr | 0x80000000);
 
 	/*-------------------------------------------------------------------------+
 	  | Set priority for all PLB4 devices to 0.
 	  +-------------------------------------------------------------------------*/
-	mfsdr(sdr_amp0, addr);
-	mtsdr(sdr_amp0, (addr & 0x000000FF) | 0x0000FF00);
-	addr = mfdcr(plb4_acr) | 0xa0000000;	/* Was 0x8---- */
-	mtdcr(plb4_acr, addr);
+	mfsdr(SD0_AMP0, addr);
+	mtsdr(SD0_AMP0, (addr & 0x000000FF) | 0x0000FF00);
+	addr = mfdcr(PLB4_ACR) | 0xa0000000;	/* Was 0x8---- */
+	mtdcr(PLB4_ACR, addr);
 
 	/*-------------------------------------------------------------------------+
 	  | Set Nebula PLB4 arbiter to fair mode.
 	  +-------------------------------------------------------------------------*/
 	/* Segment0 */
-	addr = (mfdcr(plb0_acr) & ~plb0_acr_ppm_mask) | plb0_acr_ppm_fair;
-	addr = (addr & ~plb0_acr_hbu_mask) | plb0_acr_hbu_enabled;
-	addr = (addr & ~plb0_acr_rdp_mask) | plb0_acr_rdp_4deep;
-	addr = (addr & ~plb0_acr_wrp_mask) | plb0_acr_wrp_2deep;
-	mtdcr(plb0_acr, addr);
+	addr = (mfdcr(PLB0_ACR) & ~PLB0_ACR_PPM_MASK) | PLB0_ACR_PPM_FAIR;
+	addr = (addr & ~PLB0_ACR_HBU_MASK) | PLB0_ACR_HBU_ENABLED;
+	addr = (addr & ~PLB0_ACR_RDP_MASK) | PLB0_ACR_RDP_4DEEP;
+	addr = (addr & ~PLB0_ACR_WRP_MASK) | PLB0_ACR_WRP_2DEEP;
+	mtdcr(PLB0_ACR, addr);
 
 	/* Segment1 */
-	addr = (mfdcr(plb1_acr) & ~plb1_acr_ppm_mask) | plb1_acr_ppm_fair;
-	addr = (addr & ~plb1_acr_hbu_mask) | plb1_acr_hbu_enabled;
-	addr = (addr & ~plb1_acr_rdp_mask) | plb1_acr_rdp_4deep;
-	addr = (addr & ~plb1_acr_wrp_mask) | plb1_acr_wrp_2deep;
-	mtdcr(plb1_acr, addr);
+	addr = (mfdcr(PLB1_ACR) & ~PLB1_ACR_PPM_MASK) | PLB1_ACR_PPM_FAIR;
+	addr = (addr & ~PLB1_ACR_HBU_MASK) | PLB1_ACR_HBU_ENABLED;
+	addr = (addr & ~PLB1_ACR_RDP_MASK) | PLB1_ACR_RDP_4DEEP;
+	addr = (addr & ~PLB1_ACR_WRP_MASK) | PLB1_ACR_WRP_2DEEP;
+	mtdcr(PLB1_ACR, addr);
 
 	return 1;
 }

@@ -206,14 +206,14 @@ void usb_dev_init()
 #ifdef USB_2_0_DEVICE
 	printf("USB 2.0 Device init\n");
 	/*select 2.0 device */
-	mtsdr(sdr_usb0, 0x0);	/* 2.0 */
+	mtsdr(SDR0_USB0, 0x0);	/* 2.0 */
 
 	/*usb dev init */
 	*(unsigned char *)USB2D0_POWER_8 = 0xa1;	/* 2.0 */
 #else
 	printf("USB 1.1 Device init\n");
 	/*select 1.1 device */
-	mtsdr(sdr_usb0, 0x2);	/* 1.1 */
+	mtsdr(SDR0_USB0, 0x2);	/* 1.1 */
 
 	/*usb dev init */
 	*(unsigned char *)USB2D0_POWER_8 = 0xc0;	/* 1.1 */

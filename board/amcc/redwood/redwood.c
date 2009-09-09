@@ -220,7 +220,7 @@ static void early_init_EBC(void)
 	 * default value :
 	 *      0x07C00000 - 0 0 000 1 1 1 1 1 0000 0 00000 000000000000
 	 */
-	mtebc(xbcfg, EBC_CFG_LE_UNLOCK |
+	mtebc(EBC0_CFG, EBC_CFG_LE_UNLOCK |
 	      EBC_CFG_PTD_ENABLE |
 	      EBC_CFG_RTC_16PERCLK |
 	      EBC_CFG_ATC_PREVIOUS |
@@ -237,8 +237,8 @@ static void early_init_EBC(void)
 	 * since some board registers values may be needed to determine the
 	 * boot type
 	 */
-	mtebc(pb1ap, EBC_BXAP_FPGA);
-	mtebc(pb1cr, EBC_BXCR_FPGA_CS3);
+	mtebc(PB1AP, EBC_BXAP_FPGA);
+	mtebc(PB1CR, EBC_BXCR_FPGA_CS3);
 
 }
 
@@ -399,12 +399,12 @@ static void early_reinit_EBC(int computed_boot_device)
 		break;
 	}
 
-	mtebc(pb0ap, ebc0_cs0_bxap_value);
-	mtebc(pb0cr, ebc0_cs0_bxcr_value);
-	mtebc(pb1ap, ebc0_cs1_bxap_value);
-	mtebc(pb1cr, ebc0_cs1_bxcr_value);
-	mtebc(pb2ap, ebc0_cs2_bxap_value);
-	mtebc(pb2cr, ebc0_cs2_bxcr_value);
+	mtebc(PB0AP, ebc0_cs0_bxap_value);
+	mtebc(PB0CR, ebc0_cs0_bxcr_value);
+	mtebc(PB1AP, ebc0_cs1_bxap_value);
+	mtebc(PB1CR, ebc0_cs1_bxcr_value);
+	mtebc(PB2AP, ebc0_cs2_bxap_value);
+	mtebc(PB2CR, ebc0_cs2_bxcr_value);
 }
 
 static void early_init_UIC(void)

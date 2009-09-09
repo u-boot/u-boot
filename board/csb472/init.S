@@ -38,17 +38,17 @@
 
 #define WDCR_EBC(reg,val) \
 	addi    r4,0,reg;\
-	mtdcr   ebccfga,r4;\
+	mtdcr   EBC0_CFGADDR,r4;\
 	addis   r4,0,val@h;\
 	ori     r4,r4,val@l;\
-	mtdcr   ebccfgd,r4
+	mtdcr   EBC0_CFGDATA,r4
 
 #define WDCR_SDRAM(reg,val) \
 	addi    r4,0,reg;\
-	mtdcr   memcfga,r4;\
+	mtdcr   SDRAM0_CFGADDR,r4;\
 	addis   r4,0,val@h;\
 	ori     r4,r4,val@l;\
-	mtdcr   memcfgd,r4
+	mtdcr   SDRAM0_CFGDATA,r4
 
 /******************************************************************************
  * Function:	ext_bus_cntlr_init
@@ -106,47 +106,47 @@ ext_bus_cntlr_init:
 	 * SETUP CPC0_CR0
 	 *******************************************************************/
 	LI32(r4, 0x00c01030)
-	mtdcr	cntrl0, r4
+	mtdcr	CPC0_CR0, r4
 
 	/********************************************************************
 	 * Setup CPC0_CR1: Change PCIINT signal to PerWE
 	 *******************************************************************/
-	mfdcr	r4, cntrl1
+	mfdcr	r4, CPC0_CR1
 	ori	r4, r4, 0x4000
-	mtdcr	cntrl1, r4
+	mtdcr	CPC0_CR1, r4
 
 	/********************************************************************
 	 * Setup External Bus Controller (EBC).
 	 *******************************************************************/
-	WDCR_EBC(epcr, 0xd84c0000)
+	WDCR_EBC(EBC0_CFG, 0xd84c0000)
 	/********************************************************************
 	 * Memory Bank 0 (Intel 28F640J3 Flash) initialization
 	 *******************************************************************/
-	/*WDCR_EBC(pb0ap, 0x03055200)*/
-	/*WDCR_EBC(pb0ap, 0x04055200)*/
-	WDCR_EBC(pb0ap, 0x08055200)
-	WDCR_EBC(pb0cr, 0xff87a000)
+	/*WDCR_EBC(PB1AP, 0x03055200)*/
+	/*WDCR_EBC(PB1AP, 0x04055200)*/
+	WDCR_EBC(PB1AP, 0x08055200)
+	WDCR_EBC(PB0CR, 0xff87a000)
 	/********************************************************************
 	 * Memory Bank 3 (Xilinx XC95144 CPLD) initialization
 	 *******************************************************************/
-	/*WDCR_EBC(pb3ap, 0x07869200)*/
-	WDCR_EBC(pb3ap, 0x04055200)
-	WDCR_EBC(pb3cr, 0xf081c000)
+	/*WDCR_EBC(PB3AP, 0x07869200)*/
+	WDCR_EBC(PB3AP, 0x04055200)
+	WDCR_EBC(PB3CR, 0xf081c000)
 	/********************************************************************
 	 * Memory Bank 1,2,4-7 (Unused) initialization
 	 *******************************************************************/
-	WDCR_EBC(pb1ap, 0)
-	WDCR_EBC(pb1cr, 0)
-	WDCR_EBC(pb2ap, 0)
-	WDCR_EBC(pb2cr, 0)
-	WDCR_EBC(pb4ap, 0)
-	WDCR_EBC(pb4cr, 0)
-	WDCR_EBC(pb5ap, 0)
-	WDCR_EBC(pb5cr, 0)
-	WDCR_EBC(pb6ap, 0)
-	WDCR_EBC(pb6cr, 0)
-	WDCR_EBC(pb7ap, 0)
-	WDCR_EBC(pb7cr, 0)
+	WDCR_EBC(PB1AP, 0)
+	WDCR_EBC(PB1CR, 0)
+	WDCR_EBC(PB2AP, 0)
+	WDCR_EBC(PB2CR, 0)
+	WDCR_EBC(PB4AP, 0)
+	WDCR_EBC(PB4CR, 0)
+	WDCR_EBC(PB5AP, 0)
+	WDCR_EBC(PB5CR, 0)
+	WDCR_EBC(PB6AP, 0)
+	WDCR_EBC(PB6CR, 0)
+	WDCR_EBC(PB7AP, 0)
+	WDCR_EBC(PB7CR, 0)
 
 	/* We are all done */
 	mtlr	r0			/* Restore link register */

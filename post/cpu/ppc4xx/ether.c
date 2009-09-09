@@ -109,9 +109,9 @@ static void ether_post_init (int devnum, int hw_addr)
 
 #if defined(CONFIG_440SPE) || defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	/* provide clocks for EMAC internal loopback  */
-	mfsdr (sdr_mfr, mfr);
+	mfsdr (SDR0_MFR, mfr);
 	mfr |= SDR0_MFR_ETH_CLK_SEL_V(devnum);
-	mtsdr (sdr_mfr, mfr);
+	mtsdr (SDR0_MFR, mfr);
 	sync ();
 #endif
 	/* reset emac */
@@ -150,13 +150,13 @@ static void ether_post_init (int devnum, int hw_addr)
 #if defined(CONFIG_440GX) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE)
-	mtdcr (malmcr, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA |
+	mtdcr (MAL0_CFG, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA |
 	       MAL_CR_PLBLT_DEFAULT | 0x00330000);
 #else
-	mtdcr (malmcr, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA | MAL_CR_PLBLT_DEFAULT);
+	mtdcr (MAL0_CFG, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA | MAL_CR_PLBLT_DEFAULT);
 	/* Errata 1.12: MAL_1 -- Disable MAL bursting */
 	if (get_pvr() == PVR_440GP_RB) {
-		mtdcr (malmcr, mfdcr(malmcr) & ~MAL_CR_PLBB);
+		mtdcr (MAL0_CFG, mfdcr(MAL0_CFG) & ~MAL_CR_PLBB);
 	}
 #endif
 	/* setup buffer descriptors */
@@ -174,39 +174,39 @@ static void ether_post_init (int devnum, int hw_addr)
 	case 1:
 		/* setup MAL tx & rx channel pointers */
 #if defined (CONFIG_405EP) || defined (CONFIG_440EP) || defined (CONFIG_440GR)
-		mtdcr (maltxctp2r, &tx);
+		mtdcr (MAL0_TXCTP2R, &tx);
 #else
-		mtdcr (maltxctp1r, &tx);
+		mtdcr (MAL0_TXCTP1R, &tx);
 #endif
 #if defined(CONFIG_440)
-		mtdcr (maltxbattr, 0x0);
-		mtdcr (malrxbattr, 0x0);
+		mtdcr (MAL0_TXBADDR, 0x0);
+		mtdcr (MAL0_RXBADDR, 0x0);
 #endif
-		mtdcr (malrxctp1r, &rx);
+		mtdcr (MAL0_RXCTP1R, &rx);
 		/* set RX buffer size */
-		mtdcr (malrcbs1, PKTSIZE_ALIGN / 16);
+		mtdcr (MAL0_RCBS1, PKTSIZE_ALIGN / 16);
 		break;
 	case 0:
 	default:
 		/* setup MAL tx & rx channel pointers */
 #if defined(CONFIG_440)
-		mtdcr (maltxbattr, 0x0);
-		mtdcr (malrxbattr, 0x0);
+		mtdcr (MAL0_TXBADDR, 0x0);
+		mtdcr (MAL0_RXBADDR, 0x0);
 #endif
-		mtdcr (maltxctp0r, &tx);
-		mtdcr (malrxctp0r, &rx);
+		mtdcr (MAL0_TXCTP0R, &tx);
+		mtdcr (MAL0_RXCTP0R, &rx);
 		/* set RX buffer size */
-		mtdcr (malrcbs0, PKTSIZE_ALIGN / 16);
+		mtdcr (MAL0_RCBS0, PKTSIZE_ALIGN / 16);
 		break;
 	}
 
 	/* Enable MAL transmit and receive channels */
 #if defined(CONFIG_405EP) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
-	mtdcr (maltxcasr, (MAL_TXRX_CASR >> (devnum*2)));
+	mtdcr (MAL0_TXCASR, (MAL_TXRX_CASR >> (devnum*2)));
 #else
-	mtdcr (maltxcasr, (MAL_TXRX_CASR >> devnum));
+	mtdcr (MAL0_TXCASR, (MAL_TXRX_CASR >> devnum));
 #endif
-	mtdcr (malrxcasr, (MAL_TXRX_CASR >> devnum));
+	mtdcr (MAL0_RXCASR, (MAL_TXRX_CASR >> devnum));
 
 	/* set internal loopback mode */
 #ifdef CONFIG_SYS_POST_ETHER_EXT_LOOPBACK
@@ -257,14 +257,14 @@ static void ether_post_halt (int devnum, int hw_addr)
 	/* 1st reset MAL channel */
 	/* Note: writing a 0 to a channel has no effect */
 #if defined(CONFIG_405EP) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
-	mtdcr (maltxcarr, MAL_TXRX_CASR >> (devnum * 2));
+	mtdcr (MAL0_TXCARR, MAL_TXRX_CASR >> (devnum * 2));
 #else
-	mtdcr (maltxcarr, MAL_TXRX_CASR >> devnum);
+	mtdcr (MAL0_TXCARR, MAL_TXRX_CASR >> devnum);
 #endif
-	mtdcr (malrxcarr, MAL_TXRX_CASR >> devnum);
+	mtdcr (MAL0_RXCARR, MAL_TXRX_CASR >> devnum);
 
 	/* wait for reset */
-	while (mfdcr (malrxcasr) & (MAL_TXRX_CASR >> devnum)) {
+	while (mfdcr (MAL0_RXCASR) & (MAL_TXRX_CASR >> devnum)) {
 		if (i++ >= 1000)
 			break;
 		udelay (1000);
@@ -274,9 +274,9 @@ static void ether_post_halt (int devnum, int hw_addr)
 
 #if defined(CONFIG_440SPE) || defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	/* remove clocks for EMAC internal loopback  */
-	mfsdr (sdr_mfr, mfr);
+	mfsdr (SDR0_MFR, mfr);
 	mfr &= ~SDR0_MFR_ETH_CLK_SEL_V(devnum);
-	mtsdr (sdr_mfr, mfr);
+	mtsdr (SDR0_MFR, mfr);
 #endif
 }
 

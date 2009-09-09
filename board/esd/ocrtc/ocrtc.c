@@ -57,7 +57,7 @@ int board_early_init_f (void)
 	 * EBC Configuration Register: clear EBTC -> high-Z ebc signals between
 	 * transfers, set device-paced timeout to 256 cycles
 	 */
-	mtebc (epcr, 0x20400000);
+	mtebc (EBC0_CFG, 0x20400000);
 
 	return 0;
 }

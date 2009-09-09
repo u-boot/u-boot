@@ -92,7 +92,7 @@ int checkboard (void)
 	u16 index      = boardVersReg & 0x0f;
 
 	/* Cannot be done in board_early_init */
-	mtdcr(cntrl0,  CPC0_CR0_VALUE);
+	mtdcr(CPC0_CR0,  CPC0_CR0_VALUE);
 
 	/* Force /RTS to active. The board it not wired quite
 	 *  correctly to use cts/rtc flow control, so just force the

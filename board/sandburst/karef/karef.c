@@ -67,7 +67,7 @@ int board_early_init_f (void)
 	ppc440_gpio_regs_t *gpio_regs;
 
 	/* Enable GPIO interrupts */
-	mtsdr(sdr_pfc0, 0x00103E00);
+	mtsdr(SDR0_PFC0, 0x00103E00);
 
 	/* Setup access for LEDs, and system topology info */
 	gpio_regs = (ppc440_gpio_regs_t *)CONFIG_SYS_GPIO_BASE;
@@ -80,7 +80,7 @@ int board_early_init_f (void)
 	/*--------------------------------------------------------------------+
 	  | Initialize EBC CONFIG
 	  +-------------------------------------------------------------------*/
-	mtebc(xbcfg,
+	mtebc(EBC0_CFG,
 	      EBC_CFG_LE_UNLOCK	   | EBC_CFG_PTD_ENABLE |
 	      EBC_CFG_RTC_64PERCLK | EBC_CFG_ATC_PREVIOUS |
 	      EBC_CFG_DTC_PREVIOUS | EBC_CFG_CTC_PREVIOUS |
@@ -90,7 +90,7 @@ int board_early_init_f (void)
 	/*--------------------------------------------------------------------+
 	  | 1/2 MB FLASH. Initialize bank 0 with default values.
 	  +-------------------------------------------------------------------*/
-	mtebc(pb0ap,
+	mtebc(PB0AP,
 	      EBC_BXAP_BME_DISABLED | EBC_BXAP_TWT_ENCODE(8) |
 	      EBC_BXAP_BCE_DISABLE  | EBC_BXAP_CSN_ENCODE(1) |
 	      EBC_BXAP_OEN_ENCODE(1)| EBC_BXAP_WBN_ENCODE(1) |
@@ -98,12 +98,12 @@ int board_early_init_f (void)
 	      EBC_BXAP_RE_DISABLED  | EBC_BXAP_BEM_WRITEONLY |
 	      EBC_BXAP_PEN_DISABLED);
 
-	mtebc(pb0cr, EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FLASH_BASE) |
+	mtebc(PB0CR, EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FLASH_BASE) |
 	      EBC_BXCR_BS_1MB | EBC_BXCR_BU_RW | EBC_BXCR_BW_8BIT);
 	/*--------------------------------------------------------------------+
 	  | 8KB NVRAM/RTC. Initialize bank 1 with default values.
 	  +-------------------------------------------------------------------*/
-	mtebc(pb1ap,
+	mtebc(PB1AP,
 	      EBC_BXAP_BME_DISABLED | EBC_BXAP_TWT_ENCODE(10) |
 	      EBC_BXAP_BCE_DISABLE  | EBC_BXAP_CSN_ENCODE(1) |
 	      EBC_BXAP_OEN_ENCODE(1)| EBC_BXAP_WBN_ENCODE(1) |
@@ -111,13 +111,13 @@ int board_early_init_f (void)
 	      EBC_BXAP_RE_DISABLED  | EBC_BXAP_BEM_WRITEONLY |
 	      EBC_BXAP_PEN_DISABLED);
 
-	mtebc(pb1cr, EBC_BXCR_BAS_ENCODE(0x48000000) |
+	mtebc(PB1CR, EBC_BXCR_BAS_ENCODE(0x48000000) |
 	      EBC_BXCR_BS_1MB | EBC_BXCR_BU_RW | EBC_BXCR_BW_8BIT);
 
 	/*--------------------------------------------------------------------+
 	  | Compact Flash, uses 2 Chip Selects (2 & 6)
 	  +-------------------------------------------------------------------*/
-	mtebc(pb2ap,
+	mtebc(PB2AP,
 	      EBC_BXAP_BME_DISABLED | EBC_BXAP_TWT_ENCODE(8) |
 	      EBC_BXAP_BCE_DISABLE  | EBC_BXAP_CSN_ENCODE(1) |
 	      EBC_BXAP_OEN_ENCODE(1)| EBC_BXAP_WBN_ENCODE(1) |
@@ -125,40 +125,40 @@ int board_early_init_f (void)
 	      EBC_BXAP_RE_DISABLED  | EBC_BXAP_BEM_WRITEONLY |
 	      EBC_BXAP_PEN_DISABLED);
 
-	mtebc(pb2cr, EBC_BXCR_BAS_ENCODE(0xF0000000) |
+	mtebc(PB2CR, EBC_BXCR_BAS_ENCODE(0xF0000000) |
 	      EBC_BXCR_BS_1MB | EBC_BXCR_BU_RW | EBC_BXCR_BW_16BIT);
 
 	/*--------------------------------------------------------------------+
 	  | KaRef Scan FPGA. Initialize bank 3 with default values.
 	  +-------------------------------------------------------------------*/
-	mtebc(pb5ap,
+	mtebc(PB5AP,
 	      EBC_BXAP_RE_ENABLED    | EBC_BXAP_SOR_NONDELAYED |
 	      EBC_BXAP_BME_DISABLED  | EBC_BXAP_TWT_ENCODE(3) |
 	      EBC_BXAP_TH_ENCODE(1)  | EBC_BXAP_WBF_ENCODE(0) |
 	      EBC_BXAP_CSN_ENCODE(1) | EBC_BXAP_PEN_DISABLED |
 	      EBC_BXAP_OEN_ENCODE(1) | EBC_BXAP_BEM_RW);
 
-	mtebc(pb5cr, EBC_BXCR_BAS_ENCODE(0x48200000) |
+	mtebc(PB5CR, EBC_BXCR_BAS_ENCODE(0x48200000) |
 	      EBC_BXCR_BS_1MB | EBC_BXCR_BU_RW | EBC_BXCR_BW_32BIT);
 
 	/*--------------------------------------------------------------------+
 	  | MAC A & B for Kamino.  OFEM FPGA decodes the addresses
 	  | Initialize bank 4 with default values.
 	  +-------------------------------------------------------------------*/
-	mtebc(pb4ap,
+	mtebc(PB4AP,
 	      EBC_BXAP_RE_ENABLED    | EBC_BXAP_SOR_NONDELAYED |
 	      EBC_BXAP_BME_DISABLED  | EBC_BXAP_TWT_ENCODE(3) |
 	      EBC_BXAP_TH_ENCODE(1)  | EBC_BXAP_WBF_ENCODE(0) |
 	      EBC_BXAP_CSN_ENCODE(1) | EBC_BXAP_PEN_DISABLED |
 	      EBC_BXAP_OEN_ENCODE(1) | EBC_BXAP_BEM_RW);
 
-	mtebc(pb4cr, EBC_BXCR_BAS_ENCODE(0x48600000) |
+	mtebc(PB4CR, EBC_BXCR_BAS_ENCODE(0x48600000) |
 	      EBC_BXCR_BS_2MB | EBC_BXCR_BU_RW | EBC_BXCR_BW_32BIT);
 
 	/*--------------------------------------------------------------------+
 	  | OFEM FPGA  Initialize bank 5 with default values.
 	  +-------------------------------------------------------------------*/
-	mtebc(pb3ap,
+	mtebc(PB3AP,
 	      EBC_BXAP_RE_ENABLED    | EBC_BXAP_SOR_NONDELAYED |
 	      EBC_BXAP_BME_DISABLED  | EBC_BXAP_TWT_ENCODE(3) |
 	      EBC_BXAP_TH_ENCODE(1)  | EBC_BXAP_WBF_ENCODE(0) |
@@ -166,14 +166,14 @@ int board_early_init_f (void)
 	      EBC_BXAP_OEN_ENCODE(1) | EBC_BXAP_BEM_RW);
 
 
-	mtebc(pb3cr, EBC_BXCR_BAS_ENCODE(0x48400000) |
+	mtebc(PB3CR, EBC_BXCR_BAS_ENCODE(0x48400000) |
 	      EBC_BXCR_BS_1MB | EBC_BXCR_BU_RW | EBC_BXCR_BW_32BIT);
 
 
 	/*--------------------------------------------------------------------+
 	  | Compact Flash, uses 2 Chip Selects (2 & 6)
 	  +-------------------------------------------------------------------*/
-	mtebc(pb6ap,
+	mtebc(PB6AP,
 	      EBC_BXAP_BME_DISABLED | EBC_BXAP_TWT_ENCODE(8) |
 	      EBC_BXAP_BCE_DISABLE  | EBC_BXAP_CSN_ENCODE(1) |
 	      EBC_BXAP_OEN_ENCODE(1)| EBC_BXAP_WBN_ENCODE(1) |
@@ -181,20 +181,20 @@ int board_early_init_f (void)
 	      EBC_BXAP_RE_DISABLED  | EBC_BXAP_BEM_WRITEONLY |
 	      EBC_BXAP_PEN_DISABLED);
 
-	mtebc(pb6cr, EBC_BXCR_BAS_ENCODE(0xF0100000) |
+	mtebc(PB6CR, EBC_BXCR_BAS_ENCODE(0xF0100000) |
 	      EBC_BXCR_BS_1MB | EBC_BXCR_BU_RW | EBC_BXCR_BW_16BIT);
 
 	/*--------------------------------------------------------------------+
 	  | BME-32. Initialize bank 7 with default values.
 	  +-------------------------------------------------------------------*/
-	mtebc(pb7ap,
+	mtebc(PB7AP,
 	      EBC_BXAP_RE_ENABLED    | EBC_BXAP_SOR_NONDELAYED |
 	      EBC_BXAP_BME_DISABLED  | EBC_BXAP_TWT_ENCODE(3) |
 	      EBC_BXAP_TH_ENCODE(1)  | EBC_BXAP_WBF_ENCODE(0) |
 	      EBC_BXAP_CSN_ENCODE(1) | EBC_BXAP_PEN_DISABLED |
 	      EBC_BXAP_OEN_ENCODE(1) | EBC_BXAP_BEM_RW);
 
-	mtebc(pb7cr, EBC_BXCR_BAS_ENCODE(0x48500000) |
+	mtebc(PB7CR, EBC_BXCR_BAS_ENCODE(0x48500000) |
 	      EBC_BXCR_BS_1MB | EBC_BXCR_BU_RW | EBC_BXCR_BW_32BIT);
 
 	/*--------------------------------------------------------------------+
