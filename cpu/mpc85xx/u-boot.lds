@@ -20,6 +20,10 @@
  * MA 02111-1307 USA
  */
 
+#ifndef RESET_VECTOR_ADDRESS
+#define RESET_VECTOR_ADDRESS	0xfffffffc
+#endif
+
 OUTPUT_ARCH(powerpc)
 /* Do we need any of these for elf?
    __DYNAMIC = 0;    */
@@ -116,17 +120,17 @@ SECTIONS
   . = ALIGN(256);
   __init_end = .;
 
-  .bootpg ADDR(.text) + 0x7f000 :
+  .bootpg RESET_VECTOR_ADDRESS - 0xffc :
   {
     cpu/mpc85xx/start.o	(.bootpg)
   } :text = 0xffff
 
-  .resetvec ADDR(.text) + 0x7fffc :
+  .resetvec RESET_VECTOR_ADDRESS :
   {
     *(.resetvec)
   } :text = 0xffff
 
-  . = ADDR(.text) + 0x80000;
+  . = RESET_VECTOR_ADDRESS + 0x4;
 
   __bss_start = .;
   .bss (NOLOAD)       :
