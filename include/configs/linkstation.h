@@ -96,8 +96,6 @@
 
 #define CONFIG_OF_LIBFDT	1
 
-#define OF_CPU			"PowerPC,603e"
-#define OF_SOC			"soc10x@80000000"
 #define OF_STDOUT_PATH		"/soc10x/serial@80004600"
 
 /* this must be included AFTER the definition of CONFIG_COMMANDS (if any) */

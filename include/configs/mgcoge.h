@@ -347,8 +347,6 @@
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 
-#define OF_CPU			"PowerPC,8247@0"
-#define OF_SOC			"soc@f0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc/cpm/serial@11a90"
 
