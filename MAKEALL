@@ -185,7 +185,6 @@ LIST_4xx="		\
 	canyonlands	\
 	canyonlands_nand \
 	CMS700		\
-	compactcenter	\
 	CPCI2DP		\
 	CPCI405		\
 	CPCI4052	\
@@ -214,6 +213,7 @@ LIST_4xx="		\
 	hcu5		\
 	HH405		\
 	HUB405		\
+	intip		\
 	JSE		\
 	KAREF		\
 	katmai		\

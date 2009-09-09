@@ -66,7 +66,7 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     cpu/ppc4xx/start.o	(.text)
-    board/gdsys/compactcenter/init.o	(.text)
+    board/gdsys/intip/init.o	(.text)
 
     *(.text)
     *(.fixup)

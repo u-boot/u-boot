@@ -141,10 +141,10 @@ Jon Diekema <jon.diekema@smiths-aerospace.com>
 
 Dirk Eibach <eibach@gdsys.de>
 
-	compactcenter	PPC460EX
 	devconcenter	PPC460EX
 	dlvision        PPC405EP
 	gdppc440etx	PPC440EP/GR
+	intip		PPC460EX
 	neo		PPC405EP
 
 Dave Ellis <DGE@sixnetio.com>
