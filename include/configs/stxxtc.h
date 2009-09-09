@@ -509,7 +509,6 @@ typedef unsigned int led_id_t;
 /* pass open firmware flattened device tree */
 #define CONFIG_OF_LIBFDT	1
 
-#define OF_CPU			"PowerPC,MPC870@0"
 #define OF_TBCLK		(MPC8XX_HZ / 16)
 
 #endif	/* __CONFIG_H */

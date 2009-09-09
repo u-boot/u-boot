@@ -368,8 +368,10 @@ The following options need to be configured:
 		 * Adds the "fdt" command
 		 * The bootm command automatically updates the fdt
 
-		OF_CPU - The proper name of the cpus node.
-		OF_SOC - The proper name of the soc node.
+		OF_CPU - The proper name of the cpus node (only required for
+			MPC512X and MPC5xxx based boards).
+		OF_SOC - The proper name of the soc node (only required for
+			MPC512X and MPC5xxx based boards).
 		OF_TBCLK - The timebase frequency.
 		OF_STDOUT_PATH - The path to the console device
 
