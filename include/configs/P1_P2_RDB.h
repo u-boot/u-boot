@@ -30,6 +30,19 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#ifdef CONFIG_MK_P1011RDB
+#define CONFIG_P1011
+#endif
+#ifdef CONFIG_MK_P1020RDB
+#define CONFIG_P1020
+#endif
+#ifdef CONFIG_MK_P2010RDB
+#define CONFIG_P2010
+#endif
+#ifdef CONFIG_MK_P2020RDB
+#define CONFIG_P2020
+#endif
+
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
