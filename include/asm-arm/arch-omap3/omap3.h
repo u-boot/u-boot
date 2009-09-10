@@ -168,6 +168,8 @@ struct gpio {
  *  ES1     = rev 0
  *
  *  ES2 onwards, the value maps to contents of IDCODE register [31:28].
+ *
+ * Note : CPU_3XX_ES20 is used in cache.S.  Please review before changing.
  */
 #define CPU_3XX_ES10		0
 #define CPU_3XX_ES20		1
