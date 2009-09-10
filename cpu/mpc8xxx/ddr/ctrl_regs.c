@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2009 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -675,12 +675,12 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 	esdmode = (0
 		| ((qoff & 0x1) << 12)
 		| ((tdqs_en & 0x1) << 11)
-		| ((rtt & 0x4) << 9)   /* rtt field is split */
+		| ((rtt & 0x4) << 7)   /* rtt field is split */
 		| ((wrlvl_en & 0x1) << 7)
-		| ((rtt & 0x2) << 6)   /* rtt field is split */
-		| ((dic & 0x2) << 5)   /* DIC field is split */
+		| ((rtt & 0x2) << 5)   /* rtt field is split */
+		| ((dic & 0x2) << 4)   /* DIC field is split */
 		| ((al & 0x3) << 3)
-		| ((rtt & 0x1) << 2)   /* rtt field is split */
+		| ((rtt & 0x1) << 2)  /* rtt field is split */
 		| ((dic & 0x1) << 1)   /* DIC field is split */
 		| ((dll_en & 0x1) << 0)
 		);
