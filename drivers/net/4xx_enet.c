@@ -1717,6 +1717,15 @@ int enetInt (struct eth_device *dev)
 				rc = 0;
 			}
 		}
+#if defined(CONFIG_405EZ)
+		/*
+		 * On 405EZ the RX-/TX-interrupts are coalesced into
+		 * one IRQ bit in the UIC. We need to acknowledge the
+		 * RX-/TX-interrupts in the SDR0_ICINTSTAT reg as well.
+		 */
+		mtsdr(SDR0_ICINTSTAT,
+		      SDR_ICRX_STAT | SDR_ICTX0_STAT | SDR_ICTX1_STAT);
+#endif  /* defined(CONFIG_405EZ) */
 	} while (serviced);
 
 	return (rc);
