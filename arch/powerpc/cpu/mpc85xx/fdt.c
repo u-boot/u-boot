@@ -29,6 +29,7 @@
 #include <asm/processor.h>
 #include <linux/ctype.h>
 #include <asm/io.h>
+#include <asm/fsl_portals.h>
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
@@ -446,4 +447,18 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #endif
 
 	ft_fixup_dpaa_clks(blob);
+
+#if defined(CONFIG_SYS_BMAN_MEM_PHYS)
+	fdt_portal(blob, "fsl,bman-portal", "bman-portals",
+			(u64)CONFIG_SYS_BMAN_MEM_PHYS,
+			CONFIG_SYS_BMAN_MEM_SIZE);
+#endif
+
+#if defined(CONFIG_SYS_QMAN_MEM_PHYS)
+	fdt_portal(blob, "fsl,qman-portal", "qman-portals",
+			(u64)CONFIG_SYS_QMAN_MEM_PHYS,
+			CONFIG_SYS_QMAN_MEM_SIZE);
+
+	fdt_fixup_qportals(blob);
+#endif
 }
