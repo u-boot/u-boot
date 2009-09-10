@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2009 Freescale Semiconductor, Inc.
  *	Dave Liu <daveliu@freescale.com>
  *
  * calculate the organization and timing parameter
@@ -71,7 +71,7 @@ compute_ranksize(const ddr3_spd_eeprom_t *spd)
 	bsize = 1ULL << (nbit_sdram_cap_bsize - 3
 		    + nbit_primary_bus_width - nbit_sdram_width);
 
-	debug("DDR: DDR III rank density = 0x%08x\n", bsize);
+	debug("DDR: DDR III rank density = 0x%16lx\n", bsize);
 
 	return bsize;
 }
