@@ -26,10 +26,10 @@ include $(TOPDIR)/config.mk
 LIB	=  $(obj)lib$(SOC).a
 
 SOBJS	:= lowlevel_init.o
+SOBJS	+= cache.o
 SOBJS	+= reset.o
 
 COBJS	+= board.o
-COBJS	+= cache.o
 COBJS	+= clock.o
 COBJS	+= gpio.o
 COBJS	+= mem.o

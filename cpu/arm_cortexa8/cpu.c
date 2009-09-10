@@ -64,7 +64,7 @@ int cleanup_before_linux(void)
 	/* turn off L2 cache */
 	l2_cache_disable();
 	/* invalidate L2 cache also */
-	v7_flush_dcache_all(get_device_type());
+	invalidate_dcache(get_device_type());
 #endif
 	i = 0;
 	/* mem barrier to sync up things */
