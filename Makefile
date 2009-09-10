@@ -2514,12 +2514,7 @@ MPC8569MDS_config:	unconfig
 
 MPC8572DS_36BIT_config \
 MPC8572DS_config:       unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _36BIT_,$@)" ] ; then \
-		echo "#define CONFIG_PHYS_64BIT" >>$(obj)include/config.h ; \
-		$(XECHO) "... enabling 36-bit physical addressing." ; \
-	fi
-	@$(MKCONFIG) -a MPC8572DS ppc mpc85xx mpc8572ds freescale
+	@$(MKCONFIG) -t $(@:_config=) MPC8572DS ppc mpc85xx mpc8572ds freescale
 
 P2020DS_36BIT_config \
 P2020DS_config:		unconfig
