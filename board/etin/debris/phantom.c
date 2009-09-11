@@ -159,16 +159,6 @@ void rtc_reset(void)
 	}
 }
 
-inline unsigned bcd2bin (uchar n)
-{
-	return ((((n >> 4) & 0x0F) * 10) + (n & 0x0F));
-}
-
-inline unsigned char bin2bcd (unsigned int n)
-{
-	return (((n / 10) << 4) | (n % 10));
-}
-
 static int get_century_flag(void)
 {
 	int flag = 0;
