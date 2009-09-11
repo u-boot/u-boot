@@ -140,7 +140,7 @@ void board_init_f(ulong bootflag)
 	puts("NAND boot... ");
 	init_timebase();
 	initdram(0);
-	relocate_code(CONFIG_SYS_NAND_U_BOOT_RELOC + 0x10000, (gd_t *)gd,
+	relocate_code(CONFIG_SYS_NAND_U_BOOT_RELOC_SP, (gd_t *)gd,
 	              CONFIG_SYS_NAND_U_BOOT_RELOC);
 }
 
