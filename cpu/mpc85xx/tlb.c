@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2009 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -42,19 +42,9 @@ void set_tlb(u8 tlb, u32 epn, u64 rpn,
 	_mas1 = FSL_BOOKE_MAS1(1, iprot, 0, ts, tsize);
 	_mas2 = FSL_BOOKE_MAS2(epn, wimge);
 	_mas3 = FSL_BOOKE_MAS3(rpn, 0, perms);
-	_mas7 = rpn >> 32;
+	_mas7 = FSL_BOOKE_MAS7(rpn);
 
-	mtspr(MAS0, _mas0);
-	mtspr(MAS1, _mas1);
-	mtspr(MAS2, _mas2);
-	mtspr(MAS3, _mas3);
-#ifdef CONFIG_ENABLE_36BIT_PHYS
-	mtspr(MAS7, _mas7);
-#endif
-#ifdef CONFIG_SYS_BOOK3E_HV
-	mtspr(MAS8, 0);
-#endif
-	asm volatile("isync;msync;tlbwe;isync");
+	write_tlb(_mas0, _mas1, _mas2, _mas3, _mas7);
 
 #ifdef CONFIG_ADDR_MAP
 	if ((tlb == 1) && (gd->flags & GD_FLG_RELOC))
