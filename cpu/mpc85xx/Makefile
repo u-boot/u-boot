@@ -65,6 +65,7 @@ COBJS-$(CONFIG_CPM2)	+= serial_scc.o
 COBJS	= $(COBJS-y)
 COBJS	+= cpu.o
 COBJS	+= cpu_init.o
+COBJS	+= cpu_init_early.o
 COBJS	+= interrupts.o
 COBJS	+= speed.o
 COBJS	+= tlb.o
