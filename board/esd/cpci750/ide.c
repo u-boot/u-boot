@@ -48,14 +48,18 @@ int ide_preinit (void)
 	if (devbusfn == -1)
 	        devbusfn = pci_find_device (0x1095, 0x3114, 0);
 	if (devbusfn != -1) {
+		ulong *ide_bus_offset_ptr;
+
 		status = 0;
 
+		ide_bus_offset_ptr = &ide_bus_offset[0];
 		pci_read_config_dword (devbusfn, PCI_BASE_ADDRESS_0,
-				       (u32 *) & ide_bus_offset[0]);
+				       (u32 *)ide_bus_offset_ptr);
 		ide_bus_offset[0] &= 0xfffffffe;
 		ide_bus_offset[0] += CONFIG_SYS_PCI0_IO_SPACE;
+		ide_bus_offset_ptr = &ide_bus_offset[1];
 		pci_read_config_dword (devbusfn, PCI_BASE_ADDRESS_2,
-				       (u32 *) & ide_bus_offset[1]);
+				       (u32 *)ide_bus_offset_ptr);
 		ide_bus_offset[1] &= 0xfffffffe;
 		ide_bus_offset[1] += CONFIG_SYS_PCI0_IO_SPACE;
 	}
