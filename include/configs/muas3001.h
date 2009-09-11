@@ -74,6 +74,7 @@
 
 #define CONFIG_ETHER_INDEX	1
 #define CONFIG_ETHER_ON_FCC1
+#define CONFIG_HAS_ETH0
 #define FCC_ENET
 
 /*
