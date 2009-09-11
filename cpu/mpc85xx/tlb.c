@@ -55,6 +55,7 @@ void init_tlbs(void)
 	return ;
 }
 
+#ifndef CONFIG_NAND_SPL
 void set_tlb(u8 tlb, u32 epn, u64 rpn,
 	     u8 perms, u8 wimge,
 	     u8 ts, u8 esel, u8 tsize, u8 iprot)
@@ -209,3 +210,4 @@ unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 	 */
 	return memsize_in_meg;
 }
+#endif /* !CONFIG_NAND_SPL */
