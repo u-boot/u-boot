@@ -32,6 +32,29 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+void invalidate_tlb(u8 tlb)
+{
+	if (tlb == 0)
+		mtspr(MMUCSR0, 0x4);
+	if (tlb == 1)
+		mtspr(MMUCSR0, 0x2);
+}
+
+void init_tlbs(void)
+{
+	int i;
+
+	for (i = 0; i < num_tlb_entries; i++) {
+		write_tlb(tlb_table[i].mas0,
+			  tlb_table[i].mas1,
+			  tlb_table[i].mas2,
+			  tlb_table[i].mas3,
+			  tlb_table[i].mas7);
+	}
+
+	return ;
+}
+
 void set_tlb(u8 tlb, u32 epn, u64 rpn,
 	     u8 perms, u8 wimge,
 	     u8 ts, u8 esel, u8 tsize, u8 iprot)
@@ -75,29 +98,6 @@ void disable_tlb(u8 esel)
 	if (gd->flags & GD_FLG_RELOC)
 		addrmap_set_entry(0, 0, 0, esel);
 #endif
-}
-
-void invalidate_tlb(u8 tlb)
-{
-	if (tlb == 0)
-		mtspr(MMUCSR0, 0x4);
-	if (tlb == 1)
-		mtspr(MMUCSR0, 0x2);
-}
-
-void init_tlbs(void)
-{
-	int i;
-
-	for (i = 0; i < num_tlb_entries; i++) {
-		write_tlb(tlb_table[i].mas0,
-			  tlb_table[i].mas1,
-			  tlb_table[i].mas2,
-			  tlb_table[i].mas3,
-			  tlb_table[i].mas7);
-	}
-
-	return ;
 }
 
 static void tlbsx (const volatile unsigned *addr)
