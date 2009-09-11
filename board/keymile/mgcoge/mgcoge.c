@@ -25,7 +25,6 @@
 #include <mpc8260.h>
 #include <ioports.h>
 #include <malloc.h>
-#include <net.h>
 #include <asm/io.h>
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
@@ -373,10 +372,6 @@ void ft_blob_update (void *blob, bd_t *bd)
 	flash_reg[5] = cpu_to_be32 (info->size);
 	fdt_set_node_and_value (blob, "/localbus/flash@5,0", "reg", flash_reg,
 				sizeof (flash_reg));
-
-	/* MAC addr */
-	fdt_set_node_and_value (blob, "/soc/cpm/ethernet", "mac-address",
-				bd->bi_enetaddr, sizeof (u8) * 6);
 }
 
 void ft_board_setup (void *blob, bd_t *bd)

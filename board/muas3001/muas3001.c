@@ -342,21 +342,6 @@ void ft_blob_update (void *blob, bd_t *bd)
 		printf ("ft_blob_update(): cannot find /localbus node "
 			"err:%s\n", fdt_strerror (nodeoffset));
 	}
-	/* MAC Adresse */
-	nodeoffset = fdt_path_offset (blob, "/soc/cpm/ethernet");
-	if (nodeoffset >= 0) {
-		uchar ethaddr[6];
-		eth_getenv_enetaddr("ethaddr", ethaddr);
-		ret = fdt_setprop (blob, nodeoffset, "mac-address", ethaddr,
-					sizeof (uchar) * 6);
-	if (ret < 0)
-		printf ("ft_blob_update): cannot set /soc/cpm/ethernet/mac-address "
-			"property err:%s\n", fdt_strerror (ret));
-	} else {
-		/* memory node is required in dts */
-		printf ("ft_blob_update(): cannot find /soc/cpm/ethernet node "
-			"err:%s\n", fdt_strerror (nodeoffset));
-	}
 
 	/* baudrate */
 	nodeoffset = fdt_path_offset (blob, "/soc/cpm/serial");
