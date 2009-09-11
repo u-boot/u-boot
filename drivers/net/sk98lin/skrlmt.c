@@ -657,8 +657,9 @@ int		Level)	/* Initialization Level */
 		}
 
 		for (i = 0; i < (SK_U32)pAC->GIni.GIMacsFound; i++) {
+			SK_U64 *pRandom = &Random;
 			Random = SkOsGetTime(pAC);
-			*(SK_U32*)&pAC->Rlmt.Port[i].Random = *(SK_U32*)&Random;
+			*(SK_U32*)&pAC->Rlmt.Port[i].Random = *(SK_U32*)pRandom;
 
 			for (j = 0; j < 4; j++) {
 				pAC->Rlmt.Port[i].Random[j] ^= pAC->Rlmt.Port[i].AddrPort->

@@ -747,10 +747,11 @@ SK_BOOL	Enable)	/* Enable / Disable */
 {
 	SK_U16	RcReg;
 	SK_U32	MdReg;
+	SK_U32	*pMdReg = &MdReg;
 
 	if (pAC->GIni.GIGenesis) {
 
-		XM_IN32(IoC, Port, XM_MODE, &MdReg);
+		XM_IN32(IoC, Port, XM_MODE, pMdReg);
 		/* enable or disable promiscuous mode */
 		if (Enable) {
 			MdReg |= XM_MD_ENA_PROM;
@@ -797,10 +798,11 @@ SK_BOOL	Enable)	/* Enable / Disable */
 {
 	SK_U16	RcReg;
 	SK_U32	MdReg;
+	SK_U32	*pMdReg = &MdReg;
 
 	if (pAC->GIni.GIGenesis) {
 
-		XM_IN32(IoC, Port, XM_MODE, &MdReg);
+		XM_IN32(IoC, Port, XM_MODE, pMdReg);
 		/* enable or disable hashing */
 		if (Enable) {
 			MdReg |= XM_MD_ENA_HASH;
@@ -1109,10 +1111,11 @@ SK_IOC	IoC,	/* IO context */
 int		Port)	/* Port Index (MAC_1 + n) */
 {
 	SK_U32	MdReg;
+	SK_U32	*pMdReg = &MdReg;
 
 	if (pAC->GIni.GIGenesis) {
 
-		XM_IN32(IoC, Port, XM_MODE, &MdReg);
+		XM_IN32(IoC, Port, XM_MODE, pMdReg);
 
 		XM_OUT32(IoC, Port, XM_MODE, MdReg | XM_MD_FTF);
 	}
@@ -1139,10 +1142,11 @@ SK_IOC	IoC,	/* IO context */
 int		Port)	/* Port Index (MAC_1 + n) */
 {
 	SK_U32	MdReg;
+	SK_U32	*pMdReg = &MdReg;
 
 	if (pAC->GIni.GIGenesis) {
 
-		XM_IN32(IoC, Port, XM_MODE, &MdReg);
+		XM_IN32(IoC, Port, XM_MODE, pMdReg);
 
 		XM_OUT32(IoC, Port, XM_MODE, MdReg | XM_MD_FRF);
 	}
@@ -1961,6 +1965,7 @@ int		Port)		/* Port Index (MAC_1 + n) */
 {
 	SK_GEPORT	*pPrt;
 	SK_U32		DWord;
+	SK_U32		*pDWord = &DWord;
 	SK_U16		Word;
 
 	pPrt = &pAC->GIni.GP[Port];
@@ -1984,7 +1989,7 @@ int		Port)		/* Port Index (MAC_1 + n) */
 
 	XM_OUT16(IoC, Port, XM_MMU_CMD, Word);
 
-	XM_IN32(IoC, Port, XM_MODE, &DWord);
+	XM_IN32(IoC, Port, XM_MODE, pDWord);
 
 	if (pPrt->PFlowCtrlStatus == SK_FLOW_STAT_SYMMETRIC ||
 		pPrt->PFlowCtrlStatus == SK_FLOW_STAT_LOC_SEND) {
@@ -4228,18 +4233,19 @@ SK_U64	*pStatus)	/* ptr for return overflow status value */
 {
 	SK_U64	Status;	/* Overflow status */
 	SK_U32	RegVal;
+	SK_U32	*pRegVal = &RegVal;
 
 	Status = 0;
 
 	if ((IStatus & XM_IS_RXC_OV) != 0) {
 
-		XM_IN32(IoC, Port, XM_RX_CNT_EV, &RegVal);
+		XM_IN32(IoC, Port, XM_RX_CNT_EV, pRegVal);
 		Status |= (SK_U64)RegVal << 32;
 	}
 
 	if ((IStatus & XM_IS_TXC_OV) != 0) {
 
-		XM_IN32(IoC, Port, XM_TX_CNT_EV, &RegVal);
+		XM_IN32(IoC, Port, XM_TX_CNT_EV, pRegVal);
 		Status |= (SK_U64)RegVal;
 	}
 

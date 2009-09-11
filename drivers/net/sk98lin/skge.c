@@ -1382,13 +1382,19 @@ int	TxDescrSize;	/* the size of a tx descriptor rounded up to alignment*/
 	pAC->TxDescrPerRing = TX_RING_SIZE / RxDescrSize;
 
 	for (i=0; i<pAC->GIni.GIMacsFound; i++) {
+		TXD **txd_head, **txd_tail, **txd_prev;
+
+		txd_head = &pAC->TxPort[i][0].pTxdRingHead;
+		txd_tail = &pAC->TxPort[i][0].pTxdRingTail;
+		txd_prev = &pAC->TxPort[i][0].pTxdRingPrev;
+
 		SetupRing(
 			pAC,
 			pAC->TxPort[i][0].pTxDescrRing,
 			pAC->TxPort[i][0].VTxDescrRing,
-			(RXD**)&pAC->TxPort[i][0].pTxdRingHead,
-			(RXD**)&pAC->TxPort[i][0].pTxdRingTail,
-			(RXD**)&pAC->TxPort[i][0].pTxdRingPrev,
+			(RXD**)txd_head,
+			(RXD**)txd_tail,
+			(RXD**)txd_prev,
 			&pAC->TxPort[i][0].TxdRingFree,
 			SK_TRUE);
 		SetupRing(
