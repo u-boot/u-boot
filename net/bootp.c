@@ -683,6 +683,9 @@ static void DhcpOptionsProcess (uchar * popt, Bootp_t *bp)
 {
 	uchar *end = popt + BOOTP_HDR_SIZE;
 	int oplen, size;
+#if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
+	int *to_ptr;
+#endif
 
 	while (popt < end && *popt != 0xff) {
 		oplen = *(popt + 1);
@@ -692,7 +695,8 @@ static void DhcpOptionsProcess (uchar * popt, Bootp_t *bp)
 			break;
 #if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_TIMEOFFSET)
 		case 2:		/* Time offset	*/
-			NetCopyLong ((ulong *)&NetTimeOffset, (ulong *) (popt + 2));
+			to_ptr = &NetTimeOffset;
+			NetCopyLong ((ulong *)to_ptr, (ulong *)(popt + 2));
 			NetTimeOffset = ntohl (NetTimeOffset);
 			break;
 #endif
