@@ -485,19 +485,18 @@ extern unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg);
 extern void write_tlb(u32 _mas0, u32 _mas1, u32 _mas2, u32 _mas3, u32 _mas7);
 
 #define SET_TLB_ENTRY(_tlb, _epn, _rpn, _perms, _wimge, _ts, _esel, _sz, _iprot) \
-	{ .tlb = _tlb, .epn = _epn, .rpn = _rpn, .perms = _perms, \
-	  .wimge = _wimge, .ts = _ts, .esel = _esel, .tsize = _sz, .iprot = _iprot }
+	{ .mas0 = FSL_BOOKE_MAS0(_tlb, _esel, 0), \
+	  .mas1 = FSL_BOOKE_MAS1(1, _iprot, 0, _ts, _sz), \
+	  .mas2 = FSL_BOOKE_MAS2(_epn, _wimge), \
+	  .mas3 = FSL_BOOKE_MAS3(_rpn, 0, _perms), \
+	  .mas7 = FSL_BOOKE_MAS7(_rpn), }
 
 struct fsl_e_tlb_entry {
-	u8	tlb;
-	u32	epn;
-	u64	rpn;
-	u8	perms;
-	u8	wimge;
-	u8	ts;
-	u8	esel;
-	u8	tsize;
-	u8	iprot;
+	u32	mas0;
+	u32	mas1;
+	u32	mas2;
+	u32	mas3;
+	u32	mas7;
 };
 
 extern struct fsl_e_tlb_entry tlb_table[];
