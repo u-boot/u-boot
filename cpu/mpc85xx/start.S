@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007 Freescale Semiconductor.
+ * Copyright 2004, 2007-2009 Freescale Semiconductor.
  * Copyright (C) 2003  Motorola,Inc.
  *
  * See file CREDITS for list of people who contributed to this
@@ -819,6 +819,28 @@ in32r:
 	blr
 
 /*------------------------------------------------------------------------------*/
+
+/*
+ * void write_tlb(mas0, mas1, mas2, mas3, mas7)
+ */
+	.globl	write_tlb
+write_tlb:
+	mtspr	MAS0,r3
+	mtspr	MAS1,r4
+	mtspr	MAS2,r5
+	mtspr	MAS3,r6
+#ifdef CONFIG_ENABLE_36BIT_PHYS
+	mtspr	MAS7,r7
+#endif
+	li	r3,0
+#ifdef CONFIG_SYS_BOOK3E_HV
+	mtspr	MAS8,r3
+#endif
+	isync
+	tlbwe
+	msync
+	isync
+	blr
 
 /*
  * void relocate_code (addr_sp, gd, addr_moni)

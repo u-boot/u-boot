@@ -450,6 +450,8 @@ extern void print_bats(void);
 		(((epn) & MAS3_RPN) | (wimge))
 #define FSL_BOOKE_MAS3(rpn, user, perms) \
 		(((rpn) & MAS3_RPN) | (user) | (perms))
+#define FSL_BOOKE_MAS7(rpn) \
+		(((u64)(rpn)) >> 32)
 
 #define BOOKE_PAGESZ_1K         0
 #define BOOKE_PAGESZ_4K         1
@@ -479,6 +481,8 @@ extern void init_tlbs(void);
 extern int find_tlb_idx(void *addr, u8 tlbsel);
 
 extern unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg);
+
+extern void write_tlb(u32 _mas0, u32 _mas1, u32 _mas2, u32 _mas3, u32 _mas7);
 
 #define SET_TLB_ENTRY(_tlb, _epn, _rpn, _perms, _wimge, _ts, _esel, _sz, _iprot) \
 	{ .tlb = _tlb, .epn = _epn, .rpn = _rpn, .perms = _perms, \
