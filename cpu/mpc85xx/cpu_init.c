@@ -364,5 +364,16 @@ extern void setup_ivors(void);
 
 void arch_preboot_os(void)
 {
+	u32 msr;
+
+	/*
+	 * We are changing interrupt offsets and are about to boot the OS so
+	 * we need to make sure we disable all async interrupts. EE is already
+	 * disabled by the time we get called.
+	 */
+	msr = mfmsr();
+	msr &= ~(MSR_ME|MSR_CE|MSR_DE);
+	mtmsr(msr);
+
 	setup_ivors();
 }
