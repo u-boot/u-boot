@@ -1266,6 +1266,7 @@ int		Port)		/* Which port should be checked */
 	SK_GEPORT	*pPrt;		/* GIni Port struct pointer */
 	int			Done;
 	SK_U32		GpReg;		/* General Purpose register value */
+	SK_U32		*pGpReg;	/* Pointer to -- " -- */
 	SK_U16		Isrc;		/* Interrupt source register */
 	SK_U16		IsrcSum;	/* Interrupt source register sum */
 	SK_U16		LpAb;		/* Link Partner Ability */
@@ -1273,6 +1274,8 @@ int		Port)		/* Which port should be checked */
 	SK_U16		ExtStat;	/* Extended Status Register */
 	SK_BOOL		AutoNeg;	/* Is Auto-negotiation used ? */
 	SK_U8		NextMode;	/* Next AutoSensing Mode */
+
+	pGpReg = &GpReg;
 
 	pPrt = &pAC->GIni.GP[Port];
 
@@ -1298,7 +1301,7 @@ int		Port)		/* Which port should be checked */
 
 	if (pPrt->PLinkBroken) {
 		/* Link was broken */
-		XM_IN32(IoC, Port, XM_GP_PORT, &GpReg);
+		XM_IN32(IoC, Port, XM_GP_PORT, pGpReg);
 
 		if ((GpReg & XM_GP_INP_ASS) == 0) {
 			/* The Link is in sync */
@@ -1395,7 +1398,7 @@ int		Port)		/* Which port should be checked */
 	 * here we usually can check whether the link is in sync and
 	 * auto-negotiation is done.
 	 */
-	XM_IN32(IoC, Port, XM_GP_PORT, &GpReg);
+	XM_IN32(IoC, Port, XM_GP_PORT, pGpReg);
 	XM_IN16(IoC, Port, XM_ISRC, &Isrc);
 	IsrcSum |= Isrc;
 
