@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Freescale Semiconductor.
+ * Copyright 2007-2009 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2003 Motorola Inc.
  * Modified by Xianghua Xiao, X.Xiao@motorola.com
@@ -132,15 +132,26 @@ void config_8560_ioports (volatile ccsr_cpm_t * cpm)
 /* We run cpu_init_early_f in AS = 1 */
 void cpu_init_early_f(void)
 {
+	u32 mas0, mas1, mas2, mas3, mas7;
+	int i;
+
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
-	/* Clear initial global data */
-	memset ((void *) gd, 0, sizeof (gd_t));
+	/*
+	 * Clear initial global data
+	 *   we don't use memset so we can share this code with NAND_SPL
+	 */
+	for (i = 0; i < sizeof(gd_t); i++)
+		((char *)gd)[i] = 0;
 
-	set_tlb(0, CONFIG_SYS_CCSRBAR, CONFIG_SYS_CCSRBAR_PHYS,
-		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		1, 0, BOOKE_PAGESZ_4K, 0);
+	mas0 = MAS0_TLBSEL(0) | MAS0_ESEL(0);
+	mas1 = MAS1_VALID | MAS1_TID(0) | MAS1_TS | MAS1_TSIZE(BOOKE_PAGESZ_4K);
+	mas2 = FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR, MAS2_I|MAS2_G);
+	mas3 = FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_PHYS, 0, MAS3_SW|MAS3_SR);
+	mas7 = FSL_BOOKE_MAS7(CONFIG_SYS_CCSRBAR_PHYS);
+
+	write_tlb(mas0, mas1, mas2, mas3, mas7);
 
 	/* set up CCSR if we want it moved */
 #if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR_PHYS)
@@ -149,9 +160,14 @@ void cpu_init_early_f(void)
 		volatile u32 *ccsr_virt =
 			(volatile u32 *)(CONFIG_SYS_CCSRBAR + 0x1000);
 
-		set_tlb(0, (u32)ccsr_virt, CONFIG_SYS_CCSRBAR_DEFAULT,
-			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-			1, 1, BOOKE_PAGESZ_4K, 0);
+		mas0 = MAS0_TLBSEL(0) | MAS0_ESEL(1);
+		/* mas1 is the same as above */
+		mas2 = FSL_BOOKE_MAS2((u32)ccsr_virt, MAS2_I|MAS2_G);
+		mas3 = FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_DEFAULT, 0,
+						MAS3_SW|MAS3_SR);
+		mas7 = FSL_BOOKE_MAS7(CONFIG_SYS_CCSRBAR_DEFAULT);
+
+		write_tlb(mas0, mas1, mas2, mas3, mas7);
 
 		temp = in_be32(ccsr_virt);
 		out_be32(ccsr_virt, CONFIG_SYS_CCSRBAR_PHYS >> 12);
