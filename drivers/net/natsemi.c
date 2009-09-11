@@ -754,7 +754,8 @@ natsemi_send(struct eth_device *dev, volatile void *packet, int length)
 {
 	u32 i, status = 0;
 	u32 tx_status = 0;
-	vu_long *res = (vu_long *)&tx_status;
+	u32 *tx_ptr = &tx_status;
+	vu_long *res = (vu_long *)tx_ptr;
 
 	/* Stop the transmitter */
 	OUTL(dev, TxOff, ChipCmd);
