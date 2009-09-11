@@ -914,6 +914,7 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 	unsigned long sysClkPeriodPs = ONE_BILLION / (CONFIG_SYS_CLK_FREQ/1000);
 	unsigned long primad_cpudv;
 	unsigned long m;
+	unsigned long plloutb;
 
 	/*
 	 * Read PLL Mode registers
@@ -999,7 +1000,10 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 	sysInfo->freqEBC = (CONFIG_SYS_CLK_FREQ * sysInfo->pllFbkDiv) /
 		sysInfo->pllExtBusDiv;
 
-	sysInfo->freqUART = sysInfo->freqVCOHz;
+	plloutb = ((CONFIG_SYS_CLK_FREQ * ((cpr_pllc & PLLC_SRC_MASK) ?
+		sysInfo->pllFwdDivB : sysInfo->pllFwdDiv) * sysInfo->pllFbkDiv) /
+		sysInfo->pllFwdDivB);
+	sysInfo->freqUART = plloutb;
 }
 
 /********************************************
