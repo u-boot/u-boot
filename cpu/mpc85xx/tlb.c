@@ -90,10 +90,11 @@ void init_tlbs(void)
 	int i;
 
 	for (i = 0; i < num_tlb_entries; i++) {
-		set_tlb(tlb_table[i].tlb, tlb_table[i].epn, tlb_table[i].rpn,
-			tlb_table[i].perms, tlb_table[i].wimge,
-			tlb_table[i].ts, tlb_table[i].esel, tlb_table[i].tsize,
-			tlb_table[i].iprot);
+		write_tlb(tlb_table[i].mas0,
+			  tlb_table[i].mas1,
+			  tlb_table[i].mas2,
+			  tlb_table[i].mas3,
+			  tlb_table[i].mas7);
 	}
 
 	return ;
