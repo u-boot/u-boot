@@ -74,6 +74,7 @@ int set_next_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 	return idx;
 }
 
+#ifndef CONFIG_NAND_SPL
 int set_last_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 {
 	u32 idx;
@@ -166,6 +167,7 @@ int set_ddr_laws(u64 start, u64 sz, enum law_trgt_if id)
 
 	return 0;
 }
+#endif
 
 void init_laws(void)
 {

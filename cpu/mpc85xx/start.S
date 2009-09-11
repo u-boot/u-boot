@@ -57,10 +57,12 @@
 	GOT_ENTRY(_GOT2_TABLE_)
 	GOT_ENTRY(_FIXUP_TABLE_)
 
+#ifndef CONFIG_NAND_SPL
 	GOT_ENTRY(_start)
 	GOT_ENTRY(_start_of_vectors)
 	GOT_ENTRY(_end_of_vectors)
 	GOT_ENTRY(transfer_to_handler)
+#endif
 
 	GOT_ENTRY(__init_end)
 	GOT_ENTRY(_end)
@@ -239,10 +241,11 @@ _start_e500:
 
 #endif /* CONFIG_MPC8569 */
 
-	/* create a temp mapping in AS=1 to the 4M boot window */
 	lis     r6,FSL_BOOKE_MAS0(1, 15, 0)@h
 	ori     r6,r6,FSL_BOOKE_MAS0(1, 15, 0)@l
 
+#ifndef CONFIG_SYS_RAMBOOT
+	/* create a temp mapping in AS=1 to the 4M boot window */
 	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_4M)@h
 	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_4M)@l
 
@@ -252,6 +255,20 @@ _start_e500:
 	/* The 85xx has the default boot window 0xff800000 - 0xffffffff */
 	lis     r9,FSL_BOOKE_MAS3(0xffc00000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
 	ori     r9,r9,FSL_BOOKE_MAS3(0xffc00000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
+#else
+	/*
+	 * create a temp mapping in AS=1 to the 1M TEXT_BASE space, the main
+	 * image has been relocated to TEXT_BASE on the second stage.
+	 */
+	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_1M)@h
+	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_1M)@l
+
+	lis     r8,FSL_BOOKE_MAS2(TEXT_BASE, (MAS2_I|MAS2_G))@h
+	ori     r8,r8,FSL_BOOKE_MAS2(TEXT_BASE, (MAS2_I|MAS2_G))@l
+
+	lis     r9,FSL_BOOKE_MAS3(TEXT_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
+	ori     r9,r9,FSL_BOOKE_MAS3(TEXT_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
+#endif
 
 	mtspr   MAS0,r6
 	mtspr   MAS1,r7
@@ -363,6 +380,7 @@ _start_cont:
 	bl	board_init_f
 	isync
 
+#ifndef CONFIG_NAND_SPL
 	. = EXC_OFF_SYS_RESET
 	.globl	_start_of_vectors
 _start_of_vectors:
@@ -817,6 +835,7 @@ in32:
 in32r:
 	lwbrx	r3,r0,r3
 	blr
+#endif  /* !CONFIG_NAND_SPL */
 
 /*------------------------------------------------------------------------------*/
 
@@ -1001,6 +1020,7 @@ clear_bss:
 	mr	r4,r10		/* Destination Address		*/
 	bl	board_init_r
 
+#ifndef CONFIG_NAND_SPL
 	/*
 	 * Copy exception vector code to low memory
 	 *
@@ -1154,3 +1174,4 @@ setup_ivors:
 
 #include "fixed_ivor.S"
 	blr
+#endif /* !CONFIG_NAND_SPL */

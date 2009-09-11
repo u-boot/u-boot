@@ -291,6 +291,25 @@ int cpu_init_r(void)
 
 	asm("msync;isync");
 	cache_ctl = l2cache->l2ctl;
+
+#if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SYS_INIT_L2_ADDR)
+	if (cache_ctl & MPC85xx_L2CTL_L2E) {
+		/* Clear L2 SRAM memory-mapped base address */
+		out_be32(&l2cache->l2srbar0, 0x0);
+		out_be32(&l2cache->l2srbar1, 0x0);
+
+		/* set MBECCDIS=0, SBECCDIS=0 */
+		clrbits_be32(&l2cache->l2errdis,
+				(MPC85xx_L2ERRDIS_MBECC |
+				 MPC85xx_L2ERRDIS_SBECC));
+
+		/* set L2E=0, L2SRAM=0 */
+		clrbits_be32(&l2cache->l2ctl,
+				(MPC85xx_L2CTL_L2E |
+				 MPC85xx_L2CTL_L2SRAM_ENTIRE));
+	}
+#endif
+
 	l2siz_field = (cache_ctl >> 28) & 0x3;
 
 	switch (l2siz_field) {
