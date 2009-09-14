@@ -165,26 +165,9 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 		}
 	}
 
+	sysInfo->freqOPB = sysInfo->freqPLB / sysInfo->pllOpbDiv;
 	sysInfo->freqEBC = sysInfo->freqPLB / sysInfo->pllExtBusDiv;
-
 	sysInfo->freqUART = sysInfo->freqProcessor;
-}
-
-
-/********************************************
- * get_OPB_freq
- * return OPB bus freq in Hz
- *********************************************/
-ulong get_OPB_freq (void)
-{
-	ulong val = 0;
-
-	PPC4xx_SYS_INFO sys_info;
-
-	get_sys_info (&sys_info);
-	val = sys_info.freqPLB / sys_info.pllOpbDiv;
-
-	return val;
 }
 
 
@@ -752,14 +735,6 @@ unsigned long determine_pci_clock_per(void)
 }
 #endif
 
-ulong get_OPB_freq (void)
-{
-
-	sys_info_t sys_info;
-	get_sys_info (&sys_info);
-	return sys_info.freqOPB;
-}
-
 #elif defined(CONFIG_XILINX_405)
 extern void get_sys_info (sys_info_t * sysInfo);
 extern ulong get_PCI_freq (void);
@@ -875,23 +850,6 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 
 
 /********************************************
- * get_OPB_freq
- * return OPB bus freq in Hz
- *********************************************/
-ulong get_OPB_freq (void)
-{
-	ulong val = 0;
-
-	PPC4xx_SYS_INFO sys_info;
-
-	get_sys_info (&sys_info);
-	val = sys_info.freqPLB / sys_info.pllOpbDiv;
-
-	return val;
-}
-
-
-/********************************************
  * get_PCI_freq
  * return PCI bus freq in Hz
  *********************************************/
@@ -997,6 +955,9 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 	sysInfo->freqPLB = (CONFIG_SYS_CLK_FREQ * m) /
 		sysInfo->pllFwdDiv / sysInfo->pllPlbDiv;
 
+	sysInfo->freqOPB = (CONFIG_SYS_CLK_FREQ * sysInfo->pllFbkDiv) /
+		sysInfo->pllOpbDiv;
+
 	sysInfo->freqEBC = (CONFIG_SYS_CLK_FREQ * sysInfo->pllFbkDiv) /
 		sysInfo->pllExtBusDiv;
 
@@ -1004,22 +965,6 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 		sysInfo->pllFwdDivB : sysInfo->pllFwdDiv) * sysInfo->pllFbkDiv) /
 		sysInfo->pllFwdDivB);
 	sysInfo->freqUART = plloutb;
-}
-
-/********************************************
- * get_OPB_freq
- * return OPB bus freq in Hz
- *********************************************/
-ulong get_OPB_freq (void)
-{
-	ulong val = 0;
-
-	PPC4xx_SYS_INFO sys_info;
-
-	get_sys_info (&sys_info);
-	val = (CONFIG_SYS_CLK_FREQ * sys_info.pllFbkDiv) / sys_info.pllOpbDiv;
-
-	return val;
 }
 
 #elif defined(CONFIG_405EX)
@@ -1168,22 +1113,6 @@ void get_sys_info (sys_info_t * sysInfo)
 	sysInfo->freqUART = sysInfo->freqPLB;
 }
 
-/********************************************
- * get_OPB_freq
- * return OPB bus freq in Hz
- *********************************************/
-ulong get_OPB_freq (void)
-{
-	ulong val = 0;
-
-	PPC4xx_SYS_INFO sys_info;
-
-	get_sys_info (&sys_info);
-	val = sys_info.freqPLB / sys_info.pllOpbDiv;
-
-	return val;
-}
-
 #endif
 
 int get_clocks (void)
@@ -1235,3 +1164,14 @@ ulong get_bus_freq (ulong dummy)
 
 	return val;
 }
+
+#if !defined(CONFIG_IOP480)
+ulong get_OPB_freq (void)
+{
+	PPC4xx_SYS_INFO sys_info;
+
+	get_sys_info (&sys_info);
+
+	return sys_info.freqOPB;
+}
+#endif
