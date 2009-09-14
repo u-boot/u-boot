@@ -54,11 +54,13 @@ int ide_preinit (void)
 	if (devbusfn == -1)
 		devbusfn = pci_find_device(PCI_VENDOR_ID_ITE,PCI_DEVICE_ID_ITE_8212,0);
 	if (devbusfn != -1) {
+		u32 ide_bus_offset32;
+
 		status = 0;
 
 		pci_read_config_dword (devbusfn, PCI_BASE_ADDRESS_0,
-							   (u32 *) &ide_bus_offset[0]);
-		ide_bus_offset[0] &= 0xfffffffe;
+							   &ide_bus_offset32);
+		ide_bus_offset[0] = ide_bus_offset32 & 0xfffffffe;
 		ide_bus_offset[0] = pci_hose_bus_to_phys(&hose,
 							 ide_bus_offset[0] & 0xfffffffe,
 							 PCI_REGION_IO);
