@@ -17,7 +17,6 @@
 
 #include <common.h>
 #include <nand.h>
-#include <linux/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/emif_defs.h>
 #include <asm/arch/nand_defs.h>
