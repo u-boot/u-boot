@@ -528,11 +528,17 @@ int write_word (flash_info_t *info, ulong dest, ulong da)
 	ulong start;
 	char csr;
 	int flag;
-	ushort * d = (ushort*)&da;
 	int i;
+	union {
+		u32 data32;
+		u16 data16[2];
+	} data;
+
+	data.data32 = da;
 
 	/* Check if Flash is (sufficiently) erased */
-	if (((*addr & d[0]) != d[0]) || ((*(addr+1) & d[1]) != d[1])) {
+	if (((*addr & data.data16[0]) != data.data16[0]) ||
+	    ((*(addr+1) & data.data16[1]) != data.data16[1])) {
 		return (2);
 	}
 	/* Disable interrupts which might cause a timeout here */
@@ -544,7 +550,7 @@ int write_word (flash_info_t *info, ulong dest, ulong da)
 		*addr = 0x0010;
 
 		/* Write Data */
-		*addr = d[i];
+		*addr = data.data16[i];
 
 		/* re-enable interrupts if necessary */
 		if (flag)
