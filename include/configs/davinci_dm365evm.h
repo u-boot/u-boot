@@ -73,7 +73,6 @@
 
 /* NAND: socketed, two chipselects, normally 2 GBytes */
 #define CONFIG_NAND_DAVINCI
-#define CONFIG_SYS_NAND_HW_ECC
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define CONFIG_SYS_NAND_PAGE_2K
@@ -97,7 +96,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_SAVEENV
 
 #ifdef CONFIG_NAND_DAVINCI
 #define CONFIG_CMD_MTDPARTS
