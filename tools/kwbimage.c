@@ -131,7 +131,7 @@ static uint32_t kwbimage_checksum32 (uint32_t *start, uint32_t len, uint32_t csu
 		return 0;
 
 	if (len % sizeof(uint32_t)) {
-		printf ("Error:%s[%d] - lenght is not in multiple of %ld\n",
+		printf ("Error:%s[%d] - length is not in multiple of %zu\n",
 			__FUNCTION__, len, sizeof(uint32_t));
 		return 0;
 	}
