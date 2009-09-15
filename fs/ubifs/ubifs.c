@@ -379,9 +379,11 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 	int ret;
 	char *next;
 	char fpath[128];
+	char symlinkpath[128];
 	char *name = fpath;
 	unsigned long root_inum = 1;
 	unsigned long inum;
+	int symlink_count = 0; /* Don't allow symlink recursion */
 
 	strcpy(fpath, filename);
 
@@ -397,6 +399,9 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 		return inum;
 
 	for (;;) {
+		struct inode *inode;
+		struct ubifs_inode *ui;
+
 		/* Extract the actual part from the pathname.  */
 		next = strchr(name, '/');
 		if (next) {
@@ -406,18 +411,48 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 		}
 
 		ret = ubifs_finddir(sb, name, root_inum, &inum);
+		if (!ret)
+			return 0;
+		inode = ubifs_iget(sb, inum);
+
+		if (!inode)
+			return 0;
+		ui = ubifs_inode(inode);
+
+		if ((inode->i_mode & S_IFMT) == S_IFLNK) {
+			char link_name[64];
+			char buf[128];
+
+			/* We have some sort of symlink recursion, bail out */
+			if (symlink_count++ > 8) {
+				printf("Symlink recursion, aborting\n");
+				return 0;
+			}
+			memcpy(link_name, ui->data, ui->data_len);
+			link_name[ui->data_len] = '\0';
+
+			if (link_name[0] == '/') {
+				/* Absolute path, redo everything without
+				 * the leading slash */
+				next = name = link_name + 1;
+				root_inum = 1;
+				continue;
+			}
+			/* Relative to cur dir */
+			sprintf(buf, "%s%s",
+					link_name, next == NULL ? "" : next);
+			memcpy(symlinkpath, buf, sizeof(buf));
+			next = name = symlinkpath;
+			continue;
+		}
 
 		/*
 		 * Check if directory with this name exists
 		 */
 
 		/* Found the node!  */
-		if (!next || *next == '\0') {
-			if (ret)
-				return inum;
-
-			break;
-		}
+		if (!next || *next == '\0')
+			return inum;
 
 		root_inum = inum;
 		name = next;
@@ -614,10 +649,10 @@ int ubifs_load(char *filename, u32 addr, u32 size)
 	int err = 0;
 	int i;
 	int count;
-	char link_name[64];
-	struct ubifs_inode *ui;
 
 	c->ubi = ubi_open_volume(c->vi.ubi_num, c->vi.vol_id, UBI_READONLY);
+	/* ubifs_findfile will resolve symlinks, so we know that we get
+	 * the real file here */
 	inum = ubifs_findfile(ubifs_sb, filename);
 	if (!inum) {
 		err = -1;
@@ -632,23 +667,6 @@ int ubifs_load(char *filename, u32 addr, u32 size)
 		printf("%s: Error reading inode %ld!\n", __func__, inum);
 		err = PTR_ERR(inode);
 		goto out;
-	}
-
-	/*
-	 * Check for symbolic link
-	 */
-	ui = ubifs_inode(inode);
-	if (((inode->i_mode & S_IFMT) == S_IFLNK) && ui->data_len) {
-		memcpy(link_name, ui->data, ui->data_len);
-		link_name[ui->data_len] = '\0';
-		printf("%s is linked to %s!\n", filename, link_name);
-		ubifs_iput(inode);
-
-		/*
-		 * Now we have the "real" filename, call ubifs_load()
-		 * again (recursive call) to load this file instead
-		 */
-		return ubifs_load(link_name, addr, size);
 	}
 
 	/*
