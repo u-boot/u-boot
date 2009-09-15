@@ -10,12 +10,14 @@
 
 APPEND=no	# Default: Create new config file
 BOARD_NAME=""	# Name to print in make output
+TARGETS=""
 
 while [ $# -gt 0 ] ; do
 	case "$1" in
 	--) shift ; break ;;
 	-a) shift ; APPEND=yes ;;
 	-n) shift ; BOARD_NAME="${1%%_config}" ; shift ;;
+	-t) shift ; TARGETS="`echo $1 | sed 's:_: :g'` ${TARGETS}" ; shift ;;
 	*)  break ;;
 	esac
 done
@@ -82,7 +84,11 @@ else
 	> config.h		# Create new config file
 fi
 echo "/* Automatically generated - do not edit */" >>config.h
-echo "#define CONFIG_MK_${BOARD_NAME} 1" >>config.h
+
+for i in ${TARGETS} ; do
+	echo "#define CONFIG_MK_${i} 1" >>config.h ;
+done
+
 echo "#include <configs/$1.h>" >>config.h
 echo "#include <asm/config.h>" >>config.h
 
