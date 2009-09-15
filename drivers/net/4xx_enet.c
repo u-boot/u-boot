@@ -319,9 +319,9 @@ static void emac_loopback_enable(EMAC_4XX_HW_PST hw_p)
     defined(CONFIG_405EX)
 	u32 val;
 
-	mfsdr(sdr_mfr, val);
+	mfsdr(SDR0_MFR, val);
 	val |= SDR0_MFR_ETH_CLK_SEL_V(hw_p->devnum);
-	mtsdr(sdr_mfr, val);
+	mtsdr(SDR0_MFR, val);
 #elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	u32 val;
 
@@ -338,9 +338,9 @@ static void emac_loopback_disable(EMAC_4XX_HW_PST hw_p)
     defined(CONFIG_405EX)
 	u32 val;
 
-	mfsdr(sdr_mfr, val);
+	mfsdr(SDR0_MFR, val);
 	val &= ~SDR0_MFR_ETH_CLK_SEL_V(hw_p->devnum);
-	mtsdr(sdr_mfr, val);
+	mtsdr(SDR0_MFR, val);
 #elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
 	u32 val;
 
@@ -364,14 +364,14 @@ static void ppc_4xx_eth_halt (struct eth_device *dev)
 	/* 1st reset MAL channel */
 	/* Note: writing a 0 to a channel has no effect */
 #if defined(CONFIG_405EP) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
-	mtdcr (maltxcarr, (MAL_CR_MMSR >> (hw_p->devnum * 2)));
+	mtdcr (MAL0_TXCARR, (MAL_CR_MMSR >> (hw_p->devnum * 2)));
 #else
-	mtdcr (maltxcarr, (MAL_CR_MMSR >> hw_p->devnum));
+	mtdcr (MAL0_TXCARR, (MAL_CR_MMSR >> hw_p->devnum));
 #endif
-	mtdcr (malrxcarr, (MAL_CR_MMSR >> hw_p->devnum));
+	mtdcr (MAL0_RXCARR, (MAL_CR_MMSR >> hw_p->devnum));
 
 	/* wait for reset */
-	while (mfdcr (malrxcasr) & (MAL_CR_MMSR >> hw_p->devnum)) {
+	while (mfdcr (MAL0_RXCASR) & (MAL_CR_MMSR >> hw_p->devnum)) {
 		udelay (1000);	/* Delay 1 MS so as not to hammer the register */
 		val--;
 		if (val == 0)
@@ -408,7 +408,7 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	unsigned long zmiifer;
 	unsigned long rmiifer;
 
-	mfsdr(sdr_pfc1, pfc1);
+	mfsdr(SDR0_PFC1, pfc1);
 	pfc1 = SDR0_PFC1_EPS_DECODE(pfc1);
 
 	zmiifer = 0;
@@ -498,7 +498,7 @@ int ppc_4xx_eth_setup_bridge(int devnum, bd_t * bis)
 	unsigned long zmiifer=0x0;
 	unsigned long pfc1;
 
-	mfsdr(sdr_pfc1, pfc1);
+	mfsdr(SDR0_PFC1, pfc1);
 	pfc1 &= SDR0_PFC1_SELECT_MASK;
 
 	switch (pfc1) {
@@ -1240,13 +1240,13 @@ get_speed:
     !defined(CONFIG_440EPX) && !defined(CONFIG_440GRX) && \
     !defined(CONFIG_460EX) && !defined(CONFIG_460GT)
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR)
-	mfsdr(sdr_mfr, reg);
+	mfsdr(SDR0_MFR, reg);
 	if (speed == 100) {
 		reg = (reg & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_RMII_100M;
 	} else {
 		reg = (reg & ~SDR0_MFR_ZMII_MODE_MASK) | SDR0_MFR_ZMII_MODE_RMII_10M;
 	}
-	mtsdr(sdr_mfr, reg);
+	mtsdr(SDR0_MFR, reg);
 #endif
 
 	/* Set ZMII/RGMII speed according to the phy link speed */
@@ -1302,13 +1302,13 @@ get_speed:
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
     defined(CONFIG_405EX)
-	mtdcr (malmcr, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA |
+	mtdcr (MAL0_CFG, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA |
 	       MAL_CR_PLBLT_DEFAULT | MAL_CR_EOPIE | 0x00330000);
 #else
-	mtdcr (malmcr, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA | MAL_CR_PLBLT_DEFAULT);
+	mtdcr (MAL0_CFG, MAL_CR_PLBB | MAL_CR_OPBBL | MAL_CR_LEA | MAL_CR_PLBLT_DEFAULT);
 	/* Errata 1.12: MAL_1 -- Disable MAL bursting */
 	if (get_pvr() == PVR_440GP_RB) {
-		mtdcr (malmcr, mfdcr(malmcr) & ~MAL_CR_PLBB);
+		mtdcr (MAL0_CFG, mfdcr(MAL0_CFG) & ~MAL_CR_PLBB);
 	}
 #endif
 
@@ -1398,86 +1398,86 @@ get_speed:
 	case 1:
 		/* setup MAL tx & rx channel pointers */
 #if defined (CONFIG_405EP) || defined (CONFIG_440EP) || defined (CONFIG_440GR)
-		mtdcr (maltxctp2r, hw_p->tx_phys);
+		mtdcr (MAL0_TXCTP2R, hw_p->tx_phys);
 #else
-		mtdcr (maltxctp1r, hw_p->tx_phys);
+		mtdcr (MAL0_TXCTP1R, hw_p->tx_phys);
 #endif
 #if defined(CONFIG_440)
-		mtdcr (maltxbattr, 0x0);
-		mtdcr (malrxbattr, 0x0);
+		mtdcr (MAL0_TXBADDR, 0x0);
+		mtdcr (MAL0_RXBADDR, 0x0);
 #endif
 
 #if defined(CONFIG_460EX) || defined(CONFIG_460GT)
-		mtdcr (malrxctp8r, hw_p->rx_phys);
+		mtdcr (MAL0_RXCTP8R, hw_p->rx_phys);
 		/* set RX buffer size */
-		mtdcr (malrcbs8, ENET_MAX_MTU_ALIGNED / 16);
+		mtdcr (MAL0_RCBS8, ENET_MAX_MTU_ALIGNED / 16);
 #else
-		mtdcr (malrxctp1r, hw_p->rx_phys);
+		mtdcr (MAL0_RXCTP1R, hw_p->rx_phys);
 		/* set RX buffer size */
-		mtdcr (malrcbs1, ENET_MAX_MTU_ALIGNED / 16);
+		mtdcr (MAL0_RCBS1, ENET_MAX_MTU_ALIGNED / 16);
 #endif
 		break;
 #if defined (CONFIG_440GX)
 	case 2:
 		/* setup MAL tx & rx channel pointers */
-		mtdcr (maltxbattr, 0x0);
-		mtdcr (malrxbattr, 0x0);
-		mtdcr (maltxctp2r, hw_p->tx_phys);
-		mtdcr (malrxctp2r, hw_p->rx_phys);
+		mtdcr (MAL0_TXBADDR, 0x0);
+		mtdcr (MAL0_RXBADDR, 0x0);
+		mtdcr (MAL0_TXCTP2R, hw_p->tx_phys);
+		mtdcr (MAL0_RXCTP2R, hw_p->rx_phys);
 		/* set RX buffer size */
-		mtdcr (malrcbs2, ENET_MAX_MTU_ALIGNED / 16);
+		mtdcr (MAL0_RCBS2, ENET_MAX_MTU_ALIGNED / 16);
 		break;
 	case 3:
 		/* setup MAL tx & rx channel pointers */
-		mtdcr (maltxbattr, 0x0);
-		mtdcr (maltxctp3r, hw_p->tx_phys);
-		mtdcr (malrxbattr, 0x0);
-		mtdcr (malrxctp3r, hw_p->rx_phys);
+		mtdcr (MAL0_TXBADDR, 0x0);
+		mtdcr (MAL0_TXCTP3R, hw_p->tx_phys);
+		mtdcr (MAL0_RXBADDR, 0x0);
+		mtdcr (MAL0_RXCTP3R, hw_p->rx_phys);
 		/* set RX buffer size */
-		mtdcr (malrcbs3, ENET_MAX_MTU_ALIGNED / 16);
+		mtdcr (MAL0_RCBS3, ENET_MAX_MTU_ALIGNED / 16);
 		break;
 #endif /* CONFIG_440GX */
 #if defined (CONFIG_460GT)
 	case 2:
 		/* setup MAL tx & rx channel pointers */
-		mtdcr (maltxbattr, 0x0);
-		mtdcr (malrxbattr, 0x0);
-		mtdcr (maltxctp2r, hw_p->tx_phys);
-		mtdcr (malrxctp16r, hw_p->rx_phys);
+		mtdcr (MAL0_TXBADDR, 0x0);
+		mtdcr (MAL0_RXBADDR, 0x0);
+		mtdcr (MAL0_TXCTP2R, hw_p->tx_phys);
+		mtdcr (MAL0_RXCTP16R, hw_p->rx_phys);
 		/* set RX buffer size */
-		mtdcr (malrcbs16, ENET_MAX_MTU_ALIGNED / 16);
+		mtdcr (MAL0_RCBS16, ENET_MAX_MTU_ALIGNED / 16);
 		break;
 	case 3:
 		/* setup MAL tx & rx channel pointers */
-		mtdcr (maltxbattr, 0x0);
-		mtdcr (malrxbattr, 0x0);
-		mtdcr (maltxctp3r, hw_p->tx_phys);
-		mtdcr (malrxctp24r, hw_p->rx_phys);
+		mtdcr (MAL0_TXBADDR, 0x0);
+		mtdcr (MAL0_RXBADDR, 0x0);
+		mtdcr (MAL0_TXCTP3R, hw_p->tx_phys);
+		mtdcr (MAL0_RXCTP24R, hw_p->rx_phys);
 		/* set RX buffer size */
-		mtdcr (malrcbs24, ENET_MAX_MTU_ALIGNED / 16);
+		mtdcr (MAL0_RCBS24, ENET_MAX_MTU_ALIGNED / 16);
 		break;
 #endif /* CONFIG_460GT */
 	case 0:
 	default:
 		/* setup MAL tx & rx channel pointers */
 #if defined(CONFIG_440)
-		mtdcr (maltxbattr, 0x0);
-		mtdcr (malrxbattr, 0x0);
+		mtdcr (MAL0_TXBADDR, 0x0);
+		mtdcr (MAL0_RXBADDR, 0x0);
 #endif
-		mtdcr (maltxctp0r, hw_p->tx_phys);
-		mtdcr (malrxctp0r, hw_p->rx_phys);
+		mtdcr (MAL0_TXCTP0R, hw_p->tx_phys);
+		mtdcr (MAL0_RXCTP0R, hw_p->rx_phys);
 		/* set RX buffer size */
-		mtdcr (malrcbs0, ENET_MAX_MTU_ALIGNED / 16);
+		mtdcr (MAL0_RCBS0, ENET_MAX_MTU_ALIGNED / 16);
 		break;
 	}
 
 	/* Enable MAL transmit and receive channels */
 #if defined(CONFIG_405EP) || defined(CONFIG_440EP) || defined(CONFIG_440GR)
-	mtdcr (maltxcasr, (MAL_TXRX_CASR >> (hw_p->devnum*2)));
+	mtdcr (MAL0_TXCASR, (MAL_TXRX_CASR >> (hw_p->devnum*2)));
 #else
-	mtdcr (maltxcasr, (MAL_TXRX_CASR >> hw_p->devnum));
+	mtdcr (MAL0_TXCASR, (MAL_TXRX_CASR >> hw_p->devnum));
 #endif
-	mtdcr (malrxcasr, (MAL_TXRX_CASR >> hw_p->devnum));
+	mtdcr (MAL0_RXCASR, (MAL_TXRX_CASR >> hw_p->devnum));
 
 	/* set transmit enable & receive enable */
 	out_be32((void *)EMAC_M0 + hw_p->hw_addr, EMAC_M0_TXE | EMAC_M0_RXE);
@@ -1493,9 +1493,9 @@ get_speed:
     defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 		unsigned long pfc1;
 
-		mfsdr (sdr_pfc1, pfc1);
+		mfsdr (SDR0_PFC1, pfc1);
 		pfc1 |= SDR0_PFC1_EM_1000;
-		mtsdr (sdr_pfc1, pfc1);
+		mtsdr (SDR0_PFC1, pfc1);
 #endif
 		mode_reg = mode_reg | EMAC_M1_MF_1000MBPS | EMAC_M1_IST;
 	} else if (speed == _100BASET)
@@ -1665,7 +1665,7 @@ int enetInt (struct eth_device *dev)
 		/* look at MAL and EMAC error interrupts */
 		if (uic_mal_err & (UIC_MAL_SERR | UIC_MAL_TXDE | UIC_MAL_RXDE)) {
 			/* we have a MAL error interrupt */
-			mal_isr = mfdcr(malesr);
+			mal_isr = mfdcr(MAL0_ESR);
 			mal_err(dev, mal_isr, uic_mal_err,
 				 MAL_UIC_DEF, MAL_UIC_ERR);
 
@@ -1691,8 +1691,8 @@ int enetInt (struct eth_device *dev)
 		/* handle MAX TX EOB interrupt from a tx */
 		if (uic_mal & UIC_MAL_TXEOB) {
 			/* clear MAL interrupt status bits */
-			mal_eob = mfdcr(maltxeobisr);
-			mtdcr(maltxeobisr, mal_eob);
+			mal_eob = mfdcr(MAL0_TXEOBISR);
+			mtdcr(MAL0_TXEOBISR, mal_eob);
 			mtdcr(UIC_BASE_MAL + UIC_SR, UIC_MAL_TXEOB);
 
 			/* indicate that we serviced an interrupt */
@@ -1703,7 +1703,7 @@ int enetInt (struct eth_device *dev)
 		/* handle MAL RX EOB interupt from a receive */
 		/* check for EOB on valid channels	     */
 		if (uic_mal & UIC_MAL_RXEOB) {
-			mal_eob = mfdcr(malrxeobisr);
+			mal_eob = mfdcr(MAL0_RXEOBISR);
 			if (mal_eob &
 			    (0x80000000 >> (hw_p->devnum * MAL_RX_CHAN_MUL))) {
 				/* push packet to upper layer */
@@ -1731,11 +1731,11 @@ static void mal_err (struct eth_device *dev, unsigned long isr,
 {
 	EMAC_4XX_HW_PST hw_p = dev->priv;
 
-	mtdcr (malesr, isr);	/* clear interrupt */
+	mtdcr (MAL0_ESR, isr);	/* clear interrupt */
 
 	/* clear DE interrupt */
-	mtdcr (maltxdeir, 0xC0000000);
-	mtdcr (malrxdeir, 0x80000000);
+	mtdcr (MAL0_TXDEIR, 0xC0000000);
+	mtdcr (MAL0_RXDEIR, 0x80000000);
 
 #ifdef INFO_4XX_ENET
 	printf ("\nMAL error occured.... ISR = %lx UIC = = %lx	MAL_DEF = %lx  MAL_ERR= %lx \n", isr, uic, maldef, mal_errr);
@@ -1769,10 +1769,10 @@ static void enet_rcv (struct eth_device *dev, unsigned long malisr)
 	int i;
 	int loop_count = 0;
 
-	rx_eob_isr = mfdcr (malrxeobisr);
+	rx_eob_isr = mfdcr (MAL0_RXEOBISR);
 	if ((0x80000000 >> (hw_p->devnum * MAL_RX_CHAN_MUL)) & rx_eob_isr) {
 		/* clear EOB */
-		mtdcr (malrxeobisr, rx_eob_isr);
+		mtdcr (MAL0_RXEOBISR, rx_eob_isr);
 
 		/* EMAC RX done */
 		while (1) {	/* do all */
@@ -1912,10 +1912,10 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 #if defined(CONFIG_440GX)
 	unsigned long pfc1;
 
-	mfsdr (sdr_pfc1, pfc1);
+	mfsdr (SDR0_PFC1, pfc1);
 	pfc1 &= ~(0x01e00000);
 	pfc1 |= 0x01200000;
-	mtsdr (sdr_pfc1, pfc1);
+	mtsdr (SDR0_PFC1, pfc1);
 #endif
 
 	/* first clear all mac-addresses */
@@ -2036,10 +2036,10 @@ int ppc_4xx_eth_initialize (bd_t * bis)
 				MAL_IER_DE | MAL_IER_NE | MAL_IER_TE |
 				MAL_IER_OPBE | MAL_IER_PLBE;
 #endif
-			mtdcr (malesr, 0xffffffff);	/* clear pending interrupts */
-			mtdcr (maltxdeir, 0xffffffff);	/* clear pending interrupts */
-			mtdcr (malrxdeir, 0xffffffff);	/* clear pending interrupts */
-			mtdcr (malier, mal_ier);
+			mtdcr (MAL0_ESR, 0xffffffff);	/* clear pending interrupts */
+			mtdcr (MAL0_TXDEIR, 0xffffffff);	/* clear pending interrupts */
+			mtdcr (MAL0_RXDEIR, 0xffffffff);	/* clear pending interrupts */
+			mtdcr (MAL0_IER, mal_ier);
 
 			/* install MAL interrupt handler */
 			irq_install_handler (VECNUM_MAL_SERR,

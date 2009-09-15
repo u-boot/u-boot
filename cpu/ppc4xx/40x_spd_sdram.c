@@ -422,7 +422,7 @@ long int spd_sdram(int(read_spd)(uint addr))
 	 * program all the registers.
 	 * -------------------------------------------------------------------*/
 
-#define mtsdram0(reg, data)  mtdcr(memcfga,reg);mtdcr(memcfgd,data)
+#define mtsdram0(reg, data)  mtdcr(SDRAM0_CFGADDR,reg);mtdcr(SDRAM0_CFGDATA,data)
 	/* disable memcontroller so updates work */
 	mtsdram0( mem_mcopt1, 0 );
 

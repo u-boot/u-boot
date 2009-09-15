@@ -52,16 +52,16 @@ const unsigned char fpgadata[] = {
 
 int board_early_init_f (void)
 {
-	unsigned long cntrl0Reg;
+	unsigned long CPC0_CR0Reg;
 	int index, len, i;
 	int status;
 
 	/*
 	 * Setup GPIO pins
 	 */
-	cntrl0Reg = mfdcr (cntrl0) & 0xf0001fff;
-	cntrl0Reg |= 0x0070f000;
-	mtdcr (cntrl0, cntrl0Reg);
+	CPC0_CR0Reg = mfdcr (CPC0_CR0) & 0xf0001fff;
+	CPC0_CR0Reg |= 0x0070f000;
+	mtdcr (CPC0_CR0, CPC0_CR0Reg);
 
 #ifdef FPGA_DEBUG
 	/* set up serial port with default baudrate */

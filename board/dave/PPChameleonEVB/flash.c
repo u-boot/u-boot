@@ -75,9 +75,9 @@ unsigned long flash_init (void)
 	debug("[%s, %d] Test point ...\n", __FUNCTION__, __LINE__);
 
 	/* Re-do sizing to get full correct info */
-	mtdcr(ebccfga, pb0cr);
-	pbcr = mfdcr(ebccfgd);
-	mtdcr(ebccfga, pb0cr);
+	mtdcr(EBC0_CFGADDR, PB0CR);
+	pbcr = mfdcr(EBC0_CFGDATA);
+	mtdcr(EBC0_CFGADDR, PB0CR);
 	base = -size;
 	switch (size) {
 	case 1 << 20:
@@ -97,7 +97,7 @@ unsigned long flash_init (void)
 		break;
 	}
 	pbcr = (pbcr & 0x0001ffff) | base | (size_val << 17);
-	mtdcr(ebccfgd, pbcr);
+	mtdcr(EBC0_CFGDATA, pbcr);
 	debug("[%s, %d] Test point ...\n", __FUNCTION__, __LINE__);
 
 	/* Monitor protection ON by default */

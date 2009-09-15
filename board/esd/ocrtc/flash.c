@@ -68,9 +68,9 @@ unsigned long flash_init (void)
 	/* Re-do sizing to get full correct info */
 
 	if (size_b1) {
-		mtdcr (ebccfga, pb0cr);
-		pbcr = mfdcr (ebccfgd);
-		mtdcr (ebccfga, pb0cr);
+		mtdcr (EBC0_CFGADDR, PB0CR);
+		pbcr = mfdcr (EBC0_CFGDATA);
+		mtdcr (EBC0_CFGADDR, PB0CR);
 		base_b1 = -size_b1;
 		switch (size_b1) {
 		case 1 << 20:
@@ -90,14 +90,14 @@ unsigned long flash_init (void)
 			break;
 		}
 		pbcr = (pbcr & 0x0001ffff) | base_b1 | (size_val << 17);
-		mtdcr (ebccfgd, pbcr);
-		/*          printf("pb1cr = %x\n", pbcr); */
+		mtdcr (EBC0_CFGDATA, pbcr);
+		/*          printf("PB1CR = %x\n", pbcr); */
 	}
 
 	if (size_b0) {
-		mtdcr (ebccfga, pb1cr);
-		pbcr = mfdcr (ebccfgd);
-		mtdcr (ebccfga, pb1cr);
+		mtdcr (EBC0_CFGADDR, PB1CR);
+		pbcr = mfdcr (EBC0_CFGDATA);
+		mtdcr (EBC0_CFGADDR, PB1CR);
 		base_b0 = base_b1 - size_b0;
 		switch (size_b1) {
 		case 1 << 20:
@@ -117,8 +117,8 @@ unsigned long flash_init (void)
 			break;
 		}
 		pbcr = (pbcr & 0x0001ffff) | base_b0 | (size_val << 17);
-		mtdcr (ebccfgd, pbcr);
-		/*            printf("pb0cr = %x\n", pbcr); */
+		mtdcr (EBC0_CFGDATA, pbcr);
+		/*            printf("PB0CR = %x\n", pbcr); */
 	}
 
 	size_b0 = flash_get_size ((vu_long *) base_b0, &flash_info[0]);

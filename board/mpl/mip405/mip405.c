@@ -256,16 +256,16 @@ int init_sdram (void)
 	gd->baudrate = 9600;
 	serial_init ();
 	/* set up the pld */
-	mtdcr (ebccfga, pb7ap);
-	mtdcr (ebccfgd, PLD_AP);
-	mtdcr (ebccfga, pb7cr);
-	mtdcr (ebccfgd, PLD_CR);
+	mtdcr (EBC0_CFGADDR, PB7AP);
+	mtdcr (EBC0_CFGDATA, PLD_AP);
+	mtdcr (EBC0_CFGADDR, PB7CR);
+	mtdcr (EBC0_CFGDATA, PLD_CR);
 	/* THIS IS OBSOLETE */
 	/* set up the board rev reg*/
-	mtdcr (ebccfga, pb5ap);
-	mtdcr (ebccfgd, BOARD_AP);
-	mtdcr (ebccfga, pb5cr);
-	mtdcr (ebccfgd, BOARD_CR);
+	mtdcr (EBC0_CFGADDR, PB5AP);
+	mtdcr (EBC0_CFGDATA, BOARD_AP);
+	mtdcr (EBC0_CFGADDR, PB5CR);
+	mtdcr (EBC0_CFGDATA, BOARD_CR);
 #ifdef SDRAM_DEBUG
 	/* get all informations from PLD */
 	serial_puts ("\nPLD Part  0x");
@@ -289,30 +289,30 @@ int init_sdram (void)
 		SDRAM_err ("U-Boot configured for a MIP405 not for a MIP405T!!!\n");
 #endif
 	/* set-up the chipselect machine */
-	mtdcr (ebccfga, pb0cr);		/* get cs0 config reg */
-	tmp = mfdcr (ebccfgd);
+	mtdcr (EBC0_CFGADDR, PB0CR);		/* get cs0 config reg */
+	tmp = mfdcr (EBC0_CFGDATA);
 	if ((tmp & 0x00002000) == 0) {
 		/* MPS Boot, set up the flash */
-		mtdcr (ebccfga, pb1ap);
-		mtdcr (ebccfgd, FLASH_AP);
-		mtdcr (ebccfga, pb1cr);
-		mtdcr (ebccfgd, FLASH_CR);
+		mtdcr (EBC0_CFGADDR, PB1AP);
+		mtdcr (EBC0_CFGDATA, FLASH_AP);
+		mtdcr (EBC0_CFGADDR, PB1CR);
+		mtdcr (EBC0_CFGDATA, FLASH_CR);
 	} else {
 		/* Flash boot, set up the MPS */
-		mtdcr (ebccfga, pb1ap);
-		mtdcr (ebccfgd, MPS_AP);
-		mtdcr (ebccfga, pb1cr);
-		mtdcr (ebccfgd, MPS_CR);
+		mtdcr (EBC0_CFGADDR, PB1AP);
+		mtdcr (EBC0_CFGDATA, MPS_AP);
+		mtdcr (EBC0_CFGADDR, PB1CR);
+		mtdcr (EBC0_CFGDATA, MPS_CR);
 	}
 	/* set up UART0 (CS2) and UART1 (CS3) */
-	mtdcr (ebccfga, pb2ap);
-	mtdcr (ebccfgd, UART0_AP);
-	mtdcr (ebccfga, pb2cr);
-	mtdcr (ebccfgd, UART0_CR);
-	mtdcr (ebccfga, pb3ap);
-	mtdcr (ebccfgd, UART1_AP);
-	mtdcr (ebccfga, pb3cr);
-	mtdcr (ebccfgd, UART1_CR);
+	mtdcr (EBC0_CFGADDR, PB2AP);
+	mtdcr (EBC0_CFGDATA, UART0_AP);
+	mtdcr (EBC0_CFGADDR, PB2CR);
+	mtdcr (EBC0_CFGDATA, UART0_CR);
+	mtdcr (EBC0_CFGADDR, PB3AP);
+	mtdcr (EBC0_CFGDATA, UART1_AP);
+	mtdcr (EBC0_CFGADDR, PB3CR);
+	mtdcr (EBC0_CFGDATA, UART1_CR);
 	bc = in8 (PLD_BOARD_CFG_REG);
 #ifdef SDRAM_DEBUG
 	serial_puts ("\nstart SDRAM Setup\n");
@@ -348,8 +348,8 @@ int init_sdram (void)
 	/* trc_clocks is sum of trp_clocks + tras_clocks */
 	trc_clocks = trp_clocks + tras_clocks;
 	/* get SDRAM timing register */
-	mtdcr (memcfga, mem_sdtr1);
-	sdram_tim = mfdcr (memcfgd) & ~0x018FC01F;
+	mtdcr (SDRAM0_CFGADDR, mem_sdtr1);
+	sdram_tim = mfdcr (SDRAM0_CFGDATA) & ~0x018FC01F;
 	/* insert CASL value */
 	sdram_tim |= ((unsigned long) (cal_val)) << 23;
 	/* insert PTA value */
@@ -369,8 +369,8 @@ int init_sdram (void)
 	/* insert SZ value; */
 	tmp |= ((unsigned long) sdram_table[i].sz << 17);
 	/* get SDRAM bank 0 register */
-	mtdcr (memcfga, mem_mb0cf);
-	sdram_bank = mfdcr (memcfgd) & ~0xFFCEE001;
+	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	sdram_bank = mfdcr (SDRAM0_CFGDATA) & ~0xFFCEE001;
 	sdram_bank |= (baseaddr | tmp | 0x01);
 
 #ifdef SDRAM_DEBUG
@@ -380,8 +380,8 @@ int init_sdram (void)
 #endif
 
 	/* write SDRAM timing register */
-	mtdcr (memcfga, mem_sdtr1);
-	mtdcr (memcfgd, sdram_tim);
+	mtdcr (SDRAM0_CFGADDR, mem_sdtr1);
+	mtdcr (SDRAM0_CFGDATA, sdram_tim);
 
 #ifdef SDRAM_DEBUG
 	serial_puts ("mb0cf: ");
@@ -390,23 +390,23 @@ int init_sdram (void)
 #endif
 
 	/* write SDRAM bank 0 register */
-	mtdcr (memcfga, mem_mb0cf);
-	mtdcr (memcfgd, sdram_bank);
+	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	mtdcr (SDRAM0_CFGDATA, sdram_bank);
 
 	if (get_bus_freq (tmp) > 110000000) {	/* > 110MHz */
 		/* get SDRAM refresh interval register */
-		mtdcr (memcfga, mem_rtr);
-		tmp = mfdcr (memcfgd) & ~0x3FF80000;
+		mtdcr (SDRAM0_CFGADDR, mem_rtr);
+		tmp = mfdcr (SDRAM0_CFGDATA) & ~0x3FF80000;
 		tmp |= 0x07F00000;
 	} else {
 		/* get SDRAM refresh interval register */
-		mtdcr (memcfga, mem_rtr);
-		tmp = mfdcr (memcfgd) & ~0x3FF80000;
+		mtdcr (SDRAM0_CFGADDR, mem_rtr);
+		tmp = mfdcr (SDRAM0_CFGDATA) & ~0x3FF80000;
 		tmp |= 0x05F00000;
 	}
 	/* write SDRAM refresh interval register */
-	mtdcr (memcfga, mem_rtr);
-	mtdcr (memcfgd, tmp);
+	mtdcr (SDRAM0_CFGADDR, mem_rtr);
+	mtdcr (SDRAM0_CFGDATA, tmp);
 	/* enable ECC if used */
 #if defined(ENABLE_ECC) && !defined(CONFIG_BOOT_PCI)
 	if (sdram_table[i].ecc) {
@@ -415,19 +415,19 @@ int init_sdram (void)
 #ifdef SDRAM_DEBUG
 		serial_puts ("disable ECC.. ");
 #endif
-		mtdcr (memcfga, mem_ecccf);
-		tmp = mfdcr (memcfgd);
+		mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+		tmp = mfdcr (SDRAM0_CFGDATA);
 		tmp &= 0xff0fffff;		/* disable all banks */
-		mtdcr (memcfga, mem_ecccf);
+		mtdcr (SDRAM0_CFGADDR, mem_ecccf);
 		/* set up SDRAM Controller with ECC enabled */
 #ifdef SDRAM_DEBUG
 		serial_puts ("setup SDRAM Controller.. ");
 #endif
-		mtdcr (memcfgd, tmp);
-		mtdcr (memcfga, mem_mcopt1);
-		tmp = (mfdcr (memcfgd) & ~0xFFE00000) | 0x90800000;
-		mtdcr (memcfga, mem_mcopt1);
-		mtdcr (memcfgd, tmp);
+		mtdcr (SDRAM0_CFGDATA, tmp);
+		mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+		tmp = (mfdcr (SDRAM0_CFGDATA) & ~0xFFE00000) | 0x90800000;
+		mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+		mtdcr (SDRAM0_CFGDATA, tmp);
 		udelay (600);
 #ifdef SDRAM_DEBUG
 		serial_puts ("fill the memory..\n");
@@ -447,19 +447,19 @@ int init_sdram (void)
 		serial_puts ("enable ECC\n");
 #endif
 		udelay (400);
-		mtdcr (memcfga, mem_ecccf);
-		tmp = mfdcr (memcfgd);
+		mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+		tmp = mfdcr (SDRAM0_CFGDATA);
 		tmp |= 0x00800000;		/* enable bank 0 */
-		mtdcr (memcfgd, tmp);
+		mtdcr (SDRAM0_CFGDATA, tmp);
 		udelay (400);
 	} else
 #endif
 	{
 		/* enable SDRAM controller with no ECC, 32-bit SDRAM width, 16 byte burst */
-		mtdcr (memcfga, mem_mcopt1);
-		tmp = (mfdcr (memcfgd) & ~0xFFE00000) | 0x80C00000;
-		mtdcr (memcfga, mem_mcopt1);
-		mtdcr (memcfgd, tmp);
+		mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+		tmp = (mfdcr (SDRAM0_CFGDATA) & ~0xFFE00000) | 0x80C00000;
+		mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+		mtdcr (SDRAM0_CFGDATA, tmp);
 		udelay (400);
 	}
 	serial_puts ("\n");
@@ -631,14 +631,14 @@ phys_size_t initdram (int board_type)
 	ds = 0;
 	/* since the DRAM controller is allready set up, calculate the size with the
 	   bank registers    */
-	mtdcr (memcfga, mem_mb0cf);
-	bank_reg[0] = mfdcr (memcfgd);
-	mtdcr (memcfga, mem_mb1cf);
-	bank_reg[1] = mfdcr (memcfgd);
-	mtdcr (memcfga, mem_mb2cf);
-	bank_reg[2] = mfdcr (memcfgd);
-	mtdcr (memcfga, mem_mb3cf);
-	bank_reg[3] = mfdcr (memcfgd);
+	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	bank_reg[0] = mfdcr (SDRAM0_CFGDATA);
+	mtdcr (SDRAM0_CFGADDR, mem_mb1cf);
+	bank_reg[1] = mfdcr (SDRAM0_CFGDATA);
+	mtdcr (SDRAM0_CFGADDR, mem_mb2cf);
+	bank_reg[2] = mfdcr (SDRAM0_CFGDATA);
+	mtdcr (SDRAM0_CFGADDR, mem_mb3cf);
+	bank_reg[3] = mfdcr (SDRAM0_CFGDATA);
 	TotalSize = 0;
 	for (i = 0; i < 4; i++) {
 		if ((bank_reg[i] & 0x1) == 0x1) {
@@ -648,8 +648,8 @@ phys_size_t initdram (int board_type)
 		} else
 			ds = 1;
 	}
-	mtdcr (memcfga, mem_ecccf);
-	tmp = mfdcr (memcfgd);
+	mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+	tmp = mfdcr (SDRAM0_CFGDATA);
 
 	if (!tmp)
 		printf ("No ");
@@ -687,7 +687,7 @@ int misc_init_r (void)
 	rtc_get (&tm);
 	start=get_timer(0);
 	/* if MIP405 has booted from PCI, reset CCR0[24] as described in errata PCI_18 */
-	if (mfdcr(strap) & PSR_ROM_LOC)
+	if (mfdcr(CPC0_PSR) & PSR_ROM_LOC)
 	       mtspr(SPRN_CCR0, (mfspr(SPRN_CCR0) & ~0x80));
 
 	return (0);

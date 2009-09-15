@@ -23,7 +23,7 @@
  */
 
 /*
- * compactcenter.h - configuration for CompactCenter (460EX)
+ * intip.h - configuration for CompactCenter aka intip (460EX) and DevCon-Center
  */
 #ifndef __CONFIG_H
 #define __CONFIG_H
@@ -32,15 +32,15 @@
  * High Level Configuration Options
  */
 /*
- * This config file is used for CompactCenter and DevCon-Center
+ * This config file is used for CompactCenter(codename intip) and DevCon-Center
  */
 #define CONFIG_460EX		1	/* Specific PPC460EX		*/
 #ifdef CONFIG_DEVCONCENTER
 #define CONFIG_HOSTNAME		devconcenter
 #define CONFIG_IDENT_STRING	" devconcenter 0.02"
 #else
-#define CONFIG_HOSTNAME		compactcenter
-#define CONFIG_IDENT_STRING	" compactcenter 0.02"
+#define CONFIG_HOSTNAME		intip
+#define CONFIG_IDENT_STRING	" intip 0.02"
 #endif
 #define CONFIG_440		1
 #define CONFIG_4xx		1	/* ... PPC4xx family */

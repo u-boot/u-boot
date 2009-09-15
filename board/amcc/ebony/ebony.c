@@ -41,30 +41,30 @@ int board_early_init_f(void)
 	/*--------------------------------------------------------------------
 	 * Setup the external bus controller/chip selects
 	 *-------------------------------------------------------------------*/
-	mtdcr(ebccfga, xbcfg);
-	reg = mfdcr(ebccfgd);
-	mtdcr(ebccfgd, reg | 0x04000000);	/* Set ATC */
+	mtdcr(EBC0_CFGADDR, EBC0_CFG);
+	reg = mfdcr(EBC0_CFGDATA);
+	mtdcr(EBC0_CFGDATA, reg | 0x04000000);	/* Set ATC */
 
-	mtebc(pb1ap, 0x02815480);	/* NVRAM/RTC */
-	mtebc(pb1cr, 0x48018000);	/* BA=0x480 1MB R/W 8-bit */
-	mtebc(pb7ap, 0x01015280);	/* FPGA registers */
-	mtebc(pb7cr, 0x48318000);	/* BA=0x483 1MB R/W 8-bit */
+	mtebc(PB1AP, 0x02815480);	/* NVRAM/RTC */
+	mtebc(PB1CR, 0x48018000);	/* BA=0x480 1MB R/W 8-bit */
+	mtebc(PB7AP, 0x01015280);	/* FPGA registers */
+	mtebc(PB7CR, 0x48318000);	/* BA=0x483 1MB R/W 8-bit */
 
 	/* read FPGA_REG0  and set the bus controller */
 	status = *fpga_base;
 	if ((status & BOOT_SMALL_FLASH) && !(status & FLASH_ONBD_N)) {
-		mtebc(pb0ap, 0x9b015480);	/* FLASH/SRAM */
-		mtebc(pb0cr, 0xfff18000);	/* BAS=0xfff 1MB R/W 8-bit */
-		mtebc(pb2ap, 0x9b015480);	/* 4MB FLASH */
-		mtebc(pb2cr, 0xff858000);	/* BAS=0xff8 4MB R/W 8-bit */
+		mtebc(PB0AP, 0x9b015480);	/* FLASH/SRAM */
+		mtebc(PB0CR, 0xfff18000);	/* BAS=0xfff 1MB R/W 8-bit */
+		mtebc(PB2AP, 0x9b015480);	/* 4MB FLASH */
+		mtebc(PB2CR, 0xff858000);	/* BAS=0xff8 4MB R/W 8-bit */
 	} else {
-		mtebc(pb0ap, 0x9b015480);	/* 4MB FLASH */
-		mtebc(pb0cr, 0xffc58000);	/* BAS=0xffc 4MB R/W 8-bit */
+		mtebc(PB0AP, 0x9b015480);	/* 4MB FLASH */
+		mtebc(PB0CR, 0xffc58000);	/* BAS=0xffc 4MB R/W 8-bit */
 
 		/* set CS2 if FLASH_ONBD_N == 0 */
 		if (!(status & FLASH_ONBD_N)) {
-			mtebc(pb2ap, 0x9b015480);	/* FLASH/SRAM */
-			mtebc(pb2cr, 0xff818000);	/* BAS=0xff8 4MB R/W 8-bit */
+			mtebc(PB2AP, 0x9b015480);	/* FLASH/SRAM */
+			mtebc(PB2CR, 0xff818000);	/* BAS=0xff8 4MB R/W 8-bit */
 		}
 	}
 
@@ -186,7 +186,7 @@ int pci_pre_init(struct pci_controller *hose)
 	 * The ebony board is always configured as the host & requires the
 	 * PCI arbiter to be enabled.
 	 *--------------------------------------------------------------------------*/
-	strap = mfdcr(cpc0_strp1);
+	strap = mfdcr(CPC0_STRP1);
 	if ((strap & 0x00100000) == 0) {
 		printf("PCI: CPC0_STRP1[PAE] not set.\n");
 		return 0;

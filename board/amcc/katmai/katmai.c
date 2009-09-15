@@ -220,9 +220,9 @@ int board_early_init_f (void)
 	mtdcr (uic0sr, 0x00000000);	/* clear all interrupts*/
 	mtdcr (uic0sr, 0xffffffff);	/* clear all interrupts*/
 
-	mfsdr(sdr_mfr, mfr);
+	mfsdr(SDR0_MFR, mfr);
 	mfr |= SDR0_MFR_FIXD;		/* Workaround for PCI/DMA */
-	mtsdr(sdr_mfr, mfr);
+	mtsdr(SDR0_MFR, mfr);
 
 	mtsdr(SDR0_PFC0, CONFIG_SYS_PFC0);
 
@@ -280,7 +280,7 @@ int pci_pre_init(struct pci_controller * hose )
 	 *	The katmai board is always configured as the host & requires the
 	 *	PCI arbiter to be enabled.
 	 *-------------------------------------------------------------------*/
-	mfsdr(sdr_sdstp1, strap);
+	mfsdr(SDR0_SDSTP1, strap);
 	if( (strap & SDR0_SDSTP1_PAE_MASK) == 0 ) {
 		printf("PCI: SDR0_STRP1[%08lX] - PCI Arbiter disabled.\n",strap);
 		return 0;

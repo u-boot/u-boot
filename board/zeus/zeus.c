@@ -61,7 +61,7 @@ int board_early_init_f(void)
 	/*
 	 * Configure CPC0_PCI to enable PerWE as output
 	 */
-	mtdcr(cpc0_pci, CPC0_PCI_SPE);
+	mtdcr(CPC0_PCI, CPC0_PCI_SPE);
 
 	return 0;
 }
@@ -107,7 +107,7 @@ int misc_init_r(void)
 	/* Re-do sizing to get full correct info */
 
 	/* adjust flash start and offset */
-	mfebc(pb0cr, pbcr);
+	mfebc(PB0CR, pbcr);
 	switch (gd->bd->bi_flashsize) {
 	case 1 << 20:
 		size_val = 0;
@@ -135,7 +135,7 @@ int misc_init_r(void)
 		break;
 	}
 	pbcr = (pbcr & 0x0001ffff) | gd->bd->bi_flashstart | (size_val << 17);
-	mtebc(pb0cr, pbcr);
+	mtebc(PB0CR, pbcr);
 
 	/*
 	 * Re-check to get correct base address

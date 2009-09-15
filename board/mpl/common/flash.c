@@ -97,7 +97,7 @@ int get_boot_mode(void)
 {
 	unsigned long pbcr;
 	int res = 0;
-	pbcr = mfdcr (strap);
+	pbcr = mfdcr (CPC0_PSR);
 	if ((pbcr & PSR_ROM_WIDTH_MASK) == 0)
 		/* boot via MPS or MPS mapping */
 		res = BOOT_MPS;
@@ -123,29 +123,29 @@ void setup_cs_reloc(void)
 	/* first findout on which cs the flash is */
 	if(mode & BOOT_MPS) {
 		/* map flash high on CS1 and MPS on CS0 */
-		mtdcr (ebccfga, pb0ap);
-		mtdcr (ebccfgd, MPS_AP);
-		mtdcr (ebccfga, pb0cr);
-		mtdcr (ebccfgd, MPS_CR);
+		mtdcr (EBC0_CFGADDR, PB0AP);
+		mtdcr (EBC0_CFGDATA, MPS_AP);
+		mtdcr (EBC0_CFGADDR, PB0CR);
+		mtdcr (EBC0_CFGDATA, MPS_CR);
 		/* we use the default values (max values) for the flash
 		 * because its real size is not yet known */
-		mtdcr (ebccfga, pb1ap);
-		mtdcr (ebccfgd, FLASH_AP);
-		mtdcr (ebccfga, pb1cr);
-		mtdcr (ebccfgd, FLASH_CR_B);
+		mtdcr (EBC0_CFGADDR, PB1AP);
+		mtdcr (EBC0_CFGDATA, FLASH_AP);
+		mtdcr (EBC0_CFGADDR, PB1CR);
+		mtdcr (EBC0_CFGDATA, FLASH_CR_B);
 	}
 	else {
 		/* map flash high on CS0 and MPS on CS1 */
-		mtdcr (ebccfga, pb1ap);
-		mtdcr (ebccfgd, MPS_AP);
-		mtdcr (ebccfga, pb1cr);
-		mtdcr (ebccfgd, MPS_CR);
+		mtdcr (EBC0_CFGADDR, PB1AP);
+		mtdcr (EBC0_CFGDATA, MPS_AP);
+		mtdcr (EBC0_CFGADDR, PB1CR);
+		mtdcr (EBC0_CFGDATA, MPS_CR);
 		/* we use the default values (max values) for the flash
 		 * because its real size is not yet known */
-		mtdcr (ebccfga, pb0ap);
-		mtdcr (ebccfgd, FLASH_AP);
-		mtdcr (ebccfga, pb0cr);
-		mtdcr (ebccfgd, FLASH_CR_B);
+		mtdcr (EBC0_CFGADDR, PB0AP);
+		mtdcr (EBC0_CFGDATA, FLASH_AP);
+		mtdcr (EBC0_CFGADDR, PB0CR);
+		mtdcr (EBC0_CFGDATA, FLASH_CR_B);
 	}
 }
 
@@ -217,34 +217,34 @@ unsigned long flash_init (void)
 	}
 	if(mode & BOOT_MPS) {
 		/* flash is on CS1 */
-		mtdcr(ebccfga, pb1cr);
-		flashcr = mfdcr (ebccfgd);
+		mtdcr(EBC0_CFGADDR, PB1CR);
+		flashcr = mfdcr (EBC0_CFGDATA);
 		/* we map the flash high in every case */
 		flashcr&=0x0001FFFF; /* mask out address bits */
 		flashcr|= ((0-flash_info[0].size) & 0xFFF00000); /* start addr */
 		flashcr|= (i << 17); /* size addr */
-		mtdcr(ebccfga, pb1cr);
-		mtdcr(ebccfgd, flashcr);
+		mtdcr(EBC0_CFGADDR, PB1CR);
+		mtdcr(EBC0_CFGDATA, flashcr);
 	}
 	else {
 		/* flash is on CS0 */
-		mtdcr(ebccfga, pb0cr);
-		flashcr = mfdcr (ebccfgd);
+		mtdcr(EBC0_CFGADDR, PB0CR);
+		flashcr = mfdcr (EBC0_CFGDATA);
 		/* we map the flash high in every case */
 		flashcr&=0x0001FFFF; /* mask out address bits */
 		flashcr|= ((0-flash_info[0].size) & 0xFFF00000); /* start addr */
 		flashcr|= (i << 17); /* size addr */
-		mtdcr(ebccfga, pb0cr);
-		mtdcr(ebccfgd, flashcr);
+		mtdcr(EBC0_CFGADDR, PB0CR);
+		mtdcr(EBC0_CFGDATA, flashcr);
 	}
 #if 0
 	/* enable this (PIP405/MIP405 only) if you want to test if
 	   the relocation has be done ok.
 	   This will disable both Chipselects */
-	mtdcr (ebccfga, pb0cr);
-	mtdcr (ebccfgd, 0L);
-	mtdcr (ebccfga, pb1cr);
-	mtdcr (ebccfgd, 0L);
+	mtdcr (EBC0_CFGADDR, PB0CR);
+	mtdcr (EBC0_CFGDATA, 0L);
+	mtdcr (EBC0_CFGADDR, PB1CR);
+	mtdcr (EBC0_CFGDATA, 0L);
 	printf("CS0 & CS1 switched off for test\n");
 #endif
 	/* patch version_string */

@@ -39,7 +39,7 @@ int board_early_init_f (void)
 	/*-------------------------------------------------------------------------
 	 * Initialize EBC CONFIG
 	 *-------------------------------------------------------------------------*/
-	mtebc(xbcfg, EBC_CFG_LE_UNLOCK |
+	mtebc(EBC0_CFG, EBC_CFG_LE_UNLOCK |
 	      EBC_CFG_PTD_DISABLE | EBC_CFG_RTC_64PERCLK |
 	      EBC_CFG_ATC_PREVIOUS | EBC_CFG_DTC_PREVIOUS |
 	      EBC_CFG_CTC_PREVIOUS | EBC_CFG_EMC_NONDEFAULT |
@@ -96,7 +96,7 @@ int board_early_init_f (void)
 	out32(GPIO0_ODR, in32(GPIO0_ODR) & ~(CONFIG_SYS_GPIO_SHUTDOWN | CONFIG_SYS_GPIO_SSD_EMPTY));
 
 	/* Setup GPIO/IRQ multiplexing */
-	mtsdr(sdr_pfc0, 0x01a33e00);
+	mtsdr(SDR0_PFC0, 0x01a33e00);
 
 	return 0;
 }
@@ -165,7 +165,7 @@ int pci_pre_init(struct pci_controller * hose )
 	 *	The ocotea board is always configured as the host & requires the
 	 *	PCI arbiter to be enabled.
 	 *--------------------------------------------------------------------------*/
-	mfsdr(sdr_sdstp1, strap);
+	mfsdr(SDR0_SDSTP1, strap);
 	if( (strap & SDR0_SDSTP1_PAE_MASK) == 0 ){
 		printf("PCI: SDR0_STRP1[%08lX] - PCI Arbiter disabled.\n",strap);
 		return 0;

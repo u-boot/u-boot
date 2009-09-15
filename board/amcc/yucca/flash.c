@@ -982,7 +982,7 @@ unsigned long flash_init(void)
 		 * Boot Settings in IIC EEprom address 0xA8 or 0xA0
 		 * Read Serial Device Strap Register1 in PPC440SPe
 		 */
-		mfsdr(sdr_sdstp1, val);
+		mfsdr(SDR0_SDSTP1, val);
 		boot_selection  = val & SDR0_SDSTP1_BOOT_SEL_MASK;
 		ebc_boot_size   = val & SDR0_SDSTP1_EBC_ROM_BS_MASK;
 

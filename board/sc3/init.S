@@ -58,7 +58,7 @@ ext_bus_cntlr_init:
  * We need the current boot up configuration to set correct
  * timings into internal flash and external flash
  */
-		mfdcr r24,strap			/* xxxx xxxx xxxx xxx? ?xxx xxxx xxxx xxxx
+		mfdcr r24,CPC0_PSR		/* xxxx xxxx xxxx xxx? ?xxx xxxx xxxx xxxx
 						   0 0 -> 8 bit external ROM
 						   0 1 -> 16 bit internal ROM */
 		addi r4,0,2
@@ -113,8 +113,8 @@ ext_bus_cntlr_init:
  * We only have to change the timing. Mapping is ok by boot-strapping
  *----------------------------------------------------------------------- */
 
-		li r4,pb0ap				/* PB0AP=Peripheral Bank 0 Access Parameters */
-		mtdcr ebccfga,r4
+		li r4,PB1AP				/* PB0AP=Peripheral Bank 0 Access Parameters */
+		mtdcr EBC0_CFGADDR,r4
 
 		mr r4,r26				/* assume internal fast flash is boot flash */
 		cmpwi r24,0x2000			/* assumption true? ... */
@@ -122,27 +122,27 @@ ext_bus_cntlr_init:
 		mr r4,r25				/* ...no, use the slow variant */
 		mr r25,r26				/* use this for the other flash */
 1:
-		mtdcr ebccfgd,r4			/* change timing now */
+		mtdcr EBC0_CFGDATA,r4			/* change timing now */
 
-		li r4,pb0cr				/* PB0CR=Peripheral Bank 0 Control Register */
-		mtdcr ebccfga,r4
-		mfdcr r4,ebccfgd
+		li r4,PB0CR				/* PB0CR=Peripheral Bank 0 Control Register */
+		mtdcr EBC0_CFGADDR,r4
+		mfdcr r4,EBC0_CFGDATA
 		lis r3,0x0001
 		ori r3,r3,0x8000			/* allow reads and writes */
 		or r4,r4,r3
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 
 /*-----------------------------------------------------------------------
  * Memory Bank 3 (Second-Flash) initialization
  * 0xF0000000...0xF01FFFFF -> 2MB
  *----------------------------------------------------------------------- */
 
-		li r4,pb3ap				/* Peripheral Bank 1 Access Parameter */
-		mtdcr ebccfga,r4
-		mtdcr ebccfgd,r2			/* change timing */
+		li r4,PB3AP				/* Peripheral Bank 1 Access Parameter */
+		mtdcr EBC0_CFGADDR,r4
+		mtdcr EBC0_CFGDATA,r2			/* change timing */
 
-		li r4,pb3cr				/* Peripheral Bank 1 Configuration Registers */
-		mtdcr ebccfga,r4
+		li r4,PB3CR				/* Peripheral Bank 1 Configuration Registers */
+		mtdcr EBC0_CFGADDR,r4
 
 		lis r4,0xF003
 		ori r4,r4,0x8000
@@ -151,7 +151,7 @@ ext_bus_cntlr_init:
  */
 		xori r24,r24,0x2000			/* invert current bus width */
 		or r4,r4,r24
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 
 /*-----------------------------------------------------------------------
  * Memory Bank 1 (NAND-Flash) initialization
@@ -169,28 +169,28 @@ ext_bus_cntlr_init:
  * ----> 2 clocks per cycle = 60ns cycle (30ns active, 30ns hold)
  *----------------------------------------------------------------------- */
 
-		li r4,pb1ap				/* Peripheral Bank 1 Access Parameter */
-		mtdcr ebccfga,r4
+		li r4,PB1AP				/* Peripheral Bank 1 Access Parameter */
+		mtdcr EBC0_CFGADDR,r4
 
 		lis r4,0x0000
 		ori r4,r4,0x0200
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 
-		li r4,pb1cr				/* Peripheral Bank 1 Configuration Registers */
-		mtdcr ebccfga,r4
+		li r4,PB1CR				/* Peripheral Bank 1 Configuration Registers */
+		mtdcr EBC0_CFGADDR,r4
 
 		lis r4,0x77D1
 		ori r4,r4,0x8000
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 
 
 /* USB init (without acceleration) */
 #ifndef CONFIG_ISP1161_PRESENT
-		li r4,pb4ap				/* PB4AP=Peripheral Bank 4 Access Parameters */
-		mtdcr ebccfga,r4
+		li r4,PB4AP				/* PB4AP=Peripheral Bank 4 Access Parameters */
+		mtdcr EBC0_CFGADDR,r4
 		lis r4,0x0180
 		ori r4,r4,0x5940
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 #endif
 
 /*-----------------------------------------------------------------------
@@ -204,8 +204,8 @@ ext_bus_cntlr_init:
  A7/A24=0 -> memory cycle
  A7/ /A24=1 -> I/O cycle
 */
-		li r4,pb2ap				/* PB2AP=Peripheral Bank 2 Access Parameters */
-		mtdcr ebccfga,r4
+		li r4,PB2AP				/* PB2AP=Peripheral Bank 2 Access Parameters */
+		mtdcr EBC0_CFGADDR,r4
 /*
  We emulate an ISA access
 
@@ -226,58 +226,58 @@ ext_bus_cntlr_init:
 		lis r4,0x0100
 		ori r4,r4,0x0340
 #endif
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 
 #ifdef IDE_USES_ISA_EMULATION
-		li r25,pb5ap				/* PB5AP=Peripheral Bank 5 Access Parameters */
-		mtdcr ebccfga,r25
-		mtdcr ebccfgd,r4
+		li r25,PB5AP				/* PB5AP=Peripheral Bank 5 Access Parameters */
+		mtdcr EBC0_CFGADDR,r25
+		mtdcr EBC0_CFGDATA,r4
 #endif
 
-		li r25,pb6ap				/* PB6AP=Peripheral Bank 6 Access Parameters */
-		mtdcr ebccfga,r25
-		mtdcr ebccfgd,r4
-		li r25,pb7ap				/* PB7AP=Peripheral Bank 7 Access Parameters */
-		mtdcr ebccfga,r25
-		mtdcr ebccfgd,r4
+		li r25,PB6AP				/* PB6AP=Peripheral Bank 6 Access Parameters */
+		mtdcr EBC0_CFGADDR,r25
+		mtdcr EBC0_CFGDATA,r4
+		li r25,PB7AP				/* PB7AP=Peripheral Bank 7 Access Parameters */
+		mtdcr EBC0_CFGADDR,r25
+		mtdcr EBC0_CFGDATA,r4
 
-		li r25,pb2cr				/* PB2CR=Peripheral Bank 2 Configuration Register */
-		mtdcr ebccfga,r25
+		li r25,PB2CR				/* PB2CR=Peripheral Bank 2 Configuration Register */
+		mtdcr EBC0_CFGADDR,r25
 
 		lis r4,0x780B
 		ori r4,r4,0xA000
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 /*
  * the other areas are only 1MiB in size
  */
 		lis r4,0x7401
 		ori r4,r4,0xA000
 
-		li r25,pb6cr				/* PB6CR=Peripheral Bank 6 Configuration Register */
-		mtdcr ebccfga,r25
+		li r25,PB6CR				/* PB6CR=Peripheral Bank 6 Configuration Register */
+		mtdcr EBC0_CFGADDR,r25
 		lis r4,0x7401
 		ori r4,r4,0xA000
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 
-		li r25,pb7cr				/* PB7CR=Peripheral Bank 7 Configuration Register */
-		mtdcr ebccfga,r25
+		li r25,PB7CR				/* PB7CR=Peripheral Bank 7 Configuration Register */
+		mtdcr EBC0_CFGADDR,r25
 		lis r4,0x7411
 		ori r4,r4,0xA000
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 
 #ifndef CONFIG_ISP1161_PRESENT
-		li r25,pb4cr				/* PB4CR=Peripheral Bank 4 Configuration Register */
-		mtdcr ebccfga,r25
+		li r25,PB4CR				/* PB4CR=Peripheral Bank 4 Configuration Register */
+		mtdcr EBC0_CFGADDR,r25
 		lis r4,0x7421
 		ori r4,r4,0xA000
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 #endif
 #ifdef IDE_USES_ISA_EMULATION
-		li r25,pb5cr				/* PB5CR=Peripheral Bank 5 Configuration Register */
-		mtdcr ebccfga,r25
+		li r25,PB5CR				/* PB5CR=Peripheral Bank 5 Configuration Register */
+		mtdcr EBC0_CFGADDR,r25
 		lis r4,0x0000
 		ori r4,r4,0x0000
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 #endif
 
 /*-----------------------------------------------------------------------
@@ -315,19 +315,19 @@ ext_bus_cntlr_init:
 
 #ifdef CONFIG_ISP1161_PRESENT
 
-		li r4,pb4ap				/* PB4AP=Peripheral Bank 4 Access Parameters */
-		mtdcr ebccfga,r4
+		li r4,PB4AP				/* PB4AP=Peripheral Bank 4 Access Parameters */
+		mtdcr EBC0_CFGADDR,r4
 
 		lis r4,0x030D
 		ori r4,r4,0x5E80
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 
-		li r4,pb4cr				/* PB2CR=Peripheral Bank 4 Configuration Register */
-		mtdcr ebccfga,r4
+		li r4,PB4CR				/* PB2CR=Peripheral Bank 4 Configuration Register */
+		mtdcr EBC0_CFGADDR,r4
 
 		lis r4,0x77C1
 		ori r4,r4,0xA000
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 
 #endif
 
@@ -352,28 +352,28 @@ ext_bus_cntlr_init:
  *
  *----------------------------------------------------------------------- */
 
-		li r4,pb5ap
-		mtdcr ebccfga,r4
+		li r4,PB5AP
+		mtdcr EBC0_CFGADDR,r4
 		lis r4,0x040C
 		ori r4,r4,0x0200
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 
-		li r4,pb5cr			/* PB2CR=Peripheral Bank 2 Configuration Register */
-		mtdcr ebccfga,r4
+		li r4,PB5CR			/* PB2CR=Peripheral Bank 2 Configuration Register */
+		mtdcr EBC0_CFGADDR,r4
 
 		lis r4,0x7A01
 		ori r4,r4,0xA000
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 #endif
 /*
  * External Peripheral Control Register
  */
-		li r4,epcr
-		mtdcr ebccfga,r4
+		li r4,EBC0_CFG
+		mtdcr EBC0_CFGADDR,r4
 
 		lis r4,0xB84E
 		ori r4,r4,0xF000
-		mtdcr ebccfgd,r4
+		mtdcr EBC0_CFGDATA,r4
 /*
  * drive POST code
  */
