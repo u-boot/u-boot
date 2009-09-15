@@ -775,7 +775,6 @@ LIST_nios2="		\
 
 LIST_microblaze="			\
 	microblaze-generic		\
-	suzaku				\
 "
 
 #########################################################################

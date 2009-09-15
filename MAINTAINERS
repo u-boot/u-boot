@@ -806,10 +806,6 @@ Scott McNutt <smcnutt@psyent.com>
 #	Board		CPU						#
 #########################################################################
 
-Yasushi Shoji <yashi@atmark-techno.com>
-
-	SUZAKU		MicroBlaze
-
 Michal Simek <monstr@monstr.eu>
 
 	microblaze-generic	MicroBlaze

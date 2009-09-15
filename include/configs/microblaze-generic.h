@@ -58,10 +58,7 @@
 /*#define	CONFIG_SYS_RESET_ADDRESS	TEXT_BASE*/
 
 /* ethernet */
-#ifdef XILINX_EMAC_BASEADDR
-	#define CONFIG_XILINX_EMAC	1
-	#define CONFIG_SYS_ENET
-#elif XILINX_EMACLITE_BASEADDR
+#ifdef XILINX_EMACLITE_BASEADDR
 	#define CONFIG_XILINX_EMACLITE	1
 	#define CONFIG_SYS_ENET
 #elif XILINX_LLTEMAC_BASEADDR
@@ -136,13 +133,13 @@
 #define	CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_SDRAM_BASE + 0x1000)
 
 /* global pointer */
-#define	CONFIG_SYS_GBL_DATA_SIZE	0x1000	/* size of global data */
+#define	CONFIG_SYS_GBL_DATA_SIZE	128 /* size of global data */
 /* start of global data */
 #define	CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_SDRAM_SIZE - CONFIG_SYS_GBL_DATA_SIZE)
 
 /* monitor code */
 #define	SIZE			0x40000
-#define	CONFIG_SYS_MONITOR_LEN		SIZE
+#define	CONFIG_SYS_MONITOR_LEN		(SIZE - CONFIG_SYS_GBL_DATA_SIZE)
 #define	CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_GBL_DATA_OFFSET - CONFIG_SYS_MONITOR_LEN)
 #define	CONFIG_SYS_MONITOR_END		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 #define	CONFIG_SYS_MALLOC_LEN		SIZE
@@ -291,7 +288,7 @@
 #define	CONFIG_SYS_USR_EXCEP	/* user exception */
 #define CONFIG_SYS_HZ	1000
 
-#define	CONFIG_PREBOOT		"echo U-BOOT for $(hostname);setenv preboot;echo"
+#define	CONFIG_PREBOOT	"echo U-BOOT for ${hostname};setenv preboot;echo"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	"unlock=yes\0" /* hardware flash protection */\
 					"nor0=ml401-0\0"\
@@ -300,5 +297,11 @@
 					"1m(romfs),1m(cramfs),-(jffs2)\0"
 
 #define CONFIG_CMDLINE_EDITING
+
+/* Use the HUSH parser */
+#define CONFIG_SYS_HUSH_PARSER
+#ifdef CONFIG_SYS_HUSH_PARSER
+#define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
+#endif
 
 #endif	/* __CONFIG_H */
