@@ -16,6 +16,29 @@
 #include <asm/fsl_i2c.h>
 #include <asm/fsl_lbc.h>
 
+typedef struct ccsr_local {
+	u32	ccsrbarh;	/* 0x0 - Control Configuration Status Registers Base Address Register High */
+	u32	ccsrbarl;	/* 0x4 - Control Configuration Status Registers Base Address Register Low */
+	u32	ccsrar;		/* 0x8 - Configuration, Control, and Status Attribute Register */
+#define CCSRAR_C	0x80000000	/* Commit */
+	u8	res1[4];
+	u32	altcbarh;	/* 0x10 - Alternate Configuration Base Address Register High */
+	u32	altcbarl;	/* 0x14 - Alternate Configuration Base Address Register Low */
+	u32	altcar;		/* 0x18 - Alternate Configuration Attribute Register */
+	u8	res2[4];
+	u32	bstrh;		/* 0x20 - Boot space translation register high */
+	u32	bstrl;		/* 0x24 - Boot space translation register Low */
+	u32	bstrar;		/* 0x28 - Boot space translation attributes register */
+	u8	res3[0xbd4];
+	struct {
+		u32	lawbarh;	/* 0xc00 + n * 0x10 - LAW0 base address register high */
+		u32	lawbarl;	/* 0xc04 + n * 0x10 - LAW0 base address register low */
+		u32	lawar;		/* 0xc08 + n * 0x10 - LAW0 attributes register */
+		u8	res4[4];
+	} law[32];
+	u8	res35[0x204];
+} ccsr_local_t;
+
 /*
  * Local-Access Registers and ECM Registers(0x0000-0x2000)
  */
@@ -165,7 +188,21 @@ typedef struct ccsr_ddr {
 	uint	debug_2;
 	uint	debug_3;
 	uint	debug_4;
-	char	res12[240];
+	uint	debug_5;
+	uint	debug_6;
+	uint	debug_7;
+	uint	debug_8;
+	uint	debug_9;
+	uint	debug_10;
+	uint	debug_11;
+	uint	debug_12;
+	uint	debug_13;		/* +0xF30 */
+	uint	debug_14;
+	uint	debug_15;
+	uint	debug_16;
+	uint	debug_17;
+	uint    debug_18;               /* +0xF44 */
+	char    res12[184];
 } ccsr_ddr_t;
 
 /*
@@ -1531,6 +1568,193 @@ typedef struct par_io {
 /*
  * Global Utilities Register Block(0xe_0000-0xf_ffff)
  */
+#ifdef CONFIG_FSL_CORENET
+typedef struct ccsr_gur {
+	u32	porsr1;		/* 0xe0000 - POR status register */
+	u8	res1[28];	/* 0xe0004 - 0xe001c Reserved: PORSRn */
+	u32	gpporcr1;	/* 0xe0020 - General-purpose POR configuration register */
+	u8	res2[12];
+	u32	gpiocr;		/* 0xe0030 - GPIO control register */
+	u8	res3[12];
+	u32	gpoutdr;	/* 0xe0040 - General-purpose output data register */
+	u8	res4[12];
+	u32	gpindr;		/* 0xe0050 - General-purpose input data register */
+	u8	res5[12];
+	u32	pmuxcr;		/* 0xe0060 - Alternate function signal multiplex control */
+	u8	res6[12];
+	u32	devdisr;	/* 0xe0070 - Device disable control */
+#define FSL_CORENET_DEVDISR_PCIE1	0x80000000
+#define FSL_CORENET_DEVDISR_PCIE2	0x40000000
+#define FSL_CORENET_DEVDISR_PCIE3	0x20000000
+#define FSL_CORENET_DEVDISR_RMU		0x08000000
+#define FSL_CORENET_DEVDISR_SRIO1	0x04000000
+#define FSL_CORENET_DEVDISR_SRIO2	0x02000000
+#define FSL_CORENET_DEVDISR_DMA1	0x00400000
+#define FSL_CORENET_DEVDISR_DMA2	0x00200000
+#define FSL_CORENET_DEVDISR_DDR1	0x00100000
+#define FSL_CORENET_DEVDISR_DDR2	0x00080000
+#define FSL_CORENET_DEVDISR_DBG		0x00010000
+#define FSL_CORENET_DEVDISR_NAL		0x00008000
+#define FSL_CORENET_DEVDISR_ELBC	0x00001000
+#define FSL_CORENET_DEVDISR_USB1	0x00000800
+#define FSL_CORENET_DEVDISR_USB2	0x00000400
+#define FSL_CORENET_DEVDISR_ESDHC	0x00000100
+#define FSL_CORENET_DEVDISR_GPIO	0x00000080
+#define FSL_CORENET_DEVDISR_ESPI	0x00000040
+#define FSL_CORENET_DEVDISR_I2C1	0x00000020
+#define FSL_CORENET_DEVDISR_I2C2	0x00000010
+#define FSL_CORENET_DEVDISR_DUART1	0x00000002
+#define FSL_CORENET_DEVDISR_DUART2	0x00000001
+	u8	res7[12];
+	u32	powmgtcsr;	/* 0xe0080 - Power management status and control register */
+	u8	res8[12];
+	u32	coredisru;	/* 0xe0090 - uppper portion for support of 64 cores */
+	u32	coredisrl;	/* 0xe0094 - lower portion for support of 64 cores */
+	u8	res9[8];
+	u32	pvr;		/* 0xe00a0 - Processor version register */
+	u32	svr;		/* 0xe00a4 - System version register */
+	u8	res10[8];
+	u32	rstcr;		/* 0xe00b0 - Reset control register */
+	u32	rstrqpblsr;	/* 0xe00b4 - Reset request preboot loader status register */
+	u8	res11[8];
+	u32	rstrqmr1;	/* 0xe00c0 - Reset request mask register */
+	u8	res12[4];	/* Reserved: RSTRQMR2 */
+	u32	rstrqsr1;	/* 0xe00c8 - Reset request status register */
+	u8	res13[4];	/* Reserved: RSTRQSR2 */
+	u8	res14[4];	/* Reserved: RSTRQWDTMRU */
+	u32	rstrqwdtmrl;	/* 0xe00d4 - Reset request WDT mask register */
+	u8	res15[4];	/* Reserved: RSTRQWDTSRU */
+	u32	rstrqwdtsrl;	/* 0xe00dc - Reset request WDT status register */
+	u8	res16[4];	/* Reserved: BRRU max total of  2 for up to 64 cores */
+	u32	brrl;		/* 0xe00e4 Boot release register */
+	u8	res17[24];
+	u32	rcwsr[16];	/* 0xe0100 - 0xe013c: Reset control word status register */
+#define FSL_CORENET_RCWSR4_SRDS_PRTCL		0xfc000000
+#define FSL_CORENET_RCWSR5_DDR_SYNC		0x00008000
+#define FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT		15
+#define FSL_CORENET_RCWSR7_MCK_TO_PLAT_RAT	0x00400000
+#define FSL_CORENET_RCWSR8_HOST_AGT_B1		0x00e00000
+#define FSL_CORENET_RCWSR8_HOST_AGT_B2		0x00100000
+	u8	res18[192];	/* Reserved: RCWSRn (max total of 64)*/
+	u32	scratchrw[4];	/* 0xe0200 - 0xe020c: Scratch Read/Write register */
+	u8	res19[240];	/* Reserved: SCRATCHRWn (max total of 64)*/
+	u32	scratchw1r[4];	/* 0xe0300 - 0xe030c: Scratch Read register (Write once) */
+	u8	res20[240];	/* Reserved: SCRATCHW1Rn (max total of 64)*/
+	u32	scrtsr[8];	/* 0xe0400 - 0xe041c: Core reset status register */
+	u8	res21[224];	/* Reserved: CRSTSRn (max total of 64 for up to 64 cores)*/
+	u32	pex1liodnr;	/* 0xe0500 PCI Express 1 Logical I/O Device Number register*/
+	u32	pex2liodnr;	/* 0xe0504 PCI Express 2 Logical I/O Device Number register*/
+	u32	pex3liodnr;	/* 0xe0508 PCI Express 3 Logical I/O Device Number register*/
+	u32	pex4liodnr;	/* 0xe050c PCI Express 4 Logical I/O Device Number register*/
+	u32	rio1liodnr;	/* 0xe0510 RIO 1 Logical I/O Device Number register*/
+	u32	rio2liodnr;	/* 0xe0514 RIO 2 Logical I/O Device Number register*/
+	u32	rio3liodnr;	/* 0xe0518 RIO 3 Logical I/O Device Number register*/
+	u32	rio4liodnr;	/* 0xe051c RIO 4 Logical I/O Device Number register*/
+	u32	usb1liodnr;	/* 0xe0520 USB 1 Logical I/O Device Number register*/
+	u32	usb2liodnr;	/* 0xe0524 USB 2 Logical I/O Device Number register*/
+	u32	usb3liodnr;	/* 0xe0528 USB 3 Logical I/O Device Number register*/
+	u32	usb4liodnr;	/* 0xe052c USB 4 Logical I/O Device Number register*/
+	u32	sdmmc1liodnr;	/* 0xe0530 SD/MMC 1 Logical I/O Device Number register*/
+	u32	sdmmc2liodnr;	/* 0xe0534 SD/MMC 2 Logical I/O Device Number register*/
+	u32	sdmmc3liodnr;	/* 0xe0538 SD/MMC 3 Logical I/O Device Number register*/
+	u32	sdmmc4liodnr;	/* 0xe053c SD/MMC 4 Logical I/O Device Number register*/
+	u32	rmuliodnr;	/* 0xe0540 RIO Message Unit Logical I/O Device Number register*/
+	u32	rduliodnr;	/* 0xe0544 RIO Doorbell Unit Logical I/O Device Number register*/
+	u32	rpwuliodnr;	/* 0xe0548 RIO Port Write Unit Logical I/O Device Number register*/
+	u8	res22[52];	/* Reserved: for future LIODN register expansion */
+	u32	dma1liodnr;	/* 0xe0580 DMA 1 Logical I/O Device Number register*/
+	u32	dma2liodnr;	/* 0xe0584 DMA 2 Logical I/O Device Number register*/
+	u32	dma3liodnr;	/* 0xe0588 DMA 3 Logical I/O Device Number register*/
+	u32	dma4liodnr;	/* 0xe058c DMA 4 Logical I/O Device Number register*/
+	u8	res23[48];	/* Reserved: for future LIODN register expansion */
+	u8	res24[64];	/* Reserved */
+	u32	pblsr;		/* 0xe0600 Preboot loader status register*/
+	u32	pamubypenr;	/* 0xe0604 PAMU bypass enable register*/
+	u32	dmacr1;		/* 0xe0608 DMA control register*/
+	u8	res25[4];	/* Reserved: DMACR2 (max total of 2)*/
+	u32	gensr1;		/* 0xe0610 General status register*/
+	u8	res26[12];	/* Reserved: GENSRn (max total of 4)*/
+	u32	gencr1;		/* 0xe0620 General control register*/
+	u8	res27[12];	/* Reserved: GENCRn (max total of 4)*/
+	u8	res28[4];	/* Reserved: CGENSRU (upper portion for support of 64 cores) */
+	u32	cgensrl;	/* 0xe0634 Core general status register*/
+	u8	res29[8];	/* Reserved */
+	u8	res30[4];	/* Reserved: CGENCRU (upper portion for support of 64 cores) */
+	u32	cgencrl;	/* 0xe0634 Core general control register*/
+	u8	res31[184];	/* Reserved 0xe0648 - 0xe06fc */
+	u32	sriopstecr;	/* 0xe0700 SRIO prescaler timer enable control register*/
+	u8	res32[2300];	/* Reserved 0xe0704 - 0xe0ffc */
+} ccsr_gur_t;
+
+typedef struct ccsr_clk {
+        u32     clkc0csr;       /* 0xe1000 - Core 0 Clock control/status register */
+        u8      res1[0x1c];
+        u32     clkc1csr;       /* 0xe1020 - Core 1 Clock control/status register */
+        u8      res2[0x1c];
+        u32     clkc2csr;       /* 0xe1040 - Core 2 Clock control/status register */
+        u8      res3[0x1c];
+        u32     clkc3csr;       /* 0xe1060 - Core 3 Clock control/status register */
+        u8      res4[0x1c];
+        u32     clkc4csr;       /* 0xe1080 - Core 4 Clock control/status register */
+        u8      res5[0x1c];
+        u32     clkc5csr;       /* 0xe10a0 - Core 5 Clock control/status register */
+        u8      res6[0x1c];
+        u32     clkc6csr;       /* 0xe10c0 - Core 6 Clock control/status register */
+        u8      res7[0x1c];
+        u32     clkc7csr;       /* 0xe10e0 - Core 7 Clock control/status register */
+        u8      res8[0x71c];
+        u32     pllc1gsr;       /* 0xe1800 - Cluster PLL 1 General Status Register */
+        u8      res10[0x1c];
+        u32     pllc2gsr;       /* 0xe1820 - Cluster PLL 2 General Status Register */
+        u8      res11[0x1c];
+        u32     pllc3gsr;       /* 0xe1840 - Cluster PLL 3 General Status Register */
+        u8      res12[0x1c];
+        u32     pllc4gsr;       /* 0xe1860 - Cluster PLL 4 General Status Register */
+        u8      res13[0x39c];
+        u32     pllpgsr;        /* 0xe1c00 - Platform PLL General Status Register */
+        u8      res14[0x1c];
+        u32     plldgsr;        /* 0xe1c20 - DDR PLL General Status Register */
+        u8      res15[0x3dc];
+} ccsr_clk_t;
+
+typedef struct ccsr_rcpm {
+	u8	res1[4];	/* 0xe2000 - Reserved */
+	u32	cdozsrl;	/* 0xe2004 - Core Doze Status Register */
+	u8	res2[4];	/* 0xe2008 - Reserved */
+	u32	cdozcrl;	/* 0xe200c - Core Doze Control Register */
+	u8	res3[4];	/* 0xe2010 - Reserved */
+	u32	cnapsrl;	/* 0xe2014 - Core Nap Status Register */
+	u8	res4[4];	/* 0xe2018 - Reserved */
+	u32	cnapcrl;	/* 0xe201c - Core Nap Control Register */
+	u8	res5[4];	/* 0xe2020 - Reserved */
+	u32	cdozpsrl;	/* 0xe2024 - Core Doze Previous Status Register */
+	u8	res6[4];	/* 0xe2028 - Reserved */
+	u32	cdozpcrl;	/* 0xe202c - Core Doze Previous Control Register */
+	u8	res7[4];	/* 0xe2030 - Reserved */
+	u32	cwaitsrl;	/* 0xe2034 - Core Wait Status Register */
+	u8	res8[8];	/* Reserved */
+	u32	powmgtcsr;	/* 0xe2040 - Power Mangement Control & Status Register */
+	u8	res9[12];	/* Reserved */
+	u32	ippdexpcr0;	/* 0xe2050 - IP Powerdown Exception Control Register 0 */
+	u8	res10[12];	/* Reserved */
+	u8	res11[4];	/* Reserved */
+	u32	cpmimrl;	/* 0xe2064 - Core Power Management Interrupt Masking Register */
+	u8	res12[4];	/* Reserved */
+	u32	cpmcimrl;	/* 0xe206c - Core Power Management Critical Interrupt Masking Register */
+	u8	res13[4];	/* Reserved */
+	u32	cpmmcimrl;	/* 0xe2074 - Core Power Management Machine Check Interrupt Masking Register */
+	u8	res14[4];	/* Reserved */
+	u32	cpmnmimrl;	/* 0xe207c - Core Power Management NMI Masking Register */
+	u8	res15[4];	/* Reserved */
+	u32	ctbenrl;	/* 0xe2084 - Core Time Base Enable Register */
+	u8	res16[4];	/* Reserved */
+	u32	ctbclkselrl;	/* 0xe208c - Core Time Base Clock Select Register */
+	u8	res17[4];	/* Reserved */
+	u32	ctbhltcrl;	/* 0xe2094 - Core Time Base Halt Control Register */
+	u8	res18[0xf68];
+} ccsr_rcpm_t;
+
+#else
 typedef struct ccsr_gur {
 	uint	porpllsr;	/* 0xe0000 - POR PLL ratio status register */
 #ifdef CONFIG_MPC8536
@@ -1647,42 +1871,65 @@ typedef struct ccsr_gur {
 	uint	tsec34ioovcr;	/* 0xe0f2c - eTSEC 3/4 IO override control */
 	char	res15[61648];	/* 0xe0f30 to 0xefffff */
 } ccsr_gur_t;
+#endif
 
-#define CONFIG_SYS_MPC85xx_GUTS_OFFSET	(0xE0000)
+#ifdef CONFIG_FSL_CORENET
+#define CONFIG_SYS_FSL_CORENET_CCM_OFFSET	0x0000
+#define CONFIG_SYS_MPC85xx_DDR_OFFSET		0x8000
+#define CONFIG_SYS_MPC85xx_DDR2_OFFSET		0x9000
+#define CONFIG_SYS_FSL_CORENET_CLK_OFFSET	0xE1000
+#define CONFIG_SYS_FSL_CORENET_RCPM_OFFSET	0xE2000
+#define CONFIG_SYS_MPC85xx_DMA_OFFSET		0x100000
+#define CONFIG_SYS_MPC85xx_ESPI_OFFSET		0x110000
+#define CONFIG_SYS_MPC85xx_ESDHC_OFFSET		0x114000
+#define CONFIG_SYS_MPC85xx_LBC_OFFSET		0x124000
+#define CONFIG_SYS_MPC85xx_GPIO_OFFSET		0x130000
+#define CONFIG_SYS_MPC85xx_QMAN_OFFSET		0x318000
+#define CONFIG_SYS_MPC85xx_BMAN_OFFSET		0x31a000
+#else
+#define CONFIG_SYS_MPC85xx_ECM_OFFSET		0x0000
+#define CONFIG_SYS_MPC85xx_DDR_OFFSET		0x2000
+#define CONFIG_SYS_MPC85xx_LBC_OFFSET		0x5000
+#define CONFIG_SYS_MPC85xx_DDR2_OFFSET		0x6000
+#define CONFIG_SYS_MPC85xx_ESPI_OFFSET		0x7000
+#define CONFIG_SYS_MPC85xx_PCIX_OFFSET		0x8000
+#define CONFIG_SYS_MPC85xx_PCIX2_OFFSET		0x9000
+#define CONFIG_SYS_MPC85xx_GPIO_OFFSET		0xF000
+#define CONFIG_SYS_MPC85xx_SATA1_OFFSET		0x18000
+#define CONFIG_SYS_MPC85xx_SATA2_OFFSET		0x19000
+#define CONFIG_SYS_MPC85xx_L2_OFFSET		0x20000
+#define CONFIG_SYS_MPC85xx_DMA_OFFSET		0x21000
+#define CONFIG_SYS_MPC85xx_ESDHC_OFFSET		0x2e000
+#define CONFIG_SYS_MPC85xx_SERDES2_OFFSET	0xE3100
+#define CONFIG_SYS_MPC85xx_SERDES1_OFFSET	0xE3000
+#define CONFIG_SYS_MPC85xx_CPM_OFFSET		0x80000
+#endif
+
+#define CONFIG_SYS_MPC85xx_PIC_OFFSET		0x40000
+#define CONFIG_SYS_MPC85xx_GUTS_OFFSET		0xE0000
+
+#define CONFIG_SYS_MPC85xx_QMAN_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_QMAN_OFFSET)
+#define CONFIG_SYS_MPC85xx_BMAN_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_BMAN_OFFSET)
 #define CONFIG_SYS_MPC85xx_GUTS_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_GUTS_OFFSET)
-#define CONFIG_SYS_MPC85xx_ECM_OFFSET	(0x0000)
+#define CONFIG_SYS_FSL_CORENET_CCM_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_CORENET_CCM_OFFSET)
+#define CONFIG_SYS_FSL_CORENET_CLK_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_CORENET_CLK_OFFSET)
+#define CONFIG_SYS_FSL_CORENET_RCPM_ADDR (CONFIG_SYS_IMMR + CONFIG_SYS_FSL_CORENET_RCPM_OFFSET)
 #define CONFIG_SYS_MPC85xx_ECM_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_ECM_OFFSET)
-#define CONFIG_SYS_MPC85xx_DDR_OFFSET	(0x2000)
 #define CONFIG_SYS_MPC85xx_DDR_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_DDR_OFFSET)
-#define CONFIG_SYS_MPC85xx_DDR2_OFFSET	(0x6000)
 #define CONFIG_SYS_MPC85xx_DDR2_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_DDR2_OFFSET)
-#define CONFIG_SYS_MPC85xx_LBC_OFFSET	(0x5000)
 #define CONFIG_SYS_MPC85xx_LBC_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_LBC_OFFSET)
-#define CONFIG_SYS_MPC85xx_ESPI_OFFSET	(0x7000)
 #define CONFIG_SYS_MPC85xx_ESPI_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_ESPI_OFFSET)
-#define CONFIG_SYS_MPC85xx_PCIX_OFFSET	(0x8000)
 #define CONFIG_SYS_MPC85xx_PCIX_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_PCIX_OFFSET)
-#define CONFIG_SYS_MPC85xx_PCIX2_OFFSET	(0x9000)
 #define CONFIG_SYS_MPC85xx_PCIX2_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_PCIX2_OFFSET)
-#define CONFIG_SYS_MPC85xx_GPIO_OFFSET	(0xF000)
-#define CONFIG_SYS_MPC85xx_GPIO_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_GPIO_OFFSET)
-#define CONFIG_SYS_MPC85xx_SATA1_OFFSET	(0x18000)
+#define CONFIG_SYS_MPC85xx_GPIO_ADDR    (CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_GPIO_OFFSET)
 #define CONFIG_SYS_MPC85xx_SATA1_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SATA1_OFFSET)
-#define CONFIG_SYS_MPC85xx_SATA2_OFFSET	(0x19000)
 #define CONFIG_SYS_MPC85xx_SATA2_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SATA2_OFFSET)
-#define CONFIG_SYS_MPC85xx_L2_OFFSET	(0x20000)
 #define CONFIG_SYS_MPC85xx_L2_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_L2_OFFSET)
-#define CONFIG_SYS_MPC85xx_DMA_OFFSET	(0x21000)
 #define CONFIG_SYS_MPC85xx_DMA_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_DMA_OFFSET)
-#define CONFIG_SYS_MPC85xx_ESDHC_OFFSET	(0x2e000)
 #define CONFIG_SYS_MPC85xx_ESDHC_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_ESDHC_OFFSET)
-#define CONFIG_SYS_MPC85xx_PIC_OFFSET	(0x40000)
 #define CONFIG_SYS_MPC85xx_PIC_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_PIC_OFFSET)
-#define CONFIG_SYS_MPC85xx_CPM_OFFSET	(0x80000)
 #define CONFIG_SYS_MPC85xx_CPM_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_CPM_OFFSET)
-#define CONFIG_SYS_MPC85xx_SERDES1_OFFSET	(0xE3000)
 #define CONFIG_SYS_MPC85xx_SERDES1_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES2_OFFSET)
-#define CONFIG_SYS_MPC85xx_SERDES2_OFFSET	(0xE3100)
 #define CONFIG_SYS_MPC85xx_SERDES2_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES2_OFFSET)
 #define CONFIG_SYS_MPC85xx_USB_OFFSET		0x22000
 #define CONFIG_SYS_MPC85xx_USB_ADDR \
