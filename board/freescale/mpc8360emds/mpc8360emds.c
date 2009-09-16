@@ -126,6 +126,7 @@ phys_size_t initdram(int board_type)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 msize = 0;
+	u32 lbc_sdram_size;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32) im)
 		return -1;
@@ -147,7 +148,9 @@ phys_size_t initdram(int board_type)
 	/*
 	 * Initialize SDRAM if it is on local bus.
 	 */
-	msize += sdram_init(msize * 1024 * 1024);
+	lbc_sdram_size = sdram_init(msize * 1024 * 1024);
+	if (!msize)
+		msize = lbc_sdram_size;
 
 	/* return total bus SDRAM size(bytes)  -- DDR */
 	return (msize * 1024 * 1024);
