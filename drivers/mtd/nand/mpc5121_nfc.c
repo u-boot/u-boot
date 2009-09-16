@@ -334,6 +334,7 @@ static void mpc5121_nfc_command(struct mtd_info *mtd, unsigned command,
 	case NAND_CMD_ERASE2:
 	case NAND_CMD_READID:
 	case NAND_CMD_STATUS:
+	case NAND_CMD_RESET:
 		break;
 
 	default:
