@@ -25,6 +25,8 @@
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif
+#include <hwconfig.h>
+#include <fdt_support.h>
 #if defined(CONFIG_PQ_MDS_PIB)
 #include "../common/pq-mds-pib.h"
 #endif
@@ -357,12 +359,22 @@ static int sdram_init(unsigned int base) { return 0; }
 #endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
+static void ft_board_fixup_qe_usb(void *blob, bd_t *bd)
+{
+	if (!hwconfig_subarg_cmp("qe_usb", "mode", "peripheral"))
+		return;
+
+	do_fixup_by_compat(blob, "fsl,mpc8323-qe-usb", "mode",
+			   "peripheral", sizeof("peripheral"), 1);
+}
+
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
 #endif
+	ft_board_fixup_qe_usb(blob, bd);
 	/*
 	 * mpc8360ea pb mds errata 2: RGMII timing
 	 * if on mpc8360ea rev. 2.1,

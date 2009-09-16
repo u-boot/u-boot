@@ -382,6 +382,8 @@
 #define CONFIG_NET_MULTI	1
 #endif
 
+#define CONFIG_HWCONFIG		1
+
 /*
  * QE UEC ethernet configuration
  */
