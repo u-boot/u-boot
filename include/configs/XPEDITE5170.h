@@ -122,7 +122,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * 0xf800_0000	0xffff_ffff	NOR Flash 1		128M non-cacheable
  */
 
-#define CONFIG_SYS_LBC_LCRR		(LCRR_CLKDIV_2 | LCRR_EADC_3)
+#define CONFIG_SYS_LBC_LCRR		(LCRR_CLKDIV_4 | LCRR_EADC_3)
 
 /*
  * NAND flash configuration
