@@ -429,12 +429,23 @@ static int marvell_init(struct uec_mii_info *mii_info)
 {
 	struct eth_device *edev = mii_info->dev;
 	uec_private_t *uec = edev->priv;
+	enum enet_interface iface = uec->uec_info->enet_interface;
 
-	if (uec->uec_info->enet_interface == ENET_1000_RGMII_ID) {
+	if (iface == ENET_1000_RGMII_ID ||
+			iface == ENET_1000_RGMII_RXID ||
+			iface == ENET_1000_RGMII_TXID) {
 		int temp;
 
 		temp = phy_read(mii_info, MII_M1111_PHY_EXT_CR);
-		temp |= (MII_M1111_RX_DELAY | MII_M1111_TX_DELAY);
+		if (iface == ENET_1000_RGMII_ID) {
+			temp |= MII_M1111_RX_DELAY | MII_M1111_TX_DELAY;
+		} else if (iface == ENET_1000_RGMII_RXID) {
+			temp &= ~MII_M1111_TX_DELAY;
+			temp |= MII_M1111_RX_DELAY;
+		} else if (iface == ENET_1000_RGMII_TXID) {
+			temp &= ~MII_M1111_RX_DELAY;
+			temp |= MII_M1111_TX_DELAY;
+		}
 		phy_write(mii_info, MII_M1111_PHY_EXT_CR, temp);
 
 		temp = phy_read(mii_info, MII_M1111_PHY_EXT_SR);
