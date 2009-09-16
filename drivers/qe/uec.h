@@ -23,6 +23,9 @@
 #ifndef __UEC_H__
 #define __UEC_H__
 
+#include "qe.h"
+#include "uccf.h"
+
 #define MAX_TX_THREADS				8
 #define MAX_RX_THREADS				8
 #define MAX_TX_QUEUES				8
