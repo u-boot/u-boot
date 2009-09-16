@@ -21,12 +21,14 @@
 #endif
 #include <spd_sdram.h>
 #include <asm/mmu.h>
+#include <asm/io.h>
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif
 #if defined(CONFIG_PQ_MDS_PIB)
 #include "../common/pq-mds-pib.h"
 #endif
+#include "../../../drivers/qe/uec.h"
 
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* GETH1 */
@@ -89,11 +91,19 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{0,  0, 0, 0, QE_IOP_TAB_END}, /* END of table */
 };
 
+/* Handle "mpc8360ea rev.2.1 erratum 2: RGMII Timing"? */
+static int board_handle_erratum2(void)
+{
+	const immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+
+	return REVID_MAJOR(immr->sysconf.spridr) == 2 &&
+	       REVID_MINOR(immr->sysconf.spridr) == 1;
+}
+
 int board_early_init_f(void)
 {
-
-	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR;
 	const immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR;
 
 	/* Enable flash write */
 	bcsr[0xa] &= ~0x04;
@@ -105,6 +115,21 @@ int board_early_init_f(void)
 	/* Enable second UART */
 	bcsr[0x9] &= ~0x01;
 
+	if (board_handle_erratum2()) {
+		void *immap = (immap_t *)(CONFIG_SYS_IMMR + 0x14a8);
+
+		/*
+		 * IMMR + 0x14A8[4:5] = 11 (clk delay for UCC 2)
+		 * IMMR + 0x14A8[18:19] = 11 (clk delay for UCC 1)
+		 */
+		setbits_be32(immap, 0x0c003000);
+
+		/*
+		 * IMMR + 0x14AC[20:27] = 10101010
+		 * (data delay for both UCC's)
+		 */
+		clrsetbits_be32(immap + 4, 0xff0, 0xaa0);
+	}
 	return 0;
 }
 
@@ -115,6 +140,28 @@ int board_early_init_r(void)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_UEC_ETH
+static uec_info_t uec_info[] = {
+#ifdef CONFIG_UEC_ETH1
+	STD_UEC_INFO(1),
+#endif
+#ifdef CONFIG_UEC_ETH2
+	STD_UEC_INFO(2),
+#endif
+};
+
+int board_eth_init(bd_t *bd)
+{
+	if (board_handle_erratum2()) {
+		int i;
+
+		for (i = 0; i < ARRAY_SIZE(uec_info); i++)
+			uec_info[i].enet_interface = ENET_1000_RGMII_RXID;
+	}
+	return uec_eth_init(bd, uec_info, ARRAY_SIZE(uec_info));
+}
+#endif /* CONFIG_UEC_ETH */
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 extern void ddr_enable_ecc(unsigned int dram_size);
@@ -312,8 +359,6 @@ static int sdram_init(unsigned int base) { return 0; }
 #if defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)
 {
-	const immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
-
 	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
@@ -323,8 +368,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 	 * if on mpc8360ea rev. 2.1,
 	 * change both ucc phy-connection-types from rgmii-id to rgmii-rxid
 	 */
-	if ((REVID_MAJOR(immr->sysconf.spridr) == 2) &&
-	    (REVID_MINOR(immr->sysconf.spridr) == 1)) {
+	if (board_handle_erratum2()) {
 		int nodeoffset;
 		const char *prop;
 		int path;
