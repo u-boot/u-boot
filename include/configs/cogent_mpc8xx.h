@@ -37,6 +37,7 @@
 #define CONFIG_COGENT		1	/* using Cogent Modular Architecture */
 
 #define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
+#define	CONFIG_MISC_INIT_R		/* Use misc_init_r()		*/
 
 /* Cogent Modular Architecture options */
 #define CONFIG_CMA286_60_OLD	1	/* ...on an old CMA286-60 CPU module */

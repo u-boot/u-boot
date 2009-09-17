@@ -37,6 +37,7 @@
 
 #define CONFIG_MPC860           1   /* This is a MPC860 CPU ... */
 #define CONFIG_CCM              1   /* on a Card Controller Module  */
+#define CONFIG_MISC_INIT_R	    /* Call misc_init_r() */
 
 #define CONFIG_8xx_CONS_SMC1    1   /* Console is on SMC1       */
 #undef  CONFIG_8xx_CONS_SMC2
