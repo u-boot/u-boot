@@ -100,29 +100,9 @@ static const struct fsl_i2c *i2c_dev[2] = {
  */
 static const struct {
 	unsigned short divider;
-#ifdef __PPC__
-	u8 dfsr;
-#endif
 	u8 fdr;
 } fsl_i2c_speed_map[] = {
-#ifdef __PPC__
-	{160, 1, 32}, {192, 1, 33}, {224, 1, 34}, {256, 1, 35},
-	{288, 1, 0}, {320, 1, 1}, {352, 6, 1}, {384, 1, 2}, {416, 6, 2},
-	{448, 1, 38}, {480, 1, 3}, {512, 1, 39}, {544, 11, 3}, {576, 1, 4},
-	{608, 22, 3}, {640, 1, 5}, {672, 32, 3}, {704, 11, 5}, {736, 43, 3},
-	{768, 1, 6}, {800, 54, 3}, {832, 11, 6}, {896, 1, 42}, {960, 1, 7},
-	{1024, 1, 43}, {1088, 22, 7}, {1152, 1, 8}, {1216, 43, 7}, {1280, 1, 9},
-	{1408, 22, 9}, {1536, 1, 10}, {1664, 22, 10}, {1792, 1, 46},
-	{1920, 1, 11}, {2048, 1, 47}, {2176, 43, 11}, {2304, 1, 12},
-	{2560, 1, 13}, {2816, 43, 13}, {3072, 1, 14}, {3328, 43, 14},
-	{3584, 1, 50}, {3840, 1, 15}, {4096, 1, 51}, {4608, 1, 16},
-	{5120, 1, 17}, {6144, 1, 18}, {7168, 1, 54}, {7680, 1, 19},
-	{8192, 1, 55}, {9216, 1, 20}, {10240, 1, 21}, {12288, 1, 22},
-	{14336, 1, 58}, {15360, 1, 23}, {16384, 1, 59}, {18432, 1, 24},
-	{20480, 1, 25}, {24576, 1, 26}, {28672, 1, 62}, {30720, 1, 27},
-	{32768, 1, 63}, {36864, 1, 28}, {40960, 1, 29}, {49152, 1, 30},
-	{61440, 1, 31}, {-1, 1, 31}
-#elif defined(__M68K__)
+#ifdef __M68K__
 	{20, 32}, {22, 33}, {24, 34}, {26, 35},
 	{28, 0}, {28, 36}, {30, 1}, {32, 37},
 	{34, 2}, {36, 38}, {40, 3}, {40, 39},
@@ -158,7 +138,6 @@ static unsigned int set_i2c_bus_speed(const struct fsl_i2c *dev,
 	unsigned int i2c_clk, unsigned int speed)
 {
 	unsigned short divider = min(i2c_clk / speed, (unsigned short) -1);
-	unsigned int i;
 
 	/*
 	 * We want to choose an FDR/DFSR that generates an I2C bus speed that
@@ -166,31 +145,72 @@ static unsigned int set_i2c_bus_speed(const struct fsl_i2c *dev,
 	 * want the first divider that is equal to or greater than the
 	 * calculated divider.
 	 */
+#ifdef __PPC__
+	u8 dfsr, fdr = 0x31; /* Default if no FDR found */
+	/* a, b and dfsr matches identifiers A,B and C respectively in AN2919 */
+	unsigned short a, b, ga, gb;
+	unsigned long c_div, est_div;
+
+#ifdef CONFIG_FSL_I2C_CUSTOM_DFSR
+	dfsr = CONFIG_FSL_I2C_CUSTOM_DFSR;
+#else
+	/* Condition 1: dfsr <= 50/T */
+	dfsr = (5 * (i2c_clk / 1000)) / 100000;
+#endif
+#ifdef CONFIG_FSL_I2C_CUSTOM_FDR
+	fdr = CONFIG_FSL_I2C_CUSTOM_FDR;
+	speed = i2c_clk / divider; /* Fake something */
+#else
+	debug("Requested speed:%d, i2c_clk:%d\n", speed, i2c_clk);
+	if (!dfsr)
+		dfsr = 1;
+
+	est_div = ~0;
+	for (ga = 0x4, a = 10; a <= 30; ga++, a += 2) {
+		for (gb = 0; gb < 8; gb++) {
+			b = 16 << gb;
+			c_div = b * (a + ((3*dfsr)/b)*2);
+			if ((c_div > divider) && (c_div < est_div)) {
+				unsigned short bin_gb, bin_ga;
+
+				est_div = c_div;
+				bin_gb = gb << 2;
+				bin_ga = (ga & 0x3) | ((ga & 0x4) << 3);
+				fdr = bin_gb | bin_ga;
+				speed = i2c_clk / est_div;
+				debug("FDR:0x%.2x, div:%ld, ga:0x%x, gb:0x%x, "
+				      "a:%d, b:%d, speed:%d\n",
+				      fdr, est_div, ga, gb, a, b, speed);
+				/* Condition 2 not accounted for */
+				debug("Tr <= %d ns\n",
+				      (b - 3 * dfsr) * 1000000 /
+				      (i2c_clk / 1000));
+			}
+		}
+		if (a == 20)
+			a += 2;
+		if (a == 24)
+			a += 4;
+	}
+	debug("divider:%d, est_div:%ld, DFSR:%d\n", divider, est_div, dfsr);
+	debug("FDR:0x%.2x, speed:%d\n", fdr, speed);
+#endif
+	writeb(dfsr, &dev->dfsrr);	/* set default filter */
+	writeb(fdr, &dev->fdr);		/* set bus speed */
+#else
+	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(fsl_i2c_speed_map); i++)
 		if (fsl_i2c_speed_map[i].divider >= divider) {
 			u8 fdr;
-#ifdef __PPC__
-			u8 dfsr;
-#ifdef CONFIG_FSL_I2C_CUSTOM_DFSR
-			dfsr = CONFIG_FSL_I2C_CUSTOM_DFSR;
-#else
-			dfsr = fsl_i2c_speed_map[i].dfsr;
-#endif
-			writeb(dfsr, &dev->dfsrr);	/* set default filter */
-#endif
-#ifdef CONFIG_FSL_I2C_CUSTOM_FDR
-			fdr = CONFIG_FSL_I2C_CUSTOM_FDR;
-			speed = i2c_clk / divider; /* Fake something */
-#else
+
 			fdr = fsl_i2c_speed_map[i].fdr;
 			speed = i2c_clk / fsl_i2c_speed_map[i].divider;
-#endif
 			writeb(fdr, &dev->fdr);		/* set bus speed */
 
 			break;
 		}
-
+#endif
 	return speed;
 }
 
