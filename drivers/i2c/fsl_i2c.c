@@ -223,7 +223,7 @@ i2c_init(int speed, int slaveadd)
 #endif
 }
 
-static __inline__ int
+static int
 i2c_wait4bus(void)
 {
 	unsigned long long timeval = get_ticks();
@@ -248,6 +248,8 @@ i2c_wait(int write)
 		csr = readb(&i2c_dev[i2c_bus_num]->sr);
 		if (!(csr & I2C_SR_MIF))
 			continue;
+		/* Read again to allow register to stabilise */
+		csr = readb(&i2c_dev[i2c_bus_num]->sr);
 
 		writeb(0x0, &i2c_dev[i2c_bus_num]->sr);
 
@@ -292,9 +294,6 @@ static __inline__ int
 __i2c_write(u8 *data, int length)
 {
 	int i;
-
-	writeb(I2C_CR_MEN | I2C_CR_MSTA | I2C_CR_MTX,
-	       &i2c_dev[i2c_bus_num]->cr);
 
 	for (i = 0; i < length; i++) {
 		writeb(data[i], &i2c_dev[i2c_bus_num]->dr);
@@ -351,6 +350,9 @@ i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 	    && i2c_write_addr(dev, I2C_READ_BIT, 1) != 0)
 		i = __i2c_read(data, length);
 
+	if (length && i2c_wait4bus()) /* Wait until STOP */
+		debug("i2c_read: wait4bus timed out\n");
+
 	writeb(I2C_CR_MEN, &i2c_dev[i2c_bus_num]->cr);
 
 	if (i == length)
@@ -372,6 +374,8 @@ i2c_write(u8 dev, uint addr, int alen, u8 *data, int length)
 	}
 
 	writeb(I2C_CR_MEN, &i2c_dev[i2c_bus_num]->cr);
+	if (i2c_wait4bus()) /* Wait until STOP */
+		debug("i2c_write: wait4bus timed out\n");
 
 	if (i == length)
 	    return 0;
