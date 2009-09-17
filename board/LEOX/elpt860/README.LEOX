@@ -68,7 +68,6 @@ Type "run nfsboot" to mount root filesystem over NFS
 Hit any key to stop autoboot:  0
 LEOX_elpt860: help
 askenv  - get environment variables from stdin
-autoscr - run script from memory
 base    - print or set address offset
 bdinfo  - print Board Info structure
 bootm   - boot application image from memory
@@ -100,6 +99,7 @@ run     - run commands in an environment variable
 saveenv - save environment variables to persistent storage
 setenv  - set environment variables
 sleep   - delay execution for some time
+source  - run script from memory
 tftpboot- boot image via network using TFTP protocol
 	       and env variables ipaddr and serverip
 version - print monitor version

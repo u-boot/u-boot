@@ -171,7 +171,7 @@
 	"kernel_addr_r=200000\0"					\
 	"fdt_addr_r=600000\0"						\
 	"ram_ws=800000 \0"						\
-	"autoscr_ws=780000 \0"						\
+	"script_ws=780000 \0"						\
 	"fdt_file=" xstr(CONFIG_HOSTNAME) "/" 				\
 		xstr(CONFIG_HOSTNAME) ".dtb\0"				\
 	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.bin \0" 		\
@@ -253,8 +253,8 @@
 	"set_new_esw_script=setenv new_esw_script "			\
 		"new_esw_0x${IVM_BoardId}_0x${IVM_HWKey}.scr \0"	\
 	"new_esw=run set_new_esw_script; "				\
-		"tftp ${autoscr_ws} ${new_esw_script}; "		\
-		"iminfo ${autoscr_ws}; source ${autoscr_ws} \0"	\
+		"tftp ${script_ws} ${new_esw_script}; "			\
+		"iminfo ${script_ws}; source ${script_ws} \0"		\
 	"bootlimit=0 \0" 						\
 	CONFIG_KM_DEF_ENV_IOMUX						\
 	CONFIG_KM_DEF_ENV_PRIVATE					\

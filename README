@@ -3010,14 +3010,6 @@ Some configuration options can be set using Environment Variables:
 		  configuration from the BOOTP server, but not try to
 		  load any image using TFTP
 
-  autoscript	- if set to "yes" commands like "loadb", "loady",
-		  "bootp", "tftpb", "rarpboot" and "nfs" will attempt
-		  to automatically run script images (by internally
-		  calling "source").
-
-  autoscript_uname - if script image is in a format (FIT) this
-		     variable is used to get script subimage unit name.
-
   autostart	- if set to "yes", an image loaded using the "bootp",
 		  "rarpboot", "tftpboot" or "diskboot" commands will
 		  be automatically started (by internally calling

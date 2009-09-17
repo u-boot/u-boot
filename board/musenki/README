@@ -34,7 +34,6 @@ Out:   serial
 Err:   serial
 Hit any key to stop autoboot:  0
 => help
-autoscr - run script from memory
 base    - print or set address offset
 bdinfo  - print Board Info structure
 bootm   - boot application image from memory
@@ -67,6 +66,7 @@ reset   - Perform RESET of the CPU
 run     - run commands in an environment variable
 saveenv - save environment variables to persistent storage
 setenv  - set environment variables
+source  - run script from memory
 tftpboot- boot image via network using TFTP protocol
 	       and env variables ipaddr and serverip
 version - print monitor version
