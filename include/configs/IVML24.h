@@ -52,6 +52,8 @@
 #define	CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */
 #define CONFIG_8xx_GCLK_FREQ    50331648
 
+#define CONFIG_RESET_PHY_R	1	/* Call reset_phy()		*/
+
 #define	CONFIG_SHOW_BOOT_PROGRESS 1	/* Show boot progress on LEDs	*/
 
 #if 0

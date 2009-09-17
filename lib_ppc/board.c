@@ -1000,22 +1000,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	eth_initialize (bd);
 #endif
 
-#if defined(CONFIG_CMD_NET) && ( \
-    defined(CONFIG_CCM)		|| \
-    defined(CONFIG_ELPT860)	|| \
-    defined(CONFIG_EP8260)	|| \
-    defined(CONFIG_IP860)	|| \
-    defined(CONFIG_IVML24)	|| \
-    defined(CONFIG_IVMS8)	|| \
-    defined(CONFIG_MPC8260ADS)	|| \
-    defined(CONFIG_MPC8266ADS)	|| \
-    defined(CONFIG_MPC8560ADS)	|| \
-    defined(CONFIG_PCU_E)	|| \
-    defined(CONFIG_RPXSUPER)	|| \
-    defined(CONFIG_STXGP3)	|| \
-    defined(CONFIG_SPD823TS)	|| \
-    defined(CONFIG_RESET_PHY_R)	)
-
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_RESET_PHY_R)
 	WATCHDOG_RESET ();
 	debug ("Reset Ethernet PHY\n");
 	reset_phy ();

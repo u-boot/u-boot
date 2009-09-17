@@ -36,6 +36,8 @@
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
 #define CONFIG_SPD823TS		1	/* ...on a SPD823TS board	*/
 
+#define CONFIG_RESET_PHY_R	1	/* Call reset_phy()		*/
+
 #define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE

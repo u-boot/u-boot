@@ -36,6 +36,7 @@
 #define CONFIG_MPC860		1	/* This is a MPC860 CPU		*/
 #define CONFIG_IP860		1	/* ...on a IP860 board		*/
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
+#define CONFIG_RESET_PHY_R	1	/* Call reset_phy()		*/
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #define CONFIG_BAUDRATE		9600

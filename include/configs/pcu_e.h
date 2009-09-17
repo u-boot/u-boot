@@ -43,6 +43,7 @@
 #define CONFIG_PCU_E		1	/* ...on a PCU E board		*/
 
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r()		*/
+#define CONFIG_RESET_PHY_R	1	/* Call reset_phy()		*/
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 
