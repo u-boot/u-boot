@@ -294,7 +294,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	fdt_add_enet_stashing(blob);
 
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
-		"timebase-frequency", bd->bi_busfreq / 8, 1);
+		"timebase-frequency", get_tbclk(), 1);
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
 		"bus-frequency", bd->bi_busfreq, 1);
 	get_sys_info(&sysinfo);

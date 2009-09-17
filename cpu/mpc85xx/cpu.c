@@ -184,7 +184,11 @@ int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
  */
 unsigned long get_tbclk (void)
 {
+#ifdef CONFIG_FSL_CORENET
+	return (gd->bus_clk + 8) / 16;
+#else
 	return (gd->bus_clk + 4UL)/8UL;
+#endif
 }
 
 
