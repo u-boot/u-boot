@@ -26,7 +26,7 @@ if test ${oprofile} = yes;
 then
 setenv addprofile setenv bootargs \${bootargs} profile=\${profile}
 fi
-if test ${autoscr_boot} != no;
+if test ${autoscript_boot} != no;
 then
   if test ${netboot} = yes;
   then
@@ -44,5 +44,5 @@ then
   echo "=== bootfromflash ==="
   run cpdtb rundtb bootfromflash
 else
-  echo "=== boot stopped with autoscr_boot no ==="
+  echo "=== boot stopped with autoscript_boot no ==="
 fi

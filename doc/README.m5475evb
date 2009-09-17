@@ -215,7 +215,6 @@ ip_addr     = 192.162.1.2
 baudrate    = 115200 bps
 -> ?
 ?	- alias for 'help'
-autoscr - run script from memory
 base	- print or set address offset
 bdinfo	- print Board Info structure
 boot	- boot default, i.e., run 'bootcmd'
@@ -260,6 +259,7 @@ run	- run commands in an environment variable
 saveenv - save environment variables to persistent storage
 setenv	- set environment variables
 sleep	- delay execution for some time
+source	- run script from memory
 tftpboot- boot image via network using TFTP protocol
 usb	- USB sub-system
 usbboot - boot from USB device

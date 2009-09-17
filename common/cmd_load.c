@@ -513,24 +513,6 @@ int do_load_serial_bin (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 	}
 
-#ifdef CONFIG_SOURCE
-	if (load_addr) {
-		char *s;
-
-		if (((s = getenv("autoscript")) != NULL) && (strcmp(s,"yes") == 0)) {
-			printf ("Running \"source\" command at addr 0x%08lX",
-				load_addr);
-
-			s = getenv ("autoscript_uname");
-			if (s)
-				printf (":%s ...\n", s);
-			else
-				puts (" ...\n");
-
-			rcode = source (load_addr, s);
-		}
-	}
-#endif
 	return rcode;
 }
 

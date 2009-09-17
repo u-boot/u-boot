@@ -21,7 +21,7 @@ setenv set_static_nm setenv netmask \${static_netmask}
 setenv set_static_gw setenv gatewayip \${static_gateway}
 setenv set_ip setenv ip \${ipaddr}::\${gatewayip}:\${netmask}
 setenv ramparam setenv bootargs root=/dev/ram0 ro rootfstype=squashfs
-if test ${autoscr_boot} != no;
+if test ${autoscript_boot} != no;
 then
   if test ${netboot} = yes;
   then
@@ -39,5 +39,5 @@ then
   echo "=== bootfromflash ==="
   run cpdtb rundtb bootfromflash
 else
-  echo "=== boot stopped with autoscr_boot no ==="
+  echo "=== boot stopped with autoscript_boot no ==="
 fi
