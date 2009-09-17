@@ -79,7 +79,7 @@ static __inline__ void __set_bit(int nr, volatile void *addr)
 	mask = 1 << (nr & 0x1f);
 	*a |= mask;
 }
-#define __set_bit
+#define PLATFORM__SET_BIT
 
 /*
  * clear_bit() doesn't provide any barrier for the compiler.
@@ -268,14 +268,6 @@ static __inline__ int find_next_zero_bit(void *addr, int size, int offset)
       found_middle:
 	return result + ffz(tmp);
 }
-
-/*
- * ffs: find first bit set. This is defined the same way as
- * the libc and compiler builtin ffs routines, therefore
- * differs in spirit from the above ffz (man ffs).
- */
-
-#define ffs(x)		generic_ffs(x)
 
 /*
  * hweightN: returns the hamming weight (i.e. the number

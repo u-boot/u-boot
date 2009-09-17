@@ -349,7 +349,7 @@ static __inline__ int ffs(int x)
 		"1:" : "=r" (r) : "g" (x));
 	return r+1;
 }
-#define ffs
+#define PLATFORM_FFS
 
 /**
  * hweightN - returns the hamming weight of a N-bit word

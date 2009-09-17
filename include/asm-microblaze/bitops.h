@@ -23,6 +23,7 @@ extern void __set_bit(int nr, volatile void * addr);
 
 extern void clear_bit(int nr, volatile void * addr);
 #define __clear_bit(nr, addr) clear_bit(nr, addr)
+#define PLATFORM__CLEAR_BIT
 
 extern void change_bit(int nr, volatile void * addr);
 extern void __change_bit(int nr, volatile void * addr);
@@ -75,7 +76,7 @@ extern __inline__ void __set_bit(int nr, volatile void * addr)
 	mask = 1 << (nr & 0x1f);
 	*a |= mask;
 }
-#define __set_bit
+#define PLATFORM__SET_BIT
 
 /*
  * clear_bit() doesn't provide any barrier for the compiler.

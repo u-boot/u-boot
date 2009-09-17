@@ -90,7 +90,7 @@ static __inline__ void __set_bit(int nr, volatile void * addr)
 
 	*m |= 1UL << (nr & 31);
 }
-#define __set_bit
+#define PLATFORM__SET_BIT
 
 /*
  * clear_bit - Clears a bit in memory
@@ -705,17 +705,6 @@ static __inline__ unsigned long ffz(unsigned long word)
 }
 
 #ifdef __KERNEL__
-
-/**
- * ffs - find first bit set
- * @x: the word to search
- *
- * This is defined the same way as
- * the libc and compiler builtin ffs routines, therefore
- * differs in spirit from the above ffz (man ffs).
- */
-
-#define ffs(x) generic_ffs(x)
 
 /*
  * hweightN - returns the hamming weight of a N-bit word
