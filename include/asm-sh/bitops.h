@@ -146,7 +146,7 @@ static inline int ffs (int x)
 	}
 	return r;
 }
-#define ffs
+#define PLATFORM_FFS
 
 #endif /* __KERNEL__ */
 

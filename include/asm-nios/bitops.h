@@ -33,6 +33,6 @@ extern int test_and_set_bit(int nr, volatile void * a);
 extern int test_and_change_bit(int nr, volatile void * addr);
 extern int test_bit(int nr, volatile void * a);
 extern int ffs(int i);
-#define ffs
+#define PLATFORM_FFS
 
 #endif /* _ASM_NIOS_BITOPS_H */

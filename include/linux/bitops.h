@@ -111,19 +111,19 @@ static inline unsigned int generic_hweight8(unsigned int w)
 
 /* linux/include/asm-generic/bitops/non-atomic.h */
 
-#ifndef __set_bit
+#ifndef PLATFORM__SET_BIT
 # define __set_bit generic_set_bit
 #endif
 
-#ifndef __clear_bit
+#ifndef PLATFORM__CLEAR_BIT
 # define __clear_bit generic_clear_bit
 #endif
 
-#ifndef ffs
+#ifndef PLATFORM_FFS
 # define ffs generic_ffs
 #endif
 
-#ifndef fls
+#ifndef PLATFORM_FLS
 # define fls generic_fls
 #endif
 
