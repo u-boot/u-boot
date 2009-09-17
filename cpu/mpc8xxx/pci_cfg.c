@@ -210,10 +210,12 @@ static struct pci_info pci_config_info[] =
 		.cfg =   (1 << 2) | (1 << 4),
 	},
 };
+#elif defined(CONFIG_FSL_CORENET)
 #else
 #error Need to define pci_config_info for processor
 #endif
 
+#ifndef CONFIG_FSL_CORENET
 int is_fsl_pci_agent(enum law_trgt_if trgt, u32 host_agent)
 {
 	return ((1 << host_agent) & pci_config_info[trgt].agent);
@@ -223,3 +225,4 @@ int is_fsl_pci_cfg(enum law_trgt_if trgt, u32 io_sel)
 {
 	return ((1 << io_sel) & pci_config_info[trgt].cfg);
 }
+#endif
