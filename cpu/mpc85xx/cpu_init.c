@@ -136,6 +136,20 @@ void config_8560_ioports (volatile ccsr_cpm_t * cpm)
  * initialize a bunch of registers
  */
 
+#ifdef CONFIG_FSL_CORENET
+static void corenet_tb_init(void)
+{
+	volatile ccsr_rcpm_t *rcpm =
+		(void *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
+	volatile ccsr_pic_t *pic =
+		(void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+	u32 whoami = in_be32(&pic->whoami);
+
+	/* Enable the timebase register for this core */
+	out_be32(&rcpm->ctbenrl, (1 << whoami));
+}
+#endif
+
 void cpu_init_f (void)
 {
 	volatile ccsr_lbc_t *memctl = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
@@ -228,6 +242,9 @@ void cpu_init_f (void)
 #endif
 #if defined(CONFIG_FSL_DMA)
 	dma_init();
+#endif
+#ifdef CONFIG_FSL_CORENET
+	corenet_tb_init();
 #endif
 }
 
