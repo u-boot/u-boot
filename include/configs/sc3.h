@@ -63,6 +63,7 @@
 #define CONFIG_405GP	1
 
 #define CONFIG_BOARD_EARLY_INIT_F	1
+#define CONFIG_MISC_INIT_R		1	/* Call misc_init_r() */
 
 /*
  * Define IDE_USES_ISA_EMULATION for slower IDE access in the ISA-IO address range

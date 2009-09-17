@@ -47,8 +47,9 @@
 #define CONFIG_OVERWRITE_ETHADDR_ONCE   1
 #endif
 
-#define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
-#define CONFIG_BOARD_POSTCLK_INIT 1	/* Call board_postclk_init	*/
+#define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f()	*/
+#define CONFIG_BOARD_POSTCLK_INIT 1	/* Call board_postclk_init()	*/
+#define CONFIG_MISC_INIT_R	1	/* Call misc_init_r()		*/
 
 #define CONFIG_LCD		1	/* use LCD controller ...	*/
 #define CONFIG_HLD1045		1	/* ... with a HLD1045 display	*/

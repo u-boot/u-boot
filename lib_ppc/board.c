@@ -921,17 +921,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r ();
 
-#if defined(CONFIG_CCM)		|| \
-    defined(CONFIG_COGENT)	|| \
-    defined(CONFIG_CPCI405)	|| \
-    defined(CONFIG_EVB64260)	|| \
-    defined(CONFIG_KUP4K)	|| \
-    defined(CONFIG_KUP4X)	|| \
-    defined(CONFIG_LWMON)	|| \
-    defined(CONFIG_PCU_E)	|| \
-    defined(CONFIG_SC3)		|| \
-    defined(CONFIG_W7O)		|| \
-    defined(CONFIG_MISC_INIT_R)
+#if defined(CONFIG_MISC_INIT_R)
 	/* miscellaneous platform dependent initialisations */
 	misc_init_r ();
 #endif
