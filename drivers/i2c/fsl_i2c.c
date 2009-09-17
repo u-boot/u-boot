@@ -172,14 +172,22 @@ static unsigned int set_i2c_bus_speed(const struct fsl_i2c *dev,
 			u8 fdr;
 #ifdef __PPC__
 			u8 dfsr;
+#ifdef CONFIG_FSL_I2C_CUSTOM_DFSR
+			dfsr = CONFIG_FSL_I2C_CUSTOM_DFSR;
+#else
 			dfsr = fsl_i2c_speed_map[i].dfsr;
 #endif
-			fdr = fsl_i2c_speed_map[i].fdr;
-			speed = i2c_clk / fsl_i2c_speed_map[i].divider;
-			writeb(fdr, &dev->fdr);		/* set bus speed */
-#ifdef __PPC__
 			writeb(dfsr, &dev->dfsrr);	/* set default filter */
 #endif
+#ifdef CONFIG_FSL_I2C_CUSTOM_FDR
+			fdr = CONFIG_FSL_I2C_CUSTOM_FDR;
+			speed = i2c_clk / divider; /* Fake something */
+#else
+			fdr = fsl_i2c_speed_map[i].fdr;
+			speed = i2c_clk / fsl_i2c_speed_map[i].divider;
+#endif
+			writeb(fdr, &dev->fdr);		/* set bus speed */
+
 			break;
 		}
 
