@@ -45,13 +45,15 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      0, 0, BOOKE_PAGESZ_4K, 0),
 
 	/*
-	 * TLB 0:	16M	Non-cacheable, guarded
-	 * 0xff800000	16M	TLB for 8MB FLASH
+	 * TLB 0:	64M	Non-cacheable, guarded
+	 * 0xfc000000	56M	8MB -> 64MB of user flash
+	 * 0xff800000	8M	boot FLASH
 	 * Out of reset this entry is only 4K.
 	 */
-	SET_TLB_ENTRY(1, CONFIG_SYS_FLASH_BASE, CONFIG_SYS_FLASH_BASE,
+	SET_TLB_ENTRY(1, CONFIG_SYS_ALT_FLASH + 0x800000,
+		      CONFIG_SYS_ALT_FLASH + 0x800000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 0, BOOKE_PAGESZ_16M, 1),
+		      0, 0, BOOKE_PAGESZ_64M, 1),
 
 	/*
 	 * TLB 1:	256M	Non-cacheable, guarded
@@ -107,6 +109,24 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	SET_TLB_ENTRY(1, CONFIG_SYS_EPLD_BASE, CONFIG_SYS_EPLD_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 6, BOOKE_PAGESZ_16M, 1),
+
+	/*
+	 * TLB 7:	4M	Non-cacheable, guarded
+	 * 0xfb800000	4M	1st 4MB block of 64MB user FLASH
+	 */
+	SET_TLB_ENTRY(1, CONFIG_SYS_ALT_FLASH, CONFIG_SYS_ALT_FLASH,
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		      0, 7, BOOKE_PAGESZ_4M, 1),
+
+	/*
+	 * TLB 8:	4M	Non-cacheable, guarded
+	 * 0xfbc00000	4M	2nd 4MB block of 64MB user FLASH
+	 */
+	SET_TLB_ENTRY(1, CONFIG_SYS_ALT_FLASH + 0x400000,
+		      CONFIG_SYS_ALT_FLASH + 0x400000,
+		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		      0, 8, BOOKE_PAGESZ_4M, 1),
+
 };
 
 int num_tlb_entries = ARRAY_SIZE(tlb_table);
