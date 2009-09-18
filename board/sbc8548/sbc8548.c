@@ -339,13 +339,13 @@ pci_init_board(void)
 	uint pci_arb = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;	/* PORDEVSR[14] */
 	uint pci_clk_sel = gur->porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;	/* PORPLLSR[16] */
 
-	uint pci_speed = get_clock_freq ();	/* PCI PSPEED in [4:5] */
+	uint pci_speed = CONFIG_SYS_CLK_FREQ;	/* get_clock_freq() */
 
 	if (!(gur->devdisr & MPC85xx_DEVDISR_PCI1)) {
 		printf ("    PCI host: %d bit, %s MHz, %s, %s\n",
 			(pci_32) ? 32 : 64,
-			(pci_speed == 33333000) ? "33" :
-			(pci_speed == 66666000) ? "66" : "unknown",
+			(pci_speed == 33000000) ? "33" :
+			(pci_speed == 66000000) ? "66" : "unknown",
 			pci_clk_sel ? "sync" : "async",
 			pci_arb ? "arbiter" : "external-arbiter"
 			);
