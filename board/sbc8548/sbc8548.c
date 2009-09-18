@@ -314,35 +314,9 @@ long int fixed_sdram (void)
 }
 #endif
 
-#if defined(CONFIG_PCI) || defined(CONFIG_PCI1)
-/* For some reason the Tundra PCI bridge shows up on itself as a
- * different device.  Work around that by refusing to configure it.
- */
-void dummy_func(struct pci_controller* hose, pci_dev_t dev, struct pci_config_table *tab) { }
-
-static struct pci_config_table pci_sbc8548_config_table[] = {
-	{0x10e3, 0x0513, PCI_ANY_ID, 1, 3, PCI_ANY_ID, dummy_func, {0,0,0}},
-	{0x1106, 0x0686, PCI_ANY_ID, 1, VIA_ID, 0, mpc85xx_config_via, {0,0,0}},
-	{0x1106, 0x0571, PCI_ANY_ID, 1, VIA_ID, 1,
-		mpc85xx_config_via_usbide, {0,0,0}},
-	{0x1105, 0x3038, PCI_ANY_ID, 1, VIA_ID, 2,
-		mpc85xx_config_via_usb, {0,0,0}},
-	{0x1106, 0x3038, PCI_ANY_ID, 1, VIA_ID, 3,
-		mpc85xx_config_via_usb2, {0,0,0}},
-	{0x1106, 0x3058, PCI_ANY_ID, 1, VIA_ID, 5,
-		mpc85xx_config_via_power, {0,0,0}},
-	{0x1106, 0x3068, PCI_ANY_ID, 1, VIA_ID, 6,
-		mpc85xx_config_via_ac97, {0,0,0}},
-	{},
-};
-
-static struct pci_controller pci1_hose = {
-	config_table: pci_sbc8548_config_table};
-#endif	/* CONFIG_PCI */
-
-#ifdef CONFIG_PCI2
-static struct pci_controller pci2_hose;
-#endif	/* CONFIG_PCI2 */
+#ifdef CONFIG_PCI1
+static struct pci_controller pci1_hose;
+#endif	/* CONFIG_PCI1 */
 
 #ifdef CONFIG_PCIE1
 static struct pci_controller pcie1_hose;
@@ -359,24 +333,20 @@ pci_init_board(void)
 {
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
 	struct pci_controller *hose = &pci1_hose;
-	struct pci_config_table *table;
 	struct pci_region *r = hose->regions;
 
 	uint pci_32 = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_PCI32;	/* PORDEVSR[15] */
 	uint pci_arb = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;	/* PORDEVSR[14] */
 	uint pci_clk_sel = gur->porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;	/* PORPLLSR[16] */
 
-	uint pci_agent = is_fsl_pci_agent(LAW_TRGT_IF_PCI_1, host_agent);
-
 	uint pci_speed = get_clock_freq ();	/* PCI PSPEED in [4:5] */
 
 	if (!(gur->devdisr & MPC85xx_DEVDISR_PCI1)) {
-		printf ("    PCI: %d bit, %s MHz, %s, %s, %s\n",
+		printf ("    PCI host: %d bit, %s MHz, %s, %s\n",
 			(pci_32) ? 32 : 64,
 			(pci_speed == 33333000) ? "33" :
 			(pci_speed == 66666000) ? "66" : "unknown",
 			pci_clk_sel ? "sync" : "async",
-			pci_agent ? "agent" : "host",
 			pci_arb ? "arbiter" : "external-arbiter"
 			);
 
@@ -394,12 +364,6 @@ pci_init_board(void)
 			       CONFIG_SYS_PCI1_IO_SIZE,
 			       PCI_REGION_IO);
 		hose->region_count = r - hose->regions;
-
-		/* relocate config table pointers */
-		hose->config_table = \
-			(struct pci_config_table *)((uint)hose->config_table + gd->reloc_off);
-		for (table = hose->config_table; table && table->vendor; table++)
-			table->config_device += gd->reloc_off;
 
 		hose->first_busno=first_free_busno;
 
@@ -425,33 +389,18 @@ pci_init_board(void)
 	gur->devdisr |= MPC85xx_DEVDISR_PCI1; /* disable */
 #endif
 
-#ifdef CONFIG_PCI2
-{
-	uint pci2_clk_sel = gur->porpllsr & 0x4000;	/* PORPLLSR[17] */
-	uint pci_dual = get_pci_dual ();	/* PCI DUAL in CM_PCI[3] */
-	if (pci_dual) {
-		printf ("    PCI2: 32 bit, 66 MHz, %s\n",
-			pci2_clk_sel ? "sync" : "async");
-	} else {
-		printf ("    PCI2: disabled\n");
-	}
-}
-#else
-	gur->devdisr |= MPC85xx_DEVDISR_PCI2; /* disable */
-#endif /* CONFIG_PCI2 */
+	gur->devdisr |= MPC85xx_DEVDISR_PCI2; /* disable PCI2 */
 
 #ifdef CONFIG_PCIE1
 {
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 	struct pci_controller *hose = &pcie1_hose;
-	int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
 	struct pci_region *r = hose->regions;
 
 	int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 
 	if (pcie_configured && !(gur->devdisr & MPC85xx_DEVDISR_PCIE)){
-		printf ("\n    PCIE connected to slot as %s (base address %x)",
-			pcie_ep ? "End Point" : "Root Complex",
+		printf ("\n    PCIE at base address %x",
 			(uint)pci);
 
 		if (pci->pme_msg_det) {
