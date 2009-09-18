@@ -42,7 +42,6 @@
 #undef CONFIG_PCI1		/* PCI controller 1 */
 #undef CONFIG_PCIE1		/* PCIE controler 1 (slot 1) */
 #undef CONFIG_RIO
-#undef CONFIG_PCI2
 #undef CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
@@ -341,14 +340,6 @@
  */
 #define CONFIG_SYS_RIO_MEM_BASE	0xC0000000
 #define CONFIG_SYS_RIO_MEM_SIZE	0x20000000	/* 512M */
-#endif
-
-#ifdef CONFIG_LEGACY
-#define BRIDGE_ID 17
-#define VIA_ID 2
-#else
-#define BRIDGE_ID 28
-#define VIA_ID 4
 #endif
 
 #if defined(CONFIG_PCI)
