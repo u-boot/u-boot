@@ -50,7 +50,7 @@
 #define EMAC_MDIO_BASE_ADDR		(0x01c84000)
 #endif
 
-#ifdef CONFIG_SOC_DM646x
+#ifdef CONFIG_SOC_DM646X
 /* MDIO module input frequency */
 #define EMAC_MDIO_BUS_FREQ		76500000
 /* MDIO clock output frequency */
@@ -283,7 +283,7 @@ typedef struct  {
 
 /* EMAC Wrapper Registers Structure */
 typedef struct  {
-#if defined(CONFIG_SOC_DM646x) || defined(CONFIG_SOC_DM365)
+#if defined(CONFIG_SOC_DM646X) || defined(CONFIG_SOC_DM365)
 	dv_reg		IDVER;
 	dv_reg		SOFTRST;
 	dv_reg		EMCTRL;
