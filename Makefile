@@ -2448,9 +2448,7 @@ ATUM8548_config:	unconfig
 
 MPC8536DS_36BIT_config \
 MPC8536DS_config:       unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_$(@:_config=) 1"	>$(obj)include/config.h
-	@$(MKCONFIG) -a MPC8536DS ppc mpc85xx mpc8536ds freescale
+	@$(MKCONFIG) -t $(@:_config=) MPC8536DS ppc mpc85xx mpc8536ds freescale
 
 MPC8540ADS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8540ads freescale
