@@ -33,6 +33,8 @@
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
 #include <spd_sdram.h>
+#include <netdev.h>
+#include <tsec.h>
 #include <miiphy.h>
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -489,6 +491,13 @@ pci_init_board(void)
 	gur->devdisr |= MPC85xx_DEVDISR_PCIE; /* disable */
 #endif
 
+}
+
+int board_eth_init(bd_t *bis)
+{
+	tsec_standard_init(bis);
+	pci_eth_init(bis);
+	return 0;	/* otherwise cpu_eth_init gets run */
 }
 
 int last_stage_init(void)
