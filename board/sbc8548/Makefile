@@ -2,8 +2,8 @@
 # (C) Copyright 2004-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# (C) Copyright 2004 Wind River Systems Inc <www.windriver.com>.
-# Added support for Wind River SBC8560 board
+# (C) Copyright 2007 Wind River Systems Inc <www.windriver.com>.
+# Added support for Wind River SBC8548 board
 #
 # See file CREDITS for list of people who contributed to this
 # project.
