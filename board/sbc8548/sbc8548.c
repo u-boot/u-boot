@@ -1,5 +1,6 @@
 /*
- * Copyright 2007 Wind River Systemes, Inc. <www.windriver.com>
+ * Copyright 2007,2009 Wind River Systems, Inc. <www.windriver.com>
+ *
  * Copyright 2007 Embedded Specialties, Inc.
  *
  * Copyright 2004, 2007 Freescale Semiconductor.
