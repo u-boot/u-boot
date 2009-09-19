@@ -504,13 +504,7 @@ extern int num_tlb_entries;
 #endif
 #endif
 
-#if defined(CONFIG_MPC86xx)
-#define LAWBAR_BASE_ADDR	0x00FFFFFF
-#define LAWAR_TRGT_IF		0x01F00000
-#else
-#define LAWBAR_BASE_ADDR	0x000FFFFF
-#define LAWAR_TRGT_IF		0x00F00000
-#endif
+#ifdef CONFIG_MPC83xx
 #define LAWAR_EN		0x80000000
 #define LAWAR_SIZE		0x0000003F
 
@@ -554,6 +548,7 @@ extern int num_tlb_entries;
 #define LAWAR_SIZE_8G		(LAWAR_SIZE_BASE+22)
 #define LAWAR_SIZE_16G		(LAWAR_SIZE_BASE+23)
 #define LAWAR_SIZE_32G		(LAWAR_SIZE_BASE+24)
+#endif
 
 #ifdef CONFIG_440
 /* General */
