@@ -484,31 +484,3 @@ U_BOOT_CMD(inkadiag, 6, 1, do_inkadiag,
 	   "[inkadiag what ...]\n"
 	   "    - perform a diagnosis on inka hardware\n"
 	   "'inkadiag' performs hardware tests.");
-
-/* Relocate the command table function pointers when running in RAM */
-int inkadiag_init_r (void) {
-	cmd_tbl_t *cmdtp;
-
-	for (cmdtp = &cmd_inkadiag_sub[0]; cmdtp !=
-		     &cmd_inkadiag_sub[ARRAY_SIZE(cmd_inkadiag_sub)]; cmdtp++) {
-		ulong addr;
-
-		addr = (ulong) (cmdtp->cmd) + gd->reloc_off;
-		cmdtp->cmd = (int (*)(struct cmd_tbl_s *, int, int, char *[]))addr;
-
-		addr = (ulong)(cmdtp->name) + gd->reloc_off;
-		cmdtp->name = (char *)addr;
-
-		if (cmdtp->usage) {
-			addr = (ulong)(cmdtp->usage) + gd->reloc_off;
-			cmdtp->usage = (char *)addr;
-		}
-#ifdef CONFIG_SYS_LONGHELP
-		if (cmdtp->help) {
-			addr = (ulong)(cmdtp->help) + gd->reloc_off;
-			cmdtp->help = (char *)addr;
-		}
-#endif
-	}
-	return 0;
-}

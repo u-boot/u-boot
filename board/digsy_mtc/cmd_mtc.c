@@ -320,36 +320,6 @@ static int do_mtc_help(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			ARRAY_SIZE(cmd_mtc_sub), cmdtp, flag, argc, argv);
 }
 
-/* Relocate the command table function pointers when running in RAM */
-int mtc_cmd_init_r(void)
-{
-	cmd_tbl_t *cmdtp;
-
-	for (cmdtp = &cmd_mtc_sub[0]; cmdtp !=
-	     &cmd_mtc_sub[ARRAY_SIZE(cmd_mtc_sub)]; cmdtp++) {
-		ulong addr;
-
-		addr = (ulong)(cmdtp->cmd) + gd->reloc_off;
-		cmdtp->cmd =
-		    (int (*)(struct cmd_tbl_s *, int, int, char *[]))addr;
-
-		addr = (ulong)(cmdtp->name) + gd->reloc_off;
-		cmdtp->name = (char *)addr;
-
-		if (cmdtp->usage) {
-			addr = (ulong)(cmdtp->usage) + gd->reloc_off;
-			cmdtp->usage = (char *)addr;
-		}
-#ifdef CONFIG_SYS_LONGHELP
-		if (cmdtp->help) {
-			addr = (ulong)(cmdtp->help) + gd->reloc_off;
-			cmdtp->help = (char *)addr;
-		}
-#endif
-	}
-	return 0;
-}
-
 int cmd_mtc(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	cmd_tbl_t *c;
