@@ -42,6 +42,12 @@ SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
 $(LIB):	$(obj).depend $(OBJS)
+	@if ! $(CROSS_COMPILE)readelf -S $(OBJS) | grep -q '\.fixup.*PROGBITS';\
+	then \
+		echo "ERROR: Your compiler doesn't generate .fixup sections!";\
+		echo "       Upgrade to a recent toolchain."; \
+		exit 1; \
+	fi;
 	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 #########################################################################
