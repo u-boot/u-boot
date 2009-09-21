@@ -717,7 +717,6 @@ int post_hotkeys_pressed(void)
 }
 #endif
 
-extern void mem_test_reloc(void);
 extern int mk_date (char *, struct rtc_time *);
 
 int last_stage_init (void)
@@ -725,7 +724,7 @@ int last_stage_init (void)
 	unsigned long stop;
 	struct rtc_time newtm;
 	char *s;
-	mem_test_reloc();
+
 	/* write correct LED configuration */
 	if (miiphy_write("ppc_4xx_eth0", 0x1, 0x14, 0x2402) != 0) {
 		printf ("Error writing to the PHY\n");

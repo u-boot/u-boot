@@ -144,7 +144,6 @@ const sdram_t sdram_table[] = {
 
 
 extern int mem_test (unsigned long start, unsigned long ramsize, int quiet);
-extern void mem_test_reloc(void);
 
 /*
  * Get RAM size.
@@ -334,7 +333,6 @@ void user_led1(int led_on)
  ****************************************************************/
 int last_stage_init (void)
 {
-	mem_test_reloc();
 	init_ios();
 	return 0;
 }
