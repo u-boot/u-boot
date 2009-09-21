@@ -2544,8 +2544,12 @@ sbc8540_66_config:	unconfig
 	fi
 	@$(MKCONFIG) -a SBC8540 ppc mpc85xx sbc8560
 
-sbc8548_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx sbc8548
+sbc8548_config \
+sbc8548_PCI_33_config \
+sbc8548_PCI_66_config \
+sbc8548_PCI_33_PCIE_config \
+sbc8548_PCI_66_PCIE_config: unconfig
+	@$(MKCONFIG) -t $(@:_config=) sbc8548 ppc mpc85xx sbc8548
 
 sbc8560_config \
 sbc8560_33_config \
