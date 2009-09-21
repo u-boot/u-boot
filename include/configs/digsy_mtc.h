@@ -244,6 +244,7 @@
  */
 #define CONFIG_RTC_DS1337
 #define CONFIG_SYS_I2C_RTC_ADDR	0x68
+#define CONFIG_SYS_DS1339_TCR_VAL	0xAB	/* diode + 4k resistor */
 
 /*
  * Flash configuration
