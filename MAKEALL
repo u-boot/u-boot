@@ -546,6 +546,7 @@ LIST_ARM9="			\
 	omap1610inn		\
 	omap5912osk		\
 	omap730p2		\
+	openrd_base		\
 	rd6281a			\
 	sbc2410x		\
 	scb9328			\
