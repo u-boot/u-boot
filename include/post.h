@@ -73,7 +73,9 @@ void post_output_backlog ( void );
 int post_run (char *name, int flags);
 int post_info (char *name);
 int post_log (char *format, ...);
+#ifndef CONFIG_RELOC_FIXUP_WORKS
 void post_reloc (void);
+#endif
 unsigned long post_time_ms (unsigned long base);
 
 extern struct post_test post_list[];

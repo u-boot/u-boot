@@ -81,12 +81,14 @@ struct serial_device *default_serial_console(void) __attribute__((weak, alias("_
 
 int serial_register (struct serial_device *dev)
 {
+#ifndef CONFIG_RELOC_FIXUP_WORKS
 	dev->init += gd->reloc_off;
 	dev->setbrg += gd->reloc_off;
 	dev->getc += gd->reloc_off;
 	dev->tstc += gd->reloc_off;
 	dev->putc += gd->reloc_off;
 	dev->puts += gd->reloc_off;
+#endif
 
 	dev->next = serial_devices;
 	serial_devices = dev;
