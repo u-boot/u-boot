@@ -9,7 +9,7 @@ trap print_stats 0
 
 if [ "$BUILD_NCPUS" -gt 1 ]
 then
-	JOBS=-j`expr "$BUILD_NCPUS" + 1`
+	JOBS="-j $((BUILD_NCPUS + 1))"
 else
 	JOBS=""
 fi
