@@ -2535,14 +2535,7 @@ PM856_config:	unconfig
 sbc8540_config \
 sbc8540_33_config \
 sbc8540_66_config:	unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _66_,$@)" ] ; then \
-		echo "#define CONFIG_PCI_66"	>>$(obj)include/config.h ; \
-		$(XECHO) "... 66 MHz PCI" ; \
-	else \
-		$(XECHO) "... 33 MHz PCI" ; \
-	fi
-	@$(MKCONFIG) -a SBC8540 ppc mpc85xx sbc8560
+	@$(MKCONFIG) -t $(@:_config=) SBC8540 ppc mpc85xx sbc8560
 
 sbc8548_config \
 sbc8548_PCI_33_config \
@@ -2554,14 +2547,7 @@ sbc8548_PCI_66_PCIE_config: unconfig
 sbc8560_config \
 sbc8560_33_config \
 sbc8560_66_config:	unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _66_,$@)" ] ; then \
-		echo "#define CONFIG_PCI_66"	>>$(obj)include/config.h ; \
-		$(XECHO) "... 66 MHz PCI" ; \
-	else \
-		$(XECHO) "... 33 MHz PCI" ; \
-	fi
-	@$(MKCONFIG) -a sbc8560 ppc mpc85xx sbc8560
+	@$(MKCONFIG) -t $(@:_config=) sbc8560 ppc mpc85xx sbc8560
 
 socrates_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx socrates
