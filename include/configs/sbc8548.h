@@ -197,13 +197,13 @@
 #define CONFIG_SYS_EEPROM_BASE		0xf8b00000
 
 /*
- * SDRAM on the Local Bus
+ * SDRAM on the Local Bus (CS3 and CS4)
  */
 #define CONFIG_SYS_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM */
-#define CONFIG_SYS_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
+#define CONFIG_SYS_LBC_SDRAM_SIZE	128		/* LBC SDRAM is 128MB */
 
 /*
- * Base Register 3 and Option Register 3 configure SDRAM.
+ * Base Register 3 and Option Register 3 configure the 1st 1/2 SDRAM.
  * The SDRAM base address, CONFIG_SYS_LBC_SDRAM_BASE, is 0xf0000000.
  *
  * For BR3, need:
@@ -221,7 +221,7 @@
 #define CONFIG_SYS_BR3_PRELIM		0xf0001861
 
 /*
- * The SDRAM size in MB, CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
+ * The SDRAM size in MB, of 1/2 CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
  *
  * For OR3, need:
  *    64MB mask for AM, OR3[0:7] = 1111 1100
@@ -235,6 +235,40 @@
  */
 
 #define CONFIG_SYS_OR3_PRELIM		0xfc006cc0
+
+/*
+ * Base Register 4 and Option Register 4 configure the 2nd 1/2 SDRAM.
+ * The base address, (SDRAM_BASE + 1/2*SIZE), is 0xf4000000.
+ *
+ * For BR4, need:
+ *    Base address of 0xf4000000 = BR[0:16] = 1111 0100 0000 0000 0
+ *    port-size = 32-bits = BR2[19:20] = 11
+ *    no parity checking = BR2[21:22] = 00
+ *    SDRAM for MSEL = BR2[24:26] = 011
+ *    Valid = BR[31] = 1
+ *
+ * 0    4    8    12   16   20   24   28
+ * 1111 0000 0000 0000 0001 1000 0110 0001 = f4001861
+ *
+ */
+
+#define CONFIG_SYS_BR4_PRELIM		0xf4001861
+
+/*
+ * The SDRAM size in MB, of 1/2 CONFIG_SYS_LBC_SDRAM_SIZE, is 64.
+ *
+ * For OR4, need:
+ *    64MB mask for AM, OR3[0:7] = 1111 1100
+ *		   XAM, OR3[17:18] = 11
+ *    10 columns OR3[19-21] = 011
+ *    12 rows   OR3[23-25] = 011
+ *    EAD set for extra time OR[31] = 0
+ *
+ * 0    4    8    12   16   20   24   28
+ * 1111 1100 0000 0000 0110 1100 1100 0000 = fc006cc0
+ */
+
+#define CONFIG_SYS_OR4_PRELIM		0xfc006cc0
 
 #define CONFIG_SYS_LBC_LCRR		0x00000002    /* LB clock ratio reg */
 #define CONFIG_SYS_LBC_LBCR		0x00000000    /* LB config reg */

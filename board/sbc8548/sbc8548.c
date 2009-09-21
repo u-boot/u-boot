@@ -149,7 +149,7 @@ local_bus_init(void)
 void
 sdram_init(void)
 {
-#if defined(CONFIG_SYS_OR3_PRELIM) && defined(CONFIG_SYS_BR3_PRELIM)
+#if defined(CONFIG_SYS_LBC_SDRAM_SIZE)
 
 	uint idx;
 	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
@@ -167,6 +167,12 @@ sdram_init(void)
 	asm("msync");
 
 	out_be32(&lbc->br3, CONFIG_SYS_BR3_PRELIM);
+	asm("msync");
+
+	out_be32(&lbc->or4, CONFIG_SYS_OR4_PRELIM);
+	asm("msync");
+
+	out_be32(&lbc->br4, CONFIG_SYS_BR4_PRELIM);
 	asm("msync");
 
 	out_be32(&lbc->lbcr, CONFIG_SYS_LBC_LBCR);
