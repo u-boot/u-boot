@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Wind River Systems <www.windriver.com>
+ * Copyright 2007,2009 Wind River Systems <www.windriver.com>
  * Copyright 2007 Embedded Specialties, Inc.
  * Copyright 2004, 2007 Freescale Semiconductor.
  *
@@ -24,23 +24,40 @@
 
 /*
  * sbc8548 board configuration file
- *
- * Please refer to doc/README.sbc85xx for more info.
- *
+ * Please refer to doc/README.sbc8548 for more info.
  */
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* High Level Configuration Options */
+/*
+ * Top level Makefile configuration choices
+ */
+#ifdef CONFIG_MK_PCI
+#define CONFIG_PCI
+#define CONFIG_PCI1
+#endif
+
+#ifdef CONFIG_MK_66
+#define CONFIG_SYS_CLK_DIV 1
+#endif
+
+#ifdef CONFIG_MK_33
+#define CONFIG_SYS_CLK_DIV 2
+#endif
+
+#ifdef CONFIG_MK_PCIE
+#define CONFIG_PCIE1
+#endif
+
+/*
+ * High Level Configuration Options
+ */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
 #define CONFIG_MPC85xx		1	/* MPC8540/60/55/41/48 */
 #define CONFIG_MPC8548		1	/* MPC8548 specific */
 #define CONFIG_SBC8548		1	/* SBC8548 board specific */
 
-#undef CONFIG_PCI		/* enable any pci type devices */
-#undef CONFIG_PCI1		/* PCI controller 1 */
-#undef CONFIG_PCIE1		/* PCIE controler 1 (slot 1) */
 #undef CONFIG_RIO
 
 #ifdef CONFIG_PCI
@@ -58,7 +75,13 @@
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
-#define CONFIG_SYS_CLK_FREQ	66000000 /* SBC8548 default SYSCLK */
+/*
+ * Below assumes that CCB:SYSCLK remains unchanged at 6:1 via SW2:[1-4]
+ */
+#ifndef CONFIG_SYS_CLK_DIV
+#define CONFIG_SYS_CLK_DIV	1	/* 2, if 33MHz PCI card installed */
+#endif
+#define CONFIG_SYS_CLK_FREQ	(66000000 / CONFIG_SYS_CLK_DIV)
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -316,7 +339,7 @@
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
-#define CONFIG_SYS_NS16550_CLK		400000000 /* get_bus_freq(0) */
+#define CONFIG_SYS_NS16550_CLK		(400000000 / CONFIG_SYS_CLK_DIV)
 
 #define CONFIG_SYS_BAUDRATE_TABLE \
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
