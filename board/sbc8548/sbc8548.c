@@ -52,7 +52,6 @@ int board_early_init_f (void)
 
 int checkboard (void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 	volatile u_char *rev= (void *)CONFIG_SYS_BD_REV;
 
@@ -63,11 +62,6 @@ int checkboard (void)
 	 * Initialize local bus.
 	 */
 	local_bus_init ();
-
-	/*
-	 * Hack TSEC 3 and 4 IO voltages.
-	 */
-	gur->tsec34ioovcr = 0xe7e0;	/*  1110 0111 1110 0xxx */
 
 	ecm->eedr = 0xffffffff;		/* clear ecm errors */
 	ecm->eeer = 0xffffffff;		/* enable ecm errors */
