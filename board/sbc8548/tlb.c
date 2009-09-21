@@ -93,14 +93,23 @@ struct fsl_e_tlb_entry tlb_table[] = {
 
 	/*
 	 * TLB 5:	64M	Cacheable, non-guarded
-	 * 0xf0000000	64M	LBC SDRAM
+	 * 0xf0000000	64M	LBC SDRAM First half
 	 */
 	SET_TLB_ENTRY(1, CONFIG_SYS_LBC_SDRAM_BASE, CONFIG_SYS_LBC_SDRAM_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 5, BOOKE_PAGESZ_64M, 1),
 
 	/*
-	 * TLB 6:	16M	Cacheable, non-guarded
+	 * TLB 6:	64M	Cacheable, non-guarded
+	 * 0xf4000000	64M	LBC SDRAM Second half
+	 */
+	SET_TLB_ENTRY(1, CONFIG_SYS_LBC_SDRAM_BASE + 0x4000000,
+		      CONFIG_SYS_LBC_SDRAM_BASE + 0x4000000,
+		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
+		      0, 6, BOOKE_PAGESZ_64M, 1),
+
+	/*
+	 * TLB 7:	16M	Cacheable, non-guarded
 	 * 0xf8000000	1M	7-segment LED display
 	 * 0xf8100000	1M	User switches
 	 * 0xf8300000	1M	Board revision
@@ -108,24 +117,24 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 */
 	SET_TLB_ENTRY(1, CONFIG_SYS_EPLD_BASE, CONFIG_SYS_EPLD_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 6, BOOKE_PAGESZ_16M, 1),
+		      0, 7, BOOKE_PAGESZ_16M, 1),
 
 	/*
-	 * TLB 7:	4M	Non-cacheable, guarded
+	 * TLB 8:	4M	Non-cacheable, guarded
 	 * 0xfb800000	4M	1st 4MB block of 64MB user FLASH
 	 */
 	SET_TLB_ENTRY(1, CONFIG_SYS_ALT_FLASH, CONFIG_SYS_ALT_FLASH,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 7, BOOKE_PAGESZ_4M, 1),
+		      0, 8, BOOKE_PAGESZ_4M, 1),
 
 	/*
-	 * TLB 8:	4M	Non-cacheable, guarded
+	 * TLB 9:	4M	Non-cacheable, guarded
 	 * 0xfbc00000	4M	2nd 4MB block of 64MB user FLASH
 	 */
 	SET_TLB_ENTRY(1, CONFIG_SYS_ALT_FLASH + 0x400000,
 		      CONFIG_SYS_ALT_FLASH + 0x400000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 8, BOOKE_PAGESZ_4M, 1),
+		      0, 9, BOOKE_PAGESZ_4M, 1),
 
 };
 
