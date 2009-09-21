@@ -341,6 +341,10 @@ typedef struct ddr512x {
 	u32 res2[0x3AD];
 } ddr512x_t;
 
+/* MDDRC SYS CFG and Timing CFG0 Registers */
+#define MDDRC_SYS_CFG_EN	0xF0000000
+#define MDDRC_SYS_CFG_CMD_MASK	0x10000000
+#define MDDRC_REFRESH_ZERO_MASK	0x0000FFFF
 
 /*
  * DMA/Messaging Unit

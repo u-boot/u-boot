@@ -26,16 +26,68 @@
 #include <asm/mpc512x.h>
 
 /*
+ * MDDRC Config Runtime Settings in order of the 4 MDDRC cfg registers
+ */
+u32 default_mddrc_config[4] = {
+	CONFIG_SYS_MDDRC_TIME_CFG0,	/* time_config0 */
+	CONFIG_SYS_MDDRC_TIME_CFG1,	/* time_config1 */
+	CONFIG_SYS_MDDRC_TIME_CFG2,	/* time_config2 */
+	CONFIG_SYS_MDDRC_SYS_CFG,	/* sys_config	*/
+};
+
+u32 default_init_seq[] = {
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_PCHG_ALL,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_RFSH,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_RFSH,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_MICRON_INIT_DEV_OP,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_EM2,
+	CONFIG_SYS_DDRCMD_NOP,
+	CONFIG_SYS_DDRCMD_PCHG_ALL,
+	CONFIG_SYS_DDRCMD_EM2,
+	CONFIG_SYS_DDRCMD_EM3,
+	CONFIG_SYS_DDRCMD_EN_DLL,
+	CONFIG_SYS_MICRON_INIT_DEV_OP,
+	CONFIG_SYS_DDRCMD_PCHG_ALL,
+	CONFIG_SYS_DDRCMD_RFSH,
+	CONFIG_SYS_MICRON_INIT_DEV_OP,
+	CONFIG_SYS_DDRCMD_OCD_DEFAULT,
+	CONFIG_SYS_DDRCMD_PCHG_ALL,
+	CONFIG_SYS_DDRCMD_NOP
+};
+
+/*
  * fixed sdram init:
  * The board doesn't use memory modules that have serial presence
  * detect or similar mechanism for discovery of the DRAM settings
  */
-long int fixed_sdram(void)
+long int fixed_sdram(u32 *mddrc_config, u32 *dram_init_seq, int seq_sz)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = CONFIG_SYS_DDR_SIZE * 1024 * 1024;
 	u32 msize_log2 = __ilog2(msize);
 	u32 i;
+
+	/* take default settings and init sequence if necessary */
+	if (mddrc_config == NULL)
+		mddrc_config = default_mddrc_config;
+	if (dram_init_seq == NULL) {
+		dram_init_seq = default_init_seq;
+		seq_sz = sizeof(default_init_seq)/sizeof(u32);
+	}
 
 	/* Initialize IO Control */
 	out_be32(&im->io_ctrl.io_control_mem, IOCTRL_MUX_DDR);
@@ -45,8 +97,8 @@ long int fixed_sdram(void)
 	out_be32(&im->sysconf.ddrlaw.ar, msize_log2 - 1);
 	sync_law(&im->sysconf.ddrlaw.ar);
 
-	/* Enable DDR */
-	out_be32(&im->mddrc.ddr_sys_config, CONFIG_SYS_MDDRC_SYS_CFG_EN);
+	/* DDR Enable */
+	out_be32(&im->mddrc.ddr_sys_config, MDDRC_SYS_CFG_EN);
 
 	/* Initialize DDR Priority Manager */
 	out_be32(&im->mddrc.prioman_config1, CONFIG_SYS_MDDRCGRP_PM_CFG1);
@@ -73,41 +125,23 @@ long int fixed_sdram(void)
 	out_be32(&im->mddrc.lut_table4_alternate_upper, CONFIG_SYS_MDDRCGRP_LUT4_AU);
 	out_be32(&im->mddrc.lut_table4_alternate_lower, CONFIG_SYS_MDDRCGRP_LUT4_AL);
 
-	/* Initialize MDDRC */
-	out_be32(&im->mddrc.ddr_sys_config, CONFIG_SYS_MDDRC_SYS_CFG);
-	out_be32(&im->mddrc.ddr_time_config0, CONFIG_SYS_MDDRC_TIME_CFG0);
-	out_be32(&im->mddrc.ddr_time_config1, CONFIG_SYS_MDDRC_TIME_CFG1);
-	out_be32(&im->mddrc.ddr_time_config2, CONFIG_SYS_MDDRC_TIME_CFG2);
+	/*
+	 * Initialize MDDRC
+	 *  put MDDRC in CMD mode and
+	 *  set the max time between refreshes to 0 during init process
+	 */
+	out_be32(&im->mddrc.ddr_sys_config, mddrc_config[3] | MDDRC_SYS_CFG_CMD_MASK);
+	out_be32(&im->mddrc.ddr_time_config0, mddrc_config[0] & MDDRC_REFRESH_ZERO_MASK);
+	out_be32(&im->mddrc.ddr_time_config1, mddrc_config[1]);
+	out_be32(&im->mddrc.ddr_time_config2, mddrc_config[2]);
 
-	/* Initialize DDR */
-	for (i = 0; i < 10; i++)
-		out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_NOP);
-
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_PCHG_ALL);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_NOP);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_RFSH);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_NOP);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_RFSH);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_NOP);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_INIT_DEV_OP);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_NOP);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_EM2);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_NOP);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_PCHG_ALL);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_EM2);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_EM3);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_EN_DLL);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_INIT_DEV_OP);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_PCHG_ALL);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_RFSH);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_INIT_DEV_OP);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_OCD_DEFAULT);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_PCHG_ALL);
-	out_be32(&im->mddrc.ddr_command, CONFIG_SYS_MICRON_NOP);
+	/* Initialize DDR with either default or supplied init sequence */
+	for (i = 0; i < seq_sz; i++)
+		out_be32(&im->mddrc.ddr_command, dram_init_seq[i]);
 
 	/* Start MDDRC */
-	out_be32(&im->mddrc.ddr_time_config0, CONFIG_SYS_MDDRC_TIME_CFG0_RUN);
-	out_be32(&im->mddrc.ddr_sys_config, CONFIG_SYS_MDDRC_SYS_CFG_RUN);
+	out_be32(&im->mddrc.ddr_time_config0, mddrc_config[0]);
+	out_be32(&im->mddrc.ddr_sys_config, mddrc_config[3]);
 
 	return msize;
 }

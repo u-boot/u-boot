@@ -137,7 +137,7 @@ phys_size_t initdram(int board_type)
 {
 	u32 msize = 0;
 
-	msize = fixed_sdram();
+	msize = fixed_sdram(NULL, NULL, 0);
 
 	return msize;
 }

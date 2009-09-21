@@ -50,7 +50,7 @@ static inline void sync_law(volatile void *addr)
 /*
  * Prototypes
  */
-extern long int fixed_sdram(void);
+extern long int fixed_sdram(u32 *mddrc_config, u32 *dram_init_seq, int seq_sz);
 extern int mpc5121_diu_init(void);
 extern void ide_set_reset(int idereset);
 
