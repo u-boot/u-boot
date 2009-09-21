@@ -32,6 +32,21 @@
 #define __CONFIG_H
 
 /*
+ * Top level Makefile configuration choices
+ */
+#ifdef CONFIG_MK_PCI
+#define CONFIG_PCI
+#endif
+
+#ifdef CONFIG_MK_66
+#define PCI_66M
+#endif
+
+#ifdef CONFIG_MK_33
+#define PCI_33M
+#endif
+
+/*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
