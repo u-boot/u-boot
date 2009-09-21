@@ -367,6 +367,8 @@
 				 CONFIG_BOOTP_DNS2 | \
 				 CONFIG_BOOTP_SEND_HOSTNAME )
 
+#define CONFIG_VERSION_VARIABLE 1
+
 /*
  * Various low-level settings
  */
