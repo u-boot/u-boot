@@ -84,7 +84,6 @@ typedef struct {		/* typedef Xilinx_desc */
 extern int xilinx_load( Xilinx_desc *desc, void *image, size_t size );
 extern int xilinx_dump( Xilinx_desc *desc, void *buf, size_t bsize );
 extern int xilinx_info( Xilinx_desc *desc );
-extern int xilinx_reloc( Xilinx_desc *desc, ulong reloc_offset );
 
 /* Board specific implementation specific function types
  *********************************************************************/

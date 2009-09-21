@@ -79,7 +79,6 @@ typedef struct {		/* typedef Altera_desc */
 extern int altera_load( Altera_desc *desc, void *image, size_t size );
 extern int altera_dump( Altera_desc *desc, void *buf, size_t bsize );
 extern int altera_info( Altera_desc *desc );
-extern int altera_reloc( Altera_desc *desc, ulong reloc_offset );
 
 /* Board specific implementation specific function types
  *********************************************************************/
