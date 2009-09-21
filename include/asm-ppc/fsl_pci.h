@@ -173,6 +173,18 @@ struct fsl_pci_info {
 int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 				struct pci_controller *hose, int busno);
 
+#define SET_STD_PCI_INFO(x, num) \
+{			\
+	x.regs = CONFIG_SYS_PCI##num##_ADDR;	\
+	x.mem_bus = CONFIG_SYS_PCI##num##_MEM_BUS; \
+	x.mem_phys = CONFIG_SYS_PCI##num##_MEM_PHYS; \
+	x.mem_size = CONFIG_SYS_PCI##num##_MEM_SIZE; \
+	x.io_bus = CONFIG_SYS_PCI##num##_IO_BUS; \
+	x.io_phys = CONFIG_SYS_PCI##num##_IO_PHYS; \
+	x.io_size = CONFIG_SYS_PCI##num##_IO_SIZE; \
+	x.pci_num = num; \
+}
+
 #define SET_STD_PCIE_INFO(x, num) \
 {			\
 	x.regs = CONFIG_SYS_PCIE##num##_ADDR;	\
