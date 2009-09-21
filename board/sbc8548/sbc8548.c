@@ -321,125 +321,74 @@ static struct pci_controller pci1_hose;
 static struct pci_controller pcie1_hose;
 #endif	/* CONFIG_PCIE1 */
 
-int first_free_busno=0;
 
+#ifdef CONFIG_PCI
 void
 pci_init_board(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	struct fsl_pci_info pci_info[2];
+	u32 devdisr, pordevsr, porpllsr, io_sel;
+	int first_free_busno = 0;
+	int num = 0;
+
+#ifdef CONFIG_PCIE1
+	int pcie_configured;
+#endif
+
+	devdisr = in_be32(&gur->devdisr);
+	pordevsr = in_be32(&gur->pordevsr);
+	porpllsr = in_be32(&gur->porpllsr);
+	io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
+
+	debug("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
 
 #ifdef CONFIG_PCI1
-{
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
-	struct pci_controller *hose = &pci1_hose;
-	struct pci_region *r = hose->regions;
+	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
+		uint pci_32 = pordevsr & MPC85xx_PORDEVSR_PCI1_PCI32;
+		uint pci_arb = pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;
+		uint pci_clk_sel = porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;
+		uint pci_speed = CONFIG_SYS_CLK_FREQ;	/* get_clock_freq() */
 
-	uint pci_32 = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_PCI32;	/* PORDEVSR[15] */
-	uint pci_arb = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;	/* PORDEVSR[14] */
-	uint pci_clk_sel = gur->porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;	/* PORPLLSR[16] */
-
-	uint pci_speed = CONFIG_SYS_CLK_FREQ;	/* get_clock_freq() */
-
-	if (!(gur->devdisr & MPC85xx_DEVDISR_PCI1)) {
 		printf ("    PCI host: %d bit, %s MHz, %s, %s\n",
 			(pci_32) ? 32 : 64,
 			(pci_speed == 33000000) ? "33" :
 			(pci_speed == 66000000) ? "66" : "unknown",
 			pci_clk_sel ? "sync" : "async",
-			pci_arb ? "arbiter" : "external-arbiter"
-			);
+			pci_arb ? "arbiter" : "external-arbiter");
 
-		/* outbound memory */
-		pci_set_region(r++,
-			       CONFIG_SYS_PCI1_MEM_BASE,
-			       CONFIG_SYS_PCI1_MEM_PHYS,
-			       CONFIG_SYS_PCI1_MEM_SIZE,
-			       PCI_REGION_MEM);
-
-		/* outbound io */
-		pci_set_region(r++,
-			       CONFIG_SYS_PCI1_IO_BASE,
-			       CONFIG_SYS_PCI1_IO_PHYS,
-			       CONFIG_SYS_PCI1_IO_SIZE,
-			       PCI_REGION_IO);
-		hose->region_count = r - hose->regions;
-
-		hose->first_busno=first_free_busno;
-
-		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
-		first_free_busno=hose->last_busno+1;
-		printf ("PCI on bus %02x - %02x\n",hose->first_busno,hose->last_busno);
-#ifdef CONFIG_PCIX_CHECK
-		if (!(gur->pordevsr & MPC85xx_PORDEVSR_PCI1)) {
-			/* PCI-X init */
-			if (CONFIG_SYS_CLK_FREQ < 66000000)
-				printf("PCI-X will only work at 66 MHz\n");
-
-			reg16 = PCI_X_CMD_MAX_SPLIT | PCI_X_CMD_MAX_READ
-				| PCI_X_CMD_ERO | PCI_X_CMD_DPERR_E;
-			pci_hose_write_config_word(hose, bus, PCIX_COMMAND, reg16);
-		}
-#endif
+		SET_STD_PCI_INFO(pci_info[num], 1);
+		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+					&pci1_hose, first_free_busno);
 	} else {
 		printf ("    PCI: disabled\n");
 	}
-}
+
+	puts("\n");
 #else
-	gur->devdisr |= MPC85xx_DEVDISR_PCI1; /* disable */
+	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCI1); /* disable */
 #endif
 
-	gur->devdisr |= MPC85xx_DEVDISR_PCI2; /* disable PCI2 */
+	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCI2); /* disable PCI2 */
 
 #ifdef CONFIG_PCIE1
-{
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
-	struct pci_controller *hose = &pcie1_hose;
-	struct pci_region *r = hose->regions;
+	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 
-	int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
-
-	if (pcie_configured && !(gur->devdisr & MPC85xx_DEVDISR_PCIE)){
-		printf ("\n    PCIE at base address %x",
-			(uint)pci);
-
-		if (pci->pme_msg_det) {
-			pci->pme_msg_det = 0xffffffff;
-			debug (" with errors.  Clearing.  Now 0x%08x",pci->pme_msg_det);
-		}
-		printf ("\n");
-
-		/* outbound memory */
-		pci_set_region(r++,
-			       CONFIG_SYS_PCIE1_MEM_BASE,
-			       CONFIG_SYS_PCIE1_MEM_PHYS,
-			       CONFIG_SYS_PCIE1_MEM_SIZE,
-			       PCI_REGION_MEM);
-
-		/* outbound io */
-		pci_set_region(r++,
-			       CONFIG_SYS_PCIE1_IO_BASE,
-			       CONFIG_SYS_PCIE1_IO_PHYS,
-			       CONFIG_SYS_PCIE1_IO_SIZE,
-			       PCI_REGION_IO);
-
-		hose->region_count = r - hose->regions;
-
-		hose->first_busno=first_free_busno;
-
-		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
-		printf ("PCIE on bus %d - %d\n",hose->first_busno,hose->last_busno);
-
-		first_free_busno=hose->last_busno+1;
-
+	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
+		SET_STD_PCIE_INFO(pci_info[num], 1);
+		printf ("    PCIE at base address %lx\n", pci_info[num].regs);
+		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+					&pcie1_hose, first_free_busno);
 	} else {
 		printf ("    PCIE: disabled\n");
 	}
- }
-#else
-	gur->devdisr |= MPC85xx_DEVDISR_PCIE; /* disable */
-#endif
 
+	puts("\n");
+#else
+	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE); /* disable */
+#endif
 }
+#endif
 
 int board_eth_init(bd_t *bis)
 {
