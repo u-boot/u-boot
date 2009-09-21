@@ -64,7 +64,6 @@ SECTIONS
 
 		*(.text)
 
-    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.rodata)

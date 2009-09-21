@@ -60,7 +60,6 @@ SECTIONS
     cpu/ppc4xx/start.o	(.text)
     board/w7o/init.o	(.text)
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

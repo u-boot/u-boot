@@ -62,7 +62,6 @@ SECTIONS
   .text      :
   {
     *(.text)
-    *(.fixup)
     *(.got1)
    } :text
     _etext = .;

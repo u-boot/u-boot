@@ -62,7 +62,6 @@ SECTIONS
     . = ALIGN(0x80000);
 
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

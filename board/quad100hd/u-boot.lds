@@ -61,7 +61,6 @@ SECTIONS
     cpu/ppc4xx/start.o	(.text)
 
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

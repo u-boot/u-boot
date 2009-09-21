@@ -69,7 +69,6 @@ SECTIONS
     board/amcc/yosemite/init.o	(.text)
 
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

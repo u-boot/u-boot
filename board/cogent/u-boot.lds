@@ -54,7 +54,6 @@ SECTIONS
   {
     *(.text)
     common/env_embedded.o(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;
