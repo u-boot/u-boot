@@ -31,6 +31,7 @@
 #ifdef CONFIG_MISC_INIT_R
 #include <i2c.h>
 #endif
+#include <net.h>
 
 #include <linux/mtd/mtd.h>
 #include <linux/mtd/nand.h>
@@ -133,11 +134,105 @@ int board_early_init_f(void)
 	return 0;
 }
 
+int is_micron(void){
+
+	ushort brd_rev = *(vu_short *)(CONFIG_SYS_CPLD_BASE + 0x00);
+	uchar macaddr[6];
+	u32 brddate, macchk, ismicron;
+
+	/*
+	 * MAC address has serial number with date of manufacture
+	 * Boards made before Nov-08 #1180 use Micron memory;
+	 * 001e59 is the STx vendor #
+	 * Default is Elpida since it works for both but is slightly slower
+	 */
+	ismicron = 0;
+	if (brd_rev >= 0x0400 && eth_getenv_enetaddr("ethaddr", macaddr)) {
+		brddate = (macaddr[3] << 16) + (macaddr[4] << 8) + macaddr[5];
+		macchk = (macaddr[0] << 16) + (macaddr[1] << 8) + macaddr[2];
+		debug("brddate = %d\n\t", brddate);
+
+		if (macchk == 0x001e59 && brddate <= 8111180)
+			ismicron = 1;
+	} else if (brd_rev < 0x400) {
+		ismicron = 1;
+	}
+	debug("Using %s Memory settings\n\t",
+		ismicron ? "Micron" : "Elpida");
+	return(ismicron);
+}
+
 phys_size_t initdram(int board_type)
 {
 	u32 msize = 0;
+	/*
+	 * Elpida MDDRC and initialization settings are an alternative
+	 * to the Default Micron ones for all but the earliest Rev 4 boards
+	 */
+	u32 elpida_mddrc_config[4] = {
+		CONFIG_SYS_MDDRC_TIME_CFG0,
+		CONFIG_SYS_MDDRC_TIME_CFG1_ELPIDA,
+		CONFIG_SYS_MDDRC_TIME_CFG2_ELPIDA
+		CONFIG_SYS_MDDRC_SYS_CFG_ELPIDA,
+	};
 
-	msize = fixed_sdram(NULL, NULL, 0);
+	u32 elpida_init_sequence[] = {
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_PCHG_ALL,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_RFSH,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_RFSH,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_EM2,
+		CONFIG_SYS_DDRCMD_EM3,
+		CONFIG_SYS_DDRCMD_EN_DLL,
+		CONFIG_SYS_ELPIDA_RES_DLL,
+		CONFIG_SYS_DDRCMD_PCHG_ALL,
+		CONFIG_SYS_DDRCMD_RFSH,
+		CONFIG_SYS_DDRCMD_RFSH,
+		CONFIG_SYS_DDRCMD_RFSH,
+		CONFIG_SYS_ELPIDA_INIT_DEV_OP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_OCD_DEFAULT,
+		CONFIG_SYS_ELPIDA_OCD_EXIT,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP
+	};
+
+	if (is_micron()) {
+		msize = fixed_sdram(NULL, NULL, 0);
+	} else {
+		msize = fixed_sdram(elpida_mddrc_config,
+				elpida_init_sequence,
+				sizeof(elpida_init_sequence)/sizeof(u32));
+	}
 
 	return msize;
 }

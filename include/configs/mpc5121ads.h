@@ -141,14 +141,45 @@
 #endif
 #define CONFIG_SYS_MDDRC_TIME_CFG0	0x06183D2E
 
+#define CONFIG_SYS_MDDRC_SYS_CFG_ELPIDA	 	0xEA802B00
+#define CONFIG_SYS_MDDRC_TIME_CFG1_ELPIDA	0x690e1189
+#define CONFIG_SYS_MDDRC_TIME_CFG2_ELPIDA	0x35310864
+
 #define CONFIG_SYS_DDRCMD_NOP		0x01380000
 #define CONFIG_SYS_DDRCMD_PCHG_ALL	0x01100400
 #define CONFIG_SYS_DDRCMD_EM2		0x01020000
 #define CONFIG_SYS_DDRCMD_EM3		0x01030000
 #define CONFIG_SYS_DDRCMD_EN_DLL	0x01010000
 #define CONFIG_SYS_DDRCMD_RFSH		0x01080000
-#define CONFIG_SYS_MICRON_INIT_DEV_OP	0x01000432
-#define CONFIG_SYS_DDRCMD_OCD_DEFAULT	0x01010780
+
+#define DDRCMD_EMR_OCD(pr, ohm) ( \
+	(1 << 24)	   | /* MDDRC Command Request	*/ \
+	(1 << 16)	   | /* MODE Reg BA[2:0] 	*/ \
+	(0 << 12)	   | /* Outputs 0=Enabled	*/ \
+	(0 << 11)	   | /* RDQS 			*/ \
+	(1 << 10)	   | /* DQS# 			*/ \
+	(pr <<  7)	   | /* OCD prog 7=deflt,0=exit	*/ \
+		    /* ODT Rtt[1:0] 0=0,1=75,2=150,3=50 */ \
+	((ohm & 0x2) <<  5)| /* Rtt1			*/ \
+	(0 <<  3)	   | /* additive posted CAS#	*/ \
+	((ohm & 0x1) <<  2)| /* Rtt0			*/ \
+	(0 <<  0)	   | /* Output Drive Strength	*/ \
+	(0 <<  0))	     /* DLL Enable 0=Normal	*/
+
+#define CONFIG_SYS_DDRCMD_OCD_DEFAULT	DDRCMD_EMR_OCD(7, 0)
+#define CONFIG_SYS_ELPIDA_OCD_EXIT	DDRCMD_EMR_OCD(0, 0)
+
+#define DDRCMD_MODE_REG(cas, wr) ( \
+	(1 << 24)    | /* MDDRC Command Request			*/ \
+	(0 << 16)    | /* MODE Reg BA[2:0] 			*/ \
+	((wr-1) << 9)| /* Write Recovery 			*/ \
+	(cas << 4)   | /* CAS 					*/ \
+	(0 << 3)     | /* Burst Type:0=Sequential,1=Interleaved	*/ \
+	(2 << 0))      /* 4 or 8 Burst Length:0x2=4 0x3=8	*/
+
+#define CONFIG_SYS_MICRON_INIT_DEV_OP	DDRCMD_MODE_REG(3, 3)
+#define CONFIG_SYS_ELPIDA_INIT_DEV_OP	DDRCMD_MODE_REG(4, 4)
+#define CONFIG_SYS_ELPIDA_RES_DLL	(DDRCMD_MODE_REG(4, 4) | (1 << 8))
 
 /* DDR Priority Manager Configuration */
 #define CONFIG_SYS_MDDRCGRP_PM_CFG1	0x00077777
