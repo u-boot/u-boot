@@ -56,6 +56,7 @@
 #define RTC_YR_REG_ADDR		0x6
 #define RTC_CTL_REG_ADDR	0x0e
 #define RTC_STAT_REG_ADDR	0x0f
+#define RTC_TC_REG_ADDR		0x10
 
 /*
  * RTC control register bits
@@ -169,6 +170,9 @@ int rtc_set (struct rtc_time *tmp)
 void rtc_reset (void)
 {
 	rtc_write (RTC_CTL_REG_ADDR, RTC_DS1337_RESET_VAL);
+#ifdef CONFIG_SYS_DS1339_TCR_VAL
+	rtc_write (RTC_TC_REG_ADDR, CONFIG_SYS_DS1339_TCR_VAL);
+#endif
 }
 
 
