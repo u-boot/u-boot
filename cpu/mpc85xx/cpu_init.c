@@ -336,8 +336,8 @@ int cpu_init_r(void)
 	u32 l2cfg0 = mfspr(SPRN_L2CFG0);
 
 	/* invalidate the L2 cache */
-	mtspr(SPRN_L2CSR0, L2CSR0_L2FI);
-	while (mfspr(SPRN_L2CSR0) & L2CSR0_L2FI)
+	mtspr(SPRN_L2CSR0, (L2CSR0_L2FI|L2CSR0_L2LFC));
+	while (mfspr(SPRN_L2CSR0) & (L2CSR0_L2FI|L2CSR0_L2LFC))
 		;
 
 	/* enable the cache */
