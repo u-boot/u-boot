@@ -387,19 +387,7 @@ void pci_init_board(void)
 void
 ft_board_setup(void *blob, bd_t *bd)
 {
-	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
-			     "timebase-frequency", bd->bi_busfreq / 4, 1);
-	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
-			     "bus-frequency", bd->bi_busfreq, 1);
-	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
-			     "clock-frequency", bd->bi_intfreq, 1);
-	do_fixup_by_prop_u32(blob, "device_type", "soc", 4,
-			     "bus-frequency", bd->bi_busfreq, 1);
-
-	do_fixup_by_compat_u32(blob, "ns16550",
-			       "clock-frequency", bd->bi_busfreq, 1);
-
-	fdt_fixup_memory(blob, bd->bi_memstart, bd->bi_memsize);
+	ft_cpu_setup(blob, bd);
 
 #ifdef CONFIG_PCI1
 	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
