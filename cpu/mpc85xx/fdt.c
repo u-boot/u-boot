@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Freescale Semiconductor, Inc.
+ * Copyright 2007-2009 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -27,6 +27,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <asm/processor.h>
+#include <linux/ctype.h>
 #ifdef CONFIG_FSL_ESDHC
 #include <fsl_esdhc.h>
 #endif
@@ -148,8 +149,14 @@ static inline void ft_fixup_l2cache(void *blob)
 	}
 
 	if (cpu) {
-		len = sprintf(compat_buf, "fsl,mpc%s-l2-cache-controller",
-				cpu->name);
+		if (isdigit(cpu->name[0]))
+			len = sprintf(compat_buf,
+				"fsl,mpc%s-l2-cache-controller", cpu->name);
+		else
+			len = sprintf(compat_buf,
+				"fsl,%c%s-l2-cache-controller",
+				tolower(cpu->name[0]), cpu->name + 1);
+
 		sprintf(&compat_buf[len + 1], "cache");
 	}
 	fdt_setprop(blob, off, "cache-unified", NULL, 0);
