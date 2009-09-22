@@ -102,7 +102,8 @@ __secondary_start_page:
 #ifdef CONFIG_BACKSIDE_L2_CACHE
 	/* Enable/invalidate the L2 cache */
 	msync
-	lis	r3,L2CSR0_L2FI@h
+	lis	r3,(L2CSR0_L2FI|L2CSR0_L2LFC)@h
+	ori	r3,r3,(L2CSR0_L2FI|L2CSR0_L2LFC)@l
 	mtspr	SPRN_L2CSR0,r3
 1:
 	mfspr	r3,SPRN_L2CSR0
