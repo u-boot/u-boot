@@ -353,9 +353,10 @@ __i2c_read(u8 *data, int length)
 			writeb(I2C_CR_MEN | I2C_CR_MSTA | I2C_CR_TXAK,
 			       &i2c_dev[i2c_bus_num]->cr);
 
-		/* Generate stop on last byte */
+		/* Do not generate stop on last byte */
 		if (i == length - 1)
-			writeb(I2C_CR_MEN | I2C_CR_TXAK, &i2c_dev[i2c_bus_num]->cr);
+			writeb(I2C_CR_MEN | I2C_CR_MSTA | I2C_CR_MTX,
+			       &i2c_dev[i2c_bus_num]->cr);
 
 		data[i] = readb(&i2c_dev[i2c_bus_num]->dr);
 	}
@@ -378,10 +379,10 @@ i2c_read(u8 dev, uint addr, int alen, u8 *data, int length)
 	    && i2c_write_addr(dev, I2C_READ_BIT, 1) != 0)
 		i = __i2c_read(data, length);
 
-	if (length && i2c_wait4bus()) /* Wait until STOP */
-		debug("i2c_read: wait4bus timed out\n");
-
 	writeb(I2C_CR_MEN, &i2c_dev[i2c_bus_num]->cr);
+
+	if (i2c_wait4bus()) /* Wait until STOP */
+		debug("i2c_read: wait4bus timed out\n");
 
 	if (i == length)
 	    return 0;
