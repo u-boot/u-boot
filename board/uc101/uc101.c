@@ -371,3 +371,10 @@ void hw_watchdog_reset(void)
 	*(vu_long *)MPC5XXX_GPT0_ENABLE = GPT_OUT_0;
 }
 #endif
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+}
+#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
