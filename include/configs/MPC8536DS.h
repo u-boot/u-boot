@@ -37,6 +37,16 @@
 #define CONFIG_RAMBOOT_TEXT_BASE	0xf8f82000
 #endif
 
+#ifdef CONFIG_MK_SDCARD
+#define CONFIG_RAMBOOT_SDCARD		1
+#define CONFIG_RAMBOOT_TEXT_BASE	0xf8f80000
+#endif
+
+#ifdef CONFIG_MK_SPIFLASH
+#define CONFIG_RAMBOOT_SPIFLASH		1
+#define CONFIG_RAMBOOT_TEXT_BASE	0xf8f80000
+#endif
+
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
@@ -236,7 +246,8 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 
 #define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 
-#if defined(CONFIG_SYS_SPL) || defined(CONFIG_RAMBOOT_NAND)
+#if defined(CONFIG_SYS_SPL) || defined(CONFIG_RAMBOOT_NAND) \
+	|| defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH)
 #define CONFIG_SYS_RAMBOOT
 #else
 #undef CONFIG_SYS_RAMBOOT
@@ -635,6 +646,10 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 	#define CONFIG_ENV_IS_IN_NAND	1
 	#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
 	#define CONFIG_ENV_OFFSET ((512 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
+#elif defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH)
+	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
+	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
+	#define CONFIG_ENV_SIZE		0x2000
 #endif
 #else
 	#define CONFIG_ENV_IS_IN_FLASH	1
