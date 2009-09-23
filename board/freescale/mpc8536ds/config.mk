@@ -23,6 +23,13 @@
 #
 # mpc8536ds board
 #
+ifndef NAND_SPL
+ifeq ($(CONFIG_MK_NAND), y)
+TEXT_BASE = $(CONFIG_RAMBOOT_TEXT_BASE)
+LDSCRIPT := $(TOPDIR)/cpu/$(CPU)/u-boot-nand.lds
+endif
+endif
+
 ifndef TEXT_BASE
 TEXT_BASE = 0xeff80000
 endif
