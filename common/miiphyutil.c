@@ -299,7 +299,7 @@ int miiphy_reset (char *devname, unsigned char addr)
 		debug ("PHY status read failed\n");
 		return (-1);
 	}
-	if (miiphy_write (devname, addr, PHY_BMCR, reg | 0x8000) != 0) {
+	if (miiphy_write (devname, addr, PHY_BMCR, reg | PHY_BMCR_RESET) != 0) {
 		debug ("PHY reset failed\n");
 		return (-1);
 	}
