@@ -54,4 +54,7 @@ void ide_init(void);
 ulong ide_read(int device, lbaint_t blknr, ulong blkcnt, void *buffer);
 ulong ide_write(int device, lbaint_t blknr, ulong blkcnt, void *buffer);
 
+#if defined(CONFIG_OF_IDE_FIXUP)
+int ide_device_present(int dev);
+#endif
 #endif /* _IDE_H */
