@@ -374,28 +374,35 @@ int ppc4xx_init_pcie(void)
 	/* Set PLL clock receiver to LVPECL */
 	SDR_WRITE(PESDR0_PLLLCT1, SDR_READ(PESDR0_PLLLCT1) | 1 << 28);
 
-	if (check_error())
-		return -1;
+	if (check_error()) {
+		printf("ERROR: failed to set PCIe reference clock receiver --"
+			"PESDR0_PLLLCT1 = 0x%08x\n", SDR_READ(PESDR0_PLLLCT1));
 
-	if (!(SDR_READ(PESDR0_PLLLCT2) & 0x10000))
-	{
-		printf("PCIE: PESDR_PLLCT2 resistance calibration failed (0x%08x)\n",
-		       SDR_READ(PESDR0_PLLLCT2));
+		return -1;
+	}
+
+	/* Did resistance calibration work? */
+	if (!(SDR_READ(PESDR0_PLLLCT2) & 0x10000)) {
+		printf("ERROR: PCIe resistance calibration failed --"
+			"PESDR0_PLLLCT2 = 0x%08x\n", SDR_READ(PESDR0_PLLLCT2));
+
 		return -1;
 	}
 	/* De-assert reset of PCIe PLL, wait for lock */
 	SDR_WRITE(PESDR0_PLLLCT1, SDR_READ(PESDR0_PLLLCT1) & ~(1 << 24));
-	udelay(3);
+	udelay(300);	/* 300 uS is maximum time lock should take */
 
 	while (time_out) {
 		if (!(SDR_READ(PESDR0_PLLLCT3) & 0x10000000)) {
 			time_out--;
-			udelay(1);
+			udelay(20);	/* Wait 20 uS more if needed */
 		} else
 			break;
 	}
 	if (!time_out) {
-		printf("PCIE: VCO output not locked\n");
+		printf("ERROR: PCIe PLL VCO output not locked to ref clock --"
+			"PESDR0_PLLLCTS=0x%08x\n", SDR_READ(PESDR0_PLLLCT3));
+
 		return -1;
 	}
 	return 0;
