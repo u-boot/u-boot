@@ -1624,6 +1624,14 @@ static void ide_led (uchar led, uchar status)
 
 #endif	/* CONFIG_IDE_LED */
 
+#if defined(CONFIG_OF_IDE_FIXUP)
+int ide_device_present(int dev)
+{
+	if (dev >= CONFIG_SYS_IDE_MAXBUS)
+		return 0;
+	return (ide_dev_desc[dev].type == DEV_TYPE_UNKNOWN ? 0 : 1);
+}
+#endif
 /* ------------------------------------------------------------------------- */
 
 #ifdef CONFIG_ATAPI

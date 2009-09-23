@@ -388,6 +388,15 @@ The following options need to be configured:
 		This define fills in the correct boot CPU in the boot
 		param header, the default value is zero if undefined.
 
+		CONFIG_OF_IDE_FIXUP
+
+		U-Boot can detect if an IDE device is present or not.
+		If not, and this new config option is activated, U-Boot
+		removes the ATA node from the DTS before booting Linux,
+		so the Linux IDE driver does not probe the device and
+		crash. This is needed for buggy hardware (uc101) where
+		no pull down resistor is connected to the signal IDE5V_DD7.
+
 - vxWorks boot parameters:
 
 		bootvx constructs a valid bootline using the following

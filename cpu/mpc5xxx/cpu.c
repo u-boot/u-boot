@@ -40,6 +40,10 @@
 #include <fdt_support.h>
 #endif
 
+#if defined(CONFIG_OF_IDE_FIXUP)
+#include <ide.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int checkcpu (void)
@@ -136,6 +140,22 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	eth_getenv_enetaddr("ethaddr", enetaddr);
 	do_fixup_by_path(blob, eth_path, "mac-address", enetaddr, 6, 0);
 	do_fixup_by_path(blob, eth_path, "local-mac-address", enetaddr, 6, 0);
+#endif
+#if defined(CONFIG_OF_IDE_FIXUP)
+	if (!ide_device_present(0)) {
+		/* NO CF card detected -> delete ata node in DTS */
+		int nodeoffset = 0;
+		char nodename[] = "/soc5200@f0000000/ata@3a00";
+
+		nodeoffset = fdt_path_offset(blob, nodename);
+		if (nodeoffset >= 0) {
+			fdt_del_node(blob, nodeoffset);
+		} else {
+			printf("%s: cannot find %s node err:%s\n",
+				__func__, nodename, fdt_strerror(nodeoffset));
+		}
+	}
+
 #endif
 }
 #endif
