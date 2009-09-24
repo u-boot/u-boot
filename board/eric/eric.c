@@ -62,13 +62,13 @@ int board_early_init_f (void)
    |
    +-------------------------------------------------------------------------*/
 
-	mtdcr (uicsr, 0xFFFFFFFF);	/* clear all ints */
-	mtdcr (uicer, 0x00000000);	/* disable all ints */
-	mtdcr (uiccr, 0x00000000);	/* set all SMI to be non-critical */
-	mtdcr (uicpr, 0xFFFFFF88);	/* set int polarities; IRQ3 to 1 */
-	mtdcr (uictr, 0x10000000);	/* set int trigger levels, UART0 is EDGE */
-	mtdcr (uicvcr, 0x00000001);	/* set vect base=0,INT0 highest priority */
-	mtdcr (uicsr, 0xFFFFFFFF);	/* clear all ints */
+	mtdcr (UIC0SR, 0xFFFFFFFF);	/* clear all ints */
+	mtdcr (UIC0ER, 0x00000000);	/* disable all ints */
+	mtdcr (UIC0CR, 0x00000000);	/* set all SMI to be non-critical */
+	mtdcr (UIC0PR, 0xFFFFFF88);	/* set int polarities; IRQ3 to 1 */
+	mtdcr (UIC0TR, 0x10000000);	/* set int trigger levels, UART0 is EDGE */
+	mtdcr (UIC0VCR, 0x00000001);	/* set vect base=0,INT0 highest priority */
+	mtdcr (UIC0SR, 0xFFFFFFFF);	/* clear all ints */
 
 	mtdcr (CPC0_CR0, 0x00002000);	/* set IRQ6 as GPIO23 to generate an interrupt request to the PCP2PCI bridge */
 

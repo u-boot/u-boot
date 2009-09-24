@@ -93,17 +93,17 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #elif defined (CONFIG_405GP)
 	printf ("\n405GP registers; MSR=%08x\n",mfmsr());
 	printf ("\nUniversal Interrupt Controller Regs\n"
-	    "uicsr    uicer    uiccr    uicpr    uictr    uicmsr   uicvr    uicvcr"
+	    "UIC0SR    UIC0ER    UIC0CR    UIC0PR    UIC0TR    UIC0MSR   UIC0VR    UIC0VCR"
 	    "\n"
 	    "%08x %08x %08x %08x %08x %08x %08x %08x\n",
-	mfdcr(uicsr),
-	mfdcr(uicer),
-	mfdcr(uiccr),
-	mfdcr(uicpr),
-	mfdcr(uictr),
-	mfdcr(uicmsr),
-	mfdcr(uicvr),
-	mfdcr(uicvcr));
+	mfdcr(UIC0SR),
+	mfdcr(UIC0ER),
+	mfdcr(UIC0CR),
+	mfdcr(UIC0PR),
+	mfdcr(UIC0TR),
+	mfdcr(UIC0MSR),
+	mfdcr(UIC0VR),
+	mfdcr(UIC0VCR));
 
 	puts ("\nMemory (SDRAM) Configuration\n"
 	    "besra    besrsa   besrb    besrsb   bear     mcopt1   rtr      pmit\n");
@@ -180,17 +180,17 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #elif defined(CONFIG_405EP)
 	printf ("\n405EP registers; MSR=%08x\n",mfmsr());
 	printf ("\nUniversal Interrupt Controller Regs\n"
-	    "uicsr    uicer    uiccr    uicpr    uictr    uicmsr   uicvr    uicvcr"
+	    "UIC0SR    UIC0ER    UIC0CR    UIC0PR    UIC0TR    UIC0MSR   UIC0VR    UIC0VCR"
 	    "\n"
 	    "%08x %08x %08x %08x %08x %08x %08x %08x\n",
-	mfdcr(uicsr),
-	mfdcr(uicer),
-	mfdcr(uiccr),
-	mfdcr(uicpr),
-	mfdcr(uictr),
-	mfdcr(uicmsr),
-	mfdcr(uicvr),
-	mfdcr(uicvcr));
+	mfdcr(UIC0SR),
+	mfdcr(UIC0ER),
+	mfdcr(UIC0CR),
+	mfdcr(UIC0PR),
+	mfdcr(UIC0TR),
+	mfdcr(UIC0MSR),
+	mfdcr(UIC0VR),
+	mfdcr(UIC0VCR));
 
 	puts ("\nMemory (SDRAM) Configuration\n"
 	    "mcopt1   rtr      pmit     mb0cf    mb1cf    sdtr1\n");

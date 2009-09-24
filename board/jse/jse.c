@@ -48,12 +48,12 @@ int board_early_init_f (void)
    |       IRQ 30 (EXT IRQ 5) SystemACE BRdy (unused)
    |       IRQ 31 (EXT IRQ 6) (unused)
    +-------------------------------------------------------------------------*/
-	mtdcr (uicsr, 0xFFFFFFFF);	/* clear all ints */
-	mtdcr (uicer, 0x00000000);	/* disable all ints */
-	mtdcr (uiccr, 0x00000000);	/* set all to be non-critical */
-	mtdcr (uicpr, 0xFFFFFF87);	/* set int polarities */
-	mtdcr (uictr, 0x10000000);	/* set int trigger levels */
-	mtdcr (uicsr, 0xFFFFFFFF);	/* clear all ints */
+	mtdcr (UIC0SR, 0xFFFFFFFF);	/* clear all ints */
+	mtdcr (UIC0ER, 0x00000000);	/* disable all ints */
+	mtdcr (UIC0CR, 0x00000000);	/* set all to be non-critical */
+	mtdcr (UIC0PR, 0xFFFFFF87);	/* set int polarities */
+	mtdcr (UIC0TR, 0x10000000);	/* set int trigger levels */
+	mtdcr (UIC0SR, 0xFFFFFFFF);	/* clear all ints */
 
 	/* Configure the interface to the SystemACE MCU port.
 	   The SystemACE is fast, but there is no reason to have

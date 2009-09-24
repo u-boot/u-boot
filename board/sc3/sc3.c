@@ -294,22 +294,22 @@ int board_early_init_f (void)
 
 	writeb (cpldConfig_1, CPLD_CONTROL_1);	/* disable everything in CPLD */
 
-	mtdcr (uicsr, 0xFFFFFFFF);    /* clear all ints */
-	mtdcr (uicer, 0x00000000);    /* disable all ints */
-	mtdcr (uiccr, 0x00000000);    /* set all to be non-critical */
+	mtdcr (UIC0SR, 0xFFFFFFFF);    /* clear all ints */
+	mtdcr (UIC0ER, 0x00000000);    /* disable all ints */
+	mtdcr (UIC0CR, 0x00000000);    /* set all to be non-critical */
 
 	if (IS_CAMERON) {
 		sc3_cameron_init();
 		mtdcr (0x0B6, 0x18000000);
-		mtdcr (uicpr, 0xFFFFFFF0);
-		mtdcr (uictr, 0x10001030);
+		mtdcr (UIC0PR, 0xFFFFFFF0);
+		mtdcr (UIC0TR, 0x10001030);
 	} else {
 		mtdcr (0x0B6, 0x0000000);
-		mtdcr (uicpr, 0xFFFFFFE0);
-		mtdcr (uictr, 0x10000020);
+		mtdcr (UIC0PR, 0xFFFFFFE0);
+		mtdcr (UIC0TR, 0x10000020);
 	}
-	mtdcr (uicvcr, 0x00000001);   /* set vect base=0,INT0 highest priority */
-	mtdcr (uicsr, 0xFFFFFFFF);    /* clear all ints */
+	mtdcr (UIC0VCR, 0x00000001);   /* set vect base=0,INT0 highest priority */
+	mtdcr (UIC0SR, 0xFFFFFFFF);    /* clear all ints */
 
 	/* setup other implementation specific details */
 	mtdcr (CPC0_ECR, 0x60606000);

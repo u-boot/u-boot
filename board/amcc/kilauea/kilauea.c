@@ -158,33 +158,33 @@ int board_early_init_f (void)
 	 | interrupts again.
 	 +-------------------------------------------------------------------*/
 
-	mtdcr (uic2sr, 0xffffffff);	/* Clear all interrupts */
-	mtdcr (uic2er, 0x00000000);	/* disable all interrupts */
-	mtdcr (uic2cr, 0x00000000);	/* Set Critical / Non Critical interrupts */
-	mtdcr (uic2pr, 0xf7ffffff);	/* Set Interrupt Polarities */
-	mtdcr (uic2tr, 0x01e1fff8);	/* Set Interrupt Trigger Levels */
-	mtdcr (uic2vr, 0x00000001);	/* Set Vect base=0,INT31 Highest priority */
-	mtdcr (uic2sr, 0x00000000);	/* clear all interrupts */
-	mtdcr (uic2sr, 0xffffffff);	/* clear all interrupts */
+	mtdcr (UIC2SR, 0xffffffff);	/* Clear all interrupts */
+	mtdcr (UIC2ER, 0x00000000);	/* disable all interrupts */
+	mtdcr (UIC2CR, 0x00000000);	/* Set Critical / Non Critical interrupts */
+	mtdcr (UIC2PR, 0xf7ffffff);	/* Set Interrupt Polarities */
+	mtdcr (UIC2TR, 0x01e1fff8);	/* Set Interrupt Trigger Levels */
+	mtdcr (UIC2VR, 0x00000001);	/* Set Vect base=0,INT31 Highest priority */
+	mtdcr (UIC2SR, 0x00000000);	/* clear all interrupts */
+	mtdcr (UIC2SR, 0xffffffff);	/* clear all interrupts */
 
-	mtdcr (uic1sr, 0xffffffff);	/* Clear all interrupts */
-	mtdcr (uic1er, 0x00000000);	/* disable all interrupts */
-	mtdcr (uic1cr, 0x00000000);	/* Set Critical / Non Critical interrupts */
-	mtdcr (uic1pr, 0xfffac785);	/* Set Interrupt Polarities */
-	mtdcr (uic1tr, 0x001d0040);	/* Set Interrupt Trigger Levels */
-	mtdcr (uic1vr, 0x00000001);	/* Set Vect base=0,INT31 Highest priority */
-	mtdcr (uic1sr, 0x00000000);	/* clear all interrupts */
-	mtdcr (uic1sr, 0xffffffff);	/* clear all interrupts */
+	mtdcr (UIC1SR, 0xffffffff);	/* Clear all interrupts */
+	mtdcr (UIC1ER, 0x00000000);	/* disable all interrupts */
+	mtdcr (UIC1CR, 0x00000000);	/* Set Critical / Non Critical interrupts */
+	mtdcr (UIC1PR, 0xfffac785);	/* Set Interrupt Polarities */
+	mtdcr (UIC1TR, 0x001d0040);	/* Set Interrupt Trigger Levels */
+	mtdcr (UIC1VR, 0x00000001);	/* Set Vect base=0,INT31 Highest priority */
+	mtdcr (UIC1SR, 0x00000000);	/* clear all interrupts */
+	mtdcr (UIC1SR, 0xffffffff);	/* clear all interrupts */
 
-	mtdcr (uic0sr, 0xffffffff);	/* Clear all interrupts */
-	mtdcr (uic0er, 0x0000000a);	/* Disable all interrupts */
+	mtdcr (UIC0SR, 0xffffffff);	/* Clear all interrupts */
+	mtdcr (UIC0ER, 0x0000000a);	/* Disable all interrupts */
 					/* Except cascade UIC0 and UIC1 */
-	mtdcr (uic0cr, 0x00000000);	/* Set Critical / Non Critical interrupts */
-	mtdcr (uic0pr, 0xffbfefef);	/* Set Interrupt Polarities */
-	mtdcr (uic0tr, 0x00007000);	/* Set Interrupt Trigger Levels */
-	mtdcr (uic0vr, 0x00000001);	/* Set Vect base=0,INT31 Highest priority */
-	mtdcr (uic0sr, 0x00000000);	/* clear all interrupts */
-	mtdcr (uic0sr, 0xffffffff);	/* clear all interrupts */
+	mtdcr (UIC0CR, 0x00000000);	/* Set Critical / Non Critical interrupts */
+	mtdcr (UIC0PR, 0xffbfefef);	/* Set Interrupt Polarities */
+	mtdcr (UIC0TR, 0x00007000);	/* Set Interrupt Trigger Levels */
+	mtdcr (UIC0VR, 0x00000001);	/* Set Vect base=0,INT31 Highest priority */
+	mtdcr (UIC0SR, 0x00000000);	/* clear all interrupts */
+	mtdcr (UIC0SR, 0xffffffff);	/* clear all interrupts */
 
 	/*
 	 * Note: Some cores are still in reset when the chip starts, so

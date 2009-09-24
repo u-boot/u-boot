@@ -1,7 +1,7 @@
 /*
  *  Copyright (C) 2002 Scott McNutt <smcnutt@artesyncp.com>
  *
- * (C) Copyright 2008
+ * (C) Copyright 2008-2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -43,7 +43,7 @@
 #define UIC_MAX		1
 #endif
 
-#define IRQ_MAX UIC_MAX * 32
+#define IRQ_MAX		(UIC_MAX * 32)
 
 /*
  * UIC register
@@ -74,53 +74,41 @@
 #define UIC3_DCR_BASE 0xf0
 #endif
 
-#define uic0sr	(UIC0_DCR_BASE+0x0)	/* UIC0 status			*/
-#define uic0er	(UIC0_DCR_BASE+0x2)	/* UIC0 enable			*/
-#define uic0cr	(UIC0_DCR_BASE+0x3)	/* UIC0 critical		*/
-#define uic0pr	(UIC0_DCR_BASE+0x4)	/* UIC0 polarity		*/
-#define uic0tr	(UIC0_DCR_BASE+0x5)	/* UIC0 triggering		*/
-#define uic0msr (UIC0_DCR_BASE+0x6)	/* UIC0 masked status		*/
-#define uic0vr	(UIC0_DCR_BASE+0x7)	/* UIC0 vector			*/
-#define uic0vcr (UIC0_DCR_BASE+0x8)	/* UIC0 vector configuration	*/
+#define UIC0SR	(UIC0_DCR_BASE+0x0)	/* UIC0 status			*/
+#define UIC0ER	(UIC0_DCR_BASE+0x2)	/* UIC0 enable			*/
+#define UIC0CR	(UIC0_DCR_BASE+0x3)	/* UIC0 critical		*/
+#define UIC0PR	(UIC0_DCR_BASE+0x4)	/* UIC0 polarity		*/
+#define UIC0TR	(UIC0_DCR_BASE+0x5)	/* UIC0 triggering		*/
+#define UIC0MSR (UIC0_DCR_BASE+0x6)	/* UIC0 masked status		*/
+#define UIC0VR	(UIC0_DCR_BASE+0x7)	/* UIC0 vector			*/
+#define UIC0VCR (UIC0_DCR_BASE+0x8)	/* UIC0 vector configuration	*/
 
-#define uic1sr	(UIC1_DCR_BASE+0x0)	/* UIC1 status			*/
-#define uic1er	(UIC1_DCR_BASE+0x2)	/* UIC1 enable			*/
-#define uic1cr	(UIC1_DCR_BASE+0x3)	/* UIC1 critical		*/
-#define uic1pr	(UIC1_DCR_BASE+0x4)	/* UIC1 polarity		*/
-#define uic1tr	(UIC1_DCR_BASE+0x5)	/* UIC1 triggering		*/
-#define uic1msr (UIC1_DCR_BASE+0x6)	/* UIC1 masked status		*/
-#define uic1vr	(UIC1_DCR_BASE+0x7)	/* UIC1 vector			*/
-#define uic1vcr (UIC1_DCR_BASE+0x8)	/* UIC1 vector configuration	*/
+#define UIC1SR	(UIC1_DCR_BASE+0x0)	/* UIC1 status			*/
+#define UIC1ER	(UIC1_DCR_BASE+0x2)	/* UIC1 enable			*/
+#define UIC1CR	(UIC1_DCR_BASE+0x3)	/* UIC1 critical		*/
+#define UIC1PR	(UIC1_DCR_BASE+0x4)	/* UIC1 polarity		*/
+#define UIC1TR	(UIC1_DCR_BASE+0x5)	/* UIC1 triggering		*/
+#define UIC1MSR (UIC1_DCR_BASE+0x6)	/* UIC1 masked status		*/
+#define UIC1VR	(UIC1_DCR_BASE+0x7)	/* UIC1 vector			*/
+#define UIC1VCR (UIC1_DCR_BASE+0x8)	/* UIC1 vector configuration	*/
 
-#define uic2sr	(UIC2_DCR_BASE+0x0)	/* UIC2 status-Read Clear	*/
-#define uic2srs	(UIC2_DCR_BASE+0x1)	/* UIC2 status-Read Set		*/
-#define uic2er	(UIC2_DCR_BASE+0x2)	/* UIC2 enable			*/
-#define uic2cr	(UIC2_DCR_BASE+0x3)	/* UIC2 critical		*/
-#define uic2pr	(UIC2_DCR_BASE+0x4)	/* UIC2 polarity		*/
-#define uic2tr	(UIC2_DCR_BASE+0x5)	/* UIC2 triggering		*/
-#define uic2msr (UIC2_DCR_BASE+0x6)	/* UIC2 masked status		*/
-#define uic2vr	(UIC2_DCR_BASE+0x7)	/* UIC2 vector			*/
-#define uic2vcr (UIC2_DCR_BASE+0x8)	/* UIC2 vector configuration	*/
+#define UIC2SR	(UIC2_DCR_BASE+0x0)	/* UIC2 status-Read Clear	*/
+#define UIC2ER	(UIC2_DCR_BASE+0x2)	/* UIC2 enable			*/
+#define UIC2CR	(UIC2_DCR_BASE+0x3)	/* UIC2 critical		*/
+#define UIC2PR	(UIC2_DCR_BASE+0x4)	/* UIC2 polarity		*/
+#define UIC2TR	(UIC2_DCR_BASE+0x5)	/* UIC2 triggering		*/
+#define UIC2MSR (UIC2_DCR_BASE+0x6)	/* UIC2 masked status		*/
+#define UIC2VR	(UIC2_DCR_BASE+0x7)	/* UIC2 vector			*/
+#define UIC2VCR (UIC2_DCR_BASE+0x8)	/* UIC2 vector configuration	*/
 
-#define uic3sr	(UIC3_DCR_BASE+0x0)	/* UIC3 status-Read Clear	*/
-#define uic3srs	(UIC3_DCR_BASE+0x1)	/* UIC3 status-Read Set		*/
-#define uic3er	(UIC3_DCR_BASE+0x2)	/* UIC3 enable			*/
-#define uic3cr	(UIC3_DCR_BASE+0x3)	/* UIC3 critical		*/
-#define uic3pr	(UIC3_DCR_BASE+0x4)	/* UIC3 polarity		*/
-#define uic3tr	(UIC3_DCR_BASE+0x5)	/* UIC3 triggering		*/
-#define uic3msr (UIC3_DCR_BASE+0x6)	/* UIC3 masked status		*/
-#define uic3vr	(UIC3_DCR_BASE+0x7)	/* UIC3 vector			*/
-#define uic3vcr (UIC3_DCR_BASE+0x8)	/* UIC3 vector configuration	*/
-
-/* The following is for compatibility with 405 code */
-#define uicsr	uic0sr
-#define uicer	uic0er
-#define uiccr	uic0cr
-#define uicpr	uic0pr
-#define uictr	uic0tr
-#define uicmsr	uic0msr
-#define uicvr	uic0vr
-#define uicvcr	uic0vcr
+#define UIC3SR	(UIC3_DCR_BASE+0x0)	/* UIC3 status-Read Clear	*/
+#define UIC3ER	(UIC3_DCR_BASE+0x2)	/* UIC3 enable			*/
+#define UIC3CR	(UIC3_DCR_BASE+0x3)	/* UIC3 critical		*/
+#define UIC3PR	(UIC3_DCR_BASE+0x4)	/* UIC3 polarity		*/
+#define UIC3TR	(UIC3_DCR_BASE+0x5)	/* UIC3 triggering		*/
+#define UIC3MSR (UIC3_DCR_BASE+0x6)	/* UIC3 masked status		*/
+#define UIC3VR	(UIC3_DCR_BASE+0x7)	/* UIC3 vector			*/
+#define UIC3VCR (UIC3_DCR_BASE+0x8)	/* UIC3 vector configuration	*/
 
 /*
  * Now the interrupt vector definitions. They are different for most of

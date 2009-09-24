@@ -38,20 +38,20 @@
 int board_early_init_f (void)
 {
 #if 0 /* test-only */
-	mtdcr (uicsr, 0xFFFFFFFF);      /* clear all ints */
-	mtdcr (uicer, 0x00000000);      /* disable all ints */
-	mtdcr (uiccr, 0x00000010);
-	mtdcr (uicpr, 0xFFFF7FF0);      /* set int polarities */
-	mtdcr (uictr, 0x00000010);      /* set int trigger levels */
-	mtdcr (uicsr, 0xFFFFFFFF);      /* clear all ints */
+	mtdcr (UIC0SR, 0xFFFFFFFF);      /* clear all ints */
+	mtdcr (UIC0ER, 0x00000000);      /* disable all ints */
+	mtdcr (UIC0CR, 0x00000010);
+	mtdcr (UIC0PR, 0xFFFF7FF0);      /* set int polarities */
+	mtdcr (UIC0TR, 0x00000010);      /* set int trigger levels */
+	mtdcr (UIC0SR, 0xFFFFFFFF);      /* clear all ints */
 #else
-	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
-	mtdcr(uicer, 0x00000000);       /* disable all ints */
-	mtdcr(uiccr, 0x00000000);       /* set all to be non-critical*/
-	mtdcr(uicpr, 0xFFFFFFF0);       /* set int polarities */
-	mtdcr(uictr, 0x10000000);       /* set int trigger levels */
-	mtdcr(uicvcr, 0x00000001);      /* set vect base=0,INT0 highest priority*/
-	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
+	mtdcr(UIC0SR, 0xFFFFFFFF);       /* clear all ints */
+	mtdcr(UIC0ER, 0x00000000);       /* disable all ints */
+	mtdcr(UIC0CR, 0x00000000);       /* set all to be non-critical*/
+	mtdcr(UIC0PR, 0xFFFFFFF0);       /* set int polarities */
+	mtdcr(UIC0TR, 0x10000000);       /* set int trigger levels */
+	mtdcr(UIC0VCR, 0x00000001);      /* set vect base=0,INT0 highest priority*/
+	mtdcr(UIC0SR, 0xFFFFFFFF);       /* clear all ints */
 #endif
 
 #if 1 /* test-only */
