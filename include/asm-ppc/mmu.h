@@ -504,7 +504,7 @@ extern int num_tlb_entries;
 #endif
 #endif
 
-#ifdef CONFIG_MPC83xx
+#ifdef CONFIG_E300
 #define LAWAR_EN		0x80000000
 #define LAWAR_SIZE		0x0000003F
 
