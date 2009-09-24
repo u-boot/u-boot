@@ -577,7 +577,7 @@ static int printSDRAMConfig(char reg, unsigned long cr)
 }
 
 #ifdef SC3_DEBUGOUT
-static unsigned int mbcf[] = {mem_mb0cf, mem_mb1cf, mem_mb2cf, mem_mb3cf};
+static unsigned int mbcf[] = {SDRAM0_B0CR, SDRAM0_B1CR, SDRAM0_B2CR, SDRAM0_B3CR};
 #endif
 
 phys_size_t initdram (int board_type)
@@ -591,7 +591,7 @@ phys_size_t initdram (int board_type)
 
 	puts("\nSDRAM configuration:\n");
 
-	mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_CFG);
 	ul1 = mfdcr(SDRAM0_CFGDATA);
 
 	if (!(ul1 & 0x80000000)) {
@@ -604,7 +604,7 @@ phys_size_t initdram (int board_type)
 		mems += printSDRAMConfig (i, ul1);
 	}
 
-	mtdcr (SDRAM0_CFGADDR, mem_sdtr1);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_TR);
 	ul1 = mfdcr(SDRAM0_CFGDATA);
 
 	printf ("Timing:\n -CAS latency %lu\n", ((ul1 & 0x1800000) >> 23)+1);
@@ -614,14 +614,14 @@ phys_size_t initdram (int board_type)
 	printf (" -CAS to RAS %lu\n", ((ul1 & 0x1C) >> 2) + 4);
 	printf (" -RAS to CAS %lu\n", ((ul1 & 0x3) + 1));
 	puts ("Misc:\n");
-	mtdcr (SDRAM0_CFGADDR, mem_rtr);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_RTR);
 	ul1 = mfdcr(SDRAM0_CFGDATA);
 	printf (" -Refresh rate: %luns\n", (ul1 >> 16) * 7);
 
-	mtdcr(SDRAM0_CFGADDR,mem_pmit);
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_PMIT);
 	ul2=mfdcr(SDRAM0_CFGDATA);
 
-	mtdcr(SDRAM0_CFGADDR,mem_mcopt1);
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_CFG);
 	ul1=mfdcr(SDRAM0_CFGDATA);
 
 	if (ul1 & 0x20000000)
@@ -658,7 +658,7 @@ phys_size_t initdram (int board_type)
 	else
 		puts(" -Memory lines only at write cycles active outputs\n");
 
-	mtdcr (SDRAM0_CFGADDR, mem_status);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_STATUS);
 	ul1 = mfdcr (SDRAM0_CFGDATA);
 	if (ul1 & 0x80000000)
 		puts(" -SDRAM Controller ready\n");
@@ -670,19 +670,19 @@ phys_size_t initdram (int board_type)
 
 	return (mems * 1024 * 1024);
 #else
-	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B0CR);
 	ul1 = mfdcr (SDRAM0_CFGDATA);
 	mems = printSDRAMConfig (0, ul1);
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb1cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B1CR);
 	ul1 = mfdcr (SDRAM0_CFGDATA);
 	mems += printSDRAMConfig (1, ul1);
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb2cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B2CR);
 	ul1 = mfdcr(SDRAM0_CFGDATA);
 	mems += printSDRAMConfig (2, ul1);
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb3cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B3CR);
 	ul1 = mfdcr(SDRAM0_CFGDATA);
 	mems += printSDRAMConfig (3, ul1);
 

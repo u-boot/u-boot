@@ -361,7 +361,7 @@ int board_early_init_f (void)
 		SDRAM_err ("unsupported SDRAM");
 
 	/* get SDRAM timing register */
-	mtdcr (SDRAM0_CFGADDR, mem_sdtr1);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_TR);
 	tmp = mfdcr (SDRAM0_CFGDATA) & ~0x018FC01F;
 	/* insert CASL value */
 /*  tmp |= ((unsigned long)cal_val) << 23; */
@@ -385,7 +385,7 @@ int board_early_init_f (void)
 #endif
 
 	/* write SDRAM timing register */
-	mtdcr (SDRAM0_CFGADDR, mem_sdtr1);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_TR);
 	mtdcr (SDRAM0_CFGDATA, tmp);
 	baseaddr = CONFIG_SYS_SDRAM_BASE;
 	bank_size = (((unsigned long) density) << 22) / 2;
@@ -418,7 +418,7 @@ int board_early_init_f (void)
 		SDRAM_err ("unsupported SDRAM");
 	}	/* endswitch */
 	/* get SDRAM bank 0 register */
-	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B0CR);
 	bank = mfdcr (SDRAM0_CFGDATA) & ~0xFFCEE001;
 	bank |= (baseaddr | tmp | 0x01);
 #ifdef SDRAM_DEBUG
@@ -434,11 +434,11 @@ int board_early_init_f (void)
 	sdram_size += bank_size;
 
 	/* write SDRAM bank 0 register */
-	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B0CR);
 	mtdcr (SDRAM0_CFGDATA, bank);
 
 	/* get SDRAM bank 1 register */
-	mtdcr (SDRAM0_CFGADDR, mem_mb1cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B1CR);
 	bank = mfdcr (SDRAM0_CFGDATA) & ~0xFFCEE001;
 	sdram_size = 0;
 
@@ -459,11 +459,11 @@ int board_early_init_f (void)
 	serial_puts ("\n");
 #endif
 	/* write SDRAM bank 1 register */
-	mtdcr (SDRAM0_CFGADDR, mem_mb1cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B1CR);
 	mtdcr (SDRAM0_CFGDATA, bank);
 
 	/* get SDRAM bank 2 register */
-	mtdcr (SDRAM0_CFGADDR, mem_mb2cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B2CR);
 	bank = mfdcr (SDRAM0_CFGDATA) & ~0xFFCEE001;
 
 	bank |= (baseaddr | tmp | 0x01);
@@ -482,11 +482,11 @@ int board_early_init_f (void)
 	sdram_size += bank_size;
 
 	/* write SDRAM bank 2 register */
-	mtdcr (SDRAM0_CFGADDR, mem_mb2cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B2CR);
 	mtdcr (SDRAM0_CFGDATA, bank);
 
 	/* get SDRAM bank 3 register */
-	mtdcr (SDRAM0_CFGADDR, mem_mb3cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B3CR);
 	bank = mfdcr (SDRAM0_CFGDATA) & ~0xFFCEE001;
 
 #ifdef SDRAM_DEBUG
@@ -509,12 +509,12 @@ int board_early_init_f (void)
 #endif
 
 	/* write SDRAM bank 3 register */
-	mtdcr (SDRAM0_CFGADDR, mem_mb3cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B3CR);
 	mtdcr (SDRAM0_CFGDATA, bank);
 
 
 	/* get SDRAM refresh interval register */
-	mtdcr (SDRAM0_CFGADDR, mem_rtr);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_RTR);
 	tmp = mfdcr (SDRAM0_CFGDATA) & ~0x3FF80000;
 
 	if (tmemclk < NSto10PS (16))
@@ -523,13 +523,13 @@ int board_early_init_f (void)
 		tmp |= 0x03F80000;
 
 	/* write SDRAM refresh interval register */
-	mtdcr (SDRAM0_CFGADDR, mem_rtr);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_RTR);
 	mtdcr (SDRAM0_CFGDATA, tmp);
 
 	/* enable SDRAM controller with no ECC, 32-bit SDRAM width, 16 byte burst */
-	mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_CFG);
 	tmp = (mfdcr (SDRAM0_CFGDATA) & ~0xFFE00000) | 0x80E00000;
-	mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_CFG);
 	mtdcr (SDRAM0_CFGDATA, tmp);
 
 
@@ -619,13 +619,13 @@ phys_size_t initdram (int board_type)
 	/* since the DRAM controller is allready set up,
 	 * calculate the size with the bank registers
 	 */
-	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B0CR);
 	bank_reg[0] = mfdcr (SDRAM0_CFGDATA);
-	mtdcr (SDRAM0_CFGADDR, mem_mb1cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B1CR);
 	bank_reg[1] = mfdcr (SDRAM0_CFGDATA);
-	mtdcr (SDRAM0_CFGADDR, mem_mb2cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B2CR);
 	bank_reg[2] = mfdcr (SDRAM0_CFGDATA);
-	mtdcr (SDRAM0_CFGADDR, mem_mb3cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B3CR);
 	bank_reg[3] = mfdcr (SDRAM0_CFGDATA);
 	TotalSize = 0;
 	for (i = 0; i < 4; i++) {

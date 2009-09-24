@@ -103,28 +103,28 @@ phys_size_t initdram (int board_type)
 
 	tot_size = 0;
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B0CR);
 	tmp = mfdcr (SDRAM0_CFGDATA);
 	if (tmp & 0x00000001) {
 		bank_size = 0x00400000 << ((tmp >> 17) & 0x7);
 		tot_size += bank_size;
 	}
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb1cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B1CR);
 	tmp = mfdcr (SDRAM0_CFGDATA);
 	if (tmp & 0x00000001) {
 		bank_size = 0x00400000 << ((tmp >> 17) & 0x7);
 		tot_size += bank_size;
 	}
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb2cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B2CR);
 	tmp = mfdcr (SDRAM0_CFGDATA);
 	if (tmp & 0x00000001) {
 		bank_size = 0x00400000 << ((tmp >> 17) & 0x7);
 		tot_size += bank_size;
 	}
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb3cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B3CR);
 	tmp = mfdcr (SDRAM0_CFGDATA);
 	if (tmp & 0x00000001) {
 		bank_size = 0x00400000 << ((tmp >> 17) & 0x7);

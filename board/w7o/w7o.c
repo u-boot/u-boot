@@ -170,16 +170,16 @@ unsigned long get_dram_size (void)
 	int size = 0;
 
 	/* Get bank Size registers */
-	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);	/* get bank 0 config reg */
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B0CR);	/* get bank 0 config reg */
 	regs[0] = mfdcr (SDRAM0_CFGDATA);
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb1cf);	/* get bank 1 config reg */
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B1CR);	/* get bank 1 config reg */
 	regs[1] = mfdcr (SDRAM0_CFGDATA);
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb2cf);	/* get bank 2 config reg */
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B2CR);	/* get bank 2 config reg */
 	regs[2] = mfdcr (SDRAM0_CFGDATA);
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb3cf);	/* get bank 3 config reg */
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B3CR);	/* get bank 3 config reg */
 	regs[3] = mfdcr (SDRAM0_CFGDATA);
 
 	/* compute the size, add each bank if enabled */

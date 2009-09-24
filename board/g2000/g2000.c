@@ -116,16 +116,16 @@ long int init_sdram_static_settings(void)
 {
 #define mtsdram0(reg, data)  mtdcr(SDRAM0_CFGADDR,reg);mtdcr(SDRAM0_CFGDATA,data)
 	/* disable memcontroller so updates work */
-	mtsdram0( mem_mcopt1, MEM_MCOPT1_INIT_VAL );
-	mtsdram0( mem_rtr   , MEM_RTR_INIT_VAL   );
-	mtsdram0( mem_pmit  , MEM_PMIT_INIT_VAL  );
-	mtsdram0( mem_mb0cf , MEM_MB0CF_INIT_VAL );
-	mtsdram0( mem_mb1cf , MEM_MB1CF_INIT_VAL );
-	mtsdram0( mem_sdtr1 , MEM_SDTR1_INIT_VAL );
+	mtsdram0( SDRAM0_CFG, MEM_MCOPT1_INIT_VAL );
+	mtsdram0( SDRAM0_RTR   , MEM_RTR_INIT_VAL   );
+	mtsdram0( SDRAM0_PMIT  , MEM_PMIT_INIT_VAL  );
+	mtsdram0( SDRAM0_B0CR , MEM_MB0CF_INIT_VAL );
+	mtsdram0( SDRAM0_B1CR , MEM_MB1CF_INIT_VAL );
+	mtsdram0( SDRAM0_TR , MEM_SDTR1_INIT_VAL );
 
 	/* SDRAM have a power on delay,  500 micro should do */
 	udelay(500);
-	mtsdram0( mem_mcopt1, MEM_MCOPT1_INIT_VAL|SDRAM0_CFG_ENABLE );
+	mtsdram0( SDRAM0_CFG, MEM_MCOPT1_INIT_VAL|SDRAM0_CFG_ENABLE );
 
 	return (CONFIG_SYS_SDRAM_SIZE); /* CONFIG_SYS_SDRAM_SIZE is in G2000.h */
  }

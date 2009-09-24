@@ -108,24 +108,24 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	puts ("\nMemory (SDRAM) Configuration\n"
 	    "besra    besrsa   besrb    besrsb   bear     mcopt1   rtr      pmit\n");
 
-	mtdcr(SDRAM0_CFGADDR,mem_besra);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_besrsa);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_besrb);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_besrsb);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_bear);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_mcopt1);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_rtr);		printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_pmit);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_BESR0);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_BESRS0);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_BESR1);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_BESRS1);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_BEAR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_CFG);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_RTR);		printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_PMIT);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
 
 	puts ("\n"
 	    "mb0cf    mb1cf    mb2cf    mb3cf    sdtr1    ecccf    eccerr\n");
-	mtdcr(SDRAM0_CFGADDR,mem_mb0cf);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_mb1cf);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_mb2cf);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_mb3cf);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_sdtr1);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_ecccf);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_eccerr);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_B0CR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_B1CR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_B2CR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_B3CR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_TR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_ECCCFG);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_ECCESR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
 
 	printf ("\n\n"
 	    "DMA Channels\n"
@@ -195,12 +195,12 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	puts ("\nMemory (SDRAM) Configuration\n"
 	    "mcopt1   rtr      pmit     mb0cf    mb1cf    sdtr1\n");
 
-	mtdcr(SDRAM0_CFGADDR,mem_mcopt1);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_rtr);		printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_pmit);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_mb0cf);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_mb1cf);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,mem_sdtr1);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_CFG);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_RTR);		printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_PMIT);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_B0CR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_B1CR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
+	mtdcr(SDRAM0_CFGADDR,SDRAM0_TR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
 
 	printf ("\n\n"
 	    "DMA Channels\n"

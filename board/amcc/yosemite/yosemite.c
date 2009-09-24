@@ -237,7 +237,7 @@ void sdram_tr1_set(int ram_address, int* tr1_value)
 	/* go through all possible SDRAM0_TR1[RDCT] values */
 	for (i=0; i<=0x1ff; i++) {
 		/* set the current value for TR1 */
-		mtsdram(mem_tr1, (0x80800800 | i));
+		mtsdram(SDRAM0_TR1, (0x80800800 | i));
 
 		/* write values */
 		for (j=0; j<NUM_TRIES; j++) {
@@ -289,15 +289,15 @@ phys_size_t initdram(int board)
 	/*--------------------------------------------------------------------
 	 * Setup some default
 	 *------------------------------------------------------------------*/
-	mtsdram(mem_uabba, 0x00000000);	/* ubba=0 (default)             */
-	mtsdram(mem_slio, 0x00000000);	/* rdre=0 wrre=0 rarw=0         */
-	mtsdram(mem_devopt, 0x00000000);	/* dll=0 ds=0 (normal)          */
-	mtsdram(mem_clktr, 0x40000000);	/* ?? */
-	mtsdram(mem_wddctr, 0x40000000);	/* ?? */
+	mtsdram(SDRAM0_UABBA, 0x00000000);	/* ubba=0 (default)             */
+	mtsdram(SDRAM0_SLIO, 0x00000000);	/* rdre=0 wrre=0 rarw=0         */
+	mtsdram(SDRAM0_DEVOPT, 0x00000000);	/* dll=0 ds=0 (normal)          */
+	mtsdram(SDRAM0_CLKTR, 0x40000000);	/* ?? */
+	mtsdram(SDRAM0_WDDCTR, 0x40000000);	/* ?? */
 
 	/*clear this first, if the DDR is enabled by a debugger
 	  then you can not make changes. */
-	mtsdram(mem_cfg0, 0x00000000);	/* Disable EEC */
+	mtsdram(SDRAM0_CFG0, 0x00000000);	/* Disable EEC */
 
 	/*--------------------------------------------------------------------
 	 * Setup for board-specific specific mem
@@ -305,29 +305,29 @@ phys_size_t initdram(int board)
 	/*
 	 * Following for CAS Latency = 2.5 @ 133 MHz PLB
 	 */
-	mtsdram(mem_b0cr, 0x000a4001);	/* SDBA=0x000 128MB, Mode 3, enabled */
-	mtsdram(mem_b1cr, 0x080a4001);	/* SDBA=0x080 128MB, Mode 3, enabled */
+	mtsdram(SDRAM0_B0CR, 0x000a4001);	/* SDBA=0x000 128MB, Mode 3, enabled */
+	mtsdram(SDRAM0_B1CR, 0x080a4001);	/* SDBA=0x080 128MB, Mode 3, enabled */
 
-	mtsdram(mem_tr0, 0x410a4012);	/* ?? */
-	mtsdram(mem_rtr, 0x04080000);	/* ?? */
-	mtsdram(mem_cfg1, 0x00000000);	/* Self-refresh exit, disable PM    */
-	mtsdram(mem_cfg0, 0x30000000);	/* Disable EEC */
+	mtsdram(SDRAM0_TR0, 0x410a4012);	/* ?? */
+	mtsdram(SDRAM0_RTR, 0x04080000);	/* ?? */
+	mtsdram(SDRAM0_CFG1, 0x00000000);	/* Self-refresh exit, disable PM    */
+	mtsdram(SDRAM0_CFG0, 0x30000000);	/* Disable EEC */
 	udelay(400);		/* Delay 200 usecs (min)            */
 
 	/*--------------------------------------------------------------------
 	 * Enable the controller, then wait for DCEN to complete
 	 *------------------------------------------------------------------*/
-	mtsdram(mem_cfg0, 0x80000000);	/* Enable */
+	mtsdram(SDRAM0_CFG0, 0x80000000);	/* Enable */
 
 	for (;;) {
-		mfsdram(mem_mcsts, reg);
+		mfsdram(SDRAM0_MCSTS, reg);
 		if (reg & 0x80000000)
 			break;
 	}
 
 	sdram_tr1_set(0x00000000, &tr1_bank1);
 	sdram_tr1_set(0x08000000, &tr1_bank2);
-	mtsdram(mem_tr1, (((tr1_bank1+tr1_bank2)/2) | 0x80800800));
+	mtsdram(SDRAM0_TR1, (((tr1_bank1+tr1_bank2)/2) | 0x80800800));
 
 	return CONFIG_SYS_SDRAM_BANKS * (CONFIG_SYS_KBYTES_SDRAM * 1024);	/* return bytes */
 }

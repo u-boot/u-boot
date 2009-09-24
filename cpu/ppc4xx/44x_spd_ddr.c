@@ -230,7 +230,7 @@ long int spd_sdram(void) {
 	/*
 	 * program SDRAM Clock Timing Register (SDRAM0_CLKTR)
 	 */
-	mtsdram(mem_clktr, 0x40000000);
+	mtsdram(SDRAM0_CLKTR, 0x40000000);
 
 	/*
 	 * delay to ensure 200 usec has elapsed
@@ -240,14 +240,14 @@ long int spd_sdram(void) {
 	/*
 	 * enable the memory controller
 	 */
-	mfsdram(mem_cfg0, cfg0);
-	mtsdram(mem_cfg0, cfg0 | SDRAM_CFG0_DCEN);
+	mfsdram(SDRAM0_CFG0, cfg0);
+	mtsdram(SDRAM0_CFG0, cfg0 | SDRAM_CFG0_DCEN);
 
 	/*
 	 * wait for SDRAM_CFG0_DC_EN to complete
 	 */
 	while (1) {
-		mfsdram(mem_mcsts, mcsts);
+		mfsdram(SDRAM0_MCSTS, mcsts);
 		if ((mcsts & SDRAM_MCSTS_MRSC) != 0)
 			break;
 	}
@@ -386,7 +386,7 @@ static void program_cfg0(unsigned long *dimm_populated,
 	/*
 	 * get Memory Controller Options 0 data
 	 */
-	mfsdram(mem_cfg0, cfg0);
+	mfsdram(SDRAM0_CFG0, cfg0);
 
 	/*
 	 * clear bits
@@ -457,7 +457,7 @@ static void program_cfg0(unsigned long *dimm_populated,
 	 * Note: DCEN must be enabled after all DDR SDRAM controller
 	 * configuration registers get initialized.
 	 */
-	mtsdram(mem_cfg0, cfg0);
+	mtsdram(SDRAM0_CFG0, cfg0);
 }
 
 static void program_cfg1(unsigned long *dimm_populated,
@@ -465,7 +465,7 @@ static void program_cfg1(unsigned long *dimm_populated,
 			 unsigned long num_dimm_banks)
 {
 	unsigned long cfg1;
-	mfsdram(mem_cfg1, cfg1);
+	mfsdram(SDRAM0_CFG1, cfg1);
 
 	/*
 	 * Self-refresh exit, disable PM
@@ -475,7 +475,7 @@ static void program_cfg1(unsigned long *dimm_populated,
 	/*
 	 * program Memory Controller Options 1
 	 */
-	mtsdram(mem_cfg1, cfg1);
+	mtsdram(SDRAM0_CFG1, cfg1);
 }
 
 static void program_rtr(unsigned long *dimm_populated,
@@ -535,7 +535,7 @@ static void program_rtr(unsigned long *dimm_populated,
 	/*
 	 * program Refresh Timer Register (SDRAM0_RTR)
 	 */
-	mtsdram(mem_rtr, sdram_rtr);
+	mtsdram(SDRAM0_RTR, sdram_rtr);
 }
 
 static void program_tr0(unsigned long *dimm_populated,
@@ -576,7 +576,7 @@ static void program_tr0(unsigned long *dimm_populated,
 	/*
 	 * get SDRAM Timing Register 0 (SDRAM_TR0) and clear bits
 	 */
-	mfsdram(mem_tr0, tr0);
+	mfsdram(SDRAM0_TR0, tr0);
 	tr0 &= ~(SDRAM_TR0_SDWR_MASK | SDRAM_TR0_SDWD_MASK |
 		 SDRAM_TR0_SDCL_MASK | SDRAM_TR0_SDPA_MASK |
 		 SDRAM_TR0_SDCP_MASK | SDRAM_TR0_SDLD_MASK |
@@ -821,7 +821,7 @@ static void program_tr0(unsigned long *dimm_populated,
 	}
 
 	debug("tr0: %x\n", tr0);
-	mtsdram(mem_tr0, tr0);
+	mtsdram(SDRAM0_TR0, tr0);
 }
 
 static int short_mem_test(void)
@@ -848,7 +848,7 @@ static int short_mem_test(void)
 		 0x55AA55AA, 0x55AA55AA, 0xAA55AA55, 0xAA55AA55}};
 
 	for (bxcr_num = 0; bxcr_num < MAXBXCR; bxcr_num++) {
-		mtdcr(SDRAM0_CFGADDR, mem_b0cr + (bxcr_num << 2));
+		mtdcr(SDRAM0_CFGADDR, SDRAM0_B0CR + (bxcr_num << 2));
 		if ((mfdcr(SDRAM0_CFGDATA) & SDRAM_BXCR_SDBE) == SDRAM_BXCR_SDBE) {
 			/* Bank is enabled */
 			membase = (unsigned long*)
@@ -918,11 +918,11 @@ static void program_tr1(void)
 	/*
 	 * get SDRAM Timing Register 0 (SDRAM_TR0) and clear bits
 	 */
-	mfsdram(mem_tr1, tr1);
+	mfsdram(SDRAM0_TR1, tr1);
 	tr1 &= ~(SDRAM_TR1_RDSS_MASK | SDRAM_TR1_RDSL_MASK |
 		 SDRAM_TR1_RDCD_MASK | SDRAM_TR1_RDCT_MASK);
 
-	mfsdram(mem_tr0, tr0);
+	mfsdram(SDRAM0_TR0, tr0);
 	if (((tr0 & SDRAM_TR0_SDCL_MASK) == SDRAM_TR0_SDCL_2_5_CLK) &&
 	    (sys_info.freqPLB > 100000000)) {
 		tr1 |= SDRAM_TR1_RDSS_TR2;
@@ -937,14 +937,14 @@ static void program_tr1(void)
 	/*
 	 * save CFG0 ECC setting to a temporary variable and turn ECC off
 	 */
-	mfsdram(mem_cfg0, cfg0);
+	mfsdram(SDRAM0_CFG0, cfg0);
 	ecc_temp = cfg0 & SDRAM_CFG0_MCHK_MASK;
-	mtsdram(mem_cfg0, (cfg0 & ~SDRAM_CFG0_MCHK_MASK) | SDRAM_CFG0_MCHK_NON);
+	mtsdram(SDRAM0_CFG0, (cfg0 & ~SDRAM_CFG0_MCHK_MASK) | SDRAM_CFG0_MCHK_NON);
 
 	/*
 	 * get the delay line calibration register value
 	 */
-	mfsdram(mem_dlycal, dlycal);
+	mfsdram(SDRAM0_DLYCAL, dlycal);
 	dly_val = SDRAM_DLYCAL_DLCV_DECODE(dlycal) << 2;
 
 	max_pass_length = 0;
@@ -964,7 +964,7 @@ static void program_tr1(void)
 			/*
 			 * Set the timing reg for the test.
 			 */
-			mtsdram(mem_tr1, (tr1 | SDRAM_TR1_RDCT_ENCODE(rdclt)));
+			mtsdram(SDRAM0_TR1, (tr1 | SDRAM_TR1_RDCT_ENCODE(rdclt)));
 
 			if (short_mem_test()) {
 				if (fail_found == TRUE) {
@@ -1018,7 +1018,7 @@ static void program_tr1(void)
 	/*
 	 * restore the orignal ECC setting
 	 */
-	mtsdram(mem_cfg0, (cfg0 & ~SDRAM_CFG0_MCHK_MASK) | ecc_temp);
+	mtsdram(SDRAM0_CFG0, (cfg0 & ~SDRAM_CFG0_MCHK_MASK) | ecc_temp);
 
 	/*
 	 * set the SDRAM TR1 RDCD value
@@ -1056,7 +1056,7 @@ static void program_tr1(void)
 	/*
 	 * program SDRAM Timing Register 1 TR1
 	 */
-	mtsdram(mem_tr1, tr1);
+	mtsdram(SDRAM0_TR1, tr1);
 }
 
 static unsigned long program_bxcr(unsigned long *dimm_populated,
@@ -1086,7 +1086,7 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 	 * Set the BxCR regs.  First, wipe out the bank config registers.
 	 */
 	for (bx_cr_num = 0; bx_cr_num < MAXBXCR; bx_cr_num++) {
-		mtdcr(SDRAM0_CFGADDR, mem_b0cr + (bx_cr_num << 2));
+		mtdcr(SDRAM0_CFGADDR, SDRAM0_B0CR + (bx_cr_num << 2));
 		mtdcr(SDRAM0_CFGDATA, 0x00000000);
 		bank_parms[bx_cr_num].bank_size_bytes = 0;
 	}
@@ -1232,7 +1232,7 @@ static unsigned long program_bxcr(unsigned long *dimm_populated,
 	/* Set the SDRAM0_BxCR regs thanks to sort tables */
 	for (bx_cr_num = 0, bank_base_addr = 0; bx_cr_num < MAXBXCR; bx_cr_num++) {
 		if (bank_parms[sorted_bank_num[bx_cr_num]].bank_size_bytes) {
-			mtdcr(SDRAM0_CFGADDR, mem_b0cr + (sorted_bank_num[bx_cr_num] << 2));
+			mtdcr(SDRAM0_CFGADDR, SDRAM0_B0CR + (sorted_bank_num[bx_cr_num] << 2));
 			temp = mfdcr(SDRAM0_CFGDATA) & ~(SDRAM_BXCR_SDBA_MASK | SDRAM_BXCR_SDSZ_MASK |
 						  SDRAM_BXCR_SDAM_MASK | SDRAM_BXCR_SDBE);
 			temp = temp | (bank_base_addr & SDRAM_BXCR_SDBA_MASK) |

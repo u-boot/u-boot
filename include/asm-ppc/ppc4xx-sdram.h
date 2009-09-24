@@ -30,32 +30,27 @@
  * SDRAM Controller
  */
 
-/*
- * XXX - ToDo: Revisit file to change all these lower case defines into
- * upper case. Also needs to be done in the controller setup code too
- * of course. sr, 2008-06-02
- */
 #ifndef CONFIG_405EP
-#define mem_besra	0x00	/* bus error syndrome reg a		*/
-#define mem_besrsa	0x04	/* bus error syndrome reg set a		*/
-#define mem_besrb	0x08	/* bus error syndrome reg b		*/
-#define mem_besrsb	0x0c	/* bus error syndrome reg set b		*/
-#define mem_bear	0x10	/* bus error address reg		*/
+#define SDRAM0_BESR0	0x00	/* bus error syndrome reg a		*/
+#define SDRAM0_BESRS0	0x04	/* bus error syndrome reg set a		*/
+#define SDRAM0_BESR1	0x08	/* bus error syndrome reg b		*/
+#define SDRAM0_BESRS1	0x0c	/* bus error syndrome reg set b		*/
+#define SDRAM0_BEAR	0x10	/* bus error address reg		*/
 #endif
-#define mem_mcopt1	0x20	/* memory controller options 1		*/
-#define mem_status	0x24	/* memory status			*/
-#define mem_rtr		0x30	/* refresh timer reg			*/
-#define mem_pmit	0x34	/* power management idle timer		*/
-#define mem_mb0cf	0x40	/* memory bank 0 configuration		*/
-#define mem_mb1cf	0x44	/* memory bank 1 configuration		*/
+#define SDRAM0_CFG	0x20	/* memory controller options 1		*/
+#define SDRAM0_STATUS	0x24	/* memory status			*/
+#define SDRAM0_RTR	0x30	/* refresh timer reg			*/
+#define SDRAM0_PMIT	0x34	/* power management idle timer		*/
+#define SDRAM0_B0CR	0x40	/* memory bank 0 configuration		*/
+#define SDRAM0_B1CR	0x44	/* memory bank 1 configuration		*/
 #ifndef CONFIG_405EP
-#define mem_mb2cf	0x48	/* memory bank 2 configuration		*/
-#define mem_mb3cf	0x4c	/* memory bank 3 configuration		*/
+#define SDRAM0_B2CR	0x48	/* memory bank 2 configuration		*/
+#define SDRAM0_B3CR	0x4c	/* memory bank 3 configuration		*/
 #endif
-#define mem_sdtr1	0x80	/* timing reg 1				*/
+#define SDRAM0_TR	0x80	/* timing reg 1				*/
 #ifndef CONFIG_405EP
-#define mem_ecccf	0x94	/* ECC configuration			*/
-#define mem_eccerr	0x98	/* ECC error status			*/
+#define SDRAM0_ECCCFG	0x94	/* ECC configuration			*/
+#define SDRAM0_ECCESR	0x98	/* ECC error status			*/
 #endif
 
 #endif /* CONFIG_SDRAM_PPC4xx_IBM_SDRAM */
@@ -68,36 +63,25 @@
 #define SDRAM_CFG0	0x20	/* memory controller options 0		*/
 #define SDRAM_CFG1	0x21	/* memory controller options 1		*/
 
-/*
- * XXX - ToDo: Revisit file to change all these lower case defines into
- * upper case. Also needs to be done in the controller setup code too
- * of course. sr, 2008-06-02
- */
-#define mem_besr0_clr	0x0000	/* bus error status reg 0 (clr)		*/
-#define mem_besr0_set	0x0004	/* bus error status reg 0 (set)		*/
-#define mem_besr1_clr	0x0008	/* bus error status reg 1 (clr)		*/
-#define mem_besr1_set	0x000c	/* bus error status reg 1 (set)		*/
-#define mem_bear	0x0010	/* bus error address reg		*/
-#define mem_mirq_clr	0x0011	/* bus master interrupt (clr)		*/
-#define mem_mirq_set	0x0012	/* bus master interrupt (set)		*/
-#define mem_slio	0x0018	/* ddr sdram slave interface options	*/
-#define mem_cfg0	0x0020	/* ddr sdram options 0			*/
-#define mem_cfg1	0x0021	/* ddr sdram options 1			*/
-#define mem_devopt	0x0022	/* ddr sdram device options		*/
-#define mem_mcsts	0x0024	/* memory controller status		*/
-#define mem_rtr		0x0030	/* refresh timer register		*/
-#define mem_pmit	0x0034	/* power management idle timer		*/
-#define mem_uabba	0x0038	/* plb UABus base address		*/
-#define mem_b0cr	0x0040	/* ddr sdram bank 0 configuration	*/
-#define mem_b1cr	0x0044	/* ddr sdram bank 1 configuration	*/
-#define mem_b2cr	0x0048	/* ddr sdram bank 2 configuration	*/
-#define mem_b3cr	0x004c	/* ddr sdram bank 3 configuration	*/
-#define mem_tr0		0x0080	/* sdram timing register 0		*/
-#define mem_tr1		0x0081	/* sdram timing register 1		*/
-#define mem_clktr	0x0082	/* ddr clock timing register		*/
-#define mem_wddctr	0x0083	/* write data/dm/dqs clock timing reg	*/
-#define mem_dlycal	0x0084	/* delay line calibration register	*/
-#define mem_eccesr	0x0098	/* ECC error status			*/
+#define SDRAM0_BEAR	0x0010	/* bus error address reg		*/
+#define SDRAM0_SLIO	0x0018	/* ddr sdram slave interface options	*/
+#define SDRAM0_CFG0	0x0020	/* ddr sdram options 0			*/
+#define SDRAM0_CFG1	0x0021	/* ddr sdram options 1			*/
+#define SDRAM0_DEVOPT	0x0022	/* ddr sdram device options		*/
+#define SDRAM0_MCSTS	0x0024	/* memory controller status		*/
+#define SDRAM0_RTR	0x0030	/* refresh timer register		*/
+#define SDRAM0_PMIT	0x0034	/* power management idle timer		*/
+#define SDRAM0_UABBA	0x0038	/* plb UABus base address		*/
+#define SDRAM0_B0CR	0x0040	/* ddr sdram bank 0 configuration	*/
+#define SDRAM0_B1CR	0x0044	/* ddr sdram bank 1 configuration	*/
+#define SDRAM0_B2CR	0x0048	/* ddr sdram bank 2 configuration	*/
+#define SDRAM0_B3CR	0x004c	/* ddr sdram bank 3 configuration	*/
+#define SDRAM0_TR0	0x0080	/* sdram timing register 0		*/
+#define SDRAM0_TR1	0x0081	/* sdram timing register 1		*/
+#define SDRAM0_CLKTR	0x0082	/* ddr clock timing register		*/
+#define SDRAM0_WDDCTR	0x0083	/* write data/dm/dqs clock timing reg	*/
+#define SDRAM0_DLYCAL	0x0084	/* delay line calibration register	*/
+#define SDRAM0_ECCESR	0x0098	/* ECC error status			*/
 
 /*
  * Memory Controller Options 0

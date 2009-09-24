@@ -348,7 +348,7 @@ int init_sdram (void)
 	/* trc_clocks is sum of trp_clocks + tras_clocks */
 	trc_clocks = trp_clocks + tras_clocks;
 	/* get SDRAM timing register */
-	mtdcr (SDRAM0_CFGADDR, mem_sdtr1);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_TR);
 	sdram_tim = mfdcr (SDRAM0_CFGDATA) & ~0x018FC01F;
 	/* insert CASL value */
 	sdram_tim |= ((unsigned long) (cal_val)) << 23;
@@ -369,7 +369,7 @@ int init_sdram (void)
 	/* insert SZ value; */
 	tmp |= ((unsigned long) sdram_table[i].sz << 17);
 	/* get SDRAM bank 0 register */
-	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B0CR);
 	sdram_bank = mfdcr (SDRAM0_CFGDATA) & ~0xFFCEE001;
 	sdram_bank |= (baseaddr | tmp | 0x01);
 
@@ -380,7 +380,7 @@ int init_sdram (void)
 #endif
 
 	/* write SDRAM timing register */
-	mtdcr (SDRAM0_CFGADDR, mem_sdtr1);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_TR);
 	mtdcr (SDRAM0_CFGDATA, sdram_tim);
 
 #ifdef SDRAM_DEBUG
@@ -390,22 +390,22 @@ int init_sdram (void)
 #endif
 
 	/* write SDRAM bank 0 register */
-	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B0CR);
 	mtdcr (SDRAM0_CFGDATA, sdram_bank);
 
 	if (get_bus_freq (tmp) > 110000000) {	/* > 110MHz */
 		/* get SDRAM refresh interval register */
-		mtdcr (SDRAM0_CFGADDR, mem_rtr);
+		mtdcr (SDRAM0_CFGADDR, SDRAM0_RTR);
 		tmp = mfdcr (SDRAM0_CFGDATA) & ~0x3FF80000;
 		tmp |= 0x07F00000;
 	} else {
 		/* get SDRAM refresh interval register */
-		mtdcr (SDRAM0_CFGADDR, mem_rtr);
+		mtdcr (SDRAM0_CFGADDR, SDRAM0_RTR);
 		tmp = mfdcr (SDRAM0_CFGDATA) & ~0x3FF80000;
 		tmp |= 0x05F00000;
 	}
 	/* write SDRAM refresh interval register */
-	mtdcr (SDRAM0_CFGADDR, mem_rtr);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_RTR);
 	mtdcr (SDRAM0_CFGDATA, tmp);
 	/* enable ECC if used */
 #if defined(ENABLE_ECC) && !defined(CONFIG_BOOT_PCI)
@@ -415,18 +415,18 @@ int init_sdram (void)
 #ifdef SDRAM_DEBUG
 		serial_puts ("disable ECC.. ");
 #endif
-		mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+		mtdcr (SDRAM0_CFGADDR, SDRAM0_ECCCFG);
 		tmp = mfdcr (SDRAM0_CFGDATA);
 		tmp &= 0xff0fffff;		/* disable all banks */
-		mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+		mtdcr (SDRAM0_CFGADDR, SDRAM0_ECCCFG);
 		/* set up SDRAM Controller with ECC enabled */
 #ifdef SDRAM_DEBUG
 		serial_puts ("setup SDRAM Controller.. ");
 #endif
 		mtdcr (SDRAM0_CFGDATA, tmp);
-		mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+		mtdcr (SDRAM0_CFGADDR, SDRAM0_CFG);
 		tmp = (mfdcr (SDRAM0_CFGDATA) & ~0xFFE00000) | 0x90800000;
-		mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+		mtdcr (SDRAM0_CFGADDR, SDRAM0_CFG);
 		mtdcr (SDRAM0_CFGDATA, tmp);
 		udelay (600);
 #ifdef SDRAM_DEBUG
@@ -447,7 +447,7 @@ int init_sdram (void)
 		serial_puts ("enable ECC\n");
 #endif
 		udelay (400);
-		mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+		mtdcr (SDRAM0_CFGADDR, SDRAM0_ECCCFG);
 		tmp = mfdcr (SDRAM0_CFGDATA);
 		tmp |= 0x00800000;		/* enable bank 0 */
 		mtdcr (SDRAM0_CFGDATA, tmp);
@@ -456,9 +456,9 @@ int init_sdram (void)
 #endif
 	{
 		/* enable SDRAM controller with no ECC, 32-bit SDRAM width, 16 byte burst */
-		mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+		mtdcr (SDRAM0_CFGADDR, SDRAM0_CFG);
 		tmp = (mfdcr (SDRAM0_CFGDATA) & ~0xFFE00000) | 0x80C00000;
-		mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+		mtdcr (SDRAM0_CFGADDR, SDRAM0_CFG);
 		mtdcr (SDRAM0_CFGDATA, tmp);
 		udelay (400);
 	}
@@ -631,13 +631,13 @@ phys_size_t initdram (int board_type)
 	ds = 0;
 	/* since the DRAM controller is allready set up, calculate the size with the
 	   bank registers    */
-	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B0CR);
 	bank_reg[0] = mfdcr (SDRAM0_CFGDATA);
-	mtdcr (SDRAM0_CFGADDR, mem_mb1cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B1CR);
 	bank_reg[1] = mfdcr (SDRAM0_CFGDATA);
-	mtdcr (SDRAM0_CFGADDR, mem_mb2cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B2CR);
 	bank_reg[2] = mfdcr (SDRAM0_CFGDATA);
-	mtdcr (SDRAM0_CFGADDR, mem_mb3cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B3CR);
 	bank_reg[3] = mfdcr (SDRAM0_CFGDATA);
 	TotalSize = 0;
 	for (i = 0; i < 4; i++) {
@@ -648,7 +648,7 @@ phys_size_t initdram (int board_type)
 		} else
 			ds = 1;
 	}
-	mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_ECCCFG);
 	tmp = mfdcr (SDRAM0_CFGDATA);
 
 	if (!tmp)

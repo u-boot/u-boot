@@ -182,7 +182,7 @@ sdram_init:
 	 * Disable memory controller to allow
 	 * values to be changed.
 	 */
-	addi    r3, 0, mem_mcopt1
+	addi    r3, 0, SDRAM0_CFG
 	mtdcr   SDRAM0_CFGADDR, r3
 	addis   r4, 0, 0x0
 	ori     r4, r4, 0x0
@@ -192,7 +192,7 @@ sdram_init:
 	 * Set MB0CF for ext bank 0. (0-4MB) Address Mode 5 since 11x8x2
 	 * All other banks are disabled.
 	 */
-	addi	r3, 0, mem_mb0cf
+	addi	r3, 0, SDRAM0_B0CR
 	mtdcr	SDRAM0_CFGADDR, r3
 	addis	r4, 0, 0x0000		/* BA=0x0, SZ=4MB */
 	ori	r4, r4, 0x8001		/* Mode is 5, 11x8x2or4, BE=Enabled */
@@ -222,7 +222,7 @@ sdram_init:
 	/*
 	 * Set up SDTR1
 	 */
-	addi    r3, 0, mem_sdtr1
+	addi    r3, 0, SDRAM0_TR
 	mtdcr   SDRAM0_CFGADDR, r3
 	addis   r4, 0, 0x0086		/* SDTR1 value for 100Mhz */
 	ori     r4, r4, 0x400D
@@ -231,7 +231,7 @@ sdram_init:
 	/*
 	 * Set RTR
 	 */
-	addi    r3, 0, mem_rtr
+	addi    r3, 0, SDRAM0_RTR
 	mtdcr   SDRAM0_CFGADDR, r3
 	addis   r4, 0, 0x05F0		/* RTR refresh val = 15.625ms@100Mhz */
 	mtdcr   SDRAM0_CFGDATA, r4
@@ -250,7 +250,7 @@ sdram_init:
 	/********************************************************************
 	 * Set memory controller options reg, MCOPT1.
 	 *******************************************************************/
-	addi    r3, 0, mem_mcopt1
+	addi    r3, 0, SDRAM0_CFG
 	mtdcr   SDRAM0_CFGADDR, r3
 	addis   r4, 0, 0x80E0		/* DC_EN=1,SRE=0,PME=0,MEMCHK=0 */
 	ori     r4, r4, 0x0000		/* REGEN=0,DRW=00,BRPF=01,ECCDD=1 */
