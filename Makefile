@@ -2448,9 +2448,7 @@ ATUM8548_config:	unconfig
 
 MPC8536DS_36BIT_config \
 MPC8536DS_config:       unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_$(@:_config=) 1"	>$(obj)include/config.h
-	@$(MKCONFIG) -a MPC8536DS ppc mpc85xx mpc8536ds freescale
+	@$(MKCONFIG) -t $(@:_config=) MPC8536DS ppc mpc85xx mpc8536ds freescale
 
 MPC8540ADS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8540ads freescale
@@ -2516,41 +2514,17 @@ MPC8569MDS_config:	unconfig
 
 MPC8572DS_36BIT_config \
 MPC8572DS_config:       unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _36BIT_,$@)" ] ; then \
-		echo "#define CONFIG_PHYS_64BIT" >>$(obj)include/config.h ; \
-		$(XECHO) "... enabling 36-bit physical addressing." ; \
-	fi
-	@$(MKCONFIG) -a MPC8572DS ppc mpc85xx mpc8572ds freescale
+	@$(MKCONFIG) -t $(@:_config=) MPC8572DS ppc mpc85xx mpc8572ds freescale
 
 P2020DS_36BIT_config \
 P2020DS_config:		unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _36BIT_,$@)" ] ; then \
-		echo "#define CONFIG_PHYS_64BIT" >>$(obj)include/config.h ; \
-		$(XECHO) "... enabling 36-bit physical addressing." ; \
-	fi
-	@$(MKCONFIG) -a P2020DS ppc mpc85xx p2020ds freescale
+	@$(MKCONFIG) -t $(@:_config=) P2020DS ppc mpc85xx p2020ds freescale
 
-P1011RDB_config:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_P1011" >>$(obj)include/config.h ;
-	@$(MKCONFIG) -a P1_P2_RDB  ppc mpc85xx p1_p2_rdb freescale
-
-P1020RDB_config:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_P1020" >>$(obj)include/config.h ;
-	@$(MKCONFIG) -a P1_P2_RDB  ppc mpc85xx p1_p2_rdb freescale
-
-P2010RDB_config:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_P2010" >>$(obj)include/config.h ;
-	@$(MKCONFIG) -a P1_P2_RDB  ppc mpc85xx p1_p2_rdb freescale
-
+P1011RDB_config	\
+P1020RDB_config	\
+P2010RDB_config \
 P2020RDB_config:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_P2020" >>$(obj)include/config.h ;
-	@$(MKCONFIG) -a P1_P2_RDB  ppc mpc85xx p1_p2_rdb freescale
+	@$(MKCONFIG) -t $(@:_config=) P1_P2_RDB ppc mpc85xx p1_p2_rdb freescale
 
 PM854_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx pm854
@@ -2561,29 +2535,19 @@ PM856_config:	unconfig
 sbc8540_config \
 sbc8540_33_config \
 sbc8540_66_config:	unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _66_,$@)" ] ; then \
-		echo "#define CONFIG_PCI_66"	>>$(obj)include/config.h ; \
-		$(XECHO) "... 66 MHz PCI" ; \
-	else \
-		$(XECHO) "... 33 MHz PCI" ; \
-	fi
-	@$(MKCONFIG) -a SBC8540 ppc mpc85xx sbc8560
+	@$(MKCONFIG) -t $(@:_config=) SBC8540 ppc mpc85xx sbc8560
 
-sbc8548_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx sbc8548
+sbc8548_config \
+sbc8548_PCI_33_config \
+sbc8548_PCI_66_config \
+sbc8548_PCI_33_PCIE_config \
+sbc8548_PCI_66_PCIE_config: unconfig
+	@$(MKCONFIG) -t $(@:_config=) sbc8548 ppc mpc85xx sbc8548
 
 sbc8560_config \
 sbc8560_33_config \
 sbc8560_66_config:	unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _66_,$@)" ] ; then \
-		echo "#define CONFIG_PCI_66"	>>$(obj)include/config.h ; \
-		$(XECHO) "... 66 MHz PCI" ; \
-	else \
-		$(XECHO) "... 33 MHz PCI" ; \
-	fi
-	@$(MKCONFIG) -a sbc8560 ppc mpc85xx sbc8560
+	@$(MKCONFIG) -t $(@:_config=) sbc8560 ppc mpc85xx sbc8560
 
 socrates_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx socrates

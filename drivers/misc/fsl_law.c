@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2009 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -29,7 +29,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define LAWAR_EN	0x80000000
 /* number of LAWs in the hw implementation */
 #if defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
     defined(CONFIG_MPC8560) || defined(CONFIG_MPC8555)
@@ -42,10 +41,62 @@ DECLARE_GLOBAL_DATA_PTR;
       defined(CONFIG_P1011) || defined(CONFIG_P1020) || \
       defined(CONFIG_P2010) || defined(CONFIG_P2020)
 #define FSL_HW_NUM_LAWS 12
+#elif defined(CONFIG_PPC_P4080)
+#define FSL_HW_NUM_LAWS 32
 #else
 #error FSL_HW_NUM_LAWS not defined for this platform
 #endif
 
+#ifdef CONFIG_FSL_CORENET
+void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
+{
+	volatile ccsr_local_t *ccm = (void *)(CONFIG_SYS_FSL_CORENET_CCM_ADDR);
+
+	gd->used_laws |= (1 << idx);
+
+	out_be32(&ccm->law[idx].lawar, 0);
+	out_be32(&ccm->law[idx].lawbarh, ((u64)addr >> 32));
+	out_be32(&ccm->law[idx].lawbarl, addr & 0xffffffff);
+	out_be32(&ccm->law[idx].lawar, LAW_EN | ((u32)id << 20) | (u32)sz);
+
+	/* Read back so that we sync the writes */
+	in_be32(&ccm->law[idx].lawar);
+}
+
+void disable_law(u8 idx)
+{
+	volatile ccsr_local_t *ccm = (void *)(CONFIG_SYS_FSL_CORENET_CCM_ADDR);
+
+	gd->used_laws &= ~(1 << idx);
+
+	out_be32(&ccm->law[idx].lawar, 0);
+	out_be32(&ccm->law[idx].lawbarh, 0);
+	out_be32(&ccm->law[idx].lawbarl, 0);
+
+	/* Read back so that we sync the writes */
+	in_be32(&ccm->law[idx].lawar);
+
+	return;
+}
+
+static int get_law_entry(u8 i, struct law_entry *e)
+{
+	volatile ccsr_local_t *ccm = (void *)(CONFIG_SYS_FSL_CORENET_CCM_ADDR);
+	u32 lawar;
+
+	lawar = in_be32(&ccm->law[i].lawar);
+
+	if (!(lawar & LAW_EN))
+		return 0;
+
+	e->addr = ((u64)in_be32(&ccm->law[i].lawbarh) << 32) |
+			in_be32(&ccm->law[i].lawbarl);
+	e->size = lawar & 0x3f;
+	e->trgt_id = (lawar >> 20) & 0xff;
+
+	return 1;
+}
+#else
 void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 {
 	volatile u32 *base = (volatile u32 *)(CONFIG_SYS_IMMR + 0xc08);
@@ -56,11 +107,48 @@ void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 
 	out_be32(lawar, 0);
 	out_be32(lawbar, addr >> 12);
-	out_be32(lawar, LAWAR_EN | ((u32)id << 20) | (u32)sz);
+	out_be32(lawar, LAW_EN | ((u32)id << 20) | (u32)sz);
 
 	/* Read back so that we sync the writes */
 	in_be32(lawar);
 }
+
+void disable_law(u8 idx)
+{
+	volatile u32 *base = (volatile u32 *)(CONFIG_SYS_IMMR + 0xc08);
+	volatile u32 *lawbar = base + 8 * idx;
+	volatile u32 *lawar = base + 8 * idx + 2;
+
+	gd->used_laws &= ~(1 << idx);
+
+	out_be32(lawar, 0);
+	out_be32(lawbar, 0);
+
+	/* Read back so that we sync the writes */
+	in_be32(lawar);
+
+	return;
+}
+
+static int get_law_entry(u8 i, struct law_entry *e)
+{
+	volatile u32 *base = (volatile u32 *)(CONFIG_SYS_IMMR + 0xc08);
+	volatile u32 *lawbar = base + 8 * i;
+	volatile u32 *lawar = base + 8 * i + 2;
+	u32 temp;
+
+	temp = in_be32(lawar);
+
+	if (!(temp & LAW_EN))
+		return 0;
+
+	e->addr = (u64)in_be32(lawbar) << 12;
+	e->size = temp & 0x3f;
+	e->trgt_id = (temp >> 20) & 0xff;
+
+	return 1;
+}
+#endif
 
 int set_next_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 {
@@ -94,18 +182,30 @@ int set_last_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 	return idx;
 }
 
-void disable_law(u8 idx)
+struct law_entry find_law(phys_addr_t addr)
 {
-	volatile u32 *base = (volatile u32 *)(CONFIG_SYS_IMMR + 0xc08);
-	volatile u32 *lawbar = base + 8 * idx;
-	volatile u32 *lawar = base + 8 * idx + 2;
+	struct law_entry entry;
+	int i;
 
-	gd->used_laws &= ~(1 << idx);
+	entry.index = -1;
+	entry.addr = 0;
+	entry.size = 0;
+	entry.trgt_id = 0;
 
-	out_be32(lawar, 0);
-	out_be32(lawbar, 0);
+	for (i = 0; i < FSL_HW_NUM_LAWS; i++) {
+		u64 upper;
 
-	return;
+		if (!get_law_entry(i, &entry))
+			continue;
+
+		upper = entry.addr + (2ull << entry.size);
+		if ((addr >= entry.addr) && (addr < upper)) {
+			entry.index = i;
+			break;
+		}
+	}
+
+	return entry;
 }
 
 void print_laws(void)
@@ -173,7 +273,13 @@ void init_laws(void)
 {
 	int i;
 
+#if FSL_HW_NUM_LAWS < 32
 	gd->used_laws = ~((1 << FSL_HW_NUM_LAWS) - 1);
+#elif FSL_HW_NUM_LAWS == 32
+	gd->used_laws = 0;
+#else
+#error FSL_HW_NUM_LAWS can not be greater than 32 w/o code changes
+#endif
 
 	for (i = 0; i < num_law_entries; i++) {
 		if (law_table[i].index == -1)

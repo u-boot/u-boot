@@ -27,7 +27,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_MPC8536DS_36BIT
+#ifdef CONFIG_MK_36BIT
 #define CONFIG_PHYS_64BIT	1
 #endif
 

@@ -1,27 +1,176 @@
-Wind River SBC8548 reference board
-===========================
+Intro:
+======
 
-Copyright 2007, Embedded Specialties, Inc.
-Copyright 2007 Wind River Systemes, Inc.
------------------------------
+The SBC8548 is a stand alone single board computer with a 1GHz
+MPC8548 CPU, 8MB boot flash, 64MB user flash and, 256MB DDR2 400MHz
+memory. It also has 128MB SDRAM 100MHz LBC memory, with both a PCI-e,
+and a PCI-X slot, dual mini-DB9 for UART, and dual RJ-45 for eTSEC
+ethernet connections.
 
-1. Building U-Boot
-------------------
-The SBC8548 code is known to build using ELDK 4.1.
+U-boot Configuration:
+=====================
 
-    $ make sbc8548_config
-    Configuring for sbc8548 board...
+The following possible u-boot configuration targets are available:
 
-    $ make
+	1) sbc8548_config
+	2) sbc8548_PCI_33_config
+	3) sbc8548_PCI_66_config
+	4) sbc8548_PCI_33_PCIE_config
+	5) sbc8548_PCI_66_PCIE_config
+
+Generally speaking, most people should choose to use #5.  Details
+of each choice are listed below.
+
+Choice #1 does not enable CONFIG_PCI, and assumes that the PCI slot
+will be left empty (M66EN high), and so the board will operate with
+a base clock of 66MHz.  Note that you need both PCI enabled in u-boot
+and linux in order to have functional PCI under linux.
+
+The second enables PCI support and builds for a 33MHz clock rate.  Note
+that if a 33MHz 32bit card is inserted in the slot, then the whole board
+will clock down to a 33MHz base clock instead of the default 66MHz.  This
+will change the baud clocks and mess up your serial console output if you
+were previously running at 66MHz.  If you want to use a 33MHz PCI card,
+then you should build a U-Boot with a _PCI_33_ config and store this
+to flash prior to powering down the board and inserting the 33MHz PCI
+card. [The above discussion assumes that the SW2[1-4] has not been changed
+to reflect a different CCB:SYSCLK ratio]
+
+The third option builds PCI support in, and leaves the clocking at the
+default 66MHz.  Options four and five are just repeats of option two
+and three, but with PCI-e support enabled as well.
+
+PCI output listing with an intel e1000 PCI-x and a Syskonnect SK-9Exx
+is shown below for sbc8548_PCI_66_PCIE_config.  (Note that PCI-e with
+a 33MHz PCI configuration is currently untested.)
+
+    => pci 0
+    Scanning PCI devices on bus 0
+    BusDevFun  VendorId   DeviceId   Device Class       Sub-Class
+    _____________________________________________________________
+    00.00.00   0x1057     0x0012     Processor               0x20
+    00.01.00   0x8086     0x1026     Network controller      0x00
+    => pci 1
+    Scanning PCI devices on bus 1
+    BusDevFun  VendorId   DeviceId   Device Class       Sub-Class
+    _____________________________________________________________
+    01.00.00   0x1957     0x0012     Processor               0x20
+    => pci 2
+    Scanning PCI devices on bus 2
+    BusDevFun  VendorId   DeviceId   Device Class       Sub-Class
+    _____________________________________________________________
+    02.00.00   0x1148     0x9e00     Network controller      0x00
+    =>
 
 
-2. Switch and Jumper Settings
------------------------------
-All Jumpers & Switches are in their default positions.  Please refer to
-the board documentation for details.  Some settings control CPU voltages
-and settings may change with board revisions.
+Hardware Reference:
+===================
 
-3. Known limitations
---------------------
-PCI:
-	The code to support PCI is currently disabled and has not been verified.
+The following contains some summary information on hardware settings
+that are relevant to u-boot, based on the board manual.  For the
+most up to date and complete details of the board, please request the
+reference manual ERG-00327-001.pdf from www.windriver.com
+
+Boot flash:
+	intel V28F640Jx, 8192x8 (one device) at 0xff80_0000
+
+Sodimm flash:
+	intel V28F128Jx, 16384x8 (4 devices) at 0xfb80_0000
+
+
+	Jumpers:
+
+Jumper		Name		ON		OFF
+----------------------------------------------------------------
+JP12		CS0/CS6 swap	see note[*]	see note[*]
+
+JP13		SODIMM flash	write OK	writes disabled
+		write prot.
+
+JP14		HRESET/TRST	joined		isolated
+
+JP15		PWR ON		when AC pwr	use S1 for on/off
+
+JP16		Demo LEDs	lit		not lit
+
+JP19		PCI mode	PCI		PCI-X
+
+
+[*]JP12, when jumpered parallel to the SODIMM, puts the boot flash
+onto /CS0 and the SODIMM flash on /CS6 (default).  When JP12
+is jumpered parallel to the LBC-SDRAM, then /CS0 is for the
+SODIMM flash and /CS6 is for the boot flash.  Note that in this
+alternate setting, you also need to switch SW2.8 to ON.  Currently
+u-boot doesn't support booting off the SODIMM in this alternate
+setting without manually altering BR0/OR0 and BR6/OR6 in the
+board config file appropriately.
+
+
+	Switches:
+
+The defaults are marked with a *
+
+Name		Desc.			ON		OFF
+------------------------------------------------------------------
+S1		Pwr toggle		n/a		n/a
+
+SW2.1		CFG_SYS_PLL0		1		0*
+SW2.2		CFG_SYS_PLL1		1*		0
+SW2.3		CFG_SYS_PLL2		1*		0
+SW2.4		CFG_SYS_PLL3		1		0*
+SW2.5		CFG_CORE_PLL0		1*		0
+SW2.6		CFG_CORE_PLL1		1		0*
+SW2.7		CFG_CORE_PLL2		1*		0
+SW2.8		CFG_ROM_LOC1		1		0*
+
+SW3.1		CFG_HOST_AGT0		1*		0
+SW3.2		CFG_HOST_AGT1		1*		0
+SW3.3		CFG_HOST_AGT2		1*		0
+SW3.4		CFG_IO_PORTS0		1*		0
+SW3.5		CFG_IO_PORTS0		1		0*
+SW3.6		CFG_IO_PORTS0		1		0*
+
+SerDes CLK(MHz)		SW5.1		SW5.2
+----------------------------------------------
+25			0		0
+100*			1		0
+125			0		1
+200			1		1
+
+SerDes CLK spread	SW5.3		SW5.4
+----------------------------------------------
++/- 0.25%		0		0
+-0.50%			1		0
+-0.75%			0		1
+No Spread*		1		1
+
+SW4 settings are readable from the EPLD and are currently not used for
+any hardware settings (i.e. user configuration switches).
+
+	LEDs:
+
+Name		Desc.			ON		OFF
+------------------------------------------------------------------
+D13		PCI/PCI-X		PCI-X		PCI
+D14		3.3V PWR		3.3V		no power
+D15		SYSCLK			66MHz		33MHz
+
+
+	Default Memory Map:
+
+start		end		CS<n>	width	Desc.
+----------------------------------------------------------------------
+0000_0000	0fff_ffff	MCS0,1	64	DDR2 (256MB)
+f000_0000	f7ff_ffff	CS3,4	32	LB SDRAM (128MB)
+f800_0000	f8b0_1fff	CS5	-	EPLD
+fb80_0000	ff7f_ffff	CS6	32	SODIMM flash (64MB)
+ff80_0000	ffff_ffff	CS0	8	Boot flash (8MB)
+
+The EPLD on CS5 demuxes the following devices at the following offsets:
+
+offset		size	width	device
+--------------------------------------------------------
+0		1fff	8	7 segment display LED
+10_0000		1fff	4	user switches
+30_0000		1fff	4	HW Rev. register
+b0_0000		1fff	8	8kB EEPROM

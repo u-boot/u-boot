@@ -24,16 +24,23 @@
  * MA 02111-1307 USA
  */
 
-/* sbc8560 board configuration file */
-/* please refer to doc/README.sbc8560 for more info */
-/* make sure you change the MAC address and other network params first,
- * search for CONFIG_ETHADDR,CONFIG_SERVERIP,etc in this file
+/*
+ * sbc8560 board configuration file.
  */
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* High Level Configuration Options */
+/*
+ * Top level Makefile configuration choices
+ */
+#ifdef CONFIG_MK_66
+#define CONFIG_PCI_66
+#endif
+
+/*
+ * High Level Configuration Options
+ */
 #define CONFIG_BOOKE		1	/* BOOKE			*/
 #define CONFIG_E500		1	/* BOOKE e500 family		*/
 #define CONFIG_MPC85xx		1	/* MPC8540/MPC8560		*/

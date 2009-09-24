@@ -46,11 +46,20 @@ int checkcpu (void)
 	char buf1[32], buf2[32];
 #ifdef CONFIG_DDR_CLK_FREQ
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#ifdef CONFIG_FSL_CORENET
+	u32 ddr_sync = ((gur->rcwsr[5]) & FSL_CORENET_RCWSR5_DDR_SYNC)
+		>> FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT;
+#else
 	u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
 		>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
+#endif
+#else
+#ifdef CONFIG_FSL_CORENET
+	u32 ddr_sync = 0;
 #else
 	u32 ddr_ratio = 0;
 #endif
+#endif /* CONFIG_DDR_CLK_FREQ */
 	int i;
 
 	svr = get_svr();
@@ -111,6 +120,19 @@ int checkcpu (void)
 	}
 	printf("\n       CCB:%-4s MHz,\n", strmhz(buf1, sysinfo.freqSystemBus));
 
+#ifdef CONFIG_FSL_CORENET
+	if (ddr_sync == 1) {
+		printf("       DDR:%-4s MHz (%s MT/s data rate) "
+			"(Synchronous), ",
+			strmhz(buf1, sysinfo.freqDDRBus/2),
+			strmhz(buf2, sysinfo.freqDDRBus));
+	} else {
+		printf("       DDR:%-4s MHz (%s MT/s data rate) "
+			"(Asynchronous), ",
+			strmhz(buf1, sysinfo.freqDDRBus/2),
+			strmhz(buf2, sysinfo.freqDDRBus));
+	}
+#else
 	switch (ddr_ratio) {
 	case 0x0:
 		printf("       DDR:%-4s MHz (%s MT/s data rate), ",
@@ -118,22 +140,26 @@ int checkcpu (void)
 			strmhz(buf2, sysinfo.freqDDRBus));
 		break;
 	case 0x7:
-		printf("       DDR:%-4s MHz (%s MT/s data rate) (Synchronous), ",
+		printf("       DDR:%-4s MHz (%s MT/s data rate) "
+			"(Synchronous), ",
 			strmhz(buf1, sysinfo.freqDDRBus/2),
 			strmhz(buf2, sysinfo.freqDDRBus));
 		break;
 	default:
-		printf("       DDR:%-4s MHz (%s MT/s data rate) (Asynchronous), ",
+		printf("       DDR:%-4s MHz (%s MT/s data rate) "
+			"(Asynchronous), ",
 			strmhz(buf1, sysinfo.freqDDRBus/2),
 			strmhz(buf2, sysinfo.freqDDRBus));
 		break;
 	}
+#endif
 
-	if (sysinfo.freqLocalBus > LCRR_CLKDIV)
+	if (sysinfo.freqLocalBus > LCRR_CLKDIV) {
 		printf("LBC:%-4s MHz\n", strmhz(buf1, sysinfo.freqLocalBus));
-	else
+	} else {
 		printf("LBC: unknown (LCRR[CLKDIV] = 0x%02lx)\n",
 		       sysinfo.freqLocalBus);
+	}
 
 #ifdef CONFIG_CPM2
 	printf("CPM:   %s MHz\n", strmhz(buf1, sysinfo.freqSystemBus));
@@ -141,6 +167,17 @@ int checkcpu (void)
 
 #ifdef CONFIG_QE
 	printf("       QE:%-4s MHz\n", strmhz(buf1, sysinfo.freqQE));
+#endif
+
+#ifdef CONFIG_SYS_DPAA_FMAN
+	for (i = 0; i < CONFIG_SYS_NUM_FMAN; i++) {
+		printf("       FMAN%d: %s MHz\n", i,
+			strmhz(buf1, sysinfo.freqFMan[i]));
+	}
+#endif
+
+#ifdef CONFIG_SYS_DPAA_PME
+	printf("       PME:   %s MHz\n", strmhz(buf1, sysinfo.freqPME));
 #endif
 
 	puts("L1:    D-cache 32 kB enabled\n       I-cache 32 kB enabled\n");
@@ -184,7 +221,11 @@ int do_reset (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
  */
 unsigned long get_tbclk (void)
 {
+#ifdef CONFIG_FSL_CORENET
+	return (gd->bus_clk + 8) / 16;
+#else
 	return (gd->bus_clk + 4UL)/8UL;
+#endif
 }
 
 

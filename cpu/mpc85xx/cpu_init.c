@@ -136,6 +136,20 @@ void config_8560_ioports (volatile ccsr_cpm_t * cpm)
  * initialize a bunch of registers
  */
 
+#ifdef CONFIG_FSL_CORENET
+static void corenet_tb_init(void)
+{
+	volatile ccsr_rcpm_t *rcpm =
+		(void *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
+	volatile ccsr_pic_t *pic =
+		(void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+	u32 whoami = in_be32(&pic->whoami);
+
+	/* Enable the timebase register for this core */
+	out_be32(&rcpm->ctbenrl, (1 << whoami));
+}
+#endif
+
 void cpu_init_f (void)
 {
 	volatile ccsr_lbc_t *memctl = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
@@ -228,6 +242,9 @@ void cpu_init_f (void)
 #endif
 #if defined(CONFIG_FSL_DMA)
 	dma_init();
+#endif
+#ifdef CONFIG_FSL_CORENET
+	corenet_tb_init();
 #endif
 }
 
@@ -336,8 +353,8 @@ int cpu_init_r(void)
 	u32 l2cfg0 = mfspr(SPRN_L2CFG0);
 
 	/* invalidate the L2 cache */
-	mtspr(SPRN_L2CSR0, L2CSR0_L2FI);
-	while (mfspr(SPRN_L2CSR0) & L2CSR0_L2FI)
+	mtspr(SPRN_L2CSR0, (L2CSR0_L2FI|L2CSR0_L2LFC));
+	while (mfspr(SPRN_L2CSR0) & (L2CSR0_L2FI|L2CSR0_L2LFC))
 		;
 
 	/* enable the cache */

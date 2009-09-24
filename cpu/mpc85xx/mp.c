@@ -26,6 +26,7 @@
 #include <lmb.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
+#include <asm/fsl_law.h>
 #include "mp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -135,7 +136,67 @@ ulong get_spin_addr(void)
 	return addr;
 }
 
-static void pq3_mp_up(unsigned long bootpg)
+#ifdef CONFIG_FSL_CORENET
+static void plat_mp_up(unsigned long bootpg)
+{
+	u32 up, cpu_up_mask, whoami;
+	u32 *table = (u32 *)get_spin_addr();
+	volatile ccsr_gur_t *gur;
+	volatile ccsr_local_t *ccm;
+	volatile ccsr_rcpm_t *rcpm;
+	volatile ccsr_pic_t *pic;
+	int timeout = 10;
+	u32 nr_cpus;
+	struct law_entry e;
+
+	gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	ccm = (void *)(CONFIG_SYS_FSL_CORENET_CCM_ADDR);
+	rcpm = (void *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
+	pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+
+	nr_cpus = ((in_be32(&pic->frr) >> 8) & 0xff) + 1;
+
+	whoami = in_be32(&pic->whoami);
+	cpu_up_mask = 1 << whoami;
+	out_be32(&ccm->bstrl, bootpg);
+
+	e = find_law(bootpg);
+	out_be32(&ccm->bstrar, LAW_EN | e.trgt_id << 20 | LAW_SIZE_4K);
+
+	/* disable time base at the platform */
+	out_be32(&rcpm->ctbenrl, cpu_up_mask);
+
+	/* release the hounds */
+	up = ((1 << nr_cpus) - 1);
+	out_be32(&gur->brrl, up);
+
+	/* wait for everyone */
+	while (timeout) {
+		int i;
+		for (i = 0; i < nr_cpus; i++) {
+			if (table[i * NUM_BOOT_ENTRY + BOOT_ENTRY_ADDR_LOWER])
+				cpu_up_mask |= (1 << i);
+		};
+
+		if ((cpu_up_mask & up) == up)
+			break;
+
+		udelay(100);
+		timeout--;
+	}
+
+	if (timeout == 0)
+		printf("CPU up timeout. CPU up mask is %x should be %x\n",
+			cpu_up_mask, up);
+
+	/* enable time base at the platform */
+	out_be32(&rcpm->ctbenrl, 0);
+	mtspr(SPRN_TBWU, 0);
+	mtspr(SPRN_TBWL, 0);
+	out_be32(&rcpm->ctbenrl, (1 << nr_cpus) - 1);
+}
+#else
+static void plat_mp_up(unsigned long bootpg)
 {
 	u32 up, cpu_up_mask, whoami;
 	u32 *table = (u32 *)get_spin_addr();
@@ -196,6 +257,7 @@ static void pq3_mp_up(unsigned long bootpg)
 	devdisr &= ~(MPC85xx_DEVDISR_TB0 | MPC85xx_DEVDISR_TB1);
 	out_be32(&gur->devdisr, devdisr);
 }
+#endif
 
 void cpu_mp_lmb_reserve(struct lmb *lmb)
 {
@@ -217,7 +279,7 @@ void setup_mp(void)
 	if (i != -1) {
 		/* map reset page to bootpg so we can copy code there */
 		disable_tlb(i);
-	
+
 		set_tlb(1, 0xfffff000, bootpg, /* tlb, epn, rpn */
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_M, /* perms, wimge */
 			0, i, BOOKE_PAGESZ_4K, 1); /* ts, esel, tsize, iprot */
@@ -234,7 +296,7 @@ void setup_mp(void)
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I, /* perms, wimge */
 			0, i, BOOKE_PAGESZ_4K, 1); /* ts, esel, tsize, iprot */
 
-		pq3_mp_up(bootpg);
+		plat_mp_up(bootpg);
 	} else {
 		puts("WARNING: No reset page TLB. "
 			"Skipping secondary core setup\n");

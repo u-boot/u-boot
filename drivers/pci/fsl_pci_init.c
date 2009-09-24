@@ -450,7 +450,7 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 
 	fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 
-	printf("\n    PCIE%x on bus %02x - %02x\n", pci_info->pci_num,
+	printf("    PCIE%x on bus %02x - %02x\n", pci_info->pci_num,
 			hose->first_busno, hose->last_busno);
 
 	return(hose->last_busno + 1);

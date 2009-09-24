@@ -23,9 +23,12 @@
 #include <common.h>
 #include <asm/mmu.h>
 #include <asm/immap_85xx.h>
+#include <asm/processor.h>
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/io.h>
 #include <asm/fsl_law.h>
+
+DECLARE_GLOBAL_DATA_PTR;
 
 extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 				   unsigned int ctrl_num);
@@ -203,24 +206,40 @@ phys_size_t fixed_sdram (void)
 {
 	sys_info_t sysinfo;
 	char buf[32];
+	fsl_ddr_cfg_regs_t *ddr_cfg_regs = NULL;
+	size_t ddr_size;
+	struct cpu_type *cpu;
 
 	get_sys_info(&sysinfo);
 	printf("Configuring DDR for %s MT/s data rate\n",
 				strmhz(buf, sysinfo.freqDDRBus));
 
 	if(sysinfo.freqDDRBus <= DATARATE_400MHZ)
-		fsl_ddr_set_memctl_regs(&ddr_cfg_regs_400, 0);
+		ddr_cfg_regs = &ddr_cfg_regs_400;
 	else if(sysinfo.freqDDRBus <= DATARATE_533MHZ)
-		fsl_ddr_set_memctl_regs(&ddr_cfg_regs_533, 0);
+		ddr_cfg_regs = &ddr_cfg_regs_533;
 	else if(sysinfo.freqDDRBus <= DATARATE_667MHZ)
-		fsl_ddr_set_memctl_regs(&ddr_cfg_regs_667, 0);
+		ddr_cfg_regs = &ddr_cfg_regs_667;
 	else if(sysinfo.freqDDRBus <= DATARATE_800MHZ)
-		fsl_ddr_set_memctl_regs(&ddr_cfg_regs_800, 0);
+		ddr_cfg_regs = &ddr_cfg_regs_800;
 	else
 		panic("Unsupported DDR data rate %s MT/s data rate\n",
 					strmhz(buf, sysinfo.freqDDRBus));
 
-	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+	cpu = gd->cpu;
+	/* P1020 and it's derivatives support max 32bit DDR width */
+	if(cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1020_E ||
+		cpu->soc_ver == SVR_P1011 || cpu->soc_ver == SVR_P1011_E) {
+		ddr_cfg_regs->ddr_sdram_cfg |= SDRAM_CFG_32_BE;
+		ddr_cfg_regs->cs[0].bnds = 0x0000001F;
+		ddr_size = (CONFIG_SYS_SDRAM_SIZE * 1024 * 1024 / 2);
+	}
+	else
+		ddr_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+
+	fsl_ddr_set_memctl_regs(ddr_cfg_regs, 0);
+
+	return ddr_size;
 }
 
 phys_size_t initdram(int board_type)

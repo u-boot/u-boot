@@ -408,6 +408,10 @@ LIST_85xx="		\
 	PM856		\
 	sbc8540		\
 	sbc8548		\
+	sbc8548_PCI_33	\
+	sbc8548_PCI_66	\
+	sbc8548_PCI_33_PCIE \
+	sbc8548_PCI_66_PCIE \
 	sbc8560		\
 	socrates	\
 	stxgp3		\

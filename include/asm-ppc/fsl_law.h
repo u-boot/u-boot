@@ -1,7 +1,17 @@
+/*
+ * Copyright 2008-2009 Freescale Semiconductor, Inc.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * Version 2 as published by the Free Software Foundation.
+ */
+
 #ifndef _FSL_LAW_H_
 #define _FSL_LAW_H_
 
 #include <asm/io.h>
+
+#define LAW_EN	0x80000000
 
 #define SET_LAW_ENTRY(idx, a, sz, trgt) \
 	{ .index = idx, .addr = a, .size = sz, .trgt_id = trgt }
@@ -36,6 +46,25 @@ enum law_size {
 	LAW_SIZE_32G,
 };
 
+#ifdef CONFIG_FSL_CORENET
+enum law_trgt_if {
+	LAW_TRGT_IF_PCIE_1 = 0x00,
+	LAW_TRGT_IF_PCIE_2 = 0x01,
+	LAW_TRGT_IF_PCIE_3 = 0x02,
+	LAW_TRGT_IF_RIO_1 = 0x08,
+	LAW_TRGT_IF_RIO_2 = 0x09,
+
+	LAW_TRGT_IF_DDR_1 = 0x10,
+	LAW_TRGT_IF_DDR_2 = 0x11,	/* 2nd controller */
+	LAW_TRGT_IF_DDR_INTRLV = 0x14,
+
+	LAW_TRGT_IF_BMAN = 0x18,
+	LAW_TRGT_IF_DCSR = 0x1d,
+	LAW_TRGT_IF_LBC = 0x1f,
+	LAW_TRGT_IF_QMAN = 0x3c,
+};
+#define LAW_TRGT_IF_DDR		LAW_TRGT_IF_DDR_1
+#else
 enum law_trgt_if {
 	LAW_TRGT_IF_PCI = 0x00,
 	LAW_TRGT_IF_PCI_2 = 0x01,
@@ -64,6 +93,7 @@ enum law_trgt_if {
 #if defined(CONFIG_MPC8572) || defined(CONFIG_P2020)
 #define LAW_TRGT_IF_PCIE_3	LAW_TRGT_IF_PCI
 #endif
+#endif /* CONFIG_FSL_CORENET */
 
 struct law_entry {
 	int index;
@@ -76,6 +106,7 @@ extern void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if
 extern int set_next_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id);
 extern int set_last_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id);
 extern int set_ddr_laws(u64 start, u64 sz, enum law_trgt_if id);
+extern struct law_entry find_law(phys_addr_t addr);
 extern void disable_law(u8 idx);
 extern void init_laws(void);
 extern void print_laws(void);
