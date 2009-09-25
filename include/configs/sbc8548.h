@@ -330,7 +330,14 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024) /* Reserve 256 kB for Mon */
+/*
+ * For soldered on flash, (128kB/sector) we use 2 sectors for u-boot and
+ * one for env+bootpg (TEXT_BASE=0xfffa_0000, 384kB total).  For SODIMM
+ * flash (512kB/sector) we use 1 sector for u-boot, and one for env+bootpg
+ * (TEXT_BASE=0xfff0_0000, 1MB total).  This dynamically sets the right
+ * thing for MONITOR_LEN in both cases.
+ */
+#define CONFIG_SYS_MONITOR_LEN		(~TEXT_BASE + 1)
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
@@ -448,9 +455,16 @@
  * Environment
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x40000)
-#define CONFIG_ENV_SECT_SIZE	0x40000	/* 256K(one sector) for env */
 #define CONFIG_ENV_SIZE		0x2000
+#if TEXT_BASE == 0xfff00000	/* Boot from 64MB SODIMM */
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x80000)
+#define CONFIG_ENV_SECT_SIZE	0x80000	/* 512K(one sector) for env */
+#elif TEXT_BASE == 0xfffa0000	/* Boot from 8MB soldered flash */
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x40000)
+#define CONFIG_ENV_SECT_SIZE	0x20000	/* 128K(one sector) for env */
+#else
+#warning undefined environment size/location.
+#endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */

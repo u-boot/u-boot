@@ -63,6 +63,30 @@ a 33MHz PCI configuration is currently untested.)
     =>
 
 
+Updating U-boot with U-boot:
+============================
+
+Note that versions of u-boot up to and including 2009.08 had u-boot stored
+at 0xfff8_0000 -> 0xffff_ffff (512k).  Currently it is being stored from
+0xfffa_0000 -> 0xffff_ffff (384k).  If you use an old macro/script to
+update u-boot with u-boot and it uses the old address, you will render
+your board inoperable, and you will require JTAG recovery.
+
+The following steps list how to update with the current address:
+
+	tftp u-boot.bin
+	md 200000 10
+	protect off all
+	erase fffa0000 ffffffff
+	cp.b 200000 fffa0000 60000
+	md fffa0000 10
+	protect on all
+
+The "md" steps in the above are just a precautionary step that allow
+you to confirm the u-boot version that was downloaded, and then confirm
+that it was copied to flash.
+
+
 Hardware Reference:
 ===================
 
