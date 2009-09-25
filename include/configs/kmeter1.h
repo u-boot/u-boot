@@ -170,7 +170,9 @@
 /*
  * Local Bus Configuration & Clock Setup
  */
-#define CONFIG_SYS_LCRR		(LCRR_DBYP | LCRR_EADC_2 | LCRR_CLKDIV_4)
+#define CONFIG_SYS_LCRR_DBYP	LCRR_DBYP
+#define CONFIG_SYS_LCRR_EADC	LCRR_EADC_2
+#define CONFIG_SYS_LCRR_CLKDIV	LCRR_CLKDIV_4
 
 /*
  * Init Local Bus Memory Controller:

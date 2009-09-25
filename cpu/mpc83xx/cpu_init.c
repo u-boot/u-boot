@@ -23,8 +23,8 @@
 #include <common.h>
 #include <mpc83xx.h>
 #include <ioports.h>
-#ifdef CONFIG_USB_EHCI_FSL
 #include <asm/io.h>
+#ifdef CONFIG_USB_EHCI_FSL
 #include <usb/ehci-fsl.h>
 #endif
 
@@ -63,6 +63,115 @@ static void config_qe_ioports(void)
  */
 void cpu_init_f (volatile immap_t * im)
 {
+	__be32 acr_mask =
+#ifdef CONFIG_SYS_ACR_PIPE_DEP /* Arbiter pipeline depth */
+		(ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_ACR_RPTCNT /* Arbiter repeat count */
+		(ACR_RPTCNT << ACR_RPTCNT_SHIFT) |
+#endif
+		0;
+	__be32 acr_val =
+#ifdef CONFIG_SYS_ACR_PIPE_DEP /* Arbiter pipeline depth */
+		(CONFIG_SYS_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_ACR_RPTCNT /* Arbiter repeat count */
+		(CONFIG_SYS_ACR_RPTCNT << ACR_RPTCNT_SHIFT) |
+#endif
+		0;
+	__be32 spcr_mask =
+#ifdef CONFIG_SYS_SPCR_OPT /* Optimize transactions between CSB and other dev */
+		(SPCR_OPT << SPCR_OPT_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SPCR_TSECEP /* all eTSEC's Emergency priority */
+		(SPCR_TSECEP << SPCR_TSECEP_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SPCR_TSEC1EP /* TSEC1 Emergency priority */
+		(SPCR_TSEC1EP << SPCR_TSEC1EP_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SPCR_TSEC2EP /* TSEC2 Emergency priority */
+		(SPCR_TSEC2EP << SPCR_TSEC2EP_SHIFT) |
+#endif
+		0;
+	__be32 spcr_val =
+#ifdef CONFIG_SYS_SPCR_OPT
+		(CONFIG_SYS_SPCR_OPT << SPCR_OPT_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SPCR_TSECEP /* all eTSEC's Emergency priority */
+		(CONFIG_SYS_SPCR_TSECEP << SPCR_TSECEP_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SPCR_TSEC1EP /* TSEC1 Emergency priority */
+		(CONFIG_SYS_SPCR_TSEC1EP << SPCR_TSEC1EP_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SPCR_TSEC2EP /* TSEC2 Emergency priority */
+		(CONFIG_SYS_SPCR_TSEC2EP << SPCR_TSEC2EP_SHIFT) |
+#endif
+		0;
+	__be32 sccr_mask =
+#ifdef CONFIG_SYS_SCCR_ENCCM /* Encryption clock mode */
+		(SCCR_ENCCM << SCCR_ENCCM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_PCICM /* PCI & DMA clock mode */
+		(SCCR_PCICM << SCCR_PCICM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_TSECCM /* all TSEC's clock mode */
+		(SCCR_TSECCM << SCCR_TSECCM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_TSEC1CM /* TSEC1 clock mode */
+		(SCCR_TSEC1CM << SCCR_TSEC1CM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_TSEC2CM /* TSEC2 clock mode */
+		(SCCR_TSEC2CM << SCCR_TSEC2CM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_TSEC1ON /* TSEC1 clock switch */
+		(SCCR_TSEC1ON << SCCR_TSEC1ON_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_TSEC2ON /* TSEC2 clock switch */
+		(SCCR_TSEC2ON << SCCR_TSEC2ON_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_USBMPHCM /* USB MPH clock mode */
+		(SCCR_USBMPHCM << SCCR_USBMPHCM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_USBDRCM /* USB DR clock mode */
+		(SCCR_USBDRCM << SCCR_USBDRCM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_SATACM /* SATA controller clock mode */
+		(SCCR_SATACM << SCCR_SATACM_SHIFT) |
+#endif
+		0;
+	__be32 sccr_val =
+#ifdef CONFIG_SYS_SCCR_ENCCM /* Encryption clock mode */
+		(CONFIG_SYS_SCCR_ENCCM << SCCR_ENCCM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_PCICM /* PCI & DMA clock mode */
+		(CONFIG_SYS_SCCR_PCICM << SCCR_PCICM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_TSECCM /* all TSEC's clock mode */
+		(CONFIG_SYS_SCCR_TSECCM << SCCR_TSECCM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_TSEC1CM /* TSEC1 clock mode */
+		(CONFIG_SYS_SCCR_TSEC1CM << SCCR_TSEC1CM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_TSEC2CM /* TSEC2 clock mode */
+		(CONFIG_SYS_SCCR_TSEC2CM << SCCR_TSEC2CM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_TSEC1ON /* TSEC1 clock switch */
+		(CONFIG_SYS_SCCR_TSEC1ON << SCCR_TSEC1ON_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_TSEC2ON /* TSEC2 clock switch */
+		(CONFIG_SYS_SCCR_TSEC2ON << SCCR_TSEC2ON_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_USBMPHCM /* USB MPH clock mode */
+		(CONFIG_SYS_SCCR_USBMPHCM << SCCR_USBMPHCM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_USBDRCM /* USB DR clock mode */
+		(CONFIG_SYS_SCCR_USBDRCM << SCCR_USBDRCM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_SATACM /* SATA controller clock mode */
+		(CONFIG_SYS_SCCR_SATACM << SCCR_SATACM_SHIFT) |
+#endif
+		0;
+
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
@@ -70,142 +179,47 @@ void cpu_init_f (volatile immap_t * im)
 	memset ((void *) gd, 0, sizeof (gd_t));
 
 	/* system performance tweaking */
+	clrsetbits_be32(&im->arbiter.acr, acr_mask, acr_val);
 
-#ifdef CONFIG_SYS_ACR_PIPE_DEP
-	/* Arbiter pipeline depth */
-	im->arbiter.acr = (im->arbiter.acr & ~ACR_PIPE_DEP) |
-			  (CONFIG_SYS_ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT);
-#endif
+	clrsetbits_be32(&im->sysconf.spcr, spcr_mask, spcr_val);
 
-#ifdef CONFIG_SYS_ACR_RPTCNT
-	/* Arbiter repeat count */
-	im->arbiter.acr = (im->arbiter.acr & ~(ACR_RPTCNT)) |
-			  (CONFIG_SYS_ACR_RPTCNT << ACR_RPTCNT_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SPCR_OPT
-	/* Optimize transactions between CSB and other devices */
-	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_OPT) |
-			   (CONFIG_SYS_SPCR_OPT << SPCR_OPT_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SPCR_TSECEP
-	/* all eTSEC's Emergency priority */
-	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSECEP) |
-			   (CONFIG_SYS_SPCR_TSECEP << SPCR_TSECEP_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SPCR_TSEC1EP
-	/* TSEC1 Emergency priority */
-	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSEC1EP) |
-			   (CONFIG_SYS_SPCR_TSEC1EP << SPCR_TSEC1EP_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SPCR_TSEC2EP
-	/* TSEC2 Emergency priority */
-	im->sysconf.spcr = (im->sysconf.spcr & ~SPCR_TSEC2EP) |
-			   (CONFIG_SYS_SPCR_TSEC2EP << SPCR_TSEC2EP_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SCCR_ENCCM
-	/* Encryption clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_ENCCM) |
-		       (CONFIG_SYS_SCCR_ENCCM << SCCR_ENCCM_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SCCR_PCICM
-	/* PCI & DMA clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_PCICM) |
-		       (CONFIG_SYS_SCCR_PCICM << SCCR_PCICM_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SCCR_TSECCM
-	/* all TSEC's clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_TSECCM) |
-		       (CONFIG_SYS_SCCR_TSECCM << SCCR_TSECCM_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SCCR_TSEC1CM
-	/* TSEC1 clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC1CM) |
-		       (CONFIG_SYS_SCCR_TSEC1CM << SCCR_TSEC1CM_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SCCR_TSEC2CM
-	/* TSEC2 clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC2CM) |
-		       (CONFIG_SYS_SCCR_TSEC2CM << SCCR_TSEC2CM_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SCCR_TSEC1ON
-	/* TSEC1 clock switch */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC1ON) |
-		       (CONFIG_SYS_SCCR_TSEC1ON << SCCR_TSEC1ON_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SCCR_TSEC2ON
-	/* TSEC2 clock switch */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_TSEC2ON) |
-		       (CONFIG_SYS_SCCR_TSEC2ON << SCCR_TSEC2ON_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SCCR_USBMPHCM
-	/* USB MPH clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_USBMPHCM) |
-		       (CONFIG_SYS_SCCR_USBMPHCM << SCCR_USBMPHCM_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SCCR_USBDRCM
-	/* USB DR clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_USBDRCM) |
-		       (CONFIG_SYS_SCCR_USBDRCM << SCCR_USBDRCM_SHIFT);
-#endif
-
-#ifdef CONFIG_SYS_SCCR_SATACM
-	/* SATA controller clock mode */
-	im->clk.sccr = (im->clk.sccr & ~SCCR_SATACM) |
-		       (CONFIG_SYS_SCCR_SATACM << SCCR_SATACM_SHIFT);
-#endif
+	clrsetbits_be32(&im->clk.sccr, sccr_mask, sccr_val);
 
 	/* RSR - Reset Status Register - clear all status (4.6.1.3) */
-	gd->reset_status = im->reset.rsr;
-	im->reset.rsr = ~(RSR_RES);
+	gd->reset_status = __raw_readl(&im->reset.rsr);
+	__raw_writel(~(RSR_RES), &im->reset.rsr);
 
 	/* AER - Arbiter Event Register - store status */
-	gd->arbiter_event_attributes = im->arbiter.aeatr;
-	gd->arbiter_event_address = im->arbiter.aeadr;
+	gd->arbiter_event_attributes = __raw_readl(&im->arbiter.aeatr);
+	gd->arbiter_event_address = __raw_readl(&im->arbiter.aeadr);
 
 	/*
 	 * RMR - Reset Mode Register
 	 * contains checkstop reset enable (4.6.1.4)
 	 */
-	im->reset.rmr = (RMR_CSRE & (1<<RMR_CSRE_SHIFT));
+	__raw_writel(RMR_CSRE & (1<<RMR_CSRE_SHIFT), &im->reset.rmr);
 
-	/* LCRR - Clock Ratio Register (10.3.1.16) */
-	im->lbus.lcrr = CONFIG_SYS_LCRR;
-
-	/* Enable Time Base & Decrimenter ( so we will have udelay() )*/
-	im->sysconf.spcr |= SPCR_TBEN;
+	/* Enable Time Base & Decrementer ( so we will have udelay() )*/
+	setbits_be32(&im->sysconf.spcr, SPCR_TBEN);
 
 	/* System General Purpose Register */
 #ifdef CONFIG_SYS_SICRH
 #if defined(CONFIG_MPC834x) || defined(CONFIG_MPC8313)
 	/* regarding to MPC34x manual rev.1 bits 28..29 must be preserved */
-	im->sysconf.sicrh = (im->sysconf.sicrh & 0x0000000C) | CONFIG_SYS_SICRH;
+	__raw_writel((im->sysconf.sicrh & 0x0000000C) | CONFIG_SYS_SICRH,
+		     &im->sysconf.sicrh);
 #else
-	im->sysconf.sicrh = CONFIG_SYS_SICRH;
+	__raw_writel(CONFIG_SYS_SICRH, &im->sysconf.sicrh);
 #endif
 #endif
 #ifdef CONFIG_SYS_SICRL
-	im->sysconf.sicrl = CONFIG_SYS_SICRL;
+	__raw_writel(CONFIG_SYS_SICRL, &im->sysconf.sicrl);
 #endif
-	/* DDR control driver register */
-#ifdef CONFIG_SYS_DDRCDR
-	im->sysconf.ddrcdr = CONFIG_SYS_DDRCDR;
+#ifdef CONFIG_SYS_DDRCDR /* DDR control driver register */
+	__raw_writel(CONFIG_SYS_DDRCDR, &im->sysconf.ddrcdr);
 #endif
-	/* Output buffer impedance register */
-#ifdef CONFIG_SYS_OBIR
-	im->sysconf.obir = CONFIG_SYS_OBIR;
+#ifdef CONFIG_SYS_OBIR /* Output buffer impedance register */
+	__raw_writel(CONFIG_SYS_OBIR, &im->sysconf.obir);
 #endif
 
 #ifdef CONFIG_QE
@@ -308,7 +322,7 @@ void cpu_init_f (volatile immap_t * im)
 
 	/* Wait for clock to stabilize */
 	do {
-		temp = in_be32(&ehci->control);
+		temp = __raw_readl(&ehci->control);
 		udelay(1000);
 	} while (!(temp & PHY_CLK_VALID));
 #endif
@@ -317,8 +331,41 @@ void cpu_init_f (volatile immap_t * im)
 
 int cpu_init_r (void)
 {
+	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
 #ifdef CONFIG_QE
 	uint qe_base = CONFIG_SYS_IMMR + 0x00100000; /* QE immr base */
+#endif
+	__be32 lcrr_mask =
+#ifdef CONFIG_SYS_LCRR_DBYP /* PLL bypass */
+		LCRR_DBYP |
+#endif
+#ifdef CONFIG_SYS_LCRR_EADC /* external address delay */
+		LCRR_EADC |
+#endif
+#ifdef CONFIG_SYS_LCRR_CLKDIV /* system clock divider */
+		LCRR_CLKDIV |
+#endif
+		0;
+	__be32 lcrr_val =
+#ifdef CONFIG_SYS_LCRR_DBYP /* PLL bypass */
+		CONFIG_SYS_LCRR_DBYP |
+#endif
+#ifdef CONFIG_SYS_LCRR_EADC
+		CONFIG_SYS_LCRR_EADC |
+#endif
+#ifdef CONFIG_SYS_LCRR_CLKDIV /* system clock divider */
+		CONFIG_SYS_LCRR_CLKDIV |
+#endif
+		0;
+
+	/* LCRR - Clock Ratio Register (10.3.1.16)
+	 * write, read, and isync per MPC8379ERM rev.1 CLKDEV field description
+	 */
+	clrsetbits_be32(&im->lbus.lcrr, lcrr_mask, lcrr_val);
+	__raw_readl(&im->lbus.lcrr);
+	isync();
+
+#ifdef CONFIG_QE
 	qe_init(qe_base);
 	qe_reset();
 #endif

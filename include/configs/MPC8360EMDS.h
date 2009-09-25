@@ -185,7 +185,8 @@
 /*
  * Local Bus Configuration & Clock Setup
  */
-#define CONFIG_SYS_LCRR		(LCRR_DBYP | LCRR_CLKDIV_4)
+#define CONFIG_SYS_LCRR_DBYP	LCRR_DBYP
+#define CONFIG_SYS_LCRR_CLKDIV	LCRR_CLKDIV_4
 #define CONFIG_SYS_LBC_LBCR		0x00000000
 
 /*
