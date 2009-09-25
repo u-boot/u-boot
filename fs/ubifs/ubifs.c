@@ -439,7 +439,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 				continue;
 			}
 			/* Relative to cur dir */
-			sprintf(buf, "%s%s",
+			sprintf(buf, "%s/%s",
 					link_name, next == NULL ? "" : next);
 			memcpy(symlinkpath, buf, sizeof(buf));
 			next = name = symlinkpath;
