@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2000-2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# (C) Copyright 2003-2006
+# Wolfgang Denk, DENX Software Engineering, wd at denx.de. <http://lists.denx.de/mailman/listinfo/u-boot>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -23,28 +23,22 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).a
+LIB	= $(obj)lib$(BOARD).a
 
-SOBJS	+= lowlevel_init.o
+COBJS	:= cpuat91.o
 
-COBJS	+= bcm5221.o
-COBJS	+= dm9161.o
-COBJS	+= ether.o
-COBJS	+= i2c.o
-COBJS-$(CONFIG_KS8721_PHY)	+= ks8721.o
-COBJS	+= lxt972.o
-COBJS	+= reset.o
-COBJS	+= spi.o
-COBJS	+= timer.o
-COBJS	+= usb.o
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS) $(COBJS-y))
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-all:	$(obj).depend $(LIB)
+clean:
+	rm -f $(SOBJS) $(OBJS)
 
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 

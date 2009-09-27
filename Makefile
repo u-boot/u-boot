@@ -2701,6 +2701,12 @@ at91rm9200ek_config	:	unconfig
 cmc_pu2_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t cmc_pu2 NULL at91rm9200
 
+CPUAT91_RAM_config \
+CPUAT91_config	:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_$(@:_config=) 1"	>$(obj)include/config.h
+	@$(MKCONFIG) -a cpuat91 arm arm920t cpuat91 eukrea at91rm9200
+
 csb637_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t csb637 NULL at91rm9200
 

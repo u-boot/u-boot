@@ -615,11 +615,12 @@ LIST_at91="			\
 	at91sam9260ek		\
 	at91sam9261ek		\
 	at91sam9263ek		\
-	at91sam9g10ek	\
+	at91sam9g10ek		\
 	at91sam9g20ek		\
 	at91sam9m10g45ek	\
 	at91sam9rlek		\
 	cmc_pu2			\
+	CPUAT91			\
 	csb637			\
 	kb9202			\
 	meesc			\
