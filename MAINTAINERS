@@ -525,6 +525,10 @@ Dirk Behme <dirk.behme@gmail.com>
 
 	omap3_beagle	ARM CORTEX-A8 (OMAP3530 SoC)
 
+Eric Benard <eric@eukrea.com>
+
+	cpuat91		ARM920T
+
 Rishi Bhattacharya <rishi@ti.com>
 
 	omap5912osk	ARM926EJS
