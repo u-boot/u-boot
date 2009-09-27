@@ -621,6 +621,8 @@ LIST_at91="			\
 	at91sam9rlek		\
 	cmc_pu2			\
 	CPUAT91			\
+	CPU9260			\
+	CPU9G20			\
 	csb637			\
 	kb9202			\
 	meesc			\

@@ -528,6 +528,8 @@ Dirk Behme <dirk.behme@gmail.com>
 Eric Benard <eric@eukrea.com>
 
 	cpuat91		ARM920T
+	cpu9260		ARM926EJS (AT91SAM9260 SoC)
+	cpu9G20		ARM926EJS (AT91SAM9G20 SoC)
 
 Rishi Bhattacharya <rishi@ti.com>
 
