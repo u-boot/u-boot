@@ -768,6 +768,10 @@
 
 #define SDR0_SDCS_SDD			(0x80000000 >> 31)
 
+/* SDR0_SDSTP0 Serial Device Strap Register0 */
+#define SDR0_SDSTP0		     0x0020
+#define SDR0_SDSTP0_PLB2xDV0_DECODE(n)	((((unsigned long)(n)) & 0x07))
+
 /* CUST0 Customer Configuration Register0 */
 #define SDR0_CUST0		     0x4000
 #define   SDR0_CUST0_MUX_E_N_G_MASK   0xC0000000     /* Mux_Emac_NDFC_GPIO */
