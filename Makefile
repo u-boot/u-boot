@@ -2827,6 +2827,14 @@ at91sam9rlek_config	:	unconfig
 	fi;
 	@$(MKCONFIG) -a at91sam9rlek arm arm926ejs at91sam9rlek atmel at91
 
+CPU9G20_128M_config \
+CPU9G20_config \
+CPU9260_128M_config \
+CPU9260_config	:	unconfig
+	@mkdir -p $(obj)include
+	@echo "#define CONFIG_$(@:_config=) 1" >$(obj)include/config.h
+	@$(MKCONFIG) -a cpu9260 arm arm926ejs cpu9260 eukrea at91
+
 meesc_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs meesc esd at91
 
