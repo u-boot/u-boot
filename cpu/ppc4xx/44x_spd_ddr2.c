@@ -9,7 +9,7 @@
  * Copyright (c) 2008 Nuovation System Designs, LLC
  *   Grant Erickson <gerickson@nuovations.com>
 
- * (C) Copyright 2007-2008
+ * (C) Copyright 2007-2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * COPYRIGHT   AMCC   CORPORATION 2004
@@ -47,6 +47,8 @@
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/cache.h>
+
+#include "ecc.h"
 
 #if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2)
 
@@ -93,24 +95,11 @@ void dcbz_area(u32 start_address, u32 num_bytes);
 
 #define MULDIV64(m1, m2, d)	(u32)(((u64)(m1) * (u64)(m2)) / (u64)(d))
 
-static unsigned long is_ecc_enabled(void);
-
-/*-----------------------------------------------------------------------------+
- * wait_ddr_idle
- *-----------------------------------------------------------------------------*/
-static void wait_ddr_idle(void)
-{
-	u32 val;
-
-	do {
-		mfsdram(SDRAM_MCSTAT, val);
-	} while ((val & SDRAM_MCSTAT_IDLE_MASK) == SDRAM_MCSTAT_IDLE_NOT);
-}
-
+#if !defined(CONFIG_NAND_SPL)
 /*-----------------------------------------------------------------------------+
  * sdram_memsize
  *-----------------------------------------------------------------------------*/
-static phys_size_t sdram_memsize(void)
+phys_size_t sdram_memsize(void)
 {
 	phys_size_t mem_size;
 	unsigned long mcopt2;
@@ -184,6 +173,18 @@ static phys_size_t sdram_memsize(void)
 }
 
 /*-----------------------------------------------------------------------------+
+ * is_ecc_enabled
+ *-----------------------------------------------------------------------------*/
+static unsigned long is_ecc_enabled(void)
+{
+	unsigned long val;
+
+	mfsdram(SDRAM_MCOPT1, val);
+
+	return SDRAM_MCOPT1_MCHK_CHK_DECODE(val);
+}
+
+/*-----------------------------------------------------------------------------+
  * board_add_ram_info
  *-----------------------------------------------------------------------------*/
 void board_add_ram_info(int use_default)
@@ -198,12 +199,11 @@ void board_add_ram_info(int use_default)
 
 	get_sys_info(&board_cfg);
 
-#if defined(CONFIG_440)
+#if defined(CONFIG_405EX)
+	val = board_cfg.freqPLB;
+#else
 	mfsdr(SDR0_DDR0, val);
 	val = MULDIV64((board_cfg.freqPLB), SDR0_DDR0_DDRM_DECODE(val), 1);
-#else
-	mfsdr(SDR0_SDSTP0, val);
-	val = MULDIV64((board_cfg.freqPLB), SDR0_SDSTP0_PLB2xDV0_DECODE(val), 1);
 #endif
 	printf(" enabled, %d MHz", (val * 2) / 1000000);
 
@@ -211,112 +211,7 @@ void board_add_ram_info(int use_default)
 	val = (val & SDRAM_MMODE_DCL_MASK) >> 4;
 	printf(", CL%d)", val);
 }
-
-#ifdef CONFIG_DDR_ECC
-/*-----------------------------------------------------------------------------+
- * program_ecc_addr.
- *-----------------------------------------------------------------------------*/
-static void program_ecc_addr(unsigned long start_address,
-			     unsigned long num_bytes,
-			     unsigned long tlb_word2_i_value)
-{
-	unsigned long current_address;
-	unsigned long end_address;
-	unsigned long address_increment;
-	unsigned long mcopt1;
-	char str[] = "ECC generation -";
-	char slash[] = "\\|/-\\|/-";
-	int loop = 0;
-	int loopi = 0;
-
-	current_address = start_address;
-	mfsdram(SDRAM_MCOPT1, mcopt1);
-	if ((mcopt1 & SDRAM_MCOPT1_MCHK_MASK) != SDRAM_MCOPT1_MCHK_NON) {
-		mtsdram(SDRAM_MCOPT1,
-			(mcopt1 & ~SDRAM_MCOPT1_MCHK_MASK) | SDRAM_MCOPT1_MCHK_GEN);
-		sync();
-		eieio();
-		wait_ddr_idle();
-
-		puts(str);
-
-#ifdef CONFIG_440
-		if (tlb_word2_i_value == TLB_WORD2_I_ENABLE) {
-#endif
-			/* ECC bit set method for non-cached memory */
-			if ((mcopt1 & SDRAM_MCOPT1_DMWD_MASK) == SDRAM_MCOPT1_DMWD_32)
-				address_increment = 4;
-			else
-				address_increment = 8;
-			end_address = current_address + num_bytes;
-
-			while (current_address < end_address) {
-				*((unsigned long *)current_address) = 0x00000000;
-				current_address += address_increment;
-
-				if ((loop++ % (2 << 20)) == 0) {
-					putc('\b');
-					putc(slash[loopi++ % 8]);
-				}
-			}
-#ifdef CONFIG_440
-		} else {
-			/* ECC bit set method for cached memory */
-			dcbz_area(start_address, num_bytes);
-			/* Write modified dcache lines back to memory */
-			clean_dcache_range(start_address, start_address + num_bytes);
-		}
-#endif /* CONFIG_440 */
-
-		blank_string(strlen(str));
-
-		sync();
-		eieio();
-		wait_ddr_idle();
-
-		/* clear ECC error repoting registers */
-		mtsdram(SDRAM_ECCCR, 0xffffffff);
-		mtdcr(0x4c, 0xffffffff);
-
-		mtsdram(SDRAM_MCOPT1,
-			(mcopt1 & ~SDRAM_MCOPT1_MCHK_MASK) | SDRAM_MCOPT1_MCHK_CHK_REP);
-		sync();
-		eieio();
-		wait_ddr_idle();
-	}
-}
-
-/*-----------------------------------------------------------------------------+
- * do_program_ecc.
- *-----------------------------------------------------------------------------*/
-static void do_program_ecc(unsigned long tlb_word2_i_value)
-{
-	unsigned long mcopt1;
-	unsigned long mcopt2;
-	unsigned long mcstat;
-	phys_size_t memsize = sdram_memsize();
-
-	if (memsize > CONFIG_MAX_MEM_MAPPED) {
-		printf("\nWarning: Can't enable ECC on systems with more than 2GB of SDRAM!\n");
-		return;
-	}
-
-	mfsdram(SDRAM_MCOPT1, mcopt1);
-	mfsdram(SDRAM_MCOPT2, mcopt2);
-
-	if ((mcopt1 & SDRAM_MCOPT1_MCHK_MASK) != SDRAM_MCOPT1_MCHK_NON) {
-		/* DDR controller must be enabled and not in self-refresh. */
-		mfsdram(SDRAM_MCSTAT, mcstat);
-		if (((mcopt2 & SDRAM_MCOPT2_DCEN_MASK) == SDRAM_MCOPT2_DCEN_ENABLE)
-		    && ((mcopt2 & SDRAM_MCOPT2_SREN_MASK) == SDRAM_MCOPT2_SREN_EXIT)
-		    && ((mcstat & (SDRAM_MCSTAT_MIC_MASK | SDRAM_MCSTAT_SRMS_MASK))
-			== (SDRAM_MCSTAT_MIC_COMP | SDRAM_MCSTAT_SRMS_NOT_SF))) {
-
-			program_ecc_addr(0, memsize, tlb_word2_i_value);
-		}
-	}
-}
-#endif /* CONFIG_DDR_ECC */
+#endif /* !CONFIG_NAND_SPL */
 
 #if defined(CONFIG_SPD_EEPROM)
 
@@ -439,7 +334,6 @@ typedef enum ddr_cas_id {
 /*-----------------------------------------------------------------------------+
  * Prototypes
  *-----------------------------------------------------------------------------*/
-static phys_size_t sdram_memsize(void);
 static void get_spd_info(unsigned long *dimm_populated,
 			 unsigned char *iic0_dimm_addr,
 			 unsigned long num_dimm_banks);
@@ -2405,25 +2299,6 @@ static void program_memory_queue(unsigned long *dimm_populated,
 #endif
 }
 
-/*-----------------------------------------------------------------------------+
- * is_ecc_enabled.
- *-----------------------------------------------------------------------------*/
-static unsigned long is_ecc_enabled(void)
-{
-	unsigned long dimm_num;
-	unsigned long ecc;
-	unsigned long val;
-
-	ecc = 0;
-	/* loop through all the DIMM slots on the board */
-	for (dimm_num = 0; dimm_num < MAXDIMMS; dimm_num++) {
-		mfsdram(SDRAM_MCOPT1, val);
-		ecc = max(ecc, SDRAM_MCOPT1_MCHK_CHK_DECODE(val));
-	}
-
-	return ecc;
-}
-
 #ifdef CONFIG_DDR_ECC
 /*-----------------------------------------------------------------------------+
  * program_ecc.
@@ -2989,21 +2864,6 @@ static void test(void)
 
 #else /* CONFIG_SPD_EEPROM */
 
-/*-----------------------------------------------------------------------------+
- * is_ecc_enabled
- *-----------------------------------------------------------------------------*/
-static unsigned long is_ecc_enabled(void)
-{
-	unsigned long ecc;
-	unsigned long val;
-
-	ecc = 0;
-	mfsdram(SDRAM_MCOPT1, val);
-	ecc = max(ecc, SDRAM_MCOPT1_MCHK_CHK_DECODE(val));
-
-	return ecc;
-}
-
 /*-----------------------------------------------------------------------------
  * Function:	initdram
  * Description: Configures the PPC4xx IBM DDR1/DDR2 SDRAM memory controller.
@@ -3225,18 +3085,6 @@ void mtdcr_any(u32 dcr, u32 val)
 	}
 }
 #endif /* defined(CONFIG_440) */
-
-void blank_string(int size)
-{
-	int i;
-
-	for (i = 0; i < size; i++)
-		putc('\b');
-	for (i = 0; i < size; i++)
-		putc(' ');
-	for (i = 0; i < size; i++)
-		putc('\b');
-}
 #endif /* !defined(CONFIG_NAND_U_BOOT) &&  !defined(CONFIG_NAND_SPL) */
 
 inline void ppc4xx_ibm_ddr2_register_dump(void)
