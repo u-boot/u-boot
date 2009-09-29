@@ -36,13 +36,14 @@
 #define CONFIG_MEESC			1	/* Board is esd MEESC */
 #define CONFIG_ARM926EJS		1	/* This is an ARM926EJS Core */
 #define CONFIG_AT91SAM9263		1	/* It's an AT91SAM9263 SoC */
-#define CONFIG_ENV_OVERWRITE		1	/* necessary on prototypes */
 #define CONFIG_DISPLAY_BOARDINFO	1
 #define CONFIG_DISPLAY_CPUINFO		1	/* display cpu info and speed */
 #define CONFIG_PREBOOT				/* enable preboot variable */
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
+#define CONFIG_SERIAL_TAG		1
+#define CONFIG_REVISION_TAG		1
 #undef CONFIG_USE_IRQ				/* don't need IRQ/FIQ stuff */
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
@@ -138,12 +139,13 @@
 #define CONFIG_SYS_USE_DATAFLASH		1
 #undef CONFIG_SYS_USE_NANDFLASH
 
-#ifdef CONFIG_SYS_USE_DATAFLASH
-
 /* CAN */
 #define CONFIG_AT91_CAN				1
 
-/* bootstrap + u-boot + env + linux in dataflash on CS0 */
+/* hw-controller addresses */
+#define CONFIG_ET1100_BASE			0x70000000
+
+/* bootstrap + u-boot + env in dataflash on CS0 */
 #define CONFIG_ENV_IS_IN_DATAFLASH	1
 #define CONFIG_SYS_MONITOR_BASE		(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + \
 					0x8400)
@@ -151,18 +153,6 @@
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + \
 					CONFIG_ENV_OFFSET)
 #define CONFIG_ENV_SIZE			0x4200
-#define CONFIG_BOOTCOMMAND		"cp.b C0042000 22000000 210000; bootm"
-
-#else /* CONFIG_SYS_USE_NANDFLASH */
-
-/* bootstrap + u-boot + env + linux in nandflash */
-#define CONFIG_ENV_IS_IN_NAND	1
-#define CONFIG_ENV_OFFSET		0x60000
-#define CONFIG_ENV_OFFSET_REDUND	0x80000
-#define CONFIG_ENV_SIZE			0x20000		/* 1 sector = 128 kB */
-#define CONFIG_BOOTCOMMAND		"nand read 22000000 A0000 200000; bootm"
-
-#endif
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
@@ -178,7 +168,8 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN		0x2D000
+#define CONFIG_SYS_MALLOC_LEN		ROUND(3 * CONFIG_ENV_SIZE + \
+					128*1024, 0x1000)
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* 128 bytes for initial data */
 
 #define CONFIG_STACKSIZE		(32 * 1024)	/* regular stack */
