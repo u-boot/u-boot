@@ -146,10 +146,9 @@ static void smc911x_enable(struct eth_device *dev)
 
 static int smc911x_init(struct eth_device *dev, bd_t * bd)
 {
-	printf(DRIVERNAME ": initializing\n");
+	struct chip_id *id = dev->priv;
 
-	if (smc911x_detect_chip(dev))
-		goto err_out;
+        printf(DRIVERNAME ": detected %s controller\n", id->name);
 
 	smc911x_reset(dev);
 
@@ -162,9 +161,6 @@ static int smc911x_init(struct eth_device *dev, bd_t * bd)
 	smc911x_enable(dev);
 
 	return 0;
-
-err_out:
-	return -1;
 }
 
 static int smc911x_send(struct eth_device *dev,
@@ -267,6 +263,12 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 	dev->send = smc911x_send;
 	dev->recv = smc911x_rx;
 	sprintf(dev->name, "%s-%hu", DRIVERNAME, dev_num);
+
+	/* Try to detect chip. Will fail if not present. */
+	if (smc911x_detect_chip(dev)) {
+		free(dev);
+		return 0;
+	}
 
 	eth_register(dev);
 	return 0;
