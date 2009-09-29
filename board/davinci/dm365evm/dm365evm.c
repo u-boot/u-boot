@@ -17,9 +17,12 @@
 
 #include <common.h>
 #include <nand.h>
+#include <asm/io.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/emif_defs.h>
 #include <asm/arch/nand_defs.h>
+#include <asm/arch/gpio_defs.h>
+#include <netdev.h>
 #include "../common/misc.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -31,6 +34,46 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_DRIVER_TI_EMAC
+int board_eth_init(bd_t *bis)
+{
+	uint8_t eeprom_enetaddr[6];
+	int i;
+	struct davinci_gpio *gpio1_base =
+			(struct davinci_gpio *)DAVINCI_GPIO_BANK01;
+
+	/* Configure PINMUX 3 to enable EMAC pins */
+	writel((readl(PINMUX3) | 0x1affff), PINMUX3);
+
+	/* Configure GPIO20 as output */
+	writel((readl(&gpio1_base->dir) & ~(1 << 20)), &gpio1_base->dir);
+
+	/* Toggle GPIO 20 */
+	for (i = 0; i < 20; i++) {
+		/* GPIO 20 low */
+		writel((readl(&gpio1_base->out_data) & ~(1 << 20)),
+						&gpio1_base->out_data);
+
+		udelay(1000);
+
+		/* GPIO 20 high */
+		writel((readl(&gpio1_base->out_data) | (1 << 20)),
+						&gpio1_base->out_data);
+	}
+
+	/* Configure I2C pins so that EEPROM can be read */
+	writel((readl(PINMUX3) | 0x01400000), PINMUX3);
+
+	/* Read Ethernet MAC address from EEPROM */
+	if (dvevm_read_mac_address(eeprom_enetaddr))
+		dv_configure_mac_address(eeprom_enetaddr);
+
+	davinci_emac_initialize();
+
+	return 0;
+}
+#endif
 
 #ifdef CONFIG_NAND_DAVINCI
 static void nand_dm365evm_select_chip(struct mtd_info *mtd, int chip)
