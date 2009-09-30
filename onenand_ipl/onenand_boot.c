@@ -24,7 +24,6 @@
  */
 
 #include <common.h>
-#include <version.h>
 
 #include "onenand_ipl.h"
 
