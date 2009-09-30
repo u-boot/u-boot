@@ -23,6 +23,9 @@
 #ifndef __UEC_H__
 #define __UEC_H__
 
+#include "qe.h"
+#include "uccf.h"
+
 #define MAX_TX_THREADS				8
 #define MAX_RX_THREADS				8
 #define MAX_TX_QUEUES				8
@@ -670,6 +673,7 @@ typedef enum enet_interface {
 	ENET_1000_RGMII,
 	ENET_1000_RGMII_ID,
 	ENET_1000_RGMII_RXID,
+	ENET_1000_RGMII_TXID,
 	ENET_1000_TBI,
 	ENET_1000_RTBI,
 	ENET_1000_SGMII
