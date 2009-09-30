@@ -55,13 +55,13 @@ int board_early_init_f(void)
    |
    +-------------------------------------------------------------------------*/
 
-	mtdcr (uicsr, 0xFFFFFFFF);   /* clear all ints */
-	mtdcr (uicer, 0x00000000);   /* disable all ints */
-	mtdcr (uiccr, 0x00000000);   /* set all to be non-critical */
-	mtdcr (uicpr, 0xFFFFFF83);   /* set int polarities */
-	mtdcr (uictr, 0x10000000);   /* set int trigger levels */
-	mtdcr (uicvcr, 0x00000001);  /* set vect base=0,INT0 highest priority */
-	mtdcr (uicsr, 0xFFFFFFFF);   /* clear all ints */
+	mtdcr (UIC0SR, 0xFFFFFFFF);   /* clear all ints */
+	mtdcr (UIC0ER, 0x00000000);   /* disable all ints */
+	mtdcr (UIC0CR, 0x00000000);   /* set all to be non-critical */
+	mtdcr (UIC0PR, 0xFFFFFF83);   /* set int polarities */
+	mtdcr (UIC0TR, 0x10000000);   /* set int trigger levels */
+	mtdcr (UIC0VCR, 0x00000001);  /* set vect base=0,INT0 highest priority */
+	mtdcr (UIC0SR, 0xFFFFFFFF);   /* clear all ints */
 
 	mtebc (EBC0_CFG, 0xa8400000);   /* EBC always driven */
 
@@ -103,28 +103,28 @@ phys_size_t initdram (int board_type)
 
 	tot_size = 0;
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B0CR);
 	tmp = mfdcr (SDRAM0_CFGDATA);
 	if (tmp & 0x00000001) {
 		bank_size = 0x00400000 << ((tmp >> 17) & 0x7);
 		tot_size += bank_size;
 	}
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb1cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B1CR);
 	tmp = mfdcr (SDRAM0_CFGDATA);
 	if (tmp & 0x00000001) {
 		bank_size = 0x00400000 << ((tmp >> 17) & 0x7);
 		tot_size += bank_size;
 	}
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb2cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B2CR);
 	tmp = mfdcr (SDRAM0_CFGDATA);
 	if (tmp & 0x00000001) {
 		bank_size = 0x00400000 << ((tmp >> 17) & 0x7);
 		tot_size += bank_size;
 	}
 
-	mtdcr (SDRAM0_CFGADDR, mem_mb3cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B3CR);
 	tmp = mfdcr (SDRAM0_CFGDATA);
 	if (tmp & 0x00000001) {
 		bank_size = 0x00400000 << ((tmp >> 17) & 0x7);

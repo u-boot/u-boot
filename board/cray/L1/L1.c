@@ -113,13 +113,13 @@ int board_early_init_f (void)
 {
 	/* Running from ROM: global data is still READONLY */
 	init_sdram ();
-	mtdcr (uicsr, 0xFFFFFFFF);	/* clear all ints */
-	mtdcr (uicer, 0x00000000);	/* disable all ints */
-	mtdcr (uiccr, 0x00000020);	/* set all but FPGA SMI to be non-critical */
-	mtdcr (uicpr, 0xFFFFFFE0);	/* set int polarities */
-	mtdcr (uictr, 0x10000000);	/* set int trigger levels */
-	mtdcr (uicvcr, 0x00000001);	/* set vect base=0,INT0 highest priority */
-	mtdcr (uicsr, 0xFFFFFFFF);	/* clear all ints */
+	mtdcr (UIC0SR, 0xFFFFFFFF);	/* clear all ints */
+	mtdcr (UIC0ER, 0x00000000);	/* disable all ints */
+	mtdcr (UIC0CR, 0x00000020);	/* set all but FPGA SMI to be non-critical */
+	mtdcr (UIC0PR, 0xFFFFFFE0);	/* set int polarities */
+	mtdcr (UIC0TR, 0x10000000);	/* set int trigger levels */
+	mtdcr (UIC0VCR, 0x00000001);	/* set vect base=0,INT0 highest priority */
+	mtdcr (UIC0SR, 0xFFFFFFFF);	/* clear all ints */
 	return 0;
 }
 
@@ -198,7 +198,7 @@ static void init_sdram (void)
  unsigned long tmp;
 
 	/* write SDRAM bank 0 register */
-	mtdcr (SDRAM0_CFGADDR, mem_mb0cf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_B0CR);
 	mtdcr (SDRAM0_CFGDATA, 0x00062001);
 
 /* Set the SDRAM Timing reg, SDTR1 and the refresh timer reg, RTR.	*/
@@ -212,25 +212,25 @@ static void init_sdram (void)
 	/* divisor = ((mfdcr(strap)>> 28) & 0x3); */
 
 /* write SDRAM timing for 100MHz. */
-	mtdcr (SDRAM0_CFGADDR, mem_sdtr1);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_TR);
 	mtdcr (SDRAM0_CFGDATA, 0x0086400D);
 
 /* write SDRAM refresh interval register */
-	mtdcr (SDRAM0_CFGADDR, mem_rtr);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_RTR);
 	mtdcr (SDRAM0_CFGDATA, 0x05F00000);
 	udelay (200);
 
 /* sdram controller.*/
-	mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_CFG);
 	mtdcr (SDRAM0_CFGDATA, 0x90800000);
 	udelay (200);
 
 /* initially, disable ECC on all banks */
 	udelay (200);
-	mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_ECCCFG);
 	tmp = mfdcr (SDRAM0_CFGDATA);
 	tmp &= 0xff0fffff;
-	mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_ECCCFG);
 	mtdcr (SDRAM0_CFGDATA, tmp);
 
 	return;
@@ -282,15 +282,15 @@ int testdram (void)
 	}
 	printf ("Enable ECC..");
 
-	mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_CFG);
 	tmp = (mfdcr (SDRAM0_CFGDATA) & ~0xFFE00000) | 0x90800000;
-	mtdcr (SDRAM0_CFGADDR, mem_mcopt1);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_CFG);
 	mtdcr (SDRAM0_CFGDATA, tmp);
 	udelay (600);
 	for (p = (unsigned long) 0; ((unsigned long) p < L1_MEMSIZE); *p++ = 0L)
 		;
 	udelay (400);
-	mtdcr (SDRAM0_CFGADDR, mem_ecccf);
+	mtdcr (SDRAM0_CFGADDR, SDRAM0_ECCCFG);
 	tmp = mfdcr (SDRAM0_CFGDATA);
 	tmp |= 0x00800000;
 	mtdcr (SDRAM0_CFGDATA, tmp);

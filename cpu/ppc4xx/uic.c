@@ -109,7 +109,7 @@ void external_interrupt(struct pt_regs *regs)
 	/*
 	 * Read masked interrupt status register to determine interrupt source
 	 */
-	uic_msr = mfdcr(uic0msr);
+	uic_msr = mfdcr(UIC0MSR);
 
 #if (UIC_MAX > 1)
 	if ((UIC_MASK(VECNUM_UIC1CI) & uic_msr) ||
@@ -129,7 +129,7 @@ void external_interrupt(struct pt_regs *regs)
 		uic_interrupt(UIC3_DCR_BASE, 96);
 #endif
 
-	mtdcr(uic0sr, (uic_msr & UICB0_ALL));
+	mtdcr(UIC0SR, (uic_msr & UICB0_ALL));
 
 	if (uic_msr & ~(UICB0_ALL))
 		uic_interrupt(UIC0_DCR_BASE, 0);
@@ -140,13 +140,13 @@ void external_interrupt(struct pt_regs *regs)
 void pic_irq_ack(unsigned int vec)
 {
 	if ((vec >= 0) && (vec < 32))
-		mtdcr(uicsr, UIC_MASK(vec));
+		mtdcr(UIC0SR, UIC_MASK(vec));
 	else if ((vec >= 32) && (vec < 64))
-		mtdcr(uic1sr, UIC_MASK(vec));
+		mtdcr(UIC1SR, UIC_MASK(vec));
 	else if ((vec >= 64) && (vec < 96))
-		mtdcr(uic2sr, UIC_MASK(vec));
+		mtdcr(UIC2SR, UIC_MASK(vec));
 	else if (vec >= 96)
-		mtdcr(uic3sr, UIC_MASK(vec));
+		mtdcr(UIC3SR, UIC_MASK(vec));
 }
 
 /*
@@ -156,13 +156,13 @@ void pic_irq_enable(unsigned int vec)
 {
 
 	if ((vec >= 0) && (vec < 32))
-		mtdcr(uicer, mfdcr(uicer) | UIC_MASK(vec));
+		mtdcr(UIC0ER, mfdcr(UIC0ER) | UIC_MASK(vec));
 	else if ((vec >= 32) && (vec < 64))
-		mtdcr(uic1er, mfdcr(uic1er) | UIC_MASK(vec));
+		mtdcr(UIC1ER, mfdcr(UIC1ER) | UIC_MASK(vec));
 	else if ((vec >= 64) && (vec < 96))
-		mtdcr(uic2er, mfdcr(uic2er) | UIC_MASK(vec));
+		mtdcr(UIC2ER, mfdcr(UIC2ER) | UIC_MASK(vec));
 	else if (vec >= 96)
-		mtdcr(uic3er, mfdcr(uic3er) | UIC_MASK(vec));
+		mtdcr(UIC3ER, mfdcr(UIC3ER) | UIC_MASK(vec));
 
 	debug("Install interrupt vector %d\n", vec);
 }
@@ -170,11 +170,11 @@ void pic_irq_enable(unsigned int vec)
 void pic_irq_disable(unsigned int vec)
 {
 	if ((vec >= 0) && (vec < 32))
-		mtdcr(uicer, mfdcr(uicer) & ~UIC_MASK(vec));
+		mtdcr(UIC0ER, mfdcr(UIC0ER) & ~UIC_MASK(vec));
 	else if ((vec >= 32) && (vec < 64))
-		mtdcr(uic1er, mfdcr(uic1er) & ~UIC_MASK(vec));
+		mtdcr(UIC1ER, mfdcr(UIC1ER) & ~UIC_MASK(vec));
 	else if ((vec >= 64) && (vec < 96))
-		mtdcr(uic2er, mfdcr(uic2er) & ~UIC_MASK(vec));
+		mtdcr(UIC2ER, mfdcr(UIC2ER) & ~UIC_MASK(vec));
 	else if (vec >= 96)
-		mtdcr(uic3er, mfdcr(uic3er) & ~UIC_MASK(vec));
+		mtdcr(UIC3ER, mfdcr(UIC3ER) & ~UIC_MASK(vec));
 }

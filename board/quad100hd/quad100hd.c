@@ -40,13 +40,13 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_early_init_f(void)
 {
 	/* taken from PPCBoot */
-	mtdcr(uicsr, 0xFFFFFFFF);	/* clear all ints */
-	mtdcr(uicer, 0x00000000);	/* disable all ints */
-	mtdcr(uiccr, 0x00000000);
-	mtdcr(uicpr, 0xFFFF7FFE);	/* set int polarities */
-	mtdcr(uictr, 0x00000000);	/* set int trigger levels */
-	mtdcr(uicsr, 0xFFFFFFFF);	/* clear all ints */
-	mtdcr(uicvcr, 0x00000001);	/* set vect base=0,INT0 highest priority */
+	mtdcr(UIC0SR, 0xFFFFFFFF);	/* clear all ints */
+	mtdcr(UIC0ER, 0x00000000);	/* disable all ints */
+	mtdcr(UIC0CR, 0x00000000);
+	mtdcr(UIC0PR, 0xFFFF7FFE);	/* set int polarities */
+	mtdcr(UIC0TR, 0x00000000);	/* set int trigger levels */
+	mtdcr(UIC0SR, 0xFFFFFFFF);	/* clear all ints */
+	mtdcr(UIC0VCR, 0x00000001);	/* set vect base=0,INT0 highest priority */
 
 	mtdcr(CPC0_SRR, 0x00040000);   /* Hold PCI bridge in reset */
 

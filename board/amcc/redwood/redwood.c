@@ -416,41 +416,41 @@ static void early_init_UIC(void)
 	 * interrupt trigger levels.  Make bit 0 High  priority.  Clear all
 	 * interrupts again.
 	 */
-	mtdcr(uic3sr, 0xffffffff);	/* Clear all interrupts */
-	mtdcr(uic3er, 0x00000000);	/* disable all interrupts */
-	mtdcr(uic3cr, 0x00000000);	/* Set Critical / Non Critical
+	mtdcr(UIC3SR, 0xffffffff);	/* Clear all interrupts */
+	mtdcr(UIC3ER, 0x00000000);	/* disable all interrupts */
+	mtdcr(UIC3CR, 0x00000000);	/* Set Critical / Non Critical
 					 * interrupts */
-	mtdcr(uic3pr, 0xffffffff);	/* Set Interrupt Polarities */
-	mtdcr(uic3tr, 0x001fffff);	/* Set Interrupt Trigger Levels */
-	mtdcr(uic3vr, 0x00000000);	/* int31 highest, base=0x000 */
-	mtdcr(uic3sr, 0xffffffff);	/* clear all  interrupts */
+	mtdcr(UIC3PR, 0xffffffff);	/* Set Interrupt Polarities */
+	mtdcr(UIC3TR, 0x001fffff);	/* Set Interrupt Trigger Levels */
+	mtdcr(UIC3VR, 0x00000000);	/* int31 highest, base=0x000 */
+	mtdcr(UIC3SR, 0xffffffff);	/* clear all  interrupts */
 
-	mtdcr(uic2sr, 0xffffffff);	/* Clear all interrupts */
-	mtdcr(uic2er, 0x00000000);	/* disable all interrupts */
-	mtdcr(uic2cr, 0x00000000);	/* Set Critical / Non Critical
+	mtdcr(UIC2SR, 0xffffffff);	/* Clear all interrupts */
+	mtdcr(UIC2ER, 0x00000000);	/* disable all interrupts */
+	mtdcr(UIC2CR, 0x00000000);	/* Set Critical / Non Critical
 					 * interrupts */
-	mtdcr(uic2pr, 0xebebebff);	/* Set Interrupt Polarities */
-	mtdcr(uic2tr, 0x74747400);	/* Set Interrupt Trigger Levels */
-	mtdcr(uic2vr, 0x00000000);	/* int31 highest, base=0x000 */
-	mtdcr(uic2sr, 0xffffffff);	/* clear all interrupts */
+	mtdcr(UIC2PR, 0xebebebff);	/* Set Interrupt Polarities */
+	mtdcr(UIC2TR, 0x74747400);	/* Set Interrupt Trigger Levels */
+	mtdcr(UIC2VR, 0x00000000);	/* int31 highest, base=0x000 */
+	mtdcr(UIC2SR, 0xffffffff);	/* clear all interrupts */
 
-	mtdcr(uic1sr, 0xffffffff);	/* Clear all interrupts */
-	mtdcr(uic1er, 0x00000000);	/* disable all interrupts */
-	mtdcr(uic1cr, 0x00000000);	/* Set Critical / Non Critical
+	mtdcr(UIC1SR, 0xffffffff);	/* Clear all interrupts */
+	mtdcr(UIC1ER, 0x00000000);	/* disable all interrupts */
+	mtdcr(UIC1CR, 0x00000000);	/* Set Critical / Non Critical
 					 * interrupts */
-	mtdcr(uic1pr, 0xffffffff);	/* Set Interrupt Polarities */
-	mtdcr(uic1tr, 0x001fc0ff);	/* Set Interrupt Trigger Levels */
-	mtdcr(uic1vr, 0x00000000);	/* int31 highest, base=0x000 */
-	mtdcr(uic1sr, 0xffffffff);	/* clear all interrupts */
+	mtdcr(UIC1PR, 0xffffffff);	/* Set Interrupt Polarities */
+	mtdcr(UIC1TR, 0x001fc0ff);	/* Set Interrupt Trigger Levels */
+	mtdcr(UIC1VR, 0x00000000);	/* int31 highest, base=0x000 */
+	mtdcr(UIC1SR, 0xffffffff);	/* clear all interrupts */
 
-	mtdcr(uic0sr, 0xffffffff);	/* Clear all interrupts */
-	mtdcr(uic0er, 0x00000000);	/* disable all interrupts excepted
+	mtdcr(UIC0SR, 0xffffffff);	/* Clear all interrupts */
+	mtdcr(UIC0ER, 0x00000000);	/* disable all interrupts excepted
 					 * cascade to be checked */
-	mtdcr(uic0cr, 0x00104001);	/* Set Critical / Non Critical
+	mtdcr(UIC0CR, 0x00104001);	/* Set Critical / Non Critical
 					 * interrupts */
-	mtdcr(uic0pr, 0xffffffff);	/* Set Interrupt Polarities */
-	mtdcr(uic0tr, 0x000f003c);	/* Set Interrupt Trigger Levels */
-	mtdcr(uic0vr, 0x00000000);	/* int31 highest, base=0x000 */
-	mtdcr(uic0sr, 0xffffffff);	/* clear all interrupts */
+	mtdcr(UIC0PR, 0xffffffff);	/* Set Interrupt Polarities */
+	mtdcr(UIC0TR, 0x000f003c);	/* Set Interrupt Trigger Levels */
+	mtdcr(UIC0VR, 0x00000000);	/* int31 highest, base=0x000 */
+	mtdcr(UIC0SR, 0xffffffff);	/* clear all interrupts */
 
 }

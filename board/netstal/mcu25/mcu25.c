@@ -64,12 +64,12 @@ int board_early_init_f (void)
 	 *      IRQ 17-24 RESERVED/UNUSED
 	 *      IRQ 31 (EXT IRQ 6) (unused)
 	 */
-	mtdcr(uicsr, 0xFFFFFFFF); /* clear all ints */
-	mtdcr(uicer, 0x00000000); /* disable all ints */
-	mtdcr(uiccr, 0x00000000); /* set all to be non-critical */
-	mtdcr(uicpr, 0xFFFFE000); /* set int polarities */
-	mtdcr(uictr, 0x00000000); /* set int trigger levels */
-	mtdcr(uicsr, 0xFFFFFFFF); /* clear all ints */
+	mtdcr(UIC0SR, 0xFFFFFFFF); /* clear all ints */
+	mtdcr(UIC0ER, 0x00000000); /* disable all ints */
+	mtdcr(UIC0CR, 0x00000000); /* set all to be non-critical */
+	mtdcr(UIC0PR, 0xFFFFE000); /* set int polarities */
+	mtdcr(UIC0TR, 0x00000000); /* set int trigger levels */
+	mtdcr(UIC0SR, 0xFFFFFFFF); /* clear all ints */
 
 	mtdcr(CPC0_CR1, CPC0_CR1_VALUE);
 	mtdcr(CPC0_ECR, 0x60606000);

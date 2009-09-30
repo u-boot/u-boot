@@ -155,13 +155,13 @@ int board_early_init_f (void)
 	 * IRQ 30 (EXT IRQ 5) FPGA Timestamp; active low; level sensitive
 	 * IRQ 31 (EXT IRQ 6) PCI Reset; active low; level sensitive
 	 */
-	mtdcr(uicsr, 0xFFFFFFFF);        /* clear all ints */
-	mtdcr(uicer, 0x00000000);        /* disable all ints */
-	mtdcr(uiccr, 0x00000000);        /* set all to be non-critical*/
-	mtdcr(uicpr, 0xFFFFFF80);        /* set int polarities */
-	mtdcr(uictr, 0x10000000);        /* set int trigger levels */
-	mtdcr(uicvcr, 0x00000001);       /* set vect base=0,INT0 highest priority*/
-	mtdcr(uicsr, 0xFFFFFFFF);        /* clear all ints */
+	mtdcr(UIC0SR, 0xFFFFFFFF);        /* clear all ints */
+	mtdcr(UIC0ER, 0x00000000);        /* disable all ints */
+	mtdcr(UIC0CR, 0x00000000);        /* set all to be non-critical*/
+	mtdcr(UIC0PR, 0xFFFFFF80);        /* set int polarities */
+	mtdcr(UIC0TR, 0x10000000);        /* set int trigger levels */
+	mtdcr(UIC0VCR, 0x00000001);       /* set vect base=0,INT0 highest priority*/
+	mtdcr(UIC0SR, 0xFFFFFFFF);        /* clear all ints */
 
 	/*
 	 * Setup GPIO pins (IRQ4/GPIO21 as GPIO)
@@ -271,7 +271,7 @@ int misc_init_r (void)
 				pci_write_config_dword(PCIDEVID_405GP, i, *ptr++);
 			}
 		}
-		mtdcr(uicsr, 0xFFFFFFFF);        /* clear all ints */
+		mtdcr(UIC0SR, 0xFFFFFFFF);        /* clear all ints */
 
 		*magic = 0;      /* clear pci reconfig magic again */
 	}

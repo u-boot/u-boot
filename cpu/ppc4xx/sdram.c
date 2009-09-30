@@ -188,14 +188,14 @@ phys_size_t initdram(int board_type)
 		/*
 		 * Disable memory controller.
 		 */
-		mtsdram(mem_mcopt1, 0x00000000);
+		mtsdram(SDRAM0_CFG, 0x00000000);
 
 		/*
 		 * Set MB0CF for bank 0.
 		 */
-		mtsdram(mem_mb0cf, mb0cf[i].reg);
-		mtsdram(mem_sdtr1, sdtr1);
-		mtsdram(mem_rtr, compute_rtr(speed, mb0cf[i].rows, 64));
+		mtsdram(SDRAM0_B0CR, mb0cf[i].reg);
+		mtsdram(SDRAM0_TR, sdtr1);
+		mtsdram(SDRAM0_RTR, compute_rtr(speed, mb0cf[i].rows, 64));
 
 		udelay(200);
 
@@ -204,7 +204,7 @@ phys_size_t initdram(int board_type)
 		 * Set DC_EN to '1' and BRD_PRF to '01' for 16 byte PLB Burst
 		 * read/prefetch.
 		 */
-		mtsdram(mem_mcopt1, 0x80800000);
+		mtsdram(SDRAM0_CFG, 0x80800000);
 
 		udelay(10000);
 
@@ -216,9 +216,9 @@ phys_size_t initdram(int board_type)
 			 * defined (assumes same type as bank 0)
 			 */
 #ifdef CONFIG_SDRAM_BANK1
-			mtsdram(mem_mcopt1, 0x00000000);
-			mtsdram(mem_mb1cf, mb0cf[i].size | mb0cf[i].reg);
-			mtsdram(mem_mcopt1, 0x80800000);
+			mtsdram(SDRAM0_CFG, 0x00000000);
+			mtsdram(SDRAM0_B1CR, mb0cf[i].size | mb0cf[i].reg);
+			mtsdram(SDRAM0_CFG, 0x80800000);
 			udelay(10000);
 
 			/*
@@ -228,8 +228,8 @@ phys_size_t initdram(int board_type)
 			 */
 			if (get_ram_size((long *)mb0cf[i].size, mb0cf[i].size) !=
 			    mb0cf[i].size) {
-				mtsdram(mem_mb1cf, 0);
-				mtsdram(mem_mcopt1, 0);
+				mtsdram(SDRAM0_B1CR, 0);
+				mtsdram(SDRAM0_CFG, 0);
 			} else {
 				/*
 				 * We have two identical banks, so the size
@@ -315,7 +315,7 @@ static void sdram_tr1_set(int ram_address, int* tr1_value)
 	/* go through all possible SDRAM0_TR1[RDCT] values */
 	for (i=0; i<=0x1ff; i++) {
 		/* set the current value for TR1 */
-		mtsdram(mem_tr1, (0x80800800 | i));
+		mtsdram(SDRAM0_TR1, (0x80800800 | i));
 
 		/* write values */
 		for (j=0; j<NUM_TRIES; j++) {
@@ -383,31 +383,31 @@ phys_size_t initdram(int board_type)
 		/*
 		 * Disable memory controller.
 		 */
-		mtsdram(mem_cfg0, 0x00000000);
+		mtsdram(SDRAM0_CFG0, 0x00000000);
 
 		/*
 		 * Setup some default
 		 */
-		mtsdram(mem_uabba, 0x00000000); /* ubba=0 (default)		*/
-		mtsdram(mem_slio, 0x00000000);	/* rdre=0 wrre=0 rarw=0		*/
-		mtsdram(mem_devopt, 0x00000000); /* dll=0 ds=0 (normal)		*/
-		mtsdram(mem_wddctr, CONFIG_SYS_SDRAM0_WDDCTR);
-		mtsdram(mem_clktr, 0x40000000); /* clkp=1 (90 deg wr) dcdt=0	*/
+		mtsdram(SDRAM0_UABBA, 0x00000000); /* ubba=0 (default)		*/
+		mtsdram(SDRAM0_SLIO, 0x00000000);	/* rdre=0 wrre=0 rarw=0		*/
+		mtsdram(SDRAM0_DEVOPT, 0x00000000); /* dll=0 ds=0 (normal)		*/
+		mtsdram(SDRAM0_WDDCTR, CONFIG_SYS_SDRAM0_WDDCTR);
+		mtsdram(SDRAM0_CLKTR, 0x40000000); /* clkp=1 (90 deg wr) dcdt=0	*/
 
 		/*
 		 * Following for CAS Latency = 2.5 @ 133 MHz PLB
 		 */
-		mtsdram(mem_b0cr, mb0cf[i].reg);
-		mtsdram(mem_tr0, CONFIG_SYS_SDRAM0_TR0);
-		mtsdram(mem_tr1, 0x80800800);	/* SS=T2 SL=STAGE 3 CD=1 CT=0x00*/
-		mtsdram(mem_rtr, CONFIG_SYS_SDRAM0_RTR);
-		mtsdram(mem_cfg1, 0x00000000);	/* Self-refresh exit, disable PM*/
+		mtsdram(SDRAM0_B0CR, mb0cf[i].reg);
+		mtsdram(SDRAM0_TR0, CONFIG_SYS_SDRAM0_TR0);
+		mtsdram(SDRAM0_TR1, 0x80800800);	/* SS=T2 SL=STAGE 3 CD=1 CT=0x00*/
+		mtsdram(SDRAM0_RTR, CONFIG_SYS_SDRAM0_RTR);
+		mtsdram(SDRAM0_CFG1, 0x00000000);	/* Self-refresh exit, disable PM*/
 		udelay(400);			/* Delay 200 usecs (min)	*/
 
 		/*
 		 * Enable the controller, then wait for DCEN to complete
 		 */
-		mtsdram(mem_cfg0, CONFIG_SYS_SDRAM0_CFG0);
+		mtsdram(SDRAM0_CFG0, CONFIG_SYS_SDRAM0_CFG0);
 		udelay(10000);
 
 		if (get_ram_size(0, mb0cf[i].size) == mb0cf[i].size) {
@@ -416,7 +416,7 @@ phys_size_t initdram(int board_type)
 			 * Optimize TR1 to current hardware environment
 			 */
 			sdram_tr1_set(0x00000000, &tr1_bank1);
-			mtsdram(mem_tr1, (tr1_bank1 | 0x80800800));
+			mtsdram(SDRAM0_TR1, (tr1_bank1 | 0x80800800));
 
 
 			/*
@@ -424,9 +424,9 @@ phys_size_t initdram(int board_type)
 			 * defined (assumes same type as bank 0)
 			 */
 #ifdef CONFIG_SDRAM_BANK1
-			mtsdram(mem_cfg0, 0);
-			mtsdram(mem_b1cr, mb0cf[i].size | mb0cf[i].reg);
-			mtsdram(mem_cfg0, CONFIG_SYS_SDRAM0_CFG0);
+			mtsdram(SDRAM0_CFG0, 0);
+			mtsdram(SDRAM0_B1CR, mb0cf[i].size | mb0cf[i].reg);
+			mtsdram(SDRAM0_CFG0, CONFIG_SYS_SDRAM0_CFG0);
 			udelay(10000);
 
 			/*
@@ -436,9 +436,9 @@ phys_size_t initdram(int board_type)
 			 */
 			if (get_ram_size((long *)mb0cf[i].size, mb0cf[i].size)
 			    != mb0cf[i].size) {
-				mtsdram(mem_cfg0, 0);
-				mtsdram(mem_b1cr, 0);
-				mtsdram(mem_cfg0, CONFIG_SYS_SDRAM0_CFG0);
+				mtsdram(SDRAM0_CFG0, 0);
+				mtsdram(SDRAM0_B1CR, 0);
+				mtsdram(SDRAM0_CFG0, CONFIG_SYS_SDRAM0_CFG0);
 				udelay(10000);
 			} else {
 				/*

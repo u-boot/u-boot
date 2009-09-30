@@ -38,20 +38,20 @@
 int board_early_init_f (void)
 {
 #if 0 /* test-only */
-	mtdcr (uicsr, 0xFFFFFFFF);      /* clear all ints */
-	mtdcr (uicer, 0x00000000);      /* disable all ints */
-	mtdcr (uiccr, 0x00000010);
-	mtdcr (uicpr, 0xFFFF7FF0);      /* set int polarities */
-	mtdcr (uictr, 0x00000010);      /* set int trigger levels */
-	mtdcr (uicsr, 0xFFFFFFFF);      /* clear all ints */
+	mtdcr (UIC0SR, 0xFFFFFFFF);      /* clear all ints */
+	mtdcr (UIC0ER, 0x00000000);      /* disable all ints */
+	mtdcr (UIC0CR, 0x00000010);
+	mtdcr (UIC0PR, 0xFFFF7FF0);      /* set int polarities */
+	mtdcr (UIC0TR, 0x00000010);      /* set int trigger levels */
+	mtdcr (UIC0SR, 0xFFFFFFFF);      /* clear all ints */
 #else
-	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
-	mtdcr(uicer, 0x00000000);       /* disable all ints */
-	mtdcr(uiccr, 0x00000000);       /* set all to be non-critical*/
-	mtdcr(uicpr, 0xFFFFFFF0);       /* set int polarities */
-	mtdcr(uictr, 0x10000000);       /* set int trigger levels */
-	mtdcr(uicvcr, 0x00000001);      /* set vect base=0,INT0 highest priority*/
-	mtdcr(uicsr, 0xFFFFFFFF);       /* clear all ints */
+	mtdcr(UIC0SR, 0xFFFFFFFF);       /* clear all ints */
+	mtdcr(UIC0ER, 0x00000000);       /* disable all ints */
+	mtdcr(UIC0CR, 0x00000000);       /* set all to be non-critical*/
+	mtdcr(UIC0PR, 0xFFFFFFF0);       /* set int polarities */
+	mtdcr(UIC0TR, 0x10000000);       /* set int trigger levels */
+	mtdcr(UIC0VCR, 0x00000001);      /* set vect base=0,INT0 highest priority*/
+	mtdcr(UIC0SR, 0xFFFFFFFF);       /* clear all ints */
 #endif
 
 #if 1 /* test-only */
@@ -114,18 +114,17 @@ int checkboard (void)
 
 long int init_sdram_static_settings(void)
 {
-#define mtsdram0(reg, data)  mtdcr(SDRAM0_CFGADDR,reg);mtdcr(SDRAM0_CFGDATA,data)
 	/* disable memcontroller so updates work */
-	mtsdram0( mem_mcopt1, MEM_MCOPT1_INIT_VAL );
-	mtsdram0( mem_rtr   , MEM_RTR_INIT_VAL   );
-	mtsdram0( mem_pmit  , MEM_PMIT_INIT_VAL  );
-	mtsdram0( mem_mb0cf , MEM_MB0CF_INIT_VAL );
-	mtsdram0( mem_mb1cf , MEM_MB1CF_INIT_VAL );
-	mtsdram0( mem_sdtr1 , MEM_SDTR1_INIT_VAL );
+	mtsdram(SDRAM0_CFG, MEM_MCOPT1_INIT_VAL);
+	mtsdram(SDRAM0_RTR, MEM_RTR_INIT_VAL);
+	mtsdram(SDRAM0_PMIT, MEM_PMIT_INIT_VAL);
+	mtsdram(SDRAM0_B0CR, MEM_MB0CF_INIT_VAL);
+	mtsdram(SDRAM0_B1CR, MEM_MB1CF_INIT_VAL);
+	mtsdram(SDRAM0_TR, MEM_SDTR1_INIT_VAL);
 
 	/* SDRAM have a power on delay,  500 micro should do */
 	udelay(500);
-	mtsdram0( mem_mcopt1, MEM_MCOPT1_INIT_VAL|SDRAM0_CFG_ENABLE );
+	mtsdram(SDRAM0_CFG, MEM_MCOPT1_INIT_VAL|SDRAM0_CFG_ENABLE);
 
 	return (CONFIG_SYS_SDRAM_SIZE); /* CONFIG_SYS_SDRAM_SIZE is in G2000.h */
  }
