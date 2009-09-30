@@ -1,4 +1,7 @@
 /*
+ * (C) Copyright 2009
+ * Matthias Fuchs, esd gmbh, matthias.fuchs@esd.eu
+ *
  * (C) Copyright 2006
  * Sylvie Gohl,             AMCC/IBM, gohl.sylvie@fr.ibm.com
  * Jacqueline Pira-Ferriol, AMCC/IBM, jpira-ferriol@fr.ibm.com
@@ -31,33 +34,30 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/io.h>
+#include <asm/mmu.h>
 #include <ppc440.h>
 
 extern int denali_wait_for_dlllock(void);
 extern void denali_core_search_data_eye(void);
 
+struct sdram_conf_s {
+	ulong size;
+	int rows;
+	int banks;
+};
 
-#if defined(CONFIG_NAND_SPL)
-/* Using cpu/ppc4xx/speed.c to calculate the bus frequency is too big
- * for the 4k NAND boot image so define bus_frequency to 133MHz here
- * which is save for the refresh counter setup.
- */
-#define get_bus_freq(val)	133000000
-#endif
+struct sdram_conf_s sdram_conf[] = {
+	{(1024 << 20), 14, 8}, /* 1GByte: 4x2GBit, 14x10, 8 banks */
+	{(512 << 20),  13, 8}, /* 512MByte: 4x1GBit, 13x10, 8 banks */
+	{(256 << 20),  13, 4}, /* 256MByte: 4x512MBit, 13x10, 4 banks */
+};
 
-/*************************************************************************
- *
+/*
  * initdram -- 440EPx's DDR controller is a DENALI Core
- *
- ************************************************************************/
-phys_size_t initdram (int board_type)
+ */
+int initdram_by_rb(int rows, int banks)
 {
-#if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
-#if !defined(CONFIG_NAND_SPL)
 	ulong speed = get_bus_freq(0);
-#else
-	ulong speed = 133333333;	/* 133MHz is on the safe side	*/
-#endif
 
 	mtsdram(DDR0_02, 0x00000000);
 
@@ -89,21 +89,25 @@ phys_size_t initdram (int board_type)
 	mtsdram(DDR0_27, 0x0000682B);
 	mtsdram(DDR0_28, 0x00000000);
 	mtsdram(DDR0_31, 0x00000000);
-	mtsdram(DDR0_42, 0x01000006);
-	mtsdram(DDR0_43, 0x030A0200);
+
+	mtsdram(DDR0_42,
+		DDR0_42_ADDR_PINS_DECODE(14 - rows) |
+		0x00000006);
+	mtsdram(DDR0_43,
+		DDR0_43_EIGHT_BANK_MODE_ENCODE(8 == banks ? 1 : 0) |
+		0x030A0200);
+
 	mtsdram(DDR0_44, 0x00000003);
 	mtsdram(DDR0_02, 0x00000001);
 
 	denali_wait_for_dlllock();
-#endif /* #ifndef CONFIG_NAND_U_BOOT */
 
 #ifdef CONFIG_DDR_DATA_EYE
-	/* -----------------------------------------------------------+
+	/*
 	 * Perform data eye search if requested.
-	 * ----------------------------------------------------------*/
+	 */
 	denali_core_search_data_eye();
 #endif
-
 	/*
 	 * Clear possible errors resulting from data-eye-search.
 	 * If not done, then we could get an interrupt later on when
@@ -111,5 +115,35 @@ phys_size_t initdram (int board_type)
 	 */
 	set_mcsr(get_mcsr());
 
-	return (CONFIG_SYS_MBYTES_SDRAM << 20);
+	return 0;
+}
+
+phys_size_t initdram(int board_type)
+{
+	phys_size_t size;
+	int n;
+
+	/* go through supported memory configurations */
+	for (n = 0; n < ARRAY_SIZE(sdram_conf); n++) {
+		size = sdram_conf[n].size;
+
+		/* program TLB entries */
+		program_tlb(0, CONFIG_SYS_SDRAM_BASE, size,
+			    TLB_WORD2_I_ENABLE);
+
+		/*
+		 * setup denali core
+		 */
+		initdram_by_rb(sdram_conf[n].rows,
+			       sdram_conf[n].banks);
+
+		/* check for suitable configuration */
+		if (get_ram_size(CONFIG_SYS_SDRAM_BASE, size) == size)
+			return size;
+
+		/* delete TLB entries */
+		remove_tlb(CONFIG_SYS_SDRAM_BASE, size);
+	}
+
+	return 0;
 }

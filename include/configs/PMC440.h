@@ -215,7 +215,6 @@
 /*-----------------------------------------------------------------------
  * DDR SDRAM
  *----------------------------------------------------------------------*/
-#define CONFIG_SYS_MBYTES_SDRAM	(256)	/* 256MB                        */
 #if !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_DDR_DATA_EYE	/* use DDR2 optimization        */
 #endif
