@@ -725,6 +725,10 @@ Alex Züpke <azu@sysgo.de>
 	lart		SA1100
 	dnp1110		SA1110
 
+Minkyu Kang <mk7.kang@samsung.com>
+
+	SMDKC100	ARM CORTEX-A8 (S5PC100 SoC)
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
