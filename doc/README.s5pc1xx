@@ -1,0 +1,56 @@
+
+Summary
+=======
+
+This README is about U-Boot support for SAMSUNG's ARM Cortex-A8 based S5PC1xx
+family of SoCs (S5PC100 [1] and S5PC110).
+
+Currently the following board is supported:
+
+* SMDKC100 [2]
+
+Toolchain
+=========
+
+While ARM Cortex-A8 support ARM v7 instruction set (-march=armv7a) we compile
+with -march=armv5 to allow more compilers to work. For U-Boot code this has
+no performance impact.
+
+Build
+=====
+
+* SMDKC100
+
+make smdkc100_config
+make
+
+
+Interfaces
+==========
+
+cpu
+
+To check SoC:
+
+	if (cpu_is_s5pc100())
+		printf("cpu is s5pc100\n");
+
+	or
+
+	if (cpu_is_s5pc110())
+		printf("cpu is s5pc110\n");
+
+gpio
+	not supported yet.
+
+Links
+=====
+
+[1] S5PC100:
+
+http://www.samsung.com/global/business/semiconductor/productInfo.do?
+fmly_id=229&partnum=S5PC100
+
+[2] SMDKC100:
+
+http://meritech.co.kr/eng/products/product_view.php?num=28
