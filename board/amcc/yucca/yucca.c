@@ -32,6 +32,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/4xx_pcie.h>
+#include <asm/errno.h>
 
 #include "yucca.h"
 
@@ -830,6 +831,8 @@ void pcie_setup_hoses(int busno)
 			yucca_setup_pcie_fpga_rootpoint(i);
 			ret = ppc4xx_init_pcie_rootport(i);
 		}
+		if (ret == -ENODEV)
+			continue;
 		if (ret) {
 			printf("PCIE%d: initialization as %s failed\n", i,
 			       is_end_point(i) ? "endpoint" : "root-complex");

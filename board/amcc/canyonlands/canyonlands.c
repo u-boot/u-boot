@@ -28,6 +28,7 @@
 #include <asm/mmu.h>
 #include <asm/4xx_pcie.h>
 #include <asm/gpio.h>
+#include <asm/errno.h>
 
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips */
 
@@ -414,6 +415,8 @@ void pcie_setup_hoses(int busno)
 			ret = ppc4xx_init_pcie_endport(i);
 		else
 			ret = ppc4xx_init_pcie_rootport(i);
+		if (ret == -ENODEV)
+			continue;
 		if (ret) {
 			printf("PCIE%d: initialization as %s failed\n", i,
 			       is_end_point(i) ? "endpoint" : "root-complex");
