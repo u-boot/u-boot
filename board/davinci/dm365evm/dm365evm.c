@@ -79,8 +79,8 @@ int board_eth_init(bd_t *bis)
 static void nand_dm365evm_select_chip(struct mtd_info *mtd, int chip)
 {
 	struct nand_chip	*this = mtd->priv;
-	u32			wbase = (u32) this->IO_ADDR_W;
-	u32			rbase = (u32) this->IO_ADDR_R;
+	unsigned long		wbase = (unsigned long) this->IO_ADDR_W;
+	unsigned long		rbase = (unsigned long) this->IO_ADDR_R;
 
 	if (chip == 1) {
 		__set_bit(14, &wbase);
