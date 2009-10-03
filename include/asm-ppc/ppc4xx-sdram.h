@@ -117,6 +117,7 @@
 #define SDRAM_MCSTS_MRSC	0x80000000
 #define SDRAM_MCSTS_SRMS	0x40000000
 #define SDRAM_MCSTS_CIS		0x20000000
+#define SDRAM_MCSTS_IDLE_NOT	0x00000000	/* Mem contr not idle		*/
 
 /*
  * SDRAM Refresh Timer Register
@@ -416,8 +417,7 @@
 #define SDRAM_SDTR3	0x87	/* DDR SDRAM timing 3                        */
 #define SDRAM_MMODE	0x88	/* memory mode                               */
 #define SDRAM_MEMODE	0x89	/* memory extended mode                      */
-#define SDRAM_ECCCR	0x98	/* ECC error status                          */
-#define SDRAM_ECCES	SDRAM_ECCCR
+#define SDRAM_ECCES	0x98	/* ECC error status                          */
 #define SDRAM_CID	0xA4	/* core ID                                   */
 #ifndef CONFIG_405EX
 #define SDRAM_RID	0xA8	/* revision ID                               */
@@ -1397,7 +1397,6 @@
 /*
  * Prototypes
  */
-void inline blank_string(int size);
 inline void ppc4xx_ibm_ddr2_register_dump(void);
 u32 mfdcr_any(u32);
 void mtdcr_any(u32, u32);
@@ -1405,6 +1404,8 @@ u32 ddr_wrdtr(u32);
 u32 ddr_clktr(u32);
 void spd_ddr_init_hang(void);
 u32 DQS_autocalibration(void);
+phys_size_t sdram_memsize(void);
+void dcbz_area(u32 start_address, u32 num_bytes);
 #endif /* __ASSEMBLY__ */
 
 #endif /* _PPC4xx_SDRAM_H_ */

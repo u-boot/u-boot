@@ -2,7 +2,7 @@
  *    Copyright (c) 2008 Nuovation System Designs, LLC
  *      Grant Erickson <gerickson@nuovations.com>
  *
- *    (C) Copyright 2005-2007
+ *    (C) Copyright 2005-2009
  *    Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  *    (C) Copyright 2002
@@ -42,81 +42,144 @@
 #include <ppc_defs.h>
 #include <asm/processor.h>
 #include <asm/io.h>
+#include <asm/mmu.h>
+#include <asm/cache.h>
 
 #include "ecc.h"
 
 #if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR) || \
     defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2)
 #if defined(CONFIG_DDR_ECC) || defined(CONFIG_SDRAM_ECC)
+
+#if defined(CONFIG_405EX)
 /*
- *  void ecc_init()
- *
- *  Description:
- *    This routine initializes a range of DRAM ECC memory with known
- *    data and enables ECC checking.
- *
- *  TO DO:
- *    - Improve performance by utilizing cache.
- *    - Further generalize to make usable by other 4xx variants (e.g.
- *      440EPx, et al).
- *
- *  Input(s):
- *    start - A pointer to the start of memory covered by ECC requiring
- *	      initialization.
- *    size  - The size, in bytes, of the memory covered by ECC requiring
- *	      initialization.
- *
- *  Output(s):
- *    start - A pointer to the start of memory covered by ECC with
- *	      CONFIG_SYS_ECC_PATTERN written to all locations and ECC data
- *	      primed.
- *
- *  Returns:
- *    N/A
+ * Currently only 405EX uses 16bit data bus width as an alternative
+ * option to 32bit data width (SDRAM0_MCOPT1_WDTH)
  */
+#define SDRAM_DATA_ALT_WIDTH	2
+#else
+#define SDRAM_DATA_ALT_WIDTH	8
+#endif
+
+static void wait_ddr_idle(void)
+{
+	u32 val;
+
+	do {
+		mfsdram(SDRAM_MCSTAT, val);
+	} while ((val & SDRAM_MCSTAT_IDLE_MASK) == SDRAM_MCSTAT_IDLE_NOT);
+}
+
+static void program_ecc_addr(unsigned long start_address,
+			     unsigned long num_bytes,
+			     unsigned long tlb_word2_i_value)
+{
+	unsigned long current_address;
+	unsigned long end_address;
+	unsigned long address_increment;
+	unsigned long mcopt1;
+	char str[] = "ECC generation -";
+	char slash[] = "\\|/-\\|/-";
+	int loop = 0;
+	int loopi = 0;
+
+	current_address = start_address;
+	mfsdram(SDRAM_MCOPT1, mcopt1);
+	if ((mcopt1 & SDRAM_MCOPT1_MCHK_MASK) != SDRAM_MCOPT1_MCHK_NON) {
+		mtsdram(SDRAM_MCOPT1,
+			(mcopt1 & ~SDRAM_MCOPT1_MCHK_MASK) | SDRAM_MCOPT1_MCHK_GEN);
+		sync();
+		eieio();
+		wait_ddr_idle();
+
+		puts(str);
+
+#ifdef CONFIG_440
+		if (tlb_word2_i_value == TLB_WORD2_I_ENABLE) {
+#endif
+			/* ECC bit set method for non-cached memory */
+			if ((mcopt1 & SDRAM_MCOPT1_DMWD_MASK) == SDRAM_MCOPT1_DMWD_32)
+				address_increment = 4;
+			else
+				address_increment = SDRAM_DATA_ALT_WIDTH;
+			end_address = current_address + num_bytes;
+
+			while (current_address < end_address) {
+				*((unsigned long *)current_address) = 0;
+				current_address += address_increment;
+
+				if ((loop++ % (2 << 20)) == 0) {
+					putc('\b');
+					putc(slash[loopi++ % 8]);
+				}
+			}
+#ifdef CONFIG_440
+		} else {
+			/* ECC bit set method for cached memory */
+			dcbz_area(start_address, num_bytes);
+			/* Write modified dcache lines back to memory */
+			clean_dcache_range(start_address, start_address + num_bytes);
+		}
+#endif /* CONFIG_440 */
+
+		blank_string(strlen(str));
+
+		sync();
+		eieio();
+		wait_ddr_idle();
+
+		/* clear ECC error repoting registers */
+		mtsdram(SDRAM_ECCES, 0xffffffff);
+		mtdcr(0x4c, 0xffffffff);
+
+		mtsdram(SDRAM_MCOPT1,
+			(mcopt1 & ~SDRAM_MCOPT1_MCHK_MASK) | SDRAM_MCOPT1_MCHK_CHK_REP);
+		sync();
+		eieio();
+		wait_ddr_idle();
+	}
+}
+
+#if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR)
 void ecc_init(unsigned long * const start, unsigned long size)
 {
-	const unsigned long pattern = CONFIG_SYS_ECC_PATTERN;
-	unsigned long * const end = (unsigned long * const)((long)start + size);
-	unsigned long * current = start;
-	unsigned long mcopt1;
-	long increment;
-
-	if (start >= end)
-		return;
-
-	mfsdram(SDRAM_ECC_CFG, mcopt1);
-
-	/* Enable ECC generation without checking or reporting */
-
-	mtsdram(SDRAM_ECC_CFG, ((mcopt1 & ~SDRAM_ECC_CFG_MCHK_MASK) |
-				SDRAM_ECC_CFG_MCHK_GEN));
-
-	increment = sizeof(u32);
-
-#if defined(CONFIG_440)
 	/*
-	 * Look at the geometry of SDRAM (data width) to determine whether we
-	 * can skip words when writing.
+	 * Init ECC with cache disabled (on PPC's with IBM DDR
+	 * controller (non DDR2), not tested with cache enabled yet
 	 */
+	program_ecc_addr((u32)start, size, TLB_WORD2_I_ENABLE);
+}
+#endif
 
-	if ((mcopt1 & SDRAM_ECC_CFG_DMWD_MASK) != SDRAM_ECC_CFG_DMWD_32)
-		increment = sizeof(u64);
-#endif /* defined(CONFIG_440) */
+#if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2)
+void do_program_ecc(unsigned long tlb_word2_i_value)
+{
+	unsigned long mcopt1;
+	unsigned long mcopt2;
+	unsigned long mcstat;
+	phys_size_t memsize = sdram_memsize();
 
-	while (current < end) {
-		*current = pattern;
-		 current = (unsigned long *)((long)current + increment);
+	if (memsize > CONFIG_MAX_MEM_MAPPED) {
+		printf("\nWarning: Can't enable ECC on systems with more than 2GB of SDRAM!\n");
+		return;
 	}
 
-	/* Wait until the writes are finished. */
+	mfsdram(SDRAM_MCOPT1, mcopt1);
+	mfsdram(SDRAM_MCOPT2, mcopt2);
 
-	sync();
+	if ((mcopt1 & SDRAM_MCOPT1_MCHK_MASK) != SDRAM_MCOPT1_MCHK_NON) {
+		/* DDR controller must be enabled and not in self-refresh. */
+		mfsdram(SDRAM_MCSTAT, mcstat);
+		if (((mcopt2 & SDRAM_MCOPT2_DCEN_MASK) == SDRAM_MCOPT2_DCEN_ENABLE)
+		    && ((mcopt2 & SDRAM_MCOPT2_SREN_MASK) == SDRAM_MCOPT2_SREN_EXIT)
+		    && ((mcstat & (SDRAM_MCSTAT_MIC_MASK | SDRAM_MCSTAT_SRMS_MASK))
+			== (SDRAM_MCSTAT_MIC_COMP | SDRAM_MCSTAT_SRMS_NOT_SF))) {
 
-	/* Enable ECC generation with checking and no reporting */
-
-	mtsdram(SDRAM_ECC_CFG, ((mcopt1 & ~SDRAM_ECC_CFG_MCHK_MASK) |
-				SDRAM_ECC_CFG_MCHK_CHK));
+			program_ecc_addr(0, memsize, tlb_word2_i_value);
+		}
+	}
 }
+#endif
+
 #endif /* defined(CONFIG_DDR_ECC) || defined(CONFIG_SDRAM_ECC) */
 #endif /* defined(CONFIG_SDRAM_PPC4xx_IBM_DDR)... */
