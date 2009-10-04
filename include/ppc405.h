@@ -578,7 +578,7 @@
 #define    IICEXTSTS	    0x09
 #define    IICLSADR	    0x0A
 #define    IICHSADR	    0x0B
-#define    IICCLKDIV	    0x0C
+#define    IIC0_CLKDIV	    0x0C
 #define    IICINTRMSK	    0x0D
 #define    IICXFRCNT	    0x0E
 #define    IICXTCNTLSS	    0x0F
@@ -760,7 +760,7 @@
 #define CPR0_PLLD	0x060
 #define CPR0_CPUD	0x080
 #define CPR0_PLBD	0x0a0
-#define CPR0_OPBD	0x0c0
+#define CPR0_OPBD0	0x0c0
 #define CPR0_PERD	0x0e0
 
 #define SDR0_PINSTP	0x0040
