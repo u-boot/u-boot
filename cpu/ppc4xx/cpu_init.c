@@ -58,13 +58,13 @@ void reconfigure_pll(u32 new_cpu_freq)
 		target_perdv0 = 4;
 		target_spcid0 = 4;
 
-		mfcpr(CPR0_PRIMBD, reg);
+		mfcpr(CPR0_PRIMBD0, reg);
 		temp = (reg & PRBDV_MASK) >> 24;
 		prbdv0 = temp ? temp : 8;
 		if (prbdv0 != target_prbdv0) {
 			reg &= ~PRBDV_MASK;
 			reg |= ((target_prbdv0 == 8 ? 0 : target_prbdv0) << 24);
-			mtcpr(CPR0_PRIMBD, reg);
+			mtcpr(CPR0_PRIMBD0, reg);
 			reset_needed = 1;
 		}
 

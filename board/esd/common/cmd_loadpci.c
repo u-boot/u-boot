@@ -48,7 +48,7 @@ int do_loadpci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	u32 la, ptm1la;
 
 #if defined(CONFIG_440)
-	ptm1la = in32r(PCIX0_PTM1LA);
+	ptm1la = in32r(PCIL0_PTM1LA);
 #else
 	ptm1la = in32r(PTM1LA);
 #endif

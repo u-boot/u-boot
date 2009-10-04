@@ -39,13 +39,13 @@ void show_reset_reg(void)
 	mfcpr(CPR0_PLLD,reg);
 	printf("cpr_plld   = %#010lx\n",reg);
 
-	mfcpr(CPR0_PRIMAD,reg);
+	mfcpr(CPR0_PRIMAD0,reg);
 	printf("cpr_primad = %#010lx\n",reg);
 
-	mfcpr(CPR0_PRIMBD,reg);
+	mfcpr(CPR0_PRIMBD0,reg);
 	printf("cpr_primbd = %#010lx\n",reg);
 
-	mfcpr(CPR0_OPBD,reg);
+	mfcpr(CPR0_OPBD0,reg);
 	printf("cpr_opbd   = %#010lx\n",reg);
 
 	mfcpr(CPR0_PERD,reg);
@@ -106,59 +106,59 @@ void show_xbridge_info(void)
 	printf("SDR0_XPLLD  = %#010lx\n", reg);
 
 	printf("PCI-X Bridge Configure registers\n");
-	printf("PCIX0_VENDID            = %#06x\n", in16r(PCIX0_VENDID));
-	printf("PCIX0_DEVID             = %#06x\n", in16r(PCIX0_DEVID));
-	printf("PCIX0_CMD               = %#06x\n", in16r(PCIX0_CMD));
-	printf("PCIX0_STATUS            = %#06x\n", in16r(PCIX0_STATUS));
-	printf("PCIX0_REVID             = %#04x\n", in8(PCIX0_REVID));
-	printf("PCIX0_CACHELS           = %#04x\n", in8(PCIX0_CACHELS));
-	printf("PCIX0_LATTIM            = %#04x\n", in8(PCIX0_LATTIM));
-	printf("PCIX0_HDTYPE            = %#04x\n", in8(PCIX0_HDTYPE));
-	printf("PCIX0_BIST              = %#04x\n", in8(PCIX0_BIST));
+	printf("PCIL0_VENDID            = %#06x\n", in16r(PCIL0_VENDID));
+	printf("PCIL0_DEVID             = %#06x\n", in16r(PCIL0_DEVID));
+	printf("PCIL0_CMD               = %#06x\n", in16r(PCIL0_CMD));
+	printf("PCIL0_STATUS            = %#06x\n", in16r(PCIL0_STATUS));
+	printf("PCIL0_REVID             = %#04x\n", in8(PCIL0_REVID));
+	printf("PCIL0_CACHELS           = %#04x\n", in8(PCIL0_CACHELS));
+	printf("PCIL0_LATTIM            = %#04x\n", in8(PCIL0_LATTIM));
+	printf("PCIL0_HDTYPE            = %#04x\n", in8(PCIL0_HDTYPE));
+	printf("PCIL0_BIST              = %#04x\n", in8(PCIL0_BIST));
 
-	printf("PCIX0_BAR0              = %#010lx\n", in32r(PCIX0_BAR0));
-	printf("PCIX0_BAR1              = %#010lx\n", in32r(PCIX0_BAR1));
-	printf("PCIX0_BAR2              = %#010lx\n", in32r(PCIX0_BAR2));
-	printf("PCIX0_BAR3              = %#010lx\n", in32r(PCIX0_BAR3));
-	printf("PCIX0_BAR4              = %#010lx\n", in32r(PCIX0_BAR4));
-	printf("PCIX0_BAR5              = %#010lx\n", in32r(PCIX0_BAR5));
+	printf("PCIL0_BAR0              = %#010lx\n", in32r(PCIL0_BAR0));
+	printf("PCIL0_BAR1              = %#010lx\n", in32r(PCIL0_BAR1));
+	printf("PCIL0_BAR2              = %#010lx\n", in32r(PCIL0_BAR2));
+	printf("PCIL0_BAR3              = %#010lx\n", in32r(PCIL0_BAR3));
+	printf("PCIL0_BAR4              = %#010lx\n", in32r(PCIL0_BAR4));
+	printf("PCIL0_BAR5              = %#010lx\n", in32r(PCIL0_BAR5));
 
-	printf("PCIX0_CISPTR            = %#010lx\n", in32r(PCIX0_CISPTR));
-	printf("PCIX0_SBSSYSVID         = %#010x\n", in16r(PCIX0_SBSYSVID));
-	printf("PCIX0_SBSSYSID          = %#010x\n", in16r(PCIX0_SBSYSID));
-	printf("PCIX0_EROMBA            = %#010lx\n", in32r(PCIX0_EROMBA));
-	printf("PCIX0_CAP               = %#04x\n", in8(PCIX0_CAP));
-	printf("PCIX0_INTLN             = %#04x\n", in8(PCIX0_INTLN));
-	printf("PCIX0_INTPN             = %#04x\n", in8(PCIX0_INTPN));
-	printf("PCIX0_MINGNT            = %#04x\n", in8(PCIX0_MINGNT));
-	printf("PCIX0_MAXLTNCY          = %#04x\n", in8(PCIX0_MAXLTNCY));
+	printf("PCIL0_CISPTR            = %#010lx\n", in32r(PCIL0_CISPTR));
+	printf("PCIL0_SBSSYSVID         = %#010x\n", in16r(PCIL0_SBSYSVID));
+	printf("PCIL0_SBSSYSID          = %#010x\n", in16r(PCIL0_SBSYSID));
+	printf("PCIL0_EROMBA            = %#010lx\n", in32r(PCIL0_EROMBA));
+	printf("PCIL0_CAP               = %#04x\n", in8(PCIL0_CAP));
+	printf("PCIL0_INTLN             = %#04x\n", in8(PCIL0_INTLN));
+	printf("PCIL0_INTPN             = %#04x\n", in8(PCIL0_INTPN));
+	printf("PCIL0_MINGNT            = %#04x\n", in8(PCIL0_MINGNT));
+	printf("PCIL0_MAXLTNCY          = %#04x\n", in8(PCIL0_MAXLTNCY));
 
-	printf("PCIX0_BRDGOPT1          = %#010lx\n", in32r(PCIX0_BRDGOPT1));
-	printf("PCIX0_BRDGOPT2          = %#010lx\n", in32r(PCIX0_BRDGOPT2));
+	printf("PCIL0_BRDGOPT1          = %#010lx\n", in32r(PCIL0_BRDGOPT1));
+	printf("PCIL0_BRDGOPT2          = %#010lx\n", in32r(PCIL0_BRDGOPT2));
 
-	printf("PCIX0_POM0LAL           = %#010lx\n", in32r(PCIX0_POM0LAL));
-	printf("PCIX0_POM0LAH           = %#010lx\n", in32r(PCIX0_POM0LAH));
-	printf("PCIX0_POM0SA            = %#010lx\n", in32r(PCIX0_POM0SA));
-	printf("PCIX0_POM0PCILAL        = %#010lx\n", in32r(PCIX0_POM0PCIAL));
-	printf("PCIX0_POM0PCILAH        = %#010lx\n", in32r(PCIX0_POM0PCIAH));
-	printf("PCIX0_POM1LAL           = %#010lx\n", in32r(PCIX0_POM1LAL));
-	printf("PCIX0_POM1LAH           = %#010lx\n", in32r(PCIX0_POM1LAH));
-	printf("PCIX0_POM1SA            = %#010lx\n", in32r(PCIX0_POM1SA));
-	printf("PCIX0_POM1PCILAL        = %#010lx\n", in32r(PCIX0_POM1PCIAL));
-	printf("PCIX0_POM1PCILAH        = %#010lx\n", in32r(PCIX0_POM1PCIAH));
-	printf("PCIX0_POM2SA            = %#010lx\n", in32r(PCIX0_POM2SA));
+	printf("PCIL0_POM0LAL           = %#010lx\n", in32r(PCIL0_POM0LAL));
+	printf("PCIL0_POM0LAH           = %#010lx\n", in32r(PCIL0_POM0LAH));
+	printf("PCIL0_POM0SA            = %#010lx\n", in32r(PCIL0_POM0SA));
+	printf("PCIL0_POM0PCILAL        = %#010lx\n", in32r(PCIL0_POM0PCIAL));
+	printf("PCIL0_POM0PCILAH        = %#010lx\n", in32r(PCIL0_POM0PCIAH));
+	printf("PCIL0_POM1LAL           = %#010lx\n", in32r(PCIL0_POM1LAL));
+	printf("PCIL0_POM1LAH           = %#010lx\n", in32r(PCIL0_POM1LAH));
+	printf("PCIL0_POM1SA            = %#010lx\n", in32r(PCIL0_POM1SA));
+	printf("PCIL0_POM1PCILAL        = %#010lx\n", in32r(PCIL0_POM1PCIAL));
+	printf("PCIL0_POM1PCILAH        = %#010lx\n", in32r(PCIL0_POM1PCIAH));
+	printf("PCIL0_POM2SA            = %#010lx\n", in32r(PCIL0_POM2SA));
 
-	printf("PCIX0_PIM0SA            = %#010lx\n", in32r(PCIX0_PIM0SA));
-	printf("PCIX0_PIM0LAL           = %#010lx\n", in32r(PCIX0_PIM0LAL));
-	printf("PCIX0_PIM0LAH           = %#010lx\n", in32r(PCIX0_PIM0LAH));
-	printf("PCIX0_PIM1SA            = %#010lx\n", in32r(PCIX0_PIM1SA));
-	printf("PCIX0_PIM1LAL           = %#010lx\n", in32r(PCIX0_PIM1LAL));
-	printf("PCIX0_PIM1LAH           = %#010lx\n", in32r(PCIX0_PIM1LAH));
-	printf("PCIX0_PIM2SA            = %#010lx\n", in32r(PCIX0_PIM1SA));
-	printf("PCIX0_PIM2LAL           = %#010lx\n", in32r(PCIX0_PIM1LAL));
-	printf("PCIX0_PIM2LAH           = %#010lx\n", in32r(PCIX0_PIM1LAH));
+	printf("PCIL0_PIM0SA            = %#010lx\n", in32r(PCIL0_PIM0SA));
+	printf("PCIL0_PIM0LAL           = %#010lx\n", in32r(PCIL0_PIM0LAL));
+	printf("PCIL0_PIM0LAH           = %#010lx\n", in32r(PCIL0_PIM0LAH));
+	printf("PCIL0_PIM1SA            = %#010lx\n", in32r(PCIL0_PIM1SA));
+	printf("PCIL0_PIM1LAL           = %#010lx\n", in32r(PCIL0_PIM1LAL));
+	printf("PCIL0_PIM1LAH           = %#010lx\n", in32r(PCIL0_PIM1LAH));
+	printf("PCIL0_PIM2SA            = %#010lx\n", in32r(PCIL0_PIM1SA));
+	printf("PCIL0_PIM2LAL           = %#010lx\n", in32r(PCIL0_PIM1LAL));
+	printf("PCIL0_PIM2LAH           = %#010lx\n", in32r(PCIL0_PIM1LAH));
 
-	printf("PCIX0_XSTS              = %#010lx\n", in32r(PCIX0_STS));
+	printf("PCIL0_XSTS              = %#010lx\n", in32r(PCIL0_STS));
 }
 
 int do_show_xbridge_info(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
