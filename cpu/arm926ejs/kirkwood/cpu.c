@@ -27,6 +27,7 @@
 #include <asm/cache.h>
 #include <u-boot/md5.h>
 #include <asm/arch/kirkwood.h>
+#include <hush.h>
 
 #define BUFLEN	16
 
