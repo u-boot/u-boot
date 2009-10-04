@@ -169,11 +169,11 @@ phys_size_t initdram(int board_type)
 	 * Elpida MDDRC and initialization settings are an alternative
 	 * to the Default Micron ones for all but the earliest Rev 4 boards
 	 */
-	u32 elpida_mddrc_config[4] = {
-		CONFIG_SYS_MDDRC_TIME_CFG0,
-		CONFIG_SYS_MDDRC_TIME_CFG1_ELPIDA,
-		CONFIG_SYS_MDDRC_TIME_CFG2_ELPIDA,
-		CONFIG_SYS_MDDRC_SYS_CFG_ELPIDA,
+	ddr512x_config_t elpida_mddrc_config = {
+		.ddr_sys_config   = CONFIG_SYS_MDDRC_SYS_CFG_ELPIDA,
+		.ddr_time_config0 = CONFIG_SYS_MDDRC_TIME_CFG0,
+		.ddr_time_config1 = CONFIG_SYS_MDDRC_TIME_CFG1_ELPIDA,
+		.ddr_time_config2 = CONFIG_SYS_MDDRC_TIME_CFG2_ELPIDA,
 	};
 
 	u32 elpida_init_sequence[] = {
@@ -229,7 +229,7 @@ phys_size_t initdram(int board_type)
 	if (is_micron()) {
 		msize = fixed_sdram(NULL, NULL, 0);
 	} else {
-		msize = fixed_sdram(elpida_mddrc_config,
+		msize = fixed_sdram(&elpida_mddrc_config,
 				elpida_init_sequence,
 				sizeof(elpida_init_sequence)/sizeof(u32));
 	}

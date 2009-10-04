@@ -347,6 +347,16 @@ typedef struct ddr512x {
 #define MDDRC_REFRESH_ZERO_MASK	0x0000FFFF
 
 /*
+ * DDR Memory Controller Configuration settings
+ */
+typedef struct ddr512x_config {
+	u32 ddr_sys_config;	/* System Configuration Register */
+	u32 ddr_time_config0;	/* Timing Configuration Register */
+	u32 ddr_time_config1;	/* Timing Configuration Register */
+	u32 ddr_time_config2;	/* Timing Configuration Register */
+} ddr512x_config_t;
+
+/*
  * DMA/Messaging Unit
  */
 typedef struct dma512x {
