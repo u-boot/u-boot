@@ -44,29 +44,29 @@ int board_early_init_f(void)
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
 	 *-------------------------------------------------------------------*/
-	mtdcr(uic0sr, 0xffffffff);  /* clear all. if write with 1 then the status is cleared  */
-	mtdcr(uic0er, 0x00000000);  /* disable all */
-	mtdcr(uic0cr, 0x00000000);  /* we have not critical interrupts at the moment */
-	mtdcr(uic0pr, 0xFFBFF1EF);  /* Adjustment of the polarity */
-	mtdcr(uic0tr, 0x00000900);  /* per ref-board manual */
-	mtdcr(uic0vr, 0x00000000);  /* int31 highest, base=0x000 is within DDRAM */
-	mtdcr(uic0sr, 0xffffffff);  /* clear all */
+	mtdcr(UIC0SR, 0xffffffff);  /* clear all. if write with 1 then the status is cleared  */
+	mtdcr(UIC0ER, 0x00000000);  /* disable all */
+	mtdcr(UIC0CR, 0x00000000);  /* we have not critical interrupts at the moment */
+	mtdcr(UIC0PR, 0xFFBFF1EF);  /* Adjustment of the polarity */
+	mtdcr(UIC0TR, 0x00000900);  /* per ref-board manual */
+	mtdcr(UIC0VR, 0x00000000);  /* int31 highest, base=0x000 is within DDRAM */
+	mtdcr(UIC0SR, 0xffffffff);  /* clear all */
 
-	mtdcr(uic1sr, 0xffffffff);  /* clear all */
-	mtdcr(uic1er, 0x00000000);  /* disable all */
-	mtdcr(uic1cr, 0x00000000);  /* all non-critical */
-	mtdcr(uic1pr, 0xFFFFC6A5);  /* Adjustment of the polarity */
-	mtdcr(uic1tr, 0x60000040);  /* per ref-board manual */
-	mtdcr(uic1vr, 0x00000000);  /* int31 highest, base=0x000 is within DDRAM */
-	mtdcr(uic1sr, 0xffffffff);  /* clear all */
+	mtdcr(UIC1SR, 0xffffffff);  /* clear all */
+	mtdcr(UIC1ER, 0x00000000);  /* disable all */
+	mtdcr(UIC1CR, 0x00000000);  /* all non-critical */
+	mtdcr(UIC1PR, 0xFFFFC6A5);  /* Adjustment of the polarity */
+	mtdcr(UIC1TR, 0x60000040);  /* per ref-board manual */
+	mtdcr(UIC1VR, 0x00000000);  /* int31 highest, base=0x000 is within DDRAM */
+	mtdcr(UIC1SR, 0xffffffff);  /* clear all */
 
-	mtdcr(uic2sr, 0xffffffff);  /* clear all */
-	mtdcr(uic2er, 0x00000000);  /* disable all */
-	mtdcr(uic2cr, 0x00000000);  /* all non-critical */
-	mtdcr(uic2pr, 0x27C00000);  /* Adjustment of the polarity */
-	mtdcr(uic2tr, 0x3C000000);  /* per ref-board manual */
-	mtdcr(uic2vr, 0x00000000);  /* int31 highest, base=0x000 is within DDRAM */
-	mtdcr(uic2sr, 0xffffffff);  /* clear all */
+	mtdcr(UIC2SR, 0xffffffff);  /* clear all */
+	mtdcr(UIC2ER, 0x00000000);  /* disable all */
+	mtdcr(UIC2CR, 0x00000000);  /* all non-critical */
+	mtdcr(UIC2PR, 0x27C00000);  /* Adjustment of the polarity */
+	mtdcr(UIC2TR, 0x3C000000);  /* per ref-board manual */
+	mtdcr(UIC2VR, 0x00000000);  /* int31 highest, base=0x000 is within DDRAM */
+	mtdcr(UIC2SR, 0xffffffff);  /* clear all */
 
 	/* Trace Pins are disabled. SDR0_PFC0 Register */
 	mtsdr(SDR0_PFC0, 0x0);

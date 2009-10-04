@@ -228,7 +228,7 @@ sdram_init:
 	/* Set MB0CF for bank 0. (0-32MB) Address Mode 4 since 12x8(2) */
 	/*------------------------------------------------------------------- */
 
-	addi    r4,0,mem_mb0cf
+	addi    r4,0,SDRAM0_B0CR
 	mtdcr   SDRAM0_CFGADDR,r4
 	addis   r4,0,MB0CF@h
 	ori     r4,r4,MB0CF@l
@@ -238,7 +238,7 @@ sdram_init:
 	/* Set MB1CF for bank 1. (32MB-64MB) Address Mode 4 since 12x8(2) */
 	/*------------------------------------------------------------------- */
 
-	addi    r4,0,mem_mb1cf
+	addi    r4,0,SDRAM0_B1CR
 	mtdcr   SDRAM0_CFGADDR,r4
 	addis   r4,0,MB1CF@h
 	ori     r4,r4,MB1CF@l
@@ -248,7 +248,7 @@ sdram_init:
 	/* Set MB2CF for bank 2. off */
 	/*------------------------------------------------------------------- */
 
-	addi    r4,0,mem_mb2cf
+	addi    r4,0,SDRAM0_B2CR
 	mtdcr   SDRAM0_CFGADDR,r4
 	addis   r4,0,MB2CF@h
 	ori     r4,r4,MB2CF@l
@@ -258,7 +258,7 @@ sdram_init:
 	/* Set MB3CF for bank 3. off */
 	/*------------------------------------------------------------------- */
 
-	addi    r4,0,mem_mb3cf
+	addi    r4,0,SDRAM0_B3CR
 	mtdcr   SDRAM0_CFGADDR,r4
 	addis   r4,0,MB3CF@h
 	ori     r4,r4,MB3CF@l
@@ -305,14 +305,14 @@ sdram_init:
 	/*------------------------------------------------------------------- */
 	/* Set SDTR1 */
 	/*------------------------------------------------------------------- */
-	addi    r4,0,mem_sdtr1
+	addi    r4,0,SDRAM0_TR
 	mtdcr   SDRAM0_CFGADDR,r4
 	mtdcr   SDRAM0_CFGDATA,r6
 
 	/*------------------------------------------------------------------- */
 	/* Set RTR */
 	/*------------------------------------------------------------------- */
-	addi    r4,0,mem_rtr
+	addi    r4,0,SDRAM0_RTR
 	mtdcr   SDRAM0_CFGADDR,r4
 	mtdcr   SDRAM0_CFGDATA,r7
 
@@ -332,7 +332,7 @@ sdram_init:
 	/* Set DC_EN to '1' and BRD_PRF to '01' for 16 byte PLB Burst */
 	/* read/prefetch. */
 	/*------------------------------------------------------------------- */
-	addi    r4,0,mem_mcopt1
+	addi    r4,0,SDRAM0_CFG
 	mtdcr   SDRAM0_CFGADDR,r4
 	addis   r4,0,0x8080             /* set DC_EN=1 */
 	ori     r4,r4,0x0000

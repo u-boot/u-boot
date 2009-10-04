@@ -83,21 +83,21 @@ int board_early_init_f(void)
 	/*
 	 * Setup the interrupt controller polarities, triggers, etc.
 	 */
-	mtdcr(uic0sr, 0xffffffff);	/* clear all */
-	mtdcr(uic0er, 0x00000000);	/* disable all */
-	mtdcr(uic0cr, 0x00000009);	/* ATI & UIC1 crit are critical */
-	mtdcr(uic0pr, 0xfffffe13);	/* per ref-board manual */
-	mtdcr(uic0tr, 0x01c00008);	/* per ref-board manual */
-	mtdcr(uic0vr, 0x00000001);	/* int31 highest, base=0x000 */
-	mtdcr(uic0sr, 0xffffffff);	/* clear all */
+	mtdcr(UIC0SR, 0xffffffff);	/* clear all */
+	mtdcr(UIC0ER, 0x00000000);	/* disable all */
+	mtdcr(UIC0CR, 0x00000009);	/* ATI & UIC1 crit are critical */
+	mtdcr(UIC0PR, 0xfffffe13);	/* per ref-board manual */
+	mtdcr(UIC0TR, 0x01c00008);	/* per ref-board manual */
+	mtdcr(UIC0VR, 0x00000001);	/* int31 highest, base=0x000 */
+	mtdcr(UIC0SR, 0xffffffff);	/* clear all */
 
-	mtdcr(uic1sr, 0xffffffff);	/* clear all */
-	mtdcr(uic1er, 0x00000000);	/* disable all */
-	mtdcr(uic1cr, 0x00000000);	/* all non-critical */
-	mtdcr(uic1pr, 0xffffe0ff);	/* per ref-board manual */
-	mtdcr(uic1tr, 0x00ffc000);	/* per ref-board manual */
-	mtdcr(uic1vr, 0x00000001);	/* int31 highest, base=0x000 */
-	mtdcr(uic1sr, 0xffffffff);	/* clear all */
+	mtdcr(UIC1SR, 0xffffffff);	/* clear all */
+	mtdcr(UIC1ER, 0x00000000);	/* disable all */
+	mtdcr(UIC1CR, 0x00000000);	/* all non-critical */
+	mtdcr(UIC1PR, 0xffffe0ff);	/* per ref-board manual */
+	mtdcr(UIC1TR, 0x00ffc000);	/* per ref-board manual */
+	mtdcr(UIC1VR, 0x00000001);	/* int31 highest, base=0x000 */
+	mtdcr(UIC1SR, 0xffffffff);	/* clear all */
 
 	/*
 	 * Setup other serial configuration

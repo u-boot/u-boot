@@ -159,36 +159,36 @@ int board_early_init_f (void)
 	 * UIC2		UIC1
 	 * UIC3		UIC2
 	 */
-	mtdcr (uic1sr, 0xffffffff);	/* clear all */
-	mtdcr (uic1er, 0x00000000);	/* disable all */
-	mtdcr (uic1cr, 0x00000009);	/* SMI & UIC1 crit are critical */
-	mtdcr (uic1pr, 0xfffffe13);	/* per ref-board manual */
-	mtdcr (uic1tr, 0x01c00008);	/* per ref-board manual */
-	mtdcr (uic1vr, 0x00000001);	/* int31 highest, base=0x000 */
-	mtdcr (uic1sr, 0xffffffff);	/* clear all */
+	mtdcr (UIC1SR, 0xffffffff);	/* clear all */
+	mtdcr (UIC1ER, 0x00000000);	/* disable all */
+	mtdcr (UIC1CR, 0x00000009);	/* SMI & UIC1 crit are critical */
+	mtdcr (UIC1PR, 0xfffffe13);	/* per ref-board manual */
+	mtdcr (UIC1TR, 0x01c00008);	/* per ref-board manual */
+	mtdcr (UIC1VR, 0x00000001);	/* int31 highest, base=0x000 */
+	mtdcr (UIC1SR, 0xffffffff);	/* clear all */
 
-	mtdcr (uic2sr, 0xffffffff);	/* clear all */
-	mtdcr (uic2er, 0x00000000);	/* disable all */
-	mtdcr (uic2cr, 0x00000000);	/* all non-critical */
-	mtdcr (uic2pr, 0xffffe0ff);	/* per ref-board manual */
-	mtdcr (uic2tr, 0x00ffc000);	/* per ref-board manual */
-	mtdcr (uic2vr, 0x00000001);	/* int31 highest, base=0x000 */
-	mtdcr (uic2sr, 0xffffffff);	/* clear all */
+	mtdcr (UIC2SR, 0xffffffff);	/* clear all */
+	mtdcr (UIC2ER, 0x00000000);	/* disable all */
+	mtdcr (UIC2CR, 0x00000000);	/* all non-critical */
+	mtdcr (UIC2PR, 0xffffe0ff);	/* per ref-board manual */
+	mtdcr (UIC2TR, 0x00ffc000);	/* per ref-board manual */
+	mtdcr (UIC2VR, 0x00000001);	/* int31 highest, base=0x000 */
+	mtdcr (UIC2SR, 0xffffffff);	/* clear all */
 
-	mtdcr (uic3sr, 0xffffffff);	/* clear all */
-	mtdcr (uic3er, 0x00000000);	/* disable all */
-	mtdcr (uic3cr, 0x00000000);	/* all non-critical */
-	mtdcr (uic3pr, 0xffffffff);	/* per ref-board manual */
-	mtdcr (uic3tr, 0x00ff8c0f);	/* per ref-board manual */
-	mtdcr (uic3vr, 0x00000001);	/* int31 highest, base=0x000 */
-	mtdcr (uic3sr, 0xffffffff);	/* clear all */
+	mtdcr (UIC3SR, 0xffffffff);	/* clear all */
+	mtdcr (UIC3ER, 0x00000000);	/* disable all */
+	mtdcr (UIC3CR, 0x00000000);	/* all non-critical */
+	mtdcr (UIC3PR, 0xffffffff);	/* per ref-board manual */
+	mtdcr (UIC3TR, 0x00ff8c0f);	/* per ref-board manual */
+	mtdcr (UIC3VR, 0x00000001);	/* int31 highest, base=0x000 */
+	mtdcr (UIC3SR, 0xffffffff);	/* clear all */
 
-	mtdcr (uic0sr, 0xfc000000); /* clear all */
-	mtdcr (uic0er, 0x00000000); /* disable all */
-	mtdcr (uic0cr, 0x00000000); /* all non-critical */
-	mtdcr (uic0pr, 0xfc000000); /* */
-	mtdcr (uic0tr, 0x00000000); /* */
-	mtdcr (uic0vr, 0x00000001); /* */
+	mtdcr (UIC0SR, 0xfc000000); /* clear all */
+	mtdcr (UIC0ER, 0x00000000); /* disable all */
+	mtdcr (UIC0CR, 0x00000000); /* all non-critical */
+	mtdcr (UIC0PR, 0xfc000000); /* */
+	mtdcr (UIC0TR, 0x00000000); /* */
+	mtdcr (UIC0VR, 0x00000001); /* */
 	mfsdr (SDR0_MFR, mfr);
 	mfr &= ~SDR0_MFR_ECS_MASK;
 /*	mtsdr(SDR0_MFR, mfr); */
@@ -241,11 +241,11 @@ long int fixed_sdram (void)
 	/*--------------------------------------------------------------------
 	 * Setup some default
 	 *------------------------------------------------------------------*/
-	mtsdram (mem_uabba, 0x00000000);	/* ubba=0 (default)             */
-	mtsdram (mem_slio, 0x00000000);		/* rdre=0 wrre=0 rarw=0         */
-	mtsdram (mem_devopt, 0x00000000);	/* dll=0 ds=0 (normal)          */
-	mtsdram (mem_wddctr, 0x00000000);	/* wrcp=0 dcd=0                 */
-	mtsdram (mem_clktr, 0x40000000);	/* clkp=1 (90 deg wr) dcdt=0    */
+	mtsdram (SDRAM0_UABBA, 0x00000000);	/* ubba=0 (default)             */
+	mtsdram (SDRAM0_SLIO, 0x00000000);		/* rdre=0 wrre=0 rarw=0         */
+	mtsdram (SDRAM0_DEVOPT, 0x00000000);	/* dll=0 ds=0 (normal)          */
+	mtsdram (SDRAM0_WDDCTR, 0x00000000);	/* wrcp=0 dcd=0                 */
+	mtsdram (SDRAM0_CLKTR, 0x40000000);	/* clkp=1 (90 deg wr) dcdt=0    */
 
 	/*--------------------------------------------------------------------
 	 * Setup for board-specific specific mem
@@ -253,20 +253,20 @@ long int fixed_sdram (void)
 	/*
 	 * Following for CAS Latency = 2.5 @ 133 MHz PLB
 	 */
-	mtsdram (mem_b0cr, 0x000a4001);	/* SDBA=0x000 128MB, Mode 3, enabled */
-	mtsdram (mem_tr0, 0x410a4012);	/* WR=2  WD=1 CL=2.5 PA=3 CP=4 LD=2 */
+	mtsdram (SDRAM0_B0CR, 0x000a4001);	/* SDBA=0x000 128MB, Mode 3, enabled */
+	mtsdram (SDRAM0_TR0, 0x410a4012);	/* WR=2  WD=1 CL=2.5 PA=3 CP=4 LD=2 */
 	/* RA=10 RD=3                       */
-	mtsdram (mem_tr1, 0x8080082f);	/* SS=T2 SL=STAGE 3 CD=1 CT=0x02f   */
-	mtsdram (mem_rtr, 0x08200000);	/* Rate 15.625 ns @ 133 MHz PLB     */
-	mtsdram (mem_cfg1, 0x00000000);	/* Self-refresh exit, disable PM    */
+	mtsdram (SDRAM0_TR1, 0x8080082f);	/* SS=T2 SL=STAGE 3 CD=1 CT=0x02f   */
+	mtsdram (SDRAM0_RTR, 0x08200000);	/* Rate 15.625 ns @ 133 MHz PLB     */
+	mtsdram (SDRAM0_CFG1, 0x00000000);	/* Self-refresh exit, disable PM    */
 	udelay (400);			/* Delay 200 usecs (min)            */
 
 	/*--------------------------------------------------------------------
 	 * Enable the controller, then wait for DCEN to complete
 	 *------------------------------------------------------------------*/
-	mtsdram (mem_cfg0, 0x86000000);	/* DCEN=1, PMUD=1, 64-bit           */
+	mtsdram (SDRAM0_CFG0, 0x86000000);	/* DCEN=1, PMUD=1, 64-bit           */
 	for (;;) {
-		mfsdram (mem_mcsts, reg);
+		mfsdram (SDRAM0_MCSTS, reg);
 		if (reg & 0x80000000)
 			break;
 	}

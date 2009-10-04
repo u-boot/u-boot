@@ -79,6 +79,7 @@ void disable_law(u8 idx)
 	return;
 }
 
+#ifndef CONFIG_NAND_SPL
 static int get_law_entry(u8 i, struct law_entry *e)
 {
 	volatile ccsr_local_t *ccm = (void *)(CONFIG_SYS_FSL_CORENET_CCM_ADDR);
@@ -96,6 +97,7 @@ static int get_law_entry(u8 i, struct law_entry *e)
 
 	return 1;
 }
+#endif
 #else
 void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 {
@@ -130,6 +132,7 @@ void disable_law(u8 idx)
 	return;
 }
 
+#ifndef CONFIG_NAND_SPL
 static int get_law_entry(u8 i, struct law_entry *e)
 {
 	volatile u32 *base = (volatile u32 *)(CONFIG_SYS_IMMR + 0xc08);
@@ -148,6 +151,7 @@ static int get_law_entry(u8 i, struct law_entry *e)
 
 	return 1;
 }
+#endif
 #endif
 
 int set_next_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)

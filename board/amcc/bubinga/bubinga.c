@@ -29,12 +29,12 @@ long int spd_sdram(void);
 
 int board_early_init_f(void)
 {
-	mtdcr(uicsr, 0xFFFFFFFF);	/* clear all ints */
-	mtdcr(uicer, 0x00000000);	/* disable all ints */
-	mtdcr(uiccr, 0x00000010);
-	mtdcr(uicpr, 0xFFFF7FF0);	/* set int polarities */
-	mtdcr(uictr, 0x00000010);	/* set int trigger levels */
-	mtdcr(uicsr, 0xFFFFFFFF);	/* clear all ints */
+	mtdcr(UIC0SR, 0xFFFFFFFF);	/* clear all ints */
+	mtdcr(UIC0ER, 0x00000000);	/* disable all ints */
+	mtdcr(UIC0CR, 0x00000010);
+	mtdcr(UIC0PR, 0xFFFF7FF0);	/* set int polarities */
+	mtdcr(UIC0TR, 0x00000010);	/* set int trigger levels */
+	mtdcr(UIC0SR, 0xFFFFFFFF);	/* clear all ints */
 
 	/*
 	 * Configure CPC0_PCI to enable PerWE as output

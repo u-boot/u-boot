@@ -382,7 +382,7 @@ sdram_init:
 	/*----------------------------------------------------------- */
 	/* Set SDTR1  */
 	/*----------------------------------------------------------- */
-	addi    r5,0,mem_sdtr1
+	addi    r5,0,SDRAM0_TR
 	mtdcr   SDRAM0_CFGADDR,r5
 	mtdcr   SDRAM0_CFGDATA,r4
 
@@ -413,7 +413,7 @@ sdram_init:
 
 	/* Set SDRAM bank 0 register and adjust r6 for next bank */
 	/*------------------------------------------------------ */
-	addi    r7,0,mem_mb0cf
+	addi    r7,0,SDRAM0_B0CR
 	mtdcr   SDRAM0_CFGADDR,r7
 	mtdcr   SDRAM0_CFGDATA,r6
 
@@ -424,7 +424,7 @@ sdram_init:
 	cmpi	0, r12, 2
 	bne	b1skip
 
-	addi    r7,0,mem_mb1cf
+	addi    r7,0,SDRAM0_B1CR
 	mtdcr   SDRAM0_CFGADDR,r7
 	mtdcr   SDRAM0_CFGDATA,r6
 
@@ -432,7 +432,7 @@ sdram_init:
 
 	/* Set SDRAM bank 2 register and adjust r6 for next bank */
 	/*------------------------------------------------------ */
-b1skip:	addi    r7,0,mem_mb2cf
+b1skip:	addi    r7,0,SDRAM0_B2CR
 	mtdcr   SDRAM0_CFGADDR,r7
 	mtdcr   SDRAM0_CFGDATA,r6
 
@@ -443,7 +443,7 @@ b1skip:	addi    r7,0,mem_mb2cf
 	cmpi	0, r12, 2
 	bne	b3skip
 
-	addi    r7,0,mem_mb3cf
+	addi    r7,0,SDRAM0_B3CR
 	mtdcr   SDRAM0_CFGADDR,r7
 	mtdcr   SDRAM0_CFGDATA,r6
 b3skip:
@@ -456,7 +456,7 @@ b3skip:
 	addis   r7, 0, 0x05F0	/* RTR value for 100Mhz */
 	bl	rtr_2
 rtr_1:	addis	r7, 0, 0x03F8
-rtr_2:	addi    r4,0,mem_rtr
+rtr_2:	addi    r4,0,SDRAM0_RTR
 	mtdcr   SDRAM0_CFGADDR,r4
 	mtdcr   SDRAM0_CFGDATA,r7
 
@@ -476,7 +476,7 @@ rtr_2:	addi    r4,0,mem_rtr
 	/* Set DC_EN to '1' and BRD_PRF to '01' for 16 byte PLB Burst  */
 	/* read/prefetch. */
 	/*----------------------------------------------------------- */
-	addi    r4,0,mem_mcopt1
+	addi    r4,0,SDRAM0_CFG
 	mtdcr   SDRAM0_CFGADDR,r4
 	addis   r4,0,0x80C0             /* set DC_EN=1 */
 	ori     r4,r4,0x0000

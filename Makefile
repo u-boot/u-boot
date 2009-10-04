@@ -285,6 +285,7 @@ endif
 ifeq ($(CONFIG_ONENAND_U_BOOT),y)
 ONENAND_IPL = onenand_ipl
 U_BOOT_ONENAND = $(obj)u-boot-onenand.bin
+ONENAND_BIN ?= $(obj)onenand_ipl/onenand-ipl-2k.bin
 endif
 
 __OBJS := $(subst $(obj),,$(OBJS))
@@ -378,8 +379,7 @@ $(ONENAND_IPL):	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
 		$(MAKE) -C onenand_ipl/board/$(BOARDDIR) all
 
 $(U_BOOT_ONENAND):	$(ONENAND_IPL) $(obj)u-boot.bin
-		cat $(obj)onenand_ipl/onenand-ipl-2k.bin $(obj)u-boot.bin > $(obj)u-boot-onenand.bin
-		cat $(obj)onenand_ipl/onenand-ipl-4k.bin $(obj)u-boot.bin > $(obj)u-boot-flexonenand.bin
+		cat $(ONENAND_BIN) $(obj)u-boot.bin > $(obj)u-boot-onenand.bin
 
 $(VERSION_FILE):
 		@( printf '#define U_BOOT_VERSION "U-Boot %s%s"\n' "$(U_BOOT_VERSION)" \
@@ -2403,20 +2403,7 @@ MVBLM7_config: unconfig
 sbc8349_config \
 sbc8349_PCI_33_config \
 sbc8349_PCI_66_config: unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _PCI_,$@)" ] ; then \
-		$(XECHO) -n "... PCI HOST at " ; \
-		echo "#define CONFIG_PCI" >>$(obj)include/config.h ; \
-	fi ; \
-	if [ "$(findstring _33_,$@)" ] ; then \
-		$(XECHO) -n "33MHz... " ; \
-		echo "#define PCI_33M" >>$(obj)include/config.h ; \
-	fi ; \
-	if [ "$(findstring _66_,$@)" ] ; then \
-		$(XECHO) -n "66MHz... " ; \
-		echo "#define PCI_66M" >>$(obj)include/config.h ; \
-	fi ;
-	@$(MKCONFIG) -a sbc8349 ppc mpc83xx sbc8349
+	@$(MKCONFIG) -t $(@:_config=) sbc8349 ppc mpc83xx sbc8349
 
 SIMPC8313_LP_config \
 SIMPC8313_SP_config: unconfig
@@ -2446,6 +2433,9 @@ vme8349_config:		unconfig
 ATUM8548_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx atum8548
 
+MPC8536DS_NAND_config \
+MPC8536DS_SDCARD_config \
+MPC8536DS_SPIFLASH_config \
 MPC8536DS_36BIT_config \
 MPC8536DS_config:       unconfig
 	@$(MKCONFIG) -t $(@:_config=) MPC8536DS ppc mpc85xx mpc8536ds freescale
@@ -3240,8 +3230,6 @@ zylonite_config :
 #########################################################################
 
 apollon_config		: unconfig
-	@mkdir -p $(obj)include
-	@mkdir -p $(obj)onenand_ipl/board/apollon
 	@echo "#define CONFIG_ONENAND_U_BOOT" > $(obj)include/config.h
 	@$(MKCONFIG) $(@:_config=) arm arm1136 apollon NULL omap24xx
 	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk
@@ -3723,7 +3711,8 @@ clean:
 	       $(obj)cpu/blackfin/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h
 	@rm -f $(obj)nand_spl/{u-boot.lds,u-boot-spl,u-boot-spl.map,System.map}
-	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl-2k.bin,ipl-4k.bin,ipl.map}
+	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl.map}
+	@rm -f $(ONENAND_BIN)
 	@rm -f $(obj)onenand_ipl/u-boot.lds
 	@rm -f $(TIMESTAMP_FILE) $(VERSION_FILE)
 	@find $(OBJTREE) -type f \

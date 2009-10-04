@@ -49,23 +49,23 @@ int board_early_init_f(void)
 	mtebc( PB2AP,  0x03800000 );
 	mtebc( PB2CR,  0xff838000 );	/* ebc0_b2cr, 2MB at 0xff800000 CS2 */
 
-	mtdcr( uic1sr, 0xffffffff );	/* Clear all interrupts */
-	mtdcr( uic1er, 0x00000000 );	/* disable all interrupts */
-	mtdcr( uic1cr, 0x00000000 );	/* Set Critical / Non Critical interrupts */
-	mtdcr( uic1pr, 0x7fff83ff );	/* Set Interrupt Polarities */
-	mtdcr( uic1tr, 0x001f8000 );	/* Set Interrupt Trigger Levels */
-	mtdcr( uic1vr, 0x00000001 );	/* Set Vect base=0,INT31 Highest priority */
-	mtdcr( uic1sr, 0x00000000 );	/* clear all interrupts */
-	mtdcr( uic1sr, 0xffffffff );
+	mtdcr( UIC1SR, 0xffffffff );	/* Clear all interrupts */
+	mtdcr( UIC1ER, 0x00000000 );	/* disable all interrupts */
+	mtdcr( UIC1CR, 0x00000000 );	/* Set Critical / Non Critical interrupts */
+	mtdcr( UIC1PR, 0x7fff83ff );	/* Set Interrupt Polarities */
+	mtdcr( UIC1TR, 0x001f8000 );	/* Set Interrupt Trigger Levels */
+	mtdcr( UIC1VR, 0x00000001 );	/* Set Vect base=0,INT31 Highest priority */
+	mtdcr( UIC1SR, 0x00000000 );	/* clear all interrupts */
+	mtdcr( UIC1SR, 0xffffffff );
 
-	mtdcr( uic0sr, 0xffffffff );	/* Clear all interrupts */
-	mtdcr( uic0er, 0x00000000 );	/* disable all interrupts excepted cascade */
-	mtdcr( uic0cr, 0x00000001 );	/* Set Critical / Non Critical interrupts */
-	mtdcr( uic0pr, 0xffffffff );	/* Set Interrupt Polarities */
-	mtdcr( uic0tr, 0x01000004 );	/* Set Interrupt Trigger Levels */
-	mtdcr( uic0vr, 0x00000001 );	/* Set Vect base=0,INT31 Highest priority */
-	mtdcr( uic0sr, 0x00000000 );	/* clear all interrupts */
-	mtdcr( uic0sr, 0xffffffff );
+	mtdcr( UIC0SR, 0xffffffff );	/* Clear all interrupts */
+	mtdcr( UIC0ER, 0x00000000 );	/* disable all interrupts excepted cascade */
+	mtdcr( UIC0CR, 0x00000001 );	/* Set Critical / Non Critical interrupts */
+	mtdcr( UIC0PR, 0xffffffff );	/* Set Interrupt Polarities */
+	mtdcr( UIC0TR, 0x01000004 );	/* Set Interrupt Trigger Levels */
+	mtdcr( UIC0VR, 0x00000001 );	/* Set Vect base=0,INT31 Highest priority */
+	mtdcr( UIC0SR, 0x00000000 );	/* clear all interrupts */
+	mtdcr( UIC0SR, 0xffffffff );
 
 	mfsdr(SDR0_MFR, mfr);
 	mfr |= SDR0_MFR_FIXD;		/* Workaround for PCI/DMA */

@@ -52,7 +52,8 @@
  * External Local Bus rate is
  *    CLKIN * HRCWL_CSB_TO_CLKIN / HRCWL_LCL_BUS_TO_SCB_CLK / LCRR_CLKDIV
  */
-#define CONFIG_SYS_LCRR		(LCRR_DBYP | LCRR_CLKDIV_8)
+#define CONFIG_SYS_LCRR_DBYP	LCRR_DBYP
+#define CONFIG_SYS_LCRR_CLKDIV	LCRR_CLKDIV_8
 
 /* board pre init: do not call, nothing to do */
 #undef CONFIG_BOARD_EARLY_INIT_F

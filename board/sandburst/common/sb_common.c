@@ -266,11 +266,11 @@ long int fixed_sdram (void)
 	/*--------------------------------------------------------------------
 	 * Setup some default
 	 *------------------------------------------------------------------*/
-	mtsdram (mem_uabba, 0x00000000);	/* ubba=0 (default)		*/
-	mtsdram (mem_slio, 0x00000000);		/* rdre=0 wrre=0 rarw=0		*/
-	mtsdram (mem_devopt, 0x00000000);	/* dll=0 ds=0 (normal)		*/
-	mtsdram (mem_wddctr, 0x00000000);	/* wrcp=0 dcd=0			*/
-	mtsdram (mem_clktr, 0x40000000);	/* clkp=1 (90 deg wr) dcdt=0	*/
+	mtsdram (SDRAM0_UABBA, 0x00000000);	/* ubba=0 (default)		*/
+	mtsdram (SDRAM0_SLIO, 0x00000000);		/* rdre=0 wrre=0 rarw=0		*/
+	mtsdram (SDRAM0_DEVOPT, 0x00000000);	/* dll=0 ds=0 (normal)		*/
+	mtsdram (SDRAM0_WDDCTR, 0x00000000);	/* wrcp=0 dcd=0			*/
+	mtsdram (SDRAM0_CLKTR, 0x40000000);	/* clkp=1 (90 deg wr) dcdt=0	*/
 
 	/*--------------------------------------------------------------------
 	 * Setup for board-specific specific mem
@@ -278,20 +278,20 @@ long int fixed_sdram (void)
 	/*
 	 * Following for CAS Latency = 2.5 @ 133 MHz PLB
 	 */
-	mtsdram (mem_b0cr, 0x000a4001); /* SDBA=0x000 128MB, Mode 3, enabled */
-	mtsdram (mem_tr0, 0x410a4012);	/* WR=2	 WD=1 CL=2.5 PA=3 CP=4 LD=2 */
+	mtsdram (SDRAM0_B0CR, 0x000a4001); /* SDBA=0x000 128MB, Mode 3, enabled */
+	mtsdram (SDRAM0_TR0, 0x410a4012);	/* WR=2	 WD=1 CL=2.5 PA=3 CP=4 LD=2 */
 	/* RA=10 RD=3			    */
-	mtsdram (mem_tr1, 0x8080082f);	/* SS=T2 SL=STAGE 3 CD=1 CT=0x02f   */
-	mtsdram (mem_rtr, 0x08200000);	/* Rate 15.625 ns @ 133 MHz PLB	    */
-	mtsdram (mem_cfg1, 0x00000000); /* Self-refresh exit, disable PM    */
+	mtsdram (SDRAM0_TR1, 0x8080082f);	/* SS=T2 SL=STAGE 3 CD=1 CT=0x02f   */
+	mtsdram (SDRAM0_RTR, 0x08200000);	/* Rate 15.625 ns @ 133 MHz PLB	    */
+	mtsdram (SDRAM0_CFG1, 0x00000000); /* Self-refresh exit, disable PM    */
 	udelay (400);			/* Delay 200 usecs (min)	    */
 
 	/*--------------------------------------------------------------------
 	 * Enable the controller, then wait for DCEN to complete
 	 *------------------------------------------------------------------*/
-	mtsdram (mem_cfg0, 0x86000000); /* DCEN=1, PMUD=1, 64-bit	    */
+	mtsdram (SDRAM0_CFG0, 0x86000000); /* DCEN=1, PMUD=1, 64-bit	    */
 	for (;;) {
-		mfsdram (mem_mcsts, reg);
+		mfsdram (SDRAM0_MCSTS, reg);
 		if (reg & 0x80000000)
 			break;
 	}

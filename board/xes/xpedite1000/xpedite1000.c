@@ -74,36 +74,36 @@ int board_early_init_f(void)
 	 * UIC2		UIC1
 	 * UIC3		UIC2
 	 */
-	mtdcr(uic1sr, 0xffffffff);	/* clear all */
-	mtdcr(uic1er, 0x00000000);	/* disable all */
-	mtdcr(uic1cr, 0x00000003);	/* SMI & UIC1 crit are critical */
-	mtdcr(uic1pr, 0xfffffe00);	/* per ref-board manual */
-	mtdcr(uic1tr, 0x01c00000);	/* per ref-board manual */
-	mtdcr(uic1vr, 0x00000001);	/* int31 highest, base=0x000 */
-	mtdcr(uic1sr, 0xffffffff);	/* clear all */
+	mtdcr(UIC1SR, 0xffffffff);	/* clear all */
+	mtdcr(UIC1ER, 0x00000000);	/* disable all */
+	mtdcr(UIC1CR, 0x00000003);	/* SMI & UIC1 crit are critical */
+	mtdcr(UIC1PR, 0xfffffe00);	/* per ref-board manual */
+	mtdcr(UIC1TR, 0x01c00000);	/* per ref-board manual */
+	mtdcr(UIC1VR, 0x00000001);	/* int31 highest, base=0x000 */
+	mtdcr(UIC1SR, 0xffffffff);	/* clear all */
 
-	mtdcr(uic2sr, 0xffffffff);	/* clear all */
-	mtdcr(uic2er, 0x00000000);	/* disable all */
-	mtdcr(uic2cr, 0x00000000);	/* all non-critical */
-	mtdcr(uic2pr, 0xffffc0ff);	/* per ref-board manual */
-	mtdcr(uic2tr, 0x00ff8000);	/* per ref-board manual */
-	mtdcr(uic2vr, 0x00000001);	/* int31 highest, base=0x000 */
-	mtdcr(uic2sr, 0xffffffff);	/* clear all */
+	mtdcr(UIC2SR, 0xffffffff);	/* clear all */
+	mtdcr(UIC2ER, 0x00000000);	/* disable all */
+	mtdcr(UIC2CR, 0x00000000);	/* all non-critical */
+	mtdcr(UIC2PR, 0xffffc0ff);	/* per ref-board manual */
+	mtdcr(UIC2TR, 0x00ff8000);	/* per ref-board manual */
+	mtdcr(UIC2VR, 0x00000001);	/* int31 highest, base=0x000 */
+	mtdcr(UIC2SR, 0xffffffff);	/* clear all */
 
-	mtdcr(uic3sr, 0xffffffff);	/* clear all */
-	mtdcr(uic3er, 0x00000000);	/* disable all */
-	mtdcr(uic3cr, 0x00000000);	/* all non-critical */
-	mtdcr(uic3pr, 0xffffffff);	/* per ref-board manual */
-	mtdcr(uic3tr, 0x00ff8c0f);	/* per ref-board manual */
-	mtdcr(uic3vr, 0x00000001);	/* int31 highest, base=0x000 */
-	mtdcr(uic3sr, 0xffffffff);	/* clear all */
+	mtdcr(UIC3SR, 0xffffffff);	/* clear all */
+	mtdcr(UIC3ER, 0x00000000);	/* disable all */
+	mtdcr(UIC3CR, 0x00000000);	/* all non-critical */
+	mtdcr(UIC3PR, 0xffffffff);	/* per ref-board manual */
+	mtdcr(UIC3TR, 0x00ff8c0f);	/* per ref-board manual */
+	mtdcr(UIC3VR, 0x00000001);	/* int31 highest, base=0x000 */
+	mtdcr(UIC3SR, 0xffffffff);	/* clear all */
 
-	mtdcr(uic0sr, 0xfc000000);	/* clear all */
-	mtdcr(uic0er, 0x00000000);	/* disable all */
-	mtdcr(uic0cr, 0x00000000);	/* all non-critical */
-	mtdcr(uic0pr, 0xfc000000);	/* */
-	mtdcr(uic0tr, 0x00000000);	/* */
-	mtdcr(uic0vr, 0x00000001);	/* */
+	mtdcr(UIC0SR, 0xfc000000);	/* clear all */
+	mtdcr(UIC0ER, 0x00000000);	/* disable all */
+	mtdcr(UIC0CR, 0x00000000);	/* all non-critical */
+	mtdcr(UIC0PR, 0xfc000000);	/* */
+	mtdcr(UIC0TR, 0x00000000);	/* */
+	mtdcr(UIC0VR, 0x00000001);	/* */
 
 	LED0_ON();
 

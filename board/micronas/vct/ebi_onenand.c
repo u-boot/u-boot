@@ -193,6 +193,5 @@ void onenand_board_init(struct mtd_info *mtd)
 	chip->write_word = ebi_nand_write_word;
 
 	chip->read_bufferram = ebi_read_bufferram;
-	chip->read_spareram = ebi_read_bufferram;
 	chip->write_bufferram = ebi_write_bufferram;
 }

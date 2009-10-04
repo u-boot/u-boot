@@ -32,6 +32,21 @@
 #define __CONFIG_H
 
 /*
+ * Top level Makefile configuration choices
+ */
+#ifdef CONFIG_MK_PCI
+#define CONFIG_PCI
+#endif
+
+#ifdef CONFIG_MK_66
+#define PCI_66M
+#endif
+
+#ifdef CONFIG_MK_33
+#define PCI_33M
+#endif
+
+/*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
@@ -182,7 +197,8 @@
  * External Local Bus rate is
  *    CLKIN * HRCWL_CSB_TO_CLKIN / HRCWL_LCL_BUS_TO_SCB_CLK / LCRR_CLKDIV
  */
-#define CONFIG_SYS_LCRR	(LCRR_DBYP | LCRR_CLKDIV_4)
+#define CONFIG_SYS_LCRR_DBYP	LCRR_DBYP
+#define CONFIG_SYS_LCRR_CLKDIV	LCRR_CLKDIV_4
 #define CONFIG_SYS_LBC_LBCR	0x00000000
 
 #undef CONFIG_SYS_LB_SDRAM	/* if board has SDRAM on local bus */

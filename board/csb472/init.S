@@ -171,26 +171,26 @@ sdram_init:
 	 * Disable memory controller to allow
 	 * values to be changed.
 	 */
-	WDCR_SDRAM(mem_mcopt1, 0x00000000)
+	WDCR_SDRAM(SDRAM0_CFG, 0x00000000)
 
 	/*
 	 * Configure Memory Banks
 	 */
-	WDCR_SDRAM(mem_mb0cf, 0x00062001)
-	WDCR_SDRAM(mem_mb1cf, 0x00000000)
-	WDCR_SDRAM(mem_mb2cf, 0x00000000)
-	WDCR_SDRAM(mem_mb3cf, 0x00000000)
+	WDCR_SDRAM(SDRAM0_B0CR, 0x00062001)
+	WDCR_SDRAM(SDRAM0_B1CR, 0x00000000)
+	WDCR_SDRAM(SDRAM0_B2CR, 0x00000000)
+	WDCR_SDRAM(SDRAM0_B3CR, 0x00000000)
 
 	/*
 	 * Set up SDTR1 (SDRAM Timing Register)
 	 */
-	WDCR_SDRAM(mem_sdtr1, 0x00854009)
+	WDCR_SDRAM(SDRAM0_TR, 0x00854009)
 
 	/*
 	 * Set RTR (Refresh Timing Register)
 	 */
-	WDCR_SDRAM(mem_rtr,   0x10000000)
-	/* WDCR_SDRAM(mem_rtr,   0x05f00000) */
+	WDCR_SDRAM(SDRAM0_RTR,   0x10000000)
+	/* WDCR_SDRAM(SDRAM0_RTR,   0x05f00000) */
 
 	/********************************************************************
 	 * Delay to ensure 200usec have elapsed since reset. Assume worst
@@ -206,7 +206,7 @@ sdram_init:
 	/********************************************************************
 	 * Set memory controller options reg, MCOPT1.
 	 *******************************************************************/
-	WDCR_SDRAM(mem_mcopt1,0x80800000)
+	WDCR_SDRAM(SDRAM0_CFG,0x80800000)
 
 ..sdri_done:
 	blr				/* Return to calling function */

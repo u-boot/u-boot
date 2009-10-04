@@ -422,32 +422,31 @@ long int spd_sdram(int(read_spd)(uint addr))
 	 * program all the registers.
 	 * -------------------------------------------------------------------*/
 
-#define mtsdram0(reg, data)  mtdcr(SDRAM0_CFGADDR,reg);mtdcr(SDRAM0_CFGDATA,data)
 	/* disable memcontroller so updates work */
-	mtsdram0( mem_mcopt1, 0 );
+	mtsdram(SDRAM0_CFG, 0);
 
 #ifndef CONFIG_405EP /* not on PPC405EP */
-	mtsdram0( mem_besra , sdram0_besr0 );
-	mtsdram0( mem_besrb , sdram0_besr1 );
-	mtsdram0( mem_ecccf , sdram0_ecccfg );
-	mtsdram0( mem_eccerr, sdram0_eccesr );
+	mtsdram(SDRAM0_BESR0, sdram0_besr0);
+	mtsdram(SDRAM0_BESR1, sdram0_besr1);
+	mtsdram(SDRAM0_ECCCFG, sdram0_ecccfg);
+	mtsdram(SDRAM0_ECCESR, sdram0_eccesr);
 #endif
-	mtsdram0( mem_rtr   , sdram0_rtr );
-	mtsdram0( mem_pmit  , sdram0_pmit );
-	mtsdram0( mem_mb0cf , sdram0_b0cr );
-	mtsdram0( mem_mb1cf , sdram0_b1cr );
+	mtsdram(SDRAM0_RTR, sdram0_rtr);
+	mtsdram(SDRAM0_PMIT, sdram0_pmit);
+	mtsdram(SDRAM0_B0CR, sdram0_b0cr);
+	mtsdram(SDRAM0_B1CR, sdram0_b1cr);
 #ifndef CONFIG_405EP /* not on PPC405EP */
-	mtsdram0( mem_mb2cf , sdram0_b2cr );
-	mtsdram0( mem_mb3cf , sdram0_b3cr );
+	mtsdram(SDRAM0_B2CR, sdram0_b2cr);
+	mtsdram(SDRAM0_B3CR, sdram0_b3cr);
 #endif
-	mtsdram0( mem_sdtr1 , sdram0_tr );
+	mtsdram(SDRAM0_TR, sdram0_tr);
 
 	/* SDRAM have a power on delay,	 500 micro should do */
 	udelay(500);
 	sdram0_cfg = SDRAM0_CFG_DCE | SDRAM0_CFG_BRPF(1) | SDRAM0_CFG_ECCDD | SDRAM0_CFG_EMDULR;
 	if (ecc_on)
 		sdram0_cfg |= SDRAM0_CFG_MEMCHK;
-	mtsdram0(mem_mcopt1, sdram0_cfg);
+	mtsdram(SDRAM0_CFG, sdram0_cfg);
 
 	return (total_size);
 }

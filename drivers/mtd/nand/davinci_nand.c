@@ -202,7 +202,6 @@ static struct nand_ecclayout nand_davinci_4bit_layout_oobfirst = {
 	},
 #endif
 };
-#endif
 
 static void nand_davinci_4bit_enable_hwecc(struct mtd_info *mtd, int mode)
 {
@@ -289,7 +288,6 @@ static int nand_davinci_4bit_calculate_ecc(struct mtd_info *mtd,
 static int nand_davinci_4bit_correct_data(struct mtd_info *mtd, uint8_t *dat,
 					  uint8_t *read_ecc, uint8_t *calc_ecc)
 {
-	struct nand_chip *this = mtd->priv;
 	unsigned short ecc_10bit[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	int i;
 	unsigned int hw_4ecc[4] = { 0, 0, 0, 0 }, iserror = 0;
@@ -441,6 +439,7 @@ static int nand_davinci_4bit_correct_data(struct mtd_info *mtd, uint8_t *dat,
 
 	return numerrors;
 }
+#endif /* CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST */
 
 static int nand_davinci_dev_ready(struct mtd_info *mtd)
 {

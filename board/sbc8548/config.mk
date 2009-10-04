@@ -24,5 +24,5 @@
 # sbc8548 board
 #
 ifndef TEXT_BASE
-TEXT_BASE = 0xfff80000
+TEXT_BASE = 0xfffa0000
 endif

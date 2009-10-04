@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2005-2008 Samsung Electronis
+ * (C) Copyright 2005-2009 Samsung Electronics
  * Kyungmin Park <kyungmin.park@samsung.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -37,8 +37,10 @@
 extern void *memcpy32(void *dest, void *src, int size);
 #endif
 
+int (*onenand_read_page)(ulong block, ulong page, u_char *buf, int pagesize);
+
 /* read a page with ECC */
-static inline int onenand_read_page(ulong block, ulong page,
+static int generic_onenand_read_page(ulong block, ulong page,
 				u_char * buf, int pagesize)
 {
 	unsigned long *base;
@@ -89,8 +91,24 @@ static inline int onenand_read_page(ulong block, ulong page,
 	return 0;
 }
 
-#define ONENAND_START_PAGE		1
+#ifndef CONFIG_ONENAND_START_PAGE
+#define CONFIG_ONENAND_START_PAGE	1
+#endif
 #define ONENAND_PAGES_PER_BLOCK		64
+
+static void onenand_generic_init(int *page_is_4KiB, int *page)
+{
+	int dev_id, density;
+
+	if (onenand_readw(ONENAND_REG_TECHNOLOGY))
+		*page_is_4KiB = 1;
+	dev_id = onenand_readw(ONENAND_REG_DEVICE_ID);
+	density = dev_id >> ONENAND_DEVICE_DENSITY_SHIFT;
+	density &= ONENAND_DEVICE_DENSITY_MASK;
+	if (density >= ONENAND_DEVICE_DENSITY_4Gb &&
+	    !(dev_id & ONENAND_DEVICE_IS_DDP))
+		*page_is_4KiB = 1;
+}
 
 /**
  * onenand_read_block - Read CONFIG_SYS_MONITOR_LEN from begining
@@ -99,24 +117,28 @@ static inline int onenand_read_page(ulong block, ulong page,
  */
 int onenand_read_block(unsigned char *buf)
 {
-	int block;
-	int page = ONENAND_START_PAGE, offset = 0;
-	int pagesize = 0, erase_shift = 0;
-	int erasesize = 0, nblocks = 0;
+	int block, nblocks;
+	int page = CONFIG_ONENAND_START_PAGE, offset = 0;
+	int pagesize, erasesize, erase_shift;
+	int page_is_4KiB = 0;
 
-	if (onenand_readw(ONENAND_REG_TECHNOLOGY)) {
-		pagesize = 4096; /* MLC OneNAND has 4KiB pagesize */
+	onenand_read_page = generic_onenand_read_page;
+
+	onenand_generic_init(&page_is_4KiB, &page);
+
+	if (page_is_4KiB) {
+		pagesize = 4096; /* OneNAND has 4KiB pagesize */
 		erase_shift = 18;
 	} else {
-		pagesize = 2048;
+		pagesize = 2048; /* OneNAND has 2KiB pagesize */
 		erase_shift = 17;
 	}
 
-	erasesize = ONENAND_PAGES_PER_BLOCK * pagesize;
+	erasesize = (1 << erase_shift);
 	nblocks = (CONFIG_SYS_MONITOR_LEN + erasesize - 1) >> erase_shift;
 
 	/* NOTE: you must read page from page 1 of block 0 */
-	/* read the block page by page*/
+	/* read the block page by page */
 	for (block = 0; block < nblocks; block++) {
 		for (; page < ONENAND_PAGES_PER_BLOCK; page++) {
 			if (onenand_read_page(block, page, buf + offset,
