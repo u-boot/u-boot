@@ -136,12 +136,12 @@
  * Common stuff for 4xx (405 and 440)
  */
 
-#define EXC_OFF_SYS_RESET	0x0100	/* System reset				*/
+#define EXC_OFF_SYS_RESET	0x0100	/* System reset			*/
 #define _START_OFFSET		(EXC_OFF_SYS_RESET + 0x2000)
 
 #define RESET_VECTOR	0xfffffffc
-#define CACHELINE_MASK	(CONFIG_SYS_CACHELINE_SIZE - 1) /* Address mask for cache
-						     line aligned data. */
+#define CACHELINE_MASK	(CONFIG_SYS_CACHELINE_SIZE - 1) /* Address mask for
+						cache line aligned data. */
 
 #define CPR0_DCR_BASE	0x0C
 #define CPR0_CFGADDR	(CPR0_DCR_BASE + 0x0)
@@ -162,17 +162,25 @@
 /*
  * Macros for indirect DCR access
  */
-#define mtcpr(reg, d)	do { mtdcr(CPR0_CFGADDR,reg);mtdcr(CPR0_CFGDATA,d); } while (0)
-#define mfcpr(reg, d)	do { mtdcr(CPR0_CFGADDR,reg);d = mfdcr(CPR0_CFGDATA); } while (0)
+#define mtcpr(reg, d)	\
+  do { mtdcr(CPR0_CFGADDR, reg); mtdcr(CPR0_CFGDATA, d); } while (0)
+#define mfcpr(reg, d)	\
+  do { mtdcr(CPR0_CFGADDR, reg); d = mfdcr(CPR0_CFGDATA); } while (0)
 
-#define mtebc(reg, d)	do { mtdcr(EBC0_CFGADDR,reg);mtdcr(EBC0_CFGDATA,d); } while (0)
-#define mfebc(reg, d)	do { mtdcr(EBC0_CFGADDR,reg);d = mfdcr(EBC0_CFGDATA); } while (0)
+#define mtebc(reg, d)	\
+  do { mtdcr(EBC0_CFGADDR, reg); mtdcr(EBC0_CFGDATA, d); } while (0)
+#define mfebc(reg, d)	\
+  do { mtdcr(EBC0_CFGADDR, reg); d = mfdcr(EBC0_CFGDATA); } while (0)
 
-#define mtsdram(reg, d)	do { mtdcr(SDRAM0_CFGADDR,reg);mtdcr(SDRAM0_CFGDATA,d); } while (0)
-#define mfsdram(reg, d)	do { mtdcr(SDRAM0_CFGADDR,reg);d = mfdcr(SDRAM0_CFGDATA); } while (0)
+#define mtsdram(reg, d)	\
+  do { mtdcr(SDRAM0_CFGADDR, reg); mtdcr(SDRAM0_CFGDATA, d); } while (0)
+#define mfsdram(reg, d)	\
+  do { mtdcr(SDRAM0_CFGADDR, reg); d = mfdcr(SDRAM0_CFGDATA); } while (0)
 
-#define mtsdr(reg, d)	do { mtdcr(SDR0_CFGADDR,reg);mtdcr(SDR0_CFGDATA,d); } while (0)
-#define mfsdr(reg, d)	do { mtdcr(SDR0_CFGADDR,reg);d = mfdcr(SDR0_CFGDATA); } while (0)
+#define mtsdr(reg, d)	\
+  do { mtdcr(SDR0_CFGADDR, reg); mtdcr(SDR0_CFGDATA, d); } while (0)
+#define mfsdr(reg, d)	\
+  do { mtdcr(SDR0_CFGADDR, reg); d = mfdcr(SDR0_CFGDATA); } while (0)
 
 #ifndef __ASSEMBLY__
 

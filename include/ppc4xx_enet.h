@@ -119,11 +119,11 @@ typedef struct emac_4xx_hw_st {
     int			first_init;
     int			tx_err_index;
     int			rx_err_index;
-    int			rx_slot;			/* MAL Receive Slot */
-    int			rx_i_index;		/* Receive Interrupt Queue Index */
-    int			rx_u_index;		/* Receive User Queue Index */
-    int			tx_slot;			/* MAL Transmit Slot */
-    int			tx_i_index;		/* Transmit Interrupt Queue Index */
+    int			rx_slot;	/* MAL Receive Slot */
+    int			rx_i_index;	/* Receive Interrupt Queue Index */
+    int			rx_u_index;	/* Receive User Queue Index */
+    int			tx_slot;	/* MAL Transmit Slot */
+    int			tx_i_index;	/* Transmit Interrupt Queue Index */
     int			tx_u_index;		/* Transmit User Queue Index */
     int			rx_ready[NUM_RX_BUFF];	/* Receive Ready Queue */
     int			tx_run[NUM_TX_BUFF];	/* Transmit Running Queue */
@@ -262,16 +262,16 @@ typedef struct emac_4xx_hw_st {
 |  TCP/IP Acceleration Hardware (TAH) 440GX Only
 +---------------------------------------------------------------------------*/
 #if defined(CONFIG_440GX)
-#define TAH_BASE		(CONFIG_SYS_PERIPHERAL_BASE + 0x0B50)
-#define TAH_REVID		(TAH_BASE + 0x0)    /* Revision ID (RO)*/
-#define TAH_MR			(TAH_BASE + 0x10)   /* Mode Register (R/W) */
-#define TAH_SSR0		(TAH_BASE + 0x14)   /* Segment Size Reg 0 (R/W) */
-#define TAH_SSR1		(TAH_BASE + 0x18)   /* Segment Size Reg 1 (R/W) */
-#define TAH_SSR2		(TAH_BASE + 0x1C)   /* Segment Size Reg 2 (R/W) */
-#define TAH_SSR3		(TAH_BASE + 0x20)   /* Segment Size Reg 3 (R/W) */
-#define TAH_SSR4		(TAH_BASE + 0x24)   /* Segment Size Reg 4 (R/W) */
-#define TAH_SSR5		(TAH_BASE + 0x28)   /* Segment Size Reg 5 (R/W) */
-#define TAH_TSR			(TAH_BASE + 0x2C)   /* Transmit Status Register (RO) */
+#define TAH_BASE	(CONFIG_SYS_PERIPHERAL_BASE + 0x0B50)
+#define TAH_REVID	(TAH_BASE + 0x0)    /* Revision ID (RO)*/
+#define TAH_MR		(TAH_BASE + 0x10)   /* Mode Register (R/W) */
+#define TAH_SSR0	(TAH_BASE + 0x14)   /* Segment Size Reg 0 (R/W) */
+#define TAH_SSR1	(TAH_BASE + 0x18)   /* Segment Size Reg 1 (R/W) */
+#define TAH_SSR2	(TAH_BASE + 0x1C)   /* Segment Size Reg 2 (R/W) */
+#define TAH_SSR3	(TAH_BASE + 0x20)   /* Segment Size Reg 3 (R/W) */
+#define TAH_SSR4	(TAH_BASE + 0x24)   /* Segment Size Reg 4 (R/W) */
+#define TAH_SSR5	(TAH_BASE + 0x28)   /* Segment Size Reg 5 (R/W) */
+#define TAH_TSR		(TAH_BASE + 0x2C)   /* Transmit Status Register (RO) */
 
 /* TAH Revision */
 #define TAH_REV_RN_M		(0x000FFF00)	    /* Revision Number */
@@ -281,45 +281,45 @@ typedef struct emac_4xx_hw_st {
 #define TAH_REV_BN_V		(0)
 
 /* TAH Mode Register */
-#define TAH_MR_CVR		(0x80000000)	    /* Checksum verification on RX */
-#define TAH_MR_SR		(0x40000000)	    /* Software reset */
-#define TAH_MR_ST		(0x3F000000)	    /* Send Threshold */
-#define TAH_MR_TFS		(0x00E00000)	    /* Transmit FIFO size */
-#define TAH_MR_DTFP		(0x00100000)	    /* Disable TX FIFO parity */
-#define TAH_MR_DIG		(0x00080000)	    /* Disable interrupt generation */
-#define TAH_MR_RSVD		(0x0007FFFF)	    /* Reserved */
+#define TAH_MR_CVR	(0x80000000)	    /* Checksum verification on RX */
+#define TAH_MR_SR	(0x40000000)	    /* Software reset */
+#define TAH_MR_ST	(0x3F000000)	    /* Send Threshold */
+#define TAH_MR_TFS	(0x00E00000)	    /* Transmit FIFO size */
+#define TAH_MR_DTFP	(0x00100000)	    /* Disable TX FIFO parity */
+#define TAH_MR_DIG	(0x00080000)	    /* Disable interrupt generation */
+#define TAH_MR_RSVD	(0x0007FFFF)	    /* Reserved */
 
-#define TAH_MR_ST_V		(20)
-#define TAH_MR_TFS_V		(17)
+#define TAH_MR_ST_V	(20)
+#define TAH_MR_TFS_V	(17)
 
-#define TAH_MR_TFS_2K		(0x1)		    /* Transmit FIFO size 2Kbyte */
-#define TAH_MR_TFS_4K		(0x2)		    /* Transmit FIFO size 4Kbyte */
-#define TAH_MR_TFS_6K		(0x3)		    /* Transmit FIFO size 6Kbyte */
-#define TAH_MR_TFS_8K		(0x4)		    /* Transmit FIFO size 8Kbyte */
-#define TAH_MR_TFS_10K		(0x5)		    /* Transmit FIFO size 10Kbyte (max)*/
+#define TAH_MR_TFS_2K	(0x1)	    /* Transmit FIFO size 2Kbyte */
+#define TAH_MR_TFS_4K	(0x2)	    /* Transmit FIFO size 4Kbyte */
+#define TAH_MR_TFS_6K	(0x3)	    /* Transmit FIFO size 6Kbyte */
+#define TAH_MR_TFS_8K	(0x4)	    /* Transmit FIFO size 8Kbyte */
+#define TAH_MR_TFS_10K	(0x5)	    /* Transmit FIFO size 10Kbyte (max)*/
 
 
 /* TAH Segment Size Registers 0:5 */
-#define TAH_SSR_RSVD0		(0xC0000000)	    /* Reserved */
-#define TAH_SSR_SS		(0x3FFE0000)	    /* Segment size in multiples of 2 */
-#define TAH_SSR_RSVD1		(0x0001FFFF)	    /* Reserved */
+#define TAH_SSR_RSVD0	(0xC0000000)	    /* Reserved */
+#define TAH_SSR_SS	(0x3FFE0000)	    /* Segment size in multiples of 2 */
+#define TAH_SSR_RSVD1	(0x0001FFFF)	    /* Reserved */
 
 /* TAH Transmit Status Register */
-#define TAH_TSR_TFTS		(0x80000000)	    /* Transmit FIFO too small */
-#define TAH_TSR_UH		(0x40000000)	    /* Unrecognized header */
-#define TAH_TSR_NIPF		(0x20000000)	    /* Not IPv4 */
-#define TAH_TSR_IPOP		(0x10000000)	    /* IP option present */
-#define TAH_TSR_NISF		(0x08000000)	    /* No IEEE SNAP format */
-#define TAH_TSR_ILTS		(0x04000000)	    /* IP length too short */
-#define TAH_TSR_IPFP		(0x02000000)	    /* IP fragment present */
-#define TAH_TSR_UP		(0x01000000)	    /* Unsupported protocol */
-#define TAH_TSR_TFP		(0x00800000)	    /* TCP flags present */
-#define TAH_TSR_SUDP		(0x00400000)	    /* Segmentation for UDP */
-#define TAH_TSR_DLM		(0x00200000)	    /* Data length mismatch */
-#define TAH_TSR_SIEEE		(0x00100000)	    /* Segmentation for IEEE */
-#define TAH_TSR_TFPE		(0x00080000)	    /* Transmit FIFO parity error */
-#define TAH_TSR_SSTS		(0x00040000)	    /* Segment size too small */
-#define TAH_TSR_RSVD		(0x0003FFFF)	    /* Reserved */
+#define TAH_TSR_TFTS	(0x80000000)	    /* Transmit FIFO too small */
+#define TAH_TSR_UH	(0x40000000)	    /* Unrecognized header */
+#define TAH_TSR_NIPF	(0x20000000)	    /* Not IPv4 */
+#define TAH_TSR_IPOP	(0x10000000)	    /* IP option present */
+#define TAH_TSR_NISF	(0x08000000)	    /* No IEEE SNAP format */
+#define TAH_TSR_ILTS	(0x04000000)	    /* IP length too short */
+#define TAH_TSR_IPFP	(0x02000000)	    /* IP fragment present */
+#define TAH_TSR_UP	(0x01000000)	    /* Unsupported protocol */
+#define TAH_TSR_TFP	(0x00800000)	    /* TCP flags present */
+#define TAH_TSR_SUDP	(0x00400000)	    /* Segmentation for UDP */
+#define TAH_TSR_DLM	(0x00200000)	    /* Data length mismatch */
+#define TAH_TSR_SIEEE	(0x00100000)	    /* Segmentation for IEEE */
+#define TAH_TSR_TFPE	(0x00080000)	    /* Transmit FIFO parity error */
+#define TAH_TSR_SSTS	(0x00040000)	    /* Segment size too small */
+#define TAH_TSR_RSVD	(0x0003FFFF)	    /* Reserved */
 #endif /* CONFIG_440GX */
 
 
