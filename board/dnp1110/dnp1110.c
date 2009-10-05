@@ -23,6 +23,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <SA-1100.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -53,3 +54,14 @@ int dram_init (void)
 
 	return (0);
 }
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_SMC91111
+	rc = smc91111_initialize(0, CONFIG_SMC91111_BASE);
+#endif
+	return rc;
+}
+#endif

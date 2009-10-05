@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -23,3 +24,10 @@ phys_size_t initdram(int board_type)
 	gd->bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
 	return gd->bd->bi_memsize;
 }
+
+#ifdef CONFIG_SMC91111
+int board_eth_init(bd_t *bis)
+{
+	return smc91111_initialize(0, CONFIG_SMC91111_BASE);
+}
+#endif

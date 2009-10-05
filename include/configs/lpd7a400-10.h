@@ -72,7 +72,8 @@
  * Default IO base of chip is 0x300, Card Engine has this address lines
  * (LAN chip) tied to Vcc, so we just care about the chip select
  */
-#define CONFIG_DRIVER_SMC91111
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC91111
 #define CONFIG_SMC91111_BASE	(0x70000000)
 #undef CONFIG_SMC_USE_32_BIT
 #define CONFIG_SMC_USE_IOFUNCS

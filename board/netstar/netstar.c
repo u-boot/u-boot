@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <i2c.h>
 #include <flash.h>
 #include <nand.h>
@@ -113,5 +114,16 @@ int board_nand_init(struct nand_chip *nand)
 	nand->cmd_ctrl = netstar_nand_hwcontrol;
 	nand->chip_delay = 400;
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_SMC91111
+	rc = smc91111_initialize(0, CONFIG_SMC91111_BASE);
+#endif
+	return rc;
 }
 #endif

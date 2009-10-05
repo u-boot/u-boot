@@ -30,7 +30,8 @@
 /*
  * Board settings
  */
-#define CONFIG_DRIVER_SMC91111	1
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC91111	1
 #define CONFIG_SMC91111_BASE	0x20300300
 
 /* FLASH/ETHERNET uses the same address range
@@ -69,7 +70,7 @@
  * Network settings
  */
 
-#ifdef CONFIG_DRIVER_SMC91111
+#ifdef CONFIG_SMC91111
 #define CONFIG_IPADDR		192.168.0.15
 #define CONFIG_NETMASK		255.255.255.0
 #define CONFIG_GATEWAYIP	192.168.0.1
@@ -108,7 +109,7 @@
 
 #include <config_cmd_default.h>
 
-#ifdef CONFIG_DRIVER_SMC91111
+#ifdef CONFIG_SMC91111
 # define CONFIG_CMD_DHCP
 # define CONFIG_CMD_PING
 #else

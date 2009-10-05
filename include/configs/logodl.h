@@ -133,7 +133,8 @@
  * SMSC91C111 Network Card
  */
 #if 0
-#define CONFIG_DRIVER_SMC91111		1
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC91111		1
 #define CONFIG_SMC91111_BASE		0x10000000 /* chip select 4         */
 #undef  CONFIG_SMC_USE_32_BIT		           /* 16 bit bus access     */
 #undef  CONFIG_SMC_91111_EXT_PHY		   /* we use internal phy   */
