@@ -25,9 +25,9 @@ system handling, but ultimately they will call the driver-specific register
 function which in turn takes care of initializing that particular instance.
 
 Keep in mind that you should code the driver to avoid storing state in global
-data as someone might want to hook up two of the same devices to one board.  If
-the state is maintained as global data, it makes using both of those devices
-impossible.
+data as someone might want to hook up two of the same devices to one board.
+Any such information that is specific to an interface should be stored in a
+private, driver-defined data structure and pointed to by eth->priv (see below).
 
 So the call graph at this stage would look something like:
 board_init()
@@ -77,15 +77,20 @@ int ape_register(bd_t *bis, int iobase)
 	miiphy_register(dev->name, ape_mii_read, ape_mii_write);
 #endif
 
-	return 0;
+	return 1;
 }
 
 The exact arguments needed to initialize your device are up to you.  If you
 need to pass more/less arguments, that's fine.  You should also add the
-prototype for your new register function to include/netdev.h.  You might notice
-that many drivers seem to use xxx_initialize() rather than xxx_register().
-This is the old naming convention and should be avoided as it causes confusion
-with the driver-specific init function.
+prototype for your new register function to include/netdev.h.
+
+The return value for this function should be as follows:
+< 0 - failure (hardware failure, not probe failure)
+>=0 - number of interfaces detected
+
+You might notice that many drivers seem to use xxx_initialize() rather than 
+xxx_register().  This is the old naming convention and should be avoided as it
+causes confusion with the driver-specific init function.
 
 Other than locating the MAC address in dedicated hardware storage, you should
 not touch the hardware in anyway.  That step is handled in the driver-specific
