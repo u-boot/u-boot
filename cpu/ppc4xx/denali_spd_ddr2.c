@@ -1159,7 +1159,7 @@ phys_size_t initdram(int board_type)
 
 	mtsdram(DDR0_31, DDR0_31_XOR_CHECK_BITS_ENCODE(0x0000));
 
-	mtsdram(DDR0_42, DDR0_42_ADDR_PINS_DECODE(14 - rows) |
+	mtsdram(DDR0_42, DDR0_42_ADDR_PINS_ENCODE(14 - rows) |
 		DDR0_42_CASLAT_LIN_GATE_ENCODE(2 * cas_latency));
 
 	program_ddr0_43(dimm_ranks, iic0_dimm_addr, num_dimm_banks, sdram_freq,
