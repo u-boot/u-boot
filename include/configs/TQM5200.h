@@ -540,6 +540,8 @@
  *	 101 -> use PSC6 as UART. Pins PSC6_0 to PSC6_3 are used.
  *		Extended POST test is not available.
  *		Use for STK52xx, FO300 and CAM5200 boards.
+ *		WARNING: When the extended POST is enabled, these bits will
+ *			 be overridden by this code as GPIOs!
  * use PCI_DIS: Bit 16 (mask 0x00008000):
  *	   1 -> disable PCI controller (on CAM5200 board).
  * use USB: Bits 18-19 (mask 0x00003000):
@@ -552,7 +554,7 @@
  *	 000 -> All PSC2 pins are GPIOs.
  *	 100 -> UART (on CAM5200 board).
  *	 001 -> CAN1/2 on PSC2 pins.
- *	        Use for REV100 STK52xx boards
+ *		Use for REV100 STK52xx boards
  *	 01x -> Use AC97 (on FO300 board).
  * use PSC1: Bits 29-31 (mask: 0x00000007):
  *	 100 -> UART (on all boards).
@@ -711,20 +713,20 @@
 
 #define CONFIG_SYS_ATA_BASE_ADDR	MPC5XXX_ATA
 
-/* Offset for data I/O			*/
+/* Offset for data I/O */
 #define CONFIG_SYS_ATA_DATA_OFFSET	(0x0060)
 
-/* Offset for normal register accesses	*/
+/* Offset for normal register accesses */
 #define CONFIG_SYS_ATA_REG_OFFSET	(CONFIG_SYS_ATA_DATA_OFFSET)
 
-/* Offset for alternate registers	*/
+/* Offset for alternate registers */
 #define CONFIG_SYS_ATA_ALT_OFFSET	(0x005C)
 
-/* Interval between registers						     */
+/* Interval between registers */
 #define CONFIG_SYS_ATA_STRIDE		4
 
 /* Support ATAPI devices */
-#define CONFIG_ATAPI            1
+#define CONFIG_ATAPI			1
 
 /*-----------------------------------------------------------------------
  * Open firmware flat tree support
