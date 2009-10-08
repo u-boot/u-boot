@@ -202,6 +202,37 @@ int _do_setenv (int flag, int argc, char *argv[])
 			break;
 	}
 
+	/* Check for console redirection */
+	if (strcmp(name,"stdin") == 0) {
+		console = stdin;
+	} else if (strcmp(name,"stdout") == 0) {
+		console = stdout;
+	} else if (strcmp(name,"stderr") == 0) {
+		console = stderr;
+	}
+
+	if (console != -1) {
+		if (argc < 3) {		/* Cannot delete it! */
+			printf("Can't delete \"%s\"\n", name);
+			return 1;
+		}
+
+#ifdef CONFIG_CONSOLE_MUX
+		i = iomux_doenv(console, argv[2]);
+		if (i)
+			return i;
+#else
+		/* Try assigning specified device */
+		if (console_assign (console, argv[2]) < 0)
+			return 1;
+
+#ifdef CONFIG_SERIAL_MULTI
+		if (serial_assign (argv[2]) < 0)
+			return 1;
+#endif
+#endif /* CONFIG_CONSOLE_MUX */
+	}
+
 	/*
 	 * Delete any existing definition
 	 */
@@ -228,37 +259,6 @@ int _do_setenv (int flag, int argc, char *argv[])
 			return 1;
 		}
 #endif
-
-		/* Check for console redirection */
-		if (strcmp(name,"stdin") == 0) {
-			console = stdin;
-		} else if (strcmp(name,"stdout") == 0) {
-			console = stdout;
-		} else if (strcmp(name,"stderr") == 0) {
-			console = stderr;
-		}
-
-		if (console != -1) {
-			if (argc < 3) {		/* Cannot delete it! */
-				printf("Can't delete \"%s\"\n", name);
-				return 1;
-			}
-
-#ifdef CONFIG_CONSOLE_MUX
-			i = iomux_doenv(console, argv[2]);
-			if (i)
-				return i;
-#else
-			/* Try assigning specified device */
-			if (console_assign (console, argv[2]) < 0)
-				return 1;
-
-#ifdef CONFIG_SERIAL_MULTI
-			if (serial_assign (argv[2]) < 0)
-				return 1;
-#endif
-#endif /* CONFIG_CONSOLE_MUX */
-		}
 
 		/*
 		 * Switch to new baudrate if new baudrate is supported
