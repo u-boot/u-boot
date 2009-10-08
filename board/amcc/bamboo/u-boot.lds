@@ -70,7 +70,6 @@ SECTIONS
     board/amcc/bamboo/bamboo.o	(.text)
 
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

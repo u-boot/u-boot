@@ -561,7 +561,6 @@ int do_bootm_subcommand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /*******************************************************************/
 /* bootm - boot application image from image in memory */
 /*******************************************************************/
-static int relocated = 0;
 
 int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -569,6 +568,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	ulong		load_end = 0;
 	int		ret;
 	boot_os_fn	*boot_fn;
+#ifndef CONFIG_RELOC_FIXUP_WORKS
+	static int relocated = 0;
 
 	/* relocate boot function table */
 	if (!relocated) {
@@ -578,6 +579,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				boot_os[i] += gd->reloc_off;
 		relocated = 1;
 	}
+#endif
 
 	/* determine if we have a sub command */
 	if (argc > 1) {

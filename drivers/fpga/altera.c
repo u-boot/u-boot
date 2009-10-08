@@ -211,45 +211,6 @@ int altera_info( Altera_desc *desc )
 	return ret_val;
 }
 
-int altera_reloc( Altera_desc *desc, ulong reloc_offset)
-{
-	int ret_val = FPGA_FAIL;	/* assume a failure */
-
-	if (!altera_validate (desc, (char *)__FUNCTION__)) {
-		printf ("%s: Invalid device descriptor\n", __FUNCTION__);
-	} else {
-		switch (desc->family) {
-		case Altera_ACEX1K:
-#if defined(CONFIG_FPGA_ACEX1K)
-			ret_val = ACEX1K_reloc (desc, reloc_offset);
-#else
-			printf ("%s: No support for ACEX devices.\n",
-					__FUNCTION__);
-#endif
-			break;
-#if defined(CONFIG_FPGA_STRATIX_II)
-		case Altera_StratixII:
-			ret_val = StratixII_reloc (desc, reloc_offset);
-			break;
-#endif
-		case Altera_CYC2:
-#if defined(CONFIG_FPGA_CYCLON2)
-			ret_val = CYC2_reloc (desc, reloc_offset);
-#else
-			printf ("%s: No support for CYCLON II devices.\n",
-					__FUNCTION__);
-#endif
-			break;
-			/* Add new family types here */
-		default:
-			printf ("%s: Unsupported family type, %d\n",
-					__FUNCTION__, desc->family);
-		}
-	}
-
-	return ret_val;
-}
-
 /* ------------------------------------------------------------------------- */
 
 static int altera_validate (Altera_desc * desc, const char *fn)

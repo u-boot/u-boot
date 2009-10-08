@@ -276,7 +276,6 @@ pci_init_board(void)
 {
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
 	struct pci_controller *hose = &pci1_hose;
-	struct pci_config_table *table;
 	struct pci_region *r = hose->regions;
 
 	uint pci_32 = gur->pordevsr & MPC85xx_PORDEVSR_PCI1_PCI32;	/* PORDEVSR[15] */
@@ -311,12 +310,6 @@ pci_init_board(void)
 			       CONFIG_SYS_PCI1_IO_SIZE,
 			       PCI_REGION_IO);
 		hose->region_count = r - hose->regions;
-
-		/* relocate config table pointers */
-		hose->config_table = \
-			(struct pci_config_table *)((uint)hose->config_table + gd->reloc_off);
-		for (table = hose->config_table; table && table->vendor; table++)
-			table->config_device += gd->reloc_off;
 
 		hose->first_busno=first_free_busno;
 

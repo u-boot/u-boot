@@ -61,7 +61,6 @@ SECTIONS
     lib_ppc/extable.o (.text)
     lib_generic/zlib.o (.text)
     *(.text)
-    *(.fixup)
     *(.got1)
    }
     _etext = .;

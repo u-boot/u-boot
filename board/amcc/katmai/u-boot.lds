@@ -66,7 +66,6 @@ SECTIONS
     board/amcc/katmai/init.o	(.text)
 
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

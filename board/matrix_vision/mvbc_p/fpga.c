@@ -46,7 +46,6 @@ Altera_CYC2_Passive_Serial_fns altera_fns = {
 	fpga_wr_fn,
 	fpga_null_fn,
 	fpga_null_fn,
-	0
 };
 
 Altera_desc cyclone2 = {
@@ -55,16 +54,14 @@ Altera_desc cyclone2 = {
 	Altera_EP2C8_SIZE,
 	(void *) &altera_fns,
 	NULL,
-	0
 };
 
 DECLARE_GLOBAL_DATA_PTR;
 
 int mvbc_p_init_fpga(void)
 {
-	fpga_debug("Initialize FPGA interface (reloc 0x%.8lx)\n",
-		gd->reloc_off);
-	fpga_init(gd->reloc_off);
+	fpga_debug("Initialize FPGA interface\n");
+	fpga_init();
 	fpga_add(fpga_altera, &cyclone2);
 	fpga_config_fn(0, 1, 0);
 	udelay(60);

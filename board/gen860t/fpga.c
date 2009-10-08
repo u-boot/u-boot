@@ -193,8 +193,9 @@ int gen860t_init_fpga (void)
 {
 	int i;
 
-	PRINTF ("%s:%d: Initialize FPGA interface (relocation offset = 0x%.8lx)\n", __FUNCTION__, __LINE__, gd->reloc_off);
-	fpga_init (gd->reloc_off);
+	PRINTF ("%s:%d: Initialize FPGA interface\n",
+		__FUNCTION__, __LINE__);
+	fpga_init ();
 	fpga_selectmap_init ();
 
 	for (i = 0; i < CONFIG_FPGA_COUNT; i++) {

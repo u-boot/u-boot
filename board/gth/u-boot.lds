@@ -55,7 +55,6 @@ SECTIONS
     cpu/mpc8xx/start.o(.text)
     *(.text)
     common/env_embedded.o(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

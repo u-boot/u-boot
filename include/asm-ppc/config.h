@@ -47,4 +47,7 @@
 #define CONFIG_MAX_CPUS		1
 #endif
 
+/* Relocation to SDRAM works on all PPC boards */
+#define CONFIG_RELOC_FIXUP_WORKS
+
 #endif /* _ASM_CONFIG_H_ */

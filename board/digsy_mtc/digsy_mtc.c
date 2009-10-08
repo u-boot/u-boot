@@ -240,7 +240,6 @@ void board_get_enetaddr (uchar * enet)
 
 int misc_init_r(void)
 {
-	extern int mtc_cmd_init_r (void);
 	uchar enetaddr[6];
 
 	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
@@ -248,7 +247,6 @@ int misc_init_r(void)
 		eth_setenv_enetaddr("ethaddr", enetaddr);
 	}
 
-	mtc_cmd_init_r();
 	return 0;
 }
 

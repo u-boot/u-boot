@@ -62,7 +62,6 @@ SECTIONS
     lib_generic/zlib.o (.text)
     drivers/bios_emulator/atibios.o (.text)
     *(.text)
-    *(.fixup)
     *(.got1)
    }
     _etext = .;

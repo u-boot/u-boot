@@ -316,16 +316,6 @@ int misc_init_r ()
 	return 0;
 }
 
-int board_early_init_r(void)
-{
-	/* now relocate the debug serial driver */
-	mpsc_putchar += gd->reloc_off;
-	mpsc_getchar += gd->reloc_off;
-	mpsc_test_char += gd->reloc_off;
-
-	return 0;
-}
-
 void after_reloc (ulong dest_addr, gd_t * gd)
 {
 	memoryMapDeviceSpace (BOOT_DEVICE, CONFIG_SYS_BOOT_SPACE, CONFIG_SYS_BOOT_SIZE);

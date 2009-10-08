@@ -62,7 +62,6 @@ SECTIONS
   .text      :
   {
     *(.text)
-    *(.fixup)
     *(.got1)
    } :text
     _etext = .;
@@ -131,6 +130,17 @@ SECTIONS
   } :text = 0xffff
 
   . = RESET_VECTOR_ADDRESS + 0x4;
+
+  /*
+   * Make sure that the bss segment isn't linked at 0x0, otherwise its
+   * address won't be updated during relocation fixups.  Note that
+   * this is a temporary fix.  Code to dynamically the fixup the bss
+   * location will be added in the future.  When the bss relocation
+   * fixup code is present this workaround should be removed.
+   */
+#if (RESET_VECTOR_ADDRESS == 0xfffffffc)
+  . |= 0x10;
+#endif
 
   __bss_start = .;
   .bss (NOLOAD)       :

@@ -224,8 +224,10 @@ void set_default_env(void)
 
 void env_relocate (void)
 {
+#ifndef CONFIG_RELOC_FIXUP_WORKS
 	DEBUGF ("%s[%d] offset = 0x%lx\n", __FUNCTION__,__LINE__,
 		gd->reloc_off);
+#endif
 
 #ifdef CONFIG_AMIGAONEG3SE
 	enable_nvram();
@@ -236,7 +238,9 @@ void env_relocate (void)
 	 * The environment buffer is embedded with the text segment,
 	 * just relocate the environment pointer
 	 */
+#ifndef CONFIG_RELOC_FIXUP_WORKS
 	env_ptr = (env_t *)((ulong)env_ptr + gd->reloc_off);
+#endif
 	DEBUGF ("%s[%d] embedded ENV at %p\n", __FUNCTION__,__LINE__,env_ptr);
 #else
 	/*

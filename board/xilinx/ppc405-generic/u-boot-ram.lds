@@ -57,7 +57,6 @@ SECTIONS
 
 
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

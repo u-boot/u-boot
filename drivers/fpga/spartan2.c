@@ -51,12 +51,10 @@
 static int Spartan2_sp_load( Xilinx_desc *desc, void *buf, size_t bsize );
 static int Spartan2_sp_dump( Xilinx_desc *desc, void *buf, size_t bsize );
 /* static int Spartan2_sp_info( Xilinx_desc *desc ); */
-static int Spartan2_sp_reloc( Xilinx_desc *desc, ulong reloc_offset );
 
 static int Spartan2_ss_load( Xilinx_desc *desc, void *buf, size_t bsize );
 static int Spartan2_ss_dump( Xilinx_desc *desc, void *buf, size_t bsize );
 /* static int Spartan2_ss_info( Xilinx_desc *desc ); */
-static int Spartan2_ss_reloc( Xilinx_desc *desc, ulong reloc_offset );
 
 /* ------------------------------------------------------------------------- */
 /* Spartan-II Generic Implementation */
@@ -109,33 +107,6 @@ int Spartan2_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 int Spartan2_info( Xilinx_desc *desc )
 {
 	return FPGA_SUCCESS;
-}
-
-
-int Spartan2_reloc (Xilinx_desc * desc, ulong reloc_offset)
-{
-	int ret_val = FPGA_FAIL;	/* assume a failure */
-
-	if (desc->family != Xilinx_Spartan2) {
-		printf ("%s: Unsupported family type, %d\n",
-				__FUNCTION__, desc->family);
-		return FPGA_FAIL;
-	} else
-		switch (desc->iface) {
-		case slave_serial:
-			ret_val = Spartan2_ss_reloc (desc, reloc_offset);
-			break;
-
-		case slave_parallel:
-			ret_val = Spartan2_sp_reloc (desc, reloc_offset);
-			break;
-
-		default:
-			printf ("%s: Unsupported interface type, %d\n",
-					__FUNCTION__, desc->iface);
-		}
-
-	return ret_val;
 }
 
 
@@ -340,93 +311,6 @@ static int Spartan2_sp_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 }
 
 
-static int Spartan2_sp_reloc (Xilinx_desc * desc, ulong reloc_offset)
-{
-	int ret_val = FPGA_FAIL;	/* assume the worst */
-	Xilinx_Spartan2_Slave_Parallel_fns *fn_r, *fn =
-			(Xilinx_Spartan2_Slave_Parallel_fns *) (desc->iface_fns);
-
-	if (fn) {
-		ulong addr;
-
-		/* Get the relocated table address */
-		addr = (ulong) fn + reloc_offset;
-		fn_r = (Xilinx_Spartan2_Slave_Parallel_fns *) addr;
-
-		if (!fn_r->relocated) {
-
-			if (memcmp (fn_r, fn,
-						sizeof (Xilinx_Spartan2_Slave_Parallel_fns))
-				== 0) {
-				/* good copy of the table, fix the descriptor pointer */
-				desc->iface_fns = fn_r;
-			} else {
-				PRINTF ("%s: Invalid function table at 0x%p\n",
-						__FUNCTION__, fn_r);
-				return FPGA_FAIL;
-			}
-
-			PRINTF ("%s: Relocating descriptor at 0x%p\n", __FUNCTION__,
-					desc);
-
-			addr = (ulong) (fn->pre) + reloc_offset;
-			fn_r->pre = (Xilinx_pre_fn) addr;
-
-			addr = (ulong) (fn->pgm) + reloc_offset;
-			fn_r->pgm = (Xilinx_pgm_fn) addr;
-
-			addr = (ulong) (fn->init) + reloc_offset;
-			fn_r->init = (Xilinx_init_fn) addr;
-
-			addr = (ulong) (fn->done) + reloc_offset;
-			fn_r->done = (Xilinx_done_fn) addr;
-
-			addr = (ulong) (fn->clk) + reloc_offset;
-			fn_r->clk = (Xilinx_clk_fn) addr;
-
-			addr = (ulong) (fn->err) + reloc_offset;
-			fn_r->err = (Xilinx_err_fn) addr;
-
-			addr = (ulong) (fn->cs) + reloc_offset;
-			fn_r->cs = (Xilinx_cs_fn) addr;
-
-			addr = (ulong) (fn->wr) + reloc_offset;
-			fn_r->wr = (Xilinx_wr_fn) addr;
-
-			addr = (ulong) (fn->rdata) + reloc_offset;
-			fn_r->rdata = (Xilinx_rdata_fn) addr;
-
-			addr = (ulong) (fn->wdata) + reloc_offset;
-			fn_r->wdata = (Xilinx_wdata_fn) addr;
-
-			addr = (ulong) (fn->busy) + reloc_offset;
-			fn_r->busy = (Xilinx_busy_fn) addr;
-
-			addr = (ulong) (fn->abort) + reloc_offset;
-			fn_r->abort = (Xilinx_abort_fn) addr;
-
-			if (fn->post) {
-				addr = (ulong) (fn->post) + reloc_offset;
-				fn_r->post = (Xilinx_post_fn) addr;
-			}
-
-			fn_r->relocated = TRUE;
-
-		} else {
-			/* this table has already been moved */
-			/* XXX - should check to see if the descriptor is correct */
-			desc->iface_fns = fn_r;
-		}
-
-		ret_val = FPGA_SUCCESS;
-	} else {
-		printf ("%s: NULL Interface function table!\n", __FUNCTION__);
-	}
-
-	return ret_val;
-
-}
-
 /* ------------------------------------------------------------------------- */
 
 static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
@@ -579,75 +463,4 @@ static int Spartan2_ss_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 	printf ("%s: Slave Serial Dumping is unavailable\n",
 			__FUNCTION__);
 	return FPGA_FAIL;
-}
-
-static int Spartan2_ss_reloc (Xilinx_desc * desc, ulong reloc_offset)
-{
-	int ret_val = FPGA_FAIL;	/* assume the worst */
-	Xilinx_Spartan2_Slave_Serial_fns *fn_r, *fn =
-			(Xilinx_Spartan2_Slave_Serial_fns *) (desc->iface_fns);
-
-	if (fn) {
-		ulong addr;
-
-		/* Get the relocated table address */
-		addr = (ulong) fn + reloc_offset;
-		fn_r = (Xilinx_Spartan2_Slave_Serial_fns *) addr;
-
-		if (!fn_r->relocated) {
-
-			if (memcmp (fn_r, fn,
-						sizeof (Xilinx_Spartan2_Slave_Serial_fns))
-				== 0) {
-				/* good copy of the table, fix the descriptor pointer */
-				desc->iface_fns = fn_r;
-			} else {
-				PRINTF ("%s: Invalid function table at 0x%p\n",
-						__FUNCTION__, fn_r);
-				return FPGA_FAIL;
-			}
-
-			PRINTF ("%s: Relocating descriptor at 0x%p\n", __FUNCTION__,
-					desc);
-
-			if (fn->pre) {
-				addr = (ulong) (fn->pre) + reloc_offset;
-				fn_r->pre = (Xilinx_pre_fn) addr;
-			}
-
-			addr = (ulong) (fn->pgm) + reloc_offset;
-			fn_r->pgm = (Xilinx_pgm_fn) addr;
-
-			addr = (ulong) (fn->init) + reloc_offset;
-			fn_r->init = (Xilinx_init_fn) addr;
-
-			addr = (ulong) (fn->done) + reloc_offset;
-			fn_r->done = (Xilinx_done_fn) addr;
-
-			addr = (ulong) (fn->clk) + reloc_offset;
-			fn_r->clk = (Xilinx_clk_fn) addr;
-
-			addr = (ulong) (fn->wr) + reloc_offset;
-			fn_r->wr = (Xilinx_wr_fn) addr;
-
-			if (fn->post) {
-				addr = (ulong) (fn->post) + reloc_offset;
-				fn_r->post = (Xilinx_post_fn) addr;
-			}
-
-			fn_r->relocated = TRUE;
-
-		} else {
-			/* this table has already been moved */
-			/* XXX - should check to see if the descriptor is correct */
-			desc->iface_fns = fn_r;
-		}
-
-		ret_val = FPGA_SUCCESS;
-	} else {
-		printf ("%s: NULL Interface function table!\n", __FUNCTION__);
-	}
-
-	return ret_val;
-
 }

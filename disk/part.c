@@ -80,7 +80,10 @@ block_dev_desc_t *get_dev(char* ifname, int dev)
 	block_dev_desc_t* (*reloc_get_dev)(int dev);
 
 	while (drvr->name) {
-		reloc_get_dev = drvr->get_dev + gd->reloc_off;
+		reloc_get_dev = drvr->get_dev;
+#ifndef CONFIG_RELOC_FIXUP_WORKS
+		reloc_get_dev += gd->reloc_off;
+#endif
 		if (strncmp(ifname, drvr->name, strlen(drvr->name)) == 0)
 			return reloc_get_dev(dev);
 		drvr++;

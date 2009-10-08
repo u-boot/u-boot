@@ -393,6 +393,7 @@ int post_log (char *format, ...)
 	return 0;
 }
 
+#ifndef CONFIG_RELOC_FIXUP_WORKS
 void post_reloc (void)
 {
 	unsigned int i;
@@ -437,6 +438,7 @@ void post_reloc (void)
 		}
 	}
 }
+#endif
 
 
 /*

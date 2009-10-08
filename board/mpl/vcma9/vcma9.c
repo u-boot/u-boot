@@ -312,11 +312,8 @@ int checkboard(void)
 }
 
 
-extern void mem_test_reloc(void);
-
 int last_stage_init(void)
 {
-	mem_test_reloc();
 	checkboard();
 	stdio_print_current_devices();
 	check_env();
