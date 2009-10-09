@@ -20,6 +20,7 @@
 
 #include <common.h>
 #include <config.h>
+#include <watchdog.h>
 #include <asm/blackfin.h>
 #include "cpu.h"
 
@@ -70,6 +71,8 @@ void udelay(unsigned long usec)
 	cclk = (CONFIG_CCLK_HZ);
 
 	while (usec > 1) {
+		WATCHDOG_RESET();
+
 		/*
 		 * how many clock ticks to delay?
 		 *  - request(in useconds) * clock_ticks(Hz) / useconds/second
