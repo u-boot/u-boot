@@ -296,7 +296,6 @@ static void board_net_init_r(bd_t *bd)
 
 void board_init_r(gd_t * id, ulong dest_addr)
 {
-	extern void malloc_bin_reloc(void);
 	char *s;
 	bd_t *bd;
 	gd = id;
@@ -310,7 +309,6 @@ void board_init_r(gd_t * id, ulong dest_addr)
 
 	/* initialize malloc() area */
 	mem_malloc_init(CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
-	malloc_bin_reloc();
 
 #if	!defined(CONFIG_SYS_NO_FLASH)
 	/* Initialize the flash and protect u-boot by default */
