@@ -2,7 +2,9 @@
  * Command for accessing SPI flash.
  *
  * Copyright (C) 2008 Atmel Corporation
+ * Licensed under the GPL-2 or later.
  */
+
 #include <common.h>
 #include <spi_flash.h>
 

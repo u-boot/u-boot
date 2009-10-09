@@ -2,6 +2,7 @@
  * SPI flash interface
  *
  * Copyright (C) 2008 Atmel Corporation
+ * Licensed under the GPL-2 or later.
  */
 
 #include <common.h>
