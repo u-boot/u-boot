@@ -19,6 +19,8 @@
 |
 |	COPYRIGHT   I B M   CORPORATION 1999
 |	LICENSED MATERIAL  -  PROGRAM PROPERTY OF I B M
+|
+|   Additions (C) Copyright 2009 Industrie Dial Face S.p.A.
 +----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------+
 |
@@ -61,12 +63,33 @@ char *miiphy_get_current_dev (void);
 
 void miiphy_listdev (void);
 
-#define BB_MII_DEVNAME	"bbmii"
+#ifdef CONFIG_BITBANGMII
 
+#define BB_MII_DEVNAME	"bb_miiphy"
+
+struct bb_miiphy_bus {
+	char name[NAMESIZE];
+	int (*init)(struct bb_miiphy_bus *bus);
+	int (*mdio_active)(struct bb_miiphy_bus *bus);
+	int (*mdio_tristate)(struct bb_miiphy_bus *bus);
+	int (*set_mdio)(struct bb_miiphy_bus *bus, int v);
+	int (*get_mdio)(struct bb_miiphy_bus *bus, int *v);
+	int (*set_mdc)(struct bb_miiphy_bus *bus, int v);
+	int (*delay)(struct bb_miiphy_bus *bus);
+#ifdef CONFIG_BITBANGMII_MULTI
+	void *priv;
+#endif
+};
+
+extern struct bb_miiphy_bus bb_miiphy_buses[];
+extern int bb_miiphy_buses_num;
+
+void bb_miiphy_init (void);
 int bb_miiphy_read (char *devname, unsigned char addr,
 		    unsigned char reg, unsigned short *value);
 int bb_miiphy_write (char *devname, unsigned char addr,
 		     unsigned char reg, unsigned short value);
+#endif
 
 /* phy seed setup */
 #define AUTO			99
