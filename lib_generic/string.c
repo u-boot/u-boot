@@ -446,12 +446,23 @@ char * bcopy(const char * src, char * dest, int count)
  * You should not use this function to access IO space, use memcpy_toio()
  * or memcpy_fromio() instead.
  */
-void * memcpy(void * dest,const void *src,size_t count)
+void * memcpy(void *dest, const void *src, size_t count)
 {
-	char *tmp = (char *) dest, *s = (char *) src;
+	unsigned long *dl = (unsigned long *)dest, *sl = (unsigned long *)src;
+	char *d8, *s8;
 
+	/* while all data is aligned (common case), copy a word at a time */
+	if ( (((ulong)dest | (ulong)src) & (sizeof(*dl) - 1)) == 0) {
+		while (count >= sizeof(*dl)) {
+			*dl++ = *sl++;
+			count -= sizeof(*dl);
+		}
+	}
+	/* copy the reset one byte at a time */
+	d8 = (char *)dl;
+	s8 = (char *)sl;
 	while (count--)
-		*tmp++ = *s++;
+		*d8++ = *s8++;
 
 	return dest;
 }
