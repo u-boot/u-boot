@@ -32,6 +32,8 @@
 #include <common.h>
 #if defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB)
 
+#include <asm/io.h>
+
 #if defined(CONFIG_S3C2400)
 #include <s3c2400.h>
 #elif defined(CONFIG_S3C2410)
@@ -53,49 +55,51 @@
 
 static ulong get_PLLCLK(int pllreg)
 {
-    S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
-    ulong r, m, p, s;
+	struct s3c24x0_clock_power *clk_power = s3c24x0_get_base_clock_power();
+	ulong r, m, p, s;
 
-    if (pllreg == MPLL)
-	r = clk_power->MPLLCON;
-    else if (pllreg == UPLL)
-	r = clk_power->UPLLCON;
-    else
-	hang();
+	if (pllreg == MPLL)
+		r = readl(&clk_power->MPLLCON);
+	else if (pllreg == UPLL)
+		r = readl(&clk_power->UPLLCON);
+	else
+		hang();
 
-    m = ((r & 0xFF000) >> 12) + 8;
-    p = ((r & 0x003F0) >> 4) + 2;
-    s = r & 0x3;
+	m = ((r & 0xFF000) >> 12) + 8;
+	p = ((r & 0x003F0) >> 4) + 2;
+	s = r & 0x3;
 
-    return((CONFIG_SYS_CLK_FREQ * m) / (p << s));
+	return (CONFIG_SYS_CLK_FREQ * m) / (p << s);
 }
 
 /* return FCLK frequency */
 ulong get_FCLK(void)
 {
-    return(get_PLLCLK(MPLL));
+	return get_PLLCLK(MPLL);
 }
 
 /* return HCLK frequency */
 ulong get_HCLK(void)
 {
-    S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
+	struct s3c24x0_clock_power *clk_power = s3c24x0_get_base_clock_power();
 
-    return((clk_power->CLKDIVN & 0x2) ? get_FCLK()/2 : get_FCLK());
+	return (readl(&clk_power->CLKDIVN) & 2) ? get_FCLK() / 2 : get_FCLK();
 }
 
 /* return PCLK frequency */
 ulong get_PCLK(void)
 {
-    S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
+	struct s3c24x0_clock_power *clk_power = s3c24x0_get_base_clock_power();
 
-    return((clk_power->CLKDIVN & 0x1) ? get_HCLK()/2 : get_HCLK());
+	return (readl(&clk_power->CLKDIVN) & 1) ? get_HCLK() / 2 : get_HCLK();
 }
 
 /* return UCLK frequency */
 ulong get_UCLK(void)
 {
-    return(get_PLLCLK(UPLL));
+	return get_PLLCLK(UPLL);
 }
 
-#endif /* defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB) */
+#endif /* defined(CONFIG_S3C2400) ||
+	  defined (CONFIG_S3C2410) ||
+	  defined (CONFIG_TRAB) */

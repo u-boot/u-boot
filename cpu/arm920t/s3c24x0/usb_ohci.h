@@ -11,22 +11,22 @@
 static int cc_to_error[16] = {
 
 /* mapping of the OHCI CC status to error codes */
-	/* No  Error  */	       0,
-	/* CRC Error  */	       USB_ST_CRC_ERR,
-	/* Bit Stuff  */	       USB_ST_BIT_ERR,
-	/* Data Togg  */	       USB_ST_CRC_ERR,
-	/* Stall      */	       USB_ST_STALLED,
-	/* DevNotResp */	       -1,
-	/* PIDCheck   */	       USB_ST_BIT_ERR,
-	/* UnExpPID   */	       USB_ST_BIT_ERR,
-	/* DataOver   */	       USB_ST_BUF_ERR,
-	/* DataUnder  */	       USB_ST_BUF_ERR,
-	/* reservd    */	       -1,
-	/* reservd    */	       -1,
-	/* BufferOver */	       USB_ST_BUF_ERR,
-	/* BuffUnder  */	       USB_ST_BUF_ERR,
-	/* Not Access */	       -1,
-	/* Not Access */	       -1
+	/* No  Error  */ 0,
+	/* CRC Error  */ USB_ST_CRC_ERR,
+	/* Bit Stuff  */ USB_ST_BIT_ERR,
+	/* Data Togg  */ USB_ST_CRC_ERR,
+	/* Stall      */ USB_ST_STALLED,
+	/* DevNotResp */ -1,
+	/* PIDCheck   */ USB_ST_BIT_ERR,
+	/* UnExpPID   */ USB_ST_BIT_ERR,
+	/* DataOver   */ USB_ST_BUF_ERR,
+	/* DataUnder  */ USB_ST_BUF_ERR,
+	/* reservd    */ -1,
+	/* reservd    */ -1,
+	/* BufferOver */ USB_ST_BUF_ERR,
+	/* BuffUnder  */ USB_ST_BUF_ERR,
+	/* Not Access */ -1,
+	/* Not Access */ -1
 };
 
 /* ED States */
@@ -55,14 +55,13 @@ struct ed {
 
 	struct usb_device *usb_dev;
 	__u32 unused[3];
-} __attribute__((aligned(16)));
-typedef struct ed ed_t;
-
+} __attribute__ ((aligned(16)));
 
 /* TD info field */
 #define TD_CC			0xf0000000
-#define TD_CC_GET(td_p)		((td_p >>28) & 0x0f)
-#define TD_CC_SET(td_p, cc)	(td_p) = ((td_p) & 0x0fffffff) | (((cc) & 0x0f) << 28)
+#define TD_CC_GET(td_p)		(((td_p) >> 28) & 0x0f)
+#define TD_CC_SET(td_p, cc) \
+	{(td_p) = ((td_p) & 0x0fffffff) | (((cc) & 0x0f) << 28)}
 #define TD_EC			0x0C000000
 #define TD_T			0x03000000
 #define TD_T_DATA0		0x02000000
@@ -112,8 +111,7 @@ struct td {
 	__u32 data;
 
 	__u32 unused2[2];
-} __attribute__((aligned(32)));
-typedef struct td td_t;
+} __attribute__ ((aligned(32)));
 
 #define OHCI_ED_SKIP	(1 << 14)
 
@@ -123,15 +121,14 @@ typedef struct td td_t;
  * told the base address of.  It must be 256-byte aligned.
  */
 
-#define NUM_INTS 32	/* part of the OHCI standard */
+#define NUM_INTS 32		/* part of the OHCI standard */
 struct ohci_hcca {
-	__u32	int_table[NUM_INTS];	/* Interrupt ED table */
-	__u16	frame_no;		/* current frame number */
-	__u16	pad1;			/* set to 0 on each frame_no change */
-	__u32	done_head;		/* info returned for an interrupt */
-	u8	reserved_for_hc[116];
-} __attribute__((aligned(256)));
-
+	__u32 int_table[NUM_INTS];	/* Interrupt ED table */
+	__u16 frame_no;		/* current frame number */
+	__u16 pad1;		/* set to 0 on each frame_no change */
+	__u32 done_head;	/* info returned for an interrupt */
+	u8 reserved_for_hc[116];
+} __attribute__ ((aligned(256)));
 
 /*
  * Maximum number of root hub ports.
@@ -145,35 +142,34 @@ struct ohci_hcca {
  */
 struct ohci_regs {
 	/* control and status registers */
-	__u32	revision;
-	__u32	control;
-	__u32	cmdstatus;
-	__u32	intrstatus;
-	__u32	intrenable;
-	__u32	intrdisable;
+	__u32 revision;
+	__u32 control;
+	__u32 cmdstatus;
+	__u32 intrstatus;
+	__u32 intrenable;
+	__u32 intrdisable;
 	/* memory pointers */
-	__u32	hcca;
-	__u32	ed_periodcurrent;
-	__u32	ed_controlhead;
-	__u32	ed_controlcurrent;
-	__u32	ed_bulkhead;
-	__u32	ed_bulkcurrent;
-	__u32	donehead;
+	__u32 hcca;
+	__u32 ed_periodcurrent;
+	__u32 ed_controlhead;
+	__u32 ed_controlcurrent;
+	__u32 ed_bulkhead;
+	__u32 ed_bulkcurrent;
+	__u32 donehead;
 	/* frame counters */
-	__u32	fminterval;
-	__u32	fmremaining;
-	__u32	fmnumber;
-	__u32	periodicstart;
-	__u32	lsthresh;
+	__u32 fminterval;
+	__u32 fmremaining;
+	__u32 fmnumber;
+	__u32 periodicstart;
+	__u32 lsthresh;
 	/* Root hub ports */
-	struct	ohci_roothub_regs {
-		__u32	a;
-		__u32	b;
-		__u32	status;
-		__u32	portstatus[MAX_ROOT_PORTS];
+	struct ohci_roothub_regs {
+		__u32 a;
+		__u32 b;
+		__u32 status;
+		__u32 portstatus[MAX_ROOT_PORTS];
 	} roothub;
-} __attribute__((aligned(32)));
-
+} __attribute__ ((aligned(32)));
 
 /* OHCI CONTROL AND STATUS REGISTER MASKS */
 
@@ -221,11 +217,10 @@ struct ohci_regs {
 #define OHCI_INTR_OC	(1 << 30)	/* ownership change */
 #define OHCI_INTR_MIE	(1 << 31)	/* master interrupt enable */
 
-
 /* Virtual Root HUB */
 struct virt_root_hub {
-	int devnum; /* Address of Root Hub endpoint */
-	void *dev;  /* was urb */
+	int devnum;		/* Address of Root Hub endpoint */
+	void *dev;		/* was urb */
 	void *int_addr;
 	int send;
 	int interval;
@@ -288,52 +283,52 @@ struct virt_root_hub {
 /* OHCI ROOT HUB REGISTER MASKS */
 
 /* roothub.portstatus [i] bits */
-#define RH_PS_CCS		0x00000001	/* current connect status */
-#define RH_PS_PES		0x00000002	/* port enable status*/
-#define RH_PS_PSS		0x00000004	/* port suspend status */
-#define RH_PS_POCI		0x00000008	/* port over current indicator */
-#define RH_PS_PRS		0x00000010	/* port reset status */
-#define RH_PS_PPS		0x00000100	/* port power status */
-#define RH_PS_LSDA		0x00000200	/* low speed device attached */
-#define RH_PS_CSC		0x00010000	/* connect status change */
-#define RH_PS_PESC		0x00020000	/* port enable status change */
-#define RH_PS_PSSC		0x00040000	/* port suspend status change */
-#define RH_PS_OCIC		0x00080000	/* over current indicator change */
-#define RH_PS_PRSC		0x00100000	/* port reset status change */
+#define RH_PS_CCS		0x00000001 /* current connect status */
+#define RH_PS_PES		0x00000002 /* port enable status */
+#define RH_PS_PSS		0x00000004 /* port suspend status */
+#define RH_PS_POCI		0x00000008 /* port over current indicator */
+#define RH_PS_PRS		0x00000010 /* port reset status */
+#define RH_PS_PPS		0x00000100 /* port power status */
+#define RH_PS_LSDA		0x00000200 /* low speed device attached */
+#define RH_PS_CSC		0x00010000 /* connect status change */
+#define RH_PS_PESC		0x00020000 /* port enable status change */
+#define RH_PS_PSSC		0x00040000 /* port suspend status change */
+#define RH_PS_OCIC		0x00080000 /* over current indicator change */
+#define RH_PS_PRSC		0x00100000 /* port reset status change */
 
 /* roothub.status bits */
-#define RH_HS_LPS		0x00000001	/* local power status */
-#define RH_HS_OCI		0x00000002	/* over current indicator */
-#define RH_HS_DRWE		0x00008000	/* device remote wakeup enable */
-#define RH_HS_LPSC		0x00010000	/* local power status change */
-#define RH_HS_OCIC		0x00020000	/* over current indicator change */
-#define RH_HS_CRWE		0x80000000	/* clear remote wakeup enable */
+#define RH_HS_LPS		0x00000001 /* local power status */
+#define RH_HS_OCI		0x00000002 /* over current indicator */
+#define RH_HS_DRWE		0x00008000 /* device remote wakeup enable */
+#define RH_HS_LPSC		0x00010000 /* local power status change */
+#define RH_HS_OCIC		0x00020000 /* over current indicator change */
+#define RH_HS_CRWE		0x80000000 /* clear remote wakeup enable */
 
 /* roothub.b masks */
-#define RH_B_DR			0x0000ffff	/* device removable flags */
-#define RH_B_PPCM		0xffff0000	/* port power control mask */
+#define RH_B_DR			0x0000ffff /* device removable flags */
+#define RH_B_PPCM		0xffff0000 /* port power control mask */
 
 /* roothub.a masks */
-#define	RH_A_NDP		(0xff << 0)	/* number of downstream ports */
-#define	RH_A_PSM		(1 << 8)	/* power switching mode */
-#define	RH_A_NPS		(1 << 9)	/* no power switching */
-#define	RH_A_DT			(1 << 10)	/* device type (mbz) */
-#define	RH_A_OCPM		(1 << 11)	/* over current protection mode */
-#define	RH_A_NOCP		(1 << 12)	/* no over current protection */
-#define	RH_A_POTPGT		(0xff << 24)	/* power on to power good time */
+#define	RH_A_NDP		(0xff << 0)  /* number of downstream ports */
+#define	RH_A_PSM		(1 << 8)     /* power switching mode */
+#define	RH_A_NPS		(1 << 9)     /* no power switching */
+#define	RH_A_DT			(1 << 10)    /* device type (mbz) */
+#define	RH_A_OCPM		(1 << 11)    /* over current protection mode */
+#define	RH_A_NOCP		(1 << 12)    /* no over current protection */
+#define	RH_A_POTPGT		(0xff << 24) /* power on to power good time */
 
 /* urb */
 #define N_URB_TD 48
-typedef struct
-{
-	ed_t *ed;
-	__u16 length;	/* number of tds associated with this request */
-	__u16 td_cnt;	/* number of tds already serviced */
-	int   state;
+struct urb_priv {
+	struct ed *ed;
+	__u16 length;		/* number of tds associated with this request */
+	__u16 td_cnt;		/* number of tds already serviced */
+	int state;
 	unsigned long pipe;
 	int actual_length;
-	td_t *td[N_URB_TD];	/* list pointer to all corresponding TDs associated with this request */
-} urb_priv_t;
+	struct td *td[N_URB_TD];	/* list pointer to all corresponding TDs
+					   associated with this request */
+};
 #define URB_DEL 1
 
 /*
@@ -344,7 +339,7 @@ typedef struct
  */
 
 
-typedef struct ohci {
+struct ohci {
 	struct ohci_hcca *hcca;	/* hcca */
 	/*dma_addr_t hcca_dma; */
 
@@ -355,29 +350,29 @@ typedef struct ohci {
 
 	struct ohci_regs *regs;	/* OHCI controller's memory */
 
-	ed_t *ed_rm_list[2];	/* lists of all endpoints to be removed */
-	ed_t *ed_bulktail;	/* last endpoint of bulk list */
-	ed_t *ed_controltail;	/* last endpoint of control list */
+	struct ed *ed_rm_list[2];  /* lists of all endpoints to be removed */
+	struct ed *ed_bulktail;    /* last endpoint of bulk list */
+	struct ed *ed_controltail; /* last endpoint of control list */
 	int intrstatus;
 	__u32 hc_control;	/* copy of the hc control reg */
 	struct usb_device *dev[32];
 	struct virt_root_hub rh;
 
 	const char *slot_name;
-} ohci_t;
+};
 
 #define NUM_EDS 8		/* num of preallocated endpoint descriptors */
 
 struct ohci_device {
-	ed_t ed[NUM_EDS];
+	struct ed ed[NUM_EDS];
 	int ed_cnt;
 };
 
 /* hcd */
 /* endpoint */
-static int ep_link (ohci_t * ohci, ed_t * ed);
-static int ep_unlink (ohci_t * ohci, ed_t * ed);
-static ed_t *ep_add_ed (struct usb_device *usb_dev, unsigned long pipe);
+static int ep_link(struct ohci *ohci, struct ed *ed);
+static int ep_unlink(struct ohci *ohci, struct ed *ed);
+static struct ed *ep_add_ed(struct usb_device *usb_dev, unsigned long pipe);
 
 /*-------------------------------------------------------------------------*/
 
@@ -385,13 +380,13 @@ static ed_t *ep_add_ed (struct usb_device *usb_dev, unsigned long pipe);
 #define NUM_TD 64
 
 /* +1 so we can align the storage */
-td_t gtd[NUM_TD + 1];
+struct td gtd[NUM_TD + 1];
 
 /* pointers to aligned storage */
-td_t *ptd;
+struct td *ptd;
 
 /* TDs ... */
-static inline struct td *td_alloc (struct usb_device *usb_dev)
+static inline struct td *td_alloc(struct usb_device *usb_dev)
 {
 	int i;
 	struct td *td;
@@ -408,7 +403,7 @@ static inline struct td *td_alloc (struct usb_device *usb_dev)
 	return td;
 }
 
-static inline void ed_free (struct ed *ed)
+static inline void ed_free(struct ed *ed)
 {
 	ed->usb_dev = NULL;
 }
