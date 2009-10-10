@@ -614,7 +614,9 @@ Sergey Kubushyn <ksi@koi8.net>
 
 Sandeep Paulraj <s-paulraj@ti.com>
 
+	davinci_dm355evm	ARM926EJS
 	davinci_dm355leopard	ARM926EJS
+	davinci_dm365evm	ARM926EJS
 	davinci_dm6467evm	ARM926EJS
 
 Prakash Kumar <prakash@embedx.com>
