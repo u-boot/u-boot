@@ -612,6 +612,10 @@ Sergey Kubushyn <ksi@koi8.net>
 	SONATA		ARM926EJS
 	SCHMOOGIE	ARM926EJS
 
+Sandeep Paulraj <s-paulraj@ti.com>
+
+	davinci_dm6467evm	ARM926EJS
+
 Prakash Kumar <prakash@embedx.com>
 
 	cerf250		xscale

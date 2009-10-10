@@ -567,6 +567,7 @@ LIST_ARM9="			\
 	davinci_sffsdr		\
 	davinci_sonata		\
 	davinci_dm355evm	\
+	davinci_dm6467evm	\
 "
 
 #########################################################################
