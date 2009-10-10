@@ -69,8 +69,9 @@ int board_init ()
 #if defined(CONFIG_VFD)
 	extern int vfd_init_clocks(void);
 #endif
-	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_clock_power * const clk_power =
+					s3c24x0_get_base_clock_power();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* memory and cpu-speed are setup before relocation */
 #ifdef CONFIG_TRAB_50MHZ
@@ -338,22 +339,22 @@ static int key_pressed(void)
 
 static inline void SET_CS_TOUCH(void)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	gpio->PDDAT &= 0x5FF;
 }
 
 static inline void CLR_CS_TOUCH(void)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	gpio->PDDAT |= 0x200;
 }
 
 static void spi_init(void)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
-	S3C24X0_SPI * const spi = S3C24X0_GetBase_SPI();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
+	struct s3c24x0_spi * const spi = s3c24x0_get_base_spi();
 	int i;
 
 	/* Configure I/O ports. */
@@ -377,7 +378,7 @@ static void spi_init(void)
 
 static void wait_transmit_done(void)
 {
-	S3C24X0_SPI * const spi = S3C24X0_GetBase_SPI();
+	struct s3c24x0_spi * const spi = s3c24x0_get_base_spi();
 
 	while (!(spi->ch[0].SPSTA & 0x01)); /* wait until transfer is done */
 }
@@ -385,7 +386,7 @@ static void wait_transmit_done(void)
 static void tsc2000_write(unsigned int page, unsigned int reg,
 						  unsigned int data)
 {
-	S3C24X0_SPI * const spi = S3C24X0_GetBase_SPI();
+	struct s3c24x0_spi * const spi = s3c24x0_get_base_spi();
 	unsigned int command;
 
 	SET_CS_TOUCH();

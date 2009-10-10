@@ -39,14 +39,14 @@ typedef enum {
 
 static inline void NF_Conf(u16 conf)
 {
-	S3C2410_NAND * const nand = S3C2410_GetBase_NAND();
+	struct s3c2410_nand * const nand = s3c2410_get_base_nand();
 
 	nand->NFCONF = conf;
 }
 
 static inline void NF_Cmd(u8 cmd)
 {
-	S3C2410_NAND * const nand = S3C2410_GetBase_NAND();
+	struct s3c2410_nand * const nand = s3c2410_get_base_nand();
 
 	nand->NFCMD = cmd;
 }
@@ -59,14 +59,14 @@ static inline void NF_CmdW(u8 cmd)
 
 static inline void NF_Addr(u8 addr)
 {
-	S3C2410_NAND * const nand = S3C2410_GetBase_NAND();
+	struct s3c2410_nand * const nand = s3c2410_get_base_nand();
 
 	nand->NFADDR = addr;
 }
 
 static inline void NF_SetCE(NFCE_STATE s)
 {
-	S3C2410_NAND * const nand = S3C2410_GetBase_NAND();
+	struct s3c2410_nand * const nand = s3c2410_get_base_nand();
 
 	switch (s) {
 		case NFCE_LOW:
@@ -81,35 +81,35 @@ static inline void NF_SetCE(NFCE_STATE s)
 
 static inline void NF_WaitRB(void)
 {
-	S3C2410_NAND * const nand = S3C2410_GetBase_NAND();
+	struct s3c2410_nand * const nand = s3c2410_get_base_nand();
 
 	while (!(nand->NFSTAT & (1<<0)));
 }
 
 static inline void NF_Write(u8 data)
 {
-	S3C2410_NAND * const nand = S3C2410_GetBase_NAND();
+	struct s3c2410_nand * const nand = s3c2410_get_base_nand();
 
 	nand->NFDATA = data;
 }
 
 static inline u8 NF_Read(void)
 {
-	S3C2410_NAND * const nand = S3C2410_GetBase_NAND();
+	struct s3c2410_nand * const nand = s3c2410_get_base_nand();
 
 	return(nand->NFDATA);
 }
 
 static inline void NF_Init_ECC(void)
 {
-	S3C2410_NAND * const nand = S3C2410_GetBase_NAND();
+	struct s3c2410_nand * const nand = s3c2410_get_base_nand();
 
 	nand->NFCONF |= (1<<12);
 }
 
 static inline u32 NF_Read_ECC(void)
 {
-	S3C2410_NAND * const nand = S3C2410_GetBase_NAND();
+	struct s3c2410_nand * const nand = s3c2410_get_base_nand();
 
 	return(nand->NFECC);
 }
@@ -128,7 +128,7 @@ typedef struct {
 } /*__attribute__((__packed__))*/ VCMA9_PLD;
 
 #define VCMA9_PLD_BASE	0x2C000100
-static inline VCMA9_PLD * VCMA9_GetBase_PLD(void)
+static inline VCMA9_PLD *VCMA9_get_base_PLD(void)
 {
 	return (VCMA9_PLD * const)VCMA9_PLD_BASE;
 }
