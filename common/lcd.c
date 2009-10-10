@@ -99,32 +99,11 @@ static int lcd_getfgcolor (void);
 
 static void console_scrollup (void)
 {
-#if 1
 	/* Copy up rows ignoring the first one */
 	memcpy (CONSOLE_ROW_FIRST, CONSOLE_ROW_SECOND, CONSOLE_SCROLL_SIZE);
 
 	/* Clear the last one */
 	memset (CONSOLE_ROW_LAST, COLOR_MASK(lcd_color_bg), CONSOLE_ROW_SIZE);
-#else
-	/*
-	 * Poor attempt to optimize speed by moving "long"s.
-	 * But the code is ugly, and not a bit faster :-(
-	 */
-	ulong *t = (ulong *)CONSOLE_ROW_FIRST;
-	ulong *s = (ulong *)CONSOLE_ROW_SECOND;
-	ulong    l = CONSOLE_SCROLL_SIZE / sizeof(ulong);
-	uchar  c = lcd_color_bg & 0xFF;
-	ulong val= (c<<24) | (c<<16) | (c<<8) | c;
-
-	while (l--)
-		*t++ = *s++;
-
-	t = (ulong *)CONSOLE_ROW_LAST;
-	l = CONSOLE_ROW_SIZE / sizeof(ulong);
-
-	while (l-- > 0)
-		*t++ = val;
-#endif
 }
 
 /*----------------------------------------------------------------------*/
