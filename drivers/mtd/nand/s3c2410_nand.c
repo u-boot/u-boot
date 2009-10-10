@@ -20,28 +20,9 @@
 
 #include <common.h>
 
-#if 0
-#define DEBUGN	printf
-#else
-#define DEBUGN(x, args ...) {}
-#endif
-
 #include <nand.h>
 #include <s3c2410.h>
 #include <asm/io.h>
-
-#define __REGb(x)	(*(volatile unsigned char *)(x))
-#define __REGi(x)	(*(volatile unsigned int *)(x))
-
-#define	NF_BASE		0x4e000000
-#define	NFCONF		__REGi(NF_BASE + 0x0)
-#define	NFCMD		__REGb(NF_BASE + 0x4)
-#define	NFADDR		__REGb(NF_BASE + 0x8)
-#define	NFDATA		__REGb(NF_BASE + 0xc)
-#define	NFSTAT		__REGb(NF_BASE + 0x10)
-#define NFECC0		__REGb(NF_BASE + 0x14)
-#define NFECC1		__REGb(NF_BASE + 0x15)
-#define NFECC2		__REGb(NF_BASE + 0x16)
 
 #define S3C2410_NFCONF_EN          (1<<15)
 #define S3C2410_NFCONF_512BYTE     (1<<14)
@@ -58,11 +39,12 @@
 static void s3c2410_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *chip = mtd->priv;
+	struct s3c2410_nand *nand = s3c2410_get_base_nand();
 
-	DEBUGN("hwcontrol(): 0x%02x 0x%02x\n", cmd, ctrl);
+	debugX(1, "hwcontrol(): 0x%02x 0x%02x\n", cmd, ctrl);
 
 	if (ctrl & NAND_CTRL_CHANGE) {
-		ulong IO_ADDR_W = NF_BASE;
+		ulong IO_ADDR_W = (ulong)nand;
 
 		if (!(ctrl & NAND_CLE))
 			IO_ADDR_W |= S3C2410_ADDR_NCLE;
@@ -72,9 +54,11 @@ static void s3c2410_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 		chip->IO_ADDR_W = (void *)IO_ADDR_W;
 
 		if (ctrl & NAND_NCE)
-			NFCONF &= ~S3C2410_NFCONF_nFCE;
+			writel(readl(&nand->NFCONF) & ~S3C2410_NFCONF_nFCE,
+			       &nand->NFCONF);
 		else
-			NFCONF |= S3C2410_NFCONF_nFCE;
+			writel(readl(&nand->NFCONF) | S3C2410_NFCONF_nFCE,
+			       &nand->NFCONF);
 	}
 
 	if (cmd != NAND_CMD_NONE)
@@ -83,15 +67,17 @@ static void s3c2410_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 
 static int s3c2410_dev_ready(struct mtd_info *mtd)
 {
-	DEBUGN("dev_ready\n");
-	return (NFSTAT & 0x01);
+	struct s3c2410_nand *nand = s3c2410_get_base_nand();
+	debugX(1, "dev_ready\n");
+	return readl(&nand->NFSTAT) & 0x01;
 }
 
 #ifdef CONFIG_S3C2410_NAND_HWECC
 void s3c2410_nand_enable_hwecc(struct mtd_info *mtd, int mode)
 {
-	DEBUGN("s3c2410_nand_enable_hwecc(%p, %d)\n", mtd, mode);
-	NFCONF |= S3C2410_NFCONF_INITECC;
+	struct s3c2410_nand *nand = s3c2410_get_base_nand();
+	debugX(1, "s3c2410_nand_enable_hwecc(%p, %d)\n", mtd, mode);
+	writel(readl(&nand->NFCONF) | S3C2410_NFCONF_INITECC, &nand->NFCONF);
 }
 
 static int s3c2410_nand_calculate_ecc(struct mtd_info *mtd, const u_char *dat,
@@ -100,8 +86,8 @@ static int s3c2410_nand_calculate_ecc(struct mtd_info *mtd, const u_char *dat,
 	ecc_code[0] = NFECC0;
 	ecc_code[1] = NFECC1;
 	ecc_code[2] = NFECC2;
-	DEBUGN("s3c2410_nand_calculate_hwecc(%p,): 0x%02x 0x%02x 0x%02x\n",
-		mtd , ecc_code[0], ecc_code[1], ecc_code[2]);
+	debugX(1, "s3c2410_nand_calculate_hwecc(%p,): 0x%02x 0x%02x 0x%02x\n",
+	       mtd , ecc_code[0], ecc_code[1], ecc_code[2]);
 
 	return 0;
 }
@@ -123,24 +109,26 @@ int board_nand_init(struct nand_chip *nand)
 {
 	u_int32_t cfg;
 	u_int8_t tacls, twrph0, twrph1;
-	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
+	struct s3c24x0_clock_power *clk_power = s3c24x0_get_base_clock_power();
+	struct s3c2410_nand *nand_reg = s3c2410_get_base_nand();
 
-	DEBUGN("board_nand_init()\n");
+	debugX(1, "board_nand_init()\n");
 
-	clk_power->CLKCON |= (1 << 4);
+	writel(readl(&clk_power->CLKCON) | (1 << 4), &clk_power->CLKCON);
 
 	/* initialize hardware */
-	twrph0 = 3; twrph1 = 0; tacls = 0;
+	twrph0 = 3;
+	twrph1 = 0;
+	tacls = 0;
 
 	cfg = S3C2410_NFCONF_EN;
 	cfg |= S3C2410_NFCONF_TACLS(tacls - 1);
 	cfg |= S3C2410_NFCONF_TWRPH0(twrph0 - 1);
 	cfg |= S3C2410_NFCONF_TWRPH1(twrph1 - 1);
-
-	NFCONF = cfg;
+	writel(cfg, &nand_reg->NFCONF);
 
 	/* initialize nand_chip data structure */
-	nand->IO_ADDR_R = nand->IO_ADDR_W = (void *)0x4e00000c;
+	nand->IO_ADDR_R = nand->IO_ADDR_W = (void *)&nand_reg->NFDATA;
 
 	/* read_buf and write_buf are default */
 	/* read_byte and write_byte are default */
@@ -165,7 +153,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->options = 0;
 #endif
 
-	DEBUGN("end of nand_init\n");
+	debugX(1, "end of nand_init\n");
 
 	return 0;
 }
