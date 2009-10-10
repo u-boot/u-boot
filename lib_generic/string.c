@@ -403,10 +403,26 @@ char *strswab(const char *s)
  */
 void * memset(void * s,int c,size_t count)
 {
-	char *xs = (char *) s;
+	unsigned long *sl = (unsigned long *) s;
+	unsigned long cl = 0;
+	char *s8;
+	int i;
 
+	/* do it one word at a time (32 bits or 64 bits) while possible */
+	if ( ((ulong)s & (sizeof(*sl) - 1)) == 0) {
+		for (i = 0; i < sizeof(*sl); i++) {
+			cl <<= 8;
+			cl |= c & 0xff;
+		}
+		while (count >= sizeof(*sl)) {
+			*sl++ = cl;
+			count -= sizeof(*sl);
+		}
+	}
+	/* fill 8 bits at a time */
+	s8 = (char *)sl;
 	while (count--)
-		*xs++ = c;
+		*s8++ = c;
 
 	return s;
 }
