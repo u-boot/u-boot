@@ -165,16 +165,27 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyS2,115200n8\0" \
-	"videomode=1024x768@60,vxres=1024,vyres=768\0" \
-	"videospec=omapfb:vram:2M,vram:4M\0" \
+	"vram=12M\0" \
+	"dvimode=1024x768MR-16@60\0" \
+	"defaultdisplay=dvi\0" \
+	"mmcroot=/dev/mmcblk0p2 rw\0" \
+	"mmcrootfstype=ext3 rootwait\0" \
+	"nandroot=/dev/mtdblock4 rw\0" \
+	"nandrootfstype=jffs2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
-		"video=${videospec},mode:${videomode} " \
-		"root=/dev/mmcblk0p2 rw " \
-		"rootfstype=ext3 rootwait\0" \
+		"vram=${vram} " \
+		"omapfb.mode=dvi:${dvimode} " \
+		"omapfb.debug=y " \
+		"omapdss.def_disp=${defaultdisplay} " \
+		"root=${mmcroot} " \
+		"rootfstype=${mmcrootfstype}\0" \
 	"nandargs=setenv bootargs console=${console} " \
-		"video=${videospec},mode:${videomode} " \
-		"root=/dev/mtdblock4 rw " \
-		"rootfstype=jffs2\0" \
+		"vram=${vram} " \
+		"omapfb.mode=dvi:${dvimode} " \
+		"omapfb.debug=y " \
+		"omapdss.def_disp=${defaultdisplay} " \
+		"root=${nandroot} " \
+		"rootfstype=${nandrootfstype}\0" \
 	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
