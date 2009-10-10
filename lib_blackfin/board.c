@@ -26,6 +26,10 @@
 #include <nand.h>	/* cannot even include nand.h if it isnt configured */
 #endif
 
+#ifdef CONFIG_BITBANGMII
+#include <miiphy.h>
+#endif
+
 #if defined(CONFIG_POST)
 #include <post.h>
 int post_flag;
@@ -270,6 +274,9 @@ void board_init_f(ulong bootflag)
 
 static void board_net_init_r(bd_t *bd)
 {
+#ifdef CONFIG_BITBANGMII
+	bb_miiphy_init();
+#endif
 #ifdef CONFIG_CMD_NET
 	uchar enetaddr[6];
 	char *s;

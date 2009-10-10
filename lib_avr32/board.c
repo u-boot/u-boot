@@ -27,6 +27,10 @@
 #include <version.h>
 #include <net.h>
 
+#ifdef CONFIG_BITBANGMII
+#include <miiphy.h>
+#endif
+
 #include <asm/initcalls.h>
 #include <asm/sections.h>
 
@@ -337,6 +341,9 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	if (s)
 		load_addr = simple_strtoul(s, NULL, 16);
 
+#ifdef CONFIG_BITBANGMII
+	bb_miiphy_init();
+#endif
 #if defined(CONFIG_CMD_NET)
 	s = getenv("bootfile");
 	if (s)

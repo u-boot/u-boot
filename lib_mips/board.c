@@ -33,6 +33,10 @@
 #include <onenand_uboot.h>
 #include <spi.h>
 
+#ifdef CONFIG_BITBANGMII
+#include <miiphy.h>
+#endif
+
 DECLARE_GLOBAL_DATA_PTR;
 
 #if ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CONFIG_SYS_MONITOR_BASE) || \
@@ -407,6 +411,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	misc_init_r ();
 #endif
 
+#ifdef CONFIG_BITBANGMII
+	bb_miiphy_init();
+#endif
 #if defined(CONFIG_CMD_NET)
 #if defined(CONFIG_NET_MULTI)
 	puts ("Net:   ");
