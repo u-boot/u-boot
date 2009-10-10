@@ -42,7 +42,7 @@ static void trab_rs485_disable_rx(void);
 
 static void rs485_setbrg (void)
 {
-	S3C24X0_UART * const uart = S3C24X0_GetBase_UART(UART_NR);
+	struct s3c24x0_uart * const uart = s3c24x0_get_base_uart(UART_NR);
 	int i;
 	unsigned int reg = 0;
 
@@ -67,7 +67,7 @@ static void rs485_setbrg (void)
 
 static void rs485_cfgio (void)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	gpio->PFCON &= ~(0x3 << 2);
 	gpio->PFCON |=  (0x2 << 2); /* configure GPF1 as RXD1 */
@@ -101,7 +101,7 @@ int rs485_init (void)
  */
 int rs485_getc (void)
 {
-	S3C24X0_UART * const uart = S3C24X0_GetBase_UART(UART_NR);
+	struct s3c24x0_uart * const uart = s3c24x0_get_base_uart(UART_NR);
 
 	/* wait for character to arrive */
 	while (!(uart->UTRSTAT & 0x1));
@@ -114,7 +114,7 @@ int rs485_getc (void)
  */
 void rs485_putc (const char c)
 {
-	S3C24X0_UART * const uart = S3C24X0_GetBase_UART(UART_NR);
+	struct s3c24x0_uart * const uart = s3c24x0_get_base_uart(UART_NR);
 
 	/* wait for room in the tx FIFO */
 	while (!(uart->UTRSTAT & 0x2));
@@ -131,7 +131,7 @@ void rs485_putc (const char c)
  */
 int rs485_tstc (void)
 {
-	S3C24X0_UART * const uart = S3C24X0_GetBase_UART(UART_NR);
+	struct s3c24x0_uart * const uart = s3c24x0_get_base_uart(UART_NR);
 
 	return uart->UTRSTAT & 0x1;
 }
@@ -168,7 +168,7 @@ static void set_rs485re(unsigned char rs485re_state)
 
 static void set_rs485de(unsigned char rs485de_state)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* This is on PORT A bit 11 */
 	if(rs485de_state)

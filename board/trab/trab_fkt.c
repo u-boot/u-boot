@@ -406,9 +406,9 @@ static int adc_read (unsigned int channel)
 {
 	int j = 1000; /* timeout value for wait loop in us */
 	int result;
-	S3C2400_ADC *padc;
+	struct s3c2400_adc *padc;
 
-	padc = S3C2400_GetBase_ADC();
+	padc = s3c2400_get_base_adc();
 	channel &= 0x7;
 
 	padc->ADCCON &= ~ADC_STDBM; /* select normal mode */
@@ -446,9 +446,9 @@ static int adc_read (unsigned int channel)
 
 static void adc_init (void)
 {
-	S3C2400_ADC *padc;
+	struct s3c2400_adc *padc;
 
-	padc = S3C2400_GetBase_ADC();
+	padc = s3c2400_get_base_adc();
 
 	padc->ADCCON &= ~(0xff << 6); /* clear prescaler bits */
 	padc->ADCCON |= ((65 << 6) | ADC_PRSCEN); /* set prescaler */
@@ -490,7 +490,7 @@ int do_power_switch (void)
 {
 	int result;
 
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* configure GPE7 as input */
 	gpio->PECON &= ~(0x3 << (2 * 7));
@@ -557,7 +557,7 @@ int do_vfd_id (void)
 	int i;
 	long int pcup_old, pccon_old;
 	int vfd_board_id;
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* try to red vfd board id from the value defined by pull-ups */
 
@@ -589,8 +589,8 @@ int do_buzzer (char **argv)
 {
 	int counter;
 
-	S3C24X0_TIMERS * const timers = S3C24X0_GetBase_TIMERS();
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_timers * const timers = s3c24x0_get_base_timers();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* set prescaler for timer 2, 3 and 4 */
 	timers->TCFG0 &= ~0xFF00;
@@ -637,7 +637,7 @@ int do_buzzer (char **argv)
 
 int do_led (char **argv)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* configure PC14 and PC15 as output */
 	gpio->PCCON &= ~(0xF << 28);
@@ -692,7 +692,7 @@ int do_led (char **argv)
 
 int do_full_bridge (char **argv)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* configure PD5 and PD6 as output */
 	gpio->PDCON &= ~((0x3 << 5*2) | (0x3 << 6*2));
@@ -801,7 +801,7 @@ int do_motor_contact (void)
 
 int do_motor (char **argv)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* Configure I/O port */
 	gpio->PGCON &= ~(0x3 << 0);
@@ -827,8 +827,8 @@ static void print_identifier (void)
 int do_pwm (char **argv)
 {
 	int counter;
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
-	S3C24X0_TIMERS * const timers = S3C24X0_GetBase_TIMERS();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
+	struct s3c24x0_timers * const timers = s3c24x0_get_base_timers();
 
 	if (strcmp (argv[2], "on") == 0) {
 		/* configure pin GPD8 as TOUT3 */
