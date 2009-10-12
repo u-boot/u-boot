@@ -525,6 +525,12 @@ Dirk Behme <dirk.behme@gmail.com>
 
 	omap3_beagle	ARM CORTEX-A8 (OMAP3530 SoC)
 
+Eric Benard <eric@eukrea.com>
+
+	cpuat91		ARM920T
+	cpu9260		ARM926EJS (AT91SAM9260 SoC)
+	cpu9G20		ARM926EJS (AT91SAM9G20 SoC)
+
 Rishi Bhattacharya <rishi@ti.com>
 
 	omap5912osk	ARM926EJS
@@ -587,6 +593,10 @@ Gary Jennejohn <garyj@denx.de>
 
 Konstantin Kletschke <kletschke@synertronixx.de>
 	scb9328		ARM920T
+
+Simon Kagstrom <simon.kagstrom@netinsight.net>
+
+       openrd_base     ARM926EJS (Kirkwood SoC)
 
 Nishant Kamat <nskamat@ti.com>
 

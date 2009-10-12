@@ -549,6 +549,7 @@ LIST_ARM9="			\
 	omap1610inn		\
 	omap5912osk		\
 	omap730p2		\
+	openrd_base		\
 	rd6281a			\
 	sbc2410x		\
 	scb9328			\
@@ -619,11 +620,14 @@ LIST_at91="			\
 	at91sam9260ek		\
 	at91sam9261ek		\
 	at91sam9263ek		\
-	at91sam9g10ek	\
+	at91sam9g10ek		\
 	at91sam9g20ek		\
 	at91sam9m10g45ek	\
 	at91sam9rlek		\
 	cmc_pu2			\
+	CPUAT91			\
+	CPU9260			\
+	CPU9G20			\
 	csb637			\
 	kb9202			\
 	meesc			\

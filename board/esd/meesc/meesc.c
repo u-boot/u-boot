@@ -126,8 +126,10 @@ static void meesc_ethercat_hw_init(void)
 		AT91_SMC_NRDPULSE_(4) | AT91_SMC_NCS_RDPULSE_(9));
 	at91_sys_write(AT91_SMC1_CYCLE(0),
 		AT91_SMC_NWECYCLE_(10) | AT91_SMC_NRDCYCLE_(5));
-	/* Configure behavior at external wait signal, byte-select mode, 16 bit
-	data bus width, none data float wait states and TDF optimization */
+	/*
+	 * Configure behavior at external wait signal, byte-select mode, 16 bit
+	 * data bus width, none data float wait states and TDF optimization
+	 */
 	at91_sys_write(AT91_SMC1_MODE(0),
 		AT91_SMC_READMODE | AT91_SMC_EXNWMODE_READY |
 		AT91_SMC_BAT_SELECT | AT91_SMC_DBW_16 | AT91_SMC_TDF_(0) |
@@ -156,8 +158,32 @@ int board_eth_init(bd_t *bis)
 int checkboard(void)
 {
 	char str[32];
+	u_char hw_type;	/* hardware type */
 
-	puts("Board: esd CAN-EtherCAT Gateway");
+	/* read the "Type" register of the ET1100 controller */
+	hw_type = readb(CONFIG_ET1100_BASE);
+
+	switch (hw_type) {
+	case 0x11:
+	case 0x3F:
+		/* ET1100 present, arch number of MEESC-Board */
+		gd->bd->bi_arch_number = MACH_TYPE_MEESC;
+		puts("Board: CAN-EtherCAT Gateway");
+		break;
+	case 0xFF:
+		/* no ET1100 present, arch number of EtherCAN/2-Board */
+		gd->bd->bi_arch_number = MACH_TYPE_ETHERCAN2;
+		puts("Board: EtherCAN/2 Gateway");
+		/* switch on LED1D */
+		at91_set_gpio_output(AT91_PIN_PB12, 1);
+		break;
+	default:
+		/* assume, no ET1100 present, arch number of EtherCAN/2-Board */
+		gd->bd->bi_arch_number = MACH_TYPE_ETHERCAN2;
+		printf("ERROR! Read invalid hw_type: %02X\n", hw_type);
+		puts("Board: EtherCAN/2 Gateway");
+		break;
+	}
 	if (getenv_r("serial#", str, sizeof(str)) > 0) {
 		puts(", serial# ");
 		puts(str);
@@ -167,6 +193,32 @@ int checkboard(void)
 	return 0;
 }
 
+#ifdef CONFIG_SERIAL_TAG
+void get_board_serial(struct tag_serialnr *serialnr)
+{
+	char *str;
+
+	char *serial = getenv("serial#");
+	if (serial) {
+		str = strchr(serial, '_');
+		if (str && (strlen(str) >= 4)) {
+			serialnr->high = (*(str + 1) << 8) | *(str + 2);
+			serialnr->low = simple_strtoul(str + 3, NULL, 16);
+		}
+	} else {
+		serialnr->high = 0;
+		serialnr->low = 0;
+	}
+}
+#endif
+
+#ifdef CONFIG_REVISION_TAG
+u32 get_board_rev(void)
+{
+	return hw_rev | 0x100;
+}
+#endif
+
 int board_init(void)
 {
 	/* Peripheral Clock Enable Register */
@@ -174,8 +226,8 @@ int board_init(void)
 					1 << AT91SAM9263_ID_PIOB |
 					1 << AT91SAM9263_ID_PIOCDE);
 
-	/* arch number of MEESC-Board */
-	gd->bd->bi_arch_number = MACH_TYPE_MEESC;
+	/* initialize ET1100 Controller */
+	meesc_ethercat_hw_init();
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
@@ -184,7 +236,6 @@ int board_init(void)
 #ifdef CONFIG_CMD_NAND
 	meesc_nand_hw_init();
 #endif
-	meesc_ethercat_hw_init();
 #ifdef CONFIG_HAS_DATAFLASH
 	at91_spi0_hw_init(1 << 0);
 #endif

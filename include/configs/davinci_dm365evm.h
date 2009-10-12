@@ -18,7 +18,6 @@
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
-#include <asm/sizes.h>
 
 /* Spectrum Digital TMS320DM365 EVM board */
 #define DAVINCI_DM365EVM
@@ -38,7 +37,7 @@
 /* Memory Info */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0x80000000
-#define PHYS_SDRAM_1_SIZE		SZ_128M
+#define PHYS_SDRAM_1_SIZE		(128 << 20)	/* 128 MiB */
 
 /* Serial Driver info: UART0 for console  */
 #define CONFIG_SYS_NS16550
@@ -74,7 +73,6 @@
 
 /* NAND: socketed, two chipselects, normally 2 GBytes */
 #define CONFIG_NAND_DAVINCI
-#define CONFIG_SYS_NAND_HW_ECC
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define CONFIG_SYS_NAND_PAGE_2K
@@ -98,7 +96,6 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
-#define CONFIG_CMD_SAVEENV
 
 #ifdef CONFIG_NAND_DAVINCI
 #define CONFIG_CMD_MTDPARTS
@@ -125,7 +122,7 @@
 #define CONFIG_SYS_LONGHELP
 
 #ifdef CONFIG_NAND_DAVINCI
-#define CONFIG_ENV_SIZE		SZ_256K
+#define CONFIG_ENV_SIZE		(256 << 10)	/* 256 KiB */
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET	0x3C0000
 #undef CONFIG_ENV_IS_IN_FLASH
@@ -143,8 +140,8 @@
 #define CONFIG_TIMESTAMP
 
 /* U-Boot memory configuration */
-#define CONFIG_STACKSIZE		SZ_256K		/* regular stack */
-#define CONFIG_SYS_MALLOC_LEN		SZ_1M	/* malloc() arena */
+#define CONFIG_STACKSIZE		(256 << 10)	/* 256 KiB */
+#define CONFIG_SYS_MALLOC_LEN		(1 << 20)	/* 1 MiB */
 #define CONFIG_SYS_GBL_DATA_SIZE	128		/* for initial data */
 #define CONFIG_SYS_MEMTEST_START	0x87000000	/* physical address */
 #define CONFIG_SYS_MEMTEST_END		0x88000000	/* test 16MB RAM */

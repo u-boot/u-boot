@@ -28,7 +28,7 @@
 
 #include <asm/arch/hardware.h>
 
-#ifdef CONFIG_SOC_DM646x
+#ifdef CONFIG_SOC_DM646X
 #define	MASK_CLE	0x80000
 #define	MASK_ALE	0x40000
 #else

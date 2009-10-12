@@ -31,6 +31,7 @@ COBJS-y				+= cpu.o timer.o psc.o
 COBJS-$(CONFIG_SOC_DM355)	+= dm355.o
 COBJS-$(CONFIG_SOC_DM365)	+= dm365.o
 COBJS-$(CONFIG_SOC_DM644X)	+= dm644x.o
+COBJS-$(CONFIG_SOC_DM646X)	+= dm646x.o
 COBJS-$(CONFIG_DRIVER_TI_EMAC)	+= lxt972.o dp83848.o
 
 SOBJS	= reset.o

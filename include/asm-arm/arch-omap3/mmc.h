@@ -223,6 +223,13 @@ typedef struct {
 	unsigned short newpublishedrca;
 } mmc_resp_r6;
 
+typedef union {
+	unsigned int resp[4];
+	mmc_resp_r3 r3;
+	mmc_resp_r6 r6;
+	mmc_csd_reg_t Card_CSD;
+} mmc_resp_t;
+
 extern mmc_card_data mmc_dev;
 
 unsigned char mmc_lowlevel_init(void);

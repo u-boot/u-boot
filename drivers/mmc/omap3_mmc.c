@@ -235,8 +235,8 @@ unsigned char mmc_detect_card(mmc_card_data *mmc_card_cur)
 	unsigned char err;
 	unsigned int argument = 0;
 	unsigned int ocr_value, ocr_recvd, ret_cmd41, hcs_val;
-	unsigned int resp[4];
 	unsigned short retry_cnt = 2000;
+	mmc_resp_t mmc_resp;
 
 	/* Set to Initialization Clock */
 	err = mmc_clock_config(CLK_400KHZ, 0);
@@ -247,18 +247,18 @@ unsigned char mmc_detect_card(mmc_card_data *mmc_card_cur)
 	argument = 0x00000000;
 
 	ocr_value = (0x1FF << 15);
-	err = mmc_send_cmd(MMC_CMD0, argument, resp);
+	err = mmc_send_cmd(MMC_CMD0, argument, mmc_resp.resp);
 	if (err != 1)
 		return err;
 
 	argument = SD_CMD8_CHECK_PATTERN | SD_CMD8_2_7_3_6_V_RANGE;
-	err = mmc_send_cmd(MMC_SDCMD8, argument, resp);
+	err = mmc_send_cmd(MMC_SDCMD8, argument, mmc_resp.resp);
 	hcs_val = (err == 1) ?
 		MMC_OCR_REG_HOST_CAPACITY_SUPPORT_SECTOR :
 		MMC_OCR_REG_HOST_CAPACITY_SUPPORT_BYTE;
 
 	argument = 0x0000 << 16;
-	err = mmc_send_cmd(MMC_CMD55, argument, resp);
+	err = mmc_send_cmd(MMC_CMD55, argument, mmc_resp.resp);
 	if (err == 1) {
 		mmc_card_cur->card_type = SD_CARD;
 		ocr_value |= hcs_val;
@@ -272,24 +272,24 @@ unsigned char mmc_detect_card(mmc_card_data *mmc_card_cur)
 	}
 
 	argument = ocr_value;
-	err = mmc_send_cmd(ret_cmd41, argument, resp);
+	err = mmc_send_cmd(ret_cmd41, argument, mmc_resp.resp);
 	if (err != 1)
 		return err;
 
-	ocr_recvd = ((mmc_resp_r3 *) resp)->ocr;
+	ocr_recvd = mmc_resp.r3.ocr;
 
 	while (!(ocr_recvd & (0x1 << 31)) && (retry_cnt > 0)) {
 		retry_cnt--;
 		if (mmc_card_cur->card_type == SD_CARD) {
 			argument = 0x0000 << 16;
-			err = mmc_send_cmd(MMC_CMD55, argument, resp);
+			err = mmc_send_cmd(MMC_CMD55, argument, mmc_resp.resp);
 		}
 
 		argument = ocr_value;
-		err = mmc_send_cmd(ret_cmd41, argument, resp);
+		err = mmc_send_cmd(ret_cmd41, argument, mmc_resp.resp);
 		if (err != 1)
 			return err;
-		ocr_recvd = ((mmc_resp_r3 *) resp)->ocr;
+		ocr_recvd = mmc_resp.r3.ocr;
 	}
 
 	if (!(ocr_recvd & (0x1 << 31)))
@@ -318,22 +318,22 @@ unsigned char mmc_detect_card(mmc_card_data *mmc_card_cur)
 	if (!(ocr_recvd & ocr_value))
 		return 0;
 
-	err = mmc_send_cmd(MMC_CMD2, argument, resp);
+	err = mmc_send_cmd(MMC_CMD2, argument, mmc_resp.resp);
 	if (err != 1)
 		return err;
 
 	if (mmc_card_cur->card_type == MMC_CARD) {
 		argument = mmc_card_cur->RCA << 16;
-		err = mmc_send_cmd(MMC_CMD3, argument, resp);
+		err = mmc_send_cmd(MMC_CMD3, argument, mmc_resp.resp);
 		if (err != 1)
 			return err;
 	} else {
 		argument = 0x00000000;
-		err = mmc_send_cmd(MMC_SDCMD3, argument, resp);
+		err = mmc_send_cmd(MMC_SDCMD3, argument, mmc_resp.resp);
 		if (err != 1)
 			return err;
 
-		mmc_card_cur->RCA = ((mmc_resp_r6 *) resp)->newpublishedrca;
+		mmc_card_cur->RCA = mmc_resp.r6.newpublishedrca;
 	}
 
 	writel(readl(&mmc_base->con) & ~OD, &mmc_base->con);
@@ -437,10 +437,9 @@ unsigned char configure_mmc(mmc_card_data *mmc_card_cur)
 {
 	unsigned char ret_val;
 	unsigned int argument;
-	unsigned int resp[4];
 	unsigned int trans_clk, trans_fact, trans_unit, retries = 2;
-	mmc_csd_reg_t Card_CSD;
 	unsigned char trans_speed;
+	mmc_resp_t mmc_resp;
 
 	ret_val = mmc_init_setup();
 
@@ -453,21 +452,16 @@ unsigned char configure_mmc(mmc_card_data *mmc_card_cur)
 	} while ((retries > 0) && (ret_val != 1));
 
 	argument = mmc_card_cur->RCA << 16;
-	ret_val = mmc_send_cmd(MMC_CMD9, argument, resp);
+	ret_val = mmc_send_cmd(MMC_CMD9, argument, mmc_resp.resp);
 	if (ret_val != 1)
 		return ret_val;
 
-	((unsigned int *) &Card_CSD)[3] = resp[3];
-	((unsigned int *) &Card_CSD)[2] = resp[2];
-	((unsigned int *) &Card_CSD)[1] = resp[1];
-	((unsigned int *) &Card_CSD)[0] = resp[0];
-
 	if (mmc_card_cur->card_type == MMC_CARD)
-		mmc_card_cur->version = Card_CSD.spec_vers;
+		mmc_card_cur->version = mmc_resp.Card_CSD.spec_vers;
 
-	trans_speed = Card_CSD.tran_speed;
+	trans_speed = mmc_resp.Card_CSD.tran_speed;
 
-	ret_val = mmc_send_cmd(MMC_CMD4, MMC_DSR_DEFAULT << 16, resp);
+	ret_val = mmc_send_cmd(MMC_CMD4, MMC_DSR_DEFAULT << 16, mmc_resp.resp);
 	if (ret_val != 1)
 		return ret_val;
 
@@ -491,18 +485,18 @@ unsigned char configure_mmc(mmc_card_data *mmc_card_cur)
 		return ret_val;
 
 	argument = mmc_card_cur->RCA << 16;
-	ret_val = mmc_send_cmd(MMC_CMD7_SELECT, argument, resp);
+	ret_val = mmc_send_cmd(MMC_CMD7_SELECT, argument, mmc_resp.resp);
 	if (ret_val != 1)
 		return ret_val;
 
 	/* Configure the block length to 512 bytes */
 	argument = MMCSD_SECTOR_SIZE;
-	ret_val = mmc_send_cmd(MMC_CMD16, argument, resp);
+	ret_val = mmc_send_cmd(MMC_CMD16, argument, mmc_resp.resp);
 	if (ret_val != 1)
 		return ret_val;
 
 	/* get the card size in sectors */
-	ret_val = mmc_read_cardsize(mmc_card_cur, &Card_CSD);
+	ret_val = mmc_read_cardsize(mmc_card_cur, &mmc_resp.Card_CSD);
 	if (ret_val != 1)
 		return ret_val;
 

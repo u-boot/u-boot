@@ -28,7 +28,7 @@
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3430		1	/* which is in a 3430 */
-#define CONFIG_OMAP3_OVERO		1	/* working with overo */
+#define CONFIG_OMAP3_OVERO	1	/* working with overo */
 
 #include <asm/arch/cpu.h>	/* get chip and board defs */
 #include <asm/arch/omap3.h>
@@ -105,10 +105,11 @@
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #undef CONFIG_CMD_IMI		/* iminfo			*/
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
-#undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #undef CONFIG_CMD_NFS		/* NFS support			*/
+#define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 
 #define CONFIG_SYS_NO_FLASH
+#define CONFIG_HARD_I2C			1
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		1
 #define CONFIG_SYS_I2C_BUS		0
@@ -292,5 +293,18 @@ extern unsigned int boot_flash_off;
 extern unsigned int boot_flash_sec;
 extern unsigned int boot_flash_type;
 #endif
+
+#if defined(CONFIG_CMD_NET)
+/*----------------------------------------------------------------------------
+ * SMSC9211 Ethernet from SMSC9118 family
+ *----------------------------------------------------------------------------
+ */
+
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC911X		1
+#define CONFIG_SMC911X_32_BIT
+#define CONFIG_SMC911X_BASE     0x2C000000
+
+#endif /* (CONFIG_CMD_NET) */
 
 #endif				/* __CONFIG_H */
