@@ -179,6 +179,10 @@
  */
 
 #define MDIO_PORT	2	        /* Port A=0, B=1, C=2, D=3 */
+#define MDIO_DECLARE	volatile ioport_t *iop = ioport_addr ( \
+				(immap_t *) CONFIG_SYS_IMMR, MDIO_PORT )
+#define MDC_DECLARE	MDIO_DECLARE
+
 #define MDIO_ACTIVE	(iop->pdir |=  0x40000000)
 #define MDIO_TRISTATE	(iop->pdir &= ~0x40000000)
 #define MDIO_READ	((iop->pdat &  0x40000000) != 0)

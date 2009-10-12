@@ -83,6 +83,10 @@
 #include <asm/mp.h>
 #endif
 
+#ifdef CONFIG_BITBANGMII
+#include <miiphy.h>
+#endif
+
 #ifdef CONFIG_SYS_UPDATE_FLASH_SIZE
 extern int update_flash_size (int flash_size);
 #endif
@@ -942,6 +946,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	doc_init ();
 #endif
 
+#ifdef CONFIG_BITBANGMII
+	bb_miiphy_init();
+#endif
 #if defined(CONFIG_CMD_NET)
 #if defined(CONFIG_NET_MULTI)
 	WATCHDOG_RESET ();

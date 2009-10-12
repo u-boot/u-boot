@@ -63,6 +63,10 @@
 #include <spi.h>
 #endif
 
+#ifdef CONFIG_BITBANGMII
+#include <miiphy.h>
+#endif
+
 #include <nand.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -630,6 +634,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	nand_init();		/* go init the NAND */
 #endif
 
+#ifdef CONFIG_BITBANGMII
+	bb_miiphy_init();
+#endif
 #if defined(CONFIG_CMD_NET)
 	WATCHDOG_RESET();
 #if defined(FEC_ENET)

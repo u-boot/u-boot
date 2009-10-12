@@ -85,6 +85,7 @@
  * GPIO pins used for bit-banged MII communications
  */
 #define MDIO_PORT		0	/* Not used - implemented in BCSR */
+
 #define MDIO_ACTIVE		(*(vu_char *)(CONFIG_SYS_BCSR + 8) &= 0xFB)
 #define MDIO_TRISTATE		(*(vu_char *)(CONFIG_SYS_BCSR + 8) |= 0x04)
 #define MDIO_READ		(*(vu_char *)(CONFIG_SYS_BCSR + 8) & 1)

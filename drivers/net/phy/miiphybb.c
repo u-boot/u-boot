@@ -1,4 +1,7 @@
 /*
+ * (C) Copyright 2009 Industrie Dial Face S.p.A.
+ * Luigi 'Comio' Mantellini <luigi.mantellini@idf-hit.com>
+ *
  * (C) Copyright 2001
  * Gerald Van Baren, Custom IDEAS, vanbaren@cideas.com.
  *
@@ -29,18 +32,144 @@
 #include <common.h>
 #include <ioports.h>
 #include <ppc_asm.tmpl>
+#include <miiphy.h>
+
+#define BB_MII_RELOCATE(v,off) (v += (v?off:0))
+
+DECLARE_GLOBAL_DATA_PTR;
+
+#ifndef CONFIG_BITBANGMII_MULTI
+
+/*
+ * If CONFIG_BITBANGMII_MULTI is not defined we use a
+ * compatibility layer with the previous miiphybb implementation
+ * based on macros usage.
+ *
+ */
+static int bb_mii_init_wrap(struct bb_miiphy_bus *bus)
+{
+#ifdef MII_INIT
+	MII_INIT;
+#endif
+	return 0;
+}
+
+static int bb_mdio_active_wrap(struct bb_miiphy_bus *bus)
+{
+#ifdef MDIO_DECLARE
+	MDIO_DECLARE;
+#endif
+	MDIO_ACTIVE;
+	return 0;
+}
+
+static int bb_mdio_tristate_wrap(struct bb_miiphy_bus *bus)
+{
+#ifdef MDIO_DECLARE
+	MDIO_DECLARE;
+#endif
+	MDIO_TRISTATE;
+	return 0;
+}
+
+static int bb_set_mdio_wrap(struct bb_miiphy_bus *bus, int v)
+{
+#ifdef MDIO_DECLARE
+	MDIO_DECLARE;
+#endif
+	MDIO(v);
+	return 0;
+}
+
+static int bb_get_mdio_wrap(struct bb_miiphy_bus *bus, int *v)
+{
+#ifdef MDIO_DECLARE
+	MDIO_DECLARE;
+#endif
+	*v = MDIO_READ;
+	return 0;
+}
+
+static int bb_set_mdc_wrap(struct bb_miiphy_bus *bus, int v)
+{
+#ifdef MDC_DECLARE
+	MDC_DECLARE;
+#endif
+	MDC(v);
+	return 0;
+}
+
+static int bb_delay_wrap(struct bb_miiphy_bus *bus)
+{
+	MIIDELAY;
+	return 0;
+}
+
+struct bb_miiphy_bus bb_miiphy_buses[] = {
+	{
+		.name = BB_MII_DEVNAME,
+		.init = bb_mii_init_wrap,
+		.mdio_active = bb_mdio_active_wrap,
+		.mdio_tristate = bb_mdio_tristate_wrap,
+		.set_mdio = bb_set_mdio_wrap,
+		.get_mdio = bb_get_mdio_wrap,
+		.set_mdc = bb_set_mdc_wrap,
+		.delay = bb_delay_wrap,
+	}
+};
+
+int bb_miiphy_buses_num = sizeof(bb_miiphy_buses) /
+                          sizeof(bb_miiphy_buses[0]);
+#endif
+
+void bb_miiphy_init(void)
+{
+	int i;
+
+	for (i = 0; i < bb_miiphy_buses_num; i++) {
+#if !defined(CONFIG_RELOC_FIXUP_WORKS)
+		/* Relocate the hook pointers*/
+		BB_MII_RELOCATE(bb_miiphy_buses[i].init, gd->reloc_off);
+		BB_MII_RELOCATE(bb_miiphy_buses[i].mdio_active, gd->reloc_off);
+		BB_MII_RELOCATE(bb_miiphy_buses[i].mdio_tristate, gd->reloc_off);
+		BB_MII_RELOCATE(bb_miiphy_buses[i].set_mdio, gd->reloc_off);
+		BB_MII_RELOCATE(bb_miiphy_buses[i].get_mdio, gd->reloc_off);
+		BB_MII_RELOCATE(bb_miiphy_buses[i].set_mdc, gd->reloc_off);
+		BB_MII_RELOCATE(bb_miiphy_buses[i].delay, gd->reloc_off);
+#endif
+		if (bb_miiphy_buses[i].init != NULL) {
+			bb_miiphy_buses[i].init(&bb_miiphy_buses[i]);
+		}
+	}
+}
+
+static inline struct bb_miiphy_bus *bb_miiphy_getbus(char *devname)
+{
+#ifdef CONFIG_BITBANGMII_MULTI
+	int i;
+
+	/* Search the correct bus */
+	for (i = 0; i < bb_miiphy_buses_num; i++) {
+		if (!strcmp(bb_miiphy_buses[i].name, devname)) {
+			return &bb_miiphy_buses[i];
+		}
+	}
+	return NULL;
+#else
+	/* We have just one bitbanging bus */
+	return &bb_miiphy_buses[0];
+#endif
+}
 
 /*****************************************************************************
  *
  * Utility to send the preamble, address, and register (common to read
  * and write).
  */
-static void miiphy_pre (char read, unsigned char addr, unsigned char reg)
+static void miiphy_pre(struct bb_miiphy_bus *bus, char read,
+                       unsigned char addr, unsigned char reg)
 {
-	int j;			/* counter */
-#if !(defined(CONFIG_EP8248) || defined(CONFIG_EP82XXM))
-	volatile ioport_t *iop = ioport_addr ((immap_t *) CONFIG_SYS_IMMR, MDIO_PORT);
-#endif
+	int j;
 
 	/*
 	 * Send a 32 bit preamble ('1's) with an extra '1' bit for good measure.
@@ -50,66 +179,65 @@ static void miiphy_pre (char read, unsigned char addr, unsigned char reg)
 	 * but it is safer and will be much more robust.
 	 */
 
-	MDIO_ACTIVE;
-	MDIO (1);
+	bus->mdio_active(bus);
+	bus->set_mdio(bus, 1);
 	for (j = 0; j < 32; j++) {
-		MDC (0);
-		MIIDELAY;
-		MDC (1);
-		MIIDELAY;
+		bus->set_mdc(bus, 0);
+		bus->delay(bus);
+		bus->set_mdc(bus, 1);
+		bus->delay(bus);
 	}
 
 	/* send the start bit (01) and the read opcode (10) or write (10) */
-	MDC (0);
-	MDIO (0);
-	MIIDELAY;
-	MDC (1);
-	MIIDELAY;
-	MDC (0);
-	MDIO (1);
-	MIIDELAY;
-	MDC (1);
-	MIIDELAY;
-	MDC (0);
-	MDIO (read);
-	MIIDELAY;
-	MDC (1);
-	MIIDELAY;
-	MDC (0);
-	MDIO (!read);
-	MIIDELAY;
-	MDC (1);
-	MIIDELAY;
+	bus->set_mdc(bus, 0);
+	bus->set_mdio(bus, 0);
+	bus->delay(bus);
+	bus->set_mdc(bus, 1);
+	bus->delay(bus);
+	bus->set_mdc(bus, 0);
+	bus->set_mdio(bus, 1);
+	bus->delay(bus);
+	bus->set_mdc(bus, 1);
+	bus->delay(bus);
+	bus->set_mdc(bus, 0);
+	bus->set_mdio(bus, read);
+	bus->delay(bus);
+	bus->set_mdc(bus, 1);
+	bus->delay(bus);
+	bus->set_mdc(bus, 0);
+	bus->set_mdio(bus, !read);
+	bus->delay(bus);
+	bus->set_mdc(bus, 1);
+	bus->delay(bus);
 
 	/* send the PHY address */
 	for (j = 0; j < 5; j++) {
-		MDC (0);
+		bus->set_mdc(bus, 0);
 		if ((addr & 0x10) == 0) {
-			MDIO (0);
+			bus->set_mdio(bus, 0);
 		} else {
-			MDIO (1);
+			bus->set_mdio(bus, 1);
 		}
-		MIIDELAY;
-		MDC (1);
-		MIIDELAY;
+		bus->delay(bus);
+		bus->set_mdc(bus, 1);
+		bus->delay(bus);
 		addr <<= 1;
 	}
 
 	/* send the register address */
 	for (j = 0; j < 5; j++) {
-		MDC (0);
+		bus->set_mdc(bus, 0);
 		if ((reg & 0x10) == 0) {
-			MDIO (0);
+			bus->set_mdio(bus, 0);
 		} else {
-			MDIO (1);
+			bus->set_mdio(bus, 1);
 		}
-		MIIDELAY;
-		MDC (1);
-		MIIDELAY;
+		bus->delay(bus);
+		bus->set_mdc(bus, 1);
+		bus->delay(bus);
 		reg <<= 1;
 	}
 }
-
 
 /*****************************************************************************
  *
@@ -118,63 +246,69 @@ static void miiphy_pre (char read, unsigned char addr, unsigned char reg)
  * Returns:
  *   0 on success
  */
-int bb_miiphy_read (char *devname, unsigned char addr,
-		unsigned char reg, unsigned short *value)
+int bb_miiphy_read(char *devname, unsigned char addr,
+                   unsigned char reg, unsigned short *value)
 {
-	short rdreg;		/* register working value */
-	int j;			/* counter */
-#if !(defined(CONFIG_EP8248) || defined(CONFIG_EP82XXM))
-	volatile ioport_t *iop = ioport_addr ((immap_t *) CONFIG_SYS_IMMR, MDIO_PORT);
-#endif
+	short rdreg; /* register working value */
+	int v;
+	int j; /* counter */
+	struct bb_miiphy_bus *bus;
+
+	bus = bb_miiphy_getbus(devname);
+	if (bus == NULL) {
+		return -1;
+	}
 
 	if (value == NULL) {
 		puts("NULL value pointer\n");
-		return (-1);
+		return -1;
 	}
 
-	miiphy_pre (1, addr, reg);
+	miiphy_pre (bus, 1, addr, reg);
 
 	/* tri-state our MDIO I/O pin so we can read */
-	MDC (0);
-	MDIO_TRISTATE;
-	MIIDELAY;
-	MDC (1);
-	MIIDELAY;
+	bus->set_mdc(bus, 0);
+	bus->mdio_tristate(bus);
+	bus->delay(bus);
+	bus->set_mdc(bus, 1);
+	bus->delay(bus);
 
 	/* check the turnaround bit: the PHY should be driving it to zero */
-	if (MDIO_READ != 0) {
+	bus->get_mdio(bus, &v);
+	if (v != 0) {
 		/* puts ("PHY didn't drive TA low\n"); */
 		for (j = 0; j < 32; j++) {
-			MDC (0);
-			MIIDELAY;
-			MDC (1);
-			MIIDELAY;
+			bus->set_mdc(bus, 0);
+			bus->delay(bus);
+			bus->set_mdc(bus, 1);
+			bus->delay(bus);
 		}
 		/* There is no PHY, set value to 0xFFFF and return */
 		*value = 0xFFFF;
-		return (-1);
+		return -1;
 	}
 
-	MDC (0);
-	MIIDELAY;
+	bus->set_mdc(bus, 0);
+	bus->delay(bus);
 
 	/* read 16 bits of register data, MSB first */
 	rdreg = 0;
 	for (j = 0; j < 16; j++) {
-		MDC (1);
-		MIIDELAY;
+		bus->set_mdc(bus, 1);
+		bus->delay(bus);
 		rdreg <<= 1;
-		rdreg |= MDIO_READ;
-		MDC (0);
-		MIIDELAY;
+		bus->get_mdio(bus, &v);
+		rdreg |= (v & 0x1);
+		bus->set_mdc(bus, 0);
+		bus->delay(bus);
 	}
 
-	MDC (1);
-	MIIDELAY;
-	MDC (0);
-	MIIDELAY;
-	MDC (1);
-	MIIDELAY;
+	bus->set_mdc(bus, 1);
+	bus->delay(bus);
+	bus->set_mdc(bus, 0);
+	bus->delay(bus);
+	bus->set_mdc(bus, 1);
+	bus->delay(bus);
 
 	*value = rdreg;
 
@@ -194,49 +328,53 @@ int bb_miiphy_read (char *devname, unsigned char addr,
  *   0 on success
  */
 int bb_miiphy_write (char *devname, unsigned char addr,
-		unsigned char reg, unsigned short value)
+                     unsigned char reg, unsigned short value)
 {
+	struct bb_miiphy_bus *bus;
 	int j;			/* counter */
-#if !(defined(CONFIG_EP8248) || defined(CONFIG_EP82XXM))
-	volatile ioport_t *iop = ioport_addr ((immap_t *) CONFIG_SYS_IMMR, MDIO_PORT);
-#endif
 
-	miiphy_pre (0, addr, reg);
+	bus = bb_miiphy_getbus(devname);
+	if (bus == NULL) {
+		/* Bus not found! */
+		return -1;
+	}
+
+	miiphy_pre (bus, 0, addr, reg);
 
 	/* send the turnaround (10) */
-	MDC (0);
-	MDIO (1);
-	MIIDELAY;
-	MDC (1);
-	MIIDELAY;
-	MDC (0);
-	MDIO (0);
-	MIIDELAY;
-	MDC (1);
-	MIIDELAY;
+	bus->set_mdc(bus, 0);
+	bus->set_mdio(bus, 1);
+	bus->delay(bus);
+	bus->set_mdc(bus, 1);
+	bus->delay(bus);
+	bus->set_mdc(bus, 0);
+	bus->set_mdio(bus, 0);
+	bus->delay(bus);
+	bus->set_mdc(bus, 1);
+	bus->delay(bus);
 
 	/* write 16 bits of register data, MSB first */
 	for (j = 0; j < 16; j++) {
-		MDC (0);
+		bus->set_mdc(bus, 0);
 		if ((value & 0x00008000) == 0) {
-			MDIO (0);
+			bus->set_mdio(bus, 0);
 		} else {
-			MDIO (1);
+			bus->set_mdio(bus, 1);
 		}
-		MIIDELAY;
-		MDC (1);
-		MIIDELAY;
+		bus->delay(bus);
+		bus->set_mdc(bus, 1);
+		bus->delay(bus);
 		value <<= 1;
 	}
 
 	/*
 	 * Tri-state the MDIO line.
 	 */
-	MDIO_TRISTATE;
-	MDC (0);
-	MIIDELAY;
-	MDC (1);
-	MIIDELAY;
+	bus->mdio_tristate(bus);
+	bus->set_mdc(bus, 0);
+	bus->delay(bus);
+	bus->set_mdc(bus, 1);
+	bus->delay(bus);
 
 	return 0;
 }
