@@ -44,7 +44,7 @@ volatile unsigned int boot_flash_env_addr;
 struct gpmc *gpmc_cfg;
 
 #if defined(CONFIG_CMD_NAND)
-static u32 gpmc_m_nand[GPMC_MAX_REG] = {
+static const u32 gpmc_m_nand[GPMC_MAX_REG] = {
 	M_NAND_GPMC_CONFIG1,
 	M_NAND_GPMC_CONFIG2,
 	M_NAND_GPMC_CONFIG3,
@@ -62,7 +62,7 @@ static u32 gpmc_m_nand[GPMC_MAX_REG] = {
 #endif
 
 #if defined(CONFIG_CMD_ONENAND)
-static u32 gpmc_onenand[GPMC_MAX_REG] = {
+static const u32 gpmc_onenand[GPMC_MAX_REG] = {
 	ONENAND_GPMC_CONFIG1,
 	ONENAND_GPMC_CONFIG2,
 	ONENAND_GPMC_CONFIG3,
@@ -192,7 +192,7 @@ void do_sdrc_init(u32 cs, u32 early)
 		writel(0, &sdrc_base->cs[cs].mcfg);
 }
 
-void enable_gpmc_cs_config(u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
+void enable_gpmc_cs_config(const u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
 			u32 size)
 {
 	writel(0, &cs->config7);
@@ -220,7 +220,7 @@ void gpmc_init(void)
 	/* putting a blanket check on GPMC based on ZeBu for now */
 	gpmc_cfg = (struct gpmc *)GPMC_BASE;
 #if defined(CONFIG_CMD_NAND) || defined(CONFIG_CMD_ONENAND)
-	u32 *gpmc_config = NULL;
+	const u32 *gpmc_config = NULL;
 	u32 base = 0;
 	u32 size = 0;
 #if defined(CONFIG_ENV_IS_IN_NAND) || defined(CONFIG_ENV_IS_IN_ONENAND)
