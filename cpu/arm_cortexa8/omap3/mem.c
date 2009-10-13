@@ -218,12 +218,16 @@ void enable_gpmc_cs_config(u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
 void gpmc_init(void)
 {
 	/* putting a blanket check on GPMC based on ZeBu for now */
-	u32 *gpmc_config = NULL;
 	gpmc_cfg = (struct gpmc *)GPMC_BASE;
+#if defined(CONFIG_CMD_NAND) || defined(CONFIG_CMD_ONENAND)
+	u32 *gpmc_config = NULL;
 	u32 base = 0;
 	u32 size = 0;
+#if defined(CONFIG_ENV_IS_IN_NAND) || defined(CONFIG_ENV_IS_IN_ONENAND)
 	u32 f_off = CONFIG_SYS_MONITOR_LEN;
 	u32 f_sec = 0;
+#endif
+#endif
 	u32 config = 0;
 
 	/* global settings */
