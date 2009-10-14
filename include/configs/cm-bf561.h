@@ -30,13 +30,16 @@
 #define CONFIG_PLL_BYPASS		0
 /* VCO_MULT controls the MSEL (multiplier) bits in PLL_CTL		*/
 /* Values can range from 0-63 (where 0 means 64)			*/
-#define CONFIG_VCO_MULT			22
+#define CONFIG_VCO_MULT			20
 /* CCLK_DIV controls the core clock divider				*/
 /* Values can be 1, 2, 4, or 8 ONLY					*/
 #define CONFIG_CCLK_DIV			1
 /* SCLK_DIV controls the system clock divider				*/
 /* Values can range from 1-15						*/
 #define CONFIG_SCLK_DIV			5
+
+/* Decrease core voltage */
+#define CONFIG_VR_CTL_VAL (VLEV_110 | GAIN_20 | FREQ_1000)
 
 
 /*
@@ -98,6 +101,8 @@
  */
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_UART_CONSOLE	0
+#define CONFIG_BOOTCOMMAND	"run flashboot"
+#define FLASHBOOT_ENV_SETTINGS	"flashboot=bootm 0x20040000\0"
 
 
 /*

@@ -38,6 +38,9 @@
 /* Values can range from 1-15						*/
 #define CONFIG_SCLK_DIV			4
 
+/* Decrease core voltage */
+#define CONFIG_VR_CTL_VAL (VLEV_115 | GAIN_20 | FREQ_1000)
+
 
 /*
  * Memory Settings
@@ -115,6 +118,8 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	1
+#define CONFIG_BOOTCOMMAND	"run flashboot"
+#define FLASHBOOT_ENV_SETTINGS	"flashboot=bootm 0x20040000\0"
 
 #ifndef __ADSPBF542__
 /* Don't waste time transferring a logo over the UART */
