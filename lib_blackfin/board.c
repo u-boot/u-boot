@@ -278,7 +278,6 @@ static void board_net_init_r(bd_t *bd)
 	bb_miiphy_init();
 #endif
 #ifdef CONFIG_CMD_NET
-	uchar enetaddr[6];
 	char *s;
 
 	if ((s = getenv("bootfile")) != NULL)
@@ -288,9 +287,6 @@ static void board_net_init_r(bd_t *bd)
 
 	printf("Net:   ");
 	eth_initialize(gd->bd);
-
-	eth_getenv_enetaddr("ethaddr", enetaddr);
-	printf("MAC:   %pM\n", enetaddr);
 #endif
 }
 
