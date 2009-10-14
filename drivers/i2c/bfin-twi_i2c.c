@@ -60,6 +60,9 @@ struct i2c_msg {
 	u8 *abuf;		/* addr buffer */
 };
 
+/* Allow msec timeout per ~byte transfer */
+#define I2C_TIMEOUT 10
+
 /**
  * wait_for_completion - manage the actual i2c transfer
  *	@msg: the i2c msg
@@ -67,8 +70,9 @@ struct i2c_msg {
 static int wait_for_completion(struct i2c_msg *msg)
 {
 	uint16_t int_stat;
+	ulong timebase = get_timer(0);
 
-	while (!ctrlc()) {
+	do {
 		int_stat = bfin_read_TWI_INT_STAT();
 
 		if (int_stat & XMTSERV) {
@@ -103,7 +107,7 @@ static int wait_for_completion(struct i2c_msg *msg)
 			debugi("processing MERR");
 			bfin_write_TWI_INT_STAT(MERR);
 			SSYNC();
-			break;
+			return msg->len;
 		}
 		if (int_stat & MCOMP) {
 			debugi("processing MCOMP");
@@ -116,7 +120,12 @@ static int wait_for_completion(struct i2c_msg *msg)
 			} else
 				break;
 		}
-	}
+
+		/* If we were able to do something, reset timeout */
+		if (int_stat)
+			timebase = get_timer(0);
+
+	} while (get_timer(timebase) < I2C_TIMEOUT);
 
 	return msg->len;
 }
