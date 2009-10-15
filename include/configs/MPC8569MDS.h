@@ -181,6 +181,29 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 
+/* Chip select 3 - NAND */
+#define CONFIG_SYS_NAND_BASE		0xFC000000
+#define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
+#define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE, }
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_MTD_NAND_VERIFY_WRITE	1
+#define CONFIG_CMD_NAND			1
+#define CONFIG_NAND_FSL_ELBC		1
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
+#define CONFIG_NAND_BR_PRELIM	(CONFIG_SYS_NAND_BASE_PHYS \
+				| (2<<BR_DECC_SHIFT) /* Use HW ECC */ \
+				| BR_PS_8	     /* Port Size = 8 bit */ \
+				| BR_MS_FCM	     /* MSEL = FCM */ \
+				| BR_V)		     /* valid */
+#define CONFIG_NAND_OR_PRELIM	(0xFFFC0000	     /* length 256K */ \
+				| OR_FCM_CSCT \
+				| OR_FCM_CST \
+				| OR_FCM_CHT \
+				| OR_FCM_SCY_1 \
+				| OR_FCM_TRLX \
+				| OR_FCM_EHTR)
+#define CONFIG_SYS_BR3_PRELIM	CONFIG_NAND_BR_PRELIM /* NAND Base Address */
+#define CONFIG_SYS_OR3_PRELIM	CONFIG_NAND_OR_PRELIM /* NAND Options */
 
 /*
  * SDRAM on the LocalBus
