@@ -68,6 +68,7 @@
 
 #define BCSR15_SMII6_DIS	0x08
 #define BCSR15_SMII8_DIS	0x04
+#define BCSR15_QEUART_EN	0x01
 
 #define BCSR16_UPC1_DEV2	0x02
 

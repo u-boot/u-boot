@@ -154,6 +154,12 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{5, 10, 2, 0, 3}, /* UART1_CTS_B */
 	{5, 11, 1, 0, 2}, /* UART1_RTS_B */
 
+	/* QE UART                                     */
+	{0, 19, 1, 0, 2}, /* QEUART_TX                 */
+	{1, 17, 2, 0, 3}, /* QEUART_RX                 */
+	{0, 25, 1, 0, 1}, /* QEUART_RTS                */
+	{1, 23, 2, 0, 1}, /* QEUART_CTS                */
+
 	/* SPI Flash, M25P40                           */
 	{4, 27, 3, 0, 1}, /* SPI_MOSI                  */
 	{4, 28, 3, 0, 1}, /* SPI_MISO                  */
@@ -311,7 +317,26 @@ local_bus_init(void)
 	out_be32(&lbc->lcrr, (u32)in_be32(&lbc->lcrr)| 0x00030000);
 }
 
-#ifdef CONFIG_FSL_ESDHC
+static void fdt_board_disable_serial(void *blob, bd_t *bd, const char *alias)
+{
+	const char *status = "disabled";
+	int off;
+	int err;
+
+	off = fdt_path_offset(blob, alias);
+	if (off < 0) {
+		printf("WARNING: could not find %s alias: %s.\n", alias,
+			fdt_strerror(off));
+		return;
+	}
+
+	err = fdt_setprop(blob, off, "status", status, strlen(status) + 1);
+	if (err) {
+		printf("WARNING: could not set status for serial0: %s.\n",
+			fdt_strerror(err));
+		return;
+	}
+}
 
 /*
  * Because of an erratum in prototype boards it is impossible to use eSDHC
@@ -336,6 +361,53 @@ static int esdhc_disables_uart0(void)
 	return prototype_board() ||
 	       hwconfig_subarg_cmp("esdhc", "mode", "4-bits");
 }
+
+static void fdt_board_fixup_qe_uart(void *blob, bd_t *bd)
+{
+	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR_BASE;
+	const char *devtype = "serial";
+	const char *compat = "ucc_uart";
+	const char *clk = "brg9";
+	u32 portnum = 0;
+	int off = -1;
+
+	if (!hwconfig("qe_uart"))
+		return;
+
+	if (hwconfig("esdhc") && esdhc_disables_uart0()) {
+		printf("QE UART: won't enable with esdhc.\n");
+		return;
+	}
+
+	fdt_board_disable_serial(blob, bd, "serial1");
+
+	while (1) {
+		const u32 *idx;
+		int len;
+
+		off = fdt_node_offset_by_compatible(blob, off, "ucc_geth");
+		if (off < 0) {
+			printf("WARNING: unable to fixup device tree for "
+				"QE UART\n");
+			return;
+		}
+
+		idx = fdt_getprop(blob, off, "cell-index", &len);
+		if (!idx || len != sizeof(*idx) || *idx != fdt32_to_cpu(2))
+			continue;
+		break;
+	}
+
+	fdt_setprop(blob, off, "device_type", devtype, strlen(devtype) + 1);
+	fdt_setprop(blob, off, "compatible", compat, strlen(compat) + 1);
+	fdt_setprop(blob, off, "tx-clock-name", clk, strlen(clk) + 1);
+	fdt_setprop(blob, off, "rx-clock-name", clk, strlen(clk) + 1);
+	fdt_setprop(blob, off, "port-number", &portnum, sizeof(portnum));
+
+	setbits_8(&bcsr[15], BCSR15_QEUART_EN);
+}
+
+#ifdef CONFIG_FSL_ESDHC
 
 int board_mmc_init(bd_t *bd)
 {
@@ -376,31 +448,14 @@ int board_mmc_init(bd_t *bd)
 static void fdt_board_fixup_esdhc(void *blob, bd_t *bd)
 {
 	const char *status = "disabled";
-	int off;
-	int err;
+	int off = -1;
 
 	if (!hwconfig("esdhc"))
 		return;
 
-	if (!esdhc_disables_uart0())
-		goto disable_i2c2;
+	if (esdhc_disables_uart0())
+		fdt_board_disable_serial(blob, bd, "serial0");
 
-	off = fdt_path_offset(blob, "serial0");
-	if (off < 0) {
-		printf("WARNING: could not find serial0 alias: %s.\n",
-			fdt_strerror(off));
-		goto disable_i2c2;
-	}
-
-	err = fdt_setprop(blob, off, "status", status, strlen(status) + 1);
-	if (err) {
-		printf("WARNING: could not set status for serial0: %s.\n",
-			fdt_strerror(err));
-		return;
-	}
-
-disable_i2c2:
-	off = -1;
 	while (1) {
 		const u32 *idx;
 		int len;
@@ -566,5 +621,6 @@ void ft_board_setup(void *blob, bd_t *bd)
 	ft_fsl_pci_setup(blob, "pci1", &pcie1_hose);
 #endif
 	fdt_board_fixup_esdhc(blob, bd);
+	fdt_board_fixup_qe_uart(blob, bd);
 }
 #endif
