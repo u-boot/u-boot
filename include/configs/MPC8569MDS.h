@@ -70,6 +70,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
+#define CONFIG_HWCONFIG
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
@@ -206,6 +207,7 @@ extern unsigned long get_clock_freq(void);
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX		1
+#define CONFIG_SERIAL_MULTI		1
 #undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
@@ -258,8 +260,10 @@ extern unsigned long get_clock_freq(void);
 
 #define PLPPAR1_I2C_BIT_MASK		0x0000000F
 #define PLPPAR1_I2C2_VAL		0x00000000
+#define PLPPAR1_ESDHC_VAL		0x0000000A
 #define PLPDIR1_I2C_BIT_MASK		0x0000000F
 #define PLPDIR1_I2C2_VAL		0x0000000F
+#define PLPDIR1_ESDHC_VAL		0x00000006
 
 /*
  * General PCI
@@ -449,6 +453,18 @@ extern unsigned long get_clock_freq(void);
 
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
+
+#define CONFIG_MMC     1
+
+#ifdef CONFIG_MMC
+#define CONFIG_FSL_ESDHC
+#define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
+#define CONFIG_CMD_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
 
 /*
  * Miscellaneous configurable options

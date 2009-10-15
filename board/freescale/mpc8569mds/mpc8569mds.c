@@ -23,6 +23,7 @@
  */
 
 #include <common.h>
+#include <hwconfig.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
@@ -35,6 +36,7 @@
 #include <ioports.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <fsl_esdhc.h>
 
 #include "bcsr.h"
 
@@ -303,6 +305,119 @@ local_bus_init(void)
 	out_be32(&lbc->lcrr, (u32)in_be32(&lbc->lcrr)| 0x00030000);
 }
 
+#ifdef CONFIG_FSL_ESDHC
+
+/*
+ * Because of an erratum in prototype boards it is impossible to use eSDHC
+ * without disabling UART0 (which makes it quite easy to 'brick' the board
+ * by simply issung 'setenv hwconfig esdhc', and not able to interact with
+ * U-Boot anylonger).
+ *
+ * So, but default we assume that the board is a prototype, which is a most
+ * safe assumption. There is no way to determine board revision from a
+ * register, so we use hwconfig.
+ */
+
+static int prototype_board(void)
+{
+	if (hwconfig_subarg("board", "rev", NULL))
+		return hwconfig_subarg_cmp("board", "rev", "prototype");
+	return 1;
+}
+
+static int esdhc_disables_uart0(void)
+{
+	return prototype_board() ||
+	       hwconfig_subarg_cmp("esdhc", "mode", "4-bits");
+}
+
+int board_mmc_init(bd_t *bd)
+{
+	struct ccsr_gur *gur = (struct ccsr_gur *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR_BASE;
+	u8 bcsr6 = BCSR6_SD_CARD_1BIT;
+
+	if (!hwconfig("esdhc"))
+		return 0;
+
+	printf("Enabling eSDHC...\n"
+	       "  For eSDHC to function, I2C2 ");
+	if (esdhc_disables_uart0()) {
+		printf("and UART0 should be disabled.\n");
+		printf("  Redirecting stderr, stdout and stdin to UART1...\n");
+		console_assign(stderr, "eserial1");
+		console_assign(stdout, "eserial1");
+		console_assign(stdin, "eserial1");
+		printf("Switched to UART1 (initial log has been printed to "
+		       "UART0).\n");
+		bcsr6 |= BCSR6_SD_CARD_4BITS;
+	} else {
+		printf("should be disabled.\n");
+	}
+
+	/* Assign I2C2 signals to eSDHC. */
+	clrsetbits_be32(&gur->plppar1, PLPPAR1_I2C_BIT_MASK,
+				       PLPPAR1_ESDHC_VAL);
+	clrsetbits_be32(&gur->plpdir1, PLPDIR1_I2C_BIT_MASK,
+				       PLPDIR1_ESDHC_VAL);
+
+	/* Mux I2C2 (and optionally UART0) signals to eSDHC. */
+	setbits_8(&bcsr[6], bcsr6);
+
+	return fsl_esdhc_mmc_init(bd);
+}
+
+static void fdt_board_fixup_esdhc(void *blob, bd_t *bd)
+{
+	const char *status = "disabled";
+	int off;
+	int err;
+
+	if (!hwconfig("esdhc"))
+		return;
+
+	if (!esdhc_disables_uart0())
+		goto disable_i2c2;
+
+	off = fdt_path_offset(blob, "serial0");
+	if (off < 0) {
+		printf("WARNING: could not find serial0 alias: %s.\n",
+			fdt_strerror(off));
+		goto disable_i2c2;
+	}
+
+	err = fdt_setprop(blob, off, "status", status, strlen(status) + 1);
+	if (err) {
+		printf("WARNING: could not set status for serial0: %s.\n",
+			fdt_strerror(err));
+		return;
+	}
+
+disable_i2c2:
+	off = -1;
+	while (1) {
+		const u32 *idx;
+		int len;
+
+		off = fdt_node_offset_by_compatible(blob, off, "fsl-i2c");
+		if (off < 0)
+			break;
+
+		idx = fdt_getprop(blob, off, "cell-index", &len);
+		if (!idx || len != sizeof(*idx))
+			continue;
+
+		if (*idx == 1) {
+			fdt_setprop(blob, off, "status", status,
+				    strlen(status) + 1);
+			break;
+		}
+	}
+}
+#else
+static inline void fdt_board_fixup_esdhc(void *blob, bd_t *bd) {}
+#endif
+
 #ifdef CONFIG_PCIE1
 static struct pci_controller pcie1_hose;
 #endif  /* CONFIG_PCIE1 */
@@ -444,5 +559,6 @@ void ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_PCIE1
 	ft_fsl_pci_setup(blob, "pci1", &pcie1_hose);
 #endif
+	fdt_board_fixup_esdhc(blob, bd);
 }
 #endif
