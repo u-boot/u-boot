@@ -154,6 +154,12 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{5, 10, 2, 0, 3}, /* UART1_CTS_B */
 	{5, 11, 1, 0, 2}, /* UART1_RTS_B */
 
+	/* SPI Flash, M25P40                           */
+	{4, 27, 3, 0, 1}, /* SPI_MOSI                  */
+	{4, 28, 3, 0, 1}, /* SPI_MISO                  */
+	{4, 29, 3, 0, 1}, /* SPI_CLK                   */
+	{4, 30, 1, 0, 0}, /* SPI_SEL, GPIO             */
+
 	{0,  0, 0, 0, QE_IOP_TAB_END} /* END of table */
 };
 
