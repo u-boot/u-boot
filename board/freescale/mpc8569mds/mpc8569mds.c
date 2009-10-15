@@ -160,6 +160,15 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{0, 25, 1, 0, 1}, /* QEUART_RTS                */
 	{1, 23, 2, 0, 1}, /* QEUART_CTS                */
 
+	/* QE USB                                      */
+	{5,  3, 1, 0, 1}, /* USB_OE                    */
+	{5,  4, 1, 0, 2}, /* USB_TP                    */
+	{5,  5, 1, 0, 2}, /* USB_TN                    */
+	{5,  6, 2, 0, 2}, /* USB_RP                    */
+	{5,  7, 2, 0, 1}, /* USB_RX                    */
+	{5,  8, 2, 0, 1}, /* USB_RN                    */
+	{2,  4, 2, 0, 2}, /* CLK5                      */
+
 	/* SPI Flash, M25P40                           */
 	{4, 27, 3, 0, 1}, /* SPI_MOSI                  */
 	{4, 28, 3, 0, 1}, /* SPI_MISO                  */
@@ -479,6 +488,28 @@ static void fdt_board_fixup_esdhc(void *blob, bd_t *bd)
 static inline void fdt_board_fixup_esdhc(void *blob, bd_t *bd) {}
 #endif
 
+static void fdt_board_fixup_qe_usb(void *blob, bd_t *bd)
+{
+	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR_BASE;
+
+	if (hwconfig_subarg_cmp("qe_usb", "speed", "low"))
+		clrbits_8(&bcsr[17], BCSR17_nUSBLOWSPD);
+	else
+		setbits_8(&bcsr[17], BCSR17_nUSBLOWSPD);
+
+	if (hwconfig_subarg_cmp("qe_usb", "mode", "peripheral")) {
+		clrbits_8(&bcsr[17], BCSR17_USBVCC);
+		clrbits_8(&bcsr[17], BCSR17_USBMODE);
+		do_fixup_by_compat(blob, "fsl,mpc8569-qe-usb", "mode",
+				   "peripheral", sizeof("peripheral"), 1);
+	} else {
+		setbits_8(&bcsr[17], BCSR17_USBVCC);
+		setbits_8(&bcsr[17], BCSR17_USBMODE);
+	}
+
+	clrbits_8(&bcsr[17], BCSR17_nUSBEN);
+}
+
 #ifdef CONFIG_PCIE1
 static struct pci_controller pcie1_hose;
 #endif  /* CONFIG_PCIE1 */
@@ -622,5 +653,6 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 	fdt_board_fixup_esdhc(blob, bd);
 	fdt_board_fixup_qe_uart(blob, bd);
+	fdt_board_fixup_qe_usb(blob, bd);
 }
 #endif

@@ -72,6 +72,10 @@
 
 #define BCSR16_UPC1_DEV2	0x02
 
+#define BCSR17_nUSBEN		0x80
+#define BCSR17_nUSBLOWSPD	0x40
+#define BCSR17_USBVCC		0x20
+#define BCSR17_USBMODE		0x10
 #define BCSR17_FLASH_nWP	0x01
 
 /*BCSR Utils functions*/
