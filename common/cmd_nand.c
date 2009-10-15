@@ -9,14 +9,6 @@
  */
 
 #include <common.h>
-
-
-/*
- *
- * New NAND support
- *
- */
-#include <common.h>
 #include <linux/mtd/mtd.h>
 
 #if defined(CONFIG_CMD_NAND)
