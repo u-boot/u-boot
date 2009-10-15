@@ -31,75 +31,75 @@
 
 #ifndef __ASSEMBLY__
 struct samsung_onenand {
-	unsigned long	mem_cfg;	/* 0x0000 */
+	unsigned int	mem_cfg;	/* 0x0000 */
 	unsigned char	res1[0xc];
-	unsigned long	burst_len;	/* 0x0010 */
+	unsigned int	burst_len;	/* 0x0010 */
 	unsigned char	res2[0xc];
-	unsigned long	mem_reset;	/* 0x0020 */
+	unsigned int	mem_reset;	/* 0x0020 */
 	unsigned char	res3[0xc];
-	unsigned long	int_err_stat;	/* 0x0030 */
+	unsigned int	int_err_stat;	/* 0x0030 */
 	unsigned char	res4[0xc];
-	unsigned long	int_err_mask;	/* 0x0040 */
+	unsigned int	int_err_mask;	/* 0x0040 */
 	unsigned char	res5[0xc];
-	unsigned long	int_err_ack;	/* 0x0050 */
+	unsigned int	int_err_ack;	/* 0x0050 */
 	unsigned char	res6[0xc];
-	unsigned long	ecc_err_stat;	/* 0x0060 */
+	unsigned int	ecc_err_stat;	/* 0x0060 */
 	unsigned char	res7[0xc];
-	unsigned long	manufact_id;	/* 0x0070 */
+	unsigned int	manufact_id;	/* 0x0070 */
 	unsigned char	res8[0xc];
-	unsigned long	device_id;	/* 0x0080 */
+	unsigned int	device_id;	/* 0x0080 */
 	unsigned char	res9[0xc];
-	unsigned long	data_buf_size;	/* 0x0090 */
+	unsigned int	data_buf_size;	/* 0x0090 */
 	unsigned char	res10[0xc];
-	unsigned long	boot_buf_size;	/* 0x00A0 */
+	unsigned int	boot_buf_size;	/* 0x00A0 */
 	unsigned char	res11[0xc];
-	unsigned long	buf_amount;	/* 0x00B0 */
+	unsigned int	buf_amount;	/* 0x00B0 */
 	unsigned char	res12[0xc];
-	unsigned long	tech;		/* 0x00C0 */
+	unsigned int	tech;		/* 0x00C0 */
 	unsigned char	res13[0xc];
-	unsigned long	fba;		/* 0x00D0 */
+	unsigned int	fba;		/* 0x00D0 */
 	unsigned char	res14[0xc];
-	unsigned long	fpa;		/* 0x00E0 */
+	unsigned int	fpa;		/* 0x00E0 */
 	unsigned char	res15[0xc];
-	unsigned long	fsa;		/* 0x00F0 */
+	unsigned int	fsa;		/* 0x00F0 */
 	unsigned char	res16[0x3c];
-	unsigned long	sync_mode;	/* 0x0130 */
+	unsigned int	sync_mode;	/* 0x0130 */
 	unsigned char	res17[0xc];
-	unsigned long	trans_spare;	/* 0x0140 */
+	unsigned int	trans_spare;	/* 0x0140 */
 	unsigned char	res18[0x3c];
-	unsigned long	err_page_addr;	/* 0x0180 */
+	unsigned int	err_page_addr;	/* 0x0180 */
 	unsigned char	res19[0x1c];
-	unsigned long	int_pin_en;	/* 0x01A0 */
+	unsigned int	int_pin_en;	/* 0x01A0 */
 	unsigned char	res20[0x1c];
-	unsigned long	acc_clock;	/* 0x01C0 */
+	unsigned int	acc_clock;	/* 0x01C0 */
 	unsigned char	res21[0x1c];
-	unsigned long	err_blk_addr;	/* 0x01E0 */
+	unsigned int	err_blk_addr;	/* 0x01E0 */
 	unsigned char	res22[0xc];
-	unsigned long	flash_ver_id;	/* 0x01F0 */
+	unsigned int	flash_ver_id;	/* 0x01F0 */
 	unsigned char	res23[0x6c];
-	unsigned long	watchdog_cnt_low;	/* 0x0260 */
+	unsigned int	watchdog_cnt_low;	/* 0x0260 */
 	unsigned char	res24[0xc];
-	unsigned long	watchdog_cnt_hi;	/* 0x0270 */
+	unsigned int	watchdog_cnt_hi;	/* 0x0270 */
 	unsigned char	res25[0xc];
-	unsigned long	sync_write;	/* 0x0280 */
+	unsigned int	sync_write;	/* 0x0280 */
 	unsigned char	res26[0x1c];
-	unsigned long	cold_reset;	/* 0x02A0 */
+	unsigned int	cold_reset;	/* 0x02A0 */
 	unsigned char	res27[0xc];
-	unsigned long	ddp_device;	/* 0x02B0 */
+	unsigned int	ddp_device;	/* 0x02B0 */
 	unsigned char	res28[0xc];
-	unsigned long	multi_plane;	/* 0x02C0 */
+	unsigned int	multi_plane;	/* 0x02C0 */
 	unsigned char	res29[0x1c];
-	unsigned long	trans_mode;	/* 0x02E0 */
+	unsigned int	trans_mode;	/* 0x02E0 */
 	unsigned char	res30[0x1c];
-	unsigned long	ecc_err_stat2;	/* 0x0300 */
+	unsigned int	ecc_err_stat2;	/* 0x0300 */
 	unsigned char	res31[0xc];
-	unsigned long	ecc_err_stat3;	/* 0x0310 */
+	unsigned int	ecc_err_stat3;	/* 0x0310 */
 	unsigned char	res32[0xc];
-	unsigned long	ecc_err_stat4;	/* 0x0320 */
+	unsigned int	ecc_err_stat4;	/* 0x0320 */
 	unsigned char	res33[0x1c];
-	unsigned long	dev_page_size;	/* 0x0340 */
+	unsigned int	dev_page_size;	/* 0x0340 */
 	unsigned char	res34[0x4c];
-	unsigned long	int_mon_status;	/* 0x0390 */
+	unsigned int	int_mon_status;	/* 0x0390 */
 };
 #endif
 
