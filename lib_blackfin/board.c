@@ -278,7 +278,6 @@ static void board_net_init_r(bd_t *bd)
 	bb_miiphy_init();
 #endif
 #ifdef CONFIG_CMD_NET
-	uchar enetaddr[6];
 	char *s;
 
 	if ((s = getenv("bootfile")) != NULL)
@@ -288,15 +287,11 @@ static void board_net_init_r(bd_t *bd)
 
 	printf("Net:   ");
 	eth_initialize(gd->bd);
-
-	eth_getenv_enetaddr("ethaddr", enetaddr);
-	printf("MAC:   %pM\n", enetaddr);
 #endif
 }
 
 void board_init_r(gd_t * id, ulong dest_addr)
 {
-	extern void malloc_bin_reloc(void);
 	char *s;
 	bd_t *bd;
 	gd = id;
@@ -310,7 +305,6 @@ void board_init_r(gd_t * id, ulong dest_addr)
 
 	/* initialize malloc() area */
 	mem_malloc_init(CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
-	malloc_bin_reloc();
 
 #if	!defined(CONFIG_SYS_NO_FLASH)
 	/* Initialize the flash and protect u-boot by default */
