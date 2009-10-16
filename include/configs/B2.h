@@ -58,7 +58,7 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_DRIVER_LAN91C96
+#define CONFIG_LAN91C96
 #define CONFIG_LAN91C96_BASE		0x04000300 /* base address         */
 #define CONFIG_SMC_USE_32_BIT
 #undef  CONFIG_SHOW_ACTIVITY
