@@ -59,11 +59,17 @@ void __ft_board_setup(void *blob, bd_t *bd)
 			*p++ = 0;
 			*p++ = bxcr & EBC_BXCR_BAS_MASK;
 			*p++ = EBC_BXCR_BANK_SIZE(bxcr);
+
+#ifdef CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
+			/* Try to update reg property in nor flash node too */
+			fdt_fixup_nor_flash_size(blob, i,
+						 EBC_BXCR_BANK_SIZE(bxcr));
+#endif
 		}
 	}
 
 	/* Some 405 PPC's have EBC as direct PLB child in the dts */
-	if (fdt_path_offset(blob, "/plb/opb/ebc") < 0)
+	if (fdt_path_offset(blob, ebc_path) < 0)
 		strcpy(ebc_path, "/plb/ebc");
 	rc = fdt_find_and_setprop(blob, ebc_path, "ranges", ranges,
 				  (p - ranges) * sizeof(u32), 1);
