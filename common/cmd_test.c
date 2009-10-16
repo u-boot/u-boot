@@ -149,3 +149,25 @@ U_BOOT_CMD(
 	"minimal test like /bin/sh",
 	"[args..]"
 );
+
+int do_false(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	return 1;
+}
+
+U_BOOT_CMD(
+	false,	CONFIG_SYS_MAXARGS,	1,	do_false,
+	"do nothing, unsuccessfully",
+	NULL
+);
+
+int do_true(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	return 0;
+}
+
+U_BOOT_CMD(
+	true,	CONFIG_SYS_MAXARGS,	1,	do_true,
+	"do nothing, successfully",
+	NULL
+);
