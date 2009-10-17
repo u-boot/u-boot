@@ -3144,6 +3144,9 @@ omap3_evm_config :	unconfig
 omap3_pandora_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 pandora NULL omap3
 
+omap3_sdp3430_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 sdp3430 ti omap3
+
 omap3_zoom1_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom1 logicpd omap3
 

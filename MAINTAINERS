@@ -635,6 +635,7 @@ Guennadi Liakhovetski <g.liakhovetski@gmx.de>
 
 Nishanth Menon <nm@ti.com>
 
+	omap3_sdp3430	ARM CORTEX-A8 (OMAP3xx SoC)
 	omap3_zoom1	ARM CORTEX-A8 (OMAP3xx SoC)
 
 David Müller <d.mueller@elsoft.ch>
