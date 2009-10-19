@@ -330,3 +330,72 @@ int cpu_init_r (void)
 
 	return 0;
 }
+
+#if defined(CONFIG_PCI) && \
+	(defined(CONFIG_440EP) || defined(CONFIG_440EPX) || \
+	 defined(CONFIG_440GR) || defined(CONFIG_440GRX))
+/*
+ * 440EP(x)/GR(x) PCI async/sync clocking restriction:
+ *
+ * In asynchronous PCI mode, the synchronous PCI clock must meet
+ * certain requirements. The following equation describes the
+ * relationship that must be maintained between the asynchronous PCI
+ * clock and synchronous PCI clock. Select an appropriate PCI:PLB
+ * ratio to maintain the relationship:
+ *
+ * AsyncPCIClk - 1MHz <= SyncPCIclock <= (2 * AsyncPCIClk) - 1MHz
+ */
+static int ppc4xx_pci_sync_clock_ok(u32 sync, u32 async)
+{
+	if (((async - 1000000) > sync) || (sync > ((2 * async) - 1000000)))
+		return 0;
+	else
+		return 1;
+}
+
+int ppc4xx_pci_sync_clock_config(u32 async)
+{
+	sys_info_t sys_info;
+	u32 sync;
+	int div;
+	u32 reg;
+	u32 spcid_val[] = {
+		CPR0_SPCID_SPCIDV0_DIV1, CPR0_SPCID_SPCIDV0_DIV2,
+		CPR0_SPCID_SPCIDV0_DIV3, CPR0_SPCID_SPCIDV0_DIV4 };
+
+	get_sys_info(&sys_info);
+	sync = sys_info.freqPCI;
+
+	/*
+	 * First check if the equation above is met
+	 */
+	if (!ppc4xx_pci_sync_clock_ok(sync, async)) {
+		/*
+		 * Reconfigure PCI sync clock to meet the equation.
+		 * Start with highest possible PCI sync frequency
+		 * (divider 1).
+		 */
+		for (div = 1; div <= 4; div++) {
+			sync = sys_info.freqPLB / div;
+			if (ppc4xx_pci_sync_clock_ok(sync, async))
+			    break;
+		}
+
+		if (div <= 4) {
+			mtcpr(CPR0_SPCID, spcid_val[div]);
+
+			mfcpr(CPR0_ICFG, reg);
+			reg |= CPR0_ICFG_RLI_MASK;
+			mtcpr(CPR0_ICFG, reg);
+
+			/* do chip reset */
+			mtspr(SPRN_DBCR0, 0x20000000);
+		} else {
+			/* Impossible to configure the PCI sync clock */
+			return -1;
+		}
+	}
+
+	return 0;
+}
+#endif
