@@ -42,7 +42,7 @@ void __ft_board_setup(void *blob, bd_t *bd)
 	u32 bxcr;
 	u32 ranges[EBC_NUM_BANKS * 4];
 	u32 *p = ranges;
-	char *ebc_path = "/plb/opb/ebc";
+	char ebc_path[] = "/plb/opb/ebc";
 
 	ft_cpu_setup(blob, bd);
 
