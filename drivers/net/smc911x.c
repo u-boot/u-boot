@@ -249,6 +249,12 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 
 	dev->iobase = base_addr;
 
+	/* Try to detect chip. Will fail if not present. */
+	if (smc911x_detect_chip(dev)) {
+		free(dev);
+		return 0;
+	}
+
 	addrh = smc911x_get_mac_csr(dev, ADDRH);
 	addrl = smc911x_get_mac_csr(dev, ADDRL);
 	dev->enetaddr[0] = addrl;
@@ -263,12 +269,6 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 	dev->send = smc911x_send;
 	dev->recv = smc911x_rx;
 	sprintf(dev->name, "%s-%hu", DRIVERNAME, dev_num);
-
-	/* Try to detect chip. Will fail if not present. */
-	if (smc911x_detect_chip(dev)) {
-		free(dev);
-		return 0;
-	}
 
 	eth_register(dev);
 	return 0;
