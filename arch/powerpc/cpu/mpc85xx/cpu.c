@@ -95,17 +95,25 @@ int checkcpu (void)
 	minor = PVR_MIN(pvr);
 
 	printf("Core:  ");
-	switch (fam) {
-	case PVR_FAM(PVR_85xx):
-	    puts("E500");
-	    break;
-	default:
-	    puts("Unknown");
-	    break;
+	if (PVR_FAM(PVR_85xx)) {
+		switch(PVR_MEM(pvr)) {
+		case 0x1:
+		case 0x2:
+			puts("E500");
+			break;
+		case 0x3:
+			puts("E500MC");
+			break;
+		case 0x4:
+			puts("E5500");
+			break;
+		default:
+			puts("Unknown");
+			break;
+		}
+	} else {
+		puts("Unknown");
 	}
-
-	if (PVR_MEM(pvr) == 0x03)
-		puts("MC");
 
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);
 
