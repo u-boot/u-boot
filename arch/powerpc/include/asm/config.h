@@ -46,6 +46,8 @@
 #define CONFIG_MAX_CPUS		2
 #elif defined(CONFIG_PPC_P4080)
 #define CONFIG_MAX_CPUS		8
+#elif defined(CONFIG_PPC_P5020)
+#define CONFIG_MAX_CPUS		2
 #else
 #define CONFIG_MAX_CPUS		1
 #endif
