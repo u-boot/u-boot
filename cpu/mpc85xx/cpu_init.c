@@ -360,8 +360,11 @@ int cpu_init_r(void)
 	/* enable the cache */
 	mtspr(SPRN_L2CSR0, CONFIG_SYS_INIT_L2CSR0);
 
-	if (CONFIG_SYS_INIT_L2CSR0 & L2CSR0_L2E)
+	if (CONFIG_SYS_INIT_L2CSR0 & L2CSR0_L2E) {
+		while (!(mfspr(SPRN_L2CSR0) & L2CSR0_L2E))
+			;
 		printf("%d KB enabled\n", (l2cfg0 & 0x3fff) * 64);
+	}
 #else
 	puts("disabled\n");
 #endif
