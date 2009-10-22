@@ -604,10 +604,11 @@ int fdt_resize(void *blob)
 
 	/*
 	 * Calculate the actual size of the fdt
-	 * plus the size needed for fdt_add_mem_rsv
+	 * plus the size needed for two fdt_add_mem_rsv, one
+	 * for the fdt itself and one for a possible initrd
 	 */
 	actualsize = fdt_off_dt_strings(blob) +
-		fdt_size_dt_strings(blob) + sizeof(struct fdt_reserve_entry);
+		fdt_size_dt_strings(blob) + 2*sizeof(struct fdt_reserve_entry);
 
 	/* Make it so the fdt ends on a page boundary */
 	actualsize = ALIGN(actualsize + ((uint)blob & 0xfff), 0x1000);
