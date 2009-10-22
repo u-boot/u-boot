@@ -99,8 +99,6 @@
 
 #define CONFIG_SUPPORT_VFAT
 
-#define CONFIG_AUTO_UPDATE      1       /* autoupdate via compactflash  */
-
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
 #define CONFIG_RTC_MC146818		/* DS1685 is MC146818 compatible*/
