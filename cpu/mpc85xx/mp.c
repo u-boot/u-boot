@@ -52,10 +52,10 @@ int cpu_status(int nr)
 	u32 *table, id = get_my_id();
 
 	if (nr == id) {
-		table = (u32 *)get_spin_addr();
+		table = (u32 *)get_spin_virt_addr();
 		printf("table base @ 0x%p\n", table);
 	} else {
-		table = (u32 *)get_spin_addr() + nr * NUM_BOOT_ENTRY;
+		table = (u32 *)get_spin_virt_addr() + nr * NUM_BOOT_ENTRY;
 		printf("Running on cpu %d\n", id);
 		printf("\n");
 		printf("table @ 0x%p\n", table);
@@ -77,7 +77,7 @@ static u8 boot_entry_map[4] = {
 
 int cpu_release(int nr, int argc, char *argv[])
 {
-	u32 i, val, *table = (u32 *)get_spin_addr() + nr * NUM_BOOT_ENTRY;
+	u32 i, val, *table = (u32 *)get_spin_virt_addr() + nr * NUM_BOOT_ENTRY;
 	u64 boot_addr;
 
 	if (nr == get_my_id()) {
@@ -124,23 +124,29 @@ u32 determine_mp_bootpg(void)
 	return (gd->ram_size - 4096);
 }
 
-ulong get_spin_addr(void)
+ulong get_spin_phys_addr(void)
 {
 	extern ulong __secondary_start_page;
 	extern ulong __spin_table;
 
-	ulong addr =
-		(ulong)&__spin_table - (ulong)&__secondary_start_page;
-	addr += 0xfffff000;
+	return (determine_mp_bootpg() +
+		(ulong)&__spin_table - (ulong)&__secondary_start_page);
+}
 
-	return addr;
+ulong get_spin_virt_addr(void)
+{
+	extern ulong __secondary_start_page;
+	extern ulong __spin_table;
+
+	return (CONFIG_BPTR_VIRT_ADDR +
+		(ulong)&__spin_table - (ulong)&__secondary_start_page);
 }
 
 #ifdef CONFIG_FSL_CORENET
 static void plat_mp_up(unsigned long bootpg)
 {
 	u32 up, cpu_up_mask, whoami;
-	u32 *table = (u32 *)get_spin_addr();
+	u32 *table = (u32 *)get_spin_virt_addr();
 	volatile ccsr_gur_t *gur;
 	volatile ccsr_local_t *ccm;
 	volatile ccsr_rcpm_t *rcpm;
@@ -194,12 +200,23 @@ static void plat_mp_up(unsigned long bootpg)
 	mtspr(SPRN_TBWU, 0);
 	mtspr(SPRN_TBWL, 0);
 	out_be32(&rcpm->ctbenrl, (1 << nr_cpus) - 1);
+
+#ifdef CONFIG_MPC8xxx_DISABLE_BPTR
+	/*
+	 * Disabling Boot Page Translation allows the memory region 0xfffff000
+	 * to 0xffffffff to be used normally.  Leaving Boot Page Translation
+	 * enabled remaps 0xfffff000 to SDRAM which makes that memory region
+	 * unusable for normal operation but it does allow OSes to easily
+	 * reset a processor core to put it back into U-Boot's spinloop.
+	 */
+	clrbits_be32(&ecm->bptr, 0x80000000);
+#endif
 }
 #else
 static void plat_mp_up(unsigned long bootpg)
 {
 	u32 up, cpu_up_mask, whoami;
-	u32 *table = (u32 *)get_spin_addr();
+	u32 *table = (u32 *)get_spin_virt_addr();
 	volatile u32 bpcr;
 	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -256,6 +273,17 @@ static void plat_mp_up(unsigned long bootpg)
 
 	devdisr &= ~(MPC85xx_DEVDISR_TB0 | MPC85xx_DEVDISR_TB1);
 	out_be32(&gur->devdisr, devdisr);
+
+#ifdef CONFIG_MPC8xxx_DISABLE_BPTR
+	/*
+	 * Disabling Boot Page Translation allows the memory region 0xfffff000
+	 * to 0xffffffff to be used normally.  Leaving Boot Page Translation
+	 * enabled remaps 0xfffff000 to SDRAM which makes that memory region
+	 * unusable for normal operation but it does allow OSes to easily
+	 * reset a processor core to put it back into U-Boot's spinloop.
+	 */
+	clrbits_be32(&ecm->bptr, 0x80000000);
+#endif
 }
 #endif
 
@@ -269,32 +297,26 @@ void cpu_mp_lmb_reserve(struct lmb *lmb)
 void setup_mp(void)
 {
 	extern ulong __secondary_start_page;
+	extern ulong __bootpg_addr;
 	ulong fixup = (ulong)&__secondary_start_page;
 	u32 bootpg = determine_mp_bootpg();
 
+	/* Store the bootpg's SDRAM address for use by secondary CPU cores */
+	__bootpg_addr = bootpg;
+
 	/* look for the tlb covering the reset page, there better be one */
-	int i = find_tlb_idx((void *)0xfffff000, 1);
+	int i = find_tlb_idx((void *)CONFIG_BPTR_VIRT_ADDR, 1);
 
 	/* we found a match */
 	if (i != -1) {
 		/* map reset page to bootpg so we can copy code there */
 		disable_tlb(i);
 
-		set_tlb(1, 0xfffff000, bootpg, /* tlb, epn, rpn */
-			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_M, /* perms, wimge */
-			0, i, BOOKE_PAGESZ_4K, 1); /* ts, esel, tsize, iprot */
-
-		memcpy((void *)0xfffff000, (void *)fixup, 4096);
-		flush_cache(0xfffff000, 4096);
-
-		disable_tlb(i);
-
-		/* setup reset page back to 1:1, we'll use HW boot translation
-		 * to map this where we want
-		 */
-		set_tlb(1, 0xfffff000, 0xfffff000, /* tlb, epn, rpn */
+		set_tlb(1, CONFIG_BPTR_VIRT_ADDR, bootpg, /* tlb, epn, rpn */
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I, /* perms, wimge */
 			0, i, BOOKE_PAGESZ_4K, 1); /* ts, esel, tsize, iprot */
+
+		memcpy((void *)CONFIG_BPTR_VIRT_ADDR, (void *)fixup, 4096);
 
 		plat_mp_up(bootpg);
 	} else {

@@ -43,7 +43,7 @@ extern void ft_fixup_num_cores(void *blob);
 void ft_fixup_cpu(void *blob, u64 memory_limit)
 {
 	int off;
-	ulong spin_tbl_addr = get_spin_addr();
+	ulong spin_tbl_addr = get_spin_phys_addr();
 	u32 bootpg = determine_mp_bootpg();
 	u32 id = get_my_id();
 

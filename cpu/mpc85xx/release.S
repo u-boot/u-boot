@@ -138,23 +138,38 @@ __secondary_start_page:
 	stw	r3,ENTRY_R6_UPPER(r10)
 	stw	r3,ENTRY_R6_LOWER(r10)
 
+	/* load r13 with the address of the 'bootpg' in SDRAM */
+	lis	r13,toreset(__bootpg_addr)@h
+	ori	r13,r13,toreset(__bootpg_addr)@l
+	lwz	r13,0(r13)
+
 	/* setup mapping for AS = 1, and jump there */
 	lis	r11,(MAS0_TLBSEL(1)|MAS0_ESEL(1))@h
 	mtspr	SPRN_MAS0,r11
 	lis	r11,(MAS1_VALID|MAS1_IPROT)@h
 	ori	r11,r11,(MAS1_TS|MAS1_TSIZE(BOOKE_PAGESZ_4K))@l
 	mtspr	SPRN_MAS1,r11
-	lis	r11,(0xfffff000|MAS2_I)@h
-	ori	r11,r11,(0xfffff000|MAS2_I)@l
+	oris	r11,r13,(MAS2_I)@h
+	ori	r11,r13,(MAS2_I)@l
 	mtspr	SPRN_MAS2,r11
-	lis	r11,(0xfffff000|MAS3_SX|MAS3_SW|MAS3_SR)@h
-	ori	r11,r11,(0xfffff000|MAS3_SX|MAS3_SW|MAS3_SR)@l
+	oris	r11,r13,(MAS3_SX|MAS3_SW|MAS3_SR)@h
+	ori	r11,r13,(MAS3_SX|MAS3_SW|MAS3_SR)@l
 	mtspr	SPRN_MAS3,r11
 	tlbwe
 
 	bl	1f
 1:	mflr	r11
-	addi	r11,r11,28
+	/*
+	 * OR in 0xfff to create a mask of the bootpg SDRAM address.  We use
+	 * this mask to fixup the cpu spin table and the address that we want
+	 * to jump to, eg change them from 0xfffffxxx to 0x7ffffxxx if the
+	 * bootpg is at 0x7ffff000 in SDRAM.
+	 */
+	ori	r13,r13,0xfff
+	and	r11, r11, r13
+	and	r10, r10, r13
+
+	addi	r11,r11,(2f-1b)
 	mfmsr	r13
 	ori	r12,r13,MSR_IS|MSR_DS@l
 
@@ -226,6 +241,15 @@ __secondary_start_page:
  */
 	mtspr	SPRN_SRR1,r13
 	rfi
+
+	/*
+	 * Allocate some space for the SDRAM address of the bootpg.
+	 * This variable has to be in the boot page so that it can
+	 * be accessed by secondary cores when they come out of reset.
+	 */
+	.globl __bootpg_addr
+__bootpg_addr:
+	.long	0
 
 	.align L1_CACHE_SHIFT
 	.globl __spin_table
