@@ -495,8 +495,6 @@
 /*-----------------------------------------------------------------------
  * Graphics (Fujitsu Lime)
  *----------------------------------------------------------------------*/
-/* SDRAM Clock frequency adjustment register */
-#define CONFIG_SYS_LIME_SDRAM_CLOCK	0xC1FC0038
 /* Lime Clock frequency is to set 100MHz */
 #define CONFIG_SYS_LIME_CLOCK_100MHZ	0x00000
 #if 0
@@ -504,15 +502,15 @@
 #define CONFIG_SYS_LIME_CLOCK_133MHZ	0x10000
 #endif
 
-/* SDRAM Parameter register */
-#define CONFIG_SYS_LIME_MMR		0xC1FCFFFC
 /* SDRAM parameter value; was 0x414FB7F2, caused several vertical bars
    and pixel flare on display when 133MHz was configured. According to
    SDRAM chip datasheet CAS Latency is 3 for 133MHz and -75 Speed Grade */
 #ifdef CONFIG_SYS_LIME_CLOCK_133MHZ
-#define CONFIG_SYS_LIME_MMR_VALUE	0x414FB7F3
+#define CONFIG_SYS_MB862xx_MMR	0x414FB7F3
+#define CONFIG_SYS_MB862xx_CCF	CONFIG_SYS_LIME_CLOCK_133MHZ
 #else
-#define CONFIG_SYS_LIME_MMR_VALUE	0x414FB7F2
+#define CONFIG_SYS_MB862xx_MMR	0x414FB7F2
+#define CONFIG_SYS_MB862xx_CCF	CONFIG_SYS_LIME_CLOCK_100MHZ
 #endif
 
 /*-----------------------------------------------------------------------

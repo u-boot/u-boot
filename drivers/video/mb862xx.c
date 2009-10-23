@@ -340,6 +340,30 @@ unsigned int card_init (void)
 }
 #endif
 
+
+#if !defined(CONFIG_VIDEO_CORALP)
+int mb862xx_probe(unsigned int addr)
+{
+	GraphicDevice *dev = &mb862xx;
+	unsigned int reg;
+
+	dev->frameAdrs = addr;
+	dev->dprBase = dev->frameAdrs + GC_DRAW_BASE;
+
+	/* Try to access GDC ID/Revision registers */
+	reg = HOST_RD_REG (GC_CID);
+	reg = HOST_RD_REG (GC_CID);
+	if (reg == 0x303) {
+		reg = DE_RD_REG(GC_REV);
+		reg = DE_RD_REG(GC_REV);
+		if ((reg & ~0xff) == 0x20050100)
+			return MB862XX_TYPE_LIME;
+	}
+
+	return 0;
+}
+#endif
+
 void *video_hw_init (void)
 {
 	GraphicDevice *dev = &mb862xx;
@@ -359,8 +383,16 @@ void *video_hw_init (void)
 	if ((dev->frameAdrs = board_video_init ()) == 0) {
 		puts ("Controller not found!\n");
 		return NULL;
-	} else
+	} else {
 		puts ("Lime\n");
+
+		/* Set Change of Clock Frequency Register */
+		HOST_WR_REG (GC_CCF, CONFIG_SYS_MB862xx_CCF);
+		/* Delay required */
+		udelay(300);
+		/* Set Memory I/F Mode Register) */
+		HOST_WR_REG (GC_MMR, CONFIG_SYS_MB862xx_MMR);
+	}
 #endif
 
 	de_init ();

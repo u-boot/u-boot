@@ -210,6 +210,11 @@
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)	/* decompressed img */
 
+/* SDRAM Clock frequency, 100MHz (0x0000) or 133MHz (0x10000) */
+#define CONFIG_SYS_MB862xx_CCF		0x10000
+/* SDRAM parameter */
+#define CONFIG_SYS_MB862xx_MMR		0x4157BA63
+
 /* Serial Port */
 
 #define CONFIG_CONS_INDEX     1
