@@ -606,6 +606,9 @@ jupiter_config:	unconfig
 inka4x0_config:	unconfig
 	@$(MKCONFIG) inka4x0 ppc mpc5xxx inka4x0
 
+ipek01_config: unconfig
+	@$(MKCONFIG) -a ipek01 ppc mpc5xxx ipek01
+
 lite5200b_config	\
 lite5200b_PM_config	\
 lite5200b_LOWBOOT_config:	unconfig
