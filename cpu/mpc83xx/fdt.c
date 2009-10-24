@@ -69,6 +69,45 @@ void ft_cpu_setup(void *blob, bd_t *bd)
     defined(CONFIG_HAS_ETH2) || defined(CONFIG_HAS_ETH3) ||\
     defined(CONFIG_HAS_ETH4) || defined(CONFIG_HAS_ETH5)
 	fdt_fixup_ethernet(blob);
+#ifdef CONFIG_MPC8313
+	/*
+	* mpc8313e erratum IPIC1 swapped TSEC interrupt ID numbers on rev. 1
+	* h/w (see AN3545).  The base device tree in use has rev. 1 ID numbers,
+	* so if on Rev. 2 (and higher) h/w, we fix them up here
+	*/
+	if (REVID_MAJOR(immr->sysconf.spridr) >= 2) {
+		int nodeoffset, path;
+		const char *prop;
+
+		nodeoffset = fdt_path_offset(blob, "/aliases");
+		if (nodeoffset >= 0) {
+#if defined(CONFIG_HAS_ETH0)
+			prop = fdt_getprop(blob, nodeoffset, "ethernet0", NULL);
+			if (prop) {
+				u32 tmp[] = { 32, 0x8, 33, 0x8, 34, 0x8 };
+
+				path = fdt_path_offset(blob, prop);
+				prop = fdt_getprop(blob, path, "interrupts", 0);
+				if (prop)
+					fdt_setprop(blob, path, "interrupts",
+						    &tmp, sizeof(tmp));
+			}
+#endif
+#if defined(CONFIG_HAS_ETH1)
+			prop = fdt_getprop(blob, nodeoffset, "ethernet1", NULL);
+			if (prop) {
+				u32 tmp[] = { 35, 0x8, 36, 0x8, 37, 0x8 };
+
+				path = fdt_path_offset(blob, prop);
+				prop = fdt_getprop(blob, path, "interrupts", 0);
+				if (prop)
+					fdt_setprop(blob, path, "interrupts",
+						    &tmp, sizeof(tmp));
+			}
+#endif
+		}
+	}
+#endif
 #endif
 
 	do_fixup_by_prop_u32(blob, "device_type", "cpu", 4,
