@@ -243,6 +243,11 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
 
+/* I2C bootstrap EEPROM */
+#define CONFIG_4xx_CONFIG_I2C_EEPROM_ADDR	0x52
+#define CONFIG_4xx_CONFIG_I2C_EEPROM_OFFSET	0
+#define CONFIG_4xx_CONFIG_BLOCKSIZE		16
+
 /* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
 #define CONFIG_DTT_LM75		1	/* ON Semi's LM75		*/
 #define CONFIG_DTT_AD7414	1	/* use AD7414			*/
@@ -300,6 +305,7 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
+#define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_FAT
 #define CONFIG_CMD_NAND
