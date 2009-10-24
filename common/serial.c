@@ -69,6 +69,18 @@ struct serial_device *__default_serial_console (void)
 #else
 #error "CONFIG_SERIAL? missing."
 #endif
+#elif defined(CONFIG_S5PC1XX)
+#if defined(CONFIG_SERIAL0)
+	return &s5pc1xx_serial0_device;
+#elif defined(CONFIG_SERIAL1)
+	return &s5pc1xx_serial1_device;
+#elif defined(CONFIG_SERIAL2)
+	return &s5pc1xx_serial2_device;
+#elif defined(CONFIG_SERIAL3)
+	return &s5pc1xx_serial3_device;
+#else
+#error "CONFIG_SERIAL? missing."
+#endif
 #elif defined(CONFIG_OMAP3_ZOOM2)
 		return ZOOM2_DEFAULT_SERIAL_DEVICE;
 #else
@@ -140,6 +152,12 @@ void serial_initialize (void)
 	serial_register(&s3c24xx_serial0_device);
 	serial_register(&s3c24xx_serial1_device);
 	serial_register(&s3c24xx_serial2_device);
+#endif
+#if defined(CONFIG_S5PC1XX)
+	serial_register(&s5pc1xx_serial0_device);
+	serial_register(&s5pc1xx_serial1_device);
+	serial_register(&s5pc1xx_serial2_device);
+	serial_register(&s5pc1xx_serial3_device);
 #endif
 	serial_assign (default_serial_console ()->name);
 }

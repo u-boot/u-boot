@@ -27,7 +27,6 @@
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
-#include <asm/sizes.h>
 
 /*
  * High Level Configuration Options
@@ -62,9 +61,9 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_ENV_SIZE			SZ_128K	/* Total Size Environment */
+#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 						/* Sector */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_128K)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
 						/* initial data */
 
@@ -165,16 +164,27 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyS2,115200n8\0" \
-	"videomode=1024x768@60,vxres=1024,vyres=768\0" \
-	"videospec=omapfb:vram:2M,vram:4M\0" \
+	"vram=12M\0" \
+	"dvimode=1024x768MR-16@60\0" \
+	"defaultdisplay=dvi\0" \
+	"mmcroot=/dev/mmcblk0p2 rw\0" \
+	"mmcrootfstype=ext3 rootwait\0" \
+	"nandroot=/dev/mtdblock4 rw\0" \
+	"nandrootfstype=jffs2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
-		"video=${videospec},mode:${videomode} " \
-		"root=/dev/mmcblk0p2 rw " \
-		"rootfstype=ext3 rootwait\0" \
+		"vram=${vram} " \
+		"omapfb.mode=dvi:${dvimode} " \
+		"omapfb.debug=y " \
+		"omapdss.def_disp=${defaultdisplay} " \
+		"root=${mmcroot} " \
+		"rootfstype=${mmcrootfstype}\0" \
 	"nandargs=setenv bootargs console=${console} " \
-		"video=${videospec},mode:${videomode} " \
-		"root=/dev/mtdblock4 rw " \
-		"rootfstype=jffs2\0" \
+		"vram=${vram} " \
+		"omapfb.mode=dvi:${dvimode} " \
+		"omapfb.debug=y " \
+		"omapdss.def_disp=${defaultdisplay} " \
+		"root=${nandroot} " \
+		"rootfstype=${nandrootfstype}\0" \
 	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
@@ -239,10 +249,10 @@
  *
  * The stack sizes are set up in start.S using the settings below
  */
-#define CONFIG_STACKSIZE	SZ_128K	/* regular stack */
+#define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
 #ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ	SZ_4K	/* IRQ stack */
-#define CONFIG_STACKSIZE_FIQ	SZ_4K	/* FIQ stack */
+#define CONFIG_STACKSIZE_IRQ	(4 << 10)	/* IRQ stack 4 KiB */
+#define CONFIG_STACKSIZE_FIQ	(4 << 10)	/* FIQ stack 4 KiB */
 #endif
 
 /*-----------------------------------------------------------------------
@@ -250,7 +260,7 @@
  */
 #define CONFIG_NR_DRAM_BANKS	2	/* CS1 may or may not be populated */
 #define PHYS_SDRAM_1		OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE	SZ_32M	/* at least 32 meg */
+#define PHYS_SDRAM_1_SIZE	(32 << 20)	/* at least 32 MiB */
 #define PHYS_SDRAM_2		OMAP34XX_SDRC_CS1
 
 /* SDRAM Bank Allocation method */
@@ -269,7 +279,7 @@
 #define CONFIG_SYS_MAX_FLASH_SECT	520	/* max number of sectors on */
 						/* one chip */
 #define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of flash banks */
-#define CONFIG_SYS_MONITOR_LEN		SZ_256K	/* Reserve 2 sectors */
+#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
 #define CONFIG_SYS_FLASH_BASE		boot_flash_base
 

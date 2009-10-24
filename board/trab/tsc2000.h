@@ -128,7 +128,7 @@ void adc_wait_conversion_done(void);
 
 static inline void SET_CS_TOUCH(void)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	gpio->PDDAT &= 0x5FF;
 }
@@ -136,7 +136,7 @@ static inline void SET_CS_TOUCH(void)
 
 static inline void CLR_CS_TOUCH(void)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	gpio->PDDAT |= 0x200;
 }

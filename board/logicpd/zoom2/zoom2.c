@@ -50,9 +50,6 @@
  * The details of the setting of the serial gpmc setup are not available.
  * The values were provided by another party.
  */
-void enable_gpmc_cs_config(u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
-			u32 size);
-
 static u32 gpmc_serial_TL16CP754C[GPMC_MAX_REG] = {
 	0x00011000,
 	0x001F1F01,
@@ -129,7 +126,7 @@ int board_init (void)
 
 	/* Configure console support on zoom2 */
 	gpmc_config = gpmc_serial_TL16CP754C;
-	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[4],
+	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[3],
 			SERIAL_TL16CP754C_BASE, GPMC_SIZE_16M);
 
 	/* board id for Linux */
