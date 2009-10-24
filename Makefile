@@ -2942,8 +2942,14 @@ davinci_sonata_config :	unconfig
 davinci_dm355evm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dm355evm davinci davinci
 
+davinci_dm355leopard_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs dm355leopard davinci davinci
+
 davinci_dm365evm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dm365evm davinci davinci
+
+davinci_dm6467evm_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs dm6467evm davinci davinci
 
 imx27lite_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs imx27lite logicpd mx27
@@ -3153,11 +3159,17 @@ omap3_evm_config :	unconfig
 omap3_pandora_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 pandora NULL omap3
 
+omap3_sdp3430_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 sdp3430 ti omap3
+
 omap3_zoom1_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom1 logicpd omap3
 
 omap3_zoom2_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom2 logicpd omap3
+
+smdkc100_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 smdkc100 samsung s5pc1xx
 
 #########################################################################
 ## XScale Systems

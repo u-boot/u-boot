@@ -30,7 +30,6 @@
 
 #ifndef __CONFIG_H
 #define __CONFIG_H
-#include <asm/sizes.h>
 
 /* High Level Configuration Options */
 #define CONFIG_ARMCORTEXA8	1	/* This is an ARM V7 CPU core */
@@ -59,9 +58,9 @@
 #define CONFIG_REVISION_TAG		1
 
 /* Size of malloc() pool */
-#define CONFIG_ENV_SIZE			SZ_128K	/* Total Size Environment */
+#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 						/* Sector */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + SZ_128K)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
 						/* initial data */
 
@@ -271,16 +270,16 @@
 #define CONFIG_SYS_HZ			1000
 
 /* The stack sizes are set up in start.S using the settings below */
-#define CONFIG_STACKSIZE		SZ_128K	/* regular stack */
+#define CONFIG_STACKSIZE	(128 << 10)	/* regular stack 128 KiB */
 #ifdef CONFIG_USE_IRQ
-#define CONFIG_STACKSIZE_IRQ		SZ_4K	/* IRQ stack */
-#define CONFIG_STACKSIZE_FIQ		SZ_4K	/* FIQ stack */
+#define CONFIG_STACKSIZE_IRQ		(4 << 10)	/* IRQ stack 4 KiB */
+#define CONFIG_STACKSIZE_FIQ		(4 << 10)	/* FIQ stack 4 KiB */
 #endif
 
 /*  Physical Memory Map  */
 #define CONFIG_NR_DRAM_BANKS		2 /* CS1 may or may not be populated */
 #define PHYS_SDRAM_1			OMAP34XX_SDRC_CS0
-#define PHYS_SDRAM_1_SIZE		SZ_128M	/* at least 128 meg */
+#define PHYS_SDRAM_1_SIZE		(128 << 20)	/* at least 128 MiB */
 #define PHYS_SDRAM_2			OMAP34XX_SDRC_CS1
 
 /* SDRAM Bank Allocation method */
@@ -289,7 +288,7 @@
 /* NAND and environment organization  */
 #define PISMO1_NAND_SIZE		GPMC_SIZE_128M
 
-#define CONFIG_SYS_MONITOR_LEN		SZ_256K	/* Reserve 2 sectors */
+#define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
 #define CONFIG_ENV_IS_IN_NAND		1
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */

@@ -644,9 +644,9 @@ static int adc_read (unsigned int channel)
 {
 	int j = 1000; /* timeout value for wait loop in us */
 	int result;
-	S3C2400_ADC *padc;
+	struct s3c2400_adc *padc;
 
-	padc = S3C2400_GetBase_ADC();
+	padc = s3c2400_get_base_adc();
 	channel &= 0x7;
 
 	adc_init ();
@@ -686,9 +686,9 @@ static int adc_read (unsigned int channel)
 
 static void adc_init (void)
 {
-	S3C2400_ADC *padc;
+	struct s3c2400_adc *padc;
 
-	padc = S3C2400_GetBase_ADC();
+	padc = s3c2400_get_base_adc();
 
 	padc->ADCCON &= ~(0xff << 6); /* clear prescaler bits */
 	padc->ADCCON |= ((65 << 6) | ADC_PRSCEN); /* set prescaler */
@@ -707,7 +707,7 @@ static void adc_init (void)
 
 static void led_set (unsigned int state)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	led_init ();
 
@@ -740,7 +740,7 @@ static void led_blink (void)
 
 static void led_init (void)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* configure GPA12 as output and set to High -> LED off */
 	gpio->PACON &= ~(1 << 12);

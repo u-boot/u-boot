@@ -46,8 +46,9 @@ extern int do_mdm_init; /* defined in common/main.c */
 
 int board_init (void)
 {
-	S3C24X0_CLOCK_POWER * const clk_power = S3C24X0_GetBase_CLOCK_POWER();
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_clock_power * const clk_power =
+					s3c24x0_get_base_clock_power();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* memory and cpu-speed are setup before relocation */
 	/* change the clock to be 50 MHz 1:1:1 */

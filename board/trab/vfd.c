@@ -358,9 +358,9 @@ int vfd_init_clocks (void)
 {
 	int i;
 
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
-	S3C24X0_TIMERS * const timers = S3C24X0_GetBase_TIMERS();
-	S3C24X0_LCD * const lcd = S3C24X0_GetBase_LCD();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
+	struct s3c24x0_timers * const timers = s3c24x0_get_base_timers();
+	struct s3c24x0_lcd * const lcd = s3c24x0_get_base_lcd();
 
 	/* try to determine display type from the value
 	 * defined by pull-ups
@@ -429,8 +429,8 @@ int vfd_init_clocks (void)
  */
 int drv_vfd_init(void)
 {
-	S3C24X0_LCD * const lcd = S3C24X0_GetBase_LCD();
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_lcd * const lcd = s3c24x0_get_base_lcd();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 	char *tmp;
 	ulong palette;
 	static int vfd_init_done = 0;
@@ -529,7 +529,7 @@ int drv_vfd_init(void)
  */
 void disable_vfd (void)
 {
-	S3C24X0_GPIO * const gpio = S3C24X0_GetBase_GPIO();
+	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	VFD_DISABLE;
 	gpio->PDCON &= ~0xC;
