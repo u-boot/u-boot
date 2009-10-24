@@ -79,5 +79,7 @@ void ft_pci_setup(void *blob, bd_t *bd);
 void set_working_fdt_addr(void *addr);
 int fdt_resize(void *blob);
 
+int fdt_fixup_nor_flash_size(void *blob, int cs, u32 size);
+
 #endif /* ifdef CONFIG_OF_LIBFDT */
 #endif /* ifndef __FDT_SUPPORT_H */

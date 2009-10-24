@@ -692,3 +692,47 @@ int fdt_pci_dma_ranges(void *blob, int phb_off, struct pci_controller *hose) {
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
+/*
+ * This function can be used to update the size in the "reg" property
+ * of the NOR FLASH device nodes. This is necessary for boards with
+ * non-fixed NOR FLASH sizes.
+ */
+int fdt_fixup_nor_flash_size(void *blob, int cs, u32 size)
+{
+	char compat[][16] = { "cfi-flash", "jedec-flash" };
+	int off;
+	int len;
+	struct fdt_property *prop;
+	u32 *reg;
+	int i;
+
+	for (i = 0; i < 2; i++) {
+		off = fdt_node_offset_by_compatible(blob, -1, compat[i]);
+		while (off != -FDT_ERR_NOTFOUND) {
+			/*
+			 * Found one compatible node, now check if this one
+			 * has the correct CS
+			 */
+			prop = fdt_get_property_w(blob, off, "reg", &len);
+			if (prop) {
+				reg = (u32 *)&prop->data[0];
+				if (reg[0] == cs) {
+					reg[2] = size;
+					fdt_setprop(blob, off, "reg", reg,
+						    3 * sizeof(u32));
+
+					return 0;
+				}
+			}
+
+			/* Move to next compatible node */
+			off = fdt_node_offset_by_compatible(blob, off,
+							    compat[i]);
+		}
+	}
+
+	return -1;
+}
+#endif
