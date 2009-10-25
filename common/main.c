@@ -720,6 +720,10 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
 	int insert = 1;
 	int esc_len = 0;
 	char esc_save[8];
+	int init_len = strlen(buf);
+
+	if (init_len)
+		cread_add_str(buf, init_len, 1, &num, &eol_num, buf, *len);
 
 	while (1) {
 #ifdef CONFIG_BOOT_RETRY_TIME
@@ -937,6 +941,12 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
  */
 int readline (const char *const prompt)
 {
+	/*
+	 * If console_buffer isn't 0-length the user will be prompted to modify
+	 * it instead of entering it from scratch as desired.
+	 */
+	console_buffer[0] = '\0';
+
 	return readline_into_buffer(prompt, console_buffer);
 }
 
