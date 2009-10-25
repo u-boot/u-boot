@@ -964,7 +964,8 @@ int readline_into_buffer (const char *const prompt, char * buffer)
 			initted = 1;
 		}
 
-		puts (prompt);
+		if (prompt)
+			puts (prompt);
 
 		rc = cread_line(prompt, p, &len);
 		return rc < 0 ? rc : len;
