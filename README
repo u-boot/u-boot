@@ -620,6 +620,7 @@ The following options need to be configured:
 		CONFIG_CMD_DS4510_RST	* ds4510 I2C rst command
 		CONFIG_CMD_DTT		* Digital Therm and Thermostat
 		CONFIG_CMD_ECHO		  echo arguments
+		CONFIG_CMD_EDITENV	  edit env variable
 		CONFIG_CMD_EEPROM	* EEPROM read/write support
 		CONFIG_CMD_ELF		* bootelf, bootvx
 		CONFIG_CMD_SAVEENV	  saveenv
