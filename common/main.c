@@ -715,16 +715,13 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
 {
 	unsigned long num = 0;
 	unsigned long eol_num = 0;
-	unsigned long rlen;
 	unsigned long wlen;
 	char ichar;
 	int insert = 1;
 	int esc_len = 0;
-	int rc = 0;
 	char esc_save[8];
 
 	while (1) {
-		rlen = 1;
 #ifdef CONFIG_BOOT_RETRY_TIME
 		while (!tstc()) {	/* while no incoming data */
 			if (retry_time >= 0 && get_ticks() > endtime)
@@ -923,7 +920,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
 		cread_add_to_hist(buf);
 	hist_cur = hist_add_idx;
 
-	return (rc);
+	return 0;
 }
 
 #endif /* CONFIG_CMDLINE_EDITING */
