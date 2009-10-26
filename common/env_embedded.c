@@ -41,6 +41,11 @@
 #endif
 
 /*
+ * Generate embedded environment table
+ * inside U-Boot image, if needed.
+ */
+#if defined(ENV_IS_EMBEDDED)
+/*
  * Only put the environment in it's own section when we are building
  * U-Boot proper.  The host based program "tools/envcrc" does not need
  * a seperate section.  Note that ENV_CRC is only defined when building
@@ -205,3 +210,5 @@ unsigned long env_size __PPCTEXT__ = sizeof(env_t);
  * Add in absolutes.
  */
 GEN_ABS(env_offset, CONFIG_ENV_OFFSET);
+
+#endif /* ENV_IS_EMBEDDED */
