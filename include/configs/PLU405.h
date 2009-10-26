@@ -300,7 +300,8 @@
 /*
  * External Bus Controller (EBC) Setup
  */
-#define CAN_BA		0xF0000000	    /* CAN Base Address	        */
+#define CAN0_BA		0xF0000000	    /* CAN0 Base Address	*/
+#define CAN1_BA		0xF0000100	    /* CAN1 Base Address	*/
 #define DUART0_BA	0xF0000400	    /* DUART Base Address       */
 #define DUART1_BA	0xF0000408	    /* DUART Base Address       */
 #define RTC_BA		0xF0000500	    /* RTC Base Address         */
