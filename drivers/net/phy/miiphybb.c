@@ -119,7 +119,7 @@ struct bb_miiphy_bus bb_miiphy_buses[] = {
 };
 
 int bb_miiphy_buses_num = sizeof(bb_miiphy_buses) /
-                          sizeof(bb_miiphy_buses[0]);
+			  sizeof(bb_miiphy_buses[0]);
 #endif
 
 void bb_miiphy_init(void)
@@ -167,7 +167,7 @@ static inline struct bb_miiphy_bus *bb_miiphy_getbus(char *devname)
  * and write).
  */
 static void miiphy_pre(struct bb_miiphy_bus *bus, char read,
-                       unsigned char addr, unsigned char reg)
+		       unsigned char addr, unsigned char reg)
 {
 	int j;
 
@@ -247,7 +247,7 @@ static void miiphy_pre(struct bb_miiphy_bus *bus, char read,
  *   0 on success
  */
 int bb_miiphy_read(char *devname, unsigned char addr,
-                   unsigned char reg, unsigned short *value)
+		   unsigned char reg, unsigned short *value)
 {
 	short rdreg; /* register working value */
 	int v;
@@ -328,7 +328,7 @@ int bb_miiphy_read(char *devname, unsigned char addr,
  *   0 on success
  */
 int bb_miiphy_write (char *devname, unsigned char addr,
-                     unsigned char reg, unsigned short value)
+		     unsigned char reg, unsigned short value)
 {
 	struct bb_miiphy_bus *bus;
 	int j;			/* counter */

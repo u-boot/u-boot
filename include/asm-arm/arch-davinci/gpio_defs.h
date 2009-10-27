@@ -50,4 +50,3 @@ struct davinci_gpio_bank {
 };
 
 #endif
-
