@@ -376,11 +376,6 @@
  * CONFIG_SYS_FLASH_BASE   -> start address of internal flash
  * CONFIG_SYS_MONITOR_BASE -> start of u-boot
  */
-#ifndef __ASSEMBLER__
-extern unsigned long offsetOfBigFlash;
-extern unsigned long offsetOfEnvironment;
-#endif
-
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		0xFFE00000
 #define CONFIG_SYS_MONITOR_BASE	0xFFFC0000     /* placed last 256k */
