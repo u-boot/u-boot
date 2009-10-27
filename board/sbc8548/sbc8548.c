@@ -359,7 +359,7 @@ pci_init_board(void)
 
 		SET_STD_PCI_INFO(pci_info[num], 1);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pci1_hose, first_free_busno);
+					&pci1_hose, first_free_busno, 0);
 	} else {
 		printf ("    PCI: disabled\n");
 	}
@@ -378,7 +378,7 @@ pci_init_board(void)
 		SET_STD_PCIE_INFO(pci_info[num], 1);
 		printf ("    PCIE at base address %lx\n", pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie1_hose, first_free_busno);
+					&pcie1_hose, first_free_busno, 0);
 	} else {
 		printf ("    PCIE: disabled\n");
 	}

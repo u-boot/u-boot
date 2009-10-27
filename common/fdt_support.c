@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <stdio_dev.h>
 #include <linux/ctype.h>
 #include <linux/types.h>
 #include <asm/global_data.h>
@@ -90,6 +91,23 @@ int fdt_find_and_setprop(void *fdt, const char *node, const char *prop,
 }
 
 #ifdef CONFIG_OF_STDOUT_VIA_ALIAS
+
+#ifdef CONFIG_SERIAL_MULTI
+static void fdt_fill_multisername(char *sername, size_t maxlen)
+{
+	const char *outname = stdio_devices[stdout]->name;
+
+	if (strcmp(outname, "serial") > 0)
+		strncpy(sername, outname, maxlen);
+
+	/* eserial? */
+	if (strcmp(outname + 1, "serial") > 0)
+		strncpy(sername, outname + 1, maxlen);
+}
+#else
+static inline void fdt_fill_multisername(char *sername, size_t maxlen) {}
+#endif /* CONFIG_SERIAL_MULTI */
+
 static int fdt_fixup_stdout(void *fdt, int chosenoff)
 {
 	int err = 0;
@@ -98,7 +116,9 @@ static int fdt_fixup_stdout(void *fdt, int chosenoff)
 	char sername[9] = { 0 };
 	const char *path;
 
-	sprintf(sername, "serial%d", CONFIG_CONS_INDEX - 1);
+	fdt_fill_multisername(sername, sizeof(sername) - 1);
+	if (!sername[0])
+		sprintf(sername, "serial%d", CONFIG_CONS_INDEX - 1);
 
 	err = node = fdt_path_offset(fdt, "/aliases");
 	if (node >= 0) {

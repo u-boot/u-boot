@@ -47,6 +47,16 @@
 #define CONFIG_MAX_CPUS		1
 #endif
 
+/*
+ * Provide a default boot page translation virtual address that lines up with
+ * Freescale's default e500 reset page.
+ */
+#if (defined(CONFIG_E500) && defined(CONFIG_MP))
+#ifndef CONFIG_BPTR_VIRT_ADDR
+#define CONFIG_BPTR_VIRT_ADDR	0xfffff000
+#endif
+#endif
+
 /* Relocation to SDRAM works on all PPC boards */
 #define CONFIG_RELOC_FIXUP_WORKS
 

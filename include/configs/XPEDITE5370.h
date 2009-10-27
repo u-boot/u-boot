@@ -49,6 +49,13 @@
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
 /*
+ * Multicore config
+ */
+#define CONFIG_MP
+#define CONFIG_BPTR_VIRT_ADDR	0xee000000	/* virt boot page address */
+#define CONFIG_MPC8xxx_DISABLE_BPTR		/* Don't leave BPTR enabled */
+
+/*
  * DDR config
  */
 #define CONFIG_FSL_DDR2
@@ -109,6 +116,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
  * 0xe000_0000	0xe7ff_ffff	SRAM/SSRAM/L1 Cache	128M non-cacheable
  * 0xe800_0000	0xe87f_ffff	PCIe1 IO		8M non-cacheable
  * 0xe880_0000	0xe8ff_ffff	PCIe2 IO		8M non-cacheable
+ * 0xee00_0000	0xee00_ffff	Boot page translation	4K non-cacheable
  * 0xef00_0000	0xef0f_ffff	CCSR/IMMR		1M non-cacheable
  * 0xef80_0000	0xef8f_ffff	NAND Flash		1M non-cacheable
  * 0xf000_0000	0xf7ff_ffff	NOR Flash 2		128M non-cacheable

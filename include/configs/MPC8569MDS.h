@@ -70,6 +70,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
+#define CONFIG_HWCONFIG
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
@@ -180,6 +181,29 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 
+/* Chip select 3 - NAND */
+#define CONFIG_SYS_NAND_BASE		0xFC000000
+#define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
+#define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE, }
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_MTD_NAND_VERIFY_WRITE	1
+#define CONFIG_CMD_NAND			1
+#define CONFIG_NAND_FSL_ELBC		1
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
+#define CONFIG_NAND_BR_PRELIM	(CONFIG_SYS_NAND_BASE_PHYS \
+				| (2<<BR_DECC_SHIFT) /* Use HW ECC */ \
+				| BR_PS_8	     /* Port Size = 8 bit */ \
+				| BR_MS_FCM	     /* MSEL = FCM */ \
+				| BR_V)		     /* valid */
+#define CONFIG_NAND_OR_PRELIM	(0xFFFC0000	     /* length 256K */ \
+				| OR_FCM_CSCT \
+				| OR_FCM_CST \
+				| OR_FCM_CHT \
+				| OR_FCM_SCY_1 \
+				| OR_FCM_TRLX \
+				| OR_FCM_EHTR)
+#define CONFIG_SYS_BR3_PRELIM	CONFIG_NAND_BR_PRELIM /* NAND Base Address */
+#define CONFIG_SYS_OR3_PRELIM	CONFIG_NAND_OR_PRELIM /* NAND Options */
 
 /*
  * SDRAM on the LocalBus
@@ -206,6 +230,7 @@ extern unsigned long get_clock_freq(void);
 
 /* Serial Port */
 #define CONFIG_CONS_INDEX		1
+#define CONFIG_SERIAL_MULTI		1
 #undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
@@ -258,8 +283,10 @@ extern unsigned long get_clock_freq(void);
 
 #define PLPPAR1_I2C_BIT_MASK		0x0000000F
 #define PLPPAR1_I2C2_VAL		0x00000000
+#define PLPPAR1_ESDHC_VAL		0x0000000A
 #define PLPDIR1_I2C_BIT_MASK		0x0000000F
 #define PLPDIR1_I2C2_VAL		0x0000000F
+#define PLPDIR1_ESDHC_VAL		0x00000006
 
 /*
  * General PCI
@@ -449,6 +476,18 @@ extern unsigned long get_clock_freq(void);
 
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
+
+#define CONFIG_MMC     1
+
+#ifdef CONFIG_MMC
+#define CONFIG_FSL_ESDHC
+#define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
+#define CONFIG_CMD_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
 
 /*
  * Miscellaneous configurable options

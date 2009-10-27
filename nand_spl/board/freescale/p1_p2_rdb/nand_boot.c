@@ -41,7 +41,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void board_init_f(ulong bootflag)
 {
-	uint plat_ratio, bus_clk, sys_clk;
+	uint plat_ratio, bus_clk, sys_clk = 0;
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	volatile ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
 	uint val, temp, sysclk_mask;

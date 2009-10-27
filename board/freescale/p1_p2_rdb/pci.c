@@ -71,7 +71,7 @@ void pci_init_board(void)
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie2_hose, first_free_busno);
+					&pcie2_hose, first_free_busno, pcie_ep);
 	} else {
 		printf ("    PCIE2: disabled\n");
 	}
@@ -90,7 +90,7 @@ void pci_init_board(void)
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie1_hose, first_free_busno);
+					&pcie1_hose, first_free_busno, pcie_ep);
 	} else {
 		printf ("    PCIE1: disabled\n");
 	}
