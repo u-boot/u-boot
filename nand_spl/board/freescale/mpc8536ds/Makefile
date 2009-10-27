@@ -111,6 +111,12 @@ $(obj)tlb_table.c:
 	@rm -f $(obj)tlb_table.c
 	ln -sf $(SRCTREE)/board/$(BOARDDIR)/tlb.c $(obj)tlb_table.c
 
+ifneq ($(OBJTREE), $(SRCTREE))
+$(obj)nand_boot.c:
+	@rm -f $(obj)nand_boot.c
+	ln -s $(SRCTREE)/nand_spl/board/$(BOARDDIR)/nand_boot.c $(obj)nand_boot.c
+endif
+
 #########################################################################
 
 $(obj)%.o:	$(obj)%.S
