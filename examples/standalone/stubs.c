@@ -181,9 +181,9 @@ gd_t *global_data;
 "	or %%g1, %%g7, %%g1\n"				\
 "	ld [%%g1], %%g1\n"				\
 "	ld [%%g1 + %1], %%g1\n"				\
-"	call %%g1\n"					\
+"	jmp %%g1\n"					\
 "	nop\n"						\
-	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x) : "g1" );
+	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "g1" );
 
 #else
 #error stubs definition missing for this architecture
