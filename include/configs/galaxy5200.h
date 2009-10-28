@@ -88,14 +88,20 @@
 /*
  * Autobooting
  */
-#define CONFIG_BOOTDELAY	3	/* autoboot after 3 seconds */
+#define CONFIG_BOOTDELAY	10	/* autoboot after 10 seconds */
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* allow stopping of boot process */
 					/* even with bootdelay=0 */
-#undef	CONFIG_BOOTARGS
+#define CONFIG_BOOT_RETRY_TIME 120	/* Reset if no command is entered  */
+#define CONFIG_RESET_TO_RETRY
 
 #define CONFIG_PREBOOT	"echo;"	\
 	"echo Welcome to U-Boot;"\
 	"echo"
+
+#define CONFIG_BOOTCOMMAND     "go ff300004 0; go ff300004 2 2;" \
+	"bootm ff040000 ff900000 fffc0000"
+#define CONFIG_BOOTARGS        "console=ttyPSC0,115200"
+#define CONFIG_EXTRA_ENV_SETTINGS "epson=yes\0"
 
 /*
  * IPB Bus clocking configuration.
