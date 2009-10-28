@@ -45,6 +45,16 @@ static int TftpTimeoutCountMax = TIMEOUT_COUNT;
 ulong TftpRRQTimeoutMSecs = TIMEOUT;
 int TftpRRQTimeoutCountMax = TIMEOUT_COUNT;
 
+enum {
+	TFTP_ERR_UNDEFINED           = 0,
+	TFTP_ERR_FILE_NOT_FOUND      = 1,
+	TFTP_ERR_ACCESS_DENIED       = 2,
+	TFTP_ERR_DISK_FULL           = 3,
+	TFTP_ERR_UNEXPECTED_OPCODE   = 4,
+	TFTP_ERR_UNKNOWN_TRANSFER_ID  = 5,
+	TFTP_ERR_FILE_ALREADY_EXISTS = 6,
+};
+
 static IPaddr_t TftpServerIP;
 static int	TftpServerPort;		/* The UDP port at their end		*/
 static int	TftpOurPort;		/* The UDP port at our end		*/
@@ -470,11 +480,27 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 	case TFTP_ERROR:
 		printf ("\nTFTP error: '%s' (%d)\n",
 					pkt + 2, ntohs(*(ushort *)pkt));
-		puts ("Starting again\n\n");
+
+		switch (ntohs(*(ushort *)pkt)) {
+		case TFTP_ERR_FILE_NOT_FOUND:
+		case TFTP_ERR_ACCESS_DENIED:
+			puts("Not retrying...\n");
+			eth_halt();
+			NetState = NETLOOP_FAIL;
+			break;
+		case TFTP_ERR_UNDEFINED:
+		case TFTP_ERR_DISK_FULL:
+		case TFTP_ERR_UNEXPECTED_OPCODE:
+		case TFTP_ERR_UNKNOWN_TRANSFER_ID:
+		case TFTP_ERR_FILE_ALREADY_EXISTS:
+		default:
+			puts("Starting again\n\n");
 #ifdef CONFIG_MCAST_TFTP
-		mcast_cleanup();
+			mcast_cleanup();
 #endif
-		NetStartAgain ();
+			NetStartAgain();
+			break;
+		}
 		break;
 	}
 }
