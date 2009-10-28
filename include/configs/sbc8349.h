@@ -158,7 +158,7 @@
 /* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 
 #define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE |	/* flash Base address */ \
-				(2 << BR_PS_SHIFT) |	/* 32 bit port size */	 \
+				(2 << BR_PS_SHIFT) |	/* 16 bit port size */	 \
 				BR_V)			/* valid */
 
 #define CONFIG_SYS_OR0_PRELIM		0xFF806FF7	/* 8 MB flash size */
