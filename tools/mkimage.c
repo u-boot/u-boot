@@ -229,6 +229,7 @@ main (int argc, char **argv)
 			case 'f':
 				if (--argc <= 0)
 					usage ();
+				params.type = IH_TYPE_FLATDT;
 				params.datafile = *++argv;
 				params.fflag = 1;
 				goto NXTARG;
