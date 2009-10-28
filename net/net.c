@@ -197,6 +197,8 @@ volatile uchar *NetTxPacket = 0;	/* THE transmit packet			*/
 
 static int net_check_prereq (proto_t protocol);
 
+static int NetTryCount;
+
 /**********************************************************************/
 
 IPaddr_t	NetArpWaitPacketIP;
@@ -320,6 +322,7 @@ NetLoop(proto_t protocol)
 	NetArpWaitReplyIP = 0;
 	NetArpWaitTxPacket = NULL;
 	NetTxPacket = NULL;
+	NetTryCount = 1;
 
 	if (!NetTxPacket) {
 		int	i;
@@ -558,17 +561,30 @@ startAgainHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
 void NetStartAgain (void)
 {
 	char *nretry;
-	int noretry = 0, once = 0;
+	int retry_forever = 0;
+	unsigned long retrycnt = 0;
 
-	if ((nretry = getenv ("netretry")) != NULL) {
-		noretry = (strcmp (nretry, "no") == 0);
-		once = (strcmp (nretry, "once") == 0);
-	}
-	if (noretry) {
-		eth_halt ();
+	nretry = getenv("netretry");
+	if (nretry) {
+		if (!strcmp(nretry, "yes"))
+			retry_forever = 1;
+		else if (!strcmp(nretry, "no"))
+			retrycnt = 0;
+		else if (!strcmp(nretry, "once"))
+			retrycnt = 1;
+		else
+			retrycnt = simple_strtoul(nretry, NULL, 0);
+	} else
+		retry_forever = 1;
+
+	if ((!retry_forever) && (NetTryCount >= retrycnt)) {
+		eth_halt();
 		NetState = NETLOOP_FAIL;
 		return;
 	}
+
+	NetTryCount++;
+
 #ifndef CONFIG_NET_MULTI
 	NetSetTimeout (10000UL, startAgainTimeout);
 	NetSetHandler (startAgainHandler);
@@ -580,7 +596,7 @@ void NetStartAgain (void)
 	eth_init (gd->bd);
 	if (NetRestartWrap) {
 		NetRestartWrap = 0;
-		if (NetDevExists && !once) {
+		if (NetDevExists) {
 			NetSetTimeout (10000UL, startAgainTimeout);
 			NetSetHandler (startAgainHandler);
 		} else {
