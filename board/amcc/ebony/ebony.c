@@ -234,26 +234,3 @@ void pci_target_init(struct pci_controller *hose)
 	out16r(PCIL0_CMD, in16r(PCIL0_CMD) | PCI_COMMAND_MEMORY);
 }
 #endif				/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
-
-/*************************************************************************
- *  is_pci_host
- *
- *	This routine is called to determine if a pci scan should be
- *	performed. With various hardware environments (especially cPCI and
- *	PPMC) it's insufficient to depend on the state of the arbiter enable
- *	bit in the strap register, or generic host/adapter assumptions.
- *
- *	Rather than hard-code a bad assumption in the general 440 code, the
- *	440 pci code requires the board to decide at runtime.
- *
- *	Return 0 for adapter mode, non-zero for host (monarch) mode.
- *
- *
- ************************************************************************/
-#if defined(CONFIG_PCI)
-int is_pci_host(struct pci_controller *hose)
-{
-	/* The ebony board is always configured as host. */
-	return (1);
-}
-#endif				/* defined(CONFIG_PCI) */

@@ -373,19 +373,6 @@ void pci_target_init(struct pci_controller * hose )
 
 
 /*************************************************************************
- *  is_pci_host
- *
- *
- ************************************************************************/
-#if defined(CONFIG_PCI)
-int is_pci_host(struct pci_controller *hose)
-{
-    /* The metrobox is always configured as host. */
-    return(1);
-}
-#endif /* defined(CONFIG_PCI) */
-
-/*************************************************************************
  *  board_get_enetaddr
  *
  *  Get the ethernet MAC address for the management ethernet from the

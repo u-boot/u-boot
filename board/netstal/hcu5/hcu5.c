@@ -460,25 +460,6 @@ void pci_master_init(struct pci_controller *hose)
 			      temp_short | PCI_COMMAND_MASTER |
 			      PCI_COMMAND_MEMORY);
 }
-
-/*
- *  is_pci_host
- *
- *	This routine is called to determine if a pci scan should be
- *	performed. With various hardware environments (especially cPCI and
- *	PPMC) it's insufficient to depend on the state of the arbiter enable
- *	bit in the strap register, or generic host/adapter assumptions.
- *
- *	Rather than hard-code a bad assumption in the general 440 code, the
- *	440 pci code requires the board to decide at runtime.
- *
- *	Return 0 for adapter mode, non-zero for host (monarch) mode.
- *
- */
-int is_pci_host(struct pci_controller *hose)
-{
-	return 1;
-}
 #endif	 /* defined(CONFIG_PCI) */
 
 #if defined(CONFIG_POST)

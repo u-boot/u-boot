@@ -712,7 +712,7 @@ static void wait_for_pci_ready(void)
 }
 
 /*
- * is_pci_host
+ * Override weak is_pci_host()
  *
  * This routine is called to determine if a pci scan should be
  * performed. With various hardware environments (especially cPCI and

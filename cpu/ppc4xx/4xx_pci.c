@@ -478,6 +478,26 @@ void pci_init_board(void)
 
 static struct pci_controller ppc440_hose = {0};
 
+/*
+ * This routine is called to determine if a pci scan should be
+ * performed. With various hardware environments (especially cPCI and
+ * PPMC) it's insufficient to depend on the state of the arbiter enable
+ * bit in the strap register, or generic host/adapter assumptions.
+ *
+ * Rather than hard-code a bad assumption in the general 440 code, the
+ * 440 pci code requires the board to decide at runtime.
+ *
+ * Return 0 for adapter mode, non-zero for host (monarch) mode.
+ *
+ * Weak default implementation: "Normal" boards implement the PCI
+ * host functionality. This can be overridden for PCI adapter boards.
+ */
+int __is_pci_host(struct pci_controller *hose)
+{
+	return 1;
+}
+int is_pci_host(struct pci_controller *hose)
+	__attribute__((weak, alias("__is_pci_host")));
 
 int pci_440_init (struct pci_controller *hose)
 {

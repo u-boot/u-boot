@@ -200,6 +200,8 @@ void pci_target_init(struct pci_controller * hose)
 
 #if defined(CONFIG_PCI)
 /*
+ * Override weak is_pci_host()
+ *
  * This routine is called to determine if a pci scan should be
  * performed. With various hardware environments (especially cPCI and
  * PPMC) it's insufficient to depend on the state of the arbiter enable

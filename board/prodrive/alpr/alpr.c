@@ -218,7 +218,7 @@ void pci_target_init(struct pci_controller * hose )
 #endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 /*************************************************************************
- *  is_pci_host
+ * Override weak is_pci_host()
  *
  *	This routine is called to determine if a pci scan should be
  *	performed. With various hardware environments (especially cPCI and
