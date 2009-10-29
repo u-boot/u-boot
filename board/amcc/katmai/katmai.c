@@ -351,7 +351,7 @@ int is_pci_host(struct pci_controller *hose)
 	return 1;
 }
 
-static int katmai_pcie_card_present(int port)
+int board_pcie_card_present(int port)
 {
 	u32 val;
 
@@ -365,78 +365,6 @@ static int katmai_pcie_card_present(int port)
 		return !(val & GPIO_VAL(CONFIG_SYS_GPIO_PCIE_PRESENT2));
 	default:
 		return 0;
-	}
-}
-
-static struct pci_controller pcie_hose[3] = {{0},{0},{0}};
-
-void pcie_setup_hoses(int busno)
-{
-	struct pci_controller *hose;
-	int i, bus;
-	int ret = 0;
-	char *env;
-	unsigned int delay;
-
-	/*
-	 * assume we're called after the PCIX hose is initialized, which takes
-	 * bus ID 0 and therefore start numbering PCIe's from 1.
-	 */
-	bus = busno;
-	for (i = 0; i <= 2; i++) {
-		/* Check for katmai card presence */
-		if (!katmai_pcie_card_present(i))
-			continue;
-
-		if (is_end_point(i))
-			ret = ppc4xx_init_pcie_endport(i);
-		else
-			ret = ppc4xx_init_pcie_rootport(i);
-		if (ret == -ENODEV)
-			continue;
-		if (ret) {
-			printf("PCIE%d: initialization as %s failed\n", i,
-			       is_end_point(i) ? "endpoint" : "root-complex");
-			continue;
-		}
-
-		hose = &pcie_hose[i];
-		hose->first_busno = bus;
-		hose->last_busno = bus;
-		hose->current_busno = bus;
-
-		/* setup mem resource */
-		pci_set_region(hose->regions + 0,
-			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
-			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
-			       CONFIG_SYS_PCIE_MEMSIZE,
-			       PCI_REGION_MEM);
-		hose->region_count = 1;
-		pci_register_hose(hose);
-
-		if (is_end_point(i)) {
-			ppc4xx_setup_pcie_endpoint(hose, i);
-			/*
-			 * Reson for no scanning is endpoint can not generate
-			 * upstream configuration accesses.
-			 */
-		} else {
-			ppc4xx_setup_pcie_rootpoint(hose, i);
-			env = getenv ("pciscandelay");
-			if (env != NULL) {
-				delay = simple_strtoul(env, NULL, 10);
-				if (delay > 5)
-					printf("Warning, expect noticable delay before "
-					       "PCIe scan due to 'pciscandelay' value!\n");
-				mdelay(delay * 1000);
-			}
-
-			/*
-			 * Config access can only go down stream
-			 */
-			hose->last_busno = pci_hose_scan(hose);
-			bus = hose->last_busno + 1;
-		}
 	}
 }
 #endif	/* defined(CONFIG_PCI) */

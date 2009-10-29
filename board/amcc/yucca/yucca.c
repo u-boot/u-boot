@@ -679,7 +679,7 @@ int is_pci_host(struct pci_controller *hose)
 	return 1;
 }
 
-static int yucca_pcie_card_present(int port)
+int board_pcie_card_present(int port)
 {
 	u16 reg;
 
@@ -697,185 +697,54 @@ static int yucca_pcie_card_present(int port)
 }
 
 /*
- * For the given slot, set rootpoint mode, send power to the slot,
- * turn on the green LED and turn off the yellow LED, enable the clock
- * and turn off reset.
- */
-void yucca_setup_pcie_fpga_rootpoint(int port)
-{
-	u16 power, clock, green_led, yellow_led, reset_off, rootpoint, endpoint;
-
-	switch(port) {
-	case 0:
-		rootpoint   = FPGA_REG1C_PE0_ROOTPOINT;
-		endpoint    = 0;
-		power	    = FPGA_REG1A_PE0_PWRON;
-		green_led   = FPGA_REG1A_PE0_GLED;
-		clock	    = FPGA_REG1A_PE0_REFCLK_ENABLE;
-		yellow_led  = FPGA_REG1A_PE0_YLED;
-		reset_off   = FPGA_REG1C_PE0_PERST;
-		break;
-	case 1:
-		rootpoint   = 0;
-		endpoint    = FPGA_REG1C_PE1_ENDPOINT;
-		power	    = FPGA_REG1A_PE1_PWRON;
-		green_led   = FPGA_REG1A_PE1_GLED;
-		clock	    = FPGA_REG1A_PE1_REFCLK_ENABLE;
-		yellow_led  = FPGA_REG1A_PE1_YLED;
-		reset_off   = FPGA_REG1C_PE1_PERST;
-		break;
-	case 2:
-		rootpoint   = 0;
-		endpoint    = FPGA_REG1C_PE2_ENDPOINT;
-		power	    = FPGA_REG1A_PE2_PWRON;
-		green_led   = FPGA_REG1A_PE2_GLED;
-		clock	    = FPGA_REG1A_PE2_REFCLK_ENABLE;
-		yellow_led  = FPGA_REG1A_PE2_YLED;
-		reset_off   = FPGA_REG1C_PE2_PERST;
-		break;
-
-	default:
-		return;
-	}
-
-	out_be16((u16 *)FPGA_REG1A,
-		 ~(power | clock | green_led) &
-		 (yellow_led | in_be16((u16 *)FPGA_REG1A)));
-
-	out_be16((u16 *)FPGA_REG1C,
-		 ~(endpoint | reset_off) &
-		 (rootpoint | in_be16((u16 *)FPGA_REG1C)));
-	/*
-	 * Leave device in reset for a while after powering on the
-	 * slot to give it a chance to initialize.
-	 */
-	udelay(250 * 1000);
-
-	out_be16((u16 *)FPGA_REG1C, reset_off | in_be16((u16 *)FPGA_REG1C));
-}
-/*
  * For the given slot, set endpoint mode, send power to the slot,
- * turn on the green LED and turn off the yellow LED, enable the clock
- * .In end point mode reset bit is  read only.
+ * turn on the green LED and turn off the yellow LED, enable the
+ * clock. In end point mode reset bit is read only.
  */
-void yucca_setup_pcie_fpga_endpoint(int port)
+void board_pcie_setup_port(int port, int rootpoint)
 {
-	u16 power, clock, green_led, yellow_led, reset_off, rootpoint, endpoint;
+	u16 power, clock, green_led, yellow_led,
+		reset_off, rp, ep;
 
-	switch(port) {
+	switch (port) {
 	case 0:
-		rootpoint   = FPGA_REG1C_PE0_ROOTPOINT;
-		endpoint    = 0;
-		power	    = FPGA_REG1A_PE0_PWRON;
-		green_led   = FPGA_REG1A_PE0_GLED;
-		clock	    = FPGA_REG1A_PE0_REFCLK_ENABLE;
-		yellow_led  = FPGA_REG1A_PE0_YLED;
-		reset_off   = FPGA_REG1C_PE0_PERST;
+		rp = FPGA_REG1C_PE0_ROOTPOINT;
+		ep = 0;
 		break;
 	case 1:
-		rootpoint   = 0;
-		endpoint    = FPGA_REG1C_PE1_ENDPOINT;
-		power	    = FPGA_REG1A_PE1_PWRON;
-		green_led   = FPGA_REG1A_PE1_GLED;
-		clock	    = FPGA_REG1A_PE1_REFCLK_ENABLE;
-		yellow_led  = FPGA_REG1A_PE1_YLED;
-		reset_off   = FPGA_REG1C_PE1_PERST;
+		rp = 0;
+		ep = FPGA_REG1C_PE1_ENDPOINT;
 		break;
 	case 2:
-		rootpoint   = 0;
-		endpoint    = FPGA_REG1C_PE2_ENDPOINT;
-		power	    = FPGA_REG1A_PE2_PWRON;
-		green_led   = FPGA_REG1A_PE2_GLED;
-		clock	    = FPGA_REG1A_PE2_REFCLK_ENABLE;
-		yellow_led  = FPGA_REG1A_PE2_YLED;
-		reset_off   = FPGA_REG1C_PE2_PERST;
+		rp = 0;
+		ep = FPGA_REG1C_PE2_ENDPOINT;
 		break;
 
 	default:
 		return;
 	}
 
-	out_be16((u16 *)FPGA_REG1A,
-		 ~(power | clock | green_led) &
+	power = FPGA_REG1A_PWRON_ENCODE(port);
+	green_led = FPGA_REG1A_GLED_ENCODE(port);
+	clock = FPGA_REG1A_REFCLK_ENCODE(port);
+	yellow_led = FPGA_REG1A_YLED_ENCODE(port);
+	reset_off = FPGA_REG1C_PERST_ENCODE(port);
+
+	out_be16((u16 *)FPGA_REG1A, ~(power | clock | green_led) &
 		 (yellow_led | in_be16((u16 *)FPGA_REG1A)));
 
-	out_be16((u16 *)FPGA_REG1C,
-		 ~(rootpoint | reset_off) &
-		 (endpoint | in_be16((u16 *)FPGA_REG1C)));
-}
+	out_be16((u16 *)FPGA_REG1C, ~(ep | reset_off) &
+		 (rp | in_be16((u16 *)FPGA_REG1C)));
 
-static struct pci_controller pcie_hose[3] = {{0},{0},{0}};
+	if (rootpoint) {
+		/*
+		 * Leave device in reset for a while after powering on the
+		 * slot to give it a chance to initialize.
+		 */
+		udelay(250 * 1000);
 
-void pcie_setup_hoses(int busno)
-{
-	struct pci_controller *hose;
-	int i, bus;
-	int ret = 0;
-	char *env;
-	unsigned int delay;
-
-	/*
-	 * assume we're called after the PCIX hose is initialized, which takes
-	 * bus ID 0 and therefore start numbering PCIe's from 1.
-	 */
-	bus = busno;
-	for (i = 0; i <= 2; i++) {
-		/* Check for yucca card presence */
-		if (!yucca_pcie_card_present(i))
-			continue;
-
-		if (is_end_point(i)) {
-			yucca_setup_pcie_fpga_endpoint(i);
-			ret = ppc4xx_init_pcie_endport(i);
-		} else {
-			yucca_setup_pcie_fpga_rootpoint(i);
-			ret = ppc4xx_init_pcie_rootport(i);
-		}
-		if (ret == -ENODEV)
-			continue;
-		if (ret) {
-			printf("PCIE%d: initialization as %s failed\n", i,
-			       is_end_point(i) ? "endpoint" : "root-complex");
-			continue;
-		}
-
-		hose = &pcie_hose[i];
-		hose->first_busno = bus;
-		hose->last_busno = bus;
-		hose->current_busno = bus;
-
-		/* setup mem resource */
-		pci_set_region(hose->regions + 0,
-			CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
-			CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
-			CONFIG_SYS_PCIE_MEMSIZE,
-			PCI_REGION_MEM);
-		hose->region_count = 1;
-		pci_register_hose(hose);
-
-		if (is_end_point(i)) {
-			ppc4xx_setup_pcie_endpoint(hose, i);
-			/*
-			 * Reson for no scanning is endpoint can not generate
-			 * upstream configuration accesses.
-			 */
-		} else {
-			ppc4xx_setup_pcie_rootpoint(hose, i);
-			env = getenv("pciscandelay");
-			if (env != NULL) {
-				delay = simple_strtoul(env, NULL, 10);
-				if (delay > 5)
-					printf("Warning, expect noticable delay before "
-					       "PCIe scan due to 'pciscandelay' value!\n");
-				mdelay(delay * 1000);
-			}
-
-			/*
-			 * Config access can only go down stream
-			 */
-			hose->last_busno = pci_hose_scan(hose);
-			bus = hose->last_busno + 1;
-		}
+		out_be16((u16 *)FPGA_REG1C,
+			 reset_off | in_be16((u16 *)FPGA_REG1C));
 	}
 }
 #endif	/* defined(CONFIG_PCI) */
