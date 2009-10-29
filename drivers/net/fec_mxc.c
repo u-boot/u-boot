@@ -157,7 +157,9 @@ static int miiphy_restart_aneg(struct eth_device *dev)
 	/*
 	 * Set the auto-negotiation advertisement register bits
 	 */
-	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_ANAR, 0x1e0);
+	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_ANAR,
+			PHY_ANLPAR_TXFD | PHY_ANLPAR_TX | PHY_ANLPAR_10FD |
+			PHY_ANLPAR_10 | PHY_ANLPAR_PSB_802_3);
 	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_BMCR,
 			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
 
@@ -341,8 +343,8 @@ static int fec_open(struct eth_device *edev)
 	writel(FEC_ECNTRL_ETHER_EN, &fec->eth->ecntrl);
 
 	miiphy_wait_aneg(edev);
-	miiphy_speed(edev->name, 0);
-	miiphy_duplex(edev->name, 0);
+	miiphy_speed(edev->name, CONFIG_FEC_MXC_PHYADDR);
+	miiphy_duplex(edev->name, CONFIG_FEC_MXC_PHYADDR);
 
 	/*
 	 * Enable SmartDMA receive task
