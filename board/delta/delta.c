@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <i2c.h>
 #include <da9030.h>
 #include <malloc.h>
@@ -361,5 +362,16 @@ void hw_watchdog_reset(void)
 	val = i2c_reg_read(addr, SYS_CONTROL_A);
 	val |= SYS_CONTROL_A_WATCHDOG;
 	i2c_reg_write(addr, SYS_CONTROL_A, val);
+}
+#endif
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_SMC91111
+	rc = smc91111_initialize(0, CONFIG_SMC91111_BASE);
+#endif
+	return rc;
 }
 #endif

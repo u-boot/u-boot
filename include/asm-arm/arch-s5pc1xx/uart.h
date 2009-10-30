@@ -25,19 +25,19 @@
 
 #ifndef __ASSEMBLY__
 struct s5pc1xx_uart {
-	unsigned long	ulcon;
-	unsigned long	ucon;
-	unsigned long	ufcon;
-	unsigned long	umcon;
-	unsigned long	utrstat;
-	unsigned long	uerstat;
-	unsigned long	ufstat;
-	unsigned long	umstat;
+	unsigned int	ulcon;
+	unsigned int	ucon;
+	unsigned int	ufcon;
+	unsigned int	umcon;
+	unsigned int	utrstat;
+	unsigned int	uerstat;
+	unsigned int	ufstat;
+	unsigned int	umstat;
 	unsigned char	utxh;
 	unsigned char	res1[3];
 	unsigned char	urxh;
 	unsigned char	res2[3];
-	unsigned long	ubrdiv;
+	unsigned int	ubrdiv;
 	unsigned short	udivslot;
 	unsigned char	res3[2];
 	unsigned char	res4[0x3d0];

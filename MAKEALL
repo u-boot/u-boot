@@ -567,6 +567,8 @@ LIST_ARM9="			\
 	davinci_sffsdr		\
 	davinci_sonata		\
 	davinci_dm355evm	\
+	davinci_dm355leopard	\
+	davinci_dm6467evm	\
 "
 
 #########################################################################
@@ -603,6 +605,7 @@ LIST_ARM_CORTEX_A8="		\
 	omap3_overo		\
 	omap3_evm		\
 	omap3_pandora		\
+	omap3_sdp3430		\
 	omap3_zoom1		\
 	omap3_zoom2		\
 	smdkc100		\

@@ -67,7 +67,6 @@ SECTIONS
     lib_generic/sha1.o		(.text)
 
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

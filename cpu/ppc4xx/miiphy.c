@@ -195,7 +195,7 @@ unsigned int miiphy_getemac_offset(u8 addr)
 	unsigned long eoffset;
 
 	/* Need to find out which mdi port we're using */
-	zmii = in_be32((void *)ZMII_FER);
+	zmii = in_be32((void *)ZMII0_FER);
 
 	if (zmii & (ZMII_FER_MDI << ZMII_FER_V (0)))
 		/* using port 0 */
@@ -217,12 +217,12 @@ unsigned int miiphy_getemac_offset(u8 addr)
 		/* None of the mdi ports are enabled! */
 		/* enable port 0 */
 		zmii |= ZMII_FER_MDI << ZMII_FER_V (0);
-		out_be32((void *)ZMII_FER, zmii);
+		out_be32((void *)ZMII0_FER, zmii);
 		eoffset = 0;
 		/* need to soft reset port 0 */
-		zmii = in_be32((void *)EMAC_M0);
-		zmii |= EMAC_M0_SRST;
-		out_be32((void *)EMAC_M0, zmii);
+		zmii = in_be32((void *)EMAC0_MR0);
+		zmii |= EMAC_MR0_SRST;
+		out_be32((void *)EMAC0_MR0, zmii);
 	}
 
 	return (eoffset);
@@ -243,19 +243,19 @@ unsigned int miiphy_getemac_offset(u8 addr)
 	switch (addr) {
 #if defined(CONFIG_HAS_ETH1) && defined(CONFIG_GPCS_PHY1_ADDR)
 	case CONFIG_GPCS_PHY1_ADDR:
-		if (addr == EMAC_M1_IPPA_GET(in_be32((void *)EMAC_M1 + 0x100)))
+		if (addr == EMAC_MR1_IPPA_GET(in_be32((void *)EMAC0_MR1 + 0x100)))
 			eoffset = 0x100;
 		break;
 #endif
 #if defined(CONFIG_HAS_ETH2) && defined(CONFIG_GPCS_PHY2_ADDR)
 	case CONFIG_GPCS_PHY2_ADDR:
-		if (addr == EMAC_M1_IPPA_GET(in_be32((void *)EMAC_M1 + 0x300)))
+		if (addr == EMAC_MR1_IPPA_GET(in_be32((void *)EMAC0_MR1 + 0x300)))
 			eoffset = 0x300;
 		break;
 #endif
 #if defined(CONFIG_HAS_ETH3) && defined(CONFIG_GPCS_PHY3_ADDR)
 	case CONFIG_GPCS_PHY3_ADDR:
-		if (addr == EMAC_M1_IPPA_GET(in_be32((void *)EMAC_M1 + 0x400)))
+		if (addr == EMAC_MR1_IPPA_GET(in_be32((void *)EMAC0_MR1 + 0x400)))
 			eoffset = 0x400;
 		break;
 #endif
@@ -278,9 +278,9 @@ static int emac_miiphy_wait(u32 emac_reg)
 	/* wait for completion */
 	i = 0;
 	do {
-		sta_reg = in_be32((void *)EMAC_STACR + emac_reg);
+		sta_reg = in_be32((void *)EMAC0_STACR + emac_reg);
 		if (i++ > 5) {
-			debug("%s [%d]: Timeout! EMAC_STACR=0x%0x\n", __func__,
+			debug("%s [%d]: Timeout! EMAC0_STACR=0x%0x\n", __func__,
 			      __LINE__, sta_reg);
 			return -1;
 		}
@@ -324,7 +324,7 @@ static int emac_miiphy_command(u8 addr, u8 reg, int cmd, u16 value)
 	if (cmd == EMAC_STACR_WRITE)
 		memcpy(&sta_reg, &value, 2);	/* put in data */
 
-	out_be32((void *)EMAC_STACR + emac_reg, sta_reg);
+	out_be32((void *)EMAC0_STACR + emac_reg, sta_reg);
 	debug("%s [%d]: sta_reg=%08x\n", __func__, __LINE__, sta_reg);
 
 	/* wait for completion */
@@ -349,7 +349,7 @@ int emac4xx_miiphy_read (char *devname, unsigned char addr, unsigned char reg,
 	if (emac_miiphy_command(addr, reg, EMAC_STACR_READ, 0) != 0)
 		return -1;
 
-	sta_reg = in_be32((void *)EMAC_STACR + emac_reg);
+	sta_reg = in_be32((void *)EMAC0_STACR + emac_reg);
 	*value = sta_reg >> 16;
 
 	return 0;

@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * Daniel Engstrï¿½m, Omicron Ceti AB, daniel@omicron.se
  *
  * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -38,6 +38,10 @@
 #include <net.h>
 #include <ide.h>
 #include <asm/u-boot-i386.h>
+
+#ifdef CONFIG_BITBANGMII
+#include <miiphy.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -351,6 +355,9 @@ void start_i386boot (void)
 	doc_init();
 #endif
 
+#ifdef CONFIG_BITBANGMII
+	bb_miiphy_init();
+#endif
 #if defined(CONFIG_CMD_NET)
 #if defined(CONFIG_NET_MULTI)
 	WATCHDOG_RESET();

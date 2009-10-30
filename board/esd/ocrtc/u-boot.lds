@@ -75,7 +75,6 @@ SECTIONS
 /*    common/env_embedded.o(.text)*/
 
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

@@ -165,7 +165,7 @@ int board_init(void)
 
 	/* arch number of the board */
 #if defined(CONFIG_CPU9G20)
-	gd->bd->bi_arch_number = MACH_TYPE_CPUAT9260;
+	gd->bd->bi_arch_number = MACH_TYPE_CPUAT9G20;
 #elif defined(CONFIG_CPU9260)
 	gd->bd->bi_arch_number = MACH_TYPE_CPUAT9260;
 #endif

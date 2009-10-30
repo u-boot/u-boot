@@ -29,6 +29,7 @@
 #include <asm/gpio.h>
 #include <asm/io.h>
 #include <fdt_support.h>
+#include <asm/errno.h>
 
 #if defined(CONFIG_PCI)
 #include <pci.h>
@@ -273,6 +274,8 @@ void pcie_setup_hoses(int busno)
 			ret = ppc4xx_init_pcie_endport(i);
 		else
 			ret = ppc4xx_init_pcie_rootport(i);
+		if (ret == -ENODEV)
+			continue;
 		if (ret) {
 			printf("PCIE%d: initialization as %s failed\n", i,
 			       is_end_point(i) ? "endpoint" : "root-complex");

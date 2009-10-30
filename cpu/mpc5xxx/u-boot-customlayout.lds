@@ -65,7 +65,6 @@ SECTIONS
     common/env_embedded.o        (.ppcenv)
 
     *(.text)
-    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.eh_frame)

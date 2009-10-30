@@ -54,7 +54,6 @@ SECTIONS
   {
     cpu/mpc8xx/start.o	(.text)
     *(.text)
-    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))

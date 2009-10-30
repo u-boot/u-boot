@@ -34,9 +34,7 @@
  */
 
 #include <common.h>
-#ifdef CONFIG_PCI
 #include <netdev.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -127,9 +125,16 @@ extern void dram_query(void);
 	return 0;
 }
 
-#ifdef CONFIG_PCI
+#ifdef CONFIG_CMD_NET
 int board_eth_init(bd_t *bis)
 {
-	return pci_eth_init(bis);
+	int rc = 0;
+#ifdef CONFIG_SMC91111
+	rc = smc91111_initialize(0, CONFIG_SMC91111_BASE);
+#endif
+#ifdef CONFIG_PCI
+	rc += pci_eth_init(bis);
+#endif
+	return rc;
 }
 #endif

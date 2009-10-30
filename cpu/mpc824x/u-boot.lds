@@ -54,7 +54,6 @@ SECTIONS
   {
     cpu/mpc824x/start.o		(.text)
     *(.text)
-    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.eh_frame)

@@ -35,24 +35,24 @@
 
 #ifndef __ASSEMBLY__
 struct s5pc1xx_timer {
-	unsigned long	tcfg0;
-	unsigned long	tcfg1;
-	unsigned long	tcon;
-	unsigned long	tcntb0;
-	unsigned long	tcmpb0;
-	unsigned long	tcnto0;
-	unsigned long	tcntb1;
-	unsigned long	tcmpb1;
-	unsigned long	tcnto1;
-	unsigned long	tcntb2;
-	unsigned long	tcmpb2;
-	unsigned long	tcnto2;
-	unsigned long	tcntb3;
-	unsigned long	res1;
-	unsigned long	tcnto3;
-	unsigned long	tcntb4;
-	unsigned long	tcnto4;
-	unsigned long	tintcstat;
+	unsigned int	tcfg0;
+	unsigned int	tcfg1;
+	unsigned int	tcon;
+	unsigned int	tcntb0;
+	unsigned int	tcmpb0;
+	unsigned int	tcnto0;
+	unsigned int	tcntb1;
+	unsigned int	tcmpb1;
+	unsigned int	tcnto1;
+	unsigned int	tcntb2;
+	unsigned int	tcmpb2;
+	unsigned int	tcnto2;
+	unsigned int	tcntb3;
+	unsigned int	res1;
+	unsigned int	tcnto3;
+	unsigned int	tcntb4;
+	unsigned int	tcnto4;
+	unsigned int	tintcstat;
 };
 #endif	/* __ASSEMBLY__ */
 

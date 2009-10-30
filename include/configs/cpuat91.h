@@ -189,8 +189,8 @@
 #define CONFIG_SILENT_CONSOLE		1
 
 #define CONFIG_AUTOBOOT_KEYED		1
-#define CONFIG_AUTOBOOT_PROMPT 		\
-	"Press SPACE to abort autoboot in %d seconds\n"
+#define CONFIG_AUTOBOOT_PROMPT		\
+	"Press SPACE to abort autoboot\n"
 #define CONFIG_AUTOBOOT_STOP_STR	" "
 #define CONFIG_AUTOBOOT_DELAY_STR	"d"
 

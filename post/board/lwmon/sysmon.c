@@ -56,8 +56,6 @@ static int sysmon_temp_invalid = 0;
 
 /* #define DEBUG */
 
-#define	RELOC(x) if (x != NULL) x = (void *) ((ulong) (x) + gd->reloc_off)
-
 typedef struct sysmon_s sysmon_t;
 typedef struct sysmon_table_s sysmon_table_t;
 
@@ -159,20 +157,7 @@ int sysmon_init_f (void)
 
 void sysmon_reloc (void)
 {
-	sysmon_t ** l;
-	sysmon_table_t * t;
-
-	for (l = sysmon_list; *l; l++) {
-		RELOC(*l);
-		RELOC((*l)->init);
-		RELOC((*l)->read);
-	}
-
-	for (t = sysmon_table; t < sysmon_table + sysmon_table_size; t ++) {
-		RELOC(t->exec_before);
-		RELOC(t->exec_after);
-		RELOC(t->sysmon);
-	}
+	/* Do nothing for now, sysmon_reloc() is required by the sysmon post */
 }
 
 static char *sysmon_unit_value (sysmon_table_t *s, uint val)

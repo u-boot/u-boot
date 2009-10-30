@@ -192,28 +192,28 @@ void pci_target_init(struct pci_controller * hose )
 	/*--------------------------------------------------------------------------+
 	 * Disable everything
 	 *--------------------------------------------------------------------------*/
-	out32r( PCIX0_PIM0SA, 0 ); /* disable */
-	out32r( PCIX0_PIM1SA, 0 ); /* disable */
-	out32r( PCIX0_PIM2SA, 0 ); /* disable */
-	out32r( PCIX0_EROMBA, 0 ); /* disable expansion rom */
+	out32r( PCIL0_PIM0SA, 0 ); /* disable */
+	out32r( PCIL0_PIM1SA, 0 ); /* disable */
+	out32r( PCIL0_PIM2SA, 0 ); /* disable */
+	out32r( PCIL0_EROMBA, 0 ); /* disable expansion rom */
 
 	/*--------------------------------------------------------------------------+
 	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440 strapping
 	 * options to not support sizes such as 128/256 MB.
 	 *--------------------------------------------------------------------------*/
-	out32r( PCIX0_PIM0LAL, CONFIG_SYS_SDRAM_BASE );
-	out32r( PCIX0_PIM0LAH, 0 );
-	out32r( PCIX0_PIM0SA, ~(gd->ram_size - 1) | 1 );
+	out32r( PCIL0_PIM0LAL, CONFIG_SYS_SDRAM_BASE );
+	out32r( PCIL0_PIM0LAH, 0 );
+	out32r( PCIL0_PIM0SA, ~(gd->ram_size - 1) | 1 );
 
-	out32r( PCIX0_BAR0, 0 );
+	out32r( PCIL0_BAR0, 0 );
 
 	/*--------------------------------------------------------------------------+
 	 * Program the board's subsystem id/vendor id
 	 *--------------------------------------------------------------------------*/
-	out16r( PCIX0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
-	out16r( PCIX0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID );
+	out16r( PCIL0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
+	out16r( PCIL0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID );
 
-	out16r( PCIX0_CMD, in16r(PCIX0_CMD) | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+	out16r( PCIL0_CMD, in16r(PCIL0_CMD) | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
 }
 #endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
@@ -270,21 +270,21 @@ void pci_master_init(struct pci_controller *hose)
 	  |   Use byte reversed out routines to handle endianess.
 	  | Make this region non-prefetchable.
 	  +--------------------------------------------------------------------------*/
-	out32r( PCIX0_POM0SA, 0 ); /* disable */
-	out32r( PCIX0_POM1SA, 0 ); /* disable */
-	out32r( PCIX0_POM2SA, 0 ); /* disable */
+	out32r( PCIL0_POM0SA, 0 ); /* disable */
+	out32r( PCIL0_POM1SA, 0 ); /* disable */
+	out32r( PCIL0_POM2SA, 0 ); /* disable */
 
-	out32r(PCIX0_POM0LAL, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIX0_POM0LAH, 0x00000003);	/* PMM0 Local Address */
-	out32r(PCIX0_POM0PCIAL, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 PCI Low Address */
-	out32r(PCIX0_POM0PCIAH, 0x00000000);	/* PMM0 PCI High Address */
-	out32r(PCIX0_POM0SA, ~(0x10000000 - 1) | 1);	/* 256MB + enable region */
+	out32r(PCIL0_POM0LAL, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
+	out32r(PCIL0_POM0LAH, 0x00000003);	/* PMM0 Local Address */
+	out32r(PCIL0_POM0PCIAL, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 PCI Low Address */
+	out32r(PCIL0_POM0PCIAH, 0x00000000);	/* PMM0 PCI High Address */
+	out32r(PCIL0_POM0SA, ~(0x10000000 - 1) | 1);	/* 256MB + enable region */
 
-	out32r(PCIX0_POM1LAL, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 Local Address */
-	out32r(PCIX0_POM1LAH, 0x00000003);	/* PMM0 Local Address */
-	out32r(PCIX0_POM1PCIAL, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 PCI Low Address */
-	out32r(PCIX0_POM1PCIAH, 0x00000000);	/* PMM0 PCI High Address */
-	out32r(PCIX0_POM1SA, ~(0x10000000 - 1) | 1);	/* 256MB + enable region */
+	out32r(PCIL0_POM1LAL, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 Local Address */
+	out32r(PCIL0_POM1LAH, 0x00000003);	/* PMM0 Local Address */
+	out32r(PCIL0_POM1PCIAL, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 PCI Low Address */
+	out32r(PCIL0_POM1PCIAH, 0x00000000);	/* PMM0 PCI High Address */
+	out32r(PCIL0_POM1SA, ~(0x10000000 - 1) | 1);	/* 256MB + enable region */
 }
 #endif				/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT) */
 

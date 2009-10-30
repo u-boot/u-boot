@@ -50,6 +50,10 @@
 #include <onenand_uboot.h>
 #include <mmc.h>
 
+#ifdef CONFIG_BITBANGMII
+#include <miiphy.h>
+#endif
+
 #ifdef CONFIG_DRIVER_SMC91111
 #include "../drivers/net/smc91111.h"
 #endif
@@ -417,6 +421,9 @@ extern void davinci_eth_set_mac_addr (const u_int8_t *addr);
 	mmc_initialize (gd->bd);
 #endif
 
+#ifdef CONFIG_BITBANGMII
+	bb_miiphy_init();
+#endif
 #if defined(CONFIG_CMD_NET)
 #if defined(CONFIG_NET_MULTI)
 	puts ("Net:   ");

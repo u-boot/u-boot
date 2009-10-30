@@ -26,6 +26,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <asm/io.h>
 #include "bf533-stamp.h"
 
@@ -282,4 +283,11 @@ void __led_toggle(led_id_t mask)
 	set_leds(mask, STATUS_LED_BLINKING);
 }
 
+#endif
+
+#ifdef CONFIG_SMC91111
+int board_eth_init(bd_t *bis)
+{
+	return smc91111_initialize(0, CONFIG_SMC91111_BASE);
+}
 #endif

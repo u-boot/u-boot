@@ -44,7 +44,7 @@ volatile unsigned int boot_flash_env_addr;
 struct gpmc *gpmc_cfg;
 
 #if defined(CONFIG_CMD_NAND)
-static u32 gpmc_m_nand[GPMC_MAX_REG] = {
+static const u32 gpmc_m_nand[GPMC_MAX_REG] = {
 	M_NAND_GPMC_CONFIG1,
 	M_NAND_GPMC_CONFIG2,
 	M_NAND_GPMC_CONFIG3,
@@ -62,7 +62,7 @@ static u32 gpmc_m_nand[GPMC_MAX_REG] = {
 #endif
 
 #if defined(CONFIG_CMD_ONENAND)
-static u32 gpmc_onenand[GPMC_MAX_REG] = {
+static const u32 gpmc_onenand[GPMC_MAX_REG] = {
 	ONENAND_GPMC_CONFIG1,
 	ONENAND_GPMC_CONFIG2,
 	ONENAND_GPMC_CONFIG3,
@@ -92,7 +92,7 @@ void make_cs1_contiguous(void)
 	u32 size, a_add_low, a_add_high;
 
 	size = get_sdr_cs_size(CS0);
-	size /= SZ_32M;			/* find size to offset CS1 */
+	size >>= 25;	/* divide by 32 MiB to find size to offset CS1 */
 	a_add_high = (size & 3) << 8;	/* set up low field */
 	a_add_low = (size & 0x3C) >> 2;	/* set up high field */
 	writel((a_add_high | a_add_low), &sdrc_base->cs_cfg);
@@ -192,7 +192,7 @@ void do_sdrc_init(u32 cs, u32 early)
 		writel(0, &sdrc_base->cs[cs].mcfg);
 }
 
-void enable_gpmc_cs_config(u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
+void enable_gpmc_cs_config(const u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
 			u32 size)
 {
 	writel(0, &cs->config7);
@@ -218,12 +218,16 @@ void enable_gpmc_cs_config(u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
 void gpmc_init(void)
 {
 	/* putting a blanket check on GPMC based on ZeBu for now */
-	u32 *gpmc_config = NULL;
 	gpmc_cfg = (struct gpmc *)GPMC_BASE;
+#if defined(CONFIG_CMD_NAND) || defined(CONFIG_CMD_ONENAND)
+	const u32 *gpmc_config = NULL;
 	u32 base = 0;
 	u32 size = 0;
+#if defined(CONFIG_ENV_IS_IN_NAND) || defined(CONFIG_ENV_IS_IN_ONENAND)
 	u32 f_off = CONFIG_SYS_MONITOR_LEN;
 	u32 f_sec = 0;
+#endif
+#endif
 	u32 config = 0;
 
 	/* global settings */
@@ -249,7 +253,7 @@ void gpmc_init(void)
 	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[0], base, size);
 #if defined(CONFIG_ENV_IS_IN_NAND)
 	f_off = SMNAND_ENV_OFFSET;
-	f_sec = SZ_128K;
+	f_sec = (128 << 10);	/* 128 KiB */
 	/* env setup */
 	boot_flash_base = base;
 	boot_flash_off = f_off;
@@ -265,7 +269,7 @@ void gpmc_init(void)
 	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[0], base, size);
 #if defined(CONFIG_ENV_IS_IN_ONENAND)
 	f_off = ONENAND_ENV_OFFSET;
-	f_sec = SZ_128K;
+	f_sec = (128 << 10);	/* 128 KiB */
 	/* env setup */
 	boot_flash_base = base;
 	boot_flash_off = f_off;

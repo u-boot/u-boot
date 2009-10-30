@@ -28,6 +28,10 @@
 #include <net.h>
 #include <environment.h>
 
+#ifdef CONFIG_BITBANGMII
+#include <miiphy.h>
+#endif
+
 extern void malloc_bin_reloc (void);
 extern int cpu_init(void);
 extern int board_init(void);
@@ -178,6 +182,9 @@ void sh_generic_init(void)
 #endif /* CONFIG_WATCHDOG*/
 
 
+#ifdef CONFIG_BITBANGMII
+	bb_miiphy_init();
+#endif
 #if defined(CONFIG_CMD_NET)
 	{
 		char *s;

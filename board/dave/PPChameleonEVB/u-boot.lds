@@ -73,7 +73,6 @@ SECTIONS
     lib_generic/zlib.o		(.text)
 
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

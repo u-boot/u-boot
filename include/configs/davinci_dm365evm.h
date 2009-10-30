@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2009 Texas Instruments Incorporated
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -76,6 +77,7 @@
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define CONFIG_SYS_NAND_PAGE_2K
+#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 
 #define CONFIG_SYS_NAND_LARGEPAGE
 #define CONFIG_SYS_NAND_BASE_LIST	{ 0x02000000, }

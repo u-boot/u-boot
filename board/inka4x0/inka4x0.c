@@ -177,16 +177,6 @@ void flash_preinit(void)
 	clrbits_be32(&lpb->cs0_cfg, 0x1); /* clear RO */
 }
 
-int misc_init_r (void) {
-	extern int inkadiag_init_r (void);
-
-	/*
-	 * The command table used for the subcommands of inkadiag
-	 * needs to be relocated manually.
-	 */
-	return inkadiag_init_r();
-}
-
 int misc_init_f (void)
 {
 	volatile struct mpc5xxx_gpio	*gpio    =

@@ -24,6 +24,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <asm/arch/pxa-regs.h>
 #include <asm/mach-types.h>
 
@@ -182,3 +183,14 @@ void show_boot_progress (int status)
 
 	return;
 }
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_SMC91111
+	rc = smc91111_initialize(0, CONFIG_SMC91111_BASE);
+#endif
+	return rc;
+}
+#endif

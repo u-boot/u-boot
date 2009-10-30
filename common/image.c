@@ -513,7 +513,7 @@ char *get_table_entry_name (table_entry_t *table, char *msg, int id)
 {
 	for (; table->id >= 0; ++table) {
 		if (table->id == id)
-#ifdef USE_HOSTCC
+#if defined(USE_HOSTCC) || defined(CONFIG_RELOC_FIXUP_WORKS)
 			return table->lname;
 #else
 			return table->lname + gd->reloc_off;
@@ -578,7 +578,11 @@ int get_table_entry_id (table_entry_t *table,
 	fprintf (stderr, "\n");
 #else
 	for (t = table; t->id >= 0; ++t) {
+#ifdef CONFIG_RELOC_FIXUP_WORKS
+		if (t->sname && strcmp(t->sname, name) == 0)
+#else
 		if (t->sname && strcmp(t->sname + gd->reloc_off, name) == 0)
+#endif
 			return (t->id);
 	}
 	debug ("Invalid %s Type: %s\n", table_name, name);

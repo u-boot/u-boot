@@ -83,6 +83,10 @@
 #include <asm/mp.h>
 #endif
 
+#ifdef CONFIG_BITBANGMII
+#include <miiphy.h>
+#endif
+
 #ifdef CONFIG_SYS_UPDATE_FLASH_SIZE
 extern int update_flash_size (int flash_size);
 #endif
@@ -627,13 +631,8 @@ void board_init_f (ulong bootflag)
  */
 void board_init_r (gd_t *id, ulong dest_addr)
 {
-	cmd_tbl_t *cmdtp;
 	char *s;
 	bd_t *bd;
-	extern void malloc_bin_reloc (void);
-#ifndef CONFIG_ENV_IS_NOWHERE
-	extern char * env_name_spec;
-#endif
 	ulong malloc_start;
 
 #ifndef CONFIG_SYS_NO_FLASH
@@ -646,18 +645,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
 	/* The Malloc area is immediately below the monitor copy in DRAM */
-#if defined(CONFIG_RELOC_FIXUP_WORKS)
-	gd->reloc_off = 0;
 	malloc_start = dest_addr - TOTAL_MALLOC_LEN;
-#else
-	gd->reloc_off = dest_addr - CONFIG_SYS_MONITOR_BASE;
-	malloc_start = CONFIG_SYS_MONITOR_BASE + gd->reloc_off -
-			TOTAL_MALLOC_LEN;
-#endif
-
-#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
-	gd->cpu += gd->reloc_off;
-#endif
 
 #ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
@@ -682,38 +670,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	monitor_flash_len = (ulong)&__init_end - dest_addr;
 
-	/*
-	 * We have to relocate the command table manually
-	 */
-	for (cmdtp = &__u_boot_cmd_start; cmdtp !=  &__u_boot_cmd_end; cmdtp++) {
-		ulong addr;
-		addr = (ulong) (cmdtp->cmd) + gd->reloc_off;
-#if 0
-		printf ("Command \"%s\": 0x%08lx => 0x%08lx\n",
-				cmdtp->name, (ulong) (cmdtp->cmd), addr);
-#endif
-		cmdtp->cmd =
-			(int (*)(struct cmd_tbl_s *, int, int, char *[]))addr;
-
-		addr = (ulong)(cmdtp->name) + gd->reloc_off;
-		cmdtp->name = (char *)addr;
-
-		if (cmdtp->usage) {
-			addr = (ulong)(cmdtp->usage) + gd->reloc_off;
-			cmdtp->usage = (char *)addr;
-		}
-#ifdef	CONFIG_SYS_LONGHELP
-		if (cmdtp->help) {
-			addr = (ulong)(cmdtp->help) + gd->reloc_off;
-			cmdtp->help = (char *)addr;
-		}
-#endif
-	}
-	/* there are some other pointer constants we must deal with */
-#ifndef CONFIG_ENV_IS_NOWHERE
-	env_name_spec += gd->reloc_off;
-#endif
-
 	WATCHDOG_RESET ();
 
 #ifdef CONFIG_LOGBUFFER
@@ -721,7 +677,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 #ifdef CONFIG_POST
 	post_output_backlog ();
-	post_reloc ();
 #endif
 
 	WATCHDOG_RESET();
@@ -752,7 +707,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	asm ("sync ; isync");
 
 	mem_malloc_init (malloc_start, TOTAL_MALLOC_LEN);
-	malloc_bin_reloc ();
 
 #if !defined(CONFIG_SYS_NO_FLASH)
 	puts ("FLASH: ");
@@ -992,6 +946,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	doc_init ();
 #endif
 
+#ifdef CONFIG_BITBANGMII
+	bb_miiphy_init();
+#endif
 #if defined(CONFIG_CMD_NET)
 #if defined(CONFIG_NET_MULTI)
 	WATCHDOG_RESET ();

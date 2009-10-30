@@ -93,6 +93,10 @@
 # define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE|FCC_PSMR_LPB)
 
 # define MDIO_PORT		0		/* Port A */
+# define MDIO_DECLARE		volatile ioport_t *iop = ioport_addr ( \
+					(immap_t *) CONFIG_SYS_IMMR, MDIO_PORT )
+# define MDC_DECLARE		MDIO_DECLARE
+
 # define MDIO_DATA_PINMASK	0x00040000	/* Pin 13 */
 # define MDIO_CLCK_PINMASK	0x00080000	/* Pin 12 */
 
@@ -110,6 +114,10 @@
 # define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE|FCC_PSMR_LPB)
 
 # define MDIO_PORT		0		/* Port A */
+# define MDIO_DECLARE		volatile ioport_t *iop = ioport_addr ( \
+					(immap_t *) CONFIG_SYS_IMMR, MDIO_PORT )
+# define MDC_DECLARE		MDIO_DECLARE
+
 # define MDIO_DATA_PINMASK	0x00000040	/* Pin 25 */
 # define MDIO_CLCK_PINMASK	0x00000080	/* Pin 24 */
 
@@ -127,6 +135,10 @@
 # define CONFIG_SYS_FCC_PSMR		(FCC_PSMR_FDE|FCC_PSMR_LPB)
 
 # define MDIO_PORT		0		/* Port A */
+# define MDIO_DECLARE		volatile ioport_t *iop = ioport_addr ( \
+					(immap_t *) CONFIG_SYS_IMMR, MDIO_PORT )
+# define MDC_DECLARE		MDIO_DECLARE
+
 # define MDIO_DATA_PINMASK	0x00000100	/* Pin 23 */
 # define MDIO_CLCK_PINMASK	0x00000200	/* Pin 22 */
 

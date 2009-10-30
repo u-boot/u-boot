@@ -132,7 +132,8 @@
 #define __io(a)			((void __iomem *)(PCI_IO_VADDR + (a)))
 #define __mem_isa(a)		((a) + PCI_MEMORY_VADDR)
 
-#define CONFIG_DRIVER_SMC91111	/* Using SMC91c111*/
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC91111	/* Using SMC91c111*/
 #define CONFIG_SMC91111_BASE	0x34000300
 #undef  CONFIG_SMC91111_EXT_PHY	/* Internal PHY */
 #define CONFIG_SMC_USE_32_BIT

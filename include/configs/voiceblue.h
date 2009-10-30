@@ -94,7 +94,8 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_DRIVER_SMC91111
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC91111
 #define CONFIG_SMC91111_BASE	0x08000300
 
 #define CONFIG_HARD_I2C

@@ -400,8 +400,10 @@ static int kwgbe_init(struct eth_device *dev)
 {
 	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
 	struct kwgbe_registers *regs = dkwgbe->regs;
+#if (defined (CONFIG_MII) || defined (CONFIG_CMD_MII)) \
+	 && defined (CONFIG_SYS_FAULT_ECHO_LINK_DOWN)
 	int i;
-
+#endif
 	/* setup RX rings */
 	kwgbe_init_rx_desc_ring(dkwgbe);
 

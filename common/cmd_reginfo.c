@@ -25,8 +25,8 @@
 #include <command.h>
 #if defined(CONFIG_8xx)
 #include <mpc8xx.h>
-#elif defined (CONFIG_405GP) || defined(CONFIG_405EP)
-#include <asm/processor.h>
+#elif defined (CONFIG_4xx)
+extern void ppc4xx_reginfo(void);
 #elif defined (CONFIG_5xx)
 #include <mpc5xx.h>
 #elif defined (CONFIG_MPC5200)
@@ -90,158 +90,8 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * May be some CPM info here?
 	 */
 
-#elif defined (CONFIG_405GP)
-	printf ("\n405GP registers; MSR=%08x\n",mfmsr());
-	printf ("\nUniversal Interrupt Controller Regs\n"
-	    "UIC0SR    UIC0ER    UIC0CR    UIC0PR    UIC0TR    UIC0MSR   UIC0VR    UIC0VCR"
-	    "\n"
-	    "%08x %08x %08x %08x %08x %08x %08x %08x\n",
-	mfdcr(UIC0SR),
-	mfdcr(UIC0ER),
-	mfdcr(UIC0CR),
-	mfdcr(UIC0PR),
-	mfdcr(UIC0TR),
-	mfdcr(UIC0MSR),
-	mfdcr(UIC0VR),
-	mfdcr(UIC0VCR));
-
-	puts ("\nMemory (SDRAM) Configuration\n"
-	    "besra    besrsa   besrb    besrsb   bear     mcopt1   rtr      pmit\n");
-
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_BESR0);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_BESRS0);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_BESR1);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_BESRS1);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_BEAR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_CFG);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_RTR);		printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_PMIT);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-
-	puts ("\n"
-	    "mb0cf    mb1cf    mb2cf    mb3cf    sdtr1    ecccf    eccerr\n");
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_B0CR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_B1CR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_B2CR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_B3CR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_TR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_ECCCFG);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_ECCESR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-
-	printf ("\n\n"
-	    "DMA Channels\n"
-	    "DMASR    DMASGC   DMAADR\n"
-	    "%08x %08x %08x\n"
-	    "dmacr_0  dmact_0  dmada_0  dmasa_0  dmasb_0\n"
-	    "%08x %08x %08x %08x %08x\n"
-	    "dmacr_1  dmact_1  dmada_1  dmasa_1  dmasb_1\n"
-	    "%08x %08x %08x %08x %08x\n",
-	mfdcr(DMASR),  mfdcr(DMASGC),mfdcr(DMAADR),
-	mfdcr(DMACR0), mfdcr(DMACT0),mfdcr(DMADA0), mfdcr(DMASA0), mfdcr(DMASB0),
-	mfdcr(DMACR1), mfdcr(DMACT1),mfdcr(DMADA1), mfdcr(DMASA1), mfdcr(DMASB1));
-
-	printf (
-	    "dmacr_2  dmact_2  dmada_2  dmasa_2  dmasb_2\n"	"%08x %08x %08x %08x %08x\n"
-	    "dmacr_3  dmact_3  dmada_3  dmasa_3  dmasb_3\n"	"%08x %08x %08x %08x %08x\n",
-	mfdcr(DMACR2), mfdcr(DMACT2),mfdcr(DMADA2), mfdcr(DMASA2), mfdcr(DMASB2),
-	mfdcr(DMACR3), mfdcr(DMACT3),mfdcr(DMADA3), mfdcr(DMASA3), mfdcr(DMASB3) );
-
-	puts ("\n"
-	    "External Bus\n"
-	    "PBEAR    PBESR0   PBESR1   EBC0_CFG\n");
-	mtdcr(EBC0_CFGADDR,PBEAR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PBESR0);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PBESR1);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,EBC0_CFG);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-
-	puts ("\n"
-	    "PB0CR    PB0AP    PB1CR    PB1AP    PB2CR    PB2AP    PB3CR    PB3AP\n");
-	mtdcr(EBC0_CFGADDR,PB0CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB0AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB1CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB1AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB2CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB2AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB3CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB3AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-
-	puts ("\n"
-	    "PB4CR    PB4AP    PB5CR    bp5ap    PB6CR    PB6AP    PB7CR    PB7AP\n");
-	mtdcr(EBC0_CFGADDR,PB4CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB4AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB5CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB5AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB6CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB6AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB7CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB7AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-
-	puts ("\n\n");
-
-#elif defined(CONFIG_405EP)
-	printf ("\n405EP registers; MSR=%08x\n",mfmsr());
-	printf ("\nUniversal Interrupt Controller Regs\n"
-	    "UIC0SR    UIC0ER    UIC0CR    UIC0PR    UIC0TR    UIC0MSR   UIC0VR    UIC0VCR"
-	    "\n"
-	    "%08x %08x %08x %08x %08x %08x %08x %08x\n",
-	mfdcr(UIC0SR),
-	mfdcr(UIC0ER),
-	mfdcr(UIC0CR),
-	mfdcr(UIC0PR),
-	mfdcr(UIC0TR),
-	mfdcr(UIC0MSR),
-	mfdcr(UIC0VR),
-	mfdcr(UIC0VCR));
-
-	puts ("\nMemory (SDRAM) Configuration\n"
-	    "mcopt1   rtr      pmit     mb0cf    mb1cf    sdtr1\n");
-
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_CFG);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_RTR);		printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_PMIT);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_B0CR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_B1CR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-	mtdcr(SDRAM0_CFGADDR,SDRAM0_TR);	printf ("%08x ", mfdcr(SDRAM0_CFGDATA));
-
-	printf ("\n\n"
-	    "DMA Channels\n"
-	    "DMASR    DMASGC   DMAADR\n"			"%08x %08x %08x\n"
-	    "dmacr_0  dmact_0  dmada_0  dmasa_0  dmasb_0\n"	"%08x %08x %08x %08x %08x\n"
-	    "dmacr_1  dmact_1  dmada_1  dmasa_1  dmasb_1\n"	"%08x %08x %08x %08x %08x\n",
-	mfdcr(DMASR),  mfdcr(DMASGC),mfdcr(DMAADR),
-	mfdcr(DMACR0), mfdcr(DMACT0),mfdcr(DMADA0), mfdcr(DMASA0), mfdcr(DMASB0),
-	mfdcr(DMACR1), mfdcr(DMACT1),mfdcr(DMADA1), mfdcr(DMASA1), mfdcr(DMASB1));
-
-	printf (
-	    "dmacr_2  dmact_2  dmada_2  dmasa_2  dmasb_2\n"	"%08x %08x %08x %08x %08x\n"
-	    "dmacr_3  dmact_3  dmada_3  dmasa_3  dmasb_3\n"	"%08x %08x %08x %08x %08x\n",
-	mfdcr(DMACR2), mfdcr(DMACT2),mfdcr(DMADA2), mfdcr(DMASA2), mfdcr(DMASB2),
-	mfdcr(DMACR3), mfdcr(DMACT3),mfdcr(DMADA3), mfdcr(DMASA3), mfdcr(DMASB3) );
-
-	puts ("\n"
-	    "External Bus\n"
-	    "PBEAR    PBESR0   PBESR1   EBC0_CFG\n");
-	mtdcr(EBC0_CFGADDR,PBEAR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PBESR0);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PBESR1);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,EBC0_CFG);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-
-	puts ("\n"
-	    "PB0CR    PB0AP    PB1CR    PB1AP    PB2CR    PB2AP    PB3CR    PB3AP\n");
-	mtdcr(EBC0_CFGADDR,PB0CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB0AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB1CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB1AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB2CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB2AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB3CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB3AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-
-	puts ("\n"
-	    "PB4CR    PB4AP\n");
-	mtdcr(EBC0_CFGADDR,PB4CR);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-	mtdcr(EBC0_CFGADDR,PB4AP);	printf ("%08x ", mfdcr(EBC0_CFGDATA));
-
-	puts ("\n\n");
+#elif defined (CONFIG_4xx)
+	ppc4xx_reginfo();
 #elif defined(CONFIG_5xx)
 
 	volatile immap_t	*immap  = (immap_t *)CONFIG_SYS_IMMR;

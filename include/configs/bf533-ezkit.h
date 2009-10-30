@@ -65,12 +65,14 @@
  * Network Settings
  */
 #define ADI_CMDS_NETWORK	1
-#define CONFIG_DRIVER_SMC91111	1
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC91111	1
 #define CONFIG_SMC91111_BASE	0x20310300
 #define SMC91111_EEPROM_INIT() \
 	do { \
-		*pFIO_DIR |= PF1; \
-		*pFIO_FLAG_S = PF1; \
+		bfin_write_FIO_DIR(bfin_read_FIO_DIR() | PF1 | PF0); \
+		bfin_write_FIO_FLAG_C(PF1); \
+		bfin_write_FIO_FLAG_S(PF0); \
 		SSYNC(); \
 	} while (0)
 #define CONFIG_HOSTNAME		bf533-ezkit
@@ -85,7 +87,7 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS	3
 #define CONFIG_SYS_MAX_FLASH_SECT	40
 #define CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_ADDR		0x20020000
+#define CONFIG_ENV_ADDR		0x20030000
 #define CONFIG_ENV_SECT_SIZE	0x10000
 #define FLASH_TOT_SECT		40
 

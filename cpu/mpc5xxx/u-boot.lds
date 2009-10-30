@@ -54,7 +54,6 @@ SECTIONS
   {
     cpu/mpc5xxx/start.o	(.text)
     *(.text)
-    *(.fixup)
     *(.got1)
     . = ALIGN(16);
     *(.eh_frame)

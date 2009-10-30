@@ -30,7 +30,6 @@
 extern int Spartan2_load( Xilinx_desc *desc, void *image, size_t size );
 extern int Spartan2_dump( Xilinx_desc *desc, void *buf, size_t bsize );
 extern int Spartan2_info( Xilinx_desc *desc );
-extern int Spartan2_reloc( Xilinx_desc *desc, ulong reloc_off );
 
 /* Slave Parallel Implementation function table */
 typedef struct {
@@ -47,7 +46,6 @@ typedef struct {
 	Xilinx_busy_fn	busy;
 	Xilinx_abort_fn	abort;
 	Xilinx_post_fn	post;
-	int		relocated;
 } Xilinx_Spartan2_Slave_Parallel_fns;
 
 /* Slave Serial Implementation function table */
@@ -59,7 +57,6 @@ typedef struct {
 	Xilinx_done_fn	done;
 	Xilinx_wr_fn	wr;
 	Xilinx_post_fn	post;
-	int		relocated;
 } Xilinx_Spartan2_Slave_Serial_fns;
 
 /* Device Image Sizes

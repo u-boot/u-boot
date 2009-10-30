@@ -334,7 +334,7 @@ void get_sys_info (sys_info_t *sysInfo)
 	sysInfo->pllFbkDiv = temp ? temp : 32;
 	lfdiv = reg & PLLD_LFBDV_MASK;
 
-	mfcpr(CPR0_OPBD, reg);
+	mfcpr(CPR0_OPBD0, reg);
 	temp = (reg & OPBDDV_MASK) >> 24;
 	sysInfo->pllOpbDiv = temp ? temp : 4;
 
@@ -342,7 +342,7 @@ void get_sys_info (sys_info_t *sysInfo)
 	temp = (reg & PERDV_MASK) >> 24;
 	sysInfo->pllExtBusDiv = temp ? temp : 8;
 
-	mfcpr(CPR0_PRIMBD, reg);
+	mfcpr(CPR0_PRIMBD0, reg);
 	temp = (reg & PRBDV_MASK) >> 24;
 	prbdv0 = temp ? temp : 8;
 
@@ -1050,7 +1050,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	/*
 	 * Determine OPBDV0
 	 */
-	mfcpr(CPR0_OPBD, tmp);
+	mfcpr(CPR0_OPBD0, tmp);
 	tmp = (tmp >> 24) & 0x03;
 	sysInfo->pllOpbDiv = (tmp == 0) ? 4 : tmp;
 

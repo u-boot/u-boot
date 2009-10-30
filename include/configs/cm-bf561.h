@@ -61,7 +61,8 @@
  */
 #define ADI_CMDS_NETWORK	1
 /* The next 2 lines are for use with DEV-BF5xx */
-#define CONFIG_DRIVER_SMC91111	1
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC91111	1
 #define CONFIG_SMC91111_BASE	0x28000300
 /* The next 3 lines are for use with EXT-BF5xx-USB-ETH2 */
 /* #define CONFIG_DRIVER_SMC911X 1 */

@@ -201,11 +201,11 @@ static void mv88e61xx_port_vlan_config(struct mv88e61xx_config *swconfig,
  */
 static int mv88e61xx_busychk(char *name)
 {
-	u32 reg = 0;
+	u16 reg = 0;
 	u32 timeout = MV88E61XX_PHY_TIMEOUT;
 	do {
 		RD_PHY(name, MV88E61XX_GLB2REG_DEVADR,
-		       MV88E61XX_PHY_CMD, (u16 *) & reg);
+		       MV88E61XX_PHY_CMD, &reg);
 		if (timeout-- == 0) {
 			printf("SMI busy timeout\n");
 			return -1;

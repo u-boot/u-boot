@@ -239,22 +239,22 @@ void pci_target_init(struct pci_controller *hose)
 	 *   Use byte reversed out routines to handle endianess.
 	 * Make this region non-prefetchable.
 	 */
-	out32r(PCIX0_PMM0MA, 0x00000000); 	/* disabled b4 setting */
-	out32r(PCIX0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);
-	out32r(PCIX0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE);
-	out32r(PCIX0_PMM0PCIHA, 0x00000000);
-	out32r(PCIX0_PMM0MA, 0xE0000001); /* 512M, no prefetch, enable region */
+	out32r(PCIL0_PMM0MA, 0x00000000); 	/* disabled b4 setting */
+	out32r(PCIL0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);
+	out32r(PCIL0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE);
+	out32r(PCIL0_PMM0PCIHA, 0x00000000);
+	out32r(PCIL0_PMM0MA, 0xE0000001); /* 512M, no prefetch, enable region */
 
-	out32r(PCIX0_PMM1MA, 0x00000000);	/* disabled b4 setting */
-	out32r(PCIX0_PMM1LA, CONFIG_SYS_PCI_MEMBASE2);
-	out32r(PCIX0_PMM1PCILA, CONFIG_SYS_PCI_MEMBASE2);
-	out32r(PCIX0_PMM1PCIHA, 0x00000000);
-	out32r(PCIX0_PMM1MA, 0xE0000001); /* 512M, no prefetch, enable region */
+	out32r(PCIL0_PMM1MA, 0x00000000);	/* disabled b4 setting */
+	out32r(PCIL0_PMM1LA, CONFIG_SYS_PCI_MEMBASE2);
+	out32r(PCIL0_PMM1PCILA, CONFIG_SYS_PCI_MEMBASE2);
+	out32r(PCIL0_PMM1PCIHA, 0x00000000);
+	out32r(PCIL0_PMM1MA, 0xE0000001); /* 512M, no prefetch, enable region */
 
-	out32r(PCIX0_PTM1MS, 0x00000001);
-	out32r(PCIX0_PTM1LA, 0);
-	out32r(PCIX0_PTM2MS, 0);
-	out32r(PCIX0_PTM2LA, 0);
+	out32r(PCIL0_PTM1MS, 0x00000001);
+	out32r(PCIL0_PTM1LA, 0);
+	out32r(PCIL0_PTM2MS, 0);
+	out32r(PCIL0_PTM2LA, 0);
 
 	/*
 	 * Set up Configuration registers

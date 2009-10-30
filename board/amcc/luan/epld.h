@@ -8,8 +8,8 @@
 #define EPLD0_FLASH_SRAM_SEL_N	0x01	/* 0 SRAM at mem top, 1 small flash at mem top */
 
 #define EPLD1_CLK_CNTL0		0x80	/* FSEL-FB1 of MPC9772 */
-#define EPLD1_PCIX0_CNTL1	0x40	/* S*0 of 9531 */
-#define EPLD1_PCIX0_CNTL2	0x20	/* S*1 of 9531 */
+#define EPLD1_PCIL0_CNTL1	0x40	/* S*0 of 9531 */
+#define EPLD1_PCIL0_CNTL2	0x20	/* S*1 of 9531 */
 #define EPLD1_CLK_CNTL3		0x10	/* FSEL-B1 of MPC9772 */
 #define EPLD1_CLK_CNTL4		0x08	/* FSEL-B0 of MPC9772 */
 #define EPLD1_MASTER_CLOCK6	0x04	/* clock source select 6 */
@@ -29,25 +29,25 @@
 #define EPLD3_STATUS_LED2	0x02	/* status LED 2 (1 = LED on) */
 #define EPLD3_STATUS_LED1	0x01	/* status LED 1 (1 = LED on) */
 
-#define EPLD4_PCIX0_VTH1	0x80	/* PCI-X 0 VTH1 status */
-#define EPLD4_PCIX0_VTH2	0x40	/* PCI-X 0 VTH2 status */
-#define EPLD4_PCIX0_VTH3	0x20	/* PCI-X 0 VTH3 status */
-#define EPLD4_PCIX0_VTH4	0x10	/* PCI-X 0 VTH4 status */
+#define EPLD4_PCIL0_VTH1	0x80	/* PCI-X 0 VTH1 status */
+#define EPLD4_PCIL0_VTH2	0x40	/* PCI-X 0 VTH2 status */
+#define EPLD4_PCIL0_VTH3	0x20	/* PCI-X 0 VTH3 status */
+#define EPLD4_PCIL0_VTH4	0x10	/* PCI-X 0 VTH4 status */
 #define EPLD4_PCIX1_VTH1	0x08	/* PCI-X 1 VTH1 status */
 #define EPLD4_PCIX1_VTH2	0x04	/* PCI-X 1 VTH2 status */
 #define EPLD4_PCIX1_VTH3	0x02	/* PCI-X 1 VTH3 status */
 #define EPLD4_PCIX1_VTH4	0x01	/* PCI-X 1 VTH4 status */
 
-#define EPLD5_PCIX0_INT0	0x80	/* PCIX0 INT0 status, write 0 to reset */
-#define EPLD5_PCIX0_INT1	0x40	/* PCIX0 INT1 status, write 0 to reset */
-#define EPLD5_PCIX0_INT2	0x20	/* PCIX0 INT2 status, write 0 to reset */
-#define EPLD5_PCIX0_INT3	0x10	/* PCIX0 INT3 status, write 0 to reset */
+#define EPLD5_PCIL0_INT0	0x80	/* PCIX0 INT0 status, write 0 to reset */
+#define EPLD5_PCIL0_INT1	0x40	/* PCIX0 INT1 status, write 0 to reset */
+#define EPLD5_PCIL0_INT2	0x20	/* PCIX0 INT2 status, write 0 to reset */
+#define EPLD5_PCIL0_INT3	0x10	/* PCIX0 INT3 status, write 0 to reset */
 #define EPLD5_PCIX1_INT0	0x08	/* PCIX1 INT0 status, write 0 to reset */
 #define EPLD5_PCIX1_INT1	0x04	/* PCIX1 INT1 status, write 0 to reset */
 #define EPLD5_PCIX1_INT2	0x02	/* PCIX1 INT2 status, write 0 to reset */
 #define EPLD5_PCIX1_INT3	0x01	/* PCIX1 INT3 status, write 0 to reset */
 
-#define EPLD6_PCIX0_RESET_CTL	0x80	/* 0=enable slot reset, 1=disable slot reset */
+#define EPLD6_PCIL0_RESET_CTL	0x80	/* 0=enable slot reset, 1=disable slot reset */
 #define EPLD6_PCIX1_RESET_CTL	0x40	/* 0=enable slot reset, 1=disable slot reset */
 #define EPLD6_ETH_INT_MODE	0x20	/* 0=IRQ5 recv's external eth int */
 #define EPLD6_PCIX2_RESET_CTL	0x10	/* 0=enable slot reset, 1=disable slot reset */

@@ -442,9 +442,9 @@ int pmc440_init_fpga(void)
 {
 	char *s;
 
-	debug("%s:%d: Initialize FPGA interface (relocation offset = 0x%.8lx)\n",
-	      __FUNCTION__, __LINE__, gd->reloc_off);
-	fpga_init(gd->reloc_off);
+	debug("%s:%d: Initialize FPGA interface\n",
+	      __FUNCTION__, __LINE__);
+	fpga_init();
 
 	fpga_serialslave_init ();
 	debug("%s:%d: Adding fpga 0\n", __FUNCTION__, __LINE__);

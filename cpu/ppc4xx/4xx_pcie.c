@@ -30,6 +30,7 @@
 #include <ppc4xx.h>
 #include <asm/processor.h>
 #include <asm-ppc/io.h>
+#include <asm/errno.h>
 
 #if (defined(CONFIG_440SPE) || defined(CONFIG_405EX) ||	\
     defined(CONFIG_460EX) || defined(CONFIG_460GT)) && \
@@ -874,7 +875,7 @@ int ppc4xx_init_pcie_port(int port, int rootport)
 	val = SDR_READ(SDRN_PESDR_LOOP(port));
 	if (!(val & 0x00001000)) {
 		printf("PCIE%d: link is not up.\n", port);
-		return -1;
+		return -ENODEV;
 	}
 
 	/*

@@ -29,9 +29,11 @@
 
 #include <common.h>
 #include <exports.h>
+/* the smc91111.h gets base addr through eth_device' iobase */
+struct eth_device { unsigned long iobase; };
 #include "../drivers/net/smc91111.h"
 
-#ifdef CONFIG_DRIVER_SMC91111
+#ifdef CONFIG_SMC91111
 
 #ifndef SMC91111_EEPROM_INIT
 # define SMC91111_EEPROM_INIT()
@@ -42,18 +44,22 @@
 #define MAC		0x2
 #define UNKNOWN		0x4
 
-void dump_reg (void);
-void dump_eeprom (void);
-int write_eeprom_reg (int, int);
-void copy_from_eeprom (void);
-void print_MAC (void);
-int read_eeprom_reg (int);
-void print_macaddr (void);
+void dump_reg (struct eth_device *dev);
+void dump_eeprom (struct eth_device *dev);
+int write_eeprom_reg (struct eth_device *dev, int value, int reg);
+void copy_from_eeprom (struct eth_device *dev);
+void print_MAC (struct eth_device *dev);
+int read_eeprom_reg (struct eth_device *dev, int reg);
+void print_macaddr (struct eth_device *dev);
 
 int smc91111_eeprom (int argc, char *argv[])
 {
 	int c, i, j, done, line, reg, value, start, what;
 	char input[50];
+
+	struct eth_device dev = {
+		.iobase = CONFIG_SMC91111_BASE
+	};
 
 	/* Print the ABI version */
 	app_startup (argv);
@@ -67,7 +73,7 @@ int smc91111_eeprom (int argc, char *argv[])
 
 	SMC91111_EEPROM_INIT();
 
-	if ((SMC_inw (BANK_SELECT) & 0xFF00) != 0x3300) {
+	if ((SMC_inw (&dev, BANK_SELECT) & 0xFF00) != 0x3300) {
 		printf ("Can't find SMSC91111\n");
 		return (0);
 	}
@@ -211,12 +217,12 @@ int smc91111_eeprom (int argc, char *argv[])
 			switch (what) {
 			case 1:
 				printf ("Writing EEPROM register %02x with %04x\n", reg, value);
-				write_eeprom_reg (value, reg);
+				write_eeprom_reg (&dev, value, reg);
 				break;
 			case 2:
 				printf ("Writing MAC register bank %i, reg %02x with %04x\n", reg >> 4, reg & 0xE, value);
-				SMC_SELECT_BANK (reg >> 4);
-				SMC_outw (value, reg & 0xE);
+				SMC_SELECT_BANK (&dev, reg >> 4);
+				SMC_outw (&dev, value, reg & 0xE);
 				break;
 			default:
 				printf ("Wrong\n");
@@ -224,16 +230,16 @@ int smc91111_eeprom (int argc, char *argv[])
 			}
 			break;
 		case ('D'):
-			dump_eeprom ();
+			dump_eeprom (&dev);
 			break;
 		case ('M'):
-			dump_reg ();
+			dump_reg (&dev);
 			break;
 		case ('C'):
-			copy_from_eeprom ();
+			copy_from_eeprom (&dev);
 			break;
 		case ('P'):
-			print_macaddr ();
+			print_macaddr (&dev);
 			break;
 		default:
 			break;
@@ -244,15 +250,15 @@ int smc91111_eeprom (int argc, char *argv[])
 	return (0);
 }
 
-void copy_from_eeprom (void)
+void copy_from_eeprom (struct eth_device *dev)
 {
 	int i;
 
-	SMC_SELECT_BANK (1);
-	SMC_outw ((SMC_inw (CTL_REG) & !CTL_EEPROM_SELECT) | CTL_RELOAD,
-		  CTL_REG);
+	SMC_SELECT_BANK (dev, 1);
+	SMC_outw (dev, (SMC_inw (dev, CTL_REG) & !CTL_EEPROM_SELECT) |
+		CTL_RELOAD, CTL_REG);
 	i = 100;
-	while ((SMC_inw (CTL_REG) & CTL_RELOAD) && --i)
+	while ((SMC_inw (dev, CTL_REG) & CTL_RELOAD) && --i)
 		udelay (100);
 	if (i == 0) {
 		printf ("Timeout Refreshing EEPROM registers\n");
@@ -262,21 +268,21 @@ void copy_from_eeprom (void)
 
 }
 
-void print_macaddr (void)
+void print_macaddr (struct eth_device *dev)
 {
 	int i, j, k, mac[6];
 
 	printf ("Current MAC Address in SMSC91111 ");
-	SMC_SELECT_BANK (1);
+	SMC_SELECT_BANK (dev, 1);
 	for (i = 0; i < 5; i++) {
-		printf ("%02x:", SMC_inb (ADDR0_REG + i));
+		printf ("%02x:", SMC_inb (dev, ADDR0_REG + i));
 	}
 
-	printf ("%02x\n", SMC_inb (ADDR0_REG + 5));
+	printf ("%02x\n", SMC_inb (dev, ADDR0_REG + 5));
 
 	i = 0;
 	for (j = 0x20; j < 0x23; j++) {
-		k = read_eeprom_reg (j);
+		k = read_eeprom_reg (dev, j);
 		mac[i] = k & 0xFF;
 		i++;
 		mac[i] = k >> 8;
@@ -289,7 +295,7 @@ void print_macaddr (void)
 	printf ("%02x\n", mac[5]);
 
 }
-void dump_eeprom (void)
+void dump_eeprom (struct eth_device *dev)
 {
 	int j, k;
 
@@ -307,7 +313,8 @@ void dump_eeprom (void)
 		if ((k == 2) || (k == 3))
 			printf ("       ");
 		for (j = 0; j < 0x20; j += 4) {
-			printf ("%02x:%04x ", j + k, read_eeprom_reg (j + k));
+			printf ("%02x:%04x ", j + k,
+				read_eeprom_reg (dev, j + k));
 		}
 		printf ("\n");
 	}
@@ -315,46 +322,47 @@ void dump_eeprom (void)
 	for (j = 0x20; j < 0x40; j++) {
 		if ((j & 0x07) == 0)
 			printf ("\n");
-		printf ("%02x:%04x ", j, read_eeprom_reg (j));
+		printf ("%02x:%04x ", j, read_eeprom_reg (dev, j));
 	}
 	printf ("\n");
 
 }
 
-int read_eeprom_reg (int reg)
+int read_eeprom_reg (struct eth_device *dev, int reg)
 {
 	int timeout;
 
-	SMC_SELECT_BANK (2);
-	SMC_outw (reg, PTR_REG);
+	SMC_SELECT_BANK (dev, 2);
+	SMC_outw (dev, reg, PTR_REG);
 
-	SMC_SELECT_BANK (1);
-	SMC_outw (SMC_inw (CTL_REG) | CTL_EEPROM_SELECT | CTL_RELOAD,
-		  CTL_REG);
+	SMC_SELECT_BANK (dev, 1);
+	SMC_outw (dev, SMC_inw (dev, CTL_REG) | CTL_EEPROM_SELECT |
+		CTL_RELOAD, CTL_REG);
 	timeout = 100;
-	while ((SMC_inw (CTL_REG) & CTL_RELOAD) && --timeout)
+	while ((SMC_inw (dev, CTL_REG) & CTL_RELOAD) && --timeout)
 		udelay (100);
 	if (timeout == 0) {
 		printf ("Timeout Reading EEPROM register %02x\n", reg);
 		return 0;
 	}
 
-	return SMC_inw (GP_REG);
+	return SMC_inw (dev, GP_REG);
 
 }
 
-int write_eeprom_reg (int value, int reg)
+int write_eeprom_reg (struct eth_device *dev, int value, int reg)
 {
 	int timeout;
 
-	SMC_SELECT_BANK (2);
-	SMC_outw (reg, PTR_REG);
+	SMC_SELECT_BANK (dev, 2);
+	SMC_outw (dev, reg, PTR_REG);
 
-	SMC_SELECT_BANK (1);
-	SMC_outw (value, GP_REG);
-	SMC_outw (SMC_inw (CTL_REG) | CTL_EEPROM_SELECT | CTL_STORE, CTL_REG);
+	SMC_SELECT_BANK (dev, 1);
+	SMC_outw (dev, value, GP_REG);
+	SMC_outw (dev, SMC_inw (dev, CTL_REG) | CTL_EEPROM_SELECT |
+		CTL_STORE, CTL_REG);
 	timeout = 100;
-	while ((SMC_inw (CTL_REG) & CTL_STORE) && --timeout)
+	while ((SMC_inw (dev, CTL_REG) & CTL_STORE) && --timeout)
 		udelay (100);
 	if (timeout == 0) {
 		printf ("Timeout Writing EEPROM register %02x\n", reg);
@@ -365,7 +373,7 @@ int write_eeprom_reg (int value, int reg)
 
 }
 
-void dump_reg (void)
+void dump_reg (struct eth_device *dev)
 {
 	int i, j;
 
@@ -377,8 +385,8 @@ void dump_reg (void)
 	for (i = 0; i < 0xF; i += 2) {
 		printf ("%02x  ", i);
 		for (j = 0; j < 4; j++) {
-			SMC_SELECT_BANK (j);
-			printf ("%04x  ", SMC_inw (i));
+			SMC_SELECT_BANK (dev, j);
+			printf ("%04x  ", SMC_inw (dev, i));
 		}
 		printf ("\n");
 	}

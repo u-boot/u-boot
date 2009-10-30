@@ -208,7 +208,7 @@ int misc_init_f(void)
 
 	if (getenv("pciearly") && (!is_monarch())) {
 		printf("PCI:   early target init\n");
-		pci_setup_indirect(&hose, PCIX0_CFGADR, PCIX0_CFGDATA);
+		pci_setup_indirect(&hose, PCIL0_CFGADR, PCIL0_CFGDATA);
 		pci_target_init(&hose);
 	}
 	return 0;
@@ -568,42 +568,42 @@ void pci_target_init(struct pci_controller *hose)
 	 * Use byte reversed out routines to handle endianess.
 	 * Make this region non-prefetchable.
 	 */
-	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute */
+	out32r(PCIL0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute */
 						/* - disabled b4 setting */
-	out32r(PCIX0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIX0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE); /* PMM0 PCI Low Address */
-	out32r(PCIX0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
-	out32r(PCIX0_PMM0MA, 0xc0000001);	/* 1G + No prefetching, */
+	out32r(PCIL0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
+	out32r(PCIL0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE); /* PMM0 PCI Low Address */
+	out32r(PCIL0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
+	out32r(PCIL0_PMM0MA, 0xc0000001);	/* 1G + No prefetching, */
 						/* and enable region */
 
 	if (!is_monarch()) {
 		ptmla_str = getenv("ptm1la");
 		ptmms_str = getenv("ptm1ms");
 		if(NULL != ptmla_str && NULL != ptmms_str ) {
-			out32r(PCIX0_PTM1MS,
+			out32r(PCIL0_PTM1MS,
 			       simple_strtoul(ptmms_str, NULL, 16));
-			out32r(PCIX0_PTM1LA,
+			out32r(PCIL0_PTM1LA,
 			       simple_strtoul(ptmla_str, NULL, 16));
 		} else {
 			/* BAR1: default top 64MB of RAM */
-			out32r(PCIX0_PTM1MS, 0xfc000001);
-			out32r(PCIX0_PTM1LA, 0x0c000000);
+			out32r(PCIL0_PTM1MS, 0xfc000001);
+			out32r(PCIL0_PTM1LA, 0x0c000000);
 		}
 	} else {
 		/* BAR1: default: complete 256MB RAM */
-		out32r(PCIX0_PTM1MS, 0xf0000001);
-		out32r(PCIX0_PTM1LA, 0x00000000);
+		out32r(PCIL0_PTM1MS, 0xf0000001);
+		out32r(PCIL0_PTM1LA, 0x00000000);
 	}
 
 	ptmla_str = getenv("ptm2la");		/* Local Addr. Reg */
 	ptmms_str = getenv("ptm2ms");		/* Memory Size/Attribute */
 	if(NULL != ptmla_str && NULL != ptmms_str ) {
-		out32r(PCIX0_PTM2MS, simple_strtoul(ptmms_str, NULL, 16));
-		out32r(PCIX0_PTM2LA, simple_strtoul(ptmla_str, NULL, 16));
+		out32r(PCIL0_PTM2MS, simple_strtoul(ptmms_str, NULL, 16));
+		out32r(PCIL0_PTM2LA, simple_strtoul(ptmla_str, NULL, 16));
 	} else {
 		/* BAR2: default: 4MB FPGA */
-		out32r(PCIX0_PTM2MS, 0xffc00001); /* Memory Size/Attribute */
-		out32r(PCIX0_PTM2LA, 0xef000000); /* Local Addr. Reg */
+		out32r(PCIL0_PTM2MS, 0xffc00001); /* Memory Size/Attribute */
+		out32r(PCIL0_PTM2LA, 0xef000000); /* Local Addr. Reg */
 	}
 
 	if (is_monarch()) {

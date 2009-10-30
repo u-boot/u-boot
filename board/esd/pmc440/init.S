@@ -23,7 +23,7 @@
 #include <asm-ppc/mmu.h>
 #include <config.h>
 
-/**************************************************************************
+/*
  * TLB TABLE
  *
  * This table is used by the cpu boot code to setup the initial tlb
@@ -32,7 +32,7 @@
  *
  *  Pointer to the table is returned in r1
  *
- *************************************************************************/
+ */
     .section .bootpg,"ax"
     .globl tlbtab
 
@@ -49,12 +49,7 @@ tlbtab:
 	tlbentry( CONFIG_SYS_NAND_BOOT_SPL_SRC, SZ_4K, CONFIG_SYS_NAND_BOOT_SPL_SRC, 1, AC_R|AC_W|AC_X|SA_G )
 #endif
 
-	/* TLB-entry for DDR SDRAM (Up to 2GB) */
-#ifdef CONFIG_4xx_DCACHE
-	tlbentry( CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G)
-#else
-	tlbentry( CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
-#endif
+	/* TLB entries for DDR2 SDRAM are generated dynamically */
 
 #ifdef CONFIG_SYS_INIT_RAM_DCACHE
 	/* TLB-entry for init-ram in dcache (SA_I must be turned off!) */

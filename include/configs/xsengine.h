@@ -94,7 +94,8 @@
 #define CONFIG_SYS_GBL_DATA_SIZE		128		/* size in bytes reserved for initial data */
 
 /* Hardware drivers */
-#define CONFIG_DRIVER_SMC91111
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC91111
 #define CONFIG_SMC91111_BASE		0x04000300
 #define CONFIG_SMC_USE_32_BIT		1
 

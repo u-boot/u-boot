@@ -124,9 +124,13 @@ int ubifs_decompress(const void *in_buf, int in_len, void *out_buf,
 static int __init compr_init(struct ubifs_compressor *compr)
 {
 	ubifs_compressors[compr->compr_type] = compr;
+
+#ifndef CONFIG_RELOC_FIXUP_WORKS
 	ubifs_compressors[compr->compr_type]->name += gd->reloc_off;
 	ubifs_compressors[compr->compr_type]->capi_name += gd->reloc_off;
 	ubifs_compressors[compr->compr_type]->decompress += gd->reloc_off;
+#endif
+
 	return 0;
 }
 

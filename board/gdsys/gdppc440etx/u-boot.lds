@@ -69,7 +69,6 @@ SECTIONS
     board/gdsys/gdppc440etx/init.o	(.text)
 
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

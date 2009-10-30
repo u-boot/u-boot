@@ -69,7 +69,6 @@ SECTIONS
     board/prodrive/p3p440/init.o	(.text)
 
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

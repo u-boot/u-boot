@@ -54,7 +54,6 @@ SECTIONS
   {
     cpu/mpc8260/start.o	(.text)
     *(.text)
-    *(.fixup)
     *(.got1)
     /*. = env_offset; */
   }

@@ -101,6 +101,10 @@
  * GPIO pins used for bit-banged MII communications
  */
 #define MDIO_PORT	0		/* Port A */
+#define MDIO_DECLARE	volatile ioport_t *iop = ioport_addr ( \
+				(immap_t *) CONFIG_SYS_IMMR, MDIO_PORT )
+#define MDC_DECLARE	MDIO_DECLARE
+
 
 #define CONFIG_SYS_MDIO_PIN	0x00200000	/* PA10 */
 #define CONFIG_SYS_MDC_PIN	0x00400000	/* PA9  */

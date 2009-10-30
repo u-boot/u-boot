@@ -26,13 +26,13 @@
 #include <asm/mpc512x.h>
 
 /*
- * MDDRC Config Runtime Settings in order of the 4 MDDRC cfg registers
+ * MDDRC Config Runtime Settings
  */
-u32 default_mddrc_config[4] = {
-	CONFIG_SYS_MDDRC_TIME_CFG0,	/* time_config0 */
-	CONFIG_SYS_MDDRC_TIME_CFG1,	/* time_config1 */
-	CONFIG_SYS_MDDRC_TIME_CFG2,	/* time_config2 */
-	CONFIG_SYS_MDDRC_SYS_CFG,	/* sys_config	*/
+ddr512x_config_t default_mddrc_config = {
+	.ddr_sys_config   = CONFIG_SYS_MDDRC_SYS_CFG,
+	.ddr_time_config0 = CONFIG_SYS_MDDRC_TIME_CFG0,
+	.ddr_time_config1 = CONFIG_SYS_MDDRC_TIME_CFG1,
+	.ddr_time_config2 = CONFIG_SYS_MDDRC_TIME_CFG2,
 };
 
 u32 default_init_seq[] = {
@@ -74,7 +74,8 @@ u32 default_init_seq[] = {
  * The board doesn't use memory modules that have serial presence
  * detect or similar mechanism for discovery of the DRAM settings
  */
-long int fixed_sdram(u32 *mddrc_config, u32 *dram_init_seq, int seq_sz)
+long int fixed_sdram(ddr512x_config_t *mddrc_config,
+			u32 *dram_init_seq, int seq_sz)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = CONFIG_SYS_DDR_SIZE * 1024 * 1024;
@@ -83,7 +84,7 @@ long int fixed_sdram(u32 *mddrc_config, u32 *dram_init_seq, int seq_sz)
 
 	/* take default settings and init sequence if necessary */
 	if (mddrc_config == NULL)
-		mddrc_config = default_mddrc_config;
+		mddrc_config = &default_mddrc_config;
 	if (dram_init_seq == NULL) {
 		dram_init_seq = default_init_seq;
 		seq_sz = sizeof(default_init_seq)/sizeof(u32);
@@ -130,18 +131,22 @@ long int fixed_sdram(u32 *mddrc_config, u32 *dram_init_seq, int seq_sz)
 	 *  put MDDRC in CMD mode and
 	 *  set the max time between refreshes to 0 during init process
 	 */
-	out_be32(&im->mddrc.ddr_sys_config, mddrc_config[3] | MDDRC_SYS_CFG_CMD_MASK);
-	out_be32(&im->mddrc.ddr_time_config0, mddrc_config[0] & MDDRC_REFRESH_ZERO_MASK);
-	out_be32(&im->mddrc.ddr_time_config1, mddrc_config[1]);
-	out_be32(&im->mddrc.ddr_time_config2, mddrc_config[2]);
+	out_be32(&im->mddrc.ddr_sys_config,
+		mddrc_config->ddr_sys_config | MDDRC_SYS_CFG_CMD_MASK);
+	out_be32(&im->mddrc.ddr_time_config0,
+		mddrc_config->ddr_time_config0 & MDDRC_REFRESH_ZERO_MASK);
+	out_be32(&im->mddrc.ddr_time_config1,
+		mddrc_config->ddr_time_config1);
+	out_be32(&im->mddrc.ddr_time_config2,
+		mddrc_config->ddr_time_config2);
 
 	/* Initialize DDR with either default or supplied init sequence */
 	for (i = 0; i < seq_sz; i++)
 		out_be32(&im->mddrc.ddr_command, dram_init_seq[i]);
 
 	/* Start MDDRC */
-	out_be32(&im->mddrc.ddr_time_config0, mddrc_config[0]);
-	out_be32(&im->mddrc.ddr_sys_config, mddrc_config[3]);
+	out_be32(&im->mddrc.ddr_time_config0, mddrc_config->ddr_time_config0);
+	out_be32(&im->mddrc.ddr_sys_config, mddrc_config->ddr_sys_config);
 
 	return msize;
 }

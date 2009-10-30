@@ -71,7 +71,7 @@ typedef struct {		/* typedef fpga_desc */
 
 
 /* root function definitions */
-extern void fpga_init( ulong reloc_off );
+extern void fpga_init( void );
 extern int fpga_add( fpga_type devtype, void *desc );
 extern int fpga_count( void );
 extern int fpga_load( int devnum, void *buf, size_t bsize );

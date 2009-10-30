@@ -23,12 +23,12 @@
 
 #ifndef __ASSEMBLY__
 struct s5pc1xx_gpio_bank {
-	unsigned long	con;
-	unsigned long	dat;
-	unsigned long	pull;
-	unsigned long	drv;
-	unsigned long	pdn_con;
-	unsigned long	pdn_pull;
+	unsigned int	con;
+	unsigned int	dat;
+	unsigned int	pull;
+	unsigned int	drv;
+	unsigned int	pdn_con;
+	unsigned int	pdn_pull;
 	unsigned char	res1[8];
 };
 

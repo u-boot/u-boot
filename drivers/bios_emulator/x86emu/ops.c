@@ -70,9 +70,6 @@
 * calls is especially important; otherwise mistakes in coding an
 * "add" would represent a nightmare in maintenance.
 *
-* Jason ported this file to u-boot. place all the function pointer in
-* the got2 sector. Removed some opcode.
-*
 ****************************************************************************/
 
 #include <common.h>
@@ -88,7 +85,7 @@ static char *x86emu_GenOpName[8] = {
 #endif
 
 /* used by several opcodes  */
-static u8 (*genop_byte_operation[])(u8 d, u8 s) __attribute__ ((section(GOT2_TYPE))) =
+static u8 (*genop_byte_operation[])(u8 d, u8 s) =
 {
     add_byte,		/* 00 */
     or_byte,		/* 01 */
@@ -100,7 +97,7 @@ static u8 (*genop_byte_operation[])(u8 d, u8 s) __attribute__ ((section(GOT2_TYP
     cmp_byte,		/* 07 */
 };
 
-static u16 (*genop_word_operation[])(u16 d, u16 s) __attribute__ ((section(GOT2_TYPE))) =
+static u16 (*genop_word_operation[])(u16 d, u16 s) =
 {
     add_word,		/*00 */
     or_word,		/*01 */
@@ -112,7 +109,7 @@ static u16 (*genop_word_operation[])(u16 d, u16 s) __attribute__ ((section(GOT2_
     cmp_word,		/*07 */
 };
 
-static u32 (*genop_long_operation[])(u32 d, u32 s) __attribute__ ((section(GOT2_TYPE))) =
+static u32 (*genop_long_operation[])(u32 d, u32 s) =
 {
     add_long,		/*00 */
     or_long,		/*01 */
@@ -125,7 +122,7 @@ static u32 (*genop_long_operation[])(u32 d, u32 s) __attribute__ ((section(GOT2_
 };
 
 /* used by opcodes 80, c0, d0, and d2. */
-static u8(*opcD0_byte_operation[])(u8 d, u8 s) __attribute__ ((section(GOT2_TYPE))) =
+static u8(*opcD0_byte_operation[])(u8 d, u8 s) =
 {
     rol_byte,
     ror_byte,
@@ -138,7 +135,7 @@ static u8(*opcD0_byte_operation[])(u8 d, u8 s) __attribute__ ((section(GOT2_TYPE
 };
 
 /* used by opcodes c1, d1, and d3. */
-static u16(*opcD1_word_operation[])(u16 s, u8 d) __attribute__ ((section(GOT2_TYPE))) =
+static u16(*opcD1_word_operation[])(u16 s, u8 d) =
 {
     rol_word,
     ror_word,
@@ -151,7 +148,7 @@ static u16(*opcD1_word_operation[])(u16 s, u8 d) __attribute__ ((section(GOT2_TY
 };
 
 /* used by opcodes c1, d1, and d3. */
-static u32 (*opcD1_long_operation[])(u32 s, u8 d) __attribute__ ((section(GOT2_TYPE))) =
+static u32 (*opcD1_long_operation[])(u32 s, u8 d) =
 {
     rol_long,
     ror_long,
@@ -5144,7 +5141,7 @@ void x86emuOp_opcFF_word_RM(u8 X86EMU_UNUSED(op1))
 /***************************************************************************
  * Single byte operation code table:
  **************************************************************************/
-void (*x86emu_optab[256])(u8) __attribute__ ((section(GOT2_TYPE))) =
+void (*x86emu_optab[256])(u8) =
 {
 /*  0x00 */ x86emuOp_genop_byte_RM_R,
 /*  0x01 */ x86emuOp_genop_word_RM_R,

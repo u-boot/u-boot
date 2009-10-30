@@ -69,7 +69,6 @@ SECTIONS
     board/amcc/canyonlands/init.o	(.text)
 
     *(.text)
-    *(.fixup)
     *(.got1)
   }
   _etext = .;

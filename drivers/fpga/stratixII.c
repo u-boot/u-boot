@@ -77,30 +77,6 @@ int StratixII_info (Altera_desc * desc)
 	return FPGA_SUCCESS;
 }
 
-int StratixII_reloc (Altera_desc * desc, ulong reloc_offset)
-{
-	int i;
-	uint32_t dest = (uint32_t) desc & 0xff000000;
-
-	/* we assume a relocated code and non relocated code has different upper 8 bits */
-	if (dest != ((uint32_t) desc->iface_fns & 0xff000000)) {
-		desc->iface_fns =
-		    (void *)((uint32_t) (desc->iface_fns) + reloc_offset);
-	}
-	for (i = 0; i < sizeof (altera_board_specific_func) / sizeof (void *);
-	     i++) {
-		if (dest !=
-		    ((uint32_t) (((void **)(desc->iface_fns))[i]) & 0xff000000))
-		{
-			((void **)(desc->iface_fns))[i] =
-			    (void
-			     *)(((uint32_t) (((void **)(desc->iface_fns))[i])) +
-				reloc_offset);
-		}
-	}
-	return FPGA_SUCCESS;
-}
-
 int StratixII_ps_fpp_dump (Altera_desc * desc, void *buf, size_t bsize)
 {
 	printf ("Stratix II Fast Passive Parallel dump is not implemented\n");

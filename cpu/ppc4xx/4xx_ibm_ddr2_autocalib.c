@@ -42,6 +42,8 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 
+#include "ecc.h"
+
 #if defined(CONFIG_PPC4xx_DDR_AUTOCALIBRATION)
 
 /*
@@ -177,7 +179,7 @@ static u32 *get_membase(int bxcr_num)
 
 static inline void ecc_clear_status_reg(void)
 {
-	mtsdram(SDRAM_ECCCR, 0xffffffff);
+	mtsdram(SDRAM_ECCES, 0xffffffff);
 #if defined(SDRAM_R0BAS)
 	mtdcr(SDRAM_ERRSTATLL, 0xffffffff);
 #endif
@@ -210,7 +212,7 @@ static int ecc_check_status_reg(void)
 	 * ecc error, then don't count
 	 * this as a passing value
 	 */
-	mfsdram(SDRAM_ECCCR, ecc_status);
+	mfsdram(SDRAM_ECCES, ecc_status);
 	if (ecc_status != 0x00000000) {
 		/* clear on error */
 		ecc_clear_status_reg();

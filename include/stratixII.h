@@ -27,6 +27,5 @@
 extern int StratixII_load (Altera_desc * desc, void *image, size_t size);
 extern int StratixII_dump (Altera_desc * desc, void *buf, size_t bsize);
 extern int StratixII_info (Altera_desc * desc);
-extern int StratixII_reloc (Altera_desc * desc, ulong reloc_off);
 
 #endif				/* _STRATIXII_H_ */

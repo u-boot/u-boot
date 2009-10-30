@@ -626,22 +626,22 @@ void pci_target_init(struct pci_controller *hose)
 	  |   Use byte reversed out routines to handle endianess.
 	  | Make this region non-prefetchable.
 	  +--------------------------------------------------------------------------*/
-	out32r(PCIX0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute - disabled b4 setting */
-	out32r(PCIX0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIX0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 PCI Low Address */
-	out32r(PCIX0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
-	out32r(PCIX0_PMM0MA, 0xE0000001);	/* 512M + No prefetching, and enable region */
+	out32r(PCIL0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute - disabled b4 setting */
+	out32r(PCIL0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
+	out32r(PCIL0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 PCI Low Address */
+	out32r(PCIL0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
+	out32r(PCIL0_PMM0MA, 0xE0000001);	/* 512M + No prefetching, and enable region */
 
-	out32r(PCIX0_PMM1MA, 0x00000000);	/* PMM0 Mask/Attribute - disabled b4 setting */
-	out32r(PCIX0_PMM1LA, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 Local Address */
-	out32r(PCIX0_PMM1PCILA, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 PCI Low Address */
-	out32r(PCIX0_PMM1PCIHA, 0x00000000);	/* PMM0 PCI High Address */
-	out32r(PCIX0_PMM1MA, 0xE0000001);	/* 512M + No prefetching, and enable region */
+	out32r(PCIL0_PMM1MA, 0x00000000);	/* PMM0 Mask/Attribute - disabled b4 setting */
+	out32r(PCIL0_PMM1LA, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 Local Address */
+	out32r(PCIL0_PMM1PCILA, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 PCI Low Address */
+	out32r(PCIL0_PMM1PCIHA, 0x00000000);	/* PMM0 PCI High Address */
+	out32r(PCIL0_PMM1MA, 0xE0000001);	/* 512M + No prefetching, and enable region */
 
-	out32r(PCIX0_PTM1MS, 0x00000001);	/* Memory Size/Attribute */
-	out32r(PCIX0_PTM1LA, 0);	/* Local Addr. Reg */
-	out32r(PCIX0_PTM2MS, 0);	/* Memory Size/Attribute */
-	out32r(PCIX0_PTM2LA, 0);	/* Local Addr. Reg */
+	out32r(PCIL0_PTM1MS, 0x00000001);	/* Memory Size/Attribute */
+	out32r(PCIL0_PTM1LA, 0);	/* Local Addr. Reg */
+	out32r(PCIL0_PTM2MS, 0);	/* Memory Size/Attribute */
+	out32r(PCIL0_PTM2LA, 0);	/* Local Addr. Reg */
 
 	/*--------------------------------------------------------------------------+
 	 * Set up Configuration registers

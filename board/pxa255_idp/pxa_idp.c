@@ -31,6 +31,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <command.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -132,4 +133,15 @@ U_BOOT_CMD(idpcmd, CONFIG_SYS_MAXARGS, 0, do_idpcmd,
 	   "no args at this time"
 );
 
+#endif
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_SMC91111
+	rc = smc91111_initialize(0, CONFIG_SMC91111_BASE);
+#endif
+	return rc;
+}
 #endif

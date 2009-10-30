@@ -60,7 +60,8 @@
  * Network Settings
  */
 #define ADI_CMDS_NETWORK	1
-#define CONFIG_DRIVER_SMC91111	1
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC91111	1
 #define CONFIG_SMC91111_BASE	0x20310300
 #define CONFIG_HOSTNAME		bf538f-ezkit
 /* Uncomment next line to use fixed MAC address */

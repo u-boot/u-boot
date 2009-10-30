@@ -47,7 +47,7 @@ enum {
 	XF_MAX
 };
 
-#define XF_VERSION	5
+#define XF_VERSION	6
 
 #if defined(CONFIG_I386)
 extern gd_t *global_data;

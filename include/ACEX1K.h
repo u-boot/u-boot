@@ -33,12 +33,10 @@
 extern int ACEX1K_load( Altera_desc *desc, void *image, size_t size );
 extern int ACEX1K_dump( Altera_desc *desc, void *buf, size_t bsize );
 extern int ACEX1K_info( Altera_desc *desc );
-extern int ACEX1K_reloc( Altera_desc *desc, ulong reloc_off );
 
 extern int CYC2_load( Altera_desc *desc, void *image, size_t size );
 extern int CYC2_dump( Altera_desc *desc, void *buf, size_t bsize );
 extern int CYC2_info( Altera_desc *desc );
-extern int CYC2_reloc( Altera_desc *desc, ulong reloc_off );
 
 /* Slave Serial Implementation function table */
 typedef struct {
@@ -50,7 +48,6 @@ typedef struct {
 	Altera_data_fn		data;
 	Altera_abort_fn		abort;
 	Altera_post_fn		post;
-	int			relocated;
 } Altera_ACEX1K_Passive_Serial_fns;
 
 /* Slave Serial Implementation function table */
@@ -62,7 +59,6 @@ typedef struct {
 	Altera_write_fn		write;
 	Altera_abort_fn		abort;
 	Altera_post_fn		post;
-	int			relocated;
 } Altera_CYC2_Passive_Serial_fns;
 
 /* Device Image Sizes

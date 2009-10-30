@@ -589,15 +589,17 @@ in_ram:
 	sub	r11,r3,r11
 	addi	r3,r3,-4
 1:	lwzu	r0,4(r3)
+	cmpwi	r0,0
+	beq-	2f
 	add	r0,r0,r11
 	stw	r0,0(r3)
-	bdnz	1b
+2:	bdnz	1b
 
 	/*
 	 * Now adjust the fixups and the pointers to the fixups
 	 * in case we need to move ourselves again.
 	 */
-2:	li	r0,__fixup_entries@sectoff@l
+	li	r0,__fixup_entries@sectoff@l
 	lwz	r3,GOT(_FIXUP_TABLE_)
 	cmpwi	r0,0
 	mtctr	r0

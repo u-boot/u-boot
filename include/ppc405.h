@@ -29,9 +29,9 @@
 #define PPC_128MB_SACR_VALUE(addr)	PPC_REG_VAL(PPC_128MB_SACR_BIT(addr),1)
 
 #ifndef CONFIG_IOP480
-#define CONFIG_SYS_DCACHE_SIZE		(16 << 10)	/* For AMCC 405 CPUs	*/
+#define CONFIG_SYS_DCACHE_SIZE		(16 << 10)	/* For AMCC 405 CPUs */
 #else
-#define CONFIG_SYS_DCACHE_SIZE		(2 << 10)	/* For PLX IOP480 (403)	*/
+#define CONFIG_SYS_DCACHE_SIZE		(2 << 10)	/* For PLX IOP480(403)*/
 #endif
 
 /******************************************************************************
@@ -71,10 +71,10 @@
  * Decompression Controller
  ******************************************************************************/
 #define DECOMP_DCR_BASE 0x14
-#define KIAR  (DECOMP_DCR_BASE+0x0)  /* Decompression controller addr reg    */
-#define KIDR  (DECOMP_DCR_BASE+0x1)  /* Decompression controller data reg    */
+#define KIAR  (DECOMP_DCR_BASE+0x0)	/* Decompression controller addr reg */
+#define KIDR  (DECOMP_DCR_BASE+0x1)	/* Decompression controller data reg */
 /* values for kiar register - indirect addressing of these regs */
-#define KCONF       0x40    /* decompression core config register   */
+#define KCONF	0x40			/* decompression core config register */
 #endif
 
 /******************************************************************************
@@ -85,61 +85,61 @@
 #else
 #define POWERMAN_DCR_BASE 0xb8
 #endif
-#define CPMSR (POWERMAN_DCR_BASE+0x0) /* Power management status	     */
-#define CPMER (POWERMAN_DCR_BASE+0x1) /* Power management enable	     */
-#define CPMFR (POWERMAN_DCR_BASE+0x2) /* Power management force		     */
+#define CPMSR	(POWERMAN_DCR_BASE+0x0) /* Power management status */
+#define CPMER	(POWERMAN_DCR_BASE+0x1) /* Power management enable */
+#define CPMFR	(POWERMAN_DCR_BASE+0x2) /* Power management force */
 
 /******************************************************************************
  * Extrnal Bus Controller
  ******************************************************************************/
   /* values for EBC0_CFGADDR register - indirect addressing of these regs */
-  #define PB0CR       0x00    /* periph bank 0 config reg	     */
-  #define PB1CR       0x01    /* periph bank 1 config reg	     */
-  #define PB2CR       0x02    /* periph bank 2 config reg	     */
-  #define PB3CR       0x03    /* periph bank 3 config reg	     */
-  #define PB4CR       0x04    /* periph bank 4 config reg	     */
+  #define PB0CR		0x00	/* periph bank 0 config reg */
+  #define PB1CR		0x01	/* periph bank 1 config reg */
+  #define PB2CR		0x02	/* periph bank 2 config reg */
+  #define PB3CR		0x03	/* periph bank 3 config reg */
+  #define PB4CR		0x04	/* periph bank 4 config reg */
 #ifndef CONFIG_405EP
-  #define PB5CR       0x05    /* periph bank 5 config reg	     */
-  #define PB6CR       0x06    /* periph bank 6 config reg	     */
-  #define PB7CR       0x07    /* periph bank 7 config reg	     */
+  #define PB5CR		0x05	/* periph bank 5 config reg */
+  #define PB6CR		0x06	/* periph bank 6 config reg */
+  #define PB7CR		0x07	/* periph bank 7 config reg */
 #endif
-  #define PB0AP       0x10    /* periph bank 0 access parameters     */
-  #define PB1AP       0x11    /* periph bank 1 access parameters     */
-  #define PB2AP       0x12    /* periph bank 2 access parameters     */
-  #define PB3AP       0x13    /* periph bank 3 access parameters     */
-  #define PB4AP       0x14    /* periph bank 4 access parameters     */
+  #define PB0AP		0x10	/* periph bank 0 access parameters */
+  #define PB1AP		0x11	/* periph bank 1 access parameters */
+  #define PB2AP		0x12	/* periph bank 2 access parameters */
+  #define PB3AP		0x13	/* periph bank 3 access parameters */
+  #define PB4AP		0x14	/* periph bank 4 access parameters */
 #ifndef CONFIG_405EP
-  #define PB5AP       0x15    /* periph bank 5 access parameters     */
-  #define PB6AP       0x16    /* periph bank 6 access parameters     */
-  #define PB7AP       0x17    /* periph bank 7 access parameters     */
+  #define PB5AP		0x15	/* periph bank 5 access parameters */
+  #define PB6AP		0x16	/* periph bank 6 access parameters */
+  #define PB7AP		0x17	/* periph bank 7 access parameters */
 #endif
-  #define PBEAR       0x20    /* periph bus error addr reg	     */
-  #define PBESR0      0x21    /* periph bus error status reg 0	     */
-  #define PBESR1      0x22    /* periph bus error status reg 1	     */
-#define EBC0_CFG	0x23	/* external bus configuration reg	*/
+  #define PBEAR		0x20	/* periph bus error addr reg */
+  #define PBESR0	0x21	/* periph bus error status reg 0 */
+  #define PBESR1	0x22	/* periph bus error status reg 1 */
+#define EBC0_CFG	0x23	/* external bus configuration reg */
 
 #ifdef CONFIG_405EP
 /******************************************************************************
  * Control
  ******************************************************************************/
 #define CNTRL_DCR_BASE 0x0f0
-#define CPC0_PLLMR0   (CNTRL_DCR_BASE+0x0)  /* PLL mode  register 0		   */
-#define CPC0_BOOT     (CNTRL_DCR_BASE+0x1)  /* Clock status register		   */
-#define CPC0_EPCTL    (CNTRL_DCR_BASE+0x3)  /* EMAC to PHY control register	   */
-#define CPC0_PLLMR1   (CNTRL_DCR_BASE+0x4)  /* PLL mode  register 1		   */
-#define CPC0_UCR      (CNTRL_DCR_BASE+0x5)  /* UART control register		   */
-#define CPC0_PCI      (CNTRL_DCR_BASE+0x9)  /* PCI control register		   */
+#define CPC0_PLLMR0   (CNTRL_DCR_BASE+0x0)  /* PLL mode  register 0	*/
+#define CPC0_BOOT     (CNTRL_DCR_BASE+0x1)  /* Clock status register	*/
+#define CPC0_EPCTL    (CNTRL_DCR_BASE+0x3)  /* EMAC to PHY control register */
+#define CPC0_PLLMR1   (CNTRL_DCR_BASE+0x4)  /* PLL mode  register 1	*/
+#define CPC0_UCR      (CNTRL_DCR_BASE+0x5)  /* UART control register	*/
+#define CPC0_PCI      (CNTRL_DCR_BASE+0x9)  /* PCI control register	*/
 
-#define CPC0_PLLMR0  (CNTRL_DCR_BASE+0x0)  /* PLL mode 0 register	   */
-#define CPC0_BOOT    (CNTRL_DCR_BASE+0x1)  /* Chip Clock Status register   */
-#define CPC0_CR1     (CNTRL_DCR_BASE+0x2)  /* Chip Control 1 register	   */
-#define CPC0_EPRCSR  (CNTRL_DCR_BASE+0x3)  /* EMAC PHY Rcv Clk Src register*/
-#define CPC0_PLLMR1  (CNTRL_DCR_BASE+0x4)  /* PLL mode 1 register	   */
-#define CPC0_UCR     (CNTRL_DCR_BASE+0x5)  /* UART Control register	   */
-#define CPC0_SRR     (CNTRL_DCR_BASE+0x6)  /* Soft Reset register	   */
-#define CPC0_JTAGID  (CNTRL_DCR_BASE+0x7)  /* JTAG ID register		   */
-#define CPC0_SPARE   (CNTRL_DCR_BASE+0x8)  /* Spare DCR			   */
-#define CPC0_PCI     (CNTRL_DCR_BASE+0x9)  /* PCI Control register	   */
+#define CPC0_PLLMR0  (CNTRL_DCR_BASE+0x0)  /* PLL mode 0 register */
+#define CPC0_BOOT    (CNTRL_DCR_BASE+0x1)  /* Chip Clock Status register */
+#define CPC0_CR1     (CNTRL_DCR_BASE+0x2)  /* Chip Control 1 register */
+#define CPC0_EPRCSR  (CNTRL_DCR_BASE+0x3)  /* EMAC PHY Rcv Clk Src register */
+#define CPC0_PLLMR1  (CNTRL_DCR_BASE+0x4)  /* PLL mode 1 register */
+#define CPC0_UCR     (CNTRL_DCR_BASE+0x5)  /* UART Control register */
+#define CPC0_SRR     (CNTRL_DCR_BASE+0x6)  /* Soft Reset register */
+#define CPC0_JTAGID  (CNTRL_DCR_BASE+0x7)  /* JTAG ID register */
+#define CPC0_SPARE   (CNTRL_DCR_BASE+0x8)  /* Spare DCR */
+#define CPC0_PCI     (CNTRL_DCR_BASE+0x9)  /* PCI Control register */
 
 /* Bit definitions */
 #define PLLMR0_CPU_DIV_MASK	 0x00300000	/* CPU clock divider */
@@ -160,13 +160,13 @@
 #define PLLMR0_OPB_PLB_DIV_3	 0x00002000
 #define PLLMR0_OPB_PLB_DIV_4	 0x00003000
 
-#define PLLMR0_EXB_TO_PLB_MASK	 0x00000300	/* External Bus:PLB Divisor  */
+#define PLLMR0_EXB_TO_PLB_MASK	 0x00000300	/* External Bus:PLB Divisor */
 #define PLLMR0_EXB_PLB_DIV_2	 0x00000000
 #define PLLMR0_EXB_PLB_DIV_3	 0x00000100
 #define PLLMR0_EXB_PLB_DIV_4	 0x00000200
 #define PLLMR0_EXB_PLB_DIV_5	 0x00000300
 
-#define PLLMR0_MAL_TO_PLB_MASK	 0x00000030	/* MAL:PLB Divisor  */
+#define PLLMR0_MAL_TO_PLB_MASK	 0x00000030	/* MAL:PLB Divisor */
 #define PLLMR0_MAL_PLB_DIV_1	 0x00000000
 #define PLLMR0_MAL_PLB_DIV_2	 0x00000010
 #define PLLMR0_MAL_PLB_DIV_3	 0x00000020
@@ -180,7 +180,7 @@
 
 #define PLLMR1_SSCS_MASK	 0x80000000	/* Select system clock source */
 #define PLLMR1_PLLR_MASK	 0x40000000	/* PLL reset */
-#define PLLMR1_FBMUL_MASK	 0x00F00000	/* PLL feedback multiplier value */
+#define PLLMR1_FBMUL_MASK	 0x00F00000 /* PLL feedback multiplier value */
 #define PLLMR1_FBMUL_DIV_16	 0x00000000
 #define PLLMR1_FBMUL_DIV_1	 0x00100000
 #define PLLMR1_FBMUL_DIV_2	 0x00200000
@@ -198,7 +198,7 @@
 #define PLLMR1_FBMUL_DIV_14	 0x00E00000
 #define PLLMR1_FBMUL_DIV_15	 0x00F00000
 
-#define PLLMR1_FWDVA_MASK	 0x00070000	/* PLL forward divider A value */
+#define PLLMR1_FWDVA_MASK	 0x00070000 /* PLL forward divider A value */
 #define PLLMR1_FWDVA_DIV_8	 0x00000000
 #define PLLMR1_FWDVA_DIV_7	 0x00010000
 #define PLLMR1_FWDVA_DIV_6	 0x00020000
@@ -207,132 +207,132 @@
 #define PLLMR1_FWDVA_DIV_3	 0x00050000
 #define PLLMR1_FWDVA_DIV_2	 0x00060000
 #define PLLMR1_FWDVA_DIV_1	 0x00070000
-#define PLLMR1_FWDVB_MASK	 0x00007000	/* PLL forward divider B value */
-#define PLLMR1_TUNING_MASK	 0x000003FF	/* PLL tune bits */
+#define PLLMR1_FWDVB_MASK	 0x00007000 /* PLL forward divider B value */
+#define PLLMR1_TUNING_MASK	 0x000003FF /* PLL tune bits */
 
 /* Defines for CPC0_EPRCSR register */
-#define CPC0_EPRCSR_E0NFE	   0x80000000
-#define CPC0_EPRCSR_E1NFE	   0x40000000
-#define CPC0_EPRCSR_E1RPP	   0x00000080
-#define CPC0_EPRCSR_E0RPP	   0x00000040
-#define CPC0_EPRCSR_E1ERP	   0x00000020
-#define CPC0_EPRCSR_E0ERP	   0x00000010
-#define CPC0_EPRCSR_E1PCI	   0x00000002
-#define CPC0_EPRCSR_E0PCI	   0x00000001
+#define CPC0_EPRCSR_E0NFE	0x80000000
+#define CPC0_EPRCSR_E1NFE	0x40000000
+#define CPC0_EPRCSR_E1RPP	0x00000080
+#define CPC0_EPRCSR_E0RPP	0x00000040
+#define CPC0_EPRCSR_E1ERP	0x00000020
+#define CPC0_EPRCSR_E0ERP	0x00000010
+#define CPC0_EPRCSR_E1PCI	0x00000002
+#define CPC0_EPRCSR_E0PCI	0x00000001
 
 /* Defines for CPC0_PCI Register */
-#define CPC0_PCI_SPE			   0x00000010 /* PCIINT/WE select	*/
-#define CPC0_PCI_HOST_CFG_EN		   0x00000008 /* PCI host config Enable */
-#define CPC0_PCI_ARBIT_EN		   0x00000001 /* PCI Internal Arb Enabled*/
+#define CPC0_PCI_SPE		0x00000010 /* PCIINT/WE select	 */
+#define CPC0_PCI_HOST_CFG_EN	0x00000008 /* PCI host config Enable */
+#define CPC0_PCI_ARBIT_EN	0x00000001 /* PCI Internal Arb Enabled */
 
 /* Defines for CPC0_BOOR Register */
-#define CPC0_BOOT_SEP			   0x00000002 /* serial EEPROM present	*/
+#define CPC0_BOOT_SEP		0x00000002 /* serial EEPROM present */
 
 /* Defines for CPC0_PLLMR1 Register fields */
-#define PLL_ACTIVE		   0x80000000
-#define CPC0_PLLMR1_SSCS	   0x80000000
-#define PLL_RESET		   0x40000000
-#define CPC0_PLLMR1_PLLR	   0x40000000
-    /* Feedback multiplier */
-#define PLL_FBKDIV		   0x00F00000
-#define CPC0_PLLMR1_FBDV	   0x00F00000
-#define PLL_FBKDIV_16		   0x00000000
-#define PLL_FBKDIV_1		   0x00100000
-#define PLL_FBKDIV_2		   0x00200000
-#define PLL_FBKDIV_3		   0x00300000
-#define PLL_FBKDIV_4		   0x00400000
-#define PLL_FBKDIV_5		   0x00500000
-#define PLL_FBKDIV_6		   0x00600000
-#define PLL_FBKDIV_7		   0x00700000
-#define PLL_FBKDIV_8		   0x00800000
-#define PLL_FBKDIV_9		   0x00900000
-#define PLL_FBKDIV_10		   0x00A00000
-#define PLL_FBKDIV_11		   0x00B00000
-#define PLL_FBKDIV_12		   0x00C00000
-#define PLL_FBKDIV_13		   0x00D00000
-#define PLL_FBKDIV_14		   0x00E00000
-#define PLL_FBKDIV_15		   0x00F00000
-    /* Forward A divisor */
-#define PLL_FWDDIVA		   0x00070000
-#define CPC0_PLLMR1_FWDVA	   0x00070000
-#define PLL_FWDDIVA_8		   0x00000000
-#define PLL_FWDDIVA_7		   0x00010000
-#define PLL_FWDDIVA_6		   0x00020000
-#define PLL_FWDDIVA_5		   0x00030000
-#define PLL_FWDDIVA_4		   0x00040000
-#define PLL_FWDDIVA_3		   0x00050000
-#define PLL_FWDDIVA_2		   0x00060000
-#define PLL_FWDDIVA_1		   0x00070000
-    /* Forward B divisor */
-#define PLL_FWDDIVB		   0x00007000
-#define CPC0_PLLMR1_FWDVB	   0x00007000
-#define PLL_FWDDIVB_8		   0x00000000
-#define PLL_FWDDIVB_7		   0x00001000
-#define PLL_FWDDIVB_6		   0x00002000
-#define PLL_FWDDIVB_5		   0x00003000
-#define PLL_FWDDIVB_4		   0x00004000
-#define PLL_FWDDIVB_3		   0x00005000
-#define PLL_FWDDIVB_2		   0x00006000
-#define PLL_FWDDIVB_1		   0x00007000
-    /* PLL tune bits */
+#define PLL_ACTIVE		0x80000000
+#define CPC0_PLLMR1_SSCS	0x80000000
+#define PLL_RESET		0x40000000
+#define CPC0_PLLMR1_PLLR	0x40000000
+	/* Feedback multiplier */
+#define PLL_FBKDIV		0x00F00000
+#define CPC0_PLLMR1_FBDV	0x00F00000
+#define PLL_FBKDIV_16		0x00000000
+#define PLL_FBKDIV_1		0x00100000
+#define PLL_FBKDIV_2		0x00200000
+#define PLL_FBKDIV_3		0x00300000
+#define PLL_FBKDIV_4		0x00400000
+#define PLL_FBKDIV_5		0x00500000
+#define PLL_FBKDIV_6		0x00600000
+#define PLL_FBKDIV_7		0x00700000
+#define PLL_FBKDIV_8		0x00800000
+#define PLL_FBKDIV_9		0x00900000
+#define PLL_FBKDIV_10		0x00A00000
+#define PLL_FBKDIV_11		0x00B00000
+#define PLL_FBKDIV_12		0x00C00000
+#define PLL_FBKDIV_13		0x00D00000
+#define PLL_FBKDIV_14		0x00E00000
+#define PLL_FBKDIV_15		0x00F00000
+	/* Forward A divisor */
+#define PLL_FWDDIVA		0x00070000
+#define CPC0_PLLMR1_FWDVA	0x00070000
+#define PLL_FWDDIVA_8		0x00000000
+#define PLL_FWDDIVA_7		0x00010000
+#define PLL_FWDDIVA_6		0x00020000
+#define PLL_FWDDIVA_5		0x00030000
+#define PLL_FWDDIVA_4		0x00040000
+#define PLL_FWDDIVA_3		0x00050000
+#define PLL_FWDDIVA_2		0x00060000
+#define PLL_FWDDIVA_1		0x00070000
+	/* Forward B divisor */
+#define PLL_FWDDIVB		0x00007000
+#define CPC0_PLLMR1_FWDVB	0x00007000
+#define PLL_FWDDIVB_8		0x00000000
+#define PLL_FWDDIVB_7		0x00001000
+#define PLL_FWDDIVB_6		0x00002000
+#define PLL_FWDDIVB_5		0x00003000
+#define PLL_FWDDIVB_4		0x00004000
+#define PLL_FWDDIVB_3		0x00005000
+#define PLL_FWDDIVB_2		0x00006000
+#define PLL_FWDDIVB_1		0x00007000
+	/* PLL tune bits */
 #define PLL_TUNE_MASK		 0x000003FF
-#define PLL_TUNE_2_M_3		 0x00000133	/*  2 <= M <= 3		      */
-#define PLL_TUNE_4_M_6		 0x00000134	/*  3 <  M <= 6		      */
-#define PLL_TUNE_7_M_10		 0x00000138	/*  6 <  M <= 10	      */
-#define PLL_TUNE_11_M_14	 0x0000013C	/* 10 <  M <= 14	      */
-#define PLL_TUNE_15_M_40	 0x0000023E	/* 14 <  M <= 40	      */
-#define PLL_TUNE_VCO_LOW	 0x00000000	/* 500MHz <= VCO <=  800MHz   */
-#define PLL_TUNE_VCO_HI		 0x00000080	/* 800MHz <  VCO <= 1000MHz   */
+#define PLL_TUNE_2_M_3		 0x00000133	/*  2 <= M <= 3 */
+#define PLL_TUNE_4_M_6		 0x00000134	/*  3 <  M <= 6 */
+#define PLL_TUNE_7_M_10		 0x00000138	/*  6 <  M <= 10 */
+#define PLL_TUNE_11_M_14	 0x0000013C	/* 10 <  M <= 14 */
+#define PLL_TUNE_15_M_40	 0x0000023E	/* 14 <  M <= 40 */
+#define PLL_TUNE_VCO_LOW	 0x00000000	/* 500MHz <= VCO <=  800MHz */
+#define PLL_TUNE_VCO_HI		 0x00000080	/* 800MHz <  VCO <= 1000MHz */
 
 /* Defines for CPC0_PLLMR0 Register fields */
-    /* CPU divisor */
-#define PLL_CPUDIV		   0x00300000
-#define CPC0_PLLMR0_CCDV	   0x00300000
-#define PLL_CPUDIV_1		   0x00000000
-#define PLL_CPUDIV_2		   0x00100000
-#define PLL_CPUDIV_3		   0x00200000
-#define PLL_CPUDIV_4		   0x00300000
-    /* PLB divisor */
-#define PLL_PLBDIV		   0x00030000
-#define CPC0_PLLMR0_CBDV	   0x00030000
-#define PLL_PLBDIV_1		   0x00000000
-#define PLL_PLBDIV_2		   0x00010000
-#define PLL_PLBDIV_3		   0x00020000
-#define PLL_PLBDIV_4		   0x00030000
-    /* OPB divisor */
-#define PLL_OPBDIV		   0x00003000
-#define CPC0_PLLMR0_OPDV	   0x00003000
-#define PLL_OPBDIV_1		   0x00000000
-#define PLL_OPBDIV_2		   0x00001000
-#define PLL_OPBDIV_3		   0x00002000
-#define PLL_OPBDIV_4		   0x00003000
-    /* EBC divisor */
-#define PLL_EXTBUSDIV		   0x00000300
-#define CPC0_PLLMR0_EPDV	   0x00000300
-#define PLL_EXTBUSDIV_2		   0x00000000
-#define PLL_EXTBUSDIV_3		   0x00000100
-#define PLL_EXTBUSDIV_4		   0x00000200
-#define PLL_EXTBUSDIV_5		   0x00000300
-    /* MAL divisor */
-#define PLL_MALDIV		   0x00000030
-#define CPC0_PLLMR0_MPDV	   0x00000030
-#define PLL_MALDIV_1		   0x00000000
-#define PLL_MALDIV_2		   0x00000010
-#define PLL_MALDIV_3		   0x00000020
-#define PLL_MALDIV_4		   0x00000030
-    /* PCI divisor */
-#define PLL_PCIDIV		   0x00000003
-#define CPC0_PLLMR0_PPFD	   0x00000003
-#define PLL_PCIDIV_1		   0x00000000
-#define PLL_PCIDIV_2		   0x00000001
-#define PLL_PCIDIV_3		   0x00000002
-#define PLL_PCIDIV_4		   0x00000003
+	/* CPU divisor */
+#define PLL_CPUDIV		0x00300000
+#define CPC0_PLLMR0_CCDV	0x00300000
+#define PLL_CPUDIV_1		0x00000000
+#define PLL_CPUDIV_2		0x00100000
+#define PLL_CPUDIV_3		0x00200000
+#define PLL_CPUDIV_4		0x00300000
+	/* PLB divisor */
+#define PLL_PLBDIV		0x00030000
+#define CPC0_PLLMR0_CBDV	0x00030000
+#define PLL_PLBDIV_1		0x00000000
+#define PLL_PLBDIV_2		0x00010000
+#define PLL_PLBDIV_3		0x00020000
+#define PLL_PLBDIV_4		0x00030000
+	/* OPB divisor */
+#define PLL_OPBDIV		0x00003000
+#define CPC0_PLLMR0_OPDV	0x00003000
+#define PLL_OPBDIV_1		0x00000000
+#define PLL_OPBDIV_2		0x00001000
+#define PLL_OPBDIV_3		0x00002000
+#define PLL_OPBDIV_4		0x00003000
+	/* EBC divisor */
+#define PLL_EXTBUSDIV		0x00000300
+#define CPC0_PLLMR0_EPDV	0x00000300
+#define PLL_EXTBUSDIV_2		0x00000000
+#define PLL_EXTBUSDIV_3		0x00000100
+#define PLL_EXTBUSDIV_4		0x00000200
+#define PLL_EXTBUSDIV_5		0x00000300
+	/* MAL divisor */
+#define PLL_MALDIV		0x00000030
+#define CPC0_PLLMR0_MPDV	0x00000030
+#define PLL_MALDIV_1		0x00000000
+#define PLL_MALDIV_2		0x00000010
+#define PLL_MALDIV_3		0x00000020
+#define PLL_MALDIV_4		0x00000030
+	/* PCI divisor */
+#define PLL_PCIDIV		0x00000003
+#define CPC0_PLLMR0_PPFD	0x00000003
+#define PLL_PCIDIV_1		0x00000000
+#define PLL_PCIDIV_2		0x00000001
+#define PLL_PCIDIV_3		0x00000002
+#define PLL_PCIDIV_4		0x00000003
 
 /*
- *-------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  * PLL settings for 266MHz CPU, 133MHz PLB/SDRAM, 66MHz EBC, 33MHz PCI,
  * assuming a 33.3MHz input clock to the 405EP.
- *-------------------------------------------------------------------------------
+ *------------------------------------------------------------------------------
  */
 #define PLLMR0_266_133_66  (PLL_CPUDIV_1 | PLL_PLBDIV_2 |  \
 			    PLL_OPBDIV_2 | PLL_EXTBUSDIV_2 |  \
@@ -427,25 +427,25 @@
 #define CPC0_PERD1	0x0e1		/* CPR_PERD1 */
 #define CPC0_PERC0	0x180		/* CPR_PERC0 */
 
-#define CPR_CLKUPD_ENPLLCH_EN  0x40000000     /* Enable CPR PLL Changes */
-#define CPR_CLKUPD_ENDVCH_EN   0x20000000     /* Enable CPR Sys. Div. Changes */
-#define CPR_PERD0_SPIDV_MASK   0x000F0000     /* SPI Clock Divider */
+#define CPR_CLKUPD_ENPLLCH_EN  0x40000000 /* Enable CPR PLL Changes */
+#define CPR_CLKUPD_ENDVCH_EN   0x20000000 /* Enable CPR Sys. Div. Changes */
+#define CPR_PERD0_SPIDV_MASK   0x000F0000 /* SPI Clock Divider */
 
-#define PLLC_SRC_MASK	       0x20000000     /* PLL feedback source */
+#define PLLC_SRC_MASK	       0x20000000 /* PLL feedback source */
 
-#define PLLD_FBDV_MASK	       0x1F000000     /* PLL feedback divider value */
-#define PLLD_FWDVA_MASK        0x000F0000     /* PLL forward divider A value */
-#define PLLD_FWDVB_MASK        0x00000700     /* PLL forward divider B value */
+#define PLLD_FBDV_MASK	       0x1F000000 /* PLL feedback divider value */
+#define PLLD_FWDVA_MASK        0x000F0000 /* PLL forward divider A value */
+#define PLLD_FWDVB_MASK        0x00000700 /* PLL forward divider B value */
 
-#define PRIMAD_CPUDV_MASK      0x0F000000     /* CPU Clock Divisor Mask */
-#define PRIMAD_PLBDV_MASK      0x000F0000     /* PLB Clock Divisor Mask */
-#define PRIMAD_OPBDV_MASK      0x00000F00     /* OPB Clock Divisor Mask */
-#define PRIMAD_EBCDV_MASK      0x0000000F     /* EBC Clock Divisor Mask */
+#define PRIMAD_CPUDV_MASK      0x0F000000 /* CPU Clock Divisor Mask */
+#define PRIMAD_PLBDV_MASK      0x000F0000 /* PLB Clock Divisor Mask */
+#define PRIMAD_OPBDV_MASK      0x00000F00 /* OPB Clock Divisor Mask */
+#define PRIMAD_EBCDV_MASK      0x0000000F /* EBC Clock Divisor Mask */
 
-#define PERD0_PWMDV_MASK       0xFF000000     /* PWM Divider Mask */
-#define PERD0_SPIDV_MASK       0x000F0000     /* SPI Divider Mask */
-#define PERD0_U0DV_MASK        0x0000FF00     /* UART 0 Divider Mask */
-#define PERD0_U1DV_MASK        0x000000FF     /* UART 1 Divider Mask */
+#define PERD0_PWMDV_MASK       0xFF000000 /* PWM Divider Mask */
+#define PERD0_SPIDV_MASK       0x000F0000 /* SPI Divider Mask */
+#define PERD0_U0DV_MASK        0x0000FF00 /* UART 0 Divider Mask */
+#define PERD0_U1DV_MASK        0x000000FF /* UART 1 Divider Mask */
 
 #else /* #ifdef CONFIG_405EP */
 /******************************************************************************
@@ -462,13 +462,13 @@
 #define CPC0_ECR	0xaa			/* edge conditioner register */
 
 /* Bit definitions */
-#define PLLMR_FWD_DIV_MASK	0xE0000000     /* Forward Divisor */
+#define PLLMR_FWD_DIV_MASK	0xE0000000	/* Forward Divisor */
 #define PLLMR_FWD_DIV_BYPASS	0xE0000000
 #define PLLMR_FWD_DIV_3		0xA0000000
 #define PLLMR_FWD_DIV_4		0x80000000
 #define PLLMR_FWD_DIV_6		0x40000000
 
-#define PLLMR_FB_DIV_MASK	0x1E000000     /* Feedback Divisor */
+#define PLLMR_FB_DIV_MASK	0x1E000000	/* Feedback Divisor */
 #define PLLMR_FB_DIV_1		0x02000000
 #define PLLMR_FB_DIV_2		0x04000000
 #define PLLMR_FB_DIV_3		0x06000000
@@ -476,32 +476,32 @@
 
 #define PLLMR_TUNING_MASK	0x01F80000
 
-#define PLLMR_CPU_TO_PLB_MASK	0x00060000     /* CPU:PLB Frequency Divisor */
+#define PLLMR_CPU_TO_PLB_MASK	0x00060000	/* CPU:PLB Frequency Divisor */
 #define PLLMR_CPU_PLB_DIV_1	0x00000000
 #define PLLMR_CPU_PLB_DIV_2	0x00020000
 #define PLLMR_CPU_PLB_DIV_3	0x00040000
 #define PLLMR_CPU_PLB_DIV_4	0x00060000
 
-#define PLLMR_OPB_TO_PLB_MASK	0x00018000     /* OPB:PLB Frequency Divisor */
+#define PLLMR_OPB_TO_PLB_MASK	0x00018000	/* OPB:PLB Frequency Divisor */
 #define PLLMR_OPB_PLB_DIV_1	0x00000000
 #define PLLMR_OPB_PLB_DIV_2	0x00008000
 #define PLLMR_OPB_PLB_DIV_3	0x00010000
 #define PLLMR_OPB_PLB_DIV_4	0x00018000
 
-#define PLLMR_PCI_TO_PLB_MASK	0x00006000     /* PCI:PLB Frequency Divisor */
+#define PLLMR_PCI_TO_PLB_MASK	0x00006000	/* PCI:PLB Frequency Divisor */
 #define PLLMR_PCI_PLB_DIV_1	0x00000000
 #define PLLMR_PCI_PLB_DIV_2	0x00002000
 #define PLLMR_PCI_PLB_DIV_3	0x00004000
 #define PLLMR_PCI_PLB_DIV_4	0x00006000
 
-#define PLLMR_EXB_TO_PLB_MASK	0x00001800     /* External Bus:PLB Divisor  */
+#define PLLMR_EXB_TO_PLB_MASK	0x00001800	/* External Bus:PLB Divisor */
 #define PLLMR_EXB_PLB_DIV_2	0x00000000
 #define PLLMR_EXB_PLB_DIV_3	0x00000800
 #define PLLMR_EXB_PLB_DIV_4	0x00001000
 #define PLLMR_EXB_PLB_DIV_5	0x00001800
 
 /* definitions for PPC405GPr (new mode strapping) */
-#define PLLMR_FWDB_DIV_MASK	0x00000007     /* Forward Divisor B */
+#define PLLMR_FWDB_DIV_MASK	0x00000007	/* Forward Divisor B */
 
 #define PSR_PLL_FWD_MASK	0xC0000000
 #define PSR_PLL_FDBACK_MASK	0x30000000
@@ -513,15 +513,15 @@
 #define PSR_ROM_WIDTH_MASK	0x00018000
 #define PSR_ROM_LOC		0x00004000
 #define PSR_PCI_ASYNC_EN	0x00001000
-#define PSR_PERCLK_SYNC_MODE_EN 0x00000800     /* PPC405GPr only */
+#define PSR_PERCLK_SYNC_MODE_EN 0x00000800	/* PPC405GPr only */
 #define PSR_PCI_ARBIT_EN	0x00000400
-#define PSR_NEW_MODE_EN		0x00000020     /* PPC405GPr only */
+#define PSR_NEW_MODE_EN		0x00000020	/* PPC405GPr only */
 
 #ifndef CONFIG_IOP480
 /*
  * PLL Voltage Controlled Oscillator (VCO) definitions
  * Maximum and minimum values (in MHz) for correct PLL operation.
- */
+*/
 #define VCO_MIN     400
 #define VCO_MAX     800
 #endif /* #ifndef CONFIG_IOP480 */
@@ -535,35 +535,35 @@
 #else
 #define MAL_DCR_BASE	0x180
 #endif
-#define	MAL0_CFG	(MAL_DCR_BASE + 0x00)	/* MAL Config reg */
-#define	MAL0_ESR	(MAL_DCR_BASE + 0x01)	/* Err Status (Read/Clear)*/
-#define	MAL0_IER	(MAL_DCR_BASE + 0x02)	/* Interrupt enable */
-#define	MAL0_TXCASR	(MAL_DCR_BASE + 0x04)	/* TX Channel active (set)*/
-#define	MAL0_TXCARR	(MAL_DCR_BASE + 0x05)	/* TX Channel active (reset)*/
-#define	MAL0_TXEOBISR	(MAL_DCR_BASE + 0x06)	/* TX End of buffer int status*/
-#define	MAL0_TXDEIR	(MAL_DCR_BASE + 0x07)	/* TX Descr. Error Int reg */
-#define	MAL0_RXCASR	(MAL_DCR_BASE + 0x10)	/* RX Channel active (set) */
-#define	MAL0_RXCARR	(MAL_DCR_BASE + 0x11)	/* RX Channel active (reset) */
-#define	MAL0_RXEOBISR	(MAL_DCR_BASE + 0x12)	/* RX End of buffer int status*/
-#define	MAL0_RXDEIR	(MAL_DCR_BASE + 0x13)	/* RX Descr. Error Int reg */
-#define	MAL0_TXCTP0R	(MAL_DCR_BASE + 0x20)	/* TX 0 Channel table ptr */
-#define	MAL0_TXCTP1R	(MAL_DCR_BASE + 0x21)	/* TX 1 Channel table ptr */
-#define	MAL0_TXCTP2R	(MAL_DCR_BASE + 0x22)	/* TX 2 Channel table ptr */
-#define	MAL0_TXCTP3R	(MAL_DCR_BASE + 0x23)	/* TX 3 Channel table ptr */
-#define	MAL0_RXCTP0R	(MAL_DCR_BASE + 0x40)	/* RX 0 Channel table ptr */
-#define	MAL0_RXCTP1R	(MAL_DCR_BASE + 0x41)	/* RX 1 Channel table ptr */
-#define	MAL0_RXCTP2R	(MAL_DCR_BASE + 0x42)	/* RX 2 Channel table ptr */
-#define	MAL0_RXCTP3R	(MAL_DCR_BASE + 0x43)	/* RX 3 Channel table ptr */
-#define	MAL0_RXCTP8R	(MAL_DCR_BASE + 0x48)	/* RX 8 Channel table ptr */
-#define	MAL0_RXCTP16R	(MAL_DCR_BASE + 0x50)	/* RX 16 Channel table ptr */
-#define	MAL0_RXCTP24R	(MAL_DCR_BASE + 0x58)	/* RX 24 Channel table ptr */
-#define	MAL0_RCBS0	(MAL_DCR_BASE + 0x60)	/* RX 0 Channel buffer size */
-#define	MAL0_RCBS1	(MAL_DCR_BASE + 0x61)	/* RX 1 Channel buffer size */
-#define	MAL0_RCBS2	(MAL_DCR_BASE + 0x62)	/* RX 2 Channel buffer size */
-#define	MAL0_RCBS3	(MAL_DCR_BASE + 0x63)	/* RX 3 Channel buffer size */
-#define	MAL0_RCBS8	(MAL_DCR_BASE + 0x68)	/* RX 8 Channel buffer size */
-#define	MAL0_RCBS16	(MAL_DCR_BASE + 0x70)	/* RX 16 Channel buffer size */
-#define	MAL0_RCBS24	(MAL_DCR_BASE + 0x78)	/* RX 24 Channel buffer size */
+#define	MAL0_CFG	(MAL_DCR_BASE + 0x00) /* MAL Config reg */
+#define	MAL0_ESR	(MAL_DCR_BASE + 0x01) /* Err Status (Read/Clear) */
+#define	MAL0_IER	(MAL_DCR_BASE + 0x02) /* Interrupt enable */
+#define	MAL0_TXCASR	(MAL_DCR_BASE + 0x04) /* TX Channel active (set) */
+#define	MAL0_TXCARR	(MAL_DCR_BASE + 0x05) /* TX Channel active (reset) */
+#define	MAL0_TXEOBISR	(MAL_DCR_BASE + 0x06) /* TX End of buffer int status */
+#define	MAL0_TXDEIR	(MAL_DCR_BASE + 0x07) /* TX Descr. Error Int reg */
+#define	MAL0_RXCASR	(MAL_DCR_BASE + 0x10) /* RX Channel active (set) */
+#define	MAL0_RXCARR	(MAL_DCR_BASE + 0x11) /* RX Channel active (reset) */
+#define	MAL0_RXEOBISR	(MAL_DCR_BASE + 0x12) /* RX End of buffer int status */
+#define	MAL0_RXDEIR	(MAL_DCR_BASE + 0x13) /* RX Descr. Error Int reg */
+#define	MAL0_TXCTP0R	(MAL_DCR_BASE + 0x20) /* TX 0 Channel table ptr */
+#define	MAL0_TXCTP1R	(MAL_DCR_BASE + 0x21) /* TX 1 Channel table ptr */
+#define	MAL0_TXCTP2R	(MAL_DCR_BASE + 0x22) /* TX 2 Channel table ptr */
+#define	MAL0_TXCTP3R	(MAL_DCR_BASE + 0x23) /* TX 3 Channel table ptr */
+#define	MAL0_RXCTP0R	(MAL_DCR_BASE + 0x40) /* RX 0 Channel table ptr */
+#define	MAL0_RXCTP1R	(MAL_DCR_BASE + 0x41) /* RX 1 Channel table ptr */
+#define	MAL0_RXCTP2R	(MAL_DCR_BASE + 0x42) /* RX 2 Channel table ptr */
+#define	MAL0_RXCTP3R	(MAL_DCR_BASE + 0x43) /* RX 3 Channel table ptr */
+#define	MAL0_RXCTP8R	(MAL_DCR_BASE + 0x48) /* RX 8 Channel table ptr */
+#define	MAL0_RXCTP16R	(MAL_DCR_BASE + 0x50) /* RX 16 Channel table ptr */
+#define	MAL0_RXCTP24R	(MAL_DCR_BASE + 0x58) /* RX 24 Channel table ptr */
+#define	MAL0_RCBS0	(MAL_DCR_BASE + 0x60) /* RX 0 Channel buffer size */
+#define	MAL0_RCBS1	(MAL_DCR_BASE + 0x61) /* RX 1 Channel buffer size */
+#define	MAL0_RCBS2	(MAL_DCR_BASE + 0x62) /* RX 2 Channel buffer size */
+#define	MAL0_RCBS3	(MAL_DCR_BASE + 0x63) /* RX 3 Channel buffer size */
+#define	MAL0_RCBS8	(MAL_DCR_BASE + 0x68) /* RX 8 Channel buffer size */
+#define	MAL0_RCBS16	(MAL_DCR_BASE + 0x70) /* RX 16 Channel buffer size */
+#define	MAL0_RCBS24	(MAL_DCR_BASE + 0x78) /* RX 24 Channel buffer size */
 
 /*-----------------------------------------------------------------------------
 | IIC Register Offsets
@@ -578,7 +578,7 @@
 #define    IICEXTSTS	    0x09
 #define    IICLSADR	    0x0A
 #define    IICHSADR	    0x0B
-#define    IICCLKDIV	    0x0C
+#define    IIC0_CLKDIV	    0x0C
 #define    IICINTRMSK	    0x0D
 #define    IICXFRCNT	    0x0E
 #define    IICXTCNTLSS	    0x0F
@@ -610,7 +610,7 @@
 #define OCM0_DSRC2	(OCM_DCR_BASE + 0x09)	/* OCM D-side Bank 2 Config */
 #define OCM0_ISRC1	(OCM_DCR_BASE + 0x0A)	/* OCM I-side Bank 1Config */
 #define OCM0_ISRC2	(OCM_DCR_BASE + 0x0B)	/* OCM I-side Bank 2 Config */
-#define OCM0_DISDPC	(OCM_DCR_BASE + 0x0C)	/* OCM D-/I-side Data Par Chk*/
+#define OCM0_DISDPC	(OCM_DCR_BASE + 0x0C)	/* OCM D-/I-side Data Par Chk */
 #else
 #define OCM_DCR_BASE 0x018
 #define OCM0_ISCNTL	(OCM_DCR_BASE+0x01)	/* OCM I-side control reg */
@@ -746,21 +746,21 @@
 #define SDR0_MFR		0x4300	/* SDR0_MFR reg */
 
 /* Defines for CPC0_EPRCSR register */
-#define CPC0_EPRCSR_E0NFE	   0x80000000
-#define CPC0_EPRCSR_E1NFE	   0x40000000
-#define CPC0_EPRCSR_E1RPP	   0x00000080
-#define CPC0_EPRCSR_E0RPP	   0x00000040
-#define CPC0_EPRCSR_E1ERP	   0x00000020
-#define CPC0_EPRCSR_E0ERP	   0x00000010
-#define CPC0_EPRCSR_E1PCI	   0x00000002
-#define CPC0_EPRCSR_E0PCI	   0x00000001
+#define CPC0_EPRCSR_E0NFE	0x80000000
+#define CPC0_EPRCSR_E1NFE	0x40000000
+#define CPC0_EPRCSR_E1RPP	0x00000080
+#define CPC0_EPRCSR_E0RPP	0x00000040
+#define CPC0_EPRCSR_E1ERP	0x00000020
+#define CPC0_EPRCSR_E0ERP	0x00000010
+#define CPC0_EPRCSR_E1PCI	0x00000002
+#define CPC0_EPRCSR_E0PCI	0x00000001
 
 #define CPR0_CLKUPD	0x020
 #define CPR0_PLLC	0x040
 #define CPR0_PLLD	0x060
 #define CPR0_CPUD	0x080
 #define CPR0_PLBD	0x0a0
-#define CPR0_OPBD	0x0c0
+#define CPR0_OPBD0	0x0c0
 #define CPR0_PERD	0x0e0
 
 #define SDR0_PINSTP	0x0040
@@ -770,46 +770,46 @@
 
 /* CUST0 Customer Configuration Register0 */
 #define SDR0_CUST0		     0x4000
-#define   SDR0_CUST0_MUX_E_N_G_MASK   0xC0000000     /* Mux_Emac_NDFC_GPIO */
-#define   SDR0_CUST0_MUX_EMAC_SEL     0x40000000       /* Emac Selection */
-#define   SDR0_CUST0_MUX_NDFC_SEL     0x80000000       /* NDFC Selection */
-#define   SDR0_CUST0_MUX_GPIO_SEL     0xC0000000       /* GPIO Selection */
+#define SDR0_CUST0_MUX_E_N_G_MASK	0xC0000000 /* Mux_Emac_NDFC_GPIO */
+#define SDR0_CUST0_MUX_EMAC_SEL		0x40000000 /* Emac Selection */
+#define SDR0_CUST0_MUX_NDFC_SEL		0x80000000 /* NDFC Selection */
+#define SDR0_CUST0_MUX_GPIO_SEL		0xC0000000 /* GPIO Selection */
 
-#define   SDR0_CUST0_NDFC_EN_MASK     0x20000000     /* NDFC Enable Mask */
-#define   SDR0_CUST0_NDFC_ENABLE      0x20000000       /* NDFC Enable */
-#define   SDR0_CUST0_NDFC_DISABLE     0x00000000       /* NDFC Disable */
+#define SDR0_CUST0_NDFC_EN_MASK		0x20000000 /* NDFC Enable Mask */
+#define SDR0_CUST0_NDFC_ENABLE		0x20000000 /* NDFC Enable */
+#define SDR0_CUST0_NDFC_DISABLE		0x00000000 /* NDFC Disable */
 
-#define   SDR0_CUST0_NDFC_BW_MASK     0x10000000     /* NDFC Boot Width */
-#define   SDR0_CUST0_NDFC_BW_16_BIT   0x10000000       /* NDFC Boot Width = 16 Bit */
-#define   SDR0_CUST0_NDFC_BW_8_BIT    0x00000000       /* NDFC Boot Width =  8 Bit */
+#define SDR0_CUST0_NDFC_BW_MASK	  	0x10000000 /* NDFC Boot Width */
+#define SDR0_CUST0_NDFC_BW_16_BIT 	0x10000000 /* NDFC Boot Width= 16 Bit */
+#define SDR0_CUST0_NDFC_BW_8_BIT  	0x00000000 /* NDFC Boot Width=  8 Bit */
 
-#define   SDR0_CUST0_NDFC_BP_MASK     0x0F000000     /* NDFC Boot Page */
-#define   SDR0_CUST0_NDFC_BP_ENCODE(n) ((((unsigned long)(n))&0xF)<<24)
-#define   SDR0_CUST0_NDFC_BP_DECODE(n) ((((unsigned long)(n))>>24)&0x0F)
+#define SDR0_CUST0_NDFC_BP_MASK		0x0F000000 /* NDFC Boot Page */
+#define SDR0_CUST0_NDFC_BP_ENCODE(n)	((((unsigned long)(n))&0xF)<<24)
+#define SDR0_CUST0_NDFC_BP_DECODE(n)	((((unsigned long)(n))>>24)&0x0F)
 
-#define   SDR0_CUST0_NDFC_BAC_MASK    0x00C00000     /* NDFC Boot Address Cycle */
-#define   SDR0_CUST0_NDFC_BAC_ENCODE(n) ((((unsigned long)(n))&0x3)<<22)
-#define   SDR0_CUST0_NDFC_BAC_DECODE(n) ((((unsigned long)(n))>>22)&0x03)
+#define SDR0_CUST0_NDFC_BAC_MASK	0x00C00000 /* NDFC Boot Address Cycle */
+#define SDR0_CUST0_NDFC_BAC_ENCODE(n)	((((unsigned long)(n))&0x3)<<22)
+#define SDR0_CUST0_NDFC_BAC_DECODE(n)	((((unsigned long)(n))>>22)&0x03)
 
-#define   SDR0_CUST0_NDFC_ARE_MASK    0x00200000     /* NDFC Auto Read Enable */
-#define   SDR0_CUST0_NDFC_ARE_ENABLE  0x00200000       /* NDFC Auto Read Enable */
-#define   SDR0_CUST0_NDFC_ARE_DISABLE 0x00000000       /* NDFC Auto Read Disable */
+#define SDR0_CUST0_NDFC_ARE_MASK	0x00200000 /* NDFC Auto Read Enable */
+#define SDR0_CUST0_NDFC_ARE_ENABLE	0x00200000 /* NDFC Auto Read Enable */
+#define SDR0_CUST0_NDFC_ARE_DISABLE	0x00000000 /* NDFC Auto Read Disable */
 
-#define   SDR0_CUST0_NRB_MASK	      0x00100000     /* NDFC Ready / Busy */
-#define   SDR0_CUST0_NRB_BUSY	      0x00100000       /* Busy */
-#define   SDR0_CUST0_NRB_READY	      0x00000000       /* Ready */
+#define SDR0_CUST0_NRB_MASK		0x00100000 /* NDFC Ready / Busy */
+#define SDR0_CUST0_NRB_BUSY		0x00100000 /* Busy */
+#define SDR0_CUST0_NRB_READY		0x00000000 /* Ready */
 
-#define   SDR0_CUST0_NDRSC_MASK       0x0000FFF0     /* NDFC Device Reset Count Mask */
-#define   SDR0_CUST0_NDRSC_ENCODE(n) ((((unsigned long)(n))&0xFFF)<<4)
-#define   SDR0_CUST0_NDRSC_DECODE(n) ((((unsigned long)(n))>>4)&0xFFF)
+#define SDR0_CUST0_NDRSC_MASK	0x0000FFF0 /* NDFC Device Reset Count Mask */
+#define SDR0_CUST0_NDRSC_ENCODE(n)	((((unsigned long)(n))&0xFFF)<<4)
+#define SDR0_CUST0_NDRSC_DECODE(n)	((((unsigned long)(n))>>4)&0xFFF)
 
-#define   SDR0_CUST0_CHIPSELGAT_MASK  0x0000000F     /* Chip Select Gating Mask */
-#define   SDR0_CUST0_CHIPSELGAT_DIS   0x00000000       /* Chip Select Gating Disable */
-#define   SDR0_CUST0_CHIPSELGAT_ENALL 0x0000000F       /* All Chip Select Gating Enable */
-#define   SDR0_CUST0_CHIPSELGAT_EN0   0x00000008       /* Chip Select0 Gating Enable */
-#define   SDR0_CUST0_CHIPSELGAT_EN1   0x00000004       /* Chip Select1 Gating Enable */
-#define   SDR0_CUST0_CHIPSELGAT_EN2   0x00000002       /* Chip Select2 Gating Enable */
-#define   SDR0_CUST0_CHIPSELGAT_EN3   0x00000001       /* Chip Select3 Gating Enable */
+#define SDR0_CUST0_CHIPSELGAT_MASK	0x0000000F /* Chip Sel Gating Mask */
+#define SDR0_CUST0_CHIPSELGAT_DIS	0x00000000 /* Chip Sel Gating Disable */
+#define SDR0_CUST0_CHIPSELGAT_ENALL  0x0000000F /* All Chip Sel Gating Enable */
+#define SDR0_CUST0_CHIPSELGAT_EN0	0x00000008 /* Chip Sel0 Gating Enable */
+#define SDR0_CUST0_CHIPSELGAT_EN1	0x00000004 /* Chip Sel1 Gating Enable */
+#define SDR0_CUST0_CHIPSELGAT_EN2	0x00000002 /* Chip Sel2 Gating Enable */
+#define SDR0_CUST0_CHIPSELGAT_EN3	0x00000001 /* Chip Sel3 Gating Enable */
 
 #define SDR0_PFC0		0x4100
 #define SDR0_PFC1		0x4101
