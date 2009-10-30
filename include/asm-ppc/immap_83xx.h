@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2004-2009 Freescale Semiconductor, Inc.
+ * Copyright 2004-2009 Freescale Semiconductor, Inc.
  *
  * MPC83xx Internal Memory Map
  *
@@ -868,4 +868,10 @@ typedef struct immap {
 #endif
 #define CONFIG_SYS_MPC83xx_USB_ADDR \
 			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_USB_OFFSET)
+
+#define CONFIG_SYS_TSEC1_OFFSET		0x24000
+#define CONFIG_SYS_MDIO1_OFFSET		0x24520
+
+#define TSEC_BASE_ADDR		(CONFIG_SYS_IMMR + CONFIG_SYS_TSEC1_OFFSET)
+#define MDIO_BASE_ADDR		(CONFIG_SYS_IMMR + CONFIG_SYS_MDIO1_OFFSET)
 #endif				/* __IMMAP_83xx__ */

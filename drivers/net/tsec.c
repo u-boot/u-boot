@@ -5,7 +5,7 @@
  * terms of the GNU Public License, Version 2, incorporated
  * herein by reference.
  *
- * Copyright (C) 2004-2009 Freescale Semiconductor, Inc.
+ * Copyright 2004-2009 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * author Andy Fleming
  *
@@ -80,7 +80,7 @@ static struct tsec_info_struct tsec_info[] = {
 #ifdef CONFIG_MPC85XX_FEC
 	{
 		.regs = (tsec_t *)(TSEC_BASE_ADDR + 0x2000),
-		.miiregs = (tsec_t *)(TSEC_BASE_ADDR),
+		.miiregs = (tsec_mdio_t *)(MDIO_BASE_ADDR),
 		.devname = CONFIG_MPC85XX_FEC_NAME,
 		.phyaddr = FEC_PHY_ADDR,
 		.flags = FEC_FLAGS
@@ -133,6 +133,7 @@ int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info)
 	privlist[num_tsecs++] = priv;
 	priv->regs = tsec_info->regs;
 	priv->phyregs = tsec_info->miiregs;
+	priv->phyregs_sgmii = tsec_info->miiregs_sgmii;
 
 	priv->phyaddr = tsec_info->phyaddr;
 	priv->flags = tsec_info->flags;
@@ -219,7 +220,7 @@ int tsec_init(struct eth_device *dev, bd_t * bd)
 }
 
 /* Writes the given phy's reg with value, using the specified MDIO regs */
-static void tsec_local_mdio_write(volatile tsec_t *phyregs, uint addr,
+static void tsec_local_mdio_write(volatile tsec_mdio_t *phyregs, uint addr,
 		uint reg, uint value)
 {
 	int timeout = 1000000;
@@ -242,7 +243,7 @@ static void tsec_local_mdio_write(volatile tsec_t *phyregs, uint addr,
  * notvalid bit cleared), and the bus to cease activity (miimind
  * busy bit cleared), and then returns the value
  */
-uint tsec_local_mdio_read(volatile tsec_t *phyregs, uint phyid, uint regnum)
+uint tsec_local_mdio_read(volatile tsec_mdio_t *phyregs, uint phyid, uint regnum)
 {
 	uint value;
 
@@ -287,11 +288,11 @@ static void tsec_configure_serdes(struct tsec_private *priv)
 {
 	/* Access TBI PHY registers at given TSEC register offset as opposed to the
 	 * register offset used for external PHY accesses */
-	tsec_local_mdio_write(priv->regs, priv->regs->tbipa, TBI_ANA,
+	tsec_local_mdio_write(priv->phyregs_sgmii, priv->regs->tbipa, TBI_ANA,
 			TBIANA_SETTINGS);
-	tsec_local_mdio_write(priv->regs, priv->regs->tbipa, TBI_TBICON,
+	tsec_local_mdio_write(priv->phyregs_sgmii, priv->regs->tbipa, TBI_TBICON,
 			TBICON_CLK_SELECT);
-	tsec_local_mdio_write(priv->regs, priv->regs->tbipa, TBI_CR,
+	tsec_local_mdio_write(priv->phyregs_sgmii, priv->regs->tbipa, TBI_CR,
 			TBICR_SETTINGS);
 }
 
@@ -303,12 +304,10 @@ static int init_phy(struct eth_device *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct phy_info *curphy;
-	volatile tsec_t *phyregs = priv->phyregs;
 	volatile tsec_t *regs = priv->regs;
 
 	/* Assign a Physical address to the TBI */
 	regs->tbipa = CONFIG_SYS_TBIPA_VALUE;
-	phyregs->tbipa = CONFIG_SYS_TBIPA_VALUE;
 	asm("sync");
 
 	/* Reset MII (due to new addresses) */
@@ -733,7 +732,7 @@ uint mii_parse_dm9161_scsr(uint mii_reg, struct tsec_private * priv)
 uint mii_cis8204_fixled(uint mii_reg, struct tsec_private * priv)
 {
 	uint phyid;
-	volatile tsec_t *regbase = priv->phyregs;
+	volatile tsec_mdio_t *regbase = priv->phyregs;
 	int timeout = 1000000;
 
 	for (phyid = 0; phyid < 4; phyid++) {
@@ -1766,7 +1765,7 @@ void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd)
 {
 	int i;
 	uint result;
-	volatile tsec_t *phyregs = priv->phyregs;
+	volatile tsec_mdio_t *phyregs = priv->phyregs;
 
 	phyregs->miimcfg = MIIMCFG_RESET;
 
