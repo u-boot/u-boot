@@ -40,6 +40,36 @@
 
 #define MUSB_EP0_FIFOSIZE	64	/* This is non-configurable */
 
+/* EP0 */
+struct musb_ep0_regs {
+	u16	reserved4;
+	u16	csr0;
+	u16	reserved5;
+	u16	reserved6;
+	u16	count0;
+	u8	host_type0;
+	u8	host_naklimit0;
+	u8	reserved7;
+	u8	reserved8;
+	u8	reserved9;
+	u8	configdata;
+};
+
+/* EP 1-15 */
+struct musb_epN_regs {
+	u16	txmaxp;
+	u16	txcsr;
+	u16	rxmaxp;
+	u16	rxcsr;
+	u16	rxcount;
+	u8	txtype;
+	u8	txinterval;
+	u8	rxtype;
+	u8	rxinterval;
+	u8	reserved0;
+	u8	fifosize;
+};
+
 /* Mentor USB core register overlay structure */
 struct musb_regs {
 	/* common registers */
@@ -97,6 +127,16 @@ struct musb_regs {
 		u8	rxhubaddr;
 		u8	rxhubport;
 	} tar[16];
+	/*
+	 * end point registers
+	 * ep0 elements are valid when array index is 0
+	 * otherwise epN is valid
+	 */
+	union musb_ep_regs {
+		struct musb_ep0_regs ep0;
+		struct musb_epN_regs epN;
+	} ep[16];
+
 } __attribute__((aligned(32)));
 
 /*
