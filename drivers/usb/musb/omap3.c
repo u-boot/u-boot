@@ -94,12 +94,17 @@ int musb_platform_init(void)
 	if (platform_needs_initialization) {
 		u32 stdby;
 
+		/*
+		 * OMAP3EVM uses ISP1504 phy and so
+		 * twl4030 related init is not required.
+		 */
+#ifdef CONFIG_TWL4030_USB
 		if (twl4030_usb_ulpi_init()) {
 			serial_printf("ERROR: %s Could not initialize PHY\n",
 				__PRETTY_FUNCTION__);
 			goto end;
 		}
-
+#endif
 		otg = (struct omap3_otg_regs *)OMAP3_OTG_BASE;
 
 		/* Set OTG to always be on */
