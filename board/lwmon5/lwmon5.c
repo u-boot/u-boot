@@ -532,13 +532,6 @@ unsigned int board_video_init (void)
 	udelay(500);
 	gpio_write_bit(CONFIG_SYS_GPIO_LIME_RST, 1);
 
-	/* Lime memory clock adjusted to 100MHz */
-	out_be32((void *)CONFIG_SYS_LIME_SDRAM_CLOCK, CONFIG_SYS_LIME_CLOCK_100MHZ);
-	/* Wait untill time expired. Because of requirements in lime manual */
-	udelay(300);
-	/* Write lime controller memory parameters */
-	out_be32((void *)CONFIG_SYS_LIME_MMR, CONFIG_SYS_LIME_MMR_VALUE);
-
 	mb862xx.winSizeX = 640;
 	mb862xx.winSizeY = 480;
 	mb862xx.gdfBytesPP = 2;
