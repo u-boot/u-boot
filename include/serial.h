@@ -66,4 +66,10 @@ extern void serial_stdio_init(void);
 extern int serial_assign(char * name);
 extern void serial_reinit_all(void);
 
+/* For usbtty */
+extern int usbtty_getc(void);
+extern void usbtty_putc(const char c);
+extern void usbtty_puts(const char *str);
+extern int usbtty_tstc(void);
+
 #endif
