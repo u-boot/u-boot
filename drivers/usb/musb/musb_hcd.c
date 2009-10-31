@@ -803,7 +803,7 @@ void usb_event_poll()
 {
 	struct stdio_dev *dev;
 	struct usb_device *usb_kbd_dev;
-	struct usb_interface_descriptor *iface;
+	struct usb_interface *iface;
 	struct usb_endpoint_descriptor *ep;
 	int pipe;
 	int maxp;

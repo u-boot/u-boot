@@ -96,7 +96,7 @@ static struct descriptor {
 				 * UE_DIR_IN | EHCI_INTR_ENDPT
 				 */
 		3,		/* bmAttributes: UE_INTERRUPT */
-		8, 0,		/* wMaxPacketSize */
+		8,		/* wMaxPacketSize */
 		255		/* bInterval */
 	},
 };

@@ -157,7 +157,7 @@ void usb_display_desc(struct usb_device *dev)
 {
 	if (dev->descriptor.bDescriptorType == USB_DT_DEVICE) {
 		printf("%d: %s,  USB Revision %x.%x\n", dev->devnum,
-		usb_get_class_desc(dev->config.if_desc[0].bInterfaceClass),
+		usb_get_class_desc(dev->config.if_desc[0].desc.bInterfaceClass),
 				   (dev->descriptor.bcdUSB>>8) & 0xff,
 				   dev->descriptor.bcdUSB & 0xff);
 
@@ -174,7 +174,7 @@ void usb_display_desc(struct usb_device *dev)
 		} else {
 			printf(" - Class: (from Interface) %s\n",
 			       usb_get_class_desc(
-				dev->config.if_desc[0].bInterfaceClass));
+				dev->config.if_desc[0].desc.bInterfaceClass));
 		}
 		printf(" - PacketSize: %d  Configurations: %d\n",
 			dev->descriptor.bMaxPacketSize0,
@@ -187,14 +187,14 @@ void usb_display_desc(struct usb_device *dev)
 
 }
 
-void usb_display_conf_desc(struct usb_config_descriptor *config,
+void usb_display_conf_desc(struct usb_configuration_descriptor *config,
 			   struct usb_device *dev)
 {
 	printf("   Configuration: %d\n", config->bConfigurationValue);
 	printf("   - Interfaces: %d %s%s%dmA\n", config->bNumInterfaces,
 	       (config->bmAttributes & 0x40) ? "Self Powered " : "Bus Powered ",
 	       (config->bmAttributes & 0x20) ? "Remote Wakeup " : "",
-		config->MaxPower*2);
+		config->bMaxPower*2);
 	if (config->iConfiguration) {
 		printf("   - ");
 		usb_display_string(dev, config->iConfiguration);
@@ -246,16 +246,16 @@ void usb_display_ep_desc(struct usb_endpoint_descriptor *epdesc)
 /* main routine to diasplay the configs, interfaces and endpoints */
 void usb_display_config(struct usb_device *dev)
 {
-	struct usb_config_descriptor *config;
-	struct usb_interface_descriptor *ifdesc;
+	struct usb_config *config;
+	struct usb_interface *ifdesc;
 	struct usb_endpoint_descriptor *epdesc;
 	int i, ii;
 
 	config = &dev->config;
-	usb_display_conf_desc(config, dev);
+	usb_display_conf_desc(&config->desc, dev);
 	for (i = 0; i < config->no_of_if; i++) {
 		ifdesc = &config->if_desc[i];
-		usb_display_if_desc(ifdesc, dev);
+		usb_display_if_desc(&ifdesc->desc, dev);
 		for (ii = 0; ii < ifdesc->no_of_ep; ii++) {
 			epdesc = &ifdesc->ep_desc[ii];
 			usb_display_ep_desc(epdesc);
@@ -319,9 +319,9 @@ void usb_show_tree_graph(struct usb_device *dev, char *pre)
 	pre[index++] = has_child ? '|' : ' ';
 	pre[index] = 0;
 	printf(" %s (%s, %dmA)\n", usb_get_class_desc(
-					dev->config.if_desc[0].bInterfaceClass),
+					dev->config.if_desc[0].desc.bInterfaceClass),
 					portspeed(dev->speed),
-					dev->config.MaxPower * 2);
+					dev->config.desc.bMaxPower * 2);
 	if (strlen(dev->mf) || strlen(dev->prod) || strlen(dev->serial))
 		printf(" %s  %s %s %s\n", pre, dev->mf, dev->prod, dev->serial);
 	printf(" %s\n", pre);
