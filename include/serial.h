@@ -67,9 +67,21 @@ extern int serial_assign(char * name);
 extern void serial_reinit_all(void);
 
 /* For usbtty */
+#ifdef CONFIG_USB_TTY
+
 extern int usbtty_getc(void);
 extern void usbtty_putc(const char c);
 extern void usbtty_puts(const char *str);
 extern int usbtty_tstc(void);
+
+#else
+
+/* stubs */
+#define usbtty_getc() 0
+#define usbtty_putc(a)
+#define usbtty_puts(a)
+#define usbtty_tstc() 0
+
+#endif /* CONFIG_USB_TTY */
 
 #endif
