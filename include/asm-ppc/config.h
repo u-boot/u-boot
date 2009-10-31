@@ -57,6 +57,12 @@
 #endif
 #endif
 
+/* Enable TSEC2.0 for the platforms that have it if we are using TSEC */
+#if defined(CONFIG_TSEC_ENET) && \
+    (defined(CONFIG_P1020) || defined(CONFIG_P1011))
+#define CONFIG_TSECV2
+#endif
+
 /* Relocation to SDRAM works on all PPC boards */
 #define CONFIG_RELOC_FIXUP_WORKS
 
