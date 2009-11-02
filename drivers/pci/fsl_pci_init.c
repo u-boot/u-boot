@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Freescale Semiconductor, Inc.
+ * Copyright 2007-2009 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,6 +42,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FSL_PCI_PBFR		0x44
 #define FSL_PCIE_CAP_ID		0x4c
 #define FSL_PCIE_CFG_RDY	0x4b0
+#define FSL_PROG_IF_AGENT	0x1
 
 void pciauto_prescan_setup_bridge(struct pci_controller *hose,
 				pci_dev_t dev, int sub_bus);
@@ -412,6 +413,16 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 	}
 }
 
+int fsl_is_pci_agent(struct pci_controller *hose)
+{
+	u8 prog_if;
+	pci_dev_t dev = PCI_BDF(hose->first_busno, 0, 0);
+
+	pci_hose_read_config_byte(hose, dev, PCI_CLASS_PROG, &prog_if);
+
+	return (prog_if == FSL_PROG_IF_AGENT);
+}
+
 int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 			struct pci_controller *hose, int busno)
 {
@@ -449,6 +460,11 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 	hose->first_busno = busno;
 
 	fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
+
+	if (fsl_is_pci_agent(hose)) {
+		fsl_pci_config_unlock(hose);
+		hose->last_busno = hose->first_busno;
+	}
 
 	printf("    PCIE%x on bus %02x - %02x\n", pci_info->pci_num,
 			hose->first_busno, hose->last_busno);
