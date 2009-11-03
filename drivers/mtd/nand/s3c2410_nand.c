@@ -21,7 +21,7 @@
 #include <common.h>
 
 #include <nand.h>
-#include <s3c2410.h>
+#include <asm/arch/s3c2410.h>
 #include <asm/io.h>
 
 #define S3C2410_NFCONF_EN          (1<<15)

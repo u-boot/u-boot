@@ -30,7 +30,7 @@
 
 #include <common.h>
 #include <netdev.h>
-#include <s3c2410.h>
+#include <asm/arch/s3c2410.h>
 
 #if defined(CONFIG_CMD_NAND)
 #include <linux/mtd/nand.h>

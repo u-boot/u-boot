@@ -26,7 +26,7 @@
  */
 
 #include <common.h>
-#include <s3c2400.h>
+#include <asm/arch/s3c2400.h>
 #include <asm/io.h>
 #include <div64.h>
 #include "tsc2000.h"

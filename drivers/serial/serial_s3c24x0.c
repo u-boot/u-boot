@@ -20,9 +20,9 @@
 
 #include <common.h>
 #if defined(CONFIG_S3C2400) || defined(CONFIG_TRAB)
-#include <s3c2400.h>
+#include <asm/arch/s3c2400.h>
 #elif defined(CONFIG_S3C2410)
-#include <s3c2410.h>
+#include <asm/arch/s3c2410.h>
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
