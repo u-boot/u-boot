@@ -25,7 +25,7 @@
  * Global routines used for VCMA9
  *****************************************************************************/
 
-#include <s3c2410.h>
+#include <asm/arch/s3c2410.h>
 
 extern int  mem_test(unsigned long start, unsigned long ramsize,int mode);
 

@@ -27,7 +27,7 @@
 
 #include <common.h>
 #include <netdev.h>
-#include <s3c2410.h>
+#include <asm/arch/s3c2410.h>
 #include <stdio_dev.h>
 #include <i2c.h>
 

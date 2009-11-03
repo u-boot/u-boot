@@ -26,7 +26,7 @@
 #include <common.h>
 #include <exports.h>
 #include <timestamp.h>
-#include <s3c2400.h>
+#include <asm/arch/s3c2400.h>
 #include "tsc2000.h"
 #include "rs485.h"
 

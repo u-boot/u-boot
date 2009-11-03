@@ -37,9 +37,9 @@
 #include <asm/io.h>
 
 #if defined(CONFIG_S3C2400)
-#include <s3c2400.h>
+#include <asm/arch/s3c2400.h>
 #elif defined(CONFIG_S3C2410)
-#include <s3c2410.h>
+#include <asm/arch/s3c2410.h>
 #endif
 
 int timer_load_val = 0;

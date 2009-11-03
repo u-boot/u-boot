@@ -27,7 +27,7 @@
 
 #include <common.h>
 #include <netdev.h>
-#include <s3c2410.h>
+#include <asm/arch/s3c2410.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
