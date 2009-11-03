@@ -96,8 +96,6 @@
 #include "dns.h"
 #endif
 
-#if defined(CONFIG_CMD_NET)
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifndef	CONFIG_ARP_TIMEOUT
@@ -1871,8 +1869,6 @@ void copy_filename (char *dst, char *src, int size)
 	}
 	*dst = '\0';
 }
-
-#endif
 
 #if defined(CONFIG_CMD_NFS) || defined(CONFIG_CMD_SNTP) || defined(CONFIG_CMD_DNS)
 /*
