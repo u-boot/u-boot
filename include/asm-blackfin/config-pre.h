@@ -71,6 +71,9 @@ static inline const char *get_bfin_boot_mode(int bfin_boot)
 # define BFIN_BOOT_SPI_SSEL 1
 #endif
 
+/* There is no Blackfin/NetBSD port */
+#undef CONFIG_BOOTM_NETBSD
+
 /* We rarely use interrupts, so favor throughput over latency */
 #define CONFIG_BFIN_INS_LOWOVERHEAD
 
