@@ -239,6 +239,8 @@ void board_init_f(ulong bootflag)
 	bd->bi_vco = get_vco();
 	bd->bi_cclk = get_cclk();
 	bd->bi_sclk = get_sclk();
+	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
+	bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
 
 	/* Initialize */
 	serial_early_puts("IRQ init\n");
@@ -262,7 +264,7 @@ void board_init_f(ulong bootflag)
 	printf("System: %s MHz\n", strmhz(buf, get_sclk()));
 
 	printf("RAM:   ");
-	print_size(initdram(0), "\n");
+	print_size(bd->bi_memsize, "\n");
 #if defined(CONFIG_POST)
 	post_init_f();
 	post_bootmode_init();

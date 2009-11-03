@@ -39,13 +39,6 @@ int checkboard(void)
 	return 0;
 }
 
-phys_size_t initdram(int board_type)
-{
-	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
-	return gd->bd->bi_memsize;
-}
-
 /* PF0 and PF1 are used to switch between the ethernet and flash:
  *         PF0  PF1
  *  flash:  0    0
