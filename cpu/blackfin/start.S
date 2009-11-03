@@ -139,11 +139,10 @@ ENTRY(_start)
 .Ldma_and_reprogram:
 	r0.l = LO(L1_INST_SRAM);
 	r0.h = HI(L1_INST_SRAM);
-	r1.l = __initcode_start;
-	r1.h = __initcode_start;
-	r2.l = __initcode_end;
-	r2.h = __initcode_end;
-	r2 = r2 - r1;	/* convert r2 into length of initcode */
+	r1.l = __initcode_lma;
+	r1.h = __initcode_lma;
+	r2.l = __initcode_len;
+	r2.h = __initcode_len;
 	r1 = r1 - r4;	/* convert r1 from load address of initcode ... */
 	r1 = r1 + r5;	/* ... to current (not load) address of initcode */
 	p3 = r0;
@@ -173,12 +172,11 @@ ENTRY(_start)
 	 * takes care of clearing things for us.
 	 */
 	serial_early_puts("Zero BSS");
-	r0.l = __bss_start;
-	r0.h = __bss_start;
+	r0.l = __bss_vma;
+	r0.h = __bss_vma;
 	r1 = 0 (x);
-	r2.l = __bss_end;
-	r2.h = __bss_end;
-	r2 = r2 - r0;
+	r2.l = __bss_len;
+	r2.h = __bss_len;
 	call _memset;
 
 .Lnorelocate:

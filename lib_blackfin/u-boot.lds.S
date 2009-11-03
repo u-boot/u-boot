@@ -65,16 +65,22 @@ MEMORY
 ENTRY(_start)
 SECTIONS
 {
-	.text :
+	.text.pre :
 	{
 		cpu/blackfin/start.o (.text .text.*)
 
 		LDS_BOARD_TEXT
+	} >ram_code
 
-		__initcode_start = .;
+	.text.init :
+	{
 		cpu/blackfin/initcode.o (.text .text.*)
-		__initcode_end = .;
+	} >ram_code
+	__initcode_lma = LOADADDR(.text.init);
+	__initcode_len = SIZEOF(.text.init);
 
+	.text :
+	{
 		*(.text .text.*)
 	} >ram
 
@@ -113,7 +119,9 @@ SECTIONS
 		. = ALIGN(4);
 		__etext_l1 = .;
 	} >l1_code AT>ram
-	__stext_l1_lma = LOADADDR(.text_l1);
+	__text_l1_lma = LOADADDR(.text_l1);
+	__text_l1_len = SIZEOF(.text_l1);
+	ASSERT (__text_l1_len <= L1_INST_SRAM_SIZE, "L1 text overflow!")
 
 	.data_l1 :
 	{
@@ -124,16 +132,18 @@ SECTIONS
 		. = ALIGN(4);
 		__edata_l1 = .;
 	} >l1_data AT>ram
-	__sdata_l1_lma = LOADADDR(.data_l1);
+	__data_l1_lma = LOADADDR(.data_l1);
+	__data_l1_len = SIZEOF(.data_l1);
+	ASSERT (__data_l1_len <= L1_DATA_B_SRAM_SIZE, "L1 data B overflow!")
 
 	.bss :
 	{
 		. = ALIGN(4);
-		__bss_start = .;
 		*(.sbss) *(.scommon)
 		*(.dynbss)
 		*(.bss .bss.*)
 		*(COMMON)
-		__bss_end = .;
 	} >ram
+	__bss_vma = ADDR(.bss);
+	__bss_len = SIZEOF(.bss);
 }
