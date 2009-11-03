@@ -642,6 +642,28 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			return 1;
 		}
 	}
+	if (strcmp(argv[1], "write") == 0) {
+		if (usb_stor_curr_dev < 0) {
+			printf("no current device selected\n");
+			return 1;
+		}
+		if (argc == 5) {
+			unsigned long addr = simple_strtoul(argv[2], NULL, 16);
+			unsigned long blk  = simple_strtoul(argv[3], NULL, 16);
+			unsigned long cnt  = simple_strtoul(argv[4], NULL, 16);
+			unsigned long n;
+			printf("\nUSB write: device %d block # %ld, count %ld"
+				" ... ", usb_stor_curr_dev, blk, cnt);
+			stor_dev = usb_stor_get_dev(usb_stor_curr_dev);
+			n = stor_dev->block_write(usb_stor_curr_dev, blk, cnt,
+						(ulong *)addr);
+			printf("%ld blocks write: %s\n", n,
+				(n == cnt) ? "OK" : "ERROR");
+			if (n == cnt)
+				return 0;
+			return 1;
+		}
+	}
 	if (strncmp(argv[1], "dev", 3) == 0) {
 		if (argc == 3) {
 			int dev = (int)simple_strtoul(argv[2], NULL, 10);
@@ -687,6 +709,8 @@ U_BOOT_CMD(
 	" devices\n"
 	"usb read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
 	"    to memory address `addr'"
+	"usb write addr blk# cnt - write `cnt' blocks starting at block `blk#'\n"
+	"    from memory address `addr'"
 );
 
 
