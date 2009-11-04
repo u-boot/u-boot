@@ -199,7 +199,7 @@ void pci_init_board(void)
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-				&pcie3_hose, first_free_busno, pcie_ep);
+					&pcie3_hose, first_free_busno);
 		/*
 		 * Activate ULI1575 legacy chip by performing a fake
 		 * memory access.  Needed to make ULI RTC work.
@@ -231,7 +231,7 @@ void pci_init_board(void)
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-				&pcie2_hose, first_free_busno, pcie_ep);
+					&pcie2_hose, first_free_busno);
 	} else {
 		printf ("    PCIE2: disabled\n");
 	}
@@ -251,7 +251,7 @@ void pci_init_board(void)
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-				&pcie1_hose, first_free_busno, pcie_ep);
+					&pcie1_hose, first_free_busno);
 	} else {
 		printf ("    PCIE1: disabled\n");
 	}

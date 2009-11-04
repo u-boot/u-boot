@@ -62,7 +62,6 @@ typedef struct pci_inbound_window {
 #define PIWAR_LOCAL		0x00f00000
 #define PIWAR_READ_SNOOP	0x00050000
 #define PIWAR_WRITE_SNOOP	0x00005000
-#define PIWAR_IWS_4K		0x0000000b
 	u32	res2[3];
 } pit_t;
 
@@ -172,7 +171,7 @@ struct fsl_pci_info {
 };
 
 int fsl_pci_init_port(struct fsl_pci_info *pci_info,
-			struct pci_controller *hose, int busno, int pcie_ep);
+				struct pci_controller *hose, int busno);
 
 #define SET_STD_PCI_INFO(x, num) \
 {			\

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 Freescale Semiconductor, Inc.
+ * Copyright 2007 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -413,26 +413,12 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 }
 
 int fsl_pci_init_port(struct fsl_pci_info *pci_info,
-			struct pci_controller *hose, int busno, int pcie_ep)
+			struct pci_controller *hose, int busno)
 {
 	volatile ccsr_fsl_pci_t *pci;
 	struct pci_region *r;
 
 	pci = (ccsr_fsl_pci_t *) pci_info->regs;
-
-	if (pcie_ep) {
-		volatile pit_t *pi = &pci->pit[2];
-
-		pci_setup_indirect(hose, (u32)&pci->cfg_addr,
-					 (u32)&pci->cfg_data);
-		out_be32(&pi->pitar, 0);
-		out_be32(&pi->piwbar, 0);
-		out_be32(&pi->piwar, PIWAR_EN | PIWAR_LOCAL |
-			PIWAR_READ_SNOOP | PIWAR_WRITE_SNOOP | PIWAR_IWS_4K);
-
-		fsl_pci_config_unlock(hose);
-		return 0;
-	}
 
 	/* on non-PCIe controllers we don't have pme_msg_det so this code
 	 * should do nothing since the read will return 0
