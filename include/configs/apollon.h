@@ -76,6 +76,7 @@
  * Size of malloc() pool
  */
 #define	CONFIG_ENV_SIZE SZ_128K	/* Total Size of Environment Sector */
+#define CONFIG_ENV_SIZE_FLEX SZ_256K
 #define	CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + SZ_1M)
 /* bytes reserved for initial data */
 #define	CONFIG_SYS_GBL_DATA_SIZE	128
@@ -255,6 +256,7 @@
 #define CONFIG_SYS_MONITOR_LEN		SZ_256K	/* U-Boot image size */
 #define	CONFIG_ENV_IS_IN_ONENAND	1
 #define CONFIG_ENV_ADDR		0x00020000
+#define CONFIG_ENV_ADDR_FLEX	0x00040000
 
 #define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 
