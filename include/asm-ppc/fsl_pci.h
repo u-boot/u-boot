@@ -1,4 +1,5 @@
-/* (C) Copyright 2007 Freescale Semiconductor, Inc.
+/*
+ * Copyright 2007,2009 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -22,9 +23,9 @@
 
 #include <asm/fsl_law.h>
 
-int is_fsl_pci_agent(enum law_trgt_if trgt, u32 host_agent);
 int is_fsl_pci_cfg(enum law_trgt_if trgt, u32 io_sel);
 
+int fsl_setup_hose(struct pci_controller *hose, unsigned long addr);
 int fsl_is_pci_agent(struct pci_controller *hose);
 void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data);
 void fsl_pci_config_unlock(struct pci_controller *hose);

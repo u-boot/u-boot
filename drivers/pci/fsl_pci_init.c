@@ -86,6 +86,15 @@ static void set_inbound_window(volatile pit_t *pi,
 	out_be32(&pi->piwar, flag | sz);
 }
 
+int fsl_setup_hose(struct pci_controller *hose, unsigned long addr)
+{
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) addr;
+
+	pci_setup_indirect(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
+
+	return fsl_is_pci_agent(hose);
+}
+
 static int fsl_pci_setup_inbound_windows(struct pci_controller *hose,
 					 u64 out_lo, u8 pcie_cap,
 					 volatile pit_t *pi)

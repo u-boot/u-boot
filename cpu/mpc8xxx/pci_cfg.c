@@ -25,19 +25,14 @@
 #include <pci.h>
 
 struct pci_info {
-	u16	agent;
 	u16	cfg;
 };
 
-/* The agent field is a bit mask in which each bit represents the value of
- * cfg_host_agt[] signal and the bit is set of the given interface would be
- * in agent/end-point mode for the given interface.
- *
- * The same idea is true of the cfg field.  The bit will be set if the
- * interface would be enabled based on the value of cfg_IO_ports[] signal
+/* The cfg field is a bit mask in which each bit represents the value of
+ * cfg_IO_ports[] signal and the bit is set if the interface would be
+ * enabled based on the value of cfg_IO_ports[] signal
  *
  * On MPC86xx/PQ3 based systems:
- *   we extract cfg_host_agt from GUTS register PORBMSR
  *   we extract cfg_IO_ports from GUTS register PORDEVSR
  *
  * cfg_IO_ports only exist on systems w/PCIe (we set cfg 0 for systems
@@ -48,7 +43,6 @@ struct pci_info {
 static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCI] = {
-		.agent = (1 << 0) | (1 << 2),
 		.cfg =   0,
 	},
 };
@@ -56,7 +50,6 @@ static struct pci_info pci_config_info[] =
 static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCI] = {
-		.agent = (1 << 0),
 		.cfg =   0,
 	},
 };
@@ -64,19 +57,15 @@ static struct pci_info pci_config_info[] =
 static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCI] = {
-		.agent = (1 << 6),
 		.cfg =   0,
 	},
 	[LAW_TRGT_IF_PCIE_1] = {
-		.agent = (1 << 5),
 		.cfg =   (1 << 2) | (1 << 3) | (1 << 5) | (1 << 7),
 	},
 	[LAW_TRGT_IF_PCIE_2] = {
-		.agent = (1 << 3),
 		.cfg =   (1 << 5) | (1 << 7),
 	},
 	[LAW_TRGT_IF_PCIE_3] = {
-		.agent = (1 << 1),
 		.cfg =   (1 << 7),
 	},
 };
@@ -84,20 +73,16 @@ static struct pci_info pci_config_info[] =
 static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCI] = {
-		.agent = (1 << 6),
 		.cfg =   0,
 	},
 	[LAW_TRGT_IF_PCIE_1] = {
-		.agent = (1 << 5),
 		.cfg =   (1 << 2) | (1 << 3) | (1 << 4) | (1 << 5) |
 			 (1 << 6) | (1 << 7),
 	},
 	[LAW_TRGT_IF_PCIE_2] = {
-		.agent = (1 << 3),
 		.cfg =   (1 << 4) | (1 << 5) | (1 << 6) | (1 << 7),
 	},
 	[LAW_TRGT_IF_PCIE_3] = {
-		.agent = (1 << 1),
 		.cfg =   (1 << 6) | (1 << 7),
 	},
 };
@@ -105,16 +90,13 @@ static struct pci_info pci_config_info[] =
 static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCI_1] = {
-		.agent = (1 << 4) | (1 << 6),
 		.cfg =   0,
 	},
 	[LAW_TRGT_IF_PCI_2] = {
-		.agent = (1 << 4) | (1 << 6),
 		.cfg =   0,
 	},
 	/* PCI_2 is always host and we dont use iosel to determine enable/disable */
 	[LAW_TRGT_IF_PCIE_1] = {
-		.agent = (1 << 0) | (1 << 2),
 		.cfg =   (1 << 3) | (1 << 4) | (1 << 7),
 	},
 };
@@ -122,11 +104,9 @@ static struct pci_info pci_config_info[] =
 static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCI] = {
-		.agent = (1 << 0) | (1 << 4) | (1 << 6),
 		.cfg =   0,
 	},
 	[LAW_TRGT_IF_PCIE_1] = {
-		.agent = (1 << 0) | (1 << 2) | (1 << 4),
 		.cfg =   (1 << 3) | (1 << 4) | (1 << 7),
 	},
 };
@@ -134,7 +114,6 @@ static struct pci_info pci_config_info[] =
 static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCIE_1] = {
-		.agent = (1 << 0) | (1 << 6),
 		.cfg =   (1 << 0) | (1 << 4) | (1 << 5) | (1 << 6) | (1 << 7) |
 			 (1 << 8) | (1 << 0xc) | (1 << 0xf),
 	},
@@ -143,16 +122,13 @@ static struct pci_info pci_config_info[] =
 static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCIE_1] = {
-		.agent = (1 << 0) | (1 << 1) | (1 << 4) | (1 << 5),
 		.cfg =   (1 << 2) | (1 << 3) | (1 << 7) |
 			 (1 << 0xb) | (1 << 0xc) | (1 << 0xf),
 	},
 	[LAW_TRGT_IF_PCIE_2] = {
-		.agent = (1 << 0) | (1 << 2) | (1 << 4) | (1 << 6),
 		.cfg =   (1 << 3) | (1 << 7),
 	},
 	[LAW_TRGT_IF_PCIE_3] = {
-		.agent = (1 << 0) | (1 << 3) | (1 << 5) | (1 << 6),
 		.cfg =   (1 << 7),
 	},
 };
@@ -160,15 +136,12 @@ static struct pci_info pci_config_info[] =
 static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCI_1] = {
-		.agent = (1 << 4) | (1 << 5) | (1 << 6),
 		.cfg =   0,
 	},
 	[LAW_TRGT_IF_PCIE_1] = {
-		.agent = (1 << 0) | (1 << 2) | (1 << 5),
 		.cfg =   (1 << 1) | (1 << 4),
 	},
 	[LAW_TRGT_IF_PCIE_2] = {
-		.agent = (1 << 0) | (1 << 1) | (1 << 4),
 		.cfg =   (1 << 0) | (1 << 4),
 	},
 };
@@ -176,7 +149,6 @@ static struct pci_info pci_config_info[] =
 static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCIE_1] = {
-		.agent = 0, /* we dont use agent on 8641 */
 		.cfg =   (1 << 2) | (1 << 3) | (1 << 5) | (1 << 6) |
 			 (1 << 7) | (1 << 0xe) | (1 << 0xf),
 	},
@@ -185,11 +157,9 @@ static struct pci_info pci_config_info[] =
 static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCIE_1] = {
-		.agent = (1 << 0) | (1 << 1),
 		.cfg =   (1 << 0) | (1 << 6) | (1 << 0xe) | (1 << 0xf),
 	},
 	[LAW_TRGT_IF_PCIE_2] = {
-		.agent = (1 << 0) | (1 << 2),
 		.cfg =   (1 << 0xe),
 	},
 };
@@ -197,16 +167,13 @@ static struct pci_info pci_config_info[] =
 static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCIE_1] = {
-		.agent = (1 << 0) | (1 << 1) | (1 << 4) | (1 << 5),
 		.cfg =   (1 << 0) | (1 << 2) | (1 << 4) | (1 << 6) |
 			 (1 << 0xd) | (1 << 0xe) | (1 << 0xf),
 	},
 	[LAW_TRGT_IF_PCIE_2] = {
-		.agent = (1 << 0) | (1 << 2) | (1 << 4) | (1 << 6),
 		.cfg =   (1 << 2) | (1 << 0xe),
 	},
 	[LAW_TRGT_IF_PCIE_3] = {
-		.agent = (1 << 0) | (1 << 3) | (1 << 5) | (1 << 6),
 		.cfg =   (1 << 2) | (1 << 4),
 	},
 };
@@ -216,11 +183,6 @@ static struct pci_info pci_config_info[] =
 #endif
 
 #ifndef CONFIG_FSL_CORENET
-int is_fsl_pci_agent(enum law_trgt_if trgt, u32 host_agent)
-{
-	return ((1 << host_agent) & pci_config_info[trgt].agent);
-}
-
 int is_fsl_pci_cfg(enum law_trgt_if trgt, u32 io_sel)
 {
 	return ((1 << io_sel) & pci_config_info[trgt].cfg);
