@@ -1,6 +1,9 @@
 /*
  * Simple U-boot uImage source file containing a single kernel and FDT blob
  */
+
+/dts-v1/;
+
 / {
 	description = "Simple image with single Linux kernel and FDT blob";
 	#address-cells = <1>;
