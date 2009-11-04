@@ -35,7 +35,7 @@ COBJS-y	+= bootm.o
 COBJS-y	+= cache.o
 COBJS-y	+= extable.o
 COBJS-y	+= interrupts.o
-COBJS-y	+= kgdb.o
+COBJS-$(CONFIG_CMD_KGDB) += kgdb.o
 COBJS-y	+= time.o
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
