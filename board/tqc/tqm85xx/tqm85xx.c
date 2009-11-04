@@ -549,7 +549,6 @@ static inline void init_pci1(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #ifdef CONFIG_PCI1
-	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CONFIG_SYS_PCI1_ADDR;
 	struct pci_controller *hose = &pci1_hose;
 	struct pci_region *r = hose->regions;
@@ -561,7 +560,7 @@ static inline void init_pci1(void)
 	/* PORPLLSR[16] */
 	uint pci_clk_sel = gur->porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;
 
-	uint pci_agent = is_fsl_pci_agent(LAW_TRGT_IF_PCI_1, host_agent);
+	int pci_agent = fsl_setup_hose(hose, CONFIG_SYS_PCI1_ADDR);
 
 	uint pci_speed = CONFIG_SYS_CLK_FREQ;	/* PCI PSPEED in [4:5] */
 
@@ -626,13 +625,14 @@ static inline void init_pcie1(void)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #ifdef CONFIG_PCIE1
 	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CONFIG_SYS_PCIE1_ADDR;
 	struct pci_controller *hose = &pcie1_hose;
-	int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
+	int pcie_ep;
 	struct pci_region *r = hose->regions;
 
 	int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
+
+	pcie_ep = fsl_setup_hose(hose, CONFIG_SYS_PCIE1_ADDR);
 
 	if (pcie_configured && !(gur->devdisr & MPC85xx_DEVDISR_PCIE)){
 		printf ("PCIe:  %s, base address %x",
