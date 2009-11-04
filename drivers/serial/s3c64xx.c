@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#include <s3c6400.h>
+#include <asm/arch/s3c6400.h>
 
 #ifdef CONFIG_SERIAL1
 #define UART_NR	S3C64XX_UART0

@@ -24,7 +24,7 @@
  */
 
 #include <config.h>
-#include <s3c6400.h>
+#include <asm/arch/s3c6400.h>
 
 	.globl mem_ctrl_asm_init
 mem_ctrl_asm_init:

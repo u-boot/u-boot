@@ -35,7 +35,7 @@
 #ifdef CONFIG_ENABLE_MMU
 #include <asm/proc/domain.h>
 #endif
-#include <s3c6400.h>
+#include <asm/arch/s3c6400.h>
 
 #if !defined(CONFIG_ENABLE_MMU) && !defined(CONFIG_SYS_PHY_UBOOT_BASE)
 #define CONFIG_SYS_PHY_UBOOT_BASE	CONFIG_SYS_UBOOT_BASE

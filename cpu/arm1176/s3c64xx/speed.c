@@ -31,7 +31,7 @@
  */
 
 #include <common.h>
-#include <s3c6400.h>
+#include <asm/arch/s3c6400.h>
 
 #define APLL 0
 #define MPLL 1

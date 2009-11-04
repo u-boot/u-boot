@@ -21,7 +21,7 @@
  * MA 02111-1307 USA
  */
 
-#include <s3c6400.h>
+#include <asm/arch/s3c6400.h>
 
 .globl reset_cpu
 reset_cpu:
