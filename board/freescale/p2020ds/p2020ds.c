@@ -197,7 +197,7 @@ void pci_init_board(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	struct fsl_pci_info pci_info[3];
-	u32 devdisr, pordevsr, io_sel, host_agent;
+	u32 devdisr, pordevsr, io_sel;
 	int first_free_busno = 0;
 	int num = 0;
 
@@ -206,10 +206,8 @@ void pci_init_board(void)
 	devdisr = in_be32(&gur->devdisr);
 	pordevsr = in_be32(&gur->pordevsr);
 	io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-	host_agent = (in_be32(&gur->porbmsr) & MPC85xx_PORBMSR_HA) >> 16;
 
-	debug("   pci_init_board: devdisr=%x, io_sel=%x, host_agent=%x\n",
-			devdisr, io_sel, host_agent);
+	debug ("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
 
 	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII2_DIS))
 		printf("    eTSEC2 is in sgmii mode.\n");
@@ -218,11 +216,11 @@ void pci_init_board(void)
 
 	puts("\n");
 #ifdef CONFIG_PCIE2
-	pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_2, host_agent);
 	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE2)) {
 		SET_STD_PCIE_INFO(pci_info[num], 2);
+		pcie_ep = fsl_setup_hose(&pcie2_hose, pci_info[num].regs);
 		printf("    PCIE2 connected to ULI as %s (base addr %lx)\n",
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
@@ -258,11 +256,11 @@ void pci_init_board(void)
 #endif
 
 #ifdef CONFIG_PCIE3
-	pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_3, host_agent);
 	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_3, io_sel);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE3)) {
 		SET_STD_PCIE_INFO(pci_info[num], 3);
+		pcie_ep = fsl_setup_hose(&pcie3_hose, pci_info[num].regs);
 		printf("    PCIE3 connected to Slot 1 as %s (base addr %lx)\n",
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
@@ -277,11 +275,11 @@ void pci_init_board(void)
 #endif
 
 #ifdef CONFIG_PCIE1
-	pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
 	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)) {
 		SET_STD_PCIE_INFO(pci_info[num], 1);
+		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
 		printf("    PCIE1 connected to Slot 2 as %s (base addr %lx)\n",
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
