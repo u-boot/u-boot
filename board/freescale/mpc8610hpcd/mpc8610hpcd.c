@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Freescale Semiconductor, Inc.
+ * Copyright 2007,2009 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -224,158 +224,83 @@ static struct pci_controller pcie1_hose;
 static struct pci_controller pcie2_hose;
 #endif
 
-int first_free_busno = 0;
-
 void pci_init_board(void)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
-	uint devdisr = gur->devdisr;
-	uint io_sel = (gur->pordevsr & MPC8610_PORDEVSR_IO_SEL)
-		>> MPC8610_PORDEVSR_IO_SEL_SHIFT;
-	uint host_agent = (gur->porbmsr & MPC8610_PORBMSR_HA)
-		>> MPC8610_PORBMSR_HA_SHIFT;
+	struct fsl_pci_info pci_info[3];
+	u32 devdisr, pordevsr, io_sel;
+	int first_free_busno = 0;
+	int num = 0;
 
-	printf( " pci_init_board: devdisr=%x, io_sel=%x, host_agent=%x\n",
-		devdisr, io_sel, host_agent);
+	int pci_agent, pcie_ep, pcie_configured;
+
+	devdisr = in_be32(&gur->devdisr);
+	pordevsr = in_be32(&gur->pordevsr);
+	io_sel = (pordevsr & MPC8610_PORDEVSR_IO_SEL)
+			>> MPC8610_PORDEVSR_IO_SEL_SHIFT;
+
+	debug ("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
 
 #ifdef CONFIG_PCIE1
- {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
-	struct pci_controller *hose = &pcie1_hose;
-	int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
-	int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
-	struct pci_region *r = hose->regions;
+	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 
-	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIE1)) {
-		printf(" PCIe 1 connected to Uli as %s (base address %x)\n",
-			pcie_ep ? "End Point" : "Root Complex",
-			(uint)pci);
-		if (pci->pme_msg_det)
-			pci->pme_msg_det = 0xffffffff;
+	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIE1)){
+		SET_STD_PCIE_INFO(pci_info[num], 1);
+		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
+		printf ("    PCIE1 connected to ULI as %s (base addr %lx)\n",
+				pcie_ep ? "End Point" : "Root Complex",
+				pci_info[num].regs);
 
-		/* outbound memory */
-		pci_set_region(r++,
-			 CONFIG_SYS_PCIE1_MEM_BUS,
-			 CONFIG_SYS_PCIE1_MEM_PHYS,
-			 CONFIG_SYS_PCIE1_MEM_SIZE,
-			 PCI_REGION_MEM);
+		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+					&pcie1_hose, first_free_busno);
+	} else {
+		printf ("    PCIE1: disabled\n");
+	}
 
-		/* outbound io */
-		pci_set_region(r++,
-			 CONFIG_SYS_PCIE1_IO_BUS,
-			 CONFIG_SYS_PCIE1_IO_PHYS,
-			 CONFIG_SYS_PCIE1_IO_SIZE,
-			 PCI_REGION_IO);
-
-		hose->region_count = r - hose->regions;
-
-		hose->first_busno = first_free_busno;
-
-		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
-
-		first_free_busno = hose->last_busno + 1;
-		printf(" PCI-Express 1 on bus %02x - %02x\n",
-			hose->first_busno, hose->last_busno);
-
-	} else
-		puts(" PCI-Express 1: Disabled\n");
- }
+	puts("\n");
 #else
-	puts("PCI-Express 1: Disabled\n");
-#endif /* CONFIG_PCIE1 */
-
+	setbits_be32(&gur->devdisr, MPC86xx_DEVDISR_PCIE1); /* disable */
+#endif
 
 #ifdef CONFIG_PCIE2
- {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE2_ADDR;
-	struct pci_controller *hose = &pcie2_hose;
-	struct pci_region *r = hose->regions;
+	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
 
-	int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
-	int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_2, host_agent);
+	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIE2)){
+		SET_STD_PCIE_INFO(pci_info[num], 2);
+		pcie_ep = fsl_setup_hose(&pcie2_hose, pci_info[num].regs);
+		printf ("    PCIE2 connected to Slot as %s (base addr %lx)\n",
+				pcie_ep ? "End Point" : "Root Complex",
+				pci_info[num].regs);
+		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+					&pcie2_hose, first_free_busno);
+	} else {
+		printf ("    PCIE2: disabled\n");
+	}
 
-	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIE2)) {
-		printf(" PCI-Express 2 connected to slot as %s" \
-			" (base address %x)\n",
-			pcie_ep ? "End Point" : "Root Complex",
-			(uint)pci);
-		if (pci->pme_msg_det)
-			pci->pme_msg_det = 0xffffffff;
-
-		/* outbound memory */
-		pci_set_region(r++,
-			 CONFIG_SYS_PCIE2_MEM_BUS,
-			 CONFIG_SYS_PCIE2_MEM_PHYS,
-			 CONFIG_SYS_PCIE2_MEM_SIZE,
-			 PCI_REGION_MEM);
-
-		/* outbound io */
-		pci_set_region(r++,
-			 CONFIG_SYS_PCIE2_IO_BUS,
-			 CONFIG_SYS_PCIE2_IO_PHYS,
-			 CONFIG_SYS_PCIE2_IO_SIZE,
-			 PCI_REGION_IO);
-
-		hose->region_count = r - hose->regions;
-
-		hose->first_busno = first_free_busno;
-
-		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
-
-		first_free_busno = hose->last_busno + 1;
-		printf(" PCI-Express 2 on bus %02x - %02x\n",
-			hose->first_busno, hose->last_busno);
-	} else
-		puts(" PCI-Express 2: Disabled\n");
- }
+	puts("\n");
 #else
-	puts("PCI-Express 2: Disabled\n");
-#endif /* CONFIG_PCIE2 */
-
+	setbits_be32(&gur->devdisr, MPC86xx_DEVDISR_PCIE2); /* disable */
+#endif
 
 #ifdef CONFIG_PCI1
- {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
-	struct pci_controller *hose = &pci1_hose;
-	int pci_agent = is_fsl_pci_agent(LAW_TRGT_IF_PCI_1, host_agent);
-	struct pci_region *r = hose->regions;
-
-	if ( !(devdisr & MPC86xx_DEVDISR_PCI1)) {
+	if (!(devdisr & MPC86xx_DEVDISR_PCI1)) {
+		SET_STD_PCI_INFO(pci_info[num], 1);
+		pci_agent = fsl_setup_hose(&pci1_hose, pci_info[num].regs);
 		printf(" PCI connected to PCI slots as %s" \
-			" (base address %x)\n",
+			" (base address %lx)\n",
 			pci_agent ? "Agent" : "Host",
-			(uint)pci);
+			pci_info[num].regs);
+		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+					&pci1_hose, first_free_busno);
+	} else {
+		printf ("    PCI: disabled\n");
+	}
 
-		/* outbound memory */
-		pci_set_region(r++,
-			 CONFIG_SYS_PCI1_MEM_BUS,
-			 CONFIG_SYS_PCI1_MEM_PHYS,
-			 CONFIG_SYS_PCI1_MEM_SIZE,
-			 PCI_REGION_MEM);
-
-		/* outbound io */
-		pci_set_region(r++,
-			 CONFIG_SYS_PCI1_IO_BUS,
-			 CONFIG_SYS_PCI1_IO_PHYS,
-			 CONFIG_SYS_PCI1_IO_SIZE,
-			 PCI_REGION_IO);
-
-		hose->region_count = r - hose->regions;
-
-		hose->first_busno = first_free_busno;
-
-		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
-
-		first_free_busno = hose->last_busno + 1;
-		printf(" PCI on bus %02x - %02x\n",
-			hose->first_busno, hose->last_busno);
-
-
-	} else
-		puts(" PCI: Disabled\n");
- }
-#endif /* CONFIG_PCI1 */
+	puts("\n");
+#else
+	setbits_be32(&gur->devdisr, MPC86xx_DEVDISR_PCI1); /* disable */
+#endif
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)
