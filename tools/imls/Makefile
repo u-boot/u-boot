@@ -19,8 +19,6 @@
 
 include $(TOPDIR)/config.mk
 
-HOSTCFLAGS = -Wall -pedantic
-
 # Generated executable files
 BIN_FILES-y += imls
 
@@ -48,50 +46,43 @@ BINS	:= $(addprefix $(obj),$(sort $(BIN_FILES-y)))
 LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
 
 #
-# Use native tools and options
+# Compile for a hosted environment on the target
 # Define __KERNEL_STRICT_NAMES to prevent typedef overlaps
 #
-CPPFLAGS   = -idirafter $(SRCTREE)/include \
+HOSTCPPFLAGS  = -idirafter $(SRCTREE)/include \
 		-idirafter $(OBJTREE)/include2 \
 		-idirafter $(OBJTREE)/include \
 	        -I $(SRCTREE)/libfdt \
 		-I $(SRCTREE)/tools \
 		-DUSE_HOSTCC -D__KERNEL_STRICT_NAMES
-CFLAGS     = $(HOSTCFLAGS) $(CPPFLAGS) -O
-
-# No -pedantic switch to avoid libfdt compilation warnings
-FIT_CFLAGS = -Wall $(CPPFLAGS) -O
-
-CC	   = $(CROSS_COMPILER)gcc
-STRIP	   = $(CROSS_COMPILER)strip
 
 ifeq ($(MTD_VERSION),old)
-CPPFLAGS += -DMTD_OLD
+HOSTCPPFLAGS += -DMTD_OLD
 endif
 
 all:	$(BINS)
 
 $(obj)imls:	$(obj)imls.o $(obj)crc32.o $(obj)image.o $(obj)md5.o \
 		$(obj)sha1.o $(LIBFDT_OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
 	$(STRIP) $@
 
 # Some files complain if compiled with -pedantic, use FIT_CFLAGS
 $(obj)image.o: $(SRCTREE)/common/image.c
-	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+	$(CC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
-$(obj)imls.o: imls.c
-	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+$(obj)imls.o: $(SRCTREE)/tools/imls/imls.c
+	$(CC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
 # Some of the tool objects need to be accessed from outside the tools/imls directory
 $(obj)%.o: $(SRCTREE)/common/%.c
-	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+	$(CC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
 $(obj)%.o: $(SRCTREE)/lib_generic/%.c
-	$(CC) -g $(CFLAGS) -c -o $@ $<
+	$(CC) -g $(HOSTCFLAGS) -c -o $@ $<
 
 $(obj)%.o: $(SRCTREE)/libfdt/%.c
-	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+	$(CC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
 clean:
 	rm -rf *.o imls
