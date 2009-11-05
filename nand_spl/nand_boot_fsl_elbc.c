@@ -25,7 +25,6 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/immap_83xx.h>
 #include <asm/fsl_lbc.h>
 #include <linux/mtd/nand.h>
 
