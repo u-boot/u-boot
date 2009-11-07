@@ -2895,6 +2895,7 @@ int nand_scan_tail(struct mtd_info *mtd)
 			break;
 		case 4:
 		case 8:
+		case 16:
 			mtd->subpage_sft = 2;
 			break;
 		}
