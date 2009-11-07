@@ -2628,7 +2628,7 @@ static struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 	chip->bbt_erase_shift = chip->phys_erase_shift =
 		ffs(mtd->erasesize) - 1;
 	if (chip->chipsize & 0xffffffff)
-		chip->chip_shift = ffs(chip->chipsize) - 1;
+		chip->chip_shift = ffs((unsigned)chip->chipsize) - 1;
 	else
 		chip->chip_shift = ffs((unsigned)(chip->chipsize >> 32)) + 31;
 
