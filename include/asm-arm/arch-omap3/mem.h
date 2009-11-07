@@ -40,11 +40,8 @@ enum {
 #define EARLY_INIT	1
 
 /* Slower full frequency range default timings for x32 operation*/
-#define SDP_SDRC_SHARING	0x00000100
-#define SDP_SDRC_MR_0_SDR	0x00000031
-
-/* optimized timings good for current shipping parts */
-#define SDP_3430_SDRC_RFR_CTRL_165MHz	0x0004e201 /* 7.8us/6ns - 50=0x4e2 */
+#define SDRC_SHARING	0x00000100
+#define SDRC_MR_0_SDR	0x00000031
 
 #define DLL_OFFSET		0
 #define DLL_WRITEDDRCLKX2DIS	1
@@ -90,10 +87,6 @@ enum {
 #define XSR_165		23
 #define V_ACTIMB_165	(((TCKE_165 << 12) | (XSR_165 << 0)) |	\
 			(TXP_165 << 8) | (TWTR_165 << 16))
-
-#define SDP_SDRC_ACTIM_CTRLA_0	V_ACTIMA_165
-#define SDP_SDRC_ACTIM_CTRLB_0	V_ACTIMB_165
-#define SDP_SDRC_RFR_CTRL	SDP_3430_SDRC_RFR_CTRL_165MHz
 
 /*
  * GPMC settings -
