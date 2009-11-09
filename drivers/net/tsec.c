@@ -48,14 +48,15 @@ static int tsec_send(struct eth_device *dev,
 		     volatile void *packet, int length);
 static int tsec_recv(struct eth_device *dev);
 static int tsec_init(struct eth_device *dev, bd_t * bd);
+static int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info);
 static void tsec_halt(struct eth_device *dev);
 static void init_registers(volatile tsec_t * regs);
 static void startup_tsec(struct eth_device *dev);
 static int init_phy(struct eth_device *dev);
 void write_phy_reg(struct tsec_private *priv, uint regnum, uint value);
 uint read_phy_reg(struct tsec_private *priv, uint regnum);
-struct phy_info *get_phy_info(struct eth_device *dev);
-void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd);
+static struct phy_info *get_phy_info(struct eth_device *dev);
+static void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd);
 static void adjust_link(struct eth_device *dev);
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
 	&& !defined(BITBANGMII)
@@ -112,7 +113,7 @@ int tsec_standard_init(bd_t *bis)
 /* Initialize device structure. Returns success if PHY
  * initialization succeeded (i.e. if it recognizes the PHY)
  */
-int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info)
+static int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info)
 {
 	struct eth_device *dev;
 	int i;
@@ -174,7 +175,7 @@ int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info)
  * that it returns success if the link is up, failure otherwise.
  * This allows u-boot to find the first active controller.
  */
-int tsec_init(struct eth_device *dev, bd_t * bd)
+static int tsec_init(struct eth_device *dev, bd_t * bd)
 {
 	uint tempval;
 	char tmpbuf[MAC_ADDR_LEN];
@@ -243,7 +244,8 @@ static void tsec_local_mdio_write(volatile tsec_mdio_t *phyregs, uint addr,
  * notvalid bit cleared), and the bus to cease activity (miimind
  * busy bit cleared), and then returns the value
  */
-uint tsec_local_mdio_read(volatile tsec_mdio_t *phyregs, uint phyid, uint regnum)
+static uint tsec_local_mdio_read(volatile tsec_mdio_t *phyregs,
+				uint phyid, uint regnum)
 {
 	uint value;
 
@@ -343,7 +345,7 @@ static int init_phy(struct eth_device *dev)
  * Returns which value to write to the control register.
  * For 10/100, the value is slightly different
  */
-uint mii_cr_init(uint mii_reg, struct tsec_private * priv)
+static uint mii_cr_init(uint mii_reg, struct tsec_private * priv)
 {
 	if (priv->flags & TSEC_GIGABIT)
 		return MIIM_CONTROL_INIT;
@@ -354,7 +356,7 @@ uint mii_cr_init(uint mii_reg, struct tsec_private * priv)
 /*
  * Wait for auto-negotiation to complete, then determine link
  */
-uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
+static uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 {
 	/*
 	 * Wait if the link is up, and autonegotiation is in progress
@@ -408,7 +410,7 @@ uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
  *
  * Stolen from Linux's mii.c and phy_device.c
  */
-uint mii_parse_link(uint mii_reg, struct tsec_private *priv)
+static uint mii_parse_link(uint mii_reg, struct tsec_private *priv)
 {
 	/* We're using autonegotiation */
 	if (mii_reg & PHY_BMSR_AUTN_ABLE) {
@@ -477,7 +479,7 @@ uint mii_parse_link(uint mii_reg, struct tsec_private *priv)
  * link.  "Ethernet@Wirespeed" reduces advertised speed until link
  * can be achieved.
  */
-uint mii_BCM54xx_wirespeed(uint mii_reg, struct tsec_private *priv)
+static uint mii_BCM54xx_wirespeed(uint mii_reg, struct tsec_private *priv)
 {
 	return (read_phy_reg(priv, mii_reg) & 0x8FFF) | 0x8010;
 }
@@ -486,7 +488,7 @@ uint mii_BCM54xx_wirespeed(uint mii_reg, struct tsec_private *priv)
  * Parse the BCM54xx status register for speed and duplex information.
  * The linux sungem_phy has this information, but in a table format.
  */
-uint mii_parse_BCM54xx_sr(uint mii_reg, struct tsec_private *priv)
+static uint mii_parse_BCM54xx_sr(uint mii_reg, struct tsec_private *priv)
 {
 	/* If there is no link, speed and duplex don't matter */
 	if (!priv->link)
@@ -531,7 +533,7 @@ uint mii_parse_BCM54xx_sr(uint mii_reg, struct tsec_private *priv)
 /* Parse the 88E1011's status register for speed and duplex
  * information
  */
-uint mii_parse_88E1011_psr(uint mii_reg, struct tsec_private * priv)
+static uint mii_parse_88E1011_psr(uint mii_reg, struct tsec_private * priv)
 {
 	uint speed;
 
@@ -589,7 +591,7 @@ uint mii_parse_88E1011_psr(uint mii_reg, struct tsec_private * priv)
 /* Parse the RTL8211B's status register for speed and duplex
  * information
  */
-uint mii_parse_RTL8211B_sr(uint mii_reg, struct tsec_private * priv)
+static uint mii_parse_RTL8211B_sr(uint mii_reg, struct tsec_private * priv)
 {
 	uint speed;
 
@@ -647,7 +649,7 @@ uint mii_parse_RTL8211B_sr(uint mii_reg, struct tsec_private * priv)
 /* Parse the cis8201's status register for speed and duplex
  * information
  */
-uint mii_parse_cis8201(uint mii_reg, struct tsec_private * priv)
+static uint mii_parse_cis8201(uint mii_reg, struct tsec_private * priv)
 {
 	uint speed;
 
@@ -675,7 +677,7 @@ uint mii_parse_cis8201(uint mii_reg, struct tsec_private * priv)
 /* Parse the vsc8244's status register for speed and duplex
  * information
  */
-uint mii_parse_vsc8244(uint mii_reg, struct tsec_private * priv)
+static uint mii_parse_vsc8244(uint mii_reg, struct tsec_private * priv)
 {
 	uint speed;
 
@@ -703,7 +705,7 @@ uint mii_parse_vsc8244(uint mii_reg, struct tsec_private * priv)
 /* Parse the DM9161's status register for speed and duplex
  * information
  */
-uint mii_parse_dm9161_scsr(uint mii_reg, struct tsec_private * priv)
+static uint mii_parse_dm9161_scsr(uint mii_reg, struct tsec_private * priv)
 {
 	if (mii_reg & (MIIM_DM9161_SCSR_100F | MIIM_DM9161_SCSR_100H))
 		priv->speed = 100;
@@ -721,7 +723,7 @@ uint mii_parse_dm9161_scsr(uint mii_reg, struct tsec_private * priv)
 /*
  * Hack to write all 4 PHYs with the LED values
  */
-uint mii_cis8204_fixled(uint mii_reg, struct tsec_private * priv)
+static uint mii_cis8204_fixled(uint mii_reg, struct tsec_private * priv)
 {
 	uint phyid;
 	volatile tsec_mdio_t *regbase = priv->phyregs;
@@ -739,7 +741,7 @@ uint mii_cis8204_fixled(uint mii_reg, struct tsec_private * priv)
 	return MIIM_CIS8204_SLEDCON_INIT;
 }
 
-uint mii_cis8204_setmode(uint mii_reg, struct tsec_private * priv)
+static uint mii_cis8204_setmode(uint mii_reg, struct tsec_private * priv)
 {
 	if (priv->flags & TSEC_REDUCED)
 		return MIIM_CIS8204_EPHYCON_INIT | MIIM_CIS8204_EPHYCON_RGMII;
@@ -747,7 +749,7 @@ uint mii_cis8204_setmode(uint mii_reg, struct tsec_private * priv)
 		return MIIM_CIS8204_EPHYCON_INIT;
 }
 
-uint mii_m88e1111s_setmode(uint mii_reg, struct tsec_private *priv)
+static uint mii_m88e1111s_setmode(uint mii_reg, struct tsec_private *priv)
 {
 	uint mii_data = read_phy_reg(priv, mii_reg);
 
@@ -988,7 +990,7 @@ static void tsec_halt(struct eth_device *dev)
 		phy_run_commands(priv, priv->phyinfo->shutdown);
 }
 
-struct phy_info phy_info_M88E1149S = {
+static struct phy_info phy_info_M88E1149S = {
 	0x1410ca,
 	"Marvell 88E1149S",
 	4,
@@ -1022,7 +1024,7 @@ struct phy_info phy_info_M88E1149S = {
 };
 
 /* The 5411 id is 0x206070, the 5421 is 0x2060e0 */
-struct phy_info phy_info_BCM5461S = {
+static struct phy_info phy_info_BCM5461S = {
 	0x02060c1,	/* 5461 ID */
 	"Broadcom BCM5461S",
 	0, /* not clear to me what minor revisions we can shift away */
@@ -1049,7 +1051,7 @@ struct phy_info phy_info_BCM5461S = {
 	},
 };
 
-struct phy_info phy_info_BCM5464S = {
+static struct phy_info phy_info_BCM5464S = {
 	0x02060b1,	/* 5464 ID */
 	"Broadcom BCM5464S",
 	0, /* not clear to me what minor revisions we can shift away */
@@ -1076,7 +1078,7 @@ struct phy_info phy_info_BCM5464S = {
 	},
 };
 
-struct phy_info phy_info_BCM5482S =  {
+static struct phy_info phy_info_BCM5482S =  {
 	0x0143bcb,
 	"Broadcom BCM5482S",
 	4,
@@ -1104,7 +1106,7 @@ struct phy_info phy_info_BCM5482S =  {
 	},
 };
 
-struct phy_info phy_info_M88E1011S = {
+static struct phy_info phy_info_M88E1011S = {
 	0x01410c6,
 	"Marvell 88E1011S",
 	4,
@@ -1137,7 +1139,7 @@ struct phy_info phy_info_M88E1011S = {
 			   },
 };
 
-struct phy_info phy_info_M88E1111S = {
+static struct phy_info phy_info_M88E1111S = {
 	0x01410cc,
 	"Marvell 88E1111S",
 	4,
@@ -1167,7 +1169,7 @@ struct phy_info phy_info_M88E1111S = {
 			   },
 };
 
-struct phy_info phy_info_M88E1118 = {
+static struct phy_info phy_info_M88E1118 = {
 	0x01410e1,
 	"Marvell 88E1118",
 	4,
@@ -1205,7 +1207,7 @@ struct phy_info phy_info_M88E1118 = {
  *  Since to access LED register we need do switch the page, we
  * do LED configuring in the miim_read-like function as follows
  */
-uint mii_88E1121_set_led (uint mii_reg, struct tsec_private *priv)
+static uint mii_88E1121_set_led (uint mii_reg, struct tsec_private *priv)
 {
 	uint pg;
 
@@ -1222,7 +1224,7 @@ uint mii_88E1121_set_led (uint mii_reg, struct tsec_private *priv)
 	return 0;
 }
 
-struct phy_info phy_info_M88E1121R = {
+static struct phy_info phy_info_M88E1121R = {
 	0x01410cb,
 	"Marvell 88E1121R",
 	4,
@@ -1305,7 +1307,7 @@ static struct phy_info phy_info_M88E1145 = {
 			   },
 };
 
-struct phy_info phy_info_cis8204 = {
+static struct phy_info phy_info_cis8204 = {
 	0x3f11,
 	"Cicada Cis8204",
 	6,
@@ -1337,7 +1339,7 @@ struct phy_info phy_info_cis8204 = {
 };
 
 /* Cicada 8201 */
-struct phy_info phy_info_cis8201 = {
+static struct phy_info phy_info_cis8201 = {
 	0xfc41,
 	"CIS8201",
 	4,
@@ -1366,7 +1368,8 @@ struct phy_info phy_info_cis8201 = {
 			   {miim_end,}
 			   },
 };
-struct phy_info phy_info_VSC8211 = {
+
+static struct phy_info phy_info_VSC8211 = {
 	0xfc4b,
 	"Vitesse VSC8211",
 	4,
@@ -1395,7 +1398,8 @@ struct phy_info phy_info_VSC8211 = {
 			   {miim_end,}
 	},
 };
-struct phy_info phy_info_VSC8244 = {
+
+static struct phy_info phy_info_VSC8244 = {
 	0x3f1b,
 	"Vitesse VSC8244",
 	6,
@@ -1420,7 +1424,7 @@ struct phy_info phy_info_VSC8244 = {
 			   },
 };
 
-struct phy_info phy_info_VSC8641 = {
+static struct phy_info phy_info_VSC8641 = {
 	0x7043,
 	"Vitesse VSC8641",
 	4,
@@ -1444,7 +1448,7 @@ struct phy_info phy_info_VSC8641 = {
 			   },
 };
 
-struct phy_info phy_info_VSC8221 = {
+static struct phy_info phy_info_VSC8221 = {
 	0xfc55,
 	"Vitesse VSC8221",
 	4,
@@ -1468,7 +1472,7 @@ struct phy_info phy_info_VSC8221 = {
 			   },
 };
 
-struct phy_info phy_info_VSC8601 = {
+static struct phy_info phy_info_VSC8601 = {
 		0x00007042,
 		"Vitesse VSC8601",
 		4,
@@ -1505,7 +1509,7 @@ struct phy_info phy_info_VSC8601 = {
 };
 
 
-struct phy_info phy_info_dm9161 = {
+static struct phy_info phy_info_dm9161 = {
 	0x0181b88,
 	"Davicom DM9161E",
 	4,
@@ -1537,7 +1541,7 @@ struct phy_info phy_info_dm9161 = {
 			   },
 };
 /* a generic flavor.  */
-struct phy_info phy_info_generic =  {
+static struct phy_info phy_info_generic =  {
 	0,
 	"Unknown/Generic PHY",
 	32,
@@ -1558,7 +1562,7 @@ struct phy_info phy_info_generic =  {
 };
 
 
-uint mii_parse_lxt971_sr2(uint mii_reg, struct tsec_private *priv)
+static uint mii_parse_lxt971_sr2(uint mii_reg, struct tsec_private *priv)
 {
 	unsigned int speed;
 	if (priv->link) {
@@ -1612,7 +1616,7 @@ static struct phy_info phy_info_lxt971 = {
 /* Parse the DP83865's link and auto-neg status register for speed and duplex
  * information
  */
-uint mii_parse_dp83865_lanr(uint mii_reg, struct tsec_private *priv)
+static uint mii_parse_dp83865_lanr(uint mii_reg, struct tsec_private *priv)
 {
 	switch (mii_reg & MIIM_DP83865_SPD_MASK) {
 
@@ -1638,7 +1642,7 @@ uint mii_parse_dp83865_lanr(uint mii_reg, struct tsec_private *priv)
 	return 0;
 }
 
-struct phy_info phy_info_dp83865 = {
+static struct phy_info phy_info_dp83865 = {
 	0x20005c7,
 	"NatSemi DP83865",
 	4,
@@ -1661,7 +1665,7 @@ struct phy_info phy_info_dp83865 = {
 			   },
 };
 
-struct phy_info phy_info_rtl8211b = {
+static struct phy_info phy_info_rtl8211b = {
 	0x001cc91,
 	"RealTek RTL8211B",
 	4,
@@ -1688,7 +1692,7 @@ struct phy_info phy_info_rtl8211b = {
 	},
 };
 
-struct phy_info *phy_info[] = {
+static struct phy_info *phy_info[] = {
 	&phy_info_cis8204,
 	&phy_info_cis8201,
 	&phy_info_BCM5461S,
@@ -1717,7 +1721,7 @@ struct phy_info *phy_info[] = {
  * all of the known PHYs to see if one matches.	 If so, return
  * it, if not, return NULL
  */
-struct phy_info *get_phy_info(struct eth_device *dev)
+static struct phy_info *get_phy_info(struct eth_device *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	uint phy_reg, phy_ID;
@@ -1753,7 +1757,7 @@ struct phy_info *get_phy_info(struct eth_device *dev)
 /* Execute the given series of commands on the given device's
  * PHY, running functions as necessary
  */
-void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd)
+static void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd)
 {
 	int i;
 	uint result;
