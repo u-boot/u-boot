@@ -236,7 +236,8 @@ static void tsec_local_mdio_write(volatile tsec_mdio_t *phyregs, uint addr,
 
 
 /* Provide the default behavior of writing the PHY of this ethernet device */
-#define write_phy_reg(priv, regnum, value) tsec_local_mdio_write(priv->phyregs,priv->phyaddr,regnum,value)
+#define write_phy_reg(priv, regnum, value) \
+	tsec_local_mdio_write(priv->phyregs,priv->phyaddr,regnum,value)
 
 /* Reads register regnum on the device's PHY through the
  * specified registers.	 It lowers and raises the read
@@ -271,7 +272,8 @@ static uint tsec_local_mdio_read(volatile tsec_mdio_t *phyregs,
 }
 
 /* #define to provide old read_phy_reg functionality without duplicating code */
-#define read_phy_reg(priv,regnum) tsec_local_mdio_read(priv->phyregs,priv->phyaddr,regnum)
+#define read_phy_reg(priv,regnum) \
+	tsec_local_mdio_read(priv->phyregs,priv->phyaddr,regnum)
 
 #define TBIANA_SETTINGS ( \
 		TBIANA_ASYMMETRIC_PAUSE \
@@ -289,8 +291,8 @@ static uint tsec_local_mdio_read(volatile tsec_mdio_t *phyregs,
 /* Configure the TBI for SGMII operation */
 static void tsec_configure_serdes(struct tsec_private *priv)
 {
-	/* Access TBI PHY registers at given TSEC register offset as opposed to the
-	 * register offset used for external PHY accesses */
+	/* Access TBI PHY registers at given TSEC register offset as opposed
+	 * to the register offset used for external PHY accesses */
 	tsec_local_mdio_write(priv->phyregs_sgmii, priv->regs->tbipa, TBI_ANA,
 			TBIANA_SETTINGS);
 	tsec_local_mdio_write(priv->phyregs_sgmii, priv->regs->tbipa, TBI_TBICON,
@@ -994,7 +996,7 @@ static struct phy_info phy_info_M88E1149S = {
 	0x1410ca,
 	"Marvell 88E1149S",
 	4,
-	(struct phy_cmd[]){     /* config */
+	(struct phy_cmd[]) {     /* config */
 		/* Reset and configure the PHY */
 		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
 		{0x1d, 0x1f, NULL},
@@ -1008,17 +1010,16 @@ static struct phy_info phy_info_M88E1149S = {
 		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
 		{miim_end,}
 	},
-	(struct phy_cmd[]){     /* startup */
+	(struct phy_cmd[]) {     /* startup */
 		/* Status is read once to clear old link state */
 		{MIIM_STATUS, miim_read, NULL},
 		/* Auto-negotiate */
 		{MIIM_STATUS, miim_read, &mii_parse_sr},
 		/* Read the status */
-		{MIIM_88E1011_PHY_STATUS, miim_read,
-		 &mii_parse_88E1011_psr},
+		{MIIM_88E1011_PHY_STATUS, miim_read, &mii_parse_88E1011_psr},
 		{miim_end,}
 	},
-	(struct phy_cmd[]){     /* shutdown */
+	(struct phy_cmd[]) {     /* shutdown */
 		{miim_end,}
 	},
 };
@@ -1110,70 +1111,68 @@ static struct phy_info phy_info_M88E1011S = {
 	0x01410c6,
 	"Marvell 88E1011S",
 	4,
-	(struct phy_cmd[]){	/* config */
-			   /* Reset and configure the PHY */
-			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-			   {0x1d, 0x1f, NULL},
-			   {0x1e, 0x200c, NULL},
-			   {0x1d, 0x5, NULL},
-			   {0x1e, 0x0, NULL},
-			   {0x1e, 0x100, NULL},
-			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
-			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
-			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   /* Status is read once to clear old link state */
-			   {MIIM_STATUS, miim_read, NULL},
-			   /* Auto-negotiate */
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   /* Read the status */
-			   {MIIM_88E1011_PHY_STATUS, miim_read,
-			    &mii_parse_88E1011_psr},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   },
+	(struct phy_cmd[]) {	/* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{0x1d, 0x1f, NULL},
+		{0x1e, 0x200c, NULL},
+		{0x1d, 0x5, NULL},
+		{0x1e, 0x0, NULL},
+		{0x1e, 0x100, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_88E1011_PHY_STATUS, miim_read, &mii_parse_88E1011_psr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* shutdown */
+		{miim_end,}
+	},
 };
 
 static struct phy_info phy_info_M88E1111S = {
 	0x01410cc,
 	"Marvell 88E1111S",
 	4,
-	(struct phy_cmd[]){	/* config */
-			   /* Reset and configure the PHY */
-			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-			   {0x1b, 0x848f, &mii_m88e1111s_setmode},
-			   {0x14, 0x0cd2, NULL}, /* Delay RGMII TX and RX */
-			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
-			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
-			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   /* Status is read once to clear old link state */
-			   {MIIM_STATUS, miim_read, NULL},
-			   /* Auto-negotiate */
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   /* Read the status */
-			   {MIIM_88E1011_PHY_STATUS, miim_read,
-			    &mii_parse_88E1011_psr},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   },
+	(struct phy_cmd[]) {	/* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{0x1b, 0x848f, &mii_m88e1111s_setmode},
+		{0x14, 0x0cd2, NULL}, /* Delay RGMII TX and RX */
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_88E1011_PHY_STATUS, miim_read, &mii_parse_88E1011_psr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* shutdown */
+		{miim_end,}
+	},
 };
 
 static struct phy_info phy_info_M88E1118 = {
 	0x01410e1,
 	"Marvell 88E1118",
 	4,
-	(struct phy_cmd[]){	/* config */
+	(struct phy_cmd[]) {	/* config */
 		/* Reset and configure the PHY */
 		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
 		{0x16, 0x0002, NULL}, /* Change Page Number */
@@ -1186,8 +1185,8 @@ static struct phy_info phy_info_M88E1118 = {
 		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
 		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
 		{miim_end,}
-		},
-	(struct phy_cmd[]){	/* startup */
+	},
+	(struct phy_cmd[]) {	/* startup */
 		{0x16, 0x0000, NULL}, /* Change Page Number */
 		/* Status is read once to clear old link state */
 		{MIIM_STATUS, miim_read, NULL},
@@ -1197,10 +1196,10 @@ static struct phy_info phy_info_M88E1118 = {
 		{MIIM_88E1011_PHY_STATUS, miim_read,
 		 &mii_parse_88E1011_psr},
 		{miim_end,}
-		},
-	(struct phy_cmd[]){	/* shutdown */
+	},
+	(struct phy_cmd[]) {	/* shutdown */
 		{miim_end,}
-		},
+	},
 };
 
 /*
@@ -1228,30 +1227,29 @@ static struct phy_info phy_info_M88E1121R = {
 	0x01410cb,
 	"Marvell 88E1121R",
 	4,
-	(struct phy_cmd[]){	/* config */
-			   /* Reset and configure the PHY */
-			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
-			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
-			   /* Configure leds */
-			   {MIIM_88E1121_PHY_LED_CTRL, miim_read,
-			    &mii_88E1121_set_led},
-			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-			   /* Disable IRQs and de-assert interrupt */
-			   {MIIM_88E1121_PHY_IRQ_EN, 0, NULL},
-			   {MIIM_88E1121_PHY_IRQ_STATUS, miim_read, NULL},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   /* Status is read once to clear old link state */
-			   {MIIM_STATUS, miim_read, NULL},
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   {MIIM_STATUS, miim_read, &mii_parse_link},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   },
+	(struct phy_cmd[]) {	/* config */
+		/* Reset and configure the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		/* Configure leds */
+		{MIIM_88E1121_PHY_LED_CTRL, miim_read, &mii_88E1121_set_led},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		/* Disable IRQs and de-assert interrupt */
+		{MIIM_88E1121_PHY_IRQ_EN, 0, NULL},
+		{MIIM_88E1121_PHY_IRQ_STATUS, miim_read, NULL},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		{MIIM_STATUS, miim_read, &mii_parse_link},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* shutdown */
+		{miim_end,}
+	},
 };
 
 static unsigned int m88e1145_setmode(uint mii_reg, struct tsec_private *priv)
@@ -1270,72 +1268,67 @@ static struct phy_info phy_info_M88E1145 = {
 	0x01410cd,
 	"Marvell 88E1145",
 	4,
-	(struct phy_cmd[]){	/* config */
-			   /* Reset the PHY */
-			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+	(struct phy_cmd[]) {	/* config */
+		/* Reset the PHY */
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
 
-			   /* Errata E0, E1 */
-			   {29, 0x001b, NULL},
-			   {30, 0x418f, NULL},
-			   {29, 0x0016, NULL},
-			   {30, 0xa2da, NULL},
+		/* Errata E0, E1 */
+		{29, 0x001b, NULL},
+		{30, 0x418f, NULL},
+		{29, 0x0016, NULL},
+		{30, 0xa2da, NULL},
 
-			   /* Configure the PHY */
-			   {MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
-			   {MIIM_ANAR, MIIM_ANAR_INIT, NULL},
-			   {MIIM_88E1011_PHY_SCR, MIIM_88E1011_PHY_MDI_X_AUTO,
-			    NULL},
-			   {MIIM_88E1145_PHY_EXT_CR, 0, &m88e1145_setmode},
-			   {MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
-			   {MIIM_CONTROL, MIIM_CONTROL_INIT, NULL},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   /* Status is read once to clear old link state */
-			   {MIIM_STATUS, miim_read, NULL},
-			   /* Auto-negotiate */
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   {MIIM_88E1111_PHY_LED_CONTROL,
-			    MIIM_88E1111_PHY_LED_DIRECT, NULL},
-			   /* Read the Status */
-			   {MIIM_88E1011_PHY_STATUS, miim_read,
-			    &mii_parse_88E1011_psr},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   },
+		/* Configure the PHY */
+		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_88E1011_PHY_SCR, MIIM_88E1011_PHY_MDI_X_AUTO, NULL},
+		{MIIM_88E1145_PHY_EXT_CR, 0, &m88e1145_setmode},
+		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, NULL},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		{MIIM_88E1111_PHY_LED_CONTROL, MIIM_88E1111_PHY_LED_DIRECT, NULL},
+		/* Read the Status */
+		{MIIM_88E1011_PHY_STATUS, miim_read, &mii_parse_88E1011_psr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* shutdown */
+		{miim_end,}
+	},
 };
 
 static struct phy_info phy_info_cis8204 = {
 	0x3f11,
 	"Cicada Cis8204",
 	6,
-	(struct phy_cmd[]){	/* config */
-			   /* Override PHY config settings */
-			   {MIIM_CIS8201_AUX_CONSTAT,
-			    MIIM_CIS8201_AUXCONSTAT_INIT, NULL},
-			   /* Configure some basic stuff */
-			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-			   {MIIM_CIS8204_SLED_CON, MIIM_CIS8204_SLEDCON_INIT,
-			    &mii_cis8204_fixled},
-			   {MIIM_CIS8204_EPHY_CON, MIIM_CIS8204_EPHYCON_INIT,
-			    &mii_cis8204_setmode},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   /* Read the Status (2x to make sure link is right) */
-			   {MIIM_STATUS, miim_read, NULL},
-			   /* Auto-negotiate */
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   /* Read the status */
-			   {MIIM_CIS8201_AUX_CONSTAT, miim_read,
-			    &mii_parse_cis8201},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   },
+	(struct phy_cmd[]) {	/* config */
+		/* Override PHY config settings */
+		{MIIM_CIS8201_AUX_CONSTAT, MIIM_CIS8201_AUXCONSTAT_INIT, NULL},
+		/* Configure some basic stuff */
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{MIIM_CIS8204_SLED_CON, MIIM_CIS8204_SLEDCON_INIT,
+		 &mii_cis8204_fixled},
+		{MIIM_CIS8204_EPHY_CON, MIIM_CIS8204_EPHYCON_INIT,
+		 &mii_cis8204_setmode},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* startup */
+		/* Read the Status (2x to make sure link is right) */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_CIS8201_AUX_CONSTAT, miim_read, &mii_parse_cis8201},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* shutdown */
+		{miim_end,}
+	},
 };
 
 /* Cicada 8201 */
@@ -1343,30 +1336,27 @@ static struct phy_info phy_info_cis8201 = {
 	0xfc41,
 	"CIS8201",
 	4,
-	(struct phy_cmd[]){	/* config */
-			   /* Override PHY config settings */
-			   {MIIM_CIS8201_AUX_CONSTAT,
-			    MIIM_CIS8201_AUXCONSTAT_INIT, NULL},
-			   /* Set up the interface mode */
-			   {MIIM_CIS8201_EXT_CON1, MIIM_CIS8201_EXTCON1_INIT,
-			    NULL},
-			   /* Configure some basic stuff */
-			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   /* Read the Status (2x to make sure link is right) */
-			   {MIIM_STATUS, miim_read, NULL},
-			   /* Auto-negotiate */
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   /* Read the status */
-			   {MIIM_CIS8201_AUX_CONSTAT, miim_read,
-			    &mii_parse_cis8201},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   },
+	(struct phy_cmd[]) {	/* config */
+		/* Override PHY config settings */
+		{MIIM_CIS8201_AUX_CONSTAT, MIIM_CIS8201_AUXCONSTAT_INIT, NULL},
+		/* Set up the interface mode */
+		{MIIM_CIS8201_EXT_CON1, MIIM_CIS8201_EXTCON1_INIT, NULL},
+		/* Configure some basic stuff */
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* startup */
+		/* Read the Status (2x to make sure link is right) */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_CIS8201_AUX_CONSTAT, miim_read, &mii_parse_cis8201},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* shutdown */
+		{miim_end,}
+	},
 };
 
 static struct phy_info phy_info_VSC8211 = {
@@ -1374,28 +1364,25 @@ static struct phy_info phy_info_VSC8211 = {
 	"Vitesse VSC8211",
 	4,
 	(struct phy_cmd[]) { /* config */
-			   /* Override PHY config settings */
-			   {MIIM_CIS8201_AUX_CONSTAT,
-			    MIIM_CIS8201_AUXCONSTAT_INIT, NULL},
-			   /* Set up the interface mode */
-			   {MIIM_CIS8201_EXT_CON1,
-			    MIIM_CIS8201_EXTCON1_INIT, NULL},
-			   /* Configure some basic stuff */
-			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-			   {miim_end,}
-			   },
+		/* Override PHY config settings */
+		{MIIM_CIS8201_AUX_CONSTAT, MIIM_CIS8201_AUXCONSTAT_INIT, NULL},
+		/* Set up the interface mode */
+		{MIIM_CIS8201_EXT_CON1, MIIM_CIS8201_EXTCON1_INIT, NULL},
+		/* Configure some basic stuff */
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
 	(struct phy_cmd[]) { /* startup */
-			   /* Read the Status (2x to make sure link is right) */
-			   {MIIM_STATUS, miim_read, NULL},
-			   /* Auto-negotiate */
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   /* Read the status */
-			   {MIIM_CIS8201_AUX_CONSTAT, miim_read,
-			    &mii_parse_cis8201},
-			   {miim_end,}
-			   },
+		/* Read the Status (2x to make sure link is right) */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_CIS8201_AUX_CONSTAT, miim_read, &mii_parse_cis8201},
+		{miim_end,}
+	},
 	(struct phy_cmd[]) { /* shutdown */
-			   {miim_end,}
+		{miim_end,}
 	},
 };
 
@@ -1403,143 +1390,138 @@ static struct phy_info phy_info_VSC8244 = {
 	0x3f1b,
 	"Vitesse VSC8244",
 	6,
-	(struct phy_cmd[]){	/* config */
-			   /* Override PHY config settings */
-			   /* Configure some basic stuff */
-			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   /* Read the Status (2x to make sure link is right) */
-			   {MIIM_STATUS, miim_read, NULL},
-			   /* Auto-negotiate */
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   /* Read the status */
-			   {MIIM_VSC8244_AUX_CONSTAT, miim_read,
-			    &mii_parse_vsc8244},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   },
+	(struct phy_cmd[]) {	/* config */
+		/* Override PHY config settings */
+		/* Configure some basic stuff */
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* startup */
+		/* Read the Status (2x to make sure link is right) */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_VSC8244_AUX_CONSTAT, miim_read, &mii_parse_vsc8244},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* shutdown */
+		{miim_end,}
+	},
 };
 
 static struct phy_info phy_info_VSC8641 = {
 	0x7043,
 	"Vitesse VSC8641",
 	4,
-	(struct phy_cmd[]){	/* config */
-			   /* Configure some basic stuff */
-			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   /* Read the Status (2x to make sure link is right) */
-			   {MIIM_STATUS, miim_read, NULL},
-			   /* Auto-negotiate */
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   /* Read the status */
-			   {MIIM_VSC8244_AUX_CONSTAT, miim_read,
-			    &mii_parse_vsc8244},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   },
+	(struct phy_cmd[]) {	/* config */
+		/* Configure some basic stuff */
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* startup */
+		/* Read the Status (2x to make sure link is right) */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_VSC8244_AUX_CONSTAT, miim_read, &mii_parse_vsc8244},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* shutdown */
+		{miim_end,}
+	},
 };
 
 static struct phy_info phy_info_VSC8221 = {
 	0xfc55,
 	"Vitesse VSC8221",
 	4,
-	(struct phy_cmd[]){	/* config */
-			   /* Configure some basic stuff */
-			   {MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   /* Read the Status (2x to make sure link is right) */
-			   {MIIM_STATUS, miim_read, NULL},
-			   /* Auto-negotiate */
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   /* Read the status */
-			   {MIIM_VSC8244_AUX_CONSTAT, miim_read,
-			    &mii_parse_vsc8244},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   },
+	(struct phy_cmd[]) {	/* config */
+		/* Configure some basic stuff */
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* startup */
+		/* Read the Status (2x to make sure link is right) */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_VSC8244_AUX_CONSTAT, miim_read, &mii_parse_vsc8244},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* shutdown */
+		{miim_end,}
+	},
 };
 
 static struct phy_info phy_info_VSC8601 = {
-		0x00007042,
-		"Vitesse VSC8601",
-		4,
-		(struct phy_cmd[]){     /* config */
-				/* Override PHY config settings */
-				/* Configure some basic stuff */
-				{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+	0x00007042,
+	"Vitesse VSC8601",
+	4,
+	(struct phy_cmd[]) {     /* config */
+		/* Override PHY config settings */
+		/* Configure some basic stuff */
+		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
 #ifdef CONFIG_SYS_VSC8601_SKEWFIX
-				{MIIM_VSC8601_EPHY_CON,MIIM_VSC8601_EPHY_CON_INIT_SKEW,NULL},
+		{MIIM_VSC8601_EPHY_CON,MIIM_VSC8601_EPHY_CON_INIT_SKEW,NULL},
 #if defined(CONFIG_SYS_VSC8601_SKEW_TX) && defined(CONFIG_SYS_VSC8601_SKEW_RX)
-				{MIIM_EXT_PAGE_ACCESS,1,NULL},
-#define VSC8101_SKEW	(CONFIG_SYS_VSC8601_SKEW_TX<<14)|(CONFIG_SYS_VSC8601_SKEW_RX<<12)
-				{MIIM_VSC8601_SKEW_CTRL,VSC8101_SKEW,NULL},
-				{MIIM_EXT_PAGE_ACCESS,0,NULL},
+		{MIIM_EXT_PAGE_ACCESS,1,NULL},
+#define VSC8101_SKEW \
+	(CONFIG_SYS_VSC8601_SKEW_TX << 14) | (CONFIG_SYS_VSC8601_SKEW_RX << 12)
+		{MIIM_VSC8601_SKEW_CTRL,VSC8101_SKEW,NULL},
+		{MIIM_EXT_PAGE_ACCESS,0,NULL},
 #endif
 #endif
-				{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
-				{MIIM_CONTROL, MIIM_CONTROL_RESTART, &mii_cr_init},
-				{miim_end,}
-				 },
-		(struct phy_cmd[]){     /* startup */
-				/* Read the Status (2x to make sure link is right) */
-				{MIIM_STATUS, miim_read, NULL},
-				/* Auto-negotiate */
-				{MIIM_STATUS, miim_read, &mii_parse_sr},
-				/* Read the status */
-				{MIIM_VSC8244_AUX_CONSTAT, miim_read,
-						&mii_parse_vsc8244},
-				{miim_end,}
-				},
-		(struct phy_cmd[]){     /* shutdown */
-				{miim_end,}
-				},
+		{MIIM_ANAR, MIIM_ANAR_INIT, NULL},
+		{MIIM_CONTROL, MIIM_CONTROL_RESTART, &mii_cr_init},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {     /* startup */
+		/* Read the Status (2x to make sure link is right) */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_VSC8244_AUX_CONSTAT, miim_read, &mii_parse_vsc8244},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {     /* shutdown */
+		{miim_end,}
+	},
 };
-
 
 static struct phy_info phy_info_dm9161 = {
 	0x0181b88,
 	"Davicom DM9161E",
 	4,
-	(struct phy_cmd[]){	/* config */
-			   {MIIM_CONTROL, MIIM_DM9161_CR_STOP, NULL},
-			   /* Do not bypass the scrambler/descrambler */
-			   {MIIM_DM9161_SCR, MIIM_DM9161_SCR_INIT, NULL},
-			   /* Clear 10BTCSR to default */
-			   {MIIM_DM9161_10BTCSR, MIIM_DM9161_10BTCSR_INIT,
-			    NULL},
-			   /* Configure some basic stuff */
-			   {MIIM_CONTROL, MIIM_CR_INIT, NULL},
-			   /* Restart Auto Negotiation */
-			   {MIIM_CONTROL, MIIM_DM9161_CR_RSTAN, NULL},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   /* Status is read once to clear old link state */
-			   {MIIM_STATUS, miim_read, NULL},
-			   /* Auto-negotiate */
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   /* Read the status */
-			   {MIIM_DM9161_SCSR, miim_read,
-			    &mii_parse_dm9161_scsr},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   },
+	(struct phy_cmd[]) {	/* config */
+		{MIIM_CONTROL, MIIM_DM9161_CR_STOP, NULL},
+		/* Do not bypass the scrambler/descrambler */
+		{MIIM_DM9161_SCR, MIIM_DM9161_SCR_INIT, NULL},
+		/* Clear 10BTCSR to default */
+		{MIIM_DM9161_10BTCSR, MIIM_DM9161_10BTCSR_INIT, NULL},
+		/* Configure some basic stuff */
+		{MIIM_CONTROL, MIIM_CR_INIT, NULL},
+		/* Restart Auto Negotiation */
+		{MIIM_CONTROL, MIIM_DM9161_CR_RSTAN, NULL},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the status */
+		{MIIM_DM9161_SCSR, miim_read, &mii_parse_dm9161_scsr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* shutdown */
+		{miim_end,}
+	},
 };
+
 /* a generic flavor.  */
 static struct phy_info phy_info_generic =  {
 	0,
@@ -1560,7 +1542,6 @@ static struct phy_info phy_info_generic =  {
 		{miim_end,}
 	}
 };
-
 
 static uint mii_parse_lxt971_sr2(uint mii_reg, struct tsec_private *priv)
 {
@@ -1597,20 +1578,20 @@ static struct phy_info phy_info_lxt971 = {
 	0x0001378e,
 	"LXT971",
 	4,
-	(struct phy_cmd[]){	/* config */
-			   {MIIM_CR, MIIM_CR_INIT, mii_cr_init},	/* autonegotiate */
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup - enable interrupts */
-			   /* { 0x12, 0x00f2, NULL }, */
-			   {MIIM_STATUS, miim_read, NULL},
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   {MIIM_LXT971_SR2, miim_read, &mii_parse_lxt971_sr2},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown - disable interrupts */
-			   {miim_end,}
-			   },
+	(struct phy_cmd[]) {	/* config */
+		{MIIM_CR, MIIM_CR_INIT, mii_cr_init},	/* autonegotiate */
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* startup - enable interrupts */
+		/* { 0x12, 0x00f2, NULL }, */
+		{MIIM_STATUS, miim_read, NULL},
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		{MIIM_LXT971_SR2, miim_read, &mii_parse_lxt971_sr2},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* shutdown - disable interrupts */
+		{miim_end,}
+	},
 };
 
 /* Parse the DP83865's link and auto-neg status register for speed and duplex
@@ -1646,30 +1627,29 @@ static struct phy_info phy_info_dp83865 = {
 	0x20005c7,
 	"NatSemi DP83865",
 	4,
-	(struct phy_cmd[]){	/* config */
-			   {MIIM_CONTROL, MIIM_DP83865_CR_INIT, NULL},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* startup */
-			   /* Status is read once to clear old link state */
-			   {MIIM_STATUS, miim_read, NULL},
-			   /* Auto-negotiate */
-			   {MIIM_STATUS, miim_read, &mii_parse_sr},
-			   /* Read the link and auto-neg status */
-			   {MIIM_DP83865_LANR, miim_read,
-			    &mii_parse_dp83865_lanr},
-			   {miim_end,}
-			   },
-	(struct phy_cmd[]){	/* shutdown */
-			   {miim_end,}
-			   },
+	(struct phy_cmd[]) {	/* config */
+		{MIIM_CONTROL, MIIM_DP83865_CR_INIT, NULL},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* startup */
+		/* Status is read once to clear old link state */
+		{MIIM_STATUS, miim_read, NULL},
+		/* Auto-negotiate */
+		{MIIM_STATUS, miim_read, &mii_parse_sr},
+		/* Read the link and auto-neg status */
+		{MIIM_DP83865_LANR, miim_read, &mii_parse_dp83865_lanr},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) {	/* shutdown */
+		{miim_end,}
+	},
 };
 
 static struct phy_info phy_info_rtl8211b = {
 	0x001cc91,
 	"RealTek RTL8211B",
 	4,
-	(struct phy_cmd[]){	/* config */
+	(struct phy_cmd[]) {	/* config */
 		/* Reset and configure the PHY */
 		{MIIM_CONTROL, MIIM_CONTROL_RESET, NULL},
 		{MIIM_GBIT_CONTROL, MIIM_GBIT_CONTROL_INIT, NULL},
@@ -1678,7 +1658,7 @@ static struct phy_info phy_info_rtl8211b = {
 		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
 		{miim_end,}
 	},
-	(struct phy_cmd[]){	/* startup */
+	(struct phy_cmd[]) {	/* startup */
 		/* Status is read once to clear old link state */
 		{MIIM_STATUS, miim_read, NULL},
 		/* Auto-negotiate */
@@ -1687,7 +1667,7 @@ static struct phy_info phy_info_rtl8211b = {
 		{MIIM_RTL8211B_PHY_STATUS, miim_read, &mii_parse_RTL8211B_sr},
 		{miim_end,}
 	},
-	(struct phy_cmd[]){	/* shutdown */
+	(struct phy_cmd[]) {	/* shutdown */
 		{miim_end,}
 	},
 };
@@ -1746,7 +1726,8 @@ static struct phy_info *get_phy_info(struct eth_device *dev)
 	}
 
 	if (theInfo == &phy_info_generic) {
-		printf("%s: No support for PHY id %x; assuming generic\n", dev->name, phy_ID);
+		printf("%s: No support for PHY id %x; assuming generic\n",
+			dev->name, phy_ID);
 	} else {
 		debug("%s: PHY is %s (%x)\n", dev->name, theInfo->name, phy_ID);
 	}
@@ -1859,10 +1840,10 @@ static int tsec_miiphy_write(char *devname, unsigned char addr,
 static int
 tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set)
 {
- struct tsec_private *priv = privlist[1];
- volatile tsec_t *regs = priv->regs;
- volatile u32  *reg_array, value;
- u8 result, whichbit, whichreg;
+	struct tsec_private *priv = privlist[1];
+	volatile tsec_t *regs = priv->regs;
+	volatile u32  *reg_array, value;
+	u8 result, whichbit, whichreg;
 
 	result = (u8)((ether_crc(MAC_ADDR_LEN,mcast_mac) >> 24) & 0xff);
 	whichbit = result & 0x1f;	/* the 5 LSB = which bit to set */
