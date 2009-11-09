@@ -617,6 +617,7 @@ static uint mii_parse_BCM5482_sr(uint mii_reg, struct tsec_private *priv)
 {
 	if (BCM8482_is_serdes(priv)) {
 		mii_parse_BCM5482_serdes_sr(priv);
+		priv->flags |= TSEC_FIBER;
 	} else {
 		/* Wait for auto-negotiation to complete or fail */
 		mii_parse_sr(mii_reg, priv);
@@ -940,8 +941,9 @@ static void adjust_link(struct eth_device *dev)
 			break;
 		}
 
-		printf("Speed: %d, %s duplex\n", priv->speed,
-		       (priv->duplexity) ? "full" : "half");
+		printf("Speed: %d, %s duplex%s\n", priv->speed,
+		       (priv->duplexity) ? "full" : "half",
+		       (priv->flags & TSEC_FIBER) ? ", fiber mode" : "");
 
 	} else {
 		printf("%s: No link.\n", dev->name);

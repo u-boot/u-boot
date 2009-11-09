@@ -584,9 +584,9 @@ typedef struct tsec
 
 /* This flag currently only has
  * meaning if we're using the eTSEC */
-#define TSEC_REDUCED	(1 << 1)
-
-#define TSEC_SGMII	(1 << 2)
+#define TSEC_REDUCED	(1 << 1)	/* MAC-PHY interface uses RGMII */
+#define TSEC_SGMII	(1 << 2)	/* MAC-PHY interface uses SGMII */
+#define TSEC_FIBER	(1 << 3)	/* PHY uses fiber, eg 1000 Base-X */
 
 struct tsec_private {
 	volatile tsec_t *regs;
