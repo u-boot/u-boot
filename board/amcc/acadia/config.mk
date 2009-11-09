@@ -34,3 +34,7 @@ endif
 ifeq ($(debug),1)
 PLATFORM_CPPFLAGS += -DDEBUG
 endif
+
+ifdef CONFIG_NAND_U_BOOT
+LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
+endif
