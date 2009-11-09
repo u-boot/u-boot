@@ -56,7 +56,7 @@
 #define REG_READ(a) readl((a))
 
 /* we don't need 16 bit initialisation on 32 bit bus */
-#define get_reg_init_bus(x) get_reg((x))
+#define get_reg_init_bus(r,d) get_reg((r),(d))
 
 #else
 
