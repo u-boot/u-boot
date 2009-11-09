@@ -153,6 +153,19 @@
 #define MIIM_BCM54xx_AUXSTATUS_LINKMODE_MASK	0x0700
 #define MIIM_BCM54xx_AUXSTATUS_LINKMODE_SHIFT	8
 
+#define MIIM_BCM54XX_SHD	0x1c	/* 0x1c shadow registers */
+#define MIIM_BCM54XX_SHD_WRITE	0x8000
+#define MIIM_BCM54XX_SHD_VAL(x)	((x & 0x1f) << 10)
+#define MIIM_BCM54XX_SHD_DATA(x)	((x & 0x3ff) << 0)
+#define MIIM_BCM54XX_SHD_WR_ENCODE(val, data)	\
+	(MIIM_BCM54XX_SHD_WRITE | MIIM_BCM54XX_SHD_VAL(val) | \
+	 MIIM_BCM54XX_SHD_DATA(data))
+
+#define MIIM_BCM54XX_EXP_DATA	0x15	/* Expansion register data */
+#define MIIM_BCM54XX_EXP_SEL	0x17	/* Expansion register select */
+#define MIIM_BCM54XX_EXP_SEL_SSD	0x0e00	/* Secondary SerDes select */
+#define MIIM_BCM54XX_EXP_SEL_ER	0x0f00	/* Expansion register select */
+
 /* Cicada Auxiliary Control/Status Register */
 #define MIIM_CIS8201_AUX_CONSTAT	0x1c
 #define MIIM_CIS8201_AUXCONSTAT_INIT	0x0004

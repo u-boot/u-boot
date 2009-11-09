@@ -530,8 +530,105 @@ static uint mii_parse_BCM54xx_sr(uint mii_reg, struct tsec_private *priv)
 	}
 
 	return 0;
-
 }
+
+/*
+ * Find out if PHY is in copper or serdes mode by looking at Expansion Reg
+ * 0x42 - "Operating Mode Status Register"
+ */
+static int BCM8482_is_serdes(struct tsec_private *priv)
+{
+	u16 val;
+	int serdes = 0;
+
+	write_phy_reg(priv, MIIM_BCM54XX_EXP_SEL, MIIM_BCM54XX_EXP_SEL_ER | 0x42);
+	val = read_phy_reg(priv, MIIM_BCM54XX_EXP_DATA);
+
+	switch (val & 0x1f) {
+	case 0x0d:	/* RGMII-to-100Base-FX */
+	case 0x0e:	/* RGMII-to-SGMII */
+	case 0x0f:	/* RGMII-to-SerDes */
+	case 0x12:	/* SGMII-to-SerDes */
+	case 0x13:	/* SGMII-to-100Base-FX */
+	case 0x16:	/* SerDes-to-Serdes */
+		serdes = 1;
+		break;
+	case 0x6:	/* RGMII-to-Copper */
+	case 0x14:	/* SGMII-to-Copper */
+	case 0x17:	/* SerDes-to-Copper */
+		break;
+	default:
+		printf("ERROR, invalid PHY mode (0x%x\n)", val);
+		break;
+	}
+
+	return serdes;
+}
+
+/*
+ * Determine SerDes link speed and duplex from Expansion reg 0x42 "Operating
+ * Mode Status Register"
+ */
+uint mii_parse_BCM5482_serdes_sr(struct tsec_private *priv)
+{
+	u16 val;
+	int i = 0;
+
+	/* Wait 1s for link - Clause 37 autonegotiation happens very fast */
+	while (1) {
+		write_phy_reg(priv, MIIM_BCM54XX_EXP_SEL,
+				MIIM_BCM54XX_EXP_SEL_ER | 0x42);
+		val = read_phy_reg(priv, MIIM_BCM54XX_EXP_DATA);
+
+		if (val & 0x8000)
+			break;
+
+		if (i++ > 1000) {
+			priv->link = 0;
+			return 1;
+		}
+
+		udelay(1000);	/* 1 ms */
+	}
+
+	priv->link = 1;
+	switch ((val >> 13) & 0x3) {
+	case (0x00):
+		priv->speed = 10;
+		break;
+	case (0x01):
+		priv->speed = 100;
+		break;
+	case (0x02):
+		priv->speed = 1000;
+		break;
+	}
+
+	priv->duplexity = (val & 0x1000) == 0x1000;
+
+	return 0;
+}
+
+/*
+ * Figure out if BCM5482 is in serdes or copper mode and determine link
+ * configuration accordingly
+ */
+static uint mii_parse_BCM5482_sr(uint mii_reg, struct tsec_private *priv)
+{
+	if (BCM8482_is_serdes(priv)) {
+		mii_parse_BCM5482_serdes_sr(priv);
+	} else {
+		/* Wait for auto-negotiation to complete or fail */
+		mii_parse_sr(mii_reg, priv);
+
+		/* Parse BCM54xx copper aux status register */
+		mii_reg = read_phy_reg(priv, MIIM_BCM54xx_AUXSTATUS);
+		mii_parse_BCM54xx_sr(mii_reg, priv);
+	}
+
+	return 0;
+}
+
 /* Parse the 88E1011's status register for speed and duplex
  * information
  */
@@ -1091,15 +1188,20 @@ static struct phy_info phy_info_BCM5482S =  {
 		/* Read Misc Control register and or in Ethernet@Wirespeed */
 		{MIIM_BCM54xx_AUXCNTL, 0, &mii_BCM54xx_wirespeed},
 		{MIIM_CONTROL, MIIM_CONTROL_INIT, &mii_cr_init},
+		/* Initial config/enable of secondary SerDes interface */
+		{MIIM_BCM54XX_SHD, MIIM_BCM54XX_SHD_WR_ENCODE(0x14, 0xf), NULL},
+		/* Write intial value to secondary SerDes Contol */
+		{MIIM_BCM54XX_EXP_SEL, MIIM_BCM54XX_EXP_SEL_SSD | 0, NULL},
+		{MIIM_BCM54XX_EXP_DATA, MIIM_CONTROL_RESTART, NULL},
+		/* Enable copper/fiber auto-detect */
+		{MIIM_BCM54XX_SHD, MIIM_BCM54XX_SHD_WR_ENCODE(0x1e, 0x201)},
 		{miim_end,}
 	},
 	(struct phy_cmd[]) { /* startup */
 		/* Status is read once to clear old link state */
 		{MIIM_STATUS, miim_read, NULL},
-		/* Auto-negotiate */
-		{MIIM_STATUS, miim_read, &mii_parse_sr},
-		/* Read the status */
-		{MIIM_BCM54xx_AUXSTATUS, miim_read, &mii_parse_BCM54xx_sr},
+		/* Determine copper/fiber, auto-negotiate, and read the result */
+		{MIIM_STATUS, miim_read, &mii_parse_BCM5482_sr},
 		{miim_end,}
 	},
 	(struct phy_cmd[]) { /* shutdown */
