@@ -33,6 +33,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
+static inline u32 get_async_pci_freq(void)
+{
+	if (in_8((void *)(CONFIG_SYS_BCSR_BASE + 5)) &
+		CONFIG_SYS_BCSR5_PCI66EN)
+		return 66666666;
+	else
+		return 33333333;
+}
+
 int board_early_init_f(void)
 {
 	register uint reg;
@@ -106,6 +115,9 @@ int board_early_init_f(void)
 	mtsdr(SDR0_PFC0, 0x00003e00);	/* Pin function */
 	mtsdr(SDR0_PFC1, 0x00048000);	/* Pin function: UART0 has 4 pins */
 
+	/* Check and reconfigure the PCI sync clock if necessary */
+	ppc4xx_pci_sync_clock_config(get_async_pci_freq());
+
 	/*clear tmrclk divisor */
 	*(unsigned char *)(CONFIG_SYS_BCSR_BASE | 0x04) = 0x00;
 
@@ -178,7 +190,7 @@ int checkboard(void)
 {
 	char *s = getenv("serial#");
 	u8 rev;
-	u8 val;
+	u32 clock = get_async_pci_freq();
 
 #ifdef CONFIG_440EP
 	printf("Board: Yosemite - AMCC PPC440EP Evaluation Board");
@@ -187,14 +199,22 @@ int checkboard(void)
 #endif
 
 	rev = in_8((void *)(CONFIG_SYS_BCSR_BASE + 0));
-	val = in_8((void *)(CONFIG_SYS_BCSR_BASE + 5)) & CONFIG_SYS_BCSR5_PCI66EN;
-	printf(", Rev. %X, PCI=%d MHz", rev, val ? 66 : 33);
+	printf(", Rev. %X, PCI-Async=%d MHz", rev, clock / 1000000);
 
 	if (s != NULL) {
 		puts(", serial# ");
 		puts(s);
 	}
 	putc('\n');
+
+	/*
+	 * Reconfiguration of the PCI sync clock is already done,
+	 * now check again if everything is in range:
+	 */
+	if (ppc4xx_pci_sync_clock_config(clock)) {
+		printf("ERROR: PCI clocking incorrect (async=%d "
+		       "sync=%ld)!\n", clock, get_PCI_freq());
+	}
 
 	return (0);
 }

@@ -49,7 +49,6 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 
 
-extern void malloc_bin_reloc (void);
 typedef int (init_fnc_t) (void);
 
 
@@ -115,7 +114,6 @@ void board_init (void)
 
 	/* The Malloc area is immediately below the monitor copy in RAM */
 	mem_malloc_init(CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
-	malloc_bin_reloc();
 
 	WATCHDOG_RESET ();
 	bd->bi_flashsize = flash_init();

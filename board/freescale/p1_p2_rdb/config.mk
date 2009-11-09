@@ -24,8 +24,27 @@
 # p1_p2rdb board
 #
 
+ifndef NAND_SPL
+ifeq ($(CONFIG_MK_NAND), y)
+TEXT_BASE = $(CONFIG_RAMBOOT_TEXT_BASE)
+LDSCRIPT := $(TOPDIR)/cpu/$(CPU)/u-boot-nand.lds
+endif
+endif
+
+ifeq ($(CONFIG_MK_SDCARD), y)
+TEXT_BASE = $(CONFIG_RAMBOOT_TEXT_BASE)
+RESET_VECTOR_ADDRESS = 0xf8fffffc
+endif
+
+ifeq ($(CONFIG_MK_SPIFLASH), y)
+TEXT_BASE = $(CONFIG_RAMBOOT_TEXT_BASE)
+RESET_VECTOR_ADDRESS = 0xf8fffffc
+endif
+
 ifndef TEXT_BASE
 TEXT_BASE = 0xeff80000
 endif
 
+ifndef RESET_VECTOR_ADDRESS
 RESET_VECTOR_ADDRESS = 0xeffffffc
+endif

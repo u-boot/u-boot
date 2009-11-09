@@ -72,15 +72,7 @@ lowlevel_init:
 	/* set DDR-SDRAM dummy read */
 	write32 MMSEL_A, MMSEL_D
 
-	mov.l	MMSEL_A, r0
-	synco
-	mov.l	@r0, r1
-	synco
-
-	mov.l	CS0_A, r0
-	synco
-	mov.l	@r0, r1
-	synco
+	write32 MMSEL_A, CS0_A
 
 	/* set DDR-SDRAM bus/endian etc */
 	write32 MIM_U_A, MIM_U_D

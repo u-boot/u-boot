@@ -3,7 +3,8 @@
 
 #include <asm/mp.h>
 
-ulong get_spin_addr(void);
+ulong get_spin_phys_addr(void);
+ulong get_spin_virt_addr(void);
 u32 get_my_id(void);
 
 #define BOOT_ENTRY_ADDR_UPPER	0

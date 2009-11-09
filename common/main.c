@@ -715,16 +715,17 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
 {
 	unsigned long num = 0;
 	unsigned long eol_num = 0;
-	unsigned long rlen;
 	unsigned long wlen;
 	char ichar;
 	int insert = 1;
 	int esc_len = 0;
-	int rc = 0;
 	char esc_save[8];
+	int init_len = strlen(buf);
+
+	if (init_len)
+		cread_add_str(buf, init_len, 1, &num, &eol_num, buf, *len);
 
 	while (1) {
-		rlen = 1;
 #ifdef CONFIG_BOOT_RETRY_TIME
 		while (!tstc()) {	/* while no incoming data */
 			if (retry_time >= 0 && get_ticks() > endtime)
@@ -923,7 +924,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
 		cread_add_to_hist(buf);
 	hist_cur = hist_add_idx;
 
-	return (rc);
+	return 0;
 }
 
 #endif /* CONFIG_CMDLINE_EDITING */
@@ -940,6 +941,12 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
  */
 int readline (const char *const prompt)
 {
+	/*
+	 * If console_buffer isn't 0-length the user will be prompted to modify
+	 * it instead of entering it from scratch as desired.
+	 */
+	console_buffer[0] = '\0';
+
 	return readline_into_buffer(prompt, console_buffer);
 }
 
@@ -964,7 +971,8 @@ int readline_into_buffer (const char *const prompt, char * buffer)
 			initted = 1;
 		}
 
-		puts (prompt);
+		if (prompt)
+			puts (prompt);
 
 		rc = cread_line(prompt, p, &len);
 		return rc < 0 ? rc : len;

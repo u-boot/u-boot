@@ -32,7 +32,6 @@
 #include <miiphy.h>
 #endif
 
-extern void malloc_bin_reloc (void);
 extern int cpu_init(void);
 extern int board_init(void);
 extern int dram_init(void);
@@ -92,7 +91,6 @@ static int sh_mem_env_init(void)
 {
 	mem_malloc_init(TEXT_BASE - CONFIG_SYS_GBL_DATA_SIZE -
 			CONFIG_SYS_MALLOC_LEN, CONFIG_SYS_MALLOC_LEN - 16);
-	malloc_bin_reloc();
 	env_relocate();
 	jumptable_init();
 	return 0;

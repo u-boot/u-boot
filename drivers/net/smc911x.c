@@ -148,7 +148,7 @@ static int smc911x_init(struct eth_device *dev, bd_t * bd)
 {
 	struct chip_id *id = dev->priv;
 
-        printf(DRIVERNAME ": detected %s controller\n", id->name);
+	printf(DRIVERNAME ": detected %s controller\n", id->name);
 
 	smc911x_reset(dev);
 

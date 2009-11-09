@@ -21,6 +21,7 @@
  * MA 02111-1307 USA
  */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -121,7 +122,8 @@ int main (int argc, char **argv)
 			}
 			for (i = start; i != end; i += step)
 				printf("%c", (crc & (0xFF << (i * 8))) >> (i * 8));
-			fwrite(dataptr, 1, datasize, stdout);
+			if (fwrite(dataptr, 1, datasize, stdout) != datasize)
+				fprintf(stderr, "fwrite() failed: %s\n", strerror(errno));
 		} else {
 			printf("CRC32 from offset %08X to %08X of environment = %08X\n",
 				(unsigned int) (dataptr - envptr),

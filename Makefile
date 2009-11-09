@@ -22,9 +22,9 @@
 #
 
 VERSION = 2009
-PATCHLEVEL = 08
+PATCHLEVEL = 11
 SUBLEVEL =
-EXTRAVERSION =
+EXTRAVERSION = -rc1
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 else
@@ -500,6 +500,9 @@ unconfig:
 	@rm -f $(obj)include/config.h $(obj)include/config.mk \
 		$(obj)board/*/config.tmp $(obj)board/*/*/config.tmp \
 		$(obj)include/autoconf.mk $(obj)include/autoconf.mk.dep
+
+%: %_config
+	$(MAKE)
 
 #========================================================================
 # PowerPC
@@ -2511,9 +2514,21 @@ P2020DS_config:		unconfig
 	@$(MKCONFIG) -t $(@:_config=) P2020DS ppc mpc85xx p2020ds freescale
 
 P1011RDB_config	\
+P1011RDB_NAND_config \
+P1011RDB_SDCARD_config \
+P1011RDB_SPIFLASH_config \
 P1020RDB_config	\
+P1020RDB_NAND_config \
+P1020RDB_SDCARD_config \
+P1020RDB_SPIFLASH_config \
 P2010RDB_config \
-P2020RDB_config:	unconfig
+P2010RDB_NAND_config \
+P2010RDB_SDCARD_config \
+P2010RDB_SPIFLASH_config \
+P2020RDB_config \
+P2020RDB_NAND_config \
+P2020RDB_SDCARD_config \
+P2020RDB_SPIFLASH_config:	unconfig
 	@$(MKCONFIG) -t $(@:_config=) P1_P2_RDB ppc mpc85xx p1_p2_rdb freescale
 
 PM854_config:	unconfig
@@ -3541,10 +3556,6 @@ BFIN_BOARDS += ibf-dsp561
 
 $(BFIN_BOARDS:%=%_config)	: unconfig
 	@$(MKCONFIG) $(@:_config=) blackfin blackfin $(@:_config=)
-
-$(BFIN_BOARDS):
-	$(MAKE) $@_config
-	$(MAKE)
 
 #========================================================================
 # AVR32

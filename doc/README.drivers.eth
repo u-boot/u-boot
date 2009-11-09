@@ -88,7 +88,7 @@ The return value for this function should be as follows:
 < 0 - failure (hardware failure, not probe failure)
 >=0 - number of interfaces detected
 
-You might notice that many drivers seem to use xxx_initialize() rather than 
+You might notice that many drivers seem to use xxx_initialize() rather than
 xxx_register().  This is the old naming convention and should be avoided as it
 causes confusion with the driver-specific init function.
 

@@ -138,6 +138,7 @@
 #define CONFIG_ENV_OFFSET 0x60000
 #define CONFIG_ENV_OFFSET_REDUND 0x80000
 #define CONFIG_ENV_SIZE 0x20000
+#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #endif
 
 #define CONFIG_BOOTCOMMAND	"nboot 0x21000000 0 400000"

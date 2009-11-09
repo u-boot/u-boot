@@ -268,4 +268,3 @@ void ft_board_setup(void *blob, bd_t *bd)
 	ft_cpu_setup( blob, bd);
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
-

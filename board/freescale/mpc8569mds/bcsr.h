@@ -33,7 +33,8 @@
 #define BCSR6_UPC1_POS_EN	0x40
 #define BCSR6_UPC1_ADDR_EN	0x20
 #define BCSR6_UPC1_DEV2		0x10
-#define BCSR6_SD_ENABLE         0x04
+#define BCSR6_SD_CARD_1BIT	0x08
+#define BCSR6_SD_CARD_4BITS	0x04
 #define BCSR6_TDM2G_EN		0x02
 #define BCSR6_UCC7_RMII_EN	0x01
 
@@ -67,9 +68,14 @@
 
 #define BCSR15_SMII6_DIS	0x08
 #define BCSR15_SMII8_DIS	0x04
+#define BCSR15_QEUART_EN	0x01
 
 #define BCSR16_UPC1_DEV2	0x02
 
+#define BCSR17_nUSBEN		0x80
+#define BCSR17_nUSBLOWSPD	0x40
+#define BCSR17_USBVCC		0x20
+#define BCSR17_USBMODE		0x10
 #define BCSR17_FLASH_nWP	0x01
 
 /*BCSR Utils functions*/

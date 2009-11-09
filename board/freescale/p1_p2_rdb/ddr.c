@@ -85,8 +85,8 @@ extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 #define CONFIG_SYS_DDR_TIMING_0_800	0x55770802
 #define CONFIG_SYS_DDR_TIMING_1_800	0x6f6b6543
 #define CONFIG_SYS_DDR_TIMING_2_800	0x0fa074d1
-#define CONFIG_SYS_DDR_CLK_CTRL_800	0x02000000
-#define CONFIG_SYS_DDR_MODE_1_800	0x00440862
+#define CONFIG_SYS_DDR_CLK_CTRL_800	0x02800000
+#define CONFIG_SYS_DDR_MODE_1_800	0x00040852
 #define CONFIG_SYS_DDR_MODE_2_800	0x00000000
 #define CONFIG_SYS_DDR_INTERVAL_800	0x0a280100
 
@@ -206,7 +206,7 @@ phys_size_t fixed_sdram (void)
 {
 	sys_info_t sysinfo;
 	char buf[32];
-	fsl_ddr_cfg_regs_t *ddr_cfg_regs = NULL;
+	fsl_ddr_cfg_regs_t ddr_cfg_regs;
 	size_t ddr_size;
 	struct cpu_type *cpu;
 
@@ -215,13 +215,13 @@ phys_size_t fixed_sdram (void)
 				strmhz(buf, sysinfo.freqDDRBus));
 
 	if(sysinfo.freqDDRBus <= DATARATE_400MHZ)
-		ddr_cfg_regs = &ddr_cfg_regs_400;
+		memcpy(&ddr_cfg_regs, &ddr_cfg_regs_400, sizeof(ddr_cfg_regs));
 	else if(sysinfo.freqDDRBus <= DATARATE_533MHZ)
-		ddr_cfg_regs = &ddr_cfg_regs_533;
+		memcpy(&ddr_cfg_regs, &ddr_cfg_regs_533, sizeof(ddr_cfg_regs));
 	else if(sysinfo.freqDDRBus <= DATARATE_667MHZ)
-		ddr_cfg_regs = &ddr_cfg_regs_667;
+		memcpy(&ddr_cfg_regs, &ddr_cfg_regs_667, sizeof(ddr_cfg_regs));
 	else if(sysinfo.freqDDRBus <= DATARATE_800MHZ)
-		ddr_cfg_regs = &ddr_cfg_regs_800;
+		memcpy(&ddr_cfg_regs, &ddr_cfg_regs_800, sizeof(ddr_cfg_regs));
 	else
 		panic("Unsupported DDR data rate %s MT/s data rate\n",
 					strmhz(buf, sysinfo.freqDDRBus));
@@ -230,14 +230,14 @@ phys_size_t fixed_sdram (void)
 	/* P1020 and it's derivatives support max 32bit DDR width */
 	if(cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1020_E ||
 		cpu->soc_ver == SVR_P1011 || cpu->soc_ver == SVR_P1011_E) {
-		ddr_cfg_regs->ddr_sdram_cfg |= SDRAM_CFG_32_BE;
-		ddr_cfg_regs->cs[0].bnds = 0x0000001F;
+		ddr_cfg_regs.ddr_sdram_cfg |= SDRAM_CFG_32_BE;
+		ddr_cfg_regs.cs[0].bnds = 0x0000001F;
 		ddr_size = (CONFIG_SYS_SDRAM_SIZE * 1024 * 1024 / 2);
 	}
 	else
 		ddr_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 
-	fsl_ddr_set_memctl_regs(ddr_cfg_regs, 0);
+	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0);
 
 	return ddr_size;
 }

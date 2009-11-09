@@ -23,6 +23,7 @@
  */
 
 #include <common.h>
+#include <hwconfig.h>
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
@@ -35,6 +36,7 @@
 #include <ioports.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <fsl_esdhc.h>
 
 #include "bcsr.h"
 
@@ -151,6 +153,27 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{5, 9,  1, 0, 3}, /* UART1_SOUT */
 	{5, 10, 2, 0, 3}, /* UART1_CTS_B */
 	{5, 11, 1, 0, 2}, /* UART1_RTS_B */
+
+	/* QE UART                                     */
+	{0, 19, 1, 0, 2}, /* QEUART_TX                 */
+	{1, 17, 2, 0, 3}, /* QEUART_RX                 */
+	{0, 25, 1, 0, 1}, /* QEUART_RTS                */
+	{1, 23, 2, 0, 1}, /* QEUART_CTS                */
+
+	/* QE USB                                      */
+	{5,  3, 1, 0, 1}, /* USB_OE                    */
+	{5,  4, 1, 0, 2}, /* USB_TP                    */
+	{5,  5, 1, 0, 2}, /* USB_TN                    */
+	{5,  6, 2, 0, 2}, /* USB_RP                    */
+	{5,  7, 2, 0, 1}, /* USB_RX                    */
+	{5,  8, 2, 0, 1}, /* USB_RN                    */
+	{2,  4, 2, 0, 2}, /* CLK5                      */
+
+	/* SPI Flash, M25P40                           */
+	{4, 27, 3, 0, 1}, /* SPI_MOSI                  */
+	{4, 28, 3, 0, 1}, /* SPI_MISO                  */
+	{4, 29, 3, 0, 1}, /* SPI_CLK                   */
+	{4, 30, 1, 0, 0}, /* SPI_SEL, GPIO             */
 
 	{0,  0, 0, 0, QE_IOP_TAB_END} /* END of table */
 };
@@ -303,6 +326,190 @@ local_bus_init(void)
 	out_be32(&lbc->lcrr, (u32)in_be32(&lbc->lcrr)| 0x00030000);
 }
 
+static void fdt_board_disable_serial(void *blob, bd_t *bd, const char *alias)
+{
+	const char *status = "disabled";
+	int off;
+	int err;
+
+	off = fdt_path_offset(blob, alias);
+	if (off < 0) {
+		printf("WARNING: could not find %s alias: %s.\n", alias,
+			fdt_strerror(off));
+		return;
+	}
+
+	err = fdt_setprop(blob, off, "status", status, strlen(status) + 1);
+	if (err) {
+		printf("WARNING: could not set status for serial0: %s.\n",
+			fdt_strerror(err));
+		return;
+	}
+}
+
+/*
+ * Because of an erratum in prototype boards it is impossible to use eSDHC
+ * without disabling UART0 (which makes it quite easy to 'brick' the board
+ * by simply issung 'setenv hwconfig esdhc', and not able to interact with
+ * U-Boot anylonger).
+ *
+ * So, but default we assume that the board is a prototype, which is a most
+ * safe assumption. There is no way to determine board revision from a
+ * register, so we use hwconfig.
+ */
+
+static int prototype_board(void)
+{
+	if (hwconfig_subarg("board", "rev", NULL))
+		return hwconfig_subarg_cmp("board", "rev", "prototype");
+	return 1;
+}
+
+static int esdhc_disables_uart0(void)
+{
+	return prototype_board() ||
+	       hwconfig_subarg_cmp("esdhc", "mode", "4-bits");
+}
+
+static void fdt_board_fixup_qe_uart(void *blob, bd_t *bd)
+{
+	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR_BASE;
+	const char *devtype = "serial";
+	const char *compat = "ucc_uart";
+	const char *clk = "brg9";
+	u32 portnum = 0;
+	int off = -1;
+
+	if (!hwconfig("qe_uart"))
+		return;
+
+	if (hwconfig("esdhc") && esdhc_disables_uart0()) {
+		printf("QE UART: won't enable with esdhc.\n");
+		return;
+	}
+
+	fdt_board_disable_serial(blob, bd, "serial1");
+
+	while (1) {
+		const u32 *idx;
+		int len;
+
+		off = fdt_node_offset_by_compatible(blob, off, "ucc_geth");
+		if (off < 0) {
+			printf("WARNING: unable to fixup device tree for "
+				"QE UART\n");
+			return;
+		}
+
+		idx = fdt_getprop(blob, off, "cell-index", &len);
+		if (!idx || len != sizeof(*idx) || *idx != fdt32_to_cpu(2))
+			continue;
+		break;
+	}
+
+	fdt_setprop(blob, off, "device_type", devtype, strlen(devtype) + 1);
+	fdt_setprop(blob, off, "compatible", compat, strlen(compat) + 1);
+	fdt_setprop(blob, off, "tx-clock-name", clk, strlen(clk) + 1);
+	fdt_setprop(blob, off, "rx-clock-name", clk, strlen(clk) + 1);
+	fdt_setprop(blob, off, "port-number", &portnum, sizeof(portnum));
+
+	setbits_8(&bcsr[15], BCSR15_QEUART_EN);
+}
+
+#ifdef CONFIG_FSL_ESDHC
+
+int board_mmc_init(bd_t *bd)
+{
+	struct ccsr_gur *gur = (struct ccsr_gur *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR_BASE;
+	u8 bcsr6 = BCSR6_SD_CARD_1BIT;
+
+	if (!hwconfig("esdhc"))
+		return 0;
+
+	printf("Enabling eSDHC...\n"
+	       "  For eSDHC to function, I2C2 ");
+	if (esdhc_disables_uart0()) {
+		printf("and UART0 should be disabled.\n");
+		printf("  Redirecting stderr, stdout and stdin to UART1...\n");
+		console_assign(stderr, "eserial1");
+		console_assign(stdout, "eserial1");
+		console_assign(stdin, "eserial1");
+		printf("Switched to UART1 (initial log has been printed to "
+		       "UART0).\n");
+		bcsr6 |= BCSR6_SD_CARD_4BITS;
+	} else {
+		printf("should be disabled.\n");
+	}
+
+	/* Assign I2C2 signals to eSDHC. */
+	clrsetbits_be32(&gur->plppar1, PLPPAR1_I2C_BIT_MASK,
+				       PLPPAR1_ESDHC_VAL);
+	clrsetbits_be32(&gur->plpdir1, PLPDIR1_I2C_BIT_MASK,
+				       PLPDIR1_ESDHC_VAL);
+
+	/* Mux I2C2 (and optionally UART0) signals to eSDHC. */
+	setbits_8(&bcsr[6], bcsr6);
+
+	return fsl_esdhc_mmc_init(bd);
+}
+
+static void fdt_board_fixup_esdhc(void *blob, bd_t *bd)
+{
+	const char *status = "disabled";
+	int off = -1;
+
+	if (!hwconfig("esdhc"))
+		return;
+
+	if (esdhc_disables_uart0())
+		fdt_board_disable_serial(blob, bd, "serial0");
+
+	while (1) {
+		const u32 *idx;
+		int len;
+
+		off = fdt_node_offset_by_compatible(blob, off, "fsl-i2c");
+		if (off < 0)
+			break;
+
+		idx = fdt_getprop(blob, off, "cell-index", &len);
+		if (!idx || len != sizeof(*idx))
+			continue;
+
+		if (*idx == 1) {
+			fdt_setprop(blob, off, "status", status,
+				    strlen(status) + 1);
+			break;
+		}
+	}
+}
+#else
+static inline void fdt_board_fixup_esdhc(void *blob, bd_t *bd) {}
+#endif
+
+static void fdt_board_fixup_qe_usb(void *blob, bd_t *bd)
+{
+	u8 *bcsr = (u8 *)CONFIG_SYS_BCSR_BASE;
+
+	if (hwconfig_subarg_cmp("qe_usb", "speed", "low"))
+		clrbits_8(&bcsr[17], BCSR17_nUSBLOWSPD);
+	else
+		setbits_8(&bcsr[17], BCSR17_nUSBLOWSPD);
+
+	if (hwconfig_subarg_cmp("qe_usb", "mode", "peripheral")) {
+		clrbits_8(&bcsr[17], BCSR17_USBVCC);
+		clrbits_8(&bcsr[17], BCSR17_USBMODE);
+		do_fixup_by_compat(blob, "fsl,mpc8569-qe-usb", "mode",
+				   "peripheral", sizeof("peripheral"), 1);
+	} else {
+		setbits_8(&bcsr[17], BCSR17_USBVCC);
+		setbits_8(&bcsr[17], BCSR17_USBMODE);
+	}
+
+	clrbits_8(&bcsr[17], BCSR17_nUSBEN);
+}
+
 #ifdef CONFIG_PCIE1
 static struct pci_controller pcie1_hose;
 #endif  /* CONFIG_PCIE1 */
@@ -444,5 +651,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_PCIE1
 	ft_fsl_pci_setup(blob, "pci1", &pcie1_hose);
 #endif
+	fdt_board_fixup_esdhc(blob, bd);
+	fdt_board_fixup_qe_uart(blob, bd);
+	fdt_board_fixup_qe_usb(blob, bd);
 }
 #endif

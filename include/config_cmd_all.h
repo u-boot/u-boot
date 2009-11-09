@@ -30,6 +30,7 @@
 #define CONFIG_CMD_DOC		/* Disk-On-Chip Support		*/
 #define CONFIG_CMD_DTT		/* Digital Therm and Thermostat */
 #define CONFIG_CMD_ECHO		/* echo arguments		*/
+#define CONFIG_CMD_EDITENV	/* editenv			*/
 #define CONFIG_CMD_EEPROM	/* EEPROM read/write support	*/
 #define CONFIG_CMD_ELF		/* ELF (VxWorks) load/boot cmd	*/
 #define CONFIG_CMD_SAVEENV	/* saveenv			*/

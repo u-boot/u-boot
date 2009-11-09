@@ -17,12 +17,12 @@ Command syntax:
 		to list the kwb image file details
 
 ./tools/mkimage -n <board specific configuration file> \
-                -T kwbimage -a <start address> -e <execution address> \
+		-T kwbimage -a <start address> -e <execution address> \
 		-d <input_raw_binary> <output_kwboot_file>
 
 for ex.
 ./tools/mkimage -n ./board/Marvell/openrd_base/kwbimage.cfg \
-                -T kwbimage -a 0x00600000 -e 0x00600000 \
+		-T kwbimage -a 0x00600000 -e 0x00600000 \
 		-d u-boot.bin u-boot.kwb
 
 kwimage support available with mkimage utility will generate kirkwood boot

@@ -89,17 +89,18 @@ __fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 			? LAW_TRGT_IF_DDR_INTRLV : LAW_TRGT_IF_DDR_1;
 
 		if (set_ddr_laws(base, size, lawbar1_target_id) < 0) {
-			printf("ERROR\n");
+			printf("%s: ERROR (ctrl #0, intrlv=%d)\n", __func__,
+				memctl_interleaved);
 			return ;
 		}
 	} else if (ctrl_num == 1) {
 		if (set_ddr_laws(base, size, LAW_TRGT_IF_DDR_2) < 0) {
-			printf("ERROR\n");
+			printf("%s: ERROR (ctrl #1)\n", __func__);
 			return ;
 		}
 	} else {
-		printf("unexpected controller number %u in %s\n",
-			ctrl_num, __FUNCTION__);
+		printf("%s: unexpected DDR controller number (%u)\n", __func__,
+			ctrl_num);
 	}
 }
 

@@ -221,6 +221,8 @@ static inline void set_mcsr(u32 val)
 	asm volatile("mtspr 0x23c, %0" : "=r" (val) :);
 }
 
+int ppc4xx_pci_sync_clock_config(u32 async);
+
 #endif	/* __ASSEMBLY__ */
 
 /* for multi-cpu support */

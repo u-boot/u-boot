@@ -85,6 +85,8 @@ void ft_qe_setup(void *blob)
 		"bus-frequency", gd->qe_clk, 1);
 	do_fixup_by_compat_u32(blob, "fsl,qe",
 		"brg-frequency", gd->brg_clk, 1);
+	do_fixup_by_compat_u32(blob, "fsl,qe-gtm",
+		"clock-frequency", gd->qe_clk / 2, 1);
 	fdt_fixup_qe_firmware(blob);
 #endif
 }

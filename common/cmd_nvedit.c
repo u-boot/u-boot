@@ -42,6 +42,9 @@
 #include <common.h>
 #include <command.h>
 #include <environment.h>
+#if defined(CONFIG_CMD_EDITENV)
+#include <malloc.h>
+#endif
 #include <watchdog.h>
 #include <serial.h>
 #include <linux/stddef.h>
@@ -202,6 +205,37 @@ int _do_setenv (int flag, int argc, char *argv[])
 			break;
 	}
 
+	/* Check for console redirection */
+	if (strcmp(name,"stdin") == 0) {
+		console = stdin;
+	} else if (strcmp(name,"stdout") == 0) {
+		console = stdout;
+	} else if (strcmp(name,"stderr") == 0) {
+		console = stderr;
+	}
+
+	if (console != -1) {
+		if (argc < 3) {		/* Cannot delete it! */
+			printf("Can't delete \"%s\"\n", name);
+			return 1;
+		}
+
+#ifdef CONFIG_CONSOLE_MUX
+		i = iomux_doenv(console, argv[2]);
+		if (i)
+			return i;
+#else
+		/* Try assigning specified device */
+		if (console_assign (console, argv[2]) < 0)
+			return 1;
+
+#ifdef CONFIG_SERIAL_MULTI
+		if (serial_assign (argv[2]) < 0)
+			return 1;
+#endif
+#endif /* CONFIG_CONSOLE_MUX */
+	}
+
 	/*
 	 * Delete any existing definition
 	 */
@@ -228,37 +262,6 @@ int _do_setenv (int flag, int argc, char *argv[])
 			return 1;
 		}
 #endif
-
-		/* Check for console redirection */
-		if (strcmp(name,"stdin") == 0) {
-			console = stdin;
-		} else if (strcmp(name,"stdout") == 0) {
-			console = stdout;
-		} else if (strcmp(name,"stderr") == 0) {
-			console = stderr;
-		}
-
-		if (console != -1) {
-			if (argc < 3) {		/* Cannot delete it! */
-				printf("Can't delete \"%s\"\n", name);
-				return 1;
-			}
-
-#ifdef CONFIG_CONSOLE_MUX
-			i = iomux_doenv(console, argv[2]);
-			if (i)
-				return i;
-#else
-			/* Try assigning specified device */
-			if (console_assign (console, argv[2]) < 0)
-				return 1;
-
-#ifdef CONFIG_SERIAL_MULTI
-			if (serial_assign (argv[2]) < 0)
-				return 1;
-#endif
-#endif /* CONFIG_CONSOLE_MUX */
-		}
 
 		/*
 		 * Switch to new baudrate if new baudrate is supported
@@ -400,7 +403,7 @@ int _do_setenv (int flag, int argc, char *argv[])
 int setenv (char *varname, char *varvalue)
 {
 	char *argv[4] = { "setenv", varname, varvalue, NULL };
-	if (varvalue == NULL)
+	if ((varvalue == NULL) || (varvalue[0] == '\0'))
 		return _do_setenv (0, 2, argv);
 	else
 		return _do_setenv (0, 3, argv);
@@ -503,6 +506,34 @@ int do_askenv ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 
 /************************************************************************
+ * Interactively edit an environment variable
+ */
+#if defined(CONFIG_CMD_EDITENV)
+int do_editenv(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	char buffer[CONFIG_SYS_CBSIZE];
+	char *init_val;
+	int len;
+
+	if (argc < 2) {
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	/* Set read buffer to initial value or empty sting */
+	init_val = getenv(argv[1]);
+	if (init_val)
+		len = sprintf(buffer, "%s", init_val);
+	else
+		buffer[0] = '\0';
+
+	readline_into_buffer("edit: ", buffer);
+
+	return setenv(argv[1], buffer);
+}
+#endif /* CONFIG_CMD_EDITENV */
+
+/************************************************************************
  * Look up variable from environment,
  * return address of storage for that variable,
  * or NULL if not found
@@ -596,6 +627,15 @@ int envmatch (uchar *s1, int i2)
 
 
 /**************************************************/
+
+#if defined(CONFIG_CMD_EDITENV)
+U_BOOT_CMD(
+	editenv, 2, 0,	do_editenv,
+	"edit environment variable",
+	"name\n"
+	"    - edit environment variable 'name'"
+);
+#endif
 
 U_BOOT_CMD(
 	printenv, CONFIG_SYS_MAXARGS, 1,	do_printenv,

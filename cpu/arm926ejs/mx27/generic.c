@@ -328,4 +328,3 @@ void mx27_sd2_init_pins(void)
 
 }
 #endif /* CONFIG_MXC_MMC */
-

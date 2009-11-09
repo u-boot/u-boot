@@ -240,8 +240,12 @@ int get_clocks (void)
 	gd->i2c2_clk = gd->i2c1_clk;
 
 #if defined(CONFIG_FSL_ESDHC)
+#ifdef CONFIG_MPC8569
+	gd->sdhc_clk = gd->bus_clk;
+#else
 	gd->sdhc_clk = gd->bus_clk / 2;
 #endif
+#endif /* defined(CONFIG_FSL_ESDHC) */
 
 #if defined(CONFIG_CPM2)
 	gd->vco_out = 2*sys_info.freqSystemBus;
