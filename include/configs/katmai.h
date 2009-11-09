@@ -140,6 +140,11 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
 
+/* I2C bootstrap EEPROM */
+#define CONFIG_4xx_CONFIG_I2C_EEPROM_ADDR	0x50
+#define CONFIG_4xx_CONFIG_I2C_EEPROM_OFFSET	0
+#define CONFIG_4xx_CONFIG_BLOCKSIZE		8
+
 /* I2C RTC */
 #define CONFIG_RTC_M41T11	1
 #define CONFIG_SYS_RTC_BUS_NUM		1	/* The I2C bus for RTC		*/
@@ -194,8 +199,10 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DATE
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SNTP
