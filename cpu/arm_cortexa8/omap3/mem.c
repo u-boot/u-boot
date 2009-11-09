@@ -164,7 +164,8 @@ void do_sdrc_init(u32 cs, u32 early)
 		writel(SDRC_SHARING, &sdrc_base->sharing);
 
 		/* Disable Power Down of CKE cuz of 1 CKE on combo part */
-		writel(SRFRONRESET | PAGEPOLICY_HIGH, &sdrc_base->power);
+		writel(WAKEUPPROC | PWDNEN | SRFRONRESET | PAGEPOLICY_HIGH,
+				&sdrc_base->power);
 
 		writel(ENADLL | DLLPHASE_90, &sdrc_base->dlla_ctrl);
 		sdelay(0x20000);
