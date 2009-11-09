@@ -488,50 +488,41 @@ uint mii_BCM54xx_wirespeed(uint mii_reg, struct tsec_private *priv)
  */
 uint mii_parse_BCM54xx_sr(uint mii_reg, struct tsec_private *priv)
 {
+	/* If there is no link, speed and duplex don't matter */
+	if (!priv->link)
+		return 0;
 
-	switch((mii_reg & MIIM_BCM54xx_AUXSTATUS_LINKMODE_MASK) >> MIIM_BCM54xx_AUXSTATUS_LINKMODE_SHIFT){
-
-		case 1:
-			printf("Enet starting in 10BT/HD\n");
-			priv->duplexity = 0;
-			priv->speed = 10;
-			break;
-
-		case 2:
-			printf("Enet starting in 10BT/FD\n");
-			priv->duplexity = 1;
-			priv->speed = 10;
-			break;
-
-		case 3:
-			printf("Enet starting in 100BT/HD\n");
-			priv->duplexity = 0;
-			priv->speed = 100;
-			break;
-
-		case 5:
-			printf("Enet starting in 100BT/FD\n");
-			priv->duplexity = 1;
-			priv->speed = 100;
-			break;
-
-		case 6:
-			printf("Enet starting in 1000BT/HD\n");
-			priv->duplexity = 0;
-			priv->speed = 1000;
-			break;
-
-		case 7:
-			printf("Enet starting in 1000BT/FD\n");
-			priv->duplexity = 1;
-			priv->speed = 1000;
-			break;
-
-		default:
-			printf("Auto-neg error, defaulting to 10BT/HD\n");
-			priv->duplexity = 0;
-			priv->speed = 10;
-			break;
+	switch ((mii_reg & MIIM_BCM54xx_AUXSTATUS_LINKMODE_MASK) >>
+		MIIM_BCM54xx_AUXSTATUS_LINKMODE_SHIFT) {
+	case 1:
+		priv->duplexity = 0;
+		priv->speed = 10;
+		break;
+	case 2:
+		priv->duplexity = 1;
+		priv->speed = 10;
+		break;
+	case 3:
+		priv->duplexity = 0;
+		priv->speed = 100;
+		break;
+	case 5:
+		priv->duplexity = 1;
+		priv->speed = 100;
+		break;
+	case 6:
+		priv->duplexity = 0;
+		priv->speed = 1000;
+		break;
+	case 7:
+		priv->duplexity = 1;
+		priv->speed = 1000;
+		break;
+	default:
+		printf("Auto-neg error, defaulting to 10BT/HD\n");
+		priv->duplexity = 0;
+		priv->speed = 10;
+		break;
 	}
 
 	return 0;
