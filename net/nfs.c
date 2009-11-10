@@ -571,13 +571,14 @@ Interfaces of U-BOOT
 static void
 NfsTimeout (void)
 {
-	if ( NfsTimeoutCount++ < NFS_RETRY_COUNT ) {
+	if ( ++NfsTimeoutCount > NFS_RETRY_COUNT ) {
+		puts ("\nRetry count exceeded; starting again\n");
+		NetStartAgain ();
+	} else {
+		puts("T ");
+		NetSetTimeout (NFS_TIMEOUT, NfsTimeout);
 		NfsSend ();
-		return;
 	}
-	puts ("Timeout\n");
-	NetState = NETLOOP_FAIL;
-	return;
 }
 
 static void
