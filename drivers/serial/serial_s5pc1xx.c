@@ -98,14 +98,24 @@ int serial_init_dev(const int dev_index)
 	return 0;
 }
 
-static int serial_err_check(const int dev_index)
+static int serial_err_check(const int dev_index, int op)
 {
 	struct s5pc1xx_uart *const uart = s5pc1xx_get_base_uart(dev_index);
+	unsigned int mask;
 
-	if (readl(&uart->uerstat) & 0xf)
-		return 1;
+	/*
+	 * UERSTAT
+	 * Break Detect	[3]
+	 * Frame Err	[2] : receive operation
+	 * Parity Err	[1] : receive operation
+	 * Overrun Err	[0] : receive operation
+	 */
+	if (op)
+		mask = 0x8;
+	else
+		mask = 0xf;
 
-	return 0;
+	return readl(&uart->uerstat) & mask;
 }
 
 /*
@@ -119,7 +129,7 @@ int serial_getc_dev(const int dev_index)
 
 	/* wait for character to arrive */
 	while (!(readl(&uart->utrstat) & 0x1)) {
-		if (serial_err_check(dev_index))
+		if (serial_err_check(dev_index, 0))
 			return 0;
 	}
 
@@ -135,7 +145,7 @@ void serial_putc_dev(const char c, const int dev_index)
 
 	/* wait for room in the tx FIFO */
 	while (!(readl(&uart->utrstat) & 0x2)) {
-		if (serial_err_check(dev_index))
+		if (serial_err_check(dev_index, 1))
 			return;
 	}
 
