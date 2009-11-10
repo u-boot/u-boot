@@ -95,6 +95,7 @@ ENTRY(_start)
 	/* Save RETX so we can pass it while booting Linux */
 	r7 = RETX;
 
+#if CONFIG_MEM_SIZE
 	/* Figure out where we are currently executing so that we can decide
 	 * how to best reprogram and relocate things.  We'll pass below:
 	 *  R4: load address of _start
@@ -131,6 +132,9 @@ ENTRY(_start)
 	r3.h = 0x2000;
 	cc = r5 < r3 (iu);
 	if cc jump .Ldma_and_reprogram;
+#else
+	r6 = 1 (x);	/* fake loaded_from_ldr = 1 */
+#endif
 	r0 = 0 (x);	/* set bootstruct to NULL */
 	call _initcode;
 	jump .Lprogrammed;
@@ -154,6 +158,7 @@ ENTRY(_start)
 .Lprogrammed:
 	serial_early_set_baud
 
+#if CONFIG_MEM_SIZE
 	/* Relocate from wherever we are (FLASH/RAM/etc...) to the hardcoded
 	 * monitor location in the end of RAM.  We know that memcpy() only
 	 * uses registers, so it is safe to call here.  Note that this only
@@ -166,6 +171,7 @@ ENTRY(_start)
 	r2.l = LO(CONFIG_SYS_MONITOR_LEN);
 	r2.h = HI(CONFIG_SYS_MONITOR_LEN);
 	call _memcpy_ASM;
+#endif
 
 	/* Initialize BSS section ... we know that memset() does not
 	 * use the BSS, so it is safe to call here.  The bootrom LDR

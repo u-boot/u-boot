@@ -538,10 +538,18 @@ program_memory_controller(ADI_BOOT_DATA *bs, bool put_into_srfs)
 	 * self-refresh.  So we have to pull it out before programming.
 	 */
 #ifdef EBIU_RSTCTL
+# ifdef CONFIG_EBIU_RSTCTL_VAL
 	bfin_write_EBIU_RSTCTL(bfin_read_EBIU_RSTCTL() | 0x1 /*DDRSRESET*/ | CONFIG_EBIU_RSTCTL_VAL);
+# endif
+# ifdef CONFIG_EBIU_DDRCTL0_VAL
 	bfin_write_EBIU_DDRCTL0(CONFIG_EBIU_DDRCTL0_VAL);
+# endif
+# ifdef CONFIG_EBIU_DDRCTL1_VAL
 	bfin_write_EBIU_DDRCTL1(CONFIG_EBIU_DDRCTL1_VAL);
+# endif
+# ifdef CONFIG_EBIU_DDRCTL2_VAL
 	bfin_write_EBIU_DDRCTL2(CONFIG_EBIU_DDRCTL2_VAL);
+# endif
 # ifdef CONFIG_EBIU_DDRCTL3_VAL
 	/* default is disable, so don't need to force this */
 	bfin_write_EBIU_DDRCTL3(CONFIG_EBIU_DDRCTL3_VAL);
@@ -611,11 +619,17 @@ program_async_controller(ADI_BOOT_DATA *bs)
 
 	serial_putc('b');
 
-#ifdef EBIU_MODE
 	/* Not all parts have these additional MMRs. */
+#ifdef EBIU_MODE
+# ifdef CONFIG_EBIU_MBSCTL_VAL
 	bfin_write_EBIU_MBSCTL(CONFIG_EBIU_MBSCTL_VAL);
+# endif
+# ifdef CONFIG_EBIU_MODE_VAL
 	bfin_write_EBIU_MODE(CONFIG_EBIU_MODE_VAL);
+# endif
+# ifdef CONFIG_EBIU_FCTL_VAL
 	bfin_write_EBIU_FCTL(CONFIG_EBIU_FCTL_VAL);
+# endif
 #endif
 
 	serial_putc('c');
