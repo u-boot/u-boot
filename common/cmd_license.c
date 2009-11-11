@@ -23,8 +23,6 @@
 
 #include <common.h>
 
-#if defined(CONFIG_CMD_LICENSE)
-
 /* COPYING is currently 15951 bytes in size */
 #define LICENSE_MAX	20480
 
@@ -56,5 +54,3 @@ U_BOOT_CMD(license, 1, 1, do_license,
 	"print GPL license text",
 	""
 );
-
-#endif /* CONFIG_CMD_LICENSE */
