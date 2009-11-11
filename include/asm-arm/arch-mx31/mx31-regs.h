@@ -24,6 +24,45 @@
 #ifndef __ASM_ARCH_MX31_REGS_H
 #define __ASM_ARCH_MX31_REGS_H
 
+#if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
+#include <asm/types.h>
+
+/* Clock control module registers */
+struct clock_control_regs {
+	u32 ccmr;
+	u32 pdr0;
+	u32 pdr1;
+	u32 rcsr;
+	u32 mpctl;
+	u32 upctl;
+	u32 spctl;
+	u32 cosr;
+	u32 cgr0;
+	u32 cgr1;
+	u32 cgr2;
+	u32 wimr0;
+	u32 ldc;
+	u32 dcvr0;
+	u32 dcvr1;
+	u32 dcvr2;
+	u32 dcvr3;
+	u32 ltr0;
+	u32 ltr1;
+	u32 ltr2;
+	u32 ltr3;
+	u32 ltbr0;
+	u32 ltbr1;
+	u32 pmcr0;
+	u32 pmcr1;
+	u32 pdr2;
+};
+
+/* Bit definitions for RCSR register in CCM */
+#define CCM_RCSR_NF16B	(1 << 31)
+#define CCM_RCSR_NFMS	(1 << 30)
+
+#endif
+
 #define __REG(x)     (*((volatile u32 *)(x)))
 #define __REG16(x)   (*((volatile u16 *)(x)))
 #define __REG8(x)    (*((volatile u8 *)(x)))
