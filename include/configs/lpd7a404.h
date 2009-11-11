@@ -72,7 +72,7 @@
 #include <config_cmd_default.h>
 
 #ifndef USE_920T_MMU
-    #define CONFIG_CMD_PING)
+    #define CONFIG_CMD_PING
     #undef CONFIG_CMD_CACHE
 #else
     #define CONFIG_CMD_DATE

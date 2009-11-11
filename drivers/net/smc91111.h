@@ -81,10 +81,10 @@ struct smc91111_priv{
 #ifdef CONFIG_PXA250
 
 #ifdef CONFIG_XSENGINE
-#define	SMC_inl(a,r)	(*((volatile dword *)((a)->iobase+(r<<1))))
-#define	SMC_inw(a,r)	(*((volatile word *)((a)->iobase+(r<<1))))
+#define	SMC_inl(a,r)	(*((volatile dword *)((a)->iobase+((r)<<1))))
+#define	SMC_inw(a,r)	(*((volatile word *)((a)->iobase+((r)<<1))))
 #define SMC_inb(a,p)  ({ \
-	unsigned int __p = (unsigned int)((a)->iobase + (p<<1)); \
+	unsigned int __p = (unsigned int)((a)->iobase + ((p)<<1)); \
 	unsigned int __v = *(volatile unsigned short *)((__p) & ~2); \
 	if (__p & 2) __v >>= 8; \
 	else __v &= 0xff; \
@@ -99,7 +99,7 @@ struct smc91111_priv{
 	__v; })
 #define SMC_inb(a,p)	({ \
 	unsigned int ___v = SMC_inw((a),(p) & ~1); \
-	if (p & 1) ___v >>= 8; \
+	if ((p) & 1) ___v >>= 8; \
 	else ___v &= 0xff; \
 	___v; })
 #else
