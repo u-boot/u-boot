@@ -149,6 +149,36 @@ static struct nand_ecclayout nand_soft_eccoob = {
 };
 #endif
 
+#ifdef CONFIG_MX27
+static int is_16bit_nand(void)
+{
+	struct system_control_regs *sc_regs =
+		(struct system_control_regs *)IMX_SYSTEM_CTL_BASE;
+
+	if (readl(&sc_regs->fmcr) & NF_16BIT_SEL)
+		return 1;
+	else
+		return 0;
+}
+#elif defined(CONFIG_MX31)
+static int is_16bit_nand(void)
+{
+	struct clock_control_regs *sc_regs =
+		(struct clock_control_regs *)CCM_BASE;
+
+	if (readl(&sc_regs->rcsr) & CCM_RCSR_NF16B)
+		return 1;
+	else
+		return 0;
+}
+#else
+#warning "8/16 bit NAND autodetection not supported"
+static int is_16bit_nand(void)
+{
+	return 0;
+}
+#endif
+
 static uint32_t *mxc_nand_memcpy32(uint32_t *dest, uint32_t *source, size_t size)
 {
 	uint32_t *d = dest;
@@ -808,8 +838,6 @@ static void mxc_nand_command(struct mtd_info *mtd, unsigned command,
 
 int board_nand_init(struct nand_chip *this)
 {
-	struct system_control_regs *sc_regs =
-		(struct system_control_regs *)IMX_SYSTEM_CTL_BASE;
 	struct mtd_info *mtd;
 	uint16_t tmp;
 	int err = 0;
@@ -871,7 +899,7 @@ int board_nand_init(struct nand_chip *this)
 	writew(0x4, &host->regs->nfc_wrprot);
 
 	/* NAND bus width determines access funtions used by upper layer */
-	if (readl(&sc_regs->fmcr) & NF_16BIT_SEL)
+	if (is_16bit_nand())
 		this->options |= NAND_BUSWIDTH_16;
 
 	host->pagesize_2k = 0;
