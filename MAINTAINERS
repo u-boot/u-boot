@@ -545,6 +545,10 @@ Rick Bronson <rick@efn.org>
 
 	AT91RM9200DK	at91rm9200
 
+Po-Yu Chuang <ratbert@faraday-tech.com>
+
+	a320evb		FA526 (ARM920T-like) (a320 SoC)
+
 George G. Davis <gdavis@mvista.com>
 
 	assabet		SA1100
