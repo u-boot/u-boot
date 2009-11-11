@@ -37,7 +37,7 @@ void pkt_data_push(struct eth_device *dev, u32 addr, u32 val) \
 
 #define mdelay(n)       udelay((n)*1000)
 
-static void smx911x_handle_mac_address(struct eth_device *dev)
+static void smc911x_handle_mac_address(struct eth_device *dev)
 {
 	unsigned long addrh, addrl;
 	uchar *m = dev->enetaddr;
@@ -155,7 +155,7 @@ static int smc911x_init(struct eth_device *dev, bd_t * bd)
 	/* Configure the PHY, initialize the link state */
 	smc911x_phy_configure(dev);
 
-	smx911x_handle_mac_address(dev);
+	smc911x_handle_mac_address(dev);
 
 	/* Turn on Tx + Rx */
 	smc911x_enable(dev);
