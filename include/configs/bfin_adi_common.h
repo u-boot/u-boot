@@ -45,7 +45,7 @@
 #  define CONFIG_CMD_USB_STORAGE
 #  define CONFIG_DOS_PARTITION
 # endif
-# ifdef CONFIG_NAND_PLAT
+# if defined(CONFIG_NAND_PLAT) || defined(CONFIG_DRIVER_NAND_BFIN)
 #  define CONFIG_CMD_NAND
 # endif
 # ifdef CONFIG_POST
