@@ -33,8 +33,6 @@
 struct eth_device { unsigned long iobase; };
 #include "../drivers/net/smc91111.h"
 
-#ifdef CONFIG_SMC91111
-
 #ifndef SMC91111_EEPROM_INIT
 # define SMC91111_EEPROM_INIT()
 #endif
@@ -391,13 +389,3 @@ void dump_reg (struct eth_device *dev)
 		printf ("\n");
 	}
 }
-
-#else
-
-int smc91111_eeprom (int argc, char *argv[])
-{
-	printf("Not supported for this board\n");
-	return 1;
-}
-
-#endif
