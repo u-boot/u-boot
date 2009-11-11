@@ -109,7 +109,7 @@ int rtc_set(struct rtc_time *rtc)
 
 	spi_release_bus(slave);
 
-	return -1;
+	return 0;
 }
 
 void rtc_reset(void)
