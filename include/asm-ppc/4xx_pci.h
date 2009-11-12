@@ -49,4 +49,6 @@
 
 #define PCIDEVID_405GP	0x0
 
+void __pci_target_init(struct pci_controller *hose);
+
 #endif

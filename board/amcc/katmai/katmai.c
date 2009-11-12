@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2008
+ * (C) Copyright 2007-2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -290,44 +290,6 @@ int pci_pre_init(struct pci_controller * hose )
 	return 1;
 }
 #endif	/* defined(CONFIG_PCI) */
-
-/*************************************************************************
- *  pci_target_init
- *
- *	The bootstrap configuration provides default settings for the pci
- *	inbound map (PIM). But the bootstrap config choices are limited and
- *	may not be sufficient for a given board.
- *
- ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
-void pci_target_init(struct pci_controller * hose )
-{
-	/*-------------------------------------------------------------------+
-	 * Disable everything
-	 *-------------------------------------------------------------------*/
-	out32r( PCIL0_PIM0SA, 0 ); /* disable */
-	out32r( PCIL0_PIM1SA, 0 ); /* disable */
-	out32r( PCIL0_PIM2SA, 0 ); /* disable */
-	out32r( PCIL0_EROMBA, 0 ); /* disable expansion rom */
-
-	/*-------------------------------------------------------------------+
-	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440
-	 * strapping options to not support sizes such as 128/256 MB.
-	 *-------------------------------------------------------------------*/
-	out32r( PCIL0_PIM0LAL, CONFIG_SYS_SDRAM_BASE );
-	out32r( PCIL0_PIM0LAH, 0 );
-	out32r( PCIL0_PIM0SA, ~(gd->ram_size - 1) | 1 );
-	out32r( PCIL0_BAR0, 0 );
-
-	/*-------------------------------------------------------------------+
-	 * Program the board's subsystem id/vendor id
-	 *-------------------------------------------------------------------*/
-	out16r( PCIL0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
-	out16r( PCIL0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID );
-
-	out16r( PCIL0_CMD, in16r(PCIL0_CMD) | PCI_COMMAND_MEMORY );
-}
-#endif	/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 #if defined(CONFIG_PCI)
 int board_pcie_card_present(int port)

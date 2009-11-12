@@ -69,6 +69,7 @@
 #define CONFIG_SYS_OCM_DATA_ADDR	CONFIG_SYS_OCM_BASE
 #define CONFIG_SYS_PCI_BASE		0xe0000000	/* Internal PCI regs	*/
 #define CONFIG_SYS_PCI_MEMBASE		0x80000000	/* mapped pci memory	*/
+#define CONFIG_SYS_PCI_MEMBASE2		(CONFIG_SYS_PCI_MEMBASE + 0x20000000)
 
 /* Don't change either of these */
 #define CONFIG_SYS_PERIPHERAL_BASE	0xef600000	/* internal peripherals	*/

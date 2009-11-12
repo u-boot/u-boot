@@ -35,6 +35,7 @@
 #include <asm/io.h>
 #include <asm/ppc4xx-uic.h>
 #include <asm/processor.h>
+#include <asm/4xx_pci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -668,60 +669,8 @@ int pci_pre_init(struct pci_controller *hose)
 #if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller *hose)
 {
-	/*
-	 * Set up Direct MMIO registers
-	 */
-	/*
-	 * PowerPC440EPX PCI Master configuration.
-	 * Map one 1Gig range of PLB/processor addresses to PCI memory space.
-	 * PLB address 0x80000000-0xBFFFFFFF
-	 *     ==> PCI address 0x80000000-0xBFFFFFFF
-	 * Use byte reversed out routines to handle endianess.
-	 * Make this region non-prefetchable.
-	 */
-	out32r(PCIL0_PMM0MA, 0x00000000);	/* PMM0 Mask/Attribute */
-						/* - disabled b4 setting */
-	out32r(PCIL0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
-	out32r(PCIL0_PMM0PCILA,
-	       CONFIG_SYS_PCI_MEMBASE);		/* PMM0 PCI Low Address */
-	out32r(PCIL0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
-	out32r(PCIL0_PMM0MA, 0xE0000001);	/* 512M + No prefetching, */
-						/* and enable region */
-
-	out32r(PCIL0_PMM1MA, 0x00000000);	/* PMM0 Mask/Attribute */
-						/* - disabled b4 setting */
-	out32r(PCIL0_PMM1LA,
-	       CONFIG_SYS_PCI_MEMBASE + 0x20000000);	/* PMM0 Local Address */
-	out32r(PCIL0_PMM1PCILA,
-	       CONFIG_SYS_PCI_MEMBASE + 0x20000000);	/* PMM0 PCI Low Address */
-	out32r(PCIL0_PMM1PCIHA, 0x00000000);	/* PMM0 PCI High Address */
-	out32r(PCIL0_PMM1MA, 0xE0000001);	/* 512M + No prefetching, */
-						/* and enable region */
-
-	out32r(PCIL0_PTM1MS, 0x00000001);	/* Memory Size/Attribute */
-	out32r(PCIL0_PTM1LA, 0);		/* Local Addr. Reg */
-	out32r(PCIL0_PTM2MS, 0);		/* Memory Size/Attribute */
-	out32r(PCIL0_PTM2LA, 0);		/* Local Addr. Reg */
-
-	/*
-	 * Set up Configuration registers
-	 */
-
-	/* Program the board's subsystem id/vendor id */
-	pci_write_config_word(0, PCI_SUBSYSTEM_VENDOR_ID,
-			      CONFIG_SYS_PCI_SUBSYS_VENDORID);
-	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_ID);
-
-	/* Configure command register as bus master */
-	pci_write_config_word(0, PCI_COMMAND, PCI_COMMAND_MASTER);
-
-	/* 240nS PCI clock */
-	pci_write_config_word(0, PCI_LATENCY_TIMER, 1);
-
-	/* No error reporting */
-	pci_write_config_word(0, PCI_ERREN, 0);
-
-	pci_write_config_dword(0, PCI_BRDGOPT2, 0x00000101);
+	/* First do 440EP(x) common setup */
+	__pci_target_init(hose);
 
 	/*
 	 * Set up Configuration registers for on-board NEC uPD720101 USB

@@ -77,6 +77,7 @@
 #include <asm/4xx_pci.h>
 #endif
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <pci.h>
 
 #ifdef CONFIG_PCI
@@ -498,6 +499,111 @@ int __is_pci_host(struct pci_controller *hose)
 }
 int is_pci_host(struct pci_controller *hose)
 	__attribute__((weak, alias("__is_pci_host")));
+
+/*
+ *  pci_target_init
+ *
+ *	The bootstrap configuration provides default settings for the pci
+ *	inbound map (PIM). But the bootstrap config choices are limited and
+ *	may not be sufficient for a given board.
+ */
+#if defined(CONFIG_SYS_PCI_TARGET_INIT)
+#if defined(CONFIG_440EP) || defined(CONFIG_440EPX) || \
+    defined(CONFIG_440GR) || defined(CONFIG_440GRX)
+void __pci_target_init(struct pci_controller *hose)
+{
+	/*
+	 * Set up Direct MMIO registers
+	 */
+
+	/*
+	 * PowerPC440 EP PCI Master configuration.
+	 * Map one 1Gig range of PLB/processor addresses to PCI memory space.
+	 * PLB address 0xA0000000-0xDFFFFFFF ==> PCI address 0xA0000000-0xDFFFFFFF
+	 * Use byte reversed out routines to handle endianess.
+	 * Make this region non-prefetchable.
+	 */
+	/* PMM0 Mask/Attribute - disabled b4 setting */
+	out_le32((void *)PCIL0_PMM0MA, 0x00000000);
+	/* PMM0 Local Address */
+	out_le32((void *)PCIL0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);
+	/* PMM0 PCI Low Address */
+	out_le32((void *)PCIL0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE);
+	/* PMM0 PCI High Address */
+	out_le32((void *)PCIL0_PMM0PCIHA, 0x00000000);
+	/* 512M + No prefetching, and enable region */
+	out_le32((void *)PCIL0_PMM0MA, 0xE0000001);
+
+	/* PMM1 Mask/Attribute - disabled b4 setting */
+	out_le32((void *)PCIL0_PMM1MA, 0x00000000);
+	/* PMM1 Local Address */
+	out_le32((void *)PCIL0_PMM1LA, CONFIG_SYS_PCI_MEMBASE2);
+	/* PMM1 PCI Low Address */
+	out_le32((void *)PCIL0_PMM1PCILA, CONFIG_SYS_PCI_MEMBASE2);
+	/* PMM1 PCI High Address */
+	out_le32((void *)PCIL0_PMM1PCIHA, 0x00000000);
+	/* 512M + No prefetching, and enable region */
+	out_le32((void *)PCIL0_PMM1MA, 0xE0000001);
+
+	out_le32((void *)PCIL0_PTM1MS, 0x00000001); /* Memory Size/Attribute */
+	out_le32((void *)PCIL0_PTM1LA, 0);	/* Local Addr. Reg */
+	out_le32((void *)PCIL0_PTM2MS, 0);	/* Memory Size/Attribute */
+	out_le32((void *)PCIL0_PTM2LA, 0);	/* Local Addr. Reg */
+
+	/*
+	 * Set up Configuration registers
+	 */
+
+	/* Program the board's subsystem id/vendor id */
+	pci_write_config_word(0, PCI_SUBSYSTEM_VENDOR_ID,
+			      CONFIG_SYS_PCI_SUBSYS_VENDORID);
+	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_ID);
+
+	/* Configure command register as bus master */
+	pci_write_config_word(0, PCI_COMMAND, PCI_COMMAND_MASTER);
+
+	/* 240nS PCI clock */
+	pci_write_config_word(0, PCI_LATENCY_TIMER, 1);
+
+	/* No error reporting */
+	pci_write_config_word(0, PCI_ERREN, 0);
+
+	pci_write_config_dword(0, PCI_BRDGOPT2, 0x00000101);
+}
+#else /* defined(CONFIG_440EP) ... */
+void __pci_target_init(struct pci_controller * hose)
+{
+	/*
+	 * Disable everything
+	 */
+	out_le32((void *)PCIL0_PIM0SA, 0); /* disable */
+	out_le32((void *)PCIL0_PIM1SA, 0); /* disable */
+	out_le32((void *)PCIL0_PIM2SA, 0); /* disable */
+	out_le32((void *)PCIL0_EROMBA, 0); /* disable expansion rom */
+
+	/*
+	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440
+	 * strapping options do not support sizes such as 128/256 MB.
+	 */
+	out_le32((void *)PCIL0_PIM0LAL, CONFIG_SYS_SDRAM_BASE);
+	out_le32((void *)PCIL0_PIM0LAH, 0);
+	out_le32((void *)PCIL0_PIM0SA, ~(gd->ram_size - 1) | 1);
+	out_le32((void *)PCIL0_BAR0, 0);
+
+	/*
+	 * Program the board's subsystem id/vendor id
+	 */
+	out_le16((void *)PCIL0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID);
+	out_le16((void *)PCIL0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID);
+
+	out_le16((void *)PCIL0_CMD, in_le16((void *)PCIL0_CMD) |
+		 PCI_COMMAND_MEMORY);
+}
+#endif /* defined(CONFIG_440EP) ... */
+void pci_target_init(struct pci_controller * hose)
+	__attribute__((weak, alias("__pci_target_init")));
+
+#endif	/* defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 int pci_440_init (struct pci_controller *hose)
 {
