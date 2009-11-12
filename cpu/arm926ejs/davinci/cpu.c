@@ -23,7 +23,7 @@
 #include <common.h>
 #include <netdev.h>
 #include <asm/arch/hardware.h>
-
+#include <asm/io.h>
 
 /* offsets from PLL controller base */
 #define PLLC_PLLCTL	0x100
@@ -60,6 +60,54 @@
 #define DDR_PLLDIV	PLLC_PLLDIV1
 #endif
 
+#ifdef CONFIG_SOC_DA8XX
+const dv_reg * const sysdiv[7] = {
+	&davinci_pllc_regs->plldiv1, &davinci_pllc_regs->plldiv2,
+	&davinci_pllc_regs->plldiv3, &davinci_pllc_regs->plldiv4,
+	&davinci_pllc_regs->plldiv5, &davinci_pllc_regs->plldiv6,
+	&davinci_pllc_regs->plldiv7
+};
+
+int clk_get(enum davinci_clk_ids id)
+{
+	int pre_div;
+	int pllm;
+	int post_div;
+	int pll_out;
+
+	pll_out = CONFIG_SYS_OSCIN_FREQ;
+
+	if (id == DAVINCI_AUXCLK_CLKID)
+		goto out;
+
+	/*
+	 * Lets keep this simple. Combining operations can result in
+	 * unexpected approximations
+	 */
+	pre_div = (readl(&davinci_pllc_regs->prediv) &
+		   DAVINCI_PLLC_DIV_MASK) + 1;
+	pllm = readl(&davinci_pllc_regs->pllm) + 1;
+
+	pll_out /= pre_div;
+	pll_out *= pllm;
+
+	if (id == DAVINCI_PLLM_CLKID)
+		goto out;
+
+	post_div = (readl(&davinci_pllc_regs->postdiv) &
+		    DAVINCI_PLLC_DIV_MASK) + 1;
+
+	pll_out /= post_div;
+
+	if (id == DAVINCI_PLLC_CLKID)
+		goto out;
+
+	pll_out /= (readl(sysdiv[id - 1]) & DAVINCI_PLLC_DIV_MASK) + 1;
+
+out:
+	return pll_out;
+}
+#endif /* CONFIG_SOC_DA8XX */
 
 #ifdef CONFIG_DISPLAY_CPUINFO
 
