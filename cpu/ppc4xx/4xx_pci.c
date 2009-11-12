@@ -686,6 +686,24 @@ void pci_target_init(struct pci_controller * hose)
 int pci_pre_init(struct pci_controller *hose)
 	__attribute__((weak, alias("__pci_pre_init")));
 
+#if defined(CONFIG_SYS_PCI_MASTER_INIT)
+void __pci_master_init(struct pci_controller *hose)
+{
+	u16 reg;
+
+	/*
+	 * Write the PowerPC440 EP PCI Configuration regs.
+	 * Enable PowerPC440 EP to be a master on the PCI bus (PMM).
+	 * Enable PowerPC440 EP to act as a PCI memory target (PTM).
+	 */
+	pci_read_config_word(0, PCI_COMMAND, &reg);
+	pci_write_config_word(0, PCI_COMMAND, reg |
+			      PCI_COMMAND_MASTER | PCI_COMMAND_MEMORY);
+}
+void pci_master_init(struct pci_controller *hose)
+	__attribute__((weak, alias("__pci_master_init")));
+#endif /* CONFIG_SYS_PCI_MASTER_INIT */
+
 int pci_440_init (struct pci_controller *hose)
 {
 	int reg_num = 0;

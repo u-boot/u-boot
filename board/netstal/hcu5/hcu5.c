@@ -22,6 +22,8 @@
 #include <asm/processor.h>
 #include <ppc440.h>
 #include <asm/io.h>
+#include <asm/4xx_pci.h>
+
 #include  "../common/nm.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -377,23 +379,14 @@ int pci_pre_init(struct pci_controller *hose)
 }
 
 /*
- *  pci_master_init
- *
+ * Override weak default pci_master_init()
  */
 void pci_master_init(struct pci_controller *hose)
 {
-	unsigned short temp_short;
-	if (!board_with_pci()) { return; }
+	if (!board_with_pci())
+		return;
 
-	/*---------------------------------------------------------------
-	 * Write the PowerPC440 EP PCI Configuration regs.
-	 *   Enable PowerPC440 EP to be a master on the PCI bus (PMM).
-	 *   Enable PowerPC440 EP to act as a PCI memory target (PTM).
-	 *--------------------------------------------------------------*/
-	pci_read_config_word(0, PCI_COMMAND, &temp_short);
-	pci_write_config_word(0, PCI_COMMAND,
-			      temp_short | PCI_COMMAND_MASTER |
-			      PCI_COMMAND_MEMORY);
+	__pci_master_init(hose);
 }
 #endif	 /* defined(CONFIG_PCI) */
 

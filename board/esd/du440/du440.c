@@ -360,23 +360,6 @@ int checkboard(void)
 	return (0);
 }
 
-#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT)
-void pci_master_init(struct pci_controller *hose)
-{
-	unsigned short temp_short;
-
-	/*
-	 * Write the PowerPC440 EP PCI Configuration regs.
-	 * Enable PowerPC440 EP to be a master on the PCI bus (PMM).
-	 * Enable PowerPC440 EP to act as a PCI memory target (PTM).
-	 */
-	pci_read_config_word(0, PCI_COMMAND, &temp_short);
-	pci_write_config_word(0, PCI_COMMAND,
-			      temp_short | PCI_COMMAND_MASTER |
-			      PCI_COMMAND_MEMORY);
-}
-#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT) */
-
 int last_stage_init(void)
 {
 	int e, i;
