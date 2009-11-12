@@ -73,9 +73,7 @@
 
 #include <common.h>
 #include <command.h>
-#if !defined(CONFIG_440)
 #include <asm/4xx_pci.h>
-#endif
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <pci.h>
@@ -84,13 +82,21 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
+
+#if defined(CONFIG_PMC405)
+ushort pmc405_pci_subsys_deviceid(void);
+#endif
+
+/*#define DEBUG*/
+
 /*
  * Board-specific pci initialization
  * Platform code can reimplement pci_pre_init() if needed
  */
 int __pci_pre_init(struct pci_controller *hose)
 {
-#if defined (CONFIG_405EP)
+#if defined(CONFIG_405EP)
 	/*
 	 * Enable the internal PCI arbiter by default.
 	 *
@@ -106,15 +112,8 @@ int __pci_pre_init(struct pci_controller *hose)
 
 	return 1;
 }
-int pci_pre_init(struct pci_controller *hose) __attribute__((weak, alias("__pci_pre_init")));
-
-#if defined(CONFIG_405GP) || defined(CONFIG_405EP)
-
-#if defined(CONFIG_PMC405)
-ushort pmc405_pci_subsys_deviceid(void);
-#endif
-
-/*#define DEBUG*/
+int pci_pre_init(struct pci_controller *hose)
+	__attribute__((weak, alias("__pci_pre_init")));
 
 int __is_pci_host(struct pci_controller *hose)
 {
@@ -232,7 +231,7 @@ void pci_405gp_init(struct pci_controller *hose)
 		pciauto_region_init(hose->pci_fb);
 
 	/* Let board change/modify hose & do initial checks */
-	if (pci_pre_init (hose) == 0) {
+	if (pci_pre_init(hose) == 0) {
 		printf("PCI: Board-specific initialization failed.\n");
 		printf("PCI: Configuration aborted.\n");
 		return;
@@ -500,16 +499,17 @@ int __is_pci_host(struct pci_controller *hose)
 int is_pci_host(struct pci_controller *hose)
 	__attribute__((weak, alias("__is_pci_host")));
 
-/*
- *  pci_target_init
- *
- *	The bootstrap configuration provides default settings for the pci
- *	inbound map (PIM). But the bootstrap config choices are limited and
- *	may not be sufficient for a given board.
- */
-#if defined(CONFIG_SYS_PCI_TARGET_INIT)
 #if defined(CONFIG_440EP) || defined(CONFIG_440EPX) || \
     defined(CONFIG_440GR) || defined(CONFIG_440GRX)
+
+#if defined(CONFIG_SYS_PCI_TARGET_INIT)
+/*
+ * pci_target_init
+ *
+ * The bootstrap configuration provides default settings for the pci
+ * inbound map (PIM). But the bootstrap config choices are limited and
+ * may not be sufficient for a given board.
+ */
 void __pci_target_init(struct pci_controller *hose)
 {
 	/*
@@ -570,7 +570,68 @@ void __pci_target_init(struct pci_controller *hose)
 
 	pci_write_config_dword(0, PCI_BRDGOPT2, 0x00000101);
 }
+#endif /* CONFIG_SYS_PCI_TARGET_INIT */
+
+/*
+ * pci_pre_init
+ *
+ * This routine is called just prior to registering the hose and gives
+ * the board the opportunity to check things. Returning a value of zero
+ * indicates that things are bad & PCI initialization should be aborted.
+ *
+ * Different boards may wish to customize the pci controller structure
+ * (add regions, override default access routines, etc) or perform
+ * certain pre-initialization actions.
+ *
+ */
+int __pci_pre_init(struct pci_controller *hose)
+{
+	u32 reg;
+
+	/*
+	 * Set priority for all PLB3 devices to 0.
+	 * Set PLB3 arbiter to fair mode.
+	 */
+	mfsdr(SD0_AMP1, reg);
+	mtsdr(SD0_AMP1, (reg & 0x000000FF) | 0x0000FF00);
+	reg = mfdcr(PLB3_ACR);
+	mtdcr(PLB3_ACR, reg | 0x80000000);
+
+	/*
+	 * Set priority for all PLB4 devices to 0.
+	 */
+	mfsdr(SD0_AMP0, reg);
+	mtsdr(SD0_AMP0, (reg & 0x000000FF) | 0x0000FF00);
+	reg = mfdcr(PLB4_ACR) | 0xa0000000;
+	mtdcr(PLB4_ACR, reg);
+
+	/*
+	 * Set Nebula PLB4 arbiter to fair mode.
+	 */
+	/* Segment0 */
+	reg = (mfdcr(PLB0_ACR) & ~PLB0_ACR_PPM_MASK) | PLB0_ACR_PPM_FAIR;
+	reg = (reg & ~PLB0_ACR_HBU_MASK) | PLB0_ACR_HBU_ENABLED;
+	reg = (reg & ~PLB0_ACR_RDP_MASK) | PLB0_ACR_RDP_4DEEP;
+	reg = (reg & ~PLB0_ACR_WRP_MASK) | PLB0_ACR_WRP_2DEEP;
+	mtdcr(PLB0_ACR, reg);
+
+	/* Segment1 */
+	reg = (mfdcr(PLB1_ACR) & ~PLB1_ACR_PPM_MASK) | PLB1_ACR_PPM_FAIR;
+	reg = (reg & ~PLB1_ACR_HBU_MASK) | PLB1_ACR_HBU_ENABLED;
+	reg = (reg & ~PLB1_ACR_RDP_MASK) | PLB1_ACR_RDP_4DEEP;
+	reg = (reg & ~PLB1_ACR_WRP_MASK) | PLB1_ACR_WRP_2DEEP;
+	mtdcr(PLB1_ACR, reg);
+
+#if defined(CONFIG_SYS_PCI_BOARD_FIXUP_IRQ)
+	hose->fixup_irq = board_pci_fixup_irq;
+#endif
+
+	return 1;
+}
+
 #else /* defined(CONFIG_440EP) ... */
+
+#if defined(CONFIG_SYS_PCI_TARGET_INIT)
 void __pci_target_init(struct pci_controller * hose)
 {
 	/*
@@ -599,11 +660,31 @@ void __pci_target_init(struct pci_controller * hose)
 	out_le16((void *)PCIL0_CMD, in_le16((void *)PCIL0_CMD) |
 		 PCI_COMMAND_MEMORY);
 }
+#endif /* CONFIG_SYS_PCI_TARGET_INIT */
+
+int __pci_pre_init(struct pci_controller *hose)
+{
+	/*
+	 * This board is always configured as the host & requires the
+	 * PCI arbiter to be enabled.
+	 */
+	if (!pci_arbiter_enabled()) {
+		printf("PCI: PCI Arbiter disabled!\n");
+		return 0;
+	}
+
+	return 1;
+}
+
 #endif /* defined(CONFIG_440EP) ... */
+
+#if defined(CONFIG_SYS_PCI_TARGET_INIT)
 void pci_target_init(struct pci_controller * hose)
 	__attribute__((weak, alias("__pci_target_init")));
+#endif /* CONFIG_SYS_PCI_TARGET_INIT */
 
-#endif	/* defined(CONFIG_SYS_PCI_TARGET_INIT) */
+int pci_pre_init(struct pci_controller *hose)
+	__attribute__((weak, alias("__pci_pre_init")));
 
 int pci_440_init (struct pci_controller *hose)
 {
@@ -674,7 +755,7 @@ int pci_440_init (struct pci_controller *hose)
 	pci_setup_indirect(hose, PCIL0_CFGADR, PCIL0_CFGDATA);
 
 	/* Let board change/modify hose & do initial checks */
-	if (pci_pre_init (hose) == 0) {
+	if (pci_pre_init(hose) == 0) {
 		printf("PCI: Board-specific initialization failed.\n");
 		printf("PCI: Configuration aborted.\n");
 		return -1;

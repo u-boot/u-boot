@@ -435,6 +435,7 @@
 /* Board-specific PCI */
 #define CONFIG_SYS_PCI_TARGET_INIT
 #define CONFIG_SYS_PCI_MASTER_INIT
+#define CONFIG_SYS_PCI_BOARD_FIXUP_IRQ
 
 /* PCI identification */
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x12FE	/* PCI Vendor ID: esd gmbh      */

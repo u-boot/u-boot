@@ -29,6 +29,7 @@
 #include <ppc4xx_enet.h>
 #include <miiphy.h>
 #include <asm/processor.h>
+#include <asm/4xx_pci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -144,39 +145,20 @@ int checkboard (void)
 	return (0);
 }
 
-/*************************************************************************
- *  pci_pre_init
- *
- *  This routine is called just prior to registering the hose and gives
- *  the board the opportunity to check things. Returning a value of zero
- *  indicates that things are bad & PCI initialization should be aborted.
- *
- *	Different boards may wish to customize the pci controller structure
- *	(add regions, override default access routines, etc) or perform
- *	certain pre-initialization actions.
- *
- ************************************************************************/
 #if defined(CONFIG_PCI)
-int pci_pre_init(struct pci_controller * hose )
+/*
+ * Override weak pci_pre_init()
+ */
+int pci_pre_init(struct pci_controller *hose)
 {
-	unsigned long strap;
-
-	/*--------------------------------------------------------------------------+
-	 *	The ocotea board is always configured as the host & requires the
-	 *	PCI arbiter to be enabled.
-	 *--------------------------------------------------------------------------*/
-	mfsdr(SDR0_SDSTP1, strap);
-	if( (strap & SDR0_SDSTP1_PAE_MASK) == 0 ){
-		printf("PCI: SDR0_STRP1[%08lX] - PCI Arbiter disabled.\n",strap);
+	if (__pci_pre_init(hose) == 0)
 		return 0;
-	}
 
 	/* FPGA Init */
-	alpr_fpga_init ();
+	alpr_fpga_init();
 
 	return 1;
 }
-#endif /* defined(CONFIG_PCI) */
 
 /*************************************************************************
  * Override weak is_pci_host()
@@ -193,8 +175,6 @@ int pci_pre_init(struct pci_controller * hose )
  *
  *
  ************************************************************************/
-#if defined(CONFIG_PCI)
-
 static void wait_for_pci_ready(void)
 {
 	/*

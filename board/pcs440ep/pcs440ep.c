@@ -551,61 +551,6 @@ phys_size_t initdram (int board_type)
 }
 
 /*************************************************************************
- *  pci_pre_init
- *
- *  This routine is called just prior to registering the hose and gives
- *  the board the opportunity to check things. Returning a value of zero
- *  indicates that things are bad & PCI initialization should be aborted.
- *
- *	Different boards may wish to customize the pci controller structure
- *	(add regions, override default access routines, etc) or perform
- *	certain pre-initialization actions.
- *
- ************************************************************************/
-#if defined(CONFIG_PCI)
-int pci_pre_init(struct pci_controller *hose)
-{
-	unsigned long addr;
-
-	/*-------------------------------------------------------------------------+
-	  | Set priority for all PLB3 devices to 0.
-	  | Set PLB3 arbiter to fair mode.
-	  +-------------------------------------------------------------------------*/
-	mfsdr(SD0_AMP1, addr);
-	mtsdr(SD0_AMP1, (addr & 0x000000FF) | 0x0000FF00);
-	addr = mfdcr(PLB3_ACR);
-	mtdcr(PLB3_ACR, addr | 0x80000000);
-
-	/*-------------------------------------------------------------------------+
-	  | Set priority for all PLB4 devices to 0.
-	  +-------------------------------------------------------------------------*/
-	mfsdr(SD0_AMP0, addr);
-	mtsdr(SD0_AMP0, (addr & 0x000000FF) | 0x0000FF00);
-	addr = mfdcr(PLB4_ACR) | 0xa0000000;	/* Was 0x8---- */
-	mtdcr(PLB4_ACR, addr);
-
-	/*-------------------------------------------------------------------------+
-	  | Set Nebula PLB4 arbiter to fair mode.
-	  +-------------------------------------------------------------------------*/
-	/* Segment0 */
-	addr = (mfdcr(PLB0_ACR) & ~PLB0_ACR_PPM_MASK) | PLB0_ACR_PPM_FAIR;
-	addr = (addr & ~PLB0_ACR_HBU_MASK) | PLB0_ACR_HBU_ENABLED;
-	addr = (addr & ~PLB0_ACR_RDP_MASK) | PLB0_ACR_RDP_4DEEP;
-	addr = (addr & ~PLB0_ACR_WRP_MASK) | PLB0_ACR_WRP_2DEEP;
-	mtdcr(PLB0_ACR, addr);
-
-	/* Segment1 */
-	addr = (mfdcr(PLB1_ACR) & ~PLB1_ACR_PPM_MASK) | PLB1_ACR_PPM_FAIR;
-	addr = (addr & ~PLB1_ACR_HBU_MASK) | PLB1_ACR_HBU_ENABLED;
-	addr = (addr & ~PLB1_ACR_RDP_MASK) | PLB1_ACR_RDP_4DEEP;
-	addr = (addr & ~PLB1_ACR_WRP_MASK) | PLB1_ACR_WRP_2DEEP;
-	mtdcr(PLB1_ACR, addr);
-
-	return 1;
-}
-#endif	/* defined(CONFIG_PCI) */
-
-/*************************************************************************
  *  pci_master_init
  *
  ************************************************************************/

@@ -1,6 +1,8 @@
 #ifndef _405GP_PCI_H
 #define _405GP_PCI_H
 
+#include <pci.h>
+
 /*----------------------------------------------------------------------------+
 | 405GP PCI core memory map defines.
 +----------------------------------------------------------------------------*/
@@ -49,6 +51,9 @@
 
 #define PCIDEVID_405GP	0x0
 
+void board_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev);
+int pci_arbiter_enabled(void);
+int __pci_pre_init(struct pci_controller *hose);
 void __pci_target_init(struct pci_controller *hose);
 
 #endif

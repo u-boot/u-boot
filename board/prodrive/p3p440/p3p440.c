@@ -165,37 +165,6 @@ int misc_init_r (void)
 }
 
 /*************************************************************************
- *  pci_pre_init
- *
- *  This routine is called just prior to registering the hose and gives
- *  the board the opportunity to check things. Returning a value of zero
- *  indicates that things are bad & PCI initialization should be aborted.
- *
- *	Different boards may wish to customize the pci controller structure
- *	(add regions, override default access routines, etc) or perform
- *	certain pre-initialization actions.
- *
- ************************************************************************/
-#if defined(CONFIG_PCI)
-int pci_pre_init(struct pci_controller *hose)
-{
-	unsigned long strap;
-
-	/*--------------------------------------------------------------------------+
-	 *	The P3P440 board is always configured as the host & requires the
-	 *	PCI arbiter to be disabled because it's an PMC module.
-	 *--------------------------------------------------------------------------*/
-	strap = mfdcr(CPC0_STRP1);
-	if (strap & 0x00100000) {
-		printf("PCI: CPC0_STRP1[PAE] set.\n");
-		return 0;
-	}
-
-	return 1;
-}
-#endif	/* defined(CONFIG_PCI) */
-
-/*************************************************************************
  * Override weak is_pci_host()
  *
  *	This routine is called to determine if a pci scan should be

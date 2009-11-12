@@ -209,37 +209,6 @@ int checkboard (void)
 	return (0);
 }
 
-/*************************************************************************
- *  pci_pre_init
- *
- *  This routine is called just prior to registering the hose and gives
- *  the board the opportunity to check things. Returning a value of zero
- *  indicates that things are bad & PCI initialization should be aborted.
- *
- *	Different boards may wish to customize the pci controller structure
- *	(add regions, override default access routines, etc) or perform
- *	certain pre-initialization actions.
- *
- ************************************************************************/
-#if defined(CONFIG_PCI)
-int pci_pre_init(struct pci_controller * hose )
-{
-	unsigned long strap;
-
-	/*--------------------------------------------------------------------------+
-	 *	The ocotea board is always configured as the host & requires the
-	 *	PCI arbiter to be enabled.
-	 *--------------------------------------------------------------------------*/
-	mfsdr(SDR0_SDSTP1, strap);
-	if( (strap & SDR0_SDSTP1_PAE_MASK) == 0 ){
-		printf("PCI: SDR0_STRP1[%08lX] - PCI Arbiter disabled.\n",strap);
-		return 0;
-	}
-
-	return 1;
-}
-#endif /* defined(CONFIG_PCI) */
-
 #ifdef CONFIG_POST
 /*
  * Returns 1 if keys pressed to start the power-on long-running tests

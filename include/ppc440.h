@@ -1276,7 +1276,8 @@
 #define CPC0_STRP1_PAE_MASK		(0x80000000 >> 11)
 #define CPC0_STRP1_PISE_MASK		(0x80000000 >> 13)
 #endif /* defined(CONFIG_440GP) */
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define SDR0_SDSTP1_PAE_MASK		(0x80000000 >> 13)
 #define SDR0_SDSTP1_PISE_MASK		(0x80000000 >> 15)
 #endif /* defined(CONFIG_440GX) || defined(CONFIG_440SP) */

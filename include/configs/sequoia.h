@@ -364,6 +364,7 @@
 /* Board-specific PCI */
 #define CONFIG_SYS_PCI_TARGET_INIT
 #define CONFIG_SYS_PCI_MASTER_INIT
+#define CONFIG_SYS_PCI_BOARD_FIXUP_IRQ
 
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC				*/
 #define CONFIG_SYS_PCI_SUBSYS_ID       0xcafe	/* Whatever			*/

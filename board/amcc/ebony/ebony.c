@@ -164,34 +164,3 @@ long int fixed_sdram(void)
 	return (128 * 1024 * 1024);	/* 128 MB                           */
 }
 #endif				/* !defined(CONFIG_SPD_EEPROM) */
-
-/*************************************************************************
- *  pci_pre_init
- *
- *  This routine is called just prior to registering the hose and gives
- *  the board the opportunity to check things. Returning a value of zero
- *  indicates that things are bad & PCI initialization should be aborted.
- *
- *	Different boards may wish to customize the pci controller structure
- *	(add regions, override default access routines, etc) or perform
- *	certain pre-initialization actions.
- *
- ************************************************************************/
-#if defined(CONFIG_PCI)
-int pci_pre_init(struct pci_controller *hose)
-{
-	unsigned long strap;
-
-	/*--------------------------------------------------------------------------+
-	 * The ebony board is always configured as the host & requires the
-	 * PCI arbiter to be enabled.
-	 *--------------------------------------------------------------------------*/
-	strap = mfdcr(CPC0_STRP1);
-	if ((strap & 0x00100000) == 0) {
-		printf("PCI: CPC0_STRP1[PAE] not set.\n");
-		return 0;
-	}
-
-	return 1;
-}
-#endif	/* defined(CONFIG_PCI) */

@@ -136,6 +136,8 @@ phys_size_t initdram(int board_type)
 }
 
 /*
+ * Override weak pci_pre_init()
+ *
  * This routine is called just prior to registering the hose and gives
  * the board the opportunity to check things. Returning a value of zero
  * indicates that things are bad & PCI initialization should be aborted.
@@ -144,7 +146,6 @@ phys_size_t initdram(int board_type)
  * (add regions, override default access routines, etc) or perform
  * certain pre-initialization actions.
  */
-
 #if defined(CONFIG_PCI)
 int pci_pre_init(struct pci_controller * hose)
 {
