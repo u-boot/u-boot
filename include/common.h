@@ -107,6 +107,9 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_BLACKFIN
 #include <asm/blackfin.h>
 #endif
+#ifdef CONFIG_SOC_DA8XX
+#include <asm/arch/hardware.h>
+#endif
 
 #include <part.h>
 #include <flash.h>

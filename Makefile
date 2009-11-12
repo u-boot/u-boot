@@ -2930,6 +2930,9 @@ cp922_XA10_config	\
 cp1026_config: unconfig
 	@board/armltd/integrator/split_by_variant.sh cp $@
 
+da830evm_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs da830evm davinci davinci
+
 davinci_dvevm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dvevm davinci davinci
 
