@@ -61,7 +61,7 @@ extern u_long get_vco(void);
 extern u_long get_cclk(void);
 extern u_long get_sclk(void);
 
-# define bfin_revid() (*pCHIPID >> 28)
+# define bfin_revid() (bfin_read_CHIPID() >> 28)
 
 extern bool bfin_os_log_check(void);
 extern void bfin_os_log_dump(void);
