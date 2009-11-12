@@ -107,6 +107,9 @@ typedef	struct	global_data {
 #if defined(CONFIG_FSL_LAW)
 	u32 used_laws;
 #endif
+#if defined(CONFIG_E500)
+	u32 used_tlb_cams[(CONFIG_SYS_NUM_TLBCAMS+31)/32];
+#endif
 #if defined(CONFIG_MPC5xxx)
 	unsigned long	ipb_clk;
 	unsigned long	pci_clk;

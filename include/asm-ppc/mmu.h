@@ -479,6 +479,8 @@ extern void disable_tlb(u8 esel);
 extern void invalidate_tlb(u8 tlb);
 extern void init_tlbs(void);
 extern int find_tlb_idx(void *addr, u8 tlbsel);
+extern void init_used_tlb_cams(void);
+extern int find_free_tlbcam(void);
 
 extern unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg);
 

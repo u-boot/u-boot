@@ -246,6 +246,7 @@ void cpu_init_f (void)
 #ifdef CONFIG_FSL_CORENET
 	corenet_tb_init();
 #endif
+	init_used_tlb_cams();
 }
 
 
