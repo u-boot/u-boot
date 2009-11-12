@@ -25,6 +25,8 @@
 #ifndef __BLACKFIN_LOCAL_H__
 #define __BLACKFIN_LOCAL_H__
 
+#include <asm/mem_map.h>
+
 #define LO(con32) ((con32) & 0xFFFF)
 #define lo(con32) ((con32) & 0xFFFF)
 #define HI(con32) (((con32) >> 16) & 0xFFFF)
