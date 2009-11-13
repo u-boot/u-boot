@@ -227,14 +227,10 @@ void init_addr_map(void)
 }
 #endif
 
-#ifndef CONFIG_SYS_DDR_TLB_START
-#define CONFIG_SYS_DDR_TLB_START 8
-#endif
-
 unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 {
+	int i;
 	unsigned int tlb_size;
-	unsigned int ram_tlb_index = CONFIG_SYS_DDR_TLB_START;
 	unsigned int ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
 	unsigned int max_cam = (mfspr(SPRN_TLB1CFG) >> 16) & 0xf;
 	u64 size, memsize = (u64)memsize_in_meg << 20;
@@ -244,9 +240,13 @@ unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 	/* Convert (4^max) kB to (2^max) bytes */
 	max_cam = max_cam * 2 + 10;
 
-	for (; size && ram_tlb_index < 16; ram_tlb_index++) {
+	for (i = 0; size && i < 8; i++) {
+		int ram_tlb_index = find_free_tlbcam();
 		u32 camsize = __ilog2_u64(size) & ~1U;
 		u32 align = __ilog2(ram_tlb_address) & ~1U;
+
+		if (ram_tlb_index == -1)
+			break;
 
 		if (align == -2) align = max_cam;
 		if (camsize > align)
