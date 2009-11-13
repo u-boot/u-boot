@@ -132,10 +132,10 @@ int find_tlb_idx(void *addr, u8 tlbsel)
 void init_addr_map(void)
 {
 	int i;
-	unsigned int max_cam = (mfspr(SPRN_TLB1CFG) >> 16) & 0xff;
+	unsigned int num_cam = mfspr(SPRN_TLB1CFG) & 0xfff;
 
 	/* walk all the entries */
-	for (i = 0; i < max_cam; i++) {
+	for (i = 0; i < num_cam; i++) {
 		unsigned long epn;
 		u32 tsize, _mas1;
 		phys_addr_t rpn;
