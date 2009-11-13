@@ -149,8 +149,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_DDR_ERR_DIS		0x00000000
 #define CONFIG_SYS_DDR_SBE		0x00FF0000
 
-#define CONFIG_SYS_DDR_TLB_START 9
-
 /*
  * Memory map
  *
