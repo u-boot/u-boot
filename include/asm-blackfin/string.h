@@ -29,9 +29,6 @@
 
 #ifdef __KERNEL__		/* only set these up for kernel code */
 
-#include <config.h>
-#include <asm/blackfin.h>
-
 #define __HAVE_ARCH_STRCPY
 #define __HAVE_ARCH_STRNCPY
 #define __HAVE_ARCH_STRCMP
@@ -47,7 +44,7 @@ extern int strcmp(const char *cs, const char *ct);
 extern int strncmp(const char *cs, const char *ct, size_t count);
 extern void *memcpy(void *dest, const void *src, size_t count);
 extern void *memset(void *s, int c, size_t count);
-extern int memcmp(const void *, const void *, __kernel_size_t);
+extern int memcmp(const void *, const void *, size_t);
 extern void *memmove(void *dest, const void *src, size_t count);
 
 #else				/* KERNEL */
