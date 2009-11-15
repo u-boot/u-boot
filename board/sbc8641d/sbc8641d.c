@@ -62,11 +62,6 @@ phys_size_t initdram (int board_type)
 	dram_size = fixed_sdram ();
 #endif
 
-#if defined(CONFIG_SYS_RAMBOOT)
-	puts ("    DDR: ");
-	return dram_size;
-#endif
-
 	puts ("    DDR: ");
 	return dram_size;
 }

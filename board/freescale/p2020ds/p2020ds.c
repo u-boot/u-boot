@@ -227,7 +227,7 @@ void pci_init_board(void)
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-				&pcie2_hose, first_free_busno, pcie_ep);
+					&pcie2_hose, first_free_busno);
 
 		/*
 		 * The workaround doesn't work on p2020 because the location
@@ -267,7 +267,7 @@ void pci_init_board(void)
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-				&pcie3_hose, first_free_busno, pcie_ep);
+					&pcie3_hose, first_free_busno);
 	} else {
 		printf("    PCIE3: disabled\n");
 	}
@@ -286,7 +286,7 @@ void pci_init_board(void)
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-				&pcie1_hose, first_free_busno, pcie_ep);
+					&pcie1_hose, first_free_busno);
 	} else {
 		printf("    PCIE1: disabled\n");
 	}

@@ -593,7 +593,7 @@
 #define CONFIG_SYS_EBC_PB1CR		(CONFIG_SYS_FPGA_BASE | 0x3a000) /* BAS=FPGA,BS=2MB,BU=R/W,BW=16bit*/
 #endif	/* !defined(CONFIG_ARCHES) */
 
-#define CONFIG_SYS_EBC_CFG		0xB8400000		/*  EBC0_CFG */
+#define CONFIG_SYS_EBC_CFG		0xbfc00000
 
 /*
  * Arches doesn't use PerCS3 but GPIO43, so let's configure the GPIO

@@ -102,18 +102,22 @@ __secondary_start_page:
 #ifdef CONFIG_BACKSIDE_L2_CACHE
 	/* Enable/invalidate the L2 cache */
 	msync
-	lis	r3,(L2CSR0_L2FI|L2CSR0_L2LFC)@h
-	ori	r3,r3,(L2CSR0_L2FI|L2CSR0_L2LFC)@l
-	mtspr	SPRN_L2CSR0,r3
+	lis	r2,(L2CSR0_L2FI|L2CSR0_L2LFC)@h
+	ori	r2,r2,(L2CSR0_L2FI|L2CSR0_L2LFC)@l
+	mtspr	SPRN_L2CSR0,r2
 1:
 	mfspr	r3,SPRN_L2CSR0
-	andis.	r1,r3,L2CSR0_L2FI@h
+	and.	r1,r3,r2
 	bne	1b
 
 	lis	r3,CONFIG_SYS_INIT_L2CSR0@h
 	ori	r3,r3,CONFIG_SYS_INIT_L2CSR0@l
 	mtspr	SPRN_L2CSR0,r3
 	isync
+2:
+	mfspr	r3,SPRN_L2CSR0
+	andis.	r1,r3,L2CSR0_L2E@h
+	beq	2b
 #endif
 
 #define EPAPR_MAGIC		(0x45504150)

@@ -25,6 +25,7 @@
 int is_fsl_pci_agent(enum law_trgt_if trgt, u32 host_agent);
 int is_fsl_pci_cfg(enum law_trgt_if trgt, u32 io_sel);
 
+int fsl_is_pci_agent(struct pci_controller *hose);
 void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data);
 void fsl_pci_config_unlock(struct pci_controller *hose);
 void ft_fsl_pci_setup(void *blob, const char *pci_alias,
@@ -62,7 +63,6 @@ typedef struct pci_inbound_window {
 #define PIWAR_LOCAL		0x00f00000
 #define PIWAR_READ_SNOOP	0x00050000
 #define PIWAR_WRITE_SNOOP	0x00005000
-#define PIWAR_IWS_4K		0x0000000b
 	u32	res2[3];
 } pit_t;
 
@@ -172,7 +172,7 @@ struct fsl_pci_info {
 };
 
 int fsl_pci_init_port(struct fsl_pci_info *pci_info,
-			struct pci_controller *hose, int busno, int pcie_ep);
+				struct pci_controller *hose, int busno);
 
 #define SET_STD_PCI_INFO(x, num) \
 {			\
