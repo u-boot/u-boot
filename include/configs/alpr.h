@@ -231,13 +231,11 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_FPGA
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NET
