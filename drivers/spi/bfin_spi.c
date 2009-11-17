@@ -314,6 +314,10 @@ void spi_release_bus(struct spi_slave *slave)
 	SSYNC();
 }
 
+#ifndef CONFIG_BFIN_SPI_IDLE_VAL
+# define CONFIG_BFIN_SPI_IDLE_VAL 0xff
+#endif
+
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		void *din, unsigned long flags)
 {
@@ -340,7 +344,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 
 	/* todo: take advantage of hardware fifos and setup RX dma */
 	while (bytes--) {
-		u8 value = (tx ? *tx++ : 0);
+		u8 value = (tx ? *tx++ : CONFIG_BFIN_SPI_IDLE_VAL);
 		debug("%s: tx:%x ", __func__, value);
 		write_SPI_TDBR(bss, value);
 		SSYNC();
