@@ -138,6 +138,7 @@ U-Boot will always have a patchlevel of "0".
 Directory Hierarchy:
 ====================
 
+- api		Machine/arch independent API for external apps
 - board		Board dependent files
 - common	Misc architecture independent functions
 - cpu		CPU specific files
@@ -178,8 +179,8 @@ Directory Hierarchy:
 - disk		Code for disk drive partition handling
 - doc		Documentation (don't expect too much)
 - drivers	Commonly used device drivers
-- dtt		Digital Thermometer and Thermostat drivers
 - examples	Example code for standalone applications, etc.
+- fs		Filesystem code (cramfs, ext2, jffs2, etc.)
 - include	Header Files
 - lib_arm	Files generic to ARM	 architecture
 - lib_avr32	Files generic to AVR32	 architecture
@@ -187,9 +188,12 @@ Directory Hierarchy:
 - lib_generic	Files generic to all	 architectures
 - lib_i386	Files generic to i386	 architecture
 - lib_m68k	Files generic to m68k	 architecture
+- lib_microblaze Files generic to microblaze architecture
 - lib_mips	Files generic to MIPS	 architecture
 - lib_nios	Files generic to NIOS	 architecture
+- lib_nios2	Files generic to NIOS2	 architecture
 - lib_ppc	Files generic to PowerPC architecture
+- lib_sh	Files generic to SH	 architecture
 - lib_sparc	Files generic to SPARC	 architecture
 - libfdt	Library files to support flattened device trees
 - net		Networking code
