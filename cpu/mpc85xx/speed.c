@@ -170,7 +170,12 @@ void get_sys_info (sys_info_t * sysInfo)
 	}
 #endif
 	if (lcrr_div == 2 || lcrr_div == 4 || lcrr_div == 8) {
-#if !defined(CONFIG_MPC8540) && !defined(CONFIG_MPC8541) && \
+#if defined(CONFIG_FSL_CORENET)
+		/* If this is corenet based SoC, bit-representation
+		 * for four times the clock divider values.
+		 */
+		lcrr_div *= 4;
+#elif !defined(CONFIG_MPC8540) && !defined(CONFIG_MPC8541) && \
     !defined(CONFIG_MPC8555) && !defined(CONFIG_MPC8560)
 		/*
 		 * Yes, the entire PQ38 family use the same
