@@ -30,15 +30,10 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_S3C2400) || defined (CONFIG_S3C2410) || defined (CONFIG_TRAB)
+#ifdef CONFIG_S3C24X0
 
 #include <asm/io.h>
-
-#if defined(CONFIG_S3C2400)
-#include <asm/arch/s3c2400.h>
-#elif defined(CONFIG_S3C2410)
-#include <asm/arch/s3c2410.h>
-#endif
+#include <asm/arch/s3c24x0_cpu.h>
 
 #define MPLL 0
 #define UPLL 1
@@ -100,6 +95,4 @@ ulong get_UCLK(void)
 	return get_PLLCLK(UPLL);
 }
 
-#endif /* defined(CONFIG_S3C2400) ||
-	  defined (CONFIG_S3C2410) ||
-	  defined (CONFIG_TRAB) */
+#endif /* CONFIG_S3C24X0 */

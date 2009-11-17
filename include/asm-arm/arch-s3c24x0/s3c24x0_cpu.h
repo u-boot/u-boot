@@ -1,17 +1,6 @@
 /*
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
- *
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Alex Zuepke <azu@sysgo.de>
- *
- * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
- *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * (C) Copyright 2009
+ * Kevin Morfitt, Fearnside Systems Ltd, <kevin.morfitt@fearnside-systems.co.uk>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,14 +18,10 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-
-#include <asm/arch/s3c24x0_cpu.h>
-#include <asm/proc-armv/ptrace.h>
-
-void do_irq (struct pt_regs *pt_regs)
-{
-	struct s3c24x0_interrupt *irq = s3c24x0_get_base_interrupt();
-	u_int32_t intpnd = readl(&irq->INTPND);
-
-}
+#ifdef CONFIG_S3C2400
+	#include <asm/arch/s3c2400.h>
+#elif defined CONFIG_S3C2410
+	#include <asm/arch/s3c2410.h>
+#else
+	#error Please define the s3c24x0 cpu type
+#endif

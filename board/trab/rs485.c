@@ -22,7 +22,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/s3c2400.h>
+#include <asm/arch/s3c24x0_cpu.h>
 #include "rs485.h"
 
 static void rs485_setbrg (void);

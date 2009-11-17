@@ -65,8 +65,7 @@
 #endif
 
 #if defined(CONFIG_ARM920T) || \
-    defined(CONFIG_S3C2400) || \
-    defined(CONFIG_S3C2410) || \
+    defined(CONFIG_S3C24X0) || \
     defined(CONFIG_S3C6400) || \
     defined(CONFIG_440EP) || \
     defined(CONFIG_PCI_OHCI) || \

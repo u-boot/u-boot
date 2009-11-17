@@ -24,7 +24,7 @@
 #ifndef _RS485_H_
 #define _RS485_H_
 
-#include <asm/arch/s3c2400.h>
+#include <asm/arch/s3c24x0_cpu.h>
 
 int rs485_init (void);
 int rs485_getc (void);

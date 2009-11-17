@@ -27,11 +27,7 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_S3C2400)
-#include <asm/arch/s3c2400.h>
-#elif defined(CONFIG_S3C2410)
-#include <asm/arch/s3c2410.h>
-#endif
+#include <asm/arch/s3c24x0_cpu.h>
 
 #include <asm/io.h>
 #include <i2c.h>

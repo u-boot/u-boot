@@ -131,7 +131,7 @@ copyex:
 	bne	copyex
 #endif
 
-#if defined(CONFIG_S3C2400) || defined(CONFIG_S3C2410)
+#ifdef CONFIG_S3C24X0
 	/* turn off the watchdog */
 
 # if defined(CONFIG_S3C2400)
@@ -166,7 +166,7 @@ copyex:
 	ldr	r0, =CLKDIVN
 	mov	r1, #3
 	str	r1, [r0]
-#endif	/* CONFIG_S3C2400 || CONFIG_S3C2410 */
+#endif	/* CONFIG_S3C24X0 */
 
 	/*
 	 * we do sys-critical inits only at reboot,
