@@ -36,14 +36,9 @@
 #include <common.h>
 /* #include <pci.h> no PCI on the S3C24X0 */
 
-#ifdef CONFIG_USB_OHCI
+#if defined(CONFIG_USB_OHCI) && defined(CONFIG_S3C24X0)
 
-#if defined(CONFIG_S3C2400)
-#include <asm/arch/s3c2400.h>
-#elif defined(CONFIG_S3C2410)
-#include <asm/arch/s3c2410.h>
-#endif
-
+#include <asm/arch/s3c24x0_cpu.h>
 #include <asm/io.h>
 #include <malloc.h>
 #include <usb.h>
@@ -1757,4 +1752,4 @@ int usb_lowlevel_stop(void)
 	return 0;
 }
 
-#endif /* CONFIG_USB_OHCI */
+#endif /* defined(CONFIG_USB_OHCI) && defined(CONFIG_S3C24X0) */
