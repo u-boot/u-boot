@@ -165,6 +165,9 @@ static void plat_mp_up(unsigned long bootpg)
 	e = find_law(bootpg);
 	out_be32(&ccm->bstrar, LAW_EN | e.trgt_id << 20 | LAW_SIZE_4K);
 
+	/* readback to sync write */
+	in_be32(&ccm->bstrar);
+
 	/* disable time base at the platform */
 	out_be32(&rcpm->ctbenrl, cpu_up_mask);
 
