@@ -312,7 +312,7 @@ void setup_mp(void)
 		disable_tlb(i);
 
 		set_tlb(1, CONFIG_BPTR_VIRT_ADDR, bootpg, /* tlb, epn, rpn */
-			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I, /* perms, wimge */
+			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G, /* perms, wimge */
 			0, i, BOOKE_PAGESZ_4K, 1); /* ts, esel, tsize, iprot */
 
 		memcpy((void *)CONFIG_BPTR_VIRT_ADDR, (void *)fixup, 4096);

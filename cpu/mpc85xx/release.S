@@ -166,8 +166,8 @@ __secondary_start_page:
 	lis	r11,(MAS1_VALID|MAS1_IPROT)@h
 	ori	r11,r11,(MAS1_TS|MAS1_TSIZE(BOOKE_PAGESZ_4K))@l
 	mtspr	SPRN_MAS1,r11
-	oris	r11,r13,(MAS2_I)@h
-	ori	r11,r13,(MAS2_I)@l
+	oris	r11,r13,(MAS2_I|MAS2_G)@h
+	ori	r11,r13,(MAS2_I|MAS2_G)@l
 	mtspr	SPRN_MAS2,r11
 	oris	r11,r13,(MAS3_SX|MAS3_SW|MAS3_SR)@h
 	ori	r11,r13,(MAS3_SX|MAS3_SW|MAS3_SR)@l
