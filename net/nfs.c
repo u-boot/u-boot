@@ -516,7 +516,7 @@ nfs_readlink_reply (uchar *pkt, unsigned len)
 		strcat (nfs_path, "/");
 		pathlen = strlen(nfs_path);
 		memcpy (nfs_path+pathlen, (uchar *)&(rpc_pkt.u.reply.data[2]), rlen);
-		nfs_path[pathlen+rlen+1] = 0;
+		nfs_path[pathlen + rlen] = 0;
 	} else {
 		memcpy (nfs_path, (uchar *)&(rpc_pkt.u.reply.data[2]), rlen);
 		nfs_path[rlen] = 0;
