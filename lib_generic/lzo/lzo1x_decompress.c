@@ -24,6 +24,93 @@
 #define COPY4(dst, src)	\
 		put_unaligned(get_unaligned((const u32 *)(src)), (u32 *)(dst))
 
+static const unsigned char lzop_magic[] = {
+	0x89, 0x4c, 0x5a, 0x4f, 0x00, 0x0d, 0x0a, 0x1a, 0x0a
+};
+
+#define HEADER_HAS_FILTER	0x00000800L
+
+static inline const unsigned char *parse_header(const unsigned char *src)
+{
+	u8 level = 0;
+	u16 version;
+	int i;
+
+	/* read magic: 9 first bytes */
+	for (i = 0; i < ARRAY_SIZE(lzop_magic); i++) {
+		if (*src++ != lzop_magic[i])
+			return NULL;
+	}
+	/* get version (2bytes), skip library version (2),
+	 * 'need to be extracted' version (2) and
+	 * method (1) */
+	version = get_unaligned_be16(src);
+	src += 7;
+	if (version >= 0x0940)
+		level = *src++;
+	if (get_unaligned_be32(src) & HEADER_HAS_FILTER)
+		src += 4; /* filter info */
+
+	/* skip flags, mode and mtime_low */
+	src += 12;
+	if (version >= 0x0940)
+		src += 4;	/* skip mtime_high */
+
+	i = *src++;
+	/* don't care about the file name, and skip checksum */
+	src += i + 4;
+
+	return src;
+}
+
+int lzop_decompress(const unsigned char *src, size_t src_len,
+		    unsigned char *dst, size_t *dst_len)
+{
+	unsigned char *start = dst;
+	const unsigned char *send = src + src_len;
+	u32 slen, dlen;
+	size_t tmp;
+	int r;
+
+	src = parse_header(src);
+	if (!src)
+		return LZO_E_ERROR;
+
+	while (src < send) {
+		/* read uncompressed block size */
+		dlen = get_unaligned_be32(src);
+		src += 4;
+
+		/* exit if last block */
+		if (dlen == 0) {
+			*dst_len = dst - start;
+			return LZO_E_OK;
+		}
+
+		/* read compressed block size, and skip block checksum info */
+		slen = get_unaligned_be32(src);
+		src += 8;
+
+		if (slen <= 0 || slen > dlen)
+			return LZO_E_ERROR;
+
+		/* decompress */
+		tmp = dlen;
+		r = lzo1x_decompress_safe((u8 *) src, slen, dst, &tmp);
+
+		if (r != LZO_E_OK)
+			return r;
+
+		if (dlen != tmp)
+			return LZO_E_ERROR;
+
+		src += slen;
+		dst += dlen;
+	}
+
+	return LZO_E_INPUT_OVERRUN;
+}
+
 int lzo1x_decompress_safe(const unsigned char *in, size_t in_len,
 			unsigned char *out, size_t *out_len)
 {
