@@ -24,8 +24,6 @@
 #include <common.h>
 #include <command.h>
 
-#if defined (CONFIG_CMD_MG_DISK)
-
 #include <mg_disk.h>
 
 int do_mg_disk_cmd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -72,5 +70,3 @@ U_BOOT_CMD(
 	"    - sector read : mgd readsec [sector] [to] [counts]\n"
 	"    - sector write : mgd writesec [from] [sector] [counts]"
 );
-
-#endif
