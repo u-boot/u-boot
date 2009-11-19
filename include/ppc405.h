@@ -566,25 +566,6 @@
 #define	MAL0_RCBS24	(MAL_DCR_BASE + 0x78) /* RX 24 Channel buffer size */
 
 /*-----------------------------------------------------------------------------
-| IIC Register Offsets
-'----------------------------------------------------------------------------*/
-#define    IICMDBUF	    0x00
-#define    IICSDBUF	    0x02
-#define    IICLMADR	    0x04
-#define    IICHMADR	    0x05
-#define    IICCNTL	    0x06
-#define    IICMDCNTL	    0x07
-#define    IICSTS	    0x08
-#define    IICEXTSTS	    0x09
-#define    IICLSADR	    0x0A
-#define    IICHSADR	    0x0B
-#define    IIC0_CLKDIV	    0x0C
-#define    IICINTRMSK	    0x0D
-#define    IICXFRCNT	    0x0E
-#define    IICXTCNTLSS	    0x0F
-#define    IICDIRECTCNTL    0x10
-
-/*-----------------------------------------------------------------------------
 | UART Register Offsets
 '----------------------------------------------------------------------------*/
 #define		DATA_REG	0x00

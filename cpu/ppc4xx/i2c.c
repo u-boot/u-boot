@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * based on work by Anne Sophie Harnois <anne-sophie.harnois@nextream.fr>
@@ -37,7 +37,8 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 #if defined(CONFIG_I2C_MULTI_BUS)
-/* Initialize the bus pointer to whatever one the SPD EEPROM is on.
+/*
+ * Initialize the bus pointer to whatever one the SPD EEPROM is on.
  * Default is bus 0.  This is necessary because the DDR initialization
  * runs from ROM, and we can't switch buses because we can't modify
  * the global variables.
@@ -45,59 +46,63 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifndef CONFIG_SYS_SPD_BUS_NUM
 #define CONFIG_SYS_SPD_BUS_NUM	0
 #endif
-static unsigned int i2c_bus_num __attribute__ ((section (".data"))) = CONFIG_SYS_SPD_BUS_NUM;
+static unsigned int i2c_bus_num __attribute__ ((section (".data"))) =
+	CONFIG_SYS_SPD_BUS_NUM;
 #endif /* CONFIG_I2C_MULTI_BUS */
 
 static void _i2c_bus_reset(void)
 {
+	struct ppc4xx_i2c *i2c = (struct ppc4xx_i2c *)I2C_BASE_ADDR;
 	int i;
 	u8 dc;
 
 	/* Reset status register */
 	/* write 1 in SCMP and IRQA to clear these fields */
-	out_8((u8 *)IIC_STS, 0x0A);
+	out_8(&i2c->sts, 0x0A);
 
 	/* write 1 in IRQP IRQD LA ICT XFRA to clear these fields */
-	out_8((u8 *)IIC_EXTSTS, 0x8F);
+	out_8(&i2c->extsts, 0x8F);
 
 	/* Place chip in the reset state */
-	out_8((u8 *)IIC_XTCNTLSS, IIC_XTCNTLSS_SRST);
+	out_8(&i2c->xtcntlss, IIC_XTCNTLSS_SRST);
 
 	/* Check if bus is free */
-	dc = in_8((u8 *)IIC_DIRECTCNTL);
+	dc = in_8(&i2c->directcntl);
 	if (!DIRCTNL_FREE(dc)){
 		/* Try to set bus free state */
-		out_8((u8 *)IIC_DIRECTCNTL, IIC_DIRCNTL_SDAC | IIC_DIRCNTL_SCC);
+		out_8(&i2c->directcntl, IIC_DIRCNTL_SDAC | IIC_DIRCNTL_SCC);
 
 		/* Wait until we regain bus control */
 		for (i = 0; i < 100; ++i) {
-			dc = in_8((u8 *)IIC_DIRECTCNTL);
+			dc = in_8(&i2c->directcntl);
 			if (DIRCTNL_FREE(dc))
 				break;
 
 			/* Toggle SCL line */
 			dc ^= IIC_DIRCNTL_SCC;
-			out_8((u8 *)IIC_DIRECTCNTL, dc);
+			out_8(&i2c->directcntl, dc);
 			udelay(10);
 			dc ^= IIC_DIRCNTL_SCC;
-			out_8((u8 *)IIC_DIRECTCNTL, dc);
+			out_8(&i2c->directcntl, dc);
 		}
 	}
 
 	/* Remove reset */
-	out_8((u8 *)IIC_XTCNTLSS, 0);
+	out_8(&i2c->xtcntlss, 0);
 }
 
-void i2c_init(int speed, int slaveadd)
+void i2c_init(int speed, int slaveaddr)
 {
-	unsigned long freqOPB;
+	struct ppc4xx_i2c *i2c = (struct ppc4xx_i2c *)I2C_BASE_ADDR;
 	int val, divisor;
 	int bus;
 
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
-	/* call board specific i2c bus reset routine before accessing the   */
-	/* environment, which might be in a chip on that bus. For details   */
-	/* about this problem see doc/I2C_Edge_Conditions.                  */
+	/*
+	 * Call board specific i2c bus reset routine before accessing the
+	 * environment, which might be in a chip on that bus. For details
+	 * about this problem see doc/I2C_Edge_Conditions.
+	 */
 	i2c_init_board();
 #endif
 
@@ -109,54 +114,52 @@ void i2c_init(int speed, int slaveadd)
 		_i2c_bus_reset();
 
 		/* clear lo master address */
-		out_8((u8 *)IIC_LMADR, 0);
+		out_8(&i2c->lmadr, 0);
 
 		/* clear hi master address */
-		out_8((u8 *)IIC_HMADR, 0);
+		out_8(&i2c->hmadr, 0);
 
 		/* clear lo slave address */
-		out_8((u8 *)IIC_LSADR, 0);
+		out_8(&i2c->lsadr, 0);
 
 		/* clear hi slave address */
-		out_8((u8 *)IIC_HSADR, 0);
+		out_8(&i2c->hsadr, 0);
 
 		/* Clock divide Register */
-		/* get OPB frequency */
-		freqOPB = get_OPB_freq();
-		/* set divisor according to freqOPB */
-		divisor = (freqOPB - 1) / 10000000;
+		/* set divisor according to freq_opb */
+		divisor = (get_OPB_freq() - 1) / 10000000;
 		if (divisor == 0)
 			divisor = 1;
-		out_8((u8 *)IIC_CLKDIV, divisor);
+		out_8(&i2c->clkdiv, divisor);
 
 		/* no interrupts */
-		out_8((u8 *)IIC_INTRMSK, 0);
+		out_8(&i2c->intrmsk, 0);
 
 		/* clear transfer count */
-		out_8((u8 *)IIC_XFRCNT, 0);
+		out_8(&i2c->xfrcnt, 0);
 
 		/* clear extended control & stat */
 		/* write 1 in SRC SRS SWC SWS to clear these fields */
-		out_8((u8 *)IIC_XTCNTLSS, 0xF0);
+		out_8(&i2c->xtcntlss, 0xF0);
 
 		/* Mode Control Register
 		   Flush Slave/Master data buffer */
-		out_8((u8 *)IIC_MDCNTL, IIC_MDCNTL_FSDB | IIC_MDCNTL_FMDB);
+		out_8(&i2c->mdcntl, IIC_MDCNTL_FSDB | IIC_MDCNTL_FMDB);
 
-		val = in_8((u8 *)IIC_MDCNTL);
+		val = in_8(&i2c->mdcntl);
 
 		/* Ignore General Call, slave transfers are ignored,
 		 * disable interrupts, exit unknown bus state, enable hold
 		 * SCL 100kHz normaly or FastMode for 400kHz and above
 		 */
 
-		val |= IIC_MDCNTL_EUBS|IIC_MDCNTL_HSCL;
+		val |= IIC_MDCNTL_EUBS | IIC_MDCNTL_HSCL;
 		if (speed >= 400000)
 			val |= IIC_MDCNTL_FSM;
-		out_8((u8 *)IIC_MDCNTL, val);
+		out_8(&i2c->mdcntl, val);
 
 		/* clear control reg */
-		out_8((u8 *)IIC_CNTL, 0x00);
+		out_8(&i2c->cntl, 0x00);
 	}
 
 	/* set to SPD bus as default bus upon powerup */
@@ -195,13 +198,14 @@ static int i2c_transfer(unsigned char cmd_type,
 			unsigned char data[],
 			unsigned short data_len)
 {
-	unsigned char* ptr;
+	struct ppc4xx_i2c *i2c = (struct ppc4xx_i2c *)I2C_BASE_ADDR;
+	u8 *ptr;
 	int reading;
-	int tran,cnt;
+	int tran, cnt;
 	int result;
 	int status;
 	int i;
-	uchar creg;
+	u8 creg;
 
 	if (data == 0 || data_len == 0) {
 		/* Don't support data transfer of no length or to address 0 */
@@ -219,12 +223,13 @@ static int i2c_transfer(unsigned char cmd_type,
 	}
 
 	/* Clear Stop Complete Bit */
-	out_8((u8 *)IIC_STS, IIC_STS_SCMP);
+	out_8(&i2c->sts, IIC_STS_SCMP);
+
 	/* Check init */
 	i = 10;
 	do {
 		/* Get status */
-		status = in_8((u8 *)IIC_STS);
+		status = in_8(&i2c->sts);
 		i--;
 	} while ((status & IIC_STS_PT) && (i > 0));
 
@@ -232,13 +237,16 @@ static int i2c_transfer(unsigned char cmd_type,
 		result = IIC_NOK_TOUT;
 		return(result);
 	}
+
 	/* flush the Master/Slave Databuffers */
-	out_8((u8 *)IIC_MDCNTL, ((in_8((u8 *)IIC_MDCNTL))|IIC_MDCNTL_FMDB|IIC_MDCNTL_FSDB));
+	out_8(&i2c->mdcntl, in_8(&i2c->mdcntl) |
+	      IIC_MDCNTL_FMDB | IIC_MDCNTL_FSDB);
+
 	/* need to wait 4 OPB clocks? code below should take that long */
 
 	/* 7-bit adressing */
-	out_8((u8 *)IIC_HMADR, 0);
-	out_8((u8 *)IIC_LMADR, chip);
+	out_8(&i2c->hmadr, 0);
+	out_8(&i2c->lmadr, chip);
 
 	tran = 0;
 	result = IIC_OK;
@@ -247,9 +255,10 @@ static int i2c_transfer(unsigned char cmd_type,
 	while (tran != cnt && (result == IIC_OK)) {
 		int  bc,j;
 
-		/* Control register =
-		 * Normal transfer, 7-bits adressing, Transfer up to bc bytes, Normal start,
-		 * Transfer is a sequence of transfers
+		/*
+		 * Control register =
+		 * Normal transfer, 7-bits adressing, Transfer up to
+		 * bc bytes, Normal start, Transfer is a sequence of transfers
 		 */
 		creg |= IIC_CNTL_PT;
 
@@ -259,32 +268,36 @@ static int i2c_transfer(unsigned char cmd_type,
 		if ((!cmd_type && (ptr == addr)) || ((tran + bc) != cnt))
 			creg |= IIC_CNTL_CHT;
 
-		if (reading)
+		if (reading) {
 			creg |= IIC_CNTL_READ;
-		else
-			for(j=0; j < bc; j++)
+		} else {
+			for(j = 0; j < bc; j++) {
 				/* Set buffer */
-				out_8((u8 *)IIC_MDBUF, ptr[tran+j]);
-		out_8((u8 *)IIC_CNTL, creg);
+				out_8(&i2c->mdbuf, ptr[tran + j]);
+			}
+		}
+		out_8(&i2c->cntl, creg);
 
-		/* Transfer is in progress
+		/*
+		 * Transfer is in progress
 		 * we have to wait for upto 5 bytes of data
 		 * 1 byte chip address+r/w bit then bc bytes
 		 * of data.
 		 * udelay(10) is 1 bit time at 100khz
 		 * Doubled for slop. 20 is too small.
 		 */
-		i = 2*5*8;
+		i = 2 * 5 * 8;
 		do {
 			/* Get status */
-			status = in_8((u8 *)IIC_STS);
+			status = in_8(&i2c->sts);
 			udelay(10);
 			i--;
-		} while ((status & IIC_STS_PT) && !(status & IIC_STS_ERR) && (i > 0));
+		} while ((status & IIC_STS_PT) && !(status & IIC_STS_ERR) &&
+			 (i > 0));
 
 		if (status & IIC_STS_ERR) {
 			result = IIC_NOK;
-			status = in_8((u8 *)IIC_EXTSTS);
+			status = in_8(&i2c->extsts);
 			/* Lost arbitration? */
 			if (status & IIC_EXTSTS_LA)
 				result = IIC_NOK_LA;
@@ -297,19 +310,21 @@ static int i2c_transfer(unsigned char cmd_type,
 		} else if ( status & IIC_STS_PT) {
 			result = IIC_NOK_TOUT;
 		}
+
 		/* Command is reading => get buffer */
 		if ((reading) && (result == IIC_OK)) {
 			/* Are there data in buffer */
 			if (status & IIC_STS_MDBS) {
 				/*
-				 * even if we have data we have to wait 4OPB clocks
-				 * for it to hit the front of the FIFO, after that
-				 * we can just read. We should check XFCNT here and
-				 * if the FIFO is full there is no need to wait.
+				 * even if we have data we have to wait 4OPB
+				 * clocks for it to hit the front of the FIFO,
+				 * after that we can just read. We should check
+				 * XFCNT here and if the FIFO is full there is
+				 * no need to wait.
 				 */
 				udelay(1);
-				for (j=0; j<bc; j++)
-					ptr[tran+j] = in_8((u8 *)IIC_MDBUF);
+				for (j = 0; j < bc; j++)
+					ptr[tran + j] = in_8(&i2c->mdbuf);
 			} else
 				result = IIC_NOK_DATA;
 		}
@@ -324,7 +339,7 @@ static int i2c_transfer(unsigned char cmd_type,
 				creg = IIC_CNTL_RPST;
 		}
 	}
-	return (result);
+	return result;
 }
 
 int i2c_probe(uchar chip)
@@ -338,17 +353,17 @@ int i2c_probe(uchar chip)
 	 * address was <ACK>ed (i.e. there was a chip at that address which
 	 * drove the data line low).
 	 */
-	return (i2c_transfer(1, chip << 1, 0,0, buf, 1) != 0);
+	return (i2c_transfer(1, chip << 1, 0, 0, buf, 1) != 0);
 }
 
-
-int i2c_read(uchar chip, uint addr, int alen, uchar * buffer, int len)
+static int ppc4xx_i2c_transfer(uchar chip, uint addr, int alen, uchar *buffer,
+			       int len, int read)
 {
 	uchar xaddr[4];
 	int ret;
 
 	if (alen > 4) {
-		printf ("I2C read: addr len %d not supported\n", alen);
+		printf("I2C: addr len %d not supported\n", alen);
 		return 1;
 	}
 
@@ -373,50 +388,30 @@ int i2c_read(uchar chip, uint addr, int alen, uchar * buffer, int len)
 	 * hidden in the chip address.
 	 */
 	if (alen > 0)
-		chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
+		chip |= ((addr >> (alen * 8)) &
+			 CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
 #endif
-	if ((ret = i2c_transfer(1, chip<<1, &xaddr[4-alen], alen, buffer, len)) != 0) {
-		if (gd->have_console)
-			printf( "I2c read: failed %d\n", ret);
+	if ((ret = i2c_transfer(read, chip << 1, &xaddr[4 - alen], alen,
+				buffer, len)) != 0) {
+		if (gd->have_console) {
+			printf("I2C %s: failed %d\n",
+			       read ? "read" : "write", ret);
+		}
+
 		return 1;
 	}
+
 	return 0;
+}
+
+int i2c_read(uchar chip, uint addr, int alen, uchar * buffer, int len)
+{
+	return ppc4xx_i2c_transfer(chip, addr, alen, buffer, len, 1);
 }
 
 int i2c_write(uchar chip, uint addr, int alen, uchar * buffer, int len)
 {
-	uchar xaddr[4];
-
-	if (alen > 4) {
-		printf ("I2C write: addr len %d not supported\n", alen);
-		return 1;
-
-	}
-
-	if (alen > 0) {
-		xaddr[0] = (addr >> 24) & 0xFF;
-		xaddr[1] = (addr >> 16) & 0xFF;
-		xaddr[2] = (addr >> 8) & 0xFF;
-		xaddr[3] = addr & 0xFF;
-	}
-
-#ifdef CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW
-	/*
-	 * EEPROM chips that implement "address overflow" are ones
-	 * like Catalyst 24WC04/08/16 which has 9/10/11 bits of
-	 * address and the extra bits end up in the "chip address"
-	 * bit slots. This makes a 24WC08 (1Kbyte) chip look like
-	 * four 256 byte chips.
-	 *
-	 * Note that we consider the length of the address field to
-	 * still be one byte because the extra address bits are
-	 * hidden in the chip address.
-	 */
-	if (alen > 0)
-		chip |= ((addr >> (alen * 8)) & CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW);
-#endif
-
-	return (i2c_transfer(0, chip<<1, &xaddr[4-alen], alen, buffer, len ) != 0);
+	return ppc4xx_i2c_transfer(chip, addr, alen, buffer, len, 0);
 }
 
 #if defined(CONFIG_I2C_MULTI_BUS)
