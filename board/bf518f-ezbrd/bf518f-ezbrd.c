@@ -15,6 +15,7 @@
 #include <asm/blackfin.h>
 #include <asm/net.h>
 #include <asm/mach-common/bits/otp.h>
+#include <asm/sdh.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -155,3 +156,10 @@ int board_early_init_f(void)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_BFIN_SDH
+int board_mmc_init(bd_t *bis)
+{
+	return bfin_mmc_init(bis);
+}
+#endif

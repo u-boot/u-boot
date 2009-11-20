@@ -14,6 +14,7 @@
 #include <stdio_dev.h>
 #include <environment.h>
 #include <malloc.h>
+#include <mmc.h>
 #include <net.h>
 #include <timestamp.h>
 #include <status_led.h>
@@ -338,6 +339,11 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #ifdef CONFIG_CMD_NAND
 	puts("NAND:  ");
 	nand_init();		/* go init the NAND */
+#endif
+
+#ifdef CONFIG_GENERIC_MMC
+	puts("MMC:  ");
+	mmc_initialize(bd);
 #endif
 
 	/* relocate environment function pointers etc. */
