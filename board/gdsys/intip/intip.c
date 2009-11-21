@@ -141,43 +141,6 @@ int checkboard(void)
 	return 0;
 }
 
-/*
- *  pci_target_init
- *
- *	The bootstrap configuration provides default settings for the pci
- *	inbound map (PIM). But the bootstrap config choices are limited and
- *	may not be sufficient for a given board.
- */
-#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
-void pci_target_init(struct pci_controller *hose)
-{
-	/*
-	 * Disable everything
-	 */
-	out_le32((void *)PCIL0_PIM0SA, 0); /* disable */
-	out_le32((void *)PCIL0_PIM1SA, 0); /* disable */
-	out_le32((void *)PCIL0_PIM2SA, 0); /* disable */
-	out_le32((void *)PCIL0_EROMBA, 0); /* disable expansion rom */
-
-	/*
-	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440
-	 * strapping options to not support sizes such as 128/256 MB.
-	 */
-	out_le32((void *)PCIL0_PIM0LAL, CONFIG_SYS_SDRAM_BASE);
-	out_le32((void *)PCIL0_PIM0LAH, 0);
-	out_le32((void *)PCIL0_PIM0SA, ~(gd->ram_size - 1) | 1);
-	out_le32((void *)PCIL0_BAR0, 0);
-
-	/*
-	 * Program the board's subsystem id/vendor id
-	 */
-	out_le16((void *)PCIL0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID);
-	out_le16((void *)PCIL0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID);
-
-	out_le16((void *)PCIL0_CMD, in16r(PCIL0_CMD) | PCI_COMMAND_MEMORY);
-}
-#endif	/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
-
 int board_early_init_r(void)
 {
 	/*

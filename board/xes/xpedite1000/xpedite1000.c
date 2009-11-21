@@ -136,6 +136,8 @@ phys_size_t initdram(int board_type)
 }
 
 /*
+ * Override weak pci_pre_init()
+ *
  * This routine is called just prior to registering the hose and gives
  * the board the opportunity to check things. Returning a value of zero
  * indicates that things are bad & PCI initialization should be aborted.
@@ -144,7 +146,6 @@ phys_size_t initdram(int board_type)
  * (add regions, override default access routines, etc) or perform
  * certain pre-initialization actions.
  */
-
 #if defined(CONFIG_PCI)
 int pci_pre_init(struct pci_controller * hose)
 {
@@ -165,38 +166,6 @@ int pci_pre_init(struct pci_controller * hose)
 	return 1;
 }
 #endif /* defined(CONFIG_PCI) */
-
-#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
-/*
- * The bootstrap configuration provides default settings for the pci
- * inbound map (PIM). But the bootstrap config choices are limited and
- * may not be sufficient for a given board.
- */
-void pci_target_init(struct pci_controller * hose)
-{
-	/* Disable everything */
-	out32r(PCIL0_PIM0SA, 0);
-	out32r(PCIL0_PIM1SA, 0);
-	out32r(PCIL0_PIM2SA, 0);
-	out32r(PCIL0_EROMBA, 0); /* disable expansion rom */
-
-	/*
-	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440 strapping
-	 * options to not support sizes such as 128/256 MB.
-	 */
-	out32r(PCIL0_PIM0LAL, CONFIG_SYS_SDRAM_BASE);
-	out32r(PCIL0_PIM0LAH, 0);
-	out32r(PCIL0_PIM0SA, ~(gd->ram_size - 1) | 1);
-
-	out32r(PCIL0_BAR0, 0);
-
-	/* Program the board's subsystem id/vendor id */
-	out16r(PCIL0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID);
-	out16r(PCIL0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID);
-
-	out16r(PCIL0_CMD, in16r(PCIL0_CMD) | PCI_COMMAND_MEMORY);
-}
-#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
 
 #if defined(CONFIG_PCI)
 /*
