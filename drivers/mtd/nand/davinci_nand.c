@@ -182,13 +182,7 @@ static int nand_davinci_correct_data(struct mtd_info *mtd, u_char *dat, u_char *
 
 #ifdef CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 static struct nand_ecclayout nand_davinci_4bit_layout_oobfirst = {
-/*
- * TI uses a different layout for 4K page deviecs. Since the
- * eccpos filed can hold only a limited number of entries, adding
- * support for 4K page will result in compilation warnings
- * 4K Support will be added later
- */
-#ifdef CONFIG_SYS_NAND_PAGE_2K
+#if defined(CONFIG_SYS_NAND_PAGE_2K)
 	.eccbytes = 40,
 	.eccpos = {
 		24, 25, 26, 27, 28,
@@ -199,6 +193,21 @@ static struct nand_ecclayout nand_davinci_4bit_layout_oobfirst = {
 		},
 	.oobfree = {
 		{.offset = 2, .length = 22, },
+	},
+#elif defined(CONFIG_SYS_NAND_PAGE_4K)
+	.eccbytes = 80,
+	.eccpos = {
+		48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+		58, 59, 60, 61, 62, 63,	64, 65, 66, 67,
+		68, 69, 70, 71, 72, 73, 74, 75, 76, 77,
+		78, 79,	80, 81, 82, 83,	84, 85, 86, 87,
+		88, 89, 90, 91, 92, 93,	94, 95, 96, 97,
+		98, 99, 100, 101, 102, 103, 104, 105, 106, 107,
+		108, 109, 110, 111, 112, 113, 114, 115, 116, 117,
+		118, 119, 120, 121, 122, 123, 124, 125, 126, 127,
+		},
+	.oobfree = {
+		{.offset = 2, .length = 46, },
 	},
 #endif
 };
