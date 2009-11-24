@@ -234,8 +234,8 @@
 #ifndef __ASSEMBLER__
 extern unsigned long ip;
 
-#define PRINTIP				asm ("call next_line\n" \
-					    "next_line:\n" \
+#define PRINTIP				asm ("call 0\n" \
+					    "0:\n" \
 					    "pop %%eax\n" \
 					    "movl %%eax, %0\n" \
 					    :"=r"(ip) \
