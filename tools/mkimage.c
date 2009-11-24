@@ -232,6 +232,12 @@ main (int argc, char **argv)
 				params.type = IH_TYPE_FLATDT;
 				params.datafile = *++argv;
 				params.fflag = 1;
+
+				/*
+				 * The flattened image tree (FIT) format
+				 * requires a flattened device tree image type
+				 */
+				params.type = IH_TYPE_FLATDT;
 				goto NXTARG;
 			case 'n':
 				if (--argc <= 0)
