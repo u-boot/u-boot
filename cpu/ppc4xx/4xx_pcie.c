@@ -48,9 +48,6 @@ enum {
 	LNKW_X8			= 0x8
 };
 
-#if 1 // test-only
-int board_pcie_first(void);
-int board_pcie_last(void);
 static struct pci_controller pcie_hose[CONFIG_SYS_PCIE_NR_PORTS];
 
 /*
@@ -169,7 +166,6 @@ void pcie_setup_hoses(int busno)
 		}
 	}
 }
-#endif
 
 static int validate_endpoint(struct pci_controller *hose)
 {
