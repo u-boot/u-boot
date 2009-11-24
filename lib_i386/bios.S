@@ -50,134 +50,200 @@
 	jmp	realmode_reset
 
 .globl rm_int00
+.hidden rm_int00
+.type rm_int00, @function
 rm_int00:
 	pushw	$0
 	jmp	any_interrupt16
 .globl rm_int01
+.hidden rm_int01
+.type rm_int01, @function
 rm_int01:
 	pushw	$1
 	jmp	any_interrupt16
 .globl rm_int02
+.hidden rm_int02
+.type rm_int02, @function
 rm_int02:
 	pushw	$2
 	jmp	any_interrupt16
 .globl rm_int03
+.hidden rm_int03
+.type rm_int03, @function
 rm_int03:
 	pushw	$3
 	jmp	any_interrupt16
 .globl rm_int04
+.hidden rm_int04
+.type rm_int04, @function
 rm_int04:
 	pushw	$4
 	jmp	any_interrupt16
 .globl rm_int05
+.hidden rm_int05
+.type rm_int05, @function
 rm_int05:
 	pushw	$5
 	jmp	any_interrupt16
 .globl rm_int06
+.hidden rm_int06
+.type rm_int06, @function
 rm_int06:
 	pushw	$6
 	jmp	any_interrupt16
 .globl rm_int07
+.hidden rm_int07
+.type rm_int07, @function
 rm_int07:
 	pushw	$7
 	jmp	any_interrupt16
 .globl rm_int08
+.hidden rm_int08
+.type rm_int08, @function
 rm_int08:
 	pushw	$8
 	jmp	any_interrupt16
 .globl rm_int09
+.hidden rm_int09
+.type rm_int09, @function
 rm_int09:
 	pushw	$9
 	jmp	any_interrupt16
 .globl rm_int0a
+.hidden rm_int0a
+.type rm_int0a, @function
 rm_int0a:
 	pushw	$10
 	jmp	any_interrupt16
 .globl rm_int0b
+.hidden rm_int0b
+.type rm_int0b, @function
 rm_int0b:
 	pushw	$11
 	jmp	any_interrupt16
 .globl rm_int0c
+.hidden rm_int0c
+.type rm_int0c, @function
 rm_int0c:
 	pushw	$12
 	jmp	any_interrupt16
 .globl rm_int0d
+.hidden rm_int0d
+.type rm_int0d, @function
 rm_int0d:
 	pushw	$13
 	jmp	any_interrupt16
 .globl rm_int0e
+.hidden rm_int0e
+.type rm_int0e, @function
 rm_int0e:
 	pushw	$14
 	jmp	any_interrupt16
 .globl rm_int0f
+.hidden rm_int0f
+.type rm_int0f, @function
 rm_int0f:
 	pushw	$15
 	jmp	any_interrupt16
 .globl rm_int10
+.hidden rm_int10
+.type rm_int10, @function
 rm_int10:
 	pushw	$16
 	jmp	any_interrupt16
 .globl rm_int11
+.hidden rm_int11
+.type rm_int11, @function
 rm_int11:
 	pushw	$17
 	jmp	any_interrupt16
 .globl rm_int12
+.hidden rm_int12
+.type rm_int12, @function
 rm_int12:
 	pushw	$18
 	jmp	any_interrupt16
 .globl rm_int13
+.hidden rm_int13
+.type rm_int13, @function
 rm_int13:
 	pushw	$19
 	jmp	any_interrupt16
 .globl rm_int14
+.hidden rm_int14
+.type rm_int14, @function
 rm_int14:
 	pushw	$20
 	jmp	any_interrupt16
 .globl rm_int15
+.hidden rm_int15
+.type rm_int15, @function
 rm_int15:
 	pushw	$21
 	jmp	any_interrupt16
 .globl rm_int16
+.hidden rm_int16
+.type rm_int16, @function
 rm_int16:
 	pushw	$22
 	jmp	any_interrupt16
 .globl rm_int17
+.hidden rm_int17
+.type rm_int17, @function
 rm_int17:
 	pushw	$23
 	jmp	any_interrupt16
 .globl rm_int18
+.hidden rm_int18
+.type rm_int18, @function
 rm_int18:
 	pushw	$24
 	jmp	any_interrupt16
 .globl rm_int19
+.hidden rm_int19
+.type rm_int19, @function
 rm_int19:
 	pushw	$25
 	jmp	any_interrupt16
 .globl rm_int1a
+.hidden rm_int1a
+.type rm_int1a, @function
 rm_int1a:
 	pushw	$26
 	jmp	any_interrupt16
 .globl rm_int1b
+.hidden rm_int1b
+.type rm_int1b, @function
 rm_int1b:
 	pushw	$27
 	jmp	any_interrupt16
 .globl rm_int1c
+.hidden rm_int1c
+.type rm_int1c, @function
 rm_int1c:
 	pushw	$28
 	jmp	any_interrupt16
 .globl rm_int1d
+.hidden rm_int1d
+.type rm_int1d, @function
 rm_int1d:
 	pushw	$29
 	jmp	any_interrupt16
 .globl rm_int1e
+.hidden rm_int1e
+.type rm_int1e, @function
 rm_int1e:
 	pushw	$30
 	jmp	any_interrupt16
 .globl rm_int1f
+.hidden rm_int1f
+.type rm_int1f, @function
 rm_int1f:
 	pushw	$31
 	jmp	any_interrupt16
 .globl rm_def_int
+.hidden rm_def_int
+.type rm_def_int, @function
 rm_def_int:
 	iret
 
@@ -454,9 +520,13 @@ Lfunc_b1h:
 
 
 .globl ram_in_64kb_chunks
+.hidden ram_in_64kb_chunks
+.type ram_in_64kb_chunks, @function
 ram_in_64kb_chunks:
 	.word	0
 
 .globl bios_equipment
+.hidden bios_equipment
+.type bios_equipment, @function
 bios_equipment:
 	.word	0

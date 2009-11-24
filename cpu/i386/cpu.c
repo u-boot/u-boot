@@ -73,6 +73,8 @@ void __attribute__ ((regparm(0))) generate_gpf(void);
 
 /* segment 0x70 is an arbitrary segment which does not exist */
 asm(".globl generate_gpf\n"
+    ".hidden generate_gpf\n"
+    ".type generate_gpf, @function\n"
     "generate_gpf:\n"
     "ljmp   $0x70, $0x47114711\n");
 

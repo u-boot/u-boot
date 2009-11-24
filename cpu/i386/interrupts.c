@@ -29,6 +29,8 @@
 
 #define DECLARE_INTERRUPT(x) \
 	".globl irq_"#x"\n" \
+	".hidden irq_"#x"\n" \
+	".type irq_"#x", @function\n" \
 	"irq_"#x":\n" \
 	"pushl %ebp\n" \
 	"movl %esp,%ebp\n" \
@@ -229,6 +231,8 @@ __isr__ irq_llsr(int ip, int seg, int irq)
  * the easiest way I could do it. Maybe it can be made better later.
  */
 asm(".globl irq_common_entry\n" \
+	".hidden irq_common_entry\n" \
+	".type irq_common_entry, @function\n" \
 	"irq_common_entry:\n" \
 	"pushl $0\n" \
 	"pushl $0\n" \
