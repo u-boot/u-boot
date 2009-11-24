@@ -53,11 +53,6 @@ extern long _i386boot_romdata_size;
 extern long _i386boot_bss_start;
 extern long _i386boot_bss_size;
 
-extern long _i386boot_realmode;
-extern long _i386boot_realmode_size;
-extern long _i386boot_bios;
-extern long _i386boot_bios_size;
-
 /* The symbols defined by the linker script becomes pointers
  * which is somewhat inconveient ... */
 ulong i386boot_start         = (ulong)&_i386boot_start;         /* code start (in flash) defined in start.S */
@@ -67,12 +62,6 @@ ulong i386boot_romdata_dest  = (ulong)&_i386boot_romdata_dest;  /* data location
 ulong i386boot_romdata_size  = (ulong)&_i386boot_romdata_size;  /* size of data segment */
 ulong i386boot_bss_start     = (ulong)&_i386boot_bss_start;     /* bss start */
 ulong i386boot_bss_size      = (ulong)&_i386boot_bss_size;      /* bss size */
-
-ulong i386boot_realmode      = (ulong)&_i386boot_realmode;      /* start of realmode entry code */
-ulong i386boot_realmode_size = (ulong)&_i386boot_realmode_size; /* size of realmode entry code */
-ulong i386boot_bios          = (ulong)&_i386boot_bios;          /* start of BIOS emulation code */
-ulong i386boot_bios_size     = (ulong)&_i386boot_bios_size;     /* size of BIOS emulation code */
-
 
 const char version_string[] =
 	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";

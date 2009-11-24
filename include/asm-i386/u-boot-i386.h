@@ -35,12 +35,6 @@ extern ulong i386boot_bss_size;     /* bss size */
 extern ulong i386boot_stack_end;    /* first usable RAM address after bss and stack */
 extern ulong i386boot_ram_end;      /* end of ram */
 
-extern ulong i386boot_realmode;     /* start of realmode entry code */
-extern ulong i386boot_realmode_size;/* size of realmode entry code */
-extern ulong i386boot_bios;         /* start of BIOS emulation code */
-extern ulong i386boot_bios_size;    /* size of BIOS emulation code */
-
-
 /* cpu/.../cpu.c */
 int cpu_init(void);
 

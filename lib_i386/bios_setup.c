@@ -45,6 +45,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BIOS_BASE        ((char*)0xf0000)
 #define BIOS_CS          0xf000
 
+extern ulong _i386boot_bios;
+extern ulong _i386boot_bios_size;
+
 /* these are defined in a 16bit segment and needs
  * to be accessed with the RELOC_16_xxxx() macros below
  */
@@ -138,6 +141,9 @@ static void setvector(int vector, u16 segment, void *handler)
 
 int bios_setup(void)
 {
+	ulong i386boot_bios      = (ulong)&_i386boot_bios;
+	ulong i386boot_bios_size = (ulong)&_i386boot_bios_size;
+
 	static int done=0;
 	int vector;
 #ifdef CONFIG_PCI

@@ -31,10 +31,15 @@
 #define REALMODE_MAILBOX ((char*)0xe00)
 
 
+extern ulong _i386boot_realmode;
+extern ulong _i386boot_realmode_size;
 extern char realmode_enter;
 
 int realmode_setup(void)
 {
+	ulong i386boot_realmode      = (ulong)&_i386boot_realmode;
+	ulong i386boot_realmode_size = (ulong)&_i386boot_realmode_size;
+
 	/* copy the realmode switch code */
 	if (i386boot_realmode_size > (REALMODE_MAILBOX-REALMODE_BASE)) {
 		printf("realmode switch too large (%ld bytes, max is %d)\n",
