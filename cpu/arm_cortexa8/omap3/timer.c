@@ -82,7 +82,7 @@ void set_timer(ulong t)
 }
 
 /* delay x useconds */
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	long tmo = usec * (TIMER_CLOCK / 1000) / 1000;
 	unsigned long now, last = readl(&timer_base->tcrr);

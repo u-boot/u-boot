@@ -59,7 +59,7 @@ ulong get_timer(ulong base)
 }
 
 /* Delay x useconds */
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	ulong ini, end;
 

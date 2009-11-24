@@ -164,7 +164,7 @@ void set_timer(ulong t)
 	timestamp = t * (timer_load_val / (100 * CONFIG_SYS_HZ));
 }
 
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	unsigned long long tmp;
 	ulong tmo;

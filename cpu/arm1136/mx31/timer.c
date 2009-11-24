@@ -152,7 +152,7 @@ void set_timer (ulong t)
 }
 
 /* delay x useconds AND perserve advance timstamp value */
-void udelay (unsigned long usec)
+void __udelay (unsigned long usec)
 {
 	unsigned long long tmp;
 	ulong tmo;

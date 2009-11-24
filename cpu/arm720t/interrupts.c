@@ -224,7 +224,7 @@ void set_timer (ulong t)
 	timestamp = t;
 }
 
-void udelay (unsigned long usec)
+void __udelay (unsigned long usec)
 {
 	ulong tmo;
 
@@ -296,7 +296,7 @@ ulong get_timer (ulong base)
 	return timestamp - base;
 }
 
-void udelay (unsigned long usec)
+void __udelay (unsigned long usec)
 {
 	u32 ticks;
 

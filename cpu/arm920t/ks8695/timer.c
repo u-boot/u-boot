@@ -81,7 +81,7 @@ void set_timer(ulong t)
 	timer_ticks = t;
 }
 
-void udelay(ulong usec)
+void __udelay(ulong usec)
 {
 	ulong start = get_timer_masked();
 	ulong end;

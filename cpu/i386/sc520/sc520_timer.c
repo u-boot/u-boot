@@ -68,7 +68,7 @@ int timer_init(void)
 	return 0;
 }
 
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	int m = 0;
 	long u;

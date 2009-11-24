@@ -64,7 +64,7 @@ int disable_interrupts(void)
 	return 1;
 }
 
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	unsigned long delay, start, stop;
 	unsigned long cclk;

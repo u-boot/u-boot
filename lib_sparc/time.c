@@ -53,7 +53,7 @@ unsigned long usec2ticks(unsigned long usec)
  * microseconds to wait) into a number of time base ticks; then we
  * watch the time base until it has incremented by that amount.
  */
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	ulong ticks = usec2ticks(usec);
 

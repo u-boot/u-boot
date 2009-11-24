@@ -505,8 +505,8 @@ reset_endless:
 /*
  * 0 <= r0 <= 2000
  */
-.globl udelay
-udelay:
+.globl __udelay
+__udelay:
 	mov	r2,     #0x6800
 	orr	r2, r2, #0x00db
 	mul	r0, r2, r0

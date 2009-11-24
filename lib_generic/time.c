@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2003, Psyent Corporation <www.psyent.com>
- * Scott McNutt <smcnutt@psyent.com>
+ * (C) Copyright 2000-2009
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -24,15 +24,20 @@
 #include <common.h>
 #include <watchdog.h>
 
+#ifndef CONFIG_WD_PERIOD
+# define CONFIG_WD_PERIOD	(10 * 1000 * 1000)	/* 10 seconds default*/
+#endif
 
-extern void dly_clks( unsigned long ticks );
+/* ------------------------------------------------------------------------- */
 
-void __udelay(unsigned long usec)
+void udelay(unsigned long usec)
 {
-	/* The Nios core doesn't have a timebase, so we do our
-	 * best for now and call a low-level loop that counts
-	 * cpu clocks.
-	 */
-	unsigned long cnt = (CONFIG_SYS_CLK_FREQ/1000000) * usec;
-	dly_clks (cnt);
+	ulong kv;
+
+	do {
+		WATCHDOG_RESET();
+		kv = usec > CONFIG_WD_PERIOD ? CONFIG_WD_PERIOD : usec;
+		__udelay (kv);
+		usec -= kv;
+	} while(usec);
 }
