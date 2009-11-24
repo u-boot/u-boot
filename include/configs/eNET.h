@@ -28,6 +28,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_RELOC_FIXUP_WORKS
+
 /*
  * Stuff still to be dealt with -
  */

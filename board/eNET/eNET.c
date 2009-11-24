@@ -47,7 +47,6 @@ void init_sc520_enet (void)
 {
 	/* Set CPU Speed to 100MHz */
 	sc520_mmcr->cpuctl = 0x01;
-	gd->cpu_clk = 100000000;
 
 	/* wait at least one millisecond */
 	asm("movl	$0x2000,%%ecx\n"
@@ -67,7 +66,7 @@ void init_sc520_enet (void)
 /*
  * Miscellaneous platform dependent initializations
  */
-int board_init(void)
+int board_early_init_f(void)
 {
 	init_sc520_enet();
 
@@ -116,6 +115,14 @@ int board_init(void)
 	sc520_mmcr->uart1ctl = 0x07;
 	sc520_mmcr->sysarbctl = 0x06;
 	sc520_mmcr->sysarbmenb = 0x0003;
+
+	return 0;
+}
+
+int board_early_init_r(void)
+{
+	/* CPU Speed to 100MHz */
+	gd->cpu_clk = 100000000;
 
 	/* Crystal is 33.000MHz */
 	gd->bus_clk = 33000000;

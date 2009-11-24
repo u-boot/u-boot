@@ -23,4 +23,6 @@
 
 TEXT_BASE = 0x38040000
 CFLAGS_dlmalloc.o += -Wa,--no-warn -fno-strict-aliasing
+PLATFORM_RELFLAGS += -fvisibility=hidden
 PLATFORM_CPPFLAGS += -fno-dwarf2-cfi-asm
+PLATFORM_LDFLAGS += -pic --emit-relocs -Bsymbolic -Bsymbolic-functions

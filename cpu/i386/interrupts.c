@@ -63,8 +63,8 @@ static inline void load_idt(const struct desc_ptr *dtr)
 
 void set_vector(u8 intnum, void *routine)
 {
-	idt[intnum].base_high = (u16)((u32)(routine + gd->reloc_off) >> 16);
-	idt[intnum].base_low = (u16)((u32)(routine + gd->reloc_off) & 0xffff);
+	idt[intnum].base_high = (u16)((u32)(routine) >> 16);
+	idt[intnum].base_low = (u16)((u32)(routine) & 0xffff);
 }
 
 void irq_0(void);

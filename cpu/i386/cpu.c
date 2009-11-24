@@ -37,7 +37,7 @@
 #include <command.h>
 #include <asm/interrupt.h>
 
-int cpu_init(void)
+int cpu_init_f(void)
 {
 	/* initialize FPU, reset EM, set MP and NE */
 	asm ("fninit\n" \
@@ -46,9 +46,13 @@ int cpu_init(void)
 	     "orl  $0x22, %eax\n" \
 	     "movl %eax, %cr0\n" );
 
+	return 0;
+}
+
+int cpu_init_r(void)
+{
 	/* Initialize core interrupt and exception functionality of CPU */
 	cpu_init_interrupts ();
-
 	return 0;
 }
 

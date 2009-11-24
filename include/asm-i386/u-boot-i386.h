@@ -24,19 +24,9 @@
 #ifndef _U_BOOT_I386_H_
 #define _U_BOOT_I386_H_	1
 
-/* for the following variables, see start.S */
-extern ulong i386boot_start;	    /* code start (in flash) */
-extern ulong i386boot_end;	    /* code end (in flash) */
-extern ulong i386boot_romdata_start;/* datasegment in flash (also code+rodata end) */
-extern ulong i386boot_romdata_dest; /* data location segment in ram */
-extern ulong i386boot_romdata_size; /* size of data segment */
-extern ulong i386boot_bss_start;    /* bss start */
-extern ulong i386boot_bss_size;     /* bss size */
-extern ulong i386boot_stack_end;    /* first usable RAM address after bss and stack */
-extern ulong i386boot_ram_end;      /* end of ram */
-
 /* cpu/.../cpu.c */
-int cpu_init(void);
+int cpu_init_r(void);
+int cpu_init_f(void);
 
 /* cpu/.../timer.c */
 void timer_isr(void *);

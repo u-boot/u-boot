@@ -63,11 +63,8 @@ early_board_init_ret:
 	jmp     mem_init
 mem_init_ret:
 
-	/* check ammount of configured memory
-	 * (we need atleast bss start+bss size+stack size) */
-	movl	$_i386boot_bss_start, %ecx        /* BSS start */
-	addl	$_i386boot_bss_size, %ecx         /* BSS size */
-	addl	$CONFIG_SYS_STACK_SIZE, %ecx
+	/* Check we have enough memory for stack */
+	movl	$CONFIG_SYS_STACK_SIZE, %ecx
 	cmpl	%ecx, %eax
 	jae	mem_ok
 
@@ -78,6 +75,8 @@ mem_init_ret:
 .progress0a:
 	jmp	die
 mem_ok:
+	/* Set stack pointer to upper memory limit*/
+	movl    %eax, %esp
 
 	/* indicate progress */
 	movw	$0x02, %ax
@@ -85,12 +84,7 @@ mem_ok:
 	jmp	show_boot_progress_asm
 .progress1:
 
-	/* create a stack after the bss */
-	movl    $_i386boot_bss_start, %eax
-	addl	$_i386boot_bss_size, %eax
-	addl	$CONFIG_SYS_STACK_SIZE, %eax
-	movl    %eax, %esp
-
+	/* Test the stack */
 	pushl	$0
 	popl	%eax
 	cmpl	$0, %eax
@@ -116,115 +110,19 @@ stack_ok:
 	jmp	show_boot_progress_asm
 .progress2:
 
-	/* copy data section to ram, size must be 4-byte aligned */
-	movl	$_i386boot_romdata_dest, %edi	  /* destination address */
-	movl	$_i386boot_romdata_start, %esi	  /* source address */
-	movl	$_i386boot_romdata_size, %ecx     /* number of bytes to copy */
-	movl	%ecx, %eax
-	andl	$3, %eax
-	jnz	data_fail
-
-	shrl	$2, %ecx	                  /* copy 4 byte each time */
-	cld
-	cmpl	$0, %ecx
-	je	data_ok
-data_segment:
-	movsl
-	loop	data_segment
-	jmp	data_ok
-data_fail:
-	/* indicate (lack of) progress */
-	movw	$0x83, %ax
-	movl	$.progress2a, %ebp
-	jmp	show_boot_progress_asm
-.progress2a:
-	jmp	die
-
-data_ok:
-
-	/* indicate progress */
-	movw	$0x04, %ax
-	movl	$.progress3, %ebp
-	jmp	show_boot_progress_asm
-.progress3:
-
-	/* clear bss section in ram, size must be 4-byte aligned  */
-	movl	$_i386boot_bss_start, %edi        /* MK_CHG BSS start */
-	movl	$_i386boot_bss_size, %ecx         /* BSS size */
-	movl	%ecx, %eax
-	andl	$3, %eax
-	jnz	bss_fail
-	shrl	$2, %ecx	                  /* clear 4 byte each time */
-	cld
-	cmpl	$0, %ecx
-	je	bss_ok
-bss:
-	movl	$0, (%edi)
-	add	$4, %edi
-	loop	bss
-	jmp	bss_ok
-
-bss_fail:
-	/* indicate (lack of) progress */
-	movw	$0x84, %ax
-	movl	$.progress3a, %ebp
-	jmp	show_boot_progress_asm
-.progress3a:
-	jmp	die
-
-bss_ok:
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
-	/* indicate progress */
-	movw	$0x06, %ax
-	movl	$.progress6, %ebp
-	jmp	show_boot_progress_asm
-.progress6:
-
-	/* copy text section to ram, size must be 4-byte aligned */
-	movl	$CONFIG_SYS_BL_START_RAM, %edi		/* destination address */
-	movl	$TEXT_BASE, %esi		/* source address */
-	movl	$_i386boot_text_size, %ecx	/* number of bytes to copy */
-	movl	%ecx, %eax
-	andl	$3, %eax
-	jz	text_copy			/* Already 4-byte aligned */
-	subl    $4, %eax			/* Add extra bytes to size */
-	addl	%eax, %ecx
-text_copy:
-	shrl	$2, %ecx			/* copy 4 byte each time */
-	cld
-	cmpl	$0, %ecx
-	je	text_ok
-text_segment:
-	movsl
-	loop	text_segment
-	jmp	text_ok
-text_fail:
-	/* indicate (lack of) progress */
-	movw	$0x86, %ax
-	movl	$.progress5a, %ebp
-	jmp	show_boot_progress_asm
-.progress5a:
-	jmp	die
-
-text_ok:
-#endif
 	wbinvd
 
+	/* Get upper memory limit */
+	movl %esp, %ecx
+	subl $CONFIG_SYS_STACK_SIZE, %ecx
 
-	/* indicate progress */
-	movw	$0x05, %ax
-	movl	$.progress4, %ebp
-	jmp	show_boot_progress_asm
-.progress4:
+	/* Create a Stack Frame */
+	pushl %ebp
+	movl %esp, %ebp
 
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
-	/* Jump to the RAM copy of start_i386boot */
-	movl	$start_i386boot, %ebp
-	addl	$(CONFIG_SYS_BL_START_RAM - TEXT_BASE), %ebp
-	call	*%ebp		/* Enter, U-boot! */
-#else
-	call	start_i386boot  /* Enter, U-boot! */
-#endif
+	/* stack_limit parameter */
+	pushl	%ecx
+	call	board_init_f	/* Enter, U-boot! */
 
 	/* indicate (lack of) progress */
 	movw	$0x85, %ax

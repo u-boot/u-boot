@@ -28,28 +28,48 @@ ENTRY(_start)
 SECTIONS
 {
 	. = 0x38040000;		/* Location of bootcode in flash */
+	_i386boot_text_start = .;
 	.text  : { *(.text); }
 
 	. = ALIGN(4);
 	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
 
 	_i386boot_text_size = SIZEOF(.text) + SIZEOF(.rodata);
-
-	. = 0x03FF0000;		/* Ram data segment to use */
-	_i386boot_romdata_dest = ABSOLUTE(.);
-	.data : AT ( LOADADDR(.rodata) + SIZEOF(.rodata) ) { *(.data) }
-	_i386boot_romdata_start = LOADADDR(.data);
-
 	. = ALIGN(4);
-	.got : AT ( LOADADDR(.data) + SIZEOF(.data) ) { *(.got) }
 
+	.data : { *(.data) }
 	. = ALIGN(4);
+
+	.interp : { *(.interp) }
+	. = ALIGN(4);
+
+	.dynsym : { *(.dynsym) }
+	. = ALIGN(4);
+
+	.dynstr : { *(.dynstr) }
+	. = ALIGN(4);
+
+	.hash : { *(.hash) }
+	. = ALIGN(4);
+
+	.got : { *(.got) }
+	. = ALIGN(4);
+
+	.got.plt : { *(.got.plt) }
+	. = ALIGN(4);
+
+	.dynamic (NOLOAD) : { *(.dynamic) }
+	. = ALIGN(4);
+
 	__u_boot_cmd_start = .;
 	.u_boot_cmd : { *(.u_boot_cmd) }
+	. = ALIGN(4);
 	__u_boot_cmd_end = .;
 	_i386boot_cmd_start = LOADADDR(.u_boot_cmd);
 
-	_i386boot_romdata_size = SIZEOF(.data) + SIZEOF(.got) + SIZEOF(.u_boot_cmd);
+	_i386boot_rel_dyn_start = .;
+	.rel.dyn : { *(.rel.dyn) }
+	_i386boot_rel_dyn_end = .;
 
 	. = ALIGN(4);
 	_i386boot_bss_start = ABSOLUTE(.);
@@ -57,7 +77,7 @@ SECTIONS
 	_i386boot_bss_size = SIZEOF(.bss);
 
 	/* 16bit realmode trampoline code */
-	.realmode 0x7c0 : AT ( LOADADDR(.got) + SIZEOF(.got) + SIZEOF(.u_boot_cmd)) { *(.realmode) }
+	.realmode 0x7c0 : AT ( LOADADDR(.rel.dyn) + SIZEOF(.rel.dyn) ) { *(.realmode) }
 
 	_i386boot_realmode = LOADADDR(.realmode);
 	_i386boot_realmode_size = SIZEOF(.realmode);
