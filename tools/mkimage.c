@@ -299,23 +299,35 @@ NXTARG:		;
 
 	params.imagefile = *argv;
 
-	if (!params.fflag){
-		if (params.lflag) {
-			ifd = open (params.imagefile, O_RDONLY|O_BINARY);
-		} else {
-			ifd = open (params.imagefile,
-				O_RDWR|O_CREAT|O_TRUNC|O_BINARY, 0666);
-		}
+	if (params.fflag){
+		if (tparams->fflag_handle)
+			/*
+			 * in some cases, some additional processing needs
+			 * to be done if fflag is defined
+			 *
+			 * For ex. fit_handle_file for Fit file support
+			 */
+			retval = tparams->fflag_handle(&params);
 
-		if (ifd < 0) {
-			fprintf (stderr, "%s: Can't open %s: %s\n",
-				params.cmdname, params.imagefile,
-				strerror(errno));
-			exit (EXIT_FAILURE);
-		}
+		if (retval != EXIT_SUCCESS)
+			exit (retval);
 	}
 
-	if (params.lflag) {
+	if (params.lflag || params.fflag) {
+		ifd = open (params.imagefile, O_RDONLY|O_BINARY);
+	} else {
+		ifd = open (params.imagefile,
+			O_RDWR|O_CREAT|O_TRUNC|O_BINARY, 0666);
+	}
+
+	if (ifd < 0) {
+		fprintf (stderr, "%s: Can't open %s: %s\n",
+			params.cmdname, params.imagefile,
+			strerror(errno));
+		exit (EXIT_FAILURE);
+	}
+
+	if (params.lflag || params.fflag) {
 		/*
 		 * list header information of existing image
 		 */
@@ -351,17 +363,6 @@ NXTARG:		;
 
 		(void) munmap((void *)ptr, sbuf.st_size);
 		(void) close (ifd);
-
-		exit (retval);
-	} else if (params.fflag) {
-		if (tparams->fflag_handle)
-			/*
-			 * in some cases, some additional processing needs
-			 * to be done if fflag is defined
-			 *
-			 * For ex. fit_handle_file for Fit file support
-			 */
-			retval = tparams->fflag_handle(&params);
 
 		exit (retval);
 	}
