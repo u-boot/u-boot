@@ -32,6 +32,8 @@
 #include <mpc83xx.h>
 #include <netdev.h>
 #include <asm/io.h>
+#include <ns16550.h>
+#include <nand.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -44,6 +46,8 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+#ifndef CONFIG_NAND_SPL
 
 static u8 read_board_info(void)
 {
@@ -220,3 +224,41 @@ int board_eth_init(bd_t *bis)
 	cpu_eth_init(bis);	/* Initialize TSECs first */
 	return pci_eth_init(bis);
 }
+
+#else /* CONFIG_NAND_SPL */
+
+int checkboard(void)
+{
+	puts("Board: Freescale MPC8315ERDB\n");
+	return 0;
+}
+
+void board_init_f(ulong bootflag)
+{
+	board_early_init_f();
+	NS16550_init((NS16550_t)(CONFIG_SYS_IMMR + 0x4500),
+		     CONFIG_SYS_NS16550_CLK / 16 / CONFIG_BAUDRATE);
+	puts("NAND boot... ");
+	init_timebase();
+	initdram(0);
+	relocate_code(CONFIG_SYS_NAND_U_BOOT_RELOC + 0x10000, (gd_t *)gd,
+		      CONFIG_SYS_NAND_U_BOOT_RELOC);
+}
+
+void board_init_r(gd_t *gd, ulong dest_addr)
+{
+	nand_boot();
+}
+
+void putc(char c)
+{
+	if (gd->flags & GD_FLG_SILENT)
+		return;
+
+	if (c == '\n')
+		NS16550_putc((NS16550_t)(CONFIG_SYS_IMMR + 0x4500), '\r');
+
+	NS16550_putc((NS16550_t)(CONFIG_SYS_IMMR + 0x4500), c);
+}
+
+#endif /* CONFIG_NAND_SPL */
