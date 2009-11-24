@@ -155,38 +155,6 @@ static int fit_handle_file (struct mkimage_params *params)
 	return (EXIT_SUCCESS);
 }
 
-static void fit_set_header (void *ptr, struct stat *sbuf, int ifd,
-				struct mkimage_params *params)
-{
-	uint32_t checksum;
-
-	image_header_t * hdr = (image_header_t *)ptr;
-
-	checksum = crc32 (0,
-			(const unsigned char *)(ptr +
-				sizeof(image_header_t)),
-			sbuf->st_size - sizeof(image_header_t));
-
-	/* Build new header */
-	image_set_magic (hdr, IH_MAGIC);
-	image_set_time (hdr, sbuf->st_mtime);
-	image_set_size (hdr, sbuf->st_size - sizeof(image_header_t));
-	image_set_load (hdr, params->addr);
-	image_set_ep (hdr, params->ep);
-	image_set_dcrc (hdr, checksum);
-	image_set_os (hdr, params->os);
-	image_set_arch (hdr, params->arch);
-	image_set_type (hdr, params->type);
-	image_set_comp (hdr, params->comp);
-
-	image_set_name (hdr, params->imagename);
-
-	checksum = crc32 (0, (const unsigned char *)hdr,
-				sizeof(image_header_t));
-
-	image_set_hcrc (hdr, checksum);
-}
-
 static int fit_check_params (struct mkimage_params *params)
 {
 	return	((params->dflag && (params->fflag || params->lflag)) ||
@@ -202,7 +170,7 @@ static struct image_type_params fitimage_params = {
 	.print_header = fit_print_contents,
 	.check_image_type = fit_check_image_types,
 	.fflag_handle = fit_handle_file,
-	.set_header = fit_set_header,
+	.set_header = NULL,	/* FIT images use DTB header */
 	.check_params = fit_check_params,
 };
 
