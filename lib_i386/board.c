@@ -77,17 +77,16 @@ ulong i386boot_bios_size     = (ulong)&_i386boot_bios_size;     /* size of BIOS 
 const char version_string[] =
 	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
 
-static int mem_malloc_init(void)
+static int heap_init(void)
 {
 	/* start malloc area right after the stack */
-	mem_malloc_start = i386boot_bss_start +
-		i386boot_bss_size + CONFIG_SYS_STACK_SIZE;
-	mem_malloc_start = (mem_malloc_start+3)&~3;
+	ulong start = i386boot_bss_start + i386boot_bss_size +
+			CONFIG_SYS_STACK_SIZE;
 
-	/* Use all available RAM for malloc() */
-	mem_malloc_end = gd->ram_size;
+	/* 4-byte aligned */
+	start = (start+3)&~3;
 
-	mem_malloc_brk = mem_malloc_start;
+	mem_malloc_init(start, CONFIG_SYS_MALLOC_LEN);
 
 	return 0;
 }
@@ -184,7 +183,7 @@ init_fnc_t *init_sequence[] = {
 	cpu_init,		/* basic cpu dependent setup */
 	board_init,		/* basic board dependent setup */
 	dram_init,		/* configure available RAM banks */
-	mem_malloc_init,        /* dependant on dram_init */
+	heap_init,		/* dependant on dram_init */
 	interrupt_init,		/* set up exceptions */
 	timer_init,
 	serial_init,
