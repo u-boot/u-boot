@@ -109,8 +109,10 @@ void irq_free_handler(int irq)
 	return;
 }
 
-__isr__ do_irq(int irq)
+void do_irq(int hw_irq)
 {
+	int irq = hw_irq - 0x20;
+
 	if (irq < 0 || irq >= CONFIG_SYS_NUM_IRQS) {
 		printf("do_irq: bad irq number %d\n", irq);
 		return;

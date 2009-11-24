@@ -48,7 +48,6 @@ int cpu_init(void)
 
 	/* Initialize core interrupt and exception functionality of CPU */
 	cpu_init_interrupts ();
-	cpu_init_exceptions ();
 
 	return 0;
 }

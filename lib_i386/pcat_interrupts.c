@@ -40,44 +40,11 @@
 #error "CONFIG_SYS_NUM_IRQS must equal 16 if CONFIG_SYS_NUM_IRQS is defined"
 #endif
 
-DECLARE_INTERRUPT(0);
-DECLARE_INTERRUPT(1);
-DECLARE_INTERRUPT(3);
-DECLARE_INTERRUPT(4);
-DECLARE_INTERRUPT(5);
-DECLARE_INTERRUPT(6);
-DECLARE_INTERRUPT(7);
-DECLARE_INTERRUPT(8);
-DECLARE_INTERRUPT(9);
-DECLARE_INTERRUPT(10);
-DECLARE_INTERRUPT(11);
-DECLARE_INTERRUPT(12);
-DECLARE_INTERRUPT(13);
-DECLARE_INTERRUPT(14);
-DECLARE_INTERRUPT(15);
-
 int interrupt_init(void)
 {
 	u8 i;
 
 	disable_interrupts();
-
-	/* Setup interrupts */
-	set_vector(0x20, irq_0);
-	set_vector(0x21, irq_1);
-	set_vector(0x23, irq_3);
-	set_vector(0x24, irq_4);
-	set_vector(0x25, irq_5);
-	set_vector(0x26, irq_6);
-	set_vector(0x27, irq_7);
-	set_vector(0x28, irq_8);
-	set_vector(0x29, irq_9);
-	set_vector(0x2a, irq_10);
-	set_vector(0x2b, irq_11);
-	set_vector(0x2c, irq_12);
-	set_vector(0x2d, irq_13);
-	set_vector(0x2e, irq_14);
-	set_vector(0x2f, irq_15);
 
 	/* Mask all interrupts */
 	outb(0xff, MASTER_PIC + IMR);

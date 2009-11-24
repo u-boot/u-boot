@@ -55,9 +55,6 @@ int timer_init(void);
 /* cpu/.../interrupts.c */
 int cpu_init_interrupts(void);
 
-/* cpu/.../exceptions.c */
-int cpu_init_exceptions(void);
-
 /* board/.../... */
 int board_init(void);
 int dram_init(void);
