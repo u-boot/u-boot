@@ -278,9 +278,14 @@ uint32_t fdt_get_phandle(const void *fdt, int nodeoffset)
 	const uint32_t *php;
 	int len;
 
-	php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
-	if (!php || (len != sizeof(*php)))
-		return 0;
+	/* FIXME: This is a bit sub-optimal, since we potentially scan
+	 * over all the properties twice. */
+	php = fdt_getprop(fdt, nodeoffset, "phandle", &len);
+	if (!php || (len != sizeof(*php))) {
+		php = fdt_getprop(fdt, nodeoffset, "linux,phandle", &len);
+		if (!php || (len != sizeof(*php)))
+			return 0;
+	}
 
 	return fdt32_to_cpu(*php);
 }
@@ -440,11 +445,27 @@ int fdt_node_offset_by_prop_value(const void *fdt, int startoffset,
 
 int fdt_node_offset_by_phandle(const void *fdt, uint32_t phandle)
 {
+	int offset;
+
 	if ((phandle == 0) || (phandle == -1))
 		return -FDT_ERR_BADPHANDLE;
-	phandle = cpu_to_fdt32(phandle);
-	return fdt_node_offset_by_prop_value(fdt, -1, "linux,phandle",
-					     &phandle, sizeof(phandle));
+
+	FDT_CHECK_HEADER(fdt);
+
+	/* FIXME: The algorithm here is pretty horrible: we
+	 * potentially scan each property of a node in
+	 * fdt_get_phandle(), then if that didn't find what
+	 * we want, we scan over them again making our way to the next
+	 * node.  Still it's the easiest to implement approach;
+	 * performance can come later. */
+	for (offset = fdt_next_node(fdt, -1, NULL);
+	     offset >= 0;
+	     offset = fdt_next_node(fdt, offset, NULL)) {
+		if (fdt_get_phandle(fdt, offset) == phandle)
+			return offset;
+	}
+
+	return offset; /* error from fdt_next_node() */
 }
 
 static int _fdt_stringlist_contains(const char *strlist, int listlen,
