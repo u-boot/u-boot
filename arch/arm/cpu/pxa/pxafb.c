@@ -292,7 +292,9 @@ static int pxafb_init_mem (void *lcdbase, vidinfo_t *vid)
 
 	return 0;
 }
-
+#ifdef	CONFIG_CPU_MONAHANS
+static inline void pxafb_setup_gpio (vidinfo_t *vid) {}
+#else
 static void pxafb_setup_gpio (vidinfo_t *vid)
 {
 	u_long lccr0;
@@ -349,6 +351,7 @@ static void pxafb_setup_gpio (vidinfo_t *vid)
 		printf("pxafb_setup_gpio: unable to determine bits per pixel\n");
 	}
 }
+#endif
 
 static void pxafb_enable_controller (vidinfo_t *vid)
 {
@@ -363,7 +366,11 @@ static void pxafb_enable_controller (vidinfo_t *vid)
 	FDADR1 = vid->pxa.fdadr1;
 	LCCR0 |= LCCR0_ENB;
 
+#ifdef	CONFIG_CPU_MONAHANS
+	CKENA |= CKENA_1_LCD;
+#else
 	CKEN |= CKEN16_LCD;
+#endif
 
 	debug("FDADR0 = 0x%08x\n", (unsigned int)FDADR0);
 	debug("FDADR1 = 0x%08x\n", (unsigned int)FDADR1);
