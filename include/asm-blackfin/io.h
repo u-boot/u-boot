@@ -147,43 +147,5 @@ static inline unsigned int readl(const volatile void *addr)
 
 #define outsw(port, addr, count)	cf_outsw((unsigned short *)(port), (unsigned short *)addr, (count))
 
-#define IO_SPACE_LIMIT		0xffff
-
-/* Values for nocacheflag and cmode */
-#define IOMAP_FULL_CACHING	0
-#define IOMAP_NOCACHE_SER	1
-#define IOMAP_NOCACHE_NONSER	2
-#define IOMAP_WRITETHROUGH	3
-
-extern void *__ioremap(unsigned long physaddr, unsigned long size,
-		       int cacheflag);
-extern void __iounmap(void *addr, unsigned long size);
-
-extern inline void *ioremap(unsigned long physaddr, unsigned long size)
-{
-	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
-}
-extern inline void *ioremap_nocache(unsigned long physaddr, unsigned long size)
-{
-	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
-}
-extern inline void *ioremap_writethrough(unsigned long physaddr,
-					 unsigned long size)
-{
-	return __ioremap(physaddr, size, IOMAP_WRITETHROUGH);
-}
-extern inline void *ioremap_fullcache(unsigned long physaddr,
-				      unsigned long size)
-{
-	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
-}
-
-extern void iounmap(void *addr);
-
-extern void blkfin_inv_cache_all(void);
-#define dma_cache_inv(_start, _size)		do { blkfin_inv_cache_all(); } while (0)
-#define dma_cache_wback(_start, _size)		do { } while (0)
-#define dma_cache_wback_inv(_start, _size)	do { blkfin_inv_cache_all(); } while (0)
-
 #endif
 #endif
