@@ -34,12 +34,6 @@ static inline void sync(void)
 	SSYNC();
 }
 
-/* function prototypes for CF support */
-extern void cf_outsw(unsigned short *addr, unsigned short *sect_buf, int words);
-extern void cf_insw(unsigned short *sect_buf, unsigned short *addr, int words);
-extern unsigned char cf_inb(volatile unsigned char *addr);
-extern void cf_outb(unsigned char val, volatile unsigned char *addr);
-
 /*
  * Given a physical address and a length, return a virtual address
  * that can be used to access the memory range with the caching
@@ -140,12 +134,21 @@ static inline unsigned int readl(const volatile void *addr)
 #define memcpy_fromio(a, b, c)	memcpy((a), (void *)(b), (c))
 #define memcpy_toio(a, b, c)	memcpy((void *)(a), (b), (c))
 
-#define inb(addr)		cf_inb((volatile unsigned char *)(addr))
-#define outb(x, addr)		cf_outb((unsigned char)(x), (volatile unsigned char *)(addr))
-
-#define insw(port, addr, count)	cf_insw((unsigned short *)addr, (unsigned short *)(port), (count))
-
-#define outsw(port, addr, count)	cf_outsw((unsigned short *)(port), (unsigned short *)addr, (count))
+#if defined(CONFIG_STAMP_CF) || defined(CONFIG_BFIN_IDE)
+/* This hack for CF/IDE needs to be addressed at some point */
+extern void cf_outsw(unsigned short *addr, unsigned short *sect_buf, int words);
+extern void cf_insw(unsigned short *sect_buf, unsigned short *addr, int words);
+extern unsigned char cf_inb(volatile unsigned char *addr);
+extern void cf_outb(unsigned char val, volatile unsigned char *addr);
+#undef inb
+#undef outb
+#undef insw
+#undef outsw
+#define inb(addr) cf_inb((void *)(addr))
+#define outb(x, addr) cf_outb((unsigned char)(x), (void *)(addr))
+#define insw(port, addr, cnt) cf_insw((void *)(addr), (void *)(port), cnt)
+#define outsw(port, addr, cnt) cf_outsw((void *)(port), (void *)(addr), cnt)
+#endif
 
 #endif
 #endif
