@@ -545,6 +545,10 @@ Rick Bronson <rick@efn.org>
 
 	AT91RM9200DK	at91rm9200
 
+Po-Yu Chuang <ratbert@faraday-tech.com>
+
+	a320evb		FA526 (ARM920T-like) (a320 SoC)
+
 George G. Davis <gdavis@mvista.com>
 
 	assabet		SA1100
@@ -713,6 +717,10 @@ Michael Schwingen <michael@schwingen.org>
 Andrea Scian <andrea.scian@dave-tech.it>
 
 	B2		ARM7TDMI (S3C44B0X)
+
+Nick Thompson <nick.thompson@gefanuc.com>
+
+	da830evm	ARM926EJS (DA830/OMAP-L137)
 
 Albin Tonnerre <albin.tonnerre@free-electrons.com>
 

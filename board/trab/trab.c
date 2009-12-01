@@ -26,7 +26,7 @@
 #include <common.h>
 #include <netdev.h>
 #include <malloc.h>
-#include <s3c2400.h>
+#include <asm/arch/s3c24x0_cpu.h>
 #include <command.h>
 
 DECLARE_GLOBAL_DATA_PTR;

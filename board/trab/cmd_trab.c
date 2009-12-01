@@ -25,7 +25,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <s3c2400.h>
+#include <asm/arch/s3c24x0_cpu.h>
 #include <rtc.h>
 
 /*

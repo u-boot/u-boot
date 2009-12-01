@@ -34,9 +34,10 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_ARM920T		1	/* This is an ARM920T core	*/
-#define CONFIG_S3C2400		1	/* in a SAMSUNG S3C2400 SoC	*/
-#define CONFIG_SMDK2400		1	/* on an SAMSUNG SMDK2400 Board */
+#define CONFIG_ARM920T	1	/* This is an ARM920T core	*/
+#define CONFIG_S3C24X0	1	/* in a SAMSUNG S3C24x0-type SoC	*/
+#define CONFIG_S3C2400	1	/* specifically a SAMSUNG S3C2400 SoC	*/
+#define CONFIG_SMDK2400	1	/* on an SAMSUNG SMDK2400 Board */
 
 /* input clock of PLL */
 #define CONFIG_SYS_CLK_FREQ	12000000 /* SMDK2400 has 12 MHz input clock */

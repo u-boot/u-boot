@@ -222,6 +222,7 @@ struct sdrc {
 
 #define PAGEPOLICY_HIGH		(0x1 << 0)
 #define SRFRONRESET		(0x1 << 7)
+#define PWDNEN			(0x1 << 2)
 #define WAKEUPPROC		(0x1 << 26)
 
 #define DDR_SDRAM		(0x1 << 0)

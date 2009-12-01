@@ -30,7 +30,7 @@
 
 #include <common.h>
 #include <netdev.h>
-#include <s3c6400.h>
+#include <asm/arch/s3c6400.h>
 
 /* ------------------------------------------------------------------------- */
 #define CS8900_Tacs	0x0	/* 0clk		address set-up		*/

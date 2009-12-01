@@ -63,7 +63,9 @@ unsigned char mmc_board_init(void)
 {
 	t2_t *t2_base = (t2_t *)T2_BASE;
 
+#if defined(CONFIG_TWL4030_POWER)
 	twl4030_power_mmc_init();
+#endif
 
 	writel(readl(&t2_base->pbias_lite) | PBIASLITEPWRDNZ1 |
 		PBIASSPEEDCTRL0 | PBIASLITEPWRDNZ0,

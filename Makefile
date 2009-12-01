@@ -2696,6 +2696,9 @@ shannon_config	:	unconfig
 ## ARM92xT Systems
 #########################################################################
 
+a320evb_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm920t a320evb faraday a320
+
 #########################################################################
 ## Atmel AT91RM9200 Systems
 #########################################################################
@@ -2929,6 +2932,9 @@ cp922_config		\
 cp922_XA10_config	\
 cp1026_config: unconfig
 	@board/armltd/integrator/split_by_variant.sh cp $@
+
+da830evm_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs da830evm davinci davinci
 
 davinci_dvevm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dvevm davinci davinci
