@@ -24,6 +24,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/byteorder.h>
+#include <asm/cache.h>
 
 int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 {
@@ -31,6 +32,10 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
+
+	/* flushes data and instruction caches before calling the kernel */
+	flush_dcache (0,CONFIG_SYS_DCACHE_SIZE);
+	flush_icache (0,CONFIG_SYS_ICACHE_SIZE);
 
 	/* For now we assume the Microtronix linux ... which only
 	 * needs to be called ;-)
