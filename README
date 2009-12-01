@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000 - 2008
+# (C) Copyright 2000 - 2009
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -1893,25 +1893,6 @@ The following options need to be configured:
 		example, some LED's) on your board. At the moment,
 		the following checkpoints are implemented:
 
-- Automatic software updates via TFTP server
-		CONFIG_UPDATE_TFTP
-		CONFIG_UPDATE_TFTP_CNT_MAX
-		CONFIG_UPDATE_TFTP_MSEC_MAX
-
-		These options enable and control the auto-update feature;
-		for a more detailed description refer to doc/README.update.
-
-- MTD Support (mtdparts command, UBI support)
-		CONFIG_MTD_DEVICE
-
-		Adds the MTD device infrastructure from the Linux kernel.
-		Needed for mtdparts command support.
-
-		CONFIG_MTD_PARTITIONS
-
-		Adds the MTD partitioning infrastructure from the Linux
-		kernel. Needed for UBI support.
-
 Legacy uImage format:
 
   Arg	Where			When
@@ -2064,6 +2045,25 @@ FIT uImage format:
 
  -150	common/cmd_nand.c	Incorrect FIT image format
   151	common/cmd_nand.c	FIT image format OK
+
+- Automatic software updates via TFTP server
+		CONFIG_UPDATE_TFTP
+		CONFIG_UPDATE_TFTP_CNT_MAX
+		CONFIG_UPDATE_TFTP_MSEC_MAX
+
+		These options enable and control the auto-update feature;
+		for a more detailed description refer to doc/README.update.
+
+- MTD Support (mtdparts command, UBI support)
+		CONFIG_MTD_DEVICE
+
+		Adds the MTD device infrastructure from the Linux kernel.
+		Needed for mtdparts command support.
+
+		CONFIG_MTD_PARTITIONS
+
+		Adds the MTD partitioning infrastructure from the Linux
+		kernel. Needed for UBI support.
 
 
 Modem Support:
