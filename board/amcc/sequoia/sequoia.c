@@ -370,17 +370,6 @@ void board_pci_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 }
 #endif
 
-#if defined(CONFIG_POST)
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed(void)
-{
-	return 0;	/* No hotkeys supported */
-}
-#endif /* CONFIG_POST */
-
 #if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_SYS_RAMBOOT)
 /*
  * On NAND-booting sequoia, we need to patch the chips select numbers

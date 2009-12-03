@@ -400,15 +400,3 @@ void fpga_init(void)
 
 	return;
 }
-
-#ifdef CONFIG_POST
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed(void)
-{
-
-	return (ctrlc());
-}
-#endif

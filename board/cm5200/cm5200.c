@@ -330,14 +330,6 @@ int board_early_init_r(void)
 }
 
 
-#ifdef CONFIG_POST
-int post_hotkeys_pressed(void)
-{
-	return 0;
-}
-#endif /* CONFIG_POST */
-
-
 #if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
 void post_word_store(ulong a)
 {

@@ -209,17 +209,6 @@ int checkboard (void)
 	return (0);
 }
 
-#ifdef CONFIG_POST
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed(void)
-{
-	return (ctrlc());
-}
-#endif
-
 int board_eth_init(bd_t *bis)
 {
 	cpu_eth_init(bis);
