@@ -31,6 +31,7 @@
 #include <i2c.h>
 #include <command.h>
 #include "ppc440gx_i2c.h"
+#include <asm-ppc/io.h>
 
 #ifdef CONFIG_I2C_BUS1
 
@@ -47,16 +48,18 @@
 static uchar i2c_no_probes[] = CONFIG_SYS_I2C_NOPROBES;
 #endif
 
+static struct ppc4xx_i2c *i2c = (struct ppc4xx_i2c *)I2C_REGISTERS_BUS1_BASE_ADDRESS;
+
 static void _i2c_bus1_reset (void)
 {
 	int i, status;
 
 	/* Reset status register */
 	/* write 1 in SCMP and IRQA to clear these fields */
-	out8 (IIC_STS1, 0x0A);
+	out_8 (IIC_STS1, 0x0A);
 
 	/* write 1 in IRQP IRQD LA ICT XFRA to clear these fields */
-	out8 (IIC_EXTSTS1, 0x8F);
+	out_8 (IIC_EXTSTS1, 0x8F);
 	__asm__ volatile ("eieio");
 
 	/*
@@ -66,36 +69,36 @@ static void _i2c_bus1_reset (void)
 	i = 10;
 	do {
 		/* Get status */
-		status = in8 (IIC_STS1);
+		status = in_8 (IIC_STS1);
 		udelay (500);			/* 500us */
 		i--;
 	} while ((status & IIC_STS_PT) && (i > 0));
 	/* Soft reset controller */
-	status = in8 (IIC_XTCNTLSS1);
-	out8 (IIC_XTCNTLSS1, (status | IIC_XTCNTLSS_SRST));
+	status = in_8 (IIC_XTCNTLSS1);
+	out_8 (IIC_XTCNTLSS1, (status | IIC_XTCNTLSS_SRST));
 	__asm__ volatile ("eieio");
 
 	/* make sure where in initial state, data hi, clock hi */
-	out8 (IIC_DIRECTCNTL1, 0xC);
+	out_8 (IIC_DIRECTCNTL1, 0xC);
 	for (i = 0; i < 10; i++) {
-		if ((in8 (IIC_DIRECTCNTL1) & 0x3) != 0x3) {
+		if ((in_8 (IIC_DIRECTCNTL1) & 0x3) != 0x3) {
 			/* clock until we get to known state */
-			out8 (IIC_DIRECTCNTL1, 0x8);	/* clock lo */
+			out_8 (IIC_DIRECTCNTL1, 0x8);	/* clock lo */
 			udelay (100);		/* 100us */
-			out8 (IIC_DIRECTCNTL1, 0xC);	/* clock hi */
+			out_8 (IIC_DIRECTCNTL1, 0xC);	/* clock hi */
 			udelay (100);		/* 100us */
 		} else {
 			break;
 		}
 	}
 	/* send start condition */
-	out8 (IIC_DIRECTCNTL1, 0x4);
+	out_8 (IIC_DIRECTCNTL1, 0x4);
 	udelay (1000);				/* 1ms */
 	/* send stop condition */
-	out8 (IIC_DIRECTCNTL1, 0xC);
+	out_8 (IIC_DIRECTCNTL1, 0xC);
 	udelay (1000);				/* 1ms */
 	/* Unreset controller */
-	out8 (IIC_XTCNTLSS1, (status & ~IIC_XTCNTLSS_SRST));
+	out_8 (IIC_XTCNTLSS1, (status & ~IIC_XTCNTLSS_SRST));
 	udelay (1000);				/* 1ms */
 }
 
@@ -117,16 +120,16 @@ void i2c1_init (int speed, int slaveadd)
 	_i2c_bus1_reset ();
 
 	/* clear lo master address */
-	out8 (IIC_LMADR1, 0);
+	out_8 (IIC_LMADR1, 0);
 
 	/* clear hi master address */
-	out8 (IIC_HMADR1, 0);
+	out_8 (IIC_HMADR1, 0);
 
 	/* clear lo slave address */
-	out8 (IIC_LSADR1, 0);
+	out_8 (IIC_LSADR1, 0);
 
 	/* clear hi slave address */
-	out8 (IIC_HSADR1, 0);
+	out_8 (IIC_HSADR1, 0);
 
 	/* Clock divide Register */
 	/* get OPB frequency */
@@ -136,25 +139,25 @@ void i2c1_init (int speed, int slaveadd)
 	divisor = (freqOPB - 1) / 10000000;
 	if (divisor == 0)
 		divisor = 1;
-	out8 (IIC_CLKDIV1, divisor);
+	out_8 (IIC_CLKDIV1, divisor);
 
 	/* no interrupts */
-	out8 (IIC_INTRMSK1, 0);
+	out_8 (IIC_INTRMSK1, 0);
 
 	/* clear transfer count */
-	out8 (IIC_XFRCNT1, 0);
+	out_8 (IIC_XFRCNT1, 0);
 
 	/* clear extended control & stat */
 	/* write 1 in SRC SRS SWC SWS to clear these fields */
-	out8 (IIC_XTCNTLSS1, 0xF0);
+	out_8 (IIC_XTCNTLSS1, 0xF0);
 
 	/* Mode Control Register
 	   Flush Slave/Master data buffer */
-	out8 (IIC_MDCNTL1, IIC_MDCNTL_FSDB | IIC_MDCNTL_FMDB);
+	out_8 (IIC_MDCNTL1, IIC_MDCNTL_FSDB | IIC_MDCNTL_FMDB);
 	__asm__ volatile ("eieio");
 
 
-	val = in8(IIC_MDCNTL1);
+	val = in_8(IIC_MDCNTL1);
 	__asm__ volatile ("eieio");
 
 	/* Ignore General Call, slave transfers are ignored,
@@ -167,10 +170,10 @@ void i2c1_init (int speed, int slaveadd)
 	if( speed >= 400000 ){
 		val |= IIC_MDCNTL_FSM;
 	}
-	out8 (IIC_MDCNTL1, val);
+	out_8 (IIC_MDCNTL1, val);
 
 	/* clear control reg */
-	out8 (IIC_CNTL1, 0x00);
+	out_8 (IIC_CNTL1, 0x00);
 	__asm__ volatile ("eieio");
 
 }
@@ -178,7 +181,7 @@ void i2c1_init (int speed, int slaveadd)
 /*
   This code tries to use the features of the 405GP i2c
   controller. It will transfer up to 4 bytes in one pass
-  on the loop. It only does out8(lbz) to the buffer when it
+  on the loop. It only does out_8(lbz) to the buffer when it
   is possible to do out16(lhz) transfers.
 
   cmd_type is 0 for write 1 for read.
@@ -232,12 +235,12 @@ int i2c_transfer1(unsigned char cmd_type,
 	}
 
 	/*Clear Stop Complete Bit*/
-	out8(IIC_STS1,IIC_STS_SCMP);
+	out_8(IIC_STS1,IIC_STS_SCMP);
 	/* Check init */
 	i=10;
 	do {
 		/* Get status */
-		status = in8(IIC_STS1);
+		status = in_8(IIC_STS1);
 		__asm__ volatile("eieio");
 		i--;
 	} while ((status & IIC_STS_PT) && (i>0));
@@ -247,12 +250,12 @@ int i2c_transfer1(unsigned char cmd_type,
 		return(result);
 	}
 	/*flush the Master/Slave Databuffers*/
-	out8(IIC_MDCNTL1, ((in8(IIC_MDCNTL1))|IIC_MDCNTL_FMDB|IIC_MDCNTL_FSDB));
+	out_8(IIC_MDCNTL1, ((in_8(IIC_MDCNTL1))|IIC_MDCNTL_FMDB|IIC_MDCNTL_FSDB));
 	/*need to wait 4 OPB clocks? code below should take that long*/
 
 	/* 7-bit adressing */
-	out8(IIC_HMADR1,0);
-	out8(IIC_LMADR1, chip);
+	out_8(IIC_HMADR1,0);
+	out_8(IIC_LMADR1, chip);
 	__asm__ volatile("eieio");
 
 	tran = 0;
@@ -280,11 +283,11 @@ int i2c_transfer1(unsigned char cmd_type,
 		else {
 			for(j=0; j<bc; j++) {
 				/* Set buffer */
-				out8(IIC_MDBUF1,ptr[tran+j]);
+				out_8(IIC_MDBUF1,ptr[tran+j]);
 				__asm__ volatile("eieio");
 			}
 		}
-		out8(IIC_CNTL1, creg );
+		out_8(IIC_CNTL1, creg );
 		__asm__ volatile("eieio");
 
 		/* Transfer is in progress
@@ -297,7 +300,7 @@ int i2c_transfer1(unsigned char cmd_type,
 		i=2*5*8;
 		do {
 			/* Get status */
-			status = in8(IIC_STS1);
+			status = in_8(IIC_STS1);
 			__asm__ volatile("eieio");
 			udelay (10);
 			i--;
@@ -306,7 +309,7 @@ int i2c_transfer1(unsigned char cmd_type,
 
 		if (status & IIC_STS_ERR) {
 			result = IIC_NOK;
-			status = in8 (IIC_EXTSTS1);
+			status = in_8 (IIC_EXTSTS1);
 			/* Lost arbitration? */
 			if (status & IIC_EXTSTS_LA)
 				result = IIC_NOK_LA;
@@ -331,7 +334,7 @@ int i2c_transfer1(unsigned char cmd_type,
 				*/
 				udelay (1);
 				for(j=0;j<bc;j++) {
-					ptr[tran+j] = in8(IIC_MDBUF1);
+					ptr[tran+j] = in_8(IIC_MDBUF1);
 					__asm__ volatile("eieio");
 				}
 			} else
