@@ -259,7 +259,6 @@
 #define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PD15
 #define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PB30
 
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 #endif
 
 #define CONFIG_CMD_JFFS2		1

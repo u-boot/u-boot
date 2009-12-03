@@ -251,9 +251,6 @@
 /* maximum size of the flat tree (8K) */
 #define OF_FLAT_TREE_MAX_SIZE	8192
 
-#define CONFIG_SYS_64BIT_VSPRINTF	1
-#define CONFIG_SYS_64BIT_STRTOUL	1
-
 /*
  * I2C
  */

@@ -114,7 +114,6 @@
 #define NAND_MAX_CHIPS			1
 #define CONFIG_SYS_NAND_BASE		0xD8000000	/* KW_DEFADR_NANDF */
 #define NAND_ALLOW_ERASE_ALL		1
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #endif
 
 /*

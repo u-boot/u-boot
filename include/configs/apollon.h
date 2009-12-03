@@ -258,8 +258,6 @@
 #define CONFIG_ENV_ADDR		0x00020000
 #define CONFIG_ENV_ADDR_FLEX	0x00040000
 
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
-
 #ifdef CONFIG_SYS_USE_UBI
 #define CONFIG_CMD_MTDPARTS
 #define MTDIDS_DEFAULT		"onenand0=onenand"

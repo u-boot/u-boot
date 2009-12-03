@@ -436,11 +436,7 @@ phys_size_t getenv_bootm_size(void)
 	char *s = getenv ("bootm_size");
 	if (s) {
 		phys_size_t tmp;
-#ifdef CONFIG_SYS_64BIT_STRTOUL
 		tmp = (phys_size_t)simple_strtoull (s, NULL, 16);
-#else
-		tmp = (phys_size_t)simple_strtoul (s, NULL, 16);
-#endif
 		return tmp;
 	}
 

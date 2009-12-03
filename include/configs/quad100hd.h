@@ -226,7 +226,6 @@
 #define CONFIG_SYS_NAND_ALE	30   /* our ALE is GPIO30 */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #endif
 
 /*-----------------------------------------------------------------------

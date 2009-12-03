@@ -188,8 +188,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_CMD_NAND
 
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
-
 /* LIME GDC */
 #define CONFIG_SYS_LIME_BASE		0xc8000000
 #define CONFIG_SYS_LIME_SIZE		0x04000000	/* 64 MB	*/

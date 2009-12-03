@@ -19,10 +19,6 @@
 
 #include <asm/io.h>
 
-#if !defined(CONFIG_SYS_64BIT_VSPRINTF)
-#warning Please define CONFIG_SYS_64BIT_VSPRINTF for correct output!
-#endif
-
 static struct mtd_info *mtd;
 
 static loff_t next_ofs;

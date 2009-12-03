@@ -41,10 +41,6 @@
 #include <nand.h>
 #include <jffs2/jffs2.h>
 
-#if !defined(CONFIG_SYS_64BIT_VSPRINTF)
-#warning Please define CONFIG_SYS_64BIT_VSPRINTF for correct output!
-#endif
-
 typedef struct erase_info erase_info_t;
 typedef struct mtd_info	  mtd_info_t;
 

@@ -226,8 +226,6 @@
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND0_BASE }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
 
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
-
 /* nand timeout values */
 #define CONFIG_SYS_NAND_PROG_ERASE_TO	3000
 #define CONFIG_SYS_NAND_OTHER_TO	100

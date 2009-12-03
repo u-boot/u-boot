@@ -286,9 +286,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
-#define CONFIG_SYS_64BIT_VSPRINTF	1
-#define CONFIG_SYS_64BIT_STRTOUL	1
-
 /*
  * I2C
  */
