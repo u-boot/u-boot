@@ -105,10 +105,6 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 typedef int boot_os_fn (int flag, int argc, char *argv[],
 			bootm_headers_t *images); /* pointers to os/initrd/fdt */
 
-#define CONFIG_BOOTM_LINUX 1
-#define CONFIG_BOOTM_NETBSD 1
-#define CONFIG_BOOTM_RTEMS 1
-
 #ifdef CONFIG_BOOTM_LINUX
 extern boot_os_fn do_bootm_linux;
 #endif

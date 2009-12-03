@@ -101,9 +101,11 @@ for i in ${TARGETS} ; do
 	echo "#define CONFIG_MK_${i} 1" >>config.h ;
 done
 
-echo "#define CONFIG_BOARDDIR board/$BOARDDIR" >>config.h
-
-echo "#include <configs/$1.h>" >>config.h
-echo "#include <asm/config.h>" >>config.h
+cat << EOF >> config.h
+#define CONFIG_BOARDDIR board/$BOARDDIR
+#include <config_defaults.h>
+#include <configs/$1.h>
+#include <asm/config.h>
+EOF
 
 exit 0
