@@ -315,10 +315,6 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		/*
 		 * Wait for the write to complete.  The write can take
 		 * up to 10mSec (we allow a little more time).
-		 *
-		 * On some chips, while the write is in progress, the
-		 * chip doesn't respond.  This apparently isn't a
-		 * universal feature so we don't take advantage of it.
 		 */
 /*
  * No write delay with FRAM devices.
