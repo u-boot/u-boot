@@ -28,6 +28,8 @@
 
 #include "u-boot/zlib.h"
 #include <common.h>
+#undef	OFF				/* avoid conflicts */
+
 /* To avoid a build time warning */
 #ifdef STDC
 #include <malloc.h>
