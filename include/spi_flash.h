@@ -24,6 +24,7 @@
 #define _SPI_FLASH_H_
 
 #include <spi.h>
+#include <linux/types.h>
 
 struct spi_flash_region {
 	unsigned int	count;

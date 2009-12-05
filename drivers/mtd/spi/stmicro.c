@@ -281,7 +281,8 @@ int stmicro_erase(struct spi_flash *flash, u32 offset, size_t len)
 
 	ret = 0;
 	for (actual = 0; actual < len; actual++) {
-		cmd[1] = (offset / sector_size) + actual;
+		cmd[1] = offset >> 16;
+		offset += sector_size;
 
 		ret = spi_flash_cmd(flash->spi, CMD_M25PXX_WREN, NULL, 0);
 		if (ret < 0) {

@@ -1,6 +1,9 @@
 /*
  * Simple U-boot uImage source file containing a single kernel
  */
+
+/dts-v1/;
+
 / {
 	description = "Simple image with single Linux kernel";
 	#address-cells = <1>;

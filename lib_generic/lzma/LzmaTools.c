@@ -97,11 +97,14 @@ int lzmaBuffToBuffDecompress (unsigned char *outStream, SizeT *uncompressedSize,
     } else if (outSizeHigh != 0 || (UInt32)(SizeT)outSize != outSize) {
         /*
          * SizeT is a 32 bit uint => We cannot manage files larger than
-         * 4GB!
+         * 4GB!  Assume however that all 0xf values is "unknown size" and
+         * not actually a file of 2^64 bits.
          *
          */
-        debug ("LZMA: 64bit support not enabled.\n");
-        return SZ_ERROR_DATA;
+        if (outSizeHigh != (SizeT)-1 || outSize != (SizeT)-1) {
+            debug ("LZMA: 64bit support not enabled.\n");
+            return SZ_ERROR_DATA;
+        }
     }
 
     debug ("LZMA: Uncompresed size............ 0x%lx\n", outSizeFull);

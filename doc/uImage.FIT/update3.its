@@ -1,6 +1,9 @@
 /*
  * Example Automatic software update file.
  */
+
+/dts-v1/;
+
 / {
 	description = "Automatic software updates: kernel, ramdisk, FDT";
 	#address-cells = <1>;

@@ -178,6 +178,7 @@ int indir1_blkno = -1;
 uint32_t *indir2_block = NULL;
 int indir2_size = 0;
 int indir2_blkno = -1;
+static unsigned int inode_size;
 
 
 static int ext2fs_blockgroup
@@ -212,7 +213,7 @@ static int ext2fs_read_inode
 	unsigned int blkoff;
 
 #ifdef DEBUG
-	printf ("ext2fs read inode %d\n", ino);
+	printf ("ext2fs read inode %d, inode_size %d\n", ino, inode_size);
 #endif
 	/* It is easier to calculate if the first inode is 0.  */
 	ino--;
@@ -222,16 +223,12 @@ static int ext2fs_read_inode
 		return (0);
 	}
 
-	inodes_per_block = EXT2_BLOCK_SIZE(data) / __le16_to_cpu(sblock->inode_size);
-
-#ifdef DEBUG
-	printf ("ext2fs read inode blkno %d blkoff %d\n", blkno, blkoff);
-#endif
+	inodes_per_block = EXT2_BLOCK_SIZE(data) / inode_size;
 
 	blkno = __le32_to_cpu (blkgrp.inode_table_id) +
 		(ino % __le32_to_cpu (sblock->inodes_per_group))
 		/ inodes_per_block;
-	blkoff = (ino % inodes_per_block) * __le16_to_cpu (sblock->inode_size);
+	blkoff = (ino % inodes_per_block) * inode_size;
 #ifdef DEBUG
 	printf ("ext2fs read inode blkno %d blkoff %d\n", blkno, blkoff);
 #endif
@@ -863,6 +860,15 @@ int ext2fs_mount (unsigned part_length) {
 	if (__le16_to_cpu (data->sblock.magic) != EXT2_MAGIC) {
 		goto fail;
 	}
+	if (__le32_to_cpu(data->sblock.revision_level == 0)) {
+		inode_size = 128;
+	} else {
+		inode_size = __le16_to_cpu(data->sblock.inode_size);
+	}
+#ifdef DEBUG
+	printf("EXT2 rev %d, inode_size %d\n",
+			__le32_to_cpu(data->sblock.revision_level), inode_size);
+#endif
 	data->diropen.data = data;
 	data->diropen.ino = 2;
 	data->diropen.inode_read = 1;

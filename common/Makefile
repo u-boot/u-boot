@@ -29,7 +29,6 @@ AOBJS	=
 
 # core
 COBJS-y += main.o
-COBJS-y += circbuf.o
 COBJS-y += console.o
 COBJS-y += command.o
 COBJS-y += dlmalloc.o

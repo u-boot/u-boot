@@ -27,8 +27,6 @@
 #include <common.h>
 #include <command.h>
 
-#if defined(CONFIG_CMD_CACHE)
-
 static int on_off (const char *);
 
 int do_icache ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -108,5 +106,3 @@ U_BOOT_CMD(
 	"[on, off]\n"
 	"    - enable or disable data (writethrough) cache"
 );
-
-#endif

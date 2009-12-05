@@ -71,9 +71,9 @@ int do_date (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				/* and write to RTC */
 				rcode = rtc_set (&tm);
 				if(rcode)
-					puts("## Set date failled\n");
+					puts("## Set date failed\n");
 			} else {
-				puts("## Get date failled\n");
+				puts("## Get date failed\n");
 			}
 		}
 		/* FALL TROUGH */
@@ -81,7 +81,7 @@ int do_date (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		rcode = rtc_get (&tm);
 
 		if (rcode) {
-			puts("## Get date failled\n");
+			puts("## Get date failed\n");
 			break;
 		}
 

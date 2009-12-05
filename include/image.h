@@ -220,11 +220,9 @@ typedef struct bootm_headers {
 	const char	*fit_uname_rd;	/* init ramdisk subimage node unit name */
 	int		fit_noffset_rd;	/* init ramdisk subimage node offset */
 
-#if defined(CONFIG_PPC)
 	void		*fit_hdr_fdt;	/* FDT blob FIT image header */
 	const char	*fit_uname_fdt;	/* FDT blob subimage node unit name */
 	int		fit_noffset_fdt;/* FDT blob subimage node offset */
-#endif
 #endif
 
 #ifndef USE_HOSTCC

@@ -44,13 +44,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
-/*
- * When initializing flash, if we cannot find the manufacturer ID,
- * assume this is the AMD flash associated with the MDS board.
- * This allows booting from a promjet.
- */
-#define CONFIG_ASSUME_AMD_FLASH
-
 #ifndef __ASSEMBLY__
 extern unsigned long get_clock_freq(void);
 #endif						  /*Replace a call to get_clock_freq (after it is implemented)*/

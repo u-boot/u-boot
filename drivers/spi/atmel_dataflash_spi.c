@@ -30,7 +30,8 @@
 #include <dataflash.h>
 
 #define AT91_SPI_PCS0_DATAFLASH_CARD	0xE	/* Chip Select 0: NPCS0%1110 */
-#define AT91_SPI_PCS1_DATAFLASH_CARD	0xD	/* Chip Select 0: NPCS0%1101 */
+#define AT91_SPI_PCS1_DATAFLASH_CARD	0xD	/* Chip Select 1: NPCS1%1101 */
+#define AT91_SPI_PCS2_DATAFLASH_CARD	0xB	/* Chip Select 2: NPCS2%1011 */
 #define AT91_SPI_PCS3_DATAFLASH_CARD	0x7	/* Chip Select 3: NPCS3%0111 */
 
 void AT91F_SpiInit(void)
@@ -57,7 +58,14 @@ void AT91F_SpiInit(void)
 	       ((get_mck_clk_rate() / AT91_SPI_CLK) << 8),
 	       AT91_BASE_SPI + AT91_SPI_CSR(1));
 #endif
-
+#ifdef CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS2
+	/* Configure CS2 */
+	writel(AT91_SPI_NCPHA |
+	       (AT91_SPI_DLYBS & DATAFLASH_TCSS) |
+	       (AT91_SPI_DLYBCT & DATAFLASH_TCHS) |
+	       ((get_mck_clk_rate() / AT91_SPI_CLK) << 8),
+	       AT91_BASE_SPI + AT91_SPI_CSR(2));
+#endif
 #ifdef CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS3
 	/* Configure CS3 */
 	writel(AT91_SPI_NCPHA |
@@ -97,6 +105,12 @@ void AT91F_SpiEnable(int cs)
 		mode = readl(AT91_BASE_SPI + AT91_SPI_MR);
 		mode &= 0xFFF0FFFF;
 		writel(mode | ((AT91_SPI_PCS1_DATAFLASH_CARD<<16) & AT91_SPI_PCS),
+		       AT91_BASE_SPI + AT91_SPI_MR);
+		break;
+	case 2:	/* Configure SPI CS2 for Serial DataFlash AT45DBxx */
+		mode = readl(AT91_BASE_SPI + AT91_SPI_MR);
+		mode &= 0xFFF0FFFF;
+		writel(mode | ((AT91_SPI_PCS2_DATAFLASH_CARD<<16) & AT91_SPI_PCS),
 		       AT91_BASE_SPI + AT91_SPI_MR);
 		break;
 	case 3:

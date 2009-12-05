@@ -1,8 +1,5 @@
 #include <common.h>
 #include <command.h>
-
-#if defined(CONFIG_CMD_KGDB)
-
 #include <kgdb.h>
 #include <asm/signal.h>
 #include <asm/processor.h>
@@ -322,5 +319,3 @@ kgdb_breakpoint(int argc, char *argv[])
 	     breakinst: .long 0x7d821008\n\
 	    ");
 }
-
-#endif

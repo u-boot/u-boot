@@ -326,14 +326,6 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #if !defined(CONFIG_SYS_I2C_FRAM)
 		udelay(11000);
 #endif
-
-#if 0
-		for (timeout = 0; timeout < 10; timeout++) {
-			udelay(2000);
-			if (i2c_probe(chip) == 0)
-				break;
-		}
-#endif
 	}
 
 	return (0);

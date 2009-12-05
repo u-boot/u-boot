@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000 - 2008
+# (C) Copyright 2000 - 2009
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -138,6 +138,7 @@ U-Boot will always have a patchlevel of "0".
 Directory Hierarchy:
 ====================
 
+- api		Machine/arch independent API for external apps
 - board		Board dependent files
 - common	Misc architecture independent functions
 - cpu		CPU specific files
@@ -178,8 +179,8 @@ Directory Hierarchy:
 - disk		Code for disk drive partition handling
 - doc		Documentation (don't expect too much)
 - drivers	Commonly used device drivers
-- dtt		Digital Thermometer and Thermostat drivers
 - examples	Example code for standalone applications, etc.
+- fs		Filesystem code (cramfs, ext2, jffs2, etc.)
 - include	Header Files
 - lib_arm	Files generic to ARM	 architecture
 - lib_avr32	Files generic to AVR32	 architecture
@@ -187,9 +188,12 @@ Directory Hierarchy:
 - lib_generic	Files generic to all	 architectures
 - lib_i386	Files generic to i386	 architecture
 - lib_m68k	Files generic to m68k	 architecture
+- lib_microblaze Files generic to microblaze architecture
 - lib_mips	Files generic to MIPS	 architecture
 - lib_nios	Files generic to NIOS	 architecture
+- lib_nios2	Files generic to NIOS2	 architecture
 - lib_ppc	Files generic to PowerPC architecture
+- lib_sh	Files generic to SH	 architecture
 - lib_sparc	Files generic to SPARC	 architecture
 - libfdt	Library files to support flattened device trees
 - net		Networking code
@@ -1889,25 +1893,6 @@ The following options need to be configured:
 		example, some LED's) on your board. At the moment,
 		the following checkpoints are implemented:
 
-- Automatic software updates via TFTP server
-		CONFIG_UPDATE_TFTP
-		CONFIG_UPDATE_TFTP_CNT_MAX
-		CONFIG_UPDATE_TFTP_MSEC_MAX
-
-		These options enable and control the auto-update feature;
-		for a more detailed description refer to doc/README.update.
-
-- MTD Support (mtdparts command, UBI support)
-		CONFIG_MTD_DEVICE
-
-		Adds the MTD device infrastructure from the Linux kernel.
-		Needed for mtdparts command support.
-
-		CONFIG_MTD_PARTITIONS
-
-		Adds the MTD partitioning infrastructure from the Linux
-		kernel. Needed for UBI support.
-
 Legacy uImage format:
 
   Arg	Where			When
@@ -2060,6 +2045,25 @@ FIT uImage format:
 
  -150	common/cmd_nand.c	Incorrect FIT image format
   151	common/cmd_nand.c	FIT image format OK
+
+- Automatic software updates via TFTP server
+		CONFIG_UPDATE_TFTP
+		CONFIG_UPDATE_TFTP_CNT_MAX
+		CONFIG_UPDATE_TFTP_MSEC_MAX
+
+		These options enable and control the auto-update feature;
+		for a more detailed description refer to doc/README.update.
+
+- MTD Support (mtdparts command, UBI support)
+		CONFIG_MTD_DEVICE
+
+		Adds the MTD device infrastructure from the Linux kernel.
+		Needed for mtdparts command support.
+
+		CONFIG_MTD_PARTITIONS
+
+		Adds the MTD partitioning infrastructure from the Linux
+		kernel. Needed for UBI support.
 
 
 Modem Support:

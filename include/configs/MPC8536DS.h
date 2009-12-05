@@ -70,13 +70,6 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
-/*
- * When initializing flash, if we cannot find the manufacturer ID,
- * assume this is the AMD flash associated with the CDS board.
- * This allows booting from a promjet.
- */
-#define CONFIG_ASSUME_AMD_FLASH
-
 #ifndef __ASSEMBLY__
 extern unsigned long get_board_sys_clk(unsigned long dummy);
 extern unsigned long get_board_ddr_clk(unsigned long dummy);

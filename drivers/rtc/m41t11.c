@@ -181,18 +181,4 @@ void rtc_reset (void)
 	val = val & 0x3F;/*turn off freq test keep calibration*/
 	i2c_write(CONFIG_SYS_I2C_RTC_ADDR, RTC_CONTROL_ADDR, 1, &val, 1);
 }
-
-int rtc_store(int addr, unsigned char* data, int size)
-{
-	/*don't let things wrap onto the time on a write*/
-	if( (addr+size) >= M41T11_STORAGE_SZ )
-		return 1;
-	return i2c_write( CONFIG_SYS_I2C_RTC_ADDR, REG_CNT+addr, 1, data, size );
-}
-
-int rtc_recall(int addr, unsigned char* data, int size)
-{
-	return i2c_read( CONFIG_SYS_I2C_RTC_ADDR, REG_CNT+addr, 1, data, size );
-}
-
 #endif

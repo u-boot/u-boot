@@ -26,6 +26,7 @@
 #include <asm/io.h>
 #include <command.h>
 #include <malloc.h>
+#include <sja1000.h>
 
 #undef FPGA_DEBUG
 
@@ -198,6 +199,13 @@ int misc_init_r(void)
 	out_8((void *)DUART1_BA + 1, fctr); /* write FCTR */
 	out_8((void *)DUART1_BA + 3, 0);    /* write LCR */
 
+	/*
+	 * Init magnetic couplers
+	 */
+	if (!getenv("noinitcoupler")) {
+		init_coupler(CAN0_BA);
+		init_coupler(CAN1_BA);
+	}
 	return 0;
 }
 

@@ -1,6 +1,9 @@
 /*
  * U-boot uImage source file with multiple kernels, ramdisks and FDT blobs
  */
+
+/dts-v1/;
+
 / {
 	description = "Various kernels, ramdisks and FDT blobs";
 	#address-cells = <1>;

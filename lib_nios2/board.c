@@ -83,8 +83,6 @@ void board_init (void)
 {
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
-	char *s, *e;
-	int i;
 
 	/* Pointer is writable since we allocated a register for it.
 	 * Nios treats CONFIG_SYS_GBL_DATA_OFFSET as an address.

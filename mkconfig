@@ -27,6 +27,11 @@ done
 [ $# -lt 4 ] && exit 1
 [ $# -gt 6 ] && exit 1
 
+if [ "${ARCH}" -a "${ARCH}" != "$2" ]; then
+	echo "Failed: \$ARCH=${ARCH}, should be '$2' for ${BOARD_NAME}" 1>&2
+	exit 1
+fi
+
 echo "Configuring for ${BOARD_NAME} board..."
 
 #
