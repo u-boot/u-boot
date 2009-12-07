@@ -229,15 +229,13 @@ main (int argc, char **argv)
 			case 'f':
 				if (--argc <= 0)
 					usage ();
-				params.type = IH_TYPE_FLATDT;
-				params.datafile = *++argv;
-				params.fflag = 1;
-
 				/*
 				 * The flattened image tree (FIT) format
 				 * requires a flattened device tree image type
 				 */
 				params.type = IH_TYPE_FLATDT;
+				params.datafile = *++argv;
+				params.fflag = 1;
 				goto NXTARG;
 			case 'n':
 				if (--argc <= 0)
