@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Print statistics when we exit
 trap exit 1 2 3 15
@@ -39,6 +39,7 @@ LIST=""
 ERR_CNT=0
 ERR_LIST=""
 TOTAL_CNT=0
+RC=0
 
 #########################################################################
 ## MPC5xx Systems
@@ -936,6 +937,12 @@ build_target() {
 
 	${MAKE} ${JOBS} all 2>&1 >${LOG_DIR}/$target.MAKELOG \
 				| tee ${LOG_DIR}/$target.ERR
+
+	# Check for 'make' errors
+	if [ ${PIPESTATUS[0]} -ne 0 ] ; then
+		RC=1
+	fi
+
 	if [ -s ${LOG_DIR}/$target.ERR ] ; then
 		ERR_CNT=$((ERR_CNT + 1))
 		ERR_LIST="${ERR_LIST} $target"
@@ -959,6 +966,8 @@ print_stats() {
 		echo "Boards with warnings or errors: ${ERR_CNT} (${ERR_LIST} )"
 	fi
 	echo "----------------------------------------------------------"
+
+	exit $RC
 }
 
 #-----------------------------------------------------------------------
