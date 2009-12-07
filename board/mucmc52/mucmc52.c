@@ -31,6 +31,7 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <mpc5xxx.h>
 #include <pci.h>
 #include <malloc.h>
@@ -403,5 +404,6 @@ void pci_init_board (void)
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
+	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */

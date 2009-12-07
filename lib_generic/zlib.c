@@ -30,6 +30,8 @@
 #include <compiler.h>
 #include <asm/unaligned.h>
 #include "u-boot/zlib.h"
+#undef	OFF				/* avoid conflicts */
+
 /* To avoid a build time warning */
 #ifdef STDC
 #include <malloc.h>

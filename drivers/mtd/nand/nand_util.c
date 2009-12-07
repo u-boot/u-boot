@@ -452,7 +452,7 @@ static size_t get_len_incl_bad (nand_info_t *nand, loff_t offset,
 		len_incl_bad += block_len;
 		offset       += block_len;
 
-		if ((offset + len_incl_bad) >= nand->size)
+		if (offset >= nand->size)
 			break;
 	}
 
