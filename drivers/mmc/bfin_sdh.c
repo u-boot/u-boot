@@ -123,7 +123,7 @@ static int sdh_setup_data(struct mmc *mmc, struct mmc_data *data)
 	bfin_write_SDH_DATA_CTL(data_ctl);
 	dma_cfg = WDSIZE_32 | RESTART | WNR | DMAEN;
 
-	bfin_write_SDH_DATA_TIMER(0xFFFF);
+	bfin_write_SDH_DATA_TIMER(-1);
 
 	blackfin_dcache_flush_invalidate_range(data->dest,
 			data->dest + data->blocksize);
