@@ -86,3 +86,19 @@ int board_mmc_init(bd_t *bis)
 	return bfin_mmc_init(bis);
 }
 #endif
+
+#ifdef CONFIG_USB_BLACKFIN
+void board_musb_init(void)
+{
+	/*
+	 * Rev 1.0 BF549 EZ-KITs require PE7 to be high for both device
+	 * and OTG host modes, while rev 1.1 and greater require PE7 to
+	 * be low for device mode and high for host mode.  We set it high
+	 * here because we are in host mode.
+	 */
+	bfin_write_PORTE_FER(bfin_read_PORTE_FER() & ~PE7);
+	bfin_write_PORTE_DIR_SET(PE7);
+	bfin_write_PORTE_SET(PE7);
+	SSYNC();
+}
+#endif
