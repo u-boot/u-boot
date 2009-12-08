@@ -171,6 +171,28 @@ void cpu_init_f (volatile immap_t * im)
 		(CONFIG_SYS_SCCR_SATACM << SCCR_SATACM_SHIFT) |
 #endif
 		0;
+	__be32 lcrr_mask =
+#ifdef CONFIG_SYS_LCRR_DBYP /* PLL bypass */
+		LCRR_DBYP |
+#endif
+#ifdef CONFIG_SYS_LCRR_EADC /* external address delay */
+		LCRR_EADC |
+#endif
+#ifdef CONFIG_SYS_LCRR_CLKDIV /* system clock divider */
+		LCRR_CLKDIV |
+#endif
+		0;
+	__be32 lcrr_val =
+#ifdef CONFIG_SYS_LCRR_DBYP /* PLL bypass */
+		CONFIG_SYS_LCRR_DBYP |
+#endif
+#ifdef CONFIG_SYS_LCRR_EADC
+		CONFIG_SYS_LCRR_EADC |
+#endif
+#ifdef CONFIG_SYS_LCRR_CLKDIV /* system clock divider */
+		CONFIG_SYS_LCRR_CLKDIV |
+#endif
+		0;
 
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
@@ -198,6 +220,13 @@ void cpu_init_f (volatile immap_t * im)
 	 * contains checkstop reset enable (4.6.1.4)
 	 */
 	__raw_writel(RMR_CSRE & (1<<RMR_CSRE_SHIFT), &im->reset.rmr);
+
+	/* LCRR - Clock Ratio Register (10.3.1.16)
+	 * write, read, and isync per MPC8379ERM rev.1 CLKDEV field description
+	 */
+	clrsetbits_be32(&im->lbus.lcrr, lcrr_mask, lcrr_val);
+	__raw_readl(&im->lbus.lcrr);
+	isync();
 
 	/* Enable Time Base & Decrementer ( so we will have udelay() )*/
 	setbits_be32(&im->sysconf.spcr, SPCR_TBEN);
@@ -331,41 +360,9 @@ void cpu_init_f (volatile immap_t * im)
 
 int cpu_init_r (void)
 {
-	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
 #ifdef CONFIG_QE
 	uint qe_base = CONFIG_SYS_IMMR + 0x00100000; /* QE immr base */
-#endif
-	__be32 lcrr_mask =
-#ifdef CONFIG_SYS_LCRR_DBYP /* PLL bypass */
-		LCRR_DBYP |
-#endif
-#ifdef CONFIG_SYS_LCRR_EADC /* external address delay */
-		LCRR_EADC |
-#endif
-#ifdef CONFIG_SYS_LCRR_CLKDIV /* system clock divider */
-		LCRR_CLKDIV |
-#endif
-		0;
-	__be32 lcrr_val =
-#ifdef CONFIG_SYS_LCRR_DBYP /* PLL bypass */
-		CONFIG_SYS_LCRR_DBYP |
-#endif
-#ifdef CONFIG_SYS_LCRR_EADC
-		CONFIG_SYS_LCRR_EADC |
-#endif
-#ifdef CONFIG_SYS_LCRR_CLKDIV /* system clock divider */
-		CONFIG_SYS_LCRR_CLKDIV |
-#endif
-		0;
 
-	/* LCRR - Clock Ratio Register (10.3.1.16)
-	 * write, read, and isync per MPC8379ERM rev.1 CLKDEV field description
-	 */
-	clrsetbits_be32(&im->lbus.lcrr, lcrr_mask, lcrr_val);
-	__raw_readl(&im->lbus.lcrr);
-	isync();
-
-#ifdef CONFIG_QE
 	qe_init(qe_base);
 	qe_reset();
 #endif
