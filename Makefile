@@ -230,12 +230,10 @@ ifeq ($(CPU),mpc85xx)
 LIBS += drivers/qe/qe.a
 LIBS += cpu/mpc8xxx/ddr/libddr.a
 LIBS += cpu/mpc8xxx/lib8xxx.a
-TAG_SUBDIRS += cpu/mpc8xxx
 endif
 ifeq ($(CPU),mpc86xx)
 LIBS += cpu/mpc8xxx/ddr/libddr.a
 LIBS += cpu/mpc8xxx/lib8xxx.a
-TAG_SUBDIRS += cpu/mpc8xxx
 endif
 LIBS += drivers/rtc/librtc.a
 LIBS += drivers/serial/libserial.a
@@ -402,51 +400,19 @@ env:
 depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
 		for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir _depend ; done
 
+TAG_SUBDIRS = $(SUBDIRS)
+TAG_SUBDIRS += $(dir $(__LIBS))
 TAG_SUBDIRS += include
-TAG_SUBDIRS += lib_generic board/$(BOARDDIR)
-TAG_SUBDIRS += cpu/$(CPU)
-TAG_SUBDIRS += lib_$(ARCH)
-TAG_SUBDIRS += fs/cramfs
-TAG_SUBDIRS += fs/fat
-TAG_SUBDIRS += fs/fdos
-TAG_SUBDIRS += fs/jffs2
-TAG_SUBDIRS += fs/yaffs2
-TAG_SUBDIRS += net
-TAG_SUBDIRS += disk
-TAG_SUBDIRS += common
-TAG_SUBDIRS += drivers/bios_emulator
-TAG_SUBDIRS += drivers/block
-TAG_SUBDIRS += drivers/gpio
-TAG_SUBDIRS += drivers/hwmon
-TAG_SUBDIRS += drivers/i2c
-TAG_SUBDIRS += drivers/input
-TAG_SUBDIRS += drivers/misc
-TAG_SUBDIRS += drivers/mmc
-TAG_SUBDIRS += drivers/mtd
-TAG_SUBDIRS += drivers/mtd/nand
-TAG_SUBDIRS += drivers/mtd/onenand
-TAG_SUBDIRS += drivers/mtd/spi
-TAG_SUBDIRS += drivers/net
-TAG_SUBDIRS += drivers/net/sk98lin
-TAG_SUBDIRS += drivers/pci
-TAG_SUBDIRS += drivers/pcmcia
-TAG_SUBDIRS += drivers/qe
-TAG_SUBDIRS += drivers/rtc
-TAG_SUBDIRS += drivers/serial
-TAG_SUBDIRS += drivers/spi
-TAG_SUBDIRS += drivers/usb
-TAG_SUBDIRS += drivers/video
 
 tags ctags:
-		ctags -w -o $(obj)ctags `find $(SUBDIRS) $(TAG_SUBDIRS) \
-						-name '*.[ch]' -print`
+		ctags -w -o $(obj)ctags `find $(TAG_SUBDIRS) \
+						-name '*.[chS]' -print`
 
 etags:
-		etags -a -o $(obj)etags `find $(SUBDIRS) $(TAG_SUBDIRS) \
-						-name '*.[ch]' -print`
+		etags -a -o $(obj)etags `find $(TAG_SUBDIRS) \
+						-name '*.[chS]' -print`
 cscope:
-		find $(SUBDIRS) $(TAG_SUBDIRS) -name '*.[ch]' -print \
-						> cscope.files
+		find $(TAG_SUBDIRS) -name '*.[chS]' -print > cscope.files
 		cscope -b -q -k
 
 SYSTEM_MAP = \
