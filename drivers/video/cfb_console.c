@@ -403,8 +403,6 @@ static const int video_font_draw_table32[16][4] = {
 	    { 0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00ffffff } };
 
 
-int gunzip(void *, int, unsigned char *, unsigned long *);
-
 /******************************************************************************/
 
 static void video_drawchars (int xx, int yy, unsigned char *s, int count)

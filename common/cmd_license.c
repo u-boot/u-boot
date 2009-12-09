@@ -29,7 +29,6 @@
 #include <command.h>
 #include <malloc.h>
 #include <license.h>
-int gunzip(void *, int, unsigned char *, unsigned long *);
 
 int do_license(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {

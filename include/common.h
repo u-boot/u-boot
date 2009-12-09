@@ -612,6 +612,11 @@ ulong	usec2ticks    (unsigned long usec);
 ulong	ticks2usec    (unsigned long ticks);
 int	init_timebase (void);
 
+/* lib_generic/gunzip.c */
+int gunzip(void *, int, unsigned char *, unsigned long *);
+int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
+						int stoponerr, int offset);
+
 /* lib_generic/time.c */
 void	udelay        (unsigned long);
 

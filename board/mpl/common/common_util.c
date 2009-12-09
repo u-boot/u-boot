@@ -48,7 +48,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define FIRM_START 0xFFF00000
 #endif
 
-extern int gunzip(void *, int, uchar *, unsigned long *);
 extern int mem_test(ulong start, ulong ramsize, int quiet);
 
 #define I2C_BACKUP_ADDR 0x7C00		/* 0x200 bytes for backup */

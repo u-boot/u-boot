@@ -63,7 +63,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern int gunzip (void *dst, int dstlen, unsigned char *src, unsigned long *lenp);
 #ifndef CONFIG_SYS_BOOTM_LEN
 #define CONFIG_SYS_BOOTM_LEN	0x800000	/* use 8MByte as default max gunzip size */
 #endif

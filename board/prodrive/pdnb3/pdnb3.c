@@ -29,7 +29,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Prototypes */
-int gunzip(void *, int, unsigned char *, unsigned long *);
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 
 /* predefine these here for FPGA programming (before including fpga.c) */

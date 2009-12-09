@@ -89,7 +89,6 @@ int N_AU_IMAGES = (sizeof(au_image) / sizeof(au_image[0]));
 
 /* Prototypes */
 int cpci405_version(void);
-int gunzip(void *, int, unsigned char *, unsigned long *);
 void lxt971_no_sleep(void);
 
 int board_early_init_f(void)

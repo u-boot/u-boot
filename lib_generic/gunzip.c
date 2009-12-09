@@ -36,11 +36,8 @@
 #define RESERVED		0xe0
 #define DEFLATED		8
 
-int gunzip(void *, int, unsigned char *, unsigned long *);
 void *zalloc(void *, unsigned, unsigned);
 void zfree(void *, void *, unsigned);
-int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
-						int stoponerr, int offset);
 
 void *zalloc(void *x, unsigned items, unsigned size)
 {
