@@ -75,7 +75,7 @@ TODO: external MII is not functional, only internal at the moment.
 #define DM9000_DMP_PACKET(func,packet,length)  \
 	do { \
 		int i; 							\
-		printf(func ": length: %d\n", length);			\
+		printf("%s: length: %d\n", func, length);		\
 		for (i = 0; i < length; i++) {				\
 			if (i % 8 == 0)					\
 				printf("\n%s: %02x: ", func, i);	\
