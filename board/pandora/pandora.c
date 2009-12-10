@@ -66,7 +66,7 @@ int misc_init_r(void)
 	struct gpio *gpio6_base = (struct gpio *)OMAP34XX_GPIO6_BASE;
 
 	twl4030_power_init();
-	twl4030_led_init();
+	twl4030_led_init(TWL4030_LED_LEDEN_LEDBON);
 
 	/* Configure GPIOs to output */
 	writel(~(GPIO14 | GPIO15 | GPIO16 | GPIO23), &gpio1_base->oe);

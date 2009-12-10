@@ -34,19 +34,15 @@
 
 #include <twl4030.h>
 
-#define LEDAON			(0x1 << 0)
-#define LEDBON			(0x1 << 1)
-#define LEDAPWM			(0x1 << 4)
-#define LEDBPWM			(0x1 << 5)
-
-void twl4030_led_init(void)
+void twl4030_led_init(unsigned char ledon_mask)
 {
-	unsigned char byte;
+	/* LEDs need to have corresponding PWMs enabled */
+	if (ledon_mask & TWL4030_LED_LEDEN_LEDAON)
+		ledon_mask |= TWL4030_LED_LEDEN_LEDAPWM;
+	if (ledon_mask & TWL4030_LED_LEDEN_LEDBON)
+		ledon_mask |= TWL4030_LED_LEDEN_LEDBPWM;
 
-	/* enable LED */
-	byte = LEDBPWM | LEDAPWM | LEDBON | LEDAON;
-
-	twl4030_i2c_write_u8(TWL4030_CHIP_LED, byte,
+	twl4030_i2c_write_u8(TWL4030_CHIP_LED, ledon_mask,
 			     TWL4030_LED_LEDEN);
 
 }
