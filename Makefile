@@ -3539,6 +3539,10 @@ BFIN_BOARDS += ibf-dsp561
 $(BFIN_BOARDS:%=%_config)	: unconfig
 	@$(MKCONFIG) $(@:_config=) blackfin blackfin $(@:_config=)
 
+bf527-ezkit-v2_config	: unconfig
+	@$(MKCONFIG) -t BF527_EZKIT_REV_2_1 \
+		bf527-ezkit blackfin blackfin bf527-ezkit
+
 #========================================================================
 # AVR32
 #========================================================================
