@@ -450,6 +450,7 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 	 */
 	if (fec_rbd_init(fec, FEC_RBD_NUM, FEC_MAX_PKT_SIZE) < 0) {
 		free(fec->base_ptr);
+		fec->base_ptr = NULL;
 		return -ENOMEM;
 	}
 	fec_tbd_init(fec);
