@@ -114,6 +114,7 @@
 /*=====================*/
 #ifdef CONFIG_SYS_USE_NAND
 #define CONFIG_NAND_DAVINCI
+#define CONFIG_SYS_NAND_CS		2
 #undef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */

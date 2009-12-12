@@ -74,6 +74,7 @@
 
 /* NAND: socketed, two chipselects, normally 2 GBytes */
 #define CONFIG_NAND_DAVINCI
+#define CONFIG_SYS_NAND_CS		2
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define CONFIG_SYS_NAND_PAGE_2K
