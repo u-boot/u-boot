@@ -164,14 +164,12 @@
 /*
  * Miscellaneous configurable options
  */
-#ifdef CONFIG_APTIX
-#define V_PROMPT                 "OMAP2420 Aptix # "
-#else
-#define V_PROMPT                 "OMAP242x H4 # "
-#endif
-
 #define CONFIG_SYS_LONGHELP             /* undef to save memory */
-#define CONFIG_SYS_PROMPT               V_PROMPT
+#ifdef CONFIG_APTIX
+# define CONFIG_SYS_PROMPT		"OMAP2420 Aptix # "
+#else
+# define CONFIG_SYS_PROMPT		"OMAP242x H4 # "
+#endif
 #define CONFIG_SYS_CBSIZE               256  /* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE               (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
