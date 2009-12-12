@@ -66,11 +66,10 @@ typedef struct {
 
 typedef emif_registers	*emifregs;
 
+#define DAVINCI_NANDFCR_NAND_ENABLE(n)			(1 << (n-2))
 #define DAVINCI_NANDFCR_4BIT_ECC_SEL_MASK		(3 << 4)
 #define DAVINCI_NANDFCR_4BIT_ECC_SEL(n)			((n-2) << 4)
-
 #define DAVINCI_NANDFCR_1BIT_ECC_START(n)		(1 << (8 + (n-2)))
-
 #define DAVINCI_NANDFCR_4BIT_ECC_START			(1 << 12)
 #define DAVINCI_NANDFCR_4BIT_CALC_START			(1 << 13)
 

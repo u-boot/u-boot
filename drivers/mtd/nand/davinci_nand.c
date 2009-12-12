@@ -87,6 +87,7 @@ static void nand_davinci_enable_hwecc(struct mtd_info *mtd, int mode)
 	(void)readl(&(emif_regs->NANDFECC[CONFIG_SYS_NAND_CS - 2]));
 
 	val = readl(&emif_regs->NANDFCR);
+	val |= DAVINCI_NANDFCR_NAND_ENABLE(CONFIG_SYS_NAND_CS);
 	val |= DAVINCI_NANDFCR_1BIT_ECC_START(CONFIG_SYS_NAND_CS);
 	writel(val, &emif_regs->NANDFCR);
 }
@@ -219,6 +220,7 @@ static void nand_davinci_4bit_enable_hwecc(struct mtd_info *mtd, int mode)
 		 */
 		val = readl(&emif_regs->NANDFCR);
 		val &= ~DAVINCI_NANDFCR_4BIT_ECC_SEL_MASK;
+		val |= DAVINCI_NANDFCR_NAND_ENABLE(CONFIG_SYS_NAND_CS);
 		val |= DAVINCI_NANDFCR_4BIT_ECC_SEL(CONFIG_SYS_NAND_CS);
 		val |= DAVINCI_NANDFCR_4BIT_ECC_START;
 		writel(val, &emif_regs->NANDFCR);
