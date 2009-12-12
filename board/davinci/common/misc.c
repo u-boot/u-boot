@@ -155,3 +155,34 @@ int davinci_configure_pin_mux(const struct pinmux_config *pins,
 
 	return 0;
 }
+
+/*
+ * Configure multiple pinmux resources.
+ *
+ * Takes an pinmux_resource array of pinmux_config and pin counts:
+ *
+ * const struct pinmux_resource pinmuxes[] = {
+ *	PINMUX_ITEM(uart_pins),
+ *	PINMUX_ITEM(i2c_pins),
+ * };
+ *
+ * The number of items in the array must be passed (ARRAY_SIZE can provide
+ * this value conveniently).
+ *
+ * Each item entry is configured in the defined order. If configuration
+ * of any item fails, -1 is returned and none of the following items are
+ * configured. On success, 0 is returned.
+ */
+int davinci_configure_pin_mux_items(const struct pinmux_resource *item,
+				    const int n_items)
+{
+	int i;
+
+	for (i = 0; i < n_items; i++) {
+		if (davinci_configure_pin_mux(item[i].pins,
+					      item[i].n_pins) != 0)
+			return -1;
+	}
+
+	return 0;
+}

@@ -34,8 +34,21 @@ struct pinmux_config {
 	unsigned char	field;		/* field number */
 };
 
+/* pin table definition */
+struct pinmux_resource {
+	const struct pinmux_config	*pins;
+	const int 			n_pins;
+};
+
+#define PINMUX_ITEM(item) { \
+				.pins = item, \
+				.n_pins = ARRAY_SIZE(item) \
+			  }
+
 int dvevm_read_mac_address(uint8_t *buf);
 void dv_configure_mac_address(uint8_t *rom_enetaddr);
 int davinci_configure_pin_mux(const struct pinmux_config *pins, int n_pins);
+int davinci_configure_pin_mux_items(const struct pinmux_resource *item,
+				    int n_items);
 
 #endif /* __MISC_H */
