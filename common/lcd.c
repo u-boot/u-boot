@@ -456,22 +456,14 @@ ulong lcd_setmem (ulong addr)
 
 static void lcd_setfgcolor (int color)
 {
-#ifdef CONFIG_ATMEL_LCD
 	lcd_color_fg = color;
-#else
-	lcd_color_fg = color & 0x0F;
-#endif
 }
 
 /*----------------------------------------------------------------------*/
 
 static void lcd_setbgcolor (int color)
 {
-#ifdef CONFIG_ATMEL_LCD
 	lcd_color_bg = color;
-#else
-	lcd_color_bg = color & 0x0F;
-#endif
 }
 
 /*----------------------------------------------------------------------*/
