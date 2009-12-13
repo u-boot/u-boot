@@ -88,7 +88,6 @@
 #define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_IMI
-#define CONFIG_CMD_IRQ
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_RUN
