@@ -81,7 +81,7 @@ static int pci_async_enabled(void)
 
 #if defined(CONFIG_PCI) && !defined(CONFIG_IOP480) && \
     !defined(CONFIG_405) && !defined(CONFIG_405EX)
-static int pci_arbiter_enabled(void)
+int pci_arbiter_enabled(void)
 {
 #if defined(CONFIG_405GP)
 	return (mfdcr(CPC0_PSR) & PSR_PCI_ARBIT_EN);

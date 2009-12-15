@@ -34,6 +34,11 @@
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
 #endif
+#ifdef CONFIG_AT91SAM9263		/* only valid for AT91SAM9263 */
+#include <asm/arch/at91_pmc.h>
+#include <asm/arch/gpio.h>
+#include <asm/arch/io.h>
+#endif
 #ifdef	CONFIG_IXP425			/* only valid for IXP425 */
 #include <asm/arch/ixp425.h>
 #endif

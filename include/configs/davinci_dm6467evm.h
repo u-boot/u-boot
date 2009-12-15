@@ -77,7 +77,6 @@
 #define CONFIG_NAND_DAVINCI
 #undef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_IS_IN_NAND
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #define CONFIG_ENV_SIZE			(16 << 10)	/* 16 KiB */
 #define CONFIG_SYS_NAND_BASE_LIST	{0x42000000, }
 #define CONFIG_SYS_NAND_HW_ECC

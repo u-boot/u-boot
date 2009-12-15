@@ -30,17 +30,10 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_S3C2400) || \
-    defined(CONFIG_S3C2410) || \
-    defined(CONFIG_TRAB)
+#ifdef CONFIG_S3C24X0
 
 #include <asm/io.h>
-
-#if defined(CONFIG_S3C2400)
-#include <s3c2400.h>
-#elif defined(CONFIG_S3C2410)
-#include <s3c2410.h>
-#endif
+#include <asm/arch/s3c24x0_cpu.h>
 
 int timer_load_val = 0;
 static ulong timer_clk;
@@ -106,7 +99,7 @@ void set_timer(ulong t)
 	timestamp = t;
 }
 
-void udelay(unsigned long usec)
+void __udelay (unsigned long usec)
 {
 	ulong tmo;
 	ulong start = get_ticks();
@@ -227,6 +220,4 @@ void reset_cpu(ulong ignored)
 	/*NOTREACHED*/
 }
 
-#endif /* defined(CONFIG_S3C2400)  ||
-	  defined (CONFIG_S3C2410) ||
-	  defined (CONFIG_TRAB) */
+#endif /* CONFIG_S3C24X0 */

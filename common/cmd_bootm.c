@@ -57,6 +57,10 @@
 #include <lzma/LzmaTools.h>
 #endif /* CONFIG_LZMA */
 
+#ifdef CONFIG_LZO
+#include <linux/lzo.h>
+#endif /* CONFIG_LZO */
+
 DECLARE_GLOBAL_DATA_PTR;
 
 extern int gunzip (void *dst, int dstlen, unsigned char *src, unsigned long *lenp);
@@ -405,6 +409,24 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		*load_end = load + unc_len;
 		break;
 #endif /* CONFIG_LZMA */
+#ifdef CONFIG_LZO
+	case IH_COMP_LZO:
+		printf ("   Uncompressing %s ... ", type_name);
+
+		int ret = lzop_decompress((const unsigned char *)image_start,
+					  image_len, (unsigned char *)load,
+					  &unc_len);
+		if (ret != LZO_E_OK) {
+			printf ("LZO: uncompress or overwrite error %d "
+			      "- must RESET board to recover\n", ret);
+			if (boot_progress)
+				show_boot_progress (-6);
+			return BOOTM_ERR_RESET;
+		}
+
+		*load_end = load + unc_len;
+		break;
+#endif /* CONFIG_LZO */
 	default:
 		printf ("Unimplemented compression type %d\n", comp);
 		return BOOTM_ERR_UNIMPLEMENTED;

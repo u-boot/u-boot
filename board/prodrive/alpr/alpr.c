@@ -29,6 +29,7 @@
 #include <ppc4xx_enet.h>
 #include <miiphy.h>
 #include <asm/processor.h>
+#include <asm/4xx_pci.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -144,81 +145,23 @@ int checkboard (void)
 	return (0);
 }
 
-/*************************************************************************
- *  pci_pre_init
- *
- *  This routine is called just prior to registering the hose and gives
- *  the board the opportunity to check things. Returning a value of zero
- *  indicates that things are bad & PCI initialization should be aborted.
- *
- *	Different boards may wish to customize the pci controller structure
- *	(add regions, override default access routines, etc) or perform
- *	certain pre-initialization actions.
- *
- ************************************************************************/
 #if defined(CONFIG_PCI)
-int pci_pre_init(struct pci_controller * hose )
+/*
+ * Override weak pci_pre_init()
+ */
+int pci_pre_init(struct pci_controller *hose)
 {
-	unsigned long strap;
-
-	/*--------------------------------------------------------------------------+
-	 *	The ocotea board is always configured as the host & requires the
-	 *	PCI arbiter to be enabled.
-	 *--------------------------------------------------------------------------*/
-	mfsdr(SDR0_SDSTP1, strap);
-	if( (strap & SDR0_SDSTP1_PAE_MASK) == 0 ){
-		printf("PCI: SDR0_STRP1[%08lX] - PCI Arbiter disabled.\n",strap);
+	if (__pci_pre_init(hose) == 0)
 		return 0;
-	}
 
 	/* FPGA Init */
-	alpr_fpga_init ();
+	alpr_fpga_init();
 
 	return 1;
 }
-#endif /* defined(CONFIG_PCI) */
 
 /*************************************************************************
- *  pci_target_init
- *
- *	The bootstrap configuration provides default settings for the pci
- *	inbound map (PIM). But the bootstrap config choices are limited and
- *	may not be sufficient for a given board.
- *
- ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
-void pci_target_init(struct pci_controller * hose )
-{
-	/*--------------------------------------------------------------------------+
-	 * Disable everything
-	 *--------------------------------------------------------------------------*/
-	out32r( PCIL0_PIM0SA, 0 ); /* disable */
-	out32r( PCIL0_PIM1SA, 0 ); /* disable */
-	out32r( PCIL0_PIM2SA, 0 ); /* disable */
-	out32r( PCIL0_EROMBA, 0 ); /* disable expansion rom */
-
-	/*--------------------------------------------------------------------------+
-	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440 strapping
-	 * options to not support sizes such as 128/256 MB.
-	 *--------------------------------------------------------------------------*/
-	out32r( PCIL0_PIM0LAL, CONFIG_SYS_SDRAM_BASE );
-	out32r( PCIL0_PIM0LAH, 0 );
-	out32r( PCIL0_PIM0SA, ~(gd->ram_size - 1) | 1 );
-
-	out32r( PCIL0_BAR0, 0 );
-
-	/*--------------------------------------------------------------------------+
-	 * Program the board's subsystem id/vendor id
-	 *--------------------------------------------------------------------------*/
-	out16r( PCIL0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
-	out16r( PCIL0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID );
-
-	out16r( PCIL0_CMD, in16r(PCIL0_CMD) | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
-}
-#endif /* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
-
-/*************************************************************************
- *  is_pci_host
+ * Override weak is_pci_host()
  *
  *	This routine is called to determine if a pci scan should be
  *	performed. With various hardware environments (especially cPCI and
@@ -232,8 +175,6 @@ void pci_target_init(struct pci_controller * hose )
  *
  *
  ************************************************************************/
-#if defined(CONFIG_PCI)
-
 static void wait_for_pci_ready(void)
 {
 	/*
@@ -287,15 +228,3 @@ void pci_master_init(struct pci_controller *hose)
 	out32r(PCIL0_POM1SA, ~(0x10000000 - 1) | 1);	/* 256MB + enable region */
 }
 #endif				/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_MASTER_INIT) */
-
-#ifdef CONFIG_POST
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed(void)
-{
-
-	return (ctrlc());
-}
-#endif

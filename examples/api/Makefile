@@ -44,6 +44,7 @@ EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/crc32.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/ctype.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/div64.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/string.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/time.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/vsprintf.o
 ifeq ($(ARCH),ppc)
 EXT_SOBJ_FILES-$(CONFIG_API) += lib_ppc/ppcstring.o

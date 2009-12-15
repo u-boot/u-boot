@@ -146,8 +146,10 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 #ifdef CONFIG_VIDEO_CORALP
 #define VIDEO_FB_LITTLE_ENDIAN
 #endif
+#ifdef CONFIG_VIDEO_MB862xx_ACCEL
 #define VIDEO_HW_RECTFILL
 #define VIDEO_HW_BITBLT
+#endif
 #endif
 
 /*****************************************************************************/
@@ -319,7 +321,7 @@ void	console_cursor (int state);
 #else
 #define SWAP16(x)	 (x)
 #define SWAP32(x)	 (x)
-#if defined(VIDEO_FB_16BPP_PIXEL_SWAP)
+#if defined(VIDEO_FB_16BPP_WORD_SWAP)
 #define SHORTSWAP32(x)	 ( ((x) >> 16) | ((x) << 16) )
 #else
 #define SHORTSWAP32(x)	 (x)

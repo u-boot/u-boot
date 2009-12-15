@@ -99,8 +99,6 @@
 
 #define CONFIG_SUPPORT_VFAT
 
-#define CONFIG_AUTO_UPDATE      1       /* autoupdate via compactflash  */
-
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 
 #define CONFIG_RTC_MC146818		/* DS1685 is MC146818 compatible*/
@@ -183,8 +181,6 @@
 #define CONFIG_SYS_NAND_SKIP_BAD_DOT_I 1       /* ".i" read skips bad blocks   */
 #define CONFIG_SYS_NAND_QUIET          1
 
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
-
 /*
  * PCI stuff
  */
@@ -266,10 +262,10 @@
  * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_FLASH_BASE		0xFFFA0000
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
-#define CONFIG_SYS_MONITOR_LEN		(384 * 1024)	/* Reserve 384kB for Monitor */
-#define CONFIG_SYS_MALLOC_LEN		(384 * 1024)	/* Reserve 384kB for malloc() */
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_MONITOR_BASE
+#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE
+#define CONFIG_SYS_MONITOR_LEN		(~(TEXT_BASE) + 1)
+#define CONFIG_SYS_MALLOC_LEN		(1024 << 10)
 
 /*
  * Environment Variable setup
@@ -427,5 +423,15 @@
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 15
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME	"ohci_pci"
 #define CONFIG_USB_STORAGE	1
+
+/*
+ * UBI
+ */
+#define CONFIG_CMD_UBI
+#define CONFIG_RBTREE
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_LZO
 
 #endif	/* __CONFIG_H */

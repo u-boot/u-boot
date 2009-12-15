@@ -58,6 +58,22 @@ int post_init_f (void)
 	return res;
 }
 
+/*
+ * Supply a default implementation for post_hotkeys_pressed() for boards
+ * without hotkey support. We always return 0 here, so that the
+ * long-running tests won't be started.
+ *
+ * Boards with hotkey support can override this weak default function
+ * by defining one in their board specific code.
+ */
+int __post_hotkeys_pressed(void)
+{
+	return 0;	/* No hotkeys supported */
+}
+int post_hotkeys_pressed(void)
+	__attribute__((weak, alias("__post_hotkeys_pressed")));
+
+
 void post_bootmode_init (void)
 {
 	int bootmode = post_bootmode_get (0);

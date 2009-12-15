@@ -21,20 +21,9 @@
 extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 #endif
 
-#ifdef CONFIG_SYS_64BIT_VSPRINTF
 #include <div64.h>
 # define NUM_TYPE long long
-#else
-# define NUM_TYPE long
-#define do_div(n, base) ({ \
-	unsigned int __res; \
-	__res = ((unsigned NUM_TYPE) n) % base; \
-	n = ((unsigned NUM_TYPE) n) / base; \
-	__res; \
-})
-#endif
 #define noinline __attribute__((noinline))
-
 
 const char hex_asc[] = "0123456789abcdef";
 #define hex_asc_lo(x)   hex_asc[((x) & 0x0f)]
@@ -104,7 +93,6 @@ int ustrtoul(const char *cp, char **endp, unsigned int base)
 	return result;
 }
 
-#ifdef CONFIG_SYS_64BIT_STRTOUL
 unsigned long long simple_strtoull (const char *cp, char **endp, unsigned int base)
 {
 	unsigned long long result = 0, value;
@@ -132,7 +120,6 @@ unsigned long long simple_strtoull (const char *cp, char **endp, unsigned int ba
 		*endp = (char *) cp;
 	return result;
 }
-#endif /* CONFIG_SYS_64BIT_STRTOUL */
 
 /* we use this so that we can do without the ctype library */
 #define is_digit(c)	((c) >= '0' && (c) <= '9')
@@ -631,12 +618,9 @@ int vsprintf(char *buf, const char *fmt, va_list args)
 				--fmt;
 			continue;
 		}
-#ifdef CONFIG_SYS_64BIT_VSPRINTF
 		if (qualifier == 'L')  /* "quad" for 64 bit variables */
 			num = va_arg(args, unsigned long long);
-		else
-#endif
-		if (qualifier == 'l') {
+		else if (qualifier == 'l') {
 			num = va_arg(args, unsigned long);
 			if (flags & SIGN)
 				num = (signed long) num;

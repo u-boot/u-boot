@@ -20,10 +20,6 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-#
-# AMCC 440EPx Reference Platform (Sequoia) board
-#
-
 sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE

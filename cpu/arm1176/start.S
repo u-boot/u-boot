@@ -35,7 +35,7 @@
 #ifdef CONFIG_ENABLE_MMU
 #include <asm/proc/domain.h>
 #endif
-#include <s3c6400.h>
+#include <asm/arch/s3c6400.h>
 
 #if !defined(CONFIG_ENABLE_MMU) && !defined(CONFIG_SYS_PHY_UBOOT_BASE)
 #define CONFIG_SYS_PHY_UBOOT_BASE	CONFIG_SYS_UBOOT_BASE
@@ -241,15 +241,10 @@ mmu_enable:
 skip_hw_init:
 	/* Set up the stack						    */
 stack_setup:
-#ifdef CONFIG_MEMORY_UPPER_CODE
-	ldr	sp, =(CONFIG_SYS_UBOOT_BASE + CONFIG_SYS_UBOOT_SIZE - 0xc)
-#else
-	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
+	ldr	r0, =CONFIG_SYS_UBOOT_BASE	/* base of copy in DRAM	    */
 	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN	/* malloc area                      */
 	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE /* bdinfo                        */
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
-
-#endif
 
 clear_bss:
 	ldr	r0, _bss_start		/* find start of bss segment        */

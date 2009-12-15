@@ -43,9 +43,10 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_ARM920T		1	/* This is an ARM920T Core	*/
-#define	CONFIG_S3C2410		1	/* in a SAMSUNG S3C2410 SoC     */
-#define CONFIG_SBC2410X		1	/* on a friendly-arm SBC-2410X Board  */
+#define CONFIG_ARM920T	1	/* This is an ARM920T Core	*/
+#define CONFIG_S3C24X0	1	/* in a SAMSUNG S3C24x0-type SoC	*/
+#define CONFIG_S3C2410	1	/* specifically a SAMSUNG S3C2410 SoC	*/
+#define CONFIG_SBC2410X	1	/* on a friendly-arm SBC-2410X Board  */
 
 /* input clock of PLL */
 #define CONFIG_SYS_CLK_FREQ	12000000/* the SBC2410X has 12MHz input clock */

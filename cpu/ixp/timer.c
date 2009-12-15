@@ -99,7 +99,7 @@ void ixp425_udelay(unsigned long usec)
 	while (!(*IXP425_OSST & IXP425_OSST_TIMER_1_PEND));
 }
 
-void udelay (unsigned long usec)
+void __udelay (unsigned long usec)
 {
 	while (usec--) ixp425_udelay(1);
 }

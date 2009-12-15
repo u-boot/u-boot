@@ -262,7 +262,6 @@ void show_boot_progress(int val)
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
-	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
 }
 
 int board_eth_init(bd_t *bis)

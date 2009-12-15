@@ -71,7 +71,7 @@ static u16 read_pit(void)
 }
 
 /* this is not very exact */
-void udelay (unsigned long usec)
+void __udelay (unsigned long usec)
 {
 	int counter;
 	int wraps;

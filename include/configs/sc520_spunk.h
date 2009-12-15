@@ -63,7 +63,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_MALLOC_SIZE	(CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
 
 
 #define CONFIG_BAUDRATE		9600

@@ -90,11 +90,7 @@ int cpu_release(int nr, int argc, char *argv[])
 		return 1;
 	}
 
-#ifdef CONFIG_SYS_64BIT_STRTOUL
 	boot_addr = simple_strtoull(argv[0], NULL, 16);
-#else
-	boot_addr = simple_strtoul(argv[0], NULL, 16);
-#endif
 
 	/* handle pir, r3, r6 */
 	for (i = 1; i < 4; i++) {

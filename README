@@ -777,7 +777,7 @@ The following options need to be configured:
 		CONFIG_LBA48
 
 		Set this to enable support for disks larger than 137GB
-		Also look at CONFIG_SYS_64BIT_LBA ,CONFIG_SYS_64BIT_VSPRINTF and CONFIG_SYS_64BIT_STRTOUL
+		Also look at CONFIG_SYS_64BIT_LBA.
 		Whithout these , LBA48 support uses 32bit variables and will 'only'
 		support disks up to 2.1TB.
 
@@ -2523,13 +2523,6 @@ use the "saveenv" command to store a valid environment.
 
 - CONFIG_SYS_FAULT_MII_ADDR:
 		MII address of the PHY to check for the Ethernet link state.
-
-- CONFIG_SYS_64BIT_VSPRINTF:
-		Makes vsprintf (and all *printf functions) support printing
-		of 64bit values by using the L quantifier
-
-- CONFIG_SYS_64BIT_STRTOUL:
-		Adds simple_strtoull that returns a 64bit value
 
 - CONFIG_NS16550_MIN_FUNCTIONS:
 		Define this if you desire to only have use of the NS16550_init

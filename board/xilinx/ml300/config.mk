@@ -27,3 +27,6 @@
 
 #TEXT_BASE = 0xFFFE0000
 TEXT_BASE = 0x04000000
+
+# Use board specific linker script
+LDSCRIPT := $(SRCTREE)/board/xilinx/ml300/u-boot.lds

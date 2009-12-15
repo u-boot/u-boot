@@ -310,9 +310,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
-#define CONFIG_SYS_64BIT_VSPRINTF	1
-#define CONFIG_SYS_64BIT_STRTOUL	1
-
 /* new uImage format support */
 #define CONFIG_FIT		1
 #define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */

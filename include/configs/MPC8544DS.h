@@ -242,9 +242,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
-#define CONFIG_SYS_64BIT_STRTOUL		1
-#define CONFIG_SYS_64BIT_VSPRINTF		1
-
 /* I2C */
 #define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */

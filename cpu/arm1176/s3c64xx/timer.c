@@ -40,7 +40,7 @@
 
 #include <common.h>
 #include <asm/proc-armv/ptrace.h>
-#include <s3c6400.h>
+#include <asm/arch/s3c6400.h>
 #include <div64.h>
 
 static ulong timer_load_val;
@@ -164,7 +164,7 @@ void set_timer(ulong t)
 	timestamp = t * (timer_load_val / (100 * CONFIG_SYS_HZ));
 }
 
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	unsigned long long tmp;
 	ulong tmo;

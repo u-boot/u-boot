@@ -89,7 +89,7 @@ void udelay_masked (unsigned long usec)
 	} while (diff >= 0);
 }
 
-void udelay (unsigned long usec)
+void __udelay (unsigned long usec)
 {
 	udelay_masked(usec);
 }

@@ -1276,7 +1276,8 @@
 #define CPC0_STRP1_PAE_MASK		(0x80000000 >> 11)
 #define CPC0_STRP1_PISE_MASK		(0x80000000 >> 13)
 #endif /* defined(CONFIG_440GP) */
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define SDR0_SDSTP1_PAE_MASK		(0x80000000 >> 13)
 #define SDR0_SDSTP1_PISE_MASK		(0x80000000 >> 15)
 #endif /* defined(CONFIG_440GX) || defined(CONFIG_440SP) */
@@ -1711,25 +1712,6 @@
 #define CPR0_SPCID_SPCIDV0_DIV4	0x00000000
 #define CPR0_PERD_PERDV0_MASK	0x07000000
 #endif
-
-/*-----------------------------------------------------------------------------
-| IIC Register Offsets
-'----------------------------------------------------------------------------*/
-#define IICMDBUF		0x00
-#define IICSDBUF		0x02
-#define IICLMADR		0x04
-#define IICHMADR		0x05
-#define IICCNTL			0x06
-#define IICMDCNTL		0x07
-#define IICSTS			0x08
-#define IICEXTSTS		0x09
-#define IICLSADR		0x0A
-#define IICHSADR		0x0B
-#define IIC0_CLKDIV		0x0C
-#define IICINTRMSK		0x0D
-#define IICXFRCNT		0x0E
-#define IICXTCNTLSS		0x0F
-#define IICDIRECTCNTL		0x10
 
 /*-----------------------------------------------------------------------------
 | PCI Internal Registers et. al. (accessed via plb)

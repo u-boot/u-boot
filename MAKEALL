@@ -64,6 +64,7 @@ LIST_5xxx="		\
 	icecube_5100	\
 	icecube_5200	\
 	inka4x0		\
+	ipek01		\
 	lite5200b	\
 	mcc200		\
 	mecp5200	\
@@ -539,6 +540,7 @@ LIST_ARM7="		\
 #########################################################################
 
 LIST_ARM9="			\
+	a320evb			\
 	ap920t			\
 	ap922_XA10		\
 	ap926ejs		\
@@ -549,6 +551,7 @@ LIST_ARM9="			\
 	cp926ejs		\
 	cp946es			\
 	cp966			\
+	da830evm		\
 	imx27lite		\
 	lpd7a400		\
 	mv88f6281gtw_ge		\

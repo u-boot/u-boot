@@ -109,7 +109,7 @@ u32 get_cpu_rev(void)
  ****************************************************/
 u32 is_mem_sdr(void)
 {
-	if (readl(&sdrc_base->cs[CS0].mr) == SDP_SDRC_MR_0_SDR)
+	if (readl(&sdrc_base->cs[CS0].mr) == SDRC_MR_0_SDR)
 		return 1;
 	return 0;
 }

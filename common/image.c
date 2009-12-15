@@ -148,6 +148,7 @@ static table_entry_t uimage_comp[] = {
 	{	IH_COMP_BZIP2,	"bzip2",	"bzip2 compressed",	},
 	{	IH_COMP_GZIP,	"gzip",		"gzip compressed",	},
 	{	IH_COMP_LZMA,	"lzma",		"lzma compressed",	},
+	{	IH_COMP_LZO,	"lzo",		"lzo compressed",	},
 	{	-1,		"",		"",			},
 };
 
@@ -435,11 +436,7 @@ phys_size_t getenv_bootm_size(void)
 	char *s = getenv ("bootm_size");
 	if (s) {
 		phys_size_t tmp;
-#ifdef CONFIG_SYS_64BIT_STRTOUL
 		tmp = (phys_size_t)simple_strtoull (s, NULL, 16);
-#else
-		tmp = (phys_size_t)simple_strtoul (s, NULL, 16);
-#endif
 		return tmp;
 	}
 

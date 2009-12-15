@@ -98,6 +98,9 @@
 #define CONFIG_OMAP3_MMC		1
 #define CONFIG_DOS_PARTITION		1
 
+/* DDR - I use Micron DDR */
+#define CONFIG_OMAP3_MICRON_DDR		1
+
 /* Status LED */
 #define CONFIG_STATUS_LED		1 /* Status LED enabled	*/
 #define CONFIG_BOARD_SPECIFIC_LED	1
@@ -163,8 +166,6 @@
 							/* CS0 */
 #define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
-
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 
 /* Environment information */
 #define CONFIG_BOOTDELAY		10

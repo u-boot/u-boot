@@ -25,7 +25,7 @@
  */
 
 #include <common.h>
-#include <s3c6400.h>
+#include <asm/arch/s3c6400.h>
 
 int usb_cpu_init(void)
 {

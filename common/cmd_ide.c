@@ -1354,7 +1354,7 @@ ulong ide_read (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 		}
 
 		if ((c&(ATA_STAT_DRQ|ATA_STAT_BUSY|ATA_STAT_ERR)) != ATA_STAT_DRQ) {
-#if defined(CONFIG_SYS_64BIT_LBA) && defined(CONFIG_SYS_64BIT_VSPRINTF)
+#if defined(CONFIG_SYS_64BIT_LBA)
 			printf ("Error (no IRQ) dev %d blk %Ld: status 0x%02x\n",
 				device, blknr, c);
 #else
@@ -1444,7 +1444,7 @@ ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
 		c = ide_wait (device, IDE_TIME_OUT);	/* can't take over 500 ms */
 
 		if ((c&(ATA_STAT_DRQ|ATA_STAT_BUSY|ATA_STAT_ERR)) != ATA_STAT_DRQ) {
-#if defined(CONFIG_SYS_64BIT_LBA) && defined(CONFIG_SYS_64BIT_VSPRINTF)
+#if defined(CONFIG_SYS_64BIT_LBA)
 			printf ("Error (no IRQ) dev %d blk %Ld: status 0x%02x\n",
 				device, blknr, c);
 #else

@@ -40,7 +40,7 @@ static ulong timestamp;
 #endif
 extern void dtimer_intr_setup(void);
 
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	volatile slt_t *timerp = (slt_t *) (CONFIG_SYS_UDELAY_BASE);
 	u32 now, freq;

@@ -43,31 +43,4 @@ extern char exception_stack[];
 
 #define __isr__ void __attribute__ ((regparm(0)))
 
-#define DECLARE_INTERRUPT(x) \
-	asm(".globl irq_"#x"\n" \
-		    "irq_"#x":\n" \
-		    "pusha \n" \
-		    "pushl $"#x"\n" \
-		    "pushl $irq_return\n" \
-		    "jmp   do_irq\n"); \
-	__isr__ irq_##x(void)
-
-#define DECLARE_EXCEPTION(x, f) \
-	asm(".globl exp_"#x"\n" \
-		    "exp_"#x":\n" \
-		    "pusha \n" \
-		    "movl     %esp, %ebx\n" \
-		    "movl     $exception_stack, %eax\n" \
-		    "movl     %eax, %esp \n" \
-		    "pushl    %ebx\n" \
-		    "movl     32(%esp), %ebx\n" \
-		    "xorl     %edx, %edx\n" \
-		    "movw     36(%esp), %dx\n" \
-		    "pushl    %edx\n" \
-		    "pushl    %ebx\n" \
-		    "pushl    $"#x"\n" \
-		    "pushl    $exp_return\n" \
-		    "jmp      "#f"\n"); \
-	__isr__ exp_##x(void)
-
 #endif

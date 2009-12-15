@@ -47,7 +47,7 @@ static volatile ulong timestamp = 0;
 #endif
 extern void dtimer_intr_setup(void);
 
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	volatile dtmr_t *timerp = (dtmr_t *) (CONFIG_SYS_UDELAY_BASE);
 	uint start, now, tmp;
@@ -139,7 +139,7 @@ void set_timer(ulong t)
 
 static unsigned short lastinc;
 
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	volatile pit_t *timerp = (pit_t *) (CONFIG_SYS_UDELAY_BASE);
 	uint tmp;

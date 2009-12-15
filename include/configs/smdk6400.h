@@ -49,8 +49,6 @@
 #define CONFIG_ENABLE_MMU
 #endif
 
-#define CONFIG_MEMORY_UPPER_CODE
-
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
@@ -269,8 +267,6 @@
 #define CONFIG_SYS_NAND_ECCPOS		{40, 41, 42, 43, 44, 45, 46, 47, \
 				 48, 49, 50, 51, 52, 53, 54, 55, \
 				 56, 57, 58, 59, 60, 61, 62, 63}
-
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 
 /* Boot configuration (define only one of next 3) */
 #define CONFIG_BOOT_NAND

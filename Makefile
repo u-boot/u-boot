@@ -606,6 +606,9 @@ jupiter_config:	unconfig
 inka4x0_config:	unconfig
 	@$(MKCONFIG) inka4x0 ppc mpc5xxx inka4x0
 
+ipek01_config: unconfig
+	@$(MKCONFIG) -a ipek01 ppc mpc5xxx ipek01
+
 lite5200b_config	\
 lite5200b_PM_config	\
 lite5200b_LOWBOOT_config:	unconfig
@@ -2693,6 +2696,9 @@ shannon_config	:	unconfig
 ## ARM92xT Systems
 #########################################################################
 
+a320evb_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm920t a320evb faraday a320
+
 #########################################################################
 ## Atmel AT91RM9200 Systems
 #########################################################################
@@ -2926,6 +2932,9 @@ cp922_config		\
 cp922_XA10_config	\
 cp1026_config: unconfig
 	@board/armltd/integrator/split_by_variant.sh cp $@
+
+da830evm_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs da830evm davinci davinci
 
 davinci_dvevm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dvevm davinci davinci

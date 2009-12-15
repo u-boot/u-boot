@@ -1522,11 +1522,6 @@ void *sbrk(ptrdiff_t increment)
 	return (void *)old;
 }
 
-#ifndef CONFIG_X86
-/*
- * x86 boards use a slightly different init sequence thus they implement
- * their own version of mem_malloc_init()
- */
 void mem_malloc_init(ulong start, ulong size)
 {
 	mem_malloc_start = start;
@@ -1535,7 +1530,6 @@ void mem_malloc_init(ulong start, ulong size)
 
 	memset((void *)mem_malloc_start, 0, size);
 }
-#endif
 
 /* field-extraction macros */
 

@@ -101,6 +101,9 @@
 #define CONFIG_OMAP3_MMC		1
 #define CONFIG_DOS_PARTITION		1
 
+/* DDR - I use Micron DDR */
+#define CONFIG_OMAP3_MICRON_DDR		1
+
 /* commands to include */
 #include <config_cmd_default.h>
 
@@ -143,8 +146,6 @@
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of */
 							/* NAND devices */
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
-
 #define CONFIG_JFFS2_NAND
 /* nand device jffs2 lives on */
 #define CONFIG_JFFS2_DEV		"nand0"

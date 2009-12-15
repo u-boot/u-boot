@@ -271,13 +271,6 @@ static void ft_blob_update(void *blob, bd_t *bd)
 	if (ret < 0)
 	printf("ft_blob_update(): cannot set /model property err:%s\n",
 		fdt_strerror(ret));
-
-	ret = fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
-
-	if (ret < 0) {
-		printf("ft_blob_update(): cannot set /memory/reg "
-			"property err:%s\n", fdt_strerror(ret));
-	}
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
 
@@ -328,14 +321,6 @@ int board_early_init_r(void)
 	read_hw_id(hw_id);
 	return 0;
 }
-
-
-#ifdef CONFIG_POST
-int post_hotkeys_pressed(void)
-{
-	return 0;
-}
-#endif /* CONFIG_POST */
 
 
 #if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
