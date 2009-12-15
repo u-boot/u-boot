@@ -1,3 +1,150 @@
+commit f9476902b789b0481b9df49af88d6ca94fb16fa0
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Dec 15 12:10:47 2009 -0600
+
+    mpc85xx, mpc86xx: Fix gd->cpu pointer after relocation
+
+    The gd->cpu pointer is set to an address located in flash when the
+    probecpu() function is called while U-Boot is executing from flash.
+    This pointer needs to be updated to point to an address in RAM after
+    relocation has occurred otherwise Linux may not be able to boot due to
+    "fdt board" crashing if flash has been erased or changed.
+
+    This bug was introduced in commit
+    a0e2066f392782730f0398095e583c87812d97f2.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Reported-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Tested-by: Kumar Gala <galak@kernel.crashing.org>
+    Tested on MPC8527DS.
+    Tested by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 3363a34b9eeda9783afcbbed5cdd738926d1f4bf
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Sun Dec 13 17:58:34 2009 -0600
+
+    MVBLUE: Remove CONFIG_CMD_IRQ
+
+    Neither the MVBLUE nor its underlying architecture implement the
+    do_irqinfo() function which is required when CONFIG_CMD_IRQ is defined.
+    This change fixes the following MVBLUE compiler error:
+
+    -> ./MAKEALL MVBLUE
+    Configuring for MVBLUE board...
+    common/libcommon.a(cmd_irq.o):(.u_boot_cmd+0x24): undefined reference to `do_irqinfo'
+    make: *** [u-boot] Error 1
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Acked-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+
+commit 18e8ad60ee87431c01cc2686985b60cc54f5dd3b
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Mon Dec 14 17:54:40 2009 +0100
+
+    imx27lite: Reenable MTD support on NOR flash.
+
+    The support for this was silently dropped by a configuration
+    split during the merge of the imx27lite board support in commit
+    864aa034f3a0e10ce710e8bbda171df3cab59414 (cmd_mtdparts: Move to common
+    handling of FLASH devices via MTD layer).
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit f4cfe42758192d09f8375e384cc000aa70d97029
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Dec 9 09:01:43 2009 +0100
+
+    nand: Fix access to last block in NAND devices
+
+    Currently, the last block of NAND devices can't be accessed. This patch
+    fixes this issue by correcting the boundary checking (off-by-one error).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Cc: Scott Wood <scottwood@freescale.com>
+    Cc: Wolfgang Denk <wd@denx.de>
+
+commit 3b887ca8ce72cc12129183538f6e828db13f4867
+Author: Peter Korsgaard <jacmet@sunsite.dk>
+Date:	Tue Dec 8 22:20:34 2009 +0100
+
+    mpc83xx: boot time regression, move LCRR setup back to cpu_init_f
+
+    Commit c7190f02 (retain POR values of non-configured ACR, SPCR, SCCR,
+    and LCRR bitfields) moved the LCRR assignment to after relocation
+    to RAM because of the potential problem with changing the local bus
+    clock while executing from flash.
+
+    This change unfortunately adversely affects the boot time, as running
+    all code up to cpu_init_r can cause significant slowdown.
+
+    E.G. on a 8347 board a bootup time increase of ~600ms has been observed:
+
+       0.020 CPU:   e300c1, MPC8347_PBGA_EA, Rev: 3.0 at 400 MHz, CSB: 266.667 MHz
+       0.168 RS:    232
+       0.172 I2C:   ready
+       0.176 DRAM:  64 MB
+       1.236 FLASH: 32 MB
+
+    Versus:
+
+       0.016 CPU:   e300c1, MPC8347_PBGA_EA, Rev: 3.0 at 400 MHz, CSB: 266.667 MHz
+       0.092 RS:    232
+       0.092 I2C:   ready
+       0.096 DRAM:  64 MB
+       0.644 FLASH: 32 MB
+
+    So far no boards have needed the late LCRR setup, so simply revert it
+    for now - If it is needed at a later time, those boards can either do
+    their own final LCRR setup in board code (E.G. in board_early_init_r),
+    or we can introduce a CONFIG_SYS_LCRR_LATE config option to only do
+    the setup in cpu_init_r.
+
+    Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 386118a896554b13f14ad0f82356276988f7de82
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue Dec 8 09:12:49 2009 +0100
+
+    microblaze: Correct ffs regression for Microblaze
+
+    We are using generic implementation of ffs. This should
+    be part of Simon's commit 0413cfecea350000eab5e591a0965c3e3ee0ff00
+
+    Here is warning message which this patch removes.
+
+    In file included from /tmp/u-boot-microblaze/include/common.h:38,
+		     from cmd_mtdparts.c:87:
+    /tmp/u-boot-microblaze/include/linux/bitops.h:123:1: warning: "ffs" redefined
+    In file included from /tmp/u-boot-microblaze/include/linux/bitops.h:110,
+		     from /tmp/u-boot-microblaze/include/common.h:38,
+		     from cmd_mtdparts.c:87:
+    /tmp/u-boot-microblaze/include/asm/bitops.h:269:1:
+    warning: this is the location of the previous definition
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 8fe7b29f9811322931f0192a56431edcf819d6b9
+Author: Graeme Smecher <graeme.smecher@mail.mcgill.ca>
+Date:	Mon Dec 7 08:09:57 2009 -0800
+
+    microblaze: Stop stack clobbering in microblaze-generic.
+
+    A typo caused the stack and malloc regions to overlap, which prevented
+    mem_malloc_init() from returning. This commit makes the memory layout match
+    the example described in include/configs/microblaze-generic.h
+
+    Signed-off-by: Graeme Smecher <graeme.smecher@mail.mcgill.ca>
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 0fc52948bda0734431cb528ee4fd82f1dec8c7b5
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Dec 7 23:14:13 2009 +0100
+
+    Update CHANGELOG, prepare -rc2
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit f2352877cb2daac88115192fb09991a2397d0b27
 Author: Peter Tyser <ptyser@xes-inc.com>
 Date:	Sun Dec 6 23:58:28 2009 -0600
