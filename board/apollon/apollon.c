@@ -95,7 +95,6 @@ void s_init(void)
  ********************************************************/
 int misc_init_r(void)
 {
-	ether_init();		/* better done here so timers are init'ed */
 	return (0);
 }
 

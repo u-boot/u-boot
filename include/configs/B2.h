@@ -98,7 +98,7 @@
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 
-
+#define CONFIG_NET_MULTI
 #define CONFIG_BOOTDELAY	5
 #define CONFIG_ETHADDR	00:50:c2:1e:af:fb
 #define CONFIG_BOOTARGS  "setenv bootargs root=/dev/ram ip=192.168.0.70:::::eth0:off \
