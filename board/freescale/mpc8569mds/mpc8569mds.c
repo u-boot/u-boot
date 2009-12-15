@@ -437,6 +437,11 @@ int board_mmc_init(bd_t *bd)
 		console_assign(stdin, "eserial1");
 		printf("Switched to UART1 (initial log has been printed to "
 		       "UART0).\n");
+
+		clrsetbits_be32(&gur->plppar1, PLPPAR1_UART0_BIT_MASK,
+					       PLPPAR1_ESDHC_4BITS_VAL);
+		clrsetbits_be32(&gur->plpdir1, PLPDIR1_UART0_BIT_MASK,
+					       PLPDIR1_ESDHC_4BITS_VAL);
 		bcsr6 |= BCSR6_SD_CARD_4BITS;
 	} else {
 		printf("should be disabled.\n");
@@ -482,6 +487,15 @@ static void fdt_board_fixup_esdhc(void *blob, bd_t *bd)
 				    strlen(status) + 1);
 			break;
 		}
+	}
+
+	if (hwconfig_subarg_cmp("esdhc", "mode", "4-bits")) {
+		off = fdt_node_offset_by_compatible(blob, -1, "fsl,esdhc");
+		if (off < 0) {
+			printf("WARNING: could not find esdhc node\n");
+			return;
+		}
+		fdt_delprop(blob, off, "sdhci,1-bit-only");
 	}
 }
 #else
