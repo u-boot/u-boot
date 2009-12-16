@@ -59,14 +59,111 @@
 
 static emif_registers *const emif_regs = (void *) DAVINCI_ASYNC_EMIF_CNTRL_BASE;
 
+/*
+ * Exploit the little endianness of the ARM to do multi-byte transfers
+ * per device read. This can perform over twice as quickly as individual
+ * byte transfers when buffer alignment is conducive.
+ *
+ * NOTE: This only works if the NAND is not connected to the 2 LSBs of
+ * the address bus. On Davinci EVM platforms this has always been true.
+ */
+static void nand_davinci_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
+{
+	struct nand_chip *chip = mtd->priv;
+	const u32 *nand = chip->IO_ADDR_R;
+
+	/* Make sure that buf is 32 bit aligned */
+	if (((int)buf & 0x3) != 0) {
+		if (((int)buf & 0x1) != 0) {
+			if (len) {
+				*buf = readb(nand);
+				buf += 1;
+				len--;
+			}
+		}
+
+		if (((int)buf & 0x3) != 0) {
+			if (len >= 2) {
+				*(u16 *)buf = readw(nand);
+				buf += 2;
+				len -= 2;
+			}
+		}
+	}
+
+	/* copy aligned data */
+	while (len >= 4) {
+		*(u32 *)buf = readl(nand);
+		buf += 4;
+		len -= 4;
+	}
+
+	/* mop up any remaining bytes */
+	if (len) {
+		if (len >= 2) {
+			*(u16 *)buf = readw(nand);
+			buf += 2;
+			len -= 2;
+		}
+
+		if (len)
+			*buf = readb(nand);
+	}
+}
+
+static void nand_davinci_write_buf(struct mtd_info *mtd, const uint8_t *buf,
+				   int len)
+{
+	struct nand_chip *chip = mtd->priv;
+	const u32 *nand = chip->IO_ADDR_W;
+
+	/* Make sure that buf is 32 bit aligned */
+	if (((int)buf & 0x3) != 0) {
+		if (((int)buf & 0x1) != 0) {
+			if (len) {
+				writeb(*buf, nand);
+				buf += 1;
+				len--;
+			}
+		}
+
+		if (((int)buf & 0x3) != 0) {
+			if (len >= 2) {
+				writew(*(u16 *)buf, nand);
+				buf += 2;
+				len -= 2;
+			}
+		}
+	}
+
+	/* copy aligned data */
+	while (len >= 4) {
+		writel(*(u32 *)buf, nand);
+		buf += 4;
+		len -= 4;
+	}
+
+	/* mop up any remaining bytes */
+	if (len) {
+		if (len >= 2) {
+			writew(*(u16 *)buf, nand);
+			buf += 2;
+			len -= 2;
+		}
+
+		if (len)
+			writeb(*buf, nand);
+	}
+}
+
 static void nand_davinci_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct		nand_chip *this = mtd->priv;
 	u_int32_t	IO_ADDR_W = (u_int32_t)this->IO_ADDR_W;
 
-	IO_ADDR_W &= ~(MASK_ALE|MASK_CLE);
-
 	if (ctrl & NAND_CTRL_CHANGE) {
+		IO_ADDR_W &= ~(MASK_ALE|MASK_CLE);
+
 		if ( ctrl & NAND_CLE )
 			IO_ADDR_W |= MASK_CLE;
 		if ( ctrl & NAND_ALE )
@@ -75,7 +172,7 @@ static void nand_davinci_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int c
 	}
 
 	if (cmd != NAND_CMD_NONE)
-		writeb(cmd, this->IO_ADDR_W);
+		writeb(cmd, IO_ADDR_W);
 }
 
 #ifdef CONFIG_SYS_NAND_HW_ECC
@@ -248,59 +345,55 @@ static int nand_davinci_4bit_calculate_ecc(struct mtd_info *mtd,
 					   const uint8_t *dat,
 					   uint8_t *ecc_code)
 {
-	unsigned int hw_4ecc[4] = { 0, 0, 0, 0 };
-	unsigned int const1 = 0, const2 = 0;
-	unsigned char count1 = 0;
+	unsigned int hw_4ecc[4];
+	unsigned int i;
 
 	nand_davinci_4bit_readecc(mtd, hw_4ecc);
 
 	/*Convert 10 bit ecc value to 8 bit */
-	for (count1 = 0; count1 < 2; count1++) {
-		const2 = count1 * 5;
-		const1 = count1 * 2;
+	for (i = 0; i < 2; i++) {
+		unsigned int hw_ecc_low = hw_4ecc[i * 2];
+		unsigned int hw_ecc_hi = hw_4ecc[(i * 2) + 1];
 
 		/* Take first 8 bits from val1 (count1=0) or val5 (count1=1) */
-		ecc_code[const2] = hw_4ecc[const1] & 0xFF;
+		*ecc_code++ = hw_ecc_low & 0xFF;
 
 		/*
 		 * Take 2 bits as LSB bits from val1 (count1=0) or val5
 		 * (count1=1) and 6 bits from val2 (count1=0) or
 		 * val5 (count1=1)
 		 */
-		ecc_code[const2 + 1] =
-		    ((hw_4ecc[const1] >> 8) & 0x3) | ((hw_4ecc[const1] >> 14) &
-						      0xFC);
+		*ecc_code++ =
+		    ((hw_ecc_low >> 8) & 0x3) | ((hw_ecc_low >> 14) & 0xFC);
 
 		/*
 		 * Take 4 bits from val2 (count1=0) or val5 (count1=1) and
 		 * 4 bits from val3 (count1=0) or val6 (count1=1)
 		 */
-		ecc_code[const2 + 2] =
-		    ((hw_4ecc[const1] >> 22) & 0xF) |
-		    ((hw_4ecc[const1 + 1] << 4) & 0xF0);
+		*ecc_code++ =
+		    ((hw_ecc_low >> 22) & 0xF) | ((hw_ecc_hi << 4) & 0xF0);
 
 		/*
 		 * Take 6 bits from val3(count1=0) or val6 (count1=1) and
 		 * 2 bits from val4 (count1=0) or  val7 (count1=1)
 		 */
-		ecc_code[const2 + 3] =
-		    ((hw_4ecc[const1 + 1] >> 4) & 0x3F) |
-		    ((hw_4ecc[const1 + 1] >> 10) & 0xC0);
+		*ecc_code++ =
+		    ((hw_ecc_hi >> 4) & 0x3F) | ((hw_ecc_hi >> 10) & 0xC0);
 
 		/* Take 8 bits from val4 (count1=0) or val7 (count1=1) */
-		ecc_code[const2 + 4] = (hw_4ecc[const1 + 1] >> 18) & 0xFF;
+		*ecc_code++ = (hw_ecc_hi >> 18) & 0xFF;
 	}
+
 	return 0;
 }
-
 
 static int nand_davinci_4bit_correct_data(struct mtd_info *mtd, uint8_t *dat,
 					  uint8_t *read_ecc, uint8_t *calc_ecc)
 {
-	unsigned short ecc_10bit[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	int i;
-	unsigned int hw_4ecc[4] = { 0, 0, 0, 0 }, iserror = 0;
-	unsigned short *pspare = NULL, *pspare1 = NULL;
+	unsigned int hw_4ecc[4];
+	unsigned int iserror;
+	unsigned short *ecc16;
 	unsigned int numerrors, erroraddress, errorvalue;
 	u32 val;
 
@@ -317,44 +410,41 @@ static int nand_davinci_4bit_correct_data(struct mtd_info *mtd, uint8_t *dat,
 		return 0;
 
 	/* Convert 8 bit in to 10 bit */
-	pspare = (unsigned short *)&read_ecc[2];
-	pspare1 = (unsigned short *)&read_ecc[0];
-
-	/* Take 10 bits from 0th and 1st bytes */
-	ecc_10bit[0] = (*pspare1) & 0x3FF;
-
-	/* Take 6 bits from 1st byte and 4 bits from 2nd byte */
-	ecc_10bit[1] = (((*pspare1) >> 10) & 0x3F)
-	    | (((pspare[0]) << 6) & 0x3C0);
-
-	/* Take 4 bits form 2nd bytes and 6 bits from 3rd bytes */
-	ecc_10bit[2] = ((pspare[0]) >> 4) & 0x3FF;
-
-	/*Take 2 bits from 3rd byte and 8 bits from 4th byte */
-	ecc_10bit[3] = (((pspare[0]) >> 14) & 0x3)
-	    | ((((pspare[1])) << 2) & 0x3FC);
-
-	/* Take 8 bits from 5th byte and 2 bits from 6th byte */
-	ecc_10bit[4] = ((pspare[1]) >> 8)
-	    | ((((pspare[2])) << 8) & 0x300);
-
-	/* Take 6 bits from 6th byte and 4 bits from 7th byte */
-	ecc_10bit[5] = (pspare[2] >> 2) & 0x3FF;
-
-	/* Take 4 bits from 7th byte and 6 bits from 8th byte */
-	ecc_10bit[6] = (((pspare[2]) >> 12) & 0xF)
-	    | ((((pspare[3])) << 4) & 0x3F0);
-
-	/*Take 2 bits from 8th byte and 8 bits from 9th byte */
-	ecc_10bit[7] = ((pspare[3]) >> 6) & 0x3FF;
+	ecc16 = (unsigned short *)&read_ecc[0];
 
 	/*
 	 * Write the parity values in the NAND Flash 4-bit ECC Load register.
 	 * Write each parity value one at a time starting from 4bit_ecc_val8
 	 * to 4bit_ecc_val1.
 	 */
-	for (i = 7; i >= 0; i--)
-		emif_regs->NAND4BITECCLOAD = ecc_10bit[i];
+
+	/*Take 2 bits from 8th byte and 8 bits from 9th byte */
+	writel(((ecc16[4]) >> 6) & 0x3FF, &emif_regs->NAND4BITECCLOAD);
+
+	/* Take 4 bits from 7th byte and 6 bits from 8th byte */
+	writel((((ecc16[3]) >> 12) & 0xF) | ((((ecc16[4])) << 4) & 0x3F0),
+	       &emif_regs->NAND4BITECCLOAD);
+
+	/* Take 6 bits from 6th byte and 4 bits from 7th byte */
+	writel((ecc16[3] >> 2) & 0x3FF, &emif_regs->NAND4BITECCLOAD);
+
+	/* Take 8 bits from 5th byte and 2 bits from 6th byte */
+	writel(((ecc16[2]) >> 8) | ((((ecc16[3])) << 8) & 0x300),
+	       &emif_regs->NAND4BITECCLOAD);
+
+	/*Take 2 bits from 3rd byte and 8 bits from 4th byte */
+	writel((((ecc16[1]) >> 14) & 0x3) | ((((ecc16[2])) << 2) & 0x3FC),
+	       &emif_regs->NAND4BITECCLOAD);
+
+	/* Take 4 bits form 2nd bytes and 6 bits from 3rd bytes */
+	writel(((ecc16[1]) >> 4) & 0x3FF, &emif_regs->NAND4BITECCLOAD);
+
+	/* Take 6 bits from 1st byte and 4 bits from 2nd byte */
+	writel((((ecc16[0]) >> 10) & 0x3F) | (((ecc16[1]) << 6) & 0x3C0),
+	       &emif_regs->NAND4BITECCLOAD);
+
+	/* Take 10 bits from 0th and 1st bytes */
+	writel((ecc16[0]) & 0x3FF, &emif_regs->NAND4BITECCLOAD);
 
 	/*
 	 * Perform a dummy read to the EMIF Revision Code and Status register.
@@ -371,8 +461,7 @@ static int nand_davinci_4bit_correct_data(struct mtd_info *mtd, uint8_t *dat,
 	 */
 	nand_davinci_4bit_readecc(mtd, hw_4ecc);
 
-	if (hw_4ecc[0] == ECC_STATE_NO_ERR && hw_4ecc[1] == ECC_STATE_NO_ERR &&
-	    hw_4ecc[2] == ECC_STATE_NO_ERR && hw_4ecc[3] == ECC_STATE_NO_ERR)
+	if (!(hw_4ecc[0] | hw_4ecc[1] | hw_4ecc[2] | hw_4ecc[3]))
 		return 0;
 
 	/*
@@ -518,6 +607,9 @@ void davinci_nand_init(struct nand_chip *nand)
 #endif
 	/* Set address of hardware control function */
 	nand->cmd_ctrl = nand_davinci_hwcontrol;
+
+	nand->read_buf = nand_davinci_read_buf;
+	nand->write_buf = nand_davinci_write_buf;
 
 	nand->dev_ready = nand_davinci_dev_ready;
 
