@@ -188,12 +188,13 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr)
 	 * The DDR3 spec has not tXARD,
 	 * we use the tXP instead of it.
 	 * tXP=max(3nCK, 7.5ns) for DDR3.
-	 * we use the tXP=6
 	 * spec has not the tAXPD, we use
 	 * tAXPD=8, need design to confirm.
 	 */
-	act_pd_exit_mclk = 6;
-	pre_pd_exit_mclk = 6;
+	int tXP = max((get_memory_clk_period_ps() * 3), 7500); /* unit=ps */
+	act_pd_exit_mclk = picos_to_mclk(tXP);
+	/* Mode register MR0[A12] is '1' - fast exit */
+	pre_pd_exit_mclk = act_pd_exit_mclk;
 	taxpd_mclk = 8;
 	tmrd_mclk = 4;
 #else /* CONFIG_FSL_DDR2 */
