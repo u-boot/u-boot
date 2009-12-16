@@ -1197,7 +1197,10 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			/* Don't set up boundaries for other CS
 			 * other than CS0, if bank interleaving
 			 * is enabled and not CS2+CS3 interleaved.
+			 * But we need to set the ODT_RD_CFG and
+			 * ODT_WR_CFG for CS1_CONFIG here.
 			 */
+			set_csn_config(i, ddr, popts, dimm_params);
 			break;
 		}
 
