@@ -576,17 +576,21 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 }
 
 /* DDR SDRAM Mode configuration 2 (DDR_SDRAM_MODE_2) */
-static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr)
+static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr,
+				const memctl_options_t *popts)
 {
 	unsigned short esdmode2 = 0;	/* Extended SDRAM mode 2 */
 	unsigned short esdmode3 = 0;	/* Extended SDRAM mode 3 */
 
 #if defined(CONFIG_FSL_DDR3)
-	unsigned int rtt_wr = 2;	/* 120 ohm Rtt_WR */
+	unsigned int rtt_wr = 0;	/* Rtt_WR - dynamic ODT off */
 	unsigned int srt = 0;	/* self-refresh temerature, normal range */
 	unsigned int asr = 0;	/* auto self-refresh disable */
 	unsigned int cwl = compute_cas_write_latency() - 5;
 	unsigned int pasr = 0;	/* partial array self refresh disable */
+
+	if (popts->rtt_override)
+		rtt_wr = popts->rtt_wr_override_value;
 
 	esdmode2 = (0
 		| ((rtt_wr & 0x3) << 9)
@@ -1330,7 +1334,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	set_ddr_sdram_cfg_2(ddr, popts);
 	set_ddr_sdram_mode(ddr, popts, common_dimm,
 				cas_latency, additive_latency);
-	set_ddr_sdram_mode_2(ddr);
+	set_ddr_sdram_mode_2(ddr, popts);
 	set_ddr_sdram_interval(ddr, popts, common_dimm);
 	set_ddr_data_init(ddr);
 	set_ddr_sdram_clk_cntl(ddr, popts);

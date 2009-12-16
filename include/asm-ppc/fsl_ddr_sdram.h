@@ -192,6 +192,7 @@ typedef struct memctl_options_s {
 	/* Rtt impedance */
 	unsigned int rtt_override;		/* rtt_override enable */
 	unsigned int rtt_override_value;	/* that is Rtt_Nom for DDR3 */
+	unsigned int rtt_wr_override_value;	/* this is Rtt_WR for DDR3 */
 
 	/* Automatic self refresh */
 	unsigned int auto_self_refresh_en;
