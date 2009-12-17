@@ -30,6 +30,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #if defined(CONFIG_OMAP730)
 #include <./configs/omap730.h>
 #endif
@@ -263,3 +264,14 @@ void peripheral_power_enable (void)
 	*MuxConfReg &= (0xFF1FFFFF);
 	*MuxConfReg &= (0xF1FFFFFF);
 }
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_LAN91C96
+	rc = lan91c96_initialize(0, CONFIG_LAN91C96_BASE);
+#endif
+	return rc;
+}
+#endif

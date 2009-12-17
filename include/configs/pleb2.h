@@ -56,8 +56,10 @@
  */
 
 /* None - PLEB 2 doesn't have any of this.
-   #define CONFIG_DRIVER_LAN91C96
-   #define CONFIG_LAN91C96_BASE 0x0C000000 */
+	#define CONFIG_NET_MULTI
+	#define CONFIG_LAN91C96
+	#define CONFIG_LAN91C96_BASE 0x0C000000
+ */
 
 /*
  * select serial console configuration

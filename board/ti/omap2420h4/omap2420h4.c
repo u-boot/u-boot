@@ -22,6 +22,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <netdev.h>
 #include <asm/arch/omap2420.h>
 #include <asm/io.h>
 #include <asm/arch/bits.h>
@@ -842,3 +843,14 @@ void update_mux(u32 btype,u32 mtype)
 		}
 	}
 }
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_LAN91C96
+	rc = lan91c96_initialize(0, CONFIG_LAN91C96_BASE);
+#endif
+	return rc;
+}
+#endif

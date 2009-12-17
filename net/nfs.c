@@ -29,8 +29,6 @@
 #include "nfs.h"
 #include "bootp.h"
 
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_CMD_NFS)
-
 #define HASHES_PER_LINE 65	/* Number of "loading" hashes per line	*/
 #define NFS_RETRY_COUNT 30
 #define NFS_TIMEOUT 2000UL
@@ -755,5 +753,3 @@ NfsStart (void)
 
 	NfsSend ();
 }
-
-#endif

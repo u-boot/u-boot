@@ -22,6 +22,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <netdev.h>
 #include <twl4030.h>
 #include <asm/io.h>
 #include <asm/arch/mux.h>
@@ -125,12 +126,13 @@ int board_init(void)
 #define ETH_CONTROL_REG		(CONFIG_LAN91C96_BASE + 0x30b)
 
 /**
- * @brief ether_init Take the Ethernet controller out of reset and wait
+ * @brief board_eth_init Take the Ethernet controller out of reset and wait
  * for the EEPROM load to complete.
  */
-static void ether_init(void)
+int board_eth_init(bd_t *bis)
 {
-#ifdef CONFIG_DRIVER_LAN91C96
+	int rc = 0;
+#ifdef CONFIG_LAN91C96
 	int cnt = 20;
 
 	writew(0x0, LAN_RESET_REGISTER);
@@ -155,10 +157,11 @@ static void ether_init(void)
 
 	writeb(readb(ETH_CONTROL_REG) & ~0x1, ETH_CONTROL_REG);
 	udelay(1000);
+	rc = lan91c96_initialize(0, CONFIG_LAN91C96_BASE);
 reset_err_out:
-	return;
 
 #endif
+	return rc;
 }
 
 /**
@@ -187,7 +190,6 @@ int misc_init_r(void)
 	 *   VSIM  - off (init, variable) for MMC1.DAT[3..7], SIM
 	 *   VPLL2 - 1.8V
 	 */
-	ether_init();
 
 	return 0;
 }
