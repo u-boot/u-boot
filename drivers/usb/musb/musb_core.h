@@ -137,7 +137,7 @@ struct musb_regs {
 		struct musb_epN_regs epN;
 	} ep[16];
 
-} __attribute__((aligned(32)));
+} __attribute__((packed, aligned(32)));
 
 /*
  * MUSB Register bits
