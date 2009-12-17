@@ -42,6 +42,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <malloc.h>
+#include <miiphy.h>
 
 #include <linux/mii.h>
 #include <asm/io.h>
@@ -163,6 +164,36 @@ static u16 macb_mdio_read(struct macb_device *macb, u8 reg)
 
 	return MACB_BFEXT(DATA, frame);
 }
+
+#if defined(CONFIG_CMD_MII)
+
+int macb_miiphy_read(char *devname, u8 phy_adr, u8 reg, u16 *value)
+{
+	struct eth_device *dev = eth_get_dev_by_name(devname);
+	struct macb_device *macb = to_macb(dev);
+
+	if ( macb->phy_addr != phy_adr )
+		return -1;
+
+	*value = macb_mdio_read(macb, reg);
+
+	return 0;
+}
+
+int macb_miiphy_write(char *devname, u8 phy_adr, u8 reg, u16 value)
+{
+	struct eth_device *dev = eth_get_dev_by_name(devname);
+	struct macb_device *macb = to_macb(dev);
+
+	if ( macb->phy_addr != phy_adr )
+		return -1;
+
+	macb_mdio_write(macb, reg, value);
+
+	return 0;
+}
+#endif
+
 
 #if defined(CONFIG_CMD_NET)
 
@@ -542,84 +573,9 @@ int macb_eth_initialize(int id, void *regs, unsigned int phy_addr)
 
 	eth_register(netdev);
 
-	return 0;
-}
-
-#endif
-
 #if defined(CONFIG_CMD_MII)
-
-int miiphy_read(unsigned char addr, unsigned char reg, unsigned short *value)
-{
-	unsigned long netctl;
-	unsigned long netstat;
-	unsigned long frame;
-	int iflag;
-
-	iflag = disable_interrupts();
-	netctl = macb_readl(&macb, EMACB_NCR);
-	netctl |= MACB_BIT(MPE);
-	macb_writel(&macb, EMACB_NCR, netctl);
-	if (iflag)
-		enable_interrupts();
-
-	frame = (MACB_BF(SOF, 1)
-		 | MACB_BF(RW, 2)
-		 | MACB_BF(PHYA, addr)
-		 | MACB_BF(REGA, reg)
-		 | MACB_BF(CODE, 2));
-	macb_writel(&macb, EMACB_MAN, frame);
-
-	do {
-		netstat = macb_readl(&macb, EMACB_NSR);
-	} while (!(netstat & MACB_BIT(IDLE)));
-
-	frame = macb_readl(&macb, EMACB_MAN);
-	*value = MACB_BFEXT(DATA, frame);
-
-	iflag = disable_interrupts();
-	netctl = macb_readl(&macb, EMACB_NCR);
-	netctl &= ~MACB_BIT(MPE);
-	macb_writel(&macb, EMACB_NCR, netctl);
-	if (iflag)
-		enable_interrupts();
-
-	return 0;
-}
-
-int miiphy_write(unsigned char addr, unsigned char reg, unsigned short value)
-{
-	unsigned long netctl;
-	unsigned long netstat;
-	unsigned long frame;
-	int iflag;
-
-	iflag = disable_interrupts();
-	netctl = macb_readl(&macb, EMACB_NCR);
-	netctl |= MACB_BIT(MPE);
-	macb_writel(&macb, EMACB_NCR, netctl);
-	if (iflag)
-		enable_interrupts();
-
-	frame = (MACB_BF(SOF, 1)
-		 | MACB_BF(RW, 1)
-		 | MACB_BF(PHYA, addr)
-		 | MACB_BF(REGA, reg)
-		 | MACB_BF(CODE, 2)
-		 | MACB_BF(DATA, value));
-	macb_writel(&macb, EMACB_MAN, frame);
-
-	do {
-		netstat = macb_readl(&macb, EMACB_NSR);
-	} while (!(netstat & MACB_BIT(IDLE)));
-
-	iflag = disable_interrupts();
-	netctl = macb_readl(&macb, EMACB_NCR);
-	netctl &= ~MACB_BIT(MPE);
-	macb_writel(&macb, EMACB_NCR, netctl);
-	if (iflag)
-		enable_interrupts();
-
+	miiphy_register(netdev->name, macb_miiphy_read, macb_miiphy_write);
+#endif
 	return 0;
 }
 
