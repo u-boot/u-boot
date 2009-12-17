@@ -38,6 +38,10 @@
 #include <usb_defs.h>
 #include <asm/io.h>
 
+#ifdef CONFIG_USB_BLACKFIN
+# include "blackfin_usb.h"
+#endif
+
 #define MUSB_EP0_FIFOSIZE	64	/* This is non-configurable */
 
 /* EP0 */
@@ -71,6 +75,7 @@ struct musb_epN_regs {
 };
 
 /* Mentor USB core register overlay structure */
+#ifndef musb_regs
 struct musb_regs {
 	/* common registers */
 	u8	faddr;
@@ -138,6 +143,7 @@ struct musb_regs {
 	} ep[16];
 
 } __attribute__((packed, aligned(32)));
+#endif
 
 /*
  * MUSB Register bits
@@ -346,5 +352,15 @@ extern void musb_start(void);
 extern void musb_configure_ep(struct musb_epinfo *epinfo, u8 cnt);
 extern void write_fifo(u8 ep, u32 length, void *fifo_data);
 extern void read_fifo(u8 ep, u32 length, void *fifo_data);
+
+#if defined(CONFIG_USB_BLACKFIN)
+/* Every USB register is accessed as a 16-bit even if the value itself
+ * is only 8-bits in size.  Fun stuff.
+ */
+# undef  readb
+# define readb(addr)     (u8)bfin_read16(addr)
+# undef  writeb
+# define writeb(b, addr) bfin_write16(addr, b)
+#endif
 
 #endif	/* __MUSB_HDRC_DEFS_H__ */
