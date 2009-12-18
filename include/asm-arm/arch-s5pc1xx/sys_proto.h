@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Samsung Electronics
+ * Copyright (C) 2009 Samsung Electrnoics
  * Minkyu Kang <mk7.kang@samsung.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -21,23 +21,12 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <asm/cache.h>
+#ifndef _SYS_PROTO_H_
+#define _SYS_PROTO_H_
 
-void l2_cache_enable(void)
-{
-	unsigned long i;
+u32 get_device_type(void);
+void invalidate_dcache(u32);
+void l2_cache_disable(void);
+void l2_cache_enable(void);
 
-	__asm__ __volatile__("mrc p15, 0, %0, c1, c0, 1":"=r"(i));
-	__asm__ __volatile__("orr %0, %0, #0x2":"=r"(i));
-	__asm__ __volatile__("mcr p15, 0, %0, c1, c0, 1":"=r"(i));
-}
-
-void l2_cache_disable(void)
-{
-	unsigned long i;
-
-	__asm__ __volatile__("mrc p15, 0, %0, c1, c0, 1":"=r"(i));
-	__asm__ __volatile__("bic %0, %0, #0x2":"=r"(i));
-	__asm__ __volatile__("mcr p15, 0, %0, c1, c0, 1":"=r"(i));
-}
+#endif

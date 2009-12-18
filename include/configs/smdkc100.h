@@ -47,8 +47,6 @@
 
 #undef CONFIG_SKIP_RELOCATE_UBOOT
 
-#define CONFIG_L2_OFF
-
 /* input clock of PLL: SMDKC100 has 12MHz input clock */
 #define CONFIG_SYS_CLK_FREQ		12000000
 
