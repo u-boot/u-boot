@@ -43,11 +43,23 @@
 #define EMAC_WRAPPER_BASE_ADDR		(0x01d0a000)
 #define EMAC_WRAPPER_RAM_ADDR		(0x01d08000)
 #define EMAC_MDIO_BASE_ADDR		(0x01d0b000)
+#define DAVINCI_EMAC_VERSION2
+#elif defined(CONFIG_SOC_DA8XX)
+#define EMAC_BASE_ADDR			DAVINCI_EMAC_CNTRL_REGS_BASE
+#define EMAC_WRAPPER_BASE_ADDR		DAVINCI_EMAC_WRAPPER_CNTRL_REGS_BASE
+#define EMAC_WRAPPER_RAM_ADDR		DAVINCI_EMAC_WRAPPER_RAM_BASE
+#define EMAC_MDIO_BASE_ADDR		DAVINCI_MDIO_CNTRL_REGS_BASE
+#define DAVINCI_EMAC_VERSION2
 #else
 #define EMAC_BASE_ADDR			(0x01c80000)
 #define EMAC_WRAPPER_BASE_ADDR		(0x01c81000)
 #define EMAC_WRAPPER_RAM_ADDR		(0x01c82000)
 #define EMAC_MDIO_BASE_ADDR		(0x01c84000)
+#endif
+
+#ifdef CONFIG_SOC_DM646X
+#define DAVINCI_EMAC_VERSION2
+#define DAVINCI_EMAC_GIG_ENABLE
 #endif
 
 #ifdef CONFIG_SOC_DM646X
@@ -60,6 +72,11 @@
 #define EMAC_MDIO_BUS_FREQ		121500000
 /* MDIO clock output frequency */
 #define EMAC_MDIO_CLOCK_FREQ		2200000		/* 2.2 MHz */
+#elif defined(CONFIG_SOC_DA8XX)
+/* MDIO module input frequency */
+#define EMAC_MDIO_BUS_FREQ		clk_get(DAVINCI_MDIO_CLKID)
+/* MDIO clock output frequency */
+#define EMAC_MDIO_CLOCK_FREQ		2000000		/* 2.0 MHz */
 #else
 /* MDIO module input frequency */
 #define EMAC_MDIO_BUS_FREQ		99000000	/* PLL/6 - 99 MHz */
@@ -128,6 +145,10 @@ typedef volatile struct _emac_desc
 #define EMAC_MACCONTROL_FULLDUPLEX_ENABLE	(0x1)
 #define EMAC_MACCONTROL_GIGABIT_ENABLE		(1 << 7)
 #define EMAC_MACCONTROL_GIGFORCE		(1 << 17)
+#define EMAC_MACCONTROL_RMIISPEED_100		(1 << 15)
+
+#define EMAC_MAC_ADDR_MATCH		(1 << 19)
+#define EMAC_MAC_ADDR_IS_VALID		(1 << 20)
 
 #define EMAC_RXMBPENABLE_RXCAFEN_ENABLE	(0x200000)
 #define EMAC_RXMBPENABLE_RXBROADEN	(0x2000)
@@ -283,10 +304,40 @@ typedef struct  {
 
 /* EMAC Wrapper Registers Structure */
 typedef struct  {
-#if defined(CONFIG_SOC_DM646X) || defined(CONFIG_SOC_DM365)
-	dv_reg		IDVER;
-	dv_reg		SOFTRST;
-	dv_reg		EMCTRL;
+#ifdef DAVINCI_EMAC_VERSION2
+	dv_reg		idver;
+	dv_reg		softrst;
+	dv_reg		emctrl;
+	dv_reg		c0rxthreshen;
+	dv_reg		c0rxen;
+	dv_reg		c0txen;
+	dv_reg		c0miscen;
+	dv_reg		c1rxthreshen;
+	dv_reg		c1rxen;
+	dv_reg		c1txen;
+	dv_reg		c1miscen;
+	dv_reg		c2rxthreshen;
+	dv_reg		c2rxen;
+	dv_reg		c2txen;
+	dv_reg		c2miscen;
+	dv_reg		c0rxthreshstat;
+	dv_reg		c0rxstat;
+	dv_reg		c0txstat;
+	dv_reg		c0miscstat;
+	dv_reg		c1rxthreshstat;
+	dv_reg		c1rxstat;
+	dv_reg		c1txstat;
+	dv_reg		c1miscstat;
+	dv_reg		c2rxthreshstat;
+	dv_reg		c2rxstat;
+	dv_reg		c2txstat;
+	dv_reg		c2miscstat;
+	dv_reg		c0rximax;
+	dv_reg		c0tximax;
+	dv_reg		c1rximax;
+	dv_reg		c1tximax;
+	dv_reg		c2rximax;
+	dv_reg		c2tximax;
 #else
 	u_int8_t	RSVD0[4100];
 	dv_reg		EWCTL;
