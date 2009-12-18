@@ -947,6 +947,23 @@ struct mpc5xxx_mscan {
 	struct mscan_buffer cantxfg;    /* MSCAN + 0x60 */    /* Foreground transmit buffer */
 	};
 
+struct mpc5xxx_xlb {
+	volatile u8 reserved[0x40];	/* XLB + 0x00 */
+	volatile u32 config;		/* XLB + 0x40 */
+	volatile u32 version;		/* XLB + 0x44 */
+	volatile u32 status;		/* XLB + 0x48 */
+	volatile u32 int_enable;	/* XLB + 0x4c */
+	volatile u32 addr_capture;	/* XLB + 0x50 */
+	volatile u32 bus_sig_capture;	/* XLB + 0x54 */
+	volatile u32 addr_timeout;	/* XLB + 0x58 */
+	volatile u32 data_timeout;	/* XLB + 0x5c */
+	volatile u32 bus_act_timeout;	/* XLB + 0x60 */
+	volatile u32 master_pri_enable; /* XLB + 0x64 */
+	volatile u32 master_priority;	/* XLB + 0x68 */
+	volatile u32 base_address;	/* XLB + 0x6c */
+	volatile u32 snoop_window;	/* XLB + 0x70 */
+};
+
 /* function prototypes */
 void loadtask(int basetask, int tasks);
 
