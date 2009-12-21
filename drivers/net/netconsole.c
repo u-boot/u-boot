@@ -139,7 +139,7 @@ static void nc_send_packet (const char *buf, int len)
 		eth_halt ();
 }
 
-int nc_start (void)
+static int nc_start(void)
 {
 	int netmask, our_ip;
 
@@ -169,7 +169,7 @@ int nc_start (void)
 	return 0;
 }
 
-void nc_putc (char c)
+static void nc_putc(char c)
 {
 	if (output_recursion)
 		return;
@@ -180,7 +180,7 @@ void nc_putc (char c)
 	output_recursion = 0;
 }
 
-void nc_puts (const char *s)
+static void nc_puts(const char *s)
 {
 	int len;
 
@@ -196,7 +196,7 @@ void nc_puts (const char *s)
 	output_recursion = 0;
 }
 
-int nc_getc (void)
+static int nc_getc(void)
 {
 	uchar c;
 
@@ -217,7 +217,7 @@ int nc_getc (void)
 	return c;
 }
 
-int nc_tstc (void)
+static int nc_tstc(void)
 {
 	struct eth_device *eth;
 
