@@ -105,5 +105,8 @@
 #define SSSTEP			0x00000001	/* Supervisor Single Step */
 #define CCEN			0x00000002	/* Cycle Counter Enable */
 #define SNEN			0x00000004	/* Self-Nesting Interrupt Enable */
+#define SYSCFG_SSSTEP_P	0
+#define SYSCFG_CCEN_P	1
+#define SYSCFG_SCEN_P	2
 
 #endif

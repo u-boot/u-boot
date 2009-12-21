@@ -22,6 +22,7 @@
 
 #include <asm/cplb.h>
 #include <asm/mach-common/bits/mpu.h>
+#include <kgdb.h>
 
 #ifdef CONFIG_CMD_NAND
 #include <nand.h>	/* cannot even include nand.h if it isnt configured */
@@ -355,6 +356,11 @@ void board_init_r(gd_t * id, ulong dest_addr)
 
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r();
+
+#ifdef CONFIG_CMD_KGDB
+	puts("KGDB:  ");
+	kgdb_init();
+#endif
 
 #ifdef CONFIG_STATUS_LED
 	status_led_set(STATUS_LED_BOOT, STATUS_LED_BLINKING);
