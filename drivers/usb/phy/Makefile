@@ -1,9 +1,6 @@
 #
-# (C) Copyright 2000-2007
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# See file CREDITS for list of people who contributed to this
-# project.
+# Copyright (c) 2009 Wind River Systems, Inc.
+# Tom Rix <Tom.Rix@windriver.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -23,12 +20,10 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libusb_musb.a
+LIB	:= $(obj)libusb_phy.a
 
-COBJS-$(CONFIG_MUSB_HCD) += musb_hcd.o musb_core.o
-COBJS-$(CONFIG_MUSB_UDC) += musb_udc.o musb_core.o
-COBJS-$(CONFIG_USB_DAVINCI) += davinci.o
-COBJS-$(CONFIG_USB_OMAP3) += omap3.o
+COBJS-$(CONFIG_TWL4030_USB) += twl4030.o
+COBJS-y := twl4030.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
