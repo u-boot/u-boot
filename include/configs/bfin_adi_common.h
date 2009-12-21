@@ -178,7 +178,19 @@
 		"erase 0x20000000 +$(filesize);" \
 		"cp.b $(loadaddr) 0x20000000 $(filesize)"
 # endif
+# ifdef CONFIG_NETCONSOLE
+#  define NETCONSOLE_ENV \
+	"nc=" \
+		"set ncip ${serverip};" \
+		"set stdin nc;" \
+		"set stdout nc" \
+		"\0"
+# else
+#  define NETCONSOLE_ENV
+# endif
 # define NETWORK_ENV_SETTINGS \
+	NETCONSOLE_ENV \
+	\
 	"ubootfile=" UBOOT_ENV_FILE "\0" \
 	"update=" \
 		"tftp $(loadaddr) $(ubootfile);" \
