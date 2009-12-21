@@ -100,6 +100,14 @@ void trap_c(struct pt_regs *regs)
 		uint32_t new_cplb_addr = 0, new_cplb_data = 0;
 		static size_t last_evicted;
 		size_t i;
+		unsigned long tflags;
+
+		/*
+		 * Keep the trace buffer so that a miss here points people
+		 * to the right place (their code).  Crashes here rarely
+		 * happen.  If they do, only the Blackfin maintainer cares.
+		 */
+		trace_buffer_save(tflags);
 
 		new_cplb_addr = (data ? bfin_read_DCPLB_FAULT_ADDR() : bfin_read_ICPLB_FAULT_ADDR()) & ~(4 * 1024 * 1024 - 1);
 
@@ -156,6 +164,7 @@ void trap_c(struct pt_regs *regs)
 		for (i = 0; i < 16; ++i)
 			debug("%2i 0x%p 0x%08X\n", i, *CPLB_ADDR++, *CPLB_DATA++);
 
+		trace_buffer_restore(tflags);
 		break;
 	}
 
