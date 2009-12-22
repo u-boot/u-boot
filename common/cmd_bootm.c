@@ -885,9 +885,6 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 			image_multi_getimg (hdr, 0, os_data, os_len);
 			break;
 		case IH_TYPE_STANDALONE:
-			if (argc >2) {
-				hdr->ih_load = htonl(simple_strtoul(argv[2], NULL, 16));
-			}
 			*os_data = image_get_data (hdr);
 			*os_len = image_get_data_size (hdr);
 			break;
