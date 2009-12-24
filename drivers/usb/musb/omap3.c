@@ -123,7 +123,10 @@ int musb_platform_init(void)
 	}
 
 	ret = platform_needs_initialization;
+
+#ifdef CONFIG_TWL4030_USB
 end:
+#endif
 	return ret;
 
 }
