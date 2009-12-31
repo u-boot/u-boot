@@ -284,6 +284,39 @@ vidinfo_t panel_info = {
 
 /*----------------------------------------------------------------------*/
 
+#ifdef CONFIG_LITTLETON_LCD
+# define LCD_BPP	LCD_COLOR8
+
+/* you have to set lccr0 and lccr3 (including pcd) */
+# define REG_LCCR0	0x003008f8
+# define REG_LCCR3	0x0300FF04
+
+vidinfo_t panel_info = {
+	.vl_col		= 480,
+	.vl_row		= 640,
+	.vl_width	= 480,
+	.vl_height	= 640,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_oep		= CONFIG_SYS_HIGH,
+	.vl_hsp		= CONFIG_SYS_HIGH,
+	.vl_vsp		= CONFIG_SYS_HIGH,
+	.vl_dp		= CONFIG_SYS_HIGH,
+	.vl_bpix	= LCD_BPP,
+	.vl_lbw		= 0,
+	.vl_splt	= 0,
+	.vl_clor	= 0,
+	.vl_tft		= 1,
+	.vl_hpw		= 9,
+	.vl_blw		= 8,
+	.vl_elw		= 24,
+	.vl_vpw		= 2,
+	.vl_bfw		= 2,
+	.vl_efw		= 4,
+};
+#endif /* CONFIG_LITTLETON_LCD */
+
+/*----------------------------------------------------------------------*/
+
 #if LCD_BPP == LCD_COLOR8
 void lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue);
 #endif
