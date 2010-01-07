@@ -125,7 +125,7 @@
 
 #define CONFIG_ENV_SIZE		0x04000 /* Size of Environment */
 
-#define CONFIG_SYS_MALLOC_LEN	(1024 * 1024)	/* Reserved for malloc */
+#define CONFIG_SYS_MALLOC_LEN	(4 * 1024 * 1024)
 
 /* UBI Support for all Keymile boards */
 #define CONFIG_CMD_UBI
