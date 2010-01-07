@@ -203,6 +203,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_FLASH_AMD_CHECK_DQ7
 
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
+#define CONFIG_HWCONFIG
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR      0xffd00000	/* stack in RAM */
