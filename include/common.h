@@ -336,7 +336,9 @@ extern void  pic_write (uchar reg, uchar val);
 #if defined(CONFIG_SPI) || !defined(CONFIG_SYS_I2C_EEPROM_ADDR)
 # define CONFIG_SYS_DEF_EEPROM_ADDR 0
 #else
+#if !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 # define CONFIG_SYS_DEF_EEPROM_ADDR CONFIG_SYS_I2C_EEPROM_ADDR
+#endif
 #endif /* CONFIG_SPI || !defined(CONFIG_SYS_I2C_EEPROM_ADDR) */
 
 #if defined(CONFIG_SPI)

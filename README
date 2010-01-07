@@ -2447,6 +2447,19 @@ to save the current settings.
 	- CONFIG_SYS_EEPROM_SIZE:
 	  The size in bytes of the EEPROM device.
 
+	- CONFIG_ENV_EEPROM_IS_ON_I2C
+	  define this, if you have I2C and SPI activated, and your
+	  EEPROM, which holds the environment, is on the I2C bus.
+
+	- CONFIG_I2C_ENV_EEPROM_BUS
+	  if you have an Environment on an EEPROM reached over
+	  I2C muxes, you can define here, how to reach this
+	  EEPROM. For example:
+
+	  #define CONFIG_I2C_ENV_EEPROM_BUS       "pca9547:70:d\0"
+
+	  EEPROM which holds the environment, is reached over
+	  a pca9547 i2c mux with address 0x70, channel 3.
 
 - CONFIG_ENV_IS_IN_DATAFLASH:
 

@@ -28,18 +28,73 @@
 #include <command.h>
 #include <environment.h>
 #include <linux/stddef.h>
+#if defined(CONFIG_I2C_ENV_EEPROM_BUS)
+#include <i2c.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
 env_t *env_ptr = NULL;
 
 char * env_name_spec = "EEPROM";
+int env_eeprom_bus = -1;
+
+static int eeprom_bus_read (unsigned dev_addr, unsigned offset, uchar *buffer,
+				unsigned cnt)
+{
+	int rcode;
+#if defined(CONFIG_I2C_ENV_EEPROM_BUS)
+	int old_bus = i2c_get_bus_num();
+
+	if (gd->flags & GD_FLG_RELOC) {
+		if (env_eeprom_bus == -1) {
+			I2C_MUX_DEVICE *dev = NULL;
+			dev = i2c_mux_ident_muxstring(
+				(uchar *)CONFIG_I2C_ENV_EEPROM_BUS);
+			if (dev != NULL) {
+				env_eeprom_bus = dev->busid;
+			} else
+				printf ("error adding env eeprom bus.\n");
+		}
+		if (old_bus != env_eeprom_bus) {
+			i2c_set_bus_num(env_eeprom_bus);
+			old_bus = env_eeprom_bus;
+		}
+	} else {
+		rcode = i2c_mux_ident_muxstring_f(
+				(uchar *)CONFIG_I2C_ENV_EEPROM_BUS);
+	}
+#endif
+
+	rcode = eeprom_read (dev_addr, offset, buffer, cnt);
+#if defined(CONFIG_I2C_ENV_EEPROM_BUS)
+	if (old_bus != env_eeprom_bus)
+		i2c_set_bus_num(old_bus);
+#endif
+	return rcode;
+}
+
+static int eeprom_bus_write (unsigned dev_addr, unsigned offset, uchar *buffer,
+				unsigned cnt)
+{
+	int rcode;
+#if defined(CONFIG_I2C_ENV_EEPROM_BUS)
+	int old_bus = i2c_get_bus_num();
+
+	rcode = i2c_mux_ident_muxstring_f((uchar *)CONFIG_I2C_ENV_EEPROM_BUS);
+#endif
+	rcode = eeprom_write (dev_addr, offset, buffer, cnt);
+#if defined(CONFIG_I2C_ENV_EEPROM_BUS)
+	i2c_set_bus_num(old_bus);
+#endif
+	return rcode;
+}
 
 uchar env_get_char_spec (int index)
 {
 	uchar c;
 
-	eeprom_read (CONFIG_SYS_DEF_EEPROM_ADDR,
+	eeprom_bus_read (CONFIG_SYS_DEF_EEPROM_ADDR,
 		     CONFIG_ENV_OFFSET+index+offsetof(env_t,data),
 		     &c, 1);
 
@@ -48,7 +103,7 @@ uchar env_get_char_spec (int index)
 
 void env_relocate_spec (void)
 {
-	eeprom_read (CONFIG_SYS_DEF_EEPROM_ADDR,
+	eeprom_bus_read (CONFIG_SYS_DEF_EEPROM_ADDR,
 		     CONFIG_ENV_OFFSET,
 		     (uchar*)env_ptr,
 		     CONFIG_ENV_SIZE);
@@ -56,7 +111,7 @@ void env_relocate_spec (void)
 
 int saveenv(void)
 {
-	return eeprom_write (CONFIG_SYS_DEF_EEPROM_ADDR,
+	return eeprom_bus_write (CONFIG_SYS_DEF_EEPROM_ADDR,
 			     CONFIG_ENV_OFFSET,
 			     (uchar *)env_ptr,
 			     CONFIG_ENV_SIZE);
@@ -77,7 +132,7 @@ int env_init(void)
 	eeprom_init ();	/* prepare for EEPROM read/write */
 
 	/* read old CRC */
-	eeprom_read (CONFIG_SYS_DEF_EEPROM_ADDR,
+	eeprom_bus_read (CONFIG_SYS_DEF_EEPROM_ADDR,
 		     CONFIG_ENV_OFFSET+offsetof(env_t,crc),
 		     (uchar *)&crc, sizeof(ulong));
 
@@ -87,7 +142,8 @@ int env_init(void)
 	while (len > 0) {
 		int n = (len > sizeof(buf)) ? sizeof(buf) : len;
 
-		eeprom_read (CONFIG_SYS_DEF_EEPROM_ADDR, CONFIG_ENV_OFFSET+off, buf, n);
+		eeprom_bus_read (CONFIG_SYS_DEF_EEPROM_ADDR,
+				CONFIG_ENV_OFFSET + off, buf, n);
 		new = crc32 (new, buf, n);
 		len -= n;
 		off += n;
