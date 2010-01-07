@@ -70,6 +70,12 @@ void cpu_init_f (volatile immap_t * im)
 #ifdef CONFIG_SYS_ACR_RPTCNT /* Arbiter repeat count */
 		(ACR_RPTCNT << ACR_RPTCNT_SHIFT) |
 #endif
+#ifdef CONFIG_SYS_ACR_APARK	/* Arbiter address parking mode */
+		(ACR_APARK << ACR_APARK_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_ACR_PARKM	/* Arbiter parking master */
+		(ACR_PARKM << ACR_PARKM_SHIFT) |
+#endif
 		0;
 	__be32 acr_val =
 #ifdef CONFIG_SYS_ACR_PIPE_DEP /* Arbiter pipeline depth */
@@ -77,6 +83,12 @@ void cpu_init_f (volatile immap_t * im)
 #endif
 #ifdef CONFIG_SYS_ACR_RPTCNT /* Arbiter repeat count */
 		(CONFIG_SYS_ACR_RPTCNT << ACR_RPTCNT_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_ACR_APARK	/* Arbiter address parking mode */
+		(CONFIG_SYS_ACR_APARK << ACR_APARK_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_ACR_PARKM	/* Arbiter parking master */
+		(CONFIG_SYS_ACR_PARKM << ACR_PARKM_SHIFT) |
 #endif
 		0;
 	__be32 spcr_mask =
