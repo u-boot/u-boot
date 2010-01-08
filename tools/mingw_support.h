@@ -45,6 +45,6 @@ int fsync(int fd);
 void *mmap(void *, size_t, int, int, int, int);
 int munmap(void *, size_t);
 char *strtok_r(char *s, const char *delim, char **save_ptr);
-int getline(char **lineptr, size_t *n, FILE *stream);
+#include "getline.h"
 
 #endif /* __MINGW_SUPPORT_H_ */
