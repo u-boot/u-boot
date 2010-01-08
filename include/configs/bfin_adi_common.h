@@ -75,6 +75,9 @@
 # else
 #  define CONFIG_CMD_JFFS2
 # endif
+# ifdef CONFIG_CMD_JFFS2
+#  define CONFIG_JFFS2_SUMMARY
+# endif
 # define CONFIG_CMD_BOOTLDR
 # define CONFIG_CMD_CACHE
 # define CONFIG_CMD_CPLBINFO
