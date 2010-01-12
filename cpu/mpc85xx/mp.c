@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Freescale Semiconductor, Inc.
+ * Copyright 2008-2010 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -66,6 +66,12 @@ int cpu_status(int nr)
 	}
 
 	return 0;
+}
+
+int cpu_disable(int nr)
+{
+	/* dummy function so common/cmd_mp.c will build */
+	return 1;
 }
 
 static u8 boot_entry_map[4] = {

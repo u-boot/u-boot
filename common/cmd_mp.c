@@ -46,6 +46,8 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			cpu_reset(cpuid);
 		} else if (strncmp(argv[2], "status", 6) == 0) {
 			cpu_status(cpuid);
+		} else if (strncmp(argv[2], "disable", 7) == 0) {
+			return cpu_disable(cpuid);
 		} else {
 			cmd_usage(cmdtp);
 			return 1;
@@ -86,6 +88,7 @@ U_BOOT_CMD(
 	"Multiprocessor CPU boot manipulation and release",
 	    "<num> reset                 - Reset cpu <num>\n"
 	"cpu <num> status                - Status of cpu <num>\n"
+	"cpu <num> disable               - Disable cpu <num>\n"
 	"cpu <num> release <addr> [args] - Release cpu <num> at <addr> with [args]"
 #ifdef CPU_ARCH_HELP
 	"\n"

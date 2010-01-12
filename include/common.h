@@ -712,6 +712,7 @@ void show_boot_progress(int val);
 #ifdef CONFIG_MP
 int cpu_status(int nr);
 int cpu_reset(int nr);
+int cpu_disable(int nr);
 int cpu_release(int nr, int argc, char *argv[]);
 #endif
 
