@@ -80,8 +80,8 @@ void get_sys_info (sys_info_t * sysInfo)
 	freqCC_PLL[2] = sysclk;
 	freqCC_PLL[3] = sysclk;
 
-	sysInfo->freqSystemBus *= (in_be32(&gur->rcwsr[0]) >> 25) & 0xf;
-	sysInfo->freqDDRBus *= ((in_be32(&gur->rcwsr[0]) >> 17) & 0xf);
+	sysInfo->freqSystemBus *= (in_be32(&gur->rcwsr[0]) >> 25) & 0x1f;
+	sysInfo->freqDDRBus *= ((in_be32(&gur->rcwsr[0]) >> 17) & 0x1f);
 	freqCC_PLL[0] *= (in_be32(&clk->pllc1gsr) >> 1) & 0x3f;
 	freqCC_PLL[1] *= (in_be32(&clk->pllc2gsr) >> 1) & 0x3f;
 	freqCC_PLL[2] *= (in_be32(&clk->pllc3gsr) >> 1) & 0x3f;
