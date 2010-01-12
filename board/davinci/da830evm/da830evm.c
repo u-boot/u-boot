@@ -65,6 +65,11 @@ const struct pinmux_config i2c_pins[] = {
 	{ pinmux[9], 2, 4 }
 };
 
+/* USB0_DRVVBUS pin muxer settings */
+const struct pinmux_config usb_pins[] = {
+	{ pinmux[9], 1, 1 }
+};
+
 int board_init(void)
 {
 #ifndef CONFIG_USE_IRQ
@@ -116,6 +121,9 @@ int board_init(void)
 		return 1;
 
 	if (davinci_configure_pin_mux(i2c_pins, ARRAY_SIZE(i2c_pins)) != 0)
+		return 1;
+
+	if (davinci_configure_pin_mux(usb_pins, ARRAY_SIZE(usb_pins)) != 0)
 		return 1;
 
 	/* enable the console UART */
