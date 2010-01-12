@@ -2261,8 +2261,12 @@ MPC8313ERDB_NAND_66_config: unconfig
 		echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk ; \
 	fi ;
 
+MPC8315ERDB_NAND_config \
 MPC8315ERDB_config: unconfig
-	@$(MKCONFIG) -a MPC8315ERDB ppc mpc83xx mpc8315erdb freescale
+	@if [ "$(findstring _NAND_,$@)" ] ; then \
+		ln -sf mpc8313erdb nand_spl/board/freescale/mpc8315erdb ; \
+	fi ;
+	@$(MKCONFIG) -t $(@:_config=) MPC8315ERDB ppc mpc83xx mpc8315erdb freescale
 
 MPC8323ERDB_config:	unconfig
 	@$(MKCONFIG) -a MPC8323ERDB ppc mpc83xx mpc8323erdb freescale
@@ -2396,8 +2400,9 @@ SIMPC8313_SP_config: unconfig
 TQM834x_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx tqm834x tqc
 
+caddy2_config \
 vme8349_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc83xx vme8349 esd
+	@$(MKCONFIG) -t $(@:_config=) vme8349 ppc mpc83xx vme8349 esd
 
 #########################################################################
 ## MPC85xx Systems

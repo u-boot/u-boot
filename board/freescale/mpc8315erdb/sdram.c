@@ -54,6 +54,7 @@ static void resume_from_sleep(void)
  * This is useful for faster booting in configs where the RAM is unlikely
  * to be changed, or for things like NAND booting where space is tight.
  */
+#ifndef CONFIG_SYS_RAMBOOT
 static long fixed_sdram(void)
 {
 	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
@@ -68,7 +69,7 @@ static long fixed_sdram(void)
 	 * Erratum DDR3 requires a 50ms delay after clearing DDRCDR[DDR_cfg],
 	 * or the DDR2 controller may fail to initialize correctly.
 	 */
-	udelay(50000);
+	__udelay(50000);
 
 	im->ddr.csbnds[0].csbnds = (msize - 1) >> 24;
 	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CS0_CONFIG;
@@ -100,6 +101,12 @@ static long fixed_sdram(void)
 
 	return msize;
 }
+#else
+static long fixed_sdram(void)
+{
+	return CONFIG_SYS_DDR_SIZE * 1024 * 1024;
+}
+#endif /* CONFIG_SYS_RAMBOOT */
 
 phys_size_t initdram(int board_type)
 {
