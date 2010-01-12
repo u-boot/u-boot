@@ -179,26 +179,21 @@ static void nand_davinci_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int c
 
 static void nand_davinci_enable_hwecc(struct mtd_info *mtd, int mode)
 {
-	int		dummy;
+	u_int32_t	val;
 
-	dummy = emif_regs->NANDF1ECC;
+	(void)readl(&(emif_regs->NANDFECC[CONFIG_SYS_NAND_CS - 2]));
 
-	/* FIXME:  only chipselect 0 is supported for now */
-	emif_regs->NANDFCR |= 1 << 8;
+	val = readl(&emif_regs->NANDFCR);
+	val |= DAVINCI_NANDFCR_NAND_ENABLE(CONFIG_SYS_NAND_CS);
+	val |= DAVINCI_NANDFCR_1BIT_ECC_START(CONFIG_SYS_NAND_CS);
+	writel(val, &emif_regs->NANDFCR);
 }
 
 static u_int32_t nand_davinci_readecc(struct mtd_info *mtd, u_int32_t region)
 {
 	u_int32_t	ecc = 0;
 
-	if (region == 1)
-		ecc = emif_regs->NANDF1ECC;
-	else if (region == 2)
-		ecc = emif_regs->NANDF2ECC;
-	else if (region == 3)
-		ecc = emif_regs->NANDF3ECC;
-	else if (region == 4)
-		ecc = emif_regs->NANDF4ECC;
+	ecc = readl(&(emif_regs->NANDFECC[region - 1]));
 
 	return(ecc);
 }
@@ -320,8 +315,12 @@ static void nand_davinci_4bit_enable_hwecc(struct mtd_info *mtd, int mode)
 		 * Start a new ECC calculation for reading or writing 512 bytes
 		 * of data.
 		 */
-		val = (emif_regs->NANDFCR & ~(3 << 4)) | (1 << 12);
-		emif_regs->NANDFCR = val;
+		val = readl(&emif_regs->NANDFCR);
+		val &= ~DAVINCI_NANDFCR_4BIT_ECC_SEL_MASK;
+		val |= DAVINCI_NANDFCR_NAND_ENABLE(CONFIG_SYS_NAND_CS);
+		val |= DAVINCI_NANDFCR_4BIT_ECC_SEL(CONFIG_SYS_NAND_CS);
+		val |= DAVINCI_NANDFCR_4BIT_ECC_START;
+		writel(val, &emif_regs->NANDFCR);
 		break;
 	case NAND_ECC_READSYN:
 		val = emif_regs->NAND4BITECC1;

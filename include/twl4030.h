@@ -306,6 +306,10 @@
 
 /* LED */
 #define TWL4030_LED_LEDEN				0xEE
+#define TWL4030_LED_LEDEN_LEDAON			(1 << 0)
+#define TWL4030_LED_LEDEN_LEDBON			(1 << 1)
+#define TWL4030_LED_LEDEN_LEDAPWM			(1 << 4)
+#define TWL4030_LED_LEDEN_LEDBPWM			(1 << 5)
 
 /* Keypad */
 #define TWL4030_KEYPAD_KEYP_CTRL_REG			0xD2
@@ -504,7 +508,7 @@ void twl4030_power_mmc_init(void);
 /*
  * LED
  */
-void twl4030_led_init(void);
+void twl4030_led_init(unsigned char ledon_mask);
 
 /*
  * USB
