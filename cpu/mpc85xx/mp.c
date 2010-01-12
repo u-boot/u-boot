@@ -68,11 +68,35 @@ int cpu_status(int nr)
 	return 0;
 }
 
+#ifdef CONFIG_FSL_CORENET
 int cpu_disable(int nr)
 {
-	/* dummy function so common/cmd_mp.c will build */
-	return 1;
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+
+	setbits_be32(&gur->coredisrl, 1 << nr);
+
+	return 0;
 }
+#else
+int cpu_disable(int nr)
+{
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+
+	switch (nr) {
+	case 0:
+		setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_CPU0);
+		break;
+	case 1:
+		setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_CPU1);
+		break;
+	default:
+		printf("Invalid cpu number for disable %d\n", nr);
+		return 1;
+	}
+
+	return 0;
+}
+#endif
 
 static u8 boot_entry_map[4] = {
 	0,
