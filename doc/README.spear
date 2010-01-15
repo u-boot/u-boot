@@ -1,0 +1,48 @@
+
+SPEAr (Structured Processor Enhanced Architecture).
+
+SPEAr600 is also known as SPEArPlus and SPEAr300 is also known as SPEArBasic
+
+The SPEAr SoC family embeds a customizable logic that can be programmed
+one-time by a customer at silicon mask level (i.e. not at runtime!).
+
+We are now adding the support in u-boot for two SoC: SPEAr600 and SPEAr3xx.
+
+All 4 SoCs share common peripherals.
+
+1. ARM926ejs core based (sp600 has two cores, the 2nd handled only in Linux)
+2. FastEthernet (sp600 has Gbit version, but same controller - GMAC)
+3. USB Host
+4. USB Device
+5. NAND controller (FSMC)
+6. Serial NOR ctrl
+7. I2C
+8. SPI
+9. CLCD
+10. others ..
+
+Everything is supported in Linux.
+u-boot is not currently supporting all peripeharls (just a few as listed below).
+1. USB Device
+2. NAND controller (FSMC)
+3. Serial Memory Interface
+4. EMI (Parallel NOR interface)
+4. I2C
+5. UART
+
+Build options
+	make spear600_config
+	make spear300_config
+	make spear310_config
+	make spear320_config
+
+Further options
+	make ENV=NAND (supported by all 4 SoCs)
+	- This option generates a uboot image that saves environment inn NAND
+
+	make CONSOLE=USB (supported by all 4 SoCs)
+	- This option generates a uboot image for using usbdevice as a tty i/f
+
+	make FLASH=PNOR (supported by SPEAr310 and SPEAr320)
+	- This option generates a uboot image that supports emi controller for
+	CFI compliant parallel NOR flash
