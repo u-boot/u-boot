@@ -477,10 +477,6 @@ void board_init_f (ulong bootflag)
 
 	debug ("Reserving %ldk for U-Boot at: %08lx\n", len >> 10, addr);
 
-#ifdef CONFIG_AMIGAONEG3SE
-	gd->relocaddr = addr;
-#endif
-
 	/*
 	 * reserve memory for malloc() arena
 	 */
@@ -611,6 +607,8 @@ void board_init_f (ulong bootflag)
 #endif
 
 	WATCHDOG_RESET();
+
+	gd->relocaddr = addr; /* Record relocation address, useful for debug */
 
 	memcpy (id, (void *)gd, sizeof (gd_t));
 
