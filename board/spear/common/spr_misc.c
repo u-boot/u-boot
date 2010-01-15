@@ -27,6 +27,7 @@
 #include <net.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/spr_emi.h>
 #include <asm/arch/spr_xloader_table.h>
 #include <asm/arch/spr_defs.h>
 
@@ -83,6 +84,61 @@ int misc_init_r(void)
 	return 0;
 }
 
+#ifdef CONFIG_SPEAR_EMI
+struct cust_emi_para {
+	unsigned int tap;
+	unsigned int tsdp;
+	unsigned int tdpw;
+	unsigned int tdpr;
+	unsigned int tdcs;
+};
+
+/* EMI timing setting of m28w640hc of linux kernel */
+const struct cust_emi_para emi_timing_m28w640hc = {
+	.tap = 0x10,
+	.tsdp = 0x05,
+	.tdpw = 0x0a,
+	.tdpr = 0x0a,
+	.tdcs = 0x05,
+};
+
+/* EMI timing setting of bootrom */
+const struct cust_emi_para emi_timing_bootrom = {
+	.tap = 0xf,
+	.tsdp = 0x0,
+	.tdpw = 0xff,
+	.tdpr = 0x111,
+	.tdcs = 0x02,
+};
+
+void spear_emi_init(void)
+{
+	const struct cust_emi_para *p = &emi_timing_m28w640hc;
+	struct emi_regs *emi_regs_p = (struct emi_regs *)CONFIG_SPEAR_EMIBASE;
+	unsigned int cs;
+	unsigned int val, tmp;
+
+	val = readl(CONFIG_SPEAR_RASBASE);
+
+	if (val & EMI_ACKMSK)
+		tmp = 0x3f;
+	else
+		tmp = 0x0;
+
+	writel(tmp, &emi_regs_p->ack);
+
+	for (cs = 0; cs < CONFIG_SYS_MAX_FLASH_BANKS; cs++) {
+		writel(p->tap, &emi_regs_p->bank_regs[cs].tap);
+		writel(p->tsdp, &emi_regs_p->bank_regs[cs].tsdp);
+		writel(p->tdpw, &emi_regs_p->bank_regs[cs].tdpw);
+		writel(p->tdpr, &emi_regs_p->bank_regs[cs].tdpr);
+		writel(p->tdcs, &emi_regs_p->bank_regs[cs].tdcs);
+		writel(EMI_CNTL_ENBBYTERW | ((val & 0x18) >> 3),
+		       &emi_regs_p->bank_regs[cs].control);
+	}
+}
+#endif
+
 int spear_board_init(ulong mach_type)
 {
 	struct xloader_table *xloader_tb =
@@ -104,6 +160,9 @@ int spear_board_init(ulong mach_type)
 		       sizeof(chip->version));
 	}
 
+#ifdef CONFIG_SPEAR_EMI
+	spear_emi_init();
+#endif
 	return 0;
 }
 
