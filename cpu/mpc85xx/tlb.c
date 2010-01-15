@@ -56,11 +56,73 @@ void init_tlbs(void)
 }
 
 #ifndef CONFIG_NAND_SPL
+static inline void use_tlb_cam(u8 idx)
+{
+	int i = idx / 32;
+	int bit = idx % 32;
+
+	gd->used_tlb_cams[i] |= (1 << bit);
+}
+
+static inline void free_tlb_cam(u8 idx)
+{
+	int i = idx / 32;
+	int bit = idx % 32;
+
+	gd->used_tlb_cams[i] &= ~(1 << bit);
+}
+
+void init_used_tlb_cams(void)
+{
+	int i;
+	unsigned int num_cam = mfspr(SPRN_TLB1CFG) & 0xfff;
+
+	for (i = 0; i < ((CONFIG_SYS_NUM_TLBCAMS+31)/32); i++)
+		gd->used_tlb_cams[i] = 0;
+
+	/* walk all the entries */
+	for (i = 0; i < num_cam; i++) {
+		u32 _mas1;
+
+		mtspr(MAS0, FSL_BOOKE_MAS0(1, i, 0));
+
+		asm volatile("tlbre;isync");
+		_mas1 = mfspr(MAS1);
+
+		/* if the entry isn't valid skip it */
+		if ((_mas1 & MAS1_VALID))
+			use_tlb_cam(i);
+	}
+}
+
+int find_free_tlbcam(void)
+{
+	int i;
+	u32 idx;
+
+	for (i = 0; i < ((CONFIG_SYS_NUM_TLBCAMS+31)/32); i++) {
+		idx = ffz(gd->used_tlb_cams[i]);
+
+		if (idx != 32)
+			break;
+	}
+
+	idx += i * 32;
+
+	if (idx >= CONFIG_SYS_NUM_TLBCAMS)
+		return -1;
+
+	return idx;
+}
+
 void set_tlb(u8 tlb, u32 epn, u64 rpn,
 	     u8 perms, u8 wimge,
 	     u8 ts, u8 esel, u8 tsize, u8 iprot)
 {
 	u32 _mas0, _mas1, _mas2, _mas3, _mas7;
+
+	if (tlb == 1)
+		use_tlb_cam(esel);
 
 	_mas0 = FSL_BOOKE_MAS0(tlb, esel, 0);
 	_mas1 = FSL_BOOKE_MAS1(1, iprot, 0, ts, tsize);
@@ -79,6 +141,8 @@ void set_tlb(u8 tlb, u32 epn, u64 rpn,
 void disable_tlb(u8 esel)
 {
 	u32 _mas0, _mas1, _mas2, _mas3, _mas7;
+
+	free_tlb_cam(esel);
 
 	_mas0 = FSL_BOOKE_MAS0(1, esel, 0);
 	_mas1 = 0;
@@ -132,10 +196,10 @@ int find_tlb_idx(void *addr, u8 tlbsel)
 void init_addr_map(void)
 {
 	int i;
-	unsigned int max_cam = (mfspr(SPRN_TLB1CFG) >> 16) & 0xff;
+	unsigned int num_cam = mfspr(SPRN_TLB1CFG) & 0xfff;
 
 	/* walk all the entries */
-	for (i = 0; i < max_cam; i++) {
+	for (i = 0; i < num_cam; i++) {
 		unsigned long epn;
 		u32 tsize, _mas1;
 		phys_addr_t rpn;
@@ -163,14 +227,10 @@ void init_addr_map(void)
 }
 #endif
 
-#ifndef CONFIG_SYS_DDR_TLB_START
-#define CONFIG_SYS_DDR_TLB_START 8
-#endif
-
 unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 {
+	int i;
 	unsigned int tlb_size;
-	unsigned int ram_tlb_index = CONFIG_SYS_DDR_TLB_START;
 	unsigned int ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
 	unsigned int max_cam = (mfspr(SPRN_TLB1CFG) >> 16) & 0xf;
 	u64 size, memsize = (u64)memsize_in_meg << 20;
@@ -180,9 +240,13 @@ unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 	/* Convert (4^max) kB to (2^max) bytes */
 	max_cam = max_cam * 2 + 10;
 
-	for (; size && ram_tlb_index < 16; ram_tlb_index++) {
+	for (i = 0; size && i < 8; i++) {
+		int ram_tlb_index = find_free_tlbcam();
 		u32 camsize = __ilog2_u64(size) & ~1U;
 		u32 align = __ilog2(ram_tlb_address) & ~1U;
+
+		if (ram_tlb_index == -1)
+			break;
 
 		if (align == -2) align = max_cam;
 		if (camsize > align)

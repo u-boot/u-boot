@@ -26,8 +26,12 @@
 #define ZUTIL_H
 #define ZLIB_INTERNAL
 
-#include "u-boot/zlib.h"
 #include <common.h>
+#include <compiler.h>
+#include <asm/unaligned.h>
+#include "u-boot/zlib.h"
+#undef	OFF				/* avoid conflicts */
+
 /* To avoid a build time warning */
 #ifdef STDC
 #include <malloc.h>
@@ -400,6 +404,7 @@ void inflate_fast OF((z_streamp strm, unsigned start));
  */
 #define OFF 1
 #define PUP(a) *++(a)
+#define UP_UNALIGNED(a) get_unaligned(++(a))
 
 /*
    Decode literal, length, and distance codes and write out the resulting
@@ -616,18 +621,47 @@ unsigned start;         /* inflate()'s starting value for strm->avail_out */
                     }
                 }
                 else {
+		    unsigned short *sout;
+		    unsigned long loops;
+
                     from = out - dist;          /* copy direct from output */
-                    do {                        /* minimum length is three */
-                        PUP(out) = PUP(from);
-                        PUP(out) = PUP(from);
-                        PUP(out) = PUP(from);
-                        len -= 3;
-                    } while (len > 2);
-                    if (len) {
-                        PUP(out) = PUP(from);
-                        if (len > 1)
-                            PUP(out) = PUP(from);
-                    }
+                    /* minimum length is three */
+		    /* Align out addr */
+		    if (!((long)(out - 1 + OFF) & 1)) {
+			PUP(out) = PUP(from);
+			len--;
+		    }
+		    sout = (unsigned short *)(out - OFF);
+		    if (dist > 2 ) {
+			unsigned short *sfrom;
+
+			sfrom = (unsigned short *)(from - OFF);
+			loops = len >> 1;
+			do
+			    PUP(sout) = UP_UNALIGNED(sfrom);
+			while (--loops);
+			out = (unsigned char *)sout + OFF;
+			from = (unsigned char *)sfrom + OFF;
+		    } else { /* dist == 1 or dist == 2 */
+			unsigned short pat16;
+
+			pat16 = *(sout-2+2*OFF);
+			if (dist == 1)
+#if defined(__BIG_ENDIAN)
+			    pat16 = (pat16 & 0xff) | ((pat16 & 0xff ) << 8);
+#elif defined(__LITTLE_ENDIAN)
+			    pat16 = (pat16 & 0xff00) | ((pat16 & 0xff00 ) >> 8);
+#else
+#error __BIG_ENDIAN nor __LITTLE_ENDIAN is defined
+#endif
+			loops = len >> 1;
+			do
+			    PUP(sout) = pat16;
+			while (--loops);
+			out = (unsigned char *)sout + OFF;
+		    }
+		    if (len & 1)
+			PUP(out) = PUP(from);
                 }
             }
             else if ((op & 64) == 0) {          /* 2nd level distance code */

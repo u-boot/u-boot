@@ -70,7 +70,7 @@ void set_timer(ulong t)
 	write_c0_compare(read_c0_count() + CYCLES_PER_JIFFY);
 }
 
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	unsigned int tmo;
 

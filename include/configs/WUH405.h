@@ -157,8 +157,6 @@
 
 #define CONFIG_SYS_NAND_SKIP_BAD_DOT_I      1  /* ".i" read skips bad blocks   */
 
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
-
 /*-----------------------------------------------------------------------
  * PCI stuff
  *-----------------------------------------------------------------------

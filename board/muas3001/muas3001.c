@@ -308,25 +308,9 @@ int board_early_init_r (void)
 void ft_blob_update (void *blob, bd_t *bd)
 {
 	int ret, nodeoffset = 0;
-	ulong memory_data[2] = {0};
 	ulong flash_data[4] = {0};
 	ulong	speed = 0;
 
-	memory_data[0] = cpu_to_be32 (bd->bi_memstart);
-	memory_data[1] = cpu_to_be32 (bd->bi_memsize);
-
-	nodeoffset = fdt_path_offset (blob, "/memory");
-	if (nodeoffset >= 0) {
-		ret = fdt_setprop (blob, nodeoffset, "reg", memory_data,
-					sizeof(memory_data));
-	if (ret < 0)
-		printf ("ft_blob_update): cannot set /memory/reg "
-			"property err:%s\n", fdt_strerror (ret));
-	} else {
-		/* memory node is required in dts */
-		printf ("ft_blob_update(): cannot find /memory node "
-			"err:%s\n", fdt_strerror(nodeoffset));
-	}
 	/* update Flash addr, size */
 	flash_data[2] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE);
 	flash_data[3] = cpu_to_be32 (CONFIG_SYS_FLASH_SIZE);

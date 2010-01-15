@@ -26,6 +26,7 @@
 #include <asm/io.h>
 #include <command.h>
 #include <malloc.h>
+#include <sja1000.h>
 
 #undef FPGA_DEBUG
 
@@ -44,25 +45,6 @@ const unsigned char fpgadata[] =
  * include common fpga code (for esd boards)
  */
 #include "../common/fpga.c"
-
-/*
- * include common auto-update code (for esd boards)
- */
-#include "../common/auto_update.h"
-
-au_image_t au_image[] = {
-	{"plu405/preinst.img", 0, -1, AU_SCRIPT},
-	{"plu405/u-boot.img", 0xfffc0000, 0x00040000, AU_FIRMWARE},
-	{"plu405/pImage_${bd_type}", 0x00000000, 0x00100000, AU_NAND},
-	{"plu405/pImage.initrd", 0x00100000, 0x00200000, AU_NAND},
-	{"plu405/yaffsmt2.img", 0x00300000, 0x01c00000, AU_NAND},
-	{"plu405/postinst.img", 0, 0, AU_SCRIPT},
-};
-
-int N_AU_IMAGES = (sizeof(au_image) / sizeof(au_image[0]));
-
-/* Prototypes */
-int gunzip(void *, int, unsigned char *, unsigned long *);
 
 int board_early_init_f(void)
 {
@@ -214,6 +196,13 @@ int misc_init_r(void)
 	out_8((void *)DUART1_BA + 1, fctr); /* write FCTR */
 	out_8((void *)DUART1_BA + 3, 0);    /* write LCR */
 
+	/*
+	 * Init magnetic couplers
+	 */
+	if (!getenv("noinitcoupler")) {
+		init_coupler(CAN0_BA);
+		init_coupler(CAN1_BA);
+	}
 	return 0;
 }
 

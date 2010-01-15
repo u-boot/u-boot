@@ -364,13 +364,8 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	} else if (strncmp(argv[1], "me", 2) == 0) {
 		uint64_t addr, size;
 		int err;
-#ifdef CONFIG_SYS_64BIT_STRTOUL
-			addr = simple_strtoull(argv[2], NULL, 16);
-			size = simple_strtoull(argv[3], NULL, 16);
-#else
-			addr = simple_strtoul(argv[2], NULL, 16);
-			size = simple_strtoul(argv[3], NULL, 16);
-#endif
+		addr = simple_strtoull(argv[2], NULL, 16);
+		size = simple_strtoull(argv[3], NULL, 16);
 		err = fdt_fixup_memory(working_fdt, addr, size);
 		if (err < 0)
 			return err;
@@ -402,13 +397,8 @@ int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		} else if (argv[2][0] == 'a') {
 			uint64_t addr, size;
 			int err;
-#ifdef CONFIG_SYS_64BIT_STRTOUL
 			addr = simple_strtoull(argv[3], NULL, 16);
 			size = simple_strtoull(argv[4], NULL, 16);
-#else
-			addr = simple_strtoul(argv[3], NULL, 16);
-			size = simple_strtoul(argv[4], NULL, 16);
-#endif
 			err = fdt_add_mem_rsv(working_fdt, addr, size);
 
 			if (err < 0) {

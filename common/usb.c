@@ -299,8 +299,8 @@ int usb_set_maxpacket(struct usb_device *dev)
 {
 	int i, ii;
 
-	for (i = 0; i < dev->config.bNumInterfaces; i++)
-		for (ii = 0; ii < dev->config.if_desc[i].bNumEndpoints; ii++)
+	for (i = 0; i < dev->config.desc.bNumInterfaces; i++)
+		for (ii = 0; ii < dev->config.if_desc[i].desc.bNumEndpoints; ii++)
 			usb_set_maxpacket_ep(dev,
 					  &dev->config.if_desc[i].ep_desc[ii]);
 
@@ -330,14 +330,14 @@ int usb_parse_config(struct usb_device *dev, unsigned char *buffer, int cfgno)
 		return -1;
 	}
 	memcpy(&dev->config, buffer, buffer[0]);
-	le16_to_cpus(&(dev->config.wTotalLength));
+	le16_to_cpus(&(dev->config.desc.wTotalLength));
 	dev->config.no_of_if = 0;
 
-	index = dev->config.bLength;
+	index = dev->config.desc.bLength;
 	/* Ok the first entry must be a configuration entry,
 	 * now process the others */
 	head = (struct usb_descriptor_header *) &buffer[index];
-	while (index + 1 < dev->config.wTotalLength) {
+	while (index + 1 < dev->config.desc.wTotalLength) {
 		switch (head->bDescriptorType) {
 		case USB_DT_INTERFACE:
 			if (((struct usb_interface_descriptor *) \
@@ -350,7 +350,7 @@ int usb_parse_config(struct usb_device *dev, unsigned char *buffer, int cfgno)
 				dev->config.if_desc[ifno].no_of_ep = 0;
 				dev->config.if_desc[ifno].num_altsetting = 1;
 				curr_if_num =
-				     dev->config.if_desc[ifno].bInterfaceNumber;
+				     dev->config.if_desc[ifno].desc.bInterfaceNumber;
 			} else {
 				/* found alternate setting for the interface */
 				dev->config.if_desc[ifno].num_altsetting++;
@@ -440,10 +440,9 @@ int usb_get_configuration_no(struct usb_device *dev,
 {
 	int result;
 	unsigned int tmp;
-	struct usb_config_descriptor *config;
+	struct usb_configuration_descriptor *config;
 
-
-	config = (struct usb_config_descriptor *)&buffer[0];
+	config = (struct usb_configuration_descriptor *)&buffer[0];
 	result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, 9);
 	if (result < 9) {
 		if (result < 0)
@@ -489,11 +488,11 @@ int usb_set_address(struct usb_device *dev)
  */
 int usb_set_interface(struct usb_device *dev, int interface, int alternate)
 {
-	struct usb_interface_descriptor *if_face = NULL;
+	struct usb_interface *if_face = NULL;
 	int ret, i;
 
-	for (i = 0; i < dev->config.bNumInterfaces; i++) {
-		if (dev->config.if_desc[i].bInterfaceNumber == interface) {
+	for (i = 0; i < dev->config.desc.bNumInterfaces; i++) {
+		if (dev->config.if_desc[i].desc.bInterfaceNumber == interface) {
 			if_face = &dev->config.if_desc[i];
 			break;
 		}
@@ -897,7 +896,7 @@ int usb_new_device(struct usb_device *dev)
 	usb_parse_config(dev, &tmpbuf[0], 0);
 	usb_set_maxpacket(dev);
 	/* we set the default configuration here */
-	if (usb_set_configuration(dev, dev->config.bConfigurationValue)) {
+	if (usb_set_configuration(dev, dev->config.desc.bConfigurationValue)) {
 		printf("failed to set default configuration " \
 			"len %d, status %lX\n", dev->act_len, dev->status);
 		return -1;
@@ -1347,21 +1346,21 @@ int usb_hub_configure(struct usb_device *dev)
 
 int usb_hub_probe(struct usb_device *dev, int ifnum)
 {
-	struct usb_interface_descriptor *iface;
+	struct usb_interface *iface;
 	struct usb_endpoint_descriptor *ep;
 	int ret;
 
 	iface = &dev->config.if_desc[ifnum];
 	/* Is it a hub? */
-	if (iface->bInterfaceClass != USB_CLASS_HUB)
+	if (iface->desc.bInterfaceClass != USB_CLASS_HUB)
 		return 0;
 	/* Some hubs have a subclass of 1, which AFAICT according to the */
 	/*  specs is not defined, but it works */
-	if ((iface->bInterfaceSubClass != 0) &&
-	    (iface->bInterfaceSubClass != 1))
+	if ((iface->desc.bInterfaceSubClass != 0) &&
+	    (iface->desc.bInterfaceSubClass != 1))
 		return 0;
 	/* Multiple endpoints? What kind of mutant ninja-hub is this? */
-	if (iface->bNumEndpoints != 1)
+	if (iface->desc.bNumEndpoints != 1)
 		return 0;
 	ep = &iface->ep_desc[0];
 	/* Output endpoint? Curiousier and curiousier.. */

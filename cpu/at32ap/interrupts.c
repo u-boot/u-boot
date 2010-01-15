@@ -96,7 +96,7 @@ void set_timer(unsigned long t)
 /*
  * For short delays only. It will overflow after a few seconds.
  */
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	unsigned long cycles;
 	unsigned long base;

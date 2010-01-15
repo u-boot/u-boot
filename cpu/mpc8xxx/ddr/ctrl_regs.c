@@ -188,12 +188,13 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr)
 	 * The DDR3 spec has not tXARD,
 	 * we use the tXP instead of it.
 	 * tXP=max(3nCK, 7.5ns) for DDR3.
-	 * we use the tXP=6
 	 * spec has not the tAXPD, we use
 	 * tAXPD=8, need design to confirm.
 	 */
-	act_pd_exit_mclk = 6;
-	pre_pd_exit_mclk = 6;
+	int tXP = max((get_memory_clk_period_ps() * 3), 7500); /* unit=ps */
+	act_pd_exit_mclk = picos_to_mclk(tXP);
+	/* Mode register MR0[A12] is '1' - fast exit */
+	pre_pd_exit_mclk = act_pd_exit_mclk;
 	taxpd_mclk = 8;
 	tmrd_mclk = 4;
 #else /* CONFIG_FSL_DDR2 */
@@ -575,17 +576,21 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 }
 
 /* DDR SDRAM Mode configuration 2 (DDR_SDRAM_MODE_2) */
-static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr)
+static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr,
+				const memctl_options_t *popts)
 {
 	unsigned short esdmode2 = 0;	/* Extended SDRAM mode 2 */
 	unsigned short esdmode3 = 0;	/* Extended SDRAM mode 3 */
 
 #if defined(CONFIG_FSL_DDR3)
-	unsigned int rtt_wr = 2;	/* 120 ohm Rtt_WR */
+	unsigned int rtt_wr = 0;	/* Rtt_WR - dynamic ODT off */
 	unsigned int srt = 0;	/* self-refresh temerature, normal range */
 	unsigned int asr = 0;	/* auto self-refresh disable */
 	unsigned int cwl = compute_cas_write_latency() - 5;
 	unsigned int pasr = 0;	/* partial array self refresh disable */
+
+	if (popts->rtt_override)
+		rtt_wr = popts->rtt_wr_override_value;
 
 	esdmode2 = (0
 		| ((rtt_wr & 0x3) << 9)
@@ -1001,8 +1006,8 @@ static void set_ddr_zq_cntl(fsl_ddr_cfg_regs_t *ddr, unsigned int zq_en)
 }
 
 /* DDR Write Leveling Control (DDR_WRLVL_CNTL) */
-static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr,
-			       unsigned int wrlvl_en)
+static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr, unsigned int wrlvl_en,
+				const memctl_options_t *popts)
 {
 	/*
 	 * First DQS pulse rising edge after margining mode
@@ -1029,8 +1034,9 @@ static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr,
 		/* tWL_DQSEN min = 25 nCK, we set it 32 */
 		wrlvl_dqsen = 0x5;
 		/*
-		 * Write leveling sample time at least need 14 clocks
-		 * due to tWLO = 9, we set it 15 clocks
+		 * Write leveling sample time at least need 6 clocks
+		 * higher than tWLO to allow enough time for progagation
+		 * delay and sampling the prime data bits.
 		 */
 		wrlvl_smpl = 0xf;
 		/*
@@ -1043,9 +1049,16 @@ static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr,
 		 * Write leveling start time
 		 * The value use for the DQS_ADJUST for the first sample
 		 * when write leveling is enabled.
-		 * we set it 1 clock delay
 		 */
 		wrlvl_start = 0x8;
+		/*
+		 * Override the write leveling sample and start time
+		 * according to specific board
+		 */
+		if (popts->wrlvl_override) {
+			wrlvl_smpl = popts->wrlvl_sample;
+			wrlvl_start = popts->wrlvl_start;
+		}
 	}
 
 	ddr->ddr_wrlvl_cntl = (0
@@ -1184,7 +1197,10 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			/* Don't set up boundaries for other CS
 			 * other than CS0, if bank interleaving
 			 * is enabled and not CS2+CS3 interleaved.
+			 * But we need to set the ODT_RD_CFG and
+			 * ODT_WR_CFG for CS1_CONFIG here.
 			 */
+			set_csn_config(i, ddr, popts, dimm_params);
 			break;
 		}
 
@@ -1321,7 +1337,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	set_ddr_sdram_cfg_2(ddr, popts);
 	set_ddr_sdram_mode(ddr, popts, common_dimm,
 				cas_latency, additive_latency);
-	set_ddr_sdram_mode_2(ddr);
+	set_ddr_sdram_mode_2(ddr, popts);
 	set_ddr_sdram_interval(ddr, popts, common_dimm);
 	set_ddr_data_init(ddr);
 	set_ddr_sdram_clk_cntl(ddr, popts);
@@ -1331,7 +1347,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	set_timing_cfg_5(ddr);
 
 	set_ddr_zq_cntl(ddr, zq_en);
-	set_ddr_wrlvl_cntl(ddr, wrlvl_en);
+	set_ddr_wrlvl_cntl(ddr, wrlvl_en, popts);
 
 	set_ddr_sr_cntr(ddr, sr_it);
 

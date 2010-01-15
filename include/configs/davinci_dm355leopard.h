@@ -65,6 +65,7 @@
 
 /* NAND */
 #define CONFIG_NAND_DAVINCI
+#define CONFIG_SYS_NAND_CS		2
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_HW_ECC
 
@@ -114,7 +115,6 @@
 #define CONFIG_ENV_SIZE		(256 << 10)	/* 256 KiB */
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET	0x3C0000
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 #undef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_OVERWRITE
 #endif

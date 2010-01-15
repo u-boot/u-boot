@@ -29,7 +29,6 @@
 
 
 /* Prototypes */
-int gunzip(void *, int, unsigned char *, unsigned long *);
 int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len);
 int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len);

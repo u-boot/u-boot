@@ -53,13 +53,6 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
-/*
- * When initializing flash, if we cannot find the manufacturer ID,
- * assume this is the AMD flash associated with the CDS board.
- * This allows booting from a promjet.
- */
-#define CONFIG_ASSUME_AMD_FLASH
-
 #ifndef __ASSEMBLY__
 extern unsigned long get_board_sys_clk(unsigned long dummy);
 extern unsigned long get_board_ddr_clk(unsigned long dummy);
@@ -105,7 +98,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE1_ADDR		(CONFIG_SYS_CCSRBAR+0xa000)
 
 /* DDR Setup */
-#define CONFIG_SYS_DDR_TLB_START 9
 #define CONFIG_VERY_BIG_RAM
 #define CONFIG_FSL_DDR2
 #undef CONFIG_FSL_DDR_INTERACTIVE
@@ -373,9 +365,6 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_OF_LIBFDT		1
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
-#define CONFIG_SYS_64BIT_VSPRINTF	1
-#define CONFIG_SYS_64BIT_STRTOUL	1
 
 /* new uImage format support */
 #define CONFIG_FIT		1

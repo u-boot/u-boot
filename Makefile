@@ -24,7 +24,7 @@
 VERSION = 2009
 PATCHLEVEL = 11
 SUBLEVEL =
-EXTRAVERSION = -rc1
+EXTRAVERSION =
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 else
@@ -230,12 +230,10 @@ ifeq ($(CPU),mpc85xx)
 LIBS += drivers/qe/qe.a
 LIBS += cpu/mpc8xxx/ddr/libddr.a
 LIBS += cpu/mpc8xxx/lib8xxx.a
-TAG_SUBDIRS += cpu/mpc8xxx
 endif
 ifeq ($(CPU),mpc86xx)
 LIBS += cpu/mpc8xxx/ddr/libddr.a
 LIBS += cpu/mpc8xxx/lib8xxx.a
-TAG_SUBDIRS += cpu/mpc8xxx
 endif
 LIBS += drivers/rtc/librtc.a
 LIBS += drivers/serial/libserial.a
@@ -243,6 +241,7 @@ LIBS += drivers/twserial/libtws.a
 LIBS += drivers/usb/gadget/libusb_gadget.a
 LIBS += drivers/usb/host/libusb_host.a
 LIBS += drivers/usb/musb/libusb_musb.a
+LIBS += drivers/usb/phy/libusb_phy.a
 LIBS += drivers/video/libvideo.a
 LIBS += drivers/watchdog/libwatchdog.a
 LIBS += common/libcommon.a
@@ -402,51 +401,19 @@ env:
 depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
 		for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir _depend ; done
 
+TAG_SUBDIRS = $(SUBDIRS)
+TAG_SUBDIRS += $(dir $(__LIBS))
 TAG_SUBDIRS += include
-TAG_SUBDIRS += lib_generic board/$(BOARDDIR)
-TAG_SUBDIRS += cpu/$(CPU)
-TAG_SUBDIRS += lib_$(ARCH)
-TAG_SUBDIRS += fs/cramfs
-TAG_SUBDIRS += fs/fat
-TAG_SUBDIRS += fs/fdos
-TAG_SUBDIRS += fs/jffs2
-TAG_SUBDIRS += fs/yaffs2
-TAG_SUBDIRS += net
-TAG_SUBDIRS += disk
-TAG_SUBDIRS += common
-TAG_SUBDIRS += drivers/bios_emulator
-TAG_SUBDIRS += drivers/block
-TAG_SUBDIRS += drivers/gpio
-TAG_SUBDIRS += drivers/hwmon
-TAG_SUBDIRS += drivers/i2c
-TAG_SUBDIRS += drivers/input
-TAG_SUBDIRS += drivers/misc
-TAG_SUBDIRS += drivers/mmc
-TAG_SUBDIRS += drivers/mtd
-TAG_SUBDIRS += drivers/mtd/nand
-TAG_SUBDIRS += drivers/mtd/onenand
-TAG_SUBDIRS += drivers/mtd/spi
-TAG_SUBDIRS += drivers/net
-TAG_SUBDIRS += drivers/net/sk98lin
-TAG_SUBDIRS += drivers/pci
-TAG_SUBDIRS += drivers/pcmcia
-TAG_SUBDIRS += drivers/qe
-TAG_SUBDIRS += drivers/rtc
-TAG_SUBDIRS += drivers/serial
-TAG_SUBDIRS += drivers/spi
-TAG_SUBDIRS += drivers/usb
-TAG_SUBDIRS += drivers/video
 
 tags ctags:
-		ctags -w -o $(obj)ctags `find $(SUBDIRS) $(TAG_SUBDIRS) \
-						-name '*.[ch]' -print`
+		ctags -w -o $(obj)ctags `find $(TAG_SUBDIRS) \
+						-name '*.[chS]' -print`
 
 etags:
-		etags -a -o $(obj)etags `find $(SUBDIRS) $(TAG_SUBDIRS) \
-						-name '*.[ch]' -print`
+		etags -a -o $(obj)etags `find $(TAG_SUBDIRS) \
+						-name '*.[chS]' -print`
 cscope:
-		find $(SUBDIRS) $(TAG_SUBDIRS) -name '*.[ch]' -print \
-						> cscope.files
+		find $(TAG_SUBDIRS) -name '*.[chS]' -print > cscope.files
 		cscope -b -q -k
 
 SYSTEM_MAP = \
@@ -605,6 +572,9 @@ jupiter_config:	unconfig
 
 inka4x0_config:	unconfig
 	@$(MKCONFIG) inka4x0 ppc mpc5xxx inka4x0
+
+ipek01_config: unconfig
+	@$(MKCONFIG) -a ipek01 ppc mpc5xxx ipek01
 
 lite5200b_config	\
 lite5200b_PM_config	\
@@ -2291,8 +2261,12 @@ MPC8313ERDB_NAND_66_config: unconfig
 		echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk ; \
 	fi ;
 
+MPC8315ERDB_NAND_config \
 MPC8315ERDB_config: unconfig
-	@$(MKCONFIG) -a MPC8315ERDB ppc mpc83xx mpc8315erdb freescale
+	@if [ "$(findstring _NAND_,$@)" ] ; then \
+		ln -sf mpc8313erdb nand_spl/board/freescale/mpc8315erdb ; \
+	fi ;
+	@$(MKCONFIG) -t $(@:_config=) MPC8315ERDB ppc mpc83xx mpc8315erdb freescale
 
 MPC8323ERDB_config:	unconfig
 	@$(MKCONFIG) -a MPC8323ERDB ppc mpc83xx mpc8323erdb freescale
@@ -2426,8 +2400,9 @@ SIMPC8313_SP_config: unconfig
 TQM834x_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc83xx tqm834x tqc
 
+caddy2_config \
 vme8349_config:		unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc83xx vme8349 esd
+	@$(MKCONFIG) -t $(@:_config=) vme8349 ppc mpc83xx vme8349 esd
 
 #########################################################################
 ## MPC85xx Systems
@@ -2693,6 +2668,9 @@ shannon_config	:	unconfig
 ## ARM92xT Systems
 #########################################################################
 
+a320evb_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm920t a320evb faraday a320
+
 #########################################################################
 ## Atmel AT91RM9200 Systems
 #########################################################################
@@ -2926,6 +2904,9 @@ cp922_config		\
 cp922_XA10_config	\
 cp1026_config: unconfig
 	@board/armltd/integrator/split_by_variant.sh cp $@
+
+da830evm_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs da830evm davinci davinci
 
 davinci_dvevm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dvevm davinci davinci
@@ -3257,6 +3238,7 @@ zylonite_config :
 #########################################################################
 
 apollon_config		: unconfig
+	@mkdir -p $(obj)include
 	@echo "#define CONFIG_ONENAND_U_BOOT" > $(obj)include/config.h
 	@$(MKCONFIG) $(@:_config=) arm arm1136 apollon NULL omap24xx
 	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk

@@ -101,6 +101,47 @@
 #define CONFIG_OMAP3_MMC		1
 #define CONFIG_DOS_PARTITION		1
 
+/* DDR - I use Micron DDR */
+#define CONFIG_OMAP3_MICRON_DDR		1
+
+/* USB
+ * Enable CONFIG_MUSB_HCD for Host functionalities MSC, keyboard
+ * Enable CONFIG_MUSB_UDD for Device functionalities.
+ */
+#define CONFIG_USB_OMAP3		1
+#define CONFIG_MUSB_HCD			1
+/* #define CONFIG_MUSB_UDC		1 */
+
+#ifdef CONFIG_USB_OMAP3
+
+#ifdef CONFIG_MUSB_HCD
+#define CONFIG_CMD_USB
+
+#define CONFIG_USB_STORAGE
+#define CONGIG_CMD_STORAGE
+#define CONFIG_CMD_FAT
+
+#ifdef CONFIG_USB_KEYBOARD
+#define CONFIG_SYS_USB_EVENT_POLL
+#define CONFIG_PREBOOT "usb start"
+#endif /* CONFIG_USB_KEYBOARD */
+
+#endif /* CONFIG_MUSB_HCD */
+
+#ifdef CONFIG_MUSB_UDC
+/* USB device configuration */
+#define CONFIG_USB_DEVICE		1
+#define CONFIG_USB_TTY			1
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
+/* Change these to suit your needs */
+#define CONFIG_USBD_VENDORID		0x0451
+#define CONFIG_USBD_PRODUCTID		0x5678
+#define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
+#define CONFIG_USBD_PRODUCT_NAME	"EVM"
+#endif /* CONFIG_MUSB_UDC */
+
+#endif /* CONFIG_USB_OMAP3 */
+
 /* commands to include */
 #include <config_cmd_default.h>
 
@@ -143,8 +184,6 @@
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of */
 							/* NAND devices */
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
-
 #define CONFIG_JFFS2_NAND
 /* nand device jffs2 lives on */
 #define CONFIG_JFFS2_DEV		"nand0"
@@ -159,6 +198,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
+	"usbtty=cdc_acm\0" \
 	"console=ttyS2,115200n8\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"root=/dev/mmcblk0p2 rw " \
@@ -194,12 +234,10 @@
 /*
  * Miscellaneous configurable options
  */
-#define V_PROMPT		"OMAP3_EVM # "
-
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_PROMPT		V_PROMPT
+#define CONFIG_SYS_PROMPT		"OMAP3_EVM # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

@@ -57,9 +57,12 @@
 #include <lzma/LzmaTools.h>
 #endif /* CONFIG_LZMA */
 
+#ifdef CONFIG_LZO
+#include <linux/lzo.h>
+#endif /* CONFIG_LZO */
+
 DECLARE_GLOBAL_DATA_PTR;
 
-extern int gunzip (void *dst, int dstlen, unsigned char *src, unsigned long *lenp);
 #ifndef CONFIG_SYS_BOOTM_LEN
 #define CONFIG_SYS_BOOTM_LEN	0x800000	/* use 8MByte as default max gunzip size */
 #endif
@@ -129,7 +132,7 @@ int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 static boot_os_fn do_bootm_integrity;
 #endif
 
-boot_os_fn * boot_os[] = {
+static boot_os_fn *boot_os[] = {
 #ifdef CONFIG_BOOTM_LINUX
 	[IH_OS_LINUX] = do_bootm_linux,
 #endif
@@ -405,6 +408,24 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		*load_end = load + unc_len;
 		break;
 #endif /* CONFIG_LZMA */
+#ifdef CONFIG_LZO
+	case IH_COMP_LZO:
+		printf ("   Uncompressing %s ... ", type_name);
+
+		int ret = lzop_decompress((const unsigned char *)image_start,
+					  image_len, (unsigned char *)load,
+					  &unc_len);
+		if (ret != LZO_E_OK) {
+			printf ("LZO: uncompress or overwrite error %d "
+			      "- must RESET board to recover\n", ret);
+			if (boot_progress)
+				show_boot_progress (-6);
+			return BOOTM_ERR_RESET;
+		}
+
+		*load_end = load + unc_len;
+		break;
+#endif /* CONFIG_LZO */
 	default:
 		printf ("Unimplemented compression type %d\n", comp);
 		return BOOTM_ERR_UNIMPLEMENTED;
@@ -453,8 +474,8 @@ cmd_tbl_t cmd_bootm_sub[] = {
 #ifdef CONFIG_OF_LIBFDT
 	U_BOOT_CMD_MKENT(fdt, 0, 1, (void *)BOOTM_STATE_FDT, "", ""),
 #endif
-	U_BOOT_CMD_MKENT(bdt, 0, 1, (void *)BOOTM_STATE_OS_BD_T, "", ""),
 	U_BOOT_CMD_MKENT(cmdline, 0, 1, (void *)BOOTM_STATE_OS_CMDLINE, "", ""),
+	U_BOOT_CMD_MKENT(bdt, 0, 1, (void *)BOOTM_STATE_OS_BD_T, "", ""),
 	U_BOOT_CMD_MKENT(prep, 0, 1, (void *)BOOTM_STATE_OS_PREP, "", ""),
 	U_BOOT_CMD_MKENT(go, 0, 1, (void *)BOOTM_STATE_OS_GO, "", ""),
 };
@@ -524,7 +545,7 @@ int do_bootm_subcommand (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 			break;
 #endif
-#ifdef CONFIG_OF_LIBFDT
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_SYS_BOOTMAPSZ)
 		case BOOTM_STATE_FDT:
 		{
 			ulong bootmap_base = getenv_bootm_low();
@@ -1000,8 +1021,8 @@ U_BOOT_CMD(
 #if defined(CONFIG_OF_LIBFDT)
 	"\tfdt     - relocate flat device tree\n"
 #endif
-	"\tbdt     - OS specific bd_t processing\n"
 	"\tcmdline - OS specific command line processing/setup\n"
+	"\tbdt     - OS specific bd_t processing\n"
 	"\tprep    - OS specific prep before relocation or go\n"
 	"\tgo      - start OS"
 );

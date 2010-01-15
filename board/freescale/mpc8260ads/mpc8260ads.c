@@ -550,24 +550,11 @@ void pci_init_board(void)
 #endif
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
-void ft_blob_update(void *blob, bd_t *bd)
-{
-	int ret;
-
-	ret = fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
-
-	if (ret < 0) {
-		printf("ft_blob_update(): cannot set /memory/reg "
-			"property err:%s\n", fdt_strerror(ret));
-	}
-}
-
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 #ifdef CONFIG_PCI
 	ft_pci_setup(blob, bd);
 #endif
-	ft_blob_update(blob, bd);
 }
 #endif

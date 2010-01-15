@@ -266,8 +266,6 @@ found_middle:
 	return result + ffz(tmp);
 }
 
-#define ffs(x) generic_ffs(x)
-
 /*
  * hweightN: returns the hamming weight (i.e. the number
  * of bits set) of a N-bit word

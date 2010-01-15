@@ -105,7 +105,7 @@ unsigned long long get_ticks (void)
 	return 0 - readl(TCNT0);
 }
 
-void udelay (unsigned long usec)
+void __udelay (unsigned long usec)
 {
 	unsigned long long tmp;
 	ulong tmo;

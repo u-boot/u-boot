@@ -32,3 +32,6 @@ PLATFORM_CPPFLAGS += -Wa,-m440 -mcpu=440
 else
 PLATFORM_CPPFLAGS += -Wa,-m405 -mcpu=405
 endif
+
+# Use default linker script.  Board port can override in board/*/config.mk
+LDSCRIPT := $(SRCTREE)/cpu/ppc4xx/u-boot.lds

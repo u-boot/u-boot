@@ -44,13 +44,6 @@
 #define CONFIG_ENV_OVERWRITE
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 
-/*
- * When initializing flash, if we cannot find the manufacturer ID,
- * assume this is the AMD flash associated with the MDS board.
- * This allows booting from a promjet.
- */
-#define CONFIG_ASSUME_AMD_FLASH
-
 #ifndef __ASSEMBLY__
 extern unsigned long get_clock_freq(void);
 #endif
@@ -254,9 +247,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
-#define CONFIG_SYS_64BIT_VSPRINTF	1
-#define CONFIG_SYS_64BIT_STRTOUL	1
-
 /*
  * I2C
  */
@@ -287,6 +277,10 @@ extern unsigned long get_clock_freq(void);
 #define PLPDIR1_I2C_BIT_MASK		0x0000000F
 #define PLPDIR1_I2C2_VAL		0x0000000F
 #define PLPDIR1_ESDHC_VAL		0x00000006
+#define PLPPAR1_UART0_BIT_MASK		0x00000fc0
+#define PLPPAR1_ESDHC_4BITS_VAL		0x00000a80
+#define PLPDIR1_UART0_BIT_MASK		0x00000fc0
+#define PLPDIR1_ESDHC_4BITS_VAL		0x00000a80
 
 /*
  * General PCI

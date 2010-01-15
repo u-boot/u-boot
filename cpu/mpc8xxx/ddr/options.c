@@ -22,9 +22,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			unsigned int ctrl_num)
 {
 	unsigned int i;
-#if (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	const char *p;
-#endif
 
 	/* Chip select options. */
 
@@ -200,6 +198,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 * meet the tQDSS under different loading.
 	 */
 	popts->wrlvl_en = 1;
+	popts->wrlvl_override = 0;
 #endif
 
 	/*
@@ -242,8 +241,10 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 						simple_strtoul(p, NULL, 0);
 		}
 	}
+#endif
 
-	if( (p = getenv("ba_intlv_ctl")) != NULL) {
+	if( ((p = getenv("ba_intlv_ctl")) != NULL) &&
+		(CONFIG_CHIP_SELECTS_PER_CTRL > 1)) {
 		if (strcmp(p, "cs0_cs1") == 0)
 			popts->ba_intlv_ctl = FSL_DDR_CS0_CS1;
 		else if (strcmp(p, "cs2_cs3") == 0)
@@ -283,7 +284,6 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			break;
 		}
 	}
-#endif
 
 	fsl_ddr_board_options(popts, pdimm, ctrl_num);
 

@@ -23,6 +23,7 @@ struct erase_info;
 struct onenand_chip;
 
 extern struct mtd_info onenand_mtd;
+extern struct onenand_chip onenand_chip;
 
 /* board */
 extern void onenand_board_init(struct mtd_info *);
@@ -37,6 +38,15 @@ extern int onenand_write(struct mtd_info *mtd, loff_t from, size_t len,
 extern int onenand_erase(struct mtd_info *mtd, struct erase_info *instr);
 
 extern char *onenand_print_device_info(int device, int version);
+
+extern unsigned onenand_block(struct onenand_chip *this, loff_t addr);
+
+extern loff_t onenand_addr(struct onenand_chip *this, int block);
+
+extern int flexonenand_region(struct mtd_info *mtd, loff_t addr);
+
+extern int flexonenand_set_boundary(struct mtd_info *mtd, int die,
+					int boundary, int lock);
 
 /* S3C64xx */
 extern void s3c64xx_onenand_init(struct mtd_info *);

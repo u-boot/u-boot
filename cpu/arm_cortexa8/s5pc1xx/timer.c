@@ -115,7 +115,7 @@ void set_timer(unsigned long t)
 }
 
 /* delay x useconds */
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	unsigned long tmo, tmp;
 

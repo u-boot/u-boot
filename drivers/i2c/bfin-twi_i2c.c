@@ -26,6 +26,7 @@
 
 #ifdef TWI0_CLKDIV
 #define bfin_write_TWI_CLKDIV(val)           bfin_write_TWI0_CLKDIV(val)
+#define bfin_read_TWI_CLKDIV(val)            bfin_read_TWI0_CLKDIV(val)
 #define bfin_write_TWI_CONTROL(val)          bfin_write_TWI0_CONTROL(val)
 #define bfin_read_TWI_CONTROL(val)           bfin_read_TWI0_CONTROL(val)
 #define bfin_write_TWI_MASTER_ADDR(val)      bfin_write_TWI0_MASTER_ADDR(val)
@@ -44,8 +45,21 @@
 #ifdef CONFIG_TWICLK_KHZ
 # error do not define CONFIG_TWICLK_KHZ ... use CONFIG_SYS_I2C_SPEED
 #endif
-#if CONFIG_SYS_I2C_SPEED > 400000
-# error The Blackfin I2C hardware can only operate at 400KHz max
+
+/*
+ * The way speed is changed into duty often results in integer truncation
+ * with 50% duty, so we'll force rounding up to the next duty by adding 1
+ * to the max.  In practice this will get us a speed of something like
+ * 385 KHz.  The other limit is easy to handle as it is only 8 bits.
+ */
+#define I2C_SPEED_MAX             400000
+#define I2C_SPEED_TO_DUTY(speed)  (5000000 / (speed))
+#define I2C_DUTY_MAX              (I2C_SPEED_TO_DUTY(I2C_SPEED_MAX) + 1)
+#define I2C_DUTY_MIN              0xff	/* 8 bit limited */
+#define SYS_I2C_DUTY              I2C_SPEED_TO_DUTY(CONFIG_SYS_I2C_SPEED)
+/* Note: duty is inverse of speed, so the comparisons below are correct */
+#if SYS_I2C_DUTY < I2C_DUTY_MAX || SYS_I2C_DUTY > I2C_DUTY_MIN
+# error "The Blackfin I2C hardware can only operate 20KHz - 400KHz"
 #endif
 
 /* All transfers are described by this data structure */
@@ -60,6 +74,9 @@ struct i2c_msg {
 	u8 *abuf;		/* addr buffer */
 };
 
+/* Allow msec timeout per ~byte transfer */
+#define I2C_TIMEOUT 10
+
 /**
  * wait_for_completion - manage the actual i2c transfer
  *	@msg: the i2c msg
@@ -67,8 +84,9 @@ struct i2c_msg {
 static int wait_for_completion(struct i2c_msg *msg)
 {
 	uint16_t int_stat;
+	ulong timebase = get_timer(0);
 
-	while (!ctrlc()) {
+	do {
 		int_stat = bfin_read_TWI_INT_STAT();
 
 		if (int_stat & XMTSERV) {
@@ -103,7 +121,7 @@ static int wait_for_completion(struct i2c_msg *msg)
 			debugi("processing MERR");
 			bfin_write_TWI_INT_STAT(MERR);
 			SSYNC();
-			break;
+			return msg->len;
 		}
 		if (int_stat & MCOMP) {
 			debugi("processing MCOMP");
@@ -116,7 +134,12 @@ static int wait_for_completion(struct i2c_msg *msg)
 			} else
 				break;
 		}
-	}
+
+		/* If we were able to do something, reset timeout */
+		if (int_stat)
+			timebase = get_timer(0);
+
+	} while (get_timer(timebase) < I2C_TIMEOUT);
 
 	return msg->len;
 }
@@ -204,7 +227,36 @@ static int i2c_transfer(uchar chip, uint addr, int alen, uchar *buffer, int len,
 	return ret;
 }
 
-/*
+/**
+ * i2c_set_bus_speed - set i2c bus speed
+ *	@speed: bus speed (in HZ)
+ */
+int i2c_set_bus_speed(unsigned int speed)
+{
+	u16 clkdiv = I2C_SPEED_TO_DUTY(speed);
+
+	/* Set TWI interface clock */
+	if (clkdiv < I2C_DUTY_MAX || clkdiv > I2C_DUTY_MIN)
+		return -1;
+	bfin_write_TWI_CLKDIV((clkdiv << 8) | (clkdiv & 0xff));
+
+	/* Don't turn it on */
+	bfin_write_TWI_MASTER_CTL(speed > 100000 ? FAST : 0);
+
+	return 0;
+}
+
+/**
+ * i2c_get_bus_speed - get i2c bus speed
+ *	@speed: bus speed (in HZ)
+ */
+unsigned int i2c_get_bus_speed(void)
+{
+	/* 10 MHz / (2 * CLKDIV) -> 5 MHz / CLKDIV */
+	return 5000000 / (bfin_read_TWI_CLKDIV() & 0xff);
+}
+
+/**
  * i2c_init - initialize the i2c bus
  *	@speed: bus speed (in HZ)
  *	@slaveaddr: address of device in slave mode (0 - not slave)
@@ -220,15 +272,9 @@ void i2c_init(int speed, int slaveaddr)
 	bfin_write_TWI_CONTROL(prescale);
 
 	/* Set TWI interface clock as specified */
-	bfin_write_TWI_CLKDIV(
-		((5 * 1024 / (speed / 1000)) << 8) |
-		((5 * 1024 / (speed / 1000)) & 0xFF)
-	);
+	i2c_set_bus_speed(speed);
 
-	/* Don't turn it on */
-	bfin_write_TWI_MASTER_CTL(speed > 100000 ? FAST : 0);
-
-	/* But enable it */
+	/* Enable it */
 	bfin_write_TWI_CONTROL(TWI_ENA | prescale);
 	SSYNC();
 

@@ -29,6 +29,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 #include <i2c.h>
 #include <spd.h>
 #include <asm/mmu.h>
@@ -149,6 +150,14 @@ long int spd_sdram()
 	unsigned int sdram_cfg;
 	unsigned int ddrc_ecc_enable;
 	unsigned int pvr = get_pvr();
+
+	/*
+	 * First disable the memory controller (could be enabled
+	 * by the debugger)
+	 */
+	clrsetbits_be32(&ddr->sdram_cfg, SDRAM_CFG_MEM_EN, 0);
+	sync();
+	isync();
 
 	/* Read SPD parameters with I2C */
 	CONFIG_SYS_READ_SPD(SPD_EEPROM_ADDRESS, 0, 1, (uchar *) & spd, sizeof (spd));

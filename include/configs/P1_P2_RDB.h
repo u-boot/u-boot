@@ -149,8 +149,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_DDR_ERR_DIS		0x00000000
 #define CONFIG_SYS_DDR_SBE		0x00FF0000
 
-#define CONFIG_SYS_DDR_TLB_START 9
-
 /*
  * Memory map
  *
@@ -309,9 +307,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_OF_LIBFDT		1
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
-#define CONFIG_SYS_64BIT_VSPRINTF	1
-#define CONFIG_SYS_64BIT_STRTOUL	1
 
 /* new uImage format support */
 #define CONFIG_FIT		1

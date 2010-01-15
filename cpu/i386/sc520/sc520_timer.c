@@ -35,6 +35,12 @@ void sc520_timer_isr(void)
 
 int timer_init(void)
 {
+	/* Register the SC520 specific timer interrupt handler */
+	register_timer_isr (sc520_timer_isr);
+
+	/* Install interrupt handler for GP Timer 1 */
+	irq_install_handler (0, timer_isr, NULL);
+
 	/* Map GP Timer 1 to Master PIC IR0  */
 	sc520_mmcr->gp_tmr_int_map[1] = 0x01;
 
@@ -54,11 +60,6 @@ int timer_init(void)
 	sc520_mmcr->gptmr1maxcmpa = 100;
 	sc520_mmcr->gptmr1ctl = 0xe009;
 
-	/* Register the SC520 specific timer interrupt handler */
-	register_timer_isr (sc520_timer_isr);
-
-	/* Install interrupt handler for GP Timer 1 */
-	irq_install_handler (0, timer_isr, NULL);
 	unmask_irq (0);
 
 	/* Clear the GP Timer 1 status register to get the show rolling*/
@@ -67,7 +68,7 @@ int timer_init(void)
 	return 0;
 }
 
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	int m = 0;
 	long u;

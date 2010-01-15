@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Print statistics when we exit
 trap exit 1 2 3 15
@@ -39,6 +39,7 @@ LIST=""
 ERR_CNT=0
 ERR_LIST=""
 TOTAL_CNT=0
+RC=0
 
 #########################################################################
 ## MPC5xx Systems
@@ -63,6 +64,7 @@ LIST_5xxx="		\
 	icecube_5100	\
 	icecube_5200	\
 	inka4x0		\
+	ipek01		\
 	lite5200b	\
 	mcc200		\
 	mecp5200	\
@@ -356,10 +358,12 @@ LIST_8260="		\
 #########################################################################
 
 LIST_83xx="		\
+	caddy2		\
 	kmeter1		\
 	MPC8313ERDB_33	\
 	MPC8313ERDB_NAND_66	\
 	MPC8315ERDB	\
+	MPC8315ERDB_NAND	\
 	MPC8323ERDB	\
 	MPC832XEMDS	\
 	MPC832XEMDS_ATM	\
@@ -538,6 +542,7 @@ LIST_ARM7="		\
 #########################################################################
 
 LIST_ARM9="			\
+	a320evb			\
 	ap920t			\
 	ap922_XA10		\
 	ap926ejs		\
@@ -548,6 +553,7 @@ LIST_ARM9="			\
 	cp926ejs		\
 	cp946es			\
 	cp966			\
+	da830evm		\
 	imx27lite		\
 	lpd7a400		\
 	mv88f6281gtw_ge		\
@@ -936,6 +942,12 @@ build_target() {
 
 	${MAKE} ${JOBS} all 2>&1 >${LOG_DIR}/$target.MAKELOG \
 				| tee ${LOG_DIR}/$target.ERR
+
+	# Check for 'make' errors
+	if [ ${PIPESTATUS[0]} -ne 0 ] ; then
+		RC=1
+	fi
+
 	if [ -s ${LOG_DIR}/$target.ERR ] ; then
 		ERR_CNT=$((ERR_CNT + 1))
 		ERR_LIST="${ERR_LIST} $target"
@@ -959,6 +971,8 @@ print_stats() {
 		echo "Boards with warnings or errors: ${ERR_CNT} (${ERR_LIST} )"
 	fi
 	echo "----------------------------------------------------------"
+
+	exit $RC
 }
 
 #-----------------------------------------------------------------------

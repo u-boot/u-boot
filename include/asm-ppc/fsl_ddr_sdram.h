@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2009 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -177,6 +177,11 @@ typedef struct memctl_options_s {
 	unsigned int clk_adjust;		/* */
 	unsigned int cpo_override;
 	unsigned int write_data_delay;		/* DQS adjust */
+
+	unsigned int wrlvl_override;
+	unsigned int wrlvl_sample;		/* Write leveling */
+	unsigned int wrlvl_start;
+
 	unsigned int half_strength_driver_enable;
 	unsigned int twoT_en;
 	unsigned int threeT_en;
@@ -187,6 +192,7 @@ typedef struct memctl_options_s {
 	/* Rtt impedance */
 	unsigned int rtt_override;		/* rtt_override enable */
 	unsigned int rtt_override_value;	/* that is Rtt_Nom for DDR3 */
+	unsigned int rtt_wr_override_value;	/* this is Rtt_WR for DDR3 */
 
 	/* Automatic self refresh */
 	unsigned int auto_self_refresh_en;

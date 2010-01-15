@@ -1225,8 +1225,6 @@ int do_sha1sum(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 
 #ifdef CONFIG_CMD_UNZIP
-int  gunzip (void *, int, unsigned char *, unsigned long *);
-
 int do_unzip ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	unsigned long src, dst;

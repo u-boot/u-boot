@@ -12,38 +12,34 @@ unsigned long get_version(void)
 	return XF_VERSION;
 }
 
-void jumptable_init (void)
+/* Reuse _exports.h with a little trickery to avoid bitrot */
+#define EXPORT_FUNC(sym) gd->jt[XF_##sym] = (void *)sym;
+
+#if !defined(CONFIG_I386) && !defined(CONFIG_PPC)
+# define install_hdlr      dummy
+# define free_hdlr         dummy
+#else /* kludge for non-standard function naming */
+# define install_hdlr      irq_install_handler
+# define free_hdlr         irq_free_handler
+#endif
+#ifndef CONFIG_CMD_I2C
+# define i2c_write         dummy
+# define i2c_read          dummy
+#endif
+#ifndef CONFIG_CMD_SPI
+# define spi_init          dummy
+# define spi_setup_slave   dummy
+# define spi_free_slave    dummy
+# define spi_claim_bus     dummy
+# define spi_release_bus   dummy
+# define spi_xfer          dummy
+#endif
+#ifndef CONFIG_HAS_UID
+# define forceenv          dummy
+#endif
+
+void jumptable_init(void)
 {
-	int i;
-
-	gd->jt = (void **) malloc (XF_MAX * sizeof (void *));
-	for (i = 0; i < XF_MAX; i++)
-		gd->jt[i] = (void *) dummy;
-
-	gd->jt[XF_get_version] = (void *) get_version;
-	gd->jt[XF_malloc] = (void *) malloc;
-	gd->jt[XF_free] = (void *) free;
-	gd->jt[XF_getenv] = (void *) getenv;
-	gd->jt[XF_setenv] = (void *) setenv;
-	gd->jt[XF_get_timer] = (void *) get_timer;
-	gd->jt[XF_simple_strtoul] = (void *) simple_strtoul;
-	gd->jt[XF_udelay] = (void *) udelay;
-	gd->jt[XF_simple_strtol] = (void *) simple_strtol;
-	gd->jt[XF_strcmp] = (void *) strcmp;
-#if defined(CONFIG_I386) || defined(CONFIG_PPC)
-	gd->jt[XF_install_hdlr] = (void *) irq_install_handler;
-	gd->jt[XF_free_hdlr] = (void *) irq_free_handler;
-#endif	/* I386 || PPC */
-#if defined(CONFIG_CMD_I2C)
-	gd->jt[XF_i2c_write] = (void *) i2c_write;
-	gd->jt[XF_i2c_read] = (void *) i2c_read;
-#endif
-#ifdef CONFIG_CMD_SPI
-	gd->jt[XF_spi_init] = (void *) spi_init;
-	gd->jt[XF_spi_setup_slave] = (void *) spi_setup_slave;
-	gd->jt[XF_spi_free_slave] = (void *) spi_free_slave;
-	gd->jt[XF_spi_claim_bus] = (void *) spi_claim_bus;
-	gd->jt[XF_spi_release_bus] = (void *) spi_release_bus;
-	gd->jt[XF_spi_xfer] = (void *) spi_xfer;
-#endif
+	gd->jt = malloc(XF_MAX * sizeof(void *));
+#include <_exports.h>
 }

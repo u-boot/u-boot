@@ -284,12 +284,6 @@ int vct_gpio_get(int pin);
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
 /*
- * Needed for 64bit printf format
- */
-#define CONFIG_SYS_64BIT_VSPRINTF	1
-#define CONFIG_SYS_64BIT_STRTOUL	1
-
-/*
  * UBI configuration
  */
 #if defined(CONFIG_VCT_ONENAND)

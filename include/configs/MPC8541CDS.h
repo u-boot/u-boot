@@ -46,13 +46,6 @@
 
 #define CONFIG_FSL_VIA
 
-/*
- * When initializing flash, if we cannot find the manufacturer ID,
- * assume this is the AMD flash associated with the CDS board.
- * This allows booting from a promjet.
- */
-#define CONFIG_ASSUME_AMD_FLASH
-
 #ifndef __ASSEMBLY__
 extern unsigned long get_clock_freq(void);
 #endif
@@ -292,9 +285,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_OF_LIBFDT		1
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
-#define CONFIG_SYS_64BIT_VSPRINTF	1
-#define CONFIG_SYS_64BIT_STRTOUL	1
 
 /*
  * I2C

@@ -72,7 +72,7 @@ static long fixed_sdram(void)
 	 * Erratum DDR3 requires a 50ms delay after clearing DDRCDR[DDR_cfg],
 	 * or the DDR2 controller may fail to initialize correctly.
 	 */
-	udelay(50000);
+	__udelay(50000);
 
 	im->ddr.csbnds[0].csbnds = (msize - 1) >> 24;
 	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CONFIG;

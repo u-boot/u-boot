@@ -107,6 +107,9 @@ typedef volatile unsigned char	vu_char;
 #ifdef CONFIG_BLACKFIN
 #include <asm/blackfin.h>
 #endif
+#ifdef CONFIG_SOC_DA8XX
+#include <asm/arch/hardware.h>
+#endif
 
 #include <part.h>
 #include <flash.h>
@@ -604,16 +607,22 @@ unsigned long long get_ticks(void);
 void	wait_ticks    (unsigned long);
 
 /* lib_$(ARCH)/time.c */
-void	udelay	      (unsigned long);
+void	__udelay      (unsigned long);
 ulong	usec2ticks    (unsigned long usec);
 ulong	ticks2usec    (unsigned long ticks);
 int	init_timebase (void);
 
+/* lib_generic/gunzip.c */
+int gunzip(void *, int, unsigned char *, unsigned long *);
+int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
+						int stoponerr, int offset);
+
+/* lib_generic/time.c */
+void	udelay        (unsigned long);
+
 /* lib_generic/vsprintf.c */
 ulong	simple_strtoul(const char *cp,char **endp,unsigned int base);
-#ifdef CONFIG_SYS_64BIT_VSPRINTF
 unsigned long long	simple_strtoull(const char *cp,char **endp,unsigned int base);
-#endif
 long	simple_strtol(const char *cp,char **endp,unsigned int base);
 void	panic(const char *fmt, ...)
 		__attribute__ ((format (__printf__, 1, 2)));

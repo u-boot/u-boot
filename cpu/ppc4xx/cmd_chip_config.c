@@ -52,6 +52,12 @@ static int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	int cur_config_nr = -1;
 	u8 cur_config[CONFIG_4xx_CONFIG_BLOCKSIZE];
 
+	/*
+	 * First switch to correct I2C bus. This is I2C bus 0
+	 * for all currently available 4xx derivats.
+	 */
+	I2C_SET_BUS(0);
+
 #ifdef CONFIG_CMD_EEPROM
 	ret = eeprom_read(CONFIG_4xx_CONFIG_I2C_EEPROM_ADDR,
 			  CONFIG_4xx_CONFIG_I2C_EEPROM_OFFSET,

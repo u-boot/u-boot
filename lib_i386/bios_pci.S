@@ -34,6 +34,8 @@
 .section .bios, "ax"
 .code16
 .globl realmode_pci_bios_call_entry
+.hidden realmode_pci_bios_call_entry
+.type realmode_pci_bios_call_entry, @function
 realmode_pci_bios_call_entry:
 	MAKE_BIOS_STACK
 	call realmode_pci_bios

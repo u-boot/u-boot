@@ -89,6 +89,9 @@
 #define CONFIG_OMAP3_MMC		1
 #define CONFIG_DOS_PARTITION		1
 
+/* DDR - I use Micron DDR */
+#define CONFIG_OMAP3_MICRON_DDR		1
+
 /* commands to include */
 #include <config_cmd_default.h>
 
@@ -134,8 +137,6 @@
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND */
 						/* devices */
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
-
 #define CONFIG_JFFS2_NAND
 /* nand device jffs2 lives on */
 #define CONFIG_JFFS2_DEV		"nand0"
@@ -199,12 +200,10 @@
 /*
  * Miscellaneous configurable options
  */
-#define V_PROMPT		"Overo # "
-
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_PROMPT		V_PROMPT
+#define CONFIG_SYS_PROMPT		"Overo # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

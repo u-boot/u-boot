@@ -343,9 +343,6 @@
 #define CONFIG_OF_BOARD_SETUP	1
 #define CONFIG_OF_STDOUT_VIA_ALIAS 1
 
-#define CONFIG_SYS_64BIT_STRTOUL		1
-#define CONFIG_SYS_64BIT_VSPRINTF		1
-
 /* I2C */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
 #undef	CONFIG_SOFT_I2C		/* I2C bit-banged */

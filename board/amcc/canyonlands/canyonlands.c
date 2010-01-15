@@ -326,141 +326,17 @@ phys_size_t initdram(int board_type)
 }
 #endif
 
-/*
- *  pci_target_init
- *
- *	The bootstrap configuration provides default settings for the pci
- *	inbound map (PIM). But the bootstrap config choices are limited and
- *	may not be sufficient for a given board.
- */
-#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
-void pci_target_init(struct pci_controller * hose )
-{
-	/*
-	 * Disable everything
-	 */
-	out_le32((void *)PCIL0_PIM0SA, 0); /* disable */
-	out_le32((void *)PCIL0_PIM1SA, 0); /* disable */
-	out_le32((void *)PCIL0_PIM2SA, 0); /* disable */
-	out_le32((void *)PCIL0_EROMBA, 0); /* disable expansion rom */
-
-	/*
-	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440
-	 * strapping options to not support sizes such as 128/256 MB.
-	 */
-	out_le32((void *)PCIL0_PIM0LAL, CONFIG_SYS_SDRAM_BASE);
-	out_le32((void *)PCIL0_PIM0LAH, 0);
-	out_le32((void *)PCIL0_PIM0SA, ~(gd->ram_size - 1) | 1);
-	out_le32((void *)PCIL0_BAR0, 0);
-
-	/*
-	 * Program the board's subsystem id/vendor id
-	 */
-	out_le16((void *)PCIL0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID);
-	out_le16((void *)PCIL0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID);
-
-	out_le16((void *)PCIL0_CMD, in16r(PCIL0_CMD) | PCI_COMMAND_MEMORY);
-}
-#endif	/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
-
 #if defined(CONFIG_PCI)
-/*
- * is_pci_host
- *
- * This routine is called to determine if a pci scan should be
- * performed. With various hardware environments (especially cPCI and
- * PPMC) it's insufficient to depend on the state of the arbiter enable
- * bit in the strap register, or generic host/adapter assumptions.
- *
- * Rather than hard-code a bad assumption in the general 440 code, the
- * 440 pci code requires the board to decide at runtime.
- *
- * Return 0 for adapter mode, non-zero for host (monarch) mode.
- */
-int is_pci_host(struct pci_controller *hose)
+int board_pcie_first(void)
 {
-	/* Board is always configured as host. */
-	return (1);
-}
-
-static struct pci_controller pcie_hose[2] = {{0},{0}};
-
-void pcie_setup_hoses(int busno)
-{
-	struct pci_controller *hose;
-	int i, bus;
-	int ret = 0;
-	char *env;
-	unsigned int delay;
-	int start;
-
-	/*
-	 * assume we're called after the PCIX hose is initialized, which takes
-	 * bus ID 0 and therefore start numbering PCIe's from 1.
-	 */
-	bus = busno;
-
 	/*
 	 * Canyonlands with SATA enabled has only one PCIe slot
 	 * (2nd one).
 	 */
 	if (gd->board_type == BOARD_CANYONLANDS_SATA)
-		start = 1;
-	else
-		start = 0;
+		return 1;
 
-	for (i = start; i <= 1; i++) {
-
-		if (is_end_point(i))
-			ret = ppc4xx_init_pcie_endport(i);
-		else
-			ret = ppc4xx_init_pcie_rootport(i);
-		if (ret == -ENODEV)
-			continue;
-		if (ret) {
-			printf("PCIE%d: initialization as %s failed\n", i,
-			       is_end_point(i) ? "endpoint" : "root-complex");
-			continue;
-		}
-
-		hose = &pcie_hose[i];
-		hose->first_busno = bus;
-		hose->last_busno = bus;
-		hose->current_busno = bus;
-
-		/* setup mem resource */
-		pci_set_region(hose->regions + 0,
-			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
-			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
-			       CONFIG_SYS_PCIE_MEMSIZE,
-			       PCI_REGION_MEM);
-		hose->region_count = 1;
-		pci_register_hose(hose);
-
-		if (is_end_point(i)) {
-			ppc4xx_setup_pcie_endpoint(hose, i);
-			/*
-			 * Reson for no scanning is endpoint can not generate
-			 * upstream configuration accesses.
-			 */
-		} else {
-			ppc4xx_setup_pcie_rootpoint(hose, i);
-			env = getenv ("pciscandelay");
-			if (env != NULL) {
-				delay = simple_strtoul(env, NULL, 10);
-				if (delay > 5)
-					printf("Warning, expect noticable delay before "
-					       "PCIe scan due to 'pciscandelay' value!\n");
-				mdelay(delay * 1000);
-			}
-
-			/*
-			 * Config access can only go down stream
-			 */
-			hose->last_busno = pci_hose_scan(hose);
-			bus = hose->last_busno + 1;
-		}
-	}
+	return 0;
 }
 #endif /* CONFIG_PCI */
 

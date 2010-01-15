@@ -1,7 +1,7 @@
 /*
  * MPC86xx Internal Memory Map
  *
- * Copyright(c) 2004 Freescale Semiconductor
+ * Copyright 2004 Freescale Semiconductor
  * Jeff Brown (Jeffrey@freescale.com)
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
@@ -1297,5 +1297,11 @@ extern immap_t  *immr;
 #define CONFIG_SYS_MPC86xx_DDR2_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC86xx_DDR2_OFFSET)
 #define CONFIG_SYS_MPC86xx_DMA_OFFSET	(0x21000)
 #define CONFIG_SYS_MPC86xx_DMA_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC86xx_DMA_OFFSET)
+
+#define CONFIG_SYS_TSEC1_OFFSET		0x24000
+#define CONFIG_SYS_MDIO1_OFFSET		0x24000
+
+#define TSEC_BASE_ADDR		(CONFIG_SYS_IMMR + CONFIG_SYS_TSEC1_OFFSET)
+#define MDIO_BASE_ADDR		(CONFIG_SYS_IMMR + CONFIG_SYS_MDIO1_OFFSET)
 
 #endif /*__IMMAP_86xx__*/

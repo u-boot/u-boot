@@ -49,17 +49,6 @@ int do_sleep (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-/* Implemented in $(CPU)/interrupts.c */
-#if defined(CONFIG_CMD_IRQ)
-int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-
-U_BOOT_CMD(
-	irqinfo,    1,    1,     do_irqinfo,
-	"print information about IRQs",
-	""
-);
-#endif
-
 U_BOOT_CMD(
 	sleep ,    2,    1,     do_sleep,
 	"delay execution for some time",

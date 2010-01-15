@@ -197,6 +197,15 @@ static inline void ft_fixup_l2cache(void *blob)
 			goto next;
 		}
 
+#ifdef CONFIG_SYS_CACHE_STASHING
+		{
+			u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
+			if (reg)
+				fdt_setprop_cell(blob, l2_off, "cache-stash-id",
+					 (*reg * 2) + 32 + 1);
+		}
+#endif
+
 		fdt_setprop(blob, l2_off, "cache-unified", NULL, 0);
 		fdt_setprop_cell(blob, l2_off, "cache-block-size", line_size);
 		fdt_setprop_cell(blob, l2_off, "cache-size", size);
@@ -252,6 +261,15 @@ static inline void ft_fixup_cache(void *blob)
 		fdt_setprop_cell(blob, off, "d-cache-size", dsize);
 		fdt_setprop_cell(blob, off, "d-cache-sets", dnum_sets);
 
+#ifdef CONFIG_SYS_CACHE_STASHING
+		{
+			u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
+			if (reg)
+				fdt_setprop_cell(blob, off, "cache-stash-id",
+					 (*reg * 2) + 32 + 0);
+		}
+#endif
+
 		/* i-side config */
 		isize = (l1cfg1 & 0x7ff) * 1024;
 		inum_ways = ((l1cfg1 >> 11) & 0xff) + 1;
@@ -278,6 +296,40 @@ void fdt_add_enet_stashing(void *fdt)
 
 	do_fixup_by_compat_u32(fdt, "gianfar", "rx-stash-idx", 0, 1);
 }
+
+#if defined(CONFIG_SYS_DPAA_FMAN) || defined(CONFIG_SYS_DPAA_PME)
+static void ft_fixup_clks(void *blob, const char *alias, unsigned long freq)
+{
+	const char *path = fdt_get_alias(blob, alias);
+
+	int off = fdt_path_offset(blob, path);
+
+	if (off >= 0) {
+		off = fdt_setprop_cell(blob, off, "clock-frequency", freq);
+		if (off > 0)
+			printf("WARNING enable to set clock-frequency "
+				"for %s: %s\n", alias, fdt_strerror(off));
+	}
+}
+
+static void ft_fixup_dpaa_clks(void *blob)
+{
+	sys_info_t sysinfo;
+
+	get_sys_info(&sysinfo);
+	ft_fixup_clks(blob, "fman0", sysinfo.freqFMan[0]);
+
+#if (CONFIG_SYS_NUM_FMAN == 2)
+	ft_fixup_clks(blob, "fman1", sysinfo.freqFMan[1]);
+#endif
+
+#ifdef CONFIG_SYS_DPAA_PME
+	ft_fixup_clks(blob, "pme", sysinfo.freqPME);
+#endif
+}
+#else
+#define ft_fixup_dpaa_clks(x)
+#endif
 
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
@@ -342,4 +394,6 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #if defined(CONFIG_FSL_ESDHC)
 	fdt_fixup_esdhc(blob, bd);
 #endif
+
+	ft_fixup_dpaa_clks(blob);
 }

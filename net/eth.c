@@ -26,7 +26,6 @@
 #include <net.h>
 #include <miiphy.h>
 
-#ifdef CONFIG_CMD_NET
 void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
 {
 	char *end;
@@ -60,9 +59,8 @@ int eth_getenv_enetaddr_by_index(int index, uchar *enetaddr)
 	sprintf(enetvar, index ? "eth%daddr" : "ethaddr", index);
 	return eth_getenv_enetaddr(enetvar, enetaddr);
 }
-#endif
 
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
+#ifdef CONFIG_NET_MULTI
 
 /*
  * CPU and board-specific Ethernet initializations.  Aliased function
@@ -492,7 +490,8 @@ char *eth_get_name (void)
 {
 	return (eth_current ? eth_current->name : "unknown");
 }
-#elif defined(CONFIG_CMD_NET) && !defined(CONFIG_NET_MULTI)
+
+#else /* !CONFIG_NET_MULTI */
 
 #warning Ethernet driver is deprecated.  Please update to use CONFIG_NET_MULTI
 

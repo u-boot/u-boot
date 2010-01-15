@@ -137,6 +137,9 @@
 #define CONFIG_SYS_I2C_BUS_SELECT	1
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 
+/* DDR - I use Infineon DDR */
+#define CONFIG_OMAP3_INFINEON_DDR	1
+
 /* OMITTED:  single 1 Gbit MT29F1G NAND flash */
 
 /*
@@ -200,7 +203,8 @@
  */
 #if defined(CONFIG_CMD_NET)
 
-#define CONFIG_DRIVER_LAN91C96
+#define CONFIG_NET_MULTI
+#define CONFIG_LAN91C96
 #define CONFIG_LAN91C96_BASE	DEBUG_BASE
 #define CONFIG_LAN91C96_EXT_PHY
 
@@ -263,12 +267,11 @@
 /*
  * Miscellaneous configurable options
  */
-#define V_PROMPT			"OMAP34XX SDP # "
 
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_PROMPT		V_PROMPT
+#define CONFIG_SYS_PROMPT		"OMAP34XX SDP # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \

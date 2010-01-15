@@ -21,7 +21,7 @@ void process_endpoints(unsigned short usb2d0_intrin)
 {
 	/*will hold the packet received */
 	struct usb_device_descriptor usb_device_packet;
-	struct usb_config_descriptor usb_config_packet;
+	struct usb_configuration_descriptor usb_config_packet;
 	struct usb_string_descriptor usb_string_packet;
 	struct devrequest setup_packet;
 	unsigned int *setup_packet_pt;
@@ -99,7 +99,7 @@ void process_endpoints(unsigned short usb2d0_intrin)
 				usb_config_packet.bConfigurationValue = 1;
 				usb_config_packet.iConfiguration = 0;
 				usb_config_packet.bmAttributes = 0x40;
-				usb_config_packet.MaxPower = 0;
+				usb_config_packet.bMaxPower = 0;
 
 				/*put packet in fifo */
 				packet_pt = (unsigned char *)&usb_config_packet;

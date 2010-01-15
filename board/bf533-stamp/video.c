@@ -20,8 +20,6 @@
 #include <linux/types.h>
 #include <stdio_dev.h>
 
-int gunzip(void *, int, unsigned char *, unsigned long *);
-
 #define DMA_SIZE16	2
 
 #include <asm/mach-common/bits/ppi.h>

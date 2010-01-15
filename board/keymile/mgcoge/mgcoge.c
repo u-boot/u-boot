@@ -312,22 +312,16 @@ int hush_init_var (void)
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 /*
- * update "memory" property in the blob
+ * update "flash" property in the blob
  */
 void ft_blob_update (void *blob, bd_t *bd)
 {
-	ulong memory_data[2] = {0};
 	ulong *flash_data = NULL;
 	ulong	flash_reg[6] = {0};
 	flash_info_t	*info;
 	int	len;
 	int	size;
 	int	i = 0;
-
-	memory_data[0] = cpu_to_be32 (bd->bi_memstart);
-	memory_data[1] = cpu_to_be32 (bd->bi_memsize);
-	fdt_set_node_and_value (blob, "/memory", "reg", memory_data,
-				sizeof (memory_data));
 
 	len = fdt_get_node_and_value (blob, "/localbus", "ranges",
 					(void *)&flash_data);

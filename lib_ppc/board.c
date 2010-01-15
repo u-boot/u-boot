@@ -645,6 +645,14 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* The Malloc area is immediately below the monitor copy in DRAM */
 	malloc_start = dest_addr - TOTAL_MALLOC_LEN;
 
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
+	/*
+	 * The gd->cpu pointer is set to an address in flash before relocation.
+	 * We need to update it to point to the same CPU entry in RAM.
+	 */
+	gd->cpu += dest_addr - CONFIG_SYS_MONITOR_BASE;
+#endif
+
 #ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
 #endif

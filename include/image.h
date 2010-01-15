@@ -164,6 +164,7 @@
 #define IH_COMP_GZIP		1	/* gzip	 Compression Used	*/
 #define IH_COMP_BZIP2		2	/* bzip2 Compression Used	*/
 #define IH_COMP_LZMA		3	/* lzma  Compression Used	*/
+#define IH_COMP_LZO		4	/* lzo   Compression Used	*/
 
 #define IH_MAGIC	0x27051956	/* Image Magic Number		*/
 #define IH_NMLEN		32	/* Image Name Length		*/
@@ -219,11 +220,9 @@ typedef struct bootm_headers {
 	const char	*fit_uname_rd;	/* init ramdisk subimage node unit name */
 	int		fit_noffset_rd;	/* init ramdisk subimage node offset */
 
-#if defined(CONFIG_PPC)
 	void		*fit_hdr_fdt;	/* FDT blob FIT image header */
 	const char	*fit_uname_fdt;	/* FDT blob subimage node unit name */
 	int		fit_noffset_fdt;/* FDT blob subimage node offset */
-#endif
 #endif
 
 #ifndef USE_HOSTCC

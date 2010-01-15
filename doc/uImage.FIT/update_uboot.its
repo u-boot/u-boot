@@ -2,6 +2,9 @@
  * Automatic software update for U-Boot
  * Make sure the flashing addresses ('load' prop) is correct for your board!
  */
+
+/dts-v1/;
+
 / {
 	description = "Automatic U-Boot update";
 	#address-cells = <1>;

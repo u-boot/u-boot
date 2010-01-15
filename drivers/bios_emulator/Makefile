@@ -23,6 +23,7 @@ EXTRA_CFLAGS += -I. -I./include -I$(TOPDIR)/include \
 
 CFLAGS += $(EXTRA_CFLAGS)
 HOSTCFLAGS += $(EXTRA_CFLAGS)
+CPPFLAGS += $(EXTRA_CFLAGS)
 
 all:	$(LIB)
 

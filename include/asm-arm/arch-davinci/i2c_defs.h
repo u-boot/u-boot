@@ -28,7 +28,11 @@
 #define I2C_WRITE		0
 #define I2C_READ		1
 
+#ifndef CONFIG_SOC_DA8XX
 #define I2C_BASE		0x01c21000
+#else
+#define I2C_BASE		0x01c22000
+#endif
 
 #define	I2C_OA			(I2C_BASE + 0x00)
 #define I2C_IE			(I2C_BASE + 0x04)
@@ -88,6 +92,7 @@
 #define I2C_CON_XA	(1 << 8)	/* Expand address */
 #define I2C_CON_STP	(1 << 11)	/* Stop condition (master mode only) */
 #define I2C_CON_STT	(1 << 13)	/* Start condition (master mode only) */
+#define I2C_CON_FREE	(1 << 14)	/* Free run on emulation */
 
 #define I2C_TIMEOUT	0xffff0000	/* Timeout mask for poll_i2c_irq() */
 

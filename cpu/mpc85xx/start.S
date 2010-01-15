@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007-2009 Freescale Semiconductor.
+ * Copyright 2004, 2007-2009 Freescale Semiconductor, Inc.
  * Copyright (C) 2003  Motorola,Inc.
  *
  * See file CREDITS for list of people who contributed to this
@@ -101,6 +101,12 @@ _start_e500:
 	 *	Enable L1 Caches early
 	 *
 	 */
+
+#if defined(CONFIG_E500MC) && defined(CONFIG_SYS_CACHE_STASHING)
+	/* set stash id to (coreID) * 2 + 32 + L1 CT (0) */
+	li	r2,(32 + 0)
+	mtspr	L1CSR2,r2
+#endif
 
 	lis	r2,L1CSR0_CPE@H	/* enable parity */
 	ori	r2,r2,L1CSR0_DCE

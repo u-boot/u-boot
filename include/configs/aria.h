@@ -251,8 +251,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define NAND_MAX_CHIPS			CONFIG_SYS_MAX_NAND_DEVICE
 
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
-
 /*
  * Configuration parameters for MPC5121 NAND driver
  */

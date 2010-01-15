@@ -105,7 +105,7 @@ ulong get_timer_masked(void)
 	return tick_to_time(get_ticks());
 }
 
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	unsigned long long tmp;
 	ulong tmo;

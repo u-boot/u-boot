@@ -55,6 +55,8 @@ struct fec_priv gfec = {
 	.tbd_base  = NULL,
 	.tbd_index = 0,
 	.bd        = NULL,
+	.rdb_ptr   = NULL,
+	.base_ptr  = NULL,
 };
 
 /*
@@ -157,7 +159,9 @@ static int miiphy_restart_aneg(struct eth_device *dev)
 	/*
 	 * Set the auto-negotiation advertisement register bits
 	 */
-	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_ANAR, 0x1e0);
+	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_ANAR,
+			PHY_ANLPAR_TXFD | PHY_ANLPAR_TX | PHY_ANLPAR_10FD |
+			PHY_ANLPAR_10 | PHY_ANLPAR_PSB_802_3);
 	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_BMCR,
 			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
 
@@ -228,7 +232,8 @@ static int fec_rbd_init(struct fec_priv *fec, int count, int size)
 	uint32_t p = 0;
 
 	/* reserve data memory and consider alignment */
-	fec->rdb_ptr = malloc(size * count + DB_DATA_ALIGNMENT);
+	if (fec->rdb_ptr == NULL)
+		fec->rdb_ptr = malloc(size * count + DB_DATA_ALIGNMENT);
 	p = (uint32_t)fec->rdb_ptr;
 	if (!p) {
 		puts("fec_imx27: not enough malloc memory!\n");
@@ -341,8 +346,8 @@ static int fec_open(struct eth_device *edev)
 	writel(FEC_ECNTRL_ETHER_EN, &fec->eth->ecntrl);
 
 	miiphy_wait_aneg(edev);
-	miiphy_speed(edev->name, 0);
-	miiphy_duplex(edev->name, 0);
+	miiphy_speed(edev->name, CONFIG_FEC_MXC_PHYADDR);
+	miiphy_duplex(edev->name, CONFIG_FEC_MXC_PHYADDR);
 
 	/*
 	 * Enable SmartDMA receive task
@@ -363,8 +368,9 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 	 * Datasheet forces the startaddress of each chain is 16 byte
 	 * aligned
 	 */
-	fec->base_ptr = malloc((2 + FEC_RBD_NUM) *
-			sizeof(struct fec_bd) + DB_ALIGNMENT);
+	if (fec->base_ptr == NULL)
+		fec->base_ptr = malloc((2 + FEC_RBD_NUM) *
+				sizeof(struct fec_bd) + DB_ALIGNMENT);
 	base = (uint32_t)fec->base_ptr;
 	if (!base) {
 		puts("fec_imx27: not enough malloc memory!\n");
@@ -444,6 +450,7 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 	 */
 	if (fec_rbd_init(fec, FEC_RBD_NUM, FEC_MAX_PKT_SIZE) < 0) {
 		free(fec->base_ptr);
+		fec->base_ptr = NULL;
 		return -ENOMEM;
 	}
 	fec_tbd_init(fec);
@@ -491,8 +498,6 @@ static void fec_halt(struct eth_device *dev)
 	writel(0, &fec->eth->ecntrl);
 	fec->rbd_index = 0;
 	fec->tbd_index = 0;
-	free(fec->rdb_ptr);
-	free(fec->base_ptr);
 	debug("eth_halt: done\n");
 }
 

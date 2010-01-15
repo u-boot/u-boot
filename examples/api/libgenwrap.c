@@ -74,7 +74,7 @@ void putc (const char c)
 	ub_putc(c);
 }
 
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	ub_udelay(usec);
 }

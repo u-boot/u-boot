@@ -140,6 +140,11 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		flash = spi_flash_probe_macronix(spi, idcode);
 		break;
 #endif
+#ifdef CONFIG_SPI_FLASH_WINBOND
+	case 0xef:
+		flash = spi_flash_probe_winbond(spi, idcode);
+		break;
+#endif
 #ifdef CONFIG_SPI_FLASH_STMICRO
 	case 0x20:
 		flash = spi_flash_probe_stmicro(spi, idcode);

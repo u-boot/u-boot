@@ -1,3 +1,1330 @@
+commit f9476902b789b0481b9df49af88d6ca94fb16fa0
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Dec 15 12:10:47 2009 -0600
+
+    mpc85xx, mpc86xx: Fix gd->cpu pointer after relocation
+
+    The gd->cpu pointer is set to an address located in flash when the
+    probecpu() function is called while U-Boot is executing from flash.
+    This pointer needs to be updated to point to an address in RAM after
+    relocation has occurred otherwise Linux may not be able to boot due to
+    "fdt board" crashing if flash has been erased or changed.
+
+    This bug was introduced in commit
+    a0e2066f392782730f0398095e583c87812d97f2.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Reported-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Tested-by: Kumar Gala <galak@kernel.crashing.org>
+    Tested on MPC8527DS.
+    Tested by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 3363a34b9eeda9783afcbbed5cdd738926d1f4bf
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Sun Dec 13 17:58:34 2009 -0600
+
+    MVBLUE: Remove CONFIG_CMD_IRQ
+
+    Neither the MVBLUE nor its underlying architecture implement the
+    do_irqinfo() function which is required when CONFIG_CMD_IRQ is defined.
+    This change fixes the following MVBLUE compiler error:
+
+    -> ./MAKEALL MVBLUE
+    Configuring for MVBLUE board...
+    common/libcommon.a(cmd_irq.o):(.u_boot_cmd+0x24): undefined reference to `do_irqinfo'
+    make: *** [u-boot] Error 1
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Acked-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+
+commit 18e8ad60ee87431c01cc2686985b60cc54f5dd3b
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Mon Dec 14 17:54:40 2009 +0100
+
+    imx27lite: Reenable MTD support on NOR flash.
+
+    The support for this was silently dropped by a configuration
+    split during the merge of the imx27lite board support in commit
+    864aa034f3a0e10ce710e8bbda171df3cab59414 (cmd_mtdparts: Move to common
+    handling of FLASH devices via MTD layer).
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit f4cfe42758192d09f8375e384cc000aa70d97029
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Dec 9 09:01:43 2009 +0100
+
+    nand: Fix access to last block in NAND devices
+
+    Currently, the last block of NAND devices can't be accessed. This patch
+    fixes this issue by correcting the boundary checking (off-by-one error).
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Cc: Scott Wood <scottwood@freescale.com>
+    Cc: Wolfgang Denk <wd@denx.de>
+
+commit 3b887ca8ce72cc12129183538f6e828db13f4867
+Author: Peter Korsgaard <jacmet@sunsite.dk>
+Date:	Tue Dec 8 22:20:34 2009 +0100
+
+    mpc83xx: boot time regression, move LCRR setup back to cpu_init_f
+
+    Commit c7190f02 (retain POR values of non-configured ACR, SPCR, SCCR,
+    and LCRR bitfields) moved the LCRR assignment to after relocation
+    to RAM because of the potential problem with changing the local bus
+    clock while executing from flash.
+
+    This change unfortunately adversely affects the boot time, as running
+    all code up to cpu_init_r can cause significant slowdown.
+
+    E.G. on a 8347 board a bootup time increase of ~600ms has been observed:
+
+       0.020 CPU:   e300c1, MPC8347_PBGA_EA, Rev: 3.0 at 400 MHz, CSB: 266.667 MHz
+       0.168 RS:    232
+       0.172 I2C:   ready
+       0.176 DRAM:  64 MB
+       1.236 FLASH: 32 MB
+
+    Versus:
+
+       0.016 CPU:   e300c1, MPC8347_PBGA_EA, Rev: 3.0 at 400 MHz, CSB: 266.667 MHz
+       0.092 RS:    232
+       0.092 I2C:   ready
+       0.096 DRAM:  64 MB
+       0.644 FLASH: 32 MB
+
+    So far no boards have needed the late LCRR setup, so simply revert it
+    for now - If it is needed at a later time, those boards can either do
+    their own final LCRR setup in board code (E.G. in board_early_init_r),
+    or we can introduce a CONFIG_SYS_LCRR_LATE config option to only do
+    the setup in cpu_init_r.
+
+    Signed-off-by: Peter Korsgaard <jacmet@sunsite.dk>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 386118a896554b13f14ad0f82356276988f7de82
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Tue Dec 8 09:12:49 2009 +0100
+
+    microblaze: Correct ffs regression for Microblaze
+
+    We are using generic implementation of ffs. This should
+    be part of Simon's commit 0413cfecea350000eab5e591a0965c3e3ee0ff00
+
+    Here is warning message which this patch removes.
+
+    In file included from /tmp/u-boot-microblaze/include/common.h:38,
+		     from cmd_mtdparts.c:87:
+    /tmp/u-boot-microblaze/include/linux/bitops.h:123:1: warning: "ffs" redefined
+    In file included from /tmp/u-boot-microblaze/include/linux/bitops.h:110,
+		     from /tmp/u-boot-microblaze/include/common.h:38,
+		     from cmd_mtdparts.c:87:
+    /tmp/u-boot-microblaze/include/asm/bitops.h:269:1:
+    warning: this is the location of the previous definition
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 8fe7b29f9811322931f0192a56431edcf819d6b9
+Author: Graeme Smecher <graeme.smecher@mail.mcgill.ca>
+Date:	Mon Dec 7 08:09:57 2009 -0800
+
+    microblaze: Stop stack clobbering in microblaze-generic.
+
+    A typo caused the stack and malloc regions to overlap, which prevented
+    mem_malloc_init() from returning. This commit makes the memory layout match
+    the example described in include/configs/microblaze-generic.h
+
+    Signed-off-by: Graeme Smecher <graeme.smecher@mail.mcgill.ca>
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 0fc52948bda0734431cb528ee4fd82f1dec8c7b5
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Dec 7 23:14:13 2009 +0100
+
+    Update CHANGELOG, prepare -rc2
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit f2352877cb2daac88115192fb09991a2397d0b27
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Sun Dec 6 23:58:28 2009 -0600
+
+    MAKEALL: Fix return value
+
+    Previously MAKEALL would always return a value of 0, even if 1 or more
+    boards did not compile.  This change causes MAKEALL to return 0 if all
+    boards were able to build, otherwise 1.
+
+    This change also requires changing the script interpreter from sh to
+    bash to support bash's PIPESTATUS variable.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit fbc1c8f6f6c972524197829c56dd8f2f5da0200a
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Sun Dec 6 01:33:24 2009 -0600
+
+    tools/mkimage: Remove duplicate line of code
+
+    Recent commits 1a99de2cb4d08eb3bf9fb3f60a9d533150de8c0e and
+    6a590c5f5fd12cdd27f3153522acfac3854590e7 both fixed the same bug in the
+    same manner.  Unfortunately git was "smart" enough to merge both changes
+    which resulted in some duplicate code.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+    Reordered code and comment a bit.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit df002fa6b9cd475909ede35bf95b803c2289c6a4
+Author: Heiko Schocher <hs@denx.de>
+Date:	Sat Dec 5 11:59:51 2009 +0100
+
+    i2c: fix dangling comment in do_i2c_mw()
+
+    commit bd3784df94bfeca43fbf34094df9cb1bd3ecca3b deleted some unused
+    code in do_i2c_mw(), but missed to also remove the respective
+    commment. This patch fixes this.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit f8450829f921cf10667af98a8d08edfa3d998f04
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Dec 1 19:30:47 2009 +0100
+
+    52xx, manroland: add fdt_fixup_memory() in ft_board_setup()
+
+    To update the real memory size in the memory node on the
+    uc101 and mucmc52 boards call fdt_fixup_memory() in
+    ft_board_setup().
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 0ec81db20294efdad2454a753e79f1fe244a43ca
+Author: Daniel Hobi <daniel.hobi@schmid-telecom.ch>
+Date:	Tue Dec 1 14:05:55 2009 +0100
+
+    Fix computation in nand_util.c:get_len_incl_bad
+
+    Depending on offset, flash size and the number of bad blocks,
+    get_len_incl_bad may return a too small value which may lead to:
+
+    1) If there are no bad blocks, nand_{read,write}_skip_bad chooses the
+    bad block aware read/write code. This may hurt performance, but does
+    not have any adverse effects.
+
+    2) If there are bad blocks, the nand_{read,write}_skip_bad may choose
+    the bad block unaware read/write code (if len_incl_bad == *length)
+    which leads to corrupted data.
+
+    Signed-off-by: Daniel Hobi <daniel.hobi@schmid-telecom.ch>
+
+commit aabb8cb0818e285aeed0cfaf243635997e07554d
+Author: Evan Samanas <esamanas@xes-inc.com>
+Date:	Mon Nov 9 20:08:36 2009 -0600
+
+    nfs: NfsTimeout() updates
+
+    - NfsTimeout() does not correctly update the NFS timeout value which
+      results in NfsTimeout() only being called once in certain situations.
+      This can result in the 'nfs' command hanging indefinetly.  For
+      example, the command:
+
+	nfs 192.168.0.1:/home/user/file
+
+      will not exit until ctrl-c is pressed if 192.168.0.1 does not have an
+      NFS server running.
+
+      This issue is resolved by reinitializting the NFS timeout value inside
+      NfsTimeout() when a timeout occurs.
+
+    - Make the 'nfs' command print the 'T' character when a timeout occurs.
+      Previously there was no indication that timeouts were occuring.
+
+    - Mimic the 'tftpboot' command and when a download fails print "Retry
+      count exceeded; starting again", and restart the download taking the
+      'netretry' environment variable into account.
+
+    Signed-off-by: Evan Samanas <esamanas@xes-inc.com>
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+    Tested on TQM8xxL.
+
+    Tested by: Wolfgang Denk <wd@denx.de>
+
+    Tested on MPC8527DS.
+
+    Tested by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 224c90d1060bf1a83cbf33ca51d060b9d19e0294
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Nov 18 19:08:59 2009 -0600
+
+    bootm: Fix help message's sub-command ordering
+
+    The help message for the 'bootm' command listed the 'cmdline' and 'bdt'
+    sub-commands in the wrong order which resulted in the error below when
+    following the 'help' command's instructions:
+
+      "Trying to execute a command out of order"
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit a93c92cddaedd5f0720e0da15c6664f7a688b582
+Author: Robert P. J. Day <rpjday@crashcourse.ca>
+Date:	Tue Nov 17 07:30:23 2009 -0500
+
+    help: Correct syntax of nandecc help output.
+
+    "nandecc" help output should not reproduce the command name, nor have
+    a trailing newline.
+
+    Signed-off-by: Robert P. J. Day <rpjday@crashcourse.ca>
+
+commit c2fff331a32ceca837d76eb7827d6340da270d52
+Author: Mike Rapoport <mike@compulab.co.il>
+Date:	Wed Nov 11 10:03:03 2009 +0200
+
+    smc911x: update SMC911X related configuration description
+
+    Since commit 736fead8fdbf8a8407048bebc373cd551d01ec98 "Convert SMC911X
+    Ethernet driver to CONFIG_NET_MULTI API" SMC911X configration options
+    are called CONFIG_SMC911X rather than CONFIG_DRIVER_SMC911X. Update
+    README to reflect that change.
+
+    Signed-off-by: Mike Rapoport <mike@compulab.co.il>
+
+commit 45b6b65c6bf06a589ef3123192af94b0381db27b
+Author: Mike Rapoport <mike@compulab.co.il>
+Date:	Wed Nov 11 10:03:09 2009 +0200
+
+    smc911x: fix typo in smc911x_handle_mac_address name
+
+    Signed-off-by: Mike Rapoport <mike@compulab.co.il>
+
+commit f64ef9bb995687e24e0b61b52316f4eaa97c3bbc
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Thu Nov 19 02:47:28 2009 -0600
+
+    fix nfs symlink name corruption
+
+    An off by one error may cause nfs readlink lookup fail if
+    nfs_path_buff has non-zero data from a previous use.
+
+    Loading: *** ERROR: File lookup fail
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit e8fac25e83426fdf461c66aa8a2530ec28ec536e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Dec 7 21:06:40 2009 +0100
+
+    at91sam9261ek.c: fix minor coding style issue.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 4713010adf5beda87410d637ebfc58db0db9a9db
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Dec 6 01:21:28 2009 +0100
+
+    trab: fix warning: implicit declaration of function 'disable_vfd'
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a9f99ab44b473fb394169ba365f8b4380f981584
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Dec 6 00:53:18 2009 +0100
+
+    zlib.c: avoid build conflicts for cradle board
+
+    Commit dce3d79710 updated the zlib code to v0.95; this caused
+    conflicts when building for the "cradle" board, because the (pretty
+    generic) preprocessor variable "OFF" was used in multiple files.
+    Make sure to avoid further conflicts by #undef'ing it in zlib.c
+    before redefining it.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    cc: Giuseppe Condorelli <giuseppe.condorelli@st.com>
+    cc: Angelo Castello <angelo.castello@st.com>
+    cc: Alessandro Rubini <rubini-list@gnudd.com>
+
+commit 8cbf4e4f17121d732e78764f0ba317c9a1838ea6
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Dec 6 00:26:19 2009 +0100
+
+    Fix out-of-tree building of "apollon" board.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit f68ab43de67f59925542efb6bcec30f4a84fe695
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Dec 4 05:35:15 2009 -0500
+
+    lzma: ignore unset filesizes
+
+    The Linux kernel build system changed how it compresses things with LZMA
+    such that the header no longer contains the filesize (it is instead set to
+    all F's).  So if we get a LZMA image that has -1 for the 64bit field,
+    let's just assume that the decompressed size is unknown and continue on.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit cccfc2ab77877dbdd2abe26b28d4c1f467feb0c0
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Tue Dec 1 17:16:19 2009 +0100
+
+    README: Rearrange paragraphs to regain linear arrangement.
+
+    Two later additions to the Configuration Option section unfortunately
+    split the description of Show boot progress and the list of its call outs.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit c81296c16fd9d12422c9968cc0f1d9bf440a7d88
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Nov 24 16:42:10 2009 -0600
+
+    tools/mkimage: Print FIT image contents after creation
+
+    Previously, there was no indication to the user that a FIT image was
+    successfully created after executing mkimage.  For example:
+
+      $ mkimage -f uImage.its uImage.itb
+      DTC: dts->dtb  on file "uImage.its"
+
+    Adding some additional output after creating a FIT image lets the user
+    know exactly what is contained in their image, eg:
+
+      $ mkimage -f uImage.its uImage.itb
+      DTC: dts->dtb  on file "uImage.its"
+      FIT description: Linux kernel 2.6.32-rc7-00201-g7550d6f-dirty
+      Created:	       Tue Nov 24 15:43:01 2009
+       Image 0 (kernel@1)
+	Description:  Linux Kernel 2.6.32-rc7-00201-g7550d6f-dirty
+	Type:	      Kernel Image
+	Compression:  gzip compressed
+	Data Size:    2707311 Bytes = 2643.86 kB = 2.58 MB
+	Architecture: PowerPC
+	OS:	      Linux
+	Load Address: 0x00000000
+	Entry Point:  0x00000000
+	Hash algo:    crc32
+	Hash value:   efe0798b
+	Hash algo:    sha1
+	Hash value:   ecafba8c95684f2c8fec67e33c41ec88df1534d7
+       Image 1 (fdt@1)
+	Description:  Flattened Device Tree blob
+	Type:	      Flat Device Tree
+	Compression:  uncompressed
+	Data Size:    12288 Bytes = 12.00 kB = 0.01 MB
+	Architecture: PowerPC
+	Hash algo:    crc32
+	Hash value:   a5cab676
+	Hash algo:    sha1
+	Hash value:   168722b13e305283cfd6603dfe8248cc329adea6
+       Default Configuration: 'config@1'
+       Configuration 0 (config@1)
+	Description:  Default Linux kernel
+	Kernel:       kernel@1
+	FDT:	      fdt@1
+
+    This brings the behavior of creating a FIT image in line with creating a
+    standard uImage, which also prints out the uImage contents after
+    creation.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 8e1c89663cc8796b85588910046e03b388a7597c
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Nov 24 16:42:09 2009 -0600
+
+    tools/fit_image.c: Remove unused fit_set_header()
+
+    The FIT fit_set_header() function was copied from the standard uImage's
+    image_set_header() function during mkimage reorganization.	However, the
+    fit_set_header() function is not used since FIT images use a standard
+    device tree blob header.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 1a99de2cb4d08eb3bf9fb3f60a9d533150de8c0e
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Nov 24 16:42:08 2009 -0600
+
+    tools/mkimage: Assume FDT image type for FIT images
+
+    When building a Flattened Image Tree (FIT) the image type needs to be
+    "flat_dt".	Commit 89a4d6b12fd6394898b8a454cbabeaf1cd59bae5 introduced a
+    regression which caused the user to need to specify the "-T flat_dt"
+    parameter on the command line when building a FIT image.  The "-T
+    flat_dt" parameter should not be needed and is at odds with the current
+    FIT image documentation.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 270737acca21f3939f814de5dcf350a1c3d80d83
+Author: Michael Brandt <Michael.Brandt@emsyso.de>
+Date:	Sun Nov 22 14:13:27 2009 +0100
+
+    EXT2FS: fix inode size for ext2fs rev#0
+
+    extfs.c assumes that there is always a valid inode_size field in the
+    superblock. But this is not true for ext2fs rev 0. Such ext2fs images
+    are for instance generated by genext2fs. Symptoms on ARM machines are
+    messages like: "raise: Signal # 8 caught"; on PowerPC "ext2ls" will
+    print nothing.
+    This fix checks for rev 0 and uses then 128 bytes as inode size.
+
+    Signed-off-by: Michael Brandt <Michael.Brandt@emsyso.de>
+    Tested on: TQM5200S
+    Tested-by: Wolfgang Denk <wd@denx.de>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit bcb324d68f7955c1136dafc944eb55db8ebaa601
+Author: Robert P. J. Day <rpjday@crashcourse.ca>
+Date:	Thu Nov 19 11:00:28 2009 -0500
+
+    Remove superfluous preprocessor tests from some cmd_*.c files.
+
+    A small number of common/cmd_*.c files contain preprocessor tests that
+    are apparently superfluous since those same tests are used in the
+    Makefile to control the compilation of those files.  Those tests are
+    clearly redundant as long as they surround the entirety of the source
+    in those files.
+
+    Signed-off-by: Robert P. J. Day <rpjday@crashcourse.ca>
+
+commit ad53226156fa64b6d04c0d1d6e91e09979cbea15
+Author: Robert P. J. Day <rpjday@crashcourse.ca>
+Date:	Tue Nov 17 01:59:29 2009 -0500
+
+    README: Update the list of directories.
+
+    Bring the directory listing more into line with current content.
+
+    Signed-off-by: Robert P. J. Day <rpjday@crashcourse.ca>
+
+commit bd3784df94bfeca43fbf34094df9cb1bd3ecca3b
+Author: Pratap Chandu <pratap.rrke@gmail.com>
+Date:	Thu Nov 12 19:28:25 2009 +0530
+
+    Removes dead code in the file common/cmd_i2c.c
+
+    There is some dead code enclosed by #if 0 .... #endif in the file
+    common/cmd_i2c.c
+    This patch removes the dead code.
+
+    Signed-off-by: Pratap Chandu <pratap.rrke@gmail.com>
+
+commit 64a480601a5614b441de692ae15a62c51e0bb381
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Nov 11 17:51:56 2009 -0500
+
+    smc91111_eeprom: drop CONFIG stub protection
+
+    Since the Makefile now controls the compilation of this, there is no need
+    for CONFIG checking nor the stub function.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit f3a7bddc06c927c36a1a99a97131299479ef207a
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Wed Nov 11 19:56:58 2009 +0100
+
+    RTC: Fix return code in MC13783 RTC driver.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit d52e3e0176a74c30549251e16c5c00a363c544d2
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Wed Nov 11 19:56:36 2009 +0100
+
+    cmd_date: Fix spelling in error message.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit c253122395753abb9e531d8906c5265dc8803fb1
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Nov 11 10:36:28 2009 -0600
+
+    Move do_irqinfo() to common/cmd_irq.c
+
+    cmd_irq.c is a much better home and it is already conditionally
+    compiled based on CONFIG_CMD_IRQ.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit a5dd4dc64fe68e549c5ffcf6a048281b5ba94752
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Wed Nov 11 10:36:19 2009 -0600
+
+    cmd_license: Remove unneeded #ifdef CONFIG_CMD_LICENSE
+
+    cmd_license is already conditionally compiled at the Makefile-level.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 06015146a15adc7455440c491d543f6a8091551d
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Nov 9 15:18:52 2009 -0600
+
+    m41t11: Remove unused functions
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 9ef78511cda39987e5fc10febf386fd19f58ecf7
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Nov 9 15:17:50 2009 -0600
+
+    circbuf: Move to lib_generic and conditionally compile
+
+    circbuf could be used as a generic library and is only currently
+    needed when CONFIG_USB_TTY is defined.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 604f7ce55ad74694ef8743ad2e99933dc0265e46
+Author: Sanjeev Premi <premi@ti.com>
+Date:	Mon Nov 9 22:43:00 2009 +0530
+
+    Fix build failure in examples/standalone
+
+    Some versions of 'make' do not handle trailing white-spaces
+    properly. Trailing spaces in ELF causes a 'fake' source to
+    be added to the variable COBJS; leading to build failure
+    (listed below). The problem was found with GNU Make 3.80.
+
+    Using text-function 'strip' as a workaround for the problem.
+
+    make[1]: Entering directory `/home/sanjeev/u-boot/examples/standalone'
+    arm-none-linux-gnueabi-gcc -g  -Os	 -fno-common -ffixed-r8 -msoft-float
+    -D__KERNEL__ -DTEXT_BASE=0x80e80000 -I/home/sanjeev/u-boot/include
+    -fno-builtin -ffreestanding -nostdinc -isystem /opt/codesourcery/2009q1-
+    203/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/include -pipe  -DCONFIG_
+    ARM -D__ARM__ -marm  -mabi=aapcs-linux -mno-thumb-interwork -march=armv5
+    -Wall -Wstrict-prototypes -fno-stack-protector -g  -Os   -fno-common -ff
+    ixed-r8 -msoft-float   -D__KERNEL__ -DTEXT_BASE=0x80e80000 -I/home/sanje
+    ev/u-boot/include -fno-builtin -ffreestanding -nostdinc -isystem /opt/co
+    desourcery/2009q1-203/bin/../lib/gcc/arm-none-linux-gnueabi/4.3.3/includ
+    e -pipe  -DCONFIG_ARM -D__ARM__ -marm  -mabi=aapcs-linux -mno-thumb-inte
+    rwork -march=armv5 -I.. -Bstatic -T u-boot.lds  -Ttext 0x80e80000 -o .c
+    arm-none-linux-gnueabi-gcc: no input files
+    make[1]: *** [.c] Error 1
+    make[1]: Leaving directory `/home/sanjeev/u-boot/examples/standalone'
+    make: *** [examples/standalone] Error 2
+    premi #
+
+    Signed-off-by: Sanjeev Premi <premi@ti.com>
+
+    Fixed typo (s/ElF/ELF/).
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit af860962b544ddf323c4ff68454f00d31e44df0a
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Wed Nov 4 18:30:08 2009 -0600
+
+    85xx: Remove unused CONFIG_ASSUME_AMD_FLASH from config files
+
+    A bunch of the 85xx boards have this cruft in them - it's not used
+    anywhere.  Delete it.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit deec1fbd4f704dded2e668bb9e368631981ea139
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Dec 2 22:26:30 2009 +0100
+
+    MAINTAINERS: update responsible for MPC85xx/86xx
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Kumar Gala <galak@kernel.crashing.org>
+    Cc: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit 824d82997fbcf28e49081d36fdd5d3be1b92b03d
+Author: Ira W. Snyder <iws@ovro.caltech.edu>
+Date:	Wed Nov 4 13:37:59 2009 -0800
+
+    Fix example FIT image source files
+
+    The example FIT image source files do not compile with the latest dtc and
+    mkimage. The following error message is produced:
+
+    DTC: dts->dtb  on file "kernel.its"
+    Error: kernel.its 7:0 - 1:0 syntax error
+    FATAL ERROR: Unable to parse input tree
+    ./mkimage: Can't read kernel.itb.tmp: Invalid argument
+
+    The FIT image source files are missing the "/dts-v1/;" directive at the
+    beginning of the file. Add the directive to the examples.
+
+    Signed-off-by: Ira W. Snyder <iws@ovro.caltech.edu>
+
+commit fd66066ee3ce15c2966feb9b2be0f0d51a95db48
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Nov 4 16:13:19 2009 -0500
+
+    img2srec: use standard types
+
+    The img2srec code creates a lot of typedefs with common names.  These
+    easily clash with system headers that include these typedefs (like mingw).
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 8204e068110e8abe5db9c3b7df9971b58cda8f26
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Nov 4 16:03:25 2009 -0500
+
+    tools: gitignore *.exe binaries
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 425d3b666eee5c58fdb82fb894a535dd71782a05
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Tue Nov 3 23:31:07 2009 -0600
+
+    ppc: Move conditional compilation of kgdb.c to Makefile
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit e06ab6546b332acc55ac4e7c31338662328b0fb3
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Nov 3 11:36:39 2009 -0500
+
+    spi_flash.h: pull in linux/types.h for u## types
+
+commit 0008555f4d57c15ad86ee735861ca0d783042f61
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Nov 3 11:36:26 2009 -0500
+
+    bootm: mark local boot_os[] table static
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit a8fa379d47f06c7d3ed75c8fb26ae43ee38e1fd7
+Author: Nishanth Menon <nm@ti.com>
+Date:	Mon Nov 2 09:40:18 2009 -0600
+
+    mkconfig: deny messed up ARCH definition
+
+    Refuse to setup a platform if the command line ARCH= is not the same
+    as the one required for the board. This prevents any user with
+    prehistoric aliases from messing up their builds.
+
+    Reported in thread:
+    http://old.nabble.com/-U-Boot--Build-breaks-on-some-OMAP3-configs-to26132721.html
+
+    Inputs from: Mike Frysinger and Wolfgang Denk:
+    http://lists.denx.de/pipermail/u-boot/2009-November/063642.html
+
+    Cc: Wolfgang Denk <wd@denx.de>
+    Cc: Mike Frysinger <vapier@gentoo.org>
+    Cc: Anand Gadiyar <gadiyar@ti.com>
+    Cc: Dirk Behme <dirk.behme@googlemail.com>
+    Signed-off-by: Nishanth Menon <nm@ti.com>
+
+commit 67b96e87da1b84660fa1e5b78cc760246d116814
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Wed Oct 28 22:13:39 2009 +0100
+
+    Repair the 'netretry=once' option.
+
+    'netretry = once' does the same as 'netretry = yes', because it is not stored
+    when it was tried once.
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit b25e38fc36e13fa8037fa4d37fe909d1d6e6f372
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Thu Oct 29 14:24:22 2009 +0100
+
+    Repair build fail in case CONFIG_PPC=n and CONFIG_FIT=y
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 01826abc02ce160501534788e63629ccbe31b05c
+Author: Grazvydas Ignotas <notasas@gmail.com>
+Date:	Thu Nov 12 11:46:07 2009 +0200
+
+    OMAP3: pandora: fix booting without serial attached
+
+    When the board is booted without serial cable attached (which
+    is how most of them will be used) UART RX is left floating and
+    sometimes picks noise, which interrupts countdown and enters
+    U-Boot prompt instead of booting the kernel.
+
+    Fix this by setting up internal pullup on UART RX pin. This
+    does not prevent serial from working as the internal pullup
+    is weak.
+
+    Signed-off-by: Grazvydas Ignotas <notasas@gmail.com>
+
+commit 41dfd8a60324243dbe2dc313a607910824a68aa7
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Wed Oct 28 22:13:37 2009 +0100
+
+    Add support for CS2 dataflash for Atmel-SPI.
+
+    The only missing chipselect line support is CS2, and I need it on
+    CS2...
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit faf36c1437c95e4a86835633d9801c5f6396a3c7
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Wed Oct 28 22:13:36 2009 +0100
+
+    Fix mingw tools build
+
+    mkimage does not build due to missing strtok_r() and getline() implementation
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 6a590c5f5fd12cdd27f3153522acfac3854590e7
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Wed Oct 28 22:13:35 2009 +0100
+
+    Building of FIT images does not work.
+
+    The type is not set for generation of the FIT images, resulting
+    in no images being created without printing or returning an error
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 0a7691e820e33b23f61c6ea0ef6fa72099d1a6ae
+Author: Renato Andreola <renato.andreola@imagos.it>
+Date:	Mon Nov 23 16:45:14 2009 -0500
+
+    Nios2: do_boom_linux(): kernel gunzip input data integrity problem due to
+	missing cache flush.
+
+	Added instruction and data caches flush.
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit de03825386eaedb5e17261dd87cde86e9a764ba9
+Author: Scott McNutt <smcnutt@psyent.com>
+Date:	Mon Nov 23 16:29:40 2009 -0500
+
+    Nios2: Fix compiler warnings in lib_nios2/board.c (unused variables)
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 57baa379cf2f67df89a5c6052767fd25daff20bd
+Author: Scott McNutt <smcnutt@psyent.com>
+Date:	Mon Nov 23 15:54:25 2009 -0500
+
+    Nios2/Nios: Remove unnecessary (residual) linker Nios command scripts from
+	the standalone examples.
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit fcffb680e77fcb48598d4a9944dbe2d4503170e0
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Oct 14 19:28:03 2009 -0400
+
+    sf: fix stmicro offset setup while erasing
+
+    Reported-by: Peter Gombos <gombos@protecta.hu>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit d394a7795027d96ca55799df40bd5c4a13dbeebe
+Author: Jason McMullan <mcmullan@netapp.com>
+Date:	Fri Oct 9 17:12:23 2009 -0400
+
+    sf: new driver for Winbond W25X16/32/64 devices
+
+    Signed-off-by: Jason McMullan <jason.mcmullan@gmail.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit cada315100c88894b85972a91309a6f2413966b6
+Author: Marcel Ziswiler <marcel@ziswiler.com>
+Date:	Thu Oct 1 23:55:17 2009 +0200
+
+    mpc8260: move FDT memory node fixup into common CPU code.
+
+    Signed-off-by: Marcel Ziswiler <marcel.ziswiler@noser.com>
+    Tested-by: Heiko Schocher <hs@denx.de>
+
+commit f2cea405f83da46b72098ea874fb3eefe185d312
+Author: Po-Yu Chuang <ratbert.chuang@gmail.com>
+Date:	Wed Sep 23 15:52:35 2009 +0800
+
+    Add driver for FTRTC010 real time clock
+
+    Signed-off-by: Po-Yu Chuang <ratbert@faraday-tech.com>
+
+    Edited commit message.
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c0356a88011330646e960dfac8a2c909bede3304
+Author: Mark Jackson <mpfj-list@mimc.co.uk>
+Date:	Mon Aug 17 16:42:52 2009 +0100
+
+    MIMC200: set default fbmem value
+
+    This patch adds a default bootargs "fbmem" value to the
+    CONFIG_BOOTARGS string for the MIMC200 board.
+
+    Signed-off-by: Mark Jackson <mpfj@mimc.co.uk>
+
+commit 3ffc0d61bad7d986e344ce7062b37c5c8f04fb0e
+Author: Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+Date:	Tue Oct 27 19:58:09 2009 +0100
+
+    ppc4xx: Initialize magnetic coupler on VOM405 boards
+
+    This patch fixes an ugly behavior of the IL712 magnetic coupler
+    as used on VOM405. These parts will remember their last state
+    over a power cycle which might cause unwanted behavior.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit be0db3e3141c6c6b4e232b51091f35a284cc54e5
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Mon Oct 26 09:58:45 2009 +0100
+
+    ppc4xx: Initialize magnetic couplers in PLU405
+
+    This patch fixes an ugly behavior of the IL712 magnetic couplers
+    as used on PLU405. These parts will remember their last state
+    over a power cycle which might cause unwanted behavior.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 067f54c66acd469870ef6946e1591bfcc02de1b3
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Mon Oct 26 09:55:40 2009 +0100
+
+    Add minimal SJA1000 header for basic CAN mode
+
+    This patch is in preparation for the upcoming PLU405 board fix.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit cdbdbe65f5f006cba208accee5a126c659d4b867
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Nov 13 08:52:21 2009 -0600
+
+    ppc/85xx: Fix how we determine the number of CAM entries
+
+    We were incorrectly use the max CAM size as the number of entries in
+    the array for setting up the addrmap.  We should be using the NENTRY
+    field which is the low 12-bits of TLB1CFG.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit fbd47b6753b08162436d9ccad1e63c8d43ede54c
+Author: Mike Rapoport <mike@compulab.co.il>
+Date:	Thu Nov 12 15:35:08 2009 +0200
+
+    smc911x: make smc911x_initialize return correct value
+
+    Make smc911x_initialize return -1 on error and number of interfaces
+    detected otherwise.
+
+    Signed-off-by: Mike Rapoport <mike@compulab.co.il>
+    Acked-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit c44efcf97b335dcef7d014f65b7d3094e79adb13
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Nov 12 22:26:02 2009 -0500
+
+    smc911x_eeprom: fix building after smc911x overhaul
+
+    When the smc911x driver was converted to NET_MULTI, the smc911x eeprom was
+    missed.  The config option needed updating as well as overhauling of the
+    rergister read/write functions.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Tested-by: Mike Rapoport <mike.rapoport@gmail.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 3ad95deb30ac73bd57e966d321215a17d3236f9f
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Thu Nov 12 07:26:37 2009 +0800
+
+    fsl-ddr: Fix the chip-select interleaving issue
+
+    commit 1542fbdeec0d1e2a6df13189df8dcb1ce8802be3
+    introduced one new bug to chip-select interleaving.
+
+    Single DDR controller also can do the chip-select
+    interleaving if there is dual-rank or qual-rank DIMMs.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 651ef90fa6ca824c8e581aeef9e04bbbe7f7e9ce
+Author: javier Martin <javier.martin@vista-silicon.com>
+Date:	Thu Oct 29 08:22:43 2009 +0100
+
+    mxc_fec: avoid free() calls to already freed pointers.
+
+    Sometimes, inside NetLoop, eth_halt() is called before eth_init() has
+    been called. This is harmless except for free() calls to pointers
+    which have not been allocated yet.
+
+    This patch initializes those pointers to NULL and allocates them only
+    the first time. This way we can get rid of free calls in halt callback.
+
+    This has been tested in i.MX27 Litekit board and eldk-4.2 toolchains.
+
+    Signed-off-by: Javier Martin <javier.martin@vista-silicon.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit e8f1546a88b4ade6a910c4a7958a774ee1b40023
+Author: javier Martin <javier.martin@vista-silicon.com>
+Date:	Thu Oct 29 08:18:34 2009 +0100
+
+    mxc_fec: fix some erroneous PHY accesses.
+
+    This patch fixes erroneous access to the ethernet PHY which broke the driver.
+    1. Selector field in the auto-negotiation register must be 0x00001 for
+    using 802.3, not 0x00000 which is reseved.
+    2. Access to the PHY address specified by CONFIG_FEC_MXC_PHYADDR, not
+    0x0 fixed address.
+
+    This has been tested in i.MX27 Litekit board and eldk-4.2 toolchains.
+
+    Now using proper defines for auto-negotiation register.
+
+    Signed-off-by: Javier Martin <javier.martin@vista-silicon.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit f865fcbbb35851e75fee9c3a3fa8e0f71d9e6463
+Author: Ron Lee <ron@debian.org>
+Date:	Wed Aug 5 20:14:01 2009 +0200
+
+    ARM Don't inline weak symbols
+
+    ------------------------------------------------------------------------
+
+    GCC 4.4 complains about this now.
+
+    Signed-off-by: Ron Lee <ron@debian.org>
+
+commit d14c7ec2b51fb92c4a5218b299b772c3d186510d
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Mon Nov 9 13:09:57 2009 -0800
+
+    Fix SMC91111 regression: lpd7a40x build failures
+
+    Both lpd7a400 and lpd7a404 failed to compile because they had
+    CONFIG_SMC_USE_IOFUNCS defined:
+
+    examples/standalone/smc91111_eeprom.c:388: undefined reference to `SMC_outw'
+
+    Also removed an orphaned paren in lpd7a404.h
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 1031ae960ce6ce8332190278a06e2d72c2b2793e
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Mon Nov 9 14:01:08 2009 -0800
+
+    SMC91111: Clean up SMC_inx macros on xsengine and xaeniax
+
+    This patch fixes the following warnings:
+
+    Configuring for xaeniax board...
+    smc91111_eeprom.c: In function 'print_macaddr':
+    smc91111_eeprom.c:278: warning: suggest parentheses around + or - in operand of &
+    smc91111_eeprom.c:281: warning: suggest parentheses around + or - in operand of &
+    ...
+    Configuring for xsengine board...
+    smc91111_eeprom.c: In function 'print_macaddr':
+    smc91111_eeprom.c:278: warning: suggest parentheses around + or - inside shift
+    smc91111_eeprom.c:281: warning: suggest parentheses around + or - inside shift
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 830c7b6722c6a9762411bf52a7bf2fae4dc71dab
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Mon Nov 9 11:43:18 2009 -0800
+
+    Fix CS8900 regression on impa7 board
+
+    The following error was seen on impa7 board, due to its use of a 32-bit bus
+    on CS8900.
+    cs8900.c:137:37: error: macro "get_reg_init_bus" passed 2 arguments, but takes just 1
+
+    This patch gives the macro the correct number of arguments
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit e5c5d9e0834bacf1c4787fa76cc4e369f2597cf5
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Sun Nov 1 22:39:56 2009 -0500
+
+    clarify eth driver halt/recv steps
+
+    The dev->halt() func can be called at any time, and the dev->recv() func
+    does not need to use NetRxPackets[] when calling NetReceive().
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 497ab0eec5e1e2dfccc141a4485cd6b940e1424a
+Author: Hui.Tang <zetalabs@gmail.com>
+Date:	Thu Nov 5 09:58:44 2009 +0800
+
+    Fix cs8900 dev->priv not init issue
+
+    Ensure all CS8900 data structures are assigned before accessing device
+
+    Signed-off-by: Hui.Tang <zetalabs@gmail.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 4fe5193d464ecdac26ddc71b1351be5b86bbff29
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Nov 3 14:34:45 2009 +0100
+
+    ppc4xx: 44x_spd_ddr2.c: Fix register macro ECCCR -> ECCES (SDRAM_ECCES)
+
+    This error only appears when DEBUG is enabled in this driver. That's why
+    it went unnoticed till now.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 916ed9444d3ab7b5cd6312557005f2a764a8baf7
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Oct 29 18:37:45 2009 +0100
+
+    ppc4xx: Canyonlands: Change EBC bus config to drive always (no high-z)
+
+    This patch fixes a problem only seen very occasionally on Canyonlands.
+    The NOR flash interface (CFI driver) doesn't work reliably in all cases.
+    Erasing and/or programming sometimes doesn't work. Sometimes with
+    an error message, like "flash not erased" when trying to program an
+    area that should have just been erased. And sometimes without any error
+    messages. As mentioned above, this problem was only seen rarely and with
+    some PLL configuration (CPU speed, EBC speed).
+
+    Now I spotted this problem a few times, when running my Canyonlands with
+    the following setup (chip_config):
+
+    1000-nor	     - NOR  CPU:1000 PLB: 200 OPB: 100 EBC: 100
+
+    Changing the EBC configuration to not release the bus into high
+    impedance state inbetween the transfers (ATC, DTC and CTC bits set to 1
+    in EBC0_CFG) seems to fix this problem. I haven't seen any failure
+    anymore with this patch applied.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Cc: David Mitchell <dmitchell@amcc.com>
+    Cc: Jeff Mann <MannJ@embeddedplanet.com>
+
+commit 25793f76bf9a7be59c9415ef0f78d034e8d53dae
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Thu Oct 29 12:29:37 2009 +0100
+
+    ARM: Use Linux version for unaligned access code
+
+    The asm-arm/unaligned.h includes linux/unaligned/access_ok.h
+    This file is unsafe to be used on ARM, since it does an unaligned memory
+    accesses which fails on ARM.
+
+    Lookin at Linux the basic difference seems to be the header
+    "include/asm-arm/unaligned.h". The Linux version of "unaligned.h"
+    does *not* include "access_ok.h" at all. It includes "le_byteshift.h"
+    and "be_byteshift.h" instead.
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    --
+     include/asm-arm/unaligned.h	    |	 3 -
+     include/linux/unaligned/be_byteshift.h |	70 +++++++++++++++++++++++++++++++++
+     include/linux/unaligned/le_byteshift.h |	70 +++++++++++++++++++++++++++++++++
+     3 files changed, 142 insertions(+), 1 deletion(-)
+     create mode 100644 include/linux/unaligned/be_byteshift.h
+     create mode 100644 include/linux/unaligned/le_byteshift.h
+
+commit 6d6e7c53d5c75e5e24841c5506f4ed9d82adee09
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 4 18:02:10 2009 -0600
+
+    ppc/85xx: Fix inclusion of 83xx immap in 85xx builds
+
+    The nand_boot_fsl_elbc.c is shared between 83xx & 85xx however we should
+    not be including the immap_83xx.h when building 85xx.  We can just get
+    this all from common.h
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 107b579c75256212d4bf8b99ee8d68e0078f3646
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Wed Nov 4 17:34:04 2009 -0600
+
+    86xx: Remove redundant code in initdram
+
+    The same code exists both inside an #ifdef and outside of it.
+    Remove the extra code for all the 86xx boards.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 715d8f7608f77c93f1807a032644893fd5b6d08b
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Mon Nov 2 09:05:49 2009 -0600
+
+    fsl_pci_init_port end-point initialization is broken
+
+    commit 70ed869e broke fsl pcie end-point initialization.
+    Returning 0 is not correct.  The function must return the first free
+    bus number for the next controller.
+
+    fsl_pci_init() must still be called and a bus allocated even if the
+    controller is an end-point.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Acked-by: Vivek Mahajan <vivek.mahajan@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 01471d538fb163f472a769f21267d7676c91267c
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Nov 4 01:29:04 2009 -0600
+
+    Revert "ppc/85xx/pci: fsl_pci_init: pcie agent mode support"
+
+    This reverts commit 70ed869ea5f6b1d13d7b140c83ec0dcd8a127ddc.
+
+    There isn't any need to modify the API for fsl_pci_init_port to pass the
+    status of host/agent(end-point) status.  We can determine that
+    internally to fsl_pci_init_port.  Revert the patch that makes the API
+    change.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit ff88229549e08fdd3f9127c1cc4db11a3576250f
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Sat Oct 31 07:59:55 2009 +0800
+
+    ppc/85xx: Fix misc L2 cache enabling bug
+
+    We need loop-check the flash clear lock and enable bit for L2 cache.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 59434fe243962758742af5cb8e2ced976e17c302
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Fri Oct 30 10:16:27 2009 +0900
+
+    sh: Update lowlevel_init.S of espt-giga
+
+    There was the point that did not use write macro.
+    Change to write macro.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit f1cae1969d9e971fb72827a5731ce7e752464aa2
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Fri Oct 30 10:01:25 2009 +0900
+
+    sh: Move some defs to convince 'pcrel too far'
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+    Signed-off-by: Takashi Yoshii <yoshii.takashi@gmail.com>
+
+commit 0f9eaf4b323ea0ca95944b84c7465b81ba575514
+Author: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Date:	Thu Oct 15 13:36:34 2009 +0900
+
+    sh: Remove malloc_bin_reloc from lib_sh, lib_nios2 and lib_nios.
+
+    By "arm/microblaze/nios/nios2/sh: Remove relocation fixups"
+    (commit: 0630535e2d062dd73c1ceca5c6125c86d1127a49", doesn't need
+    malloc_bin_reloc function. This commit remove this.
+
+    Signed-off-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+
+commit 0775437293a6963cb21244dfae6978cbf67c6bfe
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Wed Oct 21 21:53:39 2009 -0700
+
+    Fix DM9000 MAC address handling
+
+    Proper behavior is to pull MAC address from NVRAM in the initialization() an
+    stuff it in dev->address, then program the device from dev->address in
+    the init() function.
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 98d92d8c9f4021629a45261ad5ec3f3595f3a27a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Oct 28 22:07:56 2009 +0100
+
+    sbc8349: fix incorrect comment
+
+    The comment for the BR0_PRELIM port size initialization incorrectly
+    stated 32 bit, while it's actually 16 bit. The code is correct.
+
+    Reported-by: Guenter Koellner <guenter.koellner@nsn.com>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a38f85e180a30b6225808828ded1017b1a5418c6
+Author: Sandeep Paulraj <s-paulraj@ti.com>
+Date:	Wed Oct 28 11:05:03 2009 -0400
+
+    Fix Compliation warning for TNY-A9260 and TNY-A9G20
+
+    The patch fixes a compilation warning by defining
+    CONFIG_SYS_64BIT_VSPRINTF in the config file
+
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 264e42ee54f1d322805d9068168fd362b413fd09
+Author: Sandeep Paulraj <s-paulraj@ti.com>
+Date:	Wed Oct 28 11:04:53 2009 -0400
+
+    Fix Compliation warning for SBC35-A9G20 board
+
+    The patch fixes a compilation warning by defining
+    CONFIG_SYS_64BIT_VSPRINTF in the config file
+
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 353462f6ff9769091fb644d44d8025f20a4192d9
+Author: Eric Millbrandt <emillbrandt@coldhaus.com>
+Date:	Wed Oct 28 09:37:33 2009 -0500
+
+    galaxy5200: Add default environment variables
+
+    Extend bootdelay to 10 seconds.  Set boot retry time to 120 seconds and use
+    reset to retry.  Define default bootcommand and bootargs for production.
+
+    Signed-off-by: Eric Millbrandt <emillbrandt@dekaresearch.com>
+
+commit fa36ae790eb10ce70935f9a78f07703719dca422
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Oct 27 15:15:55 2009 +0100
+
+    cfi: Add weak default function for flash_cmd_reset()
+
+    Currently the CFI driver issues both AMD and Intel reset commands.
+    This is because the driver doesn't know yet which chips are connected.
+    This dual reset seems to cause problems with the M29W128G chips as
+    reported by Richard Retanubun. This patch now introduces a weak default
+    function for the CFI reset command, still with both resets. This can
+    be overridden by a board specific version if necessary.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Cc: Richard Retanubun <RichardRetanubun@ruggedcom.com>
+
+commit 4946775c6db52dba28f72ba3525764b54f1d4593
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Oct 28 00:49:47 2009 +0100
+
+    Coding Style cleanup; update CHANGELOG, prepare -rc1
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 246c69225c7b962d5c93e92282b78ca9fc5fefee
 Author: Peter Tyser <ptyser@xes-inc.com>
 Date:	Sun Oct 25 15:12:56 2009 -0500
@@ -259,6 +1586,15 @@ Date:	Tue Oct 27 09:26:55 2009 +0530
 
     Signed-off-by: Poonam Aggrwal <poonam.aggrwal@freescale.com>
     Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 2c0c58b92dbb68007061bdc0edd23bdf142efebf
+Author: Sergey Mironov <ierton@gmail.com>
+Date:	Wed Sep 23 16:47:38 2009 +0400
+
+    Fix bug in jumptable call stubs for SPARC.
+
+    Signed-off-by: Sergey Mironov <ierton@gmail.com>
+    Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
 
 commit 3e303f748cf57fb23e8ec95ab7eac0074be50e2b
 Author: Anton Vorontsov <avorontsov@ru.mvista.com>

@@ -87,9 +87,6 @@
 #  define CONFIG_CMD_SPIBOOTLDR
 # endif
 #endif
-#ifdef CONFIG_CMD_NAND
-# define CONFIG_SYS_64BIT_VSPRINTF
-#endif
 
 /*
  * Console Settings

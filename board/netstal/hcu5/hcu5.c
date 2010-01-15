@@ -22,6 +22,8 @@
 #include <asm/processor.h>
 #include <ppc440.h>
 #include <asm/io.h>
+#include <asm/4xx_pci.h>
+
 #include  "../common/nm.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -377,120 +379,16 @@ int pci_pre_init(struct pci_controller *hose)
 }
 
 /*
- *  pci_target_init
- *
- *	The bootstrap configuration provides default settings for the pci
- *	inbound map (PIM). But the bootstrap config choices are limited and
- *	may not be sufficient for a given board.
- *
- */
-void pci_target_init(struct pci_controller *hose)
-{
-	if (!board_with_pci()) { return; }
-	/*
-	 * Set up Direct MMIO registers
-	 *
-	 * PowerPC440EPX PCI Master configuration.
-	 * Map one 1Gig range of PLB/processor addresses to PCI memory space.
-	 *   PLB address 0xA0000000-0xDFFFFFFF ==> PCI address
-	 *		  0xA0000000-0xDFFFFFFF
-	 *   Use byte reversed out routines to handle endianess.
-	 * Make this region non-prefetchable.
-	 */
-	/* PMM0 Mask/Attribute - disabled b4 setting */
-	out32r(PCIL0_PMM0MA, 0x00000000);
-	out32r(PCIL0_PMM0LA, CONFIG_SYS_PCI_MEMBASE);	/* PMM0 Local Address */
-	/* PMM0 PCI Low Address */
-	out32r(PCIL0_PMM0PCILA, CONFIG_SYS_PCI_MEMBASE);
-	out32r(PCIL0_PMM0PCIHA, 0x00000000);	/* PMM0 PCI High Address */
-	/* 512M + No prefetching, and enable region */
-	out32r(PCIL0_PMM0MA, 0xE0000001);
-
-	/* PMM0 Mask/Attribute - disabled b4 setting */
-	out32r(PCIL0_PMM1MA, 0x00000000);
-	out32r(PCIL0_PMM1LA, CONFIG_SYS_PCI_MEMBASE2);	/* PMM0 Local Address */
-	/* PMM0 PCI Low Address */
-	out32r(PCIL0_PMM1PCILA, CONFIG_SYS_PCI_MEMBASE2);
-	out32r(PCIL0_PMM1PCIHA, 0x00000000);	/* PMM0 PCI High Address */
-	/* 512M + No prefetching, and enable region */
-	out32r(PCIL0_PMM1MA, 0xE0000001);
-
-	out32r(PCIL0_PTM1MS, 0x00000001);	/* Memory Size/Attribute */
-	out32r(PCIL0_PTM1LA, 0);	/* Local Addr. Reg */
-	out32r(PCIL0_PTM2MS, 0);	/* Memory Size/Attribute */
-	out32r(PCIL0_PTM2LA, 0);	/* Local Addr. Reg */
-
-	/*
-	 * Set up Configuration registers
-	 */
-
-	/* Program the board's subsystem id/vendor id */
-	pci_write_config_word(0, PCI_SUBSYSTEM_VENDOR_ID,
-			      CONFIG_SYS_PCI_SUBSYS_VENDORID);
-	pci_write_config_word(0, PCI_SUBSYSTEM_ID, CONFIG_SYS_PCI_SUBSYS_ID);
-
-	/* Configure command register as bus master */
-	pci_write_config_word(0, PCI_COMMAND, PCI_COMMAND_MASTER);
-
-	/* 240nS PCI clock */
-	pci_write_config_word(0, PCI_LATENCY_TIMER, 1);
-
-	/* No error reporting */
-	pci_write_config_word(0, PCI_ERREN, 0);
-
-	pci_write_config_dword(0, PCI_BRDGOPT2, 0x00000101);
-}
-
-/*
- *  pci_master_init
- *
+ * Override weak default pci_master_init()
  */
 void pci_master_init(struct pci_controller *hose)
 {
-	unsigned short temp_short;
-	if (!board_with_pci()) { return; }
+	if (!board_with_pci())
+		return;
 
-	/*---------------------------------------------------------------
-	 * Write the PowerPC440 EP PCI Configuration regs.
-	 *   Enable PowerPC440 EP to be a master on the PCI bus (PMM).
-	 *   Enable PowerPC440 EP to act as a PCI memory target (PTM).
-	 *--------------------------------------------------------------*/
-	pci_read_config_word(0, PCI_COMMAND, &temp_short);
-	pci_write_config_word(0, PCI_COMMAND,
-			      temp_short | PCI_COMMAND_MASTER |
-			      PCI_COMMAND_MEMORY);
-}
-
-/*
- *  is_pci_host
- *
- *	This routine is called to determine if a pci scan should be
- *	performed. With various hardware environments (especially cPCI and
- *	PPMC) it's insufficient to depend on the state of the arbiter enable
- *	bit in the strap register, or generic host/adapter assumptions.
- *
- *	Rather than hard-code a bad assumption in the general 440 code, the
- *	440 pci code requires the board to decide at runtime.
- *
- *	Return 0 for adapter mode, non-zero for host (monarch) mode.
- *
- */
-int is_pci_host(struct pci_controller *hose)
-{
-	return 1;
+	__pci_master_init(hose);
 }
 #endif	 /* defined(CONFIG_PCI) */
-
-#if defined(CONFIG_POST)
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed(void)
-{
-	return 0;	/* No hotkeys supported */
-}
-#endif /* CONFIG_POST */
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)

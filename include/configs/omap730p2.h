@@ -65,7 +65,8 @@
  * Hardware drivers
  */
 
-#define CONFIG_DRIVER_LAN91C96
+#define CONFIG_NET_MULTI
+#define CONFIG_LAN91C96
 #define CONFIG_LAN91C96_BASE	   0x04000300
 #define CONFIG_LAN91C96_EXT_PHY
 

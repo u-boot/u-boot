@@ -37,7 +37,7 @@
 #include <command.h>
 #include <asm/interrupt.h>
 
-int cpu_init(void)
+int cpu_init_f(void)
 {
 	/* initialize FPU, reset EM, set MP and NE */
 	asm ("fninit\n" \
@@ -46,10 +46,13 @@ int cpu_init(void)
 	     "orl  $0x22, %eax\n" \
 	     "movl %eax, %cr0\n" );
 
+	return 0;
+}
+
+int cpu_init_r(void)
+{
 	/* Initialize core interrupt and exception functionality of CPU */
 	cpu_init_interrupts ();
-	cpu_init_exceptions ();
-
 	return 0;
 }
 
@@ -74,6 +77,8 @@ void __attribute__ ((regparm(0))) generate_gpf(void);
 
 /* segment 0x70 is an arbitrary segment which does not exist */
 asm(".globl generate_gpf\n"
+    ".hidden generate_gpf\n"
+    ".type generate_gpf, @function\n"
     "generate_gpf:\n"
     "ljmp   $0x70, $0x47114711\n");
 

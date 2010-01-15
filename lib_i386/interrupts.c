@@ -70,12 +70,12 @@ void irq_install_handler(int irq, interrupt_handler_t *handler, void *arg)
 
 	if (irq_handlers[irq].handler != NULL)
 		printf("irq_install_handler: 0x%08lx replacing 0x%08lx\n",
-		       (ulong) handler + gd->reloc_off,
+		       (ulong) handler,
 		       (ulong) irq_handlers[irq].handler);
 
 	status = disable_interrupts ();
 
-	irq_handlers[irq].handler = handler + gd->reloc_off;
+	irq_handlers[irq].handler = handler;
 	irq_handlers[irq].arg = arg;
 	irq_handlers[irq].count = 0;
 
@@ -109,8 +109,10 @@ void irq_free_handler(int irq)
 	return;
 }
 
-__isr__ do_irq(int irq)
+void do_irq(int hw_irq)
 {
+	int irq = hw_irq - 0x20;
+
 	if (irq < 0 || irq >= CONFIG_SYS_NUM_IRQS) {
 		printf("do_irq: bad irq number %d\n", irq);
 		return;

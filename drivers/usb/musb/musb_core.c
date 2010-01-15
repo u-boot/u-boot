@@ -32,7 +32,9 @@ struct musb_regs *musbr;
  */
 void musb_start(void)
 {
+#if defined(CONFIG_MUSB_HCD)
 	u8 devctl;
+#endif
 
 	/* disable all interrupts */
 	writew(0, &musbr->intrtxe);
@@ -47,6 +49,16 @@ void musb_start(void)
 	writeb(devctl | MUSB_DEVCTL_SESSION, &musbr->devctl);
 #endif
 }
+
+#ifdef MUSB_NO_DYNAMIC_FIFO
+# define config_fifo(dir, idx, addr)
+#else
+# define config_fifo(dir, idx, addr) \
+	do { \
+		writeb(idx, &musbr->dir##fifosz); \
+		writew(fifoaddr >> 3, &musbr->dir##fifoadd); \
+	} while (0)
+#endif
 
 /*
  * This function configures the endpoint configuration. The musb hcd or musb
@@ -72,11 +84,11 @@ void musb_configure_ep(struct musb_epinfo *epinfo, u8 cnt)
 		writeb(epinfo->epnum, &musbr->index);
 		if (epinfo->epdir) {
 			/* Configure fifo size and fifo base address */
-			writeb(idx, &musbr->txfifosz);
-			writew(fifoaddr >> 3, &musbr->txfifoadd);
+			config_fifo(tx, idx, fifoaddr);
+
+			csr = readw(&musbr->txcsr);
 #if defined(CONFIG_MUSB_HCD)
 			/* clear the data toggle bit */
-			csr = readw(&musbr->txcsr);
 			writew(csr | MUSB_TXCSR_CLRDATATOG, &musbr->txcsr);
 #endif
 			/* Flush fifo if required */
@@ -85,11 +97,11 @@ void musb_configure_ep(struct musb_epinfo *epinfo, u8 cnt)
 					&musbr->txcsr);
 		} else {
 			/* Configure fifo size and fifo base address */
-			writeb(idx, &musbr->rxfifosz);
-			writew(fifoaddr >> 3, &musbr->rxfifoadd);
+			config_fifo(rx, idx, fifoaddr);
+
+			csr = readw(&musbr->rxcsr);
 #if defined(CONFIG_MUSB_HCD)
 			/* clear the data toggle bit */
-			csr = readw(&musbr->rxcsr);
 			writew(csr | MUSB_RXCSR_CLRDATATOG, &musbr->rxcsr);
 #endif
 			/* Flush fifo if required */
@@ -109,6 +121,7 @@ void musb_configure_ep(struct musb_epinfo *epinfo, u8 cnt)
  * length	- number of bytes to write to FIFO
  * fifo_data	- Pointer to data buffer that contains the data to write
  */
+__attribute__((weak))
 void write_fifo(u8 ep, u32 length, void *fifo_data)
 {
 	u8  *data = (u8 *)fifo_data;
@@ -128,6 +141,7 @@ void write_fifo(u8 ep, u32 length, void *fifo_data)
  * length       - number of bytes to read from FIFO
  * fifo_data    - pointer to data buffer into which data is read
  */
+__attribute__((weak))
 void read_fifo(u8 ep, u32 length, void *fifo_data)
 {
 	u8  *data = (u8 *)fifo_data;

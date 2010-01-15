@@ -76,6 +76,7 @@
  * Size of malloc() pool
  */
 #define	CONFIG_ENV_SIZE SZ_128K	/* Total Size of Environment Sector */
+#define CONFIG_ENV_SIZE_FLEX SZ_256K
 #define	CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + SZ_1M)
 /* bytes reserved for initial data */
 #define	CONFIG_SYS_GBL_DATA_SIZE	128
@@ -87,7 +88,8 @@
 /*
  * SMC91c96 Etherent
  */
-#define	CONFIG_DRIVER_LAN91C96
+#define CONFIG_NET_MULTI
+#define	CONFIG_LAN91C96
 #define	CONFIG_LAN91C96_BASE	(APOLLON_CS1_BASE+0x300)
 #define	CONFIG_LAN91C96_EXT_PHY
 
@@ -183,10 +185,8 @@
 /*
  * Miscellaneous configurable options
  */
-#define	V_PROMPT	"Apollon # "
-
 #define	CONFIG_SYS_LONGHELP	/* undef to save memory */
-#define	CONFIG_SYS_PROMPT	V_PROMPT
+#define	CONFIG_SYS_PROMPT	"Apollon # "
 #define	CONFIG_SYS_CBSIZE	256	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define	CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
@@ -255,8 +255,7 @@
 #define CONFIG_SYS_MONITOR_LEN		SZ_256K	/* U-Boot image size */
 #define	CONFIG_ENV_IS_IN_ONENAND	1
 #define CONFIG_ENV_ADDR		0x00020000
-
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
+#define CONFIG_ENV_ADDR_FLEX	0x00040000
 
 #ifdef CONFIG_SYS_USE_UBI
 #define CONFIG_CMD_MTDPARTS

@@ -33,9 +33,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* ------------------------------------------------------------------------- */
 
-/* Prototypes */
-int gunzip(void *, int, unsigned char *, unsigned long *);
-
 int board_early_init_f (void)
 {
 	out32(GPIO0_OR, CONFIG_SYS_NAND0_CE);                 /* set initial outputs     */

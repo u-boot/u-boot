@@ -268,8 +268,6 @@
 				 48, 49, 50, 51, 52, 53, 54, 55, \
 				 56, 57, 58, 59, 60, 61, 62, 63}
 
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
-
 /* Boot configuration (define only one of next 3) */
 #define CONFIG_BOOT_NAND
 /* None of these are currently implemented. Left from the original Samsung

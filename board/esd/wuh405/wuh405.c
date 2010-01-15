@@ -46,10 +46,6 @@ const unsigned char fpgadata[] =
 #include "../common/fpga.c"
 
 
-/* Prototypes */
-int gunzip(void *, int, unsigned char *, unsigned long *);
-
-
 int board_early_init_f (void)
 {
 	/*

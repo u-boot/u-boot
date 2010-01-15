@@ -99,7 +99,7 @@ void set_timer(ulong t)
 	timestamp = t;
 }
 
-void udelay(unsigned long usec)
+void __udelay (unsigned long usec)
 {
 	ulong tmo;
 	ulong start = get_ticks();
@@ -198,6 +198,8 @@ void reset_cpu(ulong ignored)
 	struct s3c24x0_watchdog *watchdog;
 
 #ifdef CONFIG_TRAB
+	extern void disable_vfd(void);
+
 	disable_vfd();
 #endif
 

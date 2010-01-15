@@ -51,10 +51,7 @@ typedef struct {
 	dv_reg		NANDFCR;
 	dv_reg		NANDFSR;
 	u_int8_t	RSVD1[8];
-	dv_reg		NANDF1ECC;
-	dv_reg		NANDF2ECC;
-	dv_reg		NANDF3ECC;
-	dv_reg		NANDF4ECC;
+	dv_reg		NANDFECC[4];
 	u_int8_t	RSVD2[60];
 	dv_reg		NAND4BITECCLOAD;
 	dv_reg		NAND4BITECC1;
@@ -68,4 +65,12 @@ typedef struct {
 } emif_registers;
 
 typedef emif_registers	*emifregs;
+
+#define DAVINCI_NANDFCR_NAND_ENABLE(n)			(1 << (n-2))
+#define DAVINCI_NANDFCR_4BIT_ECC_SEL_MASK		(3 << 4)
+#define DAVINCI_NANDFCR_4BIT_ECC_SEL(n)			((n-2) << 4)
+#define DAVINCI_NANDFCR_1BIT_ECC_START(n)		(1 << (8 + (n-2)))
+#define DAVINCI_NANDFCR_4BIT_ECC_START			(1 << 12)
+#define DAVINCI_NANDFCR_4BIT_CALC_START			(1 << 13)
+
 #endif

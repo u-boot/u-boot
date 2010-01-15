@@ -992,6 +992,9 @@
 #endif
 #endif
 
+#define IS_SVR_REV(svr, maj, min) \
+	((SVR_MAJ(svr) == maj) && (SVR_MIN(svr) == min))
+
 /*
  * SVR_SOC_VER() Version Values
  */

@@ -103,7 +103,7 @@ void reset_timer(void)
 	cmt_timer_start(0);
 }
 
-void udelay(unsigned long usec)
+void __udelay(unsigned long usec)
 {
 	unsigned long end = get_usec() + usec;
 

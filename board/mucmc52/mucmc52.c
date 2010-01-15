@@ -31,6 +31,7 @@
  */
 
 #include <common.h>
+#include <fdt_support.h>
 #include <mpc5xxx.h>
 #include <pci.h>
 #include <malloc.h>

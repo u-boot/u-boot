@@ -36,6 +36,21 @@
 #define S3C2410_ADDR_NALE 4
 #define S3C2410_ADDR_NCLE 8
 
+#ifdef CONFIG_NAND_SPL
+
+/* in the early stage of NAND flash booting, printf() is not available */
+#define printf(fmt, args...)
+
+static void nand_read_buf(struct mtd_info *mtd, u_char *buf, int len)
+{
+	int i;
+	struct nand_chip *this = mtd->priv;
+
+	for (i = 0; i < len; i++)
+		buf[i] = readb(this->IO_ADDR_R);
+}
+#endif
+
 static void s3c2410_hwcontrol(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 {
 	struct nand_chip *chip = mtd->priv;
@@ -83,9 +98,10 @@ void s3c2410_nand_enable_hwecc(struct mtd_info *mtd, int mode)
 static int s3c2410_nand_calculate_ecc(struct mtd_info *mtd, const u_char *dat,
 				      u_char *ecc_code)
 {
-	ecc_code[0] = NFECC0;
-	ecc_code[1] = NFECC1;
-	ecc_code[2] = NFECC2;
+	struct s3c2410_nand *nand = s3c2410_get_base_nand();
+	ecc_code[0] = readb(&nand->NFECC);
+	ecc_code[1] = readb(&nand->NFECC + 1);
+	ecc_code[2] = readb(&nand->NFECC + 2);
 	debugX(1, "s3c2410_nand_calculate_hwecc(%p,): 0x%02x 0x%02x 0x%02x\n",
 	       mtd , ecc_code[0], ecc_code[1], ecc_code[2]);
 
@@ -130,8 +146,13 @@ int board_nand_init(struct nand_chip *nand)
 	/* initialize nand_chip data structure */
 	nand->IO_ADDR_R = nand->IO_ADDR_W = (void *)&nand_reg->NFDATA;
 
+	nand->select_chip = NULL;
+
 	/* read_buf and write_buf are default */
 	/* read_byte and write_byte are default */
+#ifdef CONFIG_NAND_SPL
+	nand->read_buf = nand_read_buf;
+#endif
 
 	/* hwcontrol always must be implemented */
 	nand->cmd_ctrl = s3c2410_hwcontrol;
@@ -142,7 +163,9 @@ int board_nand_init(struct nand_chip *nand)
 	nand->ecc.hwctl = s3c2410_nand_enable_hwecc;
 	nand->ecc.calculate = s3c2410_nand_calculate_ecc;
 	nand->ecc.correct = s3c2410_nand_correct_data;
-	nand->ecc.mode = NAND_ECC_HW3_512;
+	nand->ecc.mode = NAND_ECC_HW;
+	nand->ecc.size = CONFIG_SYS_NAND_ECCSIZE;
+	nand->ecc.bytes = CONFIG_SYS_NAND_ECCBYTES;
 #else
 	nand->ecc.mode = NAND_ECC_SOFT;
 #endif

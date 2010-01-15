@@ -96,7 +96,7 @@ static struct descriptor {
 				 * UE_DIR_IN | EHCI_INTR_ENDPT
 				 */
 		3,		/* bmAttributes: UE_INTERRUPT */
-		8, 0,		/* wMaxPacketSize */
+		8,		/* wMaxPacketSize */
 		255		/* bInterval */
 	},
 };
@@ -708,6 +708,9 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 				 * root
 				 */
 				wait_ms(50);
+				/* terminate the reset */
+				ehci_writel(status_reg, reg & ~EHCI_PS_PR);
+				wait_ms(2);
 				portreset |= 1 << le16_to_cpu(req->index);
 			}
 			break;

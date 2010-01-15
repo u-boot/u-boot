@@ -6,6 +6,23 @@
  * Copyright(c) 2002,2003 Motorola Inc.
  * Xianghua Xiao (x.xiao@motorola.com)
  *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
  */
 
 #ifndef __IMMAP_85xx__
@@ -1545,6 +1562,78 @@ typedef struct par_io {
 	u8	res[8];
 } par_io_t;
 
+#ifdef CONFIG_SYS_FSL_CPC
+/*
+ * Define a single offset that is the start of all the CPC register
+ * blocks - if there is more than one CPC, we expect these to be
+ * contiguous 4k regions
+ */
+
+typedef struct cpc_corenet {
+	u32 	cpccsr0;	/* Config/status reg */
+	u32	res1;
+	u32	cpccfg0;	/* Configuration register */
+	u32	res2;
+	u32	cpcewcr0;	/* External Write reg 0 */
+	u32	cpcewabr0;	/* External write base reg 0 */
+	u32	res3[2];
+	u32	cpcewcr1;	/* External Write reg 1 */
+	u32	cpcewabr1;	/* External write base reg 1 */
+	u32	res4[54];
+	u32	cpcsrcr1;	/* SRAM control reg 1 */
+	u32	cpcsrcr0;	/* SRAM control reg 0 */
+	u32	res5[62];
+	struct {
+		u32	id;	/* partition ID */
+		u32	res;
+		u32	alloc;	/* partition allocation */
+		u32	way;	/* partition way */
+	} partition_regs[16];
+	u32	res6[704];
+	u32	cpcerrinjhi;	/* Error injection high */
+	u32	cpcerrinjlo;	/* Error injection lo */
+	u32	cpcerrinjctl;	/* Error injection control */
+	u32	res7[5];
+	u32	cpccaptdatahi;	/* capture data high */
+	u32	cpccaptdatalo;	/* capture data low */
+	u32	cpcaptecc;	/* capture ECC */
+	u32	res8[5];
+	u32	cpcerrdet;	/* error detect */
+	u32	cpcerrdis;	/* error disable */
+	u32	cpcerrinten;	/* errir interrupt enable */
+	u32	cpcerrattr;	/* error attribute */
+	u32	cpcerreaddr;	/* error extended address */
+	u32	cpcerraddr;	/* error address */
+	u32	cpcerrctl;	/* error control */
+	u32	res9[105];	/* pad out to 4k */
+} cpc_corenet_t;
+
+#define CPC_CSR0_CE	0x80000000	/* Cache Enable */
+#define CPC_CSR0_PE	0x40000000	/* Enable ECC */
+#define CPC_CSR0_FI	0x00200000	/* Cache Flash Invalidate */
+#define CPC_CSR0_WT	0x00080000	/* Write-through mode */
+#define CPC_CSR0_FL	0x00000800	/* Hardware cache flush */
+#define CPC_CSR0_LFC	0x00000400	/* Cache Lock Flash Clear */
+#define CPC_CFG0_SZ_MASK	0x00003fff
+#define CPC_CFG0_SZ_K(x)	((x & CPC_CFG0_SZ_MASK) << 6)
+#define CPC_CFG0_NUM_WAYS(x)	(((x >> 14) & 0x1f) + 1)
+#define CPC_CFG0_LINE_SZ(x)	((((x >> 23) & 0x3) + 1) * 32)
+#define CPC_SRCR1_SRBARU_MASK	0x0000ffff
+#define CPC_SRCR1_SRBARU(x)	(((unsigned long long)x >> 32) \
+				 & CPC_SRCR1_SRBARU_MASK)
+#define	CPC_SRCR0_SRBARL_MASK	0xffff8000
+#define CPC_SRCR0_SRBARL(x)	(x & CPC_SRCR0_SRBARL_MASK)
+#define CPC_SRCR0_INTLVEN	0x00000100
+#define CPC_SRCR0_SRAMSZ_1_WAY	0x00000000
+#define CPC_SRCR0_SRAMSZ_2_WAY	0x00000002
+#define CPC_SRCR0_SRAMSZ_4_WAY	0x00000004
+#define CPC_SRCR0_SRAMSZ_8_WAY	0x00000006
+#define CPC_SRCR0_SRAMSZ_16_WAY	0x00000008
+#define CPC_SRCR0_SRAMSZ_32_WAY	0x0000000a
+#define CPC_SRCR0_SRAMEN	0x00000001
+#define	CPC_ERRDIS_TMHITDIS  	0x00000080	/* multi-way hit disable */
+#endif /* CONFIG_SYS_FSL_CPC */
+
 /* Global Utilities Block */
 #ifdef CONFIG_FSL_CORENET
 typedef struct ccsr_gur {
@@ -1847,17 +1936,86 @@ typedef struct ccsr_gur {
 } ccsr_gur_t;
 #endif
 
+typedef struct serdes_corenet {
+	struct {
+		u32	rstctl;	/* Reset Control Register */
+#define SRDS_RSTCTL_RST		0x80000000
+#define SRDS_RSTCTL_RSTDONE	0x40000000
+#define SRDS_RSTCTL_RSTERR	0x20000000
+		u32	pllcr0; /* PLL Control Register 0 */
+		u32	pllcr1; /* PLL Control Register 1 */
+#define SRDS_PLLCR1_PLL_BWSEL	0x08000000
+		u32	res[5];
+	} bank[3];
+	u32	res1[12];
+	u32	srdstcalcr;	/* TX Calibration Control */
+	u32	res2[3];
+	u32	srdsrcalcr;	/* RX Calibration Control */
+	u32	res3[3];
+	u32	srdsgr0;	/* General Register 0 */
+	u32	res4[11];
+	u32	srdspccr0;	/* Protocol Converter Config 0 */
+	u32	srdspccr1;	/* Protocol Converter Config 1 */
+	u32	srdspccr2;	/* Protocol Converter Config 2 */
+#define SRDS_PCCR2_RST_XGMII1		0x00800000
+#define SRDS_PCCR2_RST_XGMII2		0x00400000
+	u32	res5[197];
+	struct {
+		u32	gcr0;	/* General Control Register 0 */
+#define SRDS_GCR0_RRST			0x00400000
+#define SRDS_GCR0_1STLANE		0x00010000
+		u32	gcr1;	/* General Control Register 1 */
+#define SRDS_GCR1_REIDL_CTL_MASK	0x001f0000
+#define SRDS_GCR1_REIDL_CTL_PCIE	0x00100000
+#define SRDS_GCR1_REIDL_CTL_SRIO	0x00000000
+#define SRDS_GCR1_REIDL_CTL_SGMII	0x00040000
+#define SRDS_GCR1_OPAD_CTL		0x04000000
+		u32	res1[4];
+		u32	tecr0;	/* TX Equalization Control Reg 0 */
+#define SRDS_TECR0_TEQ_TYPE_MASK	0x30000000
+#define SRDS_TECR0_TEQ_TYPE_2LVL	0x10000000
+		u32	res3;
+		u32	ttlcr0;	/* Transition Tracking Loop Ctrl 0 */
+		u32	res4[7];
+	} lane[24];
+	u32 res6[384];
+} serdes_corenet_t;
+
+enum {
+	FSL_SRDS_B1_LANE_A = 0,
+	FSL_SRDS_B1_LANE_B = 1,
+	FSL_SRDS_B1_LANE_C = 2,
+	FSL_SRDS_B1_LANE_D = 3,
+	FSL_SRDS_B1_LANE_E = 4,
+	FSL_SRDS_B1_LANE_F = 5,
+	FSL_SRDS_B1_LANE_G = 6,
+	FSL_SRDS_B1_LANE_H = 7,
+	FSL_SRDS_B1_LANE_I = 8,
+	FSL_SRDS_B1_LANE_J = 9,
+	FSL_SRDS_B2_LANE_A = 16,
+	FSL_SRDS_B2_LANE_B = 17,
+	FSL_SRDS_B2_LANE_C = 18,
+	FSL_SRDS_B2_LANE_D = 19,
+	FSL_SRDS_B3_LANE_A = 20,
+	FSL_SRDS_B3_LANE_B = 21,
+	FSL_SRDS_B3_LANE_C = 22,
+	FSL_SRDS_B3_LANE_D = 23,
+};
+
 #ifdef CONFIG_FSL_CORENET
 #define CONFIG_SYS_FSL_CORENET_CCM_OFFSET	0x0000
 #define CONFIG_SYS_MPC85xx_DDR_OFFSET		0x8000
 #define CONFIG_SYS_MPC85xx_DDR2_OFFSET		0x9000
 #define CONFIG_SYS_FSL_CORENET_CLK_OFFSET	0xE1000
 #define CONFIG_SYS_FSL_CORENET_RCPM_OFFSET	0xE2000
+#define CONFIG_SYS_FSL_CORENET_SERDES_OFFSET	0xEA000
+#define CONFIG_SYS_FSL_CPC_OFFSET		0x10000
 #define CONFIG_SYS_MPC85xx_DMA_OFFSET		0x100000
 #define CONFIG_SYS_MPC85xx_ESPI_OFFSET		0x110000
 #define CONFIG_SYS_MPC85xx_ESDHC_OFFSET		0x114000
 #define CONFIG_SYS_MPC85xx_LBC_OFFSET		0x124000
 #define CONFIG_SYS_MPC85xx_GPIO_OFFSET		0x130000
+#define CONFIG_SYS_MPC85xx_USB_OFFSET		0x210000
 #define CONFIG_SYS_FSL_CORENET_QMAN_OFFSET	0x318000
 #define CONFIG_SYS_FSL_CORENET_BMAN_OFFSET	0x31a000
 #else
@@ -1874,6 +2032,12 @@ typedef struct ccsr_gur {
 #define CONFIG_SYS_MPC85xx_L2_OFFSET		0x20000
 #define CONFIG_SYS_MPC85xx_DMA_OFFSET		0x21000
 #define CONFIG_SYS_MPC85xx_USB_OFFSET		0x22000
+#ifdef CONFIG_TSECV2
+#define CONFIG_SYS_TSEC1_OFFSET			0xB0000
+#else
+#define CONFIG_SYS_TSEC1_OFFSET			0x24000
+#endif
+#define CONFIG_SYS_MDIO1_OFFSET			0x24000
 #define CONFIG_SYS_MPC85xx_ESDHC_OFFSET		0x2e000
 #define CONFIG_SYS_MPC85xx_SERDES2_OFFSET	0xE3100
 #define CONFIG_SYS_MPC85xx_SERDES1_OFFSET	0xE3000
@@ -1883,6 +2047,8 @@ typedef struct ccsr_gur {
 #define CONFIG_SYS_MPC85xx_PIC_OFFSET		0x40000
 #define CONFIG_SYS_MPC85xx_GUTS_OFFSET		0xE0000
 
+#define CONFIG_SYS_FSL_CPC_ADDR	\
+	(CONFIG_SYS_CCSRBAR + CONFIG_SYS_FSL_CPC_OFFSET)
 #define CONFIG_SYS_FSL_CORENET_QMAN_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_CORENET_QMAN_OFFSET)
 #define CONFIG_SYS_FSL_CORENET_BMAN_ADDR \
@@ -1929,7 +2095,12 @@ typedef struct ccsr_gur {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES2_OFFSET)
 #define CONFIG_SYS_MPC85xx_SERDES2_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES2_OFFSET)
+#define CONFIG_SYS_FSL_CORENET_SERDES_ADDR \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_CORENET_SERDES_OFFSET)
 #define CONFIG_SYS_MPC85xx_USB_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_USB_OFFSET)
+
+#define TSEC_BASE_ADDR		(CONFIG_SYS_IMMR + CONFIG_SYS_TSEC1_OFFSET)
+#define MDIO_BASE_ADDR		(CONFIG_SYS_IMMR + CONFIG_SYS_MDIO1_OFFSET)
 
 #endif /*__IMMAP_85xx__*/

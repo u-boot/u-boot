@@ -74,7 +74,7 @@
 
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTARGS							\
-	"root=/dev/mtdblock1 rootfstype=jffs2 console=ttyS1"
+	"root=/dev/mtdblock1 rootfstype=jffs2 fbmem=512k console=ttyS1"
 #define CONFIG_BOOTCOMMAND						\
 	"fsload boot/uImage; bootm"
 

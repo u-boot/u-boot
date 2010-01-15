@@ -47,7 +47,7 @@ extern __inline__ void __delay(unsigned long loops)
  * first constant multiplications gets optimized away if the delay is
  * a constant)
  */
-extern __inline__ void udelay(unsigned long usecs)
+extern __inline__ void __udelay(unsigned long usecs)
 {
 	__delay(usecs);
 }

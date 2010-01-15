@@ -35,6 +35,13 @@
 #define __CONFIG_H
 
 /*
+ * Top level Makefile configuration choices
+ */
+#ifdef CONFIG_MK_caddy2
+#define VME_CADDY2
+#endif
+
+/*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
@@ -42,6 +49,8 @@
 #define CONFIG_MPC834x		1	/* MPC834x family */
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_VME8349		1	/* ESD VME8349 board specific */
+
+#define CONFIG_MISC_INIT_R
 
 #define CONFIG_PCI
 /* Don't enable PCI2 on vme834x - it doesn't exist physically. */
@@ -75,7 +84,9 @@
  */
 #define CONFIG_DDR_ECC			/* only for ECC DDR module */
 #define CONFIG_DDR_ECC_CMD		/* use DDR ECC user commands */
-#undef CONFIG_SPD_EEPROM		/* dont use SPD EEPROM for DDR setup*/
+#define CONFIG_SPD_EEPROM
+#define SPD_EEPROM_ADDRESS		0x54
+#define CONFIG_SYS_READ_SPD		vme8349_read_spd
 #define CONFIG_SYS_83XX_DDR_USES_CS0	/* esd; Fsl board uses CS2/CS3 */
 
 /*
@@ -96,54 +107,40 @@
 #define CONFIG_SYS_DDR_SDRAM_CLK_CNTL	(DDR_SDRAM_CLK_CNTL_SS_EN | \
 					 DDR_SDRAM_CLK_CNTL_CLK_ADJUST_075)
 #define CONFIG_DDR_2T_TIMING
-
-/*
- * Manually set up DDR parameters
- */
-#define CONFIG_SYS_DDR_SIZE		512	/* MB */
-
-#if (CONFIG_SYS_DDR_SIZE == 512)
-#define CONFIG_SYS_DDR_CONFIG		(CSCONFIG_EN | CSCONFIG_ROW_BIT_13 | \
-					 CSCONFIG_COL_BIT_10 | \
-					 CSCONFIG_BANK_BIT_3)
-#endif
-
-/*
- * Manually set up DDR parameters
- */
-#define CONFIG_SYS_DDR_TIMING_0	        0x00220802
-#define CONFIG_SYS_DDR_TIMING_1	        0x39377322
-#define CONFIG_SYS_DDR_TIMING_2	        0x2f9848ca	/* P9-45, tuning? */
-#define CONFIG_SYS_DDR_TIMING_3	        0x00000000
-#define CONFIG_SYS_DDR_CONTROL		0xc2000000	/* unbuf,no DYN_PWR */
-#define CONFIG_SYS_DDR_MODE		0x07940242
-#define CONFIG_SYS_DDR_MODE2		0x00000000
-/* autocharge,no open page */
-#define CONFIG_SYS_DDR_INTERVAL	        0x04060100
-#define CONFIG_SYS_DDR_SDRAM_CFG	0x63000000
-#define CONFIG_SYS_DDR_SDRAM_CFG2	0x04061000
+#define CONFIG_SYS_DDRCDR		0x80080001
 
 /*
  * FLASH on the Local Bus
  */
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_FLASH_CFI_DRIVER			        /* use the CFI driver */
-#define CONFIG_SYS_FLASH_BASE		0xf8000000	/* start of FLASH   */
-#define CONFIG_SYS_FLASH_SIZE           128		/* flash size in MB */
-/* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
-
+#ifdef VME_CADDY2
+#define CONFIG_SYS_FLASH_BASE		0xffc00000	/* start of FLASH   */
+#define CONFIG_SYS_FLASH_SIZE		4		/* flash size in MB */
 #define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE | \
 					 (2 << BR_PS_SHIFT) |	/*  32bit */ \
 					 BR_V)			/* valid */
 
-#define CONFIG_SYS_OR0_PRELIM		0xF8006FF7	/* 128 MB flash size */
+#define CONFIG_SYS_OR0_PRELIM		0xffc06ff7	/*   4 MB flash size */
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_LBLAWAR0_PRELIM	0x8000001A	/* 128 MB window size */
+#define CONFIG_SYS_LBLAWAR0_PRELIM	0x80000015	/*   4 MB window size */
+#else
+#define CONFIG_SYS_FLASH_BASE		0xf8000000	/* start of FLASH   */
+#define CONFIG_SYS_FLASH_SIZE		128		/* flash size in MB */
+#define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE | \
+					 (2 << BR_PS_SHIFT) |	/*  32bit */ \
+					 BR_V)			/* valid */
+
+#define CONFIG_SYS_OR0_PRELIM		0xf8006ff7	/* 128 MB flash size */
+#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
+#define CONFIG_SYS_LBLAWAR0_PRELIM	0x8000001a	/* 128 MB window size */
+#endif
+/* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE */
 
 #define CONFIG_SYS_BR1_PRELIM		(0xf0000000 | 0x00001801)
-#define CONFIG_SYS_OR1_PRELIM		(0xffff8000 | 0x00000200)
+#define CONFIG_SYS_OR1_PRELIM		(0xfffc0008 | 0x00000200)
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	0xf0000000
-#define CONFIG_SYS_LBLAWAR1_PRELIM	(0x80000000 | 0x0000000e)
+#define CONFIG_SYS_LBLAWAR1_PRELIM	(0x80000000 | 0x00000011)
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* number of banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	1024	/* sectors per device*/
@@ -157,7 +154,7 @@
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT
 #else
-#undef  CONFIG_SYS_RAMBOOT
+#undef CONFIG_SYS_RAMBOOT
 #endif
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
@@ -174,11 +171,10 @@
 
 /*
  * Local Bus LCRR and LBCR regs
- *    LCRR:  DLL bypass, Clock divider is 4
+ *    LCRR:  no DLL bypass, Clock divider is 4
  * External Local Bus rate is
  *    CLKIN * HRCWL_CSB_TO_CLKIN / HRCWL_LCL_BUS_TO_SCB_CLK / LCRR_CLKDIV
  */
-#define CONFIG_SYS_LCRR_DBYP	LCRR_DBYP
 #define CONFIG_SYS_LCRR_CLKDIV	LCRR_CLKDIV_4
 #define CONFIG_SYS_LBC_LBCR	0x00000000
 
@@ -268,10 +264,10 @@
 #undef PCI_ONE_PCI1
 #endif
 
-#define CONFIG_PCI_PNP			/* do pci plug-and-play */
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
-
+#ifndef VME_CADDY2
 #define CONFIG_NET_MULTI
+#endif
+#define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_TULIP
@@ -282,19 +278,26 @@
 	#define PCI_IDSEL_NUMBER	0xFIXME
 #endif
 
+#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
+#define CONFIG_SYS_PCI_SUBSYS_VENDORID	0x1957	/* Freescale */
+
 #endif	/* CONFIG_PCI */
 
 /*
  * TSEC configuration
  */
+#ifdef VME_CADDY2
+#define CONFIG_E1000
+#else
 #define CONFIG_TSEC_ENET		/* TSEC ethernet support */
+#endif
 
 #if defined(CONFIG_TSEC_ENET)
 #ifndef CONFIG_NET_MULTI
 #define CONFIG_NET_MULTI
 #endif
 
-#define CONFIG_GMII		       /* MII PHY management */
+#define CONFIG_GMII			/* MII PHY management */
 #define CONFIG_TSEC1
 #define CONFIG_TSEC1_NAME	"TSEC0"
 #define CONFIG_TSEC2
@@ -311,6 +314,12 @@
 #define CONFIG_ETHPRIME		"TSEC0"
 
 #endif	/* CONFIG_TSEC_ENET */
+
+#if defined(CONFIG_E1000)
+#ifndef CONFIG_NET_MULTI
+#define CONFIG_NET_MULTI
+#endif
+#endif
 
 /*
  * Environment
@@ -560,7 +569,7 @@
 #define CONFIG_BOOTDELAY	6	/* -1 disables auto-boot */
 #undef  CONFIG_BOOTARGS			/* boot command will set bootargs */
 
-#define CONFIG_BAUDRATE	 115200
+#define CONFIG_BAUDRATE	 9600
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	"netdev=eth0\0"							\
@@ -604,5 +613,10 @@
    "bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
+
+#ifndef __ASSEMBLY__
+int vme8349_read_spd(unsigned char chip, unsigned int addr, int alen,
+		     unsigned char *buffer, int len);
+#endif
 
 #endif	/* __CONFIG_H */

@@ -40,11 +40,8 @@ enum {
 #define EARLY_INIT	1
 
 /* Slower full frequency range default timings for x32 operation*/
-#define SDP_SDRC_SHARING	0x00000100
-#define SDP_SDRC_MR_0_SDR	0x00000031
-
-/* optimized timings good for current shipping parts */
-#define SDP_3430_SDRC_RFR_CTRL_165MHz	0x0004e201 /* 7.8us/6ns - 50=0x4e2 */
+#define SDRC_SHARING	0x00000100
+#define SDRC_MR_0_SDR	0x00000031
 
 #define DLL_OFFSET		0
 #define DLL_WRITEDDRCLKX2DIS	1
@@ -71,29 +68,78 @@ enum {
  *	TCKE = 2
  *	XSR = 120/6 = 20
  */
-#define TDAL_165	6
-#define TDPL_165	3
-#define TRRD_165	2
-#define TRCD_165	3
-#define TRP_165		3
-#define TRAS_165	7
-#define TRC_165		10
-#define TRFC_165	21
-#define V_ACTIMA_165	((TRFC_165 << 27) | (TRC_165 << 22) | \
-			(TRAS_165 << 18) | (TRP_165 << 15) |  \
-			(TRCD_165 << 12) | (TRRD_165 << 9) |  \
-			(TDPL_165 << 6) | (TDAL_165))
+#define INFINEON_TDAL_165	6
+#define INFINEON_TDPL_165	3
+#define INFINEON_TRRD_165	2
+#define INFINEON_TRCD_165	3
+#define INFINEON_TRP_165	3
+#define INFINEON_TRAS_165	7
+#define INFINEON_TRC_165	10
+#define INFINEON_TRFC_165	12
+#define INFINEON_V_ACTIMA_165	((INFINEON_TRFC_165 << 27) |		\
+		(INFINEON_TRC_165 << 22) | (INFINEON_TRAS_165 << 18) |	\
+		(INFINEON_TRP_165 << 15) | (INFINEON_TRCD_165 << 12) |	\
+		(INFINEON_TRRD_165 << 9) | (INFINEON_TDPL_165 << 6) |	\
+		(INFINEON_TDAL_165))
 
-#define TWTR_165	1
-#define TCKE_165	1
-#define TXP_165		5
-#define XSR_165		23
-#define V_ACTIMB_165	(((TCKE_165 << 12) | (XSR_165 << 0)) |	\
-			(TXP_165 << 8) | (TWTR_165 << 16))
+#define INFINEON_TWTR_165	1
+#define INFINEON_TCKE_165	2
+#define INFINEON_TXP_165	2
+#define INFINEON_XSR_165	20
+#define INFINEON_V_ACTIMB_165	((INFINEON_TCKE_165 << 12) |		\
+		(INFINEON_XSR_165 << 0) | (INFINEON_TXP_165 << 8) |	\
+		(INFINEON_TWTR_165 << 16))
 
-#define SDP_SDRC_ACTIM_CTRLA_0	V_ACTIMA_165
-#define SDP_SDRC_ACTIM_CTRLB_0	V_ACTIMB_165
-#define SDP_SDRC_RFR_CTRL	SDP_3430_SDRC_RFR_CTRL_165MHz
+/* Micron part of 3430 EVM (165MHz optimized) 6.06ns
+ * ACTIMA
+ *	TDAL = Twr/Tck + Trp/tck= 15/6 + 18 /6 = 2.5 + 3 = 5.5 -> 6
+ *	TDPL (Twr)	= 15/6	= 2.5 -> 3
+ *	TRRD		= 12/6	= 2
+ *	TRCD		= 18/6	= 3
+ *	TRP		= 18/6	= 3
+ *	TRAS		= 42/6	= 7
+ *	TRC		= 60/6	= 10
+ *	TRFC		= 125/6	= 21
+ * ACTIMB
+ *	TWTR		= 1
+ *	TCKE		= 1
+ *	TXSR		= 138/6	= 23
+ *	TXP		= 25/6	= 4.1 ~5
+ */
+#define MICRON_TDAL_165		6
+#define MICRON_TDPL_165		3
+#define MICRON_TRRD_165		2
+#define MICRON_TRCD_165		3
+#define MICRON_TRP_165		3
+#define MICRON_TRAS_165		7
+#define MICRON_TRC_165		10
+#define MICRON_TRFC_165		21
+#define MICRON_V_ACTIMA_165 ((MICRON_TRFC_165 << 27) |			\
+		(MICRON_TRC_165 << 22) | (MICRON_TRAS_165 << 18) |	\
+		(MICRON_TRP_165 << 15) | (MICRON_TRCD_165 << 12) |	\
+		(MICRON_TRRD_165 << 9) | (MICRON_TDPL_165 << 6) |	\
+		(MICRON_TDAL_165))
+
+#define MICRON_TWTR_165		1
+#define MICRON_TCKE_165		1
+#define MICRON_XSR_165		23
+#define MICRON_TXP_165		5
+#define MICRON_V_ACTIMB_165 ((MICRON_TCKE_165 << 12) |			\
+		(MICRON_XSR_165 << 0) | (MICRON_TXP_165 << 8) |	\
+		(MICRON_TWTR_165 << 16))
+
+#ifdef CONFIG_OMAP3_INFINEON_DDR
+#define V_ACTIMA_165 INFINEON_V_ACTIMA_165
+#define V_ACTIMB_165 INFINEON_V_ACTIMB_165
+#endif
+#ifdef CONFIG_OMAP3_MICRON_DDR
+#define V_ACTIMA_165 MICRON_V_ACTIMA_165
+#define V_ACTIMB_165 MICRON_V_ACTIMB_165
+#endif
+
+#if !defined(V_ACTIMA_165) || !defined(V_ACTIMB_165)
+#error "Please choose the right DDR type in config header"
+#endif
 
 /*
  * GPMC settings -

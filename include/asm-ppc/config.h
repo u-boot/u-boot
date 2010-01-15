@@ -57,6 +57,19 @@
 #endif
 #endif
 
+/* Enable TSEC2.0 for the platforms that have it if we are using TSEC */
+#if defined(CONFIG_TSEC_ENET) && \
+    (defined(CONFIG_P1020) || defined(CONFIG_P1011))
+#define CONFIG_TSECV2
+#endif
+
+/* Number of TLB CAM entries we have on FSL Book-E chips */
+#if defined(CONFIG_E500MC)
+#define CONFIG_SYS_NUM_TLBCAMS	64
+#elif defined(CONFIG_E500)
+#define CONFIG_SYS_NUM_TLBCAMS	16
+#endif
+
 /* Relocation to SDRAM works on all PPC boards */
 #define CONFIG_RELOC_FIXUP_WORKS
 

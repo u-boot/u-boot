@@ -9,18 +9,7 @@
  */
 
 #include <common.h>
-
-
-/*
- *
- * New NAND support
- *
- */
-#include <common.h>
 #include <linux/mtd/mtd.h>
-
-#if defined(CONFIG_CMD_NAND)
-
 #include <command.h>
 #include <watchdog.h>
 #include <malloc.h>
@@ -686,4 +675,3 @@ U_BOOT_CMD(nboot, 4, 1, do_nandboot,
 	"boot from NAND device",
 	"[partition] | [[[loadAddr] dev] offset]"
 );
-#endif

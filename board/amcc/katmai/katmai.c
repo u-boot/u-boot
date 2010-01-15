@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2008
+ * (C) Copyright 2007-2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -260,98 +260,8 @@ u32 ddr_clktr(u32 default_val) {
 	return (SDRAM_CLKTR_CLKP_90_DEG_ADV);
 }
 
-/*************************************************************************
- *  pci_pre_init
- *
- *  This routine is called just prior to registering the hose and gives
- *  the board the opportunity to check things. Returning a value of zero
- *  indicates that things are bad & PCI initialization should be aborted.
- *
- *	Different boards may wish to customize the pci controller structure
- *	(add regions, override default access routines, etc) or perform
- *	certain pre-initialization actions.
- *
- ************************************************************************/
 #if defined(CONFIG_PCI)
-int pci_pre_init(struct pci_controller * hose )
-{
-	unsigned long strap;
-
-	/*-------------------------------------------------------------------+
-	 *	The katmai board is always configured as the host & requires the
-	 *	PCI arbiter to be enabled.
-	 *-------------------------------------------------------------------*/
-	mfsdr(SDR0_SDSTP1, strap);
-	if( (strap & SDR0_SDSTP1_PAE_MASK) == 0 ) {
-		printf("PCI: SDR0_STRP1[%08lX] - PCI Arbiter disabled.\n",strap);
-		return 0;
-	}
-
-	return 1;
-}
-#endif	/* defined(CONFIG_PCI) */
-
-/*************************************************************************
- *  pci_target_init
- *
- *	The bootstrap configuration provides default settings for the pci
- *	inbound map (PIM). But the bootstrap config choices are limited and
- *	may not be sufficient for a given board.
- *
- ************************************************************************/
-#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
-void pci_target_init(struct pci_controller * hose )
-{
-	/*-------------------------------------------------------------------+
-	 * Disable everything
-	 *-------------------------------------------------------------------*/
-	out32r( PCIL0_PIM0SA, 0 ); /* disable */
-	out32r( PCIL0_PIM1SA, 0 ); /* disable */
-	out32r( PCIL0_PIM2SA, 0 ); /* disable */
-	out32r( PCIL0_EROMBA, 0 ); /* disable expansion rom */
-
-	/*-------------------------------------------------------------------+
-	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440
-	 * strapping options to not support sizes such as 128/256 MB.
-	 *-------------------------------------------------------------------*/
-	out32r( PCIL0_PIM0LAL, CONFIG_SYS_SDRAM_BASE );
-	out32r( PCIL0_PIM0LAH, 0 );
-	out32r( PCIL0_PIM0SA, ~(gd->ram_size - 1) | 1 );
-	out32r( PCIL0_BAR0, 0 );
-
-	/*-------------------------------------------------------------------+
-	 * Program the board's subsystem id/vendor id
-	 *-------------------------------------------------------------------*/
-	out16r( PCIL0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID );
-	out16r( PCIL0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID );
-
-	out16r( PCIL0_CMD, in16r(PCIL0_CMD) | PCI_COMMAND_MEMORY );
-}
-#endif	/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
-
-#if defined(CONFIG_PCI)
-/*************************************************************************
- *  is_pci_host
- *
- *	This routine is called to determine if a pci scan should be
- *	performed. With various hardware environments (especially cPCI and
- *	PPMC) it's insufficient to depend on the state of the arbiter enable
- *	bit in the strap register, or generic host/adapter assumptions.
- *
- *	Rather than hard-code a bad assumption in the general 440 code, the
- *	440 pci code requires the board to decide at runtime.
- *
- *	Return 0 for adapter mode, non-zero for host (monarch) mode.
- *
- *
- ************************************************************************/
-int is_pci_host(struct pci_controller *hose)
-{
-	/* The katmai board is always configured as host. */
-	return 1;
-}
-
-static int katmai_pcie_card_present(int port)
+int board_pcie_card_present(int port)
 {
 	u32 val;
 
@@ -367,90 +277,7 @@ static int katmai_pcie_card_present(int port)
 		return 0;
 	}
 }
-
-static struct pci_controller pcie_hose[3] = {{0},{0},{0}};
-
-void pcie_setup_hoses(int busno)
-{
-	struct pci_controller *hose;
-	int i, bus;
-	int ret = 0;
-	char *env;
-	unsigned int delay;
-
-	/*
-	 * assume we're called after the PCIX hose is initialized, which takes
-	 * bus ID 0 and therefore start numbering PCIe's from 1.
-	 */
-	bus = busno;
-	for (i = 0; i <= 2; i++) {
-		/* Check for katmai card presence */
-		if (!katmai_pcie_card_present(i))
-			continue;
-
-		if (is_end_point(i))
-			ret = ppc4xx_init_pcie_endport(i);
-		else
-			ret = ppc4xx_init_pcie_rootport(i);
-		if (ret == -ENODEV)
-			continue;
-		if (ret) {
-			printf("PCIE%d: initialization as %s failed\n", i,
-			       is_end_point(i) ? "endpoint" : "root-complex");
-			continue;
-		}
-
-		hose = &pcie_hose[i];
-		hose->first_busno = bus;
-		hose->last_busno = bus;
-		hose->current_busno = bus;
-
-		/* setup mem resource */
-		pci_set_region(hose->regions + 0,
-			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
-			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
-			       CONFIG_SYS_PCIE_MEMSIZE,
-			       PCI_REGION_MEM);
-		hose->region_count = 1;
-		pci_register_hose(hose);
-
-		if (is_end_point(i)) {
-			ppc4xx_setup_pcie_endpoint(hose, i);
-			/*
-			 * Reson for no scanning is endpoint can not generate
-			 * upstream configuration accesses.
-			 */
-		} else {
-			ppc4xx_setup_pcie_rootpoint(hose, i);
-			env = getenv ("pciscandelay");
-			if (env != NULL) {
-				delay = simple_strtoul(env, NULL, 10);
-				if (delay > 5)
-					printf("Warning, expect noticable delay before "
-					       "PCIe scan due to 'pciscandelay' value!\n");
-				mdelay(delay * 1000);
-			}
-
-			/*
-			 * Config access can only go down stream
-			 */
-			hose->last_busno = pci_hose_scan(hose);
-			bus = hose->last_busno + 1;
-		}
-	}
-}
 #endif	/* defined(CONFIG_PCI) */
-
-#ifdef CONFIG_POST
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed(void)
-{
-	return (ctrlc());
-}
-#endif
 
 int board_eth_init(bd_t *bis)
 {

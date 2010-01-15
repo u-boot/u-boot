@@ -28,6 +28,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_RELOC_FIXUP_WORKS
+
 /*
  * Stuff still to be dealt with -
  */
@@ -61,7 +63,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_MALLOC_SIZE	(CONFIG_SYS_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
 
 #define CONFIG_BAUDRATE		9600
 
@@ -234,8 +236,8 @@
 #ifndef __ASSEMBLER__
 extern unsigned long ip;
 
-#define PRINTIP				asm ("call next_line\n" \
-					    "next_line:\n" \
+#define PRINTIP				asm ("call 0\n" \
+					    "0:\n" \
 					    "pop %%eax\n" \
 					    "movl %%eax, %0\n" \
 					    :"=r"(ip) \

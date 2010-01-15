@@ -75,7 +75,7 @@ TODO: external MII is not functional, only internal at the moment.
 #define DM9000_DMP_PACKET(func,packet,length)  \
 	do { \
 		int i; 							\
-		printf(func ": length: %d\n", length);			\
+		printf("%s: length: %d\n", func, length);		\
 		for (i = 0; i < length; i++) {				\
 			if (i % 8 == 0)					\
 				printf("\n%s: %02x: ", func, i);	\
@@ -284,7 +284,6 @@ static int dm9000_init(struct eth_device *dev, bd_t *bd)
 	int i, oft, lnk;
 	u8 io_mode;
 	struct board_info *db = &dm9000_info;
-	uchar enetaddr[6];
 
 	DM9000_DBG("%s\n", __func__);
 
@@ -342,20 +341,11 @@ static int dm9000_init(struct eth_device *dev, bd_t *bd)
 	/* Clear interrupt status */
 	DM9000_iow(DM9000_ISR, ISR_ROOS | ISR_ROS | ISR_PTS | ISR_PRS);
 
-	/* Set Node address */
-	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
-#if !defined(CONFIG_DM9000_NO_SROM)
-		for (i = 0; i < 3; i++)
-			dm9000_read_srom_word(i, enetaddr + 2 * i);
-		eth_setenv_enetaddr("ethaddr", enetaddr);
-#endif
-	}
-
-	printf("MAC: %pM\n", enetaddr);
+	printf("MAC: %pM\n", dev->enetaddr);
 
 	/* fill device MAC address registers */
 	for (i = 0, oft = DM9000_PAR; i < 6; i++, oft++)
-		DM9000_iow(oft, enetaddr[i]);
+		DM9000_iow(oft, dev->enetaddr[i]);
 	for (i = 0, oft = 0x16; i < 8; i++, oft++)
 		DM9000_iow(oft, 0xff);
 
@@ -558,6 +548,15 @@ void dm9000_write_srom_word(int offset, u16 val)
 }
 #endif
 
+static void dm9000_get_enetaddr(struct eth_device *dev)
+{
+#if !defined(CONFIG_DM9000_NO_SROM)
+	int i;
+	for (i = 0; i < 3; i++)
+		dm9000_read_srom_word(i, dev->enetaddr + (2 * i));
+#endif
+}
+
 /*
    Read a byte from I/O port
 */
@@ -620,6 +619,9 @@ phy_write(int reg, u16 value)
 int dm9000_initialize(bd_t *bis)
 {
 	struct eth_device *dev = &(dm9000_info.netdev);
+
+	/* Load MAC address from EEPROM */
+	dm9000_get_enetaddr(dev);
 
 	dev->init = dm9000_init;
 	dev->halt = dm9000_halt;
