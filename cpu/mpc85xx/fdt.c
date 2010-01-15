@@ -331,6 +331,23 @@ static void ft_fixup_dpaa_clks(void *blob)
 #define ft_fixup_dpaa_clks(x)
 #endif
 
+#ifdef CONFIG_QE
+static void ft_fixup_qe_snum(void *blob)
+{
+	unsigned int svr;
+
+	svr = mfspr(SPRN_SVR);
+	if (SVR_SOC_VER(svr) == SVR_8569_E) {
+		if(IS_SVR_REV(svr, 1, 0))
+			do_fixup_by_compat_u32(blob, "fsl,qe",
+				"fsl,qe-num-snums", 46, 1);
+		else
+			do_fixup_by_compat_u32(blob, "fsl,qe",
+				"fsl,qe-num-snums", 76, 1);
+	}
+}
+#endif
+
 void ft_cpu_setup(void *blob, bd_t *bd)
 {
 	int off;
@@ -367,6 +384,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 		"bus-frequency", gd->lbc_clk, 1);
 #ifdef CONFIG_QE
 	ft_qe_setup(blob);
+	ft_fixup_qe_snum(blob);
 #endif
 
 #ifdef CONFIG_SYS_NS16550
