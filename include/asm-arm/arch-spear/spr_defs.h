@@ -35,4 +35,12 @@ struct chip_data {
 	uchar version[32];
 };
 
+/* HW mac id in i2c memory definitions */
+#define MAGIC_OFF	0x0
+#define MAGIC_LEN	0x2
+#define MAGIC_BYTE0	0x55
+#define MAGIC_BYTE1	0xAA
+#define MAC_OFF		0x2
+#define MAC_LEN		0x6
+
 #endif

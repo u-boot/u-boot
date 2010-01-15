@@ -67,6 +67,12 @@ int dram_init(void)
 
 int misc_init_r(void)
 {
+#if defined(CONFIG_CMD_NET)
+	uchar mac_id[6];
+
+	if (!eth_getenv_enetaddr("ethaddr", mac_id) && !i2c_read_mac(mac_id))
+		eth_setenv_enetaddr("ethaddr", mac_id);
+#endif
 	setenv("verify", "n");
 
 #if defined(CONFIG_SPEAR_USBTTY)
@@ -101,12 +107,54 @@ int spear_board_init(ulong mach_type)
 	return 0;
 }
 
+static int i2c_read_mac(uchar *buffer)
+{
+	u8 buf[2];
+
+	i2c_read(CONFIG_I2C_CHIPADDRESS, MAGIC_OFF, 1, buf, MAGIC_LEN);
+
+	/* Check if mac in i2c memory is valid */
+	if ((buf[0] == MAGIC_BYTE0) && (buf[1] == MAGIC_BYTE1)) {
+		/* Valid mac address is saved in i2c eeprom */
+		i2c_read(CONFIG_I2C_CHIPADDRESS, MAC_OFF, 1, buffer, MAC_LEN);
+		return 0;
+	}
+
+	return -1;
+}
+
+static int write_mac(uchar *mac)
+{
+	u8 buf[2];
+
+	buf[0] = (u8)MAGIC_BYTE0;
+	buf[1] = (u8)MAGIC_BYTE1;
+	i2c_write(CONFIG_I2C_CHIPADDRESS, MAGIC_OFF, 1, buf, MAGIC_LEN);
+
+	buf[0] = (u8)~MAGIC_BYTE0;
+	buf[1] = (u8)~MAGIC_BYTE1;
+
+	i2c_read(CONFIG_I2C_CHIPADDRESS, MAGIC_OFF, 1, buf, MAGIC_LEN);
+
+	/* check if valid MAC address is saved in I2C EEPROM or not? */
+	if ((buf[0] == MAGIC_BYTE0) && (buf[1] == MAGIC_BYTE1)) {
+		i2c_write(CONFIG_I2C_CHIPADDRESS, MAC_OFF, 1, mac, MAC_LEN);
+		puts("I2C EEPROM written with mac address \n");
+		return 0;
+	}
+
+	puts("I2C EEPROM writing failed \n");
+	return -1;
+}
+
 int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	void (*sram_setfreq) (unsigned int, unsigned int);
 	struct chip_data *chip = &chip_data;
 	unsigned char mac[6];
-	unsigned int frequency;
+	unsigned int reg, frequency;
+	char *s, *e;
+	char i2c_mac[20];
 
 	if ((argc > 3) || (argc < 2)) {
 		cmd_usage(cmdtp);
@@ -137,6 +185,17 @@ int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 
 		return 0;
+	} else if (!strcmp(argv[1], "ethaddr")) {
+
+		s = argv[2];
+		for (reg = 0; reg < 6; ++reg) {
+			mac[reg] = s ? simple_strtoul(s, &e, 16) : 0;
+			if (s)
+				s = (*e) ? e + 1 : e;
+		}
+		write_mac(mac);
+
+		return 0;
 	} else if (!strcmp(argv[1], "print")) {
 
 		if (chip->cpufreq == -1)
@@ -155,6 +214,13 @@ int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			printf("DDR Type    = DDR2\n");
 		else
 			printf("DDR Type    = Not Known\n");
+
+		if (!i2c_read_mac(mac)) {
+			sprintf(i2c_mac, "%pM", mac);
+			printf("Ethaddr (from i2c mem) = %s\n", i2c_mac);
+		} else {
+			printf("Ethaddr (from i2c mem) = Not set\n");
+		}
 
 		printf("Xloader Rev = %s\n", chip->version);
 
