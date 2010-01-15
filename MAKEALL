@@ -575,6 +575,7 @@ LIST_ARM9="			\
 	smdk2400		\
 	smdk2410		\
 	spear300		\
+	spear310		\
 	spear600		\
 	trab			\
 	VCMA9			\

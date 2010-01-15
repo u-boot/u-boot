@@ -28,15 +28,75 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_SPEAR300				1
+#if defined(CONFIG_MK_spear300)
 #define CONFIG_SPEAR3XX				1
+#define CONFIG_SPEAR300				1
+#elif defined(CONFIG_MK_spear310)
+#define CONFIG_SPEAR3XX				1
+#define CONFIG_SPEAR310				1
+#endif
 
 #include <configs/spear-common.h>
 
 /* Serial Configuration (PL011) */
 #define CONFIG_SYS_SERIAL0			0xD0000000
+
+#if defined(CONFIG_SPEAR300)
 #define CONFIG_PL01x_PORTS			{(void *)CONFIG_SYS_SERIAL0}
 
+#elif defined(CONFIG_SPEAR310)
+
+#if (CONFIG_CONS_INDEX)
+#undef  CONFIG_PL011_CLOCK
+#define CONFIG_PL011_CLOCK			(83 * 1000 * 1000)
+#endif
+
+#define CONFIG_SYS_SERIAL1			0xB2000000
+#define CONFIG_SYS_SERIAL2			0xB2080000
+#define CONFIG_SYS_SERIAL3			0xB2100000
+#define CONFIG_SYS_SERIAL4			0xB2180000
+#define CONFIG_SYS_SERIAL5			0xB2200000
+#define CONFIG_PL01x_PORTS			{(void *)CONFIG_SYS_SERIAL0, \
+						(void *)CONFIG_SYS_SERIAL1, \
+						(void *)CONFIG_SYS_SERIAL2, \
+						(void *)CONFIG_SYS_SERIAL3, \
+						(void *)CONFIG_SYS_SERIAL4, \
+						(void *)CONFIG_SYS_SERIAL5 }
+#endif
+
+#if defined(CONFIG_SPEAR_EMI)
+
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
+
+#if defined(CONFIG_SPEAR310)
+#define CONFIG_SYS_FLASH_BASE			0x50000000
+#define CONFIG_SYS_CS1_FLASH_BASE		0x60000000
+#define CONFIG_SYS_CS2_FLASH_BASE		0x70000000
+#define CONFIG_SYS_CS3_FLASH_BASE		0x80000000
+#define CONFIG_SYS_CS4_FLASH_BASE		0x90000000
+#define CONFIG_SYS_CS5_FLASH_BASE		0xA0000000
+#define CONFIG_SYS_FLASH_BANKS_LIST		{ CONFIG_SYS_FLASH_BASE,   \
+						CONFIG_SYS_CS1_FLASH_BASE, \
+						CONFIG_SYS_CS2_FLASH_BASE, \
+						CONFIG_SYS_CS3_FLASH_BASE, \
+						CONFIG_SYS_CS4_FLASH_BASE, \
+						CONFIG_SYS_CS5_FLASH_BASE }
+#define CONFIG_SYS_MAX_FLASH_BANKS		6
+
+#endif
+
+#define CONFIG_SYS_MAX_FLASH_SECT		(127 + 8)
+#define CONFIG_SYS_FLASH_QUIET_TEST		1
+
+#endif
+
+#if defined(CONFIG_SPEAR300)
 #define CONFIG_SYS_NAND_BASE			(0x80000000)
+
+#elif defined(CONFIG_SPEAR310)
+#define CONFIG_SYS_NAND_BASE			(0x40000000)
+
+#endif
 
 #endif  /* __CONFIG_H */
