@@ -871,6 +871,7 @@ LIST_blackfin="		\
 	bf518f-ezbrd	\
 	bf526-ezbrd	\
 	bf527-ezkit	\
+	bf527-ezkit-v2	\
 	bf533-ezkit	\
 	bf533-stamp	\
 	bf537-minotaur	\
@@ -879,6 +880,7 @@ LIST_blackfin="		\
 	bf537-stamp	\
 	bf538f-ezkit	\
 	bf548-ezkit	\
+	bf561-acvilon	\
 	bf561-ezkit	\
 	blackstamp	\
 	cm-bf527	\
@@ -888,6 +890,7 @@ LIST_blackfin="		\
 	cm-bf548	\
 	cm-bf561	\
 	ibf-dsp561	\
+	tcm-bf518	\
 	tcm-bf537	\
 "
 

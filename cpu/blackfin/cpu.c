@@ -25,13 +25,12 @@ ulong bfin_poweron_retx;
 __attribute__ ((__noreturn__))
 void cpu_init_f(ulong bootflag, ulong loaded_from_ldr)
 {
-	extern char _stext_l1;
 #ifndef CONFIG_BFIN_BOOTROM_USES_EVT1
 	/* Build a NOP slide over the LDR jump block.  Whee! */
 	char nops[0xC];
 	serial_early_puts("NOP Slide\n");
 	memset(nops, 0x00, sizeof(nops));
-	memcpy(&_stext_l1 - sizeof(nops), nops, sizeof(nops));
+	memcpy((void *)L1_INST_SRAM, nops, sizeof(nops));
 #endif
 
 	if (!loaded_from_ldr) {
@@ -40,10 +39,10 @@ void cpu_init_f(ulong bootflag, ulong loaded_from_ldr)
 		 * checking at build time.
 		 */
 		serial_early_puts("L1 Relocate\n");
-		extern char _stext_l1, _etext_l1, _stext_l1_lma;
-		memcpy(&_stext_l1, &_stext_l1_lma, (&_etext_l1 - &_stext_l1));
-		extern char _sdata_l1, _edata_l1, _sdata_l1_lma;
-		memcpy(&_sdata_l1, &_sdata_l1_lma, (&_edata_l1 - &_sdata_l1));
+		extern char _stext_l1[], _text_l1_lma[], _text_l1_len[];
+		memcpy(&_stext_l1, &_text_l1_lma, (unsigned long)_text_l1_len);
+		extern char _sdata_l1[], _data_l1_lma[], _data_l1_len[];
+		memcpy(&_sdata_l1, &_data_l1_lma, (unsigned long)_data_l1_len);
 	}
 #if defined(__ADSPBF537__) || defined(__ADSPBF536__) || defined(__ADSPBF534__)
 	/* The BF537 bootrom will reset the EBIU_AMGCTL register on us

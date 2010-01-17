@@ -31,10 +31,12 @@ CFLAGS += -DBFIN_BOARD_NAME='"$(BOARD)"'
 
 LIB	= $(obj)lib$(ARCH).a
 
+SOBJS-y	+= ins.o
 SOBJS-y	+= memcmp.o
 SOBJS-y	+= memcpy.o
 SOBJS-y	+= memmove.o
 SOBJS-y	+= memset.o
+SOBJS-y	+= outs.o
 
 COBJS-y	+= board.o
 COBJS-y	+= boot.o

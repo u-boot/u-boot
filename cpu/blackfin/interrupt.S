@@ -1,7 +1,7 @@
 /*
  * interrupt.S - trampoline default exceptions/interrupts to C handlers
  *
- * Copyright (c) 2005-2007 Analog Devices Inc.
+ * Copyright (c) 2005-2009 Analog Devices Inc.
  * Licensed under the GPL-2 or later.
  */
 
@@ -17,10 +17,19 @@ ENTRY(_trap)
 	sp.l = LO(L1_SRAM_SCRATCH_END - 20);
 	sp.h = HI(L1_SRAM_SCRATCH_END - 20);
 	SAVE_ALL_SYS
+
 	r0 = sp;	/* stack frame pt_regs pointer argument ==> r0 */
 	sp += -12;
 	call _trap_c;
 	sp += 12;
+
+#if ANOMALY_05000257
+	R7  = LC0;
+	LC0 = R7;
+	R7  = LC1;
+	LC1 = R7;
+#endif
+
 	RESTORE_ALL_SYS
 	sp = CONFIG_BFIN_SCRATCH_REG;
 	rtx;

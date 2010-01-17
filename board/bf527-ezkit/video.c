@@ -12,46 +12,151 @@
 #include <malloc.h>
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/dma.h>
-#include <i2c.h>
+#include <spi.h>
 #include <linux/types.h>
 #include <stdio_dev.h>
-
-#define DMA_SIZE16	2
 
 #include <asm/mach-common/bits/ppi.h>
 #include <asm/mach-common/bits/timer.h>
 
-#include <asm/bfin_logo_230x230.h>
-
 #define LCD_X_RES		320	/* Horizontal Resolution */
 #define LCD_Y_RES		240	/* Vertical Resolution */
-#define LCD_BPP			24	/* Bit Per Pixel */
-#define LCD_PIXEL_SIZE		(LCD_BPP / 8)
+#define DMA_BUS_SIZE		16
 
-#define	DMA_BUS_SIZE		16
-#define	LCD_CLK         	(12*1000*1000)	/* 12MHz */
+#ifdef CONFIG_MK_BF527_EZKIT_REV_2_1 /* lq035q1 */
 
-#define CLOCKS_PER_PIX		3
+#if !defined(CONFIG_LQ035Q1_USE_RGB888_8_BIT_PPI) && \
+    !defined(CONFIG_LQ035Q1_USE_RGB565_8_BIT_PPI)
+# define CONFIG_LQ035Q1_USE_RGB565_8_BIT_PPI
+#endif
+
+/* Interface 16/18-bit TFT over an 8-bit wide PPI using a
+ * small Programmable Logic Device (CPLD)
+ * http://blackfin.uclinux.org/gf/project/stamp/frs/?action=FrsReleaseBrowse&frs_package_id=165
+ */
+
+#ifdef CONFIG_LQ035Q1_USE_RGB565_8_BIT_PPI
+#include <asm/bfin_logo_rgb565_230x230.h>
+#define LCD_BPP		16	/* Bit Per Pixel */
+#define CLOCKS_PPIX	2	/* Clocks per pixel */
+#define CPLD_DELAY	3	/* RGB565 pipeline delay */
+#endif
+
+#ifdef CONFIG_LQ035Q1_USE_RGB888_8_BIT_PPI
+#include <asm/bfin_logo_230x230.h>
+#define LCD_BPP		24	/* Bit Per Pixel */
+#define CLOCKS_PPIX	3	/* Clocks per pixel */
+#define CPLD_DELAY	5	/* RGB888 pipeline delay */
+#endif
+
+/*
+ * HS and VS timing parameters (all in number of PPI clk ticks)
+ */
+
+#define H_ACTPIX	(LCD_X_RES * CLOCKS_PPIX)	/* active horizontal pixel */
+#define H_PERIOD	(336 * CLOCKS_PPIX)		/* HS period */
+#define H_PULSE		(2 * CLOCKS_PPIX)		/* HS pulse width */
+#define H_START		(7 * CLOCKS_PPIX + CPLD_DELAY)	/* first valid pixel */
+
+#define U_LINE		4				/* Blanking Lines */
+
+#define V_LINES		(LCD_Y_RES + U_LINE)		/* total vertical lines */
+#define V_PULSE		(2 * CLOCKS_PPIX)		/* VS pulse width (1-5 H_PERIODs) */
+#define V_PERIOD	(H_PERIOD * V_LINES)		/* VS period */
+
+#define ACTIVE_VIDEO_MEM_OFFSET	((U_LINE / 2) * LCD_X_RES * (LCD_BPP / 8))
+
+/*
+ * LCD Modes
+ */
+#define LQ035_RL	(0 << 8)	/* Right -> Left Scan */
+#define LQ035_LR	(1 << 8)	/* Left -> Right Scan */
+#define LQ035_TB	(1 << 9)	/* Top -> Botton Scan */
+#define LQ035_BT	(0 << 9)	/* Botton -> Top Scan */
+#define LQ035_BGR	(1 << 11)	/* Use BGR format */
+#define LQ035_RGB	(0 << 11)	/* Use RGB format */
+#define LQ035_NORM	(1 << 13)	/* Reversal */
+#define LQ035_REV	(0 << 13)	/* Reversal */
+
+#define LQ035_INDEX			0x74
+#define LQ035_DATA			0x76
+
+#define LQ035_DRIVER_OUTPUT_CTL		0x1
+#define LQ035_SHUT_CTL			0x11
+
+#define LQ035_DRIVER_OUTPUT_MASK	(LQ035_LR | LQ035_TB | LQ035_BGR | LQ035_REV)
+#define LQ035_DRIVER_OUTPUT_DEFAULT	(0x2AEF & ~LQ035_DRIVER_OUTPUT_MASK)
+
+#define LQ035_SHUT			(1 << 0)	/* Shutdown */
+#define LQ035_ON			(0 << 0)	/* Shutdown */
+
+#ifndef CONFIG_LQ035Q1_LCD_MODE
+#define CONFIG_LQ035Q1_LCD_MODE		(LQ035_NORM | LQ035_RL | LQ035_TB | LQ035_BGR)
+#endif
+
+#else /* t350mcqb */
+#include <asm/bfin_logo_230x230.h>
+
+#define LCD_BPP		24	/* Bit Per Pixel */
+#define CLOCKS_PPIX	3	/* Clocks per pixel */
 
 /* HS and VS timing parameters (all in number of PPI clk ticks) */
-#define H_ACTPIX	(LCD_X_RES * CLOCKS_PER_PIX)	/* active horizontal pixel */
-#define H_PERIOD	(408 * CLOCKS_PER_PIX)		/* HS period */
+#define H_ACTPIX	(LCD_X_RES * CLOCKS_PPIX)	/* active horizontal pixel */
+#define H_PERIOD	(408 * CLOCKS_PPIX)		/* HS period */
 #define H_PULSE		90				/* HS pulse width */
 #define H_START		204				/* first valid pixel */
 
 #define U_LINE		1				/* Blanking Lines */
 
-#define	V_LINES		(LCD_Y_RES + U_LINE)		/* total vertical lines */
+#define V_LINES		(LCD_Y_RES + U_LINE)		/* total vertical lines */
 #define V_PULSE		(3 * H_PERIOD)			/* VS pulse width (1-5 H_PERIODs) */
 #define V_PERIOD	(H_PERIOD * V_LINES)		/* VS period */
 
 #define ACTIVE_VIDEO_MEM_OFFSET	(U_LINE * H_ACTPIX)
+#endif
+
+#define LCD_PIXEL_SIZE		(LCD_BPP / 8)
+#define DMA_SIZE16		2
 
 #define PPI_TX_MODE		0x2
 #define PPI_XFER_TYPE_11	0xC
 #define PPI_PORT_CFG_01		0x10
 #define PPI_PACK_EN		0x80
 #define PPI_POLS_1		0x8000
+
+#ifdef CONFIG_MK_BF527_EZKIT_REV_2_1
+static struct spi_slave *slave;
+static int lq035q1_control(unsigned char reg, unsigned short value)
+{
+	int ret;
+	u8 regs[3] = {LQ035_INDEX, 0, 0};
+	u8 data[3] = {LQ035_DATA, 0, 0};
+	u8 dummy[3];
+
+	regs[2] = reg;
+	data[1] = value >> 8;
+	data[2] = value & 0xFF;
+
+	if (!slave) {
+		/* FIXME: Verify the max SCK rate */
+		slave = spi_setup_slave(CONFIG_LQ035Q1_SPI_BUS,
+				CONFIG_LQ035Q1_SPI_CS, 20000000,
+				SPI_MODE_3);
+		if (!slave)
+			return -1;
+	}
+
+	if (spi_claim_bus(slave))
+		return -1;
+
+	ret = spi_xfer(slave, 24, regs, dummy, SPI_XFER_BEGIN | SPI_XFER_END);
+	ret |= spi_xfer(slave, 24, data, dummy, SPI_XFER_BEGIN | SPI_XFER_END);
+
+	spi_release_bus(slave);
+
+	return ret;
+}
+#endif
 
 /* enable and disable PPI functions */
 void EnablePPI(void)
@@ -80,7 +185,7 @@ void Init_PPI(void)
 
 	*pPPI_DELAY = H_START;
 	*pPPI_COUNT = (H_ACTPIX-1);
-	*pPPI_FRAME = 0;
+	*pPPI_FRAME = V_LINES;
 
 	/* PPI control, to be replaced with definitions */
 	*pPPI_CONTROL = PPI_TX_MODE		|	/* output mode , PORT_DIR */
@@ -188,9 +293,20 @@ void DisableTIMER1(void)
 	SSYNC();
 }
 
+void EnableTIMER12(void)
+{
+	*pTIMER_ENABLE |= TIMEN1 | TIMEN0;
+	SSYNC();
+}
+
 int video_init(void *dst)
 {
 
+#ifdef CONFIG_MK_BF527_EZKIT_REV_2_1
+	lq035q1_control(LQ035_SHUT_CTL, LQ035_ON);
+	lq035q1_control(LQ035_DRIVER_OUTPUT_CTL, (CONFIG_LQ035Q1_LCD_MODE &
+		LQ035_DRIVER_OUTPUT_MASK) | LQ035_DRIVER_OUTPUT_DEFAULT);
+#endif
 	Init_Ports();
 	Init_DMA(dst);
 	EnableDMA();
@@ -199,6 +315,9 @@ int video_init(void *dst)
 	Init_PPI();
 	EnablePPI();
 
+#ifdef CONFIG_MK_BF527_EZKIT_REV_2_1
+	EnableTIMER12();
+#else
 	/* Frame sync 2 (VS) needs to start at least one PPI clk earlier */
 	EnableTIMER1();
 	/* Add Some Delay ... */
@@ -209,6 +328,7 @@ int video_init(void *dst)
 
 	/* now start frame sync 1 */
 	EnableTIMER0();
+#endif
 
 	return 0;
 }

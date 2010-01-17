@@ -308,7 +308,7 @@ $(obj)u-boot.bin:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
 
 $(obj)u-boot.ldr:	$(obj)u-boot
-		$(obj)tools/envcrc --binary > $(obj)env-ldr.o
+		$(CREATE_LDR_ENV)
 		$(LDR) -T $(CONFIG_BFIN_CPU) -c $@ $< $(LDR_FLAGS)
 
 $(obj)u-boot.ldr.hex:	$(obj)u-boot.ldr
@@ -3528,16 +3528,21 @@ BFIN_BOARDS = bf518f-ezbrd bf526-ezbrd bf527-ezkit bf533-ezkit bf533-stamp \
 	bf537-pnav bf537-stamp bf538f-ezkit bf548-ezkit bf561-ezkit
 
 # Bluetechnix tinyboards
-BFIN_BOARDS += cm-bf527 cm-bf533 cm-bf537e cm-bf537u cm-bf548 cm-bf561 tcm-bf537
+BFIN_BOARDS += cm-bf527 cm-bf533 cm-bf537e cm-bf537u cm-bf548 cm-bf561 \
+	tcm-bf518 tcm-bf537
 
 # Misc third party boards
-BFIN_BOARDS += bf537-minotaur bf537-srv1 blackstamp
+BFIN_BOARDS += bf537-minotaur bf537-srv1 bf561-acvilon blackstamp
 
 # I-SYST Micromodule
 BFIN_BOARDS += ibf-dsp561
 
 $(BFIN_BOARDS:%=%_config)	: unconfig
 	@$(MKCONFIG) $(@:_config=) blackfin blackfin $(@:_config=)
+
+bf527-ezkit-v2_config	: unconfig
+	@$(MKCONFIG) -t BF527_EZKIT_REV_2_1 \
+		bf527-ezkit blackfin blackfin bf527-ezkit
 
 #========================================================================
 # AVR32
