@@ -144,7 +144,7 @@ void pci_init_board(void)
 		pcie3_hose.region_count = 1;
 #endif
 		printf ("    PCIE3 connected to ULI as %s (base addr %lx)\n",
-				pcie_ep ? "End Point" : "Root Complex",
+				pcie_ep ? "Endpoint" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie3_hose, first_free_busno);
@@ -179,7 +179,7 @@ void pci_init_board(void)
 		pcie1_hose.region_count = 1;
 #endif
 		printf ("    PCIE1 connected to Slot 2 as %s (base addr %lx)\n",
-				pcie_ep ? "End Point" : "Root Complex",
+				pcie_ep ? "Endpoint" : "Root Complex",
 				pci_info[num].regs);
 
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
@@ -210,7 +210,7 @@ void pci_init_board(void)
 		pcie2_hose.region_count = 1;
 #endif
 		printf ("    PCIE2 connected to Slot 1 as %s (base addr %lx)\n",
-				pcie_ep ? "End Point" : "Root Complex",
+				pcie_ep ? "Endpoint" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie2_hose, first_free_busno);

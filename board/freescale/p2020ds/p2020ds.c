@@ -222,7 +222,7 @@ void pci_init_board(void)
 		SET_STD_PCIE_INFO(pci_info[num], 2);
 		pcie_ep = fsl_setup_hose(&pcie2_hose, pci_info[num].regs);
 		printf("    PCIE2 connected to ULI as %s (base addr %lx)\n",
-				pcie_ep ? "End Point" : "Root Complex",
+				pcie_ep ? "Endpoint" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie2_hose, first_free_busno);
@@ -262,7 +262,7 @@ void pci_init_board(void)
 		SET_STD_PCIE_INFO(pci_info[num], 3);
 		pcie_ep = fsl_setup_hose(&pcie3_hose, pci_info[num].regs);
 		printf("    PCIE3 connected to Slot 1 as %s (base addr %lx)\n",
-				pcie_ep ? "End Point" : "Root Complex",
+				pcie_ep ? "Endpoint" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie3_hose, first_free_busno);
@@ -281,7 +281,7 @@ void pci_init_board(void)
 		SET_STD_PCIE_INFO(pci_info[num], 1);
 		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
 		printf("    PCIE1 connected to Slot 2 as %s (base addr %lx)\n",
-				pcie_ep ? "End Point" : "Root Complex",
+				pcie_ep ? "Endpoint" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie1_hose, first_free_busno);

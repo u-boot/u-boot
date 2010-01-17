@@ -256,7 +256,7 @@ void pci_init_board(void)
 
 	if (width && !(devdisr & MPC8xxx_DEVDISR_PCIE1)) {
 		printf("\n    PCIE1 connected as %s (x%d)",
-			host ? "Root Complex" : "End Point", width);
+			host ? "Root Complex" : "Endpoint", width);
 		if (in_be32(&pci->pme_msg_det)) {
 			out_be32(&pci->pme_msg_det, 0xffffffff);
 			debug(" with errors.  Clearing.  Now 0x%08x",
@@ -305,7 +305,7 @@ void pci_init_board(void)
 
 	if (width && !(devdisr & MPC8xxx_DEVDISR_PCIE2)) {
 		printf("\n    PCIE2 connected as %s (x%d)",
-			host ? "Root Complex" : "End Point", width);
+			host ? "Root Complex" : "Endpoint", width);
 		if (in_be32(&pci->pme_msg_det)) {
 			out_be32(&pci->pme_msg_det, 0xffffffff);
 			debug(" with errors.  Clearing.  Now 0x%08x",
@@ -354,7 +354,7 @@ void pci_init_board(void)
 
 	if (width && !(devdisr & MPC8xxx_DEVDISR_PCIE3)) {
 		printf("\n    PCIE3 connected as %s (x%d)",
-			host ? "Root Complex" : "End Point", width);
+			host ? "Root Complex" : "Endpoint", width);
 		if (in_be32(&pci->pme_msg_det)) {
 			out_be32(&pci->pme_msg_det, 0xffffffff);
 			debug(" with errors.  Clearing.  Now 0x%08x",

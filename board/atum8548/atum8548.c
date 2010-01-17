@@ -219,7 +219,7 @@ void pci_init_board(void)
 		pcie1_hose.region_count = 1;
 #endif
 		printf ("    PCIE1 connected to Slot as %s (base addr %lx)\n",
-				pcie_ep ? "End Point" : "Root Complex",
+				pcie_ep ? "Endpoint" : "Root Complex",
 				pci_info[num].regs);
 
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
