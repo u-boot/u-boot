@@ -3005,7 +3005,9 @@ environment. As long as you don't save the environment you are
 working with an in-memory copy. In case the Flash area containing the
 environment is erased by accident, a default environment is provided.
 
-Some configuration options can be set using Environment Variables:
+Some configuration options can be set using Environment Variables.
+
+List of environment variables (most likely not complete):
 
   baudrate	- see CONFIG_BAUDRATE
 
@@ -3117,7 +3119,7 @@ Some configuration options can be set using Environment Variables:
 		  available network interfaces.
 		  It just stays at the currently selected interface.
 
-   netretry	- When set to "no" each network operation will
+  netretry	- When set to "no" each network operation will
 		  either succeed or fail without retrying.
 		  When set to "once" the network operation will
 		  fail when all the available network interfaces
@@ -3133,7 +3135,18 @@ Some configuration options can be set using Environment Variables:
   tftpdstport	- If this is set, the value is used for TFTP's UDP
 		  destination port instead of the Well Know Port 69.
 
-   vlan		- When set to a value < 4095 the traffic over
+  tftpblocksize - Block size to use for TFTP transfers; if not set,
+		  we use the TFTP server's default block size
+
+  tftptimeout	- Retransmission timeout for TFTP packets (in milli-
+		  seconds, minimum value is 1000 = 1 second). Defines
+		  when a packet is considered to be lost so it has to
+		  be retransmitted. The default is 5000 = 5 seconds.
+		  Lowering this value may make downloads succeed
+		  faster in networks with high packet loss rates or
+		  with unreliable TFTP servers.
+
+  vlan		- When set to a value < 4095 the traffic over
 		  Ethernet is encapsulated/received over 802.1q
 		  VLAN tagged frames.
 

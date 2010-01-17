@@ -211,7 +211,7 @@ TftpSend (void)
 		pkt += 5 /*strlen("octet")*/ + 1;
 		strcpy ((char *)pkt, "timeout");
 		pkt += 7 /*strlen("timeout")*/ + 1;
-		sprintf((char *)pkt, "%lu", TIMEOUT / 1000);
+		sprintf((char *)pkt, "%lu", TftpTimeoutMSecs / 1000);
 		debug("send option \"timeout %s\"\n", (char *)pkt);
 		pkt += strlen((char *)pkt) + 1;
 #ifdef CONFIG_TFTP_TSIZE
@@ -413,7 +413,6 @@ TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
 		}
 
 		TftpLastBlock = TftpBlock;
-		TftpTimeoutMSecs = TIMEOUT;
 		TftpTimeoutCountMax = TIMEOUT_COUNT;
 		NetSetTimeout (TftpTimeoutMSecs, TftpTimeout);
 
@@ -528,10 +527,25 @@ TftpStart (void)
 {
 	char *ep;             /* Environment pointer */
 
-	/* Allow the user to choose tftpblocksize */
+	/*
+	 * Allow the user to choose TFTP blocksize and timeout.
+	 * TFTP protocol has a minimal timeout of 1 second.
+	 */
 	if ((ep = getenv("tftpblocksize")) != NULL)
 		TftpBlkSizeOption = simple_strtol(ep, NULL, 10);
-	debug("tftp block size is %i\n", TftpBlkSizeOption);
+
+	if ((ep = getenv("tftptimeout")) != NULL)
+		TftpTimeoutMSecs = simple_strtol(ep, NULL, 10);
+
+	if (TftpTimeoutMSecs < 1000) {
+		printf("TFTP timeout (%ld ms) too low, "
+			"set minimum = 1000 ms\n",
+			TftpTimeoutMSecs);
+		TftpTimeoutMSecs = 1000;
+	}
+
+	debug("TFTP blocksize = %i, timeout = %ld ms\n",
+		TftpBlkSizeOption, TftpTimeoutMSecs);
 
 	TftpServerIP = NetServerIP;
 	if (BootFile[0] == '\0') {
@@ -588,7 +602,6 @@ TftpStart (void)
 
 	puts ("Loading: *\b");
 
-	TftpTimeoutMSecs = TftpRRQTimeoutMSecs;
 	TftpTimeoutCountMax = TftpRRQTimeoutCountMax;
 
 	NetSetTimeout (TftpTimeoutMSecs, TftpTimeout);
