@@ -149,6 +149,13 @@ static struct nand_ecclayout nand_soft_eccoob = {
 };
 #endif
 
+static struct nand_ecclayout nand_hw_eccoob_largepage = {
+	.eccbytes = 20,
+	.eccpos = {6, 7, 8, 9, 10, 22, 23, 24, 25, 26,
+		   38, 39, 40, 41, 42, 54, 55, 56, 57, 58},
+	.oobfree = {{2, 4}, {11, 10}, {27, 10}, {43, 10}, {59, 5}, }
+};
+
 #ifdef CONFIG_MX27
 static int is_16bit_nand(void)
 {
@@ -902,7 +909,12 @@ int board_nand_init(struct nand_chip *this)
 	if (is_16bit_nand())
 		this->options |= NAND_BUSWIDTH_16;
 
+#ifdef CONFIG_SYS_NAND_LARGEPAGE
+	host->pagesize_2k = 1;
+	this->ecc.layout = &nand_hw_eccoob_largepage;
+#else
 	host->pagesize_2k = 0;
+#endif
 
 	return err;
 }
