@@ -298,6 +298,13 @@ void env_relocate_spec (void)
 	tmp_env1 = (env_t *) malloc(CONFIG_ENV_SIZE);
 	tmp_env2 = (env_t *) malloc(CONFIG_ENV_SIZE);
 
+	if ((tmp_env1 == NULL) || (tmp_env2 == NULL)) {
+		puts("Can't allocate buffers for environment\n");
+		free (tmp_env1);
+		free (tmp_env2);
+		return use_default();
+	}
+
 	if (readenv(CONFIG_ENV_OFFSET, (u_char *) tmp_env1))
 		puts("No Valid Environment Area Found\n");
 	if (readenv(CONFIG_ENV_OFFSET_REDUND, (u_char *) tmp_env2))
