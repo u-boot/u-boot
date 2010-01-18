@@ -2490,6 +2490,7 @@ MPC8568MDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds freescale
 
 MPC8569MDS_ATM_config \
+MPC8569MDS_NAND_config \
 MPC8569MDS_config:	unconfig
 	@$(MKCONFIG) -t $(@:_config=) MPC8569MDS ppc mpc85xx mpc8569mds freescale
 
