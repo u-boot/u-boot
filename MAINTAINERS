@@ -697,7 +697,7 @@ Stefan Roese <sr@denx.de>
 Alessandro Rubini <rubini@unipv.it>
 Nomadik Linux Team <STN_WMM_nomadik_linux@list.st.com>
 
-	nmdk8815	ARM926EJS (Nomadik 8815 Soc)
+	nhk8815		ARM926EJS (Nomadik 8815 Soc)
 
 Steve Sakoman <sakoman@gmail.com>
 
