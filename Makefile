@@ -2706,7 +2706,7 @@ mp2usb_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t mp2usb NULL at91rm9200
 
 #########################################################################
-## Atmel ARM926EJ-S Systems
+## ARM926EJ-S Systems
 #########################################################################
 
 afeb9260_config:	unconfig
