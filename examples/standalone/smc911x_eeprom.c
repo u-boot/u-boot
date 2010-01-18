@@ -16,13 +16,6 @@
 
 #include <common.h>
 #include <exports.h>
-
-/* the smc911x.h gets base addr through eth_device' iobase */
-struct eth_device {
-	const char *name;
-	unsigned long iobase;
-	void *priv;
-};
 #include "../drivers/net/smc911x.h"
 
 /**
@@ -324,7 +317,6 @@ int smc911x_eeprom(int argc, char *argv[])
 {
 	/* Avoid initializing on stack as gcc likes to call memset() */
 	struct eth_device dev;
-	dev.name = __func__;
 	dev.iobase = CONFIG_SMC911X_BASE;
 
 	/* Print the ABI version */
