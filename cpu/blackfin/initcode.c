@@ -9,6 +9,8 @@
  * Licensed under the GPL-2 or later.
  */
 
+#define BFIN_IN_INITCODE
+
 #include <config.h>
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/bootrom.h>
@@ -17,7 +19,6 @@
 #include <asm/mach-common/bits/pll.h>
 #include <asm/mach-common/bits/uart.h>
 
-#define BFIN_IN_INITCODE
 #include "serial.h"
 
 __attribute__((always_inline))
@@ -33,7 +34,7 @@ static inline void serial_init(void)
 		size_t i;
 
 		/* force RTS rather than relying on auto RTS */
-		bfin_write_UART1_MCR(bfin_read_UART1_MCR() | FCPOL);
+		bfin_write16(&pUART->mcr, bfin_read16(&pUART->mcr) | FCPOL);
 
 		/* Wait for the line to clear up.  We cannot rely on UART
 		 * registers as none of them reflect the status of the RSR.
@@ -63,7 +64,7 @@ static inline void serial_init(void)
 #endif
 
 	if (BFIN_DEBUG_EARLY_SERIAL) {
-		int ucen = *pUART_GCTL & UCEN;
+		int ucen = bfin_read16(&pUART->gctl) & UCEN;
 		serial_early_init();
 
 		/* If the UART is off, that means we need to program
@@ -80,7 +81,7 @@ static inline void serial_deinit(void)
 #ifdef __ADSPBF54x__
 	if (BFIN_UART_USE_RTS && CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART) {
 		/* clear forced RTS rather than relying on auto RTS */
-		bfin_write_UART1_MCR(bfin_read_UART1_MCR() & ~FCPOL);
+		bfin_write16(&pUART->mcr, bfin_read16(&pUART->mcr) & ~FCPOL);
 	}
 #endif
 }
@@ -94,9 +95,9 @@ static inline void serial_putc(char c)
 	if (c == '\n')
 		serial_putc('\r');
 
-	*pUART_THR = c;
+	bfin_write16(&pUART->thr, c);
 
-	while (!(*pUART_LSR & TEMT))
+	while (!(bfin_read16(&pUART->lsr) & TEMT))
 		continue;
 }
 
@@ -213,6 +214,7 @@ static inline void serial_putc(char c)
 # define CONFIG_HAS_VR 1
 #endif
 
+#if CONFIG_MEM_SIZE
 #ifndef EBIU_RSTCTL
 /* Blackfin with SDRAM */
 #ifndef CONFIG_EBIU_SDBCTL_VAL
@@ -245,6 +247,7 @@ static inline void serial_putc(char c)
 # define CONFIG_EBIU_SDBCTL_VAL (CONFIG_EBCAW_VAL | CONFIG_EBSZ_VAL | EBE)
 #endif
 #endif
+#endif
 
 /* Conflicting Column Address Widths Causes SDRAM Errors:
  * EB2CAW and EB3CAW must be the same
@@ -255,28 +258,21 @@ static inline void serial_putc(char c)
 # endif
 #endif
 
-BOOTROM_CALLED_FUNC_ATTR
-void initcode(ADI_BOOT_DATA *bootstruct)
+__attribute__((always_inline)) static inline void
+program_early_devices(ADI_BOOT_DATA *bs, uint *sdivB, uint *divB, uint *vcoB)
 {
-	ADI_BOOT_DATA bootstruct_scratch;
+	serial_putc('a');
 
 	/* Save the clock pieces that are used in baud rate calculation */
-	unsigned int sdivB, divB, vcoB;
-	serial_init();
 	if (BFIN_DEBUG_EARLY_SERIAL || CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART) {
-		sdivB = bfin_read_PLL_DIV() & 0xf;
-		vcoB = (bfin_read_PLL_CTL() >> 9) & 0x3f;
-		divB = serial_early_get_div();
+		serial_putc('b');
+		*sdivB = bfin_read_PLL_DIV() & 0xf;
+		*vcoB = (bfin_read_PLL_CTL() >> 9) & 0x3f;
+		*divB = serial_early_get_div();
+		serial_putc('c');
 	}
 
-	serial_putc('A');
-
-	/* If the bootstruct is NULL, then it's because we're loading
-	 * dynamically and not via LDR (bootrom).  So set the struct to
-	 * some scratch space.
-	 */
-	if (!bootstruct)
-		bootstruct = &bootstruct_scratch;
+	serial_putc('d');
 
 #ifdef CONFIG_HW_WATCHDOG
 # ifndef CONFIG_HW_WATCHDOG_TIMEOUT_INITCODE
@@ -289,28 +285,14 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	 * timeout, so don't clobber that.
 	 */
 	if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_BYPASS) {
+		serial_putc('e');
 		bfin_write_WDOG_CNT(MSEC_TO_SCLK(CONFIG_HW_WATCHDOG_TIMEOUT_INITCODE));
 		bfin_write_WDOG_CTL(0);
+		serial_putc('f');
 	}
 #endif
 
-	serial_putc('B');
-
-	/* If external memory is enabled, put it into self refresh first. */
-	bool put_into_srfs = false;
-#ifdef EBIU_RSTCTL
-	if (bfin_read_EBIU_RSTCTL() & DDR_SRESET) {
-		bfin_write_EBIU_RSTCTL(bfin_read_EBIU_RSTCTL() | SRREQ);
-		put_into_srfs = true;
-	}
-#else
-	if (bfin_read_EBIU_SDBCTL() & EBE) {
-		bfin_write_EBIU_SDGCTL(bfin_read_EBIU_SDGCTL() | SRFS);
-		put_into_srfs = true;
-	}
-#endif
-
-	serial_putc('C');
+	serial_putc('g');
 
 	/* Blackfin bootroms use the SPI slow read opcode instead of the SPI
 	 * fast read, so we need to slow down the SPI clock a lot more during
@@ -318,12 +300,54 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	 * increase the speed appropriately.
 	 */
 	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER) {
+		serial_putc('h');
 		if (BOOTROM_SUPPORTS_SPI_FAST_READ && CONFIG_SPI_BAUD_INITBLOCK < 4)
-			bootstruct->dFlags |= BFLAG_FASTREAD;
+			bs->dFlags |= BFLAG_FASTREAD;
 		bfin_write_SPI_BAUD(CONFIG_SPI_BAUD_INITBLOCK);
+		serial_putc('i');
 	}
 
-	serial_putc('D');
+	serial_putc('j');
+}
+
+__attribute__((always_inline)) static inline bool
+maybe_self_refresh(ADI_BOOT_DATA *bs)
+{
+	serial_putc('a');
+
+	if (!CONFIG_MEM_SIZE)
+		return false;
+
+	/* If external memory is enabled, put it into self refresh first. */
+#ifdef EBIU_RSTCTL
+	if (bfin_read_EBIU_RSTCTL() & DDR_SRESET) {
+		serial_putc('b');
+		bfin_write_EBIU_RSTCTL(bfin_read_EBIU_RSTCTL() | SRREQ);
+		return true;
+	}
+#else
+	if (bfin_read_EBIU_SDBCTL() & EBE) {
+		serial_putc('b');
+		bfin_write_EBIU_SDGCTL(bfin_read_EBIU_SDGCTL() | SRFS);
+		return true;
+	}
+#endif
+
+	serial_putc('c');
+
+	return false;
+}
+
+__attribute__((always_inline)) static inline u16
+program_clocks(ADI_BOOT_DATA *bs, bool put_into_srfs)
+{
+	u16 vr_ctl;
+
+	serial_putc('a');
+
+	vr_ctl = bfin_read_VR_CTL();
+
+	serial_putc('b');
 
 	/* If we're entering self refresh, make sure it has happened. */
 	if (put_into_srfs)
@@ -334,15 +358,14 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 #endif
 			continue;
 
-	serial_putc('E');
+	serial_putc('c');
 
 	/* With newer bootroms, we use the helper function to set up
 	 * the memory controller.  Older bootroms lacks such helpers
 	 * so we do it ourselves.
 	 */
-	uint16_t vr_ctl = bfin_read_VR_CTL();
 	if (!ANOMALY_05000386) {
-		serial_putc('F');
+		serial_putc('d');
 
 		/* Always programming PLL_LOCKCNT avoids Anomaly 05000430 */
 		ADI_SYSCTRL_VALUES memory_settings;
@@ -362,7 +385,9 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 #if ANOMALY_05000432
 		bfin_write_SIC_IWR1(0);
 #endif
+		serial_putc('e');
 		bfrom_SysControl(actions, &memory_settings, NULL);
+		serial_putc('f');
 #if ANOMALY_05000432
 		bfin_write_SIC_IWR1(-1);
 #endif
@@ -370,8 +395,9 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 		bfin_write_SICA_IWR0(-1);
 		bfin_write_SICA_IWR1(-1);
 #endif
+		serial_putc('g');
 	} else {
-		serial_putc('G');
+		serial_putc('h');
 
 		/* Disable all peripheral wakeups except for the PLL event. */
 #ifdef SIC_IWR0
@@ -387,38 +413,40 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 		bfin_write_SIC_IWR(1);
 #endif
 
-		serial_putc('H');
+		serial_putc('i');
 
 		/* Always programming PLL_LOCKCNT avoids Anomaly 05000430 */
 		bfin_write_PLL_LOCKCNT(CONFIG_PLL_LOCKCNT_VAL);
 
-		serial_putc('I');
+		serial_putc('j');
 
 		/* Only reprogram when needed to avoid triggering unnecessary
 		 * PLL relock sequences.
 		 */
 		if (vr_ctl != CONFIG_VR_CTL_VAL) {
-			serial_putc('!');
+			serial_putc('?');
 			bfin_write_VR_CTL(CONFIG_VR_CTL_VAL);
 			asm("idle;");
+			serial_putc('!');
 		}
 
-		serial_putc('J');
+		serial_putc('k');
 
 		bfin_write_PLL_DIV(CONFIG_PLL_DIV_VAL);
 
-		serial_putc('K');
+		serial_putc('l');
 
 		/* Only reprogram when needed to avoid triggering unnecessary
 		 * PLL relock sequences.
 		 */
 		if (ANOMALY_05000242 || bfin_read_PLL_CTL() != CONFIG_PLL_CTL_VAL) {
-			serial_putc('!');
+			serial_putc('?');
 			bfin_write_PLL_CTL(CONFIG_PLL_CTL_VAL);
 			asm("idle;");
+			serial_putc('!');
 		}
 
-		serial_putc('L');
+		serial_putc('m');
 
 		/* Restore all peripheral wakeups. */
 #ifdef SIC_IWR0
@@ -433,9 +461,19 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 #else
 		bfin_write_SIC_IWR(-1);
 #endif
+
+		serial_putc('n');
 	}
 
-	serial_putc('M');
+	serial_putc('o');
+
+	return vr_ctl;
+}
+
+__attribute__((always_inline)) static inline void
+update_serial_clocks(ADI_BOOT_DATA *bs, uint sdivB, uint divB, uint vcoB)
+{
+	serial_putc('a');
 
 	/* Since we've changed the SCLK above, we may need to update
 	 * the UART divisors (UART baud rates are based on SCLK).
@@ -443,6 +481,7 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 	 * for dividing which means we'd generate a libgcc reference.
 	 */
 	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART) {
+		serial_putc('b');
 		unsigned int sdivR, vcoR;
 		sdivR = bfin_read_PLL_DIV() & 0xf;
 		vcoR = (bfin_read_PLL_CTL() >> 9) & 0x3f;
@@ -452,20 +491,38 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 		for (quotient = 0; dividend > 0; ++quotient)
 			dividend -= divisor;
 		serial_early_put_div(quotient - ANOMALY_05000230);
+		serial_putc('c');
 	}
 
-	serial_putc('N');
+	serial_putc('d');
+}
+
+__attribute__((always_inline)) static inline void
+program_memory_controller(ADI_BOOT_DATA *bs, bool put_into_srfs)
+{
+	serial_putc('a');
+
+	if (!CONFIG_MEM_SIZE)
+		return;
+
+	serial_putc('b');
 
 	/* Program the external memory controller before we come out of
 	 * self-refresh.  This only works with our SDRAM controller.
 	 */
 #ifndef EBIU_RSTCTL
+# ifdef CONFIG_EBIU_SDRRC_VAL
 	bfin_write_EBIU_SDRRC(CONFIG_EBIU_SDRRC_VAL);
+# endif
+# ifdef CONFIG_EBIU_SDBCTL_VAL
 	bfin_write_EBIU_SDBCTL(CONFIG_EBIU_SDBCTL_VAL);
+# endif
+# ifdef CONFIG_EBIU_SDGCTL_VAL
 	bfin_write_EBIU_SDGCTL(CONFIG_EBIU_SDGCTL_VAL);
+# endif
 #endif
 
-	serial_putc('O');
+	serial_putc('c');
 
 	/* Now that we've reprogrammed, take things out of self refresh. */
 	if (put_into_srfs)
@@ -475,16 +532,24 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 		bfin_write_EBIU_SDGCTL(bfin_read_EBIU_SDGCTL() & ~(SRFS));
 #endif
 
-	serial_putc('P');
+	serial_putc('d');
 
 	/* Our DDR controller sucks and cannot be programmed while in
 	 * self-refresh.  So we have to pull it out before programming.
 	 */
 #ifdef EBIU_RSTCTL
+# ifdef CONFIG_EBIU_RSTCTL_VAL
 	bfin_write_EBIU_RSTCTL(bfin_read_EBIU_RSTCTL() | 0x1 /*DDRSRESET*/ | CONFIG_EBIU_RSTCTL_VAL);
+# endif
+# ifdef CONFIG_EBIU_DDRCTL0_VAL
 	bfin_write_EBIU_DDRCTL0(CONFIG_EBIU_DDRCTL0_VAL);
+# endif
+# ifdef CONFIG_EBIU_DDRCTL1_VAL
 	bfin_write_EBIU_DDRCTL1(CONFIG_EBIU_DDRCTL1_VAL);
+# endif
+# ifdef CONFIG_EBIU_DDRCTL2_VAL
 	bfin_write_EBIU_DDRCTL2(CONFIG_EBIU_DDRCTL2_VAL);
+# endif
 # ifdef CONFIG_EBIU_DDRCTL3_VAL
 	/* default is disable, so don't need to force this */
 	bfin_write_EBIU_DDRCTL3(CONFIG_EBIU_DDRCTL3_VAL);
@@ -494,7 +559,18 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 # endif
 #endif
 
-	serial_putc('Q');
+	serial_putc('e');
+}
+
+__attribute__((always_inline)) static inline void
+check_hibernation(ADI_BOOT_DATA *bs, u16 vr_ctl, bool put_into_srfs)
+{
+	serial_putc('a');
+
+	if (!CONFIG_MEM_SIZE)
+		return;
+
+	serial_putc('b');
 
 	/* Are we coming out of hibernate (suspend to memory) ?
 	 * The memory layout is:
@@ -508,7 +584,7 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 		uint32_t *hibernate_magic = 0;
 		__builtin_bfin_ssync(); /* make sure memory controller is done */
 		if (hibernate_magic[0] == 0xDEADBEEF) {
-			serial_putc('R');
+			serial_putc('c');
 			bfin_write_EVT15(hibernate_magic[1]);
 			bfin_write_IMASK(EVT_IVG15);
 			__asm__ __volatile__ (
@@ -525,25 +601,80 @@ void initcode(ADI_BOOT_DATA *bootstruct)
 				: "p"(hibernate_magic), "d"(0x2000 /* jump.s 0 */)
 			);
 		}
+		serial_putc('d');
 	}
 
-	serial_putc('S');
+	serial_putc('e');
+}
+
+__attribute__((always_inline)) static inline void
+program_async_controller(ADI_BOOT_DATA *bs)
+{
+	serial_putc('a');
 
 	/* Program the async banks controller. */
 	bfin_write_EBIU_AMBCTL0(CONFIG_EBIU_AMBCTL0_VAL);
 	bfin_write_EBIU_AMBCTL1(CONFIG_EBIU_AMBCTL1_VAL);
 	bfin_write_EBIU_AMGCTL(CONFIG_EBIU_AMGCTL_VAL);
 
-#ifdef EBIU_MODE
+	serial_putc('b');
+
 	/* Not all parts have these additional MMRs. */
+#ifdef EBIU_MODE
+# ifdef CONFIG_EBIU_MBSCTL_VAL
 	bfin_write_EBIU_MBSCTL(CONFIG_EBIU_MBSCTL_VAL);
+# endif
+# ifdef CONFIG_EBIU_MODE_VAL
 	bfin_write_EBIU_MODE(CONFIG_EBIU_MODE_VAL);
+# endif
+# ifdef CONFIG_EBIU_FCTL_VAL
 	bfin_write_EBIU_FCTL(CONFIG_EBIU_FCTL_VAL);
+# endif
 #endif
 
-	serial_putc('T');
+	serial_putc('c');
+}
+
+BOOTROM_CALLED_FUNC_ATTR
+void initcode(ADI_BOOT_DATA *bs)
+{
+	ADI_BOOT_DATA bootstruct_scratch;
+
+	serial_init();
+
+	serial_putc('A');
+
+	/* If the bootstruct is NULL, then it's because we're loading
+	 * dynamically and not via LDR (bootrom).  So set the struct to
+	 * some scratch space.
+	 */
+	if (!bs)
+		bs = &bootstruct_scratch;
+
+	serial_putc('B');
+	bool put_into_srfs = maybe_self_refresh(bs);
+
+	serial_putc('C');
+	uint sdivB, divB, vcoB;
+	program_early_devices(bs, &sdivB, &divB, &vcoB);
+
+	serial_putc('D');
+	u16 vr_ctl = program_clocks(bs, put_into_srfs);
+
+	serial_putc('E');
+	update_serial_clocks(bs, sdivB, divB, vcoB);
+
+	serial_putc('F');
+	program_memory_controller(bs, put_into_srfs);
+
+	serial_putc('G');
+	check_hibernation(bs, vr_ctl, put_into_srfs);
+
+	serial_putc('H');
+	program_async_controller(bs);
 
 #ifdef CONFIG_BFIN_BOOTROM_USES_EVT1
+	serial_putc('I');
 	/* tell the bootrom where our entry point is */
 	if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_BYPASS)
 		bfin_write_EVT1(CONFIG_SYS_MONITOR_BASE);

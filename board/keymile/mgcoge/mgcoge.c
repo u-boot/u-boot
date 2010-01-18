@@ -299,7 +299,9 @@ int checkboard(void)
 int board_early_init_r (void)
 {
 	/* setup the UPIOx */
-	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x02), 0xc0);
+	/* General Unit Reset disabled, Flash Bank enabled, UnitLed on */
+	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x02), 0xc2);
+	/* SCC4 enable, halfduplex, FCC1 powerdown */
 	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x03), 0x15);
 	return 0;
 }
@@ -311,66 +313,8 @@ int hush_init_var (void)
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-/*
- * update "flash" property in the blob
- */
-void ft_blob_update (void *blob, bd_t *bd)
-{
-	ulong *flash_data = NULL;
-	ulong	flash_reg[6] = {0};
-	flash_info_t	*info;
-	int	len;
-	int	size;
-	int	i = 0;
-
-	len = fdt_get_node_and_value (blob, "/localbus", "ranges",
-					(void *)&flash_data);
-
-	if (flash_data == NULL) {
-		printf ("%s: error /localbus/ranges entry\n", __FUNCTION__);
-		return;
-	}
-
-	/* update Flash addr, size */
-	while ( i < (len / 4)) {
-		switch (flash_data[i]) {
-		case 0:
-			info = flash_get_info(CONFIG_SYS_FLASH_BASE);
-			flash_data[i + 1] = 0;
-			flash_data[i + 2] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE);
-			flash_data[i + 3] = cpu_to_be32 (info->size);
-			break;
-		case 5:
-			info = flash_get_info(CONFIG_SYS_FLASH_BASE_1);
-			size = info->size;
-			info = flash_get_info(CONFIG_SYS_FLASH_BASE_2);
-			size += info->size;
-			flash_data[i + 1] = 0;
-			flash_data[i + 2] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE_1);
-			flash_data[i + 3] = cpu_to_be32 (size);
-			break;
-		default:
-			break;
-		}
-		i += 4;
-	}
-	fdt_set_node_and_value (blob, "/localbus", "ranges", flash_data,
-				len);
-
-	info = flash_get_info(CONFIG_SYS_FLASH_BASE_1);
-	flash_reg[0] = cpu_to_be32 (5);
-	flash_reg[2] = cpu_to_be32 (info->size);
-	flash_reg[3] = flash_reg[0];
-	flash_reg[4] = flash_reg[2];
-	info = flash_get_info(CONFIG_SYS_FLASH_BASE_2);
-	flash_reg[5] = cpu_to_be32 (info->size);
-	fdt_set_node_and_value (blob, "/localbus/flash@5,0", "reg", flash_reg,
-				sizeof (flash_reg));
-}
-
 void ft_board_setup (void *blob, bd_t *bd)
 {
 	ft_cpu_setup (blob, bd);
-	ft_blob_update (blob, bd);
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */

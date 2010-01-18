@@ -1,7 +1,7 @@
 /*
  * watchdog.c - driver for Blackfin on-chip watchdog
  *
- * Copyright (c) 2007-2008 Analog Devices Inc.
+ * Copyright (c) 2007-2009 Analog Devices Inc.
  *
  * Licensed under the GPL-2 or later.
  */
@@ -10,7 +10,6 @@
 #include <watchdog.h>
 #include <asm/blackfin.h>
 
-#ifdef CONFIG_HW_WATCHDOG
 void hw_watchdog_reset(void)
 {
 	bfin_write_WDOG_STAT(0);
@@ -22,4 +21,3 @@ void hw_watchdog_init(void)
 	hw_watchdog_reset();
 	bfin_write_WDOG_CTL(0x0);
 }
-#endif

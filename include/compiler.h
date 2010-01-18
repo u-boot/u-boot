@@ -125,4 +125,7 @@ typedef unsigned int            uintptr_t;
 /* compiler options */
 #define uninitialized_var(x)		x = x
 
+#define likely(x)	__builtin_expect(!!(x), 1)
+#define unlikely(x)	__builtin_expect(!!(x), 0)
+
 #endif

@@ -34,9 +34,8 @@ static char *compr_names[] = {
 	"COPY",
 	"DYNRUBIN",
 	"ZLIB",
-#if defined(CONFIG_JFFS2_LZO_LZARI)
+#if defined(CONFIG_JFFS2_LZO)
 	"LZO",
-	"LZARI",
 #endif
 };
 
@@ -344,12 +343,9 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 ino, char *dest,
 			case JFFS2_COMPR_ZLIB:
 				ret = zlib_decompress(src, dst, inode->csize, inode->dsize);
 				break;
-#if defined(CONFIG_JFFS2_LZO_LZARI)
+#if defined(CONFIG_JFFS2_LZO)
 			case JFFS2_COMPR_LZO:
 				ret = lzo_decompress(src, dst, inode->csize, inode->dsize);
-				break;
-			case JFFS2_COMPR_LZARI:
-				ret = lzari_decompress(src, dst, inode->csize, inode->dsize);
 				break;
 #endif
 			default:

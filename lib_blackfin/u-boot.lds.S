@@ -57,7 +57,14 @@ OUTPUT_ARCH(bfin)
 
 MEMORY
 {
+#if CONFIG_MEM_SIZE
 	ram     : ORIGIN = CONFIG_SYS_MONITOR_BASE, LENGTH = CONFIG_SYS_MONITOR_LEN
+# define ram_code ram
+# define ram_data ram
+#else
+# define ram_code l1_code
+# define ram_data l1_data
+#endif
 	l1_code : ORIGIN = L1_CODE_ORIGIN,          LENGTH = L1_INST_SRAM_SIZE
 	l1_data : ORIGIN = L1_DATA_B_SRAM,          LENGTH = L1_DATA_B_SRAM_SIZE
 }
@@ -65,27 +72,31 @@ MEMORY
 ENTRY(_start)
 SECTIONS
 {
-	.text :
+	.text.pre :
 	{
 		cpu/blackfin/start.o (.text .text.*)
 
 		LDS_BOARD_TEXT
+	} >ram_code
 
-		__initcode_start = .;
+	.text.init :
+	{
 		cpu/blackfin/initcode.o (.text .text.*)
-		__initcode_end = .;
+	} >ram_code
+	__initcode_lma = LOADADDR(.text.init);
+	__initcode_len = SIZEOF(.text.init);
 
+	.text :
+	{
 		*(.text .text.*)
-	} >ram
+	} >ram_code
 
 	.rodata :
 	{
 		. = ALIGN(4);
-		*(.rodata .rodata.*)
-		*(.rodata1)
-		*(.eh_frame)
+		*(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
 		. = ALIGN(4);
-	} >ram
+	} >ram_data
 
 	.data :
 	{
@@ -96,14 +107,14 @@ SECTIONS
 		*(.sdata2)
 		*(.dynamic)
 		CONSTRUCTORS
-	} >ram
+	} >ram_data
 
 	.u_boot_cmd :
 	{
 		___u_boot_cmd_start = .;
 		*(.u_boot_cmd)
 		___u_boot_cmd_end = .;
-	} >ram
+	} >ram_data
 
 	.text_l1 :
 	{
@@ -112,8 +123,10 @@ SECTIONS
 		*(.l1.text)
 		. = ALIGN(4);
 		__etext_l1 = .;
-	} >l1_code AT>ram
-	__stext_l1_lma = LOADADDR(.text_l1);
+	} >l1_code AT>ram_code
+	__text_l1_lma = LOADADDR(.text_l1);
+	__text_l1_len = SIZEOF(.text_l1);
+	ASSERT (__text_l1_len <= L1_INST_SRAM_SIZE, "L1 text overflow!")
 
 	.data_l1 :
 	{
@@ -123,17 +136,19 @@ SECTIONS
 		*(.l1.bss)
 		. = ALIGN(4);
 		__edata_l1 = .;
-	} >l1_data AT>ram
-	__sdata_l1_lma = LOADADDR(.data_l1);
+	} >l1_data AT>ram_data
+	__data_l1_lma = LOADADDR(.data_l1);
+	__data_l1_len = SIZEOF(.data_l1);
+	ASSERT (__data_l1_len <= L1_DATA_B_SRAM_SIZE, "L1 data B overflow!")
 
 	.bss :
 	{
 		. = ALIGN(4);
-		__bss_start = .;
 		*(.sbss) *(.scommon)
 		*(.dynbss)
 		*(.bss .bss.*)
 		*(COMMON)
-		__bss_end = .;
-	} >ram
+	} >ram_data
+	__bss_vma = ADDR(.bss);
+	__bss_len = SIZEOF(.bss);
 }

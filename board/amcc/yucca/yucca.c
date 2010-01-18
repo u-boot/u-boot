@@ -609,7 +609,7 @@ int board_pcie_card_present(int port)
 /*
  * For the given slot, set endpoint mode, send power to the slot,
  * turn on the green LED and turn off the yellow LED, enable the
- * clock. In end point mode reset bit is read only.
+ * clock. In endpoint mode reset bit is read only.
  */
 void board_pcie_setup_port(int port, int rootpoint)
 {

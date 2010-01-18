@@ -1,25 +1,9 @@
 /*
  * U-boot - io.h IO routines
  *
- * Copyright (c) 2005-2007 Analog Devices Inc.
+ * Copyright 2004-2009 Analog Devices Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
- * MA 02110-1301 USA
+ * Licensed under the GPL-2 or later.
  */
 
 #ifndef _BLACKFIN_IO_H
@@ -29,16 +13,12 @@
 
 #include <asm/blackfin.h>
 
+#define __iomem
+
 static inline void sync(void)
 {
 	SSYNC();
 }
-
-/* function prototypes for CF support */
-extern void cf_outsw(unsigned short *addr, unsigned short *sect_buf, int words);
-extern void cf_insw(unsigned short *sect_buf, unsigned short *addr, int words);
-extern unsigned char cf_inb(volatile unsigned char *addr);
-extern void cf_outb(unsigned char val, volatile unsigned char *addr);
 
 /*
  * Given a physical address and a length, return a virtual address
@@ -76,114 +56,172 @@ static inline phys_addr_t virt_to_phys(void * vaddr)
  *
  * readX/writeX() are used to access memory mapped devices. On some
  * architectures the memory mapped IO stuff needs to be accessed
- * differently. On the m68k architecture, we just read/write the
+ * differently. On the bfin architecture, we just read/write the
  * memory location directly.
  */
-
 #ifndef __ASSEMBLY__
 
-static inline unsigned char readb(const volatile void *addr)
+static inline unsigned char readb(const volatile void __iomem *addr)
 {
 	unsigned int val;
 	int tmp;
 
-	__asm__ __volatile__ ("cli %1;\n\t"
-			"NOP; NOP; SSYNC;\n\t"
-			"%0 = b [%2] (z);\n\t"
-			"sti %1;\n\t"
-			: "=d"(val), "=d"(tmp): "a"(addr));
+	__asm__ __volatile__ (
+		"cli %1;"
+		"NOP; NOP; SSYNC;"
+		"%0 = b [%2] (z);"
+		"sti %1;"
+		: "=d"(val), "=d"(tmp)
+		: "a"(addr)
+	);
 
 	return (unsigned char) val;
 }
 
-static inline unsigned short readw(const volatile void *addr)
+static inline unsigned short readw(const volatile void __iomem *addr)
 {
 	unsigned int val;
 	int tmp;
 
-	__asm__ __volatile__ ("cli %1;\n\t"
-			"NOP; NOP; SSYNC;\n\t"
-			"%0 = w [%2] (z);\n\t"
-			"sti %1;\n\t"
-			: "=d"(val), "=d"(tmp): "a"(addr));
+	__asm__ __volatile__ (
+		"cli %1;"
+		"NOP; NOP; SSYNC;"
+		"%0 = w [%2] (z);"
+		"sti %1;"
+		: "=d"(val), "=d"(tmp)
+		: "a"(addr)
+	);
 
 	return (unsigned short) val;
 }
 
-static inline unsigned int readl(const volatile void *addr)
+static inline unsigned int readl(const volatile void __iomem *addr)
 {
 	unsigned int val;
 	int tmp;
 
-	__asm__ __volatile__ ("cli %1;\n\t"
-			"NOP; NOP; SSYNC;\n\t"
-			"%0 = [%2];\n\t"
-			"sti %1;\n\t"
-			: "=d"(val), "=d"(tmp): "a"(addr));
+	__asm__ __volatile__ (
+		"cli %1;"
+		"NOP; NOP; SSYNC;"
+		"%0 = [%2];"
+		"sti %1;"
+		: "=d"(val), "=d"(tmp)
+		: "a"(addr)
+	);
+
 	return val;
 }
-
-#define __raw_readb readb
-#define __raw_readw readw
-#define __raw_readl readl
 
 #endif /*  __ASSEMBLY__ */
 
 #define writeb(b, addr) (void)((*(volatile unsigned char *) (addr)) = (b))
 #define writew(b, addr) (void)((*(volatile unsigned short *) (addr)) = (b))
 #define writel(b, addr) (void)((*(volatile unsigned int *) (addr)) = (b))
+
+#define __raw_readb readb
+#define __raw_readw readw
+#define __raw_readl readl
 #define __raw_writeb writeb
 #define __raw_writew writew
 #define __raw_writel writel
-
 #define memset_io(a, b, c)	memset((void *)(a), (b), (c))
 #define memcpy_fromio(a, b, c)	memcpy((a), (void *)(b), (c))
 #define memcpy_toio(a, b, c)	memcpy((void *)(a), (b), (c))
 
-#define inb(addr)		cf_inb((volatile unsigned char *)(addr))
-#define outb(x, addr)		cf_outb((unsigned char)(x), (volatile unsigned char *)(addr))
+/* Convert "I/O port addresses" to actual addresses.  i.e. ugly casts. */
+#define __io(port) ((void *)(unsigned long)(port))
 
-#define insw(port, addr, count)	cf_insw((unsigned short *)addr, (unsigned short *)(port), (count))
+#define inb(port)    readb(__io(port))
+#define inw(port)    readw(__io(port))
+#define inl(port)    readl(__io(port))
+#define outb(x, port) writeb(x, __io(port))
+#define outw(x, port) writew(x, __io(port))
+#define outl(x, port) writel(x, __io(port))
 
-#define outsw(port, addr, count)	cf_outsw((unsigned short *)(port), (unsigned short *)addr, (count))
+#define inb_p(port)    inb(__io(port))
+#define inw_p(port)    inw(__io(port))
+#define inl_p(port)    inl(__io(port))
+#define outb_p(x, port) outb(x, __io(port))
+#define outw_p(x, port) outw(x, __io(port))
+#define outl_p(x, port) outl(x, __io(port))
 
-#define IO_SPACE_LIMIT		0xffff
+#define ioread8_rep(a, d, c)	readsb(a, d, c)
+#define ioread16_rep(a, d, c)	readsw(a, d, c)
+#define ioread32_rep(a, d, c)	readsl(a, d, c)
+#define iowrite8_rep(a, s, c)	writesb(a, s, c)
+#define iowrite16_rep(a, s, c)	writesw(a, s, c)
+#define iowrite32_rep(a, s, c)	writesl(a, s, c)
 
-/* Values for nocacheflag and cmode */
-#define IOMAP_FULL_CACHING	0
-#define IOMAP_NOCACHE_SER	1
-#define IOMAP_NOCACHE_NONSER	2
-#define IOMAP_WRITETHROUGH	3
+#define ioread8(x)			readb(x)
+#define ioread16(x)			readw(x)
+#define ioread32(x)			readl(x)
+#define iowrite8(val, x)		writeb(val, x)
+#define iowrite16(val, x)		writew(val, x)
+#define iowrite32(val, x)		writel(val, x)
 
-extern void *__ioremap(unsigned long physaddr, unsigned long size,
-		       int cacheflag);
-extern void __iounmap(void *addr, unsigned long size);
+#define mmiowb() wmb()
 
-extern inline void *ioremap(unsigned long physaddr, unsigned long size)
+#ifndef __ASSEMBLY__
+
+extern void outsb(unsigned long port, const void *addr, unsigned long count);
+extern void outsw(unsigned long port, const void *addr, unsigned long count);
+extern void outsw_8(unsigned long port, const void *addr, unsigned long count);
+extern void outsl(unsigned long port, const void *addr, unsigned long count);
+
+extern void insb(unsigned long port, void *addr, unsigned long count);
+extern void insw(unsigned long port, void *addr, unsigned long count);
+extern void insw_8(unsigned long port, void *addr, unsigned long count);
+extern void insl(unsigned long port, void *addr, unsigned long count);
+extern void insl_16(unsigned long port, void *addr, unsigned long count);
+
+static inline void readsl(const void __iomem *addr, void *buf, int len)
 {
-	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
-}
-extern inline void *ioremap_nocache(unsigned long physaddr, unsigned long size)
-{
-	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
-}
-extern inline void *ioremap_writethrough(unsigned long physaddr,
-					 unsigned long size)
-{
-	return __ioremap(physaddr, size, IOMAP_WRITETHROUGH);
-}
-extern inline void *ioremap_fullcache(unsigned long physaddr,
-				      unsigned long size)
-{
-	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
+	insl((unsigned long)addr, buf, len);
 }
 
-extern void iounmap(void *addr);
+static inline void readsw(const void __iomem *addr, void *buf, int len)
+{
+	insw((unsigned long)addr, buf, len);
+}
 
-extern void blkfin_inv_cache_all(void);
-#define dma_cache_inv(_start, _size)		do { blkfin_inv_cache_all(); } while (0)
-#define dma_cache_wback(_start, _size)		do { } while (0)
-#define dma_cache_wback_inv(_start, _size)	do { blkfin_inv_cache_all(); } while (0)
+static inline void readsb(const void __iomem *addr, void *buf, int len)
+{
+	insb((unsigned long)addr, buf, len);
+}
+
+static inline void writesl(const void __iomem *addr, const void *buf, int len)
+{
+	outsl((unsigned long)addr, buf, len);
+}
+
+static inline void writesw(const void __iomem *addr, const void *buf, int len)
+{
+	outsw((unsigned long)addr, buf, len);
+}
+
+static inline void writesb(const void __iomem *addr, const void *buf, int len)
+{
+	outsb((unsigned long)addr, buf, len);
+}
+
+#if defined(CONFIG_STAMP_CF) || defined(CONFIG_BFIN_IDE)
+/* This hack for CF/IDE needs to be addressed at some point */
+extern void cf_outsw(unsigned short *addr, unsigned short *sect_buf, int words);
+extern void cf_insw(unsigned short *sect_buf, unsigned short *addr, int words);
+extern unsigned char cf_inb(volatile unsigned char *addr);
+extern void cf_outb(unsigned char val, volatile unsigned char *addr);
+#undef inb
+#undef outb
+#undef insw
+#undef outsw
+#define inb(addr) cf_inb((void *)(addr))
+#define outb(x, addr) cf_outb((unsigned char)(x), (void *)(addr))
+#define insw(port, addr, cnt) cf_insw((void *)(addr), (void *)(port), cnt)
+#define outsw(port, addr, cnt) cf_outsw((void *)(port), (void *)(addr), cnt)
+#endif
 
 #endif
+
+#endif				/* __KERNEL__ */
+
 #endif

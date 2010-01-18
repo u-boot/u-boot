@@ -43,6 +43,11 @@ endif
 ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
 ALL += $(obj)u-boot.ldr
 endif
+ifeq ($(CONFIG_ENV_IS_EMBEDDED_IN_LDR),y)
+CREATE_LDR_ENV = $(obj)tools/envcrc --binary > $(obj)env-ldr.o
+else
+CREATE_LDR_ENV =
+endif
 
 SYM_PREFIX = _
 
@@ -53,9 +58,8 @@ LDR_FLAGS += --bmode $(subst BFIN_BOOT_,,$(CONFIG_BFIN_BOOT_MODE))
 LDR_FLAGS += --use-vmas
 LDR_FLAGS += --initcode $(obj)cpu/$(CPU)/initcode.o
 ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_UART)
-ifneq ($(ENV_IS_EMBEDDED_CUSTOM),ENV_IS_EMBEDDED_CUSTOM)
-LDR_FLAGS += --punchit $$(($(CONFIG_ENV_OFFSET))):$$(($(CONFIG_ENV_SIZE))):$(obj)env-ldr.o
-endif
+LDR_FLAGS-$(CONFIG_ENV_IS_EMBEDDED_IN_LDR) += \
+	--punchit $$(($(CONFIG_ENV_OFFSET))):$$(($(CONFIG_ENV_SIZE))):$(obj)env-ldr.o
 endif
 ifneq (,$(findstring s,$(MAKEFLAGS)))
 LDR_FLAGS += --quiet

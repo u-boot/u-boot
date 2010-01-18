@@ -133,7 +133,7 @@ struct musb_regs {
 		u8	rxhubport;
 	} tar[16];
 	/*
-	 * end point registers
+	 * endpoint registers
 	 * ep0 elements are valid when array index is 0
 	 * otherwise epN is valid
 	 */

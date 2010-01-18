@@ -105,10 +105,6 @@ extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
 typedef int boot_os_fn (int flag, int argc, char *argv[],
 			bootm_headers_t *images); /* pointers to os/initrd/fdt */
 
-#define CONFIG_BOOTM_LINUX 1
-#define CONFIG_BOOTM_NETBSD 1
-#define CONFIG_BOOTM_RTEMS 1
-
 #ifdef CONFIG_BOOTM_LINUX
 extern boot_os_fn do_bootm_linux;
 #endif
@@ -297,7 +293,8 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	if (images.os.os == IH_OS_LINUX) {
+	if ((images.os.type == IH_TYPE_KERNEL) &&
+	    (images.os.os == IH_OS_LINUX)) {
 		/* find ramdisk */
 		ret = boot_get_ramdisk (argc, argv, &images, IH_INITRD_ARCH,
 				&images.rd_start, &images.rd_end);
@@ -888,9 +885,6 @@ static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]
 			image_multi_getimg (hdr, 0, os_data, os_len);
 			break;
 		case IH_TYPE_STANDALONE:
-			if (argc >2) {
-				hdr->ih_load = htonl(simple_strtoul(argv[2], NULL, 16));
-			}
 			*os_data = image_get_data (hdr);
 			*os_len = image_get_data_size (hdr);
 			break;

@@ -38,6 +38,9 @@
 /* Values can range from 1-15						*/
 #define CONFIG_SCLK_DIV			4
 
+/* Decrease core voltage */
+#define CONFIG_VR_CTL_VAL (VLEV_115 | CLKBUFOE | GAIN_20 | FREQ_1000)
+
 
 /*
  * Memory Settings
@@ -92,7 +95,7 @@
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS)
 #define ENV_IS_EMBEDDED
 #else
-#define ENV_IS_EMBEDDED_CUSTOM
+#define CONFIG_ENV_IS_EMBEDDED_IN_LDR
 #endif
 #ifdef ENV_IS_EMBEDDED
 /* WARNING - the following is hand-optimized to fit within
@@ -127,6 +130,10 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	0
+#define CONFIG_BOOTCOMMAND	"run flashboot"
+#define FLASHBOOT_ENV_SETTINGS \
+	"flashboot=flread 20040000 1000000 300000;" \
+	"bootm 0x1000000\0"
 
 
 /*

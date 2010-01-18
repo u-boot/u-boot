@@ -24,7 +24,7 @@ COBJS-y  += os_log.o
 COBJS-y  += reset.o
 COBJS-y  += serial.o
 COBJS-y  += traps.o
-COBJS-y  += watchdog.o
+COBJS-$(CONFIG_HW_WATCHDOG)  += watchdog.o
 
 ifeq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
 COBJS-y  += initcode.o

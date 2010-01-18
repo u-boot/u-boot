@@ -96,7 +96,7 @@
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS)
 #define ENV_IS_EMBEDDED
 #else
-#define ENV_IS_EMBEDDED_CUSTOM
+#define CONFIG_ENV_IS_EMBEDDED_IN_LDR
 #endif
 #ifdef ENV_IS_EMBEDDED
 /* WARNING - the following is hand-optimized to fit within
@@ -131,20 +131,15 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	0
+#define CONFIG_BOOTCOMMAND	"run flashboot"
+#define FLASHBOOT_ENV_SETTINGS \
+	"flashboot=flread 20040000 1000000 280000;" \
+	"bootm 0x1000000\0"
 
 
 /*
  * Pull in common ADI header for remaining command/environment setup
  */
 #include <configs/bfin_adi_common.h>
-
-#undef CONFIG_BOOTCOMMAND
-#define CONFIG_BOOTCOMMAND	"run flashboot"
-
-#undef CONFIG_EXTRA_ENV_SETTINGS
-#define CONFIG_EXTRA_ENV_SETTINGS \
-	NAND_ENV_SETTINGS \
-	NETWORK_ENV_SETTINGS \
-	"flashboot=flread 20040000 1000000 280000; bootm 0x1000000\0"
 
 #endif

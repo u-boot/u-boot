@@ -2179,6 +2179,12 @@ Void_t* mALLOc(bytes) size_t bytes;
 
   INTERNAL_SIZE_T nb;
 
+  /* check if mem_malloc_init() was run */
+  if ((mem_malloc_start == 0) && (mem_malloc_end == 0)) {
+    /* not initialized yet */
+    return 0;
+  }
+
   if ((long)bytes < 0) return 0;
 
   nb = request2size(bytes);  /* padded request size; */

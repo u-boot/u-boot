@@ -113,7 +113,7 @@
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS)
 #define ENV_IS_EMBEDDED
 #else
-#define ENV_IS_EMBEDDED_CUSTOM
+#define CONFIG_ENV_IS_EMBEDDED_IN_LDR
 #endif
 #ifdef ENV_IS_EMBEDDED
 /* WARNING - the following is hand-optimized to fit within
@@ -145,7 +145,7 @@
  * SPI_MMC Settings
  */
 #define CONFIG_MMC
-#define CONFIG_BFIN_SPI_MMC
+#define CONFIG_SPI_MMC
 
 
 /*

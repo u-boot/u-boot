@@ -68,10 +68,9 @@
 #define JFFS2_COMPR_COPY	0x04
 #define JFFS2_COMPR_DYNRUBIN	0x05
 #define JFFS2_COMPR_ZLIB	0x06
-#if defined(CONFIG_JFFS2_LZO_LZARI)
+#if defined(CONFIG_JFFS2_LZO)
 #define JFFS2_COMPR_LZO		0x07
-#define JFFS2_COMPR_LZARI	0x08
-#define JFFS2_NUM_COMPR		9
+#define JFFS2_NUM_COMPR		8
 #else
 #define JFFS2_NUM_COMPR		7
 #endif
@@ -226,10 +225,8 @@ void dynrubin_decompress(unsigned char *data_in, unsigned char *cpage_out,
 		unsigned long sourcelen, unsigned long dstlen);
 long zlib_decompress(unsigned char *data_in, unsigned char *cpage_out,
 		__u32 srclen, __u32 destlen);
-#if defined(CONFIG_JFFS2_LZO_LZARI)
+#if defined(CONFIG_JFFS2_LZO)
 int lzo_decompress(unsigned char *data_in, unsigned char *cpage_out,
-		u32 srclen, u32 destlen);
-int lzari_decompress(unsigned char *data_in, unsigned char *cpage_out,
 		u32 srclen, u32 destlen);
 #endif
 

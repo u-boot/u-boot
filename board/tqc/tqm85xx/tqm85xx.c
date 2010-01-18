@@ -636,7 +636,7 @@ static inline void init_pcie1(void)
 
 	if (pcie_configured && !(gur->devdisr & MPC85xx_DEVDISR_PCIE)){
 		printf ("PCIe:  %s, base address %x",
-			pcie_ep ? "End point" : "Root complex", (uint)pci);
+			pcie_ep ? "Endpoint" : "Root complex", (uint)pci);
 
 		if (pci->pme_msg_det) {
 			pci->pme_msg_det = 0xffffffff;
