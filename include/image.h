@@ -56,6 +56,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #define CONFIG_MD5		/* FIT images need MD5 support */
+#define CONFIG_SHA1		/* and SHA1 */
 #endif
 
 /*
