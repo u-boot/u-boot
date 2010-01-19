@@ -196,7 +196,7 @@ static char *bootstrap_str[] = {
 	"I2C (Addr 0x54)",	/* A8 */
 	"I2C (Addr 0x52)",	/* A4 */
 };
-static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'G', 'F', 'H' };
+static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
 #endif
 
 #if defined(CONFIG_460SX)
