@@ -21,6 +21,6 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_RELFLAGS += -fPIC -ffixed-r14 -meabi
+PLATFORM_RELFLAGS += -fPIC -meabi
 
 PLATFORM_CPPFLAGS += -DCONFIG_74xx_7xx -ffixed-r2 -mstring
