@@ -63,7 +63,7 @@
 /*
  * Set up GOT: Global Offset Table
  *
- * Use r14 to access the GOT
+ * Use r12 to access the GOT
  */
 	START_GOT
 	GOT_ENTRY(_GOT2_TABLE_)
@@ -599,6 +599,7 @@ relocate_code:
 	mr	r9,  r4		/* Save copy of Global Data pointer	*/
 	mr	r10, r5		/* Save copy of Destination Address	*/
 
+	GET_GOT
 	mr	r3,  r5				/* Destination Address	*/
 	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
 	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l
@@ -616,7 +617,7 @@ relocate_code:
 	sub	r15, r10, r4
 
 	/* First our own GOT */
-	add	r14, r14, r15
+	add	r12, r12, r15
 	/* then the one used by the C code */
 	add	r30, r30, r15
 
@@ -691,7 +692,7 @@ in_ram:
 	bl	board_init_ecc
 #endif
 	/*
-	 * Relocation Function, r14 point to got2+0x8000
+	 * Relocation Function, r12 point to got2+0x8000
 	 *
 	 * Adjust got2 pointers, no need to check for 0, this code
 	 * already puts a few entries in the table.
@@ -765,6 +766,8 @@ in_ram:
 	 */
 	.globl	trap_init
 trap_init:
+	mflr	r4			/* save link register		*/
+	GET_GOT
 	lwz	r7, GOT(_start)
 	lwz	r8, GOT(_end_of_vectors)
 
@@ -772,8 +775,6 @@ trap_init:
 
 	cmplw	0, r7, r8
 	bgelr				/* return if r7>=r8 - just in case */
-
-	mflr	r4			/* save link register		*/
 1:
 	lwz	r0, 0(r7)
 	stw	r0, 0(r9)

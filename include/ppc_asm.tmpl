@@ -50,13 +50,13 @@
 	.text	2		;	\
 0:	.long	.LCTOC1-1f	;	\
 	.text			;	\
-1:	mflr	r14		;	\
-	lwz	r0,0b-1b(r14)	;	\
-	add	r14,r0,r14	;
+1:	mflr	r12		;	\
+	lwz	r0,0b-1b(r12)	;	\
+	add	r12,r0,r12	;
 
 #define GOT_ENTRY(NAME)		.L_ ## NAME = . - .LCTOC1 ; .long NAME
 
-#define GOT(NAME)		.L_ ## NAME (r14)
+#define GOT(NAME)		.L_ ## NAME (r12)
 
 
 /***************************************************************************
