@@ -11,6 +11,7 @@
 #include <config.h>
 #include <command.h>
 #include <asm/blackfin.h>
+#include <asm/sdh.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -19,13 +20,6 @@ int checkboard(void)
 	printf("Board: ADI BF548 EZ-Kit board\n");
 	printf("       Support: http://blackfin.uclinux.org/\n");
 	return 0;
-}
-
-phys_size_t initdram(int board_type)
-{
-	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
-	return gd->bd->bi_memsize;
 }
 
 int board_early_init_f(void)
@@ -83,5 +77,28 @@ int board_early_init_f(void)
 int board_eth_init(bd_t *bis)
 {
 	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
+}
+#endif
+
+#ifdef CONFIG_BFIN_SDH
+int board_mmc_init(bd_t *bis)
+{
+	return bfin_mmc_init(bis);
+}
+#endif
+
+#ifdef CONFIG_USB_BLACKFIN
+void board_musb_init(void)
+{
+	/*
+	 * Rev 1.0 BF549 EZ-KITs require PE7 to be high for both device
+	 * and OTG host modes, while rev 1.1 and greater require PE7 to
+	 * be low for device mode and high for host mode.  We set it high
+	 * here because we are in host mode.
+	 */
+	bfin_write_PORTE_FER(bfin_read_PORTE_FER() & ~PE7);
+	bfin_write_PORTE_DIR_SET(PE7);
+	bfin_write_PORTE_SET(PE7);
+	SSYNC();
 }
 #endif

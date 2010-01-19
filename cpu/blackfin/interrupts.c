@@ -97,12 +97,12 @@ void __udelay(unsigned long usec)
 #define MAX_TIM_LOAD	0xFFFFFFFF
 int timer_init(void)
 {
-	*pTCNTL = 0x1;
+	bfin_write_TCNTL(0x1);
 	CSYNC();
-	*pTSCALE = 0x0;
-	*pTCOUNT = MAX_TIM_LOAD;
-	*pTPERIOD = MAX_TIM_LOAD;
-	*pTCNTL = 0x7;
+	bfin_write_TSCALE(0x0);
+	bfin_write_TCOUNT(MAX_TIM_LOAD);
+	bfin_write_TPERIOD(MAX_TIM_LOAD);
+	bfin_write_TCNTL(0x7);
 	CSYNC();
 
 	timestamp = 0;
@@ -130,7 +130,7 @@ ulong get_timer(ulong base)
 	ulong milisec;
 
 	/* Number of clocks elapsed */
-	ulong clocks = (MAX_TIM_LOAD - (*pTCOUNT));
+	ulong clocks = (MAX_TIM_LOAD - bfin_read_TCOUNT());
 
 	/*
 	 * Find if the TCOUNT is reset

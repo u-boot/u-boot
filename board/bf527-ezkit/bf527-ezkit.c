@@ -24,13 +24,6 @@ int checkboard(void)
 	return 0;
 }
 
-phys_size_t initdram(int board_type)
-{
-	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
-	return gd->bd->bi_memsize;
-}
-
 #ifdef CONFIG_BFIN_MAC
 static void board_init_enetaddr(uchar *mac_addr)
 {
@@ -75,3 +68,16 @@ int misc_init_r(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_USB_BLACKFIN
+void board_musb_init(void)
+{
+	/*
+	 * BF527 EZ-KITs require PG13 to be high for HOST mode
+	 */
+	bfin_write_PORTG_FER(bfin_read_PORTG_FER() & ~PG13);
+	bfin_write_PORTGIO_DIR(bfin_read_PORTGIO_DIR() | PG13);
+	bfin_write_PORTGIO_SET(PG13);
+	SSYNC();
+}
+#endif

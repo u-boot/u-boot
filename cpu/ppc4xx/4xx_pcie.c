@@ -924,7 +924,7 @@ static inline u64 ppc4xx_get_cfgaddr(int port)
 }
 
 /*
- *  4xx boards as end point and root point setup
+ *  4xx boards as endpoint and root point setup
  *                    and
  *    testing inbound and out bound windows
  *
@@ -940,7 +940,7 @@ static inline u64 ppc4xx_get_cfgaddr(int port)
  *
  *  Once your board came up as root point , you can verify by reading
  *  /proc/bus/pci/devices. Where you can see the configuration registers
- *  of end point device attached to the port.
+ *  of endpoint device attached to the port.
  *
  *  Enpoint cofiguration can be verified by connecting 4xx board to any
  *  host or another 4xx board. Then try to scan the device. In case of

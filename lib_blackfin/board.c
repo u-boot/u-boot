@@ -14,6 +14,7 @@
 #include <stdio_dev.h>
 #include <environment.h>
 #include <malloc.h>
+#include <mmc.h>
 #include <net.h>
 #include <timestamp.h>
 #include <status_led.h>
@@ -130,17 +131,26 @@ void init_cplbtables(void)
 	dcplb_add(0xFF800000, L1_DMEMORY);
 	++i;
 
-	icplb_add(CONFIG_SYS_MONITOR_BASE & CPLB_PAGE_MASK, SDRAM_IKERNEL);
-	dcplb_add(CONFIG_SYS_MONITOR_BASE & CPLB_PAGE_MASK, SDRAM_DKERNEL);
-	++i;
+	if (CONFIG_MEM_SIZE) {
+		uint32_t mbase = CONFIG_SYS_MONITOR_BASE;
+		uint32_t mend  = mbase + CONFIG_SYS_MONITOR_LEN;
+		mbase &= CPLB_PAGE_MASK;
+		mend &= CPLB_PAGE_MASK;
 
-	/* If the monitor crosses a 4 meg boundary, we'll need
-	 * to lock two entries for it.
-	 */
-	if ((CONFIG_SYS_MONITOR_BASE & CPLB_PAGE_MASK) != ((CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN) & CPLB_PAGE_MASK)) {
-		icplb_add((CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN) & CPLB_PAGE_MASK, SDRAM_IKERNEL);
-		dcplb_add((CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN) & CPLB_PAGE_MASK, SDRAM_DKERNEL);
+		icplb_add(mbase, SDRAM_IKERNEL);
+		dcplb_add(mbase, SDRAM_DKERNEL);
 		++i;
+
+		/*
+		 * If the monitor crosses a 4 meg boundary, we'll need
+		 * to lock two entries for it.  We assume it doesn't
+		 * cross two 4 meg boundaries ...
+		 */
+		if (mbase != mend) {
+			icplb_add(mend, SDRAM_IKERNEL);
+			dcplb_add(mend, SDRAM_DKERNEL);
+			++i;
+		}
 	}
 
 	icplb_add(0x20000000, SDRAM_INON_CHBL);
@@ -239,6 +249,8 @@ void board_init_f(ulong bootflag)
 	bd->bi_vco = get_vco();
 	bd->bi_cclk = get_cclk();
 	bd->bi_sclk = get_sclk();
+	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
+	bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
 
 	/* Initialize */
 	serial_early_puts("IRQ init\n");
@@ -262,7 +274,7 @@ void board_init_f(ulong bootflag)
 	printf("System: %s MHz\n", strmhz(buf, get_sclk()));
 
 	printf("RAM:   ");
-	print_size(initdram(0), "\n");
+	print_size(bd->bi_memsize, "\n");
 #if defined(CONFIG_POST)
 	post_init_f();
 	post_bootmode_init();
@@ -327,6 +339,11 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #ifdef CONFIG_CMD_NAND
 	puts("NAND:  ");
 	nand_init();		/* go init the NAND */
+#endif
+
+#ifdef CONFIG_GENERIC_MMC
+	puts("MMC:  ");
+	mmc_initialize(bd);
 #endif
 
 	/* relocate environment function pointers etc. */

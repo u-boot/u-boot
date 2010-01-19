@@ -99,6 +99,10 @@ int board_early_init_r (void)
 	}
 	/* enable the PHY on the PIGGY */
 	setbits (8, (void *)(CONFIG_SYS_PIGGY_BASE + 0x10003), 0x01);
+	/* enable the Unit LED (green) */
+	setbits (8, (void *)(CONFIG_SYS_PIGGY_BASE + 0x00002), 0x01);
+	/* take FE/GbE PHYs out of reset */
+	setbits (8, (void *)(CONFIG_SYS_PIGGY_BASE + 0x0000f), 0x1c);
 
 	return 0;
 }
@@ -188,53 +192,11 @@ int checkboard (void)
 
 #if defined(CONFIG_OF_BOARD_SETUP)
 /*
- * update "/localbus/ranges" property in the blob
+ * update property in the blob
  */
 void ft_blob_update (void *blob, bd_t *bd)
 {
-	ulong	*flash_data = NULL;
-	flash_info_t	*info;
-	ulong	flash_reg[6] = {0};
-	int	len;
-	int	size = 0;
-	int	i = 0;
-
-	len = fdt_get_node_and_value (blob, "/localbus", "ranges",
-					(void *)&flash_data);
-
-	if (flash_data == NULL) {
-		printf ("%s: error /localbus/ranges entry\n", __FUNCTION__);
-		return;
-	}
-
-	/* update Flash addr, size */
-	while ( i < (len / 4)) {
-		switch (flash_data[i]) {
-		case 0:
-			info = flash_get_info(CONFIG_SYS_FLASH_BASE);
-			size = info->size;
-			info = flash_get_info(CONFIG_SYS_FLASH_BASE_1);
-			size += info->size;
-			flash_data[i + 1] = 0;
-			flash_data[i + 2] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE);
-			flash_data[i + 3] = cpu_to_be32 (size);
-			break;
-		default:
-			break;
-		}
-		i += 4;
-	}
-	fdt_set_node_and_value (blob, "/localbus", "ranges", flash_data,
-				len);
-
-	info = flash_get_info(CONFIG_SYS_FLASH_BASE);
-	size = info->size;
-	flash_reg[2] = cpu_to_be32 (size);
-	flash_reg[4] = flash_reg[2];
-	info = flash_get_info(CONFIG_SYS_FLASH_BASE_1);
-	flash_reg[5] = cpu_to_be32 (info->size);
-	fdt_set_node_and_value (blob, "/localbus/flash@f0000000,0", "reg", flash_reg,
-				sizeof (flash_reg));
+  /* no board specific update */
 }
 
 

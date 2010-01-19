@@ -119,20 +119,5 @@
 #define TPERIOD                        0xFFE03004 /* Core Timer Period Register */
 #define TSCALE                         0xFFE03008 /* Core Timer Scale Register */
 #define TCOUNT                         0xFFE0300C /* Core Timer Count Register */
-#define L1_DATA_A_SRAM 0xFF800000 /* 0xFF800000 -> 0xFF803FFF Data Bank A SRAM */
-#define L1_DATA_A_SRAM_SIZE (0xFF803FFF - 0xFF800000 + 1)
-#define L1_DATA_A_SRAM_END (L1_DATA_A_SRAM + L1_DATA_A_SRAM_SIZE)
-#define L1_DATA_B_SRAM 0xFF900000 /* 0xFF900000 -> 0xFF903FFF Data Bank B SRAM */
-#define L1_DATA_B_SRAM_SIZE (0xFF903FFF - 0xFF900000 + 1)
-#define L1_DATA_B_SRAM_END (L1_DATA_B_SRAM + L1_DATA_B_SRAM_SIZE)
-#define L1_INST_SRAM 0xFFA00000 /* 0xFFA00000 -> 0xFFA07FFF Instruction Bank A SRAM */
-#define L1_INST_SRAM_SIZE (0xFFA07FFF - 0xFFA00000 + 1)
-#define L1_INST_SRAM_END (L1_INST_SRAM + L1_INST_SRAM_SIZE)
-#define L1_SRAM_SCRATCH 0xFFB00000 /* 0xFFB00000 -> 0xFFB00FFF Scratchpad SRAM */
-#define L1_SRAM_SCRATCH_SIZE (0xFFB00FFF - 0xFFB00000 + 1)
-#define L1_SRAM_SCRATCH_END (L1_SRAM_SCRATCH + L1_SRAM_SCRATCH_SIZE)
-#define SYSMMR_BASE 0xFFC00000 /* 0xFFC00000 -> 0xFFFFFFFF MMR registers */
-#define SYSMMR_BASE_SIZE (0xFFFFFFFF - 0xFFC00000 + 1)
-#define SYSMMR_BASE_END (SYSMMR_BASE + SYSMMR_BASE_SIZE)
 
 #endif /* __BFIN_DEF_ADSP_BF522_proc__ */

@@ -36,10 +36,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_CMD_KGDB)
-int (*debugger_exception_handler)(struct pt_regs *) = 0;
-#endif
-
 /* Returns 0 if exception not found and fixup otherwise.  */
 extern unsigned long search_exception_table(unsigned long);
 

@@ -1890,27 +1890,6 @@ void ip_to_string (IPaddr_t x, char *s)
 	);
 }
 
-IPaddr_t string_to_ip(char *s)
-{
-	IPaddr_t addr;
-	char *e;
-	int i;
-
-	if (s == NULL)
-		return(0);
-
-	for (addr=0, i=0; i<4; ++i) {
-		ulong val = s ? simple_strtoul(s, &e, 10) : 0;
-		addr <<= 8;
-		addr |= (val & 0xFF);
-		if (s) {
-			s = (*e) ? e+1 : e;
-		}
-	}
-
-	return (htonl(addr));
-}
-
 void VLAN_to_string(ushort x, char *s)
 {
 	x = ntohs(x);
@@ -1937,11 +1916,6 @@ ushort string_to_VLAN(char *s)
 		id = (ushort)simple_strtoul(s, NULL, 10);
 
 	return htons(id);
-}
-
-IPaddr_t getenv_IPaddr (char *var)
-{
-	return (string_to_ip(getenv(var)));
 }
 
 ushort getenv_VLAN(char *var)

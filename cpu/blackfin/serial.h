@@ -24,71 +24,80 @@
 # define BFIN_DEBUG_EARLY_SERIAL 0
 #endif
 
+#ifndef __ASSEMBLY__
+
 #define LOB(x) ((x) & 0xFF)
 #define HIB(x) (((x) >> 8) & 0xFF)
 
+/*
+ * All Blackfin system MMRs are padded to 32bits even if the register
+ * itself is only 16bits.  So use a helper macro to streamline this.
+ */
+#define __BFP(m) u16 m; u16 __pad_##m
+struct bfin_mmr_serial {
+#ifdef __ADSPBF54x__
+	__BFP(dll);
+	__BFP(dlh);
+	__BFP(gctl);
+	__BFP(lcr);
+	__BFP(mcr);
+	__BFP(lsr);
+	__BFP(msr);
+	__BFP(scr);
+	__BFP(ier_set);
+	__BFP(ier_clear);
+	__BFP(thr);
+	__BFP(rbr);
+#else
+	union {
+		u16 dll;
+		u16 thr;
+		const u16 rbr;
+	};
+	const u16 __spad0;
+	union {
+		u16 dlh;
+		u16 ier;
+	};
+	const u16 __spad1;
+	const __BFP(iir);
+	__BFP(lcr);
+	__BFP(mcr);
+	__BFP(lsr);
+	__BFP(msr);
+	__BFP(scr);
+	const u32 __spad2;
+	__BFP(gctl);
+#endif
+};
+#undef __BFP
+
 #ifndef UART_LSR
 # if (CONFIG_UART_CONSOLE == 3)
-#  define pUART_DLH  pUART3_DLH
-#  define pUART_DLL  pUART3_DLL
-#  define pUART_GCTL pUART3_GCTL
-#  define pUART_IER  pUART3_IER
-#  define pUART_IERC pUART3_IER_CLEAR
-#  define pUART_LCR  pUART3_LCR
-#  define pUART_LSR  pUART3_LSR
-#  define pUART_RBR  pUART3_RBR
-#  define pUART_THR  pUART3_THR
-#  define  UART_THR   UART3_THR
-#  define  UART_LSR   UART3_LSR
+#  define UART_BASE UART3_DLL
 # elif (CONFIG_UART_CONSOLE == 2)
-#  define pUART_DLH  pUART2_DLH
-#  define pUART_DLL  pUART2_DLL
-#  define pUART_GCTL pUART2_GCTL
-#  define pUART_IER  pUART2_IER
-#  define pUART_IERC pUART2_IER_CLEAR
-#  define pUART_LCR  pUART2_LCR
-#  define pUART_LSR  pUART2_LSR
-#  define pUART_RBR  pUART2_RBR
-#  define pUART_THR  pUART2_THR
-#  define  UART_THR   UART2_THR
-#  define  UART_LSR   UART2_LSR
+#  define UART_BASE UART2_DLL
 # elif (CONFIG_UART_CONSOLE == 1)
-#  define pUART_DLH  pUART1_DLH
-#  define pUART_DLL  pUART1_DLL
-#  define pUART_GCTL pUART1_GCTL
-#  define pUART_IER  pUART1_IER
-#  define pUART_IERC pUART1_IER_CLEAR
-#  define pUART_LCR  pUART1_LCR
-#  define pUART_LSR  pUART1_LSR
-#  define pUART_RBR  pUART1_RBR
-#  define pUART_THR  pUART1_THR
-#  define  UART_THR   UART1_THR
-#  define  UART_LSR   UART1_LSR
+#  define UART_BASE UART1_DLL
 # elif (CONFIG_UART_CONSOLE == 0)
-#  define pUART_DLH  pUART0_DLH
-#  define pUART_DLL  pUART0_DLL
-#  define pUART_GCTL pUART0_GCTL
-#  define pUART_IER  pUART0_IER
-#  define pUART_IERC pUART0_IER_CLEAR
-#  define pUART_LCR  pUART0_LCR
-#  define pUART_LSR  pUART0_LSR
-#  define pUART_RBR  pUART0_RBR
-#  define pUART_THR  pUART0_THR
-#  define  UART_THR   UART0_THR
-#  define  UART_LSR   UART0_LSR
+#  define UART_BASE UART0_DLL
 # endif
+#else
+# if CONFIG_UART_CONSOLE != 0
+#  error CONFIG_UART_CONSOLE must be 0 on parts with only one UART
+# endif
+# define UART_BASE UART_DLL
 #endif
-
-#ifndef __ASSEMBLY__
+#define pUART ((volatile struct bfin_mmr_serial *)UART_BASE)
 
 #ifdef __ADSPBF54x__
 # define ACCESS_LATCH()
 # define ACCESS_PORT_IER()
-# define CLEAR_IER()       (*pUART_IERC = 0)
 #else
-# define ACCESS_LATCH()    (*pUART_LCR |= DLAB)
-# define ACCESS_PORT_IER() (*pUART_LCR &= ~DLAB)
-# define CLEAR_IER()       (*pUART_IER = 0)
+# define ACCESS_LATCH() \
+	bfin_write16(&pUART->lcr, bfin_read16(&pUART->lcr) | DLAB)
+# define ACCESS_PORT_IER() \
+	bfin_write16(&pUART->lcr, bfin_read16(&pUART->lcr) & ~DLAB)
 #endif
 
 __attribute__((always_inline))
@@ -142,10 +151,10 @@ static inline void serial_early_init(void)
 	serial_do_portmux();
 
 	/* always enable UART -- avoids anomalies 05000309 and 05000350 */
-	*pUART_GCTL = UCEN;
+	bfin_write16(&pUART->gctl, UCEN);
 
 	/* Set LCR to Word Lengh 8-bit word select */
-	*pUART_LCR = WLS_8;
+	bfin_write16(&pUART->lcr, WLS_8);
 
 	SSYNC();
 }
@@ -158,8 +167,8 @@ static inline void serial_early_put_div(uint16_t divisor)
 	SSYNC();
 
 	/* Program the divisor to get the baud rate we want */
-	*pUART_DLL = LOB(divisor);
-	*pUART_DLH = HIB(divisor);
+	bfin_write16(&pUART->dll, LOB(divisor));
+	bfin_write16(&pUART->dlh, HIB(divisor));
 	SSYNC();
 
 	/* Clear DLAB in LCR to Access THR RBR IER */
@@ -174,8 +183,8 @@ static inline uint16_t serial_early_get_div(void)
 	ACCESS_LATCH();
 	SSYNC();
 
-	uint8_t dll = *pUART_DLL;
-	uint8_t dlh = *pUART_DLH;
+	uint8_t dll = bfin_read16(&pUART->dll);
+	uint8_t dlh = bfin_read16(&pUART->dlh);
 	uint16_t divisor = (dlh << 8) | dll;
 
 	/* Clear DLAB in LCR to Access THR RBR IER */

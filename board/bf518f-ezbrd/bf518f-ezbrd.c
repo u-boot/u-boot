@@ -15,6 +15,7 @@
 #include <asm/blackfin.h>
 #include <asm/net.h>
 #include <asm/mach-common/bits/otp.h>
+#include <asm/sdh.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -23,13 +24,6 @@ int checkboard(void)
 	printf("Board: ADI BF518F EZ-Board board\n");
 	printf("       Support: http://blackfin.uclinux.org/\n");
 	return 0;
-}
-
-phys_size_t initdram(int board_type)
-{
-	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
-	return gd->bd->bi_memsize;
 }
 
 #if defined(CONFIG_BFIN_MAC)
@@ -162,3 +156,10 @@ int board_early_init_f(void)
 #endif
 	return 0;
 }
+
+#ifdef CONFIG_BFIN_SDH
+int board_mmc_init(bd_t *bis)
+{
+	return bfin_mmc_init(bis);
+}
+#endif
