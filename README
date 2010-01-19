@@ -3922,7 +3922,9 @@ For PowerPC, the following registers have specific use:
 	R30:	GOT pointer
 	R31:	frame pointer
 
-	(U-Boot also uses R14 as internal GOT pointer.)
+	(U-Boot also uses R12 as internal GOT pointer. r12
+	is a volatile register so r12 needs to be reset when
+	going back and forth between asm and C)
 
     ==> U-Boot will use R2 to hold a pointer to the global data
 
