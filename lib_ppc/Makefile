@@ -28,6 +28,7 @@ LIB	= $(obj)lib$(ARCH).a
 SOBJS-y	+= ppccache.o
 SOBJS-y	+= ppcstring.o
 SOBJS-y	+= ticks.o
+SOBJS-y	+= reloc.o
 
 COBJS-y	+= bat_rw.o
 COBJS-y	+= board.o

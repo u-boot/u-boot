@@ -415,28 +415,15 @@ Alignment:
 	mfspr	r5,DSISR
 	stw	r5,_DSISR(r21)
 	addi	r3,r1,STACK_FRAME_OVERHEAD
-	li	r20,MSR_KERNEL
-	rlwimi	r20,r23,0,16,16		/* copy EE bit from saved MSR */
-	lwz	r6,GOT(transfer_to_handler)
-	mtlr	r6
-	blrl
-.L_Alignment:
-	.long	AlignmentException - _start + _START_OFFSET
-	.long	int_return - _start + _START_OFFSET
+	EXC_XFER_TEMPLATE(Alignment, AlignmentException, MSR_KERNEL, COPY_EE)
 
 /* Program check exception */
 	. = 0x0700
 ProgramCheck:
 	EXCEPTION_PROLOG(SRR0, SRR1)
 	addi	r3,r1,STACK_FRAME_OVERHEAD
-	li	r20,MSR_KERNEL
-	rlwimi	r20,r23,0,16,16		/* copy EE bit from saved MSR */
-	lwz	r6,GOT(transfer_to_handler)
-	mtlr	r6
-	blrl
-.L_ProgramCheck:
-	.long	ProgramCheckException - _start + _START_OFFSET
-	.long	int_return - _start + _START_OFFSET
+	EXC_XFER_TEMPLATE(ProgramCheck, ProgramCheckException,
+		MSR_KERNEL, COPY_EE)
 
 	/* No FPU on MPC85xx.  This exception is not supposed to happen.
 	*/
@@ -1087,20 +1074,6 @@ trap_init:
 	mtspr	IVPR,r7
 
 	mtlr	r4			/* restore link register	*/
-	blr
-
-	/*
-	 * Function: relocate entries for one exception vector
-	 */
-trap_reloc:
-	lwz	r0,0(r7)		/* hdlr ...			*/
-	add	r0,r0,r3		/*  ... += dest_addr		*/
-	stw	r0,0(r7)
-
-	lwz	r0,4(r7)		/* int_return ...		*/
-	add	r0,r0,r3		/*  ... += dest_addr		*/
-	stw	r0,4(r7)
-
 	blr
 
 .globl unlock_ram_in_cache
