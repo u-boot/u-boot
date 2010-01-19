@@ -73,8 +73,12 @@ static int init_baudrate(void)
 
 static void display_global_data(void)
 {
-#ifdef CONFIG_DEBUG_EARLY_SERIAL
 	bd_t *bd;
+
+#ifndef CONFIG_DEBUG_EARLY_SERIAL
+	return;
+#endif
+
 	bd = gd->bd;
 	printf(" gd: %p\n", gd);
 	printf(" |-flags: %lx\n", gd->flags);
@@ -82,7 +86,6 @@ static void display_global_data(void)
 	printf(" |-baudrate: %lu\n", gd->baudrate);
 	printf(" |-have_console: %lx\n", gd->have_console);
 	printf(" |-ram_size: %lx\n", gd->ram_size);
-	printf(" |-reloc_off: %lx\n", gd->reloc_off);
 	printf(" |-env_addr: %lx\n", gd->env_addr);
 	printf(" |-env_valid: %lx\n", gd->env_valid);
 	printf(" |-jt(%p): %p\n", gd->jt, *(gd->jt));
@@ -95,7 +98,6 @@ static void display_global_data(void)
 	printf("   |-bi_flashstart: %lx\n", bd->bi_flashstart);
 	printf("   |-bi_flashsize: %lx\n", bd->bi_flashsize);
 	printf("   \\-bi_flashoffset: %lx\n", bd->bi_flashoffset);
-#endif
 }
 
 #define CPLB_PAGE_SIZE (4 * 1024 * 1024)
