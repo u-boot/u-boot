@@ -49,8 +49,18 @@
 #define UART_PHYS 0x1001b000
 #elif defined(CONFIG_SYS_MX27_UART6)
 #define UART_PHYS 0x1001c000
+#elif defined(CONFIG_SYS_MX51_UART1)
+#define UART_PHYS UART1_BASE_ADDR
+#elif defined(CONFIG_SYS_MX51_UART2)
+#define UART_PHYS UART2_BASE_ADDR
+#elif defined(CONFIG_SYS_MX51_UART3)
+#define UART_PHYS UART3_BASE_ADDR
 #else
-#error "define CONFIG_SYS_MX31_UARTx to use the mx31 UART driver"
+#error "define CONFIG_SYS_MXxx_UARTx to use the MXC UART driver"
+#endif
+
+#ifdef CONFIG_SERIAL_MULTI
+#warning "MXC driver does not support MULTI serials."
 #endif
 
 /* Register definitions */
@@ -166,11 +176,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void serial_setbrg (void)
 {
-#ifdef CONFIG_MX31
-	u32 clk = mx31_get_ipg_clk();
-#else
-	u32 clk = imx_get_perclk1();
-#endif
+	u32 clk = imx_get_uartclk();
 
 	if (!gd->baudrate)
 		gd->baudrate = CONFIG_BAUDRATE;
