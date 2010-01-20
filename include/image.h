@@ -156,6 +156,7 @@
 #define IH_TYPE_FILESYSTEM	7	/* Filesystem Image (any type)	*/
 #define IH_TYPE_FLATDT		8	/* Binary Flat Device Tree Blob	*/
 #define IH_TYPE_KWBIMAGE	9	/* Kirkwood Boot Image		*/
+#define IH_TYPE_IMXIMAGE	10	/* Freescale IMXBoot Image	*/
 
 /*
  * Compression Types

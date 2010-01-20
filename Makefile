@@ -324,6 +324,10 @@ $(obj)u-boot.img:	$(obj)u-boot.bin
 			sed -e 's/"[	 ]*$$/ for $(BOARD) board"/') \
 		-d $< $@
 
+$(obj)u-boot.imx:       $(obj)u-boot.bin
+		$(obj)tools/mkimage -n $(IMX_CONFIG) -T imximage \
+		-e $(TEXT_BASE) -d $< $@
+
 $(obj)u-boot.kwb:       $(obj)u-boot.bin
 		$(obj)tools/mkimage -n $(KWD_CONFIG) -T kwbimage \
 		-a $(TEXT_BASE) -e $(TEXT_BASE) -d $< $@
