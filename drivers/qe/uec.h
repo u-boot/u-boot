@@ -662,22 +662,18 @@ typedef enum uec_num_of_threads {
 
 /* UEC ethernet interface type
 */
-typedef enum enet_interface {
-	ENET_10_MII,
-	ENET_10_RMII,
-	ENET_10_RGMII,
-	ENET_100_MII,
-	ENET_100_RMII,
-	ENET_100_RGMII,
-	ENET_1000_GMII,
-	ENET_1000_RGMII,
-	ENET_1000_RGMII_ID,
-	ENET_1000_RGMII_RXID,
-	ENET_1000_RGMII_TXID,
-	ENET_1000_TBI,
-	ENET_1000_RTBI,
-	ENET_1000_SGMII
-} enet_interface_e;
+typedef enum enet_interface_type {
+	MII,
+	RMII,
+	RGMII,
+	GMII,
+	RGMII_ID,
+	RGMII_RXID,
+	RGMII_TXID,
+	TBI,
+	RTBI,
+	SGMII
+} enet_interface_type_e;
 
 /* UEC initialization info struct
 */
@@ -696,7 +692,8 @@ typedef enum enet_interface {
 	.tx_bd_ring_len		= 16,	\
 	.rx_bd_ring_len		= 16,	\
 	.phy_address		= CONFIG_SYS_UEC##num##_PHY_ADDR, \
-	.enet_interface		= CONFIG_SYS_UEC##num##_INTERFACE_MODE, \
+	.enet_interface_type	= CONFIG_SYS_UEC##num##_INTERFACE_TYPE, \
+	.speed			= CONFIG_SYS_UEC##num##_INTERFACE_SPEED, \
 }
 
 typedef struct uec_info {
@@ -708,7 +705,8 @@ typedef struct uec_info {
 	u16				rx_bd_ring_len;
 	u16				tx_bd_ring_len;
 	u8				phy_address;
-	enet_interface_e		enet_interface;
+	enet_interface_type_e		enet_interface_type;
+	int				speed;
 } uec_info_t;
 
 /* UEC driver initialized info
