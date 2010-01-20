@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2009
+ * (C) Copyright 2000-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -24,6 +24,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <asm/io.h>
+#include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -45,6 +46,8 @@ void cpu_init_f (void)
 		(struct mpc5xxx_gpio *) MPC5XXX_GPIO;
 	volatile struct mpc5xxx_xlb *xlb =
 		(struct mpc5xxx_xlb *) MPC5XXX_XLBARB;
+	volatile struct mpc5xxx_gpt *gpt0 =
+		(struct mpc5xxx_gpt *) MPC5XXX_GPT;
 	unsigned long addecr = (1 << 25); /* Boot_CS */
 #if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_MGT5100)
 	addecr |= (1 << 22); /* SDRAM enable */
@@ -206,6 +209,15 @@ void cpu_init_f (void)
 	/* Enable piplining */
 	clrbits_be32(&xlb->config, (1 << 31));
 # endif
+
+#if defined(CONFIG_WATCHDOG)
+	/* Charge the watchdog timer - prescaler = 64k, count = 64k*/
+	out_be32(&gpt0->cir, 0x0000ffff);
+	out_be32(&gpt0->emsr, 0x9004);	/* wden|ce|timer_ms */
+
+	reset_5xxx_watchdog();
+#endif /* CONFIG_WATCHDOG */
+
 #endif	/* CONFIG_MPC5200 */
 }
 

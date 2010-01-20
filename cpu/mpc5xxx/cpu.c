@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2003
+ * (C) Copyright 2000-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -192,3 +192,21 @@ int cpu_eth_init(bd_t *bis)
 	return mpc5xxx_fec_initialize(bis);
 }
 #endif
+
+#if defined(CONFIG_WATCHDOG)
+void watchdog_reset(void)
+{
+	int re_enable = disable_interrupts();
+	reset_5xxx_watchdog();
+	if (re_enable) enable_interrupts();
+}
+
+void reset_5xxx_watchdog(void)
+{
+	volatile struct mpc5xxx_gpt *gpt0 =
+		(struct mpc5xxx_gpt *) MPC5XXX_GPT;
+
+	/* Trigger TIMER_0 by writing A5 to OCPW */
+	clrsetbits_be32(&gpt0->emsr, 0xff000000, 0xa5000000);
+}
+#endif	/* CONFIG_WATCHDOG */
