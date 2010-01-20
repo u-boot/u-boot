@@ -100,7 +100,7 @@ SECTIONS
 
 	.data :
 	{
-		. = ALIGN(256);
+		. = ALIGN(4);
 		*(.data .data.*)
 		*(.data1)
 		*(.sdata)
