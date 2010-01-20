@@ -219,6 +219,32 @@ u32 get_board_rev(void)
 }
 #endif
 
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+	char *str;
+	char buf[32];
+
+	/*
+	 * Normally the processor clock has a divisor of 2.
+	 * In some cases this this needs to be set to 4.
+	 * Check the user has set environment mdiv to 4 to change the divisor.
+	 */
+	if ((str = getenv("mdiv")) && (strcmp(str, "4") == 0)) {
+		at91_sys_write(AT91_PMC_MCKR,
+			(at91_sys_read(AT91_PMC_MCKR) & ~AT91_PMC_MDIV) |
+			AT91SAM9_PMC_MDIV_4);
+		at91_clock_init(0);
+		serial_setbrg();
+		/* Notify the user that the clock is not default */
+		printf("Setting master clock to %s MHz\n",
+			strmhz(buf, get_mck_clk_rate()));
+	}
+
+	return 0;
+}
+#endif /* CONFIG_MISC_INIT_R */
+
 int board_init(void)
 {
 	/* Peripheral Clock Enable Register */
