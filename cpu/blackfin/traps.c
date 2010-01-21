@@ -18,6 +18,7 @@
  */
 
 #include <common.h>
+#include <kgdb.h>
 #include <linux/types.h>
 #include <asm/traps.h>
 #include <asm/cplb.h>
@@ -25,6 +26,7 @@
 #include <asm/mach-common/bits/core.h>
 #include <asm/mach-common/bits/mpu.h>
 #include <asm/mach-common/bits/trace.h>
+#include <asm/deferred.h>
 #include "cpu.h"
 
 #define trace_buffer_save(x) \
@@ -69,8 +71,16 @@ const struct memory_map const bfin_memory_map[] = {
 	}
 };
 
-void trap_c(struct pt_regs *regs)
+#ifdef CONFIG_EXCEPTION_DEFER
+unsigned int deferred_regs[deferred_regs_last];
+#endif
+
+/*
+ * Handle all exceptions while running in EVT3 or EVT5
+ */
+int trap_c(struct pt_regs *regs, uint32_t level)
 {
+	uint32_t ret = 0;
 	uint32_t trapnr = (regs->seqstat & EXCAUSE);
 	bool data = false;
 
@@ -87,7 +97,7 @@ void trap_c(struct pt_regs *regs)
 			 */
 			if (last_cplb_fault_retx != regs->retx) {
 				last_cplb_fault_retx = regs->retx;
-				return;
+				return ret;
 			}
 		}
 
@@ -101,6 +111,12 @@ void trap_c(struct pt_regs *regs)
 		static size_t last_evicted;
 		size_t i;
 		unsigned long tflags;
+
+#ifdef CONFIG_EXCEPTION_DEFER
+		/* This should never happen */
+		if (level == 5)
+			bfin_panic(regs);
+#endif
 
 		/*
 		 * Keep the trace buffer so that a miss here points people
@@ -167,11 +183,40 @@ void trap_c(struct pt_regs *regs)
 		trace_buffer_restore(tflags);
 		break;
 	}
-
+#ifdef CONFIG_CMD_KGDB
+	/* Single step
+	 * if we are in IRQ5, just ignore, otherwise defer, and handle it in kgdb
+	 */
+	case VEC_STEP:
+		if (level == 3) {
+			/* If we just returned from an interrupt, the single step
+			 * event is for the RTI instruction.
+			 */
+			if (regs->retx == regs->pc)
+				break;
+			/* we just return if we are single stepping through IRQ5 */
+			if (regs->ipend & 0x20)
+				break;
+			/* Otherwise, turn single stepping off & fall through,
+			 * which defers to IRQ5
+			 */
+			regs->syscfg &= ~1;
+		}
+		/* fall through */
+#endif
 	default:
-		/* All traps come here */
+#ifdef CONFIG_CMD_KGDB
+		if (level == 3) {
+			/* We need to handle this at EVT5, so try again */
+			ret = 1;
+			break;
+		}
+		if (debugger_exception_handler && (*debugger_exception_handler)(regs))
+			return 0;
+#endif
 		bfin_panic(regs);
 	}
+	return ret;
 }
 
 #ifdef CONFIG_DEBUG_DUMP
@@ -251,8 +296,10 @@ void dump(struct pt_regs *fp)
 	if (!ENABLE_DUMP)
 		return;
 
-	/* fp->ipend is garbage, so load it ourself */
+#ifndef CONFIG_CMD_KGDB
+	/* fp->ipend is normally garbage, so load it ourself */
 	fp->ipend = bfin_read_IPEND();
+#endif
 
 	hwerrcause = (fp->seqstat & HWERRCAUSE) >> HWERRCAUSE_P;
 	excause = (fp->seqstat & EXCAUSE) >> EXCAUSE_P;
