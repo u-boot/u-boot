@@ -451,10 +451,15 @@ $(obj)include/autoconf.mk: $(obj)include/config.h
 else	# !config.mk
 all $(obj)u-boot.hex $(obj)u-boot.srec $(obj)u-boot.bin \
 $(obj)u-boot.img $(obj)u-boot.dis $(obj)u-boot \
-$(SUBDIRS) $(TIMESTAMP_FILE) $(VERSION_FILE) gdbtools updater env depend \
-dep tags ctags etags cscope $(obj)System.map:
+$(filter-out tools,$(SUBDIRS)) $(TIMESTAMP_FILE) $(VERSION_FILE) gdbtools \
+updater env depend dep tags ctags etags cscope $(obj)System.map:
 	@echo "System not configured - see README" >&2
 	@ exit 1
+
+tools:
+	$(MAKE) -C tools
+tools-all:
+	$(MAKE) -C tools HOST_TOOLS_ALL=y
 endif	# config.mk
 
 .PHONY : CHANGELOG
