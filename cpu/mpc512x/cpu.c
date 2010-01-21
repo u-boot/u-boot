@@ -1,6 +1,6 @@
 /*
+ * (C) Copyright 2007-2010 DENX Software Engineering
  * Copyright (C) 2004-2006 Freescale Semiconductor, Inc.
- * (C) Copyright 2007 DENX Software Engineering
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -32,6 +32,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 
 #if defined(CONFIG_OF_LIBFDT)
 #include <fdt_support.h>
@@ -44,7 +45,7 @@ int checkcpu (void)
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
 	ulong clock = gd->cpu_clk;
 	u32 pvr = get_pvr ();
-	u32 spridr = immr->sysconf.spridr;
+	u32 spridr = in_be32(&immr->sysconf.spridr);
 	char buf1[32], buf2[32];
 
 	puts ("CPU:   ");
@@ -87,17 +88,17 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	/*
 	 * Enable Reset Control Reg - "RSTE" is the magic word that let us go
 	 */
-	immap->reset.rpr = 0x52535445;
+	out_be32(&immap->reset.rpr, 0x52535445);
 
 	/* Verify Reset Control Reg is enabled */
-	while (!((immap->reset.rcer) & RCER_CRE))
+	while (!(in_be32(&immap->reset.rcer) & RCER_CRE))
 		;
 
 	printf ("Resetting the board.\n");
 	udelay(200);
 
 	/* Perform reset */
-	immap->reset.rcr = RCR_SWHR;
+	out_be32(&immap->reset.rcr, RCR_SWHR);
 
 	/* Unreached... */
 	return 1;
@@ -124,8 +125,8 @@ void watchdog_reset (void)
 
 	/* Reset watchdog */
 	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	immr->wdt.swsrr = 0x556c;
-	immr->wdt.swsrr = 0xaa39;
+	out_be32(&immr->wdt.swsrr, 0x556c);
+	out_be32(&immr->wdt.swsrr, 0xaa39);
 
 	if (re_enable)
 		enable_interrupts ();

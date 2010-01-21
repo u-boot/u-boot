@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000 - 2009
+ * (C) Copyright 2000 - 2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -125,7 +125,7 @@ void serial_putc (const char c)
 	while (!(in_be16(&psc->psc_status) & PSC_SR_TXEMP))
 		;
 
-	psc->tfdata_8 = c;
+	out_8(&psc->tfdata_8, c);
 }
 
 void serial_putc_raw (const char c)
@@ -137,7 +137,7 @@ void serial_putc_raw (const char c)
 	while (!(in_be16(&psc->psc_status) & PSC_SR_TXEMP))
 		;
 
-	psc->tfdata_8 = c;
+	out_8(&psc->tfdata_8, c);
 }
 
 
@@ -157,7 +157,7 @@ int serial_getc (void)
 	while (in_be32(&psc->rfstat) & PSC_FIFO_EMPTY)
 		;
 
-	return psc->rfdata_8;
+	return in_8(&psc->rfdata_8);
 }
 
 int serial_tstc (void)

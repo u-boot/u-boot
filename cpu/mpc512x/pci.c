@@ -1,6 +1,6 @@
 /*
+ * Copyright (C) 2009-2010 DENX Software Engineering <wd@denx.de>
  * Copyright (C) Freescale Semiconductor, Inc. 2006, 2007.
- * Copyright (C) 2009 DENX Software Engineering <wd@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -60,10 +60,10 @@ pci_init_board(void)
 	struct pci_controller *hose;
 
 	/* Set PCI divider for 33MHz */
-	reg32 = im->clk.scfr[0];
+	reg32 = in_be32(&im->clk.scfr[0]);
 	reg32 &= ~(SCFR1_PCI_DIV_MASK);
 	reg32 |= SCFR1_PCI_DIV << SCFR1_PCI_DIV_SHIFT;
-	im->clk.scfr[0] = reg32;
+	out_be32(&im->clk.scfr[0], reg32);
 
 	clrsetbits_be32(&im->clk.scfr[0],
 			SCFR1_PCI_DIV_MASK,
