@@ -46,10 +46,9 @@
 
 #include <lmb.h>
 #include <asm/u-boot.h>
+#include <command.h>
 
 #endif /* USE_HOSTCC */
-
-#include <command.h>
 
 #if defined(CONFIG_FIT)
 #include <fdt.h>
