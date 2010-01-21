@@ -5,6 +5,8 @@
  * MCF5282 additionals
  * (C) Copyright 2005
  * BuS Elektronik GmbH & Co. KG <esw@bus-elektronik.de>
+ * (c) Copyright 2010
+ * Arcturus Networks Inc. <www.arcturusnetworks.com>
  *
  * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
@@ -582,6 +584,12 @@ void cpu_init_f(void)
 #ifdef CONFIG_SYS_PTCPAR
 	MCFGPIO_PTCPAR = CONFIG_SYS_PTCPAR;
 #endif
+#if defined(CONFIG_SYS_PORTTC)
+	MCFGPIO_PORTTC = CONFIG_SYS_PORTTC;
+#endif
+#if defined(CONFIG_SYS_DDRTC)
+	MCFGPIO_DDRTC  = CONFIG_SYS_DDRTC;
+#endif
 #ifdef CONFIG_SYS_PTDPAR
 	MCFGPIO_PTDPAR = CONFIG_SYS_PTDPAR;
 #endif
@@ -589,6 +597,9 @@ void cpu_init_f(void)
 	MCFGPIO_PUAPAR = CONFIG_SYS_PUAPAR;
 #endif
 
+#if defined(CONFIG_SYS_DDRD)
+	MCFGPIO_DDRD = CONFIG_SYS_DDRD;
+#endif
 #ifdef CONFIG_SYS_DDRUA
 	MCFGPIO_DDRUA = CONFIG_SYS_DDRUA;
 #endif

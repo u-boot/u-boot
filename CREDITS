@@ -511,6 +511,11 @@ N: Martin Winistoerfer
 E: martinwinistoerfer@gmx.ch
 D: Port to MPC555/556 microcontrollers and support for cmi board
 
+N: David Wu
+E: support@arcturusnetworks.com
+D: Mercury Security EP2500
+W: http://www.arcturusnetworks.com
+
 N: Ming-Len Wu
 E: minglen_wu@techware.com.tw
 D: Motorola MX1ADS board support
