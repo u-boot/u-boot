@@ -23,6 +23,8 @@
 
 #include <asm/leon.h>
 #include <ambapp.h>
+#include <grlib/irqmp.h>
+#include <grlib/gptimer.h>
 
 /* 15 normal irqs and a non maskable interrupt */
 #define NR_IRQS 15
@@ -125,9 +127,8 @@ int interrupt_init_cpu(void)
 /* Handle Timer 0 IRQ */
 void timer_interrupt_cpu(void *arg)
 {
-	gptimer->e[0].ctrl = (LEON3_GPTIMER_EN |
-			      LEON3_GPTIMER_RL |
-			      LEON3_GPTIMER_LD | LEON3_GPTIMER_IRQEN);
+	gptimer->e[0].ctrl = (GPTIMER_CTRL_EN | GPTIMER_CTRL_RS |
+			      GPTIMER_CTRL_LD | GPTIMER_CTRL_IE);
 	/* nothing to do here */
 	return;
 }

@@ -11,6 +11,8 @@
 #include <asm/asi.h>
 #include <asm/leon.h>
 #include <ambapp.h>
+#include <grlib/irqmp.h>
+#include <grlib/gptimer.h>
 
 #include <config.h>
 
@@ -27,11 +29,7 @@ DECLARE_GLOBAL_DATA_PTR;
 /* reset CPU (jump to 0, without reset) */
 void start(void);
 
-/* find & initialize the memory controller */
-int init_memory_ctrl(void);
-
 ambapp_dev_irqmp *irqmp = NULL;
-ambapp_dev_mctrl memctrl;
 ambapp_dev_gptimer *gptimer = NULL;
 unsigned int gptimer_irq = 0;
 int leon3_snooping_avail = 0;
@@ -150,8 +148,8 @@ int timer_interrupt_init_cpu(void)
 	gptimer->e[0].val = 0;
 	gptimer->e[0].rld = (TIMER_BASE_CLK / CONFIG_SYS_HZ) - 1;
 	gptimer->e[0].ctrl =
-	    (LEON3_GPTIMER_EN |
-	     LEON3_GPTIMER_RL | LEON3_GPTIMER_LD | LEON3_GPTIMER_IRQEN);
+	    (GPTIMER_CTRL_EN | GPTIMER_CTRL_RS |
+	     GPTIMER_CTRL_LD | GPTIMER_CTRL_IE);
 
 	return gptimer_irq;
 }

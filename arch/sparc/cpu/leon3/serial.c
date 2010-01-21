@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <ambapp.h>
+#include <grlib/apbuart.h>
 #include <serial.h>
 #include <watchdog.h>
 
@@ -38,9 +39,9 @@ static int leon3_serial_init(void)
 	writel(tmp, &uart->scaler);
 
 	/* Let bit 11 be unchanged (debug bit for GRMON) */
-	tmp = readl(&uart->ctrl) & LEON_REG_UART_CTRL_DBG;
+	tmp = readl(&uart->ctrl) & APBUART_CTRL_DBG;
 	/* Receiver & transmitter enable */
-	tmp |= LEON_REG_UART_CTRL_RE | LEON_REG_UART_CTRL_TE;
+	tmp |= APBUART_CTRL_RE | APBUART_CTRL_TE;
 	writel(tmp, &uart->ctrl);
 
 	gd->arch.uart = uart;
@@ -61,7 +62,7 @@ static void leon3_serial_putc_raw(const char c)
 		return;
 
 	/* Wait for last character to go. */
-	while (!(readl(&uart->status) & LEON_REG_UART_STATUS_THE))
+	while (!(readl(&uart->status) & APBUART_STATUS_THE))
 		WATCHDOG_RESET();
 
 	/* Send data */
@@ -69,7 +70,7 @@ static void leon3_serial_putc_raw(const char c)
 
 #ifdef LEON_DEBUG
 	/* Wait for data to be sent */
-	while (!(readl(&uart->status) & LEON_REG_UART_STATUS_TSE))
+	while (!(readl(&uart->status) & APBUART_STATUS_TSE))
 		WATCHDOG_RESET();
 #endif
 }
@@ -90,7 +91,7 @@ static int leon3_serial_getc(void)
 		return 0;
 
 	/* Wait for a character to arrive. */
-	while (!(readl(&uart->status) & LEON_REG_UART_STATUS_DR))
+	while (!(readl(&uart->status) & APBUART_STATUS_DR))
 		WATCHDOG_RESET();
 
 	/* Read character data */
@@ -104,7 +105,7 @@ static int leon3_serial_tstc(void)
 	if (!uart)
 		return 0;
 
-	return readl(&uart->status) & LEON_REG_UART_STATUS_DR;
+	return readl(&uart->status) & APBUART_STATUS_DR;
 }
 
 /* set baud rate for uart */

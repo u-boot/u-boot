@@ -27,6 +27,7 @@
 #define VENDOR_ORBITA        0x17
 #define VENDOR_SYNOPSYS      0x21
 #define VENDOR_NASA          0x22
+#define VENDOR_S3            0x31
 #define VENDOR_CAL           0xca
 #define VENDOR_EMBEDDIT      0xea
 #define VENDOR_CETON         0xcb
@@ -100,11 +101,15 @@
 #define GAISLER_ASCS         0x043
 #define GAISLER_IPMVBCTRL    0x044
 #define GAISLER_SPIMCTRL     0x045
+#define GAISLER_L4STAT       0x047
 #define GAISLER_LEON4        0x048
 #define GAISLER_LEON4DSU     0x049
 #define GAISLER_PWM          0x04a
 #define GAISLER_L2CACHE      0x04b
 #define GAISLER_SDCTRL64     0x04c
+#define GAISLER_GR1553B      0x04d
+#define GAISLER_1553TST      0x04e
+#define GAISLER_GRIOMMU      0x04f
 #define GAISLER_FTAHBRAM     0x050
 #define GAISLER_FTSRCTRL     0x051
 #define GAISLER_AHBSTAT      0x052
@@ -112,6 +117,8 @@
 #define GAISLER_FTMCTRL      0x054
 #define GAISLER_FTSDCTRL     0x055
 #define GAISLER_FTSRCTRL8    0x056
+#define GAISLER_MEMSCRUB     0x057
+#define GAISLER_FTSDCTRL64   0x058
 #define GAISLER_APBPS2       0x060
 #define GAISLER_VGACTRL      0x061
 #define GAISLER_LOGAN        0x062
@@ -134,6 +141,7 @@
 #define GAISLER_TEST_1X2     0x078
 #define GAISLER_WILD2AHB     0x079
 #define GAISLER_BIO1         0x07a
+#define GAISLER_AESDMA       0x07b
 #define GAISLER_SATCAN       0x080
 #define GAISLER_CANMUX       0x081
 #define GAISLER_GRTMRX       0x082
@@ -143,6 +151,9 @@
 #define GAISLER_GEFFE        0x086
 #define GAISLER_GPREG        0x087
 #define GAISLER_GRTMPAHB     0x088
+#define GAISLER_SPWCUC       0x089
+#define GAISLER_SPW2_DMA     0x08a
+#define GAISLER_SPWROUTER    0x08b
 
 /* European Space Agency device ID defines */
 #define ESA_LEON2            0x002

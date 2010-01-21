@@ -96,11 +96,15 @@ static ambapp_device_name GAISLER_devices[] = {
 	{GAISLER_ASCS, "ASCS", "ASCS Master"},
 	{GAISLER_IPMVBCTRL, "IPMVBCTRL", "IPM-bus/MVBC memory controller"},
 	{GAISLER_SPIMCTRL, "SPIMCTRL", "SPI Memory Controller"},
+	{GAISLER_L4STAT, "L4STAT", "Leon4 Statistics Module"},
 	{GAISLER_LEON4, "LEON4", "Leon4 SPARC V8 Processor"},
 	{GAISLER_LEON4DSU, "LEON4DSU", "Leon4 Debug Support Unit"},
 	{GAISLER_PWM, "PWM", "PWM generator"},
 	{GAISLER_L2CACHE, "L2CACHE", "L2-Cache Controller"},
-	{GAISLER_SDCTRL64, "SDCTRL64", ""},
+	{GAISLER_SDCTRL64, "SDCTRL64", "64-bit PC133 SDRAM Controller"},
+	{GAISLER_GR1553B, "GR1553B", "MIL-STD-1553B Interface"},
+	{GAISLER_1553TST, "1553TST", "MIL-STD-1553B Test Device"},
+	{GAISLER_GRIOMMU, "GRIOMMU", "I/O Memory Management Unit"},
 	{GAISLER_FTAHBRAM, "FTAHBRAM", "Generic FT AHB SRAM module"},
 	{GAISLER_FTSRCTRL, "FTSRCTRL", "Simple FT SRAM Controller"},
 	{GAISLER_AHBSTAT, "AHBSTAT", "AHB Status Register"},
@@ -108,6 +112,8 @@ static ambapp_device_name GAISLER_devices[] = {
 	{GAISLER_FTMCTRL, "FTMCTRL", "Memory controller with EDAC"},
 	{GAISLER_FTSDCTRL, "FTSDCTRL", "FT PC133 SDRAM Controller"},
 	{GAISLER_FTSRCTRL8, "FTSRCTRL8", "FT 8-bit SRAM/16-bit IO Ctrl"},
+	{GAISLER_MEMSCRUB, "MEMSCRUB", "AHB Memory Scrubber"},
+	{GAISLER_FTSDCTRL64, "FTSDCTRL64", "64-bit FT SDRAM Controller"},
 	{GAISLER_APBPS2, "APBPS2", "PS2 interface"},
 	{GAISLER_VGACTRL, "VGACTRL", "VGA controller"},
 	{GAISLER_LOGAN, "LOGAN", "On chip Logic Analyzer"},
@@ -130,6 +136,7 @@ static ambapp_device_name GAISLER_devices[] = {
 	{GAISLER_TEST_1X2, "TEST_1X2", "HAPS TEST_1x2 interface"},
 	{GAISLER_WILD2AHB, "WILD2AHB", "WildCard CardBus interface"},
 	{GAISLER_BIO1, "BIO1", "Basic I/O board BIO1"},
+	{GAISLER_AESDMA, "AESDMA", "AES 256 DMA"},
 	{GAISLER_SATCAN, "SATCAN", "SatCAN controller"},
 	{GAISLER_CANMUX, "CANMUX", "CAN Bus multiplexer"},
 	{GAISLER_GRTMRX, "GRTMRX", "CCSDS Telemetry Receiver"},
@@ -137,8 +144,11 @@ static ambapp_device_name GAISLER_devices[] = {
 	{GAISLER_GRTMDESC, "GRTMDESC", "CCSDS Telemetry Descriptor"},
 	{GAISLER_GRTMVC, "GRTMVC", "CCSDS Telemetry VC Generator"},
 	{GAISLER_GEFFE, "GEFFE", "Geffe Generator"},
-	{GAISLER_GPREG, "GPREG", ""},
+	{GAISLER_GPREG, "GPREG", "General Purpose Register"},
 	{GAISLER_GRTMPAHB, "GRTMPAHB", "CCSDS Telemetry VC AHB Input"},
+	{GAISLER_SPWCUC, "SPWCUC", "CCSDS CUC / SpaceWire I/F"},
+	{GAISLER_SPW2_DMA, "SPW2_DMA", "GRSPW Router DMA interface"},
+	{GAISLER_SPWROUTER, "SPWROUTER", "GRSPW Router"},
 	{0, NULL, NULL}
 };
 
@@ -318,6 +328,12 @@ static ambapp_device_name CETON_devices[] = {
 };
 
 
+/** Vendor S3 devices */
+static ambapp_device_name S3_devices[] = {
+	{0, NULL, NULL}
+};
+
+
 /** Vendor ACTEL devices */
 static ambapp_device_name ACTEL_devices[] = {
 	{ACTEL_COREMP7, "COREMP7", "CoreMP7 Processor"},
@@ -351,6 +367,7 @@ static ambapp_vendor_devnames vendors[] = {
 	{VENDOR_ORBITA, "ORBITA", "Orbita", ORBITA_devices},
 	{VENDOR_SYNOPSYS, "SYNOPSYS", "Synopsys Inc.", SYNOPSYS_devices},
 	{VENDOR_NASA, "NASA", "NASA", NASA_devices},
+	{VENDOR_S3, "S3", "S3 Group", S3_devices},
 	{VENDOR_CAL, "CAL", "", CAL_devices},
 	{VENDOR_EMBEDDIT, "EMBEDDIT", "Embedd.it", EMBEDDIT_devices},
 	{VENDOR_CETON, "CETON", "Ceton Corporation", CETON_devices},

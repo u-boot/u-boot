@@ -15,6 +15,9 @@
 #include <asm/irq.h>
 #include <asm/leon.h>
 #include <ambapp.h>
+#include <grlib/apbuart.h>
+#include <grlib/irqmp.h>
+#include <grlib/gptimer.h>
 
 #include <config.h>
 /*
@@ -741,14 +744,14 @@ static int PROM_TEXT leon_nbputchar(int c)
 
 	/* Wait for last character to go. */
 	while (!(SPARC_BYPASS_READ(&uart->status)
-		 & LEON_REG_UART_STATUS_THE)) ;
+		 & APBUART_STATUS_THE));
 
 	/* Send data */
 	SPARC_BYPASS_WRITE(&uart->data, c);
 
 	/* Wait for data to be sent */
 	while (!(SPARC_BYPASS_READ(&uart->status)
-		 & LEON_REG_UART_STATUS_TSE)) ;
+		 & APBUART_STATUS_TSE));
 
 	return 0;
 }

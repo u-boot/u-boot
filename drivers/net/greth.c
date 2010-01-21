@@ -20,7 +20,7 @@
 #include <ambapp.h>
 #include <asm/leon.h>
 
-#include "greth.h"
+#include <grlib/greth.h>
 
 /* Default to 3s timeout on autonegotiation */
 #ifndef GRETH_PHY_TIMEOUT_MS
