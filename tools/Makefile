@@ -196,7 +196,7 @@ $(obj)%.o: $(SRCTREE)/common/%.c
 $(obj)%.o: $(SRCTREE)/lib_generic/%.c
 	$(HOSTCC) -g $(HOSTCFLAGS) -c -o $@ $<
 
-$(LIBFDT_OBJS):
+$(obj)%.o: $(SRCTREE)/libfdt/%.c
 	$(HOSTCC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
 subdirs:
