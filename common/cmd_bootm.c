@@ -352,6 +352,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		*load_end = load + image_len;
 		puts("OK\n");
 		break;
+#ifdef CONFIG_GZIP
 	case IH_COMP_GZIP:
 		printf ("   Uncompressing %s ... ", type_name);
 		if (gunzip ((void *)load, unc_len,
@@ -365,6 +366,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 
 		*load_end = load + image_len;
 		break;
+#endif /* CONFIG_GZIP */
 #ifdef CONFIG_BZIP2
 	case IH_COMP_BZIP2:
 		printf ("   Uncompressing %s ... ", type_name);

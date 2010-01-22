@@ -37,7 +37,7 @@ COBJS-y += crc32.o
 COBJS-y += ctype.o
 COBJS-y += display_options.o
 COBJS-y += div64.o
-COBJS-y += gunzip.o
+COBJS-$(CONFIG_GZIP) += gunzip.o
 COBJS-$(CONFIG_LMB) += lmb.o
 COBJS-y += ldiv.o
 COBJS-$(CONFIG_MD5) += md5.o
@@ -48,7 +48,7 @@ COBJS-y += string.o
 COBJS-y	+= strmhz.o
 COBJS-y += time.o
 COBJS-y += vsprintf.o
-COBJS-y += zlib.o
+COBJS-$(CONFIG_ZLIB) += zlib.o
 COBJS-$(CONFIG_RBTREE)	+= rbtree.o
 
 COBJS	:= $(COBJS-y)
