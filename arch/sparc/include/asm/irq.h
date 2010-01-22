@@ -32,4 +32,7 @@ extern int intLock(void);
 /* Sets the PIL to oldLevel */
 extern void intUnlock(int oldLevel);
 
+/* Return non-zero if interrupts are currently enabled */
+extern int interrupt_is_enabled(void);
+
 #endif

@@ -47,6 +47,13 @@ int disable_interrupts(void)
 	return intLock();
 }
 
+int interrupt_is_enabled(void)
+{
+	if (get_pil() == 15)
+		return 0;
+	return 1;
+}
+
 int interrupt_init(void)
 {
 	int ret;
