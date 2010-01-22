@@ -66,9 +66,10 @@ int checkcpu (void)
 	default:
 		puts ("unknown ");
 	}
-	printf ("at %s MHz, CSB at %s MHz\n",
+	printf ("at %s MHz, CSB at %s MHz (RSR=0x%04lx)\n",
 		strmhz(buf1, clock),
-		strmhz(buf2, gd->csb_clk) );
+		strmhz(buf2, gd->csb_clk),
+		gd->reset_status & 0xffff);
 	return 0;
 }
 
