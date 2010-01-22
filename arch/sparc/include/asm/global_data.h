@@ -16,6 +16,7 @@
 /* Architecture-specific global data */
 struct arch_global_data {
 	void *uart;
+	unsigned int uart_freq;
 };
 
 #include <asm-generic/global_data.h>

@@ -20,6 +20,11 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_SYS_GRLIB_APBUART_INDEX 0
 #endif
 
+static unsigned apbuart_calc_scaler(unsigned apbuart_freq, unsigned baud)
+{
+	return (((apbuart_freq * 10) / (baud * 8)) - 5) / 10;
+}
+
 static int leon3_serial_init(void)
 {
 	ambapp_dev_apbuart *uart;
@@ -37,8 +42,11 @@ static int leon3_serial_init(void)
 	/* found apbuart, let's init .. */
 	uart = (ambapp_dev_apbuart *) apbdev.address;
 
+	/* APBUART Frequency is equal to bus frequency */
+	gd->arch.uart_freq = ambapp_bus_freq(&ambapp_plb, apbdev.ahb_bus_index);
+
 	/* Set scaler / baud rate */
-	tmp = (((CONFIG_SYS_CLK_FREQ*10) / (CONFIG_BAUDRATE*8)) - 5)/10;
+	tmp = apbuart_calc_scaler(gd->arch.uart_freq, CONFIG_BAUDRATE);
 	writel(tmp, &uart->scaler);
 
 	/* Let bit 11 be unchanged (debug bit for GRMON) */
@@ -123,7 +131,10 @@ static void leon3_serial_setbrg(void)
 	if (!gd->baudrate)
 		gd->baudrate = CONFIG_BAUDRATE;
 
-	scaler = (((CONFIG_SYS_CLK_FREQ*10) / (gd->baudrate*8)) - 5)/10;
+	if (!gd->arch.uart_freq)
+		gd->arch.uart_freq = CONFIG_SYS_CLK_FREQ;
+
+	scaler = apbuart_calc_scaler(gd->arch.uart_freq, gd->baudrate);
 
 	writel(scaler, &uart->scaler);
 }
@@ -156,7 +167,7 @@ __weak struct serial_device *default_serial_console(void)
 static inline void _debug_uart_init(void)
 {
 	ambapp_dev_apbuart *uart = (ambapp_dev_apbuart *)CONFIG_DEBUG_UART_BASE;
-	uart->scaler = (((CONFIG_DEBUG_UART_CLOCK*10) / (CONFIG_BAUDRATE*8)) - 5)/10;
+	uart->scaler = apbuart_calc_scaler(CONFIG_DEBUG_UART_CLOCK, CONFIG_BAUDRATE);
 	uart->ctrl = APBUART_CTRL_RE | APBUART_CTRL_TE;
 }
 

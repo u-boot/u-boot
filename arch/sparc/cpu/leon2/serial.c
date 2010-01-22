@@ -120,7 +120,7 @@ static void leon2_serial_setbrg(void)
 	if (!gd->baudrate)
 		gd->baudrate = CONFIG_BAUDRATE;
 
-	scaler = leon2_serial_calc_scaler(CONFIG_SYS_CLK_FREQ, CONFIG_BAUDRATE);
+	scaler = leon2_serial_calc_scaler(CONFIG_SYS_CLK_FREQ, gd->baudrate);
 
 	writel(scaler, &uart->UART_Scaler);
 }
