@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2000-2007
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# (C) Copyright 2009
+# Vipin Kumar, ST Microelectronics <vipin.kumar@st.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -21,34 +21,19 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
+#########################################################################
 
-LIB	:= $(obj)libusb_gadget.a
+TEXT_BASE = 0x00700000
 
-ifdef CONFIG_USB_DEVICE
-COBJS-y += core.o
-COBJS-y += ep0.o
-COBJS-$(CONFIG_OMAP1510) += omap1510_udc.o
-COBJS-$(CONFIG_OMAP1610) += omap1510_udc.o
-COBJS-$(CONFIG_MPC885_FAMILY) += mpc8xx_udc.o
-COBJS-$(CONFIG_PXA27X) += pxa27x_udc.o
-COBJS-$(CONFIG_SPEARUDC) += spr_udc.o
+ALL += $(obj)u-boot.img
+
+# Environment variables in NAND
+ifeq ($(ENV),NAND)
+PLATFORM_RELFLAGS += -DCONFIG_ENV_IS_IN_NAND
+else
+PLATFORM_RELFLAGS += -DCONFIG_ENV_IS_IN_FLASH
 endif
 
-COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-
-all:	$(LIB)
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+ifeq ($(CONSOLE),USB)
+PLATFORM_RELFLAGS += -DCONFIG_SPEAR_USBTTY
+endif

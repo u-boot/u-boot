@@ -3028,6 +3028,14 @@ smdk2400_config	:	unconfig
 smdk2410_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t smdk2410 samsung s3c24x0
 
+spear300_config \
+spear310_config \
+spear320_config :	unconfig
+	@$(MKCONFIG) -n $@ -t $(@:_config=) spear3xx arm arm926ejs $(@:_config=) spear spear
+
+spear600_config :	unconfig
+	@$(MKCONFIG) -n $@ -t $(@:_config=) spear6xx arm arm926ejs $(@:_config=) spear spear
+
 SX1_stdout_serial_config \
 SX1_config:		unconfig
 	@mkdir -p $(obj)include
