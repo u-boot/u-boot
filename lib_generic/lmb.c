@@ -334,3 +334,15 @@ int lmb_is_reserved(struct lmb *lmb, phys_addr_t addr)
 	}
 	return 0;
 }
+
+void __board_lmb_reserve(struct lmb *lmb)
+{
+	/* please define platform specific board_lmb_reserve() */
+}
+void board_lmb_reserve(struct lmb *lmb) __attribute__((weak, alias("__board_lmb_reserve")));
+
+void __arch_lmb_reserve(struct lmb *lmb)
+{
+	/* please define platform specific arch_lmb_reserve() */
+}
+void arch_lmb_reserve(struct lmb *lmb) __attribute__((weak, alias("__arch_lmb_reserve")));

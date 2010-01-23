@@ -426,7 +426,7 @@ phys_size_t initdram(int board_type)
 	unsigned char spd0[MAX_SPD_BYTES];
 	unsigned char spd1[MAX_SPD_BYTES];
 	unsigned char *dimm_spd[MAXDIMMS];
-	unsigned long dimm_populated[MAXDIMMS];
+	unsigned long dimm_populated[MAXDIMMS] = {SDRAM_NONE, SDRAM_NONE};
 	unsigned long num_dimm_banks;		/* on board dimm banks */
 	unsigned long val;
 	ddr_cas_id_t selected_cas = DDR_CAS_5;	/* preset to silence compiler */

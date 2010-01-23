@@ -230,15 +230,45 @@ void *memcpy(void *dst, const void *src, size_t count)
 	if (!count)
 		return dst;
 
-	if (addr_bfin_on_chip_mem(dst)) {
-		/* L1 is the destination */
-		return dma_memcpy(dst, src, count);
+#ifdef CONFIG_CMD_KGDB
+	if (src >= (void *)SYSMMR_BASE) {
+		if (count == 2 && (unsigned long)src % 2 == 0) {
+			u16 mmr = bfin_read16(src);
+			memcpy(dst, &mmr, sizeof(mmr));
+			return dst;
+		}
+		if (count == 4 && (unsigned long)src % 4 == 0) {
+			u32 mmr = bfin_read32(src);
+			memcpy(dst, &mmr, sizeof(mmr));
+			return dst;
+		}
+		/* Failed for some reason */
+		memset(dst, 0xad, count);
+		return dst;
+	}
+	if (dst >= (void *)SYSMMR_BASE) {
+		if (count == 2 && (unsigned long)dst % 2 == 0) {
+			u16 mmr;
+			memcpy(&mmr, src, sizeof(mmr));
+			bfin_write16(dst, mmr);
+			return dst;
+		}
+		if (count == 4 && (unsigned long)dst % 4 == 0) {
+			u32 mmr;
+			memcpy(&mmr, src, sizeof(mmr));
+			bfin_write32(dst, mmr);
+			return dst;
+		}
+		/* Failed for some reason */
+		memset(dst, 0xad, count);
+		return dst;
+	}
+#endif
 
-	} else if (addr_bfin_on_chip_mem(src)) {
-		/* L1 is the source */
+	/* if L1 is the source or dst, use DMA */
+	if (addr_bfin_on_chip_mem(dst) || addr_bfin_on_chip_mem(src))
 		return dma_memcpy(dst, src, count);
-
-	} else
+	else
 		/* No L1 is involved, so just call regular memcpy */
 		return memcpy_ASM(dst, src, count);
 }

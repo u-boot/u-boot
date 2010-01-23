@@ -21,6 +21,8 @@
 #ifndef _ASM_CONFIG_H_
 #define _ASM_CONFIG_H_
 
+#define CONFIG_LMB
+
 #ifndef CONFIG_MAX_MEM_MAPPED
 #if defined(CONFIG_4xx) || defined(CONFIG_E500) || defined(CONFIG_MPC86xx)
 #define CONFIG_MAX_MEM_MAPPED	((phys_size_t)2 << 30)

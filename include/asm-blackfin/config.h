@@ -66,6 +66,11 @@
 # error CONFIG_PLL_BYPASS: Invalid value: must be 0 or 1
 #endif
 
+/* If we are using KGDB, make sure we defer exceptions */
+#ifdef CONFIG_CMD_KGDB
+# define CONFIG_EXCEPTION_DEFER	1
+#endif
+
 /* Using L1 scratch pad makes sense for everyone by default. */
 #ifndef CONFIG_LINUX_CMDLINE_ADDR
 # define CONFIG_LINUX_CMDLINE_ADDR L1_SRAM_SCRATCH
@@ -138,6 +143,8 @@
 #endif
 #ifndef CONFIG_SYS_CBSIZE
 # define CONFIG_SYS_CBSIZE 1024
+#elif defined(CONFIG_CMD_KGDB) && CONFIG_SYS_CBSIZE < 1024
+# error "kgdb needs cbsize to be >= 1024"
 #endif
 #ifndef CONFIG_SYS_BARGSIZE
 # define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE

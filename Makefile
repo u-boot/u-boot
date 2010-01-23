@@ -398,8 +398,11 @@ updater:
 env:
 		$(MAKE) -C tools/env all MTD_VERSION=${MTD_VERSION} || exit 1
 
+# Explicitly make _depend in subdirs containing multiple targets to prevent
+# parallel sub-makes creating .depend files simultaneously.
 depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
-		for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir _depend ; done
+		for dir in $(SUBDIRS) cpu/$(CPU) $(dir $(LDSCRIPT)) ; do \
+			$(MAKE) -C $$dir _depend ; done
 
 TAG_SUBDIRS = $(SUBDIRS)
 TAG_SUBDIRS += $(dir $(__LIBS))
@@ -448,10 +451,15 @@ $(obj)include/autoconf.mk: $(obj)include/config.h
 else	# !config.mk
 all $(obj)u-boot.hex $(obj)u-boot.srec $(obj)u-boot.bin \
 $(obj)u-boot.img $(obj)u-boot.dis $(obj)u-boot \
-$(SUBDIRS) $(TIMESTAMP_FILE) $(VERSION_FILE) gdbtools updater env depend \
-dep tags ctags etags cscope $(obj)System.map:
+$(filter-out tools,$(SUBDIRS)) $(TIMESTAMP_FILE) $(VERSION_FILE) gdbtools \
+updater env depend dep tags ctags etags cscope $(obj)System.map:
 	@echo "System not configured - see README" >&2
 	@ exit 1
+
+tools:
+	$(MAKE) -C tools
+tools-all:
+	$(MAKE) -C tools HOST_TOOLS_ALL=y
 endif	# config.mk
 
 .PHONY : CHANGELOG
@@ -2703,7 +2711,7 @@ mp2usb_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t mp2usb NULL at91rm9200
 
 #########################################################################
-## Atmel ARM926EJ-S Systems
+## ARM926EJ-S Systems
 #########################################################################
 
 afeb9260_config:	unconfig

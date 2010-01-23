@@ -57,10 +57,10 @@ void diu_set_pixel_clock(unsigned int pixclock)
 	debug("DIU pixval = %lu\n", pixval);
 
 	/* Modify PXCLK in GUTS CLKDVDR */
-	debug("DIU: Current value of CLKDVDR = 0x%08x\n", *clkdvdr);
-	temp = *clkdvdr & 0xFFFFFF00;
-	*clkdvdr = temp | (pixval & 0xFF);
-	debug("DIU: Modified value of CLKDVDR = 0x%08x\n", *clkdvdr);
+	debug("DIU: Current value of CLKDVDR = 0x%08x\n", in_be32(clkdvdr));
+	temp = in_be32(clkdvdr) & 0xFFFFFF00;
+	out_be32(clkdvdr, temp | (pixval & 0xFF));
+	debug("DIU: Modified value of CLKDVDR = 0x%08x\n", in_be32(clkdvdr));
 }
 
 char *valid_bmp(char *addr)
