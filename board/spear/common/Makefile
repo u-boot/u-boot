@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2007
+# (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,30 +23,30 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libusb_gadget.a
-
-ifdef CONFIG_USB_DEVICE
-COBJS-y += core.o
-COBJS-y += ep0.o
-COBJS-$(CONFIG_OMAP1510) += omap1510_udc.o
-COBJS-$(CONFIG_OMAP1610) += omap1510_udc.o
-COBJS-$(CONFIG_MPC885_FAMILY) += mpc8xx_udc.o
-COBJS-$(CONFIG_PXA27X) += pxa27x_udc.o
-COBJS-$(CONFIG_SPEARUDC) += spr_udc.o
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)board/$(VENDOR)/common)
 endif
 
-COBJS	:= $(COBJS-y)
-SRCS	:= $(COBJS:.o=.c)
+LIB	= $(obj)lib$(VENDOR).a
+
+COBJS	:= spr_misc.o
+SOBJS	:= spr_lowlevel_init.o
+
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-all:	$(LIB)
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-$(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
-
-# defines $(obj).depend target
+# This is for $(obj).depend target
 include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend

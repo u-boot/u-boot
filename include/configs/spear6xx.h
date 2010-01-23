@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2009 Samsung Electronics
- * Minkyu Kang <mk7.kang@samsung.com>
+ * (C) Copyright 2009
+ * Vipin Kumar, STMicroelectronics, <vipin.kumar@st.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -12,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -21,23 +21,23 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <asm/cache.h>
+#ifndef __CONFIG_H
+#define __CONFIG_H
 
-void l2_cache_enable(void)
-{
-	unsigned long i;
+/*
+ * High Level Configuration Options
+ * (easy to change)
+ */
+#define CONFIG_SPEAR600				1
 
-	__asm__ __volatile__("mrc p15, 0, %0, c1, c0, 1":"=r"(i));
-	__asm__ __volatile__("orr %0, %0, #0x2":"=r"(i));
-	__asm__ __volatile__("mcr p15, 0, %0, c1, c0, 1":"=r"(i));
-}
+#include <configs/spear-common.h>
 
-void l2_cache_disable(void)
-{
-	unsigned long i;
+/* Serial Configuration (PL011) */
+#define CONFIG_SYS_SERIAL0			0xD0000000
+#define CONFIG_SYS_SERIAL1			0xD0080000
+#define CONFIG_PL01x_PORTS			{ (void *)CONFIG_SYS_SERIAL0, \
+						(void *)CONFIG_SYS_SERIAL1 }
 
-	__asm__ __volatile__("mrc p15, 0, %0, c1, c0, 1":"=r"(i));
-	__asm__ __volatile__("bic %0, %0, #0x2":"=r"(i));
-	__asm__ __volatile__("mcr p15, 0, %0, c1, c0, 1":"=r"(i));
-}
+#define CONFIG_SYS_NAND_BASE			(0xD2000000)
+
+#endif  /* __CONFIG_H */

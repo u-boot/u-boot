@@ -1,9 +1,6 @@
 #
-# (C) Copyright 2000-2003
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# (C) Copyright 2008
-# Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>
+# (C) Copyright 2009
+# Vipin Kumar, ST Microelectronics <vipin.kumar@st.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -24,30 +21,24 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(SOC).a
-
-SOBJS	= cache.o
-SOBJS	+= reset.o
-
-COBJS	+= clock.o
-COBJS	+= cpu_info.o
-COBJS	+= timer.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
-
-all:	 $(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
 #########################################################################
 
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
+TEXT_BASE = 0x00700000
 
-sinclude $(obj).depend
+ALL += $(obj)u-boot.img
 
-#########################################################################
+# Environment variables in NAND
+ifeq ($(ENV),NAND)
+PLATFORM_RELFLAGS += -DCONFIG_ENV_IS_IN_NAND
+else
+PLATFORM_RELFLAGS += -DCONFIG_ENV_IS_IN_FLASH
+endif
+
+# Support parallel flash
+ifeq ($(FLASH),PNOR)
+PLATFORM_RELFLAGS += -DCONFIG_FLASH_PNOR
+endif
+
+ifeq ($(CONSOLE),USB)
+PLATFORM_RELFLAGS += -DCONFIG_SPEAR_USBTTY
+endif

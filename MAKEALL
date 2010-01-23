@@ -574,6 +574,10 @@ LIST_ARM9="			\
 	sheevaplug		\
 	smdk2400		\
 	smdk2410		\
+	spear300		\
+	spear310		\
+	spear320		\
+	spear600		\
 	trab			\
 	VCMA9			\
 	versatile		\
