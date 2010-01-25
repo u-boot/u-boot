@@ -659,6 +659,7 @@ LIST_at91="			\
 	meesc			\
 	mp2usb			\
 	m501sk			\
+	otc570			\
 	pm9261			\
 	pm9263			\
 	SBC35_A9G20		\
