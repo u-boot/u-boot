@@ -1,3 +1,80 @@
+commit 580ca3c2b1d032534195cd0bfd89aa11e8c03bb3
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Jan 21 11:37:31 2010 +0100
+
+    ppc4xx: Kilauea: Add CPLD version detection and EBC reconfiguration
+
+    A newer CPLD version on the 405EX evaluation board requires a different
+    EBC controller setup for the CPLD register access. This patch adds a CPLD
+    version detection for Kilauea and code to reconfigure the EBC controller
+    (chip select 2) for the old CPLD if no new version is found.
+
+    Additionally the CPLD version is printed upon bootup:
+
+    Board: Kilauea - AMCC PPC405EX Evaluation Board (CPLD rev. 0)
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Acked-by: Wolfgang Denk <wd@denx.de>
+    Cc: Zhang Bao Quan <bqzhang@udtech.com.cn>
+
+commit eb20392ca986074c78ee4f241a8f2369777a8df3
+Author: Felix Radensky <felix@embedded-sol.com>
+Date:	Sat Jan 23 01:35:24 2010 +0200
+
+    ppc4xx: Fix sending type 1 PCI transactions
+
+    The list of 4xx SoCs that should send type 1 PCI transactions
+    is not defined correctly. As a result PCI-PCI bridges and devices
+    behind them are not identified. The following 4xx variants should
+    send type 1 transactions: 440GX, 440GP, 440SP, 440SPE, 460EX and 460GT.
+
+    Signed-off-by: Felix Radensky <felix@embedded-sol.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 57ab8a129dd4121711540e2b976aff882998de51
+Author: Felix Radensky <felix@embedded-sol.com>
+Date:	Tue Jan 19 21:19:06 2010 +0200
+
+    ppc4xx: Allow setting a single SPD EEPROM address for DDR2 DIMMs
+
+    On platforms where SPD EEPROM and another EEPROM have adjacent
+    I2C addresses SPD_EEPROM_ADDRESS should be defined as a single
+    element array, otherwise DDR2 setup code would fail with the
+    following error:
+
+    ERROR: Unknown DIMM detected in slot 1
+
+    However, fixing SPD_EEPROM_ADDRESS would result in another
+    error:
+
+    ERROR: DIMM's DDR1 and DDR2 type can not be mixed.
+
+    This happens because initdram() routine does not explicitly
+    initialize dimm_populated array. This patch fixes the problem.
+
+    Signed-off-by: Felix Radensky <felix@embedded-sol.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 17ab3057bde25208af71326c0ff213d05eadb318
+Author: Felix Radensky <felix@embedded-sol.com>
+Date:	Tue Jan 19 17:37:13 2010 +0200
+
+    ppc4xx: Fix reporting of bootstrap options G and F on 460EX/GT
+
+    Bootstrap options G and F are reported incorrectly (G instead
+    of F and vice versa). This patch fixes this.
+
+    Signed-off-by: Felix Radensky <felix@embedded-sol.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a200a7c04d89853d2a1395b96d8ca5e3dd754551
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Dec 15 23:20:54 2009 +0100
+
+    Update CHANGELOG; prepare Prepare v2009.11
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit f9476902b789b0481b9df49af88d6ca94fb16fa0
 Author: Peter Tyser <ptyser@xes-inc.com>
 Date:	Tue Dec 15 12:10:47 2009 -0600
