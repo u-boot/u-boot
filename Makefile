@@ -1976,6 +1976,10 @@ ZPC1900_config: unconfig
 ## Coldfire
 #########################################################################
 
+astro_mcf5373l_config \
+astro_mcf5373l_RAM_config :	unconfig
+	@$(MKCONFIG) -t $(@:_config=) astro_mcf5373l m68k mcf532x mcf5373l astro
+
 M5208EVBE_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5208evbe freescale
 

@@ -889,6 +889,10 @@ TsiChung Liew <Tsi-Chung.Liew@freescale.com>
 	M5475EVB	mcf547x_8x
 	M5485EVB	mcf547x_8x
 
+Wolfgang Wegner <w.wegner@astro-kom.de>
+
+	astro_mcf5373l	MCF5373L
+
 #########################################################################
 # AVR32 Systems:							#
 #									#
