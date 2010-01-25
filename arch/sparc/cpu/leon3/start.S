@@ -13,6 +13,12 @@
 #include <asm/stack.h>
 #include <asm/leon.h>
 #include <version.h>
+#include <ambapp.h>
+
+/* Default Plug&Play I/O area */
+#ifndef CONFIG_AMBAPP_IOAREA
+#define CONFIG_AMBAPP_IOAREA AMBA_DEFAULT_IOAREA
+#endif
 
 /* Entry for traps which jump to a programmer-specified trap handler.  */
 #define TRAPR(H)  \
@@ -208,6 +214,7 @@ version_string:
 	.ascii U_BOOT_VERSION_STRING, "\0"
 
 	.section	".text"
+	.extern	_nomem_amba_init, _nomem_memory_ctrl_init
 	.align 4
 
 _hardreset:
@@ -259,6 +266,38 @@ stackp:
 	andn	%fp, 0x0f, %fp
 	sub	%fp, 64, %sp
 
+/* Obtain the address of _GLOBAL_OFFSET_TABLE_ */
+	SPARC_PIC_THUNK_CALL(l7)
+
+/* Scan AMBA Bus for AMBA buses using PnP information. All found
+ * AMBA buses I/O area will be located in i0-i5 upon return.
+ * The i0-i5 registers are later used by _nomem_amba_init2
+ */
+ambainit:
+	call	_nomem_amba_init
+	 sethi	%hi(CONFIG_AMBAPP_IOAREA), %o0
+
+/* Scan AMBA Buses for memory controllers, then initialize the
+ * memory controllers. Note that before setting up the memory controller
+ * the stack can not be used.
+ */
+memory_ctrl_init:
+	SPARC_LOAD_ADDRESS(grlib_mctrl_handlers, l7, o0)
+
+	call	_nomem_memory_ctrl_init
+	 nop
+
+/* The return valu indicate how many memory controllers where found and
+ * initialized, if no memory controller was initialized, we can not continue
+ * because from here on we expect memory to be working.
+ */
+	cmp	%o0, 0
+memory_ctrl_init_failed:
+	beq	memory_ctrl_init_failed
+	 nop
+
+/*** From now on the stack can be used. ***/
+
 cpu_init_unreloc:
 	call	cpu_init_f
 	 nop
@@ -269,7 +308,6 @@ cpu_init_unreloc:
 /* un relocated end address of monitor */
 #define DATA_END __init_end
 
-	SPARC_PIC_THUNK_CALL(l7)
 reloc:
 	SPARC_LOAD_ADDRESS(TEXT_START, l7, g2)
 	SPARC_LOAD_ADDRESS(DATA_END, l7, g3)
@@ -389,6 +427,7 @@ jump:
 
 	SPARC_LOAD_ADDRESS(board_init_f, l7, o1)
 	set	CONFIG_SYS_RELOC_MONITOR_BASE,%o2
+	SPARC_LOAD_ADDRESS(TEXT_START, l7, g1)
 	add	%o1,%o2,%o1
 	sub	%o1,%g1,%o1
 	call	%o1
