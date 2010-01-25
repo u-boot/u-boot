@@ -30,6 +30,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <asm/arch/mx31-regs.h>
+
 /* High Level Configuration Options */
 #define CONFIG_ARM1136		1	/* This is an arm1136 CPU core */
 #define CONFIG_MX31		1	/* in a mx31 */
@@ -51,7 +53,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(2*CONFIG_ENV_SIZE + 2 * 128 * 1024)
 /* Bytes reserved for initial data */
 #define CONFIG_SYS_GBL_DATA_SIZE	128
 
@@ -89,6 +91,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SPI
 #define CONFIG_CMD_DATE
+#define CONFIG_CMD_NAND
 
 /*
  * Disabled due to compilation errors in cmd_bootm.c (IMLS seems to require
@@ -104,7 +107,10 @@
 		"ip=dhcp nfsroot=$(serverip):$(nfsrootfs),v3,tcp\0"	\
 	"bootcmd=run bootcmd_net\0"					\
 	"bootcmd_net=run bootargs_base bootargs_mtd bootargs_nfs; "	\
-		"tftpboot 0x81000000 uImage-mx31; bootm\0"
+		"tftpboot 0x81000000 uImage-mx31; bootm\0"		\
+	"prg_uboot=tftpboot 0x81000000 u-boot-nand.bin; "		\
+		"nand erase 0x0 0x40000; "				\
+		"nand write 0x81000000 0x0 0x40000\0"
 
 #define CONFIG_NET_MULTI
 #define CONFIG_SMC911X		1
@@ -156,9 +162,20 @@
 /* No NOR flash present */
 #define CONFIG_SYS_NO_FLASH	1
 
-#define CONFIG_ENV_IS_NOWHERE	1
+#define CONFIG_ENV_IS_IN_NAND		1
+#define CONFIG_ENV_OFFSET		0x40000
+#define CONFIG_ENV_OFFSET_REDUND	0x60000
+#define CONFIG_ENV_SIZE			(128 * 1024)
 
-#define CONFIG_ENV_SIZE		(128 * 1024)
+/*
+ * NAND driver
+ */
+#define CONFIG_NAND_MXC
+#define CONFIG_MXC_NAND_REGS_BASE      NFC_BASE_ADDR
+#define CONFIG_SYS_MAX_NAND_DEVICE     1
+#define CONFIG_SYS_NAND_BASE           NFC_BASE_ADDR
+#define CONFIG_MXC_NAND_HWECC
+#define CONFIG_SYS_NAND_LARGEPAGE
 
 /* NAND configuration for the NAND_SPL */
 

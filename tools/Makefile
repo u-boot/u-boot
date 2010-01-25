@@ -38,6 +38,15 @@ endif
 #
 include $(TOPDIR)/config.mk
 
+# Enable all the config-independent tools
+ifneq ($(HOST_TOOLS_ALL),)
+CONFIG_LCD_LOGO = y
+CONFIG_CMD_NET = y
+CONFIG_INCA_IP = y
+CONFIG_NETCONSOLE = y
+CONFIG_SHA1_CHECK_UB_IMG = y
+endif
+
 # Generated executable files
 BIN_FILES-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
 BIN_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)

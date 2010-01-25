@@ -153,18 +153,6 @@ static boot_os_fn *boot_os[] = {
 ulong load_addr = CONFIG_SYS_LOAD_ADDR;	/* Default Load Address */
 static bootm_headers_t images;		/* pointers to os/initrd/fdt images */
 
-void __board_lmb_reserve(struct lmb *lmb)
-{
-	/* please define platform specific board_lmb_reserve() */
-}
-void board_lmb_reserve(struct lmb *lmb) __attribute__((weak, alias("__board_lmb_reserve")));
-
-void __arch_lmb_reserve(struct lmb *lmb)
-{
-	/* please define platform specific arch_lmb_reserve() */
-}
-void arch_lmb_reserve(struct lmb *lmb) __attribute__((weak, alias("__arch_lmb_reserve")));
-
 /* Allow for arch specific config before we boot */
 void __arch_preboot_os(void)
 {
@@ -200,15 +188,11 @@ void arch_preboot_os(void) __attribute__((weak, alias("__arch_preboot_os")));
 # error Unknown CPU type
 #endif
 
-static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static void bootm_start_lmb(void)
 {
+#ifdef CONFIG_LMB
 	ulong		mem_start;
 	phys_size_t	mem_size;
-	void		*os_hdr;
-	int		ret;
-
-	memset ((void *)&images, 0, sizeof (images));
-	images.verify = getenv_yesno ("verify");
 
 	lmb_init(&images.lmb);
 
@@ -219,6 +203,20 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	arch_lmb_reserve(&images.lmb);
 	board_lmb_reserve(&images.lmb);
+#else
+# define lmb_reserve(lmb, base, size)
+#endif
+}
+
+static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	void		*os_hdr;
+	int		ret;
+
+	memset ((void *)&images, 0, sizeof (images));
+	images.verify = getenv_yesno ("verify");
+
+	bootm_start_lmb();
 
 	/* get kernel image header, start address and length */
 	os_hdr = boot_get_kernel (cmdtp, flag, argc, argv,

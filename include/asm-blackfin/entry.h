@@ -86,6 +86,11 @@
 	[--sp] = RETE;
 	[--sp] = SEQSTAT;
 	[--sp] = SYSCFG;
+#ifdef CONFIG_CMD_KGDB
+	p0.l = lo(IPEND)
+	p0.h = hi(IPEND)
+	r0 = [p0];
+#endif
 	[--sp] = r0;	/* Skip IPEND as well. */
 .endm
 
@@ -137,6 +142,11 @@
 	[--sp] = RETE;
 	[--sp] = SEQSTAT;
 	[--sp] = SYSCFG;
+#ifdef CONFIG_CMD_KGDB
+	p0.l = lo(IPEND)
+	p0.h = hi(IPEND)
+	r0 = [p0];
+#endif
 	[--sp] = r0;	/* Skip IPEND as well. */
 .endm
 
