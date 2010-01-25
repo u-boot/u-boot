@@ -14,6 +14,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/* Select which UART that will become u-boot console */
+#ifndef CONFIG_SYS_GRLIB_APBUART_INDEX
+#define CONFIG_SYS_GRLIB_APBUART_INDEX 0
+#endif
+
 static int leon3_serial_init(void)
 {
 	ambapp_dev_apbuart *uart;
@@ -21,7 +26,8 @@ static int leon3_serial_init(void)
 	unsigned int tmp;
 
 	/* find UART */
-	if (ambapp_apb_first(VENDOR_GAISLER, GAISLER_APBUART, &apbdev) != 1)
+	if (ambapp_apb_find(&ambapp_plb, VENDOR_GAISLER, GAISLER_APBUART,
+		CONFIG_SYS_GRLIB_APBUART_INDEX, &apbdev) != 1)
 		return -1; /* didn't find hardware */
 
 	/* found apbuart, let's init .. */

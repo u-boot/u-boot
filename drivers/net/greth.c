@@ -34,6 +34,13 @@
 #define GRETH_PHY_ADR_DEFAULT 0
 #endif
 
+/* Let board select which GRETH to use as network interface, set
+ * this to zero if only one GRETH is available.
+ */
+#ifndef CONFIG_SYS_GRLIB_GRETH_INDEX
+#define CONFIG_SYS_GRLIB_GRETH_INDEX 0
+#endif
+
 /* ByPass Cache when reading regs */
 #define GRETH_REGLOAD(addr)		SPARC_NOCACHE_READ(addr)
 /* Write-through cache ==> no bypassing needed on writes */
@@ -593,8 +600,12 @@ int greth_initialize(bd_t * bis)
 
 	debug("Scanning for GRETH\n");
 
-	/* Find Device & IRQ via AMBA Plug&Play information */
-	if (ambapp_apb_first(VENDOR_GAISLER, GAISLER_ETHMAC, &apbdev) != 1) {
+	/* Find Device & IRQ via AMBA Plug&Play information,
+	 * CONFIG_SYS_GRLIB_GRETH_INDEX select which GRETH if multiple
+	 * GRETHs in system.
+	 */
+	if (ambapp_apb_find(&ambapp_plb, VENDOR_GAISLER, GAISLER_ETHMAC,
+			CONFIG_SYS_GRLIB_GRETH_INDEX, &apbdev) != 1) {
 		return -1;	/* GRETH not found */
 	}
 
