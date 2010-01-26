@@ -27,15 +27,15 @@
 
 #define __REG(x)     (*((volatile u32 *)(x)))
 
-#ifdef CONFIG_SYS_MX31_UART1
+#if defined(CONFIG_SYS_MX31_UART1) || defined(CONFIG_SYS_MX25_UART1)
 #define UART_PHYS 0x43f90000
-#elif defined(CONFIG_SYS_MX31_UART2)
+#elif defined(CONFIG_SYS_MX31_UART2) || defined(CONFIG_SYS_MX25_UART2)
 #define UART_PHYS 0x43f94000
-#elif defined(CONFIG_SYS_MX31_UART3)
+#elif defined(CONFIG_SYS_MX31_UART3) || defined(CONFIG_SYS_MX25_UART3)
 #define UART_PHYS 0x5000c000
-#elif defined(CONFIG_SYS_MX31_UART4)
+#elif defined(CONFIG_SYS_MX31_UART4) || defined(CONFIG_SYS_MX25_UART4)
 #define UART_PHYS 0x43fb0000
-#elif defined(CONFIG_SYS_MX31_UART5)
+#elif defined(CONFIG_SYS_MX31_UART5) || defined(CONFIG_SYS_MX25_UART5)
 #define UART_PHYS 0x43fb4000
 #elif defined(CONFIG_SYS_MX27_UART1)
 #define UART_PHYS 0x1000a000
