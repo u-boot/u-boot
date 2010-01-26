@@ -701,6 +701,10 @@ Tom Rix <Tom.Rix@windriver.com>
 
 	omap3_zoom2	ARM CORTEX-A8 (OMAP3xx SoC)
 
+John Rigby <jcrigby@gmail.com>
+
+	tx25		i.MX25
+
 Stefan Roese <sr@denx.de>
 
 	ixdpg425	xscale

@@ -3100,6 +3100,10 @@ trab_old_config:	unconfig
 		}
 	@$(MKCONFIG) -a $(call xtract_trab,$@) arm arm920t trab NULL s3c24x0
 
+tx25_config	: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs tx25 karo mx25
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
 VCMA9_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t vcma9 mpl s3c24x0
 
