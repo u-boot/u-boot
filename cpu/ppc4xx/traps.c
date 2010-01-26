@@ -34,6 +34,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <kgdb.h>
 #include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
