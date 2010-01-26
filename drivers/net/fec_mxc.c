@@ -367,6 +367,34 @@ static int fec_open(struct eth_device *edev)
 	 */
 	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_ETHER_EN,
 		&fec->eth->ecntrl);
+#ifdef CONFIG_MX25
+	udelay(100);
+	/*
+	 * setup the MII gasket for RMII mode
+	 */
+
+	/* disable the gasket */
+	writew(0, &fec->eth->miigsk_enr);
+
+	/* wait for the gasket to be disabled */
+	while (readw(&fec->eth->miigsk_enr) & MIIGSK_ENR_READY)
+		udelay(2);
+
+	/* configure gasket for RMII, 50 MHz, no loopback, and no echo */
+	writew(MIIGSK_CFGR_IF_MODE_RMII, &fec->eth->miigsk_cfgr);
+
+	/* re-enable the gasket */
+	writew(MIIGSK_ENR_EN, &fec->eth->miigsk_enr);
+
+	/* wait until MII gasket is ready */
+	int max_loops = 10;
+	while ((readw(&fec->eth->miigsk_enr) & MIIGSK_ENR_READY) == 0) {
+		if (--max_loops <= 0) {
+			printf("WAIT for MII Gasket ready timed out\n");
+			break;
+		}
+	}
+#endif
 
 	miiphy_wait_aneg(edev);
 	miiphy_speed(edev->name, CONFIG_FEC_MXC_PHYADDR);
@@ -513,7 +541,8 @@ static void fec_halt(struct eth_device *dev)
 	 * Disable the Ethernet Controller
 	 * Note: this will also reset the BD index counter!
 	 */
-	writel(readl(&fec->eth->ecntrl) & ~FEC_ECNTRL_ETHER_EN, &fec->eth->ecntrl);
+	writel(readl(&fec->eth->ecntrl) & ~FEC_ECNTRL_ETHER_EN,
+			&fec->eth->ecntrl);
 	fec->rbd_index = 0;
 	fec->tbd_index = 0;
 	debug("eth_halt: done\n");
