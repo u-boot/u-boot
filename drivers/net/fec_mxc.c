@@ -162,7 +162,9 @@ static int miiphy_restart_aneg(struct eth_device *dev)
 	 * Wake up from sleep if necessary
 	 * Reset PHY, then delay 300ns
 	 */
+#ifdef CONFIG_MX27
 	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_MIPGSR, 0x00FF);
+#endif
 	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_BMCR,
 			PHY_BMCR_RESET);
 	udelay(1000);
@@ -363,7 +365,8 @@ static int fec_open(struct eth_device *edev)
 	/*
 	 * Enable FEC-Lite controller
 	 */
-	writel(FEC_ECNTRL_ETHER_EN, &fec->eth->ecntrl);
+	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_ETHER_EN,
+		&fec->eth->ecntrl);
 
 	miiphy_wait_aneg(edev);
 	miiphy_speed(edev->name, CONFIG_FEC_MXC_PHYADDR);
@@ -490,7 +493,7 @@ static void fec_halt(struct eth_device *dev)
 	/*
 	 * issue graceful stop command to the FEC transmitter if necessary
 	 */
-	writel(FEC_ECNTRL_RESET | readl(&fec->eth->x_cntrl),
+	writel(FEC_TCNTRL_GTS | readl(&fec->eth->x_cntrl),
 			&fec->eth->x_cntrl);
 
 	debug("eth_halt: wait for stop regs\n");
@@ -498,7 +501,7 @@ static void fec_halt(struct eth_device *dev)
 	 * wait for graceful stop to register
 	 */
 	while ((counter--) && (!(readl(&fec->eth->ievent) & FEC_IEVENT_GRA)))
-		;	/* FIXME ensure time */
+		udelay(1);
 
 	/*
 	 * Disable SmartDMA tasks
@@ -510,7 +513,7 @@ static void fec_halt(struct eth_device *dev)
 	 * Disable the Ethernet Controller
 	 * Note: this will also reset the BD index counter!
 	 */
-	writel(0, &fec->eth->ecntrl);
+	writel(readl(&fec->eth->ecntrl) & ~FEC_ECNTRL_ETHER_EN, &fec->eth->ecntrl);
 	fec->rbd_index = 0;
 	fec->tbd_index = 0;
 	debug("eth_halt: done\n");
@@ -569,7 +572,7 @@ static int fec_send(struct eth_device *dev, volatile void* packet, int length)
 	 * wait until frame is sent .
 	 */
 	while (readw(&fec->tbd_base[fec->tbd_index].status) & FEC_TBD_READY) {
-		/* FIXME: Timeout */
+		udelay(1);
 	}
 	debug("fec_send: status 0x%x index %d\n",
 			readw(&fec->tbd_base[fec->tbd_index].status),
@@ -688,7 +691,7 @@ static int fec_probe(bd_t *bd)
 	fec->xcv_type = MII100;
 
 	/* Reset chip. */
-	writel(FEC_ECNTRL_RESET, &fec->eth->ecntrl);
+	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_RESET, &fec->eth->ecntrl);
 	while (readl(&fec->eth->ecntrl) & 1)
 		udelay(10);
 

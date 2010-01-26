@@ -166,6 +166,11 @@ int print_cpuinfo (void)
 int cpu_eth_init(bd_t *bis)
 {
 #if defined(CONFIG_FEC_MXC)
+	struct pll_regs *pll = (struct pll_regs *)IMX_PLL_BASE;
+
+	/* enable FEC clock */
+	writel(readl(&pll->pccr1) | PCCR1_HCLK_FEC, &pll->pccr1);
+	writel(readl(&pll->pccr0) | PCCR0_FEC_EN, &pll->pccr0);
 	return fecmxc_initialize(bis);
 #else
 	return 0;
