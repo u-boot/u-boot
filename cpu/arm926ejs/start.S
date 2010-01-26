@@ -53,6 +53,27 @@
 .globl _start
 _start:
 	b	reset
+#ifdef CONFIG_PRELOADER
+/* No exception handlers in preloader */
+	ldr	pc, _hang
+	ldr	pc, _hang
+	ldr	pc, _hang
+	ldr	pc, _hang
+	ldr	pc, _hang
+	ldr	pc, _hang
+	ldr	pc, _hang
+
+_hang:
+	.word	do_hang
+/* pad to 64 byte boundary */
+	.word	0x12345678
+	.word	0x12345678
+	.word	0x12345678
+	.word	0x12345678
+	.word	0x12345678
+	.word	0x12345678
+	.word	0x12345678
+#else
 	ldr	pc, _undefined_instruction
 	ldr	pc, _software_interrupt
 	ldr	pc, _prefetch_abort
@@ -76,6 +97,7 @@ _irq:
 _fiq:
 	.word fiq
 
+#endif	/* CONFIG_PRELOADER */
 	.balignl 16,0xdeadbeef
 
 
@@ -150,7 +172,6 @@ relocate:				/* relocate U-Boot to RAM	    */
 	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
 	cmp     r0, r1                  /* don't reloc during debug         */
 	beq     stack_setup
-
 	ldr	r2, _armboot_start
 	ldr	r3, _bss_start
 	sub	r2, r3, r2		/* r2 <- size of armboot            */
@@ -166,11 +187,14 @@ copy_loop:
 	/* Set up the stack						    */
 stack_setup:
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
+	sub	sp, r0, #128		/* leave 32 words for abort-stack   */
+#ifndef CONFIG_PRELOADER
 	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN	/* malloc area                      */
 	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE /* bdinfo                        */
 #ifdef CONFIG_USE_IRQ
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif
+#endif /* CONFIG_PRELOADER */
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
 	bic	sp, r0, #7		/* 8-byte align stack for ABI compliance */
 
@@ -179,6 +203,7 @@ clear_bss:
 	ldr	r1, _bss_end		/* stop here                        */
 	mov	r2, #0x00000000		/* clear                            */
 
+#ifndef CONFIG_PRELOADER
 clbss_l:str	r2, [r0]		/* clear loop...                    */
 	add	r0, r0, #4
 	cmp	r0, r1
@@ -186,11 +211,16 @@ clbss_l:str	r2, [r0]		/* clear loop...                    */
 
 	bl coloured_LED_init
 	bl red_LED_on
+#endif /* CONFIG_PRELOADER */
 
 	ldr	pc, _start_armboot
 
 _start_armboot:
+#ifdef CONFIG_NAND_SPL
+	.word nand_boot
+#else
 	.word start_armboot
+#endif /* CONFIG_NAND_SPL */
 
 
 /*
@@ -231,6 +261,7 @@ cpu_init_crit:
 	mov	pc, lr		/* back to my caller */
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */
 
+#ifndef CONFIG_PRELOADER
 /*
  *************************************************************************
  *
@@ -332,10 +363,18 @@ cpu_init_crit:
 	.macro get_fiq_stack			@ setup FIQ stack
 	ldr	sp, FIQ_STACK_START
 	.endm
+#endif	/* CONFIG_PRELOADER */
 
 /*
  * exception handlers
  */
+#ifdef CONFIG_PRELOADER
+	.align	5
+do_hang:
+	ldr	sp, _TEXT_BASE			/* switch to abort stack */
+1:
+	bl	1b				/* hang and never return */
+#else	/* !CONFIG_PRELOADER */
 	.align  5
 undefined_instruction:
 	get_bad_stack
@@ -398,3 +437,4 @@ fiq:
 	bl	do_fiq
 
 #endif
+#endif	/* CONFIG_PRELOADER */
