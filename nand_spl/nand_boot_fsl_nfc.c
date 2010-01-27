@@ -26,11 +26,15 @@
 
 #include <common.h>
 #include <nand.h>
+#ifdef CONFIG_MX31
 #include <asm-arm/arch/mx31-regs.h>
+#else
+#include <asm-arm/arch/imx-regs.h>
+#endif
 #include <asm/io.h>
 #include <fsl_nfc.h>
 
-static struct fsl_nfc_regs *nfc;
+struct fsl_nfc_regs *nfc;
 
 static void nfc_wait_ready(void)
 {
@@ -45,13 +49,35 @@ static void nfc_wait_ready(void)
 	writew(tmp, &nfc->nand_flash_config2);
 }
 
-static void nfc_nand_init(void)
+void nfc_nand_init(void)
 {
+#if defined(MXC_NFC_V1_1)
+	int ecc_per_page  = CONFIG_SYS_NAND_PAGE_SIZE / 512;
+	int config1;
+
+	writew(CONFIG_SYS_NAND_SPARE_SIZE / 2, &nfc->spare_area_size);
+
+	/* unlocking RAM Buff */
+	writew(0x2, &nfc->configuration);
+
+	/* hardware ECC checking and correct */
+	config1 = readw(&nfc->nand_flash_config1) | NFC_ECC_EN | 0x800;
+	/*
+	 * if spare size is larger that 16 bytes per 512 byte hunk
+	 * then use 8 symbol correction instead of 4
+	 */
+	if ((CONFIG_SYS_NAND_SPARE_SIZE / ecc_per_page) > 16)
+		config1 &= ~NFC_4_8N_ECC;
+	else
+		config1 |= NFC_4_8N_ECC;
+	writew(config1, &nfc->nand_flash_config1);
+#elif defined(MXC_NFC_V1)
 	/* unlocking RAM Buff */
 	writew(0x2, &nfc->configuration);
 
 	/* hardware ECC checking and correct */
 	writew(NFC_ECC_EN, &nfc->nand_flash_config1);
+#endif
 }
 
 static void nfc_nand_command(unsigned short command)
@@ -65,12 +91,12 @@ static void nfc_nand_page_address(unsigned int page_address)
 {
 	unsigned int page_count;
 
-	writew(0x00, &nfc->flash_cmd);
+	writew(0x00, &nfc->flash_add);
 	writew(NFC_ADDR, &nfc->nand_flash_config2);
 	nfc_wait_ready();
 
-	/* code only for 2kb flash */
-	if (CONFIG_SYS_NAND_PAGE_SIZE == 0x800) {
+	/* code only for large page flash */
+	if (CONFIG_SYS_NAND_PAGE_SIZE > 512) {
 		writew(0x00, &nfc->flash_add);
 		writew(NFC_ADDR, &nfc->nand_flash_config2);
 		nfc_wait_ready();
@@ -88,22 +114,38 @@ static void nfc_nand_page_address(unsigned int page_address)
 			page_count = page_count >> 8;
 		} while (page_count);
 	}
+
+	writew(0x00, &nfc->flash_add);
+	writew(NFC_ADDR, &nfc->nand_flash_config2);
+	nfc_wait_ready();
 }
 
 static void nfc_nand_data_output(void)
 {
+	int config1 = readw(&nfc->nand_flash_config1);
+#ifdef NAND_MXC_2K_MULTI_CYCLE
 	int i;
+#endif
 
+	config1 |= NFC_ECC_EN | NFC_INT_MSK;
+	writew(config1, &nfc->nand_flash_config1);
+	writew(0, &nfc->buffer_address);
+	writew(NFC_OUTPUT, &nfc->nand_flash_config2);
+	nfc_wait_ready();
+#ifdef NAND_MXC_2K_MULTI_CYCLE
 	/*
-	 * The NAND controller requires four output commands for
-	 * large page devices.
+	 * This NAND controller requires multiple input commands
+	 * for pages larger than 512 bytes.
 	 */
-	for (i = 0; i < (CONFIG_SYS_NAND_PAGE_SIZE / 512); i++) {
-		writew(NFC_ECC_EN, &nfc->nand_flash_config1);
-		writew(i, &nfc->buffer_address); /* read in i:th buffer */
+	for (i = 1; i < (CONFIG_SYS_NAND_PAGE_SIZE / 512); i++) {
+		config1 = readw(&nfc->nand_flash_config1);
+		config1 |= NFC_ECC_EN | NFC_INT_MSK;
+		writew(config1, &nfc->nand_flash_config1);
+		writew(i, &nfc->buffer_address);
 		writew(NFC_OUTPUT, &nfc->nand_flash_config2);
 		nfc_wait_ready();
 	}
+#endif
 }
 
 static int nfc_nand_check_ecc(void)
@@ -121,7 +163,7 @@ static int nfc_read_page(unsigned int page_address, unsigned char *buf)
 	nfc_nand_command(NAND_CMD_READ0);
 	nfc_nand_page_address(page_address);
 
-	if (CONFIG_SYS_NAND_PAGE_SIZE == 0x800)
+	if (CONFIG_SYS_NAND_PAGE_SIZE > 512)
 		nfc_nand_command(NAND_CMD_READSTART);
 
 	nfc_nand_data_output(); /* fill the main buffer 0 */
@@ -129,7 +171,7 @@ static int nfc_read_page(unsigned int page_address, unsigned char *buf)
 	if (nfc_nand_check_ecc())
 		return -1;
 
-	src = &nfc->main_area0[0];
+	src = &nfc->main_area[0][0];
 	dst = (u32 *)buf;
 
 	/* main copy loop from NAND-buffer to SDRAM memory */
@@ -154,12 +196,12 @@ static int is_badblock(int pagenumber)
 		nfc_nand_command(NAND_CMD_READ0);
 		nfc_nand_page_address(page);
 
-		if (CONFIG_SYS_NAND_PAGE_SIZE == 0x800)
+		if (CONFIG_SYS_NAND_PAGE_SIZE > 512)
 			nfc_nand_command(NAND_CMD_READSTART);
 
 		nfc_nand_data_output(); /* fill the main buffer 0 */
 
-		src = &nfc->spare_area0[0];
+		src = &nfc->spare_area[0][0];
 
 		/*
 		 * IMPORTANT NOTE: The nand flash controller uses a non-
@@ -209,7 +251,7 @@ static int nand_load(unsigned int from, unsigned int size, unsigned char *buf)
 		if (!(page % CONFIG_SYS_NAND_PAGE_COUNT)) {
 			/*
 			 * Yes, new block. See if this block is good. If not,
-			 * loop until we find i good block.
+			 * loop until we find a good block.
 			 */
 			while (is_badblock(page)) {
 				page = page + CONFIG_SYS_NAND_PAGE_COUNT;
