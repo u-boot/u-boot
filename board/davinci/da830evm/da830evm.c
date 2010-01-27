@@ -42,32 +42,41 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define pinmux	&davinci_syscfg_regs->pinmux
 
-#ifdef CONFIG_SPI_FLASH
 /* SPI0 pin muxer settings */
-const struct pinmux_config spi0_pins[] = {
+static const struct pinmux_config spi0_pins[] = {
 	{ pinmux[7], 1, 3 },
 	{ pinmux[7], 1, 4 },
 	{ pinmux[7], 1, 5 },
 	{ pinmux[7], 1, 6 },
 	{ pinmux[7], 1, 7 }
 };
-#endif
 
 /* UART pin muxer settings */
-const struct pinmux_config uart_pins[] = {
+static const struct pinmux_config uart_pins[] = {
 	{ pinmux[8], 2, 7 },
 	{ pinmux[9], 2, 0 }
 };
 
 /* I2C pin muxer settings */
-const struct pinmux_config i2c_pins[] = {
+static const struct pinmux_config i2c_pins[] = {
 	{ pinmux[9], 2, 3 },
 	{ pinmux[9], 2, 4 }
 };
 
 /* USB0_DRVVBUS pin muxer settings */
-const struct pinmux_config usb_pins[] = {
+static const struct pinmux_config usb_pins[] = {
 	{ pinmux[9], 1, 1 }
+};
+
+static const struct pinmux_resource pinmuxes[] = {
+#ifdef CONFIG_SPI_FLASH
+	PINMUX_ITEM(spi0_pins),
+#endif
+	PINMUX_ITEM(uart_pins),
+	PINMUX_ITEM(i2c_pins),
+#ifdef CONFIG_USB_DA8XX
+	PINMUX_ITEM(usb_pins),
+#endif
 };
 
 int board_init(void)
@@ -112,18 +121,8 @@ int board_init(void)
 		 DAVINCI_SYSCFG_SUSPSRC_UART2),
 	       &davinci_syscfg_regs->suspsrc);
 
-#ifdef CONFIG_SPI_FLASH
-	if (davinci_configure_pin_mux(spi0_pins, ARRAY_SIZE(spi0_pins)) != 0)
-		return 1;
-#endif
-
-	if (davinci_configure_pin_mux(uart_pins, ARRAY_SIZE(uart_pins)) != 0)
-		return 1;
-
-	if (davinci_configure_pin_mux(i2c_pins, ARRAY_SIZE(i2c_pins)) != 0)
-		return 1;
-
-	if (davinci_configure_pin_mux(usb_pins, ARRAY_SIZE(usb_pins)) != 0)
+	/* configure pinmux settings */
+	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
 		return 1;
 
 	/* enable the console UART */
