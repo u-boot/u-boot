@@ -136,6 +136,10 @@ struct gpmc {
 	u32 ecc8_result;	/* 0x21C */
 	u32 ecc9_result;	/* 0x220 */
 };
+
+/* Used for board specific gpmc initialization */
+extern struct gpmc *gpmc_cfg;
+
 #else /* __ASSEMBLY__ */
 #define GPMC_CONFIG1		0x00
 #define GPMC_CONFIG2		0x04
