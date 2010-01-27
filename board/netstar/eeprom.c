@@ -22,8 +22,6 @@
  * Some code shamelessly stolen back from Robin Getz.
  */
 
-#define DEBUG
-
 #include <common.h>
 #include <exports.h>
 #include <timestamp.h>
@@ -142,8 +140,6 @@ static int parse_element(char *s, unsigned char *buf, int len)
 	return cnt;
 }
 
-extern int crcek(void);
-
 int eeprom(int argc, char *argv[])
 {
 	int i, len, ret;
@@ -161,8 +157,6 @@ int eeprom(int argc, char *argv[])
 		return 1;
 	}
 
-	return crcek();
-
 	if ((SMC_inw (&dev, BANK_SELECT) & 0xFF00) != 0x3300) {
 		printf("SMSC91111 not found.\n");
 		return 2;
@@ -176,7 +170,7 @@ int eeprom(int argc, char *argv[])
 
 	/* Print help message */
 	if (argv[1][1] == 'h') {
-		printf("VoiceBlue EEPROM writer\n");
+		printf("NetStar EEPROM writer\n");
 		printf("Built: %s at %s\n", U_BOOT_DATE, U_BOOT_TIME);
 		printf("Usage:\n\t<mac_address> [<element_1>] [<...>]\n");
 		return 0;
