@@ -58,6 +58,7 @@ COBJS-$(CONFIG_P1021)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1022)	+= ddr-gen3.o
 COBJS-$(CONFIG_P2010)	+= ddr-gen3.o
 COBJS-$(CONFIG_P2020)	+= ddr-gen3.o
+COBJS-$(CONFIG_PPC_P3041)	+= ddr-gen3.o
 COBJS-$(CONFIG_PPC_P4080)	+= ddr-gen3.o
 COBJS-$(CONFIG_PPC_P5020)	+= ddr-gen3.o
 

@@ -43,7 +43,8 @@ DECLARE_GLOBAL_DATA_PTR;
       defined(CONFIG_P1013) || defined(CONFIG_P1022) || \
       defined(CONFIG_P2010) || defined(CONFIG_P2020)
 #define FSL_HW_NUM_LAWS 12
-#elif defined(CONFIG_PPC_P4080) || defined(CONFIG_PPC_P5020)
+#elif defined(CONFIG_PPC_P3041) || defined(CONFIG_PPC_P4080) || \
+      defined(CONFIG_PPC_P5020)
 #define FSL_HW_NUM_LAWS 32
 #else
 #error FSL_HW_NUM_LAWS not defined for this platform
