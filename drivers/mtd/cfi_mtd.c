@@ -161,8 +161,8 @@ static int cfi_mtd_set_erasesize(struct mtd_info *mtd, flash_info_t *fi)
 	int sect;
 	int regions = 0;
 	int numblocks = 0;
-	ulong offset = 0;
-	ulong base_addr = fi->start[0];
+	ulong offset;
+	ulong base_addr;
 
 	/*
 	 * First detect the number of eraseregions so that we can allocate
@@ -174,29 +174,35 @@ static int cfi_mtd_set_erasesize(struct mtd_info *mtd, flash_info_t *fi)
 		sect_size_old = flash_sector_size(fi, sect);
 	}
 
+	switch (regions) {
+	case 0:
+		return 1;
+	case 1:	/* flash has uniform erase size */
+		mtd->numeraseregions = 0;
+		mtd->erasesize = sect_size_old;
+		return 0;
+	}
+
+	mtd->numeraseregions = regions;
 	mtd->eraseregions = malloc(sizeof(struct mtd_erase_region_info) * regions);
 
 	/*
 	 * Now detect the largest sector and fill the eraseregions
 	 */
-	sect_size_old = 0;
 	regions = 0;
+	base_addr = offset = fi->start[0];
+	sect_size_old = flash_sector_size(fi, 0);
 	for (sect = 0; sect < fi->sector_count; sect++) {
-		if ((sect_size_old != flash_sector_size(fi, sect)) &&
-		    (sect_size_old != 0)) {
+		if (sect_size_old != flash_sector_size(fi, sect)) {
 			mtd->eraseregions[regions].offset = offset - base_addr;
 			mtd->eraseregions[regions].erasesize = sect_size_old;
 			mtd->eraseregions[regions].numblocks = numblocks;
-
 			/* Now start counting the next eraseregions */
 			numblocks = 0;
 			regions++;
-		} else {
-			numblocks++;
-		}
-
-		if (sect_size_old != flash_sector_size(fi, sect))
 			offset = fi->start[sect];
+		}
+		numblocks++;
 
 		/*
 		 * Select the largest sector size as erasesize (e.g. for UBI)
@@ -212,12 +218,7 @@ static int cfi_mtd_set_erasesize(struct mtd_info *mtd, flash_info_t *fi)
 	 */
 	mtd->eraseregions[regions].offset = offset - base_addr;
 	mtd->eraseregions[regions].erasesize = sect_size_old;
-	mtd->eraseregions[regions].numblocks = numblocks + 1;
-
-	if (regions)
-		mtd->numeraseregions = regions + 1;
-	else
-		mtd->numeraseregions = 0;
+	mtd->eraseregions[regions].numblocks = numblocks;
 
 	mtd->erasesize = sect_size;
 
