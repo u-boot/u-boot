@@ -1,42 +1,14 @@
 /*
- * U-boot - traps.h
+ *  Copyright 2004-2009 Analog Devices Inc.
+ *                 2001 Lineo, Inc
+ *                        Tony Kou
+ *                 1993 Hamish Macdonald
  *
- * Copyright (c) 2005-2007 Analog Devices Inc.
- *
- * This file is based on
- * linux/include/asm/traps.h
- * Copyright (C) 1993        Hamish Macdonald
- * Lineo, Inc    Jul 2001    Tony Kou
- *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
- * MA 02110-1301 USA
+ * Licensed under the GPL-2
  */
 
-/*
-  */
-
-#ifndef _BLACKFIN_TRAPS_H
-#define _BLACKFIN_TRAPS_H
-
-#ifndef __ASSEMBLY__
-typedef void (*e_vector) (void);
-extern e_vector vectors[];
-#endif
+#ifndef _BFIN_TRAPS_H
+#define _BFIN_TRAPS_H
 
 #define VEC_SYS		(0)
 #define VEC_EXCPT01	(1)
@@ -64,23 +36,15 @@ extern e_vector vectors[];
 #define VEC_CPLB_M	(38)
 #define VEC_CPLB_MHIT	(39)
 #define VEC_WATCH	(40)
-#define VEC_ISTRU_VL	(41)
+#define VEC_ISTRU_VL	(41)	/*ADSP-BF535 only (MH) */
 #define VEC_MISALI_I	(42)
 #define VEC_CPLB_I_VL	(43)
 #define VEC_CPLB_I_M	(44)
 #define VEC_CPLB_I_MHIT	(45)
 #define VEC_ILL_RES	(46)	/* including unvalid supervisor mode insn */
+/* The hardware reserves (63) for future use - we use it to tell our
+ * normal exception handling code we have a hardware error
+ */
+#define VEC_HWERR	(63)
 
-#define VECOFF(vec)	((vec)<<2)
-
-#ifndef __ASSEMBLY__
-
-/* Status register bits */
-#define PS_T  (0x8000)
-#define PS_S  (0x0c00)		/*  Supervisor mode = 0b01      */
-#define PS_D  (0x0c00)		/*  Debug mode = 0b1x           */
-#define PS_M  (0x1000)
-#define PS_C  (0x0001)
-
-#endif
-#endif
+#endif				/* _BFIN_TRAPS_H */
