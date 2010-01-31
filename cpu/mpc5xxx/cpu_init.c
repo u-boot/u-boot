@@ -46,9 +46,12 @@ void cpu_init_f (void)
 		(struct mpc5xxx_gpio *) MPC5XXX_GPIO;
 	volatile struct mpc5xxx_xlb *xlb =
 		(struct mpc5xxx_xlb *) MPC5XXX_XLBARB;
+#if defined(CONFIG_WATCHDOG)
 	volatile struct mpc5xxx_gpt *gpt0 =
 		(struct mpc5xxx_gpt *) MPC5XXX_GPT;
+#endif /* CONFIG_WATCHDOG */
 	unsigned long addecr = (1 << 25); /* Boot_CS */
+
 #if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_MGT5100)
 	addecr |= (1 << 22); /* SDRAM enable */
 #endif
