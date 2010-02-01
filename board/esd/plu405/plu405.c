@@ -46,6 +46,34 @@ const unsigned char fpgadata[] =
  */
 #include "../common/fpga.c"
 
+/*
+ * generate a short spike on the CAN tx line
+ * to bring the couplers in sync
+ */
+void init_coupler(u32 addr)
+{
+	struct sja1000_basic_s *ctrl = (struct sja1000_basic_s *)addr;
+
+	/* reset */
+	out_8(&ctrl->cr, CR_RR);
+
+	/* dominant */
+	out_8(&ctrl->btr0, 0x00); /* btr setup is required */
+	out_8(&ctrl->btr1, 0x14); /* we use 1Mbit/s */
+	out_8(&ctrl->oc, OC_TP1 | OC_TN1 | OC_POL1 |
+	      OC_TP0 | OC_TN0 | OC_POL0 | OC_MODE1);
+	out_8(&ctrl->cr, 0x00);
+
+	/* delay */
+	in_8(&ctrl->cr);
+	in_8(&ctrl->cr);
+	in_8(&ctrl->cr);
+	in_8(&ctrl->cr);
+
+	/* reset */
+	out_8(&ctrl->cr, CR_RR);
+}
+
 int board_early_init_f(void)
 {
 	/*
