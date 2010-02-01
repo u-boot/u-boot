@@ -597,6 +597,16 @@ Gary Jennejohn <garyj@denx.de>
 	smdk2400	ARM920T
 	trab		ARM920T
 
+Matthias Kaehlcke <matthias@kaehlcke.net>
+	edb9301			ARM920T (EP9301)
+	edb9302			ARM920T (EP9302)
+	edb9302a		ARM920T (EP9302)
+	edb9307			ARM920T (EP9307)
+	edb9307a		ARM920T (EP9307)
+	edb9312			ARM920T (EP9312)
+	edb9315			ARM920T (EP9315)
+	edb9315a		ARM920T (EP9315)
+
 Konstantin Kletschke <kletschke@synertronixx.de>
 	scb9328		ARM920T
 
