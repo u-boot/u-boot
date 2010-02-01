@@ -6,6 +6,7 @@
 
 #include <config.h>
 #include <ns16550.h>
+#include <watchdog.h>
 
 #define UART_LCRVAL UART_LCR_8N1		/* 8 data, 1 stop, no parity */
 #define UART_MCRVAL (UART_MCR_DTR | \
@@ -70,6 +71,7 @@ char NS16550_getc (NS16550_t com_port)
 		extern void usbtty_poll(void);
 		usbtty_poll();
 #endif
+		WATCHDOG_RESET();
 	}
 	return (com_port->rbr);
 }
