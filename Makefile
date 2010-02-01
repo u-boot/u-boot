@@ -1336,9 +1336,6 @@ ebony_config:	unconfig
 ERIC_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx eric
 
-EXBITGEN_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx exbitgen
-
 fx12mm_flash_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ppc405-generic
 	@mkdir -p $(obj)include $(obj)board/avnet/fx12mm
