@@ -2416,6 +2416,16 @@ caddy2_config \
 vme8349_config:		unconfig
 	@$(MKCONFIG) -t $(@:_config=) vme8349 ppc mpc83xx vme8349 esd
 
+edb9301_config \
+edb9302_config \
+edb9302a_config \
+edb9307_config \
+edb9307a_config \
+edb9312_config \
+edb9315_config \
+edb9315a_config: unconfig
+	@$(MKCONFIG) -t $(@:_config=) edb93xx arm arm920t edb93xx NULL ep93xx
+
 #########################################################################
 ## MPC85xx Systems
 #########################################################################
