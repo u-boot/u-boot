@@ -197,16 +197,21 @@ int usb_control_msg(struct usb_device *dev, unsigned int pipe,
 	if (timeout == 0)
 		return (int)size;
 
-	if (dev->status != 0) {
-		/*
-		 * Let's wait a while for the timeout to elapse.
-		 * It has no real use, but it keeps the interface happy.
-		 */
-		wait_ms(timeout);
-		return -1;
+	/*
+	 * Wait for status to update until timeout expires, USB driver
+	 * interrupt handler may set the status when the USB operation has
+	 * been completed.
+	 */
+	while (timeout--) {
+		if (!((volatile unsigned long)dev->status & USB_ST_NOT_PROC))
+			break;
+		wait_ms(1);
 	}
+	if (dev->status)
+		return -1;
 
 	return dev->act_len;
+
 }
 
 /*-------------------------------------------------------------------
