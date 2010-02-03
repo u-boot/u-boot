@@ -22,6 +22,10 @@
  */
 
 #include <common.h>
+#ifdef CONFIG_AT91_LEGACY
+#warning Your board is using legacy SoC access. Please update!
+#endif
+
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/clk.h>

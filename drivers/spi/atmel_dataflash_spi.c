@@ -20,6 +20,10 @@
  */
 
 #include <common.h>
+#ifndef CONFIG_AT91_LEGACY
+#define CONFIG_AT91_LEGACY
+#warning Please update to use C structur SoC access !
+#endif
 #include <asm/arch/hardware.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>

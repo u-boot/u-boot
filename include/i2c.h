@@ -74,6 +74,11 @@
 #  define I2C_SOFT_DECLARATIONS volatile ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, I2C_PORT);
 # elif defined(CONFIG_8xx)
 #  define I2C_SOFT_DECLARATIONS	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
+
+# elif (defined(CONFIG_AT91RM9200) || \
+	defined(CONFIG_AT91SAM9260) ||  defined(CONFIG_AT91SAM9261) || \
+	defined(CONFIG_AT91SAM9263)) && !defined(CONFIG_AT91_LEGACY)
+#  define I2C_SOFT_DECLARATIONS	at91_pio_t *pio	= (at91_pio_t *) AT91_PIO_BASE;
 # else
 #  define I2C_SOFT_DECLARATIONS
 # endif

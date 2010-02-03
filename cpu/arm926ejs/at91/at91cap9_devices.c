@@ -34,30 +34,38 @@
 
 void at91_serial0_hw_init(void)
 {
+	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+
 	at91_set_a_periph(AT91_PIO_PORTA, 22, 1);		/* TXD0 */
 	at91_set_a_periph(AT91_PIO_PORTA, 23, 0);		/* RXD0 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_US0);
+	writel(1 << AT91CAP9_ID_US0, &pmc->pcer);
 }
 
 void at91_serial1_hw_init(void)
 {
+	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+
 	at91_set_a_periph(AT91_PIO_PORTD, 0, 1);		/* TXD1 */
 	at91_set_a_periph(AT91_PIO_PORTD, 1, 0);		/* RXD1 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_US1);
+	writel(1 << AT91CAP9_ID_US1, &pmc->pcer);
 }
 
 void at91_serial2_hw_init(void)
 {
+	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+
 	at91_set_a_periph(AT91_PIO_PORTD, 2, 1);		/* TXD2 */
 	at91_set_a_periph(AT91_PIO_PORTD, 3, 0);		/* RXD2 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_US2);
+	writel(1 << AT91CAP9_ID_US2, &pmc->pcer);
 }
 
 void at91_serial3_hw_init(void)
 {
+	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+
 	at91_set_a_periph(AT91_PIO_PORTC, 30, 0);		/* DRXD */
 	at91_set_a_periph(AT91_PIO_PORTC, 31, 1);		/* DTXD */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_SYS);
+	writel(1 << AT91_ID_SYS, &pmc->pcer);
 }
 
 void at91_serial_hw_init(void)
@@ -82,12 +90,14 @@ void at91_serial_hw_init(void)
 #ifdef CONFIG_HAS_DATAFLASH
 void at91_spi0_hw_init(unsigned long cs_mask)
 {
+	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+
 	at91_set_b_periph(AT91_PIO_PORTA, 0, 0);	/* SPI0_MISO */
 	at91_set_b_periph(AT91_PIO_PORTA, 1, 0);	/* SPI0_MOSI */
 	at91_set_b_periph(AT91_PIO_PORTA, 2, 0);	/* SPI0_SPCK */
 
 	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_SPI0);
+	writel(1 << AT91CAP9_ID_SPI0, &pmc->pcer);
 
 	if (cs_mask & (1 << 0)) {
 		at91_set_b_periph(AT91_PIO_PORTA, 5, 1);
@@ -117,12 +127,14 @@ void at91_spi0_hw_init(unsigned long cs_mask)
 
 void at91_spi1_hw_init(unsigned long cs_mask)
 {
+	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+
 	at91_set_a_periph(AT91_PIO_PORTB, 12, 0);	/* SPI1_MISO */
 	at91_set_a_periph(AT91_PIO_PORTB, 13, 0);	/* SPI1_MOSI */
 	at91_set_a_periph(AT91_PIO_PORTB, 14, 0);	/* SPI1_SPCK */
 
 	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_SPI1);
+	writel(1 << AT91CAP9_ID_SPI1, &pmc->pcer);
 
 	if (cs_mask & (1 << 0)) {
 		at91_set_a_periph(AT91_PIO_PORTB, 15, 1);
@@ -182,10 +194,12 @@ void at91_macb_hw_init(void)
 #ifdef CONFIG_AT91_CAN
 void at91_can_hw_init(void)
 {
+	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+
 	at91_set_a_periph(AT91_PIO_PORTA, 12, 0);	/* CAN_TX */
 	at91_set_a_periph(AT91_PIO_PORTA, 13, 1);	/* CAN_RX */
 
 	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91CAP9_ID_CAN);
+	writel(1 << AT91CAP9_ID_CAN, &pmc->pcer);
 }
 #endif

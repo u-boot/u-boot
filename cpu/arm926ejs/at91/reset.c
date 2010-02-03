@@ -32,10 +32,12 @@
  */
 void reset_cpu(ulong ignored)
 {
+	at91_rstc_t *rstc = (at91_rstc_t *) AT91_RSTC_BASE;
+
 	/* this is the way Linux does it */
-	at91_sys_write(AT91_RSTC_CR, AT91_RSTC_KEY |
-				     AT91_RSTC_PROCRST |
-				     AT91_RSTC_PERRST);
+
+	writel(AT91_RSTC_KEY | AT91_RSTC_CR_PROCRST | AT91_RSTC_CR_PERRST,
+		&rstc->cr);
 
 	while (1);
 	/* Never reached */
