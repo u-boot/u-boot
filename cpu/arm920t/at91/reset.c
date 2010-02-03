@@ -1,10 +1,15 @@
 /*
  * (C) Copyright 2002
+ * Lineo, Inc. <www.lineo.com>
+ * Bernhard Kuhn <bkuhn@lineo.com>
+ *
+ * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
  *
  * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
+ * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
+ * Alex Zuepke <azu@sysgo.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -16,7 +21,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -25,44 +30,30 @@
  * MA 02111-1307 USA
  */
 
-/*
- * CPU specific code
- */
-
 #include <common.h>
-#include <command.h>
-#include <asm/system.h>
+#include <asm/io.h>
+#include <asm/arch/hardware.h>
+#include <asm/arch/at91_st.h>
 
-#ifdef CONFIG_AT91_LEGACY
-#warning Your board is using legacy AT91RM9200 SoC access. Please update!
+void board_reset(void) __attribute__((__weak__));
+
+void reset_cpu(ulong ignored)
+{
+	at91_st_t *st = (at91_st_t *) AT91_ST_BASE;
+#if defined(CONFIG_AT91RM9200_USART)
+	/*shutdown the console to avoid strange chars during reset */
+	serial_exit();
 #endif
 
-static void cache_flush(void);
+	if (board_reset)
+		board_reset();
 
-int cleanup_before_linux (void)
-{
-	/*
-	 * this function is called just before we call linux
-	 * it prepares the processor for linux
-	 *
-	 * we turn off caches etc ...
-	 */
-
-	disable_interrupts ();
-
-	/* turn off I/D-cache */
-	icache_disable();
-	dcache_disable();
-	/* flush I/D-cache */
-	cache_flush();
-
-	return 0;
-}
-
-/* flush I/D-cache */
-static void cache_flush (void)
-{
-	unsigned long i = 0;
-
-	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));
+	/* Reset the cpu by setting up the watchdog timer */
+	writel(AT91_ST_WDMR_RSTEN | AT91_ST_WDMR_EXTEN | AT91_ST_WDMR_WDV(2),
+		&st->wdmr);
+	writel(AT91_ST_CR_WDRST, &st->cr);
+	/* and let it timeout */
+	while (1)
+		;
+	/* Never reached */
 }
