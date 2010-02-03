@@ -822,6 +822,16 @@ The following options need to be configured:
 
 - NETWORK Support (other):
 
+		CONFIG_DRIVER_AT91EMAC
+		Support for AT91RM9200 EMAC.
+
+			CONFIG_RMII
+			Define this to use reduced MII inteface
+
+			CONFIG_DRIVER_AT91EMAC_QUIET
+			If this defined, the driver is quiet.
+			The driver doen't show link status messages.
+
 		CONFIG_DRIVER_LAN91C96
 		Support for SMSC's LAN91C96 chips.
 

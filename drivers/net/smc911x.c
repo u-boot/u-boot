@@ -257,12 +257,15 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 
 	addrh = smc911x_get_mac_csr(dev, ADDRH);
 	addrl = smc911x_get_mac_csr(dev, ADDRL);
-	dev->enetaddr[0] = addrl;
-	dev->enetaddr[1] = addrl >>  8;
-	dev->enetaddr[2] = addrl >> 16;
-	dev->enetaddr[3] = addrl >> 24;
-	dev->enetaddr[4] = addrh;
-	dev->enetaddr[5] = addrh >> 8;
+	if (!(addrl == 0xffffffff && addrh == 0x0000ffff)) {
+		/* address is obtained from optional eeprom */
+		dev->enetaddr[0] = addrl;
+		dev->enetaddr[1] = addrl >>  8;
+		dev->enetaddr[2] = addrl >> 16;
+		dev->enetaddr[3] = addrl >> 24;
+		dev->enetaddr[4] = addrh;
+		dev->enetaddr[5] = addrh >> 8;
+	}
 
 	dev->init = smc911x_init;
 	dev->halt = smc911x_halt;

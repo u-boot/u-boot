@@ -26,9 +26,14 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #include <asm/arch/AT91RM9200.h>
+#include <asm/io.h>
+
+#if defined(CONFIG_DRIVER_ETHER)
 #include <at91rm9200_net.h>
 #include <ks8721.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -79,3 +84,12 @@ void at91rm9200_GetPhyInterface(AT91PS_PhyOps p_phyops)
 
 #endif	/* CONFIG_CMD_NET */
 #endif	/* CONFIG_DRIVER_ETHER */
+#ifdef CONFIG_DRIVER_AT91EMAC
+
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+	rc = at91emac_register(bis, 0);
+	return rc;
+}
+#endif
