@@ -59,6 +59,7 @@
  */
 
 /* Console output */
+#define CONFIG_AT91_GPIO			1
 #define CONFIG_ATMEL_USART			1
 #undef CONFIG_USART0
 #undef CONFIG_USART1

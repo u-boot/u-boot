@@ -100,10 +100,20 @@ typedef union at91_pio {
 	at91_port_t port[AT91_PIO_PORTS];
 } at91_pio_t;
 
+#ifdef CONFIG_AT91_GPIO
+int at91_set_a_periph(unsigned port, unsigned pin, int use_pullup);
+int at91_set_b_periph(unsigned port, unsigned pin, int use_pullup);
+int at91_set_pio_input(unsigned port, unsigned pin, int use_pullup);
+int at91_set_pio_multi_drive(unsigned port, unsigned pin, int is_on);
+int at91_set_pio_output(unsigned port, unsigned pin, int value);
+int at91_set_pio_periph(unsigned port, unsigned pin, int use_pullup);
+int at91_set_pio_pullup(unsigned port, unsigned pin, int use_pullup);
+int at91_set_pio_deglitch(unsigned port, unsigned pin, int is_on);
+int at91_set_pio_value(unsigned port, unsigned pin, int value);
+int at91_get_pio_value(unsigned port, unsigned pin);
+#endif
 #endif
 
-#define AT91_PIN_TO_MASK(x)	(1<<x)
-#define AT91_PORTPIN(PORT, PIN)	((0x0##PORT - 9) * 32 + ((PIN) & 0x1F))
 #define	AT91_PIO_PORTA		0x0
 #define	AT91_PIO_PORTB		0x1
 #define	AT91_PIO_PORTC		0x2
