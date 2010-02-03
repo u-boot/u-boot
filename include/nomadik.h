@@ -4,6 +4,7 @@
 #define __NOMADIK_H__
 
 /* Base addresses of our peripherals */
+#define NOMADIK_CLCDC_BASE	0x10120000	/* CLCD Controller */
 #define NOMADIK_SRC_BASE	0x101E0000	/* System and Reset Cnt */
 #define NOMADIK_PMU_BASE	0x101E9000	/* Power Management Unit */
 #define NOMADIK_MPMC_BASE	0x10110000	/* SDRAM Controller */
