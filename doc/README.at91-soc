@@ -1,0 +1,41 @@
+ New C structure AT91 SoC access
+=================================
+
+The goal
+--------
+
+Currently the at91 arch uses hundreds of address defines and special
+at91_xxxx_write/read functions to access the SOC.
+The u-boot project perferred method is to access memory mapped hw
+regisister via a c structure.
+
+e.g. old
+
+	*AT91C_PIOA_IDR = AT91_PMX_AA_TWD | AT91_PMX_AA_TWCK;
+	*AT91C_PIOC_PUDR = AT91_PMX_AA_TWD | AT91_PMX_AA_TWCK;
+	*AT91C_PIOC_PER = AT91_PMX_AA_TWD | AT91_PMX_AA_TWCK;
+	*AT91C_PIOC_OER = AT91_PMX_AA_TWD | AT91_PMX_AA_TWCK;
+	*AT91C_PIOC_PIO = AT91_PMX_AA_TWD | AT91_PMX_AA_TWCK;
+
+	at91_sys_write(AT91_RSTC_CR,
+		AT91_RSTC_KEY | AT91_RSTC_PROCRST | AT91_RSTC_PERRST);
+
+e.g new
+	pin = AT91_PMX_AA_TWD | AT91_PMX_AA_TWCK;
+	writel(pin, &pio->pioa.idr);
+	writel(pin, &pio->pioa.pudr);
+	writel(pin, &pio->pioa.per);
+	writel(pin, &pio->pioa.oer);
+	writel(pin, &pio->pioa.sodr);
+
+	writel(AT91_RSTC_KEY | AT91_RSTC_CR_PROCRST |
+		AT91_RSTC_CR_PERRST, &rstc->cr);
+
+The method for updating
+------------------------
+
+1. add's the temporary CONFIG_AT91_LEGACY to all at91 board configs
+2. Display a compile time warning, if the board has not been converted
+3. add new structures for SoC access
+4. Convert arch, driver and boards file to new SoC
+5. remove legacy code, if all boards and drives are ready

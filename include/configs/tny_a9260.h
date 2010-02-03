@@ -30,6 +30,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_AT91_LEGACY
+
 #if defined(CONFIG_TNY_A9260_NANDFLASH) || defined(CONFIG_TNY_A9260_EEPROM)
 #define CONFIG_TNY_A9260
 #elif defined(CONFIG_TNY_A9G20_NANDFLASH) || defined(CONFIG_TNY_A9G20_EEPROM)

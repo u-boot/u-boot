@@ -31,6 +31,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_AT91_LEGACY
+
 #define CONFIG_DISPLAY_CPUINFO	1
 
 #define AT91_MAIN_CLOCK		18432000

@@ -29,6 +29,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_AT91_LEGACY
+
 /* ARM asynchronous clock */
 #define AT91C_MAIN_CLOCK	180000000	/* from 10 MHz crystal */
 #define AT91C_MASTER_CLOCK	60000000	/* peripheral clock (AT91C_MASTER_CLOCK / 3) */

@@ -26,6 +26,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_AT91_LEGACY
+
 #if defined(CONFIG_SBC35_A9G20_NANDFLASH) || defined(CONFIG_SBC35_A9G20_EEPROM)
 #define CONFIG_SBC35_A9G20
 #endif
