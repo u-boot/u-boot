@@ -2714,6 +2714,9 @@ CPUAT91_config	:	unconfig
 csb637_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t csb637 NULL at91rm9200
 
+eb_cpux9k2_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm920t eb_cpux9k2 BuS at91
+
 kb9202_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t kb9202 NULL at91rm9200
 

@@ -1,0 +1,415 @@
+/*
+ * (C) Copyright 2008-2009
+ * BuS Elektronik GmbH & Co. KG <www.bus-elektronik.de>
+ * Jens Scharsig <esw@bus-elektronik.de>
+ *
+ * Configuation settings for the EB+CPUx9K2 board.
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
+#ifndef _CONFIG_EB_CPUx9K2_H_
+#define _CONFIG_EB_CPUx9K2_H_
+
+/*--------------------------------------------------------------------------*/
+
+#define CONFIG_ARM920T		1	/* This is an ARM920T Core	*/
+#define CONFIG_AT91RM9200	1	/* It's an Atmel AT91RM9200 SoC	*/
+#define CONFIG_EB_CPUX9K2	1	/* on an EP+CPUX9K2 Board	*/
+#define USE_920T_MMU		1
+
+#define CONFIG_VERSION_VARIABLE 1
+#define CONFIG_IDENT_STRING	" on EB+CPUx9K2"
+
+#include <asm/arch/hardware.h>	/* needed for port definitions */
+
+#define CONFIG_MISC_INIT_R
+
+/*--------------------------------------------------------------------------*/
+
+#define CONFIG_SYS_LOAD_ADDR		0x21000000  /* default load address */
+
+#define CONFIG_SYS_BOOT_SIZE		0x00 /* 0 KBytes */
+#define CONFIG_SYS_U_BOOT_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_U_BOOT_SIZE		0x60000 /* 384 KBytes */
+
+
+#define CONFIG_BOOT_RETRY_TIME		30
+#define CONFIG_CMDLINE_EDITING
+
+#define CONFIG_SYS_PROMPT	"U-Boot> "	/* Monitor Command Prompt */
+#define CONFIG_SYS_CBSIZE	512		/* Console I/O Buffer Size */
+#define CONFIG_SYS_MAXARGS	32		/* max number of command args */
+#define CONFIG_SYS_PBSIZE	\
+	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+
+#define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
+
+/*
+ * ARM asynchronous clock
+ */
+
+#define AT91C_MAIN_CLOCK	179404800	/* from 12.288 MHz * 73 / 5 */
+#define AT91C_MASTER_CLOCK	(AT91C_MAIN_CLOCK / 3)
+#define CONFIG_SYS_HZ		1000
+#define CONFIG_SYS_HZ_CLOCK 	(AT91C_MASTER_CLOCK / 2)
+
+#define AT91_SLOW_CLOCK			32768		/* slow clock */
+
+#define CONFIG_CMDLINE_TAG		1
+#define CONFIG_SETUP_MEMORY_TAGS	1
+#define CONFIG_INITRD_TAG		1
+
+#define CONFIG_SYS_USE_MAIN_OSCILLATOR	1
+/* flash */
+#define CONFIG_SYS_EBI_CFGR_VAL		0x00000000
+#define CONFIG_SYS_SMC_CSR0_VAL		0x00003284 /* 16bit, 2 TDF, 4 WS */
+
+/* clocks */
+#define CONFIG_SYS_PLLAR_VAL		0x20483E05 /* 179.4048 MHz for PCK */
+#define CONFIG_SYS_PLLBR_VAL		0x104C3E0A /* 47.3088 MHz (for USB) */
+#define CONFIG_SYS_MCKR_VAL		0x00000202 /* PCK/3 = MCK Clock */
+
+/*
+ * Size of malloc() pool
+ */
+
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 520*1024)
+#define CONFIG_SYS_GBL_DATA_SIZE	128
+
+/*
+ * sdram
+ */
+
+#define CONFIG_NR_DRAM_BANKS		1
+#define PHYS_SDRAM 			0x20000000
+#define PHYS_SDRAM_SIZE			0x04000000  /* 64 megs */
+
+#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + \
+					PHYS_SDRAM_SIZE - 0x00400000 - \
+					CONFIG_SYS_MALLOC_LEN)
+
+#define CONFIG_SYS_PIOC_ASR_VAL		0xFFFF0000 /* PIOC as D16/D31 */
+#define CONFIG_SYS_PIOC_BSR_VAL		0x00000000
+#define CONFIG_SYS_PIOC_PDR_VAL		0xFFFF0000
+#define CONFIG_SYS_EBI_CSA_VAL		0x00000002 /* CS1=SDRAM */
+#define CONFIG_SYS_SDRC_CR_VAL		0x2188c159 /* set up the SDRAM */
+#define CONFIG_SYS_SDRAM		0x20000000 /* address of the SDRAM */
+#define CONFIG_SYS_SDRAM1		0x20000080 /* address of the SDRAM */
+#define CONFIG_SYS_SDRAM_VAL		0x00000000 /* value written to SDRAM */
+#define CONFIG_SYS_SDRC_MR_VAL		0x00000002 /* Precharge All */
+#define CONFIG_SYS_SDRC_MR_VAL1		0x00000004 /* refresh */
+#define CONFIG_SYS_SDRC_MR_VAL2		0x00000003 /* Load Mode Register */
+#define CONFIG_SYS_SDRC_MR_VAL3		0x00000000 /* Normal Mode */
+#define CONFIG_SYS_SDRC_TR_VAL		0x000002E0 /* Write refresh rate */
+
+/*
+ * Command line configuration
+ */
+
+#include <config_cmd_default.h>
+
+#define CONFIG_CMD_BMP
+#define CONFIG_CMD_DATE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_MII
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_PING
+#define CONFIG_I2C_CMD_NO_FLAT
+#define CONFIG_I2C_CMD_TREE
+
+#define CONFIG_SYS_LONGHELP
+
+/*
+ * Filesystems
+ */
+
+#define CONFIG_JFFS2_NAND		1
+
+#ifndef CONFIG_JFFS2_CMDLINE
+#define CONFIG_JFFS2_DEV 		"nand0"
+#define CONFIG_JFFS2_PART_OFFSET 	0
+#define CONFIG_JFFS2_PART_SIZE		0xFFFFFFFF
+#else
+#define MTDIDS_DEFAULT		"nor0=0,nand0=1"
+#define MTDPARTS_DEFAULT	"mtdparts="				\
+					"0:"				\
+					"384k(U-Boot),"			\
+					"128k(Env),"			\
+					"128k(Splash)," 		\
+					"4M(Kernel),"			\
+					"-(FS)"				\
+					";"				\
+					"1:"				\
+					"-(jffs2)"
+#endif /* CONFIG_JFFS2_CMDLINE */
+
+/*
+ * Hardware drivers
+ */
+
+/*
+ * UART/CONSOLE
+ */
+
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 115200, 19200, 38400, 57600, 9600 }
+
+#define CONFIG_BAUDRATE 115200
+#define CONFIG_AT91RM9200_USART
+#define CONFIG_DBGU			/* define DBGU as console */
+
+/*
+ * network
+ */
+#define CONFIG_NET_MULTI		1
+
+#define CONFIG_NET_RETRY_COUNT		10
+#define CONFIG_RESET_PHY_R		1
+
+#define CONFIG_DRIVER_AT91EMAC		1
+#define CONFIG_DRIVER_AT91EMAC_QUIET	1
+#define CONFIG_SYS_RX_ETH_BUFFER	8
+#define CONFIG_MII			1
+
+/*
+ * BOOTP options
+ */
+#define CONFIG_BOOTP_BOOTFILESIZE
+#define CONFIG_BOOTP_BOOTPATH
+#define CONFIG_BOOTP_GATEWAY
+#define CONFIG_BOOTP_HOSTNAME
+
+/*
+ * I2C-Bus
+ */
+
+#define CONFIG_SYS_I2C_SPEED		50000
+#define CONFIG_SYS_I2C_SLAVE		0 		/* not used */
+
+#ifndef CONFIG_HARD_I2C
+#define CONFIG_SOFT_I2C
+
+/* Software  I2C driver configuration */
+
+#define AT91_PIN_SDA			(1<<25)		/* AT91C_PIO_PA25 */
+#define AT91_PIN_SCL			(1<<26)		/* AT91C_PIO_PA26 */
+
+#define CONFIG_SYS_I2C_INIT_BOARD
+
+#define I2C_INIT	i2c_init_board();
+#define I2C_ACTIVE	writel(AT91_PMX_AA_TWD, &pio->pioa.mddr);
+#define I2C_TRISTATE	writel(AT91_PMX_AA_TWD, &pio->pioa.mder);
+#define I2C_READ	((readl(&pio->pioa.pdsr) & AT91_PMX_AA_TWD) != 0)
+#define I2C_SDA(bit)						\
+	if (bit)						\
+		writel(AT91_PMX_AA_TWD, &pio->pioa.sodr);	\
+	else							\
+		writel(AT91_PMX_AA_TWD, &pio->pioa.codr);
+#define I2C_SCL(bit)						\
+	if (bit)						\
+		writel(AT91_PMX_AA_TWCK, &pio->pioa.sodr);	\
+	else							\
+		writel(AT91_PMX_AA_TWCK, &pio->pioa.codr);
+
+#define I2C_DELAY	udelay(2500000/CONFIG_SYS_I2C_SPEED)
+
+#endif	/* CONFIG_HARD_I2C */
+
+/* I2C-RTC */
+
+#ifdef CONFIG_CMD_DATE
+#define CONFIG_RTC_DS1338
+#define CONFIG_SYS_I2C_RTC_ADDR	0x68
+#endif
+
+/* EEPROM */
+
+#define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
+#define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
+
+/* FLASH organization */
+
+/*  NOR-FLASH */
+
+#define CONFIG_FLASH_CFI_DRIVER	1
+
+#define PHYS_FLASH_1			0x10000000
+#define PHYS_FLASH_SIZE			0x01000000  /* 16 megs main flash */
+#define CONFIG_SYS_FLASH_CFI		1
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
+
+#define CONFIG_SYS_FLASH_PROTECTION	1
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_MAX_FLASH_SECT	512
+#define CONFIG_SYS_FLASH_ERASE_TOUT	6000
+#define CONFIG_SYS_FLASH_WRITE_TOUT	2000
+
+/* NAND */
+
+#define CONFIG_SYS_NAND_MAX_CHIPS	1
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE		0x40000000
+#define CONFIG_SYS_NAND_DBW_8		1
+
+#define CONFIG_SYS_64BIT_VSPRINTF	1
+
+/* Status LED's */
+
+#define CONFIG_STATUS_LED		1
+#define CONFIG_BOARD_SPECIFIC_LED	1
+
+#define STATUS_LED_BOOT			1
+#define STATUS_LED_ACTIVE		0
+
+#define STATUS_LED_BIT			1	/* AT91C_PIO_PD0 green LED */
+#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
+#define STATUS_LED_STATE 		STATUS_LED_OFF		/* BLINKING */
+#define STATUS_LED_BIT1			2	/* AT91C_PIO_PD1  red LED */
+#define STATUS_LED_STATE1		STATUS_LED_ON		/* BLINKING */
+#define STATUS_LED_PERIOD1		(CONFIG_SYS_HZ / 4)
+
+#define	CONFIG_VIDEO			1
+
+/* Options */
+
+#ifdef CONFIG_VIDEO
+
+#define CONFIG_VIDEO_VCXK			1
+
+#define CONFIG_SPLASH_SCREEN			1
+
+#define CONFIG_SYS_VCXK_DEFAULT_LINEALIGN	4
+#define CONFIG_SYS_VCXK_BASE	0x30000000
+
+#define CONFIG_SYS_VCXK_ACKNOWLEDGE_PIN		(1<<3)
+#define CONFIG_SYS_VCXK_ACKNOWLEDGE_PORT	piob
+#define CONFIG_SYS_VCXK_ACKNOWLEDGE_DDR		odr
+
+#define CONFIG_SYS_VCXK_ENABLE_PIN		(1<<5)
+#define CONFIG_SYS_VCXK_ENABLE_PORT		piob
+#define CONFIG_SYS_VCXK_ENABLE_DDR		oer
+
+#define CONFIG_SYS_VCXK_REQUEST_PIN		(1<<2)
+#define CONFIG_SYS_VCXK_REQUEST_PORT		piob
+#define CONFIG_SYS_VCXK_REQUEST_DDR		oer
+
+#define CONFIG_SYS_VCXK_INVERT_PIN		(1<<4)
+#define CONFIG_SYS_VCXK_INVERT_PORT		piob
+#define CONFIG_SYS_VCXK_INVERT_DDR		oer
+
+#define CONFIG_SYS_VCXK_RESET_PIN		(1<<6)
+#define CONFIG_SYS_VCXK_RESET_PORT		piob
+#define CONFIG_SYS_VCXK_RESET_DDR		oer
+
+#endif	/* CONFIG_VIDEO */
+
+/* Environment */
+
+#define CONFIG_BOOTDELAY		5
+
+#define CONFIG_ENV_IS_IN_FLASH		1
+#define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + 0x60000)
+#define CONFIG_ENV_SIZE			0x20000 /* sectors are 128K here */
+
+#define CONFIG_BAUDRATE 		115200
+
+#define CONFIG_BOOTCOMMAND		"run nfsboot"
+
+#define CONFIG_NFSBOOTCOMMAND 						\
+		"dhcp $(copy_addr) uImage_cpux9k2;"			\
+		"run bootargsdefaults;"					\
+		"set bootargs $(bootargs) boot=nfs "			\
+		";echo $(bootargs)"					\
+	";bootm"
+
+#define CONFIG_EXTRA_ENV_SETTINGS 					\
+	"displaywidth=256\0"						\
+	"displayheight=512\0"						\
+	"displaybsteps=1023\0"						\
+	"ubootaddr=10000000\0"						\
+	"splashimage=10080000\0"					\
+	"kerneladdr=100A0000\0"						\
+	"kernelsize=00400000\0"						\
+	"rootfsaddr=104A0000\0"						\
+	"copy_addr=21200000\0"						\
+	"rootfssize=00B60000\0"						\
+	"bootargsdefaults=set bootargs "				\
+		"console=ttyS0,115200 "					\
+		"video=vcxk_fb:xres:${displaywidth},"			\
+			"yres:${displayheight},"			\
+			"bres:${displaybsteps} "			\
+		"mem=62M "						\
+		"panic=10 "						\
+		"uboot=\\\"${ver}\\\" "					\
+		"\0"							\
+	"update_kernel=protect off $(kerneladdr) +$(kernelsize);"	\
+		"dhcp $(copy_addr) uImage_cpux9k2;"			\
+		"erase $(kerneladdr) +$(kernelsize);"			\
+		"cp.b $(fileaddr) $(kerneladdr) $(filesize);"		\
+		"protect on $(kerneladdr) +$(kernelsize)"		\
+		"\0"							\
+	"update_root=protect off $(rootfsaddr) +$(rootfssize);"		\
+		"dhcp $(copy_addr) rfs;"				\
+		"erase $(rootfsaddr) +$(rootfssize);"			\
+		"cp.b $(fileaddr) $(rootfsaddr) $(filesize);"		\
+		"\0"							\
+	"update_uboot=protect off 10000000 1005FFFF;"			\
+		"dhcp $(copy_addr) u-boot_eb_cpux9k2;"			\
+		"erase 10000000 1005FFFF;"				\
+		"cp.b $(fileaddr) $(ubootaddr) $(filesize);"		\
+		"protect on 10000000 1005FFFF;reset\0"			\
+	"update_splash=protect off $(splashimage) +20000;"		\
+		"dhcp $(copy_addr) splash_eb_cpux9k2.bmp;"		\
+		"erase $(splashimage) +20000;"				\
+		"cp.b $(fileaddr) 10080000 $(filesize);"		\
+		"protect on $(splashimage) +20000;reset\0"		\
+	"emergency=run bootargsdefaults;"				\
+		"set bootargs $(bootargs) root=initramfs boot=emergency " \
+		";bootm $(kerneladdr)\0"				\
+	"netemergency=run bootargsdefaults;"				\
+		"dhcp $(copy_addr) uImage_cpux9k2;"			\
+		"set bootargs $(bootargs) root=initramfs boot=emergency " \
+		";bootm $(copy_addr)\0"					\
+	"norboot=run bootargsdefaults;"					\
+		"set bootargs $(bootargs) root=initramfs boot=local "	\
+		";bootm $(kerneladdr)\0"				\
+	"nandboot=run bootargsdefaults;"				\
+		"set bootargs $(bootargs) root=initramfs boot=nand "	\
+		";bootm $(kerneladdr)\0"				\
+	"uu=run update_uboot\0"						\
+	"ur=run update_root;run nk\0"					\
+	"nk=run bootargsdefaults;set bootargs $(bootargs) root=initramfs " \
+		"boot=local "						\
+		";echo $(bootargs)"					\
+		";dhcp uImage_cpux9k2;bootm\0"				\
+	"nn=run bootargsdefaults;set bootargs $(bootargs) root=initramfs " \
+		"boot=nand "						\
+		";echo $(bootargs)"					\
+		";dhcp uImage_cpux9k2;bootm\0"				\
+	" "
+
+/*--------------------------------------------------------------------------*/
+
+#endif
+
+/* EOF */
