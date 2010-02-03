@@ -1,6 +1,4 @@
 /*
- * Memory Setup stuff - taken from blob memsetup.S
- *
  * Copyright (C) 2009 Jens Scharsig (js_at_ng@scharsoft.de)
  *
  * based on AT91RM9200 datasheet revision I (36. Ethernet MAC (EMAC))
@@ -15,7 +13,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
