@@ -93,6 +93,7 @@
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_MII
+#undef CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_BSP
 
