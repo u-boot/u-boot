@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2005 Ivan Kokshaysky
  * Copyright (C) SAN People
+ * Copyright (C) 2009 Jens Scharsig (js_at_ng@scharsoft.de)
  *
  * Power Management Controller (PMC) - System peripherals registers.
  * Based on AT91RM9200 datasheet revision E.
@@ -15,6 +16,95 @@
 
 #ifndef AT91_PMC_H
 #define AT91_PMC_H
+
+#define	AT91_ASM_PMC_MOR	(AT91_PMC_BASE + 0x20)
+#define	AT91_ASM_PMC_PLLAR	(AT91_PMC_BASE + 0x28)
+#define	AT91_ASM_PMC_PLLBR	(AT91_PMC_BASE + 0x2c)
+#define AT91_ASM_PMC_MCKR	(AT91_PMC_BASE + 0x30)
+#define AT91_ASM_PMC_SR		(AT91_PMC_BASE + 0x68)
+
+#ifndef __ASSEMBLY__
+
+#include <asm/types.h>
+
+typedef struct at91_pmc {
+	u32	scer;		/* 0x00 System Clock Enable Register */
+	u32	scdr;		/* 0x04 System Clock Disable Register */
+	u32	scsr;		/* 0x08 System Clock Status Register */
+	u32	reserved0;
+	u32	pcer;		/* 0x10 Peripheral Clock Enable Register */
+	u32	pcdr;		/* 0x14 Peripheral Clock Disable Register */
+	u32	pcsr;		/* 0x18 Peripheral Clock Status Register */
+	u32	reserved1;
+	u32	mor;		/* 0x20 Main Oscilator Register */
+	u32	mcfr;		/* 0x24 Main Clock Frequency Register */
+	u32	pllar;		/* 0x28 PLL A Register */
+	u32	pllbr;		/* 0x2C PLL B Register */
+	u32	mckr;		/* 0x30 Master Clock Register */
+	u32	reserved2[3];
+	u32	pck[4];		/* 0x40 Programmable Clock Register 0 - 3 */
+	u32	reserved3[4];
+	u32	ier;		/* 0x60 Interrupt Enable Register */
+	u32	idr;		/* 0x64 Interrupt Disable Register */
+	u32	sr;		/* 0x68 Status Register */
+	u32	imr;		/* 0x6C Interrupt Mask Register */
+	u32	reserved4[4];
+	u32	pllicpr;	/* 0x80 Change Pump Current Register (SAM9) */
+	u32	reserved5[21];
+	u32	wpmr;		/* 0xE4 Write Protect Mode Register (CAP0) */
+	u32	wpsr;		/* 0xE8 Write Protect Status Register (CAP0) */
+	u32	reserved8[5];
+} at91_pmc_t;
+
+#endif	/* end not assembly */
+
+#define AT91_PMC_MOR_MOSCEN		0x01
+#define AT91_PMC_MOR_OSCBYPASS		0x02
+#define AT91_PMC_MOR_OSCOUNT(x)		((x & 0xff) << 8)
+
+#define AT91_PMC_PLLXR_DIV(x)		(x & 0xFF)
+#define AT91_PMC_PLLXR_PLLCOUNT(x)	((x & 0x3F) << 8)
+#define AT91_PMC_PLLXR_OUT(x)		((x & 0x03) << 14)
+#define AT91_PMC_PLLXR_MUL(x)		((x & 0x7FF) << 16)
+#define AT91_PMC_PLLAR_29		0x20000000
+#define AT91_PMC_PLLBR_USBDIV_1		0x00000000
+#define AT91_PMC_PLLBR_USBDIV_2		0x10000000
+#define AT91_PMC_PLLBR_USBDIV_4		0x20000000
+
+#define AT91_PMC_MCKR_CSS_SLOW		0x00000000
+#define AT91_PMC_MCKR_CSS_MAIN		0x00000001
+#define AT91_PMC_MCKR_CSS_PLLA		0x00000002
+#define AT91_PMC_MCKR_CSS_PLLB		0x00000003
+#define AT91_PMC_MCKR_CSS_MASK		0x00000003
+
+#define AT91_PMC_MCKR_PRES_1		0x00000000
+#define AT91_PMC_MCKR_PRES_2		0x00000004
+#define AT91_PMC_MCKR_PRES_4		0x00000008
+#define AT91_PMC_MCKR_PRES_8		0x0000000C
+#define AT91_PMC_MCKR_PRES_16		0x00000010
+#define AT91_PMC_MCKR_PRES_32		0x00000014
+#define AT91_PMC_MCKR_PRES_64		0x00000018
+#define AT91_PMC_MCKR_PRES_MASK		0x0000001C
+
+#define AT91_PMC_MCKR_MDIV_1		0x00000000
+#define AT91_PMC_MCKR_MDIV_2		0x00000100
+#define AT91_PMC_MCKR_MDIV_4		0x00000200
+#define AT91_PMC_MCKR_MDIV_MASK		0x00000300
+
+#define AT91_PMC_MCKR_PLLADIV_1		0x00001000
+#define AT91_PMC_MCKR_PLLADIV_2		0x00002000
+
+#define AT91_PMC_IXR_MOSCS		0x00000001
+#define AT91_PMC_IXR_LOCKA		0x00000002
+#define AT91_PMC_IXR_LOCKB		0x00000004
+#define AT91_PMC_IXR_MCKRDY		0x00000008
+#define AT91_PMC_IXR_LOCKU		0x00000040
+#define AT91_PMC_IXR_PCKRDY0		0x00000100
+#define AT91_PMC_IXR_PCKRDY1		0x00000200
+#define AT91_PMC_IXR_PCKRDY2		0x00000400
+#define AT91_PMC_IXR_PCKRDY3		0x00000800
+
+#ifdef CONFIG_AT91_LEGACY
 
 #define	AT91_PMC_SCER		(AT91_PMC + 0x00)	/* System Clock Enable Register */
 #define	AT91_PMC_SCDR		(AT91_PMC + 0x04)	/* System Clock Disable Register */
@@ -117,4 +207,5 @@
 
 #define AT91_PMC_VER		(AT91_PMC + 0xfc)	/* PMC Module Version [AT91CAP9 only] */
 
+#endif /* CONFIG_AT91_LEGACY */
 #endif

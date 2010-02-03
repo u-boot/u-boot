@@ -43,6 +43,16 @@
 #define AT91SAM9261_ID_IRQ1	30	/* Advanced Interrupt Controller (IRQ1) */
 #define AT91SAM9261_ID_IRQ2	31	/* Advanced Interrupt Controller (IRQ2) */
 
+#define AT91_SDRAMC_BASE	0xffffea00
+#define AT91_SMC_BASE		0xffffec00
+#define AT91_MATRIX_BASE	0xffffee00
+#define AT91_PIO_BASE		0xfffff400
+#define AT91_PMC_BASE		0xfffffc00
+#define AT91_RSTC_BASE		0xfffffd00
+#define AT91_PIT_BASE		0xfffffd30
+#define AT91_WDT_BASE		0xfffffd40
+
+#ifdef CONFIG_AT91_LEGACY
 
 /*
  * User Peripheral physical base addresses.
@@ -63,7 +73,6 @@
 #define AT91SAM9261_BASE_SPI0		0xfffc8000
 #define AT91SAM9261_BASE_SPI1		0xfffcc000
 #define AT91_BASE_SYS			0xffffea00
-
 
 /*
  * System Peripherals (offset from AT91_BASE_SYS)
@@ -88,6 +97,7 @@
 #define AT91_USART1	AT91SAM9261_BASE_US1
 #define AT91_USART2	AT91SAM9261_BASE_US2
 
+#endif /* CONFIG_AT91_LEGACY */
 
 /*
  * Internal Memory.

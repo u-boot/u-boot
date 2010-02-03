@@ -53,6 +53,13 @@
 #define AT91CAP9_ID_IRQ0	30	/* Advanced Interrupt Controller (IRQ0) */
 #define AT91CAP9_ID_IRQ1	31	/* Advanced Interrupt Controller (IRQ1) */
 
+#define AT91_PIO_BASE	0xfffff200
+#define AT91_PMC_BASE	0xfffffc00
+#define AT91_RSTC_BASE	0xfffffd00
+#define AT91_PIT_BASE	0xfffffd30
+
+#ifdef CONFIG_AT91_LEGACY
+
 /*
  * User Peripheral physical base addresses.
  */
@@ -119,6 +126,7 @@
 #define		AT91CAP9_SCKCR_OSCSEL_RC	(0 << 3)
 #define		AT91CAP9_SCKCR_OSCSEL_32	(1 << 3)
 
+#endif /* CONFIG_AT91_LEGACY */
 /*
  * Internal Memory.
  */

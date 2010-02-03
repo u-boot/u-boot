@@ -18,6 +18,8 @@
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/hardware.h>
 
+#ifdef CONFIG_AT91_LEGACY
+
 #define PIN_BASE		32
 
 #define MAX_GPIO_BANKS		5
@@ -364,4 +366,5 @@ static inline int at91_get_gpio_value(unsigned pin)
 	return (pdsr & mask) != 0;
 }
 
+#endif
 #endif
