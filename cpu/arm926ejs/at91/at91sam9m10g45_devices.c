@@ -30,29 +30,29 @@
 
 void at91_serial0_hw_init(void)
 {
-	at91_set_A_periph(AT91_PIN_PB19, 1);	/* TXD0 */
-	at91_set_A_periph(AT91_PIN_PB18, 0);	/* RXD0 */
+	at91_set_a_periph(AT91_PIO_PORTB, 19, 1);	/* TXD0 */
+	at91_set_a_periph(AT91_PIO_PORTB, 18, 0);	/* RXD0 */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9G45_ID_US0);
 }
 
 void at91_serial1_hw_init(void)
 {
-	at91_set_A_periph(AT91_PIN_PB4, 1);		/* TXD1 */
-	at91_set_A_periph(AT91_PIN_PB5, 0);		/* RXD1 */
+	at91_set_a_periph(AT91_PIO_PORTB, 4, 1);		/* TXD1 */
+	at91_set_a_periph(AT91_PIO_PORTB, 5, 0);		/* RXD1 */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9G45_ID_US1);
 }
 
 void at91_serial2_hw_init(void)
 {
-	at91_set_A_periph(AT91_PIN_PD6, 1);		/* TXD2 */
-	at91_set_A_periph(AT91_PIN_PD7, 0);		/* RXD2 */
+	at91_set_a_periph(AT91_PIO_PORTD, 6, 1);		/* TXD2 */
+	at91_set_a_periph(AT91_PIO_PORTD, 7, 0);		/* RXD2 */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9G45_ID_US2);
 }
 
 void at91_serial3_hw_init(void)
 {
-	at91_set_A_periph(AT91_PIN_PB12, 0);	/* DRXD */
-	at91_set_A_periph(AT91_PIN_PB13, 1);	/* DTXD */
+	at91_set_a_periph(AT91_PIO_PORTB, 12, 0);	/* DRXD */
+	at91_set_a_periph(AT91_PIO_PORTB, 13, 1);	/* DTXD */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_SYS);;
 }
 
@@ -78,71 +78,71 @@ void at91_serial_hw_init(void)
 #ifdef CONFIG_ATMEL_SPI
 void at91_spi0_hw_init(unsigned long cs_mask)
 {
-	at91_set_A_periph(AT91_PIN_PB0, 0);	/* SPI0_MISO */
-	at91_set_A_periph(AT91_PIN_PB1, 0);	/* SPI0_MOSI */
-	at91_set_A_periph(AT91_PIN_PB2, 0);	/* SPI0_SPCK */
+	at91_set_a_periph(AT91_PIO_PORTB, 0, 0);	/* SPI0_MISO */
+	at91_set_a_periph(AT91_PIO_PORTB, 1, 0);	/* SPI0_MOSI */
+	at91_set_a_periph(AT91_PIO_PORTB, 2, 0);	/* SPI0_SPCK */
 
 	/* Enable clock */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9G45_ID_SPI0);
 
 	if (cs_mask & (1 << 0)) {
-		at91_set_A_periph(AT91_PIN_PB3, 0);
+		at91_set_a_periph(AT91_PIO_PORTB, 3, 0);
 	}
 	if (cs_mask & (1 << 1)) {
-		at91_set_B_periph(AT91_PIN_PB18, 0);
+		at91_set_b_periph(AT91_PIO_PORTB, 18, 0);
 	}
 	if (cs_mask & (1 << 2)) {
-		at91_set_B_periph(AT91_PIN_PB19, 0);
+		at91_set_b_periph(AT91_PIO_PORTB, 19, 0);
 	}
 	if (cs_mask & (1 << 3)) {
-		at91_set_B_periph(AT91_PIN_PD27, 0);
+		at91_set_b_periph(AT91_PIO_PORTD, 27, 0);
 	}
 	if (cs_mask & (1 << 4)) {
-		at91_set_gpio_output(AT91_PIN_PB3, 0);
+		at91_set_pio_output(AT91_PIO_PORTB, 3, 0);
 	}
 	if (cs_mask & (1 << 5)) {
-		at91_set_gpio_output(AT91_PIN_PB18, 0);
+		at91_set_pio_output(AT91_PIO_PORTB, 18, 0);
 	}
 	if (cs_mask & (1 << 6)) {
-		at91_set_gpio_output(AT91_PIN_PB19, 0);
+		at91_set_pio_output(AT91_PIO_PORTB, 19, 0);
 	}
 	if (cs_mask & (1 << 7)) {
-		at91_set_gpio_output(AT91_PIN_PD27, 0);
+		at91_set_pio_output(AT91_PIO_PORTD, 27, 0);
 	}
 }
 
 void at91_spi1_hw_init(unsigned long cs_mask)
 {
-	at91_set_A_periph(AT91_PIN_PB14, 0);	/* SPI1_MISO */
-	at91_set_A_periph(AT91_PIN_PB15, 0);	/* SPI1_MOSI */
-	at91_set_A_periph(AT91_PIN_PB16, 0);	/* SPI1_SPCK */
+	at91_set_a_periph(AT91_PIO_PORTB, 14, 0);	/* SPI1_MISO */
+	at91_set_a_periph(AT91_PIO_PORTB, 15, 0);	/* SPI1_MOSI */
+	at91_set_a_periph(AT91_PIO_PORTB, 16, 0);	/* SPI1_SPCK */
 
 	/* Enable clock */
 	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9G45_ID_SPI1);
 
 	if (cs_mask & (1 << 0)) {
-		at91_set_A_periph(AT91_PIN_PB17, 0);
+		at91_set_a_periph(AT91_PIO_PORTB, 17, 0);
 	}
 	if (cs_mask & (1 << 1)) {
-		at91_set_B_periph(AT91_PIN_PD28, 0);
+		at91_set_b_periph(AT91_PIO_PORTD, 28, 0);
 	}
 	if (cs_mask & (1 << 2)) {
-		at91_set_A_periph(AT91_PIN_PD18, 0);
+		at91_set_a_periph(AT91_PIO_PORTD, 18, 0);
 	}
 	if (cs_mask & (1 << 3)) {
-		at91_set_A_periph(AT91_PIN_PD19, 0);
+		at91_set_a_periph(AT91_PIO_PORTD, 19, 0);
 	}
 	if (cs_mask & (1 << 4)) {
-		at91_set_gpio_output(AT91_PIN_PB17, 0);
+		at91_set_pio_output(AT91_PIO_PORTB, 17, 0);
 	}
 	if (cs_mask & (1 << 5)) {
-		at91_set_gpio_output(AT91_PIN_PD28, 0);
+		at91_set_pio_output(AT91_PIO_PORTD, 28, 0);
 	}
 	if (cs_mask & (1 << 6)) {
-		at91_set_gpio_output(AT91_PIN_PD18, 0);
+		at91_set_pio_output(AT91_PIO_PORTD, 18, 0);
 	}
 	if (cs_mask & (1 << 7)) {
-		at91_set_gpio_output(AT91_PIN_PD19, 0);
+		at91_set_pio_output(AT91_PIO_PORTD, 19, 0);
 	}
 
 }
@@ -151,25 +151,25 @@ void at91_spi1_hw_init(unsigned long cs_mask)
 #ifdef CONFIG_MACB
 void at91_macb_hw_init(void)
 {
-	at91_set_A_periph(AT91_PIN_PA17, 0);	/* ETXCK_EREFCK */
-	at91_set_A_periph(AT91_PIN_PA15, 0);	/* ERXDV */
-	at91_set_A_periph(AT91_PIN_PA12, 0);	/* ERX0 */
-	at91_set_A_periph(AT91_PIN_PA13, 0);	/* ERX1 */
-	at91_set_A_periph(AT91_PIN_PA16, 0);	/* ERXER */
-	at91_set_A_periph(AT91_PIN_PA14, 0);	/* ETXEN */
-	at91_set_A_periph(AT91_PIN_PA10, 0);	/* ETX0 */
-	at91_set_A_periph(AT91_PIN_PA11, 0);	/* ETX1 */
-	at91_set_A_periph(AT91_PIN_PA19, 0);	/* EMDIO */
-	at91_set_A_periph(AT91_PIN_PA18, 0);	/* EMDC */
+	at91_set_a_periph(AT91_PIO_PORTA, 17, 0);	/* ETXCK_EREFCK */
+	at91_set_a_periph(AT91_PIO_PORTA, 15, 0);	/* ERXDV */
+	at91_set_a_periph(AT91_PIO_PORTA, 12, 0);	/* ERX0 */
+	at91_set_a_periph(AT91_PIO_PORTA, 13, 0);	/* ERX1 */
+	at91_set_a_periph(AT91_PIO_PORTA, 16, 0);	/* ERXER */
+	at91_set_a_periph(AT91_PIO_PORTA, 14, 0);	/* ETXEN */
+	at91_set_a_periph(AT91_PIO_PORTA, 10, 0);	/* ETX0 */
+	at91_set_a_periph(AT91_PIO_PORTA, 11, 0);	/* ETX1 */
+	at91_set_a_periph(AT91_PIO_PORTA, 19, 0);	/* EMDIO */
+	at91_set_a_periph(AT91_PIO_PORTA, 18, 0);	/* EMDC */
 #ifndef CONFIG_RMII
-	at91_set_B_periph(AT91_PIN_PA29, 0);	/* ECRS */
-	at91_set_B_periph(AT91_PIN_PA30, 0);	/* ECOL */
-	at91_set_B_periph(AT91_PIN_PA8,  0);	/* ERX2 */
-	at91_set_B_periph(AT91_PIN_PA9,  0);	/* ERX3 */
-	at91_set_B_periph(AT91_PIN_PA28, 0);	/* ERXCK */
-	at91_set_B_periph(AT91_PIN_PA6,  0);	/* ETX2 */
-	at91_set_B_periph(AT91_PIN_PA7,  0);	/* ETX3 */
-	at91_set_B_periph(AT91_PIN_PA27, 0);	/* ETXER */
+	at91_set_b_periph(AT91_PIO_PORTA, 29, 0);	/* ECRS */
+	at91_set_b_periph(AT91_PIO_PORTA, 30, 0);	/* ECOL */
+	at91_set_b_periph(AT91_PIO_PORTA, 8,  0);	/* ERX2 */
+	at91_set_b_periph(AT91_PIO_PORTA, 9,  0);	/* ERX3 */
+	at91_set_b_periph(AT91_PIO_PORTA, 28, 0);	/* ERXCK */
+	at91_set_b_periph(AT91_PIO_PORTA, 6,  0);	/* ETX2 */
+	at91_set_b_periph(AT91_PIO_PORTA, 7,  0);	/* ETX3 */
+	at91_set_b_periph(AT91_PIO_PORTA, 27, 0);	/* ETXER */
 #endif
 }
 #endif
