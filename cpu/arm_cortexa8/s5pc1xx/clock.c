@@ -25,12 +25,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
-
-#define APLL	0
-#define MPLL	1
-#define EPLL	2
-#define HPLL	3
-#define VPLL	4
+#include <asm/arch/clk.h>
 
 #define CLK_M	0
 #define CLK_D	1
