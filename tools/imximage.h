@@ -81,7 +81,7 @@ typedef struct {
 	uint32_t app_code_barker;
 	uint32_t app_code_csf;
 	uint32_t dcd_ptr_ptr;
-	hab_rsa_public_key *super_root_key;
+	uint32_t super_root_key;
 	uint32_t dcd_ptr;
 	uint32_t app_dest_ptr;
 } flash_header_t;
