@@ -272,6 +272,7 @@ int mmc_init(struct mmc *mmc);
 int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size);
 struct mmc *find_mmc_device(int dev_num);
 void print_mmc_devices(char separator);
+int board_mmc_getcd(u8 *cd, struct mmc *mmc);
 
 #ifndef CONFIG_GENERIC_MMC
 int mmc_legacy_init(int verbose);
