@@ -243,6 +243,9 @@ init_fnc_t *init_sequence[] = {
 	interrupt_init,		/* set up exceptions */
 #endif
 	timer_init,		/* initialize timer */
+#ifdef CONFIG_FSL_ESDHC
+	get_clocks,
+#endif
 	env_init,		/* initialize environment */
 	init_baudrate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */

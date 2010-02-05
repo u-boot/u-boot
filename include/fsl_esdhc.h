@@ -27,12 +27,15 @@
 #define	__FSL_ESDHC_H__
 
 #include <asm/errno.h>
+#include <asm/byteorder.h>
 
 /* FSL eSDHC-specific constants */
 #define SYSCTL			0x0002e02c
 #define SYSCTL_INITA		0x08000000
 #define SYSCTL_TIMEOUT_MASK	0x000f0000
 #define SYSCTL_CLOCK_MASK	0x0000fff0
+#define SYSCTL_RSTA		0x01000000
+#define SYSCTL_CKEN		0x00000008
 #define SYSCTL_PEREN		0x00000004
 #define SYSCTL_HCKEN		0x00000002
 #define SYSCTL_IPGEN		0x00000001
@@ -142,8 +145,32 @@
 #define ESDHC_HOSTCAPBLT_DMAS	0x00400000
 #define ESDHC_HOSTCAPBLT_HSS	0x00200000
 
+struct fsl_esdhc_cfg {
+	u32	esdhc_base;
+	u32	no_snoop;
+	u32	clk_enable;
+};
+
+/* Select the correct accessors depending on endianess */
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#define esdhc_read32		in_le32
+#define esdhc_write32		out_le32
+#define esdhc_clrsetbits32	clrsetbits_le32
+#define esdhc_clrbits32		clrbits_le32
+#define esdhc_setbits32		setbits_le32
+#elif __BYTE_ORDER == __BIG_ENDIAN
+#define esdhc_read32		in_be32
+#define esdhc_write32		out_be32
+#define esdhc_clrsetbits32	clrsetbits_be32
+#define esdhc_clrbits32		clrbits_be32
+#define esdhc_setbits32		setbits_be32
+#else
+#error "Endianess is not defined: please fix to continue"
+#endif
+
 #ifdef CONFIG_FSL_ESDHC
 int fsl_esdhc_mmc_init(bd_t *bis);
+int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg);
 void fdt_fixup_esdhc(void *blob, bd_t *bd);
 #else
 static inline int fsl_esdhc_mmc_init(bd_t *bis) { return -ENOSYS; }

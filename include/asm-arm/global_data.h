@@ -44,6 +44,9 @@ typedef	struct	global_data {
 #ifdef CONFIG_VFD
 	unsigned char	vfd_type;	/* display type */
 #endif
+#ifdef CONFIG_FSL_ESDHC
+	unsigned long	sdhc_clk;
+#endif
 #if 0
 	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
 	unsigned long	bus_clk;
