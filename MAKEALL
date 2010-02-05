@@ -633,6 +633,7 @@ LIST_ARM11="			\
 #########################################################################
 LIST_ARM_CORTEX_A8="		\
 	devkit8000		\
+	mx51evk			\
 	omap3_beagle		\
 	omap3_overo		\
 	omap3_evm		\
