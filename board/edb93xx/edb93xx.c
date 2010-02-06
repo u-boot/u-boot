@@ -64,6 +64,12 @@ int board_init(void)
 	value |= SYSCON_PWRCNT_UART_BAUD;
 	writel(value, &syscon->pwrcnt);
 
+	/* Enable the uart in devicecfg */
+	value = readl(&syscon->devicecfg);
+	value |= 1<<18 /* U1EN */;
+	writel(0xAA, &syscon->sysswlock);
+	writel(value, &syscon->devicecfg);
+
 	/* Machine number, as defined in linux/arch/arm/tools/mach-types */
 	gd->bd->bi_arch_number = CONFIG_MACH_TYPE;
 
