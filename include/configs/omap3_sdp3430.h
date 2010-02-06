@@ -361,7 +361,6 @@
 /*--------------------------------------------------------------------------*/
 
 #ifndef __ASSEMBLY__
-extern struct gpmc *gpmc_cfg;
 extern unsigned int boot_flash_base;
 extern volatile unsigned int boot_flash_env_addr;
 extern unsigned int boot_flash_off;

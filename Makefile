@@ -324,6 +324,10 @@ $(obj)u-boot.img:	$(obj)u-boot.bin
 			sed -e 's/"[	 ]*$$/ for $(BOARD) board"/') \
 		-d $< $@
 
+$(obj)u-boot.imx:       $(obj)u-boot.bin
+		$(obj)tools/mkimage -n $(IMX_CONFIG) -T imximage \
+		-e $(TEXT_BASE) -d $< $@
+
 $(obj)u-boot.kwb:       $(obj)u-boot.bin
 		$(obj)tools/mkimage -n $(KWD_CONFIG) -T kwbimage \
 		-a $(TEXT_BASE) -e $(TEXT_BASE) -d $< $@
@@ -2412,6 +2416,16 @@ caddy2_config \
 vme8349_config:		unconfig
 	@$(MKCONFIG) -t $(@:_config=) vme8349 ppc mpc83xx vme8349 esd
 
+edb9301_config \
+edb9302_config \
+edb9302a_config \
+edb9307_config \
+edb9307a_config \
+edb9312_config \
+edb9315_config \
+edb9315a_config: unconfig
+	@$(MKCONFIG) -t $(@:_config=) edb93xx arm arm920t edb93xx NULL ep93xx
+
 #########################################################################
 ## MPC85xx Systems
 #########################################################################
@@ -2485,8 +2499,9 @@ MPC8555CDS_config:	unconfig
 MPC8568MDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds freescale
 
+MPC8569MDS_ATM_config \
 MPC8569MDS_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8569mds freescale
+	@$(MKCONFIG) -t $(@:_config=) MPC8569MDS ppc mpc85xx mpc8569mds freescale
 
 MPC8572DS_36BIT_config \
 MPC8572DS_config:       unconfig
@@ -2866,6 +2881,9 @@ at91sam9g45ekes_config	:	unconfig
 		$(XECHO) "... with environment variable in SPI DATAFLASH CS0" ; \
 	fi;
 	@$(MKCONFIG) -a at91sam9m10g45ek arm arm926ejs at91sam9m10g45ek atmel at91
+
+otc570_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs otc570 esd at91
 
 pm9263_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs pm9263 ronetix at91

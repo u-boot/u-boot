@@ -80,8 +80,8 @@ void get_sys_info (sys_info_t * sysInfo)
 	freqCC_PLL[2] = sysclk;
 	freqCC_PLL[3] = sysclk;
 
-	sysInfo->freqSystemBus *= (in_be32(&gur->rcwsr[0]) >> 25) & 0xf;
-	sysInfo->freqDDRBus *= ((in_be32(&gur->rcwsr[0]) >> 17) & 0xf);
+	sysInfo->freqSystemBus *= (in_be32(&gur->rcwsr[0]) >> 25) & 0x1f;
+	sysInfo->freqDDRBus *= ((in_be32(&gur->rcwsr[0]) >> 17) & 0x1f);
 	freqCC_PLL[0] *= (in_be32(&clk->pllc1gsr) >> 1) & 0x3f;
 	freqCC_PLL[1] *= (in_be32(&clk->pllc2gsr) >> 1) & 0x3f;
 	freqCC_PLL[2] *= (in_be32(&clk->pllc3gsr) >> 1) & 0x3f;
@@ -103,21 +103,21 @@ void get_sys_info (sys_info_t * sysInfo)
 
 #ifdef CONFIG_SYS_DPAA_PME
 	if (rcw_tmp & PME_CLK_SEL)
-		sysInfo->freqPME = sysInfo->freqSystemBus / 2;
-	else
 		sysInfo->freqPME = freqCC_PLL[2] / 2;
+	else
+		sysInfo->freqPME = sysInfo->freqSystemBus / 2;
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 	if (rcw_tmp & FM1_CLK_SEL)
-		sysInfo->freqFMan[0] = sysInfo->freqSystemBus / 2;
-	else
 		sysInfo->freqFMan[0] = freqCC_PLL[2] / 2;
+	else
+		sysInfo->freqFMan[0] = sysInfo->freqSystemBus / 2;
 #if (CONFIG_SYS_NUM_FMAN) == 2
 	if (rcw_tmp & FM2_CLK_SEL)
-		sysInfo->freqFMan[1] = sysInfo->freqSystemBus / 2;
-	else
 		sysInfo->freqFMan[1] = freqCC_PLL[2] / 2;
+	else
+		sysInfo->freqFMan[1] = sysInfo->freqSystemBus / 2;
 #endif
 #endif
 
@@ -170,7 +170,12 @@ void get_sys_info (sys_info_t * sysInfo)
 	}
 #endif
 	if (lcrr_div == 2 || lcrr_div == 4 || lcrr_div == 8) {
-#if !defined(CONFIG_MPC8540) && !defined(CONFIG_MPC8541) && \
+#if defined(CONFIG_FSL_CORENET)
+		/* If this is corenet based SoC, bit-representation
+		 * for four times the clock divider values.
+		 */
+		lcrr_div *= 4;
+#elif !defined(CONFIG_MPC8540) && !defined(CONFIG_MPC8541) && \
     !defined(CONFIG_MPC8555) && !defined(CONFIG_MPC8560)
 		/*
 		 * Yes, the entire PQ38 family use the same

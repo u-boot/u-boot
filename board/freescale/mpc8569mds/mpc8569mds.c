@@ -39,6 +39,9 @@
 #include <fsl_esdhc.h>
 
 #include "bcsr.h"
+#if defined(CONFIG_PQ_MDS_PIB)
+#include "../common/pq-mds-pib.h"
+#endif
 
 phys_size_t fixed_sdram(void);
 
@@ -544,6 +547,10 @@ void pci_init_board(void)
 	io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
 
 	debug ("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
+
+#if defined(CONFIG_PQ_MDS_PIB)
+	pib_init();
+#endif
 
 #ifdef CONFIG_PCIE1
 	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);

@@ -51,6 +51,11 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_CLK_FREQ	66666666
 #define CONFIG_DDR_CLK_FREQ	CONFIG_SYS_CLK_FREQ
 
+#ifdef CONFIG_MK_ATM
+#define CONFIG_PQ_MDS_PIB
+#define CONFIG_PQ_MDS_PIB_ATM
+#endif
+
 /*
  * These can be toggled for performance analysis, otherwise use default.
  */

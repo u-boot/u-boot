@@ -39,6 +39,37 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
+static int board_cpld_version(void)
+{
+	u32 cpld;
+
+	cpld = in_be32((void *)CONFIG_SYS_FPGA_FIFO_BASE);
+	if ((cpld & CONFIG_SYS_FPGA_MAGIC_MASK) != CONFIG_SYS_FPGA_MAGIC) {
+		/*
+		 * Magic not found -> "old" CPLD revision which needs
+		 * the "old" EBC configuration
+		 */
+		mtebc(PB2AP, EBC_BXAP_BME_ENABLED | EBC_BXAP_FWT_ENCODE(5) |
+		      EBC_BXAP_BWT_ENCODE(0) | EBC_BXAP_BCE_DISABLE |
+		      EBC_BXAP_BCT_2TRANS | EBC_BXAP_CSN_ENCODE(0) |
+		      EBC_BXAP_OEN_ENCODE(0) | EBC_BXAP_WBN_ENCODE(3) |
+		      EBC_BXAP_WBF_ENCODE(0) | EBC_BXAP_TH_ENCODE(4) |
+		      EBC_BXAP_RE_DISABLED | EBC_BXAP_SOR_DELAYED |
+		      EBC_BXAP_BEM_WRITEONLY | EBC_BXAP_PEN_DISABLED);
+
+		/*
+		 * Return 0 for "old" CPLD version
+		 */
+		return 0;
+	}
+
+	/*
+	 * Magic found -> "new" CPLD revision which needs no new
+	 * EBC configuration
+	 */
+	return (cpld & CONFIG_SYS_FPGA_VER_MASK) >> 8;
+}
+
 /*
  * Board early initialization function
  */
@@ -209,6 +240,13 @@ int board_early_init_f (void)
 	mtsdr(SDR0_PFC1, val);
 
 	/*
+	 * The CPLD version detection has to be the first access to
+	 * the CPLD, so we need to make this access this early and
+	 * save the CPLD version for later.
+	 */
+	gd->board_type = board_cpld_version();
+
+	/*
 	 * Configure FPGA register with PCIe reset
 	 */
 	out_be32((void *)CONFIG_SYS_FPGA_BASE, 0xff570cc4);	/* assert PCIe reset */
@@ -280,7 +318,7 @@ int checkboard (void)
 		puts(", serial# ");
 		puts(s);
 	}
-	putc('\n');
+	printf(" (CPLD rev. %ld)\n", gd->board_type);
 
 	return (0);
 }

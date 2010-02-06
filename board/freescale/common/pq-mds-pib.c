@@ -63,7 +63,7 @@ int pib_init(void)
 #endif
 
 #if defined(CONFIG_PQ_MDS_PIB_ATM)
-#if defined(CONFIG_MPC8360EMDS)
+#if defined(CONFIG_MPC8360EMDS) || defined(CONFIG_MPC8569MDS)
 	val8 = 0;
 	i2c_write(0x20, 0x6, 1, &val8, 1);
 	i2c_write(0x20, 0x7, 1, &val8, 1);

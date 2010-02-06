@@ -403,6 +403,7 @@ LIST_85xx="		\
 	MPC8560ADS	\
 	MPC8568MDS	\
 	MPC8569MDS	\
+	MPC8569MDS_ATM	\
 	MPC8572DS	\
 	MPC8572DS_36BIT	\
 	P2020DS		\
@@ -554,6 +555,14 @@ LIST_ARM9="			\
 	cp946es			\
 	cp966			\
 	da830evm		\
+	edb9301			\
+	edb9302			\
+	edb9302a		\
+	edb9307			\
+	edb9307a		\
+	edb9312			\
+	edb9315			\
+	edb9315a		\
 	imx27lite		\
 	lpd7a400		\
 	mv88f6281gtw_ge		\
@@ -658,6 +667,7 @@ LIST_at91="			\
 	meesc			\
 	mp2usb			\
 	m501sk			\
+	otc570			\
 	pm9261			\
 	pm9263			\
 	SBC35_A9G20		\

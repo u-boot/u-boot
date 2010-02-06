@@ -100,13 +100,13 @@ static void setup_net_chip(void)
 	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
 
 	/* Configure GPMC registers */
-	writel(NET_GPMC_CONFIG1, &gpmc_cfg->cs[5].config1);
-	writel(NET_GPMC_CONFIG2, &gpmc_cfg->cs[5].config2);
-	writel(NET_GPMC_CONFIG3, &gpmc_cfg->cs[5].config3);
-	writel(NET_GPMC_CONFIG4, &gpmc_cfg->cs[5].config4);
-	writel(NET_GPMC_CONFIG5, &gpmc_cfg->cs[5].config5);
-	writel(NET_GPMC_CONFIG6, &gpmc_cfg->cs[5].config6);
-	writel(NET_GPMC_CONFIG7, &gpmc_cfg->cs[5].config7);
+	writel(NET_LAN9221_GPMC_CONFIG1, &gpmc_cfg->cs[5].config1);
+	writel(NET_LAN9221_GPMC_CONFIG2, &gpmc_cfg->cs[5].config2);
+	writel(NET_LAN9221_GPMC_CONFIG3, &gpmc_cfg->cs[5].config3);
+	writel(NET_LAN9221_GPMC_CONFIG4, &gpmc_cfg->cs[5].config4);
+	writel(NET_LAN9221_GPMC_CONFIG5, &gpmc_cfg->cs[5].config5);
+	writel(NET_LAN9221_GPMC_CONFIG6, &gpmc_cfg->cs[5].config6);
+	writel(NET_LAN9221_GPMC_CONFIG7, &gpmc_cfg->cs[5].config7);
 
 	/* Enable off mode for NWE in PADCONF_GPMC_NWE register */
 	writew(readw(&ctrl_base ->gpmc_nwe) | 0x0E00, &ctrl_base->gpmc_nwe);

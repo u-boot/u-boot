@@ -33,6 +33,8 @@
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 
+#define CONFIG_KM_UBI_PARTITION_NAME	"ubi0"
+
 #define MTDIDS_DEFAULT		"nor0=boot"
 #define MTDPARTS_DEFAULT	\
 	"mtdparts=boot:768k(u-boot),128k(env),128k(envred),"	\
@@ -448,11 +450,6 @@
 #define BOOTFLASH_START	F0000000
 
 #define CONFIG_PRAM	512	/* protected RAM [KBytes] */
-
-#define MTDIDS_DEFAULT		"nor2=app"
-#define MTDPARTS_DEFAULT \
-	"mtdparts=app:256k(u-boot),128k(env),128k(envred),"	\
-	"1536k(esw0),8704k(rootfs0),1536k(esw1),2432k(rootfs1),640k(var),768k(cfg)"
 
 /*
  * Environment Configuration

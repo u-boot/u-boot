@@ -123,6 +123,11 @@ typedef volatile unsigned char	vu_char;
 #define debugX(level,fmt,args...)
 #endif	/* DEBUG */
 
+#define error(fmt, args...) do {					\
+		printf("ERROR: " fmt "\nat %s:%d/%s()\n",		\
+			##args, __FILE__, __LINE__, __func__);		\
+} while (0)
+
 #ifndef BUG
 #define BUG() do { \
 	printf("BUG: failure at %s:%d/%s()!\n", __FILE__, __LINE__, __FUNCTION__); \
@@ -502,7 +507,8 @@ ulong	get_PCI_freq (void);
 #endif
 #if defined(CONFIG_S3C24X0) || \
     defined(CONFIG_LH7A40X) || \
-    defined(CONFIG_S3C6400)
+    defined(CONFIG_S3C6400) || \
+    defined(CONFIG_EP93XX)
 ulong	get_FCLK (void);
 ulong	get_HCLK (void);
 ulong	get_PCLK (void);
@@ -712,6 +718,7 @@ void show_boot_progress(int val);
 #ifdef CONFIG_MP
 int cpu_status(int nr);
 int cpu_reset(int nr);
+int cpu_disable(int nr);
 int cpu_release(int nr, int argc, char *argv[]);
 #endif
 

@@ -84,6 +84,11 @@
 	void reset_5xx_watchdog(volatile immap_t *immr);
 #endif
 
+/* MPC 5xxx */
+#if defined(CONFIG_MPC5xxx) && !defined(__ASSEMBLY__)
+	void reset_5xxx_watchdog(void);
+#endif
+
 /* AMCC 4xx */
 #if defined(CONFIG_4xx) && !defined(__ASSEMBLY__)
 	void reset_4xx_watchdog(void);

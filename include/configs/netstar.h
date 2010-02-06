@@ -149,7 +149,6 @@
 #define CONFIG_CMD_SAVEENV
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_IMI
-#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_LOADB
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_NAND
@@ -157,8 +156,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_RUN
 
-
-#define CONFIG_JFFS2_NAND	1	/* jffs2 on nand support */
 
 /*
  * BOOTP options
