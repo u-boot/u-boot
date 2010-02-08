@@ -24,7 +24,7 @@
 
 #include <asm/arch/hardware.h>
 
-typedef struct {
+typedef struct davinci_emif_regs {
 	dv_reg		ERCSR;
 	dv_reg		AWCCR;
 	dv_reg		SDBCR;
@@ -66,11 +66,27 @@ typedef struct {
 
 typedef emif_registers	*emifregs;
 
+#define davinci_emif_regs \
+	((struct davinci_emif_regs *)DAVINCI_ASYNC_EMIF_CNTRL_BASE)
+
 #define DAVINCI_NANDFCR_NAND_ENABLE(n)			(1 << (n-2))
 #define DAVINCI_NANDFCR_4BIT_ECC_SEL_MASK		(3 << 4)
 #define DAVINCI_NANDFCR_4BIT_ECC_SEL(n)			((n-2) << 4)
 #define DAVINCI_NANDFCR_1BIT_ECC_START(n)		(1 << (8 + (n-2)))
 #define DAVINCI_NANDFCR_4BIT_ECC_START			(1 << 12)
 #define DAVINCI_NANDFCR_4BIT_CALC_START			(1 << 13)
+
+/* Chip Select setup */
+#define DAVINCI_ABCR_STROBE_SELECT			(1 << 31)
+#define DAVINCI_ABCR_EXT_WAIT				(1 << 30)
+#define DAVINCI_ABCR_WSETUP(n)				(n << 26)
+#define DAVINCI_ABCR_WSTROBE(n)				(n << 20)
+#define DAVINCI_ABCR_WHOLD(n)				(n << 17)
+#define DAVINCI_ABCR_RSETUP(n)				(n << 13)
+#define DAVINCI_ABCR_RSTROBE(n)				(n << 7)
+#define DAVINCI_ABCR_RHOLD(n)				(n << 4)
+#define DAVINCI_ABCR_TA(n)				(n << 2)
+#define DAVINCI_ABCR_ASIZE_16BIT			1
+#define DAVINCI_ABCR_ASIZE_8BIT				0
 
 #endif
