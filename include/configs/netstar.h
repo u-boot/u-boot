@@ -156,7 +156,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_RUN
 
-
 /*
  * BOOTP options
  */
@@ -173,26 +172,27 @@
 #define CONFIG_SYS_AUTOLOAD		"n"		/* No autoload */
 #define CONFIG_BOOTCOMMAND	"run fboot"
 #define CONFIG_PREBOOT		"run setup"
-#define	CONFIG_EXTRA_ENV_SETTINGS						\
-	"autostart=yes\0"							\
-	"ospart=0\0"								\
-	"setup=setenv bootargs console=ttyS0,$baudrate "			\
-		"$mtdparts\0"							\
-	"setpart="								\
-	"if test -n $swapos; then "						\
-		"setenv swapos; saveenv; "					\
-	"else "									\
-		"if test $ospart -eq 0; then setenv ospart 1;"			\
-			"else setenv ospart 0;		fi; "			\
-	"fi\0"									\
-	"nfsargs=setenv bootargs $bootargs "					\
-		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off "	\
-		"nfsroot=$rootpath root=/dev/nfs\0"				\
-	"flashargs=run setpart;setenv bootargs $bootargs "			\
-		"root=mtd:rootfs$ospart ro "					\
-		"rootfstype=jffs2\0"						\
-	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0"		\
-	"fboot=run flashargs;nboot kernel$ospart\0"				\
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"autostart=yes\0"						\
+	"ospart=0\0"							\
+	"setup=setenv bootargs console=ttyS0,$baudrate $mtdparts\0"	\
+	"setpart="							\
+	"if test -n $swapos; then "					\
+		"setenv swapos; saveenv; "				\
+		"if test $ospart -eq 0; then "				\
+			"setenv ospart 1; "				\
+		"else "							\
+			"setenv ospart 0; "				\
+		"fi; "							\
+	"fi\0"								\
+	"nfsargs=setenv bootargs $bootargs "				\
+		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off " \
+		"nfsroot=$rootpath root=/dev/nfs\0"			\
+	"flashargs=run setpart;setenv bootargs $bootargs "		\
+		"root=mtd:rootfs$ospart ro "				\
+		"rootfstype=jffs2\0"					\
+	"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0"	\
+	"fboot=run flashargs;nboot kernel$ospart\0"			\
 	"nboot=bootp;run nfsargs;tftp\0"
 
 #if 0	/* feel free to disable for development */
