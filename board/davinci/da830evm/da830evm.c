@@ -35,6 +35,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/emif_defs.h>
 #include <asm/io.h>
 #include "../common/misc.h"
 
@@ -49,6 +50,23 @@ static const struct pinmux_config spi0_pins[] = {
 	{ pinmux[7], 1, 5 },
 	{ pinmux[7], 1, 6 },
 	{ pinmux[7], 1, 7 }
+};
+
+/* EMIF-A bus pins for 8-bit NAND support on CS3 */
+static const struct pinmux_config emifa_nand_pins[] = {
+	{ pinmux[13], 1, 6 },
+	{ pinmux[13], 1, 7 },
+	{ pinmux[14], 1, 0 },
+	{ pinmux[14], 1, 1 },
+	{ pinmux[14], 1, 2 },
+	{ pinmux[14], 1, 3 },
+	{ pinmux[14], 1, 4 },
+	{ pinmux[14], 1, 5 },
+	{ pinmux[15], 1, 7 },
+	{ pinmux[16], 1, 0 },
+	{ pinmux[18], 1, 1 },
+	{ pinmux[18], 1, 4 },
+	{ pinmux[18], 1, 5 },
 };
 
 /* UART pin muxer settings */
@@ -77,6 +95,9 @@ static const struct pinmux_resource pinmuxes[] = {
 #ifdef CONFIG_USB_DA8XX
 	PINMUX_ITEM(usb_pins),
 #endif
+#ifdef CONFIG_USE_NAND
+	PINMUX_ITEM(emifa_nand_pins),
+#endif
 };
 
 int board_init(void)
@@ -94,6 +115,22 @@ int board_init(void)
 	writel(0xffffffff, &davinci_aintc_regs->ecr1);
 	writel(0xffffffff, &davinci_aintc_regs->ecr2);
 	writel(0xffffffff, &davinci_aintc_regs->ecr3);
+#endif
+
+#ifdef CONFIG_NAND_DAVINCI
+	/* EMIFA 100MHz clock select */
+	writel(readl(&davinci_syscfg_regs->cfgchip3) & ~2,
+	       &davinci_syscfg_regs->cfgchip3);
+	/* NAND CS setup */
+	writel((DAVINCI_ABCR_WSETUP(0) |
+		DAVINCI_ABCR_WSTROBE(2) |
+		DAVINCI_ABCR_WHOLD(0) |
+		DAVINCI_ABCR_RSETUP(0) |
+		DAVINCI_ABCR_RSTROBE(2) |
+		DAVINCI_ABCR_RHOLD(0) |
+		DAVINCI_ABCR_TA(2) |
+		DAVINCI_ABCR_ASIZE_8BIT),
+	       &davinci_emif_regs->AB2CR);
 #endif
 
 	/* arch number of the board */

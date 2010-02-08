@@ -103,14 +103,15 @@
 #define CONFIG_NAND_DAVINCI
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
-#define CONFIG_ENV_OFFSET		0x0 /* Block 0--not used by bootcode */
-#define CONFIG_ENV_SIZE			(128 << 10)
+#define CONFIG_ENV_OFFSET		(512 << 10)
+#define CONFIG_ENV_SIZE			(512 << 10)
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define CONFIG_SYS_NAND_CS		3
 #define CONFIG_SYS_NAND_BASE		DAVINCI_ASYNC_EMIF_DATA_CE3_BASE
+#define CONFIG_SYS_NAND_PAGE_2K
+#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #define CONFIG_SYS_CLE_MASK		0x10
 #define CONFIG_SYS_ALE_MASK		0x8
-#define CONFIG_SYS_NAND_HW_ECC
 #define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */
 #define NAND_MAX_CHIPS			1
 #define DEF_BOOTM			""
@@ -216,8 +217,7 @@
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_CMD_UBI
-#define CONFIG_RBTREE
+#define CONFIG_MTD_DEVICE
 #endif
 
 #ifdef CONFIG_USE_SPIFLASH
@@ -268,4 +268,15 @@
 #endif /* CONFIG_MUSB_UDC */
 
 #endif /* CONFIG_USB_DA8XX */
+
+#ifdef CONFIG_MTD_PARTITIONS
+#define MTDIDS_DEFAULT		"nand0=davinci_nand.1"
+#define PART_BOOT		"512k(bootloader)ro,"
+#define PART_PARAMS		"512k(params)ro,"
+#define PART_KERNEL		"4m(kernel),"
+#define PART_REST		"-(filesystem)"
+#define MTDPARTS_DEFAULT        \
+	"mtdparts=davinci_nand.1:" PART_BOOT PART_PARAMS PART_KERNEL PART_REST
+#endif
+
 #endif /* __CONFIG_H */
