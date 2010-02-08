@@ -40,7 +40,7 @@
  *****************************************************************************/
 u32 get_osc_clk_speed(void)
 {
-	u32 start, cstart, cend, cdiff, val;
+	u32 start, cstart, cend, cdiff, cdiv, val;
 	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
 	struct prm *prm_base = (struct prm *)PRM_BASE;
 	struct gptimer *gpt1_base = (struct gptimer *)OMAP34XX_GPT1;
@@ -48,9 +48,15 @@ u32 get_osc_clk_speed(void)
 
 	val = readl(&prm_base->clksrc_ctrl);
 
-	/* If SYS_CLK is being divided by 2, remove for now */
-	val = (val & (~SYSCLKDIV_2)) | SYSCLKDIV_1;
-	writel(val, &prm_base->clksrc_ctrl);
+	if (val & SYSCLKDIV_2)
+		cdiv = 2;
+	else if (val & SYSCLKDIV_1)
+		cdiv = 1;
+	else
+		/*
+		 * Should never reach here! (Assume divider as 1)
+		 */
+		cdiv = 1;
 
 	/* enable timer2 */
 	val = readl(&prcm_base->clksel_wkup) | CLKSEL_GPT1;
@@ -61,6 +67,7 @@ u32 get_osc_clk_speed(void)
 	/* Enable I and F Clocks for GPT1 */
 	val = readl(&prcm_base->iclken_wkup) | EN_GPT1 | EN_32KSYNC;
 	writel(val, &prcm_base->iclken_wkup);
+
 	val = readl(&prcm_base->fclken_wkup) | EN_GPT1;
 	writel(val, &prcm_base->fclken_wkup);
 
@@ -82,6 +89,11 @@ u32 get_osc_clk_speed(void)
 	while (readl(&s32k_base->s32k_cr) < (start + 20)) ;
 	cend = readl(&gpt1_base->tcrr);		/* get end sys_clk count */
 	cdiff = cend - cstart;			/* get elapsed ticks */
+
+	if (cdiv == 2)
+	{
+		cdiff *= 2;
+	}
 
 	/* based on number of ticks assign speed */
 	if (cdiff > 19000)
