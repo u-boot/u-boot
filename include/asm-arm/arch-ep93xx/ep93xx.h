@@ -558,8 +558,9 @@ struct syscon_regs {
 	uint32_t i2sclkdiv;
 	uint32_t keytchclkdiv;
 	uint32_t chipid;
+	uint32_t reserved4;
 	uint32_t syscfg;
-	uint32_t reserved4[8];
+	uint32_t reserved5[8];
 	uint32_t sysswlock;
 };
 #else
