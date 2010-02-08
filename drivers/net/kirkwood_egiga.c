@@ -39,6 +39,7 @@
 #include "kirkwood_egiga.h"
 
 #define KIRKWOOD_PHY_ADR_REQUEST 0xee
+#define KWGBE_SMI_REG (((struct kwgbe_registers *)KW_EGIGA0_BASE)->smi)
 
 /*
  * smi_reg_read - miiphy_read callback function.
@@ -76,7 +77,7 @@ static int smi_reg_read(char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 	/* wait till the SMI is not busy */
 	do {
 		/* read smi register */
-		smi_reg = KWGBEREG_RD(regs->smi);
+		smi_reg = KWGBEREG_RD(KWGBE_SMI_REG);
 		if (timeout-- == 0) {
 			printf("Err..(%s) SMI busy timeout\n", __FUNCTION__);
 			return -EFAULT;
@@ -89,14 +90,14 @@ static int smi_reg_read(char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 		| KWGBE_PHY_SMI_OPCODE_READ;
 
 	/* write the smi register */
-	KWGBEREG_WR(regs->smi, smi_reg);
+	KWGBEREG_WR(KWGBE_SMI_REG, smi_reg);
 
 	/*wait till read value is ready */
 	timeout = KWGBE_PHY_SMI_TIMEOUT;
 
 	do {
 		/* read smi register */
-		smi_reg = KWGBEREG_RD(regs->smi);
+		smi_reg = KWGBEREG_RD(KWGBE_SMI_REG);
 		if (timeout-- == 0) {
 			printf("Err..(%s) SMI read ready timeout\n",
 				__FUNCTION__);
@@ -107,7 +108,7 @@ static int smi_reg_read(char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 	/* Wait for the data to update in the SMI register */
 	for (timeout = 0; timeout < KWGBE_PHY_SMI_TIMEOUT; timeout++) ;
 
-	*data = (u16) (KWGBEREG_RD(regs->smi) & KWGBE_PHY_SMI_DATA_MASK);
+	*data = (u16) (KWGBEREG_RD(KWGBE_SMI_REG) & KWGBE_PHY_SMI_DATA_MASK);
 
 	debug("%s:(adr %d, off %d) value= %04x\n", __FUNCTION__, phy_adr,
 		reg_ofs, *data);
@@ -150,7 +151,7 @@ static int smi_reg_write(char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
 	timeout = KWGBE_PHY_SMI_TIMEOUT;
 	do {
 		/* read smi register */
-		smi_reg = KWGBEREG_RD(regs->smi);
+		smi_reg = KWGBEREG_RD(KWGBE_SMI_REG);
 		if (timeout-- == 0) {
 			printf("Err..(%s) SMI busy timeout\n", __FUNCTION__);
 			return -ETIME;
@@ -164,7 +165,7 @@ static int smi_reg_write(char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
 	smi_reg &= ~KWGBE_PHY_SMI_OPCODE_READ;
 
 	/* write the smi register */
-	KWGBEREG_WR(regs->smi, smi_reg);
+	KWGBEREG_WR(KWGBE_SMI_REG, smi_reg);
 
 	return 0;
 }
