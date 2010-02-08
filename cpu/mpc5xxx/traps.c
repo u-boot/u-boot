@@ -35,6 +35,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <kgdb.h>
 #include <asm/processor.h>
 
 /* Returns 0 if exception not found and fixup otherwise.  */

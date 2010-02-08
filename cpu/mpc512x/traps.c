@@ -28,6 +28,7 @@
  */
 
 #include <common.h>
+#include <kgdb.h>
 #include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;

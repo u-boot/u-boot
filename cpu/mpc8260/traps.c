@@ -34,6 +34,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <kgdb.h>
 #include <asm/processor.h>
 #include <asm/m8260_pci.h>
 
