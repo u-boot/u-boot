@@ -48,7 +48,7 @@ static u16 read_eeprom_reg(u16 reg)
 	while ((SMC_inw(&dev, CTL_REG) & CTL_RELOAD) && --timeout)
 		udelay(100);
 	if (timeout == 0) {
-		printf("Timeout Reading EEPROM register %02x\n", reg);
+		printf("Timeout reading register %02x\n", reg);
 		return 0;
 	}
 
@@ -73,7 +73,7 @@ static int write_eeprom_reg(u16 value, u16 reg)
 	while ((SMC_inw(&dev, CTL_REG) & CTL_STORE) && --timeout)
 		udelay(100);
 	if (timeout == 0) {
-		printf("Timeout Writing EEPROM register %02x\n", reg);
+		printf("Timeout writing register %02x\n", reg);
 		return 0;
 	}
 
@@ -95,8 +95,7 @@ static int verify_macaddr(char *s)
 	u16 reg;
 	int i, err = 0;
 
-	printf("MAC Address: ");
-	err = i = 0;
+	puts("HWaddr: ");
 	for (i = 0; i < 3; i++) {
 		reg = read_eeprom_reg(0x20 + i);
 		printf("%02x:%02x%c", reg & 0xff, reg >> 8, i != 2 ? ':' : '\n');
@@ -156,15 +155,15 @@ int eeprom(int argc, char *argv[])
 	unsigned char buf[58], *p;
 
 	app_startup(argv);
-	if (get_version() != XF_VERSION) {
-		printf("Wrong XF_VERSION.\n");
-		printf("Application expects ABI version %d\n", XF_VERSION);
-		printf("Actual U-Boot ABI version %d\n", (int)get_version());
+	i = get_version();
+	if (i != XF_VERSION) {
+		printf("Using ABI version %d, but U-Boot provides %d\n",
+			XF_VERSION, i);
 		return 1;
 	}
 
 	if ((SMC_inw(&dev, BANK_SELECT) & 0xFF00) != 0x3300) {
-		printf("SMSC91111 not found.\n");
+		puts("SMSC91111 not found\n");
 		return 2;
 	}
 
@@ -176,9 +175,9 @@ int eeprom(int argc, char *argv[])
 
 	/* Print help message */
 	if (argv[1][1] == 'h') {
-		printf("NetStar EEPROM writer\n");
-		printf("Built: %s at %s\n", U_BOOT_DATE, U_BOOT_TIME);
-		printf("Usage:\n\t<mac_address> [<element_1>] [<...>]\n");
+		puts("NetStar EEPROM writer\n"
+			"Built: " U_BOOT_DATE " at " U_BOOT_TIME "\n"
+			"Usage:\n\t<mac_address> [<element_1>] [<...>]\n");
 		return 0;
 	}
 
@@ -195,7 +194,7 @@ int eeprom(int argc, char *argv[])
 			printf("Element %d: odd character count\n", i - 1);
 			return 3;
 		case -3:
-			printf("Out of EEPROM memory\n");
+			puts("Out of EEPROM memory\n");
 			return 3;
 		default:
 			p += ret;
@@ -206,7 +205,7 @@ int eeprom(int argc, char *argv[])
 	/* First argument (MAC) is mandatory */
 	set_mac(argv[1]);
 	if (verify_macaddr(argv[1])) {
-		printf("*** MAC address does not match! ***\n");
+		puts("*** HWaddr does not match! ***\n");
 		return 4;
 	}
 
