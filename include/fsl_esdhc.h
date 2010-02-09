@@ -133,6 +133,8 @@
 
 #define WML		0x2e044
 #define WML_WRITE	0x00010000
+#define WML_RD_WML_MASK	0xff
+#define WML_WR_WML_MASK	0xff0000
 
 #define BLKATTR		0x2e004
 #define BLKATTR_CNT(x)	((x & 0xffff) << 16)
