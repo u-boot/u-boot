@@ -28,13 +28,13 @@
 
 #include <common.h>
 #include <asm/arch/at91sam9263.h>
-#include <asm/arch/at91sam9_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
+#include <asm/arch/at91_matrix.h>
+#include <asm/arch/at91_pio.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/gpio.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/io.h>
 #include <atmel_lcdc.h>
@@ -58,10 +58,10 @@ int get_hw_rev(void)
 	if (hw_rev >= 0)
 		return hw_rev;
 
-	hw_rev = at91_get_gpio_value(AT91_PIN_PB19);
-	hw_rev |= at91_get_gpio_value(AT91_PIN_PB20) << 1;
-	hw_rev |= at91_get_gpio_value(AT91_PIN_PB21) << 2;
-	hw_rev |= at91_get_gpio_value(AT91_PIN_PB22) << 3;
+	hw_rev = at91_get_pio_value(AT91_PIO_PORTB, 19);
+	hw_rev |= at91_get_pio_value(AT91_PIO_PORTB, 20) << 1;
+	hw_rev |= at91_get_pio_value(AT91_PIO_PORTB, 21) << 2;
+	hw_rev |= at91_get_pio_value(AT91_PIO_PORTB, 22) << 3;
 
 	if (hw_rev == 15)
 		hw_rev = 0;
@@ -73,40 +73,44 @@ int get_hw_rev(void)
 static void otc570_nand_hw_init(void)
 {
 	unsigned long csa;
+	at91_smc_t 	*smc 	= (at91_smc_t *) AT91_SMC0_BASE;
+	at91_matrix_t 	*matrix = (at91_matrix_t *) AT91_MATRIX_BASE;
 
 	/* Enable CS3 */
-	csa = at91_sys_read(AT91_MATRIX_EBI0CSA);
-	at91_sys_write(AT91_MATRIX_EBI0CSA,
-		csa | AT91_MATRIX_EBI0_CS3A_SMC_SMARTMEDIA);
+	csa = readl(&matrix->csa[0]) | AT91_MATRIX_CSA_EBI_CS3A;
+	writel(csa, &matrix->csa[0]);
 
 	/* Configure SMC CS3 for NAND/SmartMedia */
-	at91_sys_write(AT91_SMC_SETUP(3),
-		AT91_SMC_NWESETUP_(1) | AT91_SMC_NCS_WRSETUP_(0) |
-		AT91_SMC_NRDSETUP_(1) | AT91_SMC_NCS_RDSETUP_(0));
-	at91_sys_write(AT91_SMC_PULSE(3),
-		AT91_SMC_NWEPULSE_(3) | AT91_SMC_NCS_WRPULSE_(3) |
-		AT91_SMC_NRDPULSE_(3) | AT91_SMC_NCS_RDPULSE_(3));
-	at91_sys_write(AT91_SMC_CYCLE(3),
-		AT91_SMC_NWECYCLE_(5) | AT91_SMC_NRDCYCLE_(5));
-	at91_sys_write(AT91_SMC_MODE(3),
-		AT91_SMC_READMODE | AT91_SMC_WRITEMODE |
-		AT91_SMC_EXNWMODE_DISABLE |
-		AT91_SMC_DBW_8 |
-		AT91_SMC_TDF_(2));
+	writel(AT91_SMC_SETUP_NWE(1) | AT91_SMC_SETUP_NCS_WR(0) |
+		AT91_SMC_SETUP_NRD(1) | AT91_SMC_SETUP_NCS_RD(0),
+		&smc->cs[3].setup);
+
+	writel(AT91_SMC_PULSE_NWE(3) | AT91_SMC_PULSE_NCS_WR(3) |
+		AT91_SMC_PULSE_NRD(3) | AT91_SMC_PULSE_NCS_RD(3),
+		&smc->cs[3].pulse);
+
+	writel(AT91_SMC_CYCLE_NWE(5) | AT91_SMC_CYCLE_NRD(5),
+		&smc->cs[3].cycle);
+	writel(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |
+		AT91_SMC_MODE_EXNW_DISABLE |
+		       AT91_SMC_MODE_DBW_8 |
+		       AT91_SMC_MODE_TDF_CYCLE(2),
+		&smc->cs[3].mode);
 
 	/* Configure RDY/BSY */
-	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
+	at91_set_pio_input(CONFIG_SYS_NAND_READY_PIN, 1);
 
 	/* Enable NandFlash */
-	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
+	at91_set_pio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
 }
 #endif /* CONFIG_CMD_NAND */
 
 #ifdef CONFIG_MACB
 static void otc570_macb_hw_init(void)
 {
+	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
 	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_EMAC);
+	writel(1 << AT91SAM9263_ID_EMAC, &pmc->pcer);
 	at91_macb_hw_init();
 }
 #endif
@@ -119,26 +123,27 @@ static void otc570_macb_hw_init(void)
  */
 static void otc570_ethercat_hw_init(void)
 {
+	at91_smc_t 	*smc1 	= (at91_smc_t *) AT91_SMC1_BASE;
+
 	/* Configure SMC EBI1_CS0 for EtherCAT */
-	at91_sys_write(AT91_SMC1_SETUP(0),
-		AT91_SMC_NWESETUP_(0) | AT91_SMC_NCS_WRSETUP_(0) |
-		AT91_SMC_NRDSETUP_(0) | AT91_SMC_NCS_RDSETUP_(0));
-	at91_sys_write(AT91_SMC1_PULSE(0),
-		AT91_SMC_NWEPULSE_(4) | AT91_SMC_NCS_WRPULSE_(9) |
-		AT91_SMC_NRDPULSE_(5) | AT91_SMC_NCS_RDPULSE_(9));
-	at91_sys_write(AT91_SMC1_CYCLE(0),
-		AT91_SMC_NWECYCLE_(10) | AT91_SMC_NRDCYCLE_(6));
+	writel(AT91_SMC_SETUP_NWE(0) | AT91_SMC_SETUP_NCS_WR(0) |
+		AT91_SMC_SETUP_NRD(0) | AT91_SMC_SETUP_NCS_RD(0),
+		&smc1->cs[0].setup);
+	writel(AT91_SMC_PULSE_NWE(4) | AT91_SMC_PULSE_NCS_WR(9) |
+		AT91_SMC_PULSE_NRD(5) | AT91_SMC_PULSE_NCS_RD(9),
+		&smc1->cs[0].pulse);
+	writel(AT91_SMC_CYCLE_NWE(10) | AT91_SMC_CYCLE_NRD(6),
+		&smc1->cs[0].cycle);
 	/*
 	 * Configure behavior at external wait signal, byte-select mode, 16 bit
 	 * data bus width, none data float wait states and TDF optimization
 	 */
-	at91_sys_write(AT91_SMC1_MODE(0),
-		AT91_SMC_READMODE | AT91_SMC_EXNWMODE_READY |
-		AT91_SMC_BAT_SELECT | AT91_SMC_DBW_16 | AT91_SMC_TDF_(0) |
-		AT91_SMC_TDFMODE);
+	writel(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_EXNW_READY |
+		AT91_SMC_MODE_DBW_16 | AT91_SMC_MODE_TDF_CYCLE(0) |
+		AT91_SMC_MODE_TDF, &smc1->cs[0].mode);
 
 	/* Configure RDY/BSY */
-	at91_set_B_periph(AT91_PIN_PE20, 0);	/* EBI1_NWAIT */
+	at91_set_b_periph(AT91_PIO_PORTE, 20, 0);	/* EBI1_NWAIT */
 }
 
 #ifdef CONFIG_LCD
@@ -164,43 +169,44 @@ vidinfo_t panel_info = {
 
 void lcd_enable(void)
 {
-	at91_set_gpio_value(AT91_PIN_PA30, 0);	/* power up */
+	at91_set_pio_value(AT91_PIO_PORTA, 30, 0);  /* power up */
 }
 
 void lcd_disable(void)
 {
-	at91_set_gpio_value(AT91_PIN_PA30, 1);	/* power down */
+	at91_set_pio_value(AT91_PIO_PORTA, 30, 1);  /* power down */
 }
 
 static void otc570_lcd_hw_init(void)
 {
-	at91_set_A_periph(AT91_PIN_PC0, 0);	/* LCDVSYNC */
-	at91_set_A_periph(AT91_PIN_PC1, 0);	/* LCDHSYNC */
-	at91_set_A_periph(AT91_PIN_PC2, 0);	/* LCDDOTCK */
-	at91_set_A_periph(AT91_PIN_PC3, 0);	/* LCDDEN */
-	at91_set_B_periph(AT91_PIN_PB9, 0);	/* LCDCC */
-	at91_set_A_periph(AT91_PIN_PC6, 0);	/* LCDD2 */
-	at91_set_A_periph(AT91_PIN_PC7, 0);	/* LCDD3 */
-	at91_set_A_periph(AT91_PIN_PC8, 0);	/* LCDD4 */
-	at91_set_A_periph(AT91_PIN_PC9, 0);	/* LCDD5 */
-	at91_set_A_periph(AT91_PIN_PC10, 0);	/* LCDD6 */
-	at91_set_A_periph(AT91_PIN_PC11, 0);	/* LCDD7 */
-	at91_set_A_periph(AT91_PIN_PC14, 0);	/* LCDD10 */
-	at91_set_A_periph(AT91_PIN_PC15, 0);	/* LCDD11 */
-	at91_set_A_periph(AT91_PIN_PC16, 0);	/* LCDD12 */
-	at91_set_B_periph(AT91_PIN_PC12, 0);	/* LCDD13 */
-	at91_set_A_periph(AT91_PIN_PC18, 0);	/* LCDD14 */
-	at91_set_A_periph(AT91_PIN_PC19, 0);	/* LCDD15 */
-	at91_set_A_periph(AT91_PIN_PC22, 0);	/* LCDD18 */
-	at91_set_A_periph(AT91_PIN_PC23, 0);	/* LCDD19 */
-	at91_set_A_periph(AT91_PIN_PC24, 0);	/* LCDD20 */
-	at91_set_B_periph(AT91_PIN_PC17, 0);	/* LCDD21 */
-	at91_set_A_periph(AT91_PIN_PC26, 0);	/* LCDD22 */
-	at91_set_A_periph(AT91_PIN_PC27, 0);	/* LCDD23 */
-	at91_set_gpio_output(AT91_PIN_PA30, 1);	/* PCI */
+	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
 
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_LCDC);
+	at91_set_a_periph(AT91_PIO_PORTC, 0, 0);	/* LCDVSYNC */
+	at91_set_a_periph(AT91_PIO_PORTC, 1, 0);	/* LCDHSYNC */
+	at91_set_a_periph(AT91_PIO_PORTC, 2, 0);	/* LCDDOTCK */
+	at91_set_a_periph(AT91_PIO_PORTC, 3, 0);	/* LCDDEN */
+	at91_set_b_periph(AT91_PIO_PORTB, 9, 0);	/* LCDCC */
+	at91_set_a_periph(AT91_PIO_PORTC, 6, 0);	/* LCDD2 */
+	at91_set_a_periph(AT91_PIO_PORTC, 7, 0);	/* LCDD3 */
+	at91_set_a_periph(AT91_PIO_PORTC, 8, 0);	/* LCDD4 */
+	at91_set_a_periph(AT91_PIO_PORTC, 9, 0);	/* LCDD5 */
+	at91_set_a_periph(AT91_PIO_PORTC, 10, 0);	/* LCDD6 */
+	at91_set_a_periph(AT91_PIO_PORTC, 11, 0);	/* LCDD7 */
+	at91_set_a_periph(AT91_PIO_PORTC, 14, 0);	/* LCDD10 */
+	at91_set_a_periph(AT91_PIO_PORTC, 15, 0);	/* LCDD11 */
+	at91_set_a_periph(AT91_PIO_PORTC, 16, 0);	/* LCDD12 */
+	at91_set_b_periph(AT91_PIO_PORTC, 12, 0);	/* LCDD13 */
+	at91_set_a_periph(AT91_PIO_PORTC, 18, 0);	/* LCDD14 */
+	at91_set_a_periph(AT91_PIO_PORTC, 19, 0);	/* LCDD15 */
+	at91_set_a_periph(AT91_PIO_PORTC, 22, 0);	/* LCDD18 */
+	at91_set_a_periph(AT91_PIO_PORTC, 23, 0);	/* LCDD19 */
+	at91_set_a_periph(AT91_PIO_PORTC, 24, 0);	/* LCDD20 */
+	at91_set_b_periph(AT91_PIO_PORTC, 17, 0);	/* LCDD21 */
+	at91_set_a_periph(AT91_PIO_PORTC, 26, 0);	/* LCDD22 */
+	at91_set_a_periph(AT91_PIO_PORTC, 27, 0);	/* LCDD23 */
+	at91_set_pio_output(AT91_PIO_PORTA, 30, 1);	/* PCI */
 
+	writel(1 << AT91SAM9263_ID_LCDC, &pmc->pcer);
 	gd->fb_base = CONFIG_OTC570_LCD_BASE;
 }
 
@@ -242,7 +248,7 @@ int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_MACB
-	rc = macb_eth_initialize(0, (void *)AT91SAM9263_BASE_EMAC, 0x00);
+	rc = macb_eth_initialize(0, (void *)AT91_EMAC_BASE, 0x00);
 #endif
 	return rc;
 }
@@ -290,32 +296,33 @@ u32 get_board_rev(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-	char str[64];
+	char		str[64];
+	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
 
-	at91_set_gpio_output(AT91_PIN_PA29, 1);
-	at91_set_A_periph(AT91_PIN_PA26, 1);			/* TXD0 */
-	at91_set_A_periph(AT91_PIN_PA27, 0);			/* RXD0 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9263_ID_US0);
+	at91_set_pio_output(AT91_PIO_PORTA, 29, 1);
+	at91_set_a_periph(AT91_PIO_PORTA, 26, 1);	/* TXD0 */
+	at91_set_a_periph(AT91_PIO_PORTA, 27, 0);	/* RXD0 */
+	writel(1 << AT91SAM9263_ID_US0,	&pmc->pcer);
 	/* Set USART_MODE = 1 (RS485) */
-	at91_sys_write((0xFFF8C004 - AT91_BASE_SYS), 1);
+	writel(1, 0xFFF8C004);
 
 	printf("USART0: ");
 
 	if (getenv_r("usart0", str, sizeof(str)) == -1) {
 		printf("No entry - assuming 1-wire\n");
 		/* CTS pin, works as mode select pin (0 = 1-wire; 1 = RS485) */
-		at91_set_gpio_output(AT91_PIN_PA29, 0);
+		at91_set_pio_output(AT91_PIO_PORTA, 29, 0);
 	} else {
 		if (strcmp(str, "1-wire") == 0) {
 			printf("%s\n", str);
-			at91_set_gpio_output(AT91_PIN_PA29, 0);
+			at91_set_pio_output(AT91_PIO_PORTA, 29, 0);
 		} else if (strcmp(str, "rs485") == 0) {
 			printf("%s\n", str);
-			at91_set_gpio_output(AT91_PIN_PA29, 1);
+			at91_set_pio_output(AT91_PIO_PORTA, 29, 1);
 		} else {
 			printf("Wrong entry - assuming 1-wire ");
 			printf("(valid values are '1-wire' or 'rs485')\n");
-			at91_set_gpio_output(AT91_PIN_PA29, 0);
+			at91_set_pio_output(AT91_PIO_PORTA, 29, 0);
 		}
 	}
 	printf("Display memory address: 0x%08lX\n", gd->fb_base);
@@ -326,14 +333,17 @@ int misc_init_r(void)
 
 int board_init(void)
 {
+	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+
 	/* Peripheral Clock Enable Register */
-	at91_sys_write(AT91_PMC_PCER,	1 << AT91SAM9263_ID_PIOA |
-					1 << AT91SAM9263_ID_PIOB |
-					1 << AT91SAM9263_ID_PIOCDE |
-					1 << AT91SAM9263_ID_TWI |
-					1 << AT91SAM9263_ID_SPI0 |
-					1 << AT91SAM9263_ID_LCDC |
-					1 << AT91SAM9263_ID_UHP);
+	writel(	1 << AT91SAM9263_ID_PIOA |
+		1 << AT91SAM9263_ID_PIOB |
+		1 << AT91SAM9263_ID_PIOCDE |
+		1 << AT91SAM9263_ID_TWI |
+		1 << AT91SAM9263_ID_SPI0 |
+		1 << AT91SAM9263_ID_LCDC |
+		1 << AT91SAM9263_ID_UHP,
+		&pmc->pcer);
 
 	/* arch number of OTC570-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_OTC570;
