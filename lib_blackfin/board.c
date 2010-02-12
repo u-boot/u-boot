@@ -199,6 +199,7 @@ void init_cplbtables(void)
  * "continue" and != 0 means "fatal error, hang the system".
  */
 
+extern int watchdog_init(void);
 extern int exception_init(void);
 extern int irq_init(void);
 extern int timer_init(void);
@@ -227,6 +228,11 @@ void board_init_f(ulong bootflag)
 #ifndef CONFIG_DCACHE_OFF
 	serial_early_puts("Turn on DCACHE\n");
 	dcache_enable();
+#endif
+
+#ifdef CONFIG_WATCHDOG
+	serial_early_puts("Setting up external watchdog\n");
+	watchdog_init();
 #endif
 
 #ifdef DEBUG
