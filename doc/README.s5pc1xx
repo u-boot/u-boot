@@ -41,7 +41,23 @@ To check SoC:
 		printf("cpu is s5pc110\n");
 
 gpio
-	not supported yet.
+
+	struct s5pc100_gpio *gpio = (struct s5pc100_gpio*)S5PC100_GPIO_BASE;
+
+	/* GPA[0] pin set to irq */
+	gpio_cfg_pin(&gpio->gpio_a, 0, GPIO_IRQ);
+
+	/* GPA[0] pin set to input */
+	gpio_direction_input(&gpio->gpio_a, 0);
+
+	/* GPA[0] pin set to output/high */
+	gpio_direction_output(&gpio->gpio_a, 0, 1);
+
+	/* GPA[0] value set to low */
+	gpio_set_value(&gpio->gpio_a, 0, 0);
+
+	/* get GPA[0] value */
+	value = gpio_get_value(&gpio->gpio_a, 0);
 
 Links
 =====
