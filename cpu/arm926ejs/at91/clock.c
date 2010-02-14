@@ -157,9 +157,10 @@ int at91_clock_init(unsigned long main_clock)
 	 */
 	if (!main_clock) {
 		do {
-			tmp = at91_sys_read(AT91_CKGR_MCFR);
-		} while (!(tmp & AT91_PMC_MAINRDY));
-		main_clock = (tmp & AT91_PMC_MAINF) * (AT91_SLOW_CLOCK / 16);
+			tmp = readl(&pmc->mcfr);
+		} while (!(tmp & AT91_PMC_MCFR_MAINRDY));
+		tmp &= AT91_PMC_MCFR_MAINF_MASK;
+		main_clock = tmp * (AT91_SLOW_CLOCK / 16);
 	}
 #endif
 	main_clk_rate_hz = main_clock;
