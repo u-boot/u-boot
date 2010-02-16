@@ -200,7 +200,7 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(MCBSP2_DR),		(IEN  | PTD | DIS | M0)) /*McBSP2_DR*/\
 	MUX_VAL(CP(MCBSP2_DX),		(IDIS | PTD | DIS | M0)) /*McBSP2_DX*/\
  /*Expansion card */\
-	MUX_VAL(CP(MMC1_CLK),		(IDIS | PTU | EN  | M0)) /*MMC1_CLK*/\
+	MUX_VAL(CP(MMC1_CLK),		(IEN  | PTU | EN  | M0)) /*MMC1_CLK*/\
 	MUX_VAL(CP(MMC1_CMD),		(IEN  | PTU | EN  | M0)) /*MMC1_CMD*/\
 	MUX_VAL(CP(MMC1_DAT0),		(IEN  | PTU | EN  | M0)) /*MMC1_DAT0*/\
 	MUX_VAL(CP(MMC1_DAT1),		(IEN  | PTU | EN  | M0)) /*MMC1_DAT1*/\
@@ -301,7 +301,7 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(SYS_OFF_MODE),	(IEN  | PTD | DIS | M0)) /*SYS_OFF_MODE*/\
 	MUX_VAL(CP(SYS_CLKOUT1),	(IEN  | PTD | DIS | M0)) /*SYS_CLKOUT1*/\
 	MUX_VAL(CP(SYS_CLKOUT2),	(IEN  | PTU | EN  | M4)) /*GPIO_186*/\
-	MUX_VAL(CP(ETK_CLK_ES2),	(IDIS | PTU | EN  | M2)) /*MMC3_CLK*/\
+	MUX_VAL(CP(ETK_CLK_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_CLK*/\
 	MUX_VAL(CP(ETK_CTL_ES2),	(IEN  | PTU | EN  | M2)) /*MMC3_CMD*/\
 	MUX_VAL(CP(ETK_D0_ES2),		(IEN  | PTU | EN  | M4)) /*GPIO_14*/\
 	MUX_VAL(CP(ETK_D1_ES2),		(IEN  | PTD | EN  | M4)) /*GPIO_15 - X_GATE*/\
