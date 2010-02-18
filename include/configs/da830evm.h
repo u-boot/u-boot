@@ -27,6 +27,7 @@
 /*
  * Board
  */
+#define CONFIG_DRIVER_TI_EMAC
 
 /*
  * SoC Configuration
