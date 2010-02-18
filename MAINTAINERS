@@ -433,6 +433,7 @@ Heiko Schocher <hs@denx.de>
 	municse		MPC5200
 	sc3		PPC405GP
 	suen3		ARM926EJS (Kirkwood SoC)
+	suvd3		MPC8321
 	uc101		MPC5200
 	ve8313		MPC8313
 

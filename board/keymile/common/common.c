@@ -29,6 +29,7 @@
 #include <malloc.h>
 #include <hush.h>
 #include <net.h>
+#include <netdev.h>
 #include <asm/io.h>
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
@@ -402,7 +403,7 @@ static void setports(int gpio)
 #endif
 #endif
 
-#if !defined(CONFIG_KMETER1)
+#if !defined(CONFIG_MPC83xx)
 static void writeStartSeq(void)
 {
 	set_sda(1);
@@ -461,7 +462,7 @@ static int i2c_make_abort(void)
  */
 void i2c_init_board(void)
 {
-#if defined(CONFIG_KMETER1)
+#if defined(CONFIG_MPC83xx)
 	struct fsl_i2c *dev;
 	dev = (struct fsl_i2c *) (CONFIG_SYS_IMMR + CONFIG_SYS_I2C_OFFSET);
 	uchar	dummy;
@@ -573,6 +574,7 @@ int board_eth_init(bd_t *bis)
 	(void)keymile_hdlc_enet_initialize(bis);
 #endif
 	if (ethernet_present())
-		return -1;
-	return 0;
+		return cpu_eth_init(bis);
+
+	return -1;
 }
