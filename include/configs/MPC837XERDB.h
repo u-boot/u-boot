@@ -643,20 +643,8 @@
  */
 #define CONFIG_ENV_OVERWRITE
 
-#ifdef CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR		00:04:9f:ef:04:01
-#endif
-
-#ifdef CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR		00:04:9f:ef:04:02
-#endif
-
 #define CONFIG_HAS_FSL_DR_USB
 
-#define CONFIG_IPADDR		10.0.0.2
-#define CONFIG_SERVERIP		10.0.0.1
-#define CONFIG_GATEWAYIP	10.0.0.1
-#define CONFIG_NETMASK		255.0.0.0
 #define CONFIG_NETDEV		eth1
 
 #define CONFIG_HOSTNAME		mpc837x_rdb

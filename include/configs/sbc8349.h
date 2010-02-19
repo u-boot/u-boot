@@ -631,20 +631,12 @@
 
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR		00:a0:1e:a0:13:8d
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR		00:a0:1e:a0:13:8e
 #endif
-
-#define CONFIG_IPADDR		192.168.1.234
 
 #define CONFIG_HOSTNAME		SBC8349
 #define CONFIG_ROOTPATH		/tftpboot/rootfs
 #define CONFIG_BOOTFILE		uImage
-
-#define CONFIG_SERVERIP		192.168.1.1
-#define CONFIG_GATEWAYIP	192.168.1.1
-#define CONFIG_NETMASK		255.255.255.0
 
 #define CONFIG_LOADADDR		800000	/* default location for tftp and bootm */
 
