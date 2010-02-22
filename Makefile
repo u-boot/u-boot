@@ -3060,6 +3060,9 @@ spear320_config :	unconfig
 spear600_config :	unconfig
 	@$(MKCONFIG) -n $@ -t $(@:_config=) spear6xx arm arm926ejs $(@:_config=) spear spear
 
+suen3_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs km_arm keymile kirkwood
+
 SX1_stdout_serial_config \
 SX1_config:		unconfig
 	@mkdir -p $(obj)include

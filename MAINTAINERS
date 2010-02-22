@@ -413,8 +413,8 @@ Heiko Schocher <hs@denx.de>
 	muas3001	MPC8270
 	municse		MPC5200
 	sc3		PPC405GP
+	suen3		ARM926EJS (Kirkwood SoC)
 	uc101		MPC5200
-
 
 Peter De Schrijver <p2@mind.be>
 
