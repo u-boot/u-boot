@@ -34,16 +34,18 @@
 #include <div64.h>
 
 #define TIMER_CLKSEL	(1 << 3)
-#define TIMER_MODE	(1 << 6)
 #define TIMER_ENABLE	(1 << 7)
 
-#define TIMER_FREQ	508469
-#define TIMER_LOAD_VAL	(TIMER_FREQ / CONFIG_SYS_HZ)
+#define TIMER_FREQ			508469
+#define TIMER_MAX_VAL			0xFFFFFFFF
 
-static ulong timestamp;
-static ulong lastdec;
+static struct ep93xx_timer
+{
+	unsigned long long ticks;
+	unsigned long last_update;
+} timer;
 
-static inline unsigned long clk_to_systicks(unsigned long clk_ticks)
+static inline unsigned long clk_to_systicks(unsigned long long clk_ticks)
 {
 	unsigned long long sys_ticks = (clk_ticks * CONFIG_SYS_HZ);
 	do_div(sys_ticks, TIMER_FREQ);
@@ -57,10 +59,10 @@ static inline unsigned long usecs_to_ticks(unsigned long usecs)
 
 	if (usecs >= 1000) {
 		ticks = usecs / 1000;
-		ticks *= (TIMER_LOAD_VAL * CONFIG_SYS_HZ);
+		ticks *= TIMER_FREQ;
 		ticks /= 1000;
 	} else {
-		ticks = usecs * TIMER_LOAD_VAL * CONFIG_SYS_HZ;
+		ticks = usecs * TIMER_FREQ;
 		ticks /= (1000 * 1000);
 	}
 
@@ -71,7 +73,7 @@ static inline unsigned long read_timer(void)
 {
 	struct timer_regs *timer = (struct timer_regs *)TIMER_BASE;
 
-	return readl(&timer->timer3.value);
+	return TIMER_MAX_VAL - readl(&timer->timer3.value);
 }
 
 /*
@@ -81,17 +83,15 @@ unsigned long long get_ticks(void)
 {
 	const unsigned long now = read_timer();
 
-	if (lastdec >= now) {
-		/* normal mode */
-		timestamp += lastdec - now;
-	} else {
-		/* we have an overflow ... */
-		timestamp += lastdec + TIMER_LOAD_VAL - now;
-	}
+	if (now >= timer.last_update)
+		timer.ticks += now - timer.last_update;
+	else
+		/* an overflow occurred */
+		timer.ticks += TIMER_MAX_VAL - timer.last_update + now;
 
-	lastdec = now;
+	timer.last_update = now;
 
-	return timestamp;
+	return timer.ticks;
 }
 
 unsigned long get_timer_masked(void)
@@ -106,8 +106,8 @@ unsigned long get_timer(unsigned long base)
 
 void reset_timer_masked(void)
 {
-	lastdec = read_timer();
-	timestamp = 0;
+	timer.last_update = read_timer();
+	timer.ticks = 0;
 }
 
 void reset_timer(void)
@@ -115,28 +115,11 @@ void reset_timer(void)
 	reset_timer_masked();
 }
 
-void set_timer(unsigned long t)
-{
-	timestamp = t;
-}
-
 void __udelay(unsigned long usec)
 {
-	const unsigned long ticks = usecs_to_ticks(usec);
-	const unsigned long target = clk_to_systicks(ticks) + get_timer(0);
+	const unsigned long target = get_ticks() + usecs_to_ticks(usec);
 
-	while (get_timer_masked() < target)
-		/* noop */;
-}
-
-void udelay_masked(unsigned long usec)
-{
-	const unsigned long ticks = usecs_to_ticks(usec);
-	const unsigned long target = clk_to_systicks(ticks) + get_timer(0);
-
-	reset_timer_masked();
-
-	while (get_timer_masked() < target)
+	while (get_ticks() < target)
 		/* noop */;
 }
 
@@ -147,12 +130,11 @@ int timer_init(void)
 	/* use timer 3 with 508KHz and free running */
 	writel(TIMER_CLKSEL, &timer->timer3.control);
 
-	/* auto load, manual update of Timer 3 */
-	lastdec = TIMER_LOAD_VAL;
-	writel(TIMER_LOAD_VAL, &timer->timer3.load);
+	/* set initial timer value 3 */
+	writel(TIMER_MAX_VAL, &timer->timer3.load);
 
-	/* Enable the timer and periodic mode */
-	writel(TIMER_ENABLE | TIMER_MODE | TIMER_CLKSEL,
+	/* Enable the timer */
+	writel(TIMER_ENABLE | TIMER_CLKSEL,
 		&timer->timer3.control);
 
 	reset_timer_masked();
