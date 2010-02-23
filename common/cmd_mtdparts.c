@@ -1254,8 +1254,14 @@ static void list_partitions(void)
 	printf("\ndefaults:\n");
 	printf("mtdids  : %s\n",
 		mtdids_default ? mtdids_default : "none");
-	printf("mtdparts: %s\n",
-		mtdparts_default ? mtdparts_default : "none");
+	/*
+	 * Using printf() here results in printbuffer overflow
+	 * if default mtdparts string is greater than console
+	 * printbuffer. Use puts() to prevent system crashes.
+	 */
+	puts("mtdparts: ");
+	puts(mtdparts_default ? mtdparts_default : "none");
+	puts("\n");
 }
 
 /**
