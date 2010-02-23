@@ -31,6 +31,7 @@
 #include <linux/types.h>
 #include <asm/arch/ep93xx.h>
 #include <asm/io.h>
+#include <div64.h>
 
 #define TIMER_CLKSEL	(1 << 3)
 #define TIMER_MODE	(1 << 6)
@@ -44,9 +45,10 @@ static ulong lastdec;
 
 static inline unsigned long clk_to_systicks(unsigned long clk_ticks)
 {
-	unsigned long sys_ticks = (clk_ticks * CONFIG_SYS_HZ) / TIMER_FREQ;
+	unsigned long long sys_ticks = (clk_ticks * CONFIG_SYS_HZ);
+	do_div(sys_ticks, TIMER_FREQ);
 
-	return sys_ticks;
+	return (unsigned long)sys_ticks;
 }
 
 static inline unsigned long usecs_to_ticks(unsigned long usecs)
