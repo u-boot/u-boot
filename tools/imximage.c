@@ -129,7 +129,7 @@ static uint32_t imximage_parse_cfg_file(struct imx_header *imxhdr, char *name)
 	char *token, *saveptr1, *saveptr2;
 	int lineno = 0;
 	int fld, value;
-	uint32_t len;
+	size_t len;
 	int dcd_len = 0;
 	dcd_t *dcd = &imxhdr->dcd_table;
 	int32_t cmd;
