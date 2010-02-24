@@ -25,14 +25,24 @@
 #define _PPC4xx_EBC_H_
 
 /*
- * Currently there are two register layout versions for the
- * IBM EBC core used on 4xx PPC's:
+ * Currently there are two register layout versions for the IBM EBC core
+ * used on 4xx PPC's. The following grouping lists the first layout.
+ * Within this group there is a slight variation concerning the bit field
+ * position of the EMPL and EMPH fields:
  */
 #if defined(CONFIG_405CR) || defined(CONFIG_405GP) || \
     defined(CONFIG_405EP) || \
     defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define CONFIG_EBC_PPC4xx_IBM_VER1
+#if defined(CONFIG_405CR) || defined(CONFIG_405GP) || \
+    defined(CONFIG_405EP)
+#define EBC_CFG_EMPH_POS	8
+#define EBC_CFG_EMPL_POS	6
+#else
+#define EBC_CFG_EMPH_POS	6
+#define EBC_CFG_EMPL_POS	8
+#endif
 #endif
 
 /*
@@ -143,10 +153,12 @@
 #define EBC_CFG_EBTC_MASK	PPC_REG_VAL(0, 0x1)
 #define EBC_CFG_EBTC_HI		PPC_REG_VAL(0, 0x0)
 #define EBC_CFG_EBTC_DRIVEN	PPC_REG_VAL(0, 0x1)
-#define EBC_CFG_EMPH_MASK	PPC_REG_VAL(6, 0x3)
-#define EBC_CFG_EMPH_ENCODE(n)	PPC_REG_VAL(6, (static_cast(u32, n)) & 0x3)
-#define EBC_CFG_EMPL_MASK	PPC_REG_VAL(8, 0x3)
-#define EBC_CFG_EMPL_ENCODE(n)	PPC_REG_VAL(8, (static_cast(u32, n)) & 0x3)
+#define EBC_CFG_EMPH_MASK	PPC_REG_VAL(EBC_CFG_EMPH_POS, 0x3)
+#define EBC_CFG_EMPH_ENCODE(n)	PPC_REG_VAL(EBC_CFG_EMPH_POS, \
+						(static_cast(u32, n)) & 0x3)
+#define EBC_CFG_EMPL_MASK	PPC_REG_VAL(EBC_CFG_EMPL_POS, 0x3)
+#define EBC_CFG_EMPL_ENCODE(n)	PPC_REG_VAL(EBC_CFG_EMPH_POS, \
+						(static_cast(u32, n)) & 0x3)
 #define EBC_CFG_CSTC_MASK	PPC_REG_VAL(9, 0x1)
 #define EBC_CFG_CSTC_HI		PPC_REG_VAL(9, 0x0)
 #define EBC_CFG_CSTC_DRIVEN	PPC_REG_VAL(9, 0x1)
