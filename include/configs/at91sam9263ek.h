@@ -28,7 +28,7 @@
 #define __CONFIG_H
 
 /* ARM asynchronous clock */
-#define AT91_MAIN_CLOCK		16367660	/* 16.367 MHz crystal */
+#define CONFIG_SYS_AT91_MAIN_CLOCK	16367660	/* 16.367 MHz crystal */
 #define CONFIG_SYS_HZ		1000
 
 #define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/

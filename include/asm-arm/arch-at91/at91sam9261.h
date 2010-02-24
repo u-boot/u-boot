@@ -114,6 +114,6 @@
 /*
  * Cpu Name
  */
-#define AT91_CPU_NAME	"AT91SAM9261"
+#define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9261"
 
 #endif

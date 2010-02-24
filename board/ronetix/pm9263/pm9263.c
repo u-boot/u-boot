@@ -304,7 +304,7 @@ void lcd_show_board_info(void)
 	lcd_printf ("(C) 2009 Ronetix GmbH\n");
 	lcd_printf ("support@ronetix.at\n");
 	lcd_printf ("%s CPU at %s MHz",
-		AT91_CPU_NAME,
+		CONFIG_SYS_AT91_CPU_NAME,
 		strmhz(temp, get_cpu_clk_rate()));
 
 	dram_size = 0;

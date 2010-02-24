@@ -31,13 +31,13 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/io.h>
 
-#ifndef AT91_MAIN_CLOCK
-#define AT91_MAIN_CLOCK 0
+#ifndef CONFIG_SYS_AT91_MAIN_CLOCK
+#define CONFIG_SYS_AT91_MAIN_CLOCK 0
 #endif
 
 int arch_cpu_init(void)
 {
-	return at91_clock_init(AT91_MAIN_CLOCK);
+	return at91_clock_init(CONFIG_SYS_AT91_MAIN_CLOCK);
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
@@ -45,7 +45,7 @@ int print_cpuinfo(void)
 {
 	char buf[32];
 
-	printf("CPU: %s\n", AT91_CPU_NAME);
+	printf("CPU: %s\n", CONFIG_SYS_AT91_CPU_NAME);
 	printf("Crystal frequency: %8s MHz\n",
 					strmhz(buf, get_main_clk_rate()));
 	printf("CPU clock        : %8s MHz\n",

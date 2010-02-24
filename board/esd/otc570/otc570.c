@@ -219,7 +219,7 @@ void lcd_show_board_info(void)
 		nand_size += nand_info[i].size;
 
 	lcd_printf("\n%s\n", U_BOOT_VERSION);
-	lcd_printf("%s CPU at %s MHz\n", AT91_CPU_NAME,
+	lcd_printf("%s CPU at %s MHz\n", CONFIG_SYS_AT91_CPU_NAME,
 					strmhz(temp, get_cpu_clk_rate()));
 	lcd_printf("  %ld MB SDRAM, %ld MB NAND\n",
 		dram_size >> 20,

@@ -147,7 +147,7 @@ int at91_clock_init(unsigned long main_clock)
 {
 	unsigned freq, mckr;
 	at91_pmc_t *pmc = (at91_pmc_t *) AT91_PMC_BASE;
-#ifndef AT91_MAIN_CLOCK
+#ifndef CONFIG_SYS_AT91_MAIN_CLOCK
 	unsigned tmp;
 	/*
 	 * When the bootloader initialized the main oscillator correctly,
