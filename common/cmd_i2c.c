@@ -193,7 +193,7 @@ int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		for (j = 0; j < 8; j++) {
 			if (argv[2][j] == '.') {
 				alen = argv[2][j+1] - '0';
-				if (alen > 4) {
+				if (alen > 3) {
 					cmd_usage(cmdtp);
 					return 1;
 				}
@@ -287,7 +287,7 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	for (j = 0; j < 8; j++) {
 		if (argv[2][j] == '.') {
 			alen = argv[2][j+1] - '0';
-			if (alen > 4) {
+			if (alen > 3) {
 				cmd_usage(cmdtp);
 				return 1;
 			}
@@ -361,7 +361,7 @@ int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	for (j = 0; j < 8; j++) {
 		if (argv[2][j] == '.') {
 			alen = argv[2][j+1] - '0';
-			if (alen > 4) {
+			if (alen > 3) {
 				cmd_usage(cmdtp);
 				return 1;
 			}
@@ -451,7 +451,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 		for (j = 0; j < 8; j++) {
 			if (argv[2][j] == '.') {
 				alen = argv[2][j+1] - '0';
-				if (alen > 4) {
+				if (alen > 3) {
 					cmd_usage(cmdtp);
 					return 1;
 				}
@@ -607,7 +607,7 @@ int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	for (j = 0; j < 8; j++) {
 		if (argv[2][j] == '.') {
 			alen = argv[2][j+1] - '0';
-			if (alen > 4) {
+			if (alen > 3) {
 				cmd_usage(cmdtp);
 				return 1;
 			}
