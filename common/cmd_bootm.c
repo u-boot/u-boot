@@ -462,7 +462,7 @@ static int bootm_start_standalone(ulong iflag, int argc, char *argv[])
 
 /* we overload the cmd field with our state machine info instead of a
  * function pointer */
-cmd_tbl_t cmd_bootm_sub[] = {
+static cmd_tbl_t cmd_bootm_sub[] = {
 	U_BOOT_CMD_MKENT(start, 0, 1, (void *)BOOTM_STATE_START, "", ""),
 	U_BOOT_CMD_MKENT(loados, 0, 1, (void *)BOOTM_STATE_LOADOS, "", ""),
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC)
