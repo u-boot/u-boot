@@ -154,6 +154,63 @@ int i2c_set_bus_speed(unsigned int)
  */
 #define DISP_LINE_LEN	16
 
+/*
+ * Syntax:
+ *	i2c read {i2c_chip} {devaddr}{.0, .1, .2} {len} {memaddr}
+ */
+
+int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	u_char	chip;
+	uint	devaddr, alen, length;
+	u_char  *memaddr;
+	int	j;
+
+	if (argc != 5) {
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	/*
+	 * I2C chip address
+	 */
+	chip = simple_strtoul(argv[1], NULL, 16);
+
+	/*
+	 * I2C data address within the chip.  This can be 1 or
+	 * 2 bytes long.  Some day it might be 3 bytes long :-).
+	 */
+	devaddr = simple_strtoul(argv[2], NULL, 16);
+	alen = 1;
+	for (j = 0; j < 8; j++) {
+		if (argv[2][j] == '.') {
+			alen = argv[2][j+1] - '0';
+			if (alen > 3) {
+				cmd_usage(cmdtp);
+				return 1;
+			}
+			break;
+		} else if (argv[2][j] == '\0')
+			break;
+	}
+
+	/*
+	 * Length is the number of objects, not number of bytes.
+	 */
+	length = simple_strtoul(argv[3], NULL, 16);
+
+	/*
+	 * memaddr is the address where to store things in memory
+	 */
+	memaddr = (u_char *)simple_strtoul(argv[4], NULL, 16);
+
+	if (i2c_read(chip, devaddr, alen, memaddr, length) != 0) {
+		puts ("Error reading the chip.\n");
+		return 1;
+	}
+	return 0;
+}
+
 int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	u_char	chip;
@@ -1272,6 +1329,7 @@ static cmd_tbl_t cmd_i2c_sub[] = {
 	U_BOOT_CMD_MKENT(mw, 3, 1, do_i2c_mw, "", ""),
 	U_BOOT_CMD_MKENT(nm, 2, 1, do_i2c_nm, "", ""),
 	U_BOOT_CMD_MKENT(probe, 0, 1, do_i2c_probe, "", ""),
+	U_BOOT_CMD_MKENT(read, 5, 1, do_i2c_read, "", ""),
 	U_BOOT_CMD_MKENT(reset, 0, 1, do_i2c_reset, "", ""),
 #if defined(CONFIG_CMD_SDRAM)
 	U_BOOT_CMD_MKENT(sdram, 1, 1, do_sdram, "", ""),
@@ -1315,6 +1373,7 @@ U_BOOT_CMD(
 	"i2c mw chip address[.0, .1, .2] value [count] - write to I2C device (fill)\n"
 	"i2c nm chip address[.0, .1, .2] - write to I2C device (constant address)\n"
 	"i2c probe - show devices on the I2C bus\n"
+	"i2c read chip address[.0, .1, .2] length memaddress - read to memory \n"
 	"i2c reset - re-init the I2C Controller\n"
 #if defined(CONFIG_CMD_SDRAM)
 	"i2c sdram chip - print SDRAM configuration information\n"
@@ -1323,7 +1382,6 @@ U_BOOT_CMD(
 );
 
 #if defined(CONFIG_I2C_MUX)
-
 int i2c_mux_add_device(I2C_MUX_DEVICE *dev)
 {
 	I2C_MUX_DEVICE	*devtmp = i2c_mux_devices;
