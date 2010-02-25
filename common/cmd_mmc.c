@@ -136,7 +136,7 @@ int do_mmcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 U_BOOT_CMD(mmcinfo, 2, 0, do_mmcinfo,
-	"mmcinfo <dev num>-- display MMC info\n",
+	"mmcinfo <dev num>-- display MMC info",
 	""
 );
 
