@@ -1242,46 +1242,59 @@ int do_i2c_bus_speed(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return ret;
 }
 
+int do_i2c_mm(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	return mod_i2c_mem (cmdtp, 1, flag, argc, argv);
+}
+
+int do_i2c_nm(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	return mod_i2c_mem (cmdtp, 0, flag, argc, argv);
+}
+
+int do_i2c_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+	return 0;
+}
+
+static cmd_tbl_t cmd_i2c_sub[] = {
+#if defined(CONFIG_I2C_MUX)
+	U_BOOT_CMD_MKENT(bus, 1, 1, do_i2c_add_bus, "", ""),
+#endif  /* CONFIG_I2C_MUX */
+	U_BOOT_CMD_MKENT(crc32, 3, 1, do_i2c_crc, "", ""),
+#if defined(CONFIG_I2C_MULTI_BUS)
+	U_BOOT_CMD_MKENT(dev, 1, 1, do_i2c_bus_num, "", ""),
+#endif  /* CONFIG_I2C_MULTI_BUS */
+	U_BOOT_CMD_MKENT(loop, 3, 1, do_i2c_loop, "", ""),
+	U_BOOT_CMD_MKENT(md, 3, 1, do_i2c_md, "", ""),
+	U_BOOT_CMD_MKENT(mm, 2, 1, do_i2c_mm, "", ""),
+	U_BOOT_CMD_MKENT(mw, 3, 1, do_i2c_mw, "", ""),
+	U_BOOT_CMD_MKENT(nm, 2, 1, do_i2c_nm, "", ""),
+	U_BOOT_CMD_MKENT(probe, 0, 1, do_i2c_probe, "", ""),
+	U_BOOT_CMD_MKENT(reset, 0, 1, do_i2c_reset, "", ""),
+#if defined(CONFIG_CMD_SDRAM)
+	U_BOOT_CMD_MKENT(sdram, 1, 1, do_sdram, "", ""),
+#endif
+	U_BOOT_CMD_MKENT(speed, 1, 1, do_i2c_bus_speed, "", ""),
+};
+
 int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
+	cmd_tbl_t *c;
+
 	/* Strip off leading 'i2c' command argument */
 	argc--;
 	argv++;
 
-#if defined(CONFIG_I2C_MUX)
-	if (!strncmp(argv[0], "bu", 2))
-		return do_i2c_add_bus(cmdtp, flag, argc, argv);
-#endif  /* CONFIG_I2C_MUX */
-	if (!strncmp(argv[0], "sp", 2))
-		return do_i2c_bus_speed(cmdtp, flag, argc, argv);
-#if defined(CONFIG_I2C_MULTI_BUS)
-	if (!strncmp(argv[0], "de", 2))
-		return do_i2c_bus_num(cmdtp, flag, argc, argv);
-#endif  /* CONFIG_I2C_MULTI_BUS */
-	if (!strncmp(argv[0], "md", 2))
-		return do_i2c_md(cmdtp, flag, argc, argv);
-	if (!strncmp(argv[0], "mm", 2))
-		return mod_i2c_mem (cmdtp, 1, flag, argc, argv);
-	if (!strncmp(argv[0], "mw", 2))
-		return do_i2c_mw(cmdtp, flag, argc, argv);
-	if (!strncmp(argv[0], "nm", 2))
-		return mod_i2c_mem (cmdtp, 0, flag, argc, argv);
-	if (!strncmp(argv[0], "cr", 2))
-		return do_i2c_crc(cmdtp, flag, argc, argv);
-	if (!strncmp(argv[0], "pr", 2))
-		return do_i2c_probe(cmdtp, flag, argc, argv);
-	if (!strncmp(argv[0], "re", 2)) {
-		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
-		return 0;
+	c = find_cmd_tbl(argv[0], &cmd_i2c_sub[0], ARRAY_SIZE(cmd_i2c_sub));
+
+	if (c) {
+		return  c->cmd(cmdtp, flag, argc, argv);
+	} else {
+		cmd_usage(cmdtp);
+		return 1;
 	}
-	if (!strncmp(argv[0], "lo", 2))
-		return do_i2c_loop(cmdtp, flag, argc, argv);
-#if defined(CONFIG_CMD_SDRAM)
-	if (!strncmp(argv[0], "sd", 2))
-		return do_sdram(cmdtp, flag, argc, argv);
-#endif
-	cmd_usage(cmdtp);
-	return 0;
 }
 
 /***************************************************/
