@@ -1302,25 +1302,24 @@ int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	i2c, 6, 1, do_i2c,
 	"I2C sub-system",
-	"speed [speed] - show or set I2C bus speed\n"
 #if defined(CONFIG_I2C_MUX)
-	"i2c bus [muxtype:muxaddr:muxchannel] - add a new bus reached over muxes\n"
+	"bus [muxtype:muxaddr:muxchannel] - add a new bus reached over muxes\ni2c "
 #endif  /* CONFIG_I2C_MUX */
+	"crc32 chip address[.0, .1, .2] count - compute CRC32 checksum\n"
 #if defined(CONFIG_I2C_MULTI_BUS)
 	"i2c dev [dev] - show or set current I2C bus\n"
 #endif  /* CONFIG_I2C_MULTI_BUS */
+	"i2c loop chip address[.0, .1, .2] [# of objects] - looping read of device\n"
 	"i2c md chip address[.0, .1, .2] [# of objects] - read from I2C device\n"
 	"i2c mm chip address[.0, .1, .2] - write to I2C device (auto-incrementing)\n"
 	"i2c mw chip address[.0, .1, .2] value [count] - write to I2C device (fill)\n"
 	"i2c nm chip address[.0, .1, .2] - write to I2C device (constant address)\n"
-	"i2c crc32 chip address[.0, .1, .2] count - compute CRC32 checksum\n"
 	"i2c probe - show devices on the I2C bus\n"
 	"i2c reset - re-init the I2C Controller\n"
-	"i2c loop chip address[.0, .1, .2] [# of objects] - looping read of device"
 #if defined(CONFIG_CMD_SDRAM)
-	"\n"
-	"i2c sdram chip - print SDRAM configuration information"
+	"i2c sdram chip - print SDRAM configuration information\n"
 #endif
+	"i2c speed [speed] - show or set I2C bus speed"
 );
 
 #if defined(CONFIG_I2C_MUX)
