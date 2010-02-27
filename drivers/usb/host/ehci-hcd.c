@@ -55,14 +55,14 @@ static struct descriptor {
 	{
 		0x12,		/* bLength */
 		1,		/* bDescriptorType: UDESC_DEVICE */
-		0x0002,		/* bcdUSB: v2.0 */
+		cpu_to_le16(0x0200), /* bcdUSB: v2.0 */
 		9,		/* bDeviceClass: UDCLASS_HUB */
 		0,		/* bDeviceSubClass: UDSUBCLASS_HUB */
 		1,		/* bDeviceProtocol: UDPROTO_HSHUBSTT */
 		64,		/* bMaxPacketSize: 64 bytes */
 		0x0000,		/* idVendor */
 		0x0000,		/* idProduct */
-		0x0001,		/* bcdDevice */
+		cpu_to_le16(0x0100), /* bcdDevice */
 		1,		/* iManufacturer */
 		2,		/* iProduct */
 		0,		/* iSerialNumber */
