@@ -377,7 +377,7 @@ int miiphy_speed (char *devname, unsigned char addr)
 	/* Get speed from basic control settings. */
 	return (bmcr & PHY_BMCR_100MB) ? _100BASET : _10BASET;
 
-      miiphy_read_failed:
+miiphy_read_failed:
 	printf (" read failed, assuming 10BASE-T\n");
 	return _10BASET;
 }
@@ -436,7 +436,7 @@ int miiphy_duplex (char *devname, unsigned char addr)
 	/* Get speed from basic control settings. */
 	return (bmcr & PHY_BMCR_DPLX) ? FULL : HALF;
 
-      miiphy_read_failed:
+miiphy_read_failed:
 	printf (" read failed, assuming half duplex\n");
 	return HALF;
 }
