@@ -45,6 +45,7 @@
 	addl	#60,%sp;		/* space for 15 regs */ \
 	rte;
 
+#if !defined(CONFIG_MONITOR_IS_IN_RAM)
 .text
 /*
  *	Vector table. This is used for initial platform startup.
@@ -121,6 +122,7 @@ vector192_255:
 .long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
 .long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
 .long	_FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT, _FAULT
+#endif /* !defined(CONFIG_MONITOR_IS_IN_RAM) */
 
 	.text
 
@@ -130,9 +132,11 @@ _start:
 	nop
 	move.w #0x2700,%sr	/* Mask off Interrupt */
 
+#if !defined(CONFIG_MONITOR_IS_IN_RAM)
 	/* Set vector base register at the beginning of the Flash */
 	move.l	#CONFIG_SYS_FLASH_BASE, %d0
 	movec	%d0, %VBR
+#endif
 
 	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_RAM_CTRL), %d0
 	movec	%d0, %RAMBAR1
