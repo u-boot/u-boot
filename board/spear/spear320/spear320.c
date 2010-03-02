@@ -32,7 +32,7 @@
 
 int board_init(void)
 {
-	return spear_board_init(MACH_TYPE_SPEAR300);
+	return spear_board_init(MACH_TYPE_SPEAR320);
 }
 
 /*
