@@ -445,7 +445,7 @@ static int kwgbe_init(struct eth_device *dev)
 	KWGBEREG_WR(regs->pmtu, 0);
 
 	/* Assignment of Rx CRDB of given RXUQ */
-	KWGBEREG_WR(regs->rxcdp[RXUQ].rxcdp, (u32) dkwgbe->p_rxdesc_curr);
+	KWGBEREG_WR(regs->rxcdp[RXUQ], (u32) dkwgbe->p_rxdesc_curr);
 	/* Enable port Rx. */
 	KWGBEREG_WR(regs->rqc, (1 << RXUQ));
 
@@ -606,7 +606,7 @@ static int kwgbe_recv(struct eth_device *dev)
 	p_rxdesc_curr->buf_size = PKTSIZE_ALIGN;
 	p_rxdesc_curr->byte_cnt = 0;
 
-	writel((unsigned)p_rxdesc_curr->nxtdesc_p, &dkwgbe->p_rxdesc_curr);
+	writel((unsigned)p_rxdesc_curr->nxtdesc_p, (u32) &dkwgbe->p_rxdesc_curr);
 
 	return 0;
 }
