@@ -316,6 +316,23 @@ void mx27_fec_init_pins(void)
 #endif /* CONFIG_FEC_MXC */
 
 #ifdef CONFIG_MXC_MMC
+void mx27_sd1_init_pins(void)
+{
+	int i;
+	unsigned int mode[] = {
+		PE18_PF_SD1_D0,
+		PE19_PF_SD1_D1,
+		PE20_PF_SD1_D2,
+		PE21_PF_SD1_D3,
+		PE22_PF_SD1_CMD,
+		PE23_PF_SD1_CLK,
+	};
+
+	for (i = 0; i < ARRAY_SIZE(mode); i++)
+		imx_gpio_mode(mode[i]);
+
+}
+
 void mx27_sd2_init_pins(void)
 {
 	int i;
