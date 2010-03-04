@@ -678,18 +678,6 @@ boards, we say we have two, but don't display a message if we find only one. */
  */
 #define CONFIG_ENV_OVERWRITE
 
-#ifdef CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR		00:E0:0C:00:8C:01
-#endif
-
-#ifdef CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR		00:E0:0C:00:8C:02
-#endif
-
-#define CONFIG_IPADDR		192.168.1.253
-#define CONFIG_SERVERIP		192.168.1.1
-#define CONFIG_GATEWAYIP	192.168.1.1
-#define CONFIG_NETMASK		255.255.252.0
 #define CONFIG_NETDEV		eth0
 
 #ifdef CONFIG_MPC8349ITX

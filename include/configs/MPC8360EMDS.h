@@ -587,9 +587,7 @@
 
 #if defined(CONFIG_UEC_ETH)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR	00:04:9f:ef:01:01
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR 00:04:9f:ef:01:02
 #endif
 
 #define CONFIG_BAUDRATE 115200

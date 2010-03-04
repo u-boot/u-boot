@@ -118,7 +118,7 @@
 #define CONFIG_SYS_FLASH_BASE		0xffc00000	/* start of FLASH   */
 #define CONFIG_SYS_FLASH_SIZE		4		/* flash size in MB */
 #define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE | \
-					 (2 << BR_PS_SHIFT) |	/*  32bit */ \
+					 (2 << BR_PS_SHIFT) |	/*  16bit */ \
 					 BR_V)			/* valid */
 
 #define CONFIG_SYS_OR0_PRELIM		0xffc06ff7	/*   4 MB flash size */
@@ -128,7 +128,7 @@
 #define CONFIG_SYS_FLASH_BASE		0xf8000000	/* start of FLASH   */
 #define CONFIG_SYS_FLASH_SIZE		128		/* flash size in MB */
 #define CONFIG_SYS_BR0_PRELIM		(CONFIG_SYS_FLASH_BASE | \
-					 (2 << BR_PS_SHIFT) |	/*  32bit */ \
+					 (2 << BR_PS_SHIFT) |	/*  16bit */ \
 					 BR_V)			/* valid */
 
 #define CONFIG_SYS_OR0_PRELIM		0xf8006ff7	/* 128 MB flash size */

@@ -685,21 +685,13 @@
 #define CONFIG_ENV_OVERWRITE
 
 #if defined(CONFIG_TSEC_ENET)
-#define CONFIG_ETHADDR		00:04:9f:ef:23:33
 #define CONFIG_HAS_ETH1
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETH1ADDR		00:E0:0C:00:7E:21
 #endif
-
-#define CONFIG_IPADDR		192.168.1.253
 
 #define CONFIG_HOSTNAME		mpc8349emds
 #define CONFIG_ROOTPATH		/nfsroot/rootfs
 #define CONFIG_BOOTFILE		uImage
-
-#define CONFIG_SERVERIP		192.168.1.1
-#define CONFIG_GATEWAYIP	192.168.1.1
-#define CONFIG_NETMASK		255.255.255.0
 
 #define CONFIG_LOADADDR		800000	/* default location for tftp and bootm */
 

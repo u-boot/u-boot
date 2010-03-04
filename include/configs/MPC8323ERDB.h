@@ -525,17 +525,11 @@
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_HAS_ETH0				/* add support for "ethaddr" */
-#define CONFIG_ETHADDR	00:04:9f:ef:03:01
 #define CONFIG_HAS_ETH1				/* add support for "eth1addr" */
-#define CONFIG_ETH1ADDR	00:04:9f:ef:03:02
 
 /* use mac_read_from_eeprom() to read ethaddr from I2C EEPROM (see CONFIG_SYS_I2C_EEPROM) */
 #define CONFIG_SYS_I2C_MAC_OFFSET	0x7f00	/* MAC address offset in I2C EEPROM */
 
-#define CONFIG_IPADDR		10.0.0.2
-#define CONFIG_SERVERIP		10.0.0.1
-#define CONFIG_GATEWAYIP	10.0.0.1
-#define CONFIG_NETMASK		255.0.0.0
 #define CONFIG_NETDEV		eth1
 
 #define CONFIG_HOSTNAME		mpc8323erdb

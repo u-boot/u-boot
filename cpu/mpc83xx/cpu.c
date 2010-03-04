@@ -199,7 +199,10 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
+	puts("Resetting the board.\n");
+
 #ifdef MPC83xx_RESET
+
 	/* Interrupts and MMU off */
 	__asm__ __volatile__ ("mfmsr    %0":"=r" (msr):);
 
@@ -213,9 +216,6 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 	/* confirm Reset Control Reg is enabled */
 	while(!((immap->reset.rcer) & RCER_CRE));
-
-	printf("Resetting the board.");
-	printf("\n");
 
 	udelay(200);
 
@@ -238,8 +238,6 @@ do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	 */
 	addr = CONFIG_SYS_RESET_ADDRESS;
 
-	printf("resetting the board.");
-	printf("\n");
 	((void (*)(void)) addr) ();
 #endif	/* MPC83xx_RESET */
 
