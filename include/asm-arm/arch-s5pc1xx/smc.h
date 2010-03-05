@@ -47,4 +47,7 @@ struct s5pc1xx_smc {
 };
 #endif	/* __ASSEMBLY__ */
 
+/* Configure the Band Width and Bank Control Regs for required SROMC Bank */
+void s5pc1xx_config_sromc(u32 srom_bank, u32 smc_bw_conf, u32 smc_bc_conf);
+
 #endif /* __ASM_ARCH_SMC_H_ */
