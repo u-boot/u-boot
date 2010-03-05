@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Freescale Semiconductor, Inc.
+ * Copyright 2008-2010 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,6 +23,12 @@
 #define DDR_BC4		DDR_BL4	/* burst chop for ddr3 */
 #define DDR_OTF		6	/* on-the-fly BC4 and BL8 */
 #define DDR_BL8		8	/* burst length 8 */
+
+#define DDR3_RTT_60_OHM		1 /* RTT_Nom = RZQ/4 */
+#define DDR3_RTT_120_OHM	2 /* RTT_Nom = RZQ/2 */
+#define DDR3_RTT_40_OHM		3 /* RTT_Nom = RZQ/6 */
+#define DDR3_RTT_20_OHM		4 /* RTT_Nom = RZQ/12 */
+#define DDR3_RTT_30_OHM		5 /* RTT_Nom = RZQ/8 */
 
 #if defined(CONFIG_FSL_DDR1)
 #define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(1)
