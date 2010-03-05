@@ -738,6 +738,10 @@ Jens Scharsig <esw@bus-elektronik.de>
 
 	eb_cpux9k2	ARM920T (AT91RM9200 SoC)
 
+Heiko Schocher <hs@denx.de>
+
+	magnesium	i.MX27
+
 Robert Schwebel <r.schwebel@pengutronix.de>
 
 	csb226		xscale
