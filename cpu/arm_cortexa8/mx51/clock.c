@@ -28,6 +28,7 @@
 #include <asm/errno.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
+#include <asm/arch/clock.h>
 
 enum pll_clocks {
 	PLL1_CLOCK = 0,
@@ -42,7 +43,7 @@ struct mxc_pll_reg *mxc_plls[PLL_CLOCKS] = {
 	[PLL3_CLOCK] = (struct mxc_pll_reg *)PLL3_BASE_ADDR,
 };
 
-struct mxc_ccm_reg *mxc_ccm = MXC_CCM_BASE;
+struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)MXC_CCM_BASE;
 
 /*
  * Calculate the frequency of this pll.

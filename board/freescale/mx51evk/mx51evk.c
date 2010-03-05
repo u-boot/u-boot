@@ -26,6 +26,7 @@
 #include <asm/arch/mx51_pins.h>
 #include <asm/arch/iomux.h>
 #include <asm/errno.h>
+#include <asm/arch/sys_proto.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
@@ -46,16 +47,6 @@ struct fsl_esdhc_cfg esdhc_cfg[2] = {
 u32 get_board_rev(void)
 {
 	return system_rev;
-}
-
-static inline void set_board_rev(int rev)
-{
-	system_rev |= (rev & 0xF) << 8;
-}
-
-inline int is_soc_rev(int rev)
-{
-	return (system_rev & 0xFF) - rev;
 }
 
 int dram_init(void)

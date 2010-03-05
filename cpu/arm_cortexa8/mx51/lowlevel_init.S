@@ -276,7 +276,6 @@ lowlevel_init:
 
 	init_clock
 
-	/* return from mxc_nand_load */
 	/* r12 saved upper lr*/
 	mov pc,lr
 

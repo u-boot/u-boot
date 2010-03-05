@@ -25,6 +25,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx51_pins.h>
 #include <asm/arch/iomux.h>
+#include <asm/arch/sys_proto.h>
 
 /* IOMUX register (base) addresses */
 enum iomux_reg_addr {

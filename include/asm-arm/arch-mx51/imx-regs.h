@@ -209,16 +209,6 @@
 
 #ifndef __ASSEMBLY__
 
-enum mxc_clock {
-	MXC_ARM_CLK = 0,
-	MXC_AHB_CLK,
-	MXC_IPG_CLK,
-	MXC_IPG_PERCLK,
-	MXC_UART_CLK,
-	MXC_CSPI_CLK,
-	MXC_FEC_CLK,
-};
-
 struct clkctl {
 	u32	ccr;
 	u32	ccdr;
@@ -265,17 +255,6 @@ struct weim {
 	u32	cswcr1;
 	u32	cswcr2;
 };
-
-/*!
- * NFMS bit in RCSR register for pagesize of nandflash
- */
-#define NFMS            (*((volatile u32 *)(CCM_BASE_ADDR+0x18)))
-#define NFMS_BIT                8
-#define NFMS_NF_DWIDTH          14
-#define NFMS_NF_PG_SZ           8
-
-extern unsigned int get_board_rev(void);
-extern int is_soc_rev(int rev);
 
 #endif /* __ASSEMBLER__*/
 

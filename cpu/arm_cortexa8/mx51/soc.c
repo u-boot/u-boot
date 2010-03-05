@@ -25,8 +25,13 @@
 
 #include <common.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/arch/clock.h>
 #include <asm/errno.h>
 #include <asm/io.h>
+
+#ifdef CONFIG_FSL_ESDHC
+#include <fsl_esdhc.h>
+#endif
 
 u32 get_cpu_rev(void)
 {
@@ -65,7 +70,7 @@ int print_cpuinfo(void)
 	printf("CPU:   Freescale i.MX51 family %d.%dV at %d MHz\n",
 		(cpurev & 0xF0) >> 4,
 		(cpurev & 0x0F) >> 4,
-		get_mcu_main_clk() / 1000000);
+		mxc_get_clock(MXC_ARM_CLK) / 1000000);
 	return 0;
 }
 #endif
