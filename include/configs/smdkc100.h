@@ -83,7 +83,6 @@
 #undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_IMLS
 #undef CONFIG_CMD_NAND
-#undef CONFIG_CMD_NET
 
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_REGINFO
@@ -234,5 +233,16 @@
 #define CONFIG_SYS_ONENAND_BASE		0xE7100000
 
 #define CONFIG_DOS_PARTITION		1
+
+/*
+ * Ethernet Contoller driver
+ */
+#ifdef CONFIG_CMD_NET
+#define CONFIG_NET_MULTI
+#define CONFIG_SMC911X         1       /* we have a SMC9115 on-board   */
+#define CONFIG_SMC911X_16_BIT  1       /* SMC911X_16_BIT Mode          */
+#define CONFIG_SMC911X_BASE    0x98800300      /* SMC911X Drive Base   */
+#define CONFIG_ENV_SROM_BANK   3       /* Select SROM Bank-3 for Ethernet*/
+#endif /* CONFIG_CMD_NET */
 
 #endif	/* __CONFIG_H */
