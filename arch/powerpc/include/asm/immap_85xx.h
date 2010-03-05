@@ -1647,7 +1647,7 @@ typedef struct ccsr_gur {
 	u8	res4[12];
 	u32	gpindr;		/* General-purpose input data */
 	u8	res5[12];
-	u32	pmuxcr;		/* Alt function signal multiplex control */
+	u32	alt_pmuxcr;	/* Alt function signal multiplex control */
 	u8	res6[12];
 	u32	devdisr;	/* Device disable control */
 #define FSL_CORENET_DEVDISR_PCIE1	0x80000000
@@ -1750,7 +1750,17 @@ typedef struct ccsr_gur {
 	u32	cgencrl;	/* Core general control */
 	u8	res31[184];
 	u32	sriopstecr;	/* SRIO prescaler timer enable control */
-	u8	res32[2300];
+	u8	res32[1788];
+	u32	pmuxcr;		/* Pin multiplexing control */
+	u8	res33[60];
+	u32	iovselsr;	/* I/O voltage selection status */
+	u8	res34[28];
+	u32	ddrclkdr;	/* DDR clock disable */
+	u8	res35;
+	u32	elbcclkdr;	/* eLBC clock disable */
+	u8	res36[20];
+	u32	sdhcpcr;	/* eSDHC polarity configuration */
+	u8	res37[380];
 } ccsr_gur_t;
 
 typedef struct ccsr_clk {
