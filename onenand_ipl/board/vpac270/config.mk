@@ -1,0 +1,1 @@
+TEXT_BASE = 0x5c03fc00
