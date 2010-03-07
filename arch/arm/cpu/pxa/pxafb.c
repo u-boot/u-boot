@@ -112,6 +112,39 @@ vidinfo_t panel_info = {
 	vl_efw:		0,
 };
 #endif /* CONFIG_SHARP_LM8V31 */
+/*----------------------------------------------------------------------*/
+#ifdef CONFIG_VOIPAC_LCD
+
+# define LCD_BPP	LCD_COLOR8
+# define LCD_INVERT_COLORS
+
+/* you have to set lccr0 and lccr3 (including pcd) */
+# define REG_LCCR0	0x043008f8
+# define REG_LCCR3	0x0340FF08
+
+vidinfo_t panel_info = {
+	vl_col:		640,
+	vl_row:		480,
+	vl_width:	157,
+	vl_height:	118,
+	vl_clkp:	CONFIG_SYS_HIGH,
+	vl_oep:		CONFIG_SYS_HIGH,
+	vl_hsp:		CONFIG_SYS_HIGH,
+	vl_vsp:		CONFIG_SYS_HIGH,
+	vl_dp:		CONFIG_SYS_HIGH,
+	vl_bpix:	LCD_BPP,
+	vl_lbw:		0,
+	vl_splt:	1,
+	vl_clor:	1,
+	vl_tft:		1,
+	vl_hpw:		32,
+	vl_blw:		144,
+	vl_elw:		32,
+	vl_vpw:		2,
+	vl_bfw:		13,
+	vl_efw:		30,
+};
+#endif /* CONFIG_VOIPAC_LCD */
 
 /*----------------------------------------------------------------------*/
 #ifdef CONFIG_HITACHI_SX14
