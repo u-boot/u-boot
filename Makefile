@@ -218,7 +218,6 @@ LIBS += drivers/mtd/ubi/libubi.a
 LIBS += drivers/mtd/spi/libspi_flash.a
 LIBS += drivers/net/libnet.a
 LIBS += drivers/net/phy/libphy.a
-LIBS += drivers/net/sk98lin/libsk98lin.a
 LIBS += drivers/pci/libpci.a
 LIBS += drivers/pcmcia/libpcmcia.a
 LIBS += drivers/power/libpower.a
@@ -1740,9 +1739,6 @@ Sandpoint8245_config: unconfig
 
 sbc8240_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc824x sbc8240
-
-SL8245_config: unconfig
-	@$(MKCONFIG) $(@:_config=) ppc mpc824x sl8245
 
 utx8245_config: unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc824x utx8245
