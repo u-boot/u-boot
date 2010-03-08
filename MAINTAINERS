@@ -643,6 +643,13 @@ Prakash Kumar <prakash@embedx.com>
 
 	cerf250		xscale
 
+Vipin Kumar <vipin.kumar@st.com>
+
+	spear300	ARM926EJS (spear300 Soc)
+	spear310	ARM926EJS (spear310 Soc)
+	spear320	ARM926EJS (spear320 Soc)
+	spear600	ARM926EJS (spear600 Soc)
+
 Sergey Lapin <slapin@ossfans.org>
 
 	afeb9260	ARM926EJS (AT91SAM9260 SoC)
