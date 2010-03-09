@@ -69,7 +69,7 @@ static inline unsigned long read_timer(void)
 }
 
 /*
- * timer without interrupts
+ * Get the number of ticks (in CONFIG_SYS_HZ resolution)
  */
 unsigned long long get_ticks(void)
 {
@@ -83,12 +83,12 @@ unsigned long long get_ticks(void)
 
 	timer.last_update = now;
 
-	return timer.ticks;
+	return clk_to_systicks(timer.ticks);
 }
 
 unsigned long get_timer_masked(void)
 {
-	return clk_to_systicks(get_ticks());
+	return get_ticks();
 }
 
 unsigned long get_timer(unsigned long base)
@@ -109,10 +109,13 @@ void reset_timer(void)
 
 void __udelay(unsigned long usec)
 {
-	const unsigned long target = get_ticks() + usecs_to_ticks(usec);
+	/* read the timer and update timer.ticks */
+	get_ticks();
 
-	while (get_ticks() < target)
-		/* noop */;
+	const unsigned long long target = timer.ticks + usecs_to_ticks(usec);
+
+	while (timer.ticks < target)
+		get_ticks();
 }
 
 int timer_init(void)
