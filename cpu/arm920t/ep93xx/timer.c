@@ -63,9 +63,9 @@ static inline unsigned long long usecs_to_ticks(unsigned long usecs)
 
 static inline unsigned long read_timer(void)
 {
-	struct timer_regs *timer = (struct timer_regs *)TIMER_BASE;
+	struct timer_regs *timer_regs = (struct timer_regs *)TIMER_BASE;
 
-	return TIMER_MAX_VAL - readl(&timer->timer3.value);
+	return TIMER_MAX_VAL - readl(&timer_regs->timer3.value);
 }
 
 /*
@@ -120,17 +120,17 @@ void __udelay(unsigned long usec)
 
 int timer_init(void)
 {
-	struct timer_regs *timer = (struct timer_regs *)TIMER_BASE;
+	struct timer_regs *timer_regs = (struct timer_regs *)TIMER_BASE;
 
 	/* use timer 3 with 508KHz and free running */
-	writel(TIMER_CLKSEL, &timer->timer3.control);
+	writel(TIMER_CLKSEL, &timer_regs->timer3.control);
 
 	/* set initial timer value 3 */
-	writel(TIMER_MAX_VAL, &timer->timer3.load);
+	writel(TIMER_MAX_VAL, &timer_regs->timer3.load);
 
 	/* Enable the timer */
 	writel(TIMER_ENABLE | TIMER_CLKSEL,
-		&timer->timer3.control);
+		&timer_regs->timer3.control);
 
 	reset_timer_masked();
 
