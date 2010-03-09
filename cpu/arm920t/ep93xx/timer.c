@@ -36,7 +36,7 @@
 #define TIMER_CLKSEL	(1 << 3)
 #define TIMER_ENABLE	(1 << 7)
 
-#define TIMER_FREQ			508469
+#define TIMER_FREQ			508469		/* ticks / second */
 #define TIMER_MAX_VAL			0xFFFFFFFF
 
 static struct ep93xx_timer
@@ -53,18 +53,10 @@ static inline unsigned long clk_to_systicks(unsigned long long clk_ticks)
 	return (unsigned long)sys_ticks;
 }
 
-static inline unsigned long usecs_to_ticks(unsigned long usecs)
+static inline unsigned long long usecs_to_ticks(unsigned long usecs)
 {
-	unsigned long ticks;
-
-	if (usecs >= 1000) {
-		ticks = usecs / 1000;
-		ticks *= TIMER_FREQ;
-		ticks /= 1000;
-	} else {
-		ticks = usecs * TIMER_FREQ;
-		ticks /= (1000 * 1000);
-	}
+	unsigned long long ticks = (unsigned long long)usecs * TIMER_FREQ;
+	do_div(ticks, 1000 * 1000);
 
 	return ticks;
 }
