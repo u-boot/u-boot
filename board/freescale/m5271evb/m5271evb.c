@@ -47,6 +47,7 @@ phys_size_t initdram (int board_type) {
 			MCF_GPIO_SDRAM_SDWE | MCF_GPIO_SDRAM_SCAS |
 			MCF_GPIO_SDRAM_SRAS | MCF_GPIO_SDRAM_SCKE |
 			MCF_GPIO_SDRAM_SDCS_11);
+	asm(" nop");
 
 	/*
 	 * Check to see if the SDRAM has already been initialized
@@ -55,8 +56,9 @@ phys_size_t initdram (int board_type) {
 	if (!(mbar_readLong(MCF_SDRAMC_DACR0) & MCF_SDRAMC_DACRn_RE)) {
 		/* Initialize DRAM Control Register: DCR */
 		mbar_writeShort(MCF_SDRAMC_DCR,
-				MCF_SDRAMC_DCR_RTIM(0x01)
-				| MCF_SDRAMC_DCR_RC(0x30));
+				MCF_SDRAMC_DCR_RTIM(2)
+				| MCF_SDRAMC_DCR_RC(0x2E));
+		asm(" nop");
 
 		/*
 		 * Initialize DACR0
@@ -70,15 +72,18 @@ phys_size_t initdram (int board_type) {
 				| MCF_SDRAMC_DACRn_CASL(1)
 				| MCF_SDRAMC_DACRn_CBM(3)
 				| MCF_SDRAMC_DACRn_PS(0));
+		asm(" nop");
 
 		/* Initialize DMR0 */
 		mbar_writeLong(MCF_SDRAMC_DMR0,
 				MCF_SDRAMC_DMRn_BAM_16M
 				| MCF_SDRAMC_DMRn_V);
+		asm(" nop");
 
 		/* Set IP bit in DACR */
 		mbar_writeLong(MCF_SDRAMC_DACR0, mbar_readLong(MCF_SDRAMC_DACR0)
 				| MCF_SDRAMC_DACRn_IP);
+		asm(" nop");
 
 		/* Wait at least 20ns to allow banks to precharge */
 		for (i = 0; i < 5; i++)
@@ -86,6 +91,7 @@ phys_size_t initdram (int board_type) {
 
 		/* Write to this block to initiate precharge */
 		*(u32 *)(CONFIG_SYS_SDRAM_BASE) = 0xa5a5a5a5;
+		asm(" nop");
 
 		/* Set RE bit in DACR */
 		mbar_writeLong(MCF_SDRAMC_DACR0, mbar_readLong(MCF_SDRAMC_DACR0)
@@ -98,6 +104,7 @@ phys_size_t initdram (int board_type) {
 		/* Finish the configuration by issuing the MRS */
 		mbar_writeLong(MCF_SDRAMC_DACR0, mbar_readLong(MCF_SDRAMC_DACR0)
 				| MCF_SDRAMC_DACRn_MRS);
+		asm(" nop");
 
 		/*
 		 * Write to the SDRAM Mode Register A0-A11 = 0x400
@@ -109,6 +116,7 @@ phys_size_t initdram (int board_type) {
 		 * Burst Length = 1
 		 */
 		*(u32 *)(CONFIG_SYS_SDRAM_BASE + 0x400) = 0xa5a5a5a5;
+		asm(" nop");
 	}
 
 	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
