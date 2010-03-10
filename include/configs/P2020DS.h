@@ -400,10 +400,6 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
-/* new uImage format support */
-#define CONFIG_FIT		1
-#define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
-
 /* I2C */
 #define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
