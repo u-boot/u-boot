@@ -164,9 +164,9 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 		    ~(GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
 
 		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
-			gpio->par_fec &= GPIO_PAR_FEC_FEC0_MASK;
+			gpio->par_fec &= GPIO_PAR_FEC_FEC0_UNMASK;
 		else
-			gpio->par_fec &= GPIO_PAR_FEC_FEC1_MASK;
+			gpio->par_fec &= GPIO_PAR_FEC_FEC1_UNMASK;
 	}
 	return 0;
 }

@@ -142,29 +142,29 @@ void uart_port_conf(void)
 	/* Setup Ports: */
 	switch (CONFIG_SYS_UART_PORT) {
 	case 0:
-		gpio->par_uart &= GPIO_PAR_UART0_MASK;
+		gpio->par_uart &= GPIO_PAR_UART0_UNMASK;
 		gpio->par_uart |= (GPIO_PAR_UART_U0TXD | GPIO_PAR_UART_U0RXD);
 		break;
 	case 1:
-		gpio->par_uart &= GPIO_PAR_UART0_MASK;
+		gpio->par_uart &= GPIO_PAR_UART0_UNMASK;
 		gpio->par_uart |= (GPIO_PAR_UART_U1TXD | GPIO_PAR_UART_U1RXD);
 		break;
 	case 2:
 #ifdef CONFIG_SYS_UART2_PRI_GPIO
 		gpio->par_timer &=
-		    (GPIO_PAR_TMR_TIN0_MASK | GPIO_PAR_TMR_TIN1_MASK);
+		    (GPIO_PAR_TMR_TIN0_UNMASK | GPIO_PAR_TMR_TIN1_UNMASK);
 		gpio->par_timer |=
 		    (GPIO_PAR_TMR_TIN0_U2TXD | GPIO_PAR_TMR_TIN1_U2RXD);
 #endif
 #ifdef CONFIG_SYS_UART2_ALT1_GPIO
 		gpio->par_feci2c &=
-		    (GPIO_PAR_FECI2C_MDC_MASK | GPIO_PAR_FECI2C_MDIO_MASK);
+		    (GPIO_PAR_FECI2C_MDC_UNMASK | GPIO_PAR_FECI2C_MDIO_UNMASK);
 		gpio->par_feci2c |=
 		    (GPIO_PAR_FECI2C_MDC_U2TXD | GPIO_PAR_FECI2C_MDIO_U2RXD);
 #endif
 #ifdef CONFIG_SYS_UART2_ALT1_GPIO
 		gpio->par_feci2c &=
-		    (GPIO_PAR_FECI2C_SDA_MASK | GPIO_PAR_FECI2C_SCL_MASK);
+		    (GPIO_PAR_FECI2C_SDA_UNMASK | GPIO_PAR_FECI2C_SCL_UNMASK);
 		gpio->par_feci2c |=
 		    (GPIO_PAR_FECI2C_SDA_U2TXD | GPIO_PAR_FECI2C_SCL_U2RXD);
 #endif
@@ -184,8 +184,8 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 		    GPIO_PAR_FECI2C_MDC_MDC | GPIO_PAR_FECI2C_MDIO_MDIO;
 	} else {
 		gpio->par_fec &=
-		    (GPIO_PAR_FEC_7W_MASK & GPIO_PAR_FEC_MII_MASK);
-		gpio->par_feci2c &= GPIO_PAR_FECI2C_RMII_MASK;
+		    (GPIO_PAR_FEC_7W_UNMASK & GPIO_PAR_FEC_MII_UNMASK);
+		gpio->par_feci2c &= GPIO_PAR_FECI2C_RMII_UNMASK;
 	}
 	return 0;
 }

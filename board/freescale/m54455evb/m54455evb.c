@@ -107,7 +107,7 @@ int ide_preinit(void)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
-	gpio->par_fec |= (gpio->par_fec & GPIO_PAR_FEC_FEC1_MASK) | 0x10;
+	gpio->par_fec |= (gpio->par_fec & GPIO_PAR_FEC_FEC1_UNMASK) | 0x10;
 	gpio->par_feci2c |=
 	    (gpio->par_feci2c & 0xF0FF) | (GPIO_PAR_FECI2C_MDC1_ATA_DIOR |
 					   GPIO_PAR_FECI2C_MDIO1_ATA_DIOW);

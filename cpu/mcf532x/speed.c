@@ -229,7 +229,7 @@ int clock_pll(int fsys, int flags)
 	    PLL_PDR_OUTDIV3((BUSDIV / 2) - 1)	|
 	    PLL_PDR_OUTDIV4(USBDIV - 1);
 
-	pll->pcr &= PLL_PCR_FBDIV_MASK;
+	pll->pcr &= PLL_PCR_FBDIV_UNMASK;
 	pll->pcr |= PLL_PCR_FBDIV(mfd - 1);
 #endif
 #ifdef CONFIG_MCF532x
