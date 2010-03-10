@@ -133,19 +133,21 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
+	switch (port) {
 	case 0:
-		gpio->par_uart = (GPIO_PAR_UART_U0TXD | GPIO_PAR_UART_U0RXD);
+		gpio->par_uart &= ~(GPIO_PAR_UART_U0TXD | GPIO_PAR_UART_U0RXD);
+		gpio->par_uart |= (GPIO_PAR_UART_U0TXD | GPIO_PAR_UART_U0RXD);
 		break;
 	case 1:
 #ifdef CONFIG_SYS_UART1_ALT1_GPIO
 		gpio->par_simp1h &=
-		    ~(GPIO_PAR_SIMP1H_DATA1_UNMASK | GPIO_PAR_SIMP1H_VEN1_UNMASK);
+		    ~(GPIO_PAR_SIMP1H_DATA1_UNMASK |
+		      GPIO_PAR_SIMP1H_VEN1_UNMASK);
 		gpio->par_simp1h |=
 		    (GPIO_PAR_SIMP1H_DATA1_U1TXD | GPIO_PAR_SIMP1H_VEN1_U1RXD);
 #elif defined(CONFIG_SYS_UART1_ALT2_GPIO)
@@ -297,22 +299,33 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
+	switch (port) {
 	case 0:
-		gpio->par_uart = (GPIO_PAR_UART_TXD0 | GPIO_PAR_UART_RXD0);
+		gpio->par_uart &= ~(GPIO_PAR_UART_TXD0 | GPIO_PAR_UART_RXD0);
+		gpio->par_uart |= (GPIO_PAR_UART_TXD0 | GPIO_PAR_UART_RXD0);
 		break;
 	case 1:
-		gpio->par_uart =
+		gpio->par_uart &=
+		    ~(GPIO_PAR_UART_TXD1(3) | GPIO_PAR_UART_RXD1(3));
+		gpio->par_uart |=
 		    (GPIO_PAR_UART_TXD1(3) | GPIO_PAR_UART_RXD1(3));
 		break;
 	case 2:
+#ifdef CONFIG_SYS_UART2_ALT1_GPIO
 		gpio->par_timer &= 0x0F;
 		gpio->par_timer |= (GPIO_PAR_TIN3_URXD2 | GPIO_PAR_TIN2_UTXD2);
+#elif defined(CONFIG_SYS_UART2_ALT2_GPIO)
+		gpio->par_feci2c &= 0xFF00;
+		gpio->par_feci2c |= (GPIO_PAR_FECI2C_SCL_UTXD2 | GPIO_PAR_FECI2C_SDA_URXD2);
+#elif defined(CONFIG_SYS_UART2_ALT3_GPIO)
+		gpio->par_ssi &= 0xF0FF;
+		gpio->par_ssi |= (GPIO_PAR_SSI_RXD(2) | GPIO_PAR_SSI_TXD(2));
+#endif
 		break;
 	}
 }

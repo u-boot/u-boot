@@ -125,12 +125,12 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
+	switch (port) {
 	case 0:
 		gpio->par_uart &=
 		    (GPIO_PAR_UART_U0TXD_UNMASK & GPIO_PAR_UART_U0RXD_UNMASK);
