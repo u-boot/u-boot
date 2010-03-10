@@ -121,11 +121,6 @@
 #define CONFIG_SYS_I2C_PINMUX_CLR	(0xFFF0)
 #define CONFIG_SYS_I2C_PINMUX_SET	(0x000F)
 
-#ifdef CONFIG_MCFFEC
-#define CONFIG_ETHADDR		00:06:3b:01:41:55
-#define CONFIG_ETH1ADDR		00:0e:0c:bc:e5:60
-#endif
-
 #define CONFIG_SYS_PROMPT		"-> "
 #define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
 
@@ -144,6 +139,23 @@
 #define CONFIG_BOOTCOMMAND	"bootm ffe40000"
 #define CONFIG_SYS_MEMTEST_START	0x400
 #define CONFIG_SYS_MEMTEST_END		0x380000
+
+#ifdef CONFIG_MCFFEC
+#	define CONFIG_NET_RETRY_COUNT	5
+#	define CONFIG_OVERWRITE_ETHADDR_ONCE
+#endif				/* FEC_ENET */
+
+#define CONFIG_EXTRA_ENV_SETTINGS		\
+	"netdev=eth0\0"				\
+	"loadaddr=10000\0"			\
+	"uboot=u-boot.bin\0"			\
+	"load=tftp ${loadaddr} ${uboot}\0"	\
+	"upd=run load; run prog\0"		\
+	"prog=prot off ffe00000 ffe3ffff;"	\
+	"era ffe00000 ffe3ffff;"		\
+	"cp.b ${loadaddr} ffe00000 ${filesize};"\
+	"save\0"				\
+	""
 
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SYS_CLK			150000000
