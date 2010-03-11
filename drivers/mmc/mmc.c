@@ -179,7 +179,7 @@ int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
 	err = mmc_set_blocklen(mmc, mmc->read_bl_len);
 
 	if (err)
-		return err;
+		goto free_buffer;
 
 	for (i = startblock; i <= endblock; i++) {
 		int segment_size;
