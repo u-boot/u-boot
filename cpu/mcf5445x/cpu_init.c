@@ -28,6 +28,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <asm/immap.h>
+#include <asm/processor.h>
 #include <asm/rtc.h>
 
 #if defined(CONFIG_CMD_NET)
@@ -104,6 +105,14 @@ void cpu_init_f(void)
 	fbcs->cscr5 = CONFIG_SYS_CS5_CTRL;
 	fbcs->csmr5 = CONFIG_SYS_CS5_MASK;
 #endif
+
+	/*
+	 * now the flash base address is no longer at 0 (Newer ColdFire family
+	 * boot at address 0 instead of 0xFFnn_nnnn). The vector table must
+	 * also move to the new location.
+	 */
+	if (CONFIG_SYS_CS0_BASE != 0)
+		setvbr(CONFIG_SYS_CS0_BASE);
 
 #ifdef CONFIG_FSL_I2C
 	gpio->par_feci2c = GPIO_PAR_FECI2C_SCL_SCL | GPIO_PAR_FECI2C_SDA_SDA;
