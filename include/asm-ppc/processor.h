@@ -265,6 +265,7 @@
 #define	  HID1_RFXE	(1<<17)		/* Read Fault Exception Enable */
 #define	  HID1_ASTME	(1<<13)		/* Address bus streaming mode */
 #define	  HID1_ABE	(1<<12)		/* Address broadcast enable */
+#define	  HID1_MBDD	(1<<6)		/* optimized sync instruction */
 #define SPRN_IABR	0x3F2	/* Instruction Address Breakpoint Register */
 #ifndef CONFIG_BOOKE
 #define SPRN_IAC1	0x3F4	/* Instruction Address Compare 1 */

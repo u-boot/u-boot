@@ -208,6 +208,13 @@ _start_e500:
 
 #ifndef CONFIG_E500MC
 	li	r0,(HID1_ASTME|HID1_ABE)@l	/* Addr streaming & broadcast */
+	mfspr	r3,PVR
+	andi.	r3,r3, 0xff
+	cmpwi	r3,0x50@l	/* if we are rev 5.0 or greater set MBDD */
+	blt 1f
+	/* Set MBDD bit also */
+	ori r0, r0, HID1_MBDD@l
+1:
 	mtspr	HID1,r0
 #endif
 

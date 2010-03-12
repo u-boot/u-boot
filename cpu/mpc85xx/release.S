@@ -57,6 +57,13 @@ __secondary_start_page:
 
 #ifndef CONFIG_E500MC
 	li	r3,(HID1_ASTME|HID1_ABE)@l	/* Addr streaming & broadcast */
+	mfspr   r0,PVR
+	andi.	r0,r0,0xff
+	cmpwi	r0,0x50@l	/* if we are rev 5.0 or greater set MBDD */
+	blt 1f
+	/* Set MBDD bit also */
+	ori r3, r3, HID1_MBDD@l
+1:
 	mtspr	SPRN_HID1,r3
 #endif
 
