@@ -47,25 +47,16 @@ phys_size_t initdram (int board_type)
 	sdram_conf.control = SDRAM_CONTROL;
 	sdram_conf.config1 = SDRAM_CONFIG1;
 	sdram_conf.config2 = SDRAM_CONFIG2;
-#if defined(CONFIG_MPC5200)
 	sdram_conf.tapdelay = 0;
-#endif
-#if defined(CONFIG_MGT5100)
-	sdram_conf.addrsel = SDRAM_ADDRSEL;
-#endif
 	return mpc5xxx_sdram_init (&sdram_conf);
 }
 
 int checkboard (void)
 {
-#if defined(CONFIG_MPC5200)
 #if CONFIG_TOTAL5200_REV==2
 	puts ("Board: Total5200 Rev.2 ");
 #else
 	puts ("Board: Total5200 ");
-#endif
-#elif defined(CONFIG_MGT5100)
-	puts ("Board: Total5100 ");
 #endif
 
 	/*
@@ -84,20 +75,6 @@ int checkboard (void)
 
 	return 0;
 }
-
-#if defined(CONFIG_MGT5100)
-int board_early_init_r(void)
-{
-	/*
-	 * Now, when we are in RAM, enable CS0
-	 * because CS_BOOT cannot be written.
-	 */
-	*(vu_long *)MPC5XXX_ADDECR &= ~(1 << 25); /* disable CS_BOOT */
-	*(vu_long *)MPC5XXX_ADDECR |= (1 << 16); /* enable CS0 */
-
-	return 0;
-}
-#endif
 
 #ifdef	CONFIG_PCI
 static struct pci_controller hose;
@@ -266,9 +243,7 @@ static const S1D_REGS init_regs [] =
 void video_get_info_str (int line_number, char *info)
 {
 	if (line_number == 1) {
-#ifdef CONFIG_MGT5100
-		strcpy (info, " Total5100");
-#elif CONFIG_TOTAL5200_REV==1
+#if CONFIG_TOTAL5200_REV==1
 		strcpy (info, " Total5200");
 #elif CONFIG_TOTAL5200_REV==2
 		strcpy (info, " Total5200 Rev.2");

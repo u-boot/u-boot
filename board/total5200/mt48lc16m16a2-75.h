@@ -23,21 +23,8 @@
 
 #define SDRAM_DDR	0		/* is SDR */
 
-#if defined(CONFIG_MPC5200)
 /* Settings for XLB = 132 MHz */
 #define SDRAM_MODE	0x00CD0000
 #define SDRAM_CONTROL	0x504F0000
 #define SDRAM_CONFIG1	0xD2322800
 #define SDRAM_CONFIG2	0x8AD70000
-
-#elif defined(CONFIG_MGT5100)
-/* Settings for XLB = 66 MHz */
-#define SDRAM_MODE	0x008D0000
-#define SDRAM_CONTROL	0x504F0000
-#define SDRAM_CONFIG1	0xC2222600
-#define SDRAM_CONFIG2	0x88B70004
-#define SDRAM_ADDRSEL	0x02000000
-
-#else
-#error Neither CONFIG_MPC5200 or CONFIG_MGT5100 defined
-#endif

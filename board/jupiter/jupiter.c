@@ -227,10 +227,6 @@ void flash_preinit(void)
 	 * Note that CS_BOOT cannot be cleared when
 	 * executing in flash.
 	 */
-#if defined(CONFIG_MGT5100)
-	*(vu_long *)MPC5XXX_ADDECR &= ~(1 << 25); /* disable CS_BOOT */
-	*(vu_long *)MPC5XXX_ADDECR |= (1 << 16); /* enable CS0 */
-#endif
 	*(vu_long *)MPC5XXX_BOOTCS_CFG &= ~0x1; /* clear RO */
 }
 
@@ -248,10 +244,8 @@ void flash_afterinit(ulong size)
 		*(vu_long *)MPC5XXX_BOOTCS_STOP = *(vu_long *)MPC5XXX_CS0_STOP =
 			STOP_REG(CONFIG_SYS_BOOTCS_START | size, size);
 	}
-#if defined(CONFIG_MPC5200)
 	*(vu_long *)MPC5XXX_ADDECR &= ~(1 << 25); /* disable CS_BOOT */
 	*(vu_long *)MPC5XXX_ADDECR |= (1 << 16); /* enable CS0 */
-#endif
 }
 
 int update_flash_size (int flash_size)

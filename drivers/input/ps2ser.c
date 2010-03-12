@@ -36,8 +36,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define PSC_BASE MPC5XXX_PSC2
 #elif CONFIG_PS2SERIAL == 3
 #define PSC_BASE MPC5XXX_PSC3
-#elif defined(CONFIG_MGT5100)
-#error CONFIG_PS2SERIAL must be in 1, 2 or 3
 #elif CONFIG_PS2SERIAL == 4
 #define PSC_BASE MPC5XXX_PSC4
 #elif CONFIG_PS2SERIAL == 5
@@ -87,23 +85,14 @@ int ps2ser_init(void)
 	psc->command = PSC_SEL_MODE_REG_1;
 
 	/* select clock sources */
-#if defined(CONFIG_MGT5100)
-	psc->psc_clock_select = 0xdd00;
-	baseclk = (CONFIG_SYS_MPC5XXX_CLKIN + 16) / 32;
-#elif defined(CONFIG_MPC5200)
 	psc->psc_clock_select = 0;
 	baseclk = (gd->ipb_clk + 16) / 32;
-#endif
 
 	/* switch to UART mode */
 	psc->sicr = 0;
 
 	/* configure parity, bit length and so on */
-#if defined(CONFIG_MGT5100)
-	psc->mode = PSC_MODE_ERR | PSC_MODE_8_BITS | PSC_MODE_PARNONE;
-#elif defined(CONFIG_MPC5200)
 	psc->mode = PSC_MODE_8_BITS | PSC_MODE_PARNONE;
-#endif
 	psc->mode = PSC_MODE_ONE_STOP;
 
 	/* set up UART divisor */

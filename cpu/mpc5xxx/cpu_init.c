@@ -53,10 +53,6 @@ void cpu_init_f (void)
 		(struct mpc5xxx_gpt *) MPC5XXX_GPT;
 #endif /* CONFIG_WATCHDOG */
 	unsigned long addecr = (1 << 25); /* Boot_CS */
-
-#if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_MGT5100)
-	addecr |= (1 << 22); /* SDRAM enable */
-#endif
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
@@ -136,7 +132,6 @@ void cpu_init_f (void)
 	out_be32(&lpb->cs5_cfg, CONFIG_SYS_CS5_CFG);
 #endif
 
-#if defined(CONFIG_MPC5200)
 	addecr |= 1;
 #if defined(CONFIG_SYS_CS6_START) && defined(CONFIG_SYS_CS6_SIZE)
 	out_be32(&mm->cs6_start, START_REG(CONFIG_SYS_CS6_START));
@@ -164,14 +159,9 @@ void cpu_init_f (void)
 #if defined(CONFIG_SYS_CS_DEADCYCLE)
 	out_be32(&lpb->cs_deadcycle, CONFIG_SYS_CS_DEADCYCLE);
 #endif
-#endif /* CONFIG_MPC5200 */
 
 	/* Enable chip selects */
-#if defined(CONFIG_MGT5100)
-	out_be32(&mm->addecr, addecr);
-#elif defined(CONFIG_MPC5200)
 	out_be32(&mm->ipbi_ws_ctrl, addecr);
-#endif
 	out_be32(&lpb->cs_ctrl, (1 << 24));
 
 	/* Setup pin multiplexing */
@@ -179,7 +169,6 @@ void cpu_init_f (void)
 	out_be32(&gpio->port_config, CONFIG_SYS_GPS_PORT_CONFIG);
 #endif
 
-#if defined(CONFIG_MPC5200)
 	/* enable timebase */
 	setbits_be32(&xlb->config, (1 << 13));
 
@@ -187,33 +176,29 @@ void cpu_init_f (void)
 	setbits_be32(&xlb->config, (1 << 15));
 	out_be32(&xlb->snoop_window, CONFIG_SYS_SDRAM_BASE | 0x1d);
 
-# if defined(CONFIG_SYS_IPBCLK_EQUALS_XLBCLK)
+#if defined(CONFIG_SYS_IPBCLK_EQUALS_XLBCLK)
 	/* Motorola reports IPB should better run at 133 MHz. */
-#  if defined(CONFIG_MGT5100)
-	setbits_be32(&mm->addecr, 1);
-#  elif defined(CONFIG_MPC5200)
 	setbits_be32(&mm->ipbi_ws_ctrl, 1);
-#  endif
 	/* pci_clk_sel = 0x02, ipb_clk_sel = 0x00; */
 	addecr = in_be32(&cdm->cfg);
 	addecr &= ~0x103;
-#  if defined(CONFIG_SYS_PCICLK_EQUALS_IPBCLK_DIV2)
+# if defined(CONFIG_SYS_PCICLK_EQUALS_IPBCLK_DIV2)
 	/* pci_clk_sel = 0x01 -> IPB_CLK/2 */
 	addecr |= 0x01;
-#  else
+# else
 	/* pci_clk_sel = 0x02 -> XLB_CLK/4 = IPB_CLK/4 */
 	addecr |= 0x02;
-#  endif /* CONFIG_SYS_PCICLK_EQUALS_IPBCLK_DIV2 */
+# endif /* CONFIG_SYS_PCICLK_EQUALS_IPBCLK_DIV2 */
 	out_be32(&cdm->cfg, addecr);
-# endif	/* CONFIG_SYS_IPBCLK_EQUALS_XLBCLK */
+#endif	/* CONFIG_SYS_IPBCLK_EQUALS_XLBCLK */
 	/* Configure the XLB Arbiter */
 	out_be32(&xlb->master_pri_enable, 0xff);
 	out_be32(&xlb->master_priority, 0x11111111);
 
-# if defined(CONFIG_SYS_XLB_PIPELINING)
+#if defined(CONFIG_SYS_XLB_PIPELINING)
 	/* Enable piplining */
 	clrbits_be32(&xlb->config, (1 << 31));
-# endif
+#endif
 
 #if defined(CONFIG_WATCHDOG)
 	/* Charge the watchdog timer - prescaler = 64k, count = 64k*/
@@ -222,8 +207,6 @@ void cpu_init_f (void)
 
 	reset_5xxx_watchdog();
 #endif /* CONFIG_WATCHDOG */
-
-#endif	/* CONFIG_MPC5200 */
 }
 
 /*
@@ -235,11 +218,7 @@ int cpu_init_r (void)
 		(struct mpc5xxx_intr *) MPC5XXX_ICTL;
 
 	/* mask all interrupts */
-#if defined(CONFIG_MGT5100)
-	out_be32(&intr->per_mask, 0xfffffc00);
-#elif defined(CONFIG_MPC5200)
 	out_be32(&intr->per_mask, 0xffffff00);
-#endif
 	setbits_be32(&intr->main_mask, 0x0001ffff);
 	clrbits_be32(&intr->ctrl, 0x00000f00);
 	/* route critical ints to normal ints */

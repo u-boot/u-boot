@@ -26,7 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(CPU).a
 
 START	= start.o
-SOBJS	= io.o firmware_sc_task_bestcomm.impl.o firmware_sc_task.impl.o
+SOBJS	= io.o firmware_sc_task_bestcomm.impl.o
 COBJS	= i2c.o traps.o cpu.o cpu_init.o ide.o interrupts.o \
 	  loadtask.o pci_mpc5200.o serial.o speed.o usb_ohci.o usb.o
 
