@@ -32,4 +32,3 @@
 #define CONFIG_FTRTC010_BASE	0x98600000	/* Real Time Clock*/
 
 #endif	/* __A320_H */
-

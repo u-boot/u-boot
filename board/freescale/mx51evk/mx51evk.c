@@ -394,4 +394,3 @@ int checkboard(void)
 	puts("]\n");
 	return 0;
 }
-

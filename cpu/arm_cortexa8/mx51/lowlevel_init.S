@@ -33,11 +33,11 @@
 	mcr 15, 0, r0, c1, c0, 1
 
 	/* reconfigure L2 cache aux control reg */
-	mov r0, #0xC0                   /* tag RAM */
-	add r0, r0, #0x4                /* data RAM */
-	orr r0, r0, #(1 << 24)          /* disable write allocate delay */
-	orr r0, r0, #(1 << 23)          /* disable write allocate combine */
-	orr r0, r0, #(1 << 22)          /* disable write allocate */
+	mov r0, #0xC0			/* tag RAM */
+	add r0, r0, #0x4		/* data RAM */
+	orr r0, r0, #(1 << 24)		/* disable write allocate delay */
+	orr r0, r0, #(1 << 23)		/* disable write allocate combine */
+	orr r0, r0, #(1 << 22)		/* disable write allocate */
 
 	cmp r3, #0x10    /* r3 contains the silicon rev */
 
@@ -157,7 +157,7 @@
 
 	/* Switch peripheral to PLL 3 */
 	ldr r0, =CCM_BASE_ADDR
-        ldr r1, =0x000010C0
+	ldr r1, =0x000010C0
 	str r1, [r0, #CLKCTL_CBCMR]
 	ldr r1, =0x13239145
 	str r1, [r0, #CLKCTL_CBCDR]
@@ -255,17 +255,17 @@ lowlevel_init:
 	str r1, [r0, #0x4]
 
 #ifdef ENABLE_IMPRECISE_ABORT
-	mrs r1, spsr            /* save old spsr */
-	mrs r0, cpsr            /* read out the cpsr */
-	bic r0, r0, #0x100      /* clear the A bit */
-	msr spsr, r0            /* update spsr */
-	add lr, pc, #0x8        /* update lr */
-	movs pc, lr             /* update cpsr */
+	mrs r1, spsr		/* save old spsr */
+	mrs r0, cpsr		/* read out the cpsr */
+	bic r0, r0, #0x100	/* clear the A bit */
+	msr spsr, r0		/* update spsr */
+	add lr, pc, #0x8	/* update lr */
+	movs pc, lr		/* update cpsr */
 	nop
 	nop
 	nop
 	nop
-	msr spsr, r1            /* restore old spsr */
+	msr spsr, r1		/* restore old spsr */
 #endif
 
 	init_l2cc

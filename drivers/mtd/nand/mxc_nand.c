@@ -22,7 +22,7 @@
 #include <nand.h>
 #include <linux/err.h>
 #include <asm/io.h>
-#if defined(CONFIG_MX27) || defined(CONFIG_MX25) 
+#if defined(CONFIG_MX25) || defined(CONFIG_MX27)
 #include <asm/arch/imx-regs.h>
 #endif
 
@@ -856,8 +856,6 @@ static int mxc_nand_correct_data(struct mtd_info *mtd, u_char *dat,
 	return 0;
 }
 #endif
-
-
 
 static int mxc_nand_calculate_ecc(struct mtd_info *mtd, const u_char *dat,
 				  u_char *ecc_code)

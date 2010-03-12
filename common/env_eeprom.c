@@ -281,4 +281,3 @@ int env_init(void)
 	return (0);
 }
 #endif
-

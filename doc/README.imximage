@@ -159,8 +159,8 @@ Disk /dev/mmcblk0: 1967 MB, 1967128576 bytes
 Units = cylinders of 16065 * 512 = 8225280 bytes
 Disk identifier: 0xb712a870
 
-        Device Boot      Start         End      Blocks   Id  System
-/dev/mmcblk0p1               3          16      112455   83  Linux
+	Device Boot	 Start	       End	Blocks	 Id  System
+/dev/mmcblk0p1		     3		16	112455	 83  Linux
 
 I have set 100MB, leaving the first 2 sectors free. I will copy u-boot
 there.
