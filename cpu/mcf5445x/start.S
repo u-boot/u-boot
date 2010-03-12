@@ -24,15 +24,11 @@
 #include <config.h>
 #include <timestamp.h>
 #include "version.h"
+#include <asm/cache.h>
 
 #ifndef	 CONFIG_IDENT_STRING
 #define	 CONFIG_IDENT_STRING ""
 #endif
-
-/* last three long word reserved for cache status */
-#define CACR_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-12)
-#define ICACHE_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END- 8)
-#define DCACHE_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END- 4)
 
 #define _START	_start
 #define _FAULT	_fault
@@ -160,15 +156,13 @@ asm_dram_init:
 
 	/* initialize general use internal ram */
 	move.l #0, %d0
-	move.l #(CACR_STATUS), %a1	/* CACR */
-	move.l #(ICACHE_STATUS), %a2	/* icache */
-	move.l #(DCACHE_STATUS), %a3	/* dcache */
+	move.l #(ICACHE_STATUS), %a1	/* icache */
+	move.l #(DCACHE_STATUS), %a2	/* dcache */
 	move.l %d0, (%a1)
 	move.l %d0, (%a2)
-	move.l %d0, (%a3)
 
 	/* invalidate and disable cache */
-	move.l	#0x01004100, %d0	/* Invalidate cache cmd */
+	move.l	#(CONFIG_SYS_ICACHE_INV + CONFIG_SYS_DCACHE_INV), %d0
 	movec	%d0, %CACR		/* Invalidate cache */
 	move.l	#0, %d0
 	movec	%d0, %ACR0
@@ -411,15 +405,13 @@ _start:
 
 	/* initialize general use internal ram */
 	move.l #0, %d0
-	move.l #(CACR_STATUS), %a1	/* CACR */
-	move.l #(ICACHE_STATUS), %a2	/* icache */
-	move.l #(DCACHE_STATUS), %a3	/* dcache */
+	move.l #(ICACHE_STATUS), %a1	/* icache */
+	move.l #(DCACHE_STATUS), %a2	/* dcache */
 	move.l %d0, (%a1)
 	move.l %d0, (%a2)
-	move.l %d0, (%a3)
 
 	/* invalidate and disable cache */
-	move.l	#0x01004100, %d0	/* Invalidate cache cmd */
+	move.l	#(CONFIG_SYS_ICACHE_INV + CONFIG_SYS_DCACHE_INV), %d0
 	movec	%d0, %CACR		/* Invalidate cache */
 	move.l	#0, %d0
 	movec	%d0, %ACR0
@@ -542,107 +534,6 @@ _int_handler:
 	bsr int_handler
 	addql	#4,%sp
 	RESTORE_ALL
-
-/*------------------------------------------------------------------------------*/
-/* cache functions */
-	.globl	icache_enable
-icache_enable:
-	move.l #(CACR_STATUS), %a1	/* read CACR Status */
-	move.l	(%a1), %d1
-
-	move.l	#0x00040100, %d0	/* Invalidate icache */
-	movec	%d0, %CACR
-
-	move.l	#(CONFIG_SYS_SDRAM_BASE + 0xC000), %d0	/* Setup icache */
-	movec	%d0, %ACR2
-
-	move.l	#0x04088020, %d0	/* Enable bcache and icache */
-	movec	%d0, %CACR
-
-	move.l #(ICACHE_STATUS), %a1
-	moveq	#1, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	icache_disable
-icache_disable:
-	move.l #(CACR_STATUS), %a1	/* read CACR Status */
-	move.l	(%a1), %d0
-
-	move.l	#0xFFF77BFF, %d0
-	or.l	#0x00040100, %d0	/* Setup cache mask */
-	movec	%d0, %CACR		/* Invalidate icache */
-	clr.l	%d0
-	movec	%d0, %ACR2
-	movec	%d0, %ACR3
-
-	move.l #(ICACHE_STATUS), %a1
-	moveq	#0, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	icache_status
-icache_status:
-	move.l #(ICACHE_STATUS), %a1
-	move.l	(%a1), %d0
-	rts
-
-	.globl	icache_invalid
-icache_invalid:
-	move.l #(CACR_STATUS), %a1	/* read CACR Status */
-	move.l	(%a1), %d0
-
-	move.l	#0x00040100, %d0	/* Invalidate icache */
-	movec	%d0, %CACR		/* Enable and invalidate cache */
-	rts
-
-	.globl	dcache_enable
-dcache_enable:
-	move.l #(CACR_STATUS), %a1	/* read CACR Status */
-	move.l	(%a1), %d1
-
-	move.l	#0x01040100, %d0
-	movec	%d0, %CACR		/* Invalidate dcache */
-
-	move.l	#0x80088020, %d0	/* Enable bcache and icache */
-	movec	%d0, %CACR
-
-	move.l #(DCACHE_STATUS), %a1
-	moveq	#1, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	dcache_disable
-dcache_disable:
-	move.l #(CACR_STATUS), %a1	/* read CACR Status */
-	move.l	(%a1), %d0
-
-	and.l	#0x7FFFFFFF, %d0
-	or.l	#0x01000000, %d0	/* Setup cache mask */
-	movec	%d0, %CACR		/* Disable dcache */
-	clr.l	%d0
-	movec	%d0, %ACR0
-	movec	%d0, %ACR1
-
-	move.l #(DCACHE_STATUS), %a1
-	moveq	#0, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	dcache_invalid
-dcache_invalid:
-	move.l #(CACR_STATUS), %a1	/* read CACR Status */
-	move.l	(%a1), %d0
-
-	move.l	#0x81088020, %d0	/* Setup cache mask */
-	movec	%d0, %CACR		/* Enable and invalidate cache */
-	rts
-
-	.globl	dcache_status
-dcache_status:
-	move.l #(DCACHE_STATUS), %a1
-	move.l	(%a1), %d0
-	rts
 
 /*------------------------------------------------------------------------------*/
 

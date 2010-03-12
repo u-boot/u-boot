@@ -64,6 +64,7 @@
  * Command line configuration.
  */
 #include <config_cmd_default.h>
+#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_MII
@@ -208,6 +209,18 @@
  * Cache Configuration
  */
 #define CONFIG_SYS_CACHELINE_SIZE	16
+
+#define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
+					 CONFIG_SYS_INIT_RAM_END - 8)
+#define DCACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
+					 CONFIG_SYS_INIT_RAM_END - 4)
+#define CONFIG_SYS_ICACHE_INV		(CF_CACR_CINV + CF_CACR_DCM)
+#define CONFIG_SYS_CACHE_ACR0		(CONFIG_SYS_SDRAM_BASE | \
+					 CF_ADDRMASK(CONFIG_SYS_SDRAM_SIZE) | \
+					 CF_ACR_EN | CF_ACR_SM_ALL)
+#define CONFIG_SYS_CACHE_ICACR		(CF_CACR_CENB | CF_CACR_DISD | \
+					 CF_CACR_CEIB | CF_CACR_DBWE | \
+					 CF_CACR_EUSP)
 
 /*-----------------------------------------------------------------------
  * Memory bank definitions
