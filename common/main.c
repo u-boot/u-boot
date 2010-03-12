@@ -68,7 +68,7 @@ static int abortboot(int);
 
 #undef DEBUG_PARSER
 
-char        console_buffer[CONFIG_SYS_CBSIZE];		/* console I/O buffer	*/
+char        console_buffer[CONFIG_SYS_CBSIZE + 1];	/* console I/O buffer	*/
 
 static char * delete_char (char *buffer, char *p, int *colp, int *np, int plen);
 static char erase_seq[] = "\b \b";		/* erase sequence	*/
@@ -546,7 +546,7 @@ static int hist_cur = -1;
 unsigned hist_num = 0;
 
 char* hist_list[HIST_MAX];
-char hist_lines[HIST_MAX][HIST_SIZE];
+char hist_lines[HIST_MAX][HIST_SIZE + 1];	 /* Save room for NULL */
 
 #define add_idx_minus_one() ((hist_add_idx == 0) ? hist_max : hist_add_idx-1)
 
