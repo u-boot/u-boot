@@ -260,7 +260,7 @@ void	console_cursor (int state);
 #define CURSOR_ON
 #define CURSOR_OFF
 #define CURSOR_SET video_set_hw_cursor(console_col * VIDEO_FONT_WIDTH, \
-		  (console_row * VIDEO_FONT_HEIGHT) + VIDEO_LOGO_HEIGHT);
+		  (console_row * VIDEO_FONT_HEIGHT) + video_logo_height);
 #endif	/* CONFIG_VIDEO_HW_CURSOR */
 
 #ifdef	CONFIG_VIDEO_LOGO
@@ -298,7 +298,7 @@ void	console_cursor (int state);
 #define VIDEO_BURST_LEN		(VIDEO_COLS/8)
 
 #ifdef	CONFIG_VIDEO_LOGO
-#define CONSOLE_ROWS		((VIDEO_ROWS - VIDEO_LOGO_HEIGHT) / VIDEO_FONT_HEIGHT)
+#define CONSOLE_ROWS		((VIDEO_ROWS - video_logo_height) / VIDEO_FONT_HEIGHT)
 #else
 #define CONSOLE_ROWS		(VIDEO_ROWS / VIDEO_FONT_HEIGHT)
 #endif
@@ -348,6 +348,8 @@ static GraphicDevice *pGD;	/* Pointer to Graphic array */
 
 static void *video_fb_address;		/* frame buffer address */
 static void *video_console_address;	/* console buffer start address */
+
+static int video_logo_height = VIDEO_LOGO_HEIGHT;
 
 static int console_col = 0; /* cursor col */
 static int console_row = 0; /* cursor row */
@@ -527,7 +529,7 @@ static inline void video_drawstring (int xx, int yy, unsigned char *s)
 
 static void video_putchar (int xx, int yy, unsigned char c)
 {
-	video_drawchars (xx, yy + VIDEO_LOGO_HEIGHT, &c, 1);
+	video_drawchars (xx, yy + video_logo_height, &c, 1);
 }
 
 /*****************************************************************************/
@@ -620,11 +622,11 @@ static void console_scrollup (void)
 #ifdef VIDEO_HW_BITBLT
 	video_hw_bitblt (VIDEO_PIXEL_SIZE,	/* bytes per pixel */
 			 0,	/* source pos x */
-			 VIDEO_LOGO_HEIGHT + VIDEO_FONT_HEIGHT, /* source pos y */
+			 video_logo_height + VIDEO_FONT_HEIGHT, /* source pos y */
 			 0,	/* dest pos x */
-			 VIDEO_LOGO_HEIGHT,	/* dest pos y */
+			 video_logo_height,	/* dest pos y */
 			 VIDEO_VISIBLE_COLS,	/* frame width */
-			 VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT - VIDEO_FONT_HEIGHT	/* frame height */
+			 VIDEO_VISIBLE_ROWS - video_logo_height - VIDEO_FONT_HEIGHT	/* frame height */
 		);
 #else
 	memcpyl (CONSOLE_ROW_FIRST, CONSOLE_ROW_SECOND,
@@ -1101,7 +1103,7 @@ void logo_plot (void *screen, int width, int x, int y)
 
 	int xcount, i;
 	int skip   = (width - VIDEO_LOGO_WIDTH) * VIDEO_PIXEL_SIZE;
-	int ycount = VIDEO_LOGO_HEIGHT;
+	int ycount = video_logo_height;
 	unsigned char r, g, b, *logo_red, *logo_blue, *logo_green;
 	unsigned char *source;
 	unsigned char *dest = (unsigned char *)screen +
@@ -1225,6 +1227,7 @@ static void *video_logo (void)
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
 		if (video_display_bitmap (addr, x, y) == 0) {
+			video_logo_height = 0;
 			return ((void *) (video_fb_address));
 		}
 	}
@@ -1249,7 +1252,7 @@ static void *video_logo (void)
 
 #ifdef CONFIG_CONSOLE_EXTRA_INFO
 	{
-		int i, n = ((VIDEO_LOGO_HEIGHT - VIDEO_FONT_HEIGHT) / VIDEO_FONT_HEIGHT);
+		int i, n = ((video_logo_height - VIDEO_FONT_HEIGHT) / VIDEO_FONT_HEIGHT);
 
 		for (i = 1; i < n; i++) {
 			video_get_info_str (i, info);
@@ -1278,7 +1281,7 @@ static void *video_logo (void)
 	}
 #endif
 
-	return (video_fb_address + VIDEO_LOGO_HEIGHT * VIDEO_LINE_LEN);
+	return (video_fb_address + video_logo_height * VIDEO_LINE_LEN);
 }
 #endif
 
