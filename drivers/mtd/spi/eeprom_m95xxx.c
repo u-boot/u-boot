@@ -44,6 +44,9 @@ ssize_t spi_read (uchar *addr, int alen, uchar *buffer, int len)
 
 	slave = spi_setup_slave(CONFIG_DEFAULT_SPI_BUS, 1, 1000000,
 			CONFIG_DEFAULT_SPI_MODE);
+	if(!slave)
+		return 0;
+
 	spi_claim_bus(slave);
 
 	/* command */
@@ -75,6 +78,9 @@ ssize_t spi_write (uchar *addr, int alen, uchar *buffer, int len)
 
 	slave = spi_setup_slave(CONFIG_DEFAULT_SPI_BUS, 1, 1000000,
 			CONFIG_DEFAULT_SPI_MODE);
+	if (!slave)
+		return 0;
+
 	spi_claim_bus(slave);
 
 	buf[0] = SPI_EEPROM_WREN;
