@@ -803,8 +803,193 @@ static void inline fill_555rgb_pswap(uchar *fb, int x,
 #endif
 
 /*
+ * RLE8 bitmap support
+ */
+
+#ifdef CONFIG_VIDEO_BMP_RLE8
+/* Pre-calculated color table entry */
+struct palette {
+	union {
+		unsigned short	w;	/* word */
+		unsigned int	dw;	/* double word */
+	} ce; /* color entry */
+};
+
+/*
+ * Helper to draw encoded/unencoded run.
+ */
+static void draw_bitmap (uchar **fb, uchar *bm, struct palette *p,
+			 int cnt, int enc)
+{
+	ulong addr = (ulong)*fb;
+	int *off;
+	int enc_off = 1;
+	int i;
+
+	/*
+	 * Setup offset of the color index in the bitmap.
+	 * Color index of encoded run is at offset 1.
+	 */
+	off = enc ? &enc_off : &i;
+
+	switch (VIDEO_DATA_FORMAT) {
+	case GDF__8BIT_INDEX:
+		for (i = 0; i < cnt; i++)
+			*(unsigned char *)addr++ = bm[*off];
+		break;
+	case GDF_15BIT_555RGB:
+	case GDF_16BIT_565RGB:
+		/* differences handled while pre-calculating palette */
+		for (i = 0; i < cnt; i++) {
+			*(unsigned short *)addr = p[bm[*off]].ce.w;
+			addr += 2;
+		}
+		break;
+	case GDF_32BIT_X888RGB:
+		for (i = 0; i < cnt; i++) {
+			*(unsigned long *)addr = p[bm[*off]].ce.dw;
+			addr += 4;
+		}
+		break;
+	}
+	*fb = (uchar *)addr; /* return modified address */
+}
+
+static int display_rle8_bitmap (bmp_image_t *img, int xoff, int yoff,
+				int width, int height)
+{
+	unsigned char *bm;
+	unsigned char *fbp;
+	unsigned int cnt, runlen;
+	int decode = 1;
+	int x, y, bpp, i, ncolors;
+	struct palette p[256];
+	bmp_color_table_entry_t cte;
+	int green_shift, red_off;
+
+	x = 0;
+	y = __le32_to_cpu(img->header.height) - 1;
+	ncolors = __le32_to_cpu(img->header.colors_used);
+	bpp = VIDEO_PIXEL_SIZE;
+	fbp = (unsigned char *)((unsigned int)video_fb_address +
+				(((y + yoff) * VIDEO_COLS) + xoff) * bpp);
+
+	bm = (uchar *)img + __le32_to_cpu(img->header.data_offset);
+
+	/* pre-calculate and setup palette */
+	switch (VIDEO_DATA_FORMAT) {
+	case GDF__8BIT_INDEX:
+		for (i = 0; i < ncolors; i++) {
+			cte = img->color_table[i];
+			video_set_lut (i, cte.red, cte.green, cte.blue);
+		}
+		break;
+	case GDF_15BIT_555RGB:
+	case GDF_16BIT_565RGB:
+		if (VIDEO_DATA_FORMAT == GDF_15BIT_555RGB) {
+			green_shift = 3;
+			red_off = 10;
+		} else {
+			green_shift = 2;
+			red_off = 11;
+		}
+		for (i = 0; i < ncolors; i++) {
+			cte = img->color_table[i];
+			p[i].ce.w = SWAP16((unsigned short)
+					   (((cte.red >> 3) << red_off) |
+					    ((cte.green >> green_shift) << 5) |
+					    cte.blue >> 3));
+		}
+		break;
+	case GDF_32BIT_X888RGB:
+		for (i = 0; i < ncolors; i++) {
+			cte = img->color_table[i];
+			p[i].ce.dw = SWAP32((cte.red << 16) | (cte.green << 8) |
+					     cte.blue);
+		}
+		break;
+	default:
+		printf("RLE Bitmap unsupported in video mode 0x%x\n",
+			VIDEO_DATA_FORMAT);
+		return -1;
+	}
+
+	while (decode) {
+		switch (bm[0]) {
+		case 0:
+			switch (bm[1]) {
+			case 0:
+				/* scan line end marker */
+				bm += 2;
+				x = 0;
+				y--;
+				fbp = (unsigned char *)
+					((unsigned int)video_fb_address +
+					 (((y + yoff) * VIDEO_COLS) +
+					  xoff) * bpp);
+				continue;
+			case 1:
+				/* end of bitmap data marker */
+				decode = 0;
+				break;
+			case 2:
+				/* run offset marker */
+				x += bm[2];
+				y -= bm[3];
+				fbp = (unsigned char *)
+					((unsigned int)video_fb_address +
+					 (((y + yoff) * VIDEO_COLS) +
+					  x + xoff) * bpp);
+				bm += 4;
+				break;
+			default:
+				/* unencoded run */
+				cnt = bm[1];
+				runlen = cnt;
+				bm += 2;
+				if (y < height) {
+					if (x >= width) {
+						x += runlen;
+						goto next_run;
+					}
+					if (x + runlen > width)
+						cnt = width - x;
+
+					draw_bitmap (&fbp, bm, p, cnt, 0);
+					x += runlen;
+				}
+next_run:
+				bm += runlen;
+				if (runlen & 1)
+					bm++; /* 0 padding if length is odd */
+			}
+			break;
+		default:
+			/* encoded run */
+			if (y < height) { /* only draw into visible area */
+				cnt = bm[0];
+				runlen = cnt;
+				if (x >= width) {
+					x += runlen;
+					bm += 2;
+					continue;
+				}
+				if (x + runlen > width)
+					cnt = width - x;
+
+				draw_bitmap (&fbp, bm, p, cnt, 1);
+				x += runlen;
+			}
+			bm += 2;
+			break;
+		}
+	}
+	return 0;
+}
+#endif
+
+/*
  * Display the BMP file located at address bmp_image.
- * Only uncompressed
  */
 int video_display_bitmap (ulong bmp_image, int x, int y)
 {
@@ -872,7 +1057,11 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 	debug ("Display-bmp: %d x %d  with %d colors\n",
 	       width, height, colors);
 
-	if (compression != BMP_BI_RGB) {
+	if (compression != BMP_BI_RGB
+#ifdef CONFIG_VIDEO_BMP_RLE8
+	    && compression != BMP_BI_RLE8
+#endif
+	   ) {
 		printf ("Error: compression type %ld not supported\n",
 			compression);
 #ifdef CONFIG_VIDEO_BMP_GZIP
@@ -905,6 +1094,13 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 	fb = (uchar *) (video_fb_address +
 			((y + height - 1) * VIDEO_COLS * VIDEO_PIXEL_SIZE) +
 			x * VIDEO_PIXEL_SIZE);
+
+#ifdef CONFIG_VIDEO_BMP_RLE8
+	if (compression == BMP_BI_RLE8) {
+		return display_rle8_bitmap(bmp,
+					   x, y, width, height);
+	}
+#endif
 
 	/* We handle only 8bpp or 24 bpp bitmap */
 	switch (le16_to_cpu (bmp->header.bit_count)) {
