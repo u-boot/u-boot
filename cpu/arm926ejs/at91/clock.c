@@ -13,9 +13,9 @@
 
 #include <config.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/io.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/io.h>
 
 static unsigned long cpu_clk_rate_hz;
 static unsigned long main_clk_rate_hz;
@@ -57,14 +57,14 @@ u32 get_pllb_init(void)
 static unsigned long at91_css_to_rate(unsigned long css)
 {
 	switch (css) {
-		case AT91_PMC_CSS_SLOW:
-			return AT91_SLOW_CLOCK;
-		case AT91_PMC_CSS_MAIN:
-			return main_clk_rate_hz;
-		case AT91_PMC_CSS_PLLA:
-			return plla_rate_hz;
-		case AT91_PMC_CSS_PLLB:
-			return pllb_rate_hz;
+	case AT91_PMC_MCKR_CSS_SLOW:
+		return AT91_SLOW_CLOCK;
+	case AT91_PMC_MCKR_CSS_MAIN:
+		return main_clk_rate_hz;
+	case AT91_PMC_MCKR_CSS_PLLA:
+		return plla_rate_hz;
+	case AT91_PMC_MCKR_CSS_PLLB:
+		return pllb_rate_hz;
 	}
 
 	return 0;
@@ -146,7 +146,8 @@ static u32 at91_pll_rate(u32 freq, u32 reg)
 int at91_clock_init(unsigned long main_clock)
 {
 	unsigned freq, mckr;
-#ifndef AT91_MAIN_CLOCK
+	at91_pmc_t *pmc = (at91_pmc_t *) AT91_PMC_BASE;
+#ifndef CONFIG_SYS_AT91_MAIN_CLOCK
 	unsigned tmp;
 	/*
 	 * When the bootloader initialized the main oscillator correctly,
@@ -156,15 +157,16 @@ int at91_clock_init(unsigned long main_clock)
 	 */
 	if (!main_clock) {
 		do {
-			tmp = at91_sys_read(AT91_CKGR_MCFR);
-		} while (!(tmp & AT91_PMC_MAINRDY));
-		main_clock = (tmp & AT91_PMC_MAINF) * (AT91_SLOW_CLOCK / 16);
+			tmp = readl(&pmc->mcfr);
+		} while (!(tmp & AT91_PMC_MCFR_MAINRDY));
+		tmp &= AT91_PMC_MCFR_MAINF_MASK;
+		main_clock = tmp * (AT91_SLOW_CLOCK / 16);
 	}
 #endif
 	main_clk_rate_hz = main_clock;
 
 	/* report if PLLA is more than mildly overclocked */
-	plla_rate_hz = at91_pll_rate(main_clock, at91_sys_read(AT91_CKGR_PLLAR));
+	plla_rate_hz = at91_pll_rate(main_clock, readl(&pmc->pllar));
 
 #ifdef CONFIG_USB_ATMEL
 	/*
@@ -174,7 +176,7 @@ int at91_clock_init(unsigned long main_clock)
 	 * REVISIT:  assumes MCK doesn't derive from PLLB!
 	 */
 	at91_pllb_usb_init = at91_pll_calc(main_clock, 48000000 * 2) |
-			     AT91_PMC_USB96M;
+			     AT91_PMC_PLLBR_USBDIV_2;
 	pllb_rate_hz = at91_pll_rate(main_clock, at91_pllb_usb_init);
 #endif
 
@@ -182,28 +184,32 @@ int at91_clock_init(unsigned long main_clock)
 	 * MCK and CPU derive from one of those primary clocks.
 	 * For now, assume this parentage won't change.
 	 */
-	mckr = at91_sys_read(AT91_PMC_MCKR);
+	mckr = readl(&pmc->mckr);
 #if defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
 	/* plla divisor by 2 */
 	plla_rate_hz /= (1 << ((mckr & 1 << 12) >> 12));
 #endif
-	freq = mck_rate_hz = at91_css_to_rate(mckr & AT91_PMC_CSS);
+	mck_rate_hz = at91_css_to_rate(mckr & AT91_PMC_MCKR_CSS_MASK);
+	freq = mck_rate_hz;
 
-	freq /= (1 << ((mckr & AT91_PMC_PRES) >> 2));			/* prescale */
+	freq /= (1 << ((mckr & AT91_PMC_MCKR_PRES_MASK) >> 2));	/* prescale */
 #if defined(CONFIG_AT91RM9200)
-	mck_rate_hz = freq / (1 + ((mckr & AT91_PMC_MDIV) >> 8));	/* mdiv */
+	/* mdiv */
+	mck_rate_hz = freq / (1 + ((mckr & AT91_PMC_MCKR_MDIV_MASK) >> 8));
 #elif defined(CONFIG_AT91SAM9G20)
-	mck_rate_hz = (mckr & AT91_PMC_MDIV) ?
-		freq / ((mckr & AT91_PMC_MDIV) >> 7) : freq;		/* mdiv ; (x >> 7) = ((x >> 8) * 2) */
-	if (mckr & AT91_PMC_PDIV)
-		freq /= 2;						/* processor clock division */
+	/* mdiv ; (x >> 7) = ((x >> 8) * 2) */
+	mck_rate_hz = (mckr & AT91_PMC_MCKR_MDIV_MASK) ?
+		freq / ((mckr & AT91_PMC_MCKR_MDIV_MASK) >> 7) : freq;
+	if (mckr & AT91_PMC_MCKR_MDIV_MASK)
+		freq /= 2;			/* processor clock division */
 #elif defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
-	mck_rate_hz = (mckr & AT91_PMC_MDIV) == AT91SAM9_PMC_MDIV_3 ?
-		freq / 3 : freq / (1 << ((mckr & AT91_PMC_MDIV) >> 8));	/* mdiv */
+	mck_rate_hz = (mckr & AT91_PMC_MCKR_MDIV_MASK) == AT91SAM9_PMC_MDIV_3
+		? freq / 3
+		: freq / (1 << ((mckr & AT91_PMC_MCKR_MDIV_MASK) >> 8));
 #else
-	mck_rate_hz = freq / (1 << ((mckr & AT91_PMC_MDIV) >> 8));	/* mdiv */
+	mck_rate_hz = freq / (1 << ((mckr & AT91_PMC_MCKR_MDIV_MASK) >> 8));
 #endif
 	cpu_clk_rate_hz = freq;
 
-		return 0;
+	return 0;
 }

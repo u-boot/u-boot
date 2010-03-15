@@ -18,6 +18,8 @@
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/hardware.h>
 
+#ifdef CONFIG_AT91_LEGACY
+
 #define PIN_BASE		32
 
 #define MAX_GPIO_BANKS		5
@@ -214,154 +216,23 @@ static inline unsigned pin_to_mask(unsigned pin)
 	return 1 << (pin % 32);
 }
 
-/*
- * mux the pin to the "GPIO" peripheral role.
- */
-static inline int at91_set_GPIO_periph(unsigned pin, int use_pullup)
-{
-	void		*pio = pin_to_controller(pin);
-	unsigned	mask = pin_to_mask(pin);
-
-	__raw_writel(mask, pio + PIO_IDR);
-	__raw_writel(mask, pio + (use_pullup ? PIO_PUER : PIO_PUDR));
-	__raw_writel(mask, pio + PIO_PER);
-	return 0;
-}
-
-/*
- * mux the pin to the "A" internal peripheral role.
- */
-static inline int at91_set_A_periph(unsigned pin, int use_pullup)
-{
-	void		*pio = pin_to_controller(pin);
-	unsigned	mask = pin_to_mask(pin);
-
-	__raw_writel(mask, pio + PIO_IDR);
-	__raw_writel(mask, pio + (use_pullup ? PIO_PUER : PIO_PUDR));
-	__raw_writel(mask, pio + PIO_ASR);
-	__raw_writel(mask, pio + PIO_PDR);
-	return 0;
-}
-
-/*
- * mux the pin to the "B" internal peripheral role.
- */
-static inline int at91_set_B_periph(unsigned pin, int use_pullup)
-{
-	void		*pio = pin_to_controller(pin);
-	unsigned	mask = pin_to_mask(pin);
-
-	__raw_writel(mask, pio + PIO_IDR);
-	__raw_writel(mask, pio + (use_pullup ? PIO_PUER : PIO_PUDR));
-	__raw_writel(mask, pio + PIO_BSR);
-	__raw_writel(mask, pio + PIO_PDR);
-	return 0;
-}
-
-/*
- * mux the pin to the gpio controller (instead of "A" or "B" peripheral), and
- * configure it for an input.
- */
-static inline int at91_set_gpio_input(unsigned pin, int use_pullup)
-{
-	void		*pio = pin_to_controller(pin);
-	unsigned	mask = pin_to_mask(pin);
-
-	__raw_writel(mask, pio + PIO_IDR);
-	__raw_writel(mask, pio + (use_pullup ? PIO_PUER : PIO_PUDR));
-	__raw_writel(mask, pio + PIO_ODR);
-	__raw_writel(mask, pio + PIO_PER);
-	return 0;
-}
-
-/*
- * mux the pin to the gpio controller (instead of "A" or "B" peripheral),
- * and configure it for an output.
- */
-static inline int at91_set_gpio_output(unsigned pin, int value)
-{
-	void		*pio = pin_to_controller(pin);
-	unsigned	mask = pin_to_mask(pin);
-
-	__raw_writel(mask, pio + PIO_IDR);
-	__raw_writel(mask, pio + PIO_PUDR);
-	__raw_writel(mask, pio + (value ? PIO_SODR : PIO_CODR));
-	__raw_writel(mask, pio + PIO_OER);
-	__raw_writel(mask, pio + PIO_PER);
-	return 0;
-}
-
-/*
- * enable/disable the glitch filter; mostly used with IRQ handling.
- */
-static inline int at91_set_deglitch(unsigned pin, int is_on)
-{
-	void		*pio = pin_to_controller(pin);
-	unsigned	mask = pin_to_mask(pin);
-
-	__raw_writel(mask, pio + (is_on ? PIO_IFER : PIO_IFDR));
-	return 0;
-}
-
-/*
- * enable/disable the multi-driver; This is only valid for output and
- * allows the output pin to run as an open collector output.
- */
-static inline int at91_set_multi_drive(unsigned pin, int is_on)
-{
-	void		*pio = pin_to_controller(pin);
-	unsigned	mask = pin_to_mask(pin);
-
-	__raw_writel(mask, pio + (is_on ? PIO_MDER : PIO_MDDR));
-	return 0;
-}
-
-static inline int gpio_direction_input(unsigned pin)
-{
-	void		*pio = pin_to_controller(pin);
-	unsigned	mask = pin_to_mask(pin);
-
-	if (!(__raw_readl(pio + PIO_PSR) & mask))
-		return -EINVAL;
-	__raw_writel(mask, pio + PIO_ODR);
-	return 0;
-}
-
-static inline int gpio_direction_output(unsigned pin, int value)
-{
-	void		*pio = pin_to_controller(pin);
-	unsigned	mask = pin_to_mask(pin);
-
-	if (!(__raw_readl(pio + PIO_PSR) & mask))
-		return -EINVAL;
-	__raw_writel(mask, pio + (value ? PIO_SODR : PIO_CODR));
-	__raw_writel(mask, pio + PIO_OER);
-	return 0;
-}
-
-/*
- * assuming the pin is muxed as a gpio output, set its value.
- */
-static inline int at91_set_gpio_value(unsigned pin, int value)
-{
-	void		*pio = pin_to_controller(pin);
-	unsigned	mask = pin_to_mask(pin);
-
-	__raw_writel(mask, pio + (value ? PIO_SODR : PIO_CODR));
-	return 0;
-}
-
-/*
- * read the pin's value (works even if it's not muxed as a gpio).
- */
-static inline int at91_get_gpio_value(unsigned pin)
-{
-	void		*pio = pin_to_controller(pin);
-	unsigned	mask = pin_to_mask(pin);
-	u32		pdsr;
-
-	pdsr = __raw_readl(pio + PIO_PDSR);
-	return (pdsr & mask) != 0;
-}
-
+/* The following macros are need for backward compatibility */
+#define at91_set_GPIO_periph(x, y) \
+	at91_set_gpio_periph((x - PIN_BASE) / 32,(x % 32), y)
+#define at91_set_A_periph(x, y) \
+	at91_set_a_periph((x - PIN_BASE) / 32,(x % 32), y)
+#define at91_set_B_periph(x, y) \
+	at91_set_b_periph((x - PIN_BASE) / 32,(x % 32), y)
+#define at91_set_gpio_output(x, y) \
+	at91_set_pio_output((x - PIN_BASE) / 32,(x % 32), y)
+#define at91_set_gpio_input(x, y) \
+	at91_set_pio_input((x - PIN_BASE) / 32,(x % 32), y)
+#define at91_set_gpio_value(x, y) \
+	at91_set_pio_value((x - PIN_BASE) / 32,(x % 32), y)
+#define at91_get_gpio_value(x) \
+	at91_get_pio_value((x - PIN_BASE) / 32,(x % 32))
+#else
+#define at91_set_gpio_value(x, y)	at91_set_pio_value(x, y)
+#define at91_get_gpio_value(x)		at91_get_pio_value(x)
+#endif
 #endif

@@ -35,8 +35,6 @@
  * setting the 20 bit counter period to its maximum (0xfffff).
  */
 #define TIMER_LOAD_VAL	0xfffff
-#define READ_RESET_TIMER at91_sys_read(AT91_PIT_PIVR)
-#define READ_TIMER at91_sys_read(AT91_PIT_PIIR)
 
 static ulong timestamp;
 static ulong lastinc;
@@ -61,14 +59,16 @@ static inline unsigned long long usec_to_tick(unsigned long long usec)
 /* nothing really to do with interrupts, just starts up a counter. */
 int timer_init(void)
 {
+	at91_pmc_t *pmc = (at91_pmc_t *) AT91_PMC_BASE;
+	at91_pit_t *pit = (at91_pit_t *) AT91_PIT_BASE;
 	/*
 	 * Enable PITC Clock
 	 * The clock is already enabled for system controller in boot
 	 */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91_ID_SYS);
+	writel(1 << AT91_ID_SYS, &pmc->pcer);
 
 	/* Enable PITC */
-	at91_sys_write(AT91_PIT_MR, TIMER_LOAD_VAL | AT91_PIT_PITEN);
+	writel(TIMER_LOAD_VAL | AT91_PIT_MR_EN , &pit->mr);
 
 	reset_timer_masked();
 
@@ -82,7 +82,9 @@ int timer_init(void)
  */
 unsigned long long get_ticks(void)
 {
-	ulong now = READ_TIMER;
+	at91_pit_t *pit = (at91_pit_t *) AT91_PIT_BASE;
+
+	ulong now = readl(&pit->piir);
 
 	if (now >= lastinc)	/* normal mode (non roll) */
 		/* move stamp forward with absolut diff ticks */
@@ -96,7 +98,10 @@ unsigned long long get_ticks(void)
 void reset_timer_masked(void)
 {
 	/* reset time */
-	lastinc = READ_TIMER; /* capture current incrementer value time */
+	at91_pit_t *pit = (at91_pit_t *) AT91_PIT_BASE;
+
+	/* capture current incrementer value time */
+	lastinc = readl(&pit->piir);
 	timestamp = 0; /* start "advancing" time stamp from 0 */
 }
 

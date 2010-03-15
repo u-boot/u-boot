@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -19,15 +19,28 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
-#
 
-#
-# ExbitGen board
-#
+include $(TOPDIR)/config.mk
 
-LDFLAGS += $(LINKER_UNDEFS)
+LIB	= $(obj)lib$(SOC).a
 
-TEXT_BASE := 0xFFF80000
-#TEXT_BASE := 0x00100000
+COBJS	= generic.o timer.o
+MX27OBJS = reset.o
 
-PLATFORM_RELFLAGS := $(PLATFORM_RELFLAGS)
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+SRCS	+= $(addprefix $(SRCTREE)/cpu/arm926ejs/mx27/,$(MX27OBJS:.o=.c))
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS) $(MX27OBJS))
+
+all:	$(obj).depend $(LIB)
+
+$(LIB):	$(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################

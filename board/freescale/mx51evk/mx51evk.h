@@ -1,6 +1,5 @@
 /*
- * (C) Copyright 2003
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * (C) Copyright 2009 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,32 +20,32 @@
  * MA 02111-1307 USA
  */
 
-#define GPIO_CPU_LED		GPIO_3
+#ifndef __BOARD_FREESCALE_MX51_EVK_H__
+#define __BOARD_FREESCALE_MX51_EVK_H__
 
-
-#define CPLD_BASE		0x10000000		/* t.b.m. */
-#define DEBUG_LEDS_ADDR		CPLD_BASE + 0x01
-#define HW_ID_ADDR		CPLD_BASE + 0x02
-#define DIP_SWITCH_ADDR		CPLD_BASE + 0x04
-#define PHY_CTRL_ADDR		CPLD_BASE + 0x05
-#define SPI_OUT_ADDR		CPLD_BASE + 0x07
-#define SPI_IN_ADDR		CPLD_BASE + 0x08
-#define MDIO_OUT_ADDR		CPLD_BASE + 0x09
-#define MDIO_IN_ADDR		CPLD_BASE + 0x0A
-#define MISC_OUT_ADDR		CPLD_BASE + 0x0B
-
-/* Addresses used on I2C bus */
-#define LM75_CHIP_ADDR		0x9C
-#define LM75_CPU_ADDR		0x9E
-#define SDRAM_SPD_ADDR		0xA0
-
-#define SDRAM_SPD_WRITE_ADDRESS	(SDRAM_SPD_ADDR)
-#define SDRAM_SPD_READ_ADDRESS	(SDRAM_SPD_ADDR+1)
-
-#ifndef FALSE
-#define FALSE 0
+#ifndef __ASSEMBLY__
+struct io_board_ctrl {
+	u16 led_ctrl;		/* 0x00 */
+	u16 resv1[0x03];
+	u16 sb_stat;		/* 0x08 */
+	u16 resv2[0x03];
+	u16 int_stat;		/* 0x10 */
+	u16 resv3[0x07];
+	u16 int_rest;		/* 0x20 */
+	u16 resv4[0x0B];
+	u16 int_mask;		/* 0x38 */
+	u16 resv5[0x03];
+	u16 id1;		/* 0x40 */
+	u16 resv6[0x03];
+	u16 id2;		/* 0x48 */
+	u16 resv7[0x03];
+	u16 version;		/* 0x50 */
+	u16 resv8[0x03];
+	u16 id3;		/* 0x58 */
+	u16 resv9[0x03];
+	u16 sw_reset;		/* 0x60 */
+};
 #endif
 
-#ifndef TRUE
-#define TRUE 1
+#define IO_BOARD_OFFSET		(0x20000)
 #endif

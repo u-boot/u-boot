@@ -33,6 +33,7 @@
 #include <command.h>
 #include <asm/immap.h>
 #include <netdev.h>
+#include "cpu.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -143,6 +144,11 @@ int checkcpu(void)
 
 int do_reset(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
 {
+	/* Call the board specific reset actions first. */
+	if(board_reset) {
+		board_reset();
+	}
+
 	mbar_writeByte(MCF_RCM_RCR,
 		       MCF_RCM_RCR_SOFTRST | MCF_RCM_RCR_FRCRSTOUT);
 	return 0;

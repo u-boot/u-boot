@@ -25,6 +25,11 @@
 
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT)
 
+#ifndef CONFIG_AT91_LEGACY
+#define CONFIG_AT91_LEGACY
+#warning Please update to use C structur SoC access !
+#endif
+
 #include <asm/arch/hardware.h>
 #include <asm/arch/io.h>
 #include <asm/arch/at91_pmc.h>

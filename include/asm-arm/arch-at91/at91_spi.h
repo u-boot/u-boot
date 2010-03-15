@@ -16,6 +16,25 @@
 #ifndef AT91_SPI_H
 #define AT91_SPI_H
 
+#include <asm/arch/at91_pdc.h>
+
+typedef struct at91_spi {
+	u32		cr;		/* 0x00 Control Register */
+	u32		mr;		/* 0x04 Mode Register */
+	u32		rdr;		/* 0x08 Receive Data Register */
+	u32		tdr;		/* 0x0C Transmit Data Register */
+	u32		sr;		/* 0x10 Status Register */
+	u32		ier;		/* 0x14 Interrupt Enable Register */
+	u32		idr;		/* 0x18 Interrupt Disable Register */
+	u32		imr;		/* 0x1C Interrupt Mask Register */
+	u32		reserve1[4];
+	u32		csr[4];		/* 0x30 Chip Select Register 0-3 */
+	u32		reserve2[48];
+	at91_pdc_t	pdc;
+} at91_spi_t;
+
+#ifdef CONFIG_AT91_LEGACY
+
 #define AT91_SPI_CR			0x00		/* Control Register */
 #define		AT91_SPI_SPIEN		(1 <<  0)		/* SPI Enable */
 #define		AT91_SPI_SPIDIS		(1 <<  1)		/* SPI Disable */
@@ -101,5 +120,7 @@
 #define		AT91_SPI_TXTDIS		(0x1 << 9)		/* Transmitter Transfer Disable */
 
 #define AT91_SPI_PTSR		0x0124			/* PDC Transfer Status Register */
+
+#endif /* CONFIG_AT91_LEGACY */
 
 #endif

@@ -1336,9 +1336,6 @@ ebony_config:	unconfig
 ERIC_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx eric
 
-EXBITGEN_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx exbitgen
-
 fx12mm_flash_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ppc405-generic
 	@mkdir -p $(obj)include $(obj)board/avnet/fx12mm
@@ -2275,9 +2272,6 @@ MPC8313ERDB_NAND_66_config: unconfig
 
 MPC8315ERDB_NAND_config \
 MPC8315ERDB_config: unconfig
-	@if [ "$(findstring _NAND_,$@)" ] ; then \
-		ln -sf mpc8313erdb nand_spl/board/freescale/mpc8315erdb ; \
-	fi ;
 	@$(MKCONFIG) -t $(@:_config=) MPC8315ERDB ppc mpc83xx mpc8315erdb freescale
 
 MPC8323ERDB_config:	unconfig
@@ -2500,6 +2494,7 @@ MPC8568MDS_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc mpc85xx mpc8568mds freescale
 
 MPC8569MDS_ATM_config \
+MPC8569MDS_NAND_config \
 MPC8569MDS_config:	unconfig
 	@$(MKCONFIG) -t $(@:_config=) MPC8569MDS ppc mpc85xx mpc8569mds freescale
 
@@ -2715,6 +2710,9 @@ CPUAT91_config	:	unconfig
 
 csb637_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t csb637 NULL at91rm9200
+
+eb_cpux9k2_config	:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm920t eb_cpux9k2 BuS at91
 
 kb9202_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t kb9202 NULL at91rm9200
@@ -3062,6 +3060,9 @@ spear320_config :	unconfig
 spear600_config :	unconfig
 	@$(MKCONFIG) -n $@ -t $(@:_config=) spear6xx arm arm926ejs $(@:_config=) spear spear
 
+suen3_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs km_arm keymile kirkwood
+
 SX1_stdout_serial_config \
 SX1_config:		unconfig
 	@mkdir -p $(obj)include
@@ -3101,6 +3102,10 @@ trab_old_config:	unconfig
 		  echo "TEXT_BASE = 0x0CF40000" >$(obj)board/trab/config.tmp ; \
 		}
 	@$(MKCONFIG) -a $(call xtract_trab,$@) arm arm920t trab NULL s3c24x0
+
+tx25_config	: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs tx25 karo mx25
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
 VCMA9_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t vcma9 mpl s3c24x0
@@ -3301,6 +3306,9 @@ mx31pdk_nand_config	: unconfig
 		echo "#define CONFIG_SKIP_RELOCATE_UBOOT" >> $(obj)include/config.h;	\
 	fi
 	@$(MKCONFIG) -a mx31pdk arm arm1136 mx31pdk freescale mx31
+
+mx51evk_config	: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 mx51evk freescale mx51
 
 omap2420h4_config	: unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm1136 omap2420h4 ti omap24xx
@@ -3773,6 +3781,7 @@ clobber:	clean
 		$(obj)cscope.* $(obj)*.*~
 	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL)
 	@rm -f $(obj)u-boot.kwb
+	@rm -f $(obj)u-boot.imx
 	@rm -f $(obj)tools/{env/crc32.c,inca-swap-bytes}
 	@rm -f $(obj)cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm

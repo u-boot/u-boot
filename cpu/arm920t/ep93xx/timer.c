@@ -1,8 +1,7 @@
 /*
  * Cirrus Logic EP93xx timer support.
  *
- * Copyright (C) 2009, 2010
- * Matthias Kaehlcke <matthias@kaehlcke.net>
+ * Copyright (C) 2009, 2010 Matthias Kaehlcke <matthias@kaehlcke.net>
  *
  * Copyright (C) 2004, 2005
  * Cory T. Tusar, Videon Central, Inc., <ctusar@videon-central.com>
@@ -31,70 +30,60 @@
 #include <linux/types.h>
 #include <asm/arch/ep93xx.h>
 #include <asm/io.h>
+#include <div64.h>
 
 #define TIMER_CLKSEL	(1 << 3)
-#define TIMER_MODE	(1 << 6)
 #define TIMER_ENABLE	(1 << 7)
 
-#define TIMER_FREQ	508469
-#define TIMER_LOAD_VAL	(TIMER_FREQ / CONFIG_SYS_HZ)
+#define TIMER_FREQ			508469		/* ticks / second */
+#define TIMER_MAX_VAL			0xFFFFFFFF
 
-static ulong timestamp;
-static ulong lastdec;
-
-static inline unsigned long clk_to_systicks(unsigned long clk_ticks)
+static struct ep93xx_timer
 {
-	unsigned long sys_ticks = (clk_ticks * CONFIG_SYS_HZ) / TIMER_FREQ;
+	unsigned long long ticks;
+	unsigned long last_read;
+} timer;
 
-	return sys_ticks;
-}
-
-static inline unsigned long usecs_to_ticks(unsigned long usecs)
+static inline unsigned long long usecs_to_ticks(unsigned long usecs)
 {
-	unsigned long ticks;
-
-	if (usecs >= 1000) {
-		ticks = usecs / 1000;
-		ticks *= (TIMER_LOAD_VAL * CONFIG_SYS_HZ);
-		ticks /= 1000;
-	} else {
-		ticks = usecs * TIMER_LOAD_VAL * CONFIG_SYS_HZ;
-		ticks /= (1000 * 1000);
-	}
+	unsigned long long ticks = (unsigned long long)usecs * TIMER_FREQ;
+	do_div(ticks, 1000 * 1000);
 
 	return ticks;
 }
 
-static inline unsigned long read_timer(void)
+static inline void read_timer(void)
 {
-	struct timer_regs *timer = (struct timer_regs *)TIMER_BASE;
+	struct timer_regs *timer_regs = (struct timer_regs *)TIMER_BASE;
+	const unsigned long now = TIMER_MAX_VAL - readl(&timer_regs->timer3.value);
 
-	return readl(&timer->timer3.value);
+	if (now >= timer.last_read)
+		timer.ticks += now - timer.last_read;
+	else
+		/* an overflow occurred */
+		timer.ticks += TIMER_MAX_VAL - timer.last_read + now;
+
+	timer.last_read = now;
 }
 
 /*
- * timer without interrupts
+ * Get the number of ticks (in CONFIG_SYS_HZ resolution)
  */
 unsigned long long get_ticks(void)
 {
-	const unsigned long now = read_timer();
+	unsigned long long sys_ticks;
 
-	if (lastdec >= now) {
-		/* normal mode */
-		timestamp += lastdec - now;
-	} else {
-		/* we have an overflow ... */
-		timestamp += lastdec + TIMER_LOAD_VAL - now;
-	}
+	read_timer();
 
-	lastdec = now;
+	sys_ticks = timer.ticks * CONFIG_SYS_HZ;
+	do_div(sys_ticks, TIMER_FREQ);
 
-	return timestamp;
+	return sys_ticks;
 }
 
 unsigned long get_timer_masked(void)
 {
-	return clk_to_systicks(get_ticks());
+	return get_ticks();
 }
 
 unsigned long get_timer(unsigned long base)
@@ -104,8 +93,8 @@ unsigned long get_timer(unsigned long base)
 
 void reset_timer_masked(void)
 {
-	lastdec = read_timer();
-	timestamp = 0;
+	read_timer();
+	timer.ticks = 0;
 }
 
 void reset_timer(void)
@@ -113,45 +102,31 @@ void reset_timer(void)
 	reset_timer_masked();
 }
 
-void set_timer(unsigned long t)
-{
-	timestamp = t;
-}
-
 void __udelay(unsigned long usec)
 {
-	const unsigned long ticks = usecs_to_ticks(usec);
-	const unsigned long target = clk_to_systicks(ticks) + get_timer(0);
+	unsigned long long target;
 
-	while (get_timer_masked() < target)
-		/* noop */;
-}
+	read_timer();
 
-void udelay_masked(unsigned long usec)
-{
-	const unsigned long ticks = usecs_to_ticks(usec);
-	const unsigned long target = clk_to_systicks(ticks) + get_timer(0);
+	target = timer.ticks + usecs_to_ticks(usec);
 
-	reset_timer_masked();
-
-	while (get_timer_masked() < target)
-		/* noop */;
+	while (timer.ticks < target)
+		read_timer();
 }
 
 int timer_init(void)
 {
-	struct timer_regs *timer = (struct timer_regs *)TIMER_BASE;
+	struct timer_regs *timer_regs = (struct timer_regs *)TIMER_BASE;
 
-	/* use timer 3 with 508KHz and free running */
-	writel(TIMER_CLKSEL, &timer->timer3.control);
+	/* use timer 3 with 508KHz and free running, not enabled now */
+	writel(TIMER_CLKSEL, &timer_regs->timer3.control);
 
-	/* auto load, manual update of Timer 3 */
-	lastdec = TIMER_LOAD_VAL;
-	writel(TIMER_LOAD_VAL, &timer->timer3.load);
+	/* set initial timer value */
+	writel(TIMER_MAX_VAL, &timer_regs->timer3.load);
 
-	/* Enable the timer and periodic mode */
-	writel(TIMER_ENABLE | TIMER_MODE | TIMER_CLKSEL,
-		&timer->timer3.control);
+	/* Enable the timer */
+	writel(TIMER_ENABLE | TIMER_CLKSEL,
+		&timer_regs->timer3.control);
 
 	reset_timer_masked();
 

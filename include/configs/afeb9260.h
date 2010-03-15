@@ -26,8 +26,10 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_AT91_LEGACY
+
 /* ARM asynchronous clock */
-#define AT91_MAIN_CLOCK		18429952	/* from 18.432 MHz crystal */
+#define CONFIG_SYS_AT91_MAIN_CLOCK		18429952	/* from 18.432 MHz crystal */
 #define CONFIG_SYS_HZ		1000
 
 #define CONFIG_AT91SAM9260	1	/* It's an Atmel AT91SAM9260 SoC*/
@@ -45,6 +47,7 @@
 /*
  * Hardware drivers
  */
+#define CONFIG_AT91_GPIO	1
 #define CONFIG_ATMEL_USART	1
 #undef CONFIG_USART0
 #undef CONFIG_USART1

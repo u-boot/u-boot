@@ -31,6 +31,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_AT91_LEGACY
+
 /* Common stuff */
 #define CONFIG_SYS_HZ			1000	/* decrementer freq */
 #define CONFIG_MEESC			1	/* Board is esd MEESC */
@@ -57,6 +59,7 @@
  */
 
 /* Console output */
+#define CONFIG_AT91_GPIO			1
 #define CONFIG_ATMEL_USART			1
 #undef CONFIG_USART0
 #undef CONFIG_USART1

@@ -24,8 +24,13 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
+#include <netdev.h>
+#if defined(CONFIG_DRIVER_ETHER)
 #include <at91rm9200_net.h>
 #include <dm9161.h>
+#endif
+
 #include "m501sk.h"
 #include "net.h"
 
@@ -186,4 +191,13 @@ void at91rm9200_GetPhyInterface(AT91PS_PhyOps p_phyops)
 }
 #endif /* CONFIG_CMD_NET */
 #endif /* CONFIG_DRIVER_ETHER */
+
+#ifdef CONFIG_DRIVER_AT91EMAC
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+	rc = at91emac_register(bis, 0);
+	return rc;
+}
+#endif
 #endif /* CONFIG_M501SK */

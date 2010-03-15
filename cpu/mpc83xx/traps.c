@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <kgdb.h>
 #include <asm/processor.h>
 #include <asm/mpc8349_pci.h>
 

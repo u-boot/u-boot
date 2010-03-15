@@ -26,6 +26,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_AT91_LEGACY
+
 #if defined(CONFIG_SBC35_A9G20_NANDFLASH) || defined(CONFIG_SBC35_A9G20_EEPROM)
 #define CONFIG_SBC35_A9G20
 #endif
@@ -39,7 +41,7 @@
 #endif
 
 /* ARM asynchronous clock */
-#define AT91_MAIN_CLOCK		12000000	/* 12.000 MHz crystal */
+#define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* 12.000 MHz crystal */
 #define CONFIG_SYS_HZ		1000
 
 #define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
@@ -57,6 +59,7 @@
 /*
  * Hardware drivers
  */
+#define CONFIG_AT91_GPIO	1
 #define CONFIG_ATMEL_USART
 #define CONFIG_USART0
 #undef CONFIG_USART1

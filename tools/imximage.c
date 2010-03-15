@@ -101,22 +101,23 @@ static void imximage_print_header(const void *ptr)
 	struct imx_header *imx_hdr = (struct imx_header *) ptr;
 	flash_header_t *hdr = &imx_hdr->fhdr;
 	uint32_t size;
-	flash_cfg_parms_t *ext_header;
+	uint32_t length;
+	dcd_t *dcd = &imx_hdr->dcd_table;
 
 	size = imx_hdr->dcd_table.preamble.length;
 	if (size > (MAX_HW_CFG_SIZE * sizeof(dcd_type_addr_data_t))) {
 		fprintf(stderr,
 			"Error: Image corrupt DCD size %d exceed maximum %d\n",
-			size / sizeof(dcd_type_addr_data_t), MAX_HW_CFG_SIZE);
+			(uint32_t)(size / sizeof(dcd_type_addr_data_t)),
+			MAX_HW_CFG_SIZE);
 		exit(EXIT_FAILURE);
 	}
 
-	ext_header = (flash_cfg_parms_t *) ((uint32_t)&imx_hdr->dcd_table +
-			sizeof(dcd_preamble_t) + size);
+	length =  dcd->preamble.length / sizeof(dcd_type_addr_data_t);
 
 	printf("Image Type:   Freescale IMX Boot Image\n");
 	printf("Data Size:    ");
-	genimg_print_size(ext_header->length);
+	genimg_print_size(dcd->addr_data[length].type);
 	printf("Load Address: %08x\n", (unsigned int)hdr->app_dest_ptr);
 	printf("Entry Point:  %08x\n", (unsigned int)hdr->app_code_jump_vector);
 }
@@ -128,7 +129,7 @@ static uint32_t imximage_parse_cfg_file(struct imx_header *imxhdr, char *name)
 	char *token, *saveptr1, *saveptr2;
 	int lineno = 0;
 	int fld, value;
-	uint32_t len;
+	size_t len;
 	int dcd_len = 0;
 	dcd_t *dcd = &imxhdr->dcd_table;
 	int32_t cmd;
@@ -237,7 +238,7 @@ static uint32_t imximage_parse_cfg_file(struct imx_header *imxhdr, char *name)
 	dcd->preamble.length = dcd_len * sizeof(dcd_type_addr_data_t);
 	fclose(fd);
 
-	return dcd->preamble.length;
+	return dcd_len;
 }
 
 static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
@@ -246,7 +247,7 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	struct imx_header *hdr = (struct imx_header *)ptr;
 	flash_header_t *fhdr = &hdr->fhdr;
 	int dcd_len;
-	flash_cfg_parms_t *ext_header;
+	dcd_t *dcd = &hdr->dcd_table;
 	uint32_t base_offset;
 
 	/* Set default offset */
@@ -264,24 +265,21 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	fhdr->app_code_jump_vector = params->ep;
 
 	base_offset = fhdr->app_dest_ptr + hdr->flash_offset ;
-	fhdr->dcd_ptr_ptr = (uint32_t) ((uint32_t)&fhdr->dcd_ptr -
-		(uint32_t)&fhdr->app_code_jump_vector) + base_offset ;
+	fhdr->dcd_ptr_ptr = (uint32_t) (offsetof(flash_header_t, dcd_ptr) -
+		offsetof(flash_header_t, app_code_jump_vector) +
+		base_offset);
 
 	fhdr->dcd_ptr = base_offset +
-			((uint32_t)&hdr->dcd_table -
-			(uint32_t)&hdr->fhdr);
+			offsetof(struct imx_header, dcd_table);
 
 	/* The external flash header must be at the end of the DCD table */
-	ext_header = (flash_cfg_parms_t *) ((uint32_t)&hdr->dcd_table +
-			dcd_len +
-			sizeof(dcd_preamble_t));
-	ext_header->length = sbuf->st_size +
+	dcd->addr_data[dcd_len].type = sbuf->st_size +
 				hdr->flash_offset +
 				sizeof(struct imx_header);
 
 	/* Security feature are not supported */
 	fhdr->app_code_csf = 0;
-	fhdr->super_root_key = NULL;
+	fhdr->super_root_key = 0;
 
 }
 

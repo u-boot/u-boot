@@ -3,6 +3,7 @@
  *
  * Copyright (C) 2005 Ivan Kokshaysky
  * Copyright (C) SAN People
+ * Copyright (C) 2009 Jens Scharsig (js_at_ng@scharsoft.de)
  *
  * Parallel I/O Controller (PIO) - System peripherals registers.
  * Based on AT91RM9200 datasheet revision E.
@@ -15,6 +16,115 @@
 
 #ifndef AT91_PIO_H
 #define AT91_PIO_H
+
+
+#define AT91_ASM_PIO_RANGE	0x200
+#define AT91_ASM_PIOC_ASR	\
+	(AT91_PIO_BASE + AT91_PIO_PORTC * AT91_ASM_PIO_RANGE + 0x70)
+#define AT91_ASM_PIOC_BSR	\
+	(AT91_PIO_BASE + AT91_PIO_PORTC * AT91_ASM_PIO_RANGE + 0x74)
+#define AT91_ASM_PIOC_PDR	\
+	(AT91_PIO_BASE + AT91_PIO_PORTC * AT91_ASM_PIO_RANGE + 0x04)
+#define AT91_ASM_PIOC_PUDR	\
+	(AT91_PIO_BASE + AT91_PIO_PORTC * AT91_ASM_PIO_RANGE + 0x60)
+
+#define AT91_ASM_PIOD_PDR	\
+	(AT91_PIO_BASE + AT91_PIO_PORTD * AT91_ASM_PIO_RANGE + 0x04)
+#define AT91_ASM_PIOD_PUDR	\
+	(AT91_PIO_BASE + AT91_PIO_PORTD * AT91_ASM_PIO_RANGE + 0x60)
+#define AT91_ASM_PIOD_ASR	\
+	(AT91_PIO_BASE + AT91_PIO_PORTD * AT91_ASM_PIO_RANGE + 0x70)
+
+#ifndef __ASSEMBLY__
+
+typedef struct at91_port {
+	u32	per;		/* 0x00 PIO Enable Register */
+	u32	pdr;		/* 0x04 PIO Disable Register */
+	u32	psr;		/* 0x08 PIO Status Register */
+	u32	reserved0;
+	u32	oer;		/* 0x10 Output Enable Register */
+	u32	odr;		/* 0x14 Output Disable Registerr */
+	u32	osr;		/* 0x18 Output Status Register */
+	u32	reserved1;
+	u32	ifer;		/* 0x20 Input Filter Enable Register */
+	u32	ifdr;		/* 0x24 Input Filter Disable Register */
+	u32	ifsr;		/* 0x28 Input Filter Status Register */
+	u32	reserved2;
+	u32	sodr;		/* 0x30 Set Output Data Register */
+	u32	codr;		/* 0x34 Clear Output Data Register */
+	u32	odsr;		/* 0x38 Output Data Status Register */
+	u32	pdsr;		/* 0x3C Pin Data Status Register */
+	u32	ier;		/* 0x40 Interrupt Enable Register */
+	u32	idr;		/* 0x44 Interrupt Disable Register */
+	u32	imr;		/* 0x48 Interrupt Mask Register */
+	u32	isr;		/* 0x4C Interrupt Status Register */
+	u32	mder;		/* 0x50 Multi-driver Enable Register */
+	u32	mddr;		/* 0x54 Multi-driver Disable Register */
+	u32	mdsr;		/* 0x58 Multi-driver Status Register */
+	u32	reserved3;
+	u32	pudr;		/* 0x60 Pull-up Disable Register */
+	u32	puer;		/* 0x64 Pull-up Enable Register */
+	u32	pusr;		/* 0x68 Pad Pull-up Status Register */
+	u32	reserved4;
+	u32	asr;		/* 0x70 Select A Register */
+	u32	bsr;		/* 0x74 Select B Register */
+	u32	absr;		/* 0x78 AB Select Status Register */
+	u32	reserved5[9];	/*  */
+	u32	ower;		/* 0xA0 Output Write Enable Register */
+	u32	owdr;		/* 0xA4 Output Write Disable Register */
+	u32	owsr;		/* OxA8 utput Write Status Register */
+	u32	reserved6[85];
+} at91_port_t;
+
+#if defined(CONFIG_AT91SAM9260) || defined(CONFIG_AT91SAM9261) || \
+	defined(CONFIG_AT91SAM9G10) || defined(CONFIG_AT91SAM9G20)
+#define AT91_PIO_PORTS	3
+#elif defined(CONFIG_AT91SAM9263) || defined(CONFIG_AT91SAM9G45) || \
+	defined(CONFIG_AT91SAM9M10G45)
+#define AT91_PIO_PORTS	5
+#elif defined(CONFIG_AT91RM9200) || defined(CONFIG_AT91CAP9) || \
+	defined(CONFIG_AT91SAM9RL)
+#define AT91_PIO_PORTS	4
+#else
+#error "Unsupported cpu. Please update at91_pio.h"
+#endif
+
+typedef union at91_pio {
+	struct {
+		at91_port_t	pioa;
+		at91_port_t	piob;
+		at91_port_t	pioc;
+	#if (AT91_PIO_PORTS > 3)
+		at91_port_t	piod;
+	#endif
+	#if (AT91_PIO_PORTS > 4)
+		at91_port_t	pioe;
+	#endif
+	} ;
+	at91_port_t port[AT91_PIO_PORTS];
+} at91_pio_t;
+
+#ifdef CONFIG_AT91_GPIO
+int at91_set_a_periph(unsigned port, unsigned pin, int use_pullup);
+int at91_set_b_periph(unsigned port, unsigned pin, int use_pullup);
+int at91_set_pio_input(unsigned port, unsigned pin, int use_pullup);
+int at91_set_pio_multi_drive(unsigned port, unsigned pin, int is_on);
+int at91_set_pio_output(unsigned port, unsigned pin, int value);
+int at91_set_pio_periph(unsigned port, unsigned pin, int use_pullup);
+int at91_set_pio_pullup(unsigned port, unsigned pin, int use_pullup);
+int at91_set_pio_deglitch(unsigned port, unsigned pin, int is_on);
+int at91_set_pio_value(unsigned port, unsigned pin, int value);
+int at91_get_pio_value(unsigned port, unsigned pin);
+#endif
+#endif
+
+#define	AT91_PIO_PORTA		0x0
+#define	AT91_PIO_PORTB		0x1
+#define	AT91_PIO_PORTC		0x2
+#define	AT91_PIO_PORTD		0x3
+#define	AT91_PIO_PORTE		0x4
+
+#ifdef CONFIG_AT91_LEGACY
 
 #define PIO_PER		0x00	/* Enable Register */
 #define PIO_PDR		0x04	/* Disable Register */
@@ -45,5 +155,6 @@
 #define PIO_OWER	0xa0	/* Output Write Enable Register */
 #define PIO_OWDR	0xa4	/* Output Write Disable Register */
 #define PIO_OWSR	0xa8	/* Output Write Status Register */
+#endif
 
 #endif

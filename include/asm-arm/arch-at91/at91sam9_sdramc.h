@@ -17,6 +17,19 @@
 #ifndef AT91SAM9_SDRAMC_H
 #define AT91SAM9_SDRAMC_H
 
+#ifdef __ASSEMBLY__
+
+#ifndef AT91_SDRAMC_BASE
+#define AT91_SDRAMC_BASE	AT91_SDRAMC0_BASE
+#endif
+
+#define AT91_ASM_SDRAMC_MR	AT91_SDRAMC_BASE
+#define AT91_ASM_SDRAMC_TR	(AT91_SDRAMC_BASE + 0x04)
+#define AT91_ASM_SDRAMC_CR	(AT91_SDRAMC_BASE + 0x08)
+#define AT91_ASM_SDRAMC_MDR	(AT91_SDRAMC_BASE + 0x24)
+
+#endif
+
 /* SDRAM Controller (SDRAMC) registers */
 #define AT91_SDRAMC_MR		(AT91_SDRAMC + 0x00)	/* SDRAM Controller Mode Register */
 #define		AT91_SDRAMC_MODE	(0xf << 0)		/* Command Mode */

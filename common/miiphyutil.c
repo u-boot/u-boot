@@ -293,7 +293,7 @@ int miiphy_info (char *devname, unsigned char addr, unsigned int *oui,
 int miiphy_reset (char *devname, unsigned char addr)
 {
 	unsigned short reg;
-	int loop_cnt;
+	int timeout = 500;
 
 	if (miiphy_read (devname, addr, PHY_BMCR, &reg) != 0) {
 		debug ("PHY status read failed\n");
@@ -311,13 +311,13 @@ int miiphy_reset (char *devname, unsigned char addr)
 	 * auto-clearing).  This should happen within 0.5 seconds per the
 	 * IEEE spec.
 	 */
-	loop_cnt = 0;
 	reg = 0x8000;
-	while (((reg & 0x8000) != 0) && (loop_cnt++ < 1000000)) {
-		if (miiphy_read (devname, addr, PHY_BMCR, &reg) != 0) {
-			debug ("PHY status read failed\n");
-			return (-1);
+	while (((reg & 0x8000) != 0) && timeout--) {
+		if (miiphy_read(devname, addr, PHY_BMCR, &reg) != 0) {
+			debug("PHY status read failed\n");
+			return -1;
 		}
+		udelay(1000);
 	}
 	if ((reg & 0x8000) == 0) {
 		return (0);

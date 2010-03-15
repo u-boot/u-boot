@@ -29,20 +29,15 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS	:= netstar.o
-SOBJS	:= setup.o crcek.o
+SOBJS	:= setup.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) eeprom.c \
-		eeprom_start.S
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-gcclibdir := $(shell dirname `$(CC) -print-libgcc-file-name`)
-
 LOAD_ADDR = 0x10400000
-LDSCRIPT = $(TOPDIR)/board/$(BOARDDIR)/eeprom.lds
-lnk = $(if $(obj),$(obj),.)
 
-HOSTCFLAGS = -Wall -pedantic -I$(TOPDIR)/include
+#########################################################################
 
 all:	$(obj).depend $(LIB) $(obj)eeprom.srec $(obj)eeprom.bin \
 		$(obj)crcek.srec $(obj)crcek.bin $(obj)crcit
@@ -50,41 +45,42 @@ all:	$(obj).depend $(LIB) $(obj)eeprom.srec $(obj)eeprom.bin \
 $(LIB):	$(OBJS) $(SOBJS)
 	$(AR) $(ARFLAGS) $@ $^
 
-$(obj)eeprom.srec:	$(obj)eeprom.o $(obj)eeprom_start.o $(obj)u-boot.lds
-	cd $(lnk) && $(LD) -T $(obj)u-boot.lds -g -Ttext $(LOAD_ADDR) \
-		-o $(<:.o=) -e eeprom eeprom.o eeprom_start.o \
-		-L$(obj)../../examples/standalone -lstubs \
-		-L$(obj)../../lib_generic -lgeneric \
-		-L$(gcclibdir) -lgcc
-	$(OBJCOPY) -O srec $(<:.o=) $@
+$(obj)eeprom_start.o:
+	echo "b eeprom" | $(CC) $(AFLAGS) -c -x assembler -o $@ -
 
-$(obj)eeprom.bin:	$(obj)eeprom.srec
-	$(OBJCOPY) -I srec -O binary $< $@ 2>/dev/null
+$(obj)eeprom:		$(obj)eeprom_start.o $(obj)eeprom.o
+	$(LD) -Ttext $(LOAD_ADDR) -e eeprom -o $@ $^ \
+		-L$(obj)../../examples/standalone -lstubs \
+		$(PLATFORM_LIBS)
+
+$(obj)eeprom.srec:	$(obj)eeprom
+	$(OBJCOPY) -S -O srec $(<:.o=) $@
+
+$(obj)eeprom.bin:	$(obj)eeprom
+	$(OBJCOPY) -S -O binary $< $@
 
 $(obj)crcek.srec:	$(obj)crcek.o
-	$(LD) -g -Ttext 0x00000000 \
-		-o $(<:.o=) -e crcek $^
-	$(OBJCOPY) -O srec $(<:.o=) $@
+	$(LD) -g -Ttext 0x00000000 -e crcek -o $(<:.o=) $^
+	$(OBJCOPY) -S -O srec $(<:.o=) $@
 
 $(obj)crcek.bin:	$(obj)crcek.srec
-	$(OBJCOPY) -I srec -O binary $< $@ 2>/dev/null
+	$(OBJCOPY) -I srec -O binary $< $@
 
 $(obj)crcit:		$(obj)crcit.o $(obj)crc32.o
 	$(HOSTCC) $(HOSTCFLAGS) -o $@ $^
 
-$(obj)crcit.o:	crcit.c
+$(obj)crcit.o:		crcit.c
 	$(HOSTCC) $(HOSTCFLAGS) -o $@ -c $<
 
-$(obj)crc32.o:	$(SRCTREE)/lib_generic/crc32.c
-	$(HOSTCC) $(HOSTCFLAGS) -DUSE_HOSTCC -o $@ -c $<
-
-$(obj)u-boot.lds: $(LDSCRIPT)
-	$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
+$(obj)crc32.o:		$(SRCTREE)/lib_generic/crc32.c
+	$(HOSTCC) $(HOSTCFLAGS) -DUSE_HOSTCC -I$(TOPDIR)/include \
+		-o $@ -c $<
 
 clean:
-	rm -f $(SOBJS) $(OBJS) $(obj)eeprom $(obj)eeprom.srec \
-		$(obj)eeprom.bin $(obj)crcek $(obj)crcek.srec \
-		$(obj)crcek.bin $(obj)u-boot.lds
+	rm -f $(SOBJS) $(OBJS) \
+		$(obj)eeprom_start.o $(obj)eeprom.o \
+		$(obj)eeprom $(obj)eeprom.srec 	$(obj)eeprom.bin \
+		$(obj)crcek.o $(obj)crcek $(obj)crcek.srec $(obj)crcek.bin
 
 distclean:	clean
 	rm -f $(LIB) core *.bak $(obj).depend

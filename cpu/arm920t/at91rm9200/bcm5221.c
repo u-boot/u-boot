@@ -28,9 +28,9 @@
 
 #include <at91rm9200_net.h>
 #include <net.h>
-#include <bcm5221.h>
-
 #ifdef CONFIG_DRIVER_ETHER
+
+#include <bcm5221.h>
 
 #if defined(CONFIG_CMD_NET)
 

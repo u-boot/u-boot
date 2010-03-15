@@ -1,8 +1,6 @@
 /*
- * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
- * (C) Copyright 2005
- * Ladislav Michl, 2N Telekomunikace, <michl@2n.cz>
+ * (C) Copyright 2009
+ * Stefano Babic, DENX Software Engineering, sbabic@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,29 +21,23 @@
  * MA 02111-1307 USA
  */
 
-OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
-OUTPUT_ARCH(arm)
-ENTRY(_start)
-SECTIONS
-{
-	. = ALIGN(4);
-	.text      :
-	{
-	  eeprom_start.o	(.text)
-	  *(.text)
-	}
+#ifndef __ASM_ARCH_CLOCK_H
+#define __ASM_ARCH_CLOCK_H
 
-	. = ALIGN(4);
-	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
+enum mxc_clock {
+	MXC_ARM_CLK = 0,
+	MXC_AHB_CLK,
+	MXC_IPG_CLK,
+	MXC_IPG_PERCLK,
+	MXC_UART_CLK,
+	MXC_CSPI_CLK,
+	MXC_FEC_CLK,
+};
 
-	. = ALIGN(4);
-	.data : { *(.data) }
+unsigned int imx_decode_pll(unsigned int pll, unsigned int f_ref);
 
-	. = ALIGN(4);
-	.got : { *(.got) }
+u32 imx_get_uartclk(void);
+u32 imx_get_fecclk(void);
+unsigned int mxc_get_clock(enum mxc_clock clk);
 
-	. = ALIGN(4);
-	__bss_start = .;
-	.bss (NOLOAD) : { *(.bss) . = ALIGN(4); }
-	_end = .;
-}
+#endif /* __ASM_ARCH_CLOCK_H */

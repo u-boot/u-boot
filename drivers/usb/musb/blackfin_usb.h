@@ -82,7 +82,7 @@ struct bfin_musb_dma_regs {
 	ureg(addr_high);
 	ureg(count_low);
 	ureg(count_high);
-	ureg(pad);
+	u32 reserved0[2];
 };
 
 #undef ureg

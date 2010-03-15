@@ -63,6 +63,7 @@ struct davinci_usb_regs {
 
 /* Integrated highspeed/otg PHY */
 #define USBPHY_CTL_PADDR	(DAVINCI_SYSTEM_MODULE_BASE + 0x34)
+#define USBPHY_PHY24MHZ 	(1 << 13)
 #define USBPHY_PHYCLKGD 	(1 << 8)
 #define USBPHY_SESNDEN		(1 << 7)	/* v(sess_end) comparator */
 #define USBPHY_VBDTCTEN 	(1 << 6)	/* v(bus) comparator */

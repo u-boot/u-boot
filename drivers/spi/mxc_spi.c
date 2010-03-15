@@ -131,6 +131,13 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		return 1;
 	}
 
+	/* This driver is currently partly broken, alert the user */
+	if (bitlen > 16 && (bitlen % 32)) {
+		printf("Error: SPI transfer with bitlen=%d is broken.\n",
+		       bitlen);
+		return 1;
+	}
+
 	for (i = 0, in_l = (u32 *)din, out_l = (u32 *)dout;
 	     i < n_blks;
 	     i++, in_l++, out_l++, bitlen -= 32) {
@@ -142,6 +149,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 				*(u8 *)din = data;
 			else if (bitlen < 17)
 				*(u16 *)din = data;
+			else
+				*in_l = data;
 		}
 	}
 

@@ -53,9 +53,8 @@ int smc91111_eeprom (int argc, char *argv[])
 	int c, i, j, done, line, reg, value, start, what;
 	char input[50];
 
-	struct eth_device dev = {
-		.iobase = CONFIG_SMC91111_BASE
-	};
+	struct eth_device dev;
+	dev.iobase = CONFIG_SMC91111_BASE;
 
 	/* Print the ABI version */
 	app_startup (argv);

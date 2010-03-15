@@ -62,6 +62,12 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_L2_CACHE				/* toggle L2 cache	*/
 #define CONFIG_BTB				/* toggle branch predition */
 
+#ifdef CONFIG_MK_NAND
+#define CONFIG_NAND_U_BOOT		1
+#define CONFIG_RAMBOOT_NAND		1
+#define CONFIG_RAMBOOT_TEXT_BASE	0xf8f82000
+#endif
+
 /*
  * Only possible on E500 Version 2 or newer cores.
  */
@@ -74,15 +80,28 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_MEMTEST_END		0x00400000
 
 /*
+ * Config the L2 Cache as L2 SRAM
+ */
+#define CONFIG_SYS_INIT_L2_ADDR		0xf8f80000
+#define CONFIG_SYS_INIT_L2_ADDR_PHYS	CONFIG_SYS_INIT_L2_ADDR
+#define CONFIG_SYS_L2_SIZE		(512 << 10)
+#define CONFIG_SYS_INIT_L2_END	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
+
+/*
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #define CONFIG_SYS_CCSRBAR		0xe0000000	/* relocated CCSRBAR */
 #define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR
 						/* physical addr of CCSRBAR */
 #define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR
 						/* PQII uses CONFIG_SYS_IMMR */
+
+#if defined(CONFIG_RAMBOOT_NAND) && !defined(CONFIG_NAND_SPL)
+#define CONFIG_SYS_CCSRBAR_DEFAULT	CONFIG_SYS_CCSRBAR
+#else
+#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
+#endif
 
 #define CONFIG_SYS_PCI1_ADDR           (CONFIG_SYS_CCSRBAR+0x8000)
 #define CONFIG_SYS_PCIE1_ADDR          (CONFIG_SYS_CCSRBAR+0xa000)
@@ -152,8 +171,8 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_BCSR_BASE_PHYS	CONFIG_SYS_BCSR_BASE
 
 /*Chip select 0 - Flash*/
-#define CONFIG_SYS_BR0_PRELIM		0xfe000801
-#define	CONFIG_SYS_OR0_PRELIM		0xfe000ff7
+#define CONFIG_FLASH_BR_PRELIM		0xfe000801
+#define	CONFIG_FLASH_OR_PRELIM		0xfe000ff7
 
 /*Chip select 1 - BCSR*/
 #define CONFIG_SYS_BR1_PRELIM		0xf8000801
@@ -175,12 +194,33 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
 
+#if defined(CONFIG_SYS_SPL) || defined(CONFIG_RAMBOOT_NAND)
+#define CONFIG_SYS_RAMBOOT
+#else
+#undef CONFIG_SYS_RAMBOOT
+#endif
+
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 
 /* Chip select 3 - NAND */
+#ifndef CONFIG_NAND_SPL
 #define CONFIG_SYS_NAND_BASE		0xFC000000
+#else
+#define CONFIG_SYS_NAND_BASE		0xFFF00000
+#endif
+
+/* NAND boot: 4K NAND loader config */
+#define CONFIG_SYS_NAND_SPL_SIZE	0x1000
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	((512 << 10) - 0x2000)
+#define CONFIG_SYS_NAND_U_BOOT_DST	(CONFIG_SYS_INIT_L2_ADDR)
+#define CONFIG_SYS_NAND_U_BOOT_START \
+	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_NAND_SPL_SIZE)
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	(0)
+#define CONFIG_SYS_NAND_U_BOOT_RELOC	(CONFIG_SYS_INIT_L2_END - 0x2000)
+#define CONFIG_SYS_NAND_U_BOOT_RELOC_SP	((CONFIG_SYS_INIT_L2_END - 1) & ~0xF)
+
 #define CONFIG_SYS_NAND_BASE_PHYS	CONFIG_SYS_NAND_BASE
 #define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE, }
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
@@ -200,8 +240,18 @@ extern unsigned long get_clock_freq(void);
 				| OR_FCM_SCY_1 \
 				| OR_FCM_TRLX \
 				| OR_FCM_EHTR)
+
+#ifdef CONFIG_RAMBOOT_NAND
+#define CONFIG_SYS_BR0_PRELIM	CONFIG_NAND_BR_PRELIM	/* NAND Base Address */
+#define CONFIG_SYS_OR0_PRELIM	CONFIG_NAND_OR_PRELIM	/* NAND Options */
+#define CONFIG_SYS_BR3_PRELIM	CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
+#define CONFIG_SYS_OR3_PRELIM	CONFIG_FLASH_OR_PRELIM	/* NOR Options */
+#else
+#define CONFIG_SYS_BR0_PRELIM	CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
+#define CONFIG_SYS_OR0_PRELIM	CONFIG_FLASH_OR_PRELIM	/* NOR Options */
 #define CONFIG_SYS_BR3_PRELIM	CONFIG_NAND_BR_PRELIM /* NAND Base Address */
 #define CONFIG_SYS_OR3_PRELIM	CONFIG_NAND_OR_PRELIM /* NAND Options */
+#endif
 
 /*
  * SDRAM on the LocalBus
@@ -326,12 +376,14 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_UEC1_TX_CLK         QE_CLK12
 #define CONFIG_SYS_UEC1_ETH_TYPE       GIGA_ETH
 #define CONFIG_SYS_UEC1_PHY_ADDR       7
-#define CONFIG_SYS_UEC1_INTERFACE_MODE ENET_1000_RGMII_ID
+#define CONFIG_SYS_UEC1_INTERFACE_TYPE RGMII_ID
+#define CONFIG_SYS_UEC1_INTERFACE_SPEED 1000
 #elif defined(CONFIG_SYS_UCC_RMII_MODE)
 #define CONFIG_SYS_UEC1_TX_CLK         QE_CLK16	/* CLK16 for RMII */
 #define CONFIG_SYS_UEC1_ETH_TYPE       FAST_ETH
 #define CONFIG_SYS_UEC1_PHY_ADDR       8	/* 0x8 for RMII */
-#define CONFIG_SYS_UEC1_INTERFACE_MODE ENET_100_RMII
+#define CONFIG_SYS_UEC1_INTERFACE_TYPE RMII
+#define CONFIG_SYS_UEC1_INTERFACE_SPEED 100
 #endif /* CONFIG_SYS_UCC_RGMII_MODE */
 #endif /* CONFIG_UEC_ETH1 */
 
@@ -345,12 +397,14 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_UEC2_TX_CLK         QE_CLK17
 #define CONFIG_SYS_UEC2_ETH_TYPE       GIGA_ETH
 #define CONFIG_SYS_UEC2_PHY_ADDR       1
-#define CONFIG_SYS_UEC2_INTERFACE_MODE ENET_1000_RGMII_ID
+#define CONFIG_SYS_UEC2_INTERFACE_TYPE RGMII_ID
+#define CONFIG_SYS_UEC2_INTERFACE_SPEED 1000
 #elif defined(CONFIG_SYS_UCC_RMII_MODE)
 #define CONFIG_SYS_UEC2_TX_CLK         QE_CLK16	/* CLK 16 for RMII */
 #define CONFIG_SYS_UEC2_ETH_TYPE       FAST_ETH
 #define CONFIG_SYS_UEC2_PHY_ADDR       0x9	/* 0x9 for RMII */
-#define CONFIG_SYS_UEC2_INTERFACE_MODE ENET_100_RMII
+#define CONFIG_SYS_UEC2_INTERFACE_TYPE RMII
+#define CONFIG_SYS_UEC2_INTERFACE_SPEED 100
 #endif /* CONFIG_SYS_UCC_RGMII_MODE */
 #endif /* CONFIG_UEC_ETH2 */
 
@@ -364,12 +418,14 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_UEC3_TX_CLK         QE_CLK12
 #define CONFIG_SYS_UEC3_ETH_TYPE       GIGA_ETH
 #define CONFIG_SYS_UEC3_PHY_ADDR       2
-#define CONFIG_SYS_UEC3_INTERFACE_MODE ENET_1000_RGMII_ID
+#define CONFIG_SYS_UEC3_INTERFACE_TYPE RGMII_ID
+#define CONFIG_SYS_UEC3_INTERFACE_SPEED 1000
 #elif defined(CONFIG_SYS_UCC_RMII_MODE)
 #define CONFIG_SYS_UEC3_TX_CLK		QE_CLK16 /* CLK_16 for RMII */
 #define CONFIG_SYS_UEC3_ETH_TYPE	FAST_ETH
 #define CONFIG_SYS_UEC3_PHY_ADDR	0xA     /* 0xA for RMII */
-#define CONFIG_SYS_UEC3_INTERFACE_MODE ENET_100_RMII
+#define CONFIG_SYS_UEC3_INTERFACE_TYPE RMII
+#define CONFIG_SYS_UEC3_INTERFACE_SPEED 100
 #endif /* CONFIG_SYS_UCC_RGMII_MODE */
 #endif /* CONFIG_UEC_ETH3 */
 
@@ -383,12 +439,14 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_UEC4_TX_CLK         QE_CLK17
 #define CONFIG_SYS_UEC4_ETH_TYPE       GIGA_ETH
 #define CONFIG_SYS_UEC4_PHY_ADDR       3
-#define CONFIG_SYS_UEC4_INTERFACE_MODE ENET_1000_RGMII_ID
+#define CONFIG_SYS_UEC4_INTERFACE_TYPE RGMII_ID
+#define CONFIG_SYS_UEC4_INTERFACE_SPEED 1000
 #elif defined(CONFIG_SYS_UCC_RMII_MODE)
 #define CONFIG_SYS_UEC4_TX_CLK		QE_CLK16 /* CLK16 for RMII */
 #define CONFIG_SYS_UEC4_ETH_TYPE	FAST_ETH
 #define CONFIG_SYS_UEC4_PHY_ADDR	0xB     /* 0xB for RMII */
-#define CONFIG_SYS_UEC4_INTERFACE_MODE ENET_100_RMII
+#define CONFIG_SYS_UEC4_INTERFACE_TYPE RMII
+#define CONFIG_SYS_UEC4_INTERFACE_SPEED 100
 #endif /* CONFIG_SYS_UCC_RGMII_MODE */
 #endif /* CONFIG_UEC_ETH4 */
 
@@ -401,7 +459,8 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_UEC6_TX_CLK         QE_CLK_NONE
 #define CONFIG_SYS_UEC6_ETH_TYPE       GIGA_ETH
 #define CONFIG_SYS_UEC6_PHY_ADDR       4
-#define CONFIG_SYS_UEC6_INTERFACE_MODE ENET_1000_SGMII
+#define CONFIG_SYS_UEC6_INTERFACE_TYPE SGMII
+#define CONFIG_SYS_UEC6_INTERFACE_SPEED 1000
 #endif /* CONFIG_UEC_ETH6 */
 
 #undef CONFIG_UEC_ETH8         /* GETH8 */
@@ -413,7 +472,8 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_UEC8_TX_CLK         QE_CLK_NONE
 #define CONFIG_SYS_UEC8_ETH_TYPE       GIGA_ETH
 #define CONFIG_SYS_UEC8_PHY_ADDR       6
-#define CONFIG_SYS_UEC8_INTERFACE_MODE ENET_1000_SGMII
+#define CONFIG_SYS_UEC8_INTERFACE_TYPE SGMII
+#define CONFIG_SYS_UEC8_INTERFACE_SPEED 1000
 #endif /* CONFIG_UEC_ETH8 */
 
 #endif /* CONFIG_QE */
@@ -437,10 +497,18 @@ extern unsigned long get_clock_freq(void);
 /*
  * Environment
  */
+#if defined(CONFIG_SYS_RAMBOOT)
+#if defined(CONFIG_RAMBOOT_NAND)
+#define CONFIG_ENV_IS_IN_NAND	1
+#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
+#define CONFIG_ENV_OFFSET	((512 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
+#endif
+#else
 #define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SECT_SIZE	0x20000	/* 256K(one sector) for env */
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
+#endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */

@@ -51,6 +51,17 @@
 #define AT91SAM9G45_ID_VDEC	30	/* Video Decoder */
 #define AT91SAM9G45_ID_IRQ0	31	/* Advanced Interrupt Controller */
 
+#define AT91_EMAC_BASE		0xfffbc000
+#define AT91_SMC_BASE		0xffffe800
+#define AT91_MATRIX_BASE	0xffffea00
+#define AT91_PIO_BASE		0xfffff200
+#define AT91_PMC_BASE		0xfffffc00
+#define AT91_RSTC_BASE		0xfffffd00
+#define AT91_PIT_BASE		0xfffffd30
+#define AT91_WDT_BASE		0xfffffd40
+
+#ifdef CONFIG_AT91_LEGACY
+
 /*
  * User Peripheral physical base addresses.
  */
@@ -114,6 +125,8 @@
 #define AT91_USART2	AT91SAM9G45_BASE_US2
 #define AT91_USART3	AT91SAM9G45_BASE_US3
 
+#endif
+
 /*
  * Internal Memory.
  */
@@ -134,6 +147,6 @@
 /*
  * Cpu Name
  */
-#define AT91_CPU_NAME	"AT91SAM9G45"
+#define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9G45"
 
 #endif

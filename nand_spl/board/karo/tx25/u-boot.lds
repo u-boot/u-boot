@@ -1,8 +1,6 @@
 /*
- * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
- * (C) Copyright 2005
- * Ladislav Michl, 2N Telekomunikace, <michl@2n.cz>
+ * (C) Copyright 2009
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -14,7 +12,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -22,21 +20,25 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-
 OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
 ENTRY(_start)
 SECTIONS
 {
+	. = 0x00000000;
+
 	. = ALIGN(4);
-	.text      :
+	.text :
 	{
-	  eeprom_start.o	(.text)
-	  *(.text)
+		start.o			(.text)
+		lowlevel_init.o		(.text)
+		nand_boot_fsl_nfc.o	(.text)
+		*(.text)
+		. = 2K;
 	}
 
 	. = ALIGN(4);
-	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
+	.rodata : { *(.rodata) }
 
 	. = ALIGN(4);
 	.data : { *(.data) }
@@ -44,8 +46,13 @@ SECTIONS
 	. = ALIGN(4);
 	.got : { *(.got) }
 
+	. = .;
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;
+
 	. = ALIGN(4);
 	__bss_start = .;
-	.bss (NOLOAD) : { *(.bss) . = ALIGN(4); }
+	.bss : { *(.bss) }
 	_end = .;
 }

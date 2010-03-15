@@ -637,9 +637,7 @@ extern int board_pci_host_broken(void);
 
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR		00:E0:0C:00:83:79
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR		00:E0:0C:00:83:78
 #endif
 
 #define CONFIG_BAUDRATE 115200

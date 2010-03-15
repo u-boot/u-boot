@@ -1980,7 +1980,8 @@ unsigned long flash_init (void)
 	}
 
 	/* Monitor protection ON by default */
-#if (CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE)
+#if (CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE) && \
+	(!defined(CONFIG_MONITOR_IS_IN_RAM))
 	flash_protect (FLAG_PROTECT_SET,
 		       CONFIG_SYS_MONITOR_BASE,
 		       CONFIG_SYS_MONITOR_BASE + monitor_flash_len  - 1,

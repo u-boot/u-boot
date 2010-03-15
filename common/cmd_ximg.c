@@ -225,20 +225,25 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			break;
 #if defined(CONFIG_BZIP2)
 		case IH_COMP_BZIP2:
-			printf ("   Uncompressing part %d ... ", part);
-			/*
-			 * If we've got less than 4 MB of malloc() space,
-			 * use slower decompression algorithm which requires
-			 * at most 2300 KB of memory.
-			 */
-			i = BZ2_bzBuffToBuffDecompress
-				((char*)ntohl(hdr->ih_load),
-				 &unc_len, (char *)data, len,
-				 CONFIG_SYS_MALLOC_LEN < (4096 * 1024), 0);
-			if (i != BZ_OK) {
-				printf ("BUNZIP2 ERROR %d - "
-					"image not loaded\n", i);
-				return 1;
+			{
+				int i;
+
+				printf ("   Uncompressing part %d ... ", part);
+				/*
+                                 * If we've got less than 4 MB of malloc()
+				 * space, use slower decompression algorithm
+				 * which requires at most 2300 KB of memory.
+				 */
+				i = BZ2_bzBuffToBuffDecompress(
+					(char*)ntohl(hdr->ih_load),
+					&unc_len, (char *)data, len,
+					CONFIG_SYS_MALLOC_LEN < (4096 * 1024),
+					0);
+				if (i != BZ_OK) {
+					printf ("BUNZIP2 ERROR %d - "
+						"image not loaded\n", i);
+					return 1;
+				}
 			}
 			break;
 #endif /* CONFIG_BZIP2 */

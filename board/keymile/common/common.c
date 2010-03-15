@@ -35,6 +35,7 @@
 #include <libfdt.h>
 #endif
 
+#include "../common/common.h"
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
 
@@ -421,7 +422,6 @@ static int get_scl (void)
 
 	return ((val & SCL_BIT) == SCL_BIT);
 }
-
 #endif
 
 #if !defined(CONFIG_KMETER1)
@@ -500,7 +500,7 @@ void i2c_init_board(void)
 	out_8 (&dev->cr, (I2C_CR_MEN));
 
 #else
-#if defined(CONFIG_HARD_I2C)
+#if defined(CONFIG_HARD_I2C) && !defined(CONFIG_MACH_SUEN3)
 	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR ;
 	volatile i2c8260_t *i2c	= (i2c8260_t *)&immap->im_i2c;
 
@@ -578,10 +578,12 @@ int fdt_get_node_and_value (void *blob,
 }
 #endif
 
+#if !defined(CONFIG_MACH_SUEN3)
 int ethernet_present (void)
 {
 	return (in_8((u8 *)CONFIG_SYS_PIGGY_BASE + CONFIG_SYS_SLOT_ID_OFF) & 0x80);
 }
+#endif
 
 int board_eth_init (bd_t *bis)
 {

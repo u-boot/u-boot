@@ -31,8 +31,8 @@
 #define CONFIG_OMAP1510 1		/* which is in a 5910 */
 
 /* Input clock of PLL */
-#define CONFIG_SYS_CLK_FREQ	150000000	/* 150MHz input clock */
-#define CONFIG_XTAL_FREQ	12000000
+#define CONFIG_SYS_CLK_FREQ		150000000	/* 150MHz */
+#define CONFIG_XTAL_FREQ		12000000	/*  12MHz */
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 
@@ -48,55 +48,53 @@
 /*
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
-#define PHYS_SDRAM_1		0x10000000	/* SDRAM Bank #1 */
-#define PHYS_SDRAM_1_SIZE	(64 * 1024 * 1024)
+#define CONFIG_NR_DRAM_BANKS		1
+#define PHYS_SDRAM_1			0x10000000
+#define PHYS_SDRAM_1_SIZE		(64 * 1024 * 1024)
+#define PHYS_FLASH_1			0x0000000
 
-#define PHYS_FLASH_1		0x00000000	/* Flash Bank #1 */
-
-#define CONFIG_SYS_LOAD_ADDR		PHYS_SDRAM_1 + 0x400000	/* default load address */
-
-/*
- * FLASH organization
- */
-#define CONFIG_SYS_FLASH_CFI			/* Flash is CFI conformant */
-#define CONFIG_FLASH_CFI_DRIVER		/* Use the common driver */
-#define CONFIG_SYS_MAX_FLASH_BANKS	1
-#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
-
-/* FIXME: Does not work on AMD flash */
-/* #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1 */	/* use buffered writes (20x faster) */
-#define CONFIG_SYS_MAX_FLASH_SECT	512	/* max # of sectors on one chip */
-
-#define CONFIG_SYS_MONITOR_BASE	PHYS_FLASH_1
+#define CONFIG_SYS_MONITOR_BASE		PHYS_FLASH_1
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
 
 /*
  * Environment settings
  */
 #define CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_ADDR		(PHYS_FLASH_1 + CONFIG_SYS_MONITOR_LEN)
-#define CONFIG_ENV_SIZE		(8 * 1024)
-#define CONFIG_ENV_SECT_SIZE	(64 * 1024)
-#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
+#define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + CONFIG_SYS_MONITOR_LEN)
+#define CONFIG_ENV_SIZE			(8 * 1024)
+#define CONFIG_ENV_SECT_SIZE		(64 * 1024)
+#define CONFIG_ENV_ADDR_REDUND		(CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE_REDUND		CONFIG_ENV_SIZE
 
 #define CONFIG_ENV_OVERWRITE
 
 /*
  * Size of malloc() pool and stack
  */
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
+#define CONFIG_SYS_GBL_DATA_SIZE	128
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
-#define CONFIG_STACKSIZE	(1 * 1024 * 1024)
-#define PHYS_SDRAM_1_RESERVED	(CONFIG_SYS_MONITOR_LEN + CONFIG_SYS_MALLOC_LEN + CONFIG_STACKSIZE)
+#define CONFIG_STACKSIZE		(1 * 1024 * 1024)
 
 /*
  * Hardware drivers
  */
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
+#define CONFIG_SYS_NS16550_CLK		(CONFIG_XTAL_FREQ)
+#define CONFIG_SYS_NS16550_COM1		OMAP1510_UART1_BASE
+
 #define CONFIG_NET_MULTI
 #define CONFIG_SMC91111
-#define CONFIG_SMC91111_BASE	0x08000300
+#define CONFIG_SMC91111_BASE		0x08000300
+
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
+#define CONFIG_SYS_MAX_FLASH_SECT	512
+
+#define CONFIG_SYS_FLASH_CFI
+#define CONFIG_FLASH_CFI_DRIVER
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 
 #define CONFIG_HARD_I2C
 #define CONFIG_SYS_I2C_SPEED		100000
@@ -104,24 +102,16 @@
 #define CONFIG_DRIVER_OMAP1510_I2C
 
 #define CONFIG_RTC_DS1307
-#define CONFIG_SYS_I2C_RTC_ADDR	0x68
+#define CONFIG_SYS_I2C_RTC_ADDR		0x68
 
-/*
- * NS16550 Configuration
- */
-#define CONFIG_SYS_NS16550
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	(-4)
-#define CONFIG_SYS_NS16550_CLK		(CONFIG_XTAL_FREQ)	/* can be 12M/32Khz or 48Mhz  */
-#define CONFIG_SYS_NS16550_COM1	OMAP1510_UART1_BASE	/* uart1 */
 
-#define CONFIG_CONS_INDEX	1
-#define CONFIG_BAUDRATE		115200
+#define CONFIG_CONS_INDEX		1
+#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 
 /*
- * Command line configuration.
+ * Command line configuration
  */
 #include <config_cmd_default.h>
 
@@ -138,7 +128,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_RUN
 
-
 /*
  * BOOTP options
  */
@@ -147,36 +136,39 @@
 #define CONFIG_BOOTP_HOSTNAME
 #define CONFIG_BOOTP_BOOTPATH
 
-
 #define CONFIG_LOOPW
 
 #define CONFIG_BOOTDELAY	3
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* allow to break in always */
-#undef  CONFIG_BOOTARGS		/* the boot command will set bootargs*/
-#define CONFIG_SYS_AUTOLOAD		"n"		/* No autoload */
+#undef  CONFIG_BOOTARGS			/* the boot command will set bootargs*/
+#define CONFIG_SYS_AUTOLOAD		"n"
 #define CONFIG_BOOTCOMMAND	"run nboot"
 #define CONFIG_PREBOOT		"run setup"
-#define	CONFIG_EXTRA_ENV_SETTINGS				\
-	"silent=1\0"						\
-	"ospart=0\0"						\
-	"bootfile=/boot/uImage\0"				\
-	"setpart="						\
-	"if test -n $swapos; then "				\
-		"setenv swapos; saveenv; "			\
-		"if test $ospart -eq 0; then setenv ospart 1; else setenv ospart 0; fi; "\
-	"fi\0"							\
-	"setup=setenv bootargs console=ttyS0,$baudrate "	\
-		"mtdparts=$mtdparts\0"				\
-	"nfsargs=setenv bootargs $bootargs "			\
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"silent=1\0"							\
+	"ospart=0\0"							\
+	"bootfile=/boot/uImage\0"					\
+	"setpart="							\
+	"if test -n $swapos; then "					\
+		"setenv swapos; saveenv; "				\
+		"if test $ospart -eq 0; then "				\
+			"setenv ospart 1; "				\
+		"else "							\
+			"setenv ospart 0; "				\
+		"fi; "							\
+	"fi\0"								\
+	"setup=setenv bootargs console=ttyS0,$baudrate "		\
+		"mtdparts=$mtdparts\0"					\
+	"nfsargs=setenv bootargs $bootargs "				\
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off " \
-		"nfsroot=$rootpath root=/dev/nfs\0"		\
-	"flashargs=run setpart; setenv bootargs $bootargs "	\
-		"root=mtd:data$ospart ro "			\
-		"rootfstype=jffs2\0"				\
-	"initrdargs=setenv bootargs $bootargs "			\
+		"nfsroot=$rootpath root=/dev/nfs\0"			\
+	"flashargs=run setpart; setenv bootargs $bootargs "		\
+		"root=mtd:data$ospart ro "				\
+		"rootfstype=jffs2\0"					\
+	"initrdargs=setenv bootargs $bootargs "				\
 		"ip=$ipaddr:$serverip:$gatewayip:$netmask:$hostname::off\0" \
-	"fboot=run flashargs; chpart data$ospart; fsload; bootm\0" \
-	"mboot=bootp; run initrdargs; tftp; bootm\0"		\
+	"fboot=run flashargs; chpart data$ospart; fsload; bootm\0"	\
+	"mboot=bootp; run initrdargs; tftp; bootm\0"			\
 	"nboot=bootp; run nfsargs; tftp; bootm\0"
 
 #define CONFIG_SILENT_CONSOLE		1	/* enable silent startup */
@@ -188,14 +180,14 @@
 #endif
 
 /*
- * JFFS2 partitions (mtdparts command line support)
+ * Partitions (mtdparts command line support)
  */
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
-#define MTDIDS_DEFAULT		"nor0=omapflash.0"
-#define MTDPARTS_DEFAULT	"mtdparts=omapflash.0:256k(u-boot),64k(env),64k(r_env),16192k(data0),-(data1)"
-
+#define MTDIDS_DEFAULT		"nor0=physmap-flash.0"
+#define MTDPARTS_DEFAULT	"mtdparts=physmap-flash.0:" \
+	"256k(u-boot),64k(env),64k(r_env),16192k(data0),-(data1)"
 
 /*
  * Miscellaneous configurable options
@@ -203,26 +195,30 @@
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_AUTO_COMPLETE
-#define CONFIG_SYS_LONGHELP				/* undef to save memory		*/
-#define CONFIG_SYS_PROMPT		"# "		/* Monitor Command Prompt	*/
-#define CONFIG_SYS_CBSIZE		256		/* Console I/O Buffer Size	*/
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
-#define CONFIG_SYS_MAXARGS		16		/* max number of command args	*/
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_SYS_PROMPT		"# "
+#define CONFIG_SYS_CBSIZE		256
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
+					 sizeof(CONFIG_SYS_PROMPT) + 16)
+#define CONFIG_SYS_MAXARGS		16
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1
-#define CONFIG_SYS_MEMTEST_END		PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE - PHYS_SDRAM_1_RESERVED
+#define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1)
+#define CONFIG_SYS_MEMTEST_END		(PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE - \
+	(CONFIG_SYS_MONITOR_LEN + CONFIG_SYS_MALLOC_LEN + CONFIG_STACKSIZE))
+#define CONFIG_SYS_LOAD_ADDR		(PHYS_SDRAM_1 + 0x400000)
 
-/* The 1510 has 3 timers, they can be driven by the RefClk (12MHz) or by DPLL1.
+/*
+ * The 1510 has 3 timers, they can be driven by the RefClk (12MHz) or by DPLL1.
  * This time is further subdivided by a local divisor.
  */
-#define CONFIG_SYS_TIMERBASE	OMAP1510_TIMER1_BASE
-#define CONFIG_SYS_PTV		7	/* 2^(PTV+1), divide by 256 */
-#define CONFIG_SYS_HZ		1000
+#define CONFIG_SYS_TIMERBASE		OMAP1510_TIMER1_BASE
+#define CONFIG_SYS_PTV			7	/* 2^(PTV+1), divide by 256 */
+#define CONFIG_SYS_HZ			1000
 
-#define OMAP5910_DPLL_DIV	1
-#define OMAP5910_DPLL_MUL	((CONFIG_SYS_CLK_FREQ * \
-				 (1 << OMAP5910_DPLL_DIV)) / CONFIG_XTAL_FREQ)
+#define OMAP5910_DPLL_DIV		1
+#define OMAP5910_DPLL_MUL		\
+	((CONFIG_SYS_CLK_FREQ * (1 << OMAP5910_DPLL_DIV)) / CONFIG_XTAL_FREQ)
 
 #define OMAP5910_ARM_PER_DIV	2	/* CKL/4 */
 #define OMAP5910_LCD_DIV	2	/* CKL/4 */

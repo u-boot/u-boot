@@ -36,4 +36,7 @@ ulong imx_get_perclk2(void);
 ulong imx_get_perclk3(void);
 ulong imx_get_ahbclk(void);
 
+#define imx_get_uartclk imx_get_perclk1
+#define imx_get_fecclk imx_get_ahbclk
+
 #endif /* __ASM_ARCH_CLOCK_H */

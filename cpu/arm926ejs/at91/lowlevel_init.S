@@ -27,15 +27,20 @@
  */
 
 #include <config.h>
-#include <version.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pmc.h>
-#include <asm/arch/at91_pio.h>
-#include <asm/arch/at91_rstc.h>
 #include <asm/arch/at91_wdt.h>
-#include <asm/arch/at91sam9_matrix.h>
+#include <asm/arch/at91_pio.h>
+#include <asm/arch/at91_matrix.h>
 #include <asm/arch/at91sam9_sdramc.h>
 #include <asm/arch/at91sam9_smc.h>
+#include <asm/arch/at91_rstc.h>
+#ifdef CONFIG_AT91_LEGACY
+#include <asm/arch/at91sam9_matrix.h>
+#endif
+#ifndef CONFIG_SYS_MATRIX_EBICSA_VAL
+#define CONFIG_SYS_MATRIX_EBICSA_VAL CONFIG_SYS_MATRIX_EBI0CSA_VAL
+#endif
 
 _TEXT_BASE:
 	.word	TEXT_BASE
@@ -75,7 +80,7 @@ POS1:
  * - Check if the PLL is already initialized
  * ----------------------------------------------------------------------------
  */
-	ldr	r1, =(AT91_BASE_SYS + AT91_PMC_MCKR)
+	ldr	r1, =(AT91_ASM_PMC_MCKR)
 	ldr	r0, [r1]
 	and	r0, r0, #3
 	cmp	r0, #0
@@ -85,18 +90,18 @@ POS1:
  * - Enable the Main Oscillator
  * ---------------------------------------------------------------------------
  */
-	ldr	r1, =(AT91_BASE_SYS + AT91_CKGR_MOR)
-	ldr	r2, =(AT91_BASE_SYS + AT91_PMC_SR)
+	ldr	r1, =(AT91_ASM_PMC_MOR)
+	ldr	r2, =(AT91_ASM_PMC_SR)
 	/* Main oscillator Enable register PMC_MOR: */
 	ldr	r0, =CONFIG_SYS_MOR_VAL
 	str	r0, [r1]
 
 	/* Reading the PMC Status to detect when the Main Oscillator is enabled */
-	mov	r4, #AT91_PMC_MOSCS
+	mov	r4, #AT91_PMC_IXR_MOSCS
 MOSCS_Loop:
 	ldr	r3, [r2]
 	and	r3, r4, r3
-	cmp	r3, #AT91_PMC_MOSCS
+	cmp	r3, #AT91_PMC_IXR_MOSCS
 	bne	MOSCS_Loop
 
 /* ----------------------------------------------------------------------------
@@ -105,16 +110,16 @@ MOSCS_Loop:
  * Setup PLLA
  * ----------------------------------------------------------------------------
  */
-	ldr	r1, =(AT91_BASE_SYS + AT91_CKGR_PLLAR)
+	ldr	r1, =(AT91_ASM_PMC_PLLAR)
 	ldr	r0, =CONFIG_SYS_PLLAR_VAL
 	str	r0, [r1]
 
 	/* Reading the PMC Status register to detect when the PLLA is locked */
-	mov	r4, #AT91_PMC_LOCKA
+	mov	r4, #AT91_PMC_IXR_LOCKA
 MOSCS_Loop1:
 	ldr	r3, [r2]
 	and	r3, r4, r3
-	cmp	r3, #AT91_PMC_LOCKA
+	cmp	r3, #AT91_PMC_IXR_LOCKA
 	bne	MOSCS_Loop1
 
 /* ----------------------------------------------------------------------------
@@ -123,38 +128,37 @@ MOSCS_Loop1:
  * - Switch on the Main Oscillator
  * ----------------------------------------------------------------------------
  */
-	ldr	r1, =(AT91_BASE_SYS + AT91_PMC_MCKR)
+	ldr	r1, =(AT91_ASM_PMC_MCKR)
 
 	/* -Master Clock Controller register PMC_MCKR */
 	ldr	r0, =CONFIG_SYS_MCKR1_VAL
 	str	r0, [r1]
 
 	/* Reading the PMC Status to detect when the Master clock is ready */
-	mov	r4, #AT91_PMC_MCKRDY
+	mov	r4, #AT91_PMC_IXR_MCKRDY
 MCKRDY_Loop:
 	ldr	r3, [r2]
 	and	r3, r4, r3
-	cmp	r3, #AT91_PMC_MCKRDY
+	cmp	r3, #AT91_PMC_IXR_MCKRDY
 	bne	MCKRDY_Loop
 
 	ldr	r0, =CONFIG_SYS_MCKR2_VAL
 	str	r0, [r1]
 
 	/* Reading the PMC Status to detect when the Master clock is ready */
-	mov	r4, #AT91_PMC_MCKRDY
+	mov	r4, #AT91_PMC_IXR_MCKRDY
 MCKRDY_Loop1:
 	ldr	r3, [r2]
 	and	r3, r4, r3
-	cmp	r3, #AT91_PMC_MCKRDY
+	cmp	r3, #AT91_PMC_IXR_MCKRDY
 	bne	MCKRDY_Loop1
-
 PLL_setup_end:
 
 /* ----------------------------------------------------------------------------
  * - memory control configuration 2
  * ----------------------------------------------------------------------------
  */
-	ldr	r0, =(AT91_BASE_SYS + AT91_SDRAMC_TR)
+	ldr	r0, =(AT91_ASM_SDRAMC_TR)
 	ldr	r1, [r0]
 	cmp	r1, #0
 	bne	SDRAM_setup_end
@@ -166,7 +170,6 @@ PLL_setup_end:
 	sub	r2, r2, r1
 	add	r0, r0, r5
 	add	r2, r2, r5
-
 2:
 	/* the address */
 	ldr	r1, [r0], #4
@@ -183,60 +186,53 @@ SDRAM_setup_end:
 	.ltorg
 
 SMRDATA:
-	.word (AT91_BASE_SYS + AT91_WDT_MR)
+	.word AT91_ASM_WDT_MR
 	.word CONFIG_SYS_WDTC_WDMR_VAL
-
 	/* configure PIOx as EBI0 D[16-31] */
 #if defined(CONFIG_AT91SAM9263)
-	.word (AT91_BASE_SYS + AT91_PIOD + PIO_PDR)
+	.word AT91_ASM_PIOD_PDR
 	.word CONFIG_SYS_PIOD_PDR_VAL1
-	.word (AT91_BASE_SYS + AT91_PIOD + PIO_PUDR)
+	.word AT91_ASM_PIOD_PUDR
 	.word CONFIG_SYS_PIOD_PPUDR_VAL
-	.word (AT91_BASE_SYS + AT91_PIOD + PIO_ASR)
+	.word AT91_ASM_PIOD_ASR
 	.word CONFIG_SYS_PIOD_PPUDR_VAL
 #elif defined(CONFIG_AT91SAM9260) || defined(CONFIG_AT91SAM9261) \
 	|| defined(CONFIG_AT91SAM9G20)
-	.word (AT91_BASE_SYS + AT91_PIOC + PIO_PDR)
+	.word AT91_ASM_PIOC_PDR
 	.word CONFIG_SYS_PIOC_PDR_VAL1
-	.word (AT91_BASE_SYS + AT91_PIOC + PIO_PUDR)
+	.word AT91_ASM_PIOC_PUDR
 	.word CONFIG_SYS_PIOC_PPUDR_VAL
 #endif
-
-#if defined(AT91_MATRIX_EBI0CSA)
-	.word (AT91_BASE_SYS + AT91_MATRIX_EBI0CSA)
-	.word CONFIG_SYS_MATRIX_EBI0CSA_VAL
-#else /* AT91_MATRIX_EBICSA */
-	.word (AT91_BASE_SYS + AT91_MATRIX_EBICSA)
+	.word AT91_ASM_MATRIX_CSA0
 	.word CONFIG_SYS_MATRIX_EBICSA_VAL
-#endif
 
 	/* flash */
-	.word (AT91_BASE_SYS + AT91_SMC_MODE(0))
+	.word AT91_ASM_SMC_MODE0
 	.word CONFIG_SYS_SMC0_MODE0_VAL
 
-	.word (AT91_BASE_SYS + AT91_SMC_CYCLE(0))
+	.word AT91_ASM_SMC_CYCLE0
 	.word CONFIG_SYS_SMC0_CYCLE0_VAL
 
-	.word (AT91_BASE_SYS + AT91_SMC_PULSE(0))
+	.word AT91_ASM_SMC_PULSE0
 	.word CONFIG_SYS_SMC0_PULSE0_VAL
 
-	.word (AT91_BASE_SYS + AT91_SMC_SETUP(0))
+	.word AT91_ASM_SMC_SETUP0
 	.word CONFIG_SYS_SMC0_SETUP0_VAL
 
 SMRDATA1:
-	.word (AT91_BASE_SYS + AT91_SDRAMC_MR)
+	.word AT91_ASM_SDRAMC_MR
 	.word CONFIG_SYS_SDRC_MR_VAL1
-	.word (AT91_BASE_SYS + AT91_SDRAMC_TR)
+	.word AT91_ASM_SDRAMC_TR
 	.word CONFIG_SYS_SDRC_TR_VAL1
-	.word (AT91_BASE_SYS + AT91_SDRAMC_CR)
+	.word AT91_ASM_SDRAMC_CR
 	.word CONFIG_SYS_SDRC_CR_VAL
-	.word (AT91_BASE_SYS + AT91_SDRAMC_MDR)
+	.word AT91_ASM_SDRAMC_MDR
 	.word CONFIG_SYS_SDRC_MDR_VAL
-	.word (AT91_BASE_SYS + AT91_SDRAMC_MR)
+	.word AT91_ASM_SDRAMC_MR
 	.word CONFIG_SYS_SDRC_MR_VAL2
 	.word AT91_SDRAM_BASE
 	.word CONFIG_SYS_SDRAM_VAL1
-	.word (AT91_BASE_SYS + AT91_SDRAMC_MR)
+	.word AT91_ASM_SDRAMC_MR
 	.word CONFIG_SYS_SDRC_MR_VAL3
 	.word AT91_SDRAM_BASE
 	.word CONFIG_SYS_SDRAM_VAL2
@@ -254,26 +250,25 @@ SMRDATA1:
 	.word CONFIG_SYS_SDRAM_VAL8
 	.word AT91_SDRAM_BASE
 	.word CONFIG_SYS_SDRAM_VAL9
-	.word (AT91_BASE_SYS + AT91_SDRAMC_MR)
+	.word AT91_ASM_SDRAMC_MR
 	.word CONFIG_SYS_SDRC_MR_VAL4
 	.word AT91_SDRAM_BASE
 	.word CONFIG_SYS_SDRAM_VAL10
-	.word (AT91_BASE_SYS + AT91_SDRAMC_MR)
+	.word AT91_ASM_SDRAMC_MR
 	.word CONFIG_SYS_SDRC_MR_VAL5
 	.word AT91_SDRAM_BASE
 	.word CONFIG_SYS_SDRAM_VAL11
-	.word (AT91_BASE_SYS + AT91_SDRAMC_TR)
+	.word AT91_ASM_SDRAMC_TR
 	.word CONFIG_SYS_SDRC_TR_VAL2
 	.word AT91_SDRAM_BASE
 	.word CONFIG_SYS_SDRAM_VAL12
 	/* User reset enable*/
-	.word (AT91_BASE_SYS + AT91_RSTC_MR)
+	.word AT91_ASM_RSTC_MR
 	.word CONFIG_SYS_RSTC_RMR_VAL
 #ifdef CONFIG_SYS_MATRIX_MCFG_REMAP
 	/* MATRIX_MCFG - REMAP all masters */
-	.word (AT91_BASE_SYS + AT91_MATRIX_MCFG0)
+	.word AT91_ASM_MATRIX_MCFG
 	.word 0x1FF
 #endif
-
 SMRDATA2:
 	.word 0

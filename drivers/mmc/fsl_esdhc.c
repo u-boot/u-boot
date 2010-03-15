@@ -37,7 +37,6 @@
 #include <fdt_support.h>
 #include <asm/io.h>
 
-
 DECLARE_GLOBAL_DATA_PTR;
 
 struct fsl_esdhc {
@@ -102,7 +101,8 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 {
 	uint wml_value;
 	int timeout;
-	struct fsl_esdhc *regs = mmc->priv;
+	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
 
 	wml_value = data->blocksize/4;
 
@@ -112,24 +112,24 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 
 		wml_value = 0x100000 | wml_value;
 
-		out_be32(&regs->dsaddr, (u32)data->dest);
+		esdhc_write32(&regs->dsaddr, (u32)data->dest);
 	} else {
 		if (wml_value > 0x80)
 			wml_value = 0x80;
-		if ((in_be32(&regs->prsstat) & PRSSTAT_WPSPL) == 0) {
+		if ((esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL) == 0) {
 			printf("\nThe SD card is locked. Can not write to a locked card.\n\n");
 			return TIMEOUT;
 		}
 		wml_value = wml_value << 16 | 0x10;
-		out_be32(&regs->dsaddr, (u32)data->src);
+		esdhc_write32(&regs->dsaddr, (u32)data->src);
 	}
 
-	out_be32(&regs->wml, wml_value);
+	esdhc_write32(&regs->wml, wml_value);
 
-	out_be32(&regs->blkattr, data->blocks << 16 | data->blocksize);
+	esdhc_write32(&regs->blkattr, data->blocks << 16 | data->blocksize);
 
 	/* Calculate the timeout period for data transactions */
-	timeout = __ilog2(mmc->tran_speed/10);
+	timeout = fls(mmc->tran_speed/10) - 1;
 	timeout -= 13;
 
 	if (timeout > 14)
@@ -138,7 +138,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	if (timeout < 0)
 		timeout = 0;
 
-	clrsetbits_be32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, timeout << 16);
+	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, timeout << 16);
 
 	return 0;
 }
@@ -153,17 +153,20 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
 	uint	xfertyp;
 	uint	irqstat;
-	volatile struct fsl_esdhc *regs = mmc->priv;
+	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	volatile struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
 
-	out_be32(&regs->irqstat, -1);
+	esdhc_write32(&regs->irqstat, -1);
 
 	sync();
 
 	/* Wait for the bus to be idle */
-	while ((in_be32(&regs->prsstat) & PRSSTAT_CICHB) ||
-			(in_be32(&regs->prsstat) & PRSSTAT_CIDHB));
+	while ((esdhc_read32(&regs->prsstat) & PRSSTAT_CICHB) ||
+			(esdhc_read32(&regs->prsstat) & PRSSTAT_CIDHB))
+		;
 
-	while (in_be32(&regs->prsstat) & PRSSTAT_DLA);
+	while (esdhc_read32(&regs->prsstat) & PRSSTAT_DLA)
+		;
 
 	/* Wait at least 8 SD clock cycles before the next command */
 	/*
@@ -185,14 +188,15 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	xfertyp = esdhc_xfertyp(cmd, data);
 
 	/* Send the command */
-	out_be32(&regs->cmdarg, cmd->cmdarg);
-	out_be32(&regs->xfertyp, xfertyp);
+	esdhc_write32(&regs->cmdarg, cmd->cmdarg);
+	esdhc_write32(&regs->xfertyp, xfertyp);
 
 	/* Wait for the command to complete */
-	while (!(in_be32(&regs->irqstat) & IRQSTAT_CC));
+	while (!(esdhc_read32(&regs->irqstat) & IRQSTAT_CC))
+		;
 
-	irqstat = in_be32(&regs->irqstat);
-	out_be32(&regs->irqstat, irqstat);
+	irqstat = esdhc_read32(&regs->irqstat);
+	esdhc_write32(&regs->irqstat, irqstat);
 
 	if (irqstat & CMD_ERR)
 		return COMM_ERR;
@@ -204,21 +208,21 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	if (cmd->resp_type & MMC_RSP_136) {
 		u32 cmdrsp3, cmdrsp2, cmdrsp1, cmdrsp0;
 
-		cmdrsp3 = in_be32(&regs->cmdrsp3);
-		cmdrsp2 = in_be32(&regs->cmdrsp2);
-		cmdrsp1 = in_be32(&regs->cmdrsp1);
-		cmdrsp0 = in_be32(&regs->cmdrsp0);
+		cmdrsp3 = esdhc_read32(&regs->cmdrsp3);
+		cmdrsp2 = esdhc_read32(&regs->cmdrsp2);
+		cmdrsp1 = esdhc_read32(&regs->cmdrsp1);
+		cmdrsp0 = esdhc_read32(&regs->cmdrsp0);
 		cmd->response[0] = (cmdrsp3 << 8) | (cmdrsp2 >> 24);
 		cmd->response[1] = (cmdrsp2 << 8) | (cmdrsp1 >> 24);
 		cmd->response[2] = (cmdrsp1 << 8) | (cmdrsp0 >> 24);
 		cmd->response[3] = (cmdrsp0 << 8);
 	} else
-		cmd->response[0] = in_be32(&regs->cmdrsp0);
+		cmd->response[0] = esdhc_read32(&regs->cmdrsp0);
 
 	/* Wait until all of the blocks are transferred */
 	if (data) {
 		do {
-			irqstat = in_be32(&regs->irqstat);
+			irqstat = esdhc_read32(&regs->irqstat);
 
 			if (irqstat & DATA_ERR)
 				return COMM_ERR;
@@ -226,10 +230,10 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 			if (irqstat & IRQSTAT_DTOE)
 				return TIMEOUT;
 		} while (!(irqstat & IRQSTAT_TC) &&
-				(in_be32(&regs->prsstat) & PRSSTAT_DLA));
+				(esdhc_read32(&regs->prsstat) & PRSSTAT_DLA));
 	}
 
-	out_be32(&regs->irqstat, -1);
+	esdhc_write32(&regs->irqstat, -1);
 
 	return 0;
 }
@@ -238,8 +242,12 @@ void set_sysctl(struct mmc *mmc, uint clock)
 {
 	int sdhc_clk = gd->sdhc_clk;
 	int div, pre_div;
-	volatile struct fsl_esdhc *regs = mmc->priv;
+	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	volatile struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
 	uint clk;
+
+	if (clock < mmc->f_min)
+		clock = mmc->f_min;
 
 	if (sdhc_clk / 16 > clock) {
 		for (pre_div = 2; pre_div < 256; pre_div *= 2)
@@ -257,67 +265,105 @@ void set_sysctl(struct mmc *mmc, uint clock)
 
 	clk = (pre_div << 8) | (div << 4);
 
-	clrsetbits_be32(&regs->sysctl, SYSCTL_CLOCK_MASK, clk);
+	/* On imx the clock must be stopped before changing frequency */
+	if (cfg->clk_enable)
+		esdhc_clrbits32(&regs->sysctl, SYSCTL_CKEN);
+
+	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_CLOCK_MASK, clk);
 
 	udelay(10000);
 
-	setbits_be32(&regs->sysctl, SYSCTL_PEREN);
+	clk = SYSCTL_PEREN;
+	/* On imx systems the clock must be explicitely enabled */
+	if (cfg->clk_enable)
+		clk |= SYSCTL_CKEN;
+
+	esdhc_setbits32(&regs->sysctl, clk);
 }
 
 static void esdhc_set_ios(struct mmc *mmc)
 {
-	struct fsl_esdhc *regs = mmc->priv;
+	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
 
 	/* Set the clock speed */
 	set_sysctl(mmc, mmc->clock);
 
 	/* Set the bus width */
-	clrbits_be32(&regs->proctl, PROCTL_DTW_4 | PROCTL_DTW_8);
+	esdhc_clrbits32(&regs->proctl, PROCTL_DTW_4 | PROCTL_DTW_8);
 
 	if (mmc->bus_width == 4)
-		setbits_be32(&regs->proctl, PROCTL_DTW_4);
+		esdhc_setbits32(&regs->proctl, PROCTL_DTW_4);
 	else if (mmc->bus_width == 8)
-		setbits_be32(&regs->proctl, PROCTL_DTW_8);
+		esdhc_setbits32(&regs->proctl, PROCTL_DTW_8);
+
 }
 
 static int esdhc_init(struct mmc *mmc)
 {
-	struct fsl_esdhc *regs = mmc->priv;
+	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
 	int timeout = 1000;
+	int ret = 0;
+	u8 card_absent;
 
 	/* Enable cache snooping */
-	out_be32(&regs->scr, 0x00000040);
+	if (cfg && !cfg->no_snoop)
+		esdhc_write32(&regs->scr, 0x00000040);
 
-	out_be32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
+	/* Reset the entire host controller */
+	esdhc_write32(&regs->sysctl, SYSCTL_RSTA);
+
+	/* Wait until the controller is available */
+	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA) && --timeout)
+		udelay(1000);
+
+	esdhc_write32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
 
 	/* Set the initial clock speed */
 	set_sysctl(mmc, 400000);
 
 	/* Disable the BRR and BWR bits in IRQSTAT */
-	clrbits_be32(&regs->irqstaten, IRQSTATEN_BRR | IRQSTATEN_BWR);
+	esdhc_clrbits32(&regs->irqstaten, IRQSTATEN_BRR | IRQSTATEN_BWR);
 
 	/* Put the PROCTL reg back to the default */
-	out_be32(&regs->proctl, PROCTL_INIT);
+	esdhc_write32(&regs->proctl, PROCTL_INIT);
 
-	while (!(in_be32(&regs->prsstat) & PRSSTAT_CINS) && --timeout)
-		udelay(1000);
+	/* Set timout to the maximum value */
+	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, 14 << 16);
 
-	if (timeout <= 0)
-		return NO_CARD_ERR;
+	/* Check if there is a callback for detecting the card */
+	if (board_mmc_getcd(&card_absent, mmc)) {
+		timeout = 1000;
+		while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_CINS) &&
+				--timeout)
+			udelay(1000);
 
-	return 0;
+		if (timeout <= 0)
+			ret = NO_CARD_ERR;
+	} else {
+		if (card_absent)
+			ret = NO_CARD_ERR;
+	}
+
+	return ret;
 }
 
-static int esdhc_initialize(bd_t *bis)
+int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 {
-	struct fsl_esdhc *regs = (struct fsl_esdhc *)CONFIG_SYS_FSL_ESDHC_ADDR;
+	struct fsl_esdhc *regs;
 	struct mmc *mmc;
 	u32 caps;
+
+	if (!cfg)
+		return -1;
 
 	mmc = malloc(sizeof(struct mmc));
 
 	sprintf(mmc->name, "FSL_ESDHC");
-	mmc->priv = regs;
+	regs = (struct fsl_esdhc *)cfg->esdhc_base;
+
+	mmc->priv = cfg;
 	mmc->send_cmd = esdhc_send_cmd;
 	mmc->set_ios = esdhc_set_ios;
 	mmc->init = esdhc_init;
@@ -346,9 +392,15 @@ static int esdhc_initialize(bd_t *bis)
 
 int fsl_esdhc_mmc_init(bd_t *bis)
 {
-	return esdhc_initialize(bis);
+	struct fsl_esdhc_cfg *cfg;
+
+	cfg = malloc(sizeof(struct fsl_esdhc_cfg));
+	memset(cfg, 0, sizeof(struct fsl_esdhc_cfg));
+	cfg->esdhc_base = CONFIG_SYS_FSL_ESDHC_ADDR;
+	return fsl_esdhc_initialize(bis, cfg);
 }
 
+#ifdef CONFIG_OF_LIBFDT
 void fdt_fixup_esdhc(void *blob, bd_t *bd)
 {
 	const char *compat = "fsl,esdhc";
@@ -365,3 +417,4 @@ out:
 	do_fixup_by_compat(blob, compat, "status", status,
 			   strlen(status) + 1, 1);
 }
+#endif

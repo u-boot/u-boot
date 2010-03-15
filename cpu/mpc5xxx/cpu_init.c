@@ -40,15 +40,20 @@ void cpu_init_f (void)
 		(struct mpc5xxx_mmap_ctl *) CONFIG_SYS_MBAR;
 	volatile struct mpc5xxx_lpb *lpb =
 		(struct mpc5xxx_lpb *) MPC5XXX_LPB;
-	volatile struct mpc5xxx_cdm *cdm =
-		(struct mpc5xxx_cdm *) MPC5XXX_CDM;
 	volatile struct mpc5xxx_gpio *gpio =
 		(struct mpc5xxx_gpio *) MPC5XXX_GPIO;
 	volatile struct mpc5xxx_xlb *xlb =
 		(struct mpc5xxx_xlb *) MPC5XXX_XLBARB;
+#if defined(CONFIG_SYS_IPBCLK_EQUALS_XLBCLK)
+	volatile struct mpc5xxx_cdm *cdm =
+		(struct mpc5xxx_cdm *) MPC5XXX_CDM;
+#endif	/* CONFIG_SYS_IPBCLK_EQUALS_XLBCLK */
+#if defined(CONFIG_WATCHDOG)
 	volatile struct mpc5xxx_gpt *gpt0 =
 		(struct mpc5xxx_gpt *) MPC5XXX_GPT;
+#endif /* CONFIG_WATCHDOG */
 	unsigned long addecr = (1 << 25); /* Boot_CS */
+
 #if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_MGT5100)
 	addecr |= (1 << 22); /* SDRAM enable */
 #endif
@@ -184,11 +189,11 @@ void cpu_init_f (void)
 
 # if defined(CONFIG_SYS_IPBCLK_EQUALS_XLBCLK)
 	/* Motorola reports IPB should better run at 133 MHz. */
-#if defined(CONFIG_MGT5100)
+#  if defined(CONFIG_MGT5100)
 	setbits_be32(&mm->addecr, 1);
-#elif defined(CONFIG_MPC5200)
+#  elif defined(CONFIG_MPC5200)
 	setbits_be32(&mm->ipbi_ws_ctrl, 1);
-#endif
+#  endif
 	/* pci_clk_sel = 0x02, ipb_clk_sel = 0x00; */
 	addecr = in_be32(&cdm->cfg);
 	addecr &= ~0x103;

@@ -287,12 +287,8 @@
 	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0" \
 	"addmisc=setenv bootargs ${bootargs} mem=${mem}\0"		\
 	"nandargs=setenv bootargs root=/dev/mtdblock6 rootfstype=jffs2 rw\0" \
-	"nand_boot=run nandargs addip addtty addmisc;bootm ${kernel_addr}\0" \
 	"nand_boot_fdt=run nandargs addip addtty addmisc;"		\
 		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
-	"net_nfs=tftp ${kernel_addr_r} ${bootfile};"			\
-		"run nfsargs addip addtty addmisc;"			\
-		"bootm\0"						\
 	"net_nfs_fdt=tftp ${kernel_addr_r} ${bootfile};"		\
 		"tftp  ${fdt_addr_r} ${fdt_file};"			\
 		"run nfsargs addip addtty addmisc;"			\
@@ -353,7 +349,6 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DTT
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_FAT
@@ -366,7 +361,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_REGINFO
-#define CONFIG_CMD_SDRAM
 
 /* POST support */
 #define CONFIG_POST		(CONFIG_SYS_POST_MEMORY |	\

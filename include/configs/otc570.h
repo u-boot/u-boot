@@ -55,6 +55,7 @@
 /*
  * Hardware drivers
  */
+#define CONFIG_AT91_GPIO		1
 
 /* Console output */
 #define CONFIG_ATMEL_USART		1
@@ -96,24 +97,22 @@
 #ifdef CONFIG_SOFT_I2C
 #define CONFIG_I2C_CMD_TREE		1
 #define CONFIG_I2C_MULTI_BUS		1
-/* Enable peripheral clock and configure data and clock pins for pio */
+/* Configure data and clock pins for pio */
 #define I2C_INIT { \
-	at91_sys_write(AT91_PMC_PCER,	1 << AT91SAM9263_ID_PIOB |	\
-					1 << AT91SAM9263_ID_PIOCDE);	\
-	at91_set_gpio_output(AT91_PIN_PB4, 0);				\
-	at91_set_gpio_output(AT91_PIN_PB5, 0);				\
+	at91_set_pio_output(AT91_PIO_PORTB, 4, 0); \
+	at91_set_pio_output(AT91_PIO_PORTB, 5, 0); \
 }
 /* Configure data pin as output */
-#define I2C_ACTIVE			at91_set_gpio_output(AT91_PIN_PB4, 0)
+#define I2C_ACTIVE		at91_set_pio_output(AT91_PIO_PORTB, 4, 0)
 /* Configure data pin as input */
-#define I2C_TRISTATE			at91_set_gpio_input(AT91_PIN_PB4, 0)
+#define I2C_TRISTATE		at91_set_pio_input(AT91_PIO_PORTB, 4, 0)
 /* Read data pin */
-#define I2C_READ			at91_get_gpio_value(AT91_PIN_PB4)
+#define I2C_READ		at91_get_pio_value(AT91_PIO_PORTB, 4)
 /* Set data pin */
-#define I2C_SDA(bit)			at91_set_gpio_value(AT91_PIN_PB4, bit)
+#define I2C_SDA(bit)		at91_set_pio_value(AT91_PIO_PORTB, 4, bit)
 /* Set clock pin */
-#define I2C_SCL(bit)			at91_set_gpio_value(AT91_PIN_PB5, bit)
-#define I2C_DELAY			udelay(2) /* 1/4 I2C clock duration */
+#define I2C_SCL(bit)		at91_set_pio_value(AT91_PIO_PORTB, 5, bit)
+#define I2C_DELAY		udelay(2) /* 1/4 I2C clock duration */
 #endif /* CONFIG_SOFT_I2C */
 
 #define CONFIG_BOOTDELAY		3
@@ -173,8 +172,8 @@
 #define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
 /* our CLE is AD22 */
 #define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
-#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PD15
-#define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PA22
+#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIO_PORTD, 15
+#define CONFIG_SYS_NAND_READY_PIN		AT91_PIO_PORTA, 22
 #define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 #endif
 

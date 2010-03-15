@@ -49,6 +49,18 @@
 #define AT91SAM9260_ID_IRQ1	30	/* Advanced Interrupt Controller (IRQ1) */
 #define AT91SAM9260_ID_IRQ2	31	/* Advanced Interrupt Controller (IRQ2) */
 
+#define AT91_EMAC_BASE		0xfffc4000
+#define AT91_SDRAMC_BASE	0xffffea00
+#define AT91_SMC_BASE		0xffffec00
+#define AT91_MATRIX_BASE	0xffffee00
+#define AT91_PIO_BASE		0xfffff400
+#define AT91_PMC_BASE		0xfffffc00
+#define AT91_RSTC_BASE		0xfffffd00
+#define AT91_PIT_BASE		0xfffffd30
+#define AT91_WDT_BASE		0xfffffd40
+
+#ifdef CONFIG_AT91_LEGACY
+
 /*
  * User Peripheral physical base addresses.
  */
@@ -105,6 +117,8 @@
 #define AT91_USART4	AT91SAM9260_BASE_US4
 #define AT91_USART5	AT91SAM9260_BASE_US5
 
+#endif /* CONFIG_AT91_LEGACY */
+
 /*
  * Internal Memory.
  */
@@ -125,9 +139,9 @@
  * Cpu Name
  */
 #if defined(CONFIG_AT91SAM9260)
-#define AT91_CPU_NAME	"AT91SAM9260"
+#define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9260"
 #elif defined(CONFIG_AT91SAM9G20)
-#define AT91_CPU_NAME	"AT91SAM9G20"
+#define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9G20"
 #endif
 
 #endif

@@ -108,6 +108,17 @@ static int fec_miiphy_read(char *dev, uint8_t phyAddr, uint8_t regAddr,
 	return 0;
 }
 
+static void fec_mii_setspeed(struct fec_priv *fec)
+{
+	/*
+	 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
+	 * and do not drop the Preamble.
+	 */
+	writel((((imx_get_fecclk() / 1000000) + 2) / 5) << 1,
+			&fec->eth->mii_speed);
+	debug("fec_init: mii_speed %#lx\n",
+			fec->eth->mii_speed);
+}
 static int fec_miiphy_write(char *dev, uint8_t phyAddr, uint8_t regAddr,
 		uint16_t data)
 {
@@ -151,7 +162,9 @@ static int miiphy_restart_aneg(struct eth_device *dev)
 	 * Wake up from sleep if necessary
 	 * Reset PHY, then delay 300ns
 	 */
+#ifdef CONFIG_MX27
 	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_MIPGSR, 0x00FF);
+#endif
 	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_BMCR,
 			PHY_BMCR_RESET);
 	udelay(1000);
@@ -236,7 +249,7 @@ static int fec_rbd_init(struct fec_priv *fec, int count, int size)
 		fec->rdb_ptr = malloc(size * count + DB_DATA_ALIGNMENT);
 	p = (uint32_t)fec->rdb_ptr;
 	if (!p) {
-		puts("fec_imx27: not enough malloc memory!\n");
+		puts("fec_mxc: not enough malloc memory\n");
 		return -ENOMEM;
 	}
 	memset((void *)p, 0, size * count + DB_DATA_ALIGNMENT);
@@ -299,6 +312,13 @@ static void fec_rbd_clean(int last, struct fec_bd *pRbd)
 
 static int fec_get_hwaddr(struct eth_device *dev, unsigned char *mac)
 {
+/*
+ * The MX27 can store the mac address in internal eeprom
+ * This mechanism is not supported now by MX51
+ */
+#ifdef CONFIG_MX51
+	return -1;
+#else
 	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;
 	int i;
 
@@ -306,10 +326,12 @@ static int fec_get_hwaddr(struct eth_device *dev, unsigned char *mac)
 		mac[6-1-i] = readl(&iim->iim_bank_area0[IIM0_MAC + i]);
 
 	return is_valid_ether_addr(mac);
+#endif
 }
 
-static int fec_set_hwaddr(struct eth_device *dev, unsigned char *mac)
+static int fec_set_hwaddr(struct eth_device *dev)
 {
+	uchar *mac = dev->enetaddr;
 	struct fec_priv *fec = (struct fec_priv *)dev->priv;
 
 	writel(0, &fec->eth->iaddr1);
@@ -343,7 +365,36 @@ static int fec_open(struct eth_device *edev)
 	/*
 	 * Enable FEC-Lite controller
 	 */
-	writel(FEC_ECNTRL_ETHER_EN, &fec->eth->ecntrl);
+	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_ETHER_EN,
+		&fec->eth->ecntrl);
+#ifdef CONFIG_MX25
+	udelay(100);
+	/*
+	 * setup the MII gasket for RMII mode
+	 */
+
+	/* disable the gasket */
+	writew(0, &fec->eth->miigsk_enr);
+
+	/* wait for the gasket to be disabled */
+	while (readw(&fec->eth->miigsk_enr) & MIIGSK_ENR_READY)
+		udelay(2);
+
+	/* configure gasket for RMII, 50 MHz, no loopback, and no echo */
+	writew(MIIGSK_CFGR_IF_MODE_RMII, &fec->eth->miigsk_cfgr);
+
+	/* re-enable the gasket */
+	writew(MIIGSK_ENR_EN, &fec->eth->miigsk_enr);
+
+	/* wait until MII gasket is ready */
+	int max_loops = 10;
+	while ((readw(&fec->eth->miigsk_enr) & MIIGSK_ENR_READY) == 0) {
+		if (--max_loops <= 0) {
+			printf("WAIT for MII Gasket ready timed out\n");
+			break;
+		}
+	}
+#endif
 
 	miiphy_wait_aneg(edev);
 	miiphy_speed(edev->name, CONFIG_FEC_MXC_PHYADDR);
@@ -373,7 +424,7 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 				sizeof(struct fec_bd) + DB_ALIGNMENT);
 	base = (uint32_t)fec->base_ptr;
 	if (!base) {
-		puts("fec_imx27: not enough malloc memory!\n");
+		puts("fec_mxc: not enough malloc memory\n");
 		return -ENOMEM;
 	}
 	memset((void *)base, 0, (2 + FEC_RBD_NUM) *
@@ -411,14 +462,8 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 		 * Frame length=1518; MII mode;
 		 */
 		writel(0x05ee0024, &fec->eth->r_cntrl);	/* FIXME 0x05ee0004 */
-		/*
-		 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
-		 * and do not drop the Preamble.
-		 */
-		writel((((imx_get_ahbclk() / 1000000) + 2) / 5) << 1,
-				&fec->eth->mii_speed);
-		debug("fec_init: mii_speed %#lx\n",
-				(((imx_get_ahbclk() / 1000000) + 2) / 5) << 1);
+
+		fec_mii_setspeed(fec);
 	}
 	/*
 	 * Set Opcode/Pause Duration Register
@@ -460,6 +505,7 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 		miiphy_restart_aneg(dev);
 
 	fec_open(dev);
+	fec_set_hwaddr(dev);
 	return 0;
 }
 
@@ -475,7 +521,7 @@ static void fec_halt(struct eth_device *dev)
 	/*
 	 * issue graceful stop command to the FEC transmitter if necessary
 	 */
-	writel(FEC_ECNTRL_RESET | readl(&fec->eth->x_cntrl),
+	writel(FEC_TCNTRL_GTS | readl(&fec->eth->x_cntrl),
 			&fec->eth->x_cntrl);
 
 	debug("eth_halt: wait for stop regs\n");
@@ -483,7 +529,7 @@ static void fec_halt(struct eth_device *dev)
 	 * wait for graceful stop to register
 	 */
 	while ((counter--) && (!(readl(&fec->eth->ievent) & FEC_IEVENT_GRA)))
-		;	/* FIXME ensure time */
+		udelay(1);
 
 	/*
 	 * Disable SmartDMA tasks
@@ -495,7 +541,8 @@ static void fec_halt(struct eth_device *dev)
 	 * Disable the Ethernet Controller
 	 * Note: this will also reset the BD index counter!
 	 */
-	writel(0, &fec->eth->ecntrl);
+	writel(readl(&fec->eth->ecntrl) & ~FEC_ECNTRL_ETHER_EN,
+			&fec->eth->ecntrl);
 	fec->rbd_index = 0;
 	fec->tbd_index = 0;
 	debug("eth_halt: done\n");
@@ -522,7 +569,7 @@ static int fec_send(struct eth_device *dev, volatile void* packet, int length)
 	 * Check for valid length of data.
 	 */
 	if ((length > 1500) || (length <= 0)) {
-		printf("Payload (%d) to large!\n", length);
+		printf("Payload (%d) too large\n", length);
 		return -1;
 	}
 
@@ -554,7 +601,7 @@ static int fec_send(struct eth_device *dev, volatile void* packet, int length)
 	 * wait until frame is sent .
 	 */
 	while (readw(&fec->tbd_base[fec->tbd_index].status) & FEC_TBD_READY) {
-		/* FIXME: Timeout */
+		udelay(1);
 	}
 	debug("fec_send: status 0x%x index %d\n",
 			readw(&fec->tbd_base[fec->tbd_index].status),
@@ -651,22 +698,14 @@ static int fec_recv(struct eth_device *dev)
 
 static int fec_probe(bd_t *bd)
 {
-	struct pll_regs *pll = (struct pll_regs *)IMX_PLL_BASE;
 	struct eth_device *edev;
 	struct fec_priv *fec = &gfec;
-	unsigned char ethaddr_str[20];
 	unsigned char ethaddr[6];
-	char *tmp = getenv("ethaddr");
-	char *end;
-
-	/* enable FEC clock */
-	writel(readl(&pll->pccr1) | PCCR1_HCLK_FEC, &pll->pccr1);
-	writel(readl(&pll->pccr0) | PCCR0_FEC_EN, &pll->pccr0);
 
 	/* create and fill edev struct */
 	edev = (struct eth_device *)malloc(sizeof(struct eth_device));
 	if (!edev) {
-		puts("fec_imx27: not enough malloc memory!\n");
+		puts("fec_mxc: not enough malloc memory\n");
 		return -ENOMEM;
 	}
 	edev->priv = fec;
@@ -681,7 +720,7 @@ static int fec_probe(bd_t *bd)
 	fec->xcv_type = MII100;
 
 	/* Reset chip. */
-	writel(FEC_ECNTRL_RESET, &fec->eth->ecntrl);
+	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_RESET, &fec->eth->ecntrl);
 	while (readl(&fec->eth->ecntrl) & 1)
 		udelay(10);
 
@@ -702,14 +741,7 @@ static int fec_probe(bd_t *bd)
 	 * Frame length=1518; MII mode;
 	 */
 	writel(0x05ee0024, &fec->eth->r_cntrl);	/* FIXME 0x05ee0004 */
-	/*
-	 * Set MII_SPEED = (1/(mii_speed * 2)) * System Clock
-	 * and do not drop the Preamble.
-	 */
-	writel((((imx_get_ahbclk() / 1000000) + 2) / 5) << 1,
-			&fec->eth->mii_speed);
-	debug("fec_init: mii_speed %#lx\n",
-			(((imx_get_ahbclk() / 1000000) + 2) / 5) << 1);
+	fec_mii_setspeed(fec);
 
 	sprintf(edev->name, "FEC_MXC");
 
@@ -717,20 +749,11 @@ static int fec_probe(bd_t *bd)
 
 	eth_register(edev);
 
-	if ((NULL != tmp) && (12 <= strlen(tmp))) {
-		int i;
-		/* convert MAC from string to int */
-		for (i = 0; i < 6; i++) {
-			ethaddr[i] = tmp ? simple_strtoul(tmp, &end, 16) : 0;
-			if (tmp)
-				tmp = (*end) ? end + 1 : end;
-		}
-	} else if (fec_get_hwaddr(edev, ethaddr) == 0) {
+	if (fec_get_hwaddr(edev, ethaddr) == 0) {
 		printf("got MAC address from EEPROM: %pM\n", ethaddr);
-		setenv("ethaddr", (char *)ethaddr_str);
+		memcpy(edev->enetaddr, ethaddr, 6);
+		fec_set_hwaddr(edev);
 	}
-	memcpy(edev->enetaddr, ethaddr, 6);
-	fec_set_hwaddr(edev, ethaddr);
 
 	return 0;
 }

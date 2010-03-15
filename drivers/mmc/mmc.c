@@ -36,6 +36,13 @@
 static struct list_head mmc_devices;
 static int cur_dev_num = -1;
 
+int __board_mmc_getcd(u8 *cd, struct mmc *mmc) {
+	return -1;
+}
+
+int board_mmc_getcd(u8 *cd, struct mmc *mmc)__attribute__((weak,
+	alias("__board_mmc_getcd")));
+
 int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 {
 	return mmc->send_cmd(mmc, cmd, data);
@@ -273,7 +280,15 @@ sd_send_op_cond(struct mmc *mmc)
 
 		cmd.cmdidx = SD_CMD_APP_SEND_OP_COND;
 		cmd.resp_type = MMC_RSP_R3;
-		cmd.cmdarg = mmc->voltages;
+
+		/*
+		 * Most cards do not answer if some reserved bits
+		 * in the ocr are set. However, Some controller
+		 * can set bit 7 (reserved for low voltages), but
+		 * how to manage low voltages SD card is not yet
+		 * specified.
+		 */
+		cmd.cmdarg = mmc->voltages & 0xff8000;
 
 		if (mmc->version == SD_VERSION_2)
 			cmd.cmdarg |= OCR_HCS;

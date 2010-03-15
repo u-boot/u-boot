@@ -23,9 +23,8 @@
 
 #include <at91rm9200_net.h>
 #include <net.h>
-#include <dm9161.h>
-
 #ifdef CONFIG_DRIVER_ETHER
+#include <dm9161.h>
 
 #if defined(CONFIG_CMD_NET)
 
