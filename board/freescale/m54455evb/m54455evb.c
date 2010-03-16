@@ -185,7 +185,7 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 	info->flash_id          = 0x01000000;
 	info->portwidth         = 1;
 	info->chipwidth         = 1;
-	info->buffer_size       = 32;
+	info->buffer_size       = 1;
 	info->erase_blk_tout    = 16384;
 	info->write_tout        = 2;
 	info->buffer_write_tout = 5;
