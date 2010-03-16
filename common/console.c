@@ -659,10 +659,14 @@ int console_init_r(void)
 #ifdef CONFIG_SPLASH_SCREEN
 	/*
 	 * suppress all output if splash screen is enabled and we have
-	 * a bmp to display
+	 * a bmp to display. We redirect the output from frame buffer
+	 * console to serial console in this case or suppress it if
+	 * "silent" mode was requested.
 	 */
-	if (getenv("splashimage") != NULL)
-		gd->flags |= GD_FLG_SILENT;
+	if (getenv("splashimage") != NULL) {
+		if (!(gd->flags & GD_FLG_SILENT))
+			outputdev = search_device (DEV_FLAGS_OUTPUT, "serial");
+	}
 #endif
 
 	/* Scan devices looking for input and output devices */
