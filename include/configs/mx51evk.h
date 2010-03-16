@@ -54,11 +54,26 @@
 /* size in bytes reserved for initial data */
 #define CONFIG_SYS_GBL_DATA_SIZE	128
 
+#define BOARD_LATE_INIT
+
 /*
  * Hardware drivers
  */
 #define CONFIG_MXC_UART
 #define CONFIG_SYS_MX51_UART1
+
+/*
+ * SPI Configs
+ * */
+#define CONFIG_CMD_SPI
+
+#define CONFIG_MXC_SPI
+
+#define CONFIG_FSL_PMIC
+#define CONFIG_FSL_PMIC_BUS	0
+#define CONFIG_FSL_PMIC_CS	0
+#define CONFIG_FSL_PMIC_CLK	2500000
+#define CONFIG_FSL_PMIC_MODE	(SPI_CPOL | SPI_CS_HIGH)
 
 /*
  * MMC Configs
