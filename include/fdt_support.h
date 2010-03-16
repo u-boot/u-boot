@@ -81,5 +81,7 @@ int fdt_resize(void *blob);
 
 int fdt_fixup_nor_flash_size(void *blob, int cs, u32 size);
 
+void fdt_fixup_mtdparts(void *fdt, void *node_info, int node_info_size);
+
 #endif /* ifdef CONFIG_OF_LIBFDT */
 #endif /* ifndef __FDT_SUPPORT_H */
