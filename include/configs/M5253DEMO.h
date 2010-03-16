@@ -107,7 +107,7 @@
 		"upd=run load; run prog\0"		\
 		"prog=prot off 0xff800000 0xff82ffff;"	\
 		"era 0xff800000 0xff82ffff;"		\
-		"cp.b ${loadaddr} 0 ${filesize};"	\
+		"cp.b ${loadaddr} 0xff800000 ${filesize};"	\
 		"save\0"				\
 		""
 #endif
