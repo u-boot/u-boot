@@ -150,7 +150,7 @@ int board_init(void)
 		DAVINCI_ABCR_RHOLD(0) |
 		DAVINCI_ABCR_TA(2) |
 		DAVINCI_ABCR_ASIZE_8BIT),
-	       &davinci_emif_regs->AB2CR);
+	       &davinci_emif_regs->ab2cr);
 #endif
 
 	/* arch number of the board */
