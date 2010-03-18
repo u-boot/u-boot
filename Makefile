@@ -2940,6 +2940,9 @@ davinci_dm365evm_config :	unconfig
 davinci_dm6467evm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dm6467evm davinci davinci
 
+guruplug_config: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm926ejs $(@:_config=) Marvell kirkwood
+
 magnesium_config	\
 imx27lite_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs imx27lite logicpd mx27

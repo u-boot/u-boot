@@ -567,6 +567,7 @@ LIST_ARM9="			\
 	edb9312			\
 	edb9315			\
 	edb9315a		\
+	guruplug		\
 	imx27lite		\
 	lpd7a400		\
 	magnesium		\
