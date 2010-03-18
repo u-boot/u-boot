@@ -2,7 +2,7 @@
  * FSL SD/MMC Defines
  *-------------------------------------------------------------------
  *
- * Copyright 2007-2008, Freescale Semiconductor, Inc
+ * Copyright 2007-2008,2010 Freescale Semiconductor, Inc
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -148,7 +148,6 @@
 struct fsl_esdhc_cfg {
 	u32	esdhc_base;
 	u32	no_snoop;
-	u32	clk_enable;
 };
 
 /* Select the correct accessors depending on endianess */

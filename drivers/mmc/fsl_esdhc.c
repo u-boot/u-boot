@@ -1,5 +1,5 @@
 /*
- * Copyright 2007, Freescale Semiconductor, Inc
+ * Copyright 2007,2010 Freescale Semiconductor, Inc
  * Andy Fleming
  *
  * Based vaguely on the pxa mmc code:
@@ -265,18 +265,13 @@ void set_sysctl(struct mmc *mmc, uint clock)
 
 	clk = (pre_div << 8) | (div << 4);
 
-	/* On imx the clock must be stopped before changing frequency */
-	if (cfg->clk_enable)
-		esdhc_clrbits32(&regs->sysctl, SYSCTL_CKEN);
+	esdhc_clrbits32(&regs->sysctl, SYSCTL_CKEN);
 
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_CLOCK_MASK, clk);
 
 	udelay(10000);
 
-	clk = SYSCTL_PEREN;
-	/* On imx systems the clock must be explicitely enabled */
-	if (cfg->clk_enable)
-		clk |= SYSCTL_CKEN;
+	clk = SYSCTL_PEREN | SYSCTL_CKEN;
 
 	esdhc_setbits32(&regs->sysctl, clk);
 }
