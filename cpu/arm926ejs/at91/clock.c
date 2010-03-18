@@ -203,7 +203,8 @@ int at91_clock_init(unsigned long main_clock)
 	if (mckr & AT91_PMC_MCKR_MDIV_MASK)
 		freq /= 2;			/* processor clock division */
 #elif defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
-	mck_rate_hz = (mckr & AT91_PMC_MCKR_MDIV_MASK) == AT91SAM9_PMC_MDIV_3
+	mck_rate_hz = (mckr & AT91_PMC_MCKR_MDIV_MASK) ==
+		(AT91_PMC_MCKR_MDIV_2 | AT91_PMC_MCKR_MDIV_4)
 		? freq / 3
 		: freq / (1 << ((mckr & AT91_PMC_MCKR_MDIV_MASK) >> 8));
 #else
