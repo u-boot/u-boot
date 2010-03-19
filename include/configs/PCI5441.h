@@ -92,7 +92,8 @@
 /*------------------------------------------------------------------------
  * CONSOLE
  *----------------------------------------------------------------------*/
-#if defined(CONFIG_CONSOLE_JTAG)
+#define CONFIG_ALTERA_UART		1	/* Use altera uart */
+#if defined(CONFIG_ALTERA_JTAG_UART)
 #define CONFIG_SYS_NIOS_CONSOLE	0x00920820	/* JTAG UART base addr	*/
 #else
 #define CONFIG_SYS_NIOS_CONSOLE	0x009208a0	/* UART base addr	*/

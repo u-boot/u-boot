@@ -1,8 +1,4 @@
 /*
- * (C) Copyright 2004, Psyent Corporation <www.psyent.com>
- * Scott McNutt <smcnutt@psyent.com>
- *
- * YANU Support:
  * Copyright 2010, Renato Andreola <renato.andreola@imagos.it>
  *
  * See file CREDITS for list of people who contributed to this
@@ -24,61 +20,13 @@
  * MA 02111-1307 USA
  */
 
-
 #include <common.h>
 #include <watchdog.h>
 #include <asm/io.h>
-#include <nios2-io.h>
 #include <nios2-yanu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*------------------------------------------------------------------
- * JTAG acts as the serial port
- *-----------------------------------------------------------------*/
-#if defined(CONFIG_CONSOLE_JTAG)
-
-static nios_jtag_t *jtag = (nios_jtag_t *)CONFIG_SYS_NIOS_CONSOLE;
-
-void serial_setbrg( void ){ return; }
-int serial_init( void ) { return(0);}
-
-void serial_putc (char c)
-{
-	unsigned val;
-
-	while (NIOS_JTAG_WSPACE ( readl (&jtag->control)) == 0)
-		WATCHDOG_RESET ();
-	writel (&jtag->data, (unsigned char)c);
-}
-
-void serial_puts (const char *s)
-{
-	while (*s != 0)
-		serial_putc (*s++);
-}
-
-int serial_tstc (void)
-{
-	return ( readl (&jtag->control) & NIOS_JTAG_RRDY);
-}
-
-int serial_getc (void)
-{
-	int c;
-	unsigned val;
-
-	while (1) {
-		WATCHDOG_RESET ();
-		val = readl (&jtag->data);
-		if (val & NIOS_JTAG_RVALID)
-			break;
-	}
-	c = val & 0x0ff;
-	return (c);
-}
-
-#elif defined(CONFIG_CONSOLE_YANU)
 /*-----------------------------------------------------------------*/
 /* YANU Imagos serial port */
 /*-----------------------------------------------------------------*/
@@ -238,72 +186,3 @@ int serial_getc (void)
 
 	return(readl(&uart->data) & YANU_DATA_CHAR_MASK);
 }
-
-#else /*CONFIG_CONSOLE_YANU*/
-
-/*------------------------------------------------------------------
- * UART the serial port
- *-----------------------------------------------------------------*/
-
-static nios_uart_t *uart = (nios_uart_t *) CONFIG_SYS_NIOS_CONSOLE;
-
-#if defined(CONFIG_SYS_NIOS_FIXEDBAUD)
-
-/* Everything's already setup for fixed-baud PTF
- * assignment
- */
-void serial_setbrg (void){ return; }
-int serial_init (void) { return (0);}
-
-#else
-
-void serial_setbrg (void)
-{
-	unsigned div;
-
-	div = (CONFIG_SYS_CLK_FREQ/gd->baudrate)-1;
-	writel (&uart->divisor,div);
-	return;
-}
-
-int serial_init (void)
-{
-	serial_setbrg ();
-	return (0);
-}
-
-#endif /* CONFIG_SYS_NIOS_FIXEDBAUD */
-
-
-/*-----------------------------------------------------------------------
- * UART CONSOLE
- *---------------------------------------------------------------------*/
-void serial_putc (char c)
-{
-	if (c == '\n')
-		serial_putc ('\r');
-	while ((readl (&uart->status) & NIOS_UART_TRDY) == 0)
-		WATCHDOG_RESET ();
-	writel (&uart->txdata,(unsigned char)c);
-}
-
-void serial_puts (const char *s)
-{
-	while (*s != 0) {
-		serial_putc (*s++);
-	}
-}
-
-int serial_tstc (void)
-{
-	return (readl (&uart->status) & NIOS_UART_RRDY);
-}
-
-int serial_getc (void)
-{
-	while (serial_tstc () == 0)
-		WATCHDOG_RESET ();
-	return (readl (&uart->rxdata) & 0x00ff );
-}
-
-#endif /* CONFIG_JTAG_CONSOLE */
