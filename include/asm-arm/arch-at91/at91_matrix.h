@@ -80,7 +80,7 @@ typedef struct at91_matrix {
 	u32		mrcr;		/* 0x100 Master Remap Control */
 	u32		reserve4[3];
 #if	defined(CONFIG_AT91SAM9G45)
-	u32		ccr[52]		/* 0x110 - 0x1E0 Chip Configuration */
+	u32		ccr[52];	/* 0x110 - 0x1E0 Chip Configuration */
 	u32		womr;		/* 0x1E4 Write Protect Mode  */
 	u32		wpsr;		/* 0x1E8 Write Protect Status */
 	u32		resg45_1[10];
