@@ -139,6 +139,13 @@ void board_init (void)
 	board_late_init ();
 #endif
 
+#if defined(CONFIG_CMD_NET)
+#if defined(CONFIG_NET_MULTI)
+	puts ("Net:   ");
+#endif
+	eth_initialize (bd);
+#endif
+
 	/* main_loop */
 	for (;;) {
 		WATCHDOG_RESET ();
