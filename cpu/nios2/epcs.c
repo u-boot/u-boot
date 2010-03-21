@@ -207,6 +207,8 @@ static void epcs_status_wr (unsigned char status)
 static struct epcs_devinfo_t devinfo[] = {
 	{ "EPCS1 ", 0x10, 17, 4, 15, 8, 0x0c },
 	{ "EPCS4 ", 0x12, 19, 8, 16, 8, 0x1c },
+	{ "EPCS16", 0x14, 21, 32, 16, 8, 0x1c },
+	{ "EPCS64", 0x16, 23,128, 16, 8, 0x1c },
 	{ 0, 0, 0, 0, 0, 0 }
 };
 
@@ -501,15 +503,17 @@ void do_epcs_info (struct epcs_devinfo_t *dev, int argc, char *argv[])
 	}
 
 	/* Sector info */
-	for (i=0; i<dev->num_sects; i++) {
+	for (i=0; (i < dev->num_sects) && (argc > 1); i++) {
 		erased = epcs_sect_erased (i, &tmp, dev);
-		printf ("     %d: %06x ",
+		if ((i & 0x03) == 0) printf ("\n");
+		printf ("%4d: %07x ",
 			i, i*(1<<dev->sz_sect) );
 		if (erased)
-			printf ("erased\n");
+			printf ("E ");
 		else
-			printf ("data @ 0x%06x\n", tmp);
+			printf ("  ");
 	}
+	printf ("\n");
 
 	return;
 }
