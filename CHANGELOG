@@ -1,3 +1,208 @@
+commit d650da2dd4af99967aabc43cccbd8f160eb4cea6
+Author: Matthias Kaehlcke <matthias@kaehlcke.net>
+Date:	Tue Mar 9 22:13:33 2010 +0100
+
+    ep93xx timer: Fix resolution of get_ticks()
+
+    ep93xx timer: Make get_ticks() return a value in CONFIG_SYS_HZ resolution,
+    as announced by get_tbclk()
+
+    Signed-off-by: Matthias Kaehlcke <matthias@kaehlcke.net>
+
+commit 7e67fb5bf27a07d3b8d6b97c76f7195f7d68af58
+Author: Matthias Kaehlcke <matthias@kaehlcke.net>
+Date:	Tue Mar 9 22:13:20 2010 +0100
+
+    ep93xx timer: Fix possible overflow in usecs_to_ticks()
+
+    ep93xx timer: Use 64-bit values in usecs_to_ticks() in order to avoid
+    overflows in intermediate values
+
+    Signed-off-by: Matthias Kaehlcke <matthias@kaehlcke.net>
+
+commit daa989b47297c9f73426783599c286ef3a1f3f49
+Author: Asen Dimov <dimov@ronetix.at>
+Date:	Thu Mar 18 13:41:47 2010 +0200
+
+    correct a syntax typo in at91_matrix.h
+
+    Signed-off-by: Asen Dimov <dimov@ronetix.at>
+
+commit 322ff395c9aec7b87a2211fe4333fdf44377c564
+Author: Jeff Angielski <jeff@theptrgroup.com>
+Date:	Wed Mar 17 15:09:26 2010 -0400
+
+    env: fix endian ordering in crc table
+
+    The crc table was being built as little endian for big endian
+    targets.  This would cause fw_printenv to always fail with
+    "Warning: Bad CRC, using default environment" messages.
+
+    Signed-off-by: Jeff Angielski <jeff@theptrgroup.com>
+    Acked-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+
+commit 51c2ac9bb574c1420b993615268392b0c1f829f6
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Tue Mar 16 17:10:08 2010 +0100
+
+    mpc5121: cpu/mpc512x/diu.c: fix warnings
+
+    Fix warnings while compiling with CONFIG_VIDEO enabled:
+
+    diu.c: In function 'video_hw_init':
+    diu.c:158: warning: 'return' with no value, in function returning non-void
+    diu.c:162: warning: format '%ld' expects type 'long int', but argument 6 has type 'int'
+    diu.c:162: warning: format '%ld' expects type 'long int', but argument 7 has type 'int'
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit a74908161a1b37d780d3a826a86807bbc50a3857
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Tue Mar 16 15:29:33 2010 +0100
+
+    console.c: fix problem with splashimage
+
+    If a board uses cfb_console driver and splash image
+    and also defines CONFIG_SILENT_CONSOLE, the user is
+    locked out even if "silent" is not set. It is not
+    possible to get any output, neither on vga console
+    device nor on serial console after redirecting the
+    output to the serial console, since the GD_FLG_SILENT
+    flag remains set.
+
+    Fix the problem by redirecting the output from frame
+    buffer to serial console if splashimage is used.
+    Only suppress the output if "silent" environment
+    variable was set and don't set the GD_FLG_SILENT
+    flag arbitrarily.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 5647f78d04174b0b99857d2a7cbf25141bd14a45
+Author: Thomas Weber <swirl@gmx.li>
+Date:	Sat Mar 13 23:14:45 2010 +0100
+
+    mod change 755 => 644 for multiple files
+
+    I executed 'find . -name "*.[chS]" -perm 755 -exec chmod 644 {} \;'
+
+    Signed-off-by: Thomas Weber <swirl@gmx.li>
+    Add some more: neither Makefile nor config.mk need execute permissions.
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 99c006a320ceb9ea19135ac1512e4a81e8bebb72
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Sat Mar 13 21:09:00 2010 +0100
+
+    mxcmmc: fix warnings due to access 32 bit registers with 16 bit accessors
+
+    Some registers of the mxcmmc driver were accessed using
+    16 bit accessor functions, because only the LSB is
+    significant. This is not needed and generates
+    warnings.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit c96f86eefc215b67dd222694ce2b6f60e6a42b0b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jan 17 23:55:53 2010 +0100
+
+    TFTP: allow for adjustable retransmission timout
+
+    So far, TFTP negotiated a fixed retransmission timeout of 5 seconds.
+    In some cases (busy networks, slow TFTP servers) this caused very
+    slow transfers. A new environment variable "tftptimeout" allows to
+    set this timeout. Lowering this value may make downloads succeed
+    faster in networks with high packet loss rates or with unreliable
+    TFTP servers.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Ben Warren <biggerbadderben@gmail.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 252b404d954f91499a4477a3e1064eb237ce5a1c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 9 14:27:25 2010 +0100
+
+    Fix PCI_BASE_ADDRESS_5 handling in pci_hose_config_device()
+
+    Signed-off-by: FUJITA Kazutoshi <fujita@soum.co.jp>
+    Signed-off-by: <wd@denx.de>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 9d90a93d367272ee65550c0c9f82615cec967c70
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Thu Feb 25 14:03:08 2010 +0100
+
+    cmd_mmc remove \n
+
+    This patch removes the \n after the help message for mmcinfo.
+    This resulted in an empty line being displayed after the mmcinfo line
+    when the help command was given.
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit 67c7189dd35cb368ef665126fd17816581bd2e92
+Author: Renato Andreola <renato.andreola@imagos.it>
+Date:	Tue Mar 16 16:01:29 2010 -0400
+
+    nios2: Added support to YANU UART
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 1e67fb32fbdae7949bb423c9e20b3f77c0a61663
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Tue Mar 16 12:12:48 2010 -0400
+
+    nios2: use generic unaligned.h
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 05022629a2ca6c385dc390d32c20aa27cf5d915a
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Jan 21 05:01:15 2010 -0500
+
+    asm-blackfin/unaligned.h: add for zlib code
+
+    The new zlib code wants asm/unaligned.h, so have the Blackfin version pull
+    in the asm-generic/unaligned.h.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 3adc1fda38a6aacd4aaf3c2c9cc62a1e69e6de17
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Jan 21 05:01:14 2010 -0500
+
+    asm-generic/unaligned.h: dynamic default unaligned accesses
+
+    This is based on the asm-arm/unaligned.h, but made generic so all arches
+    that cannot do unaligned accesses can utilize it.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit be129aa71882421ad0b50cd3762915d10ace27ad
+Author: Matthias Weisser <matthias.weisser@graf-syteco.de>
+Date:	Tue Jan 12 12:06:31 2010 +0100
+
+    video: Fix console display when splashscreen is used
+
+    If a splashscreen is used the console scrolling used the
+    scroll size as needed when a logo was displayed. This
+    patch sets the scroll size to the whole screen if
+    a splashscreen is shown.
+
+    Signed-off-by: Matthias Weisser <matthias.weisser@graf-syteco.de>
+
+commit 93910edb595a88d394da3eb2cf5148096155dfe9
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Mar 12 23:06:04 2010 +0100
+
+    Prepare v2010.03-rc1
+
+    Coding style cleanup, update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 4e72fb15c9073129e05820cc9c54f54bc4985835
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Fri Mar 12 22:11:00 2010 +0100
