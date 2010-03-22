@@ -85,7 +85,7 @@ static int epcs_cs (int assert)
 
 	if (assert) {
 		tmp = readl (&epcs->control);
-		writel (&epcs->control, tmp | NIOS_SPI_SSO);
+		writel (tmp | NIOS_SPI_SSO, &epcs->control);
 	} else {
 		/* Let all bits shift out */
 		start = get_timer (0);
@@ -93,7 +93,7 @@ static int epcs_cs (int assert)
 			if (get_timer (start) > EPCS_TIMEOUT)
 				return (-1);
 		tmp = readl (&epcs->control);
-		writel (&epcs->control, tmp & ~NIOS_SPI_SSO);
+		writel (tmp & ~NIOS_SPI_SSO, &epcs->control);
 	}
 	return (0);
 }
@@ -106,7 +106,7 @@ static int epcs_tx (unsigned char c)
 	while ((readl (&epcs->status) & NIOS_SPI_TRDY) == 0)
 		if (get_timer (start) > EPCS_TIMEOUT)
 			return (-1);
-	writel (&epcs->txdata, c);
+	writel (c, &epcs->txdata);
 	return (0);
 }
 

@@ -81,7 +81,7 @@ void tmr_isr (void *arg)
 	/* Interrupt is cleared by writing anything to the
 	 * status register.
 	 */
-	writel (&tmr->status, 0);
+	writel (0, &tmr->status);
 	timestamp += CONFIG_SYS_NIOS_TMRMS;
 #ifdef CONFIG_STATUS_LED
 	status_led_tick(timestamp);
@@ -92,16 +92,16 @@ static void tmr_init (void)
 {
 	nios_timer_t *tmr =(nios_timer_t *)CONFIG_SYS_NIOS_TMRBASE;
 
-	writel (&tmr->status, 0);
-	writel (&tmr->control, 0);
-	writel (&tmr->control, NIOS_TIMER_STOP);
+	writel (0, &tmr->status);
+	writel (0, &tmr->control);
+	writel (NIOS_TIMER_STOP, &tmr->control);
 
 #if defined(CONFIG_SYS_NIOS_TMRCNT)
-	writel (&tmr->periodl, CONFIG_SYS_NIOS_TMRCNT & 0xffff);
-	writel (&tmr->periodh, (CONFIG_SYS_NIOS_TMRCNT >> 16) & 0xffff);
+	writel (CONFIG_SYS_NIOS_TMRCNT & 0xffff, &tmr->periodl);
+	writel ((CONFIG_SYS_NIOS_TMRCNT >> 16) & 0xffff, &tmr->periodh);
 #endif
-	writel (&tmr->control, NIOS_TIMER_ITO | NIOS_TIMER_CONT |
-			  NIOS_TIMER_START );
+	writel (NIOS_TIMER_ITO | NIOS_TIMER_CONT | NIOS_TIMER_START,
+			&tmr->control);
 	irq_install_handler (CONFIG_SYS_NIOS_TMRIRQ, tmr_isr, (void *)tmr);
 }
 

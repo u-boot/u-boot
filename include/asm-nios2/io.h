@@ -80,19 +80,19 @@ extern unsigned inl (unsigned port);
 	({unsigned long val;\
 	 asm volatile( "ldwio %0, 0(%1)" :"=r"(val) : "r" (addr)); val;})
 
-#define writeb(addr,val)\
-	asm volatile ("stbio %1, 0(%0)" : : "r" (addr), "r" (val))
-#define writew(addr,val)\
-	asm volatile ("sthio %1, 0(%0)" : : "r" (addr), "r" (val))
-#define writel(addr,val)\
-	asm volatile ("stwio %1, 0(%0)" : : "r" (addr), "r" (val))
+#define writeb(val,addr)\
+	asm volatile ("stbio %0, 0(%1)" : : "r" (val), "r" (addr))
+#define writew(val,addr)\
+	asm volatile ("sthio %0, 0(%1)" : : "r" (val), "r" (addr))
+#define writel(val,addr)\
+	asm volatile ("stwio %0, 0(%1)" : : "r" (val), "r" (addr))
 
 #define inb(addr)	readb(addr)
 #define inw(addr)	readw(addr)
 #define inl(addr)	readl(addr)
-#define outb(addr,val)	writeb(addr,val)
-#define outw(addr,val)	writew(addr,val)
-#define outl(addr,val)	writel(addr,val)
+#define outb(val, addr)	writeb(val,addr)
+#define outw(val, addr)	writew(val,addr)
+#define outl(val, addr)	writel(val,addr)
 
 static inline void insb (unsigned long port, void *dst, unsigned long count)
 {

@@ -40,7 +40,7 @@ void serial_putc (char c)
 {
 	while (NIOS_JTAG_WSPACE ( readl (&jtag->control)) == 0)
 		WATCHDOG_RESET ();
-	writel (&jtag->data, (unsigned char)c);
+	writel ((unsigned char)c, &jtag->data);
 }
 
 void serial_puts (const char *s)

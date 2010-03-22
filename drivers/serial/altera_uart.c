@@ -50,7 +50,7 @@ void serial_setbrg (void)
 	unsigned div;
 
 	div = (CONFIG_SYS_CLK_FREQ/gd->baudrate)-1;
-	writel (&uart->divisor,div);
+	writel (div, &uart->divisor);
 	return;
 }
 
@@ -71,7 +71,7 @@ void serial_putc (char c)
 		serial_putc ('\r');
 	while ((readl (&uart->status) & NIOS_UART_TRDY) == 0)
 		WATCHDOG_RESET ();
-	writel (&uart->txdata,(unsigned char)c);
+	writel ((unsigned char)c, &uart->txdata);
 }
 
 void serial_puts (const char *s)

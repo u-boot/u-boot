@@ -61,7 +61,7 @@ void serial_setbrg (void)
 	    ((unsigned)CONFIG_SYS_CLK_FREQ >> k);
 
 	baud = best_m + best_n * YANU_BAUDE;
-	writel(&uart->baud, baud);
+	writel(baud, &uart->baud);
 
 	return;
 }
@@ -92,7 +92,7 @@ void serial_setbrg (void)
 	    ((unsigned)CONFIG_SYS_CLK_FREQ >> k);
 
 	baud = best_m + best_n * YANU_BAUDE;
-	writel(&uart->baud, baud);
+	writel(baud, &uart->baud);
 
 	return;
 }
@@ -113,7 +113,7 @@ int serial_init (void)
 		YANU_ACTION_RPE         |
 	    YANU_ACTION_RFE | YANU_ACTION_RFIFO_CLEAR | YANU_ACTION_TFIFO_CLEAR;
 
-	writel(&uart->action, action);
+	writel(action, &uart->action);
 	
 	/*  control register cleanup */
 	/* no interrupts enabled */
@@ -127,7 +127,7 @@ int serial_init (void)
 	control |= YANU_CONTROL_RDYDLY * YANU_RXFIFO_DLY;
 	control |= YANU_CONTROL_TXTHR *  YANU_TXFIFO_THR;
 
-	writel(&uart->control, control);
+	writel(control, &uart->control);
 
 	/* to set baud rate */
 	serial_setbrg();
@@ -156,7 +156,7 @@ void serial_putc (char c)
 		WATCHDOG_RESET ();
 	}
 
-	writel(&uart->data, (unsigned char)c);
+	writel((unsigned char)c, &uart->data);
 }
 
 void serial_puts (const char *s)
@@ -182,7 +182,7 @@ int serial_getc (void)
 		WATCHDOG_RESET ();
 	
 	/* first we pull the char */
-	writel(&uart->action, YANU_ACTION_RFIFO_PULL);
+	writel(YANU_ACTION_RFIFO_PULL, &uart->action);
 
 	return(readl(&uart->data) & YANU_DATA_CHAR_MASK);
 }
