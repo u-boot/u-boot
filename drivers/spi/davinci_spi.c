@@ -220,4 +220,3 @@ void spi_cs_deactivate(struct spi_slave *slave)
 {
 	/* do nothing */
 }
-

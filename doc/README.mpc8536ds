@@ -98,7 +98,7 @@ For boot from eSDHC:
 	| 0x90-0x93 | 0xFF720000 | Config Addr 3               |
 	| 0x94-0x97 | 0x80010000 | Config Data 3               |
 	--------------------------------------------------------
-	| 0x98-0x9b | 0xFF72e40e | Config Addr 4               |
+	| 0x98-0x9b | 0xFF72e40c | Config Addr 4               |
 	| 0x9c-0x9f | 0x00000040 | Config Data 4               |
 	--------------------------------------------------------
 	| 0xa0-0xa3 | 0x40000001 | Config Addr 5               |

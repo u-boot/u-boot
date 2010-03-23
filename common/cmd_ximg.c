@@ -230,7 +230,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 				printf ("   Uncompressing part %d ... ", part);
 				/*
-                                 * If we've got less than 4 MB of malloc()
+				 * If we've got less than 4 MB of malloc()
 				 * space, use slower decompression algorithm
 				 * which requires at most 2300 KB of memory.
 				 */

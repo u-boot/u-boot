@@ -283,20 +283,6 @@ NXTARG:		;
 			params.ep += tparams->header_size;
 	}
 
-	/*
-	 * If XIP, ensure the entry point is equal to the load address plus
-	 * the size of the U-Boot header.
-	 */
-	if (params.xflag) {
-		if (params.ep != params.addr + tparams->header_size) {
-			fprintf (stderr,
-				"%s: For XIP, the entry point must be the load addr + %lu\n",
-				params.cmdname,
-				(unsigned long)tparams->header_size);
-			exit (EXIT_FAILURE);
-		}
-	}
-
 	params.imagefile = *argv;
 
 	if (params.fflag){

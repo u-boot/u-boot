@@ -1,12 +1,13 @@
 /82559_eeprom
 /atmel_df_pow2
+/eepro100_eeprom
 /hello_world
 /interrupt
 /mem_to_mem_idma2intr
-/test_burst
-/timer
 /sched
 /smc91111_eeprom
 /smc911x_eeprom
+/test_burst
+/timer
 *.bin
 *.srec

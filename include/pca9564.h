@@ -47,4 +47,3 @@
 #define PCA_CON_CR          0x07 /* Clock Rate (MASK) */
 
 #endif
-

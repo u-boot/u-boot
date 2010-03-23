@@ -115,6 +115,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 #endif
 	printf ("IP addr     = %pI4\n", &bd->bi_ip_addr);
 	printf ("baudrate    = %6ld bps\n", bd->bi_baudrate   );
+	print_num ("relocaddr", gd->relocaddr);
 	return 0;
 }
 

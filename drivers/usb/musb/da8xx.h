@@ -100,4 +100,3 @@ struct da8xx_usb_regs {
 
 #define DA8XX_USB_VBUS_GPIO	(1 << 15)
 #endif	/* __DA8XX_MUSB_H__ */
-

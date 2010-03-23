@@ -491,4 +491,10 @@
 						OR_SCY_2_CLK)
 #define CONFIG_SYS_BR4_PRELIM ((CONFIG_SYS_PERIPHERAL_BASE & BR_BA_MSK) | BR_PS_8 | BR_V)
 #define PCMCIA_CTRL (CONFIG_SYS_PERIPHERAL_BASE + 0xB00)
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_HWCONFIG		1
+
 #endif	/* __CONFIG_H */

@@ -388,7 +388,7 @@ int pci_hose_config_device(struct pci_controller *hose,
 
 	pci_hose_write_config_dword (hose, dev, PCI_COMMAND, 0);
 
-	for (bar = PCI_BASE_ADDRESS_0; bar < PCI_BASE_ADDRESS_5; bar += 4) {
+	for (bar = PCI_BASE_ADDRESS_0; bar <= PCI_BASE_ADDRESS_5; bar += 4) {
 		pci_hose_write_config_dword (hose, dev, bar, 0xffffffff);
 		pci_hose_read_config_dword (hose, dev, bar, &bar_response);
 

@@ -267,8 +267,6 @@
 /* End of used area in DPRAM */
 #define CONFIG_SYS_INIT_RAM_END		MPC5XXX_SRAM_SIZE
 
-
-
 /* size in bytes reserved for initial data */
 #define CONFIG_SYS_GBL_DATA_SIZE	128
 
@@ -314,7 +312,6 @@
 #define CONFIG_SYS_MAXARGS		16
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
-
 
 #define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1...15 MB in DRAM */

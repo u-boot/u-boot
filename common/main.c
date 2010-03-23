@@ -305,10 +305,6 @@ void main_loop (void)
 	trab_vfd (bmp);
 #endif	/* CONFIG_VFD && VFD_TEST_LOGO */
 
-#if defined(CONFIG_UPDATE_TFTP)
-	update_tftp ();
-#endif /* CONFIG_UPDATE_TFTP */
-
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	bootcount = bootcount_load();
 	bootcount++;
@@ -368,6 +364,10 @@ void main_loop (void)
 # endif
 	}
 #endif /* CONFIG_PREBOOT */
+
+#if defined(CONFIG_UPDATE_TFTP)
+	update_tftp ();
+#endif /* CONFIG_UPDATE_TFTP */
 
 #if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
 	s = getenv ("bootdelay");

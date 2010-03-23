@@ -145,10 +145,10 @@ void *video_hw_init(void)
 	struct fb_info *info;
 
 	if (mpc5121_diu_init() < 0)
-		return;
+		return NULL;
 
 	/* fill in Graphic device struct */
-	sprintf(pGD->modeIdent, "%dx%dx%d %ldkHz %ldHz",
+	sprintf(pGD->modeIdent, "%dx%dx%d %dkHz %dHz",
 		xres, yres, 32, 64, 60);
 
 	pGD->frameAdrs = (unsigned int)fsl_fb_open(&info);

@@ -45,4 +45,3 @@
 int musb_platform_init(void);
 
 #endif /* _MUSB_OMAP3_H */
-

@@ -92,8 +92,8 @@ static void sdram_start (int hi_addr)
 
 /*
  * ATTENTION: Although partially referenced initdram does NOT make real
- *            use of CONFIG_SYS_SDRAM_BASE. The code does not work if
- *            CONFIG_SYS_SDRAM_BASE is something else than 0x00000000.
+ *	      use of CONFIG_SYS_SDRAM_BASE. The code does not work if
+ *	      CONFIG_SYS_SDRAM_BASE is something else than 0x00000000.
  */
 
 phys_size_t initdram (int board_type)
@@ -221,8 +221,8 @@ void ft_board_setup (void *blob, bd_t * bd)
 
 int board_eth_init(bd_t *bis)
 {
-        cpu_eth_init(bis); /* Built in FEC comes first */
-        return pci_eth_init(bis);
+	cpu_eth_init(bis); /* Built in FEC comes first */
+	return pci_eth_init(bis);
 }
 
 #ifdef CONFIG_VIDEO

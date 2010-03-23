@@ -118,7 +118,6 @@ Wolfgang Denk <wd@denx.de>
 
 	CU824		MPC8240
 	Sandpoint8240	MPC8240
-	SL8245		MPC8245
 
 	ATC		MPC8250
 	PM825		MPC8250

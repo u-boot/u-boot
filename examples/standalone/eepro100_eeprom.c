@@ -18,7 +18,6 @@
  */
 
 /* avoid unnecessary memcpy function */
-#define __HAVE_ARCH_MEMCPY
 #define _PPC_STRING_H_
 
 #include <common.h>
@@ -77,7 +76,7 @@ static inline short inw(long addr)
 	return swap16(*(volatile short *)(addr));
 }
 
-static inline void *memcpy(void *dst, const void *src, unsigned int len)
+void *memcpy(void *dst, const void *src, unsigned int len)
 {
 	char *ret = dst;
 	while (len-- > 0) {

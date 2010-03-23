@@ -22,9 +22,14 @@
  */
 
 #include <common.h>
+#include <hwconfig.h>
 #include <mpc8xx.h>
 #ifdef CONFIG_PS2MULT
 #include <ps2mult.h>
+#endif
+
+#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+#include <libfdt.h>
 #endif
 
 extern flash_info_t flash_info[];	/* FLASH chips info */
@@ -598,6 +603,120 @@ void lcd_show_board_info(void)
 #endif /* CONFIG_LCD_INFO_BELOW_LOGO */
 }
 #endif /* CONFIG_LCD_INFO */
+
+/*
+ * Device Tree Support
+ */
+#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+int fdt_set_node_and_value (void *blob,
+				char *nodename,
+				char *regname,
+				void *var,
+				int size)
+{
+	int ret = 0;
+	int nodeoffset = 0;
+
+	nodeoffset = fdt_path_offset (blob, nodename);
+	if (nodeoffset >= 0) {
+		ret = fdt_setprop (blob, nodeoffset, regname, var,
+					size);
+		if (ret < 0) {
+			printf("ft_blob_update(): "
+				"cannot set %s/%s property; err: %s\n",
+				nodename, regname, fdt_strerror (ret));
+		}
+	} else {
+		printf("ft_blob_update(): "
+			"cannot find %s node err:%s\n",
+			nodename, fdt_strerror (nodeoffset));
+	}
+	return ret;
+}
+
+int fdt_del_node_name (void *blob, char *nodename)
+{
+	int ret = 0;
+	int nodeoffset = 0;
+
+	nodeoffset = fdt_path_offset (blob, nodename);
+	if (nodeoffset >= 0) {
+		ret = fdt_del_node (blob, nodeoffset);
+		if (ret < 0) {
+			printf("%s: cannot delete %s; err: %s\n",
+				__func__, nodename, fdt_strerror (ret));
+		}
+	} else {
+		printf("%s: cannot find %s node err:%s\n",
+			__func__, nodename, fdt_strerror (nodeoffset));
+	}
+	return ret;
+}
+
+int fdt_del_prop_name (void *blob, char *nodename, char *propname)
+{
+	int ret = 0;
+	int nodeoffset = 0;
+
+	nodeoffset = fdt_path_offset (blob, nodename);
+	if (nodeoffset >= 0) {
+		ret = fdt_delprop (blob, nodeoffset, propname);
+		if (ret < 0) {
+			printf("%s: cannot delete %s %s; err: %s\n",
+				__func__, nodename, propname,
+				fdt_strerror (ret));
+		}
+	} else {
+		printf("%s: cannot find %s node err:%s\n",
+			__func__, nodename, fdt_strerror (nodeoffset));
+	}
+	return ret;
+}
+
+/*
+ * update "brg" property in the blob
+ */
+void ft_blob_update (void *blob, bd_t *bd)
+{
+	uchar enetaddr[6];
+	ulong brg_data = 0;
+
+	/* BRG */
+	brg_data = cpu_to_be32(bd->bi_busfreq);
+	fdt_set_node_and_value(blob,
+				"/soc/cpm", "brg-frequency",
+				&brg_data, sizeof(brg_data));
+
+	/* MAC addr */
+	if (eth_getenv_enetaddr("ethaddr", enetaddr)) {
+		fdt_set_node_and_value(blob,
+					"ethernet0", "local-mac-address",
+					enetaddr, sizeof(u8) * 6);
+	}
+
+	if (hwconfig_arg_cmp("fec", "off")) {
+		/* no FEC on this plattform, delete DTS nodes */
+		fdt_del_node_name (blob, "ethernet1");
+		fdt_del_node_name (blob, "mdio1");
+		/* also the aliases entries */
+		fdt_del_prop_name (blob, "/aliases", "ethernet1");
+		fdt_del_prop_name (blob, "/aliases", "mdio1");
+	} else {
+		/* adjust local-mac-address for FEC ethernet */
+		if (eth_getenv_enetaddr("eth1addr", enetaddr)) {
+			fdt_set_node_and_value(blob,
+					"ethernet1", "local-mac-address",
+					enetaddr, sizeof(u8) * 6);
+		}
+	}
+}
+
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+	ft_blob_update(blob, bd);
+}
+#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
 
 /* ---------------------------------------------------------------------------- */
 /* TK885D specific initializaion						*/
