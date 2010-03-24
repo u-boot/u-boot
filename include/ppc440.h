@@ -68,6 +68,12 @@
 #define CPR0_SPCID	0x0120
 #define CPR0_ICFG	0x0140
 
+/* 440EPX boot strap options */
+#define BOOT_STRAP_OPTION_A	0x00000000
+#define BOOT_STRAP_OPTION_B	0x00000001
+#define BOOT_STRAP_OPTION_D	0x00000003
+#define BOOT_STRAP_OPTION_E	0x00000004
+
 /* 440gx sdr register definations */
 #define SDR0_SDSTP0	0x0020	    /* */
 #define SDR0_SDSTP1	0x0021	    /* */
