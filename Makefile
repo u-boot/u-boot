@@ -1435,9 +1435,6 @@ MIP405T_config:	unconfig
 ML2_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ml2
 
-ml300_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ml300 xilinx
-
 ml507_flash_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
 	@mkdir -p $(obj)include $(obj)board/xilinx/ml507
