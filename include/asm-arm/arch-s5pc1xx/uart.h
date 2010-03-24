@@ -24,7 +24,7 @@
 #define __ASM_ARCH_UART_H_
 
 #ifndef __ASSEMBLY__
-struct s5pc1xx_uart {
+struct s5p_uart {
 	unsigned int	ulcon;
 	unsigned int	ucon;
 	unsigned int	ufcon;
