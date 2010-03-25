@@ -601,7 +601,7 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 					ok++;
 					if (devno)
 						printf("\n");
-					printf("print_part of %x\n", devno);
+					debug("print_part of %x\n", devno);
 					print_part(stor_dev);
 				}
 			}
@@ -610,7 +610,7 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			stor_dev = usb_stor_get_dev(devno);
 			if (stor_dev->type != DEV_TYPE_UNKNOWN) {
 				ok++;
-				printf("print_part of %x\n", devno);
+				debug("print_part of %x\n", devno);
 				print_part(stor_dev);
 			}
 		}
