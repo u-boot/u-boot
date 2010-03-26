@@ -159,7 +159,7 @@ int i2c_set_bus_speed(unsigned int)
  *	i2c read {i2c_chip} {devaddr}{.0, .1, .2} {len} {memaddr}
  */
 
-int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	u_char	chip;
 	uint	devaddr, alen, length;
@@ -211,7 +211,7 @@ int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	u_char	chip;
 	uint	addr, alen, length;
@@ -317,7 +317,7 @@ int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * Syntax:
  *	i2c mw {i2c_chip} {addr}{.0, .1, .2} {data} [{count}]
  */
-int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	uchar	chip;
 	ulong	addr;
@@ -389,7 +389,7 @@ int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * Syntax:
  *	i2c crc32 {i2c_chip} {addr}{.0, .1, .2} {count}
  */
-int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	uchar	chip;
 	ulong	addr;
@@ -592,7 +592,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
  * Syntax:
  *	i2c probe {addr}{.0, .1, .2}
  */
-int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	int j;
 #if defined(CONFIG_SYS_I2C_NOPROBES)
@@ -636,7 +636,7 @@ int do_i2c_probe (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  *	{length} - Number of bytes to read
  *	{delay}  - A DECIMAL number and defaults to 1000 uSec
  */
-int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	u_char	chip;
 	ulong	alen;
@@ -756,7 +756,7 @@ static void decode_bits (u_char const b, char const *str[], int const do_once)
  * Syntax:
  *	i2c sdram {i2c_chip}
  */
-int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	enum { unknown, EDO, SDRAM, DDR2 } type;
 
@@ -1233,7 +1233,7 @@ int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #endif
 
 #if defined(CONFIG_I2C_MUX)
-int do_i2c_add_bus(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_i2c_add_bus(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	int ret=0;
 
@@ -1264,7 +1264,7 @@ int do_i2c_add_bus(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #endif  /* CONFIG_I2C_MUX */
 
 #if defined(CONFIG_I2C_MULTI_BUS)
-int do_i2c_bus_num(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_i2c_bus_num(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	int bus_idx, ret=0;
 
@@ -1282,7 +1282,7 @@ int do_i2c_bus_num(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 }
 #endif  /* CONFIG_I2C_MULTI_BUS */
 
-int do_i2c_bus_speed(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_i2c_bus_speed(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	int speed, ret=0;
 
@@ -1299,17 +1299,17 @@ int do_i2c_bus_speed(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return ret;
 }
 
-int do_i2c_mm(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_i2c_mm(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	return mod_i2c_mem (cmdtp, 1, flag, argc, argv);
 }
 
-int do_i2c_nm(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_i2c_nm(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	return mod_i2c_mem (cmdtp, 0, flag, argc, argv);
 }
 
-int do_i2c_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_i2c_reset(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 	return 0;
@@ -1337,7 +1337,7 @@ static cmd_tbl_t cmd_i2c_sub[] = {
 	U_BOOT_CMD_MKENT(speed, 1, 1, do_i2c_bus_speed, "", ""),
 };
 
-int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	cmd_tbl_t *c;
 
