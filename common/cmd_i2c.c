@@ -151,6 +151,29 @@ int i2c_set_bus_speed(unsigned int)
 	__attribute__((weak, alias("__def_i2c_set_bus_speed")));
 
 /*
+ * get_alen: small parser helper function to get address length
+ * returns the address length,or 0 on error
+ */
+static uint get_alen(char *arg)
+{
+	int	j;
+	int	alen;
+
+	alen = 1;
+	for (j = 0; j < 8; j++) {
+		if (arg[j] == '.') {
+			alen = arg[j+1] - '0';
+			if (alen > 3) {
+				return 0;
+			}
+			break;
+		} else if (arg[j] == '\0')
+			break;
+	}
+	return alen;
+}
+
+/*
  * Syntax:
  *	i2c read {i2c_chip} {devaddr}{.0, .1, .2} {len} {memaddr}
  */
@@ -160,7 +183,6 @@ static int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	u_char	chip;
 	uint	devaddr, alen, length;
 	u_char  *memaddr;
-	int	j;
 
 	if (argc != 5) {
 		cmd_usage(cmdtp);
@@ -177,17 +199,10 @@ static int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * 2 bytes long.  Some day it might be 3 bytes long :-).
 	 */
 	devaddr = simple_strtoul(argv[2], NULL, 16);
-	alen = 1;
-	for (j = 0; j < 8; j++) {
-		if (argv[2][j] == '.') {
-			alen = argv[2][j+1] - '0';
-			if (alen > 3) {
-				cmd_usage(cmdtp);
-				return 1;
-			}
-			break;
-		} else if (argv[2][j] == '\0')
-			break;
+	alen = get_alen(argv[2]);
+	if (alen == 0) {
+		cmd_usage(cmdtp);
+		return 1;
 	}
 
 	/*
@@ -234,7 +249,6 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		/*
 		 * New command specified.
 		 */
-		alen = 1;
 
 		/*
 		 * I2C chip address
@@ -246,17 +260,10 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		 * 2 bytes long.  Some day it might be 3 bytes long :-).
 		 */
 		addr = simple_strtoul(argv[2], NULL, 16);
-		alen = 1;
-		for (j = 0; j < 8; j++) {
-			if (argv[2][j] == '.') {
-				alen = argv[2][j+1] - '0';
-				if (alen > 3) {
-					cmd_usage(cmdtp);
-					return 1;
-				}
-				break;
-			} else if (argv[2][j] == '\0')
-				break;
+		alen = get_alen(argv[2]);
+		if (alen == 0) {
+			cmd_usage(cmdtp);
+			return 1;
 		}
 
 		/*
@@ -324,7 +331,6 @@ static int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	uint	alen;
 	uchar	byte;
 	int	count;
-	int	j;
 
 	if ((argc < 4) || (argc > 5)) {
 		cmd_usage(cmdtp);
@@ -340,17 +346,10 @@ static int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * Address is always specified.
 	 */
 	addr = simple_strtoul(argv[2], NULL, 16);
-	alen = 1;
-	for (j = 0; j < 8; j++) {
-		if (argv[2][j] == '.') {
-			alen = argv[2][j+1] - '0';
-			if (alen > 3) {
-				cmd_usage(cmdtp);
-				return 1;
-			}
-			break;
-		} else if (argv[2][j] == '\0')
-			break;
+	alen = get_alen(argv[2]);
+	if (alen == 0) {
+		cmd_usage(cmdtp);
+		return 1;
 	}
 
 	/*
@@ -398,7 +397,6 @@ static int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	uchar	byte;
 	ulong	crc;
 	ulong	err;
-	int	j;
 
 	if (argc < 4) {
 		cmd_usage(cmdtp);
@@ -414,17 +412,10 @@ static int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * Address is always specified.
 	 */
 	addr = simple_strtoul(argv[2], NULL, 16);
-	alen = 1;
-	for (j = 0; j < 8; j++) {
-		if (argv[2][j] == '.') {
-			alen = argv[2][j+1] - '0';
-			if (alen > 3) {
-				cmd_usage(cmdtp);
-				return 1;
-			}
-			break;
-		} else if (argv[2][j] == '\0')
-			break;
+	alen = get_alen(argv[2]);
+	if (alen == 0) {
+		cmd_usage(cmdtp);
+		return 1;
 	}
 
 	/*
@@ -469,7 +460,6 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 	ulong	data;
 	int	size = 1;
 	int	nbytes;
-	int	j;
 	extern char console_buffer[];
 
 	if (argc != 3) {
@@ -504,17 +494,10 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char *argv[])
 		 * Address is always specified.
 		 */
 		addr = simple_strtoul(argv[2], NULL, 16);
-		alen = 1;
-		for (j = 0; j < 8; j++) {
-			if (argv[2][j] == '.') {
-				alen = argv[2][j+1] - '0';
-				if (alen > 3) {
-					cmd_usage(cmdtp);
-					return 1;
-				}
-				break;
-			} else if (argv[2][j] == '\0')
-				break;
+		alen = get_alen(argv[2]);
+		if (alen == 0) {
+			cmd_usage(cmdtp);
+			return 1;
 		}
 	}
 
@@ -644,7 +627,6 @@ static int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	uint	length;
 	u_char	bytes[16];
 	int	delay;
-	int	j;
 
 	if (argc < 3) {
 		cmd_usage(cmdtp);
@@ -660,17 +642,10 @@ static int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 * Address is always specified.
 	 */
 	addr = simple_strtoul(argv[2], NULL, 16);
-	alen = 1;
-	for (j = 0; j < 8; j++) {
-		if (argv[2][j] == '.') {
-			alen = argv[2][j+1] - '0';
-			if (alen > 3) {
-				cmd_usage(cmdtp);
-				return 1;
-			}
-			break;
-		} else if (argv[2][j] == '\0')
-			break;
+	alen = get_alen(argv[2]);
+	if (alen == 0) {
+		cmd_usage(cmdtp);
+		return 1;
 	}
 
 	/*
