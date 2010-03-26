@@ -130,6 +130,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #endif
 
+#define DISP_LINE_LEN	16
+
 /* TODO: Implement architecture-specific get/set functions */
 unsigned int __def_i2c_get_bus_speed(void)
 {
@@ -147,8 +149,6 @@ int __def_i2c_set_bus_speed(unsigned int speed)
 }
 int i2c_set_bus_speed(unsigned int)
 	__attribute__((weak, alias("__def_i2c_set_bus_speed")));
-
-#define DISP_LINE_LEN	16
 
 /*
  * Syntax:
