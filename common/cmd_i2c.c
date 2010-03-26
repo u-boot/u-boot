@@ -148,10 +148,6 @@ int __def_i2c_set_bus_speed(unsigned int speed)
 int i2c_set_bus_speed(unsigned int)
 	__attribute__((weak, alias("__def_i2c_set_bus_speed")));
 
-/*
- * Syntax:
- *	i2c md {i2c_chip} {addr}{.0, .1, .2} {len}
- */
 #define DISP_LINE_LEN	16
 
 /*
@@ -211,6 +207,10 @@ static int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
+/*
+ * Syntax:
+ *	i2c md {i2c_chip} {addr}{.0, .1, .2} {len}
+ */
 static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	u_char	chip;
