@@ -1357,7 +1357,7 @@ U_BOOT_CMD(
 );
 
 #if defined(CONFIG_I2C_MUX)
-int i2c_mux_add_device(I2C_MUX_DEVICE *dev)
+static int i2c_mux_add_device(I2C_MUX_DEVICE *dev)
 {
 	I2C_MUX_DEVICE	*devtmp = i2c_mux_devices;
 

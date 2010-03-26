@@ -127,8 +127,6 @@ typedef struct _mux_device {
 	struct _mux_device	*next;
 } I2C_MUX_DEVICE;
 
-int	i2c_mux_add_device(I2C_MUX_DEVICE *dev);
-
 I2C_MUX_DEVICE	*i2c_mux_search_device(int id);
 I2C_MUX_DEVICE *i2c_mux_ident_muxstring (uchar *buf);
 int i2x_mux_select_mux(int bus);
