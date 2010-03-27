@@ -1,3 +1,103 @@
+commit 060f28532b09dd3d2c78423bdd809ac768a27629
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Mar 25 14:07:23 2010 +0100
+
+    cmd_usb.c: print debug messages only when DEBUG is defined
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a574cff121b1479c8e962b7a2a29310020387260
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Mar 24 12:19:19 2010 +0100
+
+    ml300: remove support for broken, orphaned board
+
+    The ml300 board has a number of issues, but nobody cares about this
+    long-orphaned board any more.  Remove it.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Acked-by: Michal Simek <monstr@monstr.eu>
+
+commit 04387d24a17b1ee13024dd4779da4b84d47c65cc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Mar 27 23:37:46 2010 +0100
+
+    mkimage: fix Segmentation Fault when run without "-n name" option
+
+    The restructuring of the mkimage command in commit 89a4d6b1 ("tools:
+    mkimage: split code into core, default and FIT image specific")
+    introduced a bug that caused mkimage to segfault when run without
+    "-n name" option.  Initialize the imagename entry to prevent that.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c40c94a3d20a8616264c2dfcda85279185d69aeb
+Author: Renato Andreola <renato.andreola@imagos.it>
+Date:	Wed Mar 24 23:00:47 2010 +0800
+
+    cfi_flash: precision and underflow problem in tout calculation
+
+    With old configuration it could happen tout=0 if CONFIG_SYS_HZ<1000.
+
+    Signed-off-by: Renato Andreola <renato.andreola@imagos.it>
+    Signed-off-by: Alessandro Rubini <rubini@gnudd.com>
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c550afada5fcad426aa6a219a329feb9eedae8b2
+Author: Rupjyoti Sarmah <rsarmah@appliedmicro.com>
+Date:	Wed Mar 24 16:52:02 2010 +0530
+
+    ppc4xx fix unstable 440EPx bootstrap options
+
+    440EPx fixed bootstrap options A, B, D, and E sets PLL FWDVA to a value = 1.
+    This results in the PLLOUTB being greater than the CPU clock frequency
+    resulting unstable 440EPx operation resulting in various software hang
+    conditions.
+
+    This patch reprograms the FWDVA satisfying the requirement of setting FWDVB
+    to a value greater than 1 while using one of the four deafult bootstrap options.
+
+    Signed-off-by: Rupjyoti Sarmah <rsarmah@amcc.com>
+    Acked-by : Victor Gallardo <vgallardo@appliedmicro.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fb508b8b39a52a4063d098f5a9b4355bc5b30c14
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Wed Mar 24 10:16:20 2010 +0100
+
+    at91: Get rid of some warnings when building for otc570
+
+    The soft-i2c code for AT91 defines I2C_SOFT_DECLARATIONS
+    for direct access by dereferencing a pio pointer.
+    The OTC570 platform uses the AT91 gpio API so it does not
+    need the pio variable.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+
+commit acb13868936a28502782a16e1edaec378e494a29
+Author: Alessandro Rubini <rubini@unipv.it>
+Date:	Sat Mar 13 17:44:08 2010 +0100
+
+    lcd: make 16bpp work
+
+    Support for 16bpp was supposed to be in the code but was not working.
+    This makes it work and has been tested in the nhk8815 board.
+
+    Signed-off-by: Alessandro Rubini <rubini@unipv.it>
+    Acked-by: Andrea Gallo <andrea.gallo@stericsson.com>
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 152dda3d94e97ede7af3f9560a59a659384d4585
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Mar 22 23:25:00 2010 +0100
+
+    Prepare v2010.03-rc2
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit d650da2dd4af99967aabc43cccbd8f160eb4cea6
 Author: Matthias Kaehlcke <matthias@kaehlcke.net>
 Date:	Tue Mar 9 22:13:33 2010 +0100
