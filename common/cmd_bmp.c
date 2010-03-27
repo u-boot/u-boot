@@ -90,6 +90,54 @@ bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp)
 }
 #endif
 
+static int do_bmp_info(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	ulong addr;
+
+	switch (argc) {
+	case 1:		/* use load_addr as default address */
+		addr = load_addr;
+		break;
+	case 2:		/* use argument */
+		addr = simple_strtoul(argv[1], NULL, 16);
+		break;
+	default:
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	return (bmp_info(addr));
+}
+
+static int do_bmp_display(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	ulong addr;
+	int x = 0, y = 0;
+
+	switch (argc) {
+	case 1:		/* use load_addr as default address */
+		addr = load_addr;
+		break;
+	case 2:		/* use argument */
+		addr = simple_strtoul(argv[1], NULL, 16);
+		break;
+	case 4:
+		addr = simple_strtoul(argv[1], NULL, 16);
+	        x = simple_strtoul(argv[2], NULL, 10);
+	        y = simple_strtoul(argv[3], NULL, 10);
+	        break;
+	default:
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	 return (bmp_display(addr, x, y));
+}
+
+static cmd_tbl_t cmd_bmp_sub[] = {
+	U_BOOT_CMD_MKENT(info, 3, 0, do_bmp_info, "", ""),
+	U_BOOT_CMD_MKENT(display, 5, 0, do_bmp_display, "", ""),
+};
 
 /*
  * Subroutine:  do_bmp
@@ -101,35 +149,18 @@ bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp)
  * Return:      None
  *
  */
-int do_bmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_bmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
-	ulong addr;
-	int x = 0, y = 0;
+	cmd_tbl_t *c;
 
-	switch (argc) {
-	case 2:		/* use load_addr as default address */
-		addr = load_addr;
-		break;
-	case 3:		/* use argument */
-		addr = simple_strtoul(argv[2], NULL, 16);
-		break;
-	case 5:
-		addr = simple_strtoul(argv[2], NULL, 16);
-	        x = simple_strtoul(argv[3], NULL, 10);
-	        y = simple_strtoul(argv[4], NULL, 10);
-	        break;
-	default:
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	/* Strip off leading 'bmp' command argument */
+	argc--;
+	argv++;
 
-	/* Allow for short names
-	 * Adjust length if more sub-commands get added
-	 */
-	if (strncmp(argv[1],"info",1) == 0) {
-		return (bmp_info(addr));
-	} else if (strncmp(argv[1],"display",1) == 0) {
-	    return (bmp_display(addr, x, y));
+	c = find_cmd_tbl(argv[0], &cmd_bmp_sub[0], ARRAY_SIZE(cmd_bmp_sub));
+
+	if (c) {
+		return  c->cmd(cmdtp, flag, argc, argv);
 	} else {
 		cmd_usage(cmdtp);
 		return 1;
