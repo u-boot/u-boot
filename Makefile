@@ -1976,6 +1976,10 @@ ZPC1900_config: unconfig
 ## Coldfire
 #########################################################################
 
+astro_mcf5373l_config \
+astro_mcf5373l_RAM_config :	unconfig
+	@$(MKCONFIG) -t $(@:_config=) astro_mcf5373l m68k mcf532x mcf5373l astro
+
 M5208EVBE_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5208evbe freescale
 
@@ -2043,6 +2047,9 @@ EB+MCF-EV123_internal_config :	unconfig
 	@mkdir -p $(obj)board/BuS/EB+MCF-EV123
 	@echo "TEXT_BASE = 0xF0000000"|tee $(obj)board/BuS/EB+MCF-EV123/textbase.mk
 	@$(MKCONFIG) EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
+
+EP2500_config:			unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 ep2500 Mercury
 
 idmr_config :			unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 idmr

@@ -237,6 +237,17 @@
  */
 #define CONFIG_SYS_CACHELINE_SIZE	16
 
+#define ICACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
+					 CONFIG_SYS_INIT_RAM_END - 8)
+#define DCACHE_STATUS			(CONFIG_SYS_INIT_RAM_ADDR + \
+					 CONFIG_SYS_INIT_RAM_END - 4)
+#define CONFIG_SYS_ICACHE_INV		(CF_CACR_CINVA)
+#define CONFIG_SYS_CACHE_ACR0		(CONFIG_SYS_SDRAM_BASE | \
+					 CF_ADDRMASK(CONFIG_SYS_SDRAM_SIZE) | \
+					 CF_ACR_EN | CF_ACR_SM_ALL)
+#define CONFIG_SYS_CACHE_ICACR		(CF_CACR_EC | CF_CACR_CINVA | \
+					 CF_CACR_DCM_P)
+
 /*-----------------------------------------------------------------------
  * Chipselect bank definitions
  */

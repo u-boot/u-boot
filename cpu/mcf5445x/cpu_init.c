@@ -28,6 +28,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <asm/immap.h>
+#include <asm/processor.h>
 #include <asm/rtc.h>
 
 #if defined(CONFIG_CMD_NET)
@@ -105,6 +106,14 @@ void cpu_init_f(void)
 	fbcs->csmr5 = CONFIG_SYS_CS5_MASK;
 #endif
 
+	/*
+	 * now the flash base address is no longer at 0 (Newer ColdFire family
+	 * boot at address 0 instead of 0xFFnn_nnnn). The vector table must
+	 * also move to the new location.
+	 */
+	if (CONFIG_SYS_CS0_BASE != 0)
+		setvbr(CONFIG_SYS_CS0_BASE);
+
 #ifdef CONFIG_FSL_I2C
 	gpio->par_feci2c = GPIO_PAR_FECI2C_SCL_SCL | GPIO_PAR_FECI2C_SDA_SDA;
 #endif
@@ -128,19 +137,43 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
+	switch (port) {
 	case 0:
-		gpio->par_uart =
+		gpio->par_uart &=
+		    ~(GPIO_PAR_UART_U0TXD_U0TXD | GPIO_PAR_UART_U0RXD_U0RXD);
+		gpio->par_uart |=
 		    (GPIO_PAR_UART_U0TXD_U0TXD | GPIO_PAR_UART_U0RXD_U0RXD);
 		break;
 	case 1:
-		gpio->par_uart =
+#ifdef CONFIG_SYS_UART1_PRI_GPIO
+		gpio->par_uart &=
+		    ~(GPIO_PAR_UART_U1TXD_U1TXD | GPIO_PAR_UART_U1RXD_U1RXD);
+		gpio->par_uart |=
 		    (GPIO_PAR_UART_U1TXD_U1TXD | GPIO_PAR_UART_U1RXD_U1RXD);
+#elif defined(CONFIG_SYS_UART1_ALT1_GPIO)
+		gpio->par_ssi &=
+		    (GPIO_PAR_SSI_SRXD_UNMASK | GPIO_PAR_SSI_STXD_UNMASK);
+		gpio->par_ssi |=
+		    (GPIO_PAR_SSI_SRXD_U1RXD | GPIO_PAR_SSI_STXD_U1TXD);
+#endif
+		break;
+	case 2:
+#if defined(CONFIG_SYS_UART2_ALT1_GPIO)
+		gpio->par_timer &=
+		    (GPIO_PAR_TIMER_T3IN_UNMASK | GPIO_PAR_TIMER_T2IN_UNMASK);
+		gpio->par_timer |=
+		    (GPIO_PAR_TIMER_T3IN_U2RXD | GPIO_PAR_TIMER_T2IN_U2TXD);
+#elif defined(CONFIG_SYS_UART2_ALT2_GPIO)
+		gpio->par_timer &=
+		    (GPIO_PAR_FECI2C_SCL_UNMASK | GPIO_PAR_FECI2C_SDA_UNMASK);
+		gpio->par_timer |=
+		    (GPIO_PAR_FECI2C_SCL_U2TXD | GPIO_PAR_FECI2C_SDA_U2RXD);
+#endif
 		break;
 	}
 }
@@ -164,9 +197,9 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 		    ~(GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
 
 		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
-			gpio->par_fec &= GPIO_PAR_FEC_FEC0_MASK;
+			gpio->par_fec &= GPIO_PAR_FEC_FEC0_UNMASK;
 		else
-			gpio->par_fec &= GPIO_PAR_FEC_FEC1_MASK;
+			gpio->par_fec &= GPIO_PAR_FEC_FEC1_UNMASK;
 	}
 	return 0;
 }

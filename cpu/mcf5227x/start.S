@@ -24,15 +24,11 @@
 #include <config.h>
 #include <timestamp.h>
 #include "version.h"
+#include <asm/cache.h>
 
 #ifndef	 CONFIG_IDENT_STRING
 #define	 CONFIG_IDENT_STRING ""
 #endif
-
-/* last three long word reserved for cache status */
-#define ICACHE_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END- 4)
-#define DCACHE_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END- 8)
-#define CACR_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-12)
 
 #define _START	_start
 #define _FAULT	_fault
@@ -378,21 +374,19 @@ _start:
 	movec	%d0, %RAMBAR1
 #endif
 
-	/* initialize general use internal ram */
-	move.l #0, %d0
-	move.l #(ICACHE_STATUS), %a1	/* icache */
-	move.l #(DCACHE_STATUS), %a2	/* icache */
-	move.l #(CACR_STATUS), %a3	/* CACR */
-	move.l %d0, (%a1)
-	move.l %d0, (%a2)
-	move.l %d0, (%a3)
-
 	/* invalidate and disable cache */
-	move.l	#0x01000000, %d0	/* Invalidate cache cmd */
+	move.l	#CF_CACR_CINV, %d0	/* Invalidate cache cmd */
 	movec	%d0, %CACR		/* Invalidate cache */
 	move.l	#0, %d0
 	movec	%d0, %ACR0
 	movec	%d0, %ACR1
+
+	/* initialize general use internal ram */
+	move.l #0, %d0
+	move.l #(ICACHE_STATUS), %a1	/* icache */
+	move.l #(DCACHE_STATUS), %a2	/* icache */
+	move.l %d0, (%a1)
+	move.l %d0, (%a2)
 
 	/* set stackpointer to end of internal ram to get some stackspace for
 	   the first c-code */
@@ -508,84 +502,6 @@ _int_handler:
 	bsr int_handler
 	addql	#4,%sp
 	RESTORE_ALL
-
-/*------------------------------------------------------------------------------*/
-/* cache functions */
-	.globl	icache_enable
-icache_enable:
-	move.l	#0x01200000, %d0	/* Invalid cache */
-	movec	%d0, %CACR
-
-	move.l	#(CONFIG_SYS_SDRAM_BASE + 0x1c000), %d0
-	movec	%d0, %ACR0
-
-	move.l	#0x81600610, %d0	/* Enable cache */
-	movec	%d0, %CACR
-
-	move.l	#(ICACHE_STATUS), %a1
-	moveq	#1, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	icache_disable
-icache_disable:
-	move.l	#0x01F00000, %d0	/* Setup cache mask */
-	movec	%d0, %CACR		/* Invalidate icache */
-	clr.l	%d0
-	movec	%d0, %ACR0
-	movec	%d0, %ACR1
-
-	move.l	#(ICACHE_STATUS), %a1
-	moveq	#0, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	icache_status
-icache_status:
-	move.l	#(ICACHE_STATUS), %a1
-	move.l	(%a1), %d0
-	rts
-
-	.globl	icache_invalid
-icache_invalid:
-	move.l	#0x80600610, %d0	/* Invalidate icache */
-	movec	%d0, %CACR		/* Enable and invalidate cache */
-	rts
-
-	.globl	dcache_enable
-dcache_enable:
-	move.l	#0x01200000, %d0	/* Invalid cache */
-	movec	%d0, %CACR
-
-	move.l	#0x81300610, %d0
-	movec	%d0, %CACR
-
-	move.l	#(DCACHE_STATUS), %a1
-	moveq	#1, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	dcache_disable
-dcache_disable:
-	move.l	#0x81600610, %d0	/* Setup cache mask */
-	movec	%d0, %CACR		/* Invalidate icache */
-
-	move.l	#(DCACHE_STATUS), %a1
-	moveq	#0, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	dcache_invalid
-dcache_invalid:
-	move.l	#0x81100610, %d0	/* Setup cache mask */
-	movec	%d0, %CACR		/* Enable and invalidate cache */
-	rts
-
-	.globl	dcache_status
-dcache_status:
-	move.l	#(DCACHE_STATUS), %a1
-	move.l	(%a1), %d0
-	rts
 
 /*------------------------------------------------------------------------------*/
 

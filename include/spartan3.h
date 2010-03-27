@@ -57,6 +57,7 @@ typedef struct {
 	Xilinx_done_fn	done;
 	Xilinx_wr_fn	wr;
 	Xilinx_post_fn	post;
+	Xilinx_bwr_fn	bwr; /* block write function */
 } Xilinx_Spartan3_Slave_Serial_fns;
 
 /* Device Image Sizes

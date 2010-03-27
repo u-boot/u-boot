@@ -839,6 +839,7 @@ LIST_microblaze="			\
 #########################################################################
 
 LIST_coldfire="			\
+	astro_mcf5373l		\
 	cobra5272		\
 	EB+MCF-EV123		\
 	EB+MCF-EV123_internal	\

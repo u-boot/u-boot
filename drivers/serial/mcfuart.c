@@ -34,7 +34,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern void uart_port_conf(void);
+extern void uart_port_conf(int port);
 
 int serial_init(void)
 {
@@ -43,7 +43,7 @@ int serial_init(void)
 
 	uart = (volatile uart_t *)(CONFIG_SYS_UART_BASE);
 
-	uart_port_conf();
+	uart_port_conf(CONFIG_SYS_UART_PORT);
 
 	/* write to SICR: SIM2 = uart mode,dcd does not affect rx */
 	uart->ucr = UART_UCR_RESET_RX;

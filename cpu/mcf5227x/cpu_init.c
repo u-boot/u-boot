@@ -125,27 +125,27 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
+	switch (port) {
 	case 0:
 		gpio->par_uart &=
-		    (GPIO_PAR_UART_U0TXD_MASK & GPIO_PAR_UART_U0RXD_MASK);
+		    (GPIO_PAR_UART_U0TXD_UNMASK & GPIO_PAR_UART_U0RXD_UNMASK);
 		gpio->par_uart |=
 		    (GPIO_PAR_UART_U0TXD_U0TXD | GPIO_PAR_UART_U0RXD_U0RXD);
 		break;
 	case 1:
 		gpio->par_uart &=
-		    (GPIO_PAR_UART_U1TXD_MASK & GPIO_PAR_UART_U1RXD_MASK);
+		    (GPIO_PAR_UART_U1TXD_UNMASK & GPIO_PAR_UART_U1RXD_UNMASK);
 		gpio->par_uart |=
 		    (GPIO_PAR_UART_U1TXD_U1TXD | GPIO_PAR_UART_U1RXD_U1RXD);
 		break;
 	case 2:
 		gpio->par_dspi &=
-		    (GPIO_PAR_DSPI_SIN_MASK & GPIO_PAR_DSPI_SOUT_MASK);
+		    (GPIO_PAR_DSPI_SIN_UNMASK & GPIO_PAR_DSPI_SOUT_UNMASK);
 		gpio->par_dspi =
 		    (GPIO_PAR_DSPI_SIN_U2RXD | GPIO_PAR_DSPI_SOUT_U2TXD);
 		break;
@@ -175,11 +175,11 @@ int cfspi_claim_bus(uint bus, uint cs)
 
 	switch (cs) {
 	case 0:
-		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS0_MASK;
+		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS0_UNMASK;
 		gpio->par_dspi |= GPIO_PAR_DSPI_PCS0_PCS0;
 		break;
 	case 2:
-		gpio->par_timer &= GPIO_PAR_TIMER_T2IN_MASK;
+		gpio->par_timer &= GPIO_PAR_TIMER_T2IN_UNMASK;
 		gpio->par_timer |= GPIO_PAR_TIMER_T2IN_DSPIPCS2;
 		break;
 	}
@@ -199,7 +199,7 @@ void cfspi_release_bus(uint bus, uint cs)
 		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS0_PCS0;
 		break;
 	case 2:
-		gpio->par_timer &= GPIO_PAR_TIMER_T2IN_MASK;
+		gpio->par_timer &= GPIO_PAR_TIMER_T2IN_UNMASK;
 		break;
 	}
 }

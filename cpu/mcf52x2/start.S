@@ -24,11 +24,11 @@
 #include <config.h>
 #include <timestamp.h>
 #include "version.h"
+#include <asm/cache.h>
 
 #ifndef	 CONFIG_IDENT_STRING
 #define	 CONFIG_IDENT_STRING ""
 #endif
-
 
 #define _START	_start
 #define _FAULT	_fault
@@ -201,6 +201,13 @@ _after_flashbar_copy:
 	movec	%d0, %RAMBAR1
 #endif
 
+	/* initialize general use internal ram */
+	move.l #0, %d0
+	move.l #(ICACHE_STATUS), %a1	/* icache */
+	move.l #(DCACHE_STATUS), %a2	/* icache */
+	move.l %d0, (%a1)
+	move.l %d0, (%a2)
+
 	/* set stackpointer to end of internal ram to get some stackspace for the first c-code */
 	move.l	#(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET), %sp
 	clr.l %sp@-
@@ -283,23 +290,6 @@ clear_bss:
 	cmp.l	%a2, %a1
 	bne	7b
 
-#if defined(CONFIG_M5281) || defined(CONFIG_M5282)
-	/* patch the 3 accesspoints to 3 ichache_state */
-	/* quick and dirty */
-
-	move.l	%a0,%d1
-	add.l	#(icache_state - CONFIG_SYS_MONITOR_BASE),%d1
-	move.l	%a0,%a1
-	add.l	#(icache_state_access_1+2 - CONFIG_SYS_MONITOR_BASE),%a1
-	move.l  %d1,(%a1)
-	move.l	%a0,%a1
-	add.l	#(icache_state_access_2+2 - CONFIG_SYS_MONITOR_BASE),%a1
-	move.l  %d1,(%a1)
-	move.l	%a0,%a1
-	add.l	#(icache_state_access_3+2 - CONFIG_SYS_MONITOR_BASE),%a1
-	move.l  %d1,(%a1)
-#endif
-
 	/* calculate relative jump to board_init_r in ram */
 	move.l %a0, %a1
 	add.l #(board_init_r - CONFIG_SYS_MONITOR_BASE), %a1
@@ -334,156 +324,6 @@ _int_handler:
 	bsr int_handler
 	addql	#4,%sp
 	RESTORE_ALL
-
-/*------------------------------------------------------------------------------*/
-/* cache functions */
-#ifdef	CONFIG_M5208
-	.globl	icache_enable
-icache_enable:
-	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
-	movec	%d0, %CACR			/* Invalidate cache */
-	move.l	#(CONFIG_SYS_SDRAM_BASE + 0xC000), %d0	/* Setup cache mask */
-	movec	%d0, %ACR0			/* Enable cache */
-
-	move.l	#0x80000200, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Enable cache */
-	nop
-
-	move.l #(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-8), %a1
-	moveq	#1, %d0
-	move.l	%d0, (%a1)
-	rts
-#endif
-
-#ifdef	CONFIG_M5271
-	.globl	icache_enable
-icache_enable:
-	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
-	movec	%d0, %CACR			/* Invalidate cache */
-	move.l	#(CONFIG_SYS_SDRAM_BASE + 0xc000), %d0	/* Setup cache mask */
-	movec	%d0, %ACR0			/* Enable cache */
-
-	move.l	#0x80000200, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Enable cache */
-	nop
-
-	move.l #(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-8), %a1
-	moveq	#1, %d0
-	move.l	%d0, (%a1)
-	rts
-#endif
-
-#ifdef	CONFIG_M5272
-	.globl	icache_enable
-icache_enable:
-	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
-	movec	%d0, %CACR			/* Invalidate cache */
-	move.l	#0x0000c000, %d0		/* Setup cache mask */
-	movec	%d0, %ACR0			/* Enable cache */
-	move.l	#0xff00c000, %d0		/* Setup cache mask */
-	movec	%d0, %ACR1			/* Enable cache */
-	move.l	#0x80000100, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Enable cache */
-	moveq	#1, %d0
-	move.l	%d0, icache_state
-	rts
-#endif
-
-#if  defined(CONFIG_M5275)
-/*
- * Instruction cache only
- */
-	.globl	icache_enable
-icache_enable:
-	move.l	#0x01400000, %d0		/* Invalidate cache cmd */
-	movec	%d0, %CACR			/* Invalidate cache */
-	move.l	#0x0000c000, %d0		/* Setup SDRAM caching */
-	movec	%d0, %ACR0			/* Enable cache */
-	move.l	#0x00000000, %d0		/* No other caching */
-	movec	%d0, %ACR1			/* Enable cache */
-	move.l	#0x80400100, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Enable cache */
-	moveq	#1, %d0
-	move.l	%d0, icache_state
-	rts
-#endif
-
-#ifdef CONFIG_M5282
-	.globl	icache_enable
-icache_enable:
-	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
-	movec	%d0, %CACR			/* Invalidate cache */
-	move.l	#0x0000c000, %d0		/* Setup cache mask */
-	movec	%d0, %ACR0			/* Enable cache */
-	move.l	#0xff00c000, %d0		/* Setup cache mask */
-	movec	%d0, %ACR1			/* Enable cache */
-	move.l	#0x80400100, %d0		/* Setup cache mask, data cache disabel*/
-	movec	%d0, %CACR			/* Enable cache */
-	moveq	#1, %d0
-icache_state_access_1:
-	move.l	%d0, icache_state
-	rts
-#endif
-
-#if defined(CONFIG_M5249) || defined(CONFIG_M5253)
-	.globl	icache_enable
-icache_enable:
-	/*
-	 *  Note: The 5249 Documentation doesn't give a bit position for CINV!
-	 *  From the 5272 and the 5307 documentation, I have deduced that it is
-	 *  probably CACR[24]. Should someone say something to Motorola?
-	 *	~Jeremy
-	 */
-	move.l	#0x01000000, %d0		/* Invalidate whole cache */
-	move.c	%d0,%CACR
-	move.l	#0xff00c000, %d0		/* Set FLASH cachable: always match (SM=0b10) */
-	move.c	%d0, %ACR0
-	move.l	#0x0000c000, %d0		/* Set SDRAM cachable: always match (SM=0b10) */
-	move.c	%d0, %ACR1
-	move.l	#0x90000200, %d0		/* Set cache enable cmd */
-	move.c	%d0,%CACR
-	moveq	#1, %d0
-	move.l	%d0, icache_state
-	rts
-#endif
-
-	.globl	icache_disable
-icache_disable:
-	move.l	#0x00000100, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Enable cache */
-	clr.l	%d0				/* Setup cache mask */
-	movec	%d0, %ACR0			/* Enable cache */
-	movec	%d0, %ACR1			/* Enable cache */
-	moveq	#0, %d0
-icache_state_access_2:
-	move.l	%d0, icache_state
-	rts
-
-	.globl	icache_status
-icache_status:
-icache_state_access_3:
-	move.l	#(icache_state), %a0
-	move.l	(%a0), %d0
-	rts
-
-	.data
-icache_state:
-	.long	0	/* cache is diabled on inirialization */
-
-	.globl	dcache_enable
-dcache_enable:
-	/* dummy function */
-	rts
-
-	.globl	dcache_disable
-dcache_disable:
-	/* dummy function */
-	rts
-
-	.globl	dcache_status
-dcache_status:
-	/* dummy function */
-	rts
 
 /*------------------------------------------------------------------------------*/
 

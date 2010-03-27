@@ -5,6 +5,8 @@
  * MCF5282 additionals
  * (C) Copyright 2005
  * BuS Elektronik GmbH & Co. KG <esw@bus-elektronik.de>
+ * (c) Copyright 2010
+ * Arcturus Networks Inc. <www.arcturusnetworks.com>
  *
  * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
  * TsiChung Liew (Tsi-Chung.Liew@freescale.com)
@@ -133,36 +135,36 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
+	switch (port) {
 	case 0:
-		gpio->par_uart &= GPIO_PAR_UART0_MASK;
+		gpio->par_uart &= GPIO_PAR_UART0_UNMASK;
 		gpio->par_uart |= (GPIO_PAR_UART_U0TXD | GPIO_PAR_UART_U0RXD);
 		break;
 	case 1:
-		gpio->par_uart &= GPIO_PAR_UART0_MASK;
+		gpio->par_uart &= GPIO_PAR_UART0_UNMASK;
 		gpio->par_uart |= (GPIO_PAR_UART_U1TXD | GPIO_PAR_UART_U1RXD);
 		break;
 	case 2:
 #ifdef CONFIG_SYS_UART2_PRI_GPIO
 		gpio->par_timer &=
-		    (GPIO_PAR_TMR_TIN0_MASK | GPIO_PAR_TMR_TIN1_MASK);
+		    (GPIO_PAR_TMR_TIN0_UNMASK | GPIO_PAR_TMR_TIN1_UNMASK);
 		gpio->par_timer |=
 		    (GPIO_PAR_TMR_TIN0_U2TXD | GPIO_PAR_TMR_TIN1_U2RXD);
 #endif
 #ifdef CONFIG_SYS_UART2_ALT1_GPIO
 		gpio->par_feci2c &=
-		    (GPIO_PAR_FECI2C_MDC_MASK | GPIO_PAR_FECI2C_MDIO_MASK);
+		    (GPIO_PAR_FECI2C_MDC_UNMASK | GPIO_PAR_FECI2C_MDIO_UNMASK);
 		gpio->par_feci2c |=
 		    (GPIO_PAR_FECI2C_MDC_U2TXD | GPIO_PAR_FECI2C_MDIO_U2RXD);
 #endif
 #ifdef CONFIG_SYS_UART2_ALT1_GPIO
 		gpio->par_feci2c &=
-		    (GPIO_PAR_FECI2C_SDA_MASK | GPIO_PAR_FECI2C_SCL_MASK);
+		    (GPIO_PAR_FECI2C_SDA_UNMASK | GPIO_PAR_FECI2C_SCL_UNMASK);
 		gpio->par_feci2c |=
 		    (GPIO_PAR_FECI2C_SDA_U2TXD | GPIO_PAR_FECI2C_SCL_U2RXD);
 #endif
@@ -182,8 +184,8 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 		    GPIO_PAR_FECI2C_MDC_MDC | GPIO_PAR_FECI2C_MDIO_MDIO;
 	} else {
 		gpio->par_fec &=
-		    (GPIO_PAR_FEC_7W_MASK & GPIO_PAR_FEC_MII_MASK);
-		gpio->par_feci2c &= GPIO_PAR_FECI2C_RMII_MASK;
+		    (GPIO_PAR_FEC_7W_UNMASK & GPIO_PAR_FEC_MII_UNMASK);
+		gpio->par_feci2c &= GPIO_PAR_FECI2C_RMII_UNMASK;
 	}
 	return 0;
 }
@@ -245,15 +247,19 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
+	volatile u32 *par = (u32 *) MMAP_PAR;
+
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
-	case 0:
-		break;
+	switch (port) {
 	case 1:
+		*par &= 0xFFE7FFFF;
+		*par |= 0x00180000;
 		break;
 	case 2:
+		*par &= 0xFFFFFFFC;
+		*par &= 0x00000003;
 		break;
 	}
 }
@@ -289,21 +295,26 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
+	u16 temp;
+
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
+	switch (port) {
 	case 0:
-		mbar_writeShort(MCF_GPIO_PAR_UART, MCF_GPIO_PAR_UART_U0TXD |
-				MCF_GPIO_PAR_UART_U0RXD);
+		temp = mbar_readShort(MCF_GPIO_PAR_UART) & 0xFFF3;
+		temp |= (MCF_GPIO_PAR_UART_U0TXD | MCF_GPIO_PAR_UART_U0RXD);
+		mbar_writeShort(MCF_GPIO_PAR_UART, temp);
 		break;
 	case 1:
-		mbar_writeShort(MCF_GPIO_PAR_UART,
-				MCF_GPIO_PAR_UART_U1RXD_UART1 |
-				MCF_GPIO_PAR_UART_U1TXD_UART1);
+		temp = mbar_readShort(MCF_GPIO_PAR_UART) & 0xF0FF;
+		temp |= (MCF_GPIO_PAR_UART_U1RXD_UART1 | MCF_GPIO_PAR_UART_U1TXD_UART1);
+		mbar_writeShort(MCF_GPIO_PAR_UART, temp);
 		break;
 	case 2:
-		mbar_writeShort(MCF_GPIO_PAR_UART, 0x3000);
+		temp = mbar_readShort(MCF_GPIO_PAR_UART) & 0xCFFF;
+		temp |= (0x3000);
+		mbar_writeShort(MCF_GPIO_PAR_UART, temp);
 		break;
 	}
 }
@@ -407,12 +418,12 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
+	switch (port) {
 	case 0:
 		gpio->gpio_pbcnt &= ~(GPIO_PBCNT_PB0MSK | GPIO_PBCNT_PB1MSK);
 		gpio->gpio_pbcnt |= (GPIO_PBCNT_URT0_TXD | GPIO_PBCNT_URT0_RXD);
@@ -485,19 +496,22 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
+	switch (port) {
 	case 0:
+		gpio->par_uart &= ~UART0_ENABLE_MASK;
 		gpio->par_uart |= UART0_ENABLE_MASK;
 		break;
 	case 1:
+		gpio->par_uart &= ~UART1_ENABLE_MASK;
 		gpio->par_uart |= UART1_ENABLE_MASK;
 		break;
 	case 2:
+		gpio->par_uart &= ~UART2_ENABLE_MASK;
 		gpio->par_uart |= UART2_ENABLE_MASK;
 		break;
 	}
@@ -582,6 +596,12 @@ void cpu_init_f(void)
 #ifdef CONFIG_SYS_PTCPAR
 	MCFGPIO_PTCPAR = CONFIG_SYS_PTCPAR;
 #endif
+#if defined(CONFIG_SYS_PORTTC)
+	MCFGPIO_PORTTC = CONFIG_SYS_PORTTC;
+#endif
+#if defined(CONFIG_SYS_DDRTC)
+	MCFGPIO_DDRTC  = CONFIG_SYS_DDRTC;
+#endif
 #ifdef CONFIG_SYS_PTDPAR
 	MCFGPIO_PTDPAR = CONFIG_SYS_PTDPAR;
 #endif
@@ -589,6 +609,9 @@ void cpu_init_f(void)
 	MCFGPIO_PUAPAR = CONFIG_SYS_PUAPAR;
 #endif
 
+#if defined(CONFIG_SYS_DDRD)
+	MCFGPIO_DDRD = CONFIG_SYS_DDRD;
+#endif
 #ifdef CONFIG_SYS_DDRUA
 	MCFGPIO_DDRUA = CONFIG_SYS_DDRUA;
 #endif
@@ -610,10 +633,10 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
+	switch (port) {
 	case 0:
 		MCFGPIO_PUAPAR &= 0xFc;
 		MCFGPIO_PUAPAR |= 0x03;
@@ -718,14 +741,7 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
-	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
-	case 0:
-		break;
-	case 1:
-		break;
-	}
 }
 #endif				/* #if defined(CONFIG_M5249) */

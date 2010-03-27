@@ -24,15 +24,11 @@
 #include <config.h>
 #include <timestamp.h>
 #include "version.h"
+#include <asm/cache.h>
 
 #ifndef	 CONFIG_IDENT_STRING
 #define	 CONFIG_IDENT_STRING ""
 #endif
-
-/* last three long word reserved for cache status */
-#define ICACHE_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END- 4)
-#define DCACHE_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END- 8)
-#define CACR_STATUS	(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-12)
 
 #define _START	_start
 #define _FAULT	_fault
@@ -158,10 +154,8 @@ _start:
 	move.l #0, %d0
 	move.l #(ICACHE_STATUS), %a1	/* icache */
 	move.l #(DCACHE_STATUS), %a2	/* icache */
-	move.l #(CACR_STATUS), %a3	/* CACR */
 	move.l %d0, (%a1)
 	move.l %d0, (%a2)
-	move.l %d0, (%a3)
 
 	/* set stackpointer to end of internal ram to get some stackspace for the
 	   first c-code */
@@ -277,81 +271,6 @@ _int_handler:
 	bsr int_handler
 	addql	#4,%sp
 	RESTORE_ALL
-
-/*------------------------------------------------------------------------------*/
-/* cache functions */
-	.globl	icache_enable
-icache_enable:
-	move.l	#(CONFIG_SYS_SDRAM_BASE + 0x1c000), %d0
-	movec	%d0, %ACR2			/* Enable cache */
-
-	move.l	#0x020C8100, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Enable cache */
-	nop
-
-	move.l #(ICACHE_STATUS), %a1
-	moveq	#1, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	icache_disable
-icache_disable:
-	move.l	#0x000C8100, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Disable cache */
-	clr.l	%d0				/* Setup cache mask */
-	movec	%d0, %ACR2
-	movec	%d0, %ACR3
-
-	move.l #(ICACHE_STATUS), %a1
-	moveq	#0, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	icache_invalid
-icache_invalid:
-	move.l	#0x000C8100, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Enable cache */
-	rts
-
-	.globl	icache_status
-icache_status:
-	move.l #(ICACHE_STATUS), %a1
-	move.l	(%a1), %d0
-	rts
-
-	.globl	dcache_enable
-dcache_enable:
-	bsr	icache_disable
-
-	move.l	#(CONFIG_SYS_SDRAM_BASE + 0xc000), %d0
-	movec	%d0, %ACR0			/* Enable cache */
-
-	move.l	#0xA30C8100, %d0		/* Invalidate cache cmd */
-	movec	%d0, %CACR			/* Invalidate cache */
-
-	move.l #(DCACHE_STATUS), %a1
-	moveq	#1, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	dcache_disable
-dcache_disable:
-	move.l	#0xA30C8100, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Disable cache */
-	clr.l	%d0				/* Setup cache mask */
-	movec	%d0, %ACR0
-	movec	%d0, %ACR1
-
-	move.l #(DCACHE_STATUS), %a1
-	moveq	#0, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	dcache_status
-dcache_status:
-	move.l #(DCACHE_STATUS), %a1
-	move.l	(%a1), %d0
-	rts
 
 /*------------------------------------------------------------------------------*/
 
