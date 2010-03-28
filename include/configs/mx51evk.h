@@ -160,6 +160,9 @@
 #define PHYS_SDRAM_1		CSD0_BASE_ADDR
 #define PHYS_SDRAM_1_SIZE	(512 * 1024 * 1024)
 
+#define CONFIG_SYS_DDR_CLKSEL	0
+#define CONFIG_SYS_CLKTL_CBCDR	0x59E35100
+
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
