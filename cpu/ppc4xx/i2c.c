@@ -93,7 +93,7 @@ static void _i2c_bus_reset(void)
 
 void i2c_init(int speed, int slaveaddr)
 {
-	struct ppc4xx_i2c *i2c = (struct ppc4xx_i2c *)I2C_BASE_ADDR;
+	struct ppc4xx_i2c *i2c;
 	int val, divisor;
 	int bus;
 
@@ -108,6 +108,9 @@ void i2c_init(int speed, int slaveaddr)
 
 	for (bus = 0; bus < CONFIG_SYS_MAX_I2C_BUS; bus++) {
 		I2C_SET_BUS(bus);
+
+		/* Set i2c pointer after calling I2C_SET_BUS() */
+		i2c = (struct ppc4xx_i2c *)I2C_BASE_ADDR;
 
 		/* Handle possible failed I2C state */
 		/* FIXME: put this into i2c_init_board()? */
