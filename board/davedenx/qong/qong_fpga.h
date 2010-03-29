@@ -33,8 +33,8 @@
 #define	QONG_FPGA_TMS_PIN		25
 #define	QONG_FPGA_TDI_PIN		8
 #define	QONG_FPGA_TDO_PIN		7
-#define	QONG_FPGA_RST_PIN		16
-#define	QONG_FPGA_IRQ_PIN		8
+#define	QONG_FPGA_RST_PIN		48
+#define	QONG_FPGA_IRQ_PIN		40
 #endif
 
 #endif /* QONG_FPGA_H */
