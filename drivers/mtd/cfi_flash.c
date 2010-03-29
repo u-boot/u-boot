@@ -537,7 +537,10 @@ static int flash_status_check (flash_info_t * info, flash_sect_t sector,
 	ulong start;
 
 #if CONFIG_SYS_HZ != 1000
-	tout *= CONFIG_SYS_HZ/1000;
+	if ((ulong)CONFIG_SYS_HZ > 100000)
+		tout *= (ulong)CONFIG_SYS_HZ / 1000;  /* for a big HZ, avoid overflow */
+	else
+		tout = DIV_ROUND_UP(tout * (ulong)CONFIG_SYS_HZ, 1000);
 #endif
 
 	/* Wait for command completion */

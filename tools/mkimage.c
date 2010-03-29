@@ -37,6 +37,7 @@ struct mkimage_params params = {
 	.type = IH_TYPE_KERNEL,
 	.comp = IH_COMP_GZIP,
 	.dtc = MKIMAGE_DEFAULT_DTC_OPTIONS,
+	.imagename = "",
 };
 
 /*
