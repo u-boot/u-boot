@@ -52,6 +52,8 @@
 #define CONFIG_MXC_UART	1
 #define CONFIG_SYS_MX31_UART1	1
 
+#define CONFIG_MX31_GPIO
+
 /* FPGA */
 #define CONFIG_QONG_FPGA	1
 #define CONFIG_FPGA_BASE	(CS1_BASE)
@@ -96,6 +98,7 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_NAND
 
 /*
  * You can compile in a MAC address and your custom net settings by using
@@ -187,6 +190,30 @@
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM_1		CSD0_BASE
 #define PHYS_SDRAM_1_SIZE	0x10000000	/* 256 MB */
+
+/*
+ * NAND driver
+ */
+
+#ifndef __ASSEMBLY__
+extern void qong_nand_plat_init(void *chip);
+extern int qong_nand_rdy(void *chip);
+#endif
+#define CONFIG_NAND_PLAT
+#define CONFIG_SYS_MAX_NAND_DEVICE     1
+#define CONFIG_SYS_NAND_BASE	CS3_BASE
+#define NAND_PLAT_INIT() qong_nand_plat_init(nand)
+
+#define QONG_NAND_CLE(chip) ((unsigned long)(chip)->IO_ADDR_W | (1 << 24))
+#define QONG_NAND_ALE(chip) ((unsigned long)(chip)->IO_ADDR_W | (1 << 23))
+#define QONG_NAND_WRITE(addr, cmd) \
+	do { \
+		__REG8(addr) = cmd; \
+	} while (0)
+
+#define NAND_PLAT_WRITE_CMD(chip, cmd) QONG_NAND_WRITE(QONG_NAND_CLE(chip), cmd)
+#define NAND_PLAT_WRITE_ADR(chip, cmd) QONG_NAND_WRITE(QONG_NAND_ALE(chip), cmd)
+#define NAND_PLAT_DEV_READY(chip)      (qong_nand_rdy(chip))
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
