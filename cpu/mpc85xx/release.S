@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Freescale Semiconductor, Inc.
+ * Copyright 2008-2010 Freescale Semiconductor, Inc.
  * Kumar Gala <kumar.gala@freescale.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -61,7 +61,8 @@ __secondary_start_page:
 #endif
 
 	/* Enable branch prediction */
-	li	r3,0x201
+	lis	r3,BUCSR_ENABLE@h
+	ori	r3,r3,BUCSR_ENABLE@l
 	mtspr	SPRN_BUCSR,r3
 
 	/* Ensure TB is 0 */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007-2009 Freescale Semiconductor, Inc.
+ * Copyright 2004, 2007-2010 Freescale Semiconductor, Inc.
  * Copyright (C) 2003  Motorola,Inc.
  *
  * See file CREDITS for list of people who contributed to this
@@ -213,8 +213,9 @@ _start_e500:
 
 	/* Enable Branch Prediction */
 #if defined(CONFIG_BTB)
-	li	r0,0x201		/* BBFI = 1, BPEN = 1 */
-	mtspr	BUCSR,r0
+	lis	r0,BUCSR_ENABLE@h
+	ori	r0,r0,BUCSR_ENABLE@l
+	mtspr	SPRN_BUCSR,r0
 #endif
 
 #if defined(CONFIG_SYS_INIT_DBCR)
