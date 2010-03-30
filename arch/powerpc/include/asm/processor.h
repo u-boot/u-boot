@@ -534,9 +534,11 @@
 #define SPRN_MCSRR0	0x23a	/* Machine Check Save and Restore Register 0 */
 #define SPRN_MCSRR1	0x23b	/* Machine Check Save and Restore Register 1 */
 #define SPRN_BUCSR	0x3f5	/* Branch Control and Status Register */
+#define	  BUCSR_STAC_EN	0x01000000	/* Segment target addr cache enable */
+#define	  BUCSR_LS_EN	0x00400000	/* Link stack enable */
 #define	  BUCSR_BBFI	0x00000200	/* Branch buffer flash invalidate */
 #define	  BUCSR_BPEN	0x00000001	/* Branch prediction enable */
-#define   BUCSR_ENABLE (BUCSR_BBFI|BUCSR_BPEN)
+#define   BUCSR_ENABLE (BUCSR_STAC_EN|BUCSR_LS_EN|BUCSR_BBFI|BUCSR_BPEN)
 #define SPRN_BBEAR	0x201	/* Branch Buffer Entry Address Register */
 #define SPRN_BBTAR	0x202	/* Branch Buffer Target Address Register */
 #define SPRN_PID1	0x279	/* Process ID Register 1 */
