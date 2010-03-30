@@ -976,3 +976,16 @@ void fdt_fixup_mtdparts(void *blob, void *node_info, int node_info_size)
 	}
 }
 #endif
+
+void fdt_del_node_and_alias(void *blob, const char *alias)
+{
+	int off = fdt_path_offset(blob, alias);
+
+	if (off < 0)
+		return;
+
+	fdt_del_node(blob, off);
+
+	off = fdt_path_offset(blob, "/aliases");
+	fdt_delprop(blob, off, alias);
+}
