@@ -70,18 +70,40 @@ __secondary_start_page:
 	mttbu	r3
 
 	/* Enable/invalidate the I-Cache */
-	mfspr	r0,SPRN_L1CSR1
-	ori	r0,r0,(L1CSR1_ICFI|L1CSR1_ICE)
-	mtspr	SPRN_L1CSR1,r0
+	lis	r2,(L1CSR1_ICFI|L1CSR1_ICLFR)@h
+	ori	r2,r2,(L1CSR1_ICFI|L1CSR1_ICLFR)@l
+	mtspr	SPRN_L1CSR1,r2
+1:
+	mfspr	r3,SPRN_L1CSR1
+	and.	r1,r3,r2
+	bne	1b
+
+	lis	r3,(L1CSR1_CPE|L1CSR1_ICE)@h
+	ori	r3,r3,(L1CSR1_CPE|L1CSR1_ICE)@l
+	mtspr	SPRN_L1CSR1,r3
 	isync
+2:
+	mfspr	r3,SPRN_L1CSR1
+	andi.	r1,r3,L1CSR1_ICE@l
+	beq	2b
 
 	/* Enable/invalidate the D-Cache */
-	mfspr	r0,SPRN_L1CSR0
-	ori	r0,r0,(L1CSR0_DCFI|L1CSR0_DCE)
-	msync
+	lis	r2,(L1CSR0_DCFI|L1CSR0_DCLFR)@h
+	ori	r2,r2,(L1CSR0_DCFI|L1CSR0_DCLFR)@l
+	mtspr	SPRN_L1CSR0,r2
+1:
+	mfspr	r3,SPRN_L1CSR0
+	and.	r1,r3,r2
+	bne	1b
+
+	lis	r3,(L1CSR0_CPE|L1CSR0_DCE)@h
+	ori	r3,r3,(L1CSR0_CPE|L1CSR0_DCE)@l
+	mtspr	SPRN_L1CSR0,r3
 	isync
-	mtspr	SPRN_L1CSR0,r0
-	isync
+2:
+	mfspr	r3,SPRN_L1CSR0
+	andi.	r1,r3,L1CSR0_DCE@l
+	beq	2b
 
 #define toreset(x) (x - __secondary_start_page + 0xfffff000)
 

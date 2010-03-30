@@ -1,5 +1,5 @@
 /*
- * Copyright 2006,2009 Freescale Semiconductor, Inc.
+ * Copyright 2006,2009-2010 Freescale Semiconductor, Inc.
  * Jeff Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
@@ -196,4 +196,38 @@ void mpc86xx_reginfo(void)
 	printf("\tBR6\t0x%08X\tOR6\t0x%08X \n", in_be32(&lbc->br6), in_be32(&lbc->or6));
 	printf("\tBR7\t0x%08X\tOR7\t0x%08X \n", in_be32(&lbc->br7), in_be32(&lbc->or7));
 
+}
+
+/*
+ * Set the DDR BATs to reflect the actual size of DDR.
+ *
+ * dram_size is the actual size of DDR, in bytes
+ *
+ * Note: we assume that CONFIG_MAX_MEM_MAPPED is 2G or smaller as we only
+ * are using a single BAT to cover DDR.
+ *
+ * If this is not true, (e.g. CONFIG_MAX_MEM_MAPPED is 2GB but HID0_XBSEN
+ * is not defined) then we might have a situation where U-Boot will attempt
+ * to relocated itself outside of the region mapped by DBAT0.
+ * This will cause a machine check.
+ *
+ * Currently we are limited to power of two sized DDR since we only use a
+ * single bat.  If a non-power of two size is used that is less than
+ * CONFIG_MAX_MEM_MAPPED u-boot will crash.
+ *
+ */
+void setup_ddr_bat(phys_addr_t dram_size)
+{
+	unsigned long batu, bl;
+
+	bl = TO_BATU_BL(min(dram_size, CONFIG_MAX_MEM_MAPPED));
+
+	if (BATU_SIZE(bl) != dram_size) {
+		u64 sz = (u64)dram_size - BATU_SIZE(bl);
+		print_size(sz, " left unmapped\n");
+	}
+
+	batu = bl | BATU_VS | BATU_VP;
+	write_bat(DBAT0, batu, CONFIG_SYS_DBAT0L);
+	write_bat(IBAT0, batu, CONFIG_SYS_IBAT0L);
 }

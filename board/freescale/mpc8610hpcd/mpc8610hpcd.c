@@ -127,6 +127,8 @@ initdram(int board_type)
 	dram_size = fixed_sdram();
 #endif
 
+	setup_ddr_bat(dram_size);
+
 	puts(" DDR: ");
 	return dram_size;
 }

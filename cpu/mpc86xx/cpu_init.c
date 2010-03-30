@@ -138,8 +138,12 @@ int cpu_init_r(void)
 /* Set up BAT registers */
 void setup_bats(void)
 {
+#if defined(CONFIG_SYS_DBAT0U) && defined(CONFIG_SYS_DBAT0L)
 	write_bat(DBAT0, CONFIG_SYS_DBAT0U, CONFIG_SYS_DBAT0L);
+#endif
+#if defined(CONFIG_SYS_IBAT0U) && defined(CONFIG_SYS_IBAT0L)
 	write_bat(IBAT0, CONFIG_SYS_IBAT0U, CONFIG_SYS_IBAT0L);
+#endif
 	write_bat(DBAT1, CONFIG_SYS_DBAT1U, CONFIG_SYS_DBAT1L);
 	write_bat(IBAT1, CONFIG_SYS_IBAT1U, CONFIG_SYS_IBAT1L);
 	write_bat(DBAT2, CONFIG_SYS_DBAT2U, CONFIG_SYS_DBAT2L);

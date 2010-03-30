@@ -213,7 +213,11 @@ extern void print_bats(void);
 #define BATL_PADDR(x) ((phys_addr_t)((x & 0xfffe0000)		\
 				     | ((x & 0x0e00ULL) << 24)	\
 				     | ((x & 0x04ULL) << 30)))
-#define BATU_SIZE(x) (1UL << (fls((x & BATU_BL_MAX) >> 2) + 17))
+#define BATU_SIZE(x) (1ULL << (fls((x & BATU_BL_MAX) >> 2) + 17))
+
+/* bytes into BATU_BL */
+#define TO_BATU_BL(x) \
+	(u32)((((1ull << __ilog2_u64((u64)x)) / (128 * 1024)) - 1) * 4)
 
 /* Used to set up SDR1 register */
 #define HASH_TABLE_SIZE_64K	0x00010000
