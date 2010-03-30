@@ -238,6 +238,10 @@ int cfspi_claim_bus(uint bus, uint cs)
 		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS2_PCS2;
 		gpio->par_dspi |= GPIO_PAR_DSPI_PCS2_PCS2;
 		break;
+	case 3:
+		gpio->par_dma &= GPIO_PAR_DMA_DACK0_UNMASK;
+		gpio->par_dma |= GPIO_PAR_DMA_DACK0_PCS3;
+		break;
 	case 5:
 		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS5_PCS5;
 		gpio->par_dspi |= GPIO_PAR_DSPI_PCS5_PCS5;
@@ -263,6 +267,9 @@ void cfspi_release_bus(uint bus, uint cs)
 		break;
 	case 2:
 		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS2_PCS2;
+		break;
+	case 3:
+		gpio->par_dma &= GPIO_PAR_DMA_DACK0_UNMASK;
 		break;
 	case 5:
 		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS5_PCS5;
