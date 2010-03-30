@@ -185,8 +185,19 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 	struct fec_info_s *info = (struct fec_info_s *)dev->priv;
 
 	if (setclear) {
+#ifdef CONFIG_SYS_FEC_NO_SHARED_PHY
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+			gpio->par_feci2c |=
+			    (GPIO_PAR_FECI2C_MDC0_MDC0 |
+			     GPIO_PAR_FECI2C_MDIO0_MDIO0);
+		else
+			gpio->par_feci2c |=
+			    (GPIO_PAR_FECI2C_MDC1_MDC1 |
+			     GPIO_PAR_FECI2C_MDIO1_MDIO1);
+#else
 		gpio->par_feci2c |=
 		    (GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
+#endif
 
 		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
 			gpio->par_fec |= GPIO_PAR_FEC_FEC0_RMII_GPIO;
