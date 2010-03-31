@@ -173,7 +173,7 @@ Maps a pointer to the BIOS image on the graphics card on the PCI bus.
 ****************************************************************************/
 void *PCI_mapBIOSImage(pci_dev_t pcidev)
 {
-	u32 BIOSImagePhys;
+	u32 BIOSImageBus;
 	int BIOSImageBAR;
 	u8 *BIOSImage;
 
@@ -195,16 +195,18 @@ void *PCI_mapBIOSImage(pci_dev_t pcidev)
 	 specific programming for different cards to solve this problem.
 	*/
 
-	if ((BIOSImagePhys = PCI_findBIOSAddr(pcidev, &BIOSImageBAR)) == 0) {
+	BIOSImageBus = PCI_findBIOSAddr(pcidev, &BIOSImageBAR);
+	if (BIOSImageBus == 0) {
 		printf("Find bios addr error\n");
 		return NULL;
 	}
 
-	BIOSImage = (u8 *) BIOSImagePhys;
+	BIOSImage = pci_bus_to_virt(pcidev, BIOSImageBus,
+				    PCI_REGION_MEM, 0, MAP_NOCACHE);
 
 	/*Change the PCI BAR registers to map it onto the bus.*/
 	pci_write_config_dword(pcidev, BIOSImageBAR, 0);
-	pci_write_config_dword(pcidev, PCI_ROM_ADDRESS, BIOSImagePhys | 0x1);
+	pci_write_config_dword(pcidev, PCI_ROM_ADDRESS, BIOSImageBus | 0x1);
 
 	udelay(1);
 
