@@ -752,7 +752,6 @@ static int fec_probe(bd_t *bd)
 	if (fec_get_hwaddr(edev, ethaddr) == 0) {
 		printf("got MAC address from EEPROM: %pM\n", ethaddr);
 		memcpy(edev->enetaddr, ethaddr, 6);
-		fec_set_hwaddr(edev);
 	}
 
 	return 0;
