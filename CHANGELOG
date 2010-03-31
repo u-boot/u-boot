@@ -1,3 +1,155 @@
+commit 8e64d6efd8d778a5f83d8bff9cd273a86dcc182f
+Author: Heiko Schocher <hs@denx.de>
+Date:	Wed Mar 31 08:34:51 2010 +0200
+
+    net, doc: How to setup MAC address correctly
+
+    As this seems unclear, document how the flow of setting up
+    the MAC address is correct.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+    Text changed slightly, adding input from Mike Frysinger.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit b78b48c6a0c34b2991e31fc4548aaf773d34f2b3
+Author: Heiko Schocher <hs@denx.de>
+Date:	Wed Mar 31 08:34:46 2010 +0200
+
+    net, fec_mxc: only setup the device enetaddr with eeprom value
+
+    Only fill the device enetaddr with the contents of the eeprom,
+    do not program it in MAC address registers
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit d5a64237d58ded31c2eed455c7a346e1c85f5565
+Author: Felix Radensky <felix@embedded-sol.com>
+Date:	Tue Mar 30 15:02:13 2010 +0300
+
+    doc: Fix ramdisk examples in doc/uImage.FIT/multi.its
+
+    The ramdisk sections in doc/uImage.FIT/multi.its lack
+    load address and entry point properties. Using examples
+    from this file will result in unbootable image, u-boot
+    will issue the following error messages:
+
+    Can't get ramdisk subimage load address!
+    Ramdisk image is corrupt or invalid
+
+    This patch adds missing properties to ramdisk sections.
+
+    Signed-off-by: Felix Radensky <felix@embedded-sol.com>
+
+commit 2d2018f3db5ed834bc1ee208a2c6212fdf00bca1
+Author: Heiko Schocher <heiko.schocher@invitel.hu>
+Date:	Wed Mar 24 13:22:50 2010 +0100
+
+    jffs2, suen3: Fix compiler warning
+
+    $ ./MAKEALL suen3
+    jffs2_1pass.c: In function 'get_fl_mem':
+    jffs2_1pass.c:399: warning: unused variable 'id'
+    jffs2_1pass.c: In function 'get_node_mem':
+    jffs2_1pass.c:423: warning: unused variable 'id'
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Tested-by: Tom <Tom.Rix@windriver.com>
+
+commit 9ff32d8ccf0e23b5577c25610f001af8d761b4a2
+Author: Timur Tabi <timur@freescale.com>
+Date:	Mon Mar 29 12:51:07 2010 -0500
+
+    mpc86xx: set the DDR BATs after calculating true DDR size
+
+    After determining how much DDR is actually in the system, set DBAT0 and
+    IBAT0 accordingly.	This ensures that the CPU won't attempt to access
+    (via speculation) addresses outside of actual memory.
+
+    On 86xx systems, DBAT0 and IBAT0 (the BATs for DDR) are initialized to 2GB
+    and kept that way.	If the system has less than 2GB of memory (typical for
+    an MPC8610 HPCD), the CPU may attempt to access this memory during
+    speculation.  The zlib code is notorious for generating such memory reads,
+    and indeed on the MPC8610, uncompressing the Linux kernel causes a machine
+    check (without this patch).
+
+    Currently we are limited to power of two sized DDR since we only use a
+    single bat.  If a non-power of two size is used that is less than
+    CONFIG_MAX_MEM_MAPPED u-boot will crash.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 33f57bd553edf29dffef5a6c7d76e169c79a6049
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Mar 26 15:14:43 2010 -0500
+
+    85xx: Fix enabling of L1 cache parity on secondary cores
+
+    Use the same code between primary and secondary cores to init the
+    L1 cache.  We were not enabling cache parity on the secondary cores.
+
+    Also, reworked the L1 cache init code to match the e500mc L2 init code
+    that first invalidates the cache and locks.  Than enables the cache and
+    makes sure its enabled before continuing.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 1a332da61df9c38b567359af114daeaaaefaead8
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Mar 29 15:30:46 2010 +0200
+
+    ppc4xx: Fix problem with I2C bus >= 1 initialization
+
+    This patch fixes a problem introduced with patch eb5eb2b0
+    [ppc4xx: Cleanup PPC4xx I2C infrastructure]. We need to assign the I2C
+    base address to the "i2c" pointer inside of the controller loop.
+    Otherwise controller 0 is initialized multiple times instead of
+    initializing each I2C controller sequentially.
+
+    Tested on Katmai.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Acked-by: Heiko Schocher <hs@denx.de>
+
+commit 24de2f4be00f81c58270d0df47296bf3a3601cef
+Author: Heiko Schocher <hs@denx.de>
+Date:	Mon Mar 29 13:15:48 2010 +0200
+
+    bootm, linux: fix booting Multi-File Image with "kernel+ramdisk+fdt"
+
+    Booting a "Multi-File Image" including a linux kernel, ramdisk and
+    fdt, generated with
+
+    mkimage -A ppc \
+	-O linux \
+	-T multi \
+	-C gzip \
+	-a 00000000 \
+	-e 00000000 \
+	-n "kernel-2.6+initrd+dtb" \
+	-d "vmlinux.bin.gz:ramdisk_image.gz:board.dtb" \
+	multi.bin
+
+    actually fails, because ramdisk start and end addresses
+    didn;t get initialized. This patch fixes this issue.
+
+    Tested on the KUP4K board.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 2883cc2d48e99fd1873ef8af03fee7966611b735
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 28 00:25:14 2010 +0100
+
+    Prepare 2010.03-rc3
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 060f28532b09dd3d2c78423bdd809ac768a27629
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Thu Mar 25 14:07:23 2010 +0100
