@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001-2004
+ * (C) Copyright 2001-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -173,7 +173,8 @@ int eth_register(struct eth_device* dev)
 		}
 #endif
 	} else {
-		for (d=eth_devices; d->next!=eth_devices; d=d->next);
+		for (d=eth_devices; d->next!=eth_devices; d=d->next)
+			;
 		d->next = dev;
 	}
 
