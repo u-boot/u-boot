@@ -47,5 +47,4 @@ struct io_board_ctrl {
 };
 #endif
 
-#define IO_BOARD_OFFSET		(0x20000)
 #endif
