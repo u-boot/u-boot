@@ -172,7 +172,7 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 		writeb (0xaa, cmd);
 		writeb (0x55, cmd);
 		writeb (0xa0, cmd);
-		writeb (dst, b);
+		writeb (b, dst);
 
 		/* Verify write */
 		start = get_timer (0);
