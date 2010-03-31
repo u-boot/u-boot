@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Freescale Semiconductor, Inc.
+ * Copyright 2009-2010 Freescale Semiconductor, Inc.
  *
  * This file is derived from cpu/mpc85xx/cpu.c and cpu/mpc86xx/cpu.c.
  * Basically this file contains cpu specific common code for 85xx/86xx
@@ -66,8 +66,16 @@ struct cpu_type cpu_type_list [] = {
 	CPU_TYPE_ENTRY(8572, 8572_E, 2),
 	CPU_TYPE_ENTRY(P1011, P1011, 1),
 	CPU_TYPE_ENTRY(P1011, P1011_E, 1),
+	CPU_TYPE_ENTRY(P1012, P1012, 1),
+	CPU_TYPE_ENTRY(P1012, P1012_E, 1),
+	CPU_TYPE_ENTRY(P1013, P1013, 1),
+	CPU_TYPE_ENTRY(P1013, P1013_E, 1),
 	CPU_TYPE_ENTRY(P1020, P1020, 2),
 	CPU_TYPE_ENTRY(P1020, P1020_E, 2),
+	CPU_TYPE_ENTRY(P1021, P1021, 2),
+	CPU_TYPE_ENTRY(P1021, P1021_E, 2),
+	CPU_TYPE_ENTRY(P1022, P1022, 2),
+	CPU_TYPE_ENTRY(P1022, P1022_E, 2),
 	CPU_TYPE_ENTRY(P2010, P2010, 1),
 	CPU_TYPE_ENTRY(P2010, P2010_E, 1),
 	CPU_TYPE_ENTRY(P2020, P2020, 2),
