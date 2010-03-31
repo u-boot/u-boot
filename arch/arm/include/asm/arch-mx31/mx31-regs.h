@@ -303,4 +303,10 @@ struct clock_control_regs {
  */
 #define NFC_BASE_ADDR	0xB8000000
 
+/*
+ * Internal RAM (16KB)
+ */
+#define	IRAM_BASE_ADDR	0x1FFFC000
+#define IRAM_SIZE	(16 * 1024)
+
 #endif /* __ASM_ARCH_MX31_REGS_H */
