@@ -38,7 +38,6 @@
 #include <asm/mp.h>
 #include <netdev.h>
 
-#include "../common/pixis.h"
 #include "../common/sgmii_riser.h"
 
 DECLARE_GLOBAL_DATA_PTR;

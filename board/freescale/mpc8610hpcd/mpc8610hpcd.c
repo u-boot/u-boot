@@ -34,8 +34,6 @@
 #include <spd_sdram.h>
 #include <netdev.h>
 
-#include "../common/pixis.h"
-
 void sdram_init(void);
 phys_size_t fixed_sdram(void);
 void mpc8610hpcd_diu_init(void);

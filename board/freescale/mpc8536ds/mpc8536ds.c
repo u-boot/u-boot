@@ -39,7 +39,6 @@
 #include <netdev.h>
 #include <sata.h>
 
-#include "../common/pixis.h"
 #include "../common/sgmii_riser.h"
 
 phys_size_t fixed_sdram(void);
