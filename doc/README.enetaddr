@@ -28,6 +28,17 @@ Here are the places where MAC addresses might be stored:
 	      purpose of passing this information to an OS kernel we are about
 	      to boot
 
+Correct flow of setting up the MAC address (summarized):
+
+1. Read from hardware in initialize() function
+2. Read from environment in net/eth.c after initialize()
+3. Give priority to the value in the environment if a conflict
+4. Program hardware in the device's init() function.
+
+If somebody wants to subvert the design philosophy, this can be done
+in the board-specific board_eth_init() function by calling eth_init()
+after all the NICs have been registered.
+
 -------
  Usage
 -------
