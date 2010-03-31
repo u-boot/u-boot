@@ -42,6 +42,27 @@
 	bcs 1b
 .endm
 
+.macro SETUP_RAM cfg, ctl
+	/* B8xxxxxx - NAND, 8xxxxxxx - CSD0 RAM */
+	REG	0xB8001010, 0x00000004
+	ldr r3, =\cfg
+	ldr r2, =WEIM_ESDCFG0
+	str r3, [r2]
+	REG	0xB8001000, 0x92100000
+	REG	0x80000f00, 0x12344321
+	REG	0xB8001000, 0xa2100000
+	REG	0x80000000, 0x12344321
+	REG	0x80000000, 0x12344321
+	REG	0xB8001000, 0xb2100000
+	REG8	0x80000033, 0xda
+	REG8	0x81000000, 0xff
+	ldr r3, =\ctl
+	ldr r2, =WEIM_ESDCTL0
+	str r3, [r2]
+	REG	0x80000000, 0xDEADBEEF
+	REG	0xB8001010, 0x0000000c
+
+.endm
 /* RedBoot: To support 133MHz DDR */
 .macro init_drive_strength
 	/*
@@ -130,43 +151,86 @@ lowlevel_init:
 	/* Default: 1, 4, 12, 1 */
 	REG	CCM_SPCTL, PLL_PD(1) | PLL_MFD(4) | PLL_MFI(12) | PLL_MFN(1)
 
-	/* B8xxxxxx - NAND, 8xxxxxxx - CSD0 RAM */
-	REG	0xB8001010, 0x00000004
-	REG	0xB8001004, ((3 << 21) | /* tXP */	\
-			     (0 << 20) | /* tWTR */	\
-			     (2 << 18) | /* tRP */	\
-			     (1 << 16) | /* tMRD */	\
-			     (0 << 15) | /* tWR */	\
-			     (5 << 12) | /* tRAS */	\
-			     (1 << 10) | /* tRRD */	\
-			     (3 << 8)  | /* tCAS */	\
-			     (2 << 4)  | /* tRCD */	\
-			     (7 << 0)    /* tRC */ )
-	REG	0xB8001000, 0x92100000
-	REG	0x80000f00, 0x12344321
-	REG	0xB8001000, 0xa2100000
-	REG	0x80000000, 0x12344321
-	REG	0x80000000, 0x12344321
-	REG	0xB8001000, 0xb2100000
-	REG8	0x80000033, 0xda
-	REG8	0x81000000, 0xff
-	REG	0xB8001000, ((1 << 31) |				\
-			     (0 << 28) |				\
-			     (0 << 27) |				\
-			     (3 << 24) | /* 14 rows */			\
-			     (2 << 20) | /* 10 cols */			\
-			     (2 << 16) |				\
-			     (4 << 13) | /* 3.91us (64ms/16384) */	\
-			     (0 << 10) |				\
-			     (0 << 8)  |				\
-			     (1 << 7)  |				\
-			     (0 << 0))
-	REG	0x80000000, 0xDEADBEEF
-	REG	0xB8001010, 0x0000000c
+check_ddr_module:
+/* Set stackpointer in internal RAM to call get_ram_size */
+	ldr	sp, =(IRAM_BASE_ADDR + IRAM_SIZE - 16)
+	stmfd	sp!, {r0-r11, ip, lr}
+	mov	ip, lr		/* save link reg across call */
+
+	ldr	r0,=0x08000000
+	SETUP_RAM	ESDCFG0_256MB, ESDCTL0_256MB
+	ldr	r0,=0x80000000
+	ldr	r1,=0x10000000
+	bl	get_ram_size
+	ldr	r1,=0x10000000
+	cmp	r0,r1
+	beq	restore_regs
+	SETUP_RAM	ESDCFG0_128MB, ESDCTL0_128MB
+	ldr	r0,=0x80000000
+	ldr	r1,=0x08000000
+	bl	get_ram_size
+	ldr	r1,=0x08000000
+	cmp	r0,r1
+	beq	restore_regs
+
+restore_regs:
+	ldmfd	sp!, {r0-r11, ip, lr}
+	mov	lr, ip		/* restore link reg */
 
 	mov	pc, lr
+
 
 MPCTL_PARAM_399:
 	.word (((1 - 1) << 26) + ((52 - 1) << 16) + (7 << 10) + (35 << 0))
 UPCTL_PARAM_240:
 	.word (((2 - 1) << 26) + ((13 - 1) << 16) + (9 << 10) + (3  << 0))
+
+	.equ	ESDCFG0_128MB, \
+		(0 << 21) + /* tXP */ \
+		(1 << 20) + /* tWTR */ \
+		(2 << 18) + /* tRP */ \
+		(1 << 16) + /* tMRD */ \
+		(0 << 15) + /* tWR */ \
+		(5 << 12) + /* tRAS */ \
+		(1 << 10) + /* tRRD */ \
+		(3 << 8) + /* tCAS */ \
+		(2 << 4) + /* tRCD */ \
+		(0x0F << 0) /* tRC */
+
+	.equ	ESDCTL0_128MB, \
+		(1 << 31)  +	/* enable */ \
+		(0 << 28)  +	/* mode */ \
+		(0 << 27)  +	/* supervisor protect */ \
+		(2 << 24)  +	/* 13 rows */ \
+		(2 << 20)  +	/* 10 cols */ \
+		(2 << 16)  +	/* 32 bit */ \
+		(3 << 13)  +	/* 7.81us (64ms/8192) */ \
+		(0 << 10)  +	/* power down timer */ \
+		(0 << 8)  +	/* full page */ \
+		(1 << 7)  +	/* burst length */ \
+		(0 << 0)	/* precharge timer */
+
+	.equ	ESDCFG0_256MB, \
+		(3 << 21)  + 	/* tXP */ \
+		(0 << 20)  + 	/* tWTR */ \
+		(2 << 18)  + 	/* tRP */ \
+		(1 << 16)  + 	/* tMRD */ \
+		(0 << 15)  + 	/* tWR */ \
+		(5 << 12)  + 	/* tRAS */ \
+		(1 << 10)  + 	/* tRRD */ \
+		(3 << 8)   + 	/* tCAS */ \
+		(2 << 4)   +	/* tRCD */ \
+		(7 << 0)	/* tRC */
+
+	.equ	ESDCTL0_256MB, \
+		(1 << 31)  + \
+		(0 << 28)  + \
+		(0 << 27)  + \
+		(3 << 24)  + /* 14 rows */ \
+		(2 << 20)  + /* 10 cols */ \
+		(2 << 16)  + \
+		(4 << 13)  + /* 3.91us (64ms/16384) */ \
+		(0 << 10)  + \
+		(0 << 8)   + \
+		(1 << 7)   + \
+		(0 << 0)
