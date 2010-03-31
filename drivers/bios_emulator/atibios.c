@@ -315,7 +315,8 @@ int BootVideoCardBIOS(pci_dev_t pcidev, BE_VGAInfo ** pVGAInfo, int cleanUp)
 	BE_init(0, 65536, VGAInfo, 0);
 
 	/*Post all the display controller BIOS'es*/
-	PCI_postController(pcidev, VGAInfo);
+	if (!PCI_postController(pcidev, VGAInfo))
+		return false;
 
 	/*Cleanup and exit the emulator if requested. If the BIOS emulator
 	is needed after booting the card, we will not call BE_exit and

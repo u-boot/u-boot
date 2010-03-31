@@ -597,7 +597,8 @@ int radeon_probe(struct radeonfb_info *rinfo)
 		rinfo->fb_local_base = INREG(MC_FB_LOCATION) << 16;
 		DPRINT("rinfo->fb_local_base = 0x%x\n",rinfo->fb_local_base);
 		/* PostBIOS with x86 emulater */
-		BootVideoCardBIOS(pdev, NULL, 0);
+		if (!BootVideoCardBIOS(pdev, NULL, 0))
+			return -1;
 
 		/*
 		 * Check for errata
