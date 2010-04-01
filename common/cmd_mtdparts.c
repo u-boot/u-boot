@@ -776,7 +776,7 @@ static int device_del(struct mtd_device *dev)
  * @param num device number
  * @return NULL if requested device does not exist
  */
-static struct mtd_device* device_find(u8 type, u8 num)
+struct mtd_device *device_find(u8 type, u8 num)
 {
 	struct list_head *entry;
 	struct mtd_device *dev_tmp;

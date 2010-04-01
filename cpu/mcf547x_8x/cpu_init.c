@@ -113,13 +113,13 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 	volatile u8 *pscsicr = (u8 *) (CONFIG_SYS_UART_BASE + 0x40);
 
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
+	switch (port) {
 	case 0:
 		gpio->par_psc0 = (GPIO_PAR_PSC0_TXD0 | GPIO_PAR_PSC0_RXD0);
 		break;

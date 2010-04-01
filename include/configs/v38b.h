@@ -170,12 +170,10 @@
 
 #define CONFIG_BOOTCOMMAND	"run net_nfs"
 
-#if defined(CONFIG_MPC5200)
 /*
  * IPB Bus clocking configuration.
  */
 #undef CONFIG_SYS_IPBCLK_EQUALS_XLBCLK			/* define for 133MHz speed */
-#endif
 
 /*
  * I2C configuration

@@ -28,12 +28,7 @@ typedef struct {
 	ulong control;
 	ulong config1;
 	ulong config2;
-#if defined(CONFIG_MPC5200)
 	ulong tapdelay;
-#endif
-#if defined(CONFIG_MGT5100)
-	ulong addrsel;
-#endif
 } sdram_conf_t;
 
 long int mpc5xxx_sdram_init (sdram_conf_t *sdram_conf);

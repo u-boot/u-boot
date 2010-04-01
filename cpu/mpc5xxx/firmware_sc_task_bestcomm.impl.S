@@ -6,8 +6,6 @@
 
 #include <config.h>
 
-#if defined(CONFIG_MPC5200)
-
 /* sas/sccg, gas target */
 .section        smartdmaInitData,"aw",@progbits	/* Initialized data for task variables */
 .section        smartdmaTaskTable,"aw",@progbits	/* Task tables */
@@ -359,5 +357,3 @@ scEthernetRecv_CSave:	/* Task 0 context save space */
 .globl scEthernetXmit_CSave
 scEthernetXmit_CSave:	/* Task 1 context save space */
 .space  128, 0x0
-
-#endif /* CONFIG_MPC5200 */

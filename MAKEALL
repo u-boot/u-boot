@@ -61,7 +61,6 @@ LIST_5xxx="		\
 	EVAL5200	\
 	fo300		\
 	galaxy5200	\
-	icecube_5100	\
 	icecube_5200	\
 	inka4x0		\
 	ipek01		\
@@ -76,7 +75,6 @@ LIST_5xxx="		\
 	pf5200		\
 	PM520		\
 	TB5200		\
-	Total5100	\
 	Total5200	\
 	Total5200_Rev2	\
 	TQM5200		\
@@ -840,6 +838,7 @@ LIST_microblaze="			\
 #########################################################################
 
 LIST_coldfire="			\
+	astro_mcf5373l		\
 	cobra5272		\
 	EB+MCF-EV123		\
 	EB+MCF-EV123_internal	\

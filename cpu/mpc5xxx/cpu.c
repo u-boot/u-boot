@@ -50,16 +50,10 @@ int checkcpu (void)
 {
 	ulong clock = gd->cpu_clk;
 	char buf[32];
-#ifndef CONFIG_MGT5100
 	uint svr, pvr;
-#endif
 
 	puts ("CPU:   ");
 
-#ifdef CONFIG_MGT5100
-	puts   (CPU_ID_STR);
-	printf (" (JTAG ID %08lx)", *(vu_long *)MPC5XXX_CDM_JTAGID);
-#else
 	svr = get_svr();
 	pvr = get_pvr();
 
@@ -77,7 +71,6 @@ int checkcpu (void)
 
 	printf (" v%d.%d, Core v%d.%d", SVR_MJREV (svr), SVR_MNREV (svr),
 		PVR_MAJ(pvr), PVR_MIN(pvr));
-#endif
 	printf (" at %s MHz\n", strmhz (buf, clock));
 	return 0;
 }

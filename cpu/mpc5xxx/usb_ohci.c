@@ -76,13 +76,8 @@
 #define m16_swap(x) swap_16(x)
 #define m32_swap(x) swap_32(x)
 
-#ifdef CONFIG_MPC5200
 #define ohci_cpu_to_le16(x) (x)
 #define ohci_cpu_to_le32(x) (x)
-#else
-#define ohci_cpu_to_le16(x) swap_16(x)
-#define ohci_cpu_to_le32(x) swap_32(x)
-#endif
 
 /* global ohci_t */
 static ohci_t gohci;
@@ -803,9 +798,7 @@ static td_t * dl_reverse_done_list (ohci_t *ohci)
 				} else
 					td_list->ed->hwHeadP &= ohci_cpu_to_le32 (0xfffffff2);
 			}
-#ifdef CONFIG_MPC5200
 			td_list->hwNextTD = 0;
-#endif
 		}
 
 		td_list->next_dl_td = td_rev;

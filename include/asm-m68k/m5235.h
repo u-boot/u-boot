@@ -557,8 +557,8 @@
 #define CCM_RCON_MODE			(0x0001)
 
 /* Bit definitions and macros for CCM_CIR */
-#define CCM_CIR_PIN(x)			(((x)&0x03FF)<<6)
-#define CCM_CIR_PRN(x)			((x)&0x003F)
+#define CCM_CIR_PIN(x)			(((x) & 0xFFC0) >> 6)
+#define CCM_CIR_PRN(x)			((x) & 0x003F)
 
 /*********************************************************************
 * PLL Clock Module

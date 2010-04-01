@@ -24,6 +24,7 @@
 #include <config.h>
 #include <timestamp.h>
 #include "version.h"
+#include <asm/cache.h>
 
 #ifndef	 CONFIG_IDENT_STRING
 #define	 CONFIG_IDENT_STRING ""
@@ -135,7 +136,7 @@ _start:
 	movec	%d0, %RAMBAR1
 
 	/* invalidate and disable cache */
-	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
+	move.l	#CF_CACR_CINV, %d0		/* Invalidate cache cmd */
 	movec	%d0, %CACR			/* Invalidate cache */
 	nop
 	move.l	#0, %d0
@@ -144,8 +145,8 @@ _start:
 
 	/* initialize general use internal ram */
 	move.l #0, %d0
-	move.l #(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-8), %a1
-	move.l #(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-4), %a2
+	move.l #(ICACHE_STATUS), %a1	/* icache */
+	move.l #(DCACHE_STATUS), %a2	/* icache */
 	move.l %d0, (%a1)
 	move.l %d0, (%a2)
 
@@ -263,74 +264,6 @@ _int_handler:
 	bsr int_handler
 	addql	#4,%sp
 	RESTORE_ALL
-
-/*------------------------------------------------------------------------------*/
-/* cache functions */
-	.globl	icache_enable
-icache_enable:
-	move.l	#0x01000000, %d0		/* Invalidate cache cmd */
-	movec	%d0, %CACR			/* Invalidate cache */
-	nop
-	move.l	#(CONFIG_SYS_SDRAM_BASE + 0xc000), %d0	/* Setup cache mask */
-	movec	%d0, %ACR0			/* Enable cache */
-	move.l	#(CONFIG_SYS_FLASH_BASE + 0xc000), %d0	/* Setup cache mask */
-	movec	%d0, %ACR1			/* Enable cache */
-
-	move.l	#0x80400100, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Enable cache */
-	nop
-
-	move.l #(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-8), %a1
-	moveq	#1, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	icache_disable
-icache_disable:
-	move.l	#0x00000100, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Disable cache */
-	clr.l	%d0				/* Setup cache mask */
-	movec	%d0, %ACR0
-	movec	%d0, %ACR1
-
-	move.l #(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-8), %a1
-	moveq	#0, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	icache_status
-icache_status:
-	move.l #(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-8), %a1
-	move.l	(%a1), %d0
-	rts
-
-	.globl	icache_invalid
-icache_invalid:
-	move.l	#0x80600100, %d0		/* Setup cache mask */
-	movec	%d0, %CACR			/* Enable cache */
-	nop
-	rts
-
-	.globl	dcache_enable
-dcache_enable:
-	move.l #(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-4), %a1
-	moveq	#1, %d0
-	move.l	%d0, (%a1)
-	rts
-
-    /* No dcache, just a dummy function */
-	.globl	dcache_disable
-dcache_disable:
-	move.l #(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-4), %a1
-	moveq	#0, %d0
-	move.l	%d0, (%a1)
-	rts
-
-	.globl	dcache_status
-dcache_status:
-	move.l #(CONFIG_SYS_INIT_RAM_ADDR+CONFIG_SYS_INIT_RAM_END-4), %a1
-	move.l	(%a1), %d0
-	rts
 
 /*------------------------------------------------------------------------------*/
 

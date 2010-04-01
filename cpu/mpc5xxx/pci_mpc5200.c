@@ -23,7 +23,7 @@
 
 #include <common.h>
 
-#if defined(CONFIG_PCI) && defined(CONFIG_MPC5200)
+#if defined(CONFIG_PCI)
 
 #include <asm/processor.h>
 #include <asm/io.h>
@@ -184,4 +184,4 @@ void pci_mpc5xxx_init (struct pci_controller *hose)
 
 	hose->last_busno = pci_hose_scan(hose);
 }
-#endif /* CONFIG_PCI && CONFIG_MPC5200 */
+#endif /* CONFIG_PCI */

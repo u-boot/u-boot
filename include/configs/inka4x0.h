@@ -366,13 +366,8 @@ static inline void tws_data_config_output(unsigned output)
 /*
  * Various low-level settings
  */
-#if defined(CONFIG_MPC5200)
 #define CONFIG_SYS_HID0_INIT		HID0_ICE | HID0_ICFI
 #define CONFIG_SYS_HID0_FINAL		HID0_ICE
-#else
-#define CONFIG_SYS_HID0_INIT		0
-#define CONFIG_SYS_HID0_FINAL		0
-#endif
 
 #define CONFIG_SYS_BOOTCS_START	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_BOOTCS_SIZE		CONFIG_SYS_FLASH_SIZE

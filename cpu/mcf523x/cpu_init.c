@@ -130,21 +130,32 @@ int cpu_init_r(void)
 	return (0);
 }
 
-void uart_port_conf(void)
+void uart_port_conf(int port)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
 	/* Setup Ports: */
-	switch (CONFIG_SYS_UART_PORT) {
+	switch (port) {
 	case 0:
-		gpio->par_uart = (GPIO_PAR_UART_U0RXD | GPIO_PAR_UART_U0TXD);
+		gpio->par_uart &= ~(GPIO_PAR_UART_U0RXD | GPIO_PAR_UART_U0TXD);
+		gpio->par_uart |= (GPIO_PAR_UART_U0RXD | GPIO_PAR_UART_U0TXD);
 		break;
 	case 1:
-		gpio->par_uart =
-			(GPIO_PAR_UART_U1RXD_U1RXD | GPIO_PAR_UART_U1TXD_U1TXD);
+		gpio->par_uart &=
+		    ~(GPIO_PAR_UART_U1RXD_MASK | GPIO_PAR_UART_U1TXD_MASK);
+		gpio->par_uart |=
+		    (GPIO_PAR_UART_U1RXD_U1RXD | GPIO_PAR_UART_U1TXD_U1TXD);
 		break;
 	case 2:
-		gpio->par_timer = (GPIO_PAR_UART_U2RXD | GPIO_PAR_UART_U2TXD);
+#ifdef CONFIG_SYS_UART2_PRI_GPIO
+		gpio->par_uart &= ~(GPIO_PAR_UART_U2RXD | GPIO_PAR_UART_U2TXD);
+		gpio->par_uart |= (GPIO_PAR_UART_U2RXD | GPIO_PAR_UART_U2TXD);
+#elif defined(CONFIG_SYS_UART2_ALT1_GPIO)
+		gpio->feci2c &=
+		    ~(GPIO_PAR_FECI2C_EMDC_MASK | GPIO_PAR_FECI2C_EMDIO_MASK);
+		gpio->feci2c |=
+		    (GPIO_PAR_FECI2C_EMDC_U2TXD | GPIO_PAR_FECI2C_EMDIO_U2RXD);
+#endif
 		break;
 	}
 }
@@ -156,7 +167,8 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 
 	if (setclear) {
 		gpio->par_feci2c |=
-		    (GPIO_PAR_FECI2C_EMDC_FECEMDC | GPIO_PAR_FECI2C_EMDIO_FECEMDIO);
+		    (GPIO_PAR_FECI2C_EMDC_FECEMDC |
+		     GPIO_PAR_FECI2C_EMDIO_FECEMDIO);
 	} else {
 		gpio->par_feci2c &=
 		    ~(GPIO_PAR_FECI2C_EMDC_MASK | GPIO_PAR_FECI2C_EMDIO_MASK);

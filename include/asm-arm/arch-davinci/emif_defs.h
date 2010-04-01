@@ -24,47 +24,42 @@
 
 #include <asm/arch/hardware.h>
 
-typedef struct davinci_emif_regs {
-	dv_reg		ERCSR;
-	dv_reg		AWCCR;
-	dv_reg		SDBCR;
-	dv_reg		SDRCR;
-	dv_reg		AB1CR;
-	dv_reg		AB2CR;
-	dv_reg		AB3CR;
-	dv_reg		AB4CR;
-	dv_reg		SDTIMR;
-	dv_reg		DDRSR;
-	dv_reg		DDRPHYCR;
-	dv_reg		DDRPHYSR;
-	dv_reg		TOTAR;
-	dv_reg		TOTACTR;
-	dv_reg		DDRPHYID_REV;
-	dv_reg		SDSRETR;
-	dv_reg		EIRR;
-	dv_reg		EIMR;
-	dv_reg		EIMSR;
-	dv_reg		EIMCR;
-	dv_reg		IOCTRLR;
-	dv_reg		IOSTATR;
-	u_int8_t	RSVD0[8];
-	dv_reg		NANDFCR;
-	dv_reg		NANDFSR;
-	u_int8_t	RSVD1[8];
-	dv_reg		NANDFECC[4];
-	u_int8_t	RSVD2[60];
-	dv_reg		NAND4BITECCLOAD;
-	dv_reg		NAND4BITECC1;
-	dv_reg		NAND4BITECC2;
-	dv_reg		NAND4BITECC3;
-	dv_reg		NAND4BITECC4;
-	dv_reg		NANDERRADD1;
-	dv_reg		NANDERRADD2;
-	dv_reg		NANDERRVAL1;
-	dv_reg		NANDERRVAL2;
-} emif_registers;
-
-typedef emif_registers	*emifregs;
+struct davinci_emif_regs {
+	u_int32_t	ercsr;
+	u_int32_t	awccr;
+	u_int32_t	sdbcr;
+	u_int32_t	sdrcr;
+	u_int32_t	ab1cr;
+	u_int32_t	ab2cr;
+	u_int32_t	ab3cr;
+	u_int32_t	ab4cr;
+	u_int32_t	sdtimr;
+	u_int32_t	ddrsr;
+	u_int32_t	ddrphycr;
+	u_int32_t	ddrphysr;
+	u_int32_t	totar;
+	u_int32_t	totactr;
+	u_int32_t	ddrphyid_rev;
+	u_int32_t	sdsretr;
+	u_int32_t	eirr;
+	u_int32_t	eimr;
+	u_int32_t	eimsr;
+	u_int32_t	eimcr;
+	u_int32_t	ioctrlr;
+	u_int32_t	iostatr;
+	u_int8_t	rsvd0[8];
+	u_int32_t	nandfcr;
+	u_int32_t	nandfsr;
+	u_int8_t	rsvd1[8];
+	u_int32_t	nandfecc[4];
+	u_int8_t	rsvd2[60];
+	u_int32_t	nand4biteccload;
+	u_int32_t	nand4bitecc[4];
+	u_int32_t	nanderradd1;
+	u_int32_t	nanderradd2;
+	u_int32_t	nanderrval1;
+	u_int32_t	nanderrval2;
+};
 
 #define davinci_emif_regs \
 	((struct davinci_emif_regs *)DAVINCI_ASYNC_EMIF_CNTRL_BASE)

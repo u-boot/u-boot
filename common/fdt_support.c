@@ -757,3 +757,222 @@ int fdt_fixup_nor_flash_size(void *blob, int cs, u32 size)
 	return -1;
 }
 #endif
+
+#ifdef CONFIG_FDT_FIXUP_PARTITIONS
+#include <jffs2/load_kernel.h>
+#include <mtd_node.h>
+
+struct reg_cell {
+	unsigned int r0;
+	unsigned int r1;
+};
+
+int fdt_del_subnodes(const void *blob, int parent_offset)
+{
+	int off, ndepth;
+	int ret;
+
+	for (ndepth = 0, off = fdt_next_node(blob, parent_offset, &ndepth);
+	     (off >= 0) && (ndepth > 0);
+	     off = fdt_next_node(blob, off, &ndepth)) {
+		if (ndepth == 1) {
+			debug("delete %s: offset: %x\n",
+				fdt_get_name(blob, off, 0), off);
+			ret = fdt_del_node((void *)blob, off);
+			if (ret < 0) {
+				printf("Can't delete node: %s\n",
+					fdt_strerror(ret));
+				return ret;
+			} else {
+				ndepth = 0;
+				off = parent_offset;
+			}
+		}
+	}
+	return 0;
+}
+
+int fdt_increase_size(void *fdt, int add_len)
+{
+	int newlen;
+
+	newlen = fdt_totalsize(fdt) + add_len;
+
+	/* Open in place with a new len */
+	return fdt_open_into(fdt, fdt, newlen);
+}
+
+int fdt_del_partitions(void *blob, int parent_offset)
+{
+	const void *prop;
+	int ndepth = 0;
+	int off;
+	int ret;
+
+	off = fdt_next_node(blob, parent_offset, &ndepth);
+	if (off > 0 && ndepth == 1) {
+		prop = fdt_getprop(blob, off, "label", NULL);
+		if (prop == NULL) {
+			/*
+			 * Could not find label property, nand {}; node?
+			 * Check subnode, delete partitions there if any.
+			 */
+			return fdt_del_partitions(blob, off);
+		} else {
+			ret = fdt_del_subnodes(blob, parent_offset);
+			if (ret < 0) {
+				printf("Can't remove subnodes: %s\n",
+					fdt_strerror(ret));
+				return ret;
+			}
+		}
+	}
+	return 0;
+}
+
+int fdt_node_set_part_info(void *blob, int parent_offset,
+			   struct mtd_device *dev)
+{
+	struct list_head *pentry;
+	struct part_info *part;
+	struct reg_cell cell;
+	int off, ndepth = 0;
+	int part_num, ret;
+	char buf[64];
+
+	ret = fdt_del_partitions(blob, parent_offset);
+	if (ret < 0)
+		return ret;
+
+	/*
+	 * Check if it is nand {}; subnode, adjust
+	 * the offset in this case
+	 */
+	off = fdt_next_node(blob, parent_offset, &ndepth);
+	if (off > 0 && ndepth == 1)
+		parent_offset = off;
+
+	part_num = 0;
+	list_for_each_prev(pentry, &dev->parts) {
+		int newoff;
+
+		part = list_entry(pentry, struct part_info, link);
+
+		debug("%2d: %-20s0x%08x\t0x%08x\t%d\n",
+			part_num, part->name, part->size,
+			part->offset, part->mask_flags);
+
+		sprintf(buf, "partition@%x", part->offset);
+add_sub:
+		ret = fdt_add_subnode(blob, parent_offset, buf);
+		if (ret == -FDT_ERR_NOSPACE) {
+			ret = fdt_increase_size(blob, 512);
+			if (!ret)
+				goto add_sub;
+			else
+				goto err_size;
+		} else if (ret < 0) {
+			printf("Can't add partition node: %s\n",
+				fdt_strerror(ret));
+			return ret;
+		}
+		newoff = ret;
+
+		/* Check MTD_WRITEABLE_CMD flag */
+		if (part->mask_flags & 1) {
+add_ro:
+			ret = fdt_setprop(blob, newoff, "read_only", NULL, 0);
+			if (ret == -FDT_ERR_NOSPACE) {
+				ret = fdt_increase_size(blob, 512);
+				if (!ret)
+					goto add_ro;
+				else
+					goto err_size;
+			} else if (ret < 0)
+				goto err_prop;
+		}
+
+		cell.r0 = cpu_to_fdt32(part->offset);
+		cell.r1 = cpu_to_fdt32(part->size);
+add_reg:
+		ret = fdt_setprop(blob, newoff, "reg", &cell, sizeof(cell));
+		if (ret == -FDT_ERR_NOSPACE) {
+			ret = fdt_increase_size(blob, 512);
+			if (!ret)
+				goto add_reg;
+			else
+				goto err_size;
+		} else if (ret < 0)
+			goto err_prop;
+
+add_label:
+		ret = fdt_setprop_string(blob, newoff, "label", part->name);
+		if (ret == -FDT_ERR_NOSPACE) {
+			ret = fdt_increase_size(blob, 512);
+			if (!ret)
+				goto add_label;
+			else
+				goto err_size;
+		} else if (ret < 0)
+			goto err_prop;
+
+		part_num++;
+	}
+	return 0;
+err_size:
+	printf("Can't increase blob size: %s\n", fdt_strerror(ret));
+	return ret;
+err_prop:
+	printf("Can't add property: %s\n", fdt_strerror(ret));
+	return ret;
+}
+
+/*
+ * Update partitions in nor/nand nodes using info from
+ * mtdparts environment variable. The nodes to update are
+ * specified by node_info structure which contains mtd device
+ * type and compatible string: E. g. the board code in
+ * ft_board_setup() could use:
+ *
+ *	struct node_info nodes[] = {
+ *		{ "fsl,mpc5121-nfc",    MTD_DEV_TYPE_NAND, },
+ *		{ "cfi-flash",          MTD_DEV_TYPE_NOR,  },
+ *	};
+ *
+ *	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+ */
+void fdt_fixup_mtdparts(void *blob, void *node_info, int node_info_size)
+{
+	struct node_info *ni = node_info;
+	struct mtd_device *dev;
+	char *parts;
+	int i, idx;
+	int noff;
+
+	parts = getenv("mtdparts");
+	if (!parts)
+		return;
+
+	if (mtdparts_init() != 0)
+		return;
+
+	for (i = 0; i < node_info_size; i++) {
+		idx = 0;
+		noff = fdt_node_offset_by_compatible(blob, -1, ni[i].compat);
+		while (noff != -FDT_ERR_NOTFOUND) {
+			debug("%s: %s, mtd dev type %d\n",
+				fdt_get_name(blob, noff, 0),
+				ni[i].compat, ni[i].type);
+			dev = device_find(ni[i].type, idx++);
+			if (dev) {
+				if (fdt_node_set_part_info(blob, noff, dev))
+					return; /* return on error */
+			}
+
+			/* Jump to next flash node */
+			noff = fdt_node_offset_by_compatible(blob, noff,
+							     ni[i].compat);
+		}
+	}
+}
+#endif

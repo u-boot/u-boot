@@ -327,8 +327,14 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			     "are sure of what you are doing!\n"
 			     "\nReally scrub this NAND flash? <y/N>\n");
 
-			if (getc() == 'y' && getc() == '\r') {
-				opts.scrub = 1;
+			if (getc() == 'y') {
+				puts("y");
+				if (getc() == '\r')
+					opts.scrub = 1;
+				else {
+					puts("scrub aborted\n");
+					return -1;
+				}
 			} else {
 				puts("scrub aborted\n");
 				return -1;
