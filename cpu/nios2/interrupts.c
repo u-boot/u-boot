@@ -56,7 +56,40 @@ volatile ulong timestamp = 0;
 
 void reset_timer (void)
 {
+	nios_timer_t *tmr =(nios_timer_t *)CONFIG_SYS_NIOS_TMRBASE;
+
+	/* From Embedded Peripherals Handbook:
+	 *
+	 * "When the hardware is configured with Writeable period
+	 * disabled, writing to one of the period_n registers causes
+	 * the counter to reset to the fixed Timeout Period specified
+	 * at system generation time."
+	 *
+	 * Here we force a reload to prevent early timeouts from
+	 * get_timer() when the interrupt period is greater than
+	 * than 1 msec.
+	 *
+	 * Simply write to periodl with its own value to force an
+	 * internal counter reload, THEN reset the timestamp.
+	 */
+	writel (readl (&tmr->periodl), &tmr->periodl);
 	timestamp = 0;
+
+	/* From Embedded Peripherals Handbook:
+	 *
+	 * "Writing to one of the period_n registers stops the internal
+	 * counter, except when the hardware is configured with Start/Stop
+	 * control bits off. If Start/Stop control bits is off, writing
+	 * either register does not stop the counter."
+	 *
+	 * In order to accomodate either configuration, the control
+	 * register is re-written. If the counter is stopped, it will
+	 * be restarted. If it is running, the write is essentially
+	 * a nop.
+	 */
+	writel (NIOS_TIMER_ITO | NIOS_TIMER_CONT | NIOS_TIMER_START,
+			&tmr->control);
+
 }
 
 ulong get_timer (ulong base)
