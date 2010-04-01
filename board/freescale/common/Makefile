@@ -33,6 +33,7 @@ COBJS-${CONFIG_FSL_CADMUS}	+= cadmus.o
 COBJS-${CONFIG_FSL_VIA}		+= cds_via.o
 COBJS-${CONFIG_FSL_DIU_FB}	+= fsl_diu_fb.o fsl_logo_bmp.o
 COBJS-${CONFIG_FSL_PIXIS}	+= pixis.o
+COBJS-${CONFIG_FSL_NGPIXIS}	+= ngpixis.o
 COBJS-${CONFIG_PQ_MDS_PIB}	+= pq-mds-pib.o
 COBJS-${CONFIG_ID_EEPROM}	+= sys_eeprom.o
 COBJS-${CONFIG_FSL_SGMII_RISER}	+= sgmii_riser.o
