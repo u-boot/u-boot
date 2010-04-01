@@ -251,6 +251,7 @@
  */
 #define  CONFIG_HARD_I2C		/* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
 
 #define I2C_INIT
 #define I2C_ACTIVE 0
