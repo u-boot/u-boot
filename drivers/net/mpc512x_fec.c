@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2009
+ * (C) Copyright 2003-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * Derived from the MPC8xx FEC driver.
@@ -23,10 +23,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #if !(defined(CONFIG_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"
-#endif
-
-#if (DEBUG & 0x40)
-static u32 local_crc32(char *string, unsigned int crc_value, int len);
 #endif
 
 int fec512x_miiphy_read(char *devname, u8 phyAddr, u8 regAddr, u16 * retVal);
@@ -774,40 +770,5 @@ int fec512x_miiphy_write (char *devname, u8 phyAddr, u8 regAddr, u16 data)
 
 	return 0;
 }
-
-#if (DEBUG & 0x40)
-static u32 local_crc32 (char *string, unsigned int crc_value, int len)
-{
-	int i;
-	char c;
-	unsigned int crc, count;
-
-	/*
-	 * crc32 algorithm
-	 */
-	/*
-	 * crc = 0xffffffff; * The initialized value should be 0xffffffff
-	 */
-	crc = crc_value;
-
-	for (i = len; --i >= 0;) {
-		c = *string++;
-		for (count = 0; count < 8; count++) {
-			if ((c & 0x01) ^ (crc & 0x01)) {
-				crc >>= 1;
-				crc = crc ^ 0xedb88320;
-			} else {
-				crc >>= 1;
-			}
-			c >>= 1;
-		}
-	}
-
-	/*
-	 * In big endian system, do byte swaping for crc value
-	 */
-	 /**/ return crc;
-}
-#endif	/* DEBUG */
 
 #endif /* CONFIG_MPC512x_FEC */
