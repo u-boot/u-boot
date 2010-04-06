@@ -67,6 +67,12 @@ _end_vect:
 
 _TEXT_BASE:
 	.word	TEXT_BASE
+/*	.word   CONFIG_SYS_RAM_BOOT_ADDR */
+
+#ifdef CONFIG_PELE_FLASH_RELOCATE
+_FLASH_BASE:
+	.word	CONFIG_SYS_FLASH_BOOT_ADDR
+#endif
 
 .globl _armboot_start
 _armboot_start:
@@ -138,7 +144,16 @@ next:
 
 #ifndef CONFIG_SKIP_RELOCATE_UBOOT
 relocate:				@ relocate U-Boot to RAM
+#ifdef CONFIG_PELE_FLASH_RELOCATE
+	ldr 	r0, _FLASH_BASE
+	ldr 	r1, _FLASH_BASE
+	and 	r1,r1,pc
+	cmp	r0, r1
+	adrne	r0, _start
+	ldreq	r0, _FLASH_BASE
+#else
 	adr	r0, _start		@ r0 <- current position of code
+#endif
 	ldr	r1, _TEXT_BASE		@ test if we run from flash or RAM
 	cmp	r0, r1			@ don't reloc during debug
 	beq	stack_setup
@@ -190,6 +205,7 @@ _start_armboot: .word start_armboot
  * setup memory timing
  *
  *************************************************************************/
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 cpu_init_crit:
 	/*
 	 * Invalidate L1 I/D
@@ -218,6 +234,7 @@ cpu_init_crit:
 	bl	lowlevel_init		@ go setup pll,mux,memory
 	mov	lr, ip			@ restore link
 	mov	pc, lr			@ back to my caller
+#endif
 /*
  *************************************************************************
  *
