@@ -498,6 +498,16 @@ static int kwgbe_halt(struct eth_device *dev)
 	return 0;
 }
 
+static int kwgbe_write_hwaddr(struct eth_device *dev)
+{
+	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
+	struct kwgbe_registers *regs = dkwgbe->regs;
+
+	/* Programs net device MAC address after initialization */
+	port_uc_addr_set(regs, dkwgbe->dev.enetaddr);
+	return 0;
+}
+
 static int kwgbe_send(struct eth_device *dev, volatile void *dataptr,
 		      int datasize)
 {
@@ -694,6 +704,7 @@ int kirkwood_egiga_initialize(bd_t * bis)
 		dev->halt = (void *)kwgbe_halt;
 		dev->send = (void *)kwgbe_send;
 		dev->recv = (void *)kwgbe_recv;
+		dev->write_hwaddr = (void *)kwgbe_write_hwaddr;
 
 		eth_register(dev);
 
