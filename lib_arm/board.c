@@ -242,7 +242,7 @@ init_fnc_t *init_sequence[] = {
 #if defined(CONFIG_USE_IRQ)
 	interrupt_init,		/* set up exceptions */
 #endif
-	timer_init,		/* initialize timer */
+//	timer_init,		/* initialize timer */
 	env_init,		/* initialize environment */
 	init_baudrate,		/* initialze baudrate settings */
 	serial_init,		/* serial communications setup */
