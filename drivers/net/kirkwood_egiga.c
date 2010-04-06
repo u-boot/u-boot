@@ -424,8 +424,6 @@ static int kwgbe_init(struct eth_device *dev)
 	KWGBEREG_WR(regs->pxc, PRT_CFG_VAL);
 	KWGBEREG_WR(regs->pxcx, PORT_CFG_EXTEND_VALUE);
 	KWGBEREG_WR(regs->psc0, PORT_SERIAL_CONTROL_VALUE);
-	/* Disable port initially */
-	KWGBEREG_BITS_SET(regs->psc0, KWGBE_SERIAL_PORT_EN);
 
 	/* Assign port SDMA configuration */
 	KWGBEREG_WR(regs->sdc, PORT_SDMA_CFG_VALUE);
@@ -437,6 +435,9 @@ static int kwgbe_init(struct eth_device *dev)
 	/* Set maximum receive buffer to 9700 bytes */
 	KWGBEREG_WR(regs->psc0,	KWGBE_MAX_RX_PACKET_9700BYTE
 			| (KWGBEREG_RD(regs->psc0) & MRU_MASK));
+
+	/* Enable port initially */
+	KWGBEREG_BITS_SET(regs->psc0, KWGBE_SERIAL_PORT_EN);
 
 	/*
 	 * Set ethernet MTU for leaky bucket mechanism to 0 - this will
@@ -480,7 +481,7 @@ static int kwgbe_halt(struct eth_device *dev)
 	stop_queue(&regs->tqc);
 	stop_queue(&regs->rqc);
 
-	/* Enable port */
+	/* Disable port */
 	KWGBEREG_BITS_RESET(regs->psc0, KWGBE_SERIAL_PORT_EN);
 	/* Set port is not reset */
 	KWGBEREG_BITS_RESET(regs->psc1, 1 << 4);
@@ -525,7 +526,7 @@ static int kwgbe_send(struct eth_device *dev, volatile void *dataptr,
 	p_txdesc->buf_ptr = (u8 *) p;
 	p_txdesc->byte_cnt = datasize;
 
-	/* Apply send command using zeroth RXUQ */
+	/* Apply send command using zeroth TXUQ */
 	KWGBEREG_WR(regs->tcqdp[TXUQ], (u32) p_txdesc);
 	KWGBEREG_WR(regs->tqc, (1 << TXUQ));
 
