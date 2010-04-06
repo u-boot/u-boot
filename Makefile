@@ -3171,6 +3171,10 @@ omap3_zoom2_config :	unconfig
 smdkc100_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 smdkc100 samsung s5pc1xx
 
+xpele_config:		unconfig
+	@mkdir -p $(obj)include $(obj)board/xilinx/dfe
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 dfe xilinx dragonfire
+
 #########################################################################
 ## XScale Systems
 #########################################################################
