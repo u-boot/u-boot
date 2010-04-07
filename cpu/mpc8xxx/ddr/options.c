@@ -1,9 +1,10 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008, 2010 Freescale Semiconductor, Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * Version 2 as published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  */
 
 #include <common.h>
@@ -109,8 +110,13 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 
 	/* Choose burst length. */
 #if defined(CONFIG_FSL_DDR3)
+#if defined(CONFIG_E500MC)
+	popts->OTF_burst_chop_en = 0;	/* on-the-fly burst chop disable */
+	popts->burst_length = DDR_BL8;	/* Fixed 8-beat burst len */
+#else
 	popts->OTF_burst_chop_en = 1;	/* on-the-fly burst chop */
 	popts->burst_length = DDR_OTF;	/* on-the-fly BC4 and BL8 */
+#endif
 #else
 	popts->burst_length = DDR_BL4;	/* has to be 4 for DDR2 */
 #endif

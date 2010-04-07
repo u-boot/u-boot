@@ -1,9 +1,10 @@
 /*
- * Copyright 2007-2009 Freescale Semiconductor, Inc.
+ * Copyright 2007-2010 Freescale Semiconductor, Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * Version 2 as published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -513,10 +514,15 @@ void ft_fsl_pci_setup(void *blob, const char *pci_alias,
 			struct pci_controller *hose)
 {
 	int off = fdt_path_offset(blob, pci_alias);
+	u32 bus_range[2];
 
-	if (off >= 0) {
-		u32 bus_range[2];
+	if (off < 0)
+		return;
 
+	/* We assume a cfg_addr not being set means we didn't setup the controller */
+	if ((hose == NULL) || (hose->cfg_addr == NULL)) {
+		fdt_del_node_and_alias(blob, pci_alias);
+	} else {
 		bus_range[0] = 0;
 		bus_range[1] = hose->last_busno - hose->first_busno;
 		fdt_setprop(blob, off, "bus-range", &bus_range[0], 2*4);

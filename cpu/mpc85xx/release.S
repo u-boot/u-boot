@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Freescale Semiconductor, Inc.
+ * Copyright 2008-2010 Freescale Semiconductor, Inc.
  * Kumar Gala <kumar.gala@freescale.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -57,11 +57,19 @@ __secondary_start_page:
 
 #ifndef CONFIG_E500MC
 	li	r3,(HID1_ASTME|HID1_ABE)@l	/* Addr streaming & broadcast */
+	mfspr   r0,PVR
+	andi.	r0,r0,0xff
+	cmpwi	r0,0x50@l	/* if we are rev 5.0 or greater set MBDD */
+	blt 1f
+	/* Set MBDD bit also */
+	ori r3, r3, HID1_MBDD@l
+1:
 	mtspr	SPRN_HID1,r3
 #endif
 
 	/* Enable branch prediction */
-	li	r3,0x201
+	lis	r3,BUCSR_ENABLE@h
+	ori	r3,r3,BUCSR_ENABLE@l
 	mtspr	SPRN_BUCSR,r3
 
 	/* Ensure TB is 0 */

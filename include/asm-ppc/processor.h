@@ -265,6 +265,7 @@
 #define	  HID1_RFXE	(1<<17)		/* Read Fault Exception Enable */
 #define	  HID1_ASTME	(1<<13)		/* Address bus streaming mode */
 #define	  HID1_ABE	(1<<12)		/* Address broadcast enable */
+#define	  HID1_MBDD	(1<<6)		/* optimized sync instruction */
 #define SPRN_IABR	0x3F2	/* Instruction Address Breakpoint Register */
 #ifndef CONFIG_BOOKE
 #define SPRN_IAC1	0x3F4	/* Instruction Address Compare 1 */
@@ -533,6 +534,9 @@
 #define SPRN_MCSRR0	0x23a	/* Machine Check Save and Restore Register 0 */
 #define SPRN_MCSRR1	0x23b	/* Machine Check Save and Restore Register 1 */
 #define SPRN_BUCSR	0x3f5	/* Branch Control and Status Register */
+#define	  BUCSR_BBFI	0x00000200	/* Branch buffer flash invalidate */
+#define	  BUCSR_BPEN	0x00000001	/* Branch prediction enable */
+#define   BUCSR_ENABLE (BUCSR_BBFI|BUCSR_BPEN)
 #define SPRN_BBEAR	0x201	/* Branch Buffer Entry Address Register */
 #define SPRN_BBTAR	0x202	/* Branch Buffer Target Address Register */
 #define SPRN_PID1	0x279	/* Process ID Register 1 */
@@ -1032,8 +1036,16 @@
 #define SVR_8572_E	0x80E800
 #define SVR_P1011	0x80E500
 #define SVR_P1011_E	0x80ED00
+#define SVR_P1012	0x80E501
+#define SVR_P1012_E	0x80ED01
+#define SVR_P1013	0x80E700
+#define SVR_P1013_E	0x80EF00
 #define SVR_P1020	0x80E400
 #define SVR_P1020_E	0x80EC00
+#define SVR_P1021	0x80E401
+#define SVR_P1021_E	0x80EC01
+#define SVR_P1022	0x80E600
+#define SVR_P1022_E	0x80EE00
 #define SVR_P2010	0x80E300
 #define SVR_P2010_E	0x80EB00
 #define SVR_P2020	0x80E200

@@ -29,7 +29,6 @@
 
 #ifdef CONFIG_FSL_DIU_FB
 
-#include "../common/pixis.h"
 #include "../common/fsl_diu_fb.h"
 
 #if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)

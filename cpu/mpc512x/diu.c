@@ -27,7 +27,6 @@
 #include <command.h>
 #include <asm/io.h>
 
-#include "../../board/freescale/common/pixis.h"
 #include "../../board/freescale/common/fsl_diu_fb.h"
 
 #if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)

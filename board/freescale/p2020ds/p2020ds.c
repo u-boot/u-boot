@@ -38,7 +38,7 @@
 #include <asm/mp.h>
 #include <netdev.h>
 
-#include "../common/pixis.h"
+#include "../common/ngpixis.h"
 #include "../common/sgmii_riser.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -47,30 +47,24 @@ phys_size_t fixed_sdram(void);
 
 int checkboard(void)
 {
-	u8 sw7;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
+	u8 sw;
 
 	puts("Board: P2020DS ");
 #ifdef CONFIG_PHYS_64BIT
 	puts("(36-bit addrmap) ");
 #endif
 
-	printf("Sys ID: 0x%02x, "
-		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
-		in_8(pixis_base + PIXIS_ID), in_8(pixis_base + PIXIS_VER),
-		in_8(pixis_base + PIXIS_PVER));
+	printf("Sys ID: 0x%02x, Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
+		in_8(&pixis->id), in_8(&pixis->arch), in_8(&pixis->scver));
 
-	sw7 = in_8(pixis_base + PIXIS_SW(7));
-	switch ((sw7 & PIXIS_SW7_LBMAP) >> 6) {
-		case 0:
-		case 1:
-			printf ("vBank: %d\n", ((sw7 & PIXIS_SW7_VBANK) >> 4));
-			break;
-		case 2:
-		case 3:
-			puts ("Promjet\n");
-			break;
-	}
+	sw = in_8(&PIXIS_SW(PIXIS_LBMAP_SWITCH));
+	sw = (sw & PIXIS_LBMAP_MASK) >> PIXIS_LBMAP_SHIFT;
+
+	if (sw < 0x8)
+		/* The lower two bits are the actual vbank number */
+		printf("vBank: %d\n", sw & 3);
+	else
+		puts("Promjet\n");
 
 	return 0;
 }
@@ -371,30 +365,22 @@ unsigned long get_board_ddr_clk(ulong dummy)
 	return gd->mem_clk;
 }
 
-unsigned long
-calculate_board_sys_clk(ulong dummy)
+unsigned long calculate_board_sys_clk(ulong dummy)
 {
 	ulong val;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	val = ics307_clk_freq(
-	    in_8(pixis_base + PIXIS_VSYSCLK0),
-	    in_8(pixis_base + PIXIS_VSYSCLK1),
-	    in_8(pixis_base + PIXIS_VSYSCLK2));
+	val = ics307_clk_freq(in_8(&pixis->sclk[0]), in_8(&pixis->sclk[1]),
+			      in_8(&pixis->sclk[2]));
 	debug("sysclk val = %lu\n", val);
 	return val;
 }
 
-unsigned long
-calculate_board_ddr_clk(ulong dummy)
+unsigned long calculate_board_ddr_clk(ulong dummy)
 {
 	ulong val;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	val = ics307_clk_freq(
-	    in_8(pixis_base + PIXIS_VDDRCLK0),
-	    in_8(pixis_base + PIXIS_VDDRCLK1),
-	    in_8(pixis_base + PIXIS_VDDRCLK2));
+	val = ics307_clk_freq(in_8(&pixis->dclk[0]), in_8(&pixis->dclk[1]),
+			      in_8(&pixis->dclk[2]));
 	debug("ddrclk val = %lu\n", val);
 	return val;
 }
@@ -403,9 +389,8 @@ unsigned long get_board_sys_clk(ulong dummy)
 {
 	u8 i;
 	ulong val = 0;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	i = in_8(pixis_base + PIXIS_SPD);
+	i = in_8(&pixis->spd);
 	i &= 0x07;
 
 	switch (i) {
@@ -442,9 +427,8 @@ unsigned long get_board_ddr_clk(ulong dummy)
 {
 	u8 i;
 	ulong val = 0;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	i = in_8(pixis_base + PIXIS_SPD);
+	i = in_8(&pixis->spd);
 	i &= 0x38;
 	i >>= 3;
 

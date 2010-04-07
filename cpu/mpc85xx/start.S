@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007-2009 Freescale Semiconductor, Inc.
+ * Copyright 2004, 2007-2010 Freescale Semiconductor, Inc.
  * Copyright (C) 2003  Motorola,Inc.
  *
  * See file CREDITS for list of people who contributed to this
@@ -208,13 +208,21 @@ _start_e500:
 
 #ifndef CONFIG_E500MC
 	li	r0,(HID1_ASTME|HID1_ABE)@l	/* Addr streaming & broadcast */
+	mfspr	r3,PVR
+	andi.	r3,r3, 0xff
+	cmpwi	r3,0x50@l	/* if we are rev 5.0 or greater set MBDD */
+	blt 1f
+	/* Set MBDD bit also */
+	ori r0, r0, HID1_MBDD@l
+1:
 	mtspr	HID1,r0
 #endif
 
 	/* Enable Branch Prediction */
 #if defined(CONFIG_BTB)
-	li	r0,0x201		/* BBFI = 1, BPEN = 1 */
-	mtspr	BUCSR,r0
+	lis	r0,BUCSR_ENABLE@h
+	ori	r0,r0,BUCSR_ENABLE@l
+	mtspr	SPRN_BUCSR,r0
 #endif
 
 #if defined(CONFIG_SYS_INIT_DBCR)

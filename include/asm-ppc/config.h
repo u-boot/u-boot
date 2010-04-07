@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Freescale Semiconductor, Inc.
+ * Copyright 2009-2010 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -41,6 +41,7 @@
 #endif
 
 #if defined(CONFIG_MPC8572) || defined(CONFIG_P1020) || \
+	defined(CONFIG_P1021) || defined(CONFIG_P1022) || \
 	defined(CONFIG_P2020) || defined(CONFIG_MPC8641)
 #define CONFIG_MAX_CPUS		2
 #elif defined(CONFIG_PPC_P4080)

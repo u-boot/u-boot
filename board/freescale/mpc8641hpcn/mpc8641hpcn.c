@@ -31,8 +31,6 @@
 #include <fdt_support.h>
 #include <netdev.h>
 
-#include "../common/pixis.h"
-
 phys_size_t fixed_sdram(void);
 
 int board_early_init_f(void)

@@ -1,9 +1,10 @@
 /*
- * Copyright 2008-2009 Freescale Semiconductor, Inc.
+ * Copyright 2008-2010 Freescale Semiconductor, Inc.
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
- * Version 2 as published by the Free Software Foundation.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation; either version 2 of the License, or (at your option)
+ * any later version.
  */
 
 /*
@@ -934,7 +935,8 @@ static void set_ddr_init_ext_addr(fsl_ddr_cfg_regs_t *ddr)
 }
 
 /* DDR SDRAM Timing Configuration 4 (TIMING_CFG_4) */
-static void set_timing_cfg_4(fsl_ddr_cfg_regs_t *ddr)
+static void set_timing_cfg_4(fsl_ddr_cfg_regs_t *ddr,
+				const memctl_options_t *popts)
 {
 	unsigned int rwt = 0; /* Read-to-write turnaround for same CS */
 	unsigned int wrt = 0; /* Write-to-read turnaround for same CS */
@@ -943,9 +945,15 @@ static void set_timing_cfg_4(fsl_ddr_cfg_regs_t *ddr)
 	unsigned int dll_lock = 0; /* DDR SDRAM DLL Lock Time */
 
 #if defined(CONFIG_FSL_DDR3)
-	/* We need set BL/2 + 4 for BC4 or OTF */
-	rrt = 4;	/* BL/2 + 4 clocks */
-	wwt = 4;	/* BL/2 + 4 clocks */
+	if (popts->burst_length == DDR_BL8) {
+		/* We set BL/2 for fixed BL8 */
+		rrt = 0;	/* BL/2 clocks */
+		wwt = 0;	/* BL/2 clocks */
+	} else {
+		/* We need to set BL/2 + 2 to BC4 and OTF */
+		rrt = 2;	/* BL/2 + 2 clocks */
+		wwt = 2;	/* BL/2 + 2 clocks */
+	}
 	dll_lock = 1;	/* tDLLK = 512 clocks from spec */
 #endif
 	ddr->timing_cfg_4 = (0
@@ -1343,7 +1351,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	set_ddr_sdram_clk_cntl(ddr, popts);
 	set_ddr_init_addr(ddr);
 	set_ddr_init_ext_addr(ddr);
-	set_timing_cfg_4(ddr);
+	set_timing_cfg_4(ddr, popts);
 	set_timing_cfg_5(ddr);
 
 	set_ddr_zq_cntl(ddr, zq_en);
