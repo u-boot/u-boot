@@ -29,6 +29,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(SOC).a
 
 COBJS-y	= interrupts.o
+COBJS-$(CONFIG_DRAGONFIRE)	+= df_board.o
 
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS-y))
 
