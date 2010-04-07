@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= flash.o pl353_x8.o xemacpss_g.o xbasic_types.o xemacpss_control.o xemacpss_sinit.o xemacpss_bdring.o xemacpss.o xgmac.o
+COBJS	:= flash.o pl353_x8.o xemacpss_g.o xbasic_types.o xemacpss_control.o xemacpss_sinit.o xemacpss_bdring.o xemacpss.o xgmac.o board.o
 SOBJS	:= # lowlevel_init.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
