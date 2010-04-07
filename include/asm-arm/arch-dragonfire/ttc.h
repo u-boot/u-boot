@@ -8,8 +8,6 @@
 
 #include <asm/io.h>
 
-#include <dragonfire.h>
-
 #if defined(CONFIG_TTC0)
 # define TTC_ID   0
 # define TTC_BASE DRAGONFIRE_TTC0_BASE

@@ -9,8 +9,6 @@
 
 #include <asm/io.h>
 
-#include <dragonfire.h>
-
 #if defined(CONFIG_UART0)
 # define UART_ID   0
 # define UART_BASE DRAGONFIRE_UART0_BASE
