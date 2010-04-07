@@ -16,6 +16,11 @@
 #define CONFIG_SYS_BAUDRATE_TABLE { 9600, 38400, 115200 }
 #define CONFIG_BOOTDELAY	-1 /* Disable autoboot */
 
+/* UART base addresses */
+#define DRAGONFIRE_UART0_BASE 0xE0000000
+#define DRAGONFIRE_UART1_BASE 0xE0001000
+
+
 #define	CONFIG_PSS_SERIAL
 #define	CONFIG_RTC_XPSSRTC
 
@@ -53,7 +58,8 @@
 
 #define CONFIG_L2_OFF
 #define PELE_TTC
-//#define DEBUG 1
+#define DRAGONFIRE_TTC0_BASE 0x90001000
+#define DRAGONFIRE_TTC1_BASE 0x90002000
 
 //#define CONFIG_PELE_INIT_GEM	//this is to initialize GEM at uboot start
 #define CONFIG_PELE_IP_ENV	//this is to set ipaddr, ethaddr and serverip env variables.
@@ -133,38 +139,5 @@
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* phycore */
-
-
-
-
-
-
-
-/* UART base addresses */
-#define DRAGONFIRE_UART0_BASE 0xE0000000
-#define DRAGONFIRE_UART1_BASE 0xE0001000
-
-#ifdef PELE_TTC
-	/* For PELE the base address has changed*/
-	#define DRAGONFIRE_TTC0_BASE 0x90001000
-	#define DRAGONFIRE_TTC1_BASE 0x90002000
-
-#else
-
-	/* Timers forf DFE */
-	#define DRAGONFIRE_TTC0_BASE 0xFE001000
-	#define DRAGONFIRE_TTC1_BASE 0xFE002000
-#endif
-
-/* GEMs */
-#define DRAGONFIRE_GEM0_BASE 0xE000B000
-#define DRAGONFIRE_GEM1_BASE 0xE000C000
-
-
-
-
-
-
-
 
 #endif /* __CONFIG_H */
