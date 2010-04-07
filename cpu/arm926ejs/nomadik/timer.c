@@ -34,8 +34,8 @@
 #define TICKS_PER_HZ		(TIMER_CLOCK / CONFIG_SYS_HZ)
 #define TICKS_TO_HZ(x)		((x) / TICKS_PER_HZ)
 
-/* macro to read the 32 bit timer: since it decrements, we invert read value */
-#define READ_TIMER() (~readl(CONFIG_SYS_TIMERBASE + MTU_VAL(0)))
+/* macro to read the decrementing 32 bit timer as an increasing count */
+#define READ_TIMER() (0 - readl(CONFIG_SYS_TIMERBASE + MTU_VAL(0)))
 
 /* Configure a free-running, auto-wrap counter with no prescaler */
 int timer_init(void)
@@ -49,7 +49,16 @@ int timer_init(void)
 /* Restart counting from 0 */
 void reset_timer(void)
 {
-	writel(0, CONFIG_SYS_TIMERBASE + MTU_LR(0)); /* Immediate effect */
+	ulong val;
+	writel(0, CONFIG_SYS_TIMERBASE + MTU_LR(0));
+	/*
+	 * The load-register isn't really immediate: it changes on clock
+	 * edges, so we must wait for our newly-written value to appear.
+	 * Since we might miss reading 0, wait for any change in value.
+	 */
+	val = READ_TIMER();
+	while (READ_TIMER() == val)
+		;
 }
 
 /* Return how many HZ passed since "base" */

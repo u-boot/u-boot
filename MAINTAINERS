@@ -616,6 +616,10 @@ Simon Kagstrom <simon.kagstrom@netinsight.net>
 
        openrd_base     ARM926EJS (Kirkwood SoC)
 
+Minkyu Kang <mk7.kang@samsung.com>
+
+	SMDKC100	ARM CORTEX-A8 (S5PC100 SoC)
+
 Nishant Kamat <nskamat@ti.com>
 
 	omap1610h2	ARM926EJS
@@ -630,16 +634,16 @@ Sergey Kubushyn <ksi@koi8.net>
 	SONATA		ARM926EJS
 	SCHMOOGIE	ARM926EJS
 
-Sandeep Paulraj <s-paulraj@ti.com>
-
-	davinci_dm355evm	ARM926EJS
-	davinci_dm355leopard	ARM926EJS
-	davinci_dm365evm	ARM926EJS
-	davinci_dm6467evm	ARM926EJS
-
 Prakash Kumar <prakash@embedx.com>
 
 	cerf250		xscale
+
+Vipin Kumar <vipin.kumar@st.com>
+
+	spear300	ARM926EJS (spear300 Soc)
+	spear310	ARM926EJS (spear310 Soc)
+	spear320	ARM926EJS (spear320 Soc)
+	spear600	ARM926EJS (spear600 Soc)
 
 Sergey Lapin <slapin@ossfans.org>
 
@@ -672,6 +676,13 @@ Rolf Offermanns <rof@sysgo.de>
 Kyungmin Park <kyungmin.park@samsung.com>
 
 	apollon		ARM1136EJS
+
+Sandeep Paulraj <s-paulraj@ti.com>
+
+	davinci_dm355evm	ARM926EJS
+	davinci_dm355leopard	ARM926EJS
+	davinci_dm365evm	ARM926EJS
+	davinci_dm6467evm	ARM926EJS
 
 Peter Pearse <peter.pearse@arm.com>
 	integratorcp	All current ARM supplied & supported core modules
@@ -772,10 +783,6 @@ Alex Züpke <azu@sysgo.de>
 
 	lart		SA1100
 	dnp1110		SA1110
-
-Minkyu Kang <mk7.kang@samsung.com>
-
-	SMDKC100	ARM CORTEX-A8 (S5PC100 SoC)
 
 -------------------------------------------------------------------------
 

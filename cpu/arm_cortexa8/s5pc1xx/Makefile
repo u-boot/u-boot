@@ -33,6 +33,8 @@ SOBJS	+= reset.o
 
 COBJS	+= clock.o
 COBJS	+= cpu_info.o
+COBJS	+= gpio.o
+COBJS	+= sromc.o
 COBJS	+= timer.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)

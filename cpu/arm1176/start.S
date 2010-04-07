@@ -35,7 +35,9 @@
 #ifdef CONFIG_ENABLE_MMU
 #include <asm/proc/domain.h>
 #endif
+#ifdef CONFIG_S3C64XX
 #include <asm/arch/s3c6400.h>
+#endif
 
 #if !defined(CONFIG_ENABLE_MMU) && !defined(CONFIG_SYS_PHY_UBOOT_BASE)
 #define CONFIG_SYS_PHY_UBOOT_BASE	CONFIG_SYS_UBOOT_BASE
@@ -190,10 +192,12 @@ mmu_disable:
 #endif
 
 mmu_disable_phys:
+#ifdef CONFIG_S3C64XX
 	/* Peri port setup */
 	ldr	r0, =0x70000000
 	orr	r0, r0, #0x13
 	mcr	p15,0,r0,c15,c2,4       @ 256M (0x70000000 - 0x7fffffff)
+#endif
 
 	/*
 	 * Go setup Memory and board specific bits prior to relocation.

@@ -1,8 +1,7 @@
 /*
  * Cirrus Logic EP93xx timer support.
  *
- * Copyright (C) 2009, 2010
- * Matthias Kaehlcke <matthias@kaehlcke.net>
+ * Copyright (C) 2009, 2010 Matthias Kaehlcke <matthias@kaehlcke.net>
  *
  * Copyright (C) 2004, 2005
  * Cory T. Tusar, Videon Central, Inc., <ctusar@videon-central.com>
@@ -42,16 +41,8 @@
 static struct ep93xx_timer
 {
 	unsigned long long ticks;
-	unsigned long last_update;
+	unsigned long last_read;
 } timer;
-
-static inline unsigned long clk_to_systicks(unsigned long long clk_ticks)
-{
-	unsigned long long sys_ticks = (clk_ticks * CONFIG_SYS_HZ);
-	do_div(sys_ticks, TIMER_FREQ);
-
-	return (unsigned long)sys_ticks;
-}
 
 static inline unsigned long long usecs_to_ticks(unsigned long usecs)
 {
@@ -61,11 +52,18 @@ static inline unsigned long long usecs_to_ticks(unsigned long usecs)
 	return ticks;
 }
 
-static inline unsigned long read_timer(void)
+static inline void read_timer(void)
 {
-	struct timer_regs *timer = (struct timer_regs *)TIMER_BASE;
+	struct timer_regs *timer_regs = (struct timer_regs *)TIMER_BASE;
+	const unsigned long now = TIMER_MAX_VAL - readl(&timer_regs->timer3.value);
 
-	return TIMER_MAX_VAL - readl(&timer->timer3.value);
+	if (now >= timer.last_read)
+		timer.ticks += now - timer.last_read;
+	else
+		/* an overflow occurred */
+		timer.ticks += TIMER_MAX_VAL - timer.last_read + now;
+
+	timer.last_read = now;
 }
 
 /*
@@ -73,17 +71,14 @@ static inline unsigned long read_timer(void)
  */
 unsigned long long get_ticks(void)
 {
-	const unsigned long now = read_timer();
+	unsigned long long sys_ticks;
 
-	if (now >= timer.last_update)
-		timer.ticks += now - timer.last_update;
-	else
-		/* an overflow occurred */
-		timer.ticks += TIMER_MAX_VAL - timer.last_update + now;
+	read_timer();
 
-	timer.last_update = now;
+	sys_ticks = timer.ticks * CONFIG_SYS_HZ;
+	do_div(sys_ticks, TIMER_FREQ);
 
-	return clk_to_systicks(timer.ticks);
+	return sys_ticks;
 }
 
 unsigned long get_timer_masked(void)
@@ -98,7 +93,7 @@ unsigned long get_timer(unsigned long base)
 
 void reset_timer_masked(void)
 {
-	timer.last_update = read_timer();
+	read_timer();
 	timer.ticks = 0;
 }
 
@@ -109,28 +104,29 @@ void reset_timer(void)
 
 void __udelay(unsigned long usec)
 {
-	/* read the timer and update timer.ticks */
-	get_ticks();
+	unsigned long long target;
 
-	const unsigned long long target = timer.ticks + usecs_to_ticks(usec);
+	read_timer();
+
+	target = timer.ticks + usecs_to_ticks(usec);
 
 	while (timer.ticks < target)
-		get_ticks();
+		read_timer();
 }
 
 int timer_init(void)
 {
-	struct timer_regs *timer = (struct timer_regs *)TIMER_BASE;
+	struct timer_regs *timer_regs = (struct timer_regs *)TIMER_BASE;
 
-	/* use timer 3 with 508KHz and free running */
-	writel(TIMER_CLKSEL, &timer->timer3.control);
+	/* use timer 3 with 508KHz and free running, not enabled now */
+	writel(TIMER_CLKSEL, &timer_regs->timer3.control);
 
-	/* set initial timer value 3 */
-	writel(TIMER_MAX_VAL, &timer->timer3.load);
+	/* set initial timer value */
+	writel(TIMER_MAX_VAL, &timer_regs->timer3.load);
 
 	/* Enable the timer */
 	writel(TIMER_ENABLE | TIMER_CLKSEL,
-		&timer->timer3.control);
+		&timer_regs->timer3.control);
 
 	reset_timer_masked();
 
