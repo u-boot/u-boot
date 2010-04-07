@@ -97,6 +97,7 @@
  ***************************************************************/
 
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
 #define CONFIG_SYS_I2C_SPEED		50000	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 

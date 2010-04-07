@@ -141,6 +141,7 @@ extern void out32(unsigned int, unsigned long);
  * I2C
  */
 #define CONFIG_HARD_I2C			1	/* I2C with hardware support */
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
 #define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE		0x7f
 #define CONFIG_I2C_MULTI_BUS

@@ -52,7 +52,6 @@ COBJS	+= denali_data_eye.o
 COBJS	+= denali_spd_ddr2.o
 COBJS	+= ecc.o
 COBJS	+= fdt.o
-COBJS	+= i2c.o
 COBJS	+= interrupts.o
 COBJS	+= iop480_uart.o
 ifdef CONFIG_CMD_REGINFO
