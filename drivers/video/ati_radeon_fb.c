@@ -594,7 +594,7 @@ int radeon_probe(struct radeonfb_info *rinfo)
 
 		rinfo->mmio_base = pci_bus_to_virt(pdev, rinfo->mmio_base_bus,
 					PCI_REGION_MEM, 0, MAP_NOCACHE);
-		DPRINT("rinfo->mmio_base = 0x%x bus=0x%x\n",
+		DPRINT("rinfo->mmio_base = 0x%p bus=0x%x\n",
 		       rinfo->mmio_base, rinfo->mmio_base_bus);
 		rinfo->fb_local_base = INREG(MC_FB_LOCATION) << 16;
 		DPRINT("rinfo->fb_local_base = 0x%x\n",rinfo->fb_local_base);
