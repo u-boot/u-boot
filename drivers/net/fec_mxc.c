@@ -314,9 +314,9 @@ static int fec_get_hwaddr(struct eth_device *dev, unsigned char *mac)
 {
 /*
  * The MX27 can store the mac address in internal eeprom
- * This mechanism is not supported now by MX51
+ * This mechanism is not supported now by MX51 or MX25
  */
-#ifdef CONFIG_MX51
+#if defined(CONFIG_MX51) || defined(CONFIG_MX25)
 	return -1;
 #else
 	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;
