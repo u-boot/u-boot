@@ -160,7 +160,7 @@ static void mpc512x_fec_tbd_scrub (mpc512x_fec_priv *fec)
 }
 
 /********************************************************************/
-static void mpc512x_fec_set_hwaddr (mpc512x_fec_priv *fec, char *mac)
+static void mpc512x_fec_set_hwaddr (mpc512x_fec_priv *fec, unsigned char *mac)
 {
 	u8 currByte;			/* byte for which to compute the CRC */
 	int byte;			/* loop - counter */
@@ -225,6 +225,12 @@ static int mpc512x_fec_init (struct eth_device *dev, bd_t * bis)
 #if (DEBUG & 0x1)
 	printf ("mpc512x_fec_init... Begin\n");
 #endif
+
+	mpc512x_fec_set_hwaddr (fec, dev->enetaddr);
+	out_be32(&fec->eth->gaddr1, 0x00000000);
+	out_be32(&fec->eth->gaddr2, 0x00000000);
+
+	mpc512x_fec_init_phy (dev, bis);
 
 	/* Set interrupt mask register */
 	out_be32(&fec->eth->imask, 0x00000000);
@@ -611,8 +617,6 @@ int mpc512x_fec_initialize (bd_t * bis)
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	mpc512x_fec_priv *fec;
 	struct eth_device *dev;
-	int i;
-	char *tmp, *end, env_enetaddr[6];
 	void * bd;
 
 	fec = (mpc512x_fec_priv *) malloc (sizeof(*fec));
@@ -662,25 +666,6 @@ int mpc512x_fec_initialize (bd_t * bis)
 	 * Clear FEC-Lite interrupt event register(IEVENT)
 	 */
 	out_be32(&fec->eth->ievent, 0xffffffff);
-
-	/*
-	 * Try to set the mac address now. The fec mac address is
-	 * a garbage after reset. When not using fec for booting
-	 * the Linux fec driver will try to work with this garbage.
-	 */
-	tmp = getenv ("ethaddr");
-	if (tmp) {
-		for (i=0; i<6; i++) {
-			env_enetaddr[i] = tmp ? simple_strtoul (tmp, &end, 16) : 0;
-			if (tmp)
-				tmp = (*end) ? end+1 : end;
-		}
-		mpc512x_fec_set_hwaddr (fec, env_enetaddr);
-		out_be32(&fec->eth->gaddr1, 0x00000000);
-		out_be32(&fec->eth->gaddr2, 0x00000000);
-	}
-
-	mpc512x_fec_init_phy (dev, bis);
 
 	return 1;
 }
