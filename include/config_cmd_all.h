@@ -79,6 +79,8 @@
 #define CONFIG_CMD_SOURCE	/* "source" command support	*/
 #define CONFIG_CMD_SPI		/* SPI utility			*/
 #define CONFIG_CMD_TERMINAL	/* built-in Serial Terminal	*/
+#define CONFIG_CMD_UBI		/* UBI Support			*/
+#define CONFIG_CMD_UBIFS	/* UBIFS Support		*/
 #define CONFIG_CMD_UNIVERSE	/* Tundra Universe Support	*/
 #define CONFIG_CMD_UNZIP	/* unzip from memory to memory	*/
 #define CONFIG_CMD_USB		/* USB Support			*/
