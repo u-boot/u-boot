@@ -111,7 +111,7 @@ int print_cpuinfo (void)
 	char buf[32];
 
 	printf ("CPU:   Freescale i.MX25 at %s MHz\n\n",
-		strmhz (buf, imx_get_mpllclk ()));
+		strmhz (buf, imx_get_armclk ()));
 	return 0;
 }
 #endif
