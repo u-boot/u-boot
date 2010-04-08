@@ -236,11 +236,13 @@
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_FPGA
 #define CONFIG_CMD_I2C
+#undef CONFIG_CMD_LOADB
+#undef CONFIG_CMD_LOADS
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NET
-#define CONFIG_CMD_PCI
 #undef CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 
