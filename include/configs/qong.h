@@ -41,7 +41,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
 /* size in bytes reserved for initial data */
 #define CONFIG_SYS_GBL_DATA_SIZE	128
 
@@ -86,7 +86,6 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_NAND
 
 /*
@@ -218,7 +217,7 @@ extern int qong_nand_rdy(void *chip);
 #define	CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_SECT_SIZE	0x20000
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x40000)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x60000)
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
@@ -237,9 +236,15 @@ extern int qong_nand_rdy(void *chip);
 #define CONFIG_SYS_FLASH_PROTECTION		1
 
 /*
- * JFFS2 partitions
+ * Filesystem
  */
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#define CONFIG_RBTREE
+#define CONFIG_MTD_PARTITIONS
 #define CONFIG_CMD_MTDPARTS
+#define CONFIG_LZO
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT		"nor0=physmap-flash.0"
