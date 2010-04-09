@@ -387,7 +387,7 @@ int do_usbboot(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	dev = simple_strtoul(boot_device, &ep, 16);
 	stor_dev = usb_stor_get_dev(dev);
-	if (stor_dev->type == DEV_TYPE_UNKNOWN) {
+	if (stor_dev == NULL || stor_dev->type == DEV_TYPE_UNKNOWN) {
 		printf("\n** Device %d not available\n", dev);
 		return 1;
 	}
@@ -595,8 +595,10 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (strncmp(argv[1], "part", 4) == 0) {
 		int devno, ok = 0;
 		if (argc == 2) {
-			for (devno = 0; devno < USB_MAX_STOR_DEV; ++devno) {
+			for (devno = 0; ; ++devno) {
 				stor_dev = usb_stor_get_dev(devno);
+				if (stor_dev == NULL)
+					break;
 				if (stor_dev->type != DEV_TYPE_UNKNOWN) {
 					ok++;
 					if (devno)
@@ -608,7 +610,8 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		} else {
 			devno = simple_strtoul(argv[2], NULL, 16);
 			stor_dev = usb_stor_get_dev(devno);
-			if (stor_dev->type != DEV_TYPE_UNKNOWN) {
+			if (stor_dev != NULL &&
+			    stor_dev->type != DEV_TYPE_UNKNOWN) {
 				ok++;
 				debug("print_part of %x\n", devno);
 				print_part(stor_dev);
@@ -668,12 +671,12 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		if (argc == 3) {
 			int dev = (int)simple_strtoul(argv[2], NULL, 10);
 			printf("\nUSB device %d: ", dev);
-			if (dev >= USB_MAX_STOR_DEV) {
+			stor_dev = usb_stor_get_dev(dev);
+			if (stor_dev == NULL) {
 				printf("unknown device\n");
 				return 1;
 			}
 			printf("\n    Device %d: ", dev);
-			stor_dev = usb_stor_get_dev(dev);
 			dev_print(stor_dev);
 			if (stor_dev->type == DEV_TYPE_UNKNOWN)
 				return 1;
