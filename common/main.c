@@ -730,6 +730,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
 		while (!tstc()) {	/* while no incoming data */
 			if (retry_time >= 0 && get_ticks() > endtime)
 				return (-2);	/* timed out */
+			WATCHDOG_RESET();
 		}
 #endif
 
@@ -997,6 +998,7 @@ int readline_into_buffer (const char *const prompt, char * buffer)
 		while (!tstc()) {	/* while no incoming data */
 			if (retry_time >= 0 && get_ticks() > endtime)
 				return (-2);	/* timed out */
+			WATCHDOG_RESET();
 		}
 #endif
 		WATCHDOG_RESET();		/* Trigger watchdog, if needed */
@@ -1005,6 +1007,7 @@ int readline_into_buffer (const char *const prompt, char * buffer)
 		while (!tstc()) {
 			extern void show_activity(int arg);
 			show_activity(0);
+			WATCHDOG_RESET();
 		}
 #endif
 		c = getc();
