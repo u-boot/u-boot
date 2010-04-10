@@ -1,7 +1,7 @@
 /*
  * U-boot - u-boot.lds.S
  *
- * Copyright (c) 2005-2008 Analog Device Inc.
+ * Copyright (c) 2005-2010 Analog Device Inc.
  *
  * (C) Copyright 2000-2004
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -29,7 +29,6 @@
 #include <asm/blackfin.h>
 #undef ALIGN
 #undef ENTRY
-#undef bfin
 
 #ifndef LDS_BOARD_TEXT
 # define LDS_BOARD_TEXT
@@ -100,7 +99,7 @@ SECTIONS
 
 	.data :
 	{
-		. = ALIGN(256);
+		. = ALIGN(4);
 		*(.data .data.*)
 		*(.data1)
 		*(.sdata)

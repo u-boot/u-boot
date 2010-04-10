@@ -18,9 +18,9 @@ int checkboard(void)
 	return 0;
 }
 
-#ifdef CONFIG_SMC91111
+#ifdef CONFIG_SMC911X
 int board_eth_init(bd_t *bis)
 {
-	return smc91111_initialize(0, CONFIG_SMC91111_BASE);
+	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
 }
 #endif
