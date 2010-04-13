@@ -32,7 +32,7 @@ SECTIONS
 	. = ALIGN(4);
 	.text      :
 	{
-	  cpu/arm920t/start.o	(.text)
+	  arch/arm/cpu/arm920t/start.o	(.text)
 	  lib/zlib.o	(.text)
 	  lib/crc32.o	(.text)
 	  lib/string.o	(.text)

@@ -193,7 +193,7 @@ ifdef SOC
 LIBS += $(CPUDIR)/$(SOC)/lib$(SOC).a
 endif
 ifeq ($(CPU),ixp)
-LIBS += cpu/ixp/npe/libnpe.a
+LIBS += arch/arm/cpu/ixp/npe/libnpe.a
 endif
 LIBS += arch/$(ARCH)/lib/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \

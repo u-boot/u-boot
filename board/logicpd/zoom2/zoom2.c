@@ -46,7 +46,7 @@
 /*
  * This the the zoom2, board specific, gpmc configuration for the
  * quad uart on the debug board.   The more general gpmc configurations
- * are setup at the cpu level in cpu/arm_cortexa8/omap3/mem.c
+ * are setup at the cpu level in arch/arm/cpu/arm_cortexa8/omap3/mem.c
  *
  * The details of the setting of the serial gpmc setup are not available.
  * The values were provided by another party.

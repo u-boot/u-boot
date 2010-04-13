@@ -33,7 +33,7 @@ SOBJS	= start.o lowlevel_init.o
 COBJS	= nand_boot_fsl_nfc.o
 
 SRCS	:= $(SRCTREE)/nand_spl/nand_boot_fsl_nfc.c
-SRCS	+= $(SRCTREE)/cpu/arm926ejs/start.S
+SRCS	+= $(SRCTREE)/arch/arm/cpu/arm926ejs/start.S
 SRCS	+= $(SRCTREE)/board/karo/tx25/lowlevel_init.S
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 __OBJS	:= $(SOBJS) $(COBJS)
@@ -61,7 +61,7 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 
 #########################################################################
 
-$(obj)%.o:	$(SRCTREE)/cpu/arm926ejs/%.S
+$(obj)%.o:	$(SRCTREE)/arch/arm/cpu/arm926ejs/%.S
 	$(CC) $(AFLAGS) -c -o $@ $<
 
 $(obj)%.o:	$(SRCTREE)/board/karo/tx25/%.S

@@ -1,7 +1,7 @@
 /*
  * (C) Copyright 2006 Embedded Artists AB <www.embeddedartists.com>
  *
- * Modified to use the routines in cpu/arm720t/lpc2292/flash.c by
+ * Modified to use the routines in arch/arm/cpu/arm720t/lpc2292/flash.c by
  * Gary Jennejohn <garyj@denx,de>
  *
  * This program is free software; you can redistribute it and/or
