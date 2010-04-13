@@ -44,7 +44,9 @@ int checkcpu (void)
 	uint major, minor;
 	struct cpu_type *cpu;
 	char buf1[32], buf2[32];
+#if defined(CONFIG_DDR_CLK_FREQ) || defined(CONFIG_FSL_CORENET)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#endif /* CONFIG_FSL_CORENET */
 #ifdef CONFIG_DDR_CLK_FREQ
 	u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
 		>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
