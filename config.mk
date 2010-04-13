@@ -236,16 +236,21 @@ export	TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS AFLAGS
 #########################################################################
 
 # Allow boards to use custom optimize flags on a per dir/file basis
-BCURDIR := $(notdir $(CURDIR))
+BCURDIR = $(subst $(SRCTREE)/,,$(CURDIR:$(obj)%=%))
 $(obj)%.s:	%.S
-	$(CPP) $(AFLAGS) $(AFLAGS_$(@F)) $(AFLAGS_$(BCURDIR)) -o $@ $<
+	$(CPP) $(AFLAGS) $(AFLAGS_$(BCURDIR)/$(@F)) $(AFLAGS_$(BCURDIR)) \
+		-o $@ $<
 $(obj)%.o:	%.S
-	$(CC)  $(AFLAGS) $(AFLAGS_$(@F)) $(AFLAGS_$(BCURDIR)) -o $@ $< -c
+	$(CC)  $(AFLAGS) $(AFLAGS_$(BCURDIR)/$(@F)) $(AFLAGS_$(BCURDIR)) \
+		-o $@ $< -c
 $(obj)%.o:	%.c
-	$(CC)  $(CFLAGS) $(CFLAGS_$(@F)) $(CFLAGS_$(BCURDIR)) -o $@ $< -c
+	$(CC)  $(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
+		-o $@ $< -c
 $(obj)%.i:	%.c
-	$(CPP) $(CFLAGS) $(CFLAGS_$(@F)) $(CFLAGS_$(BCURDIR)) -o $@ $< -c
+	$(CPP) $(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
+		-o $@ $< -c
 $(obj)%.s:	%.c
-	$(CC)  $(CFLAGS) $(CFLAGS_$(@F)) $(CFLAGS_$(BCURDIR)) -o $@ $< -c -S
+	$(CC)  $(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
+		-o $@ $< -c -S
 
 #########################################################################
