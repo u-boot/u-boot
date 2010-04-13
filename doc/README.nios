@@ -243,7 +243,7 @@ cover most of the individual functions to get you started.
 	following commands, then close the console window:
 
 		(gdb) directory common
-		(gdb) directory cpu/nios
+		(gdb) directory arch/nios/cpu
 		(gdb) directory arch/nios/lib
 		(gdb) directory board/altera/dk1c20
 

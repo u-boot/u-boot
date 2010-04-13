@@ -30,7 +30,7 @@ SECTIONS
 {
 	.text :
 	{
-	  cpu/nios/start.o (.text)
+	  arch/nios/cpu/start.o (.text)
 	  *(.text)
 	}
 	__text_end = .;
