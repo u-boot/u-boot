@@ -137,7 +137,7 @@ int board_init (void)
 
 int checkboard (void)
 {
-	printf("Board: DAVE/DENX QongEVB-LITE\n");
+	printf("Board: DAVE/DENX Qong\n");
 	return 0;
 }
 
