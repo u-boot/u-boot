@@ -244,7 +244,7 @@ LIBS += drivers/usb/phy/libusb_phy.a
 LIBS += drivers/video/libvideo.a
 LIBS += drivers/watchdog/libwatchdog.a
 LIBS += common/libcommon.a
-LIBS += libfdt/libfdt.a
+LIBS += lib/libfdt/libfdt.a
 LIBS += api/libapi.a
 LIBS += post/libpost.a
 
