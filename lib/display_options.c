@@ -45,8 +45,8 @@ int display_options (void)
  */
 void print_size (phys_size_t size, const char *s)
 {
-	ulong m = 0, n;
-	phys_size_t d = 1 << 30;		/* 1 GB */
+	unsigned long m = 0, n;
+	unsigned long long d = 1 << 30; 	/* 1 GB */
 	char  c = 'G';
 
 	if (size < d) {			/* try MB */
