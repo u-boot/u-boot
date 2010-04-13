@@ -169,16 +169,16 @@ include $(TOPDIR)/config.mk
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)
 
-OBJS  = cpu/$(CPU)/start.o
+OBJS  = $(CPUDIR)/start.o
 ifeq ($(CPU),i386)
-OBJS += cpu/$(CPU)/start16.o
-OBJS += cpu/$(CPU)/resetvec.o
+OBJS += $(CPUDIR)/start16.o
+OBJS += $(CPUDIR)/resetvec.o
 endif
 ifeq ($(CPU),ppc4xx)
-OBJS += cpu/$(CPU)/resetvec.o
+OBJS += $(CPUDIR)/resetvec.o
 endif
 ifeq ($(CPU),mpc85xx)
-OBJS += cpu/$(CPU)/resetvec.o
+OBJS += $(CPUDIR)/resetvec.o
 endif
 
 OBJS := $(addprefix $(obj),$(OBJS))
@@ -188,9 +188,9 @@ LIBS += lib_generic/lzma/liblzma.a
 LIBS += lib_generic/lzo/liblzo.a
 LIBS += $(shell if [ -f board/$(VENDOR)/common/Makefile ]; then echo \
 	"board/$(VENDOR)/common/lib$(VENDOR).a"; fi)
-LIBS += cpu/$(CPU)/lib$(CPU).a
+LIBS += $(CPUDIR)/lib$(CPU).a
 ifdef SOC
-LIBS += cpu/$(CPU)/$(SOC)/lib$(SOC).a
+LIBS += $(CPUDIR)/$(SOC)/lib$(SOC).a
 endif
 ifeq ($(CPU),ixp)
 LIBS += cpu/ixp/npe/libnpe.a
@@ -354,7 +354,7 @@ ifeq ($(CONFIG_KALLSYMS),y)
 endif
 
 $(OBJS):	depend
-		$(MAKE) -C cpu/$(CPU) $(if $(REMOTE_BUILD),$@,$(notdir $@))
+		$(MAKE) -C $(CPUDIR) $(if $(REMOTE_BUILD),$@,$(notdir $@))
 
 $(LIBS):	depend $(SUBDIRS)
 		$(MAKE) -C $(dir $(subst $(obj),,$@))
@@ -404,7 +404,7 @@ env:
 # Explicitly make _depend in subdirs containing multiple targets to prevent
 # parallel sub-makes creating .depend files simultaneously.
 depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
-		for dir in $(SUBDIRS) cpu/$(CPU) $(dir $(LDSCRIPT)) ; do \
+		for dir in $(SUBDIRS) $(CPUDIR) $(dir $(LDSCRIPT)) ; do \
 			$(MAKE) -C $$dir _depend ; done
 
 TAG_SUBDIRS = $(SUBDIRS)

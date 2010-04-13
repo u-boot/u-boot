@@ -56,7 +56,7 @@ LDR_FLAGS-$(CONFIG_BFIN_BOOTROM_USES_EVT1) += -J
 
 LDR_FLAGS += --bmode $(subst BFIN_BOOT_,,$(CONFIG_BFIN_BOOT_MODE))
 LDR_FLAGS += --use-vmas
-LDR_FLAGS += --initcode $(obj)cpu/$(CPU)/initcode.o
+LDR_FLAGS += --initcode $(obj)$(CPUDIR)/initcode.o
 ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_UART)
 LDR_FLAGS-$(CONFIG_ENV_IS_EMBEDDED_IN_LDR) += \
 	--punchit $$(($(CONFIG_ENV_OFFSET))):$$(($(CONFIG_ENV_SIZE))):$(obj)env-ldr.o

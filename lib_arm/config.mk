@@ -63,4 +63,4 @@ ifeq (,$(findstring lib_arm/eabi_compat.o,$(PLATFORM_LIBS)))
 PLATFORM_LIBS += $(OBJTREE)/lib_arm/eabi_compat.o
 endif
 endif
-LDSCRIPT := $(SRCTREE)/cpu/$(CPU)/u-boot.lds
+LDSCRIPT := $(SRCTREE)/$(CPUDIR)/u-boot.lds

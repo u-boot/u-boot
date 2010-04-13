@@ -46,7 +46,7 @@ $(onenandobj)u-boot.lds:	$(LDSCRIPT)
 # from cpu directory
 $(obj)start.S:
 	@rm -f $@
-	ln -s $(SRCTREE)/cpu/$(CPU)/start.S $@
+	ln -s $(SRCTREE)/$(CPUDIR)/start.S $@
 
 # from onenand_ipl directory
 $(obj)onenand_ipl.h:

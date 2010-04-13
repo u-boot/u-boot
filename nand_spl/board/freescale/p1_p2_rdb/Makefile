@@ -29,7 +29,7 @@ PAD_TO := 0xfff01000
 
 include $(TOPDIR)/config.mk
 
-LDSCRIPT= $(TOPDIR)/cpu/$(CPU)/u-boot-nand_spl.lds
+LDSCRIPT= $(TOPDIR)/$(CPUDIR)/u-boot-nand_spl.lds
 LDFLAGS	= -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)
 AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
@@ -93,7 +93,7 @@ $(obj)ns16550.c:
 
 $(obj)resetvec.S:
 	@rm -f $(obj)resetvec.S
-	ln -s $(SRCTREE)/cpu/$(CPU)/resetvec.S $(obj)resetvec.S
+	ln -s $(SRCTREE)/$(CPUDIR)/resetvec.S $(obj)resetvec.S
 
 $(obj)fixed_ivor.S:
 	@rm -f $(obj)fixed_ivor.S

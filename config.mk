@@ -110,14 +110,15 @@ RANLIB	= $(CROSS_COMPILE)RANLIB
 # Load generated board configuration
 sinclude $(OBJTREE)/include/autoconf.mk
 
-ifdef	ARCH
+# Some architecture config.mk files need to know what CPUDIR is set to,
+# so calculate CPUDIR before including ARCH/SOC/CPU config.mk files.
+CPUDIR=cpu/$(CPU)
+
 sinclude $(TOPDIR)/lib_$(ARCH)/config.mk	# include architecture dependend rules
-endif
-ifdef	CPU
-sinclude $(TOPDIR)/cpu/$(CPU)/config.mk		# include  CPU	specific rules
-endif
+sinclude $(TOPDIR)/$(CPUDIR)/config.mk		# include  CPU	specific rules
+
 ifdef	SOC
-sinclude $(TOPDIR)/cpu/$(CPU)/$(SOC)/config.mk	# include  SoC	specific rules
+sinclude $(TOPDIR)/$(CPUDIR)/$(SOC)/config.mk	# include  SoC	specific rules
 endif
 ifdef	VENDOR
 BOARDDIR = $(VENDOR)/$(BOARD)

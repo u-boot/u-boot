@@ -27,7 +27,7 @@
 ifndef NAND_SPL
 ifeq ($(CONFIG_MK_NAND), y)
 TEXT_BASE = $(CONFIG_RAMBOOT_TEXT_BASE)
-LDSCRIPT := $(TOPDIR)/cpu/$(CPU)/u-boot-nand.lds
+LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
 endif
 endif
 
