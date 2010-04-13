@@ -55,8 +55,8 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mcf532x/start.o		(.text)
-    cpu/mcf532x/libmcf532x.a	(.text)
+    arch/m68k/cpu/mcf532x/start.o		(.text)
+    arch/m68k/cpu/mcf532x/libmcf532x.a	(.text)
     arch/m68k/lib/libm68k.a		(.text)
     common/dlmalloc.o		(.text)
     lib/zlib.o		(.text)

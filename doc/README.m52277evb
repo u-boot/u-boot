@@ -14,13 +14,13 @@ Changed files:
 - board/freescale/m52277evb/config.mk	config make
 - board/freescale/m52277evb/u-boot.lds	Linker description
 
-- cpu/mcf5227x/cpu.c		cpu specific code
-- cpu/mcf5227x/cpu_init.c	FBCS, Mux pins, icache and RTC extra regs
-- cpu/mcf5227x/interrupts.c	cpu specific interrupt support
-- cpu/mcf5227x/speed.c		system, flexbus, and cpu clock
-- cpu/mcf5227x/Makefile		Makefile
-- cpu/mcf5227x/config.mk	config make
-- cpu/mcf5227x/start.S		start up assembly code
+- arch/m68k/cpu/mcf5227x/cpu.c		cpu specific code
+- arch/m68k/cpu/mcf5227x/cpu_init.c	FBCS, Mux pins, icache and RTC extra regs
+- arch/m68k/cpu/mcf5227x/interrupts.c	cpu specific interrupt support
+- arch/m68k/cpu/mcf5227x/speed.c		system, flexbus, and cpu clock
+- arch/m68k/cpu/mcf5227x/Makefile		Makefile
+- arch/m68k/cpu/mcf5227x/config.mk	config make
+- arch/m68k/cpu/mcf5227x/start.S		start up assembly code
 
 - doc/README.m52277evb		This readme file
 

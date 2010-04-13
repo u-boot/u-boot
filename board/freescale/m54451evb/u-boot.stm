@@ -55,12 +55,12 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mcf5445x/start.o		(.text)
-/*    cpu/mcf5445x/cpu_init.o		(.text)
-    cpu/mcf5445x/cpu.o			(.text)
-    cpu/mcf5445x/dspi.o			(.text)
-    cpu/mcf5445x/interrupt.o		(.text)
-    cpu/mcf5445x/speed.o		(.text)
+    arch/m68k/cpu/mcf5445x/start.o		(.text)
+/*    arch/m68k/cpu/mcf5445x/cpu_init.o		(.text)
+    arch/m68k/cpu/mcf5445x/cpu.o			(.text)
+    arch/m68k/cpu/mcf5445x/dspi.o			(.text)
+    arch/m68k/cpu/mcf5445x/interrupt.o		(.text)
+    arch/m68k/cpu/mcf5445x/speed.o		(.text)
     arch/m68k/lib/board.o			(.text)
     common/serial.o			(.text)
     common/console.o			(.text)

@@ -55,7 +55,7 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mcf547x_8x/start.o		(.text)
+    arch/m68k/cpu/mcf547x_8x/start.o		(.text)
     arch/m68k/lib/traps.o		(.text)
     arch/m68k/lib/interrupts.o	(.text)
     common/dlmalloc.o		(.text)

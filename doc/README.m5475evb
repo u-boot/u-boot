@@ -15,14 +15,14 @@ Changed files:
 - board/freescale/m547xevb/config.mk	config make
 - board/freescale/m547xevb/u-boot.lds	Linker description
 
-- cpu/mcf547x_8x/cpu.c			cpu specific code
-- cpu/mcf547x_8x/cpu_init.c		Flexbus ChipSelect, Mux pins setup, icache and RTC extra regs
-- cpu/mcf547x_8x/interrupts.c		cpu specific interrupt support
-- cpu/mcf547x_8x/slicetimer.c		Timer support
-- cpu/mcf547x_8x/speed.c		system, pci, flexbus, and cpu clock
-- cpu/mcf547x_8x/Makefile		Makefile
-- cpu/mcf547x_8x/config.mk		config make
-- cpu/mcf547x_8x/start.S		start up assembly code
+- arch/m68k/cpu/mcf547x_8x/cpu.c			cpu specific code
+- arch/m68k/cpu/mcf547x_8x/cpu_init.c		Flexbus ChipSelect, Mux pins setup, icache and RTC extra regs
+- arch/m68k/cpu/mcf547x_8x/interrupts.c		cpu specific interrupt support
+- arch/m68k/cpu/mcf547x_8x/slicetimer.c		Timer support
+- arch/m68k/cpu/mcf547x_8x/speed.c		system, pci, flexbus, and cpu clock
+- arch/m68k/cpu/mcf547x_8x/Makefile		Makefile
+- arch/m68k/cpu/mcf547x_8x/config.mk		config make
+- arch/m68k/cpu/mcf547x_8x/start.S		start up assembly code
 
 - doc/README.m5475evb			This readme file
 

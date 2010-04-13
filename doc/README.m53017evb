@@ -15,13 +15,13 @@ Changed files:
 - board/freescale/m53017evb/config.mk	config make
 - board/freescale/m53017evb/u-boot.lds	Linker description
 
-- cpu/mcf532x/cpu.c			cpu specific code
-- cpu/mcf532x/cpu_init.c		FBCS, Mux pins, icache and RTC extra regs
-- cpu/mcf532x/interrupts.c		cpu specific interrupt support
-- cpu/mcf532x/speed.c			system, flexbus, and cpu clock
-- cpu/mcf532x/Makefile			Makefile
-- cpu/mcf532x/config.mk			config make
-- cpu/mcf532x/start.S			start up assembly code
+- arch/m68k/cpu/mcf532x/cpu.c			cpu specific code
+- arch/m68k/cpu/mcf532x/cpu_init.c		FBCS, Mux pins, icache and RTC extra regs
+- arch/m68k/cpu/mcf532x/interrupts.c		cpu specific interrupt support
+- arch/m68k/cpu/mcf532x/speed.c			system, flexbus, and cpu clock
+- arch/m68k/cpu/mcf532x/Makefile			Makefile
+- arch/m68k/cpu/mcf532x/config.mk			config make
+- arch/m68k/cpu/mcf532x/start.S			start up assembly code
 
 - doc/README.m53017evb			This readme file
 
