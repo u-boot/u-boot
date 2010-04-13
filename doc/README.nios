@@ -244,7 +244,7 @@ cover most of the individual functions to get you started.
 
 		(gdb) directory common
 		(gdb) directory cpu/nios
-		(gdb) directory lib_nios
+		(gdb) directory arch/nios/lib
 		(gdb) directory board/altera/dk1c20
 
 	Note that the last command is for the DK1C20 board only. If you

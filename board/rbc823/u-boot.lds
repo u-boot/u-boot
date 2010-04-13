@@ -57,7 +57,7 @@ SECTIONS
 
     cpu/mpc8xx/start.o	(.text)
     common/dlmalloc.o	(.text)
-    lib_ppc/ppcstring.o	(.text)
+    arch/ppc/lib/ppcstring.o	(.text)
     lib_generic/vsprintf.o	(.text)
     lib_generic/crc32.o		(.text)
     lib_generic/zlib.o		(.text)

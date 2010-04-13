@@ -182,19 +182,19 @@ Directory Hierarchy:
 - examples	Example code for standalone applications, etc.
 - fs		Filesystem code (cramfs, ext2, jffs2, etc.)
 - include	Header Files
-- lib_arm	Files generic to ARM	 architecture
-- lib_avr32	Files generic to AVR32	 architecture
-- lib_blackfin	Files generic to Blackfin architecture
+- arch/arm/lib	Files generic to ARM	 architecture
+- arch/avr32/lib	Files generic to AVR32	 architecture
+- arch/blackfin/lib	Files generic to Blackfin architecture
 - lib_generic	Files generic to all	 architectures
-- lib_i386	Files generic to i386	 architecture
-- lib_m68k	Files generic to m68k	 architecture
-- lib_microblaze Files generic to microblaze architecture
-- lib_mips	Files generic to MIPS	 architecture
-- lib_nios	Files generic to NIOS	 architecture
-- lib_nios2	Files generic to NIOS2	 architecture
-- lib_ppc	Files generic to PowerPC architecture
-- lib_sh	Files generic to SH	 architecture
-- lib_sparc	Files generic to SPARC	 architecture
+- arch/i386/lib	Files generic to i386	 architecture
+- arch/m68k/lib	Files generic to m68k	 architecture
+- arch/microblaze/lib Files generic to microblaze architecture
+- arch/mips/lib	Files generic to MIPS	 architecture
+- arch/nios/lib	Files generic to NIOS	 architecture
+- arch/nios/lib2	Files generic to NIOS2	 architecture
+- arch/ppc/lib	Files generic to PowerPC architecture
+- arch/sh/lib	Files generic to SH	 architecture
+- arch/sparc/lib	Files generic to SPARC	 architecture
 - libfdt	Library files to support flattened device trees
 - net		Networking code
 - post		Power On Self Test
@@ -1940,9 +1940,9 @@ Legacy uImage format:
    13	common/image.c		Start multifile image verification
    14	common/image.c		No initial ramdisk, no multifile, continue.
 
-   15	lib_<arch>/bootm.c	All preparation done, transferring control to OS
+   15	arch/<arch>/lib/bootm.c	All preparation done, transferring control to OS
 
-  -30	lib_ppc/board.c		Fatal error, hang the system
+  -30	arch/ppc/lib/board.c		Fatal error, hang the system
   -31	post/post.c		POST test failed, detected by post_output_backlog()
   -32	post/post.c		POST test failed, detected by post_run_single()
 

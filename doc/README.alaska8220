@@ -22,7 +22,7 @@ Changed files:
 - include/asm-ppc/global_data.h added global variables - inp_clk, pci_clk,
 			    vco_clk, pev_clk, flb_clk, and bExtUart
 
-- lib_ppc/board.c	    added CONFIG_MPC8220 support
+- arch/ppc/lib/board.c	    added CONFIG_MPC8220 support
 
 - net/eth.c		    added FEC support for MPC8220
 

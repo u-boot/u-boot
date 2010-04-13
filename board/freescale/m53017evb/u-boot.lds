@@ -57,7 +57,7 @@ SECTIONS
 
     cpu/mcf532x/start.o		(.text)
     cpu/mcf532x/libmcf532x.a	(.text)
-    lib_m68k/libm68k.a		(.text)
+    arch/m68k/lib/libm68k.a		(.text)
     common/dlmalloc.o		(.text)
     lib_generic/zlib.o		(.text)
 

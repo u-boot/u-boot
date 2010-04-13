@@ -56,8 +56,8 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     cpu/mcf547x_8x/start.o		(.text)
-    lib_m68k/traps.o		(.text)
-    lib_m68k/interrupts.o	(.text)
+    arch/m68k/lib/traps.o		(.text)
+    arch/m68k/lib/interrupts.o	(.text)
     common/dlmalloc.o		(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;

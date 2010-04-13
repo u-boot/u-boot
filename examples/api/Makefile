@@ -47,7 +47,7 @@ EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/string.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/time.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/vsprintf.o
 ifeq ($(ARCH),ppc)
-EXT_SOBJ_FILES-$(CONFIG_API) += lib_ppc/ppcstring.o
+EXT_SOBJ_FILES-$(CONFIG_API) += arch/ppc/lib/ppcstring.o
 endif
 
 # Create a list of source files so their dependencies can be auto-generated
@@ -79,7 +79,7 @@ $(obj)%.o: $(SRCTREE)/lib_generic/%.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
 # Rule to build architecture-specific library assembly files
-$(obj)%.o: $(SRCTREE)/lib_$(ARCH)/%.S
+$(obj)%.o: $(SRCTREE)/arch/$(ARCH)/lib/%.S
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
 #########################################################################

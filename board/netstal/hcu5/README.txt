@@ -109,7 +109,7 @@ _start:
 	call cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 
     call cpu_init_f
-    board_init_f: (lib_ppc\board.c)
+    board_init_f: (arch/ppc/lib\board.c)
 	init_sequence defines a list of function to be called
 	    board_early_init_f: (board/netstal/hcu5/hcu5.c)
 		We are using Bootstrap-Option A
@@ -141,7 +141,7 @@ _start:
 From now on our copy is in RAM and we will run from there,
 	starting with board_init_r
 -------------------------------------------------------
-    board_init_r: (lib_ppc\board.c)
+    board_init_r: (arch/ppc/lib\board.c)
 	setup bd function pointers
 	trap_init
 	flash_init: (board/netstal/hcu5/flash.c)
@@ -162,7 +162,7 @@ Most of the HW specific code for the HCU5 may be found in
 include/configs/hcu5.h
 board/netstal/hcu5/*
 cpu/ppc4xx/*
-lib_ppc/*
+arch/ppc/lib/*
 include/ppc440.h
 
 Drivers for serial etc are found under drivers/

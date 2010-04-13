@@ -53,8 +53,8 @@ SECTIONS
   .text      :
   {
     cpu/mpc824x/start.o		(.text)
-    lib_ppc/board.o		(.text)
-    lib_ppc/ppcstring.o		(.text)
+    arch/ppc/lib/board.o		(.text)
+    arch/ppc/lib/ppcstring.o		(.text)
     lib_generic/vsprintf.o	(.text)
     lib_generic/crc32.o		(.text)
     lib_generic/zlib.o		(.text)

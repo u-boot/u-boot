@@ -60,7 +60,7 @@ SECTIONS
     cpu/mcf523x/cpu_init.o	(.text)
     cpu/mcf523x/interrupts.o	(.text)
     cpu/mcf523x/speed.o		(.text)
-    lib_m68k/libm68k.a		(.text)
+    arch/m68k/lib/libm68k.a		(.text)
     common/dlmalloc.o		(.text)
     common/cmd_bootm.o		(.text)
     common/cmd_flash.o		(.text)

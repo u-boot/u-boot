@@ -90,15 +90,15 @@ $(obj)nand_init.c:
 
 $(obj)cache.c:
 	@rm -f $@
-	ln -s $(SRCTREE)/lib_ppc/cache.c $@
+	ln -s $(SRCTREE)/arch/ppc/lib/cache.c $@
 
 $(obj)time.c:
 	@rm -f $@
-	ln -s $(SRCTREE)/lib_ppc/time.c $@
+	ln -s $(SRCTREE)/arch/ppc/lib/time.c $@
 
 $(obj)ticks.S:
 	@rm -f $@
-	ln -s $(SRCTREE)/lib_ppc/ticks.S $@
+	ln -s $(SRCTREE)/arch/ppc/lib/ticks.S $@
 
 #########################################################################
 

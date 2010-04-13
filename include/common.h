@@ -230,7 +230,7 @@ int	parse_line (char *, char *[]);
 void	init_cmd_timeout(void);
 void	reset_cmd_timeout(void);
 
-/* lib_$(ARCH)/board.c */
+/* arch/$(ARCH)/lib/board.c */
 void	board_init_f  (ulong) __attribute__ ((noreturn));
 void	board_init_r  (gd_t *, ulong) __attribute__ ((noreturn));
 int	checkboard    (void);
@@ -604,17 +604,17 @@ ulong	vfd_setmem (ulong);
 /* $(CPU)/.../video.c */
 ulong	video_setmem (ulong);
 
-/* lib_$(ARCH)/cache.c */
+/* arch/$(ARCH)/lib/cache.c */
 void	flush_cache   (unsigned long, unsigned long);
 void	flush_dcache_range(unsigned long start, unsigned long stop);
 void	invalidate_dcache_range(unsigned long start, unsigned long stop);
 
 
-/* lib_$(ARCH)/ticks.S */
+/* arch/$(ARCH)/lib/ticks.S */
 unsigned long long get_ticks(void);
 void	wait_ticks    (unsigned long);
 
-/* lib_$(ARCH)/time.c */
+/* arch/$(ARCH)/lib/time.c */
 void	__udelay      (unsigned long);
 ulong	usec2ticks    (unsigned long usec);
 ulong	ticks2usec    (unsigned long ticks);

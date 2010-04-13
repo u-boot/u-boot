@@ -33,7 +33,7 @@ SECTIONS
 		cpu/ixp/start.o(.text)
 		lib_generic/string.o(.text)
 		lib_generic/vsprintf.o(.text)
-		lib_arm/board.o(.text)
+		arch/arm/lib/board.o(.text)
 		common/dlmalloc.o(.text)
 		cpu/ixp/cpu.o(.text)
 

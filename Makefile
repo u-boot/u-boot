@@ -195,7 +195,7 @@ endif
 ifeq ($(CPU),ixp)
 LIBS += cpu/ixp/npe/libnpe.a
 endif
-LIBS += lib_$(ARCH)/lib$(ARCH).a
+LIBS += arch/$(ARCH)/lib/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
 	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a fs/yaffs2/libyaffs2.a \
 	fs/ubifs/libubifs.a
@@ -257,7 +257,7 @@ LIBBOARD := $(addprefix $(obj),$(LIBBOARD))
 # Add GCC lib
 ifdef USE_PRIVATE_LIBGCC
 ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
-PLATFORM_LIBGCC = -L $(OBJTREE)/lib_$(ARCH) -lgcc
+PLATFORM_LIBGCC = -L $(OBJTREE)/arch/$(ARCH)/lib -lgcc
 else
 PLATFORM_LIBGCC = -L $(USE_PRIVATE_LIBGCC) -lgcc
 endif
@@ -3743,7 +3743,7 @@ clean:
 	       $(obj)board/netstar/{eeprom,crcek,crcit,*.srec,*.bin}	  \
 	       $(obj)board/trab/trab_fkt   $(obj)board/voiceblue/eeprom   \
 	       $(obj)board/armltd/{integratorap,integratorcp}/u-boot.lds  \
-	       $(obj)lib_blackfin/u-boot.lds				  \
+	       $(obj)arch/blackfin/lib/u-boot.lds				  \
 	       $(obj)u-boot.lds						  \
 	       $(obj)cpu/blackfin/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h

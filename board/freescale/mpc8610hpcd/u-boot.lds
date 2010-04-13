@@ -58,7 +58,7 @@ SECTIONS
     cpu/mpc86xx/speed.o (.text)
     common/dlmalloc.o (.text)
     lib_generic/crc32.o (.text)
-    lib_ppc/extable.o (.text)
+    arch/ppc/lib/extable.o (.text)
     lib_generic/zlib.o (.text)
     *(.text)
     *(.got1)

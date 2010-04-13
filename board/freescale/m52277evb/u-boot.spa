@@ -57,7 +57,7 @@ SECTIONS
 
     cpu/mcf5227x/start.o	(.text)
     cpu/mcf5227x/libmcf5227x.a	(.text)
-    lib_m68k/libm68k.a		(.text)
+    arch/m68k/lib/libm68k.a		(.text)
     lib_generic/libgeneric.a	(.text)
     common/cmd_mem.o		(.text)
     common/main.o		(.text)

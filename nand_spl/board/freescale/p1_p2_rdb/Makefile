@@ -64,7 +64,7 @@ $(nandobj)u-boot-spl:	$(OBJS)
 
 $(obj)cache.c:
 	@rm -f $(obj)cache.c
-	ln -sf $(SRCTREE)/lib_ppc/cache.c $(obj)cache.c
+	ln -sf $(SRCTREE)/arch/ppc/lib/cache.c $(obj)cache.c
 
 $(obj)cpu_init_early.c:
 	@rm -f $(obj)cpu_init_early.c

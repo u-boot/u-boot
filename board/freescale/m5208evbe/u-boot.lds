@@ -57,7 +57,7 @@ SECTIONS
 
     cpu/mcf52x2/start.o		(.text)
     cpu/mcf52x2/libmcf52x2.a	(.text)
-    lib_m68k/libm68k.a		(.text)
+    arch/m68k/lib/libm68k.a		(.text)
     common/dlmalloc.o		(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;

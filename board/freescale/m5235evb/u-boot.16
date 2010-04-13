@@ -57,8 +57,8 @@ SECTIONS
 
     cpu/mcf523x/start.o		(.text)
     cpu/mcf523x/cpu_init.o	(.text)
-    lib_m68k/traps.o		(.text)
-    lib_m68k/interrupts.o	(.text)
+    arch/m68k/lib/traps.o		(.text)
+    arch/m68k/lib/interrupts.o	(.text)
     common/dlmalloc.o		(.text)
     lib_generic/zlib.o		(.text)
 

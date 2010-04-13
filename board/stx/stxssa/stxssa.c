@@ -259,7 +259,7 @@ board_early_init_f(void)
 #endif
 
 	/* Why is the phy reset done _after_ the ethernet
-	 * initialization in lib_ppc/board.c?
+	 * initialization in arch/ppc/lib/board.c?
 	 * Do it here so it's done before the TSECs are used.
 	 */
 	reset_phy();

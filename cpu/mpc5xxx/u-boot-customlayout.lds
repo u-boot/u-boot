@@ -58,8 +58,8 @@ SECTIONS
     cpu/mpc5xxx/start.o          (.text)
     cpu/mpc5xxx/traps.o          (.text)
     lib_generic/crc32.o         (.text)
-    lib_ppc/cache.o             (.text)
-    lib_ppc/time.o              (.text)
+    arch/ppc/lib/cache.o             (.text)
+    arch/ppc/lib/time.o              (.text)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o        (.ppcenv)

@@ -34,9 +34,9 @@ u-boot-0.2.0/include/mpc5xx.h
 u-boot-0.2.0/include/status_led.h
 u-boot-0.2.0/include/asm-ppc/u-boot.h
 u-boot-0.2.0/include/asm-ppc/5xx_immap.h
-u-boot-0.2.0/lib_ppc/board.c
-u-boot-0.2.0/lib_ppc/cache.c
-u-boot-0.2.0/lib_ppc/time.c
+u-boot-0.2.0/arch/ppc/lib/board.c
+u-boot-0.2.0/arch/ppc/lib/cache.c
+u-boot-0.2.0/arch/ppc/lib/time.c
 u-boot-0.2.0/Makefile
 u-boot-0.2.0/CREDITS
 u-boot-0.2.0/doc/README.mpc5xx

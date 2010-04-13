@@ -84,13 +84,13 @@ $(obj)nand_init.c:
 	ln -sf $(SRCTREE)/cpu/mpc83xx/nand_init.c $(obj)nand_init.c
 
 $(obj)cache.c:
-	ln -sf $(SRCTREE)/lib_ppc/cache.c $(obj)cache.c
+	ln -sf $(SRCTREE)/arch/ppc/lib/cache.c $(obj)cache.c
 
 $(obj)time.c:
-	ln -sf $(SRCTREE)/lib_ppc/time.c $(obj)time.c
+	ln -sf $(SRCTREE)/arch/ppc/lib/time.c $(obj)time.c
 
 $(obj)ticks.S:
-	ln -sf $(SRCTREE)/lib_ppc/ticks.S $(obj)ticks.S
+	ln -sf $(SRCTREE)/arch/ppc/lib/ticks.S $(obj)ticks.S
 
 #########################################################################
 

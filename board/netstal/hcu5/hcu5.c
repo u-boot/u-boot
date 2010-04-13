@@ -49,7 +49,7 @@ extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 
 /*
  * This function is run very early, out of flash, and before devices are
- * initialized. It is called by lib_ppc/board.c:board_init_f by virtue
+ * initialized. It is called by arch/ppc/lib/board.c:board_init_f by virtue
  * of being in the init_sequence array.
  *
  * The SDRAM has been initialized already -- start.S:start called

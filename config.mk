@@ -114,7 +114,7 @@ sinclude $(OBJTREE)/include/autoconf.mk
 # so calculate CPUDIR before including ARCH/SOC/CPU config.mk files.
 CPUDIR=cpu/$(CPU)
 
-sinclude $(TOPDIR)/lib_$(ARCH)/config.mk	# include architecture dependend rules
+sinclude $(TOPDIR)/arch/$(ARCH)/config.mk	# include architecture dependend rules
 sinclude $(TOPDIR)/$(CPUDIR)/config.mk		# include  CPU	specific rules
 
 ifdef	SOC

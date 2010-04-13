@@ -61,7 +61,7 @@ SECTIONS
     cpu/mcf5445x/dspi.o			(.text)
     cpu/mcf5445x/interrupt.o		(.text)
     cpu/mcf5445x/speed.o		(.text)
-    lib_m68k/board.o			(.text)
+    arch/m68k/lib/board.o			(.text)
     common/serial.o			(.text)
     common/console.o			(.text)
     lib_generic/display_options.o	(.text)

@@ -56,7 +56,7 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     cpu/mcf52x2/start.o		(.text)
-    lib_m68k/traps.o		(.text)
+    arch/m68k/lib/traps.o		(.text)
     cpu/mcf52x2/interrupts.o	(.text)
     common/dlmalloc.o		(.text)
     lib_generic/zlib.o		(.text)

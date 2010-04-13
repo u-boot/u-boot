@@ -207,7 +207,7 @@
 */
 
 /*
-	Linux TAGs (see lib_arm/armlinux.c)
+	Linux TAGs (see arch/arm/lib/armlinux.c)
 */
 #define CONFIG_CMDLINE_TAG
 #undef CONFIG_SETUP_MEMORY_TAGS

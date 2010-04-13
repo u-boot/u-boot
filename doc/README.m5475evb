@@ -58,11 +58,11 @@ Changed files:
 
 - include/configs/M5475EVB.h		Board specific configuration file
 
-- lib_m68k/board.c			board init function
-- lib_m68k/cache.c
-- lib_m68k/interrupts			Coldfire common interrupt functions
-- lib_m68k/m68k_linux.c
-- lib_m68k/traps.c			Exception init code
+- arch/m68k/lib/board.c			board init function
+- arch/m68k/lib/cache.c
+- arch/m68k/lib/interrupts			Coldfire common interrupt functions
+- arch/m68k/lib/m68k_linux.c
+- arch/m68k/lib/traps.c			Exception init code
 
 1 MCF547x specific Options/Settings
 ====================================

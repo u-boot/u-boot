@@ -57,7 +57,7 @@ SECTIONS
 
     cpu/mcf5445x/start.o		(.text)
     cpu/mcf5445x/libmcf5445x.a	(.text)
-    lib_m68k/libm68k.a		(.text)
+    arch/m68k/lib/libm68k.a		(.text)
     common/cmd_flash.o		(.text)
     common/dlmalloc.o		(.text)
     common/main.o		(.text)

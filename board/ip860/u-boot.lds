@@ -57,10 +57,10 @@ SECTIONS
 
     cpu/mpc8xx/start.o	(.text)
     common/dlmalloc.o	(.text)
-    lib_ppc/ppcstring.o	(.text)
+    arch/ppc/lib/ppcstring.o	(.text)
     cpu/mpc8xx/interrupts.o (.text)
-    lib_ppc/time.o		(.text)
-    lib_ppc/ticks.o		(.text)
+    arch/ppc/lib/time.o		(.text)
+    arch/ppc/lib/ticks.o		(.text)
 /**
     . = env_offset;
     common/env_embedded.o(.text)
