@@ -190,7 +190,7 @@
 
 /*
  * Backward compatible definitions,
- * so we do not have to change cpu/mpc512x/fixed_sdram.c
+ * so we do not have to change arch/ppc/cpu/mpc512x/fixed_sdram.c
  */
 #define	CONFIG_SYS_DDRCMD_EM2		(CONFIG_SYS_MICRON_EMR2)
 #define CONFIG_SYS_DDRCMD_EM3		(CONFIG_SYS_MICRON_EMR3)

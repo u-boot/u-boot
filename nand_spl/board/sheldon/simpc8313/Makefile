@@ -66,7 +66,7 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 
 $(obj)start.S:
 	@rm -f $@
-	ln -s $(SRCTREE)/cpu/mpc83xx/start.S $@
+	ln -s $(SRCTREE)/arch/ppc/cpu/mpc83xx/start.S $@
 
 $(obj)nand_boot_fsl_elbc.c:
 	@rm -f $@
@@ -86,7 +86,7 @@ $(obj)ns16550.c:
 
 $(obj)nand_init.c:
 	@rm -f $@
-	ln -s $(SRCTREE)/cpu/mpc83xx/nand_init.c $@
+	ln -s $(SRCTREE)/arch/ppc/cpu/mpc83xx/nand_init.c $@
 
 $(obj)cache.c:
 	@rm -f $@

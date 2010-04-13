@@ -1,5 +1,5 @@
 /* The dpalloc function used and implemented in this file was derieved
- * from PPCBoot/U-Boot file "cpu/mpc8260/commproc.c".
+ * from PPCBoot/U-Boot file "arch/ppc/cpu/mpc8260/commproc.c".
  */
 
 /* Author: Arun Dharankar <ADharankar@ATTBI.Com>

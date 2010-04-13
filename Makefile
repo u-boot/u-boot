@@ -227,12 +227,12 @@ LIBS += drivers/qe/qe.a
 endif
 ifeq ($(CPU),mpc85xx)
 LIBS += drivers/qe/qe.a
-LIBS += cpu/mpc8xxx/ddr/libddr.a
-LIBS += cpu/mpc8xxx/lib8xxx.a
+LIBS += arch/ppc/cpu/mpc8xxx/ddr/libddr.a
+LIBS += arch/ppc/cpu/mpc8xxx/lib8xxx.a
 endif
 ifeq ($(CPU),mpc86xx)
-LIBS += cpu/mpc8xxx/ddr/libddr.a
-LIBS += cpu/mpc8xxx/lib8xxx.a
+LIBS += arch/ppc/cpu/mpc8xxx/ddr/libddr.a
+LIBS += arch/ppc/cpu/mpc8xxx/lib8xxx.a
 endif
 LIBS += drivers/rtc/librtc.a
 LIBS += drivers/serial/libserial.a
@@ -3768,7 +3768,7 @@ clobber:	clean
 	@rm -f $(obj)u-boot.kwb
 	@rm -f $(obj)u-boot.imx
 	@rm -f $(obj)tools/{env/crc32.c,inca-swap-bytes}
-	@rm -f $(obj)cpu/mpc824x/bedbug_603e.c
+	@rm -f $(obj)arch/ppc/cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -name "*" -type l -print | xargs rm -f
 	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -name "*" -type l -print | xargs rm -f

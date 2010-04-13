@@ -55,9 +55,9 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mpc8xx/start.o	(.text)
+    arch/ppc/cpu/mpc8xx/start.o	(.text)
     arch/ppc/lib/ppcstring.o	(.text)
-    cpu/mpc8xx/interrupts.o (.text)
+    arch/ppc/cpu/mpc8xx/interrupts.o (.text)
     arch/ppc/lib/time.o		(.text)
     arch/ppc/lib/ticks.o		(.text)
 /**

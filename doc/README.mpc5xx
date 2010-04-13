@@ -25,7 +25,7 @@ Added or Changed Files:
 u-boot-0.2.0/common/cmd_boot.c
 u-boot-0.2.0/common/cmd_reginfo.c
 u-boot-0.2.0/common/environment.c
-u-boot-0.2.0/cpu/mpc5xx/*
+u-boot-0.2.0/arch/ppc/cpu/mpc5xx/*
 u-boot-0.2.0/include/cmd_reginfo.h
 u-boot-0.2.0/include/common.h
 u-boot-0.2.0/include/ppc_asm.tmpl

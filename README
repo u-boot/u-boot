@@ -1393,7 +1393,7 @@ The following options need to be configured:
 		to run and CONFIG_SYS_I2C_SLAVE to be the address of this node (ie
 		the CPU's i2c node address).
 
-		Now, the u-boot i2c code for the mpc8xx (cpu/mpc8xx/i2c.c)
+		Now, the u-boot i2c code for the mpc8xx (arch/ppc/cpu/mpc8xx/i2c.c)
 		sets the CPU up as a master node and so its address should
 		therefore be cleared to 0 (See, eg, MPC823e User's Manual
 		p.16-473). So, set CONFIG_SYS_I2C_SLAVE to 0.
@@ -2703,7 +2703,7 @@ Low Level (hardware related) configuration options:
   CONFIG_SYS_PCI_MSTR_MEMIO_SIZE, CONFIG_SYS_POCMR1_MASK_ATTRIB, CONFIG_SYS_PCI_MSTR_IO_LOCAL,
   CONFIG_SYS_PCI_MSTR_IO_BUS, CONFIG_SYS_CPU_PCI_IO_START, CONFIG_SYS_PCI_MSTR_IO_SIZE,
   CONFIG_SYS_POCMR2_MASK_ATTRIB: (MPC826x only)
-		Overrides the default PCI memory map in cpu/mpc8260/pci.c if set.
+		Overrides the default PCI memory map in arch/ppc/cpu/mpc8260/pci.c if set.
 
 - CONFIG_PCI_DISABLE_PCIE:
 		Disable PCI-Express on systems where it is supported but not

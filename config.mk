@@ -112,7 +112,12 @@ sinclude $(OBJTREE)/include/autoconf.mk
 
 # Some architecture config.mk files need to know what CPUDIR is set to,
 # so calculate CPUDIR before including ARCH/SOC/CPU config.mk files.
-CPUDIR=cpu/$(CPU)
+# Check if arch/$ARCH/cpu/$CPU exists, otherwise assume arch/$ARCH/cpu contains
+# CPU-specific code.
+CPUDIR=arch/$(ARCH)/cpu/$(CPU)
+ifneq ($(SRCTREE)/$(CPUDIR),$(wildcard $(SRCTREE)/$(CPUDIR)))
+CPUDIR=arch/$(ARCH)/cpu
+endif
 
 sinclude $(TOPDIR)/arch/$(ARCH)/config.mk	# include architecture dependend rules
 sinclude $(TOPDIR)/$(CPUDIR)/config.mk		# include  CPU	specific rules
