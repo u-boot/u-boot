@@ -1,9 +1,6 @@
 /*
- * Copyright (C) 2007
- * Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
- *
- * Copyright (C) 2008-2009
- * Yoshihiro Shimoda <shimoda.yoshihiro@renesas.com>
+ * Copyright (C) 2008 Nobuhiro Iwamatsu
+ * Copyright (C) 2008 Renesas Solutions Corp.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -41,7 +38,7 @@ SECTIONS
 
 	.text :
 	{
-		cpu/sh4/start.o		(.text)
+		arch/sh/cpu/sh2/start.o		(.text)
 		. = ALIGN(8192);
 		common/env_embedded.o	(.ppcenv)
 		. = ALIGN(8192);
@@ -84,11 +81,10 @@ SECTIONS
 	PROVIDE (__u_boot_cmd_end = .);
 
 	PROVIDE (reloc_dst_end = .);
-	/* _reloc_dst_end = .; */
 
 	PROVIDE (bss_start = .);
 	PROVIDE (__bss_start = .);
-	.bss (NOLOAD) :
+	.bss :
 	{
 		*(.bss)
 		. = ALIGN(4);
