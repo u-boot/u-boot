@@ -27,9 +27,9 @@
 #include <common.h>
 #include <nand.h>
 #ifdef CONFIG_MX31
-#include <asm-arm/arch/mx31-regs.h>
+#include <asm/arch/mx31-regs.h>
 #else
-#include <asm-arm/arch/imx-regs.h>
+#include <asm/arch/imx-regs.h>
 #endif
 #include <asm/io.h>
 #include <fsl_nfc.h>

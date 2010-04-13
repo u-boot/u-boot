@@ -25,7 +25,7 @@
 #include <config.h>
 #include <command.h>
 #include <asm/blackfin.h>
-#include <asm-blackfin/string.h>
+#include <asm/string.h>
 #ifdef CONFIG_BF537_STAMP_LEDCMD
 
 /* Define the command usage in a reusable way */

@@ -22,7 +22,7 @@
 #include  <ppc4xx.h>
 #include  <asm/processor.h>
 #include  <asm/io.h>
-#include  <asm-ppc/u-boot.h>
+#include  <asm/u-boot.h>
 #include  "../common/nm.h"
 
 DECLARE_GLOBAL_DATA_PTR;

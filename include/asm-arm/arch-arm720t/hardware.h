@@ -25,7 +25,7 @@
  */
 
 #if defined(CONFIG_NETARM)
-#include <asm-arm/arch-arm720t/netarm_registers.h>
+#include <asm/arch-arm720t/netarm_registers.h>
 #elif defined(CONFIG_IMPA7)
 /* include IMPA7 specific hardware file if there was one */
 #elif defined(CONFIG_EP7312)

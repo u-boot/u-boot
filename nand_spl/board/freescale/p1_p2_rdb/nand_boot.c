@@ -20,7 +20,7 @@
  */
 #include <common.h>
 #include <mpc85xx.h>
-#include <asm-ppc/io.h>
+#include <asm/io.h>
 #include <ns16550.h>
 #include <nand.h>
 #include <asm/mmu.h>

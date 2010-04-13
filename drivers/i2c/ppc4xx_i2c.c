@@ -30,7 +30,7 @@
 #include <ppc4xx.h>
 #include <4xx_i2c.h>
 #include <i2c.h>
-#include <asm-ppc/io.h>
+#include <asm/io.h>
 
 #ifdef CONFIG_HARD_I2C
 

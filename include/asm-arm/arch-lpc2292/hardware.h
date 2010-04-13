@@ -25,7 +25,7 @@
  */
 
 #if defined(CONFIG_LPC2292)
-#include <asm-arm/arch-lpc2292/lpc2292_registers.h>
+#include <asm/arch-lpc2292/lpc2292_registers.h>
 #else
 #error No hardware file defined for this configuration
 #endif

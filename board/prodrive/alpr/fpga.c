@@ -30,7 +30,7 @@
 #include <altera.h>
 #include <ACEX1K.h>
 #include <command.h>
-#include <asm-ppc/processor.h>
+#include <asm/processor.h>
 #include <ppc440.h>
 #include "fpga.h"
 

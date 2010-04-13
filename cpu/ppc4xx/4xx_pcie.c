@@ -29,7 +29,7 @@
 #include <pci.h>
 #include <ppc4xx.h>
 #include <asm/processor.h>
-#include <asm-ppc/io.h>
+#include <asm/io.h>
 #include <asm/errno.h>
 
 #if (defined(CONFIG_440SPE) || defined(CONFIG_405EX) ||	\
