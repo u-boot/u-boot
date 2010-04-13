@@ -23,9 +23,9 @@ include $(TOPDIR)/config.mk
 BIN_FILES-y += imls
 
 # Source files which exist outside the tools/imls directory
-EXT_OBJ_FILES-y += lib_generic/crc32.o
-EXT_OBJ_FILES-y += lib_generic/md5.o
-EXT_OBJ_FILES-y += lib_generic/sha1.o
+EXT_OBJ_FILES-y += lib/crc32.o
+EXT_OBJ_FILES-y += lib/md5.o
+EXT_OBJ_FILES-y += lib/sha1.o
 EXT_OBJ_FILES-y += common/image.o
 
 # Source files located in the tools/imls directory
@@ -78,7 +78,7 @@ $(obj)imls.o: $(SRCTREE)/tools/imls/imls.c
 $(obj)%.o: $(SRCTREE)/common/%.c
 	$(CC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
-$(obj)%.o: $(SRCTREE)/lib_generic/%.c
+$(obj)%.o: $(SRCTREE)/lib/%.c
 	$(CC) -g $(HOSTCFLAGS) -c -o $@ $<
 
 $(obj)%.o: $(SRCTREE)/libfdt/%.c

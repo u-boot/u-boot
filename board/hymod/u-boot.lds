@@ -59,9 +59,9 @@ SECTIONS
 /*
     common/dlmalloc.o	(.text)
     arch/ppc/lib/ppcstring.o	(.text)
-    lib_generic/vsprintf.o	(.text)
-    lib_generic/crc32.o		(.text)
-    lib_generic/zlib.o		(.text)
+    lib/vsprintf.o	(.text)
+    lib/crc32.o		(.text)
+    lib/zlib.o		(.text)
 
     . = env_offset;
 */

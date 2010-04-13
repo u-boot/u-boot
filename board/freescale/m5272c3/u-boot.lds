@@ -59,7 +59,7 @@ SECTIONS
     arch/m68k/lib/traps.o		(.text)
     cpu/mcf52x2/interrupts.o	(.text)
     common/dlmalloc.o		(.text)
-    lib_generic/zlib.o		(.text)
+    lib/zlib.o		(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.text)

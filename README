@@ -185,7 +185,7 @@ Directory Hierarchy:
 - arch/arm/lib	Files generic to ARM	 architecture
 - arch/avr32/lib	Files generic to AVR32	 architecture
 - arch/blackfin/lib	Files generic to Blackfin architecture
-- lib_generic	Files generic to all	 architectures
+- lib	Files generic to all	 architectures
 - arch/i386/lib	Files generic to i386	 architecture
 - arch/m68k/lib	Files generic to m68k	 architecture
 - arch/microblaze/lib Files generic to microblaze architecture

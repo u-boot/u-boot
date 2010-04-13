@@ -31,8 +31,8 @@ SECTIONS
 	. = ALIGN (4);
 	.text : {
 		cpu/ixp/start.o(.text)
-		lib_generic/string.o(.text)
-		lib_generic/vsprintf.o(.text)
+		lib/string.o(.text)
+		lib/vsprintf.o(.text)
 		arch/arm/lib/board.o(.text)
 		common/dlmalloc.o(.text)
 		cpu/ixp/cpu.o(.text)

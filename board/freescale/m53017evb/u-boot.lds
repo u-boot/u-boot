@@ -59,7 +59,7 @@ SECTIONS
     cpu/mcf532x/libmcf532x.a	(.text)
     arch/m68k/lib/libm68k.a		(.text)
     common/dlmalloc.o		(.text)
-    lib_generic/zlib.o		(.text)
+    lib/zlib.o		(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.text)

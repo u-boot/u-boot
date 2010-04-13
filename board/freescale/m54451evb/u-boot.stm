@@ -64,7 +64,7 @@ SECTIONS
     arch/m68k/lib/board.o			(.text)
     common/serial.o			(.text)
     common/console.o			(.text)
-    lib_generic/display_options.o	(.text)
+    lib/display_options.o	(.text)
     board/freescale/m54455evb/m54455evb.o	(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;

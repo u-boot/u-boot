@@ -40,12 +40,12 @@ COBJ_FILES-$(CONFIG_API) += glue.o
 COBJ_FILES-$(CONFIG_API) += libgenwrap.o
 
 # Source files which exist outside the examples/api directory
-EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/crc32.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/ctype.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/div64.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/string.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/time.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/vsprintf.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib/crc32.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib/ctype.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib/div64.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib/string.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib/time.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib/vsprintf.o
 ifeq ($(ARCH),ppc)
 EXT_SOBJ_FILES-$(CONFIG_API) += arch/ppc/lib/ppcstring.o
 endif
@@ -75,7 +75,7 @@ $(OUTPUT):	$(OBJS)
 		$(OBJCOPY) -O binary $@ $(OUTPUT).bin 2>/dev/null
 
 # Rule to build generic library C files
-$(obj)%.o: $(SRCTREE)/lib_generic/%.c
+$(obj)%.o: $(SRCTREE)/lib/%.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
 # Rule to build architecture-specific library assembly files

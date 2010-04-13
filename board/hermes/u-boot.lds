@@ -61,7 +61,7 @@ SECTIONS
     arch/ppc/lib/time.o		(.text)
     arch/ppc/lib/ticks.o		(.text)
     arch/ppc/lib/cache.o		(.text)
-    lib_generic/crc32.o		(.text)
+    lib/crc32.o		(.text)
     . = env_offset;
     common/env_embedded.o(.text)
 

@@ -57,7 +57,7 @@ SECTIONS
 
     cpu/mpc5xxx/start.o          (.text)
     cpu/mpc5xxx/traps.o          (.text)
-    lib_generic/crc32.o         (.text)
+    lib/crc32.o         (.text)
     arch/ppc/lib/cache.o             (.text)
     arch/ppc/lib/time.o              (.text)
 

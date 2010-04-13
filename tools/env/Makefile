@@ -41,7 +41,7 @@ clean:
 	rm -f $(obj)fw_printenv $(obj)crc32.c
 
 $(obj)crc32.c:
-	ln -s $(src)../../lib_generic/crc32.c $(obj)crc32.c
+	ln -s $(src)../../lib/crc32.c $(obj)crc32.c
 
 #########################################################################
 

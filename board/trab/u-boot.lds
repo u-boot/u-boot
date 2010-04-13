@@ -33,9 +33,9 @@ SECTIONS
 	.text      :
 	{
 	  cpu/arm920t/start.o	(.text)
-	  lib_generic/zlib.o	(.text)
-	  lib_generic/crc32.o	(.text)
-	  lib_generic/string.o	(.text)
+	  lib/zlib.o	(.text)
+	  lib/crc32.o	(.text)
+	  lib/string.o	(.text)
 
 	. = DEFINED(env_offset) ? env_offset : .;
 	  common/env_embedded.o	(.ppcenv)

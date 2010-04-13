@@ -62,8 +62,8 @@ SECTIONS
     cpu/mpc8xx/cpu_init.o	(.text)
     cpu/mpc8xx/speed.o	(.text)
     common/dlmalloc.o	(.text)
-    lib_generic/crc32.o		(.text)
-    lib_generic/zlib.o		(.text)
+    lib/crc32.o		(.text)
+    lib/zlib.o		(.text)
 
     . = env_offset;
     common/env_embedded.o(.text)

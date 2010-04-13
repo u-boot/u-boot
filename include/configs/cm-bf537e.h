@@ -108,7 +108,7 @@
 	cpu/blackfin/interrupt.o	(.text .text.*); \
 	cpu/blackfin/serial.o		(.text .text.*); \
 	common/dlmalloc.o		(.text .text.*); \
-	lib_generic/crc32.o		(.text .text.*); \
+	lib/crc32.o		(.text .text.*); \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	common/env_embedded.o		(.text .text.*);
 #endif

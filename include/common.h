@@ -620,22 +620,22 @@ ulong	usec2ticks    (unsigned long usec);
 ulong	ticks2usec    (unsigned long ticks);
 int	init_timebase (void);
 
-/* lib_generic/gunzip.c */
+/* lib/gunzip.c */
 int gunzip(void *, int, unsigned char *, unsigned long *);
 int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
 						int stoponerr, int offset);
 
-/* lib_generic/net_utils.c */
+/* lib/net_utils.c */
 #include <net.h>
 static inline IPaddr_t getenv_IPaddr (char *var)
 {
 	return (string_to_ip(getenv(var)));
 }
 
-/* lib_generic/time.c */
+/* lib/time.c */
 void	udelay        (unsigned long);
 
-/* lib_generic/vsprintf.c */
+/* lib/vsprintf.c */
 ulong	simple_strtoul(const char *cp,char **endp,unsigned int base);
 unsigned long long	simple_strtoull(const char *cp,char **endp,unsigned int base);
 long	simple_strtol(const char *cp,char **endp,unsigned int base);
@@ -645,10 +645,10 @@ int	sprintf(char * buf, const char *fmt, ...)
 		__attribute__ ((format (__printf__, 2, 3)));
 int	vsprintf(char *buf, const char *fmt, va_list args);
 
-/* lib_generic/strmhz.c */
+/* lib/strmhz.c */
 char *	strmhz(char *buf, long hz);
 
-/* lib_generic/crc32.c */
+/* lib/crc32.c */
 #include <u-boot/crc.h>
 
 /* common/console.c */

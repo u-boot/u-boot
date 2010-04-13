@@ -72,7 +72,7 @@ $(obj)crcit:		$(obj)crcit.o $(obj)crc32.o
 $(obj)crcit.o:		crcit.c
 	$(HOSTCC) $(HOSTCFLAGS) -o $@ -c $<
 
-$(obj)crc32.o:		$(SRCTREE)/lib_generic/crc32.c
+$(obj)crc32.o:		$(SRCTREE)/lib/crc32.c
 	$(HOSTCC) $(HOSTCFLAGS) -DUSE_HOSTCC -I$(TOPDIR)/include \
 		-o $@ -c $<
 

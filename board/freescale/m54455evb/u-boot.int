@@ -59,7 +59,7 @@ SECTIONS
     arch/m68k/lib/traps.o		(.text)
     arch/m68k/lib/interrupts.o	(.text)
     common/dlmalloc.o		(.text)
-    lib_generic/zlib.o		(.text)
+    lib/zlib.o		(.text)
 
     *(.text)
     *(.fixup)
