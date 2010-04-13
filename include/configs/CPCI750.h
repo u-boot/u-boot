@@ -59,7 +59,7 @@
 
 #define CONFIG_BAUDRATE		9600	/* console baudrate = 9600	*/
 
-#undef	CONFIG_ECC			/* enable ECC support */
+#define CONFIG_MV64360_ECC		/* enable ECC support */
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
@@ -628,5 +628,7 @@
 #define CONFIG_SYS_BOARD_ASM_INIT	1
 
 #define CPCI750_SLAVE_TEST	(((in8(0xf0300000) & 0x80) == 0) ? 0 : 1)
+#define CPCI750_ECC_TEST	(((in8(0xf0300000) & 0x02) == 0) ? 1 : 0)
+#define CONFIG_SYS_PLD_VER	0xf0e00000
 
 #endif	/* __CONFIG_H */
