@@ -33,7 +33,7 @@ void timer_isr(void *);
 typedef void (timer_fnc_t) (void);
 int register_timer_isr (timer_fnc_t *isr_func);
 
-/* Architecture specific - can be in cpu/i386/, arch/i386/lib/, or $(BOARD)/ */
+/* Architecture specific - can be in arch/i386/cpu/, arch/i386/lib/, or $(BOARD)/ */
 int timer_init(void);
 
 /* cpu/.../interrupts.c */
