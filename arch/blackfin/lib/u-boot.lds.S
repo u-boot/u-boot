@@ -73,14 +73,14 @@ SECTIONS
 {
 	.text.pre :
 	{
-		cpu/blackfin/start.o (.text .text.*)
+		arch/blackfin/cpu/start.o (.text .text.*)
 
 		LDS_BOARD_TEXT
 	} >ram_code
 
 	.text.init :
 	{
-		cpu/blackfin/initcode.o (.text .text.*)
+		arch/blackfin/cpu/initcode.o (.text .text.*)
 	} >ram_code
 	__initcode_lma = LOADADDR(.text.init);
 	__initcode_len = SIZEOF(.text.init);
