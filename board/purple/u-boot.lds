@@ -34,9 +34,9 @@ SECTIONS
 	. = ALIGN(4);
 	.text       :
 	{
-	  cpu/mips/start.o		(.text)
+	  arch/mips/cpu/start.o		(.text)
 	  board/purple/lowlevel_init.o	(.text)
-	  cpu/mips/cache.o		(.text)
+	  arch/mips/cpu/cache.o		(.text)
 	  common/main.o			(.text)
 	  common/dlmalloc.o		(.text)
 	  common/cmd_boot.o		(.text)
