@@ -51,7 +51,7 @@ tlbtab:
 	 * enable SA_I
 	 */
 	tlbentry(CONFIG_SYS_BOOT_BASE_ADDR, SZ_16M, CONFIG_SYS_BOOT_BASE_ADDR,
-		4, AC_R|AC_W|AC_X|SA_G) /* TLB 0 */
+		4, AC_RWX | SA_G) /* TLB 0 */
 
 	/*
 	 * TLB entries for SDRAM are not needed on this platform.
@@ -62,36 +62,36 @@ tlbtab:
 #ifdef CONFIG_SYS_INIT_RAM_DCACHE
 	/* TLB-entry for init-ram in dcache (SA_I must be turned off!) */
 	tlbentry(CONFIG_SYS_INIT_RAM_ADDR, SZ_4K, CONFIG_SYS_INIT_RAM_ADDR,
-		0, AC_R|AC_W|AC_X|SA_G)
+		0, AC_RWX | SA_G)
 #endif
 
 	tlbentry(CONFIG_SYS_PCI_BASE, SZ_256M, 0x00000000, 0xC,
-		AC_R|AC_W|SA_G|SA_I)
+		AC_RW | SA_IG)
 	tlbentry(CONFIG_SYS_PCI_MEMBASE, SZ_256M, 0x20000000, 0xC,
-		AC_R|AC_W|SA_G|SA_I)
+		AC_RW | SA_IG)
 
 	/* TLB-entry for NVRAM */
 	tlbentry(CONFIG_SYS_NVRAM_BASE, SZ_1M, CONFIG_SYS_NVRAM_BASE, 4,
-		AC_R|AC_W|SA_G|SA_I)
+		AC_RW | SA_IG)
 
 	/* TLB-entry for UART */
 	tlbentry(CONFIG_SYS_UART_BASE, SZ_16K, CONFIG_SYS_UART_BASE, 4,
-		AC_R|AC_W|SA_G|SA_I)
+		AC_RW | SA_IG)
 
 	/* TLB-entry for IO */
 	tlbentry(CONFIG_SYS_IO_BASE, SZ_16K, CONFIG_SYS_IO_BASE, 4,
-		AC_R|AC_W|SA_G|SA_I)
+		AC_RW | SA_IG)
 
 	/* TLB-entry for OCM */
 	tlbentry(CONFIG_SYS_OCM_BASE, SZ_1M, 0x00000000, 4,
-		AC_R|AC_W|AC_X|SA_I)
+		AC_RWX | SA_I)
 
 	/* TLB-entry for Local Configuration registers => peripherals */
 	tlbentry(CONFIG_SYS_LOCAL_CONF_REGS, SZ_16M, CONFIG_SYS_LOCAL_CONF_REGS,
-		4, AC_R|AC_W|AC_X|SA_G|SA_I)
+		4, AC_RWX | SA_IG)
 
 	/* AHB: Internal USB Peripherals (USB, SATA) */
 	tlbentry(CONFIG_SYS_AHB_BASE, SZ_1M, 0xbff00000, 4,
-		AC_R|AC_W|AC_X|SA_G|SA_I)
+		AC_RWX | SA_IG)
 
 	tlbtab_end
