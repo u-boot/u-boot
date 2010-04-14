@@ -163,15 +163,22 @@ l2_cache_disable:
  *              general use.
  *****************************************************************************/
 setup_auxcr:
+	mrc	p15, 0, r0, c0, c0, 0		@ read main ID register
+	and	r2, r0, #0x00f00000		@ variant
+	and	r3, r0, #0x0000000f		@ revision
+	orr	r1, r3, r2, lsr #20-4		@ combine variant and revision
 	mov	r12, #0x3
 	mrc	p15, 0, r0, c1, c0, 1
 	orr	r0, r0, #0x10			@ Enable ASA
-	orr	r0, r0, #1 << 5			@ Enable L1NEON
+	@ Enable L1NEON on pre-r2p1 (erratum 621766 workaround)
+	cmp	r1, #0x21
+	orrlt	r0, r0, #1 << 5
 	.word 0xE1600070			@ SMC
 	mov	r12, #0x2
 	mrc	p15, 1, r0, c9, c0, 2
-	@ Set PLD_FWD bit in L2AUXCR (Cortex-A8 erratum 725233 workaround)
-	orr	r0, r0, #1 << 27
+	@ Set PLD_FWD bit in L2AUXCR on pre-r2p1 (erratum 725233 workaround)
+	cmp	r1, #0x21
+	orrlt	r0, r0, #1 << 27
 	.word 0xE1600070			@ SMC
 	bx	lr
 
