@@ -43,6 +43,7 @@
 .global invalidate_dcache
 .global l2_cache_enable
 .global l2_cache_disable
+.global setup_auxcr
 
 /*
  *	invalidate_dcache()
@@ -155,4 +156,22 @@ l2_cache_enable:
 l2_cache_disable:
 	mov	r0, #0
 	b	l2_cache_set
+
+/******************************************************************************
+ * Routine: setup_auxcr()
+ * Description: Write to AuxCR desired value using SMI.
+ *              general use.
+ *****************************************************************************/
+setup_auxcr:
+	mov	r12, #0x3
+	mrc	p15, 0, r0, c1, c0, 1
+	orr	r0, r0, #0x10			@ Enable ASA
+	orr	r0, r0, #1 << 5			@ Enable L1NEON
+	.word 0xE1600070			@ SMC
+	mov	r12, #0x2
+	mrc	p15, 1, r0, c9, c0, 2
+	@ Set PLD_FWD bit in L2AUXCR (Cortex-A8 erratum 725233 workaround)
+	orr	r0, r0, #1 << 27
+	.word 0xE1600070			@ SMC
+	bx	lr
 
