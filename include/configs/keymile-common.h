@@ -68,7 +68,6 @@
 #define CONFIG_SYS_MAXARGS		16	/* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size  */
 #define CONFIG_CMDLINE_EDITING		1	/* add command line history     */
-#define CONFIG_COMMAND_HISTORY		1
 #define CONFIG_AUTO_COMPLETE		/* add autocompletion support	*/
 
 #define CONFIG_HUSH_INIT_VAR	1
