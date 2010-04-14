@@ -128,64 +128,31 @@ finished_inval:
 
 	ldmfd	r13!, {r0 - r5, r7, r9 - r12, pc}
 
-
-l2_cache_enable:
-	stmfd	r13!, {r0, r1, r2, lr}
-	@ ES2 onwards we can disable/enable L2 ourselves
+l2_cache_set:
+	stmfd	r13!, {r4 - r6, lr}
+	mov	r5,  r0
 	bl	get_cpu_rev
-	cmp	r0, #CPU_3XX_ES20
-	blt	l2_cache_disable_EARLIER_THAN_ES2
-	mrc	15, 0, r3, cr1, cr0, 1
-	orr	r3, r3, #2
-	mcr	15, 0, r3, cr1, cr0, 1
-	b	l2_cache_enable_END
-l2_cache_enable_EARLIER_THAN_ES2:
-	@ Save r0, r12 and restore them after usage
-	mov	r3, ip
-	str	r3, [sp, #4]
-	mov	r3, r0
-	@
-	@ GP Device ROM code API usage here
-	@ r12 = AUXCR Write function and r0 value
-	@
-	mov	ip, #3
-	mrc	15, 0, r0, cr1, cr0, 1
-	orr	r0, r0, #2
-	@ SMI instruction to call ROM Code API
-	.word	0xe1600070
-	mov	r0, r3
-	mov	ip, r3
-	str	r3, [sp, #4]
-l2_cache_enable_END:
-	ldmfd	r13!, {r1, r2, r3, pc}
-
-
-l2_cache_disable:
-	stmfd	r13!, {r0, r1, r2, lr}
+	mov	r4,  r0
+	bl	get_cpu_family
 	@ ES2 onwards we can disable/enable L2 ourselves
-	bl	get_cpu_rev
-	cmp	r0, #CPU_3XX_ES20
-	blt	l2_cache_disable_EARLIER_THAN_ES2
-	mrc	15, 0, r3, cr1, cr0, 1
-	bic	r3, r3, #2
-	mcr	15, 0, r3, cr1, cr0, 1
-	b	l2_cache_disable_END
-l2_cache_disable_EARLIER_THAN_ES2:
-	@ Save r0, r12 and restore them after usage
-	mov	r3, ip
-	str	r3, [sp, #4]
-	mov	r3, r0
-	@
-	@ GP Device ROM code API usage here
-	@ r12 = AUXCR Write function and r0 value
-	@
-	mov	ip, #3
+	cmp	r0,  #CPU_OMAP34XX
+	cmpeq	r4,  #CPU_3XX_ES10
 	mrc	15, 0, r0, cr1, cr0, 1
 	bic	r0, r0, #2
-	@ SMI instruction to call ROM Code API
-	.word	0xe1600070
-	mov	r0, r3
-	mov	ip, r3
-	str	r3, [sp, #4]
-l2_cache_disable_END:
-	ldmfd	r13!, {r1, r2, r3, pc}
+	orr	r0, r0, r5, lsl #1
+	mcreq	15, 0, r0, cr1, cr0, 1
+	@ GP Device ROM code API usage here
+	@ r12 = AUXCR Write function and r0 value
+	mov	ip, #3
+	@ SMCNE instruction to call ROM Code API
+	.word	0x11600070
+	ldmfd	r13!, {r4 - r6, pc}
+
+l2_cache_enable:
+	mov	r0, #1
+	b	l2_cache_set
+
+l2_cache_disable:
+	mov	r0, #0
+	b	l2_cache_set
+
