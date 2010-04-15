@@ -325,7 +325,7 @@ static int fec_get_hwaddr(struct eth_device *dev, unsigned char *mac)
 	for (i = 0; i < 6; i++)
 		mac[6-1-i] = readl(&iim->iim_bank_area0[IIM0_MAC + i]);
 
-	return is_valid_ether_addr(mac);
+	return !is_valid_ether_addr(mac);
 #endif
 }
 
