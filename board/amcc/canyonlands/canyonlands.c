@@ -42,7 +42,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BOARD_ARCHES		4
 
 /*
- * Override the default functions in arch/ppc/cpu/ppc4xx/44x_spd_ddr2.c with
+ * Override the default functions in arch/powerpc/cpu/ppc4xx/44x_spd_ddr2.c with
  * board specific values.
  */
 #if defined(CONFIG_ARCHES)

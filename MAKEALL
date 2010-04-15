@@ -489,7 +489,7 @@ LIST_TSEC="		\
 	${LIST_86xx}	\
 "
 
-LIST_ppc="		\
+LIST_powerpc="		\
 	${LIST_5xx}	\
 	${LIST_512x}	\
 	${LIST_5xxx}	\
@@ -503,6 +503,12 @@ LIST_ppc="		\
 	${LIST_4xx}	\
 	${LIST_74xx}	\
 	${LIST_7xx}	\
+"
+
+# Alias "ppc" -> "powerpc" to not break compatibility with older scripts
+# still using "ppc" instead of "powerpc"
+LIST_ppc="		\
+	${LIST_powerpc}	\
 "
 
 #########################################################################
@@ -949,8 +955,8 @@ LIST_sparc="gr_xc3s_1500	gr_cpci_ax2000	gr_ep2s60	grsim	grsim_leon2"
 
 #-----------------------------------------------------------------------
 
-#----- for now, just run PPC by default -----
-[ $# = 0 ] && set $LIST_ppc
+#----- for now, just run PowerPC by default -----
+[ $# = 0 ] && set $LIST_powerpc
 
 #-----------------------------------------------------------------------
 
@@ -1006,7 +1012,7 @@ do
 	|microblaze \
 	|mips|mips_el \
 	|nios|nios2 \
-	|ppc|5xx|5xxx|512x|8xx|8220|824x|8260|83xx|85xx|86xx|4xx|7xx|74xx|TSEC \
+	|ppc|powerpc|5xx|5xxx|512x|8xx|8220|824x|8260|83xx|85xx|86xx|4xx|7xx|74xx|TSEC \
 	|sh|sh2|sh3|sh4 \
 	|sparc \
 	|x86|I486 \

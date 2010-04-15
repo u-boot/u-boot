@@ -1,4 +1,4 @@
-/* taken from arch/ppc/kernel/ppc-stub.c */
+/* taken from arch/powerpc/kernel/ppc-stub.c */
 
 /****************************************************************************
 

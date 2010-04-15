@@ -52,9 +52,9 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    arch/ppc/cpu/mpc824x/start.o		(.text)
-    arch/ppc/lib/board.o		(.text)
-    arch/ppc/lib/ppcstring.o		(.text)
+    arch/powerpc/cpu/mpc824x/start.o		(.text)
+    arch/powerpc/lib/board.o		(.text)
+    arch/powerpc/lib/ppcstring.o		(.text)
     lib/vsprintf.o	(.text)
     lib/crc32.o		(.text)
     lib/zlib.o		(.text)

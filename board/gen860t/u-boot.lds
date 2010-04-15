@@ -54,7 +54,7 @@ SECTIONS
   .plt           : { *(.plt)		}
   .text :
   {
-    arch/ppc/cpu/mpc8xx/start.o		(.text)
+    arch/powerpc/cpu/mpc8xx/start.o		(.text)
     *(.text)
     *(.got1)
   }

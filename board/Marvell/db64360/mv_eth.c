@@ -1061,7 +1061,7 @@ bool db64360_eth_start (struct eth_device *dev)
 *************************************************************************/
 /*
  * based on Linux code
- * arch/ppc/galileo/EVB64360/mv64360_eth.c - Driver for MV64360X ethernet ports
+ * arch/powerpc/galileo/EVB64360/mv64360_eth.c - Driver for MV64360X ethernet ports
  * Copyright (C) 2002 rabeeh@galileo.co.il
 
  * This program is free software; you can redistribute it and/or

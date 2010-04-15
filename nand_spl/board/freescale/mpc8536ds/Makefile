@@ -64,15 +64,15 @@ $(nandobj)u-boot-spl:	$(OBJS)
 
 $(obj)cache.c:
 	@rm -f $(obj)cache.c
-	ln -sf $(SRCTREE)/arch/ppc/lib/cache.c $(obj)cache.c
+	ln -sf $(SRCTREE)/arch/powerpc/lib/cache.c $(obj)cache.c
 
 $(obj)cpu_init_early.c:
 	@rm -f $(obj)cpu_init_early.c
-	ln -sf $(SRCTREE)/arch/ppc/cpu/mpc85xx/cpu_init_early.c $(obj)cpu_init_early.c
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/cpu_init_early.c $(obj)cpu_init_early.c
 
 $(obj)cpu_init_nand.c:
 	@rm -f $(obj)cpu_init_nand.c
-	ln -sf $(SRCTREE)/arch/ppc/cpu/mpc85xx/cpu_init_nand.c $(obj)cpu_init_nand.c
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/cpu_init_nand.c $(obj)cpu_init_nand.c
 
 $(obj)fsl_law.c:
 	@rm -f $(obj)fsl_law.c
@@ -97,15 +97,15 @@ $(obj)resetvec.S:
 
 $(obj)fixed_ivor.S:
 	@rm -f $(obj)fixed_ivor.S
-	ln -sf $(SRCTREE)/arch/ppc/cpu/mpc85xx/fixed_ivor.S $(obj)fixed_ivor.S
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/fixed_ivor.S $(obj)fixed_ivor.S
 
 $(obj)start.S: $(obj)fixed_ivor.S
 	@rm -f $(obj)start.S
-	ln -sf $(SRCTREE)/arch/ppc/cpu/mpc85xx/start.S $(obj)start.S
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/start.S $(obj)start.S
 
 $(obj)tlb.c:
 	@rm -f $(obj)tlb.c
-	ln -sf $(SRCTREE)/arch/ppc/cpu/mpc85xx/tlb.c $(obj)tlb.c
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/tlb.c $(obj)tlb.c
 
 $(obj)tlb_table.c:
 	@rm -f $(obj)tlb_table.c

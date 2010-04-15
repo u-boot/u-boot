@@ -124,8 +124,8 @@ Updated 13-July-2004 Jon Loeliger
     kernel's ppcboot.h is consistent with U-Boot's u-boot.h. You can use two
     default configuration files as your starting points to configure the
     kernel:
-	arch/ppc/configs/mpc8540_ads_defconfig
-	arch/ppc/configs/mpc8560_ads_defconfig
+	arch/powerpc/configs/mpc8540_ads_defconfig
+	arch/powerpc/configs/mpc8560_ads_defconfig
 
 3. DEFINITIONS AND COMPILATION
 

@@ -20,7 +20,7 @@
 # MA 02111-1307 USA
 #
 
-ifeq ($(ARCH),ppc)
+ifeq ($(ARCH),powerpc)
 LOAD_ADDR = 0x40000
 endif
 ifeq ($(ARCH),arm)
@@ -46,8 +46,8 @@ EXT_COBJ_FILES-$(CONFIG_API) += lib/div64.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib/string.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib/time.o
 EXT_COBJ_FILES-$(CONFIG_API) += lib/vsprintf.o
-ifeq ($(ARCH),ppc)
-EXT_SOBJ_FILES-$(CONFIG_API) += arch/ppc/lib/ppcstring.o
+ifeq ($(ARCH),powerpc)
+EXT_SOBJ_FILES-$(CONFIG_API) += arch/powerpc/lib/ppcstring.o
 endif
 
 # Create a list of source files so their dependencies can be auto-generated

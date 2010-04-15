@@ -1137,7 +1137,7 @@ bool db64460_eth_start (struct eth_device *dev)
 *************************************************************************/
 /*
  * based on Linux code
- * arch/ppc/galileo/EVB64460/mv64460_eth.c - Driver for MV64460X ethernet ports
+ * arch/powerpc/galileo/EVB64460/mv64460_eth.c - Driver for MV64460X ethernet ports
  * Copyright (C) 2002 rabeeh@galileo.co.il
 
  * This program is free software; you can redistribute it and/or

@@ -27,7 +27,7 @@
 /*
  * this is even after checkboard. It returns the size of the SDRAM
  * that we have installed. This function is called by board_init_f
- * in arch/ppc/lib/board.c to initialize the memory and return what I
+ * in arch/powerpc/lib/board.c to initialize the memory and return what I
  * found.
  */
 phys_size_t initdram (int board_type)

@@ -55,12 +55,12 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    arch/ppc/cpu/mpc8xx/start.o		(.text)
+    arch/powerpc/cpu/mpc8xx/start.o		(.text)
     common/dlmalloc.o		(.text)
-    arch/ppc/cpu/mpc8xx/interrupts.o	(.text)
-    arch/ppc/lib/time.o		(.text)
-    arch/ppc/lib/ticks.o		(.text)
-    arch/ppc/lib/cache.o		(.text)
+    arch/powerpc/cpu/mpc8xx/interrupts.o	(.text)
+    arch/powerpc/lib/time.o		(.text)
+    arch/powerpc/lib/ticks.o		(.text)
+    arch/powerpc/lib/cache.o		(.text)
     lib/crc32.o		(.text)
     . = env_offset;
     common/env_embedded.o(.text)

@@ -26,7 +26,7 @@
 
 /*
  * This function is run very early, out of flash, and before devices are
- * initialized. It is called by arch/ppc/lib/board.c:board_init_f by virtue
+ * initialized. It is called by arch/powerpc/lib/board.c:board_init_f by virtue
  * of being in the init_sequence array.
  *
  * The SDRAM has been initialized already -- start.S:start called
@@ -85,7 +85,7 @@ int board_pre_init (void)
 #endif
 
 /*
- * This function is also called by arch/ppc/lib/board.c:board_init_f (it is
+ * This function is also called by arch/powerpc/lib/board.c:board_init_f (it is
  * also in the init_sequence array) but later. Many more things are
  * configured, but we are still running from flash.
  */
@@ -149,7 +149,7 @@ int checkboard (void)
 /* **** No more functions called by board_init_f. **** */
 
 /*
- * This function is called by arch/ppc/lib/board.c:board_init_r. At this
+ * This function is called by arch/powerpc/lib/board.c:board_init_r. At this
  * point, basic setup is done, U-Boot has been moved into SDRAM and
  * PCI has been set up. From here we done late setup.
  */

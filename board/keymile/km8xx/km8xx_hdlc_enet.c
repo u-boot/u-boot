@@ -2,7 +2,7 @@
  * (C) Copyright 2008
  * Gary Jennejohn, DENX Software Engineering GmbH, garyj@denx.de.
  *
- * Based in part on arch/ppc/cpu/mpc8xx/scc.c.
+ * Based in part on arch/powerpc/cpu/mpc8xx/scc.c.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
