@@ -508,6 +508,7 @@
 #endif
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
+#define CONFIG_AUTO_COMPLETE		/* add autocompletion support   */
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 

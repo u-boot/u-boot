@@ -511,7 +511,8 @@ boards, we say we have two, but don't display a message if we find only one. */
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
-#define CONFIG_CMDLINE_EDITING		/* Command-line editing */
+#define CONFIG_CMDLINE_EDITING			/* Command-line editing */
+#define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 

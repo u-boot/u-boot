@@ -250,6 +250,7 @@
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR+0x4600)
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
+#define CONFIG_AUTO_COMPLETE		/* add autocompletion support   */
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
 #ifdef	CONFIG_SYS_HUSH_PARSER
