@@ -106,7 +106,9 @@ int checkcpu(void)
 			puts(cpu_type_list[i].name);
 			if (IS_E_PROCESSOR(spridr))
 				puts("E");
-			if (REVID_MAJOR(spridr) >= 2)
+			if ((SPR_FAMILY(spridr) == SPR_834X_FAMILY ||
+			     SPR_FAMILY(spridr) == SPR_836X_FAMILY) &&
+			    REVID_MAJOR(spridr) >= 2)
 				puts("A");
 			printf(", Rev: %d.%d", REVID_MAJOR(spridr),
 			       REVID_MINOR(spridr));
