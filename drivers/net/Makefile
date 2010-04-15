@@ -39,6 +39,7 @@ COBJS-$(CONFIG_E1000) += e1000.o
 COBJS-$(CONFIG_EEPRO100) += eepro100.o
 COBJS-$(CONFIG_ENC28J60) += enc28j60.o
 COBJS-$(CONFIG_EP93XX) += ep93xx_eth.o
+COBJS-$(CONFIG_ETHOC) += ethoc.o
 COBJS-$(CONFIG_FEC_MXC) += fec_mxc.o
 COBJS-$(CONFIG_FSLDMAFEC) += fsl_mcdmafec.o mcfmii.o
 COBJS-$(CONFIG_FTMAC100) += ftmac100.o
