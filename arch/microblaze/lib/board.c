@@ -47,7 +47,9 @@ extern int eth_init (bd_t * bis);
 #ifdef CONFIG_SYS_TIMER_0
 extern int timer_init (void);
 #endif
-
+#ifdef CONFIG_SYS_FSL_2
+extern void fsl_init2 (void);
+#endif
 
 /*
  * All attempts to come up with a "common" initialization sequence
@@ -74,6 +76,9 @@ init_fnc_t *init_sequence[] = {
 #endif
 #ifdef CONFIG_SYS_TIMER_0
 	timer_init,
+#endif
+#ifdef CONFIG_SYS_FSL_2
+	fsl_init2,
 #endif
 	NULL,
 };

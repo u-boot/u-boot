@@ -46,10 +46,6 @@ int disable_interrupts (void)
 }
 
 #ifdef CONFIG_SYS_INTC_0
-#ifdef CONFIG_SYS_FSL_2
-extern void fsl_init2 (void);
-#endif
-
 
 static struct irq_action vecs[CONFIG_SYS_INTC_0_NUM];
 
@@ -139,9 +135,6 @@ int interrupts_init (void)
 	}
 	/* initialize intc controller */
 	intc_init ();
-#ifdef CONFIG_SYS_FSL_2
-	fsl_init2 ();
-#endif
 	enable_interrupts ();
 	return 0;
 }
