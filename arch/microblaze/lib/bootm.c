@@ -73,6 +73,14 @@ int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
 		(ulong) theKernel, rd_data_start, (ulong) of_flat_tree);
 #endif
 
+#ifdef XILINX_USE_DCACHE
+#ifdef XILINX_DCACHE_BYTE_SIZE
+	flush_cache(0, XILINX_DCACHE_BYTE_SIZE);
+#else
+#warning please rebuild BSPs and update configuration
+	flush_cache(0, 32768);
+#endif
+#endif
 	/*
 	 * Linux Kernel Parameters (passing device tree):
 	 * r5: pointer to command line
