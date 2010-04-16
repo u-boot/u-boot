@@ -46,9 +46,6 @@ int disable_interrupts (void)
 }
 
 #ifdef CONFIG_SYS_INTC_0
-#ifdef CONFIG_SYS_TIMER_0
-extern void timer_init (void);
-#endif
 #ifdef CONFIG_SYS_FSL_2
 extern void fsl_init2 (void);
 #endif
@@ -142,9 +139,6 @@ int interrupts_init (void)
 	}
 	/* initialize intc controller */
 	intc_init ();
-#ifdef CONFIG_SYS_TIMER_0
-	timer_init ();
-#endif
 #ifdef CONFIG_SYS_FSL_2
 	fsl_init2 ();
 #endif

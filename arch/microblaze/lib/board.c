@@ -44,6 +44,10 @@ extern int interrupts_init (void);
 #if defined(CONFIG_CMD_NET)
 extern int eth_init (bd_t * bis);
 #endif
+#ifdef CONFIG_SYS_TIMER_0
+extern int timer_init (void);
+#endif
+
 
 /*
  * All attempts to come up with a "common" initialization sequence
@@ -67,6 +71,9 @@ init_fnc_t *init_sequence[] = {
 #endif
 #ifdef CONFIG_SYS_INTC_0
 	interrupts_init,
+#endif
+#ifdef CONFIG_SYS_TIMER_0
+	timer_init,
 #endif
 	NULL,
 };
