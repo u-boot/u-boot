@@ -30,7 +30,7 @@ SECTIONS
 {
 	.text :
 	{
-	  arch/nios/cpu2/start.o (.text)
+	  arch/nios2/cpu/start.o (.text)
 	  *(.text)
 	  *(.text.*)
 	  *(.gnu.linkonce.t*)
