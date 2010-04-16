@@ -34,7 +34,7 @@ void flush_cache (ulong addr, ulong size)
 #endif
 				"nop;"
 #ifdef CONFIG_DCACHE
-				"wdc	%0, r0;"
+				"wdc.flush	%0, r0;"
 #endif
 				"nop;"
 				:
