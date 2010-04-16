@@ -2421,6 +2421,9 @@ typedef void		(*ExcpHndlr) (void) ;
 #define MDMRS		__REG(0x48000040)  /* MRS value to be written to SDRAM */
 #define BOOT_DEF	__REG(0x48000044)  /* Read-Only Boot-Time Register. Contains BOOT_SEL and PKG_SEL */
 
+#define MDREFR_ALTREFA	(1 << 31)	/* Exiting Alternate Bus Master Mode Refresh Control */
+#define MDREFR_ALTREFB	(1 << 30)	/* Entering Alternate Bus Master Mode Refresh Control */
+#define MDREFR_K0DB4	(1 << 29)	/* SDCLK0 Divide by 4 Control/Status */
 #define MDREFR_K2FREE	(1 << 25)	/* SDRAM Free-Running Control */
 #define MDREFR_K1FREE	(1 << 24)	/* SDRAM Free-Running Control */
 #define MDREFR_K0FREE	(1 << 23)	/* SDRAM Free-Running Control */
