@@ -30,6 +30,7 @@
 #include <timestamp.h>
 #include <version.h>
 #include <watchdog.h>
+#include <stdio_dev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -88,6 +89,7 @@ void board_init (void)
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
 	gd = (gd_t *) CONFIG_SYS_GBL_DATA_OFFSET;
+	char *s;
 #if defined(CONFIG_CMD_FLASH)
 	ulong flash_size = 0;
 #endif
@@ -151,14 +153,21 @@ void board_init (void)
 	}
 #endif
 
+	/* relocate environment function pointers etc. */
+	env_relocate ();
+
+	/* Initialize stdio devices */
+	stdio_init ();
+
+	if ((s = getenv ("loadaddr")) != NULL) {
+		load_addr = simple_strtoul (s, NULL, 16);
+	}
+
 #if defined(CONFIG_CMD_NET)
 	/* IP Address */
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
 	eth_init (bd);
 #endif
-
-	/* relocate environment function pointers etc. */
-	env_relocate ();
 
 	/* main_loop */
 	for (;;) {
