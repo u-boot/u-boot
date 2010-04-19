@@ -1082,7 +1082,8 @@ static void tsec_halt(struct eth_device *dev)
 	regs->dmactrl &= ~(DMACTRL_GRS | DMACTRL_GTS);
 	regs->dmactrl |= (DMACTRL_GRS | DMACTRL_GTS);
 
-	while (!(regs->ievent & (IEVENT_GRSC | IEVENT_GTSC))) ;
+	while ((regs->ievent & (IEVENT_GRSC | IEVENT_GTSC))
+		!= (IEVENT_GRSC | IEVENT_GTSC)) ;
 
 	regs->maccfg1 &= ~(MACCFG1_TX_EN | MACCFG1_RX_EN);
 
