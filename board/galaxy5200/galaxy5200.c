@@ -33,7 +33,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
-#include <asm-ppc/io.h>
+#include <asm/io.h>
 
 #ifndef CONFIG_SYS_RAMBOOT
 static void sdram_start(int hi_addr)

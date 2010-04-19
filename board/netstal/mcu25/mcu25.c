@@ -22,7 +22,7 @@
 #include  <ppc4xx.h>
 #include  <asm/processor.h>
 #include  <asm/io.h>
-#include  <asm-ppc/u-boot.h>
+#include  <asm/u-boot.h>
 #include  "../common/nm.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -39,7 +39,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * This function is run very early, out of flash, and before devices are
- * initialized. It is called by lib_ppc/board.c:board_init_f by virtue
+ * initialized. It is called by arch/ppc/lib/board.c:board_init_f by virtue
  * of being in the init_sequence array.
  *
  * The SDRAM has been initialized already -- start.S:start called

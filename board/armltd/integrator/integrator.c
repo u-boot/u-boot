@@ -132,9 +132,7 @@ int board_eth_init(bd_t *bis)
 #ifdef CONFIG_SMC91111
 	rc = smc91111_initialize(0, CONFIG_SMC91111_BASE);
 #endif
-#ifdef CONFIG_PCI
 	rc += pci_eth_init(bis);
-#endif
 	return rc;
 }
 #endif

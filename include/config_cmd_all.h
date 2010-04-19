@@ -15,6 +15,7 @@
 
 #define CONFIG_CMD_AMBAPP	/* AMBA Plug & Play Bus print utility */
 #define CONFIG_CMD_ASKENV	/* ask for env variable		*/
+#define CONFIG_CMD_AT91_SPIMUX	/* AT91 MMC/SPI Mux Support     */
 #define CONFIG_CMD_BDI		/* bdinfo			*/
 #define CONFIG_CMD_BEDBUG	/* Include BedBug Debugger	*/
 #define CONFIG_CMD_BMP		/* BMP support			*/
@@ -33,7 +34,6 @@
 #define CONFIG_CMD_EDITENV	/* editenv			*/
 #define CONFIG_CMD_EEPROM	/* EEPROM read/write support	*/
 #define CONFIG_CMD_ELF		/* ELF (VxWorks) load/boot cmd	*/
-#define CONFIG_CMD_SAVEENV	/* saveenv			*/
 #define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_FAT		/* FAT support			*/
 #define CONFIG_CMD_FDC		/* Floppy Disk Support		*/
@@ -55,6 +55,7 @@
 #define CONFIG_CMD_LOADS	/* loads			*/
 #define CONFIG_CMD_MEMORY	/* md mm nm mw cp cmp crc base loop mtest */
 #define CONFIG_CMD_MFSL		/* FSL support for Microblaze	*/
+#define CONFIG_CMD_MG_DISK	/* mGine m(g)flash IO node support */
 #define CONFIG_CMD_MII		/* MII support			*/
 #define CONFIG_CMD_MISC		/* Misc functions like sleep etc*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
@@ -70,6 +71,7 @@
 #define CONFIG_CMD_REGINFO	/* Register dump		*/
 #define CONFIG_CMD_REISER	/* Reiserfs support		*/
 #define CONFIG_CMD_RUN		/* run command in env variable	*/
+#define CONFIG_CMD_SAVEENV	/* saveenv			*/
 #define CONFIG_CMD_SAVES	/* save S record dump		*/
 #define CONFIG_CMD_SCSI		/* SCSI Support			*/
 #define CONFIG_CMD_SDRAM	/* SDRAM DIMM SPD info printout */
@@ -79,12 +81,12 @@
 #define CONFIG_CMD_SOURCE	/* "source" command support	*/
 #define CONFIG_CMD_SPI		/* SPI utility			*/
 #define CONFIG_CMD_TERMINAL	/* built-in Serial Terminal	*/
+#define CONFIG_CMD_UBI		/* UBI Support			*/
+#define CONFIG_CMD_UBIFS	/* UBIFS Support		*/
 #define CONFIG_CMD_UNIVERSE	/* Tundra Universe Support	*/
 #define CONFIG_CMD_UNZIP	/* unzip from memory to memory	*/
 #define CONFIG_CMD_USB		/* USB Support			*/
 #define CONFIG_CMD_VFD		/* VFD support (TRAB)		*/
 #define CONFIG_CMD_XIMG		/* Load part of Multi Image	*/
-#define CONFIG_CMD_AT91_SPIMUX	/* AT91 MMC/SPI Mux Support     */
-#define CONFIG_CMD_MG_DISK	/* mGine m(g)flash IO node support */
 
 #endif	/* _CONFIG_CMD_ALL_H */

@@ -4,11 +4,11 @@ i386 port missing features:
 * setup the BIOS data area and BIOS equipment word to reflect machine config. 
 * Make reset work (from Linux and from the boot prompt)
 * DMA, FDC, RTC, KBC initialization
-* split of part of cpu/i386/interrupt.c to cpu/i385/entry.c?
+* split of part of arch/i386/cpu/interrupt.c to cpu/i385/entry.c?
 * re-entry of protected mode from real mode, should be added to realmode_switch.S 
   (and used by INT 10h and INT 16h handlers for console I/O during early
    linux boot...) 
-* missing functions in lib_i386 and cpu/i386
+* missing functions in arch/i386/lib and arch/i386/cpu
 * speaker beep interface
 
 

@@ -72,72 +72,6 @@ static void setup_iomux_uart(void)
 	mxc_iomux_set_pad(MX51_PIN_UART1_CTS, pad);
 }
 
-static void setup_expio(void)
-{
-	u32 reg;
-	struct weim *pweim = (struct weim *)WEIM_BASE_ADDR;
-	struct clkctl *pclkctl = (struct clkctl *)CCM_BASE_ADDR;
-
-	/* CS5 setup */
-	mxc_request_iomux(MX51_PIN_EIM_CS5, IOMUX_CONFIG_ALT0);
-	writel(0x00410089, &pweim[5].csgcr1);
-	writel(0x00000002, &pweim[5].csgcr2);
-
-	/* RWSC=50, RADVA=2, RADVN=6, OEA=0, OEN=0, RCSA=0, RCSN=0 */
-	writel(0x32260000, &pweim[5].csrcr1);
-
-	/* APR = 0 */
-	writel(0x00000000, &pweim[5].csrcr2);
-
-	/*
-	 * WAL=0, WBED=1, WWSC=50, WADVA=2, WADVN=6, WEA=0, WEN=0,
-	 * WCSA=0, WCSN=0
-	 */
-	writel(0x72080F00, &pweim[5].cswcr1);
-
-	mx51_io_board = (struct io_board_ctrl *)(CS5_BASE_ADDR +
-						IO_BOARD_OFFSET);
-	if ((readw(&mx51_io_board->id1) == 0xAAAA) &&
-		(readw(&mx51_io_board->id2) == 0x5555)) {
-		if (is_soc_rev(CHIP_REV_2_0) < 0) {
-			reg = readl(&pclkctl->cbcdr);
-			reg = (reg & (~0x70000)) | 0x30000;
-			writel(reg, &pclkctl->cbcdr);
-			/* make sure divider effective */
-			while (readl(&pclkctl->cdhipr) != 0)
-				;
-			writel(0x0, &pclkctl->ccdr);
-		}
-	} else {
-		/* CS1 */
-		writel(0x00410089, &pweim[1].csgcr1);
-		writel(0x00000002, &pweim[1].csgcr2);
-		/*  RWSC=50, RADVA=2, RADVN=6, OEA=0, OEN=0, RCSA=0, RCSN=0 */
-		writel(0x32260000, &pweim[1].csrcr1);
-		/* APR=0 */
-		writel(0x00000000, &pweim[1].csrcr2);
-		/*
-		 * WAL=0, WBED=1, WWSC=50, WADVA=2, WADVN=6, WEA=0,
-		 * WEN=0, WCSA=0, WCSN=0
-		 */
-		writel(0x72080F00, &pweim[1].cswcr1);
-		mx51_io_board = (struct io_board_ctrl *)(CS1_BASE_ADDR +
-						IO_BOARD_OFFSET);
-	}
-
-	/* Reset interrupt status reg */
-	writew(0x1F, &(mx51_io_board->int_rest));
-	writew(0x00, &(mx51_io_board->int_rest));
-	writew(0xFFFF, &(mx51_io_board->int_mask));
-
-	/* Reset the XUART and Ethernet controllers */
-	reg = readw(&(mx51_io_board->sw_reset));
-	reg |= 0x9;
-	writew(reg, &(mx51_io_board->sw_reset));
-	reg &= ~0x9;
-	writew(reg, &(mx51_io_board->sw_reset));
-}
-
 static void setup_iomux_fec(void)
 {
 	/*FEC_MDIO*/
@@ -349,7 +283,6 @@ int board_init(void)
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	setup_iomux_uart();
-	setup_expio();
 	setup_iomux_fec();
 	return 0;
 }

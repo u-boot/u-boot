@@ -102,6 +102,7 @@
 	at91_set_pio_output(AT91_PIO_PORTB, 4, 0); \
 	at91_set_pio_output(AT91_PIO_PORTB, 5, 0); \
 }
+#define I2C_SOFT_DECLARATIONS
 /* Configure data pin as output */
 #define I2C_ACTIVE		at91_set_pio_output(AT91_PIO_PORTB, 4, 0)
 /* Configure data pin as input */
@@ -130,7 +131,6 @@
  * Command line configuration.
  */
 #include <config_cmd_default.h>
-#undef CONFIG_CMD_AUTOSCRIPT
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_IMLS

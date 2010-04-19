@@ -37,7 +37,7 @@ phys_size_t initdram(int board_type)
 #define BCSR_PCMCIA_PC0DRVEN		0x0010
 #define BCSR_PCMCIA_PC0RST		0x0080
 
-/* In cpu/mips/cpu.c */
+/* In arch/mips/cpu/cpu.c */
 void write_one_tlb( int index, u32 pagemask, u32 hi, u32 low0, u32 low1 );
 
 int checkboard (void)

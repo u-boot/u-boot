@@ -336,13 +336,11 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	 */
 	fec->eth->xmit_fsm = 0x03000000;
 
-#if defined(CONFIG_MPC5200)
 	/*
-	 * Turn off COMM bus prefetch in the MGT5200 BestComm. It doesn't
+	 * Turn off COMM bus prefetch in the MPC5200 BestComm. It doesn't
 	 * work w/ the current receive task.
 	 */
 	 sdma->PtdCntrl |= 0x00000001;
-#endif
 
 	/*
 	 * Set priority of different initiators
@@ -579,9 +577,7 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 /********************************************************************/
 static void mpc5xxx_fec_halt(struct eth_device *dev)
 {
-#if defined(CONFIG_MPC5200)
 	struct mpc5xxx_sdma *sdma = (struct mpc5xxx_sdma *)MPC5XXX_SDMA;
-#endif
 	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
 	int counter = 0xffff;
 
@@ -611,13 +607,11 @@ static void mpc5xxx_fec_halt(struct eth_device *dev)
 	SDMA_TASK_DISABLE (FEC_XMIT_TASK_NO);
 	SDMA_TASK_DISABLE (FEC_RECV_TASK_NO);
 
-#if defined(CONFIG_MPC5200)
 	/*
-	 * Turn on COMM bus prefetch in the MGT5200 BestComm after we're
+	 * Turn on COMM bus prefetch in the MPC5200 BestComm after we're
 	 * done. It doesn't work w/ the current receive task.
 	 */
 	 sdma->PtdCntrl &= ~0x00000001;
-#endif
 
 	/*
 	 * Disable the Ethernet Controller

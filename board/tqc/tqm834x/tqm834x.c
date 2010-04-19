@@ -28,7 +28,7 @@
 #include <asm/mpc8349_pci.h>
 #include <i2c.h>
 #include <miiphy.h>
-#include <asm-ppc/mmu.h>
+#include <asm/mmu.h>
 #include <pci.h>
 
 DECLARE_GLOBAL_DATA_PTR;

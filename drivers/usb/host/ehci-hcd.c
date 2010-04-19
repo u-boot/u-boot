@@ -55,14 +55,14 @@ static struct descriptor {
 	{
 		0x12,		/* bLength */
 		1,		/* bDescriptorType: UDESC_DEVICE */
-		0x0002,		/* bcdUSB: v2.0 */
+		cpu_to_le16(0x0200), /* bcdUSB: v2.0 */
 		9,		/* bDeviceClass: UDCLASS_HUB */
 		0,		/* bDeviceSubClass: UDSUBCLASS_HUB */
 		1,		/* bDeviceProtocol: UDPROTO_HSHUBSTT */
 		64,		/* bMaxPacketSize: 64 bytes */
 		0x0000,		/* idVendor */
 		0x0000,		/* idProduct */
-		0x0001,		/* bcdDevice */
+		cpu_to_le16(0x0100), /* bcdDevice */
 		1,		/* iManufacturer */
 		2,		/* iProduct */
 		0,		/* iSerialNumber */
@@ -536,7 +536,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	uint32_t reg;
 	uint32_t *status_reg;
 
-	if (le16_to_cpu(req->index) >= CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
+	if (le16_to_cpu(req->index) > CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS) {
 		printf("The request port(%d) is not configured\n",
 			le16_to_cpu(req->index) - 1);
 		return -1;
@@ -630,19 +630,8 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 			tmpbuf[0] |= USB_PORT_STAT_SUSPEND;
 		if (reg & EHCI_PS_OCA)
 			tmpbuf[0] |= USB_PORT_STAT_OVERCURRENT;
-		if (reg & EHCI_PS_PR &&
-		    (portreset & (1 << le16_to_cpu(req->index)))) {
-			int ret;
-			/* force reset to complete */
-			reg = reg & ~(EHCI_PS_PR | EHCI_PS_CLEAR);
-			ehci_writel(status_reg, reg);
-			ret = handshake(status_reg, EHCI_PS_PR, 0, 2 * 1000);
-			if (!ret)
-				tmpbuf[0] |= USB_PORT_STAT_RESET;
-			else
-				printf("port(%d) reset error\n",
-					le16_to_cpu(req->index) - 1);
-		}
+		if (reg & EHCI_PS_PR)
+			tmpbuf[0] |= USB_PORT_STAT_RESET;
 		if (reg & EHCI_PS_PP)
 			tmpbuf[1] |= USB_PORT_STAT_POWER >> 8;
 
@@ -699,6 +688,8 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 				ehci_writel(status_reg, reg);
 				break;
 			} else {
+				int ret;
+
 				reg |= EHCI_PS_PR;
 				reg &= ~EHCI_PS_PE;
 				ehci_writel(status_reg, reg);
@@ -710,8 +701,19 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 				wait_ms(50);
 				/* terminate the reset */
 				ehci_writel(status_reg, reg & ~EHCI_PS_PR);
-				wait_ms(2);
-				portreset |= 1 << le16_to_cpu(req->index);
+				/*
+				 * A host controller must terminate the reset
+				 * and stabilize the state of the port within
+				 * 2 milliseconds
+				 */
+				ret = handshake(status_reg, EHCI_PS_PR, 0,
+						2 * 1000);
+				if (!ret)
+					portreset |=
+						1 << le16_to_cpu(req->index);
+				else
+					printf("port(%d) reset error\n",
+					le16_to_cpu(req->index) - 1);
 			}
 			break;
 		default:

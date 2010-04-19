@@ -68,7 +68,7 @@ static int abortboot(int);
 
 #undef DEBUG_PARSER
 
-char        console_buffer[CONFIG_SYS_CBSIZE];		/* console I/O buffer	*/
+char        console_buffer[CONFIG_SYS_CBSIZE + 1];	/* console I/O buffer	*/
 
 static char * delete_char (char *buffer, char *p, int *colp, int *np, int plen);
 static char erase_seq[] = "\b \b";		/* erase sequence	*/
@@ -526,7 +526,7 @@ void reset_cmd_timeout(void)
 
 #define CTL_CH(c)		((c) - 'a' + 1)
 
-#define MAX_CMDBUF_SIZE		256
+#define MAX_CMDBUF_SIZE		CONFIG_SYS_CBSIZE
 
 #define CTL_BACKSPACE		('\b')
 #define DEL			((char)255)
@@ -546,7 +546,7 @@ static int hist_cur = -1;
 unsigned hist_num = 0;
 
 char* hist_list[HIST_MAX];
-char hist_lines[HIST_MAX][HIST_SIZE];
+char hist_lines[HIST_MAX][HIST_SIZE + 1];	 /* Save room for NULL */
 
 #define add_idx_minus_one() ((hist_add_idx == 0) ? hist_max : hist_add_idx-1)
 
@@ -730,6 +730,7 @@ static int cread_line(const char *const prompt, char *buf, unsigned int *len)
 		while (!tstc()) {	/* while no incoming data */
 			if (retry_time >= 0 && get_ticks() > endtime)
 				return (-2);	/* timed out */
+			WATCHDOG_RESET();
 		}
 #endif
 
@@ -997,6 +998,7 @@ int readline_into_buffer (const char *const prompt, char * buffer)
 		while (!tstc()) {	/* while no incoming data */
 			if (retry_time >= 0 && get_ticks() > endtime)
 				return (-2);	/* timed out */
+			WATCHDOG_RESET();
 		}
 #endif
 		WATCHDOG_RESET();		/* Trigger watchdog, if needed */
@@ -1005,6 +1007,7 @@ int readline_into_buffer (const char *const prompt, char * buffer)
 		while (!tstc()) {
 			extern void show_activity(int arg);
 			show_activity(0);
+			WATCHDOG_RESET();
 		}
 #endif
 		c = getc();

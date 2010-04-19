@@ -1,0 +1,55 @@
+Matrix Vision mvSMR
+-------------------
+
+1.	Board Description
+
+	The mvSMR is a 75x130mm single image processing board used
+	in automation. Power Supply is 24VDC.
+
+2	System Components
+
+2.1	CPU
+	Freescale MPC5200B CPU running at 400MHz core and 133MHz XLB/IPB.
+	64MB DDR-I @ 133MHz.
+	8 MByte Nor Flash on local bus.
+	2 serial ports. Console running on ttyS0 @ 115200 8N1.
+
+2.2	PCI
+	PCI clock fixed at 33MHz due to old'n'slow Xilinx PCI core.
+
+2.3	FPGA
+	Xilinx Spartan-3 XC3S200 with PCI DMA engine.
+	Connects to Matrix Vision specific CCD/CMOS sensor interface.
+
+2.4	I2C
+	EEPROM @ 0xA0 for vendor specifics.
+	image sensor interface (slave adresses depend on sensor)
+
+3	Flash layout.
+
+	reset vector is 0x00000100, i.e. "LOWBOOT".
+
+	FF800000	u-boot
+	FF806000	u-boot script image
+	FF808000	u-boot environment
+	FF840000	FPGA raw bit file
+	FF880000	root FS
+	FFF00000	kernel
+
+4	Booting
+
+	On startup the bootscript @ FF806000 is executed. This script can be
+	exchanged easily. Default boot mode is "boot from flash", i.e. system
+	works stand-alone.
+
+	This behaviour depends on some environment variables :
+
+	"netboot" : yes ->try dhcp/bootp and boot from network.
+	A "dhcp_client_id" and "dhcp_vendor-class-identifier" can be used for
+	DHCP server configuration, e.g. to provide different images to
+	different devices.
+
+	During netboot the system tries to get 3 image files:
+	1. Kernel - name + data is given during BOOTP.
+	2. Initrd - name is stored in "initrd_name"
+	Fallback files are the flash versions.

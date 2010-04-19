@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2009
+# (C) Copyright 2000-2010
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -24,7 +24,7 @@
 VERSION = 2010
 PATCHLEVEL = 03
 SUBLEVEL =
-EXTRAVERSION = -rc1
+EXTRAVERSION =
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 else
@@ -169,33 +169,33 @@ include $(TOPDIR)/config.mk
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)
 
-OBJS  = cpu/$(CPU)/start.o
+OBJS  = $(CPUDIR)/start.o
 ifeq ($(CPU),i386)
-OBJS += cpu/$(CPU)/start16.o
-OBJS += cpu/$(CPU)/resetvec.o
+OBJS += $(CPUDIR)/start16.o
+OBJS += $(CPUDIR)/resetvec.o
 endif
 ifeq ($(CPU),ppc4xx)
-OBJS += cpu/$(CPU)/resetvec.o
+OBJS += $(CPUDIR)/resetvec.o
 endif
 ifeq ($(CPU),mpc85xx)
-OBJS += cpu/$(CPU)/resetvec.o
+OBJS += $(CPUDIR)/resetvec.o
 endif
 
 OBJS := $(addprefix $(obj),$(OBJS))
 
-LIBS  = lib_generic/libgeneric.a
-LIBS += lib_generic/lzma/liblzma.a
-LIBS += lib_generic/lzo/liblzo.a
+LIBS  = lib/libgeneric.a
+LIBS += lib/lzma/liblzma.a
+LIBS += lib/lzo/liblzo.a
 LIBS += $(shell if [ -f board/$(VENDOR)/common/Makefile ]; then echo \
 	"board/$(VENDOR)/common/lib$(VENDOR).a"; fi)
-LIBS += cpu/$(CPU)/lib$(CPU).a
+LIBS += $(CPUDIR)/lib$(CPU).a
 ifdef SOC
-LIBS += cpu/$(CPU)/$(SOC)/lib$(SOC).a
+LIBS += $(CPUDIR)/$(SOC)/lib$(SOC).a
 endif
 ifeq ($(CPU),ixp)
-LIBS += cpu/ixp/npe/libnpe.a
+LIBS += arch/arm/cpu/ixp/npe/libnpe.a
 endif
-LIBS += lib_$(ARCH)/lib$(ARCH).a
+LIBS += arch/$(ARCH)/lib/lib$(ARCH).a
 LIBS += fs/cramfs/libcramfs.a fs/fat/libfat.a fs/fdos/libfdos.a fs/jffs2/libjffs2.a \
 	fs/reiserfs/libreiserfs.a fs/ext2/libext2fs.a fs/yaffs2/libyaffs2.a \
 	fs/ubifs/libubifs.a
@@ -227,12 +227,12 @@ LIBS += drivers/qe/qe.a
 endif
 ifeq ($(CPU),mpc85xx)
 LIBS += drivers/qe/qe.a
-LIBS += cpu/mpc8xxx/ddr/libddr.a
-LIBS += cpu/mpc8xxx/lib8xxx.a
+LIBS += arch/ppc/cpu/mpc8xxx/ddr/libddr.a
+LIBS += arch/ppc/cpu/mpc8xxx/lib8xxx.a
 endif
 ifeq ($(CPU),mpc86xx)
-LIBS += cpu/mpc8xxx/ddr/libddr.a
-LIBS += cpu/mpc8xxx/lib8xxx.a
+LIBS += arch/ppc/cpu/mpc8xxx/ddr/libddr.a
+LIBS += arch/ppc/cpu/mpc8xxx/lib8xxx.a
 endif
 LIBS += drivers/rtc/librtc.a
 LIBS += drivers/serial/libserial.a
@@ -244,7 +244,7 @@ LIBS += drivers/usb/phy/libusb_phy.a
 LIBS += drivers/video/libvideo.a
 LIBS += drivers/watchdog/libwatchdog.a
 LIBS += common/libcommon.a
-LIBS += libfdt/libfdt.a
+LIBS += lib/libfdt/libfdt.a
 LIBS += api/libapi.a
 LIBS += post/libpost.a
 
@@ -257,7 +257,7 @@ LIBBOARD := $(addprefix $(obj),$(LIBBOARD))
 # Add GCC lib
 ifdef USE_PRIVATE_LIBGCC
 ifeq ("$(USE_PRIVATE_LIBGCC)", "yes")
-PLATFORM_LIBGCC = -L $(OBJTREE)/lib_$(ARCH) -lgcc
+PLATFORM_LIBGCC = -L $(OBJTREE)/arch/$(ARCH)/lib -lgcc
 else
 PLATFORM_LIBGCC = -L $(USE_PRIVATE_LIBGCC) -lgcc
 endif
@@ -354,7 +354,7 @@ ifeq ($(CONFIG_KALLSYMS),y)
 endif
 
 $(OBJS):	depend
-		$(MAKE) -C cpu/$(CPU) $(if $(REMOTE_BUILD),$@,$(notdir $@))
+		$(MAKE) -C $(CPUDIR) $(if $(REMOTE_BUILD),$@,$(notdir $@))
 
 $(LIBS):	depend $(SUBDIRS)
 		$(MAKE) -C $(dir $(subst $(obj),,$@))
@@ -404,7 +404,7 @@ env:
 # Explicitly make _depend in subdirs containing multiple targets to prevent
 # parallel sub-makes creating .depend files simultaneously.
 depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
-		for dir in $(SUBDIRS) cpu/$(CPU) $(dir $(LDSCRIPT)) ; do \
+		for dir in $(SUBDIRS) $(CPUDIR) $(dir $(LDSCRIPT)) ; do \
 			$(MAKE) -C $$dir _depend ; done
 
 TAG_SUBDIRS = $(SUBDIRS)
@@ -548,8 +548,7 @@ icecube_5200_LOWBOOT_config		\
 icecube_5200_LOWBOOT08_config		\
 icecube_5200_DDR_config			\
 icecube_5200_DDR_LOWBOOT_config		\
-icecube_5200_DDR_LOWBOOT08_config	\
-icecube_5100_config:			unconfig
+icecube_5200_DDR_LOWBOOT08_config:	unconfig
 	@mkdir -p $(obj)include
 	@mkdir -p $(obj)board/icecube
 	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
@@ -567,14 +566,6 @@ icecube_5100_config:			unconfig
 	@[ -z "$(findstring DDR,$@)" ] || \
 		{ echo "#define CONFIG_MPC5200_DDR"	>>$(obj)include/config.h ; \
 		  $(XECHO) "... DDR memory revision" ; \
-		}
-	@[ -z "$(findstring 5200,$@)" ] || \
-		{ echo "#define CONFIG_MPC5200"		>>$(obj)include/config.h ; \
-		  $(XECHO) "... with MPC5200 processor" ; \
-		}
-	@[ -z "$(findstring 5100,$@)" ] || \
-		{ echo "#define CONFIG_MGT5100"		>>$(obj)include/config.h ; \
-		  $(XECHO) "... with MGT5100 processor" ; \
 		}
 	@$(MKCONFIG) -a IceCube ppc mpc5xxx icecube
 
@@ -594,7 +585,6 @@ lite5200b_LOWBOOT_config:	unconfig
 	@mkdir -p $(obj)board/icecube
 	@ echo "#define CONFIG_MPC5200_DDR"	>>$(obj)include/config.h
 	@ $(XECHO) "... DDR memory revision"
-	@ echo "#define CONFIG_MPC5200"		>>$(obj)include/config.h
 	@ echo "#define CONFIG_LITE5200B"	>>$(obj)include/config.h
 	@[ -z "$(findstring _PM_,$@)" ] || \
 		{ echo "#define CONFIG_LITE5200B_PM"	>>$(obj)include/config.h ; \
@@ -604,7 +594,6 @@ lite5200b_LOWBOOT_config:	unconfig
 		{ echo "TEXT_BASE = 0xFF000000" >$(obj)board/icecube/config.tmp ; \
 		  $(XECHO) "... with LOWBOOT configuration" ; \
 		}
-	@ $(XECHO) "... with MPC5200B processor"
 	@$(MKCONFIG) -a IceCube  ppc mpc5xxx icecube
 
 mcc200_config	\
@@ -675,6 +664,11 @@ MVBC_P_config: unconfig
 	{   	echo "#define CONFIG_MVBC_P" 	>>$(obj)include/config.h; }
 	@$(MKCONFIG) -n $@ -a MVBC_P ppc mpc5xxx mvbc_p matrix_vision
 
+MVSMR_config: unconfig
+	@mkdir -p $(obj)include
+	@mkdir -p $(obj)board/matrix_vision/mvsmr
+	@$(MKCONFIG) $(@:_config=) ppc mpc5xxx mvsmr matrix_vision
+
 o2dnt_config:	unconfig
 	@$(MKCONFIG) o2dnt ppc mpc5xxx o2dnt
 
@@ -728,21 +722,12 @@ TOP5200_config:	unconfig
 	@ echo "#define CONFIG_$(@:_config=) 1"	>$(obj)include/config.h
 	@$(MKCONFIG) -n $@ -a TOP5200 ppc mpc5xxx top5200 emk
 
-Total5100_config		\
 Total5200_config		\
 Total5200_lowboot_config	\
 Total5200_Rev2_config		\
 Total5200_Rev2_lowboot_config:	unconfig
 	@mkdir -p $(obj)include
 	@mkdir -p $(obj)board/total5200
-	@[ -z "$(findstring 5100,$@)" ] || \
-		{ echo "#define CONFIG_MGT5100"		>>$(obj)include/config.h ; \
-		  $(XECHO) "... with MGT5100 processor" ; \
-		}
-	@[ -z "$(findstring 5200,$@)" ] || \
-		{ echo "#define CONFIG_MPC5200"		>>$(obj)include/config.h ; \
-		  $(XECHO) "... with MPC5200 processor" ; \
-		}
 	@[ -n "$(findstring Rev,$@)" ] || \
 		{ echo "#define CONFIG_TOTAL5200_REV 1"	>>$(obj)include/config.h ; \
 		  $(XECHO) "... revision 1 board" ; \
@@ -1435,9 +1420,6 @@ MIP405T_config:	unconfig
 ML2_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ml2
 
-ml300_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) ppc ppc4xx ml300 xilinx
-
 ml507_flash_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
 	@mkdir -p $(obj)include $(obj)board/xilinx/ml507
@@ -1996,6 +1978,10 @@ ZPC1900_config: unconfig
 ## Coldfire
 #########################################################################
 
+astro_mcf5373l_config \
+astro_mcf5373l_RAM_config :	unconfig
+	@$(MKCONFIG) -t $(@:_config=) astro_mcf5373l m68k mcf532x mcf5373l astro
+
 M5208EVBE_config :		unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 m5208evbe freescale
 
@@ -2063,6 +2049,9 @@ EB+MCF-EV123_internal_config :	unconfig
 	@mkdir -p $(obj)board/BuS/EB+MCF-EV123
 	@echo "TEXT_BASE = 0xF0000000"|tee $(obj)board/BuS/EB+MCF-EV123/textbase.mk
 	@$(MKCONFIG) EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
+
+EP2500_config:			unconfig
+	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 ep2500 Mercury
 
 idmr_config :			unconfig
 	@$(MKCONFIG) $(@:_config=) m68k mcf52x2 idmr
@@ -2952,6 +2941,7 @@ davinci_dm365evm_config :	unconfig
 davinci_dm6467evm_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs dm6467evm davinci davinci
 
+magnesium_config	\
 imx27lite_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs imx27lite logicpd mx27
 
@@ -3570,7 +3560,7 @@ BFIN_BOARDS += cm-bf527 cm-bf533 cm-bf537e cm-bf537u cm-bf548 cm-bf561 \
 	tcm-bf518 tcm-bf537
 
 # Misc third party boards
-BFIN_BOARDS += bf537-minotaur bf537-srv1 bf561-acvilon blackstamp
+BFIN_BOARDS += bf537-minotaur bf537-srv1 bf561-acvilon blackstamp ip04
 
 # I-SYST Micromodule
 BFIN_BOARDS += ibf-dsp561
@@ -3754,9 +3744,9 @@ clean:
 	       $(obj)board/netstar/{eeprom,crcek,crcit,*.srec,*.bin}	  \
 	       $(obj)board/trab/trab_fkt   $(obj)board/voiceblue/eeprom   \
 	       $(obj)board/armltd/{integratorap,integratorcp}/u-boot.lds  \
-	       $(obj)lib_blackfin/u-boot.lds				  \
+	       $(obj)arch/blackfin/lib/u-boot.lds				  \
 	       $(obj)u-boot.lds						  \
-	       $(obj)cpu/blackfin/bootrom-asm-offsets.[chs]
+	       $(obj)arch/blackfin/cpu/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h
 	@rm -f $(obj)nand_spl/{u-boot.lds,u-boot-spl,u-boot-spl.map,System.map}
 	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl.map}
@@ -3779,7 +3769,7 @@ clobber:	clean
 	@rm -f $(obj)u-boot.kwb
 	@rm -f $(obj)u-boot.imx
 	@rm -f $(obj)tools/{env/crc32.c,inca-swap-bytes}
-	@rm -f $(obj)cpu/mpc824x/bedbug_603e.c
+	@rm -f $(obj)arch/ppc/cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -name "*" -type l -print | xargs rm -f
 	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -name "*" -type l -print | xargs rm -f

@@ -20,6 +20,6 @@
 # MA 02111-1307 USA
 #
 
-LDSCRIPT = cpu/$(CPU)/$(SOC)/u-boot.lds
+LDSCRIPT = $(CPUDIR)/$(SOC)/u-boot.lds
 TEXT_BASE = 0x97800000
 IMX_CONFIG = $(SRCTREE)/board/$(BOARDDIR)/imximage.cfg

@@ -21,7 +21,7 @@
  */
 
 /*
- * Ported from cpu/ppc4xx/i2c.c by AS HARNOIS by
+ * Ported from arch/ppc/cpu/ppc4xx/i2c.c by AS HARNOIS by
  * Travis B. Sawyer
  * Sandburst Corporation.
  */
@@ -31,7 +31,7 @@
 #include <i2c.h>
 #include <command.h>
 #include "ppc440gx_i2c.h"
-#include <asm-ppc/io.h>
+#include <asm/io.h>
 
 #ifdef CONFIG_I2C_BUS1
 

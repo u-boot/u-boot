@@ -41,6 +41,7 @@
  */
 
 #define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
+#define CONFIG_MPC5200		1	/* (more precisely a MPC5200 CPU) */
 #define CONFIG_TOTAL5200	1	/* ... on Total5200 board */
 
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
@@ -73,7 +74,6 @@
 #define CONFIG_SPLASH_SCREEN
 
 
-#ifdef CONFIG_MPC5200	/* MGT5100 PCI is not supported yet. */
 /*
  * PCI Mapping:
  * 0x40000000 - 0x4fffffff - PCI Memory
@@ -98,12 +98,6 @@
 #define CONFIG_SYS_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1
 
-#else	/* MGT5100 */
-
-#define CONFIG_MII		1
-
-#endif
-
 /* Partitions */
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
@@ -127,9 +121,7 @@
  */
 #include <config_cmd_default.h>
 
-#if defined(CONFIG_MPC5200)
-    #define CONFIG_CMD_PCI
-#endif
+#define CONFIG_CMD_PCI
 
 #define CONFIG_CMD_BMP
 #define CONFIG_CMD_EEPROM
@@ -176,12 +168,10 @@
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#if defined(CONFIG_MPC5200)
 /*
  * IPB Bus clocking configuration.
  */
 #undef CONFIG_SYS_IPBCLK_EQUALS_XLBCLK		/* define for 133MHz speed */
-#endif
 
 /*
  * I2C configuration
@@ -326,17 +316,8 @@
 /*
  * Various low-level settings
  */
-#if defined(CONFIG_MPC5200)
 #define CONFIG_SYS_HID0_INIT		HID0_ICE | HID0_ICFI
 #define CONFIG_SYS_HID0_FINAL		HID0_ICE
-#else
-#define CONFIG_SYS_HID0_INIT		0
-#define CONFIG_SYS_HID0_FINAL		0
-#endif
-
-#if defined (CONFIG_MGT5100)
-#   define CONFIG_BOARD_EARLY_INIT_R	/* switch from CS_BOOT to CS0 */
-#endif
 
 #if CONFIG_TOTAL5200_REV==1
 #   define CONFIG_SYS_BOOTCS_START	CONFIG_SYS_FLASH_BASE

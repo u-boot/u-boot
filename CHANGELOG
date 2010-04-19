@@ -1,3 +1,460 @@
+commit 8e64d6efd8d778a5f83d8bff9cd273a86dcc182f
+Author: Heiko Schocher <hs@denx.de>
+Date:	Wed Mar 31 08:34:51 2010 +0200
+
+    net, doc: How to setup MAC address correctly
+
+    As this seems unclear, document how the flow of setting up
+    the MAC address is correct.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+    Text changed slightly, adding input from Mike Frysinger.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit b78b48c6a0c34b2991e31fc4548aaf773d34f2b3
+Author: Heiko Schocher <hs@denx.de>
+Date:	Wed Mar 31 08:34:46 2010 +0200
+
+    net, fec_mxc: only setup the device enetaddr with eeprom value
+
+    Only fill the device enetaddr with the contents of the eeprom,
+    do not program it in MAC address registers
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Acked-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit d5a64237d58ded31c2eed455c7a346e1c85f5565
+Author: Felix Radensky <felix@embedded-sol.com>
+Date:	Tue Mar 30 15:02:13 2010 +0300
+
+    doc: Fix ramdisk examples in doc/uImage.FIT/multi.its
+
+    The ramdisk sections in doc/uImage.FIT/multi.its lack
+    load address and entry point properties. Using examples
+    from this file will result in unbootable image, u-boot
+    will issue the following error messages:
+
+    Can't get ramdisk subimage load address!
+    Ramdisk image is corrupt or invalid
+
+    This patch adds missing properties to ramdisk sections.
+
+    Signed-off-by: Felix Radensky <felix@embedded-sol.com>
+
+commit 2d2018f3db5ed834bc1ee208a2c6212fdf00bca1
+Author: Heiko Schocher <heiko.schocher@invitel.hu>
+Date:	Wed Mar 24 13:22:50 2010 +0100
+
+    jffs2, suen3: Fix compiler warning
+
+    $ ./MAKEALL suen3
+    jffs2_1pass.c: In function 'get_fl_mem':
+    jffs2_1pass.c:399: warning: unused variable 'id'
+    jffs2_1pass.c: In function 'get_node_mem':
+    jffs2_1pass.c:423: warning: unused variable 'id'
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Tested-by: Tom <Tom.Rix@windriver.com>
+
+commit 9ff32d8ccf0e23b5577c25610f001af8d761b4a2
+Author: Timur Tabi <timur@freescale.com>
+Date:	Mon Mar 29 12:51:07 2010 -0500
+
+    mpc86xx: set the DDR BATs after calculating true DDR size
+
+    After determining how much DDR is actually in the system, set DBAT0 and
+    IBAT0 accordingly.	This ensures that the CPU won't attempt to access
+    (via speculation) addresses outside of actual memory.
+
+    On 86xx systems, DBAT0 and IBAT0 (the BATs for DDR) are initialized to 2GB
+    and kept that way.	If the system has less than 2GB of memory (typical for
+    an MPC8610 HPCD), the CPU may attempt to access this memory during
+    speculation.  The zlib code is notorious for generating such memory reads,
+    and indeed on the MPC8610, uncompressing the Linux kernel causes a machine
+    check (without this patch).
+
+    Currently we are limited to power of two sized DDR since we only use a
+    single bat.  If a non-power of two size is used that is less than
+    CONFIG_MAX_MEM_MAPPED u-boot will crash.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 33f57bd553edf29dffef5a6c7d76e169c79a6049
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri Mar 26 15:14:43 2010 -0500
+
+    85xx: Fix enabling of L1 cache parity on secondary cores
+
+    Use the same code between primary and secondary cores to init the
+    L1 cache.  We were not enabling cache parity on the secondary cores.
+
+    Also, reworked the L1 cache init code to match the e500mc L2 init code
+    that first invalidates the cache and locks.  Than enables the cache and
+    makes sure its enabled before continuing.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 1a332da61df9c38b567359af114daeaaaefaead8
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Mar 29 15:30:46 2010 +0200
+
+    ppc4xx: Fix problem with I2C bus >= 1 initialization
+
+    This patch fixes a problem introduced with patch eb5eb2b0
+    [ppc4xx: Cleanup PPC4xx I2C infrastructure]. We need to assign the I2C
+    base address to the "i2c" pointer inside of the controller loop.
+    Otherwise controller 0 is initialized multiple times instead of
+    initializing each I2C controller sequentially.
+
+    Tested on Katmai.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Acked-by: Heiko Schocher <hs@denx.de>
+
+commit 24de2f4be00f81c58270d0df47296bf3a3601cef
+Author: Heiko Schocher <hs@denx.de>
+Date:	Mon Mar 29 13:15:48 2010 +0200
+
+    bootm, linux: fix booting Multi-File Image with "kernel+ramdisk+fdt"
+
+    Booting a "Multi-File Image" including a linux kernel, ramdisk and
+    fdt, generated with
+
+    mkimage -A ppc \
+	-O linux \
+	-T multi \
+	-C gzip \
+	-a 00000000 \
+	-e 00000000 \
+	-n "kernel-2.6+initrd+dtb" \
+	-d "vmlinux.bin.gz:ramdisk_image.gz:board.dtb" \
+	multi.bin
+
+    actually fails, because ramdisk start and end addresses
+    didn;t get initialized. This patch fixes this issue.
+
+    Tested on the KUP4K board.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 2883cc2d48e99fd1873ef8af03fee7966611b735
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Mar 28 00:25:14 2010 +0100
+
+    Prepare 2010.03-rc3
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 060f28532b09dd3d2c78423bdd809ac768a27629
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Thu Mar 25 14:07:23 2010 +0100
+
+    cmd_usb.c: print debug messages only when DEBUG is defined
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a574cff121b1479c8e962b7a2a29310020387260
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Mar 24 12:19:19 2010 +0100
+
+    ml300: remove support for broken, orphaned board
+
+    The ml300 board has a number of issues, but nobody cares about this
+    long-orphaned board any more.  Remove it.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Acked-by: Michal Simek <monstr@monstr.eu>
+
+commit 04387d24a17b1ee13024dd4779da4b84d47c65cc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat Mar 27 23:37:46 2010 +0100
+
+    mkimage: fix Segmentation Fault when run without "-n name" option
+
+    The restructuring of the mkimage command in commit 89a4d6b1 ("tools:
+    mkimage: split code into core, default and FIT image specific")
+    introduced a bug that caused mkimage to segfault when run without
+    "-n name" option.  Initialize the imagename entry to prevent that.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c40c94a3d20a8616264c2dfcda85279185d69aeb
+Author: Renato Andreola <renato.andreola@imagos.it>
+Date:	Wed Mar 24 23:00:47 2010 +0800
+
+    cfi_flash: precision and underflow problem in tout calculation
+
+    With old configuration it could happen tout=0 if CONFIG_SYS_HZ<1000.
+
+    Signed-off-by: Renato Andreola <renato.andreola@imagos.it>
+    Signed-off-by: Alessandro Rubini <rubini@gnudd.com>
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit c550afada5fcad426aa6a219a329feb9eedae8b2
+Author: Rupjyoti Sarmah <rsarmah@appliedmicro.com>
+Date:	Wed Mar 24 16:52:02 2010 +0530
+
+    ppc4xx fix unstable 440EPx bootstrap options
+
+    440EPx fixed bootstrap options A, B, D, and E sets PLL FWDVA to a value = 1.
+    This results in the PLLOUTB being greater than the CPU clock frequency
+    resulting unstable 440EPx operation resulting in various software hang
+    conditions.
+
+    This patch reprograms the FWDVA satisfying the requirement of setting FWDVB
+    to a value greater than 1 while using one of the four deafult bootstrap options.
+
+    Signed-off-by: Rupjyoti Sarmah <rsarmah@amcc.com>
+    Acked-by : Victor Gallardo <vgallardo@appliedmicro.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fb508b8b39a52a4063d098f5a9b4355bc5b30c14
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Wed Mar 24 10:16:20 2010 +0100
+
+    at91: Get rid of some warnings when building for otc570
+
+    The soft-i2c code for AT91 defines I2C_SOFT_DECLARATIONS
+    for direct access by dereferencing a pio pointer.
+    The OTC570 platform uses the AT91 gpio API so it does not
+    need the pio variable.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+
+commit acb13868936a28502782a16e1edaec378e494a29
+Author: Alessandro Rubini <rubini@unipv.it>
+Date:	Sat Mar 13 17:44:08 2010 +0100
+
+    lcd: make 16bpp work
+
+    Support for 16bpp was supposed to be in the code but was not working.
+    This makes it work and has been tested in the nhk8815 board.
+
+    Signed-off-by: Alessandro Rubini <rubini@unipv.it>
+    Acked-by: Andrea Gallo <andrea.gallo@stericsson.com>
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 152dda3d94e97ede7af3f9560a59a659384d4585
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Mar 22 23:25:00 2010 +0100
+
+    Prepare v2010.03-rc2
+
+    Update CHANGELOG
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit d650da2dd4af99967aabc43cccbd8f160eb4cea6
+Author: Matthias Kaehlcke <matthias@kaehlcke.net>
+Date:	Tue Mar 9 22:13:33 2010 +0100
+
+    ep93xx timer: Fix resolution of get_ticks()
+
+    ep93xx timer: Make get_ticks() return a value in CONFIG_SYS_HZ resolution,
+    as announced by get_tbclk()
+
+    Signed-off-by: Matthias Kaehlcke <matthias@kaehlcke.net>
+
+commit 7e67fb5bf27a07d3b8d6b97c76f7195f7d68af58
+Author: Matthias Kaehlcke <matthias@kaehlcke.net>
+Date:	Tue Mar 9 22:13:20 2010 +0100
+
+    ep93xx timer: Fix possible overflow in usecs_to_ticks()
+
+    ep93xx timer: Use 64-bit values in usecs_to_ticks() in order to avoid
+    overflows in intermediate values
+
+    Signed-off-by: Matthias Kaehlcke <matthias@kaehlcke.net>
+
+commit daa989b47297c9f73426783599c286ef3a1f3f49
+Author: Asen Dimov <dimov@ronetix.at>
+Date:	Thu Mar 18 13:41:47 2010 +0200
+
+    correct a syntax typo in at91_matrix.h
+
+    Signed-off-by: Asen Dimov <dimov@ronetix.at>
+
+commit 322ff395c9aec7b87a2211fe4333fdf44377c564
+Author: Jeff Angielski <jeff@theptrgroup.com>
+Date:	Wed Mar 17 15:09:26 2010 -0400
+
+    env: fix endian ordering in crc table
+
+    The crc table was being built as little endian for big endian
+    targets.  This would cause fw_printenv to always fail with
+    "Warning: Bad CRC, using default environment" messages.
+
+    Signed-off-by: Jeff Angielski <jeff@theptrgroup.com>
+    Acked-by: Joakim Tjernlund <Joakim.Tjernlund@transmode.se>
+
+commit 51c2ac9bb574c1420b993615268392b0c1f829f6
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Tue Mar 16 17:10:08 2010 +0100
+
+    mpc5121: cpu/mpc512x/diu.c: fix warnings
+
+    Fix warnings while compiling with CONFIG_VIDEO enabled:
+
+    diu.c: In function 'video_hw_init':
+    diu.c:158: warning: 'return' with no value, in function returning non-void
+    diu.c:162: warning: format '%ld' expects type 'long int', but argument 6 has type 'int'
+    diu.c:162: warning: format '%ld' expects type 'long int', but argument 7 has type 'int'
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit a74908161a1b37d780d3a826a86807bbc50a3857
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Tue Mar 16 15:29:33 2010 +0100
+
+    console.c: fix problem with splashimage
+
+    If a board uses cfb_console driver and splash image
+    and also defines CONFIG_SILENT_CONSOLE, the user is
+    locked out even if "silent" is not set. It is not
+    possible to get any output, neither on vga console
+    device nor on serial console after redirecting the
+    output to the serial console, since the GD_FLG_SILENT
+    flag remains set.
+
+    Fix the problem by redirecting the output from frame
+    buffer to serial console if splashimage is used.
+    Only suppress the output if "silent" environment
+    variable was set and don't set the GD_FLG_SILENT
+    flag arbitrarily.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 5647f78d04174b0b99857d2a7cbf25141bd14a45
+Author: Thomas Weber <swirl@gmx.li>
+Date:	Sat Mar 13 23:14:45 2010 +0100
+
+    mod change 755 => 644 for multiple files
+
+    I executed 'find . -name "*.[chS]" -perm 755 -exec chmod 644 {} \;'
+
+    Signed-off-by: Thomas Weber <swirl@gmx.li>
+    Add some more: neither Makefile nor config.mk need execute permissions.
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 99c006a320ceb9ea19135ac1512e4a81e8bebb72
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Sat Mar 13 21:09:00 2010 +0100
+
+    mxcmmc: fix warnings due to access 32 bit registers with 16 bit accessors
+
+    Some registers of the mxcmmc driver were accessed using
+    16 bit accessor functions, because only the LSB is
+    significant. This is not needed and generates
+    warnings.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit c96f86eefc215b67dd222694ce2b6f60e6a42b0b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jan 17 23:55:53 2010 +0100
+
+    TFTP: allow for adjustable retransmission timout
+
+    So far, TFTP negotiated a fixed retransmission timeout of 5 seconds.
+    In some cases (busy networks, slow TFTP servers) this caused very
+    slow transfers. A new environment variable "tftptimeout" allows to
+    set this timeout. Lowering this value may make downloads succeed
+    faster in networks with high packet loss rates or with unreliable
+    TFTP servers.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Ben Warren <biggerbadderben@gmail.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 252b404d954f91499a4477a3e1064eb237ce5a1c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Mar 9 14:27:25 2010 +0100
+
+    Fix PCI_BASE_ADDRESS_5 handling in pci_hose_config_device()
+
+    Signed-off-by: FUJITA Kazutoshi <fujita@soum.co.jp>
+    Signed-off-by: <wd@denx.de>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit 9d90a93d367272ee65550c0c9f82615cec967c70
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Thu Feb 25 14:03:08 2010 +0100
+
+    cmd_mmc remove \n
+
+    This patch removes the \n after the help message for mmcinfo.
+    This resulted in an empty line being displayed after the mmcinfo line
+    when the help command was given.
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit 67c7189dd35cb368ef665126fd17816581bd2e92
+Author: Renato Andreola <renato.andreola@imagos.it>
+Date:	Tue Mar 16 16:01:29 2010 -0400
+
+    nios2: Added support to YANU UART
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 1e67fb32fbdae7949bb423c9e20b3f77c0a61663
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Tue Mar 16 12:12:48 2010 -0400
+
+    nios2: use generic unaligned.h
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 05022629a2ca6c385dc390d32c20aa27cf5d915a
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Jan 21 05:01:15 2010 -0500
+
+    asm-blackfin/unaligned.h: add for zlib code
+
+    The new zlib code wants asm/unaligned.h, so have the Blackfin version pull
+    in the asm-generic/unaligned.h.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 3adc1fda38a6aacd4aaf3c2c9cc62a1e69e6de17
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Jan 21 05:01:14 2010 -0500
+
+    asm-generic/unaligned.h: dynamic default unaligned accesses
+
+    This is based on the asm-arm/unaligned.h, but made generic so all arches
+    that cannot do unaligned accesses can utilize it.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit be129aa71882421ad0b50cd3762915d10ace27ad
+Author: Matthias Weisser <matthias.weisser@graf-syteco.de>
+Date:	Tue Jan 12 12:06:31 2010 +0100
+
+    video: Fix console display when splashscreen is used
+
+    If a splashscreen is used the console scrolling used the
+    scroll size as needed when a logo was displayed. This
+    patch sets the scroll size to the whole screen if
+    a splashscreen is shown.
+
+    Signed-off-by: Matthias Weisser <matthias.weisser@graf-syteco.de>
+
+commit 93910edb595a88d394da3eb2cf5148096155dfe9
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Mar 12 23:06:04 2010 +0100
+
+    Prepare v2010.03-rc1
+
+    Coding style cleanup, update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 4e72fb15c9073129e05820cc9c54f54bc4985835
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Fri Mar 12 22:11:00 2010 +0100

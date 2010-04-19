@@ -291,7 +291,8 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return 1;
 	}
 
-	if ((images.os.type == IH_TYPE_KERNEL) &&
+	if (((images.os.type == IH_TYPE_KERNEL) ||
+	     (images.os.type == IH_TYPE_MULTI)) &&
 	    (images.os.os == IH_OS_LINUX)) {
 		/* find ramdisk */
 		ret = boot_get_ramdisk (argc, argv, &images, IH_INITRD_ARCH,
@@ -462,7 +463,7 @@ static int bootm_start_standalone(ulong iflag, int argc, char *argv[])
 
 /* we overload the cmd field with our state machine info instead of a
  * function pointer */
-cmd_tbl_t cmd_bootm_sub[] = {
+static cmd_tbl_t cmd_bootm_sub[] = {
 	U_BOOT_CMD_MKENT(start, 0, 1, (void *)BOOTM_STATE_START, "", ""),
 	U_BOOT_CMD_MKENT(loados, 0, 1, (void *)BOOTM_STATE_LOADOS, "", ""),
 #if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC)

@@ -18,13 +18,13 @@ Changed files:
 - common/cmd_bdinfo.c		Clock frequencies output
 - common/cmd_mii.c		mii support
 
-- cpu/mcf5445x/cpu.c		cpu specific code
-- cpu/mcf5445x/cpu_init.c	Flexbus ChipSelect, Mux pins setup, icache and RTC extra regs
-- cpu/mcf5445x/interrupts.c	cpu specific interrupt support
-- cpu/mcf5445x/speed.c		system, pci, flexbus, and cpu clock
-- cpu/mcf5445x/Makefile		Makefile
-- cpu/mcf5445x/config.mk	config make
-- cpu/mcf5445x/start.S		start up assembly code
+- arch/m68k/cpu/mcf5445x/cpu.c		cpu specific code
+- arch/m68k/cpu/mcf5445x/cpu_init.c	Flexbus ChipSelect, Mux pins setup, icache and RTC extra regs
+- arch/m68k/cpu/mcf5445x/interrupts.c	cpu specific interrupt support
+- arch/m68k/cpu/mcf5445x/speed.c		system, pci, flexbus, and cpu clock
+- arch/m68k/cpu/mcf5445x/Makefile		Makefile
+- arch/m68k/cpu/mcf5445x/config.mk	config make
+- arch/m68k/cpu/mcf5445x/start.S		start up assembly code
 
 - doc/README.m54455evb	This readme file
 
@@ -52,12 +52,12 @@ Changed files:
 
 - include/configs/M54455EVB.h	Board specific configuration file
 
-- lib_m68k/board.c			board init function
-- lib_m68k/cache.c
-- lib_m68k/interrupts			Coldfire common interrupt functions
-- lib_m68k/m68k_linux.c
-- lib_m68k/time.c			Timer functions (Dma timer and PIT)
-- lib_m68k/traps.c			Exception init code
+- arch/m68k/lib/board.c			board init function
+- arch/m68k/lib/cache.c
+- arch/m68k/lib/interrupts			Coldfire common interrupt functions
+- arch/m68k/lib/m68k_linux.c
+- arch/m68k/lib/time.c			Timer functions (Dma timer and PIT)
+- arch/m68k/lib/traps.c			Exception init code
 
 - rtc/mcfrtc.c				Realtime clock Driver
 

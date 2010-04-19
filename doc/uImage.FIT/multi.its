@@ -61,6 +61,8 @@
 			arch = "ppc";
 			os = "linux";
 			compression = "gzip";
+			load = <00000000>;
+			entry = <00000000>;
 			hash@1 {
 				algo = "sha1";
 			};
@@ -73,6 +75,8 @@
 			arch = "ppc";
 			os = "linux";
 			compression = "gzip";
+			load = <00000000>;
+			entry = <00000000>;
 			hash@1 {
 				algo = "crc32";
 			};

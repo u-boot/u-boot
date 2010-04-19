@@ -30,6 +30,7 @@
  */
 
 #define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
+#define CONFIG_MPC5200		1	/* (more precisely a MPC5200 CPU) */
 #define CONFIG_ICECUBE		1	/* ... on IceCube board */
 
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
@@ -47,7 +48,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 
-#ifdef CONFIG_MPC5200	/* MPC5100 PCI is not supported yet. */
 /*
  * PCI Mapping:
  * 0x40000000 - 0x4fffffff - PCI Memory
@@ -76,10 +76,6 @@
 #define CONFIG_EEPRO100		1
 #define CONFIG_SYS_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1
-
-#else
-#define CONFIG_MII		1
-#endif
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION
@@ -169,7 +165,6 @@
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#if defined(CONFIG_MPC5200)
 /*
  * IPB Bus clocking configuration.
  */
@@ -178,7 +173,6 @@
 #else
 #undef CONFIG_SYS_IPBCLK_EQUALS_XLBCLK		/* define for 133MHz speed */
 #endif
-#endif /* CONFIG_MPC5200 */
 
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
@@ -338,13 +332,8 @@
 /*
  * Various low-level settings
  */
-#if defined(CONFIG_MPC5200)
 #define CONFIG_SYS_HID0_INIT		HID0_ICE | HID0_ICFI
 #define CONFIG_SYS_HID0_FINAL		HID0_ICE
-#else
-#define CONFIG_SYS_HID0_INIT		0
-#define CONFIG_SYS_HID0_FINAL		0
-#endif
 
 #if defined(CONFIG_LITE5200B)
 #define CONFIG_SYS_CS1_START		CONFIG_SYS_FLASH_BASE

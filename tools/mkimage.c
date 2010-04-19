@@ -37,6 +37,7 @@ struct mkimage_params params = {
 	.type = IH_TYPE_KERNEL,
 	.comp = IH_COMP_GZIP,
 	.dtc = MKIMAGE_DEFAULT_DTC_OPTIONS,
+	.imagename = "",
 };
 
 /*
@@ -144,7 +145,7 @@ main (int argc, char **argv)
 {
 	int ifd = -1;
 	struct stat sbuf;
-	unsigned char *ptr;
+	char *ptr;
 	int retval = 0;
 	struct image_type_params *tparams = NULL;
 
@@ -200,8 +201,7 @@ main (int argc, char **argv)
 			case 'a':
 				if (--argc <= 0)
 					usage ();
-				params.addr = strtoul (*++argv,
-					(char **)&ptr, 16);
+				params.addr = strtoul (*++argv, &ptr, 16);
 				if (*ptr) {
 					fprintf (stderr,
 						"%s: invalid load address %s\n",
@@ -218,8 +218,7 @@ main (int argc, char **argv)
 			case 'e':
 				if (--argc <= 0)
 					usage ();
-				params.ep = strtoul (*++argv,
-						(char **)&ptr, 16);
+				params.ep = strtoul (*++argv, &ptr, 16);
 				if (*ptr) {
 					fprintf (stderr,
 						"%s: invalid entry point %s\n",

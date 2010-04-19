@@ -20,7 +20,7 @@
  */
 
 #include <ppc_asm.tmpl>
-#include <asm-ppc/mmu.h>
+#include <asm/mmu.h>
 #include <config.h>
 
 /*

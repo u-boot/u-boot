@@ -31,7 +31,7 @@
 #include <atmel_lcdc.h>
 #include <lcd.h>
 
-#include "../../../cpu/at32ap/hsmc3.h"
+#include "../../../arch/avr32/cpu/hsmc3.h"
 
 #if defined(CONFIG_LCD)
 /* 480x272x16 @ 72 Hz */

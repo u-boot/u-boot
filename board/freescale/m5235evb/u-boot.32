@@ -55,12 +55,12 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mcf523x/start.o		(.text)
-    cpu/mcf523x/cpu.o		(.text)
-    cpu/mcf523x/cpu_init.o	(.text)
-    cpu/mcf523x/interrupts.o	(.text)
-    cpu/mcf523x/speed.o		(.text)
-    lib_m68k/libm68k.a		(.text)
+    arch/m68k/cpu/mcf523x/start.o		(.text)
+    arch/m68k/cpu/mcf523x/cpu.o		(.text)
+    arch/m68k/cpu/mcf523x/cpu_init.o	(.text)
+    arch/m68k/cpu/mcf523x/interrupts.o	(.text)
+    arch/m68k/cpu/mcf523x/speed.o		(.text)
+    arch/m68k/lib/libm68k.a		(.text)
     common/dlmalloc.o		(.text)
     common/cmd_bootm.o		(.text)
     common/cmd_flash.o		(.text)
@@ -68,7 +68,7 @@ SECTIONS
     common/cmd_mem.o		(.text)
     common/console.o		(.text)
     common/main.o		(.text)
-    lib_generic/libgeneric.a	(.text)
+    lib/libgeneric.a	(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.text)

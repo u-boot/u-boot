@@ -96,12 +96,12 @@
  * it linked after the configuration sector.
  */
 # define LDS_BOARD_TEXT \
-	cpu/blackfin/traps.o		(.text .text.*); \
-	cpu/blackfin/interrupt.o	(.text .text.*); \
-	cpu/blackfin/serial.o		(.text .text.*); \
+	arch/blackfin/cpu/traps.o		(.text .text.*); \
+	arch/blackfin/cpu/interrupt.o	(.text .text.*); \
+	arch/blackfin/cpu/serial.o		(.text .text.*); \
 	common/dlmalloc.o		(.text .text.*); \
-	lib_generic/crc32.o		(.text .text.*); \
-	lib_generic/zlib.o		(.text .text.*); \
+	lib/crc32.o		(.text .text.*); \
+	lib/zlib.o		(.text .text.*); \
 	board/bf561-ezkit/bf561-ezkit.o	(.text .text.*); \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	common/env_embedded.o		(.text .text.*);

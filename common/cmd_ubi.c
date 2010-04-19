@@ -190,7 +190,7 @@ static int ubi_remove_vol(char *volume)
 {
 	int i, err, reserved_pebs;
 	int found = 0, vol_id = 0;
-	struct ubi_volume *vol;
+	struct ubi_volume *vol = NULL;
 
 	for (i = 0; i < ubi->vtbl_slots; i++) {
 		vol = ubi->volumes[i];

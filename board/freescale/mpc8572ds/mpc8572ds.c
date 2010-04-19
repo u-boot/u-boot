@@ -36,7 +36,6 @@
 #include <tsec.h>
 #include <netdev.h>
 
-#include "../common/pixis.h"
 #include "../common/sgmii_riser.h"
 
 long int fixed_sdram(void);

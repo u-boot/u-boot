@@ -50,16 +50,16 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/mpc86xx/start.o	(.text)
-    cpu/mpc86xx/traps.o (.text)
-    cpu/mpc86xx/interrupts.o (.text)
-    cpu/mpc86xx/cpu_init.o (.text)
-    cpu/mpc86xx/cpu.o (.text)
-    cpu/mpc86xx/speed.o (.text)
+    arch/ppc/cpu/mpc86xx/start.o	(.text)
+    arch/ppc/cpu/mpc86xx/traps.o (.text)
+    arch/ppc/cpu/mpc86xx/interrupts.o (.text)
+    arch/ppc/cpu/mpc86xx/cpu_init.o (.text)
+    arch/ppc/cpu/mpc86xx/cpu.o (.text)
+    arch/ppc/cpu/mpc86xx/speed.o (.text)
     common/dlmalloc.o (.text)
-    lib_generic/crc32.o (.text)
-    lib_ppc/extable.o (.text)
-    lib_generic/zlib.o (.text)
+    lib/crc32.o (.text)
+    arch/ppc/lib/extable.o (.text)
+    lib/zlib.o (.text)
     *(.text)
     *(.got1)
    }

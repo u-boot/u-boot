@@ -29,7 +29,7 @@
 #include <ppc4xx.h>
 #include <asm/processor.h>
 #include <i2c.h>
-#include <asm-ppc/io.h>
+#include <asm/io.h>
 
 int compare_to_true(char *str);
 char *remove_l_w_space(char *in_str);

@@ -69,7 +69,7 @@ yellow_LED_off
 blue_LED_on
 blue_LED_off
 
-These are weakly defined in lib_arm/board.c to noops. Where applicable, define
+These are weakly defined in arch/arm/lib/board.c to noops. Where applicable, define
 these functions in the board specific source.
 
 TBD : Describe older board dependent macros similar to what is done for

@@ -4,7 +4,7 @@
  * (C) 2007,2008 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  * (C) 2008 Yusuke Goda <goda.yusuke@renesas.com>
  *
- * u-boot/cpu/sh4/pci-sh4.c
+ * u-boot/arch/sh/cpu/sh4/pci-sh4.c
  *
  * See file CREDITS for list of people who contributed to this
  * project.

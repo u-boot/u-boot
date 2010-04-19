@@ -47,7 +47,7 @@
 /*--------------------------------------------------------------------+
  * Fixed PHY (PHY-less) support for Ethernet Ports.
  *
- * Copied from cpu/ppc4xx/4xx_enet.c
+ * Copied from arch/ppc/cpu/ppc4xx/4xx_enet.c
  *--------------------------------------------------------------------*/
 
 /*

@@ -107,7 +107,7 @@ int ide_preinit(void)
 {
 	volatile gpio_t *gpio = (gpio_t *) MMAP_GPIO;
 
-	gpio->par_fec |= (gpio->par_fec & GPIO_PAR_FEC_FEC1_MASK) | 0x10;
+	gpio->par_fec |= (gpio->par_fec & GPIO_PAR_FEC_FEC1_UNMASK) | 0x10;
 	gpio->par_feci2c |=
 	    (gpio->par_feci2c & 0xF0FF) | (GPIO_PAR_FECI2C_MDC1_ATA_DIOR |
 					   GPIO_PAR_FECI2C_MDIO1_ATA_DIOW);
@@ -185,7 +185,7 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 	info->flash_id          = 0x01000000;
 	info->portwidth         = 1;
 	info->chipwidth         = 1;
-	info->buffer_size       = 32;
+	info->buffer_size       = 1;
 	info->erase_blk_tout    = 16384;
 	info->write_tout        = 2;
 	info->buffer_write_tout = 5;

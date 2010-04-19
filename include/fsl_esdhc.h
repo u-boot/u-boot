@@ -2,7 +2,7 @@
  * FSL SD/MMC Defines
  *-------------------------------------------------------------------
  *
- * Copyright 2007-2008, Freescale Semiconductor, Inc
+ * Copyright 2007-2008,2010 Freescale Semiconductor, Inc
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -39,6 +39,7 @@
 #define SYSCTL_PEREN		0x00000004
 #define SYSCTL_HCKEN		0x00000002
 #define SYSCTL_IPGEN		0x00000001
+#define SYSCTL_RSTA		0x01000000
 
 #define IRQSTAT			0x0002e030
 #define IRQSTAT_DMAE		(0x10000000)
@@ -132,6 +133,8 @@
 
 #define WML		0x2e044
 #define WML_WRITE	0x00010000
+#define WML_RD_WML_MASK	0xff
+#define WML_WR_WML_MASK	0xff0000
 
 #define BLKATTR		0x2e004
 #define BLKATTR_CNT(x)	((x & 0xffff) << 16)
@@ -148,7 +151,6 @@
 struct fsl_esdhc_cfg {
 	u32	esdhc_base;
 	u32	no_snoop;
-	u32	clk_enable;
 };
 
 /* Select the correct accessors depending on endianess */

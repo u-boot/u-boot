@@ -53,6 +53,11 @@
 
 #define POST_FAIL_SAVE		0x80
 
+#define POST_BEFORE		1
+#define POST_AFTER		0
+#define POST_PASSED		1
+#define POST_FAILED		0
+
 #ifndef	__ASSEMBLY__
 
 struct post_test {

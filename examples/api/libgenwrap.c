@@ -23,7 +23,7 @@
  *
  *
  * This is is a set of wrappers/stubs that allow to use certain routines from
- * U-Boot's lib_generic in the standalone app. This way way we can re-use
+ * U-Boot's lib in the standalone app. This way way we can re-use
  * existing code e.g. operations on strings and similar.
  *
  */

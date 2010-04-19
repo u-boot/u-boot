@@ -537,10 +537,14 @@ static int flash_status_check (flash_info_t * info, flash_sect_t sector,
 	ulong start;
 
 #if CONFIG_SYS_HZ != 1000
-	tout *= CONFIG_SYS_HZ/1000;
+	if ((ulong)CONFIG_SYS_HZ > 100000)
+		tout *= (ulong)CONFIG_SYS_HZ / 1000;  /* for a big HZ, avoid overflow */
+	else
+		tout = DIV_ROUND_UP(tout * (ulong)CONFIG_SYS_HZ, 1000);
 #endif
 
 	/* Wait for command completion */
+	reset_timer();
 	start = get_timer (0);
 	while (flash_is_busy (info, sector)) {
 		if (get_timer (start) > tout) {
@@ -600,6 +604,64 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 		break;
 	}
 	return retcode;
+}
+
+static int use_flash_status_poll(flash_info_t *info)
+{
+#ifdef CONFIG_SYS_CFI_FLASH_STATUS_POLL
+	if (info->vendor == CFI_CMDSET_AMD_EXTENDED ||
+	    info->vendor == CFI_CMDSET_AMD_STANDARD)
+		return 1;
+#endif
+	return 0;
+}
+
+static int flash_status_poll(flash_info_t *info, void *src, void *dst,
+			     ulong tout, char *prompt)
+{
+#ifdef CONFIG_SYS_CFI_FLASH_STATUS_POLL
+	ulong start;
+	int ready;
+
+#if CONFIG_SYS_HZ != 1000
+	if ((ulong)CONFIG_SYS_HZ > 100000)
+		tout *= (ulong)CONFIG_SYS_HZ / 1000;  /* for a big HZ, avoid overflow */
+	else
+		tout = DIV_ROUND_UP(tout * (ulong)CONFIG_SYS_HZ, 1000);
+#endif
+
+	/* Wait for command completion */
+	reset_timer();
+	start = get_timer(0);
+	while (1) {
+		switch (info->portwidth) {
+		case FLASH_CFI_8BIT:
+			ready = flash_read8(dst) == flash_read8(src);
+			break;
+		case FLASH_CFI_16BIT:
+			ready = flash_read16(dst) == flash_read16(src);
+			break;
+		case FLASH_CFI_32BIT:
+			ready = flash_read32(dst) == flash_read32(src);
+			break;
+		case FLASH_CFI_64BIT:
+			ready = flash_read64(dst) == flash_read64(src);
+			break;
+		default:
+			ready = 0;
+			break;
+		}
+		if (ready)
+			break;
+		if (get_timer(start) > tout) {
+			printf("Flash %s timeout at address %lx data %lx\n",
+			       prompt, (ulong)dst, (ulong)flash_read8(dst));
+			return ERR_TIMOUT;
+		}
+		udelay(1);		/* also triggers watchdog */
+	}
+#endif /* CONFIG_SYS_CFI_FLASH_STATUS_POLL */
+	return ERR_OK;
 }
 
 /*-----------------------------------------------------------------------
@@ -749,7 +811,12 @@ static int flash_write_cfiword (flash_info_t * info, ulong dest,
 	if (!sect_found)
 		sect = find_sector (info, dest);
 
-	return flash_full_status_check (info, sect, info->write_tout, "write");
+	if (use_flash_status_poll(info))
+		return flash_status_poll(info, &cword, dstaddr,
+					 info->write_tout, "write");
+	else
+		return flash_full_status_check(info, sect,
+					       info->write_tout, "write");
 }
 
 #ifdef CONFIG_SYS_FLASH_USE_BUFFER_WRITE
@@ -911,9 +978,15 @@ static int flash_write_cfibuffer (flash_info_t * info, ulong dest, uchar * cp,
 		}
 
 		flash_write_cmd (info, sector, 0, AMD_CMD_WRITE_BUFFER_CONFIRM);
-		retcode = flash_full_status_check (info, sector,
-						   info->buffer_write_tout,
-						   "buffer write");
+		if (use_flash_status_poll(info))
+			retcode = flash_status_poll(info, src - (1 << shift),
+						    dst - (1 << shift),
+						    info->buffer_write_tout,
+						    "buffer write");
+		else
+			retcode = flash_full_status_check(info, sector,
+							  info->buffer_write_tout,
+							  "buffer write");
 		break;
 
 	default:
@@ -935,6 +1008,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	int rcode = 0;
 	int prot;
 	flash_sect_t sect;
+	int st;
 
 	if (info->flash_id != FLASH_MAN_CFI) {
 		puts ("Can't erase unknown flash type - aborted\n");
@@ -998,10 +1072,20 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 				break;
 			}
 
-			if (flash_full_status_check
-			    (info, sect, info->erase_blk_tout, "erase")) {
+			if (use_flash_status_poll(info)) {
+				cfiword_t cword = (cfiword_t)0xffffffffffffffffULL;
+				void *dest;
+				dest = flash_map(info, sect, 0);
+				st = flash_status_poll(info, &cword, dest,
+						       info->erase_blk_tout, "erase");
+				flash_unmap(info, sect, 0, dest);
+			} else
+				st = flash_full_status_check(info, sect,
+							     info->erase_blk_tout,
+							     "erase");
+			if (st)
 				rcode = 1;
-			} else if (flash_verbose)
+			else if (flash_verbose)
 				putc ('.');
 		}
 	}

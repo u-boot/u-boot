@@ -52,7 +52,7 @@ cpu/arm<>/start.S so that it may be used by other boards.
 However, to avoid duplicating code through all processor files, a generic core
 for ARM Integrator CMs has been added
 
-	cpu/arm_intcm
+	arch/arm/cpu/arm_intcm
 
 Otherwise. for example,  the standard CM reset via the CM control register would
 need placing in each CM processor file......

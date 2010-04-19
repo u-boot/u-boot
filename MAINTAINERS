@@ -80,7 +80,6 @@ Torsten Demke <torsten.demke@fci.com>
 
 Wolfgang Denk <wd@denx.de>
 
-	IceCube_5100	MGT5100
 	IceCube_5200	MPC5200
 
 	ARIA		MPC5121e
@@ -423,6 +422,7 @@ Andre Schwarz <andre.schwarz@matrix-vision.de>
 
 	mvbc_p		MPC5200
 	mvblm7		MPC8343
+	mvsmr		MPC5200
 
 Jon Smirl <jonsmirl@gmail.com>
 
@@ -734,6 +734,10 @@ Jens Scharsig <esw@bus-elektronik.de>
 
 	eb_cpux9k2	ARM920T (AT91RM9200 SoC)
 
+Heiko Schocher <hs@denx.de>
+
+	magnesium	i.MX27
+
 Robert Schwebel <r.schwebel@pengutronix.de>
 
 	csb226		xscale
@@ -897,6 +901,10 @@ TsiChung Liew <Tsi-Chung.Liew@freescale.com>
 	M5475EVB	mcf547x_8x
 	M5485EVB	mcf547x_8x
 
+Wolfgang Wegner <w.wegner@astro-kom.de>
+
+	astro_mcf5373l	MCF5373L
+
 #########################################################################
 # AVR32 Systems:							#
 #									#
@@ -1011,6 +1019,10 @@ Valentin Yakovenkov <yakovenkov@niistt.ru>
 Anton Shurpin <shurpin.aa@niistt.ru>
 
 	BF561-ACVILON	BF561
+
+Brent Kandetzki <brentk@teleco.com>
+
+	IP04		BF532
 
 #########################################################################
 # End of MAINTAINERS list						#

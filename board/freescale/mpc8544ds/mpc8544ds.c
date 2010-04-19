@@ -35,7 +35,6 @@
 #include <tsec.h>
 #include <netdev.h>
 
-#include "../common/pixis.h"
 #include "../common/sgmii_riser.h"
 
 int checkboard (void)

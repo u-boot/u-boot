@@ -12,7 +12,7 @@ SOBJS	= start.o lowlevel_init.o
 COBJS	= nand_boot_fsl_nfc.o
 
 SRCS	:= $(SRCTREE)/nand_spl/nand_boot_fsl_nfc.c
-SRCS	+= $(SRCTREE)/cpu/arm1136/start.S
+SRCS	+= $(SRCTREE)/arch/arm/cpu/arm1136/start.S
 SRCS	+= $(SRCTREE)/board/freescale/mx31pdk/lowlevel_init.S
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 __OBJS	:= $(SOBJS) $(COBJS)
@@ -40,7 +40,7 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 
 #########################################################################
 
-$(obj)%.o:	$(SRCTREE)/cpu/arm1136/%.S
+$(obj)%.o:	$(SRCTREE)/arch/arm/cpu/arm1136/%.S
 	$(CC) $(AFLAGS) -c -o $@ $<
 
 $(obj)%.o:	$(SRCTREE)/board/freescale/mx31pdk/%.S

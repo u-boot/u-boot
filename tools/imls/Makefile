@@ -23,9 +23,9 @@ include $(TOPDIR)/config.mk
 BIN_FILES-y += imls
 
 # Source files which exist outside the tools/imls directory
-EXT_OBJ_FILES-y += lib_generic/crc32.o
-EXT_OBJ_FILES-y += lib_generic/md5.o
-EXT_OBJ_FILES-y += lib_generic/sha1.o
+EXT_OBJ_FILES-y += lib/crc32.o
+EXT_OBJ_FILES-y += lib/md5.o
+EXT_OBJ_FILES-y += lib/sha1.o
 EXT_OBJ_FILES-y += common/image.o
 
 # Source files located in the tools/imls directory
@@ -41,7 +41,7 @@ LIBFDT_OBJ_FILES-y += fdt_wip.o
 # now $(obj) is defined
 SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_OBJ_FILES-y:.o=.c))
 SRCS	+= $(addprefix $(SRCTREE)/tools/,$(OBJ_FILES-y:.o=.c))
-SRCS	+= $(addprefix $(SRCTREE)/libfdt/,$(LIBFDT_OBJ_FILES-y:.o=.c))
+SRCS	+= $(addprefix $(SRCTREE)/lib/libfdt/,$(LIBFDT_OBJ_FILES-y:.o=.c))
 BINS	:= $(addprefix $(obj),$(sort $(BIN_FILES-y)))
 LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
 
@@ -52,7 +52,7 @@ LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
 HOSTCPPFLAGS  = -idirafter $(SRCTREE)/include \
 		-idirafter $(OBJTREE)/include2 \
 		-idirafter $(OBJTREE)/include \
-	        -I $(SRCTREE)/libfdt \
+	        -I $(SRCTREE)/lib/libfdt \
 		-I $(SRCTREE)/tools \
 		-DUSE_HOSTCC -D__KERNEL_STRICT_NAMES
 
@@ -78,10 +78,10 @@ $(obj)imls.o: $(SRCTREE)/tools/imls/imls.c
 $(obj)%.o: $(SRCTREE)/common/%.c
 	$(CC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
-$(obj)%.o: $(SRCTREE)/lib_generic/%.c
+$(obj)%.o: $(SRCTREE)/lib/%.c
 	$(CC) -g $(HOSTCFLAGS) -c -o $@ $<
 
-$(obj)%.o: $(SRCTREE)/libfdt/%.c
+$(obj)%.o: $(SRCTREE)/lib/libfdt/%.c
 	$(CC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
 clean:

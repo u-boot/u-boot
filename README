@@ -138,68 +138,91 @@ U-Boot will always have a patchlevel of "0".
 Directory Hierarchy:
 ====================
 
-- api		Machine/arch independent API for external apps
-- board		Board dependent files
-- common	Misc architecture independent functions
-- cpu		CPU specific files
-  - 74xx_7xx	Files specific to Freescale MPC74xx and 7xx CPUs
-  - arm720t	Files specific to ARM 720 CPUs
-  - arm920t	Files specific to ARM 920 CPUs
-    - at91rm9200 Files specific to Atmel AT91RM9200 CPU
-    - imx	Files specific to Freescale MC9328 i.MX CPUs
-    - s3c24x0	Files specific to Samsung S3C24X0 CPUs
-  - arm925t	Files specific to ARM 925 CPUs
-  - arm926ejs	Files specific to ARM 926 CPUs
-  - arm1136	Files specific to ARM 1136 CPUs
-  - at32ap	Files specific to Atmel AVR32 AP CPUs
-  - blackfin	Files specific to Analog Devices Blackfin CPUs
-  - i386	Files specific to i386 CPUs
-  - ixp		Files specific to Intel XScale IXP CPUs
-  - leon2	Files specific to Gaisler LEON2 SPARC CPU
-  - leon3	Files specific to Gaisler LEON3 SPARC CPU
-  - mcf52x2	Files specific to Freescale ColdFire MCF52x2 CPUs
-  - mcf5227x	Files specific to Freescale ColdFire MCF5227x CPUs
-  - mcf532x	Files specific to Freescale ColdFire MCF5329 CPUs
-  - mcf5445x	Files specific to Freescale ColdFire MCF5445x CPUs
-  - mcf547x_8x	Files specific to Freescale ColdFire MCF547x_8x CPUs
-  - mips	Files specific to MIPS CPUs
-  - mpc5xx	Files specific to Freescale MPC5xx  CPUs
-  - mpc5xxx	Files specific to Freescale MPC5xxx CPUs
-  - mpc8xx	Files specific to Freescale MPC8xx  CPUs
-  - mpc8220	Files specific to Freescale MPC8220 CPUs
-  - mpc824x	Files specific to Freescale MPC824x CPUs
-  - mpc8260	Files specific to Freescale MPC8260 CPUs
-  - mpc85xx	Files specific to Freescale MPC85xx CPUs
-  - nios	Files specific to Altera NIOS CPUs
-  - nios2	Files specific to Altera Nios-II CPUs
-  - ppc4xx	Files specific to AMCC PowerPC 4xx CPUs
-  - pxa		Files specific to Intel XScale PXA CPUs
-  - s3c44b0	Files specific to Samsung S3C44B0 CPUs
-  - sa1100	Files specific to Intel StrongARM SA1100 CPUs
-- disk		Code for disk drive partition handling
-- doc		Documentation (don't expect too much)
-- drivers	Commonly used device drivers
-- examples	Example code for standalone applications, etc.
-- fs		Filesystem code (cramfs, ext2, jffs2, etc.)
-- include	Header Files
-- lib_arm	Files generic to ARM	 architecture
-- lib_avr32	Files generic to AVR32	 architecture
-- lib_blackfin	Files generic to Blackfin architecture
-- lib_generic	Files generic to all	 architectures
-- lib_i386	Files generic to i386	 architecture
-- lib_m68k	Files generic to m68k	 architecture
-- lib_microblaze Files generic to microblaze architecture
-- lib_mips	Files generic to MIPS	 architecture
-- lib_nios	Files generic to NIOS	 architecture
-- lib_nios2	Files generic to NIOS2	 architecture
-- lib_ppc	Files generic to PowerPC architecture
-- lib_sh	Files generic to SH	 architecture
-- lib_sparc	Files generic to SPARC	 architecture
-- libfdt	Library files to support flattened device trees
-- net		Networking code
-- post		Power On Self Test
-- rtc		Real Time Clock drivers
-- tools		Tools to build S-Record or U-Boot images, etc.
+/arch			Architecture specific files
+  /arm			Files generic to ARM architecture
+    /cpu		CPU specific files
+      /arm720t		Files specific to ARM 720 CPUs
+      /arm920t		Files specific to ARM 920 CPUs
+        /at91rm9200	Files specific to Atmel AT91RM9200 CPU
+        /imx		Files specific to Freescale MC9328 i.MX CPUs
+        /s3c24x0	Files specific to Samsung S3C24X0 CPUs
+      /arm925t		Files specific to ARM 925 CPUs
+      /arm926ejs	Files specific to ARM 926 CPUs
+      /arm1136		Files specific to ARM 1136 CPUs
+      /ixp		Files specific to Intel XScale IXP CPUs
+      /pxa		Files specific to Intel XScale PXA CPUs
+      /s3c44b0		Files specific to Samsung S3C44B0 CPUs
+      /sa1100		Files specific to Intel StrongARM SA1100 CPUs
+    /lib		Architecture specific library files
+  /avr32		Files generic to AVR32 architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /blackfin		Files generic to Analog Devices Blackfin architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /i386			Files generic to i386 architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /m68k			Files generic to m68k architecture
+    /cpu		CPU specific files
+      /mcf52x2		Files specific to Freescale ColdFire MCF52x2 CPUs
+      /mcf5227x		Files specific to Freescale ColdFire MCF5227x CPUs
+      /mcf532x		Files specific to Freescale ColdFire MCF5329 CPUs
+      /mcf5445x		Files specific to Freescale ColdFire MCF5445x CPUs
+      /mcf547x_8x	Files specific to Freescale ColdFire MCF547x_8x CPUs
+    /lib		Architecture specific library files
+  /microblaze		Files generic to microblaze architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /mips			Files generic to MIPS architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /nios			Files generic to Altera NIOS architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /nios2		Files generic to Altera NIOS2 architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /ppc			Files generic to PowerPC architecture
+    /cpu		CPU specific files
+      /74xx_7xx		Files specific to Freescale MPC74xx and 7xx CPUs
+      /mpc5xx		Files specific to Freescale MPC5xx CPUs
+      /mpc5xxx		Files specific to Freescale MPC5xxx CPUs
+      /mpc8xx		Files specific to Freescale MPC8xx CPUs
+      /mpc8220		Files specific to Freescale MPC8220 CPUs
+      /mpc824x		Files specific to Freescale MPC824x CPUs
+      /mpc8260		Files specific to Freescale MPC8260 CPUs
+      /mpc85xx		Files specific to Freescale MPC85xx CPUs
+      /ppc4xx		Files specific to AMCC PowerPC 4xx CPUs
+    /lib		Architecture specific library files
+  /sh			Files generic to SH architecture
+    /cpu		CPU specific files
+      /sh2		Files specific to sh2 CPUs
+      /sh3		Files specific to sh3 CPUs
+      /sh4		Files specific to sh4 CPUs
+    /lib		Architecture specific library files
+  /sparc		Files generic to SPARC architecture
+    /cpu		CPU specific files
+      /leon2		Files specific to Gaisler LEON2 SPARC CPU
+      /leon3		Files specific to Gaisler LEON3 SPARC CPU
+    /lib		Architecture specific library files
+/api			Machine/arch independent API for external apps
+/board			Board dependent files
+/common			Misc architecture independent functions
+/disk			Code for disk drive partition handling
+/doc			Documentation (don't expect too much)
+/drivers		Commonly used device drivers
+/examples		Example code for standalone applications, etc.
+/fs			Filesystem code (cramfs, ext2, jffs2, etc.)
+/include		Header Files
+/lib			Files generic to all architectures
+  /libfdt		Library files to support flattened device trees
+  /lzma			Library files to support LZMA decompression
+  /lzo			Library files to support LZO decompression
+/net			Networking code
+/post			Power On Self Test
+/rtc			Real Time Clock drivers
+/tools			Tools to build S-Record or U-Boot images, etc.
 
 Software Configuration:
 =======================
@@ -1133,6 +1156,12 @@ The following options need to be configured:
 		images, gzipped BMP images can be displayed via the
 		splashscreen support or the bmp command.
 
+- Run length encoded BMP image (RLE8) support: CONFIG_VIDEO_BMP_RLE8
+
+		If this option is set, 8-bit RLE compressed BMP images
+		can be displayed via the splashscreen support or the
+		bmp command.
+
 - Compression support:
 		CONFIG_BZIP2
 
@@ -1387,10 +1416,11 @@ The following options need to be configured:
 		to run and CONFIG_SYS_I2C_SLAVE to be the address of this node (ie
 		the CPU's i2c node address).
 
-		Now, the u-boot i2c code for the mpc8xx (cpu/mpc8xx/i2c.c)
-		sets the CPU up as a master node and so its address should
-		therefore be cleared to 0 (See, eg, MPC823e User's Manual
-		p.16-473). So, set CONFIG_SYS_I2C_SLAVE to 0.
+		Now, the u-boot i2c code for the mpc8xx
+		(arch/ppc/cpu/mpc8xx/i2c.c) sets the CPU up as a master node
+		and so its address should therefore be cleared to 0 (See,
+		eg, MPC823e User's Manual p.16-473). So, set
+		CONFIG_SYS_I2C_SLAVE to 0.
 
 		CONFIG_SYS_I2C_INIT_MPC5XXX
 
@@ -1934,9 +1964,9 @@ Legacy uImage format:
    13	common/image.c		Start multifile image verification
    14	common/image.c		No initial ramdisk, no multifile, continue.
 
-   15	lib_<arch>/bootm.c	All preparation done, transferring control to OS
+   15	arch/<arch>/lib/bootm.c	All preparation done, transferring control to OS
 
-  -30	lib_ppc/board.c		Fatal error, hang the system
+  -30	arch/ppc/lib/board.c	Fatal error, hang the system
   -31	post/post.c		POST test failed, detected by post_output_backlog()
   -32	post/post.c		POST test failed, detected by post_run_single()
 
@@ -2697,7 +2727,7 @@ Low Level (hardware related) configuration options:
   CONFIG_SYS_PCI_MSTR_MEMIO_SIZE, CONFIG_SYS_POCMR1_MASK_ATTRIB, CONFIG_SYS_PCI_MSTR_IO_LOCAL,
   CONFIG_SYS_PCI_MSTR_IO_BUS, CONFIG_SYS_CPU_PCI_IO_START, CONFIG_SYS_PCI_MSTR_IO_SIZE,
   CONFIG_SYS_POCMR2_MASK_ATTRIB: (MPC826x only)
-		Overrides the default PCI memory map in cpu/mpc8260/pci.c if set.
+		Overrides the default PCI memory map in arch/ppc/cpu/mpc8260/pci.c if set.
 
 - CONFIG_PCI_DISABLE_PCIE:
 		Disable PCI-Express on systems where it is supported but not

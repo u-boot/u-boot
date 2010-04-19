@@ -1515,7 +1515,7 @@ void *sbrk(ptrdiff_t increment)
 	ulong new = old + increment;
 
 	if ((new < mem_malloc_start) || (new > mem_malloc_end))
-		return NULL;
+		return (void *)MORECORE_FAILURE;
 
 	mem_malloc_brk = new;
 

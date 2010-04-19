@@ -61,7 +61,6 @@ LIST_5xxx="		\
 	EVAL5200	\
 	fo300		\
 	galaxy5200	\
-	icecube_5100	\
 	icecube_5200	\
 	inka4x0		\
 	ipek01		\
@@ -71,12 +70,12 @@ LIST_5xxx="		\
 	motionpro	\
 	munices		\
 	MVBC_P		\
+	MVSMR		\
 	o2dnt		\
 	pcm030		\
 	pf5200		\
 	PM520		\
 	TB5200		\
-	Total5100	\
 	Total5200	\
 	Total5200_Rev2	\
 	TQM5200		\
@@ -238,7 +237,6 @@ LIST_4xx="		\
 	MIP405		\
 	MIP405T		\
 	ML2		\
-	ml300		\
 	ml507		\
 	ml507_flash	\
 	neo		\
@@ -564,6 +562,7 @@ LIST_ARM9="			\
 	edb9315a		\
 	imx27lite		\
 	lpd7a400		\
+	magnesium		\
 	mv88f6281gtw_ge		\
 	mx1ads			\
 	mx1fs2			\
@@ -841,6 +840,7 @@ LIST_microblaze="			\
 #########################################################################
 
 LIST_coldfire="			\
+	astro_mcf5373l		\
 	cobra5272		\
 	EB+MCF-EV123		\
 	EB+MCF-EV123_internal	\
@@ -907,6 +907,7 @@ LIST_blackfin="		\
 	cm-bf548	\
 	cm-bf561	\
 	ibf-dsp561	\
+	ip04		\
 	tcm-bf518	\
 	tcm-bf537	\
 "

@@ -31,12 +31,12 @@ hopefully added soon!
 
 2.1 Motorola Coldfire MCF5272
 -----------------------------
-CPU specific code is located in: cpu/mcf52x2
+CPU specific code is located in: arch/m68k/cpu/mcf52x2
 
 
 2.1 Motorola Coldfire MCF5282
 -----------------------------
-CPU specific code is located in: cpu/mcf52x2
+CPU specific code is located in: arch/m68k/cpu/mcf52x2
 
 The MCF5282 Port no longer needs a preloader and can place in external or
 internal FLASH.

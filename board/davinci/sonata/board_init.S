@@ -2,7 +2,7 @@
  * Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
  *
  * Board-specific low level initialization code. Called at the very end
- * of cpu/arm926ejs/davinci/lowlevel_init.S. Just returns if there is no
+ * of arch/arm/cpu/arm926ejs/davinci/lowlevel_init.S. Just returns if there is no
  * initialization required.
  *
  * For _OLDER_ Sonata boards sets up GPIO4 to control NAND WP line. Newer
