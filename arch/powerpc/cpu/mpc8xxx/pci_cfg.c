@@ -56,18 +56,6 @@ static struct pci_info pci_config_info[] =
 #elif defined(CONFIG_MPC8536)
 static struct pci_info pci_config_info[] =
 {
-	[LAW_TRGT_IF_PCI] = {
-		.cfg =   0,
-	},
-	[LAW_TRGT_IF_PCIE_1] = {
-		.cfg =   (1 << 2) | (1 << 3) | (1 << 5) | (1 << 7),
-	},
-	[LAW_TRGT_IF_PCIE_2] = {
-		.cfg =   (1 << 5) | (1 << 7),
-	},
-	[LAW_TRGT_IF_PCIE_3] = {
-		.cfg =   (1 << 7),
-	},
 };
 #elif defined(CONFIG_MPC8544)
 static struct pci_info pci_config_info[] =
