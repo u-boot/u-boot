@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 Freescale Semiconductor, Inc.
+ * Copyright 2007-2010 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2003 Motorola Inc.
  * Modified by Xianghua Xiao, X.Xiao@motorola.com
@@ -30,9 +30,11 @@
 #include <watchdog.h>
 #include <asm/processor.h>
 #include <ioports.h>
+#include <sata.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
+#include <asm/fsl_serdes.h>
 #include "mp.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -418,3 +420,13 @@ void arch_preboot_os(void)
 
 	setup_ivors();
 }
+
+#if defined(CONFIG_CMD_SATA) && defined(CONFIG_FSL_SATA)
+int sata_initialize(void)
+{
+	if (is_serdes_configured(SATA1) || is_serdes_configured(SATA2))
+		return __sata_initialize();
+
+	return 1;
+}
+#endif
