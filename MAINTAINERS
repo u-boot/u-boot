@@ -228,6 +228,7 @@ Ilko Iliev <iliev@ronetix.at>
 
 	PM9261		AT91SAM9261
 	PM9263		AT91SAM9263
+	PM9G45		ARM926EJS (AT91SAM9G45 SoC)
 
 Gary Jennejohn <garyj@denx.de>
 

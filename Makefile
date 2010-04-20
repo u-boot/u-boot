@@ -2873,6 +2873,10 @@ otc570_config	:	unconfig
 pm9263_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs pm9263 ronetix at91
 
+pm9g45_config	:	unconfig
+	@mkdir -p $(obj)include
+	@$(MKCONFIG) -a pm9g45 arm arm926ejs pm9g45 ronetix at91
+
 SBC35_A9G20_NANDFLASH_config \
 SBC35_A9G20_EEPROM_config \
 SBC35_A9G20_config	:	unconfig
