@@ -62,6 +62,17 @@
 #define CONFIG_DNET_BASE	(CS1_BASE + QONG_FPGA_PERIPH_SIZE)
 #define CONFIG_NET_MULTI	1
 
+/* Framebuffer and LCD */
+#define CONFIG_LCD
+#define CONFIG_VIDEO_MX3
+#define	CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define LCD_BPP		LCD_COLOR16
+#define	CONFIG_SPLASH_SCREEN
+#define CONFIG_CMD_BMP
+#define CONFIG_BMP_16BPP
+#define CONFIG_DISPLAY_VBEST_VGG322403
+
 /*
  * Reducing the ARP timeout from default 5 seconds to 200ms we speed up the
  * initial TFTP transfer, should the user wish one, significantly.
