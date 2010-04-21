@@ -686,7 +686,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	WATCHDOG_RESET();
 
-#if defined(CONFIG_SYS_DELAYED_ICACHE) || defined(CONFIG_MPC83xx)
+#if defined(CONFIG_SYS_DELAYED_ICACHE)
 	icache_enable ();	/* it's time to enable the instruction cache */
 #endif
 
