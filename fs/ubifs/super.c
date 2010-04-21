@@ -1178,6 +1178,7 @@ int ubifs_mount(char *vol_name)
 		ubifs_umount(ubifs_sb->s_fs_info);
 
 	INIT_LIST_HEAD(&ubifs_infos);
+	INIT_LIST_HEAD(&ubifs_fs_type.fs_supers);
 
 	/*
 	 * Mount in read-only mode
