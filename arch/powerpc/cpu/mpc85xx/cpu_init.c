@@ -260,6 +260,10 @@ void cpu_init_f (void)
 
 int cpu_init_r(void)
 {
+#ifdef CONFIG_SYS_LBC_LCRR
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+#endif
+
 	puts ("L2:    ");
 
 #if defined(CONFIG_L2_CACHE)
@@ -383,6 +387,17 @@ int cpu_init_r(void)
 #if defined(CONFIG_MP)
 	setup_mp();
 #endif
+
+#ifdef CONFIG_SYS_LBC_LCRR
+	/*
+	 * Modify the CLKDIV field of LCRR register to improve the writing
+	 * speed for NOR flash.
+	 */
+	clrsetbits_be32(&lbc->lcrr, LCRR_CLKDIV, CONFIG_SYS_LBC_LCRR);
+	__raw_readl(&lbc->lcrr);
+	isync();
+#endif
+
 	return 0;
 }
 
