@@ -85,6 +85,7 @@
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
 #define	CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE \
 		+sizeof(CONFIG_SYS_PROMPT) + 16)	/* Print Buff */
+
 /*
  * Commands configuration
  */
@@ -93,7 +94,7 @@
 #define CONFIG_CMD_AUTOSCRIPT
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_FAT
+#define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
@@ -123,8 +124,8 @@
  * it has to be rounded to sector size
  */
 #define CONFIG_ENV_SIZE			0x20000	/* 128k */
-#define CONFIG_ENV_ADDR			0x40000
-#define CONFIG_ENV_OFFSET		0x40000	/* env starts here */
+#define CONFIG_ENV_ADDR			0x60000
+#define CONFIG_ENV_OFFSET		0x60000	/* env starts here */
 
 /*
  * Default environment variables
@@ -145,14 +146,16 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN	(1024 * 128) /* 128kB for malloc() */
+#define CONFIG_SYS_MALLOC_LEN	(1024 * 1024) /* 1 MiB for malloc() */
 /* size in bytes reserved for initial data */
 #define CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
  * Other required minimal configurations
  */
-#define CONFIG_CONSOLE_INFO_QUIET	/* some code reduction */
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
 #define CONFIG_ARCH_CPU_INIT	/* call arch_cpu_init() */
 #define CONFIG_ARCH_MISC_INIT	/* call arch_misc_init() */
 #define CONFIG_DISPLAY_CPUINFO	/* Display cpu info */
@@ -191,5 +194,19 @@
 #define CONFIG_ISO_PARTITION
 #define CONFIG_SUPPORT_VFAT
 #endif /* CONFIG_CMD_USB */
+
+/*
+ * File system
+ */
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#define CONFIG_RBTREE
+#define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_LZO
 
 #endif /* _CONFIG_SHEEVAPLUG_H */
