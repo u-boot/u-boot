@@ -500,7 +500,7 @@ emptybank:
 	/* just have your hardware desinger _GIVE_ you what you need here! */
 	movl    $DRCTMCTL, %edi
 	movb    $CONFIG_SYS_SDRAM_DRCTMCTL,%al
-	movb    (%edi), %al
+	movb    %al, (%edi)
 #else
 #if defined(CONFIG_SYS_SDRAM_CAS_LATENCY_2T) || defined(CONFIG_SYS_SDRAM_CAS_LATENCY_3T)
 	/* set the CAS latency now since it is hard to do
