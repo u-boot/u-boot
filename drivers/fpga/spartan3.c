@@ -366,6 +366,8 @@ static int Spartan3_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			CONFIG_FPGA_DELAY ();
 			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for INIT to start.\n");
+				if (*fn->abort)
+					(*fn->abort) (cookie);
 				return FPGA_FAIL;
 			}
 		} while (!(*fn->init) (cookie));
@@ -380,6 +382,8 @@ static int Spartan3_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 			CONFIG_FPGA_DELAY ();
 			if (get_timer (ts) > CONFIG_SYS_FPGA_WAIT) {	/* check the time */
 				puts ("** Timeout waiting for INIT to clear.\n");
+				if (*fn->abort)
+					(*fn->abort) (cookie);
 				return FPGA_FAIL;
 			}
 		} while ((*fn->init) (cookie));
@@ -394,6 +398,8 @@ static int Spartan3_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 				   while DONE is low (inactive) */
 				if ((*fn->done) (cookie) == 0 && (*fn->init) (cookie)) {
 					puts ("** CRC error during FPGA load.\n");
+					if (*fn->abort)
+						(*fn->abort) (cookie);
 					return (FPGA_FAIL);
 				}
 				val = data [bytecount ++];
