@@ -27,6 +27,7 @@
 #include <pci.h>
 #include <asm/io.h>
 #include <asm/pci.h>
+#include <asm/ic/pci.h>
 #include <asm/ic/sc520.h>
 
 static struct {
@@ -124,43 +125,7 @@ void pci_sc520_init(struct pci_controller *hose)
 {
 	hose->first_busno = 0;
 	hose->last_busno = 0xff;
-
-	/* System memory space */
-	pci_set_region(hose->regions + 0,
-		       SC520_PCI_MEMORY_BUS,
-		       SC520_PCI_MEMORY_PHYS,
-		       SC520_PCI_MEMORY_SIZE,
-		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-
-	/* PCI memory space */
-	pci_set_region(hose->regions + 1,
-		       SC520_PCI_MEM_BUS,
-		       SC520_PCI_MEM_PHYS,
-		       SC520_PCI_MEM_SIZE,
-		       PCI_REGION_MEM);
-
-	/* ISA/PCI memory space */
-	pci_set_region(hose->regions + 2,
-		       SC520_ISA_MEM_BUS,
-		       SC520_ISA_MEM_PHYS,
-		       SC520_ISA_MEM_SIZE,
-		       PCI_REGION_MEM);
-
-	/* PCI I/O space */
-	pci_set_region(hose->regions + 3,
-		       SC520_PCI_IO_BUS,
-		       SC520_PCI_IO_PHYS,
-		       SC520_PCI_IO_SIZE,
-		       PCI_REGION_IO);
-
-	/* ISA/PCI I/O space */
-	pci_set_region(hose->regions + 4,
-		       SC520_ISA_IO_BUS,
-		       SC520_ISA_IO_PHYS,
-		       SC520_ISA_IO_SIZE,
-		       PCI_REGION_IO);
-
-	hose->region_count = 5;
+	hose->region_count = pci_set_regions(hose);
 
 	pci_setup_type1(hose,
 			SC520_REG_ADDR,

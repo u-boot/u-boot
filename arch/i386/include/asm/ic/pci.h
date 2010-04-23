@@ -73,6 +73,7 @@
 extern int sc520_pci_ints[];
 
 void pci_sc520_init(struct pci_controller *hose);
+int pci_set_regions(struct pci_controller *hose);
 int pci_sc520_set_irq(int pci_pin, int irq);
 
 #endif

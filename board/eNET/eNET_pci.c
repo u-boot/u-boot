@@ -93,3 +93,36 @@ void pci_init_board(void)
 {
 	pci_sc520_init(&enet_hose);
 }
+
+int pci_set_regions(struct pci_controller *hose)
+{
+	/* System memory space */
+	pci_set_region(hose->regions + 0,
+		       SC520_PCI_MEMORY_BUS,
+		       SC520_PCI_MEMORY_PHYS,
+		       SC520_PCI_MEMORY_SIZE,
+		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
+
+	/* ISA/PCI memory space */
+	pci_set_region(hose->regions + 1,
+		       SC520_ISA_MEM_BUS,
+		       SC520_ISA_MEM_PHYS,
+		       SC520_ISA_MEM_SIZE,
+		       PCI_REGION_MEM);
+
+	/* PCI I/O space */
+	pci_set_region(hose->regions + 2,
+		       SC520_PCI_IO_BUS,
+		       SC520_PCI_IO_PHYS,
+		       SC520_PCI_IO_SIZE,
+		       PCI_REGION_IO);
+
+	/* ISA/PCI I/O space */
+	pci_set_region(hose->regions + 3,
+		       SC520_ISA_IO_BUS,
+		       SC520_ISA_IO_PHYS,
+		       SC520_ISA_IO_SIZE,
+		       PCI_REGION_IO);
+
+	return 4;
+}
