@@ -52,7 +52,9 @@ extern ulong _i386boot_rel_dyn_start;
 extern ulong _i386boot_rel_dyn_end;
 extern ulong _i386boot_bss_start;
 extern ulong _i386boot_bss_size;
-void ram_bootstrap (void *);
+
+void ram_bootstrap (void *, ulong);
+
 const char version_string[] =
 	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
 
@@ -162,6 +164,7 @@ init_fnc_t *init_sequence[] = {
 	NULL,
 };
 
+static gd_t gd_data;
 gd_t *gd;
 
 /*
@@ -174,21 +177,18 @@ void board_init_f (ulong stack_limit)
 	Elf32_Rel *rel_dyn_start = (Elf32_Rel *)&_i386boot_rel_dyn_start;
 	Elf32_Rel *rel_dyn_end = (Elf32_Rel *)&_i386boot_rel_dyn_end;
 	void *bss_start = &_i386boot_bss_start;
-	void *bss_size = &_i386boot_bss_size;
+	ulong bss_size = (ulong)&_i386boot_bss_size;
 
-	size_t uboot_size;
-	void *ram_start;
+	ulong uboot_size;
+	void *dest_addr;
 	ulong rel_offset;
 	Elf32_Rel *re;
 
-	void (*start_func)(void *);
+	void (*start_func)(void *, ulong);
 
-	/* compiler optimization barrier needed for GCC >= 3.4 */
-	__asm__ __volatile__("": : :"memory");
-
-	uboot_size = (size_t)u_boot_cmd_end - (size_t)text_start;
-	ram_start  = (void *)stack_limit - (uboot_size + (ulong)bss_size);
-	rel_offset = text_start - ram_start;
+	uboot_size = (ulong)u_boot_cmd_end - (ulong)text_start;
+	dest_addr  = (void *)stack_limit - (uboot_size + (ulong)bss_size);
+	rel_offset = text_start - dest_addr;
 	start_func = ram_bootstrap - rel_offset;
 
 	/* First stage CPU initialization */
@@ -200,10 +200,10 @@ void board_init_f (ulong stack_limit)
 		hang();
 
 	/* Copy U-Boot into RAM */
-	memcpy(ram_start, text_start, (size_t)uboot_size);
+	memcpy(dest_addr, text_start, uboot_size);
 
 	/* Clear BSS */
-	memset(bss_start - rel_offset,	0, (size_t)bss_size);
+	memset(bss_start - rel_offset,	0, bss_size);
 
 	/* Perform relocation adjustments */
 	for (re = rel_dyn_start; re < rel_dyn_end; re++)
@@ -213,27 +213,39 @@ void board_init_f (ulong stack_limit)
 				*(ulong *)(re->r_offset - rel_offset) -= (Elf32_Addr)rel_offset;
 	}
 
-	start_func(ram_start);
-
-	/* NOTREACHED - relocate_code() does not return */
+	/* Enter the relocated U-Boot! */
+	start_func(dest_addr, rel_offset);
+	/* NOTREACHED - board_init_f() does not return */
 	while(1);
 }
 
 /*
- * All attempts to jump straight from board_init_f() to board_init_r()
- * have failed, hence this special 'bootstrap' function.
+ * We cannot initialize gd_data in board_init_f() because we would be
+ * attempting to write to flash (I have even tried using manual relocation
+ * adjustments on pointers but it just won't work) and board_init_r() does
+ * not have enough arguments to allow us to pass the relocation offset
+ * straight up. This bootstrap function (which runs in RAM) is used to
+ * setup gd_data in order to pass the relocation offset to the rest of
+ * U-Boot.
+ *
+ * TODO: The compiler optimization barrier is intended to stop GCC from
+ * optimizing this function into board_init_f(). It seems to work without
+ * it, but I've left it in to be sure. I think also that the barrier in
+ * board_init_r() is no longer needed, but left it in 'just in case'
  */
-void ram_bootstrap (void *ram_start)
+void ram_bootstrap (void *dest_addr, ulong rel_offset)
 {
-	static gd_t gd_data;
-
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
-	board_init_r(&gd_data, (ulong)ram_start);
+	/* tell others: relocation done */
+	gd_data.reloc_off = rel_offset;
+	gd_data.flags |= GD_FLG_RELOC;
+
+	board_init_r(&gd_data, (ulong)dest_addr);
 }
 
-void board_init_r(gd_t *id, ulong ram_start)
+void board_init_r(gd_t *id, ulong dest_addr)
 {
 	char *s;
 	int i;
@@ -247,16 +259,13 @@ void board_init_r(gd_t *id, ulong ram_start)
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
-	memset (gd, 0, sizeof (gd_t));
 	gd->bd = &bd_data;
 	memset (gd->bd, 0, sizeof (bd_t));
 	show_boot_progress(0x22);
 
 	gd->baudrate =  CONFIG_BAUDRATE;
 
-	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
-
-	mem_malloc_init((((ulong)ram_start - CONFIG_SYS_MALLOC_LEN)+3)&~3,
+	mem_malloc_init((((ulong)dest_addr - CONFIG_SYS_MALLOC_LEN)+3)&~3,
 			CONFIG_SYS_MALLOC_LEN);
 
 	for (init_fnc_ptr = init_sequence, i=0; *init_fnc_ptr; ++init_fnc_ptr, i++) {
