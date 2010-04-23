@@ -280,8 +280,10 @@ void board_init_r(gd_t *id, ulong ram_start)
 	show_boot_progress(0x26);
 
 
+#ifdef CONFIG_CMD_NET
 	/* IP Address */
 	bd_data.bi_ip_addr = getenv_IPaddr ("ipaddr");
+#endif
 
 #if defined(CONFIG_PCI)
 	/*
