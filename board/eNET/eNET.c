@@ -24,6 +24,8 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/ic/sc520.h>
+#include <net.h>
+#include <netdev.h>
 
 #ifdef CONFIG_HW_WATCHDOG
 #include <watchdog.h>
@@ -172,4 +174,9 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 		return 1;
 	} else
 		return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
 }

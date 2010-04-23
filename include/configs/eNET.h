@@ -105,9 +105,10 @@
 #define CONFIG_CMD_LOADS	/* loads			*/
 #define CONFIG_CMD_MEMORY	/* md mm nm mw cp cmp crc base loop mtest */
 #define CONFIG_CMD_MISC		/* Misc functions like sleep etc*/
-#undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
+#define CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
 #undef CONFIG_CMD_NFS		/* NFS support			*/
 #define CONFIG_CMD_PCI		/* PCI support			*/
+#define CONFIG_CMD_PING		/* ICMP echo support		*/
 #define CONFIG_CMD_RUN		/* run command in env variable	*/
 #define CONFIG_CMD_SAVEENV	/* saveenv			*/
 #define CONFIG_CMD_SETGETDCR	/* DCR support on 4xx		*/
@@ -225,6 +226,12 @@
 #define CONFIG_SYS_SECOND_PCI_IRQ  9
 #define CONFIG_SYS_THIRD_PCI_IRQ   11
 #define CONFIG_SYS_FORTH_PCI_IRQ   15
+
+ /*
+ * Network device (TRL8100B) support
+ */
+#define CONFIG_NET_MULTI
+#define CONFIG_RTL8139
 
 /*-----------------------------------------------------------------------
  * Hardware watchdog configuration
