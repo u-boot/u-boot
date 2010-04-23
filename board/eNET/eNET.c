@@ -45,6 +45,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 unsigned long monitor_flash_len = CONFIG_SYS_MONITOR_LEN;
 
+static void enet_timer_isr(void);
+static void enet_toggle_run_led(void);
+
 void init_sc520_enet (void)
 {
 	/* Set CPU Speed to 100MHz */
@@ -160,6 +163,10 @@ int last_stage_init(void)
 
 	major = minor = 0;
 
+	outb(0x00, LED_LATCH_ADDRESS);
+
+	register_timer_isr (enet_timer_isr);
+
 	printf("Serck Controls eNET\n");
 
 	return 0;
@@ -217,4 +224,42 @@ void setup_pcat_compatibility()
 	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->wdtmap);
 	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->wpvmap);
 	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->icemap);
+}
+
+void enet_timer_isr(void)
+{
+	static long enet_ticks = 0;
+
+	enet_ticks++;
+
+	/* Toggle Watchdog every 100ms */
+	if ((enet_ticks % 100) == 0)
+		hw_watchdog_reset();
+
+	/* Toggle Run LED every 500ms */
+	if ((enet_ticks % 500) == 0)
+		enet_toggle_run_led();
+}
+
+void hw_watchdog_reset(void)
+{
+	/* Watchdog Reset must be atomic */
+	long flag = disable_interrupts();
+
+	if (sc520_mmcr->piodata15_0 & WATCHDOG_PIO_BIT)
+		sc520_mmcr->pioclr15_0 = WATCHDOG_PIO_BIT;
+	else
+		sc520_mmcr->pioset15_0 = WATCHDOG_PIO_BIT;
+
+	if (flag)
+		enable_interrupts();
+}
+
+void enet_toggle_run_led(void)
+{
+	unsigned char leds_state= inb(LED_LATCH_ADDRESS);
+	if (leds_state & LED_RUN_BITMASK)
+		outb(leds_state &~ LED_RUN_BITMASK, LED_LATCH_ADDRESS);
+	else
+		outb(leds_state | LED_RUN_BITMASK, LED_LATCH_ADDRESS);
 }

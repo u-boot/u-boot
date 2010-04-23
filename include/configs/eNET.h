@@ -53,7 +53,7 @@
  * bottom (processor) board MUST be removed!
  */
 #undef CONFIG_WATCHDOG
-#undef CONFIG_HW_WATCHDOG
+#define CONFIG_HW_WATCHDOG
 
  /*-----------------------------------------------------------------------
   * Serial Configuration
@@ -232,14 +232,6 @@
  */
 #define CONFIG_NET_MULTI
 #define CONFIG_RTL8139
-
-/*-----------------------------------------------------------------------
- * Hardware watchdog configuration
- */
-#define CONFIG_SYS_WATCHDOG_PIO_BIT  		0x8000
-#define CONFIG_SYS_WATCHDIG_PIO_DATA 		SC520_PIODATA15_0
-#define CONFIG_SYS_WATCHDIG_PIO_CLR  		SC520_PIOCLR15_0
-#define CONFIG_SYS_WATCHDIG_PIO_SET  		SC520_PIOSET15_0
 
 /*-----------------------------------------------------------------------
  * FPGA configuration
