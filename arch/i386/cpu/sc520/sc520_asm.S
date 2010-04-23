@@ -498,47 +498,21 @@ bad_ram:
 
 dram_done:
 
-	/* readback DRCBENDADR and return the number
-	 * of available ram bytes in %eax */
-
-	movl    $DRCBENDADR, %edi        /* DRAM ending address register  */
-
-bank0:	movl	(%edi), %eax
-	movl	%eax, %ecx
-	andl	$0x00000080, %ecx
-	jz	bank1
-	andl	$0x0000007f, %eax
-	shll	$22, %eax
-	movl	%eax, %ebx
-
-bank1:	movl	(%edi), %eax
-	movl	%eax, %ecx
-	andl	$0x00008000, %ecx
-	jz	bank2
-	andl	$0x00007f00, %eax
-	shll	$14, %eax
-	movl	%eax, %ebx
-
-bank2:	movl	(%edi), %eax
-	movl	%eax, %ecx
-	andl	$0x00800000, %ecx
-	jz	bank3
-	andl	$0x007f0000, %eax
-	shll	$6, %eax
-	movl	%eax, %ebx
-
-bank3:	movl	(%edi), %eax
-	movl	%eax, %ecx
-	andl	$0x80000000, %ecx
-	jz	done
-	andl	$0x7f000000, %eax
-	shrl	$2, %eax
-	movl	%eax, %ebx
-
-done:
-	movl	%ebx, %eax
-
 #if CONFIG_SYS_SDRAM_ECC_ENABLE
+	/*
+	 * We are in the middle of an existing 'call' - Need to store the
+	 * existing return address before making another 'call'
+	 */
+	movl	%ebp, %ebx
+
+	/* Get the memory size */
+	movl	$init_ecc, %ebp
+	jmpl	get_mem_size
+
+init_ecc:
+	/* Restore the orignal return address */
+	movl	%ebx, %ebp
+
 	/* A nominal memory test: just a byte at each address line */
 	movl    %eax, %ecx
 	shrl    $0x1, %ecx
@@ -575,6 +549,50 @@ set_ecc:
 	mov	$0x05, %al
 	movb    %al, (%edi)
 #endif
+
 out:
+	jmp	*%ebp
+
+/*
+ * Read and decode the sc520 DRCBENDADR MMCR and return the number of
+ * available ram bytes in %eax
+ */
+.globl get_mem_size
+get_mem_size:
+	movl    $DRCBENDADR, %edi        /* DRAM ending address register  */
+
+bank0:	movl	(%edi), %eax
+	movl	%eax, %ecx
+	andl	$0x00000080, %ecx
+	jz	bank1
+	andl	$0x0000007f, %eax
+	shll	$22, %eax
+	movl	%eax, %ebx
+
+bank1:	movl	(%edi), %eax
+	movl	%eax, %ecx
+	andl	$0x00008000, %ecx
+	jz	bank2
+	andl	$0x00007f00, %eax
+	shll	$14, %eax
+	movl	%eax, %ebx
+
+bank2:	movl	(%edi), %eax
+	movl	%eax, %ecx
+	andl	$0x00800000, %ecx
+	jz	bank3
+	andl	$0x007f0000, %eax
+	shll	$6, %eax
+	movl	%eax, %ebx
+
+bank3:	movl	(%edi), %eax
+	movl	%eax, %ecx
+	andl	$0x80000000, %ecx
+	jz	done
+	andl	$0x7f000000, %eax
+	shrl	$2, %eax
+	movl	%eax, %ebx
+
+done:
 	movl	%ebx, %eax
 	jmp	*%ebp

@@ -63,6 +63,11 @@ early_board_init_ret:
 	jmp     mem_init
 mem_init_ret:
 
+	/* fetch memory size (into %eax) */
+	mov	$get_mem_size_ret, %ebp
+	jmp     get_mem_size
+get_mem_size_ret:
+
 	/* Check we have enough memory for stack */
 	movl	$CONFIG_SYS_STACK_SIZE, %ecx
 	cmpl	%ecx, %eax
