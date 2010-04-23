@@ -141,7 +141,7 @@ static void setvector(int vector, u16 segment, void *handler)
 
 int bios_setup(void)
 {
-	ulong i386boot_bios      = (ulong)&_i386boot_bios;
+	ulong i386boot_bios      = (ulong)&_i386boot_bios + gd->reloc_off;
 	ulong i386boot_bios_size = (ulong)&_i386boot_bios_size;
 
 	static int done=0;
