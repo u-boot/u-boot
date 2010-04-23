@@ -140,7 +140,7 @@
 
 #define	CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address	*/
 
-#define	CONFIG_SYS_HZ			1024		/* incrementer freq: 1kHz */
+#define	CONFIG_SYS_HZ			1000		/* incrementer freq: 1kHz */
 
 /*-----------------------------------------------------------------------
  * SDRAM Configuration
