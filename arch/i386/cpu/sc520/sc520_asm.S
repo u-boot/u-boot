@@ -503,38 +503,37 @@ dram_done:
 
 	movl    $DRCBENDADR, %edi        /* DRAM ending address register  */
 
-	movl	(%edi), %eax
+bank0:	movl	(%edi), %eax
 	movl	%eax, %ecx
-	andl	$0x80000000, %ecx
-	jz	bank2
-	andl	$0x7f000000, %eax
-	shrl	$2, %eax
-	movl	%eax, %ebx
-
-bank2:	movl	(%edi), %eax
-	movl	%eax, %ecx
-	andl	$0x00800000, %ecx
+	andl	$0x00000080, %ecx
 	jz	bank1
-	andl	$0x007f0000, %eax
-	shll	$6, %eax
+	andl	$0x0000007f, %eax
+	shll	$22, %eax
 	movl	%eax, %ebx
 
 bank1:	movl	(%edi), %eax
 	movl	%eax, %ecx
 	andl	$0x00008000, %ecx
-	jz	bank0
+	jz	bank2
 	andl	$0x00007f00, %eax
 	shll	$14, %eax
 	movl	%eax, %ebx
 
-bank0:	movl	(%edi), %eax
+bank2:	movl	(%edi), %eax
 	movl	%eax, %ecx
-	andl	$0x00000080, %ecx
-	jz	done
-	andl	$0x0000007f, %eax
-	shll	$22, %eax
+	andl	$0x00800000, %ecx
+	jz	bank3
+	andl	$0x007f0000, %eax
+	shll	$6, %eax
 	movl	%eax, %ebx
 
+bank3:	movl	(%edi), %eax
+	movl	%eax, %ecx
+	andl	$0x80000000, %ecx
+	jz	done
+	andl	$0x7f000000, %eax
+	shrl	$2, %eax
+	movl	%eax, %ebx
 
 done:
 	movl	%ebx, %eax
