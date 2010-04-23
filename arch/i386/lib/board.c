@@ -441,3 +441,10 @@ unsigned long do_go_exec (ulong (*entry)(int, char *[]), int argc, char *argv[])
 
 	return (entry) (argc, argv);
 }
+
+void setup_pcat_compatibility(void)
+	__attribute__((weak, alias("__setup_pcat_compatibility")));
+
+void __setup_pcat_compatibility(void)
+{
+}
