@@ -28,6 +28,7 @@
 
 void init_sc520(void);
 unsigned long init_sc520_dram(void);
+void sc520_udelay(unsigned long usec);
 
 /* Memory mapped configuration registers */
 typedef struct sc520_mmcr {

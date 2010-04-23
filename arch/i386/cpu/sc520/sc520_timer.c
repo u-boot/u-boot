@@ -69,7 +69,11 @@ int timer_init(void)
 	return 0;
 }
 
+/* Allow boards to override udelay implementation */
 void __udelay(unsigned long usec)
+	__attribute__((weak, alias("sc520_udelay")));
+
+void sc520_udelay(unsigned long usec)
 {
 	int m = 0;
 	long u;
