@@ -44,7 +44,7 @@ board_init16_ret:
 	movl	%eax, %cr0
 	wbinvd
 
-	/* load the descriptor tables */
+	/* load the temporary Global Descriptor Table */
 o32 cs	lgdt	gdt_ptr
 
 	/* Now, we enter protected mode */
@@ -68,8 +68,13 @@ code32start:
 	.long	_start		/* offset */
 	.word	0x10		/* segment */
 
+/*
+ * The following Global Descriptor Table is just enough to get us into
+ * 'Flat Protected Mode' - It will be discarded as soon as the final
+ * GDT is setup in a safe location in RAM
+ */
 gdt_ptr:
-	.word	0x30		/* limit (48 bytes = 6 GDT entries) */
+	.word	0x20		/* limit (32 bytes = 4 GDT entries) */
 	.long	BOOT_SEG + gdt	/* base */
 
 	/* The GDT table ...
@@ -79,8 +84,6 @@ gdt_ptr:
 	 *	 0x08		Unused
 	 *	 0x10		32bit code
 	 *	 0x18		32bit data/stack
-	 *	 0x20		16bit code
-	 *	 0x28		16bit data/stack
 	 */
 
 gdt:
@@ -96,13 +99,3 @@ gdt:
 	.word	0x0		/* base address = 0 */
 	.word	0x9300		/* data read/write */
 	.word	0x00CF		/* granularity = 4096, 386 (+5th nibble of limit) */
-
-	.word	0xFFFF		/* 64kb */
-	.word	0		/* base address = 0 */
-	.word	0x9b00		/* data read/write */
-	.word	0x0010		/* granularity = 1  (+5th nibble of limit) */
-
-	.word	0xFFFF		/* 64kb */
-	.word	0		/* base address = 0 */
-	.word	0x9300		/* data read/write */
-	.word	0x0010		/* granularity = 1 (+5th nibble of limit) */
