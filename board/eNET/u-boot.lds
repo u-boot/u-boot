@@ -27,7 +27,7 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 0x38040000;		/* Location of bootcode in flash */
+	. = 0x06000000;		/* Location of bootcode in flash */
 	_i386boot_text_start = .;
 	.text  : { *(.text); }
 
@@ -97,14 +97,13 @@ SECTIONS
 	 * at reset and the code have to fit.
 	 * The fff0 offset of resetvec is important, however.
 	 */
-
 	. = 0xfffffe00;
-	.start32 : AT (0x3807fe00) { *(.start32); }
+	.start32 : AT (0x0603fe00) { *(.start32); }
 
 	. = 0xf800;
-	.start16 : AT (0x3807f800) { *(.start16); }
+	.start16 : AT (0x0603f800) { *(.start16); }
 
 	. = 0xfff0;
-	.resetvec : AT (0x3807fff0) { *(.resetvec); }
+	.resetvec : AT (0x0603fff0) { *(.resetvec); }
 	_i386boot_end = (LOADADDR(.resetvec) + SIZEOF(.resetvec) );
 }

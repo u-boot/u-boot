@@ -33,7 +33,27 @@
 .type _start, @function
 .globl _i386boot_start
 _i386boot_start:
+	/*
+	 * This is the fail safe 32-bit bootstrap entry point. The
+	 * following code is not executed from a cold-reset (actually, a
+	 * lot of it is, but from real-mode after cold reset. It is
+	 * repeated here to put the board into a state as close to cold
+	 * reset as necessary)
+	 */
+	cli
+	cld
+
+	/* Turn of cache (this might require a 486-class CPU) */
+	movl	%cr0, %eax
+	orl	$0x60000000,%eax
+	movl	%eax, %cr0
+	wbinvd
+
+	/* Tell 32-bit code it is being entered from an in-RAM copy */
+	movw	$0x0000, %bx
 _start:
+	/* This is the 32-bit cold-reset entry point */
+
 	movl    $0x18,%eax	/* Load our segement registes, the
 				 * gdt have already been loaded by start16.S */
 	movw    %ax,%fs
@@ -41,6 +61,18 @@ _start:
 	movw    %ax,%gs
 	movw    %ax,%es
 	movw    %ax,%ss
+
+	/* Clear the interupt vectors */
+	lidt	blank_idt_ptr
+
+	/*
+	 * Skip low-level board and memory initialization if not starting
+	 * from cold-reset. This allows us to do a fail safe boot-strap
+	 * into a new build of U-Boot from a known-good boot flash
+	 */
+	movw	$0x0001, %ax
+	cmpw	%ax, %bx
+	jne	mem_init_ret
 
 	/* We call a few functions in the board support package
 	 * since we have no stack yet we'll have to use %ebp
@@ -138,3 +170,7 @@ stack_ok:
 die:	hlt
 	jmp	die
 	hlt
+
+blank_idt_ptr:
+	.word	0		/* limit */
+	.long	0		/* base */

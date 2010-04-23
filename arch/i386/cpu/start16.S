@@ -45,9 +45,7 @@ board_init16_ret:
 	wbinvd
 
 	/* load the descriptor tables */
-o32 cs	lidt	idt_ptr
 o32 cs	lgdt	gdt_ptr
-
 
 	/* Now, we enter protected mode */
 	movl	%cr0, %eax
@@ -57,6 +55,8 @@ o32 cs	lgdt	gdt_ptr
 	/* Flush the prefetch queue */
 	jmp	ff
 ff:
+	/* Tell 32-bit code it is being entered from hard-reset */
+	movw	$0x0001, %bx
 
 	/* Finally jump to the 32bit initialization code */
 	movw	$code32start, %ax
@@ -67,10 +67,6 @@ o32 cs	ljmp	*(%bp)
 code32start:
 	.long	_start		/* offset */
 	.word	0x10		/* segment */
-
-idt_ptr:
-	.word	0		/* limit */
-	.long	0		/* base */
 
 gdt_ptr:
 	.word	0x30		/* limit (48 bytes = 6 GDT entries) */
