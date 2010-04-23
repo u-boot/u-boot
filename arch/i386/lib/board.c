@@ -422,10 +422,10 @@ void hang (void)
 unsigned long do_go_exec (ulong (*entry)(int, char *[]), int argc, char *argv[])
 {
 	/*
-	 * TODO: Test this function - changed to fix compiler error.
-	 * Original code was:
-	 *   return (entry >> 1) (argc, argv);
-	 * with a comment about Nios function pointers are address >> 1
+	 * x86 does not use a dedicated register to pass the pointer
+	 * to the global_data
 	 */
+	argv[-1] = (char *)gd;
+
 	return (entry) (argc, argv);
 }
