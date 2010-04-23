@@ -160,7 +160,7 @@
  * CPU Features
  */
 #define CONFIG_SYS_SC520_HIGH_SPEED	0	/* 100 or 133MHz */
-#undef  CONFIG_SYS_SC520_RESET			/* use SC520 MMCR's to reset cpu */
+#define CONFIG_SYS_SC520_RESET			/* use SC520 MMCR's to reset cpu */
 #define CONFIG_SYS_SC520_TIMER			/* use SC520 swtimers */
 #undef  CONFIG_SYS_GENERIC_TIMER		/* use the i8254 PIT timers */
 #undef  CONFIG_SYS_TSC_TIMER			/* use the Pentium TSC timers */
