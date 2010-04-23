@@ -111,8 +111,9 @@ int board_early_init_f(void)
 	writew(0x0615, &sc520_mmcr->romcs1ctl);
 	writew(0x0615, &sc520_mmcr->romcs2ctl);
 
-	writeb(0x02, &sc520_mmcr->adddecctl);
+	writeb(0x00, &sc520_mmcr->adddecctl);
 	writeb(0x07, &sc520_mmcr->uart1ctl);
+	writeb(0x07, &sc520_mmcr->uart2ctl);
 	writeb(0x06, &sc520_mmcr->sysarbctl);
 	writew(0x0003, &sc520_mmcr->sysarbmenb);
 

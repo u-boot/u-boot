@@ -21,6 +21,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm/ibmpc.h>
 /*
  * board/config.h - configuration options, board specific
  */
@@ -55,6 +56,26 @@
 #undef CONFIG_HW_WATCHDOG
 
  /*-----------------------------------------------------------------------
+  * Serial Configuration
+  */
+#define CONFIG_SERIAL_MULTI
+#undef CONFIG_SERIAL_SOFTWARE_FIFO
+#define CONFIG_CONS_INDEX		1
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		1843200
+#define CONFIG_BAUDRATE			9600
+#define CONFIG_SYS_BAUDRATE_TABLE	\
+	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
+
+#define CONFIG_SYS_NS16550_COM1		UART0_BASE
+#define CONFIG_SYS_NS16550_COM2		UART1_BASE
+#define CONFIG_SYS_NS16550_COM3		(0x1000 + UART0_BASE)
+#define CONFIG_SYS_NS16550_COM4		(0x1000 + UART1_BASE)
+#define CONFIG_SYS_NS16550_PORT_MAPPED
+
+ /*-----------------------------------------------------------------------
   * Video Configuration
   */
 #undef CONFIG_VIDEO			/* No Video Hardware */
@@ -64,8 +85,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
-
-#define CONFIG_BAUDRATE		9600
 
 /*-----------------------------------------------------------------------
  * Command line configuration.
@@ -122,9 +141,6 @@
 #define	CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address	*/
 
 #define	CONFIG_SYS_HZ			1024		/* incrementer freq: 1kHz */
-
-						/* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
 /*-----------------------------------------------------------------------
  * SDRAM Configuration

@@ -37,6 +37,7 @@
 #include <malloc.h>
 #include <net.h>
 #include <ide.h>
+#include <serial.h>
 #include <asm/u-boot-i386.h>
 #include <elf.h>
 
@@ -149,7 +150,6 @@ static void display_flash_config (ulong size)
 typedef int (init_fnc_t) (void);
 
 init_fnc_t *init_sequence[] = {
-	serial_init,
 	cpu_init_r,		/* basic cpu dependent setup */
 	board_early_init_r,	/* basic board dependent setup */
 	dram_init,		/* configure available RAM banks */
@@ -277,6 +277,9 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	}
 	show_boot_progress(0x23);
 
+#ifdef CONFIG_SERIAL_MULTI
+	serial_initialize();
+#endif
 	/* configure available FLASH banks */
 	size = flash_init();
 	display_flash_config(size);
