@@ -25,48 +25,85 @@
  * copyright is included below
  */
 
-/*
- *  =============================================================================
+/*		TITLE	SIZER - Aspen DRAM Sizing Routine.
+ * =============================================================================
  *
- *   Copyright 1999 Advanced Micro Devices, Inc.
+ *  Copyright 1999 Advanced Micro Devices, Inc.
+ * You may redistribute this program and/or modify this program under the terms
+ * of the GNU General Public License as published by the Free Software Foundation;
+ * either version 2 of the License, or (at your option) any later version.
  *
- *  This software is the property of Advanced Micro Devices, Inc  (AMD)  which
- *  specifically grants the user the right to modify, use and distribute this
- *  software provided this COPYRIGHT NOTICE is not removed or altered.  All
- *  other rights are reserved by AMD.
+ *  This program is distributed WITHOUT ANY WARRANTY; WITHOUT EVEN THE IMPLIED
+ * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
  *
- *  THE MATERIALS ARE PROVIDED "AS IS" WITHOUT ANY EXPRESS OR IMPLIED WARRANTY
- *  OF ANY KIND INCLUDING WARRANTIES OF MERCHANTABILITY, NONINFRINGEMENT OF
- *  THIRD-PARTY INTELLECTUAL PROPERTY, OR FITNESS FOR ANY PARTICULAR PURPOSE.
- *  IN NO EVENT SHALL AMD OR ITS SUPPLIERS BE LIABLE FOR ANY DAMAGES WHATSOEVER
- *  (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF PROFITS, BUSINESS
- *  INTERRUPTION, LOSS OF INFORMAITON) ARISING OUT OF THE USE OF OR INABILITY
- *  TO USE THE MATERIALS, EVEN IF AMD HAS BEEN ADVISED OF THE POSSIBILITY OF
- *  SUCH DAMAGES.  BECAUSE SOME JURSIDICTIONS PROHIBIT THE EXCLUSION OR
- *  LIMITATION OF LIABILITY FOR CONSEQUENTIAL OR INCIDENTAL DAMAGES, THE ABOVE
- *  LIMITATION MAY NOT APPLY TO YOU.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  *
- *  AMD does not assume any responsibility for any errors that may appear in
- *  the Materials nor any responsibility to support or update the Materials.
- *  AMD retains the right to make changes to its test specifications at any
- *  time, without notice.
+ * THE MATERIALS ARE PROVIDED "AS IS" WITHOUT ANY EXPRESS OR IMPLIED WARRANTY
+ * OF ANY KIND INCLUDING WARRANTIES OF MERCHANTABILITY, NONINFRINGEMENT OF
+ * THIRD-PARTY INTELLECTUAL PROPERTY, OR FITNESS FOR ANY PARTICULAR PURPOSE.
+ * IN NO EVENT SHALL AMD OR ITS SUPPLIERS BE LIABLE FOR ANY DAMAGES WHATSOEVER
+ * (INCLUDING, WITHOUT LIMITATION, DAMAGES FOR LOSS OF PROFITS, BUSINESS
+ * INTERRUPTION, LOSS OF INFORMATION) ARISING OUT OF THE USE OF OR INABILITY
+ * TO USE THE MATERIALS, EVEN IF AMD HAS BEEN ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGES.  BECAUSE SOME JURSIDICTIONS PROHIBIT THE EXCLUSION OR
+ * LIMITATION OF LIABILITY FOR CONSEQUENTIAL OR INCIDENTAL DAMAGES, THE ABOVE
+ * LIMITATION MAY NOT APPLY TO YOU.
  *
- *  So that all may benefit from your experience, please report  any  problems
- *  or suggestions about this software back to AMD.  Please include your name,
- *  company,  telephone number,  AMD product requiring support and question or
- *  problem encountered.
- *
- *  Advanced Micro Devices, Inc.         Worldwide support and contact
- *  Embedded Processor Division            information available at:
- *  Systems Engineering                       epd.support@amd.com
- *  5204 E. Ben White Blvd.                          -or-
- *  Austin, TX 78741                http://www.amd.com/html/support/techsup.html
- *  ============================================================================
+ * AMD does not assume any responsibility for any errors that may appear in
+ * the Materials nor any responsibility to support or update the Materials.
+ * AMD retains the right to make changes to its test specifications at any
+ * time, without notice.
+ * ==============================================================================
  */
 
-
-/*******************************************************************************
- *	 AUTHOR      : Buddy Fey - Original.
+/*
+ ******************************************************************************
+ *
+ *  FILE        : sizer.asm - SDRAM DIMM Sizing Algorithm
+ *
+ *
+ *
+ *  FUNCTIONS   : sizemem() - jumped to, not called.  To be executed after
+ *                reset to determine the size of the SDRAM DIMMs. Initializes
+ *		 the memory subsystem.
+ *
+ *
+ *  AUTHOR      : Buddy Fey - Original.
+ *
+ *
+ *  DESCRIPTION : Performs sizing on SDRAM DIMMs on ASPEN processor.
+ *                NOTE: This is a small memory model version
+ *
+ *
+ *  INPUTS      : BP contains return address offset
+ *		 CACHE is assumed to be disabled.
+ *		 The FS segment limit has already been set to big real mode
+ *		 (full 32-bit addressing capability)
+ *
+ *
+ *  OUTPUTS     : None
+ *
+ *
+ *  REG USE     :  ax,bx,cx,dx,di,si,bp, fs
+ *
+ *
+ *  REVISION    : See PVCS info below
+ *
+ *
+ *  TEST PLAN CROSS REFERENCE:
+ *
+ *
+ * $Workfile: $
+ * $Revision: 1.2 $
+ * $Date: 1999/09/22 12:49:33 $
+ * $Author: chipf $
+ * $Log: sizer.asm $
+ * Revision 1.2  1999/09/22 12:49:33  chipf
+ * Add legal header
+ *
  *******************************************************************************
  */
 
