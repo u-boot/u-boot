@@ -67,7 +67,7 @@ int print_cpuinfo(void)
 	u32 cpurev;
 
 	cpurev = get_cpu_rev();
-	printf("CPU:   Freescale i.MX51 family %d.%dV at %d MHz\n",
+	printf("CPU:   Freescale i.MX51 family rev%d.%d at %d MHz\n",
 		(cpurev & 0xF0) >> 4,
 		(cpurev & 0x0F) >> 4,
 		mxc_get_clock(MXC_ARM_CLK) / 1000000);
