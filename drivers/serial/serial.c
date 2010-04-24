@@ -115,6 +115,7 @@ static NS16550_t serial_ports[4] = {
 	name,\
 	bus,\
 	eserial##port##_init,\
+	NULL,\
 	eserial##port##_setbrg,\
 	eserial##port##_getc,\
 	eserial##port##_tstc,\

@@ -9,6 +9,7 @@ struct serial_device {
 	char ctlr[CTLRSIZE];
 
 	int  (*init) (void);
+	int  (*uninit) (void);
 	void (*setbrg) (void);
 	int (*getc) (void);
 	int (*tstc) (void);
