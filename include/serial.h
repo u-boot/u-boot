@@ -92,4 +92,11 @@ extern int usbtty_tstc(void);
 
 #endif /* CONFIG_USB_TTY */
 
+#if defined(CONFIG_MPC512X) &&  defined(CONFIG_SERIAL_MULTI)
+extern struct stdio_dev *open_port(int num, int baudrate);
+extern int close_port(int num);
+extern int write_port(struct stdio_dev *port, char *buf);
+extern int read_port(struct stdio_dev *port, char *buf, int size);
+#endif
+
 #endif

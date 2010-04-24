@@ -401,3 +401,90 @@ int serial_getcts(void)
 	return serial_getcts_dev(CONFIG_PSC_CONSOLE);
 }
 #endif /* CONFIG_PSC_CONSOLE */
+
+#if defined(CONFIG_SERIAL_MULTI)
+#include <stdio_dev.h>
+/*
+ * Routines for communication with serial devices over PSC
+ */
+/* Bitfield for initialized PSCs */
+static unsigned int initialized;
+
+struct stdio_dev *open_port(int num, int baudrate)
+{
+	struct stdio_dev *port;
+	char env_var[16];
+	char env_val[10];
+	char name[7];
+
+	if (num < 0 || num > 11)
+		return NULL;
+
+	sprintf(name, "psc%d", num);
+	port = stdio_get_by_name(name);
+	if (!port)
+		return NULL;
+
+	if (!test_bit(num, &initialized)) {
+		sprintf(env_var, "psc%d_baudrate", num);
+		sprintf(env_val, "%d", baudrate);
+		setenv(env_var, env_val);
+
+		if (port->start())
+			return NULL;
+
+		set_bit(num, &initialized);
+	}
+
+	return port;
+}
+
+int close_port(int num)
+{
+	struct stdio_dev *port;
+	int ret;
+	char name[7];
+
+	if (num < 0 || num > 11)
+		return -1;
+
+	sprintf(name, "psc%d", num);
+	port = stdio_get_by_name(name);
+	if (!port)
+		return -1;
+
+	ret = port->stop();
+	clear_bit(num, &initialized);
+
+	return ret;
+}
+
+int write_port(struct stdio_dev *port, char *buf)
+{
+	if (!port || !buf)
+		return -1;
+
+	port->puts(buf);
+
+	return 0;
+}
+
+int read_port(struct stdio_dev *port, char *buf, int size)
+{
+	int cnt = 0;
+
+	if (!port || !buf)
+		return -1;
+
+	if (!size)
+		return 0;
+
+	while (port->tstc()) {
+		buf[cnt++] = port->getc();
+		if (cnt > size)
+			break;
+	}
+
+	return cnt;
+}
+#endif /* CONFIG_SERIAL_MULTI */
