@@ -91,7 +91,7 @@ long int fixed_sdram(ddr512x_config_t *mddrc_config,
 	}
 
 	/* Initialize IO Control */
-	out_be32(&im->io_ctrl.io_control_mem, IOCTRL_MUX_DDR);
+	out_be32(&im->io_ctrl.io_control_mem, CONFIG_SYS_IOCTRL_MUX_DDR);
 
 	/* Initialize DDR Local Window */
 	out_be32(&im->sysconf.ddrlaw.bar, CONFIG_SYS_DDR_BASE & 0xFFFFF000);

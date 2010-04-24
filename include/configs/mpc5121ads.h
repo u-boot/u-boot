@@ -86,6 +86,8 @@
 #define CONFIG_SYS_DDR_BASE		0x00000000	/* DDR is system memory*/
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_BASE
 
+#define CONFIG_SYS_IOCTRL_MUX_DDR	0x00000036
+
 /* DDR Controller Configuration
  *
  * SYS_CFG:

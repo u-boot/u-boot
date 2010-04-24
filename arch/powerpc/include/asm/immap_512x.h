@@ -848,10 +848,6 @@ typedef struct ioctrl512x {
 	u8	reserved[0x0cfc];		/* fill to 4096 bytes size */
 } ioctrl512x_t;
 
-/* Indexes in regs array */
-/* Set for DDR */
-#define IOCTRL_MUX_DDR		0x00000036
-
 /* IO pin fields */
 #define IO_PIN_FMUX(v)	((v) << 7)	/* pin function */
 #define IO_PIN_HOLD(v)	((v) << 5)	/* hold time, pci only */
