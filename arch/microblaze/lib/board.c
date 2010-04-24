@@ -30,6 +30,7 @@
 #include <timestamp.h>
 #include <version.h>
 #include <watchdog.h>
+#include <stdio_dev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -43,6 +44,12 @@ extern int interrupts_init (void);
 #endif
 #if defined(CONFIG_CMD_NET)
 extern int eth_init (bd_t * bis);
+#endif
+#ifdef CONFIG_SYS_TIMER_0
+extern int timer_init (void);
+#endif
+#ifdef CONFIG_SYS_FSL_2
+extern void fsl_init2 (void);
 #endif
 
 /*
@@ -68,6 +75,12 @@ init_fnc_t *init_sequence[] = {
 #ifdef CONFIG_SYS_INTC_0
 	interrupts_init,
 #endif
+#ifdef CONFIG_SYS_TIMER_0
+	timer_init,
+#endif
+#ifdef CONFIG_SYS_FSL_2
+	fsl_init2,
+#endif
 	NULL,
 };
 
@@ -76,6 +89,7 @@ void board_init (void)
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
 	gd = (gd_t *) CONFIG_SYS_GBL_DATA_OFFSET;
+	char *s;
 #if defined(CONFIG_CMD_FLASH)
 	ulong flash_size = 0;
 #endif
@@ -104,8 +118,8 @@ void board_init (void)
 	}
 
 	puts ("SDRAM :\n");
-	printf ("\t\tIcache:%s\n", icache_status() ? "OK" : "FAIL");
-	printf ("\t\tDcache:%s\n", dcache_status() ? "OK" : "FAIL");
+	printf ("\t\tIcache:%s\n", icache_status() ? "ON" : "OFF");
+	printf ("\t\tDcache:%s\n", dcache_status() ? "ON" : "OFF");
 	printf ("\tU-Boot Start:0x%08x\n", TEXT_BASE);
 
 #if defined(CONFIG_CMD_FLASH)
@@ -139,14 +153,21 @@ void board_init (void)
 	}
 #endif
 
+	/* relocate environment function pointers etc. */
+	env_relocate ();
+
+	/* Initialize stdio devices */
+	stdio_init ();
+
+	if ((s = getenv ("loadaddr")) != NULL) {
+		load_addr = simple_strtoul (s, NULL, 16);
+	}
+
 #if defined(CONFIG_CMD_NET)
 	/* IP Address */
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
 	eth_init (bd);
 #endif
-
-	/* relocate environment function pointers etc. */
-	env_relocate ();
 
 	/* main_loop */
 	for (;;) {

@@ -60,7 +60,7 @@ void timer_isr (void *arg)
 	tmr->control = tmr->control | TIMER_INTERRUPT;
 }
 
-void timer_init (void)
+int timer_init (void)
 {
 	tmr->loadreg = CONFIG_SYS_TIMER_0_PRELOAD;
 	tmr->control = TIMER_INTERRUPT | TIMER_RESET;
@@ -68,6 +68,7 @@ void timer_init (void)
 	    TIMER_ENABLE | TIMER_ENABLE_INTR | TIMER_RELOAD | TIMER_DOWN_COUNT;
 	reset_timer ();
 	install_interrupt_handler (CONFIG_SYS_TIMER_0_IRQ, timer_isr, (void *)tmr);
+	return 0;
 }
 #endif
 #endif

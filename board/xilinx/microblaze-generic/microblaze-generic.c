@@ -60,10 +60,9 @@ void fsl_isr2 (void *arg) {
 	puts("*");
 }
 
-void fsl_init2 (void) {
+int fsl_init2 (void) {
 	puts("fsl_init2\n");
-	install_interrupt_handler (FSL_INTR_2,\
- fsl_isr2,\
- NULL);
+	install_interrupt_handler (FSL_INTR_2, fsl_isr2, NULL);
+	return 0;
 }
 #endif

@@ -50,6 +50,8 @@ void	icache_enable (void) {
 }
 
 void	icache_disable(void) {
+	/* we are not generate ICACHE size -> flush whole cache */
+	flush_cache(0, 32768);
 	MSRCLR(0x20);
 }
 
@@ -58,5 +60,31 @@ void	dcache_enable (void) {
 }
 
 void	dcache_disable(void) {
+#ifdef XILINX_USE_DCACHE
+#ifdef XILINX_DCACHE_BYTE_SIZE
+	flush_cache(0, XILINX_DCACHE_BYTE_SIZE);
+#else
+#warning please rebuild BSPs and update configuration
+	flush_cache(0, 32768);
+#endif
+#endif
 	MSRCLR(0x80);
+}
+
+void flush_cache (ulong addr, ulong size)
+{
+	int i;
+	for (i = 0; i < size; i += 4)
+		asm volatile (
+#ifdef CONFIG_ICACHE
+				"wic	%0, r0;"
+#endif
+				"nop;"
+#ifdef CONFIG_DCACHE
+				"wdc.flush	%0, r0;"
+#endif
+				"nop;"
+				:
+				: "r" (addr + i)
+				: "memory");
 }
