@@ -59,6 +59,14 @@ struct serial_device *__default_serial_console (void)
 #else
 		return &serial0_device;
 #endif
+#elif defined(CONFIG_MPC512X)
+#if (CONFIG_PSC_CONSOLE == 3)
+		return &serial3_device;
+#elif (CONFIG_PSC_CONSOLE == 6)
+		return &serial6_device;
+#else
+#error "Bad CONFIG_PSC_CONSOLE."
+#endif
 #elif defined(CONFIG_S3C2410)
 #if defined(CONFIG_SERIAL1)
 	return &s3c24xx_serial0_device;
@@ -159,6 +167,20 @@ void serial_initialize (void)
 	serial_register(&s5pc1xx_serial2_device);
 	serial_register(&s5pc1xx_serial3_device);
 #endif
+#if defined(CONFIG_MPC512X)
+#if defined(CONFIG_SYS_PSC1)
+	serial_register(&serial1_device);
+#endif
+#if defined(CONFIG_SYS_PSC3)
+	serial_register(&serial3_device);
+#endif
+#if defined(CONFIG_SYS_PSC4)
+	serial_register(&serial4_device);
+#endif
+#if defined(CONFIG_SYS_PSC6)
+	serial_register(&serial6_device);
+#endif
+#endif
 	serial_assign (default_serial_console ()->name);
 }
 
@@ -174,6 +196,7 @@ void serial_stdio_init (void)
 		dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT;
 
 		dev.start = s->init;
+		dev.stop = s->uninit;
 		dev.putc = s->putc;
 		dev.puts = s->puts;
 		dev.getc = s->getc;

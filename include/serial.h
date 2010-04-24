@@ -38,6 +38,13 @@ extern struct serial_device eserial4_device;
 
 #endif
 
+#if defined(CONFIG_MPC512X)
+extern struct serial_device serial1_device;
+extern struct serial_device serial3_device;
+extern struct serial_device serial4_device;
+extern struct serial_device serial6_device;
+#endif
+
 #if defined(CONFIG_S3C2410)
 extern struct serial_device s3c24xx_serial0_device;
 extern struct serial_device s3c24xx_serial1_device;
