@@ -41,7 +41,7 @@ tlbtab:
 	tlbtab_start
 
 	/* vxWorks needs this as first entry for the Machine Check interrupt */
-	tlbentry( 0x40000000, SZ_256M, 0, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( 0x40000000, SZ_256M, 0, 0, AC_RWX | SA_IG )
 
 	/*
 	 * The RAM-boot version skips the SDRAM TLB (identified by EPN=0). This
@@ -51,49 +51,49 @@ tlbtab:
 #ifndef CONFIG_SYS_RAMBOOT
 	/* TLB-entry for DDR SDRAM (Up to 2GB) */
 #ifdef CONFIG_4xx_DCACHE
-	tlbentry( CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G)
+	tlbentry( CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0, AC_RWX | SA_G)
 #else
-	tlbentry( CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0, AC_RWX | SA_IG )
 #endif
 #endif /* CONFIG_SYS_RAMBOOT */
 
 	/* TLB-entry for EBC */
-	tlbentry( CONFIG_SYS_BCSR_BASE, SZ_256M, CONFIG_SYS_BCSR_BASE, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_BCSR_BASE, SZ_256M, CONFIG_SYS_BCSR_BASE, 1, AC_RWX | SA_IG )
 
 	/* BOOT_CS (FLASH) must be forth. Before relocation SA_I can be off to use the
 	 * speed up boot process. It is patched after relocation to enable SA_I
 	 */
 #ifndef CONFIG_NAND_SPL
-	tlbentry( CONFIG_SYS_BOOT_BASE_ADDR, SZ_256M, CONFIG_SYS_BOOT_BASE_ADDR, 1, AC_R|AC_W|AC_X|SA_G )
+	tlbentry( CONFIG_SYS_BOOT_BASE_ADDR, SZ_256M, CONFIG_SYS_BOOT_BASE_ADDR, 1, AC_RWX | SA_G )
 #else
-	tlbentry( CONFIG_SYS_NAND_BOOT_SPL_SRC, SZ_4K, CONFIG_SYS_NAND_BOOT_SPL_SRC, 1, AC_R|AC_W|AC_X|SA_G )
+	tlbentry( CONFIG_SYS_NAND_BOOT_SPL_SRC, SZ_4K, CONFIG_SYS_NAND_BOOT_SPL_SRC, 1, AC_RWX | SA_G )
 #endif
 
 #ifdef CONFIG_SYS_INIT_RAM_DCACHE
 	/* TLB-entry for init-ram in dcache (SA_I must be turned off!) */
-	tlbentry( CONFIG_SYS_INIT_RAM_ADDR, SZ_64K, CONFIG_SYS_INIT_RAM_ADDR, 0, AC_R|AC_W|AC_X|SA_G )
+	tlbentry( CONFIG_SYS_INIT_RAM_ADDR, SZ_64K, CONFIG_SYS_INIT_RAM_ADDR, 0, AC_RWX | SA_G )
 #endif
 
 	/* TLB-entry for PCI Memory */
-	tlbentry( CONFIG_SYS_PCI_MEMBASE, SZ_256M, CONFIG_SYS_PCI_MEMBASE, 1, AC_R|AC_W|SA_G|SA_I )
-	tlbentry( CONFIG_SYS_PCI_MEMBASE1, SZ_256M, CONFIG_SYS_PCI_MEMBASE1, 1, AC_R|AC_W|SA_G|SA_I )
-	tlbentry( CONFIG_SYS_PCI_MEMBASE2, SZ_256M, CONFIG_SYS_PCI_MEMBASE2, 1, AC_R|AC_W|SA_G|SA_I )
-	tlbentry( CONFIG_SYS_PCI_MEMBASE3, SZ_256M, CONFIG_SYS_PCI_MEMBASE3, 1, AC_R|AC_W|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_PCI_MEMBASE, SZ_256M, CONFIG_SYS_PCI_MEMBASE, 1, AC_RW | SA_IG )
+	tlbentry( CONFIG_SYS_PCI_MEMBASE1, SZ_256M, CONFIG_SYS_PCI_MEMBASE1, 1, AC_RW | SA_IG )
+	tlbentry( CONFIG_SYS_PCI_MEMBASE2, SZ_256M, CONFIG_SYS_PCI_MEMBASE2, 1, AC_RW | SA_IG )
+	tlbentry( CONFIG_SYS_PCI_MEMBASE3, SZ_256M, CONFIG_SYS_PCI_MEMBASE3, 1, AC_RW | SA_IG )
 
 	/* TLB-entry for NAND */
-	tlbentry( CONFIG_SYS_NAND_ADDR, SZ_1K, CONFIG_SYS_NAND_ADDR, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_NAND_ADDR, SZ_1K, CONFIG_SYS_NAND_ADDR, 1, AC_RWX | SA_IG )
 
 	/* TLB-entry for Internal Registers & OCM */
-	tlbentry( 0xe0000000, SZ_16M, 0xe0000000, 0,  AC_R|AC_W|AC_X|SA_I )
+	tlbentry( 0xe0000000, SZ_16M, 0xe0000000, 0,  AC_RWX | SA_I )
 
 	/*TLB-entry PCI registers*/
-	tlbentry( 0xEEC00000, SZ_1K, 0xEEC00000, 1,  AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( 0xEEC00000, SZ_1K, 0xEEC00000, 1,  AC_RWX | SA_IG )
 
 	/* TLB-entry for peripherals */
-	tlbentry( 0xEF000000, SZ_16M, 0xEF000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I)
+	tlbentry( 0xEF000000, SZ_16M, 0xEF000000, 1, AC_RWX | SA_IG)
 
 	/* TLB-entry PCI IO Space - from sr@denx.de */
-	tlbentry(0xE8000000, SZ_64K, 0xE8000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I)
+	tlbentry(0xE8000000, SZ_64K, 0xE8000000, 1, AC_RWX | SA_IG)
 
 	tlbtab_end
 
@@ -104,7 +104,7 @@ tlbtab:
 	 */
 #define TLB00	TLB0(CONFIG_SYS_BOOT_BASE_ADDR, SZ_256M)
 #define TLB01	TLB1(CONFIG_SYS_BOOT_BASE_ADDR, 1)
-#define TLB02	TLB2(AC_R|AC_W|AC_X|SA_G|SA_I)
+#define TLB02	TLB2(AC_RWX | SA_IG)
 
 	.globl	reconfig_tlb0
 reconfig_tlb0:

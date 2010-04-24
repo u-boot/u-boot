@@ -41,7 +41,7 @@
 tlbtab:
 	tlbtab_start
 
-	tlbentry(0xf0000000, SZ_256M, 0xf0000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I)
+	tlbentry(0xf0000000, SZ_256M, 0xf0000000, 1, AC_RWX | SA_IG)
 
 	/*
 	 * TLB entries for SDRAM are not needed on this platform.
@@ -49,9 +49,9 @@ tlbtab:
 	 * routine.
 	 */
 
-	tlbentry(CONFIG_SYS_PERIPHERAL_BASE, SZ_256M, 0x40000000, 1, AC_R|AC_W|SA_G|SA_I)
-	tlbentry(CONFIG_SYS_ISRAM_BASE, SZ_4K, 0x80000000, 0, AC_R|AC_W|AC_X)
-	tlbentry(CONFIG_SYS_ISRAM_BASE + 0x1000, SZ_4K, 0x80001000, 0, AC_R|AC_W|AC_X)
-	tlbentry(CONFIG_SYS_PCI_BASE, SZ_256M, 0x00000000, 2, AC_R|AC_W|SA_G|SA_I)
-	tlbentry(CONFIG_SYS_PCI_MEMBASE, SZ_256M, 0x00000000, 3, AC_R|AC_W|SA_G|SA_I)
+	tlbentry(CONFIG_SYS_PERIPHERAL_BASE, SZ_256M, 0x40000000, 1, AC_RW | SA_IG)
+	tlbentry(CONFIG_SYS_ISRAM_BASE, SZ_4K, 0x80000000, 0, AC_RWX)
+	tlbentry(CONFIG_SYS_ISRAM_BASE + 0x1000, SZ_4K, 0x80001000, 0, AC_RWX)
+	tlbentry(CONFIG_SYS_PCI_BASE, SZ_256M, 0x00000000, 2, AC_RW | SA_IG)
+	tlbentry(CONFIG_SYS_PCI_MEMBASE, SZ_256M, 0x00000000, 3, AC_RW | SA_IG)
 	tlbtab_end

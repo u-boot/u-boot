@@ -577,11 +577,16 @@ extern int num_tlb_entries;
 #define SA_M	0x00000200	/* Memory coherence */
 #define SA_G	0x00000100	/* Guarded */
 #define SA_E	0x00000080	/* Endian */
+/* Some additional macros for combinations often used */
+#define SA_IG	(SA_I | SA_G)
 
 /* Access control */
 #define AC_X	0x00000024	/* Execute */
 #define AC_W	0x00000012	/* Write */
 #define AC_R	0x00000009	/* Read */
+/* Some additional macros for combinations often used */
+#define AC_RW	(AC_R | AC_W)
+#define AC_RWX	(AC_R | AC_W | AC_X)
 
 /* Some handy macros */
 
