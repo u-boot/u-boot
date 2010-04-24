@@ -445,6 +445,11 @@
 #define CONFIG_KGDB_SER_INDEX	2	/* which serial port to use */
 #endif
 
+#ifdef CONFIG_SERIAL_MULTI
+/* POST support */
+#define CONFIG_POST             (CONFIG_SYS_POST_COPROC)
+#endif
+
 /*
  * Environment Configuration
  */
