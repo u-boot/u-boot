@@ -356,6 +356,11 @@ typedef struct ddr512x_config {
 	u32 ddr_time_config2;	/* Timing Configuration Register */
 } ddr512x_config_t;
 
+typedef struct sdram_conf_s {
+	unsigned long size;
+	ddr512x_config_t cfg;
+} sdram_conf_t;
+
 /*
  * DMA/Messaging Unit
  */
