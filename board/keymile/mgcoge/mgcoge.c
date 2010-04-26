@@ -310,6 +310,7 @@ int last_stage_init(void)
 		puts("DIP:   Enabled\n");
 		setenv("actual_bank", "0");
 	}
+	set_km_env();
 	return 0;
 }
 

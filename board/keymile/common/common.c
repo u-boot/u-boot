@@ -42,6 +42,7 @@
 
 static void i2c_write_start_seq(void);
 static int i2c_make_abort(void);
+DECLARE_GLOBAL_DATA_PTR;
 
 int ivm_calc_crc(unsigned char *buf, int len)
 {
@@ -71,6 +72,41 @@ int ivm_calc_crc(unsigned char *buf, int len)
 		crc = crc ^ r1 ^ crc_tab[(byte >> 4) & 0xF];
 	}
 	return crc;
+}
+
+/*
+ * Set Keymile specific environment variables
+ * Currently only some memory layout variables are calculated here
+ * ... ------------------------------------------------
+ * ... |@rootfsaddr |@pnvramaddr |@varaddr |@reserved |@END_OF_RAM
+ * ... |<------------------- pram ------------------->|
+ * ... ------------------------------------------------
+ * @END_OF_RAM: denotes the RAM size
+ * @pnvramaddr: Startadress of pseudo non volatile RAM in hex
+ * @pram      : preserved ram size in k
+ * @varaddr   : startadress for /var mounted into RAM
+ */
+int set_km_env(void)
+{
+	uchar buf[32];
+	unsigned int pnvramaddr;
+	unsigned int pram;
+	unsigned int varaddr;
+
+	pnvramaddr = gd->ram_size - CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM
+			- CONFIG_KM_PNVRAM;
+	sprintf((char *)buf, "0x%x", pnvramaddr);
+	setenv("pnvramaddr", (char *)buf);
+
+	pram = (CONFIG_KM_RESERVED_PRAM + CONFIG_KM_PHRAM + CONFIG_KM_PNVRAM) /
+		0x400;
+	sprintf((char *)buf, "0x%x", pram);
+	setenv("pram", (char *)buf);
+
+	varaddr = gd->ram_size - CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM;
+	sprintf((char *)buf, "0x%x", varaddr);
+	setenv("varaddr", (char *)buf);
+	return 0;
 }
 
 static int ivm_set_value(char *name, char *value)

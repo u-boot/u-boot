@@ -254,4 +254,11 @@ int get_scl (void);
 #define CONFIG_SYS_INIT_SP_ADDR		0xC8012000
 /* Do early setups now in board_init_f() */
 #define CONFIG_BOARD_EARLY_INIT_F
+
+/*
+ * resereved pram area at the end of memroy [hex]
+ * 8Mbytes for switch + 4Kbytes for bootcount
+ */
+#define CONFIG_KM_RESERVED_PRAM 0x801000
+
 #endif /* _CONFIG_KM_ARM_H */

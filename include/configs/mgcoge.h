@@ -61,8 +61,6 @@
 /* include further common stuff for all keymile 82xx boards */
 #include "km82xx-common.h"
 
-/* enable last_stage_init */
-#define CONFIG_LAST_STAGE_INIT          1
 /* bfticu address */
 #define CONFIG_SYS_BFTICU_BASE          0x40000000
 

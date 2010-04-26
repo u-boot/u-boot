@@ -190,6 +190,12 @@ int misc_init_r(void)
 	return 0;
 }
 
+int last_stage_init(void)
+{
+	set_km_env();
+	return 0;
+}
+
 int fixed_sdram(void)
 {
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;

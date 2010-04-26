@@ -26,6 +26,9 @@
 
 /* Do boardspecific init for all boards */
 #define CONFIG_BOARD_EARLY_INIT_R
+#define CONFIG_LAST_STAGE_INIT
+
+#define CONFIG_BOOTCOUNT_LIMIT
 
 /*
  * By default kwbimage.cfg from board specific folder is used

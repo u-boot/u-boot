@@ -212,6 +212,12 @@ int board_init(void)
 	return 0;
 }
 
+int last_stage_init(void)
+{
+	set_km_env();
+	return 0;
+}
+
 #if defined(CONFIG_CMD_SF)
 int do_spi_toggle(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

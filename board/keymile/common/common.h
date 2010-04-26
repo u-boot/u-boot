@@ -50,6 +50,7 @@ int ivm_read_eeprom(void);
 int keymile_hdlc_enet_initialize(bd_t *bis);
 #endif
 
+int set_km_env(void);
 int fdt_set_node_and_value(void *blob,
 			char *nodename,
 			char *regname,
