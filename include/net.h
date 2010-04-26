@@ -105,6 +105,7 @@ struct eth_device {
 #ifdef CONFIG_MCAST_TFTP
 	int (*mcast) (struct eth_device*, u32 ip, u8 set);
 #endif
+	int  (*write_hwaddr) (struct eth_device*);
 	struct eth_device *next;
 	void *priv;
 };

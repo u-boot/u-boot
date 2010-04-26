@@ -3303,6 +3303,11 @@ o If both the SROM and the environment contain a MAC address, and the
 o If neither SROM nor the environment contain a MAC address, an error
   is raised.
 
+If Ethernet drivers implement the 'write_hwaddr' function, valid MAC addresses
+will be programmed into hardware as part of the initialization process.  This
+may be skipped by setting the appropriate 'ethmacskip' environment variable.
+The naming convention is as follows:
+"ethmacskip" (=>eth0), "eth1macskip" (=>eth1) etc.
 
 Image Formats:
 ==============

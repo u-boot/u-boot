@@ -60,6 +60,14 @@ int eth_getenv_enetaddr_by_index(int index, uchar *enetaddr)
 	return eth_getenv_enetaddr(enetvar, enetaddr);
 }
 
+static int eth_mac_skip(int index)
+{
+	char enetvar[15];
+	char *skip_state;
+	sprintf(enetvar, index ? "eth%dmacskip" : "ethmacskip", index);
+	return ((skip_state = getenv(enetvar)) != NULL);
+}
+
 #ifdef CONFIG_NET_MULTI
 
 /*
@@ -241,6 +249,11 @@ int eth_initialize(bd_t *bis)
 				}
 
 				memcpy(dev->enetaddr, env_enetaddr, 6);
+			}
+			if (dev->write_hwaddr &&
+				!eth_mac_skip(eth_number) &&
+				is_valid_ether_addr(dev->enetaddr)) {
+				dev->write_hwaddr(dev);
 			}
 
 			eth_number++;
