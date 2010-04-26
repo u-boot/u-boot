@@ -186,6 +186,7 @@ LIST_4xx="		\
 	ADCIOP		\
 	alpr		\
 	AP1000		\
+	APC405		\
 	AR405		\
 	arches		\
 	ASH405		\
