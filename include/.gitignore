@@ -1,7 +1,5 @@
 /autoconf.mk*
 /asm
-/asm-*/arch
-/asm-*/proc
 /bmp_logo.h
 /config.h
 /config.mk
