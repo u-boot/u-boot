@@ -1,7 +1,7 @@
 /*
  * MPC85xx Internal Memory Map
  *
- * Copyright 2007-2009 Freescale Semiconductor, Inc.
+ * Copyright 2007-2010 Freescale Semiconductor, Inc.
  *
  * Copyright(c) 2002,2003 Motorola Inc.
  * Xianghua Xiao (x.xiao@motorola.com)
@@ -1647,7 +1647,7 @@ typedef struct ccsr_gur {
 	u8	res4[12];
 	u32	gpindr;		/* General-purpose input data */
 	u8	res5[12];
-	u32	pmuxcr;		/* Alt function signal multiplex control */
+	u32	alt_pmuxcr;	/* Alt function signal multiplex control */
 	u8	res6[12];
 	u32	devdisr;	/* Device disable control */
 #define FSL_CORENET_DEVDISR_PCIE1	0x80000000
@@ -1672,7 +1672,23 @@ typedef struct ccsr_gur {
 #define FSL_CORENET_DEVDISR_I2C2	0x00000010
 #define FSL_CORENET_DEVDISR_DUART1	0x00000002
 #define FSL_CORENET_DEVDISR_DUART2	0x00000001
-	u8	res7[12];
+	u32	devdisr2;	/* Device disable control 2 */
+#define FSL_CORENET_DEVDISR2_PME	0x80000000
+#define FSL_CORENET_DEVDISR2_SEC	0x40000000
+#define FSL_CORENET_DEVDISR2_QMBM	0x08000000
+#define FSL_CORENET_DEVDISR2_FM1	0x02000000
+#define FSL_CORENET_DEVDISR2_10GEC1	0x01000000
+#define FSL_CORENET_DEVDISR2_DTSEC1_1	0x00800000
+#define FSL_CORENET_DEVDISR2_DTSEC1_2	0x00400000
+#define FSL_CORENET_DEVDISR2_DTSEC1_3	0x00200000
+#define FSL_CORENET_DEVDISR2_DTSEC1_4	0x00100000
+#define FSL_CORENET_DEVDISR2_FM2	0x00020000
+#define FSL_CORENET_DEVDISR2_10GEC2	0x00010000
+#define FSL_CORENET_DEVDISR2_DTSEC2_1	0x00008000
+#define FSL_CORENET_DEVDISR2_DTSEC2_2	0x00004000
+#define FSL_CORENET_DEVDISR2_DTSEC2_3	0x00002000
+#define FSL_CORENET_DEVDISR2_DTSEC2_4	0x00001000
+	u8	res7[8];
 	u32	powmgtcsr;	/* Power management status & control */
 	u8	res8[12];
 	u32	coredisru;	/* uppper portion for support of 64 cores */
@@ -1697,8 +1713,9 @@ typedef struct ccsr_gur {
 	u8	res17[24];
 	u32	rcwsr[16];	/* Reset control word status */
 #define FSL_CORENET_RCWSR4_SRDS_PRTCL		0xfc000000
-#define FSL_CORENET_RCWSR5_DDR_SYNC		0x00008000
-#define FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT		15
+#define FSL_CORENET_RCWSR5_DDR_SYNC		0x00000080
+#define FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT		 7
+#define FSL_CORENET_RCWSR5_SRDS_EN		0x00002000
 #define FSL_CORENET_RCWSR7_MCK_TO_PLAT_RAT	0x00400000
 #define FSL_CORENET_RCWSR8_HOST_AGT_B1		0x00e00000
 #define FSL_CORENET_RCWSR8_HOST_AGT_B2		0x00100000
@@ -1750,7 +1767,17 @@ typedef struct ccsr_gur {
 	u32	cgencrl;	/* Core general control */
 	u8	res31[184];
 	u32	sriopstecr;	/* SRIO prescaler timer enable control */
-	u8	res32[2300];
+	u8	res32[1788];
+	u32	pmuxcr;		/* Pin multiplexing control */
+	u8	res33[60];
+	u32	iovselsr;	/* I/O voltage selection status */
+	u8	res34[28];
+	u32	ddrclkdr;	/* DDR clock disable */
+	u8	res35;
+	u32	elbcclkdr;	/* eLBC clock disable */
+	u8	res36[20];
+	u32	sdhcpcr;	/* eSDHC polarity configuration */
+	u8	res37[380];
 } ccsr_gur_t;
 
 typedef struct ccsr_clk {
@@ -1846,8 +1873,13 @@ typedef struct ccsr_gur {
 #define MPC85xx_PORDEVSR_SGMII4_DIS	0x04000000
 #define MPC85xx_PORDEVSR_SRDS2_IO_SEL	0x38000000
 #define MPC85xx_PORDEVSR_PCI1		0x00800000
+#if defined(CONFIG_P1013) || defined(CONFIG_P1022)
+#define MPC85xx_PORDEVSR_IO_SEL		0x007c0000
+#define MPC85xx_PORDEVSR_IO_SEL_SHIFT	18
+#else
 #define MPC85xx_PORDEVSR_IO_SEL		0x00780000
 #define MPC85xx_PORDEVSR_IO_SEL_SHIFT	19
+#endif
 #define MPC85xx_PORDEVSR_PCI2_ARB	0x00040000
 #define MPC85xx_PORDEVSR_PCI1_ARB	0x00020000
 #define MPC85xx_PORDEVSR_PCI1_PCI32	0x00010000
@@ -1942,7 +1974,15 @@ typedef struct serdes_corenet {
 #define SRDS_RSTCTL_RST		0x80000000
 #define SRDS_RSTCTL_RSTDONE	0x40000000
 #define SRDS_RSTCTL_RSTERR	0x20000000
+#define SRDS_RSTCTL_SDPD	0x00000020
 		u32	pllcr0; /* PLL Control Register 0 */
+#define SRDS_PLLCR0_RFCK_SEL_MASK	0x30000000
+#define SRDS_PLLCR0_RFCK_SEL_100	0x00000000
+#define SRDS_PLLCR0_RFCK_SEL_125	0x10000000
+#define SRDS_PLLCR0_RFCK_SEL_156_25	0x20000000
+#define SRDS_PLLCR0_FRATE_SEL_MASK	0x00030000
+#define SRDS_PLLCR0_FRATE_SEL_5		0x00000000
+#define SRDS_PLLCR0_FRATE_SEL_6_25	0x00010000
 		u32	pllcr1; /* PLL Control Register 1 */
 #define SRDS_PLLCR1_PLL_BWSEL	0x08000000
 		u32	res[5];
@@ -2018,6 +2058,7 @@ enum {
 #define CONFIG_SYS_MPC85xx_USB_OFFSET		0x210000
 #define CONFIG_SYS_FSL_CORENET_QMAN_OFFSET	0x318000
 #define CONFIG_SYS_FSL_CORENET_BMAN_OFFSET	0x31a000
+#define CONFIG_SYS_TSEC1_OFFSET			0x4e0000 /* FM1@DTSEC0 */
 #else
 #define CONFIG_SYS_MPC85xx_ECM_OFFSET		0x0000
 #define CONFIG_SYS_MPC85xx_DDR_OFFSET		0x2000

@@ -198,6 +198,8 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr)
 	pre_pd_exit_mclk = act_pd_exit_mclk;
 	taxpd_mclk = 8;
 	tmrd_mclk = 4;
+	/* set the turnaround time */
+	trwt_mclk = 1;
 #else /* CONFIG_FSL_DDR2 */
 	/*
 	 * (tXARD and tXARDS). Empirical?

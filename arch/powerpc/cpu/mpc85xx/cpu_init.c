@@ -180,54 +180,54 @@ void cpu_init_f (void)
 	 * has been determined
 	 */
 #if defined(CONFIG_SYS_OR0_REMAP)
-	memctl->or0 = CONFIG_SYS_OR0_REMAP;
+	out_be32(&memctl->or0, CONFIG_SYS_OR0_REMAP);
 #endif
 #if defined(CONFIG_SYS_OR1_REMAP)
-	memctl->or1 = CONFIG_SYS_OR1_REMAP;
+	out_be32(&memctl->or1, CONFIG_SYS_OR1_REMAP);
 #endif
 
 	/* now restrict to preliminary range */
 	/* if cs1 is already set via debugger, leave cs0/cs1 alone */
 	if (! memctl->br1 & 1) {
 #if defined(CONFIG_SYS_BR0_PRELIM) && defined(CONFIG_SYS_OR0_PRELIM)
-		memctl->br0 = CONFIG_SYS_BR0_PRELIM;
-		memctl->or0 = CONFIG_SYS_OR0_PRELIM;
+		out_be32(&memctl->br0, CONFIG_SYS_BR0_PRELIM);
+		out_be32(&memctl->or0, CONFIG_SYS_OR0_PRELIM);
 #endif
 
 #if defined(CONFIG_SYS_BR1_PRELIM) && defined(CONFIG_SYS_OR1_PRELIM)
-		memctl->or1 = CONFIG_SYS_OR1_PRELIM;
-		memctl->br1 = CONFIG_SYS_BR1_PRELIM;
+		out_be32(&memctl->or1, CONFIG_SYS_OR1_PRELIM);
+		out_be32(&memctl->br1, CONFIG_SYS_BR1_PRELIM);
 #endif
 	}
 
 #if defined(CONFIG_SYS_BR2_PRELIM) && defined(CONFIG_SYS_OR2_PRELIM)
-	memctl->or2 = CONFIG_SYS_OR2_PRELIM;
-	memctl->br2 = CONFIG_SYS_BR2_PRELIM;
+	out_be32(&memctl->or2, CONFIG_SYS_OR2_PRELIM);
+	out_be32(&memctl->br2, CONFIG_SYS_BR2_PRELIM);
 #endif
 
 #if defined(CONFIG_SYS_BR3_PRELIM) && defined(CONFIG_SYS_OR3_PRELIM)
-	memctl->or3 = CONFIG_SYS_OR3_PRELIM;
-	memctl->br3 = CONFIG_SYS_BR3_PRELIM;
+	out_be32(&memctl->or3, CONFIG_SYS_OR3_PRELIM);
+	out_be32(&memctl->br3, CONFIG_SYS_BR3_PRELIM);
 #endif
 
 #if defined(CONFIG_SYS_BR4_PRELIM) && defined(CONFIG_SYS_OR4_PRELIM)
-	memctl->or4 = CONFIG_SYS_OR4_PRELIM;
-	memctl->br4 = CONFIG_SYS_BR4_PRELIM;
+	out_be32(&memctl->or4, CONFIG_SYS_OR4_PRELIM);
+	out_be32(&memctl->br4, CONFIG_SYS_BR4_PRELIM);
 #endif
 
 #if defined(CONFIG_SYS_BR5_PRELIM) && defined(CONFIG_SYS_OR5_PRELIM)
-	memctl->or5 = CONFIG_SYS_OR5_PRELIM;
-	memctl->br5 = CONFIG_SYS_BR5_PRELIM;
+	out_be32(&memctl->or5, CONFIG_SYS_OR5_PRELIM);
+	out_be32(&memctl->br5, CONFIG_SYS_BR5_PRELIM);
 #endif
 
 #if defined(CONFIG_SYS_BR6_PRELIM) && defined(CONFIG_SYS_OR6_PRELIM)
-	memctl->or6 = CONFIG_SYS_OR6_PRELIM;
-	memctl->br6 = CONFIG_SYS_BR6_PRELIM;
+	out_be32(&memctl->or6, CONFIG_SYS_OR6_PRELIM);
+	out_be32(&memctl->br6, CONFIG_SYS_BR6_PRELIM);
 #endif
 
 #if defined(CONFIG_SYS_BR7_PRELIM) && defined(CONFIG_SYS_OR7_PRELIM)
-	memctl->or7 = CONFIG_SYS_OR7_PRELIM;
-	memctl->br7 = CONFIG_SYS_BR7_PRELIM;
+	out_be32(&memctl->or7, CONFIG_SYS_OR7_PRELIM);
+	out_be32(&memctl->br7, CONFIG_SYS_BR7_PRELIM);
 #endif
 
 #if defined(CONFIG_CPM2)
@@ -260,6 +260,10 @@ void cpu_init_f (void)
 
 int cpu_init_r(void)
 {
+#ifdef CONFIG_SYS_LBC_LCRR
+	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+#endif
+
 	puts ("L2:    ");
 
 #if defined(CONFIG_L2_CACHE)
@@ -383,6 +387,17 @@ int cpu_init_r(void)
 #if defined(CONFIG_MP)
 	setup_mp();
 #endif
+
+#ifdef CONFIG_SYS_LBC_LCRR
+	/*
+	 * Modify the CLKDIV field of LCRR register to improve the writing
+	 * speed for NOR flash.
+	 */
+	clrsetbits_be32(&lbc->lcrr, LCRR_CLKDIV, CONFIG_SYS_LBC_LCRR);
+	__raw_readl(&lbc->lcrr);
+	isync();
+#endif
+
 	return 0;
 }
 

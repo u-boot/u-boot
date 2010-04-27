@@ -1,5 +1,5 @@
 /*
- * Copyright 2004,2007-2009 Freescale Semiconductor, Inc.
+ * Copyright 2004,2007-2010 Freescale Semiconductor, Inc.
  * (C) Copyright 2002, 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
  *
@@ -44,21 +44,19 @@ int checkcpu (void)
 	uint major, minor;
 	struct cpu_type *cpu;
 	char buf1[32], buf2[32];
-#ifdef CONFIG_DDR_CLK_FREQ
+#if defined(CONFIG_DDR_CLK_FREQ) || defined(CONFIG_FSL_CORENET)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#endif /* CONFIG_FSL_CORENET */
+#ifdef CONFIG_DDR_CLK_FREQ
+	u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
+		>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
+#else
 #ifdef CONFIG_FSL_CORENET
 	u32 ddr_sync = ((gur->rcwsr[5]) & FSL_CORENET_RCWSR5_DDR_SYNC)
 		>> FSL_CORENET_RCWSR5_DDR_SYNC_SHIFT;
 #else
-	u32 ddr_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_DDR_RATIO)
-		>> MPC85xx_PORPLLSR_DDR_RATIO_SHIFT;
-#endif
-#else
-#ifdef CONFIG_FSL_CORENET
-	u32 ddr_sync = 0;
-#else
 	u32 ddr_ratio = 0;
-#endif
+#endif /* CONFIG_FSL_CORENET */
 #endif /* CONFIG_DDR_CLK_FREQ */
 	int i;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007-2009 Freescale Semiconductor, Inc.
+ * Copyright 2004, 2007-2010 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2003 Motorola Inc.
  * Xianghua Xiao, (X.Xiao@motorola.com)
@@ -71,22 +71,30 @@ void get_sys_info (sys_info_t * sysInfo)
 		[14] = 4,	/* CC4 PPL / 4 */
 	};
 	uint lcrr_div, i, freqCC_PLL[4], rcw_tmp;
+	uint ratio[4];
 	unsigned long sysclk = CONFIG_SYS_CLK_FREQ;
+	uint mem_pll_rat;
 
 	sysInfo->freqSystemBus = sysclk;
 	sysInfo->freqDDRBus = sysclk;
-	freqCC_PLL[0] = sysclk;
-	freqCC_PLL[1] = sysclk;
-	freqCC_PLL[2] = sysclk;
-	freqCC_PLL[3] = sysclk;
 
 	sysInfo->freqSystemBus *= (in_be32(&gur->rcwsr[0]) >> 25) & 0x1f;
-	sysInfo->freqDDRBus *= ((in_be32(&gur->rcwsr[0]) >> 17) & 0x1f);
-	freqCC_PLL[0] *= (in_be32(&clk->pllc1gsr) >> 1) & 0x3f;
-	freqCC_PLL[1] *= (in_be32(&clk->pllc2gsr) >> 1) & 0x3f;
-	freqCC_PLL[2] *= (in_be32(&clk->pllc3gsr) >> 1) & 0x3f;
-	freqCC_PLL[3] *= (in_be32(&clk->pllc4gsr) >> 1) & 0x3f;
+	mem_pll_rat = (in_be32(&gur->rcwsr[0]) >> 17) & 0x1f;
+	if (mem_pll_rat > 2)
+		sysInfo->freqDDRBus *= mem_pll_rat;
+	else
+		sysInfo->freqDDRBus = sysInfo->freqSystemBus * mem_pll_rat;
 
+	ratio[0] = (in_be32(&clk->pllc1gsr) >> 1) & 0x3f;
+	ratio[1] = (in_be32(&clk->pllc2gsr) >> 1) & 0x3f;
+	ratio[2] = (in_be32(&clk->pllc3gsr) >> 1) & 0x3f;
+	ratio[3] = (in_be32(&clk->pllc4gsr) >> 1) & 0x3f;
+	for (i = 0; i < 4; i++) {
+		if (ratio[i] > 4)
+			freqCC_PLL[i] = sysclk * ratio[i];
+		else
+			freqCC_PLL[i] = sysInfo->freqSystemBus * ratio[i];
+	}
 	rcw_tmp = in_be32(&gur->rcwsr[3]);
 	for (i = 0; i < cpu_numcores(); i++) {
 		u32 c_pll_sel = (in_be32(&clk->clkc0csr + i*8) >> 27) & 0xf;
