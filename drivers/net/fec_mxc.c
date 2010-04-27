@@ -505,7 +505,6 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 		miiphy_restart_aneg(dev);
 
 	fec_open(dev);
-	fec_set_hwaddr(dev);
 	return 0;
 }
 
@@ -713,6 +712,7 @@ static int fec_probe(bd_t *bd)
 	edev->send = fec_send;
 	edev->recv = fec_recv;
 	edev->halt = fec_halt;
+	edev->write_hwaddr = fec_set_hwaddr;
 
 	fec->eth = (struct ethernet_regs *)IMX_FEC_BASE;
 	fec->bd = bd;
