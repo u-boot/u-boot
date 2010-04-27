@@ -63,6 +63,7 @@
 /*
  * High Level Configuration Options
  */
+#define CONFIG_MPC83xx		1
 #define CONFIG_MPC834x		/* MPC834x family (8343, 8347, 8349) */
 #define CONFIG_MPC8349		/* MPC8349 specific */
 
@@ -511,7 +512,8 @@ boards, we say we have two, but don't display a message if we find only one. */
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
-#define CONFIG_CMDLINE_EDITING		/* Command-line editing */
+#define CONFIG_CMDLINE_EDITING			/* Command-line editing */
+#define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_HUSH_PARSER			/* Use the HUSH parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
@@ -595,8 +597,8 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_SICRH SICRH_TSOBI1	/* Needed for gigabit to work on TSEC 1 */
 #define CONFIG_SYS_SICRL (SICRL_LDP_A | SICRL_USB1)	/* USB DR as device + USB MPH as host */
 
-#define CONFIG_SYS_HID0_INIT	0x000000000
-#define CONFIG_SYS_HID0_FINAL	CONFIG_SYS_HID0_INIT
+#define CONFIG_SYS_HID0_INIT	0x00000000
+#define CONFIG_SYS_HID0_FINAL	HID0_ENABLE_INSTRUCTION_CACHE
 
 #define CONFIG_SYS_HID2	HID2_HBE
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */

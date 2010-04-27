@@ -116,7 +116,7 @@ int get_clocks(void)
 #if defined(CONFIG_MPC8315)
 	u32 tdm_clk;
 #endif
-#if defined(CONFIG_MPC837x)
+#if defined(CONFIG_FSL_ESDHC)
 	u32 sdhc_clk;
 #endif
 	u32 enc_clk;
@@ -274,7 +274,7 @@ int get_clocks(void)
 		return -7;
 	}
 
-#if defined(CONFIG_MPC837x)
+#if defined(CONFIG_FSL_ESDHC)
 	switch ((sccr & SCCR_SDHCCM) >> SCCR_SDHCCM_SHIFT) {
 	case 0:
 		sdhc_clk = 0;
@@ -321,7 +321,7 @@ int get_clocks(void)
 	i2c1_clk = enc_clk;
 #elif defined(CONFIG_MPC831x)
 	i2c1_clk = enc_clk;
-#elif defined(CONFIG_MPC837x)
+#elif defined(CONFIG_FSL_ESDHC)
 	i2c1_clk = sdhc_clk;
 #endif
 #if !defined(CONFIG_MPC832x)
@@ -455,7 +455,7 @@ int get_clocks(void)
 #if defined(CONFIG_MPC8315)
 	gd->tdm_clk = tdm_clk;
 #endif
-#if defined(CONFIG_MPC837x)
+#if defined(CONFIG_FSL_ESDHC)
 	gd->sdhc_clk = sdhc_clk;
 #endif
 	gd->core_clk = core_clk;
@@ -522,7 +522,7 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_MPC8315)
 	printf("  TDM:                 %-4s MHz\n", strmhz(buf, gd->tdm_clk));
 #endif
-#if defined(CONFIG_MPC837x)
+#if defined(CONFIG_FSL_ESDHC)
 	printf("  SDHC:                %-4s MHz\n", strmhz(buf, gd->sdhc_clk));
 #endif
 #if defined(CONFIG_MPC834x) || defined(CONFIG_MPC831x) || defined(CONFIG_MPC837x)
