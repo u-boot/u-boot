@@ -752,6 +752,40 @@ static int init_phy(struct eth_device *dev)
 	return 1;
 }
 
+static int tse_set_mac_address(struct eth_device *dev)
+{
+	struct altera_tse_priv *priv = dev->priv;
+	volatile struct alt_tse_mac *mac_dev = priv->mac_dev;
+
+	debug("Setting MAC address to 0x%02x%02x%02x%02x%02x%02x\n",
+	      dev->enetaddr[5], dev->enetaddr[4],
+	      dev->enetaddr[3], dev->enetaddr[2],
+	      dev->enetaddr[1], dev->enetaddr[0]);
+	mac_dev->mac_addr_0 = ((dev->enetaddr[3]) << 24 |
+			       (dev->enetaddr[2]) << 16 |
+			       (dev->enetaddr[1]) << 8 | (dev->enetaddr[0]));
+
+	mac_dev->mac_addr_1 = ((dev->enetaddr[5] << 8 |
+				(dev->enetaddr[4])) & 0xFFFF);
+
+	/* Set the MAC address */
+	mac_dev->supp_mac_addr_0_0 = mac_dev->mac_addr_0;
+	mac_dev->supp_mac_addr_0_1 = mac_dev->mac_addr_1;
+
+	/* Set the MAC address */
+	mac_dev->supp_mac_addr_1_0 = mac_dev->mac_addr_0;
+	mac_dev->supp_mac_addr_1_1 = mac_dev->mac_addr_1;
+
+	/* Set the MAC address */
+	mac_dev->supp_mac_addr_2_0 = mac_dev->mac_addr_0;
+	mac_dev->supp_mac_addr_2_1 = mac_dev->mac_addr_1;
+
+	/* Set the MAC address */
+	mac_dev->supp_mac_addr_3_0 = mac_dev->mac_addr_0;
+	mac_dev->supp_mac_addr_3_1 = mac_dev->mac_addr_1;
+	return 0;
+}
+
 static int tse_eth_init(struct eth_device *dev, bd_t * bd)
 {
 	int dat;
@@ -829,34 +863,6 @@ static int tse_eth_init(struct eth_device *dev, bd_t * bd)
 
 	mac_dev->command_config.image = dat;
 
-	/* Set the MAC address */
-	debug("Setting MAC address to 0x%x%x%x%x%x%x\n",
-	      dev->enetaddr[5], dev->enetaddr[4],
-	      dev->enetaddr[3], dev->enetaddr[2],
-	      dev->enetaddr[1], dev->enetaddr[0]);
-	mac_dev->mac_addr_0 = ((dev->enetaddr[3]) << 24 |
-			       (dev->enetaddr[2]) << 16 |
-			       (dev->enetaddr[1]) << 8 | (dev->enetaddr[0]));
-
-	mac_dev->mac_addr_1 = ((dev->enetaddr[5] << 8 |
-				(dev->enetaddr[4])) & 0xFFFF);
-
-	/* Set the MAC address */
-	mac_dev->supp_mac_addr_0_0 = mac_dev->mac_addr_0;
-	mac_dev->supp_mac_addr_0_1 = mac_dev->mac_addr_1;
-
-	/* Set the MAC address */
-	mac_dev->supp_mac_addr_1_0 = mac_dev->mac_addr_0;
-	mac_dev->supp_mac_addr_1_1 = mac_dev->mac_addr_1;
-
-	/* Set the MAC address */
-	mac_dev->supp_mac_addr_2_0 = mac_dev->mac_addr_0;
-	mac_dev->supp_mac_addr_2_1 = mac_dev->mac_addr_1;
-
-	/* Set the MAC address */
-	mac_dev->supp_mac_addr_3_0 = mac_dev->mac_addr_0;
-	mac_dev->supp_mac_addr_3_1 = mac_dev->mac_addr_1;
-
 	/* configure the TSE core  */
 	/*  -- output clocks,  */
 	/*  -- and later config stuff for SGMII */
@@ -920,6 +926,7 @@ int altera_tse_initialize(u8 dev_num, int mac_base,
 	dev->halt = tse_eth_halt;
 	dev->send = tse_eth_send;
 	dev->recv = tse_eth_rx;
+	dev->write_hwaddr = tse_set_mac_address;
 	sprintf(dev->name, "%s-%hu", "ALTERA_TSE", dev_num);
 
 	eth_register(dev);
