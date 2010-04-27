@@ -53,6 +53,7 @@ extern int gdc_post_test (int flags);
 extern int fpga_post_test (int flags);
 extern int lwmon5_watchdog_post_test(int flags);
 extern int sysmon1_post_test(int flags);
+extern int coprocessor_post_test(int flags);
 
 extern int sysmon_init_f (void);
 
@@ -285,6 +286,18 @@ struct post_test post_list[] =
 #endif
 #if CONFIG_POST & CONFIG_SYS_POST_BSPEC5
 	CONFIG_POST_BSPEC5,
+#endif
+#if CONFIG_POST & CONFIG_SYS_POST_COPROC
+    {
+	"Coprocessors communication test",
+	"coproc_com",
+	"This test checks communication with coprocessors.",
+	POST_RAM | POST_ALWAYS | POST_CRITICAL,
+	&coprocessor_post_test,
+	NULL,
+	NULL,
+	CONFIG_SYS_POST_COPROC
+    }
 #endif
 };
 

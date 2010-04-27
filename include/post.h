@@ -124,6 +124,7 @@ extern int post_hotkeys_pressed(void);
 #define CONFIG_SYS_POST_BSPEC4		0x00080000
 #define CONFIG_SYS_POST_BSPEC5		0x00100000
 #define CONFIG_SYS_POST_CODEC		0x00200000
+#define CONFIG_SYS_POST_COPROC		0x00400000
 
 #endif /* CONFIG_POST */
 

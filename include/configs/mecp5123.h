@@ -66,6 +66,9 @@
 
 #define CONFIG_SYS_DDR_BASE		0x00000000	/* DDR is sys memory*/
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_BASE
+#define CONFIG_SYS_MAX_RAM_SIZE		0x20000000
+
+#define CONFIG_SYS_IOCTRL_MUX_DDR	0x00000036
 
 /* DDR Controller Configuration
  *

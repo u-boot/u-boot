@@ -78,7 +78,7 @@ long int fixed_sdram(ddr512x_config_t *mddrc_config,
 			u32 *dram_init_seq, int seq_sz)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-	u32 msize = CONFIG_SYS_DDR_SIZE * 1024 * 1024;
+	u32 msize = CONFIG_SYS_MAX_RAM_SIZE;
 	u32 msize_log2 = __ilog2(msize);
 	u32 i;
 
@@ -91,7 +91,7 @@ long int fixed_sdram(ddr512x_config_t *mddrc_config,
 	}
 
 	/* Initialize IO Control */
-	out_be32(&im->io_ctrl.io_control_mem, IOCTRL_MUX_DDR);
+	out_be32(&im->io_ctrl.io_control_mem, CONFIG_SYS_IOCTRL_MUX_DDR);
 
 	/* Initialize DDR Local Window */
 	out_be32(&im->sysconf.ddrlaw.bar, CONFIG_SYS_DDR_BASE & 0xFFFFF000);
@@ -147,6 +147,11 @@ long int fixed_sdram(ddr512x_config_t *mddrc_config,
 	/* Start MDDRC */
 	out_be32(&im->mddrc.ddr_time_config0, mddrc_config->ddr_time_config0);
 	out_be32(&im->mddrc.ddr_sys_config, mddrc_config->ddr_sys_config);
+
+	msize = get_ram_size(CONFIG_SYS_DDR_BASE, CONFIG_SYS_MAX_RAM_SIZE);
+	/* Fix DDR Local Window for new size */
+	out_be32(&im->sysconf.ddrlaw.ar, __ilog2(msize) - 1);
+	sync_law(&im->sysconf.ddrlaw.ar);
 
 	return msize;
 }

@@ -356,6 +356,11 @@ typedef struct ddr512x_config {
 	u32 ddr_time_config2;	/* Timing Configuration Register */
 } ddr512x_config_t;
 
+typedef struct sdram_conf_s {
+	unsigned long size;
+	ddr512x_config_t cfg;
+} sdram_conf_t;
+
 /*
  * DMA/Messaging Unit
  */
@@ -848,10 +853,6 @@ typedef struct ioctrl512x {
 	u8	reserved[0x0cfc];		/* fill to 4096 bytes size */
 } ioctrl512x_t;
 
-/* Indexes in regs array */
-/* Set for DDR */
-#define IOCTRL_MUX_DDR		0x00000036
-
 /* IO pin fields */
 #define IO_PIN_FMUX(v)	((v) << 7)	/* pin function */
 #define IO_PIN_HOLD(v)	((v) << 5)	/* hold time, pci only */
@@ -1116,66 +1117,68 @@ typedef struct fifoc512x {
  *
  * Overall size of FIFOC memory is not documented in the MPC5121e RM, but
  * tests indicate that it is 1024 words total.
+ *
+ * *_TX_SIZE and *_RX_SIZE is the number of 4-byte words for FIFO slice.
  */
-#define FIFOC_PSC0_TX_SIZE	0x0	/* number of 4-byte words for FIFO slice */
+#define FIFOC_PSC0_TX_SIZE	0x04
 #define FIFOC_PSC0_TX_ADDR	0x0
-#define FIFOC_PSC0_RX_SIZE	0x0
-#define FIFOC_PSC0_RX_ADDR	0x0
+#define FIFOC_PSC0_RX_SIZE	0x04
+#define FIFOC_PSC0_RX_ADDR	0x10
 
-#define FIFOC_PSC1_TX_SIZE	0x0
-#define FIFOC_PSC1_TX_ADDR	0x0
-#define FIFOC_PSC1_RX_SIZE	0x0
-#define FIFOC_PSC1_RX_ADDR	0x0
+#define FIFOC_PSC1_TX_SIZE	0x04
+#define FIFOC_PSC1_TX_ADDR	0x20
+#define FIFOC_PSC1_RX_SIZE	0x04
+#define FIFOC_PSC1_RX_ADDR	0x30
 
-#define FIFOC_PSC2_TX_SIZE	0x0
-#define FIFOC_PSC2_TX_ADDR	0x0
-#define FIFOC_PSC2_RX_SIZE	0x0
-#define FIFOC_PSC2_RX_ADDR	0x0
+#define FIFOC_PSC2_TX_SIZE	0x04
+#define FIFOC_PSC2_TX_ADDR	0x40
+#define FIFOC_PSC2_RX_SIZE	0x04
+#define FIFOC_PSC2_RX_ADDR	0x50
 
 #define FIFOC_PSC3_TX_SIZE	0x04
-#define FIFOC_PSC3_TX_ADDR	0x0
+#define FIFOC_PSC3_TX_ADDR	0x60
 #define FIFOC_PSC3_RX_SIZE	0x04
-#define FIFOC_PSC3_RX_ADDR	0x10
+#define FIFOC_PSC3_RX_ADDR	0x70
 
-#define FIFOC_PSC4_TX_SIZE	0x0
-#define FIFOC_PSC4_TX_ADDR	0x0
-#define FIFOC_PSC4_RX_SIZE	0x0
-#define FIFOC_PSC4_RX_ADDR	0x0
+#define FIFOC_PSC4_TX_SIZE	0x04
+#define FIFOC_PSC4_TX_ADDR	0x80
+#define FIFOC_PSC4_RX_SIZE	0x04
+#define FIFOC_PSC4_RX_ADDR	0x90
 
-#define FIFOC_PSC5_TX_SIZE	0x0
-#define FIFOC_PSC5_TX_ADDR	0x0
-#define FIFOC_PSC5_RX_SIZE	0x0
-#define FIFOC_PSC5_RX_ADDR	0x0
+#define FIFOC_PSC5_TX_SIZE	0x04
+#define FIFOC_PSC5_TX_ADDR	0xa0
+#define FIFOC_PSC5_RX_SIZE	0x04
+#define FIFOC_PSC5_RX_ADDR	0xb0
 
-#define FIFOC_PSC6_TX_SIZE	0x0
-#define FIFOC_PSC6_TX_ADDR	0x0
-#define FIFOC_PSC6_RX_SIZE	0x0
-#define FIFOC_PSC6_RX_ADDR	0x0
+#define FIFOC_PSC6_TX_SIZE	0x04
+#define FIFOC_PSC6_TX_ADDR	0xc0
+#define FIFOC_PSC6_RX_SIZE	0x04
+#define FIFOC_PSC6_RX_ADDR	0xd0
 
-#define FIFOC_PSC7_TX_SIZE	0x0
-#define FIFOC_PSC7_TX_ADDR	0x0
-#define FIFOC_PSC7_RX_SIZE	0x0
-#define FIFOC_PSC7_RX_ADDR	0x0
+#define FIFOC_PSC7_TX_SIZE	0x04
+#define FIFOC_PSC7_TX_ADDR	0xe0
+#define FIFOC_PSC7_RX_SIZE	0x04
+#define FIFOC_PSC7_RX_ADDR	0xf0
 
-#define FIFOC_PSC8_TX_SIZE	0x0
-#define FIFOC_PSC8_TX_ADDR	0x0
-#define FIFOC_PSC8_RX_SIZE	0x0
-#define FIFOC_PSC8_RX_ADDR	0x0
+#define FIFOC_PSC8_TX_SIZE	0x04
+#define FIFOC_PSC8_TX_ADDR	0x100
+#define FIFOC_PSC8_RX_SIZE	0x04
+#define FIFOC_PSC8_RX_ADDR	0x110
 
-#define FIFOC_PSC9_TX_SIZE	0x0
-#define FIFOC_PSC9_TX_ADDR	0x0
-#define FIFOC_PSC9_RX_SIZE	0x0
-#define FIFOC_PSC9_RX_ADDR	0x0
+#define FIFOC_PSC9_TX_SIZE	0x04
+#define FIFOC_PSC9_TX_ADDR	0x120
+#define FIFOC_PSC9_RX_SIZE	0x04
+#define FIFOC_PSC9_RX_ADDR	0x130
 
-#define FIFOC_PSC10_TX_SIZE	0x0
-#define FIFOC_PSC10_TX_ADDR	0x0
-#define FIFOC_PSC10_RX_SIZE	0x0
-#define FIFOC_PSC10_RX_ADDR	0x0
+#define FIFOC_PSC10_TX_SIZE	0x04
+#define FIFOC_PSC10_TX_ADDR	0x140
+#define FIFOC_PSC10_RX_SIZE	0x04
+#define FIFOC_PSC10_RX_ADDR	0x150
 
-#define FIFOC_PSC11_TX_SIZE	0x0
-#define FIFOC_PSC11_TX_ADDR	0x0
-#define FIFOC_PSC11_RX_SIZE	0x0
-#define FIFOC_PSC11_RX_ADDR	0x0
+#define FIFOC_PSC11_TX_SIZE	0x04
+#define FIFOC_PSC11_TX_ADDR	0x160
+#define FIFOC_PSC11_RX_SIZE	0x04
+#define FIFOC_PSC11_RX_ADDR	0x170
 
 /*
  * SATA

@@ -809,6 +809,9 @@ mpc5121ads_rev2_config	\
 	fi
 	@$(MKCONFIG) -a mpc5121ads powerpc mpc512x mpc5121ads freescale
 
+pdm360ng_config:	unconfig
+	@$(MKCONFIG) -a pdm360ng powerpc mpc512x pdm360ng
+
 #########################################################################
 ## MPC8xx Systems
 #########################################################################
