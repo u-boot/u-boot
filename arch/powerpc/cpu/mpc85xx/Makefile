@@ -78,6 +78,7 @@ COBJS-$(CONFIG_FSL_CORENET) += fsl_corenet_serdes.o
 
 # SoC specific SERDES support
 COBJS-$(CONFIG_MPC8536) += mpc8536_serdes.o
+COBJS-$(CONFIG_MPC8544) += mpc8544_serdes.o
 COBJS-$(CONFIG_MPC8548) += mpc8548_serdes.o
 COBJS-$(CONFIG_MPC8568) += mpc8568_serdes.o
 COBJS-$(CONFIG_MPC8569) += mpc8569_serdes.o
