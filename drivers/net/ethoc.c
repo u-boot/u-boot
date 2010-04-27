@@ -215,13 +215,14 @@ static inline void ethoc_write_bd(struct eth_device *dev, int index,
 	ethoc_write(dev, offset + 4, bd->addr);
 }
 
-static inline void ethoc_set_mac_address(struct eth_device *dev)
+static int ethoc_set_mac_address(struct eth_device *dev)
 {
 	u8 *mac = dev->enetaddr;
 
 	ethoc_write(dev, MAC_ADDR0, (mac[2] << 24) | (mac[3] << 16) |
 		    (mac[4] << 8) | (mac[5] << 0));
 	ethoc_write(dev, MAC_ADDR1, (mac[0] << 8) | (mac[1] << 0));
+	return 0;
 }
 
 static inline void ethoc_ack_irq(struct eth_device *dev, u32 mask)
@@ -307,8 +308,6 @@ static int ethoc_init(struct eth_device *dev, bd_t * bd)
 {
 	struct ethoc *priv = (struct ethoc *)dev->priv;
 	printf("ethoc\n");
-
-	ethoc_set_mac_address(dev);
 
 	priv->num_tx = 1;
 	priv->num_rx = PKTBUFSRX;
@@ -504,6 +503,7 @@ int ethoc_initialize(u8 dev_num, int base_addr)
 	dev->halt = ethoc_halt;
 	dev->send = ethoc_send;
 	dev->recv = ethoc_recv;
+	dev->write_hwaddr = ethoc_set_mac_address;
 	sprintf(dev->name, "%s-%hu", "ETHOC", dev_num);
 
 	eth_register(dev);
