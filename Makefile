@@ -1357,6 +1357,9 @@ HH405_config:	unconfig
 HUB405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) powerpc ppc4xx hub405 esd
 
+icon_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) powerpc ppc4xx icon mosaixtech
+
 # Compact-Center(codename intip) & DevCon-Center use different U-Boot images
 intip_config \
 devconcenter_config:	unconfig

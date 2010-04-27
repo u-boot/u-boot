@@ -368,6 +368,7 @@ Stefan Roese <sr@denx.de>
 	ebony		PPC440GP
 	glacier		PPC460GT
 	haleakala	PPC405EXr
+	icon		PPC440SPe
 	katmai		PPC440SPe
 	kilauea		PPC405EX
 	lwmon5		PPC440EPx
