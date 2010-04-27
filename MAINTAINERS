@@ -858,6 +858,7 @@ Scott McNutt <smcnutt@psyent.com>
 	EP1C20		Nios-II
 	EP1S10		Nios-II
 	EP1S40		Nios-II
+	nios2-generic	Nios-II
 
 #########################################################################
 # MicroBlaze Systems:							#

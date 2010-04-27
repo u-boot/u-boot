@@ -28,12 +28,16 @@
 #include <stdio_dev.h>
 #include <watchdog.h>
 #include <malloc.h>
+#include <mmc.h>
 #include <net.h>
 #ifdef CONFIG_STATUS_LED
 #include <status_led.h>
 #endif
 #if defined(CONFIG_SYS_NIOS_EPCSBASE)
 #include <nios2-epcs.h>
+#endif
+#ifdef CONFIG_CMD_NAND
+#include <nand.h>	/* cannot even include nand.h if it isnt configured */
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -100,7 +104,9 @@ void board_init (void)
 	bd = gd->bd;
 	bd->bi_memstart	= CONFIG_SYS_SDRAM_BASE;
 	bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
+#ifndef CONFIG_SYS_NO_FLASH
 	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
+#endif
 #if	defined(CONFIG_SYS_SRAM_BASE) && defined(CONFIG_SYS_SRAM_SIZE)
 	bd->bi_sramstart= CONFIG_SYS_SRAM_BASE;
 	bd->bi_sramsize	= CONFIG_SYS_SRAM_SIZE;
@@ -119,8 +125,20 @@ void board_init (void)
 	/* The Malloc area is immediately below the monitor copy in RAM */
 	mem_malloc_init(CONFIG_SYS_MALLOC_BASE, CONFIG_SYS_MALLOC_LEN);
 
+#ifndef CONFIG_SYS_NO_FLASH
 	WATCHDOG_RESET ();
 	bd->bi_flashsize = flash_init();
+#endif
+
+#ifdef CONFIG_CMD_NAND
+	puts("NAND:  ");
+	nand_init();
+#endif
+
+#ifdef CONFIG_GENERIC_MMC
+	puts("MMC:   ");
+	mmc_initialize(bd);
+#endif
 
 	WATCHDOG_RESET ();
 	env_relocate();

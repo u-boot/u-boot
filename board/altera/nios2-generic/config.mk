@@ -1,6 +1,5 @@
 #
-# (C) Copyright 2004
-# Psyent Corporation <www.psyent.com>
+# (C) Copyright 2005, Psyent Corporation <www.psyent.com>
 # Scott McNutt <smcnutt@psyent.com>
 #
 # See file CREDITS for list of people who contributed to this
@@ -22,11 +21,14 @@
 # MA 02111-1307 USA
 #
 
-CROSS_COMPILE ?= nios2-elf-
+# we get text_base from board config header, so do not use this
+#TEXT_BASE = do-not-use-me
 
-STANDALONE_LOAD_ADDR = 0x02000000 -L $(gcclibdir)
+PLATFORM_CPPFLAGS += -mno-hw-div -mno-hw-mul
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/$(VENDOR)/include
 
-PLATFORM_CPPFLAGS += -DCONFIG_NIOS2 -D__NIOS2__
-PLATFORM_CPPFLAGS += -ffixed-r15 -G0
+ifeq ($(debug),1)
+PLATFORM_CPPFLAGS += -DDEBUG
+endif
 
-LDSCRIPT ?= $(SRCTREE)/$(CPUDIR)/u-boot.lds
+LDSCRIPT := $(SRCTREE)/board/$(VENDOR)/$(BOARD)/u-boot.lds

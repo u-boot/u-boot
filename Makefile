@@ -3534,6 +3534,12 @@ PK1C20_config : unconfig
 PCI5441_config : unconfig
 	@$(MKCONFIG)  PCI5441 nios2 nios2 pci5441 psyent
 
+# nios2 generic boards
+NIOS2_GENERIC = nios2-generic
+
+$(NIOS2_GENERIC:%=%_config) : unconfig
+	@$(MKCONFIG) $(@:_config=) nios2 nios2 nios2-generic altera
+
 #========================================================================
 ## Microblaze
 #========================================================================
