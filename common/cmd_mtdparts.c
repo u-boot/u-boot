@@ -837,14 +837,16 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
 	u32 offset;
 	int err = 1;
 
-	p = mtd_dev;
-	*retdev = NULL;
-	*ret = NULL;
-
 	DEBUGF("===device_parse===\n");
 
+	assert(retdev);
+	*retdev = NULL;
+
+	if (ret)
+		*ret = NULL;
+
 	/* fetch <mtd-id> */
-	mtd_id = p;
+	mtd_id = p = mtd_dev;
 	if (!(p = strchr(mtd_id, ':'))) {
 		printf("no <mtd-id> identifier\n");
 		return 1;
@@ -913,12 +915,15 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
 	/* check for next device presence */
 	if (p) {
 		if (*p == ';') {
-			*ret = ++p;
+			if (ret)
+				*ret = ++p;
 		} else if (*p == '\0') {
-			*ret = p;
+			if (ret)
+				*ret = p;
 		} else {
 			printf("unexpected character '%c' at the end of device\n", *p);
-			*ret = NULL;
+			if (ret)
+				*ret = NULL;
 			return 1;
 		}
 	}
