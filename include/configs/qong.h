@@ -127,9 +127,9 @@
 		" console=ttymxc0,${baudrate}\0"			\
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"addmisc=setenv bootargs ${bootargs}\0"				\
-	"uboot_addr=a0000000\0"						\
-	"kernel_addr=a0080000\0"					\
-	"ramdisk_addr=a0300000\0"					\
+	"uboot_addr=A0000000\0"						\
+	"kernel_addr=A00A0000\0"					\
+	"ramdisk_addr=A0300000\0"					\
 	"u-boot=qong/u-boot.bin\0"					\
 	"kernel_addr_r=80800000\0"					\
 	"hostname=qong\0"						\
@@ -172,6 +172,10 @@
 #define CONFIG_SYS_HZ			1000
 
 #define CONFIG_CMDLINE_EDITING	1
+#define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
+#ifdef	CONFIG_SYS_HUSH_PARSER
+#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
+#endif
 
 #define CONFIG_MISC_INIT_R	1
 /*-----------------------------------------------------------------------
@@ -228,7 +232,7 @@
 #define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT		"nor0=physmap-flash.0"
 #define MTDPARTS_DEFAULT	\
-	"mtdparts=physmap-flash.0:256k(U-Boot),128k(env1),"	\
-	"128k(env2),2560k(kernel),13m(ramdisk),-(user)"
+	"mtdparts=physmap-flash.0:384k(U-Boot),128k(env1),"	\
+	"128k(env2),2432k(kernel),13m(ramdisk),-(user)"
 
 #endif /* __CONFIG_H */
