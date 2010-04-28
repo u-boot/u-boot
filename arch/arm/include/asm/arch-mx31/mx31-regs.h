@@ -207,6 +207,15 @@ struct clock_control_regs {
 #define MUX_CTL_CSPI1_SS0	0x8e
 #define MUX_CTL_CSPI1_SS1	0x8f
 
+#define MUX_CTL_NFC_WP		0xD0
+#define MUX_CTL_NFC_CE		0xD1
+#define MUX_CTL_NFC_RB		0xD2
+#define MUX_CTL_NFC_WE		0xD4
+#define MUX_CTL_NFC_RE		0xD5
+#define MUX_CTL_NFC_ALE		0xD6
+#define MUX_CTL_NFC_CLE		0xD7
+
+
 /*
  * Helper macros for the MUX_[contact name]__[pin function] macros
  */
@@ -293,5 +302,11 @@ struct clock_control_regs {
  * NAND controller
  */
 #define NFC_BASE_ADDR	0xB8000000
+
+/*
+ * Internal RAM (16KB)
+ */
+#define	IRAM_BASE_ADDR	0x1FFFC000
+#define IRAM_SIZE	(16 * 1024)
 
 #endif /* __ASM_ARCH_MX31_REGS_H */

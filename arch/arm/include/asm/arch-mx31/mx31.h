@@ -37,9 +37,14 @@ enum mx31_gpio_direction {
 extern int mx31_gpio_direction(unsigned int gpio,
 			       enum mx31_gpio_direction direction);
 extern void mx31_gpio_set(unsigned int gpio, unsigned int value);
+extern int mx31_gpio_get(unsigned int gpio);
 #else
 static inline int mx31_gpio_direction(unsigned int gpio,
 				      enum mx31_gpio_direction direction)
+{
+	return 1;
+}
+static inline int mx31_gpio_get(unsigned int gpio)
 {
 	return 1;
 }
