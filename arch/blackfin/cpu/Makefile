@@ -17,6 +17,7 @@ EXTRA    :=
 CEXTRA   := initcode.o
 SEXTRA   := start.o
 SOBJS    := interrupt.o cache.o
+COBJS-$(CONFIG_BOOTCOUNT_LIMIT) += bootcount.o
 COBJS-y  += cpu.o
 COBJS-y  += interrupts.o
 COBJS-$(CONFIG_JTAG_CONSOLE) += jtag-console.o
