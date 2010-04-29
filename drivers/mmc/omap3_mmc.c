@@ -52,7 +52,27 @@ const unsigned short mmc_transspeed_val[15][4] = {
 
 mmc_card_data cur_card_data;
 static block_dev_desc_t mmc_blk_dev;
-static hsmmc_t *mmc_base = (hsmmc_t *)OMAP_HSMMC_BASE;
+static hsmmc_t *mmc_base = (hsmmc_t *)OMAP_HSMMC1_BASE;
+
+unsigned char mmc_set_dev(int dev)
+{
+	switch (dev) {
+	case 1:
+		mmc_base = (hsmmc_t *)OMAP_HSMMC1_BASE;
+		break;
+	case 2:
+		mmc_base = (hsmmc_t *)OMAP_HSMMC2_BASE;
+		break;
+	case 3:
+		mmc_base = (hsmmc_t *)OMAP_HSMMC3_BASE;
+		break;
+	default:
+		mmc_base = (hsmmc_t *)OMAP_HSMMC1_BASE;
+		return 1;
+	}
+
+	return 0;
+}
 
 block_dev_desc_t *mmc_get_dev(int dev)
 {
@@ -62,6 +82,7 @@ block_dev_desc_t *mmc_get_dev(int dev)
 unsigned char mmc_board_init(void)
 {
 	t2_t *t2_base = (t2_t *)T2_BASE;
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
 
 #if defined(CONFIG_TWL4030_POWER)
 	twl4030_power_mmc_init();
@@ -73,6 +94,17 @@ unsigned char mmc_board_init(void)
 
 	writel(readl(&t2_base->devconf0) | MMCSDIO1ADPCLKISEL,
 		&t2_base->devconf0);
+
+	writel(readl(&t2_base->devconf1) | MMCSDIO2ADPCLKISEL,
+		&t2_base->devconf1);
+
+	writel(readl(&prcm_base->fclken1_core) |
+		EN_MMC1 | EN_MMC2 | EN_MMC3,
+		&prcm_base->fclken1_core);
+
+	writel(readl(&prcm_base->iclken1_core) |
+		EN_MMC1 | EN_MMC2 | EN_MMC3,
+		&prcm_base->iclken1_core);
 
 	return 1;
 }
@@ -512,8 +544,11 @@ unsigned long mmc_bread(int dev_num, unsigned long blknr, lbaint_t blkcnt,
 	return 1;
 }
 
-int mmc_legacy_init(int verbose)
+int mmc_legacy_init(int dev)
 {
+	if (mmc_set_dev(dev) != 0)
+		return 1;
+
 	if (configure_mmc(&cur_card_data) != 1)
 		return 1;
 
