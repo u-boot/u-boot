@@ -106,7 +106,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 
 	spi = spi_setup_slave(bus, cs, max_hz, spi_mode);
 	if (!spi) {
-		debug("SF: Failed to set up slave\n");
+		printf("SF: Failed to set up slave\n");
 		return NULL;
 	}
 
@@ -157,7 +157,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		break;
 #endif
 	default:
-		debug("SF: Unsupported manufacturer %02X\n", idcode[0]);
+		printf("SF: Unsupported manufacturer %02X\n", idcode[0]);
 		flash = NULL;
 		break;
 	}

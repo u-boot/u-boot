@@ -365,8 +365,9 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	stm->flash.size = params->page_size * params->pages_per_sector
 	    * params->nr_sectors;
 
-	debug("SF: Detected %s with page size %u, total %u bytes\n",
-	      params->name, params->page_size, stm->flash.size);
+	printf("SF: Detected %s with page size %u, total ",
+	       params->name, params->page_size);
+	print_size(stm->flash.size, "\n");
 
 	return &stm->flash;
 }
