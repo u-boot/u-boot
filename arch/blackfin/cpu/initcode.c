@@ -675,7 +675,12 @@ void initcode(ADI_BOOT_DATA *bs)
 
 #ifdef CONFIG_BFIN_BOOTROM_USES_EVT1
 	serial_putc('I');
-	/* tell the bootrom where our entry point is */
+	/* Tell the bootrom where our entry point is so that it knows
+	 * where to jump to when finishing processing the LDR.  This
+	 * allows us to avoid small jump blocks in the LDR, and also
+	 * works around anomaly 05000389 (init address in external
+	 * memory causes bootrom to trigger external addressing IVHW).
+	 */
 	if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_BYPASS)
 		bfin_write_EVT1(CONFIG_SYS_MONITOR_BASE);
 #endif
