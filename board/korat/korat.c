@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2009
+ * (C) Copyright 2007-2010
  * Larry Johnson, lrj@acm.org
  *
  * (C) Copyright 2006-2007
@@ -417,7 +417,7 @@ int misc_init_r(void)
 		 * then connect the CompactFlash controller to the PowerPC USB
 		 * port.
 		 */
-		printf("Attaching CompactFalsh controller to PPC USB\n");
+		printf("Attaching CompactFlash controller to PPC USB\n");
 		out_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x02,
 		      in_8((u8 *) CONFIG_SYS_CPLD_BASE + 0x02) | 0x10);
 	} else {
@@ -425,7 +425,7 @@ int misc_init_r(void)
 			printf("Warning: \"korat_usbcf\" is not set to a legal "
 			       "value (\"ppc\" or \"pci\")\n");
 
-		printf("Attaching CompactFalsh controller to PCI USB\n");
+		printf("Attaching CompactFlash controller to PCI USB\n");
 	}
 	if (act == NULL || strcmp(act, "hostdev") == 0) {
 		/* SDR Setting */
