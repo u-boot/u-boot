@@ -35,6 +35,16 @@
 #define CONFIG_SMC91111
 #define CONFIG_SMC_USE_32_BIT
 
+/* epcs_controller.epcs_control_port is a altera_avalon_epcs_flash_controller */
+#define EPCS_CONTROLLER_REG_BASE 0x82100200
+#define CONFIG_SYS_ALTERA_SPI_LIST { EPCS_CONTROLLER_REG_BASE }
+#define CONFIG_ALTERA_SPI
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_SF
+#define CONFIG_SF_DEFAULT_SPEED 30000000
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO
+
 /* jtag_uart.avalon_jtag_slave is a altera_avalon_jtag_uart */
 #define CONFIG_SYS_JTAG_UART_BASE 0x821208b0
 
