@@ -46,6 +46,7 @@
 #define CMD_M25PXX_DP		0xb9	/* Deep Power-down */
 #define CMD_M25PXX_RES		0xab	/* Release from DP, and Read Signature */
 
+#define STM_ID_M25P10		0x11
 #define STM_ID_M25P16		0x15
 #define STM_ID_M25P20		0x12
 #define STM_ID_M25P32		0x16
@@ -77,6 +78,13 @@ static inline struct stmicro_spi_flash *to_stmicro_spi_flash(struct spi_flash
 }
 
 static const struct stmicro_spi_flash_params stmicro_spi_flash_table[] = {
+	{
+		.idcode1 = STM_ID_M25P10,
+		.page_size = 256,
+		.pages_per_sector = 128,
+		.nr_sectors = 4,
+		.name = "M25P10",
+	},
 	{
 		.idcode1 = STM_ID_M25P16,
 		.page_size = 256,
@@ -315,6 +323,19 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	const struct stmicro_spi_flash_params *params;
 	struct stmicro_spi_flash *stm;
 	unsigned int i;
+
+	if (idcode[0] == 0xff) {
+		i = spi_flash_cmd(spi, CMD_M25PXX_RES,
+				  idcode, 4);
+		if (i)
+			return NULL;
+		if ((idcode[3] & 0xf0) == 0x10) {
+			idcode[0] = 0x20;
+			idcode[1] = 0x20;
+			idcode[2] = idcode[3] + 1;
+		} else
+			return NULL;
+	}
 
 	for (i = 0; i < ARRAY_SIZE(stmicro_spi_flash_table); i++) {
 		params = &stmicro_spi_flash_table[i];

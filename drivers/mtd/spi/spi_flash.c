@@ -147,6 +147,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 #endif
 #ifdef CONFIG_SPI_FLASH_STMICRO
 	case 0x20:
+	case 0xff: /* Let the stmicro func handle non-JEDEC ids */
 		flash = spi_flash_probe_stmicro(spi, idcode);
 		break;
 #endif
