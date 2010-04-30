@@ -186,6 +186,7 @@ LIST_4xx="		\
 	ADCIOP		\
 	alpr		\
 	AP1000		\
+	APC405		\
 	AR405		\
 	arches		\
 	ASH405		\
@@ -223,6 +224,7 @@ LIST_4xx="		\
 	hcu5		\
 	HH405		\
 	HUB405		\
+	icon		\
 	intip		\
 	JSE		\
 	KAREF		\
