@@ -418,7 +418,7 @@ struct kwgbe_registers {
 	u32 pmtbs;
 	u8 pad14[0x60c - 0x4ec - 4];
 	struct kwgbe_rxcdp rxcdp[7];
-	u32 rxcdp7;
+	struct kwgbe_rxdesc *rxcdp7;
 	u32 rqc;
 	struct kwgbe_txdesc *tcsdp;
 	u8 pad15[0x6c0 - 0x684 - 4];

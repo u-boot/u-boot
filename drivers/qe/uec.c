@@ -595,8 +595,7 @@ static void phy_change(struct eth_device *dev)
 	adjust_link(dev);
 }
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
-	&& !defined(BITBANGMII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 
 /*
  * Find a device index from the devlist by name
@@ -1388,8 +1387,7 @@ int uec_initialize(bd_t *bis, uec_info_t *uec_info)
 		return err;
 	}
 
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
-	&& !defined(BITBANGMII)
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_register(dev->name, uec_miiphy_read, uec_miiphy_write);
 #endif
 

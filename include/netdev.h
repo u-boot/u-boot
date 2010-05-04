@@ -41,6 +41,8 @@ int board_eth_init(bd_t *bis);
 int cpu_eth_init(bd_t *bis);
 
 /* Driver initialization prototypes */
+int altera_tse_initialize(u8 dev_num, int mac_base,
+			  int sgdma_rx_base, int sgdma_tx_base);
 int au1x00_enet_initialize(bd_t*);
 int at91emac_register(bd_t *bis, unsigned long iobase);
 int bfin_EMAC_initialize(bd_t *bis);
@@ -51,6 +53,7 @@ int dnet_eth_initialize(int id, void *regs, unsigned int phy_addr);
 int e1000_initialize(bd_t *bis);
 int eepro100_initialize(bd_t *bis);
 int ep93xx_eth_initialize(u8 dev_num, int base_addr);
+int ethoc_initialize(u8 dev_num, int base_addr);
 int eth_3com_initialize (bd_t * bis);
 int fec_initialize (bd_t *bis);
 int fecmxc_initialize (bd_t *bis);

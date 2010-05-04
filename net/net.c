@@ -1872,11 +1872,13 @@ void copy_filename (char *dst, char *src, int size)
 
 #if defined(CONFIG_CMD_NFS) || defined(CONFIG_CMD_SNTP) || defined(CONFIG_CMD_DNS)
 /*
- * make port a little random, but use something trivial to compute
+ * make port a little random (1024-17407)
+ * This keeps the math somewhat trivial to compute, and seems to work with
+ * all supported protocols/clients/servers
  */
 unsigned int random_port(void)
 {
-	return 1024 + (get_timer(0) % 0x8000);;
+	return 1024 + (get_timer(0) % 0x4000);
 }
 #endif
 
