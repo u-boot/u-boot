@@ -1,6 +1,7 @@
 /*
- *
- * (c) 2009 Emcraft Systems, Ilya Yanok <yanok@emcraft.com>
+ * (C) Copyright 2009
+ * Marvell Semiconductor <www.marvell.com>
+ * Written-by: Siddarth Gore <gores@marvell.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -12,29 +13,27 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301 USA
  */
 
-#ifndef QONG_FPGA_H
-#define QONG_FPGA_H
+#ifndef __GURUPLUG_H
+#define __GURUPLUG_H
 
-#ifdef CONFIG_QONG_FPGA
-#define QONG_FPGA_CTRL_BASE		CONFIG_FPGA_BASE
-#define QONG_FPGA_CTRL_VERSION		(QONG_FPGA_CTRL_BASE + 0x00000000)
-#define QONG_FPGA_PERIPH_SIZE		(1 << 24)
+#define GURUPLUG_OE_LOW		(~(0))
+#define GURUPLUG_OE_HIGH	(~(0))
+#define GURUPLUG_OE_VAL_LOW	0
+#define GURUPLUG_OE_VAL_HIGH	(0xf << 16) /* 4 LED Pins high */
 
-#define	QONG_FPGA_TCK_PIN		26
-#define	QONG_FPGA_TMS_PIN		25
-#define	QONG_FPGA_TDI_PIN		8
-#define	QONG_FPGA_TDO_PIN		7
-#define	QONG_FPGA_RST_PIN		48
-#define	QONG_FPGA_IRQ_PIN		40
-#endif
+/* PHY related */
+#define MV88E1121_MAC_CTRL2_REG		21
+#define MV88E1121_PGADR_REG		22
+#define MV88E1121_RGMII_TXTM_CTRL	(1 << 4)
+#define MV88E1121_RGMII_RXTM_CTRL	(1 << 5)
 
-#endif /* QONG_FPGA_H */
+#endif /* __GURUPLUG_H */

@@ -71,3 +71,18 @@ void mx31_gpio_set(unsigned int gpio, unsigned int value)
 		l &= ~(1 << gpio);
 	__REG(gpio_ports[port] + GPIO_DR) = l;
 }
+
+int mx31_gpio_get(unsigned int gpio)
+{
+	unsigned int port = gpio >> 5;
+	u32 l;
+
+	if (port >= ARRAY_SIZE(gpio_ports))
+		return -1;
+
+	gpio &= 0x1f;
+
+	l = (__REG(gpio_ports[port] + GPIO_DR) >> gpio) & 0x01;
+
+	return l;
+}

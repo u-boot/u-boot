@@ -158,6 +158,7 @@
 	/* Switch peripheral to PLL 3 */
 	ldr r0, =CCM_BASE_ADDR
 	ldr r1, =0x000010C0
+	orr r1,r1,#CONFIG_SYS_DDR_CLKSEL
 	str r1, [r0, #CLKCTL_CBCMR]
 	ldr r1, =0x13239145
 	str r1, [r0, #CLKCTL_CBCDR]
@@ -171,6 +172,7 @@
 	ldr r1, =0x19239145
 	str r1, [r0, #CLKCTL_CBCDR]
 	ldr r1, =0x000020C0
+	orr r1,r1,#CONFIG_SYS_DDR_CLKSEL
 	str r1, [r0, #CLKCTL_CBCMR]
 
 	mov r3, #DP_OP_216
@@ -201,9 +203,10 @@
 	/* setup the rest */
 	/* Use lp_apm (24MHz) source for perclk */
 	ldr r1, =0x000020C2
+	orr r1,r1,#CONFIG_SYS_DDR_CLKSEL
 	str r1, [r0, #CLKCTL_CBCMR]
 	/* ddr clock from PLL 1, all perclk dividers are 1 since using 24MHz */
-	ldr r1, =0x59E35100
+	ldr r1, =CONFIG_SYS_CLKTL_CBCDR
 	str r1, [r0, #CLKCTL_CBCDR]
 
 	/* Restore the default values in the Gate registers */

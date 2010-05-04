@@ -52,10 +52,10 @@ extern struct serial_device s3c24xx_serial2_device;
 #endif
 
 #if defined(CONFIG_S5PC1XX)
-extern struct serial_device s5pc1xx_serial0_device;
-extern struct serial_device s5pc1xx_serial1_device;
-extern struct serial_device s5pc1xx_serial2_device;
-extern struct serial_device s5pc1xx_serial3_device;
+extern struct serial_device s5p_serial0_device;
+extern struct serial_device s5p_serial1_device;
+extern struct serial_device s5p_serial2_device;
+extern struct serial_device s5p_serial3_device;
 #endif
 
 #if defined(CONFIG_OMAP3_ZOOM2)

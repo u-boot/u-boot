@@ -194,6 +194,10 @@ Niklaus Giger <niklaus.giger@netstal.com>
 	MCU25		PPC405GPr
 	HCU5		PPC440EPx
 
+Siddarth Gore <gores@marvell.com>
+
+	guruplug	ARM926EJS (Kirkwood SoC)
+
 Frank Gottschling <fgottschling@eltec.de>
 
 	MHPC		MPC8xx
@@ -738,6 +742,10 @@ Steve Sakoman <sakoman@gmail.com>
 Jens Scharsig <esw@bus-elektronik.de>
 
 	eb_cpux9k2	ARM920T (AT91RM9200 SoC)
+
+Heiko Schocher <hs@denx.de>
+
+	magnesium	i.MX27
 
 Robert Schwebel <r.schwebel@pengutronix.de>
 

@@ -36,7 +36,7 @@
  * Supported commands for configuration file
  */
 static table_entry_t imximage_cmds[] = {
-	{CMD_BOOT_FROM,		"BOOT_FROM",		"boot comand",	},
+	{CMD_BOOT_FROM,		"BOOT_FROM",		"boot command",	},
 	{CMD_DATA,		"DATA",			"Reg Write Data", },
 	{-1,		"",			"",	},
 };

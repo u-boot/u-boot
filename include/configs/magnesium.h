@@ -1,4 +1,7 @@
 /*
+ * Copyright (C) 2010 Heiko Schocher <hs@denx.de>
+ *
+ * based on:
  * Copyright (C) 2009 Ilya Yanok <yanok@emcraft.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -22,25 +25,31 @@
 
 /* include common defines/options for all imx27lite related boards */
 #include "imx27lite-common.h"
+
 /*
  * SoC Configuration
  */
-#define CONFIG_IMX27LITE
-#define CONFIG_HOSTNAME		imx27
-#define CONFIG_BOARDNAME	"LogicPD imx27lite\n"
+#define CONFIG_MAGNESIUM
+#define CONFIG_HOSTNAME		magnesium
+#define CONFIG_BOARDNAME	"Projectiondesign magnesium\n"
 
 /*
  * Flash & Environment
  */
-#define CONFIG_SYS_FLASH_SECT_SZ	0x2000	/* 8KB sect size Intel Flash */
-#define CONFIG_ENV_OFFSET		(PHYS_FLASH_SIZE - 0x20000)
-#define PHYS_FLASH_SIZE			0x200000
-#define CONFIG_ENV_SECT_SIZE		0x10000		/* Env sector Size */
+#define CONFIG_SYS_FLASH_SECT_SZ	0x8000	/* 64KB sect size */
+#define CONFIG_ENV_OFFSET		(PHYS_FLASH_SIZE - 0x40000)
+#define PHYS_FLASH_SIZE			0x800000
+#define CONFIG_ENV_SECT_SIZE		0x20000		/* Env sector Size */
+
+/*
+ * NAND
+ */
+#define CONFIG_SYS_NAND_LARGEPAGE
 
 /*
  * SD/MMC
  */
-#define CONFIG_MXC_MCI_REGS_BASE	0x10014000
+#define CONFIG_MXC_MCI_REGS_BASE	0x10013000
 
 /*
  * MTD partitions
@@ -50,9 +59,9 @@
 	"mtdparts="				\
 		"physmap-flash.0:"		\
 			"256k(U-Boot),"		\
-			"1664k(user),"		\
-			"64k(env1),"		\
-			"64k(env2);"		\
+			"7680k(user),"		\
+			"128k(env1),"		\
+			"128k(env2);"		\
 		"mxc_nand.0:"			\
 			"128k(IPL-SPL),"	\
 			"4m(kernel),"		\
