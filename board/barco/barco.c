@@ -340,10 +340,6 @@ void serial_puts (const char *c)
 {
 	return;
 }
-void serial_addr (unsigned int i)
-{
-	return;
-}
 int serial_getc (void)
 {
 	return 0;
