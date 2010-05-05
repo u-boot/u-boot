@@ -101,6 +101,28 @@ static inline void serial_putc(char c)
 		continue;
 }
 
+__attribute__((always_inline)) static inline void
+program_nmi_handler(void)
+{
+	u32 tmp1, tmp2;
+
+	/* Older bootroms don't create a dummy NMI handler,
+	 * so make one ourselves ASAP in case it fires.
+	 */
+	if (CONFIG_BFIN_BOOT_MODE != BFIN_BOOT_BYPASS && !ANOMALY_05000219)
+		return;
+
+	asm volatile (
+		"%0 = RETS;" /* Save current RETS */
+		"CALL 1f;"   /* Figure out current PC */
+		"RTN;"       /* The simple NMI handler */
+		"1:"
+		"%1 = RETS;" /* Load addr of NMI handler */
+		"RETS = %0;" /* Restore RETS */
+		"[%2] = %1;" /* Write NMI handler */
+		: "=r"(tmp1), "=r"(tmp2) : "ab"(EVT2)
+	);
+}
 
 /* Max SCLK can be 133MHz ... dividing that by (2*4) gives
  * us a freq of 16MHz for SPI which should generally be
@@ -639,6 +661,9 @@ BOOTROM_CALLED_FUNC_ATTR
 void initcode(ADI_BOOT_DATA *bs)
 {
 	ADI_BOOT_DATA bootstruct_scratch;
+
+	/* Setup NMI handler before anything else */
+	program_nmi_handler();
 
 	serial_init();
 

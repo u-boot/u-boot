@@ -91,7 +91,9 @@ int irq_init(void)
 #else
 	bfin_write_SIC_IMASK(0);
 #endif
-	bfin_write_EVT2(evt_default);	/* NMI */
+	/* Set up a dummy NMI handler if needed.  */
+	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS || ANOMALY_05000219)
+		bfin_write_EVT2(evt_nmi);	/* NMI */
 	bfin_write_EVT5(evt_default);	/* hardware error */
 	bfin_write_EVT6(evt_default);	/* core timer */
 	bfin_write_EVT7(evt_default);
