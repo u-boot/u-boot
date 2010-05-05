@@ -29,10 +29,28 @@
  *  Definitions common to both PL010 & PL011
  *
  */
-#define UART_PL01x_DR                   0x00	 /*  Data read or written from the interface. */
-#define UART_PL01x_RSR                  0x04	 /*  Receive status register (Read). */
-#define UART_PL01x_ECR                  0x04	 /*  Error clear register (Write). */
-#define UART_PL01x_FR                   0x18	 /*  Flag register (Read only). */
+
+#ifndef __ASSEMBLY__
+/*
+ * We can use a combined structure for PL010 and PL011, because they overlap
+ * only in common registers.
+ */
+struct pl01x_regs {
+	u32	dr;		/* 0x00 Data register */
+	u32	ecr;		/* 0x04 Error clear register (Write) */
+	u32	pl010_lcrh;	/* 0x08 Line control register, high byte */
+	u32	pl010_lcrm;	/* 0x0C Line control register, middle byte */
+	u32	pl010_lcrl;	/* 0x10 Line control register, low byte */
+	u32	pl010_cr;	/* 0x14 Control register */
+	u32	fr;		/* 0x18 Flag register (Read only) */
+	u32	reserved;
+	u32	ilpr;		/* 0x20 IrDA low-power counter register */
+	u32	pl011_ibrd;	/* 0x24 Integer baud rate register */
+	u32	pl011_fbrd;	/* 0x28 Fractional baud rate register */
+	u32	pl011_lcrh;	/* 0x2C Line control register */
+	u32	pl011_cr;	/* 0x30 Control register */
+};
+#endif
 
 #define UART_PL01x_RSR_OE               0x08
 #define UART_PL01x_RSR_BE               0x04
@@ -50,14 +68,6 @@
  *  PL010 definitions
  *
  */
-#define UART_PL010_LCRH                 0x08	 /*  Line control register, high byte. */
-#define UART_PL010_LCRM                 0x0C	 /*  Line control register, middle byte. */
-#define UART_PL010_LCRL                 0x10	 /*  Line control register, low byte. */
-#define UART_PL010_CR                   0x14	 /*  Control register. */
-#define UART_PL010_IIR                  0x1C	 /*  Interrupt indentification register (Read). */
-#define UART_PL010_ICR                  0x1C	 /*  Interrupt clear register (Write). */
-#define UART_PL010_ILPR                 0x20	 /*  IrDA low power counter register. */
-
 #define UART_PL010_CR_LPE               (1 << 7)
 #define UART_PL010_CR_RTIE              (1 << 6)
 #define UART_PL010_CR_TIE               (1 << 5)
@@ -93,13 +103,6 @@
  *  PL011 definitions
  *
  */
-#define UART_PL011_IBRD                 0x24
-#define UART_PL011_FBRD                 0x28
-#define UART_PL011_LCRH                 0x2C
-#define UART_PL011_CR                   0x30
-#define UART_PL011_IMSC                 0x38
-#define UART_PL011_PERIPH_ID0           0xFE0
-
 #define UART_PL011_LCRH_SPS             (1 << 7)
 #define UART_PL011_LCRH_WLEN_8          (3 << 5)
 #define UART_PL011_LCRH_WLEN_7          (2 << 5)
