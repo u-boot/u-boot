@@ -248,13 +248,13 @@ extern void __iounmap(void *addr);
  *  iomem_to_phys(off)
  */
 #ifdef iomem_valid_addr
-#define __arch_ioremap(off,sz,nocache)				\
- ({								\
-	unsigned long _off = (off), _size = (sz);		\
-	void *_ret = (void *)0;					\
-	if (iomem_valid_addr(_off, _size))			\
-		_ret = __ioremap(iomem_to_phys(_off),_size,0);	\
-	_ret;							\
+#define __arch_ioremap(off,sz,nocache)					\
+ ({									\
+	unsigned long _off = (off), _size = (sz);			\
+	void *_ret = (void *)0;						\
+	if (iomem_valid_addr(_off, _size))				\
+		_ret = __ioremap(iomem_to_phys(_off),_size,nocache);	\
+	_ret;								\
  })
 
 #define __arch_iounmap __iounmap
