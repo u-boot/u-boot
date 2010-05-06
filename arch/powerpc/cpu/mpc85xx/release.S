@@ -136,6 +136,12 @@ __secondary_start_page:
 	mtspr	L1CSR2,r8
 #endif
 
+#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22)
+	mfspr	r8,L1CSR2
+	oris	r8,r8,(L1CSR2_DCWS)@h
+	mtspr	L1CSR2,r8
+#endif
+
 #ifdef CONFIG_BACKSIDE_L2_CACHE
 	/* Enable/invalidate the L2 cache */
 	msync

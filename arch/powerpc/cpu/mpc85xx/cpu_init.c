@@ -32,6 +32,7 @@
 #include <ioports.h>
 #include <sata.h>
 #include <asm/io.h>
+#include <asm/cache.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
@@ -243,6 +244,12 @@ int cpu_init_r(void)
 {
 #ifdef CONFIG_SYS_LBC_LCRR
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
+#endif
+
+#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22)
+	flush_dcache();
+	mtspr(L1CSR2, (mfspr(L1CSR2) | L1CSR2_DCWS));
+	sync();
 #endif
 
 	puts ("L2:    ");
