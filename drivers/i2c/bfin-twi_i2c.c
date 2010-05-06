@@ -1,7 +1,7 @@
 /*
  * i2c.c - driver for Blackfin on-chip TWI/I2C
  *
- * Copyright (c) 2006-2008 Analog Devices Inc.
+ * Copyright (c) 2006-2010 Analog Devices Inc.
  *
  * Licensed under the GPL-2 or later.
  */
@@ -12,6 +12,35 @@
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/twi.h>
 
+/* Every register is 32bit aligned, but only 16bits in size */
+#define ureg(name) u16 name; u16 __pad_##name;
+struct twi_regs {
+	ureg(clkdiv);
+	ureg(control);
+	ureg(slave_ctl);
+	ureg(slave_stat);
+	ureg(slave_addr);
+	ureg(master_ctl);
+	ureg(master_stat);
+	ureg(master_addr);
+	ureg(int_stat);
+	ureg(int_mask);
+	ureg(fifo_ctl);
+	ureg(fifo_stat);
+	char __pad[0x50];
+	ureg(xmt_data8);
+	ureg(xmt_data16);
+	ureg(rcv_data8);
+	ureg(rcv_data16);
+};
+#undef ureg
+
+/* U-Boot I2C framework allows only one active device at a time.  */
+#ifdef TWI_CLKDIV
+#define TWI0_CLKDIV TWI_CLKDIV
+#endif
+static volatile struct twi_regs *twi = (void *)TWI0_CLKDIV;
+
 #ifdef DEBUG
 # define dmemset(s, c, n) memset(s, c, n)
 #else
@@ -19,28 +48,9 @@
 #endif
 #define debugi(fmt, args...) \
 	debug( \
-		"MSTAT:0x%03x FSTAT:0x%x ISTAT:0x%02x\t" \
-		"%-20s:%-3i: " fmt "\n", \
-		bfin_read_TWI_MASTER_STAT(), bfin_read_TWI_FIFO_STAT(), bfin_read_TWI_INT_STAT(), \
+		"MSTAT:0x%03x FSTAT:0x%x ISTAT:0x%02x\t%-20s:%-3i: " fmt "\n", \
+		twi->master_stat, twi->fifo_stat, twi->int_stat, \
 		__func__, __LINE__, ## args)
-
-#ifdef TWI0_CLKDIV
-#define bfin_write_TWI_CLKDIV(val)           bfin_write_TWI0_CLKDIV(val)
-#define bfin_read_TWI_CLKDIV(val)            bfin_read_TWI0_CLKDIV(val)
-#define bfin_write_TWI_CONTROL(val)          bfin_write_TWI0_CONTROL(val)
-#define bfin_read_TWI_CONTROL(val)           bfin_read_TWI0_CONTROL(val)
-#define bfin_write_TWI_MASTER_ADDR(val)      bfin_write_TWI0_MASTER_ADDR(val)
-#define bfin_write_TWI_XMT_DATA8(val)        bfin_write_TWI0_XMT_DATA8(val)
-#define bfin_read_TWI_RCV_DATA8()            bfin_read_TWI0_RCV_DATA8()
-#define bfin_read_TWI_INT_STAT()             bfin_read_TWI0_INT_STAT()
-#define bfin_write_TWI_INT_STAT(val)         bfin_write_TWI0_INT_STAT(val)
-#define bfin_read_TWI_MASTER_STAT()          bfin_read_TWI0_MASTER_STAT()
-#define bfin_write_TWI_MASTER_STAT(val)      bfin_write_TWI0_MASTER_STAT(val)
-#define bfin_read_TWI_MASTER_CTL()           bfin_read_TWI0_MASTER_CTL()
-#define bfin_write_TWI_MASTER_CTL(val)       bfin_write_TWI0_MASTER_CTL(val)
-#define bfin_write_TWI_INT_MASK(val)         bfin_write_TWI0_INT_MASK(val)
-#define bfin_write_TWI_FIFO_CTL(val)         bfin_write_TWI0_FIFO_CTL(val)
-#endif
 
 #ifdef CONFIG_TWICLK_KHZ
 # error do not define CONFIG_TWICLK_KHZ ... use CONFIG_SYS_I2C_SPEED
@@ -87,49 +97,48 @@ static int wait_for_completion(struct i2c_msg *msg)
 	ulong timebase = get_timer(0);
 
 	do {
-		int_stat = bfin_read_TWI_INT_STAT();
+		int_stat = twi->int_stat;
 
 		if (int_stat & XMTSERV) {
 			debugi("processing XMTSERV");
-			bfin_write_TWI_INT_STAT(XMTSERV);
+			twi->int_stat = XMTSERV;
 			SSYNC();
 			if (msg->alen) {
-				bfin_write_TWI_XMT_DATA8(*(msg->abuf++));
+				twi->xmt_data8 = *(msg->abuf++);
 				--msg->alen;
 			} else if (!(msg->flags & I2C_M_COMBO) && msg->len) {
-				bfin_write_TWI_XMT_DATA8(*(msg->buf++));
+				twi->xmt_data8 = *(msg->buf++);
 				--msg->len;
 			} else {
-				bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL() |
-					(msg->flags & I2C_M_COMBO ? RSTART | MDIR : STOP));
+				twi->master_ctl |= (msg->flags & I2C_M_COMBO) ? RSTART | MDIR : STOP;
 				SSYNC();
 			}
 		}
 		if (int_stat & RCVSERV) {
 			debugi("processing RCVSERV");
-			bfin_write_TWI_INT_STAT(RCVSERV);
+			twi->int_stat = RCVSERV;
 			SSYNC();
 			if (msg->len) {
-				*(msg->buf++) = bfin_read_TWI_RCV_DATA8();
+				*(msg->buf++) = twi->rcv_data8;
 				--msg->len;
 			} else if (msg->flags & I2C_M_STOP) {
-				bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL() | STOP);
+				twi->master_ctl |= STOP;
 				SSYNC();
 			}
 		}
 		if (int_stat & MERR) {
 			debugi("processing MERR");
-			bfin_write_TWI_INT_STAT(MERR);
+			twi->int_stat = MERR;
 			SSYNC();
 			return msg->len;
 		}
 		if (int_stat & MCOMP) {
 			debugi("processing MCOMP");
-			bfin_write_TWI_INT_STAT(MCOMP);
+			twi->int_stat = MCOMP;
 			SSYNC();
 			if (msg->flags & I2C_M_COMBO && msg->len) {
-				bfin_write_TWI_MASTER_CTL((bfin_read_TWI_MASTER_CTL() & ~RSTART) |
-					(min(msg->len, 0xff) << 6) | MEN | MDIR);
+				twi->master_ctl = (twi->master_ctl & ~RSTART) |
+					(min(msg->len, 0xff) << 6) | MEN | MDIR;
 				SSYNC();
 			} else
 				break;
@@ -172,55 +181,54 @@ static int i2c_transfer(uchar chip, uint addr, int alen, uchar *buffer, int len,
 		chip, addr, alen, buffer[0], len, flags, (flags & I2C_M_READ ? "rd" : "wr"));
 
 	/* wait for things to settle */
-	while (bfin_read_TWI_MASTER_STAT() & BUSBUSY)
+	while (twi->master_stat & BUSBUSY)
 		if (ctrlc())
 			return 1;
 
 	/* Set Transmit device address */
-	bfin_write_TWI_MASTER_ADDR(chip);
+	twi->master_addr = chip;
 
 	/* Clear the FIFO before starting things */
-	bfin_write_TWI_FIFO_CTL(XMTFLUSH | RCVFLUSH);
+	twi->fifo_ctl = XMTFLUSH | RCVFLUSH;
 	SSYNC();
-	bfin_write_TWI_FIFO_CTL(0);
+	twi->fifo_ctl = 0;
 	SSYNC();
 
 	/* prime the pump */
 	if (msg.alen) {
 		len = (msg.flags & I2C_M_COMBO) ? msg.alen : msg.alen + len;
 		debugi("first byte=0x%02x", *msg.abuf);
-		bfin_write_TWI_XMT_DATA8(*(msg.abuf++));
+		twi->xmt_data8 = *(msg.abuf++);
 		--msg.alen;
 	} else if (!(msg.flags & I2C_M_READ) && msg.len) {
 		debugi("first byte=0x%02x", *msg.buf);
-		bfin_write_TWI_XMT_DATA8(*(msg.buf++));
+		twi->xmt_data8 = *(msg.buf++);
 		--msg.len;
 	}
 
 	/* clear int stat */
-	bfin_write_TWI_MASTER_STAT(-1);
-	bfin_write_TWI_INT_STAT(-1);
-	bfin_write_TWI_INT_MASK(0);
+	twi->master_stat = -1;
+	twi->int_stat = -1;
+	twi->int_mask = 0;
 	SSYNC();
 
 	/* Master enable */
-	bfin_write_TWI_MASTER_CTL(
-			(bfin_read_TWI_MASTER_CTL() & FAST) |
+	twi->master_ctl =
+			(twi->master_ctl & FAST) |
 			(min(len, 0xff) << 6) | MEN |
-			((msg.flags & I2C_M_READ) ? MDIR : 0)
-	);
+			((msg.flags & I2C_M_READ) ? MDIR : 0);
 	SSYNC();
-	debugi("CTL=0x%04x", bfin_read_TWI_MASTER_CTL());
+	debugi("CTL=0x%04x", twi->master_ctl);
 
 	/* process the rest */
 	ret = wait_for_completion(&msg);
 	debugi("ret=%d", ret);
 
 	if (ret) {
-		bfin_write_TWI_MASTER_CTL(bfin_read_TWI_MASTER_CTL() & ~MEN);
-		bfin_write_TWI_CONTROL(bfin_read_TWI_CONTROL() & ~TWI_ENA);
+		twi->master_ctl &= ~MEN;
+		twi->control &= ~TWI_ENA;
 		SSYNC();
-		bfin_write_TWI_CONTROL(bfin_read_TWI_CONTROL() | TWI_ENA);
+		twi->control |= TWI_ENA;
 		SSYNC();
 	}
 
@@ -238,10 +246,10 @@ int i2c_set_bus_speed(unsigned int speed)
 	/* Set TWI interface clock */
 	if (clkdiv < I2C_DUTY_MAX || clkdiv > I2C_DUTY_MIN)
 		return -1;
-	bfin_write_TWI_CLKDIV((clkdiv << 8) | (clkdiv & 0xff));
+	twi->clkdiv = (clkdiv << 8) | (clkdiv & 0xff);
 
 	/* Don't turn it on */
-	bfin_write_TWI_MASTER_CTL(speed > 100000 ? FAST : 0);
+	twi->master_ctl = (speed > 100000 ? FAST : 0);
 
 	return 0;
 }
@@ -253,7 +261,7 @@ int i2c_set_bus_speed(unsigned int speed)
 unsigned int i2c_get_bus_speed(void)
 {
 	/* 10 MHz / (2 * CLKDIV) -> 5 MHz / CLKDIV */
-	return 5000000 / (bfin_read_TWI_CLKDIV() & 0xff);
+	return 5000000 / (twi->clkdiv & 0xff);
 }
 
 /**
@@ -269,24 +277,23 @@ void i2c_init(int speed, int slaveaddr)
 	uint8_t prescale = ((get_sclk() / 1024 / 1024 + 5) / 10) & 0x7F;
 
 	/* Set TWI internal clock as 10MHz */
-	bfin_write_TWI_CONTROL(prescale);
+	twi->control = prescale;
 
 	/* Set TWI interface clock as specified */
 	i2c_set_bus_speed(speed);
 
 	/* Enable it */
-	bfin_write_TWI_CONTROL(TWI_ENA | prescale);
+	twi->control = TWI_ENA | prescale;
 	SSYNC();
 
-	debugi("CONTROL:0x%04x CLKDIV:0x%04x",
-		bfin_read_TWI_CONTROL(), bfin_read_TWI_CLKDIV());
+	debugi("CONTROL:0x%04x CLKDIV:0x%04x", twi->control, twi->clkdiv);
 
 #if CONFIG_SYS_I2C_SLAVE
 # error I2C slave support not tested/supported
 	/* If they want us as a slave, do it */
 	if (slaveaddr) {
-		bfin_write_TWI_SLAVE_ADDR(slaveaddr);
-		bfin_write_TWI_SLAVE_CTL(SEN);
+		twi->slave_addr = slaveaddr;
+		twi->slave_ctl = SEN;
 	}
 #endif
 }
@@ -328,4 +335,44 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
 	return i2c_transfer(chip, addr, alen, buffer, len, 0);
+}
+
+/**
+ * i2c_set_bus_num - change active I2C bus
+ *	@bus: bus index, zero based
+ *	@returns: 0 on success, non-0 on failure
+ */
+int i2c_set_bus_num(unsigned int bus)
+{
+	switch (bus) {
+#if CONFIG_SYS_MAX_I2C_BUS > 0
+		case 0: twi = (void *)TWI0_CLKDIV; return 0;
+#endif
+#if CONFIG_SYS_MAX_I2C_BUS > 1
+		case 1: twi = (void *)TWI1_CLKDIV; return 0;
+#endif
+#if CONFIG_SYS_MAX_I2C_BUS > 2
+		case 2: twi = (void *)TWI2_CLKDIV; return 0;
+#endif
+		default: return -1;
+	}
+}
+
+/**
+ * i2c_get_bus_num - returns index of active I2C bus
+ */
+unsigned int i2c_get_bus_num(void)
+{
+	switch ((unsigned long)twi) {
+#if CONFIG_SYS_MAX_I2C_BUS > 0
+		case TWI0_CLKDIV: return 0;
+#endif
+#if CONFIG_SYS_MAX_I2C_BUS > 1
+		case TWI1_CLKDIV: return 1;
+#endif
+#if CONFIG_SYS_MAX_I2C_BUS > 2
+		case TWI2_CLKDIV: return 2;
+#endif
+		default: return -1;
+	}
 }
