@@ -75,7 +75,7 @@ static void bfin_nfc_cmd_ctrl(struct mtd_info *mtd, int cmd, unsigned int ctrl)
 int bfin_nfc_devready(struct mtd_info *mtd)
 {
 	pr_stamp();
-	return (bfin_read_NFC_STAT() & NBUSY ? 1 : 0);
+	return (bfin_read_NFC_STAT() & NBUSY) ? 1 : 0;
 }
 
 /*
@@ -132,6 +132,11 @@ static void bfin_nfc_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len
 
 		bfin_write_NFC_DATA_WR(buf[i]);
 	}
+
+	/* Wait for the buffer to drain before we return */
+	while (!(bfin_read_NFC_STAT() & WB_EMPTY))
+		if (ctrlc())
+			return;
 }
 
 /*
