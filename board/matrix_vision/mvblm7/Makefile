@@ -32,6 +32,7 @@ SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
+	@mkimage -T script -C none -n M7_script -d bootscript bootscript.img
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
