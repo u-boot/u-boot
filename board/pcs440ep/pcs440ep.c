@@ -148,7 +148,7 @@ int board_early_init_f(void)
 	mtdcr(EBC0_CFGDATA, reg | 0x04000000);	/* Set ATC */
 
 	/*--------------------------------------------------------------------
-	 * GPIO's are alreay setup in arch/ppc/cpu/ppc4xx/cpu_init.c
+	 * GPIO's are alreay setup in arch/powerpc/cpu/ppc4xx/cpu_init.c
 	 * via define from board config file.
 	 *-------------------------------------------------------------------*/
 

@@ -119,7 +119,7 @@ int checkboard(void)
 }
 
 /*
- * Override the default functions in arch/ppc/cpu/ppc4xx/44x_spd_ddr2.c with
+ * Override the default functions in arch/powerpc/cpu/ppc4xx/44x_spd_ddr2.c with
  * board specific values.
  */
 u32 ddr_clktr(u32 default_val) {

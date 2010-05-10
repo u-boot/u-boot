@@ -456,7 +456,7 @@
  * - internal SRAM (OCM=On Chip Memory) is placed to CONFIG_SYS_OCM_DATA_ADDR
  * - Stackpointer will be located to
  *   (CONFIG_SYS_INIT_RAM_ADDR&0xFFFF0000) | (CONFIG_SYS_INIT_SP_OFFSET&0x0000FFFF)
- *   in arch/ppc/cpu/ppc4xx/start.S
+ *   in arch/powerpc/cpu/ppc4xx/start.S
  */
 
 #undef CONFIG_SYS_INIT_DCACHE_CS
@@ -495,7 +495,7 @@
 #define BOOTFLAG_WARM	0x02		/* Software reboot			*/
 
 /* ################################################################################### */
-/* These defines will be used in arch/ppc/cpu/ppc4xx/cpu_init.c to setup external chip selects  */
+/* These defines will be used in arch/powerpc/cpu/ppc4xx/cpu_init.c to setup external chip selects  */
 /* They are currently undefined cause they are initiaized in board/solidcard3/init.S   */
 
 /* This chip select accesses the boot device */

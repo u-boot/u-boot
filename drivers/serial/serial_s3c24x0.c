@@ -78,6 +78,7 @@ DECLARE_GLOBAL_DATA_PTR;
 	name, \
 	bus, \
 	s3serial##port##_init, \
+	NULL,\
 	s3serial##port##_setbrg, \
 	s3serial##port##_getc, \
 	s3serial##port##_tstc, \

@@ -78,6 +78,9 @@
 #define CONFIG_SYS_DDR_SIZE		256		/* MB */
 #define CONFIG_SYS_DDR_BASE		0x00000000
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_BASE
+#define CONFIG_SYS_MAX_RAM_SIZE		0x20000000
+
+#define CONFIG_SYS_IOCTRL_MUX_DDR	0x00000036
 
 /* DDR Controller Configuration
  *
@@ -190,7 +193,7 @@
 
 /*
  * Backward compatible definitions,
- * so we do not have to change arch/ppc/cpu/mpc512x/fixed_sdram.c
+ * so we do not have to change arch/powerpc/cpu/mpc512x/fixed_sdram.c
  */
 #define	CONFIG_SYS_DDRCMD_EM2		(CONFIG_SYS_MICRON_EMR2)
 #define CONFIG_SYS_DDRCMD_EM3		(CONFIG_SYS_MICRON_EMR3)

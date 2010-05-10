@@ -55,11 +55,11 @@ SECTIONS
   {
     /* WARNING - the following is hand-optimized to fit within  */
     /* the first two sectors (=8KB) of our S29GL flash chip */
-    cpu/mpc5xxx/start.o          (.text)
-    cpu/mpc5xxx/traps.o          (.text)
-    lib_generic/crc32.o         (.text)
-    lib_ppc/cache.o             (.text)
-    lib_ppc/time.o              (.text)
+    arch/powerpc/cpu/mpc5xxx/start.o          (.text)
+    arch/powerpc/cpu/mpc5xxx/traps.o          (.text)
+    lib/crc32.o         (.text)
+    arch/powerpc/lib/cache.o             (.text)
+    arch/powerpc/lib/time.o              (.text)
 
     /* This is only needed to force failure if size of above code will ever */
     /* increase and grow into reserved space. */

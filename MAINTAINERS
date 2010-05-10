@@ -471,6 +471,10 @@ Josef Wagner <Wagner@Microsys.de>
 	CPC45		MPC8245
 	PM520		MPC5200
 
+Michael Weiss <michael.weiss@ifm.com>
+
+	PDM360NG	MPC5121e
+
 Stephen Williams <steve@icarus.com>
 
 	JSE		PPC405GPr
@@ -866,6 +870,7 @@ Scott McNutt <smcnutt@psyent.com>
 	EP1C20		Nios-II
 	EP1S10		Nios-II
 	EP1S40		Nios-II
+	nios2-generic	Nios-II
 
 #########################################################################
 # MicroBlaze Systems:							#

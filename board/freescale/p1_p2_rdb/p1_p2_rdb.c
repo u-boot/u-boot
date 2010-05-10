@@ -198,6 +198,8 @@ int board_eth_init(bd_t *bis)
 #endif
 
 #if defined(CONFIG_OF_BOARD_SETUP)
+extern void ft_pci_board_setup(void *blob);
+
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
@@ -207,6 +209,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	base = getenv_bootm_low();
 	size = getenv_bootm_size();
+
+	ft_pci_board_setup(blob);
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 }

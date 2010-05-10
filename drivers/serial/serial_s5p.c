@@ -185,6 +185,7 @@ void s5p_serial##port##_puts(const char *s) { serial_puts_dev(s, port); }
 	name, \
 	bus, \
 	s5p_serial##port##_init, \
+	NULL, \
 	s5p_serial##port##_setbrg, \
 	s5p_serial##port##_getc, \
 	s5p_serial##port##_tstc, \

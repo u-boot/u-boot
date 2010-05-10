@@ -13,7 +13,7 @@
  *
  * Code generated for this function might be very inefficient
  * for some CPUs. __div64_32() can be overridden by linking arch-specific
- * assembly versions such as arch/ppc/lib/div64.S and arch/sh/lib/div64.S.
+ * assembly versions such as arch/powerpc/lib/div64.S and arch/sh/lib/div64.S.
  */
 
 #include <linux/types.h>

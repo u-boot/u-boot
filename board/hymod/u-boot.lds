@@ -55,10 +55,10 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    arch/ppc/cpu/mpc8260/start.o	(.text)
+    arch/powerpc/cpu/mpc8260/start.o	(.text)
 /*
     common/dlmalloc.o	(.text)
-    arch/ppc/lib/ppcstring.o	(.text)
+    arch/powerpc/lib/ppcstring.o	(.text)
     lib/vsprintf.o	(.text)
     lib/crc32.o		(.text)
     lib/zlib.o		(.text)

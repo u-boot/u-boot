@@ -9,6 +9,7 @@ struct serial_device {
 	char ctlr[CTLRSIZE];
 
 	int  (*init) (void);
+	int  (*uninit) (void);
 	void (*setbrg) (void);
 	int (*getc) (void);
 	int (*tstc) (void);
@@ -35,6 +36,13 @@ extern struct serial_device eserial3_device;
 extern struct serial_device eserial4_device;
 #endif /* CONFIG_SYS_NS16550_SERIAL */
 
+#endif
+
+#if defined(CONFIG_MPC512X)
+extern struct serial_device serial1_device;
+extern struct serial_device serial3_device;
+extern struct serial_device serial4_device;
+extern struct serial_device serial6_device;
 #endif
 
 #if defined(CONFIG_S3C2410)
@@ -83,5 +91,12 @@ extern int usbtty_tstc(void);
 #define usbtty_tstc() 0
 
 #endif /* CONFIG_USB_TTY */
+
+#if defined(CONFIG_MPC512X) &&  defined(CONFIG_SERIAL_MULTI)
+extern struct stdio_dev *open_port(int num, int baudrate);
+extern int close_port(int num);
+extern int write_port(struct stdio_dev *port, char *buf);
+extern int read_port(struct stdio_dev *port, char *buf, int size);
+#endif
 
 #endif

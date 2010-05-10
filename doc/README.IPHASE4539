@@ -333,7 +333,7 @@ Linux:
 	$ make oldconfig
 	$ make dep
 	$ make uImage
-	$ cp -p arch/ppc/mbxboot/uImage /tftpboot
+	$ cp -p arch/powerpc/mbxboot/uImage /tftpboot
 
 	Load uImage via tftp and boot it.
 

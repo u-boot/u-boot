@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  *
- * This file was adapted from arch/ppc/cpu/mpc5xxx/serial.c
+ * This file was adapted from arch/powerpc/cpu/mpc5xxx/serial.c
  *
  */
 

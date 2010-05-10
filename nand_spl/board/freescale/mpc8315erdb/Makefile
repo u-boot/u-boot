@@ -65,7 +65,7 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 # create symbolic links for common files
 
 $(obj)start.S:
-	ln -sf $(SRCTREE)/arch/ppc/cpu/mpc83xx/start.S $(obj)start.S
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc83xx/start.S $(obj)start.S
 
 $(obj)nand_boot_fsl_elbc.c:
 	ln -sf $(SRCTREE)/nand_spl/nand_boot_fsl_elbc.c \
@@ -81,16 +81,16 @@ $(obj)ns16550.c:
 	ln -sf $(SRCTREE)/drivers/serial/ns16550.c $(obj)ns16550.c
 
 $(obj)nand_init.c:
-	ln -sf $(SRCTREE)/arch/ppc/cpu/mpc83xx/nand_init.c $(obj)nand_init.c
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc83xx/nand_init.c $(obj)nand_init.c
 
 $(obj)cache.c:
-	ln -sf $(SRCTREE)/arch/ppc/lib/cache.c $(obj)cache.c
+	ln -sf $(SRCTREE)/arch/powerpc/lib/cache.c $(obj)cache.c
 
 $(obj)time.c:
-	ln -sf $(SRCTREE)/arch/ppc/lib/time.c $(obj)time.c
+	ln -sf $(SRCTREE)/arch/powerpc/lib/time.c $(obj)time.c
 
 $(obj)ticks.S:
-	ln -sf $(SRCTREE)/arch/ppc/lib/ticks.S $(obj)ticks.S
+	ln -sf $(SRCTREE)/arch/powerpc/lib/ticks.S $(obj)ticks.S
 
 #########################################################################
 

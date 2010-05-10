@@ -72,8 +72,10 @@ uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 	uint xfertyp = 0;
 
 	if (data) {
-		xfertyp |= XFERTYP_DPSEL | XFERTYP_DMAEN;
-
+		xfertyp |= XFERTYP_DPSEL;
+#ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
+		xfertyp |= XFERTYP_DMAEN;
+#endif
 		if (data->blocks > 1) {
 			xfertyp |= XFERTYP_MSBSEL;
 			xfertyp |= XFERTYP_BCEN;
@@ -97,6 +99,71 @@ uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 	return XFERTYP_CMD(cmd->cmdidx) | xfertyp;
 }
 
+#ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
+/*
+ * PIO Read/Write Mode reduce the performace as DMA is not used in this mode.
+ */
+static int
+esdhc_pio_read_write(struct mmc *mmc, struct mmc_data *data)
+{
+	struct fsl_esdhc *regs = mmc->priv;
+	uint blocks;
+	char *buffer;
+	uint databuf;
+	uint size;
+	uint irqstat;
+	uint timeout;
+
+	if (data->flags & MMC_DATA_READ) {
+		blocks = data->blocks;
+		buffer = data->dest;
+		while (blocks) {
+			timeout = PIO_TIMEOUT;
+			size = data->blocksize;
+			irqstat = esdhc_read32(&regs->irqstat);
+			while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_BREN)
+				&& --timeout);
+			if (timeout <= 0) {
+				printf("\nData Read Failed in PIO Mode.");
+				return timeout;
+			}
+			while (size && (!(irqstat & IRQSTAT_TC))) {
+				udelay(100); /* Wait before last byte transfer complete */
+				irqstat = esdhc_read32(&regs->irqstat);
+				databuf = in_le32(&regs->datport);
+				*((uint *)buffer) = databuf;
+				buffer += 4;
+				size -= 4;
+			}
+			blocks--;
+		}
+	} else {
+		blocks = data->blocks;
+		buffer = data->src;
+		while (blocks) {
+			timeout = PIO_TIMEOUT;
+			size = data->blocksize;
+			irqstat = esdhc_read32(&regs->irqstat);
+			while (!(esdhc_read32(&regs->prsstat) & PRSSTAT_BWEN)
+				&& --timeout);
+			if (timeout <= 0) {
+				printf("\nData Write Failed in PIO Mode.");
+				return timeout;
+			}
+			while (size && (!(irqstat & IRQSTAT_TC))) {
+				udelay(100); /* Wait before last byte transfer complete */
+				databuf = *((uint *)buffer);
+				buffer += 4;
+				size -= 4;
+				irqstat = esdhc_read32(&regs->irqstat);
+				out_le32(&regs->datport, databuf);
+			}
+			blocks--;
+		}
+	}
+}
+#endif
+
 static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 {
 	uint wml_value;
@@ -104,6 +171,17 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
 
+#ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
+	if (!(data->flags & MMC_DATA_READ)) {
+		if ((esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL) == 0) {
+			printf("\nThe SD card is locked. "
+				"Can not write to a locked card.\n\n");
+			return TIMEOUT;
+		}
+		esdhc_write32(&regs->dsaddr, (u32)data->src);
+	} else
+		esdhc_write32(&regs->dsaddr, (u32)data->dest);
+#else
 	wml_value = data->blocksize/4;
 
 	if (data->flags & MMC_DATA_READ) {
@@ -124,6 +202,7 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 					wml_value << 16);
 		esdhc_write32(&regs->dsaddr, (u32)data->src);
 	}
+#endif
 
 	esdhc_write32(&regs->blkattr, data->blocks << 16 | data->blocksize);
 
@@ -220,6 +299,9 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 
 	/* Wait until all of the blocks are transferred */
 	if (data) {
+#ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
+		esdhc_pio_read_write(mmc, data);
+#else
 		do {
 			irqstat = esdhc_read32(&regs->irqstat);
 
@@ -230,6 +312,7 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 				return TIMEOUT;
 		} while (!(irqstat & IRQSTAT_TC) &&
 				(esdhc_read32(&regs->prsstat) & PRSSTAT_DLA));
+#endif
 	}
 
 	esdhc_write32(&regs->irqstat, -1);

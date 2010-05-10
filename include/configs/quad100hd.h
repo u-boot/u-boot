@@ -233,7 +233,7 @@
  * Definitions for initial stack pointer and data area (in data cache)
  */
 /* use on chip memory (OCM) for temperary stack until sdram is tested */
-/* see ./arch/ppc/cpu/ppc4xx/start.S */
+/* see ./arch/powerpc/cpu/ppc4xx/start.S */
 #define CONFIG_SYS_TEMP_STACK_OCM	1
 
 /* On Chip Memory location */
@@ -251,7 +251,7 @@
  * Taken from PPCBoot board/icecube/icecube.h
  */
 
-/* see ./arch/ppc/cpu/ppc4xx/cpu_init.c ./cpu/ppc4xx/ndfc.c */
+/* see ./arch/powerpc/cpu/ppc4xx/cpu_init.c ./cpu/ppc4xx/ndfc.c */
 #define CONFIG_SYS_EBC_PB0AP		0x04002480
 /* AMD NOR flash - this corresponds to FLASH_BASE so may be correct */
 #define CONFIG_SYS_EBC_PB0CR		0xFFC5A000
@@ -269,7 +269,7 @@
  *
  * Taken in part from PPCBoot board/icecube/icecube.h
  */
-/* see ./arch/ppc/cpu/ppc4xx/cpu_init.c ./cpu/ppc4xx/start.S */
+/* see ./arch/powerpc/cpu/ppc4xx/cpu_init.c ./cpu/ppc4xx/start.S */
 #define CONFIG_SYS_GPIO0_OSRH		0x55555550
 #define CONFIG_SYS_GPIO0_OSRL		0x00000110
 #define CONFIG_SYS_GPIO0_ISR1H		0x00000000

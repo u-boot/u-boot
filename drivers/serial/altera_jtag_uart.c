@@ -38,8 +38,16 @@ int serial_init( void ) { return(0);}
 
 void serial_putc (char c)
 {
-	while (NIOS_JTAG_WSPACE ( readl (&jtag->control)) == 0)
-		WATCHDOG_RESET ();
+	while (1) {
+		unsigned st = readl(&jtag->control);
+		if (NIOS_JTAG_WSPACE(st))
+			break;
+#ifdef CONFIG_ALTERA_JTAG_UART_BYPASS
+		if (!(st & NIOS_JTAG_AC)) /* no connection */
+			return;
+#endif
+		WATCHDOG_RESET();
+	}
 	writel ((unsigned char)c, &jtag->data);
 }
 

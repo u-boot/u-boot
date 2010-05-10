@@ -1,5 +1,5 @@
 /* The dpalloc function used and implemented in this file was derieved
- * from PPCBoot/U-Boot file "arch/ppc/cpu/mpc8260/commproc.c".
+ * from PPCBoot/U-Boot file "arch/powerpc/cpu/mpc8260/commproc.c".
  */
 
 /* Author: Arun Dharankar <ADharankar@ATTBI.Com>
@@ -7,7 +7,7 @@
  */
 
 /*
- * This file is based on "arch/ppc/8260_io/commproc.c" - here is it's
+ * This file is based on "arch/powerpc/8260_io/commproc.c" - here is it's
  * copyright notice:
  *
  * General Purpose functions for the global management of the

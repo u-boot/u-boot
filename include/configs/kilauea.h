@@ -230,7 +230,7 @@
  *       SDRAM Controller DDR autocalibration values and takes a lot longer
  *       to run than Method_B.
  * (See the Method_A and Method_B algorithm discription in the file:
- *	arch/ppc/cpu/ppc4xx/4xx_ibm_ddr2_autocalib.c)
+ *	arch/powerpc/cpu/ppc4xx/4xx_ibm_ddr2_autocalib.c)
  * Define CONFIG_PPC4xx_DDR_METHOD_A to use DDR autocalibration Method_A
  *
  * DDR Autocalibration Method_B is the default.

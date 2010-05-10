@@ -34,6 +34,7 @@
 	.global _start
 
 _start:
+	wrctl	status, r0		/* Disable interrupts */
 	/* ICACHE INIT -- only the icache line at the reset address
 	 * is invalidated at reset. So the init must stay within
 	 * the cache line size (8 words). If GERMS is used, we'll
@@ -43,10 +44,9 @@ _start:
 	ori	r4, r0, %lo(CONFIG_SYS_ICACHELINE_SIZE)
 	movhi	r5, %hi(CONFIG_SYS_ICACHE_SIZE)
 	ori	r5, r5, %lo(CONFIG_SYS_ICACHE_SIZE)
-	mov	r6, r0
-0:	initi	r6
-	add	r6, r6, r4
-	bltu	r6, r5, 0b
+0:	initi	r5
+	sub	r5, r5, r4
+	bgt	r5, r0, 0b
 	br	_except_end	/* Skip the tramp */
 
 	/* EXCEPTION TRAMPOLINE -- the following gets copied
@@ -62,7 +62,6 @@ _except_end:
 	/* INTERRUPTS -- for now, all interrupts masked and globally
 	 * disabled.
 	 */
-	wrctl	status, r0		/* Disable interrupts */
 	wrctl	ienable, r0		/* All disabled	*/
 
 	/* DCACHE INIT -- if dcache not implemented, initd behaves as

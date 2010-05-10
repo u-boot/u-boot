@@ -183,7 +183,7 @@ Directory Hierarchy:
   /nios2		Files generic to Altera NIOS2 architecture
     /cpu		CPU specific files
     /lib		Architecture specific library files
-  /ppc			Files generic to PowerPC architecture
+  /powerpc		Files generic to PowerPC architecture
     /cpu		CPU specific files
       /74xx_7xx		Files specific to Freescale MPC74xx and 7xx CPUs
       /mpc5xx		Files specific to Freescale MPC5xx CPUs
@@ -1417,7 +1417,7 @@ The following options need to be configured:
 		the CPU's i2c node address).
 
 		Now, the u-boot i2c code for the mpc8xx
-		(arch/ppc/cpu/mpc8xx/i2c.c) sets the CPU up as a master node
+		(arch/powerpc/cpu/mpc8xx/i2c.c) sets the CPU up as a master node
 		and so its address should therefore be cleared to 0 (See,
 		eg, MPC823e User's Manual p.16-473). So, set
 		CONFIG_SYS_I2C_SLAVE to 0.
@@ -1508,6 +1508,17 @@ The following options need to be configured:
 		connected to the bus. If this option is defined a
 		custom i2c_init_board() routine in boards/xxx/board.c
 		is run early in the boot sequence.
+
+		CONFIG_SYS_I2C_BOARD_LATE_INIT
+
+		An alternative to CONFIG_SYS_I2C_INIT_BOARD. If this option is
+		defined a custom i2c_board_late_init() routine in
+		boards/xxx/board.c is run AFTER the operations in i2c_init()
+		is completed. This callpoint can be used to unreset i2c bus
+		using CPU i2c controller register accesses for CPUs whose i2c
+		controller provide such a method. It is called at the end of
+		i2c_init() to allow i2c_init operations to setup the i2c bus
+		controller on the CPU (e.g. setting bus speed & slave address).
 
 		CONFIG_I2CFAST (PPC405GP|PPC405EP only)
 
@@ -1966,7 +1977,7 @@ Legacy uImage format:
 
    15	arch/<arch>/lib/bootm.c	All preparation done, transferring control to OS
 
-  -30	arch/ppc/lib/board.c	Fatal error, hang the system
+  -30	arch/powerpc/lib/board.c	Fatal error, hang the system
   -31	post/post.c		POST test failed, detected by post_output_backlog()
   -32	post/post.c		POST test failed, detected by post_run_single()
 
@@ -2727,7 +2738,7 @@ Low Level (hardware related) configuration options:
   CONFIG_SYS_PCI_MSTR_MEMIO_SIZE, CONFIG_SYS_POCMR1_MASK_ATTRIB, CONFIG_SYS_PCI_MSTR_IO_LOCAL,
   CONFIG_SYS_PCI_MSTR_IO_BUS, CONFIG_SYS_CPU_PCI_IO_START, CONFIG_SYS_PCI_MSTR_IO_SIZE,
   CONFIG_SYS_POCMR2_MASK_ATTRIB: (MPC826x only)
-		Overrides the default PCI memory map in arch/ppc/cpu/mpc8260/pci.c if set.
+		Overrides the default PCI memory map in arch/powerpc/cpu/mpc8260/pci.c if set.
 
 - CONFIG_PCI_DISABLE_PCIE:
 		Disable PCI-Express on systems where it is supported but not
@@ -3373,7 +3384,7 @@ configure the Linux device drivers for use with your target hardware
 (no, we don't intend to provide a full virtual machine interface to
 Linux :-).
 
-But now you can ignore ALL boot loader code (in arch/ppc/mbxboot).
+But now you can ignore ALL boot loader code (in arch/powerpc/mbxboot).
 
 Just make sure your machine specific header file (for instance
 include/asm-ppc/tqm8xx.h) includes the same definition of the Board
@@ -3471,7 +3482,7 @@ So a typical call to build a U-Boot image would read:
 
 	-> tools/mkimage -n '2.4.4 kernel for TQM850L' \
 	> -A ppc -O linux -T kernel -C gzip -a 0 -e 0 \
-	> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux.gz \
+	> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/powerpc/coffboot/vmlinux.gz \
 	> examples/uImage.TQM850L
 	Image Name:   2.4.4 kernel for TQM850L
 	Created:      Wed Jul 19 02:34:59 2000
@@ -3495,10 +3506,10 @@ speed for memory and install an UNCOMPRESSED image instead: this
 needs more space in Flash, but boots much faster since it does not
 need to be uncompressed:
 
-	-> gunzip /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux.gz
+	-> gunzip /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/powerpc/coffboot/vmlinux.gz
 	-> tools/mkimage -n '2.4.4 kernel for TQM850L' \
 	> -A ppc -O linux -T kernel -C none -a 0 -e 0 \
-	> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux \
+	> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/powerpc/coffboot/vmlinux \
 	> examples/uImage.TQM850L-uncompressed
 	Image Name:   2.4.4 kernel for TQM850L
 	Created:      Wed Jul 19 02:34:59 2000

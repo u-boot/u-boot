@@ -59,7 +59,7 @@ SECTIONS
     common/dlmalloc.o	(.text)
     lib/vsprintf.o	(.text)
     lib/crc32.o		(.text)
-    arch/ppc/lib/extable.o	(.text)
+    arch/powerpc/lib/extable.o	(.text)
 
     common/env_embedded.o(.text)
 

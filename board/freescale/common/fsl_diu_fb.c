@@ -50,6 +50,22 @@ struct fb_videomode {
 #define FB_SYNC_COMP_HIGH_ACT	8	/* composite sync high active   */
 #define FB_VMODE_NONINTERLACED  0	/* non interlaced */
 
+/* This setting is used for the ifm pdm360ng with PRIMEVIEW PM070WL3 */
+static struct fb_videomode fsl_diu_mode_800 = {
+	.refresh	= 60,
+	.xres		= 800,
+	.yres		= 480,
+	.pixclock	= 31250,
+	.left_margin	= 86,
+	.right_margin	= 42,
+	.upper_margin	= 33,
+	.lower_margin	= 10,
+	.hsync_len	= 128,
+	.vsync_len	= 2,
+	.sync		= 0,
+	.vmode		= FB_VMODE_NONINTERLACED
+};
+
 /*
  * These parameters give default parameters
  * for video output 1024x768,
@@ -210,9 +226,14 @@ int fsl_diu_init(int xres,
 
 	disable_lcdc();
 
-	if (xres == 1280) {
+	switch (xres) {
+	case 800:
+		fsl_diu_mode_db = &fsl_diu_mode_800;
+		break;
+	case 1280:
 		fsl_diu_mode_db = &fsl_diu_mode_1280;
-	} else {
+		break;
+	default:
 		fsl_diu_mode_db = &fsl_diu_mode_1024;
 	}
 
@@ -519,9 +540,9 @@ int fsl_diu_display_bmp(unsigned char *bmp,
 				b = *bitmap++;
 				for (k = 0; k < 8; k++) {
 					if (b & 0x80)
-						*fb_t = palette[1];
+						*fb_t++ = palette[1];
 					else
-						*fb_t = palette[0];
+						*fb_t++ = palette[0];
 					b = b << 1;
 				}
 			}
