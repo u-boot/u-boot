@@ -63,9 +63,9 @@ struct ax88180_private {
 /* Max Rx Jumbo size is 15K Bytes */
 #define MAX_RX_SIZE			0x3C00
 
-#define MARVELL_88E1111_PHYIDR0	0x0141
+#define MARVELL_88E1111_PHYSID0	0x0141
 
-#define CICADA_CIS8201_PHYIDR0		0x000F
+#define CICADA_CIS8201_PHYSID0		0x000F
 
 #define MEDIA_AUTO			0
 #define MEDIA_1000FULL			1
@@ -275,50 +275,6 @@ struct ax88180_private {
 #define SOFTRST		(CMD_BASE + 0x00EC)
   #define SOFTRST_NORMAL	0x00000003
   #define SOFTRST_RESET_MAC	0x00000002
-
-/* External PHY Register Definition */
-#define BMCR		0x0000
-  #define LINE_SPEED_MSB	0x0040
-  #define DUPLEX_MODE		0x0100
-  #define RESTART_AUTONEG	0x0200
-  #define POWER_DOWN		0x0800
-  #define AUTONEG_EN		0x1000
-  #define LINE_SPEED_LSB	0x2000
-  #define PHY_RESET		0x8000
-
-  #define MEDIAMODE_MASK	(LINE_SPEED_MSB | LINE_SPEED_LSB |\
-				 DUPLEX_MODE)
-  #define BMCR_SPEED_1000	LINE_SPEED_MSB
-  #define BMCR_SPEED_100	LINE_SPEED_LSB
-  #define BMCR_SPEED_10	0x0000
-
-  #define BMCR_1000FULL	(BMCR_SPEED_1000 | DUPLEX_MODE)
-  #define BMCR_100FULL		(BMCR_SPEED_100 | DUPLEX_MODE)
-  #define BMCR_100HALF		BMCR_SPEED_100
-  #define BMCR_10FULL		DUPLEX_MODE
-  #define BMCR_10HALF		0x0000
-#define BMSR		0x0001
-  #define LINKOK		0x0004
-  #define AUTONEG_ENABLE_STS	0x0008
-  #define AUTONEG_COMPLETE	0x0020
-#define PHYIDR0		0x0002
-#define PHYIDR1		0x0003
-#define ANAR		0x0004
-  #define ANAR_PAUSE		0x0400
-  #define ANAR_100FULL		0x0100
-  #define ANAR_100HALF		0x0080
-  #define ANAR_10FULL		0x0040
-  #define ANAR_10HALF		0x0020
-  #define ANAR_8023BIT		0x0001
-#define ANLPAR		0x0005
-#define ANER		0x0006
-#define AUX_1000_CTRL	0x0009
-  #define ENABLE_1000HALF	0x0100
-  #define ENABLE_1000FULL	0x0200
-  #define DEFAULT_AUX_1000_CTRL	(ENABLE_1000HALF | ENABLE_1000FULL)
-#define AUX_1000_STATUS	0x000A
-  #define LP_1000HALF		0x0400
-  #define LP_1000FULL		0x0800
 
 /* Marvell 88E1111 Gigabit PHY Register Definition */
 #define M88_SSR		0x0011

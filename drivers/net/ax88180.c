@@ -41,6 +41,7 @@
 #include <command.h>
 #include <net.h>
 #include <malloc.h>
+#include <linux/mii.h>
 #include "ax88180.h"
 
 /*
@@ -112,10 +113,10 @@ static int ax88180_phy_reset (struct eth_device *dev)
 {
 	unsigned short delay_cnt = 500;
 
-	ax88180_mdio_write (dev, BMCR, (PHY_RESET | AUTONEG_EN));
+	ax88180_mdio_write (dev, MII_BMCR, (BMCR_RESET | BMCR_ANENABLE));
 
 	/* Wait for the reset to complete, or time out (500 ms) */
-	while (ax88180_mdio_read (dev, BMCR) & PHY_RESET) {
+	while (ax88180_mdio_read (dev, MII_BMCR) & BMCR_RESET) {
 		udelay (1000);
 		if (--delay_cnt == 0) {
 			printf ("Failed to reset PHY!\n");
@@ -265,10 +266,10 @@ static int ax88180_phy_initial (struct eth_device *dev)
 #endif
 	{
 		priv->PhyAddr = phyaddr;
-		priv->PhyID0 = ax88180_mdio_read(dev, PHYIDR0);
+		priv->PhyID0 = ax88180_mdio_read(dev, MII_PHYSID1);
 
 		switch (priv->PhyID0) {
-		case MARVELL_88E1111_PHYIDR0:
+		case MARVELL_88E1111_PHYSID0:
 			debug("ax88180: Found Marvell 88E1111 PHY."
 			      " (PHY Addr=0x%x)\n", priv->PhyAddr);
 
@@ -282,7 +283,7 @@ static int ax88180_phy_initial (struct eth_device *dev)
 
 			return 1;
 
-		case CICADA_CIS8201_PHYIDR0:
+		case CICADA_CIS8201_PHYSID0:
 			debug("ax88180: Found CICADA CIS8201 PHY"
 			      " chipset. (PHY Addr=0x%x)\n", priv->PhyAddr);
 
@@ -321,20 +322,20 @@ static void ax88180_media_config (struct eth_device *dev)
 
 	/* Waiting 2 seconds for PHY link stable */
 	for (i = 0; i < 20000; i++) {
-		bmsr_val = ax88180_mdio_read (dev, BMSR);
-		if (bmsr_val & LINKOK) {
+		bmsr_val = ax88180_mdio_read (dev, MII_BMSR);
+		if (bmsr_val & BMSR_LSTATUS) {
 			break;
 		}
 		udelay (100);
 	}
 
-	bmsr_val = ax88180_mdio_read (dev, BMSR);
+	bmsr_val = ax88180_mdio_read (dev, MII_BMSR);
 	debug ("ax88180: BMSR=0x%04x\n", (unsigned int)bmsr_val);
 
-	if (bmsr_val & LINKOK) {
-		bmcr_val = ax88180_mdio_read (dev, BMCR);
+	if (bmsr_val & BMSR_LSTATUS) {
+		bmcr_val = ax88180_mdio_read (dev, MII_BMCR);
 
-		if (bmcr_val & AUTONEG_EN) {
+		if (bmcr_val & BMCR_ANENABLE) {
 
 			/*
 			 * Waiting for Auto-negotiation completion, this may
@@ -343,8 +344,8 @@ static void ax88180_media_config (struct eth_device *dev)
 			debug ("ax88180: Auto-negotiation is "
 			       "enabled. Waiting for NWay completion..\n");
 			for (i = 0; i < 50000; i++) {
-				bmsr_val = ax88180_mdio_read (dev, BMSR);
-				if (bmsr_val & AUTONEG_COMPLETE) {
+				bmsr_val = ax88180_mdio_read (dev, MII_BMSR);
+				if (bmsr_val & BMSR_ANEGCOMPLETE) {
 					break;
 				}
 				udelay (100);
@@ -357,10 +358,10 @@ static void ax88180_media_config (struct eth_device *dev)
 
 		/* Get real media mode here */
 		switch (priv->PhyID0) {
-		case MARVELL_88E1111_PHYIDR0:
+		case MARVELL_88E1111_PHYSID0:
 			RealMediaMode = get_MarvellPHY_media_mode(dev);
 			break;
-		case CICADA_CIS8201_PHYIDR0:
+		case CICADA_CIS8201_PHYSID0:
 			RealMediaMode = get_CicadaPHY_media_mode(dev);
 			break;
 		default:
