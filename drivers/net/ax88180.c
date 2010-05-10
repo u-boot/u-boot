@@ -50,9 +50,9 @@
  */
 static void ax88180_rx_handler (struct eth_device *dev);
 static int ax88180_phy_initial (struct eth_device *dev);
-static void ax88180_meidia_config (struct eth_device *dev);
-static unsigned long get_CicadaPHY_meida_mode (struct eth_device *dev);
-static unsigned long get_MarvellPHY_meida_mode (struct eth_device *dev);
+static void ax88180_media_config (struct eth_device *dev);
+static unsigned long get_CicadaPHY_media_mode (struct eth_device *dev);
+static unsigned long get_MarvellPHY_media_mode (struct eth_device *dev);
 static unsigned short ax88180_mdio_read (struct eth_device *dev,
 					 unsigned long regaddr);
 static void ax88180_mdio_write (struct eth_device *dev,
@@ -300,7 +300,7 @@ static int ax88180_phy_initial (struct eth_device *dev)
 	return 1;
 }
 
-static void ax88180_meidia_config (struct eth_device *dev)
+static void ax88180_media_config (struct eth_device *dev)
 {
 	struct ax88180_private *priv = (struct ax88180_private *)dev->priv;
 	unsigned long bmcr_val, bmsr_val;
@@ -346,9 +346,9 @@ static void ax88180_meidia_config (struct eth_device *dev)
 
 		/* Get real media mode here */
 		if (priv->PhyID0 == MARVELL_88E1111_PHYIDR0) {
-			RealMediaMode = get_MarvellPHY_meida_mode (dev);
+			RealMediaMode = get_MarvellPHY_media_mode (dev);
 		} else if (priv->PhyID0 == CICADA_CIS8201_PHYIDR0) {
-			RealMediaMode = get_CicadaPHY_meida_mode (dev);
+			RealMediaMode = get_CicadaPHY_media_mode (dev);
 		} else {
 			RealMediaMode = MEDIA_1000FULL;
 		}
@@ -424,7 +424,7 @@ static void ax88180_meidia_config (struct eth_device *dev)
 	return;
 }
 
-static unsigned long get_MarvellPHY_meida_mode (struct eth_device *dev)
+static unsigned long get_MarvellPHY_media_mode (struct eth_device *dev)
 {
 	unsigned long m88_ssr;
 	unsigned long MediaMode;
@@ -457,7 +457,7 @@ static unsigned long get_MarvellPHY_meida_mode (struct eth_device *dev)
 	return MediaMode;
 }
 
-static unsigned long get_CicadaPHY_meida_mode (struct eth_device *dev)
+static unsigned long get_CicadaPHY_media_mode (struct eth_device *dev)
 {
 	unsigned long tmp_regval;
 	unsigned long MediaMode;
@@ -522,7 +522,7 @@ static int ax88180_init (struct eth_device *dev, bd_t * bd)
 	    dev->enetaddr[4] | (((unsigned short)dev->enetaddr[5]) << 8);
 	OUTW (dev, tmp_regval, MACID2);
 
-	ax88180_meidia_config (dev);
+	ax88180_media_config (dev);
 
 	OUTW (dev, DEFAULT_RXFILTER, RXFILTER);
 
@@ -558,7 +558,7 @@ static int ax88180_recv (struct eth_device *dev)
 		if (ISR_Status & ISR_PHY) {
 			/* Read ISR register once to clear PHY interrupt bit */
 			tmp_regval = ax88180_mdio_read (dev, M88_ISR);
-			ax88180_meidia_config (dev);
+			ax88180_media_config (dev);
 		}
 
 		if ((ISR_Status & ISR_RX) || (ISR_Status & ISR_RXBUFFOVR)) {
