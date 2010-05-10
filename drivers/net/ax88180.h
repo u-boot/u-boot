@@ -63,10 +63,8 @@ struct ax88180_private {
 /* Max Rx Jumbo size is 15K Bytes */
 #define MAX_RX_SIZE			0x3C00
 
-#define MARVELL_88E1111_PHYADDR	0x18
 #define MARVELL_88E1111_PHYIDR0	0x0141
 
-#define CICADA_CIS8201_PHYADDR	0x01
 #define CICADA_CIS8201_PHYIDR0		0x000F
 
 #define MEDIA_AUTO			0
