@@ -795,7 +795,6 @@ int lan91c96_initialize(u8 dev_num, int base_addr)
 
 	dev = malloc(sizeof(*dev));
 	if (!dev) {
-		free(dev);
 		return 0;
 	}
 	memset(dev, 0, sizeof(*dev));

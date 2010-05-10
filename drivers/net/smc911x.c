@@ -242,7 +242,6 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 
 	dev = malloc(sizeof(*dev));
 	if (!dev) {
-		free(dev);
 		return -1;
 	}
 	memset(dev, 0, sizeof(*dev));
