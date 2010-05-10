@@ -58,6 +58,18 @@
 
 
 /*
+ * Network Settings
+ */
+#define ADI_CMDS_NETWORK	1
+#define CONFIG_NET_MULTI
+#define CONFIG_DRIVER_AX88180	1
+#define AX88180_BASE		0x2c000000
+#define CONFIG_HOSTNAME		ibf-dsp561
+/* Uncomment next line to use fixed MAC address */
+/* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
+
+
+/*
  * Flash Settings
  */
 #define CONFIG_SYS_FLASH_CFI		/* The flash is CFI compatible */

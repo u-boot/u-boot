@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -16,3 +17,10 @@ int checkboard(void)
 	printf("       Support: http://www.i-syst.com/\n");
 	return 0;
 }
+
+#ifdef CONFIG_DRIVER_AX88180
+int board_eth_init(bd_t *bis)
+{
+	return ax88180_initialize(bis);
+}
+#endif
