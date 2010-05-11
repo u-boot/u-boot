@@ -704,6 +704,7 @@ LIST_at91="			\
 
 LIST_pxa="		\
 	cerf250		\
+	colibri_pxa270	\
 	cradle		\
 	csb226		\
 	delta		\
