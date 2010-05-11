@@ -33,6 +33,7 @@ struct ax88180_private {
 	unsigned char PadSize;
 	unsigned short PhyAddr;
 	unsigned short PhyID0;
+	unsigned short PhyID1;
 	unsigned short FirstTxDesc;
 	unsigned short NextTxDesc;
 	ax88180_link_state LinkState;
@@ -63,7 +64,8 @@ struct ax88180_private {
 /* Max Rx Jumbo size is 15K Bytes */
 #define MAX_RX_SIZE			0x3C00
 
-#define MARVELL_88E1111_PHYSID0	0x0141
+#define MARVELL_ALASKA_PHYSID0	0x141
+#define MARVELL_88E1118_PHYSID1	0xE40
 
 #define CICADA_CIS8201_PHYSID0		0x000F
 
@@ -296,13 +298,35 @@ struct ax88180_private {
   #define LINK_CHANGE_INT	0x0400
 #define M88_ISR		0x0013
   #define LINK_CHANGE_STATUS	0x0400
-#define M88_EXT_SCR	0x0014
+#define M88E1111_EXT_SCR	0x0014
   #define RGMII_RXCLK_DELAY	0x0080
   #define RGMII_TXCLK_DELAY	0x0002
   #define DEFAULT_EXT_SCR	(RGMII_TXCLK_DELAY | RGMII_RXCLK_DELAY)
-#define M88_EXT_SSR	0x001B
+#define M88E1111_EXT_SSR	0x001B
   #define HWCFG_MODE_MASK	0x000F
   #define RGMII_COPPER_MODE	0x000B
+
+/* Marvell 88E1118 Gigabit PHY Register Definition */
+#define M88E1118_CR			0x14
+  #define M88E1118_CR_RGMII_RXCLK_DELAY	0x0020
+  #define M88E1118_CR_RGMII_TXCLK_DELAY	0x0010
+  #define M88E1118_CR_DEFAULT		(M88E1118_CR_RGMII_TXCLK_DELAY | \
+					 M88E1118_CR_RGMII_RXCLK_DELAY)
+#define M88E1118_LEDCTL		0x10		/* Reg 16 on page 3 */
+  #define M88E1118_LEDCTL_LED2INT			0x200
+  #define M88E1118_LEDCTL_LED2BLNK			0x400
+  #define M88E1118_LEDCTL_LED0DUALMODE1	0xc
+  #define M88E1118_LEDCTL_LED0DUALMODE2	0xd
+  #define M88E1118_LEDCTL_LED0DUALMODE3	0xe
+  #define M88E1118_LEDCTL_LED0DUALMODE4	0xf
+  #define M88E1118_LEDCTL_DEFAULT	(M88E1118_LEDCTL_LED2BLNK | \
+					 M88E1118_LEDCTL_LED0DUALMODE4)
+
+#define M88E1118_LEDMIX		0x11		/* Reg 17 on page 3 */
+  #define M88E1118_LEDMIX_LED050				0x4
+  #define M88E1118_LEDMIX_LED150				0x8
+
+#define M88E1118_PAGE_SEL	0x16		/* Reg page select */
 
 /* CICADA CIS8201 Gigabit PHY Register Definition */
 #define CIS_IMR		0x0019

@@ -267,19 +267,34 @@ static int ax88180_phy_initial (struct eth_device *dev)
 	{
 		priv->PhyAddr = phyaddr;
 		priv->PhyID0 = ax88180_mdio_read(dev, MII_PHYSID1);
+		priv->PhyID1 = ax88180_mdio_read(dev, MII_PHYSID2);
 
 		switch (priv->PhyID0) {
-		case MARVELL_88E1111_PHYSID0:
-			debug("ax88180: Found Marvell 88E1111 PHY."
+		case MARVELL_ALASKA_PHYSID0:
+			debug("ax88180: Found Marvell Alaska PHY family."
 			      " (PHY Addr=0x%x)\n", priv->PhyAddr);
 
-			tmp_regval = ax88180_mdio_read(dev, M88_EXT_SSR);
-			if ((tmp_regval & HWCFG_MODE_MASK) != RGMII_COPPER_MODE) {
-				ax88180_mdio_write(dev, M88_EXT_SCR, DEFAULT_EXT_SCR);
-				if (ax88180_phy_reset(dev) < 0)
-					return 0;
-				ax88180_mdio_write(dev, M88_IER, LINK_CHANGE_INT);
+			switch (priv->PhyID1) {
+			case MARVELL_88E1118_PHYSID1:
+				ax88180_mdio_write(dev, M88E1118_PAGE_SEL, 2);
+				ax88180_mdio_write(dev, M88E1118_CR,
+					M88E1118_CR_DEFAULT);
+				ax88180_mdio_write(dev, M88E1118_PAGE_SEL, 3);
+				ax88180_mdio_write(dev, M88E1118_LEDCTL,
+					M88E1118_LEDCTL_DEFAULT);
+				ax88180_mdio_write(dev, M88E1118_LEDMIX,
+					M88E1118_LEDMIX_LED050 | M88E1118_LEDMIX_LED150 | 0x15);
+				ax88180_mdio_write(dev, M88E1118_PAGE_SEL, 0);
+			default: /* Default to 88E1111 Phy */
+				tmp_regval = ax88180_mdio_read(dev, M88E1111_EXT_SSR);
+				if ((tmp_regval & HWCFG_MODE_MASK) != RGMII_COPPER_MODE)
+					ax88180_mdio_write(dev, M88E1111_EXT_SCR,
+						DEFAULT_EXT_SCR);
 			}
+
+			if (ax88180_phy_reset(dev) < 0)
+				return 0;
+			ax88180_mdio_write(dev, M88_IER, LINK_CHANGE_INT);
 
 			return 1;
 
@@ -358,7 +373,7 @@ static void ax88180_media_config (struct eth_device *dev)
 
 		/* Get real media mode here */
 		switch (priv->PhyID0) {
-		case MARVELL_88E1111_PHYSID0:
+		case MARVELL_ALASKA_PHYSID0:
 			RealMediaMode = get_MarvellPHY_media_mode(dev);
 			break;
 		case CICADA_CIS8201_PHYSID0:
