@@ -46,13 +46,14 @@ int display_options (void)
 void print_size(unsigned long long size, const char *s)
 {
 	unsigned long m = 0, n;
+	unsigned long long f;
 	static const char names[] = {'E', 'P', 'T', 'G', 'M', 'K'};
-	unsigned long long d = 1ULL << (10 * ARRAY_SIZE(names));
+	unsigned long d = 10 * ARRAY_SIZE(names);
 	char c = 0;
 	unsigned int i;
 
-	for (i = 0; i < ARRAY_SIZE(names); i++, d >>= 10) {
-		if (size >= d) {
+	for (i = 0; i < ARRAY_SIZE(names); i++, d -= 10) {
+		if (size >> d) {
 			c = names[i];
 			break;
 		}
@@ -63,11 +64,12 @@ void print_size(unsigned long long size, const char *s)
 		return;
 	}
 
-	n = size / d;
+	n = size >> d;
+	f = size & ((1ULL << d) - 1);
 
 	/* If there's a remainder, deal with it */
-	if(size % d) {
-		m = (10 * (size - (n * d)) + (d / 2) ) / d;
+	if (f) {
+		m = (10ULL * f + (1ULL << (d - 1))) >> d;
 
 		if (m >= 10) {
 			m -= 10;
