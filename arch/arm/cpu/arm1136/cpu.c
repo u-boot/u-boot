@@ -71,6 +71,7 @@ static void cache_flush(void)
 {
 	unsigned long i = 0;
 
+	asm ("mcr p15, 0, %0, c7, c10, 0": :"r" (i)); /* clean entire data cache */
 	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));  /* invalidate both caches and flush btb */
 	asm ("mcr p15, 0, %0, c7, c10, 4": :"r" (i)); /* mem barrier to sync things */
 }
