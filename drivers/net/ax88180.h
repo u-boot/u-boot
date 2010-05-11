@@ -357,15 +357,15 @@ static inline unsigned short INW (struct eth_device *dev, unsigned long addr)
 	return le16_to_cpu (*(volatile unsigned short *) (addr + dev->iobase));
 }
 
+/*
+ Access RXBUFFER_START/TXBUFFER_START to read RX buffer/write TX buffer
+*/
+#if defined (CONFIG_DRIVER_AX88180_16BIT)
 static inline void OUTW (struct eth_device *dev, unsigned short command, unsigned long addr)
 {
 	*(volatile unsigned short *) ((addr + dev->iobase)) = cpu_to_le16 (command);
 }
 
-/*
- Access RXBUFFER_START/TXBUFFER_START to read RX buffer/write TX buffer
-*/
-#if defined (CONFIG_DRIVER_AX88180_16BIT)
 static inline unsigned short READ_RXBUF (struct eth_device *dev)
 {
 	return le16_to_cpu (*(volatile unsigned short *) (RXBUFFER_START + dev->iobase));
@@ -376,6 +376,11 @@ static inline void WRITE_TXBUF (struct eth_device *dev, unsigned short data)
 	*(volatile unsigned short *) ((TXBUFFER_START + dev->iobase)) = cpu_to_le16 (data);
 }
 #else
+static inline void OUTW (struct eth_device *dev, unsigned short command, unsigned long addr)
+{
+	*(volatile unsigned long *) ((addr + dev->iobase)) = cpu_to_le32 (command);
+}
+
 static inline unsigned long READ_RXBUF (struct eth_device *dev)
 {
 	return le32_to_cpu (*(volatile unsigned long *) (RXBUFFER_START + dev->iobase));
