@@ -84,7 +84,7 @@
 #define	CONFIG_SPLASH_SCREEN
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
-#define CONFIG_DISPLAY_VBEST_VGG322403
+#define CONFIG_DISPLAY_COM57H5M10XRC
 
 /*
  * Reducing the ARP timeout from default 5 seconds to 200ms we speed up the
