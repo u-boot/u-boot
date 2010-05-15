@@ -36,13 +36,13 @@ SOBJS   := $(addprefix $(obj),$(SOBJS))
 
 $(LIB): $(obj).depend $(OBJS)
 	        $(AR) $(ARFLAGS) $@ $(OBJS)
-	@mkimage -T script -C none -n mvSMR_Script -d bootscript bootscript.img
+	@mkimage -T script -C none -n mvSMR_Script -d bootscript $(obj)bootscript.img
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
 
 distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
+	rm -f $(LIB) core *.bak $(obj).depend $(obj)bootscript.img
 
 #########################################################################
 
