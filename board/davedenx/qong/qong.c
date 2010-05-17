@@ -26,6 +26,7 @@
 #include <asm/arch/mx31.h>
 #include <asm/arch/mx31-regs.h>
 #include <nand.h>
+#include <fsl_pmic.h>
 #include "qong_fpga.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -128,9 +129,28 @@ int board_init (void)
 	mx31_gpio_mux(MUX_RTS1__UART1_RTS_B);
 	mx31_gpio_mux(MUX_CTS1__UART1_CTS_B);
 
+	/* setup pins for SPI (pmic) */
+	mx31_gpio_mux(MUX_CSPI2_SS0__CSPI2_SS0_B);
+	mx31_gpio_mux(MUX_CSPI2_MOSI__CSPI2_MOSI);
+	mx31_gpio_mux(MUX_CSPI2_MISO__CSPI2_MISO);
+	mx31_gpio_mux(MUX_CSPI2_SCLK__CSPI2_CLK);
+	mx31_gpio_mux(MUX_CSPI2_SPI_RDY__CSPI2_DATAREADY_B);
+
 	/* board id for linux */
 	gd->bd->bi_arch_number = MACH_TYPE_QONG;
 	gd->bd->bi_boot_params = (0x80000100);	/* adress of boot parameters */
+
+	return 0;
+}
+
+int board_late_init(void)
+{
+	u32 val;
+
+	/* Enable RTC battery */
+	val = pmic_reg_read(REG_POWER_CTL0);
+	pmic_reg_write(REG_POWER_CTL0, val | COINCHEN);
+	pmic_reg_write(REG_INT_STATUS1, RTCRSTI);
 
 	return 0;
 }

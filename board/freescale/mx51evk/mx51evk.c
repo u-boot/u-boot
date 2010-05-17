@@ -27,9 +27,12 @@
 #include <asm/arch/iomux.h>
 #include <asm/errno.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/crm_regs.h>
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
+#include <fsl_pmic.h>
+#include <mc13892.h>
 #include "mx51evk.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -39,8 +42,8 @@ struct io_board_ctrl *mx51_io_board;
 
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[2] = {
-	{MMC_SDHC1_BASE_ADDR, 1, 1},
-	{MMC_SDHC2_BASE_ADDR, 1, 1},
+	{MMC_SDHC1_BASE_ADDR, 1},
+	{MMC_SDHC2_BASE_ADDR, 1},
 };
 #endif
 
@@ -145,6 +148,130 @@ static void setup_iomux_fec(void)
 	/* FEC RX_DV */
 	mxc_request_iomux(MX51_PIN_NANDF_D11, IOMUX_CONFIG_ALT2);
 	mxc_iomux_set_pad(MX51_PIN_NANDF_D11, 0x2180);
+}
+
+#ifdef CONFIG_MXC_SPI
+static void setup_iomux_spi(void)
+{
+	/* 000: Select mux mode: ALT0 mux port: MOSI of instance: ecspi1 */
+	mxc_request_iomux(MX51_PIN_CSPI1_MOSI, IOMUX_CONFIG_ALT0);
+	mxc_iomux_set_pad(MX51_PIN_CSPI1_MOSI, 0x105);
+
+	/* 000: Select mux mode: ALT0 mux port: MISO of instance: ecspi1. */
+	mxc_request_iomux(MX51_PIN_CSPI1_MISO, IOMUX_CONFIG_ALT0);
+	mxc_iomux_set_pad(MX51_PIN_CSPI1_MISO, 0x105);
+
+	/* de-select SS1 of instance: ecspi1. */
+	mxc_request_iomux(MX51_PIN_CSPI1_SS1, IOMUX_CONFIG_ALT3);
+	mxc_iomux_set_pad(MX51_PIN_CSPI1_SS1, 0x85);
+
+	/* 000: Select mux mode: ALT0 mux port: SS0 ecspi1 */
+	mxc_request_iomux(MX51_PIN_CSPI1_SS0, IOMUX_CONFIG_ALT0);
+	mxc_iomux_set_pad(MX51_PIN_CSPI1_SS0, 0x185);
+
+	/* 000: Select mux mode: ALT0 mux port: RDY of instance: ecspi1. */
+	mxc_request_iomux(MX51_PIN_CSPI1_RDY, IOMUX_CONFIG_ALT0);
+	mxc_iomux_set_pad(MX51_PIN_CSPI1_RDY, 0x180);
+
+	/* 000: Select mux mode: ALT0 mux port: SCLK of instance: ecspi1. */
+	mxc_request_iomux(MX51_PIN_CSPI1_SCLK, IOMUX_CONFIG_ALT0);
+	mxc_iomux_set_pad(MX51_PIN_CSPI1_SCLK, 0x105);
+}
+#endif
+
+static void power_init(void)
+{
+	unsigned int val;
+	unsigned int reg;
+	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)MXC_CCM_BASE;
+
+	/* Write needed to Power Gate 2 register */
+	val = pmic_reg_read(REG_POWER_MISC);
+	val &= ~PWGT2SPIEN;
+	pmic_reg_write(REG_POWER_MISC, val);
+
+	/* Write needed to update Charger 0 */
+	pmic_reg_write(REG_CHARGE, VCHRG0 | VCHRG1 | VCHRG2 |
+		ICHRG0 | ICHRG1 | ICHRG2 | ICHRG3 | ICHRGTR0 |
+		OVCTRL1 | UCHEN | CHRGLEDEN | CYCLB);
+
+	/* power up the system first */
+	pmic_reg_write(REG_POWER_MISC, PWUP);
+
+	/* Set core voltage to 1.1V */
+	val = pmic_reg_read(REG_SW_0);
+	val = (val & (~0x1F)) | 0x14;
+	pmic_reg_write(REG_SW_0, val);
+
+	/* Setup VCC (SW2) to 1.25 */
+	val = pmic_reg_read(REG_SW_1);
+	val = (val & (~0x1F)) | 0x1A;
+	pmic_reg_write(REG_SW_1, val);
+
+	/* Setup 1V2_DIG1 (SW3) to 1.25 */
+	val = pmic_reg_read(REG_SW_2);
+	val = (val & (~0x1F)) | 0x1A;
+	pmic_reg_write(REG_SW_2, val);
+	udelay(50);
+
+	/* Raise the core frequency to 800MHz */
+	writel(0x0, &mxc_ccm->cacrr);
+
+	/* Set switchers in Auto in NORMAL mode & STANDBY mode */
+	/* Setup the switcher mode for SW1 & SW2*/
+	val = pmic_reg_read(REG_SW_4);
+	val = (val & ~((SWMODE_MASK << SWMODE1_SHIFT) |
+		(SWMODE_MASK << SWMODE2_SHIFT)));
+	val |= (SWMODE_AUTO_AUTO << SWMODE1_SHIFT) |
+		(SWMODE_AUTO_AUTO << SWMODE2_SHIFT);
+	pmic_reg_write(REG_SW_4, val);
+
+	/* Setup the switcher mode for SW3 & SW4 */
+	val = pmic_reg_read(REG_SW_5);
+	val = (val & ~((SWMODE_MASK << SWMODE3_SHIFT) |
+		(SWMODE_MASK << SWMODE4_SHIFT)));
+	val |= (SWMODE_AUTO_AUTO << SWMODE3_SHIFT) |
+		(SWMODE_AUTO_AUTO << SWMODE4_SHIFT);
+	pmic_reg_write(REG_SW_5, val);
+
+	/* Set VDIG to 1.65V, VGEN3 to 1.8V, VCAM to 2.6V */
+	val = pmic_reg_read(REG_SETTING_0);
+	val &= ~(VCAM_MASK | VGEN3_MASK | VDIG_MASK);
+	val |= VDIG_1_65 | VGEN3_1_8 | VCAM_2_6;
+	pmic_reg_write(REG_SETTING_0, val);
+
+	/* Set VVIDEO to 2.775V, VAUDIO to 3V, VSD to 3.15V */
+	val = pmic_reg_read(REG_SETTING_1);
+	val &= ~(VVIDEO_MASK | VSD_MASK | VAUDIO_MASK);
+	val |= VSD_3_15 | VAUDIO_3_0 | VVIDEO_2_775;
+	pmic_reg_write(REG_SETTING_1, val);
+
+	/* Configure VGEN3 and VCAM regulators to use external PNP */
+	val = VGEN3CONFIG | VCAMCONFIG;
+	pmic_reg_write(REG_MODE_1, val);
+	udelay(200);
+
+	reg = readl(GPIO2_BASE_ADDR + 0x0);
+	reg &= ~0x4000;  /* Lower reset line */
+	writel(reg, GPIO2_BASE_ADDR + 0x0);
+
+	reg = readl(GPIO2_BASE_ADDR + 0x4);
+	reg |= 0x4000;	/* configure GPIO lines as output */
+	writel(reg, GPIO2_BASE_ADDR + 0x4);
+
+	/* Reset the ethernet controller over GPIO */
+	writel(0x1, IOMUXC_BASE_ADDR + 0x0AC);
+
+	/* Enable VGEN3, VCAM, VAUDIO, VVIDEO, VSD regulators */
+	val = VGEN3EN | VGEN3CONFIG | VCAMEN | VCAMCONFIG |
+		VVIDEOEN | VAUDIOEN  | VSDEN;
+	pmic_reg_write(REG_MODE_1, val);
+
+	udelay(500);
+
+	reg = readl(GPIO2_BASE_ADDR + 0x0);
+	reg |= 0x4000;
+	writel(reg, GPIO2_BASE_ADDR + 0x0);
 }
 
 #ifdef CONFIG_FSL_ESDHC
@@ -284,8 +411,20 @@ int board_init(void)
 
 	setup_iomux_uart();
 	setup_iomux_fec();
+
 	return 0;
 }
+
+#ifdef BOARD_LATE_INIT
+int board_late_init(void)
+{
+#ifdef CONFIG_MXC_SPI
+	setup_iomux_spi();
+	power_init();
+#endif
+	return 0;
+}
+#endif
 
 int checkboard(void)
 {
