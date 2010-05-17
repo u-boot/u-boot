@@ -347,6 +347,16 @@ void start_armboot (void)
 	dataflash_print_info();
 #endif
 
+#ifdef CONFIG_GENERIC_MMC
+/*
+ * MMC initialization is called before relocating env.
+ * Thus It is required that operations like pin multiplexer
+ * be put in board_init.
+ */
+	puts ("MMC:   ");
+	mmc_initialize (gd->bd);
+#endif
+
 	/* initialize environment */
 	env_relocate ();
 
@@ -417,11 +427,6 @@ extern void davinci_eth_set_mac_addr (const u_int8_t *addr);
 
 #ifdef BOARD_LATE_INIT
 	board_late_init ();
-#endif
-
-#ifdef CONFIG_GENERIC_MMC
-	puts ("MMC:   ");
-	mmc_initialize (gd->bd);
 #endif
 
 #ifdef CONFIG_BITBANGMII
