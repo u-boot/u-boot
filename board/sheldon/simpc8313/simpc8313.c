@@ -33,13 +33,13 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_NAND_SPL
 int checkboard(void)
 {
 	puts("Board: Sheldon Instruments SIMPC8313\n");
 	return 0;
 }
 
-#ifndef CONFIG_NAND_SPL
 static struct pci_region pci_regions[] = {
 	{
 		bus_start: CONFIG_SYS_PCI1_MEM_BASE,

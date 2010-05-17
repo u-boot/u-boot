@@ -739,6 +739,7 @@ setup_bats:
  * Note: requires that all cache bits in
  * HID0 are in the low half word.
  */
+#ifndef CONFIG_NAND_SPL
 	.globl	icache_enable
 icache_enable:
 	mfspr	r3, HID0
@@ -767,6 +768,7 @@ icache_status:
 	mfspr	r3, HID0
 	rlwinm	r3, r3, (31 - HID0_ICE_SHIFT + 1), 31, 31
 	blr
+#endif	/* !CONFIG_NAND_SPL */
 
 	.globl	dcache_enable
 dcache_enable:
