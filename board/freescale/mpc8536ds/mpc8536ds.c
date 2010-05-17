@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Freescale Semiconductor, Inc.
+ * Copyright 2008-2010 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -30,6 +30,7 @@
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/io.h>
+#include <asm/fsl_serdes.h>
 #include <spd.h>
 #include <miiphy.h>
 #include <libfdt.h>
@@ -219,9 +220,13 @@ void pci_init_board(void)
 
 	puts("\n");
 #ifdef CONFIG_PCIE3
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_3, io_sel);
+	pcie_configured = is_serdes_configured(PCIE3);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE3)){
+		set_next_law(CONFIG_SYS_PCIE3_MEM_PHYS, LAW_SIZE_512M,
+				LAW_TRGT_IF_PCIE_3);
+		set_next_law(CONFIG_SYS_PCIE3_IO_PHYS, LAW_SIZE_64K,
+				LAW_TRGT_IF_PCIE_3);
 		SET_STD_PCIE_INFO(pci_info[num], 3);
 		pcie_ep = fsl_setup_hose(&pcie3_hose, pci_info[num].regs);
 		printf ("    PCIE3 connected to Slot3 as %s (base address %lx)\n",
@@ -239,9 +244,13 @@ void pci_init_board(void)
 #endif
 
 #ifdef CONFIG_PCIE1
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
+	pcie_configured = is_serdes_configured(PCIE1);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
+		set_next_law(CONFIG_SYS_PCIE1_MEM_PHYS, LAW_SIZE_128M,
+				LAW_TRGT_IF_PCIE_1);
+		set_next_law(CONFIG_SYS_PCIE1_IO_PHYS, LAW_SIZE_64K,
+				LAW_TRGT_IF_PCIE_1);
 		SET_STD_PCIE_INFO(pci_info[num], 1);
 		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
 		printf ("    PCIE1 connected to Slot1 as %s (base address %lx)\n",
@@ -259,9 +268,13 @@ void pci_init_board(void)
 #endif
 
 #ifdef CONFIG_PCIE2
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
+	pcie_configured = is_serdes_configured(PCIE2);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE2)){
+		set_next_law(CONFIG_SYS_PCIE2_MEM_PHYS, LAW_SIZE_128M,
+				LAW_TRGT_IF_PCIE_2);
+		set_next_law(CONFIG_SYS_PCIE2_IO_PHYS, LAW_SIZE_64K,
+				LAW_TRGT_IF_PCIE_2);
 		SET_STD_PCIE_INFO(pci_info[num], 2);
 		pcie_ep = fsl_setup_hose(&pcie2_hose, pci_info[num].regs);
 		printf ("    PCIE2 connected to Slot 2 as %s (base address %lx)\n",
@@ -285,6 +298,10 @@ void pci_init_board(void)
 	pci_clk_sel = porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;
 
 	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
+		set_next_law(CONFIG_SYS_PCI1_MEM_PHYS, LAW_SIZE_256M,
+				LAW_TRGT_IF_PCI);
+		set_next_law(CONFIG_SYS_PCI1_IO_PHYS, LAW_SIZE_64K,
+				LAW_TRGT_IF_PCI);
 		SET_STD_PCI_INFO(pci_info[num], 1);
 		pci_agent = fsl_setup_hose(&pci1_hose, pci_info[num].regs);
 		printf ("\n    PCI: %d bit, %s MHz, %s, %s, %s (base address %lx)\n",
@@ -481,17 +498,6 @@ get_board_ddr_clk(ulong dummy)
 }
 #endif
 
-int sata_initialize(void)
-{
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	uint sdrs2_io_sel =
-		(gur->pordevsr & MPC85xx_PORDEVSR_SRDS2_IO_SEL) >> 27;
-	if (sdrs2_io_sel & 0x04)
-		return 1;
-
-	return __sata_initialize();
-}
-
 int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_TSEC_ENET
@@ -540,15 +546,23 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_PCI1
 	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
+#else
+	ft_fsl_pci_setup(blob, "pci0", NULL);
 #endif
 #ifdef CONFIG_PCIE2
 	ft_fsl_pci_setup(blob, "pci1", &pcie2_hose);
+#else
+	ft_fsl_pci_setup(blob, "pci1", NULL);
 #endif
 #ifdef CONFIG_PCIE2
 	ft_fsl_pci_setup(blob, "pci2", &pcie1_hose);
+#else
+	ft_fsl_pci_setup(blob, "pci2", NULL);
 #endif
 #ifdef CONFIG_PCIE1
 	ft_fsl_pci_setup(blob, "pci3", &pcie3_hose);
+#else
+	ft_fsl_pci_setup(blob, "pci3", NULL);
 #endif
 #ifdef CONFIG_FSL_SGMII_RISER
 	fsl_sgmii_riser_fdt_fixup(blob);
