@@ -268,9 +268,9 @@ int fsl_diu_init(int xres,
 
 	memset(info->screen_base, 0, info->smem_len);
 
-	out_be32(&dr.diu_reg->desc[0], &dummy_ad);
-	out_be32(&dr.diu_reg->desc[1], &dummy_ad);
-	out_be32(&dr.diu_reg->desc[2], &dummy_ad);
+	out_be32(&dr.diu_reg->desc[0], (int)&dummy_ad);
+	out_be32(&dr.diu_reg->desc[1], (int)&dummy_ad);
+	out_be32(&dr.diu_reg->desc[2], (int)&dummy_ad);
 	debug("dummy dr.diu_reg->desc[0] = 0x%x\n", dr.diu_reg->desc[0]);
 	debug("dummy desc[0] = 0x%x\n", hw->desc[0]);
 
@@ -332,8 +332,8 @@ int fsl_diu_init(int xres,
 
 	/* Program DIU registers */
 
-	out_be32(&hw->gamma, gamma.paddr);
-	out_be32(&hw->cursor, cursor.paddr);
+	out_be32(&hw->gamma, (int)gamma.paddr);
+	out_be32(&hw->cursor, (int)cursor.paddr);
 	out_be32(&hw->bgnd, 0x007F7F7F);
 	out_be32(&hw->bgnd_wb, 0);				/* BGND_WB */
 	out_be32(&hw->disp_size, var->yres << 16 | var->xres);	/* DISP SIZE */
@@ -391,8 +391,8 @@ static int fsl_diu_enable_panel(struct fb_info *info)
 	struct diu_ad *ad = &fsl_diu_fb_ad;
 
 	debug("Entered: enable_panel\n");
-	if (in_be32(&hw->desc[0]) != (u32)ad)
-		out_be32(&hw->desc[0], ad);
+	if (in_be32(&hw->desc[0]) != (unsigned)ad)
+		out_be32(&hw->desc[0], (unsigned)ad);
 	debug("desc[0] = 0x%x\n", hw->desc[0]);
 	return 0;
 }
@@ -402,8 +402,8 @@ static int fsl_diu_disable_panel(struct fb_info *info)
 	struct diu *hw = dr.diu_reg;
 
 	debug("Entered: disable_panel\n");
-	if (in_be32(&hw->desc[0]) != (u32)&dummy_ad)
-		out_be32(&hw->desc[0], &dummy_ad);
+	if (in_be32(&hw->desc[0]) != (unsigned)&dummy_ad)
+		out_be32(&hw->desc[0], (unsigned)&dummy_ad);
 	return 0;
 }
 
