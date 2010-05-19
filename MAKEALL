@@ -262,6 +262,7 @@ LIST_4xx="		\
 	sc3		\
 	sequoia		\
 	sequoia_nand	\
+	t3corp		\
 	taihu		\
 	taishan		\
 	v5fx30teval	\

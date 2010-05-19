@@ -392,6 +392,7 @@ Stefan Roese <sr@denx.de>
 	rainier		PPC440GRx
 	sequoia		PPC440EPx
 	sycamore	PPC405GPr
+	t3corp		PPC460GT
 	taishan		PPC440GX
 	walnut		PPC405GP
 	yellowstone	PPC440GR
