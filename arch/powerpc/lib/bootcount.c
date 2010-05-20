@@ -77,10 +77,12 @@ ulong bootcount_load(void)
 	void *reg = (void *)CONFIG_SYS_BOOTCOUNT_ADDR;
 
 #if defined(CONFIG_SYS_BOOTCOUNT_SINGLEWORD)
-	if (in_be16(reg + 2) != (BOOTCOUNT_MAGIC & 0xffff))
+	u32 tmp = in_be32(reg);
+
+	if ((tmp & 0xffff0000) != (BOOTCOUNT_MAGIC & 0xffff0000))
 		return 0;
 	else
-		return in_be16(reg);
+		return (tmp & 0x0000ffff);
 #else
 	if (in_be32(reg + 4) != BOOTCOUNT_MAGIC)
 		return 0;
