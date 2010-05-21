@@ -696,8 +696,13 @@ static void schedule_ubi_work(struct ubi_device *ubi, struct ubi_work *wrk)
 	list_add_tail(&wrk->list, &ubi->works);
 	ubi_assert(ubi->works_count >= 0);
 	ubi->works_count += 1;
-	if (ubi->thread_enabled)
-		wake_up_process(ubi->bgt_thread);
+
+	/*
+	 * U-Boot special: We have no bgt_thread in U-Boot!
+	 * So just call do_work() here directly.
+	 */
+	do_work(ubi);
+
 	spin_unlock(&ubi->wl_lock);
 }
 
