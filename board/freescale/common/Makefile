@@ -42,6 +42,7 @@ COBJS-$(CONFIG_MPC8541CDS)	+= cds_pci_ft.o
 COBJS-$(CONFIG_MPC8548CDS)	+= cds_pci_ft.o
 COBJS-$(CONFIG_MPC8555CDS)	+= cds_pci_ft.o
 
+COBJS-$(CONFIG_MPC8572DS)	+= ics307_clk.o
 COBJS-$(CONFIG_P1022DS)		+= ics307_clk.o
 COBJS-$(CONFIG_P2020DS)		+= ics307_clk.o
 
