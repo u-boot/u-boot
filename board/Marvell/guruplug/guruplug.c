@@ -146,14 +146,7 @@ void mv_phy_88e1121_init(char *name)
 	miiphy_write(name, devadr, MV88E1121_PGADR_REG, 0);
 
 	/* reset the phy */
-	if (miiphy_read (name, devadr, PHY_BMCR, &reg) != 0) {
-		printf("Err..(%s) PHY status read failed\n", __FUNCTION__);
-		return;
-	}
-	if (miiphy_write (name, devadr, PHY_BMCR, reg | 0x8000) != 0) {
-		printf("Err..(%s) PHY reset failed\n", __FUNCTION__);
-		return;
-	}
+	miiphy_reset(name, devadr);
 
 	printf("88E1121 Initialized on %s\n", name);
 }
