@@ -37,11 +37,11 @@ COBJS-y += interrupts.o
 COBJS-y += iopin.o
 COBJS-y += serial.o
 COBJS-y += speed.o
-COBJS-${CONFIG_FSL_DIU_FB} += diu.o
-COBJS-${CONFIG_FSL_DIU_FB} += ../../../../board/freescale/common/fsl_diu_fb.o
-COBJS-${CONFIG_FSL_DIU_FB} += ../../../../board/freescale/common/fsl_logo_bmp.o
-COBJS-${CONFIG_CMD_IDE} += ide.o
-COBJS-${CONFIG_IIM} += iim.o
+COBJS-$(CONFIG_FSL_DIU_FB) += diu.o
+COBJS-$(CONFIG_FSL_DIU_FB) += ../../../../board/freescale/common/fsl_diu_fb.o
+COBJS-$(CONFIG_FSL_DIU_FB) += ../../../../board/freescale/common/fsl_logo_bmp.o
+COBJS-$(CONFIG_CMD_IDE) += ide.o
+COBJS-$(CONFIG_IIM) += iim.o
 COBJS-$(CONFIG_PCI) += pci.o
 
 COBJS	:= $(COBJS-y)
