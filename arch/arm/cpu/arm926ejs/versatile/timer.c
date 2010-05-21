@@ -108,14 +108,14 @@ void set_timer (ulong t)
 	timestamp = t;
 }
 
-/* delay x useconds AND perserve advance timstamp value */
+/* delay x useconds AND preserve advance timestamp value */
 void __udelay (unsigned long usec)
 {
 	ulong tmo, tmp;
 
 	if(usec >= 1000){		/* if "big" number, spread normalization to seconds */
 		tmo = usec / 1000;	/* start to normalize for usec to ticks per sec */
-		tmo *= CONFIG_SYS_HZ;		/* find number of "ticks" to wait to achieve target */
+		tmo *= CONFIG_SYS_HZ;	/* find number of "ticks" to wait to achieve target */
 		tmo /= 1000;		/* finish normalize. */
 	}else{				/* else small number, don't kill it prior to HZ multiply */
 		tmo = usec * CONFIG_SYS_HZ;

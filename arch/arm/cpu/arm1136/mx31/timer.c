@@ -151,7 +151,7 @@ void set_timer (ulong t)
 	timestamp = time_to_tick(t);
 }
 
-/* delay x useconds AND perserve advance timstamp value */
+/* delay x useconds AND preserve advance timestamp value */
 void __udelay (unsigned long usec)
 {
 	unsigned long long tmp;

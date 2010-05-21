@@ -155,7 +155,7 @@ void set_timer(ulong t)
 	timestamp = t;
 }
 
-/* delay x useconds AND perserve advance timstamp value */
+/* delay x useconds AND preserve advance timestamp value */
 void udelay(unsigned long usec)
 {
 	long tmo = usec * (TIMER_CLOCK / 1000) / 1000;

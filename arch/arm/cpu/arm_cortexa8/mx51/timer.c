@@ -102,7 +102,7 @@ void set_timer(ulong t)
 	timestamp = t;
 }
 
-/* delay x useconds AND perserve advance timstamp value */
+/* delay x useconds AND preserve advance timestamp value */
 void __udelay(unsigned long usec)
 {
 	unsigned long now, start, tmo;
