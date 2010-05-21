@@ -4023,6 +4023,14 @@ On ARM, the following registers are used:
 
     ==> U-Boot will use R8 to hold a pointer to the global data
 
+On Nios II, the ABI is documented here:
+	http://www.altera.com/literature/hb/nios2/n2cpu_nii51016.pdf
+
+    ==> U-Boot will use gp to hold a pointer to the global data
+
+    Note: on Nios II, we give "-G0" option to gcc and don't use gp
+    to access small data sections, so gp is free.
+
 NOTE: DECLARE_GLOBAL_DATA_PTR must be used with file-global scope,
 or current versions of GCC may "optimize" the code too much.
 
