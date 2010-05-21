@@ -54,6 +54,17 @@
 
 #define CONFIG_MX31_GPIO
 
+#define CONFIG_MXC_SPI
+#define CONFIG_DEFAULT_SPI_BUS	1
+#define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
+#define CONFIG_RTC_MC13783
+
+#define CONFIG_FSL_PMIC
+#define CONFIG_FSL_PMIC_BUS	1
+#define CONFIG_FSL_PMIC_CS	0
+#define CONFIG_FSL_PMIC_CLK	100000
+#define CONFIG_FSL_PMIC_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
+
 /* FPGA */
 #define CONFIG_QONG_FPGA	1
 #define CONFIG_FPGA_BASE	(CS1_BASE)
@@ -73,7 +84,7 @@
 #define	CONFIG_SPLASH_SCREEN
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
-#define CONFIG_DISPLAY_VBEST_VGG322403
+#define CONFIG_DISPLAY_COM57H5M10XRC
 
 /*
  * Reducing the ARP timeout from default 5 seconds to 200ms we speed up the
@@ -98,6 +109,9 @@
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_DATE
+#define BOARD_LATE_INIT
 
 /*
  * You can compile in a MAC address and your custom net settings by using

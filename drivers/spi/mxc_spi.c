@@ -31,7 +31,7 @@
 #error "i.MX27 CSPI not supported due to drastic differences in register definisions" \
 "See linux mxc_spi driver from Freescale for details."
 
-#else
+#elif defined(CONFIG_MX31)
 
 #include <asm/arch/mx31.h>
 
@@ -56,6 +56,9 @@
 #define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 24)
 #define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0x1f) << 8)
 #define MXC_CSPICTRL_DATARATE(x)	(((x) & 0x7) << 16)
+#define MXC_CSPICTRL_TC		(1 << 8)
+#define MXC_CSPICTRL_RXOVF	(1 << 6)
+#define MXC_CSPICTRL_MAXBITS	0x1f
 
 #define MXC_CSPIPERIOD_32KHZ	(1 << 15)
 
@@ -65,12 +68,63 @@ static unsigned long spi_bases[] = {
 	0x53f84000,
 };
 
+#define OUT	MX31_GPIO_DIRECTION_OUT
+#define mxc_gpio_direction	mx31_gpio_direction
+#define mxc_gpio_set		mx31_gpio_set
+#elif defined(CONFIG_MX51)
+#include <asm/arch/imx-regs.h>
+#include <asm/arch/clock.h>
+
+#define MXC_CSPIRXDATA		0x00
+#define MXC_CSPITXDATA		0x04
+#define MXC_CSPICTRL		0x08
+#define MXC_CSPICON		0x0C
+#define MXC_CSPIINT		0x10
+#define MXC_CSPIDMA		0x14
+#define MXC_CSPISTAT		0x18
+#define MXC_CSPIPERIOD		0x1C
+#define MXC_CSPIRESET		0x00
+#define MXC_CSPICTRL_EN		(1 << 0)
+#define MXC_CSPICTRL_MODE	(1 << 1)
+#define MXC_CSPICTRL_XCH	(1 << 2)
+#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
+#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
+#define MXC_CSPICTRL_PREDIV(x)	(((x) & 0xF) << 12)
+#define MXC_CSPICTRL_POSTDIV(x)	(((x) & 0xF) << 8)
+#define MXC_CSPICTRL_SELCHAN(x)	(((x) & 0x3) << 18)
+#define MXC_CSPICTRL_MAXBITS	0xfff
+#define MXC_CSPICTRL_TC		(1 << 7)
+#define MXC_CSPICTRL_RXOVF	(1 << 6)
+
+#define MXC_CSPIPERIOD_32KHZ	(1 << 15)
+
+/* Bit position inside CTRL register to be associated with SS */
+#define MXC_CSPICTRL_CHAN	18
+
+/* Bit position inside CON register to be associated with SS */
+#define MXC_CSPICON_POL		4
+#define MXC_CSPICON_PHA		0
+#define MXC_CSPICON_SSPOL	12
+
+static unsigned long spi_bases[] = {
+	CSPI1_BASE_ADDR,
+	CSPI2_BASE_ADDR,
+	CSPI3_BASE_ADDR,
+};
+#define mxc_gpio_direction(gpio, dir)	(0)
+#define mxc_gpio_set(gpio, value)	{}
+#define OUT	1
+#else
+#error "Unsupported architecture"
 #endif
 
 struct mxc_spi_slave {
 	struct spi_slave slave;
 	unsigned long	base;
 	u32		ctrl_reg;
+#if defined(CONFIG_MX51)
+	u32		cfg_reg;
+#endif
 	int		gpio;
 };
 
@@ -89,34 +143,161 @@ static inline void reg_write(unsigned long addr, u32 val)
 	*(volatile unsigned long*)addr = val;
 }
 
+void spi_cs_activate(struct spi_slave *slave)
+{
+	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
+	if (mxcs->gpio > 0)
+		mxc_gpio_set(mxcs->gpio, mxcs->ctrl_reg & MXC_CSPICTRL_SSPOL);
+}
+
+void spi_cs_deactivate(struct spi_slave *slave)
+{
+	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
+	if (mxcs->gpio > 0)
+		mxc_gpio_set(mxcs->gpio,
+			      !(mxcs->ctrl_reg & MXC_CSPICTRL_SSPOL));
+}
+
+#ifdef CONFIG_MX51
+static s32 spi_cfg(struct mxc_spi_slave *mxcs, unsigned int cs,
+		unsigned int max_hz, unsigned int mode)
+{
+	u32 clk_src = mxc_get_clock(MXC_CSPI_CLK);
+	s32 pre_div = 0, post_div = 0, i, reg_ctrl, reg_config;
+	u32 ss_pol = 0, sclkpol = 0, sclkpha = 0;
+
+	if (max_hz == 0) {
+		printf("Error: desired clock is 0\n");
+		return -1;
+	}
+
+	reg_ctrl = reg_read(mxcs->base + MXC_CSPICTRL);
+
+	/* Reset spi */
+	reg_write(mxcs->base + MXC_CSPICTRL, 0);
+	reg_write(mxcs->base + MXC_CSPICTRL, (reg_ctrl | 0x1));
+
+	/*
+	 * The following computation is taken directly from Freescale's code.
+	 */
+	if (clk_src > max_hz) {
+		pre_div = clk_src / max_hz;
+		if (pre_div > 16) {
+			post_div = pre_div / 16;
+			pre_div = 15;
+		}
+		if (post_div != 0) {
+			for (i = 0; i < 16; i++) {
+				if ((1 << i) >= post_div)
+					break;
+			}
+			if (i == 16) {
+				printf("Error: no divider for the freq: %d\n",
+					max_hz);
+				return -1;
+			}
+			post_div = i;
+		}
+	}
+
+	debug("pre_div = %d, post_div=%d\n", pre_div, post_div);
+	reg_ctrl = (reg_ctrl & ~MXC_CSPICTRL_SELCHAN(3)) |
+		MXC_CSPICTRL_SELCHAN(cs);
+	reg_ctrl = (reg_ctrl & ~MXC_CSPICTRL_PREDIV(0x0F)) |
+		MXC_CSPICTRL_PREDIV(pre_div);
+	reg_ctrl = (reg_ctrl & ~MXC_CSPICTRL_POSTDIV(0x0F)) |
+		MXC_CSPICTRL_POSTDIV(post_div);
+
+	/* always set to master mode */
+	reg_ctrl |= 1 << (cs + 4);
+
+	/* We need to disable SPI before changing registers */
+	reg_ctrl &= ~MXC_CSPICTRL_EN;
+
+	if (mode & SPI_CS_HIGH)
+		ss_pol = 1;
+
+	if (!(mode & SPI_CPOL))
+		sclkpol = 1;
+
+	if (mode & SPI_CPHA)
+		sclkpha = 1;
+
+	reg_config = reg_read(mxcs->base + MXC_CSPICON);
+
+	/*
+	 * Configuration register setup
+	 * The MX51 has support different setup for each SS
+	 */
+	reg_config = (reg_config & ~(1 << (cs + MXC_CSPICON_SSPOL))) |
+		(ss_pol << (cs + MXC_CSPICON_SSPOL));
+	reg_config = (reg_config & ~(1 << (cs + MXC_CSPICON_POL))) |
+		(sclkpol << (cs + MXC_CSPICON_POL));
+	reg_config = (reg_config & ~(1 << (cs + MXC_CSPICON_PHA))) |
+		(sclkpha << (cs + MXC_CSPICON_PHA));
+
+	debug("reg_ctrl = 0x%x\n", reg_ctrl);
+	reg_write(mxcs->base + MXC_CSPICTRL, reg_ctrl);
+	debug("reg_config = 0x%x\n", reg_config);
+	reg_write(mxcs->base + MXC_CSPICON, reg_config);
+
+	/* save config register and control register */
+	mxcs->ctrl_reg = reg_ctrl;
+	mxcs->cfg_reg = reg_config;
+
+	/* clear interrupt reg */
+	reg_write(mxcs->base + MXC_CSPIINT, 0);
+	reg_write(mxcs->base + MXC_CSPISTAT,
+		MXC_CSPICTRL_TC | MXC_CSPICTRL_RXOVF);
+
+	return 0;
+}
+#endif
+
 static u32 spi_xchg_single(struct spi_slave *slave, u32 data, int bitlen,
 			   unsigned long flags)
 {
 	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
-	unsigned int cfg_reg = reg_read(mxcs->base + MXC_CSPICTRL);
 
-	mxcs->ctrl_reg = (mxcs->ctrl_reg & ~MXC_CSPICTRL_BITCOUNT(31)) |
+	if (flags & SPI_XFER_BEGIN)
+		spi_cs_activate(slave);
+
+	mxcs->ctrl_reg = (mxcs->ctrl_reg &
+		~MXC_CSPICTRL_BITCOUNT(MXC_CSPICTRL_MAXBITS)) |
 		MXC_CSPICTRL_BITCOUNT(bitlen - 1);
 
-	if (cfg_reg != mxcs->ctrl_reg)
-		reg_write(mxcs->base + MXC_CSPICTRL, mxcs->ctrl_reg);
+	reg_write(mxcs->base + MXC_CSPICTRL, mxcs->ctrl_reg | MXC_CSPICTRL_EN);
+#ifdef CONFIG_MX51
+	reg_write(mxcs->base + MXC_CSPICON, mxcs->cfg_reg);
+#endif
 
-	if (mxcs->gpio > 0 && (flags & SPI_XFER_BEGIN))
-		mx31_gpio_set(mxcs->gpio, mxcs->ctrl_reg & MXC_CSPICTRL_SSPOL);
+	/* Clear interrupt register */
+	reg_write(mxcs->base + MXC_CSPISTAT,
+		MXC_CSPICTRL_TC | MXC_CSPICTRL_RXOVF);
 
+	debug("Sending SPI 0x%x\n", data);
 	reg_write(mxcs->base + MXC_CSPITXDATA, data);
 
-	reg_write(mxcs->base + MXC_CSPICTRL, mxcs->ctrl_reg | MXC_CSPICTRL_XCH);
+	/* FIFO is written, now starts the transfer setting the XCH bit */
+	reg_write(mxcs->base + MXC_CSPICTRL, mxcs->ctrl_reg |
+		MXC_CSPICTRL_EN | MXC_CSPICTRL_XCH);
 
-	while (reg_read(mxcs->base + MXC_CSPICTRL) & MXC_CSPICTRL_XCH)
+	/* Wait until the TC (Transfer completed) bit is set */
+	while ((reg_read(mxcs->base + MXC_CSPISTAT) & MXC_CSPICTRL_TC) == 0)
 		;
 
-	if (mxcs->gpio > 0 && (flags & SPI_XFER_END)) {
-		mx31_gpio_set(mxcs->gpio,
-			      !(mxcs->ctrl_reg & MXC_CSPICTRL_SSPOL));
-	}
+	/* Transfer completed, clear any pending request */
+	reg_write(mxcs->base + MXC_CSPISTAT,
+		MXC_CSPICTRL_TC | MXC_CSPICTRL_RXOVF);
 
-	return reg_read(mxcs->base + MXC_CSPIRXDATA);
+	data = reg_read(mxcs->base + MXC_CSPIRXDATA);
+	debug("SPI Rx: 0x%x\n", data);
+
+	if (flags & SPI_XFER_END)
+		spi_cs_deactivate(slave);
+
+	return data;
+
 }
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
@@ -176,7 +357,7 @@ static int decode_cs(struct mxc_spi_slave *mxcs, unsigned int cs)
 	if (cs > 3) {
 		mxcs->gpio = cs >> 8;
 		cs &= 3;
-		ret = mx31_gpio_direction(mxcs->gpio, MX31_GPIO_DIRECTION_OUT);
+		ret = mxc_gpio_direction(mxcs->gpio, OUT);
 		if (ret) {
 			printf("mxc_spi: cannot setup gpio %d\n", mxcs->gpio);
 			return -EINVAL;
@@ -210,6 +391,20 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	cs = ret;
 
+	mxcs->slave.bus = bus;
+	mxcs->slave.cs = cs;
+	mxcs->base = spi_bases[bus];
+
+#ifdef CONFIG_MX51
+	/* Can be used for i.MX31 too ? */
+	ctrl_reg = 0;
+	ret = spi_cfg(mxcs, cs, max_hz, mode);
+	if (ret) {
+		printf("mxc_spi: cannot setup SPI controller\n");
+		free(mxcs);
+		return NULL;
+	}
+#else
 	ctrl_reg = MXC_CSPICTRL_CHIPSELECT(cs) |
 		MXC_CSPICTRL_BITCOUNT(31) |
 		MXC_CSPICTRL_DATARATE(7) | /* FIXME: calculate data rate */
@@ -222,12 +417,8 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		ctrl_reg |= MXC_CSPICTRL_POL;
 	if (mode & SPI_CS_HIGH)
 		ctrl_reg |= MXC_CSPICTRL_SSPOL;
-
-	mxcs->slave.bus = bus;
-	mxcs->slave.cs = cs;
-	mxcs->base = spi_bases[bus];
 	mxcs->ctrl_reg = ctrl_reg;
-
+#endif
 	return &mxcs->slave;
 }
 
