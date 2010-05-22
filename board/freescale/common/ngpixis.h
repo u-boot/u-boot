@@ -45,7 +45,7 @@ typedef struct ngpixis {
 		u8 sw;
 		u8 en;
 	} s[8];
-} ngpixis_t  __attribute__ ((aligned(1)));
+} __attribute__ ((packed)) ngpixis_t;
 
 /* Pointer to the PIXIS register set */
 #define pixis ((ngpixis_t *)PIXIS_BASE)
