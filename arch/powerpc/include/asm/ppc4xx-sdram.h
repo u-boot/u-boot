@@ -1394,6 +1394,11 @@
 #endif /* CONFIG_SDRAM_PPC4xx_DENALI_DDR2 */
 
 #ifndef __ASSEMBLY__
+struct sdram_timing {
+	u32 wrdtr;
+	u32 clktr;
+};
+
 /*
  * Prototypes
  */
