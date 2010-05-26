@@ -95,6 +95,34 @@ static struct pci_device_id sm501_pci_tbl[] = {
 };
 #endif
 
+/*
+ * We do not enforce board code to provide empty/unused
+ * functions for this driver and define weak default
+ * functions here.
+ */
+unsigned int __board_video_init (void)
+{
+	return 0;
+}
+
+unsigned int board_video_init (void)
+			__attribute__((weak, alias("__board_video_init")));
+
+unsigned int __board_video_get_fb (void)
+{
+	return 0;
+}
+
+unsigned int board_video_get_fb (void)
+			__attribute__((weak, alias("__board_video_get_fb")));
+
+void __board_validate_screen (unsigned int base)
+{
+}
+
+void board_validate_screen (unsigned int base)
+			__attribute__((weak, alias("__board_validate_screen")));
+
 /*-----------------------------------------------------------------------------
  * video_hw_init --
  *-----------------------------------------------------------------------------
