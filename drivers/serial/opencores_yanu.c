@@ -69,7 +69,7 @@ void serial_setbrg (void)
 #else
 
 void serial_setbrg (void)
-{	
+{
 	int n, k;
 	const unsigned max_uns = 0xFFFFFFFF;
 	unsigned best_n, best_m, baud;
@@ -114,12 +114,14 @@ int serial_init (void)
 	    YANU_ACTION_RFE | YANU_ACTION_RFIFO_CLEAR | YANU_ACTION_TFIFO_CLEAR;
 
 	writel(action, &uart->action);
-	
-	/*  control register cleanup */
-	/* no interrupts enabled */
-	/* one stop bit */
-	/* hardware flow control disabled */
-	/* 8 bits */
+
+	/*
+	 * control register cleanup
+	 * no interrupts enabled
+	 * one stop bit
+	 * hardware flow control disabled
+	 * 8 bits
+	 */
 	control = (0x7 << YANU_CONTROL_BITS_POS);
 	/* enven parity just to be clean */
 	control |= YANU_CONTROL_PAREVEN;
@@ -146,7 +148,7 @@ void serial_putc (char c)
 
 	if (c == '\n')
 		serial_putc ('\r');
-	
+
 	while (1) {
 		status = readl(&uart->status);
 		tx_chars = (status>>YANU_TFIFO_CHARS_POS)
@@ -174,13 +176,13 @@ int serial_tstc(void)
 	status = readl(&uart->status);
 	return (((status >> YANU_RFIFO_CHARS_POS) &
 		 ((1 << YANU_RFIFO_CHARS_N) - 1)) > 0);
-}	
+}
 
 int serial_getc (void)
 {
 	while (serial_tstc() == 0)
 		WATCHDOG_RESET ();
-	
+
 	/* first we pull the char */
 	writel(YANU_ACTION_RFIFO_PULL, &uart->action);
 
