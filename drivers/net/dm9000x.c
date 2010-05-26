@@ -117,12 +117,12 @@ static void DM9000_iow(int reg, u8 value);
 
 /* DM9000 network board routine ---------------------------- */
 
-#define DM9000_outb(d,r) outb(d, r)
-#define DM9000_outw(d,r) outw(d, r)
-#define DM9000_outl(d,r) outl(d, r)
-#define DM9000_inb(r) inb(r)
-#define DM9000_inw(r) inw(r)
-#define DM9000_inl(r) inl(r)
+#define DM9000_outb(d,r) writeb(d, r)
+#define DM9000_outw(d,r) writew(d, r)
+#define DM9000_outl(d,r) writel(d, r)
+#define DM9000_inb(r) readb(r)
+#define DM9000_inw(r) readw(r)
+#define DM9000_inl(r) readl(r)
 
 #ifdef CONFIG_DM9000_DEBUG
 static void
