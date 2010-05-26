@@ -143,6 +143,26 @@
 #define CONFIG_SYS_M41T11_BASE_YEAR 1900 /* play along with linux	*/
 
 /*
+ * Video options
+ */
+#define CONFIG_VIDEO
+
+#ifdef CONFIG_VIDEO
+#define CONFIG_VIDEO_SM501
+#define CONFIG_VIDEO_SM501_32BPP
+#define CONFIG_VIDEO_SM501_PCI
+#define VIDEO_FB_LITTLE_ENDIAN
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_CONSOLE_EXTRA_INFO
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_SPLASH_SCREEN
+#define CFG_CONSOLE_IS_IN_ENV
+#endif
+
+/*
  * Environment
  */
 #define	CONFIG_ENV_IS_IN_FLASH	1	/* Environment uses flash	*/
@@ -171,6 +191,9 @@
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SNTP
+#ifdef CONFIG_VIDEO
+#define CONFIG_CMD_BMP
+#endif
 
 #define	CONFIG_IBM_EMAC4_V4		/* 440SPe has this EMAC version	*/
 #define CONFIG_PHY_ADDR		1	/* PHY address, See schematics	*/
