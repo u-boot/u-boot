@@ -259,7 +259,7 @@ int usb_set_interface(struct usb_device *dev, int interface, int alternate);
  */
 /* Create various pipes... */
 #define create_pipe(dev,endpoint) \
-		(((dev)->devnum << 8) | (endpoint << 15) | \
+		(((dev)->devnum << 8) | ((endpoint) << 15) | \
 		((dev)->speed << 26) | (dev)->maxpacketsize)
 #define default_pipe(dev) ((dev)->speed << 26)
 
