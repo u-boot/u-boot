@@ -16,13 +16,13 @@ while [ $# -gt 0 ] ; do
 	case "$1" in
 	--) shift ; break ;;
 	-a) shift ; APPEND=yes ;;
-	-n) shift ; BOARD_NAME="${1%%_config}" ; shift ;;
+	-n) shift ; BOARD_NAME="${1%_config}" ; shift ;;
 	-t) shift ; TARGETS="`echo $1 | sed 's:_: :g'` ${TARGETS}" ; shift ;;
 	*)  break ;;
 	esac
 done
 
-[ "${BOARD_NAME}" ] || BOARD_NAME="$1"
+[ "${BOARD_NAME}" ] || BOARD_NAME="${1%_config}"
 
 [ $# -lt 4 ] && exit 1
 [ $# -gt 6 ] && exit 1
@@ -102,7 +102,7 @@ done
 cat << EOF >> config.h
 #define CONFIG_BOARDDIR board/$BOARDDIR
 #include <config_defaults.h>
-#include <configs/$1.h>
+#include <configs/${BOARDNAME}.h>
 #include <asm/config.h>
 EOF
 
