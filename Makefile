@@ -475,8 +475,11 @@ unconfig:
 		$(obj)board/*/config.tmp $(obj)board/*/*/config.tmp \
 		$(obj)include/autoconf.mk $(obj)include/autoconf.mk.dep
 
-%: %_config
-	$(MAKE)
+%_config::	unconfig
+	@$(MKCONFIG) -A $(@:_config=)
+
+##%: %_config
+##	$(MAKE)
 
 #
 # Functions to generate common board directory names
@@ -489,50 +492,9 @@ ucname	= $(shell echo $(1) | sed -e 's/\(.*\)_config/\U\1/')
 #========================================================================
 
 #########################################################################
-## MPC5xx Systems
-#########################################################################
-
-cmi_mpc5xx_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc5xx cmi
-
-PATI_config:		unconfig
-	@$(MKCONFIG) $@ powerpc mpc5xx pati mpl
-
-#########################################################################
 ## MPC5xxx Systems
 #########################################################################
 
-# generic boards
-################
-BC3450_config	\
-canmb_config	\
-cm5200_config	\
-hmi1001_config	\
-jupiter_config	\
-inka4x0_config	\
-ipek01_config	\
-motionpro_config\
-mucmc52_config	\
-munices_config	\
-o2dnt_config	\
-uc101_config	\
-v38b_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc5xxx $(call lcname,$@)
-
-# vendor specific boards (sorted by vendor)
-###########################################
-cpci5200_config	\
-mecp5200_config	\
-pf5200_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc5xxx $(call lcname,$@) esd
-
-aev_config	\
-smmaco4_config	\
-spieval_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc5xxx tqm5200 tqc
-
-# special boards
-################
 digsy_mtc_config \
 digsy_mtc_LOWBOOT_config	\
 digsy_mtc_RAMBOOT_config:	unconfig
@@ -717,21 +679,6 @@ TQM5200_STK100_config:	unconfig
 ## MPC512x Systems
 #########################################################################
 
-# generic boards
-################
-pdm360ng_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc512x $(call lcname,$@)
-
-# vendor specific boards (sorted by vendor)
-###########################################
-aria_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc512x aria davedenx
-
-mecp5123_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc512x mecp5123 esd
-
-# special boards
-################
 mpc5121ads_config \
 mpc5121ads_rev2_config	\
 	: unconfig
@@ -745,80 +692,6 @@ mpc5121ads_rev2_config	\
 ## MPC8xx Systems
 #########################################################################
 
-# generic boards
-################
-
-c2mon_config		\
-EP88x_config		\
-ESTEEM192E_config	\
-ETX094_config		\
-FLAGADM_config		\
-GENIETV_config		\
-GTH_config		\
-hermes_config		\
-IP860_config		\
-LANTEC_config		\
-lwmon_config		\
-NX823_config		\
-quantum_config		\
-R360MPI_config		\
-RBC823_config		\
-rmu_config		\
-spc1920_config		\
-svm_sc8xx_config	\
-uc100_config	:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx $(call lcname,$@)
-
-RPXClassic_config	\
-RPXlite_config		\
-RRvision_config	:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx $(@:_config=)
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-MHPC_config:		unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx mhpc eltec
-
-TOP860_config:		unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx top860 emk
-
-kmsupx4_config	\
-mgsuvd_config	:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx km8xx keymile
-
-KUP4K_config	\
-KUP4X_config	:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx $(call lcname,$@) kup
-
-ELPT860_config:		unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx elpt860 LEOX
-
-stxxtc_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx stxxtc stx
-
-HMI10_config	\
-SM850_config	:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx tqm8xx tqc
-
-CCM_config	\
-IAD210_config	\
-pcu_e_config	:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx $(@:_config=) siemens
-
-QS823_config	\
-QS850_config	:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx qs850 snmc
-
-QS860T_config	:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx qs860t snmc
-
-AMX860_config	:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8xx amx860 westel
-
-# special boards
-################
-
 Adder87x_config \
 AdderII_config	\
 AdderUSB_config	\
@@ -828,9 +701,6 @@ Adder_config	\
 	$(if $(findstring AdderII,$@), \
 		@echo "#define CONFIG_MPC852T" > $(obj)include/config.h)
 	@$(MKCONFIG) -n $@ -a Adder powerpc mpc8xx adder
-
-cogent_mpc8xx_config:	unconfig
-	@$(MKCONFIG) $(@:_config=) powerpc mpc8xx cogent
 
 ADS860_config	  \
 FADS823_config	  \
@@ -1031,103 +901,6 @@ wtk_config:	unconfig
 ## PPC4xx Systems
 #########################################################################
 
-# generic boards
-################
-
-csb272_config	\
-csb472_config	\
-ERIC_config	\
-G2000_config	\
-JSE_config	\
-korat_config	\
-lwmon5_config	\
-ML2_config	\
-pcs440ep_config	\
-quad100hd_config\
-sbc405_config	\
-sc3_config	\
-zeus_config:	unconfig
-	@$(MKCONFIG) $@ powerpc ppc4xx $(call lcname,$@)
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-acadia_config	\
-bamboo_config	\
-bubinga_config	\
-ebony_config	\
-katmai_config	\
-luan_config	\
-makalu_config	\
-ocotea_config	\
-redwood_config	\
-taihu_config	\
-taishan_config	\
-yucca_config:	unconfig
-	@$(MKCONFIG) $@ powerpc ppc4xx $(call lcname,$@) amcc
-
-AP1000_config:unconfig
-	@$(MKCONFIG) $@ powerpc ppc4xx $(call lcname,$@) amirix
-
-ADCIOP_config	\
-APC405_config	\
-AR405_config	\
-ASH405_config	\
-CANBT_config	\
-CMS700_config	\
-CPCI2DP_config	\
-CPCIISER4_config\
-DASA_SIM_config	\
-DP405_config	\
-DU405_config	\
-DU440_config	\
-HH405_config	\
-HUB405_config	\
-PCI405_config	\
-PLU405_config	\
-PMC405_config	\
-PMC405DE_config	\
-PMC440_config	\
-VOH405_config	\
-VOM405_config	\
-WUH405_config:	unconfig
-	@$(MKCONFIG) $@ powerpc ppc4xx $(call lcname,$@) esd
-
-CRAYL1_config:	unconfig
-	@$(MKCONFIG) $@ powerpc ppc4xx L1 cray
-
-dlvision_config		\
-gdppc440etx_config	\
-neo_config	:	unconfig
-	@$(MKCONFIG) $@ powerpc ppc4xx $(call lcname,$@) gdsys
-
-icon_config:	unconfig
-	@$(MKCONFIG) $@ powerpc ppc4xx $(call lcname,$@) mosaixtech
-
-MIP405_config	\
-PIP405_config:	unconfig
-	@$(MKCONFIG) $@ powerpc ppc4xx $(call lcname,$@) mpl
-
-hcu4_config	\
-hcu5_config	\
-mcu25_config:  unconfig
-	@mkdir -p $(obj)board/netstal/common
-	@$(MKCONFIG) $@ powerpc ppc4xx $(call lcname,$@) netstal
-
-alpr_config	\
-p3p440_config:	unconfig
-	@$(MKCONFIG) $@ powerpc ppc4xx $(call lcname,$@) prodrive
-
-KAREF_config	\
-METROBOX_config: unconfig
-	@$(MKCONFIG) $@ powerpc ppc4xx $(call lcname,$@) sandburst
-
-XPEDITE1000_config:	unconfig
-	@$(MKCONFIG) $@ powerpc ppc4xx $(call lcname,$@) xes
-
-# special boards
-################
-
 acadia_nand_config:	unconfig
 	@mkdir -p $(obj)include $(obj)board/amcc/acadia
 	@mkdir -p $(obj)nand_spl/board/amcc/acadia
@@ -1208,6 +981,12 @@ devconcenter_config:	unconfig
 	@echo "#define CONFIG_$$(echo $(subst ,,$(@:_config=)) | \
 		tr '[:lower:]' '[:upper:]')" >$(obj)include/config.h
 	@$(MKCONFIG) -n $@ -a intip powerpc ppc4xx intip gdsys
+
+hcu4_config    \
+hcu5_config    \
+mcu25_config:  unconfig
+	@mkdir -p $(obj)board/netstal/common
+	@$(MKCONFIG) $@ powerpc ppc4xx $(call lcname,$@) netstal
 
 # Kilauea & Haleakala images are identical (recognized via PVR)
 kilauea_config \
@@ -1367,47 +1146,9 @@ yellowstone_config: unconfig
 	@$(MKCONFIG) -n $@ -a yosemite powerpc ppc4xx yosemite amcc
 
 #########################################################################
-## MPC8220 Systems
-#########################################################################
-
-# generic boards
-################
-sorcery_config:		unconfig
-	@$(MKCONFIG) $@ powerpc mpc8220 $(call lcname,$@)
-
-Alaska8220_config	\
-Yukon8220_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8220 alaska
-
-#########################################################################
 ## MPC824x Systems
 #########################################################################
 
-# generic boards
-################
-A3000_config	\
-barco_config	\
-BMW_config	\
-CU824_config	\
-HIDDEN_DRAGON_config \
-MOUSSE_config	\
-MUSENKI_config	\
-MVBLUE_config	\
-OXC_config	\
-PN62_config	\
-sbc8240_config	\
-utx8245_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc824x $(call lcname,$@)
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-debris_config	\
-kvme080_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc824x $(call lcname,$@) etin
-
-# special boards
-################
 eXalion_config: unconfig
 	@$(MKCONFIG) $(@:_config=) powerpc mpc824x eXalion
 
@@ -1443,41 +1184,6 @@ Sandpoint8245_config: unconfig
 #########################################################################
 ## MPC8260 Systems
 #########################################################################
-
-# generic boards
-################
-atc_config		\
-ep8260_config		\
-ep82xxm_config		\
-gw8260_config		\
-hymod_config		\
-IDS8247_config		\
-IPHASE4539_config	\
-ppmc8260_config		\
-RPXsuper_config		\
-rsdproto_config		\
-sacsng_config		\
-sbc8260_config		\
-ZPC1900_config:		unconfig
-	@$(MKCONFIG) $@ powerpc mpc8260 $(call lcname,$@)
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-MPC8266ADS_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8260 $(call lcname,$@) freescale
-
-mgcoge_config	:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc8260 $(call lcname,$@) keymile
-
-SCM_config:		unconfig
-	@$(MKCONFIG) $@ powerpc mpc8260 $(call ucname,$@) siemens
-
-TQM8272_config: unconfig
-	@$(MKCONFIG) TQM8272 powerpc mpc8260 $(call lcname,$@) tqc
-
-# special boards
-################
 
 cogent_mpc8260_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) powerpc mpc8260 cogent
@@ -1660,35 +1366,6 @@ VoVPN-GW_100MHz_config:		unconfig
 #########################################################################
 ## Coldfire
 #########################################################################
-
-# generic boards
-################
-
-idmr_config:		unconfig
-	@$(MKCONFIG) $@ m68k mcf52x2 $(call lcname,$@)
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-TASREG_config :		unconfig
-	@$(MKCONFIG) $@ m68k mcf52x2 $(call lcname,$@) esd
-
-M5208EVBE_config	\
-M5249EVB_config		\
-M5253DEMO_config	\
-M5253EVBE_config	\
-M5271EVB_config		\
-M5272C3_config		\
-M5275EVB_config		\
-M5282EVB_config		\
-M53017EVB_config:	unconfig
-	@$(MKCONFIG) $@ m68k mcf52x2 $(call lcname,$@) freescale
-
-EP2500_config	:	unconfig
-	@$(MKCONFIG) $@ m68k mcf52x2 $(call lcname,$@) Mercury
-
-# special boards
-################
 
 astro_mcf5373l_config \
 astro_mcf5373l_RAM_config :	unconfig
@@ -1896,29 +1573,6 @@ M5485HFE_config :	unconfig
 ## MPC83xx Systems
 #########################################################################
 
-# generic boards
-################
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-MPC8323ERDB_config	\
-MPC8349EMDS_config	\
-MPC837XERDB_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc83xx $(call lcname,$@) freescale
-
-kmeter1_config: unconfig
-	@$(MKCONFIG) $@ powerpc mpc83xx $(call lcname,$@) keymile
-
-MVBLM7_config: unconfig
-	@$(MKCONFIG) $@ powerpc mpc83xx $(call lcname,$@) matrix_vision
-
-TQM834x_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc83xx $(call lcname,$@) tqc
-
-# special boards
-################
-
 MPC8313ERDB_33_config \
 MPC8313ERDB_66_config \
 MPC8313ERDB_NAND_33_config \
@@ -2055,33 +1709,6 @@ vme8349_config:		unconfig
 ## MPC85xx Systems
 #########################################################################
 
-# generic boards
-################
-
-ATUM8548_config		\
-PM854_config		\
-PM856_config		\
-socrates_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc85xx $(call lcname,$@)
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-MPC8540ADS_config	\
-MPC8560ADS_config	\
-MPC8544DS_config	\
-MPC8568MDS_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc85xx $(call lcname,$@) freescale
-
-stxgp3_config:		unconfig
-	@$(MKCONFIG) $@ powerpc mpc85xx $(call lcname,$@) stx
-
-XPEDITE5200_config	\
-XPEDITE5370_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc85xx $(call lcname,$@) xes
-
-# special boards
-################
 MPC8536DS_NAND_config \
 MPC8536DS_SDCARD_config \
 MPC8536DS_SPIFLASH_config \
@@ -2204,24 +1831,6 @@ TQM8560_config:		unconfig
 ## MPC86xx Systems
 #########################################################################
 
-# generic boards
-################
-
-sbc8641d_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc86xx $(call lcname,$@)
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-MPC8610HPCD_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc86xx $(call lcname,$@) freescale
-
-XPEDITE5170_config:	unconfig
-	@$(MKCONFIG) $@ powerpc mpc86xx $(call lcname,$@) xes
-
-# special boards
-################
-
 MPC8641HPCN_36BIT_config \
 MPC8641HPCN_config:    unconfig
 	@mkdir -p $(obj)include
@@ -2234,41 +1843,9 @@ MPC8641HPCN_config:    unconfig
 ## 74xx/7xx Systems
 #########################################################################
 
-# generic boards
-################
-
-ppmc7xx_config: unconfig
-	@$(MKCONFIG) $@ powerpc 74xx_7xx $(call lcname,$@)
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-BAB7xx_config	\
-ELPPC_config:	unconfig
-	@$(MKCONFIG) $@ powerpc 74xx_7xx $(call lcname,$@) eltec
-
-CPCI750_config:	unconfig
-	@$(MKCONFIG) $@ powerpc 74xx_7xx $(call lcname,$@) esd
-
-mpc7448hpc2_config:  unconfig
-	@$(MKCONFIG) $@ powerpc 74xx_7xx $(call lcname,$@) freescale
-
-AmigaOneG3SE_config:	unconfig
-	@$(MKCONFIG) $@ powerpc 74xx_7xx $(@:_config=) MAI
-
-DB64360_config	\
-DB64460_config:	unconfig
-	@$(MKCONFIG) $@ powerpc 74xx_7xx $(call lcname,$@) Marvell
-
-# special boards
-################
-
 EVB64260_config	\
 EVB64260_750CX_config:	unconfig
 	@$(MKCONFIG) -n $@ EVB64260 powerpc 74xx_7xx evb64260
-
-P3G4_config: unconfig
-	@$(MKCONFIG) $@ powerpc 74xx_7xx evb64260
 
 p3m750_config	\
 p3m7448_config:		unconfig
@@ -2284,99 +1861,13 @@ PCIPPC2_config \
 PCIPPC6_config: unconfig
 	@$(MKCONFIG) -n $@ $@ powerpc 74xx_7xx pcippc2
 
-ZUMA_config:	unconfig
-	@$(MKCONFIG) $@ powerpc 74xx_7xx evb64260
-
 #========================================================================
 # ARM
 #========================================================================
-#########################################################################
-## StrongARM Systems
-#########################################################################
-
-# generic boards
-################
-assabet_config	\
-dnp1110_config	\
-gcplus_config	\
-lart_config	\
-shannon_config	:	unconfig
-	@$(MKCONFIG) $@ arm sa1100 $(call lcname,$@)
-
-#########################################################################
-## ARM92xT Systems
-#########################################################################
-
-# generic boards
-################
-
-edb9301_config \
-edb9302_config \
-edb9302a_config \
-edb9307_config \
-edb9307a_config \
-edb9312_config \
-edb9315_config \
-edb9315a_config: unconfig
-	@$(MKCONFIG) -n $@ -t $@ edb93xx arm arm920t edb93xx NULL ep93xx
-
-mx1ads_config	\
-mx1fs2_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm920t $(call lcname,$@) NULL imx
-
-sbc2410x_config: unconfig
-	@$(MKCONFIG) $@ arm arm920t $(call lcname,$@) NULL s3c24x0
-
-scb9328_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm920t $(call lcname,$@) NULL imx
-
-cm4008_config	\
-cm41xx_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm920t $(call lcname,$@) NULL ks8695
-
-netstar_config		\
-voiceblue_config:	unconfig
-	@$(MKCONFIG) $@ arm arm925t $(call lcname,$@)
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-a320evb_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm920t $(call lcname,$@) faraday a320
-
-smdk2400_config		\
-smdk2410_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm920t $(call lcname,$@) samsung s3c24x0
 
 #########################################################################
 ## Atmel AT91RM9200 Systems
 #########################################################################
-
-# generic boards
-################
-
-cmc_pu2_config	\
-csb637_config	\
-kb9202_config	\
-m501sk_config	\
-mp2usb_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm920t $(call lcname,$@) NULL at91rm9200
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-at91rm9200dk_config	\
-at91rm9200ek_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm920t $(call lcname,$@) atmel at91rm9200
-
-eb_cpux9k2_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm920t $(call lcname,$@) BuS at91
-
-omap1510inn_config :	unconfig
-	@$(MKCONFIG) $@ arm arm925t $(call lcname,$@) ti
-
-# special boards
-################
 
 CPUAT91_RAM_config \
 CPUAT91_config	:	unconfig
@@ -2387,42 +1878,6 @@ CPUAT91_config	:	unconfig
 #########################################################################
 ## ARM926EJ-S Systems
 #########################################################################
-
-# generic boards
-################
-
-afeb9260_config:	unconfig
-	@$(MKCONFIG) $@ arm arm926ejs $(call lcname,$@) NULL at91
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-at91cap9adk_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm926ejs $(call lcname,$@) atmel at91
-
-meesc_config	\
-otc570_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm926ejs $(call lcname,$@) esd at91
-
-guruplug_config		\
-mv88f6281gtw_ge_config	\
-openrd_base_config	\
-rd6281a_config		\
-sheevaplug_config:	unconfig
-	@$(MKCONFIG) $@ arm arm926ejs $(call lcname,$@) Marvell kirkwood
-
-VCMA9_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm920t $(call lcname,$@) mpl s3c24x0
-
-pm9261_config	\
-pm9263_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm926ejs $(call lcname,$@) ronetix at91
-
-omap5912osk_config :	unconfig
-	@$(MKCONFIG) $@ arm arm926ejs $(call lcname,$@) ti omap
-
-# special boards
-################
 
 at91sam9260ek_nandflash_config \
 at91sam9260ek_dataflash_cs0_config \
@@ -2599,14 +2054,6 @@ davinci_dm6467evm_config	:	unconfig
 	@$(MKCONFIG) -n $@ $@ arm arm926ejs \
 		$(subst davinci_,,$(@:_config=)) davinci davinci
 
-magnesium_config	\
-imx27lite_config:	unconfig
-	@$(MKCONFIG) $@ arm arm926ejs imx27lite logicpd mx27
-
-lpd7a400_config \
-lpd7a404_config:	unconfig
-	@$(MKCONFIG) $@ arm lh7a40x lpd7a40x
-
 nhk8815_config \
 nhk8815_onenand_config:	unconfig
 	@mkdir -p $(obj)include
@@ -2655,9 +2102,6 @@ spear320_config :	unconfig
 spear600_config :	unconfig
 	@$(MKCONFIG) -n $@ -t $@ spear6xx arm arm926ejs $(@:_config=) spear spear
 
-suen3_config:	unconfig
-	@$(MKCONFIG) $@ arm arm926ejs km_arm keymile kirkwood
-
 SX1_stdout_serial_config \
 SX1_config:		unconfig
 	@mkdir -p $(obj)include
@@ -2689,11 +2133,21 @@ trab_old_config:	unconfig
 		  echo "#define CONFIG_RAM_16MB"   >>$(obj)include/config.h ; \
 		  echo "TEXT_BASE = 0x0CF40000" >$(obj)board/trab/config.tmp ; \
 		}
-	@$(MKCONFIG) -n $@ -a trab arm arm920t trab NULL s3c24x0
+	@$(MKCONFIG) -n $@ -a trab arm arm920t trab - s3c24x0
 
 tx25_config	: unconfig
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 	@$(MKCONFIG) $@ arm arm926ejs tx25 karo mx25
+
+edb9301_config \
+edb9302_config \
+edb9302a_config \
+edb9307_config \
+edb9307a_config \
+edb9312_config \
+edb9315_config \
+edb9315a_config: unconfig
+	@$(MKCONFIG) -n $@ -t $(@:_config=) edb93xx arm arm920t edb93xx - ep93xx
 
 #########################################################################
 # ARM supplied Versatile development boards
@@ -2705,103 +2159,8 @@ versatilepb_config :	unconfig
 	@board/armltd/versatile/split_by_variant.sh $@
 
 #########################################################################
-## S3C44B0 Systems
-#########################################################################
-
-B2_config	:	unconfig
-	@$(MKCONFIG) $@ arm s3c44b0 $(call ucname,$@) dave
-
-#########################################################################
-## ARM720T Systems
-#########################################################################
-
-# generic boards
-################
-
-armadillo_config	\
-ep7312_config		\
-impa7_config		\
-modnet50_config :	unconfig
-	@$(MKCONFIG) $@ arm arm720t $(call lcname,$@)
-
-evb4510_config :	unconfig
-	@$(MKCONFIG) $@ arm arm720t $(call lcname,$@) NULL s3c4510b
-
-lpc2292sodimm_config:	unconfig
-	@$(MKCONFIG) $@ arm arm720t $(call lcname,$@) NULL lpc2292
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-SMN42_config	:	unconfig
-	@$(MKCONFIG) $@ arm arm720t $(call ucname,$@) siemens lpc2292
-
-#########################################################################
-## ARM CORTEX Systems
-#########################################################################
-omapname = $(shell echo $(1) | sed -e 's/omap[0-9]_//' -e 's/\(.*\)_config/\L\1/')
-
-# generic boards
-################
-
-omap3_overo_config	\
-omap3_pandora_config :	unconfig
-	@$(MKCONFIG) $@ arm arm_cortexa8 $(call omapname,$@) NULL omap3
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-mx51evk_config	: unconfig
-	@$(MKCONFIG) $@ arm arm_cortexa8 $(call lcname,$@) freescale mx51
-
-omap3_zoom1_config	\
-omap3_zoom2_config :	unconfig
-	@$(MKCONFIG) $@ arm arm_cortexa8 $(call omapname,$@) logicpd omap3
-
-smdkc100_config:	unconfig
-	@$(MKCONFIG) $@ arm arm_cortexa8 $(call lcname,$@) samsung s5pc1xx
-
-omap3_beagle_config	\
-omap3_evm_config	\
-omap3_sdp3430_config :	unconfig
-	@$(MKCONFIG) $@ arm arm_cortexa8 $(call omapname,$@) ti omap3
-
-devkit8000_config :	unconfig
-	@$(MKCONFIG) $@ arm arm_cortexa8 $(call lcname,$@) timll omap3
-
-#########################################################################
 ## XScale Systems
 #########################################################################
-
-# generic boards
-################
-
-actux1_config	\
-actux2_config	\
-actux3_config	\
-actux4_config	\
-ixdp425_config	\
-ixdpg425_config	:	unconfig
-	@$(MKCONFIG) $@ arm ixp $(call lcname,$@)
-
-cerf250_config	\
-cradle_config	\
-csb226_config	\
-delta_config	\
-innokom_config	\
-lubbock_config	\
-pleb2_config	\
-logodl_config	\
-pxa255_idp_config \
-wepep250_config	\
-xaeniax_config	\
-xm250_config	\
-xsengine_config \
-zylonite_config :
-	@$(MKCONFIG) $@ arm pxa $(call lcname,$@)
-
-# special boards
-################
 
 pdnb3_config \
 scpu_config:	unconfig
@@ -2823,32 +2182,11 @@ trizepsiv_config	:	unconfig
 ## ARM1136 Systems
 #########################################################################
 
-# generic boards
-################
-
-# vendor specific boards (sorted by vendor)
-###########################################
-
-qong_config		: unconfig
-	@$(MKCONFIG) $@ arm arm1136 $(call lcname,$@) davedenx mx31
-
-mx31ads_config		: unconfig
-	@$(MKCONFIG) $@ arm arm1136 $(call lcname,$@) freescale mx31
-
-imx31_litekit_config	: unconfig
-	@$(MKCONFIG) $@ arm arm1136 $(call lcname,$@) logicpd mx31
-
-omap2420h4_config	: unconfig
-	@$(MKCONFIG) $@ arm arm1136 $(call lcname,$@) ti omap24xx
-
-# special boards
-################
-
 apollon_config		: unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_ONENAND_U_BOOT" > $(obj)include/config.h
 	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk
-	@$(MKCONFIG) $@ arm arm1136 apollon NULL omap24xx
+	@$(MKCONFIG) $@ arm arm1136 apollon - omap24xx
 
 imx31_phycore_eet_config \
 imx31_phycore_config	: unconfig
@@ -2856,7 +2194,7 @@ imx31_phycore_config	: unconfig
 	@if [ -n "$(findstring _eet_,$@)" ]; then			\
 		echo "#define CONFIG_IMX31_PHYCORE_EET" >> $(obj)include/config.h;	\
 	fi
-	@$(MKCONFIG) -n $@ -a imx31_phycore arm arm1136 imx31_phycore NULL mx31
+	@$(MKCONFIG) -n $@ -a imx31_phycore arm arm1136 imx31_phycore - mx31
 
 mx31pdk_config \
 mx31pdk_nand_config	: unconfig
@@ -2886,37 +2224,11 @@ smdk6400_config	:	unconfig
 	@$(MKCONFIG) $(subst _noUSB,,$(@:_config=)) arm arm1176 smdk6400 samsung s3c64xx
 
 #========================================================================
-# i386
-#========================================================================
-#########################################################################
-## AMD SC520 CDP
-#########################################################################
-
-# generic boards
-################
-eNET_config		\
-sc520_cdp_config	\
-sc520_spunk_config	:	unconfig
-	@$(MKCONFIG) $@ i386 i386 $(call lcname,$@) NULL sc520
-
-sc520_spunk_rel_config	:	unconfig
-	@$(MKCONFIG) $@ i386 i386 sc520_spunk NULL sc520
-
-#========================================================================
 # MIPS
 #========================================================================
 #########################################################################
 ## MIPS32 4Kc
 #########################################################################
-
-# generic boards
-################
-
-tb0229_config: unconfig
-	@$(MKCONFIG) $@ mips mips $(call lcname,$@)
-
-# special boards
-################
 
 incaip_100MHz_config	\
 incaip_133MHz_config	\
@@ -3000,13 +2312,6 @@ qemu_mips_config	: unconfig
 	@echo "#define CONFIG_QEMU_MIPS 1" >$(obj)include/config.h
 	@$(MKCONFIG) -a qemu-mips mips mips qemu-mips
 
-#########################################################################
-## MIPS64 5Kc
-#########################################################################
-
-purple_config :		unconfig
-	@$(MKCONFIG) $@ mips mips purple
-
 #========================================================================
 # Nios
 #========================================================================
@@ -3015,18 +2320,6 @@ purple_config :		unconfig
 ## Nios-II
 #########################################################################
 
-# vendor specific boards (sorted by vendor)
-###########################################
-
-EP1C20_config	\
-EP1S10_config	\
-EP1S40_config	: unconfig
-	@$(MKCONFIG) $@ nios2 nios2 $(call lcname,$@) altera
-
-PK1C20_config	\
-PCI5441_config	: unconfig
-	@$(MKCONFIG) $@ nios2 nios2 $(call lcname,$@) psyent
-
 # nios2 generic boards
 NIOS2_GENERIC = nios2-generic
 
@@ -3034,58 +2327,12 @@ $(NIOS2_GENERIC:%=%_config) : unconfig
 	@$(MKCONFIG) $@ nios2 nios2 nios2-generic altera
 
 #========================================================================
-## Microblaze
-#========================================================================
-
-microblaze-generic_config:	unconfig
-	@$(MKCONFIG) $@ microblaze microblaze microblaze-generic xilinx
-
-#========================================================================
 # Blackfin
 #========================================================================
-
-# Analog Devices boards
-BFIN_BOARDS = bf518f-ezbrd bf526-ezbrd bf527-ezkit bf533-ezkit bf533-stamp \
-	bf537-pnav bf537-stamp bf538f-ezkit bf548-ezkit bf561-ezkit
-
-# Bluetechnix tinyboards
-BFIN_BOARDS += cm-bf527 cm-bf533 cm-bf537e cm-bf537u cm-bf548 cm-bf561 \
-	tcm-bf518 tcm-bf537
-
-# Misc third party boards
-BFIN_BOARDS += bf537-minotaur bf537-srv1 bf561-acvilon blackstamp ip04
-
-# I-SYST Micromodule
-BFIN_BOARDS += ibf-dsp561
-
-$(BFIN_BOARDS:%=%_config)	: unconfig
-	@$(MKCONFIG) $@ blackfin blackfin $(@:_config=)
 
 bf527-ezkit-v2_config	: unconfig
 	@$(MKCONFIG) -t BF527_EZKIT_REV_2_1 \
 		bf527-ezkit blackfin blackfin bf527-ezkit
-
-#========================================================================
-# AVR32
-#========================================================================
-
-atngw100_config	:	unconfig
-	@$(MKCONFIG) $@ avr32 at32ap atngw100 atmel at32ap700x
-
-atstk1002_config	\
-atstk1003_config	\
-atstk1004_config	\
-atstk1006_config	:	unconfig
-	@$(MKCONFIG) $@ avr32 at32ap atstk1000 atmel at32ap700x
-
-favr-32-ezkit_config	:	unconfig
-	@$(MKCONFIG) $@ avr32 at32ap favr-32-ezkit earthlcd at32ap700x
-
-hammerhead_config	:	unconfig
-	@$(MKCONFIG) $@ avr32 at32ap hammerhead miromico at32ap700x
-
-mimc200_config		:	unconfig
-	@$(MKCONFIG) $@ avr32 at32ap mimc200 mimc at32ap700x
 
 #========================================================================
 # SH3 (SuperH)
@@ -3169,28 +2416,6 @@ espt_config  :   unconfig
 	@echo "#define CONFIG_ESPT 1" > $(obj)include/config.h
 	@$(MKCONFIG) -a $@ sh sh4 espt
 
-#========================================================================
-# SPARC
-#========================================================================
-
-#########################################################################
-## LEON2
-#########################################################################
-
-grsim_leon2_config : unconfig
-	@$(MKCONFIG) $@ sparc leon2 $(call lcname,$@) gaisler
-
-#########################################################################
-## LEON3
-#########################################################################
-
-gr_xc3s_1500_config	\
-gr_cpci_ax2000_config	\
-gr_ep2s60_config	\
-grsim_config	:	unconfig
-	@$(MKCONFIG) $@ sparc leon3 $(call lcname,$@) gaisler
-
-#########################################################################
 #########################################################################
 #########################################################################
 
