@@ -31,10 +31,6 @@
 #  error "Configuration error: CONFIG_HW_WATCHDOG and CONFIG_WATCHDOG can't be used together."
 #endif
 
-#if defined(__ASSEMBLY__) && defined(__NIOS__)
-#  error "Configuration error: WATCHDOG_RESET inside assembler not supported for Nios platforms."
-#endif
-
 /*
  * Hardware watchdog
  */

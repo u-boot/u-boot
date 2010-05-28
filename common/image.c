@@ -84,7 +84,6 @@ static table_entry_t uimage_arch[] = {
 	{	IH_ARCH_MICROBLAZE,	"microblaze",	"MicroBlaze",	},
 	{	IH_ARCH_MIPS,		"mips",		"MIPS",		},
 	{	IH_ARCH_MIPS64,		"mips64",	"MIPS 64 Bit",	},
-	{	IH_ARCH_NIOS,		"nios",		"NIOS",		},
 	{	IH_ARCH_NIOS2,		"nios2",	"NIOS II",	},
 	{	IH_ARCH_PPC,		"powerpc",	"PowerPC",	},
 	{	IH_ARCH_PPC,		"ppc",		"PowerPC",	},

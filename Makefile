@@ -3462,68 +3462,6 @@ purple_config :		unconfig
 #========================================================================
 # Nios
 #========================================================================
-#########################################################################
-## Nios32
-#########################################################################
-
-ADNPESC1_DNPEVA2_base_32_config	\
-ADNPESC1_base_32_config		\
-ADNPESC1_config: unconfig
-	@mkdir -p $(obj)include
-	@[ -z "$(findstring _DNPEVA2,$@)" ] || \
-		{ echo "#define CONFIG_DNPEVA2 1" >>$(obj)include/config.h ; \
-		  $(XECHO) "... DNP/EVA2 configuration" ; \
-		}
-	@[ -z "$(findstring _base_32,$@)" ] || \
-		{ echo "#define CONFIG_NIOS_BASE_32 1" >>$(obj)include/config.h ; \
-		  $(XECHO) "... NIOS 'base_32' configuration" ; \
-		}
-	@[ -z "$(findstring ADNPESC1_config,$@)" ] || \
-		{ echo "#define CONFIG_NIOS_BASE_32 1" >>$(obj)include/config.h ; \
-		  $(XECHO) "... NIOS 'base_32' configuration (DEFAULT)" ; \
-		}
-	@$(MKCONFIG) -a ADNPESC1 nios nios adnpesc1 ssv
-
-DK1C20_safe_32_config		\
-DK1C20_standard_32_config	\
-DK1C20_config:	unconfig
-	@mkdir -p $(obj)include
-	@[ -z "$(findstring _safe_32,$@)" ] || \
-		{ echo "#define CONFIG_NIOS_SAFE_32 1" >>$(obj)include/config.h ; \
-		  $(XECHO) "... NIOS 'safe_32' configuration" ; \
-		}
-	@[ -z "$(findstring _standard_32,$@)" ] || \
-		{ echo "#define CONFIG_NIOS_STANDARD_32 1" >>$(obj)include/config.h ; \
-		  $(XECHO) "... NIOS 'standard_32' configuration" ; \
-		}
-	@[ -z "$(findstring DK1C20_config,$@)" ] || \
-		{ echo "#define CONFIG_NIOS_STANDARD_32 1" >>$(obj)include/config.h ; \
-		  $(XECHO) "... NIOS 'standard_32' configuration (DEFAULT)" ; \
-		}
-	@$(MKCONFIG) -a DK1C20 nios nios dk1c20 altera
-
-DK1S10_safe_32_config		\
-DK1S10_standard_32_config	\
-DK1S10_mtx_ldk_20_config	\
-DK1S10_config:	unconfig
-	@mkdir -p $(obj)include
-	@[ -z "$(findstring _safe_32,$@)" ] || \
-		{ echo "#define CONFIG_NIOS_SAFE_32 1" >>$(obj)include/config.h ; \
-		  $(XECHO) "... NIOS 'safe_32' configuration" ; \
-		}
-	@[ -z "$(findstring _standard_32,$@)" ] || \
-		{ echo "#define CONFIG_NIOS_STANDARD_32 1" >>$(obj)include/config.h ; \
-		  $(XECHO) "... NIOS 'standard_32' configuration" ; \
-		}
-	@[ -z "$(findstring _mtx_ldk_20,$@)" ] || \
-		{ echo "#define CONFIG_NIOS_MTX_LDK_20 1" >>$(obj)include/config.h ; \
-		  $(XECHO) "... NIOS 'mtx_ldk_20' configuration" ; \
-		}
-	@[ -z "$(findstring DK1S10_config,$@)" ] || \
-		{ echo "#define CONFIG_NIOS_STANDARD_32 1" >>$(obj)include/config.h ; \
-		  $(XECHO) "... NIOS 'standard_32' configuration (DEFAULT)" ; \
-		}
-	@$(MKCONFIG) -a DK1S10 nios nios dk1s10 altera
 
 #########################################################################
 ## Nios-II

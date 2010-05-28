@@ -842,22 +842,6 @@ Stefan Roese <sr@denx.de>
 	vct_xxx		MIPS32 4Kc
 
 #########################################################################
-# Nios-32 Systems:							#
-#									#
-# Maintainer Name, Email Address					#
-#	Board		CPU						#
-#########################################################################
-
-Stephan Linz <linz@li-pro.net>
-
-	DK1S10		Nios-32
-	ADNPESC1	Nios-32
-
-Scott McNutt <smcnutt@psyent.com>
-
-	DK1C20		Nios-32
-
-#########################################################################
 # Nios-II Systems:							#
 #									#
 # Maintainer Name, Email Address					#

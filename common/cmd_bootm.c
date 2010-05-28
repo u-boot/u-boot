@@ -174,8 +174,6 @@ void arch_preboot_os(void) __attribute__((weak, alias("__arch_preboot_os")));
   #define IH_INITRD_ARCH IH_ARCH_MICROBLAZE
 #elif defined(__mips__)
   #define IH_INITRD_ARCH IH_ARCH_MIPS
-#elif defined(__nios__)
-  #define IH_INITRD_ARCH IH_ARCH_NIOS
 #elif defined(__nios2__)
   #define IH_INITRD_ARCH IH_ARCH_NIOS2
 #elif defined(__PPC__)
