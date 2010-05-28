@@ -185,8 +185,19 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 	struct fec_info_s *info = (struct fec_info_s *)dev->priv;
 
 	if (setclear) {
+#ifdef CONFIG_SYS_FEC_NO_SHARED_PHY
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+			gpio->par_feci2c |=
+			    (GPIO_PAR_FECI2C_MDC0_MDC0 |
+			     GPIO_PAR_FECI2C_MDIO0_MDIO0);
+		else
+			gpio->par_feci2c |=
+			    (GPIO_PAR_FECI2C_MDC1_MDC1 |
+			     GPIO_PAR_FECI2C_MDIO1_MDIO1);
+#else
 		gpio->par_feci2c |=
 		    (GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
+#endif
 
 		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
 			gpio->par_fec |= GPIO_PAR_FEC_FEC0_RMII_GPIO;
@@ -196,10 +207,19 @@ int fecpin_setclear(struct eth_device *dev, int setclear)
 		gpio->par_feci2c &=
 		    ~(GPIO_PAR_FECI2C_MDC0_MDC0 | GPIO_PAR_FECI2C_MDIO0_MDIO0);
 
-		if (info->iobase == CONFIG_SYS_FEC0_IOBASE)
+		if (info->iobase == CONFIG_SYS_FEC0_IOBASE) {
+#ifdef CONFIG_SYS_FEC_FULL_MII
+			gpio->par_fec |= GPIO_PAR_FEC_FEC0_MII;
+#else
 			gpio->par_fec &= GPIO_PAR_FEC_FEC0_UNMASK;
-		else
+#endif
+		} else {
+#ifdef CONFIG_SYS_FEC_FULL_MII
+			gpio->par_fec |= GPIO_PAR_FEC_FEC1_MII;
+#else
 			gpio->par_fec &= GPIO_PAR_FEC_FEC1_UNMASK;
+#endif
+		}
 	}
 	return 0;
 }
@@ -238,6 +258,10 @@ int cfspi_claim_bus(uint bus, uint cs)
 		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS2_PCS2;
 		gpio->par_dspi |= GPIO_PAR_DSPI_PCS2_PCS2;
 		break;
+	case 3:
+		gpio->par_dma &= GPIO_PAR_DMA_DACK0_UNMASK;
+		gpio->par_dma |= GPIO_PAR_DMA_DACK0_PCS3;
+		break;
 	case 5:
 		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS5_PCS5;
 		gpio->par_dspi |= GPIO_PAR_DSPI_PCS5_PCS5;
@@ -263,6 +287,9 @@ void cfspi_release_bus(uint bus, uint cs)
 		break;
 	case 2:
 		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS2_PCS2;
+		break;
+	case 3:
+		gpio->par_dma &= GPIO_PAR_DMA_DACK0_UNMASK;
 		break;
 	case 5:
 		gpio->par_dspi &= ~GPIO_PAR_DSPI_PCS5_PCS5;
