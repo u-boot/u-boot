@@ -63,10 +63,10 @@
  * STATUS LED
  */
 #define CONFIG_STATUS_LED		/* Enable status driver */
-#define CONFIG_EPLED			/* Enable LED PIO driver */
-#define CONFIG_SYS_LEDPIO_ADDR		LED_PIO_BASE
+#define CONFIG_GPIO_LED		/* Enable GPIO LED driver */
+#define CONFIG_GPIO			/* Enable GPIO driver */
 
-#define STATUS_LED_BIT			1	/* Bit-0 on PIO */
+#define STATUS_LED_BIT			0	/* Bit-0 on GPIO */
 #define STATUS_LED_STATE		1	/* Blinking */
 #define STATUS_LED_PERIOD	(500 / CONFIG_SYS_NIOS_TMRMS) /* 500 msec */
 

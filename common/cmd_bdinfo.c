@@ -119,25 +119,6 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-#elif defined(CONFIG_NIOS) /* NIOS*/
-
-int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
-{
-	bd_t *bd = gd->bd;
-
-	print_num ("memstart",		(ulong)bd->bi_memstart);
-	print_lnum ("memsize",		(u64)bd->bi_memsize);
-	print_num ("flashstart",	(ulong)bd->bi_flashstart);
-	print_num ("flashsize",		(ulong)bd->bi_flashsize);
-	print_num ("flashoffset",	(ulong)bd->bi_flashoffset);
-
-	print_eth(0);
-	printf ("ip_addr     = %pI4\n", &bd->bi_ip_addr);
-	printf ("baudrate    = %ld bps\n", bd->bi_baudrate);
-
-	return 0;
-}
-
 #elif defined(CONFIG_NIOS2) /* Nios-II */
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])

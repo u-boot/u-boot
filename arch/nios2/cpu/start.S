@@ -113,13 +113,6 @@ _cur:	movhi	r5, %hi(_cur - _start)
 	 bne	r5, r6, 4b
 5:
 
-	/* GLOBAL POINTER -- the global pointer is used to reference
-	 * "small data" (see -G switch). The linker script must
-	 * provide the gp address.
-	 */
-	 movhi	gp, %hi(_gp)
-	 ori	gp, gp, %lo(_gp)
-
 	/* JUMP TO RELOC ADDR */
 	movhi	r4, %hi(_reloc)
 	ori	r4, r4, %lo(_reloc)

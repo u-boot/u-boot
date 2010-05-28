@@ -100,7 +100,6 @@
 #define IH_ARCH_SPARC		10	/* Sparc	*/
 #define IH_ARCH_SPARC64		11	/* Sparc 64 Bit */
 #define IH_ARCH_M68K		12	/* M68K		*/
-#define IH_ARCH_NIOS		13	/* Nios-32	*/
 #define IH_ARCH_MICROBLAZE	14	/* MicroBlaze   */
 #define IH_ARCH_NIOS2		15	/* Nios-II	*/
 #define IH_ARCH_BLACKFIN	16	/* Blackfin	*/
@@ -493,8 +492,6 @@ static inline int image_check_target_arch (const image_header_t *hdr)
 	if (!image_check_arch (hdr, IH_ARCH_MICROBLAZE))
 #elif defined(__mips__)
 	if (!image_check_arch (hdr, IH_ARCH_MIPS))
-#elif defined(__nios__)
-	if (!image_check_arch (hdr, IH_ARCH_NIOS))
 #elif defined(__nios2__)
 	if (!image_check_arch (hdr, IH_ARCH_NIOS2))
 #elif defined(__PPC__)
@@ -647,8 +644,6 @@ static inline int fit_image_check_target_arch (const void *fdt, int node)
 	if (!fit_image_check_arch (fdt, node, IH_ARCH_MICROBLAZE))
 #elif defined(__mips__)
 	if (!fit_image_check_arch (fdt, node, IH_ARCH_MIPS))
-#elif defined(__nios__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_NIOS))
 #elif defined(__nios2__)
 	if (!fit_image_check_arch (fdt, node, IH_ARCH_NIOS2))
 #elif defined(__PPC__)
