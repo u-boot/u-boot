@@ -1912,7 +1912,8 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR_SD_DATA		0x80000000
 #define MPC85xx_PMUXCR_SDHC_CD		0x40000000
 #define MPC85xx_PMUXCR_SDHC_WP		0x20000000
-	u8	res6[12];
+	u32	pmuxcr2;	/* Alt. function signal multiplex control 2 */
+	u8	res6[8];
 	u32	devdisr;	/* Device disable control */
 #define MPC85xx_DEVDISR_PCI1		0x80000000
 #define MPC85xx_DEVDISR_PCI2		0x40000000
@@ -1949,10 +1950,12 @@ typedef struct ccsr_gur {
 #if defined(CONFIG_MPC8568)||defined(CONFIG_MPC8569)
 	u8	res10b[76];
 	par_io_t qe_par_io[7];
-	u8	res10c[3136];
+	u8	res10c[1600];
 #else
-	u8	res10b[3404];
+	u8	res10b[1868];
 #endif
+	u32	clkdvdr;	/* Clock Divide register */
+	u8	res10d[1532];
 	u32	clkocr;		/* Clock out select */
 	u8	res11[12];
 	u32	ddrdllcr;	/* DDR DLL control */

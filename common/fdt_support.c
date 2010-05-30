@@ -534,7 +534,8 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev)
 		{ 0x0202, 1, 24, 0x04c, 0x0122003f }, /* SEC 2.2 */
 		{ 0x0204, 4, 24, 0x07e, 0x012b0ebf }, /* SEC 2.4 */
 		{ 0x0300, 4, 24, 0x9fe, 0x03ab0ebf }, /* SEC 3.0 */
-		{ 0x0303, 4, 24, 0x97c, 0x03ab0abf }, /* SEC 3.3 */
+		{ 0x0301, 4, 24, 0xbfe, 0x03ab0ebf }, /* SEC 3.1 */
+		{ 0x0303, 4, 24, 0x97c, 0x03a30abf }, /* SEC 3.3 */
 	};
 	char compat_strlist[ARRAY_SIZE(sec_rev_prop_list) *
 			    sizeof("fsl,secX.Y")];
