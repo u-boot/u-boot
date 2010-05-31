@@ -28,6 +28,7 @@
 
 void init_sc520(void);
 unsigned long init_sc520_dram(void);
+void sc520_udelay(unsigned long usec);
 
 /* Memory mapped configuration registers */
 typedef struct sc520_mmcr {
@@ -291,35 +292,6 @@ extern volatile sc520_mmcr_t *sc520_mmcr;
 #define RTC_DIS			0x04	/* RTC Disable */
 #define UART2_DIS		0x02	/* UART2 Disable */
 #define UART1_DIS		0x01	/* UART1 Disable */
-
-/* bus mapping constants (used for PCI core initialization) */																																																 /* bus mapping constants */
-#define SC520_REG_ADDR		0x00000cf8
-#define SC520_REG_DATA		0x00000cfc
-
-#define SC520_ISA_MEM_PHYS	0x00000000
-#define SC520_ISA_MEM_BUS	0x00000000
-#define SC520_ISA_MEM_SIZE	0x01000000
-
-#define SC520_ISA_IO_PHYS	0x00000000
-#define SC520_ISA_IO_BUS	0x00000000
-#define SC520_ISA_IO_SIZE	0x00001000
-
-/* PCI I/O space from 0x1000 to 0xdfff
- * (make 0xe000-0xfdff available for stuff like PCCard boot) */
-#define SC520_PCI_IO_PHYS	0x00001000
-#define SC520_PCI_IO_BUS	0x00001000
-#define SC520_PCI_IO_SIZE	0x0000d000
-
-/* system memory from 0x00000000 to 0x0fffffff */
-#define	SC520_PCI_MEMORY_PHYS	0x00000000
-#define	SC520_PCI_MEMORY_BUS	0x00000000
-#define SC520_PCI_MEMORY_SIZE	0x10000000
-
-/* PCI bus memory from 0x10000000 to 0x26ffffff
- * (make 0x27000000 - 0x27ffffff available for stuff like PCCard boot) */
-#define SC520_PCI_MEM_PHYS	0x10000000
-#define SC520_PCI_MEM_BUS	0x10000000
-#define SC520_PCI_MEM_SIZE	0x17000000
 
 /* 0x28000000 - 0x3fffffff is used by the flash banks */
 

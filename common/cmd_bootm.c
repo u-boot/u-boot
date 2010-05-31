@@ -344,11 +344,8 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 			printf ("   XIP %s ... ", type_name);
 		} else {
 			printf ("   Loading %s ... ", type_name);
-
-			if (load != image_start) {
-				memmove_wd ((void *)load,
-						(void *)image_start, image_len, CHUNKSZ);
-			}
+			memmove_wd ((void *)load, (void *)image_start,
+					image_len, CHUNKSZ);
 		}
 		*load_end = load + image_len;
 		puts("OK\n");

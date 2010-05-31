@@ -39,30 +39,37 @@ int display_options (void)
 }
 
 /*
- * print sizes as "xxx kB", "xxx.y kB", "xxx MB", "xxx.y MB",
- * xxx GB, or xxx.y GB as needed; allow for optional trailing string
+ * print sizes as "xxx KiB", "xxx.y KiB", "xxx MiB", "xxx.y MiB",
+ * xxx GiB, xxx.y GiB, etc as needed; allow for optional trailing string
  * (like "\n")
  */
-void print_size (phys_size_t size, const char *s)
+void print_size(unsigned long long size, const char *s)
 {
-	ulong m = 0, n;
-	phys_size_t d = 1 << 30;		/* 1 GB */
-	char  c = 'G';
+	unsigned long m = 0, n;
+	unsigned long long f;
+	static const char names[] = {'E', 'P', 'T', 'G', 'M', 'K'};
+	unsigned long d = 10 * ARRAY_SIZE(names);
+	char c = 0;
+	unsigned int i;
 
-	if (size < d) {			/* try MB */
-		c = 'M';
-		d = 1 << 20;
-		if (size < d) {		/* print in kB */
-			c = 'k';
-			d = 1 << 10;
+	for (i = 0; i < ARRAY_SIZE(names); i++, d -= 10) {
+		if (size >> d) {
+			c = names[i];
+			break;
 		}
 	}
 
-	n = size / d;
+	if (!c) {
+		printf("%llu Bytes%s", size, s);
+		return;
+	}
+
+	n = size >> d;
+	f = size & ((1ULL << d) - 1);
 
 	/* If there's a remainder, deal with it */
-	if(size % d) {
-		m = (10 * (size - (n * d)) + (d / 2) ) / d;
+	if (f) {
+		m = (10ULL * f + (1ULL << (d - 1))) >> d;
 
 		if (m >= 10) {
 			m -= 10;
@@ -70,11 +77,11 @@ void print_size (phys_size_t size, const char *s)
 		}
 	}
 
-	printf ("%2ld", n);
+	printf ("%lu", n);
 	if (m) {
 		printf (".%ld", m);
 	}
-	printf (" %cB%s", c, s);
+	printf (" %ciB%s", c, s);
 }
 
 /*

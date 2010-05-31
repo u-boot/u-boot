@@ -220,7 +220,7 @@ static int smc911x_rx(struct eth_device *dev)
 
 		smc911x_reg_write(dev, RX_CFG, 0);
 
-		tmplen = (pktlen + 2+ 3) / 4;
+		tmplen = (pktlen + 3) / 4;
 		while (tmplen--)
 			*data++ = pkt_data_pull(dev, RX_DATA_FIFO);
 
@@ -242,7 +242,6 @@ int smc911x_initialize(u8 dev_num, int base_addr)
 
 	dev = malloc(sizeof(*dev));
 	if (!dev) {
-		free(dev);
 		return -1;
 	}
 	memset(dev, 0, sizeof(*dev));

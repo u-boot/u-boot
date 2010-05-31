@@ -24,6 +24,7 @@
 /* stuff specific for the sc520, but independent of implementation */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/ic/ssi.h>
 #include <asm/ic/sc520.h>
 
@@ -61,34 +62,34 @@ int ssi_set_interface(int freq, int lsb_first, int inv_clock, int inv_phase)
 		temp |= PHS_INV_ENB;
 	}
 
-	sc520_mmcr->ssictl = temp;
+	writeb(temp, &sc520_mmcr->ssictl);
 
 	return 0;
 }
 
 u8 ssi_txrx_byte(u8 data)
 {
-	sc520_mmcr->ssixmit = data;
-	while (sc520_mmcr->ssista & SSISTA_BSY);
-	sc520_mmcr->ssicmd = SSICMD_CMD_SEL_XMITRCV;
-	while (sc520_mmcr->ssista & SSISTA_BSY);
+	writeb(data, &sc520_mmcr->ssixmit);
+	while (readb(&sc520_mmcr->ssista) & SSISTA_BSY);
+	writeb(SSICMD_CMD_SEL_XMITRCV, &sc520_mmcr->ssicmd);
+	while (readb(&sc520_mmcr->ssista) & SSISTA_BSY);
 
-	return sc520_mmcr->ssircv;
+	return readb(&sc520_mmcr->ssircv);
 }
 
 
 void ssi_tx_byte(u8 data)
 {
-	sc520_mmcr->ssixmit = data;
-	while (sc520_mmcr->ssista & SSISTA_BSY);
-	sc520_mmcr->ssicmd = SSICMD_CMD_SEL_XMIT;
+	writeb(data, &sc520_mmcr->ssixmit);
+	while (readb(&sc520_mmcr->ssista) & SSISTA_BSY);
+	writeb(SSICMD_CMD_SEL_XMIT, &sc520_mmcr->ssicmd);
 }
 
 u8 ssi_rx_byte(void)
 {
-	while (sc520_mmcr->ssista & SSISTA_BSY);
-	sc520_mmcr->ssicmd = SSICMD_CMD_SEL_RCV;
-	while (sc520_mmcr->ssista & SSISTA_BSY);
+	while (readb(&sc520_mmcr->ssista) & SSISTA_BSY);
+	writeb(SSICMD_CMD_SEL_RCV, &sc520_mmcr->ssicmd);
+	while (readb(&sc520_mmcr->ssista) & SSISTA_BSY);
 
-	return sc520_mmcr->ssircv;
+	return readb(&sc520_mmcr->ssircv);
 }

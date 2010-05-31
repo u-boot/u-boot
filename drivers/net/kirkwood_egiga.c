@@ -424,8 +424,6 @@ static int kwgbe_init(struct eth_device *dev)
 	KWGBEREG_WR(regs->pxc, PRT_CFG_VAL);
 	KWGBEREG_WR(regs->pxcx, PORT_CFG_EXTEND_VALUE);
 	KWGBEREG_WR(regs->psc0, PORT_SERIAL_CONTROL_VALUE);
-	/* Disable port initially */
-	KWGBEREG_BITS_SET(regs->psc0, KWGBE_SERIAL_PORT_EN);
 
 	/* Assign port SDMA configuration */
 	KWGBEREG_WR(regs->sdc, PORT_SDMA_CFG_VALUE);
@@ -438,6 +436,9 @@ static int kwgbe_init(struct eth_device *dev)
 	KWGBEREG_WR(regs->psc0,	KWGBE_MAX_RX_PACKET_9700BYTE
 			| (KWGBEREG_RD(regs->psc0) & MRU_MASK));
 
+	/* Enable port initially */
+	KWGBEREG_BITS_SET(regs->psc0, KWGBE_SERIAL_PORT_EN);
+
 	/*
 	 * Set ethernet MTU for leaky bucket mechanism to 0 - this will
 	 * disable the leaky bucket mechanism .
@@ -445,7 +446,7 @@ static int kwgbe_init(struct eth_device *dev)
 	KWGBEREG_WR(regs->pmtu, 0);
 
 	/* Assignment of Rx CRDB of given RXUQ */
-	KWGBEREG_WR(regs->rxcdp[RXUQ].rxcdp, (u32) dkwgbe->p_rxdesc_curr);
+	KWGBEREG_WR(regs->rxcdp[RXUQ], (u32) dkwgbe->p_rxdesc_curr);
 	/* Enable port Rx. */
 	KWGBEREG_WR(regs->rqc, (1 << RXUQ));
 
@@ -480,7 +481,7 @@ static int kwgbe_halt(struct eth_device *dev)
 	stop_queue(&regs->tqc);
 	stop_queue(&regs->rqc);
 
-	/* Enable port */
+	/* Disable port */
 	KWGBEREG_BITS_RESET(regs->psc0, KWGBE_SERIAL_PORT_EN);
 	/* Set port is not reset */
 	KWGBEREG_BITS_RESET(regs->psc1, 1 << 4);
@@ -494,6 +495,16 @@ static int kwgbe_halt(struct eth_device *dev)
 	KWGBEREG_WR(regs->pim, 0);
 	KWGBEREG_WR(regs->peim, 0);
 
+	return 0;
+}
+
+static int kwgbe_write_hwaddr(struct eth_device *dev)
+{
+	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
+	struct kwgbe_registers *regs = dkwgbe->regs;
+
+	/* Programs net device MAC address after initialization */
+	port_uc_addr_set(regs, dkwgbe->dev.enetaddr);
 	return 0;
 }
 
@@ -525,7 +536,7 @@ static int kwgbe_send(struct eth_device *dev, volatile void *dataptr,
 	p_txdesc->buf_ptr = (u8 *) p;
 	p_txdesc->byte_cnt = datasize;
 
-	/* Apply send command using zeroth RXUQ */
+	/* Apply send command using zeroth TXUQ */
 	KWGBEREG_WR(regs->tcqdp[TXUQ], (u32) p_txdesc);
 	KWGBEREG_WR(regs->tqc, (1 << TXUQ));
 
@@ -606,7 +617,7 @@ static int kwgbe_recv(struct eth_device *dev)
 	p_rxdesc_curr->buf_size = PKTSIZE_ALIGN;
 	p_rxdesc_curr->byte_cnt = 0;
 
-	writel((unsigned)p_rxdesc_curr->nxtdesc_p, &dkwgbe->p_rxdesc_curr);
+	writel((unsigned)p_rxdesc_curr->nxtdesc_p, (u32) &dkwgbe->p_rxdesc_curr);
 
 	return 0;
 }
@@ -693,6 +704,7 @@ int kirkwood_egiga_initialize(bd_t * bis)
 		dev->halt = (void *)kwgbe_halt;
 		dev->send = (void *)kwgbe_send;
 		dev->recv = (void *)kwgbe_recv;
+		dev->write_hwaddr = (void *)kwgbe_write_hwaddr;
 
 		eth_register(dev);
 

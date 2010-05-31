@@ -24,13 +24,14 @@
 /* stuff specific for the sc520, but independent of implementation */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/interrupt.h>
 #include <asm/ic/sc520.h>
 
 void sc520_timer_isr(void)
 {
 	/* Ack the GP Timer Interrupt */
-	sc520_mmcr->gptmrsta = 0x02;
+	writeb(0x02, &sc520_mmcr->gptmrsta);
 }
 
 int timer_init(void)
@@ -42,43 +43,47 @@ int timer_init(void)
 	irq_install_handler (0, timer_isr, NULL);
 
 	/* Map GP Timer 1 to Master PIC IR0  */
-	sc520_mmcr->gp_tmr_int_map[1] = 0x01;
+	writeb(0x01, &sc520_mmcr->gp_tmr_int_map[1]);
 
 	/* Disable GP Timers 1 & 2 - Allow configuration writes */
-	sc520_mmcr->gptmr1ctl = 0x4000;
-	sc520_mmcr->gptmr2ctl = 0x4000;
+	writew(0x4000, &sc520_mmcr->gptmr1ctl);
+	writew(0x4000, &sc520_mmcr->gptmr2ctl);
 
 	/* Reset GP Timers 1 & 2 */
-	sc520_mmcr->gptmr1cnt = 0x0000;
-	sc520_mmcr->gptmr2cnt = 0x0000;
+	writew(0x0000, &sc520_mmcr->gptmr1cnt);
+	writew(0x0000, &sc520_mmcr->gptmr2cnt);
 
 	/* Setup GP Timer 2 as a 100kHz (10us) prescaler */
-	sc520_mmcr->gptmr2maxcmpa = 83;
-	sc520_mmcr->gptmr2ctl = 0xc001;
+	writew(83, &sc520_mmcr->gptmr2maxcmpa);
+	writew(0xc001, &sc520_mmcr->gptmr2ctl);
 
 	/* Setup GP Timer 1 as a 1000 Hz (1ms) interrupt generator */
-	sc520_mmcr->gptmr1maxcmpa = 100;
-	sc520_mmcr->gptmr1ctl = 0xe009;
+	writew(100, &sc520_mmcr->gptmr1maxcmpa);
+	writew(0xe009, &sc520_mmcr->gptmr1ctl);
 
 	unmask_irq (0);
 
 	/* Clear the GP Timer 1 status register to get the show rolling*/
-	sc520_mmcr->gptmrsta = 0x02;
+	writeb(0x02, &sc520_mmcr->gptmrsta);
 
 	return 0;
 }
 
+/* Allow boards to override udelay implementation */
 void __udelay(unsigned long usec)
+	__attribute__((weak, alias("sc520_udelay")));
+
+void sc520_udelay(unsigned long usec)
 {
 	int m = 0;
 	long u;
 	long temp;
 
-	temp = sc520_mmcr->swtmrmilli;
-	temp = sc520_mmcr->swtmrmicro;
+	temp = readw(&sc520_mmcr->swtmrmilli);
+	temp = readw(&sc520_mmcr->swtmrmicro);
 
 	do {
-		m += sc520_mmcr->swtmrmilli;
-		u = sc520_mmcr->swtmrmicro + (m * 1000);
+		m += readw(&sc520_mmcr->swtmrmilli);
+		u = readw(&sc520_mmcr->swtmrmicro) + (m * 1000);
 	} while (u < usec);
 }

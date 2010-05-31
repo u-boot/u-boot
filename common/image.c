@@ -450,6 +450,9 @@ phys_size_t getenv_bootm_size(void)
 
 void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
 {
+	if (to == from)
+		return;
+
 #if defined(CONFIG_HW_WATCHDOG) || defined(CONFIG_WATCHDOG)
 	while (len > 0) {
 		size_t tail = (len > chunksz) ? chunksz : len;

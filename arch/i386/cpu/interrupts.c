@@ -5,6 +5,9 @@
  * (C) Copyright 2002
  * Daniel Engström, Omicron Ceti AB, daniel@omicron.se.
  *
+ * Portions of this file are derived from the Linux kernel source
+ *  Copyright (C) 1991, 1992  Linus Torvalds
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -32,11 +35,111 @@
 	".hidden irq_"#x"\n" \
 	".type irq_"#x", @function\n" \
 	"irq_"#x":\n" \
-	"pushl %ebp\n" \
-	"movl %esp,%ebp\n" \
-	"pusha\n" \
 	"pushl $"#x"\n" \
 	"jmp irq_common_entry\n"
+
+/*
+ * Volatile isn't enough to prevent the compiler from reordering the
+ * read/write functions for the control registers and messing everything up.
+ * A memory clobber would solve the problem, but would prevent reordering of
+ * all loads stores around it, which can hurt performance. Solution is to
+ * use a variable and mimic reads and writes to it to enforce serialization
+ */
+static unsigned long __force_order;
+
+static inline unsigned long read_cr0(void)
+{
+	unsigned long val;
+	asm volatile("mov %%cr0,%0\n\t" : "=r" (val), "=m" (__force_order));
+	return val;
+}
+
+static inline unsigned long read_cr2(void)
+{
+	unsigned long val;
+	asm volatile("mov %%cr2,%0\n\t" : "=r" (val), "=m" (__force_order));
+	return val;
+}
+
+static inline unsigned long read_cr3(void)
+{
+	unsigned long val;
+	asm volatile("mov %%cr3,%0\n\t" : "=r" (val), "=m" (__force_order));
+	return val;
+}
+
+static inline unsigned long read_cr4(void)
+{
+	unsigned long val;
+	asm volatile("mov %%cr4,%0\n\t" : "=r" (val), "=m" (__force_order));
+	return val;
+}
+
+static inline unsigned long get_debugreg(int regno)
+{
+	unsigned long val = 0;	/* Damn you, gcc! */
+
+	switch (regno) {
+	case 0:
+		asm("mov %%db0, %0" :"=r" (val));
+		break;
+	case 1:
+		asm("mov %%db1, %0" :"=r" (val));
+		break;
+	case 2:
+		asm("mov %%db2, %0" :"=r" (val));
+		break;
+	case 3:
+		asm("mov %%db3, %0" :"=r" (val));
+		break;
+	case 6:
+		asm("mov %%db6, %0" :"=r" (val));
+		break;
+	case 7:
+		asm("mov %%db7, %0" :"=r" (val));
+		break;
+	default:
+		val = 0;
+	}
+	return val;
+}
+
+void dump_regs(struct pt_regs *regs)
+{
+	unsigned long cr0 = 0L, cr2 = 0L, cr3 = 0L, cr4 = 0L;
+	unsigned long d0, d1, d2, d3, d6, d7;
+
+	printf("EIP: %04x:[<%08lx>] EFLAGS: %08lx\n",
+			(u16)regs->xcs, regs->eip, regs->eflags);
+
+	printf("EAX: %08lx EBX: %08lx ECX: %08lx EDX: %08lx\n",
+		regs->eax, regs->ebx, regs->ecx, regs->edx);
+	printf("ESI: %08lx EDI: %08lx EBP: %08lx ESP: %08lx\n",
+		regs->esi, regs->edi, regs->ebp, regs->esp);
+	printf(" DS: %04x ES: %04x FS: %04x GS: %04x SS: %04x\n",
+	       (u16)regs->xds, (u16)regs->xes, (u16)regs->xfs, (u16)regs->xgs, (u16)regs->xss);
+
+	cr0 = read_cr0();
+	cr2 = read_cr2();
+	cr3 = read_cr3();
+	cr4 = read_cr4();
+
+	printf("CR0: %08lx CR2: %08lx CR3: %08lx CR4: %08lx\n",
+			cr0, cr2, cr3, cr4);
+
+	d0 = get_debugreg(0);
+	d1 = get_debugreg(1);
+	d2 = get_debugreg(2);
+	d3 = get_debugreg(3);
+
+	printf("DR0: %08lx DR1: %08lx DR2: %08lx DR3: %08lx\n",
+			d0, d1, d2, d3);
+
+	d6 = get_debugreg(6);
+	d7 = get_debugreg(7);
+	printf("DR6: %08lx DR7: %08lx\n",
+			d6, d7);
+}
 
 struct idt_entry {
 	u16	base_low;
@@ -122,7 +225,7 @@ int disable_interrupts(void)
 }
 
 /* IRQ Low-Level Service Routine */
-__isr__ irq_llsr(int ip, int seg, int irq)
+__isr__ irq_llsr(struct pt_regs *regs)
 {
 	/*
 	 * For detailed description of each exception, refer to:
@@ -131,73 +234,92 @@ __isr__ irq_llsr(int ip, int seg, int irq)
 	 * Order Number: 253665-029US, November 2008
 	 * Table 6-1. Exceptions and Interrupts
 	 */
-	switch (irq) {
+	switch (regs->orig_eax) {
 	case 0x00:
-		printf("Divide Error (Division by zero) at %04x:%08x\n", seg, ip);
+		printf("Divide Error (Division by zero)\n");
+		dump_regs(regs);
 		while(1);
 		break;
 	case 0x01:
-		printf("Debug Interrupt (Single step) at %04x:%08x\n", seg, ip);
+		printf("Debug Interrupt (Single step)\n");
+		dump_regs(regs);
 		break;
 	case 0x02:
-		printf("NMI Interrupt at %04x:%08x\n", seg, ip);
+		printf("NMI Interrupt\n");
+		dump_regs(regs);
 		break;
 	case 0x03:
-		printf("Breakpoint at %04x:%08x\n", seg, ip);
+		printf("Breakpoint\n");
+		dump_regs(regs);
 		break;
 	case 0x04:
-		printf("Overflow at %04x:%08x\n", seg, ip);
+		printf("Overflow\n");
+		dump_regs(regs);
 		while(1);
 		break;
 	case 0x05:
-		printf("BOUND Range Exceeded at %04x:%08x\n", seg, ip);
+		printf("BOUND Range Exceeded\n");
+		dump_regs(regs);
 		while(1);
 		break;
 	case 0x06:
-		printf("Invalid Opcode (UnDefined Opcode) at %04x:%08x\n", seg, ip);
+		printf("Invalid Opcode (UnDefined Opcode)\n");
+		dump_regs(regs);
 		while(1);
 		break;
 	case 0x07:
-		printf("Device Not Available (No Math Coprocessor) at %04x:%08x\n", seg, ip);
+		printf("Device Not Available (No Math Coprocessor)\n");
+		dump_regs(regs);
 		while(1);
 		break;
 	case 0x08:
-		printf("Double fault at %04x:%08x\n", seg, ip);
+		printf("Double fault\n");
+		dump_regs(regs);
 		while(1);
 		break;
 	case 0x09:
-		printf("Co-processor segment overrun at %04x:%08x\n", seg, ip);
+		printf("Co-processor segment overrun\n");
+		dump_regs(regs);
 		while(1);
 		break;
 	case 0x0a:
-		printf("Invalid TSS at %04x:%08x\n", seg, ip);
+		printf("Invalid TSS\n");
+		dump_regs(regs);
 		break;
 	case 0x0b:
-		printf("Segment Not Present at %04x:%08x\n", seg, ip);
+		printf("Segment Not Present\n");
+		dump_regs(regs);
 		while(1);
 		break;
 	case 0x0c:
-		printf("Stack Segment Fault at %04x:%08x\n", seg, ip);
+		printf("Stack Segment Fault\n");
+		dump_regs(regs);
 		while(1);
 		break;
 	case 0x0d:
-		printf("General Protection at %04x:%08x\n", seg, ip);
+		printf("General Protection\n");
+		dump_regs(regs);
 		break;
 	case 0x0e:
-		printf("Page fault at %04x:%08x\n", seg, ip);
+		printf("Page fault\n");
+		dump_regs(regs);
 		while(1);
 		break;
 	case 0x0f:
-		printf("Floating-Point Error (Math Fault) at %04x:%08x\n", seg, ip);
+		printf("Floating-Point Error (Math Fault)\n");
+		dump_regs(regs);
 		break;
 	case 0x10:
-		printf("Alignment check at %04x:%08x\n", seg, ip);
+		printf("Alignment check\n");
+		dump_regs(regs);
 		break;
 	case 0x11:
-		printf("Machine Check at %04x:%08x\n", seg, ip);
+		printf("Machine Check\n");
+		dump_regs(regs);
 		break;
 	case 0x12:
-		printf("SIMD Floating-Point Exception at %04x:%08x\n", seg, ip);
+		printf("SIMD Floating-Point Exception\n");
+		dump_regs(regs);
 		break;
 	case 0x13:
 	case 0x14:
@@ -212,12 +334,13 @@ __isr__ irq_llsr(int ip, int seg, int irq)
 	case 0x1d:
 	case 0x1e:
 	case 0x1f:
-		printf("Reserved Exception %d at %04x:%08x\n", irq, seg, ip);
+		printf("Reserved Exception\n");
+		dump_regs(regs);
 		break;
 
 	default:
 		/* Hardware or User IRQ */
-		do_irq(irq);
+		do_irq(regs->orig_eax);
 	}
 }
 
@@ -226,22 +349,45 @@ __isr__ irq_llsr(int ip, int seg, int irq)
  * fully relocatable code.
  *  - The call to irq_llsr will be a relative jump
  *  - The IRQ entries will be guaranteed to be in order
- * It's a bit annoying that we need to waste 3 bytes per interrupt entry
- * (total of 768 code bytes), but we MUST create a Stack Frame and this is
- * the easiest way I could do it. Maybe it can be made better later.
+ *  Interrupt entries are now very small (a push and a jump) but they are
+ *  now slower (all registers pushed on stack which provides complete
+ *  crash dumps in the low level handlers
  */
 asm(".globl irq_common_entry\n" \
 	".hidden irq_common_entry\n" \
 	".type irq_common_entry, @function\n" \
 	"irq_common_entry:\n" \
-	"pushl $0\n" \
-	"pushl $0\n" \
+	"cld\n" \
+	"pushl %gs\n" \
+	"pushl %fs\n" \
+	"pushl %es\n" \
+	"pushl %ds\n" \
+	"pushl %eax\n" \
+	"pushl %ebp\n" \
+	"pushl %edi\n" \
+	"pushl %esi\n" \
+	"pushl %edx\n" \
+	"pushl %ecx\n" \
+	"pushl %ebx\n" \
+	"mov   %esp, %eax\n" \
+	"pushl %ebp\n" \
+	"movl %esp,%ebp\n" \
+	"pushl %eax\n" \
 	"call irq_llsr\n" \
 	"popl %eax\n" \
-	"popl %eax\n" \
-	"popl %eax\n" \
-	"popa\n" \
 	"leave\n"\
+	"popl %ebx\n" \
+	"popl %ecx\n" \
+	"popl %edx\n" \
+	"popl %esi\n" \
+	"popl %edi\n" \
+	"popl %ebp\n" \
+	"popl %eax\n" \
+	"popl %ds\n" \
+	"popl %es\n" \
+	"popl %fs\n" \
+	"popl %gs\n" \
+	"add  $4, %esp\n" \
 	"iret\n" \
 	DECLARE_INTERRUPT(0) \
 	DECLARE_INTERRUPT(1) \

@@ -22,9 +22,9 @@
 #
 
 VERSION = 2010
-PATCHLEVEL = 03
+PATCHLEVEL = 06
 SUBLEVEL =
-EXTRAVERSION =
+EXTRAVERSION = -rc1
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 else
@@ -38,9 +38,9 @@ HOSTARCH := $(shell uname -m | \
 	    -e s/sun4u/sparc64/ \
 	    -e s/arm.*/arm/ \
 	    -e s/sa110/arm/ \
-	    -e s/powerpc/ppc/ \
-	    -e s/ppc64/ppc/ \
-	    -e s/macppc/ppc/)
+	    -e s/ppc64/powerpc/ \
+	    -e s/ppc/powerpc/ \
+	    -e s/macppc/powerpc/)
 
 HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]' | \
 	    sed -e 's/\(cygwin\).*/cygwin/')
@@ -313,7 +313,7 @@ $(obj)u-boot.ldr.srec:	$(obj)u-boot.ldr
 		$(OBJCOPY) ${OBJCFLAGS} -O srec $< $@ -I binary
 
 $(obj)u-boot.img:	$(obj)u-boot.bin
-		./tools/mkimage -A $(ARCH) -T firmware -C none \
+		$(obj)tools/mkimage -A $(ARCH) -T firmware -C none \
 		-a $(TEXT_BASE) -e 0 \
 		-n $(shell sed -n -e 's/.*U_BOOT_VERSION//p' $(VERSION_FILE) | \
 			sed -e 's/"[	 ]*$$/ for $(BOARD) board"/') \
@@ -1356,6 +1356,9 @@ HH405_config:	unconfig
 
 HUB405_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) powerpc ppc4xx hub405 esd
+
+icon_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) powerpc ppc4xx icon mosaixtech
 
 # Compact-Center(codename intip) & DevCon-Center use different U-Boot images
 intip_config \

@@ -33,6 +33,7 @@ SOBJS-y	+= reloc.o
 COBJS-y	+= bat_rw.o
 COBJS-y	+= board.o
 COBJS-y	+= bootm.o
+COBJS-$(CONFIG_BOOTCOUNT_LIMIT) += bootcount.o
 COBJS-y	+= cache.o
 COBJS-y	+= extable.o
 COBJS-y	+= interrupts.o

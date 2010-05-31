@@ -37,7 +37,7 @@ extern char realmode_enter;
 
 int realmode_setup(void)
 {
-	ulong i386boot_realmode      = (ulong)&_i386boot_realmode;
+	ulong i386boot_realmode      = (ulong)&_i386boot_realmode + gd->reloc_off;
 	ulong i386boot_realmode_size = (ulong)&_i386boot_realmode_size;
 
 	/* copy the realmode switch code */

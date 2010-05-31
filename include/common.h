@@ -218,7 +218,7 @@ void	hang		(void) __attribute__ ((noreturn));
 /* */
 phys_size_t initdram (int);
 int	display_options (void);
-void	print_size (phys_size_t, const char *);
+void	print_size(unsigned long long, const char *);
 int	print_buffer (ulong addr, void* data, uint width, uint count, uint linelen);
 
 /* common/main.c */
@@ -470,7 +470,6 @@ void ft_pci_setup(void *blob, bd_t *bd);
 /* $(CPU)/serial.c */
 int	serial_init   (void);
 void	serial_exit   (void);
-void	serial_addr   (unsigned int);
 void	serial_setbrg (void);
 void	serial_putc   (const char);
 void	serial_putc_raw(const char);

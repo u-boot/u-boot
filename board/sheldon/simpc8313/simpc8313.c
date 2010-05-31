@@ -29,16 +29,17 @@
 #include <mpc83xx.h>
 #include <ns16550.h>
 #include <nand.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_NAND_SPL
 int checkboard(void)
 {
 	puts("Board: Sheldon Instruments SIMPC8313\n");
 	return 0;
 }
 
-#ifndef CONFIG_NAND_SPL
 static struct pci_region pci_regions[] = {
 	{
 		bus_start: CONFIG_SYS_PCI1_MEM_BASE,
@@ -91,6 +92,40 @@ void pci_init_board(void)
 int misc_init_r(void)
 {
 	int rc = 0;
+	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
+	fsl_lbus_t *lbus = &immap->lbus;
+	u32 *mxmr = &lbus->mamr;	/* Pointer to mamr */
+
+	/* UPM Table Configuration Code */
+	static uint UPMATable[] = {
+		/* Read Single-Beat (RSS) */
+		0x0fff0c00, 0x0fffdc00, 0x0fff0c05, 0xfffffc00,
+		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* Read Burst (RBS) */
+		0x0fff0c00, 0x0ffcdc00, 0x0ffc0c00, 0x0ffc0f0c,
+		0x0ffccf0c, 0x0ffc0f0c, 0x0ffcce0c, 0x3ffc0c05,
+		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* Write Single-Beat (WSS) */
+		0x0ffc0c00, 0x0ffcdc00, 0x0ffc0c05, 0xfffffc00,
+		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* Write Burst (WBS) */
+		0x0ffc0c00, 0x0fffcc0c, 0x0fff0c00, 0x0fffcc00,
+		0x0fff1c00, 0x0fffcf0c, 0x0fff0f0c, 0x0fffcf0c,
+		0x0fff0c0c, 0x0fffcc0c, 0x0fff0c05, 0xfffffc00,
+		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* Refresh Timer (RTS) */
+		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc00,
+		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01,
+		/* Exception Condition (EXS) */
+		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01
+	};
+
+	upmconfig(UPMA, UPMATable, sizeof(UPMATable) / sizeof(UPMATable[0]));
+
+	/* Set LUPWAIT to be active low and enabled */
+	out_be32(mxmr, MxMR_UWPL | MxMR_GPL_x4DIS);
 
 	return rc;
 }

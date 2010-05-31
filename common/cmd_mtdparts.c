@@ -103,16 +103,6 @@
 #include <onenand_uboot.h>
 #endif
 
-/* enable/disable debugging messages */
-#define	DEBUG_MTDPARTS
-#undef	DEBUG_MTDPARTS
-
-#ifdef  DEBUG_MTDPARTS
-# define DEBUGF(fmt, args...)	printf(fmt ,##args)
-#else
-# define DEBUGF(fmt, args...)
-#endif
-
 /* special size referring to all the remaining space in a partition */
 #define SIZE_REMAINING		0xFFFFFFFF
 
@@ -243,7 +233,7 @@ static void index_partitions(void)
 	struct list_head *dentry;
 	struct mtd_device *dev;
 
-	DEBUGF("--- index partitions ---\n");
+	debug("--- index partitions ---\n");
 
 	if (current_mtd_dev) {
 		mtddevnum = 0;
@@ -261,12 +251,12 @@ static void index_partitions(void)
 		part = mtd_part_info(current_mtd_dev, current_mtd_partnum);
 		setenv("mtddevname", part->name);
 
-		DEBUGF("=> mtddevnum %d,\n=> mtddevname %s\n", mtddevnum, part->name);
+		debug("=> mtddevnum %d,\n=> mtddevname %s\n", mtddevnum, part->name);
 	} else {
 		setenv("mtddevnum", NULL);
 		setenv("mtddevname", NULL);
 
-		DEBUGF("=> mtddevnum NULL\n=> mtddevname NULL\n");
+		debug("=> mtddevnum NULL\n=> mtddevname NULL\n");
 	}
 }
 
@@ -277,7 +267,7 @@ static void current_save(void)
 {
 	char buf[16];
 
-	DEBUGF("--- current_save ---\n");
+	debug("--- current_save ---\n");
 
 	if (current_mtd_dev) {
 		sprintf(buf, "%s%d,%d", MTD_DEV_TYPE(current_mtd_dev->id->type),
@@ -286,12 +276,12 @@ static void current_save(void)
 		setenv("partition", buf);
 		strncpy(last_partition, buf, 16);
 
-		DEBUGF("=> partition %s\n", buf);
+		debug("=> partition %s\n", buf);
 	} else {
 		setenv("partition", NULL);
 		last_partition[0] = '\0';
 
-		DEBUGF("=> partition NULL\n");
+		debug("=> partition NULL\n");
 	}
 	index_partitions();
 }
@@ -505,7 +495,7 @@ static int part_sort_add(struct mtd_device *dev, struct part_info *part)
 	part->dev = dev;
 
 	if (list_empty(&dev->parts)) {
-		DEBUGF("part_sort_add: list empty\n");
+		debug("part_sort_add: list empty\n");
 		list_add(&part->link, &dev->parts);
 		dev->num_parts++;
 		index_partitions();
@@ -598,7 +588,7 @@ static int part_parse(const char *const partdef, const char **ret, struct part_i
 	/* fetch the partition size */
 	if (*p == '-') {
 		/* assign all remaining space to this partition */
-		DEBUGF("'-': remaining size assigned\n");
+		debug("'-': remaining size assigned\n");
 		size = SIZE_REMAINING;
 		p++;
 	} else {
@@ -683,7 +673,7 @@ static int part_parse(const char *const partdef, const char **ret, struct part_i
 	part->name[name_len - 1] = '\0';
 	INIT_LIST_HEAD(&part->link);
 
-	DEBUGF("+ partition: name %-22s size 0x%08x offset 0x%08x mask flags %d\n",
+	debug("+ partition: name %-22s size 0x%08x offset 0x%08x mask flags %d\n",
 			part->name, part->size,
 			part->offset, part->mask_flags);
 
@@ -837,14 +827,16 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
 	u32 offset;
 	int err = 1;
 
-	p = mtd_dev;
-	*retdev = NULL;
-	*ret = NULL;
+	debug("===device_parse===\n");
 
-	DEBUGF("===device_parse===\n");
+	assert(retdev);
+	*retdev = NULL;
+
+	if (ret)
+		*ret = NULL;
 
 	/* fetch <mtd-id> */
-	mtd_id = p;
+	mtd_id = p = mtd_dev;
 	if (!(p = strchr(mtd_id, ':'))) {
 		printf("no <mtd-id> identifier\n");
 		return 1;
@@ -858,11 +850,11 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
 		return 1;
 	}
 
-	DEBUGF("dev type = %d (%s), dev num = %d, mtd-id = %s\n",
+	debug("dev type = %d (%s), dev num = %d, mtd-id = %s\n",
 			id->type, MTD_DEV_TYPE(id->type),
 			id->num, id->mtd_id);
 	pend = strchr(p, ';');
-	DEBUGF("parsing partitions %.*s\n", (pend ? pend - p : strlen(p)), p);
+	debug("parsing partitions %.*s\n", (pend ? pend - p : strlen(p)), p);
 
 
 	/* parse partitions */
@@ -908,17 +900,20 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
 		return 1;
 	}
 
-	DEBUGF("\ntotal partitions: %d\n", num_parts);
+	debug("\ntotal partitions: %d\n", num_parts);
 
 	/* check for next device presence */
 	if (p) {
 		if (*p == ';') {
-			*ret = ++p;
+			if (ret)
+				*ret = ++p;
 		} else if (*p == '\0') {
-			*ret = p;
+			if (ret)
+				*ret = p;
 		} else {
 			printf("unexpected character '%c' at the end of device\n", *p);
-			*ret = NULL;
+			if (ret)
+				*ret = NULL;
 			return 1;
 		}
 	}
@@ -946,7 +941,7 @@ static int device_parse(const char *const mtd_dev, const char **ret, struct mtd_
 
 	*retdev = dev;
 
-	DEBUGF("===\n\n");
+	debug("===\n\n");
 	return 0;
 }
 
@@ -998,13 +993,13 @@ static struct mtdids* id_find_by_mtd_id(const char *mtd_id, unsigned int mtd_id_
 	struct list_head *entry;
 	struct mtdids *id;
 
-	DEBUGF("--- id_find_by_mtd_id: '%.*s' (len = %d)\n",
+	debug("--- id_find_by_mtd_id: '%.*s' (len = %d)\n",
 			mtd_id_len, mtd_id, mtd_id_len);
 
 	list_for_each(entry, &mtdids) {
 		id = list_entry(entry, struct mtdids, link);
 
-		DEBUGF("entry: '%s' (len = %d)\n",
+		debug("entry: '%s' (len = %d)\n",
 				id->mtd_id, strlen(id->mtd_id));
 
 		if (mtd_id_len != strlen(id->mtd_id))
@@ -1074,7 +1069,7 @@ static int generate_mtdparts(char *buf, u32 buflen)
 	u32 size, offset, len, part_cnt;
 	u32 maxlen = buflen - 1;
 
-	DEBUGF("--- generate_mtdparts ---\n");
+	debug("--- generate_mtdparts ---\n");
 
 	if (list_empty(&devices)) {
 		buf[0] = '\0';
@@ -1216,7 +1211,7 @@ static void list_partitions(void)
 	struct mtd_device *dev;
 	int part_num;
 
-	DEBUGF("\n---list_partitions---\n");
+	debug("\n---list_partitions---\n");
 	list_for_each(dentry, &devices) {
 		dev = list_entry(dentry, struct mtd_device, link);
 		printf("\ndevice %s%d <%s>, # parts = %d\n",
@@ -1281,7 +1276,7 @@ int find_dev_and_part(const char *id, struct mtd_device **dev,
 	u8 type, dnum, pnum;
 	const char *p;
 
-	DEBUGF("--- find_dev_and_part ---\nid = %s\n", id);
+	debug("--- find_dev_and_part ---\nid = %s\n", id);
 
 	list_for_each(dentry, &devices) {
 		*part_num = 0;
@@ -1342,7 +1337,7 @@ static int delete_partition(const char *id)
 
 	if (find_dev_and_part(id, &dev, &pnum, &part) == 0) {
 
-		DEBUGF("delete_partition: device = %s%d, partition %d = (%s) 0x%08x@0x%08x\n",
+		debug("delete_partition: device = %s%d, partition %d = (%s) 0x%08x@0x%08x\n",
 				MTD_DEV_TYPE(dev->id->type), dev->id->num, pnum,
 				part->name, part->size, part->offset);
 
@@ -1373,7 +1368,7 @@ static int parse_mtdparts(const char *const mtdparts)
 	struct mtd_device *dev;
 	int err = 1;
 
-	DEBUGF("\n---parse_mtdparts---\nmtdparts = %s\n\n", p);
+	debug("\n---parse_mtdparts---\nmtdparts = %s\n\n", p);
 
 	/* delete all devices and partitions */
 	if (mtd_devices_init() != 0) {
@@ -1395,7 +1390,7 @@ static int parse_mtdparts(const char *const mtdparts)
 		if ((device_parse(p, &p, &dev) != 0) || (!dev))
 			break;
 
-		DEBUGF("+ device: %s\t%d\t%s\n", MTD_DEV_TYPE(dev->id->type),
+		debug("+ device: %s\t%d\t%s\n", MTD_DEV_TYPE(dev->id->type),
 				dev->id->num, dev->id->mtd_id);
 
 		/* check if parsed device is already on the list */
@@ -1436,12 +1431,12 @@ static int parse_mtdids(const char *const ids)
 	u32 size;
 	int ret = 1;
 
-	DEBUGF("\n---parse_mtdids---\nmtdids = %s\n\n", ids);
+	debug("\n---parse_mtdids---\nmtdids = %s\n\n", ids);
 
 	/* clean global mtdids list */
 	list_for_each_safe(entry, n, &mtdids) {
 		id_tmp = list_entry(entry, struct mtdids, link);
-		DEBUGF("mtdids del: %d %d\n", id_tmp->type, id_tmp->num);
+		debug("mtdids del: %d %d\n", id_tmp->type, id_tmp->num);
 		list_del(entry);
 		free(id_tmp);
 	}
@@ -1507,7 +1502,7 @@ static int parse_mtdids(const char *const ids)
 		id->mtd_id[mtd_id_len - 1] = '\0';
 		INIT_LIST_HEAD(&id->link);
 
-		DEBUGF("+ id %s%d\t%16d bytes\t%s\n",
+		debug("+ id %s%d\t%16d bytes\t%s\n",
 				MTD_DEV_TYPE(id->type), id->num,
 				id->size, id->mtd_id);
 
@@ -1541,7 +1536,7 @@ int mtdparts_init(void)
 	int ids_changed;
 	char tmp_ep[PARTITION_MAXLEN];
 
-	DEBUGF("\n---mtdparts_init---\n");
+	debug("\n---mtdparts_init---\n");
 	if (!initialized) {
 		INIT_LIST_HEAD(&mtdids);
 		INIT_LIST_HEAD(&devices);
@@ -1562,18 +1557,18 @@ int mtdparts_init(void)
 	if (current_partition)
 		strncpy(tmp_ep, current_partition, PARTITION_MAXLEN);
 
-	DEBUGF("last_ids  : %s\n", last_ids);
-	DEBUGF("env_ids   : %s\n", ids);
-	DEBUGF("last_parts: %s\n", last_parts);
-	DEBUGF("env_parts : %s\n\n", parts);
+	debug("last_ids  : %s\n", last_ids);
+	debug("env_ids   : %s\n", ids);
+	debug("last_parts: %s\n", last_parts);
+	debug("env_parts : %s\n\n", parts);
 
-	DEBUGF("last_partition : %s\n", last_partition);
-	DEBUGF("env_partition  : %s\n", current_partition);
+	debug("last_partition : %s\n", last_partition);
+	debug("env_partition  : %s\n", current_partition);
 
 	/* if mtdids varible is empty try to use defaults */
 	if (!ids) {
 		if (mtdids_default) {
-			DEBUGF("mtdids variable not defined, using default\n");
+			debug("mtdids variable not defined, using default\n");
 			ids = mtdids_default;
 			setenv("mtdids", (char *)ids);
 		} else {
@@ -1629,7 +1624,7 @@ int mtdparts_init(void)
 		current_mtd_partnum = 0;
 		current_save();
 
-		DEBUGF("mtdparts_init: current_mtd_dev  = %s%d, current_mtd_partnum = %d\n",
+		debug("mtdparts_init: current_mtd_dev  = %s%d, current_mtd_partnum = %d\n",
 				MTD_DEV_TYPE(current_mtd_dev->id->type),
 				current_mtd_dev->id->num, current_mtd_partnum);
 	}
@@ -1648,7 +1643,7 @@ int mtdparts_init(void)
 		struct mtd_device *cdev;
 		u8 pnum;
 
-		DEBUGF("--- getting current partition: %s\n", tmp_ep);
+		debug("--- getting current partition: %s\n", tmp_ep);
 
 		if (find_dev_and_part(tmp_ep, &cdev, &pnum, &p) == 0) {
 			current_mtd_dev = cdev;
@@ -1656,7 +1651,7 @@ int mtdparts_init(void)
 			current_save();
 		}
 	} else if (getenv("partition") == NULL) {
-		DEBUGF("no partition variable set, setting...\n");
+		debug("no partition variable set, setting...\n");
 		current_save();
 	}
 
@@ -1680,7 +1675,7 @@ static struct part_info* mtd_part_info(struct mtd_device *dev, unsigned int part
 	if (!dev)
 		return NULL;
 
-	DEBUGF("\n--- mtd_part_info: partition number %d for device %s%d (%s)\n",
+	debug("\n--- mtd_part_info: partition number %d for device %s%d (%s)\n",
 			part_num, MTD_DEV_TYPE(dev->id->type),
 			dev->id->num, dev->id->mtd_id);
 
@@ -1816,12 +1811,12 @@ int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		}
 		sprintf(tmpbuf, "%s:%s(%s)%s",
 				id->mtd_id, argv[3], argv[4], argv[5] ? argv[5] : "");
-		DEBUGF("add tmpbuf: %s\n", tmpbuf);
+		debug("add tmpbuf: %s\n", tmpbuf);
 
 		if ((device_parse(tmpbuf, NULL, &dev) != 0) || (!dev))
 			return 1;
 
-		DEBUGF("+ %s\t%d\t%s\n", MTD_DEV_TYPE(dev->id->type),
+		debug("+ %s\t%d\t%s\n", MTD_DEV_TYPE(dev->id->type),
 				dev->id->num, dev->id->mtd_id);
 
 		if ((dev_tmp = device_find(dev->id->type, dev->id->num)) == NULL) {
@@ -1845,7 +1840,7 @@ int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	/* mtdparts del part-id */
 	if ((argc == 3) && (strcmp(argv[1], "del") == 0)) {
-		DEBUGF("del: part-id = %s\n", argv[2]);
+		debug("del: part-id = %s\n", argv[2]);
 
 		return delete_partition(argv[2]);
 	}

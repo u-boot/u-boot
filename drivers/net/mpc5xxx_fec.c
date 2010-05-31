@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2005
+ * (C) Copyright 2003-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * This file is based on mpc4200fec.c,
@@ -27,10 +27,6 @@ DECLARE_GLOBAL_DATA_PTR;
 static void tfifo_print(char *devname, mpc5xxx_fec_priv *fec);
 static void rfifo_print(char *devname, mpc5xxx_fec_priv *fec);
 #endif /* DEBUG */
-
-#if (DEBUG & 0x40)
-static uint32 local_crc32(char *string, unsigned int crc_value, int len);
-#endif
 
 typedef struct {
     uint8 data[1500];           /* actual data */
@@ -1019,38 +1015,3 @@ int fec5xxx_miiphy_write(char *devname, uint8 phyAddr, uint8 regAddr, uint16 dat
 
 	return 0;
 }
-
-#if (DEBUG & 0x40)
-static uint32 local_crc32(char *string, unsigned int crc_value, int len)
-{
-	int i;
-	char c;
-	unsigned int crc, count;
-
-	/*
-	 * crc32 algorithm
-	 */
-	/*
-	 * crc = 0xffffffff; * The initialized value should be 0xffffffff
-	 */
-	crc = crc_value;
-
-	for (i = len; --i >= 0;) {
-		c = *string++;
-		for (count = 0; count < 8; count++) {
-			if ((c & 0x01) ^ (crc & 0x01)) {
-				crc >>= 1;
-				crc = crc ^ 0xedb88320;
-			} else {
-				crc >>= 1;
-			}
-			c >>= 1;
-		}
-	}
-
-	/*
-	 * In big endian system, do byte swaping for crc value
-	 */
-	 /**/ return crc;
-}
-#endif	/* DEBUG */

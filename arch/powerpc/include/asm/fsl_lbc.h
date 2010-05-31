@@ -245,6 +245,7 @@
 #define MxMR_DSx_4_CYCL		0x00c00000 /* 4 cycle Disable Period	   */
 #define MxMR_DSx_MSK		0x00c00000 /* Disable Timer Period Mask	   */
 #define MxMR_AMx_MSK		0x07000000 /* Addess Multiplex Size Mask   */
+#define MxMR_UWPL		0x08000000 /* LUPWAIT Polarity Mask	   */
 #define MxMR_OP_NORM		0x00000000 /* Normal Operation		   */
 #define MxMR_OP_WARR		0x10000000 /* Write to Array		   */
 #define MxMR_OP_RARR		0x20000000 /* Read from Array		   */

@@ -103,7 +103,7 @@ uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 /*
  * PIO Read/Write Mode reduce the performace as DMA is not used in this mode.
  */
-static int
+static void
 esdhc_pio_read_write(struct mmc *mmc, struct mmc_data *data)
 {
 	struct fsl_esdhc *regs = mmc->priv;
@@ -125,7 +125,7 @@ esdhc_pio_read_write(struct mmc *mmc, struct mmc_data *data)
 				&& --timeout);
 			if (timeout <= 0) {
 				printf("\nData Read Failed in PIO Mode.");
-				return timeout;
+				return;
 			}
 			while (size && (!(irqstat & IRQSTAT_TC))) {
 				udelay(100); /* Wait before last byte transfer complete */
@@ -139,7 +139,7 @@ esdhc_pio_read_write(struct mmc *mmc, struct mmc_data *data)
 		}
 	} else {
 		blocks = data->blocks;
-		buffer = data->src;
+		buffer = (char *)data->src;
 		while (blocks) {
 			timeout = PIO_TIMEOUT;
 			size = data->blocksize;
@@ -148,7 +148,7 @@ esdhc_pio_read_write(struct mmc *mmc, struct mmc_data *data)
 				&& --timeout);
 			if (timeout <= 0) {
 				printf("\nData Write Failed in PIO Mode.");
-				return timeout;
+				return;
 			}
 			while (size && (!(irqstat & IRQSTAT_TC))) {
 				udelay(100); /* Wait before last byte transfer complete */
@@ -166,22 +166,12 @@ esdhc_pio_read_write(struct mmc *mmc, struct mmc_data *data)
 
 static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 {
-	uint wml_value;
 	int timeout;
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
+#ifndef CONFIG_SYS_FSL_ESDHC_USE_PIO
+	uint wml_value;
 
-#ifdef CONFIG_SYS_FSL_ESDHC_USE_PIO
-	if (!(data->flags & MMC_DATA_READ)) {
-		if ((esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL) == 0) {
-			printf("\nThe SD card is locked. "
-				"Can not write to a locked card.\n\n");
-			return TIMEOUT;
-		}
-		esdhc_write32(&regs->dsaddr, (u32)data->src);
-	} else
-		esdhc_write32(&regs->dsaddr, (u32)data->dest);
-#else
 	wml_value = data->blocksize/4;
 
 	if (data->flags & MMC_DATA_READ) {
@@ -202,7 +192,17 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 					wml_value << 16);
 		esdhc_write32(&regs->dsaddr, (u32)data->src);
 	}
-#endif
+#else	/* CONFIG_SYS_FSL_ESDHC_USE_PIO */
+	if (!(data->flags & MMC_DATA_READ)) {
+		if ((esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL) == 0) {
+			printf("\nThe SD card is locked. "
+				"Can not write to a locked card.\n\n");
+			return TIMEOUT;
+		}
+		esdhc_write32(&regs->dsaddr, (u32)data->src);
+	} else
+		esdhc_write32(&regs->dsaddr, (u32)data->dest);
+#endif	/* CONFIG_SYS_FSL_ESDHC_USE_PIO */
 
 	esdhc_write32(&regs->blkattr, data->blocks << 16 | data->blocksize);
 

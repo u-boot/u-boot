@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003
+ * (C) Copyright 2003-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * This file is based on mpc4200fec.c,
@@ -26,10 +26,6 @@
 static void tfifo_print (char *devname, mpc8220_fec_priv * fec);
 static void rfifo_print (char *devname, mpc8220_fec_priv * fec);
 #endif /* DEBUG */
-
-#ifdef DEBUG
-static u32 local_crc32 (char *string, unsigned int crc_value, int len);
-#endif
 
 typedef struct {
 	u8 data[1500];		/* actual data */
@@ -961,40 +957,5 @@ int fec8220_miiphy_write (char *devname, u8 phyAddr, u8 regAddr, u16 data)
 
 	return 0;
 }
-
-#ifdef DEBUG
-static u32 local_crc32 (char *string, unsigned int crc_value, int len)
-{
-	int i;
-	char c;
-	unsigned int crc, count;
-
-	/*
-	 * crc32 algorithm
-	 */
-	/*
-	 * crc = 0xffffffff; * The initialized value should be 0xffffffff
-	 */
-	crc = crc_value;
-
-	for (i = len; --i >= 0;) {
-		c = *string++;
-		for (count = 0; count < 8; count++) {
-			if ((c & 0x01) ^ (crc & 0x01)) {
-				crc >>= 1;
-				crc = crc ^ 0xedb88320;
-			} else {
-				crc >>= 1;
-			}
-			c >>= 1;
-		}
-	}
-
-	/*
-	 * In big endian system, do byte swaping for crc value
-	 */
-	return crc;
-}
-#endif /* DEBUG */
 
 #endif /* CONFIG_MPC8220_FEC */

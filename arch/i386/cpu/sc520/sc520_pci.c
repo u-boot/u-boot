@@ -25,7 +25,9 @@
 
 #include <common.h>
 #include <pci.h>
+#include <asm/io.h>
 #include <asm/pci.h>
+#include <asm/ic/pci.h>
 #include <asm/ic/sc520.h>
 
 static struct {
@@ -63,6 +65,8 @@ int sc520_pci_ints[15] = {
 int pci_sc520_set_irq(int pci_pin, int irq)
 {
 	int i;
+	u8 tmpb;
+	u16 tmpw;
 
 # if 1
 	printf("set_irq(): map INT%c to IRQ%d\n", pci_pin + 'A', irq);
@@ -80,31 +84,34 @@ int pci_sc520_set_irq(int pci_pin, int irq)
 
 	/* PCI interrupt mapping (A through D)*/
 	for (i=0; i<=3 ;i++) {
-		if (sc520_mmcr->pci_int_map[i] == sc520_irq[irq].priority)
-			sc520_mmcr->pci_int_map[i] = SC520_IRQ_DISABLED;
+		if (readb(&sc520_mmcr->pci_int_map[i]) == sc520_irq[irq].priority)
+			writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pci_int_map[i]);
 	}
 
 	/* GP IRQ interrupt mapping */
 	for (i=0; i<=10 ;i++) {
-		if (sc520_mmcr->gp_int_map[i] == sc520_irq[irq].priority)
-			sc520_mmcr->gp_int_map[i] = SC520_IRQ_DISABLED;
+		if (readb(&sc520_mmcr->gp_int_map[i]) == sc520_irq[irq].priority)
+			writeb(SC520_IRQ_DISABLED, &sc520_mmcr->gp_int_map[i]);
 	}
 
 	/* Set the trigger to level */
-	sc520_mmcr->pic_mode[sc520_irq[irq].level_reg] =
-		sc520_mmcr->pic_mode[sc520_irq[irq].level_reg] | sc520_irq[irq].level_bit;
+	tmpb = readb(&sc520_mmcr->pic_mode[sc520_irq[irq].level_reg]);
+	tmpb |= sc520_irq[irq].level_bit;
+	writeb(tmpb, &sc520_mmcr->pic_mode[sc520_irq[irq].level_reg]);
 
 
 	if (pci_pin < 4) {
 		/* PCI INTA-INTD */
 		/* route the interrupt */
-		sc520_mmcr->pci_int_map[pci_pin] = sc520_irq[irq].priority;
+		writeb(sc520_irq[irq].priority, &sc520_mmcr->pci_int_map[pci_pin]);
 	} else {
 		/* GPIRQ0-GPIRQ10 used for additional PCI INTS */
-		sc520_mmcr->gp_int_map[pci_pin - 4] = sc520_irq[irq].priority;
+		writeb(sc520_irq[irq].priority, &sc520_mmcr->gp_int_map[pci_pin - 4]);
 
 		/* also set the polarity in this case */
-		sc520_mmcr->intpinpol = sc520_mmcr->intpinpol | (1 << (pci_pin-4));
+		tmpw = readw(&sc520_mmcr->intpinpol);
+		tmpw |= (1 << (pci_pin-4));
+		writew(tmpw, &sc520_mmcr->intpinpol);
 	}
 
 	/* register the pin */
@@ -118,43 +125,7 @@ void pci_sc520_init(struct pci_controller *hose)
 {
 	hose->first_busno = 0;
 	hose->last_busno = 0xff;
-
-	/* System memory space */
-	pci_set_region(hose->regions + 0,
-		       SC520_PCI_MEMORY_BUS,
-		       SC520_PCI_MEMORY_PHYS,
-		       SC520_PCI_MEMORY_SIZE,
-		       PCI_REGION_MEM | PCI_REGION_SYS_MEMORY);
-
-	/* PCI memory space */
-	pci_set_region(hose->regions + 1,
-		       SC520_PCI_MEM_BUS,
-		       SC520_PCI_MEM_PHYS,
-		       SC520_PCI_MEM_SIZE,
-		       PCI_REGION_MEM);
-
-	/* ISA/PCI memory space */
-	pci_set_region(hose->regions + 2,
-		       SC520_ISA_MEM_BUS,
-		       SC520_ISA_MEM_PHYS,
-		       SC520_ISA_MEM_SIZE,
-		       PCI_REGION_MEM);
-
-	/* PCI I/O space */
-	pci_set_region(hose->regions + 3,
-		       SC520_PCI_IO_BUS,
-		       SC520_PCI_IO_PHYS,
-		       SC520_PCI_IO_SIZE,
-		       PCI_REGION_IO);
-
-	/* ISA/PCI I/O space */
-	pci_set_region(hose->regions + 4,
-		       SC520_ISA_IO_BUS,
-		       SC520_ISA_IO_PHYS,
-		       SC520_ISA_IO_SIZE,
-		       PCI_REGION_IO);
-
-	hose->region_count = 5;
+	hose->region_count = pci_set_regions(hose);
 
 	pci_setup_type1(hose,
 			SC520_REG_ADDR,

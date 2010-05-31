@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Freescale Semiconductor, Inc.
+ * Copyright (C) 2008,2010 Freescale Semiconductor, Inc.
  *		Dave Liu <daveliu@freescale.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -22,6 +22,7 @@
 #include <command.h>
 #include <asm/io.h>
 #include <asm/processor.h>
+#include <asm/fsl_serdes.h>
 #include <malloc.h>
 #include <libata.h>
 #include <fis.h>
@@ -128,6 +129,17 @@ int init_sata(int dev)
 		printf("the sata index %d is out of ranges\n\r", dev);
 		return -1;
 	}
+
+#ifdef CONFIG_MPC85xx
+	if ((dev == 0) && (!is_serdes_configured(SATA1))) {
+		printf("SATA%d [dev = %d] is not enabled\n", dev+1, dev);
+		return -1;
+	}
+	if ((dev == 1) && (!is_serdes_configured(SATA2))) {
+		printf("SATA%d [dev = %d] is not enabled\n", dev+1, dev);
+		return -1;
+	}
+#endif
 
 	/* Allocate SATA device driver struct */
 	sata = (fsl_sata_t *)malloc(sizeof(fsl_sata_t));

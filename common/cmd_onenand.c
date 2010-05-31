@@ -330,154 +330,231 @@ static int onenand_dump(struct mtd_info *mtd, ulong off, int only_oob)
 	return 0;
 }
 
-int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_onenand_info(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
-	struct onenand_chip *this;
-	int blocksize;
-	ulong addr, ofs;
-	size_t len, retlen = 0;
-	int ret = 0;
-	char *cmd, *s;
+	printf("%s\n", mtd->name);
+	return 0;
+}
+
+static int do_onenand_bad(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	ulong ofs;
 
 	mtd = &onenand_mtd;
-	this = mtd->priv;
-	blocksize = (1 << this->erase_shift);
-
-	cmd = argv[1];
-
-	switch (argc) {
-	case 0:
-	case 1:
-		goto usage;
-
-	case 2:
-		if (strcmp(cmd, "info") == 0) {
-			printf("%s\n", mtd->name);
-			return 0;
-		}
-
-		if (strcmp(cmd, "bad") == 0) {
-			/* Currently only one OneNAND device is supported */
-			printf("\nDevice %d bad blocks:\n", 0);
-			for (ofs = 0; ofs < mtd->size; ofs += mtd->erasesize) {
-				if (mtd->block_isbad(mtd, ofs))
-					printf("  %08x\n", (u32)ofs);
-			}
-
-			return 0;
-		}
-
-	default:
-		/* At least 4 args */
-
-		/*
-		 * Syntax is:
-		 *   0       1     2       3    4
-		 *   onenand erase [force] [off size]
-		 */
-		if ((strcmp(cmd, "erase") == 0) || (strcmp(cmd, "test") == 0)) {
-			int force = argc > 2 && !strcmp("force", argv[2]);
-			int o = force ? 3 : 2;
-			int erase;
-
-			erase = strcmp(cmd, "erase") == 0; /* 1 = erase, 0 = test */
-			printf("\nOneNAND %s: ", erase ? "erase" : "test");
-
-			/* skip first two or three arguments, look for offset and size */
-			if (arg_off_size(argc - o, argv + o, &ofs, &len) != 0)
-				return 1;
-
-			if (erase)
-				ret = onenand_block_erase(ofs, len, force);
-			else
-				ret = onenand_block_test(ofs, len);
-
-			printf("%s\n", ret ? "ERROR" : "OK");
-
-			return ret == 0 ? 0 : 1;
-		}
-
-		if (strncmp(cmd, "read", 4) == 0 || strncmp(cmd, "write", 5) == 0) {
-			int read;
-			int oob = 0;
-
-			if (argc < 4)
-				goto usage;
-
-			addr = (ulong)simple_strtoul(argv[2], NULL, 16);
-
-			read = strncmp(cmd, "read", 4) == 0; /* 1 = read, 0 = write */
-			printf("\nOneNAND %s: ", read ? "read" : "write");
-			if (arg_off_size(argc - 3, argv + 3, &ofs, &len) != 0)
-				return 1;
-
-			s = strchr(cmd, '.');
-			if ((s != NULL) && (!strcmp(s, ".oob")))
-				oob = 1;
-
-			if (read) {
-				ret = onenand_block_read(ofs, len, &retlen,
-							 (u8 *)addr, oob);
-			} else {
-				ret = onenand_block_write(ofs, len, &retlen,
-							  (u8 *)addr);
-			}
-
-			printf(" %d bytes %s: %s\n", retlen,
-			       read ? "read" : "written", ret ? "ERROR" : "OK");
-
-			return ret == 0 ? 0 : 1;
-		}
-
-		if (strcmp(cmd, "markbad") == 0) {
-			argc -= 2;
-			argv += 2;
-
-			if (argc <= 0)
-				goto usage;
-
-			while (argc > 0) {
-				addr = simple_strtoul(*argv, NULL, 16);
-
-				if (mtd->block_markbad(mtd, addr)) {
-					printf("block 0x%08lx NOT marked "
-						"as bad! ERROR %d\n",
-						addr, ret);
-					ret = 1;
-				} else {
-					printf("block 0x%08lx successfully "
-						"marked as bad\n",
-						addr);
-				}
-				--argc;
-				++argv;
-			}
-			return ret;
-		}
-
-		if (strncmp(cmd, "dump", 4) == 0) {
-			if (argc < 3)
-				goto usage;
-
-			s = strchr(cmd, '.');
-			ofs = (int)simple_strtoul(argv[2], NULL, 16);
-
-			if (s != NULL && strcmp(s, ".oob") == 0)
-				ret = onenand_dump(mtd, ofs, 1);
-			else
-				ret = onenand_dump(mtd, ofs, 0);
-
-			return ret == 0 ? 1 : 0;
-		}
-
-		break;
+	/* Currently only one OneNAND device is supported */
+	printf("\nDevice %d bad blocks:\n", 0);
+	for (ofs = 0; ofs < mtd->size; ofs += mtd->erasesize) {
+		if (mtd->block_isbad(mtd, ofs))
+			printf("  %08x\n", (u32)ofs);
 	}
 
 	return 0;
+}
 
-usage:
-	cmd_usage(cmdtp);
-	return 1;
+static int do_onenand_read(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	char *s;
+	int oob = 0;
+	ulong addr, ofs;
+	size_t len;
+	int ret = 0;
+	size_t retlen = 0;
+
+	if (argc < 3)
+	{
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	s = strchr(argv[0], '.');
+	if ((s != NULL) && (!strcmp(s, ".oob")))
+		oob = 1;
+
+	addr = (ulong)simple_strtoul(argv[1], NULL, 16);
+
+	printf("\nOneNAND read: ");
+	if (arg_off_size(argc - 2, argv + 2, &ofs, &len) != 0)
+		return 1;
+
+	ret = onenand_block_read(ofs, len, &retlen, (u8 *)addr, oob);
+
+	printf(" %d bytes read: %s\n", retlen, ret ? "ERROR" : "OK");
+
+	return ret == 0 ? 0 : 1;
+}
+
+static int do_onenand_write(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	ulong addr, ofs;
+	size_t len;
+	int ret = 0;
+	size_t retlen = 0;
+
+	if (argc < 3)
+	{
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	addr = (ulong)simple_strtoul(argv[1], NULL, 16);
+
+	printf("\nOneNAND write: ");
+	if (arg_off_size(argc - 2, argv + 2, &ofs, &len) != 0)
+		return 1;
+
+	ret = onenand_block_write(ofs, len, &retlen, (u8 *)addr);
+
+	printf(" %d bytes written: %s\n", retlen, ret ? "ERROR" : "OK");
+
+	return ret == 0 ? 0 : 1;
+}
+
+static int do_onenand_erase(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	ulong ofs;
+	int ret = 0;
+	size_t len;
+	int force;
+
+	/*
+	 * Syntax is:
+	 *   0       1     2       3    4
+	 *   onenand erase [force] [off size]
+	 */
+	argc--;
+	argv++;
+	if (argc)
+	{
+		if (!strcmp("force", argv[0]))
+		{
+			force = 1;
+			argc--;
+			argv++;
+		}
+	}
+	printf("\nOneNAND erase: ");
+
+	/* skip first two or three arguments, look for offset and size */
+	if (arg_off_size(argc, argv, &ofs, &len) != 0)
+		return 1;
+
+	ret = onenand_block_erase(ofs, len, force);
+
+	printf("%s\n", ret ? "ERROR" : "OK");
+
+	return ret == 0 ? 0 : 1;
+}
+
+static int do_onenand_test(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	ulong ofs;
+	int ret = 0;
+	size_t len;
+
+	/*
+	 * Syntax is:
+	 *   0       1     2       3    4
+	 *   onenand test [force] [off size]
+	 */
+
+	printf("\nOneNAND test: ");
+
+	/* skip first two or three arguments, look for offset and size */
+	if (arg_off_size(argc - 1, argv + 1, &ofs, &len) != 0)
+		return 1;
+
+	ret = onenand_block_test(ofs, len);
+
+	printf("%s\n", ret ? "ERROR" : "OK");
+
+	return ret == 0 ? 0 : 1;
+}
+
+static int do_onenand_dump(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	ulong ofs;
+	int ret = 0;
+	char *s;
+
+	if (argc < 2)
+	{
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	s = strchr(argv[0], '.');
+	ofs = (int)simple_strtoul(argv[1], NULL, 16);
+
+	if (s != NULL && strcmp(s, ".oob") == 0)
+		ret = onenand_dump(mtd, ofs, 1);
+	else
+		ret = onenand_dump(mtd, ofs, 0);
+
+	return ret == 0 ? 1 : 0;
+}
+
+static int do_onenand_markbad(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	int ret = 0;
+	ulong addr;
+
+	argc -= 2;
+	argv += 2;
+
+	if (argc <= 0)
+	{
+		cmd_usage(cmdtp);
+		return 1;
+	}
+
+	while (argc > 0) {
+		addr = simple_strtoul(*argv, NULL, 16);
+
+		if (mtd->block_markbad(mtd, addr)) {
+			printf("block 0x%08lx NOT marked "
+				"as bad! ERROR %d\n",
+				addr, ret);
+			ret = 1;
+		} else {
+			printf("block 0x%08lx successfully "
+				"marked as bad\n",
+				addr);
+		}
+		--argc;
+		++argv;
+	}
+	return ret;
+}
+
+static cmd_tbl_t cmd_onenand_sub[] = {
+	U_BOOT_CMD_MKENT(info, 1, 0, do_onenand_info, "", ""),
+	U_BOOT_CMD_MKENT(bad, 1, 0, do_onenand_bad, "", ""),
+	U_BOOT_CMD_MKENT(read, 4, 0, do_onenand_read, "", ""),
+	U_BOOT_CMD_MKENT(write, 4, 0, do_onenand_write, "", ""),
+	U_BOOT_CMD_MKENT(erase, 3, 0, do_onenand_erase, "", ""),
+	U_BOOT_CMD_MKENT(test, 3, 0, do_onenand_test, "", ""),
+	U_BOOT_CMD_MKENT(dump, 2, 0, do_onenand_dump, "", ""),
+	U_BOOT_CMD_MKENT(markbad, CONFIG_SYS_MAXARGS, 0, do_onenand_markbad, "", ""),
+};
+
+static int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+{
+	cmd_tbl_t *c;
+
+	mtd = &onenand_mtd;
+
+	/* Strip off leading 'onenand' command argument */
+	argc--;
+	argv++;
+
+	c = find_cmd_tbl(argv[0], &cmd_onenand_sub[0], ARRAY_SIZE(cmd_onenand_sub));
+
+	if (c) {
+		return  c->cmd(cmdtp, flag, argc, argv);
+	} else {
+		cmd_usage(cmdtp);
+		return 1;
+	}
 }
 
 U_BOOT_CMD(
@@ -486,7 +563,7 @@ U_BOOT_CMD(
 	"info - show available OneNAND devices\n"
 	"onenand bad - show bad blocks\n"
 	"onenand read[.oob] addr off size\n"
-	"onenand write[.oob] addr off size\n"
+	"onenand write addr off size\n"
 	"    read/write 'size' bytes starting at offset 'off'\n"
 	"    to/from memory address 'addr', skipping bad blocks.\n"
 	"onenand erase [force] [off size] - erase 'size' bytes from\n"

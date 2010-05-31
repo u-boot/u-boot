@@ -24,6 +24,8 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/ic/sc520.h>
+#include <net.h>
+#include <netdev.h>
 
 #ifdef CONFIG_HW_WATCHDOG
 #include <watchdog.h>
@@ -43,10 +45,13 @@ DECLARE_GLOBAL_DATA_PTR;
 
 unsigned long monitor_flash_len = CONFIG_SYS_MONITOR_LEN;
 
+static void enet_timer_isr(void);
+static void enet_toggle_run_led(void);
+
 void init_sc520_enet (void)
 {
 	/* Set CPU Speed to 100MHz */
-	sc520_mmcr->cpuctl = 0x01;
+	writeb(0x01, &sc520_mmcr->cpuctl);
 
 	/* wait at least one millisecond */
 	asm("movl	$0x2000,%%ecx\n"
@@ -55,7 +60,7 @@ void init_sc520_enet (void)
 	    "loop 0b\n": : : "ecx");
 
 	/* turn on the SDRAM write buffer */
-	sc520_mmcr->dbctl = 0x11;
+	writeb(0x11, &sc520_mmcr->dbctl);
 
 	/* turn on the cache and disable write through */
 	asm("movl	%%cr0, %%eax\n"
@@ -70,51 +75,52 @@ int board_early_init_f(void)
 {
 	init_sc520_enet();
 
-	sc520_mmcr->gpcsrt = 0x01;		/* GP Chip Select Recovery Time */
-	sc520_mmcr->gpcspw = 0x07;		/* GP Chip Select Pulse Width */
-	sc520_mmcr->gpcsoff = 0x00;		/* GP Chip Select Offset */
-	sc520_mmcr->gprdw = 0x05;		/* GP Read pulse width */
-	sc520_mmcr->gprdoff = 0x01;		/* GP Read offset */
-	sc520_mmcr->gpwrw = 0x05;		/* GP Write pulse width */
-	sc520_mmcr->gpwroff = 0x01;		/* GP Write offset */
+	writeb(0x01, &sc520_mmcr->gpcsrt);		/* GP Chip Select Recovery Time */
+	writeb(0x07, &sc520_mmcr->gpcspw);		/* GP Chip Select Pulse Width */
+	writeb(0x00, &sc520_mmcr->gpcsoff);		/* GP Chip Select Offset */
+	writeb(0x05, &sc520_mmcr->gprdw);		/* GP Read pulse width */
+	writeb(0x01, &sc520_mmcr->gprdoff);		/* GP Read offset */
+	writeb(0x05, &sc520_mmcr->gpwrw);		/* GP Write pulse width */
+	writeb(0x01, &sc520_mmcr->gpwroff);		/* GP Write offset */
 
-	sc520_mmcr->piodata15_0 = 0x0630;	/* PIO15_PIO0 Data */
-	sc520_mmcr->piodata31_16 = 0x2000;	/* PIO31_PIO16 Data */
-	sc520_mmcr->piodir31_16 = 0x2000;	/* GPIO Direction */
-	sc520_mmcr->piodir15_0 = 0x87b5;	/* GPIO Direction */
-	sc520_mmcr->piopfs31_16 = 0x0dfe;	/* GPIO pin function 31-16 reg */
-	sc520_mmcr->piopfs15_0 = 0x200a;	/* GPIO pin function 15-0 reg */
-	sc520_mmcr->cspfs = 0x00f8;		/* Chip Select Pin Function Select */
+	writew(0x0630, &sc520_mmcr->piodata15_0);	/* PIO15_PIO0 Data */
+	writew(0x2000, &sc520_mmcr->piodata31_16);	/* PIO31_PIO16 Data */
+	writew(0x2000, &sc520_mmcr->piodir31_16);	/* GPIO Direction */
+	writew(0x87b5, &sc520_mmcr->piodir15_0);	/* GPIO Direction */
+	writew(0x0dfe, &sc520_mmcr->piopfs31_16);	/* GPIO pin function 31-16 reg */
+	writew(0x200a, &sc520_mmcr->piopfs15_0);	/* GPIO pin function 15-0 reg */
+	writeb(0xf8, &sc520_mmcr->cspfs);		/* Chip Select Pin Function Select */
 
-	sc520_mmcr->par[2] = 0x200713f8;	/* Uart A (GPCS0, 0x013f8, 8 Bytes) */
-	sc520_mmcr->par[3] = 0x2c0712f8;	/* Uart B (GPCS3, 0x012f8, 8 Bytes) */
-	sc520_mmcr->par[4] = 0x300711f8;	/* Uart C (GPCS4, 0x011f8, 8 Bytes) */
-	sc520_mmcr->par[5] = 0x340710f8;	/* Uart D (GPCS5, 0x010f8, 8 Bytes) */
-	sc520_mmcr->par[6] =  0xe3ffc000;	/* SDRAM (0x00000000, 128MB) */
-	sc520_mmcr->par[7] = 0xaa3fd000;	/* StrataFlash (ROMCS1, 0x10000000, 16MB) */
-	sc520_mmcr->par[8] = 0xca3fd100;	/* StrataFlash (ROMCS2, 0x11000000, 16MB) */
-	sc520_mmcr->par[9] = 0x4203d900;	/* SRAM (GPCS0, 0x19000000, 1MB) */
-	sc520_mmcr->par[10] = 0x4e03d910;	/* SRAM (GPCS3, 0x19100000, 1MB) */
-	sc520_mmcr->par[11] = 0x50018100;	/* DP-RAM (GPCS4, 0x18100000, 4kB) */
-	sc520_mmcr->par[12] = 0x54020000;	/* CFLASH1 (0x200000000, 4kB) */
-	sc520_mmcr->par[13] = 0x5c020001;	/* CFLASH2 (0x200010000, 4kB) */
-/*	sc520_mmcr->par14 = 0x8bfff800; */	/* BOOTCS at  0x18000000 */
-/*	sc520_mmcr->par15 = 0x38201000; */	/* LEDs etc (GPCS6, 0x1000, 20 Bytes */
+	writel(0x200713f8, &sc520_mmcr->par[2]);	/* Uart A (GPCS0, 0x013f8, 8 Bytes) */
+	writel(0x2c0712f8, &sc520_mmcr->par[3]);	/* Uart B (GPCS3, 0x012f8, 8 Bytes) */
+	writel(0x300711f8, &sc520_mmcr->par[4]);	/* Uart C (GPCS4, 0x011f8, 8 Bytes) */
+	writel(0x340710f8, &sc520_mmcr->par[5]);	/* Uart D (GPCS5, 0x010f8, 8 Bytes) */
+	writel(0xe3ffc000, &sc520_mmcr->par[6]);	/* SDRAM (0x00000000, 128MB) */
+	writel(0xaa3fd000, &sc520_mmcr->par[7]);	/* StrataFlash (ROMCS1, 0x10000000, 16MB) */
+	writel(0xca3fd100, &sc520_mmcr->par[8]);	/* StrataFlash (ROMCS2, 0x11000000, 16MB) */
+	writel(0x4203d900, &sc520_mmcr->par[9]);	/* SRAM (GPCS0, 0x19000000, 1MB) */
+	writel(0x4e03d910, &sc520_mmcr->par[10]);	/* SRAM (GPCS3, 0x19100000, 1MB) */
+	writel(0x50018100, &sc520_mmcr->par[11]);	/* DP-RAM (GPCS4, 0x18100000, 4kB) */
+	writel(0x54020000, &sc520_mmcr->par[12]);	/* CFLASH1 (0x200000000, 4kB) */
+	writel(0x5c020001, &sc520_mmcr->par[13]);	/* CFLASH2 (0x200010000, 4kB) */
+/*	writel(0x8bfff800, &sc520_mmcr->par14); */	/* BOOTCS at  0x18000000 */
+/*	writel(0x38201000, &sc520_mmcr->par15); */	/* LEDs etc (GPCS6, 0x1000, 20 Bytes */
 
 	/* Disable Watchdog */
-	sc520_mmcr->wdtmrctl = 0x3333;
-	sc520_mmcr->wdtmrctl = 0xcccc;
-	sc520_mmcr->wdtmrctl = 0x0000;
+	writew(0x3333, &sc520_mmcr->wdtmrctl);
+	writew(0xcccc, &sc520_mmcr->wdtmrctl);
+	writew(0x0000, &sc520_mmcr->wdtmrctl);
 
 	/* Chip Select Configuration */
-	sc520_mmcr->bootcsctl = 0x0033;
-	sc520_mmcr->romcs1ctl = 0x0615;
-	sc520_mmcr->romcs2ctl = 0x0615;
+	writew(0x0033, &sc520_mmcr->bootcsctl);
+	writew(0x0615, &sc520_mmcr->romcs1ctl);
+	writew(0x0615, &sc520_mmcr->romcs2ctl);
 
-	sc520_mmcr->adddecctl = 0x02;
-	sc520_mmcr->uart1ctl = 0x07;
-	sc520_mmcr->sysarbctl = 0x06;
-	sc520_mmcr->sysarbmenb = 0x0003;
+	writeb(0x00, &sc520_mmcr->adddecctl);
+	writeb(0x07, &sc520_mmcr->uart1ctl);
+	writeb(0x07, &sc520_mmcr->uart2ctl);
+	writeb(0x06, &sc520_mmcr->sysarbctl);
+	writew(0x0003, &sc520_mmcr->sysarbmenb);
 
 	return 0;
 }
@@ -157,6 +163,10 @@ int last_stage_init(void)
 
 	major = minor = 0;
 
+	outb(0x00, LED_LATCH_ADDRESS);
+
+	register_timer_isr (enet_timer_isr);
+
 	printf("Serck Controls eNET\n");
 
 	return 0;
@@ -171,4 +181,85 @@ ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
 		return 1;
 	} else
 		return 0;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	return pci_eth_init(bis);
+}
+
+void setup_pcat_compatibility()
+{
+	/* disable global interrupt mode */
+	writeb(0x40, &sc520_mmcr->picicr);
+
+	/* set all irqs to edge */
+	writeb(0x00, &sc520_mmcr->pic_mode[0]);
+	writeb(0x00, &sc520_mmcr->pic_mode[1]);
+	writeb(0x00, &sc520_mmcr->pic_mode[2]);
+
+	/*
+	 *  active low polarity on PIC interrupt pins,
+	 *  active high polarity on all other irq pins
+	 */
+	writew(0x0000,&sc520_mmcr->intpinpol);
+
+	/* Set PIT 0 -> IRQ0, RTC -> IRQ8, FP error -> IRQ13 */
+	writeb(SC520_IRQ0, &sc520_mmcr->pit_int_map[0]);
+	writeb(SC520_IRQ8, &sc520_mmcr->rtcmap);
+	writeb(SC520_IRQ13, &sc520_mmcr->ferrmap);
+
+	/* Disable all other interrupt sources */
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->gp_tmr_int_map[0]);
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->gp_tmr_int_map[1]);
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->gp_tmr_int_map[2]);
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pit_int_map[1]);
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pit_int_map[2]);
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pci_int_map[0]);	/* disable PCI INT A */
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pci_int_map[1]);	/* disable PCI INT B */
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pci_int_map[2]);	/* disable PCI INT C */
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pci_int_map[3]);	/* disable PCI INT D */
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->dmabcintmap);		/* disable DMA INT */
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->ssimap);
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->wdtmap);
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->wpvmap);
+	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->icemap);
+}
+
+void enet_timer_isr(void)
+{
+	static long enet_ticks = 0;
+
+	enet_ticks++;
+
+	/* Toggle Watchdog every 100ms */
+	if ((enet_ticks % 100) == 0)
+		hw_watchdog_reset();
+
+	/* Toggle Run LED every 500ms */
+	if ((enet_ticks % 500) == 0)
+		enet_toggle_run_led();
+}
+
+void hw_watchdog_reset(void)
+{
+	/* Watchdog Reset must be atomic */
+	long flag = disable_interrupts();
+
+	if (sc520_mmcr->piodata15_0 & WATCHDOG_PIO_BIT)
+		sc520_mmcr->pioclr15_0 = WATCHDOG_PIO_BIT;
+	else
+		sc520_mmcr->pioset15_0 = WATCHDOG_PIO_BIT;
+
+	if (flag)
+		enable_interrupts();
+}
+
+void enet_toggle_run_led(void)
+{
+	unsigned char leds_state= inb(LED_LATCH_ADDRESS);
+	if (leds_state & LED_RUN_BITMASK)
+		outb(leds_state &~ LED_RUN_BITMASK, LED_LATCH_ADDRESS);
+	else
+		outb(leds_state | LED_RUN_BITMASK, LED_LATCH_ADDRESS);
 }

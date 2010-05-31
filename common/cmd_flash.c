@@ -34,7 +34,7 @@
 #if defined(CONFIG_CMD_JFFS2) && defined(CONFIG_CMD_MTDPARTS)
 #include <jffs2/jffs2.h>
 
-/* parition handling routines */
+/* partition handling routines */
 int mtdparts_init(void);
 int mtd_id_parse(const char *id, const char **ret_id, u8 *dev_type, u8 *dev_num);
 int find_dev_and_part(const char *id, struct mtd_device **dev,
@@ -368,7 +368,7 @@ int do_flerase (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				addr_first = part->offset + info->start[0];
 				addr_last = addr_first + part->size - 1;
 
-				printf ("Erase Flash Parition %s, "
+				printf ("Erase Flash Partition %s, "
 						"bank %ld, 0x%08lx - 0x%08lx ",
 						argv[1], bank, addr_first,
 						addr_last);
@@ -576,7 +576,7 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				addr_first = part->offset + info->start[0];
 				addr_last = addr_first + part->size - 1;
 
-				printf ("%sProtect Flash Parition %s, "
+				printf ("%sProtect Flash Partition %s, "
 						"bank %ld, 0x%08lx - 0x%08lx\n",
 						p ? "" : "Un", argv[1],
 						bank, addr_first, addr_last);

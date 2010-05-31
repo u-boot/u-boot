@@ -1,3 +1,3592 @@
+commit c7da8c19b5f7fd58b5b4b1d247648851af56e1f0
+Author: Andreas Biessmann <andreas.devel@googlemail.com>
+Date:	Sat May 22 13:17:21 2010 +0200
+
+    config.mk: use different host compiler for OS X 10.6
+
+    Compiling tools subdirectory on Mac OS X 10.6 (Snow Leopard) complains about
+    wrong syntax in system includes.
+
+    In file included from /usr/include/stdio.h:444,
+		     from ../source/u-boot/include/compiler.h:26,
+		     from ../source/u-boot/lib/crc32.c:15:
+    /usr/include/secure/_stdio.h:46: error: syntax error in macro parameter list
+
+    This can be fixed by reverting the workaround for prior OS X releases in
+    config.mk conditionally for OS X 10.6+.
+
+    Signed-off-by: Andreas Bießmann <andreas.devel@googlemail.com>
+    Acked-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 6ece2550d1c0c5c811b302b1639ea35c2e485203
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Fri May 21 04:17:48 2010 -0500
+
+    Convert Makefiles from COBJS-${} to COBJS-$()
+
+    Match style we use almost everywhere else
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 59dde44acb82e571808190ccd3cd6b82dc9d7001
+Author: Michael Weiss <michael.weiss@ifm.com>
+Date:	Thu May 20 16:09:35 2010 +0200
+
+    powerpc/bootcount: Fix endianness problem
+
+    For CONFIG_SYS_BOOTCOUNT_SINGLEWORD the code had an endianness problem.
+
+    Signed-off-by: Michael Weiss <michael.weiss@ifm.com>
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit d74dda09f0178079705ee1d641444bac44d3ecd9
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 26 22:19:35 2010 +0200
+
+    dm9000x.c: fix compile problems
+
+    Use readX() / writeX() accessors instead of inX() / outX().
+
+    Suggested-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 40792d675a609c83621d098e48a89de07463b3cd
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 21 23:14:53 2010 +0200
+
+    a320evb: fix udelay / __udelay confusion
+
+    Fix the following compiler problems:
+
+    arch/arm/cpu/arm920t/a320/liba320.a(timer.o): In function `udelay':
+    /home/wd/git/u-boot/work/arch/arm/cpu/arm920t/a320/timer.c:160: multiple definition of `udelay'
+    lib/libgeneric.a(time.o):/home/wd/git/u-boot/work/lib/time.c:34: first defined here
+    lib/libgeneric.a(time.o): In function `udelay':
+    time.c:(.text+0x1c): undefined reference to `__udelay'
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 92381c41c718d260476d5c636c473f50e3b5a79c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri May 21 23:13:18 2010 +0200
+
+    ARM: */timer.c: fix spelling and vertical alignment
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 3f786bb8542ee85ea898152b40b1f0d98f0801df
+Author: Mahavir Jain <[mjain@marvell.com]>
+Date:	Fri May 21 14:37:48 2010 +0530
+
+    bugfix: Guruplug: Use standard miiphy
+
+    call to reset PHY chip.
+
+    Current PHY Software Reset operation in guruplug does not
+    poll reset bit in control register to go to 0(auto clearing)
+    for making sure reset was successful.This patch uses standard
+    miiphy call miiphy_reset to make sure proper PHY reset operation.
+
+    Signed-off-by: Mahavir Jain <mjain@marvell.com>
+
+commit 71bd860cce4493c5def07804723661e75271052b
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Wed May 19 17:06:46 2010 -0500
+
+    mpc83xx: don't shift pre-shifted ACR, SPCR, SCCR bitfield masks in cpu_init.c
+
+    commit c7190f028fa950d4d36b6d0b4bb3fc72602ec54c "mpc83xx:
+    retain POR values of non-configured ACR, SPCR, SCCR, and LCRR
+    bitfields" incorrectly shifted <register>_<bitfield> (e.g.
+    ACR_PIPE_DEP) values that were preshifted by their
+    definition in mpc83xx.h.
+
+    this patch removes the unnecessary shifting for the newly
+    utilized mask values in cpu_init.c, and prevents seemingly
+    unrelated symptoms such as an mpc8379erdb board from
+    locking up whilst performing a networking operation,
+    e.g. a tftp.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit f6970d0c545b9134af3b347c75ee3d13545b36d8
+Author: Horst Kronstorfer <hkronsto@frequentis.com>
+Date:	Tue May 18 10:37:05 2010 +0200
+
+    Fixed two typos in arch/powerpc/cpu/mpc83xx/start.S.
+
+    Signed-off-by: Horst Kronstorfer <hkronsto@frequentis.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 445093d175b06226549680b6894923bb0f5e50fa
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Nov 17 21:27:39 2009 +0100
+
+    Fix "par[t]ition" typo.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit bdc5f06789c5a0c3a9a2c0eb33ec4d177dbdaa22
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon May 17 10:01:05 2010 +0200
+
+    UBI: Fix problem in UBI/Linux "compatibility layer"
+
+    "down_write_trylock" needs to return 1 instead of 0 for success.
+    Otherwise copying a block with a read error (e.g. bit-flip on read)
+    won't work correctly.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1b1f9a9d00447d9eab32ae5633f60a106196b75f
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon May 17 10:00:51 2010 +0200
+
+    UBI: Ensure that "background thread" operations are really executed
+
+    The current U-Boot UBI implementation is copied from Linux. In this
+    porting the UBI background thread was not handled correctly. Upon write
+    operations ubi_wl_flush() makes sure, that all queued operations, like
+    page-erase, are completed. But this is missing for read operations.
+
+    This patch now makes sure that such operations (like scrubbing upon
+    bit-flip errors) are not queued, but executed directly.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 03af5abd85637d27e96fb999ce6e3992293570b0
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Thu May 13 10:26:40 2010 +0200
+
+    MX31: Added support for the Casio COM57H5M10XRC to QONG
+
+    The patch adds setup to connect a CASIO COM57H5M10XRC
+    (640x480 TFT display) to the QONG module.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 2f05e394fccf62a4693c6b8323de725f90d1f003
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon May 17 23:34:18 2010 +0200
+
+    fsl_diu_fb.c: fix build warnings
+
+    Commit 15351855 "fsl-diu: Using I/O accessor to CCSR space" caused a
+    number of "passing argument 2 of 'out_be32' makes integer from pointer
+    without a cast" warnings; fix these.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Dave Liu <daveliu@freescale.com>
+    Cc: Jerry Huang <Chang-Ming.Huang@freescale.com>
+    Cc: Kumar Gala <galak@kernel.crashing.org>
+
+commit f2d76ae4fdde180e120ea2d29d6ef881360b3cba
+Author: Nick Thompson <nick.thompson@ge.com>
+Date:	Tue May 11 11:29:52 2010 +0100
+
+    Avoid use of divides in print_size
+
+    Modification of print_size to avoid use of divides and especially
+    long long divides. Keep the binary scale factor in terms of bit
+    shifts instead. This should be faster, since the previous code
+    gave the compiler no clues that the divides where always powers
+    of two, preventing optimisation.
+
+    Signed-off-by: Nick Thompson <nick.thompson@ge.com>
+    Acked-by: Timur Tabi <timur@freescale.com>
+
+commit a599cde7698acc5ae3d0f731b4a7d63a931aae63
+Author: Serge Ziryukin <ftrvxmtrx@gmail.com>
+Date:	Mon May 10 17:40:49 2010 +0300
+
+    lan91c96, smc911x: remove useless free(ptr) calls on NULL ptr
+
+    Signed-off-by: Serge Ziryukin <ftrvxmtrx@gmail.com>
+
+commit b1e1a42bb1ea2f0ddaaea7f4c9d67c98ab38709e
+Author: Ron Madrid <ron_madrid@sbcglobal.net>
+Date:	Fri May 14 16:27:48 2010 -0700
+
+    Fix SICRL setting in SIMPC8313
+
+    This patch sets the SICRL_LBC bits in SICRL to change the function of the
+    associated pins to GPIO functionality.
+
+    Signed-off-by: Ron Madrid <ron_madrid@sbcglobal.net>
+
+commit a4bfc4cc466473b97c7fe84bdf261b2935887e3f
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri May 14 13:18:54 2010 -0500
+
+    mpc83xx: fix NAND bootstrap too big error
+
+    commit 167cdad1372917bc11c636c359aad02625291fa9 "SERIAL: Enable
+    port-mapped access" inadvertently broke 83xx nand boards by
+    converting NS16550_init to use io accessors, which expanded
+    the size of the generated code.
+
+    this patch fixes the problem by removing icache functions from
+    the nand builds, which somewhat follows commit
+    1a2e203b31d33fb720f2cf1033b241ad36ab405a "mpc83xx: turn on icache
+    in core initialization to improve u-boot boot time"
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit e74244c5a1c8bcea9b047217277dcd3235a285f4
+Author: Ron Madrid <ron_madrid@sbcglobal.net>
+Date:	Mon May 10 15:23:20 2010 -0700
+
+    Removal of checkboard from spl bootstrap build for SIMPC8313
+
+    This patch removes the checkboard function from the build of
+    the 4k bootstrap section for the SIMPC8313 as it is not needed
+    in the spl build.  This will allow > 100 bytes of extra room
+    for other uses.
+
+    Signed-off-by: Ron Madrid <ron_madrid@sbcglobal.net>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 9c3f2d6670e6151f4f6329f572a62b0d2d6768ce
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Tue May 11 09:54:00 2010 +0200
+
+    ppc4xx: Fix building PLU405 board
+
+    Due to some overlapping sections it's time to update TEXT_BASE
+    for this board.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit a2a0a7171303de5d8ce099344efde2e29ee36eb0
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat May 15 21:23:51 2010 +0200
+
+    Makefile: fix out-of-tree building of "u-boot.img" target
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 2e4f35dbd8e11c3121af99ea8e04ce4fb39e9a4e
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sat May 15 20:22:21 2010 +0200
+
+    MVBLM7, MVSMR: fix Makefile (cleanup bootscript.img)
+
+    Fix MVBLM7 and MVSMR Makefiles for correct out-of-tree building
+    (create "bootscript.img" in build directory instead of source
+    directory) and cleanup (remove "bootscript.img" when cleaning up).
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Andre Schwarz <andre.schwarz@matrix-vision.de>
+
+commit cd4b02be1bb732f3990801ff81b57bd597b1d5b6
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon May 10 23:08:02 2010 +0200
+
+    ARM: add __aeabi_unwind_cpp_pr0() function to avoid linker complaints
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Tested-by: Thomas Weber <weber@corscience.de>
+
+commit 7b43db92110ec2f15c5f7187a165f2928464966b
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun May 9 23:52:59 2010 +0200
+
+    drivers/mmc/fsl_esdhc.c: fix compiler warnings
+
+    Commit 77c1458d caused the following compiler warnings:
+
+    fsl_esdhc.c: In function 'esdhc_pio_read_write':
+    fsl_esdhc.c:142: warning: assignment discards qualifiers from pointer target type
+    fsl_esdhc.c: In function 'esdhc_setup_data':
+    fsl_esdhc.c:169: warning: unused variable 'wml_value'
+    fsl_esdhc.c: In function 'esdhc_pio_read_write':
+    fsl_esdhc.c:164: warning: control reaches end of non-void function
+
+    Fix these.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Dipen Dudhat <dipen.dudhat@freescale.com>
+    Cc: Andy Fleming <afleming@freescale.com>
+
+commit bcb6c2bb84705bfd73eed5c9a31e9ff24833ee8c
+Author: York Sun <yorksun@freescale.com>
+Date:	Fri May 7 09:12:01 2010 -0500
+
+    Enabled support for Rev 1.3 SPD for DDR2 DIMMs
+
+    SPD has minor change from Rev 1.2 to 1.3. This patch enables Rev 1.3.
+    The difference has ben examined and the code is compatible.
+    Speed bins is not verified on hardware for CL7 at this moment.
+
+    This patch also enables SPD Rev 1.x where x is up to "F". According to SPD
+    spec, the lower nibble is optionally used to determine which additinal bytes
+    or attribute bits have been defined. Software can safely use defaults. However,
+    the upper nibble should always be checked.
+
+    Signed-off-by: York Sun <yorksun@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f54fe87acedbbad7d29ad18cab31d2b323717514
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Apr 20 10:21:25 2010 -0500
+
+    85xx/fsl-sata: Use is_serdes_configured() to determine if SATA is enabled
+
+    On the MPC85xx platform if we have SATA its connected on SERDES.
+    Determing if SATA is enabled via sata_initialize should not be board
+    specific and thus we move it out of the MPC8536DS board code.
+
+    Additionally, now that we have is_serdes_configured() we can determine
+    if the given SATA port is enabled and error out if its not in the
+    driver.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 54648985e2a64e29784e3ed37cd45b637305cd65
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Apr 20 10:21:12 2010 -0500
+
+    85xx/mpc8536ds: Use is_serdes_configured() to determine of PCIe enabled
+
+    The new is_serdes_configured covers a broader range of devices than the
+    PCI specific code.	Use it instead as we convert away from the
+    is_fsl_pci_cfg() code.
+
+    Additionally move to setting LAWs for PCI based on if its configured.
+    Also updated PCI FDT fixup code to remove PCI controllers from dtb if
+    they are configured.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 6ab4011b796e0af130ca160ea3c674d462f3bec4
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Apr 20 10:20:33 2010 -0500
+
+    85xx: Add is_serdes_configured() support to MPC8536 SERDES
+
+    Add the ability to determine if a given IP block connected on SERDES is
+    configured.  This is useful for things like PCIe and SRIO since they are
+    only ever connected on SERDES.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 15351855776f32d40d9c336c0dc6d22a7bcf40c2
+Author: Jerry Huang <Chang-Ming.Huang@freescale.com>
+Date:	Thu Apr 8 15:56:07 2010 +0800
+
+    fsl-diu: Using I/O accessor to CCSR space
+
+    Using PPC I/O accessor to DIU I/O space instead of directly
+    read/write. It will prevent the dozen of compiler order issue
+    and PPC hardware order issue for accessing I/O space.
+
+    Using the toolchain(tc-fsl-x86lnx-e500-dp-4.3.74-2.i386.rpm)
+    can show up the order issue of DIU driver.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Jerry Huang <Chang-Ming.Huang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit fd194f82d1c30802f0597a3e359fdc03ed397367
+Author: Andre Schwarz <andre.schwarz@matrix-vision.de>
+Date:	Mon May 3 13:22:31 2010 +0200
+
+    mpc83xx/mvBLM7: add usb commands and cleanup.
+
+    Add USB commands.
+    Rename autoscript to bootscript.
+    Add automatic bootscript image generation to makefile.
+
+    Signed-off-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 3b439792b0781921c599d8af9bed6a771d295b53
+Author: Ron Madrid <ron_madrid@sbcglobal.net>
+Date:	Wed Apr 28 16:04:43 2010 -0700
+
+    mpc83xx: Add UPMA configuration to SIMPC8313
+
+    Added UPM array table, upmconfig, and Local Bus configuration support for SIMPC8313
+
+    Signed-off-by: Ron Madrid <ron_madrid@sbcglobal.net>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 5794619e29c5e22280b0b09b2ea6bc3d2e00da3f
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed May 5 04:32:43 2010 -0400
+
+    serial: punt unused serial_addr()
+
+    Only one file apparently defines this function, and it merely stubs
+    it out. So if no one is defining/calling it, punt it.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit f745817e741e4251afbd9d5d7f04b2419f4aa9d9
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Apr 27 14:15:34 2010 -0400
+
+    update include/asm/ gitignore after move
+
+    With the cpu include paths moved, the gitignore paths need updating.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Tested-by: Tom Rix <tom@bumblecow.com>
+
+commit d0179083a9c9e12c8c5400b107156c14c7da1222
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Apr 28 02:52:02 2010 -0500
+
+    Fixup native builds on powerpc
+
+    When we changed ARCH from ppc to powerpc we need to treat HOSTARCH the
+    same way.  We use HOSTARCH == ARCH to determine if a build is native.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 65d342541e78ab9a22bf480cc4fe2f659f94bad4
+Author: Serge Ziryukin <ftrvxmtrx@gmail.com>
+Date:	Sun Apr 25 21:32:36 2010 +0300
+
+    cmd_usb.c: show cmd usage if no args given
+
+    Signed-off-by: Serge Ziryukin <ftrvxmtrx@gmail.com>
+
+commit e4a95d112e5ea8368bfbdac6ff963d1b8dc63cf0
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 28 10:47:36 2010 +0200
+
+    powerpc: Consolidate bootcount_{store|load} for PowerPC
+
+    This patch consolidates bootcount_{store|load} for PowerPC by
+    implementing a common version in arch/powerpc/lib/bootcount.c. This
+    code is now used by all PowerPC variants that currently have these
+    functions implemented.
+
+    The functions now use the proper IO-accessor functions to read/write the
+    values.
+
+    This code also supports two different bootcount versions:
+
+    a) Use 2 separate words (2 * 32bit) to store the bootcounter
+    b) Use only 1 word (2 * 16bit) to store the bootcounter
+
+    Version b) was already used by MPC5xxx.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Acked-by: Detlev Zundel <dzu@denx.de>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+	      for 83xx parts
+    Cc: Michael Zaidman <michael.zaidman@gmail.com>
+    Cc: Wolfgang Denk <wd@denx.de>
+    Cc: Kim Phillips <kim.phillips@freescale.com>
+    Cc: Anatolij Gustschin <agust@denx.de>
+
+commit 767fdc4af684770f5e97a6c5e19a8ac2616b8329
+Author: Ender.Dai <ender.dai@gmail.com>
+Date:	Thu Apr 22 15:24:25 2010 +0800
+
+    drivers/*/Makefile: fix conditional compile rule.
+
+    Fix conditional compile rule for twl4030.c and videomodes.c.
+
+    Signed-off-by: Ender.Dai <ender.dai@gmail.com>
+
+commit 54fa2c5b51c564cce716942d26492437457980a4
+Author: Larry Johnson <lrj@acm.org>
+Date:	Tue Apr 20 08:09:43 2010 -0400
+
+    Move test for unnecessary memmove to memmove_wd()
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+
+commit b050c72d52c4e30d5b978ab6758f8dcdbe5c690c
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Apr 20 05:49:30 2010 -0400
+
+    compiler.h: add uint typedef
+
+    Recent crc changes started using the "uint" type in headers that are used
+    on the build system.  This subsequently broke mingw targets as they do not
+    provide such a type.  So add this basic typedef to compiler.h so that we
+    do not have to worry about this breaking again in the future.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 39f7aacf3fd285b42b92c2c2d66d95339a3569cc
+Author: TrÃ¼benbach, Ralf <Ralf.Truebenbach@men.de>
+Date:	Wed Apr 14 11:15:16 2010 +0200
+
+    command.c: Enable auto tab for the editenv command
+
+    Enable the auto completion (with TAB) of the environment variable name
+    after the editenv command.
+
+    Signed-off-by: Ralf Trübenbach <ralf.truebenbach@men.de>
+
+commit 0738e24e2c1d95bb94455d44485dc5d7b9c9d707
+Author: Reinhard Arlt <reinhard.arlt@esd.eu>
+Date:	Tue Apr 13 09:59:09 2010 +0200
+
+    74xx_7xx: CPCI750: Add ECC support on esd CPCI-CPU/750 board
+
+    Add ECC support for DDR RAM for MV64360 on esd CPCI-CPU/750 board.
+
+    This patch also adds the "pldver" command to display the CPLD
+    revision.
+
+    Signed-off-by: Reinhard Arlt <reinhard.arlt@esd.eu>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 1f9f3cf6ccbccae1c1edff01ec20fe2a586b9701
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:06:00 2010 +1000
+
+    sc520: Fix minor DRAM Controller Setup bug
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit d20053efdf328d97a018536689fc55df4faf1094
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:59 2010 +1000
+
+    sc520: Update to new AMD Copyright
+
+    AMD recently changed the licensing of the RAM sizing code to the
+    GPLv2 (or at your option any later version)
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 880c59e5add3681bd4dca14d2fd20152bee7ad14
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:58 2010 +1000
+
+    eNET: Implement eNET Watchdog
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit f2a55055e9b19f3eba9de97ff454cf8bfef25468
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:57 2010 +1000
+
+    eNET: Use SC520 MMCR to reset eNET board
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 4a4c31ae08d4dcabe348013e135de28b01c29bf0
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:56 2010 +1000
+
+    eNET: Add PC/AT compatibility setup function
+
+    The eNET uses the sc520 software timers rather than the PC/AT clones
+
+    Set all interrupts and timers up to be PC/AT compatible
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 8fd805632f95e5e834f312a51aa969bf1d99c41b
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:55 2010 +1000
+
+    eNET: Add support for onboard RTL8100B (RTL8139) chips
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 21e67e796bb1d59a484dce2b4203d61bf1fd5be8
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:54 2010 +1000
+
+    sc520: Board Specific PCI Init
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 0278216b76fc1e5dbf4cbd10d5d734323039c36f
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:53 2010 +1000
+
+    sc520: Move PCI defines to PCI include file
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 4f197c30e5cb3005909402b7fc630cb092eef02f
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:52 2010 +1000
+
+    eNET: Fix CONFIG_SYS_HZ to be 1000
+
+    The clock interupt has always been 1kHz as per timer_init() in
+    /arch/i386/cpu/sc520/sc520_timer.c
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 6fd445c32860bb06e9a68b516845a1bbf7c37889
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:51 2010 +1000
+
+    eNET: Fix Flash Write
+
+    Onboard AMD Flash chip does not support buffered writes
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 5204566e53a3c519e8795480d056635bc64b11cd
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:50 2010 +1000
+
+    sc520: Allow boards to override udelay
+
+    If the board has a high precision mico-second timer, it maked sense to use
+    it instead of the on-chip one
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 95ffaba39042064c5eb68404894fd6b0f1d6a3e3
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:49 2010 +1000
+
+    x86: Fix support for booting bzImage
+
+    Add support for newer (up to 2.6.33) kernels
+
+    Add zboot command which takes the address of a bzImage as its first
+    argument and (optionally) the size of the bzImage as the second argument
+    (the second argument is needed for older kernels which do not include
+    the bzImage size in the header)
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 79ea6b87011c0524ced31359e2be7aac97c29d0a
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:48 2010 +1000
+
+    x86: Provide weak PC/AT compatibility setup function
+
+    It is possibly to setup x86 boards to use non-PC/AT configurations. For
+    example, the sc520 is an x86 CPU with PC/AT and non-PC/AT peripherals.
+    This function allows the board to set itself up for maximum PC/AT
+    compatibility just before booting the Linux kernel (the Linux kernel
+    'just works' if everything is PC/AT compliant)
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit bf16500f79fdf2653a286b40bb601cb185ac4675
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:47 2010 +1000
+
+    x86: Use CONFIG_SERIAL_MULTI
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 167cdad1372917bc11c636c359aad02625291fa9
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:46 2010 +1000
+
+    SERIAL: Enable port-mapped access
+
+    The x86 architecture exclusively uses Port-Mapped I/O (inb/outb) to access
+    the 16550 UARTs. This patch mimics how Linux selects between Memory-Mapped
+    and Port-Mapped I/O. This allows x86 boards to use CONFIG_SERIAL_MUTLI and
+    drop the custom serial port driver
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 153c2d9f2397e8b6ca03cfebb4e9666ea0b0637c
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:45 2010 +1000
+
+    x86: Fix copying of Real-Mode code into RAM
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 2fb1bc4f53618743b92a48763d7aaa0ece9ad98f
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:44 2010 +1000
+
+    x86: Pass relocation offset into Global Data
+
+    In order to locate the 16-bit BIOS code, we need to know the reloaction
+    offset.
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit c14a3669b22d3e430b416cdee92b751f13697a1f
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:43 2010 +1000
+
+    x86: Move GDT to a safe location in RAM
+
+    Currently, the GDT is either located in FLASH or in the non-relocated
+    U-Boot image in RAM. Both of these locations are unsafe as those
+    locations can be erased during a U-Boot update. Move the GDT into the
+    highest available memory location and relocate U-Boot to just below it
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 077e1958ca4afe12d88043b123ded058c51b89f7
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:42 2010 +1000
+
+    x86: Add RAM bootstrap functionality
+
+    Add a parameter to the 32-bit entry to indicate if entry is from Real
+    Mode or not. If entry is from Real Mode, execute the destructive 'sizer'
+    routine to determine memory size as we are booting cold and running in
+    Flash. If not entering from Real Mode, we are executing a U-Boot image
+    from RAM and therefore the memory size is already known (and running
+    'sizer' will destroy the running image)
+
+    There are now two 32-bit entry points. The first is the 'in RAM' entry
+    point which exists at the start of the U-Boot binary image. As such,
+    you can load u-boot.bin in RAM and jump directly to the load address
+    without needing to calculate any offsets. The second entry point is
+    used by the real-to-protected mode switch
+
+    This patch also changes TEXT_BASE to 0x6000000 (in RAM). You can load
+    the resulting image at 0x6000000 and simple go 0x6000000 from the u-boot
+    prompt
+
+    Hopefully a later patch will completely elliminate any dependency on
+    TEXT_BASE like a relocatable linux kernel (perfect world)
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 759598f82f02cc84614450807cb5de43ca18a339
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:41 2010 +1000
+
+    x86: Split sc520 memory sizing versus reporting
+
+    This patch allows the low-level assembler boot-strap to obtain the RAM
+    size without calling the destructive 'sizer' routine. This allows
+    boot-strapping from a U-Boot image loaded in RAM
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 4dba333b3c7b34073b0439cc942877f98403632c
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:40 2010 +1000
+
+    x86: Fix sc520 memory size reporting
+
+    There is an error in how the assembler version of the sc520 memory size
+    reporting code works. As a result, it will only ever report at most the
+    size of one bank of RAM
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 9e08efcfee22570bb3a9ea384bf4d60b378f6092
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:39 2010 +1000
+
+    x86: Fix do_go_exec()
+
+    This was broken a long time ago by a49864593e083a5d0779fb9ca98e5a0f2053183d
+    which munged the NIOS and x86 do_go_exec()
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 433ff2bdbccc5190189528305e4ed6f7205dbafd
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:38 2010 +1000
+
+    x86: Add register dump to crash handlers
+
+    Shamelessly steal the Linux x86 crash handling code and shove it into
+    U-Boot (cool - it fits). Be sure to include suitable attribution to
+    Linus
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 64a0a4995e79ef9813bb51d5f1ff35ae5dabfc7e
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:37 2010 +1000
+
+    x86: Fix MMCR Access
+
+    Change sc520 MMCR Access to use memory accessor functions
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 535ad2db069aae6d1d36fc05c31cbd8a2b3d8831
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:36 2010 +1000
+
+    x86: #ifdef out getenv_IPaddr()
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 721c36705a9efc7b67f78d0c3e8485e4f1b8bcc9
+Author: Graeme Russ <graeme.russ@gmail.com>
+Date:	Sat Apr 24 00:05:35 2010 +1000
+
+    x86: Add unaligned.h
+
+    Signed-off-by: Graeme Russ <graeme.russ@gmail.com>
+
+commit 93c7e70f648fb817e519f6e163b7ef9befc27349
+Author: Michael Zaidman <michael.zaidman@gmail.com>
+Date:	Wed Apr 7 18:30:08 2010 +0300
+
+    POST: Added ECC memory test for mpc83xx.
+
+    Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
+
+    Fixed minor coding style issue.
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 8cd852824d91e232f1f820a0772c3c1d8af84b05
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Sat Mar 27 17:14:36 2010 +0100
+
+    cmd_onenand.c: moved to standard subcommand handling
+
+    On the fly also fixed the following things:
+    - write help talked about a parameter oob, but that one was not used, so
+      removed it from the help message.
+    - the test command also allowed a force subcommand but didn't use it.
+      eliminated the code.
+    - do_onenand made static
+    - do_onenand contained
+	int blocksize;
+	...
+	mtd = &onenand_mtd;
+	this = mtd->priv;
+	blocksize = (1 << this->erase_shift);
+      As blocksize was not used the last two statements were unneeded so
+      removed them.
+      The first statement (mtd = ....) assigns to a global. Not sure if it
+      is needed, and since I could not test this, left the line for now
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit 3882d7a5a57eb8d1f41570522445bab61c628e6f
+Author: Norbert van Bolhuis <nvbolhuis@aimvalley.nl>
+Date:	Fri Mar 19 15:34:25 2010 +0100
+
+    ppc: unused memory region too close to current stack pointer
+
+    This avoids a possible overwrite of the (end of) ramdisk by u-boot.
+    The unused memory region for ppc boot currently starts 1k below the
+    do_bootm->bootm_start->arch_lmb_reserve stack ptr. This isn't enough since
+    do_bootm->do_bootm_linux->boot_relocate_fdt calls printf which may
+    very well use more than 1k stack space.
+
+    Signed-off-by: Norbert van Bolhuis <nvbolhuis@aimvalley.nl>
+
+commit 4b42c9059e165500353174601a8e97b2cf81d3f4
+Author: Timur Tabi <timur@freescale.com>
+Date:	Tue Apr 13 13:16:03 2010 -0500
+
+    allow print_size to print large numbers on 32-bit systems
+
+    Modify print_size() so that it can accept numbers larger than 4GB on 32-bit
+    systems.
+
+    Add support for display terabyte, petabyte, and exabyte sizes.  Change the
+    output to use International Electrotechnical Commission binary prefix standard.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit 52dbac69c27dee67a4c051b1055d93b0ac4e2062
+Author: Timur Tabi <timur@freescale.com>
+Date:	Tue Apr 13 13:16:02 2010 -0500
+
+    fix print_size printing fractional gigabyte numbers on 32-bit platforms
+
+    In print_size(), the math that calculates the fractional remainder of a number
+    used the same integer size as a physical address.  However, the "10 *" factor
+    of the algorithm means that a large number (e.g. 1.5GB) can overflow the
+    integer if we're running on a 32-bit system.  Therefore, we need to
+    disassociate this function from the size of a physical address.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+
+commit b5cebb4fd60fefc7700a486bb74fecc66c07acff
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed May 5 03:20:30 2010 -0400
+
+    Blackfin: TWI/I2C: implement multibus support
+
+    In order to do this cleanly, the register accesses have to be converted to
+    a C struct (base pointer), so do that in the process.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit b4377e12e9aa0b3bf2dcae0a0f02ec9086338506
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Tue Mar 16 17:22:21 2010 +0100
+
+    Add SPI support to mx51evk board
+
+    The patch adds SPI devices to the mx51evk board.
+    The MC13892 chip (PMIC) is supported.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit d3588a55d4a041f2208290b8b6f9cecbdad179ac
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Sun Apr 18 19:27:44 2010 +0200
+
+    MX: Added definition file for MC13892
+
+    The MC13892 is a Power Controller used with processors
+    of the family MX.51. The file adds definitions to be used to setup
+    the internal registers via SPI.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit d205ddcfc5b905eff023d5acac395721d80a92c7
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Sun Apr 4 22:43:38 2010 +0200
+
+    SPI: added support for MX51 to mxc_spi
+
+    This patch add SPI support for the MX51 processor.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit e98ecd71102de9d97bd82be247ed909260fb671b
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Fri Apr 16 17:13:54 2010 +0200
+
+    MX31: Add support for PMIC to the QONG module
+
+    Add support for the PMIC (MC13783) controller
+    and enables charging of the RTC battery.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit dfe5e14fa263eb8f1a9f087f0284788e7559821d
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Fri Apr 16 17:11:19 2010 +0200
+
+    MX: RTC13783 uses general function to access PMIC
+
+    The RTC is part of the Freescale's PMIC controller.
+    Use general function to access to PMIC internal registers.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+    Tested-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit 28bb6d34d3f431b7b00444e2f829b2c04f5daf4d
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Sun Apr 4 23:08:03 2010 +0200
+
+    MX: Added Freescale Power Management Driver
+
+    The patch add supports for the Freescale's Power
+    Management Controller (known as Atlas) used together with i.MX31/51
+    processors. It was tested with a MC13783 (MX31) and
+    MC13892 (MX51).
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit ba6adeb48e71f7f1b791b6e98999a5680d919b26
+Author: Magnus Lilja <lilja.magnus@gmail.com>
+Date:	Fri Apr 23 20:30:49 2010 +0200
+
+    i.MX31: Activate NAND support for i.MX31 Litekit board.
+
+    Signed-off-by: Magnus Lilja <lilja.magnus@gmail.com>
+
+commit 60381d687885c0e2100657ca73e97e38c4604f5e
+Author: Fabio Estevam <fabioestevam@yahoo.com>
+Date:	Fri Apr 23 06:32:01 2010 -0700
+
+    MX51: Fix MX51 CPU detect message
+
+    Fix MX51 CPU detect message.
+
+    Original string was:
+    CPU:   Freescale i.MX51 family 3.0V at 800 MHz
+
+    which can be misinterpreted as  3.0 Volts instead of the silicon revision.
+
+    ,change it to:
+    CPU:   Freescale i.MX51 family rev3.0 at 800 MHz
+
+    Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+
+commit 68c07a0c215a64826ed13c2f9b00a6d3b298822e
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Sun Apr 18 20:01:01 2010 +0200
+
+    MX51evk: Removed warnings
+
+    Changes reflect modifications in the fsl_esdhc driver
+    (the clk_enable field war removed in the configuration structure).
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 87db58dca47f93f9fb3b4ed0196dd7a3f5df1cb9
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Wed Apr 21 13:52:38 2010 +0200
+
+    tx25: fix crash while booting Linux
+
+    Currently booting Linux on TX25 board doesn't work
+    since there is no correct mach-id and boot parameters
+    setup for tx25 board. Fix it now.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+    Cc: John Rigby <jcrigby@gmail.com>
+    Cc: Stefano Babic <sbabic@denx.de>
+
+commit b88c5988db176a0f9de5598d5167ee2498637d40
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Apr 13 21:11:53 2010 -0500
+
+    configs: remove unused CONFIG_COMMAND_HISTORY
+
+    $ git grep CONFIG_COMMAND_HISTORY
+    CHANGELOG:	  CONFIG_COMMAND_HISTORY
+    include/configs/AP1000.h:#define CONFIG_COMMAND_HISTORY 1
+    include/configs/keymile-common.h:#define CONFIG_COMMAND_HISTORY	    1
+    include/configs/manroland/common.h:#define CONFIG_COMMAND_HISTORY		    1
+    $
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+    Acked-by: Heiko Schocher <hs@denx.de>
+
+commit 7769c5bc06615293870d00fc81366cd43ba0623a
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Tue Apr 13 14:47:32 2010 +0200
+
+    mvsmr: fix link error
+
+    MVSMR board support doesn't link since recent rework
+    of U-Boot directory structure. Fix it now.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+    Cc: Andre Schwarz <andre.schwarz@matrix-vision.de>
+    Acked-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+    Fixed merge conflict
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 4324dc72df5879e5b614c4a3f326884723ede9b7
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Apr 27 14:15:28 2010 -0400
+
+    Blackfin: bfin_mac: hook up new write_hwaddr function
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 3ac9d6c650d94c51645efa446c1d914c5440990d
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Tue Apr 27 20:20:27 2010 +0800
+
+    net: ethoc: add write_hwaddr support
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 6c7c444786fc4022999362fce119c8b731eedcb4
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Tue Apr 27 20:15:10 2010 +0800
+
+    net: altera_tse: add write_hwaddr support
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit fb57ec97b90291c589087167f100483a089837bf
+Author: Heiko Schocher <hs@denx.de>
+Date:	Tue Apr 27 07:43:52 2010 +0200
+
+    net: fec_mxc: add write_hwaddr support
+
+    tested on the magnesium board.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit b5ce63ed12b4cd81d211621aca0c222b20d2a691
+Author: Prafulla Wadaskar <prafulla@marvell.com>
+Date:	Tue Apr 6 22:21:33 2010 +0530
+
+    net:kirkwood_egiga.c: MAC addresses programming using write_hwaddr
+
+    Added a new function kwgbe_write_hwaddr for programming egiga
+    controller's hardware address.
+    This function will be called for each egiga port being used
+
+    Signed-off-by: Prafulla Wadaskar <prafulla@marvell.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit ecee9324d73555e744593f3e0d387bec4c566f55
+Author: Ben Warren <biggerbadderben@gmail.com>
+Date:	Mon Apr 26 11:11:46 2010 -0700
+
+    Program net device MAC addresses after initializing
+
+    Add a new function to the eth_device struct for programming a network
+    controller's hardware address.
+
+    After all network devices have been initialized and the proper MAC address
+    for each has been determined, make a device driver call to program the
+    address into the device.  Only device instances with valid unicast addresses
+    will be programmed.
+
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+    Acked-by: Detlev Zundel <dzu@denx.de>
+    Tested-by: Prafulla Wadaskar <prafulla@marvell.com>
+    Tested-by: Heiko Schocher <hs@denx.de>
+    Tested-by: Thomas Chou <thomas@wytron.com.tw>
+
+commit c960b13ed22d9ea570957379f9f7f2f37d87ef08
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Tue Apr 20 12:49:52 2010 +0800
+
+    net: add altera triple speeds ethernet mac driver
+
+    This driver supports the Altera triple speeds 10/100/1000 ethernet
+    mac.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit f6569884b45e480e2c575d85ce86a2636a41c66b
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Thu Apr 15 22:32:38 2010 +0800
+
+    net: add opencore 10/100 ethernet mac driver
+
+    This patch ports the opencore 10/100 ethernet mac driver ethoc.c
+    from linux kernel to u-boot.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit bd75db3feb9a8e4123b76006dbe582b71adbf22f
+Author: Valentin Yakovenkov <yakovenkov@niistt.ru>
+Date:	Fri Apr 23 09:40:23 2010 +0400
+
+    smc911x driver frame alignment patch
+
+    SMSC911x chips have alignment function to allow frame payload data
+    (which comes after 14-bytes ethernet header) to be aligned at some
+    boundary when reading it from fifo (usually - 4 bytes boundary).
+    This is done by inserting fake zeros bytes BEFORE actual frame data when
+    reading from SMSC's fifo.
+    This function controlled by RX_CFG register. There are bits that
+    represents amount of fake bytes to be inserted.
+
+    Linux uses alignment of 4 bytes. Ethernet frame header is 14 bytes long,
+    so we need to add 2 fake bytes to get payload data aligned at 4-bytes
+    boundary.
+    Linux driver does this by adding IP_ALIGNMENT constant (defined at
+    skb.h) when calculating fifo data length. All network subsystem of Linux
+    uses this constant too when calculating different offsets.
+
+    But u-boot does not use any packet data alignment, so we don't need to
+    add anything when calculating fifo data length.
+    Moreover, driver zeros the RX_CFG register just one line up, so chip
+    does not insert any fake data at the beginig. So calculated data length
+    is always bigger by 1 word.
+
+    It seems that at almost every packet read we get an underflow condition
+    at fifo and possible corruption of data. Especially at continuous
+    transfers, such as tftp.
+
+    Just after removing this magic addition, I've got tftp transfer speed as
+    it aught to be at 100Mbps. It was really slow before.
+
+    It seems that fifo underflow occurs only when using byte packing on
+    32-bit blackfin bus (may be because of very small delay between reads).
+
+    Signed-off-by: Valentin Yakovenkov <yakovenkov@niistt.ru>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit f0588fdf921c63f84051923bb29eb4255d62a6e7
+Author: Prafulla Wadaskar <prafulla@marvell.com>
+Date:	Tue Apr 6 21:33:08 2010 +0530
+
+    net: Kirkwood_egiga.c bugfixes for rx path
+
+    Cosmetic changes: Few comments updated
+    Functionality: Rx packet frame size is programming should
+    be done when port is in disabled state. this is corrected
+
+    Signed-off-by: Prafulla Wadaskar <prafulla@marvell.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 2e236bf28e729aca28e60c153dd8f913d1b3d058
+Author: Eric Jarrige <eric.jarrige@armadeus.org>
+Date:	Fri Apr 16 00:03:19 2010 +0200
+
+    fec_mxc.c: Fix MX27 FEC MAC validity check
+
+    Fix MX27 FEC logic to check validity of the MAC address in fuse.
+    Only null (empty fuse) or invalid MAC address was retrieved from mx27 fuses before this change.
+
+    Signed-off-by:  Eric Jarrige <jorasse@armadeus.org>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 538be58568542aac2ed4bdf4c05398cfa67e98f0
+Author: Andy Fleming <afleming@freescale.com>
+Date:	Mon Apr 19 14:54:49 2010 -0500
+
+    tsec: Wait for both RX and TX to stop
+
+    When gracefully stopping the controller, the driver was continuing if
+    *either* RX or TX had stopped.  We need to wait for both, or the
+    controller could get into an invalid state.
+
+    Signed-off-by: Andy Fleming <afleming@freescale.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit a45dde2293c816138e53c26eca6fd0322583f9a6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Apr 14 16:29:06 2010 -0400
+
+    net: dm9000x: use standard I/O accessors
+
+    The current dm9000x driver accesses its memory mapped registers directly
+    instead of using the standard I/O accessors.  This can cause problems on
+    Blackfin systems as the accesses can get out of order.  So convert the
+    direct volatile dereferences to use the normal in/out macros.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 5525856d59910c72687ab6201f39cdf1c04cfc15
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Thu Apr 8 11:49:59 2010 +0200
+
+    mpc512x_fec: Move PHY initialization from probe into init routine.
+
+    This saves the autonegotation delay when not using ethernet in U-Boot
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 910119b3c462fd6367536899ee43de1eb7d22d8e
+Author: John Rigby <jcrigby@gmail.com>
+Date:	Wed Apr 7 23:29:40 2010 -0600
+
+    fec_mxc don't use internal eeprom on MX25
+
+    Avoid using the internal eeprom on MX25 like MX51 already does.
+
+    Signed-off-by: John Rigby <jcrigby@gmail.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 33f684d6d512992ed1ae37ec46e76bdeb0773bac
+Author: Wolfgang Wegner <w.wegner@astro-kom.de>
+Date:	Tue Apr 6 11:13:02 2010 +0200
+
+    fix lockup in mcfmii/mii_discover_phy() in case communication fails
+
+    Signed-off-by: Wolfgang Wegner <w.wegner@astro-kom.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 23c34af48ff0dbff3bbaa8e94df3bf40350a709f
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Wed Jun 17 16:00:41 2009 -0400
+
+    83xx: UEC: Added support for bitBang MII driver access to PHYs
+
+    This patch enabled support for having PHYs on bitBang MII and uec MII
+    operating at the same time. Modeled after the MPC8360ADS implementation.
+
+    Added the ability to specify which ethernet interfaces have bitbang SMI
+    on the board header file.
+
+    Signed-off-by: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 9739946cc5b616c026d433bd07d193cf452ddea0
+Author: Robin Getz <rgetz@blackfin.uclinux.org>
+Date:	Mon Mar 8 14:07:00 2010 -0500
+
+    ./net/net.c - make Microsoft dns servers happy with random_port() numbers
+
+    For some reason, (which I can't find any documentation on), if U-Boot
+    gives a port number higher than 17500 to a Microsoft DNS server, the
+    server will reply to port 17500, and U-Boot will ignore things (since
+    that isn't the port it asked the DNS server to reply to).
+
+    This fixes that by ensuring the random port number is less than 17500.
+
+    Signed-off-by:  Robin Getz <rgetz@blackfin.uclinux.org>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 6f5f89f01195e2d009b317df27197a38fcab3553
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Thu Apr 1 14:16:41 2010 +0200
+
+    Remove unused "local_crc32" function.
+
+    For code archeologists, this is a nice example of copy and paste history.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit aba4b69d01457ab2988e91c8592e5d2ffb10f569
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed Mar 31 17:56:08 2010 +0200
+
+    net: Trivial coding style issue with empty for statement
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit e3f2a93362c823fc1feb5e8a40ff3c120716a05b
+Author: Prafulla Wadaskar <prafulla@marvell.com>
+Date:	Wed Mar 3 15:27:21 2010 +0530
+
+    net: Kirkwood_egiga.c: fixed build warnings
+
+    This patch fixes following build warnings for kirkwood_egiga.c
+
+    kirkwood_egiga.c: In function "kwgbe_init":
+    kirkwood_egiga.c:448: warning: dereferencing type-punned pointer will break strict-aliasing rules
+    kirkwood_egiga.c: In function "kwgbe_recv":
+    kirkwood_egiga.c:609: warning: dereferencing type-punned pointer will break strict-aliasing rules
+
+    Signed-off-by: Prafulla Wadaskar <prafulla@marvell.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 20d98c2cea3398ad93beccd4727a371f41514086
+Author: Asen Dimov <dimov@ronetix.at>
+Date:	Mon Apr 19 14:18:43 2010 +0300
+
+    pm9263 converted to at91 soc access
+
+    Signed-off-by: Asen Dimov <dimov@ronetix.at>
+
+commit d6b91e30d32871eb20b6227519fd2f3a6ea073fd
+Author: Asen Dimov <dimov@ronetix.at>
+Date:	Mon Apr 19 14:17:22 2010 +0300
+
+    at91: define matrix registers bit fields
+
+    Signed-off-by: Asen Dimov <dimov@ronetix.at>
+
+commit eeb50ce193453951529015f50e5c1ccd7b55aad2
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Tue Apr 13 12:19:06 2010 +0200
+
+    MX31: Removed erroneous board name from QONG
+
+    QONG is a module that can be installed on several boards,
+    not only on the QONG-EVB manufactured by Dave srl.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit c9d944d35e7904229c5333e761bce9d4324971f8
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Thu Apr 8 17:23:52 2010 +0200
+
+    MX31: Add UBI support to QONG module
+
+    The UBI/UBIFS support is added to the QONG module.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit eab40f819ddd50eef465619db1386c053b59a95b
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Wed Mar 31 10:27:47 2010 +0200
+
+    MX31: Support 128MB RAM on QONG module
+
+    The QONG module can be downsized and delivered
+    with 128MB instead of 256MB. The patch adds
+    run time support for the two different memory
+    configurations.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 45997e0a86ee8d8abec6d791a241cb20011fe0e3
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Mon Mar 29 16:43:39 2010 +0200
+
+    MX31: Add support for NAND to QONG board
+
+    The NAND device is connected to the FPGA of the QONG board
+    and not to the NFC controller. For this reason, the FPGA must
+    be set and initialized before accessing to the NAND itself.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit efb9591069ee276f7fa27a821240c7511f72fe65
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Mon Mar 29 15:56:10 2010 +0200
+
+    MX31: add pin definitions for NAND controller
+
+    Add pin definitions ralted to the NAND controller to be used
+    to set up the pin multiplexer.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 7d27cd08b4c1adfd58c54aaa8b8c8f4eeb3c7021
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Tue Apr 13 12:07:00 2010 +0200
+
+    MX31: add accessor function to get a gpio
+
+    The patch adds an accessor function to get the value of a gpio.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit dfe83352cb58c55dfdbd5b535cb335526cb1c581
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Tue Apr 13 12:38:43 2010 +0200
+
+    mx51evk: correct list of possible BOOT_FROM values
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit f581e3a2157fbd736e7dd2378465ae242fba545c
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Tue Apr 13 12:38:22 2010 +0200
+
+    mkimage: correct spelling error in imximage
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 34196b0a8bd7ab6d472e2e6f6c90b73e915a1fae
+Author: John Rigby <jcrigby@gmail.com>
+Date:	Wed Apr 7 23:30:09 2010 -0600
+
+    MX25 print arm clock instead of mpllclk on boot
+
+    Replace call to imx_get_mpllclk with imx_get_armclk
+    to show frequency of ARM core instead of mpll internal
+    bus in print_cpuinfo.
+
+    Signed-off-by: John Rigby <jcrigby@gmail.com>
+    CC: Stefano Babic <sbabic@denx.de>
+
+commit 1c9d91aca649f17762bae2c0e38f5101d62ed0b5
+Author: Frans Meulenbroeks <[fransmeulenbroeks@gmail.com]>
+Date:	Tue Apr 6 19:06:11 2010 +0530
+
+    configs/openrd_base.h: reordered macros
+
+    moved CONFIG_CMD_FAT to filesystem section
+    swapped CONFIG_CMD_NAND and CONFIG_CMD_MII so they are alpha correct
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit 5414fec85ff558af8823d4391f03977288871fe4
+Author: Frans Meulenbroeks <[fransmeulenbroeks@gmail.com]>
+Date:	Tue Apr 6 18:26:19 2010 +0530
+
+    configs/sheevaplug: added a few additional commands
+
+    This patch includes a few additional commands in the sheevaplug
+    version of u-boot:
+    - support for LONGHELP so you can get help messages
+    - auto completion and command editing
+    - ubi and mii support
+    - ext2 filesystem (convenient if you have an ext2 from which you want to boot)
+    - jffs2 and ubifs filesystems (if you want to use these in NAND)
+
+    This also makes it more similar to openrd client.
+
+    Side effect of this patch is that the code now needs 3 sectors i.s.o. 2
+    so an existing env is overwritten
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit 16b76705d36ac137fa9231cedfe1355561639e47
+Author: Siddarth Gore <[gores@marvell.com]>
+Date:	Thu Mar 18 20:25:40 2010 +0530
+
+    Marvell GuruPlug Board Support
+
+    GuruPlug Standard: 1 Gb Ethernet, 2 USB 2.0
+    GuruPlug Plus: 2 Gb Ethernet, 2 USB 2.0, 1 eSATA, 1 uSD slot
+
+    References:
+    http://www.globalscaletechnologies.com/t-guruplugdetails.aspx
+    http://plugcomputer.org
+
+    This patch is for GuruPlug Plus, but it supports Standard version
+    as well.
+
+    Signed-off-by: Siddarth Gore <gores@marvell.com>
+
+commit 5e1fe88fe3df2555a8a0cba7d2ffaf2b03041dfb
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Sun Mar 28 13:43:26 2010 +0200
+
+    Moved board specific values in config file
+
+    The lowlevel_init file contained some hard-coded values
+    to setup the RAM. These board related values are moved into
+    the board configuration file.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 272017853339f5b9685f9488bdaf5405812d12a4
+Author: Fabio Estevam <fabioestevam@yahoo.com>
+Date:	Wed Mar 31 06:32:56 2010 -0700
+
+    MX51EVK: Remove CPLD related code
+
+    There is no CPLD on MX51EVK board, so remove CPLD related function.
+
+    Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+
+commit bbe310922f4d0b12c8aba97b45ed979db9c0ec9a
+Author: Heiko Schocher <hs@denx.de>
+Date:	Fri Mar 5 07:36:33 2010 +0100
+
+    arm, i.mx27: add support for magnesium board from projectiondesign
+
+    This patch adds support for the magnesium board from
+    projectiondesign. This board uses i.MX27 SoC and has
+    8MB NOR flash, 128MB NAND flash, FEC ethernet controller
+    integrated into i.MX27. As this port is based on
+    the imx27lite port, common config options are collected
+    in include/configs/imx27lite-common.h
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 1e65c2beb5805f975cd5d0ab7d853040a716d51b
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Mar 4 08:12:05 2010 +0100
+
+    arm, mx27: add support for SDHC1 pin init
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 3bb6b037e8557fd3c0f3b3d9840c8b5996651dcb
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Wed Mar 24 15:31:06 2010 +0900
+
+    SAMSUNG: make s5p common gpio functions
+
+    Because of s5pc1xx gpio is same as s5p seires SoC,
+    move gpio functions to drvier/gpio/
+    and modify structure's name from s5pc1xx_ to s5p_.
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit 46a3b5c8df939f5547bcd3684030072c94d06bd8
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Wed Mar 24 16:59:30 2010 +0900
+
+    SAMSUNG: serial: modify name from s5pc1xx to s5p
+
+    Because of other s5p series SoC will use these serial functions,
+    modify function's name and structure's name.
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit da0f2af279563ddc75eff304ad5389f7f0e79381
+Author: Asen Dimov <dimov@ronetix.at>
+Date:	Wed Apr 7 12:33:11 2010 +0300
+
+    pm9263: remove CONFIG_CMD_AUTOSCRIPT
+
+    Signed-off-by: Asen Dimov <dimov@ronetix.at>
+
+commit 47eb08a97eb166e93d0495848b0c7582a0639fbc
+Author: Alexander Holler <holler@ahsoftware.de>
+Date:	Mon Mar 29 21:39:43 2010 +0200
+
+    at91: add defines for RTT and GPBR
+
+    Signed-off-by: Alexander Holler <holler@ahsoftware.de>
+
+commit dc8cab87459d682fc272444044592d20243da2f0
+Author: Asen Dimov <dimov@ronetix.at>
+Date:	Tue Apr 6 16:17:34 2010 +0300
+
+    pm9261: remove CONFIG_CMD_AUTOSCRIPT
+
+    Signed-off-by: Asen Dimov <dimov@ronetix.at>
+
+commit e3150c77617c7d452420e6c87769b79b6671b12d
+Author: Asen Dimov <dimov@ronetix.at>
+Date:	Tue Apr 6 16:18:04 2010 +0300
+
+    pm9261 converted to at91 soc access
+
+    Signed-off-by: Asen Dimov <dimov@ronetix.at>
+
+commit 7bc8768039948e50cc149bea2ec214bde3245c4a
+Author: trix <trix@windriver.com>
+Date:	Sat Apr 10 12:46:49 2010 -0500
+
+    ARM Update mach-types
+
+    Fetched from http://www.arm.linux.org.uk/developer/machines/download.php
+    And built with
+
+    repo http://ftp.arm.linux.org.uk/pub/linux/arm/kernel/git-cur/linux-2.6-arm
+    commit 85b3cce880a19e78286570d5fd004cc3cac06f57
+
+    Signed-off-by: Tom Rix <Tom.Rix@windriver.com>
+
+commit d3061c692155412aa87e7f4f66b4a2c7b77ee417
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 28 11:09:59 2010 +0200
+
+    ppc4xx: Fix APC405 build breakage
+
+    This patch fixes APC405 build, by defining CONFIG_PPC4XX_I2C. This is
+    needed since the move of the PPC4xx I2C driver into the drivers/i2c
+    directory.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Cc: Matthias Fuchs <matthias.fuchs@esd.eu>
+
+commit 029faf3e85e9406f32f133e6f2a114ed26b02fb4
+Author: Stefan Roese <sr@denx.de>
+Date:	Tue Apr 27 11:37:28 2010 +0200
+
+    ppc4xx: Add support for ICON board (PPC440SPe)
+
+    This patch adds support for the Mosaix Technologies, Inc. ICON board,
+    based on the AppliedMicro (AMCC) PPC440SPe. It's equipped with an SODIMM
+    (512MB standard) and 64MByte of NOR FLASH.
+
+    Support for the onboard SM502 will be added later.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 96a0d6235db4c93c03d41c492f5960b18547b7a7
+Author: Stefan Roese <sr@denx.de>
+Date:	Mon Apr 26 13:31:08 2010 +0200
+
+    ppc4xx: Add missing APC405 to MAKEALL
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Cc: Matthias Fuchs <matthias.fuchs@esd.eu>
+
+commit 64123e3f06f74dd09b86e2a41d77d31044f495fb
+Author: Larry Johnson <lrj@acm.org>
+Date:	Tue Apr 20 08:11:40 2010 -0400
+
+    Fix typos in Korat board console output
+
+    Signed-off-by: Larry Johnson <lrj@acm.org>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 8a1cdaa9d54c93db300e8565191d60712aa481dc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 28 12:54:43 2010 +0200
+
+    QONG: Adapt flash addresses and mtdparts to grown image size
+
+    Also enable HUSH shell.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit e1d2950d0f5aaa7ab6609ffa96dde2e163fc2902
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 28 10:58:10 2010 +0200
+
+    mtdparts: get rid of custom DEBUG macro, use debug()
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 2697eff1af136c6424c065cba994aa9aceadbcd1
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Apr 28 10:53:47 2010 +0200
+
+    mtdparts: fix write through NULL pointer
+
+    The "mtdparts add" command wrote through a NULL pointer - on many
+    systems this went unnoticed (PowerPC has writable RAM there, some ARM
+    systems have ROM where a write has no effect), but on arm1136
+    (i.MX31) it crashed the system.
+
+    Add appropriate checks.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 68651683593958cedcdfb9d06a5fe0a524f8dd6e
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Wed Apr 21 09:47:19 2010 +0200
+
+    ubifsmount fails due to not initialized list
+
+    ubifsmount is not working and causes an access with
+    a pointer set to zero because the ubifs_fs_type
+    is not initialized correctly.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 7c8cf0d0c7b12c7c63765e936cf760dc2c7d7306
+Author: Stefano Babic <sbabic@denx.de>
+Date:	Wed Apr 21 09:56:31 2010 +0200
+
+    MX31: Added LCD support for QONG module
+
+    Added support for LCD and splash image to the QONG module.
+    The supported display is VBEST-VGG322403.
+
+    Signed-off-by: Stefano Babic <sbabic@denx.de>
+
+commit 7e1afb62a7e68843248b9a76a265c9193e716768
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Apr 20 10:02:24 2010 -0500
+
+    ppc: Split MPC83xx SERDES code from MPC85xx/MPC86xx/QorIQ
+
+    The MPC83xx SERDES control is different from the other FSL PPC chips.
+    For now lets split it out so we can standardize on interfaces for
+    determining of a device on SERDES is configured.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 3f0202ed13add5fd6e2ed66fcb3f5e1228cdf766
+Author: Lan Chunhe <b25806@freescale.com>
+Date:	Wed Apr 21 07:40:50 2010 -0500
+
+    mpc85xx: Add the ability to set LCRR[CLKDIV] to improve R/W speed of flash
+
+    Signed-off-by: Lan Chunhe <b25806@freescale.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 0c955dafab495fef5a76f5383387281d0408056c
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Wed Apr 14 19:05:06 2010 +0800
+
+    85xx: clean up the io_sel for PCI express of P1022
+
+    clean up the wrong io_sel for PCI express according to latest manual.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 47106ce168890d637fd849682ba88ecfdb9c35de
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed Apr 14 11:32:20 2010 +0200
+
+    85xx/socrates: Remove NFS support to fit image size.
+
+    This fixes an overflow during the link phase.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 9ce3c228276b0f85105da8c39b164f2b6c84ea34
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Apr 13 11:07:57 2010 -0500
+
+    85xx: Fix compile warning
+
+    cpu.c: In function 'checkcpu':
+    cpu.c:47: warning: unused variable 'gur'
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 4db9708b94b6745f5c1eaa699d4d76477de8588a
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Apr 13 23:56:23 2010 -0500
+
+    85xx: Convert cpu_init_f code to use out_be32 for LBC registers
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit cd3abcfa2d4dc8df09f6d01e735e4dc2f6c87ebc
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Mon Apr 12 14:23:35 2010 +0800
+
+    fsl_sata: Move the snoop bit to another place
+
+    For P1022 SATA host controller, the data snoop bit of DW3 in PRDT
+    is moved to bit28.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit e4773debb735323a9eedf353239e8e88e03d7c58
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Mon Apr 12 14:23:25 2010 +0800
+
+    fsl_sata: Add the workaround for errata SATA-A001
+
+    After power on, the SATA host controller of P1022 Rev1 is configured
+    in legacy mode instead of the expected enterprise mode.
+
+    Software needs to clear bit[28] of HControl register to change to
+    enterprise mode after bringing the host offline.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 99bac479dd183529f4e259a0de8d31644219d487
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Tue Dec 8 11:56:48 2009 +0800
+
+    fsl-ddr: Add extra cycle to turnaround times
+
+    Add an extra cycle turnaround time to read->write to ensure stability
+    at high DDR frequencies.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit f8d05e5e5888d88ab42524d699924936e8e77970
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Fri Mar 5 12:23:00 2010 +0800
+
+    fsl-ddr: add the macro for Rtt_Nom definition
+
+    add the macro definition for Rtt_Nom termination value for DDR3
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 1231c498e016b5bfe85f1eb87c2e044d3389d7da
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Apr 7 10:39:46 2010 -0500
+
+    ppc/p4080: Add p4080 DEVDISR2 & SRDS_PLLCR0 defines
+
+    Added some needed fines and some misc additional defines
+    used by p4080 initialization.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 17d90f31a810a19ade1a1c534fde9f65d4d66390
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Fri Mar 5 12:23:00 2010 +0800
+
+    ppc/p4080: Extend the GUTS memory map
+
+    Extend pin control and clock control to GUTS memory map
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit ab48ca1a661b9ab8e3fee9fe2df65432b09ed073
+Author: Srikanth Srinivasan <srikanth.srinivasan@freescale.com>
+Date:	Wed Feb 10 17:32:43 2010 +0800
+
+    ppc/p4080: Fix synchronous frequency calculations
+
+    When DDR is in synchronous mode, the existing code assigns sysclk
+    frequency to DDR frequency.  It should be synchronous with the platform
+    frequency.	CPU frequency is based on platform frequency in synchronous
+    mode.
+
+    Also fix:
+
+    * Fixes the bit mask for DDR_SYNC (RCWSR5[184])
+    * Corrects the detection of synchronous mode.
+
+    Signed-off-by: Srikanth Srinivasan <srikanth.srinivasan@freescale.com>
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 1749c3da8d8445cdf78d70120a803e3e9553113c
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Apr 7 02:49:12 2010 -0500
+
+    ppc/85xx: Fixup PCI nodes for P1_P2_RDB
+
+    While we had ft_pci_board_setup it wasn't being called by
+    ft_board_setup.  Fix that so we actually update the device tree PCI
+    nodes on P1_P2_RDB boards.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 8cbb0ddd7e696c6a4be1ae3ab3c95d3c8f6a7031
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Wed Apr 21 08:40:59 2010 +0800
+
+    nios2: add nios2-generic board
+
+    This is a generic approach to port u-boot for nios2 boards.
+    You may find the usage of this approach on the nioswiki,
+    http://nioswiki.com/DasUBoot
+
+    A fpga parameter file, which contains base address information
+    and drivers declaration, is generated from Altera's hardware system
+    description sopc file using tools.
+
+    The example fpga parameter file is compatible with EP1C20, EP1S10
+    and EP1S40 boards. So these boards can be removed after this commit.
+    Though epcs controller is removed to cut the dependency of altera_spi
+    driver.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 441cac10d8a9438b144ab0ad46280780b58f638b
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Thu Apr 22 17:27:16 2010 +0800
+
+    nios2: fix no flash, add nand and mmc init in board.c
+
+    This patch fixes error when CONFIG_SYS_NO_FLASH. And adds
+    nand flash and mmc initialization, which should go before
+    env initialization.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit fd2712d0b1d4c1624bef35b784ee64451ee5a017
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Tue Apr 20 11:01:11 2010 +0800
+
+    nios2: consolidate reset initialization
+
+    Global interrupt should be disabled from the beginning.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 994852966d2e6cf98c1dbeea8ee62c233b305ffb
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Wed Mar 31 08:30:08 2010 +0800
+
+    altera_jtag_uart: bypass when no jtag connection
+
+    This patch adds an option to bypass output waiting when there
+    is no jtag connection. This allows the jtag uart work similar
+    to a serial uart, ie, boot even without connection.
+
+    This option is enabled with CONFIG_ALTERA_JTAG_UART_BYPASS
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 7e812f2e9cdac80f6287d4aee5deb434597c4f8b
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Sat Apr 17 23:34:40 2010 +0800
+
+    nios2: add dma_alloc_coherent
+
+    This function return cache-line aligned allocation which is mapped
+    to uncached io region.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 0dc1c7f692c15fe1745e3eeab918e98ee6126677
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Sat Apr 17 23:10:09 2010 +0800
+
+    nios2: add 64 bits swab support
+
+    This patch adds 64 bits swab support. Most 32 bits processors use
+    this. We need 64 bits swab for UBI.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit e4bf588609d8d9cefbc312a6c6b8bb309b194fd5
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Wed Mar 31 08:36:24 2010 +0800
+
+    nios2: add altera cf reset
+
+    This patch toggles power to reset the cf card.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit dd168ef5b82255401e46a27faae09e39c66967fe
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Sat Apr 17 17:39:12 2010 +0800
+
+    nios2: allow link script overriding from boards
+
+    This patch allow boards to override the default link script.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 29fd7ceb3c1cb7ffaffce1047e806d1e85e3ab4b
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sat Apr 24 19:27:11 2010 +0200
+
+    mpc5121: pdm360ng: add coprocessor POST
+
+    Adds coprocessor communication POST code
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 2ebdb9a9d7abcb17fdbfdc4bbb71b4ef538fc713
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sat Apr 24 19:27:10 2010 +0200
+
+    mpc5121: add common post_word_load/store code
+
+    Add common post_word_load/post_word_store routines
+    for all mpc5121 boards. pdm360ng board POST support
+    added by subsequent patch needs them.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit a3921eefa1440d23f22751704cd7df999769f169
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sat Apr 24 19:27:09 2010 +0200
+
+    mpc5121: add support for PDM360NG board
+
+    PDM360NG is a MPC5121E based board by ifm ecomatic gmbh.
+
+    Signed-off-by: Michael Weiss <michael.weiss@ifm.com>
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit b9947bbb08d0483be03004bdbce283b644471cb7
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sat Apr 24 19:27:08 2010 +0200
+
+    mpc5121: determine RAM size using get_ram_size()
+
+    Configure CONFIG_SYS_MAX_RAM_SIZE address range in
+    DDR Local Access Window and determine the RAM size.
+    Fix DDR LAW afterwards using detected RAM size.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 5d937e8b59f27d8c300a2e78c168a4c22ec6922a
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sat Apr 24 19:27:07 2010 +0200
+
+    mpc512x: make MEM IO Control configuration a board config option
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 8e234e33bf60a850685c7e81ea92d383c643486b
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sat Apr 24 19:27:06 2010 +0200
+
+    mpc5121: add PSC serial communication routines
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit e3b28e67329de99a315d509920760dcbc565f8c6
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sat Apr 24 19:27:05 2010 +0200
+
+    mpc512x: add multi serial PSC support
+
+    Extend mpc512x serial driver to support multiple PSC ports.
+
+    Subsequent patches for PDM360NG board support make use of this
+    functionality by defining CONFIG_SERIAL_MULTI in the board config
+    file. Additionally the used PSC devices are specified by defining
+    e.g. CONFIG_SYS_PSC1, CONFIG_SYS_PSC4 and CONFIG_SYS_PSC6.
+
+    Support for PSC devices other than 1, 3, 4 and 6 is not added
+    by this patch because these aren't used currently. In the future
+    it can be easily added using DECLARE_PSC_SERIAL_FUNCTIONS(N) and
+    INIT_PSC_SERIAL_STRUCTURE(N) macros in cpu/mpc512x/serial.c.
+    Additionally you have to add code for registering added
+    devices in serial_initialize() in common/serial.c.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit fbb0030e3894119c089256f16626edd166c7629c
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sat Apr 24 19:27:04 2010 +0200
+
+    serial: struct serial_device: add uninit() entry for drivers
+
+    Subsequent patch extends mpc512x serial driver to support
+    multiple PSC ports. The driver will provide an uninit()
+    function to stop the serial controller and to disable the
+    controller's clock. Adding uninit() entry to struct serial_device
+    allows disabling the serial controller after usage of
+    a stdio serial device.
+
+    This patch adds uninit() entry to the struct serial_device
+    and fixes initialization of this structure in the code
+    accordingly.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 77c1458d130d33704472db9c88d2310c8fc90f4c
+Author: Dipen Dudhat <dipen.dudhat@freescale.com>
+Date:	Mon Oct 5 15:41:58 2009 +0530
+
+    ppc/85xx: PIO Support for FSL eSDHC Controller Driver
+
+    On some Freescale SoC Internal DMA of eSDHC controller has bug.
+    So PIO Mode has been introduced to do data transfer using CPU.
+
+    Signed-off-by: Dipen Dudhat <dipen.dudhat@freescale.com>
+
+commit 1a2e203b31d33fb720f2cf1033b241ad36ab405a
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Tue Apr 20 19:37:54 2010 -0500
+
+    mpc83xx: turn on icache in core initialization to improve u-boot boot time
+
+    before, MPC8349ITX boots u-boot in 4.3sec:
+
+	    column1 is elapsed time since first message
+	    column2 is elapsed time since previous message
+	    column3 is the message
+    0.000 0.000: U-Boot 2010.03-00126-gfd4e49c (Apr 11 2010 - 17:25:29) MPC83XX
+    0.000 0.000:
+    0.000 0.000: Reset Status:
+    0.000 0.000:
+    0.032 0.032: CPU:	e300c1, MPC8349E, Rev: 1.1 at 533.333 MHz, CSB: 266.667 MHz
+    0.032 0.000: Board: Freescale MPC8349E-mITX
+    0.032 0.000: UPMA:	Configured for compact flash
+    0.032 0.000: I2C:	ready
+    0.061 0.028: DRAM:	256 MB (DDR1, 64-bit, ECC off, 266.667 MHz)
+    1.516 1.456: FLASH: 16 MB
+    2.641 1.125: PCI:	Bus Dev VenId DevId Class Int
+    2.652 0.011:	 00  10  1095  3114  0180  00
+    2.652 0.000: PCI:	Bus Dev VenId DevId Class Int
+    2.652 0.000: In:	serial
+    2.652 0.000: Out:	serial
+    2.652 0.000: Err:	serial
+    2.682 0.030: Board revision: 1.0 (PCF8475A)
+    3.080 0.398: Net:	TSEC1: No support for PHY id ffffffff; assuming generic
+    3.080 0.000: TSEC0, TSEC1
+    4.300 1.219: IDE:	Bus 0: .** Timeout **
+
+    after, MPC8349ITX boots u-boot in 3.0sec:
+
+    0.010 0.010: U-Boot 2010.03-00127-g4b468cc-dirty (Apr 11 2010 - 17:47:29) MPC83XX
+    0.010 0.000:
+    0.010 0.000: Reset Status:
+    0.010 0.000:
+    0.017 0.007: CPU:	e300c1, MPC8349E, Rev: 1.1 at 533.333 MHz, CSB: 266.667 MHz
+    0.017 0.000: Board: Freescale MPC8349E-mITX
+    0.038 0.020: UPMA:	Configured for compact flash
+    0.038 0.000: I2C:	ready
+    0.038 0.000: DRAM:	256 MB (DDR1, 64-bit, ECC off, 266.667 MHz)
+    0.260 0.222: FLASH: 16 MB
+    1.390 1.130: PCI:	Bus Dev VenId DevId Class Int
+    1.390 0.000:	 00  10  1095  3114  0180  00
+    1.390 0.000: PCI:	Bus Dev VenId DevId Class Int
+    1.400 0.010: In:	serial
+    1.400 0.000: Out:	serial
+    1.400 0.000: Err:	serial
+    1.400 0.000: Board revision: 1.0 (PCF8475A)
+    1.832 0.432: Net:	TSEC1: No support for PHY id ffffffff; assuming generic
+    1.832 0.000: TSEC0, TSEC1
+    3.038 1.205: IDE:	Bus 0: .** Timeout **
+
+    also tested on these boards (albeit with a less accurate
+    boottime measurement method):
+
+    seconds: before  after
+    8349MDS  ~2.6    ~2.2
+    8360MDS  ~2.8    ~2.6
+    8313RDB  ~2.5    ~2.3 #nand boot
+    837xRDB  ~3.1    ~2.3
+
+    also tested on an 8323ERDB.
+
+    v2: also remove the delayed icache enablement assumption in arch ppc's
+    board.c, and add a CONFIG_MPC83xx define in the ITX config file for
+    consistency (even though it was already being defined in 83xx'
+    config.mk).
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit a059e90e16e126e25da33ce23a37e2acce84284c
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Apr 15 17:36:05 2010 -0500
+
+    mpc83xx: enable command line autocompletion
+
+    because it's convenient.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit dfe812c744ee6dacae3b4d553694642668d9ac9d
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Thu Apr 15 17:36:02 2010 -0500
+
+    mpc83xx: use "A" nomenclature only on mpc834x and mpc836x families
+
+    marketing didn't extend their postpend-with-an-A naming strategy
+    on rev.2's and higher beyond the first two 83xx families.  This
+    patch stops us from misreporting we're running e.g., on an MPC8313EA,
+    when such a name doesn't exist.
+
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 27ef578df7b9c7862c36a31b819c652f8b0aeea0
+Author: Rini van Zetten <rini@arvoo.nl>
+Date:	Thu Apr 15 16:03:05 2010 +0200
+
+    mpc83xx: Use CONFIG_FSL_ESDHC to enable sdhc clk
+
+    Enable eSDHC Clock based on generic CONFIG_FSL_ESDHC define
+    instead of a platform define. This will enable all the 83xx
+    platforms to use sdhc_clk based on CONFIG_FSL_ESDHC.  It's
+    the same patch as commit 6b9ea08c5010eab5ad1056bc9bf033afb672d9cc
+    for the ppc/85xx.
+
+    Signed-off-by: Rini <rini@arvoo.nl>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit a47a12becf66f02a56da91c161e2edb625e9f20c
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Apr 15 16:07:28 2010 +0200
+
+    Move arch/ppc to arch/powerpc
+
+    As discussed on the list, move "arch/ppc" to "arch/powerpc" to
+    better match the Linux directory structure.
+
+    Please note that this patch also changes the "ppc" target in
+    MAKEALL to "powerpc" to match this new infrastructure. But "ppc"
+    is kept as an alias for now, to not break compatibility with
+    scripts using this name.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Acked-by: Wolfgang Denk <wd@denx.de>
+    Acked-by: Detlev Zundel <dzu@denx.de>
+    Acked-by: Kim Phillips <kim.phillips@freescale.com>
+    Cc: Peter Tyser <ptyser@xes-inc.com>
+    Cc: Anatolij Gustschin <agust@denx.de>
+
+commit cf6eb6da433179674571f9370566b1ec8989a41a
+Author: Stefan Roese <sr@denx.de>
+Date:	Wed Apr 14 13:57:18 2010 +0200
+
+    ppc4xx: TLB init file cleanup
+
+    This patch adds new macros, with frequently used combinations of the
+    4xx TLB access control and storage attibutes. Additionally the 4xx init.S
+    files are updated to make use of these new macros. Resulting in easier
+    to read TLB definitions.
+
+    Additionally some init.S files are updated to use the mmu header for the
+    TLB defines, instead of defining their own macros.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 26a33504a55e4882520f2e9da96ba6c22badb353
+Author: Richard Retanubun <RichardRetanubun@RuggedCom.com>
+Date:	Mon Apr 12 15:08:17 2010 -0400
+
+    fsl_i2c: Added a callpoint for i2c_board_late_init
+
+    This patch adds a callpoint in i2c_init that allows board specific
+    i2c board initialization (typically for i2c bus reset) that is called
+    after i2c_init operations, allowing the i2c_board_late_init function
+    to use the pre-configured i2c bus speed and slave address.
+
+commit 254ab7bd464657600aba69d840406f9358f3e116
+Author: Scott McNutt <smcnutt@psyent.com>
+Date:	Fri Apr 16 16:12:39 2010 -0400
+
+    nios2: Move individual board linker scripts to common script in cpu tree.
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 8ff972c6e99938f1a033e5500dccc9a37ce3406f
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Apr 16 12:56:33 2010 +0200
+
+    microblaze: Consolidate cache code
+
+    Merge cpu and lib cache code.
+    Flush cache before disabling.
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 9b4d90569028604bc491ea419187c31e4467bdca
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Apr 16 12:01:32 2010 +0200
+
+    microblaze: Flush cache before jumping to kernel
+
+    There is used max cache size on system which doesn't define
+    cache size.
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 70524883b0424277e5b3ff3768c0c5628b5fce44
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Apr 16 11:59:29 2010 +0200
+
+    microblaze: Support system with WB cache
+
+    WB cache use different instruction that WT cache but the major code
+    is that same. That means that wdc.flush on system with WT cache
+    do the same thing as before.
+
+    You need newer toolchain with wdc.flush support.
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 9769b73f60fc0fb8de7ab16ff6300eae56505020
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Apr 16 11:57:35 2010 +0200
+
+    microblaze: Change initialization sequence
+
+    env_relocation should be called first.
+    Added stdio_init too.
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit e6177b36b87d0ce627651e407b91245f16e5382e
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Apr 16 11:55:01 2010 +0200
+
+    microblaze: Change cache report messages
+
+    It is more accurate to show that caches are OFF instead of FAIL.
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 8125c980cc282000cbddb415f8ddbebf96e4edb4
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Apr 16 11:51:59 2010 +0200
+
+    microblaze: Fix interrupt handler code
+
+    It is better to read ivr and react on it than do long parsing from
+    two regs. Interrupt controller returs actual irq number.
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit b26640971a7ba8800f0eb32af145ff0727fe21fe
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Apr 16 11:43:43 2010 +0200
+
+    microblaze: Move FSL initialization to board.c
+
+    Move FSL out of interrupt controller.
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 5bbcb6cf22b1121d8c3e56b0e1fb84366e903ac7
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Apr 16 11:37:41 2010 +0200
+
+    microblaze: Move timer initialization to board.c
+
+    I would like to handle case where system doesn't contain
+    intc that's why I need timer initialization out of intc code.
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit cc53690e05f47b4c25e0a528de50e024fc0164ad
+Author: Michal Simek <monstr@monstr.eu>
+Date:	Fri Apr 16 11:30:16 2010 +0200
+
+    microblaze: Fix irq.S code
+
+    It is ancient code. There is possible to save several instructions
+    just if we use offset instead of addik
+
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 398b1d57a6a56aada1f77198746a7dd1b038cd5d
+Author: Arun Bhanu <arun@bhanu.net>
+Date:	Thu Apr 15 18:27:17 2010 +0800
+
+    microblaze: Add FDT support
+
+    This patch adds FDT (flattened device tree) support to microblaze arch.
+
+    Tested with Linux arch/microblaze kernels with and without compiled in
+    FDT on Xilinx ML506 board.
+
+    Signed-off-by: Arun Bhanu <arun@bhanu.net>
+    Signed-off-by: Michal Simek <monstr@monstr.eu>
+
+commit 2a72e9ed18d2164eb7fe569119342eb631b568da
+Author: Stefan Roese <sr@denx.de>
+Date:	Fri Apr 9 14:03:59 2010 +0200
+
+    ppc4xx: Add option for PPC440SPe ports without old Rev. A support
+
+    The 440SPe Rev. A is quite old and newer 440SPe boards don't need support
+    for this CPU revision. Since removing support for this older version
+    simplifies the creation for newer U-Boot ports, this patch now enables
+    440SPe > Rev. A support by creating the CONFIG_440SPE_REVA define. By
+    defining this in the board config header, Rev. A will still be supported.
+    Otherwise (default for newer board ports), Rev. A will not be supported.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 288991c93fdd150ef3817e676c657cb487468d38
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Apr 8 09:33:13 2010 +0200
+
+    ppc4xx: alpr: Remove some not needed commands to make image fit again
+
+    The latest changes increased the size of the alpr image a bit more.
+    Now it doesn't fit into the 256k reserved for it. This patch now removes
+    the commands "loads" and "loadb" which are not needed in the production
+    systems.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+    Cc: Pieter Voorthuijsen <pieter.voorthuijsen@prodrive.nl>
+
+commit 8d321b81c5441db93425ee37cb79cc51d9ce2fb0
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:21 2010 -0500
+
+    Update README to reflect new directory structure
+
+    Also fix up some whitespace issues that were introduced when moving
+    directory locations.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 37e4dafaae96ccc970a896f90186fadcf858aad0
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:20 2010 -0500
+
+    nios2: Move cpu/nios2/* to arch/nios2/cpu/*
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 6a8a2b7058a398fe207021259cb2c529fb225eff
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:19 2010 -0500
+
+    nios: Move cpu/nios/* to arch/nios/cpu/*
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 1e9c26578ebbeecbaf3d8fb574957405eff17c86
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:18 2010 -0500
+
+    sparc: Move cpu/leon[23] to arch/sparc/cpu/leon[23]
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit e9a882803eb59f482ca4aa6ffd6fa21e4c53d618
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:17 2010 -0500
+
+    i386: Move cpu/i386/* to arch/i386/cpu/*
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 6260fb0458d94c83aa5b180745b1946c0c94d364
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:16 2010 -0500
+
+    microblaze: Move cpu/microblaze/* to arch/microblaze/cpu/*
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 8a15c2d10b0b784f0cfba1240f06a4d933b975fa
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:15 2010 -0500
+
+    avr32: Move cpu/at32ap/* to arch/avr32/cpu/*
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 1e3827d9cf9442e188604fd1099ac38375135125
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:14 2010 -0500
+
+    mips: Move cpu/mips/* to arch/mips/cpu/*
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit c6fb83d21729321426308c3acff2a3dfb20d250b
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:13 2010 -0500
+
+    blackfin: Move cpu/blackfin/* to arch/blackfin/cpu/*
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit a4145534851bf74619cb373a942613a74547bb82
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:12 2010 -0500
+
+    m68k: Move cpu/$CPU to arch/m68k/cpu/$CPU
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 84ad688473bec2875e171b71040eb9e033c6c206
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:11 2010 -0500
+
+    arm: Move cpu/$CPU to arch/arm/cpu/$CPU
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 8f0fec74ac6d0f3a7134ccebafa1ed9bd8c712ba
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:10 2010 -0500
+
+    sh: Move cpu/$CPU to arch/sh/cpu/$CPU
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 8d1f268204b07e172f3cb5cee0a3974d605b0b98
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:09 2010 -0500
+
+    ppc: Move cpu/$CPU to arch/ppc/cpu/$CPU
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 819833af39a91fa1c1e8252862bbda6f5a602f7b
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:08 2010 -0500
+
+    Move architecture-specific includes to arch/$ARCH/include/asm
+
+    This helps to clean up the include/ directory so that it only contains
+    non-architecture-specific headers and also matches Linux's directory
+    layout which many U-Boot developers are already familiar with.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 61f2b38a17f5b21c59f2afe6cf1cbb5f28638cf9
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:07 2010 -0500
+
+    Replace "#include <asm-$ARCH/$FILE>" with "#include <asm/$FILE>"
+
+    The appropriate include/asm-$ARCH directory should already by symlinked
+    to include/asm so using the whole "asm-$ARCH" path is unnecessary.
+
+    This change should also allow us to move the include/asm-$ARCH
+    directories into their appropriate lib/$ARCH/ directories.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 0de71d507157c4bd4fddcd3a419140d2b986eed2
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:06 2010 -0500
+
+    Move libfdt/ into lib/
+
+    Move the libfdt directory into the common lib/ directory to clean up the
+    top-level directory.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 78acc472d9719316f22e002a009a998d9ceec29d
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:05 2010 -0500
+
+    Rename lib_generic/ to lib/
+
+    Now that the other architecture-specific lib directories have been
+    moved out of the top-level directory there's not much reason to have the
+    '_generic' suffix on the common lib directory.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit ea0364f1bbfed1e3ea711147420875cf338fe77a
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:04 2010 -0500
+
+    Move lib_$ARCH directories to arch/$ARCH/lib
+
+    Also move lib_$ARCH/config.mk to arch/$ARCH/config.mk
+
+    This change is intended to clean up the top-level directory structure
+    and more closely mimic Linux's directory organization.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 89f39e177e7b0152aa1d3152baa25d986e36cdcf
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:03 2010 -0500
+
+    Change directory-specific CFLAGS to use full path
+
+    Previously, a specific file or directory could be compiled with custom
+    CFLAGS by adding a Makefile variable such as:
+      CFLAGS_dlmalloc.o = <custom flags for common/dlmalloc.c>
+    or
+      CFLAGS_lib = <custom flags for lib directory>
+
+    This method breaks down once multiple files or directories share the
+    same path.	Eg FLAGS_fileA = <custom flags> would incorrectly result in
+    both dir1/fileA.c and dir2/fileA.c being compiled with <custom flags>.
+
+    This change allows finer grained control which we need once we move
+    lib_$ARCH to arch/$ARCH/lib/ and lib_generic/ to lib/.  Without this
+    change all lib/ directories would share the same custom CFLAGS.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 03b7004ddafc70d83904d790abaa50843868130e
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Mon Apr 12 22:28:02 2010 -0500
+
+    Create CPUDIR variable
+
+    The CPUDIR variable points to the location of a target's CPU directory.
+    Currently, it is set to cpu/$CPU.  However, using $CPUDIR will allow for
+    more flexibility in the future.  It lays the groundwork for reorganizing
+    U-Boot's directory structure to support a layout such as:
+
+      arch/$ARCH/cpu/$CPU/* (architecture with multiple CPU types)
+      arch/$ARCH/cpu/*	    (architecture with one CPU type)
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 30dc165a76b5165af77219189bc05d0fa4229d8b
+Author: Jens Scharsig <js_at_ng@scharsoft.de>
+Date:	Fri Apr 9 19:02:38 2010 +0200
+
+    FIX: watchdog timeout, while waiting for input
+
+    * add WATCHDOG_RESET to !tstc() loops
+    * prevents watchdog timeout, while waiting for input,
+      if CONFIG_BOOT_RETRY_TIME or CONFIG_SHOW_ACTIVITY defined
+
+    Signed-off-by: Jens Scharsig <js_at_ng@scharsoft.de>
+
+commit 8178110bc28249f3ff1c22b15d7dcdee50be69eb
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Thu Apr 8 17:55:48 2010 +0200
+
+    config_cmd_all.h: Sort entries alphabetically
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit 9157e9c40ab3a942bdd0679bb433cd9ed485f434
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Thu Apr 8 17:55:47 2010 +0200
+
+    config_cmd_all.h: added missing CONFIG_CMD_UBI and CONFIG_CMD_UBIFS
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit ae30b8c200dc071d719ad649d0bf5635d61754f3
+Author: karl.beldan@gmail.com <karl.beldan@gmail.com>
+Date:	Tue Apr 6 22:18:08 2010 +0200
+
+    malloc: sbrk() should return MORECORE_FAILURE instead of NULL on failure
+
+    Signed-off-by: Karl Beldan <karl.beldan@gmail.com>
+
+commit a2513e27e8df2b7bf481d03e7719f91ce19e89d5
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Sun Apr 4 22:36:03 2010 -0500
+
+    mkimage: Fix strict-aliasing compiler warning
+
+    Version 4.2.4 of gcc produces the following warnings without this change:
+      mkimage.c: In function â€˜mainâ€™:
+      mkimage.c:204: warning: dereferencing type-punned pointer will break strict-aliasing rules
+      mkimage.c:222: warning: dereferencing type-punned pointer will break strict-aliasing rules
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit 1f2463d7642c582339c9f9d96471d5d2a169b9bb
+Author: Andre Schwarz <andre.schwarz@matrix-vision.de>
+Date:	Thu Apr 1 21:26:55 2010 +0200
+
+    Add initial support for Matrix Vision mvSMR board based on MPC5200B.
+
+    Signed-off-by: Andre Schwarz <andre.schwarz@matrix-vision.de>
+
+commit 9acd4f0e914913796e4e56f550726d216f7b16e5
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Sat Mar 27 11:16:10 2010 +0100
+
+    cmd_bmp.c: add standard subcommand handling
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+    Acked-by: Detlev Zundel <dzu@denx.de>
+
+commit f852a0c3bfe0b30b4816135b9a0d2aaae7e5de6a
+Author: Albin Tonnerre <albin.tonnerre@free-electrons.com>
+Date:	Sun Mar 14 18:47:23 2010 +0100
+
+    drivers/mtd/spi/eeprom_m95xxx.c: add missing error checking
+
+    Signed-off-by: Albin Tonnerre <albin.tonnerre@free-electrons.com>
+
+commit 3b653fdb322028b27c5ae3d60ecb0eea2d58837f
+Author: Peter Tyser <ptyser@xes-inc.com>
+Date:	Sun Apr 4 22:40:50 2010 -0500
+
+    cmd_ubi: Fix uninitialized variable warning
+
+    gcc 3.4.6 previously reported the following error on many MIPS boards
+    which utilize UBI:
+      cmd_ubi.c:193: warning: 'vol' might be used uninitialized in this function
+
+    The current code is structured such that 'vol' will never be used when
+    it is NULL anyway, but gcc isn't smart enough to figure this out.
+
+    Signed-off-by: Peter Tyser <ptyser@xes-inc.com>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit fac71cc49f93db7d460dbc957dfbbadefa2ca0e9
+Author: Kim B. Heino <Kim.Heino@bluegiga.com>
+Date:	Fri Mar 12 10:07:00 2010 +0200
+
+    USB storage probe
+
+    While debugging one ill behaving USB device I found two bugs in USB
+    storage probe.
+
+    usb_stor_get_info() returns -1 (error), 0 (skip) or 1 (ok). First part
+    of this patch fixes error case.
+
+    Second part fixes usb_inquiry()'s retry counter handling. Original code
+    had retry = -1 on error case, not retry = 0 as checked in the next line.
+
+    Signed-off-by: Kim B. Heino <Kim.Heino@bluegiga.com>
+
+commit aaad108b889c6980a2d05262a2f7febb14f94d68
+Author: Kim B. Heino <Kim.Heino@bluegiga.com>
+Date:	Fri Mar 12 15:46:56 2010 +0200
+
+    USB storage count
+
+    Here's another USB storage patch. Currently U-Boot handles storage
+    devices #0 - #4 as valid devices, even if there is none connected. This
+    patch fixes usb_stor_get_dev() to check detected device count instead
+    of MAX-define.
+
+    This is very important for ill behaving devices. usb_dev_desc[] can be
+    partially initialized if device probe fails.
+
+    After fixing get_dev() it was easy to fix "usb part" etc commands.
+    Previously it outputed "Unknown partition table" five times, now it's
+    "no USB devices available".
+
+    Signed-off-by: Kim B. Heino <Kim.Heino@bluegiga.com>
+
+commit d7a22a364ceea97133c1fb7aff073953c7a61228
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Sat Feb 27 21:34:41 2010 +0300
+
+    EHCI: add NEC PCI ID
+
+    Add NEC EHCI controller to the list of the supported devices.
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@mvista.com>
+
+     drivers/usb/host/ehci-pci.c |    1 +
+     1 file changed, 1 insertion(+)
+
+commit c8b2d1dc0f1667029f42c3fa21f70906414af325
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Sat Feb 27 21:33:21 2010 +0300
+
+    EHCI: fix port reset reporting
+
+    Commit b416191a14770c6bcc6fd67be7decf8159b2baee (Fix EHCI port reset.) didn't
+    move the code that checked for successful clearing of the port reset bit from
+    ehci_submit_root(), relying on wait_ms() call instead. The mentioned code also
+    erroneously reported port reset state when the reset was already completed.
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@mvista.com>
+
+commit e06a055bcd966adf62a5653c84db781915392e41
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Sat Feb 27 21:32:17 2010 +0300
+
+    EHCI: fix off-by-one error in ehci_submit_root()
+
+    USB devices on the 2nd port are not detected and I get the following message:
+
+    The request port(1) is not configured
+
+    That's with default CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS value of 2. 'req->index'
+    is 1-based, so the comparison in ehci_submit_root() can't be correct.
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@mvista.com>
+
+commit 6d313c84ded168427240e62d108b6ba9afdcf535
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Sat Feb 27 21:29:42 2010 +0300
+
+    EHCI: fix root hub device descriptor
+
+    On little endian machines, EHCI root hub's USB revision is reported as 0.2 --
+    cpu_to_le16() was missed in the initializer for the 'bcdUSB' descriptor field.
+    The same should be done for the 'bcdDevice' field.
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@mvista.com>
+
+commit 760bce07f182f678d42f2a85a0e47b59e831ba25
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Thu Apr 8 15:50:55 2010 +0200
+
+    video: ati_radeon_fb.c: fix warning while compiling with DEBUG
+
+    Fixes this warning:
+
+    ati_radeon_fb.c: In function 'radeon_probe':
+    ati_radeon_fb.c:598: warning: format '%x' expects type 'unsigned int',
+    but argument 2 has type 'void *'
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit f6a7a2e88854666e6a9ede50891fe415e803ace2
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Mar 31 15:52:40 2010 -0500
+
+    ati_radeon: Support PCI virtual not eq bus mapping.
+
+    Use pci_bus_to_virt() to convert the bus address from the BARs to
+    virtual address' to eliminate the direct mapping requirement.
+
+    Rename variables to better match usage (_phys -> _bus or no-suffix)
+
+    This fixes the mpc8572ds CONFIG_PHYS_64BIT mode failure:
+    "videoboot: Video ROM failed to map!"
+
+    Tested on mpc8572ds with and without CONFIG_PHYS_64BIT.
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+
+commit 9624f6d9eb4b7223e97a27844ec4489ab953a2e2
+Author: Ed Swarthout <Ed.Swarthout@freescale.com>
+Date:	Wed Mar 31 09:54:28 2010 -0500
+
+    ati_radeon: return with error when emulator fails
+
+    Console was being switched to video even if emulator fails and
+    causing this hang:
+
+		   Scanning PCI bus 04
+	    04	00  1095  3132	0104  00
+	PCIE3 on bus 03 - 04
+    Video: ATI Radeon video card (1002, 5b60) found @(2:0:0)
+    videoboot: Booting PCI video card bus 2, function 0, device 0
+    videoboot: Video ROM failed to map!
+    640x480x8 31kHz 59Hz
+    radeonfb: FIFO Timeout !
+
+    Signed-off-by: Ed Swarthout <Ed.Swarthout@freescale.com>
+    Tested-by: Anatolij Gustschin <agust@denx.de>
+
+commit d5011762f53ada9cc7cdf1f89f3a722f887af577
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Mon Mar 15 14:50:25 2010 +0100
+
+    video: cfb_console.c: add support for RLE8 bitmaps
+
+    Allow displaying 8-bit RLE BMP images.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 22d6c8faac4e9fa43232b0cf4da427ec14d72ad3
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Thu Apr 1 11:15:05 2010 +0800
+
+    cfi_flash: reset timer in flash status check
+
+    This patch adds reset_timer() before the flash status check
+    waiting loop.
+
+    Since the timer is basically running asynchronous to the cfi
+    code, it is possible to call get_timer(0), then only a few
+    _SYSCLK_ cycles later an interrupt is generated. This causes
+    timeout even though much less time has elapsed. So the timer
+    period registers should be reset before get_timer(0) is
+    called.
+
+    There is similar usage in nand_base.c.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 933419096e857275b8b01f1ae577162231b143ff
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Wed Apr 7 01:34:11 2010 -0500
+
+    ppc/85xx: Use CONFIG_NS16550_MIN_FUNCTIONS to reduce NAND_SPL size
+
+    The MPC8536DS_NAND SPL build was failing due to code size increase
+    introduced by commit:
+
+    commit 33f57bd553edf29dffef5a6c7d76e169c79a6049
+    Author: Kumar Gala <galak@kernel.crashing.org>
+    Date:   Fri Mar 26 15:14:43 2010 -0500
+
+	85xx: Fix enabling of L1 cache parity on secondary cores
+
+    We built in some NS16550 functions that we dont need and can get
+    rid of them via CONFIG_NS16550_MIN_FUNCTIONS.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 5a4696088376fff82629e7e4a2444294dc589c96
+Author: Timur Tabi <timur@freescale.com>
+Date:	Thu Apr 1 10:49:42 2010 -0500
+
+    p2020ds: add alternate boot bank support using the ngPIXIS FPGA
+
+    The Freescale P2020DS board uses a new type of PIXIS FPGA, called the ngPIXIS.
+    The ngPIXIS has one distinct new feature: the values of the on-board switches
+    can be selectively overridden with shadow registers.  This feature is used to
+    boot from a different NOR flash bank, instead of having a register dedicated
+    for this purpose.  Because the ngPIXIS is so different from the previous PIXIS,
+    a new file is introduced: ngpixis.c.
+
+    Also update the P2020DS checkboard() function to use the new macros defined
+    in the header file.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 2feb4af001a0be5ccad6e6a6eb072207cbef6e3f
+Author: Timur Tabi <timur@freescale.com>
+Date:	Wed Mar 31 17:44:13 2010 -0500
+
+    fsl: improve the PIXIS code and fix a few bugs
+
+    Refactor and document the Freescale PIXIS code, used on most 85xx and 86xx
+    boards.  This makes the code easier to read and more flexible.
+
+    Delete pixis.h, because none of the exported functions were actually being
+    used by any other file.  Make all of the functions in pixis.c 'static'.
+    Remove "#include pixis.h" from every file that has it.
+
+    Remove some unnecessary #includes.
+
+    Make 'pixis_base' into a macro, so that we don't need to define it in every
+    function.
+
+    Add "while(1);" loops at the end of functions that reset the board, so that
+    execution doesn't continue while the reset is in progress.
+
+    Replace in_8/out_8 calls with clrbits_8, setbits_8, or clrsetbits_8, where
+    appropriate.
+
+    Replace ulong/uint with their spelled-out equivalents.  Remove unnecessary
+    typecasts, changing the types of some variables if necessary.
+
+    Add CONFIG_SYS_PIXIS_VCFGEN0_ENABLE and CONFIG_SYS_PIXIS_VBOOT_ENABLE to make
+    it easier for specific boards to support variations in the PIXIS registers
+    sets.  No current boards appears to need this feature.
+
+    Fix the definition of CONFIG_SYS_PIXIS_VBOOT_MASK for the MPC8610 HPCD.
+    Apparently, "pixis_reset altbank" has never worked on this board.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit ff8473e90a018c2bb19a196176c1f2e9602d6354
+Author: Sandeep Gopalpet <sandeep.kumar@freescale.com>
+Date:	Fri Mar 12 10:45:02 2010 +0530
+
+    85xx: Set HID1[mbdd] on e500v2 rev5.0 or greater
+
+    The HID1[MBDD] bit is new on rev5.0 or greater cores and will optimize
+    the performance of mbar/eieio instructions.
+
+    Signed-off-by: Sandeep Gopalpet <sandeep.kumar@freescale.com>
+
+commit 216082754f6da5359ea0db9b0cc03ad531ac6e45
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Mar 30 23:06:53 2010 -0500
+
+    85xx: Added various P1012/P1013/P1021/P1022 defines
+
+    There are various locations that we have chip specific info:
+
+    * Makefile for which ddr code to build
+    * Added P1012/P1013/P1021/P1022 to cpu_type_list and SVR list
+    * Added number of LAWs for P1012/P1013/P1021/P1022
+    * Set CONFIG_MAX_CPUS to 2 for P1021/P1022
+    * PCI port config
+
+    Signed-off-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Srikanth Srinivasan <srikanth.srinivasan@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 5a85a3096940b0a0cd016c8acf4944421c64f8c7
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Mar 30 10:07:12 2010 -0500
+
+    ppc/8xxx: Delete PCI nodes from device tree if not configured
+
+    If the PCI controller wasn't configured or enabled delete from the
+    device tree (include its alias).
+
+    For the case that we didn't even configure u-boot with knowledge of
+    the controller we can use the fact that the pci_controller pointer
+    is NULL to delete the node in the device tree.  We determine that
+    a controller was not setup (because of HW config) based on the fact
+    that cfg_addr wasn't setup.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 3f1a5c1655d32b7ab8ae74c79934ce100ebcd2bf
+Author: Brent Kandetzki <BrentK@teleco.com>
+Date:	Wed Mar 24 17:41:33 2010 -0400
+
+    Blackfin: IP04: new board port
+
+    A low cost 4 port IP-PBX board.
+
+    Signed-off-by: Brent Kandetzki <BrentK@teleco.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit a3c08363b927b84dee911bfcb29ab45d53c98f62
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Mar 23 16:23:39 2010 -0400
+
+    Blackfin: drop bfin #undef in linker script
+
+    Now that the linker script is preprocessed with -ansi, there is no need to
+    manually undef the bfin define.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 0c080aa753eb92e1c0033d3fd33033b2b4813884
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Feb 11 20:19:10 2010 -0500
+
+    Blackfin: call watchdog_init() for external watchdogs
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit b874ed17472de492cfbf58c8e362364bc80e3dcd
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Wed Feb 10 01:20:44 2010 -0500
+
+    Blackfin: link with normal ABI target
+
+    If someone uses the FDPIC toolchain to compile U-Boot, make sure the
+    linker knows to use the normal ABI target rather than the FDPIC one.
+    This wasn't needed with older toolchains, but when we fixed the linker
+    such that the default target changed based on tuple, this broke.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit dd97022cbeaae5fd4bce25cf7e86019101a040ef
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Fri Jan 29 15:48:28 2010 -0500
+
+    Blackfin: sync ptrace headers with linux
+
+    Scrub a lot of dead cruft in the process.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 6a0be8f8fe6d72a30e69d08decb72dc3bec5484c
+Author: Harald Krapfenbauer <Harald.Krapfenbauer@bluetechnix.at>
+Date:	Fri Jan 22 17:15:55 2010 -0500
+
+    Blackfin: cm-bf561: update network/env settings
+
+    Switch to the SMC911X driver by default now, and fix LDR env settings.
+
+    Signed-off-by: Harald Krapfenbauer <Harald.Krapfenbauer@bluetechnix.at>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 216818c1a2d03b1c0994f00993c99af38c5b1e83
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Thu Jan 21 23:29:18 2010 -0500
+
+    Blackfin: bf537-stamp: add board test defines
+
+    We tweak the configs a little when doing automated hardware tests.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 38b9b7446ecd3a728bad3e1913a984628a7363fb
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Jan 19 21:02:00 2010 -0500
+
+    Blackfin: relax .data alignment
+
+    The strictest alignment on Blackfin systems is 32bits (since that is the
+    largest load instruction), so don't force 256byte alignment here.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 03f7053f70bc55b50c9d23e54f90d772419300a6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Jan 19 15:39:07 2010 -0500
+
+    Blackfin: drop reference to gd->reloc_off
+
+    The reloc_off member no longer exists, so drop it.	Also change this
+    function so that it is always compiled and prevents latent issues like
+    this in the future.
+
+    Reported-by: Peter Meerwald <pmeerw@pmeerw.net>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 49b97d9c8ea7b11c4fc9e457cc2cd9fd6ebf0c21
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Tue Mar 30 10:19:26 2010 -0500
+
+    fdt: Add fdt_del_node_and_alias helper
+
+    Add a helper function that given an alias will delete both the node
+    the alias points to and the alias itself
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Gerald Van Baren <vanbaren@cideas.com>
+
+commit 459c41a8e1be96edeba1c0afeccacafd93b2c4e6
+Author: Mike Frysinger <vapier@gentoo.org>
+Date:	Tue Nov 3 15:53:12 2009 -0500
+
+    Blackfin: disable NetBSD bootm support by default
+
+    There is no Blackfin/NetBSD port, so enabling support for it by default
+    doesn't make any sense.
+
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 69bcf5bc80a47acbd62b8cfff932cb12d47997d7
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Mon Mar 29 13:50:31 2010 -0500
+
+    85xx: Add defines for BUCSR bits to make code more readable
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 22c9de064a218ae617bfeea35d2164532df91597
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Fri Mar 5 12:22:00 2010 +0800
+
+    fsl-ddr: change the default burst mode for DDR3
+
+    For 64B cacheline SoC, set the fixed 8-beat burst len,
+    for 32B cacheline SoC, set the On-The-Fly as default.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit ec145e87b80f6764d17a6b0aebf521fe758c3fdc
+Author: Dave Liu <daveliu@freescale.com>
+Date:	Fri Mar 5 12:22:00 2010 +0800
+
+    fsl-ddr: Fix the turnaround timing for TIMING_CFG_4
+
+    Read-to-read/Write-to-write turnaround for same chip select
+    of DDR3 memory, BL/2+2 cycles is enough for them at BC4 and
+    OTF case, BL/2 cycles is enough for fixed BL8.
+    Cutting down the turnaround from BL/2+4 to BL/2+2 or BL/2
+    will improve the memory performance.
+
+    Signed-off-by: Dave Liu <daveliu@freescale.com>
+
+commit ab467c512e79dbd14f02352655f054a4304c457e
+Author: Roy Zang <tie-fei.zang@freescale.com>
+Date:	Tue Feb 9 18:23:33 2010 +0800
+
+    fsl_esdhc: Only modify the field we are changing in WML
+
+    When we set the read or write watermark in WML we should maintain the
+    rest of the register as is, rather than using some hard coded value.
+
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+    Acked-by: Stefano Babic <sbabic@denx.de>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 48bb3bb5ac4dd21e931ae157caad6449bcb2d0d4
+Author: Jerry Huang <Chang-Ming.Huang@freescale.com>
+Date:	Thu Mar 18 15:57:06 2010 -0500
+
+    fsl_esdhc: Add function to reset the eSDHC controller
+
+    To support multiple block read command we must set abort or use auto
+    CMD12.  If we booted from eSDHC controller neither of these are used
+    and thus we need to reset the controller to allow multiple block read
+    to function.
+
+    Signed-off-by: Jerry Huang <Chang-Ming.Huang@freescale.com>
+    Signed-off-by: Roy Zang <tie-fei.zang@freescale.com>
+    Acked-by: Stefano Babic <sbabic@denx.de>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit cc4d1226585fa2544b5116702b02eacbb7aa48a1
+Author: Kumar Gala <galak@kernel.crashing.org>
+Date:	Thu Mar 18 15:51:05 2010 -0500
+
+    fsl_esdhc: Always stop clock before changing frequency
+
+    We need to stop the clocks on 83xx/85xx as well as imx.  No need to make
+    this code conditional to just imx.
+
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+    Acked-by: Stefano Babic <sbabic@denx.de>
+
+commit d0b0dcaa220549999d6ea74cf87487846c186a0f
+Author: Stefan Roese <sr@denx.de>
+Date:	Thu Apr 1 14:37:24 2010 +0200
+
+    i2c: Move PPC4xx I2C driver into drivers/i2c directory
+
+    This patch moves the PPC4xx specific I2C device driver into the I2C
+    drivers directory. All 4xx config headers are updated to include this
+    driver.
+
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit b5045cdda556c73e2697cd1d3ea6563315cbf490
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Wed Mar 31 15:38:55 2010 +0200
+
+    arm/integrator: Remove unneccessary CONFIG_PCI check.
+
+    pci_eth_init() is already conditional to CONFIG_PCI so not every caller
+    needs to have conditionals.
+
+    This is the only place in the current code base where such a check is
+    still at the calling site.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+    CC: Ben Warren <biggerbadderben@gmail.com>
+    CC: Peter Pearse <peter.pearse@arm.com>
+
+commit 0701f730cebc8dd065b70812ca0332055dcf10f8
+Author: Matthias Fuchs <matthias.fuchs@esd.eu>
+Date:	Thu Mar 25 14:30:13 2010 +0100
+
+    at91: use C structs for AT91 OHCI code
+
+    This patch is part of migrating the AT91 support towards
+    using C struct for all SOC access.
+
+    It removes one more CONFIG_AT91_LEGACY warning.
+
+    at91_pmc.h needs cleanup after migration of the drivers
+    has been done.
+
+    Signed-off-by: Matthias Fuchs <matthias.fuchs@esd.eu>
+
+commit e99056e3877d1f04a36991aa48f1c690547f5ab9
+Author: Asen Dimov <dimov@ronetix.at>
+Date:	Thu Mar 18 13:46:45 2010 +0200
+
+    using AT91_PMC_MCKR_MDIV_ instead of LEGACY one in at91/clock.c
+
+    Signed-off-by: Asen Dimov <dimov@ronetix.at>
+
+commit 4b894a97d307c3207af40031d9e820e2960de57f
+Author: Alessandro Rubini <rubini@unipv.it>
+Date:	Wed Nov 25 23:41:51 2009 +0100
+
+    Nomadik: fix reset_timer()
+
+    Previous code was failing when reading back the timer less than
+    400us after resetting it. This lead nand operations to incorrectly
+    timeout any now and then.  Moreover, writing the load register isn't
+    immediately reflected in the value register. We must wait for a clock
+    edge, so read_timer now waits for the value to change at least once,
+    otherwise nand operation would timeout anyways (though less frequently).
+
+    Signed-off-by: Alessandro Rubini <rubini@unipv.it>
+    Acked-by: Andrea Gallo <andrea.gallo@stericsson.com>
+
+commit f936aa0528fe4f5d86168575528e0c52b485c642
+Author: Achim Ehrlich <aehrlich@taskit.de>
+Date:	Wed Mar 17 14:50:29 2010 +0100
+
+    Convert at91 watchdog driver to new SoC access
+
+    This converts the at91 watchdog driver to new c structure
+    type to access registers of the SoC
+
+    Signed-off-by: Achim Ehrlich <aehrlich@taskit.de>
+
+commit c9f72b3da8855c3c9679c821127cccd91e0380ed
+Author: Daniel Gorsulowski <Daniel.Gorsulowski@esd.eu>
+Date:	Wed Mar 17 08:21:11 2010 +0100
+
+    at91: boards cleanup for deprecated CONFIG_CMD_AUTOSCRIPT
+
+    CONFIG_CMD_AUTOSCRIPT support is deprecated and non-existing
+    This clean up patch removes the references for esd boards
+
+    Signed-off-by: Daniel Gorsulowski <Daniel.Gorsulowski@esd.eu>
+
+commit b032698ff687034286c98c09fd4830d804cd1786
+Author: Matthias Kaehlcke <matthias@kaehlcke.net>
+Date:	Tue Mar 9 22:13:56 2010 +0100
+
+    ep93xx timer: refactoring
+
+    ep93xx timer: Simplified the timer code by eliminating clk_to_systicks() and
+    performing (almost) all manipulation of the timer structure in read_timer()
+
+    Signed-off-by: Matthias Kaehlcke <matthias@kaehlcke.net>
+
+commit 33eef04bf8541f7b15d4f694ad10f9b912b9caa6
+Author: Matthias Kaehlcke <matthias@kaehlcke.net>
+Date:	Tue Mar 9 22:13:47 2010 +0100
+
+    ep93xx timer: Rename struct timer_reg pointers
+
+    ep93xx timer: Renamed pointers to struct timer_regs from name 'timer' to
+    'timer_regs' in order to avoid confusion with the global variable 'timer'
+
+    Signed-off-by: Matthias Kaehlcke <matthias@kaehlcke.net>
+
+commit 2528dc52361bea49e6bd4a95ce2374d0004ca56f
+Author: Naveen Krishna CH <ch.naveen@samsung.com>
+Date:	Fri Mar 5 17:16:05 2010 +0900
+
+    SAMSUNG: SMDKC100: Adds ethernet support.
+
+    Add setup for ethernet on SMDKC100, allowing kernel/ramdisk to be
+    loaded over tftp.
+
+    The preinit function will configure GPIO (GPK0CON) & SROMC to look
+    for environment in SROM Bank 3.
+
+    Signed-off-by: Naveen Krishna Ch <ch.naveen@samsung.com>
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit 01802e0d22a4bb3903b342ff2357ea3bbcccd289
+Author: Naveen Krishna CH <ch.naveen@samsung.com>
+Date:	Fri Mar 5 17:15:38 2010 +0900
+
+    S5PC100: Function to configure the SROMC registers.
+
+    Nand Flash, Ethernet, other features might need to configure the
+    SROMC registers accordingly.
+    The config_sromc() functions helps with this.
+
+    Signed-off-by: Naveen Krishna Ch <ch.naveen@samsung.com>
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit a28bec89ccc17b56a50d841c8f0778e927434d1c
+Author: Naveen Krishna CH <ch.naveen@samsung.com>
+Date:	Fri Mar 5 17:15:13 2010 +0900
+
+    S5PC100: Memory SubSystem Header file, register description(SROMC).
+
+    Memory subsystem of S5PC100 handles SROM, SRAM, OneDRAM, OneNand,
+    NAND Flash, DDRs.
+    smc.h is a common place for the register description of Memory subsystem
+    of S5PC100.
+    Note: Only SROM related registers are descibed now.
+
+    Signed-off-by: Naveen Krishna Ch <ch.naveen@samsung.com>
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit abbe18c353c297a40c428ba92f3e1a85e8e694fc
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Fri Feb 12 18:21:17 2010 +0900
+
+    s5pc1xx: update the README file
+
+    Because adds support the GPIO Interface, README file is updated.
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit ab693e9c4c06b42d1746a0d7a03541968fb55bb9
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Fri Feb 12 18:17:52 2010 +0900
+
+    s5pc1xx: support the GPIO interface
+
+    This patch adds support the GPIO interface
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit 7b92159bd9fc0acaddd65b314da252b715d1b44e
+Author: Joonyoung Shim <jy0922.shim@samsung.com>
+Date:	Mon Feb 8 22:00:52 2010 +0900
+
+    s3c64xx: Add ifdef at the S3C64XX only codes
+
+    The s3c6400.h file is only for S3C64XX cpu and the pheripheral port
+    address(0x70000000 - 0x7fffffff) exists at only S3C64XX cpu, so they
+    should be included by only S3C64XX cpu.
+
+    Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit 6c71a8fec95a9e0f90fbc47469c389c6f35d96bc
+Author: Naveen Krishna CH <ch.naveen.samsung.com>
+Date:	Thu Feb 4 14:17:38 2010 +0900
+
+    S5PC100: Moves the Macros to a common header file
+
+    The get_pll_clk(int) API returns the PLL frequency based on
+    the (int) argument which is defined locally in clock.c
+
+    Moving that #define to common header file (clk.h) would
+    be helpful when using the API from other files.
+
+    Signed-off-by: Naveen Krishna Ch <ch.naveen@samsung.com>
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit 2ca551dd7ad6ec11418f113b1b50c96fdd15a370
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Mon Mar 8 16:22:33 2010 +0900
+
+    MAINTAINERS: sort the list of ARM Maintainers by last name
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit c937c42431923c96a617e9462e2c0ecbaf2ad72d
+Author: Vipin KUMAR <vipin.kumar@st.com>
+Date:	Mon Mar 8 10:46:07 2010 +0530
+
+    SPEAr : Adding maintainer name for spear SoCs
+
+    Signed-off-by: Vipin Kumar <vipin.kumar@st.com>
+
+commit d8bc0a2889700ba063598de6d4e7d135360b537e
+Author: Scott McNutt <smcnutt@psyent.com>
+Date:	Thu Apr 1 00:00:56 2010 -0400
+
+    nios2: Reload timer count in reset_timer()
+
+       When the timestamp is incremented via interrupt and the interrupt
+       period is greater than 1 msec, successive calls to get_timer() can
+       produce inaccurate timing since the interrupts are asynchronous
+       to the timing loop. For example, with an interrupt period of 10 msec
+       two successive calls to get_timer() could indicate an elapsed time
+       of 10 msec after only several hundred usecs -- depending on when
+       the next interrupt actually occurs. This behavior can cause
+       reliability issues with components such as CFI and NAND.
+
+       This can be remedied by calling reset_timer() prior to establishing
+       the base timestamp with get_timer(0), provided reset_timer()
+       resets the hardware timer (rather than simply resetting only the
+       timestamp). This has the effect of synchronizing the interrupts
+       (and the advance of the timestamp) with the timing loop.
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit ed2941578480d30b413e081b6f1a5675d4afd9e2
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Wed Mar 24 11:41:46 2010 +0800
+
+    nios2: pass command line and initrd to linux in bootm.c
+
+    This patch adds bootargs passing to nios2 linux.
+
+    The args passing is enabled with,
+    r4 : 'NIOS' magic
+    r5 : pointer to initrd start
+    r6 : pointer to initrd end
+    r7 : pointer to command line
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 9e486ab1c98ea7ab357520307fe5d5a0847cd1bb
+Author: Scott McNutt <smcnutt@psyent.com>
+Date:	Tue Mar 30 20:26:15 2010 -0400
+
+    nios2: Fix AMDLV065D flash write bug in altera board common tree.
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 3a89a91a10fed545af458418e63d911953a9849c
+Author: Scott McNutt <smcnutt@psyent.com>
+Date:	Tue Mar 30 20:23:04 2010 -0400
+
+    nios2: Set CONFIG_SYS_HZ to 1000 all nios2 boards.
+
+       CONFIG_SYS_HZ was being calculated (incorrectly) in nios2 configuration
+       headers. Updated comments to accurately describe timebase macros.
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 3ea0037f2337de692b5fd2b6a4449db1de3067a2
+Author: Scott McNutt <smcnutt@psyent.com>
+Date:	Sun Mar 21 21:24:43 2010 -0400
+
+    nios2: Fix outx/writex parameter order in io.h
+
+    The outx/writex macros were using writex(addr, val) rather than
+       the standard writex(val, addr), resulting in incompatibilty with
+       architecture independent components. This change set uses standard
+       parameter order.
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 64da04d24ea685483f9afa07088f76931b6c0e01
+Author: Scott McNutt <smcnutt@psyent.com>
+Date:	Sun Mar 21 15:36:44 2010 -0400
+
+    nios2: Add support for EPCS16 and EPCS64 configuration devices.
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 3fd2a1f3eb83a0bbb84a1397ff9c2af7e6f5d069
+Author: Scott McNutt <smcnutt@psyent.com>
+Date:	Sun Mar 21 13:26:33 2010 -0400
+
+    nios2: Add missing Ethernet initialization to board_init().
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit c72bfafbc94e61ea3ff3915c84aa7f9d91a045a0
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Sat Mar 20 07:05:47 2010 +0800
+
+    nios2: add struct stat support in linux/stat.h
+
+    This is needed for jffs2 support.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 3bef253f0802c6292b8e2acc0089894019e99e62
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Sat Mar 20 07:05:46 2010 +0800
+
+    nios2: use bitops from linux-2.6 asm-generic
+
+    These are needed to use ubi/ubifs.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit d8b73dffa9866d6de3c05c8a2d07ecd4bc0d5d7e
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Sat Mar 20 07:05:45 2010 +0800
+
+    nios2: add local_irq_enable/disable to asm-nios2/system.h
+
+    Copy from linux header. This is needed for generic bitops.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 54d809e7553939629e8941ab9eef1f762463a2b3
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Sat Mar 20 07:05:44 2010 +0800
+
+    nios2: add asm-nios2/errno.h
+
+    Just pull in asm-generic.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit c9d4f46b5d639a45747d5eaabd31d35856cb918f
+Author: Scott McNutt <smcnutt@psyent.com>
+Date:	Fri Mar 19 19:03:28 2010 -0400
+
+    nios2: Move serial drivers to individual files in  drivers/serial
+
+       The standard Altera UART & JTAG UART as well as the OpenCores
+       YANU driver are now in individual files in drivers/serial
+       rather than a single file uner cpu/nios2.
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit ca6e1c136ddb720c3bb2cc043b99f7f06bc46c55
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Mar 31 23:54:39 2010 +0200
+
+    Prepare v2010.03
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 8e64d6efd8d778a5f83d8bff9cd273a86dcc182f
 Author: Heiko Schocher <hs@denx.de>
 Date:	Wed Mar 31 08:34:51 2010 +0200
@@ -140,6 +3729,53 @@ Date:	Mon Mar 29 13:15:48 2010 +0200
 
     Signed-off-by: Heiko Schocher <hs@denx.de>
 
+commit fd03ea89641d6f6ade6d1a8580c1bb9f52b8542c
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Fri Mar 26 09:46:42 2010 +0100
+
+    i2c: made unused function i2c_mux_add_device static
+
+    and removed it from the .h file
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit 2c0dc990202c69a6231122ec2463c4e3076a16f3
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Fri Mar 26 09:46:41 2010 +0100
+
+    cmd_i2c: introduced get_alen helper function
+
+    The code to parse alen appeared 6 times in the function.
+    Factored this out in a small helper function
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit a266fe955a55bb7a03a67f3c91033068f317b337
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Fri Mar 26 09:46:40 2010 +0100
+
+    cmd_i2c: moved a define to before the functions
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit 4a8cf3382a6fea5cccc1e2ae61a4601bf26490c3
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Fri Mar 26 09:46:39 2010 +0100
+
+    cmd_i2c: moved mispositioned comment for i2c md
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit 3a6dcb988eee3fd3cd9c5ef96855a8da729a290e
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Fri Mar 26 09:46:38 2010 +0100
+
+    cmd_i2c.c: declared local functions as static
+
+    Declared all functions that were not called outside the file as static
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
 commit 2883cc2d48e99fd1873ef8af03fee7966611b735
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Sun Mar 28 00:25:14 2010 +0100
@@ -183,6 +3819,27 @@ Date:	Sat Mar 27 23:37:46 2010 +0100
 
     Signed-off-by: Wolfgang Denk <wd@denx.de>
 
+commit e5720823f6f81a0f3a9e3404dbc37059bf6644f1
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri Mar 26 08:17:00 2010 +0800
+
+    cfi flash: add status polling method for amd flash
+
+    This patch adds status polling method to offer an alternative to
+    data toggle method for amd flash chips.
+
+    This patch is needed for nios2 cfi flash interface, where the bus
+    controller performs 4 bytes read cycles for a single byte read
+    instruction. The data toggle method can not detect chip busy
+    status correctly. So we have to poll DQ7, which will be inverted
+    when the chip is busy.
+
+    This feature is enabled with the config def,
+    CONFIG_SYS_CFI_FLASH_STATUS_POLL
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Stefan Roese <sr@denx.de>
+
 commit c40c94a3d20a8616264c2dfcda85279185d69aeb
 Author: Renato Andreola <renato.andreola@imagos.it>
 Date:	Wed Mar 24 23:00:47 2010 +0800
@@ -195,6 +3852,205 @@ Date:	Wed Mar 24 23:00:47 2010 +0800
     Signed-off-by: Alessandro Rubini <rubini@gnudd.com>
     Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
     Signed-off-by: Stefan Roese <sr@denx.de>
+
+commit 9d3a86aec52cb3c0e9badd12167d9292184ce4dd
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Tue Mar 16 12:39:36 2010 -0500
+
+    ColdFire: Fix m54455EVB save environment bug
+
+    The ATMEL flash does not have buffer write feature. Assgined
+    buffer_size = 1, so that when there is a write to the flash
+    will not use buffer write function.
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit f26a247308568e32857a5cc054f7219510a7d44e
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Mon Mar 15 19:39:21 2010 -0500
+
+    ColdFire: Fix incorrect M5253DEMO default environment
+
+    The flash location is at 0xff800000, not 0
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit dd9f054ede433de73b137987fb3dc066e8d24ebb
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Thu Mar 11 22:12:53 2010 -0600
+
+    ColdFire: Cache update for all platforms
+
+    The CF will call cache functions in lib_m68/cache.c and the
+    cache settings are defined in platform configuration file.
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit f628e2f72daee810aa568619b6629da68ad042d6
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Wed Mar 10 18:50:22 2010 -0600
+
+    ColdFire: Fix SDRAM size on M5208evb rev E
+
+    The proper SDRAM size is 32MB not 64MB
+
+    Signed-off-by: Jingchang Lu <b22599@freescale.com>
+
+commit 9e8e927023582231b034e199568e49f84ac032a9
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Wed Mar 10 18:24:07 2010 -0600
+
+    ColdFire: Misc update for M53017
+
+    Reside Ethernet buffer descriptors in SRAM instead of DRAM. Add
+    CONFIG_SYS_TX_ETH_BUFFER in platform configuration file. Update
+    DRAM control and SRAM control register setting. Update cache
+    setting where size does not write to proper region.
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+    Signed-off-by: Jason Jin <Jason.jin@freescale.com>
+
+commit f9d877a6479878ca96688671f37d87b620c3e77c
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Wed Mar 10 17:32:13 2010 -0600
+
+    ColdFire: Add CPU compile flag for mcf5301x and mcf532x
+
+    Add CPU compile flag -mcpu=53015 in cpu/config.mk
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit 0e8a75550695aba9d8cfe9c7f7713da42c1f3e89
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Wed Mar 10 16:33:03 2010 -0600
+
+    ColdFire: Update Extra environment Data for M5275EVB
+
+    Provide extra environment Data. Remove default network
+    address and MAC address.
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit 53e4290f20b5f73c95717f47f4c04ed6932ff931
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Wed Mar 10 16:14:01 2010 -0600
+
+    ColdFire: M5271EVB DRAM Bring up issue
+
+    Fix proper portsize: The register for portsize is either 00b, 01b,
+    or 1xb. The value that previous assigned is 32d.
+    Fix DRAM bring up: insert asm("nop") for every DRAM register setup
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit ac265f7fcab1a09b9a837a34ef8b10acc101695e
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Wed Mar 10 11:56:36 2010 -0600
+
+    ColdFire: Update M5253DEMO configuration file
+
+    Fix incorrect default environment for flash erase or protect
+    range. Change offset from 0 to 0xff80nnnn. Remove default
+    ethernet setup and MAC address.
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit 68e4e76af55746a4330865f56476e58ce4140ca8
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Thu Mar 11 15:04:21 2010 -0600
+
+    ColdFire: Relocate vector table - mcf5445x
+
+    Newer ColdFire processors family boot from address 0 instead of
+    0xFFnn_nnnn. When the boot flash base chip select is set at new
+    location instead of 0, an un-predictable error will occur if
+    there is an vector being trigger and refer it to an invalid
+    address or the vector table handler is not existed at address
+    0.
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit fa9da596212d7f28eb26a3257d79d9515f9838cd
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Tue Mar 9 19:24:43 2010 -0600
+
+    ColdFire: Update uart_port_conf in serial driver
+
+    Provide proper port passing from serial_init to uart_part_conf.
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit 52affe04fa5493597d8a5f6202507190950a32e6
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Tue Mar 9 19:17:52 2010 -0600
+
+    ColdFire: Update processors' serial port configuration
+
+    Provide parameter passing to uart_port_config(). Update port
+    configuration - un-mask it before enable the bits.
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit d04c1efae3d834db6e21e9976e338bf1e588e987
+Author: TsiChung Liew <tsicliew@gmail.com>
+Date:	Tue Mar 9 18:32:16 2010 -0600
+
+    ColdFire: Correct bit definition
+
+    Use correct definition for _MASK and _UNMASK. It was combined in
+    the previous used and causes confusion.
+
+    Signed-off-by: TsiChung Liew <tsicliew@gmail.com>
+
+commit 116095eb1f0f7017ea8062aa8a8ba8ceecb430b5
+Author: Philippe De Muyter <phdm at macqel.be>
+Date:	Mon Sep 21 22:20:29 2009 -0600
+
+    fix cmd_bdinfo.c:354: warning: 'print_eth' defined but not used
+
+    This fixes the following warnings when running MAKEALL for coldfire :
+    cmd_bdinfo.c:354: warning: 'print_eth' defined but not used
+
+    Signed-off-by: Philippe De Muyter <phdm at macqel.be>
+
+commit dfc2b7697dc07862da804c1be084f96301884bc7
+Author: Michael Durrant <mdurrant@arcturusnetworks.com>
+Date:	Wed Jan 20 19:33:02 2010 -0600
+
+    Adding EP2500 MCF5282 board [PATCH]
+
+    Mercury-EP2500.patch
+       - added Mercury's EP2500 board uses the mcf5282 processor
+
+    CREDITS.patch
+
+    Signed-off-by: David Wu <davidwu@arcturusnetworks.com>
+    Signed-off-by: Michael Durrant <mdurrant@arcturusnetworks.com>
+
+commit 89083346d0627a5e6e271e61bd34ab5121f9462b
+Author: Wolfgang Wegner <w.wegner@astro-kom.de>
+Date:	Fri Oct 30 16:55:02 2009 +0100
+
+    add block write function to spartan3 slave serial load
+
+    Using seperate function calls for each bit-bang of slave serial
+    load can be painfully slow. This patch adds the possibility to
+    supply a block write function that loads the complete block of
+    data in one call (like it can already be done with Altera FPGAs).
+    On an MCF5373L (240 MHz) loading an XC3S4000 this reduces the load
+    time from around 15 seconds to around 3 seconds
+
+    Signed-off-by: Wolfgang Wegner <w.wegner at astro-kom.de>
+
+commit 9d79e5758c3a6776be9a86856823d28e7154a481
+Author: Wolfgang Wegner <w.wegner@astro-kom.de>
+Date:	Mon Jan 25 11:27:44 2010 +0100
+
+    add ASTRO MCF5373L board
+
+    This patch adds support for ASTRO board(s) based on MCF5373L.
+
+    Signed-off-by: Wolfgang Wegner <w.wegner@astro-kom.de>
 
 commit c550afada5fcad426aa6a219a329feb9eedae8b2
 Author: Rupjyoti Sarmah <rsarmah@appliedmicro.com>
@@ -240,6 +4096,41 @@ Date:	Sat Mar 13 17:44:08 2010 +0100
     Acked-by: Andrea Gallo <andrea.gallo@stericsson.com>
     Signed-off-by: Anatolij Gustschin <agust@denx.de>
 
+commit 6b94b4962211c16ee2197048faa887e1f92f3757
+Author: Florian Fainelli <f.fainelli@gmail.com>
+Date:	Sat Mar 20 19:02:58 2010 +0100
+
+    cmd_nand: show nand scrub confirmation character
+
+    When issuing a nand scrub command, the entered character is not displayed
+    this may be confusing. This patch makes the input character being
+    displayed if it is a 'y' so that an user knows he is about to scrub his
+    nand.
+
+    Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+
+commit 7c27b7b1eac43cdcda735bad6231cdfc1f602284
+Author: Nikolay Petukhov <nikolaypetukhov@gmail.com>
+Date:	Fri Mar 19 10:49:27 2010 +0500
+
+    at91: add hwecc method for nand
+
+    This is a patch to use the hardware ECC controller of
+    the AT91SAM9260 for the AT91 nand. Taken from the kernel 2.6.33.
+
+    Signed-off-by: Nikolay Petukhov <Nikolay.Petukhov@gmail.com>
+
+commit cc41a59a74ca9095d518d6d69655c6735dd00809
+Author: Cyril Chemparathy <cyril@ti.com>
+Date:	Wed Mar 17 10:03:10 2010 -0400
+
+    TI: Davinci: NAND Driver Cleanup
+
+    Modified to use IO accessor routines consistently.	Eliminated volatile usage
+    to keep checkpatch.pl happy.
+
+    Signed-off-by: Cyril Chemparathy <cyril@ti.com>
+
 commit 152dda3d94e97ede7af3f9560a59a659384d4585
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Mon Mar 22 23:25:00 2010 +0100
@@ -271,6 +4162,160 @@ Date:	Tue Mar 9 22:13:20 2010 +0100
     overflows in intermediate values
 
     Signed-off-by: Matthias Kaehlcke <matthias@kaehlcke.net>
+
+commit 3c950e2ebfde083084cc926b020e3a22a536bf85
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Tue Mar 16 17:10:05 2010 +0100
+
+    fdt_support: add partitions fixup in mtd node
+
+    Allow overwriting defined partitions in the device tree blob
+    using partition info defined in the 'mtdparts' environment
+    variable.
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+    Cc: Gerald Van Baren <vanbaren@cideas.com>
+
+commit d611295032c30e6c533cb356005fa82ab7992824
+Author: John Schmoller <jschmoller@xes-inc.com>
+Date:	Fri Mar 12 09:49:24 2010 -0600
+
+    cmd history: Match history buffer size to console buffer
+
+    Match history buffer size to console buffer size. History buffer size
+    was hard coded to 256, artificially limiting the command buffer size.
+    The history buffer now tracks CONFIG_SYS_CBSIZE.
+
+    Signed-off-by: John Schmoller <jschmoller@xes-inc.com>
+
+commit 6475b9f91bd33bfd38418469cabdcfc0fefbd848
+Author: John Schmoller <jschmoller@xes-inc.com>
+Date:	Fri Mar 12 09:49:23 2010 -0600
+
+    console: Fix console buffer overrun
+
+    When CONFIG_SYS_CBSIZE equals MAX_CMDBUF_SIZE, a command string of
+    maximum length will overwrite part of the history buffer, causing the
+    board to die. Expand the console_buffer and hist_lines buffer by one
+    character each to hold the missing NULL char.
+
+    Signed-off-by: John Schmoller <jschmoller@xes-inc.com>
+
+commit e070a56c777f1fd05950e1bc63483c19decd6f78
+Author: Michael Zaidman <michael.zaidman@gmail.com>
+Date:	Mon Mar 1 11:47:36 2010 +0200
+
+    POST: add progress API
+
+    Add POST progress API implemented as weak calls before and after
+    each call to the POST test callback in the post_run_single routine
+    of the post.c file.
+
+    Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
+    Acked-by: Detlev Zundel <dzu@denx.de>
+
+commit 47ab5ad14575531798431f0d1e8f83ee9bb0a87e
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Fri Feb 26 14:00:19 2010 +0100
+
+    cmd_setexpr: allow memory addresses in expressions
+
+    This patch add functionality to use memory addresses in expressions.
+    This increases the power of expressions substantially
+
+    It adheres to the standard convemtions: memory addresses can be given
+    in the format *address (e.g. *1000)
+
+    Rationale for this change is that it allows masking off bits from a
+    byte that is obtained by reading data from e.g. i2c.
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+    Fix warning: control reaches end of non-void function
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 652e53546b23c25f80756287eaf607b713afdc87
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Thu Feb 25 10:12:16 2010 +0100
+
+    cmd_i2c.c: added i2c read to memory function
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit fb0070e9101a1f288d7054f7e80b3d808fd7ead2
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Thu Feb 25 10:12:15 2010 +0100
+
+    cmd_i2c.c: sorted commands alphabetically
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit bfc3b77ebe68435b46e988e3a440bc4857bc7cf4
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Thu Feb 25 10:12:14 2010 +0100
+
+    cmd_i2c.c: reworked subcommand handling
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit f74d9bd2a248efa229f0f3478fe331e2a319588c
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Thu Feb 25 10:12:13 2010 +0100
+
+    cmd_bootm.c: made subcommand array static
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit faffe14f016db10f33836b018c4b304d939cf586
+Author: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+Date:	Thu Feb 25 10:12:12 2010 +0100
+
+    cmd_i2c.c: reduced subaddress length to 3 bytes
+
+    according to some of the comments the subaddress length is 1 or 2, but we are being
+    prepared for the case it becomes 3. However the code also accepted 4.
+    This repairs this by changing the constand 4 to 3.
+
+    Signed-off-by: Frans Meulenbroeks <fransmeulenbroeks@gmail.com>
+
+commit a6a04967bc2957d20799f4bb2a6b3dd0353c1cfd
+Author: Renato Andreola <renato.andreola@imagos.it>
+Date:	Tue Mar 16 16:01:29 2010 -0400
+
+    nios2: Added support to YANU UART
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 352745ad487f72e839986ddbb020e1fe86c1d482
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Tue Mar 16 12:12:48 2010 -0400
+
+    nios2: use generic unaligned.h
+
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit fd428c05c863aefb575b12b2a1916b02d5bfa759
+Author: Detlev Zundel <dzu@denx.de>
+Date:	Fri Mar 12 10:01:12 2010 +0100
+
+    mpc5xxx: Remove all references to MGT5100
+
+    We do not support a processor that never reached a real customer.
+
+    Signed-off-by: Detlev Zundel <dzu@denx.de>
+
+commit c0c316569f70055eb7c70864aaa6d48666782600
+Author: Matthias Weisser <matthias.weisser@graf-syteco.de>
+Date:	Tue Jan 12 12:06:31 2010 +0100
+
+    video: Fix console display when splashscreen is used
+
+    If a splashscreen is used the console scrolling used the
+    scroll size as needed when a logo was displayed. This
+    patch sets the scroll size to the whole screen if
+    a splashscreen is shown.
+
+    Signed-off-by: Matthias Weisser <matthias.weisser@graf-syteco.de>
 
 commit daa989b47297c9f73426783599c286ef3a1f3f49
 Author: Asen Dimov <dimov@ronetix.at>

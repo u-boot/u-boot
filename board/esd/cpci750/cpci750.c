@@ -1090,3 +1090,15 @@ U_BOOT_CMD(
 	"Show Marvell strapping register",
 	"Show Marvell strapping register (ResetSampleLow ResetSampleHigh)"
 );
+
+int do_pldver(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	printf("PLD version:0x%02x\n", in_8((void *)CONFIG_SYS_PLD_VER));
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	pldver, 1, 1, do_pldver,
+	"Show PLD version",
+	"Show PLD version)");

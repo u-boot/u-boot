@@ -175,8 +175,8 @@ determine_refresh_rate_ps(const unsigned int spd_refresh)
  * ordinal 2, ddr2_speed_bins[1] contains tCK for CL=3
  * Not certain if any good value exists for CL=2
  */
-				 /* CL2   CL3   CL4   CL5   CL6 */
-unsigned short ddr2_speed_bins[] = {   0, 5000, 3750, 3000, 2500 };
+				 /* CL2   CL3   CL4   CL5   CL6  CL7*/
+unsigned short ddr2_speed_bins[] = {   0, 5000, 3750, 3000, 2500, 1875 };
 
 unsigned int
 compute_derated_DDR2_CAS_latency(unsigned int mclk_ps)

@@ -507,7 +507,7 @@ init_e300_core: /* time t 10 */
 
 	lis	r3, CONFIG_SYS_IMMR@h
 #if defined(CONFIG_WATCHDOG)
-	/* Initialise the Wathcdog values and reset it (if req) */
+	/* Initialise the Watchdog values and reset it (if req) */
 	/*------------------------------------------------------*/
 	lis r4, CONFIG_SYS_WATCHDOG_VALUE
 	ori r4, r4, (SWCRR_SWEN | SWCRR_SWRI | SWCRR_SWPR)
@@ -520,7 +520,7 @@ init_e300_core: /* time t 10 */
 	li	r4, -0x55C7
 	sth	r4, SWSRR@l(r3)
 #else
-	/* Disable Wathcdog  */
+	/* Disable Watchdog  */
 	/*-------------------*/
 	lwz r4, SWCRR(r3)
 	/* Check to see if its enabled for disabling
@@ -739,6 +739,7 @@ setup_bats:
  * Note: requires that all cache bits in
  * HID0 are in the low half word.
  */
+#ifndef CONFIG_NAND_SPL
 	.globl	icache_enable
 icache_enable:
 	mfspr	r3, HID0
@@ -767,6 +768,7 @@ icache_status:
 	mfspr	r3, HID0
 	rlwinm	r3, r3, (31 - HID0_ICE_SHIFT + 1), 31, 31
 	blr
+#endif	/* !CONFIG_NAND_SPL */
 
 	.globl	dcache_enable
 dcache_enable:

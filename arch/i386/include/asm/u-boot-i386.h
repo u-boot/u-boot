@@ -43,6 +43,8 @@ int cpu_init_interrupts(void);
 int board_init(void);
 int dram_init(void);
 
+void setup_pcat_compatibility(void);
+
 void isa_unmap_rom(u32 addr);
 u32 isa_map_rom(u32 bus_addr, int size);
 

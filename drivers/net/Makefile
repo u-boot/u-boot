@@ -27,6 +27,7 @@ LIB	:= $(obj)libnet.a
 
 COBJS-$(CONFIG_DRIVER_3C589) += 3c589.o
 COBJS-$(CONFIG_PPC4xx_EMAC) += 4xx_enet.o
+COBJS-$(CONFIG_ALTERA_TSE) += altera_tse.o
 COBJS-$(CONFIG_DRIVER_AT91EMAC) += at91_emac.o
 COBJS-$(CONFIG_DRIVER_AX88180) += ax88180.o
 COBJS-$(CONFIG_BCM570x) += bcm570x.o bcm570x_autoneg.o 5701rls.o
@@ -39,6 +40,7 @@ COBJS-$(CONFIG_E1000) += e1000.o
 COBJS-$(CONFIG_EEPRO100) += eepro100.o
 COBJS-$(CONFIG_ENC28J60) += enc28j60.o
 COBJS-$(CONFIG_EP93XX) += ep93xx_eth.o
+COBJS-$(CONFIG_ETHOC) += ethoc.o
 COBJS-$(CONFIG_FEC_MXC) += fec_mxc.o
 COBJS-$(CONFIG_FSLDMAFEC) += fsl_mcdmafec.o mcfmii.o
 COBJS-$(CONFIG_FTMAC100) += ftmac100.o

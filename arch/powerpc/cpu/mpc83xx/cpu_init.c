@@ -65,16 +65,16 @@ void cpu_init_f (volatile immap_t * im)
 {
 	__be32 acr_mask =
 #ifdef CONFIG_SYS_ACR_PIPE_DEP /* Arbiter pipeline depth */
-		(ACR_PIPE_DEP << ACR_PIPE_DEP_SHIFT) |
+		ACR_PIPE_DEP |
 #endif
 #ifdef CONFIG_SYS_ACR_RPTCNT /* Arbiter repeat count */
-		(ACR_RPTCNT << ACR_RPTCNT_SHIFT) |
+		ACR_RPTCNT |
 #endif
 #ifdef CONFIG_SYS_ACR_APARK	/* Arbiter address parking mode */
-		(ACR_APARK << ACR_APARK_SHIFT) |
+		ACR_APARK |
 #endif
 #ifdef CONFIG_SYS_ACR_PARKM	/* Arbiter parking master */
-		(ACR_PARKM << ACR_PARKM_SHIFT) |
+		ACR_PARKM |
 #endif
 		0;
 	__be32 acr_val =
@@ -93,16 +93,16 @@ void cpu_init_f (volatile immap_t * im)
 		0;
 	__be32 spcr_mask =
 #ifdef CONFIG_SYS_SPCR_OPT /* Optimize transactions between CSB and other dev */
-		(SPCR_OPT << SPCR_OPT_SHIFT) |
+		SPCR_OPT |
 #endif
 #ifdef CONFIG_SYS_SPCR_TSECEP /* all eTSEC's Emergency priority */
-		(SPCR_TSECEP << SPCR_TSECEP_SHIFT) |
+		SPCR_TSECEP |
 #endif
 #ifdef CONFIG_SYS_SPCR_TSEC1EP /* TSEC1 Emergency priority */
-		(SPCR_TSEC1EP << SPCR_TSEC1EP_SHIFT) |
+		SPCR_TSEC1EP |
 #endif
 #ifdef CONFIG_SYS_SPCR_TSEC2EP /* TSEC2 Emergency priority */
-		(SPCR_TSEC2EP << SPCR_TSEC2EP_SHIFT) |
+		SPCR_TSEC2EP |
 #endif
 		0;
 	__be32 spcr_val =
@@ -121,34 +121,34 @@ void cpu_init_f (volatile immap_t * im)
 		0;
 	__be32 sccr_mask =
 #ifdef CONFIG_SYS_SCCR_ENCCM /* Encryption clock mode */
-		(SCCR_ENCCM << SCCR_ENCCM_SHIFT) |
+		SCCR_ENCCM |
 #endif
 #ifdef CONFIG_SYS_SCCR_PCICM /* PCI & DMA clock mode */
-		(SCCR_PCICM << SCCR_PCICM_SHIFT) |
+		SCCR_PCICM |
 #endif
 #ifdef CONFIG_SYS_SCCR_TSECCM /* all TSEC's clock mode */
-		(SCCR_TSECCM << SCCR_TSECCM_SHIFT) |
+		SCCR_TSECCM |
 #endif
 #ifdef CONFIG_SYS_SCCR_TSEC1CM /* TSEC1 clock mode */
-		(SCCR_TSEC1CM << SCCR_TSEC1CM_SHIFT) |
+		SCCR_TSEC1CM |
 #endif
 #ifdef CONFIG_SYS_SCCR_TSEC2CM /* TSEC2 clock mode */
-		(SCCR_TSEC2CM << SCCR_TSEC2CM_SHIFT) |
+		SCCR_TSEC2CM |
 #endif
 #ifdef CONFIG_SYS_SCCR_TSEC1ON /* TSEC1 clock switch */
-		(SCCR_TSEC1ON << SCCR_TSEC1ON_SHIFT) |
+		SCCR_TSEC1ON |
 #endif
 #ifdef CONFIG_SYS_SCCR_TSEC2ON /* TSEC2 clock switch */
-		(SCCR_TSEC2ON << SCCR_TSEC2ON_SHIFT) |
+		SCCR_TSEC2ON |
 #endif
 #ifdef CONFIG_SYS_SCCR_USBMPHCM /* USB MPH clock mode */
-		(SCCR_USBMPHCM << SCCR_USBMPHCM_SHIFT) |
+		SCCR_USBMPHCM |
 #endif
 #ifdef CONFIG_SYS_SCCR_USBDRCM /* USB DR clock mode */
-		(SCCR_USBDRCM << SCCR_USBDRCM_SHIFT) |
+		SCCR_USBDRCM |
 #endif
 #ifdef CONFIG_SYS_SCCR_SATACM /* SATA controller clock mode */
-		(SCCR_SATACM << SCCR_SATACM_SHIFT) |
+		SCCR_SATACM |
 #endif
 		0;
 	__be32 sccr_val =

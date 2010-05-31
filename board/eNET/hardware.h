@@ -31,5 +31,6 @@
 #define LED_RX_BITMASK		0x08
 #define LED_TX_BITMASK		0x10
 #define LED_ERR_BITMASK		0x20
+#define WATCHDOG_PIO_BIT	0x8000
 
 #endif /* HARDWARE_H_ */

@@ -188,6 +188,9 @@ static void install_auto_complete_handler(const char *cmd,
 
 void install_auto_complete(void)
 {
+#if defined(CONFIG_CMD_EDITENV)
+	install_auto_complete_handler("editenv", var_complete);
+#endif
 	install_auto_complete_handler("printenv", var_complete);
 	install_auto_complete_handler("setenv", var_complete);
 #if defined(CONFIG_CMD_RUN)

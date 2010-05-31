@@ -25,4 +25,4 @@
 # esd PLU405 boards
 #
 
-TEXT_BASE = 0xFFFA0000
+TEXT_BASE = 0xFFF80000
