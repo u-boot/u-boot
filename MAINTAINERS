@@ -626,13 +626,14 @@ Simon Kagstrom <simon.kagstrom@netinsight.net>
 
        openrd_base     ARM926EJS (Kirkwood SoC)
 
-Minkyu Kang <mk7.kang@samsung.com>
-
-	SMDKC100	ARM CORTEX-A8 (S5PC100 SoC)
-
 Nishant Kamat <nskamat@ti.com>
 
 	omap1610h2	ARM926EJS
+
+Minkyu Kang <mk7.kang@samsung.com>
+
+	s5p_goni	ARM CORTEX-A8 (S5PC110 SoC)
+	SMDKC100	ARM CORTEX-A8 (S5PC100 SoC)
 
 Frederik Kriewitz <frederik@kriewitz.eu>
 

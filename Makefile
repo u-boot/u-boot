@@ -3179,6 +3179,9 @@ omap3_zoom1_config :	unconfig
 omap3_zoom2_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 zoom2 logicpd omap3
 
+s5p_goni_config:	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 goni samsung s5pc1xx
+
 smdkc100_config:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 smdkc100 samsung s5pc1xx
 

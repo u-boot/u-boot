@@ -650,6 +650,7 @@ LIST_ARM_CORTEX_A8="		\
 	omap3_sdp3430		\
 	omap3_zoom1		\
 	omap3_zoom2		\
+	s5p_goni		\
 	smdkc100		\
 "
 
