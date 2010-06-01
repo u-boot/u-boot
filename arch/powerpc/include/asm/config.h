@@ -69,7 +69,9 @@
 /*
  * SEC (crypto unit) major compatible version determination
  */
-#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC83xx)
+#if defined(CONFIG_FSL_CORENET)
+#define CONFIG_SYS_FSL_SEC_COMPAT	4
+#elif defined(CONFIG_MPC85xx) || defined(CONFIG_MPC83xx)
 #define CONFIG_SYS_FSL_SEC_COMPAT	2
 #endif
 

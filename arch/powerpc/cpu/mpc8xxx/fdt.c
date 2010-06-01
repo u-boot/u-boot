@@ -183,4 +183,10 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev)
 		printf("WARNING: could not set crypto property: %s\n",
 		       fdt_strerror(err));
 }
+#elif CONFIG_SYS_FSL_SEC_COMPAT >= 4  /* SEC4 */
+void fdt_fixup_crypto_node(void *blob, int sec_rev)
+{
+	if (!sec_rev)
+		fdt_del_node_and_alias(blob, "crypto");
+}
 #endif
