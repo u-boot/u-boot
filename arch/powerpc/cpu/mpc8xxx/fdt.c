@@ -97,11 +97,11 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 }
 #endif /* CONFIG_HAS_FSL_DR_USB */
 
-#if defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx)
 /*
  * update crypto node properties to a specified revision of the SEC
- * called with sec_rev == 0 if not on an mpc8xxxE processor
+ * called with sec_rev == 0 if not on an E processor
  */
+#if CONFIG_SYS_FSL_SEC_COMPAT == 2 /* SEC 2.x/3.x */
 void fdt_fixup_crypto_node(void *blob, int sec_rev)
 {
 	const struct sec_rev_prop {
@@ -183,4 +183,4 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev)
 		printf("WARNING: could not set crypto property: %s\n",
 		       fdt_strerror(err));
 }
-#endif /* defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx) */
+#endif

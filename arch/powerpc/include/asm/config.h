@@ -66,6 +66,13 @@
 #define CONFIG_TSECV2
 #endif
 
+/*
+ * SEC (crypto unit) major compatible version determination
+ */
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC83xx)
+#define CONFIG_SYS_FSL_SEC_COMPAT	2
+#endif
+
 /* Number of TLB CAM entries we have on FSL Book-E chips */
 #if defined(CONFIG_E500MC)
 #define CONFIG_SYS_NUM_TLBCAMS	64
