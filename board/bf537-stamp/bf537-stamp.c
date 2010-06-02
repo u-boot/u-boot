@@ -46,11 +46,8 @@ int checkboard(void)
 void board_reset(void)
 {
 	/* workaround for weak pull ups on ssel */
-	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER) {
-		bfin_write_PORTF_FER(bfin_read_PORTF_FER() & ~PF10);
-		bfin_write_PORTFIO_SET(PF10);
-		udelay(1);
-	}
+	if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER)
+		bfin_reset_boot_spi_cs(GPIO_PF10);
 }
 
 #ifdef CONFIG_BFIN_MAC
