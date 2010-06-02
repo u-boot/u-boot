@@ -26,6 +26,7 @@
 #include <nand.h>
 
 #include <asm/blackfin.h>
+#include <asm/portmux.h>
 
 /* Bit masks for NFC_CTL */
 
@@ -337,6 +338,12 @@ static struct nand_ecclayout bootrom_ecclayout = {
  */
 int board_nand_init(struct nand_chip *chip)
 {
+	const unsigned short pins[] = {
+		P_NAND_CE, P_NAND_RB, P_NAND_D0, P_NAND_D1, P_NAND_D2,
+		P_NAND_D3, P_NAND_D4, P_NAND_D5, P_NAND_D6, P_NAND_D7,
+		P_NAND_WE, P_NAND_RE, P_NAND_CLE, P_NAND_ALE, 0,
+	};
+
 	pr_stamp();
 
 	/* set width/ecc/timings/etc... */
@@ -347,14 +354,7 @@ int board_nand_init(struct nand_chip *chip)
 	bfin_write_NFC_IRQSTAT(0xffff);
 
 	/* enable GPIO function enable register */
-#ifdef __ADSPBF54x__
-	bfin_write_PORTJ_FER(bfin_read_PORTJ_FER() | 6);
-#elif defined(__ADSPBF52x__)
-	bfin_write_PORTH_FER(bfin_read_PORTH_FER() | 0xFCFF);
-	bfin_write_PORTH_MUX(0);
-#else
-# error no support for this variant
-#endif
+	peripheral_request_list(pins, "bfin_nand");
 
 	chip->cmd_ctrl = bfin_nfc_cmd_ctrl;
 	chip->read_buf = bfin_nfc_read_buf;
