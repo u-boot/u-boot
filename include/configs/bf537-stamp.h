@@ -268,8 +268,6 @@
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	0
 
-/* #define CONFIG_BF537_STAMP_LEDCMD	1 */
-
 /* Define if want to do post memory test */
 #undef CONFIG_POST
 #ifdef CONFIG_POST
