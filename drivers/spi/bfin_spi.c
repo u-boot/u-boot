@@ -13,6 +13,7 @@
 #include <spi.h>
 
 #include <asm/blackfin.h>
+#include <asm/gpio.h>
 #include <asm/portmux.h>
 #include <asm/mach-common/bits/spi.h>
 
@@ -34,48 +35,68 @@ MAKE_SPI_FUNC(SPI_BAUD, 0x14)
 
 #define to_bfin_spi_slave(s) container_of(s, struct bfin_spi_slave, slave)
 
-__attribute__((weak))
+#define MAX_CTRL_CS 7
+
+#define gpio_cs(cs) ((cs) - MAX_CTRL_CS)
+#ifdef CONFIG_BFIN_SPI_GPIO_CS
+# define is_gpio_cs(cs) ((cs) > MAX_CTRL_CS)
+#else
+# define is_gpio_cs(cs) 0
+#endif
+
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
-#if defined(__ADSPBF538__) || defined(__ADSPBF539__)
-	/* The SPI1/SPI2 buses are weird ... only 1 CS */
-	if (bus > 0 && cs != 1)
-		return 0;
-#endif
-	return (cs >= 1 && cs <= 7);
+	if (is_gpio_cs(cs))
+		return gpio_is_valid(gpio_cs(cs));
+	else
+		return (cs >= 1 && cs <= MAX_CTRL_CS);
 }
 
-__attribute__((weak))
 void spi_cs_activate(struct spi_slave *slave)
 {
 	struct bfin_spi_slave *bss = to_bfin_spi_slave(slave);
-	write_SPI_FLG(bss,
-		(read_SPI_FLG(bss) &
-		~((!bss->flg << 8) << slave->cs)) |
-		(1 << slave->cs));
+
+	if (is_gpio_cs(slave->cs)) {
+		unsigned int cs = gpio_cs(slave->cs);
+		gpio_set_value(cs, bss->flg);
+		debug("%s: SPI_CS_GPIO:%x\n", __func__, gpio_get_value(cs));
+	} else {
+		write_SPI_FLG(bss,
+			(read_SPI_FLG(bss) &
+			~((!bss->flg << 8) << slave->cs)) |
+			(1 << slave->cs));
+		debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
+	}
+
 	SSYNC();
-	debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
 }
 
-__attribute__((weak))
 void spi_cs_deactivate(struct spi_slave *slave)
 {
 	struct bfin_spi_slave *bss = to_bfin_spi_slave(slave);
-	u16 flg;
 
-	/* make sure we force the cs to deassert rather than let the
-	 * pin float back up.  otherwise, exact timings may not be
-	 * met some of the time leading to random behavior (ugh).
-	 */
-	flg = read_SPI_FLG(bss) | ((!bss->flg << 8) << slave->cs);
-	write_SPI_FLG(bss, flg);
-	SSYNC();
-	debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
+	if (is_gpio_cs(slave->cs)) {
+		unsigned int cs = gpio_cs(slave->cs);
+		gpio_set_value(cs, !bss->flg);
+		debug("%s: SPI_CS_GPIO:%x\n", __func__, gpio_get_value(cs));
+	} else {
+		u16 flg;
 
-	flg &= ~(1 << slave->cs);
-	write_SPI_FLG(bss, flg);
+		/* make sure we force the cs to deassert rather than let the
+		 * pin float back up.  otherwise, exact timings may not be
+		 * met some of the time leading to random behavior (ugh).
+		 */
+		flg = read_SPI_FLG(bss) | ((!bss->flg << 8) << slave->cs);
+		write_SPI_FLG(bss, flg);
+		SSYNC();
+		debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
+
+		flg &= ~(1 << slave->cs);
+		write_SPI_FLG(bss, flg);
+		debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
+	}
+
 	SSYNC();
-	debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
 }
 
 void spi_init()
@@ -188,7 +209,13 @@ int spi_claim_bus(struct spi_slave *slave)
 
 	debug("%s: bus:%i cs:%i\n", __func__, slave->bus, slave->cs);
 
-	pins[slave->bus][0] = cs_pins[slave->bus][slave->cs - 1];
+	if (is_gpio_cs(slave->cs)) {
+		unsigned int cs = gpio_cs(slave->cs);
+		gpio_request(cs, "bfin-spi");
+		gpio_direction_output(cs, !bss->flg);
+		pins[slave->bus][0] = P_DONTCARE;
+	} else
+		pins[slave->bus][0] = cs_pins[slave->bus][slave->cs - 1];
 	peripheral_request_list(pins[slave->bus], "bfin-spi");
 
 	write_SPI_CTL(bss, bss->ctl);
@@ -205,6 +232,8 @@ void spi_release_bus(struct spi_slave *slave)
 	debug("%s: bus:%i cs:%i\n", __func__, slave->bus, slave->cs);
 
 	peripheral_free_list(pins[slave->bus]);
+	if (is_gpio_cs(slave->cs))
+		gpio_free(gpio_cs(slave->cs));
 
 	write_SPI_CTL(bss, 0);
 	SSYNC();
