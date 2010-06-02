@@ -231,12 +231,6 @@
 /* #define CONFIG_STATUS_LED */
 #ifdef CONFIG_STATUS_LED
 #define CONFIG_BOARD_SPECIFIC_LED
-#ifndef __ASSEMBLY__
-typedef unsigned int led_id_t;
-void __led_init(led_id_t mask, int state);
-void __led_set(led_id_t mask, int state);
-void __led_toggle(led_id_t mask);
-#endif
 /* use LED1 to indicate booting/alive */
 #define STATUS_LED_BOOT 0
 #define STATUS_LED_BIT 1
