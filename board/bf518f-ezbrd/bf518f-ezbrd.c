@@ -14,6 +14,7 @@
 #include <spi.h>
 #include <asm/blackfin.h>
 #include <asm/net.h>
+#include <asm/portmux.h>
 #include <asm/mach-common/bits/otp.h>
 #include <asm/sdh.h>
 
@@ -146,18 +147,11 @@ int misc_init_r(void)
 
 int board_early_init_f(void)
 {
-#if !defined(CONFIG_SYS_NO_FLASH)
-	/* setup BF518-EZBRD GPIO pin PG11 to AMS2. */
-	bfin_write_PORTG_MUX((bfin_read_PORTG_MUX() & ~PORT_x_MUX_6_MASK) | PORT_x_MUX_6_FUNC_2);
-	bfin_write_PORTG_FER(bfin_read_PORTG_FER() | PG11);
-
-# if !defined(CONFIG_BFIN_SPI)
-	/* setup BF518-EZBRD GPIO pin PG15 to AMS3. */
-	bfin_write_PORTG_MUX((bfin_read_PORTG_MUX() & ~PORT_x_MUX_7_MASK) | PORT_x_MUX_7_FUNC_3);
-	bfin_write_PORTG_FER(bfin_read_PORTG_FER() | PG15);
-# endif
-#endif
-	return 0;
+	/* connect async banks by default */
+	const unsigned short pins[] = {
+		P_AMS2, P_AMS3, 0,
+	};
+	return peripheral_request_list(pins, "async");
 }
 
 #ifdef CONFIG_BFIN_SDH
