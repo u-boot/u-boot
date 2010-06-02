@@ -134,43 +134,6 @@ void show_boot_progress(int status)
 }
 #endif
 
-#ifdef CONFIG_STATUS_LED
-#include <status_led.h>
-
-static void set_led(int pf, int state)
-{
-	switch (state) {
-		case STATUS_LED_OFF:      bfin_write_FIO_FLAG_S(pf); break;
-		case STATUS_LED_BLINKING: bfin_write_FIO_FLAG_T(pf); break;
-		case STATUS_LED_ON:       bfin_write_FIO_FLAG_C(pf); break;
-	}
-}
-
-static void set_leds(led_id_t mask, int state)
-{
-	if (mask & 0x1) set_led(PF2, state);
-	if (mask & 0x2) set_led(PF3, state);
-	if (mask & 0x4) set_led(PF4, state);
-}
-
-void __led_init(led_id_t mask, int state)
-{
-	bfin_write_FIO_INEN(bfin_read_FIO_INEN() & ~(PF2 | PF3 | PF4));
-	bfin_write_FIO_DIR(bfin_read_FIO_DIR() | (PF2 | PF3 | PF4));
-}
-
-void __led_set(led_id_t mask, int state)
-{
-	set_leds(mask, state);
-}
-
-void __led_toggle(led_id_t mask)
-{
-	set_leds(mask, STATUS_LED_BLINKING);
-}
-
-#endif
-
 #ifdef CONFIG_SMC91111
 int board_eth_init(bd_t *bis)
 {
