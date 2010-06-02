@@ -9,4 +9,8 @@
 #define bfin_write_WDOG_CTL(val) bfin_write_WDOGA_CTL(val)
 #define bfin_write_WDOG_STAT(val) bfin_write_WDOGA_STAT(val)
 
+#include "gpio.h"
+#include "portmux.h"
 #include "ports.h"
+
+#define BF561_FAMILY 1	/* Linux glue */
