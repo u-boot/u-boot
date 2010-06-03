@@ -19,6 +19,7 @@
 #ifndef _AX88180_H_
 #define _AX88180_H_
 
+#include <asm/io.h>
 #include <asm/types.h>
 #include <config.h>
 
@@ -354,7 +355,7 @@ struct ax88180_private {
 
 static inline unsigned short INW (struct eth_device *dev, unsigned long addr)
 {
-	return le16_to_cpu (*(volatile unsigned short *) (addr + dev->iobase));
+	return le16_to_cpu(readw(addr + (void *)dev->iobase));
 }
 
 /*
@@ -363,32 +364,32 @@ static inline unsigned short INW (struct eth_device *dev, unsigned long addr)
 #if defined (CONFIG_DRIVER_AX88180_16BIT)
 static inline void OUTW (struct eth_device *dev, unsigned short command, unsigned long addr)
 {
-	*(volatile unsigned short *) ((addr + dev->iobase)) = cpu_to_le16 (command);
+	writew(cpu_to_le16(command), addr + (void *)dev->iobase);
 }
 
 static inline unsigned short READ_RXBUF (struct eth_device *dev)
 {
-	return le16_to_cpu (*(volatile unsigned short *) (RXBUFFER_START + dev->iobase));
+	return le16_to_cpu(readw(RXBUFFER_START + (void *)dev->iobase));
 }
 
 static inline void WRITE_TXBUF (struct eth_device *dev, unsigned short data)
 {
-	*(volatile unsigned short *) ((TXBUFFER_START + dev->iobase)) = cpu_to_le16 (data);
+	writew(cpu_to_le16(data), TXBUFFER_START + (void *)dev->iobase);
 }
 #else
 static inline void OUTW (struct eth_device *dev, unsigned short command, unsigned long addr)
 {
-	*(volatile unsigned long *) ((addr + dev->iobase)) = cpu_to_le32 (command);
+	writel(cpu_to_le32(command), addr + (void *)dev->iobase);
 }
 
 static inline unsigned long READ_RXBUF (struct eth_device *dev)
 {
-	return le32_to_cpu (*(volatile unsigned long *) (RXBUFFER_START + dev->iobase));
+	return le32_to_cpu(readl(RXBUFFER_START + (void *)dev->iobase));
 }
 
 static inline void WRITE_TXBUF (struct eth_device *dev, unsigned long data)
 {
-	*(volatile unsigned long *) ((TXBUFFER_START + dev->iobase)) = cpu_to_le32 (data);
+	writel(cpu_to_le32(data), TXBUFFER_START + (void *)dev->iobase);
 }
 #endif
 
