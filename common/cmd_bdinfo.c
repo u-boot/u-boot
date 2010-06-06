@@ -37,8 +37,9 @@ static void print_eth(int idx);
 
 #ifndef CONFIG_ARM	/* PowerPC and other */
 static void print_lnum(const char *, u64);
+#endif
 
-#ifdef CONFIG_PPC
+#if defined(CONFIG_PPC)
 static void print_str(const char *, const char *);
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -119,7 +120,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-#elif defined(CONFIG_NIOS2) /* Nios-II */
+#elif defined(CONFIG_NIOS2)
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -145,7 +146,8 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return 0;
 }
-#elif defined(CONFIG_MICROBLAZE) /* ! PPC, which leaves Microblaze */
+
+#elif defined(CONFIG_MICROBLAZE)
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -167,7 +169,8 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-#elif defined(CONFIG_SPARC)	/* SPARC */
+#elif defined(CONFIG_SPARC)
+
 int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 {
 	bd_t *bd = gd->bd;
@@ -199,7 +202,8 @@ int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-#elif defined(CONFIG_M68K) /* M68K */
+#elif defined(CONFIG_M68K)
+
 static void print_str(const char *, const char *);
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -249,6 +253,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 #elif defined(CONFIG_BLACKFIN)
+
 static void print_str(const char *, const char *);
 
 int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
@@ -277,7 +282,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-#else /* ! PPC, which leaves MIPS */
+#elif defined(CONFIG_MIPS)
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -296,9 +301,28 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return 0;
 }
-#endif  /* MIPS */
 
-#else	/* ARM */
+#elif defined(CONFIG_AVR32)
+
+int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	bd_t *bd = gd->bd;
+
+	print_num ("boot_params",	(ulong)bd->bi_boot_params);
+	print_num ("memstart",		(ulong)bd->bi_memstart);
+	print_lnum ("memsize",		(u64)bd->bi_memsize);
+	print_num ("flashstart",	(ulong)bd->bi_flashstart);
+	print_num ("flashsize",		(ulong)bd->bi_flashsize);
+	print_num ("flashoffset",	(ulong)bd->bi_flashoffset);
+
+	print_eth(0);
+	printf ("ip_addr     = %pI4\n", &bd->bi_ip_addr);
+	printf ("baudrate    = %lu bps\n", bd->bi_baudrate);
+
+	return 0;
+}
+
+#elif defined(CONFIG_ARM)
 
 int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
@@ -324,7 +348,9 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-#endif /* CONFIG_ARM XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+#else
+ #error "a case for this architecture does not exist!"
+#endif
 
 static void print_num(const char *name, ulong value)
 {
