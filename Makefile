@@ -3159,6 +3159,9 @@ SMN42_config	:	unconfig
 ## ARM CORTEX Systems
 #########################################################################
 
+am3517_evm_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 am3517evm logicpd omap3
+
 devkit8000_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 devkit8000 timll omap3
 

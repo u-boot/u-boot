@@ -605,6 +605,10 @@ Kshitij Gupta <kshitij@ti.com>
 	omap1510inn	ARM925T
 	omap1610inn	ARM926EJS
 
+Vaibhav Hiremath <hvaibhav@ti.com>
+
+	am3517_evm	ARM CORTEX-A8 (AM35x SoC)
+
 Grazvydas Ignotas <notasas@gmail.com>
 
 	omap3_pandora	ARM CORTEX-A8 (OMAP3xx SoC)
