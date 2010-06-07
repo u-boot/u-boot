@@ -3328,6 +3328,9 @@ smdk6400_config	:	unconfig
 	fi
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
+tnetv107x_evm_config: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm1176 tnetv107xevm ti tnetv107x
+
 #========================================================================
 # i386
 #========================================================================
