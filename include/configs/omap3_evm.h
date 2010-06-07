@@ -151,7 +151,7 @@
 
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
-#define CONFIG_CMD_ONENAND	/* ONENAND support		*/
+#define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
 
@@ -306,7 +306,13 @@
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
 
+#if defined(CONFIG_CMD_NAND)
+#define CONFIG_NAND_OMAP_GPMC
+#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
+#define CONFIG_ENV_IS_IN_NAND
+#elif defined(CONFIG_CMD_ONENAND)
 #define CONFIG_ENV_IS_IN_ONENAND	1
+#endif
 #define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
