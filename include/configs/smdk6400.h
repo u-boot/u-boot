@@ -40,6 +40,12 @@
 #define CONFIG_S3C64XX		1	/* in a SAMSUNG S3C64XX Family  */
 #define CONFIG_SMDK6400		1	/* on a SAMSUNG SMDK6400 Board  */
 
+#define CONFIG_SKIP_RELOCATE_UBOOT
+
+#define CONFIG_PERIPORT_REMAP
+#define CONFIG_PERIPORT_BASE	0x70000000
+#define CONFIG_PERIPORT_SIZE	0x13
+
 #define CONFIG_SYS_SDRAM_BASE	0x50000000
 
 /* input clock of PLL: SMDK6400 has 12MHz input clock */
@@ -60,8 +66,6 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
-
-#undef CONFIG_SKIP_RELOCATE_UBOOT
 
 /*
  * Size of malloc() pool
