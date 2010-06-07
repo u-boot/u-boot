@@ -33,7 +33,7 @@
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3_AM3517EVM	1	/* working with AM3517EVM */
 
-#define CONFIG_EMIF4		1	/* The chip has EMIF4 controller */
+#define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap3.h>
