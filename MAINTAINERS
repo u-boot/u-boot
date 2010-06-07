@@ -62,6 +62,10 @@ Oliver Brown <obrown@adventnetworks.com>
 
 	gw8260		MPC8260
 
+Cyril Chemparathy <cyril@ti.com>
+
+	tnetv107x_evm	tnetv107x
+
 Conn Clark <clark@esteem.com>
 
 	ESTEEM192E	MPC8xx
