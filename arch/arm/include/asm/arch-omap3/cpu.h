@@ -215,6 +215,7 @@ struct sdrc {
 	u8 res4[0xC];
 	struct sdrc_cs cs[2];	/* 0x80 || 0xB0 */
 };
+
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */
 

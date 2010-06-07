@@ -37,8 +37,10 @@ COBJS	+= syslib.o
 COBJS	+= sys_info.o
 COBJS	+= timer.o
 
+COBJS-$(CONFIG_SDRC)	+= sdrc.o
+
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
+OBJS	:= $(addprefix $(obj),$(COBJS) $(COBJS-y) $(SOBJS))
 
 all:	 $(obj).depend $(LIB)
 
