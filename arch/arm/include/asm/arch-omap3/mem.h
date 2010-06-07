@@ -270,4 +270,17 @@ enum {
 #define PISMO1_ONEN_BASE	ONENAND_MAP
 #define DBG_MPDB_BASE		DEBUG_BASE
 
+#ifndef __ASSEMBLY__
+
+/* Function prototypes */
+void mem_init(void);
+
+u32 is_mem_sdr(void);
+u32 mem_ok(u32 cs);
+
+u32 get_sdr_cs_size(u32);
+u32 get_sdr_cs_offset(u32);
+
+#endif	/* __ASSEMBLY__ */
+
 #endif /* endif _MEM_H_ */
