@@ -94,49 +94,10 @@
 
 /*
  * I2C Settings
- * By default PF1 is used as SDA and PF0 as SCL on the Stamp board
  */
 #define CONFIG_SOFT_I2C
-#ifdef CONFIG_SOFT_I2C
-#define PF_SCL PF0
-#define PF_SDA PF1
-#define I2C_INIT \
-	do { \
-		*pFIO_DIR |= PF_SCL; \
-		SSYNC(); \
-	} while (0)
-#define I2C_ACTIVE \
-	do { \
-		*pFIO_DIR |= PF_SDA; \
-		*pFIO_INEN &= ~PF_SDA; \
-		SSYNC(); \
-	} while (0)
-#define I2C_TRISTATE \
-	do { \
-		*pFIO_DIR &= ~PF_SDA; \
-		*pFIO_INEN |= PF_SDA; \
-		SSYNC(); \
-	} while (0)
-#define I2C_READ ((*pFIO_FLAG_D & PF_SDA) != 0)
-#define I2C_SDA(bit) \
-	do { \
-		if (bit) \
-			*pFIO_FLAG_S = PF_SDA; \
-		else \
-			*pFIO_FLAG_C = PF_SDA; \
-		SSYNC(); \
-	} while (0)
-#define I2C_SCL(bit) \
-	do { \
-		if (bit) \
-			*pFIO_FLAG_S = PF_SCL; \
-		else \
-			*pFIO_FLAG_C = PF_SCL; \
-		SSYNC(); \
-	} while (0)
-#define I2C_DELAY		udelay(5)	/* 1/4 I2C clock duration */
-
-#endif
+#define CONFIG_SOFT_I2C_GPIO_SCL GPIO_PF0
+#define CONFIG_SOFT_I2C_GPIO_SDA GPIO_PF1
 
 
 /*
