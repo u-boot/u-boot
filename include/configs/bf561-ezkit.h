@@ -151,8 +151,6 @@
 	} while (0)
 #define I2C_DELAY		udelay(5)	/* 1/4 I2C clock duration */
 
-#define CONFIG_SYS_I2C_SPEED		50000
-#define CONFIG_SYS_I2C_SLAVE		0
 #endif
 
 
