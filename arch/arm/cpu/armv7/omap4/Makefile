@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2003
+# (C) Copyright 2000-2010
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -25,21 +25,13 @@ include $(TOPDIR)/config.mk
 
 LIB	=  $(obj)lib$(SOC).a
 
-SOBJS	:= lowlevel_init.o
-SOBJS	+= cache.o
+SOBJS	+= lowlevel_init.o
 
 COBJS	+= board.o
-COBJS	+= clock.o
-COBJS	+= gpio.o
-COBJS	+= mem.o
-COBJS	+= syslib.o
 COBJS	+= sys_info.o
 
-COBJS-$(CONFIG_EMIF4)	+= emif4.o
-COBJS-$(CONFIG_SDRC)	+= sdrc.o
-
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(COBJS-y) $(SOBJS))
+OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
 
 all:	 $(obj).depend $(LIB)
 

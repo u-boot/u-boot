@@ -245,6 +245,13 @@ LIBS += lib/libfdt/libfdt.a
 LIBS += api/libapi.a
 LIBS += post/libpost.a
 
+ifeq ($(SOC),omap3)
+LIBS += $(CPUDIR)/omap-common/libomap-common.a
+endif
+ifeq ($(SOC),omap4)
+LIBS += $(CPUDIR)/omap-common/libomap-common.a
+endif
+
 LIBS := $(addprefix $(obj),$(LIBS))
 .PHONY : $(LIBS) $(TIMESTAMP_FILE) $(VERSION_FILE)
 

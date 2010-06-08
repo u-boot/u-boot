@@ -23,25 +23,15 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	=  $(obj)lib$(SOC).a
+LIB	= $(obj)libomap-common.a
 
-SOBJS	:= lowlevel_init.o
-SOBJS	+= cache.o
-
-COBJS	+= board.o
-COBJS	+= clock.o
-COBJS	+= gpio.o
-COBJS	+= mem.o
-COBJS	+= syslib.o
-COBJS	+= sys_info.o
-
-COBJS-$(CONFIG_EMIF4)	+= emif4.o
-COBJS-$(CONFIG_SDRC)	+= sdrc.o
+SOBJS	:= reset.o
+COBJS	:= timer.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(COBJS-y) $(SOBJS))
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
-all:	 $(obj).depend $(LIB)
+all:	$(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)

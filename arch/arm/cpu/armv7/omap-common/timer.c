@@ -84,6 +84,11 @@ void set_timer(ulong t)
 /* delay x useconds */
 void __udelay(unsigned long usec)
 {
+#if defined(CONFIG_OMAP44XX)
+	/* TODO temporary hack until OMAP4 clock setup routines are present */
+	if (usec > 1000)
+		usec = usec/1000;
+#endif
 	long tmo = usec * (TIMER_CLOCK / 1000) / 1000;
 	unsigned long now, last = readl(&timer_base->tcrr);
 

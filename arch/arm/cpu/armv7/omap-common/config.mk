@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2000-2003
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# (C) Copyright 2002
+# Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -20,37 +20,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
+PLATFORM_RELFLAGS += -fno-common -ffixed-r8 -msoft-float
 
-include $(TOPDIR)/config.mk
-
-LIB	=  $(obj)lib$(SOC).a
-
-SOBJS	:= lowlevel_init.o
-SOBJS	+= cache.o
-
-COBJS	+= board.o
-COBJS	+= clock.o
-COBJS	+= gpio.o
-COBJS	+= mem.o
-COBJS	+= syslib.o
-COBJS	+= sys_info.o
-
-COBJS-$(CONFIG_EMIF4)	+= emif4.o
-COBJS-$(CONFIG_SDRC)	+= sdrc.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(COBJS-y) $(SOBJS))
-
-all:	 $(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+# Make ARMv5 to allow more compilers to work, even though its v7a.
+PLATFORM_CPPFLAGS += -march=armv5
+# =========================================================================
+#
+# Supply options according to compiler version
+#
+# =========================================================================
+PLATFORM_RELFLAGS +=$(call cc-option,-mshort-load-bytes,\
+		    $(call cc-option,-malignment-traps,))
