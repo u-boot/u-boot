@@ -27,7 +27,10 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= da830evm.o common.o
+COBJS-y	+= common.o
+COBJS-$(CONFIG_MACH_DAVINCI_DA830_EVM)	+= da830evm.o
+
+COBJS   := $(COBJS-y)
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
