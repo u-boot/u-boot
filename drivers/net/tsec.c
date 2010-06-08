@@ -95,14 +95,23 @@ static struct tsec_info_struct tsec_info[] = {
 #endif
 };
 
+/*
+ * Initialize all the TSEC devices
+ *
+ * Returns the number of TSEC devices that were initialized
+ */
 int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsecs, int num)
 {
 	int i;
+	int ret, count = 0;
 
-	for (i = 0; i < num; i++)
-		tsec_initialize(bis, &tsecs[i]);
+	for (i = 0; i < num; i++) {
+		ret = tsec_initialize(bis, &tsecs[i]);
+		if (ret > 0)
+			count += ret;
+	}
 
-	return 0;
+	return count;
 }
 
 int tsec_standard_init(bd_t *bis)
