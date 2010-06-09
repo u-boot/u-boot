@@ -28,6 +28,25 @@
 #include <fdt_support.h>
 
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
+static int ft_del_cpuhandle(void *blob, int cpuhandle)
+{
+	int off, ret = -FDT_ERR_NOTFOUND;
+
+	/* if we find a match, we'll delete at it which point the offsets are
+	 * invalid so we start over from the beginning
+	 */
+	off = fdt_node_offset_by_prop_value(blob, -1, "cpu-handle",
+						&cpuhandle, 4);
+	while (off != -FDT_ERR_NOTFOUND) {
+		fdt_delprop(blob, off, "cpu-handle");
+		ret = 1;
+		off = fdt_node_offset_by_prop_value(blob, -1, "cpu-handle",
+				&cpuhandle, 4);
+	}
+
+	return ret;
+}
+
 void ft_fixup_num_cores(void *blob) {
 	int off, num_cores, del_cores;
 
@@ -38,13 +57,18 @@ void ft_fixup_num_cores(void *blob) {
 	while (off != -FDT_ERR_NOTFOUND) {
 		u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
 
-		/* if we find a cpu node outside of what we expect delete it
-		 * and reset the offset back to the start since we can't
-		 * trust the offsets anymore
-		 */
 		if (*reg > num_cores-1) {
-			fdt_del_node(blob, off);
-			del_cores++;
+			int ph = fdt_get_phandle(blob, off);
+
+			/* Delete the cpu node once there are no cpu handles */
+			if (-FDT_ERR_NOTFOUND == ft_del_cpuhandle(blob, ph)) {
+				fdt_del_node(blob, off);
+				del_cores++;
+			}
+			/* either we deleted some cpu handles or the cpu node
+			 * so we reset the offset back to the start since we
+			 * can't trust the offsets anymore
+			 */
 			off = -1;
 		}
 		off = fdt_node_offset_by_prop_value(blob, off,
