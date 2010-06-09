@@ -30,7 +30,8 @@
 #include <i2c.h>
 #include <twl4030.h>
 #include <asm/io.h>
-#include <asm/arch/mmc.h>
+
+#include "omap3_mmc.h"
 
 const unsigned short mmc_transspeed_val[15][4] = {
 	{CLKD(10, 1), CLKD(10, 10), CLKD(10, 100), CLKD(10, 1000)},
@@ -81,12 +82,13 @@ block_dev_desc_t *mmc_get_dev(int dev)
 
 unsigned char mmc_board_init(void)
 {
-	t2_t *t2_base = (t2_t *)T2_BASE;
-	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
-
 #if defined(CONFIG_TWL4030_POWER)
 	twl4030_power_mmc_init();
 #endif
+
+#if defined(CONFIG_OMAP34XX)
+	t2_t *t2_base = (t2_t *)T2_BASE;
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
 
 	writel(readl(&t2_base->pbias_lite) | PBIASLITEPWRDNZ1 |
 		PBIASSPEEDCTRL0 | PBIASLITEPWRDNZ0,
@@ -105,6 +107,9 @@ unsigned char mmc_board_init(void)
 	writel(readl(&prcm_base->iclken1_core) |
 		EN_MMC1 | EN_MMC2 | EN_MMC3,
 		&prcm_base->iclken1_core);
+#endif
+
+/* TODO add appropriate OMAP4 init */
 
 	return 1;
 }

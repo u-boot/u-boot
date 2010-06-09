@@ -25,7 +25,7 @@
 #ifndef MMC_H
 #define MMC_H
 
-#include "mmc_host_def.h"
+#include <asm/arch/mmc_host_def.h>
 
 /* Responses */
 #define RSP_TYPE_NONE	(RSP_TYPE_NORSP   | CCCE_NOCHECK | CICE_NOCHECK)
