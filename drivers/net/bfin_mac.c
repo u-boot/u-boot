@@ -99,7 +99,7 @@ int bfin_EMAC_initialize(bd_t *bis)
 		hang();
 
 	memset(dev, 0, sizeof(*dev));
-	sprintf(dev->name, "Blackfin EMAC");
+	strcpy(dev->name, "bfin_mac");
 
 	dev->iobase = 0;
 	dev->priv = 0;
