@@ -225,7 +225,7 @@ int uli526x_initialize(bd_t *bis)
 		iobase &= ~0xf;
 
 		dev = (struct eth_device *)malloc(sizeof *dev);
-		sprintf(dev->name, "uli526x#%d\n", card_number);
+		sprintf(dev->name, "uli526x#%d", card_number);
 		db = (struct uli526x_board_info *)
 			malloc(sizeof(struct uli526x_board_info));
 
