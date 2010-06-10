@@ -353,6 +353,10 @@ Daniel Poirot <dan.poirot@windriver.com>
 	sbc8240		MPC8240
 	sbc405		PPC405GP
 
+Sudhakar Rajashekhara <sudhakar.raj@ti.com>
+
+	da850evm	ARM926EJS (DA850/OMAP-L138)
+
 Ricardo Ribalda <ricardo.ribalda@uam.es>
 
 	ml507 		PPC440x5

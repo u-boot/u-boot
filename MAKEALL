@@ -561,6 +561,7 @@ LIST_ARM9="			\
 	cp946es			\
 	cp966			\
 	da830evm		\
+	da850evm		\
 	edb9301			\
 	edb9302			\
 	edb9302a		\
