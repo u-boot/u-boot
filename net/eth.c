@@ -234,6 +234,9 @@ int eth_initialize(bd_t *bis)
 				puts (" [PRIME]");
 			}
 
+			if (strchr(dev->name, ' '))
+				puts("\nWarning: eth device name has a space!\n");
+
 			eth_getenv_enetaddr_by_index(eth_number, env_enetaddr);
 
 			if (memcmp(env_enetaddr, "\0\0\0\0\0\0", 6)) {
