@@ -34,6 +34,7 @@ void musb_start(void)
 {
 #if defined(CONFIG_MUSB_HCD)
 	u8 devctl;
+	u8 busctl;
 #endif
 
 	/* disable all interrupts */
@@ -45,6 +46,12 @@ void musb_start(void)
 	/* put into basic highspeed mode and start session */
 	writeb(MUSB_POWER_HSENAB, &musbr->power);
 #if defined(CONFIG_MUSB_HCD)
+	/* Program PHY to use EXT VBUS if required */
+	if (musb_cfg.extvbus == 1) {
+		busctl = musb_read_ulpi_buscontrol(musbr);
+		musb_write_ulpi_buscontrol(musbr, busctl | ULPI_USE_EXTVBUS);
+	}
+
 	devctl = readb(&musbr->devctl);
 	writeb(devctl | MUSB_DEVCTL_SESSION, &musbr->devctl);
 #endif
