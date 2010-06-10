@@ -26,8 +26,9 @@
 #include <common.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <asm/mp.h>
 
-#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
+#if defined(CONFIG_MP) && (defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx))
 static int ft_del_cpuhandle(void *blob, int cpuhandle)
 {
 	int off, ret = -FDT_ERR_NOTFOUND;
@@ -57,7 +58,7 @@ void ft_fixup_num_cores(void *blob) {
 	while (off != -FDT_ERR_NOTFOUND) {
 		u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
 
-		if (*reg > num_cores-1) {
+		if ((*reg > num_cores-1) || (is_core_disabled(*reg))) {
 			int ph = fdt_get_phandle(blob, off);
 
 			/* Delete the cpu node once there are no cpu handles */

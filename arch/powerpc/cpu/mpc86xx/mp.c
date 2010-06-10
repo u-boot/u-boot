@@ -66,6 +66,23 @@ int cpu_disable(int nr)
 	return 0;
 }
 
+int is_core_disabled(int nr) {
+	immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
+	ccsr_gur_t *gur = &immap->im_gur;
+	u32 devdisr = in_be32(&gur->devdisr);
+
+	switch (nr) {
+	case 0:
+		return (devdisr & MPC86xx_DEVDISR_CPU0);
+	case 1:
+		return (devdisr & MPC86xx_DEVDISR_CPU1);
+	default:
+		printf("Invalid cpu number for disable %d\n", nr);
+	}
+
+	return 0;
+}
+
 int cpu_release(int nr, int argc, char * const argv[])
 {
 	/* dummy function so common/cmd_mp.c will build

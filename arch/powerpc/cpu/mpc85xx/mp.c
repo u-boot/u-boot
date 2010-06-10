@@ -77,6 +77,13 @@ int cpu_disable(int nr)
 
 	return 0;
 }
+
+int is_core_disabled(int nr) {
+	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	u32 coredisrl = in_be32(&gur->coredisrl);
+
+	return (coredisrl & (1 << nr));
+}
 #else
 int cpu_disable(int nr)
 {
@@ -92,6 +99,22 @@ int cpu_disable(int nr)
 	default:
 		printf("Invalid cpu number for disable %d\n", nr);
 		return 1;
+	}
+
+	return 0;
+}
+
+int is_core_disabled(int nr) {
+	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	u32 devdisr = in_be32(&gur->devdisr);
+
+	switch (nr) {
+	case 0:
+		return (devdisr & MPC85xx_DEVDISR_CPU0);
+	case 1:
+		return (devdisr & MPC85xx_DEVDISR_CPU1);
+	default:
+		printf("Invalid cpu number for disable %d\n", nr);
 	}
 
 	return 0;
