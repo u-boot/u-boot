@@ -28,9 +28,9 @@
 
 /* MUSB platform configuration */
 struct musb_config musb_cfg = {
-	(struct	musb_regs *)MENTOR_USB0_BASE,
-	DAVINCI_USB_TIMEOUT,
-	0
+	.regs		= (struct musb_regs *)MENTOR_USB0_BASE,
+	.timeout	= DAVINCI_USB_TIMEOUT,
+	.musb_speed	= 0,
 };
 
 /* MUSB module register overlay */
