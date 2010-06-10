@@ -65,6 +65,19 @@ static void omap3_evm_get_revision(void)
 }
 
 /*
+ * MUSB port on OMAP3EVM Rev >= E requires extvbus programming.
+ */
+u8 omap3_evm_need_extvbus(void)
+{
+	u8 retval = 0;
+
+	if (get_omap3_evm_rev() >= OMAP3EVM_BOARD_GEN_2)
+		retval = 1;
+
+	return retval;
+}
+
+/*
  * Routine: board_init
  * Description: Early hardware init.
  */
