@@ -414,9 +414,16 @@
 					"nor0=flash-0\0"\
 					"mtdparts=mtdparts=flash-0:"\
 					"256k(u-boot),256k(env),3m(kernel),"\
-					"1m(romfs),1m(cramfs),-(jffs2)\0"
+					"1m(romfs),1m(cramfs),-(jffs2)\0"\
+					"nc=setenv stdout nc;"\
+					"setenv stdin nc\0" \
+					"serial=setenv stdout serial;"\
+					"setenv stdin serial\0"
 
 #define CONFIG_CMDLINE_EDITING
+
+#define CONFIG_NETCONSOLE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
 
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
