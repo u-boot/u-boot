@@ -32,6 +32,7 @@ START	= start.o resetvec.o
 SOBJS-$(CONFIG_MP)	+= release.o
 SOBJS	= $(SOBJS-y)
 
+COBJS-$(CONFIG_CMD_ERRATA) += cmd_errata.o
 COBJS-$(CONFIG_CPM2)	+= commproc.o
 
 # supports ddr1
