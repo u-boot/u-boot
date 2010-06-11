@@ -9,17 +9,14 @@
 #define CONFIG_ARM1176		1 /* CPU */
 #define CONFIG_XDF		1 /* Board */
 #define CONFIG_DFE		1 /* Board sub-type ("flavor"?) */
-#define CONFIG_DRAGONFIRE	1 /* SoC? */
+#define CONFIG_PELE		1 /* SoC? */
+
+#include "../board/xilinx/dfe/xparameters.h"
 
 //#define CONFIG_BAUDRATE		38400
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_SYS_BAUDRATE_TABLE { 9600, 38400, 115200 }
 #define CONFIG_BOOTDELAY	-1 /* Disable autoboot */
-
-/* UART base addresses */
-#define DRAGONFIRE_UART0_BASE 0xE0000000
-#define DRAGONFIRE_UART1_BASE 0xE0001000
-
 
 #define	CONFIG_PSS_SERIAL
 #define	CONFIG_RTC_XPSSRTC

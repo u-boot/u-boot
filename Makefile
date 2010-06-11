@@ -3173,7 +3173,8 @@ smdkc100_config:	unconfig
 
 xpele_config:		unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/dfe
-	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 dfe xilinx dragonfire
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 dfe xilinx pele
+
 
 #########################################################################
 ## XScale Systems

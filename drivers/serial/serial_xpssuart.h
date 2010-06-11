@@ -11,10 +11,10 @@
 
 #if defined(CONFIG_UART0)
 # define UART_ID   0
-# define UART_BASE DRAGONFIRE_UART0_BASE
+# define UART_BASE XPSS_UART0_BASEADDR
 #elif defined(CONFIG_UART1)
 # define UART_ID   1
-# define UART_BASE DRAGONFIRE_UART1_BASE
+# define UART_BASE XPSS_UART1_BASEADDR
 #else
 # error "Need to configure a UART (0 or 1)"
 #endif

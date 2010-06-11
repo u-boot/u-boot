@@ -291,6 +291,7 @@ extern "C" {
 #include "xemacpss_hw.h"
 #include "xemacpss_bd.h"
 #include "xemacpss_bdring.h"
+#include "xparameters.h"
 
 /************************** Constant Definitions ****************************/
 
@@ -299,14 +300,6 @@ extern "C" {
  */
 #define XEMACPSS_DEVICE_NAME     "xemacpss"
 #define XEMACPSS_DEVICE_DESC     "Xilinx PSS 10/100/1000 MAC"
-
-#define XPSS_GEM0_BASEADDR                      0xE000B000
-#define XPSS_GEM1_BASEADDR                      0xE000C000
-#define XPAR_XEMACPSS_NUM_INSTANCES          2
-#define XPAR_XEMACPSS_0_DEVICE_ID            0
-#define XPAR_XEMACPSS_0_BASEADDR             XPSS_GEM0_BASEADDR
-#define XPAR_XEMACPSS_1_DEVICE_ID            1
-#define XPAR_XEMACPSS_1_BASEADDR             XPSS_GEM1_BASEADDR
 
 /** @name Configuration options
  *
