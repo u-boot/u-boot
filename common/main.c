@@ -338,16 +338,6 @@ void main_loop (void)
 	}
 #endif /* CONFIG_VERSION_VARIABLE */
 
-#ifdef CONFIG_PELE_IP_ENV
-	setenv("ipaddr","10.10.70.102");
-	setenv("ethaddr","00350a000122");
-	setenv("serverip", "10.10.70.101");
-#endif
-
-#ifdef CONFIG_PELE_INIT_GEM
-	eth_init(gd->bd);
-#endif
-
 #ifdef CONFIG_SYS_HUSH_PARSER
 	u_boot_hush_start ();
 #endif

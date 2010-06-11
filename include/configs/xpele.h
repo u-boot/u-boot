@@ -13,7 +13,12 @@
 
 #include "../board/xilinx/dfe/xparameters.h"
 
-//#define CONFIG_BAUDRATE		38400
+/* Default environment */
+#define CONFIG_IPADDR   10.10.70.102
+#define CONFIG_ETHADDR  00350a000122
+#define CONFIG_SERVERIP 10.10.70.101
+#define CONFIG_BOOTCOMMAND "tftp 0x800000 ramdisk3M.image; tftp 0x8000 vmlinux.bin; go 0x8000"
+
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_SYS_BAUDRATE_TABLE { 9600, 38400, 115200 }
 #define CONFIG_BOOTDELAY	-1 /* Disable autoboot */
