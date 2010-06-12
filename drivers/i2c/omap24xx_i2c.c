@@ -25,6 +25,8 @@
 #include <asm/arch/i2c.h>
 #include <asm/io.h>
 
+#include "omap24xx_i2c.h"
+
 static void wait_for_bb (void);
 static u16 wait_for_pin (void);
 static void flush_fifo(void);
@@ -176,7 +178,8 @@ static int i2c_read_byte (u8 devaddr, u8 regoffset, u8 * value)
 
 		status = wait_for_pin ();
 		if (status & I2C_STAT_RRDY) {
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
+    defined(CONFIG_OMAP44XX)
 			*value = readb (&i2c_base->data);
 #else
 			*value = readw (&i2c_base->data);
@@ -221,7 +224,8 @@ static int i2c_write_byte (u8 devaddr, u8 regoffset, u8 value)
 	status = wait_for_pin ();
 
 	if (status & I2C_STAT_XRDY) {
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
+    defined(CONFIG_OMAP44XX)
 		/* send out 1 byte */
 		writeb (regoffset, &i2c_base->data);
 		writew (I2C_STAT_XRDY, &i2c_base->stat);
@@ -274,7 +278,8 @@ static void flush_fifo(void)
 	while(1){
 		stat = readw(&i2c_base->stat);
 		if(stat == I2C_STAT_RRDY){
-#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
+    defined(CONFIG_OMAP44XX)
 			readb(&i2c_base->data);
 #else
 			readw(&i2c_base->data);
@@ -435,3 +440,9 @@ int i2c_set_bus_num(unsigned int bus)
 
 	return 0;
 }
+
+int i2c_get_bus_num(void)
+{
+	return (int) current_bus;
+}
+
