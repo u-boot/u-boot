@@ -657,6 +657,7 @@ LIST_ARMV7="		\
 	omap3_sdp3430		\
 	omap3_zoom1		\
 	omap3_zoom2		\
+	omap4_panda		\
 	omap4_sdp4430		\
 	s5p_goni		\
 	smdkc100		\
