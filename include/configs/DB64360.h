@@ -318,8 +318,7 @@ ip=${ipaddr}:${serverip}${bootargs_end}; bootm 0x400000;\0"
 
 #define CONFIG_SYS_HZ			1000		/* decr freq: 1ms ticks */
 /*ronen - this the Sys clock (cpu bus,internal dram and SDRAM) */
-#define CONFIG_SYS_BUS_HZ		133000000	/* 133 MHz (CPU = 5*Bus = 666MHz)		*/
-#define CONFIG_SYS_BUS_CLK		CONFIG_SYS_BUS_HZ
+#define CONFIG_SYS_BUS_CLK		133000000	/* 133 MHz (CPU = 5*Bus = 666MHz)		*/
 
 #define CONFIG_SYS_DDR_SDRAM_CYCLE_COUNT_LOP 7 /* define the SDRAM cycle count */
 #define CONFIG_SYS_DDR_SDRAM_CYCLE_COUNT_ROP 50 /* for 400MHZ -> 5.0 ns, for 133MHZ -> 7.50 ns */

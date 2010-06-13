@@ -314,9 +314,8 @@
 /*
  * Speed settings are board specific
  */
-#define CONFIG_SYS_BUS_HZ              100000000
-#define CONFIG_SYS_CPU_CLK             400000000
-#define CONFIG_SYS_BUS_CLK             CONFIG_SYS_BUS_HZ
+#define CONFIG_SYS_BUS_CLK	100000000
+#define CONFIG_SYS_CPU_CLK	400000000
 
 /*
  * For booting Linux, the board info and command line data
