@@ -1,3 +1,286 @@
+commit f986325dd569faeaec4186f678d113505c5c4828
+Author: Ron Madrid <ron_madrid@sbcglobal.net>
+Date:	Tue Jun 1 17:00:49 2010 -0700
+
+    Update SICRL_USBDR to reflect 4 different settings
+
+    This patch changed the SICRL_USBDR define to reflect the 4 different bit
+    settings for this two-bit field.  The four different options are '00', '01',
+    '10', and '11'.  This patch also corrects the config file for SIMPC8313 and
+    MPC8313ERDB for the appropriate fields.  This change only affects the MPC8313
+    cpu.
+
+    Signed-off-by: Ron Madrid <ron_madrid@sbcglobal.net>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 3057c6be5efda781a72ca04432e0a4ed6e670030
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Apr 23 12:20:11 2010 -0500
+
+    fdt_support: add entry for sec3.1 and fix sec3.3
+
+    Add sec3.1 h/w geometry for fdt node fixups.
+
+    Also, technically, whilst SEC v3.3 h/w honours the tls_ssl_stream descriptor
+    type, it lacks the ARC4 algorithm execution unit required to be able
+    to execute anything meaningful with it.  Change the node to agree with
+    the documentation that declares that the sec3.3 really doesn't have such
+    a descriptor type.
+
+    Reported-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 5f4d36825a028e300b7d56a566d2cf84418b7a68
+Author: Timur Tabi <timur@freescale.com>
+Date:	Thu May 20 11:16:16 2010 -0500
+
+    fsl: rename 'dma' to 'brdcfg1' in the ngPIXIS structure
+
+    The ngPIXIS is a board-specific FPGA, but the definition of the registers
+    is mostly consistent.  On boards where it matter, register 9 is called
+    'brdcfg1' instead of 'dma', so rename the variable in the ngpixis_t
+    definition.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 6e37a044076896ba88b0d6316fadd492032c5193
+Author: Timur Tabi <timur@freescale.com>
+Date:	Thu May 20 12:45:39 2010 -0500
+
+    fsl/85xx: add clkdvdr and pmuxcr2 to global utilities structure definition
+
+    Add the 'clkdvdr' and 'pmuxcr2' registers to the 85xx definition of
+    struct ccsr_gur.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 39c209546ab5b11ca6410c5cc57dcbf457e50800
+Author: Tom <Tom@bumblecow.com>
+Date:	Fri May 28 13:23:16 2010 -0500
+
+    ARM Update mach-types
+
+    Fetched from http://www.arm.linux.org.uk/developer/machines/download.php
+    And built with
+
+    repo http://ftp.arm.linux.org.uk/pub/linux/arm/kernel/git-cur/linux-2.6-arm
+    commit 3defb2476166445982a90c12d33f8947e75476c4
+
+    Signed-off-by: Tom <Tom@bumblecow.com>
+
+commit 551bd947bd6f982fa38dde840576eba52346160c
+Author: Tom <Tom@bumblecow.com>
+Date:	Sun May 9 16:58:11 2010 -0500
+
+    ARM Update mach-types
+
+    Fetched from http://www.arm.linux.org.uk/developer/machines/download.php
+    And built with
+
+    repo http://ftp.arm.linux.org.uk/pub/linux/arm/kernel/git-cur/linux-2.6-arm
+    commit 257dab81413b31b8648becfe11586b3a41e5c29a
+
+    Signed-off-by: Tom <Tom@bumblecow.com>
+
+commit 1117cbf2adac59050af1751af6c6a524afa5c3ef
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri May 28 10:56:50 2010 +0800
+
+    nios: remove nios-32 arch
+
+    The nios-32 arch is obsolete and broken. So it is removed.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+
+commit 6803336c9f21ba428f5c1b1cf825bbbac0a762e5
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri May 21 11:08:02 2010 +0800
+
+    nios2: allow STANDALONE_LOAD_ADDR overriding
+
+    This patch allows users to override default STANDALONE_LOAD_ADDR.
+    The gcclibdir path was duplicated in the standalone Makefile and
+    can be removed.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 8d52ea6db484c689a75ef8a36a4e525753b8f078
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Sat May 15 06:00:05 2010 +0800
+
+    nios2: fix div64 issue for gcc4
+
+    This patch fixes the run-time error on div64 when built with
+    gcc4, which was reported by jhwu0625 on nios forum. It merges
+    math support from libgcc of gcc4. This patch is copied from
+    nios2-linux.
+
+    It works with both gcc3 and gcc4. The old mult.c, divmod.c and
+    math.h are removed.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 0df01fd3d71481b5cc7aeea6a741b9fc3be15178
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri May 21 11:08:03 2010 +0800
+
+    nios2: fix r15 issue for gcc4
+
+    The "-ffixed-r15" option doesn't work well for gcc4. Since we
+    don't use gp for small data with option "-G0", we can use gp
+    as global data pointer. This allows compiler to use r15. It
+    is necessary for gcc4 to work properly.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 661ba14051db6766932fcb50ba1ec7c67f230054
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri Apr 30 11:34:16 2010 +0800
+
+    spi: add altera spi controller support
+
+    This patch adds the driver of altera spi controller, which is
+    used as epcs/spi flash controller. It also works with mmc_spi
+    driver.
+
+    This driver support more than one spi bus, with base list declared
+    #define CONFIG_SYS_ALTERA_SPI_LIST { BASE_0,BASE_1,... }
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Tested-by: Ian Abbott <abbotti@mev.co.uk>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 1e8e9bad2db38e93c3bc9f4b6238b3d8be99e469
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri Apr 30 11:34:15 2010 +0800
+
+    nios2: add gpio support to nios2-generic board
+
+    This patch adds gpio support of Altera PIO component to the
+    nios2-generic board. Though it drives only gpio_led at the
+    moment, it supports bidirectional port to control bit-banging
+    I2C, NAND flash busy status or button switches, etc.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Tested-by: Ian Abbott <abbotti@mev.co.uk>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 3e6b86b5552840bb4147871a753840eb3923374c
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri Apr 30 11:34:14 2010 +0800
+
+    misc: add gpio based status led driver
+
+    This patch adds a status led driver followed the GPIO access
+    conventions of Linux. The led mask is used to specify the gpio pin.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Tested-by: Ian Abbott <abbotti@mev.co.uk>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit cedd341d551b6b705e97ab1953a87575b9ff9ef9
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri Apr 30 11:34:13 2010 +0800
+
+    nios2: add gpio support
+
+    This patch adds driver for a trivial gpio core, which is described
+    in http://nioswiki.com/GPIO. It is used for gpio led and nand flash
+    interface in u-boot.
+
+    When CONFIG_SYS_GPIO_BASE is not defined, board may provide
+    its own driver.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Tested-by: Ian Abbott <abbotti@mev.co.uk>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit adf55679af1ed98c15a136eb81d6204ebe740b30
+Author: Wolfgang Wegner <w.wegner@astro-kom.de>
+Date:	Tue Mar 30 19:19:51 2010 +0100
+
+    add CONFIG_SYS_FEC_FULL_MII for MCF5445x
+
+    This patch adds support for full MII interface on MCF5445x (in contrast
+    to RMII as used on the evaluation boards).
+
+    Signed-off-by: Wolfgang Wegner <w.wegner at astro-kom.de>
+
+commit ae49099755affc942171a7727c1b12c51d167abf
+Author: Wolfgang Wegner <w.wegner@astro-kom.de>
+Date:	Tue Mar 30 19:19:50 2010 +0100
+
+    add CONFIG_SYS_FEC_NO_SHARED_PHY for MCF5445x
+
+    This patch adds the possibility to handle seperate PHYs to MCF5445x.
+    Naming is chosen to resemble the contrary CONFIG_FEC_SHARED_PHY in the
+    linux kernel.
+
+    Signed-off-by: Wolfgang Wegner <w.wegner at astro-kom.de>
+
+commit e9b43cae1a20af13d1baeb13038b3f34905c14b5
+Author: Wolfgang Wegner <w.wegner@astro-kom.de>
+Date:	Tue Mar 30 19:20:31 2010 +0100
+
+    add missing PCS3 for MCF5445x
+
+    This patch adds the code for handling PCS3 (DSPI chip select 3) in
+    cpu_init.c and m5445x.h
+
+    Signed-off-by: Wolfgang Wegner <w.wegner at astro-kom.de>
+
+commit d0fe1128c4451327b9cb0fac1a76efd194b078b5
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Wed May 26 21:26:43 2010 +0400
+
+    USB: fix create_pipe()
+
+    create_pipe() can give wrong result if an expression is passed as the 'endpoint'
+    argument -- due to missing parentheses.
+
+    Thanks to Martin Mueller for finding the bug and providing the patch.
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+
+commit c941b77adc40f344215e367b3d1fc638addff870
+Author: Andrew Caldwell <Andrew.Caldwell@analog.com>
+Date:	Fri May 7 15:10:07 2010 -0400
+
+    Blackfin: nand: drain the write buffer before returning
+
+    The current Blackfin nand write function fills up the write buffer but
+    returns before it has had a chance to drain.  On faster systems, this
+    isn't a problem as the operation finishes before the ECC registers are
+    read, but on slower systems the ECC may be incomplete when the core tries
+    to read it.
+
+    So wait for the buffer to drain once we're done writing to it.
+
+    Signed-off-by: Andrew Caldwell <Andrew.Caldwell@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 01f03bda5b22e5aeae5f02fd537da97a41485c73
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 26 23:57:08 2010 +0200
+
+    Prepare v2010.06-rc1
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c4976807cbbabd281f45466ac5e47e5639bcc9cb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 26 23:51:22 2010 +0200
+
+    Coding style cleanup, update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit c7da8c19b5f7fd58b5b4b1d247648851af56e1f0
 Author: Andreas Biessmann <andreas.devel@googlemail.com>
 Date:	Sat May 22 13:17:21 2010 +0200

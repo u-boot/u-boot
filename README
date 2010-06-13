@@ -143,9 +143,9 @@ Directory Hierarchy:
     /cpu		CPU specific files
       /arm720t		Files specific to ARM 720 CPUs
       /arm920t		Files specific to ARM 920 CPUs
-        /at91rm9200	Files specific to Atmel AT91RM9200 CPU
-        /imx		Files specific to Freescale MC9328 i.MX CPUs
-        /s3c24x0	Files specific to Samsung S3C24X0 CPUs
+	/at91rm9200	Files specific to Atmel AT91RM9200 CPU
+	/imx		Files specific to Freescale MC9328 i.MX CPUs
+	/s3c24x0	Files specific to Samsung S3C24X0 CPUs
       /arm925t		Files specific to ARM 925 CPUs
       /arm926ejs	Files specific to ARM 926 CPUs
       /arm1136		Files specific to ARM 1136 CPUs
@@ -2504,7 +2504,7 @@ to save the current settings.
 	  I2C muxes, you can define here, how to reach this
 	  EEPROM. For example:
 
-	  #define CONFIG_I2C_ENV_EEPROM_BUS       "pca9547:70:d\0"
+	  #define CONFIG_I2C_ENV_EEPROM_BUS	  "pca9547:70:d\0"
 
 	  EEPROM which holds the environment, is reached over
 	  a pca9547 i2c mux with address 0x70, channel 3.
