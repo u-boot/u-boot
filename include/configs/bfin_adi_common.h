@@ -248,6 +248,7 @@
 #   define CONFIG_SYS_AUTOLOAD "no"
 #  endif
 # endif
+# define CONFIG_IP_DEFRAG
 # define CONFIG_NET_RETRY_COUNT 20
 #endif
 
