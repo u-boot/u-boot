@@ -427,14 +427,7 @@ void main_loop (void)
 	    }
 	}
 #endif /* CONFIG_MENUKEY */
-#endif	/* CONFIG_BOOTDELAY */
-
-#ifdef CONFIG_AMIGAONEG3SE
-	{
-	    extern void video_banner(void);
-	    video_banner();
-	}
-#endif
+#endif /* CONFIG_BOOTDELAY */
 
 	/*
 	 * Main Loop for Monitor Command Processing

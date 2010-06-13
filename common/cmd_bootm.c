@@ -635,15 +635,6 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	usb_stop();
 #endif
 
-#ifdef CONFIG_AMIGAONEG3SE
-	/*
-	 * We've possible left the caches enabled during
-	 * bios emulation, so turn them off again
-	 */
-	icache_disable();
-	dcache_disable();
-#endif
-
 	ret = bootm_load_os(images.os, &load_end, 1);
 
 	if (ret < 0) {

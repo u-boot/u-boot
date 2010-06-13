@@ -49,11 +49,6 @@
 #include <fdt_support.h>
 #endif
 
-#ifdef CONFIG_AMIGAONEG3SE
-#include "../board/MAI/AmigaOneG3SE/via686.h"
-#include "../board/MAI/AmigaOneG3SE/memio.h"
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 cpu_t
@@ -277,7 +272,7 @@ do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /*
  * For the 7400 the TB clock runs at 1/4 the cpu bus speed.
  */
-#if defined(CONFIG_AMIGAONEG3SE) || !defined(CONFIG_SYS_BUS_CLK)
+#ifndef CONFIG_SYS_BUS_CLK
 #define	CONFIG_SYS_BUS_CLK gd->bus_clk
 #endif
 

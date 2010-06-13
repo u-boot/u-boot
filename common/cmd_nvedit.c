@@ -385,18 +385,6 @@ int _do_setenv (int flag, int argc, char *argv[])
 		return 0;
 	}
 #endif
-
-#ifdef CONFIG_AMIGAONEG3SE
-	if (strcmp(argv[1], "vga_fg_color") == 0 ||
-	    strcmp(argv[1], "vga_bg_color") == 0 ) {
-		extern void video_set_color(unsigned char attr);
-		extern unsigned char video_get_attr(void);
-
-		video_set_color(video_get_attr());
-		return 0;
-	}
-#endif	/* CONFIG_AMIGAONEG3SE */
-
 	return 0;
 }
 
