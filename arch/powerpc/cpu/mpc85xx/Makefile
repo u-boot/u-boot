@@ -63,6 +63,7 @@ COBJS-$(CONFIG_CPM2)	+= ether_fcc.o
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
 COBJS-$(CONFIG_MP)	+= mp.o
 COBJS-$(CONFIG_MPC8536) += mpc8536_serdes.o
+COBJS-$(CONFIG_P1022)	+= p1022_serdes.o
 COBJS-$(CONFIG_PCI)	+= pci.o
 COBJS-$(CONFIG_QE)	+= qe_io.o
 COBJS-$(CONFIG_CPM2)	+= serial_scc.o
