@@ -40,7 +40,8 @@ HOSTARCH := $(shell uname -m | \
 	    -e s/sa110/arm/ \
 	    -e s/ppc64/powerpc/ \
 	    -e s/ppc/powerpc/ \
-	    -e s/macppc/powerpc/)
+	    -e s/macppc/powerpc/\
+	    -e s/sh.*/sh/)
 
 HOSTOS := $(shell uname -s | tr '[:upper:]' '[:lower:]' | \
 	    sed -e 's/\(cygwin\).*/cygwin/')
