@@ -62,6 +62,10 @@ Oliver Brown <obrown@adventnetworks.com>
 
 	gw8260		MPC8260
 
+Cyril Chemparathy <cyril@ti.com>
+
+	tnetv107x_evm	tnetv107x
+
 Conn Clark <clark@esteem.com>
 
 	ESTEEM192E	MPC8xx
@@ -228,6 +232,7 @@ Ilko Iliev <iliev@ronetix.at>
 
 	PM9261		AT91SAM9261
 	PM9263		AT91SAM9263
+	PM9G45		ARM926EJS (AT91SAM9G45 SoC)
 
 Gary Jennejohn <garyj@denx.de>
 
@@ -599,6 +604,10 @@ Kshitij Gupta <kshitij@ti.com>
 
 	omap1510inn	ARM925T
 	omap1610inn	ARM926EJS
+
+Vaibhav Hiremath <hvaibhav@ti.com>
+
+	am3517_evm	ARM CORTEX-A8 (AM35x SoC)
 
 Grazvydas Ignotas <notasas@gmail.com>
 

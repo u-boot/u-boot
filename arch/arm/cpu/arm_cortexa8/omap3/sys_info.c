@@ -32,7 +32,6 @@
 #include <i2c.h>
 
 extern omap3_sysinfo sysinfo;
-static struct sdrc *sdrc_base = (struct sdrc *)OMAP34XX_SDRC_BASE;
 static struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
 static char *rev_s[CPU_3XX_MAX_REV] = {
 				"1.0",
@@ -102,46 +101,6 @@ u32 get_cpu_rev(void)
 
 		return cpuid;
 	}
-}
-
-/****************************************************
- * is_mem_sdr() - return 1 if mem type in use is SDR
- ****************************************************/
-u32 is_mem_sdr(void)
-{
-	if (readl(&sdrc_base->cs[CS0].mr) == SDRC_MR_0_SDR)
-		return 1;
-	return 0;
-}
-
-/***********************************************************************
- * get_cs0_size() - get size of chip select 0/1
- ************************************************************************/
-u32 get_sdr_cs_size(u32 cs)
-{
-	u32 size;
-
-	/* get ram size field */
-	size = readl(&sdrc_base->cs[cs].mcfg) >> 8;
-	size &= 0x3FF;		/* remove unwanted bits */
-	size <<= 21;		/* multiply by 2 MiB to find size in MB */
-	return size;
-}
-
-/***********************************************************************
- * get_sdr_cs_offset() - get offset of cs from cs0 start
- ************************************************************************/
-u32 get_sdr_cs_offset(u32 cs)
-{
-	u32 offset;
-
-	if (!cs)
-		return 0;
-
-	offset = readl(&sdrc_base->cs_cfg);
-	offset = (offset & 15) << 27 | (offset & 0x30) >> 17;
-
-	return offset;
 }
 
 /***************************************************************************

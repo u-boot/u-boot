@@ -2873,6 +2873,10 @@ otc570_config	:	unconfig
 pm9263_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm926ejs pm9263 ronetix at91
 
+pm9g45_config	:	unconfig
+	@mkdir -p $(obj)include
+	@$(MKCONFIG) -a pm9g45 arm arm926ejs pm9g45 ronetix at91
+
 SBC35_A9G20_NANDFLASH_config \
 SBC35_A9G20_EEPROM_config \
 SBC35_A9G20_config	:	unconfig
@@ -3155,6 +3159,9 @@ SMN42_config	:	unconfig
 ## ARM CORTEX Systems
 #########################################################################
 
+am3517_evm_config :	unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 am3517evm logicpd omap3
+
 devkit8000_config :	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm_cortexa8 devkit8000 timll omap3
 
@@ -3326,6 +3333,9 @@ smdk6400_config	:	unconfig
 		$(MKCONFIG) $(@:_noUSB_config=) arm arm1176 smdk6400 samsung s3c64xx;	\
 	fi
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
+
+tnetv107x_evm_config: unconfig
+	@$(MKCONFIG) $(@:_config=) arm arm1176 tnetv107xevm ti tnetv107x
 
 #========================================================================
 # i386

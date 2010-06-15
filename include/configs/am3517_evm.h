@@ -1,29 +1,25 @@
 /*
- * (C) Copyright 2006-2008
- * Texas Instruments.
- * Richard Woodruff <r-woodruff2@ti.com>
- * Syed Mohammed Khasim <x0khasim@ti.com>
- * Nishanth Menon <nm@ti.com>
+ * am3517_evm.h - Default configuration for AM3517 EVM board.
  *
- * Configuration settings for the TI OMAP3430 Zoom MDK board.
+ * Author: Vaibhav Hiremath <hvaibhav@ti.com>
  *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * Based on omap3_evm_config.h
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * Copyright (C) 2010 Texas Instruments Incorporated
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 #ifndef __CONFIG_H
@@ -35,10 +31,9 @@
 #define CONFIG_ARMCORTEXA8	1	/* This is an ARM V7 CPU core */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
-#define CONFIG_OMAP3430		1	/* which is in a 3430 */
-#define CONFIG_OMAP3_ZOOM1	1	/* working with Zoom MDK Rev1 */
+#define CONFIG_OMAP3_AM3517EVM	1	/* working with AM3517EVM */
 
-#define CONFIG_SDRC	/* The chip has SDRC controller */
+#define CONFIG_EMIF4	/* The chip has EMIF4 controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
 #include <asm/arch/omap3.h>
@@ -64,11 +59,15 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
-						/* Sector */
+#define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB sector */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
 						/* initial data */
+/*
+ * DDR related
+ */
+#define CONFIG_OMAP3_MICRON_DDR		1	/* Micron DDR */
+#define CONFIG_SYS_CS0_SIZE		(256 * 1024 * 1024)
 
 /*
  * Hardware drivers
@@ -89,7 +88,7 @@
  */
 #define CONFIG_CONS_INDEX		3
 #define CONFIG_SYS_NS16550_COM3		OMAP34XX_UART3
-#define CONFIG_SERIAL3			3	/* UART3 */
+#define CONFIG_SERIAL3			3	/* UART3 on AM3517 EVM */
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -99,24 +98,6 @@
 #define CONFIG_MMC			1
 #define CONFIG_OMAP3_MMC		1
 #define CONFIG_DOS_PARTITION		1
-
-/* DDR - I use Micron DDR */
-#define CONFIG_OMAP3_MICRON_DDR		1
-
-/* USB */
-#define CONFIG_MUSB_UDC			1
-#define CONFIG_USB_OMAP3		1
-#define CONFIG_TWL4030_USB		1
-
-/* USB device configuration */
-#define CONFIG_USB_DEVICE		1
-#define CONFIG_USB_TTY			1
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
-/* Change these to suit your needs */
-#define CONFIG_USBD_VENDORID		0x0451
-#define CONFIG_USBD_PRODUCTID		0x5678
-#define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
-#define CONFIG_USBD_PRODUCT_NAME	"Zoom1"
 
 /* commands to include */
 #include <config_cmd_default.h>
@@ -128,14 +109,13 @@
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
-#define CONFIG_CMD_NAND_LOCK_UNLOCK /* Enable lock/unlock support */
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_PING
 
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #undef CONFIG_CMD_IMI		/* iminfo			*/
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
-#undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
-#undef CONFIG_CMD_NFS		/* NFS support			*/
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_HARD_I2C			1
@@ -145,48 +125,39 @@
 #define CONFIG_SYS_I2C_BUS_SELECT	1
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 
-/*
- * TWL4030
- */
-#define CONFIG_TWL4030_POWER		1
-#define CONFIG_TWL4030_LED		1
-
+#undef CONFIG_CMD_NET
 /*
  * Board NAND Info.
  */
-#define CONFIG_NAND_OMAP_GPMC
 #define CONFIG_SYS_NAND_ADDR		NAND_BASE	/* physical address */
 							/* to access nand */
 #define CONFIG_SYS_NAND_BASE		NAND_BASE	/* physical address */
-							/* to access nand at */
-							/* CS0 */
-#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
+							/* to access */
+							/* nand at CS0 */
 
-#define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of NAND */
-							/* devices */
+#define CONFIG_SYS_MAX_NAND_DEVICE	1		/* Max number of */
+							/* NAND devices */
+#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
+
 #define CONFIG_JFFS2_NAND
 /* nand device jffs2 lives on */
 #define CONFIG_JFFS2_DEV		"nand0"
 /* start of jffs2 partition */
 #define CONFIG_JFFS2_PART_OFFSET	0x680000
-#define CONFIG_JFFS2_PART_SIZE		0xf980000	/* size of jffs2 */
-							/* partition */
+#define CONFIG_JFFS2_PART_SIZE		0xf980000	/* sz of jffs2 part */
 
 /* Environment information */
-#define CONFIG_BOOTDELAY		10
+#define CONFIG_BOOTDELAY	10
+
+#define CONFIG_BOOTFILE		uImage
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
-	"usbtty=cdc_acm\0" \
 	"console=ttyS2,115200n8\0" \
-	"videomode=1024x768@60,vxres=1024,vyres=768\0" \
-	"videospec=omapfb:vram:2M,vram:4M\0" \
 	"mmcargs=setenv bootargs console=${console} " \
-		"video=${videospec},mode:${videomode} " \
 		"root=/dev/mmcblk0p2 rw " \
 		"rootfstype=ext3 rootwait\0" \
 	"nandargs=setenv bootargs console=${console} " \
-		"video=${videospec},mode:${videomode} " \
 		"root=/dev/mtdblock4 rw " \
 		"rootfstype=jffs2\0" \
 	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0" \
@@ -213,32 +184,34 @@
 		"fi; " \
 	"else run nandboot; fi"
 
-#define CONFIG_AUTO_COMPLETE		1
+#define CONFIG_AUTO_COMPLETE	1
 /*
  * Miscellaneous configurable options
  */
+#define V_PROMPT			"AM3517_EVM # "
+
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_PROMPT		"OMAP3 Zoom1 # "
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
+#define CONFIG_SYS_PROMPT		V_PROMPT
+#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
+#define CONFIG_SYS_MAXARGS		32	/* max number of command */
+						/* args */
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
-
-#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)	/* memtest */
-								/* works on */
+/* memtest works on */
+#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)
 #define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
 					0x01F00000) /* 31MB */
 
-#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0)	/* default */
-							/* load address */
+#define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0) /* default load */
+								/* address */
 
 /*
- * OMAP3 has 12 GP timers, they can be driven by the system clock
+ * AM3517 has 12 GP timers, they can be driven by the system clock
  * (12/13/16.8/19.2/38.4MHz) or by 32KHz clock. We use 13MHz (V_SCLK).
  * This rate is divided by a local divisor.
  */
@@ -278,8 +251,8 @@
 #define PISMO1_NAND_SIZE		GPMC_SIZE_128M
 #define PISMO1_ONEN_SIZE		GPMC_SIZE_128M
 
-#define CONFIG_SYS_MAX_FLASH_SECT	520	/* max number of sectors on */
-						/* one chip */
+#define CONFIG_SYS_MAX_FLASH_SECT	520	/* max number of sectors */
+						/* on one chip */
 #define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max number of flash banks */
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
@@ -287,15 +260,15 @@
 
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
 
+#define CONFIG_NAND_OMAP_GPMC
+#define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_ENV_IS_IN_NAND		1
-#define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
 #define CONFIG_SYS_ENV_SECT_SIZE	boot_flash_sec
 #define CONFIG_ENV_OFFSET		boot_flash_off
-#define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
+#define CONFIG_ENV_ADDR			boot_flash_env_addr
 
 /*-----------------------------------------------------------------------
  * CFI FLASH driver setup
@@ -320,4 +293,4 @@ extern unsigned int boot_flash_sec;
 extern unsigned int boot_flash_type;
 #endif
 
-#endif				/* __CONFIG_H */
+#endif /* __CONFIG_H */

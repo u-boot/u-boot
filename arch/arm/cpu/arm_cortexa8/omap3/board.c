@@ -40,8 +40,6 @@
 
 extern omap3_sysinfo sysinfo;
 
-extern u32 is_mem_sdr(void);
-
 /******************************************************************************
  * Routine: delay
  * Description: spinning delay to use before udelay works
@@ -233,7 +231,7 @@ void s_init(void)
 	per_clocks_enable();
 
 	if (!in_sdram)
-		sdrc_init();
+		mem_init();
 }
 
 /******************************************************************************
@@ -271,36 +269,6 @@ void watchdog_init(void)
 	writel(WD_UNLOCK1, &wd2_base->wspr);
 	wait_for_command_complete(wd2_base);
 	writel(WD_UNLOCK2, &wd2_base->wspr);
-}
-
-/******************************************************************************
- * Routine: dram_init
- * Description: sets uboots idea of sdram size
- *****************************************************************************/
-int dram_init(void)
-{
-	DECLARE_GLOBAL_DATA_PTR;
-	unsigned int size0 = 0, size1 = 0;
-
-	/*
-	 * If a second bank of DDR is attached to CS1 this is
-	 * where it can be started.  Early init code will init
-	 * memory on CS0.
-	 */
-	if ((sysinfo.mtype == DDR_COMBO) || (sysinfo.mtype == DDR_STACKED)) {
-		do_sdrc_init(CS1, NOT_EARLY);
-		make_cs1_contiguous();
-	}
-
-	size0 = get_sdr_cs_size(CS0);
-	size1 = get_sdr_cs_size(CS1);
-
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = size0;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_1 + get_sdr_cs_offset(CS1);
-	gd->bd->bi_dram[1].size = size1;
-
-	return 0;
 }
 
 /******************************************************************************

@@ -226,8 +226,8 @@ cpu_init_crit:
 	 * flush v4 I/D caches
 	 */
 	mov	r0, #0
-	mcr	p15, 0, r0, c7, c7, 0	/* flush v3/v4 cache */
-	mcr	p15, 0, r0, c8, c7, 0	/* flush v4 TLB */
+	mcr	p15, 0, r0, c7, c7, 0	/* Invalidate I+D+BTB caches */
+	mcr	p15, 0, r0, c8, c7, 0	/* Invalidate Unified TLB */
 
 	/*
 	 * disable MMU stuff and caches

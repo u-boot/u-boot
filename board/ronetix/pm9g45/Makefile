@@ -1,6 +1,10 @@
 #
-# (C) Copyright 2000-2003
+# (C) Copyright 2003-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
+# (C) Copyright 2008
+# Stelian Pop <stelian.pop@leadtechdesign.com>
+# Lead Tech Design <www.leadtechdesign.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -12,7 +16,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,30 +27,22 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	=  $(obj)lib$(SOC).a
+LIB	= $(obj)lib$(BOARD).a
 
-SOBJS	:= lowlevel_init.o
-SOBJS	+= cache.o
-SOBJS	+= reset.o
+COBJS-y += pm9g45.o
 
-COBJS	+= board.o
-COBJS	+= clock.o
-COBJS	+= gpio.o
-COBJS	+= mem.o
-COBJS	+= syslib.o
-COBJS	+= sys_info.o
-COBJS	+= timer.o
+SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-COBJS-$(CONFIG_EMIF4)	+= emif4.o
-COBJS-$(CONFIG_SDRC)	+= sdrc.o
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(COBJS-y) $(SOBJS))
+clean:
+	rm -f $(SOBJS) $(OBJS)
 
-all:	 $(obj).depend $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 
