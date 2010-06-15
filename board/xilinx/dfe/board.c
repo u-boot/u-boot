@@ -8,8 +8,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
-	/* BHILL FIXME - should this be here? lib_arm/board.c */
-	interrupt_init();
+	icache_enable();
 
 	return 0;
 }

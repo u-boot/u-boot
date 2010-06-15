@@ -28,7 +28,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(SOC).a
 
-COBJS-y	= interrupts.o 
+COBJS-y	= timer.o 
 
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS-y))
 

@@ -6,6 +6,9 @@
 
 #include "xemacpss_example.h"
 
+
+static void print_packet(char *p); /* HACK FIXME BHILL */
+
 /************************ Forward function declaration **********************/
 
 int Xgmac_process_rx(XEmacPss * EmacPssInstancePtr);
@@ -30,24 +33,18 @@ int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr);
 /*
  * Aligned memory segments to be used for buffer descriptors
  */
-
-static XEmacPss_Bd RxBdSpace[RXBD_CNT] __attribute__ ((aligned(16)));
-/* To have some space between the BDs and Rx buffer. */
-static u32 dummy1;
-static u32 dummy2;
-static XEmacPss_Bd TxBdSpace[TXBD_CNT] __attribute__ ((aligned(16)));
-static u32 dummy3;
-static char RxBuffer[RXBD_CNT * XEMACPSS_RX_BUF_SIZE];
+static XEmacPss_Bd RxBdSpace[RXBD_CNT];
+static XEmacPss_Bd TxBdSpace[TXBD_CNT];
+static char RxBuffers[RXBD_CNT * XEMACPSS_RX_BUF_SIZE];
 static uchar data_buffer[XEMACPSS_RX_BUF_SIZE];
 
 static struct {
 	u8 initialized;
-} ethstate = {
-0};
+} ethstate = {0};
 
 XEmacPss EmacPssInstance;
 
-/*******************************************************************************************/
+/*****************************************************************************/
 /*
 *	Following are the supporting functions to read and write GEM PHY registers.
 */
@@ -61,6 +58,7 @@ int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr)
 static u32 phy_rd(XEmacPss * e, u32 a)
 {
 	u16 PhyData;
+
 	phy_spinwait(e);
 	XEmacPss_PhyRead(e, PHY_ADDR, a, &PhyData);
 	phy_spinwait(e);
@@ -77,42 +75,19 @@ static void phy_wr(XEmacPss * e, u32 a, u32 v)
 static void phy_rst(XEmacPss * e)
 {
 	int tmp;
+
 	puts("Resetting PHY...\n");
 	tmp = phy_rd(e, 0);
 	tmp |= 0x8000;
 	phy_wr(e, 0, tmp);
 
-	while (phy_rd(e, 0) & 0x8000)
-		putc('.');
+	while (phy_rd(e, 0) & 0x8000) {
+   	     putc('.');
+	}
 	puts("\nPHY reset complete.\n");
 }
 
-/*******************************************************************************************/
-
-#if DEBUG
-void device_regs(int num)
-{
-	int i;
-	if (num & 0x2) {
-		printf("***PHY REGISTER DUMP***\n");
-		for (i = 0; i < 32; i++) {
-			printf("\t%2d: 0x%04x", i, phy_rd(&EmacPssInstance, i));
-			if (i % 8 == 7)
-				putc('\n');
-		}
-	}
-	if (num & 0x1) {
-		printf("***GEM REGISTER DUMP***\n");
-		for (i = 0; i < 0x040; i += 4) {
-			printf("\t0x%03x: 0x%08lx", i,
-			       XEmacPss_ReadReg(EmacPssInstance.Config.
-						BaseAddress, i));
-			if (i % 16 == 12)
-				putc('\n');
-		}
-	}
-}
-#endif
+/*****************************************************************************/
 
 void eth_halt(void)
 {
@@ -126,6 +101,7 @@ int eth_init(bd_t * bis)
 	XEmacPss_Config *Config;
 	XEmacPss *EmacPssInstancePtr = &EmacPssInstance;
 	XEmacPss_Bd BdTemplate;
+
 	if (ethstate.initialized) {
 		return 1;
 	}
@@ -155,8 +131,8 @@ int eth_init(bd_t * bis)
 	 * Create the RxBD ring
 	 */
 	tmp =
-	    Xgmac_make_rxbuff_mem(EmacPssInstancePtr, &RxBuffer,
-				  sizeof(RxBuffer));
+	    Xgmac_make_rxbuff_mem(EmacPssInstancePtr, &RxBuffers,
+				  sizeof(RxBuffers));
 	if (tmp == 0 || tmp == -1) {
 		printf("Xgmac_make_rxbuff_mem failed! (%i)\n", tmp);
 		return -1;
@@ -194,22 +170,27 @@ int eth_init(bd_t * bis)
 
 	/* MAC Setup */
 	/*
-	 *      Following is the setup for Network Configuration register.
-	 *      Bit 0:  Set for 100 Mbps operation.
-	 *      Bit 1:  Set for Full Duplex mode.
-	 *      Bit 4:  Set to allow Copy all frames.
-	 *      Bit 17: Set for FCS removal.
-	 *      Bits 20-18: Set with value binary 010 to divide pclk by 32 (pclk up to 80 MHz)
+	 *  Following is the setup for Network Configuration register.
+	 *  Bit 0:  Set for 100 Mbps operation.
+	 *  Bit 1:  Set for Full Duplex mode.
+	 *  Bit 4:  Set to allow Copy all frames.
+	 *  Bit 17: Set for FCS removal.
+	 *  Bits 20-18: Set with value binary 010 to divide pclk by 32
+	 *              (pclk up to 80 MHz)
 	 */
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 			  XEMACPSS_NWCFG_OFFSET, 0x000A0013);
 
 	/*
-	 *      Following is the setup for DMA Configuration register.
-	 *      Bits 4-0: To set AHB fixed burst length for DMA data operations -> Set with binary 00100 to use INCR4 AHB bursts.
-	 *      Bits 9-8: Receiver packet buffer memory size -> Set with binary 11 to Use full configured addressable space (8 Kb).
-	 *      Bit 10  : Transmitter packet buffer memory size -> Set with binary 1 to Use full configured addressable space (4 Kb). 
-	 *      Bits 23-16  : DMA receive buffer size in AHB system memory -> Set with binary 00011000 to use 1536 byte (1*max length frame/buffer).
+	 * Following is the setup for DMA Configuration register.
+	 * Bits 4-0: To set AHB fixed burst length for DMA data operations ->
+	 *           Set with binary 00100 to use INCR4 AHB bursts.
+	 * Bits 9-8: Receiver packet buffer memory size ->
+	 *       Set with binary 11 to Use full configured addressable space (8 Kb)
+	 * Bit 10  : Transmitter packet buffer memory size ->
+	 *       Set with binary 1 to Use full configured addressable space (4 Kb)
+	 * Bits 23-16 : DMA receive buffer size in AHB system memory ->
+	 *   Set with binary 00011000 to use 1536 byte (1*max length frame/buffer).
 	 */
 	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
 			  XEMACPSS_DMACR_OFFSET, 0x00180704);
@@ -219,10 +200,10 @@ int eth_init(bd_t * bis)
 			  XEMACPSS_IDR_OFFSET, 0xFFFFFFFF);
 
 	/*
-	 *      Following is the setup for Network Control register.
-	 *      Bit 2:  Set to enable Receive operation.
-	 *      Bit 3:  Set to enable Transmitt operation.
-	 *      Bit 4:  Set to enable MDIO operation.
+	 * Following is the setup for Network Control register.
+	 * Bit 2:  Set to enable Receive operation.
+	 * Bit 3:  Set to enable Transmitt operation.
+	 * Bit 4:  Set to enable MDIO operation.
 	 */
 	tmp =
 	    XEmacPss_ReadReg(EmacPssInstancePtr->Config.BaseAddress,
@@ -235,9 +216,6 @@ int eth_init(bd_t * bis)
 			  XEMACPSS_NWCTRL_OFFSET, tmp);
 
 	/* PHY Setup */
-	/* enable autonegotiation, set 100Mbps, full-duplex, restart aneg */
-	tmp = phy_rd(EmacPssInstancePtr, 0);
-	phy_wr(EmacPssInstancePtr, 0, 0x3300 | (tmp & 0x1F));
 
 	/* "add delay to RGMII rx interface" */
 	phy_wr(EmacPssInstancePtr, 20, 0xc93);
@@ -253,9 +231,20 @@ int eth_init(bd_t * bis)
 	tmp &= ~0x0300;
 	phy_wr(EmacPssInstancePtr, 9, tmp);
 
+	/* enable autonegotiation, set 100Mbps, full-duplex, restart aneg */
+	tmp = phy_rd(EmacPssInstancePtr, 0);
+	phy_wr(EmacPssInstancePtr, 0, 0x3300 | (tmp & 0x1F));
+
 	phy_rst(EmacPssInstancePtr);
+
 	puts("\nWaiting for PHY to complete autonegotiation.");
-	while (!(phy_rd(EmacPssInstancePtr, 1) & (1 << 5))) ;
+	tmp = 0;
+	while (!(phy_rd(EmacPssInstancePtr, 1) & (1 << 5))) {
+		if ((tmp % 50) == 0) {
+			putc('.');
+		}
+		tmp++;
+	}
 	puts("\nPHY claims autonegotiation complete...\n");
 
 	puts("GEM link speed is 100Mbps\n");
@@ -269,6 +258,7 @@ int eth_send(volatile void *ptr, int len)
 	volatile int Status;
 	XEmacPss_Bd *BdPtr;
 	XEmacPss *EmacPssInstancePtr = &EmacPssInstance;
+
 	if (!ethstate.initialized) {
 		puts("Error GMAC not initialized");
 		return 0;
@@ -345,22 +335,53 @@ int eth_send(volatile void *ptr, int len)
 
 int eth_rx(void)
 {
-	volatile u32 status;
+	u32 status, retval;
 	XEmacPss *EmacPssInstancePtr = &EmacPssInstance;
+
 	status =
 	    XEmacPss_ReadReg(EmacPssInstancePtr->Config.BaseAddress,
 			     XEMACPSS_RXSR_OFFSET);
 	if (status & XEMACPSS_RXSR_FRAMERX_MASK) {
-		if ((Xgmac_process_rx(EmacPssInstancePtr)) == (-1)) {
-			return 0;
-		}
+		do {
+			retval = Xgmac_process_rx(EmacPssInstancePtr);
+		} while (retval == 0) ;
 	}
 
-	/* Disabled clearing the status because NetLoop() calls eth_rx() in a tight loop 
-	 *  and if Rx status is cleared it will not receive any pasket after the first pasket.
-	 *  XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,XEMACPSS_RXSR_OFFSET,status);
+	/* Clear interrupt status.
 	 */
+	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
+	                  XEMACPSS_RXSR_OFFSET, status);
+	
 	return 1;
+}
+
+/* HACK BHILL FIXME */
+static void print_packet(char *p)
+{
+    int i;
+
+    printf("Packet:\n");
+    for (i=0; i < 6; i++) {
+        printf("0x%02x:", *p);
+        p++;
+    }
+    printf(" ");
+    for (i=0; i < 6; i++) {
+        printf("0x%02x:", *p);
+        p++;
+    }
+    printf(" ");
+    for (i=0; i < 2; i++) {
+        printf("0x%02x:", *p);
+        p++;
+    }
+    printf(" ");
+    for (i=0; i < 4; i++) {
+        printf("0x%02x:", *p);
+        p++;
+    }
+
+    printf("\n\n");
 }
 
 /*=============================================================================
@@ -371,7 +392,6 @@ int eth_rx(void)
  */
 int Xgmac_process_rx(XEmacPss * EmacPssInstancePtr)
 {
-
 	uchar *buffer = data_buffer;
 	u32 rx_status, mem_addr;
 	int frame_len;
@@ -379,148 +399,144 @@ int Xgmac_process_rx(XEmacPss * EmacPssInstancePtr)
 	    (u32 *) & EmacPssInstancePtr->RxBdRing.
 	    RxBD_start[EmacPssInstancePtr->RxBdRing.RxBD_current];
 
-	rx_status = XEmacPss_BdIsRxSOF(addr);
+	rx_status = XEmacPss_BdRead((addr), XEMACPSS_BD_ADDR_OFFSET);
+	if (! (rx_status & XEMACPSS_RXBUF_NEW_MASK)) {
+		return (-1);
+	}
 
-	/* if not a start of frame, something wrong. So recover and return */
+	rx_status = XEmacPss_BdIsRxSOF(addr);
 	if (!rx_status) {
+		printf("GEM: SOF not set for last buffer received!\n");
 		return (-1);
 	}
 	rx_status = XEmacPss_BdIsRxEOF(addr);
-
-	if (rx_status) {
-		frame_len = XEmacPss_BdGetLength(addr);
-		if (frame_len == 0) {
-			printf("Hardware reported 0 length frame!\n");
-			return (-1);
-		}
-
-		mem_addr = (u32) (*addr & XEMACPSS_RXBUF_ADD_MASK);
-		if (mem_addr == (u32) NULL) {
-			printf("Error swapping out buffer!\n");
-			return (-1);
-		}
-		memcpy(buffer, (void *)mem_addr, frame_len);
-		Xgmac_next_rx_buf(EmacPssInstancePtr);
-		NetReceive(buffer, frame_len);
-		return (0);
-	} else {
-		/* this is wrong ! should never be here is things are OK */
-		printf
-		    ("Something is wrong we should not be here for last buffer received!\n");
+	if (!rx_status) {
+		printf("GEM: EOF not set for last buffer received!\n");
 		return (-1);
 	}
-	return 0;
+
+	frame_len = XEmacPss_BdGetLength(addr);
+	if (frame_len == 0) {
+		printf("Hardware reported 0 length frame!\n");
+		return (-1);
+	}
+
+	mem_addr = (u32) (*addr & XEMACPSS_RXBUF_ADD_MASK);
+	if (mem_addr == (u32) NULL) {
+		printf("Error swapping out buffer!\n");
+		return (-1);
+	}
+	memcpy(buffer, (void *)mem_addr, frame_len);
+	Xgmac_next_rx_buf(EmacPssInstancePtr);
+	NetReceive(buffer, frame_len);
+
+	return (0);
 }
 
 int Xgmac_init_rxq(XEmacPss * EmacPssInstancePtr, void *bd_start, int num_elem)
 {
+	XEmacPss_BdRing *r;
 	int loop = 0;
 
 	if ((num_elem <= 0) || (num_elem > RXBD_CNT)) {
 		return (-1);
-	} else {
-		for (; loop < 2 * (num_elem);) {
-			*(((u32 *) bd_start) + loop) = 0x00000000;
-			*(((u32 *) bd_start) + loop + 1) = 0xF0000000;
-			loop += 2;
-		}
-		EmacPssInstancePtr->RxBdRing.RxBD_start =
-		    (XEmacPss_Bd *) bd_start;
-		EmacPssInstancePtr->RxBdRing.Length = num_elem;
-		EmacPssInstancePtr->RxBdRing.RxBD_current = 0;
-		EmacPssInstancePtr->RxBdRing.RxBD_end = 0;
-		EmacPssInstancePtr->RxBdRing.Rx_first_buf = 0;
-
-		XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
-				  XEMACPSS_RXQBASE_OFFSET, (u32) bd_start);
-
-		return 0;
 	}
+
+	for (; loop < 2 * (num_elem);) {
+		*(((u32 *) bd_start) + loop) = 0x00000000;
+		*(((u32 *) bd_start) + loop + 1) = 0xF0000000;
+		loop += 2;
+	}
+
+	r = & EmacPssInstancePtr->RxBdRing;
+	r->RxBD_start = (XEmacPss_Bd *) bd_start;
+	r->Length = num_elem;
+	r->RxBD_current = 0;
+	r->RxBD_end = 0;
+	r->Rx_first_buf = 0;
+
+	XEmacPss_WriteReg(EmacPssInstancePtr->Config.BaseAddress,
+			  XEMACPSS_RXQBASE_OFFSET, (u32) bd_start);
+
+	return 0;
 }
 
 int Xgmac_make_rxbuff_mem(XEmacPss * EmacPssInstancePtr, void *rx_buf_start,
 			  u32 rx_buffsize)
 {
+	XEmacPss_BdRing *r;
 	int num_bufs;
 	int assigned_bufs;
 	int i;
 	u32 *addr;
+
 	if ((EmacPssInstancePtr == NULL) || (rx_buf_start == NULL)) {
 		return (-1);
-	} else {
-		assigned_bufs = 0;
-
-		if ((num_bufs = rx_buffsize / XEMACPSS_RX_BUF_SIZE) == 0) {
-			return 0;
-		}
-		for (i = 0; i < num_bufs; i++) {
-			if (EmacPssInstancePtr->RxBdRing.RxBD_end <
-			    EmacPssInstancePtr->RxBdRing.Length) {
-				memset((char *)(rx_buf_start +
-						(i * XEMACPSS_RX_BUF_SIZE)), 0,
-				       XEMACPSS_RX_BUF_SIZE);
-
-				addr =
-				    (u32 *) & EmacPssInstancePtr->RxBdRing.
-				    RxBD_start[EmacPssInstancePtr->RxBdRing.
-					       RxBD_end];
-
-				XEmacPss_BdSetAddressRx(addr,
-							(u32) (((char *)
-								rx_buf_start) +
-							       (i *
-								XEMACPSS_RX_BUF_SIZE)));
-
-				EmacPssInstancePtr->RxBdRing.RxBD_end++;
-				assigned_bufs++;
-			} else {
-				return assigned_bufs;
-			}
-		}
-		addr =
-		    (u32 *) & EmacPssInstancePtr->RxBdRing.
-		    RxBD_start[EmacPssInstancePtr->RxBdRing.RxBD_end - 1];
-		XEmacPss_BdSetRxWrap(addr);
-		return assigned_bufs;
 	}
+
+	r = & EmacPssInstancePtr->RxBdRing;
+
+	assigned_bufs = 0;
+
+	if ((num_bufs = rx_buffsize / XEMACPSS_RX_BUF_SIZE) == 0) {
+		return 0;
+	}
+	for (i = 0; i < num_bufs; i++) {
+		if (r->RxBD_end < r->Length) {
+			memset((char *)(rx_buf_start +
+					(i * XEMACPSS_RX_BUF_SIZE)), 0, XEMACPSS_RX_BUF_SIZE);
+
+			addr = (u32 *) & r->RxBD_start[r->RxBD_end];
+
+			XEmacPss_BdSetAddressRx(addr,
+						(u32) (((char *)
+							rx_buf_start) + (i * XEMACPSS_RX_BUF_SIZE)));
+
+			r->RxBD_end++;
+			assigned_bufs++;
+		} else {
+			return assigned_bufs;
+		}
+	}
+	addr = (u32 *) & r->RxBD_start[r->RxBD_end - 1];
+	XEmacPss_BdSetRxWrap(addr);
+
+	return assigned_bufs;
 }
 
 int Xgmac_next_rx_buf(XEmacPss * EmacPssInstancePtr)
 {
+	XEmacPss_BdRing *r;
 	u32 prev_stat = 0;
 	u32 *addr = NULL;
-	if (EmacPssInstancePtr != NULL) {
-		addr =
-		    (u32 *) & EmacPssInstancePtr->RxBdRing.
-		    RxBD_start[EmacPssInstancePtr->RxBdRing.RxBD_current];
-		prev_stat = XEmacPss_BdIsRxSOF(addr);
 
-		if (prev_stat) {
-			EmacPssInstancePtr->RxBdRing.Rx_first_buf =
-			    EmacPssInstancePtr->RxBdRing.RxBD_current;
-		} else {
-			XEmacPss_BdClearRxNew(addr);
-			XIo_Out32((u32) (addr + 1), 0xF0000000);
-		}
-
-		if (XEmacPss_BdIsRxEOF(addr)) {
-			addr =
-			    (u32 *) & EmacPssInstancePtr->RxBdRing.
-			    RxBD_start[EmacPssInstancePtr->RxBdRing.
-				       Rx_first_buf];
-			XEmacPss_BdClearRxNew(addr);
-			XIo_Out32((u32) (addr + 1), 0xF0000000);
-		}
-
-		if ((++EmacPssInstancePtr->RxBdRing.RxBD_current) >
-		    EmacPssInstancePtr->RxBdRing.Length - 1) {
-			EmacPssInstancePtr->RxBdRing.RxBD_current = 0;
-		}
-
-		return 0;
-	} else {
+	if (EmacPssInstancePtr == NULL) {
 		printf
 		    ("\ngem_clr_rx_buf with EmacPssInstancePtr as !!NULL!! \n");
 		return -1;
 	}
+
+	r = & EmacPssInstancePtr->RxBdRing;
+
+	addr = (u32 *) & r->RxBD_start[r->RxBD_current];
+	prev_stat = XEmacPss_BdIsRxSOF(addr);
+
+	if (prev_stat) {
+		r->Rx_first_buf = r->RxBD_current;
+	} else {
+		XEmacPss_BdClearRxNew(addr);
+		XIo_Out32((u32) (addr + 1), 0xF0000000);
+	}
+
+	if (XEmacPss_BdIsRxEOF(addr)) {
+		addr = (u32 *) & r->RxBD_start[r->Rx_first_buf];
+		XEmacPss_BdClearRxNew(addr);
+		XIo_Out32((u32) (addr + 1), 0xF0000000);
+	}
+
+	if ((++r->RxBD_current) > r->Length - 1) {
+		r->RxBD_current = 0;
+	}
+
+	return 0;
 }
