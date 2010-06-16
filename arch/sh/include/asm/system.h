@@ -8,7 +8,7 @@
  * from linux kernel code.
  */
 
-#include <linux/irqflags.h>
+#include <asm/irqflags.h>
 #include <asm/types.h>
 
 /*
