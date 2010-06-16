@@ -1,39 +1,22 @@
+/* $Id $ */
 /******************************************************************************
 *
-*     Author: Xilinx, Inc.
+*       XILINX IS PROVIDING THIS DESIGN, CODE, OR INFORMATION "AS IS"
+*       AS A COURTESY TO YOU, SOLELY FOR USE IN DEVELOPING PROGRAMS AND
+*       SOLUTIONS FOR XILINX DEVICES.  BY PROVIDING THIS DESIGN, CODE,
+*       OR INFORMATION AS ONE POSSIBLE IMPLEMENTATION OF THIS FEATURE,
+*       APPLICATION OR STANDARD, XILINX IS MAKING NO REPRESENTATION
+*       THAT THIS IMPLEMENTATION IS FREE FROM ANY CLAIMS OF INFRINGEMENT,
+*       AND YOU ARE RESPONSIBLE FOR OBTAINING ANY RIGHTS YOU MAY REQUIRE
+*       FOR YOUR IMPLEMENTATION.  XILINX EXPRESSLY DISCLAIMS ANY
+*       WARRANTY WHATSOEVER WITH RESPECT TO THE ADEQUACY OF THE
+*       IMPLEMENTATION, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OR
+*       REPRESENTATIONS THAT THIS IMPLEMENTATION IS FREE FROM CLAIMS OF
+*       INFRINGEMENT, IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+*       FOR A PARTICULAR PURPOSE.
 *
-*
-*     This program is free software; you can redistribute it and/or modify it
-*     under the terms of the GNU General Public License as published by the
-*     Free Software Foundation; either version 2 of the License, or (at your
-*     option) any later version.
-*
-*
-*     XILINX IS PROVIDING THIS DESIGN, CODE, OR INFORMATION "AS IS" AS A
-*     COURTESY TO YOU. BY PROVIDING THIS DESIGN, CODE, OR INFORMATION AS
-*     ONE POSSIBLE IMPLEMENTATION OF THIS FEATURE, APPLICATION OR STANDARD,
-*     XILINX IS MAKING NO REPRESENTATION THAT THIS IMPLEMENTATION IS FREE
-*     FROM ANY CLAIMS OF INFRINGEMENT, AND YOU ARE RESPONSIBLE FOR OBTAINING
-*     ANY THIRD PARTY RIGHTS YOU MAY REQUIRE FOR YOUR IMPLEMENTATION.
-*     XILINX EXPRESSLY DISCLAIMS ANY WARRANTY WHATSOEVER WITH RESPECT TO
-*     THE ADEQUACY OF THE IMPLEMENTATION, INCLUDING BUT NOT LIMITED TO ANY
-*     WARRANTIES OR REPRESENTATIONS THAT THIS IMPLEMENTATION IS FREE FROM
-*     CLAIMS OF INFRINGEMENT, IMPLIED WARRANTIES OF MERCHANTABILITY AND
-*     FITNESS FOR A PARTICULAR PURPOSE.
-*
-*
-*     Xilinx hardware products are not intended for use in life support
-*     appliances, devices, or systems. Use in such applications is
-*     expressly prohibited.
-*
-*
-*     (c) Copyright 2002-2004 Xilinx Inc.
-*     All rights reserved.
-*
-     *
-*     You should have received a copy of the GNU General Public License along
-*     with this program; if not, write to the Free Software Foundation, Inc.,
-*     675 Mass Ave, Cambridge, MA 02139, USA.
+*       (c) Copyright 2002-2003 Xilinx Inc.
+*       All rights reserved.
 *
 ******************************************************************************/
 /*****************************************************************************/
@@ -49,6 +32,7 @@
 * Ver   Who    Date   Changes
 * ----- ---- -------- -------------------------------------------------------
 * 1.00a rpm  11/07/03 Added XNullHandler function as a stub interrupt handler
+* 1.00a xd   11/03/04 Improved support for doxygen.
 * </pre>
 *
 ******************************************************************************/
@@ -77,7 +61,7 @@ unsigned int XAssertStatus;
  * such that it does not wait infinitely. Use the debugger to disable the
  * waiting during testing of asserts.
  */
-u32 XWaitInAssert = TRUE;
+int XWaitInAssert = TRUE;
 
 /* The callback function to be invoked when an assert is taken */
 static XAssertCallback XAssertCallbackRoutine = (XAssertCallback) NULL;
@@ -94,17 +78,12 @@ static XAssertCallback XAssertCallbackRoutine = (XAssertCallback) NULL;
 * @param    File is the name of the filename of the source
 * @param    Line is the linenumber within File
 *
-* @return
+* @return   None.
 *
-* None.
-*
-* @note
-*
-* None.
+* @note     None.
 *
 ******************************************************************************/
-void
-XAssert(char *File, int Line)
+void XAssert(char *File, int Line)
 {
 	/* if the callback has been set then invoke it */
 	if (XAssertCallbackRoutine != NULL) {
@@ -126,20 +105,16 @@ XAssert(char *File, int Line)
 *
 * @param    Routine is the callback to be invoked when an assert is taken
 *
-* @return
+* @return   None.
 *
-* None.
-*
-* @note
-*
-* This function has no effect if NDEBUG is set
+* @note     This function has no effect if NDEBUG is set
 *
 ******************************************************************************/
-void
-XAssertSetCallback(XAssertCallback Routine)
+void XAssertSetCallback(XAssertCallback Routine)
 {
 	XAssertCallbackRoutine = Routine;
 }
+
 
 /*****************************************************************************/
 /**
@@ -150,16 +125,11 @@ XAssertSetCallback(XAssertCallback Routine)
 *
 * @param    NullParameter is an arbitrary void pointer and not used.
 *
-* @return
+* @return   None.
 *
-* None.
-*
-* @note
-*
-* None.
+* @note     None.
 *
 ******************************************************************************/
-void
-XNullHandler(void *NullParameter)
+void XNullHandler(void *NullParameter)
 {
 }

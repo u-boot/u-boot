@@ -22,10 +22,19 @@
 #
 
 include $(TOPDIR)/config.mk
+ifneq ($(OBJTREE),$(SRCTREE))
+$(shell mkdir -p $(obj)../common)
+endif
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS	:= board.o flash.o pl353_x8.o xemacpss_g.o xbasic_types.o xemacpss_control.o xemacpss_sinit.o xemacpss_bdring.o xemacpss.o xgmac.o
+COBJS	:= board.o \
+	   flash.o \
+	   pl353_x8.o \
+	   xemacpss_g.o xemacpss_control.o xemacpss_sinit.o \
+	   xemacpss_bdring.o xemacpss.o xgmac.o \
+	   ../common/xbasic_types.o
+
 SOBJS	:= # lowlevel_init.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
