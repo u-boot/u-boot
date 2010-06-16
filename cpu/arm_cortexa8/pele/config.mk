@@ -24,6 +24,8 @@ PLATFORM_RELFLAGS += -fno-strict-aliasing  -fno-common -ffixed-r8 \
 	-msoft-float
 
 PLATFORM_CPPFLAGS += -march=armv7-a
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/xilinx/common
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/$(BOARDDIR)
 
 # =========================================================================
 #

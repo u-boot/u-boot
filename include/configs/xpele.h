@@ -119,8 +119,9 @@
 #define CONFIG_TTC0	1
 #define CONFIG_GEM0	1
 
-/* Guessing here...no idea what the "multiplier" is supposed to be */
-#define CONFIG_SYS_HZ	50
+/* XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ */
+#define CONFIG_SYS_HZ	12500000 
+
 /* And here... */
 #define CONFIG_SYS_LOAD_ADDR	0 /* default? */
 /* Semi-educated guess based on p.48 of DF Arch spec */

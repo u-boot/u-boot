@@ -44,17 +44,10 @@
 #include <asm/proc-armv/ptrace.h>
 #include <div64.h>
 
-static ulong timer_load_val;
+#include "xparameters.h"
+#include "xscutimer_hw.h"
 
-#define PRESCALER	167
-
-/* read the 16 bit timer */
-static inline ulong read_timer(void)
-{	
-#ifdef NOTNOW_BHILL
-	return xdfttc_readl(COUNT_VALUE);
-#endif
-}
+#define TIMER_LOAD_VAL 0xFFFFFFFF
 
 /* Internal tick units */
 /* Last decremneter snapshot */
@@ -62,22 +55,47 @@ static unsigned long lastdec;
 /* Monotonic incrementing timer */
 static unsigned long long timestamp;
 
-int timer_init()
+static void XScuTimer_WriteReg (u32 Reg, u32 Data)
 {
-	reset_timer_masked();
+	*(volatile u32 *) (XPAR_SCUTIMER_BASEADDR + Reg) = Data;
 }
 
-#ifdef NOTNOW_BHILL
-
-int interrupt_init(void)
+static u32 XScuTimer_ReadReg (u32 Reg)
 {
-	/* complete garbage. */
-	timer_load_val = 0x800000;
-	lastdec = 0x100;
+	return *(u32 *) (XPAR_SCUTIMER_BASEADDR + Reg);
+}
+
+#define XScuTimer_GetCounterValue()                          \
+        XScuTimer_ReadReg(XSCUTIMER_COUNTER_OFFSET)
+
+
+int timer_init()
+{
+	u32 val;
+
+	/*
+	 * Load the timer counter register.
+	 */
+	XScuTimer_WriteReg(XSCUTIMER_LOAD_OFFSET, 0xFFFFFFFF);
+
+	/*
+	 * Start the A9Timer device.
+	 */
+	val = XScuTimer_ReadReg(XSCUTIMER_CONTROL_OFFSET);
+	/* Enable Auto reload mode.  */
+	val |= XSCUTIMER_CONTROL_AUTO_RELOAD_MASK;
+	/* Clear prescaler control bits */
+	val &= ~XSCUTIMER_CONTROL_PRESCALER_MASK;
+	/* Set prescaler value */
+	val |= (0xFF << XSCUTIMER_CONTROL_PRESCALER_SHIFT);
+	/* Enable the decrementer */
+	val |= XSCUTIMER_CONTROL_ENABLE_MASK;
+	XScuTimer_WriteReg(XSCUTIMER_CONTROL_OFFSET, val);
+	
+	reset_timer_masked();
 
 	return 0;
 }
-#endif
 
 /*
  * timer without interrupts
@@ -89,14 +107,16 @@ int interrupt_init(void)
  */
 unsigned long long get_ticks(void)
 {
-	ulong now = read_timer();
+	ulong now;
+
+	now = XScuTimer_GetCounterValue();
 
 	if (lastdec >= now) {
 		/* normal mode */
 		timestamp += lastdec - now;
 	} else {
 		/* we have an overflow ... */
-		timestamp += lastdec + timer_load_val - now;
+		timestamp += lastdec + TIMER_LOAD_VAL - now;
 	}
 	lastdec = now;
 
@@ -110,13 +130,13 @@ unsigned long long get_ticks(void)
 ulong get_tbclk(void)
 {
 	/* We overrun in 100s */
-	return (ulong)(timer_load_val / 100);
+	return (ulong)(TIMER_LOAD_VAL / 100);
 }
 
 void reset_timer_masked(void)
 {
 	/* reset time */
-	lastdec = read_timer();
+	lastdec = XScuTimer_GetCounterValue();
 	timestamp = 0;
 }
 
@@ -128,7 +148,7 @@ void reset_timer(void)
 ulong get_timer_masked(void)
 {
 	unsigned long long res = get_ticks();
-	do_div (res, (timer_load_val / (100 * CONFIG_SYS_HZ)));
+	do_div (res, (CONFIG_SYS_HZ / 1000000) );
 	return res;
 }
 
@@ -139,7 +159,7 @@ ulong get_timer(ulong base)
 
 void set_timer(ulong t)
 {
-	timestamp = t * (timer_load_val / (100 * CONFIG_SYS_HZ));
+	timestamp = t * (TIMER_LOAD_VAL / (100 * CONFIG_SYS_HZ));
 }
 
 void udelay(unsigned long usec)
