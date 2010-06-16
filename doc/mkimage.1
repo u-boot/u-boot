@@ -1,0 +1,118 @@
+.TH MKIMAGE 1 "2010-05-16"
+
+.SH NAME
+mkimage \- Generate image for U-Boot
+.SH SYNOPSIS
+.B mkimage
+.RB [\fIoptions\fP]
+.SH "DESCRIPTION"
+The
+.B mkimage
+command is used to create images for use with the U-Boot boot loader.
+Thes eimages can contain the linux kernel, device tree blob, root file
+system image, firmware images etc., either separate or combined.
+
+.B mkimage
+supports two different formats:
+
+The old,
+.I legacy image
+format concatenates the individual parts (for example, kernel image,
+device tree blob and ramdisk image) and adds a 64 bytes header
+containing information about target architecture, operating system,
+image type, compression method, entry points, time stamp, checksums,
+etc.
+
+The new,
+.I FIT (Flattened Image Tree) format
+allows for more flexibility in handling images of various and also
+enhances integrity protection of images with stronger checksums.
+
+.SH "OPTIONS"
+
+.B List image information:
+
+.TP
+.BI "\-l [" "uimage file name" "]"
+mkimage lists the information contained in the header of an existing U-Boot image.
+
+.P
+.B Create old legacy image:
+
+.TP
+.BI "\-A [" "architecture" "]"
+Set architecture. Pass -h as the architecture to see the list of supported architectures.
+
+.TP
+.BI "\-O [" "os" "]"
+Set operating system. bootm command of u-boot changes boot method by os type.
+Pass -h as the OS to see the list of supported OS.
+
+.TP
+.BI "\-T [" "image type" "]"
+Set image type.
+Pass -h as the image to see the list of supported image type.
+
+.TP
+.BI "\-C [" "compression type" "]"
+Set compression type.
+Pass -h as the compression to see the list of supported compression type.
+
+.TP
+.BI "\-a [" "load addess" "]"
+Set load address with a hex number.
+
+.TP
+.BI "\-e [" "entry point" "]"
+Set entry point with a hex number.
+
+.TP
+.BI "\-n [" "image name" "]"
+Set image name to 'image name'.
+
+.TP
+.BI "\-d [" "image data file" "]"
+Use image data from 'image data file'.
+
+.TP
+.BI "\-x"
+Set XIP (execute in place) flag.
+
+.P
+.B Create FIT image:
+
+.TP
+.BI "\-D "dtc option"
+Provide special options to the device tree compiler that is used to
+create the image.
+
+.TP
+.BI "\-f "fit-image.its"
+Image tree source fine that descbres the structure and contents of the
+FIT image.
+
+.SH EXMAPLES
+
+List image information:
+.nf
+.B mkimage -l uImage
+.fi
+.P
+Create legacy image with compressed PowerPC Linux kernel:
+.nf
+.B mkimage -A powerpc -O linux -T kernel -C gzip \\\\
+.br
+.B -a 0 -e 0 -n Linux -d vmlinux.gz uImage
+.fi
+.P
+Create FIT image with compressed PowerPC Linux kernel:
+.nf
+.B mkimage -f kernel.its kernel.itb
+.fi
+
+.SH HOMEPAGE
+http://www.denx.de/wiki/U-Boot/WebHome
+.PP
+.SH AUTHOR
+This manual page was written by Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+and Wolfgang Denk <wd@denx.de>
