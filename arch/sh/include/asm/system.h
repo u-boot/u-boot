@@ -272,4 +272,14 @@ void enable_hlt(void);
 
 #define arch_align_stack(x) (x)
 
+static inline void trigger_address_error(void)
+{
+	__asm__ __volatile__ (
+		"ldc %0, sr\n\t"
+		"mov.l @%1, %0"
+		:
+		: "r" (0x10000000), "r" (0x80000001)
+	);
+}
+
 #endif
