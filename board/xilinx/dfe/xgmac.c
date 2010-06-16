@@ -355,35 +355,6 @@ int eth_rx(void)
 	return 1;
 }
 
-/* HACK BHILL FIXME */
-static void print_packet(char *p)
-{
-    int i;
-
-    printf("Packet:\n");
-    for (i=0; i < 6; i++) {
-        printf("0x%02x:", *p);
-        p++;
-    }
-    printf(" ");
-    for (i=0; i < 6; i++) {
-        printf("0x%02x:", *p);
-        p++;
-    }
-    printf(" ");
-    for (i=0; i < 2; i++) {
-        printf("0x%02x:", *p);
-        p++;
-    }
-    printf(" ");
-    for (i=0; i < 4; i++) {
-        printf("0x%02x:", *p);
-        p++;
-    }
-
-    printf("\n\n");
-}
-
 /*=============================================================================
  *
  * Xgmac_process_rx- process the next incoming packet
@@ -393,40 +364,41 @@ static void print_packet(char *p)
 int Xgmac_process_rx(XEmacPss * EmacPssInstancePtr)
 {
 	uchar *buffer = data_buffer;
-	u32 rx_status, mem_addr;
+	u32 rx_status, hwbuf;
 	int frame_len;
-	u32 *addr =
-	    (u32 *) & EmacPssInstancePtr->RxBdRing.
+	u32 *bd_addr;
+
+    bd_addr = (u32 *) & EmacPssInstancePtr->RxBdRing.
 	    RxBD_start[EmacPssInstancePtr->RxBdRing.RxBD_current];
 
-	rx_status = XEmacPss_BdRead((addr), XEMACPSS_BD_ADDR_OFFSET);
+	rx_status = XEmacPss_BdRead((bd_addr), XEMACPSS_BD_ADDR_OFFSET);
 	if (! (rx_status & XEMACPSS_RXBUF_NEW_MASK)) {
 		return (-1);
 	}
 
-	rx_status = XEmacPss_BdIsRxSOF(addr);
+	rx_status = XEmacPss_BdIsRxSOF(bd_addr);
 	if (!rx_status) {
 		printf("GEM: SOF not set for last buffer received!\n");
 		return (-1);
 	}
-	rx_status = XEmacPss_BdIsRxEOF(addr);
+	rx_status = XEmacPss_BdIsRxEOF(bd_addr);
 	if (!rx_status) {
 		printf("GEM: EOF not set for last buffer received!\n");
 		return (-1);
 	}
 
-	frame_len = XEmacPss_BdGetLength(addr);
+	frame_len = XEmacPss_BdGetLength(bd_addr);
 	if (frame_len == 0) {
-		printf("Hardware reported 0 length frame!\n");
+		printf("GEM: Hardware reported 0 length frame!\n");
 		return (-1);
 	}
 
-	mem_addr = (u32) (*addr & XEMACPSS_RXBUF_ADD_MASK);
-	if (mem_addr == (u32) NULL) {
-		printf("Error swapping out buffer!\n");
+	hwbuf = (u32) (*bd_addr & XEMACPSS_RXBUF_ADD_MASK);
+	if (hwbuf == (u32) NULL) {
+		printf("GEM: Error swapping out buffer!\n");
 		return (-1);
 	}
-	memcpy(buffer, (void *)mem_addr, frame_len);
+	memcpy(buffer, (void *)hwbuf, frame_len);
 	Xgmac_next_rx_buf(EmacPssInstancePtr);
 	NetReceive(buffer, frame_len);
 
@@ -468,7 +440,7 @@ int Xgmac_make_rxbuff_mem(XEmacPss * EmacPssInstancePtr, void *rx_buf_start,
 	int num_bufs;
 	int assigned_bufs;
 	int i;
-	u32 *addr;
+	u32 *bd_addr;
 
 	if ((EmacPssInstancePtr == NULL) || (rx_buf_start == NULL)) {
 		return (-1);
@@ -486,9 +458,9 @@ int Xgmac_make_rxbuff_mem(XEmacPss * EmacPssInstancePtr, void *rx_buf_start,
 			memset((char *)(rx_buf_start +
 					(i * XEMACPSS_RX_BUF_SIZE)), 0, XEMACPSS_RX_BUF_SIZE);
 
-			addr = (u32 *) & r->RxBD_start[r->RxBD_end];
+			bd_addr = (u32 *) & r->RxBD_start[r->RxBD_end];
 
-			XEmacPss_BdSetAddressRx(addr,
+			XEmacPss_BdSetAddressRx(bd_addr,
 						(u32) (((char *)
 							rx_buf_start) + (i * XEMACPSS_RX_BUF_SIZE)));
 
@@ -498,8 +470,8 @@ int Xgmac_make_rxbuff_mem(XEmacPss * EmacPssInstancePtr, void *rx_buf_start,
 			return assigned_bufs;
 		}
 	}
-	addr = (u32 *) & r->RxBD_start[r->RxBD_end - 1];
-	XEmacPss_BdSetRxWrap(addr);
+	bd_addr = (u32 *) & r->RxBD_start[r->RxBD_end - 1];
+	XEmacPss_BdSetRxWrap(bd_addr);
 
 	return assigned_bufs;
 }
@@ -508,7 +480,7 @@ int Xgmac_next_rx_buf(XEmacPss * EmacPssInstancePtr)
 {
 	XEmacPss_BdRing *r;
 	u32 prev_stat = 0;
-	u32 *addr = NULL;
+	u32 *bd_addr = NULL;
 
 	if (EmacPssInstancePtr == NULL) {
 		printf
@@ -518,20 +490,19 @@ int Xgmac_next_rx_buf(XEmacPss * EmacPssInstancePtr)
 
 	r = & EmacPssInstancePtr->RxBdRing;
 
-	addr = (u32 *) & r->RxBD_start[r->RxBD_current];
-	prev_stat = XEmacPss_BdIsRxSOF(addr);
-
+	bd_addr = (u32 *) & r->RxBD_start[r->RxBD_current];
+	prev_stat = XEmacPss_BdIsRxSOF(bd_addr);
 	if (prev_stat) {
 		r->Rx_first_buf = r->RxBD_current;
 	} else {
-		XEmacPss_BdClearRxNew(addr);
-		XIo_Out32((u32) (addr + 1), 0xF0000000);
+		XEmacPss_BdClearRxNew(bd_addr);
+		XIo_Out32((u32) (bd_addr + 1), 0xF0000000);
 	}
 
-	if (XEmacPss_BdIsRxEOF(addr)) {
-		addr = (u32 *) & r->RxBD_start[r->Rx_first_buf];
-		XEmacPss_BdClearRxNew(addr);
-		XIo_Out32((u32) (addr + 1), 0xF0000000);
+	if (XEmacPss_BdIsRxEOF(bd_addr)) {
+		bd_addr = (u32 *) & r->RxBD_start[r->Rx_first_buf];
+		XEmacPss_BdClearRxNew(bd_addr);
+		XIo_Out32((u32) (bd_addr + 1), 0xF0000000);
 	}
 
 	if ((++r->RxBD_current) > r->Length - 1) {
