@@ -47,6 +47,7 @@ enum law_size {
 };
 
 #define law_size_bits(sz)	(__ilog2_u64(sz) - 1)
+#define lawar_size(x)	(1ULL << ((x & 0x3f) + 1))
 
 #ifdef CONFIG_FSL_CORENET
 enum law_trgt_if {

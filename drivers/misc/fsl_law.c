@@ -50,33 +50,61 @@ DECLARE_GLOBAL_DATA_PTR;
 #endif
 
 #ifdef CONFIG_FSL_CORENET
+#define LAW_BASE (CONFIG_SYS_FSL_CORENET_CCM_ADDR)
+#define LAWAR_ADDR(x) (&((ccsr_local_t *)LAW_BASE)->law[x].lawar)
+#define LAWBARH_ADDR(x) (&((ccsr_local_t *)LAW_BASE)->law[x].lawbarh)
+#define LAWBARL_ADDR(x) (&((ccsr_local_t *)LAW_BASE)->law[x].lawbarl)
+#define LAWBAR_SHIFT 0
+#else
+#define LAW_BASE (CONFIG_SYS_IMMR + 0xc08)
+#define LAWAR_ADDR(x) ((u32 *)LAW_BASE + 8 * x + 2)
+#define LAWBAR_ADDR(x) ((u32 *)LAW_BASE + 8 * x)
+#define LAWBAR_SHIFT 12
+#endif
+
+
+static inline phys_addr_t get_law_base_addr(int idx)
+{
+#ifdef CONFIG_FSL_CORENET
+	return (phys_addr_t)
+		((u64)in_be32(LAWBARH_ADDR(idx)) << 32) |
+		in_be32(LAWBARL_ADDR(idx));
+#else
+	return (phys_addr_t)in_be32(LAWBAR_ADDR(idx)) << LAWBAR_SHIFT;
+#endif
+}
+
+static inline void set_law_base_addr(int idx, phys_addr_t addr)
+{
+#ifdef CONFIG_FSL_CORENET
+	out_be32(LAWBARL_ADDR(idx), addr & 0xffffffff);
+	out_be32(LAWBARH_ADDR(idx), (u64)addr >> 32);
+#else
+	out_be32(LAWBAR_ADDR(idx), addr >> LAWBAR_SHIFT);
+#endif
+}
+
 void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
 {
-	volatile ccsr_local_t *ccm = (void *)(CONFIG_SYS_FSL_CORENET_CCM_ADDR);
-
 	gd->used_laws |= (1 << idx);
 
-	out_be32(&ccm->law[idx].lawar, 0);
-	out_be32(&ccm->law[idx].lawbarh, ((u64)addr >> 32));
-	out_be32(&ccm->law[idx].lawbarl, addr & 0xffffffff);
-	out_be32(&ccm->law[idx].lawar, LAW_EN | ((u32)id << 20) | (u32)sz);
+	out_be32(LAWAR_ADDR(idx), 0);
+	set_law_base_addr(idx, addr);
+	out_be32(LAWAR_ADDR(idx), LAW_EN | ((u32)id << 20) | (u32)sz);
 
 	/* Read back so that we sync the writes */
-	in_be32(&ccm->law[idx].lawar);
+	in_be32(LAWAR_ADDR(idx));
 }
 
 void disable_law(u8 idx)
 {
-	volatile ccsr_local_t *ccm = (void *)(CONFIG_SYS_FSL_CORENET_CCM_ADDR);
-
 	gd->used_laws &= ~(1 << idx);
 
-	out_be32(&ccm->law[idx].lawar, 0);
-	out_be32(&ccm->law[idx].lawbarh, 0);
-	out_be32(&ccm->law[idx].lawbarl, 0);
+	out_be32(LAWAR_ADDR(idx), 0);
+	set_law_base_addr(idx, 0);
 
 	/* Read back so that we sync the writes */
-	in_be32(&ccm->law[idx].lawar);
+	in_be32(LAWAR_ADDR(idx));
 
 	return;
 }
@@ -84,76 +112,19 @@ void disable_law(u8 idx)
 #ifndef CONFIG_NAND_SPL
 static int get_law_entry(u8 i, struct law_entry *e)
 {
-	volatile ccsr_local_t *ccm = (void *)(CONFIG_SYS_FSL_CORENET_CCM_ADDR);
 	u32 lawar;
 
-	lawar = in_be32(&ccm->law[i].lawar);
+	lawar = in_be32(LAWAR_ADDR(i));
 
 	if (!(lawar & LAW_EN))
 		return 0;
 
-	e->addr = ((u64)in_be32(&ccm->law[i].lawbarh) << 32) |
-			in_be32(&ccm->law[i].lawbarl);
+	e->addr = get_law_base_addr(i);
 	e->size = lawar & 0x3f;
 	e->trgt_id = (lawar >> 20) & 0xff;
 
 	return 1;
 }
-#endif
-#else
-void set_law(u8 idx, phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
-{
-	volatile u32 *base = (volatile u32 *)(CONFIG_SYS_IMMR + 0xc08);
-	volatile u32 *lawbar = base + 8 * idx;
-	volatile u32 *lawar = base + 8 * idx + 2;
-
-	gd->used_laws |= (1 << idx);
-
-	out_be32(lawar, 0);
-	out_be32(lawbar, addr >> 12);
-	out_be32(lawar, LAW_EN | ((u32)id << 20) | (u32)sz);
-
-	/* Read back so that we sync the writes */
-	in_be32(lawar);
-}
-
-void disable_law(u8 idx)
-{
-	volatile u32 *base = (volatile u32 *)(CONFIG_SYS_IMMR + 0xc08);
-	volatile u32 *lawbar = base + 8 * idx;
-	volatile u32 *lawar = base + 8 * idx + 2;
-
-	gd->used_laws &= ~(1 << idx);
-
-	out_be32(lawar, 0);
-	out_be32(lawbar, 0);
-
-	/* Read back so that we sync the writes */
-	in_be32(lawar);
-
-	return;
-}
-
-#ifndef CONFIG_NAND_SPL
-static int get_law_entry(u8 i, struct law_entry *e)
-{
-	volatile u32 *base = (volatile u32 *)(CONFIG_SYS_IMMR + 0xc08);
-	volatile u32 *lawbar = base + 8 * i;
-	volatile u32 *lawar = base + 8 * i + 2;
-	u32 temp;
-
-	temp = in_be32(lawar);
-
-	if (!(temp & LAW_EN))
-		return 0;
-
-	e->addr = (u64)in_be32(lawbar) << 12;
-	e->size = temp & 0x3f;
-	e->trgt_id = (temp >> 20) & 0xff;
-
-	return 1;
-}
-#endif
 #endif
 
 int set_next_law(phys_addr_t addr, enum law_size sz, enum law_trgt_if id)
@@ -216,17 +187,17 @@ struct law_entry find_law(phys_addr_t addr)
 
 void print_laws(void)
 {
-	volatile u32 *base = (volatile u32 *)(CONFIG_SYS_IMMR + 0xc08);
-	volatile u32 *lawbar = base;
-	volatile u32 *lawar = base + 2;
 	int i;
+	u32 lawar;
 
 	printf("\nLocal Access Window Configuration\n");
-	for(i = 0; i < FSL_HW_NUM_LAWS; i++) {
-		printf("\tLAWBAR%d : 0x%08x, LAWAR%d : 0x%08x\n",
-		       i, in_be32(lawbar), i, in_be32(lawar));
-		lawbar += 8;
-		lawar += 8;
+	for (i = 0; i < FSL_HW_NUM_LAWS; i++) {
+		lawar = in_be32(LAWAR_ADDR(i));
+		printf("LAWBAR%02d: 0x%08x", i, in_be32(LAWBAR_ADDR(i)));
+		printf(" LAWAR0x%02d: 0x%08x\n", i, lawar);
+		printf("\t(EN: %d TGT: 0x%02x SIZE: ",
+		       (lawar & LAW_EN) ? 1 : 0, (lawar >> 20) & 0xff);
+		print_size(lawar_size(lawar), ")\n");
 	}
 
 	return;
