@@ -126,7 +126,7 @@ mmc_block_read(uchar * dst, ulong src, ulong len)
 	MMC_I_MASK = ~MMC_I_MASK_RXFIFO_RD_REQ;
 	while (len) {
 		if (MMC_I_REG & MMC_I_REG_RXFIFO_RD_REQ) {
-#ifdef CONFIG_PXA27X
+#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 			int i;
 			for (i = min(len, 32); i; i--) {
 				*dst++ = *((volatile uchar *)&MMC_RXFIFO);
@@ -558,8 +558,11 @@ mmc_legacy_init(int verbose)
 	set_GPIO_mode(GPIO6_MMCCLK_MD);
 	set_GPIO_mode(GPIO8_MMCCS0_MD);
 #endif
+#ifdef CONFIG_CPU_MONAHANS	/* pxa3xx */
+	CKENA |= CKENA_12_MMC0 | CKENA_13_MMC1;
+#else	/* pxa2xx */
 	CKEN |= CKEN12_MMC;	/* enable MMC unit clock */
-
+#endif
 	MMC_CLKRT = MMC_CLKRT_0_3125MHZ;
 	MMC_RESTO = MMC_RES_TO_MAX;
 	MMC_SPI = MMC_SPI_DISABLE;
@@ -584,11 +587,7 @@ mmc_legacy_init(int verbose)
 			debug("Detected SD card\n");
 			break;
 		}
-#ifdef CONFIG_PXA27X
-		udelay(10000);
-#else
 		udelay(200000);
-#endif
 	}
 
 	if (retries <= 0 || !(IF_TYPE_SD == mmc_dev.if_type)) {
@@ -598,11 +597,7 @@ mmc_legacy_init(int verbose)
 
 		retries = 10;
 		while (retries-- && resp && !(resp[0] & 0x80000000)) {
-#ifdef CONFIG_PXA27X
-			udelay(10000);
-#else
 			udelay(200000);
-#endif
 			resp =
 			    mmc_cmd(MMC_CMD_SEND_OP_COND, 0x00ff, 0x8000,
 				    MMC_CMDAT_R3);
@@ -632,7 +627,7 @@ mmc_legacy_init(int verbose)
 	MMC_CLKRT = 0;		/* 20 MHz */
 	resp = mmc_cmd(MMC_CMD_SELECT_CARD, rca, 0, MMC_CMDAT_R1);
 
-#ifdef CONFIG_PXA27X
+#if defined(CONFIG_PXA27X) || defined(CONFIG_CPU_MONAHANS)
 	if (IF_TYPE_SD == mmc_dev.if_type) {
 		resp = mmc_cmd(MMC_CMD_APP_CMD, rca, 0, MMC_CMDAT_R1);
 		resp = mmc_cmd(SD_CMD_APP_SET_BUS_WIDTH, 0, 2, MMC_CMDAT_R1);
