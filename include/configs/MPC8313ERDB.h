@@ -36,6 +36,7 @@
 #define CONFIG_MPC8313ERDB	1
 
 #define CONFIG_PCI
+#define CONFIG_FSL_ELBC 1
 
 #define CONFIG_MISC_INIT_R
 
