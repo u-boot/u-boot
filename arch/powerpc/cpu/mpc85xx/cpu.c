@@ -252,67 +252,6 @@ reset_85xx_watchdog(void)
 #endif	/* CONFIG_WATCHDOG */
 
 /*
- * Configures a UPM. The function requires the respective MxMR to be set
- * before calling this function. "size" is the number or entries, not a sizeof.
- */
-void upmconfig (uint upm, uint * table, uint size)
-{
-	int i, mdr, mad, old_mad = 0;
-	volatile u32 *mxmr;
-	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
-	volatile u8* dummy = NULL;
-	int upmmask;
-
-	switch (upm) {
-	case UPMA:
-		mxmr = &lbc->mamr;
-		upmmask = BR_MS_UPMA;
-		break;
-	case UPMB:
-		mxmr = &lbc->mbmr;
-		upmmask = BR_MS_UPMB;
-		break;
-	case UPMC:
-		mxmr = &lbc->mcmr;
-		upmmask = BR_MS_UPMC;
-		break;
-	default:
-		printf("%s: Bad UPM index %d to configure\n", __FUNCTION__, upm);
-		hang();
-	}
-
-	/* Find the address for the dummy write transaction */
-	for (i = 0; i < 8; i++) {
-		if ((get_lbc_br(i) & (BR_V | BR_MSEL)) == (BR_V | upmmask)) {
-			dummy = (volatile u8 *)(get_lbc_br(i) & BR_BA);
-			break;
-		}
-	}
-
-	if (i == 8) {
-		printf("Error: %s() could not find matching BR\n", __FUNCTION__);
-		hang();
-	}
-
-	for (i = 0; i < size; i++) {
-		/* 1 */
-		out_be32(mxmr,  (in_be32(mxmr) & 0x4fffffc0) | MxMR_OP_WARR | i);
-		/* 2 */
-		out_be32(&lbc->mdr, table[i]);
-		/* 3 */
-		mdr = in_be32(&lbc->mdr);
-		/* 4 */
-		*(volatile u8 *)dummy = 0;
-		/* 5 */
-		do {
-			mad = in_be32(mxmr) & MxMR_MAD_MSK;
-		} while (mad <= old_mad && !(!mad && i == (size-1)));
-		old_mad = mad;
-	}
-	out_be32(mxmr, (in_be32(mxmr) & 0x4fffffc0) | MxMR_OP_NORM);
-}
-
-/*
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()
  */

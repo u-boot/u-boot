@@ -62,6 +62,8 @@
 #define BR_V				0x00000001
 #define BR_V_SHIFT			0
 
+#define BR_UPMx_TO_MSEL(x)		((x + 4) << BR_MSEL_SHIFT)
+
 #define UPMA			0
 #define UPMB			1
 #define UPMC			2
@@ -458,6 +460,7 @@
 
 extern void print_lbc_regs(void);
 extern void init_early_memctl_regs(void);
+extern void upmconfig(uint upm, uint *table, uint size);
 
 #define LBC_BASE_ADDR ((fsl_lbc_t *)CONFIG_SYS_LBC_ADDR)
 #define get_lbc_br(i) (in_be32(&(LBC_BASE_ADDR)->bank[i].br))

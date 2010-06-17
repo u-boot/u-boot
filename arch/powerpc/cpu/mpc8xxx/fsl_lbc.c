@@ -82,3 +82,53 @@ void init_early_memctl_regs(void)
 	set_lbc_br(7, CONFIG_SYS_BR7_PRELIM);
 #endif
 }
+
+/*
+ * Configures a UPM. The function requires the respective MxMR to be set
+ * before calling this function. "size" is the number or entries, not a sizeof.
+ */
+void upmconfig(uint upm, uint *table, uint size)
+{
+	fsl_lbc_t *lbc = LBC_BASE_ADDR;
+	int i, mdr, mad, old_mad = 0;
+	u32 mask = (~MxMR_OP_MSK & ~MxMR_MAD_MSK);
+	u32 msel = BR_UPMx_TO_MSEL(upm);
+	u32 *mxmr = &lbc->mamr + upm;
+	volatile u8 *dummy = NULL;
+
+	if (upm < UPMA || upm > UPMC) {
+		printf("Error: %s() Bad UPM index %d\n", __func__, upm);
+		hang();
+	}
+
+	/*
+	 * Find the address for the dummy write - scan all of the BRs until we
+	 * find one matching the UPM and extract the base address bits from it.
+	 */
+	for (i = 0; i < 8; i++) {
+		if ((get_lbc_br(i) & (BR_V | BR_MSEL)) == (BR_V | msel)) {
+			dummy = (volatile u8 *)(get_lbc_br(i) & BR_BA);
+			break;
+		}
+	}
+
+	if (!dummy) {
+		printf("Error: %s() No matching BR\n", __func__);
+		hang();
+	}
+
+	/* Program UPM using steps outlined by the reference manual */
+	for (i = 0; i < size; i++) {
+		out_be32(mxmr, (in_be32(mxmr) & mask) | MxMR_OP_WARR | i);
+		out_be32(&lbc->mdr, table[i]);
+		mdr = in_be32(&lbc->mdr);
+		*dummy = 0;
+		do {
+			mad = in_be32(mxmr) & MxMR_MAD_MSK;
+		} while (mad <= old_mad && !(!mad && i == (size-1)));
+		old_mad = mad;
+	}
+
+	/* Return to normal operation */
+	out_be32(mxmr, (in_be32(mxmr) & mask) | MxMR_OP_NORM);
+}
