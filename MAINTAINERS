@@ -530,6 +530,10 @@ Unknown / orphaned boards:
 #	Board		CPU						#
 #########################################################################
 
+Albert ARIBAUD <albert.aribaud@free.fr>
+
+	edminiv2	ARM926EJS (Orion5x SoC)
+
 Rowel Atienza <rowel@diwalabs.com>
 
 	armadillo	ARM720T

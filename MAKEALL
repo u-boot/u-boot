@@ -569,6 +569,7 @@ LIST_ARM9="			\
 	edb9312			\
 	edb9315			\
 	edb9315a		\
+	edminiv2		\
 	guruplug		\
 	imx27lite		\
 	lpd7a400		\
