@@ -402,6 +402,7 @@ extern void print_bats(void);
 #define MAS1_TID(x)	((x << 16) & 0x3FFF0000)
 #define MAS1_TS		0x00001000
 #define MAS1_TSIZE(x)	((x << 8) & 0x00000F00)
+#define TSIZE_TO_BYTES(x) ((phys_addr_t)(1UL << ((tsize * 2) + 10)))
 
 #define MAS2_EPN	0xFFFFF000
 #define MAS2_X0		0x00000040
