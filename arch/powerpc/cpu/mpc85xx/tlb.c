@@ -74,6 +74,26 @@ void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
 }
 
 #ifndef CONFIG_NAND_SPL
+void print_tlbcam(void)
+{
+	int i;
+	unsigned int num_cam = mfspr(SPRN_TLB1CFG) & 0xfff;
+
+	/* walk all the entries */
+	printf("TLBCAM entries\n");
+	for (i = 0; i < num_cam; i++) {
+		unsigned long epn;
+		u32 tsize, valid;
+		phys_addr_t rpn;
+
+		read_tlbcam_entry(i, &valid, &tsize, &epn, &rpn);
+		printf("entry %02d: V: %d EPN 0x%08x RPN 0x%08llx size:",
+			i, (valid == 0) ? 0 : 1, (unsigned int)epn,
+			(unsigned long long)rpn);
+		print_size(TSIZE_TO_BYTES(tsize), "\n");
+	}
+}
+
 static inline void use_tlb_cam(u8 idx)
 {
 	int i = idx / 32;

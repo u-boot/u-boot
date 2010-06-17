@@ -486,6 +486,7 @@ extern void init_tlbs(void);
 extern int find_tlb_idx(void *addr, u8 tlbsel);
 extern void init_used_tlb_cams(void);
 extern int find_free_tlbcam(void);
+extern void print_tlbcam(void);
 
 extern unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg);
 
