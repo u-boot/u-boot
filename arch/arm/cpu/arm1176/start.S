@@ -1,5 +1,5 @@
 /*
- *  armboot - Startup Code for S3C6400/ARM1176 CPU-core
+ *  armboot - Startup Code for ARM1176 CPU-core
  *
  * Copyright (c) 2007	Samsung Electronics
  *
@@ -34,9 +34,6 @@
 #include <version.h>
 #ifdef CONFIG_ENABLE_MMU
 #include <asm/proc/domain.h>
-#endif
-#ifdef CONFIG_S3C64XX
-#include <asm/arch/s3c6400.h>
 #endif
 
 #if !defined(CONFIG_ENABLE_MMU) && !defined(CONFIG_SYS_PHY_UBOOT_BASE)
@@ -172,14 +169,10 @@ cpu_init_crit:
 	bic	r0, r0, #0x00000087	@ clear bits 7, 2:0 (B--- -CAM)
 	orr	r0, r0, #0x00000002	@ set bit 2 (A) Align
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
+
 	/* Prepare to disable the MMU */
-	adr	r1, mmu_disable_phys
-	/* We presume we're within the first 1024 bytes */
-	and	r1, r1, #0x3fc
-	ldr	r2, _TEXT_PHY_BASE
-	ldr	r3, =0xfff00000
-	and	r2, r2, r3
-	orr	r2, r2, r1
+	adr	r2, mmu_disable_phys
+	sub	r2, r2, #(CONFIG_SYS_PHY_UBOOT_BASE - TEXT_BASE)
 	b	mmu_disable
 
 	.align 5
@@ -189,14 +182,30 @@ mmu_disable:
 	nop
 	nop
 	mov	pc, r2
+mmu_disable_phys:
+
+#ifdef CONFIG_DISABLE_TCM
+	/*
+	 * Disable the TCMs
+	 */
+	mrc	p15, 0, r0, c0, c0, 2	/* Return TCM details */
+	cmp	r0, #0
+	beq	skip_tcmdisable
+	mov	r1, #0
+	mov	r2, #1
+	tst	r0, r2
+	mcrne	p15, 0, r1, c9, c1, 1	/* Disable Instruction TCM if present*/
+	tst	r0, r2, LSL #16
+	mcrne	p15, 0, r1, c9, c1, 0	/* Disable Data TCM if present*/
+skip_tcmdisable:
+#endif
 #endif
 
-mmu_disable_phys:
-#ifdef CONFIG_S3C64XX
+#ifdef CONFIG_PERIPORT_REMAP
 	/* Peri port setup */
-	ldr	r0, =0x70000000
-	orr	r0, r0, #0x13
-	mcr	p15,0,r0,c15,c2,4       @ 256M (0x70000000 - 0x7fffffff)
+	ldr	r0, =CONFIG_PERIPORT_BASE
+	orr	r0, r0, #CONFIG_PERIPORT_SIZE
+	mcr	p15,0,r0,c15,c2,4
 #endif
 
 	/*
@@ -204,7 +213,25 @@ mmu_disable_phys:
 	 */
 	bl	lowlevel_init		/* go setup pll,mux,memory */
 
-after_copy:
+#ifndef CONFIG_SKIP_RELOCATE_UBOOT
+relocate:				/* relocate U-Boot to RAM	    */
+	adr	r0, _start		/* r0 <- current position of code   */
+	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
+	cmp     r0, r1                  /* don't reloc during debug         */
+	beq     stack_setup
+
+	ldr	r2, _armboot_start
+	ldr	r3, _bss_start
+	sub	r2, r3, r2		/* r2 <- size of armboot            */
+	add	r2, r0, r2		/* r2 <- source end address         */
+
+copy_loop:
+	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
+	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
+	cmp	r0, r2			/* until source end addreee [r2]    */
+	ble	copy_loop
+#endif	/* CONFIG_SKIP_RELOCATE_UBOOT */
+
 #ifdef CONFIG_ENABLE_MMU
 enable_mmu:
 	/* enable domain access */
@@ -240,9 +267,9 @@ mmu_enable:
 	nop
 	nop
 	mov	pc, r2
+skip_hw_init:
 #endif
 
-skip_hw_init:
 	/* Set up the stack						    */
 stack_setup:
 	ldr	r0, =CONFIG_SYS_UBOOT_BASE	/* base of copy in DRAM	    */
@@ -310,6 +337,8 @@ phy_last_jump:
 	mov	r0, #0
 	mov	pc, r9
 #endif
+
+
 /*
  *************************************************************************
  *

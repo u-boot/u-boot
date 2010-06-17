@@ -113,7 +113,8 @@ int spi_claim_bus(struct spi_slave *slave)
 	writel(0, &ds->regs->lvl);
 
 	/* enable SPI */
-	writel((readl(&ds->regs->gcr1) | SPIGCR1_SPIENA_MASK), &ds->regs->gcr1);
+	writel((readl(&ds->regs->gcr1) |
+		SPIGCR1_SPIENA_MASK), &ds->regs->gcr1);
 
 	return 0;
 }
@@ -131,11 +132,9 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 {
 	struct davinci_spi_slave *ds = to_davinci_spi(slave);
 	unsigned int	len, data1_reg_val = readl(&ds->regs->dat1);
-	int		ret, i;
+	unsigned int	i_cnt = 0, o_cnt = 0, buf_reg_val;
 	const u8	*txp = dout; /* dout can be NULL for read operation */
 	u8		*rxp = din;  /* din can be NULL for write operation */
-
-	ret = 0;
 
 	if (bitlen == 0)
 		/* Finish any previously submitted transfers */
@@ -159,41 +158,51 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	readl(&ds->regs->buf);
 
 	/* keep writing and reading 1 byte until done */
-	for (i = 0; i < len; i++) {
-		/* wait till TXFULL is asserted */
-		while (readl(&ds->regs->buf) & SPIBUF_TXFULL_MASK);
+	while ((i_cnt < len) || (o_cnt < len)) {
+		/* read RX buffer and flags */
+		buf_reg_val = readl(&ds->regs->buf);
 
-		/* write the data */
-		data1_reg_val &= ~0xFFFF;
-		if (txp) {
-			data1_reg_val |= *txp;
-			txp++;
+		/* if data is available */
+		if ((i_cnt < len) &&
+			(buf_reg_val & SPIBUF_RXEMPTY_MASK) == 0) {
+			/*
+			 * If there is no read buffer simply
+			 * ignore the read character
+			 */
+			if (rxp)
+				*rxp++ = buf_reg_val & 0xFF;
+			/* increment read words count */
+			i_cnt++;
 		}
 
 		/*
-		 * Write to DAT1 is required to keep the serial transfer going.
-		 * We just terminate when we reach the end.
+		 * if the tx buffer is empty and there
+		 * is still data to transmit
 		 */
-		if ((i == (len - 1)) && (flags & SPI_XFER_END)) {
-			/* clear CS hold */
-			writel(data1_reg_val &
-				~(1 << SPIDAT1_CSHOLD_SHIFT), &ds->regs->dat1);
-		} else {
-			/* enable CS hold */
-			data1_reg_val |= ((1 << SPIDAT1_CSHOLD_SHIFT) |
+		if ((o_cnt < len) &&
+			((buf_reg_val & SPIBUF_TXFULL_MASK) == 0)) {
+			/* write the data */
+			data1_reg_val &= ~0xFFFF;
+			if (txp)
+				data1_reg_val |= *txp++;
+			/*
+			 * Write to DAT1 is required to keep
+			 * the serial transfer going.
+			 * We just terminate when we reach the end.
+			 */
+			if ((o_cnt == (len - 1)) && (flags & SPI_XFER_END)) {
+				/* clear CS hold */
+				writel(data1_reg_val &
+						~(1 << SPIDAT1_CSHOLD_SHIFT),
+						&ds->regs->dat1);
+			} else {
+				/* enable CS hold and write TX register */
+				data1_reg_val |= ((1 << SPIDAT1_CSHOLD_SHIFT) |
 					(slave->cs << SPIDAT1_CSNR_SHIFT));
-			writel(data1_reg_val, &ds->regs->dat1);
-		}
-
-		/* read the data - wait for data availability */
-		while (readl(&ds->regs->buf) & SPIBUF_RXEMPTY_MASK);
-
-		if (rxp) {
-			*rxp = readl(&ds->regs->buf) & 0xFF;
-			rxp++;
-		} else {
-			/* simply drop the read character */
-			readl(&ds->regs->buf);
+				writel(data1_reg_val, &ds->regs->dat1);
+			}
+			/* increment written words count */
+			o_cnt++;
 		}
 	}
 	return 0;

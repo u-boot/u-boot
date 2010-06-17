@@ -79,26 +79,6 @@ static const u32 gpmc_onenand[GPMC_MAX_REG] = {
 
 #endif
 
-static struct sdrc *sdrc_base = (struct sdrc *)OMAP34XX_SDRC_BASE;
-
-/**************************************************************************
- * make_cs1_contiguous() - for es2 and above remap cs1 behind cs0 to allow
- *  command line mem=xyz use all memory with out discontinuous support
- *  compiled in.  Could do it at the ATAG, but there really is two banks...
- * Called as part of 2nd phase DDR init.
- **************************************************************************/
-void make_cs1_contiguous(void)
-{
-	u32 size, a_add_low, a_add_high;
-
-	size = get_sdr_cs_size(CS0);
-	size >>= 25;	/* divide by 32 MiB to find size to offset CS1 */
-	a_add_high = (size & 3) << 8;	/* set up low field */
-	a_add_low = (size & 0x3C) >> 2;	/* set up high field */
-	writel((a_add_high | a_add_low), &sdrc_base->cs_cfg);
-
-}
-
 /********************************************************
  *  mem_ok() - test used to see if timings are correct
  *             for a part. Helps in guessing which part
@@ -121,76 +101,6 @@ u32 mem_ok(u32 cs)
 		return 0;
 	else
 		return 1;
-}
-
-/********************************************************
- *  sdrc_init() - init the sdrc chip selects CS0 and CS1
- *  - early init routines, called from flash or
- *  SRAM.
- *******************************************************/
-void sdrc_init(void)
-{
-	/* only init up first bank here */
-	do_sdrc_init(CS0, EARLY_INIT);
-}
-
-/*************************************************************************
- * do_sdrc_init(): initialize the SDRAM for use.
- *  -code sets up SDRAM basic SDRC timings for CS0
- *  -optimal settings can be placed here, or redone after i2c
- *      inspection of board info
- *
- *  - code called once in C-Stack only context for CS0 and a possible 2nd
- *      time depending on memory configuration from stack+global context
- **************************************************************************/
-
-void do_sdrc_init(u32 cs, u32 early)
-{
-	struct sdrc_actim *sdrc_actim_base;
-
-	if(cs)
-		sdrc_actim_base = (struct sdrc_actim *)SDRC_ACTIM_CTRL1_BASE;
-	else
-		sdrc_actim_base = (struct sdrc_actim *)SDRC_ACTIM_CTRL0_BASE;
-
-	if (early) {
-		/* reset sdrc controller */
-		writel(SOFTRESET, &sdrc_base->sysconfig);
-		wait_on_value(RESETDONE, RESETDONE, &sdrc_base->status,
-			      12000000);
-		writel(0, &sdrc_base->sysconfig);
-
-		/* setup sdrc to ball mux */
-		writel(SDRC_SHARING, &sdrc_base->sharing);
-
-		/* Disable Power Down of CKE cuz of 1 CKE on combo part */
-		writel(WAKEUPPROC | PWDNEN | SRFRONRESET | PAGEPOLICY_HIGH,
-				&sdrc_base->power);
-
-		writel(ENADLL | DLLPHASE_90, &sdrc_base->dlla_ctrl);
-		sdelay(0x20000);
-	}
-
-	writel(RASWIDTH_13BITS | CASWIDTH_10BITS | ADDRMUXLEGACY |
-		RAMSIZE_128 | BANKALLOCATION | B32NOT16 | B32NOT16 |
-		DEEPPD | DDR_SDRAM, &sdrc_base->cs[cs].mcfg);
-	writel(ARCV | ARE_ARCV_1, &sdrc_base->cs[cs].rfr_ctrl);
-	writel(V_ACTIMA_165, &sdrc_actim_base->ctrla);
-	writel(V_ACTIMB_165, &sdrc_actim_base->ctrlb);
-
-	writel(CMD_NOP, &sdrc_base ->cs[cs].manual);
-	writel(CMD_PRECHARGE, &sdrc_base->cs[cs].manual);
-	writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
-	writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
-
-	/*
-	 * CAS latency 3, Write Burst = Read Burst, Serial Mode,
-	 * Burst length = 4
-	 */
-	writel(CASL3 | BURSTLENGTH4, &sdrc_base->cs[cs].mr);
-
-	if (!mem_ok(cs))
-		writel(0, &sdrc_base->cs[cs].mcfg);
 }
 
 void enable_gpmc_cs_config(const u32 *gpmc_config, struct gpmc_cs *cs, u32 base,
