@@ -30,6 +30,9 @@
 #ifdef CONFIG_KIRKWOOD
 #include <asm/arch/kirkwood.h>
 #endif
+#ifdef CONFIG_ORION5X
+#include <asm/arch/orion5x.h>
+#endif
 
 #if defined (CONFIG_SERIAL_MULTI)
 #include <serial.h>
