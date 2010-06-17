@@ -75,7 +75,7 @@ struct fsl_elbc_ctrl {
 	struct fsl_elbc_mtd *chips[MAX_BANKS];
 
 	/* device info */
-	fsl_lbus_t *regs;
+	fsl_lbc_t *regs;
 	u8 __iomem *addr;        /* Address of assigned FCM buffer        */
 	unsigned int page;       /* Last page written to / read from      */
 	unsigned int read_bytes; /* Number of bytes read during command   */
@@ -171,7 +171,7 @@ static void set_addr(struct mtd_info *mtd, int column, int page_addr, int oob)
 	struct nand_chip *chip = mtd->priv;
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
-	fsl_lbus_t *lbc = ctrl->regs;
+	fsl_lbc_t *lbc = ctrl->regs;
 	int buf_num;
 
 	ctrl->page = page_addr;
@@ -211,7 +211,7 @@ static int fsl_elbc_run_command(struct mtd_info *mtd)
 	struct nand_chip *chip = mtd->priv;
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
-	fsl_lbus_t *lbc = ctrl->regs;
+	fsl_lbc_t *lbc = ctrl->regs;
 	long long end_tick;
 	u32 ltesr;
 
@@ -261,7 +261,7 @@ static void fsl_elbc_do_read(struct nand_chip *chip, int oob)
 {
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
-	fsl_lbus_t *lbc = ctrl->regs;
+	fsl_lbc_t *lbc = ctrl->regs;
 
 	if (priv->page_size) {
 		out_be32(&lbc->fir,
@@ -295,7 +295,7 @@ static void fsl_elbc_cmdfunc(struct mtd_info *mtd, unsigned int command,
 	struct nand_chip *chip = mtd->priv;
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
-	fsl_lbus_t *lbc = ctrl->regs;
+	fsl_lbc_t *lbc = ctrl->regs;
 
 	ctrl->use_mdr = 0;
 
@@ -633,7 +633,7 @@ static int fsl_elbc_wait(struct mtd_info *mtd, struct nand_chip *chip)
 {
 	struct fsl_elbc_mtd *priv = chip->priv;
 	struct fsl_elbc_ctrl *ctrl = priv->ctrl;
-	fsl_lbus_t *lbc = ctrl->regs;
+	fsl_lbc_t *lbc = ctrl->regs;
 
 	if (ctrl->status != LTESR_CC)
 		return NAND_STATUS_FAIL;
@@ -697,11 +697,7 @@ static void fsl_elbc_ctrl_init(void)
 	if (!elbc_ctrl)
 		return;
 
-#ifdef CONFIG_MPC85xx
-	elbc_ctrl->regs = (void *)CONFIG_SYS_MPC85xx_LBC_ADDR;
-#else
-	elbc_ctrl->regs = &((immap_t *)CONFIG_SYS_IMMR)->lbus;
-#endif
+	elbc_ctrl->regs = LBC_BASE_ADDR;
 
 	/* clear event registers */
 	out_be32(&elbc_ctrl->regs->ltesr, LTESR_NAND_MASK);

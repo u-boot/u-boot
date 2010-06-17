@@ -257,8 +257,7 @@ void upmconfig (uint upm, uint * table, uint size)
 {
 	int i, mdr, mad, old_mad = 0;
 	volatile u32 *mxmr;
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
-	volatile u32 *brp,*orp;
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	volatile u8* dummy = NULL;
 	int upmmask;
 
@@ -281,12 +280,9 @@ void upmconfig (uint upm, uint * table, uint size)
 	}
 
 	/* Find the address for the dummy write transaction */
-	for (brp = &lbc->br0, orp = &lbc->or0, i = 0; i < 8;
-		 i++, brp += 2, orp += 2) {
-
-		/* Look for a valid BR with selected UPM */
-		if ((in_be32(brp) & (BR_V | BR_MSEL)) == (BR_V | upmmask)) {
-			dummy = (volatile u8*)(in_be32(brp) & BR_BA);
+	for (i = 0; i < 8; i++) {
+		if ((get_lbc_br(i) & (BR_V | BR_MSEL)) == (BR_V | upmmask)) {
+			dummy = (volatile u8 *)(get_lbc_br(i) & BR_BA);
 			break;
 		}
 	}

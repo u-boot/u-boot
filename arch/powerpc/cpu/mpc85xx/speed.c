@@ -172,10 +172,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	/* We will program LCRR to this value later */
 	lcrr_div = CONFIG_SYS_LBC_LCRR & LCRR_CLKDIV;
 #else
-	{
-	    volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
-	    lcrr_div = in_be32(&lbc->lcrr) & LCRR_CLKDIV;
-	}
+	lcrr_div = in_be32(&(LBC_BASE_ADDR)->lcrr) & LCRR_CLKDIV;
 #endif
 	if (lcrr_div == 2 || lcrr_div == 4 || lcrr_div == 8) {
 #if defined(CONFIG_FSL_CORENET)

@@ -157,16 +157,16 @@ int checkcpu(void)
 void upmconfig (uint upm, uint *table, uint size)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile fsl_lbus_t *lbus = &immap->lbus;
+	volatile fsl_lbc_t *lbc = &immap->im_lbc;
 	volatile uchar *dummy = NULL;
 	const u32 msel = (upm + 4) << BR_MSEL_SHIFT;	/* What the MSEL field in BRn should be */
-	volatile u32 *mxmr = &lbus->mamr + upm;	/* Pointer to mamr, mbmr, or mcmr */
+	volatile u32 *mxmr = &lbc->mamr + upm;	/* ptr to mamr, mbmr, or mcmr */
 	uint i;
 
-	/* Scan all the banks to determine the base address of the device */
+	/* Find the address for the dummy write transaction */
 	for (i = 0; i < 8; i++) {
-		if ((lbus->bank[i].br & BR_MSEL) == msel) {
-			dummy = (uchar *) (lbus->bank[i].br & BR_BA);
+		if ((get_lbc_br(i) & BR_MSEL) == msel) {
+			dummy = (uchar *) (get_lbc_br(i) & BR_BA);
 			break;
 		}
 	}
@@ -180,7 +180,7 @@ void upmconfig (uint upm, uint *table, uint size)
 	*mxmr = (*mxmr & 0xCFFFFFC0) | 0x10000000;
 
 	for (i = 0; i < size; i++) {
-		lbus->mdr = table[i];
+		lbc->mdr = table[i];
 		__asm__ __volatile__ ("sync");
 		*dummy = 0;	/* Write the value to memory and increment MAD */
 		__asm__ __volatile__ ("sync");

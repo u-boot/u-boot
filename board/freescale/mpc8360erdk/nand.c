@@ -82,9 +82,9 @@ static struct fsl_upm_nand fun = {
 
 int board_nand_init(struct nand_chip *nand)
 {
-	fun.upm.mxmr = &im->lbus.mamr;
-	fun.upm.mdr = &im->lbus.mdr;
-	fun.upm.mar = &im->lbus.mar;
+	fun.upm.mxmr = &im->im_lbc.mamr;
+	fun.upm.mdr = &im->im_lbc.mdr;
+	fun.upm.mar = &im->im_lbc.mar;
 
 	upm_setup(&fun.upm);
 

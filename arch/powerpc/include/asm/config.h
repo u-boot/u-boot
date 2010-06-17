@@ -85,4 +85,10 @@
 /* Relocation to SDRAM works on all PPC boards */
 #define CONFIG_RELOC_FIXUP_WORKS
 
+/* Since so many PPC SOCs have a semi-common LBC, define this here */
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) || \
+	defined(CONFIG_MPC83xx)
+#define CONFIG_FSL_LBC
+#endif
+
 #endif /* _ASM_CONFIG_H_ */

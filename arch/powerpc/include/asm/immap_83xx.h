@@ -646,7 +646,7 @@ typedef struct immap {
 	u8			res2[0x1300];
 	duart83xx_t		duart[2];	/* DUART */
 	u8			res3[0x900];
-	fsl_lbus_t		lbus;	/* Local Bus Controller Registers */
+	fsl_lbc_t		im_lbc;		/* Local Bus Controller Regs */
 	u8			res4[0x1000];
 	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
@@ -686,7 +686,7 @@ typedef struct immap {
 	u8			res1[0x1300];
 	duart83xx_t		duart[2];	/* DUART */
 	u8			res2[0x900];
-	fsl_lbus_t		lbus;	/* Local Bus Controller Registers */
+	fsl_lbc_t		im_lbc;		/* Local Bus Controller Regs */
 	u8			res3[0x1000];
 	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
@@ -721,7 +721,7 @@ typedef struct immap {
 	u8			res1[0x1300];
 	duart83xx_t		duart[2];	/* DUART */
 	u8			res2[0x900];
-	fsl_lbus_t		lbus;	/* Local Bus Controller Registers */
+	fsl_lbc_t		im_lbc;		/* Local Bus Controller Regs */
 	u8			res3[0x1000];
 	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
@@ -766,7 +766,7 @@ typedef struct immap {
 	u8			res1[0x1300];
 	duart83xx_t		duart[2];	/* DUART */
 	u8			res2[0x900];
-	fsl_lbus_t		lbus;	/* Local Bus Controller Registers */
+	fsl_lbc_t		im_lbc;		/* Local Bus Controller Regs */
 	u8			res3[0x1000];
 	spi8xxx_t		spi;		/* Serial Peripheral Interface */
 	dma83xx_t		dma;		/* DMA */
@@ -816,7 +816,7 @@ typedef struct immap {
 	u8			res4[0x1300];
 	duart83xx_t		duart[2];	/* DUART */
 	u8			res5[0x900];
-	fsl_lbus_t		lbus;	/* Local Bus Controller Registers */
+	fsl_lbc_t		im_lbc;		/* Local Bus Controller Regs */
 	u8			res6[0x2000];
 	dma83xx_t		dma;		/* DMA */
 	pciconf83xx_t		pci_conf[1];	/* PCI Software Configuration Registers */
@@ -855,7 +855,7 @@ typedef struct immap {
 	u8			res3[0x1300];
 	duart83xx_t		duart[2];	/* DUART */
 	u8			res4[0x900];
-	fsl_lbus_t		lbus;	/* Local Bus Controller Registers */
+	fsl_lbc_t		im_lbc;		/* Local Bus Controller Regs */
 	u8			res5[0x2000];
 	dma83xx_t		dma;		/* DMA */
 	pciconf83xx_t		pci_conf[1];	/* PCI Software Configuration Registers */
@@ -879,6 +879,7 @@ typedef struct immap {
 #endif
 #define CONFIG_SYS_MPC83xx_USB_ADDR \
 			(CONFIG_SYS_IMMR + CONFIG_SYS_MPC83xx_USB_OFFSET)
+#define CONFIG_SYS_LBC_ADDR (&((immap_t *)CONFIG_SYS_IMMR)->im_lbc)
 
 #define CONFIG_SYS_TSEC1_OFFSET		0x24000
 #define CONFIG_SYS_MDIO1_OFFSET		0x24000

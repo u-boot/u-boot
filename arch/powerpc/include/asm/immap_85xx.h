@@ -266,50 +266,6 @@ typedef struct ccsr_duart {
 } ccsr_duart_t;
 #endif
 
-/* Local Bus Controller Registers */
-typedef struct ccsr_lbc {
-	u32	br0;		/* LBC Base 0 */
-	u32	or0;		/* LBC Options 0 */
-	u32	br1;		/* LBC Base 1 */
-	u32	or1;		/* LBC Options 1 */
-	u32	br2;		/* LBC Base 2 */
-	u32	or2;		/* LBC Options 2 */
-	u32	br3;		/* LBC Base 3 */
-	u32	or3;		/* LBC Options 3 */
-	u32	br4;		/* LBC Base 4 */
-	u32	or4;		/* LBC Options 4 */
-	u32	br5;		/* LBC Base 5 */
-	u32	or5;		/* LBC Options 5 */
-	u32	br6;		/* LBC Base 6 */
-	u32	or6;		/* LBC Options 6 */
-	u32	br7;		/* LBC Base 7 */
-	u32	or7;		/* LBC Options 7 */
-	u8	res1[40];
-	u32	mar;		/* LBC UPM Addr */
-	u8	res2[4];
-	u32	mamr;		/* LBC UPMA Mode */
-	u32	mbmr;		/* LBC UPMB Mode */
-	u32	mcmr;		/* LBC UPMC Mode */
-	u8	res3[8];
-	u32	mrtpr;		/* LBC Memory Refresh Timer Prescaler */
-	u32	mdr;		/* LBC UPM Data */
-	u8	res4[8];
-	u32	lsdmr;		/* LBC SDRAM Mode */
-	u8	res5[8];
-	u32	lurt;		/* LBC UPM Refresh Timer */
-	u32	lsrt;		/* LBC SDRAM Refresh Timer */
-	u8	res6[8];
-	u32	ltesr;		/* LBC Transfer Error Status */
-	u32	ltedr;		/* LBC Transfer Error Disable */
-	u32	lteir;		/* LBC Transfer Error IRQ */
-	u32	lteatr;		/* LBC Transfer Error Attrs */
-	u32	ltear;		/* LBC Transfer Error Addr */
-	u8	res7[12];
-	u32	lbcr;		/* LBC Configuration */
-	u32	lcrr;		/* LBC Clock Ratio */
-	u8	res8[3880];
-} ccsr_lbc_t;
-
 /* eSPI Registers */
 typedef struct ccsr_espi {
 	u32	mode;		/* eSPI mode */
@@ -2147,7 +2103,7 @@ typedef struct ccsr_sec {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_DDR_OFFSET)
 #define CONFIG_SYS_MPC85xx_DDR2_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_DDR2_OFFSET)
-#define CONFIG_SYS_MPC85xx_LBC_ADDR \
+#define CONFIG_SYS_LBC_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_LBC_OFFSET)
 #define CONFIG_SYS_MPC85xx_ESPI_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_ESPI_OFFSET)
