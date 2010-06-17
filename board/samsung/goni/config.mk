@@ -1,8 +1,6 @@
 #
-# (C) Copyright 2000, 2001, 2002
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
+# Copyright (C) 2010 Samsung Electronics
+# Kyungmin Park <kyungmin.park@samsung.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -23,29 +21,14 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(BOARD).a
-
-COBJS	:= da830evm.o
-
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
-
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
-
-clean:
-	rm -f $(SOBJS) $(OBJS)
-
-distclean:	clean
-	rm -f $(LIB) core *.bak *~ .depend
-
-#########################################################################
-# This is for $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+# On S5PC100 we use the 128 MiB OneDRAM bank at
+#
+# 0x30000000 to 0x35000000 (80MiB)
+# 0x38000000 to 0x40000000 (128MiB)
+#
+# On S5PC110 we use the 128 MiB OneDRAM bank at
+#
+# 0x30000000 to 0x35000000 (80MiB)
+# 0x40000000 to 0x50000000 (256MiB)
+#
+TEXT_BASE = 0x34800000

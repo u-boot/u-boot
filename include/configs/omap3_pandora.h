@@ -32,6 +32,8 @@
 #define CONFIG_OMAP3430		1	/* which is in a 3430 */
 #define CONFIG_OMAP3_PANDORA	1	/* working with pandora */
 
+#define CONFIG_SDRC	/* The chip has SDRC controller */
+
 #include <asm/arch/cpu.h>	/* get chip and board defs */
 #include <asm/arch/omap3.h>
 

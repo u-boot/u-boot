@@ -41,6 +41,7 @@
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
 #include "../common/misc.h"
+#include "common.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -120,21 +121,18 @@ static const struct pinmux_resource pinmuxes[] = {
 #endif
 };
 
+static const struct lpsc_resource lpsc[] = {
+	{ DAVINCI_LPSC_AEMIF },	/* NAND, NOR */
+	{ DAVINCI_LPSC_SPI0 },	/* Serial Flash */
+	{ DAVINCI_LPSC_EMAC },	/* image download */
+	{ DAVINCI_LPSC_UART2 },	/* console */
+	{ DAVINCI_LPSC_GPIO },
+};
+
 int board_init(void)
 {
 #ifndef CONFIG_USE_IRQ
-	/*
-	 * Mask all IRQs by clearing the global enable and setting
-	 * the enable clear for all the 90 interrupts.
-	 */
-
-	writel(0, &davinci_aintc_regs->ger);
-
-	writel(0, &davinci_aintc_regs->hier);
-
-	writel(0xffffffff, &davinci_aintc_regs->ecr1);
-	writel(0xffffffff, &davinci_aintc_regs->ecr2);
-	writel(0xffffffff, &davinci_aintc_regs->ecr3);
+	irq_init();
 #endif
 
 #ifdef CONFIG_NAND_DAVINCI
@@ -165,11 +163,8 @@ int board_init(void)
 	 * assuming here that the DSP bootloader has set the IOPU
 	 * such that PSC access is available to ARM
 	 */
-	lpsc_on(DAVINCI_LPSC_AEMIF);    /* NAND, NOR */
-	lpsc_on(DAVINCI_LPSC_SPI0);     /* Serial Flash */
-	lpsc_on(DAVINCI_LPSC_EMAC);     /* image download */
-	lpsc_on(DAVINCI_LPSC_UART2);    /* console */
-	lpsc_on(DAVINCI_LPSC_GPIO);
+	if (da8xx_configure_lpsc_items(lpsc, ARRAY_SIZE(lpsc)))
+		return 1;
 
 	/* setup the SUSPSRC for ARM to control emulation suspend */
 	writel(readl(&davinci_syscfg_regs->suspsrc) &

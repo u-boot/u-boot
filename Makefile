@@ -1999,6 +1999,10 @@ at91sam9g45ekes_config	:	unconfig
 	fi;
 	@$(MKCONFIG) -n $@ -a at91sam9m10g45ek arm arm926ejs at91sam9m10g45ek atmel at91
 
+pm9g45_config	:	unconfig
+	@mkdir -p $(obj)include
+	@$(MKCONFIG) -a pm9g45 arm arm926ejs pm9g45 ronetix at91
+
 SBC35_A9G20_NANDFLASH_config \
 SBC35_A9G20_EEPROM_config \
 SBC35_A9G20_config	:	unconfig
@@ -2041,18 +2045,6 @@ cp922_config		\
 cp922_XA10_config	\
 cp1026_config: unconfig
 	@board/armltd/integrator/split_by_variant.sh cp $@
-
-da830evm_config			\
-davinci_dvevm_config		\
-davinci_schmoogie_config	\
-davinci_sffsdr_config		\
-davinci_sonata_config		\
-davinci_dm355evm_config		\
-davinci_dm355leopard_config	\
-davinci_dm365evm_config		\
-davinci_dm6467evm_config	:	unconfig
-	@$(MKCONFIG) -n $@ $@ arm arm926ejs \
-		$(subst davinci_,,$(@:_config=)) davinci davinci
 
 nhk8815_config \
 nhk8815_onenand_config:	unconfig
@@ -2221,7 +2213,8 @@ smdk6400_config	:	unconfig
 	else										\
 		echo "RAM_TEXT = 0xc7e00000" >> $(obj)board/samsung/smdk6400/config.tmp;\
 	fi
-	@$(MKCONFIG) $(subst _noUSB,,$(@:_config=)) arm arm1176 smdk6400 samsung s3c64xx
+	@$(MKCONFIG) smdk6400 arm arm1176 smdk6400 samsung s3c64xx
+	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
 #========================================================================
 # MIPS

@@ -215,6 +215,31 @@ struct sdrc {
 	u8 res4[0xC];
 	struct sdrc_cs cs[2];	/* 0x80 || 0xB0 */
 };
+
+/* EMIF4 */
+typedef struct emif4 {
+	unsigned int sdram_sts;
+	unsigned int sdram_config;
+	unsigned int res1;
+	unsigned int sdram_refresh_ctrl;
+	unsigned int sdram_refresh_ctrl_shdw;
+	unsigned int sdram_time1;
+	unsigned int sdram_time1_shdw;
+	unsigned int sdram_time2;
+	unsigned int sdram_time2_shdw;
+	unsigned int sdram_time3;
+	unsigned int sdram_time3_shdw;
+	unsigned char res2[8];
+	unsigned int sdram_pwr_mgmt;
+	unsigned int sdram_pwr_mgmt_shdw;
+	unsigned char res3[32];
+	unsigned int sdram_iodft_tlgc;
+	unsigned char res4[128];
+	unsigned int ddr_phyctrl1;
+	unsigned int ddr_phyctrl1_shdw;
+	unsigned int ddr_phyctrl2;
+} emif4_t;
+
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */
 

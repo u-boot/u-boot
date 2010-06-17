@@ -96,7 +96,7 @@ void gpio_set_pull(struct s5p_gpio_bank *bank, int gpio, int mode)
 		value |= PULL_MODE(gpio, mode);
 		break;
 	default:
-		return;
+		break;
 	}
 
 	writel(value, &bank->pull);
