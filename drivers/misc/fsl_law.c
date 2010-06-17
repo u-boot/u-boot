@@ -193,7 +193,13 @@ void print_laws(void)
 	printf("\nLocal Access Window Configuration\n");
 	for (i = 0; i < FSL_HW_NUM_LAWS; i++) {
 		lawar = in_be32(LAWAR_ADDR(i));
+#ifdef CONFIG_FSL_CORENET
+		printf("LAWBARH%02d: 0x%08x LAWBARL%02d: 0x%08x",
+		       i, in_be32(LAWBARH_ADDR(i)),
+		       i, in_be32(LAWBARL_ADDR(i)));
+#else
 		printf("LAWBAR%02d: 0x%08x", i, in_be32(LAWBAR_ADDR(i)));
+#endif
 		printf(" LAWAR0x%02d: 0x%08x\n", i, lawar);
 		printf("\t(EN: %d TGT: 0x%02x SIZE: ",
 		       (lawar & LAW_EN) ? 1 : 0, (lawar >> 20) & 0xff);
