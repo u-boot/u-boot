@@ -32,6 +32,8 @@
 #include <fsl_esdhc.h>
 #include <asm/cache.h>
 #include <asm/io.h>
+#include <asm/mmu.h>
+#include <asm/fsl_law.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -321,4 +323,15 @@ int cpu_mmc_init(bd_t *bis)
 #else
 	return 0;
 #endif
+}
+
+/*
+ * Print out the state of various machine registers.
+ * Currently prints out LAWs, BR0/OR0, and TLBs
+ */
+void mpc85xx_reginfo(void)
+{
+	print_tlbcam();
+	print_laws();
+	print_lbc_regs();
 }
