@@ -11,12 +11,20 @@
  * the License, or (at your option) any later version.
  */
 
+#ifndef HWCONFIG_TEST
 #include <config.h>
 #include <common.h>
 #include <exports.h>
 #include <hwconfig.h>
 #include <linux/types.h>
 #include <linux/string.h>
+#else
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#define min(a, b) (((a) < (b)) ? (a) : (b))
+#endif /* HWCONFIG_TEST */
 
 static const char *hwconfig_parse(const char *opts, size_t maxlen,
 				  const char *opt, char *stopchs, char eqch,
@@ -209,3 +217,50 @@ int hwconfig_subarg_cmp(const char *opt, const char *subopt, const char *subarg)
 
 	return !strncmp(argstr, subarg, arglen);
 }
+
+#ifdef HWCONFIG_TEST
+int main()
+{
+	const char *ret;
+	size_t len;
+
+	setenv("hwconfig", "key1:subkey1=value1,subkey2=value2;key2:value3;;;;"
+			   "key3;:,:=;key4", 1);
+
+	ret = hwconfig_arg("key1", &len);
+	printf("%zd %.*s\n", len, (int)len, ret);
+	assert(len == 29);
+	assert(hwconfig_arg_cmp("key1", "subkey1=value1,subkey2=value2"));
+	assert(!strncmp(ret, "subkey1=value1,subkey2=value2", len));
+
+	ret = hwconfig_subarg("key1", "subkey1", &len);
+	printf("%zd %.*s\n", len, (int)len, ret);
+	assert(len == 6);
+	assert(hwconfig_subarg_cmp("key1", "subkey1", "value1"));
+	assert(!strncmp(ret, "value1", len));
+
+	ret = hwconfig_subarg("key1", "subkey2", &len);
+	printf("%zd %.*s\n", len, (int)len, ret);
+	assert(len == 6);
+	assert(hwconfig_subarg_cmp("key1", "subkey2", "value2"));
+	assert(!strncmp(ret, "value2", len));
+
+	ret = hwconfig_arg("key2", &len);
+	printf("%zd %.*s\n", len, (int)len, ret);
+	assert(len == 6);
+	assert(hwconfig_arg_cmp("key2", "value3"));
+	assert(!strncmp(ret, "value3", len));
+
+	assert(hwconfig("key3"));
+	assert(hwconfig_arg("key4", &len) == NULL);
+	assert(hwconfig_arg("bogus", &len) == NULL);
+
+	unsetenv("hwconfig");
+
+	assert(hwconfig(NULL) == 0);
+	assert(hwconfig("") == 0);
+	assert(hwconfig("key3") == 0);
+
+	return 0;
+}
+#endif /* HWCONFIG_TEST */
