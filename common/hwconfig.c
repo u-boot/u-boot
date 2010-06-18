@@ -19,7 +19,7 @@
 #include <linux/string.h>
 
 static const char *hwconfig_parse(const char *opts, size_t maxlen,
-				  const char *opt, char stopch, char eqch,
+				  const char *opt, char *stopchs, char eqch,
 				  size_t *arglen)
 {
 	size_t optlen = strlen(opt);
@@ -33,8 +33,9 @@ next:
 	if (end - start > maxlen)
 		return NULL;
 
-	if (str && (str == opts || str[-1] == stopch) &&
-			(*end == stopch || *end == eqch || *end == '\0')) {
+	if (str && (str == opts || strpbrk(str - 1, stopchs) == str - 1) &&
+			(strpbrk(end, stopchs) == end || *end == eqch ||
+			 *end == '\0')) {
 		const char *arg_end;
 
 		if (!arglen)
@@ -43,7 +44,7 @@ next:
 		if (*end != eqch)
 			return NULL;
 
-		arg_end = strchr(str, stopch);
+		arg_end = strpbrk(str, stopchs);
 		if (!arg_end)
 			*arglen = min(maxlen, strlen(str)) - optlen - 1;
 		else
@@ -66,15 +67,15 @@ static const char *__hwconfig(const char *opt, size_t *arglen)
 
 	if (env_hwconfig)
 		return hwconfig_parse(env_hwconfig, strlen(env_hwconfig),
-				      opt, ';', ':', arglen);
+				      opt, ";", ':', arglen);
 
 	if (board_hwconfig)
 		return hwconfig_parse(board_hwconfig, strlen(board_hwconfig),
-				      opt, ';', ':', arglen);
+				      opt, ";", ':', arglen);
 
 	if (cpu_hwconfig)
 		return hwconfig_parse(cpu_hwconfig, strlen(cpu_hwconfig),
-				      opt, ';', ':', arglen);
+				      opt, ";", ':', arglen);
 
 	return NULL;
 }
@@ -164,7 +165,7 @@ int hwconfig_sub(const char *opt, const char *subopt)
 	arg = __hwconfig(opt, &arglen);
 	if (!arg)
 		return 0;
-	return !!hwconfig_parse(arg, arglen, subopt, ',', '=', NULL);
+	return !!hwconfig_parse(arg, arglen, subopt, ",;", '=', NULL);
 }
 
 /*
@@ -185,7 +186,7 @@ const char *hwconfig_subarg(const char *opt, const char *subopt,
 	arg = __hwconfig(opt, &arglen);
 	if (!arg)
 		return NULL;
-	return hwconfig_parse(arg, arglen, subopt, ',', '=', subarglen);
+	return hwconfig_parse(arg, arglen, subopt, ",;", '=', subarglen);
 }
 
 /*
