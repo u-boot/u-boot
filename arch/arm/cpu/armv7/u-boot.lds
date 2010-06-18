@@ -1,11 +1,9 @@
 /*
  * January 2004 - Changed to support H4 device
- * Copyright (c) 2004 Texas Instruments
+ * Copyright (c) 2004-2008 Texas Instruments
  *
  * (C) Copyright 2002
- * Gary Jennejohn, DENX Software Engineering, <gj@denx.de>
- *
- * (C) Copyright 2009 Freescale Semiconductor, Inc.
+ * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -17,7 +15,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -34,14 +32,14 @@ SECTIONS
 	. = 0x00000000;
 
 	. = ALIGN(4);
-	.text	   :
+	.text	:
 	{
-	  arch/arm/cpu/arm_cortexa8/start.o
-	  *(.text)
+		arch/arm/cpu/armv7/start.o	(.text)
+		*(.text)
 	}
 
 	. = ALIGN(4);
-	.rodata : { *(.rodata) }
+	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
 
 	. = ALIGN(4);
 	.data : { *(.data) }
@@ -49,7 +47,6 @@ SECTIONS
 	. = ALIGN(4);
 	.got : { *(.got) }
 
-	. = .;
 	__u_boot_cmd_start = .;
 	.u_boot_cmd : { *(.u_boot_cmd) }
 	__u_boot_cmd_end = .;

@@ -28,7 +28,7 @@
 #define __CONFIG_H
 
 /* High Level Configuration Options */
-#define CONFIG_ARMCORTEXA8	1	/* This is an ARM V7 CPU core */
+#define CONFIG_ARMV7		1	/* This is an ARM V7 CPU core */
 #define CONFIG_SAMSUNG		1	/* in a SAMSUNG core */
 #define CONFIG_S5PC1XX		1	/* which is in a S5PC1XX Family */
 #define CONFIG_S5PC110		1	/* which is in a S5PC110 */

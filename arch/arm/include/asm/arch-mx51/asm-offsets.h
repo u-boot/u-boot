@@ -1,5 +1,5 @@
 /*
- * needed for arch/arm/cpu/arm_cortexa8/mx51/lowlevel_init.S
+ * needed for arch/arm/cpu/armv7/mx51/lowlevel_init.S
  *
  * These should be auto-generated
  */

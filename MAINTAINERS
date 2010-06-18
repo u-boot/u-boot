@@ -550,7 +550,7 @@ Stefano Babic <sbabic@denx.de>
 
 Dirk Behme <dirk.behme@gmail.com>
 
-	omap3_beagle	ARM CORTEX-A8 (OMAP3530 SoC)
+	omap3_beagle	ARM ARMV7 (OMAP3530 SoC)
 
 Eric Benard <eric@eukrea.com>
 
@@ -616,11 +616,11 @@ Kshitij Gupta <kshitij@ti.com>
 
 Vaibhav Hiremath <hvaibhav@ti.com>
 
-	am3517_evm	ARM CORTEX-A8 (AM35x SoC)
+	am3517_evm	ARM ARMV7 (AM35x SoC)
 
 Grazvydas Ignotas <notasas@gmail.com>
 
-	omap3_pandora	ARM CORTEX-A8 (OMAP3xx SoC)
+	omap3_pandora	ARM ARMV7 (OMAP3xx SoC)
 
 Gary Jennejohn <garyj@denx.de>
 
@@ -650,12 +650,12 @@ Nishant Kamat <nskamat@ti.com>
 
 Minkyu Kang <mk7.kang@samsung.com>
 
-	s5p_goni	ARM CORTEX-A8 (S5PC110 SoC)
-	SMDKC100	ARM CORTEX-A8 (S5PC100 SoC)
+	s5p_goni	ARM ARMV7 (S5PC110 SoC)
+	SMDKC100	ARM ARMV7 (S5PC100 SoC)
 
 Frederik Kriewitz <frederik@kriewitz.eu>
 
-	devkit8000	ARM CORTEX-A8 (OMAP3530 SoC)
+	devkit8000	ARM ARMV7 (OMAP3530 SoC)
 
 Sergey Kubushyn <ksi@koi8.net>
 
@@ -680,8 +680,8 @@ Sergey Lapin <slapin@ossfans.org>
 
 Nishanth Menon <nm@ti.com>
 
-	omap3_sdp3430	ARM CORTEX-A8 (OMAP3xx SoC)
-	omap3_zoom1	ARM CORTEX-A8 (OMAP3xx SoC)
+	omap3_sdp3430	ARM ARMV7 (OMAP3xx SoC)
+	omap3_zoom1	ARM ARMV7 (OMAP3xx SoC)
 
 David Müller <d.mueller@elsoft.ch>
 
@@ -719,7 +719,7 @@ Dave Peverley <dpeverley@mpc-data.co.uk>
 
 Manikandan Pillai <mani.pillai@ti.com>
 
-	omap3_evm	ARM CORTEX-A8 (OMAP3xx SoC)
+	omap3_evm	ARM ARMV7 (OMAP3xx SoC)
 
 Stelian Pop <stelian.pop@leadtechdesign.com>
 
@@ -731,7 +731,7 @@ Stelian Pop <stelian.pop@leadtechdesign.com>
 
 Tom Rix <Tom.Rix@windriver.com>
 
-	omap3_zoom2	ARM CORTEX-A8 (OMAP3xx SoC)
+	omap3_zoom2	ARM ARMV7 (OMAP3xx SoC)
 
 John Rigby <jcrigby@gmail.com>
 
@@ -750,7 +750,7 @@ Nomadik Linux Team <STN_WMM_nomadik_linux@list.st.com>
 
 Steve Sakoman <sakoman@gmail.com>
 
-	omap3_overo	ARM CORTEX-A8 (OMAP3xx SoC)
+	omap3_overo	ARM ARMV7 (OMAP3xx SoC)
 
 Jens Scharsig <esw@bus-elektronik.de>
 

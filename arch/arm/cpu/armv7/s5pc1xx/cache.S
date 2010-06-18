@@ -2,7 +2,7 @@
  * Copyright (C) 2009 Samsung Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  *
- * based on arch/arm/cpu/arm_cortexa8/omap3/cache.S
+ * based on arch/arm/cpu/armv7/omap3/cache.S
  *
  * See file CREDITS for list of people who contributed to this
  * project.
