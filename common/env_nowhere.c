@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2002
+ * (C) Copyright 2000-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2001 Sysgo Real-Time Solutions, GmbH <www.elinos.com>
@@ -35,22 +35,21 @@ env_t *env_ptr = NULL;
 
 extern uchar default_environment[];
 
-
-void env_relocate_spec (void)
+void env_relocate_spec(void)
 {
 }
 
-uchar env_get_char_spec (int index)
+uchar env_get_char_spec(int index)
 {
 	return ( *((uchar *)(gd->env_addr + index)) );
 }
 
-/************************************************************************
+/*
  * Initialize Environment use
  *
  * We are still running from ROM, so data use is limited
  */
-int  env_init(void)
+int env_init(void)
 {
 	gd->env_addr  = (ulong)&default_environment[0];
 	gd->env_valid = 0;

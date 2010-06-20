@@ -45,6 +45,10 @@
 # include <linux/string.h>
 #endif
 
+#ifndef	CONFIG_ENV_MAX_ENTRIES	/* maximum number of entries */
+#define	CONFIG_ENV_MAX_ENTRIES 512
+#endif
+
 #include "search.h"
 
 /*
@@ -636,15 +640,23 @@ int himport_r(struct hsearch_data *htab,
 	 * table size is based on heuristics: in a sample of some 70+
 	 * existing systems we found an average size of 39+ bytes per entry
 	 * in the environment (for the whole key=value pair). Assuming a
-	 * size of 7 per entry (= safety factor of >5) should provide enough
-	 * safety margin for any existing environment definitons and still
+	 * size of 8 per entry (= safety factor of ~5) should provide enough
+	 * safety margin for any existing environment definitions and still
 	 * allow for more than enough dynamic additions. Note that the
 	 * "size" argument is supposed to give the maximum enviroment size
-	 * (CONFIG_ENV_SIZE).
+	 * (CONFIG_ENV_SIZE).  This heuristics will result in
+	 * unreasonably large numbers (and thus memory footprint) for
+	 * big flash environments (>8,000 entries for 64 KB
+	 * envrionment size), so we clip it to a reasonable value
+	 * (which can be overwritten in the board config file if
+	 * needed).
 	 */
 
 	if (!htab->table) {
-		int nent = size / 7;
+		int nent = size / 8;
+
+		if (nent > CONFIG_ENV_MAX_ENTRIES)
+			nent = CONFIG_ENV_MAX_ENTRIES;
 
 		debug("Create Hash Table: N=%d\n", nent);
 
@@ -705,17 +717,19 @@ int himport_r(struct hsearch_data *htab,
 
 		hsearch_r(e, ENTER, &rv, htab);
 		if (rv == NULL) {
-			printf("himport_r: can't insert \"%s=%s\" into hash table\n", name, value);
+			printf("himport_r: can't insert \"%s=%s\" into hash table\n",
+				name, value);
 			return 0;
 		}
 
-		debug("INSERT: %p ==> name=\"%s\" value=\"%s\"\n", rv, name,
-		       value);
-		debug("        table = %p, size = %d, filled = %d\n", htab,
-		       htab->size, htab->filled);
+		debug("INSERT: table %p, filled %d/%d rv %p ==> name=\"%s\" value=\"%s\"\n",
+			htab, htab->filled, htab->size,
+			rv, name, value);
 	} while ((dp < data + size) && *dp);	/* size check needed for text */
 						/* without '\0' termination */
+	debug("INSERT: free(data = %p)\n", data);
 	free(data);
 
+	debug("INSERT: done\n");
 	return 1;		/* everything OK */
 }
