@@ -39,6 +39,7 @@ COBJS-y += display_options.o
 COBJS-y += div64.o
 COBJS-y += errno.o
 COBJS-$(CONFIG_GZIP) += gunzip.o
+COBJS-y += hashtable.o
 COBJS-$(CONFIG_LMB) += lmb.o
 COBJS-y += ldiv.o
 COBJS-$(CONFIG_MD5) += md5.o
