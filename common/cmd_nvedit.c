@@ -248,12 +248,7 @@ int _do_setenv (int flag, int argc, char * const argv[])
 		 * ver is readonly.
 		 */
 		if (
-#ifdef CONFIG_HAS_UID
-		/* Allow serial# forced overwrite with 0xdeaf4add flag */
-		    ((strcmp (name, "serial#") == 0) && (flag != 0xdeaf4add)) ||
-#else
 		    (strcmp (name, "serial#") == 0) ||
-#endif
 		    ((strcmp (name, "ethaddr") == 0)
 #if defined(CONFIG_OVERWRITE_ETHADDR_ONCE) && defined(CONFIG_ETHADDR)
 		     && (strcmp ((char *)env_get_addr(oldval),MK_STR(CONFIG_ETHADDR)) != 0)
@@ -397,14 +392,6 @@ int setenv (char *varname, char *varvalue)
 	else
 		return _do_setenv (0, 3, argv);
 }
-
-#ifdef CONFIG_HAS_UID
-void forceenv (char *varname, char *varvalue)
-{
-	char * const argv[4] = { "forceenv", varname, varvalue, NULL };
-	_do_setenv (0xdeaf4add, 3, argv);
-}
-#endif
 
 int do_setenv (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

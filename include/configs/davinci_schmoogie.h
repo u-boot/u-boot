@@ -99,7 +99,6 @@
 /*=====================*/
 #define CONFIG_RTC_DS1307		/* RTC chip on SCHMOOGIE */
 #define CONFIG_SYS_I2C_RTC_ADDR	0x6f	/* RTC chip I2C address */
-#define CONFIG_HAS_UID
 #define CONFIG_UID_DS28CM00		/* Unique ID on SCHMOOGIE */
 #define CONFIG_SYS_UID_ADDR		0x50	/* UID chip I2C address */
 /*==============================*/

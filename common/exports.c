@@ -34,9 +34,6 @@ unsigned long get_version(void)
 # define spi_release_bus   dummy
 # define spi_xfer          dummy
 #endif
-#ifndef CONFIG_HAS_UID
-# define forceenv          dummy
-#endif
 
 void jumptable_init(void)
 {
