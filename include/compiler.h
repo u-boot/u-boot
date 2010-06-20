@@ -25,8 +25,6 @@
 #include <stdio.h>
 #include <string.h>
 
-extern int errno;
-
 #if !defined(__WIN32__) && !defined(__MINGW32__)
 # include <sys/mman.h>
 #endif
