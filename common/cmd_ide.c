@@ -555,7 +555,6 @@ void ide_init (void)
 	int i, bus;
 #if defined(CONFIG_SC3)
 	unsigned int ata_reset_time = ATA_RESET_TIME;
-	char *s;
 #endif
 #ifdef CONFIG_IDE_8xx_PCCARD
 	extern int pcmcia_on (void);
