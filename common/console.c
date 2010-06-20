@@ -201,7 +201,7 @@ static inline void console_doenv(int file, struct stdio_dev *dev)
 
 /** U-Boot INITIAL CONSOLE-NOT COMPATIBLE FUNCTIONS *************************/
 
-void serial_printf(const char *fmt, ...)
+int serial_printf(const char *fmt, ...)
 {
 	va_list args;
 	uint i;
@@ -216,6 +216,7 @@ void serial_printf(const char *fmt, ...)
 	va_end(args);
 
 	serial_puts(printbuffer);
+	return i;
 }
 
 int fgetc(int file)
@@ -269,7 +270,7 @@ void fputs(int file, const char *s)
 		console_puts(file, s);
 }
 
-void fprintf(int file, const char *fmt, ...)
+int fprintf(int file, const char *fmt, ...)
 {
 	va_list args;
 	uint i;
@@ -285,6 +286,7 @@ void fprintf(int file, const char *fmt, ...)
 
 	/* Send to desired file */
 	fputs(file, printbuffer);
+	return i;
 }
 
 /** U-Boot INITIAL CONSOLE-COMPATIBLE FUNCTION *****************************/
@@ -363,7 +365,7 @@ void puts(const char *s)
 	}
 }
 
-void printf(const char *fmt, ...)
+int printf(const char *fmt, ...)
 {
 	va_list args;
 	uint i;
@@ -379,9 +381,10 @@ void printf(const char *fmt, ...)
 
 	/* Print the string */
 	puts(printbuffer);
+	return i;
 }
 
-void vprintf(const char *fmt, va_list args)
+int vprintf(const char *fmt, va_list args)
 {
 	uint i;
 	char printbuffer[CONFIG_SYS_PBSIZE];
@@ -393,6 +396,7 @@ void vprintf(const char *fmt, va_list args)
 
 	/* Print the string */
 	puts(printbuffer);
+	return i;
 }
 
 /* test if ctrl-c was pressed */

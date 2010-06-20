@@ -663,7 +663,7 @@ int	disable_ctrlc (int);	/* 1 to disable, 0 to enable Control-C detect */
  * STDIO based functions (can always be used)
  */
 /* serial stuff */
-void	serial_printf (const char *fmt, ...)
+int	serial_printf (const char *fmt, ...)
 		__attribute__ ((format (__printf__, 1, 2)));
 /* stdin */
 int	getc(void);
@@ -672,9 +672,9 @@ int	tstc(void);
 /* stdout */
 void	putc(const char c);
 void	puts(const char *s);
-void	printf(const char *fmt, ...)
+int	printf(const char *fmt, ...)
 		__attribute__ ((format (__printf__, 1, 2)));
-void	vprintf(const char *fmt, va_list args);
+int	vprintf(const char *fmt, va_list args);
 
 /* stderr */
 #define eputc(c)		fputc(stderr, c)
@@ -689,7 +689,7 @@ void	vprintf(const char *fmt, va_list args);
 #define stderr		2
 #define MAX_FILES	3
 
-void	fprintf(int file, const char *fmt, ...)
+int	fprintf(int file, const char *fmt, ...)
 		__attribute__ ((format (__printf__, 2, 3)));
 void	fputs(int file, const char *s);
 void	fputc(int file, const char c);
