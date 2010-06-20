@@ -44,12 +44,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #error CONFIG_ENV_SIZE_REDUND should not be less then CONFIG_ENV_SIZE
 #endif
 
-#ifdef CONFIG_INFERNO
-# ifdef CONFIG_ENV_ADDR_REDUND
-#error CONFIG_ENV_ADDR_REDUND is not implemented for CONFIG_INFERNO
-# endif
-#endif
-
 char * env_name_spec = "Flash";
 
 #ifdef ENV_IS_EMBEDDED
@@ -294,13 +288,7 @@ int saveenv(void)
 	len	 = CONFIG_ENV_SIZE;
 #endif	/* CONFIG_ENV_SECT_SIZE */
 
-#ifndef CONFIG_INFERNO
 	end_addr = flash_sect_addr + len - 1;
-#else
-	/* this is the last sector, and the size is hardcoded here */
-	/* otherwise we will get stack problems on loading 128 KB environment */
-	end_addr = flash_sect_addr + 0x20000 - 1;
-#endif
 
 	debug ("Protect off %08lX ... %08lX\n",
 		(ulong)flash_sect_addr, end_addr);
