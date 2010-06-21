@@ -260,10 +260,10 @@
 #define CONFIG_CMD_MTDPARTS	/* mtdparts command line support */
 #define CONFIG_MTD_DEVICE	/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
-#define MTDIDS_DEFAULT		"nor0=ml401-0"
+#define MTDIDS_DEFAULT		"nor0=flash-0"
 
 /* default mtd partition table */
-#define MTDPARTS_DEFAULT	"mtdparts=ml401-0:256k(u-boot),"\
+#define MTDPARTS_DEFAULT	"mtdparts=flash-0:256k(u-boot),"\
 				"256k(env),3m(kernel),1m(romfs),"\
 				"1m(cramfs),-(jffs2)"
 #endif
@@ -292,8 +292,8 @@
 #define	CONFIG_PREBOOT	"echo U-BOOT for ${hostname};setenv preboot;echo"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS	"unlock=yes\0" /* hardware flash protection */\
-					"nor0=ml401-0\0"\
-					"mtdparts=mtdparts=ml401-0:"\
+					"nor0=flash-0\0"\
+					"mtdparts=mtdparts=flash-0:"\
 					"256k(u-boot),256k(env),3m(kernel),"\
 					"1m(romfs),1m(cramfs),-(jffs2)\0"
 
