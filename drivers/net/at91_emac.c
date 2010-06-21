@@ -348,14 +348,6 @@ static int at91emac_init(struct eth_device *netdev, bd_t *bd)
 	writel(1 << AT91_ID_EMAC, &pmc->pcer);
 	writel(readl(&emac->ctl) | AT91_EMAC_CTL_CSR, &emac->ctl);
 
-	DEBUG_AT91EMAC("init MAC-ADDR %x%x \n",
-		cpu_to_le16(*((u16 *)(netdev->enetaddr + 4))),
-		cpu_to_le32(*((u32 *)netdev->enetaddr)));
-	writel(cpu_to_le32(*((u32 *)netdev->enetaddr)), &emac->sa2l);
-	writel(cpu_to_le16(*((u16 *)(netdev->enetaddr + 4))), &emac->sa2h);
-	DEBUG_AT91EMAC("init MAC-ADDR %x%x \n",
-		readl(&emac->sa2h), readl(&emac->sa2l));
-
 	/* Init Ethernet buffers */
 	for (i = 0; i < RBF_FRAMEMAX; i++) {
 		dev->rbfdt[i].addr = (unsigned long) NetRxPackets[i];
@@ -456,6 +448,25 @@ static int at91emac_recv(struct eth_device *netdev)
 	return 0;
 }
 
+static int at91emac_write_hwaddr(struct eth_device *netdev)
+{
+	emac_device *dev;
+	at91_emac_t *emac;
+	at91_pmc_t *pmc = (at91_pmc_t *) AT91_PMC_BASE;
+	emac = (at91_emac_t *) netdev->iobase;
+	dev = (emac_device *) netdev->priv;
+
+	writel(1 << AT91_ID_EMAC, &pmc->pcer);
+	DEBUG_AT91EMAC("init MAC-ADDR %x%x \n",
+		cpu_to_le16(*((u16 *)(netdev->enetaddr + 4))),
+		cpu_to_le32(*((u32 *)netdev->enetaddr)));
+	writel(cpu_to_le32(*((u32 *)netdev->enetaddr)), &emac->sa2l);
+	writel(cpu_to_le16(*((u16 *)(netdev->enetaddr + 4))), &emac->sa2h);
+	DEBUG_AT91EMAC("init MAC-ADDR %x%x \n",
+		readl(&emac->sa2h), readl(&emac->sa2l));
+	return 0;
+}
+
 int at91emac_register(bd_t *bis, unsigned long iobase)
 {
 	emac_device *emac;
@@ -488,6 +499,7 @@ int at91emac_register(bd_t *bis, unsigned long iobase)
 	dev->halt = at91emac_halt;
 	dev->send = at91emac_send;
 	dev->recv = at91emac_recv;
+	dev->write_hwaddr = at91emac_write_hwaddr;
 
 	eth_register(dev);
 
