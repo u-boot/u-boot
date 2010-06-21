@@ -53,6 +53,10 @@
 	Please decrease the CONFIG_SYS_RX_ETH_BUFFER value
 #endif
 
+#ifndef CONFIG_DRIVER_AT91EMAC_PHYADDR
+#define CONFIG_DRIVER_AT91EMAC_PHYADDR	0
+#endif
+
 /* MDIO clock must not exceed 2.5 MHz, so enable MCK divider */
 #if (AT91C_MASTER_CLOCK > 80000000)
 	#define HCLK_DIV	AT91_EMAC_CFG_MCLK_64
@@ -198,12 +202,15 @@ static int at91emac_phy_reset(struct eth_device *netdev)
 	emac = (at91_emac_t *) netdev->iobase;
 
 	adv = ADVERTISE_CSMA | ADVERTISE_ALL;
-	at91emac_write(emac, 0, MII_ADVERTISE, adv);
+	at91emac_write(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
+		MII_ADVERTISE, adv);
 	VERBOSEP("%s: Starting autonegotiation...\n", netdev->name);
-	at91emac_write(emac, 0, MII_BMCR, (BMCR_ANENABLE | BMCR_ANRESTART));
+	at91emac_write(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR, MII_BMCR,
+		(BMCR_ANENABLE | BMCR_ANRESTART));
 
 	for (i = 0; i < 100000 / 100; i++) {
-		at91emac_read(emac, 0, MII_BMSR, &status);
+		at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
+			MII_BMSR, &status);
 		if (status & BMSR_ANEGCOMPLETE)
 			break;
 		udelay(100);
@@ -229,13 +236,15 @@ static int at91emac_phy_init(struct eth_device *netdev)
 	emac = (at91_emac_t *) netdev->iobase;
 
 	/* Check if the PHY is up to snuff... */
-	at91emac_read(emac, 0, MII_PHYSID1, &phy_id);
+	at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
+		MII_PHYSID1, &phy_id);
 	if (phy_id == 0xffff) {
 		printf("%s: No PHY present\n", netdev->name);
 		return 1;
 	}
 
-	at91emac_read(emac, 0, MII_BMSR, &status);
+	at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
+		MII_BMSR, &status);
 
 	if (!(status & BMSR_LSTATUS)) {
 		/* Try to re-negotiate if we don't have link already. */
@@ -243,7 +252,8 @@ static int at91emac_phy_init(struct eth_device *netdev)
 			return 2;
 
 		for (i = 0; i < 100000 / 100; i++) {
-			at91emac_read(emac, 0, MII_BMSR, &status);
+			at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
+				MII_BMSR, &status);
 			if (status & BMSR_LSTATUS)
 				break;
 			udelay(100);
@@ -253,8 +263,10 @@ static int at91emac_phy_init(struct eth_device *netdev)
 		VERBOSEP("%s: link down\n", netdev->name);
 		return 3;
 	} else {
-		at91emac_read(emac, 0, MII_ADVERTISE, &adv);
-		at91emac_read(emac, 0, MII_LPA, &lpa);
+		at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
+			MII_ADVERTISE, &adv);
+		at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
+			MII_LPA, &lpa);
 		media = mii_nway_result(lpa & adv);
 		speed = (media & (ADVERTISE_100FULL | ADVERTISE_100HALF)
 			 ? 1 : 0);
@@ -271,7 +283,7 @@ int at91emac_UpdateLinkSpeed(at91_emac_t *emac)
 {
 	unsigned short stat1;
 
-	at91emac_read(emac, 0, MII_BMSR, &stat1);
+	at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR, MII_BMSR, &stat1);
 
 	if (!(stat1 & BMSR_LSTATUS))	/* link status up? */
 		return 1;
@@ -364,7 +376,7 @@ static int at91emac_init(struct eth_device *netdev, bd_t *bd)
 	value = AT91_EMAC_CFG_CAF |	AT91_EMAC_CFG_NBC |
 		HCLK_DIV;
 #ifdef CONFIG_RMII
-	value |= AT91C_EMAC_RMII;
+	value |= AT91_EMAC_CFG_RMII;
 #endif
 	writel(value, &emac->cfg);
 
