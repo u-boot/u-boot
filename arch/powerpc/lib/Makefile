@@ -43,6 +43,11 @@ COBJS-y	+= time.o
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 
+# Workaround for local bus unaligned access problem on MPC5200
+ifdef CONFIG_MPC5200
+$(obj)ppcstring.o: AFLAGS += -Dmemcpy=__memcpy
+endif
+
 $(LIB):	$(obj).depend $(OBJS)
 	@if ! $(CROSS_COMPILE)readelf -S $(OBJS) | grep -q '\.fixup.*PROGBITS';\
 	then \
