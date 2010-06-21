@@ -231,6 +231,7 @@
 	#undef CONFIG_CMD_NET
 #else
 	#define CONFIG_CMD_PING
+	#define CONFIG_CMD_DHCP
 #endif
 
 #if defined(CONFIG_SYSTEMACE)
