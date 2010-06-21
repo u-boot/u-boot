@@ -58,27 +58,29 @@
 static int
 sdh_send_cmd(struct mmc *mmc, struct mmc_cmd *mmc_cmd)
 {
-	unsigned int sdh_cmd;
-	unsigned int status;
+	unsigned int status, timeout;
 	int cmd = mmc_cmd->cmdidx;
 	int flags = mmc_cmd->resp_type;
 	int arg = mmc_cmd->cmdarg;
-	int ret = 0;
-	sdh_cmd = 0;
+	int ret;
+	u16 sdh_cmd;
 
-	sdh_cmd |= cmd;
-
+	sdh_cmd = cmd | CMD_E;
 	if (flags & MMC_RSP_PRESENT)
 		sdh_cmd |= CMD_RSP;
-
 	if (flags & MMC_RSP_136)
 		sdh_cmd |= CMD_L_RSP;
 
 	bfin_write_SDH_ARGUMENT(arg);
-	bfin_write_SDH_COMMAND(sdh_cmd | CMD_E);
+	bfin_write_SDH_COMMAND(sdh_cmd);
 
 	/* wait for a while */
+	timeout = 0;
 	do {
+		if (++timeout > 1000000) {
+			status = CMD_TIME_OUT;
+			break;
+		}
 		udelay(1);
 		status = bfin_read_SDH_STATUS();
 	} while (!(status & (CMD_SENT | CMD_RESP_END | CMD_TIME_OUT |
@@ -94,12 +96,15 @@ sdh_send_cmd(struct mmc *mmc, struct mmc_cmd *mmc_cmd)
 	}
 
 	if (status & CMD_TIME_OUT)
-		ret |= TIMEOUT;
+		ret = TIMEOUT;
 	else if (status & CMD_CRC_FAIL && flags & MMC_RSP_CRC)
-		ret |= COMM_ERR;
+		ret = COMM_ERR;
+	else
+		ret = 0;
 
 	bfin_write_SDH_STATUS_CLR(CMD_SENT_STAT | CMD_RESP_END_STAT |
 				CMD_TIMEOUT_STAT | CMD_CRC_FAIL_STAT);
+
 	return ret;
 }
 
