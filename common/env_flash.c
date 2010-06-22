@@ -71,9 +71,6 @@ static env_t *flash_addr_new = (env_t *)CONFIG_ENV_ADDR_REDUND;
 /* CONFIG_ENV_ADDR is supposed to be on sector boundary */
 static ulong end_addr = CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1;
 static ulong end_addr_new = CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1;
-
-#define ACTIVE_FLAG   1
-#define OBSOLETE_FLAG 0
 #endif /* CONFIG_ENV_ADDR_REDUND */
 
 extern uchar default_environment[];
