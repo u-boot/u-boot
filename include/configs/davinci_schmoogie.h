@@ -69,6 +69,7 @@
 /* Network & Ethernet Configuration */
 /*==================================*/
 #define CONFIG_DRIVER_TI_EMAC
+#define CONFIG_EMAC_MDIO_PHY_NUM	1
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS
