@@ -385,8 +385,8 @@ $(VERSION_FILE):
 		@cmp -s $@ $@.tmp && rm -f $@.tmp || mv -f $@.tmp $@
 
 $(TIMESTAMP_FILE):
-		@date +'#define U_BOOT_DATE "%b %d %C%y"' > $@
-		@date +'#define U_BOOT_TIME "%T"' >> $@
+		@LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"' > $@
+		@LC_ALL=C date +'#define U_BOOT_TIME "%T"' >> $@
 
 gdbtools:
 		$(MAKE) -C tools/gdb all || exit 1
@@ -3751,6 +3751,6 @@ endif
 
 backup:
 	F=`basename $(TOPDIR)` ; cd .. ; \
-	gtar --force-local -zcvf `date "+$$F-%Y-%m-%d-%T.tar.gz"` $$F
+	gtar --force-local -zcvf `LC_ALL=C date "+$$F-%Y-%m-%d-%T.tar.gz"` $$F
 
 #########################################################################

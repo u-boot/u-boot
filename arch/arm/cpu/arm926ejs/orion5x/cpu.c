@@ -260,10 +260,10 @@ int arch_misc_init(void)
 
 	/* Set CPIOs and MPPs - values provided by board
 	   include file */
-	writel(ORION5X_MPP_BASE+0x00, ORION5X_MPP0_7);
-	writel(ORION5X_MPP_BASE+0x04, ORION5X_MPP8_15);
-	writel(ORION5X_MPP_BASE+0x50, ORION5X_MPP16_23);
-	writel(ORION5X_GPIO_BASE+0x04, ORION5X_GPIO_OUT_ENABLE);
+	writel(ORION5X_MPP0_7, ORION5X_MPP_BASE+0x00);
+	writel(ORION5X_MPP8_15, ORION5X_MPP_BASE+0x04);
+	writel(ORION5X_MPP16_23, ORION5X_MPP_BASE+0x50);
+	writel(ORION5X_GPIO_OUT_ENABLE, ORION5X_GPIO_BASE+0x04);
 
 	return 0;
 }
