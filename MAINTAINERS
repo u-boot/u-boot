@@ -677,12 +677,6 @@ Sergey Lapin <slapin@ossfans.org>
 
 	afeb9260	ARM926EJS (AT91SAM9260 SoC)
 
-Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-
-	imx31_phycore_eet	i.MX31
-	mx31ads			i.MX31
-	SMDK6400		S3C6400
-
 Nishanth Menon <nm@ti.com>
 
 	omap3_sdp3430	ARM CORTEX-A8 (OMAP3xx SoC)
@@ -824,6 +818,10 @@ Unknown / orphaned boards:
 	cradle		xscale	Kyle Harris <kharris@nexus-tech.net> / dead address
 	ixdp425		xscale	Kyle Harris <kharris@nexus-tech.net> / dead address
 	lubbock		xscale	Kyle Harris <kharris@nexus-tech.net> / dead address
+
+	imx31_phycore_eet i.MX31  Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned
+	mx31ads		  i.MX31  Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned
+	SMDK6400	  S3C6400 Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned
 
 #########################################################################
 # x86 Systems:								#

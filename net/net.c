@@ -1201,7 +1201,8 @@ static IP_t *__NetDefragment(IP_t *ip, int *lenp)
 		h = payload + h->next_hole;
 	}
 
-	if (offset8 + (len / 8) <= h - payload) {
+	/* last fragment may be 1..7 bytes, the "+7" forces acceptance */
+	if (offset8 + ((len + 7) / 8) <= h - payload) {
 		/* no overlap with holes (dup fragment?) */
 		return NULL;
 	}

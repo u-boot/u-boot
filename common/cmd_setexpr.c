@@ -32,7 +32,7 @@ static ulong get_arg(char *s, int w)
 {
 	ulong *p;
 
-        /*
+	/*
 	 * if the parameter starts with a '*' then assume
 	 * it is a pointer to the value we want
 	 */
