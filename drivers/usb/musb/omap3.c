@@ -31,6 +31,7 @@
  */
 
 #include <twl4030.h>
+#include <twl6030.h>
 #include "omap3.h"
 
 static int platform_needs_initialization = 1;
@@ -65,7 +66,12 @@ static struct omap3_otg_regs *otg;
 
 #define OMAP3_OTG_SYSSTATUS_RESETDONE			0x0001
 
+/* OMAP4430 has an internal PHY, use it */
+#ifdef CONFIG_OMAP4430
+#define OMAP3_OTG_INTERFSEL_OMAP			0x0000
+#else
 #define OMAP3_OTG_INTERFSEL_OMAP			0x0001
+#endif
 
 #define OMAP3_OTG_FORCESTDBY_STANDBY			0x0001
 
@@ -105,6 +111,11 @@ int musb_platform_init(void)
 			goto end;
 		}
 #endif
+
+#ifdef CONFIG_TWL6030_POWER
+		twl6030_usb_device_settings();
+#endif
+
 		otg = (struct omap3_otg_regs *)OMAP3_OTG_BASE;
 
 		/* Set OTG to always be on */
@@ -121,6 +132,11 @@ int musb_platform_init(void)
 
 #ifdef CONFIG_OMAP3_EVM
 		musb_cfg.extvbus = omap3_evm_need_extvbus();
+#endif
+
+#ifdef CONFIG_OMAP4430
+		u32 *usbotghs_control = (u32 *)(CTRL_BASE + 0x33C);
+		*usbotghs_control = 0x15;
 #endif
 		platform_needs_initialization = 0;
 	}

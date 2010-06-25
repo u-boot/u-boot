@@ -139,4 +139,7 @@ struct watchdog {
 #define I2C_BASE2		(OMAP44XX_L4_PER_BASE + 0x72000)
 #define I2C_BASE3		(OMAP44XX_L4_PER_BASE + 0x60000)
 
+/* MUSB base */
+#define MUSB_BASE		(OMAP44XX_L4_CORE_BASE + 0xAB000)
+
 #endif /* _CPU_H */
