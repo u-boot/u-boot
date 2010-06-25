@@ -327,4 +327,9 @@
 # define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 #endif
 
+/* Enable flat device tree support */
+#define CONFIG_LMB		1
+#define CONFIG_FIT		1
+#define CONFIG_OF_LIBFDT	1
+
 #endif	/* __CONFIG_H */
