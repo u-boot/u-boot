@@ -113,6 +113,20 @@
 #define CONFIG_SYS_MMC_SET_DEV		1
 #define CONFIG_DOS_PARTITION		1
 
+/* USB */
+#define CONFIG_MUSB_UDC			1
+#define CONFIG_USB_OMAP3		1
+
+/* USB device configuration */
+#define CONFIG_USB_DEVICE		1
+#define CONFIG_USB_TTY			1
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
+/* Change these to suit your needs */
+#define CONFIG_USBD_VENDORID		0x0451
+#define CONFIG_USBD_PRODUCTID		0x5678
+#define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
+#define CONFIG_USBD_PRODUCT_NAME	"SDP4430"
+
 /* Flash */
 #define CONFIG_SYS_NO_FLASH	1
 
@@ -146,6 +160,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyS2,115200n8\0" \
+	"usbtty=cdc_acm\0" \
 	"mmcdev=1\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext3 rootwait\0" \
