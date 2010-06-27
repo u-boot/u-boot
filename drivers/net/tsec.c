@@ -281,12 +281,16 @@ static uint tsec_local_mdio_read(volatile tsec_mdio_t *phyregs,
 		| TBIANA_FULL_DUPLEX \
 		)
 
-/* Force the TBI PHY into 1000Mbps full duplex when in SGMII mode */
+/* By default force the TBI PHY into 1000Mbps full duplex when in SGMII mode */
+#ifndef CONFIG_TSEC_TBICR_SETTINGS
 #define TBICR_SETTINGS ( \
 		TBICR_PHY_RESET \
 		| TBICR_FULL_DUPLEX \
 		| TBICR_SPEED1_SET \
 		)
+#else
+#define TBICR_SETTINGS CONFIG_TSEC_TBICR_SETTINGS
+#endif /* CONFIG_TSEC_TBICR_SETTINGS */
 
 /* Configure the TBI for SGMII operation */
 static void tsec_configure_serdes(struct tsec_private *priv)
