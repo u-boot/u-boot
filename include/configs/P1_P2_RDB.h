@@ -425,6 +425,15 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_ETHPRIME		"eTSEC1"
 
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
+
+/* TBI PHY configuration for SGMII mode */
+#define CONFIG_TSEC_TBICR_SETTINGS ( \
+		TBICR_PHY_RESET \
+		| TBICR_ANEG_ENABLE \
+		| TBICR_FULL_DUPLEX \
+		| TBICR_SPEED1_SET \
+		)
+
 #endif	/* CONFIG_TSEC_ENET */
 
 /*
