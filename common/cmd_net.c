@@ -28,11 +28,11 @@
 #include <command.h>
 #include <net.h>
 
-extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
+extern int do_bootm (cmd_tbl_t *, int, int, char * const []);
 
-static int netboot_common (proto_t, cmd_tbl_t *, int , char *[]);
+static int netboot_common (proto_t, cmd_tbl_t *, int , char * const []);
 
-int do_bootp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_bootp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return netboot_common (BOOTP, cmdtp, argc, argv);
 }
@@ -43,7 +43,7 @@ U_BOOT_CMD(
 	"[loadAddress] [[hostIPaddr:]bootfilename]"
 );
 
-int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_tftpb (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return netboot_common (TFTP, cmdtp, argc, argv);
 }
@@ -54,7 +54,7 @@ U_BOOT_CMD(
 	"[loadAddress] [[hostIPaddr:]bootfilename]"
 );
 
-int do_rarpb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_rarpb (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return netboot_common (RARP, cmdtp, argc, argv);
 }
@@ -66,7 +66,7 @@ U_BOOT_CMD(
 );
 
 #if defined(CONFIG_CMD_DHCP)
-int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_dhcp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return netboot_common(DHCP, cmdtp, argc, argv);
 }
@@ -79,7 +79,7 @@ U_BOOT_CMD(
 #endif
 
 #if defined(CONFIG_CMD_NFS)
-int do_nfs (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_nfs (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return netboot_common(NFS, cmdtp, argc, argv);
 }
@@ -151,7 +151,7 @@ static void netboot_update_env (void)
 }
 
 static int
-netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
+netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char * const argv[])
 {
 	char *s;
 	char *end;
@@ -230,7 +230,7 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char *argv[])
 }
 
 #if defined(CONFIG_CMD_PING)
-int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2)
 		return -1;
@@ -280,7 +280,7 @@ static void cdp_update_env(void)
 
 }
 
-int do_cdp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_cdp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int r;
 
@@ -302,7 +302,7 @@ U_BOOT_CMD(
 #endif
 
 #if defined(CONFIG_CMD_SNTP)
-int do_sntp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_sntp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *toff;
 
@@ -340,7 +340,7 @@ U_BOOT_CMD(
 #endif
 
 #if defined(CONFIG_CMD_DNS)
-int do_dns(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_dns(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc == 1) {
 		cmd_usage(cmdtp);

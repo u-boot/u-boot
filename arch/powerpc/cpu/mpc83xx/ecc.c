@@ -98,7 +98,7 @@ void ecc_print_status(void)
 	       ddr->capture_attributes & ECC_CAPT_ATTR_VLD);
 }
 
-int do_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile ddr83xx_t *ddr = &immap->ddr;

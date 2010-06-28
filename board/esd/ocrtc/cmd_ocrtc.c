@@ -33,7 +33,7 @@
 /*
  * Set device number on pci board
  */
-int do_setdevice(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_setdevice(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int idx = 1;	  /* start at 1 (skip device 0) */
 	pci_dev_t bdf = 0;
@@ -62,7 +62,7 @@ U_BOOT_CMD(
 /*
  * Get device number on pci board
  */
-int do_getdevice(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_getdevice(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 device;
 	char str[32];

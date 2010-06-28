@@ -288,7 +288,7 @@ void power_set_reset(int power)
 	}
 }
 
-int do_poweroff(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_poweroff(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	power_set_reset(1);
 	return (0);
@@ -325,7 +325,7 @@ int phypower(int flag)
 	return (status);
 }
 
-int do_phypower(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_phypower(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int status;
 
@@ -340,7 +340,7 @@ int do_phypower(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(phypower, 2, 2, do_phypower,
 	   "Switch power of ethernet phy", "");
 
-int do_writepci(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_writepci(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned int addr;
 	unsigned int size;

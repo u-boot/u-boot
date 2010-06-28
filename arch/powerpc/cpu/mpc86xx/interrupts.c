@@ -101,7 +101,7 @@ void irq_free_handler(int vec)
 /*
  * irqinfo - print information about PCI devices,not implemented.
  */
-int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return 0;
 }

@@ -142,7 +142,7 @@ static void ldr_exec(void *addr)
  *   to also add booting from SPI, or TWI, but this function does
  *   not currently support that.
  */
-int do_bootldr(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_bootldr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	void *addr;
 

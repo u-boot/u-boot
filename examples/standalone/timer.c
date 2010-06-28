@@ -115,7 +115,7 @@ void setPeriod (tid_8xx_cpmtimer_t *hwp, ulong interval);
 
 static char *usage = "\n[q, b, e, ?] ";
 
-int timer (int argc, char *argv[])
+int timer (int argc, char * const argv[])
 {
 	cpmtimer8xx_t *cpmtimerp;	/* Pointer to the CPM Timer structure   */
 	tid_8xx_cpmtimer_t hw;

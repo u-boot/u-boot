@@ -30,12 +30,12 @@
 
 /* Allow ports to override the default behavior */
 __attribute__((weak))
-unsigned long do_go_exec (ulong (*entry)(int, char *[]), int argc, char *argv[])
+unsigned long do_go_exec (ulong (*entry)(int, char * const []), int argc, char * const argv[])
 {
 	return entry (argc, argv);
 }
 
-int do_go (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_go (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong	addr, rc;
 	int     rcode = 0;
@@ -69,7 +69,7 @@ U_BOOT_CMD(
 	"      passing 'arg' as arguments"
 );
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 U_BOOT_CMD(
 	reset, 1, 0,	do_reset,

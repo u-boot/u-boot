@@ -718,7 +718,7 @@ void show_boot_progress(int val);
 int cpu_status(int nr);
 int cpu_reset(int nr);
 int cpu_disable(int nr);
-int cpu_release(int nr, int argc, char *argv[]);
+int cpu_release(int nr, int argc, char * const argv[]);
 #endif
 
 #endif /* __ASSEMBLY__ */

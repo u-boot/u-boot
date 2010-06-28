@@ -24,7 +24,7 @@
 #include <command.h>
 
 int
-cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long cpuid;
 

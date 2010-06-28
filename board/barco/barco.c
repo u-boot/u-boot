@@ -288,7 +288,7 @@ void barcobcd_boot (void)
 	do_bootm (NULL,0,2,bootm_args);
 }
 
-int barcobcd_boot_image (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int barcobcd_boot_image (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #if 0
 	if (argc > 1) {

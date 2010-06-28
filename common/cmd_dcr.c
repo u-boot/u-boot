@@ -36,7 +36,7 @@ unsigned long set_dcr (unsigned short, unsigned long);
  * Interpreter command to retrieve an AMCC PPC 4xx Device Control Register
  * =======================================================================
  */
-int do_getdcr ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
+int do_getdcr ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[] )
 {
 	unsigned short dcrn;	/* Device Control Register Num */
 	unsigned long value;	/* DCR's value */
@@ -63,7 +63,7 @@ int do_getdcr ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
  * Interpreter command to set an AMCC PPC 4xx Device Control Register
  * ======================================================================
 */
-int do_setdcr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_setdcr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned short dcrn;	/* Device Control Register Num */
 	unsigned long value;
@@ -110,7 +110,7 @@ int do_setdcr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
  * Device Control Register inderect addressing.
  * =======================================================================
  */
-int do_getidcr (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_getidcr (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned short adr_dcrn;	/* Device Control Register Num for Address */
 	unsigned short dat_dcrn;	/* Device Control Register Num for Data */
@@ -166,7 +166,7 @@ int do_getidcr (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * Device Control Register inderect addressing.
  * =======================================================================
  */
-int do_setidcr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_setidcr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned short adr_dcrn;	/* Device Control Register Num for Address */
 	unsigned short dat_dcrn;	/* Device Control Register Num for Data */

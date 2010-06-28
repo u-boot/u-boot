@@ -68,7 +68,7 @@ static void mtc_calculate_checksum(tx_msp_cmd *packet)
 		packet->cks += buff[i];
 }
 
-static int do_mtc_led(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_mtc_led(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
@@ -120,7 +120,7 @@ static int do_mtc_led(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return err;
 }
 
-static int do_mtc_key(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_mtc_key(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
@@ -142,7 +142,7 @@ static int do_mtc_key(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return err;
 }
 
-static int do_mtc_digout(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_mtc_digout(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
@@ -171,7 +171,7 @@ static int do_mtc_digout(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return err;
 }
 
-static int do_mtc_digin(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_mtc_digin(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
@@ -205,7 +205,7 @@ static int do_mtc_digin(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return err;
 }
 
-static int do_mtc_appreg(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_mtc_appreg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
@@ -232,7 +232,7 @@ static int do_mtc_appreg(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return err;
 }
 
-static int do_mtc_version(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_mtc_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
@@ -254,7 +254,7 @@ static int do_mtc_version(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return err;
 }
 
-static int do_mtc_state(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_mtc_state(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	tx_msp_cmd pcmd;
 	rx_msp_cmd prx;
@@ -281,7 +281,7 @@ static int do_mtc_state(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return err;
 }
 
-static int do_mtc_help(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+static int do_mtc_help(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 cmd_tbl_t cmd_mtc_sub[] = {
 	U_BOOT_CMD_MKENT(led, 3, 1, do_mtc_led,
@@ -308,11 +308,11 @@ cmd_tbl_t cmd_mtc_sub[] = {
 	"[command] - get help for command\n"),
 };
 
-static int do_mtc_help(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_mtc_help(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	extern int _do_help(cmd_tbl_t *cmd_start, int cmd_items,
 			    cmd_tbl_t *cmdtp, int flag,
-			    int argc, char *argv[]);
+			    int argc, char * const argv[]);
 #ifdef CONFIG_SYS_LONGHELP
 	puts("mtc ");
 #endif
@@ -320,7 +320,7 @@ static int do_mtc_help(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			ARRAY_SIZE(cmd_mtc_sub), cmdtp, flag, argc, argv);
 }
 
-int cmd_mtc(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int cmd_mtc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *c;
 	int err = 0;

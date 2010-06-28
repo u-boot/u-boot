@@ -364,7 +364,7 @@ int EEPROMWrite (unsigned char theI2CAddress, unsigned char theValue)
 			  &theValue, I2C_WRITE);
 }
 
-int do_eeprom (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_eeprom (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	char cmd;
 	int ret_val = 0;
@@ -690,7 +690,7 @@ int SetTargetImage (int theImageIndex, unsigned int theBlockSize,
 	return 0;
 }
 
-int do_bridge (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_bridge (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	char cmd;
 	int ret_val = 1;

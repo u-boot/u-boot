@@ -194,7 +194,7 @@ void irq_free_handler(int vec)
 }
 
 #if defined(CONFIG_CMD_IRQ)
-int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int vec;
 

@@ -37,7 +37,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #undef FPGA_DEBUG
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 extern void lxt971_no_sleep(void);
 extern ulong flash_get_size (ulong base, int banknum);
 

@@ -90,7 +90,7 @@ static inline int str2long(char *p, ulong *num)
 }
 
 static int
-arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, size_t *size)
+arg_off_size(int argc, char * const argv[], nand_info_t *nand, ulong *off, size_t *size)
 {
 	int idx = nand_curr_device;
 #if defined(CONFIG_CMD_MTDPARTS)
@@ -204,7 +204,7 @@ static void nand_print_info(int idx)
 	       nand->name, nand->erasesize >> 10);
 }
 
-int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, dev, ret = 0;
 	ulong addr, off;
@@ -599,7 +599,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	return 0;
 }
 
-int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	char *boot_device = NULL;
 	int idx;

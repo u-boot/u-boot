@@ -98,7 +98,7 @@ irq_free_handler(int vec)
 /****************************************************************************/
 
 void
-do_irqinfo(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
+do_irqinfo(cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char * const argv[])
 {
 	puts("IRQ related functions are unimplemented currently.\n");
 }

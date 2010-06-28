@@ -45,7 +45,7 @@ extern int transfer_pic(unsigned char, unsigned char *, int, int);
 
 int trab_vfd (ulong bitmap);
 
-int do_vfd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_vfd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong bitmap;
 

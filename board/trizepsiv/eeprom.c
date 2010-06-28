@@ -25,7 +25,7 @@
 #include <command.h>
 #include <dm9000.h>
 
-static int do_read_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]) {
+static int do_read_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
 	unsigned int i;
 	u8 data[2];
 
@@ -39,7 +39,7 @@ static int do_read_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *a
 	return (0);
 }
 
-static int do_write_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]) {
+static int do_write_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
 	int offset,value;
 
 	if (argc < 4) {
@@ -58,7 +58,7 @@ static int do_write_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *
 	return (0);
 }
 
-int do_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]) {
+int do_dm9000_eeprom ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]) {
 	if (argc < 2) {
 		cmd_usage(cmdtp);
 		return 1;

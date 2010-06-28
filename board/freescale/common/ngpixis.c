@@ -92,7 +92,7 @@ void set_altbank(void)
 }
 
 
-int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned int i;
 	char *p_altbank = NULL;

@@ -24,7 +24,7 @@
 #ifndef _VXWORKS_H_
 #define _VXWORKS_H_
 
-int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+int do_bootvx(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 /*
  * Use bootaddr to find the location in memory that VxWorks

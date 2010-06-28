@@ -111,7 +111,7 @@ void mpc8610hpcd_diu_init(void)
 }
 
 int mpc8610diu_init_show_bmp(cmd_tbl_t *cmdtp,
-			     int flag, int argc, char *argv[])
+			     int flag, int argc, char * const argv[])
 {
 	unsigned int addr;
 

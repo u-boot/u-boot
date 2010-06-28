@@ -29,7 +29,8 @@ unsigned long load_elf_image (unsigned long addr);
 
 /* Allow ports to override the default behavior */
 __attribute__((weak))
-unsigned long do_bootelf_exec (ulong (*entry)(int, char *[]), int argc, char *argv[])
+unsigned long do_bootelf_exec (ulong (*entry)(int, char * const[]),
+			       int argc, char * const argv[])
 {
 	unsigned long ret;
 
@@ -56,7 +57,7 @@ unsigned long do_bootelf_exec (ulong (*entry)(int, char *[]), int argc, char *ar
 /* ======================================================================
  * Interpreter command to boot an arbitrary ELF image from memory.
  * ====================================================================== */
-int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long addr;		/* Address of the ELF image     */
 	unsigned long rc;		/* Return value from user code  */
@@ -93,7 +94,7 @@ int do_bootelf (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * be either an ELF image or a raw binary.  Will attempt to setup the
  * bootline and other parameters correctly.
  * ====================================================================== */
-int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_bootvx (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long addr;		/* Address of image            */
 	unsigned long bootaddr;		/* Address to put the bootline */

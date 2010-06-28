@@ -339,7 +339,7 @@ int lcd_init(uchar *lcd_reg, uchar *lcd_mem, S1D_REGS *regs, int reg_count,
 	return lcd_bmp(logo_bmp);
 }
 
-int do_esdbmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_esdbmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr;
 #ifdef CONFIG_VIDEO_SM501

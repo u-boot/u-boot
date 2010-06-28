@@ -109,16 +109,16 @@ extern s32 tsc2000_contact_temp (void);
 extern void tsc2000_spi_init(void);
 
 /* function declarations */
-int do_dip (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-int do_vcc5v (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-int do_burn_in (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-int do_contact_temp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
-int do_burn_in_status (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+int do_dip (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+int do_vcc5v (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+int do_burn_in (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+int do_contact_temp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+int do_burn_in_status (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 int i2c_write_multiple (uchar chip, uint addr, int alen,
 			uchar *buffer, int len);
 int i2c_read_multiple (uchar chip, uint addr, int alen,
 			uchar *buffer, int len);
-int do_temp_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+int do_temp_log (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 /* helper functions */
 static void adc_init (void);
@@ -162,7 +162,7 @@ typedef struct test_function_s {
 test_function_t test_function[BIF_MAX];
 
 
-int do_burn_in (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_burn_in (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	int cycle_status;
@@ -266,7 +266,7 @@ U_BOOT_CMD(
 );
 
 
-int do_dip (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_dip (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, dip;
 
@@ -299,7 +299,7 @@ U_BOOT_CMD(
 );
 
 
-int do_vcc5v (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_vcc5v (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int vcc5v;
 
@@ -327,7 +327,7 @@ U_BOOT_CMD(
 );
 
 
-int do_contact_temp (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_contact_temp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int contact_temp;
 
@@ -352,7 +352,7 @@ U_BOOT_CMD(
 );
 
 
-int do_burn_in_status (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_burn_in_status (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc > 1) {
 		cmd_usage(cmdtp);
@@ -842,7 +842,7 @@ static int dummy(void)
 	return (0);
 }
 
-int do_temp_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_temp_log (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int contact_temp;
 	int delay = 0;

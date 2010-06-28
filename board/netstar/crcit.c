@@ -71,7 +71,7 @@ static int do_crc(char *path, unsigned version)
 	return EXIT_SUCCESS;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char * const *argv)
 {
 	if (argc == 2) {
 		return do_crc(argv[1], 0);

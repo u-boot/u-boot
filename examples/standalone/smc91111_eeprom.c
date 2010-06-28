@@ -48,7 +48,7 @@ void print_MAC (struct eth_device *dev);
 int read_eeprom_reg (struct eth_device *dev, int reg);
 void print_macaddr (struct eth_device *dev);
 
-int smc91111_eeprom (int argc, char *argv[])
+int smc91111_eeprom (int argc, char * const argv[])
 {
 	int c, i, j, done, line, reg, value, start, what;
 	char input[50];

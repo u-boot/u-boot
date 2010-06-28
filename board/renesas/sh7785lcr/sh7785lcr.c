@@ -56,7 +56,7 @@ int board_eth_init(bd_t *bis)
 }
 
 #if defined(CONFIG_SH_32BIT)
-int do_pmb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_pmb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	/* clear ITLB */
 	writel(0x00000004, 0xff000010);

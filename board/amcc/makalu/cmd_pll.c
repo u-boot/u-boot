@@ -178,7 +178,7 @@ test_write(void)
 }
 
 int
-do_pll_alter (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+do_pll_alter (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char c = '\0';
 	pll_freq_t pll_freq;

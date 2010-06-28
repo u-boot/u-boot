@@ -156,7 +156,7 @@ static void pmic_dump(int numregs)
 	puts("\n");
 }
 
-int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *cmd;
 	int nregs;

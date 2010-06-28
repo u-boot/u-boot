@@ -30,12 +30,12 @@
 
 
 extern void print_pip405_info(void);
-extern int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 
 /* ------------------------------------------------------------------------- */
 
-int do_pip405(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_pip405(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 
 	ulong led_on,led_nr;

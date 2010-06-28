@@ -35,7 +35,7 @@ int i2c_read (uchar, uint, int , uchar* , int);
 #endif
 #include <spi.h>
 
-void app_startup(char **);
+void app_startup(char * const *);
 
 #endif    /* ifndef __ASSEMBLY__ */
 

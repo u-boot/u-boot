@@ -78,7 +78,7 @@ static inline void lcd_putc_xy (ushort x, ushort y, uchar  c);
 
 static int lcd_init (void *lcdbase);
 
-static int lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[]);
+static int lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]);
 static void *lcd_logo (void);
 
 static int lcd_getbgcolor (void);
@@ -350,7 +350,7 @@ int drv_lcd_init (void)
 }
 
 /*----------------------------------------------------------------------*/
-static int lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 #if LCD_BPP == LCD_MONOCHROME
 	/* Setting the palette */

@@ -11,7 +11,7 @@
 #include <asm/blackfin.h>
 #include "gpio_cfi_flash.h"
 
-int do_pf(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_pf(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong faddr = CONFIG_SYS_FLASH_BASE;
 	ushort data;

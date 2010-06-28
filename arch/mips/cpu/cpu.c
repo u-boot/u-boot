@@ -42,7 +42,7 @@ void __attribute__((weak)) _machine_restart(void)
 {
 }
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	_machine_restart();
 

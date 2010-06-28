@@ -60,7 +60,7 @@ extern int eeprom_write_enable (unsigned dev_addr, int state);
 /* ------------------------------------------------------------------------- */
 
 #if defined(CONFIG_CMD_EEPROM)
-int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	const char *const fmt =
 		"\nEEPROM @0x%lX %s: addr %08lx  off %04lx  count %ld ... ";

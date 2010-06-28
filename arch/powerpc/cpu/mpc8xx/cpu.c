@@ -478,7 +478,7 @@ void upmconfig (uint upm, uint * table, uint size)
 
 #ifndef CONFIG_LWMON
 
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong msr, addr;
 
@@ -521,7 +521,7 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * and thus too short to reset the external hardware. So we  use  the
  * watchdog to reset the board.
  */
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	/* prevent triggering the watchdog */
 	disable_interrupts ();

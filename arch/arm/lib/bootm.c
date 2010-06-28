@@ -50,7 +50,7 @@ static void setup_end_tag (bd_t *bd);
 static struct tag *params;
 #endif /* CONFIG_SETUP_MEMORY_TAGS || CONFIG_CMDLINE_TAG || CONFIG_INITRD_TAG */
 
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
 {
 	bd_t	*bd = gd->bd;
 	char	*s;

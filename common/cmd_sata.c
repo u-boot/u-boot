@@ -62,7 +62,7 @@ block_dev_desc_t *sata_get_dev(int dev)
 	return (dev < CONFIG_SYS_SATA_MAX_DEVICE) ? &sata_dev_desc[dev] : NULL;
 }
 
-int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int rc = 0;
 

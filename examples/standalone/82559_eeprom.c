@@ -305,7 +305,7 @@ write_config_word(int bus, int dev, int func, int reg, u16 data)
 }
 
 
-int main (int argc, char *argv[])
+int main (int argc, char * const argv[])
 {
 	unsigned char *eth_addr;
 	uchar buf[6];

@@ -48,14 +48,14 @@ struct cmd_tbl_s {
 	int		maxargs;	/* maximum number of arguments	*/
 	int		repeatable;	/* autorepeat allowed?		*/
 					/* Implementation function	*/
-	int		(*cmd)(struct cmd_tbl_s *, int, int, char *[]);
+	int		(*cmd)(struct cmd_tbl_s *, int, int, char * const []);
 	char		*usage;		/* Usage message	(short)	*/
 #ifdef	CONFIG_SYS_LONGHELP
 	char		*help;		/* Help  message	(long)	*/
 #endif
 #ifdef CONFIG_AUTO_COMPLETE
 	/* do auto completion on the arguments */
-	int		(*complete)(int argc, char *argv[], char last_char, int maxv, char *cmdv[]);
+	int		(*complete)(int argc, char * const argv[], char last_char, int maxv, char *cmdv[]);
 #endif
 };
 
@@ -67,7 +67,7 @@ extern cmd_tbl_t  __u_boot_cmd_end;
 
 /* common/command.c */
 int _do_help (cmd_tbl_t *cmd_start, int cmd_items, cmd_tbl_t * cmdtp, int
-	      flag, int argc, char *argv[]);
+	      flag, int argc, char * const argv[]);
 cmd_tbl_t *find_cmd(const char *cmd);
 cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len);
 
@@ -83,7 +83,7 @@ extern int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *
  *
  * All commands use a common argument format:
  *
- * void function (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+ * void function (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
  */
 
 typedef	void	command_t (cmd_tbl_t *, int, int, char *[]);

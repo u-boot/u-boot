@@ -36,7 +36,7 @@ extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 /*
  * Command led: controls the various LEDs 0..11 on the PN62 card.
  */
-int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     unsigned int number, function;
 
@@ -64,7 +64,7 @@ U_BOOT_CMD(
 #define CMD_MOVE_WINDOW 0x1
 #define CMD_BOOT_IMAGE  0x2
 
-int do_loadpci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_loadpci (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *s;
     ulong addr = 0, count = 0;

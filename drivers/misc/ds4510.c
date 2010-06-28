@@ -273,7 +273,7 @@ cmd_tbl_t cmd_ds4510[] = {
 #endif
 };
 
-int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	static uint8_t chip = CONFIG_SYS_I2C_DS4510_ADDR;
 	cmd_tbl_t *c;

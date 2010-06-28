@@ -29,7 +29,7 @@
 
 #ifdef CONFIG_CMD_BSP
 
-static int do_i2c_test(char *argv[])
+static int do_i2c_test(char * const argv[])
 {
 	unsigned char temp, temp1;
 
@@ -57,7 +57,7 @@ static int do_i2c_test(char *argv[])
 	return 0;
 }
 
-static int do_usb_test(char *argv[])
+static int do_usb_test(char * const argv[])
 {
 	int i;
 	static int usb_stor_curr_dev = -1; /* current device */
@@ -90,7 +90,7 @@ static int do_usb_test(char *argv[])
 	return 0;
 }
 
-static int do_led_test(char *argv[])
+static int do_led_test(char * const argv[])
 {
 	int i = 0;
 	struct mpc5xxx_gpt_0_7 *gpt = (struct mpc5xxx_gpt_0_7 *)MPC5XXX_GPT;
@@ -134,7 +134,7 @@ static int do_led_test(char *argv[])
 	return 0;
 }
 
-static int do_rs232_test(char *argv[])
+static int do_rs232_test(char * const argv[])
 {
 	int error_status = 0;
 	struct mpc5xxx_gpio *gpio = (struct mpc5xxx_gpio *)MPC5XXX_GPIO;
@@ -397,7 +397,7 @@ static int do_rs232_test(char *argv[])
 	return error_status;
 }
 
-static int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int cmd_fkt(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int rcode = -1;
 

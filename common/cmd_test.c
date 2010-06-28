@@ -24,9 +24,9 @@
 #include <common.h>
 #include <command.h>
 
-int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	char **ap;
+	char * const *ap;
 	int left, adv, expr, last_expr, neg, last_cmp;
 
 	/* args? */
@@ -150,7 +150,7 @@ U_BOOT_CMD(
 	"[args..]"
 );
 
-int do_false(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_false(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return 1;
 }
@@ -161,7 +161,7 @@ U_BOOT_CMD(
 	NULL
 );
 
-int do_true(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_true(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return 0;
 }

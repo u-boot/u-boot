@@ -206,7 +206,7 @@ static int write_mac(uchar *mac)
 	return -1;
 }
 
-int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	void (*sram_setfreq) (unsigned int, unsigned int);
 	struct chip_data *chip = &chip_data;

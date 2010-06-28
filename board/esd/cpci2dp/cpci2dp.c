@@ -149,7 +149,7 @@ int eeprom_write_enable (unsigned dev_addr, int state) {
 #endif
 
 #if defined(CONFIG_SYS_EEPROM_WREN)
-int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int query = argc == 1;
 	int state = 0;

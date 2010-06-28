@@ -173,7 +173,7 @@ void interrupt_handler (void)
 
 #if defined(CONFIG_CMD_IRQ)
 #ifdef CONFIG_SYS_INTC_0
-int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	struct irq_action *act = vecs;
@@ -193,7 +193,7 @@ int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return (0);
 }
 #else
-int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_irqinfo (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	puts ("Undefined interrupt controller\n");
 }

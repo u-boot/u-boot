@@ -157,7 +157,7 @@ int eeprom_write_enable (unsigned dev_addr, int state)
 	return state;
 }
 
-int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int query = argc == 1;
 	int state = 0;

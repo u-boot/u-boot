@@ -328,12 +328,12 @@ int genimg_get_format (void *img_addr);
 int genimg_has_config (bootm_headers_t *images);
 ulong genimg_get_image (ulong img_addr);
 
-int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
+int boot_get_ramdisk (int argc, char * const argv[], bootm_headers_t *images,
 		uint8_t arch, ulong *rd_start, ulong *rd_end);
 
 
 #ifdef CONFIG_OF_LIBFDT
-int boot_get_fdt (int flag, int argc, char *argv[], bootm_headers_t *images,
+int boot_get_fdt (int flag, int argc, char * const argv[], bootm_headers_t *images,
 		char **of_flat_tree, ulong *of_size);
 int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		char **of_flat_tree, ulong *of_size);

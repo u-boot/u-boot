@@ -80,7 +80,7 @@ static void set_otp_timing(bool write)
 	bfrom_OtpCommand(OTP_INIT, write ? timing : timing & ~(-1 << 15));
 }
 
-int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	uint32_t ret, base_flags;
 	bool prompt_user, force_read;

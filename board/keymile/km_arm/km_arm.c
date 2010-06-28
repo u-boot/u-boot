@@ -183,7 +183,7 @@ int board_init(void)
 }
 
 #if defined(CONFIG_CMD_SF)
-int do_spi_toggle(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_spi_toggle(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 tmp;
 	if (argc < 2) {

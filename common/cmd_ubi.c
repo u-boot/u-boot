@@ -436,7 +436,7 @@ static int ubi_dev_scan(struct mtd_info *info, char *ubidev,
 	return 0;
 }
 
-static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	size_t size = 0;
 	ulong addr = 0;

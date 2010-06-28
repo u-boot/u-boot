@@ -24,7 +24,7 @@
 #include <config.h>
 #include <command.h>
 
-int do_interrupts(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_interrupts(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 
 	if (argc != 2) {
@@ -49,7 +49,7 @@ U_BOOT_CMD(
 );
 
 /* Implemented in $(CPU)/interrupts.c */
-int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 U_BOOT_CMD(
 	irqinfo,    1,    1,     do_irqinfo,

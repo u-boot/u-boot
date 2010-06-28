@@ -108,7 +108,7 @@ static void test_pci(void)
 	printf("PCI CN2 ID = %08x\n", readl(0xfe040220));
 }
 
-int do_hw_test(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_hw_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *cmd;
 

@@ -688,7 +688,7 @@ int ppc440spe_revB() {
 
 /* ------------------------------------------------------------------------- */
 
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #if defined(CONFIG_BOARD_RESET)
 	board_reset();

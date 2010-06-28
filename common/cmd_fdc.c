@@ -713,7 +713,7 @@ int fdc_fdos_read (void *buffer, int len)
 /****************************************************************************
  * main routine do_fdcboot
  */
-int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	FD_GEO_STRUCT *pFG = (FD_GEO_STRUCT *)floppy_type;
 	FDC_COMMAND_STRUCT *pCMD = &cmd;

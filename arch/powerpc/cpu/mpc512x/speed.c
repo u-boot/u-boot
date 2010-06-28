@@ -131,7 +131,7 @@ ulong get_bus_freq (ulong dummy)
 	return gd->csb_clk;
 }
 
-int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	char buf[32];
 

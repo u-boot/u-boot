@@ -492,7 +492,7 @@ int do_auto_update(void)
 	return 0;
 }
 
-int auto_update(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int auto_update(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	do_auto_update();
 

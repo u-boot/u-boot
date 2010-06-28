@@ -38,7 +38,7 @@ static u8 boot_267_nand[] = {
 	0x00, 0x00, 0x00, 0x00
 };
 
-static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u8 chip;
 	u8 *buf;

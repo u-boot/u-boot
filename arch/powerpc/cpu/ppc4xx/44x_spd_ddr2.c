@@ -418,7 +418,7 @@ static void	test(void);
 static void	DQS_calibration_process(void);
 #endif
 #endif
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 static unsigned char spd_read(uchar chip, uint addr)
 {

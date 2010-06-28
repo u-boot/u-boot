@@ -33,7 +33,7 @@ static char *make_command_line(void)
 
 extern ulong bfin_poweron_retx;
 
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
 {
 	int	(*appl) (char *cmdline);
 	char	*cmdline;

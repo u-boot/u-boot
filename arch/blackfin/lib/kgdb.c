@@ -417,7 +417,7 @@ void kgdb_putregs(struct pt_regs *regs, char *buf, int length)
 
 }
 
-void kgdb_breakpoint(int argc, char *argv[])
+void kgdb_breakpoint(int argc, char * const argv[])
 {
 	asm volatile ("excpt 0x1\n");
 }

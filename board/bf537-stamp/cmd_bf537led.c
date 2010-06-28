@@ -80,7 +80,7 @@ int atoi(char *string)
 	return retval;
 }
 
-int do_bf537led(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_bf537led(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int led_mask = 0;
 	int led_current_state = 0;

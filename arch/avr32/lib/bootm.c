@@ -171,7 +171,7 @@ static void setup_end_tag(struct tag *params)
 	params->hdr.size = 0;
 }
 
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
 {
 	void	(*theKernel)(int magic, void *tagtable);
 	struct	tag *params, *params_start;

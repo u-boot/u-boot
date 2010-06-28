@@ -42,7 +42,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 static int fdt_valid(void);
-static int fdt_parse_prop(char **newval, int count, char *data, int *len);
+static int fdt_parse_prop(char *const*newval, int count, char *data, int *len);
 static int fdt_print(const char *pathp, char *prop, int depth);
 
 /*
@@ -63,7 +63,7 @@ void set_working_fdt_addr(void *addr)
 /*
  * Flattened Device Tree command, see the help for parameter definitions.
  */
-int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_fdt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2) {
 		cmd_usage(cmdtp);
@@ -515,7 +515,7 @@ static int fdt_valid(void)
  * data: A bytestream to be placed in the property
  * len: The length of the resulting bytestream
  */
-static int fdt_parse_prop(char **newval, int count, char *data, int *len)
+static int fdt_parse_prop(char * const *newval, int count, char *data, int *len)
 {
 	char *cp;		/* temporary char pointer */
 	char *newp;		/* temporary newval char pointer */

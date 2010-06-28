@@ -207,7 +207,7 @@ static int l2cache_status(void)
  *  int do_l2cache()
  *
  ************************************************************************/
-int do_l2cache( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
+int do_l2cache( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[] )
 {
 	switch (argc) {
 	case 2:			/* on / off	*/

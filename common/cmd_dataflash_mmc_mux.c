@@ -26,7 +26,7 @@
 
 static int mmc_nspi (const char *);
 
-int do_dataflash_mmc_mux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_dataflash_mmc_mux (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	switch (argc) {
 	case 2:			/* on / off	*/

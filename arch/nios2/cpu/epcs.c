@@ -472,7 +472,7 @@ static int epcs_sect_erased (int sect, unsigned *offset,
  * Commands
  ***********************************************************************/
 static
-void do_epcs_info (struct epcs_devinfo_t *dev, int argc, char *argv[])
+void do_epcs_info (struct epcs_devinfo_t *dev, int argc, char * const argv[])
 {
 	int i;
 	unsigned char stat;
@@ -519,7 +519,7 @@ void do_epcs_info (struct epcs_devinfo_t *dev, int argc, char *argv[])
 }
 
 static
-void do_epcs_erase (struct epcs_devinfo_t *dev, int argc, char *argv[])
+void do_epcs_erase (struct epcs_devinfo_t *dev, int argc, char * const argv[])
 {
 	unsigned start,end;
 
@@ -549,7 +549,7 @@ void do_epcs_erase (struct epcs_devinfo_t *dev, int argc, char *argv[])
 }
 
 static
-void do_epcs_protect (struct epcs_devinfo_t *dev, int argc, char *argv[])
+void do_epcs_protect (struct epcs_devinfo_t *dev, int argc, char * const argv[])
 {
 	unsigned char stat;
 
@@ -585,7 +585,7 @@ void do_epcs_protect (struct epcs_devinfo_t *dev, int argc, char *argv[])
 }
 
 static
-void do_epcs_read (struct epcs_devinfo_t *dev, int argc, char *argv[])
+void do_epcs_read (struct epcs_devinfo_t *dev, int argc, char * const argv[])
 {
 	ulong addr,off,cnt;
 	ulong sz;
@@ -617,7 +617,7 @@ void do_epcs_read (struct epcs_devinfo_t *dev, int argc, char *argv[])
 }
 
 static
-void do_epcs_write (struct epcs_devinfo_t *dev, int argc, char *argv[])
+void do_epcs_write (struct epcs_devinfo_t *dev, int argc, char * const argv[])
 {
 	ulong addr,off,cnt;
 	ulong sz;
@@ -656,7 +656,7 @@ void do_epcs_write (struct epcs_devinfo_t *dev, int argc, char *argv[])
 }
 
 static
-void do_epcs_verify (struct epcs_devinfo_t *dev, int argc, char *argv[])
+void do_epcs_verify (struct epcs_devinfo_t *dev, int argc, char * const argv[])
 {
 	ulong addr,off,cnt;
 	ulong sz;
@@ -690,7 +690,7 @@ void do_epcs_verify (struct epcs_devinfo_t *dev, int argc, char *argv[])
 }
 
 /*-----------------------------------------------------------------------*/
-int do_epcs (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_epcs (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int len;
 	struct epcs_devinfo_t *dev = epcs_dev_find ();

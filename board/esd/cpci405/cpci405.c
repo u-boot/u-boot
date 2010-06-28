@@ -32,7 +32,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 extern void __ft_board_setup(void *blob, bd_t *bd);
 
 #undef FPGA_DEBUG
@@ -650,7 +650,7 @@ int OWReadByte(void)
 	return result;
 }
 
-int do_onewire(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_onewire(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned short val;
 	int result;
@@ -698,7 +698,7 @@ U_BOOT_CMD(
 /*
  * Write backplane ip-address...
  */
-int do_get_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_get_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 	char *buf;
@@ -756,7 +756,7 @@ U_BOOT_CMD(
 /*
  * Set and print backplane ip...
  */
-int do_set_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_set_bpip(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *buf;
 	char str[32];

@@ -44,7 +44,7 @@ void display_sysid (void)
 
 }
 
-int do_sysid (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_sysid (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	display_sysid ();
 	return (0);

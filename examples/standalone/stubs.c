@@ -189,7 +189,7 @@ void __attribute__((unused)) dummy(void)
 
 extern unsigned long __bss_start, _end;
 
-void app_startup(char **argv)
+void app_startup(char * const *argv)
 {
 	unsigned char * cp = (unsigned char *) &__bss_start;
 

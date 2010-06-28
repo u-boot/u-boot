@@ -52,7 +52,7 @@ int checkcpu (void)
 
 /* ------------------------------------------------------------------------- */
 
-int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	volatile gptmr8220_t *gptmr = (volatile gptmr8220_t *) MMAP_GPTMR;
 	ulong msr;

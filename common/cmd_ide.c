@@ -172,7 +172,7 @@ static void set_pcmcia_timing (int pmode);
 
 /* ------------------------------------------------------------------------- */
 
-int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     int rcode = 0;
 
@@ -346,7 +346,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     }
 }
 
-int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *boot_device = NULL;
 	char *ep;

@@ -12,7 +12,7 @@
 
 static char *start_addr, *last_addr;
 
-int do_strings(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_strings(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc == 1) {
 		cmd_usage(cmdtp);

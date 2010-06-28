@@ -265,7 +265,7 @@ int board_eth_init(bd_t *bis)
 	return pci_eth_init(bis);
 }
 
-int do_writepci(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_writepci(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned int addr;
 	unsigned int size;

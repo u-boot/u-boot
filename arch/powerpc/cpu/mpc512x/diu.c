@@ -107,7 +107,7 @@ int mpc5121_diu_init(void)
 }
 
 int mpc5121diu_init_show_bmp(cmd_tbl_t *cmdtp,
-			     int flag, int argc, char *argv[])
+			     int flag, int argc, char * const argv[])
 {
 	unsigned int addr;
 

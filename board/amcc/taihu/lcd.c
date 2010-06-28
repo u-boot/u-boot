@@ -129,7 +129,7 @@ int lcd_init(void)
 	return 0;
 }
 
-static int do_lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	out_8((u8 *) LCD_CMD_ADDR, 0x01);
 	udelay(2000);
@@ -137,7 +137,7 @@ static int do_lcd_clear (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-static int do_lcd_puts (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_lcd_puts (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2) {
 		cmd_usage(cmdtp);
@@ -148,7 +148,7 @@ static int do_lcd_puts (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-static int do_lcd_putc (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_lcd_putc (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2) {
 		cmd_usage(cmdtp);
@@ -159,7 +159,7 @@ static int do_lcd_putc (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-static int do_lcd_cur (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_lcd_cur (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong count;
 	ulong dir;

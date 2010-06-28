@@ -391,7 +391,7 @@ static uchar *key_match (uchar * kbd_str)
 #endif	/* CONFIG_PREBOOT */
 
 /* Read Keyboard status */
-int do_kbd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_kbd (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	uchar kbd_data[KEYBD_DATALEN];
 	uchar keybd_env[2 * KEYBD_DATALEN + 1];

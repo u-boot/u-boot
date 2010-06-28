@@ -42,7 +42,7 @@ static void print_lnum(const char *, u64);
 #if defined(CONFIG_PPC)
 static void print_str(const char *, const char *);
 
-int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 	char buf[32];
@@ -122,7 +122,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #elif defined(CONFIG_NIOS2)
 
-int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -149,7 +149,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #elif defined(CONFIG_MICROBLAZE)
 
-int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 	print_num ("mem start      ",	(ulong)bd->bi_memstart);
@@ -171,7 +171,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #elif defined(CONFIG_SPARC)
 
-int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -206,7 +206,7 @@ int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 static void print_str(const char *, const char *);
 
-int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 	char buf[32];
@@ -256,7 +256,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 static void print_str(const char *, const char *);
 
-int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 	char buf[32];
@@ -284,7 +284,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #elif defined(CONFIG_MIPS)
 
-int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bd_t *bd = gd->bd;
 
@@ -324,7 +324,7 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #elif defined(CONFIG_ARM)
 
-int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	bd_t *bd = gd->bd;

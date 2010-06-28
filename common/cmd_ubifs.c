@@ -42,7 +42,7 @@ int ubifs_mount(char *vol_name);
 int ubifs_ls(char *dir_name);
 int ubifs_load(char *filename, u32 addr, u32 size);
 
-int do_ubifs_mount(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ubifs_mount(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *vol_name;
 	int ret;
@@ -68,7 +68,7 @@ int do_ubifs_mount(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-int do_ubifs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ubifs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *filename = "/";
 	int ret;
@@ -89,7 +89,7 @@ int do_ubifs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return ret;
 }
 
-int do_ubifs_load(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ubifs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *filename;
 	char *endp;

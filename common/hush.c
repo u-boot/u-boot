@@ -94,7 +94,7 @@
 #include <hush.h>
 #include <command.h>        /* find_cmd */
 /*cmd_boot.c*/
-extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);      /* do_bootd */
+extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);      /* do_bootd */
 #endif
 #ifndef __U_BOOT__
 #include <ctype.h>     /* isalpha, isdigit */
@@ -1024,7 +1024,7 @@ static void get_user_input(struct in_str *i)
 
 #ifdef CONFIG_BOOT_RETRY_TIME
 #  ifdef CONFIG_RESET_TO_RETRY
-	extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+	extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 #  else
 #	error "This currently only works with CONFIG_RESET_TO_RETRY enabled"
 #  endif
@@ -1681,7 +1681,7 @@ static int run_pipe_real(struct pipe *pi)
 			} else {
 				int rcode;
 #if defined(CONFIG_CMD_BOOTD)
-	    extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+	    extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 				/* avoid "bootd" recursion */
 				if (cmdtp->cmd == do_bootd) {
@@ -3351,7 +3351,7 @@ static void setup_job_control(void)
 	tcsetpgrp(shell_terminal, shell_pgrp);
 }
 
-int hush_main(int argc, char **argv)
+int hush_main(int argc, char * const *argv)
 {
 	int opt;
 	FILE *input;
@@ -3588,7 +3588,7 @@ static char * make_string(char ** inp)
 }
 
 #ifdef __U_BOOT__
-int do_showvar (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_showvar (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, k;
 	int rcode = 0;
