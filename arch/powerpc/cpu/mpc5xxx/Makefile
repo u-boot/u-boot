@@ -30,11 +30,6 @@ SOBJS	= io.o firmware_sc_task_bestcomm.impl.o
 COBJS	= i2c.o traps.o cpu.o cpu_init.o ide.o interrupts.o \
 	  loadtask.o pci_mpc5200.o serial.o speed.o usb_ohci.o usb.o
 
-# Workaround for local bus unaligned access problem on MPC5200
-#ifdef CONFIG_MPC5200
-COBJS	+= memcpy_mpc5200.o
-#endif
-
 SRCS	:= $(START:.o=.S) $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 START	:= $(addprefix $(obj),$(START))
