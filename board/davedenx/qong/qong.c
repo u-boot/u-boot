@@ -73,6 +73,15 @@ int board_early_init_f (void)
 	/* set interrupt pin as input */
 	mxc_gpio_direction(QONG_FPGA_IRQ_PIN, MXC_GPIO_DIRECTION_IN);
 
+	/* FPGA JTAG Interface */
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SFS6, MUX_CTL_GPIO));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SCK6, MUX_CTL_GPIO));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_CAPTURE, MUX_CTL_GPIO));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_COMPARE, MUX_CTL_GPIO));
+	mxc_gpio_direction(QONG_FPGA_TCK_PIN, MXC_GPIO_DIRECTION_OUT);
+	mxc_gpio_direction(QONG_FPGA_TMS_PIN, MXC_GPIO_DIRECTION_OUT);
+	mxc_gpio_direction(QONG_FPGA_TDI_PIN, MXC_GPIO_DIRECTION_OUT);
+	mxc_gpio_direction(QONG_FPGA_TDO_PIN, MXC_GPIO_DIRECTION_IN);
 #endif
 
 	/* setup pins for UART1 */
@@ -145,6 +154,8 @@ int board_init (void)
 	/* board id for linux */
 	gd->bd->bi_arch_number = MACH_TYPE_QONG;
 	gd->bd->bi_boot_params = (0x80000100);	/* adress of boot parameters */
+
+	qong_fpga_init();
 
 	return 0;
 }
