@@ -85,7 +85,7 @@
 #endif
 
 /* PHY mask - set only those phy number bits where phy is/can be connected */
-#define EMAC_MDIO_PHY_NUM           1
+#define EMAC_MDIO_PHY_NUM           CONFIG_EMAC_MDIO_PHY_NUM
 #define EMAC_MDIO_PHY_MASK          (1 << EMAC_MDIO_PHY_NUM)
 
 /* Ethernet Min/Max packet size */
