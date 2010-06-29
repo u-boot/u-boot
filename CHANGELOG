@@ -1,3 +1,157 @@
+commit 161e4ae46046282fde6a69a0f1f80965f2a1b6f4
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Jun 17 07:01:40 2010 +0200
+
+    powerpc: fix wrong comment at GOT definitions
+
+    r12 is used for accessing the GOT not r14. Fix this in the
+    comment.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 7030d56b7946c8db2e8082a9b84cd69b9540a0ca
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Thu Jun 17 11:37:27 2010 -0500
+
+    MAKEALL: Add missing powerpc 36-bit targets
+
+    We were missing 8641HPCN_36BIT and MPC8536DS_36BIT.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit e03b4d296b27790de3b25edd32784d20538240d8
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sat Jun 26 00:39:28 2010 +0200
+
+    Fix compiler warnings for EVB64260, P3G4 and ZUMA
+
+    Fix following warnings:
+
+    $ ./MAKEALL EVB64260 P3G4 ZUMA
+    Configuring for EVB64260 board...
+    mpsc.c: In function 'mpsc_putchar_early':
+    mpsc.c:121: warning: dereferencing type-punned pointer will break strict-aliasing rules
+    mpsc.c:127: warning: dereferencing type-punned pointer will break strict-aliasing rules
+    ...
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 9fb3b5085787baad8a133e347ad12c5b3a022e98
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Mon Jun 28 22:44:49 2010 +0400
+
+    EHCI: zero out QH transfer overlay in ehci_submit_async()
+
+    ehci_submit_async() doesn't really zero out the QH transfer overlay (as the EHCI
+    specification suggests) which leads to the controller seeing the "token" field
+    as the previous call has left it, i.e.:
+    - if a timeout occured on the previous call (Active bit left as 1), controller
+      incorrectly tries to complete a previous transaction on a newly programmed
+      endpoint;
+    - if a halt occured on the previous call (Halted bit set to 1), controller just
+      ignores the newly programmed TD(s) and the function then keeps returning error
+      ad infinitum.
+
+    This turned out to be caused by the wrong orger of the arguments to the memset()
+    call in ehci_alloc(), so the allocated TDs weren't cleared either.
+
+    While at it, stop needlessly initializing the alternate next TD pointer in the
+    QH transfer overlay...
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+    Acked-by: Remy Bohmer <linux@bohmer.net>
+
+commit 0d7f4abcf6bbef06504c82e03f11054468262430
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Thu Jun 17 21:17:08 2010 +0200
+
+    Fix console_buffer size conflict error.
+
+    The console_buffer size is declared in common/main.c as
+       -- char console_buffer[CONFIG_SYS_CBSIZE + 1];
+    so this extern definition is wrong.
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 38c38c344c200ee90cfd243671473c449b6f0815
+Author: Poonam Aggrwal <poonam.aggrwal@freescale.com>
+Date:	Tue Jun 22 12:50:46 2010 +0530
+
+    85xx/p1_p2_rdb: Added RevD board version support
+
+    - Also modified the code to use io accessors.
+
+    Signed-off-by: Poonam Aggrwal <poonam.aggrwal@freescale.com>
+    Signed-off-by: Dipen Dudhat <dipen.dudhat@freescale.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit c987f4753b0afadb38acd7e61df7ba11e8a0203f
+Author: Felix Radensky <felix@embedded-sol.com>
+Date:	Mon Jun 28 01:57:39 2010 +0300
+
+    tsec: Fix eTSEC2 link problem on P2020RDB
+
+    On P2020RDB eTSEC2 is connected to Vitesse VSC8221 PHY via SGMII.
+    Current TBI PHY settings for SGMII mode cause link problems on
+    this platform, link never comes up.
+
+    Fix this by making TBI PHY settings configurable and add a working
+    configuration for P2020RDB.
+
+    Signed-off-by: Felix Radensky <felix@embedded-sol.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+    Acked-by: Peter Tyser <ptyser@xes-inc.com>
+    Tested-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit d3bee08332fbc9cc5b6dc22ecd34050a85d44d0a
+Author: Poonam Aggrwal <poonam.aggrwal@freescale.com>
+Date:	Wed Jun 23 19:32:28 2010 +0530
+
+    85xx/p1_p2_rdb: Modify the CLK_CTRL value for DDR at 667MHz
+
+    Use a slighly larger value of CLK_CTRL for DDR at 667MHz
+    which fixes random crashes while linux booting.
+
+    Applicable for both NAND and NOR boot.
+
+    Signed-off-by: Sandeep Gopalpet <sandeep.kumar@freescale.com>
+    Signed-off-by: Poonam Aggrwal <poonam.aggrwal@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit cdc6363f423900645265563d705a0a5a964ae40c
+Author: Poonam Aggrwal <poonam.aggrwal@freescale.com>
+Date:	Wed Jun 23 19:42:07 2010 +0530
+
+    85xx/p1_p2_rdb: not able to modify "$bootfile" environment variable
+
+    Because the variable was getting defined twice.
+
+    Signed-off-by: Poonam Aggrwal <poonam.aggrwal@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 4ccd5510e50b5675227a1fe0e5ca099d333f637d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Jun 29 01:33:35 2010 +0200
+
+    MPC512x: workaround data corruption for unaligned local bus accesses
+
+    Commit 460c2ce3 "MPC5200: workaround data corruption for unaligned
+    local bus accesses" fixed the problem for MPC5200 only, but MPC512x is
+    affected as well, so apply the same fix here, too.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Detlev Zundel <dzu@denx.de>
+    Cc: Anatolij Gustschin <agust@denx.de>
+    Acked-by: Detlev Zundel <dzu@denx.de>
+
+commit 482126e27b3dbf0e69a6445da8b94b3551adf05d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jun 23 20:50:54 2010 +0200
+
+    Prepare v2010.06-rc3
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit 460c2ce362e56890c2a029e2c3b1ff2796c7fc54
 Author: Wolfgang Denk <wd@denx.de>
 Date:	Mon Jun 21 22:29:59 2010 +0200

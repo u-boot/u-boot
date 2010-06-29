@@ -425,6 +425,15 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_ETHPRIME		"eTSEC1"
 
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
+
+/* TBI PHY configuration for SGMII mode */
+#define CONFIG_TSEC_TBICR_SETTINGS ( \
+		TBICR_PHY_RESET \
+		| TBICR_ANEG_ENABLE \
+		| TBICR_FULL_DUPLEX \
+		| TBICR_SPEED1_SET \
+		)
+
 #endif	/* CONFIG_TSEC_ENET */
 
 /*
@@ -568,7 +577,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 	"netdev=eth0\0"						\
 	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
 	"loadaddr=1000000\0"			\
-	"bootfile=uImage\0"	\
 	"tftpflash=tftpboot $loadaddr $uboot; "			\
 		"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
 		"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
