@@ -49,6 +49,7 @@ int bfin_EMAC_initialize(bd_t *bis);
 int cs8900_initialize(u8 dev_num, int base_addr);
 int dc21x4x_initialize(bd_t *bis);
 int davinci_emac_initialize(void);
+int designware_initialize(u32 id, ulong base_addr, u32 phy_addr);
 int dnet_eth_initialize(int id, void *regs, unsigned int phy_addr);
 int e1000_initialize(bd_t *bis);
 int eepro100_initialize(bd_t *bis);
