@@ -355,12 +355,10 @@
 /*
  * Clocks config
  *
- * CONFIG_SYS_BUS_HZ			- Bus clock frequency in Hz
- * CONFIG_SYS_BUS_CLK			- As above (?)
+ * CONFIG_SYS_BUS_CLK			- Bus clock frequency in Hz
  * CONFIG_SYS_HZ			- Decrementer freq in Hz
  */
 
-#define CONFIG_SYS_BUS_HZ		CONFIG_BUS_CLK
 #define CONFIG_SYS_BUS_CLK		CONFIG_BUS_CLK
 #define CONFIG_SYS_HZ			1000
 

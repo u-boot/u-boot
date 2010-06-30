@@ -183,15 +183,6 @@ void *video_hw_init(void)
 	return (void *)pGD;
 }
 
-void video_set_lut (unsigned int index,	/* color number */
-		    unsigned char r,	/* red */
-		    unsigned char g,	/* green */
-		    unsigned char b	/* blue */
-		    )
-{
-	return;
-}
-
 #endif /* defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE) */
 
 #endif /* CONFIG_FSL_DIU_FB */

@@ -29,10 +29,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_AMIGAONEG3SE
-int console_changed = 0;
-#endif
-
 #ifdef CONFIG_SYS_CONSOLE_IS_IN_ENV
 /*
  * if overwrite_console returns 1, the stdin, stderr and stdout

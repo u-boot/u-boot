@@ -12,23 +12,53 @@ APPEND=no	# Default: Create new config file
 BOARD_NAME=""	# Name to print in make output
 TARGETS=""
 
+arch=""
+cpu=""
+board=""
+vendor=""
+soc=""
+
+if [ \( $# -eq 2 \) -a \( "$1" = "-A" \) ] ; then
+	# Automatic mode
+	line=`egrep -i "^[[:space:]]*${2}[[:space:]]" boards.cfg` || {
+		echo "make: *** No rule to make target \`$2_config'.  Stop." >&2
+		exit 1
+	}
+
+	set ${line}
+	# add default board name if needed
+	[ $# = 3 ] && set ${line} ${1}
+fi
+
 while [ $# -gt 0 ] ; do
 	case "$1" in
 	--) shift ; break ;;
 	-a) shift ; APPEND=yes ;;
-	-n) shift ; BOARD_NAME="${1%%_config}" ; shift ;;
+	-n) shift ; BOARD_NAME="${1%_config}" ; shift ;;
 	-t) shift ; TARGETS="`echo $1 | sed 's:_: :g'` ${TARGETS}" ; shift ;;
 	*)  break ;;
 	esac
 done
 
-[ "${BOARD_NAME}" ] || BOARD_NAME="$1"
-
 [ $# -lt 4 ] && exit 1
 [ $# -gt 6 ] && exit 1
 
-if [ "${ARCH}" -a "${ARCH}" != "$2" ]; then
-	echo "Failed: \$ARCH=${ARCH}, should be '$2' for ${BOARD_NAME}" 1>&2
+CONFIG_NAME="${1%_config}"
+
+[ "${BOARD_NAME}" ] || BOARD_NAME="${CONFIG_NAME}"
+
+arch="$2"
+cpu="$3"
+if [ "$4" = "-" ] ; then
+	board=${BOARD_NAME}
+else
+	board="$4"
+fi
+[ $# -gt 4 ] && [ "$5" != "-" ] && vendor="$5"
+[ $# -gt 5 ] && [ "$6" != "-" ] && soc="$6"
+
+if [ "${ARCH}" -a "${ARCH}" != "${arch}" ]; then
+	echo "Failed: \$ARCH=${ARCH}, should be '${arch}' for ${BOARD_NAME}" 1>&2
 	exit 1
 fi
 
@@ -42,26 +72,26 @@ if [ "$SRCTREE" != "$OBJTREE" ] ; then
 	mkdir -p ${OBJTREE}/include2
 	cd ${OBJTREE}/include2
 	rm -f asm
-	ln -s ${SRCTREE}/arch/$2/include/asm asm
-	LNPREFIX=${SRCTREE}/arch/$2/include/asm/
+	ln -s ${SRCTREE}/arch/${arch}/include/asm asm
+	LNPREFIX=${SRCTREE}/arch/${arch}/include/asm/
 	cd ../include
 	rm -f asm
-	ln -s ${SRCTREE}/arch/$2/include/asm asm
+	ln -s ${SRCTREE}/arch/${arch}/include/asm asm
 else
 	cd ./include
 	rm -f asm
-	ln -s ../arch/$2/include/asm asm
+	ln -s ../arch/${arch}/include/asm asm
 fi
 
 rm -f asm/arch
 
-if [ -z "$6" -o "$6" = "NULL" ] ; then
-	ln -s ${LNPREFIX}arch-$3 asm/arch
+if [ -z "${soc}" ] ; then
+	ln -s ${LNPREFIX}arch-${cpu} asm/arch
 else
-	ln -s ${LNPREFIX}arch-$6 asm/arch
+	ln -s ${LNPREFIX}arch-${soc} asm/arch
 fi
 
-if [ "$2" = "arm" ] ; then
+if [ "${arch}" = "arm" ] ; then
 	rm -f asm/proc
 	ln -s ${LNPREFIX}proc-armv asm/proc
 fi
@@ -69,19 +99,19 @@ fi
 #
 # Create include file for Make
 #
-echo "ARCH   = $2" >  config.mk
-echo "CPU    = $3" >> config.mk
-echo "BOARD  = $4" >> config.mk
+echo "ARCH   = ${arch}"  >  config.mk
+echo "CPU    = ${cpu}"   >> config.mk
+echo "BOARD  = ${board}" >> config.mk
 
-[ "$5" ] && [ "$5" != "NULL" ] && echo "VENDOR = $5" >> config.mk
+[ "${vendor}" ] && echo "VENDOR = ${vendor}" >> config.mk
 
-[ "$6" ] && [ "$6" != "NULL" ] && echo "SOC    = $6" >> config.mk
+[ "${soc}"    ] && echo "SOC    = ${soc}"    >> config.mk
 
 # Assign board directory to BOARDIR variable
-if [ -z "$5" -o "$5" = "NULL" ] ; then
-    BOARDDIR=$4
+if [ -z "${vendor}" ] ; then
+    BOARDDIR=${board}
 else
-    BOARDDIR=$5/$4
+    BOARDDIR=${vendor}/${board}
 fi
 
 #
@@ -102,7 +132,7 @@ done
 cat << EOF >> config.h
 #define CONFIG_BOARDDIR board/$BOARDDIR
 #include <config_defaults.h>
-#include <configs/$1.h>
+#include <configs/${CONFIG_NAME}.h>
 #include <asm/config.h>
 EOF
 

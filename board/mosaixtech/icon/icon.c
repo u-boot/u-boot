@@ -317,3 +317,72 @@ int board_pcie_last(void)
 	/* Only 2 PCIe ports used on ICON, so the last one is 1 */
 	return 1;
 }
+
+/*
+ * Video
+ */
+#ifdef CONFIG_VIDEO_SM501
+#include <sm501.h>
+
+#define DISPLAY_WIDTH   640
+#define DISPLAY_HEIGHT  480
+
+static const SMI_REGS sm502_init_regs[] = {
+	{0x00004, 0x0},
+	{0x00040, 0x00021847},
+	{0x00044, 0x091a0a01}, /* 24 MHz pixclk */
+	{0x00054, 0x0},
+	{0x00048, 0x00021847},
+	{0x0004C, 0x091a0a01},
+	{0x00054, 0x1},
+	{0x80004, 0xc428bb17},
+	{0x8000C, 0x00000000},
+	{0x80010, 0x0a000a00},
+	{0x80014, 0x02800000},
+	{0x80018, 0x01e00000},
+	{0x8001C, 0x00000000},
+	{0x80020, 0x01e00280},
+	{0x80024, 0x02fa027f},
+	{0x80028, 0x004a0280},
+	{0x8002C, 0x020c01df},
+	{0x80030, 0x000201e7},
+	{0x80200, 0x00010000},
+	{0x00008, 0x20000000}, /* gpio29 is pwm0, LED_PWM */
+	{0x0000C, 0x3f000000}, /* gpio56 - gpio61 as flat panel data pins */
+	{0x10020, 0x25725728}, /* 20 kHz pwm0, 50 % duty cycle, disabled */
+	{0x80000, 0x0f010106}, /* vsync & hsync pos, disp on */
+	{0, 0}
+};
+
+/*
+ * Return a pointer to the register initialization table.
+ */
+const SMI_REGS *board_get_regs(void)
+{
+	return sm502_init_regs;
+}
+
+int board_get_width(void)
+{
+	return DISPLAY_WIDTH;
+}
+
+int board_get_height(void)
+{
+	return DISPLAY_HEIGHT;
+}
+
+#ifdef CONFIG_CONSOLE_EXTRA_INFO
+/*
+ * Return text to be printed besides the logo.
+ */
+void video_get_info_str(int line_number, char *info)
+{
+	if (line_number == 1)
+		strcpy(info, " Board: ICON");
+	else
+		info[0] = '\0';
+}
+#endif
+
+#endif /* CONFIG_VIDEO_SM501 */

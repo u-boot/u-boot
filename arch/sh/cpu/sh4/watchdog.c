@@ -17,6 +17,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/system.h>
 #include <asm/io.h>
 
 #define WDT_BASE	WTCNT
@@ -66,6 +67,9 @@ int watchdog_disable(void)
 
 void reset_cpu(unsigned long ignored)
 {
+	/* Address error with SR.BL=1 first. */
+	trigger_address_error();
+
 	while (1)
 		;
 }

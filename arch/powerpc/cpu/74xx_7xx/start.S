@@ -745,9 +745,8 @@ in_ram:
 	bne	5b
 6:
 	mr	r3, r10		/* Destination Address		*/
-#if defined(CONFIG_AMIGAONEG3SE) || \
-    defined(CONFIG_DB64360)	 || \
-    defined(CONFIG_DB64460)      || \
+#if defined(CONFIG_DB64360)	|| \
+    defined(CONFIG_DB64460)     || \
     defined(CONFIG_CPCI750)	|| \
     defined(CONFIG_PPMC7XX)     || \
     defined(CONFIG_P3Mx)

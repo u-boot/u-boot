@@ -34,20 +34,19 @@
 
 int interrupt_init_cpu (unsigned *decrementer_count)
 {
-#if defined(DEBUG) && !defined(CONFIG_AMIGAONEG3SE)
-	printf("interrupt_init: GT main cause reg: %08x:%08x\n",
+	debug("interrupt_init: GT main cause reg: %08x:%08x\n",
 	       GTREGREAD(LOW_INTERRUPT_CAUSE_REGISTER),
 	       GTREGREAD(HIGH_INTERRUPT_CAUSE_REGISTER));
-	printf("interrupt_init: ethernet cause regs: %08x %08x %08x\n",
+	debug("interrupt_init: ethernet cause regs: %08x %08x %08x\n",
 	       GTREGREAD(ETHERNET0_INTERRUPT_CAUSE_REGISTER),
 	       GTREGREAD(ETHERNET1_INTERRUPT_CAUSE_REGISTER),
 	       GTREGREAD(ETHERNET2_INTERRUPT_CAUSE_REGISTER));
-	printf("interrupt_init: ethernet mask regs:  %08x %08x %08x\n",
+	debug("interrupt_init: ethernet mask regs:  %08x %08x %08x\n",
 	       GTREGREAD(ETHERNET0_INTERRUPT_MASK_REGISTER),
 	       GTREGREAD(ETHERNET1_INTERRUPT_MASK_REGISTER),
 	       GTREGREAD(ETHERNET2_INTERRUPT_MASK_REGISTER));
-	puts("interrupt_init: setting decrementer_count\n");
-#endif
+	debug("interrupt_init: setting decrementer_count\n");
+
 	*decrementer_count = get_tbclk() / CONFIG_SYS_HZ;
 
 	return (0);

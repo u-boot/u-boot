@@ -992,10 +992,6 @@ typedef void		(*ExcpHndlr) (void) ;
 #define UHCHIE		__REG(0x4C000068)
 #define UHCHIT		__REG(0x4C00006C)
 
-#if defined(CONFIG_CPU_MONAHANS)
-#define UP2OCR		__REG(0x40600020)
-#endif
-
 #define UHCHR_FSBIR	(1<<0)
 #define UHCHR_FHR	(1<<1)
 #define UHCHR_CGR	(1<<2)
@@ -1014,6 +1010,24 @@ typedef void		(*ExcpHndlr) (void) ;
 #define UHCHIE_TAIE	(1<<10)
 #define UHCHIE_HBAIE	(1<<8)
 #define UHCHIE_RWIE	(1<<7)
+
+#if defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X)
+#define UP2OCR		__REG(0x40600020)
+#endif
+
+#define UP2OCR_HXOE	(1<<17)
+#define UP2OCR_HXS	(1<<16)
+#define UP2OCR_IDON	(1<<10)
+#define UP2OCR_EXSUS	(1<<9)
+#define UP2OCR_EXSP	(1<<8)
+#define UP2OCR_DMSTATE	(1<<7)
+#define UP2OCR_VPM	(1<<6)
+#define UP2OCR_DPSTATE	(1<<5)
+#define UP2OCR_DPPUE	(1<<4)
+#define UP2OCR_DMPDE	(1<<3)
+#define UP2OCR_DPPDE	(1<<2)
+#define UP2OCR_CPVPE	(1<<1)
+#define UP2OCR_CPVEN	(1<<0)
 
 #endif
 
@@ -2407,6 +2421,9 @@ typedef void		(*ExcpHndlr) (void) ;
 #define MDMRS		__REG(0x48000040)  /* MRS value to be written to SDRAM */
 #define BOOT_DEF	__REG(0x48000044)  /* Read-Only Boot-Time Register. Contains BOOT_SEL and PKG_SEL */
 
+#define MDREFR_ALTREFA	(1 << 31)	/* Exiting Alternate Bus Master Mode Refresh Control */
+#define MDREFR_ALTREFB	(1 << 30)	/* Entering Alternate Bus Master Mode Refresh Control */
+#define MDREFR_K0DB4	(1 << 29)	/* SDCLK0 Divide by 4 Control/Status */
 #define MDREFR_K2FREE	(1 << 25)	/* SDRAM Free-Running Control */
 #define MDREFR_K1FREE	(1 << 24)	/* SDRAM Free-Running Control */
 #define MDREFR_K0FREE	(1 << 23)	/* SDRAM Free-Running Control */

@@ -27,9 +27,10 @@
 #define SYSREG_MMUCR_S_OFFSET	4
 
 #define SR_INIT (SYSREG_BIT(GM) | SYSREG_BIT(EM) | SYSREG_BIT(M0))
-#define CPUCR_INIT (SYSREG_BIT(BI) | SYSREG_BIT(BE)		\
-		    | SYSREG_BIT(FE) | SYSREG_BIT(RE)		\
-		    | SYSREG_BIT(IBE) | SYSREG_BIT(IEE))
+/* due to errata (unreliable branch folding) clear FE bit explicitly */
+#define CPUCR_INIT ((SYSREG_BIT(BI) | SYSREG_BIT(BE)	\
+		    | SYSREG_BIT(RE)   |  SYSREG_BIT(IBE)		\
+		    | SYSREG_BIT(IEE)) & ~SYSREG_BIT(FE))
 
 	/*
 	 * To save some space, we use the same entry point for

@@ -141,8 +141,7 @@
 #define	CONFIG_SYS_LOAD_ADDR		0x00300000	/* default load address	*/
 
 #define	CONFIG_SYS_HZ			1000		/* decr freq: 1ms ticks	*/
-#define CONFIG_SYS_BUS_HZ		100000000	/* 100 MHz		*/
-#define CONFIG_SYS_BUS_CLK		CONFIG_SYS_BUS_HZ
+#define CONFIG_SYS_BUS_CLK		100000000	/* 100 MHz		*/
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 

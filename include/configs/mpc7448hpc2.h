@@ -46,7 +46,7 @@
 #define CONFIG_IDENT_STRING	" Freescale MPC7448 HPC II"
 
 #define CONFIG_SYS_OCN_CLK		133000000	/* 133 MHz */
-#define CONFIG_SYS_CONFIG_BUS_CLK	133000000
+#define CONFIG_SYS_BUS_CLK		133000000
 
 #define CONFIG_SYS_CLK_SPREAD		/* Enable Spread-Spectrum Clock generation */
 
