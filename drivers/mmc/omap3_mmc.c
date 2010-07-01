@@ -55,9 +55,9 @@ mmc_card_data cur_card_data;
 static block_dev_desc_t mmc_blk_dev;
 static hsmmc_t *mmc_base = (hsmmc_t *)OMAP_HSMMC1_BASE;
 
-unsigned char mmc_set_dev(int dev)
+int mmc_set_dev(int dev_num)
 {
-	switch (dev) {
+	switch (dev_num) {
 	case 1:
 		mmc_base = (hsmmc_t *)OMAP_HSMMC1_BASE;
 		break;
