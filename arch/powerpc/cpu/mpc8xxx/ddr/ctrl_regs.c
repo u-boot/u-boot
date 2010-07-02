@@ -448,6 +448,35 @@ static void set_timing_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	debug("FSLDDR: timing_cfg_2 = 0x%08x\n", ddr->timing_cfg_2);
 }
 
+/* DDR SDRAM Register Control Word */
+static void set_ddr_sdram_rcw(fsl_ddr_cfg_regs_t *ddr,
+			       const common_timing_params_t *common_dimm)
+{
+	if (common_dimm->all_DIMMs_registered
+		&& !common_dimm->all_DIMMs_unbuffered) {
+		ddr->ddr_sdram_rcw_1 =
+			common_dimm->rcw[0] << 28 | \
+			common_dimm->rcw[1] << 24 | \
+			common_dimm->rcw[2] << 20 | \
+			common_dimm->rcw[3] << 16 | \
+			common_dimm->rcw[4] << 12 | \
+			common_dimm->rcw[5] << 8 | \
+			common_dimm->rcw[6] << 4 | \
+			common_dimm->rcw[7];
+		ddr->ddr_sdram_rcw_2 =
+			common_dimm->rcw[8] << 28 | \
+			common_dimm->rcw[9] << 24 | \
+			common_dimm->rcw[10] << 20 | \
+			common_dimm->rcw[11] << 16 | \
+			common_dimm->rcw[12] << 12 | \
+			common_dimm->rcw[13] << 8 | \
+			common_dimm->rcw[14] << 4 | \
+			common_dimm->rcw[15];
+		debug("FSLDDR: ddr_sdram_rcw_1 = 0x%08x\n", ddr->ddr_sdram_rcw_1);
+		debug("FSLDDR: ddr_sdram_rcw_2 = 0x%08x\n", ddr->ddr_sdram_rcw_2);
+	}
+}
+
 /* DDR SDRAM control configuration (DDR_SDRAM_CFG) */
 static void set_ddr_sdram_cfg(fsl_ddr_cfg_regs_t *ddr,
 			       const memctl_options_t *popts,
@@ -938,6 +967,7 @@ static void set_ddr_sdram_clk_cntl(fsl_ddr_cfg_regs_t *ddr,
 
 	clk_adjust = popts->clk_adjust;
 	ddr->ddr_sdram_clk_cntl = (clk_adjust & 0xF) << 23;
+	debug("FSLDDR: clk_cntl = 0x%08x\n", ddr->ddr_sdram_clk_cntl);
 }
 
 /* DDR Initialization Address (DDR_INIT_ADDR) */
@@ -1111,54 +1141,6 @@ static void set_ddr_sr_cntr(fsl_ddr_cfg_regs_t *ddr, unsigned int sr_it)
 {
 	/* Self Refresh Idle Threshold */
 	ddr->ddr_sr_cntr = (sr_it & 0xF) << 16;
-}
-
-/* DDR SDRAM Register Control Word 1 (DDR_SDRAM_RCW_1) */
-static void set_ddr_sdram_rcw_1(fsl_ddr_cfg_regs_t *ddr)
-{
-	unsigned int rcw0 = 0;	/* RCW0: Register Control Word 0 */
-	unsigned int rcw1 = 0;	/* RCW1: Register Control Word 1 */
-	unsigned int rcw2 = 0;	/* RCW2: Register Control Word 2 */
-	unsigned int rcw3 = 0;	/* RCW3: Register Control Word 3 */
-	unsigned int rcw4 = 0;	/* RCW4: Register Control Word 4 */
-	unsigned int rcw5 = 0;	/* RCW5: Register Control Word 5 */
-	unsigned int rcw6 = 0;	/* RCW6: Register Control Word 6 */
-	unsigned int rcw7 = 0;	/* RCW7: Register Control Word 7 */
-
-	ddr->ddr_sdram_rcw_1 = (0
-				| ((rcw0 & 0xF) << 28)
-				| ((rcw1 & 0xF) << 24)
-				| ((rcw2 & 0xF) << 20)
-				| ((rcw3 & 0xF) << 16)
-				| ((rcw4 & 0xF) << 12)
-				| ((rcw5 & 0xF) << 8)
-				| ((rcw6 & 0xF) << 4)
-				| ((rcw7 & 0xF) << 0)
-				);
-}
-
-/* DDR SDRAM Register Control Word 2 (DDR_SDRAM_RCW_2) */
-static void set_ddr_sdram_rcw_2(fsl_ddr_cfg_regs_t *ddr)
-{
-	unsigned int rcw8 = 0;	/* RCW0: Register Control Word 8 */
-	unsigned int rcw9 = 0;	/* RCW1: Register Control Word 9 */
-	unsigned int rcw10 = 0;	/* RCW2: Register Control Word 10 */
-	unsigned int rcw11 = 0;	/* RCW3: Register Control Word 11 */
-	unsigned int rcw12 = 0;	/* RCW4: Register Control Word 12 */
-	unsigned int rcw13 = 0;	/* RCW5: Register Control Word 13 */
-	unsigned int rcw14 = 0;	/* RCW6: Register Control Word 14 */
-	unsigned int rcw15 = 0;	/* RCW7: Register Control Word 15 */
-
-	ddr->ddr_sdram_rcw_2 = (0
-				| ((rcw8 & 0xF) << 28)
-				| ((rcw9 & 0xF) << 24)
-				| ((rcw10 & 0xF) << 20)
-				| ((rcw11 & 0xF) << 16)
-				| ((rcw12 & 0xF) << 12)
-				| ((rcw13 & 0xF) << 8)
-				| ((rcw14 & 0xF) << 4)
-				| ((rcw15 & 0xF) << 0)
-				);
 }
 
 static void set_ddr_eor(fsl_ddr_cfg_regs_t *ddr, const memctl_options_t *popts)
@@ -1430,8 +1412,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 
 	set_ddr_sr_cntr(ddr, sr_it);
 
-	set_ddr_sdram_rcw_1(ddr);
-	set_ddr_sdram_rcw_2(ddr);
+	set_ddr_sdram_rcw(ddr, common_dimm);
 
 	return check_fsl_memctl_config_regs(ddr);
 }

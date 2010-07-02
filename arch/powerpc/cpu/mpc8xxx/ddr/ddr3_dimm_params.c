@@ -90,6 +90,7 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 {
 	unsigned int retval;
 	unsigned int mtb_ps;
+	int i;
 
 	if (spd->mem_type) {
 		if (spd->mem_type != SPD_MEMTYPE_DDR3) {
@@ -131,8 +132,11 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	case 0x01:	/* RDIMM */
 	case 0x05:	/* Mini-RDIMM */
 		pdimm->registered_dimm = 1; /* register buffered */
+		for (i = 0; i < 16; i += 2) {
+			pdimm->rcw[i] = spd->mod_section.registered.rcw[i/2] & 0x0F;
+			pdimm->rcw[i+1] = (spd->mod_section.registered.rcw[i/2] >> 4) & 0x0F;
+		}
 		break;
-
 	case 0x02:	/* UDIMM */
 	case 0x03:	/* SO-DIMM */
 	case 0x04:	/* Micro-DIMM */
