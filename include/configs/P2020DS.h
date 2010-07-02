@@ -92,7 +92,11 @@
 
 /* DDR Setup */
 #define CONFIG_VERY_BIG_RAM
+#ifdef CONFIG_MK_DDR2
+#define CONFIG_FSL_DDR2
+#else
 #define CONFIG_FSL_DDR3		1
+#endif
 #undef CONFIG_FSL_DDR_INTERACTIVE
 
 /* ECC will be enabled based on perf_mode environment variable */
@@ -109,6 +113,7 @@
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 
 /* I2C addresses of SPD EEPROMs */
+#define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM		0	/* SPD EEPROM located on I2C bus 0 */
 #define SPD_EEPROM_ADDRESS1	0x51	/* CTLR 0 DIMM 0 */
 
@@ -228,6 +233,7 @@
 
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
 
+#define CONFIG_HWCONFIG			/* enable hwconfig */
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
 
 #ifdef CONFIG_FSL_NGPIXIS
