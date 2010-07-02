@@ -172,6 +172,7 @@ typedef struct memctl_options_s {
 	unsigned int OTF_burst_chop_en;
 	/* mirrior DIMMs for DDR3 */
 	unsigned int mirrored_dimm;
+	unsigned int quad_rank_present;
 
 	/* Global Timing Parameters */
 	unsigned int cas_latency_override;

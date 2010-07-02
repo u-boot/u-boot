@@ -274,14 +274,14 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 		switch (popts->ba_intlv_ctl & FSL_DDR_CS0_CS1_CS2_CS3) {
 		case FSL_DDR_CS0_CS1_CS2_CS3:
 #if (CONFIG_DIMM_SLOTS_PER_CTLR == 1)
-			if (pdimm[0].n_ranks != 4) {
+			if (pdimm[0].n_ranks < 4) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(chip-select) for "
 					"CS0+CS1+CS2+CS3 on controller %d, "
 					"force non-interleaving!\n", ctrl_num);
 			}
 #elif (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
-			if ((pdimm[0].n_ranks != 2) && (pdimm[1].n_ranks != 2)) {
+			if ((pdimm[0].n_ranks < 2) && (pdimm[1].n_ranks < 2)) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(chip-select) for "
 					"CS0+CS1+CS2+CS3 on controller %d, "
@@ -296,7 +296,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 #endif
 			break;
 		case FSL_DDR_CS0_CS1:
-			if (pdimm[0].n_ranks != 2) {
+			if (pdimm[0].n_ranks < 2) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(chip-select) for "
 					"CS0+CS1 on controller %d, "
@@ -305,13 +305,13 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			break;
 		case FSL_DDR_CS2_CS3:
 #if (CONFIG_DIMM_SLOTS_PER_CTLR == 1)
-			if (pdimm[0].n_ranks != 4) {
+			if (pdimm[0].n_ranks < 4) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(chip-select) for CS2+CS3 "
 					"on controller %d, force non-interleaving!\n", ctrl_num);
 			}
 #elif (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
-			if (pdimm[1].n_ranks != 2) {
+			if (pdimm[1].n_ranks < 2) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(chip-select) for CS2+CS3 "
 					"on controller %d, force non-interleaving!\n", ctrl_num);
@@ -320,14 +320,14 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			break;
 		case FSL_DDR_CS0_CS1_AND_CS2_CS3:
 #if (CONFIG_DIMM_SLOTS_PER_CTLR == 1)
-			if (pdimm[0].n_ranks != 4) {
+			if (pdimm[0].n_ranks < 4) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(CS) for CS0+CS1 and "
 					"CS2+CS3 on controller %d, "
 					"force non-interleaving!\n", ctrl_num);
 			}
 #elif (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
-			if ((pdimm[0].n_ranks != 2)||(pdimm[1].n_ranks != 2)) {
+			if ((pdimm[0].n_ranks < 2) || (pdimm[1].n_ranks < 2)) {
 				popts->ba_intlv_ctl = 0;
 				printf("Not enough bank(CS) for CS0+CS1 and "
 					"CS2+CS3 on controller %d, "
@@ -340,6 +340,9 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			break;
 		}
 	}
+
+	if (pdimm[0].n_ranks == 4)
+		popts->quad_rank_present = 1;
 
 	fsl_ddr_board_options(popts, pdimm, ctrl_num);
 

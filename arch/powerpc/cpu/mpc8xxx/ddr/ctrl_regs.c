@@ -93,7 +93,7 @@ static inline unsigned int compute_cas_write_latency(void)
 }
 
 /* Chip Select Configuration (CSn_CONFIG) */
-static void set_csn_config(int i, fsl_ddr_cfg_regs_t *ddr,
+static void set_csn_config(int dimm_number, int i, fsl_ddr_cfg_regs_t *ddr,
 			       const memctl_options_t *popts,
 			       const dimm_params_t *dimm_params)
 {
@@ -106,28 +106,49 @@ static void set_csn_config(int i, fsl_ddr_cfg_regs_t *ddr,
 	unsigned int ba_bits_cs_n = 0; /* Num of bank bits for SDRAM on CSn */
 	unsigned int row_bits_cs_n = 0; /* Num of row bits for SDRAM on CSn */
 	unsigned int col_bits_cs_n = 0; /* Num of ocl bits for SDRAM on CSn */
+	int go_config = 0;
 
 	/* Compute CS_CONFIG only for existing ranks of each DIMM.  */
-	if ((((i&1) == 0)
-	    && (dimm_params[i/2].n_ranks == 1))
-	    || (dimm_params[i/2].n_ranks == 2)) {
-		unsigned int n_banks_per_sdram_device;
-		cs_n_en = 1;
-		if (i == 0) {
+	switch (i) {
+	case 0:
+		if (dimm_params[dimm_number].n_ranks > 0) {
+			go_config = 1;
 			/* These fields only available in CS0_CONFIG */
 			intlv_en = popts->memctl_interleaving;
 			intlv_ctl = popts->memctl_interleaving_mode;
 		}
+		break;
+	case 1:
+		if ((dimm_number == 0 && dimm_params[0].n_ranks > 1) || \
+		    (dimm_number == 1 && dimm_params[1].n_ranks > 0))
+			go_config = 1;
+		break;
+	case 2:
+		if ((dimm_number == 0 && dimm_params[0].n_ranks > 2) || \
+		   (dimm_number > 1 && dimm_params[dimm_number].n_ranks > 0))
+			go_config = 1;
+		break;
+	case 3:
+		if ((dimm_number == 0 && dimm_params[0].n_ranks > 3) || \
+		    (dimm_number == 1 && dimm_params[1].n_ranks > 1) || \
+		    (dimm_number == 3 && dimm_params[3].n_ranks > 0))
+			go_config = 1;
+		break;
+	default:
+		break;
+	}
+	if (go_config) {
+		unsigned int n_banks_per_sdram_device;
+		cs_n_en = 1;
 		ap_n_en = popts->cs_local_opts[i].auto_precharge;
 		odt_rd_cfg = popts->cs_local_opts[i].odt_rd_cfg;
 		odt_wr_cfg = popts->cs_local_opts[i].odt_wr_cfg;
 		n_banks_per_sdram_device
-			= dimm_params[i/2].n_banks_per_sdram_device;
+			= dimm_params[dimm_number].n_banks_per_sdram_device;
 		ba_bits_cs_n = __ilog2(n_banks_per_sdram_device) - 2;
-		row_bits_cs_n = dimm_params[i/2].n_row_addr - 12;
-		col_bits_cs_n = dimm_params[i/2].n_col_addr - 8;
+		row_bits_cs_n = dimm_params[dimm_number].n_row_addr - 12;
+		col_bits_cs_n = dimm_params[dimm_number].n_col_addr - 8;
 	}
-
 	ddr->cs[i].config = (0
 		| ((cs_n_en & 0x1) << 31)
 		| ((intlv_en & 0x3) << 29)
@@ -521,6 +542,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int d_init;		/* DRAM data initialization */
 	unsigned int rcw_en = 0;	/* Register Control Word Enable */
 	unsigned int md_en = 0;		/* Mirrored DIMM Enable */
+	unsigned int qd_en = 0;		/* quad-rank DIMM Enable */
 
 	dll_rst_dis = 1;	/* Make this configurable */
 	dqs_cfg = popts->DQS_config;
@@ -562,6 +584,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 #if defined(CONFIG_FSL_DDR3)
 	md_en = popts->mirrored_dimm;
 #endif
+	qd_en = popts->quad_rank_present ? 1 : 0;
 	ddr->ddr_sdram_cfg_2 = (0
 		| ((frc_sr & 0x1) << 31)
 		| ((sr_ie & 0x1) << 30)
@@ -569,6 +592,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		| ((dqs_cfg & 0x3) << 26)
 		| ((odt_cfg & 0x3) << 21)
 		| ((num_pr & 0xf) << 12)
+		| (qd_en << 9)
 		| ((obc_cfg & 0x1) << 6)
 		| ((ap_en & 0x1) << 5)
 		| ((d_init & 0x1) << 4)
@@ -1219,12 +1243,12 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			 * But we need to set the ODT_RD_CFG and
 			 * ODT_WR_CFG for CS1_CONFIG here.
 			 */
-			set_csn_config(i, ddr, popts, dimm_params);
+			set_csn_config(dimm_number, i, ddr, popts, dimm_params);
 			continue;
 		}
 		if (dimm_params[dimm_number].n_ranks == 0) {
 			debug("Skipping setup of CS%u "
-				"because n_ranks on DIMM %u is 0\n", i, i/2);
+				"because n_ranks on DIMM %u is 0\n", i, dimm_number);
 			continue;
 		}
 		if (popts->memctl_interleaving && popts->ba_intlv_ctl) {
@@ -1364,7 +1388,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			);
 
 		debug("FSLDDR: cs[%d]_bnds = 0x%08x\n", i, ddr->cs[i].bnds);
-		set_csn_config(i, ddr, popts, dimm_params);
+		set_csn_config(dimm_number, i, ddr, popts, dimm_params);
 		set_csn_config_2(i, ddr);
 	}
 

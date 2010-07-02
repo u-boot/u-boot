@@ -118,6 +118,18 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 			temp1++;
 			continue;
 		}
+		if (dimm_params[i].n_ranks == 4 && i != 0) {
+			printf("Found Quad-rank DIMM in wrong bank, ignored."
+				" Software may not run as expected.\n");
+			temp1++;
+			continue;
+		}
+		if (dimm_params[i].n_ranks == 4 && \
+		  CONFIG_CHIP_SELECTS_PER_CTRL/CONFIG_DIMM_SLOTS_PER_CTLR < 4) {
+			printf("Found Quad-rank DIMM, not able to support.");
+			temp1++;
+			continue;
+		}
 
 		/*
 		 * Find minimum tCKmax_ps to find fastest slow speed,
