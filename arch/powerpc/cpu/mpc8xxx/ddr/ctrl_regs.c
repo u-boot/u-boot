@@ -199,7 +199,7 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr)
 	unsigned char act_pd_exit_mclk;
 	/* Precharge powerdown exit timing (tXP). */
 	unsigned char pre_pd_exit_mclk;
-	/* Precharge powerdown exit timing (tAXPD). */
+	/* ODT powerdown exit timing (tAXPD). */
 	unsigned char taxpd_mclk;
 	/* Mode register set cycle time (tMRD). */
 	unsigned char tmrd_mclk;
@@ -211,13 +211,13 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr)
 	 * we use the tXP instead of it.
 	 * tXP=max(3nCK, 7.5ns) for DDR3.
 	 * spec has not the tAXPD, we use
-	 * tAXPD=8, need design to confirm.
+	 * tAXPD=1, need design to confirm.
 	 */
 	int tXP = max((get_memory_clk_period_ps() * 3), 7500); /* unit=ps */
 	act_pd_exit_mclk = picos_to_mclk(tXP);
 	/* Mode register MR0[A12] is '1' - fast exit */
 	pre_pd_exit_mclk = act_pd_exit_mclk;
-	taxpd_mclk = 8;
+	taxpd_mclk = 1;
 	tmrd_mclk = 4;
 	/* set the turnaround time */
 	trwt_mclk = 1;
@@ -1031,9 +1031,9 @@ static void set_timing_cfg_5(fsl_ddr_cfg_regs_t *ddr)
 	unsigned int wodt_off = 0;	/* Write to ODT off */
 
 #if defined(CONFIG_FSL_DDR3)
-	rodt_on = 3;	/*  2 clocks */
+	rodt_on = 2;	/*  2 clocks */
 	rodt_off = 4;	/*  4 clocks */
-	wodt_on = 2;	/*  1 clocks */
+	wodt_on = 1;	/*  1 clocks */
 	wodt_off = 4;	/*  4 clocks */
 #endif
 
@@ -1106,9 +1106,9 @@ static void set_ddr_wrlvl_cntl(fsl_ddr_cfg_regs_t *ddr, unsigned int wrlvl_en,
 		/*
 		 * Write leveling repetition time
 		 * at least tWLO + 6 clocks clocks
-		 * we set it 32
+		 * we set it 64
 		 */
-		wrlvl_wlr = 0x5;
+		wrlvl_wlr = 0x6;
 		/*
 		 * Write leveling start time
 		 * The value use for the DQS_ADJUST for the first sample

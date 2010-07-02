@@ -204,6 +204,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 * meet the tQDSS under different loading.
 	 */
 	popts->wrlvl_en = 1;
+	popts->zq_en = 1;
 	popts->wrlvl_override = 0;
 #endif
 
