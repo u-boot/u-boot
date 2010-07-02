@@ -66,11 +66,19 @@ typedef struct {
  *      seem reliable, but errors will appear when memory intensive
  *      program is run. */
 /* XXX: Single rank at 800 MHz is OK.  */
-const board_specific_parameters_t board_specific_parameters[][20] = {
+const board_specific_parameters_t board_specific_parameters[][30] = {
 	{
 	/* 	memory controller 0 			*/
 	/*	  lo|  hi|  num|  clk| cpo|wrdata|2T	*/
 	/*	 mhz| mhz|ranks|adjst|    | delay|	*/
+		{  0, 333,    4,    6,   7,    3,  0},
+		{334, 400,    4,    6,   9,    3,  0},
+		{401, 549,    4,    6,  11,    3,  0},
+		{550, 680,    4,    1,  10,    5,  0},
+		{681, 850,    4,    1,  12,    5,  0},
+		{851, 1050,   4,    1,  12,    5,  0},
+		{1051, 1250,  4,    1,  15,    4,  0},
+		{1251, 1350,  4,    1,  15,    4,  0},
 		{  0, 333,    2,    6,   7,    3,  0},
 		{334, 400,    2,    6,   9,    3,  0},
 		{401, 549,    2,    6,  11,    3,  0},
@@ -90,6 +98,14 @@ const board_specific_parameters_t board_specific_parameters[][20] = {
 	/*	memory controller 1			*/
 	/*	  lo|  hi|  num|  clk| cpo|wrdata|2T	*/
 	/*	 mhz| mhz|ranks|adjst|    | delay|	*/
+		{  0, 333,    4,    6,   7,    3,  0},
+		{334, 400,    4,    6,   9,    3,  0},
+		{401, 549,    4,    6,  11,    3,  0},
+		{550, 680,    4,    1,  10,    5,  0},
+		{681, 850,    4,    1,  12,    5,  0},
+		{851, 1050,   4,    1,  12,    5,  0},
+		{1051, 1250,  4,    1,  15,    4,  0},
+		{1251, 1350,  4,    1,  15,    4,  0},
 		{  0, 333,    2,     6,  7,    3,  0},
 		{334, 400,    2,     6,  9,    3,  0},
 		{401, 549,    2,     6, 11,    3,  0},
