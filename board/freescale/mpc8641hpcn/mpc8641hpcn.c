@@ -60,6 +60,8 @@ int checkboard(void)
 	return 0;
 }
 
+const char *board_hwconfig = "foo:bar=baz";
+const char *cpu_hwconfig = "foo:bar=baz";
 
 phys_size_t
 initdram(int board_type)

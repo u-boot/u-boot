@@ -27,6 +27,9 @@ Table of interleaving modes supported in cpu/8xxx/ddr/
  from each controller. {CS2+CS3} on each controller are only rank
  interleaved on that controller.
 
+ For memory controller interleaving, identical DIMMs are suggested. Software
+ doesn't check the size or organization of interleaved DIMMs.
+
 The ways to configure the ddr interleaving mode
 ==============================================
 1. In board header file(e.g.MPC8572DS.h), add default interleaving setting

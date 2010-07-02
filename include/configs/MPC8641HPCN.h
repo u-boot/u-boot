@@ -122,6 +122,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_CCSRBAR_PHYS		CONFIG_SYS_CCSRBAR_PHYS_LOW
 #endif
 
+#define CONFIG_HWCONFIG	/* use hwconfig to control memory interleaving */
+
 /*
  * DDR Setup
  */
