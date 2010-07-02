@@ -341,6 +341,13 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 		}
 	}
 
+	if (hwconfig_sub("fsl_ddr", "addr_hash")) {
+		if (hwconfig_subarg_cmp("fsl_ddr", "addr_hash", "null"))
+			popts->addr_hash = 0;
+		else if (hwconfig_subarg_cmp("fsl_ddr", "addr_hash", "true"))
+			popts->addr_hash = 1;
+	}
+
 	if (pdimm[0].n_ranks == 4)
 		popts->quad_rank_present = 1;
 

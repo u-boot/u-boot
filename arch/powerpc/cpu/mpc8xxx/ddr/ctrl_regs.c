@@ -1161,6 +1161,14 @@ static void set_ddr_sdram_rcw_2(fsl_ddr_cfg_regs_t *ddr)
 				);
 }
 
+static void set_ddr_eor(fsl_ddr_cfg_regs_t *ddr, const memctl_options_t *popts)
+{
+	if (popts->addr_hash) {
+		ddr->ddr_eor = 0x40000000;	/* address hash enable */
+		puts("Addess hashing enabled.\n");
+	}
+}
+
 unsigned int
 check_fsl_memctl_config_regs(const fsl_ddr_cfg_regs_t *ddr)
 {
@@ -1391,6 +1399,8 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 		set_csn_config(dimm_number, i, ddr, popts, dimm_params);
 		set_csn_config_2(i, ddr);
 	}
+
+	set_ddr_eor(ddr, popts);
 
 #if !defined(CONFIG_FSL_DDR1)
 	set_timing_cfg_0(ddr);
