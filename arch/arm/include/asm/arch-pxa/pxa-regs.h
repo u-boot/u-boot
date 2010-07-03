@@ -1132,9 +1132,17 @@ typedef void		(*ExcpHndlr) (void) ;
 #define PWM_PWDUTY0	__REG(0x40B00004)  /* PWM 0 Duty Cycle Register */
 #define PWM_PERVAL0	__REG(0x40B00008)  /* PWM 0 Period Control Register */
 
-#define PWM_CTRL1	__REG(0x40C00000)  /* PWM 1Control Register */
+#define PWM_CTRL1	__REG(0x40C00000)  /* PWM 1 Control Register */
 #define PWM_PWDUTY1	__REG(0x40C00004)  /* PWM 1 Duty Cycle Register */
 #define PWM_PERVAL1	__REG(0x40C00008)  /* PWM 1 Period Control Register */
+
+#define PWM_CTRL2	__REG(0x40B00010)  /* PWM 2 Control Register */
+#define PWM_PWDUTY2	__REG(0x40B00014)  /* PWM 2 Duty Cycle Register */
+#define PWM_PERVAL2	__REG(0x40B00018)  /* PWM 2 Period Control Register */
+
+#define PWM_CTRL3	__REG(0x40C00010)  /* PWM 3 Control Register */
+#define PWM_PWDUTY3	__REG(0x40C00014)  /* PWM 3 Duty Cycle Register */
+#define PWM_PERVAL3	__REG(0x40C00018)  /* PWM 3 Period Control Register */
 
 /*
  * Interrupt Controller
