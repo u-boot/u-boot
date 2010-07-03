@@ -180,6 +180,40 @@ vidinfo_t panel_info = {
 #endif /* CONFIG_HITACHI_SX14 */
 
 /*----------------------------------------------------------------------*/
+#ifdef CONFIG_LMS283GF05
+
+# define LCD_BPP	LCD_COLOR8
+//# define LCD_INVERT_COLORS
+
+/* you have to set lccr0 and lccr3 (including pcd) */
+# define REG_LCCR0	0x043008f8
+# define REG_LCCR3	0x03b00009
+
+vidinfo_t panel_info = {
+	vl_col:		240,
+	vl_row:		320,
+	vl_width:	240,
+	vl_height:	320,
+	vl_clkp:	CONFIG_SYS_HIGH,
+	vl_oep:		CONFIG_SYS_LOW,
+	vl_hsp:		CONFIG_SYS_LOW,
+	vl_vsp:		CONFIG_SYS_LOW,
+	vl_dp:		CONFIG_SYS_HIGH,
+	vl_bpix:	LCD_BPP,
+	vl_lbw:		0,
+	vl_splt:	1,
+	vl_clor:	1,
+	vl_tft:		1,
+	vl_hpw:		4,
+	vl_blw:		4,
+	vl_elw:		8,
+	vl_vpw:		4,
+	vl_bfw:		4,
+	vl_efw:		8,
+};
+#endif /* CONFIG_LMS283GF05 */
+
+/*----------------------------------------------------------------------*/
 
 #if LCD_BPP == LCD_COLOR8
 void lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue);
