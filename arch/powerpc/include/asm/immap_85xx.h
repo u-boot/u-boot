@@ -32,6 +32,7 @@
 #include <asm/fsl_dma.h>
 #include <asm/fsl_i2c.h>
 #include <asm/fsl_lbc.h>
+#include <asm/fsl_fman.h>
 
 typedef struct ccsr_local {
 	u32	ccsrbarh;	/* CCSR Base Addr High */
