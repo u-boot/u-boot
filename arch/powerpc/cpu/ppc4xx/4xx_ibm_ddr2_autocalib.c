@@ -83,11 +83,6 @@ struct ddrautocal {
 	u32 flags;
 };
 
-struct sdram_timing {
-	u32 wrdtr;
-	u32 clktr;
-};
-
 struct sdram_timing_clks {
 	u32 wrdtr;
 	u32 clktr;
@@ -145,11 +140,12 @@ void
 spd_ddr_init_hang(void) __attribute__((weak, alias("__spd_ddr_init_hang")));
 #endif /* defined(CONFIG_SPD_EEPROM) */
 
-ulong __ddr_scan_option(ulong default_val)
+struct sdram_timing *__ddr_scan_option(struct sdram_timing *default_val)
 {
 	return default_val;
 }
-ulong ddr_scan_option(ulong) __attribute__((weak, alias("__ddr_scan_option")));
+struct sdram_timing *ddr_scan_option(struct sdram_timing *)
+	__attribute__((weak, alias("__ddr_scan_option")));
 
 u32 __ddr_rdss_opt(u32 default_val)
 {
@@ -931,7 +927,7 @@ static u32 DQS_calibration_methodB(struct ddrautocal *cal)
  * known working {SDRAM_WRDTR.[WDTR], SDRAM_CLKTR.[CKTR]} value
  * pairs via a board defined ddr_scan_option() function.
  */
-struct sdram_timing full_scan_options[] = {
+static struct sdram_timing full_scan_options[] = {
 	{0, 0}, {0, 1}, {0, 2}, {0, 3},
 	{1, 0}, {1, 1}, {1, 2}, {1, 3},
 	{2, 0}, {2, 1}, {2, 2}, {2, 3},
@@ -970,10 +966,7 @@ u32 DQS_autocalibration(void)
 
 	memset(&tcal, 0, sizeof(tcal));
 
-	ddr_scan_option((ulong)full_scan_options);
-
-	scan_list =
-	      (struct sdram_timing *)ddr_scan_option((ulong)full_scan_options);
+	scan_list = ddr_scan_option(full_scan_options);
 
 	mfsdram(SDRAM_MCOPT1, val);
 	if ((val & SDRAM_MCOPT1_MCHK_CHK_REP) == SDRAM_MCOPT1_MCHK_CHK_REP)

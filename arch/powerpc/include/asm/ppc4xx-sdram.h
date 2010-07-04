@@ -344,6 +344,9 @@
 #define SDRAM_RXBAS_SDSZ_2048		SDRAM_RXBAS_SDSZ_2048MB
 #define SDRAM_RXBAS_SDSZ_4096		SDRAM_RXBAS_SDSZ_4096MB
 #define SDRAM_RXBAS_SDSZ_8192		SDRAM_RXBAS_SDSZ_8192MB
+#endif /* CONFIG_405EX */
+
+/* The mode definitions are the same for all PPC4xx variants */
 #define SDRAM_RXBAS_SDAM_MODE0		PPC_REG_VAL(23, 0x0)
 #define SDRAM_RXBAS_SDAM_MODE1		PPC_REG_VAL(23, 0x1)
 #define SDRAM_RXBAS_SDAM_MODE2		PPC_REG_VAL(23, 0x2)
@@ -356,7 +359,6 @@
 #define SDRAM_RXBAS_SDAM_MODE9		PPC_REG_VAL(23, 0x9)
 #define SDRAM_RXBAS_SDBE_DISABLE	PPC_REG_VAL(31, 0x0)
 #define SDRAM_RXBAS_SDBE_ENABLE		PPC_REG_VAL(31, 0x1)
-#endif /* CONFIG_405EX */
 
 /*
  * Memory controller registers
@@ -1394,6 +1396,11 @@
 #endif /* CONFIG_SDRAM_PPC4xx_DENALI_DDR2 */
 
 #ifndef __ASSEMBLY__
+struct sdram_timing {
+	u32 wrdtr;
+	u32 clktr;
+};
+
 /*
  * Prototypes
  */

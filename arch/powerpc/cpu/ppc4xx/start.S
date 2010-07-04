@@ -207,6 +207,10 @@
 		(0x00000000)
 #endif /* !defined(CONFIG_SYS_DCACHE_SACR_VALUE) */
 
+#if !defined(CONFIG_SYS_TLB_FOR_BOOT_FLASH)
+#define CONFIG_SYS_TLB_FOR_BOOT_FLASH	0	/* use TLB 0 as default */
+#endif
+
 #define function_prolog(func_name)	.text; \
 					.align 2; \
 					.globl func_name; \
@@ -1457,34 +1461,21 @@ relocate_code:
 	isync
 #endif /* CONFIG_SYS_INIT_RAM_DCACHE */
 
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
-    defined(CONFIG_460SX)
 	/*
 	 * On some 440er platforms the cache is enabled in the first TLB (Boot-CS)
 	 * to speed up the boot process. Now this cache needs to be disabled.
 	 */
-	iccci	0,0			/* Invalidate inst cache */
-	dccci	0,0			/* Invalidate data cache, now no longer our stack */
-	sync
-	isync
-
+#if defined(CONFIG_440)
 	/* Clear all potential pending exceptions */
 	mfspr	r1,SPRN_MCSR
 	mtspr	SPRN_MCSR,r1
-#ifdef CONFIG_SYS_TLB_FOR_BOOT_FLASH
 	addi	r1,r0,CONFIG_SYS_TLB_FOR_BOOT_FLASH	/* Use defined TLB */
-#else
-	addi	r1,r0,0x0000		/* Default TLB entry is #0 */
-#endif /* CONFIG_SYS_TLB_FOR_BOOT_FLASH */
 	tlbre	r0,r1,0x0002		/* Read contents */
 	ori	r0,r0,0x0c00		/* Or in the inhibit, write through bit */
 	tlbwe	r0,r1,0x0002		/* Save it out */
 	sync
 	isync
-#endif /* defined(CONFIG_440EP) || ... || defined(CONFIG_460GT) */
+#endif /* defined(CONFIG_440) */
 	mr	r1,  r3		/* Set new stack pointer		*/
 	mr	r9,  r4		/* Save copy of Init Data pointer	*/
 	mr	r10, r5		/* Save copy of Destination Address	*/
