@@ -1125,3 +1125,30 @@ u64 fdt_translate_address(void *blob, int node_offset, const u32 *in_addr)
 {
 	return __of_translate_address(blob, node_offset, in_addr, "ranges");
 }
+
+/**
+ * fdt_node_offset_by_compat_reg: Find a node that matches compatiable and
+ * who's reg property matches a physical cpu address
+ *
+ * @blob: ptr to device tree
+ * @compat: compatiable string to match
+ * @compat_off: property name
+ *
+ */
+int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
+					phys_addr_t compat_off)
+{
+	int len, off = fdt_node_offset_by_compatible(blob, -1, compat);
+	while (off != -FDT_ERR_NOTFOUND) {
+		u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", &len);
+		if (reg) {
+			if (compat_off == fdt_translate_address(blob, off, reg))
+				return off;
+		}
+		off = fdt_node_offset_by_compatible(blob, off, compat);
+	}
+
+	return -FDT_ERR_NOTFOUND;
+}
+
+
