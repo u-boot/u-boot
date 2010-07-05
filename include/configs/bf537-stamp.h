@@ -157,7 +157,6 @@
 
 #define BFIN_NAND_CLE(chip) ((unsigned long)(chip)->IO_ADDR_W | (1 << 2))
 #define BFIN_NAND_ALE(chip) ((unsigned long)(chip)->IO_ADDR_W | (1 << 1))
-#define BFIN_NAND_READY     PF3
 #define BFIN_NAND_WRITE(addr, cmd) \
 	do { \
 		bfin_write8(addr, cmd); \
@@ -166,13 +165,7 @@
 
 #define NAND_PLAT_WRITE_CMD(chip, cmd) BFIN_NAND_WRITE(BFIN_NAND_CLE(chip), cmd)
 #define NAND_PLAT_WRITE_ADR(chip, cmd) BFIN_NAND_WRITE(BFIN_NAND_ALE(chip), cmd)
-#define NAND_PLAT_DEV_READY(chip)      (bfin_read_PORTFIO() & BFIN_NAND_READY)
-#define NAND_PLAT_INIT() \
-	do { \
-		bfin_write_PORTF_FER(bfin_read_PORTF_FER() & ~BFIN_NAND_READY); \
-		bfin_write_PORTFIO_DIR(bfin_read_PORTFIO_DIR() & ~BFIN_NAND_READY); \
-		bfin_write_PORTFIO_INEN(bfin_read_PORTFIO_INEN() | BFIN_NAND_READY); \
-	} while (0)
+#define NAND_PLAT_GPIO_DEV_READY       GPIO_PF3
 
 
 /*
