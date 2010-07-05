@@ -38,6 +38,8 @@
 #include <asm/arch/kirkwood.h>
 #include "kirkwood_egiga.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define KIRKWOOD_PHY_ADR_REQUEST 0xee
 #define KWGBE_SMI_REG (((struct kwgbe_registers *)KW_EGIGA0_BASE)->smi)
 
@@ -245,9 +247,9 @@ static void set_dram_access(struct kwgbe_registers *regs)
 		/* Enable full access */
 		win_param.access_ctrl = EWIN_ACCESS_FULL;
 		win_param.high_addr = 0;
-		/* Get bank base */
-		win_param.base_addr = kw_sdram_bar(i);
-		win_param.size = kw_sdram_bs(i);	/* Get bank size */
+		/* Get bank base and size */
+		win_param.base_addr = gd->bd->bi_dram[i].start;
+		win_param.size = gd->bd->bi_dram[i].size;
 		if (win_param.size == 0)
 			win_param.enable = 0;
 		else
@@ -268,7 +270,7 @@ static void set_dram_access(struct kwgbe_registers *regs)
 			win_param.attrib = EBAR_DRAM_CS3;
 			break;
 		default:
-			/* invalide bank, disable access */
+			/* invalid bank, disable access */
 			win_param.enable = 0;
 			win_param.attrib = 0;
 			break;
