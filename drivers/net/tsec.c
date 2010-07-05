@@ -1631,6 +1631,27 @@ static struct phy_info phy_info_dm9161 = {
 	},
 };
 
+/* micrel KSZ804  */
+static struct phy_info phy_info_ksz804 =  {
+	0x0022151,
+	"Micrel KSZ804 PHY",
+	4,
+	(struct phy_cmd[]) { /* config */
+		{PHY_BMCR, PHY_BMCR_RESET, NULL},
+		{PHY_BMCR, PHY_BMCR_AUTON|PHY_BMCR_RST_NEG, NULL},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+		{PHY_BMSR, miim_read, NULL},
+		{PHY_BMSR, miim_read, &mii_parse_sr},
+		{PHY_BMSR, miim_read, &mii_parse_link},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	}
+};
+
 /* a generic flavor.  */
 static struct phy_info phy_info_generic =  {
 	0,
@@ -1794,6 +1815,7 @@ static struct phy_info *phy_info[] = {
 	&phy_info_M88E1145,
 	&phy_info_M88E1149S,
 	&phy_info_dm9161,
+	&phy_info_ksz804,
 	&phy_info_lxt971,
 	&phy_info_VSC8211,
 	&phy_info_VSC8244,
