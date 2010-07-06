@@ -67,6 +67,11 @@
 #define CONFIG_SERIAL_MULTI		1
 #define CONFIG_BAUDRATE			115200
 
+/* MMC */
+#define CONFIG_GENERIC_MMC		1
+#define CONFIG_MMC			1
+#define CONFIG_S5P_MMC			1
+
 /* It should define before config_cmd_default.h */
 #define CONFIG_SYS_NO_FLASH		1
 
@@ -82,6 +87,7 @@
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_ONENAND
 #define CONFIG_CMD_MTDPARTS
+#define CONFIG_CMD_MMC
 
 #define CONFIG_BOOTDELAY		1
 #define CONFIG_ZERO_BOOTDELAY_CHECK
