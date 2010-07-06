@@ -23,6 +23,7 @@
 #include <spi.h>
 #include <asm/errno.h>
 #include <asm/io.h>
+#include <mxc_gpio.h>
 
 #ifdef CONFIG_MX27
 /* i.MX27 has a completely wrong register layout and register definitions in the
@@ -68,9 +69,6 @@ static unsigned long spi_bases[] = {
 	0x53f84000,
 };
 
-#define OUT	MX31_GPIO_DIRECTION_OUT
-#define mxc_gpio_direction	mx31_gpio_direction
-#define mxc_gpio_set		mx31_gpio_set
 #elif defined(CONFIG_MX51)
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
@@ -111,12 +109,11 @@ static unsigned long spi_bases[] = {
 	CSPI2_BASE_ADDR,
 	CSPI3_BASE_ADDR,
 };
-#define mxc_gpio_direction(gpio, dir)	(0)
-#define mxc_gpio_set(gpio, value)	{}
-#define OUT	1
 #else
 #error "Unsupported architecture"
 #endif
+
+#define OUT	MXC_GPIO_DIRECTION_OUT
 
 struct mxc_spi_slave {
 	struct spi_slave slave;
@@ -126,6 +123,7 @@ struct mxc_spi_slave {
 	u32		cfg_reg;
 #endif
 	int		gpio;
+	int		ss_pol;
 };
 
 static inline struct mxc_spi_slave *to_mxc_spi_slave(struct spi_slave *slave)
@@ -147,7 +145,7 @@ void spi_cs_activate(struct spi_slave *slave)
 {
 	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
 	if (mxcs->gpio > 0)
-		mxc_gpio_set(mxcs->gpio, mxcs->ctrl_reg & MXC_CSPICTRL_SSPOL);
+		mxc_gpio_set(mxcs->gpio, mxcs->ss_pol);
 }
 
 void spi_cs_deactivate(struct spi_slave *slave)
@@ -155,7 +153,7 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	struct mxc_spi_slave *mxcs = to_mxc_spi_slave(slave);
 	if (mxcs->gpio > 0)
 		mxc_gpio_set(mxcs->gpio,
-			      !(mxcs->ctrl_reg & MXC_CSPICTRL_SSPOL));
+			      !(mxcs->ss_pol));
 }
 
 #ifdef CONFIG_MX51
@@ -394,6 +392,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	mxcs->slave.bus = bus;
 	mxcs->slave.cs = cs;
 	mxcs->base = spi_bases[bus];
+	mxcs->ss_pol = (mode & SPI_CS_HIGH) ? 1 : 0;
 
 #ifdef CONFIG_MX51
 	/* Can be used for i.MX31 too ? */

@@ -256,6 +256,12 @@ struct weim {
 	u32	cswcr2;
 };
 
+/* GPIO Registers */
+struct gpio_regs {
+	u32	gpio_dr;
+	u32	gpio_dir;
+	u32	gpio_psr;
+};
 #endif /* __ASSEMBLER__*/
 
 #endif				/*  __ASM_ARCH_MXC_MX51_H__ */

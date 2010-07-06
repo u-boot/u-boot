@@ -21,14 +21,32 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ASM_ARCH_MX31_H
-#define __ASM_ARCH_MX31_H
+#ifndef __MXC_GPIO_H
+#define __MXC_GPIO_H
 
-extern u32 mx31_get_ipg_clk(void);
-#define imx_get_uartclk mx31_get_ipg_clk
-extern void mx31_gpio_mux(unsigned long mode);
+enum mxc_gpio_direction {
+	MXC_GPIO_DIRECTION_IN,
+	MXC_GPIO_DIRECTION_OUT,
+};
 
-void mx31_uart1_hw_init(void);
-void mx31_spi2_hw_init(void);
+#ifdef CONFIG_MXC_GPIO
+extern int mxc_gpio_direction(unsigned int gpio,
+			       enum mxc_gpio_direction direction);
+extern void mxc_gpio_set(unsigned int gpio, unsigned int value);
+extern int mxc_gpio_get(unsigned int gpio);
+#else
+static inline int mxc_gpio_direction(unsigned int gpio,
+				      enum mxc_gpio_direction direction)
+{
+	return 1;
+}
+static inline int mxc_gpio_get(unsigned int gpio)
+{
+	return 1;
+}
+static inline void mxc_gpio_set(unsigned int gpio, unsigned int value)
+{
+}
+#endif
 
-#endif /* __ASM_ARCH_MX31_H */
+#endif
