@@ -173,7 +173,7 @@ static int davinci_spi_read(struct spi_slave *slave, unsigned int len,
 }
 
 static int davinci_spi_write(struct spi_slave *slave, unsigned int len,
-		const u8 *txp, unsigned long flags)
+			     const u8 *txp, unsigned long flags)
 {
 	struct davinci_spi_slave *ds = to_davinci_spi(slave);
 	unsigned int data1_reg_val;
@@ -237,7 +237,7 @@ static int davinci_spi_read_write(struct spi_slave *slave, unsigned int len,
 #endif
 
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-		const void *dout, void *din, unsigned long flags)
+	     const void *dout, void *din, unsigned long flags)
 {
 	unsigned int len;
 
@@ -266,6 +266,10 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 #ifndef CONFIG_SPI_HALF_DUPLEX
 	else
 		return davinci_spi_read_write(slave, len, din, dout, flags);
+#else
+	printf("SPI full duplex transaction requested with "
+	       "CONFIG_SPI_HALF_DUPLEX defined.\n");
+	flags |= SPI_XFER_END;
 #endif
 
 out:
