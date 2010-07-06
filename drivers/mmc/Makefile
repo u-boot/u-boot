@@ -32,6 +32,7 @@ COBJS-$(CONFIG_OMAP3_MMC) += omap3_mmc.o
 COBJS-$(CONFIG_FSL_ESDHC) += fsl_esdhc.o
 COBJS-$(CONFIG_MXC_MMC) += mxcmmc.o
 COBJS-$(CONFIG_PXA_MMC) += pxa_mmc.o
+COBJS-$(CONFIG_S5P_MMC) += s5p_mmc.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
