@@ -157,4 +157,7 @@
 #define VSDSTBY		(1 << 19)
 #define VSDMODE		(1 << 20)
 
+/* Reg Power Control 2*/
+#define WDIRESET	(1 << 12)
+
 #endif

@@ -547,6 +547,7 @@ Stefano Babic <sbabic@denx.de>
 	polaris		xscale
 	trizepsiv	xscale
 	mx51evk		i.MX51
+ 	vision2		i.MX51
 
 Dirk Behme <dirk.behme@gmail.com>
 
