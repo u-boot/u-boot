@@ -348,7 +348,7 @@ void __led_set(led_id_t mask, int state)
 
 /*---------------------------------------------------------------------------*/
 
-int do_brightness(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_brightness(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int rcode = 0;
 	ulong side;

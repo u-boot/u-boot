@@ -29,7 +29,7 @@
 
 static int on_off (const char *);
 
-int do_icache ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_icache ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	switch (argc) {
 	case 2:			/* on / off	*/
@@ -55,7 +55,7 @@ int do_icache ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-int do_dcache ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_dcache ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	switch (argc) {
 	case 2:			/* on / off	*/

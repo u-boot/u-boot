@@ -31,10 +31,10 @@
 
 extern void print_evb440spe_info(void);
 static int setBootStrapClock(cmd_tbl_t *cmdtp, int incrflag,
-		int flag, int argc, char *argv[]);
+		int flag, int argc, char * const argv[]);
 
 /* ------------------------------------------------------------------------- */
-int do_evb440spe(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_evb440spe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	return setBootStrapClock (cmdtp, 1, flag, argc, argv);
 }
@@ -46,7 +46,7 @@ int do_evb440spe(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  *	evb440spe wrclk prom0,prom1
  */
 static int setBootStrapClock(cmd_tbl_t *cmdtp, int incrflag, int flag,
-		int argc, char *argv[])
+		int argc, char * const argv[])
 {
 	uchar	chip;
 	ulong	data;

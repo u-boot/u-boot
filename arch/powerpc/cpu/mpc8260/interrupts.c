@@ -256,7 +256,7 @@ void timer_interrupt_cpu (struct pt_regs *regs)
 *
 */
 void
-do_irqinfo (cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
+do_irqinfo (cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char * const argv[])
 {
 	int irq, re_enable;
 

@@ -100,7 +100,6 @@
 #define IH_ARCH_SPARC		10	/* Sparc	*/
 #define IH_ARCH_SPARC64		11	/* Sparc 64 Bit */
 #define IH_ARCH_M68K		12	/* M68K		*/
-#define IH_ARCH_NIOS		13	/* Nios-32	*/
 #define IH_ARCH_MICROBLAZE	14	/* MicroBlaze   */
 #define IH_ARCH_NIOS2		15	/* Nios-II	*/
 #define IH_ARCH_BLACKFIN	16	/* Blackfin	*/
@@ -329,12 +328,12 @@ int genimg_get_format (void *img_addr);
 int genimg_has_config (bootm_headers_t *images);
 ulong genimg_get_image (ulong img_addr);
 
-int boot_get_ramdisk (int argc, char *argv[], bootm_headers_t *images,
+int boot_get_ramdisk (int argc, char * const argv[], bootm_headers_t *images,
 		uint8_t arch, ulong *rd_start, ulong *rd_end);
 
 
 #ifdef CONFIG_OF_LIBFDT
-int boot_get_fdt (int flag, int argc, char *argv[], bootm_headers_t *images,
+int boot_get_fdt (int flag, int argc, char * const argv[], bootm_headers_t *images,
 		char **of_flat_tree, ulong *of_size);
 int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		char **of_flat_tree, ulong *of_size);
@@ -363,23 +362,23 @@ static inline uint32_t image_get_header_size (void)
 	{ \
 		return uimage_to_cpu (hdr->ih_##f); \
 	}
-image_get_hdr_l (magic);	/* image_get_magic */
-image_get_hdr_l (hcrc);		/* image_get_hcrc */
-image_get_hdr_l (time);		/* image_get_time */
-image_get_hdr_l (size);		/* image_get_size */
-image_get_hdr_l (load);		/* image_get_load */
-image_get_hdr_l (ep);		/* image_get_ep */
-image_get_hdr_l (dcrc);		/* image_get_dcrc */
+image_get_hdr_l (magic)		/* image_get_magic */
+image_get_hdr_l (hcrc)		/* image_get_hcrc */
+image_get_hdr_l (time)		/* image_get_time */
+image_get_hdr_l (size)		/* image_get_size */
+image_get_hdr_l (load)		/* image_get_load */
+image_get_hdr_l (ep)		/* image_get_ep */
+image_get_hdr_l (dcrc)		/* image_get_dcrc */
 
 #define image_get_hdr_b(f) \
 	static inline uint8_t image_get_##f(const image_header_t *hdr) \
 	{ \
 		return hdr->ih_##f; \
 	}
-image_get_hdr_b (os);		/* image_get_os */
-image_get_hdr_b (arch);		/* image_get_arch */
-image_get_hdr_b (type);		/* image_get_type */
-image_get_hdr_b (comp);		/* image_get_comp */
+image_get_hdr_b (os)		/* image_get_os */
+image_get_hdr_b (arch)		/* image_get_arch */
+image_get_hdr_b (type)		/* image_get_type */
+image_get_hdr_b (comp)		/* image_get_comp */
 
 static inline char *image_get_name (const image_header_t *hdr)
 {
@@ -421,23 +420,23 @@ static inline ulong image_get_image_end (const image_header_t *hdr)
 	{ \
 		hdr->ih_##f = cpu_to_uimage (val); \
 	}
-image_set_hdr_l (magic);	/* image_set_magic */
-image_set_hdr_l (hcrc);		/* image_set_hcrc */
-image_set_hdr_l (time);		/* image_set_time */
-image_set_hdr_l (size);		/* image_set_size */
-image_set_hdr_l (load);		/* image_set_load */
-image_set_hdr_l (ep);		/* image_set_ep */
-image_set_hdr_l (dcrc);		/* image_set_dcrc */
+image_set_hdr_l (magic)		/* image_set_magic */
+image_set_hdr_l (hcrc)		/* image_set_hcrc */
+image_set_hdr_l (time)		/* image_set_time */
+image_set_hdr_l (size)		/* image_set_size */
+image_set_hdr_l (load)		/* image_set_load */
+image_set_hdr_l (ep)		/* image_set_ep */
+image_set_hdr_l (dcrc)		/* image_set_dcrc */
 
 #define image_set_hdr_b(f) \
 	static inline void image_set_##f(image_header_t *hdr, uint8_t val) \
 	{ \
 		hdr->ih_##f = val; \
 	}
-image_set_hdr_b (os);		/* image_set_os */
-image_set_hdr_b (arch);		/* image_set_arch */
-image_set_hdr_b (type);		/* image_set_type */
-image_set_hdr_b (comp);		/* image_set_comp */
+image_set_hdr_b (os)		/* image_set_os */
+image_set_hdr_b (arch)		/* image_set_arch */
+image_set_hdr_b (type)		/* image_set_type */
+image_set_hdr_b (comp)		/* image_set_comp */
 
 static inline void image_set_name (image_header_t *hdr, const char *name)
 {
@@ -493,8 +492,6 @@ static inline int image_check_target_arch (const image_header_t *hdr)
 	if (!image_check_arch (hdr, IH_ARCH_MICROBLAZE))
 #elif defined(__mips__)
 	if (!image_check_arch (hdr, IH_ARCH_MIPS))
-#elif defined(__nios__)
-	if (!image_check_arch (hdr, IH_ARCH_NIOS))
 #elif defined(__nios2__)
 	if (!image_check_arch (hdr, IH_ARCH_NIOS2))
 #elif defined(__PPC__)
@@ -647,8 +644,6 @@ static inline int fit_image_check_target_arch (const void *fdt, int node)
 	if (!fit_image_check_arch (fdt, node, IH_ARCH_MICROBLAZE))
 #elif defined(__mips__)
 	if (!fit_image_check_arch (fdt, node, IH_ARCH_MIPS))
-#elif defined(__nios__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_NIOS))
 #elif defined(__nios2__)
 	if (!fit_image_check_arch (fdt, node, IH_ARCH_NIOS2))
 #elif defined(__PPC__)

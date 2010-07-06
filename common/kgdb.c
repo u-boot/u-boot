@@ -584,7 +584,7 @@ breakpoint(void)
 }
 
 int
-do_kgdb(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+do_kgdb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     printf("Entering KGDB mode via exception handler...\n\n");
     kgdb_breakpoint(argc - 1, argv + 1);

@@ -3,7 +3,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static void dummy(void)
+__attribute__((unused)) static void dummy(void)
 {
 }
 

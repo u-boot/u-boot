@@ -32,11 +32,6 @@
 #include <i2c.h>
 #endif
 
-#ifdef CONFIG_ENV_OFFSET_REDUND
-#define ACTIVE_FLAG   1
-#define OBSOLETE_FLAG 0
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 env_t *env_ptr = NULL;

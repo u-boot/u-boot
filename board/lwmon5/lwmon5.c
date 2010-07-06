@@ -304,7 +304,7 @@ void hw_watchdog_reset(void)
 	gpio_write_bit(CONFIG_SYS_GPIO_WATCHDOG, val);
 }
 
-int do_eeprom_wp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_eeprom_wp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc < 2) {
 		cmd_usage(cmdtp);

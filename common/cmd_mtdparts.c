@@ -1713,7 +1713,7 @@ static struct part_info* mtd_part_info(struct mtd_device *dev, unsigned int part
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-int do_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 /* command line only */
 	struct mtd_device *dev;
@@ -1751,7 +1751,7 @@ int do_chpart(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc == 2) {
 		if (strcmp(argv[1], "default") == 0) {

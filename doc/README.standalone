@@ -19,12 +19,12 @@ Design Notes on Exporting U-Boot Functions to Standalone Applications:
    thus the compiler cannot perform type checks on these assignments.
 
 2. The pointer to the jump table is passed to the application in a
-   machine-dependent way. PowerPC, ARM, MIPS and Blackfin architectures
-   use a dedicated register to hold the pointer to the 'global_data'
-   structure: r2 on PowerPC, r8 on ARM, k0 on MIPS, and P3 on Blackfin.
-   The x86 architecture does not use such a register; instead, the
-   pointer to the 'global_data' structure is passed as 'argv[-1]'
-   pointer.
+   machine-dependent way. PowerPC, ARM, MIPS, Blackfin and Nios II
+   architectures use a dedicated register to hold the pointer to the
+   'global_data' structure: r2 on PowerPC, r8 on ARM, k0 on MIPS,
+   P3 on Blackfin and gp on Nios II. The x86 architecture does not
+   use such a register; instead, the pointer to the 'global_data'
+   structure is passed as 'argv[-1]' pointer.
 
    The application can access the 'global_data' structure in the same
    way as U-Boot does:
@@ -40,7 +40,7 @@ Design Notes on Exporting U-Boot Functions to Standalone Applications:
    that returns the ABI version of the running U-Boot. I.e., a
    typical application startup may look like this:
 
-	int my_app (int argc, char *argv[])
+	int my_app (int argc, char * const argv[])
 	{
 		app_startup (argv);
 		if (get_version () != XF_VERSION)
@@ -56,6 +56,7 @@ Design Notes on Exporting U-Boot Functions to Standalone Applications:
 	ARM		0x0c100000	0x0c100000
 	MIPS		0x80200000	0x80200000
 	Blackfin	0x00001000	0x00001000
+	Nios II		0x02000000	0x02000000
 
    For example, the "hello world" application may be loaded and
    executed on a PowerPC board with the following commands:

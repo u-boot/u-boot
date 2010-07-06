@@ -138,7 +138,7 @@ int dcache_status (void)
 /*
  * Reset board
  */
-int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 #if defined(CONFIG_PATI)
 	volatile ulong *addr = (ulong *) CONFIG_SYS_RESET_ADDRESS;

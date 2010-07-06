@@ -26,7 +26,7 @@
 
 #include <mg_disk.h>
 
-int do_mg_disk_cmd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_mg_disk_cmd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 from, to, size;
 

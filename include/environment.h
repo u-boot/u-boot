@@ -122,6 +122,9 @@
 
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # define ENV_HEADER_SIZE	(sizeof(uint32_t) + 1)
+
+# define ACTIVE_FLAG   1
+# define OBSOLETE_FLAG 0
 #else
 # define ENV_HEADER_SIZE	(sizeof(uint32_t))
 #endif

@@ -374,7 +374,7 @@ int eeprom_write_enable(unsigned dev_addr, int state)
 	return state;
 }
 
-int do_eep_wren(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_eep_wren(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int query = argc == 1;
 	int state = 0;
@@ -417,7 +417,7 @@ U_BOOT_CMD(eepwren, 2, 0, do_eep_wren,
 #include <environment.h>
 extern env_t *env_ptr;
 
-int do_painit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_painit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 pram, nextbase, base;
 	char *v;
@@ -477,7 +477,7 @@ U_BOOT_CMD(
 );
 #endif /* CONFIG_PRAM */
 
-int do_selfreset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_selfreset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct ppc4xx_gpio *gpio0 = (struct ppc4xx_gpio *)GPIO_BASE;
 	setbits_be32(&gpio0->tcr, CONFIG_SYS_GPIO_SELFRST_N);
@@ -489,7 +489,7 @@ U_BOOT_CMD(
 	""
 );
 
-int do_resetout(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_resetout(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct pmc405de_cpld *cpld =
 		(struct pmc405de_cpld *)CONFIG_SYS_CPLD_BASE;

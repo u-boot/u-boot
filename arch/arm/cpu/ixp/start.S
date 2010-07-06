@@ -289,6 +289,7 @@ stack_setup:
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
+	bic	sp, sp, #7		/* 8-byte alignment for ABI compliance */
 
 clear_bss:
 	ldr	r0, _bss_start		/* find start of bss segment        */

@@ -67,9 +67,6 @@ int rtc_get (struct rtc_time *tmp)
 	wday	= rtc_read (RTC_DAY_OF_WEEK);
 	mon	= rtc_read (RTC_MONTH);
 	year	= rtc_read (RTC_YEAR);
-#ifdef CONFIG_AMIGAONEG3SE
-	wday -= 1; /* VIA 686 stores Sunday = 1, Monday = 2, ... */
-#endif
 #ifdef RTC_DEBUG
 	printf ( "Get RTC year: %02x mon/cent: %02x mday: %02x wday: %02x "
 		"hr: %02x min: %02x sec: %02x\n",
@@ -114,11 +111,7 @@ int rtc_set (struct rtc_time *tmp)
 
 	rtc_write (RTC_YEAR, bin2bcd(tmp->tm_year % 100));
 	rtc_write (RTC_MONTH, bin2bcd(tmp->tm_mon));
-#ifdef CONFIG_AMIGAONEG3SE
-	rtc_write (RTC_DAY_OF_WEEK, bin2bcd(tmp->tm_wday)+1);
-#else
 	rtc_write (RTC_DAY_OF_WEEK, bin2bcd(tmp->tm_wday));
-#endif
 	rtc_write (RTC_DATE_OF_MONTH, bin2bcd(tmp->tm_mday));
 	rtc_write (RTC_HOURS, bin2bcd(tmp->tm_hour));
 	rtc_write (RTC_MINUTES, bin2bcd(tmp->tm_min ));

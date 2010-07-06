@@ -465,7 +465,7 @@ void i2c_reg_write1(uchar i2c_addr, uchar reg, uchar val)
 }
 
 
-int do_i2c1_probe(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_i2c1_probe(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int j;
 #if defined(CONFIG_SYS_I2C_NOPROBES)

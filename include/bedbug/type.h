@@ -15,7 +15,7 @@ typedef struct {
 	int current_bp;
 	struct pt_regs *regs;
 
-	void (*do_break) (cmd_tbl_t *, int, int, char *[]);
+	void (*do_break) (cmd_tbl_t *, int, int, char * const []);
 	void (*break_isr) (struct pt_regs *);
 	int (*find_empty) (void);
 	int (*set) (int, unsigned long);

@@ -75,7 +75,7 @@ int checkcpu (void)
 
 
 int
-do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong msr;
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;

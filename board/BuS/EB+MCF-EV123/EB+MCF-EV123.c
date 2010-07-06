@@ -193,7 +193,7 @@ int drv_video_init(void)
 /*---------------------------------------------------------------------------*/
 
 #ifdef CONFIG_VIDEO
-int do_brightness(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_brightness(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int rcode = 0;
 	ulong side;

@@ -34,7 +34,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Prototypes */
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 unsigned long fpga_done_state(void);
 unsigned long fpga_init_state(void);
 
@@ -356,7 +356,7 @@ int wpeeprom(int wp)
 	return wp_state;
 }
 
-int do_wpeeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_wpeeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int wp = -1;
 	if (argc >= 2) {

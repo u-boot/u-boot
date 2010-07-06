@@ -66,7 +66,7 @@ int cpu_disable(int nr)
 	return 0;
 }
 
-int cpu_release(int nr, int argc, char *argv[])
+int cpu_release(int nr, int argc, char * const argv[])
 {
 	/* dummy function so common/cmd_mp.c will build
 	 * should be implemented in the future */

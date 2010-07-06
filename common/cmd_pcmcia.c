@@ -66,7 +66,7 @@
 extern int pcmcia_on (void);
 extern int pcmcia_off (void);
 
-int do_pinit (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_pinit (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int rcode = 0;
 

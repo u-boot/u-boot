@@ -6,7 +6,7 @@
 #include <common.h>
 #include <df.h>
 
-static int do_df(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_df(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	const char *cmd;
 

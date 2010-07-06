@@ -26,7 +26,7 @@
 
 extern char version_string[];
 
-int do_version(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	printf("\n%s\n", version_string);
 

@@ -380,7 +380,7 @@ static uchar *key_match (uchar *kbd_data)
 
 /***********************************************************************
 F* Function:     int do_kbd (cmd_tbl_t *cmdtp, int flag,
-F*                           int argc, char *argv[]) P*A*Z*
+F*                           int argc, char * const argv[]) P*A*Z*
  *
 P* Parameters:   cmd_tbl_t *cmdtp
 P*                - Pointer to our command table entry
@@ -389,7 +389,7 @@ P*                - If the CMD_FLAG_REPEAT bit is set, then this call is
 P*                  a repetition
 P*               int argc
 P*                - Argument count
-P*               char *argv[]
+P*               char * const argv[]
 P*                - Array of the actual arguments
 P*
 P* Returnvalue:  int
@@ -404,7 +404,7 @@ D* Design:       wd@denx.de
 C* Coding:       wd@denx.de
 V* Verification: dzu@denx.de
  ***********************************************************************/
-int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	uchar kbd_data[KEYBD_DATALEN];
 	char keybd_env[2 * KEYBD_DATALEN + 1];

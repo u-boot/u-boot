@@ -65,26 +65,9 @@ gd_t *global_data;
 "	lw	$25, %1($25)\n"		\
 "	jr	$25\n"			\
 	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "t9");
-#elif defined(CONFIG_NIOS)
-/*
- * %g7 holds the pointer to the global_data. %g0 is call clobbered.
- */
-#define EXPORT_FUNC(x) \
-	asm volatile (			\
-"	.globl " #x "\n"		\
-#x ":\n"				\
-"	pfx	%%hi(%0)\n"		\
-"	movi	%%g0, %%lo(%0)\n"	\
-"	add	%%g0, %%g7\n"		\
-"	ld	%%g0, [%%g0]\n"		\
-"	pfx	%1\n"			\
-"	ld	%%g0, [%%g0]\n"		\
-"	jmp	%%g0\n"			\
-"	nop	\n"			\
-	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x) : "r0");
 #elif defined(CONFIG_NIOS2)
 /*
- * r15 holds the pointer to the global_data, r8 is call-clobbered
+ * gp holds the pointer to the global_data, r8 is call-clobbered
  */
 #define EXPORT_FUNC(x) \
 	asm volatile (			\
@@ -92,11 +75,11 @@ gd_t *global_data;
 #x ":\n"				\
 "	movhi	r8, %%hi(%0)\n"		\
 "	ori	r8, r0, %%lo(%0)\n"	\
-"	add	r8, r8, r15\n"		\
+"	add	r8, r8, gp\n"		\
 "	ldw	r8, 0(r8)\n"		\
 "	ldw	r8, %1(r8)\n"		\
 "	jmp	r8\n"			\
-	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "r15");
+	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "gp");
 #elif defined(CONFIG_M68K)
 /*
  * d7 holds the pointer to the global_data, a0 is a call-clobbered
@@ -206,7 +189,7 @@ void __attribute__((unused)) dummy(void)
 
 extern unsigned long __bss_start, _end;
 
-void app_startup(char **argv)
+void app_startup(char * const *argv)
 {
 	unsigned char * cp = (unsigned char *) &__bss_start;
 

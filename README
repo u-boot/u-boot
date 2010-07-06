@@ -143,9 +143,9 @@ Directory Hierarchy:
     /cpu		CPU specific files
       /arm720t		Files specific to ARM 720 CPUs
       /arm920t		Files specific to ARM 920 CPUs
-        /at91rm9200	Files specific to Atmel AT91RM9200 CPU
-        /imx		Files specific to Freescale MC9328 i.MX CPUs
-        /s3c24x0	Files specific to Samsung S3C24X0 CPUs
+	/at91rm9200	Files specific to Atmel AT91RM9200 CPU
+	/imx		Files specific to Freescale MC9328 i.MX CPUs
+	/s3c24x0	Files specific to Samsung S3C24X0 CPUs
       /arm925t		Files specific to ARM 925 CPUs
       /arm926ejs	Files specific to ARM 926 CPUs
       /arm1136		Files specific to ARM 1136 CPUs
@@ -175,9 +175,6 @@ Directory Hierarchy:
     /cpu		CPU specific files
     /lib		Architecture specific library files
   /mips			Files generic to MIPS architecture
-    /cpu		CPU specific files
-    /lib		Architecture specific library files
-  /nios			Files generic to Altera NIOS architecture
     /cpu		CPU specific files
     /lib		Architecture specific library files
   /nios2		Files generic to Altera NIOS2 architecture
@@ -2507,7 +2504,7 @@ to save the current settings.
 	  I2C muxes, you can define here, how to reach this
 	  EEPROM. For example:
 
-	  #define CONFIG_I2C_ENV_EEPROM_BUS       "pca9547:70:d\0"
+	  #define CONFIG_I2C_ENV_EEPROM_BUS	  "pca9547:70:d\0"
 
 	  EEPROM which holds the environment, is reached over
 	  a pca9547 i2c mux with address 0x70, channel 3.
@@ -3337,8 +3334,8 @@ details; basically, the header defines the following image properties:
   Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, LynxOS,
   INTEGRITY).
 * Target CPU Architecture (Provisions for Alpha, ARM, AVR32, Intel x86,
-  IA64, MIPS, NIOS, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
-  Currently supported: ARM, AVR32, Intel x86, MIPS, NIOS, PowerPC).
+  IA64, MIPS, Nios II, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
+  Currently supported: ARM, AVR32, Intel x86, MIPS, Nios II, PowerPC).
 * Compression Type (uncompressed, gzip, bzip2)
 * Load Address
 * Entry Point
@@ -4022,6 +4019,14 @@ On ARM, the following registers are used:
 	R15:	program counter
 
     ==> U-Boot will use R8 to hold a pointer to the global data
+
+On Nios II, the ABI is documented here:
+	http://www.altera.com/literature/hb/nios2/n2cpu_nii51016.pdf
+
+    ==> U-Boot will use gp to hold a pointer to the global data
+
+    Note: on Nios II, we give "-G0" option to gcc and don't use gp
+    to access small data sections, so gp is free.
 
 NOTE: DECLARE_GLOBAL_DATA_PTR must be used with file-global scope,
 or current versions of GCC may "optimize" the code too much.

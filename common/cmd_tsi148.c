@@ -402,7 +402,7 @@ int tsi148_vme_crg_window(unsigned int vmeAddr, int vam)
 /*
  * Tundra Tsi148 configuration
  */
-int do_tsi148(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_tsi148(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr1 = 0, addr2 = 0, size = 0, vam = 0, vdw = 0;
 	char cmd = 'x';

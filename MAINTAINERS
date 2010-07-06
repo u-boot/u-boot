@@ -354,6 +354,10 @@ Daniel Poirot <dan.poirot@windriver.com>
 	sbc8240		MPC8240
 	sbc405		PPC405GP
 
+Sudhakar Rajashekhara <sudhakar.raj@ti.com>
+
+	da850evm	ARM926EJS (DA850/OMAP-L138)
+
 Ricardo Ribalda <ricardo.ribalda@uam.es>
 
 	ml507 		PPC440x5
@@ -388,6 +392,7 @@ Stefan Roese <sr@denx.de>
 	rainier		PPC440GRx
 	sequoia		PPC440EPx
 	sycamore	PPC405GPr
+	t3corp		PPC460GT
 	taishan		PPC440GX
 	walnut		PPC405GP
 	yellowstone	PPC440GR
@@ -530,6 +535,10 @@ Unknown / orphaned boards:
 #	Board		CPU						#
 #########################################################################
 
+Albert ARIBAUD <albert.aribaud@free.fr>
+
+	edminiv2	ARM926EJS (Orion5x SoC)
+
 Rowel Atienza <rowel@diwalabs.com>
 
 	armadillo	ARM720T
@@ -668,12 +677,6 @@ Vipin Kumar <vipin.kumar@st.com>
 Sergey Lapin <slapin@ossfans.org>
 
 	afeb9260	ARM926EJS (AT91SAM9260 SoC)
-
-Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-
-	imx31_phycore_eet	i.MX31
-	mx31ads			i.MX31
-	SMDK6400		S3C6400
 
 Nishanth Menon <nm@ti.com>
 
@@ -817,6 +820,10 @@ Unknown / orphaned boards:
 	ixdp425		xscale	Kyle Harris <kharris@nexus-tech.net> / dead address
 	lubbock		xscale	Kyle Harris <kharris@nexus-tech.net> / dead address
 
+	imx31_phycore_eet i.MX31  Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned
+	mx31ads		  i.MX31  Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned
+	SMDK6400	  S3C6400 Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned
+
 #########################################################################
 # x86 Systems:								#
 #									#
@@ -850,22 +857,6 @@ Vlad Lungu <vlad.lungu@windriver.com>
 Stefan Roese <sr@denx.de>
 
 	vct_xxx		MIPS32 4Kc
-
-#########################################################################
-# Nios-32 Systems:							#
-#									#
-# Maintainer Name, Email Address					#
-#	Board		CPU						#
-#########################################################################
-
-Stephan Linz <linz@li-pro.net>
-
-	DK1S10		Nios-32
-	ADNPESC1	Nios-32
-
-Scott McNutt <smcnutt@psyent.com>
-
-	DK1C20		Nios-32
 
 #########################################################################
 # Nios-II Systems:							#

@@ -90,7 +90,7 @@ bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp)
 }
 #endif
 
-static int do_bmp_info(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_bmp_info(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr;
 
@@ -109,7 +109,7 @@ static int do_bmp_info(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return (bmp_info(addr));
 }
 
-static int do_bmp_display(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_bmp_display(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr;
 	int x = 0, y = 0;
@@ -149,7 +149,7 @@ static cmd_tbl_t cmd_bmp_sub[] = {
  * Return:      None
  *
  */
-static int do_bmp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_bmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *c;
 

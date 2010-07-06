@@ -29,7 +29,7 @@
 #include <asm/zimage.h>
 
 /*cmd_boot.c*/
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
 {
 	void		*base_ptr;
 	ulong		os_data, os_len;

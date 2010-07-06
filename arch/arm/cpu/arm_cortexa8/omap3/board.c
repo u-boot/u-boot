@@ -282,7 +282,7 @@ void abort(void)
 /******************************************************************************
  * OMAP3 specific command to switch between NAND HW and SW ecc
  *****************************************************************************/
-static int do_switch_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_switch_ecc(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc != 2)
 		goto usage;

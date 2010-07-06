@@ -47,7 +47,7 @@
 #define PRINTF(fmt,args...)
 #endif
 
-int do_reiserls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_reiserls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *filename = "/";
 	int dev=0;
@@ -110,7 +110,7 @@ U_BOOT_CMD(
 /******************************************************************************
  * Reiserfs boot command intepreter. Derived from diskboot
  */
-int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *filename = NULL;
 	char *ep;

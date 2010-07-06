@@ -202,7 +202,7 @@ block_dev_desc_t * scsi_get_dev(int dev)
 /******************************************************************************
  * scsi boot command intepreter. Derived from diskboot
  */
-int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *boot_device = NULL;
 	char *ep;
@@ -342,7 +342,7 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /*********************************************************************************
  * scsi command intepreter
  */
-int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	switch (argc) {
     case 0:

@@ -204,7 +204,7 @@ static void clearPci9054 (void)
 
 /* ------------------------------------------------------------------------- */
 int do_pci9054 (cmd_tbl_t * cmdtp, int flag, int argc,
-				char *argv[])
+				char * const argv[])
 {
 	if (strcmp (argv[1], "info") == 0) {
 		showPci9054 ();

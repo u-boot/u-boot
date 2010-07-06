@@ -11,7 +11,7 @@
 
 #include <asm/blackfin.h>
 
-int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc != 3) {
  show_usage:

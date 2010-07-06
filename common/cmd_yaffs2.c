@@ -24,7 +24,7 @@ extern void cmd_yaffs_mv(const char *oldPath, const char *newPath);
 extern int yaffs_DumpDevStruct(const char *path);
 
 
-int do_ymount (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ymount (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *mtpoint = argv[1];
     cmd_yaffs_mount(mtpoint);
@@ -32,7 +32,7 @@ int do_ymount (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return(0);
 }
 
-int do_yumount (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_yumount (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *mtpoint = argv[1];
     cmd_yaffs_umount(mtpoint);
@@ -40,7 +40,7 @@ int do_yumount (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return(0);
 }
 
-int do_yls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_yls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *dirname = argv[argc-1];
 
@@ -49,7 +49,7 @@ int do_yls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return(0);
 }
 
-int do_yrd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_yrd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *filename = argv[1];
     printf ("Reading file %s ", filename);
@@ -60,7 +60,7 @@ int do_yrd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return(0);
 }
 
-int do_ywr (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ywr (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *filename = argv[1];
     ulong value = simple_strtoul(argv[2], NULL, 16);
@@ -74,7 +74,7 @@ int do_ywr (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return(0);
 }
 
-int do_yrdm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_yrdm (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *filename = argv[1];
     ulong addr = simple_strtoul(argv[2], NULL, 16);
@@ -84,7 +84,7 @@ int do_yrdm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return(0);
 }
 
-int do_ywrm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ywrm (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *filename = argv[1];
     ulong addr = simple_strtoul(argv[2], NULL, 16);
@@ -95,7 +95,7 @@ int do_ywrm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return(0);
 }
 
-int do_ymkdir (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ymkdir (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *dirname = argv[1];
 
@@ -104,7 +104,7 @@ int do_ymkdir (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return(0);
 }
 
-int do_yrmdir (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_yrmdir (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *dirname = argv[1];
 
@@ -113,7 +113,7 @@ int do_yrmdir (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return(0);
 }
 
-int do_yrm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_yrm (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *path = argv[1];
 
@@ -122,7 +122,7 @@ int do_yrm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return(0);
 }
 
-int do_ymv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ymv (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *oldPath = argv[1];
     char *newPath = argv[2];
@@ -132,7 +132,7 @@ int do_ymv (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
     return(0);
 }
 
-int do_ydump (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ydump (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *dirname = argv[1];
     if (yaffs_DumpDevStruct(dirname) != 0)

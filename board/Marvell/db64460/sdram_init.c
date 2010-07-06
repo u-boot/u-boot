@@ -1289,37 +1289,37 @@ int setup_sdram (AUX_MEM_DIMM_INFO * info)
 	case 0x0:
 	case 0x80:		/* refresh period is 15.625 usec */
 		sdram_config_reg =
-			(unsigned int) (((float) 15.625 * (float) CONFIG_SYS_BUS_HZ)
+			(unsigned int) (((float) 15.625 * (float) CONFIG_SYS_BUS_CLK)
 					/ (float) 1000000.0);
 		break;
 	case 0x1:
 	case 0x81:		/* refresh period is 3.9 usec */
 		sdram_config_reg =
-			(unsigned int) (((float) 3.9 * (float) CONFIG_SYS_BUS_HZ) /
+			(unsigned int) (((float) 3.9 * (float) CONFIG_SYS_BUS_CLK) /
 					(float) 1000000.0);
 		break;
 	case 0x2:
 	case 0x82:		/* refresh period is 7.8 usec */
 		sdram_config_reg =
-			(unsigned int) (((float) 7.8 * (float) CONFIG_SYS_BUS_HZ) /
+			(unsigned int) (((float) 7.8 * (float) CONFIG_SYS_BUS_CLK) /
 					(float) 1000000.0);
 		break;
 	case 0x3:
 	case 0x83:		/* refresh period is 31.3 usec */
 		sdram_config_reg =
-			(unsigned int) (((float) 31.3 * (float) CONFIG_SYS_BUS_HZ) /
+			(unsigned int) (((float) 31.3 * (float) CONFIG_SYS_BUS_CLK) /
 					(float) 1000000.0);
 		break;
 	case 0x4:
 	case 0x84:		/* refresh period is 62.5 usec */
 		sdram_config_reg =
-			(unsigned int) (((float) 62.5 * (float) CONFIG_SYS_BUS_HZ) /
+			(unsigned int) (((float) 62.5 * (float) CONFIG_SYS_BUS_CLK) /
 					(float) 1000000.0);
 		break;
 	case 0x5:
 	case 0x85:		/* refresh period is 125 usec */
 		sdram_config_reg =
-			(unsigned int) (((float) 125 * (float) CONFIG_SYS_BUS_HZ) /
+			(unsigned int) (((float) 125 * (float) CONFIG_SYS_BUS_CLK) /
 					(float) 1000000.0);
 		break;
 	default:		/* refresh period undefined */

@@ -92,7 +92,7 @@ void arch_lmb_reserve(struct lmb *lmb)
 }
 
 /* boot the linux kernel */
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t * images)
+int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t * images)
 {
 	char *bootargs;
 	ulong initrd_start, initrd_end;

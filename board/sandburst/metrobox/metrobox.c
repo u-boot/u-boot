@@ -485,7 +485,7 @@ void fpga_init(void)
 	return;
 }
 
-int metroboxSetupVars(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int metroboxSetupVars(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned short sernum;
 	char envstr[255];
@@ -545,7 +545,7 @@ int metroboxSetupVars(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return(1);
 }
 
-int metroboxRecover(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int metroboxRecover(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned short sernum;
 	char envstr[255];

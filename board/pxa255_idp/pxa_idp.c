@@ -122,7 +122,7 @@ void blink_c(void)
 	GPCR0 = led_bit;
 }
 
-int do_idpcmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_idpcmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	printf("IDPCMD started\n");
 	return 0;

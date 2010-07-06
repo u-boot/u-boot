@@ -37,20 +37,12 @@
 #include <kgdb.h>
 #include <asm/processor.h>
 
-#ifdef CONFIG_AMIGAONEG3SE
-DECLARE_GLOBAL_DATA_PTR;
-#endif
-
 /* Returns 0 if exception not found and fixup otherwise.  */
 extern unsigned long search_exception_table(unsigned long);
 
 /* THIS NEEDS CHANGING to use the board info structure.
 */
-#ifdef CONFIG_AMIGAONEG3SE
-#define END_OF_MEM (gd->bd->bi_memstart + gd->bd->bi_memsize)
-#else
 #define END_OF_MEM	0x02000000
-#endif
 
 /*
  * Trap & Exception support

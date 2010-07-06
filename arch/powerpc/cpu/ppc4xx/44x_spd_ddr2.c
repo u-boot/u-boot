@@ -68,6 +68,31 @@
 		       "SDRAM_" #mnemonic, SDRAM_##mnemonic, data);	\
 	} while (0)
 
+#if !defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SPL)
+static void update_rdcc(void)
+{
+	u32 val;
+
+	/*
+	 * Complete RDSS configuration as mentioned on page 7 of the AMCC
+	 * PowerPC440SP/SPe DDR2 application note:
+	 * "DDR1/DDR2 Initialization Sequence and Dynamic Tuning"
+	 *
+	 * Or item #10 "10. Complete RDSS configuration" in chapter
+	 * "22.2.9 SDRAM Initialization" of AMCC PPC460EX/EXr/GT users
+	 * manual.
+	 */
+	mfsdram(SDRAM_RTSR, val);
+	if ((val & SDRAM_RTSR_TRK1SM_MASK) == SDRAM_RTSR_TRK1SM_ATPLS1) {
+		mfsdram(SDRAM_RDCC, val);
+		if ((val & SDRAM_RDCC_RDSS_MASK) != SDRAM_RDCC_RDSS_T4) {
+			val += 0x40000000;
+			mtsdram(SDRAM_RDCC, val);
+		}
+	}
+}
+#endif
+
 #if defined(CONFIG_440)
 /*
  * This DDR2 setup code can dynamically setup the TLB entries for the DDR2
@@ -393,7 +418,7 @@ static void	test(void);
 static void	DQS_calibration_process(void);
 #endif
 #endif
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 static unsigned char spd_read(uchar chip, uint addr)
 {
@@ -620,6 +645,12 @@ phys_size_t initdram(int board_type)
 #else
 	program_DQS_calibration(dimm_populated, iic0_dimm_addr, num_dimm_banks);
 #endif
+	/*
+	 * Now complete RDSS configuration as mentioned on page 7 of the AMCC
+	 * PowerPC440SP/SPe DDR2 application note:
+	 * "DDR1/DDR2 Initialization Sequence and Dynamic Tuning"
+	 */
+	update_rdcc();
 
 #ifdef CONFIG_DDR_ECC
 	/*------------------------------------------------------------------
@@ -2692,20 +2723,6 @@ calibration_loop:
 	blank_string(strlen(str));
 #endif /* CONFIG_DDR_RQDC_FIXED */
 
-	/*
-	 * Now complete RDSS configuration as mentioned on page 7 of the AMCC
-	 * PowerPC440SP/SPe DDR2 application note:
-	 * "DDR1/DDR2 Initialization Sequence and Dynamic Tuning"
-	 */
-	mfsdram(SDRAM_RTSR, val);
-	if ((val & SDRAM_RTSR_TRK1SM_MASK) == SDRAM_RTSR_TRK1SM_ATPLS1) {
-		mfsdram(SDRAM_RDCC, val);
-		if ((val & SDRAM_RDCC_RDSS_MASK) != SDRAM_RDCC_RDSS_T4) {
-			val += 0x40000000;
-			mtsdram(SDRAM_RDCC, val);
-		}
-	}
-
 	mfsdram(SDRAM_DLCR, val);
 	debug("%s[%d] DLCR: 0x%08lX\n", __FUNCTION__, __LINE__, val);
 	mfsdram(SDRAM_RQDC, val);
@@ -3006,6 +3023,13 @@ phys_size_t initdram(int board_type)
 	DQS_autocalibration();
 #endif /* !defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL) */
 #endif /* CONFIG_PPC4xx_DDR_AUTOCALIBRATION */
+
+	/*
+	 * Now complete RDSS configuration as mentioned on page 7 of the AMCC
+	 * PowerPC440SP/SPe DDR2 application note:
+	 * "DDR1/DDR2 Initialization Sequence and Dynamic Tuning"
+	 */
+	update_rdcc();
 
 #if defined(CONFIG_DDR_ECC)
 	do_program_ecc(0);

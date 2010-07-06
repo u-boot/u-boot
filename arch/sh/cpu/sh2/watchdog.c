@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2008 Nobuhiro Iwamatsu <iwamatsu.nobuhoro@renesas.com>
- * Copyright (C) 2008 Renesas Solutions Corp.
+ * Copyright (C) 2008,2010 Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj@renesas.com>
+ * Copyright (C) 2008,2010 Renesas Solutions Corp.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,6 +20,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/system.h>
 
 int watchdog_init(void)
 {
@@ -28,6 +29,9 @@ int watchdog_init(void)
 
 void reset_cpu(unsigned long ignored)
 {
+	/* Address error with SR.BL=1 first. */
+	trigger_address_error();
+
 	while (1)
 		;
 }

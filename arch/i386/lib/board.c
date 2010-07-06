@@ -431,7 +431,7 @@ void hang (void)
 	for (;;);
 }
 
-unsigned long do_go_exec (ulong (*entry)(int, char *[]), int argc, char *argv[])
+unsigned long do_go_exec (ulong (*entry)(int, char *[]), int argc, char * const argv[])
 {
 	/*
 	 * x86 does not use a dedicated register to pass the pointer

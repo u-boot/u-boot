@@ -36,9 +36,9 @@
 static int platform_needs_initialization = 1;
 
 struct musb_config musb_cfg = {
-	(struct	musb_regs *)MENTOR_USB0_BASE,
-	OMAP3_USB_TIMEOUT,
-	0
+	.regs		= (struct musb_regs *)MENTOR_USB0_BASE,
+	.timeout	= OMAP3_USB_TIMEOUT,
+	.musb_speed	= 0,
 };
 
 /*
@@ -119,6 +119,9 @@ int musb_platform_init(void)
 		stdby &= ~OMAP3_OTG_FORCESTDBY_STANDBY;
 		writel(stdby, &otg->forcestdby);
 
+#ifdef CONFIG_OMAP3_EVM
+		musb_cfg.extvbus = omap3_evm_need_extvbus();
+#endif
 		platform_needs_initialization = 0;
 	}
 

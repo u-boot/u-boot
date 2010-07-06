@@ -25,10 +25,6 @@
 #include <74xx_7xx.h>
 #include <asm/processor.h>
 
-#ifdef CONFIG_AMIGAONEG3SE
-#include "../board/MAI/AmigaOneG3SE/via686.h"
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 extern unsigned long get_board_bus_clk (void);

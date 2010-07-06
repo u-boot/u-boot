@@ -99,7 +99,7 @@ void bfin_reset_or_hang(void)
 #endif
 }
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	bfin_reset_trampoline();
 	return 0;

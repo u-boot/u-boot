@@ -31,7 +31,7 @@
 #include "pci_eeprom.h"
 
 extern void show_pld_regs(void);
-extern int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 extern void user_led0(int led_on);
 extern void user_led1(int led_on);
@@ -355,7 +355,7 @@ static void display_pci_regs(void)
 }
 
 
-int do_pati(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_pati(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (strcmp(argv[1], "info") == 0)
 	{

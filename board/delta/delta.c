@@ -240,7 +240,7 @@ static uchar *key_match (uchar *kbd_data)
 	return (NULL);
 }
 
-int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	uchar kbd_data[KEYBD_DATALEN];
 	char keybd_env[2 * KEYBD_DATALEN + 1];

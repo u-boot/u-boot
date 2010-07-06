@@ -160,7 +160,7 @@ int binary_test (char *op, char *arg1, char *arg2, int w)
 }
 
 /* command line interface to the shell test */
-int do_itest ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
+int do_itest ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[] )
 {
 	int	value, w;
 

@@ -60,6 +60,8 @@ int eth_getenv_enetaddr_by_index(int index, uchar *enetaddr)
 	return eth_getenv_enetaddr(enetvar, enetaddr);
 }
 
+#ifdef CONFIG_NET_MULTI
+
 static int eth_mac_skip(int index)
 {
 	char enetvar[15];
@@ -67,8 +69,6 @@ static int eth_mac_skip(int index)
 	sprintf(enetvar, index ? "eth%dmacskip" : "ethmacskip", index);
 	return ((skip_state = getenv(enetvar)) != NULL);
 }
-
-#ifdef CONFIG_NET_MULTI
 
 /*
  * CPU and board-specific Ethernet initializations.  Aliased function

@@ -193,7 +193,7 @@ void logbuff_log(char *msg)
  * Return:      None
  *
  */
-int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_log (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *s;
 	unsigned long i, start, size;

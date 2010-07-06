@@ -32,6 +32,7 @@ LIB	= $(obj)lib$(BOARD).a
 COBJS-y	:= $(BOARD).o
 COBJS-$(CONFIG_CMD_IDE) += ../common/cfide.o
 COBJS-$(CONFIG_EPLED) += ../common/epled.o
+COBJS-$(CONFIG_GPIO) += gpio.o
 COBJS-$(CONFIG_SEVENSEG) += ../common/sevenseg.o
 
 SOBJS-y	:= text_base.o

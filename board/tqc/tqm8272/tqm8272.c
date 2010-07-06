@@ -858,7 +858,7 @@ int board_early_init_r(void)
 }
 #endif
 
-int do_hwib_dump (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_hwib_dump (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	dump_hwib ();
 	return 0;

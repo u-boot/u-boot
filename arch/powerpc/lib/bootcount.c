@@ -35,6 +35,11 @@
 #define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
 #endif /* defined(CONFIG_MPC5xxx) */
 
+#if defined(CONFIG_MPC512X)
+#define CONFIG_SYS_BOOTCOUNT_ADDR	(&((immap_t *)CONFIG_SYS_IMMR)->clk.bcr)
+#define CONFIG_SYS_BOOTCOUNT_SINGLEWORD
+#endif /* defined(CONFIG_MPC512X) */
+
 #if defined(CONFIG_8xx)
 #define CONFIG_SYS_BOOTCOUNT_ADDR (((immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_dpmem + \
 				CPM_BOOTCOUNT_ADDR)

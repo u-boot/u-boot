@@ -44,7 +44,7 @@ extern uchar default_environment[];
 
 ulong flash_get_size(ulong base, int banknum);
 void env_crc_update(void);
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 static u32 start_time;
 
@@ -278,7 +278,7 @@ static int restore_default(void)
 	return 0;
 }
 
-int do_set_default(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_set_default(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *buf;
 	char *buf_save;
@@ -336,7 +336,7 @@ static inline int sw_reset_pressed(void)
 	return !(in_be32((void *)GPIO0_IR) & GPIO_VAL(CONFIG_SYS_GPIO_SW_RESET));
 }
 
-int do_chkreset(cmd_tbl_t* cmdtp, int flag, int argc, char* argv[])
+int do_chkreset(cmd_tbl_t* cmdtp, int flag, int argc, char * const argv[])
 {
 	int delta;
 	int count = 0;

@@ -33,7 +33,7 @@
 #include <fat.h>
 
 
-int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_fat_fsload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	long size;
 	unsigned long offset;
@@ -94,7 +94,7 @@ U_BOOT_CMD(
 	"      to address 'addr' from dos filesystem"
 );
 
-int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_fat_ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *filename = "/";
 	int ret;
@@ -141,7 +141,7 @@ U_BOOT_CMD(
 	"    - list files from 'dev' on 'interface' in a 'directory'"
 );
 
-int do_fat_fsinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_fat_fsinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int dev=0;
 	int part=1;
@@ -227,7 +227,7 @@ int find_fat_partition (void)
 }
 
 int
-do_fat_dump (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char *argv[])
+do_fat_dump (cmd_tbl_t *cmdtp, bd_t *bd, int flag, int argc, char * const argv[])
 {
 	__u8 block[1024];
 	int ret;

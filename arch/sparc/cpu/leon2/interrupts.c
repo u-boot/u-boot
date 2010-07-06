@@ -195,7 +195,7 @@ void irq_free_handler(int irq)
 /****************************************************************************/
 
 #if defined(CONFIG_CMD_IRQ)
-void do_irqinfo(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
+void do_irqinfo(cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char * const argv[])
 {
 	int irq;
 	unsigned int pil = get_pil();

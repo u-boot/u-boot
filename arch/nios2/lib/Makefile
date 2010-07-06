@@ -29,8 +29,7 @@ SOBJS-y	+= cache.o
 
 COBJS-y	+= board.o
 COBJS-y	+= bootm.o
-COBJS-y	+= divmod.o
-COBJS-y	+= mult.o
+COBJS-y	+= libgcc.o
 COBJS-y	+= time.o
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)

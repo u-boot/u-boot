@@ -56,7 +56,7 @@ int cpu_init_r(void)
 	return 0;
 }
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	printf ("resetting ...\n");
 	udelay(50000);				/* wait 50 ms */

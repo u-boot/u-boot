@@ -25,7 +25,7 @@ static int check_limit(const char *type, size_t start_limit, size_t end_limit, s
 	return 1;
 }
 
-int do_icache_dump(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_icache_dump(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int cache_status = icache_status();
 
@@ -97,7 +97,7 @@ U_BOOT_CMD(icache_dump, 4, 0, do_icache_dump,
 	"icache_dump - dump current instruction cache\n",
 	"[way] [subbank] [set]");
 
-int do_dcache_dump(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_dcache_dump(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 way, bank, subbank, set;
 	u32 status, addr;

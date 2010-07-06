@@ -89,7 +89,7 @@ int misc_init_r( void )
  *
  * Shell command to reset the board.
  */
-void do_reset( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
+void do_reset( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[] )
 {
 	printf( "Resetting...\n" );
 

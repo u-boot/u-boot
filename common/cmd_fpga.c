@@ -156,7 +156,7 @@ int fpga_loadbitstream(unsigned long dev, char* fpgadata, size_t size)
  * If there is no data addr field, the fpgadata environment variable is used.
  * The info command requires no data address field.
  */
-int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int op, dev = FPGA_INVALID_DEVICE;
 	size_t data_size = 0;

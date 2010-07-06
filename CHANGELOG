@@ -1,3 +1,1192 @@
+commit 161e4ae46046282fde6a69a0f1f80965f2a1b6f4
+Author: Heiko Schocher <hs@denx.de>
+Date:	Thu Jun 17 07:01:40 2010 +0200
+
+    powerpc: fix wrong comment at GOT definitions
+
+    r12 is used for accessing the GOT not r14. Fix this in the
+    comment.
+
+    Signed-off-by: Heiko Schocher <hs@denx.de>
+
+commit 7030d56b7946c8db2e8082a9b84cd69b9540a0ca
+Author: Becky Bruce <beckyb@kernel.crashing.org>
+Date:	Thu Jun 17 11:37:27 2010 -0500
+
+    MAKEALL: Add missing powerpc 36-bit targets
+
+    We were missing 8641HPCN_36BIT and MPC8536DS_36BIT.
+
+    Signed-off-by: Becky Bruce <beckyb@kernel.crashing.org>
+
+commit e03b4d296b27790de3b25edd32784d20538240d8
+Author: Anatolij Gustschin <agust@denx.de>
+Date:	Sat Jun 26 00:39:28 2010 +0200
+
+    Fix compiler warnings for EVB64260, P3G4 and ZUMA
+
+    Fix following warnings:
+
+    $ ./MAKEALL EVB64260 P3G4 ZUMA
+    Configuring for EVB64260 board...
+    mpsc.c: In function 'mpsc_putchar_early':
+    mpsc.c:121: warning: dereferencing type-punned pointer will break strict-aliasing rules
+    mpsc.c:127: warning: dereferencing type-punned pointer will break strict-aliasing rules
+    ...
+
+    Signed-off-by: Anatolij Gustschin <agust@denx.de>
+
+commit 9fb3b5085787baad8a133e347ad12c5b3a022e98
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Mon Jun 28 22:44:49 2010 +0400
+
+    EHCI: zero out QH transfer overlay in ehci_submit_async()
+
+    ehci_submit_async() doesn't really zero out the QH transfer overlay (as the EHCI
+    specification suggests) which leads to the controller seeing the "token" field
+    as the previous call has left it, i.e.:
+    - if a timeout occured on the previous call (Active bit left as 1), controller
+      incorrectly tries to complete a previous transaction on a newly programmed
+      endpoint;
+    - if a halt occured on the previous call (Halted bit set to 1), controller just
+      ignores the newly programmed TD(s) and the function then keeps returning error
+      ad infinitum.
+
+    This turned out to be caused by the wrong orger of the arguments to the memset()
+    call in ehci_alloc(), so the allocated TDs weren't cleared either.
+
+    While at it, stop needlessly initializing the alternate next TD pointer in the
+    QH transfer overlay...
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+    Acked-by: Remy Bohmer <linux@bohmer.net>
+
+commit 0d7f4abcf6bbef06504c82e03f11054468262430
+Author: Remy Bohmer <linux@bohmer.net>
+Date:	Thu Jun 17 21:17:08 2010 +0200
+
+    Fix console_buffer size conflict error.
+
+    The console_buffer size is declared in common/main.c as
+       -- char console_buffer[CONFIG_SYS_CBSIZE + 1];
+    so this extern definition is wrong.
+
+    Signed-off-by: Remy Bohmer <linux@bohmer.net>
+
+commit 38c38c344c200ee90cfd243671473c449b6f0815
+Author: Poonam Aggrwal <poonam.aggrwal@freescale.com>
+Date:	Tue Jun 22 12:50:46 2010 +0530
+
+    85xx/p1_p2_rdb: Added RevD board version support
+
+    - Also modified the code to use io accessors.
+
+    Signed-off-by: Poonam Aggrwal <poonam.aggrwal@freescale.com>
+    Signed-off-by: Dipen Dudhat <dipen.dudhat@freescale.com>
+    Acked-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit c987f4753b0afadb38acd7e61df7ba11e8a0203f
+Author: Felix Radensky <felix@embedded-sol.com>
+Date:	Mon Jun 28 01:57:39 2010 +0300
+
+    tsec: Fix eTSEC2 link problem on P2020RDB
+
+    On P2020RDB eTSEC2 is connected to Vitesse VSC8221 PHY via SGMII.
+    Current TBI PHY settings for SGMII mode cause link problems on
+    this platform, link never comes up.
+
+    Fix this by making TBI PHY settings configurable and add a working
+    configuration for P2020RDB.
+
+    Signed-off-by: Felix Radensky <felix@embedded-sol.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+    Acked-by: Peter Tyser <ptyser@xes-inc.com>
+    Tested-by: Peter Tyser <ptyser@xes-inc.com>
+
+commit d3bee08332fbc9cc5b6dc22ecd34050a85d44d0a
+Author: Poonam Aggrwal <poonam.aggrwal@freescale.com>
+Date:	Wed Jun 23 19:32:28 2010 +0530
+
+    85xx/p1_p2_rdb: Modify the CLK_CTRL value for DDR at 667MHz
+
+    Use a slighly larger value of CLK_CTRL for DDR at 667MHz
+    which fixes random crashes while linux booting.
+
+    Applicable for both NAND and NOR boot.
+
+    Signed-off-by: Sandeep Gopalpet <sandeep.kumar@freescale.com>
+    Signed-off-by: Poonam Aggrwal <poonam.aggrwal@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit cdc6363f423900645265563d705a0a5a964ae40c
+Author: Poonam Aggrwal <poonam.aggrwal@freescale.com>
+Date:	Wed Jun 23 19:42:07 2010 +0530
+
+    85xx/p1_p2_rdb: not able to modify "$bootfile" environment variable
+
+    Because the variable was getting defined twice.
+
+    Signed-off-by: Poonam Aggrwal <poonam.aggrwal@freescale.com>
+    Acked-by: Andy Fleming <afleming@freescale.com>
+
+commit 4ccd5510e50b5675227a1fe0e5ca099d333f637d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Tue Jun 29 01:33:35 2010 +0200
+
+    MPC512x: workaround data corruption for unaligned local bus accesses
+
+    Commit 460c2ce3 "MPC5200: workaround data corruption for unaligned
+    local bus accesses" fixed the problem for MPC5200 only, but MPC512x is
+    affected as well, so apply the same fix here, too.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Detlev Zundel <dzu@denx.de>
+    Cc: Anatolij Gustschin <agust@denx.de>
+    Acked-by: Detlev Zundel <dzu@denx.de>
+
+commit 482126e27b3dbf0e69a6445da8b94b3551adf05d
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed Jun 23 20:50:54 2010 +0200
+
+    Prepare v2010.06-rc3
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 460c2ce362e56890c2a029e2c3b1ff2796c7fc54
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Mon Jun 21 22:29:59 2010 +0200
+
+    MPC5200: workaround data corruption for unaligned local bus accesses
+
+    The MPC5200 has a nasty problem that will cause silent data corruption
+    when performing unaligned 16 or 32 byte accesses when reading from the
+    local bus - typically this affects reading from flash. The problem can
+    be easily shown:
+
+    => md fc0c0000 10
+    fc0c0000: 323e4337 01626f6f 74636d64 3d72756e    2>C7.bootcmd=run
+    fc0c0010: 206e6574 5f6e6673 00626f6f 7464656c     net_nfs.bootdel
+    fc0c0020: 61793d35 00626175 64726174 653d3131    ay=5.baudrate=11
+    fc0c0030: 35323030 00707265 626f6f74 3d656368    5200.preboot=ech
+    => md fc0c0001 10
+    fc0c0001: 65636801 00000074 0000003d 00000020    ech....t...=...
+    fc0c0011: 0000005f 00000000 00000074 00000061    ..._.......t...a
+    fc0c0021: 00000000 00000064 00000065 00000035    .......d...e...5
+    fc0c0031: 00000000 00000062 0000003d 0000006f    .......b...=...o
+    => md.w fc0c0001 10
+    fc0c0001: 0000 3701 0000 6f74 0000 643d 0000 6e20	 ..7...ot..d=..n
+    fc0c0011: 0000 745f 0000 7300 0000 6f74 0000 6c61	 ..t_..s...ot..la
+
+    This commit implements a workaround at least for the most blatant
+    problem: using memcpy() from NOR flash. We rename the assembler
+    routine into __memcpy() and provide a wrapper, which will use a
+    byte-wise copy loop for unaligned source or target addresses when
+    reading from NOR flash, and branch to the optimized __memcpy()
+    in all other cases, thus minimizing the performance impact.
+
+    Tested on lite5200b and TQM5200S.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Detlev Zundel <dzu@denx.de>
+
+commit 47ea6edfb3004fb2d2a979e19c3f6e4e32f45e51
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Fri Jun 18 19:31:10 2010 +0900
+
+    ARM: remove unused VIDEOLFB ATAG
+
+    ATAG_VIDEOLFB is not used anywhere.
+    The belowing warning is occurred due to this ATAG.
+
+    [	 0.000000] Ignoring unrecognised tag 0x54410008
+
+    This patch fixed it.
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+    Acked-by: Martin Krause <Martin.Krause@tqs.de>
+
+commit ceeba0030844b2e84ce4e47f4be7ad347cd1e827
+Author: Peter Horton <zero@colonel-panic.org>
+Date:	Sat Jun 12 10:11:56 2010 +0900
+
+    UBI: initialise update marker
+
+    UBI: initialise update marker
+
+    The in kernel copy of a volume's update marker is not initialised from the
+    volume table. This means that volumes where an update was unfinnished will
+    not be treated as "forbidden to use". This is basically that the update
+    functionality was broken.
+
+    Signed-off-by: Peter Horton <zero@colonel-panic.org>
+    Signed-off-by: Artem Bityutskiy <Artem.Bityutskiy@nokia.com>
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+    Acked-by: Stefan Roese <sr@denx.de>
+
+commit b8c4eea56b5f41f9bdbb89d3d5c79b7d282d513c
+Author: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Date:	Wed Apr 14 15:32:06 2010 +0200
+
+    remove myself as a maintainer of several ARM boards
+
+    Since I haven't been actively maintaining these boards for a long while,
+    keeping myself as their maintainer makes no sense.
+
+    Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+
+commit d6b937142008463d628ef26a753f9c20c57f3617
+Author: Ilya Yanok <yanok@emcraft.com>
+Date:	Mon Jun 21 18:13:21 2010 +0400
+
+    Makefile: always call date with LC_ALL=C set
+
+    Ensure that date is called only with LC_ALL=C locale set to make dates
+    locale neutral thus preventing lurking of non-ASCII characters into
+    U-Boot binary.
+
+    Signed-off-by: Ilya Yanok <yanok@emcraft.com>
+
+    Changed LANG= into LC_ALL= as suggested by Mike Frysinger <vapier@gentoo.org>
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 23fdf0580660edf38cb7118f05b8865f2f73c674
+Author: Albert Aribaud <[albert.aribaud@free.fr]>
+Date:	Tue Jun 22 15:50:28 2010 +0530
+
+    Fix wrong orion5x MPP and GIPO writel arguments
+
+    Orion5x MPP and GPIO setting code had writel arguments
+    the wrong way around. Fixed and tested.
+
+    Signed-off-by: Albert Aribaud <albert.aribaud@free.fr>
+
+commit 95bc39e848dd3f741a064c826d1c282c48125d41
+Author: Terry Lv <r65388@freescale.com>
+Date:	Thu May 6 18:30:55 2010 +0800
+
+    ARM: fix bug in macro __arch_ioremap.
+
+    Signed-off-by: Terry Lv <r65388@freescale.com>
+
+    Fix commit message and code formatting.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit a71da1b6c96205549ca2e7cf991e2340181bbfcf
+Author: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+Date:	Tue Jun 15 22:18:11 2010 +0400
+
+    ARM: Align stack to 8 bytes
+
+    The ARM ABI requires that the stack be aligned to 8 bytes as it is noted
+    in Procedure Call Standard for the ARM Architecture:
+    http://infocenter.arm.com/help/topic/com.arm.doc.ihi0042d/index.html
+
+    Unaligned SP also causes the problem with variable-length arrays
+    allocation when VLA address becomes less than stack pointer during
+    aligning of this address, so the next 'push' in the stack overwrites
+    first 4 bytes of VLA.
+
+    Signed-off-by: Vitaly Kuzmichev <vkuzmichev@mvista.com>
+
+    Tested on tx25(mx25), imx27lite(mx27), qong(mx31) and trab(s3c2400)
+    Tested-by: Wolfgang Denk <wd@denx.de>
+
+commit 6de27bdc788e7c4532ee0721ae291aeb5df475dc
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jun 20 12:32:37 2010 +0200
+
+    net/eth.c: eth_mac_skip() is only needed when CONFIG_NET_MULTI is set
+
+    Move it inside the #ifdef CONFIG_NET_MULTI to avoid
+
+	eth.c:64: warning: 'eth_mac_skip' defined but not used
+
+    messages from a number of old, non-CONFIG_NET_MULTI boards.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit e397e59e861aa818cda12a23206dde06f7e9f660
+Author: Fillod Stephane <stephane.fillod@grassvalley.com>
+Date:	Fri Jun 11 19:26:43 2010 +0200
+
+    ip/defrag: fix processing of last short fragment
+
+    TFTP'ing a file of size 1747851 bytes with CONFIG_IP_DEFRAG and
+    CONFIG_TFTP_BLOCKSIZE set to 4096 fails with a timeout, because
+    the last fragment is not taken into account. This patch fixes
+    IP fragments having less than 8 bytes of payload.
+
+    Signed-off-by: Stephane Fillod <stephane.fillod@grassvalley.com>
+    Acked-by: Alessandro Rubini <rubini@gnudd.com>
+    Signed-off-by: Ben Warren <biggerbadderben@gmail.com>
+
+commit 9c00b2f0a3fe0f779761607024f99b7690c9776c
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jun 20 12:30:22 2010 +0200
+
+    net/eth.c: eth_mac_skip() is only needed when CONFIG_NET_MULTI is set
+
+    Move it inside the #ifdef CONFIG_NET_MULTI to avoid
+
+	eth.c:64: warning: 'eth_mac_skip' defined but not used
+
+    messages from anumber of old, non-CONFIG_NET_MULTI boards.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Ben Warren <biggerbadderben@gmail.com>
+
+commit 9312bba01a41191f20821b66b84b3ff1d2902e8a
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jun 20 02:16:44 2010 +0200
+
+    include/compiler.h: remove redundant declaration of errno
+
+    Commit 37566090 "compiler.h: unify system ifdef cruft here" added both
+    a "#include <errno.h>" and a "extern int errno;" to include/compiler.h
+    which is causing build warnings for some systems, for example for the
+    "netstar" board:
+
+	In file included from /home/wd/git/u-boot/work/lib/crc32.c:15:
+	include/compiler.h:28: warning: function declaration isn't a prototype
+
+    The declaration of "errno" should be redundant, as <errno.h> is
+    supposed to provide a correct declaration, so drop it.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Mike Frysinger <vapier@gentoo.org>
+
+commit cd040a4953e55efe89dc3af4acf0302d5923026f
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Fri Jun 18 15:55:15 2010 +0200
+
+    arch/arm/cpu/arm_cortexa8/omap3/cache.S: make build with older tools
+
+    The push / pop instructions used in this file are available only with
+    more recent tool chains:
+
+    cache.S: Assembler messages:
+    cache.S:133: Error: bad instruction `push {r0,r1,r2,lr}'
+    cache.S:160: Error: bad instruction `pop {r1,r2,r3,pc}'
+    cache.S:164: Error: bad instruction `push {r0,r1,r2,lr}'
+    cache.S:191: Error: bad instruction `pop {r1,r2,r3,pc}'
+
+    Change push/pop into stmfd/ldmfd instructions to support older
+    versions of binutils as well.
+
+    I verified that the modified source code generates exactly the same
+    binary code.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+    Cc: Sandeep Paulraj <s-paulraj@ti.com>
+    Cc: Tom Rix <tom@bumblecow.com>
+
+commit ce9c227cc71afc3b4c78dcc0a565c40d4ad943e4
+Author: Albert Aribaud <[albert.aribaud@free.fr]>
+Date:	Thu Jun 17 19:38:21 2010 +0530
+
+    Add support for the LaCie ED Mini V2 board
+
+    This patch adds support for the LaCie ED Mini V2 product
+    which is based on the Marvell Orion5x SoC.
+
+    Signed-off-by: Albert Aribaud <albert.aribaud@free.fr>
+
+commit 83142c112d30ee3da23b62387909d33db064bdc4
+Author: Albert Aribaud <[albert.aribaud@free.fr]>
+Date:	Thu Jun 17 19:37:01 2010 +0530
+
+    Add Orion5x support to 16550 device driver
+
+    This patch provides access to the 16550-compatible
+    serial device of the Orion5x SoC.
+
+    Signed-off-by: Albert Aribaud <albert.aribaud@free.fr>
+
+commit 0c61e6f9257ef416959b740ee3cf191bf682007d
+Author: Albert Aribaud <[albert.aribaud@free.fr]>
+Date:	Thu Jun 17 19:36:07 2010 +0530
+
+    Initial support for Marvell Orion5x SoC
+
+    This patch adds support for the Marvell Orion5x SoC.
+    It has no use alone, and must be followed by a patch
+    to add Orion5x support for serial, then support for
+    the ED Mini V2, an Orion5x-based product from LaCie.
+
+    Signed-off-by: Albert Aribaud <albert.aribaud@free.fr>
+
+commit 376e7fadbad3285231e390c6534feb5af86d594b
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Tue Jun 8 14:40:47 2010 +0900
+
+    SAMSUNG: goni: add the GPL licence
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+    Acked-by: Tom <Tom@bumblecow.com>
+
+commit c474a8ebb880e564df0c701c6a8cf73b7779b1d2
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Mon May 31 22:02:42 2010 +0900
+
+    s5pc1xx: Add support for Samsung Goni board
+
+    This patch adds support for the Samsung Goni board (S5PC110 SoC)
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+    Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+
+commit ffb4b02554d9972d66502efbe97b3933620c8a31
+Author: Minkyu Kang <mk7.kang@samsung.com>
+Date:	Fri May 28 12:34:29 2010 +0900
+
+    s5pc1xx: gpio: bug fix at gpio_set_pull function
+
+    When set to PULL_NONE, gpio_set_pull function is returned without write the register.
+    This patch fixed it.
+
+    Signed-off-by: Minkyu Kang <mk7.kang@samsung.com>
+
+commit a9046b9e1aeeedc66ddf1d00474ad0ce8c6aa6e4
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Sun Jun 13 17:48:15 2010 +0200
+
+    Prepare v2010-rc2
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit 3a96ad851f4f9267e1199b700cb838a77334e4b2
+Author: Marek Vasut <marek.vasut@gmail.com>
+Date:	Sun Apr 11 08:53:55 2010 +0200
+
+    PXA: Align stack to 8 bytes
+
+    Part of this patch is by: Mikhail Kshevetskiy.
+
+    Stack must be aligned to 8 bytes on PXA (possibly all armv5te) for LDRD/STRD
+    instructions. In case LDRD/STRD is issued on an unaligned address, the behaviour
+    is undefined.
+
+    The issue was observed when working with the NAND code, which was rendered
+    disfunctional. Also, the vsprintf() function had serious problems with printing
+    64bit wide long longs. After aligning the stack, this wrong behaviour is no
+    longer present.
+
+    Tested on:
+	Marvell Littleton PXA310 board
+	Toradex Colibri PXA320 board
+	Aeronix Zipit Z2 PXA270 handheld
+	Voipac PXA270 board
+
+    Signed-off-by: Marek Vasut <marek.vasut@gmail.com>
+
+commit 89b765c7f6ddfde07ba673dd4adbeb5da391a81b
+Author: Sudhakar Rajashekhara <sudhakar.raj@ti.com>
+Date:	Thu Jun 10 15:18:15 2010 +0530
+
+    TI: DaVinci: Add board specific code for da850 EVM
+
+    Provides initial support for TI OMAP-L138/DA850 SoC devices on
+    a Logic PD EVM board.
+
+    Provides:
+    Initial boot and configuration.
+    Support for i2c.
+    UART support (console).
+
+    Signed-off-by: Sudhakar Rajashekhara <sudhakar.raj@ti.com>
+    Acked-by: Ben Gardiner <bengardiner@nanometrics.ca>
+    Reviewed-by: Wolfgang Denk <wd@denx.de>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 158557001afe167dcb848bb14ba0f2f20aeb25a1
+Author: Sudhakar Rajashekhara <sudhakar.raj@ti.com>
+Date:	Tue Jun 8 11:01:58 2010 +0530
+
+    TI: DaVinci: Prepare for da850 support
+
+    DA850/OMAP-L138 is a new SoC from Texas Instruments
+    (http://focus.ti.com/docs/prod/folders/print/omap-l138.html).
+    This SoC is similar to DA830/OMAP-L137 in many aspects. Hence
+    rename the da830 specific files and folders to da8xx to
+    accommodate DA850/OMAP-L138.
+
+    Signed-off-by: Sudhakar Rajashekhara <sudhakar.raj@ti.com>
+    Acked-by: Ben Gardiner <bengardiner@nanometrics.ca>
+    Reviewed-by: Wolfgang Denk <wd@denx.de>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 9d79956029ec379e7137948ba3a7debbea61325f
+Author: Sudhakar Rajashekhara <sudhakar.raj@ti.com>
+Date:	Mon Jun 7 12:39:59 2010 +0530
+
+    da830: Move common code out of da830evm.c file
+
+    TI's DA850/OMAP-L138 platform is similar to DA830/OMAP-L137
+    in many aspects. So instead of repeating the same code in
+    multiple files, move the common code to a different file
+    and call those functions from the respective da830/da850
+    files.
+
+    Signed-off-by: Sudhakar Rajashekhara <sudhakar.raj@ti.com>
+    Acked-by: Nick Thompson <nick.thompson@ge.com>
+    Acked-by: Ben Gardiner <bengardiner@nanometrics.ca>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 5246d01edd8935e04cdf79a5b9a03874509a31b1
+Author: Grazvydas Ignotas <notasas@gmail.com>
+Date:	Tue Jun 8 17:19:22 2010 -0400
+
+    OMAP3: pandora: enable battery backup capacitor
+
+    Pandora has a capacitor connected as backup battery, which allows
+    retaining RTC for some time while main battery is removed. Enable backup
+    battery charge function to charge that capacitor.
+
+    Signed-off-by: Grazvydas Ignotas <notasas@gmail.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 9268236529161312c877e638a14c011fd3c883e1
+Author: Delio Brignoli <dbrignoli@audioscience.com>
+Date:	Mon Jun 7 17:16:13 2010 -0400
+
+    DaVinci: Improve DaVinci SPI speed.
+
+    I have updated this patch based on the comments [1] by Wolfgang Denk and
+    removed unused variables.
+    [1][http://lists.denx.de/pipermail/u-boot/2010-May/071728.html]
+
+    Reduce the number of reads per byte transferred on the BUF register from 2 to 1 and
+    take advantage of the TX buffer in the SPI module. On LogicPD OMAP-L138 EVM,
+    SPI read throughput goes up from ~0.8Mbyte/s to ~1.3Mbyte/s. Tested with a 2Mbyte image file.
+    Remove unused variables in the spi_xfer() function.
+
+    Signed-off-by: Delio Brignoli <dbrignoli@audioscience.com>
+    Tested-by: Ben Gardiner <bengardiner@nanometrics.ca>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 1a5038ca6831e31875cf67c46226f04743574032
+Author: Vaibhav Hiremath <hvaibhav@ti.com>
+Date:	Mon Jun 7 15:20:53 2010 -0400
+
+    AM35x: Add support for EMIF4
+
+    This patch adds support for the EMIF4 interface
+    available in the AM35x processors.
+
+    Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+    Signed-off-by: Sanjeev Premi <premi@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit ed01e45cfa20d60ee83a4ee0128d843730055294
+Author: Vaibhav Hiremath <hvaibhav@ti.com>
+Date:	Mon Jun 7 15:20:43 2010 -0400
+
+    AM35x: Add support for AM3517EVM
+
+    This patch adds basic support for the AM3517EVM.
+    It includes:
+	- Board files (.c and .h)
+	- Default configuration file
+	- Updates for Makefile
+
+    Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+    Signed-off-by: Sanjeev Premi <premi@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit cae377b59a179e34d27cd6b79dee24d967de839c
+Author: Vaibhav Hiremath <hvaibhav@ti.com>
+Date:	Mon Jun 7 15:20:34 2010 -0400
+
+    omap3: Consolidate SDRC related operations
+
+    Consolidated SDRC related functions into one file - sdrc.c
+
+    And also replaced sdrc_init with generic memory init
+    function (mem_init), this generalization of omap memory setup
+    is necessary to support the new emif4 interface introduced in AM3517.
+
+    Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit d11212e3772c8fe43a1f487bbf58f3341118a241
+Author: Vaibhav Hiremath <hvaibhav@ti.com>
+Date:	Mon Jun 7 15:20:29 2010 -0400
+
+    omap3: Calculate CS1 size only when SDRC is
+
+    initialized for CS1
+
+    From: Vaibhav Hiremath <hvaibhav@ti.com>
+
+    The patch makes sure that size for SDRC CS1 gets calculated
+    only when the CS1 SDRC is initialized.
+
+    Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 675e0eaf0f0429aac3c6fb41634fbcea2350fe49
+Author: Vaibhav Hiremath <hvaibhav@ti.com>
+Date:	Mon Jun 7 15:20:19 2010 -0400
+
+    OMAP3EVM: Added NAND support
+
+    The EVMS have been shipping with NAND (instead of OneNAND) as default.
+    So, this patch sets NAND as default.
+
+    To choose OneNAND, define CMD_ONENAND instead of CMD_NAND in the
+    config file omap3_evm.h.
+
+    Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 5cc48f7e55df0d74a12d338de2117f05951fc536
+Author: Cyril Chemparathy <cyril@ti.com>
+Date:	Mon Jun 7 14:13:36 2010 -0400
+
+    TI: TNETV107X EVM initial support
+
+    TNETV107X is a Texas Instruments SoC based on an ARM1176 core, and with a
+    bunch on on-chip integrated peripherals.  This patch adds support for the
+    TNETV107X EVM board.
+
+    Signed-off-by: Cyril Chemparathy <cyril@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 3712367c4830e87b4e7af5b480e82d316bab1251
+Author: Cyril Chemparathy <cyril@ti.com>
+Date:	Mon Jun 7 14:13:32 2010 -0400
+
+    ARM1176: TI: TNETV107X soc initial support
+
+    TNETV107X is a Texas Instruments SoC based on an ARM1176 core, and with a
+    bunch on on-chip integrated peripherals.  This is an initial commit with
+    basic functionality, more commits with drivers, etc. to follow.
+
+    Signed-off-by: Cyril Chemparathy <cyril@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 678e008c3a3a27fe2d30cf423679d2d11d0fa5c2
+Author: Cyril Chemparathy <cyril@ti.com>
+Date:	Mon Jun 7 14:13:27 2010 -0400
+
+    ARM1176: Coexist with other ARM1176 platforms
+
+    The current ARM1176 CPU specific code is too specific to the SMDK6400
+    architecture.  The following changes were necessary prerequisites for the
+    addition of other SoCs based on ARM1176.
+
+    Existing board's (SMDK6400) configuration has been modified to keep behavior
+    unchanged despite these changes.
+
+    1. Peripheral port remap configurability
+    The earlier code had hardcoded remap values specific to s3c64xx in start.S.
+    This change makes the peripheral port remap addresses and sizes configurable.
+
+    2. U-Boot code relocation support
+    Most architectures allow u-boot code to run initially at a different
+    address (possibly in NOR) and then get relocated to its final resting place
+    in RAM.  Added support for this capability in ARM1176 architecture.
+
+    3. Disable TCM if necessary
+    If a ROM based bootloader happened to have initialized TCM, we disable it here
+    to keep things sane.
+
+    4. Remove unnecessary SoC specific includes
+    ARM1176 code does not really need this SoC specific include.  The presence
+    of this include prevents builds on other ARM1176 archs.
+
+    5. Modified virt-to-phys conversion during MMU disable
+    The original MMU disable code masks out too many bits from the load address
+    when it tries to figure out the physical address of the jump target label.
+    Consequently, it ends up branching to the wrong address after disabling the
+    MMU.
+
+    Signed-off-by: Cyril Chemparathy <cyril@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 23911740486c59851df57521c49bfd81ce1865ec
+Author: Delio Brignoli <dbrignoli@audioscience.com>
+Date:	Mon Jun 7 17:16:13 2010 -0400
+
+    DaVinci: Improve DaVinci SPI speed.
+
+    I have updated this patch based on the comments [1] by Wolfgang Denk and
+    removed unused variables.
+    [1][http://lists.denx.de/pipermail/u-boot/2010-May/071728.html]
+
+    Reduce the number of reads per byte transferred on the BUF register from 2 to 1 and
+    take advantage of the TX buffer in the SPI module. On LogicPD OMAP-L138 EVM,
+    SPI read throughput goes up from ~0.8Mbyte/s to ~1.3Mbyte/s. Tested with a 2Mbyte image file.
+    Remove unused variables in the spi_xfer() function.
+
+    Signed-off-by: Delio Brignoli <dbrignoli@audioscience.com>
+    Tested-by: Ben Gardiner <bengardiner@nanometrics.ca>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 05ee415e316e3b1617aba06a747649f4d4053d41
+Author: Vaibhav Hiremath <hvaibhav@ti.com>
+Date:	Mon Jun 7 15:20:53 2010 -0400
+
+    AM35x: Add support for EMIF4
+
+    This patch adds support for the EMIF4 interface
+    available in the AM35x processors.
+
+    Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+    Signed-off-by: Sanjeev Premi <premi@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 3d9f0ffddaf1ece95a826785b971860ebdadf424
+Author: Vaibhav Hiremath <hvaibhav@ti.com>
+Date:	Mon Jun 7 15:20:43 2010 -0400
+
+    AM35x: Add support for AM3517EVM
+
+    This patch adds basic support for the AM3517EVM.
+    It includes:
+	- Board files (.c and .h)
+	- Default configuration file
+	- Updates for Makefile
+
+    Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+    Signed-off-by: Sanjeev Premi <premi@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 8aa5c7cdc4e534df9129485ba317a2871c4f9880
+Author: Vaibhav Hiremath <hvaibhav@ti.com>
+Date:	Mon Jun 7 15:20:34 2010 -0400
+
+    omap3: Consolidate SDRC related operations
+
+    Consolidated SDRC related functions into one file - sdrc.c
+
+    And also replaced sdrc_init with generic memory init
+    function (mem_init), this generalization of omap memory setup
+    is necessary to support the new emif4 interface introduced in AM3517.
+
+    Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 16807ee411d83762804d075a3fe11f0a2b5eaf39
+Author: Vaibhav Hiremath <hvaibhav@ti.com>
+Date:	Mon Jun 7 15:20:29 2010 -0400
+
+    omap3: Calculate CS1 size only when SDRC is
+
+    initialized for CS1
+
+    From: Vaibhav Hiremath <hvaibhav@ti.com>
+
+    The patch makes sure that size for SDRC CS1 gets calculated
+    only when the CS1 SDRC is initialized.
+
+    Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 7ca4766bd7f74e5f7371fb331b573ec384230c1d
+Author: Vaibhav Hiremath <hvaibhav@ti.com>
+Date:	Mon Jun 7 15:20:19 2010 -0400
+
+    OMAP3EVM: Added NAND support
+
+    The EVMS have been shipping with NAND (instead of OneNAND) as default.
+    So, this patch sets NAND as default.
+
+    To choose OneNAND, define CMD_ONENAND instead of CMD_NAND in the
+    config file omap3_evm.h.
+
+    Signed-off-by: Vaibhav Hiremath <hvaibhav@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit 04cbc19fedb55265d08cddea294c3b6d9f8b2d18
+Author: Cyril Chemparathy <cyril@ti.com>
+Date:	Mon Jun 7 14:13:36 2010 -0400
+
+    TI: TNETV107X EVM initial support
+
+    TNETV107X is a Texas Instruments SoC based on an ARM1176 core, and with a
+    bunch on on-chip integrated peripherals.  This patch adds support for the
+    TNETV107X EVM board.
+
+    Signed-off-by: Cyril Chemparathy <cyril@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit da1ec42aafcc821ce6b5d316a2d4105292960d6b
+Author: Cyril Chemparathy <cyril@ti.com>
+Date:	Mon Jun 7 14:13:32 2010 -0400
+
+    ARM1176: TI: TNETV107X soc initial support
+
+    TNETV107X is a Texas Instruments SoC based on an ARM1176 core, and with a
+    bunch on on-chip integrated peripherals.  This is an initial commit with
+    basic functionality, more commits with drivers, etc. to follow.
+
+    Signed-off-by: Cyril Chemparathy <cyril@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit b87996d24a41cfc15fea125e5c805163af4acba1
+Author: Cyril Chemparathy <cyril@ti.com>
+Date:	Mon Jun 7 14:13:27 2010 -0400
+
+    ARM1176: Coexist with other ARM1176 platforms
+
+    The current ARM1176 CPU specific code is too specific to the SMDK6400
+    architecture.  The following changes were necessary prerequisites for the
+    addition of other SoCs based on ARM1176.
+
+    Existing board's (SMDK6400) configuration has been modified to keep behavior
+    unchanged despite these changes.
+
+    1. Peripheral port remap configurability
+    The earlier code had hardcoded remap values specific to s3c64xx in start.S.
+    This change makes the peripheral port remap addresses and sizes configurable.
+
+    2. U-Boot code relocation support
+    Most architectures allow u-boot code to run initially at a different
+    address (possibly in NOR) and then get relocated to its final resting place
+    in RAM.  Added support for this capability in ARM1176 architecture.
+
+    3. Disable TCM if necessary
+    If a ROM based bootloader happened to have initialized TCM, we disable it here
+    to keep things sane.
+
+    4. Remove unnecessary SoC specific includes
+    ARM1176 code does not really need this SoC specific include.  The presence
+    of this include prevents builds on other ARM1176 archs.
+
+    5. Modified virt-to-phys conversion during MMU disable
+    The original MMU disable code masks out too many bits from the load address
+    when it tries to figure out the physical address of the jump target label.
+    Consequently, it ends up branching to the wrong address after disabling the
+    MMU.
+
+    Signed-off-by: Cyril Chemparathy <cyril@ti.com>
+    Signed-off-by: Sandeep Paulraj <s-paulraj@ti.com>
+
+commit b5d289fc29842095d5cd0f82cceab1b0b2e824ba
+Author: Asen Dimov <dimov@ronetix.at>
+Date:	Tue Apr 20 22:49:04 2010 +0300
+
+    add new board pm9g45
+
+    Add the new board PM9G45 from Ronetix GmbH.
+    * AT91SAM9G45 MCU at 400Mhz.
+    * 128MB DDR2 SDRAM
+    * 256MB NAND
+    * 10/100 MBits Ethernet DP83848
+    * Serial number chip DS2401
+
+    The board is made as SODIMM200 module.
+    For more info www.ronatix.at or info@ronetix.at.
+
+    Signed-off-by: Asen Dimov <dimov@ronetix.at>
+
+commit f986325dd569faeaec4186f678d113505c5c4828
+Author: Ron Madrid <ron_madrid@sbcglobal.net>
+Date:	Tue Jun 1 17:00:49 2010 -0700
+
+    Update SICRL_USBDR to reflect 4 different settings
+
+    This patch changed the SICRL_USBDR define to reflect the 4 different bit
+    settings for this two-bit field.  The four different options are '00', '01',
+    '10', and '11'.  This patch also corrects the config file for SIMPC8313 and
+    MPC8313ERDB for the appropriate fields.  This change only affects the MPC8313
+    cpu.
+
+    Signed-off-by: Ron Madrid <ron_madrid@sbcglobal.net>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+
+commit 409a07c9d72b0d833c1cce264bdb4bb2628fe28e
+Author: George G. Davis <gdavis@mvista.com>
+Date:	Tue May 11 10:15:36 2010 -0400
+
+    ARM1136: Fix cache_flush() error and correct cpu_init_crit() comments
+
+    The ARM1136 cache_flush() function uses the "mcr p15, 0, rn, c7, c7, 0"
+    instruction which means "Invalidate Both Caches" when in fact the intent
+    is to clean and invalidate all caches.  So add an "mcr p15, 0, %0, c7,
+    c10, 0" instruction to "Clean Entire Data Cache" prior to the "Invalidate
+    Both Caches" instruction to insure that memory is consistent with any
+    dirty cache lines.
+
+    Also fix a couple of "flush v*" comments in ARM1136 cpu_init_crit() so
+    that they correctly describe the actual ARM1136 CP15 C7 Cache Operations
+    used.
+
+    Signed-off-by: George G. Davis <gdavis@mvista.com>
+
+commit 3057c6be5efda781a72ca04432e0a4ed6e670030
+Author: Kim Phillips <kim.phillips@freescale.com>
+Date:	Fri Apr 23 12:20:11 2010 -0500
+
+    fdt_support: add entry for sec3.1 and fix sec3.3
+
+    Add sec3.1 h/w geometry for fdt node fixups.
+
+    Also, technically, whilst SEC v3.3 h/w honours the tls_ssl_stream descriptor
+    type, it lacks the ARC4 algorithm execution unit required to be able
+    to execute anything meaningful with it.  Change the node to agree with
+    the documentation that declares that the sec3.3 really doesn't have such
+    a descriptor type.
+
+    Reported-by: Haiying Wang <Haiying.Wang@freescale.com>
+    Signed-off-by: Kim Phillips <kim.phillips@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 5f4d36825a028e300b7d56a566d2cf84418b7a68
+Author: Timur Tabi <timur@freescale.com>
+Date:	Thu May 20 11:16:16 2010 -0500
+
+    fsl: rename 'dma' to 'brdcfg1' in the ngPIXIS structure
+
+    The ngPIXIS is a board-specific FPGA, but the definition of the registers
+    is mostly consistent.  On boards where it matter, register 9 is called
+    'brdcfg1' instead of 'dma', so rename the variable in the ngpixis_t
+    definition.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 6e37a044076896ba88b0d6316fadd492032c5193
+Author: Timur Tabi <timur@freescale.com>
+Date:	Thu May 20 12:45:39 2010 -0500
+
+    fsl/85xx: add clkdvdr and pmuxcr2 to global utilities structure definition
+
+    Add the 'clkdvdr' and 'pmuxcr2' registers to the 85xx definition of
+    struct ccsr_gur.
+
+    Signed-off-by: Timur Tabi <timur@freescale.com>
+    Signed-off-by: Kumar Gala <galak@kernel.crashing.org>
+
+commit 39c209546ab5b11ca6410c5cc57dcbf457e50800
+Author: Tom <Tom@bumblecow.com>
+Date:	Fri May 28 13:23:16 2010 -0500
+
+    ARM Update mach-types
+
+    Fetched from http://www.arm.linux.org.uk/developer/machines/download.php
+    And built with
+
+    repo http://ftp.arm.linux.org.uk/pub/linux/arm/kernel/git-cur/linux-2.6-arm
+    commit 3defb2476166445982a90c12d33f8947e75476c4
+
+    Signed-off-by: Tom <Tom@bumblecow.com>
+
+commit 551bd947bd6f982fa38dde840576eba52346160c
+Author: Tom <Tom@bumblecow.com>
+Date:	Sun May 9 16:58:11 2010 -0500
+
+    ARM Update mach-types
+
+    Fetched from http://www.arm.linux.org.uk/developer/machines/download.php
+    And built with
+
+    repo http://ftp.arm.linux.org.uk/pub/linux/arm/kernel/git-cur/linux-2.6-arm
+    commit 257dab81413b31b8648becfe11586b3a41e5c29a
+
+    Signed-off-by: Tom <Tom@bumblecow.com>
+
+commit 1117cbf2adac59050af1751af6c6a524afa5c3ef
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri May 28 10:56:50 2010 +0800
+
+    nios: remove nios-32 arch
+
+    The nios-32 arch is obsolete and broken. So it is removed.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+
+commit 6803336c9f21ba428f5c1b1cf825bbbac0a762e5
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri May 21 11:08:02 2010 +0800
+
+    nios2: allow STANDALONE_LOAD_ADDR overriding
+
+    This patch allows users to override default STANDALONE_LOAD_ADDR.
+    The gcclibdir path was duplicated in the standalone Makefile and
+    can be removed.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 8d52ea6db484c689a75ef8a36a4e525753b8f078
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Sat May 15 06:00:05 2010 +0800
+
+    nios2: fix div64 issue for gcc4
+
+    This patch fixes the run-time error on div64 when built with
+    gcc4, which was reported by jhwu0625 on nios forum. It merges
+    math support from libgcc of gcc4. This patch is copied from
+    nios2-linux.
+
+    It works with both gcc3 and gcc4. The old mult.c, divmod.c and
+    math.h are removed.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 0df01fd3d71481b5cc7aeea6a741b9fc3be15178
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri May 21 11:08:03 2010 +0800
+
+    nios2: fix r15 issue for gcc4
+
+    The "-ffixed-r15" option doesn't work well for gcc4. Since we
+    don't use gp for small data with option "-G0", we can use gp
+    as global data pointer. This allows compiler to use r15. It
+    is necessary for gcc4 to work properly.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 661ba14051db6766932fcb50ba1ec7c67f230054
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri Apr 30 11:34:16 2010 +0800
+
+    spi: add altera spi controller support
+
+    This patch adds the driver of altera spi controller, which is
+    used as epcs/spi flash controller. It also works with mmc_spi
+    driver.
+
+    This driver support more than one spi bus, with base list declared
+    #define CONFIG_SYS_ALTERA_SPI_LIST { BASE_0,BASE_1,... }
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Tested-by: Ian Abbott <abbotti@mev.co.uk>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 1e8e9bad2db38e93c3bc9f4b6238b3d8be99e469
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri Apr 30 11:34:15 2010 +0800
+
+    nios2: add gpio support to nios2-generic board
+
+    This patch adds gpio support of Altera PIO component to the
+    nios2-generic board. Though it drives only gpio_led at the
+    moment, it supports bidirectional port to control bit-banging
+    I2C, NAND flash busy status or button switches, etc.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Tested-by: Ian Abbott <abbotti@mev.co.uk>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit 3e6b86b5552840bb4147871a753840eb3923374c
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri Apr 30 11:34:14 2010 +0800
+
+    misc: add gpio based status led driver
+
+    This patch adds a status led driver followed the GPIO access
+    conventions of Linux. The led mask is used to specify the gpio pin.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Tested-by: Ian Abbott <abbotti@mev.co.uk>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit cedd341d551b6b705e97ab1953a87575b9ff9ef9
+Author: Thomas Chou <thomas@wytron.com.tw>
+Date:	Fri Apr 30 11:34:13 2010 +0800
+
+    nios2: add gpio support
+
+    This patch adds driver for a trivial gpio core, which is described
+    in http://nioswiki.com/GPIO. It is used for gpio led and nand flash
+    interface in u-boot.
+
+    When CONFIG_SYS_GPIO_BASE is not defined, board may provide
+    its own driver.
+
+    Signed-off-by: Thomas Chou <thomas@wytron.com.tw>
+    Tested-by: Ian Abbott <abbotti@mev.co.uk>
+    Signed-off-by: Scott McNutt <smcnutt@psyent.com>
+
+commit adf55679af1ed98c15a136eb81d6204ebe740b30
+Author: Wolfgang Wegner <w.wegner@astro-kom.de>
+Date:	Tue Mar 30 19:19:51 2010 +0100
+
+    add CONFIG_SYS_FEC_FULL_MII for MCF5445x
+
+    This patch adds support for full MII interface on MCF5445x (in contrast
+    to RMII as used on the evaluation boards).
+
+    Signed-off-by: Wolfgang Wegner <w.wegner at astro-kom.de>
+
+commit ae49099755affc942171a7727c1b12c51d167abf
+Author: Wolfgang Wegner <w.wegner@astro-kom.de>
+Date:	Tue Mar 30 19:19:50 2010 +0100
+
+    add CONFIG_SYS_FEC_NO_SHARED_PHY for MCF5445x
+
+    This patch adds the possibility to handle seperate PHYs to MCF5445x.
+    Naming is chosen to resemble the contrary CONFIG_FEC_SHARED_PHY in the
+    linux kernel.
+
+    Signed-off-by: Wolfgang Wegner <w.wegner at astro-kom.de>
+
+commit e9b43cae1a20af13d1baeb13038b3f34905c14b5
+Author: Wolfgang Wegner <w.wegner@astro-kom.de>
+Date:	Tue Mar 30 19:20:31 2010 +0100
+
+    add missing PCS3 for MCF5445x
+
+    This patch adds the code for handling PCS3 (DSPI chip select 3) in
+    cpu_init.c and m5445x.h
+
+    Signed-off-by: Wolfgang Wegner <w.wegner at astro-kom.de>
+
+commit d0fe1128c4451327b9cb0fac1a76efd194b078b5
+Author: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+Date:	Wed May 26 21:26:43 2010 +0400
+
+    USB: fix create_pipe()
+
+    create_pipe() can give wrong result if an expression is passed as the 'endpoint'
+    argument -- due to missing parentheses.
+
+    Thanks to Martin Mueller for finding the bug and providing the patch.
+
+    Signed-off-by: Sergei Shtylyov <sshtylyov@ru.mvista.com>
+
+commit c941b77adc40f344215e367b3d1fc638addff870
+Author: Andrew Caldwell <Andrew.Caldwell@analog.com>
+Date:	Fri May 7 15:10:07 2010 -0400
+
+    Blackfin: nand: drain the write buffer before returning
+
+    The current Blackfin nand write function fills up the write buffer but
+    returns before it has had a chance to drain.  On faster systems, this
+    isn't a problem as the operation finishes before the ECC registers are
+    read, but on slower systems the ECC may be incomplete when the core tries
+    to read it.
+
+    So wait for the buffer to drain once we're done writing to it.
+
+    Signed-off-by: Andrew Caldwell <Andrew.Caldwell@analog.com>
+    Signed-off-by: Mike Frysinger <vapier@gentoo.org>
+
+commit 01f03bda5b22e5aeae5f02fd537da97a41485c73
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 26 23:57:08 2010 +0200
+
+    Prepare v2010.06-rc1
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
+commit c4976807cbbabd281f45466ac5e47e5639bcc9cb
+Author: Wolfgang Denk <wd@denx.de>
+Date:	Wed May 26 23:51:22 2010 +0200
+
+    Coding style cleanup, update CHANGELOG.
+
+    Signed-off-by: Wolfgang Denk <wd@denx.de>
+
 commit c7da8c19b5f7fd58b5b4b1d247648851af56e1f0
 Author: Andreas Biessmann <andreas.devel@googlemail.com>
 Date:	Sat May 22 13:17:21 2010 +0200

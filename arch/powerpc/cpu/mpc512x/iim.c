@@ -278,7 +278,7 @@ int ads5121_fuse_stat(int bank)
 	return 0;
 }
 
-int do_ads5121_fuse(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ads5121_fuse(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int frow, n, v, bank;
 

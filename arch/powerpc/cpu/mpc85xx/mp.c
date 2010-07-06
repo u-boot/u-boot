@@ -105,7 +105,7 @@ static u8 boot_entry_map[4] = {
 	BOOT_ENTRY_R6_LOWER,
 };
 
-int cpu_release(int nr, int argc, char *argv[])
+int cpu_release(int nr, int argc, char * const argv[])
 {
 	u32 i, val, *table = (u32 *)get_spin_virt_addr() + nr * NUM_BOOT_ENTRY;
 	u64 boot_addr;

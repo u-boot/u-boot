@@ -76,7 +76,7 @@ void prepare_to_boot(void)
 		     "sync   0" : : "r"(0) : "memory");
 }
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	/* This will reset the CPU core, caches, MMU and all internal busses */
 	__builtin_mtdr(8, 1 << 13);	/* set DC:DBE */

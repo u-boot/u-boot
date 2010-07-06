@@ -15,7 +15,7 @@
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/bootrom.h>
 
-int do_spibootldr(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_spibootldr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	s32 addr;
 

@@ -27,9 +27,9 @@
 
 /* MUSB platform configuration */
 struct musb_config musb_cfg = {
-	(struct	musb_regs *)DA8XX_USB_OTG_CORE_BASE,
-	DA8XX_USB_OTG_TIMEOUT,
-	0
+	.regs		= (struct musb_regs *)DA8XX_USB_OTG_CORE_BASE,
+	.timeout	= DA8XX_USB_OTG_TIMEOUT,
+	.musb_speed	= 0,
 };
 
 /*

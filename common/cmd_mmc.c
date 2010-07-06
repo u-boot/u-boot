@@ -28,7 +28,7 @@
 #ifndef CONFIG_GENERIC_MMC
 static int curr_device = -1;
 
-int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int dev;
 
@@ -114,7 +114,7 @@ static void print_mmcinfo(struct mmc *mmc)
 	printf("Bus Width: %d-bit\n", mmc->bus_width);
 }
 
-int do_mmcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_mmcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct mmc *mmc;
 	int dev_num;
@@ -140,7 +140,7 @@ U_BOOT_CMD(mmcinfo, 2, 0, do_mmcinfo,
 	""
 );
 
-int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int rc = 0;
 

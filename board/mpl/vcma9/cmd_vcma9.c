@@ -50,11 +50,11 @@ extern int vcma9_nanderase(void);
 extern int vcma9_nandread(ulong);
 extern int vcma9_nandwrite(ulong);
 extern int vcma9_dactest(int);
-extern int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 /* ------------------------------------------------------------------------- */
 
-int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct eth_device *dev;
 	char cs8900_name[10];

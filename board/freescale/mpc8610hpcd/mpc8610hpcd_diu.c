@@ -111,7 +111,7 @@ void mpc8610hpcd_diu_init(void)
 }
 
 int mpc8610diu_init_show_bmp(cmd_tbl_t *cmdtp,
-			     int flag, int argc, char *argv[])
+			     int flag, int argc, char * const argv[])
 {
 	unsigned int addr;
 
@@ -181,15 +181,6 @@ void *video_hw_init(void)
 	pGD->cprBase = 0;
 
 	return (void *)pGD;
-}
-
-void video_set_lut (unsigned int index,	/* color number */
-		    unsigned char r,	/* red */
-		    unsigned char g,	/* green */
-		    unsigned char b	/* blue */
-		    )
-{
-	return;
 }
 
 #endif /* defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE) */

@@ -1811,7 +1811,7 @@ int set_dfcdlInit (void)
 	return (0);
 }
 
-int do_show_ecc(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_show_ecc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned int ecc_counter;
 	unsigned int ecc_addr;

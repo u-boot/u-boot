@@ -24,7 +24,7 @@
 #include <common.h>
 #include <exports.h>
 
-int hello_world (int argc, char *argv[])
+int hello_world (int argc, char * const argv[])
 {
 	int i;
 

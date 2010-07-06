@@ -184,7 +184,7 @@ void timer_interrupt_cpu (struct pt_regs *regs)
  * irqinfo - print information about IRQs
  *
  */
-int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_irqinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int vec;
 

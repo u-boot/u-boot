@@ -38,7 +38,7 @@
 extern void eth_loopback_test(void);
 #endif /* CONFIG_ETHER_LOOPBACK_TEST */
 
-extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 #include "clkinit.h"
 #include "ioconfig.h" /* I/O configuration table */

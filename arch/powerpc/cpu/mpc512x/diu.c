@@ -107,7 +107,7 @@ int mpc5121_diu_init(void)
 }
 
 int mpc5121diu_init_show_bmp(cmd_tbl_t *cmdtp,
-			     int flag, int argc, char *argv[])
+			     int flag, int argc, char * const argv[])
 {
 	unsigned int addr;
 
@@ -177,20 +177,6 @@ void *video_hw_init(void)
 	pGD->cprBase = 0;
 
 	return (void *)pGD;
-}
-
-/**
-  * Set the LUT
-  *
-  * @index: color number
-  * @r: red
-  * @b: blue
-  * @g: green
-  */
-void video_set_lut
-	(unsigned int index, unsigned char r, unsigned char g, unsigned char b)
-{
-	return;
 }
 
 #endif /* defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE) */

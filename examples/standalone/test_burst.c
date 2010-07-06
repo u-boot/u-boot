@@ -85,7 +85,7 @@ static unsigned long test_pattern [] = {
 };
 
 
-int test_burst (int argc, char *argv[])
+int test_burst (int argc, char * const argv[])
 {
 	unsigned long size = CACHE_LINE_SIZE;
 	unsigned int pass = 0;

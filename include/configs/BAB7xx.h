@@ -436,9 +436,8 @@ extern unsigned char   scsi_sym53c8xx_ccf;
 extern  unsigned long           bab7xx_get_bus_freq (void);
 extern  unsigned long           bab7xx_get_gclk_freq (void);
 #endif
-#define CONFIG_SYS_BUS_HZ              bab7xx_get_bus_freq()
-#define CONFIG_SYS_BUS_CLK             CONFIG_SYS_BUS_HZ
-#define CONFIG_SYS_CPU_CLK             bab7xx_get_gclk_freq()
+#define CONFIG_SYS_BUS_CLK	bab7xx_get_bus_freq()
+#define CONFIG_SYS_CPU_CLK	bab7xx_get_gclk_freq()
 
 /*
  * For booting Linux, the board info and command line data

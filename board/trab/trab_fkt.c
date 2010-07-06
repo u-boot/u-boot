@@ -115,21 +115,21 @@ int do_rotary_switch (void);
 int do_pressure (void);
 int do_v_bat (void);
 int do_vfd_id (void);
-int do_buzzer (char **);
-int do_led (char **);
-int do_full_bridge (char **);
-int do_dac (char **);
+int do_buzzer (char * const *);
+int do_led (char * const *);
+int do_full_bridge (char * const *);
+int do_dac (char * const *);
 int do_motor_contact (void);
-int do_motor (char **);
-int do_pwm (char **);
-int do_thermo (char **);
-int do_touch (char **);
-int do_rs485 (char **);
-int do_serial_number (char **);
+int do_motor (char * const *);
+int do_pwm (char * const *);
+int do_thermo (char * const *);
+int do_touch (char * const *);
+int do_rs485 (char * const *);
+int do_serial_number (char * const *);
 int do_crc16 (void);
 int do_power_switch (void);
-int do_gain (char **);
-int do_eeprom (char **);
+int do_gain (char * const *);
+int do_eeprom (char * const *);
 
 /* helper functions */
 static void adc_init (void);
@@ -150,8 +150,8 @@ static unsigned short updcrc(unsigned short icrc, unsigned char *icp,
 			     unsigned int icnt);
 
 #if defined(CONFIG_CMD_I2C)
-static int trab_eeprom_read (char **argv);
-static int trab_eeprom_write (char **argv);
+static int trab_eeprom_read (char * const *argv);
+static int trab_eeprom_write (char * const *argv);
 int i2c_write_multiple (uchar chip, uint addr, int alen, uchar *buffer,
 			int len);
 int i2c_read_multiple ( uchar chip, uint addr, int alen, uchar *buffer,
@@ -163,7 +163,7 @@ int i2c_read_multiple ( uchar chip, uint addr, int alen, uchar *buffer,
  * test.
  */
 
-int trab_fkt (int argc, char *argv[])
+int trab_fkt (int argc, char * const argv[])
 {
 	int i;
 
@@ -585,7 +585,7 @@ int do_vfd_id (void)
 	return 0;
 }
 
-int do_buzzer (char **argv)
+int do_buzzer (char * const *argv)
 {
 	int counter;
 
@@ -635,7 +635,7 @@ int do_buzzer (char **argv)
 }
 
 
-int do_led (char **argv)
+int do_led (char * const *argv)
 {
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
@@ -690,7 +690,7 @@ int do_led (char **argv)
 }
 
 
-int do_full_bridge (char **argv)
+int do_full_bridge (char * const *argv)
 {
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
@@ -724,7 +724,7 @@ static inline unsigned long tsc2000_to_uv (u16 val)
 }
 
 
-int do_dac (char **argv)
+int do_dac (char * const *argv)
 {
 	int brightness;
 
@@ -799,7 +799,7 @@ int do_motor_contact (void)
 	return 0;
 }
 
-int do_motor (char **argv)
+int do_motor (char * const *argv)
 {
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
@@ -824,7 +824,7 @@ static void print_identifier (void)
 	printf ("## FKT: ");
 }
 
-int do_pwm (char **argv)
+int do_pwm (char * const *argv)
 {
 	int counter;
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
@@ -869,7 +869,7 @@ int do_pwm (char **argv)
 }
 
 
-int do_thermo (char **argv)
+int do_thermo (char * const *argv)
 {
 	int     channel, res;
 
@@ -892,7 +892,7 @@ int do_thermo (char **argv)
 }
 
 
-int do_touch (char **argv)
+int do_touch (char * const *argv)
 {
 	int     x, y;
 
@@ -1045,7 +1045,7 @@ static void touch_read_x_y (int *px, int *py)
 }
 
 
-int do_rs485 (char **argv)
+int do_rs485 (char * const *argv)
 {
 	int timeout;
 	char data[RS485_MAX_RECEIVE_BUF_LEN];
@@ -1110,7 +1110,7 @@ static int rs485_receive_chars (char *data, int timeout)
 }
 
 
-int do_serial_number (char **argv)
+int do_serial_number (char * const *argv)
 {
 #if defined(CONFIG_CMD_I2C)
 	unsigned int serial_number;
@@ -1249,7 +1249,7 @@ static unsigned short updcrc(unsigned short icrc, unsigned char *icp,
 }
 
 
-int do_gain (char **argv)
+int do_gain (char * const *argv)
 {
 	int range;
 
@@ -1265,7 +1265,7 @@ int do_gain (char **argv)
 }
 
 
-int do_eeprom (char **argv)
+int do_eeprom (char * const *argv)
 {
 #if defined(CONFIG_CMD_I2C)
 	if (strcmp (argv[2], "read") == 0) {
@@ -1286,7 +1286,7 @@ int do_eeprom (char **argv)
 }
 
 #if defined(CONFIG_CMD_I2C)
-static int trab_eeprom_read (char **argv)
+static int trab_eeprom_read (char * const *argv)
 {
 	int i;
 	int len;
@@ -1331,7 +1331,7 @@ static int trab_eeprom_read (char **argv)
 	return (0);
 }
 
-static int trab_eeprom_write (char **argv)
+static int trab_eeprom_write (char * const *argv)
 {
 	int i;
 	int len;

@@ -34,7 +34,7 @@
  */
 
 int _do_help (cmd_tbl_t *cmd_start, int cmd_items, cmd_tbl_t * cmdtp, int
-	      flag, int argc, char *argv[])
+	      flag, int argc, char * const argv[])
 {
 	int i;
 	int rcode = 0;
@@ -158,7 +158,7 @@ int cmd_usage(cmd_tbl_t *cmdtp)
 
 #ifdef CONFIG_AUTO_COMPLETE
 
-int var_complete(int argc, char *argv[], char last_char, int maxv, char *cmdv[])
+int var_complete(int argc, char * const argv[], char last_char, int maxv, char *cmdv[])
 {
 	static char tmp_buf[512];
 	int space;
@@ -175,7 +175,7 @@ int var_complete(int argc, char *argv[], char last_char, int maxv, char *cmdv[])
 }
 
 static void install_auto_complete_handler(const char *cmd,
-		int (*complete)(int argc, char *argv[], char last_char, int maxv, char *cmdv[]))
+		int (*complete)(int argc, char * const argv[], char last_char, int maxv, char *cmdv[]))
 {
 	cmd_tbl_t *cmdtp;
 
@@ -200,7 +200,7 @@ void install_auto_complete(void)
 
 /*************************************************************************************/
 
-static int complete_cmdv(int argc, char *argv[], char last_char, int maxv, char *cmdv[])
+static int complete_cmdv(int argc, char * const argv[], char last_char, int maxv, char *cmdv[])
 {
 	cmd_tbl_t *cmdtp;
 	const char *p;
@@ -301,7 +301,7 @@ static int make_argv(char *s, int argvsz, char *argv[])
 	return argc;
 }
 
-static void print_argv(const char *banner, const char *leader, const char *sep, int linemax, char *argv[])
+static void print_argv(const char *banner, const char *leader, const char *sep, int linemax, char * const argv[])
 {
 	int ll = leader != NULL ? strlen(leader) : 0;
 	int sl = sep != NULL ? strlen(sep) : 0;
@@ -328,7 +328,7 @@ static void print_argv(const char *banner, const char *leader, const char *sep, 
 	printf("\n");
 }
 
-static int find_common_prefix(char *argv[])
+static int find_common_prefix(char * const argv[])
 {
 	int i, len;
 	char *anchor, *s, *t;

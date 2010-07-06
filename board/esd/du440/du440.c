@@ -409,7 +409,7 @@ int dcf77_status(void)
 	return mv;
 }
 
-int do_dcf77(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_dcf77(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int mv;
 	u32 pin, pinold;
@@ -490,7 +490,7 @@ int usbhub_init(void)
 	return ret;
 }
 
-int do_hubinit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_hubinit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	usbhub_init();
 	return 0;
@@ -573,7 +573,7 @@ int boot_eeprom_write (unsigned dev_addr,
 	return rcode;
 }
 
-int do_setup_boot_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_setup_boot_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong sdsdp[4];
 
@@ -673,7 +673,7 @@ int eeprom_write_enable (unsigned dev_addr, int state)
 	return state;
 }
 
-int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_eep_wren (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int query = argc == 1;
 	int state = 0;
@@ -727,7 +727,7 @@ static int pld_interrupt(u32 arg)
 	return rc;
 }
 
-int do_waitpwrirq(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_waitpwrirq(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	got_pldirq = 0;
 
@@ -795,7 +795,7 @@ int dvi_init(void)
 	return ret;
 }
 
-int do_dviinit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_dviinit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	dvi_init();
 	return 0;
@@ -810,7 +810,7 @@ U_BOOT_CMD(
  * TODO: 'time' command might be useful for others as well.
  *       Move to 'common' directory.
  */
-int do_time(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_time(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long long start, end;
 	char c, cmd[CONFIG_SYS_CBSIZE];
@@ -874,7 +874,7 @@ unsigned int prng(unsigned int max)
 	return Y;
 }
 
-int do_gfxdemo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_gfxdemo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned int color;
 	unsigned int x, y, dx, dy;

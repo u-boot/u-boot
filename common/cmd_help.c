@@ -24,7 +24,7 @@
 #include <common.h>
 #include <command.h>
 
-int do_help(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_help(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	return _do_help(&__u_boot_cmd_start,
 			&__u_boot_cmd_end - &__u_boot_cmd_start,

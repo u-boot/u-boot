@@ -78,7 +78,7 @@ int checkboard(void)
 	return 0;
 }
 
-static int do_sw_stat(cmd_tbl_t* cmd_tp, int flags, int argc, char *argv[])
+static int do_sw_stat(cmd_tbl_t* cmd_tp, int flags, int argc, char * const argv[])
 {
 	char stat;
 	int i;
@@ -97,7 +97,7 @@ U_BOOT_CMD (
 	""
 );
 
-static int do_led_ctl(cmd_tbl_t* cmd_tp, int flags, int argc, char *argv[])
+static int do_led_ctl(cmd_tbl_t* cmd_tp, int flags, int argc, char * const argv[])
 {
 	int led_no;
 

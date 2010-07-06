@@ -32,7 +32,7 @@ static ulong get_arg(char *s, int w)
 {
 	ulong *p;
 
-        /*
+	/*
 	 * if the parameter starts with a '*' then assume
 	 * it is a pointer to the value we want
 	 */
@@ -50,7 +50,7 @@ static ulong get_arg(char *s, int w)
 	}
 }
 
-int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong a, b;
 	char buf[16];

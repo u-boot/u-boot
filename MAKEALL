@@ -262,6 +262,7 @@ LIST_4xx="		\
 	sc3		\
 	sequoia		\
 	sequoia_nand	\
+	t3corp		\
 	taihu		\
 	taishan		\
 	v5fx30teval	\
@@ -393,6 +394,7 @@ LIST_85xx="		\
 	MPC8536DS_NAND	\
 	MPC8536DS_SDCARD	\
 	MPC8536DS_SPIFLASH	\
+	MPC8536DS_36BIT	\
 	MPC8540ADS	\
 	MPC8540EVAL	\
 	MPC8541CDS	\
@@ -453,6 +455,7 @@ LIST_85xx="		\
 
 LIST_86xx="		\
 	MPC8610HPCD	\
+	MPC8641HPCN_36BIT \
 	MPC8641HPCN	\
 	sbc8641d	\
 	XPEDITE5170	\
@@ -561,6 +564,7 @@ LIST_ARM9="			\
 	cp946es			\
 	cp966			\
 	da830evm		\
+	da850evm		\
 	edb9301			\
 	edb9302			\
 	edb9302a		\
@@ -569,6 +573,7 @@ LIST_ARM9="			\
 	edb9312			\
 	edb9315			\
 	edb9315a		\
+	edminiv2		\
 	guruplug		\
 	imx27lite		\
 	lpd7a400		\
@@ -815,21 +820,6 @@ LIST_x86="		\
 "
 
 #########################################################################
-## NIOS Systems
-#########################################################################
-
-LIST_nios="			\
-	ADNPESC1		\
-	ADNPESC1_base_32	\
-	ADNPESC1_DNPEVA2_base_32\
-	DK1C20			\
-	DK1C20_standard_32	\
-	DK1S10			\
-	DK1S10_standard_32	\
-	DK1S10_mtx_ldk_20	\
-"
-
-#########################################################################
 ## Nios-II Systems
 #########################################################################
 
@@ -1021,7 +1011,7 @@ do
 	|coldfire \
 	|microblaze \
 	|mips|mips_el \
-	|nios|nios2 \
+	|nios2 \
 	|ppc|powerpc|5xx|5xxx|512x|8xx|8220|824x|8260|83xx|85xx|86xx|4xx|7xx|74xx|TSEC \
 	|sh|sh2|sh3|sh4 \
 	|sparc \

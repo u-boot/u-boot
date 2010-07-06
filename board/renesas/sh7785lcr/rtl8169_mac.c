@@ -298,7 +298,7 @@ void mac_read(void)
 		data[0], data[1], data[2], data[3], data[4], data[5]);
 }
 
-int do_set_mac(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_set_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	unsigned char mac[6];
@@ -328,7 +328,7 @@ U_BOOT_CMD(
 	"setmac <mac address> - write MAC address for RTL8110SCL"
 );
 
-int do_print_mac(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_print_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc != 1) {
 		cmd_usage(cmdtp);

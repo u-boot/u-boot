@@ -194,9 +194,8 @@
  * For the detail description refer to the PCIPPC2 user's manual.
  */
 #define CONFIG_SYS_HZ		      1000
-#define CONFIG_SYS_BUS_HZ            100000000 /* bus speed - 100 mhz          */
+#define CONFIG_SYS_BUS_CLK            100000000 /* bus speed - 100 mhz          */
 #define CONFIG_SYS_CPU_CLK	      300000000
-#define CONFIG_SYS_BUS_CLK	      100000000
 
 /*
  * For booting Linux, the board info and command line data

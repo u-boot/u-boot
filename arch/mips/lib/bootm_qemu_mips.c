@@ -29,7 +29,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *images)
 {
 	void	(*theKernel) (int, char **, char **, int *);
 	char	*bootargs = getenv ("bootargs");

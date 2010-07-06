@@ -51,10 +51,10 @@ void inline __show_boot_progress (int val) {}
 void show_boot_progress (int val) __attribute__((weak, alias("__show_boot_progress")));
 
 #if defined(CONFIG_BOOT_RETRY_TIME) && defined(CONFIG_RESET_TO_RETRY)
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);		/* for do_reset() prototype */
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);		/* for do_reset() prototype */
 #endif
 
-extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 #if defined(CONFIG_UPDATE_TFTP)
 void update_tftp (void);
@@ -427,14 +427,7 @@ void main_loop (void)
 	    }
 	}
 #endif /* CONFIG_MENUKEY */
-#endif	/* CONFIG_BOOTDELAY */
-
-#ifdef CONFIG_AMIGAONEG3SE
-	{
-	    extern void video_banner(void);
-	    video_banner();
-	}
-#endif
+#endif /* CONFIG_BOOTDELAY */
 
 	/*
 	 * Main Loop for Monitor Command Processing
@@ -1421,7 +1414,7 @@ int run_command (const char *cmd, int flag)
 /****************************************************************************/
 
 #if defined(CONFIG_CMD_RUN)
-int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_run (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 

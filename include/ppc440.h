@@ -1719,6 +1719,13 @@
 #define CPR0_PERD_PERDV0_MASK	0x07000000
 #endif
 
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define CPR0_ICFG_RLI_MASK	0x80000000
+
+#define CPR0_PLLC_RST		0x80000000
+#define CPR0_PLLC_ENG		0x40000000
+#endif
+
 /*-----------------------------------------------------------------------------
 | PCI Internal Registers et. al. (accessed via plb)
 +----------------------------------------------------------------------------*/

@@ -161,7 +161,7 @@ void show_xbridge_info(void)
 	printf("PCIL0_XSTS              = %#010lx\n", in32r(PCIL0_STS));
 }
 
-int do_show_xbridge_info(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_show_xbridge_info(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	show_xbridge_info();
 	return 0;
@@ -215,7 +215,7 @@ void show_pcix_device_info(void)
 }
 
 int do_show_pcix_device_info(cmd_tbl_t * cmdtp, int flag, int argc,
-			     char *argv[])
+			     char * const argv[])
 {
 	show_pcix_device_info();
 	return 0;
@@ -226,7 +226,7 @@ U_BOOT_CMD(xdevinfo, 1, 1, do_show_pcix_device_info,
 
 extern void show_reset_reg(void);
 
-int do_show_reset_reg_info(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_show_reset_reg_info(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	show_reset_reg();
 	return 0;

@@ -79,7 +79,7 @@ struct linux_mem_v0 {
 
 /* Arguments sent to the kernel from the boot prompt. */
 struct linux_arguments_v0 {
-	char *argv[8];
+	char * const argv[8];
 	char args[100];
 	char boot_dev[2];
 	int boot_dev_ctrl;

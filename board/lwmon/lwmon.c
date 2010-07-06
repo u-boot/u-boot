@@ -791,7 +791,7 @@ void lcd_show_board_info(void)
 #if defined(CONFIG_CMD_BSP)
 /***********************************************************************
 F* Function:     int do_pic (cmd_tbl_t *cmdtp, int flag,
-F*                           int argc, char *argv[]) P*A*Z*
+F*                           int argc, char * const argv[]) P*A*Z*
  *
 P* Parameters:   cmd_tbl_t *cmdtp
 P*                - Pointer to our command table entry
@@ -800,7 +800,7 @@ P*                - If the CMD_FLAG_REPEAT bit is set, then this call is
 P*                  a repetition
 P*               int argc
 P*                - Argument count
-P*               char *argv[]
+P*               char * const argv[]
 P*                - Array of the actual arguments
 P*
 P* Returnvalue:  int
@@ -816,7 +816,7 @@ D* Design:       wd@denx.de
 C* Coding:       wd@denx.de
 V* Verification: dzu@denx.de
  ***********************************************************************/
-int do_pic (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_pic (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	uchar reg, val;
 
@@ -857,7 +857,7 @@ U_BOOT_CMD(
 
 /***********************************************************************
 F* Function:     int do_kbd (cmd_tbl_t *cmdtp, int flag,
-F*                           int argc, char *argv[]) P*A*Z*
+F*                           int argc, char * const argv[]) P*A*Z*
  *
 P* Parameters:   cmd_tbl_t *cmdtp
 P*                - Pointer to our command table entry
@@ -866,7 +866,7 @@ P*                - If the CMD_FLAG_REPEAT bit is set, then this call is
 P*                  a repetition
 P*               int argc
 P*                - Argument count
-P*               char *argv[]
+P*               char * const argv[]
 P*                - Array of the actual arguments
 P*
 P* Returnvalue:  int
@@ -881,7 +881,7 @@ D* Design:       wd@denx.de
 C* Coding:       wd@denx.de
 V* Verification: dzu@denx.de
  ***********************************************************************/
-int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_kbd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	uchar kbd_data[KEYBD_DATALEN];
 	char keybd_env[2 * KEYBD_DATALEN + 1];
@@ -918,7 +918,7 @@ U_BOOT_CMD(
 
 /***********************************************************************
 F* Function:     int do_lsb (cmd_tbl_t *cmdtp, int flag,
-F*                           int argc, char *argv[]) P*A*Z*
+F*                           int argc, char * const argv[]) P*A*Z*
  *
 P* Parameters:   cmd_tbl_t *cmdtp
 P*                - Pointer to our command table entry
@@ -927,7 +927,7 @@ P*                - If the CMD_FLAG_REPEAT bit is set, then this call is
 P*                  a repetition
 P*               int argc
 P*                - Argument count
-P*               char *argv[]
+P*               char * const argv[]
 P*                - Array of the actual arguments
 P*
 P* Returnvalue:  int
@@ -944,7 +944,7 @@ D* Design:       wd@denx.de
 C* Coding:       wd@denx.de
 V* Verification: dzu@denx.de
  ***********************************************************************/
-int do_lsb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_lsb (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	uchar val;
 	immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;

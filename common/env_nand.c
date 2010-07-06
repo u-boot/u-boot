@@ -49,10 +49,6 @@
 #error CONFIG_ENV_SIZE_REDUND should be the same as CONFIG_ENV_SIZE
 #endif
 
-#ifdef CONFIG_INFERNO
-#error CONFIG_INFERNO not supported yet
-#endif
-
 #ifndef CONFIG_ENV_RANGE
 #define CONFIG_ENV_RANGE	CONFIG_ENV_SIZE
 #endif

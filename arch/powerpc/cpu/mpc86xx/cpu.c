@@ -124,7 +124,7 @@ checkcpu(void)
 
 
 void
-do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;

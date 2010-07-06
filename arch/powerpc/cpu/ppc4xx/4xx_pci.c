@@ -476,7 +476,9 @@ void pci_init_board(void)
  *-----------------------------------------------------------------------------*/
 #if defined(CONFIG_440)
 
+#if defined(CONFIG_SYS_PCI_MASTER_INIT) || defined(CONFIG_SYS_PCI_TARGET_INIT)
 static struct pci_controller ppc440_hose = {0};
+#endif
 
 /*
  * This routine is called to determine if a pci scan should be
@@ -704,6 +706,7 @@ void pci_master_init(struct pci_controller *hose)
 	__attribute__((weak, alias("__pci_master_init")));
 #endif /* CONFIG_SYS_PCI_MASTER_INIT */
 
+#if defined(CONFIG_SYS_PCI_MASTER_INIT) || defined(CONFIG_SYS_PCI_TARGET_INIT)
 int pci_440_init (struct pci_controller *hose)
 {
 	int reg_num = 0;
@@ -845,12 +848,19 @@ int pci_440_init (struct pci_controller *hose)
 	}
 	return hose->last_busno;
 }
+#endif
 
 void pci_init_board(void)
 {
-	int busno;
+	int busno = 0;
 
+	/*
+	 * Only init PCI when either master or target functionality
+	 * is selected.
+	 */
+#if defined(CONFIG_SYS_PCI_MASTER_INIT) || defined(CONFIG_SYS_PCI_TARGET_INIT)
 	busno = pci_440_init (&ppc440_hose);
+#endif
 #if (defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT)) && \
     !defined(CONFIG_PCI_DISABLE_PCIE)

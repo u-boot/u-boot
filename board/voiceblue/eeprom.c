@@ -149,7 +149,7 @@ static int parse_element(char *s, unsigned char *buf, int len)
 	return cnt;
 }
 
-int eeprom(int argc, char *argv[])
+int eeprom(int argc, char * const argv[])
 {
 	int i, len, ret;
 	unsigned char buf[58], *p;

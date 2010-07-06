@@ -130,7 +130,7 @@ finished_inval:
 
 
 l2_cache_enable:
-	push	{r0, r1, r2, lr}
+	stmfd	r13!, {r0, r1, r2, lr}
 	@ ES2 onwards we can disable/enable L2 ourselves
 	bl	get_cpu_rev
 	cmp	r0, #CPU_3XX_ES20
@@ -157,11 +157,11 @@ l2_cache_enable_EARLIER_THAN_ES2:
 	mov	ip, r3
 	str	r3, [sp, #4]
 l2_cache_enable_END:
-	pop	{r1, r2, r3, pc}
+	ldmfd	r13!, {r1, r2, r3, pc}
 
 
 l2_cache_disable:
-	push	{r0, r1, r2, lr}
+	stmfd	r13!, {r0, r1, r2, lr}
 	@ ES2 onwards we can disable/enable L2 ourselves
 	bl	get_cpu_rev
 	cmp	r0, #CPU_3XX_ES20
@@ -188,4 +188,4 @@ l2_cache_disable_EARLIER_THAN_ES2:
 	mov	ip, r3
 	str	r3, [sp, #4]
 l2_cache_disable_END:
-	pop	{r1, r2, r3, pc}
+	ldmfd	r13!, {r1, r2, r3, pc}

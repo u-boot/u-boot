@@ -37,7 +37,7 @@
 /*
  * printf() and vprintf() are stolen from u-boot/common/console.c
  */
-void printf (const char *fmt, ...)
+int printf (const char *fmt, ...)
 {
 	va_list args;
 	uint i;
@@ -53,9 +53,10 @@ void printf (const char *fmt, ...)
 
 	/* Print the string */
 	ub_puts (printbuffer);
+	return i;
 }
 
-void vprintf (const char *fmt, va_list args)
+int vprintf (const char *fmt, va_list args)
 {
 	uint i;
 	char printbuffer[256];
@@ -67,6 +68,7 @@ void vprintf (const char *fmt, va_list args)
 
 	/* Print the string */
 	ub_puts (printbuffer);
+	return i;
 }
 
 void putc (const char c)

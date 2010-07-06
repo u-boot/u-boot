@@ -223,7 +223,7 @@ void ambapp_print_ahb(ahbctrl_pp_dev * ahb, int index)
 	printf("   irq: %-2d (ver: %d)\n", irq, ver);
 }
 
-int do_ambapp_print(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_ambapp_print(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 
 	/* Print AHB Masters */

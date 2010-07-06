@@ -18,7 +18,7 @@
 #if !defined (CONFIG_PANIC_HANG)
 #include <command.h>
 /*cmd_boot.c*/
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 #endif
 
 #include <div64.h>

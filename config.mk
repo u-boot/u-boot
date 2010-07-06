@@ -191,14 +191,6 @@ endif
 
 CFLAGS += $(call cc-option,-fno-stack-protector)
 
-# avoid trigraph warnings while parsing pci.h (produced by NIOS gcc-2.9)
-# this option have to be placed behind -Wall -- that's why it is here
-ifeq ($(ARCH),nios)
-ifeq ($(findstring 2.9,$(shell $(CC) --version)),2.9)
-CFLAGS := $(CPPFLAGS) -Wall -Wno-trigraphs
-endif
-endif
-
 # $(CPPFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
 # option to the assembler.
 AFLAGS_DEBUG :=

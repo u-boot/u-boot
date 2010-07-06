@@ -44,7 +44,7 @@
 
 static void irq_handler (void *arg);
 
-int interrupt (int argc, char *argv[])
+int interrupt (int argc, char * const argv[])
 {
 	int c, irq = -1;
 

@@ -245,7 +245,7 @@ void boot_zimage(void *setup_base)
 	enter_realmode(((u32)setup_base+SETUP_START_OFFSET)>>4, 0, &regs, &regs);
 }
 
-int do_zboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_zboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	void *base_ptr;
 	void *bzImage_addr;

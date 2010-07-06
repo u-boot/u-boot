@@ -37,7 +37,7 @@ static uint in_last_addr, in_last_size;
 static uint out_last_addr, out_last_size, out_last_value;
 
 
-int do_portio_out (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_portio_out (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	uint addr = out_last_addr;
 	uint size = out_last_size;
@@ -97,7 +97,7 @@ U_BOOT_CMD(
 	"[.b, .w, .l] port value\n    - output to IO port"
 );
 
-int do_portio_in (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_portio_in (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	uint addr = in_last_addr;
 	uint size = in_last_size;

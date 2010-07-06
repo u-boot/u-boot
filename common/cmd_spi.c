@@ -63,7 +63,7 @@ static uchar 		din[MAX_SPI_BYTES];
  * The command prints out the hexadecimal string received via SPI.
  */
 
-int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct spi_slave *slave;
 	char  *cp = 0;

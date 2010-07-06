@@ -32,7 +32,7 @@ static inline int str2long(char *p, ulong *num)
 	return (*p != '\0' && *endptr == '\0') ? 1 : 0;
 }
 
-static int arg_off_size(int argc, char *argv[], ulong *off, size_t *size)
+static int arg_off_size(int argc, char * const argv[], ulong *off, size_t *size)
 {
 	if (argc >= 1) {
 		if (!(str2long(argv[0], off))) {
@@ -330,13 +330,13 @@ static int onenand_dump(struct mtd_info *mtd, ulong off, int only_oob)
 	return 0;
 }
 
-static int do_onenand_info(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_onenand_info(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	printf("%s\n", mtd->name);
 	return 0;
 }
 
-static int do_onenand_bad(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_onenand_bad(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong ofs;
 
@@ -351,7 +351,7 @@ static int do_onenand_bad(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-static int do_onenand_read(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_onenand_read(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	char *s;
 	int oob = 0;
@@ -383,7 +383,7 @@ static int do_onenand_read(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return ret == 0 ? 0 : 1;
 }
 
-static int do_onenand_write(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_onenand_write(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr, ofs;
 	size_t len;
@@ -409,7 +409,7 @@ static int do_onenand_write(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return ret == 0 ? 0 : 1;
 }
 
-static int do_onenand_erase(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_onenand_erase(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong ofs;
 	int ret = 0;
@@ -445,7 +445,7 @@ static int do_onenand_erase(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return ret == 0 ? 0 : 1;
 }
 
-static int do_onenand_test(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_onenand_test(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong ofs;
 	int ret = 0;
@@ -470,7 +470,7 @@ static int do_onenand_test(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return ret == 0 ? 0 : 1;
 }
 
-static int do_onenand_dump(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_onenand_dump(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong ofs;
 	int ret = 0;
@@ -493,7 +493,7 @@ static int do_onenand_dump(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return ret == 0 ? 1 : 0;
 }
 
-static int do_onenand_markbad(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_onenand_markbad(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int ret = 0;
 	ulong addr;
@@ -537,7 +537,7 @@ static cmd_tbl_t cmd_onenand_sub[] = {
 	U_BOOT_CMD_MKENT(markbad, CONFIG_SYS_MAXARGS, 0, do_onenand_markbad, "", ""),
 };
 
-static int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *c;
 

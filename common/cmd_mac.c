@@ -24,7 +24,7 @@
 #include <common.h>
 #include <command.h>
 
-extern int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 U_BOOT_CMD(
 	mac, 3, 1,  do_mac,

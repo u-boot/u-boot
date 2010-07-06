@@ -45,7 +45,7 @@ static void print_configs(int cur_config_nr)
 
 }
 
-static int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	int ret;

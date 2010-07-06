@@ -25,7 +25,7 @@
 
 static int reset_eeprom(unsigned long ioaddr, unsigned char *hwaddr);
 
-int eepro100_eeprom(int argc, char *argv[])
+int eepro100_eeprom(int argc, char * const argv[])
 {
 	int ret = 0;
 

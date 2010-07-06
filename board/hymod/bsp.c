@@ -141,7 +141,7 @@ fpga_load (int mezz, uchar *addr, ulong size)
 
 /* ------------------------------------------------------------------------- */
 int
-do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	uchar *addr, *save_addr;
 	ulong size;
@@ -301,7 +301,7 @@ U_BOOT_CMD(
 );
 /* ------------------------------------------------------------------------- */
 int
-do_eecl (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+do_eecl (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	uchar data[HYMOD_EEPROM_SIZE];
 	uint addr = CONFIG_SYS_I2C_EEPROM_ADDR;
@@ -346,7 +346,7 @@ U_BOOT_CMD(
 /* ------------------------------------------------------------------------- */
 
 int
-do_htest (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+do_htest (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #if 0
 	int rc;

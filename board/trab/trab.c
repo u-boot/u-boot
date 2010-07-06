@@ -305,7 +305,7 @@ static char *key_match (ulong kbd_data)
 #endif							/* CONFIG_PREBOOT */
 
 /* Read Keyboard status */
-int do_kbd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_kbd (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong kbd_data = KBD_DATA;
 	char keybd_env[KEYBD_KEY_NUM + 1];
