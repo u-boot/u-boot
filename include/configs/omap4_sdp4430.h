@@ -154,6 +154,8 @@
  * Environment setup
  */
 
+#define CONFIG_BOOTDELAY	3
+
 /* allow overwriting serial config and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
@@ -161,10 +163,12 @@
 	"loadaddr=0x82000000\0" \
 	"console=ttyS2,115200n8\0" \
 	"usbtty=cdc_acm\0" \
+	"vram=16M\0" \
 	"mmcdev=1\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext3 rootwait\0" \
 	"mmcargs=setenv bootargs console=${console} " \
+		"vram=${vram} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
 	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
@@ -182,7 +186,6 @@
 		"else " \
 			"if run loaduimage; then " \
 				"run mmcboot; " \
-			"else run nandboot; " \
 			"fi; " \
 		"fi; " \
 	"fi"
