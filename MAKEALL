@@ -360,6 +360,7 @@ LIST_8260="		\
 LIST_83xx="		\
 	caddy2		\
 	kmeter1		\
+	MPC8308RDB	\
 	MPC8313ERDB_33	\
 	MPC8313ERDB_NAND_66	\
 	MPC8315ERDB	\
