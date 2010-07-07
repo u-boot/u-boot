@@ -428,6 +428,7 @@ Heiko Schocher <hs@denx.de>
 	sc3		PPC405GP
 	suen3		ARM926EJS (Kirkwood SoC)
 	uc101		MPC5200
+	ve8313		MPC8313
 
 Peter De Schrijver <p2@mind.be>
 
