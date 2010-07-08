@@ -74,6 +74,7 @@ COBJS-$(CONFIG_FSL_CORENET) += portals.o
 # various SoC specific assignments
 COBJS-$(CONFIG_PPC_P3041) += p3041_ids.o
 COBJS-$(CONFIG_PPC_P4080) += p4080_ids.o
+COBJS-$(CONFIG_PPC_P5020) += p5020_ids.o
 
 COBJS-$(CONFIG_QE)	+= qe_io.o
 COBJS-$(CONFIG_CPM2)	+= serial_scc.o
@@ -96,6 +97,7 @@ COBJS-$(CONFIG_P2010)	+= p2020_serdes.o
 COBJS-$(CONFIG_P2020)	+= p2020_serdes.o
 COBJS-$(CONFIG_PPC_P3041) += p3041_serdes.o
 COBJS-$(CONFIG_PPC_P4080) += p4080_serdes.o
+COBJS-$(CONFIG_PPC_P5020) += p5020_serdes.o
 
 COBJS	= $(COBJS-y)
 COBJS	+= cpu.o
