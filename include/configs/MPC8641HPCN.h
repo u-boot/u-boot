@@ -122,9 +122,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_CCSRBAR_PHYS		CONFIG_SYS_CCSRBAR_PHYS_LOW
 #endif
 
-#define CONFIG_SYS_PCI1_ADDR		(CONFIG_SYS_CCSRBAR+0x8000)
-#define CONFIG_SYS_PCI2_ADDR		(CONFIG_SYS_CCSRBAR+0x9000)
-
 /*
  * DDR Setup
  */

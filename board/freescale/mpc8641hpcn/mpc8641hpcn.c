@@ -142,7 +142,7 @@ void pci_init_board(void)
 {
 #ifdef CONFIG_PCI1
 {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
 	struct pci_controller *hose = &pci1_hose;
 	struct pci_region *r = hose->regions;
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
@@ -208,7 +208,7 @@ void pci_init_board(void)
 
 #ifdef CONFIG_PCI2
 {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI2_ADDR;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE2_ADDR;
 	struct pci_controller *hose = &pci2_hose;
 	struct pci_region *r = hose->regions;
 
