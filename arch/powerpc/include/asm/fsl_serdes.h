@@ -45,6 +45,4 @@ enum srds_prtcl {
 
 int is_serdes_configured(enum srds_prtcl device);
 
-const char *serdes_slot_name(enum srds_prtcl device);
-
 #endif /* __FSL_SERDES_H */

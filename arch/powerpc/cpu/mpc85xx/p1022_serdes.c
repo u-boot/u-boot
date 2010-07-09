@@ -71,55 +71,6 @@ static const u8 serdes2_cfg_tbl[][SRDS2_MAX_LANES] = {
 	[0x1f] = {NONE, NONE},
 };
 
-/*
- * A list of PCI and SATA slots
- */
-enum slot_id {
-	SLOT_PCIE1 = 1,
-	SLOT_PCIE2,
-	SLOT_PCIE3,
-	SLOT_PCIE4,
-	SLOT_PCIE5,
-	SLOT_SATA1,
-	SLOT_SATA2
-};
-
-/*
- * This array maps the slot identifiers to their names on the P1022DS board.
- */
-static const char *slot_names[] = {
-	[SLOT_PCIE1] = "Slot 1",
-	[SLOT_PCIE2] = "Slot 2",
-	[SLOT_PCIE3] = "Slot 3",
-	[SLOT_PCIE4] = "Slot 4",
-	[SLOT_PCIE5] = "Mini-PCIe",
-	[SLOT_SATA1] = "SATA 1",
-	[SLOT_SATA2] = "SATA 2",
-};
-
-/*
- * This array maps a given SERDES configuration and SERDES device to the PCI or
- * SATA slot that it connects to.  This mapping is hard-coded in the FPGA.
- */
-static u8 serdes_dev_slot[][SATA2 + 1] = {
-	[0x01] = { [PCIE3] = SLOT_PCIE4, [PCIE2] = SLOT_PCIE5 },
-	[0x02] = { [SATA1] = SLOT_SATA1, [SATA2] = SLOT_SATA2 },
-	[0x09] = { [PCIE1] = SLOT_PCIE1, [PCIE3] = SLOT_PCIE4,
-		   [PCIE2] = SLOT_PCIE5 },
-	[0x16] = { [PCIE1] = SLOT_PCIE1, [PCIE3] = SLOT_PCIE2,
-		   [PCIE2] = SLOT_PCIE3,
-		   [SATA1] = SLOT_SATA1, [SATA2] = SLOT_SATA2 },
-	[0x17] = { [PCIE1] = SLOT_PCIE1, [PCIE3] = SLOT_PCIE2,
-		   [PCIE2] = SLOT_PCIE3 },
-	[0x1a] = { [PCIE1] = SLOT_PCIE1, [PCIE2] = SLOT_PCIE3,
-		   [PCIE2] = SLOT_PCIE3,
-		   [SATA1] = SLOT_SATA1, [SATA2] = SLOT_SATA2 },
-	[0x1c] = { [PCIE1] = SLOT_PCIE1,
-		   [SATA1] = SLOT_SATA1, [SATA2] = SLOT_SATA2 },
-	[0x1e] = { [PCIE1] = SLOT_PCIE1, [PCIE3] = SLOT_PCIE3 },
-	[0x1f] = { [PCIE1] = SLOT_PCIE1 },
-};
-
 int is_serdes_configured(enum srds_prtcl device)
 {
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
@@ -144,23 +95,4 @@ int is_serdes_configured(enum srds_prtcl device)
 	}
 
 	return 0;
-}
-
-/*
- * Returns the name of the slot to which the PCIe or SATA controller is
- * connected
- */
-const char *serdes_slot_name(enum srds_prtcl device)
-{
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
-	u32 pordevsr = in_be32(&gur->pordevsr);
-	unsigned int srds_cfg = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >>
-				MPC85xx_PORDEVSR_IO_SEL_SHIFT;
-	enum slot_id slot = serdes_dev_slot[srds_cfg][device];
-	const char *name = slot_names[slot];
-
-	if (name)
-		return name;
-	else
-		return "Nothing";
 }
