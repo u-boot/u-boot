@@ -142,6 +142,11 @@ void write_fifo(u8 ep, u32 length, void *fifo_data)
 }
 
 /*
+ * AM35x supports only 32bit read operations so
+ * use seperate read_fifo() function for it.
+ */
+#ifndef CONFIG_USB_AM35X
+/*
  * This function reads data from endpoint fifo
  *
  * ep           - endpoint number
@@ -160,3 +165,4 @@ void read_fifo(u8 ep, u32 length, void *fifo_data)
 	while (length--)
 		*data++ = readb(&musbr->fifox[ep]);
 }
+#endif /* CONFIG_USB_AM35X */

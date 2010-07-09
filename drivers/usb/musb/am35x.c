@@ -116,3 +116,35 @@ void musb_platform_deinit(void)
 	/* Turn off the phy */
 	phy_off();
 }
+
+/*
+ * This function reads data from endpoint fifo for AM35x
+ * which supports only 32bit read operation.
+ *
+ * ep           - endpoint number
+ * length       - number of bytes to read from FIFO
+ * fifo_data    - pointer to data buffer into which data is read
+ */
+__attribute__((weak))
+void read_fifo(u8 ep, u32 length, void *fifo_data)
+{
+	u8  *data = (u8 *)fifo_data;
+	u32 val;
+	int i;
+
+	/* select the endpoint index */
+	writeb(ep, &musbr->index);
+
+	if (length > 4) {
+		for (i = 0; i < (length >> 2); i++) {
+			val = readl(&musbr->fifox[ep]);
+			memcpy(data, &val, 4);
+			data += 4;
+		}
+		length %= 4;
+	}
+	if (length > 0) {
+		val = readl(&musbr->fifox[ep]);
+		memcpy(data, &val, length);
+	}
+}
