@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 Freescale Semiconductor, Inc.
+ * Copyright 2007-2010 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -366,15 +366,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 
-#ifdef CONFIG_PCIE3
-	ft_fsl_pci_setup(blob, "pci0", &pcie3_hose);
-#endif
-#ifdef CONFIG_PCIE2
-	ft_fsl_pci_setup(blob, "pci1", &pcie2_hose);
-#endif
-#ifdef CONFIG_PCIE1
-	ft_fsl_pci_setup(blob, "pci2", &pcie1_hose);
-#endif
+	FT_FSL_PCI_SETUP;
+
 #ifdef CONFIG_FSL_SGMII_RISER
 	fsl_sgmii_riser_fdt_fixup(blob);
 #endif

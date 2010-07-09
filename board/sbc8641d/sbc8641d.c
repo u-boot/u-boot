@@ -308,12 +308,7 @@ void ft_board_setup (void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 
-#ifdef CONFIG_PCIE1
-	ft_fsl_pci_setup(blob, "pci0", &pcie1_hose);
-#endif
-#ifdef CONFIG_PCIE2
-	ft_fsl_pci_setup(blob, "pci1", &pcie2_hose);
-#endif
+	FT_FSL_PCI_SETUP;
 }
 #endif
 

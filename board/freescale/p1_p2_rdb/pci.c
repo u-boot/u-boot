@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Freescale Semiconductor, Inc.
+ * Copyright 2009-2010 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -100,16 +100,5 @@ void pci_init_board(void)
 
 void ft_pci_board_setup(void *blob)
 {
-/* According to h/w manual, PCIE2 is at lower address(0x9000)
- * than PCIE1(0xa000).
- * Hence PCIE2 is made to occupy the pci1 position in dts to
- * keep the addresses sorted there.
- * Generally the case with all FSL SOCs.
- */
-#ifdef CONFIG_PCIE2
-	ft_fsl_pci_setup(blob, "pci1", &pcie2_hose);
-#endif
-#ifdef CONFIG_PCIE1
-	ft_fsl_pci_setup(blob, "pci2", &pcie1_hose);
-#endif
+	FT_FSL_PCI_SETUP;
 }
