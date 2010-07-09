@@ -29,8 +29,6 @@ endif
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS	:= board.o \
-	   flash.o \
-	   pl353_x8.o \
 	   xemacpss_g.o xemacpss_control.o xemacpss_sinit.o \
 	   xemacpss_bdring.o xemacpss.o xgmac.o \
 	   ../common/xbasic_types.o

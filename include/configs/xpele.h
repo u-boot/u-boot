@@ -70,16 +70,23 @@
 #ifndef CONFIG_SYS_NO_FLASH
 
 /* FLASH organization */
-#define CONFIG_SYS_FLASH_BASE           0xE2000000 
+#define CONFIG_SYS_FLASH_BASE           0xE4000000 
 #define CONFIG_SYS_FLASH_SIZE           (16*1024*1024)  /* i.e. 16MB */
 #define CONFIG_SYS_MAX_FLASH_BANKS      1       /* max number of memory banks */
-#define CONFIG_SYS_MAX_FLASH_SECT       256      /* max number of sectors/blocks on one chip */
+#define CONFIG_SYS_MAX_FLASH_SECT       512      /* max number of sectors/blocks on one chip */
 #define CONFIG_SYS_FLASH_ERASE_TOUT     1000
+#define CONFIG_SYS_FLASH_WRITE_TOUT     5000
 
-#define CONFIG_SYS_FLASH_PROTECTION     1       /* use hardware protection           */
-#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE 1     /* use buffered writes (20x faster)  */
+#define CONFIG_FLASH_SHOW_PROGRESS	10
+
+#define CONFIG_SYS_FLASH_CFI            1
+#define CONFIG_SYS_FLASH_EMPTY_INFO     0
+#define CONFIG_FLASH_CFI_DRIVER 	1
+
+#define CONFIG_SYS_FLASH_PROTECTION     0       /* use hardware protection           */
+#define CONFIG_SYS_FLASH_USE_BUFFER_WRITE       /* use buffered writes (20x faster)  */
 #define CONFIG_ENV_ADDR         	(CONFIG_SYS_FLASH_BASE + 0x00000000)
-#define CONFIG_ENV_SECT_SIZE    	0x10000		/*64 KB*/
+#define CONFIG_ENV_SECT_SIZE    	0x20000		/*128 KB*/
 #define CONFIG_ENV_IS_NOWHERE	1
 //#define CONFIG_ENV_IS_IN_FLASH		1
 
@@ -120,7 +127,7 @@
 #define CONFIG_GEM0	1
 
 /* XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ */
-#define CONFIG_SYS_HZ	12500000 
+#define CONFIG_SYS_HZ	5000000 
 
 /* And here... */
 #define CONFIG_SYS_LOAD_ADDR	0 /* default? */
