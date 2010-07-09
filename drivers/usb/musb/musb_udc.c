@@ -57,6 +57,8 @@
 #include "musb_core.h"
 #if defined(CONFIG_USB_OMAP3)
 #include "omap3.h"
+#elif defined(CONFIG_USB_AM35X)
+#include "am35x.h"
 #elif defined(CONFIG_USB_DAVINCI)
 #include "davinci.h"
 #endif
