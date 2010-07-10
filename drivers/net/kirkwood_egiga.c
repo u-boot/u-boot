@@ -447,6 +447,8 @@ static int kwgbe_init(struct eth_device *dev)
 
 	/* Assignment of Rx CRDB of given RXUQ */
 	KWGBEREG_WR(regs->rxcdp[RXUQ], (u32) dkwgbe->p_rxdesc_curr);
+	/* ensure previous write is done before enabling Rx DMA */
+	isb();
 	/* Enable port Rx. */
 	KWGBEREG_WR(regs->rqc, (1 << RXUQ));
 
@@ -536,8 +538,13 @@ static int kwgbe_send(struct eth_device *dev, volatile void *dataptr,
 	p_txdesc->buf_ptr = (u8 *) p;
 	p_txdesc->byte_cnt = datasize;
 
-	/* Apply send command using zeroth TXUQ */
+	/* Set this tc desc as zeroth TXUQ */
 	KWGBEREG_WR(regs->tcqdp[TXUQ], (u32) p_txdesc);
+
+	/* ensure tx desc writes above are performed before we start Tx DMA */
+	isb();
+
+	/* Apply send command using zeroth TXUQ */
 	KWGBEREG_WR(regs->tqc, (1 << TXUQ));
 
 	/*
