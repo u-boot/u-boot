@@ -30,6 +30,7 @@
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET		/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
+#define CONFIG_SYS_HAS_SERDES		/* has SERDES */
 
 #define CONFIG_PHYS_64BIT
 #define CONFIG_ENABLE_36BIT_PHYS
