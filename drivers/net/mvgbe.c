@@ -36,7 +36,7 @@
 #include <asm/types.h>
 #include <asm/byteorder.h>
 #include <asm/arch/kirkwood.h>
-#include "kirkwood_egiga.h"
+#include "mvgbe.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
