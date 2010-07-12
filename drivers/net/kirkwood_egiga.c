@@ -699,13 +699,21 @@ int kirkwood_egiga_initialize(bd_t * bis)
 		}
 
 		while (!eth_getenv_enetaddr(s, dev->enetaddr)) {
-			/* Generate Random Private MAC addr if not set */
+			/* Generate Private MAC addr if not set */
 			dev->enetaddr[0] = 0x02;
 			dev->enetaddr[1] = 0x50;
 			dev->enetaddr[2] = 0x43;
+#if defined (CONFIG_SKIP_LOCAL_MAC_RANDOMIZATION)
+			/* Generate fixed lower MAC half using devnum */
+			dev->enetaddr[3] = 0;
+			dev->enetaddr[4] = 0;
+			dev->enetaddr[5] = devnum;
+#else
+			/* Generate random lower MAC half */
 			dev->enetaddr[3] = get_random_hex();
 			dev->enetaddr[4] = get_random_hex();
 			dev->enetaddr[5] = get_random_hex();
+#endif
 			eth_setenv_enetaddr(s, dev->enetaddr);
 		}
 
