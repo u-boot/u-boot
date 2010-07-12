@@ -60,6 +60,9 @@
 #define KW_EGIGA0_BASE			(KW_REGISTER(0x72000))
 #define KW_EGIGA1_BASE			(KW_REGISTER(0x76000))
 
+#define MVGBE0_BASE			KW_EGIGA0_BASE
+#define MVGBE1_BASE			KW_EGIGA1_BASE
+
 #if defined (CONFIG_KW88F6281)
 #include <asm/arch/kw88f6281.h>
 #elif defined (CONFIG_KW88F6192)

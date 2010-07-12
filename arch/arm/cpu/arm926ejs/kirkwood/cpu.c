@@ -378,10 +378,10 @@ int arch_misc_init(void)
 }
 #endif /* CONFIG_ARCH_MISC_INIT */
 
-#ifdef CONFIG_KIRKWOOD_EGIGA
+#ifdef CONFIG_MVGBE
 int cpu_eth_init(bd_t *bis)
 {
-	kirkwood_egiga_initialize(bis);
+	mvgbe_initialize(bis);
 	return 0;
 }
 #endif

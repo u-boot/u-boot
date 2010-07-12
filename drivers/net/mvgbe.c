@@ -35,13 +35,17 @@
 #include <asm/errno.h>
 #include <asm/types.h>
 #include <asm/byteorder.h>
+
+#if defined(CONFIG_KIRKWOOD)
 #include <asm/arch/kirkwood.h>
+#endif
+
 #include "mvgbe.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define KIRKWOOD_PHY_ADR_REQUEST 0xee
-#define KWGBE_SMI_REG (((struct kwgbe_registers *)KW_EGIGA0_BASE)->smi)
+#define MV_PHY_ADR_REQUEST 0xee
+#define MVGBE_SMI_REG (((struct mvgbe_registers *)MVGBE0_BASE)->smi)
 
 /*
  * smi_reg_read - miiphy_read callback function.
@@ -51,16 +55,16 @@ DECLARE_GLOBAL_DATA_PTR;
 static int smi_reg_read(char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 {
 	struct eth_device *dev = eth_get_dev_by_name(devname);
-	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
-	struct kwgbe_registers *regs = dkwgbe->regs;
+	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+	struct mvgbe_registers *regs = dmvgbe->regs;
 	u32 smi_reg;
 	u32 timeout;
 
 	/* Phyadr read request */
-	if (phy_adr == KIRKWOOD_PHY_ADR_REQUEST &&
-			reg_ofs == KIRKWOOD_PHY_ADR_REQUEST) {
+	if (phy_adr == MV_PHY_ADR_REQUEST &&
+			reg_ofs == MV_PHY_ADR_REQUEST) {
 		/* */
-		*data = (u16) (KWGBEREG_RD(regs->phyadr) & PHYADR_MASK);
+		*data = (u16) (MVGBE_REG_RD(regs->phyadr) & PHYADR_MASK);
 		return 0;
 	}
 	/* check parameters */
@@ -75,42 +79,43 @@ static int smi_reg_read(char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 		return -EFAULT;
 	}
 
-	timeout = KWGBE_PHY_SMI_TIMEOUT;
+	timeout = MVGBE_PHY_SMI_TIMEOUT;
 	/* wait till the SMI is not busy */
 	do {
 		/* read smi register */
-		smi_reg = KWGBEREG_RD(KWGBE_SMI_REG);
+		smi_reg = MVGBE_REG_RD(MVGBE_SMI_REG);
 		if (timeout-- == 0) {
 			printf("Err..(%s) SMI busy timeout\n", __FUNCTION__);
 			return -EFAULT;
 		}
-	} while (smi_reg & KWGBE_PHY_SMI_BUSY_MASK);
+	} while (smi_reg & MVGBE_PHY_SMI_BUSY_MASK);
 
 	/* fill the phy address and regiser offset and read opcode */
-	smi_reg = (phy_adr << KWGBE_PHY_SMI_DEV_ADDR_OFFS)
-		| (reg_ofs << KWGBE_SMI_REG_ADDR_OFFS)
-		| KWGBE_PHY_SMI_OPCODE_READ;
+	smi_reg = (phy_adr << MVGBE_PHY_SMI_DEV_ADDR_OFFS)
+		| (reg_ofs << MVGBE_SMI_REG_ADDR_OFFS)
+		| MVGBE_PHY_SMI_OPCODE_READ;
 
 	/* write the smi register */
-	KWGBEREG_WR(KWGBE_SMI_REG, smi_reg);
+	MVGBE_REG_WR(MVGBE_SMI_REG, smi_reg);
 
 	/*wait till read value is ready */
-	timeout = KWGBE_PHY_SMI_TIMEOUT;
+	timeout = MVGBE_PHY_SMI_TIMEOUT;
 
 	do {
 		/* read smi register */
-		smi_reg = KWGBEREG_RD(KWGBE_SMI_REG);
+		smi_reg = MVGBE_REG_RD(MVGBE_SMI_REG);
 		if (timeout-- == 0) {
 			printf("Err..(%s) SMI read ready timeout\n",
 				__FUNCTION__);
 			return -EFAULT;
 		}
-	} while (!(smi_reg & KWGBE_PHY_SMI_READ_VALID_MASK));
+	} while (!(smi_reg & MVGBE_PHY_SMI_READ_VALID_MASK));
 
 	/* Wait for the data to update in the SMI register */
-	for (timeout = 0; timeout < KWGBE_PHY_SMI_TIMEOUT; timeout++) ;
+	for (timeout = 0; timeout < MVGBE_PHY_SMI_TIMEOUT; timeout++)
+		;
 
-	*data = (u16) (KWGBEREG_RD(KWGBE_SMI_REG) & KWGBE_PHY_SMI_DATA_MASK);
+	*data = (u16) (MVGBE_REG_RD(MVGBE_SMI_REG) & MVGBE_PHY_SMI_DATA_MASK);
 
 	debug("%s:(adr %d, off %d) value= %04x\n", __FUNCTION__, phy_adr,
 		reg_ofs, *data);
@@ -127,15 +132,15 @@ static int smi_reg_read(char *devname, u8 phy_adr, u8 reg_ofs, u16 * data)
 static int smi_reg_write(char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
 {
 	struct eth_device *dev = eth_get_dev_by_name(devname);
-	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
-	struct kwgbe_registers *regs = dkwgbe->regs;
+	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+	struct mvgbe_registers *regs = dmvgbe->regs;
 	u32 smi_reg;
 	u32 timeout;
 
 	/* Phyadr write request*/
-	if (phy_adr == KIRKWOOD_PHY_ADR_REQUEST &&
-			reg_ofs == KIRKWOOD_PHY_ADR_REQUEST) {
-		KWGBEREG_WR(regs->phyadr, data);
+	if (phy_adr == MV_PHY_ADR_REQUEST &&
+			reg_ofs == MV_PHY_ADR_REQUEST) {
+		MVGBE_REG_WR(regs->phyadr, data);
 		return 0;
 	}
 
@@ -150,24 +155,24 @@ static int smi_reg_write(char *devname, u8 phy_adr, u8 reg_ofs, u16 data)
 	}
 
 	/* wait till the SMI is not busy */
-	timeout = KWGBE_PHY_SMI_TIMEOUT;
+	timeout = MVGBE_PHY_SMI_TIMEOUT;
 	do {
 		/* read smi register */
-		smi_reg = KWGBEREG_RD(KWGBE_SMI_REG);
+		smi_reg = MVGBE_REG_RD(MVGBE_SMI_REG);
 		if (timeout-- == 0) {
 			printf("Err..(%s) SMI busy timeout\n", __FUNCTION__);
 			return -ETIME;
 		}
-	} while (smi_reg & KWGBE_PHY_SMI_BUSY_MASK);
+	} while (smi_reg & MVGBE_PHY_SMI_BUSY_MASK);
 
 	/* fill the phy addr and reg offset and write opcode and data */
-	smi_reg = (data << KWGBE_PHY_SMI_DATA_OFFS);
-	smi_reg |= (phy_adr << KWGBE_PHY_SMI_DEV_ADDR_OFFS)
-		| (reg_ofs << KWGBE_SMI_REG_ADDR_OFFS);
-	smi_reg &= ~KWGBE_PHY_SMI_OPCODE_READ;
+	smi_reg = (data << MVGBE_PHY_SMI_DATA_OFFS);
+	smi_reg |= (phy_adr << MVGBE_PHY_SMI_DEV_ADDR_OFFS)
+		| (reg_ofs << MVGBE_SMI_REG_ADDR_OFFS);
+	smi_reg &= ~MVGBE_PHY_SMI_OPCODE_READ;
 
 	/* write the smi register */
-	KWGBEREG_WR(KWGBE_SMI_REG, smi_reg);
+	MVGBE_REG_WR(MVGBE_SMI_REG, smi_reg);
 
 	return 0;
 }
@@ -204,46 +209,46 @@ static void stop_queue(u32 * qreg)
  * @regs	Register struct pointer.
  * @param	Address decode parameter struct.
  */
-static void set_access_control(struct kwgbe_registers *regs,
-				struct kwgbe_winparam *param)
+static void set_access_control(struct mvgbe_registers *regs,
+				struct mvgbe_winparam *param)
 {
 	u32 access_prot_reg;
 
 	/* Set access control register */
-	access_prot_reg = KWGBEREG_RD(regs->epap);
+	access_prot_reg = MVGBE_REG_RD(regs->epap);
 	/* clear window permission */
 	access_prot_reg &= (~(3 << (param->win * 2)));
 	access_prot_reg |= (param->access_ctrl << (param->win * 2));
-	KWGBEREG_WR(regs->epap, access_prot_reg);
+	MVGBE_REG_WR(regs->epap, access_prot_reg);
 
 	/* Set window Size reg (SR) */
-	KWGBEREG_WR(regs->barsz[param->win].size,
+	MVGBE_REG_WR(regs->barsz[param->win].size,
 			(((param->size / 0x10000) - 1) << 16));
 
 	/* Set window Base address reg (BA) */
-	KWGBEREG_WR(regs->barsz[param->win].bar,
+	MVGBE_REG_WR(regs->barsz[param->win].bar,
 			(param->target | param->attrib | param->base_addr));
 	/* High address remap reg (HARR) */
 	if (param->win < 4)
-		KWGBEREG_WR(regs->ha_remap[param->win], param->high_addr);
+		MVGBE_REG_WR(regs->ha_remap[param->win], param->high_addr);
 
 	/* Base address enable reg (BARER) */
 	if (param->enable == 1)
-		KWGBEREG_BITS_RESET(regs->bare, (1 << param->win));
+		MVGBE_REG_BITS_RESET(regs->bare, (1 << param->win));
 	else
-		KWGBEREG_BITS_SET(regs->bare, (1 << param->win));
+		MVGBE_REG_BITS_SET(regs->bare, (1 << param->win));
 }
 
-static void set_dram_access(struct kwgbe_registers *regs)
+static void set_dram_access(struct mvgbe_registers *regs)
 {
-	struct kwgbe_winparam win_param;
+	struct mvgbe_winparam win_param;
 	int i;
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		/* Set access parameters for DRAM bank i */
 		win_param.win = i;	/* Use Ethernet window i */
 		/* Window target - DDR */
-		win_param.target = KWGBE_TARGET_DRAM;
+		win_param.target = MVGBE_TARGET_DRAM;
 		/* Enable full access */
 		win_param.access_ctrl = EWIN_ACCESS_FULL;
 		win_param.high_addr = 0;
@@ -286,19 +291,19 @@ static void set_dram_access(struct kwgbe_registers *regs)
  * Go through all the DA filter tables (Unicast, Special Multicast & Other
  * Multicast) and set each entry to 0.
  */
-static void port_init_mac_tables(struct kwgbe_registers *regs)
+static void port_init_mac_tables(struct mvgbe_registers *regs)
 {
 	int table_index;
 
 	/* Clear DA filter unicast table (Ex_dFUT) */
 	for (table_index = 0; table_index < 4; ++table_index)
-		KWGBEREG_WR(regs->dfut[table_index], 0);
+		MVGBE_REG_WR(regs->dfut[table_index], 0);
 
 	for (table_index = 0; table_index < 64; ++table_index) {
 		/* Clear DA filter special multicast table (Ex_dFSMT) */
-		KWGBEREG_WR(regs->dfsmt[table_index], 0);
+		MVGBE_REG_WR(regs->dfsmt[table_index], 0);
 		/* Clear DA filter other multicast table (Ex_dFOMT) */
-		KWGBEREG_WR(regs->dfomt[table_index], 0);
+		MVGBE_REG_WR(regs->dfomt[table_index], 0);
 	}
 }
 
@@ -316,7 +321,7 @@ static void port_init_mac_tables(struct kwgbe_registers *regs)
  *
  * RETURN: 1 if output succeeded. 0 if option parameter is invalid.
  */
-static int port_uc_addr(struct kwgbe_registers *regs, u8 uc_nibble,
+static int port_uc_addr(struct mvgbe_registers *regs, u8 uc_nibble,
 			int option)
 {
 	u32 unicast_reg;
@@ -336,16 +341,16 @@ static int port_uc_addr(struct kwgbe_registers *regs, u8 uc_nibble,
 		 * Clear accepts frame bit at specified unicast
 		 * DA table entry
 		 */
-		unicast_reg = KWGBEREG_RD(regs->dfut[tbl_offset]);
+		unicast_reg = MVGBE_REG_RD(regs->dfut[tbl_offset]);
 		unicast_reg &= (0xFF << (8 * reg_offset));
-		KWGBEREG_WR(regs->dfut[tbl_offset], unicast_reg);
+		MVGBE_REG_WR(regs->dfut[tbl_offset], unicast_reg);
 		break;
 	case ACCEPT_MAC_ADDR:
 		/* Set accepts frame bit at unicast DA filter table entry */
-		unicast_reg = KWGBEREG_RD(regs->dfut[tbl_offset]);
+		unicast_reg = MVGBE_REG_RD(regs->dfut[tbl_offset]);
 		unicast_reg &= (0xFF << (8 * reg_offset));
 		unicast_reg |= ((0x01 | (RXUQ << 1)) << (8 * reg_offset));
-		KWGBEREG_WR(regs->dfut[tbl_offset], unicast_reg);
+		MVGBE_REG_WR(regs->dfut[tbl_offset], unicast_reg);
 		break;
 	default:
 		return 0;
@@ -356,7 +361,7 @@ static int port_uc_addr(struct kwgbe_registers *regs, u8 uc_nibble,
 /*
  * port_uc_addr_set - This function Set the port Unicast address.
  */
-static void port_uc_addr_set(struct kwgbe_registers *regs, u8 * p_addr)
+static void port_uc_addr_set(struct mvgbe_registers *regs, u8 * p_addr)
 {
 	u32 mac_h;
 	u32 mac_l;
@@ -365,94 +370,95 @@ static void port_uc_addr_set(struct kwgbe_registers *regs, u8 * p_addr)
 	mac_h = (p_addr[0] << 24) | (p_addr[1] << 16) | (p_addr[2] << 8) |
 		(p_addr[3] << 0);
 
-	KWGBEREG_WR(regs->macal, mac_l);
-	KWGBEREG_WR(regs->macah, mac_h);
+	MVGBE_REG_WR(regs->macal, mac_l);
+	MVGBE_REG_WR(regs->macah, mac_h);
 
 	/* Accept frames of this address */
 	port_uc_addr(regs, p_addr[5], ACCEPT_MAC_ADDR);
 }
 
 /*
- * kwgbe_init_rx_desc_ring - Curve a Rx chain desc list and buffer in memory.
+ * mvgbe_init_rx_desc_ring - Curve a Rx chain desc list and buffer in memory.
  */
-static void kwgbe_init_rx_desc_ring(struct kwgbe_device *dkwgbe)
+static void mvgbe_init_rx_desc_ring(struct mvgbe_device *dmvgbe)
 {
-	struct kwgbe_rxdesc *p_rx_desc;
+	struct mvgbe_rxdesc *p_rx_desc;
 	int i;
 
 	/* initialize the Rx descriptors ring */
-	p_rx_desc = dkwgbe->p_rxdesc;
+	p_rx_desc = dmvgbe->p_rxdesc;
 	for (i = 0; i < RINGSZ; i++) {
 		p_rx_desc->cmd_sts =
-			KWGBE_BUFFER_OWNED_BY_DMA | KWGBE_RX_EN_INTERRUPT;
+			MVGBE_BUFFER_OWNED_BY_DMA | MVGBE_RX_EN_INTERRUPT;
 		p_rx_desc->buf_size = PKTSIZE_ALIGN;
 		p_rx_desc->byte_cnt = 0;
-		p_rx_desc->buf_ptr = dkwgbe->p_rxbuf + i * PKTSIZE_ALIGN;
+		p_rx_desc->buf_ptr = dmvgbe->p_rxbuf + i * PKTSIZE_ALIGN;
 		if (i == (RINGSZ - 1))
-			p_rx_desc->nxtdesc_p = dkwgbe->p_rxdesc;
+			p_rx_desc->nxtdesc_p = dmvgbe->p_rxdesc;
 		else {
-			p_rx_desc->nxtdesc_p = (struct kwgbe_rxdesc *)
-				((u32) p_rx_desc + KW_RXQ_DESC_ALIGNED_SIZE);
+			p_rx_desc->nxtdesc_p = (struct mvgbe_rxdesc *)
+				((u32) p_rx_desc + MV_RXQ_DESC_ALIGNED_SIZE);
 			p_rx_desc = p_rx_desc->nxtdesc_p;
 		}
 	}
-	dkwgbe->p_rxdesc_curr = dkwgbe->p_rxdesc;
+	dmvgbe->p_rxdesc_curr = dmvgbe->p_rxdesc;
 }
 
-static int kwgbe_init(struct eth_device *dev)
+static int mvgbe_init(struct eth_device *dev)
 {
-	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
-	struct kwgbe_registers *regs = dkwgbe->regs;
+	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+	struct mvgbe_registers *regs = dmvgbe->regs;
 #if (defined (CONFIG_MII) || defined (CONFIG_CMD_MII)) \
 	 && defined (CONFIG_SYS_FAULT_ECHO_LINK_DOWN)
 	int i;
 #endif
 	/* setup RX rings */
-	kwgbe_init_rx_desc_ring(dkwgbe);
+	mvgbe_init_rx_desc_ring(dmvgbe);
 
 	/* Clear the ethernet port interrupts */
-	KWGBEREG_WR(regs->ic, 0);
-	KWGBEREG_WR(regs->ice, 0);
+	MVGBE_REG_WR(regs->ic, 0);
+	MVGBE_REG_WR(regs->ice, 0);
 	/* Unmask RX buffer and TX end interrupt */
-	KWGBEREG_WR(regs->pim, INT_CAUSE_UNMASK_ALL);
+	MVGBE_REG_WR(regs->pim, INT_CAUSE_UNMASK_ALL);
 	/* Unmask phy and link status changes interrupts */
-	KWGBEREG_WR(regs->peim, INT_CAUSE_UNMASK_ALL_EXT);
+	MVGBE_REG_WR(regs->peim, INT_CAUSE_UNMASK_ALL_EXT);
 
 	set_dram_access(regs);
 	port_init_mac_tables(regs);
-	port_uc_addr_set(regs, dkwgbe->dev.enetaddr);
+	port_uc_addr_set(regs, dmvgbe->dev.enetaddr);
 
 	/* Assign port configuration and command. */
-	KWGBEREG_WR(regs->pxc, PRT_CFG_VAL);
-	KWGBEREG_WR(regs->pxcx, PORT_CFG_EXTEND_VALUE);
-	KWGBEREG_WR(regs->psc0, PORT_SERIAL_CONTROL_VALUE);
+	MVGBE_REG_WR(regs->pxc, PRT_CFG_VAL);
+	MVGBE_REG_WR(regs->pxcx, PORT_CFG_EXTEND_VALUE);
+	MVGBE_REG_WR(regs->psc0, PORT_SERIAL_CONTROL_VALUE);
 
 	/* Assign port SDMA configuration */
-	KWGBEREG_WR(regs->sdc, PORT_SDMA_CFG_VALUE);
-	KWGBEREG_WR(regs->tqx[0].qxttbc, QTKNBKT_DEF_VAL);
-	KWGBEREG_WR(regs->tqx[0].tqxtbc, (QMTBS_DEF_VAL << 16) | QTKNRT_DEF_VAL);
+	MVGBE_REG_WR(regs->sdc, PORT_SDMA_CFG_VALUE);
+	MVGBE_REG_WR(regs->tqx[0].qxttbc, QTKNBKT_DEF_VAL);
+	MVGBE_REG_WR(regs->tqx[0].tqxtbc,
+		(QMTBS_DEF_VAL << 16) | QTKNRT_DEF_VAL);
 	/* Turn off the port/RXUQ bandwidth limitation */
-	KWGBEREG_WR(regs->pmtu, 0);
+	MVGBE_REG_WR(regs->pmtu, 0);
 
 	/* Set maximum receive buffer to 9700 bytes */
-	KWGBEREG_WR(regs->psc0,	KWGBE_MAX_RX_PACKET_9700BYTE
-			| (KWGBEREG_RD(regs->psc0) & MRU_MASK));
+	MVGBE_REG_WR(regs->psc0, MVGBE_MAX_RX_PACKET_9700BYTE
+			| (MVGBE_REG_RD(regs->psc0) & MRU_MASK));
 
 	/* Enable port initially */
-	KWGBEREG_BITS_SET(regs->psc0, KWGBE_SERIAL_PORT_EN);
+	MVGBE_REG_BITS_SET(regs->psc0, MVGBE_SERIAL_PORT_EN);
 
 	/*
 	 * Set ethernet MTU for leaky bucket mechanism to 0 - this will
 	 * disable the leaky bucket mechanism .
 	 */
-	KWGBEREG_WR(regs->pmtu, 0);
+	MVGBE_REG_WR(regs->pmtu, 0);
 
 	/* Assignment of Rx CRDB of given RXUQ */
-	KWGBEREG_WR(regs->rxcdp[RXUQ], (u32) dkwgbe->p_rxdesc_curr);
+	MVGBE_REG_WR(regs->rxcdp[RXUQ], (u32) dmvgbe->p_rxdesc_curr);
 	/* ensure previous write is done before enabling Rx DMA */
 	isb();
 	/* Enable port Rx. */
-	KWGBEREG_WR(regs->rqc, (1 << RXUQ));
+	MVGBE_REG_WR(regs->rqc, (1 << RXUQ));
 
 #if (defined (CONFIG_MII) || defined (CONFIG_CMD_MII)) \
 	 && defined (CONFIG_SYS_FAULT_ECHO_LINK_DOWN)
@@ -460,8 +466,8 @@ static int kwgbe_init(struct eth_device *dev)
 	for (i = 0; i < 5; i++) {
 		u16 phyadr;
 
-		miiphy_read(dev->name, KIRKWOOD_PHY_ADR_REQUEST,
-				KIRKWOOD_PHY_ADR_REQUEST, &phyadr);
+		miiphy_read(dev->name, MV_PHY_ADR_REQUEST,
+				MV_PHY_ADR_REQUEST, &phyadr);
 		/* Return if we get link up */
 		if (miiphy_link(dev->name, phyadr))
 			return 0;
@@ -474,50 +480,50 @@ static int kwgbe_init(struct eth_device *dev)
 	return 0;
 }
 
-static int kwgbe_halt(struct eth_device *dev)
+static int mvgbe_halt(struct eth_device *dev)
 {
-	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
-	struct kwgbe_registers *regs = dkwgbe->regs;
+	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+	struct mvgbe_registers *regs = dmvgbe->regs;
 
 	/* Disable all gigE address decoder */
-	KWGBEREG_WR(regs->bare, 0x3f);
+	MVGBE_REG_WR(regs->bare, 0x3f);
 
 	stop_queue(&regs->tqc);
 	stop_queue(&regs->rqc);
 
 	/* Disable port */
-	KWGBEREG_BITS_RESET(regs->psc0, KWGBE_SERIAL_PORT_EN);
+	MVGBE_REG_BITS_RESET(regs->psc0, MVGBE_SERIAL_PORT_EN);
 	/* Set port is not reset */
-	KWGBEREG_BITS_RESET(regs->psc1, 1 << 4);
+	MVGBE_REG_BITS_RESET(regs->psc1, 1 << 4);
 #ifdef CONFIG_SYS_MII_MODE
 	/* Set MMI interface up */
-	KWGBEREG_BITS_RESET(regs->psc1, 1 << 3);
+	MVGBE_REG_BITS_RESET(regs->psc1, 1 << 3);
 #endif
 	/* Disable & mask ethernet port interrupts */
-	KWGBEREG_WR(regs->ic, 0);
-	KWGBEREG_WR(regs->ice, 0);
-	KWGBEREG_WR(regs->pim, 0);
-	KWGBEREG_WR(regs->peim, 0);
+	MVGBE_REG_WR(regs->ic, 0);
+	MVGBE_REG_WR(regs->ice, 0);
+	MVGBE_REG_WR(regs->pim, 0);
+	MVGBE_REG_WR(regs->peim, 0);
 
 	return 0;
 }
 
-static int kwgbe_write_hwaddr(struct eth_device *dev)
+static int mvgbe_write_hwaddr(struct eth_device *dev)
 {
-	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
-	struct kwgbe_registers *regs = dkwgbe->regs;
+	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+	struct mvgbe_registers *regs = dmvgbe->regs;
 
 	/* Programs net device MAC address after initialization */
-	port_uc_addr_set(regs, dkwgbe->dev.enetaddr);
+	port_uc_addr_set(regs, dmvgbe->dev.enetaddr);
 	return 0;
 }
 
-static int kwgbe_send(struct eth_device *dev, volatile void *dataptr,
+static int mvgbe_send(struct eth_device *dev, void *dataptr,
 		      int datasize)
 {
-	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
-	struct kwgbe_registers *regs = dkwgbe->regs;
-	struct kwgbe_txdesc *p_txdesc = dkwgbe->p_txdesc;
+	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+	struct mvgbe_registers *regs = dmvgbe->regs;
+	struct mvgbe_txdesc *p_txdesc = dmvgbe->p_txdesc;
 	void *p = (void *)dataptr;
 	u32 cmd_sts;
 
@@ -529,35 +535,35 @@ static int kwgbe_send(struct eth_device *dev, volatile void *dataptr,
 			return -1;
 		}
 
-		memcpy(dkwgbe->p_aligned_txbuf, p, datasize);
-		p = dkwgbe->p_aligned_txbuf;
+		memcpy(dmvgbe->p_aligned_txbuf, p, datasize);
+		p = dmvgbe->p_aligned_txbuf;
 	}
 
-	p_txdesc->cmd_sts = KWGBE_ZERO_PADDING | KWGBE_GEN_CRC;
-	p_txdesc->cmd_sts |= KWGBE_TX_FIRST_DESC | KWGBE_TX_LAST_DESC;
-	p_txdesc->cmd_sts |= KWGBE_BUFFER_OWNED_BY_DMA;
-	p_txdesc->cmd_sts |= KWGBE_TX_EN_INTERRUPT;
+	p_txdesc->cmd_sts = MVGBE_ZERO_PADDING | MVGBE_GEN_CRC;
+	p_txdesc->cmd_sts |= MVGBE_TX_FIRST_DESC | MVGBE_TX_LAST_DESC;
+	p_txdesc->cmd_sts |= MVGBE_BUFFER_OWNED_BY_DMA;
+	p_txdesc->cmd_sts |= MVGBE_TX_EN_INTERRUPT;
 	p_txdesc->buf_ptr = (u8 *) p;
 	p_txdesc->byte_cnt = datasize;
 
 	/* Set this tc desc as zeroth TXUQ */
-	KWGBEREG_WR(regs->tcqdp[TXUQ], (u32) p_txdesc);
+	MVGBE_REG_WR(regs->tcqdp[TXUQ], (u32) p_txdesc);
 
 	/* ensure tx desc writes above are performed before we start Tx DMA */
 	isb();
 
 	/* Apply send command using zeroth TXUQ */
-	KWGBEREG_WR(regs->tqc, (1 << TXUQ));
+	MVGBE_REG_WR(regs->tqc, (1 << TXUQ));
 
 	/*
 	 * wait for packet xmit completion
 	 */
 	cmd_sts = readl(&p_txdesc->cmd_sts);
-	while (cmd_sts & KWGBE_BUFFER_OWNED_BY_DMA) {
+	while (cmd_sts & MVGBE_BUFFER_OWNED_BY_DMA) {
 		/* return fail if error is detected */
-		if ((cmd_sts & (KWGBE_ERROR_SUMMARY | KWGBE_TX_LAST_FRAME)) ==
-				(KWGBE_ERROR_SUMMARY | KWGBE_TX_LAST_FRAME) &&
-				cmd_sts & (KWGBE_UR_ERROR | KWGBE_RL_ERROR)) {
+		if ((cmd_sts & (MVGBE_ERROR_SUMMARY | MVGBE_TX_LAST_FRAME)) ==
+				(MVGBE_ERROR_SUMMARY | MVGBE_TX_LAST_FRAME) &&
+				cmd_sts & (MVGBE_UR_ERROR | MVGBE_RL_ERROR)) {
 			printf("Err..(%s) in xmit packet\n", __FUNCTION__);
 			return -1;
 		}
@@ -566,22 +572,22 @@ static int kwgbe_send(struct eth_device *dev, volatile void *dataptr,
 	return 0;
 }
 
-static int kwgbe_recv(struct eth_device *dev)
+static int mvgbe_recv(struct eth_device *dev)
 {
-	struct kwgbe_device *dkwgbe = to_dkwgbe(dev);
-	struct kwgbe_rxdesc *p_rxdesc_curr = dkwgbe->p_rxdesc_curr;
+	struct mvgbe_device *dmvgbe = to_mvgbe(dev);
+	struct mvgbe_rxdesc *p_rxdesc_curr = dmvgbe->p_rxdesc_curr;
 	u32 cmd_sts;
 	u32 timeout = 0;
 
 	/* wait untill rx packet available or timeout */
 	do {
-		if (timeout < KWGBE_PHY_SMI_TIMEOUT)
+		if (timeout < MVGBE_PHY_SMI_TIMEOUT)
 			timeout++;
 		else {
 			debug("%s time out...\n", __FUNCTION__);
 			return -1;
 		}
-	} while (readl(&p_rxdesc_curr->cmd_sts) & KWGBE_BUFFER_OWNED_BY_DMA);
+	} while (readl(&p_rxdesc_curr->cmd_sts) & MVGBE_BUFFER_OWNED_BY_DMA);
 
 	if (p_rxdesc_curr->byte_cnt != 0) {
 		debug("%s: Received %d byte Packet @ 0x%x (cmd_sts= %08x)\n",
@@ -598,13 +604,13 @@ static int kwgbe_recv(struct eth_device *dev)
 	cmd_sts = readl(&p_rxdesc_curr->cmd_sts);
 
 	if ((cmd_sts &
-		(KWGBE_RX_FIRST_DESC | KWGBE_RX_LAST_DESC))
-		!= (KWGBE_RX_FIRST_DESC | KWGBE_RX_LAST_DESC)) {
+		(MVGBE_RX_FIRST_DESC | MVGBE_RX_LAST_DESC))
+		!= (MVGBE_RX_FIRST_DESC | MVGBE_RX_LAST_DESC)) {
 
 		printf("Err..(%s) Dropping packet spread on"
 			" multiple descriptors\n", __FUNCTION__);
 
-	} else if (cmd_sts & KWGBE_ERROR_SUMMARY) {
+	} else if (cmd_sts & MVGBE_ERROR_SUMMARY) {
 
 		printf("Err..(%s) Dropping packet with errors\n",
 			__FUNCTION__);
@@ -622,62 +628,72 @@ static int kwgbe_recv(struct eth_device *dev)
 	 * free these descriptors and point next in the ring
 	 */
 	p_rxdesc_curr->cmd_sts =
-		KWGBE_BUFFER_OWNED_BY_DMA | KWGBE_RX_EN_INTERRUPT;
+		MVGBE_BUFFER_OWNED_BY_DMA | MVGBE_RX_EN_INTERRUPT;
 	p_rxdesc_curr->buf_size = PKTSIZE_ALIGN;
 	p_rxdesc_curr->byte_cnt = 0;
 
-	writel((unsigned)p_rxdesc_curr->nxtdesc_p, (u32) &dkwgbe->p_rxdesc_curr);
+	writel((unsigned)p_rxdesc_curr->nxtdesc_p,
+		(u32) &dmvgbe->p_rxdesc_curr);
 
 	return 0;
 }
 
-int kirkwood_egiga_initialize(bd_t * bis)
+int mvgbe_initialize(bd_t *bis)
 {
-	struct kwgbe_device *dkwgbe;
+	struct mvgbe_device *dmvgbe;
 	struct eth_device *dev;
 	int devnum;
 	char *s;
-	u8 used_ports[MAX_KWGBE_DEVS] = CONFIG_KIRKWOOD_EGIGA_PORTS;
+	u8 used_ports[MAX_MVGBE_DEVS] = CONFIG_MVGBE_PORTS;
 
-	for (devnum = 0; devnum < MAX_KWGBE_DEVS; devnum++) {
+	for (devnum = 0; devnum < MAX_MVGBE_DEVS; devnum++) {
 		/*skip if port is configured not to use */
 		if (used_ports[devnum] == 0)
 			continue;
 
-		if (!(dkwgbe = malloc(sizeof(struct kwgbe_device))))
+		dmvgbe = malloc(sizeof(struct mvgbe_device));
+
+		if (!dmvgbe)
 			goto error1;
 
-		memset(dkwgbe, 0, sizeof(struct kwgbe_device));
+		memset(dmvgbe, 0, sizeof(struct mvgbe_device));
 
-		if (!(dkwgbe->p_rxdesc =
-		      (struct kwgbe_rxdesc *)memalign(PKTALIGN,
-						KW_RXQ_DESC_ALIGNED_SIZE
-						* RINGSZ + 1)))
+		dmvgbe->p_rxdesc =
+			(struct mvgbe_rxdesc *)memalign(PKTALIGN,
+			MV_RXQ_DESC_ALIGNED_SIZE*RINGSZ + 1);
+
+		if (!dmvgbe->p_rxdesc)
 			goto error2;
 
-		if (!(dkwgbe->p_rxbuf = (u8 *) memalign(PKTALIGN, RINGSZ
-							* PKTSIZE_ALIGN + 1)))
+		dmvgbe->p_rxbuf = (u8 *) memalign(PKTALIGN,
+			RINGSZ*PKTSIZE_ALIGN + 1);
+
+		if (!dmvgbe->p_rxbuf)
 			goto error3;
 
-		if (!(dkwgbe->p_aligned_txbuf = memalign(8, PKTSIZE_ALIGN)))
+		dmvgbe->p_aligned_txbuf = memalign(8, PKTSIZE_ALIGN);
+
+		if (!dmvgbe->p_aligned_txbuf)
 			goto error4;
 
-		if (!(dkwgbe->p_txdesc = (struct kwgbe_txdesc *)
-		      memalign(PKTALIGN, sizeof(struct kwgbe_txdesc) + 1))) {
-			free(dkwgbe->p_aligned_txbuf);
-		      error4:
-			free(dkwgbe->p_rxbuf);
-		      error3:
-			free(dkwgbe->p_rxdesc);
-		      error2:
-			free(dkwgbe);
-		      error1:
+		dmvgbe->p_txdesc = (struct mvgbe_txdesc *) memalign(
+			PKTALIGN, sizeof(struct mvgbe_txdesc) + 1);
+
+		if (!dmvgbe->p_txdesc) {
+			free(dmvgbe->p_aligned_txbuf);
+error4:
+			free(dmvgbe->p_rxbuf);
+error3:
+			free(dmvgbe->p_rxdesc);
+error2:
+			free(dmvgbe);
+error1:
 			printf("Err.. %s Failed to allocate memory\n",
 				__FUNCTION__);
 			return -1;
 		}
 
-		dev = &dkwgbe->dev;
+		dev = &dmvgbe->dev;
 
 		/* must be less than NAMESIZE (16) */
 		sprintf(dev->name, "egiga%d", devnum);
@@ -685,13 +701,15 @@ int kirkwood_egiga_initialize(bd_t * bis)
 		/* Extract the MAC address from the environment */
 		switch (devnum) {
 		case 0:
-			dkwgbe->regs = (void *)KW_EGIGA0_BASE;
+			dmvgbe->regs = (void *)MVGBE0_BASE;
 			s = "ethaddr";
 			break;
+#if defined(MVGBE1_BASE)
 		case 1:
-			dkwgbe->regs = (void *)KW_EGIGA1_BASE;
+			dmvgbe->regs = (void *)MVGBE1_BASE;
 			s = "eth1addr";
 			break;
+#endif
 		default:	/* this should never happen */
 			printf("Err..(%s) Invalid device number %d\n",
 				__FUNCTION__, devnum);
@@ -717,19 +735,19 @@ int kirkwood_egiga_initialize(bd_t * bis)
 			eth_setenv_enetaddr(s, dev->enetaddr);
 		}
 
-		dev->init = (void *)kwgbe_init;
-		dev->halt = (void *)kwgbe_halt;
-		dev->send = (void *)kwgbe_send;
-		dev->recv = (void *)kwgbe_recv;
-		dev->write_hwaddr = (void *)kwgbe_write_hwaddr;
+		dev->init = (void *)mvgbe_init;
+		dev->halt = (void *)mvgbe_halt;
+		dev->send = (void *)mvgbe_send;
+		dev->recv = (void *)mvgbe_recv;
+		dev->write_hwaddr = (void *)mvgbe_write_hwaddr;
 
 		eth_register(dev);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 		miiphy_register(dev->name, smi_reg_read, smi_reg_write);
 		/* Set phy address of the port */
-		miiphy_write(dev->name, KIRKWOOD_PHY_ADR_REQUEST,
-				KIRKWOOD_PHY_ADR_REQUEST, PHY_BASE_ADR + devnum);
+		miiphy_write(dev->name, MV_PHY_ADR_REQUEST,
+				MV_PHY_ADR_REQUEST, PHY_BASE_ADR + devnum);
 #endif
 	}
 	return 0;
