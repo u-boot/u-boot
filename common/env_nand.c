@@ -299,23 +299,21 @@ int get_nand_env_oob(nand_info_t *nand, unsigned long *result)
 	ops.oobbuf = (void *) oob_buf;
 
 	ret = nand->read_oob(nand, ENV_OFFSET_SIZE, &ops);
-
-	if (!ret) {
-		if (oob_buf[0] == ENV_OOB_MARKER) {
-			*result = oob_buf[1] * nand->erasesize;
-		} else if (oob_buf[0] == ENV_OOB_MARKER_OLD) {
-			*result = oob_buf[1];
-		} else {
-			printf("No dynamic environment marker in OOB block 0"
-									"\n");
-			ret = -ENOENT;
-			goto fail;
-		}
-	} else {
+	if (ret) {
 		printf("error reading OOB block 0\n");
+		return ret;
 	}
-fail:
-	return ret;
+
+	if (oob_buf[0] == ENV_OOB_MARKER) {
+		*result = oob_buf[1] * nand->erasesize;
+	} else if (oob_buf[0] == ENV_OOB_MARKER_OLD) {
+		*result = oob_buf[1];
+	} else {
+		printf("No dynamic environment marker in OOB block 0\n");
+		return -ENOENT;
+	}
+
+	return 0;
 }
 #endif
 

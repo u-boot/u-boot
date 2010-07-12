@@ -201,7 +201,7 @@ static void do_nand_status(nand_info_t *nand)
 unsigned long nand_env_oob_offset;
 
 int do_nand_env_oob(cmd_tbl_t *cmdtp, nand_info_t *nand,
-				 int argc, char * const argv[])
+		    int argc, char * const argv[])
 {
 	int ret;
 	uint32_t oob_buf[ENV_OFFSET_SIZE/sizeof(uint32_t)];
@@ -210,10 +210,10 @@ int do_nand_env_oob(cmd_tbl_t *cmdtp, nand_info_t *nand,
 
 	if (!strcmp(cmd, "get")) {
 		ret = get_nand_env_oob(nand, &nand_env_oob_offset);
-		if (!ret)
-			printf("0x%08lx\n", nand_env_oob_offset);
-		else
+		if (ret)
 			return 1;
+
+		printf("0x%08lx\n", nand_env_oob_offset);
 	} else if (!strcmp(cmd, "set")) {
 		ulong addr;
 		size_t dummy_size;
@@ -222,17 +222,17 @@ int do_nand_env_oob(cmd_tbl_t *cmdtp, nand_info_t *nand,
 		if (argc < 3)
 			goto usage;
 
-		if (arg_off_size(argc-2, argv + 2, nand, &addr,
-						  &dummy_size) < 0) {
+		if (arg_off_size(argc - 2, argv + 2, nand, &addr,
+				 &dummy_size) < 0) {
 			printf("Offset or partition name expected\n");
 			return 1;
 		}
 
 		if (nand->oobavail < ENV_OFFSET_SIZE) {
-			printf("Insufficient available OOB bytes: %d OOB bytes"
-			    " available but %d required for env.oob support\n",
-								nand->oobavail,
-							      ENV_OFFSET_SIZE);
+			printf("Insufficient available OOB bytes:\n"
+			       "%d OOB bytes available but %d required for "
+			       "env.oob support\n",
+			       nand->oobavail, ENV_OFFSET_SIZE);
 			return 1;
 		}
 
@@ -251,22 +251,22 @@ int do_nand_env_oob(cmd_tbl_t *cmdtp, nand_info_t *nand,
 		oob_buf[1] = addr / nand->erasesize;
 
 		ret = nand->write_oob(nand, ENV_OFFSET_SIZE, &ops);
-		if (!ret) {
-			ret = get_nand_env_oob(nand, &nand_env_oob_offset);
-			if (ret) {
-				printf("Error reading env offset in OOB\n");
-				return ret;
-			}
-
-			if (addr != nand_env_oob_offset) {
-				printf("Verification of env offset in OOB "
-				       "failed: 0x%08lx expected but got "
-				       "0x%08lx\n", addr, nand_env_oob_offset);
-				return 1;
-			}
-		} else {
+		if (ret) {
 			printf("Error writing OOB block 0\n");
 			return ret;
+		}
+
+		ret = get_nand_env_oob(nand, &nand_env_oob_offset);
+		if (ret) {
+			printf("Error reading env offset in OOB\n");
+			return ret;
+		}
+
+		if (addr != nand_env_oob_offset) {
+			printf("Verification of env offset in OOB failed: "
+			       "0x%08lx expected but got 0x%08lx\n",
+			       addr, nand_env_oob_offset);
+			return 1;
 		}
 	} else {
 		goto usage;
@@ -369,8 +369,10 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 #ifdef CONFIG_ENV_OFFSET_OOB
 	/* this command operates only on the first nand device */
-	if (strcmp(cmd, "env.oob") == 0)
-	      return do_nand_env_oob(cmdtp, &nand_info[0], argc - 1, argv + 1);
+	if (strcmp(cmd, "env.oob") == 0) {
+		return do_nand_env_oob(cmdtp, &nand_info[0],
+				       argc - 1, argv + 1);
+	}
 #endif
 
 	/* the following commands operate on the current device */
