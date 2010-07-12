@@ -28,8 +28,6 @@
 #ifndef __MVGBE_H__
 #define __MVGBE_H__
 
-#define MAX_MVGBE_DEVS	2	/*controller has two ports */
-
 /* PHY_BASE_ADR is board specific and can be configured */
 #if defined (CONFIG_PHY_BASE_ADR)
 #define PHY_BASE_ADR		CONFIG_PHY_BASE_ADR
