@@ -37,4 +37,8 @@ int serdes_get_bank(int lane);
 int serdes_lane_enabled(int lane);
 enum srds_prtcl serdes_get_prtcl(int cfg, int lane);
 
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
+extern uint16_t srds_lpd_b[SRDS_MAX_BANK];
+#endif
+
 #endif /* __FSL_CORENET_SERDES_H */

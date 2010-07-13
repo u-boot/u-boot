@@ -71,6 +71,10 @@ static u8 serdes_cfg_tbl[][SRDS_MAX_LANES] = {
 		XAUI_FM1, XAUI_FM1, XAUI_FM1, XAUI_FM1},
 };
 
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
+uint16_t srds_lpd_b[SRDS_MAX_BANK];
+#endif
+
 enum srds_prtcl serdes_get_prtcl(int cfg, int lane)
 {
 	if (!serdes_lane_enabled(lane))

@@ -41,6 +41,10 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 #endif
 
+#if defined(CONFIG_SYS_P4080_ERRATUM_SERDES8)
+	puts("Work-around for Erratum SERDES8 enabled\n");
+#endif
+
 	return 0;
 }
 
