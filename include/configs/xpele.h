@@ -46,11 +46,6 @@
 
 #define CONFIG_SYS_PROMPT	"pele-boot> "
 
-/* CONFIG_SYS_TFTP_LOADADDR? */
-
-#define CONFIG_SYS_RAM_BOOT_ADDR	0x04000000
-#define CONFIG_SYS_FLASH_BOOT_ADDR	0xE2010000
-
 #undef CONFIG_SKIP_RELOCATE_UBOOT	
 
 /* Uncomment it if you don't want Flash */
@@ -59,13 +54,10 @@
 #define CONFIG_SYS_SDRAM_BASE	0
 
 #define CONFIG_L2_OFF
-#define PELE_TTC
-#define DRAGONFIRE_TTC0_BASE 0x90001000
-#define DRAGONFIRE_TTC1_BASE 0x90002000
 
 //#define CONFIG_PELE_INIT_GEM	//this is to initialize GEM at uboot start
 #define CONFIG_PELE_IP_ENV	//this is to set ipaddr, ethaddr and serverip env variables.
-#define CONFIG_PELE_FLASH_RELOCATE
+#define CONFIG_PELE_XILINX_FLASH_HEADER
 
 #ifndef CONFIG_SYS_NO_FLASH
 
@@ -73,14 +65,14 @@
 #define CONFIG_SYS_FLASH_BASE           0xE4000000 
 #define CONFIG_SYS_FLASH_SIZE           (16*1024*1024)  /* i.e. 16MB */
 #define CONFIG_SYS_MAX_FLASH_BANKS      1       /* max number of memory banks */
-#define CONFIG_SYS_MAX_FLASH_SECT       512      /* max number of sectors/blocks on one chip */
+#define CONFIG_SYS_MAX_FLASH_SECT       512     /* max number of sectors/blocks on one chip */
 #define CONFIG_SYS_FLASH_ERASE_TOUT     1000
 #define CONFIG_SYS_FLASH_WRITE_TOUT     5000
 
 #define CONFIG_FLASH_SHOW_PROGRESS	10
 
 #define CONFIG_SYS_FLASH_CFI            1
-#define CONFIG_SYS_FLASH_EMPTY_INFO     0
+// #define CONFIG_SYS_FLASH_EMPTY_INFO     0
 #define CONFIG_FLASH_CFI_DRIVER 	1
 
 #define CONFIG_SYS_FLASH_PROTECTION     0       /* use hardware protection           */
@@ -96,16 +88,6 @@
 
 #endif
 
-/*
-#define CONFIG_SYS_FLASH_BASE 		0xE2000000
-#define CONFIG_SYS_FLASH_SIZE           (32*1024*1024)
-#define CONFIG_SYS_MAX_FLASH_SECT	16
-#define CONFIG_SYS_FLASH_CFI            1
-#define CONFIG_SYS_FLASH_EMPTY_INFO     1
-#define CONFIG_SYS_MAX_FLASH_BANKS      2
-#define CONFIG_SYS_FLASH_PROTECTION	1
-*/
-//#define CONFIG_FLASH_CFI_DRIVER 1
 /* CONFIG_SYS_MONITOR_BASE? */
 /* CONFIG_SYS_MONITOR_LEN? */
 
