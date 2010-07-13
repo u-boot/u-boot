@@ -76,6 +76,8 @@ COBJS-$(CONFIG_PPC_P4080) += p4080_ids.o
 
 COBJS-$(CONFIG_QE)	+= qe_io.o
 COBJS-$(CONFIG_CPM2)	+= serial_scc.o
+COBJS-$(CONFIG_FSL_CORENET) += fsl_corenet_serdes.o
+COBJS-$(CONFIG_PPC_P4080) += p4080_serdes.o
 
 COBJS	= $(COBJS-y)
 COBJS	+= cpu.o

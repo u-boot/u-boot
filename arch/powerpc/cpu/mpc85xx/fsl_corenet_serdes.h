@@ -1,5 +1,7 @@
 /*
- * Copyright 2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ *
+ * Author: Roy Zang <tie-fei.zang@freescale.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,40 +19,22 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __FSL_SERDES_H
-#define __FSL_SERDES_H
+#ifndef __FSL_CORENET_SERDES_H
+#define __FSL_CORENET_SERDES_H
 
-#include <config.h>
+#define SRDS_MAX_LANES		18
+#define SRDS_MAX_BANK		3
 
-enum srds_prtcl {
-	NONE = 0,
-	PCIE1,
-	PCIE2,
-	PCIE3,
-	PCIE4,
-	SATA1,
-	SATA2,
-	SRIO1,
-	SRIO2,
-	SGMII_FM1_DTSEC1,
-	SGMII_FM1_DTSEC2,
-	SGMII_FM1_DTSEC3,
-	SGMII_FM1_DTSEC4,
-	SGMII_FM1_DTSEC5,
-	SGMII_FM2_DTSEC1,
-	SGMII_FM2_DTSEC2,
-	SGMII_FM2_DTSEC3,
-	SGMII_FM2_DTSEC4,
-	SGMII_TSEC1,
-	SGMII_TSEC2,
-	SGMII_TSEC3,
-	SGMII_TSEC4,
-	XAUI_FM1,
-	XAUI_FM2,
-	AURORA,
+enum srds_bank {
+	FSL_SRDS_BANK_1  = 0,
+	FSL_SRDS_BANK_2  = 1,
+	FSL_SRDS_BANK_3  = 2,
 };
 
-int is_serdes_configured(enum srds_prtcl device);
-void fsl_serdes_init(void);
+int is_serdes_prtcl_valid(u32 prtcl);
+int serdes_get_lane_idx(int lane);
+int serdes_get_bank(int lane);
+int serdes_lane_enabled(int lane);
+enum srds_prtcl serdes_get_prtcl(int cfg, int lane);
 
-#endif /* __FSL_SERDES_H */
+#endif /* __FSL_CORENET_SERDES_H */
