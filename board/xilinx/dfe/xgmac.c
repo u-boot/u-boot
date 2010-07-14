@@ -33,10 +33,18 @@ int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr);
 /*
  * Aligned memory segments to be used for buffer descriptors
  */
+#define BRAM_BUFFERS
+#ifdef BRAM_BUFFERS
+static XEmacPss_Bd RxBdSpace[RXBD_CNT] __attribute__ ((section (".bram_buffers")));
+static XEmacPss_Bd TxBdSpace[TXBD_CNT] __attribute__ ((section (".bram_buffers")));
+static char RxBuffers[RXBD_CNT * XEMACPSS_RX_BUF_SIZE] __attribute__ ((section (".bram_buffers")));
+static uchar data_buffer[XEMACPSS_RX_BUF_SIZE] __attribute__ ((section (".bram_buffers")));
+#else
 static XEmacPss_Bd RxBdSpace[RXBD_CNT];
 static XEmacPss_Bd TxBdSpace[TXBD_CNT];
 static char RxBuffers[RXBD_CNT * XEMACPSS_RX_BUF_SIZE];
 static uchar data_buffer[XEMACPSS_RX_BUF_SIZE];
+#endif
 
 static struct {
 	u8 initialized;

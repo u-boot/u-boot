@@ -55,4 +55,8 @@ SECTIONS
 	__bss_start = .;
 	.bss : { *(.bss) }
 	_end = .;
+
+	. = 0xFFFE0000;
+	. = ALIGN(4);
+	.bram_buffers (NOLOAD) : { *(.bram_buffers) }
 }
