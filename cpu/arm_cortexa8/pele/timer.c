@@ -87,7 +87,7 @@ int timer_init()
 	/* Clear prescaler control bits */
 	val &= ~XSCUTIMER_CONTROL_PRESCALER_MASK;
 	/* Set prescaler value */
-//	val |= (0xFF << XSCUTIMER_CONTROL_PRESCALER_SHIFT);
+	val |= (0xFF << XSCUTIMER_CONTROL_PRESCALER_SHIFT);
 	/* Enable the decrementer */
 	val |= XSCUTIMER_CONTROL_ENABLE_MASK;
 	XScuTimer_WriteReg(XSCUTIMER_CONTROL_OFFSET, val);
