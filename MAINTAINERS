@@ -874,9 +874,6 @@ Scott McNutt <smcnutt@psyent.com>
 
 	PCI5441		Nios-II
 	PK1C20		Nios-II
-	EP1C20		Nios-II
-	EP1S10		Nios-II
-	EP1S40		Nios-II
 	nios2-generic	Nios-II
 
 #########################################################################

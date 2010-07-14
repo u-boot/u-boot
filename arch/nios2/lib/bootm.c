@@ -34,6 +34,18 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	char *commandline = getenv("bootargs");
 	ulong initrd_start = images->rd_start;
 	ulong initrd_end = images->rd_end;
+	char *of_flat_tree = NULL;
+#if defined(CONFIG_OF_LIBFDT)
+	ulong of_size = 0;
+
+	/* find flattened device tree */
+	if (boot_get_fdt(flag, argc, argv, images, &of_flat_tree, &of_size))
+		return 1;
+#endif
+	if (!of_flat_tree)
+		of_flat_tree = (char *)simple_strtoul(argv[3], NULL, 16);
+	if (of_flat_tree)
+		initrd_end = (ulong)of_flat_tree;
 
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
@@ -45,6 +57,15 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 
 	debug("bootargs=%s @ 0x%lx\n", commandline, (ulong)&commandline);
 	debug("initrd=0x%lx-0x%lx\n", (ulong)initrd_start, (ulong)initrd_end);
+	/* kernel parameters passing
+	 * r4 : NIOS magic
+	 * r5 : initrd start
+	 * r6 : initrd end or fdt
+	 * r7 : kernel command line
+	 * fdt is passed to kernel via r6, the same as initrd_end. fdt will be
+	 * verified with fdt magic. when both initrd and fdt are used at the
+	 * same time, fdt must follow immediately after initrd.
+	 */
 	kernel(NIOS_MAGIC, initrd_start, initrd_end, commandline);
 	/* does not return */
 
