@@ -8,6 +8,7 @@
  */
 
 #include <common.h>
+#include <hwconfig.h>
 #include <asm/fsl_ddr_sdram.h>
 
 #include "ddr.h"
@@ -23,7 +24,6 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			unsigned int ctrl_num)
 {
 	unsigned int i;
-	const char *p;
 
 	/* Chip select options. */
 
@@ -221,7 +221,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 * should be a subset of the requested configuration.
 	 */
 #if (CONFIG_NUM_DDR_CONTROLLERS > 1)
-	if ((p = getenv("memctl_intlv_ctl")) != NULL) {
+	if (hwconfig_sub("fsl_ddr", "ctlr_intlv")) {
 		if (pdimm[0].n_ranks == 0) {
 			printf("There is no rank on CS0. Because only rank on "
 				"CS0 and ranks chip-select interleaved with CS0"
@@ -230,37 +230,47 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			popts->memctl_interleaving = 0;
 		} else {
 			popts->memctl_interleaving = 1;
-			if (strcmp(p, "cacheline") == 0)
+			/* test null first. if CONFIG_HWCONFIG is not defined
+			 * hwconfig_arg_cmp returns non-zero */
+			if (hwconfig_subarg_cmp("fsl_ddr", "ctlr_intlv", "null")) {
+				popts->memctl_interleaving = 0;
+				debug("memory controller interleaving disabled.\n");
+			} else if (hwconfig_subarg_cmp("fsl_ddr", "ctlr_intlv", "cacheline"))
 				popts->memctl_interleaving_mode =
 					FSL_DDR_CACHE_LINE_INTERLEAVING;
-			else if (strcmp(p, "page") == 0)
+			else if (hwconfig_subarg_cmp("fsl_ddr", "ctlr_intlv", "page"))
 				popts->memctl_interleaving_mode =
 					FSL_DDR_PAGE_INTERLEAVING;
-			else if (strcmp(p, "bank") == 0)
+			else if (hwconfig_subarg_cmp("fsl_ddr", "ctlr_intlv", "bank"))
 				popts->memctl_interleaving_mode =
 					FSL_DDR_BANK_INTERLEAVING;
-			else if (strcmp(p, "superbank") == 0)
+			else if (hwconfig_subarg_cmp("fsl_ddr", "ctlr_intlv", "superbank"))
 				popts->memctl_interleaving_mode =
 					FSL_DDR_SUPERBANK_INTERLEAVING;
-			else
-				popts->memctl_interleaving_mode =
-						simple_strtoul(p, NULL, 0);
+			else {
+				popts->memctl_interleaving = 0;
+				printf("hwconfig has unrecognized parameter for ctlr_intlv.\n");
+			}
 		}
 	}
 #endif
 
-	if( ((p = getenv("ba_intlv_ctl")) != NULL) &&
+	if ((hwconfig_sub("fsl_ddr", "bank_intlv")) &&
 		(CONFIG_CHIP_SELECTS_PER_CTRL > 1)) {
-		if (strcmp(p, "cs0_cs1") == 0)
+		/* test null first. if CONFIG_HWCONFIG is not defined,
+		 * hwconfig_arg_cmp returns non-zero */
+		if (hwconfig_subarg_cmp("fsl_ddr", "bank_intlv", "null"))
+			printf("bank interleaving disabled.\n");
+		else if (hwconfig_subarg_cmp("fsl_ddr", "bank_intlv", "cs0_cs1"))
 			popts->ba_intlv_ctl = FSL_DDR_CS0_CS1;
-		else if (strcmp(p, "cs2_cs3") == 0)
+		else if (hwconfig_subarg_cmp("fsl_ddr", "bank_intlv", "cs2_cs3"))
 			popts->ba_intlv_ctl = FSL_DDR_CS2_CS3;
-		else if (strcmp(p, "cs0_cs1_and_cs2_cs3") == 0)
+		else if (hwconfig_subarg_cmp("fsl_ddr", "bank_intlv", "cs0_cs1_and_cs2_cs3"))
 			popts->ba_intlv_ctl = FSL_DDR_CS0_CS1_AND_CS2_CS3;
-		else if (strcmp(p, "cs0_cs1_cs2_cs3") == 0)
+		else if (hwconfig_subarg_cmp("fsl_ddr", "bank_intlv", "cs0_cs1_cs2_cs3"))
 			popts->ba_intlv_ctl = FSL_DDR_CS0_CS1_CS2_CS3;
 		else
-			popts->ba_intlv_ctl = simple_strtoul(p, NULL, 0);
+			printf("hwconfig has unrecognized parameter for ba_intlv_ctl.\n");
 
 		switch (popts->ba_intlv_ctl & FSL_DDR_CS0_CS1_CS2_CS3) {
 		case FSL_DDR_CS0_CS1_CS2_CS3:
