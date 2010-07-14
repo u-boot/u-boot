@@ -171,8 +171,8 @@
 #define CONFIG_NETCONSOLE	/* include NetConsole support */
 #define CONFIG_NET_MULTI	/* specify more that one ports available */
 #define CONFIG_MII		/* expose smi ove miiphy interface */
-#define CONFIG_KIRKWOOD_EGIGA	/* Enable kirkwood Gbe Controller Driver */
-#define CONFIG_KIRKWOOD_EGIGA_PORTS	{1,1}	/* enable both ports */
+#define CONFIG_MVGBE		/* Enable Marvell Gbe Controller Driver */
+#define CONFIG_MVGBE_PORTS	{1, 1}	/* enable both ports */
 #define CONFIG_MV88E61XX_MULTICHIP_ADRMODE
 #define CONFIG_DIS_AUTO_NEG_SPEED_GMII /*Disable Auto speed negociation */
 #define CONFIG_PHY_SPEED	_1000BASET	/*Force PHYspeed to 1GBPs */

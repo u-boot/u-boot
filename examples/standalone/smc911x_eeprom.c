@@ -240,7 +240,7 @@ static void dump_eeprom(struct eth_device *dev)
 static int smc911x_init(struct eth_device *dev)
 {
 	/* See if there is anything there */
-	if (!smc911x_detect_chip(dev))
+	if (smc911x_detect_chip(dev))
 		return 1;
 
 	smc911x_reset(dev);

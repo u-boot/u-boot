@@ -56,6 +56,10 @@
 #define ORION5X_USB20_PORT1_BASE		(ORION5X_REGISTER(0xA0000))
 #define ORION5X_EGIGA_BASE			(ORION5X_REGISTER(0x72000))
 
+/* Orion5x GbE controller has a single port */
+#define MAX_MVGBE_DEVS	1
+#define MVGBE0_BASE	ORION5X_EGIGA_BASE
+
 #define CONFIG_MAX_RAM_BANK_SIZE		(64*1024*1024)
 
 /* include here SoC variants. 5181, 5281, 6183 should go here when
