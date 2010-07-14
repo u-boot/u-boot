@@ -8,12 +8,13 @@
 
 #include <common.h>
 #include <asm/blackfin.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include "gpio_cfi_flash.h"
 
-#define GPIO_PIN_1  PF4
+#define GPIO_PIN_1  GPIO_PF4
 #define GPIO_MASK_1 (1 << 21)
-#define GPIO_PIN_2  PF5
+#define GPIO_PIN_2  GPIO_PF5
 #define GPIO_MASK_2 (1 << 22)
 #define GPIO_MASK   (GPIO_MASK_1 | GPIO_MASK_2)
 
@@ -21,16 +22,10 @@ void *gpio_cfi_flash_swizzle(void *vaddr)
 {
 	unsigned long addr = (unsigned long)vaddr;
 
-	if (addr & GPIO_MASK_1)
-		bfin_write_PORTFIO_SET(GPIO_PIN_1);
-	else
-		bfin_write_PORTFIO_CLEAR(GPIO_PIN_1);
+	gpio_set_value(GPIO_PIN_1, addr & GPIO_MASK_1);
 
 #ifdef GPIO_MASK_2
-	if (addr & GPIO_MASK_2)
-		bfin_write_PORTFIO_SET(GPIO_PIN_2);
-	else
-		bfin_write_PORTFIO_CLEAR(GPIO_PIN_2);
+	gpio_set_value(GPIO_PIN_2, addr & GPIO_MASK_2);
 #endif
 
 	SSYNC();
@@ -57,6 +52,9 @@ MAKE_FLASH(64, q) /* flash_write64() flash_read64() */
 
 void gpio_cfi_flash_init(void)
 {
-	bfin_write_PORTFIO_DIR(bfin_read_PORTFIO_DIR() | GPIO_PIN_1 | GPIO_PIN_2);
+	gpio_request(GPIO_PIN_1, "gpio_cfi_flash");
+#ifdef GPIO_MASK_2
+	gpio_request(GPIO_PIN_2, "gpio_cfi_flash");
+#endif
 	gpio_cfi_flash_swizzle((void *)CONFIG_SYS_FLASH_BASE);
 }

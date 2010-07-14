@@ -13,6 +13,8 @@
 #include <spi.h>
 
 #include <asm/blackfin.h>
+#include <asm/gpio.h>
+#include <asm/portmux.h>
 #include <asm/mach-common/bits/spi.h>
 
 struct bfin_spi_slave {
@@ -33,53 +35,109 @@ MAKE_SPI_FUNC(SPI_BAUD, 0x14)
 
 #define to_bfin_spi_slave(s) container_of(s, struct bfin_spi_slave, slave)
 
-__attribute__((weak))
+#define MAX_CTRL_CS 7
+
+#define gpio_cs(cs) ((cs) - MAX_CTRL_CS)
+#ifdef CONFIG_BFIN_SPI_GPIO_CS
+# define is_gpio_cs(cs) ((cs) > MAX_CTRL_CS)
+#else
+# define is_gpio_cs(cs) 0
+#endif
+
 int spi_cs_is_valid(unsigned int bus, unsigned int cs)
 {
-#if defined(__ADSPBF538__) || defined(__ADSPBF539__)
-	/* The SPI1/SPI2 buses are weird ... only 1 CS */
-	if (bus > 0 && cs != 1)
-		return 0;
-#endif
-	return (cs >= 1 && cs <= 7);
+	if (is_gpio_cs(cs))
+		return gpio_is_valid(gpio_cs(cs));
+	else
+		return (cs >= 1 && cs <= MAX_CTRL_CS);
 }
 
-__attribute__((weak))
 void spi_cs_activate(struct spi_slave *slave)
 {
 	struct bfin_spi_slave *bss = to_bfin_spi_slave(slave);
-	write_SPI_FLG(bss,
-		(read_SPI_FLG(bss) &
-		~((!bss->flg << 8) << slave->cs)) |
-		(1 << slave->cs));
+
+	if (is_gpio_cs(slave->cs)) {
+		unsigned int cs = gpio_cs(slave->cs);
+		gpio_set_value(cs, bss->flg);
+		debug("%s: SPI_CS_GPIO:%x\n", __func__, gpio_get_value(cs));
+	} else {
+		write_SPI_FLG(bss,
+			(read_SPI_FLG(bss) &
+			~((!bss->flg << 8) << slave->cs)) |
+			(1 << slave->cs));
+		debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
+	}
+
 	SSYNC();
-	debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
 }
 
-__attribute__((weak))
 void spi_cs_deactivate(struct spi_slave *slave)
 {
 	struct bfin_spi_slave *bss = to_bfin_spi_slave(slave);
-	u16 flg;
 
-	/* make sure we force the cs to deassert rather than let the
-	 * pin float back up.  otherwise, exact timings may not be
-	 * met some of the time leading to random behavior (ugh).
-	 */
-	flg = read_SPI_FLG(bss) | ((!bss->flg << 8) << slave->cs);
-	write_SPI_FLG(bss, flg);
-	SSYNC();
-	debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
+	if (is_gpio_cs(slave->cs)) {
+		unsigned int cs = gpio_cs(slave->cs);
+		gpio_set_value(cs, !bss->flg);
+		debug("%s: SPI_CS_GPIO:%x\n", __func__, gpio_get_value(cs));
+	} else {
+		u16 flg;
 
-	flg &= ~(1 << slave->cs);
-	write_SPI_FLG(bss, flg);
+		/* make sure we force the cs to deassert rather than let the
+		 * pin float back up.  otherwise, exact timings may not be
+		 * met some of the time leading to random behavior (ugh).
+		 */
+		flg = read_SPI_FLG(bss) | ((!bss->flg << 8) << slave->cs);
+		write_SPI_FLG(bss, flg);
+		SSYNC();
+		debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
+
+		flg &= ~(1 << slave->cs);
+		write_SPI_FLG(bss, flg);
+		debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
+	}
+
 	SSYNC();
-	debug("%s: SPI_FLG:%x\n", __func__, read_SPI_FLG(bss));
 }
 
 void spi_init()
 {
 }
+
+#ifdef SPI_CTL
+# define SPI0_CTL SPI_CTL
+#endif
+
+#define SPI_PINS(n) \
+	[n] = { 0, P_SPI##n##_SCK, P_SPI##n##_MISO, P_SPI##n##_MOSI, 0 }
+static unsigned short pins[][5] = {
+#ifdef SPI0_CTL
+	SPI_PINS(0),
+#endif
+#ifdef SPI1_CTL
+	SPI_PINS(1),
+#endif
+#ifdef SPI2_CTL
+	SPI_PINS(2),
+#endif
+};
+
+#define SPI_CS_PINS(n) \
+	[n] = { \
+		P_SPI##n##_SSEL1, P_SPI##n##_SSEL2, P_SPI##n##_SSEL3, \
+		P_SPI##n##_SSEL4, P_SPI##n##_SSEL5, P_SPI##n##_SSEL6, \
+		P_SPI##n##_SSEL7, \
+	}
+static const unsigned short cs_pins[][7] = {
+#ifdef SPI0_CTL
+	SPI_CS_PINS(0),
+#endif
+#ifdef SPI1_CTL
+	SPI_CS_PINS(1),
+#endif
+#ifdef SPI2_CTL
+	SPI_CS_PINS(2),
+#endif
+};
 
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
@@ -92,11 +150,14 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
 
+	if (bus >= ARRAY_SIZE(pins) || pins[bus] == NULL) {
+		debug("%s: invalid bus %u\n", __func__, bus);
+		return NULL;
+	}
 	switch (bus) {
-#ifdef SPI_CTL
-# define SPI0_CTL SPI_CTL
-#endif
+#ifdef SPI0_CTL
 		case 0: mmr_base = SPI0_CTL; break;
+#endif
 #ifdef SPI1_CTL
 		case 1: mmr_base = SPI1_CTL; break;
 #endif
@@ -142,168 +203,21 @@ void spi_free_slave(struct spi_slave *slave)
 	free(bss);
 }
 
-static void spi_portmux(struct spi_slave *slave)
-{
-#if defined(__ADSPBF51x__)
-#define SET_MUX(port, mux, func) port##_mux = ((port##_mux & ~PORT_x_MUX_##mux##_MASK) | PORT_x_MUX_##mux##_FUNC_##func)
-	u16 f_mux = bfin_read_PORTF_MUX();
-	u16 f_fer = bfin_read_PORTF_FER();
-	u16 g_mux = bfin_read_PORTG_MUX();
-	u16 g_fer = bfin_read_PORTG_FER();
-	u16 h_mux = bfin_read_PORTH_MUX();
-	u16 h_fer = bfin_read_PORTH_FER();
-	switch (slave->bus) {
-	case 0:
-		/* set SCK/MISO/MOSI */
-		SET_MUX(g, 7, 1);
-		g_fer |= PG12 | PG13 | PG14;
-		switch (slave->cs) {
-			case 1: SET_MUX(f, 2, 1); f_fer |= PF7;  break;
-			case 2: /* see G above */ g_fer |= PG15; break;
-			case 3: SET_MUX(h, 1, 3); f_fer |= PH4;  break;
-			case 4: /* no muxing */   h_fer |= PH8;  break;
-			case 5: SET_MUX(g, 1, 3); h_fer |= PG3;  break;
-			case 6: /* no muxing */                  break;
-			case 7: /* no muxing */                  break;
-		}
-	case 1:
-		/* set SCK/MISO/MOSI */
-		SET_MUX(h, 0, 2);
-		h_fer |= PH1 | PH2 | PH3;
-		switch (slave->cs) {
-			case 1: SET_MUX(h, 2, 3); h_fer |= PH6;  break;
-			case 2: SET_MUX(f, 0, 3); f_fer |= PF0;  break;
-			case 3: SET_MUX(g, 0, 3); g_fer |= PG0;  break;
-			case 4: SET_MUX(f, 3, 3); f_fer |= PF8;  break;
-			case 5: SET_MUX(g, 6, 3); h_fer |= PG11; break;
-			case 6: /* no muxing */                  break;
-			case 7: /* no muxing */                  break;
-		}
-	}
-	bfin_write_PORTF_MUX(f_mux);
-	bfin_write_PORTF_FER(f_fer);
-	bfin_write_PORTG_MUX(g_mux);
-	bfin_write_PORTG_FER(g_fer);
-	bfin_write_PORTH_MUX(h_mux);
-	bfin_write_PORTH_FER(h_fer);
-#elif defined(__ADSPBF52x__)
-#define SET_MUX(port, mux, func) port##_mux = ((port##_mux & ~PORT_x_MUX_##mux##_MASK) | PORT_x_MUX_##mux##_FUNC_##func)
-	u16 f_mux = bfin_read_PORTF_MUX();
-	u16 f_fer = bfin_read_PORTF_FER();
-	u16 g_mux = bfin_read_PORTG_MUX();
-	u16 g_fer = bfin_read_PORTG_FER();
-	u16 h_mux = bfin_read_PORTH_MUX();
-	u16 h_fer = bfin_read_PORTH_FER();
-	/* set SCK/MISO/MOSI */
-	SET_MUX(g, 0, 3);
-	g_fer |= PG2 | PG3 | PG4;
-	switch (slave->cs) {
-		case 1: /* see G above */ g_fer |= PG1;  break;
-		case 2: SET_MUX(f, 4, 3); f_fer |= PF12; break;
-		case 3: SET_MUX(f, 4, 3); f_fer |= PF13; break;
-		case 4: SET_MUX(h, 1, 1); h_fer |= PH8;  break;
-		case 5: SET_MUX(h, 2, 1); h_fer |= PH9;  break;
-		case 6: SET_MUX(f, 1, 3); f_fer |= PF9;  break;
-		case 7: SET_MUX(f, 2, 3); f_fer |= PF10; break;
-	}
-	bfin_write_PORTF_MUX(f_mux);
-	bfin_write_PORTF_FER(f_fer);
-	bfin_write_PORTG_MUX(g_mux);
-	bfin_write_PORTG_FER(g_fer);
-	bfin_write_PORTH_MUX(h_mux);
-	bfin_write_PORTH_FER(h_fer);
-#elif defined(__ADSPBF534__) || defined(__ADSPBF536__) || defined(__ADSPBF537__)
-	u16 mux = bfin_read_PORT_MUX();
-	u16 f_fer = bfin_read_PORTF_FER();
-	/* set SCK/MISO/MOSI */
-	f_fer |= PF11 | PF12 | PF13;
-	switch (slave->cs) {
-		case 1: f_fer |= PF10; break;
-		case 2: mux |= PJSE; break;
-		case 3: mux |= PJSE; break;
-		case 4: mux |= PFS4E; f_fer |= PF6; break;
-		case 5: mux |= PFS5E; f_fer |= PF5; break;
-		case 6: mux |= PFS6E; f_fer |= PF4; break;
-		case 7: mux |= PJCE_SPI; break;
-	}
-	bfin_write_PORT_MUX(mux);
-	bfin_write_PORTF_FER(f_fer);
-#elif defined(__ADSPBF538__) || defined(__ADSPBF539__)
-	u16 fer, pins;
-	if (slave->bus == 1)
-		pins = PD0 | PD1 | PD2 | (slave->cs == 1 ? PD4 : 0);
-	else if (slave->bus == 2)
-		pins = PD5 | PD6 | PD7 | (slave->cs == 1 ? PD9 : 0);
-	else
-		pins = 0;
-	if (pins) {
-		fer = bfin_read_PORTDIO_FER();
-		fer &= ~pins;
-		bfin_write_PORTDIO_FER(fer);
-	}
-#elif defined(__ADSPBF54x__)
-#define DO_MUX(port, pin) \
-	mux = ((mux & ~PORT_x_MUX_##pin##_MASK) | PORT_x_MUX_##pin##_FUNC_1); \
-	fer |= P##port##pin;
-	u32 mux;
-	u16 fer;
-	switch (slave->bus) {
-	case 0:
-		mux = bfin_read_PORTE_MUX();
-		fer = bfin_read_PORTE_FER();
-		/* set SCK/MISO/MOSI */
-		DO_MUX(E, 0);
-		DO_MUX(E, 1);
-		DO_MUX(E, 2);
-		switch (slave->cs) {
-			case 1: DO_MUX(E, 4); break;
-			case 2: DO_MUX(E, 5); break;
-			case 3: DO_MUX(E, 6); break;
-		}
-		bfin_write_PORTE_MUX(mux);
-		bfin_write_PORTE_FER(fer);
-		break;
-	case 1:
-		mux = bfin_read_PORTG_MUX();
-		fer = bfin_read_PORTG_FER();
-		/* set SCK/MISO/MOSI */
-		DO_MUX(G, 8);
-		DO_MUX(G, 9);
-		DO_MUX(G, 10);
-		switch (slave->cs) {
-			case 1: DO_MUX(G, 5); break;
-			case 2: DO_MUX(G, 6); break;
-			case 3: DO_MUX(G, 7); break;
-		}
-		bfin_write_PORTG_MUX(mux);
-		bfin_write_PORTG_FER(fer);
-		break;
-	case 2:
-		mux = bfin_read_PORTB_MUX();
-		fer = bfin_read_PORTB_FER();
-		/* set SCK/MISO/MOSI */
-		DO_MUX(B, 12);
-		DO_MUX(B, 13);
-		DO_MUX(B, 14);
-		switch (slave->cs) {
-			case 1: DO_MUX(B, 9);  break;
-			case 2: DO_MUX(B, 10); break;
-			case 3: DO_MUX(B, 11); break;
-		}
-		bfin_write_PORTB_MUX(mux);
-		bfin_write_PORTB_FER(fer);
-		break;
-	}
-#endif
-}
-
 int spi_claim_bus(struct spi_slave *slave)
 {
 	struct bfin_spi_slave *bss = to_bfin_spi_slave(slave);
 
 	debug("%s: bus:%i cs:%i\n", __func__, slave->bus, slave->cs);
 
-	spi_portmux(slave);
+	if (is_gpio_cs(slave->cs)) {
+		unsigned int cs = gpio_cs(slave->cs);
+		gpio_request(cs, "bfin-spi");
+		gpio_direction_output(cs, !bss->flg);
+		pins[slave->bus][0] = P_DONTCARE;
+	} else
+		pins[slave->bus][0] = cs_pins[slave->bus][slave->cs - 1];
+	peripheral_request_list(pins[slave->bus], "bfin-spi");
+
 	write_SPI_CTL(bss, bss->ctl);
 	write_SPI_BAUD(bss, bss->baud);
 	SSYNC();
@@ -314,7 +228,13 @@ int spi_claim_bus(struct spi_slave *slave)
 void spi_release_bus(struct spi_slave *slave)
 {
 	struct bfin_spi_slave *bss = to_bfin_spi_slave(slave);
+
 	debug("%s: bus:%i cs:%i\n", __func__, slave->bus, slave->cs);
+
+	peripheral_free_list(pins[slave->bus]);
+	if (is_gpio_cs(slave->cs))
+		gpio_free(gpio_cs(slave->cs));
+
 	write_SPI_CTL(bss, 0);
 	SSYNC();
 }

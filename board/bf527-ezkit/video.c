@@ -11,6 +11,7 @@
 #include <config.h>
 #include <malloc.h>
 #include <asm/blackfin.h>
+#include <asm/portmux.h>
 #include <asm/mach-common/bits/dma.h>
 #include <spi.h>
 #include <linux/types.h>
@@ -171,13 +172,11 @@ void DisablePPI(void)
 
 void Init_Ports(void)
 {
-	*pPORTF_MUX &= ~PORT_x_MUX_0_MASK;
-	*pPORTF_MUX |= PORT_x_MUX_0_FUNC_1;
-	*pPORTF_FER |= PF0 | PF1 | PF2 | PF3 | PF4 | PF5 | PF6 | PF7;
-
-	*pPORTG_MUX &= ~PORT_x_MUX_1_MASK;
-	*pPORTG_MUX |= PORT_x_MUX_1_FUNC_1;
-	*pPORTG_FER |= PG5;
+	const unsigned short pins[] = {
+		P_PPI0_D0, P_PPI0_D1, P_PPI0_D2, P_PPI0_D3, P_PPI0_D4,
+		P_PPI0_D5, P_PPI0_D6, P_PPI0_D7, P_PPI0_FS2, 0,
+	};
+	peripheral_request_list(pins, "lcd");
 }
 
 void Init_PPI(void)

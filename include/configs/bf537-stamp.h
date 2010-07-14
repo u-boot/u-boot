@@ -137,8 +137,6 @@
  */
 #define CONFIG_BFIN_TWI_I2C	1
 #define CONFIG_HARD_I2C		1
-#define CONFIG_SYS_I2C_SPEED	50000
-#define CONFIG_SYS_I2C_SLAVE	0
 
 
 /*
@@ -260,8 +258,6 @@
 #define CONFIG_MISC_INIT_R
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	0
-
-/* #define CONFIG_BF537_STAMP_LEDCMD	1 */
 
 /* Define if want to do post memory test */
 #undef CONFIG_POST

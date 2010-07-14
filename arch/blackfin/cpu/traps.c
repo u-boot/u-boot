@@ -29,14 +29,26 @@
 #include <asm/deferred.h>
 #include "cpu.h"
 
+#ifdef CONFIG_DEBUG_DUMP
+# define ENABLE_DUMP 1
+#else
+# define ENABLE_DUMP 0
+#endif
+
 #define trace_buffer_save(x) \
 	do { \
+		if (!ENABLE_DUMP) \
+			break; \
 		(x) = bfin_read_TBUFCTL(); \
 		bfin_write_TBUFCTL((x) & ~TBUFEN); \
 	} while (0)
 
 #define trace_buffer_restore(x) \
-	bfin_write_TBUFCTL((x))
+	do { \
+		if (!ENABLE_DUMP) \
+			break; \
+		bfin_write_TBUFCTL((x)); \
+	} while (0);
 
 /* The purpose of this map is to provide a mapping of address<->cplb settings
  * rather than an exact map of what is actually addressable on the part.  This
@@ -82,7 +94,15 @@ int trap_c(struct pt_regs *regs, uint32_t level)
 {
 	uint32_t ret = 0;
 	uint32_t trapnr = (regs->seqstat & EXCAUSE);
+	unsigned long tflags;
 	bool data = false;
+
+	/*
+	 * Keep the trace buffer so that a miss here points people
+	 * to the right place (their code).  Crashes here rarely
+	 * happen.  If they do, only the Blackfin maintainer cares.
+	 */
+	trace_buffer_save(tflags);
 
 	switch (trapnr) {
 	/* 0x26 - Data CPLB Miss */
@@ -97,7 +117,7 @@ int trap_c(struct pt_regs *regs, uint32_t level)
 			 */
 			if (last_cplb_fault_retx != regs->retx) {
 				last_cplb_fault_retx = regs->retx;
-				return ret;
+				break;
 			}
 		}
 
@@ -110,20 +130,12 @@ int trap_c(struct pt_regs *regs, uint32_t level)
 		uint32_t new_cplb_addr = 0, new_cplb_data = 0;
 		static size_t last_evicted;
 		size_t i;
-		unsigned long tflags;
 
 #ifdef CONFIG_EXCEPTION_DEFER
 		/* This should never happen */
 		if (level == 5)
 			bfin_panic(regs);
 #endif
-
-		/*
-		 * Keep the trace buffer so that a miss here points people
-		 * to the right place (their code).  Crashes here rarely
-		 * happen.  If they do, only the Blackfin maintainer cares.
-		 */
-		trace_buffer_save(tflags);
 
 		new_cplb_addr = (data ? bfin_read_DCPLB_FAULT_ADDR() : bfin_read_ICPLB_FAULT_ADDR()) & ~(4 * 1024 * 1024 - 1);
 
@@ -180,7 +192,6 @@ int trap_c(struct pt_regs *regs, uint32_t level)
 		for (i = 0; i < 16; ++i)
 			debug("%2i 0x%p 0x%08X\n", i, *CPLB_ADDR++, *CPLB_DATA++);
 
-		trace_buffer_restore(tflags);
 		break;
 	}
 #ifdef CONFIG_CMD_KGDB
@@ -208,22 +219,20 @@ int trap_c(struct pt_regs *regs, uint32_t level)
 #ifdef CONFIG_CMD_KGDB
 		if (level == 3) {
 			/* We need to handle this at EVT5, so try again */
+			bfin_dump(regs);
 			ret = 1;
 			break;
 		}
 		if (debugger_exception_handler && (*debugger_exception_handler)(regs))
-			return 0;
+			break;
 #endif
 		bfin_panic(regs);
 	}
+
+	trace_buffer_restore(tflags);
+
 	return ret;
 }
-
-#ifdef CONFIG_DEBUG_DUMP
-# define ENABLE_DUMP 1
-#else
-# define ENABLE_DUMP 0
-#endif
 
 #ifndef CONFIG_KALLSYMS
 const char *symbol_lookup(unsigned long addr, unsigned long *caddr)
@@ -364,16 +373,13 @@ void dump(struct pt_regs *fp)
 	printf("\n");
 }
 
-void dump_bfin_trace_buffer(void)
+static void _dump_bfin_trace_buffer(void)
 {
 	char buf[150];
-	unsigned long tflags;
 	int i = 0;
 
 	if (!ENABLE_DUMP)
 		return;
-
-	trace_buffer_save(tflags);
 
 	printf("Hardware Trace:\n");
 
@@ -385,16 +391,21 @@ void dump_bfin_trace_buffer(void)
 			printf("     Source : %s\n", buf);
 		}
 	}
+}
 
+void dump_bfin_trace_buffer(void)
+{
+	unsigned long tflags;
+	trace_buffer_save(tflags);
+	_dump_bfin_trace_buffer();
 	trace_buffer_restore(tflags);
 }
 
-void bfin_panic(struct pt_regs *regs)
+void bfin_dump(struct pt_regs *regs)
 {
-	if (ENABLE_DUMP) {
-		unsigned long tflags;
-		trace_buffer_save(tflags);
-	}
+	unsigned long tflags;
+
+	trace_buffer_save(tflags);
 
 	puts(
 		"\n"
@@ -404,7 +415,16 @@ void bfin_panic(struct pt_regs *regs)
 		"\n"
 	);
 	dump(regs);
-	dump_bfin_trace_buffer();
+	_dump_bfin_trace_buffer();
 	puts("\n");
+
+	trace_buffer_restore(tflags);
+}
+
+void bfin_panic(struct pt_regs *regs)
+{
+	unsigned long tflags;
+	trace_buffer_save(tflags);
+	bfin_dump(regs);
 	bfin_reset_or_hang();
 }

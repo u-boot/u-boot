@@ -11,6 +11,8 @@
 #include <config.h>
 #include <malloc.h>
 #include <asm/blackfin.h>
+#include <asm/gpio.h>
+#include <asm/portmux.h>
 #include <asm/mach-common/bits/dma.h>
 #include <i2c.h>
 #include <linux/types.h>
@@ -174,28 +176,21 @@ void Init_DMA(void *dst)
 
 void Init_Ports(void)
 {
-	*pPORTF_MUX = 0x00000000;
-	*pPORTF_FER |= 0xFFFF;	/* PPI0..15 */
-
-	*pPORTG_MUX &=
-	    ~(PORT_x_MUX_0_MASK | PORT_x_MUX_1_MASK | PORT_x_MUX_2_MASK |
-	      PORT_x_MUX_3_MASK | PORT_x_MUX_4_MASK);
-	*pPORTG_FER |= PG0 | PG1 | PG2 | PG3 | PG4;	/* CLK, FS1, FS2, PPI16..17  */
-
+	const unsigned short pins[] = {
+		P_PPI0_D0, P_PPI0_D1, P_PPI0_D2, P_PPI0_D3, P_PPI0_D4,
+		P_PPI0_D5, P_PPI0_D6, P_PPI0_D7, P_PPI0_D8, P_PPI0_D9,
+		P_PPI0_D10, P_PPI0_D11, P_PPI0_D12, P_PPI0_D13, P_PPI0_D14,
+		P_PPI0_D15, P_PPI0_D16, P_PPI0_D17,
 #if !defined(CONFIG_VIDEO_RGB666)
-	*pPORTD_MUX &=
-	    ~(PORT_x_MUX_0_MASK | PORT_x_MUX_1_MASK | PORT_x_MUX_2_MASK |
-	      PORT_x_MUX_3_MASK | PORT_x_MUX_4_MASK | PORT_x_MUX_5_MASK);
-	*pPORTD_MUX |=
-	    (PORT_x_MUX_0_FUNC_4 | PORT_x_MUX_1_FUNC_4 | PORT_x_MUX_2_FUNC_4 |
-	     PORT_x_MUX_3_FUNC_4 | PORT_x_MUX_4_FUNC_4 | PORT_x_MUX_5_FUNC_4);
-	*pPORTD_FER |= PD0 | PD1 | PD2 | PD3 | PD4 | PD5;	/* PPI18..23  */
+		P_PPI0_D18, P_PPI0_D19, P_PPI0_D20, P_PPI0_D21, P_PPI0_D22,
+		P_PPI0_D23,
 #endif
+		P_PPI0_CLK, P_PPI0_FS1, P_PPI0_FS2, 0,
+	};
+	peripheral_request_list(pins, "lcd");
 
-	*pPORTE_FER &= ~PE3;	/* DISP */
-	*pPORTE_DIR_SET = PE3;
-	*pPORTE_SET = PE3;
-
+	gpio_request(GPIO_PE3, "lcd-disp");
+	gpio_direction_output(GPIO_PE3, 1);
 }
 
 void EnableDMA(void)
