@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2007 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2007, 2010 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -65,6 +65,7 @@
 #define PARTID_NO_E(spridr)		((spridr & 0xFFFE0000) >> 16)
 #define SPR_FAMILY(spridr)		((spridr & 0xFFF00000) >> 20)
 
+#define SPR_8308			0x8100
 #define SPR_831X_FAMILY			0x80B
 #define SPR_8311			0x80B2
 #define SPR_8313			0x80B0
@@ -115,8 +116,9 @@
 #define SPCR_TSEC2EP			0x00000003	/* TSEC2 emergency priority */
 #define SPCR_TSEC2EP_SHIFT		(31-31)
 
-#elif defined(CONFIG_MPC831x) || defined(CONFIG_MPC837x)
-/* SPCR bits - MPC831x and MPC837x specific */
+#elif defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+	defined(CONFIG_MPC837x)
+/* SPCR bits - MPC8308, MPC831x and MPC837x specific */
 #define SPCR_TSECDP			0x00003000	/* TSEC data priority */
 #define SPCR_TSECDP_SHIFT		(31-19)
 #define SPCR_TSECBDP			0x00000C00	/* TSEC buffer descriptor priority */
@@ -473,7 +475,7 @@
 #define HRCWL_CE_TO_PLL_1X30		0x0000001E
 #define HRCWL_CE_TO_PLL_1X31		0x0000001F
 
-#elif defined(CONFIG_MPC8315)
+#elif defined(CONFIG_MPC8308) || defined(CONFIG_MPC8315)
 #define HRCWL_SVCOD			0x30000000
 #define HRCWL_SVCOD_SHIFT		28
 #define HRCWL_SVCOD_DIV_2		0x00000000
@@ -541,7 +543,8 @@
 #define HRCWH_ROM_LOC_LOCAL_16BIT	0x00600000
 #define HRCWH_ROM_LOC_LOCAL_32BIT	0x00700000
 
-#if defined(CONFIG_MPC831x) || defined(CONFIG_MPC837x)
+#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+	defined(CONFIG_MPC837x)
 #define HRCWH_ROM_LOC_NAND_SP_8BIT	0x00100000
 #define HRCWH_ROM_LOC_NAND_SP_16BIT	0x00200000
 #define HRCWH_ROM_LOC_NAND_LP_8BIT	0x00500000
@@ -592,7 +595,8 @@
 
 /* RSR - Reset Status Register
  */
-#if defined(CONFIG_MPC831x) || defined(CONFIG_MPC837x)
+#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+	defined(CONFIG_MPC837x)
 #define RSR_RSTSRC			0xF0000000	/* Reset source */
 #define RSR_RSTSRC_SHIFT		28
 #else
@@ -734,8 +738,8 @@
 #define SCCR_USBDRCM_2			0x00200000
 #define SCCR_USBDRCM_3			0x00300000
 
-#elif defined(CONFIG_MPC8315)
-/* SCCR bits - MPC8315 specific */
+#elif defined(CONFIG_MPC8308) || defined(CONFIG_MPC8315)
+/* SCCR bits - MPC8315/MPC8308 specific */
 #define SCCR_TSEC1CM			0xc0000000
 #define SCCR_TSEC1CM_SHIFT		30
 #define SCCR_TSEC1CM_0			0x00000000
@@ -749,6 +753,13 @@
 #define SCCR_TSEC2CM_1			0x10000000
 #define SCCR_TSEC2CM_2			0x20000000
 #define SCCR_TSEC2CM_3			0x30000000
+
+#define SCCR_SDHCCM			0x0c000000
+#define SCCR_SDHCCM_SHIFT		26
+#define SCCR_SDHCCM_0			0x00000000
+#define SCCR_SDHCCM_1			0x04000000
+#define SCCR_SDHCCM_2			0x08000000
+#define SCCR_SDHCCM_3			0x0c000000
 
 #define SCCR_USBDRCM			0x00c00000
 #define SCCR_USBDRCM_SHIFT		22

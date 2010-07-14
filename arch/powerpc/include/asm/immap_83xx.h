@@ -73,7 +73,11 @@ typedef struct sysconf83xx {
 	u32 obir;		/* Output Buffer Impedance Register */
 	u8 res8[0xC];
 	u32 pecr1;		/* PCI Express control register 1 */
+#ifdef CONFIG_MPC8308
+	u32 sdhccr;		/* eSDHC Control Registers for MPC8308 */
+#else
 	u32 pecr2;		/* PCI Express control register 2 */
+#endif
 	u8 res9[0xB8];
 } sysconf83xx_t;
 
@@ -589,7 +593,14 @@ typedef struct sdhc83xx {
  * SerDes
  */
 typedef struct serdes83xx {
-	u8 fixme[0x100];
+	u32 srdscr0;
+	u32 srdscr1;
+	u32 srdscr2;
+	u32 srdscr3;
+	u32 srdscr4;
+	u8 res0[0xc];
+	u32 srdsrstctl;
+	u8 res1[0xdc];
 } serdes83xx_t;
 
 /*
@@ -691,7 +702,7 @@ typedef struct immap {
 	u8			res7[0xC0000];
 } immap_t;
 
-#elif defined(CONFIG_MPC8315)
+#elif defined(CONFIG_MPC8308) || defined(CONFIG_MPC8315)
 typedef struct immap {
 	sysconf83xx_t		sysconf;	/* System configuration */
 	wdt83xx_t		wdt;		/* Watch Dog Timer (WDT) Registers */
