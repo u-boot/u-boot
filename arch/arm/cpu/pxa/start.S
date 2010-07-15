@@ -34,6 +34,25 @@
 
 .globl _start
 _start: b	reset
+#ifdef CONFIG_PRELOADER
+	ldr	pc, _hang
+	ldr	pc, _hang
+	ldr	pc, _hang
+	ldr	pc, _hang
+	ldr	pc, _hang
+	ldr	pc, _hang
+	ldr	pc, _hang
+
+_hang:
+	.word	do_hang
+	.word	0x12345678
+	.word	0x12345678
+	.word	0x12345678
+	.word	0x12345678
+	.word	0x12345678
+	.word	0x12345678
+	.word	0x12345678	/* now 16*4=64 */
+#else
 	ldr	pc, _undefined_instruction
 	ldr	pc, _software_interrupt
 	ldr	pc, _prefetch_abort
@@ -49,6 +68,7 @@ _data_abort:		.word data_abort
 _not_used:		.word not_used
 _irq:			.word irq
 _fiq:			.word fiq
+#endif	/* CONFIG_PRELOADER */
 
 	.balignl 16,0xdeadbeef
 
@@ -117,8 +137,10 @@ reset:
 relocate:				/* relocate U-Boot to RAM	    */
 	adr	r0, _start		/* r0 <- current position of code   */
 	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
+#ifndef	CONFIG_PRELOADER
 	cmp	r0, r1			/* don't reloc during debug	    */
 	beq	stack_setup
+#endif
 
 	ldr	r2, _armboot_start
 	ldr	r3, _bss_start
@@ -135,28 +157,37 @@ copy_loop:
 	/* Set up the stack						    */
 stack_setup:
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
-	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN /* malloc area			    */
-	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE /* bdinfo			    */
+#ifdef CONFIG_PRELOADER
+	sub	sp, r0, #128		/* leave 32 words for abort-stack   */
+#else
+	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN /* malloc area		    */
+	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE /* bdinfo		    */
 #ifdef CONFIG_USE_IRQ
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif /* CONFIG_USE_IRQ */
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
 	bic	sp, sp, #7		/* 8-byte alignment for ABI compliance */
+#endif
 
 clear_bss:
 	ldr	r0, _bss_start		/* find start of bss segment	    */
 	ldr	r1, _bss_end		/* stop here			    */
 	mov	r2, #0x00000000		/* clear			    */
 
+#ifndef CONFIG_PRELOADER
 clbss_l:str	r2, [r0]		/* clear loop...		    */
 	add	r0, r0, #4
 	cmp	r0, r1
 	ble	clbss_l
+#endif
 
 	ldr	pc, _start_armboot
 
+#ifdef CONFIG_ONENAND_IPL
+_start_armboot: .word start_oneboot
+#else
 _start_armboot: .word start_armboot
-
+#endif
 
 /****************************************************************************/
 /*									    */
@@ -296,7 +327,7 @@ setspeed_done:
 */
 	mov	pc, lr
 
-
+#ifndef CONFIG_PRELOADER
 /****************************************************************************/
 /*									    */
 /* Interrupt handling							    */
@@ -394,6 +425,7 @@ setspeed_done:
 	.macro get_fiq_stack			@ setup FIQ stack
 	ldr	sp, FIQ_STACK_START
 	.endm
+#endif	/* CONFIG_PRELOADER */
 
 
 /****************************************************************************/
@@ -402,6 +434,12 @@ setspeed_done:
 /*									    */
 /****************************************************************************/
 
+#ifdef CONFIG_PRELOADER
+	.align	5
+do_hang:
+	ldr	sp, _TEXT_BASE			/* use 32 words abort stack */
+	bl	hang				/* hang and never return */
+#else	/* !CONFIG_PRELOADER */
 	.align	5
 undefined_instruction:
 	get_bad_stack
@@ -461,7 +499,7 @@ fiq:
 	get_bad_stack
 	bad_save_user_regs
 	bl	do_fiq
-
+#endif	/* CONFIG_PRELOADER */
 #endif /* CONFIG_USE_IRQ */
 
 /****************************************************************************/

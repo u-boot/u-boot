@@ -706,6 +706,7 @@ LIST_at91="			\
 
 LIST_pxa="		\
 	cerf250		\
+	colibri_pxa270	\
 	cradle		\
 	csb226		\
 	delta		\
@@ -715,10 +716,13 @@ LIST_pxa="		\
 	polaris		\
 	pxa255_idp	\
 	trizepsiv	\
+	vpac270_nor	\
+	vpac270_onenand	\
 	wepep250	\
 	xaeniax		\
 	xm250		\
 	xsengine	\
+	zipitz2		\
 	zylonite	\
 "
 

@@ -87,7 +87,7 @@ typedef struct vidinfo {
 	u_char	vl_wbf;		/* Wait between frames */
 } vidinfo_t;
 
-#elif defined CONFIG_PXA250
+#elif defined CONFIG_PXA250 || defined CONFIG_PXA27X || defined CONFIG_CPU_MONAHANS
 /*
  * PXA LCD DMA descriptor
  */
