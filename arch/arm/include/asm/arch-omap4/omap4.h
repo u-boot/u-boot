@@ -62,7 +62,7 @@
 #define SYNC_32KTIMER_BASE	(OMAP44XX_L4_WKUP_BASE + 0x4000)
 
 /* GPMC */
-#define GPMC_BASE	0x50000000
+#define OMAP44XX_GPMC_BASE	0x50000000
 
 /*
  * Hardware Register Details
