@@ -30,28 +30,28 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define pinmux	(&davinci_syscfg_regs->pinmux)
+#define pinmux(x)	(&davinci_syscfg_regs->pinmux[x])
 
 /* SPI0 pin muxer settings */
 static const struct pinmux_config spi1_pins[] = {
-	{ pinmux[5], 1, 1 },
-	{ pinmux[5], 1, 2 },
-	{ pinmux[5], 1, 4 },
-	{ pinmux[5], 1, 5 }
+	{ pinmux(5), 1, 1 },
+	{ pinmux(5), 1, 2 },
+	{ pinmux(5), 1, 4 },
+	{ pinmux(5), 1, 5 }
 };
 
 /* UART pin muxer settings */
 static const struct pinmux_config uart_pins[] = {
-	{ pinmux[0], 4, 6 },
-	{ pinmux[0], 4, 7 },
-	{ pinmux[4], 2, 4 },
-	{ pinmux[4], 2, 5 }
+	{ pinmux(0), 4, 6 },
+	{ pinmux(0), 4, 7 },
+	{ pinmux(4), 2, 4 },
+	{ pinmux(4), 2, 5 }
 };
 
 /* I2C pin muxer settings */
 static const struct pinmux_config i2c_pins[] = {
-	{ pinmux[4], 2, 2 },
-	{ pinmux[4], 2, 3 }
+	{ pinmux(4), 2, 2 },
+	{ pinmux(4), 2, 3 }
 };
 
 static const struct pinmux_resource pinmuxes[] = {
