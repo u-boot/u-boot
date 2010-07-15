@@ -760,6 +760,8 @@ typedef struct ccsr_pic {
 	u32	eoi;		/* End Of IRQ */
 	u8	res9[3916];
 	u32	frr;		/* Feature Reporting */
+#define MPC85xx_PICFRR_NCPU_MASK	0x00001f00
+#define MPC85xx_PICFRR_NCPU_SHIFT	8
 	u8	res10[28];
 	u32	gcr;		/* Global Configuration */
 #define MPC85xx_PICGCR_RST	0x80000000
