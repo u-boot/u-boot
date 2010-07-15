@@ -45,63 +45,63 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define pinmux	&davinci_syscfg_regs->pinmux
+#define pinmux(x)	(&davinci_syscfg_regs->pinmux[x])
 
 /* SPI0 pin muxer settings */
 static const struct pinmux_config spi0_pins[] = {
-	{ pinmux[7], 1, 3 },
-	{ pinmux[7], 1, 4 },
-	{ pinmux[7], 1, 5 },
-	{ pinmux[7], 1, 6 },
-	{ pinmux[7], 1, 7 }
+	{ pinmux(7), 1, 3 },
+	{ pinmux(7), 1, 4 },
+	{ pinmux(7), 1, 5 },
+	{ pinmux(7), 1, 6 },
+	{ pinmux(7), 1, 7 }
 };
 
 /* EMIF-A bus pins for 8-bit NAND support on CS3 */
 static const struct pinmux_config emifa_nand_pins[] = {
-	{ pinmux[13], 1, 6 },
-	{ pinmux[13], 1, 7 },
-	{ pinmux[14], 1, 0 },
-	{ pinmux[14], 1, 1 },
-	{ pinmux[14], 1, 2 },
-	{ pinmux[14], 1, 3 },
-	{ pinmux[14], 1, 4 },
-	{ pinmux[14], 1, 5 },
-	{ pinmux[15], 1, 7 },
-	{ pinmux[16], 1, 0 },
-	{ pinmux[18], 1, 1 },
-	{ pinmux[18], 1, 4 },
-	{ pinmux[18], 1, 5 },
+	{ pinmux(13), 1, 6 },
+	{ pinmux(13), 1, 7 },
+	{ pinmux(14), 1, 0 },
+	{ pinmux(14), 1, 1 },
+	{ pinmux(14), 1, 2 },
+	{ pinmux(14), 1, 3 },
+	{ pinmux(14), 1, 4 },
+	{ pinmux(14), 1, 5 },
+	{ pinmux(15), 1, 7 },
+	{ pinmux(16), 1, 0 },
+	{ pinmux(18), 1, 1 },
+	{ pinmux(18), 1, 4 },
+	{ pinmux(18), 1, 5 },
 };
 
 /* EMAC PHY interface pins */
 static const struct pinmux_config emac_pins[] = {
-	{ pinmux[9], 0, 5 },
-	{ pinmux[10], 2, 1 },
-	{ pinmux[10], 2, 2 },
-	{ pinmux[10], 2, 3 },
-	{ pinmux[10], 2, 4 },
-	{ pinmux[10], 2, 5 },
-	{ pinmux[10], 2, 6 },
-	{ pinmux[10], 2, 7 },
-	{ pinmux[11], 2, 0 },
-	{ pinmux[11], 2, 1 },
+	{ pinmux(9), 0, 5 },
+	{ pinmux(10), 2, 1 },
+	{ pinmux(10), 2, 2 },
+	{ pinmux(10), 2, 3 },
+	{ pinmux(10), 2, 4 },
+	{ pinmux(10), 2, 5 },
+	{ pinmux(10), 2, 6 },
+	{ pinmux(10), 2, 7 },
+	{ pinmux(11), 2, 0 },
+	{ pinmux(11), 2, 1 },
 };
 
 /* UART pin muxer settings */
 static const struct pinmux_config uart_pins[] = {
-	{ pinmux[8], 2, 7 },
-	{ pinmux[9], 2, 0 }
+	{ pinmux(8), 2, 7 },
+	{ pinmux(9), 2, 0 }
 };
 
 /* I2C pin muxer settings */
 static const struct pinmux_config i2c_pins[] = {
-	{ pinmux[8], 2, 3 },
-	{ pinmux[8], 2, 4 }
+	{ pinmux(8), 2, 3 },
+	{ pinmux(8), 2, 4 }
 };
 
 /* USB0_DRVVBUS pin muxer settings */
 static const struct pinmux_config usb_pins[] = {
-	{ pinmux[9], 1, 1 }
+	{ pinmux(9), 1, 1 }
 };
 
 static const struct pinmux_resource pinmuxes[] = {
