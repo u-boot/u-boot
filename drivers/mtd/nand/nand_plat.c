@@ -16,6 +16,10 @@
 
 #include <common.h>
 #include <asm/io.h>
+#ifdef NAND_PLAT_GPIO_DEV_READY
+# include <asm/gpio.h>
+# define NAND_PLAT_DEV_READY(chip) gpio_get_value(NAND_PLAT_GPIO_DEV_READY)
+#endif
 
 #include <nand.h>
 
@@ -43,7 +47,14 @@ static int plat_dev_ready(struct mtd_info *mtd)
 
 int board_nand_init(struct nand_chip *nand)
 {
+#ifdef NAND_PLAT_GPIO_DEV_READY
+	gpio_request(NAND_PLAT_GPIO_DEV_READY, "nand-plat");
+	gpio_direction_input(NAND_PLAT_GPIO_DEV_READY);
+#endif
+
+#ifdef NAND_PLAT_INIT
 	NAND_PLAT_INIT();
+#endif
 
 	nand->cmd_ctrl = plat_cmd_ctrl;
 	nand->dev_ready = plat_dev_ready;

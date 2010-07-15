@@ -83,6 +83,7 @@
 # define CONFIG_CMD_CPLBINFO
 # define CONFIG_CMD_ELF
 # define CONFIG_ELF_SIMPLE_LOAD
+# define CONFIG_CMD_GPIO
 # define CONFIG_CMD_KGDB
 # define CONFIG_CMD_REGINFO
 # define CONFIG_CMD_STRINGS
@@ -247,12 +248,26 @@
 #   define CONFIG_SYS_AUTOLOAD "no"
 #  endif
 # endif
+# define CONFIG_IP_DEFRAG
 # define CONFIG_NET_RETRY_COUNT 20
+#endif
+
+/*
+ * I2C Settings
+ */
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+# ifndef CONFIG_SYS_I2C_SPEED
+#  define CONFIG_SYS_I2C_SPEED 50000
+# endif
+# ifndef CONFIG_SYS_I2C_SLAVE
+#  define CONFIG_SYS_I2C_SLAVE 0
+# endif
 #endif
 
 /*
  * Misc Settings
  */
+#define CONFIG_BFIN_SPI_GPIO_CS /* Only matters if BFIN_SPI is enabled */
 #define CONFIG_LZMA
 
 #endif

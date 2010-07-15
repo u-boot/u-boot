@@ -131,12 +131,23 @@
  * Commands configuration - using default command set for now
  */
 #include <config_cmd_default.h>
+
 /*
- * Disabling some default commands for staggered bring-up
+ * Network
  */
-#undef CONFIG_CMD_BOOTD	/* no bootd since no net */
-#undef CONFIG_CMD_NET	/* no net since no eth */
-#undef CONFIG_CMD_NFS	/* no NFS since no net */
+
+#ifdef CONFIG_CMD_NET
+#define CONFIG_MVGBE				/* Enable Marvell GbE Driver */
+#define CONFIG_MVGBE_PORTS	{1}		/* enable port 0 only */
+#define CONFIG_SKIP_LOCAL_MAC_RANDOMIZATION	/* don't randomize MAC */
+#define CONFIG_PHY_BASE_ADR	0x8
+#define CONFIG_RESET_PHY_R	/* use reset_phy() to init mv8831116 PHY */
+#define CONFIG_NETCONSOLE	/* include NetConsole support   */
+#define CONFIG_NET_MULTI	/* specify more that one ports available */
+#define	CONFIG_MII		/* expose smi ove miiphy interface */
+#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
+#define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
+#endif
 
 /*
  *  Environment variables configurations

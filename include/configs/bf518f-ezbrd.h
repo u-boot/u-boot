@@ -63,6 +63,26 @@
 #if !defined(__ADSPBF512__) && !defined(__ADSPBF514__)
 #define ADI_CMDS_NETWORK	1
 #define CONFIG_BFIN_MAC
+#define CONFIG_BFIN_MAC_PINS \
+	{ \
+	P_MII0_ETxD0, \
+	P_MII0_ETxD1, \
+	P_MII0_ETxD2, \
+	P_MII0_ETxD3, \
+	P_MII0_ETxEN, \
+	P_MII0_TxCLK, \
+	P_MII0_PHYINT, \
+	P_MII0_COL, \
+	P_MII0_ERxD0, \
+	P_MII0_ERxD1, \
+	P_MII0_ERxD2, \
+	P_MII0_ERxD3, \
+	P_MII0_ERxDV, \
+	P_MII0_ERxCLK, \
+	P_MII0_CRS, \
+	P_MII0_MDC, \
+	P_MII0_MDIO, \
+	0 }
 #define CONFIG_NETCONSOLE	1
 #define CONFIG_NET_MULTI	1
 #endif
@@ -117,8 +137,6 @@
  */
 #define CONFIG_BFIN_TWI_I2C	1
 #define CONFIG_HARD_I2C		1
-#define CONFIG_SYS_I2C_SPEED	50000
-#define CONFIG_SYS_I2C_SLAVE	0
 
 
 /*

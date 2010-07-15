@@ -1,6 +1,8 @@
 #
-# (C) Copyright 2005, Psyent Corporation <www.psyent.com>
-# Scott McNutt <smcnutt@psyent.com>
+# Copyright (c) 2005-2008 Analog Device Inc.
+#
+# (C) Copyright 2001
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,11 +23,11 @@
 # MA 02111-1307 USA
 #
 
-TEXT_BASE = 0x01fc0000
+# This is not actually used for Blackfin boards so do not change it
+#TEXT_BASE = do-not-use-me
 
-PLATFORM_CPPFLAGS += -mno-hw-div -mno-hw-mul
-PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/$(VENDOR)/include
+CFLAGS_lib_generic += -O2
+CFLAGS_lzma += -O2
 
-ifeq ($(debug),1)
-PLATFORM_CPPFLAGS += -DDEBUG
-endif
+# Set some default LDR flags based on boot mode.
+LDR_FLAGS += $(LDR_FLAGS-$(CONFIG_BFIN_BOOT_MODE))

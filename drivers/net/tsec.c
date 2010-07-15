@@ -95,14 +95,23 @@ static struct tsec_info_struct tsec_info[] = {
 #endif
 };
 
+/*
+ * Initialize all the TSEC devices
+ *
+ * Returns the number of TSEC devices that were initialized
+ */
 int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsecs, int num)
 {
 	int i;
+	int ret, count = 0;
 
-	for (i = 0; i < num; i++)
-		tsec_initialize(bis, &tsecs[i]);
+	for (i = 0; i < num; i++) {
+		ret = tsec_initialize(bis, &tsecs[i]);
+		if (ret > 0)
+			count += ret;
+	}
 
-	return 0;
+	return count;
 }
 
 int tsec_standard_init(bd_t *bis)
@@ -1631,6 +1640,27 @@ static struct phy_info phy_info_dm9161 = {
 	},
 };
 
+/* micrel KSZ804  */
+static struct phy_info phy_info_ksz804 =  {
+	0x0022151,
+	"Micrel KSZ804 PHY",
+	4,
+	(struct phy_cmd[]) { /* config */
+		{PHY_BMCR, PHY_BMCR_RESET, NULL},
+		{PHY_BMCR, PHY_BMCR_AUTON|PHY_BMCR_RST_NEG, NULL},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* startup */
+		{PHY_BMSR, miim_read, NULL},
+		{PHY_BMSR, miim_read, &mii_parse_sr},
+		{PHY_BMSR, miim_read, &mii_parse_link},
+		{miim_end,}
+	},
+	(struct phy_cmd[]) { /* shutdown */
+		{miim_end,}
+	}
+};
+
 /* a generic flavor.  */
 static struct phy_info phy_info_generic =  {
 	0,
@@ -1794,6 +1824,7 @@ static struct phy_info *phy_info[] = {
 	&phy_info_M88E1145,
 	&phy_info_M88E1149S,
 	&phy_info_dm9161,
+	&phy_info_ksz804,
 	&phy_info_lxt971,
 	&phy_info_VSC8211,
 	&phy_info_VSC8244,

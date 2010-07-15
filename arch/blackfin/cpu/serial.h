@@ -26,6 +26,8 @@
 
 #ifndef __ASSEMBLY__
 
+#include <asm/portmux.h>
+
 #define LOB(x) ((x) & 0xFF)
 #define HIB(x) (((x) >> 8) & 0xFF)
 
@@ -103,6 +105,23 @@ struct bfin_mmr_serial {
 __attribute__((always_inline))
 static inline void serial_do_portmux(void)
 {
+	if (!BFIN_DEBUG_EARLY_SERIAL) {
+		const unsigned short pins[] = {
+#if CONFIG_UART_CONSOLE == 0
+			P_UART0_TX, P_UART0_RX,
+#elif CONFIG_UART_CONSOLE == 1
+			P_UART1_TX, P_UART1_RX,
+#elif CONFIG_UART_CONSOLE == 2
+			P_UART2_TX, P_UART2_RX,
+#elif CONFIG_UART_CONSOLE == 3
+			P_UART3_TX, P_UART3_RX,
+#endif
+			0,
+		};
+		peripheral_request_list(pins, "bfin-uart");
+		return;
+	}
+
 #if defined(__ADSPBF51x__)
 # define DO_MUX(port, mux_tx, mux_rx, tx, rx) \
 	bfin_write_PORT##port##_MUX((bfin_read_PORT##port##_MUX() & ~(PORT_x_MUX_##mux_tx##_MASK | PORT_x_MUX_##mux_rx##_MASK)) | PORT_x_MUX_##mux_tx##_FUNC_2 | PORT_x_MUX_##mux_rx##_FUNC_2); \

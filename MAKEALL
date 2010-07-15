@@ -360,6 +360,7 @@ LIST_8260="		\
 LIST_83xx="		\
 	caddy2		\
 	kmeter1		\
+	MPC8308RDB	\
 	MPC8313ERDB_33	\
 	MPC8313ERDB_NAND_66	\
 	MPC8315ERDB	\
@@ -380,6 +381,7 @@ LIST_83xx="		\
 	sbc8349		\
 	SIMPC8313_LP	\
 	TQM834x		\
+	ve8313		\
 	vme8349		\
 "
 
@@ -826,9 +828,6 @@ LIST_x86="		\
 #########################################################################
 
 LIST_nios2="		\
-	EP1C20		\
-	EP1S10		\
-	EP1S40		\
 	PCI5441		\
 	PK1C20		\
 	nios2-generic	\
@@ -894,6 +893,7 @@ LIST_avr32="		\
 LIST_blackfin="		\
 	bf518f-ezbrd	\
 	bf526-ezbrd	\
+	bf527-ad7160-eval	\
 	bf527-ezkit	\
 	bf527-ezkit-v2	\
 	bf533-ezkit	\

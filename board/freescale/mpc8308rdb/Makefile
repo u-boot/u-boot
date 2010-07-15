@@ -1,6 +1,8 @@
 #
-# (C) Copyright 2001-2006
+# (C) Copyright 2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# (C) Copyright 2010
+# Ilya Yanok, Emcraft Systems, yanok@emcraft.com
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -22,15 +24,10 @@
 #
 
 include $(TOPDIR)/config.mk
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)../common)
-endif
 
 LIB	= $(obj)lib$(BOARD).a
 
-COMOBJS := ../common/AMDLV065D.o ../common/epled.o
-
-COBJS	:= $(BOARD).o $(COMOBJS)
+COBJS	:= $(BOARD).o sdram.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

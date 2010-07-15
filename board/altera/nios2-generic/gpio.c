@@ -15,6 +15,11 @@
 static u32 pio_data_reg;
 static u32 pio_dir_reg;
 
+int gpio_request(unsigned gpio, const char *label)
+{
+	return 0;
+}
+
 int gpio_direction_input(unsigned gpio)
 {
 	u32 mask = 1 << gpio;

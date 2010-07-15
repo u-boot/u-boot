@@ -428,6 +428,7 @@ Heiko Schocher <hs@denx.de>
 	sc3		PPC405GP
 	suen3		ARM926EJS (Kirkwood SoC)
 	uc101		MPC5200
+	ve8313		MPC8313
 
 Peter De Schrijver <p2@mind.be>
 
@@ -489,6 +490,10 @@ Michael Weiss <michael.weiss@ifm.com>
 Stephen Williams <steve@icarus.com>
 
 	JSE		PPC405GPr
+
+Ilya Yanok <yanok@emcraft.com>
+
+	MPC8308RDB	MPC8308
 
 Roy Zang <tie-fei.zang@freescale.com>
 
@@ -871,9 +876,6 @@ Scott McNutt <smcnutt@psyent.com>
 
 	PCI5441		Nios-II
 	PK1C20		Nios-II
-	EP1C20		Nios-II
-	EP1S10		Nios-II
-	EP1S40		Nios-II
 	nios2-generic	Nios-II
 
 #########################################################################
@@ -999,6 +1001,8 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 	BF538F-EZKIT	BF538
 	BF548-EZKIT	BF548
 	BF561-EZKIT	BF561
+
+	BF527-AD7160-EVAL	BF527
 
 Bluetechnix Tinyboards <bluetechnix@blackfin.uclinux.org>
 Blackfin Team <u-boot-devel@blackfin.uclinux.org>

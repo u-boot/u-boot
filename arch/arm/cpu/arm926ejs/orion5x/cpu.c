@@ -268,3 +268,11 @@ int arch_misc_init(void)
 	return 0;
 }
 #endif /* CONFIG_ARCH_MISC_INIT */
+
+#ifdef CONFIG_MVGBE
+int cpu_eth_init(bd_t *bis)
+{
+	mvgbe_initialize(bis);
+	return 0;
+}
+#endif

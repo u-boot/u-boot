@@ -38,6 +38,7 @@
 #include <linux/stddef.h>
 #include <malloc.h>
 #include <nand.h>
+#include <asm/errno.h>
 
 #if defined(CONFIG_CMD_SAVEENV) && defined(CONFIG_CMD_NAND)
 #define CMD_SAVEENV
@@ -284,6 +285,38 @@ int readenv (size_t offset, u_char * buf)
 	return 0;
 }
 
+#ifdef CONFIG_ENV_OFFSET_OOB
+int get_nand_env_oob(nand_info_t *nand, unsigned long *result)
+{
+	struct mtd_oob_ops ops;
+	uint32_t oob_buf[ENV_OFFSET_SIZE/sizeof(uint32_t)];
+	int ret;
+
+	ops.datbuf = NULL;
+	ops.mode = MTD_OOB_AUTO;
+	ops.ooboffs = 0;
+	ops.ooblen = ENV_OFFSET_SIZE;
+	ops.oobbuf = (void *) oob_buf;
+
+	ret = nand->read_oob(nand, ENV_OFFSET_SIZE, &ops);
+	if (ret) {
+		printf("error reading OOB block 0\n");
+		return ret;
+	}
+
+	if (oob_buf[0] == ENV_OOB_MARKER) {
+		*result = oob_buf[1] * nand->erasesize;
+	} else if (oob_buf[0] == ENV_OOB_MARKER_OLD) {
+		*result = oob_buf[1];
+	} else {
+		printf("No dynamic environment marker in OOB block 0\n");
+		return -ENOENT;
+	}
+
+	return 0;
+}
+#endif
+
 #ifdef CONFIG_ENV_OFFSET_REDUND
 void env_relocate_spec (void)
 {
@@ -352,6 +385,17 @@ void env_relocate_spec (void)
 {
 #if !defined(ENV_IS_EMBEDDED)
 	int ret;
+
+#if defined(CONFIG_ENV_OFFSET_OOB)
+	ret = get_nand_env_oob(&nand_info[0], &nand_env_oob_offset);
+	/* If unable to read environment offset from NAND OOB then fall through
+	 * to the normal environment reading code below
+	 */
+	if (!ret)
+		printf("Found Environment offset in OOB..\n");
+	else
+		return use_default();
+#endif
 
 	ret = readenv(CONFIG_ENV_OFFSET, (u_char *) env_ptr);
 	if (ret)

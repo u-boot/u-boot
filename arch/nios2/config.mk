@@ -30,3 +30,6 @@ PLATFORM_CPPFLAGS += -DCONFIG_NIOS2 -D__NIOS2__
 PLATFORM_CPPFLAGS += -G0
 
 LDSCRIPT ?= $(SRCTREE)/$(CPUDIR)/u-boot.lds
+
+LDFLAGS += --gc-sections
+PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections

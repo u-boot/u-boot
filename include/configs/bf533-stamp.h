@@ -180,8 +180,6 @@
 	} while (0)
 #define I2C_DELAY		udelay(5)	/* 1/4 I2C clock duration */
 
-#define CONFIG_SYS_I2C_SPEED		50000
-#define CONFIG_SYS_I2C_SLAVE		0
 #endif
 
 
@@ -230,23 +228,19 @@
 /* define to enable run status via led */
 /* #define CONFIG_STATUS_LED */
 #ifdef CONFIG_STATUS_LED
+#define CONFIG_GPIO_LED
 #define CONFIG_BOARD_SPECIFIC_LED
-#ifndef __ASSEMBLY__
-typedef unsigned int led_id_t;
-void __led_init(led_id_t mask, int state);
-void __led_set(led_id_t mask, int state);
-void __led_toggle(led_id_t mask);
-#endif
-/* use LED1 to indicate booting/alive */
+/* use LED0 to indicate booting/alive */
 #define STATUS_LED_BOOT 0
-#define STATUS_LED_BIT 1
+#define STATUS_LED_BIT GPIO_PF2
 #define STATUS_LED_STATE STATUS_LED_ON
 #define STATUS_LED_PERIOD (CONFIG_SYS_HZ / 4)
-/* use LED2 to indicate crash */
+/* use LED1 to indicate crash */
 #define STATUS_LED_CRASH 1
-#define STATUS_LED_BIT1 2
+#define STATUS_LED_BIT1 GPIO_PF3
 #define STATUS_LED_STATE1 STATUS_LED_ON
 #define STATUS_LED_PERIOD1 (CONFIG_SYS_HZ / 2)
+/* #define STATUS_LED_BIT2 GPIO_PF4 */
 #endif
 
 /* define to enable splash screen support */

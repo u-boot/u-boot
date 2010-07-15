@@ -19,6 +19,7 @@
 #ifndef _AX88180_H_
 #define _AX88180_H_
 
+#include <asm/io.h>
 #include <asm/types.h>
 #include <config.h>
 
@@ -33,6 +34,7 @@ struct ax88180_private {
 	unsigned char PadSize;
 	unsigned short PhyAddr;
 	unsigned short PhyID0;
+	unsigned short PhyID1;
 	unsigned short FirstTxDesc;
 	unsigned short NextTxDesc;
 	ax88180_link_state LinkState;
@@ -63,11 +65,10 @@ struct ax88180_private {
 /* Max Rx Jumbo size is 15K Bytes */
 #define MAX_RX_SIZE			0x3C00
 
-#define MARVELL_88E1111_PHYADDR	0x18
-#define MARVELL_88E1111_PHYIDR0	0x0141
+#define MARVELL_ALASKA_PHYSID0	0x141
+#define MARVELL_88E1118_PHYSID1	0xE40
 
-#define CICADA_CIS8201_PHYADDR	0x01
-#define CICADA_CIS8201_PHYIDR0		0x000F
+#define CICADA_CIS8201_PHYSID0		0x000F
 
 #define MEDIA_AUTO			0
 #define MEDIA_1000FULL			1
@@ -278,50 +279,6 @@ struct ax88180_private {
   #define SOFTRST_NORMAL	0x00000003
   #define SOFTRST_RESET_MAC	0x00000002
 
-/* External PHY Register Definition */
-#define BMCR		0x0000
-  #define LINE_SPEED_MSB	0x0040
-  #define DUPLEX_MODE		0x0100
-  #define RESTART_AUTONEG	0x0200
-  #define POWER_DOWN		0x0800
-  #define AUTONEG_EN		0x1000
-  #define LINE_SPEED_LSB	0x2000
-  #define PHY_RESET		0x8000
-
-  #define MEDIAMODE_MASK	(LINE_SPEED_MSB | LINE_SPEED_LSB |\
-				 DUPLEX_MODE)
-  #define BMCR_SPEED_1000	LINE_SPEED_MSB
-  #define BMCR_SPEED_100	LINE_SPEED_LSB
-  #define BMCR_SPEED_10	0x0000
-
-  #define BMCR_1000FULL	(BMCR_SPEED_1000 | DUPLEX_MODE)
-  #define BMCR_100FULL		(BMCR_SPEED_100 | DUPLEX_MODE)
-  #define BMCR_100HALF		BMCR_SPEED_100
-  #define BMCR_10FULL		DUPLEX_MODE
-  #define BMCR_10HALF		0x0000
-#define BMSR		0x0001
-  #define LINKOK		0x0004
-  #define AUTONEG_ENABLE_STS	0x0008
-  #define AUTONEG_COMPLETE	0x0020
-#define PHYIDR0		0x0002
-#define PHYIDR1		0x0003
-#define ANAR		0x0004
-  #define ANAR_PAUSE		0x0400
-  #define ANAR_100FULL		0x0100
-  #define ANAR_100HALF		0x0080
-  #define ANAR_10FULL		0x0040
-  #define ANAR_10HALF		0x0020
-  #define ANAR_8023BIT		0x0001
-#define ANLPAR		0x0005
-#define ANER		0x0006
-#define AUX_1000_CTRL	0x0009
-  #define ENABLE_1000HALF	0x0100
-  #define ENABLE_1000FULL	0x0200
-  #define DEFAULT_AUX_1000_CTRL	(ENABLE_1000HALF | ENABLE_1000FULL)
-#define AUX_1000_STATUS	0x000A
-  #define LP_1000HALF		0x0400
-  #define LP_1000FULL		0x0800
-
 /* Marvell 88E1111 Gigabit PHY Register Definition */
 #define M88_SSR		0x0011
   #define SSR_SPEED_MASK	0xC000
@@ -342,13 +299,35 @@ struct ax88180_private {
   #define LINK_CHANGE_INT	0x0400
 #define M88_ISR		0x0013
   #define LINK_CHANGE_STATUS	0x0400
-#define M88_EXT_SCR	0x0014
+#define M88E1111_EXT_SCR	0x0014
   #define RGMII_RXCLK_DELAY	0x0080
   #define RGMII_TXCLK_DELAY	0x0002
   #define DEFAULT_EXT_SCR	(RGMII_TXCLK_DELAY | RGMII_RXCLK_DELAY)
-#define M88_EXT_SSR	0x001B
+#define M88E1111_EXT_SSR	0x001B
   #define HWCFG_MODE_MASK	0x000F
   #define RGMII_COPPER_MODE	0x000B
+
+/* Marvell 88E1118 Gigabit PHY Register Definition */
+#define M88E1118_CR			0x14
+  #define M88E1118_CR_RGMII_RXCLK_DELAY	0x0020
+  #define M88E1118_CR_RGMII_TXCLK_DELAY	0x0010
+  #define M88E1118_CR_DEFAULT		(M88E1118_CR_RGMII_TXCLK_DELAY | \
+					 M88E1118_CR_RGMII_RXCLK_DELAY)
+#define M88E1118_LEDCTL		0x10		/* Reg 16 on page 3 */
+  #define M88E1118_LEDCTL_LED2INT			0x200
+  #define M88E1118_LEDCTL_LED2BLNK			0x400
+  #define M88E1118_LEDCTL_LED0DUALMODE1	0xc
+  #define M88E1118_LEDCTL_LED0DUALMODE2	0xd
+  #define M88E1118_LEDCTL_LED0DUALMODE3	0xe
+  #define M88E1118_LEDCTL_LED0DUALMODE4	0xf
+  #define M88E1118_LEDCTL_DEFAULT	(M88E1118_LEDCTL_LED2BLNK | \
+					 M88E1118_LEDCTL_LED0DUALMODE4)
+
+#define M88E1118_LEDMIX		0x11		/* Reg 17 on page 3 */
+  #define M88E1118_LEDMIX_LED050				0x4
+  #define M88E1118_LEDMIX_LED150				0x8
+
+#define M88E1118_PAGE_SEL	0x16		/* Reg page select */
 
 /* CICADA CIS8201 Gigabit PHY Register Definition */
 #define CIS_IMR		0x0019
@@ -376,36 +355,41 @@ struct ax88180_private {
 
 static inline unsigned short INW (struct eth_device *dev, unsigned long addr)
 {
-	return le16_to_cpu (*(volatile unsigned short *) (addr + dev->iobase));
-}
-
-static inline void OUTW (struct eth_device *dev, unsigned short command, unsigned long addr)
-{
-	*(volatile unsigned short *) ((addr + dev->iobase)) = cpu_to_le16 (command);
+	return le16_to_cpu(readw(addr + (void *)dev->iobase));
 }
 
 /*
  Access RXBUFFER_START/TXBUFFER_START to read RX buffer/write TX buffer
 */
 #if defined (CONFIG_DRIVER_AX88180_16BIT)
+static inline void OUTW (struct eth_device *dev, unsigned short command, unsigned long addr)
+{
+	writew(cpu_to_le16(command), addr + (void *)dev->iobase);
+}
+
 static inline unsigned short READ_RXBUF (struct eth_device *dev)
 {
-	return le16_to_cpu (*(volatile unsigned short *) (RXBUFFER_START + dev->iobase));
+	return le16_to_cpu(readw(RXBUFFER_START + (void *)dev->iobase));
 }
 
 static inline void WRITE_TXBUF (struct eth_device *dev, unsigned short data)
 {
-	*(volatile unsigned short *) ((TXBUFFER_START + dev->iobase)) = cpu_to_le16 (data);
+	writew(cpu_to_le16(data), TXBUFFER_START + (void *)dev->iobase);
 }
 #else
+static inline void OUTW (struct eth_device *dev, unsigned short command, unsigned long addr)
+{
+	writel(cpu_to_le32(command), addr + (void *)dev->iobase);
+}
+
 static inline unsigned long READ_RXBUF (struct eth_device *dev)
 {
-	return le32_to_cpu (*(volatile unsigned long *) (RXBUFFER_START + dev->iobase));
+	return le32_to_cpu(readl(RXBUFFER_START + (void *)dev->iobase));
 }
 
 static inline void WRITE_TXBUF (struct eth_device *dev, unsigned long data)
 {
-	*(volatile unsigned long *) ((TXBUFFER_START + dev->iobase)) = cpu_to_le32 (data);
+	writel(cpu_to_le32(data), TXBUFFER_START + (void *)dev->iobase);
 }
 #endif
 

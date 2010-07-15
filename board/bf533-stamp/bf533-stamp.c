@@ -27,8 +27,7 @@
 
 #include <common.h>
 #include <netdev.h>
-#include <asm/io.h>
-#include "bf533-stamp.h"
+#include <asm/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -46,15 +45,10 @@ int checkboard(void)
  */
 void swap_to(int device_id)
 {
-	bfin_write_FIO_DIR(bfin_read_FIO_DIR() | PF1 | PF0);
-	SSYNC();
-	bfin_write_FIO_FLAG_C(PF1);
-	if (device_id == ETHERNET)
-		bfin_write_FIO_FLAG_S(PF0);
-	else if (device_id == FLASH)
-		bfin_write_FIO_FLAG_C(PF0);
-	else
-		printf("Unknown device to switch\n");
+	gpio_request(GPIO_PF0, "eth_flash_swap");
+	gpio_request(GPIO_PF1, "eth_flash_swap");
+	gpio_direction_output(GPIO_PF0, device_id == ETHERNET);
+	gpio_direction_output(GPIO_PF1, 0);
 	SSYNC();
 }
 
@@ -75,24 +69,23 @@ int misc_init_r(void)
 #define STATUS_LED_OFF 0
 #define STATUS_LED_ON  1
 
+static int gpio_setup;
+
 static void stamp_led_set(int LED1, int LED2, int LED3)
 {
-	bfin_write_FIO_INEN(bfin_read_FIO_INEN() & ~(PF2 | PF3 | PF4));
-	bfin_write_FIO_DIR(bfin_read_FIO_DIR() | (PF2 | PF3 | PF4));
-
-	if (LED1 == STATUS_LED_OFF)
-		*pFIO_FLAG_S = PF2;
-	else
-		*pFIO_FLAG_C = PF2;
-	if (LED2 == STATUS_LED_OFF)
-		*pFIO_FLAG_S = PF3;
-	else
-		*pFIO_FLAG_C = PF3;
-	if (LED3 == STATUS_LED_OFF)
-		*pFIO_FLAG_S = PF4;
-	else
-		*pFIO_FLAG_C = PF4;
-	SSYNC();
+	if (!gpio_setup) {
+		gpio_request(GPIO_PF2, "boot_progress");
+		gpio_request(GPIO_PF3, "boot_progress");
+		gpio_request(GPIO_PF4, "boot_progress");
+		gpio_direction_output(GPIO_PF2, LED1);
+		gpio_direction_output(GPIO_PF3, LED2);
+		gpio_direction_output(GPIO_PF4, LED3);
+		gpio_setup = 1;
+	} else {
+		gpio_set_value(GPIO_PF2, LED1);
+		gpio_set_value(GPIO_PF3, LED2);
+		gpio_set_value(GPIO_PF4, LED3);
+	}
 }
 
 void show_boot_progress(int status)
@@ -132,43 +125,6 @@ void show_boot_progress(int status)
 		break;
 	}
 }
-#endif
-
-#ifdef CONFIG_STATUS_LED
-#include <status_led.h>
-
-static void set_led(int pf, int state)
-{
-	switch (state) {
-		case STATUS_LED_OFF:      bfin_write_FIO_FLAG_S(pf); break;
-		case STATUS_LED_BLINKING: bfin_write_FIO_FLAG_T(pf); break;
-		case STATUS_LED_ON:       bfin_write_FIO_FLAG_C(pf); break;
-	}
-}
-
-static void set_leds(led_id_t mask, int state)
-{
-	if (mask & 0x1) set_led(PF2, state);
-	if (mask & 0x2) set_led(PF3, state);
-	if (mask & 0x4) set_led(PF4, state);
-}
-
-void __led_init(led_id_t mask, int state)
-{
-	bfin_write_FIO_INEN(bfin_read_FIO_INEN() & ~(PF2 | PF3 | PF4));
-	bfin_write_FIO_DIR(bfin_read_FIO_DIR() | (PF2 | PF3 | PF4));
-}
-
-void __led_set(led_id_t mask, int state)
-{
-	set_leds(mask, state);
-}
-
-void __led_toggle(led_id_t mask)
-{
-	set_leds(mask, STATUS_LED_BLINKING);
-}
-
 #endif
 
 #ifdef CONFIG_SMC91111

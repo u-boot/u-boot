@@ -75,7 +75,15 @@ extern void blackfin_dcache_flush_invalidate_range(const void *, const void *);
  * regions can only be accessed via DMA, so if the address in question is in
  * that region, make sure we attempt to DMA indirectly.
  */
-# define addr_bfin_on_chip_mem(addr) (((unsigned long)(addr) & 0xFFF00000) == 0xFFA00000)
+# ifdef __ADSPBF561__
+  /* Core B regions all need dma from Core A */
+#  define addr_bfin_on_chip_mem(addr) \
+	((((unsigned long)(addr) & 0xFFF00000) == 0xFFA00000) || \
+	 (((unsigned long)(addr) & 0xFFC00000) == 0xFF400000))
+# else
+#  define addr_bfin_on_chip_mem(addr) \
+	(((unsigned long)(addr) & 0xFFF00000) == 0xFFA00000)
+# endif
 
 # include <asm/system.h>
 

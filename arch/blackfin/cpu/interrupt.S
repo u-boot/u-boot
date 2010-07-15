@@ -150,3 +150,8 @@ ENTRY(_evt_default)
 	RESTORE_ALL_SYS
 	rti;
 ENDPROC(_evt_default)
+
+/* NMI handler */
+ENTRY(_evt_nmi)
+	rtn;
+ENDPROC(_evt_nmi)

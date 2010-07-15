@@ -29,9 +29,8 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(BOARD).a
 
-COBJS-y	:= $(BOARD).o cmd_bf537led.o
+COBJS-y	:= $(BOARD).o
 COBJS-$(CONFIG_BFIN_IDE)   += ide-cf.o
-COBJS-$(CONFIG_CMD_EEPROM) += spi_flash.o
 COBJS-$(CONFIG_POST)       += post.o post-memory.o
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
