@@ -31,6 +31,51 @@
 
 #ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
+struct gpmc_cs {
+	u32 config1;		/* 0x00 */
+	u32 config2;		/* 0x04 */
+	u32 config3;		/* 0x08 */
+	u32 config4;		/* 0x0C */
+	u32 config5;		/* 0x10 */
+	u32 config6;		/* 0x14 */
+	u32 config7;		/* 0x18 */
+	u32 nand_cmd;		/* 0x1C */
+	u32 nand_adr;		/* 0x20 */
+	u32 nand_dat;		/* 0x24 */
+	u8 res[8];		/* blow up to 0x30 byte */
+};
+
+struct gpmc {
+	u8 res1[0x10];
+	u32 sysconfig;		/* 0x10 */
+	u8 res2[0x4];
+	u32 irqstatus;		/* 0x18 */
+	u32 irqenable;		/* 0x1C */
+	u8 res3[0x20];
+	u32 timeout_control;	/* 0x40 */
+	u8 res4[0xC];
+	u32 config;		/* 0x50 */
+	u32 status;		/* 0x54 */
+	u8 res5[0x8];	/* 0x58 */
+	struct gpmc_cs cs[8];	/* 0x60, 0x90, .. */
+	u8 res6[0x14];		/* 0x1E0 */
+	u32 ecc_config;		/* 0x1F4 */
+	u32 ecc_control;	/* 0x1F8 */
+	u32 ecc_size_config;	/* 0x1FC */
+	u32 ecc1_result;	/* 0x200 */
+	u32 ecc2_result;	/* 0x204 */
+	u32 ecc3_result;	/* 0x208 */
+	u32 ecc4_result;	/* 0x20C */
+	u32 ecc5_result;	/* 0x210 */
+	u32 ecc6_result;	/* 0x214 */
+	u32 ecc7_result;	/* 0x218 */
+	u32 ecc8_result;	/* 0x21C */
+	u32 ecc9_result;	/* 0x220 */
+};
+
+/* Used for board specific gpmc initialization */
+extern struct gpmc *gpmc_cfg;
+
 struct gptimer {
 	u32 tidr;		/* 0x00 r */
 	u8 res[0xc];
@@ -85,6 +130,9 @@ struct watchdog {
 #define TCLR_ST			(0x1 << 0)
 #define TCLR_AR			(0x1 << 1)
 #define TCLR_PRE		(0x1 << 5)
+
+/* GPMC BASE */
+#define GPMC_BASE		(OMAP44XX_GPMC_BASE)
 
 /* I2C base */
 #define I2C_BASE1		(OMAP44XX_L4_PER_BASE + 0x70000)
