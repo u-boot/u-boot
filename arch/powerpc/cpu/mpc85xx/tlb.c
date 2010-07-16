@@ -55,7 +55,45 @@ void init_tlbs(void)
 	return ;
 }
 
+void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
+		       phys_addr_t *rpn)
+{
+	u32 _mas1;
+
+	mtspr(MAS0, FSL_BOOKE_MAS0(1, idx, 0));
+	asm volatile("tlbre;isync");
+	_mas1 = mfspr(MAS1);
+
+	*valid = (_mas1 & MAS1_VALID);
+	*tsize = (_mas1 >> 8) & 0xf;
+	*epn = mfspr(MAS2) & MAS2_EPN;
+	*rpn = mfspr(MAS3) & MAS3_RPN;
+#ifdef CONFIG_ENABLE_36BIT_PHYS
+	*rpn |= ((u64)mfspr(MAS7)) << 32;
+#endif
+}
+
 #ifndef CONFIG_NAND_SPL
+void print_tlbcam(void)
+{
+	int i;
+	unsigned int num_cam = mfspr(SPRN_TLB1CFG) & 0xfff;
+
+	/* walk all the entries */
+	printf("TLBCAM entries\n");
+	for (i = 0; i < num_cam; i++) {
+		unsigned long epn;
+		u32 tsize, valid;
+		phys_addr_t rpn;
+
+		read_tlbcam_entry(i, &valid, &tsize, &epn, &rpn);
+		printf("entry %02d: V: %d EPN 0x%08x RPN 0x%08llx size:",
+			i, (valid == 0) ? 0 : 1, (unsigned int)epn,
+			(unsigned long long)rpn);
+		print_size(TSIZE_TO_BYTES(tsize), "\n");
+	}
+}
+
 static inline void use_tlb_cam(u8 idx)
 {
 	int i = idx / 32;
@@ -82,15 +120,9 @@ void init_used_tlb_cams(void)
 
 	/* walk all the entries */
 	for (i = 0; i < num_cam; i++) {
-		u32 _mas1;
-
 		mtspr(MAS0, FSL_BOOKE_MAS0(1, i, 0));
-
 		asm volatile("tlbre;isync");
-		_mas1 = mfspr(MAS1);
-
-		/* if the entry isn't valid skip it */
-		if ((_mas1 & MAS1_VALID))
+		if (mfspr(MAS1) & MAS1_VALID)
 			use_tlb_cam(i);
 	}
 }
@@ -134,7 +166,7 @@ void set_tlb(u8 tlb, u32 epn, u64 rpn,
 
 #ifdef CONFIG_ADDR_MAP
 	if ((tlb == 1) && (gd->flags & GD_FLG_RELOC))
-		addrmap_set_entry(epn, rpn, (1UL << ((tsize * 2) + 10)), esel);
+		addrmap_set_entry(epn, rpn, TSIZE_TO_BYTES(tsize), esel);
 #endif
 }
 
@@ -201,26 +233,12 @@ void init_addr_map(void)
 	/* walk all the entries */
 	for (i = 0; i < num_cam; i++) {
 		unsigned long epn;
-		u32 tsize, _mas1;
+		u32 tsize, valid;
 		phys_addr_t rpn;
 
-		mtspr(MAS0, FSL_BOOKE_MAS0(1, i, 0));
-
-		asm volatile("tlbre;isync");
-		_mas1 = mfspr(MAS1);
-
-		/* if the entry isn't valid skip it */
-		if (!(_mas1 & MAS1_VALID))
-			continue;
-
-		tsize = (_mas1 >> 8) & 0xf;
-		epn = mfspr(MAS2) & MAS2_EPN;
-		rpn = mfspr(MAS3) & MAS3_RPN;
-#ifdef CONFIG_ENABLE_36BIT_PHYS
-		rpn |= ((phys_addr_t)mfspr(MAS7)) << 32;
-#endif
-
-		addrmap_set_entry(epn, rpn, (1UL << ((tsize * 2) + 10)), i);
+		read_tlbcam_entry(i, &valid, &tsize, &epn, &rpn);
+		if (valid & MAS1_VALID)
+			addrmap_set_entry(epn, rpn, TSIZE_TO_BYTES(tsize), i);
 	}
 
 	return ;

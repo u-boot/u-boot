@@ -338,6 +338,7 @@
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SNTP
+#define CONFIG_CMD_REGINFO
 
 /*
  * Miscellaneous configurable options

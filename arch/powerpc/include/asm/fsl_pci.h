@@ -162,14 +162,15 @@ typedef struct ccsr_pci {
 } ccsr_fsl_pci_t;
 
 struct fsl_pci_info {
-	unsigned long	regs;
-	pci_addr_t	mem_bus;
-	phys_size_t	mem_phys;
-	pci_size_t	mem_size;
-	pci_addr_t	io_bus;
-	phys_size_t	io_phys;
-	pci_size_t	io_size;
-	int		pci_num;
+	unsigned long regs;
+	pci_addr_t mem_bus;
+	phys_size_t mem_phys;
+	pci_size_t mem_size;
+	pci_addr_t io_bus;
+	phys_size_t io_phys;
+	pci_size_t io_size;
+	enum law_trgt_if law;
+	int pci_num;
 };
 
 int fsl_pci_init_port(struct fsl_pci_info *pci_info,
@@ -184,6 +185,7 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 	x.io_bus = CONFIG_SYS_PCI##num##_IO_BUS; \
 	x.io_phys = CONFIG_SYS_PCI##num##_IO_PHYS; \
 	x.io_size = CONFIG_SYS_PCI##num##_IO_SIZE; \
+	x.law = LAW_TRGT_IF_PCI_##num; \
 	x.pci_num = num; \
 }
 
@@ -196,6 +198,7 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 	x.io_bus = CONFIG_SYS_PCIE##num##_IO_BUS; \
 	x.io_phys = CONFIG_SYS_PCIE##num##_IO_PHYS; \
 	x.io_size = CONFIG_SYS_PCIE##num##_IO_SIZE; \
+	x.law = LAW_TRGT_IF_PCIE_##num; \
 	x.pci_num = num; \
 }
 

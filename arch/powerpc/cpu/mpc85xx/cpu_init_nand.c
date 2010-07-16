@@ -25,7 +25,7 @@
 
 void cpu_init_f(void)
 {
-	ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	/*
 	 * LCRR - Clock Ratio Register - set up local bus timing
@@ -34,8 +34,8 @@ void cpu_init_f(void)
 	out_be32(&lbc->lcrr, LCRR_DBYP | LCRR_CLKDIV_8);
 
 #if defined(CONFIG_NAND_BR_PRELIM) && defined(CONFIG_NAND_OR_PRELIM)
-	out_be32(&lbc->br0, CONFIG_NAND_BR_PRELIM);
-	out_be32(&lbc->or0, CONFIG_NAND_OR_PRELIM);
+	set_lbc_br(0, CONFIG_NAND_BR_PRELIM);
+	set_lbc_or(0, CONFIG_NAND_OR_PRELIM);
 #else
 #error  CONFIG_NAND_BR_PRELIM, CONFIG_NAND_OR_PRELIM must be defined
 #endif

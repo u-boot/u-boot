@@ -160,7 +160,7 @@ int checkboard (void)
 void sdram_init(void)
 {
 	volatile immap_t *immap = (immap_t *)CONFIG_SYS_IMMR;
-	volatile fsl_lbus_t *lbc = &immap->lbus;
+	volatile fsl_lbc_t *lbc = &immap->im_lbc;
 	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
 
 	puts("\n   SDRAM on Local Bus: ");

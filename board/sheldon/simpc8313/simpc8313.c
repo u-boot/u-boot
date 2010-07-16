@@ -93,7 +93,7 @@ int misc_init_r(void)
 {
 	int rc = 0;
 	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	fsl_lbus_t *lbus = &immap->lbus;
+	fsl_lbc_t *lbus = &immap->im_lbc;
 	u32 *mxmr = &lbus->mamr;	/* Pointer to mamr */
 
 	/* UPM Table Configuration Code */

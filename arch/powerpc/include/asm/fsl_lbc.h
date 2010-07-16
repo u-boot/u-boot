@@ -14,6 +14,7 @@
 #define __ASM_PPC_FSL_LBC_H
 
 #include <config.h>
+#include <common.h>
 
 /* BR - Base Registers
  */
@@ -60,6 +61,8 @@
 #endif
 #define BR_V				0x00000001
 #define BR_V_SHIFT			0
+
+#define BR_UPMx_TO_MSEL(x)		((x + 4) << BR_MSEL_SHIFT)
 
 #define UPMA			0
 #define UPMB			1
@@ -453,49 +456,70 @@
 #define LTESR_CC               0x00000001
 
 #ifndef __ASSEMBLY__
-/*
- * Local Bus Controller Registers.
- */
-typedef struct lbus_bank {
-	u32 br;                 /* Base Register */
-	u32 or;                 /* Option Register */
-} lbus_bank_t;
+#include <asm/io.h>
 
-typedef struct fsl_lbus {
-	lbus_bank_t bank[8];
-	u8 res0[0x28];
-	u32 mar;                /* UPM Address Register */
-	u8 res1[0x4];
-	u32 mamr;               /* UPMA Mode Register */
-	u32 mbmr;               /* UPMB Mode Register */
-	u32 mcmr;               /* UPMC Mode Register */
-	u8 res2[0x8];
-	u32 mrtpr;              /* Memory Refresh Timer Prescaler Register */
-	u32 mdr;                /* UPM Data Register */
-	u8 res3[0x4];
-	u32 lsor;               /* Special Operation Initiation Register */
-	u32 lsdmr;              /* SDRAM Mode Register */
-	u8 res4[0x8];
-	u32 lurt;               /* UPM Refresh Timer */
-	u32 lsrt;               /* SDRAM Refresh Timer */
-	u8 res5[0x8];
-	u32 ltesr;              /* Transfer Error Status Register */
-	u32 ltedr;              /* Transfer Error Disable Register */
-	u32 lteir;              /* Transfer Error Interrupt Register */
-	u32 lteatr;             /* Transfer Error Attributes Register */
-	u32 ltear;               /* Transfer Error Address Register */
-	u8 res6[0xC];
-	u32 lbcr;               /* Configuration Register */
-	u32 lcrr;               /* Clock Ratio Register */
-	u8 res7[0x8];
-	u32 fmr;                /* Flash Mode Register */
-	u32 fir;                /* Flash Instruction Register */
-	u32 fcr;                /* Flash Command Register */
-	u32 fbar;               /* Flash Block Addr Register */
-	u32 fpar;               /* Flash Page Addr Register */
-	u32 fbcr;               /* Flash Byte Count Register */
-	u8 res8[0xF08];
-} fsl_lbus_t;
+extern void print_lbc_regs(void);
+extern void init_early_memctl_regs(void);
+extern void upmconfig(uint upm, uint *table, uint size);
+
+#define LBC_BASE_ADDR ((fsl_lbc_t *)CONFIG_SYS_LBC_ADDR)
+#define get_lbc_br(i) (in_be32(&(LBC_BASE_ADDR)->bank[i].br))
+#define get_lbc_or(i) (in_be32(&(LBC_BASE_ADDR)->bank[i].or))
+#define set_lbc_br(i, v) (out_be32(&(LBC_BASE_ADDR)->bank[i].br, v))
+#define set_lbc_or(i, v) (out_be32(&(LBC_BASE_ADDR)->bank[i].or, v))
+
+typedef struct lbc_bank {
+	u32     br;
+	u32     or;
+} lbc_bank_t;
+
+/* Local Bus Controller Registers */
+typedef struct fsl_lbc {
+	lbc_bank_t      bank[8];
+	u8	res1[40];
+	u32     mar;            /* LBC UPM Addr */
+	u8      res2[4];
+	u32     mamr;           /* LBC UPMA Mode */
+	u32     mbmr;           /* LBC UPMB Mode */
+	u32     mcmr;           /* LBC UPMC Mode */
+	u8      res3[8];
+	u32     mrtpr;          /* LBC Memory Refresh Timer Prescaler */
+	u32     mdr;            /* LBC UPM Data */
+#ifdef CONFIG_FSL_ELBC
+	u8      res4[4];
+	u32     lsor;
+	u8      res5[12];
+	u32     lurt;           /* LBC UPM Refresh Timer */
+	u8	res6[4];
+#else
+	u8	res4[8];
+	u32     lsdmr;          /* LBC SDRAM Mode */
+	u8	res5[8];
+	u32     lurt;           /* LBC UPM Refresh Timer */
+	u32     lsrt;           /* LBC SDRAM Refresh Timer */
+#endif
+	u8      res7[8];
+	u32     ltesr;          /* LBC Transfer Error Status */
+	u32     ltedr;          /* LBC Transfer Error Disable */
+	u32     lteir;          /* LBC Transfer Error IRQ */
+	u32     lteatr;         /* LBC Transfer Error Attrs */
+	u32     ltear;          /* LBC Transfer Error Addr */
+	u8      res8[12];
+	u32     lbcr;           /* LBC Configuration */
+	u32     lcrr;           /* LBC Clock Ratio */
+#ifdef CONFIG_NAND_FSL_ELBC
+	u8	res9[0x8];
+	u32     fmr;            /* Flash Mode Register */
+	u32     fir;            /* Flash Instruction Register */
+	u32     fcr;            /* Flash Command Register */
+	u32     fbar;           /* Flash Block Addr Register */
+	u32     fpar;           /* Flash Page Addr Register */
+	u32     fbcr;           /* Flash Byte Count Register */
+	u8      res10[0xF08];
+#else
+	u8      res9[0xF28];
+#endif
+} fsl_lbc_t;
+
 #endif /* __ASSEMBLY__ */
-
 #endif /* __ASM_PPC_FSL_LBC_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 Freescale Semiconductor, Inc.
+ * Copyright 2007-2010 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -404,8 +404,8 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 #ifdef CONFIG_MP
 	ft_fixup_cpu(blob, (u64)bd->bi_memstart + (u64)bd->bi_memsize);
-#endif
 	ft_fixup_num_cores(blob);
+#endif
 
 	ft_fixup_cache(blob);
 

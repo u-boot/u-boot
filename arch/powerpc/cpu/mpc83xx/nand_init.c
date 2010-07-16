@@ -88,8 +88,8 @@ void cpu_init_f (volatile immap_t * im)
 	&& defined(CONFIG_SYS_NAND_OR_PRELIM) \
 	&& defined(CONFIG_SYS_NAND_LBLAWBAR_PRELIM) \
 	&& defined(CONFIG_SYS_NAND_LBLAWAR_PRELIM)
-	im->lbus.bank[0].br = CONFIG_SYS_NAND_BR_PRELIM;
-	im->lbus.bank[0].or = CONFIG_SYS_NAND_OR_PRELIM;
+	set_lbc_br(0, CONFIG_SYS_NAND_BR_PRELIM);
+	set_lbc_or(0, CONFIG_SYS_NAND_OR_PRELIM);
 	im->sysconf.lblaw[0].bar = CONFIG_SYS_NAND_LBLAWBAR_PRELIM;
 	im->sysconf.lblaw[0].ar = CONFIG_SYS_NAND_LBLAWAR_PRELIM;
 #else

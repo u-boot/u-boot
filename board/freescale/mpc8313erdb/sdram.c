@@ -110,7 +110,7 @@ static long fixed_sdram(void)
 phys_size_t initdram(int board_type)
 {
 	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
-	volatile fsl_lbus_t *lbc = &im->lbus;
+	volatile fsl_lbc_t *lbc = &im->im_lbc;
 	u32 msize;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)

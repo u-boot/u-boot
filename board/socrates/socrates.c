@@ -87,8 +87,6 @@ int checkboard (void)
 
 int misc_init_r (void)
 {
-	volatile ccsr_lbc_t *memctl = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
-
 	/*
 	 * Adjust flash start and offset to detected values
 	 */
@@ -99,8 +97,10 @@ int misc_init_r (void)
 	 * Check if boot FLASH isn't max size
 	 */
 	if (gd->bd->bi_flashsize < (0 - CONFIG_SYS_FLASH0)) {
-		memctl->or0 = gd->bd->bi_flashstart | (CONFIG_SYS_OR0_PRELIM & 0x00007fff);
-		memctl->br0 = gd->bd->bi_flashstart | (CONFIG_SYS_BR0_PRELIM & 0x00007fff);
+		set_lbc_or(0, gd->bd->bi_flashstart |
+			   (CONFIG_SYS_OR0_PRELIM & 0x00007fff));
+		set_lbc_br(0, gd->bd->bi_flashstart |
+			   (CONFIG_SYS_BR0_PRELIM & 0x00007fff));
 
 		/*
 		 * Re-check to get correct base address
@@ -112,8 +112,8 @@ int misc_init_r (void)
 	 * Check if only one FLASH bank is available
 	 */
 	if (gd->bd->bi_flashsize != CONFIG_SYS_MAX_FLASH_BANKS * (0 - CONFIG_SYS_FLASH0)) {
-		memctl->or1 = 0;
-		memctl->br1 = 0;
+		set_lbc_or(1, 0);
+		set_lbc_br(1, 0);
 
 		/*
 		 * Re-do flash protection upon new addresses
@@ -148,7 +148,7 @@ int misc_init_r (void)
  */
 void local_bus_init (void)
 {
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 	sys_info_t sysinfo;
 	uint clkdiv;
@@ -299,26 +299,25 @@ const gdc_regs *board_get_regs (void)
 
 int lime_probe(void)
 {
-	volatile ccsr_lbc_t *memctl = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	uint cfg_br2;
 	uint cfg_or2;
 	int type;
 
-	cfg_br2 = memctl->br2;
-	cfg_or2 = memctl->or2;
+	cfg_br2 = get_lbc_br(2);
+	cfg_or2 = get_lbc_or(2);
 
 	/* Configure GPCM for CS2 */
-	memctl->br2 = 0;
-	memctl->or2 = 0xfc000410;
-	memctl->br2 = (CONFIG_SYS_LIME_BASE) | 0x00001901;
+	set_lbc_br(2, 0);
+	set_lbc_or(2, 0xfc000410);
+	set_lbc_br(2, (CONFIG_SYS_LIME_BASE) | 0x00001901);
 
 	/* Get controller type */
 	type = mb862xx_probe(CONFIG_SYS_LIME_BASE);
 
 	/* Restore previous CS2 configuration */
-	memctl->br2 = 0;
-	memctl->or2 = cfg_or2;
-	memctl->br2 = cfg_br2;
+	set_lbc_br(2, 0);
+	set_lbc_or(2, cfg_or2);
+	set_lbc_br(2, cfg_br2);
 
 	return (type == MB862XX_TYPE_LIME) ? 1 : 0;
 }

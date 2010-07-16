@@ -105,7 +105,7 @@ int misc_init_r()
 {
 	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 
-	clrsetbits_be32(&im->lbus.lcrr, LBCR_LDIS, 0);
+	clrsetbits_be32(&im->im_lbc.lcrr, LBCR_LDIS, 0);
 
 	return 0;
 }

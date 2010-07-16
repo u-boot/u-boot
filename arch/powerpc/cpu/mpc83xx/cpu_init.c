@@ -236,8 +236,8 @@ void cpu_init_f (volatile immap_t * im)
 	/* LCRR - Clock Ratio Register (10.3.1.16)
 	 * write, read, and isync per MPC8379ERM rev.1 CLKDEV field description
 	 */
-	clrsetbits_be32(&im->lbus.lcrr, lcrr_mask, lcrr_val);
-	__raw_readl(&im->lbus.lcrr);
+	clrsetbits_be32(&im->im_lbc.lcrr, lcrr_mask, lcrr_val);
+	__raw_readl(&im->im_lbc.lcrr);
 	isync();
 
 	/* Enable Time Base & Decrementer ( so we will have udelay() )*/
@@ -267,79 +267,40 @@ void cpu_init_f (volatile immap_t * im)
 	/* Config QE ioports */
 	config_qe_ioports();
 #endif
+	/* Set up preliminary BR/OR regs */
+	init_early_memctl_regs();
 
-	/*
-	 * Memory Controller:
-	 */
-
-	/* Map banks 0 and 1 to the FLASH banks 0 and 1 at preliminary
-	 * addresses - these have to be modified later when FLASH size
-	 * has been determined
-	 */
-
-#if defined(CONFIG_SYS_BR0_PRELIM)  \
-	&& defined(CONFIG_SYS_OR0_PRELIM) \
-	&& defined(CONFIG_SYS_LBLAWBAR0_PRELIM) \
-	&& defined(CONFIG_SYS_LBLAWAR0_PRELIM)
-	im->lbus.bank[0].br = CONFIG_SYS_BR0_PRELIM;
-	im->lbus.bank[0].or = CONFIG_SYS_OR0_PRELIM;
+	/* Local Access window setup */
+#if defined(CONFIG_SYS_LBLAWBAR0_PRELIM) && defined(CONFIG_SYS_LBLAWAR0_PRELIM)
 	im->sysconf.lblaw[0].bar = CONFIG_SYS_LBLAWBAR0_PRELIM;
 	im->sysconf.lblaw[0].ar = CONFIG_SYS_LBLAWAR0_PRELIM;
 #else
-#error	CONFIG_SYS_BR0_PRELIM, CONFIG_SYS_OR0_PRELIM, CONFIG_SYS_LBLAWBAR0_PRELIM & CONFIG_SYS_LBLAWAR0_PRELIM must be defined
+#error	CONFIG_SYS_LBLAWBAR0_PRELIM & CONFIG_SYS_LBLAWAR0_PRELIM must be defined
 #endif
 
-#if defined(CONFIG_SYS_BR1_PRELIM) && defined(CONFIG_SYS_OR1_PRELIM)
-	im->lbus.bank[1].br = CONFIG_SYS_BR1_PRELIM;
-	im->lbus.bank[1].or = CONFIG_SYS_OR1_PRELIM;
-#endif
 #if defined(CONFIG_SYS_LBLAWBAR1_PRELIM) && defined(CONFIG_SYS_LBLAWAR1_PRELIM)
 	im->sysconf.lblaw[1].bar = CONFIG_SYS_LBLAWBAR1_PRELIM;
 	im->sysconf.lblaw[1].ar = CONFIG_SYS_LBLAWAR1_PRELIM;
-#endif
-#if defined(CONFIG_SYS_BR2_PRELIM) && defined(CONFIG_SYS_OR2_PRELIM)
-	im->lbus.bank[2].br = CONFIG_SYS_BR2_PRELIM;
-	im->lbus.bank[2].or = CONFIG_SYS_OR2_PRELIM;
 #endif
 #if defined(CONFIG_SYS_LBLAWBAR2_PRELIM) && defined(CONFIG_SYS_LBLAWAR2_PRELIM)
 	im->sysconf.lblaw[2].bar = CONFIG_SYS_LBLAWBAR2_PRELIM;
 	im->sysconf.lblaw[2].ar = CONFIG_SYS_LBLAWAR2_PRELIM;
 #endif
-#if defined(CONFIG_SYS_BR3_PRELIM) && defined(CONFIG_SYS_OR3_PRELIM)
-	im->lbus.bank[3].br = CONFIG_SYS_BR3_PRELIM;
-	im->lbus.bank[3].or = CONFIG_SYS_OR3_PRELIM;
-#endif
 #if defined(CONFIG_SYS_LBLAWBAR3_PRELIM) && defined(CONFIG_SYS_LBLAWAR3_PRELIM)
 	im->sysconf.lblaw[3].bar = CONFIG_SYS_LBLAWBAR3_PRELIM;
 	im->sysconf.lblaw[3].ar = CONFIG_SYS_LBLAWAR3_PRELIM;
-#endif
-#if defined(CONFIG_SYS_BR4_PRELIM) && defined(CONFIG_SYS_OR4_PRELIM)
-	im->lbus.bank[4].br = CONFIG_SYS_BR4_PRELIM;
-	im->lbus.bank[4].or = CONFIG_SYS_OR4_PRELIM;
 #endif
 #if defined(CONFIG_SYS_LBLAWBAR4_PRELIM) && defined(CONFIG_SYS_LBLAWAR4_PRELIM)
 	im->sysconf.lblaw[4].bar = CONFIG_SYS_LBLAWBAR4_PRELIM;
 	im->sysconf.lblaw[4].ar = CONFIG_SYS_LBLAWAR4_PRELIM;
 #endif
-#if defined(CONFIG_SYS_BR5_PRELIM) && defined(CONFIG_SYS_OR5_PRELIM)
-	im->lbus.bank[5].br = CONFIG_SYS_BR5_PRELIM;
-	im->lbus.bank[5].or = CONFIG_SYS_OR5_PRELIM;
-#endif
 #if defined(CONFIG_SYS_LBLAWBAR5_PRELIM) && defined(CONFIG_SYS_LBLAWAR5_PRELIM)
 	im->sysconf.lblaw[5].bar = CONFIG_SYS_LBLAWBAR5_PRELIM;
 	im->sysconf.lblaw[5].ar = CONFIG_SYS_LBLAWAR5_PRELIM;
 #endif
-#if defined(CONFIG_SYS_BR6_PRELIM) && defined(CONFIG_SYS_OR6_PRELIM)
-	im->lbus.bank[6].br = CONFIG_SYS_BR6_PRELIM;
-	im->lbus.bank[6].or = CONFIG_SYS_OR6_PRELIM;
-#endif
 #if defined(CONFIG_SYS_LBLAWBAR6_PRELIM) && defined(CONFIG_SYS_LBLAWAR6_PRELIM)
 	im->sysconf.lblaw[6].bar = CONFIG_SYS_LBLAWBAR6_PRELIM;
 	im->sysconf.lblaw[6].ar = CONFIG_SYS_LBLAWAR6_PRELIM;
-#endif
-#if defined(CONFIG_SYS_BR7_PRELIM) && defined(CONFIG_SYS_OR7_PRELIM)
-	im->lbus.bank[7].br = CONFIG_SYS_BR7_PRELIM;
-	im->lbus.bank[7].or = CONFIG_SYS_OR7_PRELIM;
 #endif
 #if defined(CONFIG_SYS_LBLAWBAR7_PRELIM) && defined(CONFIG_SYS_LBLAWAR7_PRELIM)
 	im->sysconf.lblaw[7].bar = CONFIG_SYS_LBLAWBAR7_PRELIM;

@@ -46,9 +46,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 void cpu_init_f(void)
 {
-	volatile immap_t    *immap = (immap_t *)CONFIG_SYS_IMMR;
-	volatile ccsr_lbc_t *memctl = &immap->im_lbc;
-
 	/* Pointer is writable since we allocated a register for it */
 	gd = (gd_t *) (CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET);
 
@@ -61,58 +58,8 @@ void cpu_init_f(void)
 
 	setup_bats();
 
-	/* Map banks 0 and 1 to the FLASH banks 0 and 1 at preliminary
-	 * addresses - these have to be modified later when FLASH size
-	 * has been determined
-	 */
+	init_early_memctl_regs();
 
-#if defined(CONFIG_SYS_OR0_REMAP)
-	memctl->or0 = CONFIG_SYS_OR0_REMAP;
-#endif
-#if defined(CONFIG_SYS_OR1_REMAP)
-	memctl->or1 = CONFIG_SYS_OR1_REMAP;
-#endif
-
-	/* now restrict to preliminary range */
-#if defined(CONFIG_SYS_BR0_PRELIM) && defined(CONFIG_SYS_OR0_PRELIM)
-	memctl->br0 = CONFIG_SYS_BR0_PRELIM;
-	memctl->or0 = CONFIG_SYS_OR0_PRELIM;
-#endif
-
-#if defined(CONFIG_SYS_BR1_PRELIM) && defined(CONFIG_SYS_OR1_PRELIM)
-	memctl->or1 = CONFIG_SYS_OR1_PRELIM;
-	memctl->br1 = CONFIG_SYS_BR1_PRELIM;
-#endif
-
-#if defined(CONFIG_SYS_BR2_PRELIM) && defined(CONFIG_SYS_OR2_PRELIM)
-	memctl->or2 = CONFIG_SYS_OR2_PRELIM;
-	memctl->br2 = CONFIG_SYS_BR2_PRELIM;
-#endif
-
-#if defined(CONFIG_SYS_BR3_PRELIM) && defined(CONFIG_SYS_OR3_PRELIM)
-	memctl->or3 = CONFIG_SYS_OR3_PRELIM;
-	memctl->br3 = CONFIG_SYS_BR3_PRELIM;
-#endif
-
-#if defined(CONFIG_SYS_BR4_PRELIM) && defined(CONFIG_SYS_OR4_PRELIM)
-	memctl->or4 = CONFIG_SYS_OR4_PRELIM;
-	memctl->br4 = CONFIG_SYS_BR4_PRELIM;
-#endif
-
-#if defined(CONFIG_SYS_BR5_PRELIM) && defined(CONFIG_SYS_OR5_PRELIM)
-	memctl->or5 = CONFIG_SYS_OR5_PRELIM;
-	memctl->br5 = CONFIG_SYS_BR5_PRELIM;
-#endif
-
-#if defined(CONFIG_SYS_BR6_PRELIM) && defined(CONFIG_SYS_OR6_PRELIM)
-	memctl->or6 = CONFIG_SYS_OR6_PRELIM;
-	memctl->br6 = CONFIG_SYS_BR6_PRELIM;
-#endif
-
-#if defined(CONFIG_SYS_BR7_PRELIM) && defined(CONFIG_SYS_OR7_PRELIM)
-	memctl->or7 = CONFIG_SYS_OR7_PRELIM;
-	memctl->br7 = CONFIG_SYS_BR7_PRELIM;
-#endif
 #if defined(CONFIG_FSL_DMA)
 	dma_init();
 #endif

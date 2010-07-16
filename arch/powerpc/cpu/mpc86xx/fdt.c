@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008,2010 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,6 +55,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	off = fdt_add_mem_rsv(blob, bootpg, (u64)4096);
 	if (off < 0)
 		printf("%s: %s\n", __FUNCTION__, fdt_strerror(off));
-#endif
+
 	ft_fixup_num_cores(blob);
+#endif
 }

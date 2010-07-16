@@ -253,10 +253,10 @@ static int detect_num_flash_banks(void)
 	debug("Number of flash banks detected: %d\n", tqm834x_num_flash_banks);
 
 	/* set OR0 and BR0 */
-	im->lbus.bank[0].or = CONFIG_SYS_OR_TIMING_FLASH |
-		(-(total_size) & OR_GPCM_AM);
-	im->lbus.bank[0].br = (CONFIG_SYS_FLASH_BASE & BR_BA) |
-		(BR_MS_GPCM | BR_PS_32 | BR_V);
+	set_lbc_or(0, CONFIG_SYS_OR_TIMING_FLASH |
+		   (-(total_size) & OR_GPCM_AM));
+	set_lbc_br(0, (CONFIG_SYS_FLASH_BASE & BR_BA) |
+		   (BR_MS_GPCM | BR_PS_32 | BR_V));
 
 	return (0);
 }

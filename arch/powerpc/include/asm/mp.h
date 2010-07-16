@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Freescale Semiconductor, Inc.
+ * Copyright 2009-2010 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -26,5 +26,6 @@
 void setup_mp(void);
 void cpu_mp_lmb_reserve(struct lmb *lmb);
 u32 determine_mp_bootpg(void);
+int is_core_disabled(int nr);
 
 #endif

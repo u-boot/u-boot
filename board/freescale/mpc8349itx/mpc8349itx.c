@@ -221,15 +221,14 @@ int misc_init_f(void)
 		0xfffffc00, 0xfffffc00, 0xfffffc00, 0xfffffc01
 	};
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile fsl_lbus_t *lbus = &immap->lbus;
 
-	lbus->bank[3].br = CONFIG_SYS_BR3_PRELIM;
-	lbus->bank[3].or = CONFIG_SYS_OR3_PRELIM;
+	set_lbc_br(3, CONFIG_SYS_BR3_PRELIM);
+	set_lbc_or(3, CONFIG_SYS_OR3_PRELIM);
 
 	/* Program the MAMR. RFEN=0, OP=00, UWPL=1, AM=000, DS=01, G0CL=000,
 	   GPL4=0, RLF=0001, WLF=0001, TLF=0001, MAD=000000
 	 */
-	lbus->mamr = 0x08404440;
+	immap->im_lbc.mamr = 0x08404440;
 
 	upmconfig(0, UPMATable, sizeof(UPMATable) / sizeof(UPMATable[0]));
 

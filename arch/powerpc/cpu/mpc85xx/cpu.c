@@ -32,6 +32,8 @@
 #include <fsl_esdhc.h>
 #include <asm/cache.h>
 #include <asm/io.h>
+#include <asm/mmu.h>
+#include <asm/fsl_law.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -93,17 +95,25 @@ int checkcpu (void)
 	minor = PVR_MIN(pvr);
 
 	printf("Core:  ");
-	switch (fam) {
-	case PVR_FAM(PVR_85xx):
-	    puts("E500");
-	    break;
-	default:
-	    puts("Unknown");
-	    break;
+	if (PVR_FAM(PVR_85xx)) {
+		switch(PVR_MEM(pvr)) {
+		case 0x1:
+		case 0x2:
+			puts("E500");
+			break;
+		case 0x3:
+			puts("E500MC");
+			break;
+		case 0x4:
+			puts("E5500");
+			break;
+		default:
+			puts("Unknown");
+			break;
+		}
+	} else {
+		puts("Unknown");
 	}
-
-	if (PVR_MEM(pvr) == 0x03)
-		puts("MC");
 
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);
 
@@ -250,71 +260,6 @@ reset_85xx_watchdog(void)
 #endif	/* CONFIG_WATCHDOG */
 
 /*
- * Configures a UPM. The function requires the respective MxMR to be set
- * before calling this function. "size" is the number or entries, not a sizeof.
- */
-void upmconfig (uint upm, uint * table, uint size)
-{
-	int i, mdr, mad, old_mad = 0;
-	volatile u32 *mxmr;
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
-	volatile u32 *brp,*orp;
-	volatile u8* dummy = NULL;
-	int upmmask;
-
-	switch (upm) {
-	case UPMA:
-		mxmr = &lbc->mamr;
-		upmmask = BR_MS_UPMA;
-		break;
-	case UPMB:
-		mxmr = &lbc->mbmr;
-		upmmask = BR_MS_UPMB;
-		break;
-	case UPMC:
-		mxmr = &lbc->mcmr;
-		upmmask = BR_MS_UPMC;
-		break;
-	default:
-		printf("%s: Bad UPM index %d to configure\n", __FUNCTION__, upm);
-		hang();
-	}
-
-	/* Find the address for the dummy write transaction */
-	for (brp = &lbc->br0, orp = &lbc->or0, i = 0; i < 8;
-		 i++, brp += 2, orp += 2) {
-
-		/* Look for a valid BR with selected UPM */
-		if ((in_be32(brp) & (BR_V | BR_MSEL)) == (BR_V | upmmask)) {
-			dummy = (volatile u8*)(in_be32(brp) & BR_BA);
-			break;
-		}
-	}
-
-	if (i == 8) {
-		printf("Error: %s() could not find matching BR\n", __FUNCTION__);
-		hang();
-	}
-
-	for (i = 0; i < size; i++) {
-		/* 1 */
-		out_be32(mxmr,  (in_be32(mxmr) & 0x4fffffc0) | MxMR_OP_WARR | i);
-		/* 2 */
-		out_be32(&lbc->mdr, table[i]);
-		/* 3 */
-		mdr = in_be32(&lbc->mdr);
-		/* 4 */
-		*(volatile u8 *)dummy = 0;
-		/* 5 */
-		do {
-			mad = in_be32(mxmr) & MxMR_MAD_MSK;
-		} while (mad <= old_mad && !(!mad && i == (size-1)));
-		old_mad = mad;
-	}
-	out_be32(mxmr, (in_be32(mxmr) & 0x4fffffc0) | MxMR_OP_NORM);
-}
-
-/*
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()
  */
@@ -325,4 +270,15 @@ int cpu_mmc_init(bd_t *bis)
 #else
 	return 0;
 #endif
+}
+
+/*
+ * Print out the state of various machine registers.
+ * Currently prints out LAWs, BR0/OR0, and TLBs
+ */
+void mpc85xx_reginfo(void)
+{
+	print_tlbcam();
+	print_laws();
+	print_lbc_regs();
 }

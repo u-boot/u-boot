@@ -154,7 +154,6 @@ static void corenet_tb_init(void)
 
 void cpu_init_f (void)
 {
-	volatile ccsr_lbc_t *memctl = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	extern void m8560_cpm_reset (void);
 #ifdef CONFIG_MPC8548
 	ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
@@ -177,60 +176,7 @@ void cpu_init_f (void)
 	config_8560_ioports((ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR);
 #endif
 
-	/* Map banks 0 and 1 to the FLASH banks 0 and 1 at preliminary
-	 * addresses - these have to be modified later when FLASH size
-	 * has been determined
-	 */
-#if defined(CONFIG_SYS_OR0_REMAP)
-	out_be32(&memctl->or0, CONFIG_SYS_OR0_REMAP);
-#endif
-#if defined(CONFIG_SYS_OR1_REMAP)
-	out_be32(&memctl->or1, CONFIG_SYS_OR1_REMAP);
-#endif
-
-	/* now restrict to preliminary range */
-	/* if cs1 is already set via debugger, leave cs0/cs1 alone */
-	if (! memctl->br1 & 1) {
-#if defined(CONFIG_SYS_BR0_PRELIM) && defined(CONFIG_SYS_OR0_PRELIM)
-		out_be32(&memctl->br0, CONFIG_SYS_BR0_PRELIM);
-		out_be32(&memctl->or0, CONFIG_SYS_OR0_PRELIM);
-#endif
-
-#if defined(CONFIG_SYS_BR1_PRELIM) && defined(CONFIG_SYS_OR1_PRELIM)
-		out_be32(&memctl->or1, CONFIG_SYS_OR1_PRELIM);
-		out_be32(&memctl->br1, CONFIG_SYS_BR1_PRELIM);
-#endif
-	}
-
-#if defined(CONFIG_SYS_BR2_PRELIM) && defined(CONFIG_SYS_OR2_PRELIM)
-	out_be32(&memctl->or2, CONFIG_SYS_OR2_PRELIM);
-	out_be32(&memctl->br2, CONFIG_SYS_BR2_PRELIM);
-#endif
-
-#if defined(CONFIG_SYS_BR3_PRELIM) && defined(CONFIG_SYS_OR3_PRELIM)
-	out_be32(&memctl->or3, CONFIG_SYS_OR3_PRELIM);
-	out_be32(&memctl->br3, CONFIG_SYS_BR3_PRELIM);
-#endif
-
-#if defined(CONFIG_SYS_BR4_PRELIM) && defined(CONFIG_SYS_OR4_PRELIM)
-	out_be32(&memctl->or4, CONFIG_SYS_OR4_PRELIM);
-	out_be32(&memctl->br4, CONFIG_SYS_BR4_PRELIM);
-#endif
-
-#if defined(CONFIG_SYS_BR5_PRELIM) && defined(CONFIG_SYS_OR5_PRELIM)
-	out_be32(&memctl->or5, CONFIG_SYS_OR5_PRELIM);
-	out_be32(&memctl->br5, CONFIG_SYS_BR5_PRELIM);
-#endif
-
-#if defined(CONFIG_SYS_BR6_PRELIM) && defined(CONFIG_SYS_OR6_PRELIM)
-	out_be32(&memctl->or6, CONFIG_SYS_OR6_PRELIM);
-	out_be32(&memctl->br6, CONFIG_SYS_BR6_PRELIM);
-#endif
-
-#if defined(CONFIG_SYS_BR7_PRELIM) && defined(CONFIG_SYS_OR7_PRELIM)
-	out_be32(&memctl->or7, CONFIG_SYS_OR7_PRELIM);
-	out_be32(&memctl->br7, CONFIG_SYS_BR7_PRELIM);
-#endif
+       init_early_memctl_regs();
 
 #if defined(CONFIG_CPM2)
 	m8560_cpm_reset();
@@ -263,7 +209,7 @@ void cpu_init_f (void)
 int cpu_init_r(void)
 {
 #ifdef CONFIG_SYS_LBC_LCRR
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 #endif
 
 	puts ("L2:    ");

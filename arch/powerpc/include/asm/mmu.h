@@ -402,6 +402,7 @@ extern void print_bats(void);
 #define MAS1_TID(x)	((x << 16) & 0x3FFF0000)
 #define MAS1_TS		0x00001000
 #define MAS1_TSIZE(x)	((x << 8) & 0x00000F00)
+#define TSIZE_TO_BYTES(x) ((phys_addr_t)(1UL << ((tsize * 2) + 10)))
 
 #define MAS2_EPN	0xFFFFF000
 #define MAS2_X0		0x00000040
@@ -485,6 +486,7 @@ extern void init_tlbs(void);
 extern int find_tlb_idx(void *addr, u8 tlbsel);
 extern void init_used_tlb_cams(void);
 extern int find_free_tlbcam(void);
+extern void print_tlbcam(void);
 
 extern unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg);
 

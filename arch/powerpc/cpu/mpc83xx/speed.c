@@ -393,7 +393,7 @@ int get_clocks(void)
 
 	lbiu_clk = csb_clk *
 	           (1 + ((im->reset.rcwl & HRCWL_LBIUCM) >> HRCWL_LBIUCM_SHIFT));
-	lcrr = (im->lbus.lcrr & LCRR_CLKDIV) >> LCRR_CLKDIV_SHIFT;
+	lcrr = (im->im_lbc.lcrr & LCRR_CLKDIV) >> LCRR_CLKDIV_SHIFT;
 	switch (lcrr) {
 	case 2:
 	case 4:
