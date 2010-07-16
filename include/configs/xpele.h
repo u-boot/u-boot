@@ -98,7 +98,7 @@
 /* CONFIG_SYS_GLOBAL_DATA_OFFSET? */
 
 /* Because (at least at first) we're going to be loaded via JTAG_Tcl */
-#define CONFIG_SKIP_LOWLEVEL_INIT	
+//#define CONFIG_SKIP_LOWLEVEL_INIT	
 
 
 /* HW to use */

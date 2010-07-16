@@ -33,7 +33,7 @@ COBJS	:= board.o \
 	   xemacpss_bdring.o xemacpss.o xgmac.o \
 	   ../common/xbasic_types.o
 
-SOBJS	:= # lowlevel_init.o
+SOBJS	:= lowlevel_init.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
