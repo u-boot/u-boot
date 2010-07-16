@@ -845,8 +845,7 @@ int do_pic (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	default:
 		break;
 	}
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 U_BOOT_CMD(
 	pic,	4,	1,	do_pic,
@@ -975,8 +974,7 @@ int do_lsb (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	default:
 		break;
 	}
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
 U_BOOT_CMD(

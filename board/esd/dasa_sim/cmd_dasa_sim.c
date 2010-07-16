@@ -221,9 +221,7 @@ int do_pci9054 (cmd_tbl_t * cmdtp, int flag, int argc,
 		return 0;
 	}
 
-	cmd_usage(cmdtp);
-	return 1;
-
+	return cmd_usage(cmdtp);
 }
 
 U_BOOT_CMD(

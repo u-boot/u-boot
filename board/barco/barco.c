@@ -290,12 +290,6 @@ void barcobcd_boot (void)
 
 int barcobcd_boot_image (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-#if 0
-	if (argc > 1) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
-#endif
 	barcobcd_boot ();
 
 	return 0;

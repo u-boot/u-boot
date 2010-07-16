@@ -153,7 +153,7 @@ int cmd_usage(cmd_tbl_t *cmdtp)
 	puts (cmdtp->help);
 	putc ('\n');
 #endif	/* CONFIG_SYS_LONGHELP */
-	return 0;
+	return 1;
 }
 
 #ifdef CONFIG_AUTO_COMPLETE

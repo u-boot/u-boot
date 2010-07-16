@@ -186,9 +186,9 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char * const argv[])
 
 		break;
 
-	default: cmd_usage(cmdtp);
+	default:
 		show_boot_progress (-80);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	show_boot_progress (80);
@@ -236,10 +236,8 @@ int do_ping (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return -1;
 
 	NetPingIP = string_to_ip(argv[1]);
-	if (NetPingIP == 0) {
-		cmd_usage(cmdtp);
-		return -1;
-	}
+	if (NetPingIP == 0)
+		return cmd_usage(cmdtp);
 
 	if (NetLoop(PING) < 0) {
 		printf("ping failed; host %s is not alive\n", argv[1]);
@@ -342,10 +340,8 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_DNS)
 int do_dns(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc == 1) {
-		cmd_usage(cmdtp);
-		return -1;
-	}
+	if (argc == 1)
+		return cmd_usage(cmdtp);
 
 	/*
 	 * We should check for a valid hostname:

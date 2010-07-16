@@ -38,10 +38,8 @@ int do_vpd (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	uchar dev_addr = CONFIG_SYS_DEF_EEPROM_ADDR;
 
 	/* Validate usage */
-	if (argc > 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc > 2)
+		return cmd_usage(cmdtp);
 
 	/* Passed in EEPROM address */
 	if (argc == 2)

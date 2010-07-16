@@ -44,10 +44,8 @@ int do_getdcr ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[] )
 	unsigned long get_dcr (unsigned short);
 
 	/* Validate arguments */
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	/* Get a DCR */
 	dcrn = (unsigned short) simple_strtoul (argv[1], NULL, 16);
@@ -73,10 +71,8 @@ int do_setdcr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	extern char console_buffer[];
 
 	/* Validate arguments */
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	/* Set a DCR */
 	dcrn = (unsigned short) simple_strtoul (argv[1], NULL, 16);
@@ -120,10 +116,8 @@ int do_getidcr (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char buf[80];
 
 	/* Validate arguments */
-	if (argc < 3) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 3)
+		return cmd_usage(cmdtp);
 
 	/* Find out whether ther is '.' (dot) symbol in the first parameter. */
 	strncpy (buf, argv[1], sizeof(buf)-1);
@@ -176,10 +170,8 @@ int do_setidcr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	char buf[80];
 
 	/* Validate arguments */
-	if (argc < 4) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 4)
+		return cmd_usage(cmdtp);
 
 	/* Find out whether ther is '.' (dot) symbol in the first parameter. */
 	strncpy (buf, argv[1], sizeof(buf)-1);

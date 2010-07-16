@@ -179,8 +179,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
     switch (argc) {
     case 0:
     case 1:
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
     case 2:
 	if (strncmp(argv[1],"res",3) == 0) {
 		puts ("\nReset IDE"
@@ -229,8 +228,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 		return rcode;
 	}
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
     case 3:
 	if (strncmp(argv[1],"dev",3) == 0) {
 		int dev = (int)simple_strtoul(argv[2], NULL, 10);
@@ -278,8 +276,7 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 	}
 
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
     default:
 	/* at least 4 args */
 
@@ -332,14 +329,12 @@ int do_ide (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 		printf ("%ld blocks written: %s\n",
 			n, (n==cnt) ? "OK" : "ERROR");
-		if (n==cnt) {
+		if (n==cnt)
 			return 0;
-		} else {
+		else
 			return 1;
-		}
 	} else {
-		cmd_usage(cmdtp);
-		rcode = 1;
+		return cmd_usage(cmdtp);
 	}
 
 	return rcode;
@@ -374,9 +369,8 @@ int do_diskboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		boot_device = argv[2];
 		break;
 	default:
-		cmd_usage(cmdtp);
 		show_boot_progress (-42);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 	show_boot_progress (42);
 

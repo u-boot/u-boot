@@ -275,8 +275,7 @@ int do_nand_env_oob(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	return ret;
 
 usage:
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
 #endif
@@ -577,8 +576,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #endif
 
 usage:
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
 U_BOOT_CMD(nand, CONFIG_SYS_MAXARGS, 1, do_nand,
@@ -759,9 +757,8 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_CMD_MTDPARTS)
 usage:
 #endif
-		cmd_usage(cmdtp);
 		show_boot_progress(-53);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	show_boot_progress(53);

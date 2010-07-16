@@ -1845,8 +1845,7 @@ int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return delete_partition(argv[2]);
 	}
 
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
 /***************************************************/

@@ -616,9 +616,8 @@ int do_sha1 (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int	rcode = -1;
 
 	if (argc < 2) {
-  usage:
-		cmd_usage(cmdtp);
-		return 1;
+usage:
+		return cmd_usage(cmdtp);
 	}
 
 	if (argc >= 3) {

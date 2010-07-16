@@ -177,8 +177,7 @@ static int do_spi_flash(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 		return do_spi_flash_erase(argc - 1, argv + 1);
 
 usage:
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
 U_BOOT_CMD(

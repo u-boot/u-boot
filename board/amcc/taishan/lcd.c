@@ -166,19 +166,17 @@ static int do_lcd_clear(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv
 }
 static int do_lcd_puts(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
 	lcd_puts(argv[1]);
 	return 0;
 }
 static int do_lcd_putc(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
 	lcd_putc((char)argv[1][0]);
 	return 0;
 }
@@ -188,10 +186,8 @@ static int do_lcd_cur(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 	ulong dir;
 	char cur_addr;
 
-	if (argc < 3) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 3)
+		return cmd_usage(cmdtp);
 
 	count = simple_strtoul(argv[1], NULL, 16);
 	if (count > 31) {

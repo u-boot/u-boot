@@ -101,16 +101,12 @@ static int do_led_ctl(cmd_tbl_t* cmd_tp, int flags, int argc, char * const argv[
 {
 	int led_no;
 
-	if (argc != 3) {
-		cmd_usage(cmd_tp);
-		return -1;
-	}
+	if (argc != 3)
+		return cmd_usage(cmd_tp);
 
 	led_no = simple_strtoul(argv[1], NULL, 16);
-	if (led_no != 1 && led_no != 2) {
-		cmd_usage(cmd_tp);
-		return -1;
-	}
+	if (led_no != 1 && led_no != 2)
+		return cmd_usage(cmd_tp);
 
 	if (strcmp(argv[2],"off") == 0x0) {
 		if (led_no == 1)
@@ -123,8 +119,7 @@ static int do_led_ctl(cmd_tbl_t* cmd_tp, int flags, int argc, char * const argv[
 		else
 			gpio_write_bit(31, 0);
 	} else {
-		cmd_usage(cmd_tp);
-		return -1;
+		return cmd_usage(cmd_tp);
 	}
 
 	return 0;

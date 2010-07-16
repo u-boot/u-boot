@@ -407,10 +407,8 @@ void forceenv (char *varname, char *varvalue)
 
 int do_setenv (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	return _do_setenv (flag, argc, argv);
 }
@@ -433,15 +431,13 @@ int do_askenv ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	local_args[2] = NULL;
 	local_args[3] = NULL;
 
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
 	/* Check the syntax */
 	switch (argc) {
 	case 1:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 
 	case 2:		/* askenv envname */
 		sprintf (message, "Please enter '%s':", argv[1]);
@@ -503,10 +499,8 @@ int do_editenv(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *init_val;
 	int len;
 
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	/* Set read buffer to initial value or empty sting */
 	init_val = getenv(argv[1]);
