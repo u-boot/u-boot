@@ -77,10 +77,11 @@
 
 #define CONFIG_SYS_FLASH_PROTECTION     0       /* use hardware protection           */
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE       /* use buffered writes (20x faster)  */
-#define CONFIG_ENV_ADDR         	(CONFIG_SYS_FLASH_BASE + 0x00000000)
+//#define CONFIG_ENV_ADDR         	(CONFIG_SYS_FLASH_BASE + 0x00000000)
+#define CONFIG_ENV_OFFSET		0xC0000		/*768 KB*/
 #define CONFIG_ENV_SECT_SIZE    	0x20000		/*128 KB*/
-#define CONFIG_ENV_IS_NOWHERE	1
-//#define CONFIG_ENV_IS_IN_FLASH		1
+//#define CONFIG_ENV_IS_NOWHERE	1
+#define CONFIG_ENV_IS_IN_FLASH		1
 
 #else
 
