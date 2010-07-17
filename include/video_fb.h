@@ -1,4 +1,4 @@
-										    /*
+/*
  * (C) Copyright 1997-2002 ELTEC Elektronik AG
  * Frank Gottschling <fgottschling@eltec.de>
  *
