@@ -216,6 +216,40 @@ vidinfo_t panel_info = {
 
 /*----------------------------------------------------------------------*/
 
+#ifdef CONFIG_ACX517AKN
+
+# define LCD_BPP	LCD_COLOR8
+
+/* you have to set lccr0 and lccr3 (including pcd) */
+# define REG_LCCR0	0x003008f9
+# define REG_LCCR3	0x03700006
+
+vidinfo_t panel_info = {
+	.vl_col		= 320,
+	.vl_row		= 320,
+	.vl_width	= 320,
+	.vl_height	= 320,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_oep		= CONFIG_SYS_LOW,
+	.vl_hsp		= CONFIG_SYS_LOW,
+	.vl_vsp		= CONFIG_SYS_LOW,
+	.vl_dp		= CONFIG_SYS_HIGH,
+	.vl_bpix	= LCD_BPP,
+	.vl_lbw		= 0,
+	.vl_splt	= 1,
+	.vl_clor	= 1,
+	.vl_tft		= 1,
+	.vl_hpw		= 0x04,
+	.vl_blw		= 0x1c,
+	.vl_elw		= 0x08,
+	.vl_vpw		= 0x01,
+	.vl_bfw		= 0x07,
+	.vl_efw		= 0x08,
+};
+#endif /* CONFIG_ACX517AKN */
+
+/*----------------------------------------------------------------------*/
+
 #if LCD_BPP == LCD_COLOR8
 void lcd_setcolreg (ushort regno, ushort red, ushort green, ushort blue);
 #endif
