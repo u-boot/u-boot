@@ -35,23 +35,20 @@
  * (easy to change)
  */
 
-#define CONFIG_MPC859T		1	/* This is a MPC859T CPU		*/
-#define CONFIG_KUP4X		1	/* ...on a KUP4X module			*/
+#define CONFIG_MPC859T		1	/* This is a MPC859T CPU	*/
+#define CONFIG_KUP4X		1	/* ...on a KUP4X module		*/
 
-#define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1			*/
+#define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
-#define CONFIG_BAUDRATE		115200	/* console baudrate			*/
-#if 0
-#define CONFIG_BOOTDELAY	-1	/* autoboot disabled			*/
-#else
-#define CONFIG_BOOTDELAY	1	/* autoboot after 1 second		*/
-#endif
+#define CONFIG_BAUDRATE		115200	/* console baudrate		*/
 
-#define CONFIG_BOARD_TYPES	1	/* support board types			*/
+#define CONFIG_BOOTDELAY	1	/* autoboot after 1 second	*/
 
-#define CONFIG_SYS_8XX_FACT		8	/* Multiply by 8			*/
-#define CONFIG_SYS_8XX_XIN		16000000	/* 16 MHz in			*/
+#define CONFIG_BOARD_TYPES	1	/* support board types		*/
+
+#define CONFIG_SYS_8XX_FACT		8	/* Multiply by 8	*/
+#define CONFIG_SYS_8XX_XIN		16000000	/* 16 MHz in	*/
 
 
 #define MPC8XX_HZ ((CONFIG_SYS_8XX_XIN) * (CONFIG_SYS_8XX_FACT))
@@ -67,9 +64,9 @@
 #define CONFIG_EXTRA_ENV_SETTINGS						\
 "slot_a_boot=setenv bootargs root=/dev/hda2 ip=off;"				\
   "run addhw;diskboot 200000 0:1;bootm 200000\0"				\
-"usb_boot=setenv bootargs root=/dev/sda2 ip=off;\
- run addhw; sleep 2; usb reset; usb scan; usbboot 200000 0:1;\
- usb stop; bootm 200000\0"      \
+"usb_boot=setenv bootargs root=/dev/sda2 ip=off;				\
+ run addhw; sleep 2; usb reset; usb scan; usbboot 200000 0:1;			\
+ usb stop; bootm 200000\0"							\
 "nfs_boot=dhcp;run nfsargs addip addhw;bootm 200000\0"				\
 "panic_boot=echo No Bootdevice !!! reset\0"					\
 "nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath}\0"	\
@@ -84,14 +81,14 @@
  "cp.b 200000 40040000 14000\0"
 
 #define CONFIG_BOOTCOMMAND  \
-    "run usb_boot;run_slot_a_boot;run nfs_boot;run panic_boot"
+    "run usb_boot;run slot_a_boot;run nfs_boot;run panic_boot"
 
 
 #define CONFIG_MISC_INIT_R	1
 #define CONFIG_MISC_INIT_F	1
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#undef	CONFIG_SYS_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
+#undef	CONFIG_SYS_LOADS_BAUD_CHANGE	/* don't allow baudrate change	*/
 
 #define	CONFIG_WATCHDOG		1	/* watchdog enabled		*/
 
@@ -144,8 +141,8 @@
  * I2C Configuration
  */
 
-#define CONFIG_SYS_I2C_PICIO_ADDR	0x21	/* PCF8574 IO Expander			*/
-#define CONFIG_SYS_I2C_RTC_ADDR	0x51	/* PCF8563 RTC				*/
+#define CONFIG_SYS_I2C_PICIO_ADDR	0x21	/* PCF8574 IO Expander	*/
+#define CONFIG_SYS_I2C_RTC_ADDR	0x51	/* PCF8563 RTC			*/
 
 
 /* List of I2C addresses to be verified by POST */
@@ -160,22 +157,16 @@
 #define CONFIG_SYS_DISCOVER_PHY
 #define CONFIG_MII
 
-#if 0
-#define CONFIG_ETHADDR                  00:0B:64:80:00:00 /* our OUI from IEEE */
-#endif
 #undef CONFIG_KUP4K_LOGO
 
 /* Define to allow the user to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
 
-#if 1
 /* POST support */
-
 #define CONFIG_POST		(CONFIG_SYS_POST_CPU	   | \
 				 CONFIG_SYS_POST_RTC	   | \
 				 CONFIG_SYS_POST_I2C)
-#endif
 
 
 /*
@@ -426,9 +417,12 @@
 #define CONFIG_SYS_OR_TIMING_FLASH	(OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
 				 OR_SCY_2_CLK | OR_EHTR | OR_BI)
 
-#define CONFIG_SYS_OR0_REMAP	(CONFIG_SYS_REMAP_OR_AM  | CONFIG_SYS_OR_TIMING_FLASH)
-#define CONFIG_SYS_OR0_PRELIM	(CONFIG_SYS_PRELIM_OR_AM | CONFIG_SYS_OR_TIMING_FLASH)
-#define CONFIG_SYS_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_PS_16 | BR_V )
+#define CONFIG_SYS_OR0_REMAP \
+		(CONFIG_SYS_REMAP_OR_AM  | CONFIG_SYS_OR_TIMING_FLASH)
+#define CONFIG_SYS_OR0_PRELIM \
+		(CONFIG_SYS_PRELIM_OR_AM | CONFIG_SYS_OR_TIMING_FLASH)
+#define CONFIG_SYS_BR0_PRELIM \
+		((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_PS_16 | BR_V )
 
 
 /* SDRAM timing: Multiplexed addresses, GPL5 output to GPL5_A (don't care)	*/
@@ -444,6 +438,15 @@
 
 
 /*
+ * Chip Selects
+ */
+
+#define CONFIG_SYS_OR4 0xFFFF8926
+#define CONFIG_SYS_BR4 0x90000401
+
+#define LATCH_ADDR 0x90000200
+
+/*
  * Internal Definitions
  *
  * Boot Flags
@@ -453,10 +456,7 @@
 
 
 #define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot	*/
-#if 0
-#define CONFIG_AUTOBOOT_PROMPT		\
-	"Boote in %d Sekunden - stop mit \"2\"\n", bootdelay
-#endif
+
 #define CONFIG_AUTOBOOT_STOP_STR	"."	/* easy to stop for now		*/
 #define CONFIG_SILENT_CONSOLE	1
 

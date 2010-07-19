@@ -24,49 +24,61 @@
 #include <common.h>
 #include <mpc8xx.h>
 #include "kup.h"
+#include <asm/io.h>
 
-int misc_init_f (void)
+
+int misc_init_f(void)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile sysconf8xx_t *siu = &immap->im_siu_conf;
 
-	while (siu->sc_sipend & 0x20000000) {
-		/* printf("waiting for 5V VCC\n"); */
-		;
+	while (in_be32(&siu->sc_sipend) & 0x20000000) {
+		debug("waiting for 5V VCC\n");
 	}
 
 	/* RS232 / RS485 default is RS232 */
-	immap->im_ioport.iop_padat &= ~(PA_RS485);
-	immap->im_ioport.iop_papar &= ~(PA_RS485);
-	immap->im_ioport.iop_paodr &= ~(PA_RS485);
-	immap->im_ioport.iop_padir |= (PA_RS485);
+	clrbits_be16(&immap->im_ioport.iop_padat, PA_RS485);
+	clrbits_be16(&immap->im_ioport.iop_papar, PA_RS485);
+	clrbits_be16(&immap->im_ioport.iop_paodr, PA_RS485);
+	setbits_be16(&immap->im_ioport.iop_padir, PA_RS485);
+
+	/* IO Reset min 1 msec */
+	setbits_be16(&immap->im_ioport.iop_padat,
+				 (PA_RESET_IO_01 | PA_RESET_IO_02));
+	clrbits_be16(&immap->im_ioport.iop_papar,
+				 (PA_RESET_IO_01 | PA_RESET_IO_02));
+	clrbits_be16(&immap->im_ioport.iop_paodr,
+				 (PA_RESET_IO_01 | PA_RESET_IO_02));
+	setbits_be16(&immap->im_ioport.iop_padir,
+				 (PA_RESET_IO_01 | PA_RESET_IO_02));
+	udelay(1000);
+	clrbits_be16(&immap->im_ioport.iop_padat,
+				 (PA_RESET_IO_01 | PA_RESET_IO_02));
 	return (0);
 }
 
-
 #ifdef CONFIG_IDE_LED
-void ide_led (uchar led, uchar status)
+void ide_led(uchar led, uchar status)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
 	/* We have one led for both pcmcia slots */
-	if (status) {		/* led on */
-		immap->im_ioport.iop_padat &= ~(PA_LED_YELLOW);
-	} else {
-		immap->im_ioport.iop_padat |= (PA_LED_YELLOW);
-	}
+	if (status)
+		clrbits_be16(&immap->im_ioport.iop_padat, PA_LED_YELLOW);
+	else
+		setbits_be16(&immap->im_ioport.iop_padat, PA_LED_YELLOW);
 }
 #endif
 
-void poweron_key (void)
+void poweron_key(void)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
-	immap->im_ioport.iop_pcpar &= ~(PC_SWITCH1);
-	immap->im_ioport.iop_pcdir &= ~(PC_SWITCH1);
+	clrbits_be16(&immap->im_ioport.iop_pcpar, PC_SWITCH1);
+	clrbits_be16(&immap->im_ioport.iop_pcdir, PC_SWITCH1);
 
-	if (immap->im_ioport.iop_pcdat & (PC_SWITCH1))
-		setenv ("key1", "off");
+	if (in_be16(&immap->im_ioport.iop_pcdat) & (PC_SWITCH1))
+		setenv("key1", "off");
 	else
-		setenv ("key1", "on");
+		setenv("key1", "on");
 }
