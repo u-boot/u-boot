@@ -45,7 +45,7 @@ int board_early_init_f(void)
 	mtdcr(UIC1SR, 0xffffffff);	/* clear all */
 	mtdcr(UIC1ER, 0x00000000);	/* disable all */
 	mtdcr(UIC1CR, 0x00000000);	/* all non-critical */
-	mtdcr(UIC1PR, 0xffffffff);	/* per ref-board manual */
+	mtdcr(UIC1PR, 0x7fffffff);	/* per ref-board manual */
 	mtdcr(UIC1TR, 0x00000000);	/* per ref-board manual */
 	mtdcr(UIC1VR, 0x00000000);	/* int31 highest, base=0x000 */
 	mtdcr(UIC1SR, 0xffffffff);	/* clear all */
