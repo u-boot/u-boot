@@ -811,6 +811,7 @@ Greg Ungerer <greg.ungerer@opengear.com>
 
 Marek Vasut <marek.vasut@gmail.com>
 
+	palmld		xscale
 	palmtc		xscale
 
 Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
