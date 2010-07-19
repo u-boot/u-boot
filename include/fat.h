@@ -33,7 +33,7 @@
 
 #define SECTOR_SIZE FS_BLOCK_SIZE
 
-#define FS_BLOCK_SIZE 512
+#define FS_BLOCK_SIZE	512
 
 #if FS_BLOCK_SIZE != SECTOR_SIZE
 #error FS_BLOCK_SIZE != SECTOR_SIZE - This code needs to be fixed!
@@ -57,37 +57,31 @@
 #define SIGNLEN		8
 
 /* File attributes */
-#define ATTR_RO      1
-#define ATTR_HIDDEN  2
-#define ATTR_SYS     4
-#define ATTR_VOLUME  8
-#define ATTR_DIR     16
-#define ATTR_ARCH    32
+#define ATTR_RO	1
+#define ATTR_HIDDEN	2
+#define ATTR_SYS	4
+#define ATTR_VOLUME	8
+#define ATTR_DIR	16
+#define ATTR_ARCH	32
 
-#define ATTR_VFAT     (ATTR_RO | ATTR_HIDDEN | ATTR_SYS | ATTR_VOLUME)
+#define ATTR_VFAT	(ATTR_RO | ATTR_HIDDEN | ATTR_SYS | ATTR_VOLUME)
 
 #define DELETED_FLAG	((char)0xe5) /* Marks deleted files when in name[0] */
 #define aRING		0x05	     /* Used as special character in name[0] */
 
-/* Indicates that the entry is the last long entry in a set of long
+/*
+ * Indicates that the entry is the last long entry in a set of long
  * dir entries
  */
 #define LAST_LONG_ENTRY_MASK	0x40
 
 /* Flags telling whether we should read a file or list a directory */
-#define LS_NO	0
-#define LS_YES	1
-#define LS_DIR	1
-#define LS_ROOT	2
+#define LS_NO		0
+#define LS_YES		1
+#define LS_DIR		1
+#define LS_ROOT		2
 
-#ifdef DEBUG
-#define FAT_DPRINT(args...)	printf(args)
-#else
-#define FAT_DPRINT(args...)
-#endif
-#define FAT_ERROR(arg)		printf(arg)
-
-#define ISDIRDELIM(c)   ((c) == '/' || (c) == '\\')
+#define ISDIRDELIM(c)	((c) == '/' || (c) == '\\')
 
 #define FSTYPE_NONE	(-1)
 
@@ -166,17 +160,18 @@ typedef struct dir_entry {
 } dir_entry;
 
 typedef struct dir_slot {
-	__u8    id;		/* Sequence number for slot */
-	__u8    name0_4[10];	/* First 5 characters in name */
-	__u8    attr;		/* Attribute byte */
-	__u8    reserved;	/* Unused */
-	__u8    alias_checksum;/* Checksum for 8.3 alias */
-	__u8    name5_10[12];	/* 6 more characters in name */
-	__u16   start;		/* Unused */
-	__u8    name11_12[4];	/* Last 2 characters in name */
+	__u8	id;		/* Sequence number for slot */
+	__u8	name0_4[10];	/* First 5 characters in name */
+	__u8	attr;		/* Attribute byte */
+	__u8	reserved;	/* Unused */
+	__u8	alias_checksum;/* Checksum for 8.3 alias */
+	__u8	name5_10[12];	/* 6 more characters in name */
+	__u16	start;		/* Unused */
+	__u8	name11_12[4];	/* Last 2 characters in name */
 } dir_slot;
 
-/* Private filesystem parameters
+/*
+ * Private filesystem parameters
  *
  * Note: FAT buffer has to be 32 bit aligned
  * (see FAT32 accesses)
@@ -198,10 +193,10 @@ typedef long	(file_read_func)(const char *filename, void *buffer,
 				 unsigned long maxsize);
 
 struct filesystem {
-	file_detectfs_func *detect;
-	file_ls_func	   *ls;
-	file_read_func	   *read;
-	const char	    name[12];
+	file_detectfs_func	*detect;
+	file_ls_func		*ls;
+	file_read_func		*read;
+	const char		name[12];
 };
 
 /* FAT tables */
