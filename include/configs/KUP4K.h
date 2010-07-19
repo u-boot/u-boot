@@ -510,5 +510,9 @@
 #define CONFIG_SYS_DEVICE_NULLDEV	1       /* enble null device            */
 #define CONFIG_VERSION_VARIABLE		1
 
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
+
 #endif	/* __CONFIG_H */
 

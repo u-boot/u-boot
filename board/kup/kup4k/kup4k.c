@@ -24,6 +24,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <libfdt.h>
 #include <mpc8xx.h>
 #include <hwconfig.h>
 #include <i2c.h>
@@ -291,3 +292,13 @@ static unsigned char swapbyte(unsigned char c)
 	}
 	return result;
 }
+
+/*
+ * Device Tree Support
+ */
+#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+}
+#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */
