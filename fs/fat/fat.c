@@ -50,6 +50,7 @@ static int cur_part = 1;
 #define DOS_PART_TBL_OFFSET	0x1be
 #define DOS_PART_MAGIC_OFFSET	0x1fe
 #define DOS_FS_TYPE_OFFSET	0x36
+#define DOS_FS32_TYPE_OFFSET	0x52
 
 int disk_read (__u32 startblock, __u32 getsize, __u8 * bufptr)
 {
@@ -94,7 +95,8 @@ fat_register_device(block_dev_desc_t *dev_desc, int part_no)
 	if (!get_partition_info (dev_desc, part_no, &info)) {
 		part_offset = info.start;
 		cur_part = part_no;
-	} else if (!strncmp((char *)&buffer[DOS_FS_TYPE_OFFSET], "FAT", 3)) {
+	} else if (strncmp((char *)&buffer[DOS_FS_TYPE_OFFSET], "FAT", 3)==0 ||
+		   strncmp((char *)&buffer[DOS_FS32_TYPE_OFFSET],"FAT32",5)==0) {
 		/* ok, we assume we are on a PBR only */
 		cur_part = 1;
 		part_offset = 0;
@@ -105,7 +107,8 @@ fat_register_device(block_dev_desc_t *dev_desc, int part_no)
 	}
 
 #else
-	if (!strncmp((char *)&buffer[DOS_FS_TYPE_OFFSET],"FAT",3)) {
+	if ((strncmp((char *)&buffer[DOS_FS_TYPE_OFFSET], "FAT", 3) == 0) ||
+	    (strncmp((char *)&buffer[DOS_FS32_TYPE_OFFSET], "FAT32", 5) == 0)) {
 		/* ok, we assume we are on a PBR only */
 		cur_part = 1;
 		part_offset = 0;

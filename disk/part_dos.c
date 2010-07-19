@@ -77,8 +77,10 @@ static int test_block_type(unsigned char *buffer)
 	    (buffer[DOS_PART_MAGIC_OFFSET + 1] != 0xaa) ) {
 		return (-1);
 	} /* no DOS Signature at all */
-	if(strncmp((char *)&buffer[DOS_PBR_FSTYPE_OFFSET],"FAT",3)==0)
+	if (strncmp((char *)&buffer[DOS_PBR_FSTYPE_OFFSET],"FAT",3)==0 ||
+	    strncmp((char *)&buffer[DOS_PBR32_FSTYPE_OFFSET],"FAT32",5)==0) {
 		return DOS_PBR; /* is PBR */
+	}
 	return DOS_MBR;	    /* Is MBR */
 }
 
