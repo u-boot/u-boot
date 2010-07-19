@@ -201,6 +201,9 @@ get_fatent(fsdata *mydata, __u32 entry)
 		return ret;
 	}
 
+	FAT_DPRINT("FAT%d: entry: 0x%04x = %d, offset: 0x%04x = %d\n",
+		mydata->fatsize, entry, entry, offset, offset);
+
 	/* Read a new block of FAT entries into the cache. */
 	if (bufnum != mydata->fatbufnum) {
 		int getsize = FATBUFSIZE/FS_BLOCK_SIZE;
@@ -260,7 +263,8 @@ get_fatent(fsdata *mydata, __u32 entry)
 	}
 	break;
 	}
-	FAT_DPRINT("ret: %d, offset: %d\n", ret, offset);
+	FAT_DPRINT("FAT%d: ret: %08x, offset: %04x\n",
+		mydata->fatsize, ret, offset);
 
 	return ret;
 }
@@ -323,7 +327,7 @@ get_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
 
 	if (maxsize > 0 && filesize > maxsize) filesize = maxsize;
 
-	FAT_DPRINT("Reading: %ld bytes\n", filesize);
+	FAT_DPRINT("%ld bytes\n", filesize);
 
 	actsize=bytesperclust;
 	endclust=curclust;
@@ -719,16 +723,19 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
     dir_entry *dentptr;
     __u16 prevcksum = 0xffff;
     char *subname = "";
-    int rootdir_size, cursect;
+    int cursect;
     int idx, isdir = 0;
     int files = 0, dirs = 0;
     long ret = 0;
     int firsttime;
+    int root_cluster;
+    int j;
 
     if (read_bootsectandvi (&bs, &volinfo, &mydata->fatsize)) {
 	FAT_DPRINT ("Error: reading boot sector\n");
 	return -1;
     }
+	root_cluster = bs.root_cluster;
     if (mydata->fatsize == 32) {
 	mydata->fatlength = bs.fat32_length;
     } else {
@@ -739,10 +746,11 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 	    = mydata->fat_sect + mydata->fatlength * bs.fats;
     mydata->clust_size = bs.cluster_size;
     if (mydata->fatsize == 32) {
-	rootdir_size = mydata->clust_size;
-	mydata->data_begin = mydata->rootdir_sect   /* + rootdir_size */
+	mydata->data_begin = mydata->rootdir_sect
 		- (mydata->clust_size * 2);
     } else {
+	int rootdir_size;
+
 	rootdir_size = ((bs.dir_entries[1] * (int) 256 + bs.dir_entries[0])
 			* sizeof (dir_entry)) / SECTOR_SIZE;
 	mydata->data_begin = mydata->rootdir_sect + rootdir_size
@@ -750,12 +758,19 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
     }
     mydata->fatbufnum = -1;
 
-    FAT_DPRINT ("FAT%d, fatlength: %d\n", mydata->fatsize,
+#ifdef CONFIG_SUPPORT_VFAT
+    FAT_DPRINT ("VFAT Support enabled\n");
+#endif
+    FAT_DPRINT ("FAT%d, fat_sect: %d, fatlength: %d\n",
+		mydata->fatsize,
+		mydata->fat_sect,
 		mydata->fatlength);
-    FAT_DPRINT ("Rootdir begins at sector: %d, offset: %x, size: %d\n"
+    FAT_DPRINT ("Rootdir begins at cluster: %d, sector: %d, offset: %x\n"
 		"Data begins at: %d\n",
-		mydata->rootdir_sect, mydata->rootdir_sect * SECTOR_SIZE,
-		rootdir_size, mydata->data_begin);
+		root_cluster,
+		mydata->rootdir_sect,
+		mydata->rootdir_sect * SECTOR_SIZE,
+		mydata->data_begin);
     FAT_DPRINT ("Cluster size: %d\n", mydata->clust_size);
 
     /* "cwd" is always the root... */
@@ -779,9 +794,12 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 	isdir = 1;
     }
 
+    j=0;
     while (1) {
 	int i;
 
+	FAT_DPRINT ("FAT read sect=%d, clust_size=%d, DIRENTSPERBLOCK=%d\n",
+		cursect, mydata->clust_size, DIRENTSPERBLOCK);
 	if (disk_read (cursect, mydata->clust_size, do_fat_read_block) < 0) {
 	    FAT_DPRINT ("Error: reading rootdir block\n");
 	    return -1;
@@ -894,7 +912,29 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 
 	    goto rootdir_done;  /* We got a match */
 	}
-	cursect++;
+	FAT_DPRINT ("END LOOP: j=%d   clust_size=%d\n", j, mydata->clust_size);
+
+	/*
+	 * On FAT32 we must fetch the FAT entries for the next
+	 * root directory clusters when a cluster has been
+	 * completely processed.
+	 */
+	if ((mydata->fatsize == 32) && (++j == mydata->clust_size)) {
+		int nxtsect;
+		int cur_clust, nxt_clust;
+
+		cur_clust = (cursect - mydata->data_begin) / mydata->clust_size;
+		nxt_clust = get_fatent(mydata, root_cluster);
+		nxtsect = mydata->data_begin + (nxt_clust * mydata->clust_size);
+		FAT_DPRINT ("END LOOP: sect=%d, clust=%d, root_clust=%d, n_sect=%d, n_clust=%d\n",
+			cursect, cur_clust, root_cluster, nxtsect, nxt_clust);
+		root_cluster = nxt_clust;
+
+		cursect = nxtsect;
+		j = 0;
+	} else {
+		cursect++;
+	}
     }
   rootdir_done:
 
