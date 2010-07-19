@@ -181,7 +181,7 @@ block_dev_desc_t *usb_stor_get_dev(int index)
 
 void usb_show_progress(void)
 {
-	printf(".");
+	debug(".");
 }
 
 /*******************************************************************************
@@ -1081,7 +1081,7 @@ retry_it:
 
 	usb_disable_asynch(0); /* asynch transfer allowed */
 	if (blkcnt >= USB_MAX_READ_BLK)
-		printf("\n");
+		debug("\n");
 	return blkcnt;
 }
 
@@ -1161,7 +1161,7 @@ retry_it:
 
 	usb_disable_asynch(0); /* asynch transfer allowed */
 	if (blkcnt >= USB_MAX_WRITE_BLK)
-		printf("\n");
+		debug("\n");
 	return blkcnt;
 
 }
