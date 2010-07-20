@@ -143,8 +143,9 @@ void lcd_ctrl_init(void *lcdbase)
 
 	/* Set contrast */
 	value = ATMEL_LCDC_PS_DIV8 |
-		ATMEL_LCDC_POL_POSITIVE |
 		ATMEL_LCDC_ENA_PWMENABLE;
+	if (!panel_info.vl_cont_pol_low)
+		value |= ATMEL_LCDC_POL_POSITIVE;
 	lcdc_writel(panel_info.mmio, ATMEL_LCDC_CONTRAST_CTR, value);
 	lcdc_writel(panel_info.mmio, ATMEL_LCDC_CONTRAST_VAL, ATMEL_LCDC_CVAL_DEFAULT);
 
