@@ -15,6 +15,27 @@
 .globl lowlevel_init
 lowlevel_init:
 
+	# unlock SLCR
+	ldr r1, =(XPSS_SYS_CTRL_BASEADDR + 8)
+	ldr r2, =0x767BDF0D
+	str r2, [r1]
+
+	# clear resets on AXI fabric ports
+	ldr r1, =(XPSS_SYS_CTRL_BASEADDR + 0x240)
+	ldr r2, =0x00F00F0F
+	str r2, [r1]
+
+	# Set DDR trust zone non-secure
+	ldr r1, =(XPSS_SYS_CTRL_BASEADDR + 0x430)
+	ldr r2, =0xFFFFFFFF
+	str r2, [r1]
+
+	# relock SLCR
+	ldr r1, =(XPSS_SYS_CTRL_BASEADDR + 0x4)
+	ldr r2, =0x767BDF0D
+	str r2, [r1]
+
+	# Reset DDR controller
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0)
 	ldr r2, =0x200
 	str r2, [r1]
@@ -95,4 +116,12 @@ lowlevel_init:
 	ldr r2, =0x201
 	str r2, [r1]
 
+# Delay spin loop
+	ldr r4, =0x1000000
+loop:	
+	sub r4, r4, #1
+	cmp r4, #0
+	bne loop
+
 	mov pc, lr
+
