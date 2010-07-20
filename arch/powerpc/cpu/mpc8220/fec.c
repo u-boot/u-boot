@@ -840,7 +840,7 @@ int mpc8220_fec_initialize (bd_t * bis)
 	dev->send = mpc8220_fec_send;
 	dev->recv = mpc8220_fec_recv;
 
-	sprintf (dev->name, "FEC ETHERNET");
+	sprintf (dev->name, "FEC");
 	eth_register (dev);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)

@@ -154,7 +154,7 @@
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath) wdt=off\0"		\
 	"hostname=v38b\0"						\
-	"ethact=FEC ETHERNET\0"						\
+	"ethact=FEC\0"							\
 	"rootpath=/opt/eldk-3.1.1/ppc_6xx\0"				\
 	"update=prot off ff000000 ff03ffff; era ff000000 ff03ffff; "	\
 		"cp.b 200000 ff000000 $(filesize);"			\

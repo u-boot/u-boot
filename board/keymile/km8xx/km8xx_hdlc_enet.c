@@ -34,7 +34,7 @@
 char keymile_slot;	/* our slot number in the backplane */
 
 /*
- * Since, except during initialization, ethact is always HDLC ETHERNET
+ * Since, except during initialization, ethact is always HDLC
  * while we're in the driver, just use serial_printf() everywhere for
  * output.  This avoids possible conflicts when netconsole is being
  * used.

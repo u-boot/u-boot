@@ -745,13 +745,13 @@ int last_stage_init(void)
 		return 0;
 
 	for (i = 0; i < 2; i++) {
-		ret = miiphy_read("FEC ETHERNET", phy[i], PHY_BMCR, &reg);
+		ret = miiphy_read("FEC", phy[i], PHY_BMCR, &reg);
 		if (ret) {
 			printf("Cannot read BMCR on PHY %d\n", phy[i]);
 			return 0;
 		}
 		/* Auto-negotiation off, hard set full duplex, 100Mbps */
-		ret = miiphy_write("FEC ETHERNET", phy[i],
+		ret = miiphy_write("FEC", phy[i],
 				   PHY_BMCR, (reg | PHY_BMCR_100MB |
 					      PHY_BMCR_DPLX) & ~PHY_BMCR_AUTON);
 		if (ret) {

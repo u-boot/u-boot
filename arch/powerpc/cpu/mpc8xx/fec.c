@@ -164,9 +164,9 @@ int fec_initialize(bd_t *bis)
 		/* for FEC1 make sure that the name of the interface is the same
 		   as the old one for compatibility reasons */
 		if (i == 0) {
-			sprintf (dev->name, "FEC ETHERNET");
+			sprintf (dev->name, "FEC");
 		} else {
-			sprintf (dev->name, "FEC%d ETHERNET",
+			sprintf (dev->name, "FEC%d",
 				ether_fcc_info[i].ether_index + 1);
 		}
 

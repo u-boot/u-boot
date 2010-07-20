@@ -93,7 +93,7 @@ nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath}
 addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}:${netdev}:off panic=1
 => run nfsargs addip
 => tftp 900000 /path/to/tftp/location/kernel.itb
-Using FEC ETHERNET device
+Using FEC device
 TFTP from server 192.168.1.1; our IP address is 192.168.160.5
 Filename '/path/to/tftp/location/kernel.itb'.
 Load address: 0x900000
@@ -207,7 +207,7 @@ inspected and booted:
 
 [on the target system]
 => tftp 900000 /path/to/tftp/location/kernel_fdt.itb
-Using FEC ETHERNET device
+Using FEC device
 TFTP from server 192.168.1.1; our IP address is 192.168.160.5
 Filename '/path/to/tftp/location/kernel_fdt.itb'.
 Load address: 0x900000

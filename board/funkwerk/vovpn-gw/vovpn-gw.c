@@ -198,7 +198,7 @@ void reset_phy (void)
 	iop->pdat |= 0x00080000;
 	for (i=0; i<100; i++) {
 		udelay(20000);
-		if (bb_miiphy_read("FCC1 ETHERNET", CONFIG_SYS_PHY_ADDR,2,&val ) == 0) {
+		if (bb_miiphy_read("FCC1", CONFIG_SYS_PHY_ADDR,2,&val ) == 0) {
 			break;
 		}
 	}

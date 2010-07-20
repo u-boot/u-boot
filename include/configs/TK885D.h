@@ -65,8 +65,8 @@
 #undef	CONFIG_BOOTARGS
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
-	"ethprime=FEC ETHERNET\0"					\
-	"ethact=FEC ETHERNET\0"						\
+	"ethprime=FEC\0"						\
+	"ethact=FEC\0"							\
 	"netdev=eth0\0"							\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=${serverip}:${rootpath}\0"			\
@@ -514,7 +514,7 @@
 #define CONFIG_MII_INIT	1
 
 #define CONFIG_NET_RETRY_COUNT	3
-#define CONFIG_ETHPRIME		"FEC ETHERNET"
+#define CONFIG_ETHPRIME		"FEC"
 
 /* pass open firmware flat tree */
 #define CONFIG_OF_LIBFDT	1
