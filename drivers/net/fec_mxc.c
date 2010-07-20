@@ -743,7 +743,7 @@ static int fec_probe(bd_t *bd)
 	writel(0x05ee0024, &fec->eth->r_cntrl);	/* FIXME 0x05ee0004 */
 	fec_mii_setspeed(fec);
 
-	sprintf(edev->name, "FEC_MXC");
+	sprintf(edev->name, "FEC");
 
 	miiphy_register(edev->name, fec_miiphy_read, fec_miiphy_write);
 
