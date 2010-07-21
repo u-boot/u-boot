@@ -226,7 +226,8 @@
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${nandroot} " \
 		"rootfstype=${nandrootfstype}\0" \
-	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} uEnv.txt\0" \
+	"bootenv=uEnv.txt\0" \
+	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t $loadaddr $filesize\0" \
 	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
@@ -240,8 +241,12 @@
 
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan ${mmcdev}; then " \
+		"if userbutton; then " \
+			"setenv bootenv user.txt;" \
+		"fi;" \
 		"echo SD/MMC found on device ${mmcdev};" \
 		"if run loadbootenv; then " \
+			"echo Loaded environment from ${bootenv};" \
 			"run importbootenv;" \
 		"fi;" \
 		"if test -n $uenvcmd; then " \
