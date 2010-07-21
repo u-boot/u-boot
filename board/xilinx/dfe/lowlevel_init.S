@@ -5,11 +5,7 @@
  * It needs lots of love and attention some day.
  */
 
-#undef XPSS_DDR_CTRL_BASEADDR
-/* ARCH SPEC 1.1 */
-#define XPSS_DDR_CTRL_BASEADDR                  0xFE006000
-/* ARCH SPEC 1.2 */
-//#define XPSS_DDR_CTRL_BASEADDR		0xF8006000
+#include <xparameters.h>
 
 
 .globl lowlevel_init
