@@ -130,7 +130,26 @@ static void program_ecc_addr(unsigned long start_address,
 
 		/* clear ECC error repoting registers */
 		mtsdram(SDRAM_ECCES, 0xffffffff);
-		mtdcr(0x4c, 0xffffffff);
+#if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR)
+		/*
+		 * IBM DDR(1) core (440GX):
+		 * Clear Mx bits in SDRAM0_BESR0/1
+		 */
+		mtsdram(SDRAM0_BESR0, 0xffffffff);
+		mtsdram(SDRAM0_BESR1, 0xffffffff);
+#elif defined(CONFIG_440)
+		/*
+		 * 440/460 DDR2 core:
+		 * Clear EMID (Error PLB Master ID) in MQ0_ESL
+		 */
+		mtdcr(SDRAM_ERRSTATLL, 0xfff00000);
+#else
+		/*
+		 * 405EX(r) DDR2 core:
+		 * Clear M0ID (Error PLB Master ID) in SDRAM_BESR
+		 */
+		mtsdram(SDRAM_BESR, 0xf0000000);
+#endif
 
 		mtsdram(SDRAM_MCOPT1,
 			(mcopt1 & ~SDRAM_MCOPT1_MCHK_MASK) | SDRAM_MCOPT1_MCHK_CHK_REP);
