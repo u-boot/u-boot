@@ -128,6 +128,7 @@ FRQCR_A:	.long	FRQCR
 RWTCSR_D1:	.word	0xa507
 RWTCSR_D2:	.word	0xa504
 RWTCNT_D:	.word	0x5a00
+.align 2
 FRQCR_D:	.long	0x0b04474a
 
 SBSC_SDCR_A:	.long	SBSC_SDCR
