@@ -1,16 +1,7 @@
 /*
- * (C) Copyright 2004
- * Robert Whaley, Applied Data Systems, Inc. rwhaley@applieddata.net
+ * Voipac PXA270 Support
  *
- * (C) Copyright 2002
- * Kyle Harris, Nexus Technologies, Inc. kharris@nexus-tech.net
- *
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
- *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -36,26 +27,15 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* ------------------------------------------------------------------------- */
-
 /*
  * Miscelaneous platform dependent initialisations
  */
-extern struct serial_device serial_ffuart_device;
-extern struct serial_device serial_btuart_device;
-extern struct serial_device serial_stuart_device;
-
-struct serial_device *default_serial_console (void)
-{
-	return &serial_ffuart_device;
-}
-
-int board_init (void)
+int board_init(void)
 {
 	/* memory and cpu-speed are setup before relocation */
 	/* so we do _nothing_ here */
 
-	/* arch number of vpac270 */
+	/* Arch number of vpac270 */
 	gd->bd->bi_arch_number = MACH_TYPE_VPAC270;
 
 	/* adress of boot parameters */
@@ -64,17 +44,24 @@ int board_init (void)
 	return 0;
 }
 
-int dram_init (void)
+struct serial_device *default_serial_console(void)
+{
+	return &serial_ffuart_device;
+}
+
+int dram_init(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
 
+#ifdef	CONFIG_256M_U_BOOT
+	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
+	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
+#endif
 	return 0;
 }
 
+#ifdef	CONFIG_CMD_USB
 int usb_board_init(void)
 {
 	writel((UHCHR | UHCHR_PCPL | UHCHR_PSPL) &
@@ -124,6 +111,7 @@ void usb_board_stop(void)
 
 	return;
 }
+#endif
 
 #ifdef CONFIG_DRIVER_DM9000
 int board_eth_init(bd_t *bis)

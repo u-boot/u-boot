@@ -1,10 +1,7 @@
-
 #
-# (C) Copyright 2000
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Voipac PXA270 Support
 #
-# See file CREDITS for list of people who contributed to this
-# project.
+# Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as

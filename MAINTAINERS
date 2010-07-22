@@ -813,6 +813,7 @@ Marek Vasut <marek.vasut@gmail.com>
 
 	palmld		xscale
 	palmtc		xscale
+	vpac270		xscale
 
 Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 

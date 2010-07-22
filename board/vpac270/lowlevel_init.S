@@ -3,7 +3,6 @@
  *
  * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
  *
- *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
