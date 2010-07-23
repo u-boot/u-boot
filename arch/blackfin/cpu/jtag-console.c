@@ -1,7 +1,7 @@
 /*
  * jtag-console.c - console driver over Blackfin JTAG
  *
- * Copyright (c) 2008 Analog Devices Inc.
+ * Copyright (c) 2008-2010 Analog Devices Inc.
  *
  * Licensed under the GPL-2 or later.
  */
@@ -10,23 +10,37 @@
 #include <stdio_dev.h>
 #include <asm/blackfin.h>
 
+static inline uint32_t bfin_write_emudat(uint32_t emudat)
+{
+	__asm__ __volatile__("emudat = %0;" : : "d"(emudat));
+	return emudat;
+}
+
+static inline uint32_t bfin_read_emudat(void)
+{
+	uint32_t emudat;
+	__asm__ __volatile__("%0 = emudat;" : "=d"(emudat));
+	return emudat;
+}
+
 #ifndef CONFIG_JTAG_CONSOLE_TIMEOUT
 # define CONFIG_JTAG_CONSOLE_TIMEOUT 500
 #endif
 
 /* The Blackfin tends to be much much faster than the JTAG hardware. */
-static void jtag_write_emudat(uint32_t emudat)
+static bool jtag_write_emudat(uint32_t emudat)
 {
 	static bool overflowed = false;
 	ulong timeout = get_timer(0) + CONFIG_JTAG_CONSOLE_TIMEOUT;
 	while (bfin_read_DBGSTAT() & 0x1) {
 		if (overflowed)
-			return;
+			return overflowed;
 		if (timeout < get_timer(0))
 			overflowed = true;
 	}
 	overflowed = false;
-	__asm__ __volatile__("emudat = %0;" : : "d"(emudat));
+	bfin_write_emudat(emudat);
+	return overflowed;
 }
 /* Transmit a buffer.  The format is:
  * [32bit length][actual data]
@@ -39,11 +53,21 @@ static void jtag_send(const char *c, uint32_t len)
 		return;
 
 	/* First send the length */
-	jtag_write_emudat(len);
+	if (jtag_write_emudat(len))
+		return;
 
 	/* Then send the data */
-	for (i = 0; i < len; i += 4)
-		jtag_write_emudat((c[i] << 0) | (c[i+1] << 8) | (c[i+2] << 16) | (c[i+3] << 24));
+	for (i = 0; i < len; i += 4) {
+		uint32_t emudat =
+			(c[i + 0] <<  0) |
+			(c[i + 1] <<  8) |
+			(c[i + 2] << 16) |
+			(c[i + 3] << 24);
+		if (jtag_write_emudat(emudat)) {
+			bfin_write_emudat(0);
+			return;
+		}
+	}
 }
 static void jtag_putc(const char c)
 {
@@ -88,7 +112,7 @@ static int jtag_getc(void)
 	/* wait for new data ! */
 	while (!jtag_tstc_dbg())
 		continue;
-	__asm__("%0 = emudat;" : "=d"(emudat));
+	emudat = bfin_read_emudat();
 
 	if (inbound_len == 0) {
 		/* grab the length */
