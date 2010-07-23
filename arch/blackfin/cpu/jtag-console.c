@@ -7,6 +7,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <stdio_dev.h>
 #include <asm/blackfin.h>
 
@@ -61,33 +62,55 @@ static bool jtag_write_emudat(uint32_t emudat)
 /* Transmit a buffer.  The format is:
  * [32bit length][actual data]
  */
-static void jtag_send(const char *c, uint32_t len)
+static void jtag_send(const char *raw_str, uint32_t len)
 {
-	uint32_t i;
+	const char *cooked_str;
+	uint32_t i, ex;
 
 	if (len == 0)
 		return;
 
+	/* Ugh, need to output \r after \n */
+	ex = 0;
+	for (i = 0; i < len; ++i)
+		if (raw_str[i] == '\n')
+			++ex;
+	if (ex) {
+		char *c = malloc(len + ex);
+		cooked_str = c;
+		for (i = 0; i < len; ++i) {
+			*c++ = raw_str[i];
+			if (raw_str[i] == '\n')
+				*c++ = '\r';
+		}
+		len += ex;
+	} else
+		cooked_str = raw_str;
+
 	dprintf("%s(\"", __func__);
-	dprintf_decode(c, len);
+	dprintf_decode(cooked_str, len);
 	dprintf("\", %i)\n", len);
 
 	/* First send the length */
 	if (jtag_write_emudat(len))
-		return;
+		goto done;
 
 	/* Then send the data */
 	for (i = 0; i < len; i += 4) {
 		uint32_t emudat =
-			(c[i + 0] <<  0) |
-			(c[i + 1] <<  8) |
-			(c[i + 2] << 16) |
-			(c[i + 3] << 24);
+			(cooked_str[i + 0] <<  0) |
+			(cooked_str[i + 1] <<  8) |
+			(cooked_str[i + 2] << 16) |
+			(cooked_str[i + 3] << 24);
 		if (jtag_write_emudat(emudat)) {
 			bfin_write_emudat(0);
-			return;
+			goto done;
 		}
 	}
+
+ done:
+	if (cooked_str != raw_str)
+		free((char *)cooked_str);
 }
 static void jtag_putc(const char c)
 {
