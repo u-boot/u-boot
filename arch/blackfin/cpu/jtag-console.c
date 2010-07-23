@@ -10,6 +10,22 @@
 #include <stdio_dev.h>
 #include <asm/blackfin.h>
 
+#ifdef DEBUG
+# define dprintf(...) serial_printf(__VA_ARGS__)
+#else
+# define dprintf(...) do { if (0) printf(__VA_ARGS__); } while (0)
+#endif
+
+static inline void dprintf_decode(const char *s, uint32_t len)
+{
+	uint32_t i;
+	for (i = 0; i < len; ++i)
+		if (s[i] < 0x20 || s[i] >= 0x7f)
+			dprintf("\\%o", s[i]);
+		else
+			dprintf("%c", s[i]);
+}
+
 static inline uint32_t bfin_write_emudat(uint32_t emudat)
 {
 	__asm__ __volatile__("emudat = %0;" : : "d"(emudat));
@@ -52,6 +68,10 @@ static void jtag_send(const char *c, uint32_t len)
 	if (len == 0)
 		return;
 
+	dprintf("%s(\"", __func__);
+	dprintf_decode(c, len);
+	dprintf("\", %i)\n", len);
+
 	/* First send the length */
 	if (jtag_write_emudat(len))
 		return;
@@ -83,7 +103,10 @@ static size_t inbound_len, leftovers_len;
 /* Lower layers want to know when jtag has data */
 static int jtag_tstc_dbg(void)
 {
-	return (bfin_read_DBGSTAT() & 0x2);
+	int ret = (bfin_read_DBGSTAT() & 0x2);
+	if (ret)
+		dprintf("%s: ret:%i\n", __func__, ret);
+	return ret;
 }
 
 /* Higher layers want to know when any data is available */
@@ -100,6 +123,9 @@ static int jtag_getc(void)
 {
 	int ret;
 	uint32_t emudat;
+
+	dprintf("%s: inlen:%zu leftlen:%zu left:%x\n", __func__,
+		inbound_len, leftovers_len, leftovers);
 
 	/* see if any data is left over */
 	if (leftovers_len) {
