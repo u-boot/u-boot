@@ -31,9 +31,9 @@ if [ -z "${ip}" ] || [ -n "$3" ] ; then
 	usage "Invalid number of arguments"
 fi
 
-trap "stty icanon echo intr ^C" 0 2 3 5 10 13 15
+trap "stty icanon echo opost intr ^C" 0 2 3 5 10 13 15
 echo "NOTE: the interrupt signal (normally ^C) has been remapped to ^T"
 
-stty -icanon -echo intr ^T
+stty -icanon -echo -opost intr ^T
 nc ${ip} ${port}
 exit 0
