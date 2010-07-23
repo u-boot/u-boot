@@ -4,10 +4,7 @@
 #include <common.h>
 #include <net.h>
 
-#include "xemacpss_example.h"
-
-
-static void print_packet(char *p); /* HACK FIXME BHILL */
+#include "xemacpss.h"
 
 /************************ Forward function declaration **********************/
 
