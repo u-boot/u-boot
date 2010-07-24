@@ -74,8 +74,8 @@
 #define CONFIG_SYS_FLASH_SIZE		(64 << 20)
 
 #define CONFIG_SYS_FPGA1_BASE		0xe0000000
-#define CONFIG_SYS_FPGA2_BASE		0xe0100000
-#define CONFIG_SYS_FPGA3_BASE		0xe0200000
+#define CONFIG_SYS_FPGA2_BASE		0xe2000000
+#define CONFIG_SYS_FPGA3_BASE		0xe4000000
 
 #define CONFIG_SYS_BOOT_BASE_ADDR	0xFF000000	/* EBC Boot Space */
 #define CONFIG_SYS_FLASH_BASE_PHYS_H	0x4
@@ -84,13 +84,11 @@
 	(((u64)CONFIG_SYS_FLASH_BASE_PHYS_H << 32) \
 	| (u64)CONFIG_SYS_FLASH_BASE_PHYS_L)
 
-#define CONFIG_SYS_OCM_BASE		0xE3000000	/* OCM: 64k */
+#define CONFIG_SYS_OCM_BASE		0xE7000000	/* OCM: 64k */
 #define CONFIG_SYS_SRAM_BASE		0xE8000000	/* SRAM: 256k */
 #define CONFIG_SYS_LOCAL_CONF_REGS	0xEF000000
 
 #define CONFIG_SYS_PERIPHERAL_BASE	0xEF600000	/* internal periph. */
-
-#define CONFIG_SYS_AHB_BASE		0xE2000000	/* int. AHB periph. */
 
 /*
  * Initial RAM & stack pointer (placed in OCM)
@@ -121,6 +119,7 @@
 #define CONFIG_SYS_FLASH_CFI		/* The flash is CFI compatible	*/
 #define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
 #define CONFIG_SYS_FLASH_CFI_AMD_RESET	1	/* Use AMD reset cmd */
+#define CONFIG_SYS_CFI_FLASH_STATUS_POLL /* use status poll method	*/
 
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of memory banks */
@@ -144,10 +143,13 @@
 /*
  * DDR2 SDRAM
  */
+#define CONFIG_SYS_MBYTES_SDRAM		256
+#define CONFIG_DDR_ECC
 #define CONFIG_AUTOCALIB	"silent\0"	/* default is non-verbose    */
 #define CONFIG_PPC4xx_DDR_AUTOCALIBRATION	/* IBM DDR autocalibration   */
 #define DEBUG_PPC4xx_DDR_AUTOCALIBRATION	/* dynamic DDR autocal debug */
 #undef CONFIG_PPC4xx_DDR_METHOD_A
+#define CONFIG_DDR_RFDC_FIXED		0x000001D7 /* optimal value */
 
 /* DDR1/2 SDRAM Device Control Register Data Values */
 /* Memory Queue */
@@ -161,9 +163,6 @@
 #define CONFIG_SYS_SDRAM_CONF1LL	0x80001C00
 #define CONFIG_SYS_SDRAM_CONF1HB	0x80001C80
 #define CONFIG_SYS_SDRAM_CONFPATHB	0x10a68000
-
-#define CONFIG_DDR_ECC
-#define CONFIG_SYS_MBYTES_SDRAM		256
 
 #define CAS_LATENCY			JEDEC_MA_MR_CL_DDR2_5_0_CLK
 
@@ -360,6 +359,7 @@
  * Commands additional to the ones defined in amcc-common.h
  */
 #define CONFIG_CMD_CHIP_CONFIG
+#define CONFIG_CMD_ECCTEST
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
 
@@ -417,7 +417,7 @@
 #define CONFIG_SYS_EBC_PB1AP	(EBC_BXAP_BME_DISABLED		|	\
 				 EBC_BXAP_TWT_ENCODE(5)		|	\
 				 EBC_BXAP_CSN_ENCODE(0)		|	\
-				 EBC_BXAP_OEN_ENCODE(4)		|	\
+				 EBC_BXAP_OEN_ENCODE(3)		|	\
 				 EBC_BXAP_WBN_ENCODE(0)		|	\
 				 EBC_BXAP_WBF_ENCODE(0)		|	\
 				 EBC_BXAP_TH_ENCODE(1)		|	\
@@ -426,7 +426,7 @@
 				 EBC_BXAP_BEM_RW		|	\
 				 EBC_BXAP_PEN_DISABLED)
 #define CONFIG_SYS_EBC_PB1CR	(EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FPGA1_BASE) | \
-				 EBC_BXCR_BS_1MB		|	\
+				 EBC_BXCR_BS_32MB		|	\
 				 EBC_BXCR_BU_RW			|	\
 				 EBC_BXCR_BW_32BIT)
 
@@ -434,7 +434,7 @@
 #define CONFIG_SYS_EBC_PB2AP	(EBC_BXAP_BME_DISABLED		|	\
 				 EBC_BXAP_TWT_ENCODE(5)		|	\
 				 EBC_BXAP_CSN_ENCODE(0)		|	\
-				 EBC_BXAP_OEN_ENCODE(4)		|	\
+				 EBC_BXAP_OEN_ENCODE(3)		|	\
 				 EBC_BXAP_WBN_ENCODE(0)		|	\
 				 EBC_BXAP_WBF_ENCODE(0)		|	\
 				 EBC_BXAP_TH_ENCODE(1)		|	\
@@ -443,7 +443,7 @@
 				 EBC_BXAP_BEM_RW		|	\
 				 EBC_BXAP_PEN_DISABLED)
 #define CONFIG_SYS_EBC_PB2CR	(EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FPGA2_BASE) | \
-				 EBC_BXCR_BS_1MB		|	\
+				 EBC_BXCR_BS_16MB		|	\
 				 EBC_BXCR_BU_RW			|	\
 				 EBC_BXCR_BW_32BIT)
 
@@ -451,7 +451,7 @@
 #define CONFIG_SYS_EBC_PB3AP	(EBC_BXAP_BME_DISABLED		|	\
 				 EBC_BXAP_TWT_ENCODE(5)		|	\
 				 EBC_BXAP_CSN_ENCODE(0)		|	\
-				 EBC_BXAP_OEN_ENCODE(4)		|	\
+				 EBC_BXAP_OEN_ENCODE(3)		|	\
 				 EBC_BXAP_WBN_ENCODE(0)		|	\
 				 EBC_BXAP_WBF_ENCODE(0)		|	\
 				 EBC_BXAP_TH_ENCODE(1)		|	\
@@ -460,7 +460,7 @@
 				 EBC_BXAP_BEM_RW		|	\
 				 EBC_BXAP_PEN_DISABLED)
 #define CONFIG_SYS_EBC_PB3CR	(EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FPGA3_BASE) | \
-				 EBC_BXCR_BS_1MB		|	\
+				 EBC_BXCR_BS_16MB		|	\
 				 EBC_BXCR_BU_RW			|	\
 				 EBC_BXCR_BW_32BIT)
 

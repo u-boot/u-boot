@@ -51,6 +51,9 @@ COBJS	+= cpu_init.o
 COBJS	+= denali_data_eye.o
 COBJS	+= denali_spd_ddr2.o
 COBJS	+= ecc.o
+ifdef CONFIG_CMD_ECCTEST
+COBJS	+= cmd_ecctest.o
+endif
 COBJS	+= fdt.o
 COBJS	+= interrupts.o
 COBJS	+= iop480_uart.o
