@@ -69,7 +69,7 @@ const char version_string[] =
 static int init_baudrate (void)
 {
 	char tmp[64];	/* long enough for environment variables */
-	int i = getenv_r("baudrate", tmp, 64);
+	int i = getenv_f("baudrate", tmp, 64);
 
 	gd->baudrate = (i != 0)
 			? (int) simple_strtoul (tmp, NULL, 10)

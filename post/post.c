@@ -187,7 +187,7 @@ static void post_get_flags (int *test_flags)
 	}
 
 	for (i = 0; i < varnum; i++) {
-		if (getenv_r (var[i], list, sizeof (list)) <= 0)
+		if (getenv_f(var[i], list, sizeof (list)) <= 0)
 			continue;
 
 		for (j = 0; j < post_list_size; j++) {

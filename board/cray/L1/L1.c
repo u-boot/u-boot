@@ -245,7 +245,7 @@ int testdram (void)
 	uint *pend = (uint *) L1_MEMSIZE;
 	uint *p;
 
-	if (getenv_r("booted",NULL,0) <= 0)
+	if (getenv_f("booted",NULL,0) <= 0)
 	{
 		printf ("testdram..");
 	/*AA*/

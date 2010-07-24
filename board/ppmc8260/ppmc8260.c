@@ -285,7 +285,7 @@ int misc_init_r (void)
 	int res;
 
 	if ((ds != 0) && (ds != 0xff)) {
-		res = getenv_r ("ethaddr", (char *)tmp, sizeof (tmp));
+		res = getenv_f("ethaddr", (char *)tmp, sizeof (tmp));
 		if (res > 0) {
 			ss = ((ds >> 4) & 0x0f);
 			ss += ss < 0x0a ? '0' : ('a' - 10);

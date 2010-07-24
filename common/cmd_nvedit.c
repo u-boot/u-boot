@@ -543,7 +543,7 @@ char *getenv (char *name)
 	return (NULL);
 }
 
-int getenv_r (char *name, char *buf, unsigned len)
+int getenv_f(char *name, char *buf, unsigned len)
 {
 	int i, nxt;
 

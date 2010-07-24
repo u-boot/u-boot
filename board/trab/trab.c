@@ -414,7 +414,7 @@ static void tsc2000_set_brightness(void)
 	spi_init();
 	tsc2000_write(1, 2, 0x0); /* Power up DAC */
 
-	i = getenv_r("brightness", tmp, sizeof(tmp));
+	i = getenv_f("brightness", tmp, sizeof(tmp));
 	br = (i > 0)
 		? (int) simple_strtoul (tmp, NULL, 10)
 		: CONFIG_SYS_BRIGHTNESS;

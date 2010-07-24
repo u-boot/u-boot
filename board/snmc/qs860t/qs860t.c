@@ -93,7 +93,7 @@ int checkboard (void)
 	char buf[64];
 	int i;
 
-	i = getenv_r("serial#", buf, sizeof(buf));
+	i = getenv_f("serial#", buf, sizeof(buf));
 	s = (i>0) ? buf : NULL;
 
 	if (!s || strncmp(s, "QS860T", 6)) {

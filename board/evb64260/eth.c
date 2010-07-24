@@ -708,7 +708,7 @@ gt6426x_eth_initialize(bd_t *bis)
 				return;
 		}
 
-		temp = getenv_r (s, buf, sizeof(buf));
+		temp = getenv_f(s, buf, sizeof(buf));
 		s = (temp > 0) ? buf : NULL;
 
 #ifdef DEBUG

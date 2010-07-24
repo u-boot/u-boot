@@ -350,7 +350,7 @@ int checkboard(void)
 
 	puts("Board: DU440");
 
-	if (getenv_r("serial#", serno, sizeof(serno)) > 0) {
+	if (getenv_f("serial#", serno, sizeof(serno)) > 0) {
 		puts(", serial# ");
 		puts(serno);
 	}

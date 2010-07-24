@@ -34,7 +34,7 @@ int checkboard(void)
 {
 	char tmp[64];
 	char *s, *e;
-	int i = getenv_r("serial", tmp, sizeof(tmp));
+	int i = getenv_f("serial", tmp, sizeof(tmp));
 
 	if (i < 0) {
 		printf("Avnet Virtex4 FX12 with no serial #");

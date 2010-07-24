@@ -650,7 +650,7 @@ int misc_init_r (void)
 int checkboard (void)
 {
 	char str[64];
-	int i = getenv_r ("serial#", str, sizeof(str));
+	int i = getenv_f("serial#", str, sizeof(str));
 
 	puts ("Board: ");
 
@@ -660,7 +660,7 @@ int checkboard (void)
 		puts(str);
 	}
 
-	if (getenv_r("bd_type", str, sizeof(str)) != -1) {
+	if (getenv_f("bd_type", str, sizeof(str)) != -1) {
 		printf(" (%s", str);
 	} else {
 		puts(" (Missing bd_type!");
@@ -780,7 +780,7 @@ void video_get_info_str (int line_number, char *info)
 {
 	char str[64];
 	char str2[64];
-	int i = getenv_r("serial#", str2, sizeof(str));
+	int i = getenv_f("serial#", str2, sizeof(str));
 
 	if (line_number == 1) {
 		sprintf(str, " Board: ");
@@ -791,7 +791,7 @@ void video_get_info_str (int line_number, char *info)
 			strcat(str, str2);
 		}
 
-		if (getenv_r("bd_type", str2, sizeof(str2)) != -1) {
+		if (getenv_f("bd_type", str2, sizeof(str2)) != -1) {
 			strcat(str, " (");
 			strcat(str, str2);
 		} else {

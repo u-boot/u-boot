@@ -589,7 +589,7 @@ int checkboard (void)
 
 	puts ("Board: ");
 	get_pcbrev_var(&bc,&var);
-	i = getenv_r ("serial#", (char *)s, 32);
+	i = getenv_f("serial#", (char *)s, 32);
 	if ((i == 0) || strncmp ((char *)s, BOARD_NAME,sizeof(BOARD_NAME))) {
 		get_backup_values (b);
 		if (strncmp (b->signature, "MPL\0", 4) != 0) {

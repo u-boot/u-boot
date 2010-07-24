@@ -151,7 +151,7 @@ int checkboard (void)
 	int index;
 	int len;
 	char str[64];
-	int i = getenv_r ("serial#", str, sizeof (str));
+	int i = getenv_f("serial#", str, sizeof (str));
 	const unsigned char *fpga;
 
 	puts ("Board: ");

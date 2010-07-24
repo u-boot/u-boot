@@ -284,13 +284,13 @@ void set_backup_values(int overwrite)
 		}
 	}
 	memcpy(back.signature,"MPL\0",4);
-	i = getenv_r("serial#",back.serial_name,16);
+	i = getenv_f("serial#",back.serial_name,16);
 	if(i < 0) {
 		puts("Not possible to write Backup\n");
 		return;
 	}
 	back.serial_name[16]=0;
-	i = getenv_r("ethaddr",back.eth_addr,20);
+	i = getenv_f("ethaddr",back.eth_addr,20);
 	if(i < 0) {
 		puts("Not possible to write Backup\n");
 		return;

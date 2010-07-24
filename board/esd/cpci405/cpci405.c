@@ -416,7 +416,7 @@ int checkboard(void)
 	int len;
 #endif
 	char str[64];
-	int i = getenv_r("serial#", str, sizeof(str));
+	int i = getenv_f("serial#", str, sizeof(str));
 	unsigned short ver;
 
 	puts("Board: ");

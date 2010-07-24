@@ -102,7 +102,7 @@ int checkboard (void)
     unsigned char *s;
     unsigned char buf[64];
 
-    s = (getenv_r ("serial#", (char *)&buf, sizeof(buf)) > 0) ? buf : NULL;
+    s = (getenv_f("serial#", (char *)&buf, sizeof(buf)) > 0) ? buf : NULL;
 
     puts ("Board: Siemens CCM");
 

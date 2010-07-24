@@ -579,7 +579,7 @@ int checkboard (void)
 
 	puts ("Board: ");
 
-	i = getenv_r ("serial#", (char *)s, 32);
+	i = getenv_f("serial#", (char *)s, 32);
 	if ((i == 0) || strncmp ((char *)s, "PIP405", 6)) {
 		get_backup_values (b);
 		if (strncmp (b->signature, "MPL\0", 4) != 0) {

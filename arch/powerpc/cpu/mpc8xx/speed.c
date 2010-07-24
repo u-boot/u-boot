@@ -266,7 +266,7 @@ int get_clocks_866 (void)
 	long		  cpuclk = 0;
 	long		  sccr_reg;
 
-	if (getenv_r ("cpuclk", tmp, sizeof (tmp)) > 0)
+	if (getenv_f("cpuclk", tmp, sizeof (tmp)) > 0)
 		cpuclk = simple_strtoul (tmp, NULL, 10) * 1000000;
 
 	if ((CONFIG_SYS_8xx_CPUCLK_MIN > cpuclk) || (CONFIG_SYS_8xx_CPUCLK_MAX < cpuclk))

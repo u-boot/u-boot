@@ -314,7 +314,7 @@ void lcd_logo (bd_t * bd)
 	}
 
 
-	n = getenv_r ("lcd", tmp, sizeof (tmp));
+	n = getenv_f("lcd", tmp, sizeof (tmp));
 	if (n > 0) {
 		if (!strcmp ("tft", tmp))
 			tft = 1;
@@ -342,7 +342,7 @@ void lcd_logo (bd_t * bd)
 			((S1D_VALUE *) fb_info.RegAddr)[s1dReg / sizeof(S1D_VALUE)] =
 				s1dValue;
 		}
-		n = getenv_r ("contrast", tmp, sizeof (tmp));
+		n = getenv_f("contrast", tmp, sizeof (tmp));
 		((S1D_VALUE *) fb_info.RegAddr)[0xB3] =
 			(n > 0) ? (uchar) simple_strtoul (tmp, NULL, 10) * 255 / 100 : 0xA0;
 		switch (bd->bi_busfreq) {

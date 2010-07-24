@@ -102,7 +102,7 @@ static int init_baudrate(void)
 	char tmp[64];
 	int i;
 
-	i = getenv_r("baudrate", tmp, sizeof(tmp));
+	i = getenv_f("baudrate", tmp, sizeof(tmp));
 	if (i > 0) {
 		gd->baudrate = simple_strtoul(tmp, NULL, 10);
 	} else {
