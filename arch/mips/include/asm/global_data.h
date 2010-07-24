@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002-2003
+ * (C) Copyright 2002-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -46,6 +46,7 @@ typedef	struct	global_data {
 	unsigned long	env_addr;	/* Address  of Environment struct */
 	unsigned long	env_valid;	/* Checksum of Environment valid? */
 	void		**jt;		/* jump table */
+	char		env_buf[32];	/* buffer for getenv() before reloc. */
 } gd_t;
 
 /*
@@ -57,7 +58,7 @@ typedef	struct	global_data {
 #define	GD_FLG_POSTFAIL	0x00008		/* Critical POST test failed	 */
 #define	GD_FLG_POSTSTOP	0x00010		/* POST seqeunce aborted	 */
 #define	GD_FLG_LOGINIT	0x00020		/* Log Buf has been initialized	 */
-#define GD_FLG_DISABLE_CONSOLE	0x00040		/* Disable console (in & out)	 */
+#define GD_FLG_DISABLE_CONSOLE	0x00040	/* Disable console (in & out)		*/
 
 #define DECLARE_GLOBAL_DATA_PTR     register volatile gd_t *gd asm ("k0")
 

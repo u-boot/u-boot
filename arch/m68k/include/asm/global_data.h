@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2002 - 2003
+ * (C) Copyright 2002 - 2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -64,6 +64,7 @@ typedef	struct	global_data {
 	unsigned long	board_type;
 #endif
 	void		**jt;		/* Standalone app jump table */
+	char		env_buf[32];	/* buffer for getenv() before reloc. */
 } gd_t;
 
 /*
@@ -75,7 +76,7 @@ typedef	struct	global_data {
 #define	GD_FLG_POSTFAIL	0x00008		/* Critical POST test failed		*/
 #define	GD_FLG_POSTSTOP	0x00010		/* POST seqeunce aborted		*/
 #define	GD_FLG_LOGINIT	0x00020		/* Log Buffer has been initialized	*/
-#define GD_FLG_DISABLE_CONSOLE	0x00040		/* Disable console (in & out)	 */
+#define GD_FLG_DISABLE_CONSOLE	0x00040	/* Disable console (in & out)		*/
 
 #if 0
 extern gd_t *global_data;

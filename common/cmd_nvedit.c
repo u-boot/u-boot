@@ -511,24 +511,31 @@ int do_editenv(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 char *getenv (char *name)
 {
-	int i, nxt;
+	if (gd->flags & GD_FLG_RELOC) {	/* full C runtime after reloc */
+		int i, nxt;
 
-	WATCHDOG_RESET();
+		WATCHDOG_RESET();
 
-	for (i=0; env_get_char(i) != '\0'; i=nxt+1) {
-		int val;
+		for (i=0; env_get_char(i) != '\0'; i=nxt+1) {
+			int val;
 
-		for (nxt=i; env_get_char(nxt) != '\0'; ++nxt) {
-			if (nxt >= CONFIG_ENV_SIZE) {
-				return (NULL);
+			for (nxt=i; env_get_char(nxt) != '\0'; ++nxt) {
+				if (nxt >= CONFIG_ENV_SIZE) {
+					return (NULL);
+				}
 			}
+			if ((val=envmatch((uchar *)name, i)) < 0)
+				continue;
+			return ((char *)env_get_addr(val));
 		}
-		if ((val=envmatch((uchar *)name, i)) < 0)
-			continue;
-		return ((char *)env_get_addr(val));
+
+		return (NULL);
 	}
 
-	return (NULL);
+	/* restricted C runtime before reloc */
+
+	return ((getenv_f(name,gd->env_buf,sizeof(gd->env_buf)) > 0) ?
+		gd->env_buf : NULL);
 }
 
 int getenv_f(char *name, char *buf, unsigned len)
