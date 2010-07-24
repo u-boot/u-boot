@@ -191,16 +191,16 @@ static struct pci_config_table pci_fsl86xxads_config_table[] = {
 };
 #endif
 
-static struct pci_controller pci1_hose = {
+static struct pci_controller pcie1_hose = {
 #ifndef CONFIG_PCI_PNP
 	config_table:pci_mpc86xxcts_config_table
 #endif
 };
 #endif /* CONFIG_PCI */
 
-#ifdef CONFIG_PCI2
-static struct pci_controller pci2_hose;
-#endif	/* CONFIG_PCI2 */
+#ifdef CONFIG_PCIE2
+static struct pci_controller pcie2_hose;
+#endif	/* CONFIG_PCIE2 */
 
 int first_free_busno = 0;
 
@@ -212,10 +212,10 @@ void pci_init_board(void)
 	uint io_sel = (gur->pordevsr & MPC8641_PORDEVSR_IO_SEL)
 		>> MPC8641_PORDEVSR_IO_SEL_SHIFT;
 
-#ifdef CONFIG_PCI1
+#ifdef CONFIG_PCIE1
 {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
-	struct pci_controller *hose = &pci1_hose;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
+	struct pci_controller *hose = &pcie1_hose;
 	struct pci_region *r = hose->regions;
 #ifdef DEBUG
 	uint host1_agent = (gur->porbmsr & MPC8641_PORBMSR_HA)
@@ -236,16 +236,16 @@ void pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCI1_MEM_BUS,
-			       CONFIG_SYS_PCI1_MEM_PHYS,
-			       CONFIG_SYS_PCI1_MEM_SIZE,
+			       CONFIG_SYS_PCIE1_MEM_BUS,
+			       CONFIG_SYS_PCIE1_MEM_PHYS,
+			       CONFIG_SYS_PCIE1_MEM_SIZE,
 			       PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCI1_IO_BUS,
-			       CONFIG_SYS_PCI1_IO_PHYS,
-			       CONFIG_SYS_PCI1_IO_SIZE,
+			       CONFIG_SYS_PCIE1_IO_BUS,
+			       CONFIG_SYS_PCIE1_IO_PHYS,
+			       CONFIG_SYS_PCIE1_IO_SIZE,
 			       PCI_REGION_IO);
 
 		hose->region_count = r - hose->regions;
@@ -264,26 +264,26 @@ void pci_init_board(void)
 }
 #else
 	puts("PCI-EXPRESS1: Disabled\n");
-#endif /* CONFIG_PCI1 */
+#endif /* CONFIG_PCIE1 */
 
-#ifdef CONFIG_PCI2
+#ifdef CONFIG_PCIE2
 {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI2_ADDR;
-	struct pci_controller *hose = &pci2_hose;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE2_ADDR;
+	struct pci_controller *hose = &pcie2_hose;
 	struct pci_region *r = hose->regions;
 
 	/* outbound memory */
 	pci_set_region(r++,
-		       CONFIG_SYS_PCI2_MEM_BUS,
-		       CONFIG_SYS_PCI2_MEM_PHYS,
-		       CONFIG_SYS_PCI2_MEM_SIZE,
+		       CONFIG_SYS_PCIE2_MEM_BUS,
+		       CONFIG_SYS_PCIE2_MEM_PHYS,
+		       CONFIG_SYS_PCIE2_MEM_SIZE,
 		       PCI_REGION_MEM);
 
 	/* outbound io */
 	pci_set_region(r++,
-		       CONFIG_SYS_PCI2_IO_BUS,
-		       CONFIG_SYS_PCI2_IO_PHYS,
-		       CONFIG_SYS_PCI2_IO_SIZE,
+		       CONFIG_SYS_PCIE2_IO_BUS,
+		       CONFIG_SYS_PCIE2_IO_PHYS,
+		       CONFIG_SYS_PCIE2_IO_SIZE,
 		       PCI_REGION_IO);
 
 	hose->region_count = r - hose->regions;
@@ -298,7 +298,7 @@ void pci_init_board(void)
 }
 #else
 	puts("PCI-EXPRESS 2: Disabled\n");
-#endif /* CONFIG_PCI2 */
+#endif /* CONFIG_PCIE2 */
 
 }
 
@@ -308,12 +308,7 @@ void ft_board_setup (void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 
-#ifdef CONFIG_PCI1
-	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
-#endif
-#ifdef CONFIG_PCI2
-	ft_fsl_pci_setup(blob, "pci1", &pci2_hose);
-#endif
+	FT_FSL_PCI_SETUP;
 }
 #endif
 

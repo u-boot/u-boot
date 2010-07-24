@@ -1,5 +1,5 @@
 /*
- * Copyright 2007,2009 Freescale Semiconductor, Inc.
+ * Copyright 2007,2009-2010 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -29,8 +29,8 @@ int fsl_setup_hose(struct pci_controller *hose, unsigned long addr);
 int fsl_is_pci_agent(struct pci_controller *hose);
 void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data);
 void fsl_pci_config_unlock(struct pci_controller *hose);
-void ft_fsl_pci_setup(void *blob, const char *pci_alias,
-			struct pci_controller *hose);
+void ft_fsl_pci_setup(void *blob, const char *pci_compat,
+			struct pci_controller *hose, unsigned long ctrl_addr);
 
 /*
  * Common PCI/PCIE Register structure for mpc85xx and mpc86xx
@@ -201,5 +201,83 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 	x.law = LAW_TRGT_IF_PCIE_##num; \
 	x.pci_num = num; \
 }
+
+#define __FT_FSL_PCI_SETUP(blob, compat, num) \
+	ft_fsl_pci_setup(blob, compat, &pci##num##_hose, \
+			 CONFIG_SYS_PCI##num##_ADDR)
+
+#define __FT_FSL_PCI_DEL(blob, compat, num) \
+	ft_fsl_pci_setup(blob, compat, NULL, CONFIG_SYS_PCI##num##_ADDR)
+
+#define __FT_FSL_PCIE_SETUP(blob, compat, num) \
+	ft_fsl_pci_setup(blob, compat, &pcie##num##_hose, \
+			 CONFIG_SYS_PCIE##num##_ADDR)
+
+#define __FT_FSL_PCIE_DEL(blob, compat, num) \
+	ft_fsl_pci_setup(blob, compat, NULL, CONFIG_SYS_PCIE##num##_ADDR)
+
+#ifdef CONFIG_PCI1
+#define FT_FSL_PCI1_SETUP __FT_FSL_PCI_SETUP(blob, FSL_PCI_COMPAT, 1)
+#else
+#define FT_FSL_PCI1_SETUP __FT_FSL_PCI_DEL(blob, FSL_PCI_COMPAT, 1)
+#endif
+
+#ifdef CONFIG_PCI2
+#define FT_FSL_PCI2_SETUP __FT_FSL_PCI_SETUP(blob, FSL_PCI_COMPAT, 2)
+#else
+#define FT_FSL_PCI2_SETUP __FT_FSL_PCI_DEL(blob, FSL_PCI_COMPAT, 2)
+#endif
+
+#ifdef CONFIG_PCIE1
+#define FT_FSL_PCIE1_SETUP __FT_FSL_PCIE_SETUP(blob, FSL_PCIE_COMPAT, 1)
+#else
+#define FT_FSL_PCIE1_SETUP __FT_FSL_PCIE_DEL(blob, FSL_PCIE_COMPAT, 1)
+#endif
+
+#ifdef CONFIG_PCIE2
+#define FT_FSL_PCIE2_SETUP __FT_FSL_PCIE_SETUP(blob, FSL_PCIE_COMPAT, 2)
+#else
+#define FT_FSL_PCIE2_SETUP __FT_FSL_PCIE_DEL(blob, FSL_PCIE_COMPAT, 2)
+#endif
+
+#ifdef CONFIG_PCIE3
+#define FT_FSL_PCIE3_SETUP __FT_FSL_PCIE_SETUP(blob, FSL_PCIE_COMPAT, 3)
+#else
+#define FT_FSL_PCIE3_SETUP __FT_FSL_PCIE_DEL(blob, FSL_PCIE_COMPAT, 3)
+#endif
+
+#ifdef CONFIG_PCIE4
+#define FT_FSL_PCIE4_SETUP __FT_FSL_PCIE_SETUP(blob, FSL_PCIE_COMPAT, 4)
+#else
+#define FT_FSL_PCIE4_SETUP __FT_FSL_PCIE_DEL(blob, FSL_PCIE_COMPAT, 4)
+#endif
+
+#if defined(CONFIG_FSL_CORENET)
+#define FSL_PCIE_COMPAT	"fsl,p4080-pcie"
+#define FT_FSL_PCI_SETUP \
+	FT_FSL_PCIE1_SETUP; \
+	FT_FSL_PCIE2_SETUP; \
+	FT_FSL_PCIE3_SETUP; \
+	FT_FSL_PCIE4_SETUP;
+#elif defined(CONFIG_MPC85xx)
+#define FSL_PCI_COMPAT	"fsl,mpc8540-pci"
+#define FSL_PCIE_COMPAT	"fsl,mpc8548-pcie"
+#define FT_FSL_PCI_SETUP \
+	FT_FSL_PCI1_SETUP; \
+	FT_FSL_PCI2_SETUP; \
+	FT_FSL_PCIE1_SETUP; \
+	FT_FSL_PCIE2_SETUP; \
+	FT_FSL_PCIE3_SETUP;
+#elif defined(CONFIG_MPC86xx)
+#define FSL_PCI_COMPAT	"fsl,mpc8610-pci"
+#define FSL_PCIE_COMPAT	"fsl,mpc8641-pcie"
+#define FT_FSL_PCI_SETUP \
+	FT_FSL_PCI1_SETUP; \
+	FT_FSL_PCIE1_SETUP; \
+	FT_FSL_PCIE2_SETUP;
+#else
+#error FT_FSL_PCI_SETUP not defined
+#endif
+
 
 #endif

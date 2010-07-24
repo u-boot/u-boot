@@ -179,7 +179,7 @@ int checkcpu (void)
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 	for (i = 0; i < CONFIG_SYS_NUM_FMAN; i++) {
-		printf("       FMAN%d: %s MHz\n", i,
+		printf("       FMAN%d: %s MHz\n", i + 1,
 			strmhz(buf1, sysinfo.freqFMan[i]));
 	}
 #endif

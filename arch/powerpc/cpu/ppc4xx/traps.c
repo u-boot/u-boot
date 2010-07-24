@@ -209,6 +209,22 @@ MachineCheckException(struct pt_regs *regs)
 		/* Clear MCSR */
 		mtspr(SPRN_MCSR, val);
 	}
+
+#if defined(CONFIG_DDR_ECC) && defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2)
+	/*
+	 * Read and print ECC status register/info:
+	 * The faulting address is only known upon uncorrectable ECC
+	 * errors.
+	 */
+	mfsdram(SDRAM_ECCES, val);
+	if (val & SDRAM_ECCES_CE)
+		printf("ECC: Correctable error\n");
+	if (val & SDRAM_ECCES_UE) {
+		printf("ECC: Uncorrectable error at 0x%02x%08x\n",
+		       mfdcr(SDRAM_ERRADDULL), mfdcr(SDRAM_ERRADDLLL));
+	}
+#endif /* CONFIG_DDR_ECC ... */
+
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 	mfsdram(DDR0_00, val) ;
 	printf("DDR0: DDR0_00 %lx\n", val);

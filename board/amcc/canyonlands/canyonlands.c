@@ -34,7 +34,17 @@ extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH ch
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CONFIG_SYS_BCSR3_PCIE		0x10
+	struct board_bcsr {
+		u8	board_id;
+		u8	cpld_rev;
+		u8	led_user;
+		u8	board_status;
+		u8	reset_ctrl;
+		u8	flash_ctrl;
+		u8	eth_ctrl;
+		u8	usb_ctrl;
+		u8	irq_ctrl;
+};
 
 #define BOARD_CANYONLANDS_PCIE	1
 #define BOARD_CANYONLANDS_SATA	2
@@ -112,6 +122,9 @@ int board_early_init_f(void)
 {
 #if !defined(CONFIG_ARCHES)
 	u32 sdr0_cust0;
+	struct board_bcsr *bcsr_data =
+		(struct board_bcsr *)CONFIG_SYS_BCSR_BASE;
+
 #endif
 
 	/*
@@ -172,14 +185,10 @@ int board_early_init_f(void)
 
 #if !defined(CONFIG_ARCHES)
 	/* Enable ethernet and take out of reset */
-	out_8((void *)CONFIG_SYS_BCSR_BASE + 6, 0);
+	out_8(&bcsr_data->eth_ctrl, 0) ;
 
 	/* Remove NOR-FLASH, NAND-FLASH & EEPROM hardware write protection */
-	out_8((void *)CONFIG_SYS_BCSR_BASE + 5, 0);
-
-	/* Enable USB host & USB-OTG */
-	out_8((void *)CONFIG_SYS_BCSR_BASE + 7, 0);
-
+	out_8(&bcsr_data->flash_ctrl, 0) ;
 	mtsdr(SDR0_SRST1, 0);	/* Pull AHB out of reset default=1 */
 
 	/* Setup PLB4-AHB bridge based on the system address map */
@@ -200,6 +209,41 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT)
+int usb_board_init(void)
+{
+	struct board_bcsr *bcsr_data =
+		(struct board_bcsr *)CONFIG_SYS_BCSR_BASE;
+	u8 val;
+
+	/* Enable USB host & USB-OTG */
+	val = in_8(&bcsr_data->usb_ctrl);
+	val &= ~(BCSR_USBCTRL_OTG_RST | BCSR_USBCTRL_HOST_RST);
+	out_8(&bcsr_data->usb_ctrl, val);
+
+	return 0;
+}
+
+int usb_board_stop(void)
+{
+	struct board_bcsr *bcsr_data =
+		(struct board_bcsr *)CONFIG_SYS_BCSR_BASE;
+	u8 val;
+
+	/* Disable USB host & USB-OTG */
+	val = in_8(&bcsr_data->usb_ctrl);
+	val |= (BCSR_USBCTRL_OTG_RST | BCSR_USBCTRL_HOST_RST);
+	out_8(&bcsr_data->usb_ctrl, val);
+
+	return 0;
+}
+
+int usb_board_init_fail(void)
+{
+	return usb_board_stop();
+}
+#endif /* CONFIG_USB_OHCI_NEW && CONFIG_SYS_USB_OHCI_BOARD_INIT */
 
 #if !defined(CONFIG_ARCHES)
 static void canyonlands_sata_init(int board_type)
@@ -244,11 +288,13 @@ int get_cpu_num(void)
 #if !defined(CONFIG_ARCHES)
 int checkboard(void)
 {
+	struct board_bcsr *bcsr_data =
+		(struct board_bcsr *)CONFIG_SYS_BCSR_BASE;
 	char *s = getenv("serial#");
 
 	if (pvr_460ex()) {
 		printf("Board: Canyonlands - AMCC PPC460EX Evaluation Board");
-		if (in_8((void *)(CONFIG_SYS_BCSR_BASE + 3)) & CONFIG_SYS_BCSR3_PCIE)
+		if (in_8(&bcsr_data->board_status) & BCSR_SELECT_PCIE)
 			gd->board_type = BOARD_CANYONLANDS_PCIE;
 		else
 			gd->board_type = BOARD_CANYONLANDS_SATA;
@@ -268,7 +314,7 @@ int checkboard(void)
 		break;
 	}
 
-	printf(", Rev. %X", in_8((void *)(CONFIG_SYS_BCSR_BASE + 0)));
+	printf(", Rev. %X", in_8(&bcsr_data->cpld_rev));
 
 	if (s != NULL) {
 		puts(", serial# ");

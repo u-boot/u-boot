@@ -30,6 +30,7 @@
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET		/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
+#define CONFIG_SYS_HAS_SERDES		/* has SERDES */
 
 #define CONFIG_PHYS_64BIT
 #define CONFIG_ENABLE_36BIT_PHYS
@@ -59,10 +60,6 @@
 #define CONFIG_SYS_CCSRBAR		0xffe00000	/* relocated CCSRBAR */
 #define CONFIG_SYS_CCSRBAR_PHYS		0xfffe00000ull
 #define CONFIG_SYS_IMMR			CONFIG_SYS_CCSRBAR
-
-#define CONFIG_SYS_PCIE1_ADDR		(CONFIG_SYS_CCSRBAR + 0x9000) /* pci0 */
-#define CONFIG_SYS_PCIE2_ADDR		(CONFIG_SYS_CCSRBAR + 0xa000) /* pci1 */
-#define CONFIG_SYS_PCIE3_ADDR		(CONFIG_SYS_CCSRBAR + 0xb000) /* pci2 */
 
 /* DDR Setup */
 #define CONFIG_DDR_SPD

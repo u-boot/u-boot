@@ -767,6 +767,13 @@ static u32 DQS_calibration_methodB(struct ddrautocal *cal)
 
 	debug("\n\n");
 
+#if defined(CONFIG_DDR_RFDC_FIXED)
+	mtsdram(SDRAM_RFDC, CONFIG_DDR_RFDC_FIXED);
+	size = 512;
+	rffd_average = CONFIG_DDR_RFDC_FIXED & SDRAM_RFDC_RFFD_MASK;
+	mfsdram(SDRAM_RDCC, rdcc);	/* record this value */
+	cal->rdcc = rdcc;
+#else /* CONFIG_DDR_RFDC_FIXED */
 	in_window = 0;
 	rdcc = 0;
 
@@ -830,6 +837,7 @@ static u32 DQS_calibration_methodB(struct ddrautocal *cal)
 		rffd_average = SDRAM_RFDC_RFFD_MAX;
 
 	mtsdram(SDRAM_RFDC, rfdc_reg | SDRAM_RFDC_RFFD_ENCODE(rffd_average));
+#endif /* CONFIG_DDR_RFDC_FIXED */
 
 	rffd = rffd_average;
 	in_window = 0;
@@ -1211,10 +1219,14 @@ u32 DQS_autocalibration(void)
 		debug("*** best_result: read value SDRAM_RQDC 0x%08x\n",
 				rqdc_reg);
 
+#if defined(CONFIG_DDR_RFDC_FIXED)
+		mtsdram(SDRAM_RFDC, CONFIG_DDR_RFDC_FIXED);
+#else /* CONFIG_DDR_RFDC_FIXED */
 		mfsdram(SDRAM_RFDC, rfdc_reg);
 		rfdc_reg &= ~(SDRAM_RFDC_RFFD_MASK);
 		mtsdram(SDRAM_RFDC, rfdc_reg |
 				SDRAM_RFDC_RFFD_ENCODE(tcal.autocal.rffd));
+#endif /* CONFIG_DDR_RFDC_FIXED */
 
 		mfsdram(SDRAM_RFDC, rfdc_reg);
 		debug("*** best_result: read value SDRAM_RFDC 0x%08x\n",

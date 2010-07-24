@@ -103,9 +103,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #endif
 
-#define CONFIG_SYS_PCI1_ADDR           (CONFIG_SYS_CCSRBAR+0x8000)
-#define CONFIG_SYS_PCIE1_ADDR          (CONFIG_SYS_CCSRBAR+0xa000)
-
 /* DDR Setup */
 #define CONFIG_FSL_DDR3
 #undef CONFIG_FSL_DDR_INTERACTIVE

@@ -298,17 +298,17 @@ void fdt_add_enet_stashing(void *fdt)
 }
 
 #if defined(CONFIG_SYS_DPAA_FMAN) || defined(CONFIG_SYS_DPAA_PME)
-static void ft_fixup_clks(void *blob, const char *alias, unsigned long freq)
+static void ft_fixup_clks(void *blob, const char *compat, u32 offset,
+			  unsigned long freq)
 {
-	const char *path = fdt_get_alias(blob, alias);
-
-	int off = fdt_path_offset(blob, path);
+	phys_addr_t phys = offset + CONFIG_SYS_CCSRBAR_PHYS;
+	int off = fdt_node_offset_by_compat_reg(blob, compat, phys);
 
 	if (off >= 0) {
 		off = fdt_setprop_cell(blob, off, "clock-frequency", freq);
 		if (off > 0)
 			printf("WARNING enable to set clock-frequency "
-				"for %s: %s\n", alias, fdt_strerror(off));
+				"for %s: %s\n", compat, fdt_strerror(off));
 	}
 }
 
@@ -317,14 +317,17 @@ static void ft_fixup_dpaa_clks(void *blob)
 	sys_info_t sysinfo;
 
 	get_sys_info(&sysinfo);
-	ft_fixup_clks(blob, "fman0", sysinfo.freqFMan[0]);
+	ft_fixup_clks(blob, "fsl,fman", CONFIG_SYS_FSL_FM1_OFFSET,
+			sysinfo.freqFMan[0]);
 
 #if (CONFIG_SYS_NUM_FMAN == 2)
-	ft_fixup_clks(blob, "fman1", sysinfo.freqFMan[1]);
+	ft_fixup_clks(blob, "fsl,fman", CONFIG_SYS_FSL_FM2_OFFSET,
+			sysinfo.freqFMan[1]);
 #endif
 
 #ifdef CONFIG_SYS_DPAA_PME
-	ft_fixup_clks(blob, "pme", sysinfo.freqPME);
+	do_fixup_by_compat_u32(blob, "fsl,pme",
+		"clock-frequency", sysinfo.freqPME, 1);
 #endif
 }
 #else
@@ -398,6 +401,11 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 
 	do_fixup_by_compat_u32(blob, "fsl,cpm2-brg",
 		"clock-frequency", bd->bi_brgfreq, 1);
+#endif
+
+#ifdef CONFIG_FSL_CORENET
+	do_fixup_by_compat_u32(blob, "fsl,qoriq-clockgen-1.0",
+		"clock-frequency", CONFIG_SYS_CLK_FREQ, 1);
 #endif
 
 	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);

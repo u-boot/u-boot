@@ -66,9 +66,10 @@
 #define FSL_SRDSCR3_LANEE_SGMII	0x00000000
 #define FSL_SRDSCR3_LANEE_SATA	0x00150005
 
-
 #define SRDS1_MAX_LANES		8
 #define SRDS2_MAX_LANES		2
+
+static u32 serdes1_prtcl_map, serdes2_prtcl_map;
 
 static u8 serdes1_cfg_tbl[][SRDS1_MAX_LANES] = {
 	[0x2] = {PCIE1, PCIE1, PCIE1, PCIE1, NONE, NONE, NONE, NONE},
@@ -86,39 +87,12 @@ static u8 serdes2_cfg_tbl[][SRDS2_MAX_LANES] = {
 
 int is_serdes_configured(enum srds_prtcl device)
 {
-	int i;
-	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	u32 pordevsr = in_be32(&gur->pordevsr);
-	u32 srds1_cfg = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >>
-				MPC85xx_PORDEVSR_IO_SEL_SHIFT;
+	int ret = (1 << device) & serdes1_prtcl_map;
 
-	u32 srds2_cfg = (pordevsr & MPC85xx_PORDEVSR_SRDS2_IO_SEL) >>
-				GUTS_PORDEVSR_SERDES2_IO_SEL_SHIFT;
+	if (ret)
+		return ret;
 
-	debug("%s: dev = %d\n", __FUNCTION__, device);
-	debug("PORDEVSR[IO_SEL] = %x\n", srds1_cfg);
-	debug("PORDEVSR[SRDS2_IO_SEL] = %x\n", srds2_cfg);
-
-	if (srds1_cfg > ARRAY_SIZE(serdes1_cfg_tbl)) {
-		printf("Invalid PORDEVSR[IO_SEL] = %d\n", srds1_cfg);
-		return 0;
-	}
-
-	if (srds2_cfg > ARRAY_SIZE(serdes2_cfg_tbl)) {
-		printf("Invalid PORDEVSR[SRDS2_IO_SEL] = %d\n", srds2_cfg);
-		return 0;
-	}
-
-	for (i = 0; i < SRDS1_MAX_LANES; i++) {
-		if (serdes1_cfg_tbl[srds1_cfg][i] == device)
-			return 1;
-	}
-	for (i = 0; i < SRDS2_MAX_LANES; i++) {
-		if (serdes2_cfg_tbl[srds2_cfg][i] == device)
-			return 1;
-	}
-
-	return 0;
+	return (1 << device) & serdes2_prtcl_map;
 }
 
 void fsl_serdes_init(void)
@@ -126,12 +100,19 @@ void fsl_serdes_init(void)
 	void *guts = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	void *sd = (void *)CONFIG_SYS_MPC85xx_SERDES2_ADDR;
 	u32 pordevsr = in_be32(guts + GUTS_PORDEVSR_OFFS);
-	u32 srds2_io_sel;
+	u32 srds1_io_sel, srds2_io_sel;
 	u32 tmp;
+	int lane;
+
+	srds1_io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >>
+				MPC85xx_PORDEVSR_IO_SEL_SHIFT;
 
 	/* parse the SRDS2_IO_SEL of PORDEVSR */
 	srds2_io_sel = (pordevsr & GUTS_PORDEVSR_SERDES2_IO_SEL)
 		       >> GUTS_PORDEVSR_SERDES2_IO_SEL_SHIFT;
+
+	debug("PORDEVSR[SRDS1_IO_SEL] = %x\n", srds1_io_sel);
+	debug("PORDEVSR[SRDS2_IO_SEL] = %x\n", srds2_io_sel);
 
 	switch (srds2_io_sel) {
 	case 1:	/* Lane A - SATA1, Lane E - SATA2 */
@@ -245,5 +226,24 @@ void fsl_serdes_init(void)
 		break;
 	default:
 		break;
+	}
+
+	if (srds1_io_sel > ARRAY_SIZE(serdes1_cfg_tbl)) {
+		printf("Invalid PORDEVSR[SRDS1_IO_SEL] = %d\n", srds1_io_sel);
+		return;
+	}
+	for (lane = 0; lane < SRDS1_MAX_LANES; lane++) {
+		enum srds_prtcl lane_prtcl = serdes1_cfg_tbl[srds1_io_sel][lane];
+		serdes1_prtcl_map |= (1 << lane_prtcl);
+	}
+
+	if (srds2_io_sel > ARRAY_SIZE(serdes2_cfg_tbl)) {
+		printf("Invalid PORDEVSR[SRDS2_IO_SEL] = %d\n", srds2_io_sel);
+		return;
+	}
+
+	for (lane = 0; lane < SRDS2_MAX_LANES; lane++) {
+		enum srds_prtcl lane_prtcl = serdes2_cfg_tbl[srds2_io_sel][lane];
+		serdes2_prtcl_map |= (1 << lane_prtcl);
 	}
 }

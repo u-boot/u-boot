@@ -77,6 +77,13 @@
 #define CONFIG_SYS_PCIE0_XCFGBASE	0xc3000000
 #define CONFIG_SYS_PCIE1_XCFGBASE	0xc3001000
 
+/*
+ * BCSR bits as defined in the Canyonlands board user manual.
+ */
+#define BCSR_USBCTRL_OTG_RST	0x32
+#define BCSR_USBCTRL_HOST_RST	0x01
+#define BCSR_SELECT_PCIE	0x10
+
 #define	CONFIG_SYS_PCIE0_UTLBASE	0xc08010000ULL	/* 36bit physical addr	*/
 
 /* base address of inbound PCIe window */
@@ -417,6 +424,7 @@
 #define CONFIG_SYS_USB_OHCI_REGS_BASE	(CONFIG_SYS_AHB_BASE | 0xd0000)
 #define CONFIG_SYS_USB_OHCI_SLOT_NAME	"ppc440"
 #define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS 15
+#define CONFIG_SYS_USB_OHCI_BOARD_INIT
 #endif
 
 /*
