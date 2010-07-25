@@ -60,9 +60,6 @@
 #ifdef __ADSPBF539__
 # include "mach-bf538/BF539_cdef.h"
 #endif
-#ifdef __ADSPBF541__
-# include "mach-bf548/BF541_cdef.h"
-#endif
 #ifdef __ADSPBF542__
 # include "mach-bf548/BF542_cdef.h"
 #endif

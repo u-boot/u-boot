@@ -96,11 +96,6 @@
 # include "mach-bf538/anomaly.h"
 # include "mach-bf538/def_local.h"
 #endif
-#ifdef __ADSPBF541__
-# include "mach-bf548/BF541_def.h"
-# include "mach-bf548/anomaly.h"
-# include "mach-bf548/def_local.h"
-#endif
 #ifdef __ADSPBF542__
 # include "mach-bf548/BF542_def.h"
 # include "mach-bf548/anomaly.h"
