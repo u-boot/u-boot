@@ -27,11 +27,7 @@
 sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
 ifndef TEXT_BASE
-TEXT_BASE = 0xFFFA0000
-#
-# When defining CONFIG_VIDEO, TEXT_BASE needs to be 0xFFF80000
-# TEXT_BASE = 0xFFF80000
-#
+TEXT_BASE = 0xFFF80000
 endif
 
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
