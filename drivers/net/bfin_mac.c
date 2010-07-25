@@ -131,12 +131,12 @@ static int bfin_EMAC_send(struct eth_device *dev, volatile void *packet,
 		goto out;
 	}
 
-	if ((*pDMA2_IRQ_STATUS & DMA_ERR) != 0) {
+	if (bfin_read_DMA2_IRQ_STATUS() & DMA_ERR) {
 		printf("Ethernet: tx DMA error\n");
 		goto out;
 	}
 
-	for (i = 0; (*pDMA2_IRQ_STATUS & DMA_RUN) != 0; i++) {
+	for (i = 0; (bfin_read_DMA2_IRQ_STATUS() & DMA_RUN); ++i) {
 		if (i > TOUT_LOOP) {
 			puts("Ethernet: tx time out\n");
 			goto out;
@@ -145,9 +145,9 @@ static int bfin_EMAC_send(struct eth_device *dev, volatile void *packet,
 	txbuf[txIdx]->FrmData->NoBytes = length;
 	memcpy(txbuf[txIdx]->FrmData->Dest, (void *)packet, length);
 	txbuf[txIdx]->Dma[0].START_ADDR = (u32) txbuf[txIdx]->FrmData;
-	*pDMA2_NEXT_DESC_PTR = txbuf[txIdx]->Dma;
-	*pDMA2_CONFIG = txdmacfg.data;
-	*pEMAC_OPMODE |= TE;
+	bfin_write_DMA2_NEXT_DESC_PTR(txbuf[txIdx]->Dma);
+	bfin_write_DMA2_CONFIG(txdmacfg.data);
+	bfin_write_EMAC_OPMODE(bfin_read_EMAC_OPMODE() | TE);
 
 	for (i = 0; (txbuf[txIdx]->StatusWord & TX_COMP) == 0; i++) {
 		if (i > TOUT_LOOP) {
@@ -194,7 +194,7 @@ static int bfin_EMAC_recv(struct eth_device *dev)
 		NetRxPackets[rxIdx] =
 		    (volatile uchar *)(rxbuf[rxIdx]->FrmData->Dest);
 		NetReceive(NetRxPackets[rxIdx], length - 4);
-		*pDMA1_IRQ_STATUS |= DMA_DONE | DMA_ERR;
+		bfin_write_DMA1_IRQ_STATUS(DMA_DONE | DMA_ERR);
 		rxbuf[rxIdx]->StatusWord = 0x00000000;
 		if ((rxIdx + 1) >= PKTBUFSRX)
 			rxIdx = 0;
@@ -229,7 +229,7 @@ static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 	size_t count;
 
 	/* Enable PHY output */
-	*pVR_CTL |= CLKBUFOE;
+	bfin_write_VR_CTL(bfin_read_VR_CTL() | CLKBUFOE);
 
 	/* Set all the pins to peripheral mode */
 	peripheral_request_list(pins, "bfin_mac");
@@ -265,30 +265,32 @@ static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 	bfin_write_EMAC_MMC_CTL(RSTC | CROLL);
 
 	/* Initialize the TX DMA channel registers */
-	*pDMA2_X_COUNT = 0;
-	*pDMA2_X_MODIFY = 4;
-	*pDMA2_Y_COUNT = 0;
-	*pDMA2_Y_MODIFY = 0;
+	bfin_write_DMA2_X_COUNT(0);
+	bfin_write_DMA2_X_MODIFY(4);
+	bfin_write_DMA2_Y_COUNT(0);
+	bfin_write_DMA2_Y_MODIFY(0);
 
 	/* Initialize the RX DMA channel registers */
-	*pDMA1_X_COUNT = 0;
-	*pDMA1_X_MODIFY = 4;
-	*pDMA1_Y_COUNT = 0;
-	*pDMA1_Y_MODIFY = 0;
+	bfin_write_DMA1_X_COUNT(0);
+	bfin_write_DMA1_X_MODIFY(4);
+	bfin_write_DMA1_Y_COUNT(0);
+	bfin_write_DMA1_Y_MODIFY(0);
 
 	return 0;
 }
 
 static int bfin_EMAC_setup_addr(struct eth_device *dev)
 {
-	*pEMAC_ADDRLO =
+	bfin_write_EMAC_ADDRLO(
 		dev->enetaddr[0] |
 		dev->enetaddr[1] << 8 |
 		dev->enetaddr[2] << 16 |
-		dev->enetaddr[3] << 24;
-	*pEMAC_ADDRHI =
+		dev->enetaddr[3] << 24
+	);
+	bfin_write_EMAC_ADDRHI(
 		dev->enetaddr[4] |
-		dev->enetaddr[5] << 8;
+		dev->enetaddr[5] << 8
+	);
 	return 0;
 }
 
@@ -328,8 +330,8 @@ static int bfin_EMAC_init(struct eth_device *dev, bd_t *bd)
 	}
 
 	/* Set RX DMA */
-	*pDMA1_NEXT_DESC_PTR = rxbuf[0]->Dma;
-	*pDMA1_CONFIG = rxbuf[0]->Dma[0].CONFIG_DATA;
+	bfin_write_DMA1_NEXT_DESC_PTR(rxbuf[0]->Dma);
+	bfin_write_DMA1_CONFIG(rxbuf[0]->Dma[0].CONFIG_DATA);
 
 	/* Wait MII done */
 	bfin_miiphy_wait();
@@ -350,7 +352,7 @@ static int bfin_EMAC_init(struct eth_device *dev, bd_t *bd)
 	opmode |= TE | RMII;
 #endif
 	/* Turn on the EMAC */
-	*pEMAC_OPMODE = opmode;
+	bfin_write_EMAC_OPMODE(opmode);
 	return 0;
 }
 
@@ -358,11 +360,10 @@ static void bfin_EMAC_halt(struct eth_device *dev)
 {
 	debug("Eth_halt: ......\n");
 	/* Turn off the EMAC */
-	*pEMAC_OPMODE = 0x00000000;
+	bfin_write_EMAC_OPMODE(0);
 	/* Turn off the EMAC RX DMA */
-	*pDMA1_CONFIG = 0x0000;
-	*pDMA2_CONFIG = 0x0000;
-
+	bfin_write_DMA1_CONFIG(0);
+	bfin_write_DMA2_CONFIG(0);
 }
 
 ADI_ETHER_BUFFER *SetupRxBuffer(int no)
@@ -443,16 +444,19 @@ int ether_post_test(int flags)
 	uchar buf[64];
 	int i, value = 0;
 	int length;
+	uint addr;
 
 	printf("\n--------");
 	bfin_EMAC_init(NULL, NULL);
 	/* construct the package */
-	buf[0] = buf[6] = (unsigned char)(*pEMAC_ADDRLO & 0xFF);
-	buf[1] = buf[7] = (unsigned char)((*pEMAC_ADDRLO & 0xFF00) >> 8);
-	buf[2] = buf[8] = (unsigned char)((*pEMAC_ADDRLO & 0xFF0000) >> 16);
-	buf[3] = buf[9] = (unsigned char)((*pEMAC_ADDRLO & 0xFF000000) >> 24);
-	buf[4] = buf[10] = (unsigned char)(*pEMAC_ADDRHI & 0xFF);
-	buf[5] = buf[11] = (unsigned char)((*pEMAC_ADDRHI & 0xFF00) >> 8);
+	addr = bfin_read_EMAC_ADDRLO();
+	buf[0] = buf[6] = addr;
+	buf[1] = buf[7] = addr >> 8;
+	buf[2] = buf[8] = addr >> 16;
+	buf[3] = buf[9] = addr >> 24;
+	addr = bfin_read_EMAC_ADDRHI();
+	buf[4] = buf[10] = addr;
+	buf[5] = buf[11] = addr >> 8;
 	buf[12] = 0x08;		/* Type: ARP */
 	buf[13] = 0x06;
 	buf[14] = 0x00;		/* Hardware type: Ethernet */
