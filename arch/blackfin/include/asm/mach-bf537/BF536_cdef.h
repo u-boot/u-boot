@@ -6,9 +6,7 @@
 #ifndef __BFIN_CDEF_ADSP_BF536_proc__
 #define __BFIN_CDEF_ADSP_BF536_proc__
 
-#include "../mach-common/ADSP-EDN-core_cdef.h"
-
-#include "ADSP-EDN-BF534-extended_cdef.h"
+#include "BF534_cdef.h"
 
 #define bfin_read_EMAC_OPMODE()        bfin_read32(EMAC_OPMODE)
 #define bfin_write_EMAC_OPMODE(val)    bfin_write32(EMAC_OPMODE, val)
