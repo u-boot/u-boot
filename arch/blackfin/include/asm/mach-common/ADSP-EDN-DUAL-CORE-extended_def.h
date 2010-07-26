@@ -642,29 +642,5 @@
 #define SPORT1_MRCS1                   0xFFC00954
 #define SPORT1_MRCS2                   0xFFC00958
 #define SPORT1_MRCS3                   0xFFC0095C
-#define EVT0                           0xFFE02000
-#define EVT1                           0xFFE02004
-#define EVT2                           0xFFE02008
-#define EVT3                           0xFFE0200C
-#define EVT4                           0xFFE02010
-#define EVT5                           0xFFE02014
-#define EVT6                           0xFFE02018
-#define EVT7                           0xFFE0201C
-#define EVT8                           0xFFE02020
-#define EVT9                           0xFFE02024
-#define EVT10                          0xFFE02028
-#define EVT11                          0xFFE0202C
-#define EVT12                          0xFFE02030
-#define EVT13                          0xFFE02034
-#define EVT14                          0xFFE02038
-#define EVT15                          0xFFE0203C
-#define ILAT                           0xFFE0210C /* Interrupt Latch Register */
-#define IMASK                          0xFFE02104 /* Interrupt Mask Register */
-#define IPEND                          0xFFE02108 /* Interrupt Pending Register */
-#define IPRIO                          0xFFE02110 /* Interrupt Priority Register */
-#define TCNTL                          0xFFE03000
-#define TPERIOD                        0xFFE03004
-#define TSCALE                         0xFFE03008
-#define TCOUNT                         0xFFE0300C
 
 #endif /* __BFIN_DEF_ADSP_EDN_DUAL_CORE_extended__ */
