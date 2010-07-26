@@ -313,7 +313,7 @@ extern unsigned long get_clock_freq(void);
  */
 #define CONFIG_UEC_ETH
 #ifndef CONFIG_TSEC_ENET
-#define CONFIG_ETHPRIME         "FSL UEC0"
+#define CONFIG_ETHPRIME         "UEC0"
 #endif
 #define CONFIG_PHY_MODE_NEED_CHANGE
 #define CONFIG_eTSEC_MDIO_BUS

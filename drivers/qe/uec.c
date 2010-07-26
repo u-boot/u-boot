@@ -1367,7 +1367,7 @@ int uec_initialize(bd_t *bis, uec_info_t *uec_info)
 	uec->uec_info = uec_info;
 	uec->dev = dev;
 
-	sprintf(dev->name, "FSL UEC%d", uec_info->uf_info.ucc_num);
+	sprintf(dev->name, "UEC%d", uec_info->uf_info.ucc_num);
 	dev->iobase = 0;
 	dev->priv = (void *)uec;
 	dev->init = uec_init;
