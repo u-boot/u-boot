@@ -1159,6 +1159,8 @@ void flash_print_info (flash_info_t * info)
 
 	puts ("\n  Sector Start Addresses:");
 	for (i = 0; i < info->sector_count; ++i) {
+		if (ctrlc())
+			return;
 		if ((i % 5) == 0)
 			printf ("\n");
 #ifdef CONFIG_SYS_FLASH_EMPTY_INFO
