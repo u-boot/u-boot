@@ -811,6 +811,7 @@ Greg Ungerer <greg.ungerer@opengear.com>
 
 Marek Vasut <marek.vasut@gmail.com>
 
+	balloon3	xscale
 	palmld		xscale
 	palmtc		xscale
 	vpac270		xscale
