@@ -162,6 +162,20 @@ const char *miiphy_get_current_dev(void)
 	return NULL;
 }
 
+static struct mii_dev *miiphy_get_active_dev(const char *devname)
+{
+	/* If the current mii is the one we want, return it */
+	if (current_mii)
+		if (strcmp(current_mii->name, devname) == 0)
+			return current_mii;
+
+	/* Otherwise, set the active one to the one we want */
+	if (miiphy_set_current_dev(devname))
+		return NULL;
+	else
+		return current_mii;
+}
+
 /*****************************************************************************
  *
  * Read to variable <value> from the PHY attached to device <devname>,
@@ -175,7 +189,7 @@ int miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
 {
 	struct mii_dev *dev;
 
-	dev = miiphy_get_dev_by_name(devname, 0);
+	dev = miiphy_get_active_dev(devname);
 	if (dev)
 		return dev->read(devname, addr, reg, value);
 
@@ -195,7 +209,7 @@ int miiphy_write(const char *devname, unsigned char addr, unsigned char reg,
 {
 	struct mii_dev *dev;
 
-	dev = miiphy_get_dev_by_name(devname, 0);
+	dev = miiphy_get_active_dev(devname);
 	if (dev)
 		return dev->write(devname, addr, reg, value);
 
