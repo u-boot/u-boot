@@ -46,10 +46,10 @@
 
 struct mii_dev {
 	struct list_head link;
-	char *name;
-	int (*read) (char *devname, unsigned char addr,
+	const char *name;
+	int (*read) (const char *devname, unsigned char addr,
 		     unsigned char reg, unsigned short *value);
-	int (*write) (char *devname, unsigned char addr,
+	int (*write) (const char *devname, unsigned char addr,
 		      unsigned char reg, unsigned short value);
 };
 
@@ -60,7 +60,7 @@ static struct mii_dev *current_mii;
  *
  * Initialize global data. Need to be called before any other miiphy routine.
  */
-void miiphy_init ()
+void miiphy_init(void)
 {
 	INIT_LIST_HEAD (&mii_devs);
 	current_mii = NULL;
@@ -70,16 +70,17 @@ void miiphy_init ()
  *
  * Register read and write MII access routines for the device <name>.
  */
-void miiphy_register (char *name,
-		      int (*read) (char *devname, unsigned char addr,
+void miiphy_register(const char *name,
+		      int (*read) (const char *devname, unsigned char addr,
 				   unsigned char reg, unsigned short *value),
-		      int (*write) (char *devname, unsigned char addr,
+		      int (*write) (const char *devname, unsigned char addr,
 				    unsigned char reg, unsigned short value))
 {
 	struct list_head *entry;
 	struct mii_dev *new_dev;
 	struct mii_dev *miidev;
 	unsigned int name_len;
+	char *new_name;
 
 	/* check if we have unique name */
 	list_for_each (entry, &mii_devs) {
@@ -107,9 +108,9 @@ void miiphy_register (char *name,
 	INIT_LIST_HEAD (&new_dev->link);
 	new_dev->read = read;
 	new_dev->write = write;
-	new_dev->name = (char *)(new_dev + 1);
-	strncpy (new_dev->name, name, name_len);
-	new_dev->name[name_len] = '\0';
+	new_dev->name = new_name = (char *)(new_dev + 1);
+	strncpy (new_name, name, name_len);
+	new_name[name_len] = '\0';
 
 	debug ("miiphy_register: added '%s', read=0x%08lx, write=0x%08lx\n",
 	       new_dev->name, new_dev->read, new_dev->write);
@@ -121,7 +122,7 @@ void miiphy_register (char *name,
 		current_mii = new_dev;
 }
 
-int miiphy_set_current_dev (char *devname)
+int miiphy_set_current_dev(const char *devname)
 {
 	struct list_head *entry;
 	struct mii_dev *dev;
@@ -139,7 +140,7 @@ int miiphy_set_current_dev (char *devname)
 	return 1;
 }
 
-char *miiphy_get_current_dev ()
+const char *miiphy_get_current_dev(void)
 {
 	if (current_mii)
 		return current_mii->name;
@@ -155,7 +156,7 @@ char *miiphy_get_current_dev ()
  * Returns:
  *   0 on success
  */
-int miiphy_read (char *devname, unsigned char addr, unsigned char reg,
+int miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
 		 unsigned short *value)
 {
 	struct list_head *entry;
@@ -192,7 +193,7 @@ int miiphy_read (char *devname, unsigned char addr, unsigned char reg,
  * Returns:
  *   0 on success
  */
-int miiphy_write (char *devname, unsigned char addr, unsigned char reg,
+int miiphy_write(const char *devname, unsigned char addr, unsigned char reg,
 		  unsigned short value)
 {
 	struct list_head *entry;
@@ -252,7 +253,7 @@ void miiphy_listdev (void)
  * Returns:
  *   0 on success
  */
-int miiphy_info (char *devname, unsigned char addr, unsigned int *oui,
+int miiphy_info(const char *devname, unsigned char addr, unsigned int *oui,
 		 unsigned char *model, unsigned char *rev)
 {
 	unsigned int reg = 0;
@@ -290,7 +291,7 @@ int miiphy_info (char *devname, unsigned char addr, unsigned int *oui,
  * Returns:
  *   0 on success
  */
-int miiphy_reset (char *devname, unsigned char addr)
+int miiphy_reset(const char *devname, unsigned char addr)
 {
 	unsigned short reg;
 	int timeout = 500;
@@ -332,7 +333,7 @@ int miiphy_reset (char *devname, unsigned char addr)
  *
  * Determine the ethernet speed (10/100/1000).  Return 10 on error.
  */
-int miiphy_speed (char *devname, unsigned char addr)
+int miiphy_speed(const char *devname, unsigned char addr)
 {
 	u16 bmcr, anlpar;
 
@@ -386,7 +387,7 @@ miiphy_read_failed:
  *
  * Determine full/half duplex.  Return half on error.
  */
-int miiphy_duplex (char *devname, unsigned char addr)
+int miiphy_duplex(const char *devname, unsigned char addr)
 {
 	u16 bmcr, anlpar;
 
@@ -446,7 +447,7 @@ miiphy_read_failed:
  * Return 1 if PHY supports 1000BASE-X, 0 if PHY supports 10BASE-T/100BASE-TX/
  * 1000BASE-T, or on error.
  */
-int miiphy_is_1000base_x (char *devname, unsigned char addr)
+int miiphy_is_1000base_x(const char *devname, unsigned char addr)
 {
 #if defined(CONFIG_PHY_GIGE)
 	u16 exsr;
@@ -467,7 +468,7 @@ int miiphy_is_1000base_x (char *devname, unsigned char addr)
  *
  * Determine link status
  */
-int miiphy_link (char *devname, unsigned char addr)
+int miiphy_link(const char *devname, unsigned char addr)
 {
 	unsigned short reg;
 

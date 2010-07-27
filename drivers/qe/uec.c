@@ -603,7 +603,7 @@ static void phy_change(struct eth_device *dev)
  * Returns:
  *  The index where the device is located, -1 on error
  */
-static int uec_miiphy_find_dev_by_name(char *devname)
+static int uec_miiphy_find_dev_by_name(const char *devname)
 {
 	int i;
 
@@ -628,7 +628,7 @@ static int uec_miiphy_find_dev_by_name(char *devname)
  * Returns:
  *  0 on success
  */
-static int uec_miiphy_read(char *devname, unsigned char addr,
+static int uec_miiphy_read(const char *devname, unsigned char addr,
 			    unsigned char reg, unsigned short *value)
 {
 	int devindex = 0;
@@ -650,7 +650,7 @@ static int uec_miiphy_read(char *devname, unsigned char addr,
  * Returns:
  *  0 on success
  */
-static int uec_miiphy_write(char *devname, unsigned char addr,
+static int uec_miiphy_write(const char *devname, unsigned char addr,
 			     unsigned char reg, unsigned short value)
 {
 	int devindex = 0;

@@ -89,7 +89,7 @@ mac_fifo_t mac_fifo[NO_OF_FIFOS];
 #define MAX_WAIT 1000
 
 #if defined(CONFIG_CMD_MII)
-int  au1x00_miiphy_read(char *devname, unsigned char addr,
+int  au1x00_miiphy_read(const char *devname, unsigned char addr,
 		unsigned char reg, unsigned short * value)
 {
 	volatile u32 *mii_control_reg = (volatile u32*)(ETH0_BASE+MAC_MII_CNTRL);
@@ -122,7 +122,7 @@ int  au1x00_miiphy_read(char *devname, unsigned char addr,
 	return 0;
 }
 
-int  au1x00_miiphy_write(char *devname, unsigned char addr,
+int  au1x00_miiphy_write(const char *devname, unsigned char addr,
 		unsigned char reg, unsigned short value)
 {
 	volatile u32 *mii_control_reg = (volatile u32*)(ETH0_BASE+MAC_MII_CNTRL);

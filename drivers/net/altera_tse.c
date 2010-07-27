@@ -426,7 +426,7 @@ static int tse_mdio_write(struct altera_tse_priv *priv, unsigned int regnum,
 
 /* MDIO access to phy */
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) && !defined(BITBANGMII)
-static int altera_tse_miiphy_write(char *devname, unsigned char addr,
+static int altera_tse_miiphy_write(const char *devname, unsigned char addr,
 				   unsigned char reg, unsigned short value)
 {
 	struct eth_device *dev;
@@ -439,7 +439,7 @@ static int altera_tse_miiphy_write(char *devname, unsigned char addr,
 	return 0;
 }
 
-static int altera_tse_miiphy_read(char *devname, unsigned char addr,
+static int altera_tse_miiphy_read(const char *devname, unsigned char addr,
 				  unsigned char reg, unsigned short *value)
 {
 	struct eth_device *dev;

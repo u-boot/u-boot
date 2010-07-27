@@ -170,7 +170,7 @@ at91_emac_t *get_emacbase_by_name(char *devname)
 	return (at91_emac_t *) netdev->iobase;
 }
 
-int  at91emac_mii_read(char *devname, unsigned char addr,
+int  at91emac_mii_read(const char *devname, unsigned char addr,
 		unsigned char reg, unsigned short *value)
 {
 	at91_emac_t *emac;
@@ -181,7 +181,7 @@ int  at91emac_mii_read(char *devname, unsigned char addr,
 }
 
 
-int  at91emac_mii_write(char *devname, unsigned char addr,
+int  at91emac_mii_write(const char *devname, unsigned char addr,
 		unsigned char reg, unsigned short value)
 {
 	at91_emac_t *emac;

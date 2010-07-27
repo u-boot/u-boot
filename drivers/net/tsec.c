@@ -60,9 +60,9 @@ static void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd);
 static void adjust_link(struct eth_device *dev);
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
 	&& !defined(BITBANGMII)
-static int tsec_miiphy_write(char *devname, unsigned char addr,
+static int tsec_miiphy_write(const char *devname, unsigned char addr,
 			     unsigned char reg, unsigned short value);
-static int tsec_miiphy_read(char *devname, unsigned char addr,
+static int tsec_miiphy_read(const char *devname, unsigned char addr,
 			    unsigned char reg, unsigned short *value);
 #endif
 #ifdef CONFIG_MCAST_TFTP
@@ -1919,7 +1919,7 @@ static void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd)
  * Returns:
  *  0 on success
  */
-static int tsec_miiphy_read(char *devname, unsigned char addr,
+static int tsec_miiphy_read(const char *devname, unsigned char addr,
 			    unsigned char reg, unsigned short *value)
 {
 	unsigned short ret;
@@ -1942,7 +1942,7 @@ static int tsec_miiphy_read(char *devname, unsigned char addr,
  * Returns:
  *  0 on success
  */
-static int tsec_miiphy_write(char *devname, unsigned char addr,
+static int tsec_miiphy_write(const char *devname, unsigned char addr,
 			     unsigned char reg, unsigned short value)
 {
 	struct tsec_private *priv = privlist[0];

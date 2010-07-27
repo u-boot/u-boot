@@ -350,7 +350,7 @@ static struct eth_device* verify_phyaddr (char *devname, unsigned char addr)
 	return dev;
 }
 
-static int eepro100_miiphy_read (char *devname, unsigned char addr,
+static int eepro100_miiphy_read(const char *devname, unsigned char addr,
 		unsigned char reg, unsigned short *value)
 {
 	struct eth_device *dev;
@@ -367,7 +367,7 @@ static int eepro100_miiphy_read (char *devname, unsigned char addr,
 	return 0;
 }
 
-static int eepro100_miiphy_write (char *devname, unsigned char addr,
+static int eepro100_miiphy_write(const char *devname, unsigned char addr,
 		unsigned char reg, unsigned short value)
 {
 	struct eth_device *dev;

@@ -100,7 +100,7 @@ int phy_setup_aneg (char *devname, unsigned char addr)
 }
 
 
-int npe_miiphy_read (char *devname, unsigned char addr,
+int npe_miiphy_read (const char *devname, unsigned char addr,
 		     unsigned char reg, unsigned short *value)
 {
 	u16 val;
@@ -112,7 +112,7 @@ int npe_miiphy_read (char *devname, unsigned char addr,
 }				/* phy_read */
 
 
-int npe_miiphy_write (char *devname, unsigned char addr,
+int npe_miiphy_write (const char *devname, unsigned char addr,
 		      unsigned char reg, unsigned short value)
 {
 	ixEthAccMiiWriteRtn(addr, reg, value);
