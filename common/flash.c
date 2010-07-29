@@ -43,14 +43,17 @@ extern flash_info_t  flash_info[]; /* info for FLASH chips */
 void
 flash_protect (int flag, ulong from, ulong to, flash_info_t *info)
 {
-	ulong b_end = info->start[0] + info->size - 1;	/* bank end address */
-	short s_end = info->sector_count - 1;	/* index of last sector */
+	ulong b_end;
+	short s_end;
 	int i;
 
 	/* Do nothing if input data is bad. */
-	if (info->sector_count == 0 || info->size == 0 || to < from) {
+	if (!info || info->sector_count == 0 || info->size == 0 || to < from) {
 		return;
 	}
+
+	s_end = info->sector_count - 1;	/* index of last sector */
+	b_end = info->start[0] + info->size - 1;	/* bank end address */
 
 	debug ("flash_protect %s: from 0x%08lX to 0x%08lX\n",
 		(flag & FLAG_PROTECT_SET) ? "ON" :
