@@ -321,7 +321,8 @@ static int set_phyreg (struct eth_device *dev, unsigned char addr,
 /* Check if given phyaddr is valid, i.e. there is a PHY connected.
  * Do this by checking model value field from ID2 register.
  */
-static struct eth_device* verify_phyaddr (char *devname, unsigned char addr)
+static struct eth_device* verify_phyaddr (const char *devname,
+						unsigned char addr)
 {
 	struct eth_device *dev;
 	unsigned short value;

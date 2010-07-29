@@ -162,7 +162,7 @@ int  at91emac_write(at91_emac_t *at91mac, unsigned char addr,
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 
-at91_emac_t *get_emacbase_by_name(char *devname)
+at91_emac_t *get_emacbase_by_name(const char *devname)
 {
 	struct eth_device *netdev;
 
