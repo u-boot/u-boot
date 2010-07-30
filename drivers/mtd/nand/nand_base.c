@@ -2001,13 +2001,6 @@ static int nand_do_write_ops(struct mtd_info *mtd, loff_t to,
 	if (!writelen)
 		return 0;
 
-	/* reject writes, which are not page aligned */
-	if (NOTALIGNED(to) || NOTALIGNED(ops->len)) {
-		printk(KERN_NOTICE "nand_write: "
-		       "Attempt to write not page aligned data\n");
-		return -EINVAL;
-	}
-
 	column = to & (mtd->writesize - 1);
 	subpage = column || (writelen & (mtd->writesize - 1));
 

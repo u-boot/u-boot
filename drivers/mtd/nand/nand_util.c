@@ -28,6 +28,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  *
+ * Copyright 2010 Freescale Semiconductor
+ * The portions of this file whose copyright is held by Freescale and which
+ * are not considered a derived work of GPL v2-only code may be distributed
+ * and/or modified under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  */
 
 #include <common.h>
@@ -423,36 +429,43 @@ int nand_unlock(struct mtd_info *mtd, ulong start, ulong length)
 #endif
 
 /**
- * get_len_incl_bad
+ * check_skip_len
  *
- * Check if length including bad blocks fits into device.
+ * Check if there are any bad blocks, and whether length including bad
+ * blocks fits into device
  *
  * @param nand NAND device
  * @param offset offset in flash
  * @param length image length
- * @return image length including bad blocks
+ * @return 0 if the image fits and there are no bad blocks
+ *         1 if the image fits, but there are bad blocks
+ *        -1 if the image does not fit
  */
-static size_t get_len_incl_bad (nand_info_t *nand, loff_t offset,
-				const size_t length)
+static int check_skip_len(nand_info_t *nand, loff_t offset, size_t length)
 {
-	size_t len_incl_bad = 0;
 	size_t len_excl_bad = 0;
-	size_t block_len;
+	int ret = 0;
 
 	while (len_excl_bad < length) {
-		block_len = nand->erasesize - (offset & (nand->erasesize - 1));
-
-		if (!nand_block_isbad (nand, offset & ~(nand->erasesize - 1)))
-			len_excl_bad += block_len;
-
-		len_incl_bad += block_len;
-		offset       += block_len;
+		size_t block_len, block_off;
+		loff_t block_start;
 
 		if (offset >= nand->size)
-			break;
+			return -1;
+
+		block_start = offset & ~(loff_t)(nand->erasesize - 1);
+		block_off = offset & (nand->erasesize - 1);
+		block_len = nand->erasesize - block_off;
+
+		if (!nand_block_isbad(nand, block_start))
+			len_excl_bad += block_len;
+		else
+			ret = 1;
+
+		offset += block_len;
 	}
 
-	return len_incl_bad;
+	return ret;
 }
 
 /**
@@ -474,29 +487,41 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 {
 	int rval;
 	size_t left_to_write = *length;
-	size_t len_incl_bad;
 	u_char *p_buffer = buffer;
+	int need_skip;
 
-	/* Reject writes, which are not page aligned */
-	if ((offset & (nand->writesize - 1)) != 0 ||
-	    (*length & (nand->writesize - 1)) != 0) {
+	/*
+	 * nand_write() handles unaligned, partial page writes.
+	 *
+	 * We allow length to be unaligned, for convenience in
+	 * using the $filesize variable.
+	 *
+	 * However, starting at an unaligned offset makes the
+	 * semantics of bad block skipping ambiguous (really,
+	 * you should only start a block skipping access at a
+	 * partition boundary).  So don't try to handle that.
+	 */
+	if ((offset & (nand->writesize - 1)) != 0) {
 		printf ("Attempt to write non page aligned data\n");
+		*length = 0;
 		return -EINVAL;
 	}
 
-	len_incl_bad = get_len_incl_bad (nand, offset, *length);
-
-	if ((offset + len_incl_bad) > nand->size) {
+	need_skip = check_skip_len(nand, offset, *length);
+	if (need_skip < 0) {
 		printf ("Attempt to write outside the flash area\n");
+		*length = 0;
 		return -EINVAL;
 	}
 
-	if (len_incl_bad == *length) {
+	if (!need_skip) {
 		rval = nand_write (nand, offset, length, buffer);
-		if (rval != 0)
-			printf ("NAND write to offset %llx failed %d\n",
-				offset, rval);
+		if (rval == 0)
+			return 0;
 
+		*length = 0;
+		printf ("NAND write to offset %llx failed %d\n",
+			offset, rval);
 		return rval;
 	}
 
@@ -553,20 +578,28 @@ int nand_read_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 {
 	int rval;
 	size_t left_to_read = *length;
-	size_t len_incl_bad;
 	u_char *p_buffer = buffer;
+	int need_skip;
 
-	len_incl_bad = get_len_incl_bad (nand, offset, *length);
-
-	if ((offset + len_incl_bad) > nand->size) {
-		printf ("Attempt to read outside the flash area\n");
+	if ((offset & (nand->writesize - 1)) != 0) {
+		printf ("Attempt to read non page aligned data\n");
+		*length = 0;
 		return -EINVAL;
 	}
 
-	if (len_incl_bad == *length) {
+	need_skip = check_skip_len(nand, offset, *length);
+	if (need_skip < 0) {
+		printf ("Attempt to read outside the flash area\n");
+		*length = 0;
+		return -EINVAL;
+	}
+
+	if (!need_skip) {
 		rval = nand_read (nand, offset, length, buffer);
 		if (!rval || rval == -EUCLEAN)
 			return 0;
+
+		*length = 0;
 		printf ("NAND read from offset %llx failed %d\n",
 			offset, rval);
 		return rval;
