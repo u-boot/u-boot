@@ -42,7 +42,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	if (boot_get_fdt(flag, argc, argv, images, &of_flat_tree, &of_size))
 		return 1;
 #endif
-	if (!of_flat_tree)
+	if (!of_flat_tree && argc > 3)
 		of_flat_tree = (char *)simple_strtoul(argv[3], NULL, 16);
 	if (of_flat_tree)
 		initrd_end = (ulong)of_flat_tree;
