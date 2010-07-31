@@ -53,7 +53,8 @@ int do_cplbinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
-U_BOOT_CMD(cplbinfo, 1, 0, do_cplbinfo,
+U_BOOT_CMD(
+	cplbinfo, 1, 0, do_cplbinfo,
 	"display current CPLB tables",
 	""
 );

@@ -579,7 +579,8 @@ usage:
 	return cmd_usage(cmdtp);
 }
 
-U_BOOT_CMD(nand, CONFIG_SYS_MAXARGS, 1, do_nand,
+U_BOOT_CMD(
+	nand, CONFIG_SYS_MAXARGS, 1, do_nand,
 	"NAND sub-system",
 	"info - show available NAND devices\n"
 	"nand device [dev] - show or set current device\n"

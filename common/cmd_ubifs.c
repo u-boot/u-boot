@@ -131,13 +131,15 @@ U_BOOT_CMD(
 	"    - mount 'volume-name' volume"
 );
 
-U_BOOT_CMD(ubifsls, 2, 0, do_ubifs_ls,
+U_BOOT_CMD(
+	ubifsls, 2, 0, do_ubifs_ls,
 	"list files in a directory",
 	"[directory]\n"
 	"    - list files in a 'directory' (default '/')"
 );
 
-U_BOOT_CMD(ubifsload, 4, 0, do_ubifs_load,
+U_BOOT_CMD(
+	ubifsload, 4, 0, do_ubifs_load,
 	"load file from an UBIFS filesystem",
 	"<addr> <filename> [bytes]\n"
 	"    - load file 'filename' to address 'addr'"
