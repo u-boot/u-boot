@@ -61,7 +61,7 @@ int do_mg_disk_cmd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 U_BOOT_CMD(
 	mgd,	5,	0,	do_mg_disk_cmd,
-	"mgd     - mgine m[g]flash command\n",
+	"mgine m[g]flash command\n",
 	": mgine mflash IO mode (disk) command\n"
 	"    - initialize : mgd init\n"
 	"    - random read : mgd read [from] [to] [size]\n"

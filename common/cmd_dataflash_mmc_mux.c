@@ -58,7 +58,7 @@ static int mmc_nspi (const char *s)
 
 U_BOOT_CMD(
 	dataflash_mmc_mux, 2, 1, do_dataflash_mmc_mux,
-	"dataflash_mmc_mux\t- enable or disable MMC or SPI\n",
+	"enable or disable MMC or SPI\n",
 	"[mmc, spi]\n"
 	"    - enable or disable MMC or SPI"
 );

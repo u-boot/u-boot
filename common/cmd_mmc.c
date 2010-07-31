@@ -131,7 +131,9 @@ int do_mmcinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(mmcinfo, 2, 0, do_mmcinfo,
-	"mmcinfo <dev num>-- display MMC info",
+	"display MMC info",
+	"<dev num>\n
+        "    - device number of the device to dislay info of\n"
 	""
 );
 
