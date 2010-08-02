@@ -204,7 +204,7 @@ static void update_crc(void)
  */
 static int prog_eeprom(void)
 {
-	int ret = 0; /* shut up gcc */
+	int ret = 0;
 	int i;
 	void *p;
 #ifdef CONFIG_SYS_EEPROM_BUS_NUM
@@ -225,6 +225,11 @@ static int prog_eeprom(void)
 	i2c_set_bus_num(CONFIG_SYS_EEPROM_BUS_NUM);
 #endif
 
+	/*
+	 * The AT24C02 datasheet says that data can only be written in page
+	 * mode, which means 8 bytes at a time, and it takes up to 5ms to
+	 * complete a given write.
+	 */
 	for (i = 0, p = &e; i < sizeof(e); i += 8, p += 8) {
 		ret = i2c_write(CONFIG_SYS_I2C_EEPROM_ADDR, i, CONFIG_SYS_I2C_EEPROM_ADDR_LEN,
 			p, min((sizeof(e) - i), 8));
@@ -233,12 +238,23 @@ static int prog_eeprom(void)
 		udelay(5000);	/* 5ms write cycle timing */
 	}
 
+	if (!ret) {
+		/* Verify the write by reading back the EEPROM and comparing */
+		struct eeprom e2;
+
+		ret = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR, 0,
+			CONFIG_SYS_I2C_EEPROM_ADDR_LEN, (void *)&e2, sizeof(e2));
+		if (!ret && memcmp(&e, &e2, sizeof(e)))
+			ret = -1;
+	}
+
 #ifdef CONFIG_SYS_EEPROM_BUS_NUM
 	i2c_set_bus_num(bus);
 #endif
 
 	if (ret) {
 		printf("Programming failed.\n");
+		has_been_read = 0;
 		return -1;
 	}
 
