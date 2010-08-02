@@ -263,7 +263,6 @@ int eth_initialize(bd_t *bis)
 			dev = dev->next;
 		} while(dev != eth_devices);
 
-#ifdef CONFIG_NET_MULTI
 		/* update current ethernet name */
 		if (eth_current) {
 			char *act = getenv("ethact");
@@ -271,7 +270,6 @@ int eth_initialize(bd_t *bis)
 				setenv("ethact", eth_current->name);
 		} else
 			setenv("ethact", NULL);
-#endif
 
 		putc ('\n');
 	}
@@ -441,7 +439,7 @@ int eth_receive(volatile void *packet, int length)
 void eth_try_another(int first_restart)
 {
 	static struct eth_device *first_failed = NULL;
-	char *ethrotate;
+	char *ethrotate, *act;
 
 	/*
 	 * Do not rotate between network interfaces when
@@ -460,21 +458,16 @@ void eth_try_another(int first_restart)
 
 	eth_current = eth_current->next;
 
-#ifdef CONFIG_NET_MULTI
 	/* update current ethernet name */
-	{
-		char *act = getenv("ethact");
-		if (act == NULL || strcmp(act, eth_current->name) != 0)
-			setenv("ethact", eth_current->name);
-	}
-#endif
+	act = getenv("ethact");
+	if (act == NULL || strcmp(act, eth_current->name) != 0)
+		setenv("ethact", eth_current->name);
 
 	if (first_failed == eth_current) {
 		NetRestartWrap = 1;
 	}
 }
 
-#ifdef CONFIG_NET_MULTI
 void eth_set_current(void)
 {
 	static char *act = NULL;
@@ -501,7 +494,6 @@ void eth_set_current(void)
 
 	setenv("ethact", eth_current->name);
 }
-#endif
 
 char *eth_get_name (void)
 {
