@@ -184,10 +184,8 @@ static int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	uint	devaddr, alen, length;
 	u_char  *memaddr;
 
-	if (argc != 5) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc != 5)
+		return cmd_usage(cmdtp);
 
 	/*
 	 * I2C chip address
@@ -200,10 +198,8 @@ static int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	 */
 	devaddr = simple_strtoul(argv[2], NULL, 16);
 	alen = get_alen(argv[2]);
-	if (alen == 0) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (alen == 0)
+		return cmd_usage(cmdtp);
 
 	/*
 	 * Length is the number of objects, not number of bytes.
@@ -240,10 +236,8 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	alen   = i2c_dp_last_alen;
 	length = i2c_dp_last_length;
 
-	if (argc < 3) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 3)
+		return cmd_usage(cmdtp);
 
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
 		/*
@@ -261,10 +255,8 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		 */
 		addr = simple_strtoul(argv[2], NULL, 16);
 		alen = get_alen(argv[2]);
-		if (alen == 0) {
-			cmd_usage(cmdtp);
-			return 1;
-		}
+		if (alen == 0)
+			return cmd_usage(cmdtp);
 
 		/*
 		 * If another parameter, it is the length to display.
@@ -332,10 +324,8 @@ static int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	uchar	byte;
 	int	count;
 
-	if ((argc < 4) || (argc > 5)) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if ((argc < 4) || (argc > 5))
+		return cmd_usage(cmdtp);
 
 	/*
 	 * Chip is always specified.
@@ -347,10 +337,8 @@ static int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	 */
 	addr = simple_strtoul(argv[2], NULL, 16);
 	alen = get_alen(argv[2]);
-	if (alen == 0) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (alen == 0)
+		return cmd_usage(cmdtp);
 
 	/*
 	 * Value to write is always specified.
@@ -398,10 +386,8 @@ static int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	ulong	crc;
 	ulong	err;
 
-	if (argc < 4) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 4)
+		return cmd_usage(cmdtp);
 
 	/*
 	 * Chip is always specified.
@@ -413,10 +399,8 @@ static int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	 */
 	addr = simple_strtoul(argv[2], NULL, 16);
 	alen = get_alen(argv[2]);
-	if (alen == 0) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (alen == 0)
+		return cmd_usage(cmdtp);
 
 	/*
 	 * Count is always specified
@@ -462,10 +446,8 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 	int	nbytes;
 	extern char console_buffer[];
 
-	if (argc != 3) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc != 3)
+		return cmd_usage(cmdtp);
 
 #ifdef CONFIG_BOOT_RETRY_TIME
 	reset_cmd_timeout();	/* got a good command to get here */
@@ -495,10 +477,8 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 		 */
 		addr = simple_strtoul(argv[2], NULL, 16);
 		alen = get_alen(argv[2]);
-		if (alen == 0) {
-			cmd_usage(cmdtp);
-			return 1;
-		}
+		if (alen == 0)
+			return cmd_usage(cmdtp);
 	}
 
 	/*
@@ -628,10 +608,8 @@ static int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	u_char	bytes[16];
 	int	delay;
 
-	if (argc < 3) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 3)
+		return cmd_usage(cmdtp);
 
 	/*
 	 * Chip is always specified.
@@ -643,10 +621,8 @@ static int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	 */
 	addr = simple_strtoul(argv[2], NULL, 16);
 	alen = get_alen(argv[2]);
-	if (alen == 0) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (alen == 0)
+		return cmd_usage(cmdtp);
 
 	/*
 	 * Length is the number of objects, not number of bytes.
@@ -784,10 +760,9 @@ static int do_sdram (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		"32 MiB", "16 MiB", "8 MiB", "4 MiB"
 	};
 
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
 	/*
 	 * Chip is always specified.
 	 */
@@ -1322,12 +1297,10 @@ static int do_i2c(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	c = find_cmd_tbl(argv[0], &cmd_i2c_sub[0], ARRAY_SIZE(cmd_i2c_sub));
 
-	if (c) {
+	if (c)
 		return  c->cmd(cmdtp, flag, argc, argv);
-	} else {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	else
+		return cmd_usage(cmdtp);
 }
 
 /***************************************************/

@@ -84,10 +84,8 @@ int do_bedbug_dis (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	addr = dis_last_addr;
 	len = dis_last_len;
 
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
 		/* New command */
@@ -125,10 +123,8 @@ int do_bedbug_asm (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	/* -------------------------------------------------- */
 	int rcode = 0;
 
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	printf ("\nEnter '.' when done\n");
 	mem_addr = simple_strtoul (argv[1], NULL, 16);

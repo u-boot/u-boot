@@ -28,13 +28,14 @@
 #ifdef CONFIG_ISO_PARTITION
 /* Make the buffers bigger if ISO partition support is enabled -- CD-ROMS
    have 2048 byte blocks */
-#define DEFAULT_SECTOR_SIZE   2048
+#define DEFAULT_SECTOR_SIZE	2048
 #else
 #define DEFAULT_SECTOR_SIZE	512
 #endif
 #define DOS_PART_TBL_OFFSET	0x1be
 #define DOS_PART_MAGIC_OFFSET	0x1fe
 #define DOS_PBR_FSTYPE_OFFSET	0x36
+#define DOS_PBR32_FSTYPE_OFFSET	0x52
 #define DOS_PBR_MEDIA_TYPE_OFFSET	0x15
 #define DOS_MBR	0
 #define DOS_PBR	1

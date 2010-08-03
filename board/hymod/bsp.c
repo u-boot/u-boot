@@ -272,8 +272,7 @@ do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		break;
 	}
 
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 U_BOOT_CMD(
 	fpga,	6,	1,	do_fpga,
@@ -324,8 +323,7 @@ do_eecl (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		/* fall through ... */
 
 	default:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	memset (data, 0, HYMOD_EEPROM_SIZE);

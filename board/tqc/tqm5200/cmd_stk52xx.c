@@ -327,8 +327,7 @@ static int cmd_sound(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	switch (argc) {
 	case 0:
 	case 1:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	case 2:
 		if (strncmp(argv[1],"saw",3) == 0) {
 			printf ("Play sawtooth\n");
@@ -342,8 +341,7 @@ static int cmd_sound(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return rcode;
 		}
 
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	case 3:
 		if (strncmp(argv[1],"saw",3) == 0) {
 			duration = simple_strtoul(argv[2], NULL, 10);
@@ -358,8 +356,7 @@ static int cmd_sound(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 						LEFT_RIGHT);
 			return rcode;
 		}
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	case 4:
 		if (strncmp(argv[1],"saw",3) == 0) {
 			duration = simple_strtoul(argv[2], NULL, 10);
@@ -382,8 +379,7 @@ static int cmd_sound(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			pcm1772_write_reg((uchar)reg, (uchar)val);
 			return 0;
 		}
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	case 5:
 		if (strncmp(argv[1],"saw",3) == 0) {
 			duration = simple_strtoul(argv[2], NULL, 10);
@@ -412,8 +408,7 @@ static int cmd_sound(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 						channel);
 			return rcode;
 		}
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 	printf ("Usage:\nsound cmd [arg1] [arg2] ...\n");
 	return 1;
@@ -513,8 +508,7 @@ static int cmd_beep(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			channel = LEFT_RIGHT;
 		break;
 	default:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	if ((tmp = getenv ("volume")) != NULL) {

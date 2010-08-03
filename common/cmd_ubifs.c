@@ -47,10 +47,9 @@ int do_ubifs_mount(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *vol_name;
 	int ret;
 
-	if (argc != 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc != 2)
+		return cmd_usage(cmdtp);
+
 	vol_name = argv[1];
 	debug("Using volume %s\n", vol_name);
 
@@ -102,25 +101,19 @@ int do_ubifs_load(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return -1;
 	}
 
-	if (argc < 3) {
-		cmd_usage(cmdtp);
-		return -1;
-	}
+	if (argc < 3)
+		return cmd_usage(cmdtp);
 
 	addr = simple_strtoul(argv[1], &endp, 16);
-	if (endp == argv[1]) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (endp == argv[1])
+		return cmd_usage(cmdtp);
 
 	filename = argv[2];
 
 	if (argc == 4) {
 		size = simple_strtoul(argv[3], &endp, 16);
-		if (endp == argv[3]) {
-			cmd_usage(cmdtp);
-			return 1;
-		}
+		if (endp == argv[3])
+			return cmd_usage(cmdtp);
 	}
 	debug("Loading file '%s' to address 0x%08x (size %d)\n", filename, addr, size);
 

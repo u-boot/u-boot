@@ -44,7 +44,6 @@
 #endif
 
 /* Local functions */
-static void fpga_usage (cmd_tbl_t * cmdtp);
 static int fpga_get_op (char *opstr);
 
 /* Local defines */
@@ -232,8 +231,7 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	switch (op) {
 	case FPGA_NONE:
-		fpga_usage (cmdtp);
-		break;
+		return cmd_usage(cmdtp);
 
 	case FPGA_INFO:
 		rc = fpga_info (dev);
@@ -312,15 +310,9 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 	default:
 		printf ("Unknown operation\n");
-		fpga_usage (cmdtp);
-		break;
+		return cmd_usage(cmdtp);
 	}
 	return (rc);
-}
-
-static void fpga_usage (cmd_tbl_t * cmdtp)
-{
-	cmd_usage(cmdtp);
 }
 
 /*

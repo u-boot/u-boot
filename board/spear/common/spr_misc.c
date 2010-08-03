@@ -215,10 +215,8 @@ int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *s, *e;
 	char i2c_mac[20];
 
-	if ((argc > 3) || (argc < 2)) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if ((argc > 3) || (argc < 2))
+		return cmd_usage(cmdtp);
 
 	if ((!strcmp(argv[1], "cpufreq")) || (!strcmp(argv[1], "ddrfreq"))) {
 
@@ -286,8 +284,7 @@ int do_chip_config(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 0;
 	}
 
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
 U_BOOT_CMD(chip_config, 3, 1, do_chip_config,

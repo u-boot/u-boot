@@ -70,10 +70,7 @@ void bedbug860_do_break (cmd_tbl_t *cmdtp, int flag, int argc,
   /* -------------------------------------------------- */
 
   if (argc < 2)
-  {
-    cmd_usage(cmdtp);
-    return;
-  }
+    return cmd_usage(cmdtp);
 
   /* Turn off a breakpoint */
 
@@ -121,10 +118,7 @@ void bedbug860_do_break (cmd_tbl_t *cmdtp, int flag, int argc,
   /* Set a breakpoint at the address */
 
   if( !isdigit( argv[ 1 ][ 0 ]))
-  {
-    cmd_usage(cmdtp);
-    return;
-  }
+    return cmd_usage(cmdtp);
 
   addr = simple_strtoul( argv[ 1 ], NULL, 16 ) & 0xfffffffc;
 

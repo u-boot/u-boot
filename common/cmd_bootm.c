@@ -491,17 +491,14 @@ int do_bootm_subcommand (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 			argv++;
 			return bootm_start(cmdtp, flag, argc, argv);
 		}
-	}
-	/* Unrecognized command */
-	else {
-		cmd_usage(cmdtp);
-		return 1;
+	} else {
+		/* Unrecognized command */
+		return cmd_usage(cmdtp);
 	}
 
 	if (images.state >= state) {
 		printf ("Trying to execute a command out of order\n");
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	images.state |= state;

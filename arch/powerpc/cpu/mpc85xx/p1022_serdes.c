@@ -17,6 +17,8 @@
 #define SRDS1_MAX_LANES		4
 #define SRDS2_MAX_LANES		2
 
+static u32 serdes1_prtcl_map, serdes2_prtcl_map;
+
 static const u8 serdes1_cfg_tbl[][SRDS1_MAX_LANES] = {
 	[0x00] = {NONE, NONE, NONE, NONE},
 	[0x01] = {NONE, NONE, NONE, NONE},
@@ -73,26 +75,40 @@ static const u8 serdes2_cfg_tbl[][SRDS2_MAX_LANES] = {
 
 int is_serdes_configured(enum srds_prtcl device)
 {
+	int ret = (1 << device) & serdes1_prtcl_map;
+
+	if (ret)
+		return ret;
+
+	return (1 << device) & serdes2_prtcl_map;
+}
+
+void fsl_serdes_init(void)
+{
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 	u32 pordevsr = in_be32(&gur->pordevsr);
 	u32 srds_cfg = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >>
 				MPC85xx_PORDEVSR_IO_SEL_SHIFT;
-	unsigned int i;
+	int lane;
 
-	debug("%s: dev = %d\n", __FUNCTION__, device);
-	debug("PORDEVSR[IO_SEL] = 0x%x\n", srds_cfg);
+	debug("PORDEVSR[IO_SEL_SRDS] = %x\n", srds_cfg);
 
 	if (srds_cfg > ARRAY_SIZE(serdes1_cfg_tbl)) {
-		printf("Invalid PORDEVSR[IO_SEL] = %d\n", srds_cfg);
-		return 0;
+		printf("Invalid PORDEVSR[IO_SEL_SRDS] = %d\n", srds_cfg);
+		return;
+	}
+	for (lane = 0; lane < SRDS1_MAX_LANES; lane++) {
+		enum srds_prtcl lane_prtcl = serdes1_cfg_tbl[srds_cfg][lane];
+		serdes1_prtcl_map |= (1 << lane_prtcl);
 	}
 
-	for (i = 0; i < SRDS1_MAX_LANES; i++) {
-		if (serdes1_cfg_tbl[srds_cfg][i] == device)
-			return 1;
-		if (serdes2_cfg_tbl[srds_cfg][i] == device)
-			return 1;
+	if (srds_cfg > ARRAY_SIZE(serdes2_cfg_tbl)) {
+		printf("Invalid PORDEVSR[IO_SEL_SRDS] = %d\n", srds_cfg);
+		return;
 	}
 
-	return 0;
+	for (lane = 0; lane < SRDS2_MAX_LANES; lane++) {
+		enum srds_prtcl lane_prtcl = serdes2_cfg_tbl[srds_cfg][lane];
+		serdes2_prtcl_map |= (1 << lane_prtcl);
+	}
 }

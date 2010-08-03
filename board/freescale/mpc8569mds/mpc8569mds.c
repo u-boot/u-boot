@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Freescale Semiconductor.
+ * Copyright 2009-2010 Freescale Semiconductor.
  *
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
  *
@@ -635,9 +635,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 	ft_cpu_setup(blob, bd);
 
-#ifdef CONFIG_PCIE1
-	ft_fsl_pci_setup(blob, "pci1", &pcie1_hose);
-#endif
+	FT_FSL_PCI_SETUP;
+
 	fdt_board_fixup_esdhc(blob, bd);
 	fdt_board_fixup_qe_uart(blob, bd);
 	fdt_board_fixup_qe_usb(blob, bd);

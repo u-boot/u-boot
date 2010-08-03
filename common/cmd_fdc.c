@@ -741,8 +741,7 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		boot_drive=simple_strtoul(argv[2], NULL, 10);
 		break;
 	default:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 	/* setup FDC and scan for drives  */
 	if(fdc_setup(boot_drive,pCMD,pFG)==FALSE) {

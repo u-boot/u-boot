@@ -115,10 +115,8 @@ int mpc8610diu_init_show_bmp(cmd_tbl_t *cmdtp,
 {
 	unsigned int addr;
 
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	if (!strncmp(argv[1],"init",4)) {
 #if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)

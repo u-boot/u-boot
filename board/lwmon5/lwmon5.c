@@ -306,20 +306,15 @@ void hw_watchdog_reset(void)
 
 int do_eeprom_wp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
-	if ((strcmp(argv[1], "on") == 0)) {
+	if ((strcmp(argv[1], "on") == 0))
 		gpio_write_bit(CONFIG_SYS_GPIO_EEPROM_EXT_WP, 1);
-	} else if ((strcmp(argv[1], "off") == 0)) {
+	else if ((strcmp(argv[1], "off") == 0))
 		gpio_write_bit(CONFIG_SYS_GPIO_EEPROM_EXT_WP, 0);
-	} else {
-		cmd_usage(cmdtp);
-		return 1;
-	}
-
+	else
+		return cmd_usage(cmdtp);
 
 	return 0;
 }

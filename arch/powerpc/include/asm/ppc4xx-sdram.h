@@ -63,6 +63,8 @@
 #define SDRAM_CFG0	0x20	/* memory controller options 0		*/
 #define SDRAM_CFG1	0x21	/* memory controller options 1		*/
 
+#define SDRAM0_BESR0	0x0000	/* bus error status reg 0		*/
+#define SDRAM0_BESR1	0x0008	/* bus error status reg 1		*/
 #define SDRAM0_BEAR	0x0010	/* bus error address reg		*/
 #define SDRAM0_SLIO	0x0018	/* ddr sdram slave interface options	*/
 #define SDRAM0_CFG0	0x0020	/* ddr sdram options 0			*/
@@ -363,6 +365,7 @@
 /*
  * Memory controller registers
  */
+#ifdef CONFIG_405EX
 #define SDRAM_BESR	0x00	/* PLB bus error status (read/clear)         */
 #define SDRAM_BESRT	0x01	/* PLB bus error status (test/set)           */
 #define SDRAM_BEARL	0x02	/* PLB bus error address low                 */
@@ -371,11 +374,10 @@
 #define SDRAM_WMIRQT	0x07	/* PLB write master interrupt (test/set)     */
 #define SDRAM_PLBOPT	0x08	/* PLB slave options                         */
 #define SDRAM_PUABA	0x09	/* PLB upper address base                    */
-#ifndef CONFIG_405EX
-#define SDRAM_MCSTAT	0x14	/* memory controller status                  */
-#else
 #define SDRAM_MCSTAT	0x1F	/* memory controller status                  */
-#endif
+#else /* CONFIG_405EX */
+#define SDRAM_MCSTAT	0x14	/* memory controller status                  */
+#endif /* CONFIG_405EX */
 #define SDRAM_MCOPT1	0x20	/* memory controller options 1               */
 #define SDRAM_MCOPT2	0x21	/* memory controller options 2               */
 #define SDRAM_MODT0	0x22	/* on die termination for bank 0             */

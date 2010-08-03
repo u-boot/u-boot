@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007, 200 Freescale Semiconductor, Inc.
+ * Copyright 2004, 2007, 2009-2010 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
  *
@@ -388,11 +388,6 @@ int last_stage_init(void)
 #if defined(CONFIG_OF_BOARD_SETUP)
 void ft_pci_setup(void *blob, bd_t *bd)
 {
-#ifdef CONFIG_PCI1
-	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
-#endif
-#ifdef CONFIG_PCIE1
-	ft_fsl_pci_setup(blob, "pci1", &pcie1_hose);
-#endif
+	FT_FSL_PCI_SETUP;
 }
 #endif

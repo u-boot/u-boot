@@ -1,5 +1,5 @@
 /*
- * Copyright 2006, 2007 Freescale Semiconductor.
+ * Copyright 2006, 2007, 2010 Freescale Semiconductor.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -129,21 +129,21 @@ fixed_sdram(void)
 
 
 #if defined(CONFIG_PCI)
-static struct pci_controller pci1_hose;
+static struct pci_controller pcie1_hose;
 #endif /* CONFIG_PCI */
 
-#ifdef CONFIG_PCI2
-static struct pci_controller pci2_hose;
-#endif	/* CONFIG_PCI2 */
+#ifdef CONFIG_PCIE2
+static struct pci_controller pcie2_hose;
+#endif	/* CONFIG_PCIE2 */
 
 int first_free_busno = 0;
 
 void pci_init_board(void)
 {
-#ifdef CONFIG_PCI1
+#ifdef CONFIG_PCIE1
 {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI1_ADDR;
-	struct pci_controller *hose = &pci1_hose;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
+	struct pci_controller *hose = &pcie1_hose;
 	struct pci_region *r = hose->regions;
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
@@ -169,16 +169,16 @@ void pci_init_board(void)
 
 		/* outbound memory */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCI1_MEM_BUS,
-			       CONFIG_SYS_PCI1_MEM_PHYS,
-			       CONFIG_SYS_PCI1_MEM_SIZE,
+			       CONFIG_SYS_PCIE1_MEM_BUS,
+			       CONFIG_SYS_PCIE1_MEM_PHYS,
+			       CONFIG_SYS_PCIE1_MEM_SIZE,
 			       PCI_REGION_MEM);
 
 		/* outbound io */
 		pci_set_region(r++,
-			       CONFIG_SYS_PCI1_IO_BUS,
-			       CONFIG_SYS_PCI1_IO_PHYS,
-			       CONFIG_SYS_PCI1_IO_SIZE,
+			       CONFIG_SYS_PCIE1_IO_BUS,
+			       CONFIG_SYS_PCIE1_IO_PHYS,
+			       CONFIG_SYS_PCIE1_IO_SIZE,
 			       PCI_REGION_IO);
 
 		hose->region_count = r - hose->regions;
@@ -195,8 +195,8 @@ void pci_init_board(void)
 		 * Activate ULI1575 legacy chip by performing a fake
 		 * memory access.  Needed to make ULI RTC work.
 		 */
-		in_be32((unsigned *) ((char *)(CONFIG_SYS_PCI1_MEM_VIRT
-				       + CONFIG_SYS_PCI1_MEM_SIZE - 0x1000000)));
+		in_be32((unsigned *) ((char *)(CONFIG_SYS_PCIE1_MEM_VIRT
+				       + CONFIG_SYS_PCIE1_MEM_SIZE - 0x1000000)));
 
 	} else {
 		puts("PCI-EXPRESS 1: Disabled\n");
@@ -204,26 +204,26 @@ void pci_init_board(void)
 }
 #else
 	puts("PCI-EXPRESS1: Disabled\n");
-#endif /* CONFIG_PCI1 */
+#endif /* CONFIG_PCIE1 */
 
-#ifdef CONFIG_PCI2
+#ifdef CONFIG_PCIE2
 {
-	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCI2_ADDR;
-	struct pci_controller *hose = &pci2_hose;
+	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE2_ADDR;
+	struct pci_controller *hose = &pcie2_hose;
 	struct pci_region *r = hose->regions;
 
 	/* outbound memory */
 	pci_set_region(r++,
-		       CONFIG_SYS_PCI2_MEM_BUS,
-		       CONFIG_SYS_PCI2_MEM_PHYS,
-		       CONFIG_SYS_PCI2_MEM_SIZE,
+		       CONFIG_SYS_PCIE2_MEM_BUS,
+		       CONFIG_SYS_PCIE2_MEM_PHYS,
+		       CONFIG_SYS_PCIE2_MEM_SIZE,
 		       PCI_REGION_MEM);
 
 	/* outbound io */
 	pci_set_region(r++,
-		       CONFIG_SYS_PCI2_IO_BUS,
-		       CONFIG_SYS_PCI2_IO_PHYS,
-		       CONFIG_SYS_PCI2_IO_SIZE,
+		       CONFIG_SYS_PCIE2_IO_BUS,
+		       CONFIG_SYS_PCIE2_IO_PHYS,
+		       CONFIG_SYS_PCIE2_IO_SIZE,
 		       PCI_REGION_IO);
 
 	hose->region_count = r - hose->regions;
@@ -238,7 +238,7 @@ void pci_init_board(void)
 }
 #else
 	puts("PCI-EXPRESS 2: Disabled\n");
-#endif /* CONFIG_PCI2 */
+#endif /* CONFIG_PCIE2 */
 
 }
 
@@ -253,12 +253,7 @@ ft_board_setup(void *blob, bd_t *bd)
 
 	ft_cpu_setup(blob, bd);
 
-#ifdef CONFIG_PCI1
-	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
-#endif
-#ifdef CONFIG_PCI2
-	ft_fsl_pci_setup(blob, "pci1", &pci2_hose);
-#endif
+	FT_FSL_PCI_SETUP;
 
 	/*
 	 * Warn if it looks like the device tree doesn't match u-boot.

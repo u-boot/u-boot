@@ -112,10 +112,8 @@ int do_hw_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *cmd;
 
-	if (argc != 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc != 2)
+		return cmd_usage(cmdtp);
 
 	cmd = argv[1];
 	switch (cmd[0]) {
@@ -150,8 +148,7 @@ int do_hw_test(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		test_net();
 		break;
 	default:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	return 0;

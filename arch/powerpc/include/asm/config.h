@@ -44,8 +44,12 @@
 	defined(CONFIG_P1021) || defined(CONFIG_P1022) || \
 	defined(CONFIG_P2020) || defined(CONFIG_MPC8641)
 #define CONFIG_MAX_CPUS		2
+#elif defined(CONFIG_PPC_P3041)
+#define CONFIG_MAX_CPUS		4
 #elif defined(CONFIG_PPC_P4080)
 #define CONFIG_MAX_CPUS		8
+#elif defined(CONFIG_PPC_P5020)
+#define CONFIG_MAX_CPUS		2
 #else
 #define CONFIG_MAX_CPUS		1
 #endif

@@ -44,5 +44,6 @@ enum srds_prtcl {
 };
 
 int is_serdes_configured(enum srds_prtcl device);
+void fsl_serdes_init(void);
 
 #endif /* __FSL_SERDES_H */

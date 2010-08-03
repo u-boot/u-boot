@@ -75,10 +75,8 @@ static int do_mtc_led(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int err;
 	int i;
 
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return -1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	memset(&pcmd, 0, sizeof(pcmd));
 	memset(&prx, 0, sizeof(prx));
@@ -149,10 +147,8 @@ static int do_mtc_digout(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	int err;
 	uchar channel_mask = 0;
 
-	if (argc < 3) {
-		cmd_usage(cmdtp);
-		return -1;
-	}
+	if (argc < 3)
+		return cmd_usage(cmdtp);
 
 	if (strncmp(argv[1], "on", 2) == 0)
 		channel_mask |= 1;
@@ -178,10 +174,8 @@ static int do_mtc_digin(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 	int err;
 	uchar channel_num = 0;
 
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return -1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	channel_num = simple_strtol(argv[1], NULL, 10);
 	if ((channel_num != 1) && (channel_num != 2)) {
@@ -332,8 +326,7 @@ int cmd_mtc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return c->cmd(c, flag, argc, argv);
 	} else {
 		/* Unrecognized command */
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	return err;

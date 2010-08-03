@@ -186,10 +186,8 @@ int board_init(void)
 int do_spi_toggle(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 tmp;
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	if ((strcmp(argv[1], "off") == 0)) {
 		printf("SPI FLASH disabled, NAND enabled\n");
@@ -214,8 +212,7 @@ int do_spi_toggle(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		tmp = readl(KW_GPIO0_BASE);
 		writel(tmp & (~FLASH_GPIO_PIN) , KW_GPIO0_BASE);
 	} else {
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	return 0;

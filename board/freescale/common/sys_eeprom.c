@@ -351,8 +351,7 @@ int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			prog_eeprom();
 			break;
 		default:
-			cmd_usage(cmdtp);
-			break;
+			return cmd_usage(cmdtp);
 		}
 
 		return 0;
@@ -388,8 +387,7 @@ int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		break;
 	case 'h':	/* help */
 	default:
-		cmd_usage(cmdtp);
-		break;
+		return cmd_usage(cmdtp);
 	}
 
 	return 0;

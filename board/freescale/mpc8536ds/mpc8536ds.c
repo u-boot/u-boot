@@ -396,26 +396,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
 
-#ifdef CONFIG_PCI1
-	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
-#else
-	ft_fsl_pci_setup(blob, "pci0", NULL);
-#endif
-#ifdef CONFIG_PCIE2
-	ft_fsl_pci_setup(blob, "pci1", &pcie2_hose);
-#else
-	ft_fsl_pci_setup(blob, "pci1", NULL);
-#endif
-#ifdef CONFIG_PCIE2
-	ft_fsl_pci_setup(blob, "pci2", &pcie1_hose);
-#else
-	ft_fsl_pci_setup(blob, "pci2", NULL);
-#endif
-#ifdef CONFIG_PCIE1
-	ft_fsl_pci_setup(blob, "pci3", &pcie3_hose);
-#else
-	ft_fsl_pci_setup(blob, "pci3", NULL);
-#endif
+	FT_FSL_PCI_SETUP;
+
 #ifdef CONFIG_FSL_SGMII_RISER
 	fsl_sgmii_riser_fdt_fixup(blob);
 #endif

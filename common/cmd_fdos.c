@@ -73,8 +73,7 @@ int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	name = argv [2];
 	break;
     default:
-	cmd_usage(cmdtp);
-	break;
+	return cmd_usage(cmdtp);
     }
 
     /* Init physical layer                                                   */

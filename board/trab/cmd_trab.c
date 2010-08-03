@@ -167,10 +167,8 @@ int do_burn_in (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int i;
 	int cycle_status;
 
-	if (argc > 1) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc > 1)
+		return cmd_usage(cmdtp);
 
 	led_init ();
 	global_vars_init ();
@@ -270,14 +268,11 @@ int do_dip (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, dip;
 
-	if (argc > 1) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc > 1)
+		return cmd_usage(cmdtp);
 
-	if ((dip = read_dip ()) == -1) {
+	if ((dip = read_dip ()) == -1)
 		return 1;
-	}
 
 	for (i = 0; i < 4; i++) {
 		if ((dip & (1 << i)) == 0)
@@ -303,14 +298,11 @@ int do_vcc5v (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int vcc5v;
 
-	if (argc > 1) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc > 1)
+		return cmd_usage(cmdtp);
 
-	if ((vcc5v = read_vcc5v ()) == -1) {
+	if ((vcc5v = read_vcc5v ()) == -1)
 		return (1);
-	}
 
 	printf ("%d", (vcc5v / 1000));
 	printf (".%d", (vcc5v % 1000) / 100);
@@ -331,10 +323,8 @@ int do_contact_temp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int contact_temp;
 
-	if (argc > 1) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc > 1)
+		return cmd_usage(cmdtp);
 
 	tsc2000_spi_init ();
 
@@ -354,36 +344,32 @@ U_BOOT_CMD(
 
 int do_burn_in_status (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc > 1) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc > 1)
+		return cmd_usage(cmdtp);
 
 	if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, EE_ADDR_STATUS, 1,
-				(unsigned char*) &status, 1)) {
+				(unsigned char*) &status, 1))
 		return (1);
-	}
+
 	if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, EE_ADDR_PASS_CYCLES, 1,
-				(unsigned char*) &pass_cycles, 2)) {
+				(unsigned char*) &pass_cycles, 2))
 		return (1);
-	}
+
 	if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, EE_ADDR_FIRST_ERROR_CYCLE,
-				1, (unsigned char*) &first_error_cycle, 2)) {
+				1, (unsigned char*) &first_error_cycle, 2))
 		return (1);
-	}
+
 	if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, EE_ADDR_FIRST_ERROR_NUM,
-				1, (unsigned char*) &first_error_num, 1)) {
+				1, (unsigned char*) &first_error_num, 1))
 		return (1);
-	}
+
 	if (i2c_read_multiple (I2C_EEPROM_DEV_ADDR, EE_ADDR_FIRST_ERROR_NAME,
 			       1, (unsigned char*)first_error_name,
-			       sizeof (first_error_name))) {
+			       sizeof (first_error_name)))
 		return (1);
-	}
 
-	if (read_max_cycles () != 0) {
+	if (read_max_cycles () != 0)
 		return (1);
-	}
 
 	printf ("max_cycles = %d\n", max_cycles);
 	printf ("status = %d\n", status);
@@ -850,14 +836,11 @@ int do_temp_log (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	struct rtc_time tm;
 #endif
 
-	if (argc > 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc > 2)
+		return cmd_usage(cmdtp);
 
-	if (argc > 1) {
+	if (argc > 1)
 		delay = simple_strtoul(argv[1], NULL, 10);
-	}
 
 	tsc2000_spi_init ();
 	while (1) {

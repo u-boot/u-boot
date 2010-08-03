@@ -345,10 +345,8 @@ int do_esdbmp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_VIDEO_SM501
 	char *str;
 #endif
-	if (argc != 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc != 2)
+		return cmd_usage(cmdtp);
 
 	addr = simple_strtoul(argv[1], NULL, 16);
 

@@ -88,8 +88,7 @@ int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if (argc < 4) {
  usage:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	prompt_user = false;

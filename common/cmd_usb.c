@@ -376,8 +376,7 @@ int do_usbboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		boot_device = argv[2];
 		break;
 	default:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	if (!boot_device) {
@@ -516,10 +515,8 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	block_dev_desc_t *stor_dev;
 #endif
 
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	if ((strncmp(argv[1], "reset", 5) == 0) ||
 		 (strncmp(argv[1], "start", 5) == 0)) {
@@ -699,8 +696,7 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 0;
 	}
 #endif /* CONFIG_USB_STORAGE */
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
 #ifdef CONFIG_USB_STORAGE

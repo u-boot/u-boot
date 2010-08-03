@@ -97,8 +97,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 #define CONFIG_SYS_CCSRBAR_PHYS_HIGH	0x0
 #define CONFIG_SYS_IMMR			CONFIG_SYS_CCSRBAR
-#define CONFIG_SYS_PCIE1_ADDR		(CONFIG_SYS_CCSRBAR + 0x8000)
-#define CONFIG_SYS_PCIE2_ADDR		(CONFIG_SYS_CCSRBAR + 0x9000)
 
 /*
  * Diagnostics

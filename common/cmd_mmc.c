@@ -32,10 +32,8 @@ int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int dev;
 
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	if (strcmp(argv[1], "init") == 0) {
 		if (argc == 2) {
@@ -46,8 +44,7 @@ int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		} else if (argc == 3) {
 			dev = (int)simple_strtoul(argv[2], NULL, 10);
 		} else {
-			cmd_usage(cmdtp);
-			return 1;
+			return cmd_usage(cmdtp);
 		}
 
 		if (mmc_legacy_init(dev) != 0) {
@@ -72,14 +69,12 @@ int do_mmc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 			curr_device = dev;
 		} else {
-			cmd_usage(cmdtp);
-			return 1;
+			return cmd_usage(cmdtp);
 		}
 
 		printf("mmc%d is current device\n", curr_device);
 	} else {
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	return 0;

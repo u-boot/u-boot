@@ -304,10 +304,8 @@ int do_set_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned char mac[6];
 	char *s, *e;
 
-	if (argc != 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc != 2)
+		return cmd_usage(cmdtp);
 
 	s = argv[1];
 
@@ -330,10 +328,8 @@ U_BOOT_CMD(
 
 int do_print_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	if (argc != 1) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc != 1)
+		return cmd_usage(cmdtp);
 
 	mac_read();
 

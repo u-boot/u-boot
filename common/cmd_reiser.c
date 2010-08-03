@@ -56,10 +56,9 @@ int do_reiserls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	block_dev_desc_t *dev_desc=NULL;
 	int part_length;
 
-	if (argc < 3) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 3)
+		return cmd_usage(cmdtp);
+
 	dev = (int)simple_strtoul (argv[2], &ep, 16);
 	dev_desc = get_dev(argv[1],dev);
 
@@ -150,8 +149,7 @@ int do_reiserload (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		break;
 
 	default:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	if (!filename) {

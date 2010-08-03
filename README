@@ -1495,6 +1495,16 @@ The following options need to be configured:
 
 		#define I2C_DELAY  udelay(2)
 
+		CONFIG_SOFT_I2C_GPIO_SCL / CONFIG_SOFT_I2C_GPIO_SDA
+
+		If your arch supports the generic GPIO framework (asm/gpio.h),
+		then you may alternatively define the two GPIOs that are to be
+		used as SCL / SDA.  Any of the previous I2C_xxx macros will
+		have GPIO-based defaults assigned to them as appropriate.
+
+		You should define these to the GPIO value as given directly to
+		the generic GPIO functions.
+
 		CONFIG_SYS_I2C_INIT_BOARD
 
 		When a board is reset during an i2c bus transfer

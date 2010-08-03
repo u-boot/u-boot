@@ -168,8 +168,7 @@ static int do_inkadiag_io(cmd_tbl_t *cmdtp, int flag, int argc,
 		printf("exit code: 0x%X\n", val);
 		return 0;
 	default:
-		cmd_usage(cmdtp);
-		break;
+		return cmd_usage(cmdtp);
 	}
 
 	return -1;
@@ -244,10 +243,8 @@ static int do_inkadiag_serial(cmd_tbl_t *cmdtp, int flag, int argc,
 	int combrd, baudrate, i, j, len;
 	int address;
 
-	if (argc < 5) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 5)
+		return cmd_usage(cmdtp);
 
 	argc--;
 	argv++;
@@ -394,10 +391,8 @@ static int do_inkadiag_buzzer(cmd_tbl_t *cmdtp, int flag, int argc,
 	unsigned int period, freq;
 	int prev, i;
 
-	if (argc != 3) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc != 3)
+		return cmd_usage(cmdtp);
 
 	argc--;
 	argv++;
@@ -474,8 +469,7 @@ static int do_inkadiag(cmd_tbl_t *cmdtp, int flag, int argc,
 		return c->cmd(c, flag, argc, argv);
 	} else {
 		/* Unrecognized command */
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 }
 

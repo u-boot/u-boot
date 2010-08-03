@@ -65,6 +65,7 @@
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
+#define CONFIG_SYS_HAS_SERDES		/* has SERDES */
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 #define CONFIG_E1000		1	/* Defind e1000 pci Ethernet card*/
@@ -124,11 +125,6 @@
 #else
 #define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
 #endif
-
-#define CONFIG_SYS_PCI1_ADDR		(CONFIG_SYS_CCSRBAR + 0x8000)
-#define CONFIG_SYS_PCIE1_ADDR		(CONFIG_SYS_CCSRBAR + 0xa000)
-#define CONFIG_SYS_PCIE2_ADDR		(CONFIG_SYS_CCSRBAR + 0x9000)
-#define CONFIG_SYS_PCIE3_ADDR		(CONFIG_SYS_CCSRBAR + 0xb000)
 
 /* DDR Setup */
 #define CONFIG_VERY_BIG_RAM

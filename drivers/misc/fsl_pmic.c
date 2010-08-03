@@ -163,26 +163,22 @@ int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	u32 val;
 
 	/* at least two arguments please */
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	cmd = argv[1];
 	if (strcmp(cmd, "dump") == 0) {
-		if (argc < 3) {
-			cmd_usage(cmdtp);
-			return 1;
-		}
+		if (argc < 3)
+			return cmd_usage(cmdtp);
+
 		nregs = simple_strtoul(argv[2], NULL, 16);
 		pmic_dump(nregs);
 		return 0;
 	}
 	if (strcmp(cmd, "write") == 0) {
-		if (argc < 4) {
-			cmd_usage(cmdtp);
-			return 1;
-		}
+		if (argc < 4)
+			return cmd_usage(cmdtp);
+
 		nregs = simple_strtoul(argv[2], NULL, 16);
 		val = simple_strtoul(argv[3], NULL, 16);
 		pmic_reg_write(nregs, val);

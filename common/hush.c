@@ -1694,10 +1694,8 @@ static int run_pipe_real(struct pipe *pi)
 				}
 #endif
 				/* found - check max args */
-				if ((child->argc - i) > cmdtp->maxargs) {
-					cmd_usage(cmdtp);
-					return -1;
-				}
+				if ((child->argc - i) > cmdtp->maxargs)
+					return cmd_usage(cmdtp);
 #endif
 				child->argv+=i;  /* XXX horrible hack */
 #ifndef __U_BOOT__
