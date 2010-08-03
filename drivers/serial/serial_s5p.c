@@ -133,7 +133,7 @@ int serial_getc_dev(const int dev_index)
 			return 0;
 	}
 
-	return (int)(readl(&uart->urxh) & 0xff);
+	return (int)(readb(&uart->urxh) & 0xff);
 }
 
 /*
@@ -149,7 +149,7 @@ void serial_putc_dev(const char c, const int dev_index)
 			return;
 	}
 
-	writel(c, &uart->utxh);
+	writeb(c, &uart->utxh);
 
 	/* If \n, also do \r */
 	if (c == '\n')
