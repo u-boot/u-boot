@@ -48,6 +48,9 @@ typedef struct {
 
 	unsigned long long total_mem;
 	unsigned long long base_address;
+
+	/* DDR3 RDIMM */
+	unsigned char rcw[16];	/* Register Control Word 0-15 */
 } common_timing_params_t;
 
 #endif

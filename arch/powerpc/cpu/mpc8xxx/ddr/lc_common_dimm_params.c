@@ -76,7 +76,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 				      common_timing_params_t *outpdimm,
 				      unsigned int number_of_dimms)
 {
-	unsigned int i;
+	unsigned int i, j;
 
 	unsigned int tCKmin_X_ps = 0;
 	unsigned int tCKmax_ps = 0xFFFFFFFF;
@@ -98,7 +98,7 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	unsigned int tDQSQ_max_ps = 0;
 	unsigned int tQHS_ps = 0;
 
-	unsigned int temp1, temp2;
+	unsigned int temp1, temp2, temp3;
 	unsigned int additive_latency = 0;
 #if !defined(CONFIG_FSL_DDR3)
 	const unsigned int mclk_ps = get_memory_clk_period_ps();
@@ -115,6 +115,18 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 		 * it probably doesn't exist, so skip it.
 		 */
 		if (dimm_params[i].n_ranks == 0) {
+			temp1++;
+			continue;
+		}
+		if (dimm_params[i].n_ranks == 4 && i != 0) {
+			printf("Found Quad-rank DIMM in wrong bank, ignored."
+				" Software may not run as expected.\n");
+			temp1++;
+			continue;
+		}
+		if (dimm_params[i].n_ranks == 4 && \
+		  CONFIG_CHIP_SELECTS_PER_CTRL/CONFIG_DIMM_SLOTS_PER_CTLR < 4) {
+			printf("Found Quad-rank DIMM, not able to support.");
 			temp1++;
 			continue;
 		}
@@ -218,6 +230,20 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 		printf("ERROR:  Mix of registered buffered and unbuffered "
 				"DIMMs detected!\n");
 	}
+
+	temp1 = 0;
+	if (outpdimm->all_DIMMs_registered)
+		for (j = 0; j < 16; j++) {
+			outpdimm->rcw[j] = dimm_params[0].rcw[j];
+			for (i = 1; i < number_of_dimms; i++)
+				if (dimm_params[i].rcw[j] != dimm_params[0].rcw[j]) {
+					temp3 = 1;
+					break;
+				}
+		}
+
+	if (temp1 != 0)
+		printf("ERROR: Mix different RDIMM detected!\n");
 
 #if defined(CONFIG_FSL_DDR3)
 	if (compute_cas_latency_ddr3(dimm_params, outpdimm, number_of_dimms))

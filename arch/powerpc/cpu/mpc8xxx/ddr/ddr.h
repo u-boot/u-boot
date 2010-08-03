@@ -73,6 +73,7 @@ extern unsigned int populate_memctl_options(int all_DIMMs_registered,
 				memctl_options_t *popts,
 				dimm_params_t *pdimm,
 				unsigned int ctrl_num);
+extern void check_interleaving_options(fsl_ddr_info_t *pinfo);
 
 extern unsigned int mclk_to_picos(unsigned int mclk);
 extern unsigned int get_memory_clk_period_ps(void);

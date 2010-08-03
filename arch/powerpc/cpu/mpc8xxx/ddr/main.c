@@ -100,8 +100,8 @@ const char * step_to_string(unsigned int step) {
 
 int step_assign_addresses(fsl_ddr_info_t *pinfo,
 			  unsigned int dbw_cap_adj[],
-			  unsigned int *memctl_interleaving,
-			  unsigned int *rank_interleaving)
+			  unsigned int *all_memctl_interleaving,
+			  unsigned int *all_ctlr_rank_interleaving)
 {
 	int i, j;
 
@@ -152,30 +152,30 @@ int step_assign_addresses(fsl_ddr_info_t *pinfo,
 		}
 	}
 
-	/*
-	 * Check if all controllers are configured for memory
-	 * controller interleaving.
-	 */
 	j = 0;
-	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
-		if (pinfo->memctl_opts[i].memctl_interleaving) {
+	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
+		if (pinfo->memctl_opts[i].memctl_interleaving)
 			j++;
-		}
-	}
-	if (j == 2)
-		*memctl_interleaving = 1;
+	/*
+	 * Not support less than all memory controllers interleaving
+	 * if more than two controllers
+	 */
+	if (j == CONFIG_NUM_DDR_CONTROLLERS)
+		*all_memctl_interleaving = 1;
 
 	/* Check that all controllers are rank interleaving. */
 	j = 0;
-	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
-		if (pinfo->memctl_opts[i].ba_intlv_ctl) {
+	for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++)
+		if (pinfo->memctl_opts[i].ba_intlv_ctl)
 			j++;
-		}
-	}
-	if (j == 2)
-		*rank_interleaving = 1;
+	/*
+	 * All memory controllers must be populated to qualify for
+	 * all controller rank interleaving
+	 */
+	 if (j == CONFIG_NUM_DDR_CONTROLLERS)
+		*all_ctlr_rank_interleaving = 1;
 
-	if (*memctl_interleaving) {
+	if (*all_memctl_interleaving) {
 		unsigned long long addr, total_mem_per_ctlr = 0;
 		/*
 		 * If interleaving between memory controllers,
@@ -316,7 +316,7 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step)
 					&pinfo->memctl_opts[i],
 					pinfo->dimm_params[i], i);
 		}
-
+		check_interleaving_options(pinfo);
 	case STEP_ASSIGN_ADDRESSES:
 		/* STEP 5:  Assign addresses to chip selects */
 		step_assign_addresses(pinfo,

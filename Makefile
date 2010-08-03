@@ -1788,6 +1788,7 @@ P2010RDB_config \
 P2010RDB_NAND_config \
 P2010RDB_SDCARD_config \
 P2010RDB_SPIFLASH_config \
+P2020DS_DDR2_config \
 P2020RDB_config \
 P2020RDB_NAND_config \
 P2020RDB_SDCARD_config \

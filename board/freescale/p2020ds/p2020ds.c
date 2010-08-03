@@ -69,13 +69,16 @@ int checkboard(void)
 	return 0;
 }
 
+const char *board_hwconfig = "foo:bar=baz";
+const char *cpu_hwconfig = "foo:bar=baz";
+
 phys_size_t initdram(int board_type)
 {
 	phys_size_t dram_size = 0;
 
 	puts("Initializing....");
 
-#ifdef CONFIG_SPD_EEPROM
+#ifdef CONFIG_DDR_SPD
 	dram_size = fsl_ddr_sdram();
 #else
 	dram_size = fixed_sdram();
@@ -94,7 +97,7 @@ phys_size_t initdram(int board_type)
 	return dram_size;
 }
 
-#if !defined(CONFIG_SPD_EEPROM)
+#if !defined(CONFIG_DDR_SPD)
 /*
  * Fixed sdram init -- doesn't use serial presence detect.
  */

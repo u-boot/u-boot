@@ -32,6 +32,7 @@
 #include <ioports.h>
 #include <sata.h>
 #include <asm/io.h>
+#include <asm/cache.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_serdes.h>
@@ -127,6 +128,44 @@ void config_8560_ioports (volatile ccsr_cpm_t * cpm)
 }
 #endif
 
+#ifdef CONFIG_SYS_FSL_CPC
+static void enable_cpc(void)
+{
+	int i;
+	u32 size = 0;
+
+	cpc_corenet_t *cpc = (cpc_corenet_t *)CONFIG_SYS_FSL_CPC_ADDR;
+
+	for (i = 0; i < CONFIG_SYS_NUM_CPC; i++, cpc++) {
+		u32 cpccfg0 = in_be32(&cpc->cpccfg0);
+		size += CPC_CFG0_SZ_K(cpccfg0);
+
+		out_be32(&cpc->cpccsr0, CPC_CSR0_CE | CPC_CSR0_PE);
+		/* Read back to sync write */
+		in_be32(&cpc->cpccsr0);
+
+	}
+
+	printf("Corenet Platform Cache: %d KB enabled\n", size);
+}
+
+void invalidate_cpc(void)
+{
+	int i;
+	cpc_corenet_t *cpc = (cpc_corenet_t *)CONFIG_SYS_FSL_CPC_ADDR;
+
+	for (i = 0; i < CONFIG_SYS_NUM_CPC; i++, cpc++) {
+		/* Flash invalidate the CPC and clear all the locks */
+		out_be32(&cpc->cpccsr0, CPC_CSR0_FI | CPC_CSR0_LFC);
+		while (in_be32(&cpc->cpccsr0) & (CPC_CSR0_FI | CPC_CSR0_LFC))
+			;
+	}
+}
+#else
+#define enable_cpc()
+#define invalidate_cpc()
+#endif /* CONFIG_SYS_FSL_CPC */
+
 /*
  * Breathe some life into the CPU...
  *
@@ -188,6 +227,9 @@ void cpu_init_f (void)
 	corenet_tb_init();
 #endif
 	init_used_tlb_cams();
+
+	/* Invalidate the CPC before DDR gets enabled */
+	invalidate_cpc();
 }
 
 
@@ -198,11 +240,16 @@ void cpu_init_f (void)
  * use the same bit-encoding as the older 8555, etc, parts.
  *
  */
-
 int cpu_init_r(void)
 {
 #ifdef CONFIG_SYS_LBC_LCRR
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
+#endif
+
+#if defined(CONFIG_SYS_P4080_ERRATUM_CPU22)
+	flush_dcache();
+	mtspr(L1CSR2, (mfspr(L1CSR2) | L1CSR2_DCWS));
+	sync();
 #endif
 
 	puts ("L2:    ");
@@ -319,6 +366,9 @@ int cpu_init_r(void)
 #else
 	puts("disabled\n");
 #endif
+
+	enable_cpc();
+
 #ifdef CONFIG_QE
 	uint qe_base = CONFIG_SYS_IMMR + 0x00080000; /* QE immr base */
 	qe_init(qe_base);
