@@ -25,7 +25,7 @@ typedef struct at91_pit {
 
 #define		AT91_PIT_MR_IEN		0x02000000
 #define		AT91_PIT_MR_EN		0x01000000
-#define		AT91_PIT_MR_PIV_MASK	(x & 0x000fffff)
+#define		AT91_PIT_MR_PIV_MASK(x)	(x & 0x000fffff)
 #define		AT91_PIT_MR_PIV(x)	(x & AT91_PIT_MR_PIV_MASK)
 
 #ifdef CONFIG_AT91_LEGACY
