@@ -30,7 +30,7 @@ int Xgmac_phy_mgmt_idle(XEmacPss * EmacPssInstancePtr);
 /*
  * Aligned memory segments to be used for buffer descriptors
  */
-#define BRAM_BUFFERS
+//#define BRAM_BUFFERS
 #ifdef BRAM_BUFFERS
 static XEmacPss_Bd RxBdSpace[RXBD_CNT] __attribute__ ((section (".bram_buffers")));
 static XEmacPss_Bd TxBdSpace[TXBD_CNT] __attribute__ ((section (".bram_buffers")));
