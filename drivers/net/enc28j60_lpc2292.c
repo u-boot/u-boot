@@ -15,6 +15,7 @@
  * MA 02111-1307 USA
  */
 
+#warning This driver is depreciated. Please update to new SPI framework enc28j60 driver
 #include <config.h>
 #include <common.h>
 #include <net.h>
