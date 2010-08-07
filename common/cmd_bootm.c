@@ -386,12 +386,14 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		break;
 #endif /* CONFIG_BZIP2 */
 #ifdef CONFIG_LZMA
-	case IH_COMP_LZMA:
+	case IH_COMP_LZMA: {
+		SizeT lzma_len = unc_len;
 		printf ("   Uncompressing %s ... ", type_name);
 
 		int ret = lzmaBuffToBuffDecompress(
-			(unsigned char *)load, &unc_len,
+			(unsigned char *)load, &lzma_len,
 			(unsigned char *)image_start, image_len);
+		unc_len = lzma_len;
 		if (ret != SZ_OK) {
 			printf ("LZMA: uncompress or overwrite error %d "
 				"- must RESET board to recover\n", ret);
@@ -400,6 +402,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		}
 		*load_end = load + unc_len;
 		break;
+	}
 #endif /* CONFIG_LZMA */
 #ifdef CONFIG_LZO
 	case IH_COMP_LZO:

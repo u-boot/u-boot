@@ -26,11 +26,9 @@ int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 0;
 	}
 
-	if (argc != 3) {
+	if (argc != 3)
  show_usage:
-		printf("Usage:\n%s\n", cmdtp->usage);
-		return 1;
-	}
+		return cmd_usage(cmdtp);
 
 	/* parse the behavior */
 	ulong sub_cmd;

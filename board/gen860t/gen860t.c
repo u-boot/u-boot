@@ -132,7 +132,7 @@ int checkboard (void)
 	char buf[64];
 	int i;
 
-	i = getenv_r ("board_id", buf, sizeof (buf));
+	i = getenv_f("board_id", buf, sizeof (buf));
 	s = (i > 0) ? buf : NULL;
 
 	if (s) {
@@ -141,7 +141,7 @@ int checkboard (void)
 		printf ("<unknown> ");
 	}
 
-	i = getenv_r ("serial#", buf, sizeof (buf));
+	i = getenv_f("serial#", buf, sizeof (buf));
 	s = (i > 0) ? buf : NULL;
 
 	if (s) {
@@ -276,7 +276,7 @@ int last_stage_init (void)
 	/*
 	 * Read the environment to see what to do with the beeper
 	 */
-	i = getenv_r ("beeper", buf, sizeof (buf));
+	i = getenv_f("beeper", buf, sizeof (buf));
 	if (i > 0) {
 		do_beeper (buf);
 	}

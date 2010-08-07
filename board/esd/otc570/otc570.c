@@ -258,7 +258,7 @@ int checkboard(void)
 	char str[32];
 
 	puts("Board: esd ARM9 HMI Panel - OTC570");
-	if (getenv_r("serial#", str, sizeof(str)) > 0) {
+	if (getenv_f("serial#", str, sizeof(str)) > 0) {
 		puts(", serial# ");
 		puts(str);
 	}
@@ -308,7 +308,7 @@ int misc_init_r(void)
 
 	printf("USART0: ");
 
-	if (getenv_r("usart0", str, sizeof(str)) == -1) {
+	if (getenv_f("usart0", str, sizeof(str)) == -1) {
 		printf("No entry - assuming 1-wire\n");
 		/* CTS pin, works as mode select pin (0 = 1-wire; 1 = RS485) */
 		at91_set_pio_output(AT91_PIO_PORTA, 29, 0);

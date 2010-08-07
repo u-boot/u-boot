@@ -1993,7 +1993,7 @@ unsigned long flash_init (void)
 #ifdef CONFIG_SYS_FLASH_PROTECTION
 	/* read environment from EEPROM */
 	char s[64];
-	getenv_r ("unlock", s, sizeof(s));
+	getenv_f("unlock", s, sizeof(s));
 #endif
 
 #define BANK_BASE(i)	(((phys_addr_t [CFI_MAX_FLASH_BANKS])CONFIG_SYS_FLASH_BANKS_LIST)[i])

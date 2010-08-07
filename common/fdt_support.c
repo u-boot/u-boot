@@ -1151,4 +1151,22 @@ int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 	return -FDT_ERR_NOTFOUND;
 }
 
+/**
+ * fdt_alloc_phandle: Return next free phandle value
+ *
+ * @blob: ptr to device tree
+ */
+int fdt_alloc_phandle(void *blob)
+{
+	int offset, len, phandle = 0;
+	const u32 *val;
 
+	for (offset = fdt_next_node(blob, -1, NULL); offset >= 0;
+	     offset = fdt_next_node(blob, offset, NULL)) {
+		val = fdt_getprop(blob, offset, "linux,phandle", &len);
+		if (val)
+			phandle = max(*val, phandle);
+	}
+
+	return phandle + 1;
+}

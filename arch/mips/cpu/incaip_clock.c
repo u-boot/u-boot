@@ -105,7 +105,7 @@ int incaip_set_cpuclk (void)
 	char tmp[64];
 	ulong cpuclk;
 
-	if (getenv_r ("cpuclk", tmp, sizeof (tmp)) > 0) {
+	if (getenv_f("cpuclk", tmp, sizeof (tmp)) > 0) {
 		cpuclk = simple_strtoul (tmp, NULL, 10) * 1000000;
 		cgu_init (cpuclk);
 		ebu_init (cpuclk);

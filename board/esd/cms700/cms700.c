@@ -96,7 +96,7 @@ int checkboard (void)
 
 	puts ("Board: ");
 
-	if (getenv_r("serial#", str, sizeof(str))  == -1) {
+	if (getenv_f("serial#", str, sizeof(str))  == -1) {
 		puts ("### No HW ID - assuming CMS700");
 	} else {
 		puts(str);

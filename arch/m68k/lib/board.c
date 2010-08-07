@@ -134,7 +134,7 @@ typedef int (init_fnc_t) (void);
 static int init_baudrate (void)
 {
 	char tmp[64];	/* long enough for environment variables */
-	int i = getenv_r ("baudrate", tmp, sizeof (tmp));
+	int i = getenv_f("baudrate", tmp, sizeof (tmp));
 
 	gd->baudrate = (i > 0)
 			? (int) simple_strtoul (tmp, NULL, 10)
@@ -278,7 +278,7 @@ board_init_f (ulong bootflag)
 	/*
 	 * reserve protected RAM
 	 */
-	i = getenv_r ("pram", tmp, sizeof (tmp));
+	i = getenv_f("pram", tmp, sizeof (tmp));
 	reg = (i > 0) ? simple_strtoul (tmp, NULL, 10) : CONFIG_PRAM;
 	addr -= (reg << 10);		/* size is in kB */
 	debug ("Reserving %ldk for protected RAM at %08lx\n", reg, addr);
@@ -549,7 +549,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 * Fill in missing fields of bd_info.
 	 * We do this here, where we have "normal" access to the
 	 * environment; we used to do this still running from ROM,
-	 * where had to use getenv_r(), which can be pretty slow when
+	 * where had to use getenv_f(), which can be pretty slow when
 	 * the environment is in EEPROM.
 	 */
 	bd->bi_ip_addr = getenv_IPaddr ("ipaddr");

@@ -68,6 +68,7 @@
 # endif
 # if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #  define CONFIG_CMD_I2C
+#  define CONFIG_SOFT_I2C_READ_REPEATED_START
 # endif
 # ifdef CONFIG_SYS_NO_FLASH
 #  undef CONFIG_CMD_FLASH

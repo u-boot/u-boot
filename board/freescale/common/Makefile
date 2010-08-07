@@ -46,6 +46,7 @@ COBJS-$(CONFIG_MPC8536DS)	+= ics307_clk.o
 COBJS-$(CONFIG_MPC8572DS)	+= ics307_clk.o
 COBJS-$(CONFIG_P1022DS)		+= ics307_clk.o
 COBJS-$(CONFIG_P2020DS)		+= ics307_clk.o
+COBJS-$(CONFIG_P4080DS)		+= ics307_clk.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))

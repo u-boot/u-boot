@@ -81,6 +81,9 @@ typedef struct dimm_params_s {
 	unsigned int tRTP_ps;	/* byte 38, spd->trtp */
 	unsigned int tDQSQ_max_ps;	/* byte 44, spd->tdqsq */
 	unsigned int tQHS_ps;	/* byte 45, spd->tqhs */
+
+	/* DDR3 RDIMM */
+	unsigned char rcw[16];	/* Register Control Word 0-15 */
 } dimm_params_t;
 
 extern unsigned int ddr_compute_dimm_parameters(

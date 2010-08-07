@@ -64,7 +64,7 @@ static int display_banner(void)
 static int init_baudrate(void)
 {
 	char baudrate[15];
-	int i = getenv_r("baudrate", baudrate, sizeof(baudrate));
+	int i = getenv_f("baudrate", baudrate, sizeof(baudrate));
 	gd->bd->bi_baudrate = gd->baudrate = (i > 0)
 	    ? simple_strtoul(baudrate, NULL, 10)
 	    : CONFIG_BAUDRATE;

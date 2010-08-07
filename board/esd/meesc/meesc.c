@@ -184,7 +184,7 @@ int checkboard(void)
 		puts("Board: EtherCAN/2 Gateway");
 		break;
 	}
-	if (getenv_r("serial#", str, sizeof(str)) > 0) {
+	if (getenv_f("serial#", str, sizeof(str)) > 0) {
 		puts(", serial# ");
 		puts(str);
 	}

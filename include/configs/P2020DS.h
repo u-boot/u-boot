@@ -92,7 +92,11 @@
 
 /* DDR Setup */
 #define CONFIG_VERY_BIG_RAM
+#ifdef CONFIG_MK_DDR2
+#define CONFIG_FSL_DDR2
+#else
 #define CONFIG_FSL_DDR3		1
+#endif
 #undef CONFIG_FSL_DDR_INTERACTIVE
 
 /* ECC will be enabled based on perf_mode environment variable */
@@ -109,6 +113,7 @@
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 
 /* I2C addresses of SPD EEPROMs */
+#define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM		0	/* SPD EEPROM located on I2C bus 0 */
 #define SPD_EEPROM_ADDRESS1	0x51	/* CTLR 0 DIMM 0 */
 
@@ -228,6 +233,7 @@
 
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
 
+#define CONFIG_HWCONFIG			/* enable hwconfig */
 #define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
 
 #ifdef CONFIG_FSL_NGPIXIS
@@ -249,6 +255,18 @@
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000	/* Initial L1 address */
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH 0xf
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW CONFIG_SYS_INIT_RAM_ADDR
+/* The assembler doesn't like typecast */
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS \
+	((CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH * 1ull << 32) | \
+	  CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW)
+#else
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS	CONFIG_SYS_INIT_RAM_ADDR /* Initial L1 address */
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH 0
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW CONFIG_SYS_INIT_RAM_ADDR_PHYS
+#endif
 #define CONFIG_SYS_INIT_RAM_END	0x00004000	/* End of used area in RAM */
 
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* num bytes initial data */
@@ -567,7 +585,8 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
-#define CONFIG_CMDLINE_EDITING		/* Command-line editing */
+#define CONFIG_CMDLINE_EDITING			/* Command-line editing */
+#define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)
