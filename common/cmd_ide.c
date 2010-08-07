@@ -847,7 +847,7 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 #endif	/* __LITTLE_ENDIAN || CONFIG_AU1X00 */
 
 
-#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA) || defined(CONFIG_SH)
+#if defined(CONFIG_IDE_SWAP_IO)
 static void
 output_data(int dev, ulong *sect_buf, int words)
 {
@@ -891,15 +891,15 @@ output_data(int dev, ulong *sect_buf, int words)
 	}
 #endif
 }
-#else	/* ! __PPC__ */
+#else	/* ! CONFIG_IDE_SWAP_IO */
 static void
 output_data(int dev, ulong *sect_buf, int words)
 {
 	outsw(ATA_CURR_BASE(dev)+ATA_DATA_REG, sect_buf, words<<1);
 }
-#endif	/* __PPC__ */
+#endif	/* CONFIG_IDE_SWAP_IO */
 
-#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA) || defined(CONFIG_SH)
+#if defined(CONFIG_IDE_SWAP_IO)
 static void
 input_data(int dev, ulong *sect_buf, int words)
 {
@@ -949,14 +949,14 @@ input_data(int dev, ulong *sect_buf, int words)
 	}
 #endif
 }
-#else	/* ! __PPC__ */
+#else	/* ! CONFIG_IDE_SWAP_IO */
 static void
 input_data(int dev, ulong *sect_buf, int words)
 {
 	insw(ATA_CURR_BASE(dev)+ATA_DATA_REG, sect_buf, words << 1);
 }
 
-#endif	/* __PPC__ */
+#endif	/* CONFIG_IDE_SWAP_IO */
 
 /* -------------------------------------------------------------------------
  */
@@ -1573,7 +1573,7 @@ int ide_device_present(int dev)
  * ATAPI Support
  */
 
-#if defined(__PPC__) || defined(CONFIG_PXA_PCMCIA)
+#if defined(CONFIG_IDE_SWAP_IO)
 /* since ATAPI may use commands with not 4 bytes alligned length
  * we have our own transfer functions, 2 bytes alligned */
 static void
@@ -1640,7 +1640,7 @@ input_data_shorts(int dev, ushort *sect_buf, int shorts)
 #endif
 }
 
-#else	/* ! __PPC__ */
+#else	/* ! CONFIG_IDE_SWAP_IO */
 static void
 output_data_shorts(int dev, ushort *sect_buf, int shorts)
 {
@@ -1653,7 +1653,7 @@ input_data_shorts(int dev, ushort *sect_buf, int shorts)
 	insw(ATA_CURR_BASE(dev)+ATA_DATA_REG, sect_buf, shorts);
 }
 
-#endif	/* __PPC__ */
+#endif	/* CONFIG_IDE_SWAP_IO */
 
 /*
  * Wait until (Status & mask) == res, or timeout (in ms)

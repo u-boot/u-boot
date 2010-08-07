@@ -171,6 +171,7 @@
 #define CONFIG_SYS_ATA_DATA_OFFSET     0x1000          /* data reg offset */
 #define CONFIG_SYS_ATA_REG_OFFSET      0x1000          /* reg offset */
 #define CONFIG_SYS_ATA_ALT_OFFSET      0x800           /* alternate register offset */
+#define CONFIG_IDE_SWAP_IO
 #endif /* CONFIG_CMD_IDE */
 
 #endif /* __R7780RP_H */
