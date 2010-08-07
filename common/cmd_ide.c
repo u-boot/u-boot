@@ -25,6 +25,7 @@
 /*
  * IDE support
  */
+
 #include <common.h>
 #include <config.h>
 #include <watchdog.h>
@@ -43,6 +44,10 @@
 
 #ifdef CONFIG_MPC5xxx
 #include <mpc5xxx.h>
+#endif
+
+#ifdef CONFIG_ORION5X
+#include <asm/arch/orion5x.h>
 #endif
 
 #include <ide.h>
