@@ -228,6 +228,8 @@
 #undef	CONFIG_IDE_LED
 #undef	CONFIG_IDE_RESET
 
+#define	__io
+
 #define CONFIG_SYS_IDE_MAXBUS		1
 #define CONFIG_SYS_IDE_MAXDEVICE	1
 
