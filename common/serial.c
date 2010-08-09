@@ -40,9 +40,9 @@ struct serial_device *__default_serial_console (void)
 	return &serial_scc_device;
 #elif defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) \
    || defined(CONFIG_405EP) || defined(CONFIG_405EZ) || defined(CONFIG_405EX) \
-   || defined(CONFIG_MPC5xxx) || defined(CONFIG_MPC83xx) \
-   || defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) \
-   || defined(CONFIG_SYS_SC520)
+   || defined(CONFIG_MB86R0x) || defined(CONFIG_MPC5xxx) \
+   || defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx) \
+   || defined(CONFIG_MPC86xx) || defined(CONFIG_SYS_SC520)
 #if defined(CONFIG_CONS_INDEX) && defined(CONFIG_SYS_NS16550_SERIAL)
 #if (CONFIG_CONS_INDEX==1)
 	return &eserial1_device;
