@@ -35,7 +35,7 @@
 
 int interrupt_init_cpu(unsigned int *decrementer_count)
 {
-	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC85xx_PIC_ADDR;
+	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC8xxx_PIC_ADDR;
 
 	out_be32(&pic->gcr, MPC85xx_PICGCR_RST);
 	while (in_be32(&pic->gcr) & MPC85xx_PICGCR_RST)

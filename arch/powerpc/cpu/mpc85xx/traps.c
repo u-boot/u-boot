@@ -288,7 +288,7 @@ UnknownException(struct pt_regs *regs)
 void
 ExtIntException(struct pt_regs *regs)
 {
-	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
 
 	uint vect;
 

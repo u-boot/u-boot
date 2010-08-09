@@ -179,7 +179,7 @@ static void corenet_tb_init(void)
 	volatile ccsr_rcpm_t *rcpm =
 		(void *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
 	volatile ccsr_pic_t *pic =
-		(void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+		(void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
 	u32 whoami = in_be32(&pic->whoami);
 
 	/* Enable the timebase register for this core */
