@@ -26,6 +26,8 @@
 # This is not actually used for Blackfin boards so do not change it
 #TEXT_BASE = do-not-use-me
 
+CONFIG_BFIN_CPU = bf538-0.4
+
 CFLAGS_lib += -O2
 CFLAGS_lib/lzma += -O2
 

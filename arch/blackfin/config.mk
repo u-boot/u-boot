@@ -25,7 +25,6 @@ CROSS_COMPILE ?= bfin-uclinux-
 
 STANDALONE_LOAD_ADDR = 0x1000 -m elf32bfin
 
-CONFIG_BFIN_CPU := $(strip $(subst ",,$(CONFIG_BFIN_CPU)))
 CONFIG_BFIN_BOOT_MODE := $(strip $(subst ",,$(CONFIG_BFIN_BOOT_MODE)))
 CONFIG_ENV_OFFSET := $(strip $(subst ",,$(CONFIG_ENV_OFFSET)))
 CONFIG_ENV_SIZE := $(strip $(subst ",,$(CONFIG_ENV_SIZE)))
@@ -36,9 +35,8 @@ PLATFORM_CPPFLAGS += -DCONFIG_BLACKFIN
 LDFLAGS += --gc-sections -m elf32bfin
 PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections
 
-ifneq (,$(CONFIG_BFIN_CPU))
+PLATFORM_CPPFLAGS += -DBFIN_CPU='"$(CONFIG_BFIN_CPU)"'
 PLATFORM_RELFLAGS += -mcpu=$(CONFIG_BFIN_CPU)
-endif
 
 ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
 ALL += $(obj)u-boot.ldr
