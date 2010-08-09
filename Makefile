@@ -1883,7 +1883,7 @@ CPUAT91_RAM_config \
 CPUAT91_config	:	unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_$(@:_config=) 1"	>$(obj)include/config.h
-	@$(MKCONFIG) -n $@ -a cpuat91 arm arm920t cpuat91 eukrea at91rm9200
+	@$(MKCONFIG) -n $@ -a cpuat91 arm arm920t cpuat91 eukrea at91
 
 #########################################################################
 ## ARM926EJ-S Systems
