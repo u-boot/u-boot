@@ -253,7 +253,8 @@ int board_init(void)
 	/* Peripheral Clock Enable Register */
 	writel(1 << AT91SAM9263_ID_PIOA |
 		1 << AT91SAM9263_ID_PIOB |
-		1 << AT91SAM9263_ID_PIOCDE,
+		1 << AT91SAM9263_ID_PIOCDE |
+		1 << AT91SAM9263_ID_UHP,
 		&pmc->pcer);
 
 	/* initialize ET1100 Controller */
@@ -274,6 +275,9 @@ int board_init(void)
 #endif
 #ifdef CONFIG_AT91_CAN
 	at91_can_hw_init();
+#endif
+#ifdef CONFIG_USB_OHCI_NEW
+	at91_uhp_hw_init();
 #endif
 	return 0;
 }
