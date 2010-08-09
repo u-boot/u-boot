@@ -806,6 +806,10 @@ Prafulla Wadaskar <prafulla@marvell.com>
 	rd6281a		ARM926EJS (Kirkwood SoC)
 	sheevaplug	ARM926EJS (Kirkwood SoC)
 
+Matthias Weisser <weisserm@arcor.de>
+
+	jadecpu		ARM926EJS (MB86R01 SoC)
+
 Richard Woodruff <r-woodruff2@ti.com>
 
 	omap2420h4	ARM1136EJS
