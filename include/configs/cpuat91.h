@@ -223,7 +223,7 @@
 	"mtdparts=physmap-flash.0:"	\
 		"128k(u-boot)ro,"	\
 		"128k(u-boot-env),"	\
-		"1408k(kernel),"	\
+		"1792k(kernel),"	\
 		"-(rootfs)"
 
 #define CONFIG_BOOTARGS 		\
@@ -238,11 +238,11 @@
 		"1001FFFF; erase 10000000 1001FFFF; cp.b 21000000 "	\
 		"10000000 ${filesize}\0"				\
 	"flui=tftp 21000000 cpuat91/uImage; protect off 10040000 "	\
-		"1019ffff; erase 10040000 1019ffff; cp.b 21000000 "	\
+		"1019ffff; erase 10040000 101fffff; cp.b 21000000 "	\
 		"10040000 ${filesize}\0"				\
 	"flrfs=tftp 21000000 cpuat91/rootfs.jffs2; protect off "	\
-		"101a0000 10ffffff; erase 101a0000 10ffffff; cp.b "	\
-		"21000000 101A0000 ${filesize}\0"			\
+		"10200000 10ffffff; erase 10200000 10ffffff; cp.b "	\
+		"21000000 10200000 ${filesize}\0"			\
 	"ramargs=setenv bootargs $(bootargs) $(mtdparts)\0"		\
 	"flashboot=run ramargs;bootm 10040000\0"			\
 	"netboot=run ramargs;tftpboot 21000000 cpuat91/uImage;"		\
