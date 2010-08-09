@@ -43,7 +43,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	u32			csrx;
 	void			*regs;
 
-	if (cs > 3 || !spi_cs_is_valid(bus, cs))
+	if (!spi_cs_is_valid(bus, cs))
 		return NULL;
 
 	switch (bus) {
@@ -168,8 +168,17 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 	 * somewhat quirky, and it doesn't really buy us much anyway
 	 * in the context of U-Boot.
 	 */
-	if (flags & SPI_XFER_BEGIN)
+	if (flags & SPI_XFER_BEGIN) {
 		spi_cs_activate(slave);
+		/*
+		 * sometimes the RDR is not empty when we get here,
+		 * in theory that should not happen, but it DOES happen.
+		 * Read it here to be on the safe side.
+		 * That also clears the OVRES flag. Required if the
+		 * following loop exits due to OVRES!
+		 */
+		spi_readl(as, RDR);
+	}
 
 	for (len_tx = 0, len_rx = 0; len_rx < len; ) {
 		status = spi_readl(as, SR);
