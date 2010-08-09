@@ -3,7 +3,7 @@
  * Stelian Pop <stelian.pop@leadtechdesign.com>
  * Lead Tech Design <www.leadtechdesign.com>
  *
- * (C) Copyright 2009
+ * (C) Copyright 2009-2010
  * Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
  * esd electronic system design gmbh <www.esd.eu>
  *
@@ -38,6 +38,7 @@
 #define CONFIG_MEESC			1	/* Board is esd MEESC */
 #define CONFIG_ARM926EJS		1	/* This is an ARM926EJS Core */
 #define CONFIG_AT91SAM9263		1	/* It's an AT91SAM9263 SoC */
+#define CONFIG_SYS_AT91_MAIN_CLOCK	16000000/* 16.0 MHz crystal */
 #define CONFIG_DISPLAY_BOARDINFO	1
 #define CONFIG_DISPLAY_CPUINFO		1	/* display cpu info and speed */
 #define CONFIG_PREBOOT				/* enable preboot variable */

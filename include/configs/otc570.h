@@ -35,6 +35,7 @@
 #define CONFIG_OTC570			1	/* Board is esd OTC570 */
 #define CONFIG_ARM926EJS		1	/* This is an ARM926EJS Core */
 #define CONFIG_AT91SAM9263		1	/* It's an AT91SAM9263 SoC */
+#define CONFIG_SYS_AT91_MAIN_CLOCK	16000000/* 16.0 MHz crystal */
 #define CONFIG_SYS_HZ			1000	/* decrementer freq */
 #define CONFIG_DISPLAY_BOARDINFO	1
 #define CONFIG_DISPLAY_CPUINFO		1	/* display cpu info and speed */
