@@ -138,6 +138,7 @@
 #define CONFIG_SYS_ATA_DATA_OFFSET	0x200	/* data reg offset */
 #define CONFIG_SYS_ATA_REG_OFFSET	0x200	/* reg offset */
 #define CONFIG_SYS_ATA_ALT_OFFSET	0x210	/* alternate register offset */
+#define CONFIG_IDE_SWAP_IO
 
 /* if you use all NOR Flash , you change dip-switch. Please see Manual. */
 #define CONFIG_SYS_MAX_FLASH_BANKS	1

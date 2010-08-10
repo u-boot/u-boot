@@ -95,4 +95,7 @@
 #define CONFIG_FSL_LBC
 #endif
 
+/* All PPC boards must swap IDE bytes */
+#define CONFIG_IDE_SWAP_IO
+
 #endif /* _ASM_CONFIG_H_ */

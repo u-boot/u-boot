@@ -60,7 +60,7 @@
 
 #define ORION5X_MPP0_7		0x00000003
 #define ORION5X_MPP8_15		0x55550000
-#define ORION5X_MPP16_23	0x00000000
+#define ORION5X_MPP16_23	0x00005555
 
 /*
  * Board-specific values for Orion5x GPIO low level init:
@@ -131,6 +131,7 @@
  * Commands configuration - using default command set for now
  */
 #include <config_cmd_default.h>
+#define CONFIG_CMD_IDE
 
 /*
  * Network
@@ -148,6 +149,37 @@
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #endif
+
+/*
+ * IDE
+ */
+#ifdef CONFIG_CMD_IDE
+#define __io
+#define CONFIG_IDE_PREINIT
+#define CONFIG_DOS_PARTITION
+#define CONFIG_CMD_EXT2
+/* ED Mini V has an IDE-compatible SATA connector for port 1 */
+#define CONFIG_MVSATA_IDE
+#define CONFIG_MVSATA_IDE_USE_PORT1
+/* Needs byte-swapping for ATA data register */
+#define CONFIG_IDE_SWAP_IO
+/* Data, registers and alternate blocks are at the same offset */
+#define CONFIG_SYS_ATA_DATA_OFFSET	(0x0100)
+#define CONFIG_SYS_ATA_REG_OFFSET	(0x0100)
+#define CONFIG_SYS_ATA_ALT_OFFSET	(0x0100)
+/* Each 8-bit ATA register is aligned to a 4-bytes address */
+#define CONFIG_SYS_ATA_STRIDE		4
+/* Controller supports 48-bits LBA addressing */
+#define CONFIG_LBA48
+/* A single bus, a single device */
+#define CONFIG_SYS_IDE_MAXBUS		1
+#define CONFIG_SYS_IDE_MAXDEVICE	1
+/* ATA registers base is at SATA controller base */
+#define CONFIG_SYS_ATA_BASE_ADDR	ORION5X_SATA_BASE
+/* ATA bus 0 is orion5x port 1 on ED Mini V2 */
+#define CONFIG_SYS_ATA_IDE0_OFFSET	ORION5X_SATA_PORT1_OFFSET
+/* end of IDE defines */
+#endif /* CMD_IDE */
 
 /*
  *  Environment variables configurations
