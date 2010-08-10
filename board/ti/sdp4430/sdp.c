@@ -25,6 +25,8 @@
 #include <common.h>
 #include <asm/arch/sys_proto.h>
 
+#include "sdp.h"
+
 DECLARE_GLOBAL_DATA_PTR;
 
 const struct omap_sysinfo sysinfo = {
@@ -38,6 +40,8 @@ const struct omap_sysinfo sysinfo = {
  */
 int board_init(void)
 {
+	gpmc_init();
+
 	gd->bd->bi_arch_number = MACH_TYPE_OMAP_4430SDP;
 	gd->bd->bi_boot_params = (0x80000000 + 0x100); /* boot param addr */
 
@@ -59,4 +63,28 @@ int board_eth_init(bd_t *bis)
 int misc_init_r(void)
 {
 	return 0;
+}
+
+void do_set_mux(u32 base, struct pad_conf_entry const *array, int size)
+{
+	int i;
+	struct pad_conf_entry *pad = (struct pad_conf_entry *) array;
+
+	for (i = 0; i < size; i++, pad++)
+		writew(pad->val, base + pad->offset);
+}
+
+/**
+ * @brief set_muxconf_regs Setting up the configuration Mux registers
+ * specific to the board.
+ */
+void set_muxconf_regs(void)
+{
+	do_set_mux(CONTROL_PADCONF_CORE, core_padconf_array,
+		   sizeof(core_padconf_array) /
+		   sizeof(struct pad_conf_entry));
+
+	do_set_mux(CONTROL_PADCONF_WKUP, wkup_padconf_array,
+		   sizeof(wkup_padconf_array) /
+		   sizeof(struct pad_conf_entry));
 }

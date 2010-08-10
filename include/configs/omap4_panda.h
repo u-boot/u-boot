@@ -35,6 +35,7 @@
 #define CONFIG_OMAP44XX		1	/* which is a 44XX */
 #define CONFIG_OMAP4430		1	/* which is in a 4430 */
 #define CONFIG_PANDA		1	/* working with Panda */
+#define CONFIG_ARCH_CPU_INIT
 
 /* Get CPU defs */
 #include <asm/arch/cpu.h>
@@ -102,11 +103,28 @@
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 #define CONFIG_I2C_MULTI_BUS		1
 
+/* TWL6030 */
+#define CONFIG_TWL6030_POWER		1
+
 /* MMC */
 #define CONFIG_MMC			1
 #define CONFIG_OMAP3_MMC		1
 #define CONFIG_SYS_MMC_SET_DEV		1
 #define CONFIG_DOS_PARTITION		1
+
+/* USB */
+#define CONFIG_MUSB_UDC			1
+#define CONFIG_USB_OMAP3		1
+
+/* USB device configuration */
+#define CONFIG_USB_DEVICE		1
+#define CONFIG_USB_TTY			1
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
+/* Change these to suit your needs */
+#define CONFIG_USBD_VENDORID		0x0451
+#define CONFIG_USBD_PRODUCTID		0x5678
+#define CONFIG_USBD_MANUFACTURER	"Texas Instruments"
+#define CONFIG_USBD_PRODUCT_NAME	"OMAP4 Panda"
 
 /* Flash */
 #define CONFIG_SYS_NO_FLASH	1
@@ -135,16 +153,21 @@
  * Environment setup
  */
 
+#define CONFIG_BOOTDELAY	3
+
 /* allow overwriting serial config and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"console=ttyS2,115200n8\0" \
+	"usbtty=cdc_acm\0" \
+	"vram=16M\0" \
 	"mmcdev=1\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext3 rootwait\0" \
 	"mmcargs=setenv bootargs console=${console} " \
+		"vram=${vram} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
 	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
@@ -162,7 +185,6 @@
 		"else " \
 			"if run loaduimage; then " \
 				"run mmcboot; " \
-			"else run nandboot; " \
 			"fi; " \
 		"fi; " \
 	"fi"
@@ -195,7 +217,7 @@
 #define CONFIG_SYS_LOAD_ADDR		0x80000000
 
 /* Use General purpose timer 1 */
-#define CONFIG_SYS_TIMERBASE		GPT1_BASE
+#define CONFIG_SYS_TIMERBASE		GPT2_BASE
 #define CONFIG_SYS_PTV			2	/* Divisor: 2^(PTV+1) => 8 */
 #define CONFIG_SYS_HZ			1000
 

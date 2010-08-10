@@ -28,9 +28,11 @@ struct omap_sysinfo {
 	char *board_string;
 };
 
+void gpmc_init(void);
 void watchdog_init(void);
 u32 get_device_type(void);
 void invalidate_dcache(u32);
+void set_muxconf_regs(void);
 
 extern const struct omap_sysinfo sysinfo;
 

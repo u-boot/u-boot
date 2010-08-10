@@ -75,35 +75,91 @@ enum orion5x_cpu_attrib {
 };
 
 /*
- * Default Device Address MAP BAR values
+ * Device Address MAP BAR values
+/*
+ * All addresses and sizes not defined by board code
+ * will be given default values here.
  */
-#define ORION5X_DEFADR_PCIE_MEM	0x90000000
-#define ORION5X_DEFADR_PCIE_MEM_REMAP_LO	0x90000000
-#define ORION5X_DEFADR_PCIE_MEM_REMAP_HI	0
-#define ORION5X_DEFSZ_PCIE_MEM	(128*1024*1024)
 
-#define ORION5X_DEFADR_PCIE_IO	0xf0000000
-#define ORION5X_DEFADR_PCIE_IO_REMAP_LO	0x90000000
-#define ORION5X_DEFADR_PCIE_IO_REMAP_HI	0
-#define ORION5X_DEFSZ_PCIE_IO	(64*1024)
+#if !defined (ORION5X_ADR_PCIE_MEM)
+#define ORION5X_ADR_PCIE_MEM	0x90000000
+#endif
 
-#define ORION5X_DEFADR_PCI_MEM	0x98000000
-#define ORION5X_DEFSZ_PCI_MEM	(128*1024*1024)
+#if !defined (ORION5X_ADR_PCIE_MEM_REMAP_LO)
+#define ORION5X_ADR_PCIE_MEM_REMAP_LO	0x90000000
+#endif
 
-#define ORION5X_DEFADR_PCI_IO	0xf0100000
-#define ORION5X_DEFSZ_PCI_IO	(64*1024)
+#if !defined (ORION5X_ADR_PCIE_MEM_REMAP_HI)
+#define ORION5X_ADR_PCIE_MEM_REMAP_HI	0
+#endif
 
-#define ORION5X_DEFADR_DEV_CS0	0xfa000000
-#define ORION5X_DEFSZ_DEV_CS0	(2*1024*1024)
+#if !defined (ORION5X_SZ_PCIE_MEM)
+#define ORION5X_SZ_PCIE_MEM	(128*1024*1024)
+#endif
 
-#define ORION5X_DEFADR_DEV_CS1	0xf8000000
-#define ORION5X_DEFSZ_DEV_CS1	(32*1024*1024)
+#if !defined (ORION5X_ADR_PCIE_IO)
+#define ORION5X_ADR_PCIE_IO	0xf0000000
+#endif
 
-#define ORION5X_DEFADR_DEV_CS2	0xfa800000
-#define ORION5X_DEFSZ_DEV_CS2	(1*1024*1024)
+#if !defined (ORION5X_ADR_PCIE_IO_REMAP_LO)
+#define ORION5X_ADR_PCIE_IO_REMAP_LO	0x90000000
+#endif
 
-#define ORION5X_DEFADR_BOOTROM	0xFFF80000
-#define ORION5X_DEFSZ_BOOTROM	(512*1024)
+#if !defined (ORION5X_ADR_PCIE_IO_REMAP_HI)
+#define ORION5X_ADR_PCIE_IO_REMAP_HI	0
+#endif
+
+#if !defined (ORION5X_SZ_PCIE_IO)
+#define ORION5X_SZ_PCIE_IO	(64*1024)
+#endif
+
+#if !defined (ORION5X_ADR_PCI_MEM)
+#define ORION5X_ADR_PCI_MEM	0x98000000
+#endif
+
+#if !defined (ORION5X_SZ_PCI_MEM)
+#define ORION5X_SZ_PCI_MEM	(128*1024*1024)
+#endif
+
+#if !defined (ORION5X_ADR_PCI_IO)
+#define ORION5X_ADR_PCI_IO	0xf0100000
+#endif
+
+#if !defined (ORION5X_SZ_PCI_IO)
+#define ORION5X_SZ_PCI_IO	(64*1024)
+#endif
+
+#if !defined (ORION5X_ADR_DEV_CS0)
+#define ORION5X_ADR_DEV_CS0	0xfa000000
+#endif
+
+#if !defined (ORION5X_SZ_DEV_CS0)
+#define ORION5X_SZ_DEV_CS0	(2*1024*1024)
+#endif
+
+#if !defined (ORION5X_ADR_DEV_CS1)
+#define ORION5X_ADR_DEV_CS1	0xf8000000
+#endif
+
+#if !defined (ORION5X_SZ_DEV_CS1)
+#define ORION5X_SZ_DEV_CS1	(32*1024*1024)
+#endif
+
+#if !defined (ORION5X_ADR_DEV_CS2)
+#define ORION5X_ADR_DEV_CS2	0xfa800000
+#endif
+
+#if !defined (ORION5X_SZ_DEV_CS2)
+#define ORION5X_SZ_DEV_CS2	(1*1024*1024)
+#endif
+
+#if !defined (ORION5X_ADR_BOOTROM)
+#define ORION5X_ADR_BOOTROM	0xFFF80000
+#endif
+
+#if !defined (ORION5X_SZ_BOOTROM)
+#define ORION5X_SZ_BOOTROM	(512*1024)
+#endif
 
 /*
  * PCIE registers are used for SoC device ID and revision

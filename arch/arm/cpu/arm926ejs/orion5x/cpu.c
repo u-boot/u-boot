@@ -87,56 +87,56 @@ int orion5x_config_adr_windows(void)
 		(struct orion5x_win_registers *)ORION5X_CPU_WIN_BASE;
 
 	/* Window 0: PCIE MEM address space */
-	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_DEFSZ_PCIE_MEM,
+	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_PCIE_MEM,
 		ORION5X_TARGET_PCIE, ORION5X_ATTR_PCIE_MEM,
 		ORION5X_WIN_ENABLE), &winregs[0].ctrl);
-	writel(ORION5X_DEFADR_PCIE_MEM, &winregs[0].base);
-	writel(ORION5X_DEFADR_PCIE_MEM_REMAP_LO, &winregs[0].remap_lo);
-	writel(ORION5X_DEFADR_PCIE_MEM_REMAP_HI, &winregs[0].remap_hi);
+	writel(ORION5X_ADR_PCIE_MEM, &winregs[0].base);
+	writel(ORION5X_ADR_PCIE_MEM_REMAP_LO, &winregs[0].remap_lo);
+	writel(ORION5X_ADR_PCIE_MEM_REMAP_HI, &winregs[0].remap_hi);
 
 	/* Window 1: PCIE IO address space */
-	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_DEFSZ_PCIE_IO,
+	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_PCIE_IO,
 		ORION5X_TARGET_PCIE, ORION5X_ATTR_PCIE_IO,
 		ORION5X_WIN_ENABLE), &winregs[1].ctrl);
-	writel(ORION5X_DEFADR_PCIE_IO, &winregs[1].base);
-	writel(ORION5X_DEFADR_PCIE_IO_REMAP_LO, &winregs[1].remap_lo);
-	writel(ORION5X_DEFADR_PCIE_IO_REMAP_HI, &winregs[1].remap_hi);
+	writel(ORION5X_ADR_PCIE_IO, &winregs[1].base);
+	writel(ORION5X_ADR_PCIE_IO_REMAP_LO, &winregs[1].remap_lo);
+	writel(ORION5X_ADR_PCIE_IO_REMAP_HI, &winregs[1].remap_hi);
 
 	/* Window 2: PCI MEM address space */
-	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_DEFSZ_PCI_MEM,
+	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_PCI_MEM,
 		ORION5X_TARGET_PCI, ORION5X_ATTR_PCI_MEM,
 		ORION5X_WIN_ENABLE), &winregs[2].ctrl);
-	writel(ORION5X_DEFADR_PCI_MEM, &winregs[2].base);
+	writel(ORION5X_ADR_PCI_MEM, &winregs[2].base);
 
 	/* Window 3: PCI IO address space */
-	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_DEFSZ_PCI_IO,
+	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_PCI_IO,
 		ORION5X_TARGET_PCI, ORION5X_ATTR_PCI_IO,
 		ORION5X_WIN_ENABLE), &winregs[3].ctrl);
-	writel(ORION5X_DEFADR_PCI_IO, &winregs[3].base);
+	writel(ORION5X_ADR_PCI_IO, &winregs[3].base);
 
 	/* Window 4: DEV_CS0 address space */
-	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_DEFSZ_DEV_CS0,
+	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_DEV_CS0,
 		ORION5X_TARGET_DEVICE, ORION5X_ATTR_DEV_CS0,
 		ORION5X_WIN_ENABLE), &winregs[4].ctrl);
-	writel(ORION5X_DEFADR_DEV_CS0, &winregs[4].base);
+	writel(ORION5X_ADR_DEV_CS0, &winregs[4].base);
 
 	/* Window 5: DEV_CS1 address space */
-	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_DEFSZ_DEV_CS1,
+	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_DEV_CS1,
 		ORION5X_TARGET_DEVICE, ORION5X_ATTR_DEV_CS1,
 		ORION5X_WIN_ENABLE), &winregs[5].ctrl);
-	writel(ORION5X_DEFADR_DEV_CS1, &winregs[5].base);
+	writel(ORION5X_ADR_DEV_CS1, &winregs[5].base);
 
 	/* Window 6: DEV_CS2 address space */
-	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_DEFSZ_DEV_CS2,
+	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_DEV_CS2,
 		ORION5X_TARGET_DEVICE, ORION5X_ATTR_DEV_CS2,
 		ORION5X_WIN_ENABLE), &winregs[6].ctrl);
-	writel(ORION5X_DEFADR_DEV_CS2, &winregs[6].base);
+	writel(ORION5X_ADR_DEV_CS2, &winregs[6].base);
 
 	/* Window 7: BOOT Memory address space */
-	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_DEFSZ_BOOTROM,
+	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_BOOTROM,
 		ORION5X_TARGET_DEVICE, ORION5X_ATTR_BOOTROM,
 		ORION5X_WIN_ENABLE), &winregs[7].ctrl);
-	writel(ORION5X_DEFADR_BOOTROM, &winregs[7].base);
+	writel(ORION5X_ADR_BOOTROM, &winregs[7].base);
 
 	return 0;
 }

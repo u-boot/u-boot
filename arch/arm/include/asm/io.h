@@ -75,13 +75,47 @@ static inline phys_addr_t virt_to_phys(void * vaddr)
 #define __arch_putw(v,a)		(*(volatile unsigned short *)(a) = (v))
 #define __arch_putl(v,a)		(*(volatile unsigned int *)(a) = (v))
 
-extern void __raw_writesb(unsigned int addr, const void *data, int bytelen);
-extern void __raw_writesw(unsigned int addr, const void *data, int wordlen);
-extern void __raw_writesl(unsigned int addr, const void *data, int longlen);
+extern inline void __raw_writesb(unsigned int addr, const void *data, int bytelen)
+{
+	uint8_t *buf = (uint8_t *)data;
+	while(bytelen--)
+		__arch_putb(*buf++, addr);
+}
 
-extern void __raw_readsb(unsigned int addr, void *data, int bytelen);
-extern void __raw_readsw(unsigned int addr, void *data, int wordlen);
-extern void __raw_readsl(unsigned int addr, void *data, int longlen);
+extern inline void __raw_writesw(unsigned int addr, const void *data, int wordlen)
+{
+	uint16_t *buf = (uint16_t *)data;
+	while(wordlen--)
+		__arch_putw(*buf++, addr);
+}
+
+extern inline void __raw_writesl(unsigned int addr, const void *data, int longlen)
+{
+	uint32_t *buf = (uint32_t *)data;
+	while(longlen--)
+		__arch_putl(*buf++, addr);
+}
+
+extern inline void __raw_readsb(unsigned int addr, void *data, int bytelen)
+{
+	uint8_t *buf = (uint8_t *)data;
+	while(bytelen--)
+		*buf++ = __arch_getb(addr);
+}
+
+extern inline void __raw_readsw(unsigned int addr, void *data, int wordlen)
+{
+	uint16_t *buf = (uint16_t *)data;
+	while(wordlen--)
+		*buf++ = __arch_getw(addr);
+}
+
+extern inline void __raw_readsl(unsigned int addr, void *data, int longlen)
+{
+	uint32_t *buf = (uint32_t *)data;
+	while(longlen--)
+		*buf++ = __arch_getl(addr);
+}
 
 #define __raw_writeb(v,a)		__arch_putb(v,a)
 #define __raw_writew(v,a)		__arch_putw(v,a)
