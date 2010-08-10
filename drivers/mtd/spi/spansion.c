@@ -262,7 +262,6 @@ int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
 		return -1;
 	}
 
-	len /= sector_size;
 	cmd[0] = CMD_S25FLXX_SE;
 	cmd[2] = 0x00;
 	cmd[3] = 0x00;
@@ -274,8 +273,8 @@ int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
 	}
 
 	ret = 0;
-	for (actual = 0; actual < len; actual++) {
-		cmd[1] = (offset / sector_size) + actual;
+	for (actual = 0; actual < len; actual += sector_size) {
+		cmd[1] = (offset + actual) >> 16;
 
 		ret = spi_flash_cmd(flash->spi, CMD_S25FLXX_WREN, NULL, 0);
 		if (ret < 0) {
@@ -298,7 +297,7 @@ int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
 	}
 
 	debug("SF: SPANSION: Successfully erased %u bytes @ 0x%x\n",
-	      len * sector_size, offset);
+	      len, offset);
 
 	spi_release_bus(flash->spi);
 	return ret;
