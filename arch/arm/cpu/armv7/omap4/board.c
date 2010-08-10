@@ -88,3 +88,14 @@ int checkboard(void)
 	return 0;
 }
 
+/*
+* This function is called by start_armboot. You can reliably use static
+* data. Any boot-time function that require static data should be
+* called from here
+*/
+int arch_cpu_init(void)
+{
+	set_muxconf_regs();
+	return 0;
+}
+

@@ -41,12 +41,8 @@ static struct gptimer *timer_base = (struct gptimer *)CONFIG_SYS_TIMERBASE;
 
 /*
  * Nothing really to do with interrupts, just starts up a counter.
- * We run the counter with 13MHz, divided by 8, resulting in timer
- * frequency of 1.625MHz. With 32bit counter register, counter
- * overflows in ~44min
  */
 
-/* 13MHz / 8 = 1.625MHz */
 #define TIMER_CLOCK	(V_SCLK / (2 << CONFIG_SYS_PTV))
 #define TIMER_LOAD_VAL	0xffffffff
 
@@ -84,11 +80,6 @@ void set_timer(ulong t)
 /* delay x useconds */
 void __udelay(unsigned long usec)
 {
-#if defined(CONFIG_OMAP44XX)
-	/* TODO temporary hack until OMAP4 clock setup routines are present */
-	if (usec > 1000)
-		usec = usec/1000;
-#endif
 	long tmo = usec * (TIMER_CLOCK / 1000) / 1000;
 	unsigned long now, last = readl(&timer_base->tcrr);
 

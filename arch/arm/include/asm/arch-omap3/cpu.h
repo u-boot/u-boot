@@ -483,4 +483,7 @@ struct pm {
 #define I2C_BASE2		(OMAP34XX_CORE_L4_IO_BASE + 0x72000)
 #define I2C_BASE3		(OMAP34XX_CORE_L4_IO_BASE + 0x60000)
 
+/* MUSB base */
+#define MUSB_BASE		(OMAP34XX_CORE_L4_IO_BASE + 0xAB000)
+
 #endif /* _CPU_H */

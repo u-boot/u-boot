@@ -85,6 +85,10 @@
 #define I2C_SYSTEST_SDA_I	(1 << 1)  /* SDA line sense input value */
 #define I2C_SYSTEST_SDA_O	(1 << 0)  /* SDA line drive output value */
 
+/* I2C System Status Register (I2C_SYSS): */
+
+#define I2C_SYSS_RDONE          (1 << 0)  /* Internel reset monitoring */
+
 #define I2C_SCLL_SCLL		0
 #define I2C_SCLL_SCLL_M		0xFF
 #define I2C_SCLL_HSSCLL		8
