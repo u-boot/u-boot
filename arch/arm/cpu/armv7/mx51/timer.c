@@ -89,7 +89,7 @@ ulong get_timer_masked(void)
 		timestamp += ((0xFFFFFFFF / (CONFIG_MX51_CLK32 / CONFIG_SYS_HZ))
 				- lastinc) + val;
 	lastinc = val;
-	return val;
+	return timestamp;
 }
 
 ulong get_timer(ulong base)
