@@ -351,6 +351,15 @@ static int marvell_config_aneg (struct uec_mii_info *mii_info)
 static int genmii_config_aneg (struct uec_mii_info *mii_info)
 {
 	if (mii_info->autoneg) {
+		/* Speed up the common case, if link is already up, speed and
+		   duplex match, skip auto neg as it already matches */
+		if (!genmii_read_status(mii_info) && mii_info->link)
+			if (mii_info->duplex == DUPLEX_FULL &&
+			    mii_info->speed == SPEED_100)
+				if (mii_info->advertising &
+				    ADVERTISED_100baseT_Full)
+					return 0;
+
 		config_genmii_advert (mii_info);
 		genmii_restart_aneg (mii_info);
 	} else
