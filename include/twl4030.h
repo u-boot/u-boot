@@ -304,6 +304,17 @@
 #define TWL4030_PM_RECEIVER_MAINREF_TYPE		0xF0
 #define TWL4030_PM_RECEIVER_MAINREF_REMAP		0xF1
 
+/* Voltage Selection in PM Receiver Module */
+#define TWL4030_PM_RECEIVER_VAUX2_VSEL_18		0x05
+#define TWL4030_PM_RECEIVER_VAUX3_VSEL_28		0x03
+#define TWL4030_PM_RECEIVER_VPLL2_VSEL_18		0x05
+#define TWL4030_PM_RECEIVER_VDAC_VSEL_18		0x03
+#define TWL4030_PM_RECEIVER_VMMC1_VSEL_30		0x02
+
+/* Device Selection in PM Receiver Module */
+#define TWL4030_PM_RECEIVER_DEV_GRP_P1			0x20
+#define TWL4030_PM_RECEIVER_DEV_GRP_ALL			0xE0
+
 /* LED */
 #define TWL4030_LED_LEDEN				0xEE
 #define TWL4030_LED_LEDEN_LEDAON			(1 << 0)
@@ -500,6 +511,9 @@ static inline int twl4030_i2c_read_u8(u8 chip_no, u8 *val, u8 reg)
 
 /* For hardware resetting */
 void twl4030_power_reset_init(void);
+/* For setting device group and voltage */
+void twl4030_pmrecv_vsel_cfg(u8 vsel_reg, u8 vsel_val,
+			     u8 dev_grp, u8 dev_grp_sel);
 /* For initializing power device */
 void twl4030_power_init(void);
 /* For initializing mmc power */
