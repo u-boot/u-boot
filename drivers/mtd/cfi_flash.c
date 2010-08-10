@@ -1142,8 +1142,10 @@ void flash_print_info (flash_info_t * info)
 			printf ("Unknown (%d)", info->vendor);
 			break;
 	}
-	printf (" command set, Manufacturer ID: 0x%02X, Device ID: 0x%02X",
-		info->manufacturer_id, info->device_id);
+	printf (" command set, Manufacturer ID: 0x%02X, Device ID: 0x",
+		info->manufacturer_id);
+	printf (info->chipwidth == FLASH_CFI_16BIT ? "%04X" : "%02X",
+		info->device_id);
 	if (info->device_id == 0x7E) {
 		printf("%04X", info->device_id2);
 	}
@@ -1479,8 +1481,9 @@ static void cmdset_intel_read_jedec_ids(flash_info_t *info)
 	udelay(1000); /* some flash are slow to respond */
 	info->manufacturer_id = flash_read_uchar (info,
 					FLASH_OFFSET_MANUFACTURER_ID);
-	info->device_id = flash_read_uchar (info,
-					FLASH_OFFSET_DEVICE_ID);
+	info->device_id = (info->chipwidth == FLASH_CFI_16BIT) ?
+			flash_read_word (info, FLASH_OFFSET_DEVICE_ID) :
+			flash_read_uchar (info, FLASH_OFFSET_DEVICE_ID);
 	flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
 }
 
