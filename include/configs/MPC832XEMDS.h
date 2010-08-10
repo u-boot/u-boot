@@ -353,7 +353,7 @@
  * QE UEC ethernet configuration
  */
 #define CONFIG_UEC_ETH
-#define CONFIG_ETHPRIME		"FSL UEC0"
+#define CONFIG_ETHPRIME		"UEC0"
 
 #define CONFIG_UEC_ETH1		/* ETH3 */
 

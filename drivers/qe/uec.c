@@ -603,7 +603,7 @@ static void phy_change(struct eth_device *dev)
  * Returns:
  *  The index where the device is located, -1 on error
  */
-static int uec_miiphy_find_dev_by_name(char *devname)
+static int uec_miiphy_find_dev_by_name(const char *devname)
 {
 	int i;
 
@@ -628,7 +628,7 @@ static int uec_miiphy_find_dev_by_name(char *devname)
  * Returns:
  *  0 on success
  */
-static int uec_miiphy_read(char *devname, unsigned char addr,
+static int uec_miiphy_read(const char *devname, unsigned char addr,
 			    unsigned char reg, unsigned short *value)
 {
 	int devindex = 0;
@@ -650,7 +650,7 @@ static int uec_miiphy_read(char *devname, unsigned char addr,
  * Returns:
  *  0 on success
  */
-static int uec_miiphy_write(char *devname, unsigned char addr,
+static int uec_miiphy_write(const char *devname, unsigned char addr,
 			     unsigned char reg, unsigned short value)
 {
 	int devindex = 0;
@@ -1367,7 +1367,7 @@ int uec_initialize(bd_t *bis, uec_info_t *uec_info)
 	uec->uec_info = uec_info;
 	uec->dev = dev;
 
-	sprintf(dev->name, "FSL UEC%d", uec_info->uf_info.ucc_num);
+	sprintf(dev->name, "UEC%d", uec_info->uf_info.ucc_num);
 	dev->iobase = 0;
 	dev->priv = (void *)uec;
 	dev->init = uec_init;

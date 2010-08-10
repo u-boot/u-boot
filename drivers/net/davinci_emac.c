@@ -252,12 +252,12 @@ static int gen_auto_negotiate(int phy_addr)
 
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-static int davinci_mii_phy_read(char *devname, unsigned char addr, unsigned char reg, unsigned short *value)
+static int davinci_mii_phy_read(const char *devname, unsigned char addr, unsigned char reg, unsigned short *value)
 {
 	return(davinci_eth_phy_read(addr, reg, value) ? 0 : 1);
 }
 
-static int davinci_mii_phy_write(char *devname, unsigned char addr, unsigned char reg, unsigned short value)
+static int davinci_mii_phy_write(const char *devname, unsigned char addr, unsigned char reg, unsigned short value)
 {
 	return(davinci_eth_phy_write(addr, reg, value) ? 0 : 1);
 }

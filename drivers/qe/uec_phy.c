@@ -71,8 +71,8 @@
  *                 {name, speed, duplex},
  *
  *     #define CONFIG_SYS_FIXED_PHY_PORTS \
- *                 CONFIG_SYS_FIXED_PHY_PORT("FSL UEC0",SPEED_100,DUPLEX_FULL) \
- *                 CONFIG_SYS_FIXED_PHY_PORT("FSL UEC2",SPEED_100,DUPLEX_HALF)
+ *                 CONFIG_SYS_FIXED_PHY_PORT("UEC0",SPEED_100,DUPLEX_FULL) \
+ *                 CONFIG_SYS_FIXED_PHY_PORT("UEC2",SPEED_100,DUPLEX_HALF)
  */
 
 #ifndef CONFIG_FIXED_PHY
@@ -102,7 +102,7 @@ static const struct fixed_phy_port fixed_phy_port[] = {
  * Example board header file to define bitbang ethernet ports:
  *
  * #define CONFIG_SYS_BITBANG_PHY_PORT(name) name,
- * #define CONFIG_SYS_BITBANG_PHY_PORTS CONFIG_SYS_BITBANG_PHY_PORT("FSL UEC0")
+ * #define CONFIG_SYS_BITBANG_PHY_PORTS CONFIG_SYS_BITBANG_PHY_PORT("UEC0")
 */
 #ifndef CONFIG_SYS_BITBANG_PHY_PORTS
 #define CONFIG_SYS_BITBANG_PHY_PORTS	/* default is an empty array */

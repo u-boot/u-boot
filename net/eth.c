@@ -102,7 +102,7 @@ struct eth_device *eth_get_dev(void)
 	return eth_current;
 }
 
-struct eth_device *eth_get_dev_by_name(char *devname)
+struct eth_device *eth_get_dev_by_name(const char *devname)
 {
 	struct eth_device *dev, *target_dev;
 

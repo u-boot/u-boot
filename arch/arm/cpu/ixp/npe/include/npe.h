@@ -82,9 +82,9 @@ struct npe {
 /*
  * prototypes...
  */
-extern int npe_miiphy_read (char *devname, unsigned char addr,
+extern int npe_miiphy_read (const char *devname, unsigned char addr,
 			    unsigned char reg, unsigned short *value);
-extern int npe_miiphy_write (char *devname, unsigned char addr,
+extern int npe_miiphy_write (const char *devname, unsigned char addr,
 			     unsigned char reg, unsigned short value);
 
 #endif /* ifndef NPE_H */

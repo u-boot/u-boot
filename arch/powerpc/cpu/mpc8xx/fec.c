@@ -63,9 +63,9 @@ DECLARE_GLOBAL_DATA_PTR;
 static int mii_discover_phy(struct eth_device *dev);
 #endif
 
-int fec8xx_miiphy_read(char *devname, unsigned char addr,
+int fec8xx_miiphy_read(const char *devname, unsigned char addr,
 		unsigned char  reg, unsigned short *value);
-int fec8xx_miiphy_write(char *devname, unsigned char  addr,
+int fec8xx_miiphy_write(const char *devname, unsigned char  addr,
 		unsigned char  reg, unsigned short value);
 
 static struct ether_fcc_info_s
@@ -164,9 +164,9 @@ int fec_initialize(bd_t *bis)
 		/* for FEC1 make sure that the name of the interface is the same
 		   as the old one for compatibility reasons */
 		if (i == 0) {
-			sprintf (dev->name, "FEC ETHERNET");
+			sprintf (dev->name, "FEC");
 		} else {
-			sprintf (dev->name, "FEC%d ETHERNET",
+			sprintf (dev->name, "FEC%d",
 				ether_fcc_info[i].ether_index + 1);
 		}
 
@@ -990,7 +990,7 @@ void mii_init (void)
  *	  Otherwise they hang in mii_send() !!! Sorry!
  *****************************************************************************/
 
-int fec8xx_miiphy_read(char *devname, unsigned char addr,
+int fec8xx_miiphy_read(const char *devname, unsigned char addr,
 		unsigned char  reg, unsigned short *value)
 {
 	short rdreg;    /* register working value */
@@ -1007,7 +1007,7 @@ int fec8xx_miiphy_read(char *devname, unsigned char addr,
 	return 0;
 }
 
-int fec8xx_miiphy_write(char *devname, unsigned char  addr,
+int fec8xx_miiphy_write(const char *devname, unsigned char  addr,
 		unsigned char  reg, unsigned short value)
 {
 	short rdreg;    /* register working value */

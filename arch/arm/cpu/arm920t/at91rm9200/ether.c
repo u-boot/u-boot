@@ -283,7 +283,7 @@ void eth_halt (void)
 };
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-int  at91rm9200_miiphy_read(char *devname, unsigned char addr,
+int  at91rm9200_miiphy_read(const char *devname, unsigned char addr,
 		unsigned char reg, unsigned short * value)
 {
 	at91rm9200_EmacEnableMDIO (p_mac);
@@ -292,7 +292,7 @@ int  at91rm9200_miiphy_read(char *devname, unsigned char addr,
 	return 0;
 }
 
-int  at91rm9200_miiphy_write(char *devname, unsigned char addr,
+int  at91rm9200_miiphy_write(const char *devname, unsigned char addr,
 		unsigned char reg, unsigned short value)
 {
 	at91rm9200_EmacEnableMDIO (p_mac);

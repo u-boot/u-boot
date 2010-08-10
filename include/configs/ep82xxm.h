@@ -147,7 +147,7 @@
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
 #define CONFIG_ENV_IN_OWN_SECT	1
 #define CONFIG_AUTO_COMPLETE	1
-#define	CONFIG_EXTRA_ENV_SETTINGS	"ethprime=FCC3 ETHERNET"
+#define	CONFIG_EXTRA_ENV_SETTINGS	"ethprime=FCC3"
 
 #if defined(CONFIG_CMD_KGDB)
 #undef	CONFIG_KGDB_ON_SMC		/* define if kgdb on SMC */

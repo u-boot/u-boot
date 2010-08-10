@@ -139,8 +139,8 @@
 
 #ifdef CONFIG_IO_MUXING
 #define	CONFIG_KM_DEF_ENV_IOMUX \
-	"nc=setenv ethact HDLC ETHERNET \0" \
-	"nce=setenv ethact SCC ETHERNET \0"	\
+	"nc=setenv ethact HDLC \0" \
+	"nce=setenv ethact SCC \0"	\
 	"stderr=serial,nc \0"	\
 	"stdin=serial,nc \0" \
 	"stdout=serial,nc \0" \

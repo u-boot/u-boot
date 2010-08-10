@@ -46,21 +46,45 @@
 
 struct mii_dev {
 	struct list_head link;
-	char *name;
-	int (*read) (char *devname, unsigned char addr,
+	const char *name;
+	int (*read) (const char *devname, unsigned char addr,
 		     unsigned char reg, unsigned short *value);
-	int (*write) (char *devname, unsigned char addr,
+	int (*write) (const char *devname, unsigned char addr,
 		      unsigned char reg, unsigned short value);
 };
 
 static struct list_head mii_devs;
 static struct mii_dev *current_mii;
 
+/*
+ * Lookup the mii_dev struct by the registered device name.
+ */
+static struct mii_dev *miiphy_get_dev_by_name(const char *devname, int quiet)
+{
+	struct list_head *entry;
+	struct mii_dev *dev;
+
+	if (!devname) {
+		printf("NULL device name!\n");
+		return NULL;
+	}
+
+	list_for_each(entry, &mii_devs) {
+		dev = list_entry(entry, struct mii_dev, link);
+		if (strcmp(dev->name, devname) == 0)
+			return dev;
+	}
+
+	if (!quiet)
+		printf("No such device: %s\n", devname);
+	return NULL;
+}
+
 /*****************************************************************************
  *
  * Initialize global data. Need to be called before any other miiphy routine.
  */
-void miiphy_init ()
+void miiphy_init(void)
 {
 	INIT_LIST_HEAD (&mii_devs);
 	current_mii = NULL;
@@ -70,25 +94,21 @@ void miiphy_init ()
  *
  * Register read and write MII access routines for the device <name>.
  */
-void miiphy_register (char *name,
-		      int (*read) (char *devname, unsigned char addr,
+void miiphy_register(const char *name,
+		      int (*read) (const char *devname, unsigned char addr,
 				   unsigned char reg, unsigned short *value),
-		      int (*write) (char *devname, unsigned char addr,
+		      int (*write) (const char *devname, unsigned char addr,
 				    unsigned char reg, unsigned short value))
 {
-	struct list_head *entry;
 	struct mii_dev *new_dev;
-	struct mii_dev *miidev;
 	unsigned int name_len;
+	char *new_name;
 
 	/* check if we have unique name */
-	list_for_each (entry, &mii_devs) {
-		miidev = list_entry (entry, struct mii_dev, link);
-		if (strcmp (miidev->name, name) == 0) {
-			printf ("miiphy_register: non unique device name "
-				"'%s'\n", name);
-			return;
-		}
+	new_dev = miiphy_get_dev_by_name(name, 1);
+	if (new_dev) {
+		printf("miiphy_register: non unique device name '%s'\n", name);
+		return;
 	}
 
 	/* allocate memory */
@@ -107,9 +127,9 @@ void miiphy_register (char *name,
 	INIT_LIST_HEAD (&new_dev->link);
 	new_dev->read = read;
 	new_dev->write = write;
-	new_dev->name = (char *)(new_dev + 1);
-	strncpy (new_dev->name, name, name_len);
-	new_dev->name[name_len] = '\0';
+	new_dev->name = new_name = (char *)(new_dev + 1);
+	strncpy (new_name, name, name_len);
+	new_name[name_len] = '\0';
 
 	debug ("miiphy_register: added '%s', read=0x%08lx, write=0x%08lx\n",
 	       new_dev->name, new_dev->read, new_dev->write);
@@ -121,30 +141,39 @@ void miiphy_register (char *name,
 		current_mii = new_dev;
 }
 
-int miiphy_set_current_dev (char *devname)
+int miiphy_set_current_dev(const char *devname)
 {
-	struct list_head *entry;
 	struct mii_dev *dev;
 
-	list_for_each (entry, &mii_devs) {
-		dev = list_entry (entry, struct mii_dev, link);
-
-		if (strcmp (devname, dev->name) == 0) {
-			current_mii = dev;
-			return 0;
-		}
+	dev = miiphy_get_dev_by_name(devname, 0);
+	if (dev) {
+		current_mii = dev;
+		return 0;
 	}
 
-	printf ("No such device: %s\n", devname);
 	return 1;
 }
 
-char *miiphy_get_current_dev ()
+const char *miiphy_get_current_dev(void)
 {
 	if (current_mii)
 		return current_mii->name;
 
 	return NULL;
+}
+
+static struct mii_dev *miiphy_get_active_dev(const char *devname)
+{
+	/* If the current mii is the one we want, return it */
+	if (current_mii)
+		if (strcmp(current_mii->name, devname) == 0)
+			return current_mii;
+
+	/* Otherwise, set the active one to the one we want */
+	if (miiphy_set_current_dev(devname))
+		return NULL;
+	else
+		return current_mii;
 }
 
 /*****************************************************************************
@@ -155,33 +184,16 @@ char *miiphy_get_current_dev ()
  * Returns:
  *   0 on success
  */
-int miiphy_read (char *devname, unsigned char addr, unsigned char reg,
+int miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
 		 unsigned short *value)
 {
-	struct list_head *entry;
 	struct mii_dev *dev;
-	int found_dev = 0;
-	int read_ret = 0;
 
-	if (!devname) {
-		printf ("NULL device name!\n");
-		return 1;
-	}
+	dev = miiphy_get_active_dev(devname);
+	if (dev)
+		return dev->read(devname, addr, reg, value);
 
-	list_for_each (entry, &mii_devs) {
-		dev = list_entry (entry, struct mii_dev, link);
-
-		if (strcmp (devname, dev->name) == 0) {
-			found_dev = 1;
-			read_ret = dev->read (devname, addr, reg, value);
-			break;
-		}
-	}
-
-	if (found_dev == 0)
-		printf ("No such device: %s\n", devname);
-
-	return ((found_dev) ? read_ret : 1);
+	return 1;
 }
 
 /*****************************************************************************
@@ -192,33 +204,16 @@ int miiphy_read (char *devname, unsigned char addr, unsigned char reg,
  * Returns:
  *   0 on success
  */
-int miiphy_write (char *devname, unsigned char addr, unsigned char reg,
+int miiphy_write(const char *devname, unsigned char addr, unsigned char reg,
 		  unsigned short value)
 {
-	struct list_head *entry;
 	struct mii_dev *dev;
-	int found_dev = 0;
-	int write_ret = 0;
 
-	if (!devname) {
-		printf ("NULL device name!\n");
-		return 1;
-	}
+	dev = miiphy_get_active_dev(devname);
+	if (dev)
+		return dev->write(devname, addr, reg, value);
 
-	list_for_each (entry, &mii_devs) {
-		dev = list_entry (entry, struct mii_dev, link);
-
-		if (strcmp (devname, dev->name) == 0) {
-			found_dev = 1;
-			write_ret = dev->write (devname, addr, reg, value);
-			break;
-		}
-	}
-
-	if (found_dev == 0)
-		printf ("No such device: %s\n", devname);
-
-	return ((found_dev) ? write_ret : 1);
+	return 1;
 }
 
 /*****************************************************************************
@@ -252,7 +247,7 @@ void miiphy_listdev (void)
  * Returns:
  *   0 on success
  */
-int miiphy_info (char *devname, unsigned char addr, unsigned int *oui,
+int miiphy_info(const char *devname, unsigned char addr, unsigned int *oui,
 		 unsigned char *model, unsigned char *rev)
 {
 	unsigned int reg = 0;
@@ -290,7 +285,7 @@ int miiphy_info (char *devname, unsigned char addr, unsigned int *oui,
  * Returns:
  *   0 on success
  */
-int miiphy_reset (char *devname, unsigned char addr)
+int miiphy_reset(const char *devname, unsigned char addr)
 {
 	unsigned short reg;
 	int timeout = 500;
@@ -332,7 +327,7 @@ int miiphy_reset (char *devname, unsigned char addr)
  *
  * Determine the ethernet speed (10/100/1000).  Return 10 on error.
  */
-int miiphy_speed (char *devname, unsigned char addr)
+int miiphy_speed(const char *devname, unsigned char addr)
 {
 	u16 bmcr, anlpar;
 
@@ -386,7 +381,7 @@ miiphy_read_failed:
  *
  * Determine full/half duplex.  Return half on error.
  */
-int miiphy_duplex (char *devname, unsigned char addr)
+int miiphy_duplex(const char *devname, unsigned char addr)
 {
 	u16 bmcr, anlpar;
 
@@ -446,7 +441,7 @@ miiphy_read_failed:
  * Return 1 if PHY supports 1000BASE-X, 0 if PHY supports 10BASE-T/100BASE-TX/
  * 1000BASE-T, or on error.
  */
-int miiphy_is_1000base_x (char *devname, unsigned char addr)
+int miiphy_is_1000base_x(const char *devname, unsigned char addr)
 {
 #if defined(CONFIG_PHY_GIGE)
 	u16 exsr;
@@ -467,7 +462,7 @@ int miiphy_is_1000base_x (char *devname, unsigned char addr)
  *
  * Determine link status
  */
-int miiphy_link (char *devname, unsigned char addr)
+int miiphy_link(const char *devname, unsigned char addr)
 {
 	unsigned short reg;
 

@@ -167,7 +167,7 @@ static u16 macb_mdio_read(struct macb_device *macb, u8 reg)
 
 #if defined(CONFIG_CMD_MII)
 
-int macb_miiphy_read(char *devname, u8 phy_adr, u8 reg, u16 *value)
+int macb_miiphy_read(const char *devname, u8 phy_adr, u8 reg, u16 *value)
 {
 	struct eth_device *dev = eth_get_dev_by_name(devname);
 	struct macb_device *macb = to_macb(dev);
@@ -180,7 +180,7 @@ int macb_miiphy_read(char *devname, u8 phy_adr, u8 reg, u16 *value)
 	return 0;
 }
 
-int macb_miiphy_write(char *devname, u8 phy_adr, u8 reg, u16 value)
+int macb_miiphy_write(const char *devname, u8 phy_adr, u8 reg, u16 value)
 {
 	struct eth_device *dev = eth_get_dev_by_name(devname);
 	struct macb_device *macb = to_macb(dev);

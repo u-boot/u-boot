@@ -74,7 +74,7 @@
 	"net_nfs=tftp 200000 $(bootfile);run nfsargs addip;bootm\0"	\
 	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
 		"nfsroot=$(serverip):$(rootpath)\0"			\
-	"ethact=FEC ETHERNET\0"						\
+	"ethact=FEC\0	"						\
 	"update=prot off ff800000 ff81ffff; era ff800000 ff81ffff; "	\
 		"cp.b 200000 ff800000 $(filesize);"			\
 		"prot on ff800000 ff81ffff\0"				\
