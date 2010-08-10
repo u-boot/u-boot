@@ -199,14 +199,14 @@ int do_cramfs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 /***************************************************/
 U_BOOT_CMD(
 	cramfsload,	3,	0,	do_cramfs_load,
-	"cramfsload\t- load binary file from a filesystem image",
+	"load binary file from a filesystem image",
 	"[ off ] [ filename ]\n"
 	"    - load binary file from address 'cramfsaddr'\n"
 	"      with offset 'off'\n"
 );
 U_BOOT_CMD(
 	cramfsls,	2,	1,	do_cramfs_ls,
-	"cramfsls\t- list files in a directory (default /)",
+	"list files in a directory (default /)",
 	"[ directory ]\n"
 	"    - list files in a directory.\n"
 );

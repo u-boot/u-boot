@@ -68,13 +68,13 @@ ifeq ($(HOSTOS),darwin)
 DARWIN_MAJOR_VERSION	= $(shell sw_vers -productVersion | cut -f 1 -d '.')
 DARWIN_MINOR_VERSION	= $(shell sw_vers -productVersion | cut -f 2 -d '.')
 
-before-snow-leopard	= $(shell if [ $(DARWIN_MAJOR_VERSION) -le 10 -a \
-	$(DARWIN_MINOR_VERSION) -le 5 ] ; then echo "$(1)"; else echo "$(2)"; fi ;)
+os_x_before	= $(shell if [ $(DARWIN_MAJOR_VERSION) -le $(1) -a \
+	$(DARWIN_MINOR_VERSION) -le $(2) ] ; then echo "$(3)"; else echo "$(4)"; fi ;)
 
 # Snow Leopards build environment has no longer restrictions as described above
-HOSTCC		 = $(call before-snow-leopard, "cc", "gcc")
-HOSTCFLAGS	+= $(call before-snow-leopard, "-traditional-cpp")
-HOSTLDFLAGS	+= $(call before-snow-leopard, "-multiply_defined suppress")
+HOSTCC		 = $(call os_x_before, 10, 5, "cc", "gcc")
+HOSTCFLAGS	+= $(call os_x_before, 10, 4, "-traditional-cpp")
+HOSTLDFLAGS	+= $(call os_x_before, 10, 5, "-multiply_defined suppress")
 else
 HOSTCC		= gcc
 endif

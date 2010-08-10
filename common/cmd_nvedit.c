@@ -557,13 +557,19 @@ int getenv_f(char *name, char *buf, unsigned len)
 		}
 		if ((val=envmatch((uchar *)name, i)) < 0)
 			continue;
+
 		/* found; copy out */
-		n = 0;
-		while ((len > n++) && (*buf++ = env_get_char(val++)) != '\0')
-			;
-		if (len == n)
-			*buf = '\0';
-		return (n);
+		for (n=0; n<len; ++n, ++buf) {
+			if ((*buf = env_get_char(val++)) == '\0')
+				return n;
+		}
+
+		if (n)
+			*--buf = '\0';
+
+		printf("env_buf too small [%d]\n", len);
+
+		return n;
 	}
 	return (-1);
 }

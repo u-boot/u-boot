@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2008
+ * (C) Copyright 2000-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * (C) Copyright 2008
@@ -899,7 +899,10 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 static int flash_flag_obsolete (int dev, int fd, off_t offset)
 {
 	int rc;
+	struct erase_info_user erase;
 
+	erase.start  = DEVOFFSET (dev);
+	erase.length = DEVESIZE (dev);
 	/* This relies on the fact, that obsolete_flag == 0 */
 	rc = lseek (fd, offset, SEEK_SET);
 	if (rc < 0) {
@@ -907,7 +910,9 @@ static int flash_flag_obsolete (int dev, int fd, off_t offset)
 			 DEVNAME (dev));
 		return rc;
 	}
+	ioctl (fd, MEMUNLOCK, &erase);
 	rc = write (fd, &obsolete_flag, sizeof (obsolete_flag));
+	ioctl (fd, MEMLOCK, &erase);
 	if (rc < 0)
 		perror ("Could not set obsolete flag");
 

@@ -333,6 +333,9 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	ulong image_start = os.image_start;
 	ulong image_len = os.image_len;
 	uint unc_len = CONFIG_SYS_BOOTM_LEN;
+#if defined(CONFIG_LZMA) || defined(CONFIG_LZO)
+	int ret;
+#endif /* defined(CONFIG_LZMA) || defined(CONFIG_LZO) */
 
 	const char *type_name = genimg_get_type_name (os.type);
 
@@ -390,7 +393,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		SizeT lzma_len = unc_len;
 		printf ("   Uncompressing %s ... ", type_name);
 
-		int ret = lzmaBuffToBuffDecompress(
+		ret = lzmaBuffToBuffDecompress(
 			(unsigned char *)load, &lzma_len,
 			(unsigned char *)image_start, image_len);
 		unc_len = lzma_len;
@@ -408,7 +411,7 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 	case IH_COMP_LZO:
 		printf ("   Uncompressing %s ... ", type_name);
 
-		int ret = lzop_decompress((const unsigned char *)image_start,
+		ret = lzop_decompress((const unsigned char *)image_start,
 					  image_len, (unsigned char *)load,
 					  &unc_len);
 		if (ret != LZO_E_OK) {

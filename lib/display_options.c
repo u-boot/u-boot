@@ -101,7 +101,7 @@ void print_size(unsigned long long size, const char *s)
 #define DEFAULT_LINE_LENGTH_BYTES (16)
 int print_buffer (ulong addr, void* data, uint width, uint count, uint linelen)
 {
-	uint8_t linebuf[MAX_LINE_LENGTH_BYTES];
+	uint8_t linebuf[MAX_LINE_LENGTH_BYTES + 1];
 	uint32_t *uip = (void*)linebuf;
 	uint16_t *usp = (void*)linebuf;
 	uint8_t *ucp = (void*)linebuf;
@@ -121,24 +121,23 @@ int print_buffer (ulong addr, void* data, uint width, uint count, uint linelen)
 
 		/* Copy from memory into linebuf and print hex values */
 		for (i = 0; i < linelen; i++) {
-			if (width == 4) {
-				uip[i] = *(volatile uint32_t *)data;
-				printf(" %08x", uip[i]);
-			} else if (width == 2) {
-				usp[i] = *(volatile uint16_t *)data;
-				printf(" %04x", usp[i]);
-			} else {
-				ucp[i] = *(volatile uint8_t *)data;
-				printf(" %02x", ucp[i]);
-			}
+			uint32_t x;
+			if (width == 4)
+				x = uip[i] = *(volatile uint32_t *)data;
+			else if (width == 2)
+				x = usp[i] = *(volatile uint16_t *)data;
+			else
+				x = ucp[i] = *(volatile uint8_t *)data;
+			printf(" %0*x", width * 2, x);
 			data += width;
 		}
 
 		/* Print data in ASCII characters */
-		puts("    ");
 		for (i = 0; i < linelen * width; i++)
-			putc(isprint(ucp[i]) && (ucp[i] < 0x80) ? ucp[i] : '.');
-		putc ('\n');
+			if (!isprint(ucp[i]) || ucp[i] >= 0x80)
+				ucp[i] = '.';
+		ucp[i] = '\0';
+		printf("    %s\n", ucp);
 
 		/* update references */
 		addr += linelen * width;

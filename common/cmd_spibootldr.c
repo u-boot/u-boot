@@ -30,7 +30,8 @@ int do_spibootldr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return bfrom_SpiBoot(addr, BFLAG_PERIPHERAL | 4, 0, NULL);
 }
 
-U_BOOT_CMD(spibootldr, 2, 0, do_spibootldr,
+U_BOOT_CMD(
+	spibootldr, 2, 0, do_spibootldr,
 	"boot ldr image from spi",
 	"[offset]\n"
 	"    - boot ldr image stored at offset into spi\n");

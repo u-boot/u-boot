@@ -448,7 +448,6 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	FPWV *addr;
 	int flag, prot, sect;
 	ulong start, now, last;
-	int rcode = 0;
 	FUNCPTR_WR absEntry;
 
 	load_cmd(IN_RAM_CMD_WRITE);
@@ -490,7 +489,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	last  = get_timer(0);
 
 	/* Start erase on unprotected sectors */
-	for (sect = s_first; sect<=s_last && rcode == 0; sect++) {
+	for (sect = s_first; sect<=s_last; sect++) {
 
 		if (info->protect[sect] != 0)	/* protected, skip it */
 			continue;
@@ -523,7 +522,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 	}
 
 	printf (" done\n");
-	return rcode;
+	return 0;
 }
 
 /*-----------------------------------------------------------------------
