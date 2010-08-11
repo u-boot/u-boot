@@ -389,7 +389,6 @@ static int genmii_update_link (struct uec_mii_info *mii_info)
 			status = phy_read(mii_info, PHY_BMSR);
 		}
 		mii_info->link = 1;
-		udelay(500000);	/* another 500 ms (results in faster booting) */
 	} else {
 		if (status & PHY_BMSR_LS)
 			mii_info->link = 1;
