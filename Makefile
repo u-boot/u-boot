@@ -494,8 +494,9 @@ unconfig:
 %_config::	unconfig
 	@$(MKCONFIG) -A $(@:_config=)
 
-##%: %_config
-##	$(MAKE)
+sinclude .boards.depend
+.boards.depend:	boards.cfg
+	awk '(NF && $$1 !~ /^#/) { print $$1 ": " $$1 "_config; $$(MAKE)" }' $< > $@
 
 #
 # Functions to generate common board directory names
@@ -2475,7 +2476,7 @@ clean:
 		| xargs rm -f
 
 clobber:	clean
-	@find $(OBJTREE) -type f \( -name .depend \
+	@find $(OBJTREE) -type f \( -name '*.depend' \
 		-o -name '*.srec' -o -name '*.bin' -o -name u-boot.img \) \
 		-print0 \
 		| xargs -0 rm -f
