@@ -347,13 +347,12 @@
 #define BOOTFLAG_WARM		0x02	/* Software reboot			*/
 
 
-#define SRAM_BASE		0x80000000	/* SRAM base address	*/
-#define SRAM_END		0x801FFFFF
 
 /*----------------------------------------------------------------------*/
 /* CPC45 Memory Map							*/
 /*----------------------------------------------------------------------*/
 #define SRAM_BASE	0x80000000	/* SRAM base address		*/
+#define SRAM_END	0x801FFFFF
 #define ST16552_A_BASE	0x80200000	/* ST16552 channel A		*/
 #define ST16552_B_BASE	0x80400000	/* ST16552 channel A		*/
 #define BCSR_BASE	0x80600000	/* board control / status registers */
@@ -361,6 +360,8 @@
 #define PCMCIA_MEM_BASE 0x83000000	/* PCMCIA memory window base	*/
 #define PCMCIA_IO_BASE	0xFE000000	/* PCMCIA IO window base	*/
 
+#define	CONFIG_SYS_SRAM_BASE	SRAM_BASE
+#define	CONFIG_SYS_SRAM_SIZE	(SRAM_END - SRAM_BASE + 1)
 
 /*---------------------------------------------------------------------*/
 /* CPC45 Control/Status Registers				       */

@@ -375,6 +375,8 @@ extern  unsigned long           ip860_get_clk_freq (void);
 #define SRAM_SIZE	(1 + (~(CONFIG_SYS_OR3 & BR_BA_MSK)))
 #define CONFIG_SYS_OR3_PRELIM	CONFIG_SYS_OR3			/* Make sure to map early */
 #define CONFIG_SYS_BR3_PRELIM	CONFIG_SYS_BR3			/* in case it's used for ENV */
+#define	CONFIG_SYS_SRAM_BASE	SRAM_BASE
+#define	CONFIG_SYS_SRAM_SIZE	SRAM_SIZE
 
 /*
  * BR4/OR4 - Board Control & Status (8 bit)

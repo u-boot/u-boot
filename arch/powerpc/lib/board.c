@@ -519,15 +519,12 @@ void board_init_f (ulong bootflag)
 	bd->bi_memstart  = CONFIG_SYS_SDRAM_BASE;	/* start of  DRAM memory	*/
 	bd->bi_memsize   = gd->ram_size;	/* size  of  DRAM memory in bytes */
 
-#ifdef CONFIG_IP860
-	bd->bi_sramstart = SRAM_BASE;	/* start of  SRAM memory	*/
-	bd->bi_sramsize  = SRAM_SIZE;	/* size  of  SRAM memory	*/
-#elif defined CONFIG_MPC8220
+#ifdef CONFIG_SYS_SRAM_BASE
 	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;	/* start of  SRAM memory	*/
 	bd->bi_sramsize  = CONFIG_SYS_SRAM_SIZE;	/* size  of  SRAM memory	*/
 #else
-	bd->bi_sramstart = 0;		/* FIXME */ /* start of  SRAM memory	*/
-	bd->bi_sramsize  = 0;		/* FIXME */ /* size  of  SRAM memory	*/
+	bd->bi_sramstart = 0;
+	bd->bi_sramsize  = 0;
 #endif
 
 #if defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_5xx) || \
