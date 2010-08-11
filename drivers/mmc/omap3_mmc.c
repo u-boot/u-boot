@@ -434,42 +434,45 @@ static unsigned char mmc_read_cardsize(mmc_card_data *mmc_dev_data,
 	return 1;
 }
 
-static unsigned char omap_mmc_read_sect(unsigned int start_sec,
-		unsigned int num_bytes, mmc_card_data *mmc_c,
-		unsigned long *output_buf)
+static unsigned long mmc_bread(int dev_num, unsigned long blknr,
+		lbaint_t blkcnt, void *dst)
 {
 	unsigned char err;
 	unsigned int argument;
 	unsigned int resp[4];
-	unsigned int num_sec_val =
-		(num_bytes + (MMCSD_SECTOR_SIZE - 1)) / MMCSD_SECTOR_SIZE;
+	unsigned int *output_buf = dst;
 	unsigned int sec_inc_val;
+	lbaint_t i;
 
-	if (num_sec_val == 0)
-		return 1;
+	if (blkcnt == 0)
+		return 0;
 
-	if (mmc_c->mode == SECTOR_MODE) {
-		argument = start_sec;
+	if (cur_card_data.mode == SECTOR_MODE) {
+		argument = blknr;
 		sec_inc_val = 1;
 	} else {
-		argument = start_sec * MMCSD_SECTOR_SIZE;
+		argument = blknr * MMCSD_SECTOR_SIZE;
 		sec_inc_val = MMCSD_SECTOR_SIZE;
 	}
 
-	while (num_sec_val) {
+	for (i = 0; i < blkcnt; i++) {
 		err = mmc_send_cmd(MMC_CMD17, argument, resp);
-		if (err != 1)
-			return err;
+		if (err != 1) {
+			printf("mmc: CMD17 failed, status = %08x\n", err);
+			break;
+		}
 
-		err = mmc_read_data((unsigned int *) output_buf);
-		if (err != 1)
-			return err;
+		err = mmc_read_data(output_buf);
+		if (err != 1) {
+			printf("mmc: read failed, status = %08x\n", err);
+			break;
+		}
 
 		output_buf += (MMCSD_SECTOR_SIZE / 4);
 		argument += sec_inc_val;
-		num_sec_val--;
 	}
-	return 1;
+
+	return i;
 }
 
 static unsigned char configure_mmc(mmc_card_data *mmc_card_cur)
@@ -539,14 +542,6 @@ static unsigned char configure_mmc(mmc_card_data *mmc_card_cur)
 	if (ret_val != 1)
 		return ret_val;
 
-	return 1;
-}
-
-static unsigned long mmc_bread(int dev_num, unsigned long blknr,
-		lbaint_t blkcnt, void *dst)
-{
-	omap_mmc_read_sect(blknr, (blkcnt * MMCSD_SECTOR_SIZE), &cur_card_data,
-				(unsigned long *) dst);
 	return 1;
 }
 
