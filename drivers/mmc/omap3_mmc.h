@@ -230,13 +230,4 @@ typedef union {
 	mmc_csd_reg_t Card_CSD;
 } mmc_resp_t;
 
-extern mmc_card_data mmc_dev;
-
-unsigned char mmc_lowlevel_init(void);
-unsigned char mmc_send_command(unsigned int cmd, unsigned int arg,
-			       unsigned int *response);
-unsigned char mmc_setup_clock(unsigned int iclk, unsigned short clkd);
-unsigned char mmc_set_opendrain(unsigned char state);
-unsigned char mmc_read_data(unsigned int *output_buf);
-
 #endif /* MMC_H */
