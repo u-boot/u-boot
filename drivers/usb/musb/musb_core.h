@@ -369,6 +369,8 @@ extern void read_fifo(u8 ep, u32 length, void *fifo_data);
 # define readb(addr)     (u8)bfin_read16(addr)
 # undef  writeb
 # define writeb(b, addr) bfin_write16(addr, b)
+# undef MUSB_TXCSR_MODE /* not supported */
+# define MUSB_TXCSR_MODE 0
 /*
  * The USB PHY on current Blackfin processors is a UTMI+ level 2 PHY.
  * However, it has no ULPI support - so there are no registers at all.
