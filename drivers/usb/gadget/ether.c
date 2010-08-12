@@ -140,6 +140,12 @@ static inline int is_cdc(struct eth_dev *dev)
 #ifdef CONFIG_USB_GADGET_DUALSPEED
 #define	DEVSPEED	USB_SPEED_HIGH
 
+#ifdef CONFIG_USB_ETH_QMULT
+#define qmult CONFIG_USB_ETH_QMULT
+#else
+#define qmult 5
+#endif
+
 /* for dual-speed hardware, use deeper queues at highspeed */
 #define qlen(gadget) \
 	(DEFAULT_QLEN*((gadget->speed == USB_SPEED_HIGH) ? qmult : 1))
