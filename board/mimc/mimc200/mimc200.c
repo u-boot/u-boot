@@ -27,11 +27,31 @@
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/hmatrix.h>
+#include <asm/arch/mmu.h>
 #include <asm/arch/portmux.h>
 #include <atmel_lcdc.h>
 #include <lcd.h>
 
 #include "../../../arch/avr32/cpu/hsmc3.h"
+
+struct mmu_vm_range mmu_vmr_table[CONFIG_SYS_NR_VM_REGIONS] = {
+	{
+		.virt_pgno	= CONFIG_SYS_FLASH_BASE >> PAGE_SHIFT,
+		.nr_pages	= CONFIG_SYS_FLASH_SIZE >> PAGE_SHIFT,
+		.phys		= (CONFIG_SYS_FLASH_BASE >> PAGE_SHIFT)
+					| MMU_VMR_CACHE_NONE,
+	}, {
+		.virt_pgno	= EBI_SRAM_CS2_BASE >> PAGE_SHIFT,
+		.nr_pages	= EBI_SRAM_CS2_SIZE >> PAGE_SHIFT,
+		.phys		= (EBI_SRAM_CS2_BASE >> PAGE_SHIFT)
+					| MMU_VMR_CACHE_NONE,
+	}, {
+		.virt_pgno	= CONFIG_SYS_SDRAM_BASE >> PAGE_SHIFT,
+		.nr_pages	= EBI_SDRAM_SIZE >> PAGE_SHIFT,
+		.phys		= (CONFIG_SYS_SDRAM_BASE >> PAGE_SHIFT)
+					| MMU_VMR_CACHE_WRBACK,
+	},
+};
 
 #if defined(CONFIG_LCD)
 /* 480x272x16 @ 72 Hz */
