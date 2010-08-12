@@ -12,7 +12,6 @@
 lowlevel_init:
 
 
-#ifdef NOTNOW
 	# Do nothing if DDR already running
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0)
 	ldr r2, [r1]
@@ -21,7 +20,6 @@ lowlevel_init:
 	bne doit
 
 	mov pc, lr
-#endif
 
 doit:
 	# unlock SLCR
