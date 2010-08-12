@@ -62,7 +62,7 @@ struct fec_priv gfec = {
 /*
  * MII-interface related functions
  */
-static int fec_miiphy_read(char *dev, uint8_t phyAddr, uint8_t regAddr,
+static int fec_miiphy_read(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 		uint16_t *retVal)
 {
 	struct eth_device *edev = eth_get_dev_by_name(dev);
@@ -119,7 +119,7 @@ static void fec_mii_setspeed(struct fec_priv *fec)
 	debug("fec_init: mii_speed %#lx\n",
 			fec->eth->mii_speed);
 }
-static int fec_miiphy_write(char *dev, uint8_t phyAddr, uint8_t regAddr,
+static int fec_miiphy_write(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 		uint16_t data)
 {
 	struct eth_device *edev = eth_get_dev_by_name(dev);
@@ -743,7 +743,7 @@ static int fec_probe(bd_t *bd)
 	writel(0x05ee0024, &fec->eth->r_cntrl);	/* FIXME 0x05ee0004 */
 	fec_mii_setspeed(fec);
 
-	sprintf(edev->name, "FEC_MXC");
+	sprintf(edev->name, "FEC");
 
 	miiphy_register(edev->name, fec_miiphy_read, fec_miiphy_write);
 

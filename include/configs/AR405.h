@@ -175,9 +175,9 @@
  * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_FLASH_BASE		0xFFFC0000
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_MONITOR_BASE
+#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE
+#define CONFIG_SYS_MONITOR_LEN		(~(TEXT_BASE) + 1)
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
 
 /*
@@ -209,11 +209,11 @@
 #define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_ADDR		0xFFFB0000	/* Address of Environment Sector*/
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SECT_SIZE	0x10000 /* see README - env sector total size	*/
 #define CONFIG_ENV_SIZE		0x04000	        /* Size of Environment	        */
 
-#define CONFIG_ENV_ADDR_REDUND     0xFFFA0000
+#define CONFIG_ENV_ADDR_REDUND  (CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 /*

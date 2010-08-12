@@ -40,7 +40,7 @@ extern char keymile_slot;	/* our slot number in the backplane */
 #define TOUT_LOOP	50000
 
 /*
- * Since, except during initialization, ethact is always HDLC ETHERNET
+ * Since, except during initialization, ethact is always HDLC
  * while we're in the driver, just use serial_printf() everywhere for
  * output.  This avoids possible conflicts when netconsole is being
  * used.
@@ -124,7 +124,7 @@ int keymile_hdlc_enet_initialize(bd_t *bis)
 	seth = dev;
 #endif
 
-	sprintf(dev->name, "HDLC ETHERNET");
+	sprintf(dev->name, "HDLC");
 	dev->init   = keymile_hdlc_enet_init;
 	dev->halt   = keymile_hdlc_enet_halt;
 	dev->send   = keymile_hdlc_enet_send;

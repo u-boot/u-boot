@@ -99,9 +99,9 @@ int mv64460_eth_receive (struct eth_device *dev);
 
 int mv64460_eth_xmit (struct eth_device *, volatile void *packet, int length);
 
-int mv_miiphy_read(char *devname, unsigned char phy_addr,
+int mv_miiphy_read(const char *devname, unsigned char phy_addr,
 		   unsigned char phy_reg, unsigned short *value);
-int mv_miiphy_write(char *devname, unsigned char phy_addr,
+int mv_miiphy_write(const char *devname, unsigned char phy_addr,
 		    unsigned char phy_reg, unsigned short value);
 
 int phy_setup_aneg (char *devname, unsigned char addr);
@@ -2544,7 +2544,7 @@ static bool eth_port_read_smi_reg (ETH_PORT eth_port_num,
 	return true;
 }
 
-int mv_miiphy_read(char *devname, unsigned char phy_addr,
+int mv_miiphy_read(const char *devname, unsigned char phy_addr,
 		   unsigned char phy_reg, unsigned short *value)
 {
 	unsigned int reg_value;
@@ -2629,7 +2629,7 @@ static bool eth_port_write_smi_reg (ETH_PORT eth_port_num,
 	return true;
 }
 
-int mv_miiphy_write(char *devname, unsigned char phy_addr,
+int mv_miiphy_write(const char *devname, unsigned char phy_addr,
 		    unsigned char phy_reg, unsigned short value)
 {
 	unsigned int reg_value;

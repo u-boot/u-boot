@@ -53,13 +53,6 @@
 #define CONFIG_HOSTNAME		katmai
 #include "amcc-common.h"
 
-/*
- * For booting 256K-paged Linux we should have 16MB of memory
- * for Linux initial memory map
- */
-#undef CONFIG_SYS_BOOTMAPSZ
-#define CONFIG_SYS_BOOTMAPSZ	(16 << 20)
-
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_pre_init		*/
 #undef  CONFIG_SHOW_BOOT_PROGRESS
 
@@ -188,11 +181,10 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_AMCC_DEF_ENV						\
 	CONFIG_AMCC_DEF_ENV_POWERPC					\
-	CONFIG_AMCC_DEF_ENV_PPC_OLD					\
 	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
-	"kernel_addr=fff10000\0"					\
-	"ramdisk_addr=fff20000\0"					\
-	"kozio=bootm ffc60000\0"					\
+	"kernel_addr=ff000000\0"					\
+	"fdt_addr=ff1e0000\0"						\
+	"ramdisk_addr=ff200000\0"					\
 	"pciconfighost=1\0"						\
 	"pcie_mode=RP:RP:RP\0"						\
 	""

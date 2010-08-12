@@ -379,8 +379,9 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		0xFFE00000
-#define CONFIG_SYS_MONITOR_BASE	0xFFFC0000     /* placed last 256k */
-#define CONFIG_SYS_MONITOR_LEN		(224 * 1024)	/* Reserve 224 KiB for Monitor	*/
+
+#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* Start of U-Boot	*/
+#define CONFIG_SYS_MONITOR_LEN		(0xFFFFFFFF - CONFIG_SYS_MONITOR_BASE + 1)
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 KiB for malloc()	*/
 
 /*

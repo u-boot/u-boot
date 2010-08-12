@@ -25,8 +25,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #error "CONFIG_MII has to be defined!"
 #endif
 
-int fec512x_miiphy_read(char *devname, u8 phyAddr, u8 regAddr, u16 * retVal);
-int fec512x_miiphy_write(char *devname, u8 phyAddr, u8 regAddr, u16 data);
+int fec512x_miiphy_read(const char *devname, u8 phyAddr, u8 regAddr, u16 * retVal);
+int fec512x_miiphy_write(const char *devname, u8 phyAddr, u8 regAddr, u16 data);
 int mpc512x_fec_init_phy(struct eth_device *dev, bd_t * bis);
 
 static uchar rx_buff[FEC_BUFFER_SIZE];
@@ -637,7 +637,7 @@ int mpc512x_fec_initialize (bd_t * bis)
 	dev->send = mpc512x_fec_send;
 	dev->recv = mpc512x_fec_recv;
 
-	sprintf (dev->name, "FEC ETHERNET");
+	sprintf (dev->name, "FEC");
 	eth_register (dev);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
@@ -672,7 +672,7 @@ int mpc512x_fec_initialize (bd_t * bis)
 
 /* MII-interface related functions */
 /********************************************************************/
-int fec512x_miiphy_read (char *devname, u8 phyAddr, u8 regAddr, u16 * retVal)
+int fec512x_miiphy_read(const char *devname, u8 phyAddr, u8 regAddr, u16 *retVal)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile fec512x_t *eth = &im->fec;
@@ -719,7 +719,7 @@ int fec512x_miiphy_read (char *devname, u8 phyAddr, u8 regAddr, u16 * retVal)
 }
 
 /********************************************************************/
-int fec512x_miiphy_write (char *devname, u8 phyAddr, u8 regAddr, u16 data)
+int fec512x_miiphy_write(const char *devname, u8 phyAddr, u8 regAddr, u16 data)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile fec512x_t *eth = &im->fec;

@@ -71,7 +71,7 @@ static int bfin_miiphy_wait(void)
 	return 0;
 }
 
-static int bfin_miiphy_read(char *devname, uchar addr, uchar reg, ushort *val)
+static int bfin_miiphy_read(const char *devname, uchar addr, uchar reg, ushort *val)
 {
 	if (bfin_miiphy_wait())
 		return 1;
@@ -82,7 +82,7 @@ static int bfin_miiphy_read(char *devname, uchar addr, uchar reg, ushort *val)
 	return 0;
 }
 
-static int bfin_miiphy_write(char *devname, uchar addr, uchar reg, ushort val)
+static int bfin_miiphy_write(const char *devname, uchar addr, uchar reg, ushort val)
 {
 	if (bfin_miiphy_wait())
 		return 1;

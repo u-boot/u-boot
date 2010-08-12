@@ -280,7 +280,7 @@
 #define BOOTFLAG_WARM	0x02	/* Software reboot		    */
 
 #define CONFIG_SCC3_ENET
-#define CONFIG_ETHPRIME		"SCC ETHERNET"
+#define CONFIG_ETHPRIME		"SCC"
 #define CONFIG_HAS_ETH0
 
 /* pass open firmware flat tree */

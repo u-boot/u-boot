@@ -363,7 +363,7 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_MIIM_ADDRESS	(CONFIG_SYS_CCSRBAR + 0x82120)
 #define CONFIG_UEC_ETH
-#define CONFIG_ETHPRIME         "FSL UEC0"
+#define CONFIG_ETHPRIME         "UEC0"
 #define CONFIG_PHY_MODE_NEED_CHANGE
 
 #define CONFIG_UEC_ETH1         /* GETH1 */

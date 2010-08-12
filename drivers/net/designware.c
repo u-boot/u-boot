@@ -451,7 +451,7 @@ static int configure_phy(struct eth_device *dev)
 }
 
 #if defined(CONFIG_MII)
-static int dw_mii_read(char *devname, u8 addr, u8 reg, u16 *val)
+static int dw_mii_read(const char *devname, u8 addr, u8 reg, u16 *val)
 {
 	struct eth_device *dev;
 
@@ -462,7 +462,7 @@ static int dw_mii_read(char *devname, u8 addr, u8 reg, u16 *val)
 	return 0;
 }
 
-static int dw_mii_write(char *devname, u8 addr, u8 reg, u16 val)
+static int dw_mii_write(const char *devname, u8 addr, u8 reg, u16 val)
 {
 	struct eth_device *dev;
 

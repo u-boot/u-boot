@@ -44,9 +44,9 @@
 #define GET_REGS(eth_dev)	(GET_PRIV(eth_dev)->regs)
 
 /* ep93xx_miiphy ops forward declarations */
-static int ep93xx_miiphy_read(char * const dev, unsigned char const addr,
+static int ep93xx_miiphy_read(const char * const dev, unsigned char const addr,
 			unsigned char const reg, unsigned short * const value);
-static int ep93xx_miiphy_write(char * const dev, unsigned char const addr,
+static int ep93xx_miiphy_write(const char * const dev, unsigned char const addr,
 			unsigned char const reg, unsigned short const value);
 
 #if defined(EP93XX_MAC_DEBUG)
@@ -555,7 +555,7 @@ eth_init_done:
 /**
  * Read a 16-bit value from an MII register.
  */
-static int ep93xx_miiphy_read(char * const dev, unsigned char const addr,
+static int ep93xx_miiphy_read(const char * const dev, unsigned char const addr,
 			unsigned char const reg, unsigned short * const value)
 {
 	struct mac_regs *mac = (struct mac_regs *)MAC_BASE;
@@ -607,7 +607,7 @@ static int ep93xx_miiphy_read(char * const dev, unsigned char const addr,
 /**
  * Write a 16-bit value to an MII register.
  */
-static int ep93xx_miiphy_write(char * const dev, unsigned char const addr,
+static int ep93xx_miiphy_write(const char * const dev, unsigned char const addr,
 			unsigned char const reg, unsigned short const value)
 {
 	struct mac_regs *mac = (struct mac_regs *)MAC_BASE;

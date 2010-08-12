@@ -3158,10 +3158,10 @@ List of environment variables (most likely not complete):
 		  interface is currently active. For example you
 		  can do the following
 
-		  => setenv ethact FEC ETHERNET
-		  => ping 192.168.0.1 # traffic sent on FEC ETHERNET
-		  => setenv ethact SCC ETHERNET
-		  => ping 10.0.0.1 # traffic sent on SCC ETHERNET
+		  => setenv ethact FEC
+		  => ping 192.168.0.1 # traffic sent on FEC
+		  => setenv ethact SCC
+		  => ping 10.0.0.1 # traffic sent on SCC
 
   ethrotate	- When set to "no" U-Boot does not go through all
 		  available network interfaces.
