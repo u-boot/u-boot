@@ -189,11 +189,11 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(CAM_XCLKB),		(IDIS | PTD | DIS | M0)) /*CAM_XCLKB*/\
 	MUX_VAL(CP(CAM_WEN),		(IEN  | PTD | DIS | M0)) /*CAM_WEN*/\
 	MUX_VAL(CP(CAM_STROBE),		(IDIS | PTD | DIS | M0)) /*CAM_STROBE*/\
-	MUX_VAL(CP(CSI2_DX0),		(IEN  | PTD | DIS | M0)) /*CSI2_DX0*/\
-	MUX_VAL(CP(CSI2_DY0),		(IEN  | PTD | DIS | M0)) /*CSI2_DY0*/\
+	MUX_VAL(CP(CSI2_DX0),		(IEN  | PTD | EN  | M4)) /*GPIO_112*/\
+	MUX_VAL(CP(CSI2_DY0),		(IEN  | PTD | EN  | M4)) /*GPIO_113*/\
 	MUX_VAL(CP(CSI2_DX1),		(IEN  | PTD | EN  | M4)) /*GPIO_114*/\
 								 /* - PEN_DOWN*/\
-	MUX_VAL(CP(CSI2_DY1),		(IEN  | PTU | EN  | M4)) /*GPIO_115*/\
+	MUX_VAL(CP(CSI2_DY1),		(IEN  | PTD | EN  | M4)) /*GPIO_115*/\
  /*Audio Interface */\
 	MUX_VAL(CP(MCBSP2_FSX),		(IEN  | PTD | DIS | M0)) /*McBSP2_FSX*/\
 	MUX_VAL(CP(MCBSP2_CLKX),	(IEN  | PTD | DIS | M0)) /*McBSP2_CLKX*/\

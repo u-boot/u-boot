@@ -61,6 +61,37 @@ int board_init(void)
 }
 
 /*
+ * Routine: get_board_revision
+ * Description: Returns the board revision
+ */
+int get_board_revision(void)
+{
+	int revision;
+
+	if (!omap_request_gpio(112) &&
+	    !omap_request_gpio(113) &&
+	    !omap_request_gpio(115)) {
+
+		omap_set_gpio_direction(112, 1);
+		omap_set_gpio_direction(113, 1);
+		omap_set_gpio_direction(115, 1);
+
+		revision = omap_get_gpio_datain(115) << 2 |
+			   omap_get_gpio_datain(113) << 1 |
+			   omap_get_gpio_datain(112);
+
+		omap_free_gpio(112);
+		omap_free_gpio(113);
+		omap_free_gpio(115);
+	} else {
+		printf("Error: unable to acquire board revision GPIOs\n");
+		revision = -1;
+	}
+
+	return revision;
+}
+
+/*
  * Routine: misc_init_r
  * Description: Configure board specific parts
  */
@@ -73,6 +104,7 @@ int misc_init_r(void)
 	setup_net_chip();
 #endif
 
+	printf("Board revision: %d\n", get_board_revision());
 	dieid_num_r();
 
 	return 0;
