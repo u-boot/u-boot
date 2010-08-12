@@ -32,6 +32,22 @@ _start:
 	mts	rmsr, r0	/* disable cache */
 	addi	r1, r0, CONFIG_SYS_INIT_SP_OFFSET
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
+
+	/* Find-out if u-boot is running on BIG/LITTLE endian platform
+	 * There are some steps which is necessary to keep in mind:
+	 * 1. Setup offset value to r6
+	 * 2. Store word offset value to address 0x0
+	 * 3. Load just byte from address 0x0
+	 * 4a) LITTLE endian - r10 contains 0x2 because it is the smallest
+	 *     value that's why is on address 0x0
+	 * 4b) BIG endian - r10 contains 0x0 because 0x2 offset is on addr 0x3
+	 */
+	addik	r6, r0, 0x2 /* BIG/LITTLE endian offset */
+	swi	r6, r0, 0
+	lbui	r10, r0, 0
+	swi	r6, r0, 0x40
+	swi	r10, r0, 0x50
+
 	/* add opcode instruction for 32bit jump - 2 instruction imm & brai*/
 	addi	r6, r0, 0xb0000000	/* hex b000 opcode imm */
 	swi	r6, r0, 0x0	/* reset address */
@@ -75,26 +91,52 @@ _start:
 	/* user_vector_exception */
 	addik	r6, r0, _exception_handler
 	sw	r6, r1, r0
-	lhu	r7, r1, r0
-	shi	r7, r0, 0xa
-	shi	r6, r0, 0xe
+	/*
+	 * BIG ENDIAN memory map for user exception
+	 * 0x8: 0xB000XXXX
+	 * 0xC: 0xB808XXXX
+	 *
+	 * then it is necessary to count address for storing the most significant
+	 * 16bits from _exception_handler address and copy it to 
+	 * 0xa address. Big endian use offset in r10=0 that's why is it just
+	 * 0xa address. The same is done for the least significant 16 bits
+	 * for 0xe address.
+	 *
+	 * LITTLE ENDIAN memory map for user exception
+	 * 0x8: 0xXXXX00B0
+	 * 0xC: 0xXXXX08B8
+	 *
+	 * Offset is for little endian setup to 0x2. rsubi instruction decrease
+	 * address value to ensure that points to proper place which is
+	 * 0x8 for the most significant 16 bits and
+	 * 0xC for the least significant 16 bits
+	 */
+	lhu	r7, r1, r10
+	rsubi	r8, r10, 0xa
+	sh	r7, r0, r8
+	rsubi	r8, r10, 0xe
+	sh	r6, r0, r8
 #endif
 
 #ifdef CONFIG_SYS_INTC_0
 	/* interrupt_handler */
 	addik	r6, r0, _interrupt_handler
 	sw	r6, r1, r0
-	lhu	r7, r1, r0
-	shi	r7, r0, 0x12
-	shi	r6, r0, 0x16
+	lhu	r7, r1, r10
+	rsubi	r8, r10, 0x12
+	sh	r7, r0, r8
+	rsubi	r8, r10, 0x16
+	sh	r6, r0, r8
 #endif
 
 	/* hardware exception */
 	addik	r6, r0, _hw_exception_handler
 	sw	r6, r1, r0
-	lhu	r7, r1, r0
-	shi	r7, r0, 0x22
-	shi	r6, r0, 0x26
+	lhu	r7, r1, r10
+	rsubi	r8, r10, 0x22
+	sh	r7, r0, r8
+	rsubi	r8, r10, 0x26
+	sh	r6, r0, r8
 
 	/* enable instruction and data cache */
 	mfs	r12, rmsr
