@@ -836,7 +836,7 @@ static void eth_reset_config (struct eth_dev *dev)
 	if (dev->out) {
 		usb_ep_disable (dev->out_ep);
 		if (dev->rx_req) {
-			usb_ep_free_request (dev->in_ep, dev->rx_req);
+			usb_ep_free_request (dev->out_ep, dev->rx_req);
 			dev->rx_req=NULL;
 		}
 	}
@@ -1421,6 +1421,11 @@ static void eth_unbind (struct usb_gadget *gadget)
 
 	debug("%s...\n", __func__);
 
+	/* we've already been disconnected ... no i/o is active */
+	if (dev->req) {
+		usb_ep_free_request (gadget->ep0, dev->req);
+		dev->req = NULL;
+	}
 	if (dev->stat_req) {
 		usb_ep_free_request (dev->status_ep, dev->stat_req);
 		dev->stat_req = NULL;
@@ -1432,7 +1437,7 @@ static void eth_unbind (struct usb_gadget *gadget)
 	}
 
 	if (dev->rx_req) {
-		usb_ep_free_request (dev->in_ep, dev->rx_req);
+		usb_ep_free_request (dev->out_ep, dev->rx_req);
 		dev->rx_req=NULL;
 	}
 
