@@ -43,6 +43,17 @@
 static void setup_net_chip(void);
 #endif
 
+/* GPMC definitions for LAN9221 chips on Tobi expansion boards */
+static const u32 gpmc_lan_config[] = {
+    NET_LAN9221_GPMC_CONFIG1,
+    NET_LAN9221_GPMC_CONFIG2,
+    NET_LAN9221_GPMC_CONFIG3,
+    NET_LAN9221_GPMC_CONFIG4,
+    NET_LAN9221_GPMC_CONFIG5,
+    NET_LAN9221_GPMC_CONFIG6,
+    /*CONFIG7- computed as params */
+};
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -131,14 +142,13 @@ static void setup_net_chip(void)
 {
 	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
 
-	/* Configure GPMC registers */
-	writel(NET_LAN9221_GPMC_CONFIG1, &gpmc_cfg->cs[5].config1);
-	writel(NET_LAN9221_GPMC_CONFIG2, &gpmc_cfg->cs[5].config2);
-	writel(NET_LAN9221_GPMC_CONFIG3, &gpmc_cfg->cs[5].config3);
-	writel(NET_LAN9221_GPMC_CONFIG4, &gpmc_cfg->cs[5].config4);
-	writel(NET_LAN9221_GPMC_CONFIG5, &gpmc_cfg->cs[5].config5);
-	writel(NET_LAN9221_GPMC_CONFIG6, &gpmc_cfg->cs[5].config6);
-	writel(NET_LAN9221_GPMC_CONFIG7, &gpmc_cfg->cs[5].config7);
+	/* first lan chip */
+	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[5], 0x2C000000,
+			GPMC_SIZE_16M);
+
+	/* second lan chip */
+	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[4], 0x2B000000,
+			GPMC_SIZE_16M);
 
 	/* Enable off mode for NWE in PADCONF_GPMC_NWE register */
 	writew(readw(&ctrl_base ->gpmc_nwe) | 0x0E00, &ctrl_base->gpmc_nwe);
