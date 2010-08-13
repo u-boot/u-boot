@@ -1588,12 +1588,12 @@ static int eth_bind(struct usb_gadget *gadget)
 	if (bcdDevice)
 		device_desc.bcdDevice = cpu_to_le16(bcdDevice);
 	if (iManufacturer)
-		strcpy (manufacturer, iManufacturer);
+		strlcpy (manufacturer, iManufacturer, sizeof manufacturer);
 	if (iProduct)
-		strcpy (product_desc, iProduct);
+		strlcpy (product_desc, iProduct, sizeof product_desc);
 	if (iSerialNumber) {
 		device_desc.iSerialNumber = STRING_SERIALNUMBER,
-		strcpy(serial_number, iSerialNumber);
+		strlcpy(serial_number, iSerialNumber, sizeof serial_number);
 	}
 
 	/* all we really need is bulk IN/OUT */
