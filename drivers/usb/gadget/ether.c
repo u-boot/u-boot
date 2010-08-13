@@ -801,7 +801,7 @@ done:
 
 	/* on error, disable any endpoints  */
 	if (result < 0) {
-		if (!subset_active(dev))
+		if (!subset_active(dev) && dev->status_ep)
 			(void) usb_ep_disable (dev->status_ep);
 		dev->status = NULL;
 		(void) usb_ep_disable (dev->in_ep);
