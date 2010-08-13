@@ -31,14 +31,7 @@
 #include "gadget_chips.h"
 
 #define USB_NET_NAME "usb0"
-#define dprintf(x, ...)
-#undef INFO
-#define INFO(x, s...)	printf(s)
-#define dev_err(x, stuff...) printf(stuff)
-#define dev_dbg dev_err
-#define dev_warn dev_err
-#define DEBUG dev_err
-#define VDEBUG DEBUG
+
 #define atomic_read
 extern struct platform_data brd;
 #define spin_lock(x)
@@ -769,7 +762,7 @@ set_ether_config (struct eth_dev *dev, gfp_t gfp_flags)
 
 		result = usb_ep_enable (dev->status_ep, dev->status);
 		if (result != 0) {
-			printf ("enable %s --> %d\n",
+			debug("enable %s --> %d\n",
 				dev->status_ep->name, result);
 			goto done;
 		}
@@ -789,14 +782,14 @@ set_ether_config (struct eth_dev *dev, gfp_t gfp_flags)
 	if (!cdc_active(dev)) {
 		result = usb_ep_enable (dev->in_ep, dev->in);
 		if (result != 0) {
-			printf ("enable %s --> %d\n",
+			debug("enable %s --> %d\n",
 				dev->in_ep->name, result);
 			goto done;
 		}
 
 		result = usb_ep_enable (dev->out_ep, dev->out);
 		if (result != 0) {
-			printf ("enable %s --> %d\n",
+			debug("enable %s --> %d\n",
 				dev->out_ep->name, result);
 			goto done;
 		}
@@ -826,6 +819,8 @@ static void eth_reset_config (struct eth_dev *dev)
 {
 	if (dev->config == 0)
 		return;
+
+	debug("%s\n", __func__);
 
 	/* disable endpoints, forcing (synchronous) completion of
 	 * pending i/o.  then free the requests.
@@ -864,7 +859,7 @@ static int eth_set_config (struct eth_dev *dev, unsigned number, gfp_t gfp_flags
 			&& dev->config
 			&& dev->tx_qlen != 0) {
 		/* tx fifo is full, but we can't clear it...*/
-		INFO (dev, "can't change configurations\n");
+		error("can't change configurations");
 		return -ESPIPE;
 	}
 	eth_reset_config (dev);
@@ -901,7 +896,7 @@ static int eth_set_config (struct eth_dev *dev, unsigned number, gfp_t gfp_flags
 		}
 
 		dev->config = number;
-		INFO (dev, "%s speed config #%d: %d mA, %s, using %s\n",
+		printf("%s speed config #%d: %d mA, %s, using %s\n",
 				speed, number, power, driver_desc,
 				(cdc_active(dev)? "CDC Ethernet"
 						: "CDC Ethernet Subset"));
@@ -941,11 +936,11 @@ static void eth_status_complete (struct usb_ep *ep, struct usb_request *req)
 
 		req->length = STATUS_BYTECOUNT;
 		value = usb_ep_queue (ep, req, GFP_ATOMIC);
-		dprintf ("send SPEED_CHANGE --> %d\n", value);
+		debug("send SPEED_CHANGE --> %d\n", value);
 		if (value == 0)
 			return;
 	} else if (value != -ECONNRESET) {
-		dprintf("event %02x --> %d\n",
+		debug("event %02x --> %d\n",
 			event->bNotificationType, value);
 		if (event->bNotificationType==
 				USB_CDC_NOTIFY_SPEED_CHANGE)
@@ -991,7 +986,7 @@ static void issue_start_status (struct eth_dev *dev)
 
 	value = usb_ep_queue (dev->status_ep, req, GFP_ATOMIC);
 	if (value < 0)
-		printf ("status buf queue --> %d\n", value);
+		debug("status buf queue --> %d\n", value);
 }
 
 #endif
@@ -1001,8 +996,7 @@ static void issue_start_status (struct eth_dev *dev)
 static void eth_setup_complete (struct usb_ep *ep, struct usb_request *req)
 {
 	if (req->status || req->actual != req->length)
-		dprintf  (/*(struct eth_dev *) ep->driver_data*/
-				"setup complete --> %d, %d/%d\n",
+		debug("setup complete --> %d, %d/%d\n",
 				req->status, req->actual, req->length);
 }
 
@@ -1029,7 +1023,7 @@ eth_setup (struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 	 * while config change events may enable network traffic.
 	 */
 
-	dprintf("eth_setup:...\n");
+	debug("%s\n", __func__);
 
 	req->complete = eth_setup_complete;
 	switch (ctrl->bRequest) {
@@ -1078,9 +1072,9 @@ eth_setup (struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		if (ctrl->bRequestType != 0)
 			break;
 		if (gadget->a_hnp_support)
-			DEBUG (dev, "HNP available\n");
+			debug("HNP available\n");
 		else if (gadget->a_alt_hnp_support)
-			DEBUG (dev, "HNP needs a different root port\n");
+			debug("HNP needs a different root port\n");
 		value = eth_set_config (dev, wValue, GFP_ATOMIC);
 		break;
 	case USB_REQ_GET_CONFIGURATION:
@@ -1145,7 +1139,7 @@ eth_setup (struct usb_gadget *gadget, const struct usb_ctrlrequest *ctrl)
 		/* FIXME this is wrong, as is the assumption that
 		 * all non-PXA hardware talks real CDC ...
 		 */
-		dev_warn (&gadget->dev, "set_interface ignored!\n");
+		debug("set_interface ignored!\n");
 #endif /* DEV_CONFIG_CDC */
 
 done_set_intf:
@@ -1179,7 +1173,7 @@ done_set_intf:
 				|| wLength != 0
 				|| wIndex > 1)
 			break;
-		printf ("packet filter %02x\n", wValue);
+		debug("packet filter %02x\n", wValue);
 		dev->cdc_filter = wValue;
 		value = 0;
 		break;
@@ -1194,21 +1188,20 @@ done_set_intf:
 #endif /* DEV_CONFIG_CDC */
 
 	default:
-		printf (
-			"unknown control req%02x.%02x v%04x i%04x l%d\n",
+		debug("unknown control req%02x.%02x v%04x i%04x l%d\n",
 			ctrl->bRequestType, ctrl->bRequest,
 			wValue, wIndex, wLength);
 	}
 
 	/* respond with data transfer before status phase? */
 	if (value >= 0) {
-		dprintf("respond with data transfer before status phase\n");
+		debug("respond with data transfer before status phase\n");
 		req->length = value;
 		req->zero = value < wLength
 				&& (value % gadget->ep0->maxpacket) == 0;
 		value = usb_ep_queue (gadget->ep0, req, GFP_ATOMIC);
 		if (value < 0) {
-			DEBUG (dev, "ep_queue --> %d\n", value);
+			debug("ep_queue --> %d\n", value);
 			req->status = 0;
 			eth_setup_complete (gadget->ep0, req);
 		}
@@ -1237,7 +1230,7 @@ static int rx_submit ( struct eth_dev *dev, struct usb_request *req, \
 	 * byte off the end (to force hardware errors on overflow).
 	 */
 
-	dprintf("%s\n", __func__);
+	debug("%s\n", __func__);
 
 	size = (ETHER_HDR_SIZE + dev->mtu + RX_EXTRA);
 	size += dev->out_ep->maxpacket - 1;
@@ -1255,7 +1248,7 @@ static int rx_submit ( struct eth_dev *dev, struct usb_request *req, \
 	retval = usb_ep_queue (dev->out_ep, req, gfp_flags);
 
 	if (retval) {
-		dprintf ("rx submit --> %d\n", retval);
+		error("rx submit --> %d", retval);
 	}
 	return retval;
 }
@@ -1265,8 +1258,7 @@ static void rx_complete (struct usb_ep *ep, struct usb_request *req)
 {
 	struct eth_dev	*dev = ep->driver_data;
 
-	dprintf("%s\n", __func__);
-	dprintf("rx status %d\n", req->status);
+	debug("%s: status %d\n", __func__, req->status);
 
 	packet_received=1;
 
@@ -1291,14 +1283,14 @@ static int alloc_requests (struct eth_dev *dev, unsigned n, gfp_t gfp_flags)
 	return 0;
 
 fail:
-	DEBUG (dev, "can't alloc requests\n");
+	error("can't alloc requests");
 	return -1;
 }
 
 
 static void tx_complete (struct usb_ep *ep, struct usb_request *req)
 {
-	dprintf("%s, status: %s\n", __func__,(req->status) ? "failed":"ok");
+	debug("%s: status %s\n", __func__, (req->status)?"failed":"ok");
 	packet_sent=1;
 }
 
@@ -1427,7 +1419,7 @@ static void eth_unbind (struct usb_gadget *gadget)
 {
 	struct eth_dev *dev = get_gadget_data (gadget);
 
-	printf("eth_unbind:...\n");
+	debug("%s...\n", __func__);
 
 	if (dev->stat_req) {
 		usb_ep_free_request (dev->status_ep, dev->stat_req);
@@ -1567,8 +1559,7 @@ static int eth_bind(struct usb_gadget *gadget)
 		 * anything less functional on CDC-capable hardware,
 		 * so we fail in this case.
 		 */
-		dev_err (&gadget->dev,
-			"controller '%s' not recognized\n",
+		error("controller '%s' not recognized",
 			gadget->name);
 		return -ENODEV;
 	}
@@ -1605,8 +1596,7 @@ static int eth_bind(struct usb_gadget *gadget)
 	in_ep = usb_ep_autoconfig (gadget, &fs_source_desc);
 	if (!in_ep) {
 autoconf_fail:
-		dev_err (&gadget->dev,
-			"can't autoconfigure on %s\n",
+		error("can't autoconfigure on %s\n",
 			gadget->name);
 		return -ENODEV;
 	}
@@ -1700,18 +1690,18 @@ autoconf_fail:
 			dev->host_mac [2], dev->host_mac [3],
 			dev->host_mac [4], dev->host_mac [5]);
 
-	INFO (dev, "using %s, OUT %s IN %s%s%s\n", gadget->name,
+	printf("using %s, OUT %s IN %s%s%s\n", gadget->name,
 		out_ep->name, in_ep->name,
 		status_ep ? " STATUS " : "",
 		status_ep ? status_ep->name : ""
 		);
-	INFO (dev, "MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
+	printf("MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
 		dev->net->enetaddr [0], dev->net->enetaddr [1],
 		dev->net->enetaddr [2], dev->net->enetaddr [3],
 		dev->net->enetaddr [4], dev->net->enetaddr [5]);
 
 	if (cdc) {
-		INFO (dev, "HOST MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
+		printf("HOST MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
 			dev->host_mac [0], dev->host_mac [1],
 			dev->host_mac [2], dev->host_mac [3],
 			dev->host_mac [4], dev->host_mac [5]);
@@ -1755,7 +1745,7 @@ autoconf_fail:
 	return 0;
 
 fail:
-	dev_dbg(&gadget->dev, "register_netdev failed\n");
+	error("%s failed", __func__);
 	eth_unbind (gadget);
 	return -ENOMEM;
 }
@@ -1768,7 +1758,7 @@ static int usb_eth_init(struct eth_device* netdev, bd_t* bd)
 	unsigned long timeout = USB_CONNECT_TIMEOUT;
 
 	if (!netdev) {
-		printf("ERROR: received NULL ptr\n");
+		error("received NULL ptr");
 		goto fail;
 	}
 
@@ -1790,7 +1780,7 @@ static int usb_eth_init(struct eth_device* netdev, bd_t* bd)
 	{
 		/* Handle control-c and timeouts */
 		if (ctrlc() || (get_timer(ts) > timeout)) {
-			printf("The remote end did not respond in time.\n");
+			error("The remote end did not respond in time.");
 			goto fail;
 		}
 		usb_gadget_handle_interrupts();
@@ -1806,9 +1796,9 @@ static int usb_eth_send(struct eth_device* netdev, volatile void* packet, int le
 {
 	int			retval;
 	struct usb_request	*req = NULL;
+	struct eth_dev		*dev = &l_ethdev;
 
-	struct eth_dev *dev = &l_ethdev;
-	dprintf("%s:...\n",__func__);
+	debug("%s:...\n", __func__);
 
 	req = dev->tx_req;
 
@@ -1836,7 +1826,7 @@ static int usb_eth_send(struct eth_device* netdev, volatile void* packet, int le
 	retval = usb_ep_queue (dev->in_ep, req, GFP_ATOMIC);
 
 	if (!retval)
-		dprintf("%s: packet queued\n",__func__);
+		debug("%s: packet queued\n", __func__);
 	while(!packet_sent)
 	{
 		packet_sent=0;
@@ -1853,7 +1843,7 @@ static int usb_eth_recv(struct eth_device* netdev)
 
 	if (packet_received)
 	{
-		dprintf("%s: packet received \n",__func__);
+		debug("%s: packet received \n", __func__);
 		if (dev->rx_req)
 		{
 			NetReceive(NetRxPackets[0],dev->rx_req->length);
@@ -1862,7 +1852,7 @@ static int usb_eth_recv(struct eth_device* netdev)
 			if (dev->rx_req)
 				rx_submit (dev, dev->rx_req, 0);
 		}
-		else printf("dev->rx_req invalid\n");
+		else error("dev->rx_req invalid");
 	}
 	return 0;
 }
@@ -1873,7 +1863,7 @@ void usb_eth_halt(struct eth_device* netdev)
 
 	if (!netdev)
 	{
-		printf("ERROR: received NULL ptr\n");
+		error("received NULL ptr");
 		return;
 	}
 
@@ -1929,11 +1919,11 @@ int usb_eth_initialize(bd_t *bi)
 	host_addr[sizeof(host_addr)-1] = '\0';
 
 	if (!is_eth_addr_valid(dev_addr)) {
-		printf("ERROR: Need valid 'usbnet_devaddr' to be set\n");
+		error("Need valid 'usbnet_devaddr' to be set");
 		status = -1;
 	}
 	if (!is_eth_addr_valid(host_addr)) {
-		printf("ERROR: Need valid 'usbnet_hostaddr' to be set\n");
+		error("Need valid 'usbnet_hostaddr' to be set");
 		status = -1;
 	}
 	if (status)
@@ -1947,7 +1937,7 @@ int usb_eth_initialize(bd_t *bi)
 	return 0;
 
 fail:
-	printf("%s failed\n", __func__ );
+	error("%s failed. error = %d", __func__, status);
 	return status;
 }
 
