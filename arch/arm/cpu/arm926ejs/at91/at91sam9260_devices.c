@@ -194,3 +194,24 @@ void at91_macb_hw_init(void)
 #endif
 }
 #endif
+
+#if defined(CONFIG_ATMEL_MCI) || defined(CONFIG_GENERIC_ATMEL_MCI)
+void at91_mci_hw_init(void)
+{
+	at91_set_a_periph(AT91_PIO_PORTA, 8, 1);	/* MCCK */
+#if defined(CONFIG_ATMEL_MCI_PORTB)
+	at91_set_b_periph(AT91_PIO_PORTA, 1, 1);	/* MCCDB */
+	at91_set_b_periph(AT91_PIO_PORTA, 0, 1);	/* MCDB0 */
+	at91_set_b_periph(AT91_PIO_PORTA, 5, 1);	/* MCDB1 */
+	at91_set_b_periph(AT91_PIO_PORTA, 4, 1);	/* MCDB2 */
+	at91_set_b_periph(AT91_PIO_PORTA, 3, 1);	/* MCDB3 */
+#else
+	at91_set_a_periph(AT91_PIO_PORTA, 7, 1);	/* MCCDA */
+	at91_set_a_periph(AT91_PIO_PORTA, 6, 1);	/* MCDA0 */
+	at91_set_a_periph(AT91_PIO_PORTA, 9, 1);	/* MCDA1 */
+	at91_set_a_periph(AT91_PIO_PORTA, 10, 1);	/* MCDA2 */
+	at91_set_a_periph(AT91_PIO_PORTA, 11, 1);	/* MCDA3 */
+#endif
+}
+#endif
+
