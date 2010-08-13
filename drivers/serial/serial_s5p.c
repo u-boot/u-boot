@@ -30,11 +30,7 @@
 static inline struct s5p_uart *s5p_get_base_uart(int dev_index)
 {
 	u32 offset = dev_index * sizeof(struct s5p_uart);
-
-	if (cpu_is_s5pc100())
-		return (struct s5p_uart *)(S5PC100_UART_BASE + offset);
-	else
-		return (struct s5p_uart *)(S5PC110_UART_BASE + offset);
+	return (struct s5p_uart *)(samsung_get_base_uart() + offset);
 }
 
 /*

@@ -46,10 +46,7 @@ static unsigned long lastdec;		/* Last decremneter snapshot */
 /* macro to read the 16 bit timer */
 static inline struct s5pc1xx_timer *s5pc1xx_get_base_timer(void)
 {
-	if (cpu_is_s5pc110())
-		return (struct s5pc1xx_timer *)S5PC110_TIMER_BASE;
-	else
-		return (struct s5pc1xx_timer *)S5PC100_TIMER_BASE;
+	return (struct s5pc1xx_timer *)samsung_get_base_timer();
 }
 
 int timer_init(void)

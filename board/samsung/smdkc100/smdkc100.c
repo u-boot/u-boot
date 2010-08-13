@@ -38,7 +38,7 @@ static void smc9115_pre_init(void)
 	u32 smc_bw_conf, smc_bc_conf;
 
 	struct s5pc100_gpio *const gpio =
-		(struct s5pc100_gpio *)S5PC100_GPIO_BASE;
+		(struct s5pc100_gpio *)samsung_get_base_gpio();
 
 	/* gpio configuration GPK0CON */
 	gpio_cfg_pin(&gpio->gpio_k0, CONFIG_ENV_SROM_BANK, GPIO_FUNC(2));

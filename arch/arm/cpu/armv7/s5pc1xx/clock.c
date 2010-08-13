@@ -45,7 +45,8 @@ unsigned long (*get_pll_clk)(int);
 /* s5pc110: return pll clock frequency */
 static unsigned long s5pc100_get_pll_clk(int pllreg)
 {
-	struct s5pc100_clock *clk = (struct s5pc100_clock *)S5PC1XX_CLOCK_BASE;
+	struct s5pc100_clock *clk =
+		(struct s5pc100_clock *)samsung_get_base_clock();
 	unsigned long r, m, p, s, mask, fout;
 	unsigned int freq;
 
@@ -95,7 +96,8 @@ static unsigned long s5pc100_get_pll_clk(int pllreg)
 /* s5pc100: return pll clock frequency */
 static unsigned long s5pc110_get_pll_clk(int pllreg)
 {
-	struct s5pc110_clock *clk = (struct s5pc110_clock *)S5PC1XX_CLOCK_BASE;
+	struct s5pc110_clock *clk =
+		(struct s5pc110_clock *)samsung_get_base_clock();
 	unsigned long r, m, p, s, mask, fout;
 	unsigned int freq;
 
@@ -151,7 +153,8 @@ static unsigned long s5pc110_get_pll_clk(int pllreg)
 /* s5pc110: return ARM clock frequency */
 static unsigned long s5pc110_get_arm_clk(void)
 {
-	struct s5pc110_clock *clk = (struct s5pc110_clock *)S5PC1XX_CLOCK_BASE;
+	struct s5pc110_clock *clk =
+		(struct s5pc110_clock *)samsung_get_base_clock();
 	unsigned long div;
 	unsigned long dout_apll, armclk;
 	unsigned int apll_ratio;
@@ -170,7 +173,8 @@ static unsigned long s5pc110_get_arm_clk(void)
 /* s5pc100: return ARM clock frequency */
 static unsigned long s5pc100_get_arm_clk(void)
 {
-	struct s5pc100_clock *clk = (struct s5pc100_clock *)S5PC1XX_CLOCK_BASE;
+	struct s5pc100_clock *clk =
+		(struct s5pc100_clock *)samsung_get_base_clock();
 	unsigned long div;
 	unsigned long dout_apll, armclk;
 	unsigned int apll_ratio, arm_ratio;
@@ -191,7 +195,8 @@ static unsigned long s5pc100_get_arm_clk(void)
 /* s5pc100: return HCLKD0 frequency */
 static unsigned long get_hclk(void)
 {
-	struct s5pc100_clock *clk = (struct s5pc100_clock *)S5PC1XX_CLOCK_BASE;
+	struct s5pc100_clock *clk =
+		(struct s5pc100_clock *)samsung_get_base_clock();
 	unsigned long hclkd0;
 	uint div, d0_bus_ratio;
 
@@ -207,7 +212,8 @@ static unsigned long get_hclk(void)
 /* s5pc100: return PCLKD1 frequency */
 static unsigned long get_pclkd1(void)
 {
-	struct s5pc100_clock *clk = (struct s5pc100_clock *)S5PC1XX_CLOCK_BASE;
+	struct s5pc100_clock *clk =
+		(struct s5pc100_clock *)samsung_get_base_clock();
 	unsigned long d1_bus, pclkd1;
 	uint div, d1_bus_ratio, pclkd1_ratio;
 
@@ -227,7 +233,8 @@ static unsigned long get_pclkd1(void)
 /* s5pc110: return HCLKs frequency */
 static unsigned long get_hclk_sys(int dom)
 {
-	struct s5pc110_clock *clk = (struct s5pc110_clock *)S5PC1XX_CLOCK_BASE;
+	struct s5pc110_clock *clk =
+		(struct s5pc110_clock *)samsung_get_base_clock();
 	unsigned long hclk;
 	unsigned int div;
 	unsigned int offset;
@@ -255,7 +262,8 @@ static unsigned long get_hclk_sys(int dom)
 /* s5pc110: return PCLKs frequency */
 static unsigned long get_pclk_sys(int dom)
 {
-	struct s5pc110_clock *clk = (struct s5pc110_clock *)S5PC1XX_CLOCK_BASE;
+	struct s5pc110_clock *clk =
+		(struct s5pc110_clock *)samsung_get_base_clock();
 	unsigned long pclk;
 	unsigned int div;
 	unsigned int offset;

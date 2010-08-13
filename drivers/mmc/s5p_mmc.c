@@ -30,11 +30,7 @@ struct mmc_host mmc_host[4];
 static inline struct s5p_mmc *s5p_get_base_mmc(int dev_index)
 {
 	unsigned long offset = dev_index * sizeof(struct s5p_mmc);
-
-	if (cpu_is_s5pc100())
-		return (struct s5p_mmc *)(S5PC100_MMC_BASE + offset);
-	else
-		return (struct s5p_mmc *)(S5PC110_MMC_BASE + offset);
+	return (struct s5p_mmc *)(samsung_get_base_mmc() + offset);
 }
 
 static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data)

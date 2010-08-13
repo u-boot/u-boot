@@ -30,7 +30,7 @@ unsigned int s5pc1xx_cpu_id = 0xC100;
 #ifdef CONFIG_ARCH_CPU_INIT
 int arch_cpu_init(void)
 {
-	s5pc1xx_cpu_id = readl(S5PC1XX_PRO_ID);
+	s5pc1xx_cpu_id = readl(samsung_get_base_pro_id());
 	s5pc1xx_cpu_id = 0xC000 | ((s5pc1xx_cpu_id & 0x00FFF000) >> 12);
 
 	s5pc1xx_clock_init();
