@@ -1726,14 +1726,13 @@ autoconf_fail:
 	/* ... and maybe likewise for status transfer */
 #if defined(DEV_CONFIG_CDC)
 	if (dev->status_ep) {
-		dev->stat_req = usb_ep_alloc_request(gadget->ep0, GFP_KERNEL);
-		dev->stat_req->buf = status_req;
+		dev->stat_req = usb_ep_alloc_request(dev->status_ep, GFP_KERNEL);
 		if (!dev->stat_req) {
-			dev->stat_req->buf=NULL;
-			usb_ep_free_request (gadget->ep0, dev->req);
+			usb_ep_free_request (dev->status_ep, dev->req);
 
 			goto fail;
 		}
+		dev->stat_req->buf = status_req;
 		dev->stat_req->context = NULL;
 	}
 #endif
