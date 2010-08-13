@@ -90,20 +90,19 @@ int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	gpio_request(gpio, "cmd_gpio");
 
 	/* finally, let's do it: set direction and exec command */
+	ulong value;
 	if (sub_cmd == GPIO_INPUT) {
 		gpio_direction_input(gpio);
-		printf("gpio: pin %lu on port %c set to input\n", pin, *str_pin);
-		return 0;
+		value = gpio_get_value(gpio);
+	} else {
+		switch (sub_cmd) {
+			case GPIO_SET:    value = 1; break;
+			case GPIO_CLEAR:  value = 0; break;
+			case GPIO_TOGGLE: value = !gpio_get_value(gpio); break;
+			default:          goto show_usage;
+		}
+		gpio_direction_output(gpio, value);
 	}
-
-	ulong value;
-	switch (sub_cmd) {
-		case GPIO_SET:    value = 1; break;
-		case GPIO_CLEAR:  value = 0; break;
-		case GPIO_TOGGLE: value = !gpio_get_value(gpio); break;
-		default:          goto show_usage;
-	}
-	gpio_direction_output(gpio, value);
 	printf("gpio: pin %lu on port %c (gpio %lu) value is %lu\n",
 		pin, *str_pin, gpio, value);
 
@@ -113,6 +112,6 @@ int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(gpio, 3, 0, do_gpio,
-	"set/clear/toggle gpio output pins",
-	"<set|clear|toggle> <port><pin>\n"
-	"    - set/clear/toggle the specified pin (e.g. PF10)");
+	"input/set/clear/toggle gpio output pins",
+	"<input|set|clear|toggle> <port><pin>\n"
+	"    - input/set/clear/toggle the specified pin (e.g. PF10)");
