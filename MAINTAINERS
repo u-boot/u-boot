@@ -812,9 +812,11 @@ Greg Ungerer <greg.ungerer@opengear.com>
 Marek Vasut <marek.vasut@gmail.com>
 
 	balloon3	xscale
+	colibri_pxa270	xscale
 	palmld		xscale
 	palmtc		xscale
 	vpac270		xscale
+	zipitz2		xscale
 
 Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 
