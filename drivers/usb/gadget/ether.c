@@ -1801,6 +1801,8 @@ static int usb_eth_send(struct eth_device* netdev, volatile void* packet, int le
 	int			retval;
 	struct usb_request	*req = NULL;
 	struct eth_dev		*dev = &l_ethdev;
+ 	unsigned long ts;
+ 	unsigned long timeout = USB_CONNECT_TIMEOUT;
 
 	debug("%s:...\n", __func__);
 
@@ -1826,6 +1828,8 @@ static int usb_eth_send(struct eth_device* netdev, volatile void* packet, int le
 			? ((dev->tx_qlen % qmult) != 0) : 0;
 #endif
 	dev->tx_qlen=1;
+ 	ts = get_timer(0);
+ 	packet_sent = 0;
 
 	retval = usb_ep_queue (dev->in_ep, req, GFP_ATOMIC);
 
@@ -1833,7 +1837,11 @@ static int usb_eth_send(struct eth_device* netdev, volatile void* packet, int le
 		debug("%s: packet queued\n", __func__);
 	while(!packet_sent)
 	{
-		packet_sent=0;
+ 		if (get_timer(ts) > timeout) {
+ 			printf("timeout sending packets to usb ethernet\n");
+ 			return -1;
+ 		}
+ 		usb_gadget_handle_interrupts();
 	}
 
 	return 0;
