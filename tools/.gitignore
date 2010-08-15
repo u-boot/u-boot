@@ -9,3 +9,8 @@
 /ubsha1
 /inca-swap-bytes
 /*.exe
+/easylogo/easylogo
+/env/crc32.c
+/env/fw_printenv
+/gdb/gdbcont
+/gdb/gdbsend
