@@ -41,6 +41,7 @@ include $(TOPDIR)/config.mk
 # Enable all the config-independent tools
 ifneq ($(HOST_TOOLS_ALL),)
 CONFIG_LCD_LOGO = y
+CONFIG_CMD_LOADS = y
 CONFIG_CMD_NET = y
 CONFIG_INCA_IP = y
 CONFIG_NETCONSOLE = y
