@@ -677,7 +677,7 @@ static struct usb_gadget_strings	stringtab = {
 
 /*============================================================================*/
 static u8 control_req[USB_BUFSIZ];
-static u8 status_req[STATUS_BYTECOUNT];
+static u8 status_req[STATUS_BYTECOUNT] __attribute__ ((aligned(4)));
 
 
 
