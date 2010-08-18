@@ -712,7 +712,7 @@ U_BOOT_CMD(
 	"usb part [dev] - print partition table of one or all USB storage"
 	" devices\n"
 	"usb read addr blk# cnt - read `cnt' blocks starting at block `blk#'\n"
-	"    to memory address `addr'"
+	"    to memory address `addr'\n"
 	"usb write addr blk# cnt - write `cnt' blocks starting at block `blk#'\n"
 	"    from memory address `addr'"
 );

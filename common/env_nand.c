@@ -266,6 +266,8 @@ int readenv (size_t offset, u_char * buf)
 	u_char *char_ptr;
 
 	blocksize = nand_info[0].erasesize;
+	if (!blocksize)
+		return 1;
 	len = min(blocksize, CONFIG_ENV_SIZE);
 
 	while (amount_loaded < CONFIG_ENV_SIZE && offset < end) {

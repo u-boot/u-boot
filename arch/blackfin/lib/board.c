@@ -53,9 +53,10 @@ static inline void serial_early_puts(const char *s)
 static int display_banner(void)
 {
 	printf("\n\n%s\n\n", version_string);
-	printf("CPU:   ADSP " MK_STR(CONFIG_BFIN_CPU) " "
+	printf("CPU:   ADSP %s "
 		"(Detected Rev: 0.%d) "
 		"(%s boot)\n",
+		gd->bd->bi_cpu,
 		bfin_revid(),
 		get_bfin_boot_mode(CONFIG_BFIN_BOOT_MODE));
 	return 0;
