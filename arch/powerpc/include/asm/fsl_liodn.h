@@ -115,11 +115,11 @@ extern void fdt_fixup_liodn(void *blob);
 		FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 16), \
 		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_10G_OFFSET) \
 
-#define SET_SEC_JQ_LIODN_ENTRY(jqNum, liodnA, liodnB) \
-	SET_LIODN_ENTRY_2("fsl,sec4.0-job-queue", liodnA, liodnB,\
-		offsetof(ccsr_sec_t, jqliodnr[jqNum].ls) + \
+#define SET_SEC_JR_LIODN_ENTRY(jrNum, liodnA, liodnB) \
+	SET_LIODN_ENTRY_2("fsl,sec4.0-job-ring", liodnA, liodnB,\
+		offsetof(ccsr_sec_t, jrliodnr[jrNum].ls) + \
 		CONFIG_SYS_FSL_SEC_OFFSET, \
-		CONFIG_SYS_FSL_SEC_OFFSET + 0x1000 + 0x1000 * jqNum)
+		CONFIG_SYS_FSL_SEC_OFFSET + 0x1000 + 0x1000 * jrNum)
 
 /* This is a bit evil since we treat rtic param as both a string & hex value */
 #define SET_SEC_RTIC_LIODN_ENTRY(rtic, liodnA) \
