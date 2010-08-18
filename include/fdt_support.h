@@ -87,6 +87,7 @@ u64 fdt_translate_address(void *blob, int node_offset, const u32 *in_addr);
 int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 					phys_addr_t compat_off);
 int fdt_alloc_phandle(void *blob);
+int fdt_add_edid(void *blob, const char *compat, unsigned char *buf);
 
 #endif /* ifdef CONFIG_OF_LIBFDT */
 #endif /* ifndef __FDT_SUPPORT_H */
