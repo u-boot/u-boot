@@ -36,7 +36,9 @@ struct i2c {
 	unsigned short stat;	/* 0x08 */
 	unsigned short res3;
 	unsigned short iv;	/* 0x0C */
-	unsigned short res4[3];
+	unsigned short res4;
+	unsigned short syss;	/* 0x10 */
+	unsigned short res4p1;
 	unsigned short buf;	/* 0x14 */
 	unsigned short res5;
 	unsigned short cnt;	/* 0x18 */
