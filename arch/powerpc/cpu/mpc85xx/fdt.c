@@ -54,18 +54,19 @@ void ft_fixup_cpu(void *blob, u64 memory_limit)
 		u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
 
 		if (reg) {
+			u64 val = *reg * SIZE_BOOT_ENTRY + spin_tbl_addr;
+			val = cpu_to_fdt32(val);
 			if (*reg == id) {
-				fdt_setprop_string(blob, off, "status", "okay");
+				fdt_setprop_string(blob, off, "status",
+								"okay");
 			} else {
-				u64 val = *reg * SIZE_BOOT_ENTRY + spin_tbl_addr;
-				val = cpu_to_fdt32(val);
 				fdt_setprop_string(blob, off, "status",
 								"disabled");
-				fdt_setprop_string(blob, off, "enable-method",
-								"spin-table");
-				fdt_setprop(blob, off, "cpu-release-addr",
-						&val, sizeof(val));
 			}
+			fdt_setprop_string(blob, off, "enable-method",
+							"spin-table");
+			fdt_setprop(blob, off, "cpu-release-addr",
+					&val, sizeof(val));
 		} else {
 			printf ("cpu NULL\n");
 		}
