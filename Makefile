@@ -253,6 +253,13 @@ ifeq ($(SOC),omap4)
 LIBS += $(CPUDIR)/omap-common/libomap-common.a
 endif
 
+ifeq ($(SOC),s5pc1xx)
+LIBS += $(CPUDIR)/s5p-common/libs5p-common.a
+endif
+ifeq ($(SOC),s5pc2xx)
+LIBS += $(CPUDIR)/s5p-common/libs5p-common.a
+endif
+
 LIBS := $(addprefix $(obj),$(LIBS))
 .PHONY : $(LIBS) $(TIMESTAMP_FILE) $(VERSION_FILE)
 

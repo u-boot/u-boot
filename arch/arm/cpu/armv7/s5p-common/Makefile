@@ -1,9 +1,6 @@
 #
-# (C) Copyright 2000-2003
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# (C) Copyright 2008
-# Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>
+# Copyright (C) 2009 Samsung Electronics
+# Minkyu Kang <mk7.kang@samsung.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -26,16 +23,13 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).a
+LIB	= $(obj)libs5p-common.a
 
-SOBJS	= cache.o
-SOBJS	+= reset.o
-
-COBJS	+= clock.o
-COBJS	+= sromc.o
+COBJS-y		+= cpu_info.o
+COBJS-y		+= timer.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
+OBJS	:= $(addprefix $(obj),$(COBJS-y) $(SOBJS))
 
 all:	 $(obj).depend $(LIB)
 
