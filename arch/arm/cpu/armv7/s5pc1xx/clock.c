@@ -297,7 +297,7 @@ static unsigned long s5pc100_get_pclk(void)
 	return get_pclkd1();
 }
 
-void s5pc1xx_clock_init(void)
+void s5p_clock_init(void)
 {
 	if (cpu_is_s5pc110()) {
 		get_pll_clk = s5pc110_get_pll_clk;

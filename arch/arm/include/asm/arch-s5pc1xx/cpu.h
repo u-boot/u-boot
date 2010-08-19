@@ -57,13 +57,20 @@
 #define S5PC110_VIC3_BASE	0xF2300000
 
 #ifndef __ASSEMBLY__
+#include <asm/io.h>
 /* CPU detection macros */
-extern unsigned int s5pc1xx_cpu_id;
+extern unsigned int s5p_cpu_id;
+
+static inline void s5p_set_cpu_id(void)
+{
+	s5p_cpu_id = readl(S5PC100_PRO_ID);
+	s5p_cpu_id = 0xC000 | ((s5p_cpu_id & 0x00FFF000) >> 12);
+}
 
 #define IS_SAMSUNG_TYPE(type, id)			\
 static inline int cpu_is_##type(void)			\
 {							\
-	return s5pc1xx_cpu_id == id ? 1 : 0;		\
+	return s5p_cpu_id == id ? 1 : 0;		\
 }
 
 IS_SAMSUNG_TYPE(s5pc100, 0xc100)
