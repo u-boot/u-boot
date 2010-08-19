@@ -17,11 +17,15 @@
 #define CONFIG_IPADDR   10.10.70.102
 #define CONFIG_ETHADDR  00:0a:35:00:01:22
 #define CONFIG_SERVERIP 10.10.70.101
-#define CONFIG_BOOTCOMMAND "cp 0xE4100000 0x8000 0x140000; cp 0xE5000000 0x800000 0x1C0000; go 0x8000"
+#define CONFIG_BOOTCOMMAND "echo Copying Linux from flash to RAM...; 		\
+			    cp 0xE4100000 0x8000 0x140000; 			\
+			    echo Copying ramdisk from flash to RAM...; 		\			  
+			    cp 0xE5000000 0x800000 0x1C0000; 			\
+			    go 0x8000"
 
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_SYS_BAUDRATE_TABLE { 9600, 38400, 115200 }
-#define CONFIG_BOOTDELAY	-1 /* Disable autoboot */
+#define CONFIG_BOOTDELAY	2 /* -1 to Disable autoboot */
 
 #define	CONFIG_PSS_SERIAL
 #define	CONFIG_RTC_XPSSRTC
@@ -110,7 +114,7 @@
 #define CONFIG_GEM0	1
 
 /* XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ */
-#define CONFIG_SYS_HZ	5000000 
+#define CONFIG_SYS_HZ	10000000 
 
 /* And here... */
 #define CONFIG_SYS_LOAD_ADDR	0 /* default? */
