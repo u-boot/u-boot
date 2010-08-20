@@ -58,12 +58,13 @@ int board_init(void)
 /*
  * Routine: get_board_revision
  * Description: Detect if we are running on a Beagle revision Ax/Bx,
- *		C1/2/3, or C4. This can be done by reading
+ *		C1/2/3, C4 or xM. This can be done by reading
  *		the level of GPIO173, GPIO172 and GPIO171. This should
  *		result in
  *		GPIO173, GPIO172, GPIO171: 1 1 1 => Ax/Bx
  *		GPIO173, GPIO172, GPIO171: 1 1 0 => C1/2/3
  *		GPIO173, GPIO172, GPIO171: 1 0 1 => C4
+ *		GPIO173, GPIO172, GPIO171: 0 0 0 => xM
  */
 int get_board_revision(void)
 {
@@ -115,9 +116,20 @@ int misc_init_r(void)
 		break;
 	case REVISION_C4:
 		printf("Beagle Rev C4\n");
-		setenv("beaglerev", "Cx");
+		setenv("beaglerev", "C4");
 		setenv("mpurate", "720");
 		MUX_BEAGLE_C();
+		/* Set VAUX2 to 1.8V for EHCI PHY */
+		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
+					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
+					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
+					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+		break;
+	case REVISION_XM:
+		printf("Beagle xM Rev A\n");
+		setenv("beaglerev", "xMA");
+		setenv("mpurate", "1000");
+		MUX_BEAGLE_XM();
 		/* Set VAUX2 to 1.8V for EHCI PHY */
 		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
 					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
