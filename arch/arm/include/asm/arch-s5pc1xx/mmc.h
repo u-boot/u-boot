@@ -56,7 +56,7 @@ struct s5p_mmc {
 	unsigned int	control4;
 	unsigned char	res4[0x6e];
 	unsigned short	hcver;
-	unsigned char	res5[0xFFF00];
+	unsigned char	res5[0xFFF02];
 };
 
 struct mmc_host {
