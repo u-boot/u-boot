@@ -20,7 +20,7 @@
 #define CONFIG_BOOTCOMMAND "echo Copying Linux from flash to RAM...; 		\
 			    cp 0xE4100000 0x8000 0x140000; 			\
 			    echo Copying ramdisk from flash to RAM...; 		\			  
-			    cp 0xE5000000 0x800000 0x1C0000; 			\
+			    cp 0xE5000000 0x800000 0x400000; 			\
 			    go 0x8000"
 
 #define CONFIG_BAUDRATE		9600
