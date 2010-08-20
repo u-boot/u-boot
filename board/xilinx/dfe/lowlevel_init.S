@@ -11,17 +11,6 @@
 .globl lowlevel_init
 lowlevel_init:
 
-
-	# Do nothing if DDR already running
-	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0)
-	ldr r2, [r1]
-	ldr r3, =0x201
-	cmp r2, r3
-	bne doit
-
-	mov pc, lr
-
-doit:
 	# unlock SLCR
 	ldr r1, =(XPSS_SYS_CTRL_BASEADDR + 8)
 	ldr r2, =0xDF0D
@@ -66,6 +55,16 @@ doit:
 	ldr r2, =0x767B
 	str r2, [r1]
 
+	# Do nothing if DDR already running
+	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0)
+	ldr r2, [r1]
+	ldr r3, =0x201
+	cmp r2, r3
+	bne doit
+
+	mov pc, lr
+
+doit:
 	# Reset DDR controller
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0)
 	ldr r2, =0x200
