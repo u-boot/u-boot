@@ -17,10 +17,15 @@
 #define CONFIG_IPADDR   10.10.70.102
 #define CONFIG_ETHADDR  00:0a:35:00:01:22
 #define CONFIG_SERVERIP 10.10.70.101
+
+#define CONFIG_EXTRA_ENV_SETTINGS 	\
+	"kernel_size=0x140000\0" 	\
+	"ramdisk_size=0x200000\0" 	\
+
 #define CONFIG_BOOTCOMMAND "echo Copying Linux from flash to RAM...; 		\
-			    cp 0xE4100000 0x8000 0x140000; 			\
-			    echo Copying ramdisk from flash to RAM...; 		\			  
-			    cp 0xE5000000 0x800000 0x400000; 			\
+			    cp 0xE4100000 0x8000 ${kernel_size};		\
+			    echo Copying ramdisk from flash to RAM...; 		\
+			    cp 0xE5000000 0x800000 ${ramdisk_size}; 		\
 			    go 0x8000"
 
 #define CONFIG_BAUDRATE		9600
