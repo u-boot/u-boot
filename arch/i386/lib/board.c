@@ -431,15 +431,30 @@ void hang (void)
 	for (;;);
 }
 
-unsigned long do_go_exec (ulong (*entry)(int, char *[]), int argc, char * const argv[])
+unsigned long do_go_exec (ulong (*entry)(int, char * const []), int argc, char * const argv[])
 {
-	/*
-	 * x86 does not use a dedicated register to pass the pointer
-	 * to the global_data
-	 */
-	argv[-1] = (char *)gd;
+	unsigned long ret = 0;
+	char **argv_tmp;
 
-	return (entry) (argc, argv);
+	/*
+	 * x86 does not use a dedicated register to pass the pointer to
+	 * the global_data, so it is instead passed as argv[-1]. By using
+	 * argv[-1], the called 'Application' can use the contents of
+	 * argv natively. However, to safely use argv[-1] a new copy of
+	 * argv is needed with the extra element
+	 */
+	argv_tmp = malloc(sizeof(char *) * (argc + 1));
+
+	if (argv_tmp) {
+		argv_tmp[0] = (char *)gd;
+
+		memcpy(&argv_tmp[1], argv, (size_t)(sizeof(char *) * argc));
+
+		ret = (entry) (argc, &argv_tmp[1]);
+		free(argv_tmp);
+	}
+
+	return ret;
 }
 
 void setup_pcat_compatibility(void)
