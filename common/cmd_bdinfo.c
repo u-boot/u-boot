@@ -35,7 +35,7 @@ static void print_num(const char *, ulong);
 static void print_eth(int idx);
 #endif
 
-#ifndef CONFIG_ARM	/* PowerPC and other */
+#if (!defined(CONFIG_ARM) && !defined(CONFIG_X86))
 static void print_lnum(const char *, u64);
 #endif
 
@@ -367,6 +367,45 @@ int do_bdinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+#elif defined(CONFIG_X86)
+
+static void print_str(const char *, const char *);
+
+int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	int i;
+	bd_t *bd = gd->bd;
+	char buf[32];
+
+	print_num ("env_t",		(ulong)bd->bi_env);
+	print_num ("boot_params",	(ulong)bd->bi_boot_params);
+	print_num ("bi_memstart",	bd->bi_memstart);
+	print_num ("bi_memsize",	bd->bi_memsize);
+	print_num ("bi_flashstart",	bd->bi_flashstart);
+	print_num ("bi_flashsize",	bd->bi_flashsize);
+	print_num ("bi_flashoffset",	bd->bi_flashoffset);
+	print_num ("bi_sramstart",	bd->bi_sramstart);
+	print_num ("bi_sramsize",	bd->bi_sramsize);
+	print_num ("bi_bootflags",	bd->bi_bootflags);
+	print_str ("cpufreq",		strmhz(buf, bd->bi_intfreq));
+	print_str ("busfreq",		strmhz(buf, bd->bi_busfreq));
+
+	for (i=0; i<CONFIG_NR_DRAM_BANKS; ++i) {
+		print_num("DRAM bank",	i);
+		print_num("-> start",	bd->bi_dram[i].start);
+		print_num("-> size",	bd->bi_dram[i].size);
+	}
+
+#if defined(CONFIG_CMD_NET)
+	print_eth(0);
+	printf ("ip_addr     = %pI4\n", &bd->bi_ip_addr);
+	print_str ("ethspeed",	    strmhz(buf, bd->bi_ethspeed));
+#endif
+	printf ("baudrate    = %d bps\n", bd->bi_baudrate);
+
+	return 0;
+}
+
 #else
  #error "a case for this architecture does not exist!"
 #endif
@@ -391,14 +430,17 @@ static void print_eth(int idx)
 }
 #endif
 
-#ifndef CONFIG_ARM
+#if (!defined(CONFIG_ARM) && !defined(CONFIG_X86))
 static void print_lnum(const char *name, u64 value)
 {
 	printf ("%-12s= 0x%.8llX\n", name, value);
 }
 #endif
 
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_BLACKFIN)
+#if defined(CONFIG_PPC) || \
+    defined(CONFIG_M68K) || \
+    defined(CONFIG_BLACKFIN) || \
+    defined(CONFIG_X86)
 static void print_str(const char *name, const char *str)
 {
 	printf ("%-12s= %6s MHz\n", name, str);
