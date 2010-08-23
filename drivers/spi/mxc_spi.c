@@ -215,7 +215,7 @@ static s32 spi_cfg(struct mxc_spi_slave *mxcs, unsigned int cs,
 	if (mode & SPI_CS_HIGH)
 		ss_pol = 1;
 
-	if (!(mode & SPI_CPOL))
+	if (mode & SPI_CPOL)
 		sclkpol = 1;
 
 	if (mode & SPI_CPHA)
@@ -412,7 +412,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 
 	if (mode & SPI_CPHA)
 		ctrl_reg |= MXC_CSPICTRL_PHA;
-	if (!(mode & SPI_CPOL))
+	if (mode & SPI_CPOL)
 		ctrl_reg |= MXC_CSPICTRL_POL;
 	if (mode & SPI_CS_HIGH)
 		ctrl_reg |= MXC_CSPICTRL_SSPOL;
