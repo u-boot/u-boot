@@ -85,7 +85,7 @@ static inline unsigned int samsung_get_base_##device(void)	\
 		return S5PC110_##base;				\
 	else							\
 		return 0;					\
-}								\
+}
 
 SAMSUNG_BASE(clock, CLOCK_BASE)
 SAMSUNG_BASE(gpio, GPIO_BASE)
