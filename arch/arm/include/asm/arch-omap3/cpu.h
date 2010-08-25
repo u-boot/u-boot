@@ -419,6 +419,7 @@ struct prm {
 };
 #else /* __ASSEMBLY__ */
 #define PRM_RSTCTRL		0x48307250
+#define PRM_RSTCTRL_RESET	0x04
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */
 
