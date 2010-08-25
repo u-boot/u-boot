@@ -37,10 +37,16 @@ int find_dev_and_part(const char *id, struct mtd_device **dev,
 		      u8 *part_num, struct part_info **part);
 #endif
 
-static int nand_dump(nand_info_t *nand, ulong off, int only_oob)
+static int nand_dump(nand_info_t *nand, ulong off, int only_oob, int repeat)
 {
 	int i;
 	u_char *datbuf, *oobbuf, *p;
+	static loff_t last;
+
+	if (repeat)
+		off = last + nand->writesize;
+
+	last = off;
 
 	datbuf = malloc(nand->writesize + nand->oobsize);
 	oobbuf = malloc(nand->oobsize);
@@ -381,6 +387,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #endif
 	const char *quiet_str = getenv("quiet");
 	int dev = nand_curr_device;
+	int repeat = flag & CMD_FLAG_REPEAT;
 
 	/* at least two arguments please */
 	if (argc < 2)
@@ -390,6 +397,10 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		quiet = simple_strtoul(quiet_str, NULL, 0) != 0;
 
 	cmd = argv[1];
+
+	/* Only "dump" is repeatable. */
+	if (repeat && strcmp(cmd, "dump"))
+		return 0;
 
 	if (strcmp(cmd, "info") == 0) {
 
@@ -532,16 +543,10 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		if (argc < 3)
 			goto usage;
 
-		s = strchr(cmd, '.');
 		off = (int)simple_strtoul(argv[2], NULL, 16);
-
-		if (s != NULL && strcmp(s, ".oob") == 0)
-			ret = nand_dump(nand, off, 1);
-		else
-			ret = nand_dump(nand, off, 0);
+		ret = nand_dump(nand, off, !strcmp(&cmd[4], ".oob"), repeat);
 
 		return ret == 0 ? 1 : 0;
-
 	}
 
 	if (strncmp(cmd, "read", 4) == 0 || strncmp(cmd, "write", 5) == 0) {
