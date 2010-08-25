@@ -211,41 +211,6 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	return 0;
 }
 
-/* XXX U-BOOT XXX */
-#if 0
-
-#define MAX_PAGE_SIZE	2048
-#define MAX_OOB_SIZE	64
-
-/*
- * buffer array used for writing data
- */
-static unsigned char data_buf[MAX_PAGE_SIZE];
-static unsigned char oob_buf[MAX_OOB_SIZE];
-
-/* OOB layouts to pass into the kernel as default */
-static struct nand_ecclayout none_ecclayout = {
-	.useecc = MTD_NANDECC_OFF,
-};
-
-static struct nand_ecclayout jffs2_ecclayout = {
-	.useecc = MTD_NANDECC_PLACE,
-	.eccbytes = 6,
-	.eccpos = { 0, 1, 2, 3, 6, 7 }
-};
-
-static struct nand_ecclayout yaffs_ecclayout = {
-	.useecc = MTD_NANDECC_PLACE,
-	.eccbytes = 6,
-	.eccpos = { 8, 9, 10, 13, 14, 15}
-};
-
-static struct nand_ecclayout autoplace_ecclayout = {
-	.useecc = MTD_NANDECC_AUTOPLACE
-};
-#endif
-
-/* XXX U-BOOT XXX */
 #ifdef CONFIG_CMD_NAND_LOCK_UNLOCK
 
 /******************************************************************************

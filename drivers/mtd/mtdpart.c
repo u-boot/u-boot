@@ -230,18 +230,6 @@ static void part_sync(struct mtd_info *mtd)
 	part->master->sync(part->master);
 }
 
-static int part_suspend(struct mtd_info *mtd)
-{
-	struct mtd_part *part = PART(mtd);
-	return part->master->suspend(part->master);
-}
-
-static void part_resume(struct mtd_info *mtd)
-{
-	struct mtd_part *part = PART(mtd);
-	part->master->resume(part->master);
-}
-
 static int part_block_isbad(struct mtd_info *mtd, loff_t ofs)
 {
 	struct mtd_part *part = PART(mtd);
@@ -339,10 +327,6 @@ static struct mtd_part *add_one_partition(struct mtd_info *master,
 		slave->mtd.get_fact_prot_info = part_get_fact_prot_info;
 	if (master->sync)
 		slave->mtd.sync = part_sync;
-	if (!partno && master->suspend && master->resume) {
-			slave->mtd.suspend = part_suspend;
-			slave->mtd.resume = part_resume;
-	}
 	if (master->lock)
 		slave->mtd.lock = part_lock;
 	if (master->unlock)

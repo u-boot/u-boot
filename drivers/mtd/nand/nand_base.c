@@ -32,30 +32,6 @@
  *
  */
 
-/* XXX U-BOOT XXX */
-#if 0
-#include <linux/module.h>
-#include <linux/delay.h>
-#include <linux/errno.h>
-#include <linux/err.h>
-#include <linux/sched.h>
-#include <linux/slab.h>
-#include <linux/types.h>
-#include <linux/mtd/mtd.h>
-#include <linux/mtd/nand.h>
-#include <linux/mtd/nand_ecc.h>
-#include <linux/mtd/compatmac.h>
-#include <linux/interrupt.h>
-#include <linux/bitops.h>
-#include <linux/leds.h>
-#include <asm/io.h>
-
-#ifdef CONFIG_MTD_PARTITIONS
-#include <linux/mtd/partitions.h>
-#endif
-
-#endif
-
 #include <common.h>
 
 #define ENOTSUPP	524	/* Operation is not supported */
@@ -74,10 +50,6 @@
 
 #include <asm/io.h>
 #include <asm/errno.h>
-
-#ifdef CONFIG_JFFS2_NAND
-#include <jffs2/jffs2.h>
-#endif
 
 /*
  * CONFIG_SYS_NAND_RESET_CNT is used as a timeout mechanism when resetting
@@ -143,44 +115,17 @@ static int nand_do_write_oob(struct mtd_info *mtd, loff_t to,
 
 static int nand_wait(struct mtd_info *mtd, struct nand_chip *this);
 
-/*
- * For devices which display every fart in the system on a separate LED. Is
- * compiled away when LED support is disabled.
- */
-/* XXX U-BOOT XXX */
-#if 0
-DEFINE_LED_TRIGGER(nand_led_trigger);
-#endif
-
 /**
  * nand_release_device - [GENERIC] release chip
  * @mtd:	MTD device structure
  *
  * Deselect, release chip lock and wake up anyone waiting on the device
  */
-/* XXX U-BOOT XXX */
-#if 0
-static void nand_release_device(struct mtd_info *mtd)
-{
-	struct nand_chip *chip = mtd->priv;
-
-	/* De-select the NAND device */
-	chip->select_chip(mtd, -1);
-
-	/* Release the controller and the chip */
-	spin_lock(&chip->controller->lock);
-	chip->controller->active = NULL;
-	chip->state = FL_READY;
-	wake_up(&chip->controller->wq);
-	spin_unlock(&chip->controller->lock);
-}
-#else
 static void nand_release_device (struct mtd_info *mtd)
 {
 	struct nand_chip *this = mtd->priv;
 	this->select_chip(mtd, -1);	/* De-select the NAND device */
 }
-#endif
 
 /**
  * nand_read_byte - [DEFAULT] read one byte from the chip
@@ -490,24 +435,6 @@ static int nand_block_checkbad(struct mtd_info *mtd, loff_t ofs, int getchip,
  * Wait for the ready pin, after a command
  * The timeout is catched later.
  */
-/* XXX U-BOOT XXX */
-#if 0
-void nand_wait_ready(struct mtd_info *mtd)
-{
-	struct nand_chip *chip = mtd->priv;
-	unsigned long timeo = jiffies + 2;
-
-	led_trigger_event(nand_led_trigger, LED_FULL);
-	/* wait until command is processed or timeout occures */
-	do {
-		if (chip->dev_ready(mtd))
-			break;
-		touch_softlockup_watchdog();
-	} while (time_before(jiffies, timeo));
-	led_trigger_event(nand_led_trigger, LED_OFF);
-}
-EXPORT_SYMBOL_GPL(nand_wait_ready);
-#else
 void nand_wait_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd->priv;
@@ -522,7 +449,6 @@ void nand_wait_ready(struct mtd_info *mtd)
 				break;
 	}
 }
-#endif
 
 /**
  * nand_command - [DEFAULT] Send command to NAND device
@@ -759,45 +685,11 @@ static void nand_command_lp(struct mtd_info *mtd, unsigned int command,
  *
  * Get the device and lock it for exclusive access
  */
-/* XXX U-BOOT XXX */
-#if 0
-static int
-nand_get_device(struct nand_chip *chip, struct mtd_info *mtd, int new_state)
-{
-	spinlock_t *lock = &chip->controller->lock;
-	wait_queue_head_t *wq = &chip->controller->wq;
-	DECLARE_WAITQUEUE(wait, current);
- retry:
-	spin_lock(lock);
-
-	/* Hardware controller shared among independend devices */
-	/* Hardware controller shared among independend devices */
-	if (!chip->controller->active)
-		chip->controller->active = chip;
-
-	if (chip->controller->active == chip && chip->state == FL_READY) {
-		chip->state = new_state;
-		spin_unlock(lock);
-		return 0;
-	}
-	if (new_state == FL_PM_SUSPENDED) {
-		spin_unlock(lock);
-		return (chip->state == FL_PM_SUSPENDED) ? 0 : -EAGAIN;
-	}
-	set_current_state(TASK_UNINTERRUPTIBLE);
-	add_wait_queue(wq, &wait);
-	spin_unlock(lock);
-	schedule();
-	remove_wait_queue(wq, &wait);
-	goto retry;
-}
-#else
 static int nand_get_device (struct nand_chip *this, struct mtd_info *mtd, int new_state)
 {
 	this->state = new_state;
 	return 0;
 }
-#endif
 
 /**
  * nand_wait - [DEFAULT]  wait until the command is done
@@ -808,46 +700,6 @@ static int nand_get_device (struct nand_chip *this, struct mtd_info *mtd, int ne
  * Erase can take up to 400ms and program up to 20ms according to
  * general NAND and SmartMedia specs
  */
-/* XXX U-BOOT XXX */
-#if 0
-static int nand_wait(struct mtd_info *mtd, struct nand_chip *chip)
-{
-
-	unsigned long timeo = jiffies;
-	int status, state = chip->state;
-
-	if (state == FL_ERASING)
-		timeo += (HZ * 400) / 1000;
-	else
-		timeo += (HZ * 20) / 1000;
-
-	led_trigger_event(nand_led_trigger, LED_FULL);
-
-	/* Apply this short delay always to ensure that we do wait tWB in
-	 * any case on any machine. */
-	ndelay(100);
-
-	if ((state == FL_ERASING) && (chip->options & NAND_IS_AND))
-		chip->cmdfunc(mtd, NAND_CMD_STATUS_MULTI, -1, -1);
-	else
-		chip->cmdfunc(mtd, NAND_CMD_STATUS, -1, -1);
-
-	while (time_before(jiffies, timeo)) {
-		if (chip->dev_ready) {
-			if (chip->dev_ready(mtd))
-				break;
-		} else {
-			if (chip->read_byte(mtd) & NAND_STATUS_READY)
-				break;
-		}
-		cond_resched();
-	}
-	led_trigger_event(nand_led_trigger, LED_OFF);
-
-	status = (int)chip->read_byte(mtd);
-	return status;
-}
-#else
 static int nand_wait(struct mtd_info *mtd, struct nand_chip *this)
 {
 	unsigned long	timeo;
@@ -886,7 +738,6 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this)
 
 	return this->read_byte(mtd);
 }
-#endif
 
 /**
  * nand_read_page_raw - [Intern] read raw page data without ecc
@@ -2516,32 +2367,6 @@ static int nand_block_markbad(struct mtd_info *mtd, loff_t ofs)
 	return chip->block_markbad(mtd, ofs);
 }
 
-/**
- * nand_suspend - [MTD Interface] Suspend the NAND flash
- * @mtd:	MTD device structure
- */
-static int nand_suspend(struct mtd_info *mtd)
-{
-	struct nand_chip *chip = mtd->priv;
-
-	return nand_get_device(chip, mtd, FL_PM_SUSPENDED);
-}
-
-/**
- * nand_resume - [MTD Interface] Resume the NAND flash
- * @mtd:	MTD device structure
- */
-static void nand_resume(struct mtd_info *mtd)
-{
-	struct nand_chip *chip = mtd->priv;
-
-	if (chip->state == FL_PM_SUSPENDED)
-		nand_release_device(mtd);
-	else
-		printk(KERN_ERR "nand_resume() called for a chip which is not "
-		       "in suspended state\n");
-}
-
 /*
  * Set default functions
  */
@@ -2577,17 +2402,8 @@ static void nand_set_defaults(struct nand_chip *chip, int busw)
 		chip->verify_buf = busw ? nand_verify_buf16 : nand_verify_buf;
 	if (!chip->scan_bbt)
 		chip->scan_bbt = nand_default_bbt;
-
-	if (!chip->controller) {
+	if (!chip->controller)
 		chip->controller = &chip->hwcontrol;
-
-		/* XXX U-BOOT XXX */
-#if 0
-		spin_lock_init(&chip->controller->lock);
-		init_waitqueue_head(&chip->controller->wq);
-#endif
-	}
-
 }
 
 /*
@@ -3021,8 +2837,6 @@ int nand_scan_tail(struct mtd_info *mtd)
 	mtd->sync = nand_sync;
 	mtd->lock = NULL;
 	mtd->unlock = NULL;
-	mtd->suspend = nand_suspend;
-	mtd->resume = nand_resume;
 	mtd->block_isbad = nand_block_isbad;
 	mtd->block_markbad = nand_block_markbad;
 
@@ -3035,16 +2849,6 @@ int nand_scan_tail(struct mtd_info *mtd)
 
 	return 0;
 }
-
-/* module_text_address() isn't exported, and it's mostly a pointless
-   test if this is a module _anyway_ -- they'd have to try _really_ hard
-   to call us from in-kernel code if the core NAND support is modular. */
-#ifdef MODULE
-#define caller_is_module() (1)
-#else
-#define caller_is_module() \
-	module_text_address((unsigned long)__builtin_return_address(0))
-#endif
 
 /**
  * nand_scan - [NAND Interface] Scan for the NAND device
@@ -3061,15 +2865,6 @@ int nand_scan_tail(struct mtd_info *mtd)
 int nand_scan(struct mtd_info *mtd, int maxchips)
 {
 	int ret;
-
-	/* Many callers got this wrong, so check for it for a while... */
-	/* XXX U-BOOT XXX */
-#if 0
-	if (!mtd->owner && caller_is_module()) {
-		printk(KERN_CRIT "nand_scan() called with NULL mtd->owner!\n");
-		BUG();
-	}
-#endif
 
 	ret = nand_scan_ident(mtd, maxchips);
 	if (!ret)
@@ -3089,40 +2884,9 @@ void nand_release(struct mtd_info *mtd)
 	/* Deregister partitions */
 	del_mtd_partitions(mtd);
 #endif
-	/* Deregister the device */
-	/* XXX U-BOOT XXX */
-#if 0
-	del_mtd_device(mtd);
-#endif
 
 	/* Free bad block table memory */
 	kfree(chip->bbt);
 	if (!(chip->options & NAND_OWN_BUFFERS))
 		kfree(chip->buffers);
 }
-
-/* XXX U-BOOT XXX */
-#if 0
-EXPORT_SYMBOL_GPL(nand_scan);
-EXPORT_SYMBOL_GPL(nand_scan_ident);
-EXPORT_SYMBOL_GPL(nand_scan_tail);
-EXPORT_SYMBOL_GPL(nand_release);
-
-static int __init nand_base_init(void)
-{
-	led_trigger_register_simple("nand-disk", &nand_led_trigger);
-	return 0;
-}
-
-static void __exit nand_base_exit(void)
-{
-	led_trigger_unregister_simple(nand_led_trigger);
-}
-
-module_init(nand_base_init);
-module_exit(nand_base_exit);
-
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Steven J. Hill <sjhill@realitydiluted.com>, Thomas Gleixner <tglx@linutronix.de>");
-MODULE_DESCRIPTION("Generic NAND flash driver code");
-#endif
