@@ -152,7 +152,7 @@ int i2c_set_bus_speed(unsigned int)
 
 /*
  * get_alen: small parser helper function to get address length
- * returns the address length,or 0 on error
+ * returns the address length
  */
 static uint get_alen(char *arg)
 {
@@ -163,9 +163,6 @@ static uint get_alen(char *arg)
 	for (j = 0; j < 8; j++) {
 		if (arg[j] == '.') {
 			alen = arg[j+1] - '0';
-			if (alen > 3) {
-				return 0;
-			}
 			break;
 		} else if (arg[j] == '\0')
 			break;
@@ -198,7 +195,7 @@ static int do_i2c_read ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	 */
 	devaddr = simple_strtoul(argv[2], NULL, 16);
 	alen = get_alen(argv[2]);
-	if (alen == 0)
+	if (alen > 3)
 		return cmd_usage(cmdtp);
 
 	/*
@@ -255,7 +252,7 @@ static int do_i2c_md ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		 */
 		addr = simple_strtoul(argv[2], NULL, 16);
 		alen = get_alen(argv[2]);
-		if (alen == 0)
+		if (alen > 3)
 			return cmd_usage(cmdtp);
 
 		/*
@@ -337,7 +334,7 @@ static int do_i2c_mw ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	 */
 	addr = simple_strtoul(argv[2], NULL, 16);
 	alen = get_alen(argv[2]);
-	if (alen == 0)
+	if (alen > 3)
 		return cmd_usage(cmdtp);
 
 	/*
@@ -399,7 +396,7 @@ static int do_i2c_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	 */
 	addr = simple_strtoul(argv[2], NULL, 16);
 	alen = get_alen(argv[2]);
-	if (alen == 0)
+	if (alen > 3)
 		return cmd_usage(cmdtp);
 
 	/*
@@ -477,7 +474,7 @@ mod_i2c_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const arg
 		 */
 		addr = simple_strtoul(argv[2], NULL, 16);
 		alen = get_alen(argv[2]);
-		if (alen == 0)
+		if (alen > 3)
 			return cmd_usage(cmdtp);
 	}
 
@@ -621,7 +618,7 @@ static int do_i2c_loop(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 	 */
 	addr = simple_strtoul(argv[2], NULL, 16);
 	alen = get_alen(argv[2]);
-	if (alen == 0)
+	if (alen > 3)
 		return cmd_usage(cmdtp);
 
 	/*
