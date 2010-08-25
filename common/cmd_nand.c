@@ -449,14 +449,40 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	 *   0    1     2       3    4
 	 *   nand erase [clean] [off size]
 	 */
-	if (strcmp(cmd, "erase") == 0 || strcmp(cmd, "scrub") == 0) {
+	if (strncmp(cmd, "erase", 5) == 0 || strncmp(cmd, "scrub", 5) == 0) {
 		nand_erase_options_t opts;
 		/* "clean" at index 2 means request to write cleanmarker */
 		int clean = argc > 2 && !strcmp("clean", argv[2]);
 		int o = clean ? 3 : 2;
-		int scrub = !strcmp(cmd, "scrub");
+		int scrub = !strncmp(cmd, "scrub", 5);
+		int part = 0;
+		int chip = 0;
+		int spread = 0;
+		int args = 2;
 
-		printf("\nNAND %s: ", scrub ? "scrub" : "erase");
+		if (cmd[5] != 0) {
+			if (!strcmp(&cmd[5], ".spread")) {
+				spread = 1;
+			} else if (!strcmp(&cmd[5], ".part")) {
+				part = 1;
+				args = 1;
+			} else if (!strcmp(&cmd[5], ".chip")) {
+				chip = 1;
+				args = 0;
+			} else {
+				goto usage;
+			}
+		}
+
+		/*
+		 * Don't allow missing arguments to cause full chip/partition
+		 * erases -- easy to do accidentally, e.g. with a misspelled
+		 * variable name.
+		 */
+		if (argc != o + args)
+			goto usage;
+
+		printf("\nNAND %s: ", cmd);
 		/* skip first two or three arguments, look for offset and size */
 		if (arg_off_size(argc - o, argv + o, &dev, &off, &size) != 0)
 			return 1;
@@ -468,6 +494,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		opts.length = size;
 		opts.jffs2  = clean;
 		opts.quiet  = quiet;
+		opts.spread = spread;
 
 		if (scrub) {
 			puts("Warning: "
@@ -648,11 +675,16 @@ U_BOOT_CMD(
 	"nand write - addr off|partition size\n"
 	"    read/write 'size' bytes starting at offset 'off'\n"
 	"    to/from memory address 'addr', skipping bad blocks.\n"
-	"nand erase [clean] [off size] - erase 'size' bytes from\n"
-	"    offset 'off' (entire device if not specified)\n"
+	"nand erase[.spread] [clean] [off [size]] - erase 'size' bytes "
+	"from offset 'off'\n"
+	"    With '.spread', erase enough for given file size, otherwise,\n"
+	"    'size' includes skipped bad blocks.\n"
+	"nand erase.part [clean] partition - erase entire mtd partition'\n"
+	"nand erase.chip [clean] - erase entire chip'\n"
 	"nand bad - show bad blocks\n"
 	"nand dump[.oob] off - dump page\n"
-	"nand scrub - really clean NAND erasing bad blocks (UNSAFE)\n"
+	"nand scrub off size | scrub.part partition | scrub.chip\n"
+	"    really clean NAND erasing bad blocks (UNSAFE)\n"
 	"nand markbad off [...] - mark bad block(s) at offset (UNSAFE)\n"
 	"nand biterr off - make a bit error at offset (UNSAFE)"
 #ifdef CONFIG_CMD_NAND_LOCK_UNLOCK

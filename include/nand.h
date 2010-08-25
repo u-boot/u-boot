@@ -98,13 +98,16 @@ struct nand_read_options {
 typedef struct nand_read_options nand_read_options_t;
 
 struct nand_erase_options {
-	ulong length;		/* number of bytes to erase */
-	ulong offset;		/* first address in NAND to erase */
+	loff_t length;		/* number of bytes to erase */
+	loff_t offset;		/* first address in NAND to erase */
 	int quiet;		/* don't display progress messages */
 	int jffs2;		/* if true: format for jffs2 usage
 				 * (write appropriate cleanmarker blocks) */
 	int scrub;		/* if true, really clean NAND by erasing
 				 * bad blocks (UNSAFE) */
+
+	/* Don't include skipped bad blocks in size to be erased */
+	int spread;
 };
 
 typedef struct nand_erase_options nand_erase_options_t;

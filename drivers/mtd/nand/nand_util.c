@@ -75,7 +75,7 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 {
 	struct jffs2_unknown_node cleanmarker;
 	erase_info_t erase;
-	ulong erase_length;
+	unsigned long erase_length, erased_length; /* in blocks */
 	int bbtest = 1;
 	int result;
 	int percent_complete = -1;
@@ -84,13 +84,19 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	struct mtd_oob_ops oob_opts;
 	struct nand_chip *chip = meminfo->priv;
 
+	if ((opts->offset & (meminfo->writesize - 1)) != 0) {
+		printf("Attempt to erase non page aligned data\n");
+		return -1;
+	}
+
 	memset(&erase, 0, sizeof(erase));
 	memset(&oob_opts, 0, sizeof(oob_opts));
 
 	erase.mtd = meminfo;
 	erase.len  = meminfo->erasesize;
 	erase.addr = opts->offset;
-	erase_length = opts->length;
+	erase_length = lldiv(opts->length + meminfo->erasesize - 1,
+			     meminfo->erasesize);
 
 	cleanmarker.magic = cpu_to_je16 (JFFS2_MAGIC_BITMASK);
 	cleanmarker.nodetype = cpu_to_je16 (JFFS2_NODETYPE_CLEANMARKER);
@@ -114,15 +120,8 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 		priv_nand->bbt = NULL;
 	}
 
-	if (erase_length < meminfo->erasesize) {
-		printf("Warning: Erase size 0x%08lx smaller than one "	\
-		       "erase block 0x%08x\n",erase_length, meminfo->erasesize);
-		printf("         Erasing 0x%08x instead\n", meminfo->erasesize);
-		erase_length = meminfo->erasesize;
-	}
-
-	for (;
-	     erase.addr < opts->offset + erase_length;
+	for (erased_length = 0;
+	     erased_length < erase_length;
 	     erase.addr += meminfo->erasesize) {
 
 		WATCHDOG_RESET ();
@@ -135,6 +134,10 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 					       "0x%08llx                 "
 					       "                         \n",
 					       erase.addr);
+
+				if (!opts->spread)
+					erased_length++;
+
 				continue;
 
 			} else if (ret < 0) {
@@ -144,6 +147,8 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 				return -1;
 			}
 		}
+
+		erased_length++;
 
 		result = meminfo->erase(meminfo, &erase);
 		if (result != 0) {
@@ -171,9 +176,7 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 		}
 
 		if (!opts->quiet) {
-			unsigned long long n =(unsigned long long)
-				(erase.addr + meminfo->erasesize - opts->offset)
-				* 100;
+			unsigned long long n = erased_length * 100ULL;
 			int percent;
 
 			do_div(n, erase_length);
