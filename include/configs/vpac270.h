@@ -45,7 +45,7 @@
 	"if ide reset && fatload ide 0 0xa4000000 uImage; then "	\
 		"bootm 0xa4000000; "					\
 	"fi; "								\
-	"bootm 0x40000;"
+	"bootm 0x60000;"
 #define	CONFIG_BOOTARGS			"console=tty0 console=ttyS0,115200"
 #define	CONFIG_TIMESTAMP
 #define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
@@ -185,6 +185,12 @@
 /*
  * NOR FLASH
  */
+#define	CONFIG_SYS_MONITOR_BASE		0x0
+#define	CONFIG_SYS_MONITOR_LEN		0x40000
+#define	CONFIG_ENV_ADDR			\
+			(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
+#define	CONFIG_ENV_SIZE			0x4000
+
 #if	defined(CONFIG_CMD_FLASH)	/* NOR */
 #define	PHYS_FLASH_1			0x00000000	/* Flash Bank #1 */
 
@@ -211,7 +217,16 @@
 #define	CONFIG_SYS_FLASH_PROTECTION		1
 
 #define	CONFIG_ENV_IS_IN_FLASH		1
-#define	CONFIG_ENV_SECT_SIZE		0x4000
+
+/*
+ * The first four sectors of the NOR flash are 0x8000 bytes big, the rest of the
+ * flash consists of 0x20000 bytes big sectors.
+ */
+#if	(CONFIG_ENV_ADDR <= 0x18000)
+#define	CONFIG_ENV_SECT_SIZE		0x8000
+#else
+#define	CONFIG_ENV_SECT_SIZE		0x20000
+#endif
 
 #elif	defined(CONFIG_CMD_ONENAND)	/* OneNAND */
 #define	CONFIG_SYS_NO_FLASH
@@ -224,12 +239,6 @@
 #define	CONFIG_SYS_NO_FLASH
 #define	CONFIG_SYS_ENV_IS_NOWHERE
 #endif
-
-#define	CONFIG_SYS_MONITOR_BASE		0x0
-#define	CONFIG_SYS_MONITOR_LEN		0x40000
-
-#define	CONFIG_ENV_ADDR			0x40000
-#define	CONFIG_ENV_SIZE			0x4000
 
 /*
  * IDE
