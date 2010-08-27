@@ -68,7 +68,7 @@ const board_specific_parameters_t board_specific_parameters[][20] = {
 		{550, 680,    1,    4,   0x1f,    3,  0},
 		{681, 850,    1,    4,   0x1f,    4,  0}
 #else
-		{  0, 850,    2,    4,   0x1f,    4,  0},
+		{  0, 850,    2,    6,   0x1f,    4,  0},
 		{  0, 850,    1,    4,   0x1f,    4,  0}
 #endif
 	},
@@ -120,7 +120,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	/* Write leveling override */
 	popts->wrlvl_override = 1;
 	popts->wrlvl_sample = 0xa;
-	popts->wrlvl_start = 0x7;
+	popts->wrlvl_start = 0x8;
 	/* Rtt and Rtt_WR override */
 	popts->rtt_override = 1;
 	popts->rtt_override_value = DDR3_RTT_120_OHM;

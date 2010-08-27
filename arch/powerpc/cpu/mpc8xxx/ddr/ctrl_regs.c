@@ -613,6 +613,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 #if defined(CONFIG_FSL_DDR3)
 	md_en = popts->mirrored_dimm;
 #endif
+	rcw_en = popts->registered_dimm_en;
 	qd_en = popts->quad_rank_present ? 1 : 0;
 	ddr->ddr_sdram_cfg_2 = (0
 		| ((frc_sr & 0x1) << 31)
