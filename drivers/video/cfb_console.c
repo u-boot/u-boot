@@ -230,8 +230,8 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 #error	only one of CONFIG_CONSOLE_CURSOR,CONFIG_VIDEO_SW_CURSOR,CONFIG_VIDEO_HW_CURSOR can be defined
 #endif
 void	console_cursor (int state);
-#define CURSOR_ON  console_cursor(1);
-#define CURSOR_OFF console_cursor(0);
+#define CURSOR_ON  console_cursor(1)
+#define CURSOR_OFF console_cursor(0)
 #define CURSOR_SET
 #ifndef CONFIG_I8042_KBD
 #warning Cursor drawing on/off needs timer function s.a. drivers/input/i8042.c
@@ -248,8 +248,8 @@ void	console_cursor (int state);
 #endif
 #define CURSOR_ON
 #define CURSOR_OFF video_putchar(console_col * VIDEO_FONT_WIDTH,\
-				 console_row * VIDEO_FONT_HEIGHT, ' ');
-#define CURSOR_SET video_set_cursor();
+				 console_row * VIDEO_FONT_HEIGHT, ' ')
+#define CURSOR_SET video_set_cursor()
 #endif /* CONFIG_VIDEO_SW_CURSOR */
 
 
@@ -260,7 +260,7 @@ void	console_cursor (int state);
 #define CURSOR_ON
 #define CURSOR_OFF
 #define CURSOR_SET video_set_hw_cursor(console_col * VIDEO_FONT_WIDTH, \
-		  (console_row * VIDEO_FONT_HEIGHT) + video_logo_height);
+		  (console_row * VIDEO_FONT_HEIGHT) + video_logo_height)
 #endif	/* CONFIG_VIDEO_HW_CURSOR */
 
 #ifdef	CONFIG_VIDEO_LOGO
@@ -651,7 +651,8 @@ static void console_scrollup (void)
 
 static void console_back (void)
 {
-	CURSOR_OFF console_col--;
+	CURSOR_OFF;
+	console_col--;
 
 	if (console_col < 0) {
 		console_col = CONSOLE_COLS - 1;
@@ -674,7 +675,7 @@ static void console_newline (void)
 	   is >= CONSOLE_COLS
 	 */
 	if (console_col < CONSOLE_COLS)
-		CURSOR_OFF
+		CURSOR_OFF;
 	console_row++;
 	console_col = 0;
 
@@ -690,7 +691,8 @@ static void console_newline (void)
 
 static void console_cr (void)
 {
-	CURSOR_OFF console_col = 0;
+	CURSOR_OFF;
+	console_col = 0;
 }
 
 /*****************************************************************************/
@@ -711,7 +713,8 @@ void video_putc (const char c)
 		break;
 
 	case 9:		/* tab 8 */
-		CURSOR_OFF console_col |= 0x0008;
+		CURSOR_OFF;
+		console_col |= 0x0008;
 		console_col &= ~0x0007;
 
 		if (console_col >= CONSOLE_COLS)
@@ -734,7 +737,8 @@ void video_putc (const char c)
 			nl = 0;
 		}
 	}
-CURSOR_SET}
+	CURSOR_SET;
+}
 
 
 /*****************************************************************************/
