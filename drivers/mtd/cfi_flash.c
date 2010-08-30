@@ -85,6 +85,13 @@ flash_info_t flash_info[CFI_MAX_FLASH_BANKS];	/* FLASH chips info */
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
 #endif
 
+static phys_addr_t __cfi_flash_bank_addr(int i)
+{
+	return ((phys_addr_t [])CONFIG_SYS_FLASH_BANKS_LIST)[i];
+}
+phys_addr_t cfi_flash_bank_addr(int i)
+	__attribute__((weak, alias("__cfi_flash_bank_addr")));
+
 static void __flash_write8(u8 value, void *addr)
 {
 	__raw_writeb(value, addr);
@@ -2021,14 +2028,12 @@ unsigned long flash_init (void)
 	getenv_f("unlock", s, sizeof(s));
 #endif
 
-#define BANK_BASE(i)	(((phys_addr_t [CFI_MAX_FLASH_BANKS])CONFIG_SYS_FLASH_BANKS_LIST)[i])
-
 	/* Init: no FLASHes known */
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 
-		if (!flash_detect_legacy (BANK_BASE(i), i))
-			flash_get_size (BANK_BASE(i), i);
+		if (!flash_detect_legacy(cfi_flash_bank_addr(i), i))
+			flash_get_size(cfi_flash_bank_addr(i), i);
 		size += flash_info[i].size;
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
 #ifndef CONFIG_SYS_FLASH_QUIET_TEST
