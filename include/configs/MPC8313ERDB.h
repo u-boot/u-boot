@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Freescale Semiconductor, Inc. 2006.
+ * Copyright (C) Freescale Semiconductor, Inc. 2006, 2010.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -231,6 +231,13 @@
 #else
 #define CONFIG_SYS_NAND_BASE		0xE2800000
 #endif
+
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITION
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT			"nand0=e2800000.flash"
+#define MTDPARTS_DEFAULT 		\
+	"mtdparts=e0600000.flash:512k(uboot),128k(env),3m@1m(kernel),-(fs)"
 
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
