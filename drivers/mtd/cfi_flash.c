@@ -153,7 +153,7 @@ u64 flash_read64(void *addr)__attribute__((weak, alias("__flash_read64")));
 flash_info_t *flash_get_info(ulong base)
 {
 	int i;
-	flash_info_t * info = 0;
+	flash_info_t *info = NULL;
 
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		info = & flash_info[i];
@@ -162,7 +162,7 @@ flash_info_t *flash_get_info(ulong base)
 			break;
 	}
 
-	return i == CONFIG_SYS_MAX_FLASH_BANKS ? 0 : info;
+	return info;
 }
 #endif
 
