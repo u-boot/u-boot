@@ -1459,6 +1459,11 @@ relocate_code:
 	mtspr	SPRN_DTV3,r6
 	msync
 	isync
+
+	/* Invalidate data cache, now no longer our stack */
+	dccci	0,0
+	sync
+	isync
 #endif /* CONFIG_SYS_INIT_RAM_DCACHE */
 
 	/*
