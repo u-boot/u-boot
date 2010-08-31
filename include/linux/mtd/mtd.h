@@ -255,7 +255,9 @@ extern struct mtd_info *get_mtd_device(struct mtd_info *mtd, int num);
 extern struct mtd_info *get_mtd_device_nm(const char *name);
 
 extern void put_mtd_device(struct mtd_info *mtd);
-
+extern void mtd_get_len_incl_bad(struct mtd_info *mtd, uint64_t offset,
+				 const uint64_t length, uint64_t *len_incl_bad,
+				 int *truncated);
 /* XXX U-BOOT XXX */
 #if 0
 struct mtd_notifier {
