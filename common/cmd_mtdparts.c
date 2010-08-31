@@ -286,6 +286,29 @@ static void current_save(void)
 	index_partitions();
 }
 
+
+/**
+ * Produce a mtd_info given a type and num.
+ *
+ * @param type mtd type
+ * @param num mtd number
+ * @param mtd a pointer to an mtd_info instance (output)
+ * @return 0 if device is valid, 1 otherwise
+ */
+static int get_mtd_info(u8 type, u8 num, struct mtd_info **mtd)
+{
+	char mtd_dev[16];
+
+	sprintf(mtd_dev, "%s%d", MTD_DEV_TYPE(type), num);
+	*mtd = get_mtd_device_nm(mtd_dev);
+	if (IS_ERR(*mtd)) {
+		printf("Device %s not found!\n", mtd_dev);
+		return 1;
+	}
+
+	return 0;
+}
+
 /**
  * Performs sanity check for supplied flash partition.
  * Table of existing MTD flash devices is searched and partition device
@@ -297,17 +320,12 @@ static void current_save(void)
  */
 static int part_validate_eraseblock(struct mtdids *id, struct part_info *part)
 {
-	struct mtd_info *mtd;
-	char mtd_dev[16];
+	struct mtd_info *mtd = NULL;
 	int i, j;
 	ulong start;
 
-	sprintf(mtd_dev, "%s%d", MTD_DEV_TYPE(id->type), id->num);
-	mtd = get_mtd_device_nm(mtd_dev);
-	if (IS_ERR(mtd)) {
-		printf("Partition %s not found on device %s!\n", part->name, mtd_dev);
+	if (get_mtd_info(id->type, id->num, &mtd))
 		return 1;
-	}
 
 	part->sector_size = mtd->erasesize;
 
@@ -684,20 +702,17 @@ static int part_parse(const char *const partdef, const char **ret, struct part_i
 /**
  * Check device number to be within valid range for given device type.
  *
- * @param dev device to validate
+ * @param type mtd type
+ * @param num mtd number
+ * @param size a pointer to the size of the mtd device (output)
  * @return 0 if device is valid, 1 otherwise
  */
 int mtd_device_validate(u8 type, u8 num, u32 *size)
 {
-	struct mtd_info *mtd;
-	char mtd_dev[16];
+	struct mtd_info *mtd = NULL;
 
-	sprintf(mtd_dev, "%s%d", MTD_DEV_TYPE(type), num);
-	mtd = get_mtd_device_nm(mtd_dev);
-	if (IS_ERR(mtd)) {
-		printf("Device %s not found!\n", mtd_dev);
+	if (get_mtd_info(type, num, &mtd))
 		return 1;
-	}
 
 	*size = mtd->size;
 
