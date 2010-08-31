@@ -42,6 +42,8 @@ int find_dev_and_part(const char *id, struct mtd_device **dev,
 #endif
 
 #ifndef CONFIG_SYS_NO_FLASH
+#include <flash.h>
+#include <mtd/cfi_flash.h>
 extern flash_info_t flash_info[];	/* info for FLASH chips */
 
 /*
@@ -417,11 +419,7 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 {
 	flash_info_t *info;
 	ulong bank;
-#ifdef CONFIG_SYS_MAX_FLASH_BANKS_DETECT
-	int s_first[CONFIG_SYS_MAX_FLASH_BANKS_DETECT], s_last[CONFIG_SYS_MAX_FLASH_BANKS_DETECT];
-#else
 	int s_first[CONFIG_SYS_MAX_FLASH_BANKS], s_last[CONFIG_SYS_MAX_FLASH_BANKS];
-#endif
 	int erased = 0;
 	int planned;
 	int rcode = 0;
@@ -635,11 +633,7 @@ int flash_sect_protect (int p, ulong addr_first, ulong addr_last)
 {
 	flash_info_t *info;
 	ulong bank;
-#ifdef CONFIG_SYS_MAX_FLASH_BANKS_DETECT
-	int s_first[CONFIG_SYS_MAX_FLASH_BANKS_DETECT], s_last[CONFIG_SYS_MAX_FLASH_BANKS_DETECT];
-#else
 	int s_first[CONFIG_SYS_MAX_FLASH_BANKS], s_last[CONFIG_SYS_MAX_FLASH_BANKS];
-#endif
 	int protected, i;
 	int planned;
 	int rcode;
