@@ -1949,9 +1949,13 @@ int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	/* mtdparts add <mtd-dev> <size>[@<offset>] <name> [ro] */
-	if (((argc == 5) || (argc == 6)) && (strcmp(argv[1], "add") == 0)) {
+	if (((argc == 5) || (argc == 6)) && (strncmp(argv[1], "add", 3) == 0)) {
 #define PART_ADD_DESC_MAXLEN 64
 		char tmpbuf[PART_ADD_DESC_MAXLEN];
+#if defined(CONFIG_CMD_MTDPARTS_SPREAD)
+		struct mtd_info *mtd;
+		uint64_t next_offset;
+#endif
 		u8 type, num, len;
 		struct mtd_device *dev;
 		struct mtd_device *dev_tmp;
@@ -1986,15 +1990,25 @@ int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		debug("+ %s\t%d\t%s\n", MTD_DEV_TYPE(dev->id->type),
 				dev->id->num, dev->id->mtd_id);
 
-		if ((dev_tmp = device_find(dev->id->type, dev->id->num)) == NULL) {
+		p = list_entry(dev->parts.next, struct part_info, link);
+
+#if defined(CONFIG_CMD_MTDPARTS_SPREAD)
+		if (get_mtd_info(dev->id->type, dev->id->num, &mtd))
+			return 1;
+
+		if (!strcmp(&argv[1][3], ".spread")) {
+			spread_partition(mtd, p, &next_offset);
+			debug("increased %s to %d bytes\n", p->name, p->size);
+		}
+#endif
+
+		dev_tmp = device_find(dev->id->type, dev->id->num);
+		if (dev_tmp == NULL) {
 			device_add(dev);
-		} else {
+		} else if (part_add(dev_tmp, p) != 0) {
 			/* merge new partition with existing ones*/
-			p = list_entry(dev->parts.next, struct part_info, link);
-			if (part_add(dev_tmp, p) != 0) {
-				device_del(dev);
-				return 1;
-			}
+			device_del(dev);
+			return 1;
 		}
 
 		if (generate_mtdparts_save(last_parts, MTDPARTS_MAXLEN) != 0) {
@@ -2039,6 +2053,10 @@ U_BOOT_CMD(
 	"    - delete partition (e.g. part-id = nand0,1)\n"
 	"mtdparts add <mtd-dev> <size>[@<offset>] [<name>] [ro]\n"
 	"    - add partition\n"
+#if defined(CONFIG_CMD_MTDPARTS_SPREAD)
+	"mtdparts add.spread <mtd-dev> <size>[@<offset>] [<name>] [ro]\n"
+	"    - add partition, padding size by skipping bad blocks\n"
+#endif
 	"mtdparts default\n"
 	"    - reset partition table to defaults\n"
 #if defined(CONFIG_CMD_MTDPARTS_SPREAD)
