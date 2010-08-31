@@ -15,6 +15,9 @@
  *   Parsing routines are based on driver/mtd/cmdline.c from the linux 2.4
  *   kernel tree.
  *
+ * (C) Copyright 2008
+ * Harald Welte, OpenMoko, Inc., Harald Welte <laforge@openmoko.org>
+ *
  *   $Id: cmdlinepart.c,v 1.17 2004/11/26 11:18:47 lavinen Exp $
  *   Copyright 2002 SYSGO Real-Time Solutions GmbH
  *
@@ -1424,6 +1427,101 @@ static int delete_partition(const char *id)
 	return 1;
 }
 
+#if defined(CONFIG_CMD_MTDPARTS_SPREAD)
+/**
+ * Increase the size of the given partition so that it's net size is at least
+ * as large as the size member and such that the next partition would start on a
+ * good block if it were adjacent to this partition.
+ *
+ * @param mtd the mtd device
+ * @param part the partition
+ * @param next_offset pointer to the offset of the next partition after this
+ *                    partition's size has been modified (output)
+ */
+static void spread_partition(struct mtd_info *mtd, struct part_info *part,
+			     uint64_t *next_offset)
+{
+	uint64_t net_size, padding_size = 0;
+	int truncated;
+
+	mtd_get_len_incl_bad(mtd, part->offset, part->size, &net_size,
+			     &truncated);
+
+	/*
+	 * Absorb bad blocks immediately following this
+	 * partition also into the partition, such that
+	 * the next partition starts with a good block.
+	 */
+	if (!truncated) {
+		mtd_get_len_incl_bad(mtd, part->offset + net_size,
+				     mtd->erasesize, &padding_size, &truncated);
+		if (truncated)
+			padding_size = 0;
+		else
+			padding_size -= mtd->erasesize;
+	}
+
+	if (truncated) {
+		printf("truncated partition %s to %lld bytes\n", part->name,
+		       (uint64_t) net_size + padding_size);
+	}
+
+	part->size = net_size + padding_size;
+	*next_offset = part->offset + part->size;
+}
+
+/**
+ * Adjust all of the partition sizes, such that all partitions are at least
+ * as big as their mtdparts environment variable sizes and they each start
+ * on a good block.
+ *
+ * @return 0 on success, 1 otherwise
+ */
+static int spread_partitions(void)
+{
+	struct list_head *dentry, *pentry;
+	struct mtd_device *dev;
+	struct part_info *part;
+	struct mtd_info *mtd;
+	int part_num;
+	uint64_t cur_offs;
+
+	list_for_each(dentry, &devices) {
+		dev = list_entry(dentry, struct mtd_device, link);
+
+		if (get_mtd_info(dev->id->type, dev->id->num, &mtd))
+			return 1;
+
+		part_num = 0;
+		cur_offs = 0;
+		list_for_each(pentry, &dev->parts) {
+			part = list_entry(pentry, struct part_info, link);
+
+			debug("spread_partitions: device = %s%d, partition %d ="
+				" (%s) 0x%08x@0x%08x\n",
+				MTD_DEV_TYPE(dev->id->type), dev->id->num,
+				part_num, part->name, part->size,
+				part->offset);
+
+			if (cur_offs > part->offset)
+				part->offset = cur_offs;
+
+			spread_partition(mtd, part, &cur_offs);
+
+			part_num++;
+		}
+	}
+
+	index_partitions();
+
+	if (generate_mtdparts_save(last_parts, MTDPARTS_MAXLEN) != 0) {
+		printf("generated mtdparts too long, reseting to null\n");
+		return 1;
+	}
+	return 0;
+}
+#endif /* CONFIG_CMD_MTDPARTS_SPREAD */
+
 /**
  * Accept character string describing mtd partitions and call device_parse()
  * for each entry. Add created devices to the global devices list.
@@ -1914,6 +2012,11 @@ int do_mtdparts(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return delete_partition(argv[2]);
 	}
 
+#if defined(CONFIG_CMD_MTDPARTS_SPREAD)
+	if ((argc == 2) && (strcmp(argv[1], "spread") == 0))
+		return spread_partitions();
+#endif /* CONFIG_CMD_MTDPARTS_SPREAD */
+
 	return cmd_usage(cmdtp);
 }
 
@@ -1937,7 +2040,15 @@ U_BOOT_CMD(
 	"mtdparts add <mtd-dev> <size>[@<offset>] [<name>] [ro]\n"
 	"    - add partition\n"
 	"mtdparts default\n"
-	"    - reset partition table to defaults\n\n"
+	"    - reset partition table to defaults\n"
+#if defined(CONFIG_CMD_MTDPARTS_SPREAD)
+	"mtdparts spread\n"
+	"    - adjust the sizes of the partitions so they are\n"
+	"      at least as big as the mtdparts variable specifies\n"
+	"      and they each start on a good block\n\n"
+#else
+	"\n"
+#endif /* CONFIG_CMD_MTDPARTS_SPREAD */
 	"-----\n\n"
 	"this command uses three environment variables:\n\n"
 	"'partition' - keeps current partition identifier\n\n"
