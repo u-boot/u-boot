@@ -1215,38 +1215,92 @@ static int generate_mtdparts_save(char *buf, u32 buflen)
 	return ret;
 }
 
+#if defined(CONFIG_CMD_MTDPARTS_SHOW_NET_SIZES)
 /**
- * Format and print out a partition list for each device from global device
- * list.
+ * Get the net size (w/o bad blocks) of the given partition.
+ *
+ * @param mtd the mtd info
+ * @param part the partition
+ * @return the calculated net size of this partition
  */
-static void list_partitions(void)
+static uint64_t net_part_size(struct mtd_info *mtd, struct part_info *part)
+{
+	if (!mtd->block_isbad)
+		return part->size;
+
+	uint64_t i, net_size = 0;
+
+	for (i = 0; i < part->size; i += mtd->erasesize) {
+		if (!mtd->block_isbad(mtd, part->offset + i))
+			net_size += mtd->erasesize;
+	}
+	return net_size;
+}
+#endif
+
+static void print_partition_table(void)
 {
 	struct list_head *dentry, *pentry;
 	struct part_info *part;
 	struct mtd_device *dev;
 	int part_num;
 
-	debug("\n---list_partitions---\n");
 	list_for_each(dentry, &devices) {
 		dev = list_entry(dentry, struct mtd_device, link);
+		/* list partitions for given device */
+		part_num = 0;
+#if defined(CONFIG_CMD_MTDPARTS_SHOW_NET_SIZES)
+		struct mtd_info *mtd;
+
+		if (get_mtd_info(dev->id->type, dev->id->num, &mtd))
+			return;
+
+		printf("\ndevice %s%d <%s>, # parts = %d\n",
+				MTD_DEV_TYPE(dev->id->type), dev->id->num,
+				dev->id->mtd_id, dev->num_parts);
+		printf(" #: name\t\tsize\t\tnet size\toffset\t\tmask_flags\n");
+
+		list_for_each(pentry, &dev->parts) {
+			u32 net_size;
+			char *size_note;
+
+			part = list_entry(pentry, struct part_info, link);
+			net_size = net_part_size(mtd, part);
+			size_note = part->size == net_size ? " " : " (!)";
+			printf("%2d: %-20s0x%08x\t0x%08x%s\t0x%08x\t%d\n",
+					part_num, part->name, part->size,
+					net_size, size_note, part->offset,
+					part->mask_flags);
+#else /* !defined(CONFIG_CMD_MTDPARTS_SHOW_NET_SIZES) */
 		printf("\ndevice %s%d <%s>, # parts = %d\n",
 				MTD_DEV_TYPE(dev->id->type), dev->id->num,
 				dev->id->mtd_id, dev->num_parts);
 		printf(" #: name\t\tsize\t\toffset\t\tmask_flags\n");
 
-		/* list partitions for given device */
-		part_num = 0;
 		list_for_each(pentry, &dev->parts) {
 			part = list_entry(pentry, struct part_info, link);
 			printf("%2d: %-20s0x%08x\t0x%08x\t%d\n",
 					part_num, part->name, part->size,
 					part->offset, part->mask_flags);
-
+#endif /* defined(CONFIG_CMD_MTDPARTS_SHOW_NET_SIZES) */
 			part_num++;
 		}
 	}
+
 	if (list_empty(&devices))
 		printf("no partitions defined\n");
+}
+
+/**
+ * Format and print out a partition list for each device from global device
+ * list.
+ */
+static void list_partitions(void)
+{
+	struct part_info *part;
+
+	debug("\n---list_partitions---\n");
+	print_partition_table();
 
 	/* current_mtd_dev is not NULL only when we have non empty device list */
 	if (current_mtd_dev) {
