@@ -101,10 +101,6 @@
  * defined as tqm834x_num_flash_banks.
  */
 #define CONFIG_SYS_MAX_FLASH_BANKS_DETECT	2
-#ifndef __ASSEMBLY__
-extern int tqm834x_num_flash_banks;
-#endif
-#define CONFIG_SYS_MAX_FLASH_BANKS (tqm834x_num_flash_banks)
 
 #define CONFIG_SYS_MAX_FLASH_SECT		512	/* max sectors per device */
 

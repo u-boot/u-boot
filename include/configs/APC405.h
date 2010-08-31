@@ -264,16 +264,10 @@
 /*
  * FLASH organization
  */
-#ifndef __ASSEMBLY__
-extern int flash_banks;
-#endif
-
 #define CONFIG_SYS_FLASH_BASE		0xFE000000
 #define CONFIG_SYS_FLASH_CFI		1	/* Flash is CFI conformant */
 #define CONFIG_FLASH_CFI_DRIVER	1	/* Use the common driver */
 #define CONFIG_SYS_MAX_FLASH_SECT	256	/* max num of sects on one chip */
-#define CONFIG_SYS_MAX_FLASH_BANKS	flash_banks /* max num of flash banks */
-					    /* updated in board_early_init_r */
 #define CONFIG_SYS_MAX_FLASH_BANKS_DETECT 2
 #define CONFIG_SYS_FLASH_QUIET_TEST	1
 #define CONFIG_SYS_FLASH_INCREMENT	0x01000000

@@ -30,6 +30,8 @@
 #include <miiphy.h>
 #include <asm/mmu.h>
 #include <pci.h>
+#include <flash.h>
+#include <mtd/cfi_flash.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -52,12 +54,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #define INITIAL_CS_CONFIG	(CSCONFIG_EN | CSCONFIG_ROW_BIT_12 | \
 				CSCONFIG_COL_BIT_9)
 
-/* Global variable used to store detected number of banks */
-int tqm834x_num_flash_banks;
-
 /* External definitions */
 ulong flash_get_size (ulong base, int banknum);
-extern flash_info_t flash_info[];
 
 /* Local functions */
 static int detect_num_flash_banks(void);
@@ -190,7 +188,7 @@ static int detect_num_flash_banks(void)
 	ulong bank2_size;
 	ulong total_size;
 
-	tqm834x_num_flash_banks = 2;	/* assume two banks */
+	cfi_flash_num_flash_banks = 2;	/* assume two banks */
 
 	/* Get bank 1 and 2 information */
 	bank1_size = flash_get_size(CONFIG_SYS_FLASH_BASE, 0);
@@ -244,13 +242,13 @@ static int detect_num_flash_banks(void)
 				 * we got the some data reading from Flash.
 				 * There is only one mirrored bank.
 				 */
-				tqm834x_num_flash_banks = 1;
+				cfi_flash_num_flash_banks = 1;
 				total_size = bank1_size;
 			}
 		}
 	}
 
-	debug("Number of flash banks detected: %d\n", tqm834x_num_flash_banks);
+	debug("Number of flash banks detected: %d\n", cfi_flash_num_flash_banks);
 
 	/* set OR0 and BR0 */
 	set_lbc_or(0, CONFIG_SYS_OR_TIMING_FLASH |

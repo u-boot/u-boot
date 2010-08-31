@@ -151,6 +151,24 @@ struct cfi_pri_hdr {
 	u8	minor_version;
 } __attribute__((packed));
 
+#ifndef CONFIG_SYS_FLASH_BANKS_LIST
+#define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE }
+#endif
+
+/*
+ * CFI_MAX_FLASH_BANKS only used for flash_info struct declaration.
+ *
+ * Use CONFIG_SYS_MAX_FLASH_BANKS_DETECT if defined
+ */
+#if defined(CONFIG_SYS_MAX_FLASH_BANKS_DETECT)
+#define CONFIG_SYS_MAX_FLASH_BANKS	(cfi_flash_num_flash_banks)
+#define CFI_MAX_FLASH_BANKS	CONFIG_SYS_MAX_FLASH_BANKS_DETECT
+/* board code can update this variable before CFI detection */
+extern int cfi_flash_num_flash_banks;
+#else
+#define CFI_MAX_FLASH_BANKS	CONFIG_SYS_MAX_FLASH_BANKS
+#endif
+
 void flash_write_cmd(flash_info_t * info, flash_sect_t sect,
 		     uint offset, u32 cmd);
 

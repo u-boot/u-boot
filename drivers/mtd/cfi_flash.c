@@ -62,19 +62,8 @@
  * reading and writing ... (yes there is such a Hardware).
  */
 
-#ifndef CONFIG_SYS_FLASH_BANKS_LIST
-#define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE }
-#endif
-
 static uint flash_offset_cfi[2] = { FLASH_OFFSET_CFI, FLASH_OFFSET_CFI_ALT };
 static uint flash_verbose = 1;
-
-/* use CONFIG_SYS_MAX_FLASH_BANKS_DETECT if defined */
-#ifdef CONFIG_SYS_MAX_FLASH_BANKS_DETECT
-# define CFI_MAX_FLASH_BANKS	CONFIG_SYS_MAX_FLASH_BANKS_DETECT
-#else
-# define CFI_MAX_FLASH_BANKS	CONFIG_SYS_MAX_FLASH_BANKS
-#endif
 
 flash_info_t flash_info[CFI_MAX_FLASH_BANKS];	/* FLASH chips info */
 
@@ -83,6 +72,10 @@ flash_info_t flash_info[CFI_MAX_FLASH_BANKS];	/* FLASH chips info */
  */
 #ifndef CONFIG_SYS_FLASH_CFI_WIDTH
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
+#endif
+
+#if defined(CONFIG_SYS_MAX_FLASH_BANKS_DETECT)
+int cfi_flash_num_flash_banks = CONFIG_SYS_MAX_FLASH_BANKS_DETECT;
 #endif
 
 static phys_addr_t __cfi_flash_bank_addr(int i)
