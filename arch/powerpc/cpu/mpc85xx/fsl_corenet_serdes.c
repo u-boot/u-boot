@@ -168,6 +168,90 @@ int serdes_get_first_lane(enum srds_prtcl device)
 	return __serdes_get_first_lane(prtcl, device);
 }
 
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
+/*
+ * Returns the SERDES bank (1, 2, or 3) that a given device is on for a given
+ * SERDES protocol.
+ *
+ * Returns a negative error code if the given device is not supported for the
+ * given SERDES protocol.
+ */
+static int serdes_get_bank_by_device(uint32_t prtcl, enum srds_prtcl device)
+{
+	int lane;
+
+	lane = __serdes_get_first_lane(prtcl, device);
+	if (unlikely(lane < 0))
+		return lane;
+
+	return serdes_get_bank_by_lane(lane);
+}
+
+static uint32_t __serdes_get_lane_count(uint32_t prtcl, enum srds_prtcl device,
+					int first)
+{
+	int lane;
+
+	for (lane = first; lane < SRDS_MAX_LANES; lane++) {
+		if (serdes_get_prtcl(prtcl, lane) != device)
+			break;
+	}
+
+	return lane - first;
+}
+
+static void __serdes_reset_rx(serdes_corenet_t *regs,
+			      uint32_t prtcl,
+			      enum srds_prtcl device)
+{
+	int lane, idx, first, last;
+
+	lane = __serdes_get_first_lane(prtcl, device);
+	if (unlikely(lane < 0))
+		return;
+	first = serdes_get_lane_idx(lane);
+	last = first + __serdes_get_lane_count(prtcl, device, lane);
+
+	/*
+	 * Set BnGCRy0[RRST] = 0 for each lane in the each bank that is
+	 * selected as XAUI to place the lane into reset.
+	*/
+	for (idx = first; idx < last; idx++)
+		clrbits_be32(&regs->lane[idx].gcr0, SRDS_GCR0_RRST);
+
+	/* Wait at least 250 ns */
+	udelay(1);
+
+	/*
+	 * Set BnGCRy0[RRST] = 1 for each lane in the each bank that is
+	 * selected as XAUI to bring the lane out of reset.
+	 */
+	for (idx = first; idx < last; idx++)
+		setbits_be32(&regs->lane[idx].gcr0, SRDS_GCR0_RRST);
+}
+
+void serdes_reset_rx(enum srds_prtcl device)
+{
+	u32 prtcl;
+	const ccsr_gur_t *gur;
+	serdes_corenet_t *regs;
+
+	if (unlikely(device == NONE))
+		return;
+
+	gur = (typeof(gur))CONFIG_SYS_MPC85xx_GUTS_ADDR;
+
+	/* Is serdes enabled at all? */
+	if (unlikely((in_be32(&gur->rcwsr[5]) & 0x2000) == 0))
+		return;
+
+	regs = (typeof(regs))CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	prtcl = (in_be32(&gur->rcwsr[4]) & FSL_CORENET_RCWSR4_SRDS_PRTCL) >> 26;
+
+	__serdes_reset_rx(regs, prtcl, device);
+}
+#endif
+
 #ifndef CONFIG_SYS_DCSRBAR_PHYS
 #define CONFIG_SYS_DCSRBAR_PHYS	0x80000000 /* Must be 1GB-aligned for rev1.0 */
 #define CONFIG_SYS_DCSRBAR	0x80000000
@@ -318,6 +402,9 @@ void fsl_serdes_init(void)
 	const char *srds_lpd_arg;
 	size_t arglen;
 #endif
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
+	enum srds_prtcl device;
+#endif
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	char *buf = NULL;
 
@@ -452,6 +539,17 @@ void fsl_serdes_init(void)
 			break;
 		case XAUI_FM1:
 		case XAUI_FM2:
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
+			/*
+			 * Set BnTTLCRy0[FLT_SEL] = 000011 and set
+			 * BnTTLCRy0[17] = 1 for each of the SerDes lanes
+			 * selected as XAUI on each bank before XAUI is
+			 * initialized.
+			 */
+			clrsetbits_be32(&srds_regs->lane[idx].ttlcr0,
+					SRDS_TTLCR0_FLT_SEL_MASK,
+					0x03000000 | SRDS_TTLCR0_PM_DIS);
+#endif
 			if (lane_prtcl == XAUI_FM1)
 				serdes8_devdisr2 |= FSL_CORENET_DEVDISR2_FM1	|
 						    FSL_CORENET_DEVDISR2_10GEC1;
@@ -470,6 +568,8 @@ void fsl_serdes_init(void)
 
 #ifdef DEBUG
 	puts("\n");
+#endif
+
 #endif
 
 	for (idx = 0; idx < SRDS_MAX_BANK; idx++) {
@@ -527,4 +627,11 @@ void fsl_serdes_init(void)
 			continue;
 		}
 	}
+
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
+	for (device = XAUI_FM1; device <= XAUI_FM2; device++) {
+		if (is_serdes_configured(device))
+			__serdes_reset_rx(srds_regs, cfg, device);
+	}
+#endif
 }

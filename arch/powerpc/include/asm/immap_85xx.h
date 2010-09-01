@@ -2137,6 +2137,8 @@ typedef struct serdes_corenet {
 #define SRDS_TECR0_TEQ_TYPE_2LVL	0x10000000
 		u32	res3;
 		u32	ttlcr0;	/* Transition Tracking Loop Ctrl 0 */
+#define SRDS_TTLCR0_FLT_SEL_MASK	0x3f000000
+#define SRDS_TTLCR0_PM_DIS		0x00004000
 		u32	res4[7];
 	} lane[24];
 	u32 res6[384];
