@@ -29,6 +29,7 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/fsl_law.h>
+#include <asm/errno.h>
 #include "fsl_corenet_serdes.h"
 
 static u32 serdes_prtcl_map;
@@ -91,7 +92,7 @@ int serdes_get_lane_idx(int lane)
 	return lanes[lane].idx;
 }
 
-int serdes_get_bank(int lane)
+int serdes_get_bank_by_lane(int lane)
 {
 	return lanes[lane].bank;
 }
@@ -130,6 +131,41 @@ int is_serdes_configured(enum srds_prtcl device)
 		return 0;
 
 	return (1 << device) & serdes_prtcl_map;
+}
+
+static int __serdes_get_first_lane(uint32_t prtcl, enum srds_prtcl device)
+{
+	int i;
+
+	for (i = 0; i < SRDS_MAX_LANES; i++) {
+		if (serdes_get_prtcl(prtcl, i) == device)
+			return i;
+	}
+
+	return -ENODEV;
+}
+
+/*
+ * Returns the SERDES lane (0..SRDS_MAX_LANES-1) that routes to the given
+ * device. This depends on the current SERDES protocol, as defined in the RCW.
+ *
+ * Returns a negative error code if SERDES is disabled or the given device is
+ * not supported in the current SERDES protocol.
+ */
+int serdes_get_first_lane(enum srds_prtcl device)
+{
+	u32 prtcl;
+	const ccsr_gur_t *gur;
+
+	gur = (typeof(gur))CONFIG_SYS_MPC85xx_GUTS_ADDR;
+
+	/* Is serdes enabled at all? */
+	if (unlikely((in_be32(&gur->rcwsr[5]) & 0x2000) == 0))
+		return -ENODEV;
+
+	prtcl = (in_be32(&gur->rcwsr[4]) & FSL_CORENET_RCWSR4_SRDS_PRTCL) >> 26;
+
+	return __serdes_get_first_lane(prtcl, device);
 }
 
 #ifndef CONFIG_SYS_DCSRBAR_PHYS
@@ -325,7 +361,7 @@ void fsl_serdes_init(void)
 	for (lane = 0; lane < SRDS_MAX_LANES; lane++) {
 		enum srds_prtcl lane_prtcl = serdes_get_prtcl(cfg, lane);
 		if (serdes_lane_enabled(lane)) {
-			have_bank[serdes_get_bank(lane)] = 1;
+			have_bank[serdes_get_bank_by_lane(lane)] = 1;
 			serdes_prtcl_map |= (1 << lane_prtcl);
 		}
 	}
