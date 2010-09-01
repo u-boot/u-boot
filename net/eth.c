@@ -204,10 +204,18 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_init();
 #endif
-	/* Try board-specific initialization first.  If it fails or isn't
-	 * present, try the cpu-specific initialization */
-	if (board_eth_init(bis) < 0)
-		cpu_eth_init(bis);
+	/*
+	 * If board-specific initialization exists, call it.
+	 * If not, call a CPU-specific one
+	 */
+	if (board_eth_init != __def_eth_init) {
+		if (board_eth_init(bis) < 0)
+			printf("Board Net Initialization Failed\n");
+	} else if (cpu_eth_init != __def_eth_init) {
+		if (cpu_eth_init(bis) < 0)
+			printf("CPU Net Initialization Failed\n");
+	} else
+		printf("Net Initialization Skipped\n");
 
 #if defined(CONFIG_DB64360) || defined(CONFIG_CPCI750)
 	mv6436x_eth_initialize(bis);
