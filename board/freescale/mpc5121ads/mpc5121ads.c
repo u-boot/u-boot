@@ -260,11 +260,6 @@ int misc_init_r(void)
 	i2c_read(0x38, 0x0A, 1, &tmp_val, sizeof(tmp_val));
 	debug("DVI Encoder Read: 0x%02lx\n", tmp_val);
 
-#ifdef CONFIG_FSL_DIU_FB
-# if	!(defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE))
-	mpc5121_diu_init();
-# endif
-#endif
 	return 0;
 }
 

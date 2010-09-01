@@ -24,9 +24,12 @@
 /* video */
 #undef CONFIG_VIDEO
 
-#if defined(CONFIG_VIDEO)
+#ifdef CONFIG_VIDEO
+#define CONFIG_CMD_BMP
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
 #endif
 
 #ifdef RUN_DIAG

@@ -36,7 +36,7 @@
 
 void sdram_init(void);
 phys_size_t fixed_sdram(void);
-void mpc8610hpcd_diu_init(void);
+int mpc8610hpcd_diu_init(void);
 
 
 /* called before any console output */
@@ -83,10 +83,6 @@ int misc_init_r(void)
 	tmp_val = 0;
 	i2c_read(0x38, 0x0A, 1, &tmp_val, sizeof(tmp_val));
 	debug("DVI Encoder Read: 0x%02lx\n",tmp_val);
-
-#ifdef CONFIG_FSL_DIU_FB
-	mpc8610hpcd_diu_init();
-#endif
 
 	return 0;
 }

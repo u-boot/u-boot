@@ -47,14 +47,16 @@
 #define CONFIG_E300		1	/* E300 Family */
 #define CONFIG_MPC512X		1	/* MPC512X family */
 #define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
-#undef CONFIG_FSL_DIU_LOGO_BMP		/* Don't include FSL DIU binary bmp */
 
 /* video */
 #undef CONFIG_VIDEO
 
-#if defined(CONFIG_VIDEO)
+#ifdef CONFIG_VIDEO
+#define CONFIG_CMD_BMP
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
 #endif
 
 /* CONFIG_PCI is defined at config time */
