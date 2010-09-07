@@ -206,26 +206,31 @@ PKDR_A:	.long	0xFFEF0034
 
 /* GPIO Set data */
 PADR_D:	.long	0x00000000
-PACR_D:	.long 	0x00001400
+PACR_D:	.word 	0x1400
+.align 2
 PBDR_D:	.long	0x00000000
-PBCR_D:	.long	0x0000555A
+PBCR_D:	.word	0x555A
+.align 2
 PCDR_D:	.long	0x00000000
-PCCR_D:	.long	0x00005555
+PCCR_D:	.word	0x5555
+.align 2
 PDDR_D:	.long	0x00000000
-PDCR_D:	.long	0x00000155
-PECR_D:	.long	0x00000000
-PFCR_D:	.long	0x00000000
-PGCR_D:	.long	0x00000000
-PHCR_D:	.long	0x00000000
-PICR_D:	.long	0x00000800
+PDCR_D:	.word	0x0155
+PECR_D:	.word	0x0000
+PFCR_D:	.word	0x0000
+PGCR_D:	.word	0x0000
+PHCR_D:	.word	0x0000
+PICR_D:	.word	0x0800
 PJDR_D:	.long	0x00000006
-PJCR_D:	.long	0x00005A57
+PJCR_D:	.word	0x5A57
+.align 2
 PKDR_D:	.long	0x00000000
-PKCR_D:	.long	0x0000FFF9
-PLCR_D:	.long 	0x0000C330
-PMCR_D:	.long	0x0000FFFF
-PNCR_D:	.long	0x00000242
-POCR_D:	.long	0x00000000
+PKCR_D:	.word	0xFFF9
+.align 2
+PLCR_D:	.word 	0xC330
+PMCR_D:	.word	0xFFFF
+PNCR_D:	.word	0x0242
+POCR_D:	.word	0x0000
 
 /* Pin Select */
 PSEL0_A:	.long	0xFFEF0070
@@ -233,11 +238,12 @@ PSEL1_A:	.long	0xFFEF0072
 PSEL2_A:	.long	0xFFEF0074
 PSEL3_A:	.long	0xFFEF0076
 PSEL4_A:	.long	0xFFEF0078
-PSEL0_D:	.long	0x0001
-PSEL1_D:	.long	0x2400
-PSEL2_D:	.long	0x0000
-PSEL3_D:	.long	0x2421
-PSEL4_D:	.long	0x0000
+PSEL0_D:	.word	0x0001
+PSEL1_D:	.word	0x2400
+PSEL2_D:	.word	0x0000
+PSEL3_D:	.word	0x2421
+PSEL4_D:	.word	0x0000
+.align 2
 
 MMSEL_A:	.long	0xFE600020
 BCR_A:		.long	0xFF801000
