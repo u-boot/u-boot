@@ -1,5 +1,5 @@
 /*
- * CPUAT91 by (C) Copyright 2006 Eric Benard
+ * CPUAT91 by (C) Copyright 2006-2010 Eric Benard
  * eric@eukrea.com
  *
  * Configuration settings for the CPUAT91 board.
@@ -23,15 +23,12 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
-
-#define CONFIG_AT91_LEGACY
+#ifndef _CONFIG_CPUAT91_H
+#define _CONFIG_CPUAT91_H
 
 #ifdef CONFIG_CPUAT91_RAM
 #define CONFIG_SKIP_LOWLEVEL_INIT	1
 #define CONFIG_SKIP_RELOCATE_UBOOT	1
-#define CONFIG_CPUAT91			1
 #else
 #define CONFIG_BOOTDELAY		1
 #endif
@@ -43,6 +40,7 @@
 
 #define CONFIG_ARM920T			1
 #define CONFIG_AT91RM9200		1
+#define CONFIG_CPUAT91			1
 
 #undef CONFIG_USE_IRQ
 #define USE_920T_MMU			1
@@ -89,16 +87,36 @@
 #undef CONFIG_USART0
 #undef CONFIG_USART1
 
-#define CONFIG_HARD_I2C			1
+#undef CONFIG_HARD_I2C
+#define CONFIG_SOFT_I2C			1
+#define AT91_PIN_SDA			(1<<25)
+#define AT91_PIN_SCL			(1<<26)
 
-#if defined(CONFIG_HARD_I2C)
-#define	CONFIG_SYS_I2C_SPEED			50000
-#define CONFIG_SYS_I2C_SLAVE			0
+#define CONFIG_SYS_I2C_INIT_BOARD	1
+#define	CONFIG_SYS_I2C_SPEED		50000
+#define CONFIG_SYS_I2C_SLAVE		0
+
+#define I2C_INIT	i2c_init_board();
+#define I2C_ACTIVE	writel(AT91_PMX_AA_TWD, &pio->pioa.mddr);
+#define I2C_TRISTATE	writel(AT91_PMX_AA_TWD, &pio->pioa.mder);
+#define I2C_READ	((readl(&pio->pioa.pdsr) & AT91_PMX_AA_TWD) != 0)
+#define I2C_SDA(bit)						\
+	if (bit)						\
+		writel(AT91_PMX_AA_TWD, &pio->pioa.sodr);	\
+	else							\
+		writel(AT91_PMX_AA_TWD, &pio->pioa.codr);
+#define I2C_SCL(bit)						\
+	if (bit)						\
+		writel(AT91_PMX_AA_TWCK, &pio->pioa.sodr);	\
+	else							\
+		writel(AT91_PMX_AA_TWCK, &pio->pioa.codr);
+
+#define I2C_DELAY	udelay(2500000/CONFIG_SYS_I2C_SPEED)
+
 #define CONFIG_SYS_I2C_EEPROM_ADDR		0x54
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN		1
 #define CONFIG_SYS_I2C_EEPROM_ADDR_OVERFLOW	1
 #define	CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
-#endif
 
 #define CONFIG_BOOTP_BOOTFILESIZE	1
 #define CONFIG_BOOTP_BOOTPATH		1
@@ -117,10 +135,8 @@
 #undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_NFS
 
-#if defined(CONFIG_HARD_I2C)
 #define CONFIG_CMD_EEPROM		1
 #define CONFIG_CMD_I2C			1
-#endif
 
 #define CONFIG_NR_DRAM_BANKS			1
 #define PHYS_SDRAM				0x20000000
@@ -148,6 +164,7 @@
 #define PHYS_FLASH_1				0x10000000
 #define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
 #define CONFIG_SYS_MAX_FLASH_SECT		128
+#define CONFIG_SYS_FLASH_CFI_WIDTH		FLASH_CFI_16BIT
 
 #if defined(CONFIG_CMD_USB)
 #define CONFIG_USB_OHCI_NEW			1
@@ -206,7 +223,7 @@
 	"mtdparts=physmap-flash.0:"	\
 		"128k(u-boot)ro,"	\
 		"128k(u-boot-env),"	\
-		"1408k(kernel),"	\
+		"1792k(kernel),"	\
 		"-(rootfs)"
 
 #define CONFIG_BOOTARGS 		\
@@ -221,13 +238,13 @@
 		"1001FFFF; erase 10000000 1001FFFF; cp.b 21000000 "	\
 		"10000000 ${filesize}\0"				\
 	"flui=tftp 21000000 cpuat91/uImage; protect off 10040000 "	\
-		"1019ffff; erase 10040000 1019ffff; cp.b 21000000 "	\
+		"1019ffff; erase 10040000 101fffff; cp.b 21000000 "	\
 		"10040000 ${filesize}\0"				\
 	"flrfs=tftp 21000000 cpuat91/rootfs.jffs2; protect off "	\
-		"101a0000 10ffffff; erase 101a0000 10ffffff; cp.b "	\
-		"21000000 101A0000 ${filesize}\0"			\
+		"10200000 10ffffff; erase 10200000 10ffffff; cp.b "	\
+		"21000000 10200000 ${filesize}\0"			\
 	"ramargs=setenv bootargs $(bootargs) $(mtdparts)\0"		\
 	"flashboot=run ramargs;bootm 10040000\0"			\
 	"netboot=run ramargs;tftpboot 21000000 cpuat91/uImage;"		\
 		"bootm 21000000\0"
-#endif	/* __CONFIG_H */
+#endif	/* _CONFIG_CPUAT91_H */

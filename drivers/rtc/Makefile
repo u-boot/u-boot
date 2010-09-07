@@ -27,6 +27,7 @@ include $(TOPDIR)/config.mk
 
 LIB	= $(obj)librtc.a
 
+COBJS-$(CONFIG_RTC_AT91SAM9_RTT) += at91sam9_rtt.o
 COBJS-$(CONFIG_RTC_BFIN) += bfin_rtc.o
 COBJS-y += date.o
 COBJS-$(CONFIG_RTC_DS12887) += ds12887.o

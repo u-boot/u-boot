@@ -179,6 +179,16 @@ struct mmc_cid {
 	char pnm[7];
 };
 
+/*
+ * WARNING!
+ *
+ * This structure is used by atmel_mci.c only.
+ * It works for the AVR32 architecture but NOT
+ * for ARM/AT91 architectures.
+ * Its use is highly depreciated.
+ * After the atmel_mci.c driver for AVR32 has
+ * been replaced this structure will be removed.
+ */
 struct mmc_csd
 {
 	u8	csd_structure:2,
@@ -275,7 +285,10 @@ int mmc_set_dev(int dev_num);
 void print_mmc_devices(char separator);
 int board_mmc_getcd(u8 *cd, struct mmc *mmc);
 
-#ifndef CONFIG_GENERIC_MMC
+#ifdef CONFIG_GENERIC_MMC
+int atmel_mci_init(void *regs);
+#else
 int mmc_legacy_init(int verbose);
 #endif
+
 #endif /* _MMC_H_ */

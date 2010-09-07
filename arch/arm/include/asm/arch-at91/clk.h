@@ -59,5 +59,10 @@ static inline unsigned long get_twi_clk_rate(unsigned int dev_id)
 	return get_mck_clk_rate();
 }
 
+static inline unsigned long get_mci_clk_rate(void)
+{
+	return get_mck_clk_rate();
+}
+
 int at91_clock_init(unsigned long main_clock);
 #endif /* __ASM_ARM_ARCH_CLK_H__ */
