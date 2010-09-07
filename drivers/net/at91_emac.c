@@ -500,11 +500,7 @@ int at91emac_register(bd_t *bis, unsigned long iobase)
 	memset(emacfix, 0, sizeof(emac_device));
 
 	memset(dev, 0, sizeof(*dev));
-#ifndef CONFIG_RMII
-	sprintf(dev->name, "AT91 EMAC");
-#else
-	sprintf(dev->name, "AT91 EMAC RMII");
-#endif
+	sprintf(dev->name, "emac");
 	dev->iobase = iobase;
 	dev->priv = emacfix;
 	dev->init = at91emac_init;
