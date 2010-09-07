@@ -28,7 +28,7 @@
 
 .globl reset_cpu
 reset_cpu:
-	ldr	r1, =S5PC1XX_PRO_ID
+	ldr	r1, =S5PC100_PRO_ID
 	ldr	r2, [r1]
 	ldr	r4, =0x00010000
 	and	r4, r2, r4

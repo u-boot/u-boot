@@ -22,19 +22,15 @@
 #ifndef __ASM_ARM_ARCH_PWM_H_
 #define __ASM_ARM_ARCH_PWM_H_
 
-/* PWM timer addressing */
-#define S5PC100_TIMER_BASE	S5PC100_PWMTIMER_BASE
-#define S5PC110_TIMER_BASE	S5PC110_PWMTIMER_BASE
-
 /* Interval mode(Auto Reload) of PWM Timer 4 */
-#define S5PC1XX_TCON4_AUTO_RELOAD	(1 << 22)
+#define TCON4_AUTO_RELOAD	(1 << 22)
 /* Update TCNTB4 */
-#define S5PC1XX_TCON4_UPDATE		(1 << 21)
+#define TCON4_UPDATE		(1 << 21)
 /* start bit of PWM Timer 4 */
-#define S5PC1XX_TCON4_START		(1 << 20)
+#define TCON4_START		(1 << 20)
 
 #ifndef __ASSEMBLY__
-struct s5pc1xx_timer {
+struct s5p_timer {
 	unsigned int	tcfg0;
 	unsigned int	tcfg1;
 	unsigned int	tcon;

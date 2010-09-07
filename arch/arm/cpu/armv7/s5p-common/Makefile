@@ -1,6 +1,6 @@
 #
-# Copyright 2000-2008
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Copyright (C) 2009 Samsung Electronics
+# Minkyu Kang <mk7.kang@samsung.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,23 +23,18 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libgpio.a
+LIB	= $(obj)libs5p-common.a
 
-COBJS-$(CONFIG_AT91_GPIO)	+= at91_gpio.o
-COBJS-$(CONFIG_KIRKWOOD_GPIO)	+= kw_gpio.o
-COBJS-$(CONFIG_MX31_GPIO)	+= mx31_gpio.o
-COBJS-$(CONFIG_PCA953X)		+= pca953x.o
-COBJS-$(CONFIG_S5P)		+= s5p_gpio.o
+COBJS-y		+= cpu_info.o
+COBJS-y		+= timer.o
 
-COBJS	:= $(COBJS-y)
-SRCS 	:= $(COBJS:.o=.c)
-OBJS 	:= $(addprefix $(obj),$(COBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y) $(SOBJS))
 
-all:	$(LIB)
+all:	 $(obj).depend $(LIB)
 
-$(LIB):	$(obj).depend $(OBJS)
+$(LIB):	$(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
-
 
 #########################################################################
 
@@ -48,4 +43,4 @@ include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend
 
-########################################################################
+#########################################################################
