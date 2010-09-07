@@ -110,13 +110,15 @@ struct cpu_type *identify_cpu(u32 ver)
 }
 
 int cpu_numcores() {
-	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC85xx_PIC_ADDR;
+	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC8xxx_PIC_ADDR;
 	struct cpu_type *cpu = gd->cpu;
 
 	/* better to query feature reporting register than just assume 1 */
+#define MPC8xxx_PICFRR_NCPU_MASK 0x00001f00
+#define MPC8xxx_PICFRR_NCPU_SHIFT 8
 	if (cpu == &cpu_type_unknown)
-		return ((in_be32(&pic->frr) & MPC85xx_PICFRR_NCPU_MASK) >>
-			MPC85xx_PICFRR_NCPU_SHIFT) + 1;
+		return ((in_be32(&pic->frr) & MPC8xxx_PICFRR_NCPU_MASK) >>
+			MPC8xxx_PICFRR_NCPU_SHIFT) + 1;
 
 	return cpu->num_cores;
 }

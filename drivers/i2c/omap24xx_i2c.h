@@ -20,8 +20,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#ifndef _OMAP24XX_I2C_H_
-#define _OMAP24XX_I2C_H_
+#ifndef _OMAP2PLUS_I2C_H_
+#define _OMAP2PLUS_I2C_H_
 
 /* I2C masks */
 

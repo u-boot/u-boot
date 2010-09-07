@@ -874,35 +874,6 @@ static inline u64 of_read_number(const __be32 *cell, int size)
 	return r;
 }
 
-static int of_n_cells(const void *blob, int nodeoffset, const char *name)
-{
-	int np;
-	const int *ip;
-
-	do {
-		np = fdt_parent_offset(blob, nodeoffset);
-
-		if (np >= 0)
-			nodeoffset = np;
-		ip = (int *)fdt_getprop(blob, nodeoffset, name, NULL);
-		if (ip)
-			return be32_to_cpup(ip);
-	} while (np >= 0);
-
-	/* No #<NAME>-cells property for the root node */
-	return 1;
-}
-
-int of_n_addr_cells(const void *blob, int nodeoffset)
-{
-	return of_n_cells(blob, nodeoffset, "#address-cells");
-}
-
-int of_n_size_cells(const void *blob, int nodeoffset)
-{
-	return of_n_cells(blob, nodeoffset, "#size-cells");
-}
-
 #define PRu64	"%llx"
 
 /* Max address size we deal with */
@@ -928,7 +899,7 @@ static void of_dump_addr(const char *s, const u32 *addr, int na) { }
 struct of_bus {
 	const char	*name;
 	const char	*addresses;
-	void		(*count_cells)(void *blob, int offset,
+	void		(*count_cells)(void *blob, int parentoffset,
 				int *addrc, int *sizec);
 	u64		(*map)(u32 *addr, const u32 *range,
 				int na, int ns, int pna);
@@ -936,13 +907,26 @@ struct of_bus {
 };
 
 /* Default translator (generic bus) */
-static void of_bus_default_count_cells(void *blob, int offset,
+static void of_bus_default_count_cells(void *blob, int parentoffset,
 					int *addrc, int *sizec)
 {
-	if (addrc)
-		*addrc = of_n_addr_cells(blob, offset);
-	if (sizec)
-		*sizec = of_n_size_cells(blob, offset);
+	const u32 *prop;
+
+	if (addrc) {
+		prop = fdt_getprop(blob, parentoffset, "#address-cells", NULL);
+		if (prop)
+			*addrc = be32_to_cpup(prop);
+		else
+			*addrc = 2;
+	}
+
+	if (sizec) {
+		prop = fdt_getprop(blob, parentoffset, "#size-cells", NULL);
+		if (prop)
+			*sizec = be32_to_cpup(prop);
+		else
+			*sizec = 1;
+	}
 }
 
 static u64 of_bus_default_map(u32 *addr, const u32 *range,
@@ -1068,7 +1052,7 @@ u64 __of_translate_address(void *blob, int node_offset, const u32 *in_addr,
 	bus = &of_busses[0];
 
 	/* Cound address cells & copy address locally */
-	bus->count_cells(blob, node_offset, &na, &ns);
+	bus->count_cells(blob, parent, &na, &ns);
 	if (!OF_CHECK_COUNTS(na, ns)) {
 		printf("%s: Bad cell count for %s\n", __FUNCTION__,
 		       fdt_get_name(blob, node_offset, NULL));
@@ -1095,7 +1079,7 @@ u64 __of_translate_address(void *blob, int node_offset, const u32 *in_addr,
 
 		/* Get new parent bus and counts */
 		pbus = &of_busses[0];
-		pbus->count_cells(blob, node_offset, &pna, &pns);
+		pbus->count_cells(blob, parent, &pna, &pns);
 		if (!OF_CHECK_COUNTS(pna, pns)) {
 			printf("%s: Bad cell count for %s\n", __FUNCTION__,
 				fdt_get_name(blob, node_offset, NULL));

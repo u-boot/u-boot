@@ -760,8 +760,6 @@ typedef struct ccsr_pic {
 	u32	eoi;		/* End Of IRQ */
 	u8	res9[3916];
 	u32	frr;		/* Feature Reporting */
-#define MPC85xx_PICFRR_NCPU_MASK	0x00001f00
-#define MPC85xx_PICFRR_NCPU_SHIFT	8
 	u8	res10[28];
 	u32	gcr;		/* Global Configuration */
 #define MPC85xx_PICGCR_RST	0x80000000
@@ -2065,7 +2063,7 @@ typedef struct ccsr_sec {
 	struct {
 		u32	ms;	/* Job Ring LIODN Register, MS */
 		u32	ls;	/* Job Ring LIODN Register, LS */
-	} jqliodnr[4];
+	} jrliodnr[4];
 	u8	res2[0x30];
 	struct {
 		u32	ms;	/* RTIC LIODN Register, MS */
@@ -2110,8 +2108,8 @@ typedef struct ccsr_sec {
 #define SEC_CTPR_MS_AXI_LIODN		0x08000000
 #define SEC_CTPR_MS_QI			0x02000000
 #define SEC_RVID_MA			0x0f000000
-#define SEC_CHANUM_MS_JQNUM_MASK	0xf0000000
-#define SEC_CHANUM_MS_JQNUM_SHIFT	28
+#define SEC_CHANUM_MS_JRNUM_MASK	0xf0000000
+#define SEC_CHANUM_MS_JRNUM_SHIFT	28
 #define SEC_CHANUM_MS_DECONUM_MASK	0x0f000000
 #define SEC_CHANUM_MS_DECONUM_SHIFT	24
 #endif
@@ -2301,7 +2299,7 @@ typedef struct ccsr_pme {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_DMA_OFFSET)
 #define CONFIG_SYS_MPC85xx_ESDHC_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_ESDHC_OFFSET)
-#define CONFIG_SYS_MPC85xx_PIC_ADDR \
+#define CONFIG_SYS_MPC8xxx_PIC_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_PIC_OFFSET)
 #define CONFIG_SYS_MPC85xx_CPM_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_CPM_OFFSET)

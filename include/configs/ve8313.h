@@ -39,6 +39,7 @@
 #define CONFIG_VE8313		1
 
 #define CONFIG_PCI		1
+#define CONFIG_FSL_ELBC		1
 
 #define CONFIG_BOARD_EARLY_INIT_F	1
 

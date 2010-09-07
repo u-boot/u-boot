@@ -38,7 +38,7 @@ u32 get_my_id()
 
 int cpu_reset(int nr)
 {
-	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
 	out_be32(&pic->pir, 1 << nr);
 	/* the dummy read works around an errata on early 85xx MP PICs */
 	(void)in_be32(&pic->pir);
@@ -207,7 +207,7 @@ static void plat_mp_up(unsigned long bootpg)
 	gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	ccm = (void *)(CONFIG_SYS_FSL_CORENET_CCM_ADDR);
 	rcpm = (void *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
-	pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+	pic = (void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
 
 	nr_cpus = ((in_be32(&pic->frr) >> 8) & 0xff) + 1;
 
@@ -272,7 +272,7 @@ static void plat_mp_up(unsigned long bootpg)
 	volatile u32 bpcr;
 	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC85xx_PIC_ADDR);
+	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
 	u32 devdisr;
 	int timeout = 10;
 

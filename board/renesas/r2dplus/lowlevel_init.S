@@ -94,11 +94,14 @@ WCR3_D:		.long	0x07777707
 LED_A:		.long	0x04000036	/* LED Address */
 LED_D:		.long	0xFF		/* LED Data */
 RTCNT_A:	.long	RTCNT		/* RTCNT Address */
-RTCNT_D:	.long	0xA500		/* RTCNT Write Code A5h Data 00h */
+RTCNT_D:	.word	0xA500		/* RTCNT Write Code A5h Data 00h */
+.align 2
 RTCOR_A:	.long	RTCOR		/* RTCOR Address */
-RTCOR_D:	.long	0xA534		/* RTCOR Write Code */
+RTCOR_D:	.word	0xA534		/* RTCOR Write Code */
+.align 2
 RTCSR_A:	.long	RTCSR		/* RTCSR Address */
-RTCSR_D:	.long	0xA510		/* RTCSR Write Code */
+RTCSR_D:	.word	0xA510		/* RTCSR Write Code */
+.align 2
 SDMR3_A:	.long	0xFF9400CC	/* SDMR3 Address */
 SDMR3_D0:	.long	0x55
 SDMR3_D1:	.long	0x00

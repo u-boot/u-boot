@@ -56,4 +56,9 @@
 	((flags & NIOS2_STATUS_PIE_MSK) == 0x0);	\
 })
 
+/* indirect call to go beyond 256MB limitation of toolchain */
+#define nios2_callr(addr) __asm__ __volatile__ (	\
+	"callr	%0"					\
+	: : "r" (addr))
+
 #endif /* __ASM_NIOS2_SYSTEM_H */

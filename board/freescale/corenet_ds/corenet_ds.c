@@ -23,6 +23,7 @@
 #include <common.h>
 #include <command.h>
 #include <netdev.h>
+#include <linux/compiler.h>
 #include <asm/mmu.h>
 #include <asm/processor.h>
 #include <asm/cache.h>
@@ -120,28 +121,6 @@ int board_early_init_r(void)
 	set_liodns();
 	setup_portals();
 
-#ifdef CONFIG_SRIO1
-	if (is_serdes_configured(SRIO1)) {
-		set_next_law(CONFIG_SYS_RIO1_MEM_PHYS, LAW_SIZE_256M,
-				LAW_TRGT_IF_RIO_1);
-	} else {
-		printf ("    SRIO1: disabled\n");
-	}
-#else
-	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_SRIO1); /* disable */
-#endif
-
-#ifdef CONFIG_SRIO2
-	if (is_serdes_configured(SRIO2)) {
-		set_next_law(CONFIG_SYS_RIO2_MEM_PHYS, LAW_SIZE_256M,
-				LAW_TRGT_IF_RIO_2);
-	} else {
-		printf ("    SRIO2: disabled\n");
-	}
-#else
-	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_SRIO2); /* disable */
-#endif
-
 	return 0;
 }
 
@@ -164,9 +143,33 @@ static const char *serdes_clock_to_string(u32 clock)
 int misc_init_r(void)
 {
 	serdes_corenet_t *srds_regs = (void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	__maybe_unused ccsr_gur_t *gur;
 	u32 actual[NUM_SRDS_BANKS];
 	unsigned int i;
 	u8 sw3;
+
+	gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#ifdef CONFIG_SRIO1
+	if (is_serdes_configured(SRIO1)) {
+		set_next_law(CONFIG_SYS_RIO1_MEM_PHYS, LAW_SIZE_256M,
+				LAW_TRGT_IF_RIO_1);
+	} else {
+		printf ("    SRIO1: disabled\n");
+	}
+#else
+	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_SRIO1); /* disable */
+#endif
+
+#ifdef CONFIG_SRIO2
+	if (is_serdes_configured(SRIO2)) {
+		set_next_law(CONFIG_SYS_RIO2_MEM_PHYS, LAW_SIZE_256M,
+				LAW_TRGT_IF_RIO_2);
+	} else {
+		printf ("    SRIO2: disabled\n");
+	}
+#else
+	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_SRIO2); /* disable */
+#endif
 
 	/* Warn if the expected SERDES reference clocks don't match the
 	 * actual reference clocks.  This needs to be done after calling
