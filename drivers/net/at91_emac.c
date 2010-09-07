@@ -127,13 +127,19 @@ void at91emac_DisableMDIO(at91_emac_t *at91mac)
 int  at91emac_read(at91_emac_t *at91mac, unsigned char addr,
 		unsigned char reg, unsigned short *value)
 {
+	unsigned long netstat;
 	at91emac_EnableMDIO(at91mac);
 
 	writel(AT91_EMAC_MAN_HIGH | AT91_EMAC_MAN_RW_R |
 		AT91_EMAC_MAN_REGA(reg) | AT91_EMAC_MAN_CODE_802_3 |
 		AT91_EMAC_MAN_PHYA(addr),
 		&at91mac->man);
-	udelay(10000);
+
+	do {
+		netstat = readl(&at91mac->sr);
+		DEBUG_AT91PHY("poll SR %08lx\n", netstat);
+	} while (!(netstat & AT91_EMAC_SR_IDLE));
+
 	*value = readl(&at91mac->man) & AT91_EMAC_MAN_DATA_MASK;
 
 	at91emac_DisableMDIO(at91mac);
@@ -146,6 +152,7 @@ int  at91emac_read(at91_emac_t *at91mac, unsigned char addr,
 int  at91emac_write(at91_emac_t *at91mac, unsigned char addr,
 		unsigned char reg, unsigned short value)
 {
+	unsigned long netstat;
 	DEBUG_AT91PHY("AT91PHY write %x REG(%d)=%x\n", at91mac, reg, &value)
 
 	at91emac_EnableMDIO(at91mac);
@@ -154,9 +161,14 @@ int  at91emac_write(at91_emac_t *at91mac, unsigned char addr,
 		AT91_EMAC_MAN_REGA(reg) | AT91_EMAC_MAN_CODE_802_3 |
 		AT91_EMAC_MAN_PHYA(addr) | (value & AT91_EMAC_MAN_DATA_MASK),
 		&at91mac->man);
-	udelay(10000);
+
+	do {
+		netstat = readl(&at91mac->sr);
+		DEBUG_AT91PHY("poll SR %08lx\n", netstat);
+	} while (!(netstat & AT91_EMAC_SR_IDLE));
 
 	at91emac_DisableMDIO(at91mac);
+
 	return 0;
 }
 
