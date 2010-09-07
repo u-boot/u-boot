@@ -132,6 +132,7 @@
  */
 #include <config_cmd_default.h>
 #define CONFIG_CMD_IDE
+#define CONFIG_CMD_I2C
 
 /*
  * Network
@@ -180,6 +181,16 @@
 #define CONFIG_SYS_ATA_IDE0_OFFSET	ORION5X_SATA_PORT1_OFFSET
 /* end of IDE defines */
 #endif /* CMD_IDE */
+
+/*
+ * I2C related stuff
+ */
+#ifdef CONFIG_CMD_I2C
+#define CONFIG_I2C_MVTWSI
+#define CONFIG_I2C_MVTWSI_BASE		ORION5X_TWSI_BASE
+#define CONFIG_SYS_I2C_SLAVE		0x0
+#define CONFIG_SYS_I2C_SPEED		100000
+#endif
 
 /*
  *  Environment variables configurations

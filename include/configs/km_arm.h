@@ -142,15 +142,7 @@
 /*
  * I2C related stuff
  */
-#undef	CONFIG_HARD_I2C		/* I2C with hardware support */
 #define	CONFIG_SOFT_I2C		/* I2C bit-banged	*/
-
-#if defined(CONFIG_HARD_I2C)
-#define	CONFIG_I2C_KIRKWOOD
-#define	CONFIG_I2C_KW_REG_BASE		KW_TWSI_BASE
-#define	CONFIG_SYS_I2C_SLAVE		0x0
-#define	CONFIG_SYS_I2C_SPEED		100000
-#endif
 
 #define	CONFIG_KIRKWOOD_GPIO		/* Enable GPIO Support */
 #if defined(CONFIG_SOFT_I2C)
