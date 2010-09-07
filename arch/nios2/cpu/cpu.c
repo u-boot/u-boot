@@ -40,11 +40,10 @@ int checkcpu (void)
 	return (0);
 }
 
-
-int do_reset (void)
+int do_reset(void)
 {
-	void (*rst)(void) = (void(*)(void))CONFIG_SYS_RESET_ADDR;
-	disable_interrupts ();
-	rst();
-	return(0);
+	disable_interrupts();
+	/* indirect call to go beyond 256MB limitation of toolchain */
+	nios2_callr(CONFIG_SYS_RESET_ADDR);
+	return 0;
 }
