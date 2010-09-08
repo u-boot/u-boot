@@ -1599,6 +1599,7 @@ int flush;
             strm->adler = state->check = adler32(0L, Z_NULL, 0);
             state->mode = TYPE;
         case TYPE:
+	    WATCHDOG_RESET();
             if (flush == Z_BLOCK) goto inf_leave;
         case TYPEDO:
             if (state->last) {
