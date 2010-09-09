@@ -305,6 +305,10 @@ Andrea "llandre" Marson <andrea.marson@dave-tech.it>
 
 	PPChameleonEVB	PPC405EP
 
+Tirumala Marri <tmarri@apm.com>
+
+	bluestone       APM821XX
+
 Reinhard Meyer <r.meyer@emk-elektronik.de>
 
 	TOP860		MPC860T
@@ -342,6 +346,10 @@ Daniel Poirot <dan.poirot@windriver.com>
 
 	sbc8240		MPC8240
 	sbc405		PPC405GP
+
+Sergei Poselenov <sposelenov@emcraft.com>
+
+	a4m072		MPC5200
 
 Sudhakar Rajashekhara <sudhakar.raj@ti.com>
 
@@ -497,10 +505,6 @@ John Zhan <zhanz@sinovee.com>
 Detlev Zundel <dzu@denx.de>
 
 	inka4x0		MPC5200
-
-Tirumala Marri <tmarri@apm.com>
-
-	bluestone       APM821XX
 
 -------------------------------------------------------------------------
 
