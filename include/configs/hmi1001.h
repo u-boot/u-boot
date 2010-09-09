@@ -352,6 +352,7 @@
 /* Display addresses						       */
 /*---------------------------------------------------------------------*/
 
+#define CONFIG_PDSP188x
 #define CONFIG_SYS_DISP_CHR_RAM	(CONFIG_SYS_DISPLAY_BASE + 0x38)
 #define CONFIG_SYS_DISP_CWORD		(CONFIG_SYS_DISPLAY_BASE + 0x30)
 

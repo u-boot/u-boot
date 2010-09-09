@@ -55,6 +55,11 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_SNTP
 
+/*
+ * 8-symbol LED display (can be accessed with 'display' command)
+ */
+#define CONFIG_PDSP188x
+
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
 
 /*
