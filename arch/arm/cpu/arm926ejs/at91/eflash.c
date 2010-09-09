@@ -268,4 +268,3 @@ int write_buff (flash_info_t *info, uchar *src, ulong addr, ulong cnt)
 	}
 	return 0;
 }
-

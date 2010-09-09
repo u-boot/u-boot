@@ -103,4 +103,3 @@ void twl4030_power_mmc_init(void)
 				TWL4030_PM_RECEIVER_VMMC1_DEV_GRP,
 				TWL4030_PM_RECEIVER_DEV_GRP_P1);
 }
-

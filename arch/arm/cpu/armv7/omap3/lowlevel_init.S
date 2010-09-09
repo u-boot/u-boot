@@ -427,4 +427,3 @@ get_36x_core_dpll_param:
 get_36x_per_dpll_param:
 	adr	r0, per_36x_dpll_param
 	mov	pc, lr
-

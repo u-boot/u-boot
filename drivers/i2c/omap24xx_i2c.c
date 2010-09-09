@@ -456,4 +456,3 @@ int i2c_get_bus_num(void)
 {
 	return (int) current_bus;
 }
-

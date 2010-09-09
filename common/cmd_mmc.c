@@ -134,7 +134,7 @@ U_BOOT_CMD(
 	mmcinfo, 2, 0, do_mmcinfo,
 	"display MMC info",
 	"<dev num>\n"
-        "    - device number of the device to dislay info of\n"
+	"    - device number of the device to dislay info of\n"
 	""
 );
 

@@ -45,4 +45,3 @@ lowlevel_init:
 	 */
 	bl	s_init
 	pop	{ip, pc}
-

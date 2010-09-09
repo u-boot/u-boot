@@ -50,9 +50,9 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS						\
 "slot_a_boot=setenv bootargs root=/dev/sda2 ip=off;"				\
- "run addhw; mw.b 400000 00 80; diskboot 400000 0:1; bootm 400000\0"            \
+ "run addhw; mw.b 400000 00 80; diskboot 400000 0:1; bootm 400000\0"		\
 "slot_b_boot=setenv bootargs root=/dev/sda2 ip=off;"				\
- "run addhw; mw.b 400000 00 80; diskboot 400000 2:1; bootm 400000\0"            \
+ "run addhw; mw.b 400000 00 80; diskboot 400000 2:1; bootm 400000\0"		\
 "nfs_boot=mw.b 400000 00 80; dhcp; run nfsargs addip addhw; bootm 400000\0"	\
 "fat_boot=mw.b 400000 00 80; fatload ide 2:1 400000 st.bin; run addhw;		\
  bootm 400000 \0"								\
@@ -105,7 +105,7 @@
  * enable I2C and select the hardware/software driver
  */
 #undef	CONFIG_HARD_I2C		/* I2C with hardware support	*/
-#define	CONFIG_SOFT_I2C         /* I2C bit-banged		*/
+#define	CONFIG_SOFT_I2C		/* I2C bit-banged		*/
 
 #define CONFIG_SYS_I2C_SPEED	93000	/* 93 kHz is supposed to work */
 #define CONFIG_SYS_I2C_SLAVE	0xFE
@@ -250,10 +250,10 @@
  * Dynamic MTD partition support
  */
 #define MTDPARTS_DEFAULT	"mtdparts=40000000.flash:256k(u-boot),"	\
-                                                "64k(env),"		\
-                                                "128k(splash),"		\
-                                                "512k(etc),"		\
-                                                "64k(hw-info)"
+						"64k(env),"		\
+						"128k(splash),"		\
+						"512k(etc),"		\
+						"64k(hw-info)"
 
 /*-----------------------------------------------------------------------
  * Hardware Information Block
@@ -507,7 +507,7 @@
 #define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot */
 #define CONFIG_AUTOBOOT_STOP_STR	"."
 #define CONFIG_SILENT_CONSOLE		1
-#define CONFIG_SYS_DEVICE_NULLDEV	1       /* enble null device            */
+#define CONFIG_SYS_DEVICE_NULLDEV	1       /* enble null device		*/
 #define CONFIG_VERSION_VARIABLE		1
 
 /* pass open firmware flat tree */
@@ -515,4 +515,3 @@
 #define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */
-

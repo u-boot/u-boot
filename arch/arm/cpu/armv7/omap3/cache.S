@@ -181,4 +181,3 @@ setup_auxcr:
 	orrlt	r0, r0, #1 << 27
 	.word 0xE1600070			@ SMC
 	bx	lr
-

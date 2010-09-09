@@ -98,4 +98,3 @@ int arch_cpu_init(void)
 	set_muxconf_regs();
 	return 0;
 }
-

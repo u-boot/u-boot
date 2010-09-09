@@ -229,4 +229,3 @@ void at91_mci_hw_init(void)
 #endif
 }
 #endif
-

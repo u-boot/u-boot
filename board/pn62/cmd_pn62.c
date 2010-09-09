@@ -83,7 +83,7 @@ int do_loadpci (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	addr = simple_strtoul(argv[1], NULL, 16);
 	break;
     default:
-        return cmd_usage(cmdtp);
+	return cmd_usage(cmdtp);
     }
 
     printf ("## Ready for image download ...\n");

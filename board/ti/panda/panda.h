@@ -262,4 +262,3 @@ const struct pad_conf_entry wkup_padconf_array[] = {
 };
 
 #endif
-

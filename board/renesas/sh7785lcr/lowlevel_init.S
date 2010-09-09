@@ -179,7 +179,7 @@ lbsc_end:
 	.align 4
 
 /*------- GPIO -------*/
-/* P{A,B C,D,E,F,G,L,P,Q,R}CR_D */ 
+/* P{A,B C,D,E,F,G,L,P,Q,R}CR_D */
 PXCR_D:		.word	0x0000
 
 PHCR_D:		.word	0x00c0
