@@ -1228,15 +1228,16 @@ static int generate_mtdparts_save(char *buf, u32 buflen)
  */
 static uint64_t net_part_size(struct mtd_info *mtd, struct part_info *part)
 {
+	uint64_t i, net_size = 0;
+
 	if (!mtd->block_isbad)
 		return part->size;
-
-	uint64_t i, net_size = 0;
 
 	for (i = 0; i < part->size; i += mtd->erasesize) {
 		if (!mtd->block_isbad(mtd, part->offset + i))
 			net_size += mtd->erasesize;
 	}
+
 	return net_size;
 }
 #endif

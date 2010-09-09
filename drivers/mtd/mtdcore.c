@@ -162,11 +162,6 @@ void mtd_get_len_incl_bad(struct mtd_info *mtd, uint64_t offset,
 	*truncated = 0;
 	*len_incl_bad = 0;
 
-	if (offset >= mtd->size) {
-		*truncated = 1;
-		return;
-	}
-
 	if (!mtd->block_isbad) {
 		*len_incl_bad = length;
 		return;
@@ -176,6 +171,11 @@ void mtd_get_len_incl_bad(struct mtd_info *mtd, uint64_t offset,
 	uint64_t block_len;
 
 	while (len_excl_bad < length) {
+		if (offset >= mtd->size) {
+			*truncated = 1;
+			return;
+		}
+
 		block_len = mtd->erasesize - (offset & (mtd->erasesize - 1));
 
 		if (!mtd->block_isbad(mtd, offset & ~(mtd->erasesize - 1)))
@@ -183,11 +183,6 @@ void mtd_get_len_incl_bad(struct mtd_info *mtd, uint64_t offset,
 
 		*len_incl_bad += block_len;
 		offset       += block_len;
-
-		if (offset >= mtd->size) {
-			*truncated = 1;
-			break;
-		}
 	}
 }
 #endif /* defined(CONFIG_CMD_MTDPARTS_SPREAD) */
