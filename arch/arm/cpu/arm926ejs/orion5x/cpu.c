@@ -61,7 +61,7 @@ unsigned int orion5x_winctrl_calcsize(unsigned int sizeval)
 	unsigned int j = 0;
 	u32 val = sizeval >> 1;
 
-	for (i = 0; val > 0x10000; i++) {
+	for (i = 0; val >= 0x10000; i++) {
 		j |= (1 << i);
 		val = val >> 1;
 	}

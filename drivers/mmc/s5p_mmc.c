@@ -23,12 +23,6 @@
 #include <asm/io.h>
 #include <asm/arch/mmc.h>
 
-#ifdef DEBUG_S5P_HSMMC
-#define dbg(x...)       printf(x)
-#else
-#define dbg(x...)       do { } while (0)
-#endif
-
 /* support 4 mmc hosts */
 struct mmc mmc_dev[4];
 struct mmc_host mmc_host[4];
@@ -36,18 +30,14 @@ struct mmc_host mmc_host[4];
 static inline struct s5p_mmc *s5p_get_base_mmc(int dev_index)
 {
 	unsigned long offset = dev_index * sizeof(struct s5p_mmc);
-
-	if (cpu_is_s5pc100())
-		return (struct s5p_mmc *)(S5PC100_MMC_BASE + offset);
-	else
-		return (struct s5p_mmc *)(S5PC110_MMC_BASE + offset);
+	return (struct s5p_mmc *)(samsung_get_base_mmc() + offset);
 }
 
 static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data)
 {
 	unsigned char ctrl;
 
-	dbg("data->dest: %08x\n", (u32)data->dest);
+	debug("data->dest: %08x\n", (u32)data->dest);
 	writel((u32)data->dest, &host->reg->sysad);
 	/*
 	 * DMASEL[4:3]
@@ -128,7 +118,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (data)
 		mmc_prepare_data(host, data);
 
-	dbg("cmd->arg: %08x\n", cmd->cmdarg);
+	debug("cmd->arg: %08x\n", cmd->cmdarg);
 	writel(cmd->cmdarg, &host->reg->argument);
 
 	if (data)
@@ -165,7 +155,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (data)
 		flags |= (1 << 5);
 
-	dbg("cmd: %d\n", cmd->cmdidx);
+	debug("cmd: %d\n", cmd->cmdidx);
 
 	writew((cmd->cmdidx << 8) | flags, &host->reg->cmdreg);
 
@@ -186,11 +176,11 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	if (mask & (1 << 16)) {
 		/* Timeout Error */
-		dbg("timeout: %08x cmd %d\n", mask, cmd->cmdidx);
+		debug("timeout: %08x cmd %d\n", mask, cmd->cmdidx);
 		return TIMEOUT;
 	} else if (mask & (1 << 15)) {
 		/* Error Interrupt */
-		dbg("error: %08x cmd %d\n", mask, cmd->cmdidx);
+		debug("error: %08x cmd %d\n", mask, cmd->cmdidx);
 		return -1;
 	}
 
@@ -206,7 +196,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 					cmd->response[i] |=
 						readb(offset - 1);
 				}
-				dbg("cmd->resp[%d]: %08x\n",
+				debug("cmd->resp[%d]: %08x\n",
 						i, cmd->response[i]);
 			}
 		} else if (cmd->resp_type & MMC_RSP_BUSY) {
@@ -223,10 +213,10 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 			}
 
 			cmd->response[0] = readl(&host->reg->rspreg0);
-			dbg("cmd->resp[0]: %08x\n", cmd->response[0]);
+			debug("cmd->resp[0]: %08x\n", cmd->response[0]);
 		} else {
 			cmd->response[0] = readl(&host->reg->rspreg0);
-			dbg("cmd->resp[0]: %08x\n", cmd->response[0]);
+			debug("cmd->resp[0]: %08x\n", cmd->response[0]);
 		}
 	}
 
@@ -242,11 +232,11 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 				return -1;
 			} else if (mask & (1 << 3)) {
 				/* DMA Interrupt */
-				dbg("DMA end\n");
+				debug("DMA end\n");
 				break;
 			} else if (mask & (1 << 1)) {
 				/* Transfer Complete */
-				dbg("r/w is done\n");
+				debug("r/w is done\n");
 				break;
 			}
 		}
@@ -288,7 +278,7 @@ static void mmc_change_clock(struct mmc_host *host, uint clock)
 		div = 2;
 	else
 		div = 1;
-	dbg("div: %d\n", div);
+	debug("div: %d\n", div);
 
 	div >>= 1;
 	/*
@@ -325,7 +315,7 @@ static void mmc_set_ios(struct mmc *mmc)
 	unsigned char ctrl;
 	unsigned long val;
 
-	dbg("set_ios: bus_width: %x, clock: %d\n", mmc->bus_width, mmc->clock);
+	debug("bus_width: %x, clock: %d\n", mmc->bus_width, mmc->clock);
 
 	/*
 	 * SELCLKPADDS[17:16]

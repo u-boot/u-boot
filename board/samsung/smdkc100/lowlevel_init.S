@@ -131,7 +131,7 @@ wakeup_reset:
  * void system_clock_init(void)
  */
 system_clock_init:
-	ldr	r8, =S5PC1XX_CLOCK_BASE		@ 0xE0100000
+	ldr	r8, =S5PC100_CLOCK_BASE		@ 0xE0100000
 
 	/* Set Clock divider */
 	ldr	r1, =0x00011110

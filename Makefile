@@ -253,6 +253,13 @@ ifeq ($(SOC),omap4)
 LIBS += $(CPUDIR)/omap-common/libomap-common.a
 endif
 
+ifeq ($(SOC),s5pc1xx)
+LIBS += $(CPUDIR)/s5p-common/libs5p-common.a
+endif
+ifeq ($(SOC),s5pc2xx)
+LIBS += $(CPUDIR)/s5p-common/libs5p-common.a
+endif
+
 LIBS := $(addprefix $(obj),$(LIBS))
 .PHONY : $(LIBS) $(TIMESTAMP_FILE) $(VERSION_FILE)
 
@@ -1883,7 +1890,7 @@ CPUAT91_RAM_config \
 CPUAT91_config	:	unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_$(@:_config=) 1"	>$(obj)include/config.h
-	@$(MKCONFIG) -n $@ -a cpuat91 arm arm920t cpuat91 eukrea at91rm9200
+	@$(MKCONFIG) -n $@ -a cpuat91 arm arm920t cpuat91 eukrea at91
 
 #########################################################################
 ## ARM926EJ-S Systems

@@ -22,7 +22,45 @@
 #ifndef __CPU_AT32AP_ATMEL_MCI_H__
 #define __CPU_AT32AP_ATMEL_MCI_H__
 
-/* Atmel MultiMedia Card Interface (MCI) registers */
+#ifndef __ASSEMBLY__
+
+/*
+ * Structure for struct SoC access.
+ * Names starting with '_' are fillers.
+ */
+typedef struct atmel_mci {
+	/*	reg	Offset */
+	u32	cr;	/* 0x00 */
+	u32	mr;	/* 0x04 */
+	u32	dtor;	/* 0x08 */
+	u32	sdcr;	/* 0x0c */
+	u32	argr;	/* 0x10 */
+	u32	cmdr;	/* 0x14 */
+	u32	_18;	/* 0x18 */
+	u32	_1c;	/* 0x1c */
+	u32	rspr;	/* 0x20 */
+	u32	rspr1;	/* 0x24 */
+	u32	rspr2;	/* 0x28 */
+	u32	rspr3;	/* 0x2c */
+	u32	rdr;	/* 0x30 */
+	u32	tdr;	/* 0x34 */
+	u32	_38;	/* 0x38 */
+	u32	_3c;	/* 0x3c */
+	u32	sr;	/* 0x40 */
+	u32	ier;	/* 0x44 */
+	u32	idr;	/* 0x48 */
+	u32	imr;	/* 0x4c */
+} atmel_mci_t;
+
+#endif /* __ASSEMBLY__ */
+
+/*
+ * NOTICE: Use of registers offsets is depreciated.
+ * These defines will be removed once the old driver
+ * is taken out of commision.
+ *
+ * Atmel MultiMedia Card Interface (MCI) registers
+ */
 #define MMCI_CR					0x0000
 #define MMCI_MR					0x0004
 #define MMCI_DTOR				0x0008
@@ -192,7 +230,13 @@
 		    << MMCI_##name##_OFFSET))		\
 	 | MMCI_BF(name,value))
 
-/* Register access macros */
+/*
+ * NOTICE: Use of registers offsets is depreciated.
+ * These defines will be removed once the old driver
+ * is taken out of commision.
+ *
+ * Register access macros
+ */
 #define mmci_readl(reg)					\
 	readl((void *)MMCI_BASE + MMCI_##reg)
 #define mmci_writel(reg,value)				\

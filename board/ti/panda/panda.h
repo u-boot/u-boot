@@ -237,28 +237,28 @@ const struct pad_conf_entry core_padconf_array[] = {
 };
 
 const struct pad_conf_entry wkup_padconf_array[] = {
-	{PAD0_SIM_IO, (IEN | M0)},		/* sim_io */
-	{PAD1_SIM_CLK, (M0)},			/* sim_clk */
-	{PAD0_SIM_RESET, (M0)},			/* sim_reset */
-	{PAD1_SIM_CD, (PTU | IEN | M0)},	/* sim_cd */
-	{PAD0_SIM_PWRCTRL, (M0)},		/* sim_pwrctrl */
-	{PAD1_SR_SCL, (PTU | IEN | M0)},	/* sr_scl */
-	{PAD0_SR_SDA, (PTU | IEN | M0)},	/* sr_sda */
-	{PAD1_FREF_XTAL_IN, (M0)},		/* # */
-	{PAD0_FREF_SLICER_IN, (M0)},		/* fref_slicer_in */
-	{PAD1_FREF_CLK_IOREQ, (M0)},		/* fref_clk_ioreq */
-	{PAD0_FREF_CLK0_OUT, (M2)},		/* sys_drm_msecure */
-	{PAD1_FREF_CLK3_REQ, (PTU | IEN | M0)},	/* # */
-	{PAD0_FREF_CLK3_OUT, (M0)},		/* fref_clk3_out */
-	{PAD1_FREF_CLK4_REQ, (PTU | IEN | M0)},	/* # */
-	{PAD0_FREF_CLK4_OUT, (M0)},		/* # */
-	{PAD1_SYS_32K, (IEN | M0)},		/* sys_32k */
-	{PAD0_SYS_NRESPWRON, (M0)},		/* sys_nrespwron */
-	{PAD1_SYS_NRESWARM, (M0)},		/* sys_nreswarm */
-	{PAD0_SYS_PWR_REQ, (PTU | M0)},		/* sys_pwr_req */
-	{PAD1_SYS_PWRON_RESET, (M3)},		/* gpio_wk29 */
-	{PAD0_SYS_BOOT6, (IEN | M3)},		/* gpio_wk9 */
-	{PAD1_SYS_BOOT7, (IEN | M3)},		/* gpio_wk10 */
+	{PAD0_SIM_IO, (IEN | M0)},					/* sim_io */
+	{PAD1_SIM_CLK, (M0)},						/* sim_clk */
+	{PAD0_SIM_RESET, (M0)},						/* sim_reset */
+	{PAD1_SIM_CD, (PTU | IEN | M0)},				/* sim_cd */
+	{PAD0_SIM_PWRCTRL, (M0)},					/* sim_pwrctrl */
+	{PAD1_SR_SCL, (PTU | IEN | M0)},				/* sr_scl */
+	{PAD0_SR_SDA, (PTU | IEN | M0)},				/* sr_sda */
+	{PAD1_FREF_XTAL_IN, (M0)},					/* # */
+	{PAD0_FREF_SLICER_IN, (M0)},					/* fref_slicer_in */
+	{PAD1_FREF_CLK_IOREQ, (M0)},					/* fref_clk_ioreq */
+	{PAD0_FREF_CLK0_OUT, (M2)},					/* sys_drm_msecure */
+	{PAD1_FREF_CLK3_REQ, (PTU | IEN | M0)},				/* # */
+	{PAD0_FREF_CLK3_OUT, (M0)},					/* fref_clk3_out */
+	{PAD1_FREF_CLK4_REQ, (PTU | OFF_EN | OFF_OUT_PTU | M3)},	/* led status_1 */
+	{PAD0_FREF_CLK4_OUT, (PTU | OFF_EN | OFF_OUT_PTU | M3)},	/* led status_2 */
+	{PAD1_SYS_32K, (IEN | M0)},					/* sys_32k */
+	{PAD0_SYS_NRESPWRON, (M0)},					/* sys_nrespwron */
+	{PAD1_SYS_NRESWARM, (M0)},					/* sys_nreswarm */
+	{PAD0_SYS_PWR_REQ, (PTU | M0)},					/* sys_pwr_req */
+	{PAD1_SYS_PWRON_RESET, (M3)},					/* gpio_wk29 */
+	{PAD0_SYS_BOOT6, (IEN | M3)},					/* gpio_wk9 */
+	{PAD1_SYS_BOOT7, (IEN | M3)},					/* gpio_wk10 */
 };
 
 #endif

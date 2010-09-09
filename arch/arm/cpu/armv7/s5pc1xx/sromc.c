@@ -35,12 +35,8 @@
 void s5pc1xx_config_sromc(u32 srom_bank, u32 smc_bw_conf, u32 smc_bc_conf)
 {
 	u32 tmp;
-	struct s5pc1xx_smc *srom;
-
-	if (cpu_is_s5pc100())
-		srom = (struct s5pc1xx_smc *)S5PC100_SROMC_BASE;
-	else
-		srom = (struct s5pc1xx_smc *)S5PC110_SROMC_BASE;
+	struct s5pc1xx_smc *srom =
+		(struct s5pc1xx_smc *)samsung_get_base_sromc();
 
 	/* Configure SMC_BW register to handle proper SROMC bank */
 	tmp = srom->bw;

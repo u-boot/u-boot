@@ -30,11 +30,7 @@
 static inline struct s5p_uart *s5p_get_base_uart(int dev_index)
 {
 	u32 offset = dev_index * sizeof(struct s5p_uart);
-
-	if (cpu_is_s5pc100())
-		return (struct s5p_uart *)(S5PC100_UART_BASE + offset);
-	else
-		return (struct s5p_uart *)(S5PC110_UART_BASE + offset);
+	return (struct s5p_uart *)(samsung_get_base_uart() + offset);
 }
 
 /*
@@ -67,11 +63,11 @@ void serial_setbrg_dev(const int dev_index)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 	struct s5p_uart *const uart = s5p_get_base_uart(dev_index);
-	u32 pclk = get_pclk();
+	u32 uclk = get_uart_clk(dev_index);
 	u32 baudrate = gd->baudrate;
 	u32 val;
 
-	val = pclk / baudrate;
+	val = uclk / baudrate;
 
 	writel(val / 16 - 1, &uart->ubrdiv);
 	writew(udivslot[val % 16], &uart->udivslot);

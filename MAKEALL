@@ -579,6 +579,7 @@ LIST_ARM9="			\
 	edminiv2		\
 	guruplug		\
 	imx27lite		\
+	jadecpu			\
 	lpd7a400		\
 	magnesium		\
 	mv88f6281gtw_ge		\

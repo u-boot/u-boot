@@ -59,7 +59,15 @@
 #define AT91_RTT_BASE		0xfffffd20
 #define AT91_PIT_BASE		0xfffffd30
 #define AT91_WDT_BASE		0xfffffd40
-#define AT91_GPR_BASE		0xfffffd50
+/*
+ * The AT91SAM9XE has the GPBRs at a different address than
+ * the AT91SAM9260/9G20.
+ */
+#ifdef CONFIG_AT91SAM9XE
+# define AT91_GPR_BASE		0xfffffd60
+#else
+# define AT91_GPR_BASE		0xfffffd50
+#endif
 
 #ifdef CONFIG_AT91_LEGACY
 
@@ -140,10 +148,12 @@
 /*
  * Cpu Name
  */
-#if defined(CONFIG_AT91SAM9260)
-#define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9260"
+#if defined(CONFIG_AT91SAM9XE)
+# define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9XE"
+#elif defined(CONFIG_AT91SAM9260)
+# define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9260"
 #elif defined(CONFIG_AT91SAM9G20)
-#define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9G20"
+# define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9G20"
 #endif
 
 #endif

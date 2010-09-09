@@ -82,12 +82,19 @@ _evba:
 	.org	0x44
 	rjmp	unknown_exception	/* DTLB Modified */
 
-	.org	0x50
-	rjmp	unknown_exception	/* ITLB Miss */
-	.org	0x60
-	rjmp	unknown_exception	/* DTLB Miss (read) */
-	.org	0x70
-	rjmp	unknown_exception	/* DTLB Miss (write) */
+	.org	0x50			/* ITLB Miss */
+	pushm   r8-r12,lr
+	rjmp	1f
+	.org	0x60			/* DTLB Miss (read) */
+	pushm   r8-r12,lr
+	rjmp	1f
+	.org	0x70			/* DTLB Miss (write) */
+	pushm   r8-r12,lr
+1:	mov	r12, sp
+	rcall	mmu_handle_tlb_miss
+	popm	r8-r12,lr
+	brne	unknown_exception
+	rete
 
 	.size	_evba, . - _evba
 

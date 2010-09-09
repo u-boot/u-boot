@@ -2653,9 +2653,12 @@ static struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 	}
 
 	if (!type) {
-		printk(KERN_INFO "%s: unknown NAND device: Manufacturer ID:"
-		       " 0x%02x, Chip ID: 0x%02x\n", __func__,
-		       *maf_id, dev_id);
+		/* supress warning if there is no nand */
+		if (*maf_id != 0x00 && *maf_id != 0xff &&
+		    dev_id  != 0x00 && dev_id  != 0xff)
+			printk(KERN_INFO "%s: unknown NAND device: "
+				"Manufacturer ID: 0x%02x, Chip ID: 0x%02x\n",
+				__func__, *maf_id, dev_id);
 		return ERR_PTR(-ENODEV);
 	}
 

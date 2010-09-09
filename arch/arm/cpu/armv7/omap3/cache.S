@@ -43,6 +43,7 @@
 .global invalidate_dcache
 .global l2_cache_enable
 .global l2_cache_disable
+.global setup_auxcr
 
 /*
  *	invalidate_dcache()
@@ -128,64 +129,56 @@ finished_inval:
 
 	ldmfd	r13!, {r0 - r5, r7, r9 - r12, pc}
 
-
-l2_cache_enable:
-	stmfd	r13!, {r0, r1, r2, lr}
-	@ ES2 onwards we can disable/enable L2 ourselves
+l2_cache_set:
+	stmfd	r13!, {r4 - r6, lr}
+	mov	r5,  r0
 	bl	get_cpu_rev
-	cmp	r0, #CPU_3XX_ES20
-	blt	l2_cache_disable_EARLIER_THAN_ES2
-	mrc	15, 0, r3, cr1, cr0, 1
-	orr	r3, r3, #2
-	mcr	15, 0, r3, cr1, cr0, 1
-	b	l2_cache_enable_END
-l2_cache_enable_EARLIER_THAN_ES2:
-	@ Save r0, r12 and restore them after usage
-	mov	r3, ip
-	str	r3, [sp, #4]
-	mov	r3, r0
-	@
-	@ GP Device ROM code API usage here
-	@ r12 = AUXCR Write function and r0 value
-	@
-	mov	ip, #3
-	mrc	15, 0, r0, cr1, cr0, 1
-	orr	r0, r0, #2
-	@ SMI instruction to call ROM Code API
-	.word	0xe1600070
-	mov	r0, r3
-	mov	ip, r3
-	str	r3, [sp, #4]
-l2_cache_enable_END:
-	ldmfd	r13!, {r1, r2, r3, pc}
-
-
-l2_cache_disable:
-	stmfd	r13!, {r0, r1, r2, lr}
+	mov	r4,  r0
+	bl	get_cpu_family
 	@ ES2 onwards we can disable/enable L2 ourselves
-	bl	get_cpu_rev
-	cmp	r0, #CPU_3XX_ES20
-	blt	l2_cache_disable_EARLIER_THAN_ES2
-	mrc	15, 0, r3, cr1, cr0, 1
-	bic	r3, r3, #2
-	mcr	15, 0, r3, cr1, cr0, 1
-	b	l2_cache_disable_END
-l2_cache_disable_EARLIER_THAN_ES2:
-	@ Save r0, r12 and restore them after usage
-	mov	r3, ip
-	str	r3, [sp, #4]
-	mov	r3, r0
-	@
-	@ GP Device ROM code API usage here
-	@ r12 = AUXCR Write function and r0 value
-	@
-	mov	ip, #3
+	cmp	r0,  #CPU_OMAP34XX
+	cmpeq	r4,  #CPU_3XX_ES10
 	mrc	15, 0, r0, cr1, cr0, 1
 	bic	r0, r0, #2
-	@ SMI instruction to call ROM Code API
-	.word	0xe1600070
-	mov	r0, r3
-	mov	ip, r3
-	str	r3, [sp, #4]
-l2_cache_disable_END:
-	ldmfd	r13!, {r1, r2, r3, pc}
+	orr	r0, r0, r5, lsl #1
+	mcreq	15, 0, r0, cr1, cr0, 1
+	@ GP Device ROM code API usage here
+	@ r12 = AUXCR Write function and r0 value
+	mov	ip, #3
+	@ SMCNE instruction to call ROM Code API
+	.word	0x11600070
+	ldmfd	r13!, {r4 - r6, pc}
+
+l2_cache_enable:
+	mov	r0, #1
+	b	l2_cache_set
+
+l2_cache_disable:
+	mov	r0, #0
+	b	l2_cache_set
+
+/******************************************************************************
+ * Routine: setup_auxcr()
+ * Description: Write to AuxCR desired value using SMI.
+ *              general use.
+ *****************************************************************************/
+setup_auxcr:
+	mrc	p15, 0, r0, c0, c0, 0		@ read main ID register
+	and	r2, r0, #0x00f00000		@ variant
+	and	r3, r0, #0x0000000f		@ revision
+	orr	r1, r3, r2, lsr #20-4		@ combine variant and revision
+	mov	r12, #0x3
+	mrc	p15, 0, r0, c1, c0, 1
+	orr	r0, r0, #0x10			@ Enable ASA
+	@ Enable L1NEON on pre-r2p1 (erratum 621766 workaround)
+	cmp	r1, #0x21
+	orrlt	r0, r0, #1 << 5
+	.word 0xE1600070			@ SMC
+	mov	r12, #0x2
+	mrc	p15, 1, r0, c9, c0, 2
+	@ Set PLD_FWD bit in L2AUXCR on pre-r2p1 (erratum 725233 workaround)
+	cmp	r1, #0x21
+	orrlt	r0, r0, #1 << 27
+	.word 0xE1600070			@ SMC
+	bx	lr
+

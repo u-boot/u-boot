@@ -51,11 +51,28 @@ typedef struct {
 	unsigned int m2;
 } dpll_param;
 
+struct dpll_per_36x_param {
+	unsigned int sys_clk;
+	unsigned int m;
+	unsigned int n;
+	unsigned int m2;
+	unsigned int m3;
+	unsigned int m4;
+	unsigned int m5;
+	unsigned int m6;
+	unsigned int m2div;
+};
+
 /* Following functions are exported from lowlevel_init.S */
 extern dpll_param *get_mpu_dpll_param(void);
 extern dpll_param *get_iva_dpll_param(void);
 extern dpll_param *get_core_dpll_param(void);
 extern dpll_param *get_per_dpll_param(void);
+
+extern dpll_param *get_36x_mpu_dpll_param(void);
+extern dpll_param *get_36x_iva_dpll_param(void);
+extern dpll_param *get_36x_core_dpll_param(void);
+extern dpll_param *get_36x_per_dpll_param(void);
 
 extern void *_end_vect, *_start;
 

@@ -67,7 +67,7 @@ do {									\
 #define MAP_01				(0x1 << 24)
 #define MAP_10				(0x2 << 24)
 #define MAP_11				(0x3 << 24)
-#elif defined(CONFIG_S5PC1XX)
+#elif defined(CONFIG_S5P)
 #define MAP_00				(0x0 << 26)
 #define MAP_01				(0x1 << 26)
 #define MAP_10				(0x2 << 26)
@@ -121,7 +121,7 @@ static unsigned int s3c_mem_addr(int fba, int fpa, int fsa)
 {
 	return (fba << 12) | (fpa << 6) | (fsa << 4);
 }
-#elif defined(CONFIG_S5PC1XX)
+#elif defined(CONFIG_S5P)
 static unsigned int s3c_mem_addr(int fba, int fpa, int fsa)
 {
 	return (fba << 13) | (fpa << 7) | (fsa << 5);
@@ -614,7 +614,7 @@ void s3c_onenand_init(struct mtd_info *mtd)
 #if defined(CONFIG_S3C64XX)
 	onenand->base = (void *)0x70100000;
 	onenand->ahb_addr = (void *)0x20000000;
-#elif defined(CONFIG_S5PC1XX)
+#elif defined(CONFIG_S5P)
 	onenand->base = (void *)0xE7100000;
 	onenand->ahb_addr = (void *)0xB0000000;
 #endif

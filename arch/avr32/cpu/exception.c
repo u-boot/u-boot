@@ -59,7 +59,8 @@ void do_unknown_exception(unsigned int ecr, struct pt_regs *regs)
 {
 	unsigned int mode;
 
-	printf("\n *** Unhandled exception %u at PC=0x%08lx\n", ecr, regs->pc);
+	printf("\n *** Unhandled exception %u at PC=0x%08lx [%08lx]\n",
+			ecr, regs->pc, regs->pc - gd->reloc_off);
 
 	switch (ecr) {
 	case ECR_BUS_ERROR_WRITE:

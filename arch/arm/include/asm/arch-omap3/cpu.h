@@ -60,19 +60,14 @@ struct ctrl {
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */
 
-/* cpu type */
-#define OMAP3503		0x5c00
-#define OMAP3515		0x1c00
-#define OMAP3525		0x4c00
-#define OMAP3530		0x0c00
-
 #ifndef __KERNEL_STRICT_NAMES
 #ifndef __ASSEMBLY__
 struct ctrl_id {
 	u8 res1[0x4];
 	u32 idcode;		/* 0x04 */
 	u32 prod_id;		/* 0x08 */
-	u8 res2[0x0C];
+	u32 sku_id;		/* 0x0c */
+	u8 res2[0x08];
 	u32 die_id_0;		/* 0x18 */
 	u32 die_id_1;		/* 0x1C */
 	u32 die_id_2;		/* 0x20 */
@@ -88,6 +83,11 @@ struct ctrl_id {
 #define EMU_DEVICE		0x1
 #define HS_DEVICE		0x2
 #define GP_DEVICE		0x3
+
+/* device speed */
+#define SKUID_CLK_MASK		0xf
+#define SKUID_CLK_600MHZ	0x0
+#define SKUID_CLK_720MHZ	0x8
 
 #define GPMC_BASE		(OMAP34XX_GPMC_BASE)
 #define GPMC_CONFIG_CS0		0x60
@@ -419,6 +419,7 @@ struct prm {
 };
 #else /* __ASSEMBLY__ */
 #define PRM_RSTCTRL		0x48307250
+#define PRM_RSTCTRL_RESET	0x04
 #endif /* __ASSEMBLY__ */
 #endif /* __KERNEL_STRICT_NAMES */
 

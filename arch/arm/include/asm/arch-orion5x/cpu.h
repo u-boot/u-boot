@@ -76,7 +76,7 @@ enum orion5x_cpu_attrib {
 
 /*
  * Device Address MAP BAR values
-/*
+ *
  * All addresses and sizes not defined by board code
  * will be given default values here.
  */

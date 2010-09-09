@@ -25,9 +25,9 @@ extern struct serial_device * default_serial_console (void);
 
 #if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_440) || \
     defined(CONFIG_405EP) || defined(CONFIG_405EZ) || defined(CONFIG_405EX) || \
-    defined(CONFIG_MPC5xxx) || defined(CONFIG_MPC83xx) || \
-    defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) || \
-    defined(CONFIG_SYS_SC520)
+    defined(CONFIG_MB86R0x) || defined(CONFIG_MPC5xxx) || \
+    defined(CONFIG_MPC83xx) || defined(CONFIG_MPC85xx) || \
+    defined(CONFIG_MPC86xx) || defined(CONFIG_SYS_SC520)
 extern struct serial_device serial0_device;
 extern struct serial_device serial1_device;
 #if defined(CONFIG_SYS_NS16550_SERIAL)
@@ -52,7 +52,7 @@ extern struct serial_device s3c24xx_serial1_device;
 extern struct serial_device s3c24xx_serial2_device;
 #endif
 
-#if defined(CONFIG_S5PC1XX)
+#if defined(CONFIG_S5P)
 extern struct serial_device s5p_serial0_device;
 extern struct serial_device s5p_serial1_device;
 extern struct serial_device s5p_serial2_device;

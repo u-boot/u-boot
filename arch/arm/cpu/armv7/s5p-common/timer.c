@@ -44,23 +44,20 @@ static unsigned long long timestamp;	/* Monotonic incrementing timer */
 static unsigned long lastdec;		/* Last decremneter snapshot */
 
 /* macro to read the 16 bit timer */
-static inline struct s5pc1xx_timer *s5pc1xx_get_base_timer(void)
+static inline struct s5p_timer *s5p_get_base_timer(void)
 {
-	if (cpu_is_s5pc110())
-		return (struct s5pc1xx_timer *)S5PC110_TIMER_BASE;
-	else
-		return (struct s5pc1xx_timer *)S5PC100_TIMER_BASE;
+	return (struct s5p_timer *)samsung_get_base_timer();
 }
 
 int timer_init(void)
 {
-	struct s5pc1xx_timer *const timer = s5pc1xx_get_base_timer();
+	struct s5p_timer *const timer = s5p_get_base_timer();
 	u32 val;
 
 	/*
 	 * @ PWM Timer 4
 	 * Timer Freq(HZ) =
-	 *	PCLK / { (prescaler_value + 1) * (divider_value) }
+	 *	PWM_CLK / { (prescaler_value + 1) * (divider_value) }
 	 */
 
 	/* set prescaler : 16 */
@@ -71,7 +68,7 @@ int timer_init(void)
 	if (count_value == 0) {
 		/* reset initial value */
 		/* count_value = 2085937.5(HZ) (per 1 sec)*/
-		count_value = get_pclk() / ((PRESCALER_1 + 1) *
+		count_value = get_pwm_clk() / ((PRESCALER_1 + 1) *
 				(MUX_DIV_2 + 1));
 
 		/* count_value / 100 = 20859.375(HZ) (per 10 msec) */
@@ -83,13 +80,13 @@ int timer_init(void)
 	lastdec = count_value;
 
 	val = (readl(&timer->tcon) & ~(0x07 << TCON_TIMER4_SHIFT)) |
-		S5PC1XX_TCON4_AUTO_RELOAD;
+		TCON4_AUTO_RELOAD;
 
 	/* auto reload & manual update */
-	writel(val | S5PC1XX_TCON4_UPDATE, &timer->tcon);
+	writel(val | TCON4_UPDATE, &timer->tcon);
 
 	/* start PWM timer 4 */
-	writel(val | S5PC1XX_TCON4_START, &timer->tcon);
+	writel(val | TCON4_START, &timer->tcon);
 
 	timestamp = 0;
 
@@ -154,7 +151,7 @@ void __udelay(unsigned long usec)
 
 void reset_timer_masked(void)
 {
-	struct s5pc1xx_timer *const timer = s5pc1xx_get_base_timer();
+	struct s5p_timer *const timer = s5p_get_base_timer();
 
 	/* reset time */
 	lastdec = readl(&timer->tcnto4);
@@ -163,7 +160,7 @@ void reset_timer_masked(void)
 
 unsigned long get_timer_masked(void)
 {
-	struct s5pc1xx_timer *const timer = s5pc1xx_get_base_timer();
+	struct s5p_timer *const timer = s5p_get_base_timer();
 	unsigned long now = readl(&timer->tcnto4);
 
 	if (lastdec >= now)

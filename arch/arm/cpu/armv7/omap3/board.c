@@ -120,41 +120,6 @@ void secureworld_exit()
 }
 
 /******************************************************************************
- * Routine: setup_auxcr()
- * Description: Write to AuxCR desired value using SMI.
- *              general use.
- *****************************************************************************/
-void setup_auxcr()
-{
-	unsigned long i;
-	volatile unsigned int j;
-	/* Save r0, r12 and restore them after usage */
-	__asm__ __volatile__("mov %0, r12":"=r"(j));
-	__asm__ __volatile__("mov %0, r0":"=r"(i));
-
-	/*
-	 * GP Device ROM code API usage here
-	 * r12 = AUXCR Write function and r0 value
-	 */
-	__asm__ __volatile__("mov r12, #0x3");
-	__asm__ __volatile__("mrc p15, 0, r0, c1, c0, 1");
-	/* Enabling ASA */
-	__asm__ __volatile__("orr r0, r0, #0x10");
-	/* Enable L1NEON */
-	__asm__ __volatile__("orr r0, r0, #1 << 5");
-	/* SMI instruction to call ROM Code API */
-	__asm__ __volatile__(".word 0xE1600070");
-	/* Set PLD_FWD bit in L2AUXCR (Cortex-A8 erratum 725233 workaround) */
-	__asm__ __volatile__("mov r12, #0x2");
-	__asm__ __volatile__("mrc p15, 1, r0, c9, c0, 2");
-	__asm__ __volatile__("orr r0, r0, #1 << 27");
-	/* SMI instruction to call ROM Code API */
-	__asm__ __volatile__(".word 0xE1600070");
-	__asm__ __volatile__("mov r0, %0":"=r"(i));
-	__asm__ __volatile__("mov r12, %0":"=r"(j));
-}
-
-/******************************************************************************
  * Routine: try_unlock_sram()
  * Description: If chip is GP/EMU(special) type, unlock the SRAM for
  *              general use.
