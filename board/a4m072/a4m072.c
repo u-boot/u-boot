@@ -34,6 +34,7 @@
 #include <asm/io.h>
 #include <libfdt.h>
 #include <netdev.h>
+#include <led-display.h>
 
 #include "mt46v32m16.h"
 
@@ -259,5 +260,178 @@ int eeprom_write_enable (unsigned dev_addr, int state)
 		}
 	}
 	return state;
+}
+#endif
+
+#ifdef CONFIG_CMD_DISPLAY
+#define DISPLAY_BUF_SIZE	2
+static u8 display_buf[DISPLAY_BUF_SIZE];
+static u8 display_putc_pos;
+static u8 display_out_pos;
+
+static u8 display_dot_enable;
+
+void display_set(int cmd) {
+
+	if (cmd & DISPLAY_CLEAR) {
+		display_buf[0] = display_buf[1] = 0;
+	}
+
+	if (cmd & DISPLAY_HOME) {
+		display_putc_pos = 0;
+	}
+
+	if (cmd & DISPLAY_MARK) {
+		display_dot_enable = 1;
+	} else {
+		display_dot_enable = 0;
+	}
+}
+
+#define SEG_A    (1<<0)
+#define SEG_B    (1<<1)
+#define SEG_C    (1<<2)
+#define SEG_D    (1<<3)
+#define SEG_E    (1<<4)
+#define SEG_F    (1<<5)
+#define SEG_G    (1<<6)
+#define SEG_P    (1<<7)
+#define SEG__    0
+
+/*
+ * +- A -+
+ * |     |
+ * F     B
+ * |     |
+ * +- G -+
+ * |     |
+ * E     C
+ * |     |
+ * +- D -+  P
+ *
+ * 0..9		index 0..9
+ * A..Z		index 10..35
+ * -		index 36
+ * _		index 37
+ */
+
+#define SYMBOL_DASH		(36)
+#define SYMBOL_UNDERLINE	(37)
+
+static u8 display_char2seg7_tbl[]=
+{
+	SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F,		/* 0 */
+	SEG_B | SEG_C,						/* 1 */
+	SEG_A | SEG_B | SEG_D | SEG_E | SEG_G,			/* 2 */
+	SEG_A | SEG_B | SEG_C | SEG_D | SEG_G,			/* 3 */
+	SEG_B | SEG_C | SEG_F | SEG_G,				/* 4 */
+	SEG_A | SEG_C | SEG_D | SEG_F | SEG_G,			/* 5 */
+	SEG_A | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G,		/* 6 */
+	SEG_A | SEG_B | SEG_C,					/* 7 */
+	SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G,	/* 8 */
+	SEG_A | SEG_B | SEG_C | SEG_D | SEG_F | SEG_G,		/* 9 */
+	SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G,		/* A */
+	SEG_C | SEG_D | SEG_E | SEG_F | SEG_G,			/* b */
+	SEG_A | SEG_D | SEG_E | SEG_F,				/* C */
+	SEG_B | SEG_C | SEG_D | SEG_E | SEG_G,			/* d */
+	SEG_A | SEG_D | SEG_E | SEG_F | SEG_G,			/* E */
+	SEG_A | SEG_E | SEG_F | SEG_G,				/* F */
+	SEG_A | SEG_B | SEG_C | SEG_D | SEG_F | SEG_G,		/* g */
+	SEG_B | SEG_C | SEG_E | SEG_F | SEG_G,			/* H */
+	SEG_E | SEG_F,						/* I */
+	SEG_B | SEG_C | SEG_D | SEG_E,				/* J */
+	SEG_A,						/* K - special 1 */
+	SEG_D | SEG_E | SEG_F,					/* L */
+	SEG_B,						/* m - special 2 */
+	SEG_C | SEG_E | SEG_G,					/* n */
+	SEG_C | SEG_D | SEG_E | SEG_G,				/* o */
+	SEG_A | SEG_B | SEG_E | SEG_F | SEG_G,			/* P */
+	SEG_A | SEG_B | SEG_C | SEG_F | SEG_G,			/* q */
+	SEG_E | SEG_G,						/* r */
+	SEG_A | SEG_C | SEG_D | SEG_F | SEG_G,			/* S */
+	SEG_D | SEG_E | SEG_F | SEG_G,				/* t */
+	SEG_B | SEG_C | SEG_D | SEG_E | SEG_F,			/* U */
+	SEG_C | SEG_D | SEG_E | SEG_F,				/* V */
+	SEG_C,						/* w - special 3 */
+	SEG_B | SEG_C | SEG_E | SEG_F | SEG_G,			/* X */
+	SEG_B | SEG_C | SEG_D | SEG_F | SEG_G,			/* Y */
+	SEG_A | SEG_B | SEG_D | SEG_E | SEG_G,			/* Z */
+	SEG_G,							/* - */
+	SEG_D							/* _ */
+};
+
+/* Convert char to the LED segments representation */
+static u8 display_char2seg7(char c)
+{
+	u8 val = 0;
+
+	if (c >= '0' && c <= '9')
+		c -= '0';
+	else if (c >= 'a' && c <= 'z')
+		c -= 'a' - 10;
+	else if (c >= 'A' && c <= 'Z')
+		c -= 'A' - 10;
+	else if (c == '-')
+		c = SYMBOL_DASH;
+	else if ((c == '_') || (c == '.'))
+		c = SYMBOL_UNDERLINE;
+	else
+		c = ' ';	/* display unsupported symbols as space */
+
+	if (c != ' ')
+		val = display_char2seg7_tbl[(int)c];
+
+	/* Handle DP LED here */
+	if (display_dot_enable) {
+		val |= SEG_P;
+	}
+
+	return val;
+}
+
+static inline int display_putc_nomark(char c)
+{
+	if (display_putc_pos >= DISPLAY_BUF_SIZE)
+		return -1;
+
+	display_buf[display_putc_pos++] = display_char2seg7(c);
+	/* one-symbol message should be steady */
+	if (display_putc_pos == 1)
+		display_buf[display_putc_pos] = display_char2seg7(c);
+
+	return c;
+}
+
+int display_putc(char c)
+{
+	/* Mark the codes from the "display" command with the DP LED */
+	display_set(DISPLAY_MARK);
+	return display_putc_nomark(c);
+}
+
+/*
+ * Output content of the software display buffer to the LED display every 0.5s
+ */
+void board_show_activity(ulong timestamp)
+{
+	static ulong last;
+	static u8 once;
+	u32 val;
+
+	if (!once || (timestamp - last >= (CONFIG_SYS_HZ / 2))) {
+		val = display_buf[display_out_pos];
+		val |= (val << 8) | (val << 16) | (val << 24);
+		out_be32((void *)CONFIG_SYS_DISP_CHR_RAM, val);
+		display_out_pos ^= 1;
+		last = timestamp;
+		once = 1;
+	}
+}
+
+/*
+ * Empty fake function
+ */
+void show_activity(int arg)
+{
 }
 #endif

@@ -122,6 +122,7 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_PING
+#define CONFIG_CMD_DISPLAY
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
@@ -264,7 +265,7 @@
 /*
  * GPIO configuration
  */
-#define CONFIG_SYS_GPS_PORT_CONFIG	0x10000004
+#define CONFIG_SYS_GPS_PORT_CONFIG	0x18000004
 
 /*
  * Miscellaneous configurable options
@@ -315,7 +316,10 @@
 #define CONFIG_SYS_CS1_CFG		0x00009930
 #define CONFIG_SYS_SRAM_BASE		CONFIG_SYS_CS1_START
 #define CONFIG_SYS_SRAM_SIZE		CONFIG_SYS_CS1_SIZE
-
+/* LED display at CS7 */
+#define CONFIG_SYS_CS7_START		0x6a000000
+#define CONFIG_SYS_CS7_SIZE		(64*1024)
+#define CONFIG_SYS_CS7_CFG		0x0000bf30
 
 #define CONFIG_SYS_CS_BURST		0x00000000
 #define CONFIG_SYS_CS_DEADCYCLE		0x33333003
@@ -373,5 +377,9 @@
 #define OF_SOC			"soc5200@f0000000"
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc5200@f0000000/serial@2000"
+
+/* Support for the 7-segment display */
+#define CONFIG_SYS_DISP_CHR_RAM	     CONFIG_SYS_CS7_START
+#define CONFIG_SHOW_ACTIVITY		/* used for display realization */
 
 #endif /* __CONFIG_H */
