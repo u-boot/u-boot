@@ -26,7 +26,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <spd_sdram.h>
-#include <ppc4xx_enet.h>
+#include <asm/ppc4xx-emac.h>
 #include <netdev.h>
 
 #ifdef CONFIG_SYS_INIT_SHOW_RESET_REG

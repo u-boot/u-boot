@@ -29,7 +29,7 @@
 #include <common.h>
 #include <libfdt.h>
 #include <fdt_support.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/bitops.h>

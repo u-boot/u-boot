@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <ppc_asm.tmpl>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;

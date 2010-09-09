@@ -28,7 +28,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/ppc4xx-uic.h>
-#include <ppc4xx_enet.h>
+#include <asm/ppc4xx-emac.h>
 
 enum REGISTER_TYPE {
 	IDCR1,	/* Indirectly Accessed DCR via SDRAM0_CFGADDR/SDRAM0_CFGDATA */

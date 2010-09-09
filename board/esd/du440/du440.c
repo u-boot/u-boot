@@ -24,7 +24,7 @@
 #include <asm/bitops.h>
 #include <command.h>
 #include <i2c.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include "du440.h"
 
 DECLARE_GLOBAL_DATA_PTR;

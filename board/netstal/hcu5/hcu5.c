@@ -20,7 +20,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include <asm/io.h>
 #include <asm/4xx_pci.h>
 

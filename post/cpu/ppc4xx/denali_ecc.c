@@ -45,7 +45,7 @@
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/io.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

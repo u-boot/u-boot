@@ -87,9 +87,9 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 #include <commproc.h>
-#include <ppc4xx.h>
-#include <ppc4xx_enet.h>
-#include <405_mal.h>
+#include <asm/ppc4xx.h>
+#include <asm/ppc4xx-emac.h>
+#include <asm/ppc4xx-mal.h>
 #include <miiphy.h>
 #include <malloc.h>
 

@@ -100,9 +100,9 @@
 #endif /* 440EP/EPX 440GR/GRX 440SP/SPE 460EX/GT/SX 405EX*/
 
 #if defined(CONFIG_440)
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #else
-#include <ppc405.h>
+#include <asm/ppc405.h>
 #endif
 
 #include <asm/ppc4xx-sdram.h>

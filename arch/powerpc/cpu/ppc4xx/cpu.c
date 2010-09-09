@@ -35,7 +35,7 @@
 #include <watchdog.h>
 #include <command.h>
 #include <asm/cache.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;

@@ -64,7 +64,7 @@
  *  address and (s)dram will be positioned at address 0
  */
 #include <config.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <timestamp.h>
 #include <version.h>
 

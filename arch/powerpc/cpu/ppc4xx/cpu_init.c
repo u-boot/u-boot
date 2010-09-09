@@ -23,10 +23,10 @@
 
 #include <common.h>
 #include <watchdog.h>
-#include <ppc4xx_enet.h>
+#include <asm/ppc4xx-emac.h>
 #include <asm/processor.h>
 #include <asm/gpio.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 
 #if defined(CONFIG_405GP)  || defined(CONFIG_405EP)
 DECLARE_GLOBAL_DATA_PTR;

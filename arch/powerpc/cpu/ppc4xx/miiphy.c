@@ -41,8 +41,8 @@
 #include <asm/io.h>
 #include <ppc_asm.tmpl>
 #include <commproc.h>
-#include <ppc4xx_enet.h>
-#include <405_mal.h>
+#include <asm/ppc4xx-emac.h>
+#include <asm/ppc4xx-mal.h>
 #include <miiphy.h>
 
 #if !defined(CONFIG_PHY_CLK_FREQ)

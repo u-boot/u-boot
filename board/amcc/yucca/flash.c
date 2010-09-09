@@ -32,9 +32,9 @@
  */
 
 #include <common.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <asm/processor.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include "yucca.h"
 
 #ifdef DEBUG

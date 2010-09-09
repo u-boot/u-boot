@@ -29,7 +29,7 @@
 #include <fdt_support.h>
 #include <i2c.h>
 #include <libfdt.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include <asm/bitops.h>
 #include <asm/gpio.h>
 #include <asm/io.h>

@@ -27,8 +27,8 @@
  */
 
 #include <common.h>
-#include <ppc4xx.h>
-#include <4xx_i2c.h>
+#include <asm/ppc4xx.h>
+#include <asm/ppc4xx-i2c.h>
 #include <i2c.h>
 #include <asm/io.h>
 

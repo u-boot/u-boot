@@ -44,7 +44,7 @@
 #define _PPC4XX_ENET_H_
 
 #include <net.h>
-#include "405_mal.h"
+#include "asm/ppc4xx-mal.h"
 
 
 /*-----------------------------------------------------------------------------+

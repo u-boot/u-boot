@@ -28,7 +28,7 @@
 #include "ocotea.h"
 #include <asm/processor.h>
 #include <spd_sdram.h>
-#include <ppc4xx_enet.h>
+#include <asm/ppc4xx-emac.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

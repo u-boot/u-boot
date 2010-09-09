@@ -25,7 +25,7 @@
 #include <asm/processor.h>
 #include <i2c.h>
 #include <miiphy.h>
-#include <ppc4xx_enet.h>
+#include <asm/ppc4xx-emac.h>
 
 void sdram_init(void);
 

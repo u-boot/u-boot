@@ -38,7 +38,7 @@
 #undef DEBUG
 
 #include <common.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 

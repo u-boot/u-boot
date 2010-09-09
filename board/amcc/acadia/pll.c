@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
-#include <ppc405.h>
+#include <asm/ppc405.h>
 
 /* test-only: move into cpu directory!!! */
 

@@ -35,7 +35,7 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/cache.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 
 void hcu_led_set(u32 value);
 void dcbz_area(u32 start_address, u32 num_bytes);

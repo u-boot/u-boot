@@ -49,7 +49,7 @@
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <watchdog.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 
 #ifdef CONFIG_SERIAL_MULTI
 #include <serial.h>
