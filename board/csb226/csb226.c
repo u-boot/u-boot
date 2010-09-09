@@ -26,6 +26,7 @@
 #include <common.h>
 #include <netdev.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -108,23 +109,23 @@ void csb226_set_led(int led, int state)
 	switch(led) {
 
 		case 0: if (state==1) {
-				GPCR0 |= CSB226_USER_LED0;
+				writel(readl(GPCR0) | CSB226_USER_LED0, GPCR0);
 			} else if (state==0) {
-				GPSR0 |= CSB226_USER_LED0;
+				writel(readl(GPSR0) | CSB226_USER_LED0, GPSR0);
 			}
 			break;
 
 		case 1: if (state==1) {
-				GPCR0 |= CSB226_USER_LED1;
+				writel(readl(GPCR0) | CSB226_USER_LED1, GPCR0);
 			} else if (state==0) {
-				GPSR0 |= CSB226_USER_LED1;
+				writel(readl(GPSR0) | CSB226_USER_LED1, GPSR0);
 			}
 			break;
 
 		case 2: if (state==1) {
-				GPCR0 |= CSB226_USER_LED2;
+				writel(readl(GPCR0) | CSB226_USER_LED2, GPCR0);
 			} else if (state==0) {
-				GPSR0 |= CSB226_USER_LED2;
+				writel(readl(GPSR0) | CSB226_USER_LED2, GPSR0);
 			}
 			break;
 	}

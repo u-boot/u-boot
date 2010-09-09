@@ -33,6 +33,7 @@
 #include <common.h>
 #include <netdev.h>
 #include <command.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -56,14 +57,14 @@ int board_init (void)
 
 	/* set PWM for LCD */
 	/* a value that works is 60Hz, 77% duty cycle */
-	CKEN |= CKEN0_PWM0;
-	PWM_CTRL0 = 0x3f;
-	PWM_PERVAL0 = 0x3ff;
-	PWM_PWDUTY0 = 792;
+	writel(readl(CKEN) | CKEN0_PWM0, CKEN);
+	writel(0x3f, PWM_CTRL0);
+	writel(0x3ff, PWM_PERVAL0);
+	writel(792, PWM_PWDUTY0);
 
 	/* clear reset to AC97 codec */
-	CKEN |= CKEN2_AC97;
-	GCR = GCR_COLD_RST;
+	writel(readl(CKEN) | CKEN2_AC97, CKEN);
+	writel(GCR_COLD_RST, GCR);
 
 	/* enable LCD backlight */
 	/* *(volatile unsigned int *)(PXA_CS5_PHYS + 0x03C00030) = 0x7; */
@@ -102,11 +103,11 @@ int dram_init (void)
 void delay_c(void)
 {
 	/* reset OSCR to 0 */
-	OSCR = 0;
-	while(OSCR > 0x10000)
+	writel(0, OSCR);
+	while (readl(OSCR) > 0x10000)
 		;
 
-	while(OSCR < 0xd4000)
+	while (readl(OSCR) < 0xd4000)
 		;
 }
 
@@ -114,12 +115,12 @@ void blink_c(void)
 {
 	int led_bit = (1<<10);
 
-	GPDR0 = led_bit;
-	GPCR0 = led_bit;
+	writel(led_bit, GPDR0);
+	writel(led_bit, GPCR0);
 	delay_c();
-	GPSR0 = led_bit;
+	writel(led_bit, GPSR0);
 	delay_c();
-	GPCR0 = led_bit;
+	writel(led_bit, GPCR0);
 }
 
 int do_idpcmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

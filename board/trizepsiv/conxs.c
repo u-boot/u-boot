@@ -34,6 +34,7 @@
 #include <common.h>
 #include <asm/arch/pxa-regs.h>
 #include <netdev.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -57,25 +58,27 @@ extern struct serial_device serial_stuart_device;
 
 int usb_board_init(void)
 {
-	UHCHR = (UHCHR | UHCHR_PCPL | UHCHR_PSPL) &
-		~(UHCHR_SSEP0 | UHCHR_SSEP1 | UHCHR_SSEP2 | UHCHR_SSE);
+	writel((readl(UHCHR) | UHCHR_PCPL | UHCHR_PSPL) &
+		~(UHCHR_SSEP0 | UHCHR_SSEP1 | UHCHR_SSEP2 | UHCHR_SSE),
+		UHCHR);
 
-	UHCHR |= UHCHR_FSBIR;
+	writel(readl(UHCHR) | UHCHR_FSBIR, UHCHR);
 
-	while (UHCHR & UHCHR_FSBIR);
+	while (readl(UHCHR) & UHCHR_FSBIR)
+		;
 
-	UHCHR &= ~UHCHR_SSE;
-	UHCHIE = (UHCHIE_UPRIE | UHCHIE_RWIE);
+	writel(readl(UHCHR) & ~UHCHR_SSE, UHCHR);
+	writel((UHCHIE_UPRIE | UHCHIE_RWIE), UHCHIE);
 
 	/* Clear any OTG Pin Hold */
-	if (PSSR & PSSR_OTGPH)
-		PSSR |= PSSR_OTGPH;
+	if (readl(PSSR) & PSSR_OTGPH)
+		writel(readl(PSSR) | PSSR_OTGPH, PSSR);
 
-	UHCRHDA &= ~(RH_A_NPS);
-	UHCRHDA |= RH_A_PSM;
+	writel(readl(UHCRHDA) & ~(RH_A_NPS), UHCRHDA);
+	writel(readl(UHCRHDA) | RH_A_PSM, UHCRHDA);
 
 	/* Set port power control mask bits, only 3 ports. */
-	UHCRHDB |= (0x7<<17);
+	writel(readl(UHCRHDB) | (0x7<<17), UHCRHDB);
 
 	return 0;
 }
@@ -87,14 +90,14 @@ void usb_board_init_fail(void)
 
 void usb_board_stop(void)
 {
-	UHCHR |= UHCHR_FHR;
+	writel(readl(UHCHR) | UHCHR_FHR, UHCHR);
 	udelay(11);
-	UHCHR &= ~UHCHR_FHR;
+	writel(readl(UHCHR) & ~UHCHR_FHR, UHCHR);
 
-	UHCCOMS |= 1;
+	writel(readl(UHCCOMS) | 1, UHCCOMS);
 	udelay(10);
 
-	CKEN &= ~CKEN10_USBHOST;
+	writel(readl(CKEN) & ~CKEN10_USBHOST, CKEN);
 
 	return;
 }

@@ -35,6 +35,7 @@
  * (easy to change)
  */
 #define CONFIG_CPU_MONAHANS	1	/* Intel Monahan CPU    */
+#define	CONFIG_CPU_PXA320
 #define CONFIG_ZYLONITE		1	/* Zylonite board       */
 
 /* #define CONFIG_LCD		1 */

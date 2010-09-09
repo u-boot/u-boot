@@ -28,6 +28,7 @@
 #include <malloc.h>
 #include <command.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -110,7 +111,7 @@ static uchar kbd_command_prefix[] = "key_cmd";
 static void get_pressed_keys(uchar *s)
 {
 	unsigned long val;
-	val = GPLR3;
+	val = readl(GPLR3);
 
 	if(val & (1<<31))
 		*s++ = KEYBD_KP_DKIN0;
@@ -124,18 +125,18 @@ static void get_pressed_keys(uchar *s)
 
 static void keys_init()
 {
-	CKENB |= CKENB_7_GPIO;
+	writel(readl(CKENB) | CKENB_7_GPIO, CKENB);
 	udelay(100);
 
 	/* Configure GPIOs */
-	GPIO127 = 0xa840;	/* KP_DKIN0 */
-	GPIO114 = 0xa840;	/* KP_DKIN1 */
-	GPIO125 = 0xa840;	/* KP_DKIN2 */
-	GPIO118 = 0xa840;	/* KP_DKIN5 */
+	writel(0xa840, GPIO127);	/* KP_DKIN0 */
+	writel(0xa840, GPIO114);	/* KP_DKIN1 */
+	writel(0xa840, GPIO125);	/* KP_DKIN2 */
+	writel(0xa840, GPIO118);	/* KP_DKIN5 */
 
 	/* Configure GPIOs as inputs */
-	GPDR3 &= ~(1<<31 | 1<<18 | 1<<29 | 1<<22);
-	GCDR3 = (1<<31 | 1<<18 | 1<<29 | 1<<22);
+	writel(readl(GPDR3) & ~(1<<31 | 1<<18 | 1<<29 | 1<<22), GPDR3);
+	writel((1<<31 | 1<<18 | 1<<29 | 1<<22), GCDR3);
 
 	udelay(100);
 }
@@ -283,11 +284,11 @@ int dram_init (void)
 
 void i2c_init_board()
 {
-	CKENB |= (CKENB_4_I2C);
+	writel(readl(CKENB) | (CKENB_4_I2C), CKENB);
 
 	/* setup I2C GPIO's */
-	GPIO32 = 0x801;		/* SCL = Alt. Fkt. 1 */
-	GPIO33 = 0x801;		/* SDA = Alt. Fkt. 1 */
+	writel(0x801, GPIO32);		/* SCL = Alt. Fkt. 1 */
+	writel(0x801, GPIO33);		/* SDA = Alt. Fkt. 1 */
 }
 
 /* initialize the DA9030 Power Controller */
@@ -295,20 +296,20 @@ static void init_DA9030()
 {
 	uchar addr = (uchar) DA9030_I2C_ADDR, val = 0;
 
-	CKENB |= CKENB_7_GPIO;
+	writel(readl(CKENB) | CKENB_7_GPIO, CKENB);
 	udelay(100);
 
 	/* Rising Edge on EXTON to reset DA9030 */
-	GPIO17 = 0x8800;	/* configure GPIO17, no pullup, -down */
-	GPDR0 |= (1<<17);	/* GPIO17 is output */
-	GSDR0 = (1<<17);
-	GPCR0 = (1<<17);	/* drive GPIO17 low */
-	GPSR0 = (1<<17);	/* drive GPIO17 high */
+	writel(0x8800, GPIO17);	/* configure GPIO17, no pullup, -down */
+	writel(readl(GPDR0) | (1<<17), GPDR0);	/* GPIO17 is output */
+	writel((1<<17), GSDR0);
+	writel((1<<17), GPCR0);	/* drive GPIO17 low */
+	writel((1<<17), GPSR0);	/* drive GPIO17 high */
 
 #if CONFIG_SYS_DA9030_EXTON_DELAY
 	udelay((unsigned long) CONFIG_SYS_DA9030_EXTON_DELAY);	/* wait for DA9030 */
 #endif
-	GPCR0 = (1<<17);	/* drive GPIO17 low */
+	writel((1<<17), GPCR0);	/* drive GPIO17 low */
 
 	/* reset the watchdog and go active (0xec) */
 	val = (SYS_CONTROL_A_HWRES_ENABLE |

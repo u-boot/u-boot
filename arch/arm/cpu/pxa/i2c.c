@@ -33,6 +33,7 @@
 /* FIXME: this file is PXA255 specific! What about other XScales? */
 
 #include <common.h>
+#include <asm/io.h>
 
 #ifdef CONFIG_HARD_I2C
 
@@ -93,19 +94,21 @@ struct i2c_msg {
 
 static void i2c_reset( void )
 {
-	ICR &= ~ICR_IUE;		/* disable unit */
-	ICR |= ICR_UR;			/* reset the unit */
+	writel(readl(ICR) & ~ICR_IUE, ICR);	/* disable unit */
+	writel(readl(ICR) | ICR_UR, ICR);	/* reset the unit */
 	udelay(100);
-	ICR &= ~ICR_IUE;		/* disable unit */
+	writel(readl(ICR) & ~ICR_IUE, ICR);	/* disable unit */
 #ifdef CONFIG_CPU_MONAHANS
-	CKENB |= (CKENB_4_I2C); /*  | CKENB_1_PWM1 | CKENB_0_PWM0); */
+	/* | CKENB_1_PWM1 | CKENB_0_PWM0); */
+	writel(readl(CKENB) | (CKENB_4_I2C), CKENB);
 #else /* CONFIG_CPU_MONAHANS */
-	CKEN |= CKEN14_I2C;		/* set the global I2C clock on */
+	/* set the global I2C clock on */
+	writel(readl(CKEN) | CKEN14_I2C, CKEN);
 #endif
-	ISAR = I2C_PXA_SLAVE_ADDR;	/* set our slave address */
-	ICR = I2C_ICR_INIT;		/* set control register values */
-	ISR = I2C_ISR_INIT;		/* set clear interrupt bits */
-	ICR |= ICR_IUE;			/* enable unit */
+	writel(I2C_PXA_SLAVE_ADDR, ISAR);	/* set our slave address */
+	writel(I2C_ICR_INIT, ICR);		/* set control reg values */
+	writel(I2C_ISR_INIT, ISR);		/* set clear interrupt bits */
+	writel(readl(ICR) | ICR_IUE, ICR);	/* enable unit */
 	udelay(100);
 }
 
@@ -159,22 +162,26 @@ int i2c_transfer(struct i2c_msg *msg)
 			goto transfer_error_bus_busy;
 
 		/* start transmission */
-		ICR &= ~ICR_START;
-		ICR &= ~ICR_STOP;
-		IDBR = msg->data;
-		if (msg->condition == I2C_COND_START)     ICR |=  ICR_START;
-		if (msg->condition == I2C_COND_STOP)      ICR |=  ICR_STOP;
-		if (msg->acknack   == I2C_ACKNAK_SENDNAK) ICR |=  ICR_ACKNAK;
-		if (msg->acknack   == I2C_ACKNAK_SENDACK) ICR &= ~ICR_ACKNAK;
-		ICR &= ~ICR_ALDIE;
-		ICR |= ICR_TB;
+		writel(readl(ICR) & ~ICR_START, ICR);
+		writel(readl(ICR) & ~ICR_STOP, ICR);
+		writel(msg->data, IDBR);
+		if (msg->condition == I2C_COND_START)
+			writel(readl(ICR) | ICR_START, ICR);
+		if (msg->condition == I2C_COND_STOP)
+			writel(readl(ICR) | ICR_STOP, ICR);
+		if (msg->acknack == I2C_ACKNAK_SENDNAK)
+			writel(readl(ICR) | ICR_ACKNAK, ICR);
+		if (msg->acknack == I2C_ACKNAK_SENDACK)
+			writel(readl(ICR) & ~ICR_ACKNAK, ICR);
+		writel(readl(ICR) & ~ICR_ALDIE, ICR);
+		writel(readl(ICR) | ICR_TB, ICR);
 
 		/* transmit register empty? */
 		if (!i2c_isr_set_cleared(ISR_ITE,0))
 			goto transfer_error_transmit_timeout;
 
 		/* clear 'transmit empty' state */
-		ISR |= ISR_ITE;
+		writel(readl(ISR) | ISR_ITE, ISR);
 
 		/* wait for ACK from slave */
 		if (msg->acknack == I2C_ACKNAK_WAITACK)
@@ -189,23 +196,27 @@ int i2c_transfer(struct i2c_msg *msg)
 			goto transfer_error_bus_busy;
 
 		/* start receive */
-		ICR &= ~ICR_START;
-		ICR &= ~ICR_STOP;
-		if (msg->condition == I2C_COND_START)	  ICR |= ICR_START;
-		if (msg->condition == I2C_COND_STOP)	  ICR |= ICR_STOP;
-		if (msg->acknack   == I2C_ACKNAK_SENDNAK) ICR |=  ICR_ACKNAK;
-		if (msg->acknack   == I2C_ACKNAK_SENDACK) ICR &= ~ICR_ACKNAK;
-		ICR &= ~ICR_ALDIE;
-		ICR |= ICR_TB;
+		writel(readl(ICR) & ~ICR_START, ICR);
+		writel(readl(ICR) & ~ICR_STOP, ICR);
+		if (msg->condition == I2C_COND_START)
+			writel(readl(ICR) | ICR_START, ICR);
+		if (msg->condition == I2C_COND_STOP)
+			writel(readl(ICR) | ICR_STOP, ICR);
+		if (msg->acknack == I2C_ACKNAK_SENDNAK)
+			writel(readl(ICR) | ICR_ACKNAK, ICR);
+		if (msg->acknack == I2C_ACKNAK_SENDACK)
+			writel(readl(ICR) & ~ICR_ACKNAK, ICR);
+		writel(readl(ICR) & ~ICR_ALDIE, ICR);
+		writel(readl(ICR) | ICR_TB, ICR);
 
 		/* receive register full? */
 		if (!i2c_isr_set_cleared(ISR_IRF,0))
 			goto transfer_error_receive_timeout;
 
-		msg->data = IDBR;
+		msg->data = readl(IDBR);
 
 		/* clear 'receive empty' state */
-		ISR |= ISR_IRF;
+		writel(readl(ISR) | ISR_IRF, ISR);
 
 		break;
 

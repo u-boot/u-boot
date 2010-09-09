@@ -28,6 +28,7 @@
 #include <asm/arch/pxa-regs.h>
 #include <common.h>
 #include <netdev.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -92,8 +93,8 @@ set_led (int led, int color)
 	int shift = led * 2;
 	unsigned long mask = 0x3 << shift;
 
-	CRADLE_LED_CLR_REG = mask;	/* clear bits */
-	CRADLE_LED_SET_REG = (color << shift);	/* set bits */
+	writel(mask, GPCR2);	/* clear bits */
+	writel((color << shift), GPSR2);	/* set bits */
 	udelay (5000);
 }
 

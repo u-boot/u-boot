@@ -21,6 +21,19 @@
 #include <linux/config.h>
 #include <asm/mach-types.h>
 
+/*
+ * Define CONFIG_CPU_MONAHANS in case some CPU of the PXA3xx family is selected.
+ * PXA300/310/320 all have distinct register mappings in some cases, that's why
+ * the exact CPU has to be selected. CONFIG_CPU_MONAHANS is a helper for common
+ * drivers and compatibility glue with old source then.
+ */
+#ifndef	CONFIG_CPU_MONAHANS
+#if	defined(CONFIG_CPU_PXA300) || \
+	defined(CONFIG_CPU_PXA310) || \
+	defined(CONFIG_CPU_PXA320)
+#define	CONFIG_CPU_MONAHANS
+#endif
+#endif
 
 /*
  * These are statically mapped PCMCIA IO space for designs using it as a
@@ -50,54 +63,6 @@
  * 0x44000000 - 0x45ffffff <--> 0xfa000000 - 0xfbffffff
  * 0x48000000 - 0x49ffffff <--> 0xfc000000 - 0xfdffffff
  */
-
-/* FIXME: Only this does work for u-boot... find out why... [RS] */
-#define UBOOT_REG_FIX 1
-
-#ifndef UBOOT_REG_FIX
-#ifndef __ASSEMBLY__
-
-#define io_p2v(x)	( ((x) | 0xbe000000) ^ (~((x) >> 1) & 0x06000000) )
-#define io_v2p( x )	( ((x) & 0x41ffffff) ^ ( ((x) & 0x06000000) << 1) )
-
-/*
- * This __REG() version gives the same results as the one above,  except
- * that we are fooling gcc somehow so it generates far better and smaller
- * assembly code for access to contigous registers.  It's a shame that gcc
- * doesn't guess this by itself.
- */
-#include <asm/types.h>
-typedef struct { volatile u32 offset[4096]; } __regbase;
-# define __REGP(x)	((__regbase *)((x)&~4095))->offset[((x)&4095)>>2]
-# define __REG(x)	__REGP(io_p2v(x))
-#endif
-
-/* Let's kick gcc's ass again... */
-# define __REG2(x,y)	\
-	( __builtin_constant_p(y) ? (__REG((x) + (y))) \
-				  : (*(volatile u32 *)((u32)&__REG(x) + (y))) )
-
-# define __PREG(x)	(io_v2p((u32)&(x)))
-
-#else
-
-# define __REG(x)	io_p2v(x)
-# define __PREG(x)	io_v2p(x)
-
-# undef io_p2v
-# undef __REG
-# ifndef __ASSEMBLY__
-#  define io_p2v(PhAdd)	   (PhAdd)
-#  define __REG(x)	(*((volatile u32 *)io_p2v(x)))
-#  define __REG2(x,y)	(*(volatile u32 *)((u32)&__REG(x) + (y)))
-# else
-#  define __REG(x) (x)
-#  ifdef CONFIG_CPU_MONAHANS /* Hack to make this work with mona's pxa-regs.h */
-#   define __REG_2(x) (x)
-#   define __REG_3(x) (x)
-#  endif
-# endif
-#endif /* UBOOT_REG_FIX */
 
 #include "pxa-regs.h"
 

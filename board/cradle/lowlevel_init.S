@@ -34,10 +34,10 @@ DRAM_SIZE:  .long   CONFIG_SYS_DRAM_SIZE
    .endm
 
    .macro SET_LED val
-   ldr   r6, =CRADLE_LED_CLR_REG
+   ldr   r6, =GPCR2
    ldr   r7, =0
    str   r7, [r6]
-   ldr   r6, =CRADLE_LED_SET_REG
+   ldr   r6, =GPSR2
    ldr   r7, =\val
    str   r7, [r6]
    .endm

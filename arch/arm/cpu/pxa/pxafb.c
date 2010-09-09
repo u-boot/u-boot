@@ -35,6 +35,7 @@
 #include <stdio_dev.h>
 #include <lcd.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/io.h>
 
 /* #define DEBUG */
 
@@ -377,12 +378,14 @@ static void pxafb_setup_gpio (vidinfo_t *vid)
 	{
 		debug("Setting GPIO for 4 bit data\n");
 		/* bits 58-61 */
-		GPDR1 |= (0xf << 26);
-		GAFR1_U = (GAFR1_U & ~(0xff << 20)) | (0xaa << 20);
+		writel(readl(GPDR1) | (0xf << 26), GPDR1);
+		writel((readl(GAFR1_U) & ~(0xff << 20)) | (0xaa << 20),
+			GAFR1_U);
 
 		/* bits 74-77 */
-		GPDR2 |= (0xf << 10);
-		GAFR2_L = (GAFR2_L & ~(0xff << 20)) | (0xaa << 20);
+		writel(readl(GPDR2) | (0xf << 10), GPDR2);
+		writel((readl(GAFR2_L) & ~(0xff << 20)) | (0xaa << 20),
+			GAFR2_L);
 	}
 
 	/* 8 bit interface */
@@ -391,15 +394,17 @@ static void pxafb_setup_gpio (vidinfo_t *vid)
 	{
 		debug("Setting GPIO for 8 bit data\n");
 		/* bits 58-65 */
-		GPDR1 |= (0x3f << 26);
-		GPDR2 |= (0x3);
+		writel(readl(GPDR1) | (0x3f << 26), GPDR1);
+		writel(readl(GPDR2) | (0x3), GPDR2);
 
-		GAFR1_U = (GAFR1_U & ~(0xfff << 20)) | (0xaaa << 20);
-		GAFR2_L = (GAFR2_L & ~0xf) | (0xa);
+		writel((readl(GAFR1_U) & ~(0xfff << 20)) | (0xaaa << 20),
+			GAFR1_U);
+		writel((readl(GAFR2_L) & ~0xf) | (0xa), GAFR2_L);
 
 		/* bits 74-77 */
-		GPDR2 |= (0xf << 10);
-		GAFR2_L = (GAFR2_L & ~(0xff << 20)) | (0xaa << 20);
+		writel(readl(GPDR2) | (0xf << 10), GPDR2);
+		writel((readl(GAFR2_L) & ~(0xff << 20)) | (0xaa << 20),
+			GAFR2_L);
 	}
 
 	/* 16 bit interface */
@@ -407,11 +412,12 @@ static void pxafb_setup_gpio (vidinfo_t *vid)
 	{
 		debug("Setting GPIO for 16 bit data\n");
 		/* bits 58-77 */
-		GPDR1 |= (0x3f << 26);
-		GPDR2 |= 0x00003fff;
+		writel(readl(GPDR1) | (0x3f << 26), GPDR1);
+		writel(readl(GPDR2) | 0x00003fff, GPDR2);
 
-		GAFR1_U = (GAFR1_U & ~(0xfff << 20)) | (0xaaa << 20);
-		GAFR2_L = (GAFR2_L & 0xf0000000) | 0x0aaaaaaa;
+		writel((readl(GAFR1_U) & ~(0xfff << 20)) | (0xaaa << 20),
+			GAFR1_U);
+		writel((readl(GAFR2_L) & 0xf0000000) | 0x0aaaaaaa, GAFR2_L);
 	}
 	else
 	{
@@ -425,26 +431,26 @@ static void pxafb_enable_controller (vidinfo_t *vid)
 	debug("Enabling LCD controller\n");
 
 	/* Sequence from 11.7.10 */
-	LCCR3  = vid->pxa.reg_lccr3;
-	LCCR2  = vid->pxa.reg_lccr2;
-	LCCR1  = vid->pxa.reg_lccr1;
-	LCCR0  = vid->pxa.reg_lccr0 & ~LCCR0_ENB;
-	FDADR0 = vid->pxa.fdadr0;
-	FDADR1 = vid->pxa.fdadr1;
-	LCCR0 |= LCCR0_ENB;
+	writel(vid->pxa.reg_lccr3, LCCR3);
+	writel(vid->pxa.reg_lccr2, LCCR2);
+	writel(vid->pxa.reg_lccr1, LCCR1);
+	writel(vid->pxa.reg_lccr0 & ~LCCR0_ENB, LCCR0);
+	writel(vid->pxa.fdadr0, FDADR0);
+	writel(vid->pxa.fdadr1, FDADR1);
+	writel(readl(LCCR0) | LCCR0_ENB, LCCR0);
 
 #ifdef	CONFIG_CPU_MONAHANS
-	CKENA |= CKENA_1_LCD;
+	writel(readl(CKENA) | CKENA_1_LCD, CKENA);
 #else
-	CKEN |= CKEN16_LCD;
+	writel(readl(CKEN) | CKEN16_LCD, CKEN);
 #endif
 
-	debug("FDADR0 = 0x%08x\n", (unsigned int)FDADR0);
-	debug("FDADR1 = 0x%08x\n", (unsigned int)FDADR1);
-	debug("LCCR0 = 0x%08x\n", (unsigned int)LCCR0);
-	debug("LCCR1 = 0x%08x\n", (unsigned int)LCCR1);
-	debug("LCCR2 = 0x%08x\n", (unsigned int)LCCR2);
-	debug("LCCR3 = 0x%08x\n", (unsigned int)LCCR3);
+	debug("FDADR0 = 0x%08x\n", readl(FDADR0));
+	debug("FDADR1 = 0x%08x\n", readl(FDADR1));
+	debug("LCCR0 = 0x%08x\n", readl(LCCR0));
+	debug("LCCR1 = 0x%08x\n", readl(LCCR1));
+	debug("LCCR2 = 0x%08x\n", readl(LCCR2));
+	debug("LCCR3 = 0x%08x\n", readl(LCCR3));
 }
 
 static int pxafb_init (vidinfo_t *vid)

@@ -339,8 +339,6 @@
 #define LED_IRDA1 2
 #define LED_IRDA2 4
 #define LED_IRDA3 6
-#define CRADLE_LED_SET_REG GPSR2
-#define CRADLE_LED_CLR_REG GPCR2
 
 /* SuperIO defines */
 #define CRADLE_SIO_INDEX      0x2e

@@ -30,10 +30,11 @@
  * CPU specific code
  */
 
-#include <common.h>
-#include <command.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/io.h>
 #include <asm/system.h>
+#include <command.h>
+#include <common.h>
 
 static void cache_flush(void);
 
@@ -71,17 +72,22 @@ void set_GPIO_mode(int gpio_mode)
 {
 	int gpio = gpio_mode & GPIO_MD_MASK_NR;
 	int fn = (gpio_mode & GPIO_MD_MASK_FN) >> 8;
-	int gafr;
+	int val;
+
+	/* This below changes direction setting of GPIO "gpio" */
+	val = readl(GPDR(gpio));
 
 	if (gpio_mode & GPIO_MD_MASK_DIR)
-	{
-		GPDR(gpio) |= GPIO_bit(gpio);
-	}
+		val |= GPIO_bit(gpio);
 	else
-	{
-		GPDR(gpio) &= ~GPIO_bit(gpio);
-	}
-	gafr = GAFR(gpio) & ~(0x3 << (((gpio) & 0xf)*2));
-	GAFR(gpio) = gafr |  (fn  << (((gpio) & 0xf)*2));
+		val &= ~GPIO_bit(gpio);
+
+	writel(val, GPDR(gpio));
+
+	/* This below updates only AF of GPIO "gpio" */
+	val = readl(GAFR(gpio));
+	val &= ~(0x3 << (((gpio) & 0xf) * 2));
+	val |= fn << (((gpio) & 0xf) * 2);
+	writel(val, GAFR(gpio));
 }
 #endif /* CONFIG_CPU_MONAHANS */
