@@ -35,6 +35,7 @@
 #include <libfdt.h>
 #include <netdev.h>
 #include <led-display.h>
+#include <linux/err.h>
 
 #include "mt46v32m16.h"
 
@@ -410,18 +411,26 @@ int display_putc(char c)
 }
 
 /*
- * Output content of the software display buffer to the LED display every 0.5s
+ * Flush current symbol to the LED display hardware
+ */
+static inline void display_flush(void)
+{
+	u32 val = display_buf[display_out_pos];
+
+	val |= (val << 8) | (val << 16) | (val << 24);
+	out_be32((void *)CONFIG_SYS_DISP_CHR_RAM, val);
+}
+
+/*
+ * Output contents of the software display buffer to the LED display every 0.5s
  */
 void board_show_activity(ulong timestamp)
 {
 	static ulong last;
 	static u8 once;
-	u32 val;
 
 	if (!once || (timestamp - last >= (CONFIG_SYS_HZ / 2))) {
-		val = display_buf[display_out_pos];
-		val |= (val << 8) | (val << 16) | (val << 24);
-		out_be32((void *)CONFIG_SYS_DISP_CHR_RAM, val);
+		display_flush();
 		display_out_pos ^= 1;
 		last = timestamp;
 		once = 1;
@@ -433,5 +442,65 @@ void board_show_activity(ulong timestamp)
  */
 void show_activity(int arg)
 {
+}
+#endif
+#if defined (CONFIG_SHOW_BOOT_PROGRESS)
+static int a4m072_status2code(int status, char *buf)
+{
+	char c = 0;
+
+	if (((status > 0) && (status <= 8)) ||
+				((status >= 100) && (status <= 108)) ||
+				((status < 0) && (status >= -9)) ||
+				(status == -100) || (status == -101) ||
+				((status <= -103) && (status >= -113))) {
+		c = '5';
+	} else if (((status >= 9) && (status <= 14)) ||
+			((status >= 120) && (status <= 123)) ||
+			((status >= 125) && (status <= 129)) ||
+			((status >= -13) && (status <= -10)) ||
+			(status == -120) || (status == -122) ||
+			((status <= -124) && (status >= -127)) ||
+			(status == -129)) {
+		c = '8';
+	} else if (status == 15) {
+		c = '9';
+	} else if ((status <= -30) && (status >= -32)) {
+		c = 'A';
+	} else if (((status <= -35) && (status >= -40)) ||
+			((status <= -42) && (status >= -51)) ||
+			((status <= -53) && (status >= -58)) ||
+			(status == -64) ||
+			((status <= -80) && (status >= -83)) ||
+			(status == -130) || (status == -140) ||
+			(status == -150)) {
+		c = 'B';
+	}
+
+	if (c == 0)
+		return -EINVAL;
+
+	buf[0] = (status < 0) ? '-' : c;
+	buf[1] = c;
+
+	return 0;
+}
+
+void show_boot_progress(int status)
+{
+	char buf[2];
+
+	if (a4m072_status2code(status, buf) < 0)
+		return;
+
+	display_set(0);	/* Clear DP Led */
+	display_putc_nomark(buf[0]);
+	display_putc_nomark(buf[1]);
+	display_set(DISPLAY_HOME);
+	display_out_pos = 0;	/* reset output position */
+
+	/* we want to flush status 15 now */
+	if (status == 15)
+		display_flush();
 }
 #endif

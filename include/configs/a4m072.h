@@ -382,4 +382,6 @@
 #define CONFIG_SYS_DISP_CHR_RAM	     CONFIG_SYS_CS7_START
 #define CONFIG_SHOW_ACTIVITY		/* used for display realization */
 
+#define CONFIG_SHOW_BOOT_PROGRESS
+
 #endif /* __CONFIG_H */
