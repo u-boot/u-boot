@@ -43,6 +43,17 @@
 static void setup_net_chip(void);
 #endif
 
+/* GPMC definitions for LAN9221 chips on Tobi expansion boards */
+static const u32 gpmc_lan_config[] = {
+    NET_LAN9221_GPMC_CONFIG1,
+    NET_LAN9221_GPMC_CONFIG2,
+    NET_LAN9221_GPMC_CONFIG3,
+    NET_LAN9221_GPMC_CONFIG4,
+    NET_LAN9221_GPMC_CONFIG5,
+    NET_LAN9221_GPMC_CONFIG6,
+    /*CONFIG7- computed as params */
+};
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -61,6 +72,70 @@ int board_init(void)
 }
 
 /*
+ * Routine: get_board_revision
+ * Description: Returns the board revision
+ */
+int get_board_revision(void)
+{
+	int revision;
+
+	if (!omap_request_gpio(112) &&
+	    !omap_request_gpio(113) &&
+	    !omap_request_gpio(115)) {
+
+		omap_set_gpio_direction(112, 1);
+		omap_set_gpio_direction(113, 1);
+		omap_set_gpio_direction(115, 1);
+
+		revision = omap_get_gpio_datain(115) << 2 |
+			   omap_get_gpio_datain(113) << 1 |
+			   omap_get_gpio_datain(112);
+
+		omap_free_gpio(112);
+		omap_free_gpio(113);
+		omap_free_gpio(115);
+	} else {
+		printf("Error: unable to acquire board revision GPIOs\n");
+		revision = -1;
+	}
+
+	return revision;
+}
+
+/*
+ * Routine: get_sdio2_config
+ * Description: Return information about the wifi module connection
+ *              Returns 0 if the module connects though a level translator
+ *              Returns 1 if the module connects directly
+ */
+int get_sdio2_config(void)
+{
+	int sdio_direct;
+
+	if (!omap_request_gpio(130) && !omap_request_gpio(139)) {
+
+		omap_set_gpio_direction(130, 0);
+		omap_set_gpio_direction(139, 1);
+
+		sdio_direct = 1;
+		omap_set_gpio_dataout(130, 0);
+		if (omap_get_gpio_datain(139) == 0) {
+			omap_set_gpio_dataout(130, 1);
+			if (omap_get_gpio_datain(139) == 1)
+				sdio_direct = 0;
+		}
+
+		omap_free_gpio(130);
+		omap_free_gpio(139);
+	} else {
+		printf("Error: unable to acquire sdio2 clk GPIOs\n");
+		sdio_direct = -1;
+	}
+
+	return sdio_direct;
+}
+
+/*
  * Routine: misc_init_r
  * Description: Configure board specific parts
  */
@@ -72,6 +147,21 @@ int misc_init_r(void)
 #if defined(CONFIG_CMD_NET)
 	setup_net_chip();
 #endif
+
+	printf("Board revision: %d\n", get_board_revision());
+
+	switch (get_sdio2_config()) {
+	case 0:
+		printf("Tranceiver detected on mmc2\n");
+		MUX_OVERO_SDIO2_TRANSCEIVER();
+		break;
+	case 1:
+		printf("Direct connection on mmc2\n");
+		MUX_OVERO_SDIO2_DIRECT();
+		break;
+	default:
+		printf("Unable to detect mmc2 connection type\n");
+	}
 
 	dieid_num_r();
 
@@ -99,14 +189,13 @@ static void setup_net_chip(void)
 {
 	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
 
-	/* Configure GPMC registers */
-	writel(NET_LAN9221_GPMC_CONFIG1, &gpmc_cfg->cs[5].config1);
-	writel(NET_LAN9221_GPMC_CONFIG2, &gpmc_cfg->cs[5].config2);
-	writel(NET_LAN9221_GPMC_CONFIG3, &gpmc_cfg->cs[5].config3);
-	writel(NET_LAN9221_GPMC_CONFIG4, &gpmc_cfg->cs[5].config4);
-	writel(NET_LAN9221_GPMC_CONFIG5, &gpmc_cfg->cs[5].config5);
-	writel(NET_LAN9221_GPMC_CONFIG6, &gpmc_cfg->cs[5].config6);
-	writel(NET_LAN9221_GPMC_CONFIG7, &gpmc_cfg->cs[5].config7);
+	/* first lan chip */
+	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[5], 0x2C000000,
+			GPMC_SIZE_16M);
+
+	/* second lan chip */
+	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[4], 0x2B000000,
+			GPMC_SIZE_16M);
 
 	/* Enable off mode for NWE in PADCONF_GPMC_NWE register */
 	writew(readw(&ctrl_base ->gpmc_nwe) | 0x0E00, &ctrl_base->gpmc_nwe);

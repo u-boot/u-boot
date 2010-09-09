@@ -33,6 +33,9 @@ void watchdog_init(void);
 u32 get_device_type(void);
 void invalidate_dcache(u32);
 void set_muxconf_regs(void);
+void sr32(void *, u32, u32, u32);
+u32 wait_on_value(u32, u32, void *, u32);
+void sdelay(unsigned long);
 
 extern const struct omap_sysinfo sysinfo;
 

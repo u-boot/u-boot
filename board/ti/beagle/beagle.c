@@ -38,8 +38,6 @@
 #include <asm/mach-types.h>
 #include "beagle.h"
 
-static int beagle_revision_c;
-
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -58,43 +56,41 @@ int board_init(void)
 }
 
 /*
- * Routine: beagle_get_revision
- * Description: Return the revision of the BeagleBoard this code is running on.
- *              If it is a revision Ax/Bx board, this function returns 0,
- *              on a revision C board you will get a 1.
+ * Routine: get_board_revision
+ * Description: Detect if we are running on a Beagle revision Ax/Bx,
+ *		C1/2/3, C4 or xM. This can be done by reading
+ *		the level of GPIO173, GPIO172 and GPIO171. This should
+ *		result in
+ *		GPIO173, GPIO172, GPIO171: 1 1 1 => Ax/Bx
+ *		GPIO173, GPIO172, GPIO171: 1 1 0 => C1/2/3
+ *		GPIO173, GPIO172, GPIO171: 1 0 1 => C4
+ *		GPIO173, GPIO172, GPIO171: 0 0 0 => xM
  */
-int beagle_get_revision(void)
+int get_board_revision(void)
 {
-	return beagle_revision_c;
-}
+	int revision;
 
-/*
- * Routine: beagle_identify
- * Description: Detect if we are running on a Beagle revision Ax/Bx or
- *              Cx. This can be done by GPIO_171. If this is low, we are
- *              running on a revision C board.
- */
-void beagle_identify(void)
-{
-	beagle_revision_c = 0;
-	if (!omap_request_gpio(171)) {
-		unsigned int val;
+	if (!omap_request_gpio(171) &&
+	    !omap_request_gpio(172) &&
+	    !omap_request_gpio(173)) {
 
 		omap_set_gpio_direction(171, 1);
-		val = omap_get_gpio_datain(171);
-		omap_free_gpio(171);
+		omap_set_gpio_direction(172, 1);
+		omap_set_gpio_direction(173, 1);
 
-		if (val)
-			beagle_revision_c = 0;
-		else
-			beagle_revision_c = 1;
+		revision = omap_get_gpio_datain(173) << 2 |
+			   omap_get_gpio_datain(172) << 1 |
+			   omap_get_gpio_datain(171);
+
+		omap_free_gpio(171);
+		omap_free_gpio(172);
+		omap_free_gpio(173);
+	} else {
+		printf("Error: unable to acquire board revision GPIOs\n");
+		revision = -1;
 	}
 
-	printf("Board revision ");
-	if (beagle_revision_c)
-		printf("C\n");
-	else
-		printf("Ax/Bx\n");
+	return revision;
 }
 
 /*
@@ -105,6 +101,44 @@ int misc_init_r(void)
 {
 	struct gpio *gpio5_base = (struct gpio *)OMAP34XX_GPIO5_BASE;
 	struct gpio *gpio6_base = (struct gpio *)OMAP34XX_GPIO6_BASE;
+
+	switch (get_board_revision()) {
+	case REVISION_AXBX:
+		printf("Beagle Rev Ax/Bx\n");
+		setenv("beaglerev", "AxBx");
+		setenv("mpurate", "600");
+		break;
+	case REVISION_CX:
+		printf("Beagle Rev C1/C2/C3\n");
+		setenv("beaglerev", "Cx");
+		setenv("mpurate", "600");
+		MUX_BEAGLE_C();
+		break;
+	case REVISION_C4:
+		printf("Beagle Rev C4\n");
+		setenv("beaglerev", "C4");
+		setenv("mpurate", "720");
+		MUX_BEAGLE_C();
+		/* Set VAUX2 to 1.8V for EHCI PHY */
+		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
+					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
+					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
+					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+		break;
+	case REVISION_XM:
+		printf("Beagle xM Rev A\n");
+		setenv("beaglerev", "xMA");
+		setenv("mpurate", "1000");
+		MUX_BEAGLE_XM();
+		/* Set VAUX2 to 1.8V for EHCI PHY */
+		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
+					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
+					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
+					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+		break;
+	default:
+		printf("Beagle unknown 0x%02x\n", get_board_revision());
+	}
 
 	twl4030_power_init();
 	twl4030_led_init(TWL4030_LED_LEDEN_LEDAON | TWL4030_LED_LEDEN_LEDBON);
@@ -120,8 +154,6 @@ int misc_init_r(void)
 	writel(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
 		GPIO15 | GPIO14 | GPIO13 | GPIO12, &gpio5_base->setdataout);
 
-	beagle_identify();
-
 	dieid_num_r();
 
 	return 0;
@@ -136,8 +168,4 @@ int misc_init_r(void)
 void set_muxconf_regs(void)
 {
 	MUX_BEAGLE();
-
-	if (beagle_revision_c) {
-		MUX_BEAGLE_C();
-	}
 }

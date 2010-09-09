@@ -32,7 +32,6 @@ COBJS	+= board.o
 COBJS	+= clock.o
 COBJS	+= gpio.o
 COBJS	+= mem.o
-COBJS	+= syslib.o
 COBJS	+= sys_info.o
 
 COBJS-$(CONFIG_EMIF4)	+= emif4.o

@@ -38,7 +38,10 @@ static char *rev_s[CPU_3XX_MAX_REV] = {
 				"2.0",
 				"2.1",
 				"3.0",
-				"3.1"};
+				"3.1",
+				"UNKNOWN",
+				"UNKNOWN",
+				"3.1.2"};
 
 /*****************************************************************
  * dieid_num_r(void) - read and set die ID
@@ -75,32 +78,81 @@ u32 get_cpu_type(void)
 }
 
 /******************************************
- * get_cpu_rev(void) - extract version info
+ * get_cpu_id(void) - extract cpu id
+ * returns 0 for ES1.0, cpuid otherwise
  ******************************************/
-u32 get_cpu_rev(void)
+u32 get_cpu_id(void)
 {
-	u32 cpuid = 0;
 	struct ctrl_id *id_base;
+	u32 cpuid = 0;
 
 	/*
 	 * On ES1.0 the IDCODE register is not exposed on L4
 	 * so using CPU ID to differentiate between ES1.0 and > ES1.0.
 	 */
 	__asm__ __volatile__("mrc p15, 0, %0, c0, c0, 0":"=r"(cpuid));
-	if ((cpuid & 0xf) == 0x0)
-		return CPU_3XX_ES10;
-	else {
+	if ((cpuid & 0xf) == 0x0) {
+		return 0;
+	} else {
 		/* Decode the IDs on > ES1.0 */
 		id_base = (struct ctrl_id *) OMAP34XX_ID_L4_IO_BASE;
 
-		cpuid = (readl(&id_base->idcode) >> CPU_3XX_ID_SHIFT) & 0xf;
-
-		/* Some early ES2.0 seem to report ID 0, fix this */
-		if(cpuid == 0)
-			cpuid = CPU_3XX_ES20;
-
-		return cpuid;
+		cpuid = readl(&id_base->idcode);
 	}
+
+	return cpuid;
+}
+
+/******************************************
+ * get_cpu_family(void) - extract cpu info
+ ******************************************/
+u32 get_cpu_family(void)
+{
+	u16 hawkeye;
+	u32 cpu_family;
+	u32 cpuid = get_cpu_id();
+
+	if (cpuid == 0)
+		return CPU_OMAP34XX;
+
+	hawkeye = (cpuid >> HAWKEYE_SHIFT) & 0xffff;
+	switch (hawkeye) {
+	case HAWKEYE_OMAP34XX:
+		cpu_family = CPU_OMAP34XX;
+		break;
+	case HAWKEYE_AM35XX:
+		cpu_family = CPU_AM35XX;
+		break;
+	case HAWKEYE_OMAP36XX:
+		cpu_family = CPU_OMAP36XX;
+		break;
+	default:
+		cpu_family = CPU_OMAP34XX;
+	}
+
+	return cpu_family;
+}
+
+/******************************************
+ * get_cpu_rev(void) - extract version info
+ ******************************************/
+u32 get_cpu_rev(void)
+{
+	u32 cpuid = get_cpu_id();
+
+	if (cpuid == 0)
+		return CPU_3XX_ES10;
+	else
+		return (cpuid >> CPU_3XX_ID_SHIFT) & 0xf;
+}
+
+/*****************************************************************
+ * get_sku_id(void) - read sku_id to get info on max clock rate
+ *****************************************************************/
+u32 get_sku_id(void)
+{
+	struct ctrl_id *id_base = (struct ctrl_id *)OMAP34XX_ID_L4_IO_BASE;
+	return readl(&id_base->sku_id) & SKUID_CLK_MASK;
 }
 
 /***************************************************************************
@@ -213,24 +265,66 @@ u32 get_device_type(void)
  */
 int print_cpuinfo (void)
 {
-	char *cpu_s, *sec_s;
+	char *cpu_family_s, *cpu_s, *sec_s, *max_clk;
 
-	switch (get_cpu_type()) {
-	case OMAP3503:
-		cpu_s = "3503";
+	switch (get_cpu_family()) {
+	case CPU_OMAP34XX:
+		cpu_family_s = "OMAP";
+		switch (get_cpu_type()) {
+		case OMAP3503:
+			cpu_s = "3503";
+			break;
+		case OMAP3515:
+			cpu_s = "3515";
+			break;
+		case OMAP3525:
+			cpu_s = "3525";
+			break;
+		case OMAP3530:
+			cpu_s = "3530";
+			break;
+		default:
+			cpu_s = "35XX";
+			break;
+		}
+		if ((get_cpu_rev() >= CPU_3XX_ES31) &&
+		    (get_sku_id() == SKUID_CLK_720MHZ))
+			max_clk = "720 mHz";
+		else
+			max_clk = "600 mHz";
+
 		break;
-	case OMAP3515:
-		cpu_s = "3515";
+	case CPU_AM35XX:
+		cpu_family_s = "AM";
+		switch (get_cpu_type()) {
+		case AM3505:
+			cpu_s = "3505";
+			break;
+		case AM3517:
+			cpu_s = "3517";
+			break;
+		default:
+			cpu_s = "35XX";
+			break;
+		}
+		max_clk = "600 Mhz";
 		break;
-	case OMAP3525:
-		cpu_s = "3525";
-		break;
-	case OMAP3530:
-		cpu_s = "3530";
+	case CPU_OMAP36XX:
+		cpu_family_s = "OMAP";
+		switch (get_cpu_type()) {
+		case OMAP3730:
+			cpu_s = "3630/3730";
+			break;
+		default:
+			cpu_s = "36XX/37XX";
+			break;
+		}
+		max_clk = "1 Ghz";
 		break;
 	default:
+		cpu_family_s = "OMAP";
 		cpu_s = "35XX";
-		break;
+		max_clk = "600 Mhz";
 	}
 
 	switch (get_device_type()) {
@@ -250,8 +344,9 @@ int print_cpuinfo (void)
 		sec_s = "?";
 	}
 
-	printf("OMAP%s-%s ES%s, CPU-OPP2 L3-165MHz\n",
-			cpu_s, sec_s, rev_s[get_cpu_rev()]);
+	printf("%s%s-%s ES%s, CPU-OPP2, L3-165MHz, Max CPU Clock %s\n",
+			cpu_family_s, cpu_s, sec_s,
+			rev_s[get_cpu_rev()], max_clk);
 
 	return 0;
 }

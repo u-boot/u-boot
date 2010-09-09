@@ -88,6 +88,7 @@
 #define PRM_DEVICE_BASE		(PRM_BASE + 0x1B00)
 
 #define PRM_RSTCTRL		PRM_DEVICE_BASE
+#define PRM_RSTCTRL_RESET	0x01
 
 #ifndef __ASSEMBLY__
 

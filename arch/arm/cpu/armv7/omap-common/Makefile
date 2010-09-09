@@ -26,7 +26,9 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)libomap-common.a
 
 SOBJS	:= reset.o
+
 COBJS	:= timer.o
+COBJS	+= syslib.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
