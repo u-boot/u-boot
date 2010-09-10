@@ -412,11 +412,11 @@
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
 /* Initial Memory map for Linux */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20)
+#define CONFIG_SYS_BOOTMAPSZ	(256 << 20)
 
 /* Cache Configuration */
 #define CONFIG_SYS_DCACHE_SIZE		32768
