@@ -26,4 +26,4 @@
 # socrates board
 # default CCARBAR is at 0xff700000
 #
-TEXT_BASE = 0xfffa0000
+TEXT_BASE = 0xfff80000
