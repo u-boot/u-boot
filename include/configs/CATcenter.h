@@ -105,6 +105,7 @@
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
 
+#define CONFIG_PPC4xx_EMAC
 #undef CONFIG_EXT_PHY
 #define CONFIG_NET_MULTI	1
 
@@ -398,6 +399,7 @@
  * I2C EEPROM (CAT24WC16) for environment
  */
 #define CONFIG_HARD_I2C			/* I2c with hardware support */
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
 #define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 
@@ -409,16 +411,6 @@
 					/* 16 byte page write mode using*/
 					/* last 4 bits of the address	*/
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10   /* and takes up to 10 msec */
-
-/*-----------------------------------------------------------------------
- * Cache Configuration
- */
-#define CONFIG_SYS_DCACHE_SIZE		16384	/* For AMCC 405 CPUs, older 405 ppc's	*/
-					/* have only 8kB, 16kB is save here	*/
-#define CONFIG_SYS_CACHELINE_SIZE	32	/* ...			*/
-#if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
-#endif
 
 /*
  * Init Memory Controller:
@@ -569,17 +561,6 @@
 #undef		AUTO_MEMORY_CONFIG
 #define		DIMM_READ_ADDR 0xAB
 #define		DIMM_WRITE_ADDR 0xAA
-
-#define CPC0_PLLMR0  (CNTRL_DCR_BASE+0x0)  /* PLL mode 0 register		*/
-#define CPC0_BOOT    (CNTRL_DCR_BASE+0x1)  /* Chip Clock Status register	*/
-#define CPC0_CR1     (CNTRL_DCR_BASE+0x2)  /* Chip Control 1 register		*/
-#define CPC0_EPRCSR  (CNTRL_DCR_BASE+0x3)  /* EMAC PHY Rcv Clk Src register	*/
-#define CPC0_PLLMR1  (CNTRL_DCR_BASE+0x4)  /* PLL mode 1 register		*/
-#define CPC0_UCR     (CNTRL_DCR_BASE+0x5)  /* UART Control register		*/
-#define CPC0_SRR     (CNTRL_DCR_BASE+0x6)  /* Soft Reset register		*/
-#define CPC0_JTAGID  (CNTRL_DCR_BASE+0x7)  /* JTAG ID register			*/
-#define CPC0_SPARE   (CNTRL_DCR_BASE+0x8)  /* Spare DCR				*/
-#define CPC0_PCI     (CNTRL_DCR_BASE+0x9)  /* PCI Control register		*/
 
 /* Defines for CPC0_PLLMR1 Register fields */
 #define PLL_ACTIVE		0x80000000
