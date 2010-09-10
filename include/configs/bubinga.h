@@ -179,6 +179,7 @@
  * (Set up by the startup code)
  */
 #define CONFIG_SYS_SRAM_BASE		0xFFF00000
+#define CONFIG_SYS_SRAM_SIZE		(256 << 10)
 #define CONFIG_SYS_FLASH_BASE		0xFFF80000
 
 /*-----------------------------------------------------------------------

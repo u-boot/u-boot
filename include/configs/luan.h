@@ -53,6 +53,7 @@
 #define CONFIG_SYS_LARGE_FLASH		0xffc00000	/* 4MB flash address CS0 */
 #define CONFIG_SYS_SMALL_FLASH		0xff900000	/* 1MB flash address CS2 */
 #define CONFIG_SYS_SRAM_BASE		0xff800000	/* 1MB SRAM  address CS2 */
+#define CONFIG_SYS_SRAM_SIZE		(1 << 20)
 #define CONFIG_SYS_EPLD_BASE		0xff000000	/* EPLD and FRAM     CS1 */
 
 #define CONFIG_SYS_ISRAM_BASE	        0xf8000000	/* internal 8k SRAM (L2 cache) */
