@@ -149,12 +149,6 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_STACR_OC_MASK	(0x00000000)
 #endif
 
-#if defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_405EX)
-#define SDR0_PFC1_EM_1000	(0x00200000)
-#endif
-
 /*
  * XMII bridge configurations for those systems (e.g. 405EX(r)) that do
  * not have a pin function control (PFC) register to otherwise determine

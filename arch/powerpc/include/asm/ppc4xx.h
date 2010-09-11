@@ -25,79 +25,113 @@
 #define __PPC4XX_H__
 
 /*
- * Configure which SDRAM/DDR/DDR2 controller is equipped
+ * Include SoC specific headers
  */
-#if defined(CONFIG_405GP) || defined(CONFIG_405CR) || defined(CONFIG_405EP) || \
-	defined(CONFIG_AP1000) || defined(CONFIG_ML2)
-#define CONFIG_SDRAM_PPC4xx_IBM_SDRAM	/* IBM SDRAM controller */
+#if defined(CONFIG_405CR)
+#include <asm/ppc405cr.h>
 #endif
 
-#if defined(CONFIG_440GP) || defined(CONFIG_440GX) || \
-    defined(CONFIG_440EP) || defined(CONFIG_440GR)
-#define CONFIG_SDRAM_PPC4xx_IBM_DDR	/* IBM DDR controller */
+#if defined(CONFIG_405EP)
+#include <asm/ppc405ep.h>
+#endif
+
+#if defined(CONFIG_405EX)
+#include <asm/ppc405ex.h>
+#endif
+
+#if defined(CONFIG_405EZ)
+#include <asm/ppc405ez.h>
+#endif
+
+#if defined(CONFIG_405GP)
+#include <asm/ppc405gp.h>
+#endif
+
+#if defined(CONFIG_440EP) || defined(CONFIG_440GR)
+#include <asm/ppc440ep_gr.h>
 #endif
 
 #if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
-#define CONFIG_SDRAM_PPC4xx_DENALI_DDR2	/* Denali DDR(2) controller */
+#include <asm/ppc440epx_grx.h>
 #endif
 
-#if defined(CONFIG_405EX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
-    defined(CONFIG_460SX)
-#define CONFIG_SDRAM_PPC4xx_IBM_DDR2	/* IBM DDR(2) controller */
+#if defined(CONFIG_440GP)
+#include <asm/ppc440gp.h>
 #endif
 
-#if defined(CONFIG_440EP) || defined(CONFIG_440GR) ||	\
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) ||	\
-    defined(CONFIG_405EZ) || defined(CONFIG_405EX) ||	\
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)
-#define CONFIG_NAND_NDFC
+#if defined(CONFIG_440GX)
+#include <asm/ppc440gx.h>
 #endif
 
-/* PLB4 CrossBar Arbiter Core supported across PPC4xx families */
-#if defined(CONFIG_405EX) || \
-    defined(CONFIG_440EP) || defined(CONFIG_440EPX) || \
-    defined(CONFIG_440GR) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_460EX) || defined(CONFIG_460GT)  || \
-    defined(CONFIG_460SX)
+#if defined(CONFIG_440SP)
+#include <asm/ppc440sp.h>
+#endif
 
-#define PLB_ARBITER_BASE		0x80
+#if defined(CONFIG_440SPE)
+#include <asm/ppc440spe.h>
+#endif
 
-#define PLB0_ACR			(PLB_ARBITER_BASE + 0x01)
-#define PLB0_ACR_PPM_MASK		0xF0000000
-#define PLB0_ACR_PPM_FIXED		0x00000000
-#define PLB0_ACR_PPM_FAIR		0xD0000000
-#define PLB0_ACR_HBU_MASK		0x08000000
-#define PLB0_ACR_HBU_DISABLED		0x00000000
-#define PLB0_ACR_HBU_ENABLED		0x08000000
-#define PLB0_ACR_RDP_MASK		0x06000000
-#define PLB0_ACR_RDP_DISABLED		0x00000000
-#define PLB0_ACR_RDP_2DEEP		0x02000000
-#define PLB0_ACR_RDP_3DEEP		0x04000000
-#define PLB0_ACR_RDP_4DEEP		0x06000000
-#define PLB0_ACR_WRP_MASK		0x01000000
-#define PLB0_ACR_WRP_DISABLED		0x00000000
-#define PLB0_ACR_WRP_2DEEP		0x01000000
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#include <asm/ppc460ex_gt.h>
+#endif
 
-#define PLB1_ACR			(PLB_ARBITER_BASE + 0x09)
-#define PLB1_ACR_PPM_MASK		0xF0000000
-#define PLB1_ACR_PPM_FIXED		0x00000000
-#define PLB1_ACR_PPM_FAIR		0xD0000000
-#define PLB1_ACR_HBU_MASK		0x08000000
-#define PLB1_ACR_HBU_DISABLED		0x00000000
-#define PLB1_ACR_HBU_ENABLED		0x08000000
-#define PLB1_ACR_RDP_MASK		0x06000000
-#define PLB1_ACR_RDP_DISABLED		0x00000000
-#define PLB1_ACR_RDP_2DEEP		0x02000000
-#define PLB1_ACR_RDP_3DEEP		0x04000000
-#define PLB1_ACR_RDP_4DEEP		0x06000000
-#define PLB1_ACR_WRP_MASK		0x01000000
-#define PLB1_ACR_WRP_DISABLED		0x00000000
-#define PLB1_ACR_WRP_2DEEP		0x01000000
+#if defined(CONFIG_460SX)
+#include <asm/ppc460sx.h>
+#endif
 
-#endif /* 440EP/EPX 440GR/GRX 440SP/SPE 460EX/GT/SX 405EX*/
+/*
+ * Configure which SDRAM/DDR/DDR2 controller is equipped
+ */
+// test-only: what to do with these???
+#if defined(CONFIG_AP1000) || defined(CONFIG_ML2)
+#define CONFIG_SDRAM_PPC4xx_IBM_SDRAM	/* IBM SDRAM controller */
+#endif
+
+/*
+ * Common registers for all SoC's
+ */
+/* DCR registers */
+#define PLB3A0_ACR	0x0077
+#define PLB4A0_ACR	0x0081
+#define PLB4A1_ACR	0x0089
+
+#define PLB4Ax_ACR_PPM_MASK		0xf0000000
+#define PLB4Ax_ACR_PPM_FIXED		0x00000000
+#define PLB4Ax_ACR_PPM_FAIR		0xd0000000
+#define PLB4Ax_ACR_HBU_MASK		0x08000000
+#define PLB4Ax_ACR_HBU_DISABLED		0x00000000
+#define PLB4Ax_ACR_HBU_ENABLED		0x08000000
+#define PLB4Ax_ACR_RDP_MASK		0x06000000
+#define PLB4Ax_ACR_RDP_DISABLED		0x00000000
+#define PLB4Ax_ACR_RDP_2DEEP		0x02000000
+#define PLB4Ax_ACR_RDP_3DEEP		0x04000000
+#define PLB4Ax_ACR_RDP_4DEEP		0x06000000
+#define PLB4Ax_ACR_WRP_MASK		0x01000000
+#define PLB4Ax_ACR_WRP_DISABLED		0x00000000
+#define PLB4Ax_ACR_WRP_2DEEP		0x01000000
+
+/* General Purpose Timer (GPT) Register Offsets */
+#define GPT0_TBC		0x00000000
+#define GPT0_IM			0x00000018
+#define GPT0_ISS		0x0000001C
+#define GPT0_ISC		0x00000020
+#define GPT0_IE			0x00000024
+#define GPT0_COMP0		0x00000080
+#define GPT0_COMP1		0x00000084
+#define GPT0_COMP2		0x00000088
+#define GPT0_COMP3		0x0000008C
+#define GPT0_COMP4		0x00000090
+#define GPT0_COMP5		0x00000094
+#define GPT0_COMP6		0x00000098
+#define GPT0_MASK0		0x000000C0
+#define GPT0_MASK1		0x000000C4
+#define GPT0_MASK2		0x000000C8
+#define GPT0_MASK3		0x000000CC
+#define GPT0_MASK4		0x000000D0
+#define GPT0_MASK5		0x000000D4
+#define GPT0_MASK6		0x000000D8
+#define GPT0_DCT0		0x00000110
+#define GPT0_DCIS		0x0000011C
 
 #if defined(CONFIG_440)
 #include <asm/ppc440.h>

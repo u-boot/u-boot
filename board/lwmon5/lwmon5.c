@@ -38,8 +38,8 @@ int board_early_init_f(void)
 	u32 reg;
 
 	/* PLB Write pipelining disabled. Denali Core workaround */
-	mtdcr(PLB0_ACR, 0xDE000000);
-	mtdcr(PLB1_ACR, 0xDE000000);
+	mtdcr(PLB4A0_ACR, 0xDE000000);
+	mtdcr(PLB4A1_ACR, 0xDE000000);
 
 	/*--------------------------------------------------------------------
 	 * Setup the interrupt controller polarities, triggers, etc.
@@ -249,8 +249,8 @@ int misc_init_r(void)
 	 * This fix will make the MAL burst disabling patch for the Linux
 	 * EMAC driver obsolete.
 	 */
-	reg = mfdcr(PLB4_ACR) & ~PLB4_ACR_WRP;
-	mtdcr(PLB4_ACR, reg);
+	reg = mfdcr(PLB4A0_ACR) & ~PLB4Ax_ACR_WRP_MASK;
+	mtdcr(PLB4A0_ACR, reg);
 
 	/*
 	 * Init matrix keyboard

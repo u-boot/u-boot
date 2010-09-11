@@ -98,8 +98,8 @@ int pci_arbiter_enabled(void)
 #if defined(CONFIG_440GX) || defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 	unsigned long val;
 
-	mfsdr(SDR0_XCR, val);
-	return (val & 0x80000000);
+	mfsdr(SDR0_XCR0, val);
+	return (val & SDR0_XCR0_PAE_MASK);
 #endif
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
@@ -107,7 +107,7 @@ int pci_arbiter_enabled(void)
 	unsigned long val;
 
 	mfsdr(SDR0_PCI0, val);
-	return (val & 0x80000000);
+	return (val & SDR0_PCI0_PAE_MASK);
 #endif
 }
 #endif
@@ -262,7 +262,7 @@ static int bootstrap_option(void)
 #endif /* SDR0_PINSTP_SHIFT */
 
 
-#if defined(CONFIG_440)
+#if defined(CONFIG_440GP)
 static int do_chip_reset (unsigned long sys0, unsigned long sys1)
 {
 	/* Changes to CPC0_SYS0 and CPC0_SYS1 require chip
@@ -276,7 +276,7 @@ static int do_chip_reset (unsigned long sys0, unsigned long sys1)
 
 	return 1;
 }
-#endif
+#endif /* CONFIG_440GP */
 
 
 int checkcpu (void)
@@ -417,6 +417,7 @@ int checkcpu (void)
 		break;
 
 #if defined(CONFIG_440)
+#if defined(CONFIG_440GP)
 	case PVR_440GP_RB:
 		puts("GP Rev. B");
 		/* See errata 1.12: CHIP_4 */
@@ -433,6 +434,7 @@ int checkcpu (void)
 	case PVR_440GP_RC:
 		puts("GP Rev. C");
 		break;
+#endif /* CONFIG_440GP */
 
 	case PVR_440GX_RA:
 		puts("GX Rev. A");

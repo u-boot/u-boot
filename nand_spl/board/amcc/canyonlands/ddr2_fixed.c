@@ -57,7 +57,7 @@ static void ddr_init_common(void)
 	/*
 	 * Reset the DDR-SDRAM controller.
 	 */
-	mtsdr(SDR0_SRST, (0x80000000 >> 10));
+	mtsdr(SDR0_SRST, SDR0_SRST0_DMC);
 	mtsdr(SDR0_SRST, 0x00000000);
 
 	/*

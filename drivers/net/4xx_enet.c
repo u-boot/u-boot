@@ -1494,8 +1494,7 @@ get_speed:
 
 	/* set speed */
 	if (speed == _1000BASET) {
-#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 		unsigned long pfc1;
 
 		mfsdr (SDR0_PFC1, pfc1);

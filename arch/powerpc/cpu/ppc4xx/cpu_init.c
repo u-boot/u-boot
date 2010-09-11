@@ -397,10 +397,10 @@ cpu_init_f (void)
 	/*
 	 * Set PLB4 arbiter (Segment 0 and 1) to 4 deep pipeline read
 	 */
-	mtdcr(PLB0_ACR, (mfdcr(PLB0_ACR) & ~PLB0_ACR_RDP_MASK) |
-	      PLB0_ACR_RDP_4DEEP);
-	mtdcr(PLB1_ACR, (mfdcr(PLB1_ACR) & ~PLB1_ACR_RDP_MASK) |
-	      PLB1_ACR_RDP_4DEEP);
+	mtdcr(PLB4A0_ACR, (mfdcr(PLB4A0_ACR) & ~PLB4Ax_ACR_RDP_MASK) |
+	      PLB4Ax_ACR_RDP_4DEEP);
+	mtdcr(PLB4A1_ACR, (mfdcr(PLB4A1_ACR) & ~PLB4Ax_ACR_RDP_MASK) |
+	      PLB4Ax_ACR_RDP_4DEEP);
 #endif /* CONFIG_440SP/SPE || CONFIG_460EX/GT || CONFIG_405EX */
 }
 

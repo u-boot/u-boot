@@ -951,8 +951,6 @@
 #define SDRAM_RTSR_TRK1SM_ATPLS1	0x80000000	/* atpls1 state		*/
 #define SDRAM_RTSR_TRK1SM_RESET		0xC0000000	/* reset  state		*/
 
-#define SDR0_MFR_FIXD			0x10000000	/* Workaround for PCI/DMA */
-
 #endif /* CONFIG_SDRAM_PPC4xx_IBM_DDR2 */
 
 #if defined(CONFIG_SDRAM_PPC4xx_DENALI_DDR2)

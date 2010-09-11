@@ -34,6 +34,9 @@
 #define CONFIG_SYS_DCACHE_SIZE		(2 << 10)	/* For PLX IOP480(403)*/
 #endif
 
+/* DCR registers */
+#define PLB0_ACR	0x0087
+
 /******************************************************************************
  * Special for PPC405GP
  ******************************************************************************/
@@ -527,14 +530,10 @@
 #endif /* #ifndef CONFIG_IOP480 */
 #endif /* #ifdef CONFIG_405EP */
 
+#if 0
 /******************************************************************************
  * Memory Access Layer
  ******************************************************************************/
-#if defined(CONFIG_405EZ)
-#define	MAL_DCR_BASE	0x380
-#else
-#define MAL_DCR_BASE	0x180
-#endif
 #define	MAL0_CFG	(MAL_DCR_BASE + 0x00) /* MAL Config reg */
 #define	MAL0_ESR	(MAL_DCR_BASE + 0x01) /* Err Status (Read/Clear) */
 #define	MAL0_IER	(MAL_DCR_BASE + 0x02) /* Interrupt enable */
@@ -564,6 +563,7 @@
 #define	MAL0_RCBS8	(MAL_DCR_BASE + 0x68) /* RX 8 Channel buffer size */
 #define	MAL0_RCBS16	(MAL_DCR_BASE + 0x70) /* RX 16 Channel buffer size */
 #define	MAL0_RCBS24	(MAL_DCR_BASE + 0x78) /* RX 24 Channel buffer size */
+#endif
 
 /*-----------------------------------------------------------------------------
 | UART Register Offsets
@@ -805,28 +805,5 @@
 #define SDR0_PFC1_USBBIGEN	0x00000010
 #define SDR0_PFC1_GPT_FREQ	0x0000000f
 #endif
-
-/* General Purpose Timer (GPT) Register Offsets */
-#define GPT0_TBC		0x00000000
-#define GPT0_IM			0x00000018
-#define GPT0_ISS		0x0000001C
-#define GPT0_ISC		0x00000020
-#define GPT0_IE			0x00000024
-#define GPT0_COMP0		0x00000080
-#define GPT0_COMP1		0x00000084
-#define GPT0_COMP2		0x00000088
-#define GPT0_COMP3		0x0000008C
-#define GPT0_COMP4		0x00000090
-#define GPT0_COMP5		0x00000094
-#define GPT0_COMP6		0x00000098
-#define GPT0_MASK0		0x000000C0
-#define GPT0_MASK1		0x000000C4
-#define GPT0_MASK2		0x000000C8
-#define GPT0_MASK3		0x000000CC
-#define GPT0_MASK4		0x000000D0
-#define GPT0_MASK5		0x000000D4
-#define GPT0_MASK6		0x000000D8
-#define GPT0_DCT0		0x00000110
-#define GPT0_DCIS		0x0000011C
 
 #endif	/* __PPC405_H__ */

@@ -594,35 +594,35 @@ int __pci_pre_init(struct pci_controller *hose)
 	 * Set priority for all PLB3 devices to 0.
 	 * Set PLB3 arbiter to fair mode.
 	 */
-	mfsdr(SD0_AMP1, reg);
-	mtsdr(SD0_AMP1, (reg & 0x000000FF) | 0x0000FF00);
-	reg = mfdcr(PLB3_ACR);
-	mtdcr(PLB3_ACR, reg | 0x80000000);
+	mfsdr(SDR0_AMP1, reg);
+	mtsdr(SDR0_AMP1, (reg & 0x000000FF) | 0x0000FF00);
+	reg = mfdcr(PLB3A0_ACR);
+	mtdcr(PLB3A0_ACR, reg | 0x80000000);
 
 	/*
 	 * Set priority for all PLB4 devices to 0.
 	 */
-	mfsdr(SD0_AMP0, reg);
-	mtsdr(SD0_AMP0, (reg & 0x000000FF) | 0x0000FF00);
-	reg = mfdcr(PLB4_ACR) | 0xa0000000;
-	mtdcr(PLB4_ACR, reg);
+	mfsdr(SDR0_AMP0, reg);
+	mtsdr(SDR0_AMP0, (reg & 0x000000FF) | 0x0000FF00);
+	reg = mfdcr(PLB4A0_ACR) | 0xa0000000;
+	mtdcr(PLB4A0_ACR, reg);
 
 	/*
 	 * Set Nebula PLB4 arbiter to fair mode.
 	 */
 	/* Segment0 */
-	reg = (mfdcr(PLB0_ACR) & ~PLB0_ACR_PPM_MASK) | PLB0_ACR_PPM_FAIR;
-	reg = (reg & ~PLB0_ACR_HBU_MASK) | PLB0_ACR_HBU_ENABLED;
-	reg = (reg & ~PLB0_ACR_RDP_MASK) | PLB0_ACR_RDP_4DEEP;
-	reg = (reg & ~PLB0_ACR_WRP_MASK) | PLB0_ACR_WRP_2DEEP;
-	mtdcr(PLB0_ACR, reg);
+	reg = (mfdcr(PLB4A0_ACR) & ~PLB4Ax_ACR_PPM_MASK) | PLB4Ax_ACR_PPM_FAIR;
+	reg = (reg & ~PLB4Ax_ACR_HBU_MASK) | PLB4Ax_ACR_HBU_ENABLED;
+	reg = (reg & ~PLB4Ax_ACR_RDP_MASK) | PLB4Ax_ACR_RDP_4DEEP;
+	reg = (reg & ~PLB4Ax_ACR_WRP_MASK) | PLB4Ax_ACR_WRP_2DEEP;
+	mtdcr(PLB4A0_ACR, reg);
 
 	/* Segment1 */
-	reg = (mfdcr(PLB1_ACR) & ~PLB1_ACR_PPM_MASK) | PLB1_ACR_PPM_FAIR;
-	reg = (reg & ~PLB1_ACR_HBU_MASK) | PLB1_ACR_HBU_ENABLED;
-	reg = (reg & ~PLB1_ACR_RDP_MASK) | PLB1_ACR_RDP_4DEEP;
-	reg = (reg & ~PLB1_ACR_WRP_MASK) | PLB1_ACR_WRP_2DEEP;
-	mtdcr(PLB1_ACR, reg);
+	reg = (mfdcr(PLB4A1_ACR) & ~PLB4Ax_ACR_PPM_MASK) | PLB4Ax_ACR_PPM_FAIR;
+	reg = (reg & ~PLB4Ax_ACR_HBU_MASK) | PLB4Ax_ACR_HBU_ENABLED;
+	reg = (reg & ~PLB4Ax_ACR_RDP_MASK) | PLB4Ax_ACR_RDP_4DEEP;
+	reg = (reg & ~PLB4Ax_ACR_WRP_MASK) | PLB4Ax_ACR_WRP_2DEEP;
+	mtdcr(PLB4A1_ACR, reg);
 
 #if defined(CONFIG_SYS_PCI_BOARD_FIXUP_IRQ)
 	hose->fixup_irq = board_pci_fixup_irq;

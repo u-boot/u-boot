@@ -86,7 +86,7 @@ unsigned long flash_init(void)
 	unsigned long ebc_boot_size;
 	unsigned long boot_selection;
 
-	mfsdr(sdr_pstrp0, val);
+	mfsdr(SDR0_PINSTP, val);
 	index = (val & SDR0_PSTRP0_BOOTSTRAP_MASK) >> 29;
 
 	if ((index == 5) || (index == 7)) {
