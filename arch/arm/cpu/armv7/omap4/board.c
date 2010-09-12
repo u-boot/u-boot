@@ -30,6 +30,7 @@
 #include <common.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/sizes.h>
 
 /*
  * Routine: s_init
@@ -66,6 +67,33 @@ void watchdog_init(void)
 	writel(WD_UNLOCK2, &wd2_base->wspr);
 }
 
+
+/*
+ * This function finds the SDRAM size available in the system
+ * based on DMM section configurations
+ * This is needed because the size of memory installed may be
+ * different on different versions of the board
+ */
+u32 sdram_size(void)
+{
+	u32 section, i, total_size = 0, size, addr;
+	for (i = 0; i < 4; i++) {
+		section	= __raw_readl(DMM_LISA_MAP_BASE + i*4);
+		addr = section & DMM_LISA_MAP_SYS_ADDR_MASK;
+		/* See if the address is valid */
+		if ((addr >= OMAP44XX_DRAM_ADDR_SPACE_START) &&
+		    (addr < OMAP44XX_DRAM_ADDR_SPACE_END)) {
+			size	= ((section & DMM_LISA_MAP_SYS_SIZE_MASK) >>
+				    DMM_LISA_MAP_SYS_SIZE_SHIFT);
+			size	= 1 << size;
+			size	*= SZ_16M;
+			total_size += size;
+		}
+	}
+	return total_size;
+}
+
+
 /*
  * Routine: dram_init
  * Description: sets uboots idea of sdram size
@@ -75,7 +103,7 @@ int dram_init(void)
 	DECLARE_GLOBAL_DATA_PTR;
 
 	gd->bd->bi_dram[0].start = 0x80000000;
-	gd->bd->bi_dram[0].size = 512 << 20;
+	gd->bd->bi_dram[0].size = sdram_size();
 	return 0;
 }
 
