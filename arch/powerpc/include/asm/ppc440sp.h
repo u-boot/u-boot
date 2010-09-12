@@ -23,8 +23,6 @@
 
 #define CONFIG_SDRAM_PPC4xx_IBM_DDR2	/* IBM DDR(2) controller */
 
-#define CONFIG_SYS_PPC4xx_PLB4_ARBITER
-
 /*
  * Some SoC specific registers (not common for all 440 SoC's)
  */

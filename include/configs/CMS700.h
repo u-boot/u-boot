@@ -301,12 +301,12 @@
 /* GPIO Output:		OSR=00, ISR=00, TSR=00, TCR=1 */
 /* Alt. Funtion Input:	OSR=00, ISR=01, TSR=00, TCR=0 */
 /* Alt. Funtion Output: OSR=01, ISR=00, TSR=00, TCR=1 */
-#define CONFIG_SYS_GPIO0_OSRH		0x40000500  /*	0 ... 15 */
-#define CONFIG_SYS_GPIO0_OSRL		0x00000110  /* 16 ... 31 */
-#define CONFIG_SYS_GPIO0_ISR1H		0x00000000  /*	0 ... 15 */
-#define CONFIG_SYS_GPIO0_ISR1L		0x14000045  /* 16 ... 31 */
-#define CONFIG_SYS_GPIO0_TSRH		0x00000000  /*	0 ... 15 */
-#define CONFIG_SYS_GPIO0_TSRL		0x00000000  /* 16 ... 31 */
+#define CONFIG_SYS_GPIO0_OSRL		0x40000500  /*	0 ... 15 */
+#define CONFIG_SYS_GPIO0_OSRH		0x00000110  /* 16 ... 31 */
+#define CONFIG_SYS_GPIO0_ISR1L		0x00000000  /*	0 ... 15 */
+#define CONFIG_SYS_GPIO0_ISR1H		0x14000045  /* 16 ... 31 */
+#define CONFIG_SYS_GPIO0_TSRL		0x00000000  /*	0 ... 15 */
+#define CONFIG_SYS_GPIO0_TSRH		0x00000000  /* 16 ... 31 */
 #define CONFIG_SYS_GPIO0_TCR		0xF7FE0014  /*	0 ... 31 */
 
 #define CONFIG_SYS_EEPROM_WP		(0x80000000 >> 8)    /* GPIO8 */

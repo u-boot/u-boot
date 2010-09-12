@@ -266,7 +266,7 @@ cpu_init_f (void)
 	/*
 	 * Set EMAC noise filter bits
 	 */
-	mtdcr(CPC0_EPCTL, CPC0_EPRCSR_E0NFE | CPC0_EPRCSR_E1NFE);
+	mtdcr(CPC0_EPCTL, CPC0_EPCTL_E0NFE | CPC0_EPCTL_E1NFE);
 #endif /* CONFIG_405EP */
 
 #if defined(CONFIG_SYS_4xx_GPIO_TABLE)

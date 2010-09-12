@@ -312,10 +312,10 @@ static void serial_divs (int baudrate, unsigned long *pudiv,
 	}
 
 	*pudiv = udiv;
-	mfcpr(CPC0_PERD0, reg);
+	mfcpr(CPR0_PERD0, reg);
 	reg &= ~0x0000ffff;
 	reg |= ((udiv - 0) << 8) | (udiv - 0);
-	mtcpr(CPC0_PERD0, reg);
+	mtcpr(CPR0_PERD0, reg);
 	*pbdiv = div / udiv;
 }
 #endif /* defined(CONFIG_440) && !defined(CONFIG_SYS_EXT_SERIAL_CLK) */

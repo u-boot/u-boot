@@ -95,6 +95,8 @@
 #define PLB4A0_ACR	0x0081
 #define PLB4A1_ACR	0x0089
 
+/* CPR register declarations */
+
 #define PLB4Ax_ACR_PPM_MASK		0xf0000000
 #define PLB4Ax_ACR_PPM_FIXED		0x00000000
 #define PLB4Ax_ACR_PPM_FAIR		0xd0000000
@@ -109,6 +111,73 @@
 #define PLB4Ax_ACR_WRP_MASK		0x01000000
 #define PLB4Ax_ACR_WRP_DISABLED		0x00000000
 #define PLB4Ax_ACR_WRP_2DEEP		0x01000000
+
+/*
+ * External Bus Controller
+ */
+/* Values for EBC0_CFGADDR register - indirect addressing of these regs */
+#define PB0CR		0x00	/* periph bank 0 config reg		*/
+#define PB1CR		0x01	/* periph bank 1 config reg		*/
+#define PB2CR		0x02	/* periph bank 2 config reg		*/
+#define PB3CR		0x03	/* periph bank 3 config reg		*/
+#define PB4CR		0x04	/* periph bank 4 config reg		*/
+#define PB5CR		0x05	/* periph bank 5 config reg		*/
+#define PB6CR		0x06	/* periph bank 6 config reg		*/
+#define PB7CR		0x07	/* periph bank 7 config reg		*/
+#define PB0AP		0x10	/* periph bank 0 access parameters	*/
+#define PB1AP		0x11	/* periph bank 1 access parameters	*/
+#define PB2AP		0x12	/* periph bank 2 access parameters	*/
+#define PB3AP		0x13	/* periph bank 3 access parameters	*/
+#define PB4AP		0x14	/* periph bank 4 access parameters	*/
+#define PB5AP		0x15	/* periph bank 5 access parameters	*/
+#define PB6AP		0x16	/* periph bank 6 access parameters	*/
+#define PB7AP		0x17	/* periph bank 7 access parameters	*/
+#define PBEAR		0x20	/* periph bus error addr reg		*/
+#define PBESR0		0x21	/* periph bus error status reg 0	*/
+#define PBESR1		0x22	/* periph bus error status reg 1	*/
+#define EBC0_CFG	0x23	/* external bus configuration reg	*/
+
+/*
+ * GPIO macro register defines
+ */
+/* todo: merge with gpio.h header */
+#define GPIO_BASE		GPIO0_BASE
+
+#define GPIO0_OR		(GPIO0_BASE + 0x0)
+#define GPIO0_TCR		(GPIO0_BASE + 0x4)
+#define GPIO0_OSRL		(GPIO0_BASE + 0x8)
+#define GPIO0_OSRH		(GPIO0_BASE + 0xC)
+#define GPIO0_TSRL		(GPIO0_BASE + 0x10)
+#define GPIO0_TSRH		(GPIO0_BASE + 0x14)
+#define GPIO0_ODR		(GPIO0_BASE + 0x18)
+#define GPIO0_IR		(GPIO0_BASE + 0x1C)
+#define GPIO0_RR1		(GPIO0_BASE + 0x20)
+#define GPIO0_RR2		(GPIO0_BASE + 0x24)
+#define GPIO0_RR3		(GPIO0_BASE + 0x28)
+#define GPIO0_ISR1L		(GPIO0_BASE + 0x30)
+#define GPIO0_ISR1H		(GPIO0_BASE + 0x34)
+#define GPIO0_ISR2L		(GPIO0_BASE + 0x38)
+#define GPIO0_ISR2H		(GPIO0_BASE + 0x3C)
+#define GPIO0_ISR3L		(GPIO0_BASE + 0x40)
+#define GPIO0_ISR3H		(GPIO0_BASE + 0x44)
+
+#define GPIO1_OR		(GPIO1_BASE + 0x0)
+#define GPIO1_TCR		(GPIO1_BASE + 0x4)
+#define GPIO1_OSRL		(GPIO1_BASE + 0x8)
+#define GPIO1_OSRH		(GPIO1_BASE + 0xC)
+#define GPIO1_TSRL		(GPIO1_BASE + 0x10)
+#define GPIO1_TSRH		(GPIO1_BASE + 0x14)
+#define GPIO1_ODR		(GPIO1_BASE + 0x18)
+#define GPIO1_IR		(GPIO1_BASE + 0x1C)
+#define GPIO1_RR1		(GPIO1_BASE + 0x20)
+#define GPIO1_RR2		(GPIO1_BASE + 0x24)
+#define GPIO1_RR3		(GPIO1_BASE + 0x28)
+#define GPIO1_ISR1L		(GPIO1_BASE + 0x30)
+#define GPIO1_ISR1H		(GPIO1_BASE + 0x34)
+#define GPIO1_ISR2L		(GPIO1_BASE + 0x38)
+#define GPIO1_ISR2H		(GPIO1_BASE + 0x3C)
+#define GPIO1_ISR3L		(GPIO1_BASE + 0x40)
+#define GPIO1_ISR3H		(GPIO1_BASE + 0x44)
 
 /* General Purpose Timer (GPT) Register Offsets */
 #define GPT0_TBC		0x00000000

@@ -902,7 +902,7 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 	/*
 	 * Read CPR_PRIMAD register
 	 */
-	mfcpr(CPC0_PRIMAD, cpr_primad);
+	mfcpr(CPR0_PRIMAD, cpr_primad);
 
 	/*
 	 * Determine PLB_DIV.

@@ -25,8 +25,6 @@
 
 #define CONFIG_NAND_NDFC
 
-#define CONFIG_SYS_PPC4xx_PLB4_ARBITER
-
 /*
  * Some SoC specific registers
  */

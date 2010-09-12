@@ -284,12 +284,12 @@
  * GPIO0[28-29] - UART1 data signal input/output
  * GPIO0[30-31] - EMAC0 and EMAC1 reject packet inputs
  */
-#define CONFIG_SYS_GPIO0_OSRH          0x55555555
-#define CONFIG_SYS_GPIO0_OSRL          0x40000110
-#define CONFIG_SYS_GPIO0_ISR1H         0x00000000
-#define CONFIG_SYS_GPIO0_ISR1L         0x15555445
-#define CONFIG_SYS_GPIO0_TSRH          0x00000000
+#define CONFIG_SYS_GPIO0_OSRL          0x55555555
+#define CONFIG_SYS_GPIO0_OSRH          0x40000110
+#define CONFIG_SYS_GPIO0_ISR1L         0x00000000
+#define CONFIG_SYS_GPIO0_ISR1H         0x15555445
 #define CONFIG_SYS_GPIO0_TSRL          0x00000000
+#define CONFIG_SYS_GPIO0_TSRH          0x00000000
 #define CONFIG_SYS_GPIO0_TCR           0xFFFF8014
 
 /*-----------------------------------------------------------------------
