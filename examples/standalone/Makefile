@@ -82,6 +82,11 @@ CFLAGS := $(filter-out $(RELFLAGS),$(CFLAGS))
 CPPFLAGS := $(filter-out $(RELFLAGS),$(CPPFLAGS))
 endif
 
+# We don't want gcc reordering functions if possible.  This ensures that an
+# application's entry point will be the first function in the application's
+# source file.
+CFLAGS += $(call cc-option,-fno-toplevel-reorder)
+
 all:	$(obj).depend $(OBJS) $(LIB) $(SREC) $(BIN) $(ELF)
 
 #########################################################################
