@@ -65,9 +65,7 @@
 #define CONFIG_SYS_IB_EPLD		0xc0500000	/* CS 7 */
 
 /* SRAM */
-#define SRAM_BASE		CONFIG_SYS_SRAM_BASE
-#define SRAM_LEN		0x1fffff
-#define SRAM_END		(SRAM_BASE + SRAM_LEN)
+#define CONFIG_SYS_SRAM_SIZE	0x200000
 
 /*
  * GPIO configuration
