@@ -27,6 +27,7 @@
 
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pmc.h>
+#include <asm/arch/at91_pit.h>
 #include <asm/arch/at91_gpbr.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/io.h>
@@ -38,6 +39,21 @@
 int arch_cpu_init(void)
 {
 	return at91_clock_init(CONFIG_SYS_AT91_MAIN_CLOCK);
+}
+
+void arch_preboot_os(void)
+{
+	ulong cpiv;
+	at91_pit_t *pit = (at91_pit_t *) AT91_PIT_BASE;
+
+	cpiv = AT91_PIT_MR_PIV_MASK(readl(&pit->piir));
+
+	/*
+	 * Disable PITC
+	 * Add 0x1000 to current counter to stop it faster
+	 * without waiting for wrapping back to 0
+	 */
+	writel(cpiv + 0x1000, &pit->mr);
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
