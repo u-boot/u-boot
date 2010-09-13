@@ -337,6 +337,10 @@ int do_mem_cmp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		ngood++;
 		addr1 += size;
 		addr2 += size;
+
+		/* reset watchdog from time to time */
+		if ((count % (64 << 10)) == 0)
+			WATCHDOG_RESET();
 	}
 
 	printf("Total of %ld %s%s were the same\n",
@@ -447,6 +451,10 @@ int do_mem_cp ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			*((u_char *)dest) = *((u_char *)addr);
 		addr += size;
 		dest += size;
+
+		/* reset watchdog from time to time */
+		if ((count % (64 << 10)) == 0)
+			WATCHDOG_RESET();
 	}
 	return 0;
 }
