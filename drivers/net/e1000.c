@@ -1099,6 +1099,20 @@ e1000_swfw_sync_acquire(struct e1000_hw *hw, uint16_t mask)
 	return E1000_SUCCESS;
 }
 
+static boolean_t e1000_is_second_port(struct e1000_hw *hw)
+{
+	switch (hw->mac_type) {
+	case e1000_80003es2lan:
+	case e1000_82546:
+	case e1000_82571:
+		if (E1000_READ_REG(hw, STATUS) & E1000_STATUS_FUNC_1)
+			return TRUE;
+		/* Fallthrough */
+	default:
+		return FALSE;
+	}
+}
+
 /******************************************************************************
  * Reads the adapter's MAC address from the EEPROM and inverts the LSB for the
  * second function of dual function devices
@@ -1125,11 +1139,11 @@ e1000_read_mac_addr(struct eth_device *nic)
 		nic->enetaddr[i] = eeprom_data & 0xff;
 		nic->enetaddr[i + 1] = (eeprom_data >> 8) & 0xff;
 	}
-	if ((hw->mac_type == e1000_82546) &&
-	    (E1000_READ_REG(hw, STATUS) & E1000_STATUS_FUNC_1)) {
-		/* Invert the last bit if this is the second device */
-		nic->enetaddr[5] += 1;
-	}
+
+	/* Invert the last bit if this is the second device */
+	if (e1000_is_second_port(hw))
+		nic->enetaddr[5] ^= 1;
+
 #ifdef CONFIG_E1000_FALLBACK_MAC
 	if ( *(u32*)(nic->enetaddr) == 0 || *(u32*)(nic->enetaddr) == ~0 ) {
 		unsigned char fb_mac[NODE_ADDRESS_SIZE] = CONFIG_E1000_FALLBACK_MAC;
@@ -2535,16 +2549,13 @@ e1000_check_mng_mode(struct e1000_hw *hw)
 static int32_t
 e1000_write_kmrn_reg(struct e1000_hw *hw, uint32_t reg_addr, uint16_t data)
 {
+	uint16_t swfw = E1000_SWFW_PHY0_SM;
 	uint32_t reg_val;
-	uint16_t swfw;
 	DEBUGFUNC();
 
-	if ((hw->mac_type == e1000_80003es2lan) &&
-		(E1000_READ_REG(hw, STATUS) & E1000_STATUS_FUNC_1)) {
+	if (e1000_is_second_port(hw))
 		swfw = E1000_SWFW_PHY1_SM;
-	} else {
-		swfw = E1000_SWFW_PHY0_SM;
-	}
+
 	if (e1000_swfw_sync_acquire(hw, swfw))
 		return -E1000_ERR_SWFW_SYNC;
 
@@ -2559,16 +2570,13 @@ e1000_write_kmrn_reg(struct e1000_hw *hw, uint32_t reg_addr, uint16_t data)
 static int32_t
 e1000_read_kmrn_reg(struct e1000_hw *hw, uint32_t reg_addr, uint16_t *data)
 {
+	uint16_t swfw = E1000_SWFW_PHY0_SM;
 	uint32_t reg_val;
-	uint16_t swfw;
 	DEBUGFUNC();
 
-	if ((hw->mac_type == e1000_80003es2lan) &&
-	    (E1000_READ_REG(hw, STATUS) & E1000_STATUS_FUNC_1)) {
+	if (e1000_is_second_port(hw))
 		swfw = E1000_SWFW_PHY1_SM;
-	} else {
-		swfw = E1000_SWFW_PHY0_SM;
-	}
+
 	if (e1000_swfw_sync_acquire(hw, swfw))
 		return -E1000_ERR_SWFW_SYNC;
 
@@ -4266,11 +4274,13 @@ e1000_get_phy_cfg_done(struct e1000_hw *hw)
 	default:
 		mdelay(10);
 		break;
+
 	case e1000_80003es2lan:
 		/* Separate *_CFG_DONE_* bit for each port */
-		if (E1000_READ_REG(hw, STATUS) & E1000_STATUS_FUNC_1)
+		if (e1000_is_second_port(hw))
 			cfg_mask = E1000_EEPROM_CFG_DONE_PORT_1;
-	/* Fall Through */
+		/* Fall Through */
+
 	case e1000_82571:
 	case e1000_82572:
 		while (timeout) {
@@ -4299,10 +4309,10 @@ e1000_get_phy_cfg_done(struct e1000_hw *hw)
 int32_t
 e1000_phy_hw_reset(struct e1000_hw *hw)
 {
+	uint16_t swfw = E1000_SWFW_PHY0_SM;
 	uint32_t ctrl, ctrl_ext;
 	uint32_t led_ctrl;
 	int32_t ret_val;
-	uint16_t swfw;
 
 	DEBUGFUNC();
 
@@ -4315,16 +4325,14 @@ e1000_phy_hw_reset(struct e1000_hw *hw)
 	DEBUGOUT("Resetting Phy...\n");
 
 	if (hw->mac_type > e1000_82543) {
-		if ((hw->mac_type == e1000_80003es2lan) &&
-			(E1000_READ_REG(hw, STATUS) & E1000_STATUS_FUNC_1)) {
+		if (e1000_is_second_port(hw))
 			swfw = E1000_SWFW_PHY1_SM;
-		} else {
-			swfw = E1000_SWFW_PHY0_SM;
-		}
+
 		if (e1000_swfw_sync_acquire(hw, swfw)) {
 			DEBUGOUT("Unable to acquire swfw sync\n");
 			return -E1000_ERR_SWFW_SYNC;
 		}
+
 		/* Read the device control register and assert the E1000_CTRL_PHY_RST
 		 * bit. Then, take it out of reset.
 		 */
@@ -4785,14 +4793,6 @@ e1000_sw_init(struct eth_device *nic, int cardnum)
 		hw->phy_init_script = 1;
 		break;
 	}
-
-	/* lan a vs. lan b settings */
-	if (hw->mac_type == e1000_82546)
-		/*this also works w/ multiple 82546 cards */
-		/*but not if they're intermingled /w other e1000s */
-		hw->lan_loc = (cardnum % 2) ? e1000_lan_b : e1000_lan_a;
-	else
-		hw->lan_loc = e1000_lan_a;
 
 	/* flow control settings */
 	hw->fc_high_water = E1000_FC_HIGH_THRESH;

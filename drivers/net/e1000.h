@@ -113,11 +113,6 @@ typedef enum {
 	e1000_100_full = 3
 } e1000_speed_duplex_type;
 
-typedef enum {
-	e1000_lan_a = 0,
-	e1000_lan_b = 1
-} e1000_lan_loc;
-
 /* Flow Control Settings */
 typedef enum {
 	e1000_fc_none = 0,
@@ -1059,7 +1054,6 @@ struct e1000_hw {
 	uint32_t phy_init_script;
 	uint32_t txd_cmd;
 	e1000_media_type media_type;
-	e1000_lan_loc lan_loc;
 	e1000_fc_type fc;
 	e1000_bus_type bus_type;
 #if 0
