@@ -364,6 +364,9 @@ static void print_part_header (const char *type, block_dev_desc_t * dev_desc)
 	case IF_TYPE_DOC:
 		puts ("DOC");
 		break;
+	case IF_TYPE_MMC:
+		puts ("MMC");
+		break;
 	default:
 		puts ("UNKNOWN");
 		break;
