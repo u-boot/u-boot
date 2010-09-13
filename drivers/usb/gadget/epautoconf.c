@@ -32,7 +32,7 @@
 /* we must assign addresses for configurable endpoints (like net2280) */
 static unsigned epnum;
 
-// #define MANY_ENDPOINTS
+/* #define MANY_ENDPOINTS */
 #ifdef MANY_ENDPOINTS
 /* more than 15 configurable endpoints */
 static unsigned in_epnum;
@@ -55,8 +55,7 @@ static unsigned in_epnum;
  * NOTE:  each endpoint is unidirectional, as specified by its USB
  * descriptor; and isn't specific to a configuration or altsetting.
  */
-static int
-ep_matches (
+static int ep_matches(
 	struct usb_gadget		*gadget,
 	struct usb_ep			*ep,
 	struct usb_endpoint_descriptor	*desc
@@ -83,37 +82,37 @@ ep_matches (
 	 * direction-restriction:  "in", "out".
 	 */
 	if ('-' != ep->name[2]) {
-		tmp = strrchr (ep->name, '-');
+		tmp = strrchr(ep->name, '-');
 		if (tmp) {
 			switch (type) {
 			case USB_ENDPOINT_XFER_INT:
 				/* bulk endpoints handle interrupt transfers,
 				 * except the toggle-quirky iso-synch kind
 				 */
-				if ('s' == tmp[2])	// == "-iso"
+				if ('s' == tmp[2])	/* == "-iso" */
 					return 0;
 				/* for now, avoid PXA "interrupt-in";
 				 * it's documented as never using DATA1.
 				 */
-				if (gadget_is_pxa (gadget)
-						&& 'i' == tmp [1])
+				if (gadget_is_pxa(gadget)
+						&& 'i' == tmp[1])
 					return 0;
 				break;
 			case USB_ENDPOINT_XFER_BULK:
-				if ('b' != tmp[1])	// != "-bulk"
+				if ('b' != tmp[1])	/* != "-bulk" */
 					return 0;
 				break;
 			case USB_ENDPOINT_XFER_ISOC:
-				if ('s' != tmp[2])	// != "-iso"
+				if ('s' != tmp[2])	/* != "-iso" */
 					return 0;
 			}
 		} else {
-			tmp = ep->name + strlen (ep->name);
+			tmp = ep->name + strlen(ep->name);
 		}
 
 		/* direction-restriction:  "..in-..", "out-.." */
 		tmp--;
-		if (!isdigit (*tmp)) {
+		if (!isdigit(*tmp)) {
 			if (desc->bEndpointAddress & USB_DIR_IN) {
 				if ('n' != *tmp)
 					return 0;
@@ -155,8 +154,8 @@ ep_matches (
 	/* MATCH!! */
 
 	/* report address */
-	if (isdigit (ep->name [2])) {
-		u8	num = simple_strtoul (&ep->name [2], NULL, 10);
+	if (isdigit(ep->name[2])) {
+		u8	num = simple_strtoul(&ep->name[2], NULL, 10);
 		desc->bEndpointAddress |= num;
 #ifdef	MANY_ENDPOINTS
 	} else if (desc->bEndpointAddress & USB_DIR_IN) {
@@ -183,12 +182,12 @@ ep_matches (
 }
 
 static struct usb_ep *
-find_ep (struct usb_gadget *gadget, const char *name)
+find_ep(struct usb_gadget *gadget, const char *name)
 {
 	struct usb_ep	*ep;
 
-	list_for_each_entry (ep, &gadget->ep_list, ep_list) {
-		if (0 == strcmp (ep->name, name))
+	list_for_each_entry(ep, &gadget->ep_list, ep_list) {
+		if (0 == strcmp(ep->name, name))
 			return ep;
 	}
 	return NULL;
@@ -224,7 +223,7 @@ find_ep (struct usb_gadget *gadget, const char *name)
  *
  * On failure, this returns a null endpoint descriptor.
  */
-struct usb_ep * usb_ep_autoconfig (
+struct usb_ep *usb_ep_autoconfig(
 	struct usb_gadget		*gadget,
 	struct usb_endpoint_descriptor	*desc
 )
@@ -237,44 +236,44 @@ struct usb_ep * usb_ep_autoconfig (
 	/* First, apply chip-specific "best usage" knowledge.
 	 * This might make a good usb_gadget_ops hook ...
 	 */
-	if (gadget_is_net2280 (gadget) && type == USB_ENDPOINT_XFER_INT) {
+	if (gadget_is_net2280(gadget) && type == USB_ENDPOINT_XFER_INT) {
 		/* ep-e, ep-f are PIO with only 64 byte fifos */
-		ep = find_ep (gadget, "ep-e");
-		if (ep && ep_matches (gadget, ep, desc))
+		ep = find_ep(gadget, "ep-e");
+		if (ep && ep_matches(gadget, ep, desc))
 			return ep;
-		ep = find_ep (gadget, "ep-f");
-		if (ep && ep_matches (gadget, ep, desc))
+		ep = find_ep(gadget, "ep-f");
+		if (ep && ep_matches(gadget, ep, desc))
 			return ep;
 
-	} else if (gadget_is_goku (gadget)) {
+	} else if (gadget_is_goku(gadget)) {
 		if (USB_ENDPOINT_XFER_INT == type) {
 			/* single buffering is enough */
-			ep = find_ep (gadget, "ep3-bulk");
-			if (ep && ep_matches (gadget, ep, desc))
+			ep = find_ep(gadget, "ep3-bulk");
+			if (ep && ep_matches(gadget, ep, desc))
 				return ep;
 		} else if (USB_ENDPOINT_XFER_BULK == type
 				&& (USB_DIR_IN & desc->bEndpointAddress)) {
 			/* DMA may be available */
-			ep = find_ep (gadget, "ep2-bulk");
-			if (ep && ep_matches (gadget, ep, desc))
+			ep = find_ep(gadget, "ep2-bulk");
+			if (ep && ep_matches(gadget, ep, desc))
 				return ep;
 		}
 
-	} else if (gadget_is_sh (gadget) && USB_ENDPOINT_XFER_INT == type) {
+	} else if (gadget_is_sh(gadget) && USB_ENDPOINT_XFER_INT == type) {
 		/* single buffering is enough; maybe 8 byte fifo is too */
-		ep = find_ep (gadget, "ep3in-bulk");
-		if (ep && ep_matches (gadget, ep, desc))
+		ep = find_ep(gadget, "ep3in-bulk");
+		if (ep && ep_matches(gadget, ep, desc))
 			return ep;
 
-	} else if (gadget_is_mq11xx (gadget) && USB_ENDPOINT_XFER_INT == type) {
-		ep = find_ep (gadget, "ep1-bulk");
-		if (ep && ep_matches (gadget, ep, desc))
+	} else if (gadget_is_mq11xx(gadget) && USB_ENDPOINT_XFER_INT == type) {
+		ep = find_ep(gadget, "ep1-bulk");
+		if (ep && ep_matches(gadget, ep, desc))
 			return ep;
 	}
 
 	/* Second, look at endpoints until an unclaimed one looks usable */
-	list_for_each_entry (ep, &gadget->ep_list, ep_list) {
-		if (ep_matches (gadget, ep, desc))
+	list_for_each_entry(ep, &gadget->ep_list, ep_list) {
+		if (ep_matches(gadget, ep, desc))
 			return ep;
 	}
 
@@ -291,11 +290,11 @@ struct usb_ep * usb_ep_autoconfig (
  * state such as ep->driver_data and the record of assigned endpoints
  * used by usb_ep_autoconfig().
  */
-void usb_ep_autoconfig_reset (struct usb_gadget *gadget)
+void usb_ep_autoconfig_reset(struct usb_gadget *gadget)
 {
 	struct usb_ep	*ep;
 
-	list_for_each_entry (ep, &gadget->ep_list, ep_list) {
+	list_for_each_entry(ep, &gadget->ep_list, ep_list) {
 		ep->driver_data = NULL;
 	}
 #ifdef	MANY_ENDPOINTS

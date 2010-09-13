@@ -69,8 +69,8 @@
 #define USB_RECIP_ENDPOINT		0x02
 #define USB_RECIP_OTHER			0x03
 /* From Wireless USB 1.0 */
-#define USB_RECIP_PORT 			0x04
-#define USB_RECIP_RPIPE 		0x05
+#define USB_RECIP_PORT			0x04
+#define USB_RECIP_RPIPE			0x05
 
 /*
  * Standard requests, for the bRequest field of a SETUP packet.
