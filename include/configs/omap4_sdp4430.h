@@ -63,10 +63,10 @@
 
 /*
  * Size of malloc() pool
- * Total Size Environment - 256k
+ * Total Size Environment - 128k
  * Malloc - add 256k
  */
-#define CONFIG_ENV_SIZE			(256 << 10)
+#define CONFIG_ENV_SIZE			(128 << 10)
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (256 << 10))
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
 						/* initial data */
@@ -89,12 +89,9 @@
 #define CONFIG_CONS_INDEX		3
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE
 
-#define CONFIG_ENV_IS_NOWHERE
-
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
-
 /* I2C  */
 #define CONFIG_HARD_I2C			1
 #define CONFIG_SYS_I2C_SPEED		100000
@@ -113,6 +110,11 @@
 #define CONFIG_OMAP_HSMMC		1
 #define CONFIG_SYS_MMC_SET_DEV		1
 #define CONFIG_DOS_PARTITION		1
+
+/* MMC ENV related defines */
+#define CONFIG_ENV_IS_IN_MMC		1
+#define CONFIG_SYS_MMC_ENV_DEV		1	/* SLOT2: eMMC(1) */
+#define CONFIG_ENV_OFFSET		0xE0000
 
 /* USB */
 #define CONFIG_MUSB_UDC			1
@@ -134,6 +136,7 @@
 #define CONFIG_CMD_FAT		/* FAT support                  */
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support                  */
+#define CONFIG_CMD_SAVEENV
 
 /* Disabled commands */
 #undef CONFIG_CMD_NET
