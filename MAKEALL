@@ -727,7 +727,7 @@ build_target() {
 	target=$1
 
 	${MAKE} distclean >/dev/null
-	${MAKE} ${target}_config
+	${MAKE} -s ${target}_config
 
 	${MAKE} ${JOBS} all 2>&1 >${LOG_DIR}/$target.MAKELOG \
 				| tee ${LOG_DIR}/$target.ERR
