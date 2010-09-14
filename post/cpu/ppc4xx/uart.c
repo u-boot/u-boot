@@ -4,6 +4,8 @@
  *
  * Author: Igor Lisitsin <igor@emcraft.com>
  *
+ * Copyright 2010, Stefan Roese, DENX Software Engineering, sr@denx.de
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -24,6 +26,9 @@
  */
 
 #include <common.h>
+#include <ppc4xx.h>
+#include <ns16550.h>
+#include <asm/io.h>
 
 /*
  * UART test
@@ -119,32 +124,23 @@
 #define UDIV_MAX        32
 #endif
 
-#define UART_RBR    0x00
-#define UART_THR    0x00
-#define UART_IER    0x01
-#define UART_IIR    0x02
-#define UART_FCR    0x02
-#define UART_LCR    0x03
-#define UART_MCR    0x04
-#define UART_LSR    0x05
-#define UART_MSR    0x06
-#define UART_SCR    0x07
-#define UART_DLL    0x00
-#define UART_DLM    0x01
-
-/*
- * Line Status Register.
- */
-#define asyncLSRDataReady1            0x01
-#define asyncLSROverrunError1         0x02
-#define asyncLSRParityError1          0x04
-#define asyncLSRFramingError1         0x08
-#define asyncLSRBreakInterrupt1       0x10
-#define asyncLSRTxHoldEmpty1          0x20
-#define asyncLSRTxShiftEmpty1         0x40
-#define asyncLSRRxFifoError1          0x80
-
 DECLARE_GLOBAL_DATA_PTR;
+
+static void uart_post_init_common(struct NS16550 *com_port, unsigned short bdiv)
+{
+	volatile char val;
+
+	out_8(&com_port->lcr, 0x80);	/* set DLAB bit */
+	out_8(&com_port->dll, bdiv);	/* set baudrate divisor */
+	out_8(&com_port->dlm, bdiv >> 8); /* set baudrate divisor */
+	out_8(&com_port->lcr, 0x03);	/* clear DLAB; set 8 bits, no parity */
+	out_8(&com_port->fcr, 0x00);	/* disable FIFO */
+	out_8(&com_port->mcr, 0x10);	/* enable loopback mode */
+	val = in_8(&com_port->lsr);	/* clear line status */
+	val = in_8(&com_port->rbr);	/* read receive buffer */
+	out_8(&com_port->scr, 0x00);	/* set scratchpad */
+	out_8(&com_port->ier, 0x00);	/* set interrupt enable reg */
+}
 
 #if defined(CONFIG_440) || defined(CONFIG_405EX)
 #if !defined(CONFIG_SYS_EXT_SERIAL_CLOCK)
@@ -190,19 +186,18 @@ static void serial_divs (int baudrate, unsigned long *pudiv,
 }
 #endif
 
-static int uart_post_init (unsigned long dev_base)
+static int uart_post_init (struct NS16550 *com_port)
 {
 	unsigned long reg = 0;
 	unsigned long udiv;
 	unsigned short bdiv;
-	volatile char val;
 #ifdef CONFIG_SYS_EXT_SERIAL_CLOCK
 	unsigned long tmp;
 #endif
 	int i;
 
 	for (i = 0; i < 3500; i++) {
-		if (in8 (dev_base + UART_LSR) & asyncLSRTxHoldEmpty1)
+		if (in_8(&com_port->lsr) & UART_LSR_THRE)
 			break;
 		udelay (100);
 	}
@@ -239,34 +234,24 @@ static int uart_post_init (unsigned long dev_base)
 	MTREG(UART3_SDR, reg);
 #endif
 
-	out8(dev_base + UART_LCR, 0x80);	/* set DLAB bit */
-	out8(dev_base + UART_DLL, bdiv);	/* set baudrate divisor */
-	out8(dev_base + UART_DLM, bdiv >> 8);	/* set baudrate divisor */
-	out8(dev_base + UART_LCR, 0x03);	/* clear DLAB; set 8 bits, no parity */
-	out8(dev_base + UART_FCR, 0x00);	/* disable FIFO */
-	out8(dev_base + UART_MCR, 0x10);	/* enable loopback mode */
-	val = in8(dev_base + UART_LSR);		/* clear line status */
-	val = in8(dev_base + UART_RBR);		/* read receive buffer */
-	out8(dev_base + UART_SCR, 0x00);	/* set scratchpad */
-	out8(dev_base + UART_IER, 0x00);	/* set interrupt enable reg */
+	uart_post_init_common(com_port, bdiv);
 
 	return 0;
 }
 
 #else /* CONFIG_440 */
 
-static int uart_post_init (unsigned long dev_base)
+static int uart_post_init (struct NS16550 *com_port)
 {
 	unsigned long reg;
 	unsigned long tmp;
 	unsigned long clk;
 	unsigned long udiv;
 	unsigned short bdiv;
-	volatile char val;
 	int i;
 
 	for (i = 0; i < 3500; i++) {
-		if (in8 (dev_base + UART_LSR) & asyncLSRTxHoldEmpty1)
+		if (in_8(&com_port->lsr) & UART_LSR_THRE)
 			break;
 		udelay (100);
 	}
@@ -309,59 +294,51 @@ static int uart_post_init (unsigned long dev_base)
 	bdiv = (clk + tmp / 2) / tmp;
 #endif /* CONFIG_405EZ */
 
-	out8(dev_base + UART_LCR, 0x80);	/* set DLAB bit */
-	out8(dev_base + UART_DLL, bdiv);	/* set baudrate divisor */
-	out8(dev_base + UART_DLM, bdiv >> 8);	/* set baudrate divisor */
-	out8(dev_base + UART_LCR, 0x03);	/* clear DLAB; set 8 bits, no parity */
-	out8(dev_base + UART_FCR, 0x00);	/* disable FIFO */
-	out8(dev_base + UART_MCR, 0x10);	/* enable loopback mode */
-	val = in8(dev_base + UART_LSR);	/* clear line status */
-	val = in8(dev_base + UART_RBR);	/* read receive buffer */
-	out8(dev_base + UART_SCR, 0x00);	/* set scratchpad */
-	out8(dev_base + UART_IER, 0x00);	/* set interrupt enable reg */
+	uart_post_init_common(com_port, bdiv);
 
-	return (0);
+	return 0;
 }
 #endif /* CONFIG_440 */
 
-static void uart_post_putc (unsigned long dev_base, char c)
+static void uart_post_putc (struct NS16550 *com_port, char c)
 {
 	int i;
 
-	out8 (dev_base + UART_THR, c);	/* put character out */
+	out_8(&com_port->thr, c);	/* put character out */
 
 	/* Wait for transfer completion */
 	for (i = 0; i < 3500; i++) {
-		if (in8 (dev_base + UART_LSR) & asyncLSRTxHoldEmpty1)
+		if (in_8(&com_port->lsr) & UART_LSR_THRE)
 			break;
 		udelay (100);
 	}
 }
 
-static int uart_post_getc (unsigned long dev_base)
+static int uart_post_getc (struct NS16550 *com_port)
 {
 	int i;
 
 	/* Wait for character available */
 	for (i = 0; i < 3500; i++) {
-		if (in8 (dev_base + UART_LSR) & asyncLSRDataReady1)
+		if (in_8(&com_port->lsr) & UART_LSR_DR)
 			break;
 		udelay (100);
 	}
-	return 0xff & in8 (dev_base + UART_RBR);
+
+	return 0xff & in_8(&com_port->rbr);
 }
 
-static int test_ctlr (unsigned long dev_base, int index)
+static int test_ctlr (struct NS16550 *com_port, int index)
 {
 	int res = -1;
 	char test_str[] = "*** UART Test String ***\r\n";
 	int i;
 
-	uart_post_init (dev_base);
+	uart_post_init (com_port);
 
 	for (i = 0; i < sizeof (test_str) - 1; i++) {
-		uart_post_putc (dev_base, test_str[i]);
-		if (uart_post_getc (dev_base) != test_str[i])
+		uart_post_putc (com_port, test_str[i]);
+		if (uart_post_getc (com_port) != test_str[i])
 			goto done;
 	}
 	res = 0;
@@ -377,8 +354,8 @@ int uart_post_test (int flags)
 	int i, res = 0;
 	static unsigned long base[] = CONFIG_SYS_POST_UART_TABLE;
 
-	for (i = 0; i < sizeof (base) / sizeof (base[0]); i++) {
-		if (test_ctlr (base[i], i))
+	for (i = 0; i < ARRAY_SIZE(base); i++) {
+		if (test_ctlr((struct NS16550 *)base[i], i))
 			res = -1;
 	}
 	serial_reinit_all ();
