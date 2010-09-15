@@ -308,16 +308,16 @@ static void mpc83xx_pcie_init_bus(int bus, struct pci_region *reg)
  * The caller must have already set SCCR, SERDES and the PCIE_LAW BARs
  * must have been set to cover all of the requested regions.
  */
-void mpc83xx_pcie_init(int num_buses, struct pci_region **reg, int warmboot)
+void mpc83xx_pcie_init(int num_buses, struct pci_region **reg)
 {
 	int i;
 
 	/*
 	 * Release PCI RST Output signal.
 	 * Power on to RST high must be at least 100 ms as per PCI spec.
-	 * On warm boots only 1 ms is required.
+	 * On warm boots only 1 ms is required, but we play it safe.
 	 */
-	udelay(warmboot ? 1000 : 100000);
+	udelay(100000);
 
 	if (num_buses > ARRAY_SIZE(mpc83xx_pcie_cfg_space)) {
 		printf("Second PCIE host contoller not configured!\n");

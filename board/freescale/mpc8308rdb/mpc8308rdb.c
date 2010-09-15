@@ -100,7 +100,7 @@ void pci_init_board(void)
 	out_be32(&pcie_law[0].bar, CONFIG_SYS_PCIE1_BASE & LAWBAR_BAR);
 	out_be32(&pcie_law[0].ar, LBLAWAR_EN | LBLAWAR_512MB);
 
-	mpc83xx_pcie_init(1, pcie_reg, 0);
+	mpc83xx_pcie_init(1, pcie_reg);
 }
 /*
  * Miscellaneous late-boot configurations

@@ -108,7 +108,7 @@ void pci_init_board(void)
 
 	udelay(2000);
 
-	mpc83xx_pci_init(1, reg, 0);
+	mpc83xx_pci_init(1, reg);
 skip_pci:
 	/* There is no PEX in MPC8379 parts. */
 	if (PARTID_NO_E(spridr) == SPR_8379)

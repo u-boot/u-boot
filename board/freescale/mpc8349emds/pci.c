@@ -161,9 +161,9 @@ void pci_init_board(void)
 	udelay(2000);
 
 #ifndef CONFIG_MPC83XX_PCI2
-	mpc83xx_pci_init(1, reg, 0);
+	mpc83xx_pci_init(1, reg);
 #else
-	mpc83xx_pci_init(2, reg, 0);
+	mpc83xx_pci_init(2, reg);
 #endif
 }
 
@@ -182,7 +182,7 @@ void pci_init_board(void)
 	pci_law[1].bar = CONFIG_SYS_PCI1_IO_PHYS & LAWBAR_BAR;
 	pci_law[1].ar = LAWAR_EN | LAWAR_SIZE_4M;
 
-	mpc83xx_pci_init(1, reg, 0);
+	mpc83xx_pci_init(1, reg);
 
 	/* Configure PCI Inbound Translation Windows (3 1MB windows) */
 	pci_ctrl->pitar0 = 0x0;
