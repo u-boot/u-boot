@@ -88,19 +88,6 @@ version_string:
 	. = EXC_OFF_SYS_RESET
 	.globl	_start
 _start:
-	li	r21, BOOTFLAG_COLD  /* Normal Power-On	    */
-	nop
-	b	boot_cold
-
-	. = EXC_OFF_SYS_RESET + 0x10
-
-	.globl	_start_warm
-_start_warm:
-	li	r21, BOOTFLAG_WARM  /* Software reboot	    */
-	b	boot_warm
-
-boot_cold:
-boot_warm:
 	mfmsr	r5		    /* save msr contents    */
 
 	/* replace default MBAR base address from 0x80000000
@@ -144,9 +131,9 @@ boot_warm:
 	/* r3: IMMR */
 	bl	cpu_init_f	/* run low-level CPU init code (in Flash)*/
 
-	mr	r3, r21
-	/* r3: BOOTFLAG */
 	bl	board_init_f	/* run 1st part of board init code (in Flash)*/
+
+	/* NOTREACHED - board_init_f() does not return */
 
 /*
  * Vector Table

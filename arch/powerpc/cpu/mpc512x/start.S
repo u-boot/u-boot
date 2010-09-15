@@ -100,7 +100,6 @@ version_string:
 	.globl	_start
 	/* Start from here after reset/power on */
 _start:
-	li	r21, BOOTFLAG_COLD  /* Normal Power-On: Boot from FLASH */
 	b	boot_cold
 
 	.globl	_start_of_vectors
@@ -260,8 +259,6 @@ in_flash:
 	/* run low-level CPU init code (in Flash) */
 	bl	cpu_init_f
 
-	/* r3: BOOTFLAG */
-	mr	r3, r21
 	/* run 1st part of board init code (in Flash) */
 	bl	board_init_f
 

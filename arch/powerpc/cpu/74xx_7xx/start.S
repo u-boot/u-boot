@@ -94,17 +94,7 @@ version_string:
 	. = EXC_OFF_SYS_RESET
 	.globl	_start
 _start:
-	li	r21, BOOTFLAG_COLD	/* Normal Power-On: Boot from FLASH */
 	b	boot_cold
-	sync
-
-	. = EXC_OFF_SYS_RESET + 0x10
-
-	.globl	_start_warm
-_start_warm:
-	li	r21, BOOTFLAG_WARM	/* Software reboot		*/
-	b	boot_warm
-	sync
 
 	/* the boot code is located below the exception table */
 
@@ -188,7 +178,6 @@ _end_of_vectors:
 	. = 0x2000
 
 boot_cold:
-boot_warm:
 	/* disable everything */
 	li	r0, 0
 	mtspr	HID0, r0
@@ -288,14 +277,11 @@ in_flash:
 	bl	cpu_init_f
 	sync
 
-	mr	r3, r21
-
-	/* r3: BOOTFLAG */
 	/* run 1st part of board init code (from Flash)   */
 	bl	board_init_f
 	sync
 
-	/* NOTREACHED */
+	/* NOTREACHED - board_init_f() does not return */
 
 	.globl	invalidate_bats
 invalidate_bats:

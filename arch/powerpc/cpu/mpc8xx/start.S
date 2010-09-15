@@ -96,18 +96,6 @@ version_string:
 _start:
 	lis	r3, CONFIG_SYS_IMMR@h		/* position IMMR */
 	mtspr	638, r3
-	li	r21, BOOTFLAG_COLD	/* Normal Power-On: Boot from FLASH	*/
-	b	boot_cold
-
-	. = EXC_OFF_SYS_RESET + 0x10
-
-	.globl	_start_warm
-_start_warm:
-	li	r21, BOOTFLAG_WARM	/* Software reboot			*/
-	b	boot_warm
-
-boot_cold:
-boot_warm:
 
 	/* Initialize machine status; enable machine check interrupt		*/
 	/*----------------------------------------------------------------------*/
@@ -202,9 +190,9 @@ in_flash:
 	/* r3: IMMR */
 	bl	cpu_init_f	/* run low-level CPU init code     (from Flash)	*/
 
-	mr	r3, r21
-	/* r3: BOOTFLAG */
 	bl	board_init_f	/* run 1st part of board init code (from Flash) */
+
+	/* NOTREACHED - board_init_f() does not return */
 
 
 	.globl	_start_of_vectors

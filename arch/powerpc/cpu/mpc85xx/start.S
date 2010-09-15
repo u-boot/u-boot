@@ -432,6 +432,8 @@ _start_cont:
 	bl	board_init_f
 	isync
 
+	/* NOTREACHED - board_init_f() does not return */
+
 #ifndef CONFIG_NAND_SPL
 	. = EXC_OFF_SYS_RESET
 	.globl	_start_of_vectors

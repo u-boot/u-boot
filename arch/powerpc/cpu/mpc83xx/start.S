@@ -183,22 +183,9 @@ ppcDWload:
 
 	.globl	_start
 _start: /* time t 0 */
-	li	r21, BOOTFLAG_COLD  /* Normal Power-On: Boot from FLASH*/
-	nop
-	b	boot_cold
-
-	. = EXC_OFF_SYS_RESET + 0x10
-
-	.globl	_start_warm
-_start_warm:
-	li	r21, BOOTFLAG_WARM	/* Software reboot	*/
-	b	boot_warm
-
-
-boot_cold: /* time t 3 */
 	lis	r4, CONFIG_DEFAULT_IMMR@h
 	nop
-boot_warm: /* time t 5 */
+
 	mfmsr	r5			/* save msr contents	*/
 
 	/* 83xx manuals prescribe a specific sequence for updating IMMRBAR. */
@@ -302,10 +289,10 @@ in_flash:
 	/* run low-level CPU init code (in Flash)*/
 	bl	cpu_init_f
 
-	/* r3: BOOTFLAG */
-	mr	r3, r21
 	/* run 1st part of board init code (in Flash)*/
 	bl	board_init_f
+
+	/* NOTREACHED - board_init_f() does not return */
 
 #ifndef CONFIG_NAND_SPL
 /*

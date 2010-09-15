@@ -261,6 +261,7 @@
 	GET_GOT
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 	bl	board_init_f
+	/* NOTREACHED - board_init_f() does not return */
 #endif
 
 #if defined(CONFIG_SYS_RAMBOOT)
@@ -803,6 +804,7 @@ _start:
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 	bl	board_init_f
+	/* NOTREACHED - board_init_f() does not return */
 #endif
 
 #endif /* CONFIG_440 */
@@ -911,6 +913,7 @@ _start:
 	GET_GOT			/* initialize GOT access			*/
 
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
+	/* NOTREACHED - board_init_f() does not return */
 
 #endif	/* CONFIG_IOP480 */
 
@@ -1180,8 +1183,9 @@ _start:
 
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 
-	/* NEVER RETURNS! */
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
+	/* NOTREACHED - board_init_f() does not return */
+
 #endif /* CONFIG_NAND_SPL */
 
 #endif	/* CONFIG_405GP || CONFIG_405CR || CONFIG_405 || CONFIG_405EP */
