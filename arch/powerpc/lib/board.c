@@ -480,6 +480,7 @@ void board_init_f (ulong bootflag)
 	 */
 	addr_sp -= sizeof (bd_t);
 	bd = (bd_t *) addr_sp;
+	memset(bd, 0, sizeof(bd_t));
 	gd->bd = bd;
 	debug ("Reserving %zu Bytes for Board Info at: %08lx\n",
 			sizeof (bd_t), addr_sp);
@@ -512,9 +513,6 @@ void board_init_f (ulong bootflag)
 #ifdef CONFIG_SYS_SRAM_BASE
 	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;	/* start of  SRAM memory	*/
 	bd->bi_sramsize  = CONFIG_SYS_SRAM_SIZE;	/* size  of  SRAM memory	*/
-#else
-	bd->bi_sramstart = 0;
-	bd->bi_sramsize  = 0;
 #endif
 
 #if defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_5xx) || \
@@ -739,14 +737,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	bd->bi_flashoffset = TEXT_BASE + flash_size;
 # elif CONFIG_SYS_MONITOR_BASE == CONFIG_SYS_FLASH_BASE
 	bd->bi_flashoffset = monitor_flash_len;	/* reserved area for startup monitor  */
-# else
-	bd->bi_flashoffset = 0;
 # endif
-#else	/* CONFIG_SYS_NO_FLASH */
-
-	bd->bi_flashsize = 0;
-	bd->bi_flashstart = 0;
-	bd->bi_flashoffset = 0;
 #endif /* !CONFIG_SYS_NO_FLASH */
 
 	WATCHDOG_RESET ();
@@ -803,14 +794,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 		if (s && ((*s == 'y') || (*s == 'Y'))) {
 			bd->bi_iic_fast[0] = 1;
 			bd->bi_iic_fast[1] = 1;
-		} else {
-			bd->bi_iic_fast[0] = 0;
-			bd->bi_iic_fast[1] = 0;
 		}
 	}
-#else
-	bd->bi_iic_fast[0] = 0;
-	bd->bi_iic_fast[1] = 0;
 #endif	/* CONFIG_I2CFAST */
 #endif	/* CONFIG_405GP, CONFIG_405EP */
 #endif	/* CONFIG_SYS_EXTBDINFO */
