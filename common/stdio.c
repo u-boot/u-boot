@@ -76,18 +76,10 @@ static void drv_system_init (void)
 
 	strcpy (dev.name, "serial");
 	dev.flags = DEV_FLAGS_OUTPUT | DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
-#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
-	dev.putc = serial_buffered_putc;
-	dev.puts = serial_buffered_puts;
-	dev.getc = serial_buffered_getc;
-	dev.tstc = serial_buffered_tstc;
-#else
 	dev.putc = serial_putc;
 	dev.puts = serial_puts;
 	dev.getc = serial_getc;
 	dev.tstc = serial_tstc;
-#endif
-
 	stdio_register (&dev);
 
 #ifdef CONFIG_SYS_DEVICE_NULLDEV

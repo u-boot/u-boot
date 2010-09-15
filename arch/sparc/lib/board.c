@@ -359,10 +359,6 @@ void board_init_f(ulong bootflag)
 	/* Initialize the console (after the relocation and devices init) */
 	console_init_r();
 
-#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
-	serial_buffered_init();
-#endif
-
 #ifdef CONFIG_STATUS_LED
 	status_led_set(STATUS_LED_BOOT, STATUS_LED_BLINKING);
 #endif

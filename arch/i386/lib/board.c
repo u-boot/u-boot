@@ -335,13 +335,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	enable_interrupts();
 	show_boot_progress(0x28);
 
-	/* Must happen after interrupts are initialized since
-	 * an irq handler gets installed
-	 */
-#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
-	serial_buffered_init();
-#endif
-
 #ifdef CONFIG_STATUS_LED
 	status_led_set (STATUS_LED_BOOT, STATUS_LED_BLINKING);
 #endif

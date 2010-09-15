@@ -104,7 +104,6 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #undef  CONFIG_SYS_EXT_SERIAL_CLOCK           /* external serial clock */
 #undef  CONFIG_SYS_405_UART_ERRATA_59         /* 405GP/CR Rev. D silicon */
 #define CONFIG_SYS_BASE_BAUD		691200

@@ -214,14 +214,6 @@ typedef void (interrupt_handler_t)(void *);
  * Function Prototypes
  */
 
-#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
-void	serial_buffered_init (void);
-void	serial_buffered_putc (const char);
-void	serial_buffered_puts (const char *);
-int	serial_buffered_getc (void);
-int	serial_buffered_tstc (void);
-#endif /* CONFIG_SERIAL_SOFTWARE_FIFO */
-
 void	hang		(void) __attribute__ ((noreturn));
 
 /* */

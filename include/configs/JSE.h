@@ -105,12 +105,6 @@
   /* Set console baudrate to 9600 */
 #define CONFIG_BAUDRATE		9600
 
-/* Size (bytes) of interrupt driven serial port buffer.
- * Set to 0 to use polling instead of interrupts.
- * Setting to 0 will also disable RTS/CTS handshaking.
- */
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
-
 /*
  * Configuration related to auto-boot.
  *

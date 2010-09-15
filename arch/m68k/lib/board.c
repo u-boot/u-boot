@@ -569,10 +569,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 */
 	timer_init();
 
-#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
-	serial_buffered_init();
-#endif
-
 #ifdef CONFIG_STATUS_LED
 	status_led_set (STATUS_LED_BOOT, STATUS_LED_BLINKING);
 #endif

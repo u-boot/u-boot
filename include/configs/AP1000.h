@@ -52,12 +52,6 @@
 
 #define CONFIG_BOOTCOMMAND	""	/* autoboot command */
 
-/* Size (bytes) of interrupt driven serial port buffer.
- * Set to 0 to use polling instead of interrupts.
- * Setting to 0 will also disable RTS/CTS handshaking.
- */
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
-
 #define CONFIG_BOOTARGS		"console=ttyS0,57600"
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/

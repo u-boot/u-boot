@@ -90,7 +90,6 @@
  *----------------------------------------------------------------------*/
 #undef CONFIG_SYS_EXT_SERIAL_CLOCK	       /* external serial clock */
 #define CONFIG_BAUDRATE		115200
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 
 /*-----------------------------------------------------------------------
  * Environment

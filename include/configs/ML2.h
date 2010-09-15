@@ -52,16 +52,6 @@
 
 #define CONFIG_PREBOOT		"fsload 0x00100000 /boot/image"
 
-/* Size (bytes) of interrupt driven serial port buffer.
- * Set to 0 to use polling instead of interrupts.
- * Setting to 0 will also disable RTS/CTS handshaking.
- */
-#if 0
-#define CONFIG_SERIAL_SOFTWARE_FIFO 4000
-#else
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
-#endif
-
 #if 0
 #define CONFIG_BOOTARGS		"root=/dev/nfs "                        \
     "ip=192.168.2.176:192.168.2.190:192.168.2.79:255.255.255.0 "        \

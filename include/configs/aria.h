@@ -321,7 +321,6 @@
  * Serial Port
  */
 #define CONFIG_CONS_INDEX		1
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 
 /*
  * Serial console configuration

@@ -901,13 +901,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 */
 	interrupt_init ();
 
-	/* Must happen after interrupts are initialized since
-	 * an irq handler gets installed
-	 */
-#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
-	serial_buffered_init();
-#endif
-
 #if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
 	status_led_set (STATUS_LED_BOOT, STATUS_LED_BLINKING);
 #endif
