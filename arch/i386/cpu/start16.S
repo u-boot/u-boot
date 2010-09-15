@@ -45,6 +45,7 @@ board_init16_ret:
 	wbinvd
 
 	/* load the temporary Global Descriptor Table */
+o32 cs	lidt	idt_ptr
 o32 cs	lgdt	gdt_ptr
 
 	/* Now, we enter protected mode */
@@ -67,6 +68,10 @@ o32 cs	ljmp	*(%bp)
 code32start:
 	.long	_start		/* offset */
 	.word	0x10		/* segment */
+
+idt_ptr:
+	.word	0		/* limit */
+	.long	0		/* base */
 
 /*
  * The following Global Descriptor Table is just enough to get us into
