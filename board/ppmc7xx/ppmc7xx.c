@@ -19,8 +19,7 @@
 
 
 /* Function prototypes */
-extern void unlock_ram_in_cache( void );
-extern void _start_warm(void);
+extern void _start(void);
 
 
 /*
@@ -97,8 +96,8 @@ void do_reset( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[] )
 	icache_disable();
 	dcache_disable();
 
-	/* Jump to warm start (in RAM) */
-	_start_warm();
+	/* Jump to cold reset point (in RAM) */
+	_start();
 
 	/* Should never get here */
 	while(1);
