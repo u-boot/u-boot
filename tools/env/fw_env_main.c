@@ -105,6 +105,10 @@ main(int argc, char *argv[])
 		case 'h':
 			usage();
 			return EXIT_SUCCESS;
+		default: /* '?' */
+			fprintf(stderr, "Try `%s --help' for more information."
+				"\n", cmdname);
+			return EXIT_FAILURE;
 		}
 	}
 
