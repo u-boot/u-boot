@@ -340,6 +340,9 @@ _start_440:
 	mfspr	r1,SPRN_DBCR0
 	andis.	r1, r1, 0x8000	/* test DBCR0[EDM] bit			*/
 	bne	skip_debug_init	/* if set, don't clear debug register	*/
+	mfspr	r1,SPRN_CCR0
+	ori	r1,r1,CCR0_DTB@l /* Disable Trace Broadcast */
+	mtspr	SPRN_CCR0,r1
 	mtspr	SPRN_DBCR0,r0
 	mtspr	SPRN_DBCR1,r0
 	mtspr	SPRN_DBCR2,r0
