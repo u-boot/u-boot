@@ -188,6 +188,12 @@
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
+/*
+ * With CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS, flash I/O is really slow, so
+ * disable empty flash sector detection, which is I/O-intensive.
+ */
+#undef CONFIG_SYS_FLASH_EMPTY_INFO
 #endif
 
 /*
