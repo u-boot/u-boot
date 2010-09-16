@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <spd_sdram.h>
 #include <asm/ppc440.h>
 #include "bamboo.h"

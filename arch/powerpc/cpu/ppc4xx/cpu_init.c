@@ -25,7 +25,7 @@
 #include <watchdog.h>
 #include <asm/ppc4xx-emac.h>
 #include <asm/processor.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <asm/ppc4xx.h>
 
 #if defined(CONFIG_405GP)  || defined(CONFIG_405EP)

@@ -30,7 +30,7 @@
 #include <netdev.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <asm/4xx_pcie.h>
 #include <asm/errno.h>
 

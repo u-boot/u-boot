@@ -22,7 +22,7 @@
 #include <command.h>
 #include <asm/ppc440.h>
 #include <asm/processor.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;

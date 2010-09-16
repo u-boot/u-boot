@@ -24,7 +24,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 
 #if defined(CONFIG_SYS_4xx_GPIO_TABLE)
 gpio_param_s const gpio_tab[GPIO_GROUP_MAX][GPIO_MAX] = CONFIG_SYS_4xx_GPIO_TABLE;

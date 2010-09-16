@@ -31,7 +31,7 @@
 #include <libfdt.h>
 #include <asm/ppc440.h>
 #include <asm/bitops.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <asm/io.h>
 #include <asm/ppc4xx-uic.h>
 #include <asm/processor.h>

@@ -27,7 +27,7 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/4xx_pcie.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 
 int board_early_init_f(void)
 {

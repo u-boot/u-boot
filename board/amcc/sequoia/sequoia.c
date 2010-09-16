@@ -26,7 +26,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <asm/ppc4xx.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 #include <asm/bitops.h>

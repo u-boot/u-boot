@@ -31,7 +31,7 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/4xx_pcie.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS];
 

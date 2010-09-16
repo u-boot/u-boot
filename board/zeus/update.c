@@ -26,7 +26,7 @@
 #include <command.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <i2c.h>
 
 #if defined(CONFIG_ZEUS)

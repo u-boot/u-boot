@@ -34,7 +34,7 @@
 #if CONFIG_POST & CONFIG_SYS_POST_WATCHDOG
 
 #include <watchdog.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <asm/io.h>
 
 static uint watchdog_magic_read(void)
