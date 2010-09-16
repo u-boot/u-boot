@@ -79,7 +79,7 @@ void ft_pci_setup(void *blob, bd_t *bd);
 void set_working_fdt_addr(void *addr);
 int fdt_resize(void *blob);
 
-int fdt_fixup_nor_flash_size(void *blob, int cs, u32 size);
+int fdt_fixup_nor_flash_size(void *blob);
 
 void fdt_fixup_mtdparts(void *fdt, void *node_info, int node_info_size);
 void fdt_del_node_and_alias(void *blob, const char *alias);

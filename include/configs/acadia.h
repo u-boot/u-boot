@@ -120,7 +120,13 @@
 #define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 #else
-#define	CONFIG_SYS_NO_FLASH		1	/* No NOR on Acadia when NAND-booting	*/
+/*
+ * No NOR-flash on Acadia when NAND-booting. We need to undef the
+ * NOR device-tree fixup code as well, since flash_info is not defined
+ * in this case.
+ */
+#define	CONFIG_SYS_NO_FLASH		1
+#undef CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
 #endif
 
 #ifdef CONFIG_ENV_IS_IN_FLASH

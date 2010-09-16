@@ -591,11 +591,30 @@ int fdt_pci_dma_ranges(void *blob, int phb_off, struct pci_controller *hose) {
 
 #ifdef CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
 /*
+ * Provide a weak default function to return the flash bank size.
+ * There might be multiple non-identical flash chips connected to one
+ * chip-select, so we need to pass an index as well.
+ */
+u32 __flash_get_bank_size(int cs, int idx)
+{
+	extern flash_info_t flash_info[];
+
+	/*
+	 * As default, a simple 1:1 mapping is provided. Boards with
+	 * a different mapping need to supply a board specific mapping
+	 * routine.
+	 */
+	return flash_info[cs].size;
+}
+u32 flash_get_bank_size(int cs, int idx)
+	__attribute__((weak, alias("__flash_get_bank_size")));
+
+/*
  * This function can be used to update the size in the "reg" property
- * of the NOR FLASH device nodes. This is necessary for boards with
+ * of all NOR FLASH device nodes. This is necessary for boards with
  * non-fixed NOR FLASH sizes.
  */
-int fdt_fixup_nor_flash_size(void *blob, int cs, u32 size)
+int fdt_fixup_nor_flash_size(void *blob)
 {
 	char compat[][16] = { "cfi-flash", "jedec-flash" };
 	int off;
@@ -607,19 +626,31 @@ int fdt_fixup_nor_flash_size(void *blob, int cs, u32 size)
 	for (i = 0; i < 2; i++) {
 		off = fdt_node_offset_by_compatible(blob, -1, compat[i]);
 		while (off != -FDT_ERR_NOTFOUND) {
+			int idx;
+
 			/*
-			 * Found one compatible node, now check if this one
-			 * has the correct CS
+			 * Found one compatible node, so fixup the size
+			 * int its reg properties
 			 */
 			prop = fdt_get_property_w(blob, off, "reg", &len);
 			if (prop) {
-				reg = (u32 *)&prop->data[0];
-				if (reg[0] == cs) {
-					reg[2] = size;
-					fdt_setprop(blob, off, "reg", reg,
-						    3 * sizeof(u32));
+				int tuple_size = 3 * sizeof(reg);
 
-					return 0;
+				/*
+				 * There might be multiple reg-tuples,
+				 * so loop through them all
+				 */
+				len /= tuple_size;
+				reg = (u32 *)&prop->data[0];
+				for (idx = 0; idx < len; idx++) {
+					/*
+					 * Update size in reg property
+					 */
+					reg[2] = flash_get_bank_size(reg[0],
+								     idx);
+					fdt_setprop(blob, off, "reg", reg,
+						    tuple_size);
+					reg += tuple_size;
 				}
 			}
 
@@ -629,7 +660,7 @@ int fdt_fixup_nor_flash_size(void *blob, int cs, u32 size)
 		}
 	}
 
-	return -1;
+	return 0;
 }
 #endif
 
