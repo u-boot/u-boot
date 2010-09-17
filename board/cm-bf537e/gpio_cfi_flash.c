@@ -22,7 +22,12 @@
 #else
 #define GPIO_MASK_2 (1 << 22)
 #endif
-#define GPIO_MASK   (GPIO_MASK_1 | GPIO_MASK_2)
+#ifndef GPIO_PIN_3
+#define GPIO_MASK_3 (0)
+#else
+#define GPIO_MASK_3 (1 << 23)
+#endif
+#define GPIO_MASK   (GPIO_MASK_1 | GPIO_MASK_2 | GPIO_MASK_3)
 
 void *gpio_cfi_flash_swizzle(void *vaddr)
 {
@@ -32,6 +37,10 @@ void *gpio_cfi_flash_swizzle(void *vaddr)
 
 #ifdef GPIO_PIN_2
 	gpio_set_value(GPIO_PIN_2, addr & GPIO_MASK_2);
+#endif
+
+#ifdef GPIO_PIN_3
+	gpio_set_value(GPIO_PIN_3, addr & GPIO_MASK_3);
 #endif
 
 	SSYNC();
@@ -64,5 +73,9 @@ void gpio_cfi_flash_init(void)
 #ifdef GPIO_PIN_2
 	gpio_request(GPIO_PIN_2, "gpio_cfi_flash");
 	gpio_direction_output(GPIO_PIN_2, 0);
+#endif
+#ifdef GPIO_PIN_3
+	gpio_request(GPIO_PIN_3, "gpio_cfi_flash");
+	gpio_direction_output(GPIO_PIN_3, 0);
 #endif
 }
