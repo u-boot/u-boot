@@ -1,0 +1,3 @@
+ifndef TEXT_BASE
+TEXT_BASE = 0xFC000000
+endif
