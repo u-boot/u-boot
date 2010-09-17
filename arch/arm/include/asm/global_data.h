@@ -47,6 +47,17 @@ typedef	struct	global_data {
 #ifdef CONFIG_FSL_ESDHC
 	unsigned long	sdhc_clk;
 #endif
+#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
+	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
+	phys_size_t	ram_size;	/* RAM size */
+	unsigned long	mon_len;	/* monitor len */
+	unsigned long	irq_sp;		/* irq stack pointer */
+	unsigned long	start_addr_sp;	/* start_addr_stackpointer */
+	unsigned long	reloc_off;
+#if !(defined(CONFIG_SYS_NO_ICACHE) && defined(CONFIG_SYS_NO_DCACHE))
+	unsigned long	tlb_addr;
+#endif
+#endif
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
 } gd_t;
