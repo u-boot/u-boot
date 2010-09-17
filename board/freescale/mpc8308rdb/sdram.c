@@ -38,20 +38,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static void resume_from_sleep(void)
-{
-	u32 magic = *(u32 *)0;
-
-	typedef void (*func_t)(void);
-	func_t resume = *(func_t *)4;
-
-	if (magic == 0xf5153ae5)
-		resume();
-
-	gd->flags &= ~GD_FLG_SILENT;
-	puts("\nResume from sleep failed: bad magic word\n");
-}
-
 /* Fixed sdram init -- doesn't use serial presence detect.
  *
  * This is useful for faster booting in configs where the RAM is unlikely
@@ -68,12 +54,6 @@ static long fixed_sdram(void)
 	out_be32(&im->sysconf.ddrlaw[0].ar, LBLAWAR_EN | (msize_log2 - 1));
 	out_be32(&im->sysconf.ddrcdr, CONFIG_SYS_DDRCDR_VALUE);
 
-	/*
-	 * Erratum DDR3 requires a 50ms delay after clearing DDRCDR[DDR_cfg],
-	 * or the DDR2 controller may fail to initialize correctly.
-	 */
-	udelay(50000);
-
 	out_be32(&im->ddr.csbnds[0].csbnds, (msize - 1) >> 24);
 	out_be32(&im->ddr.cs_config[0], CONFIG_SYS_DDR_CS0_CONFIG);
 
@@ -86,13 +66,7 @@ static long fixed_sdram(void)
 	out_be32(&im->ddr.timing_cfg_2, CONFIG_SYS_DDR_TIMING_2);
 	out_be32(&im->ddr.timing_cfg_0, CONFIG_SYS_DDR_TIMING_0);
 
-	if (in_be32(&im->pmc.pmccr1) & PMCCR1_POWER_OFF) {
-		out_be32(&im->ddr.sdram_cfg,
-			CONFIG_SYS_DDR_SDRAM_CFG | SDRAM_CFG_BI);
-	} else {
-		out_be32(&im->ddr.sdram_cfg, CONFIG_SYS_DDR_SDRAM_CFG);
-	}
-
+	out_be32(&im->ddr.sdram_cfg, CONFIG_SYS_DDR_SDRAM_CFG);
 	out_be32(&im->ddr.sdram_cfg2, CONFIG_SYS_DDR_SDRAM_CFG2);
 	out_be32(&im->ddr.sdram_mode, CONFIG_SYS_DDR_MODE);
 	out_be32(&im->ddr.sdram_mode2, CONFIG_SYS_DDR_MODE2);
@@ -117,9 +91,6 @@ phys_size_t initdram(int board_type)
 
 	/* DDR SDRAM */
 	msize = fixed_sdram();
-
-	if (in_be32(&im->pmc.pmccr1) & PMCCR1_POWER_OFF)
-		resume_from_sleep();
 
 	/* return total bus SDRAM size(bytes)  -- DDR */
 	return msize;
