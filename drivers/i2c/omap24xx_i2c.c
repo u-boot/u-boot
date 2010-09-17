@@ -40,6 +40,7 @@ static unsigned int current_bus;
 
 void i2c_init (int speed, int slaveadd)
 {
+	DECLARE_GLOBAL_DATA_PTR;
 	int psc, fsscll, fssclh;
 	int hsscll = 0, hssclh = 0;
 	u32 scll, sclh;
@@ -139,7 +140,8 @@ void i2c_init (int speed, int slaveadd)
 	writew (0xFFFF, &i2c_base->stat);
 	writew (0, &i2c_base->cnt);
 
-	bus_initialized[current_bus] = 1;
+	if (gd->flags & GD_FLG_RELOC)
+		bus_initialized[current_bus] = 1;
 }
 
 static int i2c_read_byte (u8 devaddr, u8 regoffset, u8 * value)
