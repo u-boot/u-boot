@@ -51,15 +51,11 @@ typedef struct bd_info {
 	unsigned long	bi_busfreq;	/* Bus Freq, in MHz */
 	unsigned int	bi_baudrate;	/* Console Baudrate */
 	unsigned long   bi_boot_params;	/* where this board expects params */
-	struct environment_s	       *bi_env;
 	struct				/* RAM configuration */
 	{
 		ulong start;
 		ulong size;
 	}bi_dram[CONFIG_NR_DRAM_BANKS];
 } bd_t;
-
-#define bi_env_data bi_env->data
-#define bi_env_crc  bi_env->crc
 
 #endif	/* _U_BOOT_H_ */

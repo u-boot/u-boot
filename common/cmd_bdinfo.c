@@ -330,7 +330,6 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 
 	print_num ("arch_number",	bd->bi_arch_number);
-	print_num ("env_t",		(ulong)bd->bi_env);
 	print_num ("boot_params",	(ulong)bd->bi_boot_params);
 
 	for (i=0; i<CONFIG_NR_DRAM_BANKS; ++i) {
