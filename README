@@ -2534,18 +2534,32 @@ to save the current settings.
 	- CONFIG_ENV_SIZE:
 
 	  These two #defines specify the offset and size of the environment
-	  area within the first NAND device.
+	  area within the first NAND device.  CONFIG_ENV_OFFSET must be
+	  aligned to an erase block boundary.
 
-	- CONFIG_ENV_OFFSET_REDUND
+	- CONFIG_ENV_OFFSET_REDUND (optional):
 
 	  This setting describes a second storage area of CONFIG_ENV_SIZE
-	  size used to hold a redundant copy of the environment data,
-	  so that there is a valid backup copy in case there is a
-	  power failure during a "saveenv" operation.
+	  size used to hold a redundant copy of the environment data, so
+	  that there is a valid backup copy in case there is a power failure
+	  during a "saveenv" operation.  CONFIG_ENV_OFFSET_RENDUND must be
+	  aligned to an erase block boundary.
 
-	Note: CONFIG_ENV_OFFSET and CONFIG_ENV_OFFSET_REDUND must be aligned
-	to a block boundary, and CONFIG_ENV_SIZE must be a multiple of
-	the NAND devices block size.
+	- CONFIG_ENV_RANGE (optional):
+
+	  Specifies the length of the region in which the environment
+	  can be written.  This should be a multiple of the NAND device's
+	  block size.  Specifying a range with more erase blocks than
+	  are needed to hold CONFIG_ENV_SIZE allows bad blocks within
+	  the range to be avoided.
+
+	- CONFIG_ENV_OFFSET_OOB (optional):
+
+	  Enables support for dynamically retrieving the offset of the
+	  environment from block zero's out-of-band data.  The
+	  "nand env.oob" command can be used to record this offset.
+	  Currently, CONFIG_ENV_OFFSET_REDUND is not supported when
+	  using CONFIG_ENV_OFFSET_OOB.
 
 - CONFIG_NAND_ENV_DST
 
