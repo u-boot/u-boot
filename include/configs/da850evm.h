@@ -39,7 +39,6 @@
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_RELOCATE_UBOOT	/* to a proper address, init done */
 
 /*
  * Memory Info
@@ -137,4 +136,9 @@
 #undef CONFIG_CMD_ENV
 #endif
 
+/* additions for new relocation code, must added to all boards */
+#undef CONFIG_SYS_ARM_WITHOUT_RELOC /* This board is tested with relocation support */
+#define CONFIG_SYS_SDRAM_BASE		0xc0000000
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
+					CONFIG_SYS_GBL_DATA_SIZE)
 #endif /* __CONFIG_H */

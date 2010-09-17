@@ -43,6 +43,29 @@ CONFIG_SYS_ARM_WITHOUT_RELOC defined!!!
 
 -------------------------------------------------------------------------------------
 
+For boards which boot from nand_spl, it is possible to save a copy
+if TEXT_BASE == relocation address! This prevents that uboot code
+is copied again in relocate_code().
+
+example for the tx25 board:
+
+a) cpu starts
+b) it copies the first page in nand to internal ram
+   (nand_spl_code)
+c) end executes this code
+d) this initialize CPU, RAM, ... and copy itself to RAM
+   (this bin must fit in one page, so board_init_f()
+    don;t fit in it ... )
+e) there it copy u-boot to CONFIG_SYS_NAND_U_BOOT_DST and
+   starts this image @ CONFIG_SYS_NAND_U_BOOT_START
+f) u-boot code steps through board_init_f() and calculates
+   the relocation address and copy itself to it
+
+If TEXT_BASE == relocation address, the copying of u-boot
+in f) could be saved.
+
+-------------------------------------------------------------------------------------
+
 ToDo:
 
 - fill in bd_t infos (check)

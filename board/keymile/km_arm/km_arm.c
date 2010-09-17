@@ -225,6 +225,7 @@ U_BOOT_CMD(
 	);
 #endif
 
+#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 int dram_init(void)
 {
 	int i;
@@ -234,8 +235,31 @@ int dram_init(void)
 		gd->bd->bi_dram[i].size = get_ram_size((long *)kw_sdram_bar(i),
 						       kw_sdram_bs(i));
 	}
+
 	return 0;
 }
+#else
+int dram_init(void)
+{
+	/* dram_init must store complete ramsize in gd->ram_size */
+	/* Fix this */
+	gd->ram_size = get_ram_size((volatile void *)kw_sdram_bar(0),
+				kw_sdram_bs(0));
+	return 0;
+}
+
+void dram_init_banksize(void)
+{
+	int i;
+
+	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
+		gd->bd->bi_dram[i].start = kw_sdram_bar(i);
+		gd->bd->bi_dram[i].size = kw_sdram_bs(i);
+		gd->bd->bi_dram[i].size = get_ram_size((long *)kw_sdram_bar(i),
+						       kw_sdram_bs(i));
+	}
+}
+#endif
 
 /* Configure and enable MV88E1118 PHY */
 void reset_phy(void)
