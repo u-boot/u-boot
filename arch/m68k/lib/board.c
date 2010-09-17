@@ -79,14 +79,6 @@ extern flash_info_t flash_info[];
 
 #include <environment.h>
 
-#if ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CONFIG_SYS_MONITOR_BASE) || \
-      (CONFIG_ENV_ADDR >= (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)) ) || \
-    defined(CONFIG_ENV_IS_IN_NVRAM)
-#define	TOTAL_MALLOC_LEN	(CONFIG_SYS_MALLOC_LEN + CONFIG_ENV_SIZE)
-#else
-#define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
-#endif
-
 extern ulong __init_end;
 extern ulong _end;
 
