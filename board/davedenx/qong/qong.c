@@ -33,10 +33,9 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init (void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = get_ram_size((volatile void *)PHYS_SDRAM_1,
-			PHYS_SDRAM_1_SIZE);
-
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size((volatile void *)CONFIG_SYS_SDRAM_BASE,
+				PHYS_SDRAM_1_SIZE);
 	return 0;
 }
 
@@ -47,6 +46,49 @@ static void qong_fpga_reset(void)
 	mx31_gpio_set(QONG_FPGA_RST_PIN, 1);
 
 	udelay(300);
+}
+
+int board_early_init_f (void)
+{
+#ifdef CONFIG_QONG_FPGA
+	/* CS1: FPGA/Network Controller/GPIO */
+	/* 16-bit, no DTACK */
+	__REG(CSCR_U(1)) = 0x00000A01;
+	__REG(CSCR_L(1)) = 0x20040501;
+	__REG(CSCR_A(1)) = 0x04020C00;
+
+	/* setup pins for FPGA */
+	mx31_gpio_mux(IOMUX_MODE(0x76, MUX_CTL_GPIO));
+	mx31_gpio_mux(IOMUX_MODE(0x7e, MUX_CTL_GPIO));
+	mx31_gpio_mux(IOMUX_MODE(0x91, MUX_CTL_OUT_FUNC | MUX_CTL_IN_GPIO));
+	mx31_gpio_mux(IOMUX_MODE(0x92, MUX_CTL_GPIO));
+	mx31_gpio_mux(IOMUX_MODE(0x93, MUX_CTL_GPIO));
+
+	/* FPGA reset  Pin */
+	/* rstn = 0 */
+	mx31_gpio_set(QONG_FPGA_RST_PIN, 0);
+	mx31_gpio_direction(QONG_FPGA_RST_PIN, MX31_GPIO_DIRECTION_OUT);
+
+	/* set interrupt pin as input */
+	mx31_gpio_direction(QONG_FPGA_IRQ_PIN, MX31_GPIO_DIRECTION_IN);
+
+#endif
+
+	/* setup pins for UART1 */
+	mx31_gpio_mux(MUX_RXD1__UART1_RXD_MUX);
+	mx31_gpio_mux(MUX_TXD1__UART1_TXD_MUX);
+	mx31_gpio_mux(MUX_RTS1__UART1_RTS_B);
+	mx31_gpio_mux(MUX_CTS1__UART1_CTS_B);
+
+	/* setup pins for SPI (pmic) */
+	mx31_gpio_mux(MUX_CSPI2_SS0__CSPI2_SS0_B);
+	mx31_gpio_mux(MUX_CSPI2_MOSI__CSPI2_MOSI);
+	mx31_gpio_mux(MUX_CSPI2_MISO__CSPI2_MISO);
+	mx31_gpio_mux(MUX_CSPI2_SCLK__CSPI2_CLK);
+	mx31_gpio_mux(MUX_CSPI2_SPI_RDY__CSPI2_DATAREADY_B);
+
+	return 0;
+
 }
 
 int board_init (void)
@@ -98,43 +140,6 @@ int board_init (void)
 						(0 << 1)	| /* CNC2 */
 						(0 << 0)	  /* FCE */
 					   );
-
-#ifdef CONFIG_QONG_FPGA
-	/* CS1: FPGA/Network Controller/GPIO */
-	/* 16-bit, no DTACK */
-	__REG(CSCR_U(1)) = 0x00000A01;
-	__REG(CSCR_L(1)) = 0x20040501;
-	__REG(CSCR_A(1)) = 0x04020C00;
-
-	/* setup pins for FPGA */
-	mx31_gpio_mux(IOMUX_MODE(0x76, MUX_CTL_GPIO));
-	mx31_gpio_mux(IOMUX_MODE(0x7e, MUX_CTL_GPIO));
-	mx31_gpio_mux(IOMUX_MODE(0x91, MUX_CTL_OUT_FUNC | MUX_CTL_IN_GPIO));
-	mx31_gpio_mux(IOMUX_MODE(0x92, MUX_CTL_GPIO));
-	mx31_gpio_mux(IOMUX_MODE(0x93, MUX_CTL_GPIO));
-
-	/* FPGA reset  Pin */
-	/* rstn = 0 */
-	mx31_gpio_set(QONG_FPGA_RST_PIN, 0);
-	mx31_gpio_direction(QONG_FPGA_RST_PIN, MX31_GPIO_DIRECTION_OUT);
-
-	/* set interrupt pin as input */
-	mx31_gpio_direction(QONG_FPGA_IRQ_PIN, MX31_GPIO_DIRECTION_IN);
-
-#endif
-
-	/* setup pins for UART1 */
-	mx31_gpio_mux(MUX_RXD1__UART1_RXD_MUX);
-	mx31_gpio_mux(MUX_TXD1__UART1_TXD_MUX);
-	mx31_gpio_mux(MUX_RTS1__UART1_RTS_B);
-	mx31_gpio_mux(MUX_CTS1__UART1_CTS_B);
-
-	/* setup pins for SPI (pmic) */
-	mx31_gpio_mux(MUX_CSPI2_SS0__CSPI2_SS0_B);
-	mx31_gpio_mux(MUX_CSPI2_MOSI__CSPI2_MOSI);
-	mx31_gpio_mux(MUX_CSPI2_MISO__CSPI2_MISO);
-	mx31_gpio_mux(MUX_CSPI2_SCLK__CSPI2_CLK);
-	mx31_gpio_mux(MUX_CSPI2_SPI_RDY__CSPI2_DATAREADY_B);
 
 	/* board id for linux */
 	gd->bd->bi_arch_number = MACH_TYPE_QONG;
