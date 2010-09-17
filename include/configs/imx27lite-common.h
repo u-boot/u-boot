@@ -188,6 +188,7 @@
  */
 #include <config_cmd_default.h>
 #define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DIAG
 #define CONFIG_CMD_FAT
