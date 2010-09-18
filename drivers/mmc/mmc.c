@@ -93,7 +93,7 @@ mmc_bwrite(int dev_num, ulong start, lbaint_t blkcnt, const void*src)
 	blklen = mmc->write_bl_len;
 
 	if ((start + blkcnt) > mmc->block_dev.lba) {
-		printf("MMC: block number 0x%x exceeds max(0x%x)",
+		printf("MMC: block number 0x%lx exceeds max(0x%lx)",
 			start + blkcnt, mmc->block_dev.lba);
 		return 0;
 	}
@@ -225,7 +225,7 @@ static ulong mmc_bread(int dev_num, ulong start, lbaint_t blkcnt, void *dst)
 		return 0;
 
 	if ((start + blkcnt) > mmc->block_dev.lba) {
-		printf("MMC: block number 0x%x exceeds max(0x%x)",
+		printf("MMC: block number 0x%lx exceeds max(0x%lx)",
 			start + blkcnt, mmc->block_dev.lba);
 		return 0;
 	}
