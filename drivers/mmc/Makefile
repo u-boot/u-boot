@@ -32,6 +32,7 @@ COBJS-$(CONFIG_GENERIC_MMC) += mmc.o
 COBJS-$(CONFIG_GENERIC_ATMEL_MCI) += gen_atmel_mci.o
 COBJS-$(CONFIG_MXC_MMC) += mxcmmc.o
 COBJS-$(CONFIG_OMAP3_MMC) += omap3_mmc.o
+COBJS-$(CONFIG_OMAP_HSMMC) += omap_hsmmc.o
 COBJS-$(CONFIG_PXA_MMC) += pxa_mmc.o
 COBJS-$(CONFIG_S5P_MMC) += s5p_mmc.o
 
