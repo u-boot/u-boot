@@ -255,6 +255,18 @@
 #endif
 
 /*
+ * SPI Settings
+ */
+#ifdef CONFIG_SPI_FLASH_ALL
+# define CONFIG_SPI_FLASH_ATMEL
+# define CONFIG_SPI_FLASH_MACRONIX
+# define CONFIG_SPI_FLASH_SPANSION
+# define CONFIG_SPI_FLASH_SST
+# define CONFIG_SPI_FLASH_STMICRO
+# define CONFIG_SPI_FLASH_WINBOND
+#endif
+
+/*
  * I2C Settings
  */
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
