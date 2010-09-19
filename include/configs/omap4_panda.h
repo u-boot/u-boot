@@ -89,7 +89,6 @@
 #define CONFIG_SYS_NS16550_COM3		UART3_BASE
 
 #define CONFIG_ENV_IS_NOWHERE
-#define CONFIG_ENV_OVERWRITE
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
@@ -107,8 +106,9 @@
 #define CONFIG_TWL6030_POWER		1
 
 /* MMC */
+#define CONFIG_GENERIC_MMC		1
 #define CONFIG_MMC			1
-#define CONFIG_OMAP3_MMC		1
+#define CONFIG_OMAP_HSMMC		1
 #define CONFIG_SYS_MMC_SET_DEV		1
 #define CONFIG_DOS_PARTITION		1
 
@@ -150,7 +150,6 @@
 
 #define CONFIG_BOOTDELAY	3
 
-/* allow overwriting serial config and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
@@ -158,7 +157,7 @@
 	"console=ttyS2,115200n8\0" \
 	"usbtty=cdc_acm\0" \
 	"vram=16M\0" \
-	"mmcdev=1\0" \
+	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext3 rootwait\0" \
 	"mmcargs=setenv bootargs console=${console} " \
@@ -174,7 +173,7 @@
 		"bootm ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc init ${mmcdev}; then " \
+	"if mmc rescan ${mmcdev}; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
