@@ -10,6 +10,7 @@
 /* #define DEBUG */
 
 #include <common.h>
+#include <malloc.h>
 #include <ambapp.h>
 #include <config.h>
 
@@ -257,7 +258,7 @@ unsigned int ambapp_bus_freq(struct ambapp_bus *abus, int ahb_bus_index)
 		/* Get I/O area of AHB bus */
 		ioarea = abus->ioareas[ahb_bus_index];
 
-		printf("  IOAREA: 0x%08x\n", ioarea);
+		debug("  IOAREA: 0x%08x\n", ioarea);
 
 		/* Get parent bus */
 		parent = (ioarea & 0x7);
