@@ -26,7 +26,14 @@
 /*
  * Some SoC specific registers (not common for all 440 SoC's)
  */
-#define GPIO0_BASE	(CONFIG_SYS_PERIPHERAL_BASE + 0x00000700)
+
+/* Memory mapped register */
+#define CONFIG_SYS_PERIPHERAL_BASE	0xe0000000 /* Internal Peripherals */
+
+#define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_PERIPHERAL_BASE + 0x0200)
+#define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_PERIPHERAL_BASE + 0x0300)
+
+#define GPIO0_BASE		(CONFIG_SYS_PERIPHERAL_BASE + 0x0700)
 
 #define SDR0_PCI0	0x0300
 

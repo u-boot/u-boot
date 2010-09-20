@@ -59,7 +59,6 @@
 #define CONFIG_SYS_PCI_MEMBASE3		CONFIG_SYS_PCI_MEMBASE2 + 0x10000000
 
 /*Don't change either of these*/
-#define CONFIG_SYS_PERIPHERAL_BASE	0xef600000	/* internal peripheral*/
 #define CONFIG_SYS_PCI_BASE		0xe0000000	/* internal PCI regs */
 /*Don't change either of these*/
 
@@ -80,8 +79,12 @@
 /*
  * Serial Port
  */
+#define CONFIG_CONS_INDEX	2	/* Use UART1			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 #define CONFIG_SYS_EXT_SERIAL_CLOCK	11059200	/* ext. 11.059MHz clk */
-#define CONFIG_UART1_CONSOLE
 
 /*
  * Environment

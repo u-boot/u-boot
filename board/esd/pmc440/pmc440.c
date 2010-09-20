@@ -68,7 +68,7 @@ struct serial_device *default_serial_console(void)
 	 */
 	mfsdr(SDR0_PINSTP, val);
 	if (((val & 0xf0000000) >> 29) != 7)
-		return &serial1_device;
+		return &eserial2_device;
 
 	ulong scratchreg = in_be32((void*)GPIO0_ISR3L);
 	if (!(scratchreg & 0x80)) {
@@ -90,9 +90,9 @@ struct serial_device *default_serial_console(void)
 	}
 
 	if (scratchreg & 0x01)
-		return &serial1_device;
+		return &eserial2_device;
 	else
-		return &serial0_device;
+		return &eserial1_device;
 }
 
 int board_early_init_f(void)

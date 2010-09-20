@@ -123,6 +123,7 @@
  * If CONFIG_SYS_405_UART_ERRATA_59 and 200MHz CPU clock,
  * set Linux BASE_BAUD to 403200.
  */
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
 #undef	CONFIG_SERIAL_SOFTWARE_FIFO
 #undef  CONFIG_SYS_EXT_SERIAL_CLOCK           /* external serial clock */
 #undef  CONFIG_SYS_405_UART_ERRATA_59         /* 405GP/CR Rev. D silicon */

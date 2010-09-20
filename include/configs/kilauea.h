@@ -57,7 +57,6 @@
 #define CONFIG_SYS_FLASH_BASE		0xFC000000
 #define CONFIG_SYS_NAND_ADDR		0xF8000000
 #define CONFIG_SYS_FPGA_BASE		0xF0000000
-#define CONFIG_SYS_PERIPHERAL_BASE	0xEF600000      /* internal peripherals*/
 
 /*-----------------------------------------------------------------------
  * Initial RAM & Stack Pointer Configuration Options
@@ -115,8 +114,7 @@
  * Serial Port
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_EXT_SERIAL_CLOCK	11059200	/* ext. 11.059MHz clk	*/
-/* define this if you want console on UART1 */
-#undef CONFIG_UART1_CONSOLE
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
 
 /*-----------------------------------------------------------------------
  * Environment

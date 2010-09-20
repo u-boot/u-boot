@@ -95,9 +95,13 @@
 #define CONFIG_ENV_OFFSET	0x00
 #define CONFIG_ENV_SIZE	512
 
-
   /* The JSE connects UART1 to the console tap connector. */
-#define CONFIG_UART1_CONSOLE	1
+#define CONFIG_CONS_INDEX	2
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+
   /* Set console baudrate to 9600 */
 #define CONFIG_BAUDRATE		9600
 

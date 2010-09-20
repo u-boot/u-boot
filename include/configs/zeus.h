@@ -122,14 +122,18 @@
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
+#define CONFIG_CONS_INDEX	1
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 #undef	CONFIG_SYS_EXT_SERIAL_CLOCK			/* external serial clock */
-#define CONFIG_SYS_BASE_BAUD		691200
+#define CONFIG_SYS_BASE_BAUD	691200
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SERIAL_MULTI
 
-/* The following table includes the supported baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE	\
-	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
+#define CONFIG_SYS_BAUDRATE_TABLE  \
+    {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200, 230400}
 
 /*-----------------------------------------------------------------------
  * Miscellaneous configurable options

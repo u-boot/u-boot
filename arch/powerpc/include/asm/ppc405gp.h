@@ -24,7 +24,12 @@
 #define CONFIG_SDRAM_PPC4xx_IBM_SDRAM	/* IBM SDRAM controller */
 
 /* Memory mapped register */
-#define GPIO0_BASE	0xef600700
+#define CONFIG_SYS_PERIPHERAL_BASE	0xef600000 /* Internal Peripherals */
+
+#define CONFIG_SYS_NS16550_COM1	(CONFIG_SYS_PERIPHERAL_BASE + 0x0300)
+#define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_PERIPHERAL_BASE + 0x0400)
+
+#define GPIO0_BASE		(CONFIG_SYS_PERIPHERAL_BASE + 0x0700)
 
 /* DCR's */
 #define DCP0_CFGADDR	0x0014		/* Decompression controller addr reg */

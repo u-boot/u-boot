@@ -70,9 +70,6 @@
 #define CONFIG_SYS_PCI_MEMBASE2	CONFIG_SYS_PCI_MEMBASE1 + 0x10000000
 #define CONFIG_SYS_PCI_MEMBASE3	CONFIG_SYS_PCI_MEMBASE2 + 0x10000000
 
-/* Don't change either of these */
-#define CONFIG_SYS_PERIPHERAL_BASE	0xef600000	/* internal peripherals	*/
-
 #define CONFIG_SYS_USB2D0_BASE		0xe0000100
 #define CONFIG_SYS_USB_DEVICE		0xe0000000
 #define CONFIG_SYS_USB_HOST		0xe0000400
@@ -94,7 +91,6 @@
 #undef CONFIG_SYS_EXT_SERIAL_CLOCK	       /* external serial clock */
 #define CONFIG_BAUDRATE		115200
 #undef CONFIG_SERIAL_SOFTWARE_FIFO
-#undef CONFIG_UART1_CONSOLE
 
 /*-----------------------------------------------------------------------
  * Environment
