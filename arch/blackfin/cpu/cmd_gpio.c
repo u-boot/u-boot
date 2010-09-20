@@ -108,7 +108,7 @@ int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	gpio_free(gpio);
 
-	return 0;
+	return value;
 }
 
 U_BOOT_CMD(gpio, 3, 0, do_gpio,
