@@ -290,26 +290,6 @@ int post_hotkeys_pressed(void)
 }
 #endif
 
-#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
-
-void post_word_store (ulong a)
-{
-	volatile ulong *save_addr =
-		(volatile ulong *)(MPC5XXX_SRAM + MPC5XXX_SRAM_POST_SIZE);
-
-	*save_addr = a;
-}
-
-ulong post_word_load (void)
-{
-	volatile ulong *save_addr =
-		(volatile ulong *)(MPC5XXX_SRAM + MPC5XXX_SRAM_POST_SIZE);
-
-	return *save_addr;
-}
-#endif	/* CONFIG_POST || CONFIG_LOGBUFFER*/
-
-
 #ifdef CONFIG_BOARD_EARLY_INIT_R
 int board_early_init_r (void)
 {

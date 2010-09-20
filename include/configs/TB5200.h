@@ -126,7 +126,7 @@
 #endif
 
 #ifdef CONFIG_POST
-#define CONFIG__CMD_DIAG
+#define CONFIG_CMD_DIAG
 #endif
 
 

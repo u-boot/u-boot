@@ -2,6 +2,10 @@
  * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
+ * (C) Copyright 2010
+ * Michael Zaidman, Kodak, michael.zaidman@kodak.com
+ * post_word_{load|store} cleanup.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -25,7 +29,58 @@
 
 #ifndef	__ASSEMBLY__
 #include <common.h>
+#include <asm/io.h>
+
+#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
+
+#ifdef CONFIG_SYS_POST_WORD_ADDR
+#define _POST_WORD_ADDR	CONFIG_SYS_POST_WORD_ADDR
+#else
+
+#ifdef CONFIG_MPC5xxx
+#define _POST_WORD_ADDR	(MPC5XXX_SRAM + MPC5XXX_SRAM_POST_SIZE)
+
+#elif defined(CONFIG_MPC512X)
+#define _POST_WORD_ADDR \
+	(CONFIG_SYS_SRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
+
+#elif defined(CONFIG_8xx)
+#define _POST_WORD_ADDR \
+	(((immap_t *)CONFIG_SYS_IMMR)->im_cpm.cp_dpmem + CPM_POST_WORD_ADDR)
+
+#elif defined(CONFIG_MPC8260)
+#include <asm/cpm_8260.h>
+#define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR)
+
+#elif defined(CONFIG_MPC8360)
+#include <asm/immap_qe.h>
+#define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR)
+
+#elif defined (CONFIG_MPC85xx)
+#include <asm/cpm_85xx.h>
+#define _POST_WORD_ADDR	(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR)
+
+#elif defined (CONFIG_4xx)
+#define _POST_WORD_ADDR \
+	(CONFIG_SYS_OCM_DATA_ADDR + CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 #endif
+
+#ifndef _POST_WORD_ADDR
+#error "_POST_WORD_ADDR currently not implemented for this platform!"
+#endif
+#endif /* CONFIG_SYS_POST_WORD_ADDR */
+
+static inline ulong post_word_load (void)
+{
+	return in_le32((volatile void *)(_POST_WORD_ADDR));
+}
+
+static inline void post_word_store (ulong value)
+{
+	out_le32((volatile void *)(_POST_WORD_ADDR), value);
+}
+#endif /* defined (CONFIG_POST) || defined(CONFIG_LOGBUFFER) */
+#endif /* __ASSEMBLY__ */
 
 #ifdef CONFIG_POST
 
@@ -40,7 +95,7 @@
 #define POST_RAM		0x0200	/* test runs in RAM */
 #define POST_MANUAL		0x0400	/* test runs on diag command */
 #define POST_REBOOT		0x0800	/* test may cause rebooting */
-#define POST_PREREL             0x1000  /* test runs before relocation */
+#define POST_PREREL		0x1000  /* test runs before relocation */
 
 #define POST_CRITICAL		0x2000	/* Use failbootcmd if test failed */
 #define POST_STOP		0x4000	/* Interrupt POST sequence on fail */

@@ -50,6 +50,7 @@
 # endif
 # ifdef CONFIG_POST
 #  define CONFIG_CMD_DIAG
+#  define CONFIG_POST_ALT_LIST
 # endif
 # ifdef CONFIG_RTC_BFIN
 #  define CONFIG_CMD_DATE

@@ -31,7 +31,7 @@ LIB	= $(obj)lib$(BOARD).a
 
 COBJS-y	:= $(BOARD).o
 COBJS-$(CONFIG_BFIN_IDE)   += ide-cf.o
-COBJS-$(CONFIG_POST)       += post.o post-memory.o
+COBJS-$(CONFIG_HAS_POST)   += post.o post-memory.o
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))

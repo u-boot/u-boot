@@ -175,23 +175,3 @@ m8260_cpm_extcbrg(uint brg, uint rate, uint extclk, int pinsel)
 	else
 		*bp |= CPM_BRG_EXTC_CLK5_15;
 }
-
-#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
-
-void post_word_store (ulong a)
-{
-	volatile ulong *save_addr =
-		(volatile ulong *)(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR);
-
-	*save_addr = a;
-}
-
-ulong post_word_load (void)
-{
-	volatile ulong *save_addr =
-		(volatile ulong *)(CONFIG_SYS_IMMR + CPM_POST_WORD_ADDR);
-
-	return *save_addr;
-}
-
-#endif	/* CONFIG_POST || CONFIG_LOGBUFFER*/

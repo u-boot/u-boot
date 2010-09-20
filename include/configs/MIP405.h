@@ -305,10 +305,6 @@
 /* reserve some memory for POST and BOOT limit info */
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 32)
 
-#ifdef  CONFIG_POST		/* reserve one word for POST Info */
-#define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_GBL_DATA_OFFSET - 4)
-#endif
-
 #ifdef CONFIG_BOOTCOUNT_LIMIT /* reserve 2 word for bootcount limit */
 #define CONFIG_SYS_BOOTCOUNT_ADDR (CONFIG_SYS_GBL_DATA_OFFSET - 12)
 #endif

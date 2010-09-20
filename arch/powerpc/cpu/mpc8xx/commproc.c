@@ -83,23 +83,3 @@ uint dpram_base_align (uint align)
 	return (gd->dp_alloc_base + mask) & ~mask;
 }
 #endif	/* CONFIG_SYS_ALLOC_DPRAM */
-
-#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
-
-void post_word_store (ulong a)
-{
-	volatile void *save_addr =
-		((immap_t *) CONFIG_SYS_IMMR)->im_cpm.cp_dpmem + CPM_POST_WORD_ADDR;
-
-	*(volatile ulong *) save_addr = a;
-}
-
-ulong post_word_load (void)
-{
-	volatile void *save_addr =
-		((immap_t *) CONFIG_SYS_IMMR)->im_cpm.cp_dpmem + CPM_POST_WORD_ADDR;
-
-	return *(volatile ulong *) save_addr;
-}
-
-#endif	/* CONFIG_POST || CONFIG_LOGBUFFER*/

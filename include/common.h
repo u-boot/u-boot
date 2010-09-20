@@ -585,8 +585,6 @@ uint	dpram_base(void);
 uint	dpram_base_align(uint align);
 uint	dpram_alloc(uint size);
 uint	dpram_alloc_align(uint size,uint align);
-void	post_word_store (ulong);
-ulong	post_word_load (void);
 void	bootcount_store (ulong);
 ulong	bootcount_load (void);
 #define BOOTCOUNT_MAGIC		0xB001C041
@@ -727,6 +725,9 @@ int cpu_release(int nr, int argc, char * const argv[]);
 
 #ifdef CONFIG_POST
 #define CONFIG_HAS_POST
+#ifndef CONFIG_POST_ALT_LIST
+#define CONFIG_POST_STD_LIST
+#endif
 #endif
 
 #ifdef CONFIG_INIT_CRITICAL

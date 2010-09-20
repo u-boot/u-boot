@@ -322,7 +322,6 @@ void board_init_r(gd_t * id, ulong dest_addr)
 
 #if defined(CONFIG_POST)
 	post_output_backlog();
-	post_reloc();
 #endif
 
 	/* initialize malloc() area */
