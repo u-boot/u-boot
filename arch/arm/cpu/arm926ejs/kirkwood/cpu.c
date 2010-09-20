@@ -54,10 +54,11 @@ unsigned char get_random_hex(void)
 	u8 outbuf[BUFLEN];
 
 	/*
-	 * in case of 88F6281/88F6192 A0,
+	 * in case of 88F6281/88F6282/88F6192 A0,
 	 * Bit7 need to reset to generate random values in KW_REG_UNDOC_0x1470
-	 * Soc reg offsets KW_REG_UNDOC_0x1470 and KW_REG_UNDOC_0x1478 are reserved regs and
-	 * Does not have names at this moment (no errata available)
+	 * Soc reg offsets KW_REG_UNDOC_0x1470 and KW_REG_UNDOC_0x1478 are
+	 * reserved regs and does not have names at this moment
+	 * (no errata available)
 	 */
 	writel(readl(KW_REG_UNDOC_0x1478) & ~(1 << 7), KW_REG_UNDOC_0x1478);
 	for (i = 0; i < BUFLEN; i++) {
@@ -271,20 +272,31 @@ static void kw_sysrst_check(void)
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
-	char *name = "Unknown";
+	char *rev;
+	u16 devid = (readl(KW_REG_PCIE_DEVID) >> 16) & 0xffff;
+	u8 revid = readl(KW_REG_PCIE_REVID) & 0xff;
 
-	switch (readl(KW_REG_DEVICE_ID) & 0x03) {
-	case 1:
-		name = "88F6192_A0";
-		break;
-	case 2:
-		name = "88F6281_A0";
-		break;
-	default:
-		printf("SoC:   Unsupported Kirkwood\n");
+	if ((readl(KW_REG_DEVICE_ID) & 0x03) > 2) {
+		printf("Error.. %s:Unsupported Kirkwood SoC 88F%04x\n", __FUNCTION__, devid);
 		return -1;
 	}
-	printf("SoC:   Kirkwood %s\n", name);
+
+	switch (revid) {
+	case 0:
+		rev = "Z0";
+		break;
+	case 2:
+		rev = "A0";
+		break;
+	case 3:
+		rev = "A1";
+		break;
+	default:
+		rev = "??";
+		break;
+	}
+
+	printf("SoC:   Kirkwood 88F%04x_%s\n", devid, rev);
 	return 0;
 }
 #endif /* CONFIG_DISPLAY_CPUINFO */
