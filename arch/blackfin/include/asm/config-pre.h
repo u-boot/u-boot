@@ -71,6 +71,9 @@ static inline const char *get_bfin_boot_mode(int bfin_boot)
 # define BFIN_BOOT_SPI_SSEL 1
 #endif
 
+/* Define to get a GPIO CS with the Blackfin SPI controller */
+#define MAX_CTRL_CS 8
+
 /* There is no Blackfin/NetBSD port */
 #undef CONFIG_BOOTM_NETBSD
 
