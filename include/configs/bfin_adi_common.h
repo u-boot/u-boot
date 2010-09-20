@@ -119,10 +119,12 @@
 /*
  * Env Settings
  */
-#if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART)
-# define CONFIG_BOOTDELAY	-1
-#else
-# define CONFIG_BOOTDELAY	5
+#ifndef CONFIG_BOOTDELAY
+# if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART)
+#  define CONFIG_BOOTDELAY	-1
+# else
+#  define CONFIG_BOOTDELAY	5
+# endif
 #endif
 #ifndef CONFIG_BOOTCOMMAND
 # define CONFIG_BOOTCOMMAND	"run ramboot"
@@ -244,11 +246,15 @@
  * Network Settings
  */
 #ifdef CONFIG_CMD_NET
-# define CONFIG_IPADDR		192.168.0.15
 # define CONFIG_NETMASK		255.255.255.0
-# define CONFIG_GATEWAYIP	192.168.0.1
-# define CONFIG_SERVERIP	192.168.0.2
-# define CONFIG_ROOTPATH	/romfs
+# ifndef CONFIG_IPADDR
+#  define CONFIG_IPADDR		192.168.0.15
+#  define CONFIG_GATEWAYIP	192.168.0.1
+#  define CONFIG_SERVERIP	192.168.0.2
+# endif
+# ifndef CONFIG_ROOTPATH
+#  define CONFIG_ROOTPATH	/romfs
+# endif
 # ifdef CONFIG_CMD_DHCP
 #  ifndef CONFIG_SYS_AUTOLOAD
 #   define CONFIG_SYS_AUTOLOAD "no"
