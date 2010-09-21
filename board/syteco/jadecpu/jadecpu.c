@@ -154,10 +154,17 @@ int misc_init_r(void)
  */
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size((volatile void *)PHYS_SDRAM,
+					PHYS_SDRAM_SIZE);
 
 	return 0;
+}
+
+void dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = PHYS_SDRAM;
+	gd->bd->bi_dram[0].size = gd->ram_size;
 }
 
 int board_eth_init(bd_t *bis)

@@ -146,6 +146,9 @@
 #define PHYS_SDRAM		0x40000000	/* Start address of DDRRAM */
 #define PHYS_SDRAM_SIZE	0x08000000	/* 128 megs */
 
+#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM
+#define CONFIG_SYS_INIT_SP_ADDR	0x01008000
+
 /*
  * FLASH and environment organization
  */
