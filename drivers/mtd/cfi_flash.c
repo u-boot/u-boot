@@ -62,19 +62,8 @@
  * reading and writing ... (yes there is such a Hardware).
  */
 
-#ifndef CONFIG_SYS_FLASH_BANKS_LIST
-#define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE }
-#endif
-
 static uint flash_offset_cfi[2] = { FLASH_OFFSET_CFI, FLASH_OFFSET_CFI_ALT };
 static uint flash_verbose = 1;
-
-/* use CONFIG_SYS_MAX_FLASH_BANKS_DETECT if defined */
-#ifdef CONFIG_SYS_MAX_FLASH_BANKS_DETECT
-# define CFI_MAX_FLASH_BANKS	CONFIG_SYS_MAX_FLASH_BANKS_DETECT
-#else
-# define CFI_MAX_FLASH_BANKS	CONFIG_SYS_MAX_FLASH_BANKS
-#endif
 
 flash_info_t flash_info[CFI_MAX_FLASH_BANKS];	/* FLASH chips info */
 
@@ -84,6 +73,17 @@ flash_info_t flash_info[CFI_MAX_FLASH_BANKS];	/* FLASH chips info */
 #ifndef CONFIG_SYS_FLASH_CFI_WIDTH
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
 #endif
+
+#if defined(CONFIG_SYS_MAX_FLASH_BANKS_DETECT)
+int cfi_flash_num_flash_banks = CONFIG_SYS_MAX_FLASH_BANKS_DETECT;
+#endif
+
+static phys_addr_t __cfi_flash_bank_addr(int i)
+{
+	return ((phys_addr_t [])CONFIG_SYS_FLASH_BANKS_LIST)[i];
+}
+phys_addr_t cfi_flash_bank_addr(int i)
+	__attribute__((weak, alias("__cfi_flash_bank_addr")));
 
 static void __flash_write8(u8 value, void *addr)
 {
@@ -153,7 +153,7 @@ u64 flash_read64(void *addr)__attribute__((weak, alias("__flash_read64")));
 flash_info_t *flash_get_info(ulong base)
 {
 	int i;
-	flash_info_t * info = 0;
+	flash_info_t *info = NULL;
 
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; i++) {
 		info = & flash_info[i];
@@ -162,7 +162,7 @@ flash_info_t *flash_get_info(ulong base)
 			break;
 	}
 
-	return i == CONFIG_SYS_MAX_FLASH_BANKS ? 0 : info;
+	return info;
 }
 #endif
 
@@ -2021,14 +2021,12 @@ unsigned long flash_init (void)
 	getenv_f("unlock", s, sizeof(s));
 #endif
 
-#define BANK_BASE(i)	(((phys_addr_t [CFI_MAX_FLASH_BANKS])CONFIG_SYS_FLASH_BANKS_LIST)[i])
-
 	/* Init: no FLASHes known */
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 
-		if (!flash_detect_legacy (BANK_BASE(i), i))
-			flash_get_size (BANK_BASE(i), i);
+		if (!flash_detect_legacy(cfi_flash_bank_addr(i), i))
+			flash_get_size(cfi_flash_bank_addr(i), i);
 		size += flash_info[i].size;
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
 #ifndef CONFIG_SYS_FLASH_QUIET_TEST
