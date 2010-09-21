@@ -59,7 +59,7 @@ void usage(void)
 
 	fprintf(stderr, "fw_printenv/fw_setenv, "
 		"a command line interface to U-Boot environment\n\n"
-		"usage:\tfw_printenv\n"
+		"usage:\tfw_printenv [-n] [variable name]\n"
 		"\tfw_setenv [variable name] [variable value]\n"
 		"\tfw_setenv -s [ file ]\n"
 		"\tfw_setenv -s - < [ file ]\n\n"
@@ -93,15 +93,22 @@ main(int argc, char *argv[])
 		cmdname = p + 1;
 	}
 
-	while ((c = getopt_long (argc, argv, "s:h",
+	while ((c = getopt_long (argc, argv, "ns:h",
 		long_options, NULL)) != EOF) {
 		switch (c) {
+		case 'n':
+			/* handled in fw_printenv */
+			break;
 		case 's':
 			script_file = optarg;
 			break;
 		case 'h':
 			usage();
 			return EXIT_SUCCESS;
+		default: /* '?' */
+			fprintf(stderr, "Try `%s --help' for more information."
+				"\n", cmdname);
+			return EXIT_FAILURE;
 		}
 	}
 

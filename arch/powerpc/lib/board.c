@@ -783,6 +783,17 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	nand_init();		/* go init the NAND */
 #endif
 
+#ifdef CONFIG_GENERIC_MMC
+/*
+ * MMC initialization is called before relocating env.
+ * Thus It is required that operations like pin multiplexer
+ * be put in board_init.
+ */
+	WATCHDOG_RESET ();
+	puts ("MMC:  ");
+	mmc_initialize (bd);
+#endif
+
 	/* relocate environment function pointers etc. */
 	env_relocate ();
 
@@ -937,12 +948,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	WATCHDOG_RESET ();
 	puts ("SCSI:  ");
 	scsi_init ();
-#endif
-
-#ifdef CONFIG_GENERIC_MMC
-	WATCHDOG_RESET ();
-	puts ("MMC:  ");
-	mmc_initialize (bd);
 #endif
 
 #if defined(CONFIG_CMD_DOC)

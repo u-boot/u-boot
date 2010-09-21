@@ -183,7 +183,7 @@ vidinfo_t panel_info = {
 #ifdef CONFIG_LMS283GF05
 
 # define LCD_BPP	LCD_COLOR8
-//# define LCD_INVERT_COLORS
+/*# define LCD_INVERT_COLORS*/
 
 /* you have to set lccr0 and lccr3 (including pcd) */
 # define REG_LCCR0	0x043008f8

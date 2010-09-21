@@ -92,6 +92,11 @@ mmc_bwrite(int dev_num, ulong start, lbaint_t blkcnt, const void*src)
 
 	blklen = mmc->write_bl_len;
 
+	if ((start + blkcnt) > mmc->block_dev.lba) {
+		printf("MMC: block number 0x%lx exceeds max(0x%lx)",
+			start + blkcnt, mmc->block_dev.lba);
+		return 0;
+	}
 	err = mmc_set_blocklen(mmc, mmc->write_bl_len);
 
 	if (err) {
@@ -219,6 +224,11 @@ static ulong mmc_bread(int dev_num, ulong start, lbaint_t blkcnt, void *dst)
 	if (!mmc)
 		return 0;
 
+	if ((start + blkcnt) > mmc->block_dev.lba) {
+		printf("MMC: block number 0x%lx exceeds max(0x%lx)",
+			start + blkcnt, mmc->block_dev.lba);
+		return 0;
+	}
 	/* We always do full block reads from the card */
 	err = mmc_set_blocklen(mmc, mmc->read_bl_len);
 
