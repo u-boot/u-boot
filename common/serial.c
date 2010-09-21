@@ -54,10 +54,7 @@ struct serial_device *__default_serial_console (void)
 #else
 #error "Bad CONFIG_CONS_INDEX."
 #endif
-#elif defined(CONFIG_UART1_CONSOLE)
-		return &serial1_device;
-#else
-		return &serial0_device;
+	return &serial0_device;
 #endif
 #elif defined(CONFIG_MPC512X)
 #if (CONFIG_PSC_CONSOLE == 3)

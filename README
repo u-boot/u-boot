@@ -544,13 +544,6 @@ The following options need to be configured:
 		Leave undefined to disable this feature, including
 		disable the buffer and hardware handshake.
 
-- Console UART Number:
-		CONFIG_UART1_CONSOLE
-
-		AMCC PPC4xx only.
-		If defined internal UART1 (and not UART0) is used
-		as default U-Boot console.
-
 - Boot Delay:	CONFIG_BOOTDELAY - in seconds
 		Delay before automatically booting the default image;
 		set to -1 to disable autoboot.
