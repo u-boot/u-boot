@@ -47,6 +47,7 @@
 # endif
 # if defined(CONFIG_NAND_PLAT) || defined(CONFIG_DRIVER_NAND_BFIN)
 #  define CONFIG_CMD_NAND
+#  define CONFIG_CMD_NAND_LOCK_UNLOCK
 # endif
 # ifdef CONFIG_POST
 #  define CONFIG_CMD_DIAG
