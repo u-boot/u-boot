@@ -1810,6 +1810,7 @@ static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 		usb_gadget_handle_interrupts();
 	}
 
+	packet_received = 0;
 	rx_submit(dev, dev->rx_req, 0);
 	return 0;
 fail:
