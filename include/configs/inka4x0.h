@@ -200,13 +200,15 @@
 
 /* Use ON-Chip SRAM until RAM will be available */
 #define CONFIG_SYS_INIT_RAM_ADDR	MPC5XXX_SRAM
-#ifdef CONFIG_POST
+
 /* preserve space for the post_word at end of on-chip SRAM */
+#define MPC5XXX_SRAM_POST_SIZE (MPC5XXX_SRAM_SIZE - 4)
+
+#ifdef CONFIG_POST
 #define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_POST_SIZE
 #else
 #define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE
 #endif
-
 
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)

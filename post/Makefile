@@ -26,7 +26,8 @@ include $(OBJTREE)/include/autoconf.mk
 
 LIB				= libpost.a
 GPLIB-$(CONFIG_HAS_POST)	+= libgenpost.a
-COBJS-$(CONFIG_HAS_POST)	+= post.o tests.o
+COBJS-$(CONFIG_HAS_POST)	+= post.o
+COBJS-$(CONFIG_POST_STD_LIST)	+= tests.o
 
 SPLIB-$(CONFIG_HAS_POST) = drivers/libpostdrivers.a
 SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d lib_$(ARCH) ]; then echo \

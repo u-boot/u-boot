@@ -196,20 +196,4 @@ int post_hotkeys_pressed(void)
 {
 	return ctrlc();
 }
-
-void post_word_store(ulong a)
-{
-	volatile ulong *save_addr =
-		(volatile ulong *)(CONFIG_SYS_POST_WORD_ADDR);
-
-	*save_addr = a;
-}
-
-ulong post_word_load(void)
-{
-	volatile ulong *save_addr =
-		(volatile ulong *)(CONFIG_SYS_POST_WORD_ADDR);
-
-	return *save_addr;
-}
 #endif

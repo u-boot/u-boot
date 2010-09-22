@@ -178,8 +178,7 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	case 0:
 	case 1:
 	case 4:
-		printf("Usage:\n%s\n", cmdtp->usage);
-		return 1;
+		return cmd_usage(cmdtp);
 
 	case 2:
 		if (!strcmp(argv[1], "list")) {
@@ -234,10 +233,8 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			printf("%d blocks written: %s\n",
 				n, (n == cnt) ? "OK" : "ERROR");
 			return (n == cnt) ? 0 : 1;
-		} else {
-			printf("Usage:\n%s\n", cmdtp->usage);
-			rc = 1;
-		}
+		} else
+			rc = cmd_usage(cmdtp);
 
 		return rc;
 	}
