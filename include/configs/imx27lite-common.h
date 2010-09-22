@@ -236,7 +236,6 @@
 	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
 
 /* additions for new relocation code, must be added to all boards */
-#undef CONFIG_SYS_ARM_WITHOUT_RELOC /* This board is tested with relocation support */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
 					CONFIG_SYS_GBL_DATA_SIZE)
