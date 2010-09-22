@@ -1276,9 +1276,6 @@ static void rx_complete(struct usb_ep *ep, struct usb_request *req)
 	debug("%s: status %d\n", __func__, req->status);
 
 	packet_received = 1;
-
-	if (req)
-		dev->rx_req = req;
 }
 
 static int alloc_requests(struct eth_dev *dev, unsigned n, gfp_t gfp_flags)
@@ -1287,16 +1284,18 @@ static int alloc_requests(struct eth_dev *dev, unsigned n, gfp_t gfp_flags)
 	dev->tx_req = usb_ep_alloc_request(dev->in_ep, 0);
 
 	if (!dev->tx_req)
-		goto fail;
+		goto fail1;
 
 	dev->rx_req = usb_ep_alloc_request(dev->out_ep, 0);
 
 	if (!dev->rx_req)
-		goto fail;
+		goto fail2;
 
 	return 0;
 
-fail:
+fail2:
+	usb_ep_free_request(dev->in_ep, dev->tx_req);
+fail1:
 	error("can't alloc requests");
 	return -1;
 }
@@ -1791,8 +1790,6 @@ static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 	}
 
 	dev->network_started = 0;
-	dev->tx_req = NULL;
-	dev->rx_req = NULL;
 
 	packet_received = 0;
 	packet_sent = 0;
@@ -1823,14 +1820,12 @@ static int usb_eth_send(struct eth_device *netdev,
 			volatile void *packet, int length)
 {
 	int			retval;
-	struct usb_request	*req = NULL;
 	struct eth_dev		*dev = &l_ethdev;
+	struct usb_request	*req = dev->tx_req;
 	unsigned long ts;
 	unsigned long timeout = USB_CONNECT_TIMEOUT;
 
 	debug("%s:...\n", __func__);
-
-	req = dev->tx_req;
 
 	req->buf = (void *)packet;
 	req->context = NULL;
@@ -1883,8 +1878,7 @@ static int usb_eth_recv(struct eth_device *netdev)
 			NetReceive(NetRxPackets[0], dev->rx_req->length);
 			packet_received = 0;
 
-			if (dev->rx_req)
-				rx_submit(dev, dev->rx_req, 0);
+			rx_submit(dev, dev->rx_req, 0);
 		} else
 			error("dev->rx_req invalid");
 	}
