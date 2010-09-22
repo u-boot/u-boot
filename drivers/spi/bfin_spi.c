@@ -35,8 +35,6 @@ MAKE_SPI_FUNC(SPI_BAUD, 0x14)
 
 #define to_bfin_spi_slave(s) container_of(s, struct bfin_spi_slave, slave)
 
-#define MAX_CTRL_CS 7
-
 #define gpio_cs(cs) ((cs) - MAX_CTRL_CS)
 #ifdef CONFIG_BFIN_SPI_GPIO_CS
 # define is_gpio_cs(cs) ((cs) > MAX_CTRL_CS)
