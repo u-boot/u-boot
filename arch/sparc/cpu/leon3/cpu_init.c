@@ -90,7 +90,7 @@ int arch_cpu_init(void)
 int cpu_init_r(void)
 {
 	ambapp_apbdev apbdev;
-	int index, cpu;
+	int index, cpu, ntimers, i;
 	ambapp_dev_gptimer *timer = NULL;
 	unsigned int bus_freq;
 
@@ -134,6 +134,14 @@ int cpu_init_r(void)
 		/* initialize prescaler common to all timers to 1MHz */
 		timer->scalar = timer->scalar_reload =
 		    (((bus_freq / 1000) + 500) / 1000) - 1;
+
+		/* Clear All Timers */
+		ntimers = timer->config & 0x7;
+		for (i = 0; i < ntimers; i++) {
+			timer->e[i].ctrl = GPTIMER_CTRL_IP;
+			timer->e[i].rld = 0;
+			timer->e[i].ctrl = GPTIMER_CTRL_LD;
+		}
 
 		index++;
 	}
