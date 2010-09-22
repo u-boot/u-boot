@@ -140,7 +140,7 @@ static void mpc83xx_pcie_register_hose(int bus, struct pci_region *reg,
 	hose->first_busno = pci_last_busno() + 1;
 	hose->last_busno = 0xff;
 
-	hose->cfg_addr = mpc83xx_pcie_cfg_space[bus].base;
+	hose->cfg_addr = (unsigned int *)mpc83xx_pcie_cfg_space[bus].base;
 
 	pci_set_ops(hose,
 			pcie_read_config_byte,
