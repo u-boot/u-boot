@@ -282,7 +282,7 @@ extern int qong_nand_rdy(void *chip);
 	"mtdparts=physmap-flash.0:384k(U-Boot),128k(env1),"	\
 	"128k(env2),2432k(kernel),13m(ramdisk),-(user)"
 
-/* additions for new relocation code, must added to all boards */
+/* additions for new relocation code, must be added to all boards */
 #undef CONFIG_SYS_ARM_WITHOUT_RELOC /* This board is tested with relocation support */
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
