@@ -28,7 +28,7 @@
 #include <malloc.h>
 #include <asm/io.h>
 
-#include "fsl_diu_fb.h"
+#include <fsl_diu_fb.h>
 
 struct fb_videomode {
 	const char *name;	/* optional */
@@ -472,3 +472,42 @@ static int allocate_buf(struct diu_addr *buf, u32 size, u32 bytes_align)
 		buf->offset = 0;
 	return 0;
 }
+
+#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
+#include <stdio_dev.h>
+#include <video_fb.h>
+/*
+ * The Graphic Device
+ */
+static GraphicDevice ctfb;
+
+void *video_hw_init(void)
+{
+	struct fb_info *info;
+
+	if (platform_diu_init(&ctfb.winSizeX, &ctfb.winSizeY) < 0)
+		return NULL;
+
+	/* fill in Graphic device struct */
+	sprintf(ctfb.modeIdent, "%ix%ix%i %ikHz %iHz",
+		ctfb.winSizeX, ctfb.winSizeY, 32, 64, 60);
+
+	ctfb.frameAdrs = (unsigned int)fsl_fb_open(&info);
+	ctfb.plnSizeX = ctfb.winSizeX;
+	ctfb.plnSizeY = ctfb.winSizeY;
+
+	ctfb.gdfBytesPP = 4;
+	ctfb.gdfIndex = GDF_32BIT_X888RGB;
+
+	ctfb.isaBase = 0;
+	ctfb.pciBase = 0;
+	ctfb.memSize = info->screen_size;
+
+	/* Cursor Start Address */
+	ctfb.dprBase = 0;
+	ctfb.vprBase = 0;
+	ctfb.cprBase = 0;
+
+	return &ctfb;
+}
+#endif /* defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE) */

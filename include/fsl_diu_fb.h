@@ -57,3 +57,4 @@ struct fb_info {
 
 extern char *fsl_fb_open(struct fb_info **info);
 int fsl_diu_init(int xres, unsigned int pixel_format, int gamma_fix);
+int platform_diu_init(unsigned int *xres, unsigned int *yres);
