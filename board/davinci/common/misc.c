@@ -85,45 +85,22 @@ err:
 	return 0;
 }
 
-/* If there is a MAC address in the environment, and if it is not identical to
- * the MAC address in the EEPROM, then a warning is printed and the MAC address
- * from the environment is used.
- *
+/*
  * If there is no MAC address in the environment, then it will be initialized
  * (silently) from the value in the EEPROM.
  */
-void dv_configure_mac_address(uint8_t *rom_enetaddr)
+void davinci_sync_env_enetaddr(uint8_t *rom_enetaddr)
 {
-	int i;
-	u_int8_t env_enetaddr[6];
-	char *tmp = getenv("ethaddr");
-	char *end;
+	uint8_t env_enetaddr[6];
 
-	/* Read Ethernet MAC address from the U-Boot environment.
-	 * If it is not defined, env_enetaddr[] will be cleared. */
-	for (i = 0; i < 6; i++) {
-		env_enetaddr[i] = tmp ? simple_strtoul(tmp, &end, 16) : 0;
-		if (tmp)
-			tmp = (*end) ? end+1 : end;
-	}
-
-	/* Check if EEPROM and U-Boot environment MAC addresses match. */
-	if (memcmp(env_enetaddr, "\0\0\0\0\0\0", 6) != 0 &&
-	    memcmp(env_enetaddr, rom_enetaddr, 6) != 0) {
-		printf("Warning: MAC addresses don't match:\n");
-		printf("  EEPROM MAC address: %pM\n", rom_enetaddr);
-		printf("     \"ethaddr\" value: %pM\n", env_enetaddr) ;
-		debug("### Using MAC address from environment\n");
-	}
-	if (!tmp) {
-		char ethaddr[20];
-
+	eth_getenv_enetaddr_by_index(0, env_enetaddr);
+	if (!memcmp(env_enetaddr, "\0\0\0\0\0\0", 6)) {
 		/* There is no MAC address in the environment, so we initialize
 		 * it from the value in the EEPROM. */
-		sprintf(ethaddr, "%pM", rom_enetaddr) ;
-		debug("### Setting environment from EEPROM MAC address = \"%s\"\n",
-		      ethaddr);
-		setenv("ethaddr", ethaddr);
+		debug("### Setting environment from EEPROM MAC address = "
+			"\"%pM\"\n",
+			env_enetaddr);
+		eth_setenv_enetaddr("ethaddr", rom_enetaddr);
 	}
 }
 

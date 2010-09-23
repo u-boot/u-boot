@@ -367,7 +367,6 @@ typedef struct  {
 
 int davinci_eth_phy_read(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t *data);
 int davinci_eth_phy_write(u_int8_t phy_addr, u_int8_t reg_num, u_int16_t data);
-void davinci_eth_set_mac_addr(const u_int8_t *addr);
 
 typedef struct
 {

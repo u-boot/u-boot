@@ -409,15 +409,6 @@ void start_armboot (void)
 	enable_interrupts ();
 
 	/* Perform network card initialisation if necessary */
-#ifdef CONFIG_DRIVER_TI_EMAC
-	/* XXX: this needs to be moved to board init */
-extern void davinci_eth_set_mac_addr (const u_int8_t *addr);
-	if (getenv ("ethaddr")) {
-		uchar enetaddr[6];
-		eth_getenv_enetaddr("ethaddr", enetaddr);
-		davinci_eth_set_mac_addr(enetaddr);
-	}
-#endif
 
 #if defined(CONFIG_DRIVER_SMC91111) || defined (CONFIG_DRIVER_LAN91C96)
 	/* XXX: this needs to be moved to board init */
@@ -821,16 +812,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	enable_interrupts ();
 
 	/* Perform network card initialisation if necessary */
-#ifdef CONFIG_DRIVER_TI_EMAC
-	/* XXX: this needs to be moved to board init */
-extern void davinci_eth_set_mac_addr (const u_int8_t *addr);
-	if (getenv ("ethaddr")) {
-		uchar enetaddr[6];
-		eth_getenv_enetaddr("ethaddr", enetaddr);
-		davinci_eth_set_mac_addr(enetaddr);
-	}
-#endif
-
 #if defined(CONFIG_DRIVER_SMC91111) || defined (CONFIG_DRIVER_LAN91C96)
 	/* XXX: this needs to be moved to board init */
 	if (getenv ("ethaddr")) {

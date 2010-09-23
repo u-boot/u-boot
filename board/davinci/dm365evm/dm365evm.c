@@ -68,7 +68,7 @@ int board_eth_init(bd_t *bis)
 
 	/* Read Ethernet MAC address from EEPROM */
 	if (dvevm_read_mac_address(eeprom_enetaddr))
-		dv_configure_mac_address(eeprom_enetaddr);
+		davinci_sync_env_enetaddr(eeprom_enetaddr);
 
 	davinci_emac_initialize();
 
