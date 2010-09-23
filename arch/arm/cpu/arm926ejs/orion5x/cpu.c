@@ -77,6 +77,17 @@ unsigned int orion5x_winctrl_calcsize(unsigned int sizeval)
  *
  * If remap function not used, remap_lo must be set as base
  *
+ * NOTES:
+ *
+ * 1) in order to avoid windows with inconsistent control and base values
+ *    (which could prevent access to BOOTCS and hence execution from FLASH)
+ *    always disable window before writing the base value then reenable it
+ *    by writing the control value.
+ *
+ * 2) in order to avoid losing access to BOOTCS when disabling window 7,
+ *    first configure window 6 for BOOTCS, then configure window 7 for BOOTCS,
+ *    then configure windows 6 for its own target.
+ *
  * Reference Documentation:
  * Mbus-L to Mbus Bridge Registers Configuration.
  * (Sec 25.1 and 25.3 of Datasheet)
@@ -86,57 +97,64 @@ int orion5x_config_adr_windows(void)
 	struct orion5x_win_registers *winregs =
 		(struct orion5x_win_registers *)ORION5X_CPU_WIN_BASE;
 
-	/* Window 0: PCIE MEM address space */
-	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_PCIE_MEM,
-		ORION5X_TARGET_PCIE, ORION5X_ATTR_PCIE_MEM,
-		ORION5X_WIN_ENABLE), &winregs[0].ctrl);
+/* Disable window 0, configure it for its intended target, enable it. */
+	writel(0, &winregs[0].ctrl);
 	writel(ORION5X_ADR_PCIE_MEM, &winregs[0].base);
 	writel(ORION5X_ADR_PCIE_MEM_REMAP_LO, &winregs[0].remap_lo);
 	writel(ORION5X_ADR_PCIE_MEM_REMAP_HI, &winregs[0].remap_hi);
-
-	/* Window 1: PCIE IO address space */
-	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_PCIE_IO,
-		ORION5X_TARGET_PCIE, ORION5X_ATTR_PCIE_IO,
-		ORION5X_WIN_ENABLE), &winregs[1].ctrl);
+	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_PCIE_MEM,
+		ORION5X_TARGET_PCIE, ORION5X_ATTR_PCIE_MEM,
+		ORION5X_WIN_ENABLE), &winregs[0].ctrl);
+/* Disable window 1, configure it for its intended target, enable it. */
+	writel(0, &winregs[1].ctrl);
 	writel(ORION5X_ADR_PCIE_IO, &winregs[1].base);
 	writel(ORION5X_ADR_PCIE_IO_REMAP_LO, &winregs[1].remap_lo);
 	writel(ORION5X_ADR_PCIE_IO_REMAP_HI, &winregs[1].remap_hi);
-
-	/* Window 2: PCI MEM address space */
+	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_PCIE_IO,
+		ORION5X_TARGET_PCIE, ORION5X_ATTR_PCIE_IO,
+		ORION5X_WIN_ENABLE), &winregs[1].ctrl);
+/* Disable window 2, configure it for its intended target, enable it. */
+	writel(0, &winregs[2].ctrl);
+	writel(ORION5X_ADR_PCI_MEM, &winregs[2].base);
 	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_PCI_MEM,
 		ORION5X_TARGET_PCI, ORION5X_ATTR_PCI_MEM,
 		ORION5X_WIN_ENABLE), &winregs[2].ctrl);
-	writel(ORION5X_ADR_PCI_MEM, &winregs[2].base);
-
-	/* Window 3: PCI IO address space */
+/* Disable window 3, configure it for its intended target, enable it. */
+	writel(0, &winregs[3].ctrl);
+	writel(ORION5X_ADR_PCI_IO, &winregs[3].base);
 	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_PCI_IO,
 		ORION5X_TARGET_PCI, ORION5X_ATTR_PCI_IO,
 		ORION5X_WIN_ENABLE), &winregs[3].ctrl);
-	writel(ORION5X_ADR_PCI_IO, &winregs[3].base);
-
-	/* Window 4: DEV_CS0 address space */
+/* Disable window 4, configure it for its intended target, enable it. */
+	writel(0, &winregs[4].ctrl);
+	writel(ORION5X_ADR_DEV_CS0, &winregs[4].base);
 	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_DEV_CS0,
 		ORION5X_TARGET_DEVICE, ORION5X_ATTR_DEV_CS0,
 		ORION5X_WIN_ENABLE), &winregs[4].ctrl);
-	writel(ORION5X_ADR_DEV_CS0, &winregs[4].base);
-
-	/* Window 5: DEV_CS1 address space */
+/* Disable window 5, configure it for its intended target, enable it. */
+	writel(0, &winregs[5].ctrl);
+	writel(ORION5X_ADR_DEV_CS1, &winregs[5].base);
 	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_DEV_CS1,
 		ORION5X_TARGET_DEVICE, ORION5X_ATTR_DEV_CS1,
 		ORION5X_WIN_ENABLE), &winregs[5].ctrl);
-	writel(ORION5X_ADR_DEV_CS1, &winregs[5].base);
-
-	/* Window 6: DEV_CS2 address space */
-	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_DEV_CS2,
-		ORION5X_TARGET_DEVICE, ORION5X_ATTR_DEV_CS2,
+/* Disable window 6, configure it for FLASH, enable it. */
+	writel(0, &winregs[6].ctrl);
+	writel(ORION5X_ADR_BOOTROM, &winregs[6].base);
+	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_BOOTROM,
+		ORION5X_TARGET_DEVICE, ORION5X_ATTR_BOOTROM,
 		ORION5X_WIN_ENABLE), &winregs[6].ctrl);
-	writel(ORION5X_ADR_DEV_CS2, &winregs[6].base);
-
-	/* Window 7: BOOT Memory address space */
+/* Disable window 7, configure it for FLASH, enable it. */
+	writel(0, &winregs[7].ctrl);
+	writel(ORION5X_ADR_BOOTROM, &winregs[7].base);
 	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_BOOTROM,
 		ORION5X_TARGET_DEVICE, ORION5X_ATTR_BOOTROM,
 		ORION5X_WIN_ENABLE), &winregs[7].ctrl);
-	writel(ORION5X_ADR_BOOTROM, &winregs[7].base);
+/* Disable window 6, configure it for its intended target, enable it. */
+	writel(0, &winregs[6].ctrl);
+	writel(ORION5X_ADR_DEV_CS2, &winregs[6].base);
+	writel(ORION5X_CPU_WIN_CTRL_DATA(ORION5X_SZ_DEV_CS2,
+		ORION5X_TARGET_DEVICE, ORION5X_ATTR_DEV_CS2,
+		ORION5X_WIN_ENABLE), &winregs[6].ctrl);
 
 	return 0;
 }
@@ -265,6 +283,8 @@ int arch_misc_init(void)
 	writel(ORION5X_MPP16_23, ORION5X_MPP_BASE+0x50);
 	writel(ORION5X_GPIO_OUT_ENABLE, ORION5X_GPIO_BASE+0x04);
 
+	/* initialize timer */
+	timer_init_r();
 	return 0;
 }
 #endif /* CONFIG_ARCH_MISC_INIT */

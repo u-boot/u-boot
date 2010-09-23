@@ -173,9 +173,11 @@ int timer_init(void)
 	cntmrctrl |= CTCR_ARM_TIMER_EN(UBOOT_CNTR);
 	cntmrctrl |= CTCR_ARM_TIMER_AUTO_EN(UBOOT_CNTR);
 	writel(cntmrctrl, CNTMR_CTRL_REG);
+	return 0;
+}
 
+void timer_init_r(void)
+{
 	/* init the timestamp and lastdec value */
 	reset_timer_masked();
-
-	return 0;
 }
