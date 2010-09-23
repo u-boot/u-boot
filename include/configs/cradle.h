@@ -145,6 +145,9 @@
 
 #define CONFIG_SYS_FLASH_BASE          PHYS_FLASH_1
 
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define	CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_GBL_DATA_SIZE + PHYS_SDRAM_1)
+
 /*
  * FLASH and environment organization
  */

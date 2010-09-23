@@ -175,6 +175,9 @@ unsigned char zipitz2_spi_read(void);
 
 #define	CONFIG_SYS_LOAD_ADDR		CONFIG_SYS_DRAM_BASE
 
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define	CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_GBL_DATA_SIZE + PHYS_SDRAM_1)
+
 /*
  * NOR FLASH
  */
