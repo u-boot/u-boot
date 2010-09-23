@@ -34,6 +34,7 @@
 #include <common.h>
 #include <ppc4xx.h>
 #include <asm/processor.h>
+#include <asm/io.h>
 
 #undef DEBUG
 #ifdef DEBUG
@@ -70,6 +71,36 @@ static unsigned long flash_addr_table[8][CONFIG_SYS_MAX_FLASH_BANKS] = {
  * Functions
  */
 static ulong flash_get_size(vu_long * addr, flash_info_t * info);
+
+/*
+ * Override the weak default mapping function with a board specific one
+ */
+u32 flash_get_bank_size(int cs, int idx)
+{
+	u8 reg = in_8((void *)CONFIG_SYS_FPGA_BASE);
+
+	if ((reg & BOOT_SMALL_FLASH) && !(reg & FLASH_ONBD_N)) {
+		/*
+		 * cs0: small flash (512KiB)
+		 * cs2: 2 * big flash (2 * 2MiB)
+		 */
+		if (cs == 0)
+			return flash_info[2].size;
+		if (cs == 2)
+			return flash_info[0].size + flash_info[1].size;
+	} else {
+		/*
+		 * cs0: 2 * big flash (2 * 2MiB)
+		 * cs2: small flash (512KiB)
+		 */
+		if (cs == 0)
+			return flash_info[0].size + flash_info[1].size;
+		if (cs == 2)
+			return flash_info[2].size;
+	}
+
+	return 0;
+}
 
 unsigned long flash_init(void)
 {

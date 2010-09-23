@@ -99,6 +99,16 @@
 
 #endif /* 440EP/EPX 440GR/GRX 440SP/SPE 460EX/GT/SX 405EX*/
 
+/*
+ * Define ns16550 register offset for all PPC4xx SoC's. Some
+ * mostly FPGA based PPC4xx implementations use a different
+ * offset. So let's give them a chance to define their offset
+ * in the board config header.
+ */
+#if !defined(CONFIG_SYS_NS16550_REG_SIZE)
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#endif
+
 #if defined(CONFIG_440)
 #include <ppc440.h>
 #else
