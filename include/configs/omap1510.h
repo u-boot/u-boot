@@ -28,7 +28,7 @@
  *  675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <asm/arch/sizes.h>
+#include <asm/sizes.h>
 
 /*
   There are 2 sets of general I/O -->
