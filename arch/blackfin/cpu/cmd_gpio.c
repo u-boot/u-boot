@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <linux/ctype.h>
 
 #include <asm/blackfin.h>
 #include <asm/gpio.h>
@@ -45,8 +46,8 @@ int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	/* grab the [p]<port> portion */
 	ulong port_base;
-	if (*str_pin == 'p') ++str_pin;
-	switch (*str_pin) {
+	if (tolower(*str_pin) == 'p') ++str_pin;
+	switch (tolower(*str_pin)) {
 #ifdef GPIO_PA0
 		case 'a': port_base = GPIO_PA0; break;
 #endif
