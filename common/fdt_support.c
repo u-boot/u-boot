@@ -620,7 +620,7 @@ int fdt_fixup_nor_flash_size(void *blob)
 	int off;
 	int len;
 	struct fdt_property *prop;
-	u32 *reg;
+	u32 *reg, *reg2;
 	int i;
 
 	for (i = 0; i < 2; i++) {
@@ -640,18 +640,21 @@ int fdt_fixup_nor_flash_size(void *blob)
 				 * There might be multiple reg-tuples,
 				 * so loop through them all
 				 */
-				len /= tuple_size;
-				reg = (u32 *)&prop->data[0];
-				for (idx = 0; idx < len; idx++) {
+				reg = reg2 = (u32 *)&prop->data[0];
+				for (idx = 0; idx < (len / tuple_size); idx++) {
 					/*
 					 * Update size in reg property
 					 */
 					reg[2] = flash_get_bank_size(reg[0],
 								     idx);
-					fdt_setprop(blob, off, "reg", reg,
-						    tuple_size);
-					reg += tuple_size;
+
+					/*
+					 * Point to next reg tuple
+					 */
+					reg += 3;
 				}
+
+				fdt_setprop(blob, off, "reg", reg2, len);
 			}
 
 			/* Move to next compatible node */
