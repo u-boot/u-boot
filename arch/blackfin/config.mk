@@ -43,6 +43,9 @@ ALL += $(obj)u-boot.ldr
 endif
 ifeq ($(CONFIG_ENV_IS_EMBEDDED_IN_LDR),y)
 CREATE_LDR_ENV = $(obj)tools/envcrc --binary > $(obj)env-ldr.o
+HOSTCFLAGS_NOPED += \
+	$(shell $(CPP) -dD - -mcpu=$(CONFIG_BFIN_CPU) </dev/null \
+		| awk '$$2 ~ /ADSP/ { print "-D" $$2 }')
 else
 CREATE_LDR_ENV =
 endif
