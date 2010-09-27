@@ -1023,9 +1023,12 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 	BF537-srv1	BF537
 
 Wojtek Skulski <skulski@pas.rochester.edu>
+Wojtek Skulski <info@skutek.com>
+Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 Benjamin Matthews <mben12@gmail.com>
 
-	BLACKSTAMP	BF532
+	BlackStamp	BF533
+	BlackVME	BF561
 
 I-SYST Micromodule <support@i-syst.com>
 Blackfin Team <u-boot-devel@blackfin.uclinux.org>
