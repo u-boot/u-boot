@@ -34,16 +34,16 @@ extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH ch
 
 DECLARE_GLOBAL_DATA_PTR;
 
-	struct board_bcsr {
-		u8	board_id;
-		u8	cpld_rev;
-		u8	led_user;
-		u8	board_status;
-		u8	reset_ctrl;
-		u8	flash_ctrl;
-		u8	eth_ctrl;
-		u8	usb_ctrl;
-		u8	irq_ctrl;
+struct board_bcsr {
+	u8	board_id;
+	u8	cpld_rev;
+	u8	led_user;
+	u8	board_status;
+	u8	reset_ctrl;
+	u8	flash_ctrl;
+	u8	eth_ctrl;
+	u8	usb_ctrl;
+	u8	irq_ctrl;
 };
 
 #define BOARD_CANYONLANDS_PCIE	1
