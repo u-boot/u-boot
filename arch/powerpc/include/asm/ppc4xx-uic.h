@@ -31,7 +31,7 @@
  */
 #if defined(CONFIG_440GX) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
-    defined(CONFIG_460SX)
+    defined(CONFIG_460SX) || defined(CONFIG_APM821XX)
 #define UIC_MAX		4
 #elif defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
     defined(CONFIG_405EX)
@@ -252,7 +252,8 @@
 #define VECNUM_ETH0		(32 + 28)
 #endif /* CONFIG_440SPE */
 
-#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_APM821XX)
 /* UIC 0 */
 #define VECNUM_UIC2NCI		10
 #define VECNUM_UIC2CI		11

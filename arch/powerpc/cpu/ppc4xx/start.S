@@ -703,7 +703,8 @@ _start:
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460SX)
 	mtdcr	L2_CACHE_CFG,r0		/* Ensure L2 Cache is off */
-#elif defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#elif defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+      defined(CONFIG_APM821XX)
 	lis	r1, 0x0000
 	ori	r1,r1,0x0008		/* Set L2_CACHE_CFG[RDBW]=1 */
 	mtdcr	L2_CACHE_CFG,r1
@@ -731,7 +732,8 @@ _start:
 	lis	r1, 0x8003
 	ori	r1,r1, 0x0980		/* fourth 64k */
 	mtdcr	ISRAM0_SB3CR,r1
-#elif defined(CONFIG_440SPE) || defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#elif defined(CONFIG_440SPE) || defined(CONFIG_460EX) || \
+      defined(CONFIG_460GT) || defined(CONFIG_APM821XX)
 	lis	r1,0x0000		/* BAS = X_0000_0000 */
 	ori	r1,r1,0x0984		/* first 64k */
 	mtdcr	ISRAM0_SB0CR,r1
@@ -744,7 +746,8 @@ _start:
 	lis	r1, 0x0003
 	ori	r1,r1, 0x0984		/* fourth 64k */
 	mtdcr	ISRAM0_SB3CR,r1
-#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_APM821XX)
 	lis	r2,0x7fff
 	ori	r2,r2,0xffff
 	mfdcr	r1,ISRAM1_DPC
@@ -755,7 +758,7 @@ _start:
 	mtdcr	ISRAM1_PMEG,r1
 
 	lis	r1,0x0004		/* BAS = 4_0004_0000 */
-	ori	r1,r1,0x0984		/* 64k */
+	ori     r1,r1,ISRAM1_SIZE       /* ocm size */
 	mtdcr	ISRAM1_SB0CR,r1
 #endif
 #elif defined(CONFIG_460SX)

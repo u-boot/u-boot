@@ -250,6 +250,20 @@ static char *bootstrap_str[] = {
 };
 static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'G', 'F', 'H' };
 #endif
+#if defined(CONFIG_APM821XX)
+#define SDR0_PINSTP_SHIFT       29
+static char *bootstrap_str[] = {
+	"RESERVED",
+	"RESERVED",
+	"RESERVED",
+	"NAND (8 bits)",
+	"NOR  (8 bits)",
+	"NOR  (8 bits) w/PLL Bypassed",
+	"I2C (Addr 0x54)",
+	"I2C (Addr 0x52)",
+};
+static char bootstrap_char[] = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
+#endif
 
 #if defined(SDR0_PINSTP_SHIFT)
 static int bootstrap_option(void)
@@ -588,6 +602,11 @@ int checkcpu (void)
 	case PVR_460GX_RA_V1:
 		puts("460GX Rev. A");
 		strcpy(addstr, "No Security support");
+		break;
+
+	case PVR_APM821XX_RA:
+		puts("APM821XX Rev. A");
+		strcpy(addstr, "Security support");
 		break;
 
 	case PVR_VIRTEX5:

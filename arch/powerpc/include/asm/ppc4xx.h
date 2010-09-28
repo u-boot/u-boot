@@ -79,6 +79,10 @@
 #include <asm/ppc460sx.h>
 #endif
 
+#if defined(CONFIG_APM821XX)
+#include <asm/apm821xx.h>
+#endif
+
 /*
  * Configure which SDRAM/DDR/DDR2 controller is equipped
  */

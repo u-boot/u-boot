@@ -916,6 +916,7 @@
 #define PVR_460SX_RA_V1 0x13541801 /* 460SX rev A Variant 1 Security disabled */
 #define PVR_460GX_RA    0x13541802 /* 460GX rev A                   */
 #define PVR_460GX_RA_V1 0x13541803 /* 460GX rev A Variant 1 Security disabled */
+#define PVR_APM821XX_RA 0x12C41C80 /* APM821XX rev A */
 #define PVR_601		0x00010000
 #define PVR_602		0x00050000
 #define PVR_603		0x00030000
