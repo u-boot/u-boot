@@ -32,6 +32,10 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int board_init(void)
 {
+	/* We have RAM, disable cache */
+	dcache_disable();
+	icache_disable();
+
 	/* memory and cpu-speed are setup before relocation */
 	/* so we do _nothing_ here */
 
@@ -49,13 +53,11 @@ struct serial_device *default_serial_console(void)
 	return &serial_ffuart_device;
 }
 
-
+extern void pxa_dram_init(void);
 int dram_init(void)
 {
+	pxa_dram_init();
 	gd->ram_size = PHYS_SDRAM_1_SIZE;
-#ifdef	CONFIG_256M_U_BOOT
-	gd->ram_size += PHYS_SDRAM_2_SIZE;
-#endif
 	return 0;
 }
 

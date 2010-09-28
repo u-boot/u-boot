@@ -34,7 +34,7 @@
 #define	CONFIG_ENV_OVERWRITE
 #define	CONFIG_SYS_MALLOC_LEN		(128*1024)
 #define	CONFIG_SYS_GBL_DATA_SIZE	128
-
+#define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_BOOTCOMMAND						\
 	"if mmc init && fatload mmc 0 0xa4000000 uImage; then "		\
 		"bootm 0xa4000000; "					\
@@ -51,7 +51,7 @@
 #define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
-
+#define	CONFIG_SYS_TEXT_BASE		0x0
 #define	CONFIG_LZMA			/* LZMA compression support */
 
 /*
@@ -183,7 +183,7 @@
 #define	CONFIG_SYS_LOAD_ADDR		(0x5c000000)
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define	CONFIG_SYS_INIT_SP_ADDR		\
-	(CONFIG_SYS_GBL_DATA_SIZE + CONFIG_STACKSIZE + PHYS_SDRAM_1)
+	(PHYS_SDRAM_1 + CONFIG_SYS_GBL_DATA_SIZE + 2048)
 
 /*
  * NOR FLASH
