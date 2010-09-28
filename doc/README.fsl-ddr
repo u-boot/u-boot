@@ -78,6 +78,20 @@ If the DDR controller supports address hashing, it can be enabled by hwconfig.
 Syntax is:
 hwconfig=fsl_ddr:addr_hash=true
 
+
+Memory testing options for mpc85xx
+==================================
+1. Memory test can be done once U-boot prompt comes up using mtest, or
+2. Memory test can be done with Power-On-Self-Test function, activated at
+   compile time.
+
+   In order to enable the POST memory test, CONFIG_POST needs to be
+   defined in board configuraiton header file. By default, POST memory test
+   performs a fast test. A slow test can be enabled by changing the flag at
+   compiling time. To test memory bigger than 2GB, 36BIT support is needed.
+   Memory is tested within a 2GB window. TLBs are used to map the virtual 2GB
+   window to physical address so that all physical memory can be tested.
+
 Combination of hwconfig
 =======================
 Hwconfig can be combined with multiple parameters, for example, on a supported
