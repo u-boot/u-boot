@@ -281,7 +281,6 @@ int misc_init_r (void)
 #define PCI0_BRDGOPT1 0x4a
 	pci_write_config_word(PCIDEVID_405GP, PCI0_BRDGOPT1, 0x3f20);
 
-#define PLB0_ACR      0x87
 	/*
 	 * Enable fairness and high bus utilization
 	 */

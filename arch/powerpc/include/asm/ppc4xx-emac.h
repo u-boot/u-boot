@@ -44,7 +44,7 @@
 #define _PPC4XX_ENET_H_
 
 #include <net.h>
-#include "405_mal.h"
+#include "asm/ppc4xx-mal.h"
 
 
 /*-----------------------------------------------------------------------------+
@@ -147,12 +147,6 @@ typedef struct emac_4xx_hw_st {
 #define EMAC_STACR_OC_MASK	(0x00008000)
 #else
 #define EMAC_STACR_OC_MASK	(0x00000000)
-#endif
-
-#if defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
-    defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_405EX)
-#define SDR0_PFC1_EM_1000	(0x00200000)
 #endif
 
 /*

@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
-#include <4xx_i2c.h>
+#include <asm/ppc4xx-i2c.h>
 #include <command.h>
 #include <rtc.h>
 #include <post.h>

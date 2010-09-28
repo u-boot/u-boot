@@ -42,6 +42,45 @@
 +----------------------------------------------------------------------------*/
 #ifndef _mal_h_
 #define _mal_h_
+
+#if !defined(MAL_DCR_BASE)
+#define MAL_DCR_BASE	0x180
+#endif
+#define MAL0_CFG	(MAL_DCR_BASE + 0x00)	/* MAL Config reg	*/
+#define MAL0_ESR	(MAL_DCR_BASE + 0x01)	/* Error Status (Read/Clear) */
+#define MAL0_IER	(MAL_DCR_BASE + 0x02)	/* Interrupt enable */
+#define MAL0_TXCASR	(MAL_DCR_BASE + 0x04)	/* TX Channel active (set) */
+#define MAL0_TXCARR	(MAL_DCR_BASE + 0x05)	/* TX Channel active (reset) */
+#define MAL0_TXEOBISR	(MAL_DCR_BASE + 0x06)	/* TX End of buffer int status*/
+#define MAL0_TXDEIR	(MAL_DCR_BASE + 0x07)	/* TX Descr. Error Int */
+#define MAL0_TXBADDR	(MAL_DCR_BASE + 0x09)	/* TX descriptor base addr*/
+#define MAL0_RXCASR	(MAL_DCR_BASE + 0x10)	/* RX Channel active (set) */
+#define MAL0_RXCARR	(MAL_DCR_BASE + 0x11)	/* RX Channel active (reset) */
+#define MAL0_RXEOBISR	(MAL_DCR_BASE + 0x12)	/* RX End of buffer int status*/
+#define MAL0_RXDEIR	(MAL_DCR_BASE + 0x13)	/* RX Descr. Error Int */
+#define MAL0_RXBADDR	(MAL_DCR_BASE + 0x15)	/* RX descriptor base addr */
+#define MAL0_TXCTP0R	(MAL_DCR_BASE + 0x20)	/* TX 0 Channel table pointer */
+#define MAL0_TXCTP1R	(MAL_DCR_BASE + 0x21)	/* TX 1 Channel table pointer */
+#define MAL0_TXCTP2R	(MAL_DCR_BASE + 0x22)	/* TX 2 Channel table pointer */
+#define MAL0_TXCTP3R	(MAL_DCR_BASE + 0x23)	/* TX 3 Channel table pointer */
+#define MAL0_RXCTP0R	(MAL_DCR_BASE + 0x40)	/* RX 0 Channel table pointer */
+#define MAL0_RXCTP1R	(MAL_DCR_BASE + 0x41)	/* RX 1 Channel table pointer */
+#define MAL0_RCBS0	(MAL_DCR_BASE + 0x60)	/* RX 0 Channel buffer size */
+#define MAL0_RCBS1	(MAL_DCR_BASE + 0x61)	/* RX 1 Channel buffer size */
+#if defined(CONFIG_440GX) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define MAL0_RXCTP2R	(MAL_DCR_BASE + 0x42)	/* RX 2 Channel table pointer */
+#define MAL0_RXCTP3R	(MAL_DCR_BASE + 0x43)	/* RX 3 Channel table pointer */
+#define MAL0_RXCTP8R	(MAL_DCR_BASE + 0x48)	/* RX 8 Channel table pointer */
+#define MAL0_RXCTP16R	(MAL_DCR_BASE + 0x50)	/* RX 16 Channel table pointer*/
+#define MAL0_RXCTP24R	(MAL_DCR_BASE + 0x58)	/* RX 24 Channel table pointer*/
+#define MAL0_RCBS2	(MAL_DCR_BASE + 0x62)	/* RX 2 Channel buffer size */
+#define MAL0_RCBS3	(MAL_DCR_BASE + 0x63)	/* RX 3 Channel buffer size */
+#define MAL0_RCBS8	(MAL_DCR_BASE + 0x68)	/* RX 8 Channel buffer size */
+#define MAL0_RCBS16	(MAL_DCR_BASE + 0x70)	/* RX 16 Channel buffer size */
+#define MAL0_RCBS24	(MAL_DCR_BASE + 0x78)	/* RX 24 Channel buffer size */
+#endif /* CONFIG_440GX */
+
 /* MADMAL transmit and receive status/control bits  */
 /* for COMMAC bits, refer to the COMMAC header file */
 

@@ -52,18 +52,8 @@ struct fb_info {
 
 	char *screen_base;
 	unsigned long screen_size;
-	int logo_height;
-	unsigned int logo_size;
 };
 
 
 extern char *fsl_fb_open(struct fb_info **info);
-extern int fsl_diu_init(int xres,
-			unsigned int pixel_format,
-			int gamma_fix,
-			unsigned char *splash_bmp);
-extern void fsl_diu_clear_screen(void);
-extern int fsl_diu_display_bmp(unsigned char *bmp,
-			       int xoffset,
-			       int yoffset,
-			       int transpar);
+int fsl_diu_init(int xres, unsigned int pixel_format, int gamma_fix);

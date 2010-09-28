@@ -330,7 +330,6 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 
 	print_num ("arch_number",	bd->bi_arch_number);
-	print_num ("env_t",		(ulong)bd->bi_env);
 	print_num ("boot_params",	(ulong)bd->bi_boot_params);
 
 	for (i=0; i<CONFIG_NR_DRAM_BANKS; ++i) {
@@ -344,7 +343,16 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf ("ip_addr     = %pI4\n", &bd->bi_ip_addr);
 #endif
 	printf ("baudrate    = %d bps\n", bd->bi_baudrate);
-
+#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
+#if !(defined(CONFIG_SYS_NO_ICACHE) && defined(CONFIG_SYS_NO_DCACHE))
+	print_num ("TLB addr", gd->tlb_addr);
+#endif
+	print_num ("relocaddr", gd->relocaddr);
+	print_num ("reloc off", gd->reloc_off);
+	print_num ("irq_sp", gd->irq_sp);	/* irq stack pointer */
+	print_num ("sp start ", gd->start_addr_sp);
+	print_num ("FB base  ", gd->fb_base);
+#endif
 	return 0;
 }
 

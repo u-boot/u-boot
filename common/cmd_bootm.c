@@ -77,6 +77,7 @@ static int image_info (unsigned long addr);
 
 #if defined(CONFIG_CMD_IMLS)
 #include <flash.h>
+#include <mtd/cfi_flash.h>
 extern flash_info_t flash_info[]; /* info for FLASH chips */
 static int do_imls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 #endif
@@ -118,6 +119,9 @@ extern void lynxkdi_boot (image_header_t *);
 #ifdef CONFIG_BOOTM_RTEMS
 static boot_os_fn do_bootm_rtems;
 #endif
+#if defined(CONFIG_BOOTM_OSE)
+static boot_os_fn do_bootm_ose;
+#endif
 #if defined(CONFIG_CMD_ELF)
 static boot_os_fn do_bootm_vxworks;
 static boot_os_fn do_bootm_qnxelf;
@@ -140,6 +144,9 @@ static boot_os_fn *boot_os[] = {
 #endif
 #ifdef CONFIG_BOOTM_RTEMS
 	[IH_OS_RTEMS] = do_bootm_rtems,
+#endif
+#if defined(CONFIG_BOOTM_OSE)
+	[IH_OS_OSE] = do_bootm_ose,
 #endif
 #if defined(CONFIG_CMD_ELF)
 	[IH_OS_VXWORKS] = do_bootm_vxworks,
@@ -1381,6 +1388,39 @@ static int do_bootm_rtems (int flag, int argc, char * const argv[],
 	return 1;
 }
 #endif /* CONFIG_BOOTM_RTEMS */
+
+#if defined(CONFIG_BOOTM_OSE)
+static int do_bootm_ose (int flag, int argc, char * const argv[],
+			   bootm_headers_t *images)
+{
+	void (*entry_point)(void);
+
+	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
+		return 1;
+
+#if defined(CONFIG_FIT)
+	if (!images->legacy_hdr_valid) {
+		fit_unsupported_reset ("OSE");
+		return 1;
+	}
+#endif
+
+	entry_point = (void (*)(void))images->ep;
+
+	printf ("## Transferring control to OSE (at address %08lx) ...\n",
+		(ulong)entry_point);
+
+	show_boot_progress (15);
+
+	/*
+	 * OSE Parameters:
+	 *   None
+	 */
+	(*entry_point)();
+
+	return 1;
+}
+#endif /* CONFIG_BOOTM_OSE */
 
 #if defined(CONFIG_CMD_ELF)
 static int do_bootm_vxworks (int flag, int argc, char * const argv[],

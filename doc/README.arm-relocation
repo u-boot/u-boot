@@ -1,0 +1,344 @@
+To make relocation on arm working, the following changes are done:
+
+Add new compilerflag:
+
+-fPIC
+
+	-> compiler generates position independent code
+
+changes in board code:
+
+- dram_init:
+  - bd pointer is now at this point not accessible, so only
+    detect the real dramsize, and store it in gd->ram_size.
+    best detected with get_ram_size();
+    ToDo: move there also the dram initialization on boards where
+          it is possible.
+  - setup the bd_t dram bank info in the new function
+    dram_init_banksize().
+
+- board.c code is adapted from ppc code
+
+- undef CONFIG_RELOC_FIXUP_WORKS
+
+  -> cmdtabl, and subcommand table must be handled from "hand"
+     collected in section "__datarellocal_start".
+
+  - How To fixup the sections:
+
+    __datarel_start, __datarelrolocal_start, __datarellocal_start and
+    __datarelro_start
+
+    automatically? Then it should be possible to define again
+    CONFIG_RELOC_FIXUP_WORKS
+
+- irq stack setup is now not longer on a fix position, instead it is
+  calculated in board_init_f, and stored in gd->irq_sp
+
+-------------------------------------------------------------------------------------
+
+To compile a board without relocation, define CONFIG_SYS_ARM_WITHOUT_RELOC
+This possibility will removed!! So please fix your board to compile without
+CONFIG_SYS_ARM_WITHOUT_RELOC defined!!!
+
+-------------------------------------------------------------------------------------
+
+For boards which boot from nand_spl, it is possible to save a copy
+if TEXT_BASE == relocation address! This prevents that uboot code
+is copied again in relocate_code().
+
+example for the tx25 board:
+
+a) cpu starts
+b) it copies the first page in nand to internal ram
+   (nand_spl_code)
+c) end executes this code
+d) this initialize CPU, RAM, ... and copy itself to RAM
+   (this bin must fit in one page, so board_init_f()
+    don;t fit in it ... )
+e) there it copy u-boot to CONFIG_SYS_NAND_U_BOOT_DST and
+   starts this image @ CONFIG_SYS_NAND_U_BOOT_START
+f) u-boot code steps through board_init_f() and calculates
+   the relocation address and copy itself to it
+
+If TEXT_BASE == relocation address, the copying of u-boot
+in f) could be saved.
+
+-------------------------------------------------------------------------------------
+
+ToDo:
+
+- fill in bd_t infos (check)
+- adapt all boards
+
+- maybe adapt TEXT_BASE (this must be checked from board maintainers)
+  This *must* be done for boards, which boot from NOR flash
+
+  on other boards if TEXT_BASE = relocation baseaddr, this saves
+  one copying from u-boot code.
+
+- new function dram_init_banksize() is actual board specific. Maybe
+  we make a weak default function in arch/arm/lib/board.c ?
+
+-------------------------------------------------------------------------------------
+
+Relocation with NAND_SPL (example for the tx25):
+
+- cpu copies the first page from NAND to 0xbb000000 (IMX_NFC_BASE)
+  and start with code execution on this address.
+
+- The First page contains u-boot code from u-boot:nand_spl/nand_boot_fsl_nfc.c
+  which inits the dram, cpu registers, reloacte itself to TEXT_BASE  and loads
+  the "real" u-boot to CONFIG_SYS_NAND_U_BOOT_DST and starts execution
+  @CONFIG_SYS_NAND_U_BOOT_START
+
+- This u-boot does no ram int, nor cpu register setup. Just looks
+  where it have to relocate and relocate itself to this address.
+  If relocate address = TEXT_BASE(not the same, as the TEXT_BASE
+  from the nand_spl code), no need to copy, just go on with bss clear
+  and jump to board_init_r.
+
+-------------------------------------------------------------------------------------
+
+Relocation:
+How to translate flash addresses in GOT to ram addresses.
+This is automagically done from code, but this example
+shows, how this magic code works ;-)
+(example on the qong board)
+
+Find a variable:
+
+a) search it in System.map
+(for example flash_info)
+
+a005b4c0 B BootpID
+a005b4c4 B BootpTry
+a005b4c8 b slave
+a005b4cc B flash_info
+^^^^^^^^
+a005c908 b saved_sector.4002
+a005c910 b cfi_mtd_info
+a005c9c0 b cfi_mtd_names
+a005c9d0 B mtd_table
+
+---------------------------------------
+
+b) create hexdump from u-boot code:
+
+hexdump -C u-boot > gnlmpfhex
+
+---------------------------------------
+
+c) search the variables address in the hexdump
+
+
+*
+0005fc80  00 00 00 00 00 00 00 00  2c 06 01 a0 18 cd 05 a0  |........,.......|
+0005fc90  9c d4 05 a0 bc b4 05 a0  1c 7f 05 a0 f0 05 01 a0  |................|
+0005fca0  08 5a 04 a0 1c ab 05 a0  ec a4 05 a0 98 c3 01 a0  |.Z..............|
+0005fcb0  a0 d6 05 a0 04 71 05 a0  c0 f9 00 a0 3c cd 05 a0  |.....q......<...|
+0005fcc0  cc b4 05 a0 f0 fa 00 a0  f0 d6 05 a0 10 86 05 a0  |................|
+          ^^^^^^^^^^^
+0005fcd0  a4 16 06 a0 dc 64 05 a0  18 86 05 a0 52 48 05 a0  |.....d......RH..|
+0005fce0  c0 86 05 a0 24 6e 02 a0  b4 6c 05 a0 b0 94 01 a0  |....$n...l......|
+0005fcf0  1c 86 05 a0 50 85 05 a0  d4 0c 06 a0 bc 0b 06 a0  |....P...........|
+
+
+-> 0005fcc0
+
+----------------------------------------
+
+d) know we calculate this address in RAM
+
+
+  8ff08000	(new address of code in RAM *1)
+
++ 0005fcc0
+
+- 00008000	(offset of text *2)
+
+----------
+
+  8ff5fcc0	-> Addr GOT in RAM
+
+*1:
+activate debug and look for the line:
+Now running in RAM - U-Boot at: 8ff08000
+                                ^^^^^^^^
+                                new address of u-boot code in RAM
+
+*2:
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        a0000000 008000 04599c 00  AX  0   0 32
+                                                  ^^^^^^
+                                                  Offset of text
+
+----------------------------------------
+
+e) now we look in 8ff5fcc0 (RAM)
+
+
+QongEVB>md 0x8ff5fcc0
+8ff5fcc0 : a005b4cc a000faf0 a005d6f0 a0058610  ................
+           ^^^^^^^^
+           Bingo, here we have the old flash address (when relocation
+           is working, here is the fixed ram address. see @ f, how
+           it gets calculated)
+
+
+----------------------------------------
+
+f) now translate it in the new RAM address
+
+  a005b4cc
+
+- a0000000     TextBase
+
++ 8ff08000     new address of u-boot in ram
+----------
+  8ff634cc
+
+QongEVB>mm 0x8ff5fcc0 0x8ff634cc 1
+QongEVB>md 0x8ff5fcc0
+8ff5fcc0 : 8ff634cc a000faf0 a005d6f0 a0058610  .4..............
+8ff5fcd0 : a00616a4 a00564dc a0058618 a0054852  .....d......RH..
+
+As this must be done for all address in the GOT, the u-boot
+code did this automagically ... :-)
+
+----------------------------------------------
+
+g) check if the new address is really in the bss section:
+
+bss start:
+8ff6054c	(8ff08000 + 0005854C monitorlen)
+
+bss end:
+8ff698ac	(8ff08000 + 618AC)
+
+8ff634cc is in bss :-)
+
+----------------------------------------------
+
+h) u-boot prints:
+
+important  addresses:
+
+U-Boot code: A0000000 -> A005854C  BSS: -> A00618AC	TextBase 0xa0000000
+Now running in RAM - U-Boot at: 8ff08000		relocBase 0x8ff08000
+
+
+---------
+
+U-Boot 2010.06-rc2-00002-gf8fbb25-dirty (Jun 18 2010 - 17:07:19)
+
+U-Boot code: A0000000 -> A005854C  BSS: -> A00618AC
+CPU:   Freescale i.MX31 at 398 MHz
+Board: DAVE/DENX Qong
+mon: FFFFFFFF gd->monLen: 000618AC
+Top of RAM usable for U-Boot at: 90000000
+LCD panel info: 640 x 480, 16 bit/pix
+Reserving 600k for LCD Framebuffer at: 8ff6a000
+Reserving 390k for U-Boot at: 8ff08000
+Reserving 1280k for malloc() at: 8fdc8000
+Reserving 28 Bytes for Board Info at: 8fdc7fe4
+Reserving 48 Bytes for Global Data at: 8fdc7fb4
+New Stack Pointer is: 8fdc7fb0
+RAM Configuration:
+Bank #0: 80000000 256 MiB
+mon: 0005854C gd->monLen: 000618AC
+Now running in RAM - U-Boot at: 8ff08000
+
+-------------------------------------------------------------------------------------
+
+Debugging u-boot in RAM:
+(example on the qong board)
+
+a) add in config.mk:
+
+PLATFORM_CPPFLAGS += -DDEBUG
+
+-----------------
+
+b) start debugger
+
+arm-linux-gdb u-boot
+
+[hs@pollux u-boot]$ arm-linux-gdb u-boot
+GNU gdb Red Hat Linux (6.7-2rh)
+Copyright (C) 2007 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "--host=i686-pc-linux-gnu --target=arm-linux".
+The target architecture is set automatically (currently arm)
+..
+(gdb)
+
+-----------------
+
+c) connect to target
+
+target remote bdi10:2001
+
+(gdb) target remote bdi10:2001
+Remote debugging using bdi10:2001
+0x8ff17f10 in ?? ()
+(gdb)
+
+-----------------
+
+d) discard symbol-file
+
+(gdb) symbol-file
+Discard symbol table from `/home/hs/celf/u-boot/u-boot'? (y or n) y
+No symbol file now.
+(gdb)
+
+-----------------
+
+e) load new symbol table:
+
+(gdb) add-symbol-file u-boot 0x8ff08000
+add symbol table from file "u-boot" at
+        .text_addr = 0x8ff08000
+(y or n) y
+Reading symbols from /home/hs/celf/u-boot/u-boot...done.
+(gdb) c
+Continuing.
+^C
+Program received signal SIGSTOP, Stopped (signal).
+0x8ff17f18 in serial_getc () at serial_mxc.c:192
+192             while (__REG(UART_PHYS + UTS) & UTS_RXEMPTY);
+(gdb)
+
+add-symbol-file u-boot 0x8ff08000
+                       ^^^^^^^^^^
+                       get this address from u-boot debug printfs
+
+U-Boot 2010.06-rc2-00009-gf77b8b8-dirty (Jun 22 2010 - 09:43:46)
+
+U-Boot code: A0000000 -> A0058BAC  BSS: -> A0061F10
+CPU:   Freescale i.MX31 at 398 MHz
+Board: DAVE/DENX Qong
+mon: FFFFFFFF gd->monLen: 00061F10
+Top of RAM usable for U-Boot at: 90000000
+LCD panel info: 640 x 480, 16 bit/pix
+Reserving 600k for LCD Framebuffer at: 8ff6a000
+Reserving 391k for U-Boot at: 8ff08000
+                              ^^^^^^^^
+Reserving 1280k for malloc() at: 8fdc8000
+Reserving 24 Bytes for Board Info at: 8fdc7fe8
+Reserving 52 Bytes for Global Data at: 8fdc7fb4
+New Stack Pointer is: 8fdc7fb0
+RAM Configuration:
+Bank #0: 80000000 256 MiB
+relocation Offset is: eff08000
+mon: 00058BAC gd->monLen: 00061F10
+Now running in RAM - U-Boot at: 8ff08000
+                                ^^^^^^^^
+
+Now you can use gdb as usual :-)

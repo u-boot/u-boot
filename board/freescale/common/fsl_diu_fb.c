@@ -208,10 +208,7 @@ static int fsl_diu_disable_panel(struct fb_info *info);
 static int allocate_buf(struct diu_addr *buf, u32 size, u32 bytes_align);
 void diu_set_pixel_clock(unsigned int pixclock);
 
-int fsl_diu_init(int xres,
-		 unsigned int pixel_format,
-		 int gamma_fix,
-		 unsigned char *splash_bmp)
+int fsl_diu_init(int xres, unsigned int pixel_format, int gamma_fix)
 {
 	struct fb_videomode *fsl_diu_mode_db;
 	struct diu_ad *ad = &fsl_diu_fb_ad;
@@ -288,8 +285,6 @@ int fsl_diu_init(int xres,
 	var->sync = fsl_diu_mode_db->sync;
 	var->vmode = fsl_diu_mode_db->vmode;
 	info->line_length = var->xres * var->bits_per_pixel / 8;
-	info->logo_size = 0;
-	info->logo_height = 0;
 
 	ad->pix_fmt = pixel_format;
 	ad->addr    = cpu_to_le32((unsigned int)info->screen_base);
@@ -358,13 +353,6 @@ int fsl_diu_init(int xres,
 
 	fb_initialized = 1;
 
-	if (splash_bmp) {
-		info->logo_height = fsl_diu_display_bmp(splash_bmp, 0, 0, 0);
-		info->logo_size = info->logo_height * info->line_length;
-		debug("logo height %d, logo_size 0x%x\n",
-			info->logo_height,info->logo_size);
-	}
-
 	/* Enable the DIU */
 	fsl_diu_enable_panel(info);
 	enable_lcdc();
@@ -375,8 +363,7 @@ int fsl_diu_init(int xres,
 char *fsl_fb_open(struct fb_info **info)
 {
 	*info = &fsl_fb_info;
-	return (char *) ((unsigned int)(*info)->screen_base
-			 + (*info)->logo_size);
+	return fsl_fb_info.screen_base;
 }
 
 void fsl_diu_close(void)
@@ -484,119 +471,4 @@ static int allocate_buf(struct diu_addr *buf, u32 size, u32 bytes_align)
 	} else
 		buf->offset = 0;
 	return 0;
-}
-
-int fsl_diu_display_bmp(unsigned char *bmp,
-			int xoffset,
-			int yoffset,
-			int transpar)
-{
-	struct fb_info *info = &fsl_fb_info;
-	unsigned char r, g, b;
-	unsigned int *fb_t, val;
-	unsigned char *bitmap;
-	unsigned int palette[256];
-	int width, height, bpp, ncolors, raster, offset, x, y, i, k, cpp;
-
-	if (!bmp) {
-		printf("Must supply a bitmap address\n");
-		return 0;
-	}
-
-	raster = bmp[10] + (bmp[11] << 8) + (bmp[12] << 16) + (bmp[13] << 24);
-	width  = (bmp[21] << 24) | (bmp[20] << 16) | (bmp[19] << 8) | bmp[18];
-	height = (bmp[25] << 24) | (bmp[24] << 16) | (bmp[23] << 8) | bmp[22];
-	bpp  = (bmp[29] <<  8) | (bmp[28]);
-	ncolors = bmp[46] + (bmp[47] << 8) + (bmp[48] << 16) + (bmp[49] << 24);
-	bitmap   = bmp + raster;
-	cpp = info->var.bits_per_pixel / 8;
-
-	debug("bmp = 0x%08x\n", (unsigned int)bmp);
-	debug("bitmap = 0x%08x\n", (unsigned int)bitmap);
-	debug("width = %d\n", width);
-	debug("height = %d\n", height);
-	debug("bpp = %d\n", bpp);
-	debug("ncolors = %d\n", ncolors);
-
-	debug("xres = %d\n", info->var.xres);
-	debug("yres = %d\n", info->var.yres);
-	debug("Screen_base = 0x%x\n", (unsigned int)info->screen_base);
-
-	if (((width+xoffset) > info->var.xres) ||
-	    ((height+yoffset) > info->var.yres)) {
-		printf("bitmap is out of range, image too large or too much offset\n");
-		return 0;
-	}
-	if (bpp < 24) {
-		for (i = 0, offset = 54; i < ncolors; i++, offset += 4)
-			palette[i] = (bmp[offset+2] << 16)
-				+ (bmp[offset+1] << 8) + bmp[offset];
-	}
-
-	switch (bpp) {
-	case 1:
-		for (y = height - 1; y >= 0; y--) {
-			fb_t = (unsigned int *) ((unsigned int)info->screen_base + (((y+yoffset) * info->var.xres) + xoffset)*cpp);
-			for (x = 0; x < width; x += 8) {
-				b = *bitmap++;
-				for (k = 0; k < 8; k++) {
-					if (b & 0x80)
-						*fb_t++ = palette[1];
-					else
-						*fb_t++ = palette[0];
-					b = b << 1;
-				}
-			}
-			for (i = (width / 2) % 4; i > 0; i--)
-				bitmap++;
-		}
-		break;
-	case 4:
-		for (y = height - 1; y >= 0; y--) {
-			fb_t = (unsigned int *) ((unsigned int)info->screen_base + (((y+yoffset) * info->var.xres) + xoffset)*cpp);
-			for (x = 0; x < width; x += 2) {
-				b = *bitmap++;
-				r = (b >> 4) & 0x0F;
-				g =  b & 0x0F;
-				*fb_t++ = palette[r];
-				*fb_t++ = palette[g];
-			}
-			for (i = (width / 2) % 4; i > 0; i--)
-				bitmap++;
-		}
-		break;
-	case 8:
-		for (y = height - 1; y >= 0; y--) {
-			fb_t = (unsigned int *) ((unsigned int)info->screen_base + (((y+yoffset) * info->var.xres) + xoffset)*cpp);
-			for (x = 0; x < width; x++) {
-				*fb_t++ = palette[ *bitmap++ ];
-			}
-			for (i = (width / 2) % 4; i > 0; i--)
-				bitmap++;
-		}
-		break;
-	case 24:
-		for (y = height - 1; y >= 0; y--) {
-			fb_t = (unsigned int *) ((unsigned int)info->screen_base + (((y+yoffset) * info->var.xres) + xoffset)*cpp);
-			for (x = 0; x < width; x++) {
-				b = *bitmap++;
-				g = *bitmap++;
-				r = *bitmap++;
-				val = (r << 16) + (g << 8) + b;
-				*fb_t++ = val;
-			}
-			for (; (x % 4) != 0; x++)	/* 4-byte alignment */
-				bitmap++;
-		}
-		break;
-	}
-
-	return height;
-}
-
-void fsl_diu_clear_screen(void)
-{
-	struct fb_info *info = &fsl_fb_info;
-
-	memset(info->screen_base, 0, info->smem_len);
 }

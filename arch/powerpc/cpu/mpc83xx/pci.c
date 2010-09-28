@@ -133,7 +133,7 @@ static void pci_init_bus(int bus, struct pci_region *reg)
  * If fewer than three regions are requested, then the region
  * list is terminated with a region of size 0.
  */
-void mpc83xx_pci_init(int num_buses, struct pci_region **reg, int warmboot)
+void mpc83xx_pci_init(int num_buses, struct pci_region **reg)
 {
 	volatile immap_t *immr = (volatile immap_t *)CONFIG_SYS_IMMR;
 	int i;
@@ -150,9 +150,9 @@ void mpc83xx_pci_init(int num_buses, struct pci_region **reg, int warmboot)
 	/*
 	 * Release PCI RST Output signal.
 	 * Power on to RST high must be at least 100 ms as per PCI spec.
-	 * On warm boots only 1 ms is required.
+	 * On warm boots only 1 ms is required, but we play it safe.
 	 */
-	udelay(warmboot ? 1000 : 100000);
+	udelay(100000);
 
 	for (i = 0; i < num_buses; i++)
 		immr->pci_ctrl[i].gcr = 1;

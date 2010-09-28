@@ -35,7 +35,7 @@
 #include <asm/mmu.h>
 #include <asm/io.h>
 #include <asm/cache.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include <watchdog.h>
 
 /*

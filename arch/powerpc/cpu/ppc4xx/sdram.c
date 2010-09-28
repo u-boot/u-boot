@@ -28,7 +28,7 @@
  */
 
 #include <common.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <asm/processor.h>
 #include "sdram.h"
 #include "ecc.h"

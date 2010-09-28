@@ -47,7 +47,6 @@
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_FLASH_BASE		0xfff00000	/* start of FLASH	*/
-#define CONFIG_SYS_PERIPHERAL_BASE	0xa0000000	/* internal peripherals	*/
 #define CONFIG_SYS_ISRAM_BASE		0x90000000	/* internal SRAM	*/
 
 #define CONFIG_SYS_PCI_BASE		0xd0000000	/* internal PCI regs	*/
@@ -76,6 +75,11 @@
 
 #define CONFIG_SYS_FPGA_BASE		0xe2000000	/* epld			*/
 #define CONFIG_SYS_OPER_FLASH		0xe7000000	/* SRAM - OPER Flash	*/
+
+/*
+ * Serial Port
+ */
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
 
 /*-----------------------------------------------------------------------
  * Initial RAM & stack pointer (placed in internal SRAM)

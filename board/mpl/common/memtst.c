@@ -48,7 +48,7 @@ int testdram (void)
 
 #include <common.h>
 #include <asm/processor.h>
-#include <4xx_i2c.h>
+#include <asm/ppc4xx-i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

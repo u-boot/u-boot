@@ -36,16 +36,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int board_early_init_f(void)
-{
-	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-
-	if (in_be32(&im->pmc.pmccr1) & PMCCR1_POWER_OFF)
-		gd->flags |= GD_FLG_SILENT;
-
-	return 0;
-}
-
 static u8 read_board_info(void)
 {
 	u8 val8;
@@ -96,15 +86,11 @@ void pci_init_board(void)
 {
 	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	sysconf83xx_t *sysconf = &immr->sysconf;
-	clk83xx_t *clk = (clk83xx_t *)&immr->clk;
 	law83xx_t *pcie_law = sysconf->pcielaw;
 	struct pci_region *pcie_reg[] = { pcie_regions_0 };
 
 	fsl_setup_serdes(CONFIG_FSL_SERDES1, FSL_SERDES_PROTO_PEX,
 					FSL_SERDES_CLK_100, FSL_SERDES_VDD_1V);
-
-	clrsetbits_be32(&clk->sccr, SCCR_PCIEXP1CM ,
-				    SCCR_PCIEXP1CM_1);
 
 	/* Deassert the resets in the control register */
 	out_be32(&sysconf->pecr1, 0xE0008000);
@@ -114,7 +100,7 @@ void pci_init_board(void)
 	out_be32(&pcie_law[0].bar, CONFIG_SYS_PCIE1_BASE & LAWBAR_BAR);
 	out_be32(&pcie_law[0].ar, LBLAWAR_EN | LBLAWAR_512MB);
 
-	mpc83xx_pcie_init(1, pcie_reg, 0);
+	mpc83xx_pcie_init(1, pcie_reg);
 }
 /*
  * Miscellaneous late-boot configurations
@@ -146,12 +132,14 @@ int board_eth_init(bd_t *bis)
 	int rv, num_if = 0;
 
 	/* Initialize TSECs first */
-	if ((rv = cpu_eth_init(bis)) >= 0)
+	rv = cpu_eth_init(bis);
+	if (rv >= 0)
 		num_if += rv;
 	else
 		printf("ERROR: failed to initialize TSECs.\n");
 
-	if ((rv = pci_eth_init(bis)) >= 0)
+	rv = pci_eth_init(bis);
+	if (rv >= 0)
 		num_if += rv;
 	else
 		printf("ERROR: failed to initialize PCI Ethernet.\n");

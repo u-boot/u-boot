@@ -25,7 +25,7 @@
  */
 
 #include <common.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <asm/u-boot.h>
 #include <asm/processor.h>
 

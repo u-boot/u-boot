@@ -104,6 +104,7 @@
 
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_CACHE
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NET
@@ -280,5 +281,15 @@ extern int qong_nand_rdy(void *chip);
 #define MTDPARTS_DEFAULT	\
 	"mtdparts=physmap-flash.0:384k(U-Boot),128k(env1),"	\
 	"128k(env2),2432k(kernel),13m(ramdisk),-(user)"
+
+/* additions for new relocation code, must added to all boards */
+#undef CONFIG_SYS_ARM_WITHOUT_RELOC /* This board is tested with relocation support */
+#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CONFIG_SYS_INIT_RAM_END		IRAM_SIZE
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)
+
+#define CONFIG_BOARD_EARLY_INIT_F	1
 
 #endif /* __CONFIG_H */

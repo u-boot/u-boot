@@ -124,7 +124,7 @@ pci_init_board(void)
 	udelay(2000);
 
 	if (monarch == 0) {
-		mpc83xx_pci_init(1, reg, 0);
+		mpc83xx_pci_init(1, reg);
 	} else {
 		/*
 		 * Release PCI RST Output signal

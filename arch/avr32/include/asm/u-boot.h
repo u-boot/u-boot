@@ -26,7 +26,6 @@ typedef struct bd_info {
 	unsigned long		bi_baudrate;
 	unsigned long		bi_ip_addr;
 	unsigned char		bi_phy_id[4];
-	struct environment_s	*bi_env;
 	unsigned long		bi_board_number;
 	void			*bi_boot_params;
 	struct {

@@ -111,9 +111,8 @@
 
 #define CONFIG_SYS_OCM_BASE		0xE3000000	/* OCM: 64k		*/
 #define CONFIG_SYS_SRAM_BASE		0xE8000000	/* SRAM: 256k		*/
+#define CONFIG_SYS_SRAM_SIZE		(256 << 10)
 #define CONFIG_SYS_LOCAL_CONF_REGS	0xEF000000
-
-#define CONFIG_SYS_PERIPHERAL_BASE	0xEF600000	/* internal peripherals */
 
 #define CONFIG_SYS_AHB_BASE		0xE2000000	/* internal AHB peripherals	*/
 
@@ -129,7 +128,7 @@
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
-#undef CONFIG_UART1_CONSOLE	/* define this if you want console on UART1 */
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
 
 /*-----------------------------------------------------------------------
  * Environment

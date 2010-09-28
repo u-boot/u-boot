@@ -33,6 +33,14 @@ STANDALONE_LOAD_ADDR = 0xc100000
 endif
 endif
 
+ifndef CONFIG_SYS_ARM_WITHOUT_RELOC
+# needed for relocation
+PLATFORM_RELFLAGS += -fPIC
+endif
+
+ifdef CONFIG_SYS_ARM_WITHOUT_RELOC
+PLATFORM_CPPFLAGS += -DCONFIG_SYS_ARM_WITHOUT_RELOC
+endif
 PLATFORM_CPPFLAGS += -DCONFIG_ARM -D__ARM__
 
 # Explicitly specifiy 32-bit ARM ISA since toolchain default can be -mthumb:

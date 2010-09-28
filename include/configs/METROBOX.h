@@ -125,7 +125,6 @@
 #define CONFIG_SYS_FLASH_BASE	       0xfff80000    /* start of FLASH		*/
 #define CONFIG_SYS_MONITOR_BASE       0xfff80000    /* start of monitor	*/
 #define CONFIG_SYS_PCI_MEMBASE	       0x80000000    /* mapped pci memory	*/
-#define CONFIG_SYS_PERIPHERAL_BASE    0xe0000000    /* internal peripherals	*/
 #define CONFIG_SYS_ISRAM_BASE	       0xc0000000    /* internal SRAM		*/
 #define CONFIG_SYS_PCI_BASE	       0xd0000000    /* internal PCI regs	*/
 
@@ -152,7 +151,11 @@
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 #define CONFIG_SERIAL_MULTI   1
 #define CONFIG_BAUDRATE	      9600
 

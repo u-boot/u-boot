@@ -123,7 +123,7 @@
  * If CONFIG_SYS_405_UART_ERRATA_59 and 200MHz CPU clock,
  * set Linux BASE_BAUD to 403200.
  */
-#undef	CONFIG_SERIAL_SOFTWARE_FIFO
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
 #undef  CONFIG_SYS_EXT_SERIAL_CLOCK           /* external serial clock */
 #undef  CONFIG_SYS_405_UART_ERRATA_59         /* 405GP/CR Rev. D silicon */
 #define CONFIG_SYS_BASE_BAUD       691200
@@ -179,6 +179,7 @@
  * (Set up by the startup code)
  */
 #define CONFIG_SYS_SRAM_BASE		0xFFF00000
+#define CONFIG_SYS_SRAM_SIZE		(256 << 10)
 #define CONFIG_SYS_FLASH_BASE		0xFFF80000
 
 /*-----------------------------------------------------------------------
@@ -283,12 +284,12 @@
  * GPIO0[28-29] - UART1 data signal input/output
  * GPIO0[30-31] - EMAC0 and EMAC1 reject packet inputs
  */
-#define CONFIG_SYS_GPIO0_OSRH          0x55555555
-#define CONFIG_SYS_GPIO0_OSRL          0x40000110
-#define CONFIG_SYS_GPIO0_ISR1H         0x00000000
-#define CONFIG_SYS_GPIO0_ISR1L         0x15555445
-#define CONFIG_SYS_GPIO0_TSRH          0x00000000
+#define CONFIG_SYS_GPIO0_OSRL          0x55555555
+#define CONFIG_SYS_GPIO0_OSRH          0x40000110
+#define CONFIG_SYS_GPIO0_ISR1L         0x00000000
+#define CONFIG_SYS_GPIO0_ISR1H         0x15555445
 #define CONFIG_SYS_GPIO0_TSRL          0x00000000
+#define CONFIG_SYS_GPIO0_TSRH          0x00000000
 #define CONFIG_SYS_GPIO0_TCR           0xFFFF8014
 
 /*-----------------------------------------------------------------------

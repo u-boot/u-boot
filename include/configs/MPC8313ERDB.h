@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Freescale Semiconductor, Inc. 2006.
+ * Copyright (C) Freescale Semiconductor, Inc. 2006, 2010.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -232,6 +232,13 @@
 #define CONFIG_SYS_NAND_BASE		0xE2800000
 #endif
 
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITION
+#define CONFIG_CMD_MTDPARTS
+#define MTDIDS_DEFAULT			"nand0=e2800000.flash"
+#define MTDPARTS_DEFAULT 		\
+	"mtdparts=e0600000.flash:512k(uboot),128k(env),3m@1m(kernel),-(fs)"
+
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_MTD_NAND_VERIFY_WRITE
 #define CONFIG_CMD_NAND 1
@@ -453,10 +460,10 @@
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTMAPSZ	(256 << 20)	/* Initial Memory map for Linux*/
 
 #define CONFIG_SYS_RCWH_PCIHOST 0x80000000	/* PCIHOST  */
 

@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
-#include <ppc405.h>
+#include <asm/ppc405.h>
 
 /* test-only: move into cpu directory!!! */
 
@@ -53,9 +53,9 @@ void board_pll_init_f(void)
 	/* Initialize PLL */
 	mtcpr(CPR0_PLLC, 0x0000033c);
 	mtcpr(CPR0_PLLD, 0x0c010200);
-	mtcpr(CPC0_PRIMAD, 0x04060c0c);
-	mtcpr(CPC0_PERD0, 0x000c0000);	/* SPI clk div. eq. OPB clk div. */
-	mtcpr(CPR0_CLKUP, 0x40000000);
+	mtcpr(CPR0_PRIMAD, 0x04060c0c);
+	mtcpr(CPR0_PERD0, 0x000c0000);	/* SPI clk div. eq. OPB clk div. */
+	mtcpr(CPR0_CLKUPD, 0x40000000);
 }
 
 #elif defined(PLLMR0_266_160_80)
@@ -85,10 +85,10 @@ void board_pll_init_f(void)
 	/* Initialize PLL */
 	mtcpr(CPR0_PLLC, 0x20000238);
 	mtcpr(CPR0_PLLD, 0x03010400);
-	mtcpr(CPC0_PRIMAD, 0x03050a0a);
-	mtcpr(CPC0_PERC0, 0x00000000);
-	mtcpr(CPC0_PERD0, 0x070a0707);	/* SPI clk div. eq. OPB clk div. */
-	mtcpr(CPC0_PERD1, 0x07323200);
+	mtcpr(CPR0_PRIMAD, 0x03050a0a);
+	mtcpr(CPR0_PERC0, 0x00000000);
+	mtcpr(CPR0_PERD0, 0x070a0707);	/* SPI clk div. eq. OPB clk div. */
+	mtcpr(CPR0_PERD1, 0x07323200);
 	mtcpr(CPR0_CLKUP, 0x40000000);
 }
 
@@ -119,9 +119,9 @@ void board_pll_init_f(void)
 	/* Initialize PLL */
 	mtcpr(CPR0_PLLC, 0x0000033C);
 	mtcpr(CPR0_PLLD, 0x0a010000);
-	mtcpr(CPC0_PRIMAD, 0x02040808);
-	mtcpr(CPC0_PERD0, 0x02080505);	/* SPI clk div. eq. OPB clk div. */
-	mtcpr(CPC0_PERD1, 0xA6A60300);
+	mtcpr(CPR0_PRIMAD, 0x02040808);
+	mtcpr(CPR0_PERD0, 0x02080505);	/* SPI clk div. eq. OPB clk div. */
+	mtcpr(CPR0_PERD1, 0xA6A60300);
 	mtcpr(CPR0_CLKUP, 0x40000000);
 }
 
@@ -145,9 +145,9 @@ void board_pll_init_f(void)
 	/* Initialize PLL */
 	mtcpr(CPR0_PLLC, 0x000003BC);
 	mtcpr(CPR0_PLLD, 0x06060600);
-	mtcpr(CPC0_PRIMAD, 0x02020004);
-	mtcpr(CPC0_PERD0, 0x04002828);	/* SPI clk div. eq. OPB clk div. */
-	mtcpr(CPC0_PERD1, 0xC8C81600);
+	mtcpr(CPR0_PRIMAD, 0x02020004);
+	mtcpr(CPR0_PERD0, 0x04002828);	/* SPI clk div. eq. OPB clk div. */
+	mtcpr(CPR0_PERD1, 0xC8C81600);
 	mtcpr(CPR0_CLKUP, 0x40000000);
 }
 #endif				/* CPU_<speed>_405EZ */
@@ -172,7 +172,7 @@ unsigned long get_tbclk(void)
 	/*
 	 * Read CPR_PRIMAD register
 	 */
-	mfcpr(CPC0_PRIMAD, cpr_primad);
+	mfcpr(CPR0_PRIMAD, cpr_primad);
 
 	/*
 	 * Determine CPU clock frequency

@@ -47,6 +47,12 @@
 #define CONFIG_MISC_INIT_R	1	/* so that a misc_init_r() is called */
 #define CONFIG_NET_MULTI
 
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+
 /* set PRAM to keep U-Boot out, mem= to keep linux out, and initrd_hi to
  * keep possible initrd ramdisk decompression out.  This is in k (1024 bytes)
  #define CONFIG_PRAM			16

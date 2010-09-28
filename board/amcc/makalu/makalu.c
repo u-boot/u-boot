@@ -22,11 +22,11 @@
  */
 
 #include <common.h>
-#include <ppc4xx.h>
-#include <ppc405.h>
+#include <asm/ppc4xx.h>
+#include <asm/ppc405.h>
 #include <libfdt.h>
 #include <asm/processor.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <asm/errno.h>

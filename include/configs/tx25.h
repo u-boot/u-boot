@@ -40,9 +40,9 @@
 /* Start copying real U-boot from the second page */
 #define CONFIG_SYS_NAND_U_BOOT_OFFS	0x800
 #define CONFIG_SYS_NAND_U_BOOT_SIZE	0x30000
-/* Load U-Boot to this address */
-#define CONFIG_SYS_NAND_U_BOOT_DST	0x81f00000
-#define CONFIG_SYS_NAND_U_BOOT_START	CONFIG_SYS_NAND_U_BOOT_DST
+
+#define CONFIG_SYS_NAND_U_BOOT_DST      (0x81fc0000)
+#define CONFIG_SYS_NAND_U_BOOT_START    CONFIG_SYS_NAND_U_BOOT_DST
 
 #define CONFIG_SYS_NAND_PAGE_SIZE	2048
 #define CONFIG_SYS_NAND_SPARE_SIZE	64
@@ -52,7 +52,6 @@
 #define CONFIG_SYS_NAND_BAD_BLOCK_POS	0
 #else
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_RELOCATE_UBOOT
 #endif
 
 #define CONFIG_DISPLAY_CPUINFO
@@ -131,6 +130,7 @@
 /* U-Boot commands */
 #include <config_cmd_default.h>
 #define CONFIG_CMD_NAND
+#define CONFIG_CMD_CACHE
 
 /*
  * Ethernet
@@ -175,5 +175,11 @@
 	"load=tftp ${loadaddr} ${u-boot}\0"				\
 	"update=nand erase 0 40000;nand write ${loadaddr} 0 40000\0"	\
 	"upd=run load update\0"						\
+
+/* additions for new relocation code, must added to all boards */
+#undef CONFIG_SYS_ARM_WITHOUT_RELOC /* This board is tested with relocation support */
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
+					CONFIG_SYS_GBL_DATA_SIZE)
 
 #endif /* __CONFIG_H */

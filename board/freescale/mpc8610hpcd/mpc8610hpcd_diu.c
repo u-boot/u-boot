@@ -36,8 +36,6 @@
 #include <video_fb.h>
 #endif
 
-extern unsigned int FSL_Logo_BMP[];
-
 static int xres, yres;
 
 void diu_set_pixel_clock(unsigned int pixclock)
@@ -61,7 +59,7 @@ void diu_set_pixel_clock(unsigned int pixclock)
 	debug("DIU: Modified value of CLKDVDR = 0x%08x\n", *guts_clkdvdr);
 }
 
-void mpc8610hpcd_diu_init(void)
+int mpc8610hpcd_diu_init(void)
 {
 	char *monitor_port;
 	int gamma_fix;
@@ -106,79 +104,45 @@ void mpc8610hpcd_diu_init(void)
 		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val | 0x08);
 	}
 
-	fsl_diu_init(xres, pixel_format, gamma_fix,
-		     (unsigned char *)FSL_Logo_BMP);
+	return fsl_diu_init(xres, pixel_format, gamma_fix);
 }
-
-int mpc8610diu_init_show_bmp(cmd_tbl_t *cmdtp,
-			     int flag, int argc, char * const argv[])
-{
-	unsigned int addr;
-
-	if (argc < 2)
-		return cmd_usage(cmdtp);
-
-	if (!strncmp(argv[1],"init",4)) {
-#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-		fsl_diu_clear_screen();
-		drv_video_init();
-#else
-		mpc8610hpcd_diu_init();
-#endif
-	} else {
-		addr = simple_strtoul(argv[1], NULL, 16);
-		fsl_diu_clear_screen();
-		fsl_diu_display_bmp((unsigned char *)addr, 0, 0, 0);
-	}
-
-	return 0;
-}
-
-U_BOOT_CMD(
-	diufb, CONFIG_SYS_MAXARGS, 1, mpc8610diu_init_show_bmp,
-	"Init or Display BMP file",
-	"init\n    - initialize DIU\n"
-	"addr\n    - display bmp at address 'addr'"
-);
-
 
 #if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
 
 /*
  * The Graphic Device
  */
-GraphicDevice ctfb;
+static GraphicDevice ctfb;
+
 void *video_hw_init(void)
 {
-	GraphicDevice *pGD = (GraphicDevice *) &ctfb;
 	struct fb_info *info;
 
-	mpc8610hpcd_diu_init();
+	if (mpc8610hpcd_diu_init() < 0)
+		return NULL;
 
 	/* fill in Graphic device struct */
-	sprintf(pGD->modeIdent,
-		"%dx%dx%d %ldkHz %ldHz",
-		xres, yres, 32, 64, 60);
+	sprintf(ctfb.modeIdent, "%ix%ix%i %ikHz %iHz", xres, yres, 32, 64, 60);
 
-	pGD->frameAdrs = (unsigned int)fsl_fb_open(&info);
-	pGD->winSizeX = xres;
-	pGD->winSizeY = yres - info->logo_height;
-	pGD->plnSizeX = pGD->winSizeX;
-	pGD->plnSizeY = pGD->winSizeY;
+	ctfb.frameAdrs = (unsigned int)fsl_fb_open(&info);
+	ctfb.winSizeX = xres;
+	ctfb.winSizeY = yres;
+	ctfb.plnSizeX = ctfb.winSizeX;
+	ctfb.plnSizeY = ctfb.winSizeY;
 
-	pGD->gdfBytesPP = 4;
-	pGD->gdfIndex = GDF_32BIT_X888RGB;
+	ctfb.gdfBytesPP = 4;
+	ctfb.gdfIndex = GDF_32BIT_X888RGB;
 
-	pGD->isaBase = 0;
-	pGD->pciBase = 0;
-	pGD->memSize = info->screen_size - info->logo_size;
+	ctfb.isaBase = 0;
+	ctfb.pciBase = 0;
+	ctfb.memSize = info->screen_size;
 
 	/* Cursor Start Address */
-	pGD->dprBase = 0;
-	pGD->vprBase = 0;
-	pGD->cprBase = 0;
+	ctfb.dprBase = 0;
+	ctfb.vprBase = 0;
+	ctfb.cprBase = 0;
 
-	return (void *)pGD;
+	return &ctfb;
 }
 
 #endif /* defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE) */

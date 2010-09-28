@@ -59,7 +59,6 @@
   * Serial Configuration
   */
 #define CONFIG_SERIAL_MULTI
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_CONS_INDEX		1
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL

@@ -39,7 +39,6 @@
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_RELOCATE_UBOOT	/* to a proper address, init done */
 
 /*
  * Memory Info
@@ -48,6 +47,7 @@
 #define CONFIG_SYS_GBL_DATA_SIZE	128 /* reserved for initial data */
 #define PHYS_SDRAM_1		DAVINCI_DDR_EMIF_DATA_BASE /* DDR Start */
 #define PHYS_SDRAM_1_SIZE	(64 << 20) /* SDRAM size 64MB */
+#define CONFIG_MAX_RAM_BANK_SIZE (512 << 20) /* max size from SPRS586*/
 
 /* memtest start addr */
 #define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1 + 0x2000000)
@@ -137,4 +137,9 @@
 #undef CONFIG_CMD_ENV
 #endif
 
+/* additions for new relocation code, must added to all boards */
+#undef CONFIG_SYS_ARM_WITHOUT_RELOC /* This board is tested with relocation support */
+#define CONFIG_SYS_SDRAM_BASE		0xc0000000
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
+					CONFIG_SYS_GBL_DATA_SIZE)
 #endif /* __CONFIG_H */

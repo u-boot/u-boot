@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <ppc_asm.tmpl>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -902,7 +902,7 @@ void get_sys_info (PPC4xx_SYS_INFO * sysInfo)
 	/*
 	 * Read CPR_PRIMAD register
 	 */
-	mfcpr(CPC0_PRIMAD, cpr_primad);
+	mfcpr(CPR0_PRIMAD, cpr_primad);
 
 	/*
 	 * Determine PLB_DIV.

@@ -41,7 +41,7 @@
 
 #include <common.h>
 #include <command.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <i2c.h>
 #include <asm/io.h>
 #include <asm/processor.h>
@@ -469,7 +469,7 @@ phys_size_t initdram(int board_type)
 	/*------------------------------------------------------------------
 	 * Reset the DDR-SDRAM controller.
 	 *-----------------------------------------------------------------*/
-	mtsdr(SDR0_SRST, (0x80000000 >> 10));
+	mtsdr(SDR0_SRST, SDR0_SRST0_DMC);
 	mtsdr(SDR0_SRST, 0x00000000);
 
 	/*

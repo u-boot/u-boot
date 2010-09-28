@@ -105,6 +105,11 @@
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 #undef	CONFIG_SYS_EXT_SERIAL_CLOCK			/* external serial clock */
 #define CONFIG_SYS_BASE_BAUD		691200
 #define CONFIG_BAUDRATE		115200
@@ -270,12 +275,12 @@
  * Taken in part from PPCBoot board/icecube/icecube.h
  */
 /* see ./arch/powerpc/cpu/ppc4xx/cpu_init.c ./cpu/ppc4xx/start.S */
-#define CONFIG_SYS_GPIO0_OSRH		0x55555550
-#define CONFIG_SYS_GPIO0_OSRL		0x00000110
-#define CONFIG_SYS_GPIO0_ISR1H		0x00000000
-#define CONFIG_SYS_GPIO0_ISR1L		0x15555445
-#define CONFIG_SYS_GPIO0_TSRH		0x00000000
+#define CONFIG_SYS_GPIO0_OSRL		0x55555550
+#define CONFIG_SYS_GPIO0_OSRH		0x00000110
+#define CONFIG_SYS_GPIO0_ISR1L		0x00000000
+#define CONFIG_SYS_GPIO0_ISR1H		0x15555445
 #define CONFIG_SYS_GPIO0_TSRL		0x00000000
+#define CONFIG_SYS_GPIO0_TSRH		0x00000000
 #define CONFIG_SYS_GPIO0_TCR		0xFFFF8097
 #define CONFIG_SYS_GPIO0_ODR		0x00000000
 

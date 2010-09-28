@@ -44,7 +44,7 @@
 /*	Bank 6 - not used             */
 /*	Bank 7 - not used             */
 /*------------------------------------------------------------------------- */
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 
 #include <ppc_asm.tmpl>
 #include <ppc_defs.h>

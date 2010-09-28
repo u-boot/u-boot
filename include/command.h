@@ -125,4 +125,7 @@ cmd_tbl_t __u_boot_cmd_##name Struct_Section = {#name, maxargs, rep, cmd, usage}
 
 #endif	/* CONFIG_SYS_LONGHELP */
 
+#if !defined(CONFIG_RELOC_FIXUP_WORKS)
+void fixup_cmdtable(cmd_tbl_t *cmdtp, int size);
+#endif
 #endif	/* __COMMAND_H */

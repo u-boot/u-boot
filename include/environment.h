@@ -160,6 +160,9 @@ unsigned char env_get_char_memory (int index);
 void env_crc_update (void);
 
 /* [re]set to the default environment */
-void set_default_env(void);
+void set_default_env(const char *s);
+
+/* Import from binary representation into hash table */
+int env_import(const char *buf, int check);
 
 #endif	/* _ENVIRONMENT_H_ */

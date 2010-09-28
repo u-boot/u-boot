@@ -50,7 +50,6 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_SYS_FLASH_BASE		0xfc000000	/* start of FLASH	*/
 #define CONFIG_SYS_PCI_MEMBASE		0x80000000	/* mapped pci memory	*/
-#define CONFIG_SYS_PERIPHERAL_BASE	0xe0000000	/* internal peripherals	*/
 #define CONFIG_SYS_ISRAM_BASE		0xc0000000	/* internal SRAM	*/
 #define CONFIG_SYS_PCI_BASE		0xd0000000	/* internal PCI regs	*/
 
@@ -76,7 +75,7 @@
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
-#define CONFIG_UART1_CONSOLE	1	/* use of UART1 as console	*/
+#define CONFIG_CONS_INDEX	2	/* Use UART1			*/
 #define CONFIG_SYS_EXT_SERIAL_CLOCK	(1843200 * 6)	/* Ext clk @ 11.059 MHz */
 
 /*-----------------------------------------------------------------------

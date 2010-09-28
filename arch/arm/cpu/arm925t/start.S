@@ -81,12 +81,15 @@ _fiq:			.word fiq
  *************************************************************************
  */
 
+.globl _TEXT_BASE
 _TEXT_BASE:
 	.word	TEXT_BASE
 
+#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 .globl _armboot_start
 _armboot_start:
 	.word _start
+#endif
 
 /*
  * These are defined in the board-specific linker script.
@@ -111,7 +114,198 @@ FIQ_STACK_START:
 	.word 0x0badc0de
 #endif
 
+#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
+/* IRQ stack memory (calculated at run-time) + 8 bytes */
+.globl IRQ_STACK_START_IN
+IRQ_STACK_START_IN:
+	.word	0x0badc0de
 
+.globl _datarel_start
+_datarel_start:
+	.word __datarel_start
+
+.globl _datarelrolocal_start
+_datarelrolocal_start:
+	.word __datarelrolocal_start
+
+.globl _datarellocal_start
+_datarellocal_start:
+	.word __datarellocal_start
+
+.globl _datarelro_start
+_datarelro_start:
+	.word __datarelro_start
+
+.globl _got_start
+_got_start:
+	.word __got_start
+
+.globl _got_end
+_got_end:
+	.word __got_end
+
+/*
+ * the actual reset code
+ */
+
+reset:
+	/*
+	 * set the cpu to SVC32 mode
+	 */
+	mrs	r0,cpsr
+	bic	r0,r0,#0x1f
+	orr	r0,r0,#0xd3
+	msr	cpsr,r0
+
+	/*
+	 * Set up 925T mode
+	 */
+	mov r1, #0x81               /* Set ARM925T configuration. */
+	mcr p15, 0, r1, c15, c1, 0  /* Write ARM925T configuration register. */
+
+	/*
+	 * turn off the watchdog, unlock/diable sequence
+	 */
+	mov  r1, #0xF5
+	ldr  r0, =WDTIM_MODE
+	strh r1, [r0]
+	mov  r1, #0xA0
+	strh r1, [r0]
+
+	/*
+	 * mask all IRQs by setting all bits in the INTMR - default
+	 */
+	mov r1, #0xffffffff
+	ldr r0, =REG_IHL1_MIR
+	str r1, [r0]
+	ldr r0, =REG_IHL2_MIR
+	str r1, [r0]
+
+	/*
+	 * wait for dpll to lock
+	 */
+	ldr  r0, =CK_DPLL1
+	mov  r1, #0x10
+	strh r1, [r0]
+poll1:
+	ldrh r1, [r0]
+	ands r1, r1, #0x01
+	beq poll1
+
+	/*
+	 * we do sys-critical inits only at reboot,
+	 * not when booting from ram!
+	 */
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+	bl  cpu_init_crit
+#endif
+
+/* Set stackpointer in internal RAM to call board_init_f */
+call_board_init_f:
+	ldr	sp, =(CONFIG_SYS_INIT_SP_ADDR)
+	ldr	r0,=0x00000000
+	bl	board_init_f
+
+/*------------------------------------------------------------------------------*/
+
+/*
+ * void relocate_code (addr_sp, gd, addr_moni)
+ *
+ * This "function" does not return, instead it continues in RAM
+ * after relocating the monitor code.
+ *
+ */
+	.globl	relocate_code
+relocate_code:
+	mov	r4, r0	/* save addr_sp */
+	mov	r5, r1	/* save addr of gd */
+	mov	r6, r2	/* save addr of destination */
+	mov	r7, r2	/* save addr of destination */
+
+	/* Set up the stack						    */
+stack_setup:
+	mov	sp, r4
+
+	adr	r0, _start
+	ldr	r2, _TEXT_BASE
+	ldr	r3, _bss_start
+	sub	r2, r3, r2		/* r2 <- size of armboot	    */
+	add	r2, r0, r2		/* r2 <- source end address	    */
+	cmp	r0, r6
+	beq	clear_bss
+
+#ifndef CONFIG_SKIP_RELOCATE_UBOOT
+copy_loop:
+	ldmia	r0!, {r9-r10}		/* copy from source address [r0]    */
+	stmia	r6!, {r9-r10}		/* copy to   target address [r1]    */
+	cmp	r0, r2			/* until source end addreee [r2]    */
+	ble	copy_loop
+
+#ifndef CONFIG_PRELOADER
+	/* fix got entries */
+	ldr	r1, _TEXT_BASE		/* Text base */
+	mov	r0, r7			/* reloc addr */
+	ldr	r2, _got_start		/* addr in Flash */
+	ldr	r3, _got_end		/* addr in Flash */
+	sub	r3, r3, r1
+	add	r3, r3, r0
+	sub	r2, r2, r1
+	add	r2, r2, r0
+
+fixloop:
+	ldr	r4, [r2]
+	sub	r4, r4, r1
+	add	r4, r4, r0
+	str	r4, [r2]
+	add	r2, r2, #4
+	cmp	r2, r3
+	bne	fixloop
+#endif
+#endif	/* #ifndef CONFIG_SKIP_RELOCATE_UBOOT */
+
+clear_bss:
+#ifndef CONFIG_PRELOADER
+	ldr	r0, _bss_start
+	ldr	r1, _bss_end
+	ldr	r3, _TEXT_BASE		/* Text base */
+	mov	r4, r7			/* reloc addr */
+	sub	r0, r0, r3
+	add	r0, r0, r4
+	sub	r1, r1, r3
+	add	r1, r1, r4
+	mov	r2, #0x00000000		/* clear			    */
+
+clbss_l:str	r2, [r0]		/* clear loop...		    */
+	add	r0, r0, #4
+	cmp	r0, r1
+	bne	clbss_l
+
+#endif
+
+/*
+ * We are done. Do not return, instead branch to second part of board
+ * initialization, now running from RAM.
+ */
+#ifdef CONFIG_NAND_SPL
+	ldr     pc, _nand_boot
+
+_nand_boot: .word nand_boot
+#else
+	ldr	r0, _TEXT_BASE
+	ldr	r2, _board_init_r
+	sub	r2, r2, r0
+	add	r2, r2, r7	/* position from board_init_r in RAM */
+	/* setup parameters for board_init_r */
+	mov	r0, r5		/* gd_t */
+	mov	r1, r7		/* dest_addr */
+	/* jump to it ... */
+	mov	lr, r2
+	mov	pc, lr
+
+_board_init_r: .word board_init_r
+#endif
+
+#else /* #if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC) */
 /*
  * the actual reset code
  */
@@ -211,7 +405,7 @@ clbss_l:str	r2, [r0]		/* clear loop...                    */
 	ldr	pc, _start_armboot
 
 _start_armboot:	.word start_armboot
-
+#endif /* #if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC) */
 
 /*
  *************************************************************************
@@ -295,9 +489,13 @@ cpu_init_crit:
 	sub	sp, sp, #S_FRAME_SIZE           @ carve out a frame on current user stack
 	stmia	sp, {r0 - r12}			@ Save user registers (now in svc mode) r0-r12
 
+#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	ldr	r2, _armboot_start
 	sub	r2, r2, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
 	sub	r2, r2, #(CONFIG_SYS_GBL_DATA_SIZE+8)  @ set base 2 words into abort stack
+#else
+	ldr	r2, IRQ_STACK_START_IN
+#endif
 	ldmia	r2, {r2 - r3}                   @ get values for "aborted" pc and cpsr (into parm regs)
 	add	r0, sp, #S_FRAME_SIZE		@ grab pointer to old stack
 
@@ -328,9 +526,13 @@ cpu_init_crit:
 	.endm
 
 	.macro get_bad_stack
+#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	ldr	r13, _armboot_start		@ setup our mode stack
 	sub	r13, r13, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
 	sub	r13, r13, #(CONFIG_SYS_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
+#else
+	ldr	r13, IRQ_STACK_START_IN
+#endif
 
 	str	lr, [r13]			@ save caller lr in position 0 of saved stack
 	mrs	lr, spsr                        @ get the spsr

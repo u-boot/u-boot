@@ -60,7 +60,6 @@
 #define CONFIG_SYS_PCI_MEMBASE3        CONFIG_SYS_PCI_MEMBASE2 + 0x10000000
 
 /*Don't change either of these*/
-#define CONFIG_SYS_PERIPHERAL_BASE     0xef600000	    /* internal peripherals*/
 #define CONFIG_SYS_PCI_BASE	        0xe0000000	    /* internal PCI regs*/
 /*Don't change either of these*/
 
@@ -80,11 +79,14 @@
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 #undef CONFIG_SYS_EXT_SERIAL_CLOCK		/* no external clk used		*/
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_SERIAL_MULTI     1
-/*define this if you want console on UART1*/
-#undef CONFIG_UART1_CONSOLE
 
 #define CONFIG_SYS_BAUDRATE_TABLE  \
     {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}

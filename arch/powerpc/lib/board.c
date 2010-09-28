@@ -118,16 +118,6 @@ extern int board_start_ide(void);
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_ENV_IS_EMBEDDED)
-#define TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
-#elif ( ((CONFIG_ENV_ADDR+CONFIG_ENV_SIZE) < CONFIG_SYS_MONITOR_BASE) || \
-	(CONFIG_ENV_ADDR >= (CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)) ) || \
-      defined(CONFIG_ENV_IS_IN_NVRAM)
-#define	TOTAL_MALLOC_LEN	(CONFIG_SYS_MALLOC_LEN + CONFIG_ENV_SIZE)
-#else
-#define	TOTAL_MALLOC_LEN	CONFIG_SYS_MALLOC_LEN
-#endif
-
 #if !defined(CONFIG_SYS_MEM_TOP_HIDE)
 #define CONFIG_SYS_MEM_TOP_HIDE	0
 #endif
@@ -519,15 +509,12 @@ void board_init_f (ulong bootflag)
 	bd->bi_memstart  = CONFIG_SYS_SDRAM_BASE;	/* start of  DRAM memory	*/
 	bd->bi_memsize   = gd->ram_size;	/* size  of  DRAM memory in bytes */
 
-#ifdef CONFIG_IP860
-	bd->bi_sramstart = SRAM_BASE;	/* start of  SRAM memory	*/
-	bd->bi_sramsize  = SRAM_SIZE;	/* size  of  SRAM memory	*/
-#elif defined CONFIG_MPC8220
+#ifdef CONFIG_SYS_SRAM_BASE
 	bd->bi_sramstart = CONFIG_SYS_SRAM_BASE;	/* start of  SRAM memory	*/
 	bd->bi_sramsize  = CONFIG_SYS_SRAM_SIZE;	/* size  of  SRAM memory	*/
 #else
-	bd->bi_sramstart = 0;		/* FIXME */ /* start of  SRAM memory	*/
-	bd->bi_sramsize  = 0;		/* FIXME */ /* size  of  SRAM memory	*/
+	bd->bi_sramstart = 0;
+	bd->bi_sramsize  = 0;
 #endif
 
 #if defined(CONFIG_8xx) || defined(CONFIG_8260) || defined(CONFIG_5xx) || \
@@ -913,13 +900,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 * Enable Interrupts
 	 */
 	interrupt_init ();
-
-	/* Must happen after interrupts are initialized since
-	 * an irq handler gets installed
-	 */
-#ifdef CONFIG_SERIAL_SOFTWARE_FIFO
-	serial_buffered_init();
-#endif
 
 #if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
 	status_led_set (STATUS_LED_BOOT, STATUS_LED_BLINKING);

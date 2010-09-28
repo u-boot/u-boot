@@ -126,6 +126,12 @@ void cpu_init_f (volatile immap_t * im)
 #ifdef CONFIG_SYS_SCCR_PCICM /* PCI & DMA clock mode */
 		SCCR_PCICM |
 #endif
+#ifdef CONFIG_SYS_SCCR_PCIEXP1CM	/* PCIE1 clock mode */
+		SCCR_PCIEXP1CM |
+#endif
+#ifdef CONFIG_SYS_SCCR_PCIEXP2CM	/* PCIE2 clock mode */
+		SCCR_PCIEXP2CM |
+#endif
 #ifdef CONFIG_SYS_SCCR_TSECCM /* all TSEC's clock mode */
 		SCCR_TSECCM |
 #endif
@@ -157,6 +163,12 @@ void cpu_init_f (volatile immap_t * im)
 #endif
 #ifdef CONFIG_SYS_SCCR_PCICM /* PCI & DMA clock mode */
 		(CONFIG_SYS_SCCR_PCICM << SCCR_PCICM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_PCIEXP1CM	/* PCIE1 clock mode */
+		(CONFIG_SYS_SCCR_PCIEXP1CM << SCCR_PCIEXP1CM_SHIFT) |
+#endif
+#ifdef CONFIG_SYS_SCCR_PCIEXP2CM	/* PCIE2 clock mode */
+		(CONFIG_SYS_SCCR_PCIEXP2CM << SCCR_PCIEXP2CM_SHIFT) |
 #endif
 #ifdef CONFIG_SYS_SCCR_TSECCM /* all TSEC's clock mode */
 		(CONFIG_SYS_SCCR_TSECCM << SCCR_TSECCM_SHIFT) |

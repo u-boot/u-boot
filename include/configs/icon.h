@@ -52,7 +52,6 @@
  * actual resources get mapped (not physical addresses)
  */
 #define CONFIG_SYS_FLASH_BASE	0xfc000000	/* later mapped to this addr */
-#define CONFIG_SYS_PERIPHERAL_BASE 0xa0000000	/* internal peripherals	*/
 #define CONFIG_SYS_ISRAM_BASE	0x90000000	/* internal SRAM	*/
 
 #define CONFIG_SYS_PCI_MEMBASE	0x80000000	/* mapped PCI memory	*/
@@ -105,7 +104,7 @@
 /*
  * Serial Port
  */
-#undef CONFIG_UART1_CONSOLE
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
 #undef CONFIG_SYS_EXT_SERIAL_CLOCK
 
 /*

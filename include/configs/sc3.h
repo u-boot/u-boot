@@ -76,15 +76,12 @@
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
 #define CONFIG_SERIAL_MULTI
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
-/*
- * define CONFIG_POWER_DOWN if your cpu should power down while waiting for your input
- * Works only, if you have enabled the CONFIG_SERIAL_SOFTWARE_FIFO feature
- */
-#if CONFIG_SERIAL_SOFTWARE_FIFO
- #define CONFIG_POWER_DOWN
-#endif
 
 /*
  * define CONFIG_SYS_CLK_FREQ to your base crystal clock in Hz

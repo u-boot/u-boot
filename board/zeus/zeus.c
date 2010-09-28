@@ -30,7 +30,7 @@
 
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -222,27 +222,8 @@ static int restore_default(void)
 	char *buf_save;
 	u32 crc;
 
-	/*
-	 * Unprotect and erase environment area
-	 */
-	flash_protect(FLAG_PROTECT_CLEAR,
-		      CONFIG_ENV_ADDR_REDUND,
-		      CONFIG_ENV_ADDR_REDUND + 2*CONFIG_ENV_SECT_SIZE - 1,
-		      &flash_info[0]);
+	set_default_env("");
 
-	flash_sect_erase(CONFIG_ENV_ADDR_REDUND,
-			 CONFIG_ENV_ADDR_REDUND + 2*CONFIG_ENV_SECT_SIZE - 1);
-
-	/*
-	 * Now restore default environment from U-Boot image
-	 * -> ipaddr, serverip...
-	 */
-	memset(env_ptr, 0, sizeof(env_t));
-	memcpy(env_ptr->data, default_environment, ENV_SIZE);
-#ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
-	env_ptr->flags = 0xFF;
-#endif
-	env_crc_update();
 	gd->env_valid = 1;
 
 	/*
@@ -251,6 +232,10 @@ static int restore_default(void)
 	 * -> ethaddr, eth1addr, serial#
 	 */
 	buf = buf_save = malloc(FACTORY_RESET_ENV_SIZE);
+	if (buf == NULL) {
+		printf("ERROR: malloc() failed\n");
+		return -1;
+	}
 	if (eeprom_read(FACTORY_RESET_I2C_EEPROM, FACTORY_RESET_ENV_OFFS,
 			(u8 *)buf, FACTORY_RESET_ENV_SIZE)) {
 		puts("\nError reading EEPROM!\n");

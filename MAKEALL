@@ -41,39 +41,39 @@ ERR_LIST=""
 TOTAL_CNT=0
 RC=0
 
+# Helper funcs for parsing boards.cfg
+boards_by_field()
+{
+	awk \
+		-v field="$1" \
+		-v select="$2" \
+		'($1 !~ /^#/ && $field == select) { print $1 }' \
+		boards.cfg
+}
+boards_by_arch() { boards_by_field 2 "$@" ; }
+boards_by_cpu()  { boards_by_field 3 "$@" ; }
+
 #########################################################################
 ## MPC5xx Systems
 #########################################################################
 
-LIST_5xx="		\
-	cmi_mpc5xx	\
-"
+LIST_5xx="$(boards_by_cpu mpc5xx)"
 
 #########################################################################
 ## MPC5xxx Systems
 #########################################################################
 
-LIST_5xxx="		\
-	BC3450		\
-	cm5200		\
-	cpci5200	\
+LIST_5xxx="$(boards_by_cpu mpc5xxx)
 	digsy_mtc	\
 	EVAL5200	\
 	fo300		\
 	galaxy5200	\
 	icecube_5200	\
-	inka4x0		\
-	ipek01		\
 	lite5200b	\
 	mcc200		\
-	mecp5200	\
-	motionpro	\
-	munices		\
 	MVBC_P		\
 	MVSMR		\
-	o2dnt		\
 	pcm030		\
-	pf5200		\
 	PM520		\
 	TB5200		\
 	Total5200	\
@@ -81,62 +81,39 @@ LIST_5xxx="		\
 	TQM5200		\
 	TQM5200_B	\
 	TQM5200S	\
-	v38b		\
 "
 
 #########################################################################
 ## MPC512x Systems
 #########################################################################
 
-LIST_512x="		\
-	aria		\
-	mecp5123	\
+LIST_512x="$(boards_by_cpu mpc512x)
 	mpc5121ads	\
-	pdm360ng	\
 "
 
 #########################################################################
 ## MPC8xx Systems
 #########################################################################
-LIST_8xx="		\
+
+LIST_8xx="$(boards_by_cpu mpc8xx)
 	Adder87x	\
 	AdderII		\
 	ADS860		\
-	AMX860		\
-	c2mon		\
-	CCM		\
-	cogent_mpc8xx	\
-	ELPT860		\
-	EP88x		\
-	ESTEEM192E	\
-	ETX094		\
 	FADS823		\
 	FADS850SAR	\
 	FADS860T	\
-	FLAGADM		\
 	FPS850L		\
 	GEN860T		\
 	GEN860T_SC	\
-	GENIETV		\
-	hermes		\
-	IAD210		\
 	ICU862_100MHz	\
-	IP860		\
 	IVML24		\
 	IVML24_128	\
 	IVML24_256	\
 	IVMS8		\
 	IVMS8_128	\
 	IVMS8_256	\
-	KUP4K		\
-	KUP4X		\
-	LANTEC		\
-	lwmon		\
-	kmsupx4		\
 	MBX		\
 	MBX860T		\
-	mgsuvd		\
-	MHPC		\
 	MPC86xADS	\
 	MPC885ADS	\
 	NETPHONE	\
@@ -145,33 +122,16 @@ LIST_8xx="		\
 	NETTA_ISDN	\
 	NETVIA		\
 	NETVIA_V2	\
-	NX823		\
-	pcu_e		\
-	QS823		\
-	QS850		\
-	QS860T		\
-	quantum		\
-	R360MPI		\
-	RBC823		\
-	rmu		\
-	RPXClassic	\
-	RPXlite		\
 	RPXlite_DW	\
-	RRvision	\
-	SM850		\
-	spc1920		\
 	SPD823TS	\
-	svm_sc8xx	\
 	SXNI855T	\
 	TK885D		\
-	TOP860		\
 	TQM823L		\
 	TQM823L_LCD	\
 	TQM850L		\
 	TQM855L		\
 	TQM860L		\
 	TQM885D		\
-	uc100		\
 	v37		\
 "
 
@@ -179,195 +139,98 @@ LIST_8xx="		\
 ## PPC4xx Systems
 #########################################################################
 
-LIST_4xx="		\
-	acadia		\
+LIST_4xx="$(boards_by_cpu ppc4xx)
 	acadia_nand	\
-	ADCIOP		\
-	alpr		\
-	AP1000		\
-	APC405		\
-	AR405		\
 	arches		\
-	ASH405		\
-	bamboo		\
 	bamboo_nand	\
-	bubinga		\
-	CANBT		\
 	canyonlands	\
 	canyonlands_nand \
-	CMS700		\
-	CPCI2DP		\
 	CPCI405		\
 	CPCI4052	\
 	CPCI405AB	\
 	CPCI405DT	\
-	CPCIISER4	\
-	CRAYL1		\
-	csb272		\
-	csb472		\
-	DASA_SIM	\
 	devconcenter	\
-	dlvision	\
-	DP405		\
-	DU405		\
-	DU440		\
-	ebony		\
-	ERIC		\
 	fx12mm		\
-	G2000		\
-	gdppc440etx	\
 	glacier		\
 	haleakala	\
 	haleakala_nand	\
 	hcu4		\
 	hcu5		\
-	HH405		\
-	HUB405		\
-	icon		\
 	intip		\
-	JSE		\
-	KAREF		\
-	katmai		\
 	kilauea		\
 	kilauea_nand	\
-	korat		\
-	luan		\
-	lwmon5		\
-	makalu		\
 	mcu25		\
-	METROBOX	\
-	MIP405		\
 	MIP405T		\
-	ML2		\
 	ml507		\
 	ml507_flash	\
-	neo		\
-	ocotea		\
 	OCRTC		\
 	ORSG		\
-	p3p440		\
-	PCI405		\
-	pcs440ep	\
-	PIP405		\
-	PLU405		\
-	PMC405		\
-	PMC405DE	\
-	PMC440		\
 	PPChameleonEVB	\
-	quad100hd	\
 	rainier		\
-	redwood		\
-	sbc405		\
-	sc3		\
 	sequoia		\
 	sequoia_nand	\
-	t3corp		\
-	taihu		\
-	taishan		\
 	v5fx30teval	\
 	v5fx30teval_flash \
-	VOH405		\
-	VOM405		\
 	W7OLMC		\
 	W7OLMG		\
 	walnut		\
-	WUH405		\
 	xilinx-ppc440-generic \
 	xilinx-ppc440-generic_flash \
-	XPEDITE1000	\
 	yellowstone	\
 	yosemite	\
-	yucca		\
-	zeus		\
 "
 
 #########################################################################
 ## MPC8220 Systems
 #########################################################################
 
-LIST_8220="		\
-	Alaska8220	\
-	Yukon8220	\
-"
+LIST_8220="$(boards_by_cpu mpc8220)"
 
 #########################################################################
 ## MPC824x Systems
 #########################################################################
 
-LIST_824x="		\
-	A3000		\
-	barco		\
-	BMW		\
+LIST_824x="$(boards_by_cpu mpc824x)
 	CPC45		\
-	CU824		\
-	debris		\
 	eXalion		\
-	HIDDEN_DRAGON	\
 	IDS8247		\
 	linkstation_HGLAN	\
-	MOUSSE		\
-	MUSENKI		\
-	MVBLUE		\
-	OXC		\
-	PN62		\
 	Sandpoint8240	\
 	Sandpoint8245	\
-	sbc8240		\
-	utx8245		\
 "
 
 #########################################################################
 ## MPC8260 Systems (includes 8250, 8255 etc.)
 #########################################################################
 
-LIST_8260="		\
-	atc		\
+LIST_8260="$(boards_by_cpu mpc8260)
 	cogent_mpc8260	\
 	CPU86		\
 	CPU87		\
 	ep8248		\
-	ep8260		\
-	ep82xxm		\
-	gw8260		\
-	hymod		\
-	IPHASE4539	\
 	ISPAN		\
-	mgcoge		\
 	MPC8260ADS	\
-	MPC8266ADS	\
 	MPC8272ADS	\
 	PM826		\
 	PM828		\
-	ppmc8260	\
 	Rattler8248	\
-	RPXsuper	\
-	rsdproto	\
-	sacsng		\
-	sbc8260		\
-	SCM		\
 	TQM8260_AC	\
 	TQM8260_AD	\
 	TQM8260_AE	\
-	TQM8272		\
-	ZPC1900		\
 "
 
 #########################################################################
 ## MPC83xx Systems (includes 8349, etc.)
 #########################################################################
 
-LIST_83xx="		\
+LIST_83xx="$(boards_by_cpu mpc83xx)
 	caddy2		\
-	kmeter1		\
-	MPC8308RDB	\
 	MPC8313ERDB_33	\
 	MPC8313ERDB_NAND_66	\
 	MPC8315ERDB	\
 	MPC8315ERDB_NAND	\
-	MPC8323ERDB	\
 	MPC832XEMDS	\
 	MPC832XEMDS_ATM	\
-	MPC8349EMDS	\
 	MPC8349ITX	\
 	MPC8349ITXGP	\
 	MPC8360EMDS	\
@@ -375,12 +238,8 @@ LIST_83xx="		\
 	MPC8360ERDK_33	\
 	MPC8360ERDK_66	\
 	MPC837XEMDS	\
-	MPC837XERDB	\
-	MVBLM7		\
 	sbc8349		\
 	SIMPC8313_LP	\
-	TQM834x		\
-	ve8313		\
 	vme8349		\
 "
 
@@ -389,27 +248,21 @@ LIST_83xx="		\
 ## MPC85xx Systems (includes 8540, 8560 etc.)
 #########################################################################
 
-LIST_85xx="		\
-	ATUM8548	\
+LIST_85xx="$(boards_by_cpu mpc85xx)
 	MPC8536DS	\
 	MPC8536DS_NAND	\
 	MPC8536DS_SDCARD	\
 	MPC8536DS_SPIFLASH	\
 	MPC8536DS_36BIT	\
-	MPC8540ADS	\
 	MPC8540EVAL	\
 	MPC8541CDS	\
-	MPC8544DS	\
 	MPC8548CDS	\
 	MPC8555CDS	\
-	MPC8560ADS	\
-	MPC8568MDS	\
 	MPC8569MDS	\
 	MPC8569MDS_ATM	\
 	MPC8569MDS_NAND \
 	MPC8572DS	\
 	MPC8572DS_36BIT	\
-	P1022DS		\
 	P2020DS		\
 	P2020DS_36BIT	\
 	P1011RDB	\
@@ -428,9 +281,6 @@ LIST_85xx="		\
 	P2020RDB_NAND	\
 	P2020RDB_SDCARD	\
 	P2020RDB_SPIFLASH	\
-	P4080DS		\
-	PM854		\
-	PM856		\
 	sbc8540		\
 	sbc8548		\
 	sbc8548_PCI_33	\
@@ -438,8 +288,6 @@ LIST_85xx="		\
 	sbc8548_PCI_33_PCIE \
 	sbc8548_PCI_66_PCIE \
 	sbc8560		\
-	socrates	\
-	stxgp3		\
 	stxssa		\
 	TQM8540		\
 	TQM8541		\
@@ -448,20 +296,15 @@ LIST_85xx="		\
 	TQM8548_BE	\
 	TQM8555		\
 	TQM8560		\
-	XPEDITE5200	\
-	XPEDITE5370	\
 "
 
 #########################################################################
 ## MPC86xx Systems
 #########################################################################
 
-LIST_86xx="		\
-	MPC8610HPCD	\
+LIST_86xx="$(boards_by_cpu mpc86xx)
 	MPC8641HPCN_36BIT \
 	MPC8641HPCN	\
-	sbc8641d	\
-	XPEDITE5170	\
 "
 
 #########################################################################
@@ -524,13 +367,7 @@ LIST_ppc="		\
 ## StrongARM Systems
 #########################################################################
 
-LIST_SA="		\
-	assabet		\
-	dnp1110		\
-	gcplus		\
-	lart		\
-	shannon		\
-"
+LIST_SA="$(boards_by_cpu sa1100)"
 
 #########################################################################
 ## ARM7 Systems
@@ -706,35 +543,14 @@ LIST_at91="			\
 ## Xscale Systems
 #########################################################################
 
-LIST_pxa="		\
-	cerf250		\
-	colibri_pxa270	\
-	cradle		\
-	csb226		\
-	delta		\
-	innokom		\
-	lubbock		\
-	pleb2		\
+LIST_pxa="$(boards_by_cpu pxa)
 	polaris		\
-	pxa255_idp	\
 	trizepsiv	\
 	vpac270_nor	\
 	vpac270_onenand	\
-	wepep250	\
-	xaeniax		\
-	xm250		\
-	xsengine	\
-	zipitz2		\
-	zylonite	\
 "
 
-LIST_ixp="		\
-	actux1		\
-	actux2		\
-	actux3		\
-	actux4		\
-	ixdp425		\
-	ixdpg425	\
+LIST_ixp="$(boards_by_cpu ixp)
 	pdnb3		\
 	scpu		\
 "
@@ -818,21 +634,15 @@ LIST_mips_el="			\
 ## i386 Systems
 #########################################################################
 
-LIST_I486="		\
+LIST_x86="$(boards_by_arch i386)
 	sc520_eNET	\
-"
-
-LIST_x86="		\
-	${LIST_I486}	\
 "
 
 #########################################################################
 ## Nios-II Systems
 #########################################################################
 
-LIST_nios2="		\
-	PCI5441		\
-	PK1C20		\
+LIST_nios2="$(boards_by_arch nios2)
 	nios2-generic	\
 "
 
@@ -840,86 +650,39 @@ LIST_nios2="		\
 ## MicroBlaze Systems
 #########################################################################
 
-LIST_microblaze="			\
-	microblaze-generic		\
-"
+LIST_microblaze="$(boards_by_arch microblaze)"
 
 #########################################################################
 ## ColdFire Systems
 #########################################################################
 
-LIST_coldfire="			\
+LIST_coldfire="$(boards_by_arch m68k)
 	astro_mcf5373l		\
 	cobra5272		\
 	EB+MCF-EV123		\
 	EB+MCF-EV123_internal	\
-	idmr			\
-	M5208EVBE		\
 	M52277EVB		\
 	M5235EVB		\
-	M5249EVB		\
-	M5253DEMO		\
-	M5253EVBE		\
-	M5271EVB		\
-	M5272C3			\
-	M5275EVB		\
-	M5282EVB		\
-	M53017EVB		\
 	M5329AFEE		\
 	M5373EVB		\
 	M54451EVB		\
 	M54455EVB		\
 	M5475AFE		\
 	M5485AFE		\
-	TASREG			\
 "
 
 #########################################################################
 ## AVR32 Systems
 #########################################################################
 
-LIST_avr32="		\
-	atstk1002	\
-	atstk1003	\
-	atstk1004	\
-	atstk1006	\
-	atngw100	\
-	favr-32-ezkit	\
-	hammerhead	\
-	mimc200		\
-"
+LIST_avr32="$(boards_by_arch avr32)"
 
 #########################################################################
 ## Blackfin Systems
 #########################################################################
 
-LIST_blackfin="		\
-	bf518f-ezbrd	\
-	bf526-ezbrd	\
-	bf527-ad7160-eval	\
-	bf527-ezkit	\
-	bf527-ezkit-v2	\
-	bf533-ezkit	\
-	bf533-stamp	\
-	bf537-minotaur	\
-	bf537-pnav	\
-	bf537-srv1	\
-	bf537-stamp	\
-	bf538f-ezkit	\
-	bf548-ezkit	\
-	bf561-acvilon	\
-	bf561-ezkit	\
-	blackstamp	\
-	cm-bf527	\
-	cm-bf533	\
-	cm-bf537e	\
-	cm-bf537u	\
-	cm-bf548	\
-	cm-bf561	\
-	ibf-dsp561	\
-	ip04		\
-	tcm-bf518	\
-	tcm-bf537	\
+LIST_blackfin="$(boards_by_arch blackfin)
+	bf527-ezkit-v2
 "
 
 #########################################################################
@@ -956,12 +719,7 @@ LIST_sh="		\
 ## SPARC Systems
 #########################################################################
 
-LIST_sparc="gr_xc3s_1500	gr_cpci_ax2000	gr_ep2s60	grsim	grsim_leon2"
-
-#-----------------------------------------------------------------------
-
-#----- for now, just run PowerPC by default -----
-[ $# = 0 ] && set $LIST_powerpc
+LIST_sparc="$(boards_by_arch sparc)"
 
 #-----------------------------------------------------------------------
 
@@ -969,7 +727,7 @@ build_target() {
 	target=$1
 
 	${MAKE} distclean >/dev/null
-	${MAKE} ${target}_config
+	${MAKE} -s ${target}_config
 
 	${MAKE} ${JOBS} all 2>&1 >${LOG_DIR}/$target.MAKELOG \
 				| tee ${LOG_DIR}/$target.ERR
@@ -991,6 +749,22 @@ build_target() {
 	${CROSS_COMPILE}size ${BUILD_DIR}/u-boot \
 				| tee -a ${LOG_DIR}/$target.MAKELOG
 }
+build_targets() {
+	for t in "$@" ; do
+		# If a LIST_xxx var exists, use it.  But avoid variable
+		# expansion in the eval when a board name contains certain
+		# characters that the shell interprets.
+		case ${t} in
+			*[-+=]*) list= ;;
+			*)       list=$(eval echo '${LIST_'$t'}') ;;
+		esac
+		if [ -n "${list}" ] ; then
+			build_targets ${list}
+		else
+			build_target ${t}
+		fi
+	done
+}
 
 #-----------------------------------------------------------------------
 
@@ -1007,27 +781,8 @@ print_stats() {
 }
 
 #-----------------------------------------------------------------------
-for arg in $@
-do
-	case "$arg" in
-	arm|SA|ARM7|ARM9|ARM10|ARM11|ARMV7|at91|ixp|pxa \
-	|avr32 \
-	|blackfin \
-	|coldfire \
-	|microblaze \
-	|mips|mips_el \
-	|nios2 \
-	|ppc|powerpc|5xx|5xxx|512x|8xx|8220|824x|8260|83xx|85xx|86xx|4xx|7xx|74xx|TSEC \
-	|sh|sh2|sh3|sh4 \
-	|sparc \
-	|x86|I486 \
-	)
-			for target in `eval echo '$LIST_'${arg}`
-			do
-				build_target ${target}
-			done
-			;;
-	*)		build_target ${arg}
-			;;
-	esac
-done
+
+#----- for now, just run PowerPC by default -----
+[ $# = 0 ] && set -- powerpc
+
+build_targets "$@"

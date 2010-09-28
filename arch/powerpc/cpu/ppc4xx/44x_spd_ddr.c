@@ -50,7 +50,7 @@
 #include <common.h>
 #include <asm/processor.h>
 #include <i2c.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 #include <asm/mmu.h>
 
 #include "ecc.h"

@@ -107,9 +107,14 @@
 #define CONFIG_SYS_MEMTEST_START	0x0100000 /* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x3000000 /* 1 ... 48 MB in DRAM */
 
+#define CONFIG_CONS_INDEX	2	/* Use UART1			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+
 #undef  CONFIG_SYS_EXT_SERIAL_CLOCK
 #define CONFIG_SYS_BASE_BAUD		691200
-#define CONFIG_UART1_CONSOLE
 
 /* The following table includes the supported baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE	\

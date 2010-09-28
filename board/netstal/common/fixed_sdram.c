@@ -19,7 +19,7 @@
  */
 
 #include <common.h>
-#include  <ppc4xx.h>
+#include  <asm/ppc4xx.h>
 #include  <asm/processor.h>
 #include  "nm.h"
 

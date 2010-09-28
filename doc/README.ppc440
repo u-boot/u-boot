@@ -77,12 +77,6 @@ This is controlled with the CONFIG_SYS_EXT_SERIAL_CLOCK flag. When using
 internal clocking, the "ideal baud rate" settings in the 440GP
 user manual are automatically calculated.
 
-CONFIG_SERIAL_SOFTWARE_FIFO enables interrupt-driven serial operation.
-But the last time I checked, interrupts were initialized after the
-serial port causing the interrupt handler to be removed from the
-handler table. This will probably be fixed soon ... or fix it
-yourself and submit a patch :-)
-
 
 I2C
 =================

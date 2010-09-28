@@ -30,6 +30,22 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define PCIE_MAX_BUSES 2
 
+static struct {
+	u32 base;
+	u32 size;
+} mpc83xx_pcie_cfg_space[] = {
+	{
+		.base = CONFIG_SYS_PCIE1_CFG_BASE,
+		.size = CONFIG_SYS_PCIE1_CFG_SIZE,
+	},
+#if defined(CONFIG_SYS_PCIE2_CFG_BASE) && defined(CONFIG_SYS_PCIE2_CFG_SIZE)
+	{
+		.base = CONFIG_SYS_PCIE2_CFG_BASE,
+		.size = CONFIG_SYS_PCIE2_CFG_SIZE,
+	},
+#endif
+};
+
 #ifdef CONFIG_83XX_GENERIC_PCIE_REGISTER_HOSES
 
 static int mpc83xx_pcie_remap_cfg(struct pci_controller *hose, pci_dev_t dev)
@@ -124,10 +140,7 @@ static void mpc83xx_pcie_register_hose(int bus, struct pci_region *reg,
 	hose->first_busno = pci_last_busno() + 1;
 	hose->last_busno = 0xff;
 
-	if (bus == 0)
-		hose->cfg_addr = (unsigned int *)CONFIG_SYS_PCIE1_CFG_BASE;
-	else
-		hose->cfg_addr = (unsigned int *)CONFIG_SYS_PCIE2_CFG_BASE;
+	hose->cfg_addr = (unsigned int *)mpc83xx_pcie_cfg_space[bus].base;
 
 	pci_set_ops(hose,
 			pcie_read_config_byte,
@@ -182,15 +195,9 @@ static void mpc83xx_pcie_init_bus(int bus, struct pci_region *reg)
 		PEX_CSB_OBCTRL_CFGWE);
 
 	out_win = &pex->bridge.pex_outbound_win[0];
-	if (bus) {
-		out_le32(&out_win->ar, PEX_OWAR_EN | PEX_OWAR_TYPE_CFG |
-			CONFIG_SYS_PCIE2_CFG_SIZE);
-		out_le32(&out_win->bar, CONFIG_SYS_PCIE2_CFG_BASE);
-	} else {
-		out_le32(&out_win->ar, PEX_OWAR_EN | PEX_OWAR_TYPE_CFG |
-			CONFIG_SYS_PCIE1_CFG_SIZE);
-		out_le32(&out_win->bar, CONFIG_SYS_PCIE1_CFG_BASE);
-	}
+	out_le32(&out_win->ar, PEX_OWAR_EN | PEX_OWAR_TYPE_CFG |
+			mpc83xx_pcie_cfg_space[bus].size);
+	out_le32(&out_win->bar, mpc83xx_pcie_cfg_space[bus].base);
 	out_le32(&out_win->tarl, 0);
 	out_le32(&out_win->tarh, 0);
 
@@ -301,16 +308,21 @@ static void mpc83xx_pcie_init_bus(int bus, struct pci_region *reg)
  * The caller must have already set SCCR, SERDES and the PCIE_LAW BARs
  * must have been set to cover all of the requested regions.
  */
-void mpc83xx_pcie_init(int num_buses, struct pci_region **reg, int warmboot)
+void mpc83xx_pcie_init(int num_buses, struct pci_region **reg)
 {
 	int i;
 
 	/*
 	 * Release PCI RST Output signal.
 	 * Power on to RST high must be at least 100 ms as per PCI spec.
-	 * On warm boots only 1 ms is required.
+	 * On warm boots only 1 ms is required, but we play it safe.
 	 */
-	udelay(warmboot ? 1000 : 100000);
+	udelay(100000);
+
+	if (num_buses > ARRAY_SIZE(mpc83xx_pcie_cfg_space)) {
+		printf("Second PCIE host contoller not configured!\n");
+		num_buses = ARRAY_SIZE(mpc83xx_pcie_cfg_space);
+	}
 
 	for (i = 0; i < num_buses; i++)
 		mpc83xx_pcie_init_bus(i, reg[i]);

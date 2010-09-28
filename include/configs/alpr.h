@@ -45,7 +45,6 @@
 #define CONFIG_SYS_MONITOR_BASE	0xfffc0000	/* start of monitor		*/
 #define CONFIG_SYS_PCI_MEMBASE		0x80000000	/* mapped pci memory		*/
 #define	CONFIG_SYS_PCI_MEMSIZE		0x40000000	/* size of mapped pci memory	*/
-#define CONFIG_SYS_PERIPHERAL_BASE	0xe0000000	/* internal peripherals		*/
 #define CONFIG_SYS_ISRAM_BASE		0xc0000000	/* internal SRAM		*/
 #define CONFIG_SYS_PCI_BASE		0xd0000000	/* internal PCI regs		*/
 #define CONFIG_SYS_PCI_MEMBASE1	CONFIG_SYS_PCI_MEMBASE  + 0x10000000
@@ -74,9 +73,14 @@
 /*-----------------------------------------------------------------------
  * Serial Port
  *----------------------------------------------------------------------*/
+#define CONFIG_CONS_INDEX	2	/* Use UART1			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+
 #undef	CONFIG_SYS_EXT_SERIAL_CLOCK
 #define CONFIG_BAUDRATE		115200
-#define	CONFIG_UART1_CONSOLE		/* define for uart1 as console	*/
 
 #define CONFIG_SYS_BAUDRATE_TABLE  \
     {300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200}

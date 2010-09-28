@@ -536,25 +536,6 @@ The following options need to be configured:
 		must be defined, to setup the maximum idle timeout for
 		the SMC.
 
-- Interrupt driven serial port input:
-		CONFIG_SERIAL_SOFTWARE_FIFO
-
-		PPC405GP only.
-		Use an interrupt handler for receiving data on the
-		serial port. It also enables using hardware handshake
-		(RTS/CTS) and UART's built-in FIFO. Set the number of
-		bytes the interrupt driven input buffer should have.
-
-		Leave undefined to disable this feature, including
-		disable the buffer and hardware handshake.
-
-- Console UART Number:
-		CONFIG_UART1_CONSOLE
-
-		AMCC PPC4xx only.
-		If defined internal UART1 (and not UART0) is used
-		as default U-Boot console.
-
 - Boot Delay:	CONFIG_BOOTDELAY - in seconds
 		Delay before automatically booting the default image;
 		set to -1 to disable autoboot.
@@ -2367,6 +2348,14 @@ Configuration Settings:
 		buffers can be full shortly after enabling the interface
 		on high Ethernet traffic.
 		Defaults to 4 if not defined.
+
+- CONFIG_ENV_MAX_ENTRIES
+
+        Maximum number of entries in the hash table that is used
+        internally to store the environment settings. The default
+        setting is supposed to be generous and should work in most
+        cases. This setting can be used to tune behaviour; see
+        lib/hashtable.c for details.
 
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the

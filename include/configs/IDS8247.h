@@ -227,7 +227,7 @@
 #define CONFIG_SYS_FLASH_CFI				/* The flash is CFI compatible  */
 #define CONFIG_FLASH_CFI_DRIVER			/* Use common CFI driver        */
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ 0xFF800000 }
-#define CONFIG_SYS_MAX_FLASH_BANKS_DETECT	1
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks	      */
 /* What should the base address of the main FLASH be and how big is
  * it (in MBytes)? This must contain TEXT_BASE from board/ids8247/config.mk
  * The main FLASH is whichever is connected to *CS0.
@@ -242,7 +242,6 @@
 /*-----------------------------------------------------------------------
  * FLASH organization
  */
-#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of memory banks      */
 #define CONFIG_SYS_MAX_FLASH_SECT	128	/* max num of sects on one chip */
 
 #define CONFIG_SYS_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)  */

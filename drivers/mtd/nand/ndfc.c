@@ -35,7 +35,7 @@
 #include <linux/mtd/nand_ecc.h>
 #include <asm/processor.h>
 #include <asm/io.h>
-#include <ppc4xx.h>
+#include <asm/ppc4xx.h>
 
 /*
  * We need to store the info, which chip-select (CS) is used for the

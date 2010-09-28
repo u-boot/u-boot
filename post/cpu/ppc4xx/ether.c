@@ -44,8 +44,8 @@
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/processor.h>
-#include <405_mal.h>
-#include <ppc4xx_enet.h>
+#include <asm/ppc4xx-mal.h>
+#include <asm/ppc4xx-emac.h>
 #include <malloc.h>
 
 DECLARE_GLOBAL_DATA_PTR;

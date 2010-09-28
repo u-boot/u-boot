@@ -87,9 +87,9 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 #include <commproc.h>
-#include <ppc4xx.h>
-#include <ppc4xx_enet.h>
-#include <405_mal.h>
+#include <asm/ppc4xx.h>
+#include <asm/ppc4xx-emac.h>
+#include <asm/ppc4xx-mal.h>
 #include <miiphy.h>
 #include <malloc.h>
 
@@ -1494,8 +1494,7 @@ get_speed:
 
 	/* set speed */
 	if (speed == _1000BASET) {
-#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
-    defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
 		unsigned long pfc1;
 
 		mfsdr (SDR0_PFC1, pfc1);

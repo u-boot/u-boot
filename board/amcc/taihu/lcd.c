@@ -22,7 +22,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/io.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 
 #define LCD_CMD_ADDR	0x50100002
 #define LCD_DATA_ADDR	0x50100003

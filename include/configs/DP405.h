@@ -97,9 +97,14 @@
 #define CONFIG_SYS_MEMTEST_START	0x0400000	/* memtest works on	*/
 #define CONFIG_SYS_MEMTEST_END		0x0C00000	/* 4 ... 12 MB in DRAM	*/
 
+#define CONFIG_CONS_INDEX	1	/* Use UART0			*/
+#define CONFIG_SYS_NS16550
+#define CONFIG_SYS_NS16550_SERIAL
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
+
 #undef	CONFIG_SYS_EXT_SERIAL_CLOCK	       /* no external serial clock used */
 #define CONFIG_SYS_BASE_BAUD	    691200
-#undef	CONFIG_UART1_CONSOLE		/* define for uart1 as console	*/
 
 /* The following table includes the supported baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE	\
@@ -243,12 +248,12 @@
 /* GPIO Output:		OSR=00, ISR=00, TSR=00, TCR=1 */
 /* Alt. Funtion Input:	OSR=00, ISR=01, TSR=00, TCR=0 */
 /* Alt. Funtion Output: OSR=01, ISR=00, TSR=00, TCR=1 */
-#define CONFIG_SYS_GPIO0_OSRH		0x40000540  /*	0 ... 15 */
-#define CONFIG_SYS_GPIO0_OSRL		0x00000110  /* 16 ... 31 */
-#define CONFIG_SYS_GPIO0_ISR1H		0x00000000  /*	0 ... 15 */
-#define CONFIG_SYS_GPIO0_ISR1L		0x14000045  /* 16 ... 31 */
-#define CONFIG_SYS_GPIO0_TSRH		0x00000000  /*	0 ... 15 */
-#define CONFIG_SYS_GPIO0_TSRL		0x00000000  /* 16 ... 31 */
+#define CONFIG_SYS_GPIO0_OSRL		0x40000540  /*	0 ... 15 */
+#define CONFIG_SYS_GPIO0_OSRH		0x00000110  /* 16 ... 31 */
+#define CONFIG_SYS_GPIO0_ISR1L		0x00000000  /*	0 ... 15 */
+#define CONFIG_SYS_GPIO0_ISR1H		0x14000045  /* 16 ... 31 */
+#define CONFIG_SYS_GPIO0_TSRL		0x00000000  /*	0 ... 15 */
+#define CONFIG_SYS_GPIO0_TSRH		0x00000000  /* 16 ... 31 */
 #define CONFIG_SYS_GPIO0_TCR		0xB7FE0014  /*	0 ... 31 */
 
 /*

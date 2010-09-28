@@ -1118,8 +1118,44 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 	}
 #endif
 
-	/* We handle only 8bpp or 24 bpp bitmap */
+	/* We handle only 4, 8, or 24 bpp bitmaps */
 	switch (le16_to_cpu (bmp->header.bit_count)) {
+	case 4:
+		padded_line -= width / 2;
+		ycount = height;
+
+		switch (VIDEO_DATA_FORMAT) {
+		case GDF_32BIT_X888RGB:
+			while (ycount--) {
+				WATCHDOG_RESET ();
+				/*
+				 * Don't assume that 'width' is an
+				 * even number
+				 */
+				for (xcount = 0; xcount < width; xcount++) {
+					uchar idx;
+
+					if (xcount & 1) {
+						idx = *bmap & 0xF;
+						bmap++;
+					} else
+						idx = *bmap >> 4;
+					cte = bmp->color_table[idx];
+					FILL_32BIT_X888RGB(cte.red, cte.green,
+							   cte.blue);
+				}
+				bmap += padded_line;
+				fb -= (VIDEO_VISIBLE_COLS + width) *
+				      VIDEO_PIXEL_SIZE;
+			}
+			break;
+		default:
+			puts("4bpp bitmap unsupported with current "
+			     "video mode\n");
+			break;
+		}
+		break;
+
 	case 8:
 		padded_line -= width;
 		if (VIDEO_DATA_FORMAT == GDF__8BIT_INDEX) {

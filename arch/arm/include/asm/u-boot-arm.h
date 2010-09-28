@@ -30,11 +30,20 @@
 #define _U_BOOT_ARM_H_	1
 
 /* for the following variables, see start.S */
-extern ulong _armboot_start;	/* code start */
 extern ulong _bss_start;	/* code + data end == BSS start */
 extern ulong _bss_end;		/* BSS end */
 extern ulong IRQ_STACK_START;	/* top of IRQ stack */
 extern ulong FIQ_STACK_START;	/* top of FIQ stack */
+#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
+extern ulong _armboot_start;	/* code start */
+#else
+extern ulong _TEXT_BASE;	/* code start */
+extern ulong _datarel_start;
+extern ulong _datarelrolocal_start;
+extern ulong _datarellocal_start;
+extern ulong _datarelro_start;
+extern ulong IRQ_STACK_START_IN;	/* 8 bytes in IRQ stack */
+#endif
 
 /* cpu/.../cpu.c */
 int	cpu_init(void);
@@ -47,6 +56,9 @@ int	arch_misc_init(void);
 /* board/.../... */
 int	board_init(void);
 int	dram_init (void);
+#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
+void	dram_init_banksize (void);
+#endif
 void	setup_serial_tag (struct tag **params);
 void	setup_revision_tag (struct tag **params);
 

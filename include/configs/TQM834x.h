@@ -101,10 +101,6 @@
  * defined as tqm834x_num_flash_banks.
  */
 #define CONFIG_SYS_MAX_FLASH_BANKS_DETECT	2
-#ifndef __ASSEMBLY__
-extern int tqm834x_num_flash_banks;
-#endif
-#define CONFIG_SYS_MAX_FLASH_BANKS (tqm834x_num_flash_banks)
 
 #define CONFIG_SYS_MAX_FLASH_SECT		512	/* max sectors per device */
 
@@ -166,7 +162,6 @@ extern int tqm834x_num_flash_banks;
  * Serial Port
  */
 #define CONFIG_CONS_INDEX	1
-#undef CONFIG_SERIAL_SOFTWARE_FIFO
 #define CONFIG_SYS_NS16550
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
@@ -359,10 +354,10 @@ extern int tqm834x_num_flash_banks;
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 8 MB of memory, since this is
+ * have to be in the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(8 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTMAPSZ	(256 << 20)	/* Initial Memory map for Linux*/
 
 #define CONFIG_SYS_HRCW_LOW (\
 	HRCWL_LCL_BUS_TO_SCB_CLK_1X1 |\

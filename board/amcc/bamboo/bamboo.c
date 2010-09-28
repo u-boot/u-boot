@@ -23,9 +23,9 @@
 
 #include <common.h>
 #include <asm/processor.h>
-#include <asm/gpio.h>
+#include <asm/ppc4xx-gpio.h>
 #include <spd_sdram.h>
-#include <ppc440.h>
+#include <asm/ppc440.h>
 #include "bamboo.h"
 
 void ext_bus_cntlr_init(void);
@@ -554,7 +554,7 @@ void ext_bus_cntlr_init(void)
 	  |
 	  +-------------------------------------------------------------------------*/
 	/* Read Pin Strap Register in PPC440EP */
-	mfsdr(sdr_pstrp0, sdr0_pstrp0);
+	mfsdr(SDR0_PINSTP, sdr0_pstrp0);
 	bootstrap_settings = sdr0_pstrp0 & SDR0_PSTRP0_BOOTSTRAP_MASK;
 
 	/*-------------------------------------------------------------------------+
