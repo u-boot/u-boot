@@ -83,6 +83,7 @@
 #define IH_OS_ARTOS		19	/* ARTOS	*/
 #define IH_OS_UNITY		20	/* Unity OS	*/
 #define IH_OS_INTEGRITY		21	/* INTEGRITY	*/
+#define IH_OS_OSE		22	/* OSE		*/
 
 /*
  * CPU Architecture Codes (supported by Linux)
