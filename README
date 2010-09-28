@@ -126,13 +126,17 @@ the string "u_boot" or on "U_BOOT". Example:
 Versioning:
 ===========
 
-U-Boot uses a 3 level version number containing a version, a
-sub-version, and a patchlevel: "U-Boot-2.34.5" means version "2",
-sub-version "34", and patchlevel "4".
+Starting with the release in October 2008, the names of the releases
+were changed from numerical release numbers without deeper meaning
+into a time stamp based numbering. Regular releases are identified by
+names consisting of the calendar year and month of the release date.
+Additional fields (if present) indicate release candidates or bug fix
+releases in "stable" maintenance trees.
 
-The patchlevel is used to indicate certain stages of development
-between released versions, i. e. officially released versions of
-U-Boot will always have a patchlevel of "0".
+Examples:
+	U-Boot v2009.11     - Release November 2009
+	U-Boot v2009.11.1   - Release 1 in version November 2009 stable tree
+	U-Boot v2010.09-rc1 - Release candiate 1 for September 2010 release
 
 
 Directory Hierarchy:
