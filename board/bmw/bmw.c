@@ -22,7 +22,6 @@
  */
 
 #include <common.h>
-#include <common.h>
 #include <watchdog.h>
 #include <command.h>
 #include <malloc.h>
