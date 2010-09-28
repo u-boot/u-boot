@@ -51,11 +51,6 @@
 /*
  * Put the user defined include files required.
  */
-
-
-/*
- * Put the user defined include files required.
- */
 #include "IxOsal.h"
 #include "IxNpeDl.h"
 #include "IxNpeDlNpeMgr_p.h"
