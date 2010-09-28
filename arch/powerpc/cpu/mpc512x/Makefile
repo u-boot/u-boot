@@ -29,7 +29,6 @@ LIB	= $(obj)lib$(CPU).a
 START	= start.o
 COBJS-y	:= cpu.o
 COBJS-y	+= traps.o
-COBJS-y += common.o
 COBJS-y += cpu_init.o
 COBJS-y += fixed_sdram.o
 COBJS-y += i2c.o
