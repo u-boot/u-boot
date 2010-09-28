@@ -452,30 +452,66 @@ static int memory_post_tests (unsigned long start, unsigned long size)
 	return ret;
 }
 
-int memory_post_test (int flags)
+__attribute__((weak))
+int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 {
-	int ret = 0;
 	bd_t *bd = gd->bd;
-	unsigned long memsize = (bd->bi_memsize >= 256 << 20 ?
-				 256 << 20 : bd->bi_memsize) - (1 << 20);
+	*vstart = CONFIG_SYS_SDRAM_BASE;
+	*size = (bd->bi_memsize >= 256 << 20 ?
+			256 << 20 : bd->bi_memsize) - (1 << 20);
 
 	/* Limit area to be tested with the board info struct */
-	if (CONFIG_SYS_SDRAM_BASE + memsize > (ulong)bd)
-		memsize = (ulong)bd - CONFIG_SYS_SDRAM_BASE;
+	if ((*vstart) + (*size) > (ulong)bd)
+		*size = (ulong)bd - *vstart;
 
-	if (flags & POST_SLOWTEST) {
-		ret = memory_post_tests (CONFIG_SYS_SDRAM_BASE, memsize);
-	} else {			/* POST_NORMAL */
+	return 0;
+}
 
-		unsigned long i;
+__attribute__((weak))
+int arch_memory_test_advance(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+{
+	return 1;
+}
 
-		for (i = 0; i < (memsize >> 20) && ret == 0; i++) {
-			if (ret == 0)
-				ret = memory_post_tests (i << 20, 0x800);
-			if (ret == 0)
-				ret = memory_post_tests ((i << 20) + 0xff800, 0x800);
+__attribute__((weak))
+int arch_memory_test_cleanup(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+{
+	return 0;
+}
+
+__attribute__((weak))
+void arch_memory_failure_handle(void)
+{
+	return;
+}
+
+int memory_post_test(int flags)
+{
+	int ret = 0;
+	phys_addr_t phys_offset = 0;
+	u32 memsize, vstart;
+
+	arch_memory_test_prepare(&vstart, &memsize, &phys_offset);
+
+	do {
+		if (flags & POST_SLOWTEST) {
+			ret = memory_post_tests(vstart, memsize);
+		} else {			/* POST_NORMAL */
+			unsigned long i;
+			for (i = 0; i < (memsize >> 20) && ret == 0; i++) {
+				if (ret == 0)
+					ret = memory_post_tests(i << 20, 0x800);
+				if (ret == 0)
+					ret = memory_post_tests(
+						(i << 20) + 0xff800, 0x800);
+			}
 		}
-	}
+	} while (!ret &&
+		!arch_memory_test_advance(&vstart, &memsize, &phys_offset));
+
+	arch_memory_test_cleanup(&vstart, &memsize, &phys_offset);
+	if (ret)
+		arch_memory_failure_handle();
 
 	return ret;
 }
