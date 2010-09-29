@@ -172,9 +172,12 @@
 #   define UBOOT_ENV_UPDATE \
 		"eeprom write $(loadaddr) 0x0 $(filesize)"
 #  else
+#   ifndef CONFIG_BFIN_SPI_IMG_SIZE
+#    define CONFIG_BFIN_SPI_IMG_SIZE 0x40000
+#   endif
 #   define UBOOT_ENV_UPDATE \
 		"sf probe " MK_STR(BFIN_BOOT_SPI_SSEL) ";" \
-		"sf erase 0 0x40000;" \
+		"sf erase 0 " MK_STR(CONFIG_BFIN_SPI_IMG_SIZE) ";" \
 		"sf write $(loadaddr) 0 $(filesize)"
 #  endif
 # elif (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_NAND)
