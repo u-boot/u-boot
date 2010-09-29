@@ -419,7 +419,7 @@ int do_tsi148(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (argc > 5)
 		vam = simple_strtoul(argv[5], NULL, 16);
 	if (argc > 6)
-		vdw = simple_strtoul(argv[7], NULL, 16);
+		vdw = simple_strtoul(argv[6], NULL, 16);
 
 	switch (cmd) {
 	case 'c':
@@ -465,7 +465,7 @@ int do_tsi148(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	tsi148,	8,	1,	do_tsi148,
+	tsi148,	7,	1,	do_tsi148,
 	"initialize and configure Turndra Tsi148\n",
 	"init\n"
 	"    - initialize tsi148\n"
