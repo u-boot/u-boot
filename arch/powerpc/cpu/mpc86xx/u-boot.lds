@@ -60,19 +60,14 @@ SECTIONS
     lib/crc32.o (.text)
     arch/powerpc/lib/extable.o (.text)
     lib/zlib.o (.text)
-    *(.text)
-    *(.got1)
+    *(.text*)
    }
     _etext = .;
     PROVIDE (etext = .);
     .rodata    :
    {
-    *(.eh_frame)
     *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
   }
-  .fini      : { *(.fini)    } =0
-  .ctors     : { *(.ctors)   }
-  .dtors     : { *(.dtors)   }
 
   /* Read-write section, merged into data segment: */
   . = (. + 0x00FF) & 0xFFFFFF00;
@@ -80,23 +75,19 @@ SECTIONS
   PROVIDE (erotext = .);
   .reloc   :
   {
-    *(.got)
+    KEEP(*(.got))
     _GOT2_TABLE_ = .;
-    *(.got2)
+    KEEP(*(.got2))
     _FIXUP_TABLE_ = .;
-    *(.fixup)
+    KEEP(*(.fixup))
   }
   __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >> 2;
   __fixup_entries = (. - _FIXUP_TABLE_) >> 2;
 
   .data    :
   {
-    *(.data)
-    *(.data1)
-    *(.sdata)
-    *(.sdata2)
-    *(.dynamic)
-    CONSTRUCTORS
+    *(.data*)
+    *(.sdata*)
   }
   _edata  =  .;
   PROVIDE (edata = .);
@@ -121,9 +112,8 @@ SECTIONS
   __bss_start = .;
   .bss (NOLOAD)       :
   {
-   *(.sbss) *(.scommon)
-   *(.dynbss)
-   *(.bss)
+   *(.sbss*)
+   *(.bss*)
    *(COMMON)
    . = ALIGN(4);
   }
