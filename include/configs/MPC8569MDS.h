@@ -505,8 +505,8 @@ extern unsigned long get_clock_freq(void);
 #else
 #define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SECT_SIZE	0x20000	/* 256K(one sector) for env */
-#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
+#define CONFIG_ENV_SECT_SIZE	0x20000	/* 128K(one sector) for env */
+#define CONFIG_ENV_SIZE		0x2000
 #endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
