@@ -351,7 +351,7 @@ void board_init_r(gd_t * id, ulong dest_addr)
 #endif
 
 #ifdef CONFIG_GENERIC_MMC
-	puts("MMC:  ");
+	puts("MMC:   ");
 	mmc_initialize(bd);
 #endif
 
