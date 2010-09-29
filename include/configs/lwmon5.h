@@ -185,7 +185,8 @@
 				 CONFIG_SYS_POST_BSPEC5)
 
 /* Define here the base-addresses of the UARTs to test in POST */
-#define CONFIG_SYS_POST_UART_TABLE	{ UART0_BASE, UART1_BASE }
+#define CONFIG_SYS_POST_UART_TABLE	{ CONFIG_SYS_NS16550_COM1, \
+			CONFIG_SYS_NS16550_COM2 }
 
 #define CONFIG_POST_WATCHDOG  {				\
 	"Watchdog timer test",				\

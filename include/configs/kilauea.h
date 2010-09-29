@@ -457,7 +457,8 @@
 				 CONFIG_SYS_POST_UART)
 
 /* Define here the base-addresses of the UARTs to test in POST */
-#define CONFIG_SYS_POST_UART_TABLE	{UART0_BASE, UART1_BASE}
+#define CONFIG_SYS_POST_UART_TABLE	{ CONFIG_SYS_NS16550_COM1, \
+			CONFIG_SYS_NS16550_COM2 }
 
 #define CONFIG_LOGBUFFER
 #define CONFIG_SYS_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/

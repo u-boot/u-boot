@@ -94,7 +94,7 @@
 #define CONFIG_SYS_POST_ETHER_EXT_LOOPBACK	/* eth POST using ext loopack connector	*/
 
 /* Define here the base-addresses of the UARTs to test in POST */
-#define CONFIG_SYS_POST_UART_TABLE	{UART0_BASE}
+#define CONFIG_SYS_POST_UART_TABLE	{ CONFIG_SYS_NS16550_COM1 }
 
 #define CONFIG_LOGBUFFER
 #define CONFIG_SYS_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/
