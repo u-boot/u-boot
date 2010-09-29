@@ -2033,7 +2033,7 @@ unsigned long flash_init (void)
 			printf ("## Unknown FLASH on Bank %d "
 				"- Size = 0x%08lx = %ld MB\n",
 				i+1, flash_info[i].size,
-				flash_info[i].size << 20);
+				flash_info[i].size >> 20);
 #endif /* CONFIG_SYS_FLASH_QUIET_TEST */
 		}
 #ifdef CONFIG_SYS_FLASH_PROTECTION
