@@ -518,9 +518,6 @@ void reset_cmd_timeout(void)
 	} while (0)
 
 #define CTL_CH(c)		((c) - 'a' + 1)
-
-#define MAX_CMDBUF_SIZE		CONFIG_SYS_CBSIZE
-
 #define CTL_BACKSPACE		('\b')
 #define DEL			((char)255)
 #define DEL7			((char)127)
@@ -531,7 +528,7 @@ void reset_cmd_timeout(void)
 #define getcmd_cbeep()		getcmd_putch('\a')
 
 #define HIST_MAX		20
-#define HIST_SIZE		MAX_CMDBUF_SIZE
+#define HIST_SIZE		CONFIG_SYS_CBSIZE
 
 static int hist_max = 0;
 static int hist_add_idx = 0;
@@ -947,7 +944,7 @@ int readline_into_buffer (const char *const prompt, char * buffer)
 {
 	char *p = buffer;
 #ifdef CONFIG_CMDLINE_EDITING
-	unsigned int len=MAX_CMDBUF_SIZE;
+	unsigned int len = CONFIG_SYS_CBSIZE;
 	int rc;
 	static int initted = 0;
 
