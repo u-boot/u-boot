@@ -22,7 +22,7 @@
  */
 
 /*
- * Dallas Semiconductor's DS1621 Digital Thermometer and Thermostat.
+ * Dallas Semiconductor's DS1621/1631 Digital Thermometer and Thermostat.
  */
 
 #include <common.h>
@@ -41,6 +41,19 @@
 #define DTT_TEMP_HIGH		0xA1
 #define DTT_TEMP_LOW		0xA2
 #define DTT_CONFIG		0xAC
+
+/*
+ * Config register bits
+ */
+#define DTT_CONFIG_1SHOT	0x01
+#define DTT_CONFIG_POLARITY	0x02
+#define DTT_CONFIG_R0		0x04 /* ds1631 only */
+#define DTT_CONFIG_R1		0x08 /* ds1631 only */
+#define DTT_CONFIG_NVB		0x10
+#define DTT_CONFIG_TLF		0x20
+#define DTT_CONFIG_THF		0x40
+#define DTT_CONFIG_DONE		0x80
+
 
 int dtt_read(int sensor, int reg)
 {
@@ -114,6 +127,12 @@ int dtt_write(int sensor, int reg, int val)
     if (i2c_write(sensor, reg, 1, data, dlen) != 0)
 	return 1;
 
+    /*
+     * Poll NV memory busy bit in case write was to register stored in EEPROM
+     */
+    while(i2c_reg_read(sensor, DTT_CONFIG) & DTT_CONFIG_NVB)
+        ;
+
     return 0;
 } /* dtt_write() */
 
@@ -128,7 +147,6 @@ static int _dtt_init(int sensor)
     val = ((CONFIG_SYS_DTT_MAX_TEMP * 2) << 7) & 0xff80;
     if (dtt_write(sensor, DTT_TEMP_HIGH, val) != 0)
 	return 1;
-    udelay(50000);				/* Max 50ms */
 
     /*
      * Setup Low Temp - hysteresis.
@@ -136,7 +154,6 @@ static int _dtt_init(int sensor)
     val = (((CONFIG_SYS_DTT_MAX_TEMP - CONFIG_SYS_DTT_HYSTERESIS) * 2) << 7) & 0xff80;
     if (dtt_write(sensor, DTT_TEMP_LOW, val) != 0)
 	return 1;
-    udelay(50000);				/* Max 50ms */
 
     /*
      * Setup configuraton register
@@ -149,7 +166,6 @@ static int _dtt_init(int sensor)
     val = 0x9;
     if (dtt_write(sensor, DTT_CONFIG, val) != 0)
 	return 1;
-    udelay(50000);				/* Max 50ms */
 
     return 0;
 } /* _dtt_init() */
@@ -181,7 +197,7 @@ int dtt_get_temp(int sensor)
     dtt_write(sensor, DTT_WRITE_START_CONV, 0);
     for (i = 0; i <= 10; i++) {
 	udelay(100000);
-	if (dtt_read(sensor, DTT_CONFIG) & 0x80)
+	if (dtt_read(sensor, DTT_CONFIG) & DTT_CONFIG_DONE)
 	    break;
     }
 
