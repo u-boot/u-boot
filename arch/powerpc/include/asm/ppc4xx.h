@@ -86,7 +86,6 @@
 /*
  * Configure which SDRAM/DDR/DDR2 controller is equipped
  */
-// test-only: what to do with these???
 #if defined(CONFIG_AP1000) || defined(CONFIG_ML2)
 #define CONFIG_SDRAM_PPC4xx_IBM_SDRAM	/* IBM SDRAM controller */
 #endif
@@ -205,22 +204,6 @@
 #define GPT0_MASK6		0x000000D8
 #define GPT0_DCT0		0x00000110
 #define GPT0_DCIS		0x0000011C
-
-#if 0 // test-only
-/*
- * All PPC4xx share the same NS16550 UART(s). Only base addresses
- * may differ. We define here the integration of the common NS16550
- * driver for all PPC4xx SoC's. The board config header must specify
- * on which UART the console should be located via CONFIG_CONS_INDEX.
- */
-#if 0 /* test-only */
-#define CONFIG_SERIAL_MULTI
-#endif
-#define CONFIG_SYS_NS16550
-#define CONFIG_SYS_NS16550_SERIAL
-#define CONFIG_SYS_NS16550_REG_SIZE	1
-#define CONFIG_SYS_NS16550_CLK		get_serial_clock()
-#endif
 
 #if defined(CONFIG_440)
 #include <asm/ppc440.h>
