@@ -27,6 +27,7 @@
 #include <pci.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
+#include <asm/cache.h>
 #include <asm/immap_85xx.h>
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
@@ -207,6 +208,31 @@ int board_early_init_f (void)
 
 	disable_8569mds_brd_eeprom_write_protect();
 #endif
+
+	return 0;
+}
+
+int board_early_init_r(void)
+{
+	const unsigned int flashbase = CONFIG_SYS_NAND_BASE;
+	const u8 flash_esel = 0;
+
+	/*
+	 * Remap Boot flash to caching-inhibited
+	 * so that flash can be erased properly.
+	 */
+
+	/* Flush d-cache and invalidate i-cache of any FLASH data */
+	flush_dcache();
+	invalidate_icache();
+
+	/* invalidate existing TLB entry for flash */
+	disable_tlb(flash_esel);
+
+	set_tlb(1, flashbase, CONFIG_SYS_NAND_BASE,	/* tlb, epn, rpn */
+		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,	/* perms, wimge */
+		0, flash_esel,				/* ts, esel */
+		BOOKE_PAGESZ_64M, 1);			/* tsize, iprot */
 
 	return 0;
 }

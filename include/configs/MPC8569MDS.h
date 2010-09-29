@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Freescale Semiconductor, Inc.
+ * Copyright (C) 2009-2010 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -74,6 +74,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init */
+#define CONFIG_BOARD_EARLY_INIT_R	1
 #define CONFIG_HWCONFIG
 
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
