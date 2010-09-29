@@ -80,7 +80,7 @@ int dtt_read(int sensor, int reg)
 
 	/* Handle 2 byte result */
 	if (dlen == 2)
-		return ((int)((short)data[1] + (((short)data[0]) << 8)));
+		return (short)((data[0] << 8) | data[1]);
 
 	return (int)data[0];
 }
