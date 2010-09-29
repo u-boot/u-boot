@@ -175,6 +175,16 @@ void __board_add_ram_info(int use_default)
 }
 void board_add_ram_info(int) __attribute__((weak, alias("__board_add_ram_info")));
 
+int __board_flash_wp_on(void)
+{
+	/*
+	 * Most flashes can't be detected when write protection is enabled,
+	 * so provide a way to let U-Boot gracefully ignore write protected
+	 * devices.
+	 */
+	return 0;
+}
+int board_flash_wp_on(void) __attribute__((weak, alias("__board_flash_wp_on")));
 
 static int init_func_ram (void)
 {
@@ -698,7 +708,11 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #if !defined(CONFIG_SYS_NO_FLASH)
 	puts ("FLASH: ");
 
-	if ((flash_size = flash_init ()) > 0) {
+	if (board_flash_wp_on()) {
+		printf("Uninitialized - Write Protect On\n");
+		/* Since WP is on, we can't find real size.  Set to 0 */
+		flash_size = 0;
+	} else if ((flash_size = flash_init ()) > 0) {
 # ifdef CONFIG_SYS_FLASH_CHECKSUM
 		print_size (flash_size, "");
 		/*
