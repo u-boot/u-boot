@@ -68,7 +68,6 @@
 #endif
 
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk() /* sysclk for MPC85xx */
-#define CONFIG_ICS307_REFCLK_HZ	33333000  /* ICS307 clock chip ref freq */
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
