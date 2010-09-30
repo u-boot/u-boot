@@ -55,6 +55,11 @@
 #error "Unsupported SoC"
 #endif
 
+/* additions for new ARM relocation support */
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
+/* Kirkwood has 2k of Security SRAM, use it for SP */
+#define CONFIG_SYS_INIT_SP_ADDR		0xC8012000
+
 /*
  * CLKs configurations
  */
