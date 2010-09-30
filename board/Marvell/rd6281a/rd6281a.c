@@ -109,17 +109,6 @@ int board_init(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-	int i;
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		gd->bd->bi_dram[i].start = kw_sdram_bar(i);
-		gd->bd->bi_dram[i].size = kw_sdram_bs(i);
-	}
-	return 0;
-}
-
 void mv_phy_88e1116_init(char *name)
 {
 	u16 reg;

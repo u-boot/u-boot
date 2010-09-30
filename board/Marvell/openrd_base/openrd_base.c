@@ -113,17 +113,6 @@ int board_init(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-	int i;
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		gd->bd->bi_dram[i].start = kw_sdram_bar(i);
-		gd->bd->bi_dram[i].size = kw_sdram_bs(i);
-	}
-	return 0;
-}
-
 #ifdef CONFIG_RESET_PHY_R
 /* Configure and enable MV88E1116 PHY */
 void reset_phy(void)
