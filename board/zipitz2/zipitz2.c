@@ -44,10 +44,11 @@ inline void lcd_start(void) {};
 
 int board_init (void)
 {
-	/* memory and cpu-speed are setup before relocation */
-	/* so we do _nothing_ here */
+	/* We have RAM, disable cache */
+	dcache_disable();
+	icache_disable();
 
-	/* arch number of Lubbock-Board */
+	/* arch number of Z2 */
 	gd->bd->bi_arch_number = MACH_TYPE_ZIPIT2;
 
 	/* adress of boot parameters */
@@ -59,24 +60,23 @@ int board_init (void)
 	return 0;
 }
 
-int board_late_init(void)
-{
-	setenv("stdout", "serial");
-	setenv("stderr", "serial");
-	return 0;
-}
-
 struct serial_device *default_serial_console (void)
 {
 	return &serial_stuart_device;
 }
 
-int dram_init (void)
+extern void pxa_dram_init(void);
+int dram_init(void)
+{
+	pxa_dram_init();
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
+	return 0;
+}
+
+void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
-	return 0;
 }
 
 #ifdef	CONFIG_CMD_SPI
