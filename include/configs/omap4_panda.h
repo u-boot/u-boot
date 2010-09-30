@@ -139,12 +139,6 @@
 #undef CONFIG_CMD_IMLS		/* List all found images        */
 
 /*
- * Enabling relocation of u-boot by default
- * Relocation can be skipped if u-boot is copied to the TEXT_BASE
- */
-#undef CONFIG_SKIP_RELOCATE_UBOOT
-
-/*
  * Environment setup
  */
 
@@ -232,5 +226,8 @@
  * is mapped to one contiguous block
  */
 #define CONFIG_NR_DRAM_BANKS	1
+
+#define CONFIG_SYS_SDRAM_BASE		0x80000000
+#define CONFIG_SYS_INIT_SP_ADDR		(LOW_LEVEL_SRAM_STACK - CONFIG_SYS_GBL_DATA_SIZE)
 
 #endif /* __CONFIG_H */
