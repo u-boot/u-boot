@@ -85,6 +85,7 @@
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
+#define CONFIG_SYS_BOARD_DRAM_INIT	/* Used board specific dram_init */
 
 /*
  * How to get access to the slot ID.  Put this here to make it easy
