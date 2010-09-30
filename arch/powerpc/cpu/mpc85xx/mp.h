@@ -6,6 +6,7 @@
 ulong get_spin_phys_addr(void);
 ulong get_spin_virt_addr(void);
 u32 get_my_id(void);
+int hold_cores_in_reset(int verbose);
 
 #define BOOT_ENTRY_ADDR_UPPER	0
 #define BOOT_ENTRY_ADDR_LOWER	1
