@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 Freescale Semiconductor, Inc.
+ * Copyright (C) 2006,2010 Freescale Semiconductor, Inc.
  * Dave Liu <daveliu@freescale.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -22,6 +22,7 @@
 #include <spd_sdram.h>
 #include <asm/mmu.h>
 #include <asm/io.h>
+#include <asm/fsl_enet.h>
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
 #endif
@@ -396,10 +397,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 				prop = fdt_getprop(blob, path,
 				                   "phy-connection-type", 0);
 				if (prop && (strcmp(prop, "rgmii-id") == 0))
-					fdt_setprop(blob, path,
-					            "phy-connection-type",
-					            "rgmii-rxid",
-					            sizeof("rgmii-rxid"));
+					fdt_fixup_phy_connection(blob, path,
+								RGMII_RXID);
 			}
 #endif
 #if defined(CONFIG_HAS_ETH1)
@@ -410,10 +409,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 				prop = fdt_getprop(blob, path,
 				                   "phy-connection-type", 0);
 				if (prop && (strcmp(prop, "rgmii-id") == 0))
-					fdt_setprop(blob, path,
-					            "phy-connection-type",
-					            "rgmii-rxid",
-					            sizeof("rgmii-rxid"));
+					fdt_fixup_phy_connection(blob, path,
+								RGMII_RXID);
 			}
 #endif
 		}

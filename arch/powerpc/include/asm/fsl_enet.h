@@ -28,4 +28,6 @@ enum fsl_phy_enet_if {
 	FSL_ETH_IF_NONE,
 };
 
+int fdt_fixup_phy_connection(void *blob, int offset, enum fsl_phy_enet_if phyc);
+
 #endif /* __ASM_PPC_FSL_ENET_H */
