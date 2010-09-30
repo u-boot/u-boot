@@ -28,13 +28,21 @@
 #include <i2c.h>
 #include <linux/ctype.h>
 
+#ifdef CONFIG_SYS_I2C_EEPROM_CCID
 #include "../common/eeprom.h"
-
-#if !defined(CONFIG_SYS_I2C_EEPROM_CCID) && !defined(CONFIG_SYS_I2C_EEPROM_NXID)
-#error "Please define either CONFIG_SYS_I2C_EEPROM_CCID or CONFIG_SYS_I2C_EEPROM_NXID"
+#define MAX_NUM_PORTS	8
 #endif
 
-#define MAX_NUM_PORTS	8	/* This value must be 8 as defined in doc */
+#ifdef CONFIG_SYS_I2C_EEPROM_NXID
+#define MAX_NUM_PORTS	8
+#define NXID_VERSION	0
+#endif
+
+#ifdef CONFIG_SYS_I2C_EEPROM_NXID_1
+#define CONFIG_SYS_I2C_EEPROM_NXID
+#define MAX_NUM_PORTS	23
+#define NXID_VERSION	1
+#endif
 
 /**
  * static eeprom: EEPROM layout for CCID or NXID formats
@@ -68,8 +76,8 @@ static struct __attribute__ ((__packed__)) eeprom {
 	u8 res_1[21];     /* 0x2b - 0x3f Reserved */
 	u8 mac_count;     /* 0x40        Number of MAC addresses */
 	u8 mac_flag;      /* 0x41        MAC table flags */
-	u8 mac[MAX_NUM_PORTS][6];     /* 0x42 - 0x71 MAC addresses */
-	u32 crc;          /* 0x72        CRC32 checksum */
+	u8 mac[MAX_NUM_PORTS][6];     /* 0x42 - x MAC addresses */
+	u32 crc;          /* x+1         CRC32 checksum */
 #endif
 } e;
 
@@ -316,7 +324,7 @@ static void set_mac_address(unsigned int index, const char *string)
 	char *p = (char *) string;
 	unsigned int i;
 
-	if (!string) {
+	if ((index >= MAX_NUM_PORTS) || !string) {
 		printf("Usage: mac <n> XX:XX:XX:XX:XX:XX\n");
 		return;
 	}
@@ -349,7 +357,7 @@ int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (cmd == 'i') {
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
 		memcpy(e.id, "NXID", sizeof(e.id));
-		e.version = 0;
+		e.version = NXID_VERSION;
 #else
 		memcpy(e.id, "CCID", sizeof(e.id));
 #endif
@@ -398,8 +406,8 @@ int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		e.mac_count = simple_strtoul(argv[2], NULL, 16);
 		update_crc();
 		break;
-	case '0' ... '7':	/* "mac 0" through "mac 7" */
-		set_mac_address(cmd - '0', argv[2]);
+	case '0' ... '9':	/* "mac 0" through "mac 22" */
+		set_mac_address(simple_strtoul(argv[1], NULL, 10), argv[2]);
 		break;
 	case 'h':	/* help */
 	default:
