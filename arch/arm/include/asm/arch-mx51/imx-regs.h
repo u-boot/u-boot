@@ -23,9 +23,6 @@
 #ifndef __ASM_ARCH_MXC_MX51_H__
 #define __ASM_ARCH_MXC_MX51_H__
 
-#define __REG(x)	(*((volatile u32 *)(x)))
-#define __REG16(x)	(*((volatile u16 *)(x)))
-#define __REG8(x)	(*((volatile u8 *)(x)))
 /*
  * IRAM
  */
@@ -207,7 +204,12 @@
 #define BOARD_REV_1_0           0x0
 #define BOARD_REV_2_0           0x1
 
-#ifndef __ASSEMBLY__
+#if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
+#include <asm/types.h>
+
+#define __REG(x)	(*((volatile u32 *)(x)))
+#define __REG16(x)	(*((volatile u16 *)(x)))
+#define __REG8(x)	(*((volatile u8 *)(x)))
 
 struct clkctl {
 	u32	ccr;
