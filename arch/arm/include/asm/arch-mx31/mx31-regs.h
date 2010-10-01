@@ -214,6 +214,10 @@ struct gpio_regs {
 #define MUX_CTL_CSPI1_MISO	0x8d
 #define MUX_CTL_CSPI1_SS0	0x8e
 #define MUX_CTL_CSPI1_SS1	0x8f
+#define MUX_CTL_STXD6		0x90
+#define MUX_CTL_SRXD6		0x91
+#define MUX_CTL_SCK6		0x92
+#define MUX_CTL_SFS6		0x93
 
 #define MUX_CTL_NFC_WP		0xD0
 #define MUX_CTL_NFC_CE		0xD1
@@ -223,6 +227,9 @@ struct gpio_regs {
 #define MUX_CTL_NFC_ALE		0xD6
 #define MUX_CTL_NFC_CLE		0xD7
 
+
+#define MUX_CTL_CAPTURE		0x150
+#define MUX_CTL_COMPARE		0x151
 
 /*
  * Helper macros for the MUX_[contact name]__[pin function] macros
