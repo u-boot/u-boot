@@ -45,6 +45,9 @@
 # include <linux/string.h>
 #endif
 
+#ifndef	CONFIG_ENV_MIN_ENTRIES	/* minimum number of entries */
+#define	CONFIG_ENV_MIN_ENTRIES 64
+#endif
 #ifndef	CONFIG_ENV_MAX_ENTRIES	/* maximum number of entries */
 #define	CONFIG_ENV_MAX_ENTRIES 512
 #endif
@@ -647,13 +650,14 @@ int himport_r(struct hsearch_data *htab,
 	 * (CONFIG_ENV_SIZE).  This heuristics will result in
 	 * unreasonably large numbers (and thus memory footprint) for
 	 * big flash environments (>8,000 entries for 64 KB
-	 * envrionment size), so we clip it to a reasonable value
-	 * (which can be overwritten in the board config file if
-	 * needed).
+	 * envrionment size), so we clip it to a reasonable value.
+	 * On the other hand we need to add some more entries for free
+	 * space when importing very small buffers. Both boundaries can
+	 * be overwritten in the board config file if needed.
 	 */
 
 	if (!htab->table) {
-		int nent = size / 8;
+		int nent = CONFIG_ENV_MIN_ENTRIES + size / 8;
 
 		if (nent > CONFIG_ENV_MAX_ENTRIES)
 			nent = CONFIG_ENV_MAX_ENTRIES;
