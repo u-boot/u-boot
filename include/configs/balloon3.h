@@ -34,18 +34,19 @@
 #define	CONFIG_ENV_OVERWRITE
 #define	CONFIG_SYS_MALLOC_LEN		(128*1024)
 #define	CONFIG_SYS_GBL_DATA_SIZE	128
-
+#define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_BOOTCOMMAND						\
+	"fpga load 0x0 0x50000 0x62638; "				\
 	"if usb reset && fatload usb 0 0xa4000000 uImage; then "	\
 		"bootm 0xa4000000; "					\
 	"fi; "								\
-	"bootm 0x40000;"
+	"bootm 0xd0000;"
 #define	CONFIG_BOOTARGS			"console=tty0 console=ttyS2,115200"
 #define	CONFIG_TIMESTAMP
 #define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
-
+#define	CONFIG_SYS_TEXT_BASE		0x0
 #define	CONFIG_LZMA			/* LZMA compression support */
 
 /*
@@ -131,7 +132,8 @@
 #define	CONFIG_SYS_LOAD_ADDR		0xa1000000
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define	CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_GBL_DATA_SIZE + PHYS_SDRAM_1)
+#define	CONFIG_SYS_INIT_SP_ADDR		\
+	(PHYS_SDRAM_1 + CONFIG_SYS_GBL_DATA_SIZE + 2048)
 
 /*
  * NOR FLASH

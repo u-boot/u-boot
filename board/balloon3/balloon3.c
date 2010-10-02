@@ -36,6 +36,10 @@ void balloon3_init_fpga(void);
 
 int board_init(void)
 {
+	/* We have RAM, disable cache */
+	dcache_disable();
+	icache_disable();
+
 	/* arch number of vpac270 */
 	gd->bd->bi_arch_number = MACH_TYPE_BALLOON3;
 
@@ -53,7 +57,15 @@ struct serial_device *default_serial_console(void)
 	return &serial_stuart_device;
 }
 
+extern void pxa_dram_init(void);
 int dram_init(void)
+{
+	pxa_dram_init();
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
+	return 0;
+}
+
+void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
@@ -62,8 +74,6 @@ int dram_init(void)
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
 	gd->bd->bi_dram[2].size = PHYS_SDRAM_3_SIZE;
-
-	return 0;
 }
 
 #ifdef	CONFIG_CMD_USB
