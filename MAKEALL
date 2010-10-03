@@ -471,9 +471,6 @@ LIST_at91="			\
 LIST_pxa="$(boards_by_cpu pxa)
 	polaris		\
 	trizepsiv	\
-	vpac270_nor_128M\
-	vpac270_nor_256M\
-	vpac270_onenand	\
 "
 
 LIST_ixp="$(boards_by_cpu ixp)

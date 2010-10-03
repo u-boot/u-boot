@@ -1018,22 +1018,6 @@ trizepsiv_config	:	unconfig
 	fi;
 	@$(MKCONFIG) -n $@ -a trizepsiv arm pxa trizepsiv
 
-vpac270_nor_256M_config \
-vpac270_nor_128M_config \
-vpac270_onenand_config	: unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring onenand,$@)" ] ; then \
-		echo "#define CONFIG_ONENAND_U_BOOT" \
-			>>$(obj)include/config.h ; \
-		echo "#define CONFIG_256M_U_BOOT" \
-			>>$(obj)include/config.h ; \
-	fi;
-	@if [ "$(findstring 256M,$@)" ] ; then \
-		echo "#define CONFIG_256M_U_BOOT" \
-			>>$(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ -a vpac270 arm pxa vpac270
-
 #########################################################################
 ## ARM1136 Systems
 #########################################################################
