@@ -1010,14 +1010,6 @@ scpu_config:	unconfig
 	fi
 	@$(MKCONFIG) -n $@ -a pdnb3 arm ixp pdnb3 prodrive
 
-polaris_config \
-trizepsiv_config	:	unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring polaris,$@)" ] ; then \
-		echo "#define CONFIG_POLARIS 1"	>>$(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ -a trizepsiv arm pxa trizepsiv
-
 #########################################################################
 ## ARM1136 Systems
 #########################################################################

@@ -45,7 +45,7 @@ extern struct serial_device serial_ffuart_device;
 extern struct serial_device serial_btuart_device;
 extern struct serial_device serial_stuart_device;
 
-#if CONFIG_POLARIS
+#if CONFIG_MK_POLARIS
 #define BOOT_CONSOLE	"serial_stuart"
 #else
 #define BOOT_CONSOLE	"serial_ffuart"

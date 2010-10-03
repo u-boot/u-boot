@@ -468,10 +468,7 @@ LIST_at91="			\
 ## Xscale Systems
 #########################################################################
 
-LIST_pxa="$(boards_by_cpu pxa)
-	polaris		\
-	trizepsiv	\
-"
+LIST_pxa="$(boards_by_cpu pxa)"
 
 LIST_ixp="$(boards_by_cpu ixp)
 	pdnb3		\
