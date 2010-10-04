@@ -67,13 +67,6 @@ static __inline__ void set_pit(unsigned long val)
 	asm volatile("mtpit %0" : : "r" (val));
 }
 
-
-static __inline__ void set_tcr(unsigned long val)
-{
-	asm volatile("mttcr %0" : : "r" (val));
-}
-
-
 static __inline__ void set_evpr(unsigned long val)
 {
 	asm volatile("mtevpr %0" : : "r" (val));
