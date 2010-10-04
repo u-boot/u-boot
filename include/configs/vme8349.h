@@ -37,7 +37,7 @@
 /*
  * Top level Makefile configuration choices
  */
-#ifdef CONFIG_MK_caddy2
+#ifdef CONFIG_caddy2
 #define VME_CADDY2
 #endif
 

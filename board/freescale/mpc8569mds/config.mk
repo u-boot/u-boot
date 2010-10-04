@@ -24,7 +24,7 @@
 # mpc8569mds board
 #
 ifndef NAND_SPL
-ifeq ($(CONFIG_MK_NAND), y)
+ifeq ($(CONFIG_NAND), y)
 TEXT_BASE = $(CONFIG_RAMBOOT_TEXT_BASE)
 LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
 endif

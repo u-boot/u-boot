@@ -29,7 +29,7 @@
 
 #include "../board/freescale/common/ics307_clk.h"
 
-#ifdef CONFIG_MK_36BIT
+#ifdef CONFIG_36BIT
 #define CONFIG_PHYS_64BIT
 #endif
 

@@ -51,7 +51,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_CLK_FREQ	66666666
 #define CONFIG_DDR_CLK_FREQ	CONFIG_SYS_CLK_FREQ
 
-#ifdef CONFIG_MK_ATM
+#ifdef CONFIG_ATM
 #define CONFIG_PQ_MDS_PIB
 #define CONFIG_PQ_MDS_PIB_ATM
 #endif
@@ -62,7 +62,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_L2_CACHE				/* toggle L2 cache	*/
 #define CONFIG_BTB				/* toggle branch predition */
 
-#ifdef CONFIG_MK_NAND
+#ifdef CONFIG_NAND
 #define CONFIG_NAND_U_BOOT		1
 #define CONFIG_RAMBOOT_NAND		1
 #define CONFIG_RAMBOOT_TEXT_BASE	0xf8f82000

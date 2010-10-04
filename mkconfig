@@ -150,7 +150,7 @@ echo "/* Automatically generated - do not edit */" >>config.h
 
 for i in ${TARGETS} ; do
 	i="`echo ${i} | sed '/=/ {s/=/\t/;q } ; { s/$/\t1/ }'`"
-	echo "#define CONFIG_MK_${i}" >>config.h ;
+	echo "#define CONFIG_${i}" >>config.h ;
 done
 
 cat << EOF >> config.h

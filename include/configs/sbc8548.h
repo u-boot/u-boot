@@ -32,20 +32,19 @@
 /*
  * Top level Makefile configuration choices
  */
-#ifdef CONFIG_MK_PCI
-#define CONFIG_PCI
+#ifdef CONFIG_PCI
 #define CONFIG_PCI1
 #endif
 
-#ifdef CONFIG_MK_66
+#ifdef CONFIG_66
 #define CONFIG_SYS_CLK_DIV 1
 #endif
 
-#ifdef CONFIG_MK_33
+#ifdef CONFIG_33
 #define CONFIG_SYS_CLK_DIV 2
 #endif
 
-#ifdef CONFIG_MK_PCIE
+#ifdef CONFIG_PCIE
 #define CONFIG_PCIE1
 #endif
 

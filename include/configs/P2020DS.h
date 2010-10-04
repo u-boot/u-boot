@@ -29,7 +29,7 @@
 
 #include "../board/freescale/common/ics307_clk.h"
 
-#ifdef CONFIG_MK_36BIT
+#ifdef CONFIG_36BIT
 #define CONFIG_PHYS_64BIT
 #endif
 
@@ -92,7 +92,7 @@
 
 /* DDR Setup */
 #define CONFIG_VERY_BIG_RAM
-#ifdef CONFIG_MK_DDR2
+#ifdef CONFIG_DDR2
 #define CONFIG_FSL_DDR2
 #else
 #define CONFIG_FSL_DDR3		1

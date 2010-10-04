@@ -34,7 +34,7 @@
 /*
  * Top level Makefile configuration choices
  */
-#ifdef CONFIG_MK_66
+#ifdef CONFIG_66
 #define CONFIG_PCI_66
 #endif
 

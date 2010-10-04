@@ -29,22 +29,22 @@
 
 #include "../board/freescale/common/ics307_clk.h"
 
-#ifdef CONFIG_MK_36BIT
+#ifdef CONFIG_36BIT
 #define CONFIG_PHYS_64BIT	1
 #endif
 
-#ifdef CONFIG_MK_NAND
+#ifdef CONFIG_NAND
 #define CONFIG_NAND_U_BOOT		1
 #define CONFIG_RAMBOOT_NAND		1
 #define CONFIG_RAMBOOT_TEXT_BASE	0xf8f82000
 #endif
 
-#ifdef CONFIG_MK_SDCARD
+#ifdef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_SDCARD		1
 #define CONFIG_RAMBOOT_TEXT_BASE	0xf8f80000
 #endif
 
-#ifdef CONFIG_MK_SPIFLASH
+#ifdef CONFIG_SPIFLASH
 #define CONFIG_RAMBOOT_SPIFLASH		1
 #define CONFIG_RAMBOOT_TEXT_BASE	0xf8f80000
 #endif

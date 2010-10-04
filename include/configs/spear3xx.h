@@ -28,13 +28,13 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#if defined(CONFIG_MK_spear300)
+#if defined(CONFIG_spear300)
 #define CONFIG_SPEAR3XX				1
 #define CONFIG_SPEAR300				1
-#elif defined(CONFIG_MK_spear310)
+#elif defined(CONFIG_spear310)
 #define CONFIG_SPEAR3XX				1
 #define CONFIG_SPEAR310				1
-#elif defined(CONFIG_MK_spear320)
+#elif defined(CONFIG_spear320)
 #define CONFIG_SPEAR3XX				1
 #define CONFIG_SPEAR320				1
 #endif

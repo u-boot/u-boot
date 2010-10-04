@@ -69,12 +69,12 @@
 #include <config_cmd_default.h>
 
 /*
- * CONFIG_MK_RAM defines if u-boot is loaded via BDM (or started from
+ * CONFIG_RAM defines if u-boot is loaded via BDM (or started from
  * a different bootloader that has already performed RAM setup) or
  * started directly from flash, which is the regular case for production
  * boards.
  */
-#ifdef CONFIG_MK_RAM
+#ifdef CONFIG_RAM
 #define CONFIG_MONITOR_IS_IN_RAM
 #define CONFIG_TEXT_BASE		0x40020000
 #define ENABLE_JFFS	0

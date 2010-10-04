@@ -5,21 +5,21 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_MK_edb9301
+#ifdef CONFIG_edb9301
 #define CONFIG_EDB9301
-#elif defined(CONFIG_MK_edb9302)
+#elif defined(CONFIG_edb9302)
 #define CONFIG_EDB9302
-#elif defined(CONFIG_MK_edb9302a)
+#elif defined(CONFIG_edb9302a)
 #define CONFIG_EDB9302A
-#elif defined(CONFIG_MK_edb9307)
+#elif defined(CONFIG_edb9307)
 #define CONFIG_EDB9307
-#elif defined(CONFIG_MK_edb9307a)
+#elif defined(CONFIG_edb9307a)
 #define CONFIG_EDB9307A
-#elif defined(CONFIG_MK_edb9312)
+#elif defined(CONFIG_edb9312)
 #define CONFIG_EDB9312
-#elif defined(CONFIG_MK_edb9315)
+#elif defined(CONFIG_edb9315)
 #define CONFIG_EDB9315
-#elif defined(CONFIG_MK_edb9315a)
+#elif defined(CONFIG_edb9315a)
 #define CONFIG_EDB9315A
 #else
 #error "no board defined"
