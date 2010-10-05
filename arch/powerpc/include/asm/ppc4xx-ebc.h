@@ -69,7 +69,8 @@
 #define EBC_NUM_BANKS	6
 #endif
 
-#if defined(CONFIG_440SP) || defined(CONFIG_440SPE)
+#if defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
+    defined(CONFIG_APM821XX)
 #define EBC_NUM_BANKS	3
 #endif
 

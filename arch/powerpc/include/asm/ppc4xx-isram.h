@@ -25,7 +25,8 @@
 /*
  * Internal SRAM
  */
-#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
+#if defined(CONFIG_440EPX) || defined(CONFIG_440GRX) || \
+    defined(CONFIG_APM821XX)
 #define ISRAM0_DCR_BASE 0x380
 #else
 #define ISRAM0_DCR_BASE 0x020
@@ -42,7 +43,8 @@
 #define ISRAM0_REVID	(ISRAM0_DCR_BASE+0x09)	/* SRAM bus revision id reg */
 #define ISRAM0_DPC	(ISRAM0_DCR_BASE+0x0a)	/* SRAM data parity check reg */
 
-#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
+    defined(CONFIG_APM821XX)
 #define ISRAM1_DCR_BASE 0x0B0
 #define ISRAM1_SB0CR	(ISRAM1_DCR_BASE+0x00)	/* SRAM1 bank config 0*/
 #define ISRAM1_BEAR	(ISRAM1_DCR_BASE+0x04)	/* SRAM1 bus error addr reg */
@@ -54,13 +56,19 @@
 #define ISRAM1_DPC	(ISRAM1_DCR_BASE+0x0a)	/* SRAM1 data parity check reg */
 #endif /* CONFIG_460EX || CONFIG_460GT */
 
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define ISRAM1_SIZE 0x0984 /* OCM size 64k */
+#elif defined(CONFIG_APM821XX)
+#define ISRAM1_SIZE 0x0784 /* OCM size 32k */
+#endif
+
 /*
  * L2 Cache
  */
 #if defined (CONFIG_440GX) || \
     defined(CONFIG_440SP) || defined(CONFIG_440SPE) || \
     defined(CONFIG_460EX) || defined(CONFIG_460GT) || \
-    defined(CONFIG_460SX)
+    defined(CONFIG_460SX) || defined(CONFIG_APM821XX)
 #define L2_CACHE_BASE	0x030
 #define L2_CACHE_CFG	(L2_CACHE_BASE+0x00)	/* L2 Cache Config      */
 #define L2_CACHE_CMD	(L2_CACHE_BASE+0x01)	/* L2 Cache Command     */
