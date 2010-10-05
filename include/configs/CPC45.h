@@ -467,6 +467,7 @@
  *-----------------------------------------------------------------------
  */
 #define CONFIG_PCI			/* include pci support			*/
+#define CONFIG_SYS_EARLY_PCI_INIT
 #undef	CONFIG_PCI_PNP
 #undef	CONFIG_PCI_SCAN_SHOW
 
