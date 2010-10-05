@@ -89,6 +89,22 @@
 #define CONFIG_BMP_16BPP
 #define CONFIG_DISPLAY_COM57H5M10XRC
 
+/* USB */
+#define CONFIG_CMD_USB
+#ifdef CONFIG_CMD_USB
+#define CONFIG_USB_EHCI			/* Enable EHCI USB support */
+#define CONFIG_USB_EHCI_MXC
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+#define CONFIG_MXC_USB_PORT	2
+#define CONFIG_MXC_USB_PORTSC	(MXC_EHCI_MODE_ULPI | MXC_EHCI_UTMI_8BIT)
+#define CONFIG_MXC_USB_FLAGS	MXC_EHCI_POWER_PINS_ENABLED
+#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_STORAGE
+#define CONFIG_DOS_PARTITION
+#define CONFIG_SUPPORT_VFAT
+#define CONFIG_CMD_FAT
+#endif /* CONFIG_CMD_USB */
+
 /*
  * Reducing the ARP timeout from default 5 seconds to 200ms we speed up the
  * initial TFTP transfer, should the user wish one, significantly.
@@ -250,7 +266,7 @@ extern int qong_nand_rdy(void *chip);
 #define	CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_SECT_SIZE	0x20000
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x60000)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x80000)
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
