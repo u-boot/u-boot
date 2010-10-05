@@ -96,7 +96,6 @@ static void pm9263_nand_hw_init(void)
 static void pm9263_macb_hw_init(void)
 {
 	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
-	at91_pio_t	*pio	= (at91_pio_t *) AT91_PIO_BASE;
 
 	/*
 	 * PB27 enables the 50MHz oscillator for Ethernet PHY
