@@ -195,8 +195,8 @@ stack_setup:
 copy_loop:
 	ldmia	r0!, {r9-r10}		/* copy from source address [r0]    */
 	stmia	r6!, {r9-r10}		/* copy to   target address [r1]    */
-	cmp	r0, r2			/* until source end addreee [r2]    */
-	ble	copy_loop
+	cmp	r0, r2			/* until source end address [r2]    */
+	blo	copy_loop
 
 #ifndef CONFIG_PRELOADER
 	/* fix got entries */
@@ -293,8 +293,8 @@ relocate:				/* relocate U-Boot to RAM	    */
 copy_loop:
 	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
 	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
-	cmp	r0, r2			/* until source end addreee [r2]    */
-	ble	copy_loop
+	cmp	r0, r2			/* until source end address [r2]    */
+	blo	copy_loop
 #endif	/* CONFIG_SKIP_RELOCATE_UBOOT */
 
 	/* Set up the stack						    */
@@ -316,7 +316,7 @@ clear_bss:
 clbss_l:str	r2, [r0]		/* clear loop...                    */
 	add	r0, r0, #4
 	cmp	r0, r1
-	ble	clbss_l
+	blo	clbss_l
 
 	ldr	pc, _start_armboot
 
