@@ -1781,7 +1781,7 @@ The following options need to be configured:
 
 			ETX094, IVMS8, IVML24, SPD8xx, TQM8xxL,
 			HERMES, IP860, RPXlite, LWMON, LANTEC,
-			PCU_E, FLAGADM, TQM8260
+			FLAGADM, TQM8260
 
 - Error Recovery:
 		CONFIG_PANIC_HANG

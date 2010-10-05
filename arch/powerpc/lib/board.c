@@ -107,7 +107,7 @@ void doc_init (void);
 
 static char *failed = "*** failed ***\n";
 
-#if defined(CONFIG_OXC) || defined(CONFIG_PCU_E) || defined(CONFIG_RMU)
+#if defined(CONFIG_OXC) || defined(CONFIG_RMU)
 extern flash_info_t flash_info[];
 #endif
 
@@ -735,7 +735,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #endif
 
 
-# if defined(CONFIG_PCU_E) || defined(CONFIG_OXC) || defined(CONFIG_RMU)
+# if defined(CONFIG_OXC) || defined(CONFIG_RMU)
 	/* flash mapped at end of memory map */
 	bd->bi_flashoffset = TEXT_BASE + flash_size;
 # elif CONFIG_SYS_MONITOR_BASE == CONFIG_SYS_FLASH_BASE

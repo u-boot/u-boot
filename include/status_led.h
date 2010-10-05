@@ -190,8 +190,8 @@ void status_led_set  (int led, int state);
 
 # define STATUS_LED_BOOT	0		/* LED 0 used for boot status */
 
-/*****  PCU E  and  CCM  ************************************************/
-#elif (defined(CONFIG_PCU_E) || defined(CONFIG_CCM))
+/*****  CCM  ************************************************************/
+#elif defined(CONFIG_CCM)
 
 # define STATUS_LED_PAR		im_cpm.cp_pbpar
 # define STATUS_LED_DIR		im_cpm.cp_pbdir

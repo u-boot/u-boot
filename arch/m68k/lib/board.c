@@ -73,10 +73,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static char *failed = "*** failed ***\n";
 
-#ifdef	CONFIG_PCU_E
-extern flash_info_t flash_info[];
-#endif
-
 #include <environment.h>
 
 extern ulong __init_end;

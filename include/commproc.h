@@ -580,11 +580,11 @@ typedef struct scc_enet {
 /*********************************************************************/
 
 
-/***  CCM  and  PCU E  ***********************************************/
+/***  CCM  ***********************************************************/
 
-/* The PCU E  and  CCM  use the FEC on a MPC860T for Ethernet */
+/* The CCM  uses the FEC on a MPC860T for Ethernet */
 
-#if defined (CONFIG_PCU_E) || defined(CONFIG_CCM)
+#if defined(CONFIG_CCM)
 
 #define	FEC_ENET	/* use FEC for EThernet */
 #undef	SCC_ENET
@@ -605,7 +605,7 @@ typedef struct scc_enet {
 
 #define PD_MII_MASK	((ushort)0x1FFF)	/* PD 3...15 */
 
-#endif	/* CONFIG_PCU_E, CONFIG_CCM */
+#endif	/* CONFIG_CCM */
 
 /***  ELPT860 *********************************************************/
 
