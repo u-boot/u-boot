@@ -11,7 +11,6 @@
 /*
  * Processor Settings
  */
-#define CONFIG_BFIN_CPU             bf537-0.2
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_SPI_MASTER
 
 
@@ -52,7 +51,7 @@
 #define CONFIG_EBIU_AMBCTL0_VAL	0x7BB033B0
 #define CONFIG_EBIU_AMBCTL1_VAL	0xFFC27BB0
 
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)
+#define CONFIG_SYS_MONITOR_LEN		(512 * 1024)
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)
 
 

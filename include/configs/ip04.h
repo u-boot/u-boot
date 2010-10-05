@@ -20,7 +20,6 @@
 /*
  * Processor Settings
  */
-#define CONFIG_BFIN_CPU             bf532-0.5
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_NAND
 
 

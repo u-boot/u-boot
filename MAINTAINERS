@@ -997,6 +997,7 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 	BF526-EZBRD	BF526
 	BF527-EZKIT	BF527
 	BF527-EZKIT-V2	BF527
+	BF527-SDP	BF527
 	BF533-EZKIT	BF533
 	BF533-STAMP	BF533
 	BF537-PNAV	BF537
@@ -1026,9 +1027,12 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 	BF537-srv1	BF537
 
 Wojtek Skulski <skulski@pas.rochester.edu>
+Wojtek Skulski <info@skutek.com>
+Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 Benjamin Matthews <mben12@gmail.com>
 
-	BLACKSTAMP	BF532
+	BlackStamp	BF533
+	BlackVME	BF561
 
 I-SYST Micromodule <support@i-syst.com>
 Blackfin Team <u-boot-devel@blackfin.uclinux.org>
@@ -1043,6 +1047,10 @@ Anton Shurpin <shurpin.aa@niistt.ru>
 Brent Kandetzki <brentk@teleco.com>
 
 	IP04		BF532
+
+Peter Meerwald <devel@bct-electronic.com>
+
+	bct-brettl2	BF536
 
 #########################################################################
 # End of MAINTAINERS list						#

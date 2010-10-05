@@ -153,25 +153,26 @@ void Init_PPI(void)
 
 void Init_DMA(void *dst)
 {
-
 #if defined(CONFIG_DEB_DMA_URGENT)
-	*pEBIU_DDRQUE |= DEB2_URGENT;
+	bfin_write_EBIU_DDRQUE(bfin_read_EBIU_DDRQUE() | DEB2_URGENT);
 #endif
 
-	*pDMA12_START_ADDR = dst;
+	bfin_write_DMA12_START_ADDR(dst);
 
 	/* X count */
-	*pDMA12_X_COUNT = (LCD_X_RES * LCD_BPP) / DMA_BUS_SIZE;
-	*pDMA12_X_MODIFY = DMA_BUS_SIZE / 8;
+	bfin_write_DMA12_X_COUNT((LCD_X_RES * LCD_BPP) / DMA_BUS_SIZE);
+	bfin_write_DMA12_X_MODIFY(DMA_BUS_SIZE / 8);
 
 	/* Y count */
-	*pDMA12_Y_COUNT = LCD_Y_RES;
-	*pDMA12_Y_MODIFY = DMA_BUS_SIZE / 8;
+	bfin_write_DMA12_Y_COUNT(LCD_Y_RES);
+	bfin_write_DMA12_Y_MODIFY(DMA_BUS_SIZE / 8);
 
 	/* DMA Config */
-	*pDMA12_CONFIG = WDSIZE_32 |	/* 32 bit DMA */
+	bfin_write_DMA12_CONFIG(
+	    WDSIZE_32 |	/* 32 bit DMA */
 	    DMA2D |		/* 2D DMA */
-	    FLOW_AUTO;		/* autobuffer mode */
+	    FLOW_AUTO		/* autobuffer mode */
+	);
 }
 
 void Init_Ports(void)
@@ -195,12 +196,12 @@ void Init_Ports(void)
 
 void EnableDMA(void)
 {
-	*pDMA12_CONFIG |= DMAEN;
+	bfin_write_DMA12_CONFIG(bfin_read_DMA12_CONFIG() | DMAEN);
 }
 
 void DisableDMA(void)
 {
-	*pDMA12_CONFIG &= ~DMAEN;
+	bfin_write_DMA12_CONFIG(bfin_read_DMA12_CONFIG() & ~DMAEN);
 }
 
 /* enable and disable PPI functions */

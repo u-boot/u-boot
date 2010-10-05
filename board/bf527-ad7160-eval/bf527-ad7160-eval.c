@@ -20,6 +20,6 @@ int checkboard(void)
 int misc_init_r(void)
 {
 	/* CLKIN Buffer Output Enable */
-	*pVR_CTL |= CLKBUFOE;
+	bfin_write_VR_CTL(bfin_read_VR_CTL() | CLKBUFOE);
 	return 0;
 }

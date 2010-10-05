@@ -497,12 +497,6 @@
 #define NFC_CMD                        0xFFC03744 /* NAND Command Register */
 #define NFC_DATA_WR                    0xFFC03748 /* NAND Data Write Register */
 #define NFC_DATA_RD                    0xFFC0374C /* NAND Data Read Register */
-#define TBUFCTL                        0xFFE06000 /* Trace Buffer Control Register */
-#define TBUFSTAT                       0xFFE06004 /* Trace Buffer Status Register */
-#define TBUF                           0xFFE06100 /* Trace Buffer */
-#define PFCTL                          0xFFE08000
-#define PFCNTR0                        0xFFE08100
-#define PFCNTR1                        0xFFE08104
 #define DMA_TC_CNT                     0xFFC00B0C
 #define DMA_TC_PER                     0xFFC00B10
 

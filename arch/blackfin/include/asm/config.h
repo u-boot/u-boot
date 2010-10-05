@@ -9,11 +9,6 @@
 #ifndef __ASM_BLACKFIN_CONFIG_POST_H__
 #define __ASM_BLACKFIN_CONFIG_POST_H__
 
-/* Sanity check CONFIG_BFIN_CPU */
-#ifndef CONFIG_BFIN_CPU
-# error CONFIG_BFIN_CPU: your board config needs to define this
-#endif
-
 #ifndef CONFIG_BFIN_SCRATCH_REG
 # define CONFIG_BFIN_SCRATCH_REG retn
 #endif

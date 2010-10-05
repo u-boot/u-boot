@@ -11,7 +11,6 @@
 /*
  * Processor Settings
  */
-#define CONFIG_BFIN_CPU             bf548-0.0
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_PARA
 
 
@@ -183,6 +182,7 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define CONFIG_RTC_BFIN
 #define CONFIG_UART_CONSOLE	1
+#define CONFIG_BFIN_SPI_IMG_SIZE 0x50000
 
 #ifndef __ADSPBF542__
 /* Don't waste time transferring a logo over the UART */

@@ -6,6 +6,26 @@
 #ifndef __MACH_DEF_BLACKFIN__
 #define __MACH_DEF_BLACKFIN__
 
+#ifdef __ADSPBF512__
+# include "mach-bf518/BF512_def.h"
+# include "mach-bf518/anomaly.h"
+# include "mach-bf518/def_local.h"
+#endif
+#ifdef __ADSPBF514__
+# include "mach-bf518/BF514_def.h"
+# include "mach-bf518/anomaly.h"
+# include "mach-bf518/def_local.h"
+#endif
+#ifdef __ADSPBF516__
+# include "mach-bf518/BF516_def.h"
+# include "mach-bf518/anomaly.h"
+# include "mach-bf518/def_local.h"
+#endif
+#ifdef __ADSPBF518__
+# include "mach-bf518/BF518_def.h"
+# include "mach-bf518/anomaly.h"
+# include "mach-bf518/def_local.h"
+#endif
 #ifdef __ADSPBF522__
 # include "mach-bf527/BF522_def.h"
 # include "mach-bf527/anomaly.h"
@@ -66,10 +86,15 @@
 # include "mach-bf537/anomaly.h"
 # include "mach-bf537/def_local.h"
 #endif
-#ifdef __ADSPBF541__
-# include "mach-bf548/BF541_def.h"
-# include "mach-bf548/anomaly.h"
-# include "mach-bf548/def_local.h"
+#ifdef __ADSPBF538__
+# include "mach-bf538/BF538_def.h"
+# include "mach-bf538/anomaly.h"
+# include "mach-bf538/def_local.h"
+#endif
+#ifdef __ADSPBF539__
+# include "mach-bf538/BF539_def.h"
+# include "mach-bf538/anomaly.h"
+# include "mach-bf538/def_local.h"
 #endif
 #ifdef __ADSPBF542__
 # include "mach-bf548/BF542_def.h"

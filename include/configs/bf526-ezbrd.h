@@ -11,7 +11,6 @@
 /*
  * Processor Settings
  */
-#define CONFIG_BFIN_CPU             bf526-0.0
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_PARA
 
 
@@ -53,7 +52,7 @@
 #define CONFIG_EBIU_AMBCTL0_VAL	(B1WAT_15 | B1RAT_15 | B1HT_3 | B1RDYPOL | B0WAT_15 | B0RAT_15 | B0HT_3 | B0RDYPOL)
 #define CONFIG_EBIU_AMBCTL1_VAL	(B3WAT_15 | B3RAT_15 | B3HT_3 | B3RDYPOL | B2WAT_15 | B2RAT_15 | B2HT_3 | B2RDYPOL)
 
-#define CONFIG_SYS_MONITOR_LEN	(512 * 1024)
+#define CONFIG_SYS_MONITOR_LEN	(768 * 1024)
 #define CONFIG_SYS_MALLOC_LEN	(512 * 1024)
 
 
@@ -62,7 +61,8 @@
  * (can't be used same time as ethernet)
  */
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_NAND)
-#define CONFIG_BFIN_NFC
+# define CONFIG_BFIN_NFC
+# define CONFIG_BFIN_NFC_BOOTROM_ECC
 #endif
 #ifdef CONFIG_BFIN_NFC
 #define CONFIG_BFIN_NFC_CTL_VAL	0x0033
