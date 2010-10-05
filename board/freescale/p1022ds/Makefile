@@ -16,6 +16,8 @@ COBJS-y	+= ddr.o
 COBJS-y	+= law.o
 COBJS-y	+= tlb.o
 
+COBJS-$(CONFIG_FSL_DIU_FB) += diu.o
+
 SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))

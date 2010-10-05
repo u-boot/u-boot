@@ -237,9 +237,6 @@ int misc_init_r(void)
 #endif
 
 #ifdef CONFIG_FSL_DIU_FB
-# if	!(defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE))
-	mpc5121_diu_init();
-#endif
 #if defined(CONFIG_SERIAL_MULTI)
 	set_lcd_brightness(0);
 #endif

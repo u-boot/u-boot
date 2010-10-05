@@ -26,17 +26,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/io.h>
-
-#ifdef CONFIG_FSL_DIU_FB
-
-#include "../common/fsl_diu_fb.h"
-
-#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-#include <stdio_dev.h>
-#include <video_fb.h>
-#endif
-
-static int xres, yres;
+#include <fsl_diu_fb.h>
 
 void diu_set_pixel_clock(unsigned int pixclock)
 {
@@ -59,7 +49,7 @@ void diu_set_pixel_clock(unsigned int pixclock)
 	debug("DIU: Modified value of CLKDVDR = 0x%08x\n", *guts_clkdvdr);
 }
 
-int mpc8610hpcd_diu_init(void)
+int platform_diu_init(unsigned int *xres, unsigned int *yres)
 {
 	char *monitor_port;
 	int gamma_fix;
@@ -73,8 +63,8 @@ int mpc8610hpcd_diu_init(void)
 
 	monitor_port = getenv("monitor");
 	if (!strncmp(monitor_port, "0", 1)) {	/* 0 - DVI */
-		xres = 1280;
-		yres = 1024;
+		*xres = 1280;
+		*yres = 1024;
 		if (pixis_arch == 0x01)
 			pixel_format = 0x88882317;
 		else
@@ -83,68 +73,26 @@ int mpc8610hpcd_diu_init(void)
 		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val | 0x08);
 
 	} else if (!strncmp(monitor_port, "1", 1)) { /* 1 - Single link LVDS */
-		xres = 1024;
-		yres = 768;
+		*xres = 1024;
+		*yres = 768;
 		pixel_format = 0x88883316;
 		gamma_fix = 0;
 		out_8(pixis_base + PIXIS_BRDCFG0, (tmp_val & 0xf7) | 0x10);
 
 	} else if (!strncmp(monitor_port, "2", 1)) { /* 2 - Double link LVDS */
-		xres = 1280;
-		yres = 1024;
+		*xres = 1280;
+		*yres = 1024;
 		pixel_format = 0x88883316;
 		gamma_fix = 1;
 		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val & 0xe7);
 
 	} else {	/* DVI */
-		xres = 1280;
-		yres = 1024;
+		*xres = 1280;
+		*yres = 1024;
 		pixel_format = 0x88882317;
 		gamma_fix = 0;
 		out_8(pixis_base + PIXIS_BRDCFG0, tmp_val | 0x08);
 	}
 
-	return fsl_diu_init(xres, pixel_format, gamma_fix);
+	return fsl_diu_init(*xres, pixel_format, gamma_fix);
 }
-
-#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-
-/*
- * The Graphic Device
- */
-static GraphicDevice ctfb;
-
-void *video_hw_init(void)
-{
-	struct fb_info *info;
-
-	if (mpc8610hpcd_diu_init() < 0)
-		return NULL;
-
-	/* fill in Graphic device struct */
-	sprintf(ctfb.modeIdent, "%ix%ix%i %ikHz %iHz", xres, yres, 32, 64, 60);
-
-	ctfb.frameAdrs = (unsigned int)fsl_fb_open(&info);
-	ctfb.winSizeX = xres;
-	ctfb.winSizeY = yres;
-	ctfb.plnSizeX = ctfb.winSizeX;
-	ctfb.plnSizeY = ctfb.winSizeY;
-
-	ctfb.gdfBytesPP = 4;
-	ctfb.gdfIndex = GDF_32BIT_X888RGB;
-
-	ctfb.isaBase = 0;
-	ctfb.pciBase = 0;
-	ctfb.memSize = info->screen_size;
-
-	/* Cursor Start Address */
-	ctfb.dprBase = 0;
-	ctfb.vprBase = 0;
-	ctfb.cprBase = 0;
-
-	return &ctfb;
-}
-
-#endif /* defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE) */
-
-#endif /* CONFIG_FSL_DIU_FB */

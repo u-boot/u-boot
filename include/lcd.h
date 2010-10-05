@@ -167,6 +167,7 @@ typedef struct vidinfo {
 	u_long vl_sync;		/* Horizontal / vertical sync */
 	u_long vl_bpix;		/* Bits per pixel, 0 = 1, 1 = 2, 2 = 4, 3 = 8, 4 = 16 */
 	u_long vl_tft;		/* 0 = passive, 1 = TFT */
+	u_long vl_cont_pol_low;	/* contrast polarity is low */
 
 	/* Horizontal control register. */
 	u_long vl_hsync_len;	/* Length of horizontal sync */

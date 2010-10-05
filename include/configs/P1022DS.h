@@ -177,14 +177,23 @@
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 
-#define CONFIG_FSL_DIU_FB
-#define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x10000)
-
 /* Video */
-/* #define CONFIG_VIDEO */
-#ifdef CONFIG_VIDEO
+#undef CONFIG_FSL_DIU_FB
+
+#ifdef CONFIG_FSL_DIU_FB
+#define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x10000)
+#define CONFIG_VIDEO
+#define CONFIG_CMD_BMP
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_LOGO
+#define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
+/*
+ * With CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS, flash I/O is really slow, so
+ * disable empty flash sector detection, which is I/O-intensive.
+ */
+#undef CONFIG_SYS_FLASH_EMPTY_INFO
 #endif
 
 /*
