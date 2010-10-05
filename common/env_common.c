@@ -227,6 +227,11 @@ int env_import(const char *buf, int check)
 
 void env_relocate (void)
 {
+#if !defined(CONFIG_RELOC_FIXUP_WORKS)
+	extern void env_reloc(void);
+
+	env_reloc();
+#endif
 	if (gd->env_valid == 0) {
 #if defined(CONFIG_ENV_IS_NOWHERE)	/* Environment not changable */
 		set_default_env(NULL);

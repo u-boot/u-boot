@@ -837,6 +837,13 @@ static cmd_tbl_t cmd_env_sub[] = {
 	U_BOOT_CMD_MKENT(set, CONFIG_SYS_MAXARGS, 0, do_env_set, "", ""),
 };
 
+#if !defined(CONFIG_RELOC_FIXUP_WORKS)
+void env_reloc(void)
+{
+	fixup_cmdtable(cmd_env_sub, ARRAY_SIZE(cmd_env_sub));
+}
+#endif
+
 static int do_env (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *cp;
