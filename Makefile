@@ -700,7 +700,7 @@ mpc5121ads_rev2_config	\
 	: unconfig
 	@mkdir -p $(obj)include
 	@if [ "$(findstring rev2,$@)" ] ; then \
-		echo "#define CONFIG_ADS5121_REV2 1" > $(obj)include/config.h; \
+		echo "#define CONFIG_MPC5121ADS_REV2 1" > $(obj)include/config.h; \
 	fi
 	@$(MKCONFIG) -n $@ -a mpc5121ads powerpc mpc512x mpc5121ads freescale
 

@@ -102,7 +102,7 @@ int board_early_init_f(void)
 	 * write commands in order to establish the device ID.
 	 */
 
-#ifdef CONFIG_ADS5121_REV2
+#ifdef CONFIG_MPC5121ADS_REV2
 	out_8((u8 *)(CONFIG_SYS_CPLD_BASE + 0x08), 0xC1);
 #else
 	if (in_8((u8 *)(CONFIG_SYS_CPLD_BASE + 0x08)) & 0x04) {
@@ -329,7 +329,7 @@ int checkboard (void)
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	u32 spridr = in_be32(&im->sysconf.spridr);
 
-	printf ("Board: ADS5121 rev. 0x%04x (CPLD rev. 0x%02x)\n",
+	printf ("Board: MPC5121ADS rev. 0x%04x (CPLD rev. 0x%02x)\n",
 		brd_rev, cpld_rev);
 
 	/* initialize function mux & slew rate IO inter alia on IO Pins  */
