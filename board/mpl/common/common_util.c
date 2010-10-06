@@ -430,12 +430,12 @@ void check_env(void)
 
 int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong size,src,ld_addr;
+	ulong ld_addr;
 	int result;
 #if !defined(CONFIG_PATI)
+	ulong size = IMAGE_SIZE;
+	ulong src = MULTI_PURPOSE_SOCKET_ADDR;
 	backup_t back;
-	src = MULTI_PURPOSE_SOCKET_ADDR;
-	size = IMAGE_SIZE;
 #endif
 
 	if (strcmp(argv[1], "flash") == 0)
@@ -479,30 +479,6 @@ int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return result;
 		}
 #endif /* #if !defined(CONFIG_PATI)	*/
-	}
-	if (strcmp(argv[1], "mem") == 0)
-	{
-		result=0;
-		if(argc==3)
-		{
-			result = (int)simple_strtol(argv[2], NULL, 16);
-	    }
-	    src=(unsigned long)&result;
-	    src-=CONFIG_SYS_MEMTEST_START;
-	    src-=(100*1024); /* - 100k */
-	    src&=0xfff00000;
-	    size=0;
-	    do {
-		size++;
-			printf("\n\nPass %ld\n",size);
-			mem_test(CONFIG_SYS_MEMTEST_START,src,1);
-			if(ctrlc())
-				break;
-			if(result>0)
-				result--;
-
-		}while(result);
-		return 0;
 	}
 #if !defined(CONFIG_PATI)
 	if (strcmp(argv[1], "clearenvvalues") == 0)

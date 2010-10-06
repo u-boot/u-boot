@@ -29,7 +29,7 @@ endif
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS	= $(BOARD).o ../common/flash.o cmd_mip405.o ../common/pci.o \
-			../common/usb_uhci.o ../common/memtst.o ../common/common_util.o
+			../common/usb_uhci.o ../common/common_util.o
 
 SOBJS	= init.o
 

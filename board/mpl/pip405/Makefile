@@ -32,7 +32,7 @@ COBJS	= $(BOARD).o \
 	  ../common/flash.o cmd_pip405.o ../common/pci.o \
 	  ../common/isa.o ../common/kbd.o \
 	  ../common/usb_uhci.o \
-	  ../common/memtst.o ../common/common_util.o
+	  ../common/common_util.o
 
 SOBJS	= init.o
 
