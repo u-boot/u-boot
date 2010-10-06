@@ -56,6 +56,16 @@
 #define CONFIG_BC3450_FP	1	/*  + enable FP O/P		    */
 #undef CONFIG_BC3450_CRT		/*  + enable CRT O/P (Debug only!)  */
 
+/*
+ * Valid values for CONFIG_SYS_TEXT_BASE are:
+ * 0xFC000000	boot low (standard configuration with room for
+ *		max 64 MByte Flash ROM)
+ * 0x00100000	boot from RAM (for testing only)
+ */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFC000000
+#endif
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz	    */
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */

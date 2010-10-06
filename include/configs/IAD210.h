@@ -44,6 +44,8 @@
 #define CONFIG_MPC860T		1
 #define CONFIG_MPC862		1
 
+#define	CONFIG_SYS_TEXT_BASE	0x08000000
+
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
 
 #undef  CONFIG_8xx_CONS_SMC1

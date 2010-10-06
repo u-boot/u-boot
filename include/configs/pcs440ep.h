@@ -40,6 +40,9 @@
 #define CONFIG_440EP		1	/* Specific PPC440EP support    */
 #define CONFIG_440		1	/* ... PPC440 family	        */
 #define CONFIG_4xx		1	/* ... PPC4xx family	        */
+
+#define	CONFIG_SYS_TEXT_BASE	0xFFFA0000
+
 #define CONFIG_SYS_CLK_FREQ	33333333    /* external freq to pll	*/
 
 #define CONFIG_BOARD_EARLY_INIT_F 1     /* Call board_early_init_f	*/

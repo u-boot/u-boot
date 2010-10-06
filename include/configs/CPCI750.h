@@ -57,6 +57,8 @@
 
 #define CONFIG_CPCI750		1	/* this is an CPCI750 board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_BAUDRATE		9600	/* console baudrate = 9600	*/
 
 #define CONFIG_MV64360_ECC		/* enable ECC support */

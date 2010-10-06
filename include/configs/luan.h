@@ -37,6 +37,8 @@
 #define CONFIG_440		1
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external freq to pll	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFB0000
+
 /*
  * Include common defines/options for all AMCC eval boards
  */

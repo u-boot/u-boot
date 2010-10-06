@@ -38,6 +38,12 @@
 #define CONFIG_PCI
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#ifdef CONFIG_BOOT_ROM
+#define CONFIG_SYS_TEXT_BASE	0xFF800000
+#else
+#define	CONFIG_SYS_TEXT_BASE	0xFF000000
+#endif
+
 /*
  * select serial console configuration
  *

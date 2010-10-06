@@ -39,6 +39,8 @@
 #define CONFIG_CPCI405_VER2	1	/* ...version 2			*/
 #undef  CONFIG_CPCI405_6U               /* enable this for 6U boards    */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	 1	/* call misc_init_r()		*/
 

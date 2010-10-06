@@ -36,6 +36,11 @@
 #define CONFIG_440EPX		1		/* Specific PPC440EPx	*/
 #define CONFIG_440		1		/* ... PPC440 family	*/
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
+
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF80000
+#endif
+
 #define CONFIG_SYS_CLK_FREQ	33300000	/* external freq to pll	*/
 
 #define CONFIG_BOARD_EARLY_INIT_F	/* Call board_early_init_f	*/

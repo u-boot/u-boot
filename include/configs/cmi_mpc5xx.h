@@ -38,6 +38,8 @@
 #define CONFIG_MPC555		1		/* This is an MPC555 CPU		*/
 #define CONFIG_CMI		1		/* Using the customized cmi board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x02000000	/* Boot from flash at location 0x00000000 */
+
 /* Serial Console Configuration */
 #define	CONFIG_5xx_CONS_SCI1
 #undef	CONFIG_5xx_CONS_SCI2

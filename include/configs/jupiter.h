@@ -33,6 +33,15 @@
 #define CONFIG_MPC5200		1	/* especially an MPC5200 */
 #define CONFIG_JUPITER		1	/* ... on Jupiter board */
 
+/*
+ * Valid values for CONFIG_SYS_TEXT_BASE are:
+ * 0xFFF00000	boot high (standard configuration)
+ * 0x00100000	boot from RAM (for testing only)
+ */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000
+#endif
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
 #define CONFIG_BOARD_EARLY_INIT_R	1

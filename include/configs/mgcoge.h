@@ -34,6 +34,8 @@
 #define CONFIG_MGCOGE		1
 #define CONFIG_HOSTNAME		mgcoge
 
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
+
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
 /* include common defines/options for all Keymile boards */

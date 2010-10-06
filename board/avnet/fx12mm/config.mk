@@ -23,4 +23,7 @@
 #
 #
 
-sinclude $(SRCTREE)/board/xilinx/ppc405-generic/config.mk
+ifdef CONFIG_SYS_LDSCRIPT
+# need to strip off double quotes
+LDSCRIPT := $(subst ",,$(CONFIG_SYS_LDSCRIPT))
+endif

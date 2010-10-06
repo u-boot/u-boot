@@ -48,6 +48,10 @@
 
 #define CONFIG_MPC8260ADS	1	/* Motorola PQ2 ADS family board */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000	/* Standard: boot high */
+#endif
+
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
 /*

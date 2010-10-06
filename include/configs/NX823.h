@@ -39,6 +39,8 @@
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU	    */
 #define CONFIG_NX823		1	/* ...on a NEXUS 823  module	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 /*#define  CONFIG_VIDEO		1 */
 
 #define CONFIG_8xx_GCLK_FREQ	MPC8XX_SPEED

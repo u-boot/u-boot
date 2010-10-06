@@ -37,6 +37,8 @@
 #define CONFIG_HYMOD		1	/* ...on a Hymod board		*/
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
 
 #define CONFIG_BOARD_POSTCLK_INIT	/* have board_postclk_init() function */

@@ -48,6 +48,10 @@
 #define CONFIG_440		1
 #define CONFIG_4xx		1	/* ... PPC4xx family */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF80000
+#endif
+
 /*
  * Include common defines/options for all AMCC eval boards
  */

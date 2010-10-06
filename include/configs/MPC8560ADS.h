@@ -42,6 +42,12 @@
 #define CONFIG_MPC8560ADS	1	/* MPC8560ADS board specific */
 #define CONFIG_MPC8560		1
 
+/*
+ * default CCARBAR is at 0xff700000
+ * assume U-Boot is less than 0.5MB
+ */
+#define	CONFIG_SYS_TEXT_BASE	0xfff80000
+
 #define CONFIG_PCI
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */

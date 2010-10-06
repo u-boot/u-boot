@@ -33,6 +33,16 @@
 #define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU		*/
 #define CONFIG_MCC200		1	/* ... on MCC200 board			*/
 
+/*
+ * Valid values for CONFIG_SYS_TEXT_BASE are:
+ * 0xFC000000	boot low (standard configuration)
+ * 0xFFF00000	boot high
+ * 0x00100000	boot from RAM (for testing only)
+ */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFC000000
+#endif
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33MHz		*/
 
 #define CONFIG_MISC_INIT_R

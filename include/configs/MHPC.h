@@ -43,6 +43,8 @@
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* do special hardware init.	*/
 #define CONFIG_MISC_INIT_R	1
 
+#define	CONFIG_SYS_TEXT_BASE	0xfe000000
+
 #define CONFIG_8xx_GCLK_FREQ	MPC8XX_SPEED
 #undef	CONFIG_8xx_CONS_SMC1
 #define CONFIG_8xx_CONS_SMC2	1	/* Console is on SMC2		*/

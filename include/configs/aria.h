@@ -51,6 +51,8 @@
 #define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
 #define CONFIG_FSL_DIU_LOGO_BMP	1	/* Don't include FSL DIU binary bmp */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 /* video */
 #undef CONFIG_VIDEO
 

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003-2006
+# (C) Copyright 2003-2010
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -24,23 +24,4 @@
 #
 # MCC200, PRS200 boards:
 #
-#	Valid values for CONFIG_SYS_TEXT_BASE are:
-#
-#	0xFC000000   boot low (standard configuration)
-#	0xFFF00000   boot high
-#	0x00100000   boot from RAM (for testing only)
-#
-
-sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
-
-ifndef CONFIG_SYS_TEXT_BASE
-## Standard: boot low
-CONFIG_SYS_TEXT_BASE = 0xFC000000
-## Boot high
-# CONFIG_SYS_TEXT_BASE = 0xFFF00000
-## For testing: boot from RAM
-# CONFIG_SYS_TEXT_BASE = 0x00100000
-endif
-
-PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
-	-I$(TOPDIR)/board
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board

@@ -39,6 +39,10 @@
 #define CONFIG_PM828		1	/* ...on a PM828 module */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0x40000000	/* Standard: boot 64-bit flash */
+#endif
+
 #undef CONFIG_DB_CR826_J30x_ON		/* J30x jumpers on D.B. carrier */
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/

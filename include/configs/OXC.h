@@ -39,6 +39,8 @@
 #define CONFIG_MPC8240		1
 #define CONFIG_OXC		1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 
 #define CONFIG_IDENT_STRING     " [oxc] "

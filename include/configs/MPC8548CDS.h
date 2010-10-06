@@ -36,6 +36,10 @@
 #define CONFIG_MPC8548		1	/* MPC8548 specific */
 #define CONFIG_MPC8548CDS	1	/* MPC8548CDS board specific */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xfff80000
+#endif
+
 #define CONFIG_PCI		/* enable any pci type devices */
 #define CONFIG_PCI1		/* PCI controller 1 */
 #define CONFIG_PCIE1		/* PCIE controler 1 (slot 1) */

@@ -36,6 +36,10 @@
 #define CONFIG_MPC831x			1
 #define CONFIG_MPC8313			1
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0x00100000
+#endif
+
 #define CONFIG_PCI
 #define CONFIG_FSL_ELBC			1
 

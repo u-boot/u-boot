@@ -38,6 +38,12 @@
 #define CONFIG_4xx		1	/* ... PPC4xx family		*/
 #define CONFIG_SYS_CLK_FREQ	33333333
 
+#ifdef CONFIG_KORAT_PERMANENT
+#define CONFIG_SYS_TEXT_BASE	0xFFFA0000
+#else
+#define	CONFIG_SYS_TEXT_BASE	0xF7F60000
+#endif
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 #define CONFIG_MISC_INIT_R	1	/* Call misc_init_r		*/
 

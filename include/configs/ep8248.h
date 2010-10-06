@@ -31,6 +31,8 @@
 
 #define CONFIG_EP8248			/* Embedded Planet EP8248 board */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 
 /* Allow serial number (serial#) and MAC address (ethaddr) to be overwritten */

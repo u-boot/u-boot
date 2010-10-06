@@ -120,6 +120,8 @@ if we use PCI it has its own MAC addr */
 
 #define CONFIG_DB64360		1	/* this is an DB64360 board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115000	*/
 /*ronen - we don't use the global CONFIG_ECC, since in the global ecc we initialize the
 	DRAM for ECC in the phase we are relocating to it, which isn't so sufficient.

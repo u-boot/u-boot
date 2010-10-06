@@ -45,6 +45,14 @@
 #define CONFIG_MPC5200		1	/* More exactly a MPC5200 */
 #define CONFIG_TOP5200		1	/* ... on TOP5200 board - we need this for FEC.C */
 
+/*
+ * allowed and functional CONFIG_SYS_TEXT_BASE values:
+ * 0xff000000	low boot at 0x00000100 (default board setting)
+ * 0xfff00000	high boot at 0xfff00100 (board needs modification)
+ * 0x00100000	RAM load and test
+ */
+#define	CONFIG_SYS_TEXT_BASE	0xff000000
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */

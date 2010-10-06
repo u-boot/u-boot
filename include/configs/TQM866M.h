@@ -36,6 +36,8 @@
 #define CONFIG_MPC866		1	/* This is a MPC866 CPU		*/
 #define CONFIG_TQM866M		1	/* ...on a TQM8xxM module	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define CONFIG_8xx_OSCLK		10000000	/*  10 MHz - PLL input clock	*/
 #define CONFIG_SYS_8xx_CPUCLK_MIN		15000000	/*  15 MHz - CPU minimum clock	*/
 #define CONFIG_SYS_8xx_CPUCLK_MAX		133000000	/* 133 MHz - CPU maximum clock	*/

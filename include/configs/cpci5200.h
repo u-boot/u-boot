@@ -45,6 +45,10 @@
 #define CONFIG_CPCI5200		1	/* ... on CPCI5200  board */
 #define CONFIG_MPC5200_DDR	1	/* ... use DDR RAM	  */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000	/* Standard: boot high */
+#endif
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000	/* ... running at 33.000000MHz */
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */

@@ -40,6 +40,8 @@
 #define CONFIG_MPC850		1	/* This is a MPC850 CPU		*/
 #define CONFIG_LANTEC		2	/* ...on a Lantec rev.2 board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 /*
  *  Port assignments (CONFIG_LANTEC == 1):
  *  - SMC1: J11 (MDB) ?

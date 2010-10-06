@@ -37,6 +37,8 @@
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_ERIC		1	/* ...on a ERIC board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+
 #define	CONFIG_BOARD_EARLY_INIT_F 1	/* run board_early_init_f() */
 
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll	*/

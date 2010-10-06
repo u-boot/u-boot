@@ -62,6 +62,8 @@
 #define CONFIG_MPC8245		1
 #define CONFIG_BARCOBCD_STREAMING	1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #undef USE_DINK32
 
 #define CONFIG_CONS_INDEX     3               /* set to '3' for on-chip DUART */

@@ -30,6 +30,9 @@
 #define CONFIG_MPC83xx		1 /* MPC83xx family */
 #define CONFIG_MPC8360		1 /* MPC8360 CPU specific */
 #define CONFIG_MPC8360EMDS	1 /* MPC8360EMDS board specific */
+
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
+
 #undef CONFIG_PQ_MDS_PIB /* POWERQUICC MDS Platform IO Board */
 #undef CONFIG_PQ_MDS_PIB_ATM /* QOC3 ATM card */
 

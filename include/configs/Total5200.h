@@ -44,6 +44,16 @@
 #define CONFIG_MPC5200		1	/* (more precisely a MPC5200 CPU) */
 #define CONFIG_TOTAL5200	1	/* ... on Total5200 board */
 
+/*
+ * Valid values for CONFIG_SYS_TEXT_BASE are:
+ * 0xFFF00000	boot high (standard configuration)
+ * 0xFE000000	boot low
+ * 0x00100000	boot from RAM (for testing only)
+ */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+#endif
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */

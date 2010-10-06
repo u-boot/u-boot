@@ -39,6 +39,8 @@
 #define CONFIG_MPC8240		1
 #define CONFIG_SANDPOINT	1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #if 0
 #define USE_DINK32		1
 #else

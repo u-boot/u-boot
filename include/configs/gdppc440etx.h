@@ -40,6 +40,8 @@
 #define CONFIG_4xx		1		/* ... PPC4xx family         */
 #define CONFIG_SYS_CLK_FREQ	66666666	/* external freq to pll      */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF80000
+
 /*
  * Include common defines/options for all AMCC eval boards
  */

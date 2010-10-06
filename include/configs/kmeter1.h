@@ -30,6 +30,8 @@
 #define CONFIG_KMETER1		1 /* KMETER1 board specific */
 #define CONFIG_HOSTNAME		kmeter1
 
+#define	CONFIG_SYS_TEXT_BASE	0xF0000000
+
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 

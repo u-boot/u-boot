@@ -48,6 +48,8 @@
 #define CONFIG_E300		1	/* E300 Family */
 #define CONFIG_MPC512X		1	/* MPC512X family */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #define CONFIG_SYS_MPC512X_CLKIN	33333333	/* in Hz */
 
 #define CONFIG_BOARD_EARLY_INIT_F		/* call board_early_init_f() */

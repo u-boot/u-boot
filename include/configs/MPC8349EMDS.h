@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2006
+ * (C) Copyright 2006-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -38,8 +38,10 @@
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_MPC8349EMDS	1	/* MPC8349EMDS board specific */
 
-#define PCI_66M
-#ifdef PCI_66M
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
+
+#define CONFIG_PCI_66M
+#ifdef CONFIG_PCI_66M
 #define CONFIG_83XX_CLKIN	66000000	/* in Hz */
 #else
 #define CONFIG_83XX_CLKIN	33000000	/* in Hz */
@@ -51,7 +53,7 @@
 #endif /* CONFIG_PCISLAVE */
 
 #ifndef CONFIG_SYS_CLK_FREQ
-#ifdef PCI_66M
+#ifdef CONFIG_PCI_66M
 #define CONFIG_SYS_CLK_FREQ	66000000
 #define HRCWL_CSB_TO_CLKIN	HRCWL_CSB_TO_CLKIN_4X1
 #else

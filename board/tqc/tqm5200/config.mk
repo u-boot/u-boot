@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2004
+# (C) Copyright 2004-2010
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -24,24 +24,4 @@
 #
 # TQM5200 board:
 #
-#	Valid values for CONFIG_SYS_TEXT_BASE are:
-#
-#	0xFC000000   boot low (standard configuration with room for max 64 MByte
-#		     Flash ROM)
-#	0xFFF00000   boot high (for a backup copy of U-Boot)
-#	0x00100000   boot from RAM (for testing only)
-#
-
-sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
-
-ifndef CONFIG_SYS_TEXT_BASE
-## Standard: boot low
-CONFIG_SYS_TEXT_BASE = 0xFC000000
-## For a backup copy of U-Boot at the end of flash: boot high
-# CONFIG_SYS_TEXT_BASE = 0xFFF00000
-## For testing: boot from RAM
-# CONFIG_SYS_TEXT_BASE = 0x00100000
-endif
-
-PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
-	-I$(TOPDIR)/board
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board

@@ -57,6 +57,10 @@
 #define CONFIG_MPC8548		1	/* MPC8548 specific */
 #define CONFIG_SBC8548		1	/* SBC8548 board specific */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xfffa0000
+#endif
+
 #undef CONFIG_RIO
 
 #ifdef CONFIG_PCI

@@ -44,6 +44,8 @@
  * (easy to change)
  */
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define CONFIG_MPC8260		1	/* This is a MPC8260 CPU		*/
 
 #if 0

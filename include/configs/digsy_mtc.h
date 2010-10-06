@@ -40,6 +40,16 @@
 #define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
 #define CONFIG_DIGSY_MTC	1	/* ... on InterControl digsyMTC board */
 
+/*
+ * Valid values for CONFIG_SYS_TEXT_BASE are:
+ * 0xFFF00000	boot high (standard configuration)
+ * 0xFE000000	boot low
+ * 0x00100000	boot from RAM (for testing only)
+ */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000	/* Standard: boot high */
+#endif
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000
 
 #define BOOTFLAG_COLD		0x01

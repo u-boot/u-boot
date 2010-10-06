@@ -32,6 +32,8 @@
 #define CONFIG_MPC5200
 #define CONFIG_O2DNT		1	/* ... on O2DNT board */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFF000000	/* boot low for 16 MiB boards */
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */

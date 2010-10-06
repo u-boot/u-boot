@@ -36,6 +36,8 @@
 #define CONFIG_MPC850		1	/* This is a MPC850 CPU		*/
 #define CONFIG_ESTEEM192E	1	/* ...on a EST ESTEEM192E	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define CONFIG_FLASH_16BIT	1	/* Rom 16 bit data bus		*/
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/

@@ -30,6 +30,8 @@
 #define CONFIG_MPC837x		1 /* MPC837x CPU specific */
 #define CONFIG_MPC837XERDB	1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
+
 #define CONFIG_PCI	1
 
 #define CONFIG_BOARD_EARLY_INIT_F

@@ -33,6 +33,8 @@
 #define CONFIG_460SX			1	/* ... PPC460 family	*/
 #define CONFIG_BOARD_EARLY_INIT_F	1	/* Call board_pre_init	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xfffb0000
+
 /*-----------------------------------------------------------------------
  * Include common defines/options for all AMCC boards
  *----------------------------------------------------------------------*/

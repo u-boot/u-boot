@@ -37,6 +37,8 @@
 #define CONFIG_ATC		1	/* ...on a ATC board	*/
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFF000000
+
 /*
  * select serial console configuration
  *

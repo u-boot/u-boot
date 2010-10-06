@@ -36,6 +36,15 @@
 #define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU)	*/
 #define CONFIG_INKA4X0		1	/* INKA4x0 board			*/
 
+/*
+ * Valid values for CONFIG_SYS_TEXT_BASE are:
+ * 0xFFE00000	boot low
+ * 0x00100000	boot from RAM (for testing only)
+ */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFE00000	/* Standard: boot low */
+#endif
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz		*/
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/

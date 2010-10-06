@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2008
+# (C) Copyright 2008-2010
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,12 +23,6 @@
 #
 # G&D CompactCenter
 #
-
-sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
-
-ifndef CONFIG_SYS_TEXT_BASE
-CONFIG_SYS_TEXT_BASE = 0xFFFA0000
-endif
 
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
 

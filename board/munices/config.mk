@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2007
+# (C) Copyright 2007-2010
 # Heiko Schocher, DENX Software Engineering, hs@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -24,16 +24,4 @@
 #
 # MUNICes board:
 #
-#	Valid values for CONFIG_SYS_TEXT_BASE are:
-#
-#	0xFFF00000   boot high (standard configuration)
-#
-
-sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
-
-ifndef CONFIG_SYS_TEXT_BASE
-CONFIG_SYS_TEXT_BASE = 0xFFF00000
-endif
-
-PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
-	-I$(TOPDIR)/board
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board

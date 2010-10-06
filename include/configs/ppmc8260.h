@@ -34,6 +34,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define	CONFIG_SYS_TEXT_BASE	0xfe000000
+
 /*****************************************************************************
  *
  * These settings must match the way _your_ board is set up

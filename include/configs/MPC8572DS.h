@@ -41,6 +41,10 @@
 #define CONFIG_MPC8572DS	1
 #define CONFIG_MP		1	/* support multiple processors */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xeff80000
+#endif
+
 #define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCIE1		1	/* PCIE controler 1 (slot 1) */

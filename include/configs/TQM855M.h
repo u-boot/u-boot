@@ -36,6 +36,8 @@
 #define CONFIG_MPC855		1	/* This is a MPC855 CPU		*/
 #define CONFIG_TQM855M		1	/* ...on a TQM8xxM module	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #define CONFIG_SYS_SMC_RXBUFLEN	128
 #define CONFIG_SYS_MAXIDLE	10

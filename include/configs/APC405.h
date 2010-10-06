@@ -38,6 +38,8 @@
 #define CONFIG_4xx		1	/* ...member of PPC4xx family   */
 #define CONFIG_APCG405		1	/* ...on a APC405 board		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF80000
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_BOARD_EARLY_INIT_R 1
 #define CONFIG_MISC_INIT_R      1       /* call misc_init_r()           */

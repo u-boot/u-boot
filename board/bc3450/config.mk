@@ -21,22 +21,4 @@
 # MA 02111-1307 USA
 #
 
-#
-# BC3450 board:
-#
-#	Valid values for CONFIG_SYS_TEXT_BASE are:
-#
-#	0xFC000000   boot low (standard configuration with room for max 64 MByte
-#		     Flash ROM)
-#	0x00100000   boot from RAM (for testing only)
-#
-
-ifndef CONFIG_SYS_TEXT_BASE
-## Standard: boot low
-CONFIG_SYS_TEXT_BASE = 0xFC000000
-## For testing: boot from RAM
-# CONFIG_SYS_TEXT_BASE = 0x00100000
-endif
-
-PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
-	-I$(TOPDIR)/board
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board

@@ -39,6 +39,7 @@
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
 #define CONFIG_RBC823		1	/* ...on a RBC823 module	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
 #if 0
 #define DEBUG			1

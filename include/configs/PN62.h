@@ -39,6 +39,8 @@
 #define CONFIG_MPC8240		1
 #define CONFIG_PN62		1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #define CONFIG_CONS_INDEX	1
 
 

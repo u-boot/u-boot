@@ -39,6 +39,8 @@
 #define CONFIG_RSD_PROTO	1	/* on a R&S Protocol Board      */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0xff000000
+
 #define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
 
 /*

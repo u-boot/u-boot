@@ -36,6 +36,8 @@
 #define CONFIG_MPC855		1	/* This is a MPC855 CPU		*/
 #define CONFIG_C2MON		1	/* ...on a C2MON module		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define CONFIG_80MHz		1	/* Running at 5 * 16 = 80 MHz	*/
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/

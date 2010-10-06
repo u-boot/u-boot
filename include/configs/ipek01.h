@@ -37,6 +37,8 @@
 #define CONFIG_MPC5200_DDR	1	/* ... use DDR RAM */
 #define CONFIG_IPEK01           	/* Motherboard is ipek01 */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfc000000
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33MHz */
 
 #define CONFIG_MISC_INIT_R

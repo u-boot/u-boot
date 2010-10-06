@@ -25,10 +25,6 @@
 # Cogent Modular Architecture
 #
 
-# Boot EPROM location
-CONFIG_SYS_TEXT_BASE = 0xfff00000
-
-PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
-	-I$(TOPDIR)
+PLATFORM_CPPFLAGS += -I$(TOPDIR)
 
 LDSCRIPT := $(SRCTREE)/board/cogent/u-boot.lds

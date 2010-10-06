@@ -36,7 +36,9 @@
 #define CONFIG_405GP		1	/* This is a PPC405 CPU		*/
 #define CONFIG_4xx		1	/* ...member of PPC4xx family	*/
 #define CONFIG_WALNUT		1	/* ...on a WALNUT board		*/
-					/* ...and on a SYCAMORE board	*/
+					/* ...or on a SYCAMORE board	*/
+
+#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
 
 /*
  * Include common defines/options for all AMCC eval boards

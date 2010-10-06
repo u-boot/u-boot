@@ -51,6 +51,8 @@
 #define CONFIG_MPC823		1	/* This is a MPC823e CPU. */
 #define CONFIG_RPXLITE		1	/* RPXlite DW version board */
 
+#define	CONFIG_SYS_TEXT_BASE	0xff000000
+
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
 #define CONFIG_SPLASH_SCREEN		/* ... with splashscreen support*/
 #endif

@@ -39,6 +39,8 @@
 #define CONFIG_405EX		1		/* Specifc 405EX support*/
 #define CONFIG_SYS_CLK_FREQ	33330000	/* ext frequency to pll	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFA0000
+
 /*
  * Include common defines/options for all AMCC eval boards
  */

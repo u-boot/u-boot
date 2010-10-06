@@ -30,6 +30,8 @@
 
 #define CONFIG_EP88X				/* Embedded Planet EP88x board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFC000000
+
 #define CONFIG_BOARD_EARLY_INIT_F		/* Call board_early_init_f	*/
 
 /* Allow serial number (serial#) and MAC address (ethaddr) to be overwritten */

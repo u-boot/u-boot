@@ -27,14 +27,5 @@
 #
 # CANMB board
 #
-# allowed and functional CONFIG_SYS_TEXT_BASE values:
-#
-#   0xfe000000		low boot at 0x00000100 (default board setting)
-#	0x00100000		RAM load and test
-#
 
-CONFIG_SYS_TEXT_BASE = 0xFE000000
-#CONFIG_SYS_TEXT_BASE = 0x00100000
-
-PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
-	-I$(TOPDIR)/board
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board

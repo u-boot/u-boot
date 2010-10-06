@@ -42,6 +42,8 @@
 #define CONFIG_HIGH_BATS	/* High BATs supported */
 #define CONFIG_ALTIVEC		/* undef to disable */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFF000000
+
 #define CONFIG_SYS_BOARD_NAME		"MPC7448 HPC II"
 #define CONFIG_IDENT_STRING	" Freescale MPC7448 HPC II"
 

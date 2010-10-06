@@ -35,6 +35,10 @@
 #define	CONFIG_MUCMC52		1	/* MUCMC52 board	*/
 #define	CONFIG_HOSTNAME		mucmc52
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000
+#endif
+
 #include "manroland/common.h"
 #include "manroland/mpc5200-common.h"
 

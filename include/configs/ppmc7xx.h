@@ -49,6 +49,7 @@
 #undef	CONFIG_ALTIVEC
 #define CONFIG_BUS_CLK	66000000
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
 /*
  * Monitor configuration

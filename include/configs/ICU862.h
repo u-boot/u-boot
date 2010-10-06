@@ -39,6 +39,8 @@
 #define CONFIG_ICU862		1
 #define CONFIG_MPC862		1
 
+#define	CONFIG_SYS_TEXT_BASE	0x40F00000
+
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE

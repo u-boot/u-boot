@@ -48,6 +48,8 @@
 #define CONFIG_MPC512X		1	/* MPC512X family */
 #define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 /* video */
 #undef CONFIG_VIDEO
 

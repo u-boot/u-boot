@@ -21,6 +21,4 @@
 # MA 02111-1307 USA
 #
 
-#CONFIG_SYS_TEXT_BASE = 0xFE000000
-CONFIG_SYS_TEXT_BASE = 0x40000000
 OBJCFLAGS =	--set-section-flags=.ppcenv=contents,alloc,load,data

@@ -23,8 +23,5 @@
 #
 # P4080DS board
 #
-ifndef CONFIG_SYS_TEXT_BASE
-CONFIG_SYS_TEXT_BASE = 0xeff80000
-endif
 
 RESET_VECTOR_ADDRESS = 0xeffffffc

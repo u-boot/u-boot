@@ -37,6 +37,8 @@
 #define CONFIG_MPC8272_FAMILY   1
 #define CONFIG_TQM8272		1
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define	CONFIG_GET_CPU_STR_F	1	/* Get the CPU ID STR */
 #define CONFIG_BOARD_GET_CPU_CLK_F	1 /* Get the CLKIN from board fct */
 

@@ -35,6 +35,8 @@
 #define CONFIG_MPC860
 #define CONFIG_GEN860T
 
+#define	CONFIG_SYS_TEXT_BASE		0x40000000
+
 /*
  * Identify the board
  */

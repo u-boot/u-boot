@@ -36,6 +36,8 @@
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
 #define CONFIG_V37		1	/* ...on a Marel V37 board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define CONFIG_LCD
 #define CONFIG_SHARP_LQ084V1DG21
 #undef CONFIG_LCD_LOGO

@@ -24,20 +24,4 @@
 #
 # Jupiter board:
 #
-#	Valid values for CONFIG_SYS_TEXT_BASE are:
-#
-#	0xFFF00000   boot high (standard configuration)
-#	0x00100000   boot from RAM (for testing only)
-#
-
-ifndef CONFIG_SYS_TEXT_BASE
-## Standard: boot high
-CONFIG_SYS_TEXT_BASE = 0xFFF00000
-## For testing: boot from RAM
-# CONFIG_SYS_TEXT_BASE = 0x00100000
-endif
-
-PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
-	-I$(TOPDIR)/board
-#PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
-#	-DDEBUG -I$(TOPDIR)/board
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board

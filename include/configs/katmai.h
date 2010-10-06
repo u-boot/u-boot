@@ -41,6 +41,8 @@
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll	*/
 #define CONFIG_SYS_4xx_RESET_TYPE	0x2	/* use chip reset on this board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFA0000
+
 /*
  * Enable this board for more than 2GB of SDRAM
  */

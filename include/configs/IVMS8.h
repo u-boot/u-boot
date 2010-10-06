@@ -36,6 +36,8 @@
 #define CONFIG_MPC860		1	/* This is a MPC860 CPU		*/
 #define CONFIG_IVMS8		1	/* ...on a IVMS8 board		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFF000000
+
 #if defined (CONFIG_IVMS8_16M)
 # define CONFIG_IDENT_STRING     " IVMS8"
 #elif defined (CONFIG_IVMS8_32M)

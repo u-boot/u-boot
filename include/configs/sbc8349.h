@@ -32,17 +32,6 @@
 #define __CONFIG_H
 
 /*
- * Top level Makefile configuration choices
- */
-#ifdef CONFIG_66
-#define PCI_66M
-#endif
-
-#ifdef CONFIG_33
-#define PCI_33M
-#endif
-
-/*
  * High Level Configuration Options
  */
 #define CONFIG_E300		1	/* E300 Family */
@@ -50,6 +39,8 @@
 #define CONFIG_MPC834x		1	/* MPC834x family */
 #define CONFIG_MPC8349		1	/* MPC8349 specific */
 #define CONFIG_SBC8349		1	/* WRS SBC8349 board specific */
+
+#define	CONFIG_SYS_TEXT_BASE	0xFF800000
 
 /* Don't enable PCI2 on sbc834x - it doesn't exist physically. */
 #undef CONFIG_MPC83XX_PCI2		/* support for 2nd PCI controller */
@@ -60,14 +51,14 @@
  * physically empty.  The board will automatically (i.e w/o jumpers)
  * clock down to 33MHz if you insert a 33MHz PCI card.
  */
-#ifdef PCI_33M
+#ifdef CONFIG_PCI_33M
 #define CONFIG_83XX_CLKIN	33000000	/* in Hz */
 #else	/* 66M */
 #define CONFIG_83XX_CLKIN	66000000	/* in Hz */
 #endif
 
 #ifndef CONFIG_SYS_CLK_FREQ
-#ifdef PCI_33M
+#ifdef CONFIG_PCI_33M
 #define CONFIG_SYS_CLK_FREQ	33000000
 #define HRCWL_CSB_TO_CLKIN	HRCWL_CSB_TO_CLKIN_8X1
 #else	/* 66M */

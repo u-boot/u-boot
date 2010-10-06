@@ -17,6 +17,8 @@
 #define CONFIG_MPC83xx		1	/* MPC83xx family */
 #define CONFIG_MPC832x		1	/* MPC832x CPU specific */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
+
 #define CONFIG_PCI		1
 
 /*

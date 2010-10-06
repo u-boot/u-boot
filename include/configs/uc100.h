@@ -40,6 +40,8 @@
 
 #define CONFIG_UC100		1	/* ...on a UC100 module	        */
 
+#define	CONFIG_SYS_TEXT_BASE	0x40700000
+
 #define MPC8XX_FACT		4		/* Multiply by 4	*/
 #define MPC8XX_XIN		25000000	/* 25.0 MHz in		*/
 #define CONFIG_8xx_GCLK_FREQ	(MPC8XX_FACT * MPC8XX_XIN)

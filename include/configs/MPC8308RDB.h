@@ -33,6 +33,8 @@
 #define CONFIG_MPC8308		1 /* MPC8308 CPU specific */
 #define CONFIG_MPC8308RDB	1 /* MPC8308RDB board specific */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
+
 #define CONFIG_MISC_INIT_R
 
 /*

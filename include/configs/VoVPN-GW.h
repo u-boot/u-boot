@@ -29,6 +29,8 @@
 /* define busmode: 8260 */
 #undef	CONFIG_BUSMODE_60x
 
+#define	CONFIG_SYS_TEXT_BASE		0xfff00000
+
 /* system clock rate (CLKIN) - equal to the 60x and local bus speed */
 #ifdef	CONFIG_CLKIN_66MHz
 #define	CONFIG_8260_CLKIN		66666666	/* in Hz */

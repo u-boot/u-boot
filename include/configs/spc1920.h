@@ -26,6 +26,8 @@
 #define CONFIG_SPC1920			1	/* SPC1920 board */
 #define CONFIG_MPC885			1	/* MPC885 CPU */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #define	CONFIG_8xx_CONS_SMC1		/* Console is on SMC1 */
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE

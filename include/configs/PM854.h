@@ -41,6 +41,8 @@
 #define CONFIG_MPC8540		1	/* MPC8540 specific */
 #define CONFIG_PM854		1	/* PM854 board specific */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff80000
+
 #define CONFIG_PCI
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE

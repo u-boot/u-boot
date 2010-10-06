@@ -53,6 +53,9 @@
 #define CONFIG_MPC860	1	/* This is a MPC860 CPU		*/
 #define CONFIG_MPC860T	1	/* even better... an FEC!	*/
 #define CONFIG_TOP860	1	/* ...on a TOP860 module	*/
+
+#define	CONFIG_SYS_TEXT_BASE	0x80000000
+
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 #define	CONFIG_IDENT_STRING " EMK TOP860"
 

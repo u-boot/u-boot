@@ -38,6 +38,8 @@
 #define CONFIG_MPC859T		1	/* This is a MPC859T CPU	*/
 #define CONFIG_KUP4X		1	/* ...on a KUP4X module		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE

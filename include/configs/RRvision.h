@@ -36,6 +36,8 @@
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
 #define CONFIG_RRVISION		1	/* ...on a RRvision board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define CONFIG_8xx_GCLK_FREQ 64000000
 
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/

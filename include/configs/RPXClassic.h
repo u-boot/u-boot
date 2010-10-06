@@ -42,6 +42,8 @@
 #define CONFIG_MPC860           1
 #define CONFIG_RPXCLASSIC		1
 
+#define	CONFIG_SYS_TEXT_BASE	0xff000000
+
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE

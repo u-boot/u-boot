@@ -41,6 +41,12 @@
 #define CONFIG_E500		1	/* BOOKE e500 family		*/
 #define CONFIG_MPC85xx		1	/* MPC8540/60/55/41		*/
 
+#if defined(CONFIG_TQM8548_BE)
+#define CONFIG_SYS_TEXT_BASE	0xfff80000
+#else
+#define CONFIG_SYS_TEXT_BASE	0xfffc0000
+#endif
+
 #if defined(CONFIG_TQM8548_AG) || defined(CONFIG_TQM8548_BE)
 #define CONFIG_TQM8548
 #endif

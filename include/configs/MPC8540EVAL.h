@@ -36,6 +36,8 @@
 #define CONFIG_MPC8540		1	    /* MPC8540 specific	        */
 #define CONFIG_MPC8540EVAL	1	    /* MPC8540EVAL board specific */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff80000
+
 #undef  CONFIG_PCI			    /* pci ethernet support	*/
 #define CONFIG_TSEC_ENET		    /* tsec ethernet support  */
 #define CONFIG_ENV_OVERWRITE

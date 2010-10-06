@@ -34,6 +34,8 @@
 #define CONFIG_4xx		1		/* ... PPC4xx family	*/
 #define CONFIG_405EP		1		/* Specifc 405EP support*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+
 #define CONFIG_SYS_CLK_FREQ     33000000 /* external frequency to pll   */
 
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f */

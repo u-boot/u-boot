@@ -30,6 +30,7 @@
 #define CONFIG_4xx		1	/* ...member of PPC4xx family   */
 #define CONFIG_ML2	1	/* ...on a ML2 board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x18000000
 
 #define CONFIG_ENV_IS_IN_FLASH     1
 

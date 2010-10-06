@@ -35,6 +35,8 @@
  * (easy to change)
  */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 /* these hardware addresses are pretty bogus, please change them to
    suit your needs */
 

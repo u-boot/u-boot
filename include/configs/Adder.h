@@ -32,6 +32,8 @@
 
 #define CONFIG_ADDER				/* Analogue&Micro Adder board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
+
 #define	CONFIG_8xx_CONS_SMC1	1		/* Console is on SMC1		*/
 #define CONFIG_BAUDRATE		38400
 

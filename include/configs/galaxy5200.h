@@ -46,6 +46,20 @@
 #define BOOTFLAG_WARM		0x02	/* Software reboot */
 
 /*
+ * Valid values for CONFIG_SYS_TEXT_BASE are:
+ * 0xFFF00000	boot high (standard configuration)
+ * 0xFE000000	boot low
+ * 0x00100000	boot from RAM (for testing only) does not work
+ */
+#ifdef CONFIG_galaxy5200_LOWBOOT
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
+#endif
+
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000	/* Standard: boot high */
+#endif
+
+/*
  * Serial console configuration
  */
 #define CONFIG_PSC_CONSOLE	4	/* console is on PSC4 -> */

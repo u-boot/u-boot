@@ -37,6 +37,8 @@
 #define CONFIG_TQM855M		1	/* ...on a TQM8xxM module	*/
 #define CONFIG_NSCU		1
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define	CONFIG_8xx_CONS_SCC1	1	/* Console is on SMC1		*/
 #define CONFIG_SYS_SMC_RXBUFLEN	128
 #define CONFIG_SYS_MAXIDLE	10

@@ -31,6 +31,8 @@
 #define CONFIG_MPC8220		1
 #define CONFIG_SORCERY		1	/* Sorcery board */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /* Input clock running at 60Mhz, read Hid1 for the CPU multiplier to

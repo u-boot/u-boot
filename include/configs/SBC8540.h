@@ -48,6 +48,8 @@
 #define CONFIG_MPC85xx		1	/* MPC8540/MPC8560		*/
 #define CONFIG_MPC85xx_REV1	1	/* MPC85xx Rev 1.0 chip		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xfffc0000
+
 
 #define CONFIG_CPM2		1	/* has CPM2 */
 

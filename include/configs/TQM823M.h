@@ -36,6 +36,8 @@
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
 #define CONFIG_TQM823M		1	/* ...on a TQM8xxM module	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
 /* #define CONFIG_NEC_NL6448BC20 1 / * use NEC NL6448BC20 display	*/
 #endif

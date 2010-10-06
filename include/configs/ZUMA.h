@@ -41,6 +41,8 @@
 #define CONFIG_EVB64260		1	/* this is an EVB64260 board	*/
 #define CONFIG_ZUMA_V2		1	/* always define this for ZUMA v2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 /* #define CONFIG_ZUMA_V2_OLD	1 */	/* backwards compat for old V2 board */
 
 #define CONFIG_BAUDRATE		38400	/* console baudrate = 38400	*/

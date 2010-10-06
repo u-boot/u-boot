@@ -29,6 +29,9 @@
 #define CONFIG_MPC5xxx			1	/* This is an MPC5xxx CPU */
 #define CONFIG_MPC5200			1	/* This is an MPC5200 CPU */
 #define CONFIG_V38B			1	/* ...on V38B board */
+
+#define	CONFIG_SYS_TEXT_BASE		0xFF000000
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000	/* ...running at 33.000000MHz */
 
 #define CONFIG_RTC_PCF8563		1	/* has PCF8563 RTC */

@@ -37,6 +37,8 @@
 #define CONFIG_FLAGADM		1	/* ...on a FLAGA DM	*/
 #define CONFIG_8xx_GCLK_FREQ 48000000	/*48MHz*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #undef	CONFIG_8xx_CONS_SMC1		/* Console is on SMC1		*/
 #define CONFIG_8xx_CONS_SMC2	1
 #undef	CONFIG_8xx_CONS_NONE

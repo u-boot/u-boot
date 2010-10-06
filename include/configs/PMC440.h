@@ -39,6 +39,10 @@
 #define CONFIG_440		1	/* ... PPC440 family    */
 #define CONFIG_4xx		1	/* ... PPC4xx family    */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF90000
+#endif
+
 #define CONFIG_SYS_CLK_FREQ	33333400
 
 #if 0 /* temporary disabled because OS/9 does not like dcache on startup */

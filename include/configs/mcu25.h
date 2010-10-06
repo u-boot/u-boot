@@ -37,6 +37,8 @@
 #define CONFIG_4xx   1
 #define CONFIG_HOSTNAME		mcu25
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFB0000
+
 /*
  * Include common defines/options for all boards produced by Netstal Maschinen
  */

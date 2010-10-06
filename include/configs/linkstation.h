@@ -20,6 +20,22 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+/*
+ * Valid values for CONFIG_SYS_TEXT_BASE are:
+ *
+ * Standard configuration - all models
+ * 0xFFF00000	boot from flash
+ *
+ * Test configuration (boot from RAM using uloader.o)
+ * LinkStation HD-HLAN and KuroBox Standard
+ * 0x03F00000	boot from RAM
+ * LinkStation HD-HGLAN and KuroBox HG
+ * 0x07F00000	boot from RAM
+ */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFF00000
+#endif
+
 #if 0
 #define DEBUG
 #endif

@@ -54,6 +54,9 @@
 #define CONFIG_MPC860		1	/* This is a MPC860 CPU */
 #define CONFIG_QS860T		1	/* ...on a QS860T module */
 
+/* Start address of 512K Socketed Flash */
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #define CONFIG_FEC_ENET		1	/* FEC 10/100BaseT ethernet */
 #define CONFIG_MII
 #define FEC_INTERRUPT		SIU_LEVEL1

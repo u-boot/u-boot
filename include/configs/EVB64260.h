@@ -42,6 +42,8 @@
 #define CONFIG_EVB64260		1	/* this is an EVB64260 board	*/
 #define CONFIG_SYS_GT_6426x        GT_64260 /* with a 64260 system controller */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_BAUDRATE		38400	/* console baudrate = 38400	*/
 
 #undef	CONFIG_ECC			/* enable ECC support */

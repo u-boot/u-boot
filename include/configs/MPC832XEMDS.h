@@ -28,8 +28,8 @@
 #define CONFIG_MPC83xx		1	/* MPC83xx family */
 #define CONFIG_MPC832x		1	/* MPC832x CPU specific */
 #define CONFIG_MPC832XEMDS	1	/* MPC832XEMDS board specific */
-#undef CONFIG_PQ_MDS_PIB /* POWERQUICC MDS Platform IO Board */
-#undef CONFIG_PQ_MDS_PIB_ATM	/* QOC3 ATM card */
+
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
 /*
  * System Clock Setup

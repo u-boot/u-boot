@@ -35,6 +35,9 @@
 
 #define CONFIG_MPC860		1	/* This is a MPC860 CPU		*/
 #define CONFIG_IP860		1	/* ...on a IP860 board		*/
+
+#define	CONFIG_SYS_TEXT_BASE	0x10000000
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_early_init_f	*/
 #define CONFIG_RESET_PHY_R	1	/* Call reset_phy()		*/
 

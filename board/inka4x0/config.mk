@@ -24,20 +24,5 @@
 #
 # INKA 4X0 board:
 #
-#	Valid values for CONFIG_SYS_TEXT_BASE are:
-#
-#	0xFFE00000   boot low
-#
-#	0x00100000   boot from RAM (for testing only)
-#
-
-ifndef CONFIG_SYS_TEXT_BASE
-## Standard: boot low
-CONFIG_SYS_TEXT_BASE = 0xFFE00000
-## For testing: boot from RAM
-#CONFIG_SYS_TEXT_BASE = 0x00100000
-endif
-
-PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
-	-I$(TOPDIR)/board
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board
 LDSCRIPT := $(SRCTREE)/arch/powerpc/cpu/mpc5xxx/u-boot-customlayout.lds

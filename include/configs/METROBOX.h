@@ -109,6 +109,9 @@
 #define CONFIG_BOARD_EARLY_INIT_F 1	     /* Call board_pre_init	*/
 #define CONFIG_MISC_INIT_F	  1	     /* Call board misc_init_f	*/
 #define CONFIG_MISC_INIT_R	  1	     /* Call board misc_init_r	*/
+
+#define	CONFIG_SYS_TEXT_BASE	0xFFF80000
+
 #undef	CONFIG_SYS_DRAM_TEST			     /* Disable-takes long time!*/
 #define CONFIG_SYS_CLK_FREQ	  66666666   /* external freq to pll	*/
 

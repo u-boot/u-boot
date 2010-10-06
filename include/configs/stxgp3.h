@@ -43,6 +43,8 @@
 #define CONFIG_STXGP3		1	/* Silicon Tx GPPP board specific*/
 #define CONFIG_MPC8560		1
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff80000
+
 #undef  CONFIG_PCI			/* pci ethernet support	*/
 #define CONFIG_TSEC_ENET		/* tsec ethernet support*/
 #undef  CONFIG_ETHER_ON_FCC             /* cpm FCC ethernet support */

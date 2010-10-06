@@ -40,6 +40,8 @@
 #define CONFIG_LAST_STAGE_INIT	1	/* Call last_stage_init()	*/
 #define CONFIG_SYS_CLK_FREQ     33000000 /* external frequency to pll   */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+
 /*
  * OS Bootstrap configuration
  *

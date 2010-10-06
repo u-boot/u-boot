@@ -45,6 +45,8 @@
 #define EXTCLK_50		50000000
 #define EXTCLK_83		83333333
 
+#define	CONFIG_SYS_TEXT_BASE	0xfffb0000
+
 /*
  * Include common defines/options for all AMCC eval boards
  */

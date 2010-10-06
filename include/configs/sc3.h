@@ -62,6 +62,8 @@
 #define CONFIG_4xx	1
 #define CONFIG_405GP	1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFA0000
+
 #define CONFIG_BOARD_EARLY_INIT_F	1
 #define CONFIG_MISC_INIT_R		1	/* Call misc_init_r() */
 

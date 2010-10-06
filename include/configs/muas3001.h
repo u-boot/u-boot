@@ -33,6 +33,8 @@
 #define CONFIG_MPC8260		1
 #define CONFIG_MUAS3001		1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFF000000
+
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
 /* Do boardspecific init */

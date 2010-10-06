@@ -39,6 +39,8 @@
 #define CONFIG_MPC823		1	/* This is a MPC823E CPU	*/
 #define CONFIG_LWMON		1	/* ...on a LWMON board		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 /* Default Ethernet MAC address */
 #define CONFIG_ETHADDR          00:11:B0:00:00:00
 

@@ -25,11 +25,4 @@
 # MA 02111-1307 USA
 #
 
-#
-# MBX8xx boards
-#
-
-CONFIG_SYS_TEXT_BASE = 0xff000000
-/*CONFIG_SYS_TEXT_BASE  = 0x00200000 */
-
 LDSCRIPT := $(SRCTREE)/board/rsdproto/u-boot.lds

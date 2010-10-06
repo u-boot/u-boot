@@ -42,6 +42,8 @@
 #define CONFIG_MPC8245		1
 #define CONFIG_HIDDEN_DRAGON	1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #if 0
 #define USE_DINK32		1
 #else

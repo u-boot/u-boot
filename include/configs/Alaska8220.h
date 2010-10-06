@@ -31,6 +31,8 @@
 #define CONFIG_MPC8220		1
 #define CONFIG_ALASKA8220	1	/* ... on Alaska board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_BAT_RW		1	/* Use common BAT rw code */
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 

@@ -48,7 +48,11 @@
 #define CONFIG_MPC824X      1
 #define CONFIG_MPC8240      1
 #define CONFIG_MOUSSE       1
+
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #define CONFIG_SYS_ADDR_MAP_B      1
+
 #define CONFIG_CONS_INDEX   1
 #define CONFIG_BAUDRATE     9600
 #if 1

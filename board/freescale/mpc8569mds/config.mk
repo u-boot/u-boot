@@ -25,11 +25,6 @@
 #
 ifndef NAND_SPL
 ifeq ($(CONFIG_NAND), y)
-CONFIG_SYS_TEXT_BASE = $(CONFIG_RAMBOOT_TEXT_BASE)
 LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
 endif
-endif
-
-ifndef CONFIG_SYS_TEXT_BASE
-CONFIG_SYS_TEXT_BASE = 0xfff80000
 endif

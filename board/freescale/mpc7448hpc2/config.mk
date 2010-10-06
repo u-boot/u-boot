@@ -20,10 +20,4 @@
 # MA 02111-1307 USA
 #
 
-# Flash address
-CONFIG_SYS_TEXT_BASE = 0xFF000000
-# RAM address
-#CONFIG_SYS_TEXT_BASE = 0x00400000
-
-PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
-	-maltivec -mabi=altivec -msoft-float
+PLATFORM_CPPFLAGS += -maltivec -mabi=altivec -msoft-float

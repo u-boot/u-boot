@@ -63,122 +63,25 @@ LIST_5xx="$(boards_by_cpu mpc5xx)"
 ## MPC5xxx Systems
 #########################################################################
 
-LIST_5xxx="$(boards_by_cpu mpc5xxx)
-	digsy_mtc	\
-	EVAL5200	\
-	fo300		\
-	galaxy5200	\
-	icecube_5200	\
-	lite5200b	\
-	mcc200		\
-	MVBC_P		\
-	MVSMR		\
-	pcm030		\
-	PM520		\
-	TB5200		\
-	Total5200	\
-	Total5200_Rev2	\
-	TQM5200		\
-	TQM5200_B	\
-	TQM5200S	\
-"
+LIST_5xxx="$(boards_by_cpu mpc5xxx)"
 
 #########################################################################
 ## MPC512x Systems
 #########################################################################
 
-LIST_512x="$(boards_by_cpu mpc512x)
-	mpc5121ads	\
-"
+LIST_512x="$(boards_by_cpu mpc512x)"
 
 #########################################################################
 ## MPC8xx Systems
 #########################################################################
 
-LIST_8xx="$(boards_by_cpu mpc8xx)
-	Adder87x	\
-	AdderII		\
-	ADS860		\
-	FADS823		\
-	FADS850SAR	\
-	FADS860T	\
-	FPS850L		\
-	GEN860T		\
-	GEN860T_SC	\
-	ICU862_100MHz	\
-	IVML24		\
-	IVML24_128	\
-	IVML24_256	\
-	IVMS8		\
-	IVMS8_128	\
-	IVMS8_256	\
-	MBX		\
-	MBX860T		\
-	MPC86xADS	\
-	MPC885ADS	\
-	NETPHONE	\
-	NETTA		\
-	NETTA2		\
-	NETTA_ISDN	\
-	NETVIA		\
-	NETVIA_V2	\
-	RPXlite_DW	\
-	SPD823TS	\
-	SXNI855T	\
-	TK885D		\
-	TQM823L		\
-	TQM823L_LCD	\
-	TQM850L		\
-	TQM855L		\
-	TQM860L		\
-	TQM885D		\
-	v37		\
-"
+LIST_8xx="$(boards_by_cpu mpc8xx)"
 
 #########################################################################
 ## PPC4xx Systems
 #########################################################################
 
-LIST_4xx="$(boards_by_cpu ppc4xx)
-	acadia_nand	\
-	arches		\
-	bamboo_nand	\
-	canyonlands	\
-	canyonlands_nand \
-	CPCI405		\
-	CPCI4052	\
-	CPCI405AB	\
-	CPCI405DT	\
-	devconcenter	\
-	fx12mm		\
-	glacier		\
-	haleakala	\
-	haleakala_nand	\
-	hcu4		\
-	hcu5		\
-	intip		\
-	kilauea		\
-	kilauea_nand	\
-	mcu25		\
-	MIP405T		\
-	ml507		\
-	ml507_flash	\
-	OCRTC		\
-	ORSG		\
-	PPChameleonEVB	\
-	rainier		\
-	sequoia		\
-	sequoia_nand	\
-	v5fx30teval	\
-	v5fx30teval_flash \
-	W7OLMC		\
-	W7OLMG		\
-	walnut		\
-	xilinx-ppc440-generic \
-	xilinx-ppc440-generic_flash \
-	yellowstone	\
-	yosemite	\
-"
+LIST_4xx="$(boards_by_cpu ppc4xx)"
 
 #########################################################################
 ## MPC8220 Systems
@@ -190,146 +93,37 @@ LIST_8220="$(boards_by_cpu mpc8220)"
 ## MPC824x Systems
 #########################################################################
 
-LIST_824x="$(boards_by_cpu mpc824x)
-	CPC45		\
-	eXalion		\
-	IDS8247		\
-	linkstation_HGLAN	\
-	Sandpoint8240	\
-	Sandpoint8245	\
-"
+LIST_824x="$(boards_by_cpu mpc824x)"
 
 #########################################################################
 ## MPC8260 Systems (includes 8250, 8255 etc.)
 #########################################################################
 
-LIST_8260="$(boards_by_cpu mpc8260)
-	cogent_mpc8260	\
-	CPU86		\
-	CPU87		\
-	ep8248		\
-	ISPAN		\
-	MPC8260ADS	\
-	MPC8272ADS	\
-	PM826		\
-	PM828		\
-	Rattler8248	\
-	TQM8260_AC	\
-	TQM8260_AD	\
-	TQM8260_AE	\
-"
+LIST_8260="$(boards_by_cpu mpc8260)"
 
 #########################################################################
 ## MPC83xx Systems (includes 8349, etc.)
 #########################################################################
 
-LIST_83xx="$(boards_by_cpu mpc83xx)
-	caddy2		\
-	MPC8313ERDB_33	\
-	MPC8313ERDB_NAND_66	\
-	MPC8315ERDB	\
-	MPC8315ERDB_NAND	\
-	MPC832XEMDS	\
-	MPC832XEMDS_ATM	\
-	MPC8349ITX	\
-	MPC8349ITXGP	\
-	MPC8360EMDS	\
-	MPC8360EMDS_ATM	\
-	MPC8360ERDK_33	\
-	MPC8360ERDK_66	\
-	MPC837XEMDS	\
-	sbc8349		\
-	SIMPC8313_LP	\
-	vme8349		\
-"
-
+LIST_83xx="$(boards_by_cpu mpc83xx)"
 
 #########################################################################
 ## MPC85xx Systems (includes 8540, 8560 etc.)
 #########################################################################
 
-LIST_85xx="$(boards_by_cpu mpc85xx)
-	MPC8536DS	\
-	MPC8536DS_NAND	\
-	MPC8536DS_SDCARD	\
-	MPC8536DS_SPIFLASH	\
-	MPC8536DS_36BIT	\
-	MPC8540EVAL	\
-	MPC8541CDS	\
-	MPC8548CDS	\
-	MPC8555CDS	\
-	MPC8569MDS	\
-	MPC8569MDS_ATM	\
-	MPC8569MDS_NAND \
-	MPC8572DS	\
-	MPC8572DS_36BIT	\
-	P2020DS		\
-	P2020DS_36BIT	\
-	P1011RDB	\
-	P1011RDB_NAND	\
-	P1011RDB_SDCARD	\
-	P1011RDB_SPIFLASH	\
-	P1020RDB	\
-	P1020RDB_NAND	\
-	P1020RDB_SDCARD	\
-	P1020RDB_SPIFLASH	\
-	P2010RDB	\
-	P2010RDB_NAND	\
-	P2010RDB_SDCARD	\
-	P2010RDB_SPIFLASH	\
-	P2020RDB	\
-	P2020RDB_NAND	\
-	P2020RDB_SDCARD	\
-	P2020RDB_SPIFLASH	\
-	sbc8540		\
-	sbc8548		\
-	sbc8548_PCI_33	\
-	sbc8548_PCI_66	\
-	sbc8548_PCI_33_PCIE \
-	sbc8548_PCI_66_PCIE \
-	sbc8560		\
-	stxssa		\
-	TQM8540		\
-	TQM8541		\
-	TQM8548		\
-	TQM8548_AG	\
-	TQM8548_BE	\
-	TQM8555		\
-	TQM8560		\
-"
+LIST_85xx="$(boards_by_cpu mpc85xx)"
 
 #########################################################################
 ## MPC86xx Systems
 #########################################################################
 
-LIST_86xx="$(boards_by_cpu mpc86xx)
-	MPC8641HPCN_36BIT \
-	MPC8641HPCN	\
-"
+LIST_86xx="$(boards_by_cpu mpc86xx)"
 
 #########################################################################
 ## 74xx/7xx Systems
 #########################################################################
 
-LIST_74xx="		\
-	DB64360		\
-	DB64460		\
-	EVB64260	\
-	mpc7448hpc2	\
-	P3G4		\
-	p3m7448		\
-	PCIPPC2		\
-	PCIPPC6		\
-	ZUMA		\
-"
-
-LIST_7xx="		\
-	BAB7xx		\
-	CPCI750		\
-	ELPPC		\
-	p3m750		\
-	ppmc7xx		\
-"
+LIST_74xx_7xx="$(boards_by_cpu 74xx_7xx)"
 
 #########################################################################
 ## PowerPC groups
@@ -353,8 +147,7 @@ LIST_powerpc="		\
 	${LIST_85xx}	\
 	${LIST_86xx}	\
 	${LIST_4xx}	\
-	${LIST_74xx}	\
-	${LIST_7xx}	\
+	${LIST_74xx_7xx}\
 "
 
 # Alias "ppc" -> "powerpc" to not break compatibility with older scripts

@@ -24,10 +24,6 @@
 # lwmon5 (440EPx)
 #
 
-ifndef CONFIG_SYS_TEXT_BASE
-CONFIG_SYS_TEXT_BASE = 0xFFF80000
-endif
-
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
 
 ifeq ($(debug),1)

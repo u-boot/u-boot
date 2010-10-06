@@ -40,6 +40,8 @@
 #define CONFIG_MPC8245		1
 #define CONFIG_EXALION		1
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #if defined (CONFIG_MPC8240)
     /* #warning	 ---------- eXalion with MPC8240 --------------- */
 #elif defined (CONFIG_MPC8245)

@@ -41,6 +41,8 @@
 #define CONFIG_MPC870		1	/* This is a MPC885 CPU		*/
 #define CONFIG_NETTA2		1	/* ...on a NetTA2 board		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE

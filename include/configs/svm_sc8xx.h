@@ -31,6 +31,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 /* Custom configuration */
 /* SC823,SC850,SC860SAR, FEL8xx-AT(823/850/860) */
 /* SC85T,SC860T, FEL8xx-AT(855T/860T) */

@@ -49,6 +49,9 @@
 #define CONFIG_MPC824X		1
 #define CONFIG_MPC8245		1
 #define CONFIG_UTX8245		1
+
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #define DEBUG				1
 
 #define CONFIG_IDENT_STRING     " [UTX5] "

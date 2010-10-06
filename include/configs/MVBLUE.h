@@ -43,6 +43,8 @@
 #define MVBLUE_BOARD_BOX	1
 #define MVBLUE_BOARD_LYNX	2
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #if 0
 #define ERR_LED(code)	do { if (code) \
 		*(volatile char *)(0xff000003) = ( 3 | (code<<4) ) & 0xf3; \

@@ -37,7 +37,7 @@
   /* JSE has a PPC405GPr */
 #define CONFIG_405GP 1
   /* ... which is a 4xxx series */
-#define CONFIG_4xx   1
+#define CONFIG_4x   1
   /* ... with a 33MHz OSC. connected to the SysCLK input */
 #define CONFIG_SYS_CLK_FREQ	33333333
   /* ... with on-chip memory here (4KBytes) */
@@ -45,6 +45,8 @@
 #define CONFIG_SYS_OCM_DATA_SIZE 0x00001000
   /* Do not set up locked dcache as init ram. */
 #undef CONFIG_SYS_INIT_DCACHE_CS
+
+#define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
   /* Map the SystemACE chip (CS#1) here. (Must be a multiple of 1Meg) */
 #define CONFIG_SYSTEMACE 1

@@ -122,10 +122,10 @@ void pci_init_board(void)
 	/* initialize the PCA9555PW IO expander on the PIB board */
 	pib_init();
 
-#if defined(PCI_66M)
+#if defined(CONFIG_PCI_66M)
 	clk->occr = OCCR_PCICOE0 | OCCR_PCICOE1 | OCCR_PCICOE2;
 	printf("PCI clock is 66MHz\n");
-#elif defined(PCI_33M)
+#elif defined(CONFIG_PCI_33M)
 	clk->occr = OCCR_PCICOE0 | OCCR_PCICOE1 | OCCR_PCICOE2 |
 	    OCCR_PCICD0 | OCCR_PCICD1 | OCCR_PCICD2 | OCCR_PCICR;
 	printf("PCI clock is 33MHz\n");

@@ -37,6 +37,8 @@
 #define CONFIG_COGENT		1	/* using Cogent Modular Architecture */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define	CONFIG_MISC_INIT_F	1	/* Use misc_init_f()		*/
 #define	CONFIG_MISC_INIT_R		/* Use misc_init_r()		*/
 

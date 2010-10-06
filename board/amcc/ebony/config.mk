@@ -21,18 +21,6 @@
 # MA 02111-1307 USA
 #
 
-#
-# esd ADCIOP boards
-#
-
-#CONFIG_SYS_TEXT_BASE = 0xFFFE0000
-
-ifeq ($(ramsym),1)
-CONFIG_SYS_TEXT_BASE = 0x07FD0000
-else
-CONFIG_SYS_TEXT_BASE = 0xFFFC0000
-endif
-
 PLATFORM_CPPFLAGS += -DCONFIG_440=1
 
 ifeq ($(debug),1)

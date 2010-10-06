@@ -36,6 +36,13 @@
 
 #define CONFIG_405GP		1	/* This is a PPC405 CPU	*/
 #define CONFIG_4xx		    1   /* ...member of PPC405 family */
+
+/*
+ * Note: I make an "image" from U-Boot itself, which prefixes 0x40
+ * bytes of header info, hence start address is thus shifted.
+ */
+#define	CONFIG_SYS_TEXT_BASE	0xFFFD0040
+
 #define CONFIG_SYS_CLK_FREQ 25000000
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/

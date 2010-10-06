@@ -33,6 +33,13 @@
 #define CONFIG_MPC5200		1	/* More exactly a MPC5200 */
 #define CONFIG_CANMB		1	/* ... on canmb board - we need this for FEC.C */
 
+/*
+ * allowed and functional CONFIG_SYS_TEXT_BASE values:
+ * 0xfe000000	low boot at 0x00000100 (default board setting)
+ * 0x00100000	RAM load and test
+ */
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
+
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz */
 
 #define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */

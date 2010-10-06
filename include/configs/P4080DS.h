@@ -36,4 +36,8 @@
 #define CONFIG_SYS_P4080_ERRATUM_CPU22
 #define CONFIG_SYS_P4080_ERRATUM_SERDES8
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xeff80000
+#endif
+
 #include "corenet_ds.h"

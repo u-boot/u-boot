@@ -36,6 +36,8 @@
 #define CONFIG_MPC860		1
 #define CONFIG_AMX860		1
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #undef	CONFIG_8xx_CONS_SMC1		/* Console is on SCC2		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #define	CONFIG_8xx_CONS_SCC2	1

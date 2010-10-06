@@ -326,7 +326,7 @@ void pci_init_board(void)
 	volatile law83xx_t *pci_law = immr->sysconf.pcilaw;
 	struct pci_region *reg[] = { pci_regions, };
 
-#if defined(PCI_33M)
+#if defined(CONFIG_PCI_33M)
 	clk->occr = OCCR_PCICOE0 | OCCR_PCICOE1 | OCCR_PCICOE2 |
 		    OCCR_PCICD0 | OCCR_PCICD1 | OCCR_PCICD2 | OCCR_PCICR;
 	printf("PCI clock is 33MHz\n");

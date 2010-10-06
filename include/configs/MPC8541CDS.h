@@ -37,6 +37,8 @@
 #define CONFIG_MPC8541		1	/* MPC8541 specific */
 #define CONFIG_MPC8541CDS	1	/* MPC8541CDS board specific */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff80000
+
 #define CONFIG_PCI
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */

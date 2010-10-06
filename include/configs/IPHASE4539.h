@@ -38,6 +38,8 @@
 #define CONFIG_MPC8260		1	/* This is an MPC8260 CPU   */
 #define CONFIG_IPHASE4539	1	/* ...on a Interphase 4539 PMC */
 
+#define	CONFIG_SYS_TEXT_BASE	0xffb00000
+
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
 /*-----------------------------------------------------------------------

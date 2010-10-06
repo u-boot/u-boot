@@ -33,6 +33,8 @@
 #define CONFIG_ISPAN			/* ...on one of Interphase iSPAN boards */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFE7A0000
+
 /*-----------------------------------------------------------------------
  * Select serial console configuration
  *

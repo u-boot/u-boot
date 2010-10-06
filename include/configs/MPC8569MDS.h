@@ -65,7 +65,11 @@ extern unsigned long get_clock_freq(void);
 #ifdef CONFIG_NAND
 #define CONFIG_NAND_U_BOOT		1
 #define CONFIG_RAMBOOT_NAND		1
-#define CONFIG_RAMBOOT_TEXT_BASE	0xf8f82000
+#define CONFIG_SYS_TEXT_BASE	0xf8f82000
+#endif
+
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xfff80000
 #endif
 
 /*

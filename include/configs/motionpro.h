@@ -37,6 +37,8 @@
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 /*
  * BOOTP options
  */

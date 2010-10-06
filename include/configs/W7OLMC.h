@@ -38,6 +38,8 @@
 #define CONFIG_W7O		1		/* ...on a Wave 7 Optics board	*/
 #define CONFIG_W7OLMC		1		/* ...specifically an LMC	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+
 #define CONFIG_BOARD_EARLY_INIT_F 1		/* Call board_early_init_f	*/
 #define	CONFIG_MISC_INIT_F	1		/* and misc_init_f()		*/
 #define	CONFIG_MISC_INIT_R	1		/* and misc_init_r()		*/

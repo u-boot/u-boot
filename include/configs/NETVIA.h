@@ -37,6 +37,8 @@
 #define CONFIG_MPC850		1	/* This is a MPC850 CPU		*/
 #define CONFIG_NETVIA		1	/* ...on a NetVia board		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #if !defined(CONFIG_NETVIA_VERSION) || CONFIG_NETVIA_VERSION == 1
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2

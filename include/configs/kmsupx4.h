@@ -32,6 +32,8 @@
 #define CONFIG_KMSUPX4		1	/* ...on a kmsupx4 board	*/
 #define CONFIG_HOSTNAME		kmsupx4
 
+#define	CONFIG_SYS_TEXT_BASE	0xf0000000
+
 /* include common defines/options for all Keymile 8xx boards */
 #include "km8xx.h"
 

@@ -38,6 +38,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
+
 #define	CONFIG_ETHADDR		08:00:22:50:70:63	/* Ethernet address */
 #define CONFIG_ENV_OVERWRITE	1	/* Overwrite the environment */
 

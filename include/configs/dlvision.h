@@ -28,6 +28,8 @@
 #define CONFIG_4xx		1	/*  member of PPC4xx family */
 #define CONFIG_DLVISION	        1	/*  on a Neo board */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+
 /*
  * Include common defines/options for all AMCC eval boards
  */

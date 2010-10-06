@@ -42,6 +42,8 @@
 #define CONFIG_P3G4		1	/* this is a P3G4  board	*/
 #define CONFIG_SYS_GT_6426x        GT_64260 /* with a 64260 system controller */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_BAUDRATE		115200	/* console baudrate = 115200	*/
 
 #undef	CONFIG_ECC			/* enable ECC support */

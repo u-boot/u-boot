@@ -48,6 +48,8 @@
 #define CONFIG_SYS_EP8260_H2	1
 /* #undef CONFIG_SYS_EP8260_H2  */
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
 /* What is the oscillator's (UX2) frequency in Hz? */

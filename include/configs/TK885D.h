@@ -40,6 +40,8 @@
 #define CONFIG_TQM885D		1	/* ...on a TQM88D module	*/
 #define CONFIG_TK885D		1	/* ...in a TK885D base board	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #define CONFIG_8xx_OSCLK		10000000	/*  10 MHz - PLL input clock	*/
 #define CONFIG_SYS_8xx_CPUCLK_MIN		15000000	/*  15 MHz - CPU minimum clock	*/
 #define CONFIG_SYS_8xx_CPUCLK_MAX		133000000	/* 133 MHz - CPU maximum clock	*/

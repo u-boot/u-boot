@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003
+# (C) Copyright 2003-2010
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -24,19 +24,4 @@
 #
 # phyCORE-MPC5200B tiny board:
 #
-#	Valid values for CONFIG_SYS_TEXT_BASE are:
-#
-#	0xFFF00000   boot high (standard configuration)
-#	0xFF000000   boot low
-#	0x00100000   boot from RAM (for testing only)
-#
-
-sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
-
-ifndef CONFIG_SYS_TEXT_BASE
-## Standard: boot high
-CONFIG_SYS_TEXT_BASE = 0xFFF00000
-endif
-
-PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
-	-I$(TOPDIR)/board
+PLATFORM_CPPFLAGS += -I$(TOPDIR)/board

@@ -35,6 +35,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #undef DEBUG_BOOTP_EXT	      /* Debug received vendor fields */
 
 #undef CONFIG_LOGBUFFER       /* External logbuffer support */

@@ -31,6 +31,10 @@
 #define CONFIG_440		1
 #define CONFIG_4xx		1	/* ... PPC4xx family */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xFFFA0000
+#endif
+
 #define CONFIG_HOSTNAME		t3corp
 
 /*

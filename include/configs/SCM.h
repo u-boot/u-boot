@@ -38,6 +38,8 @@
 #define CONFIG_SCM              1	/* ...on a System Controller Module	*/
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #if (CONFIG_TQM8260 <= 100)
 #  error "TQM8260 module revison not supported"
 #endif

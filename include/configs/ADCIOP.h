@@ -36,6 +36,8 @@
 #define CONFIG_IOP480		1	/* This is a IOP480 CPU		*/
 #define CONFIG_ADCIOP		1	/* ...on a ADCIOP board		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xFFFD0000
+
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 
 #define CONFIG_CLOCKS_IN_MHZ	1	/* clocks passsed to Linux in MHz */

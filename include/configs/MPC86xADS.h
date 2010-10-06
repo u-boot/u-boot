@@ -28,6 +28,8 @@
 #undef CONFIG_MPC859DSL
 #undef CONFIG_MPC852T
 
+#define	CONFIG_SYS_TEXT_BASE	0xFE000000
+
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE

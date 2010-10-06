@@ -40,6 +40,8 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_P3Mx			/* used for both board versions	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #if defined (CONFIG_P3M750)
 #define CONFIG_750FX			/* 750GL/GX/FX			*/
 #define CONFIG_HIGH_BATS		/* High BATs supported		*/

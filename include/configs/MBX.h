@@ -46,6 +46,8 @@
 #define CONFIG_MPC860		1	/* This is a MPC860 CPU		*/
 #define CONFIG_MBX		1	/* ...on an MBX module		*/
 
+#define	CONFIG_SYS_TEXT_BASE	0xfe000000
+
 #define	CONFIG_8xx_CONS_SMC1	1	/* Console is on SMC1		*/
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE

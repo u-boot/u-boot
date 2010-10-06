@@ -39,6 +39,8 @@
 #define CPU_ID_STR		"MPC8247"
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
+#define	CONFIG_SYS_TEXT_BASE	0xfff00000
+
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
 #define	CONFIG_BOOTCOUNT_LIMIT

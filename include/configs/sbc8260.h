@@ -35,6 +35,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 /* Enable debug prints */
 #undef DEBUG_BOOTP_EXT	      /* Debug received vendor fields */
 

@@ -36,6 +36,8 @@
 #define CONFIG_MPC823		1	/* This is a MPC823 CPU		*/
 #define CONFIG_TQM823L		1	/* ...on a TQM8xxL module	*/
 
+#define	CONFIG_SYS_TEXT_BASE	0x40000000
+
 #ifdef	CONFIG_LCD			/* with LCD controller ?	*/
 #define CONFIG_LCD_LOGO		1	/* print our logo on the LCD	*/
 #define CONFIG_LCD_INFO		1	/* ... and some board info	*/

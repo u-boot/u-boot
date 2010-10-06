@@ -27,6 +27,13 @@
 
 #define CONFIG_AP1000	1		/* ...on an AP1000 board    */
 
+/*
+ * Start at bottom of RAM, but at an aliased address so that it looks
+ * like it's not in RAM.  This is a bit of voodoo to allow it to be
+ * run from RAM instead of Flash.
+ */
+#define	CONFIG_SYS_TEXT_BASE	0x08000000
+
 #define CONFIG_PCI	1
 
 #define CONFIG_SYS_HUSH_PARSER 1		/* use "hush" command parser	*/
