@@ -654,6 +654,28 @@ again:
 	return length;
 }
 
+static int smc_write_hwaddr(struct eth_device *dev)
+{
+	int i;
+
+	swap_to(ETHERNET);
+	SMC_SELECT_BANK (dev, 1);
+#ifdef USE_32_BIT
+	for (i = 0; i < 6; i += 2) {
+		word address;
+
+		address = dev->enetaddr[i + 1] << 8;
+		address |= dev->enetaddr[i];
+		SMC_outw(dev, address, (ADDR0_REG + i));
+	}
+#else
+	for (i = 0; i < 6; i++)
+		SMC_outb(dev, dev->enetaddr[i], (ADDR0_REG + i));
+#endif
+	swap_to(FLASH);
+	return 0;
+}
+
 /*
  * Open and Initialize the board
  *
@@ -662,8 +684,6 @@ again:
  */
 static int smc_init(struct eth_device *dev, bd_t *bd)
 {
-	int i;
-
 	swap_to(ETHERNET);
 
 	PRINTK2 ("%s: smc_init\n", SMC_DEV_NAME);
@@ -680,20 +700,6 @@ static int smc_init(struct eth_device *dev, bd_t *bd)
 	/* conservative setting (10Mbps, HalfDuplex, no AutoNeg.) */
 /*	SMC_SELECT_BANK(dev, 0); */
 /*	SMC_outw(dev, 0, RPC_REG); */
-	SMC_SELECT_BANK (dev, 1);
-
-#ifdef USE_32_BIT
-	for (i = 0; i < 6; i += 2) {
-		word address;
-
-		address = dev->enetaddr[i + 1] << 8;
-		address |= dev->enetaddr[i];
-		SMC_outw(dev, address, (ADDR0_REG + i));
-	}
-#else
-	for (i = 0; i < 6; i++)
-		SMC_outb(dev, dev->enetaddr[i], (ADDR0_REG + i));
-#endif
 
 	printf(SMC_DEV_NAME ": MAC %pM\n", dev->enetaddr);
 
@@ -1360,6 +1366,7 @@ int smc91111_initialize(u8 dev_num, int base_addr)
 		return 0;
 	}
 
+	memset(dev, 0, sizeof(*dev));
 	priv->dev_num = dev_num;
 	dev->priv = priv;
 	dev->iobase = base_addr;
@@ -1374,6 +1381,7 @@ int smc91111_initialize(u8 dev_num, int base_addr)
 	dev->halt = smc_halt;
 	dev->send = smc_send;
 	dev->recv = smc_rcv;
+	dev->write_hwaddr = smc_write_hwaddr;
 	sprintf(dev->name, "%s-%hu", SMC_DEV_NAME, dev_num);
 
 	eth_register(dev);
