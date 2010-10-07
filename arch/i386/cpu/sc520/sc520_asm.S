@@ -517,7 +517,7 @@ bad_ram:
 	jmp	bad_reint
 
 dram_done:
-	jmp	*%ebp
+	jmp	mem_init_ret
 
 #if CONFIG_SYS_SDRAM_ECC_ENABLE
 .globl init_ecc
@@ -562,7 +562,7 @@ set_ecc:
 	movb	%al,(%edi)
 
 out:
-	jmp	*%ebp
+	jmp	init_ecc_ret
 #endif
 
 /*
@@ -607,4 +607,4 @@ bank3:	movl	(%edi), %eax
 
 done:
 	movl	%ebx, %eax
-	jmp	*%ebp
+	jmp	get_mem_size_ret

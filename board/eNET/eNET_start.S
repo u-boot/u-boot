@@ -27,7 +27,7 @@
 .globl early_board_init
 early_board_init:
 	/* No 32-bit board specific initialisation */
-	jmp	*%ebp		/* return to caller */
+	jmp	early_board_init_ret
 
 .globl cpu_halt_asm
 cpu_halt_asm:

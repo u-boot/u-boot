@@ -35,8 +35,8 @@ start16:
 	 * First we let the BSP do some early initialization
 	 * this code have to map the flash to its final position
 	 */
-	mov	$board_init16_ret, %bp
 	jmp	board_init16
+.globl board_init16_ret
 board_init16_ret:
 
 	/* Turn of cache (this might require a 486-class CPU) */

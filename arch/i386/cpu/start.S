@@ -1,7 +1,7 @@
 /*
  *  U-boot - i386 Startup Code
  *
- *  Copyright (c) 2002	Omicron Ceti AB, Daniel Engström <denaiel@omicron.se>
+ *  Copyright (c) 2002	Omicron Ceti AB, Daniel Engstrï¿½m <denaiel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -79,18 +79,18 @@ _start:
 	 * to store the return address */
 
 	/* Early platform init (setup gpio, etc ) */
-	mov	$early_board_init_ret, %ebp
 	jmp	early_board_init
+.globl early_board_init_ret
 early_board_init_ret:
 
 	/* size memory */
-	mov	$mem_init_ret, %ebp
 	jmp	mem_init
+.globl mem_init_ret
 mem_init_ret:
 
 	/* fetch memory size (into %eax) */
-	mov	$get_mem_size_ret, %ebp
 	jmp	get_mem_size
+.globl get_mem_size_ret
 get_mem_size_ret:
 
 #if CONFIG_SYS_SDRAM_ECC_ENABLE
@@ -98,9 +98,9 @@ get_mem_size_ret:
 	movl	%ebx, %ecx
 	andl	$GD_FLG_COLD_BOOT, %ecx
 	jz	init_ecc_ret
-	mov	$init_ecc_ret, %ebp
 	jmp	init_ecc
 
+.globl init_ecc_ret
 init_ecc_ret:
 #endif
 
@@ -116,7 +116,7 @@ mem_ok:
 	pushl	$0
 	popl	%eax
 	cmpl	$0, %eax
-	jne	no_stack
+	jne	die
 	push	$0x55aa55aa
 	popl	%ebx
 	cmpl	$0x55aa55aa, %ebx

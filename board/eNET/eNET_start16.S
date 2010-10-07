@@ -65,8 +65,7 @@ board_init16:
 	movl	$0x000000cb, %eax
 	outl	%eax, %dx
 
-	/* the return address is stored in bp */
-	jmp	*%bp
+	jmp	board_init16_ret
 
 .section .bios, "ax"
 .code16
