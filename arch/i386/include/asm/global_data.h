@@ -33,6 +33,8 @@
  * Keep it *SMALL* and remember to set CONFIG_SYS_GBL_DATA_SIZE > sizeof(gd_t)
  */
 
+#ifndef __ASSEMBLY__
+
 typedef	struct {
 	bd_t		*bd;
 	unsigned long	flags;
@@ -49,6 +51,26 @@ typedef	struct {
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
 } gd_t;
 
+extern gd_t *gd;
+
+#endif
+
+/* Word Offsets into Global Data - MUST match struct gd_t */
+#define GD_BD    0
+#define GD_FLAGS 1
+#define GD_BAUDRATE  2
+#define GD_HAVE_CONSOLE  3
+#define GD_RELOC_OFF 4
+#define GD_ENV_ADDR  5
+#define GD_ENV_VALID 6
+#define GD_CPU_CLK 7
+#define GD_BUS_CLK 8
+#define GD_RAM_SIZE  9
+#define GD_RESET_STATUS  10
+#define GD_JT    11
+
+#define GD_SIZE    12
+
 /*
  * Global Data Flags
  */
@@ -60,8 +82,6 @@ typedef	struct {
 #define	GD_FLG_LOGINIT		0x00020	/* Log Buffer has been initialized	*/
 #define GD_FLG_DISABLE_CONSOLE	0x00040	/* Disable console (in & out)		*/
 #define GD_FLG_ENV_READY	0x00080	/* Environment imported into hash table	*/
-
-extern gd_t *gd;
 
 #define DECLARE_GLOBAL_DATA_PTR
 

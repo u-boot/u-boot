@@ -25,6 +25,7 @@
 
 #include <config.h>
 #include <version.h>
+#include <asm/global_data.h>
 
 
 .section .text
@@ -126,6 +127,13 @@ mem_ok:
 
 	/* Set the upper memory limit parameter */
 	subl	$CONFIG_SYS_STACK_SIZE, %eax
+
+	/* Reserve space for global data */
+	subl	$(GD_SIZE * 4), %eax
+
+	/* %eax points to the global data structure */
+	movl	%esp, (GD_RAM_SIZE * 4)(%eax)
+	movl	%ebx, (GD_FLAGS * 4)(%eax)
 
 	call	board_init_f	/* Enter, U-boot! */
 

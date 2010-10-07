@@ -54,8 +54,6 @@ extern ulong _i386boot_rel_dyn_end;
 extern ulong _i386boot_bss_start;
 extern ulong _i386boot_bss_size;
 
-void ram_bootstrap (void *, ulong);
-
 const char version_string[] =
 	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
 
@@ -164,13 +162,12 @@ init_fnc_t *init_sequence[] = {
 	NULL,
 };
 
-static gd_t gd_data;
 gd_t *gd;
 
 /*
  * Load U-Boot into RAM, initialize BSS, perform relocation adjustments
  */
-void board_init_f (ulong stack_limit)
+void board_init_f (ulong gdp)
 {
 	void *text_start = &_i386boot_text_start;
 	void *u_boot_cmd_end = &__u_boot_cmd_end;
@@ -184,12 +181,9 @@ void board_init_f (ulong stack_limit)
 	ulong rel_offset;
 	Elf32_Rel *re;
 
-	void (*start_func)(void *, ulong);
-
 	uboot_size = (ulong)u_boot_cmd_end - (ulong)text_start;
-	dest_addr  = (void *)stack_limit - (uboot_size + (ulong)bss_size);
+	dest_addr  = (void *)gdp - (uboot_size + (ulong)bss_size);
 	rel_offset = text_start - dest_addr;
-	start_func = ram_bootstrap - rel_offset;
 
 	/* First stage CPU initialization */
 	if (cpu_init_f() != 0)
@@ -213,36 +207,14 @@ void board_init_f (ulong stack_limit)
 				*(ulong *)(re->r_offset - rel_offset) -= (Elf32_Addr)rel_offset;
 	}
 
+	((gd_t *)gdp)->reloc_off = rel_offset;
+	((gd_t *)gdp)->flags |= GD_FLG_RELOC;
+
 	/* Enter the relocated U-Boot! */
-	start_func(dest_addr, rel_offset);
+	(board_init_r - rel_offset)((gd_t *)gdp, (ulong)dest_addr);
+
 	/* NOTREACHED - board_init_f() does not return */
 	while(1);
-}
-
-/*
- * We cannot initialize gd_data in board_init_f() because we would be
- * attempting to write to flash (I have even tried using manual relocation
- * adjustments on pointers but it just won't work) and board_init_r() does
- * not have enough arguments to allow us to pass the relocation offset
- * straight up. This bootstrap function (which runs in RAM) is used to
- * setup gd_data in order to pass the relocation offset to the rest of
- * U-Boot.
- *
- * TODO: The compiler optimization barrier is intended to stop GCC from
- * optimizing this function into board_init_f(). It seems to work without
- * it, but I've left it in to be sure. I think also that the barrier in
- * board_init_r() is no longer needed, but left it in 'just in case'
- */
-void ram_bootstrap (void *dest_addr, ulong rel_offset)
-{
-	/* compiler optimization barrier needed for GCC >= 3.4 */
-	__asm__ __volatile__("": : :"memory");
-
-	/* tell others: relocation done */
-	gd_data.reloc_off = rel_offset;
-	gd_data.flags |= GD_FLG_RELOC;
-
-	board_init_r(&gd_data, (ulong)dest_addr);
 }
 
 void board_init_r(gd_t *id, ulong dest_addr)
