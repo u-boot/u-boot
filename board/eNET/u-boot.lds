@@ -29,50 +29,47 @@ SECTIONS
 {
 	. = TEXT_BASE;		/* Location of bootcode in flash */
 	__text_start = .;
-	.text  : { *(.text); }
+	.text  : { *(.text*); }
 
 	. = ALIGN(4);
-	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
-
-	. = ALIGN(4);
-
-	.data : { *(.data) }
-	. = ALIGN(4);
-
-	.interp : { *(.interp) }
-	. = ALIGN(4);
-
-	.dynsym : { *(.dynsym) }
-	. = ALIGN(4);
-
-	.dynstr : { *(.dynstr) }
-	. = ALIGN(4);
-
-	.hash : { *(.hash) }
-	. = ALIGN(4);
-
-	.got : { *(.got) }
-	. = ALIGN(4);
-
-	.got.plt : { *(.got.plt) }
-	. = ALIGN(4);
-
-	.dynamic (NOLOAD) : { *(.dynamic) }
-	. = ALIGN(4);
-
 	__u_boot_cmd_start = .;
 	.u_boot_cmd : { *(.u_boot_cmd) }
 	. = ALIGN(4);
 	__u_boot_cmd_end = .;
 
-	__rel_dyn_start = .;
-	.rel.dyn : { *(.rel.dyn) }
-	__rel_dyn_end = .;
+	. = ALIGN(4);
+	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
+
+	. = ALIGN(4);
+	.data : { *(.data*) }
+
+	. = ALIGN(4);
+	.dynsym : { *(.dynsym*) }
+
+	. = ALIGN(4);
+	.hash : { *(.hash*) }
+
+	. = ALIGN(4);
+	.got : { *(.got*) }
+
+	. = ALIGN(4);
+	__data_end = .;
 
 	. = ALIGN(4);
 	__bss_start = ABSOLUTE(.);
 	.bss (NOLOAD) : { *(.bss) }
 	__bss_size = SIZEOF(.bss);
+
+	. = ALIGN(4);
+	__rel_dyn_start = .;
+	.rel.dyn : { *(.rel.dyn) }
+	__rel_dyn_end = .;
+
+	/DISCARD/ : { *(.dynstr*) }
+	/DISCARD/ : { *(.dynamic*) }
+	/DISCARD/ : { *(.plt*) }
+	/DISCARD/ : { *(.interp*) }
+	/DISCARD/ : { *(.gnu*) }
 
 	/* 16bit realmode trampoline code */
 	.realmode 0x7c0 : AT ( LOADADDR(.rel.dyn) + SIZEOF(.rel.dyn) ) { KEEP(*(.realmode)) }

@@ -49,6 +49,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* Exports from the Linker Script */
 extern ulong __text_start;
+extern ulong __data_end;
 extern ulong __rel_dyn_start;
 extern ulong __rel_dyn_end;
 extern ulong __bss_start;
@@ -170,7 +171,7 @@ gd_t *gd;
 void board_init_f (ulong gdp)
 {
 	void *text_start = &__text_start;
-	void *u_boot_cmd_end = &__u_boot_cmd_end;
+	void *data_end = &__data_end;
 	Elf32_Rel *rel_dyn_start = (Elf32_Rel *)&__rel_dyn_start;
 	Elf32_Rel *rel_dyn_end = (Elf32_Rel *)&__rel_dyn_end;
 	void *bss_start = &__bss_start;
@@ -181,7 +182,7 @@ void board_init_f (ulong gdp)
 	ulong rel_offset;
 	Elf32_Rel *re;
 
-	uboot_size = (ulong)u_boot_cmd_end - (ulong)text_start;
+	uboot_size = (ulong)data_end - (ulong)text_start;
 	dest_addr  = (void *)gdp - (uboot_size + (ulong)bss_size);
 	rel_offset = text_start - dest_addr;
 
