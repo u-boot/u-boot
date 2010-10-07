@@ -385,7 +385,6 @@ int do_bdinfo ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	bd_t *bd = gd->bd;
 	char buf[32];
 
-	print_num ("env_t",		(ulong)bd->bi_env);
 	print_num ("boot_params",	(ulong)bd->bi_boot_params);
 	print_num ("bi_memstart",	bd->bi_memstart);
 	print_num ("bi_memsize",	bd->bi_memsize);
