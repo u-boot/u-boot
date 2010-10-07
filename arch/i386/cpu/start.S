@@ -51,7 +51,7 @@ _i386boot_start:
 	wbinvd
 
 	/* Tell 32-bit code it is being entered from an in-RAM copy */
-	movw	$0x0000, %bx
+	movw	$GD_FLG_WARM_BOOT, %bx
 _start:
 	/* This is the 32-bit cold-reset entry point */
 
@@ -66,18 +66,10 @@ _start:
 	/* Clear the interupt vectors */
 	lidt	blank_idt_ptr
 
-	/*
-	 * Skip low-level board and memory initialization if not starting
-	 * from cold-reset. This allows us to do a fail safe boot-strap
-	 * into a new build of U-Boot from a known-good boot flash
-	 */
-	movw	$0x0001, %ax
-	cmpw	%ax, %bx
-	jne	mem_init_ret
-
-	/* We call a few functions in the board support package
-	 * since we have no stack yet we'll have to use %ebp
-	 * to store the return address */
+	/* Skip low-level initialization if not starting from cold-reset */
+	movl	%ebx, %ecx
+	andl	$GD_FLG_COLD_BOOT, %ecx
+	jz	skip_mem_init
 
 	/* Early platform init (setup gpio, etc ) */
 	jmp	early_board_init
@@ -89,6 +81,7 @@ early_board_init_ret:
 .globl mem_init_ret
 mem_init_ret:
 
+skip_mem_init:
 	/* fetch memory size (into %eax) */
 	jmp	get_mem_size
 .globl get_mem_size_ret

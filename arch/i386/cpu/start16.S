@@ -22,6 +22,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm/global_data.h>
 
 #define BOOT_SEG	0xffff0000	/* linear segment of boot code */
 #define a32		.byte 0x67;
@@ -31,6 +32,9 @@
 .code16
 .globl start16
 start16:
+	/* Set the Cold Boot / Hard Reset flag */
+	movl	$GD_FLG_COLD_BOOT, %ebx
+
 	/*
 	 * First we let the BSP do some early initialization
 	 * this code have to map the flash to its final position
@@ -57,9 +61,6 @@ o32 cs	lgdt	gdt_ptr
 	/* Flush the prefetch queue */
 	jmp	ff
 ff:
-	/* Tell 32-bit code it is being entered from hard-reset */
-	movw	$0x0001, %bx
-
 	/* Finally jump to the 32bit initialization code */
 	movw	$code32start, %ax
 	movw	%ax, %bp
