@@ -28,13 +28,12 @@ ENTRY(_start)
 SECTIONS
 {
 	. = TEXT_BASE;		/* Location of bootcode in flash */
-	_i386boot_text_start = .;
+	__text_start = .;
 	.text  : { *(.text); }
 
 	. = ALIGN(4);
 	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
 
-	_i386boot_text_size = SIZEOF(.text) + SIZEOF(.rodata);
 	. = ALIGN(4);
 
 	.data : { *(.data) }
@@ -65,28 +64,27 @@ SECTIONS
 	.u_boot_cmd : { *(.u_boot_cmd) }
 	. = ALIGN(4);
 	__u_boot_cmd_end = .;
-	_i386boot_cmd_start = LOADADDR(.u_boot_cmd);
 
-	_i386boot_rel_dyn_start = .;
+	__rel_dyn_start = .;
 	.rel.dyn : { *(.rel.dyn) }
-	_i386boot_rel_dyn_end = .;
+	__rel_dyn_end = .;
 
 	. = ALIGN(4);
-	_i386boot_bss_start = ABSOLUTE(.);
+	__bss_start = ABSOLUTE(.);
 	.bss (NOLOAD) : { *(.bss) }
-	_i386boot_bss_size = SIZEOF(.bss);
+	__bss_size = SIZEOF(.bss);
 
 	/* 16bit realmode trampoline code */
 	.realmode 0x7c0 : AT ( LOADADDR(.rel.dyn) + SIZEOF(.rel.dyn) ) { KEEP(*(.realmode)) }
 
-	_i386boot_realmode = LOADADDR(.realmode);
-	_i386boot_realmode_size = SIZEOF(.realmode);
+	__realmode_start = LOADADDR(.realmode);
+	__realmode_size = SIZEOF(.realmode);
 
 	/* 16bit BIOS emulation code (just enough to boot Linux) */
 	.bios 0 : AT ( LOADADDR(.realmode) + SIZEOF(.realmode) ) { KEEP(*(.bios)) }
 
-	_i386boot_bios = LOADADDR(.bios);
-	_i386boot_bios_size = SIZEOF(.bios);
+	__bios_start = LOADADDR(.bios);
+	__bios_size = SIZEOF(.bios);
 
 	/* The load addresses below assumes that the flash
 	 * will be mapped so that 0x387f0000 == 0xffff0000
@@ -105,5 +103,4 @@ SECTIONS
 
 	. = 0xfff0;
 	.resetvec : AT (TEXT_BASE + 0x3fff0) { KEEP(*(.resetvec)); }
-	_i386boot_end = (LOADADDR(.resetvec) + SIZEOF(.resetvec) );
 }

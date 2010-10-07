@@ -48,11 +48,11 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Exports from the Linker Script */
-extern ulong _i386boot_text_start;
-extern ulong _i386boot_rel_dyn_start;
-extern ulong _i386boot_rel_dyn_end;
-extern ulong _i386boot_bss_start;
-extern ulong _i386boot_bss_size;
+extern ulong __text_start;
+extern ulong __rel_dyn_start;
+extern ulong __rel_dyn_end;
+extern ulong __bss_start;
+extern ulong __bss_size;
 
 const char version_string[] =
 	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
@@ -169,12 +169,12 @@ gd_t *gd;
  */
 void board_init_f (ulong gdp)
 {
-	void *text_start = &_i386boot_text_start;
+	void *text_start = &__text_start;
 	void *u_boot_cmd_end = &__u_boot_cmd_end;
-	Elf32_Rel *rel_dyn_start = (Elf32_Rel *)&_i386boot_rel_dyn_start;
-	Elf32_Rel *rel_dyn_end = (Elf32_Rel *)&_i386boot_rel_dyn_end;
-	void *bss_start = &_i386boot_bss_start;
-	ulong bss_size = (ulong)&_i386boot_bss_size;
+	Elf32_Rel *rel_dyn_start = (Elf32_Rel *)&__rel_dyn_start;
+	Elf32_Rel *rel_dyn_end = (Elf32_Rel *)&__rel_dyn_end;
+	void *bss_start = &__bss_start;
+	ulong bss_size = (ulong)&__bss_size;
 
 	ulong uboot_size;
 	void *dest_addr;
