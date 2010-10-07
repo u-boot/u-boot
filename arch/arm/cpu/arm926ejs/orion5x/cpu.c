@@ -48,24 +48,34 @@ void reset_cpu(unsigned long ignored)
 }
 
 /*
- * Window Size
+ * Compute Window Size field value from size expressed in bytes
  * Used with the Base register to set the address window size and location.
  * Must be programmed from LSB to MSB as sequence of ones followed by
  * sequence of zeros. The number of ones specifies the size of the window in
- * 64 KByte granularity (e.g., a value of 0x00FF specifies 256 = 16 MByte).
- * NOTE: A value of 0x0 specifies 64-KByte size.
+ * 64 KiB granularity (e.g., a value of 0x00FF specifies 256 = 16 MiB).
+ * NOTES:
+ * 1) A sizeval equal to 0x0 specifies 4 GiB.
+ * 2) A return value of 0x0 specifies 64 KiB.
  */
 unsigned int orion5x_winctrl_calcsize(unsigned int sizeval)
 {
-	int i;
-	unsigned int j = 0;
-	u32 val = sizeval >> 1;
+	/*
+	 * Calculate the number of 64 KiB blocks needed minus one (rounding up).
+	 * For sizeval > 0 this is equivalent to:
+	 * sizeval = (u32) ceil((double) sizeval / 65536.0) - 1
+	 */
+	sizeval = (sizeval - 1) >> 16;
 
-	for (i = 0; val >= 0x10000; i++) {
-		j |= (1 << i);
-		val = val >> 1;
-	}
-	return 0x0000ffff & j;
+	/*
+	 * Propagate 'one' bits to the right by 'oring' them.
+	 * We need only treat bits 15-0.
+	 */
+	sizeval |= sizeval >> 1;  /* 'Or' bit 15 onto bit 14 */
+	sizeval |= sizeval >> 2;  /* 'Or' bits 15-14 onto bits 13-12 */
+	sizeval |= sizeval >> 4;  /* 'Or' bits 15-12 onto bits 11-8 */
+	sizeval |= sizeval >> 8;  /* 'Or' bits 15-8 onto bits 7-0*/
+
+	return sizeval;
 }
 
 /*
