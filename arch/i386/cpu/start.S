@@ -83,13 +83,6 @@ _start:
 	jmp	early_board_init
 early_board_init_ret:
 
-	/* The __port80 entry-point should be usabe by now */
-	/* so we try to indicate progress */
-	movw	$0x01, %ax
-	movl	$.progress0, %ebp
-	jmp	show_boot_progress_asm
-.progress0:
-
 	/* size memory */
 	mov	$mem_init_ret, %ebp
 	jmp	mem_init
@@ -103,23 +96,10 @@ get_mem_size_ret:
 	/* Check we have enough memory for stack */
 	movl	$CONFIG_SYS_STACK_SIZE, %ecx
 	cmpl	%ecx, %eax
-	jae	mem_ok
-
-	/* indicate (lack of) progress */
-	movw	$0x81, %ax
-	movl	$.progress0a, %ebp
-	jmp	show_boot_progress_asm
-.progress0a:
-	jmp	die
+	jb	die
 mem_ok:
 	/* Set stack pointer to upper memory limit*/
 	movl	%eax, %esp
-
-	/* indicate progress */
-	movw	$0x02, %ax
-	movl	$.progress1, %ebp
-	jmp	show_boot_progress_asm
-.progress1:
 
 	/* Test the stack */
 	pushl	$0
@@ -129,23 +109,7 @@ mem_ok:
 	push	$0x55aa55aa
 	popl	%ebx
 	cmpl	$0x55aa55aa, %ebx
-	je	stack_ok
-
-no_stack:
-	/* indicate (lack of) progress */
-	movw	$0x82, %ax
-	movl	$.progress1a, %ebp
-	jmp	show_boot_progress_asm
-.progress1a:
-	jmp die
-
-
-stack_ok:
-	/* indicate progress */
-	movw	$0x03, %ax
-	movl	$.progress2, %ebp
-	jmp	show_boot_progress_asm
-.progress2:
+	jne	die
 
 	wbinvd
 
@@ -157,10 +121,6 @@ stack_ok:
 
 	/* indicate (lack of) progress */
 	movw	$0x85, %ax
-	movl	$.progress4a, %ebp
-	jmp	show_boot_progress_asm
-.progress4a:
-
 die:	hlt
 	jmp	die
 	hlt
