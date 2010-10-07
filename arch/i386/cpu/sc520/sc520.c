@@ -41,7 +41,8 @@ volatile sc520_mmcr_t *sc520_mmcr = (sc520_mmcr_t *)0xfffef000;
 
 void init_sc520(void)
 {
-	/* Set the UARTxCTL register at it's slower,
+	/*
+	 * Set the UARTxCTL register at it's slower,
 	 * baud clock giving us a 1.8432 MHz reference
 	 */
 	writeb(0x07, &sc520_mmcr->uart1ctl);
@@ -50,25 +51,30 @@ void init_sc520(void)
 	/* first set the timer pin mapping */
 	writeb(0x72, &sc520_mmcr->clksel);	/* no clock frequency selected, use 1.1892MHz */
 
-	/* enable PCI bus arbitrer */
-	writeb(0x02, &sc520_mmcr->sysarbctl);	/* enable concurrent mode */
+	/* enable PCI bus arbiter (concurrent mode) */
+	writeb(0x02, &sc520_mmcr->sysarbctl);
 
-	writeb(0x1f, &sc520_mmcr->sysarbmenb);	/* enable external grants */
-	writeb(0x04, &sc520_mmcr->hbctl);	/* enable posted-writes */
+	/* enable external grants */
+	writeb(0x1f, &sc520_mmcr->sysarbmenb);
+
+	/* enable posted-writes */
+	writeb(0x04, &sc520_mmcr->hbctl);
 
 	if (CONFIG_SYS_SC520_HIGH_SPEED) {
-		writeb(0x02, &sc520_mmcr->cpuctl);	/* set it to 133 MHz and write back */
+		/* set it to 133 MHz and write back */
+		writeb(0x02, &sc520_mmcr->cpuctl);
 		gd->cpu_clk = 133000000;
 		printf("## CPU Speed set to 133MHz\n");
 	} else {
-		writeb(0x01, &sc520_mmcr->cpuctl);	/* set it to 100 MHz and write back */
+		/* set it to 100 MHz and write back */
+		writeb(0x01, &sc520_mmcr->cpuctl);
 		printf("## CPU Speed set to 100MHz\n");
 		gd->cpu_clk = 100000000;
 	}
 
 
 	/* wait at least one millisecond */
-	asm("movl	$0x2000,%%ecx\n"
+	asm("movl	$0x2000, %%ecx\n"
 	    "0:		pushl %%ecx\n"
 	    "popl	%%ecx\n"
 	    "loop 0b\n": : : "ecx");
@@ -107,15 +113,15 @@ unsigned long init_sc520_dram(void)
 
 	/* set SDRAM speed here */
 
-	refresh_rate/=78;
-	if (refresh_rate<=1) {
-		val = 0;  /* 7.8us */
-	} else if (refresh_rate==2) {
-		val = 1;  /* 15.6us */
-	} else if (refresh_rate==3 || refresh_rate==4) {
-		val = 2;  /* 31.2us */
+	refresh_rate /= 78;
+	if (refresh_rate <= 1) {
+		val = 0;	/* 7.8us */
+	} else if (refresh_rate == 2) {
+		val = 1;	/* 15.6us */
+	} else if (refresh_rate == 3 || refresh_rate == 4) {
+		val = 2;	/* 31.2us */
 	} else {
-		val = 3;  /* 62.4us */
+		val = 3;	/* 62.4us */
 	}
 
 	tmp = (readb(&sc520_mmcr->drcctl) & 0xcf) | (val<<4);
@@ -124,9 +130,9 @@ unsigned long init_sc520_dram(void)
 	val = readb(&sc520_mmcr->drctmctl) & 0xf0;
 
 	if (cas_precharge_delay==3) {
-		val |= 0x04;   /* 3T */
+		val |= 0x04;	/* 3T */
 	} else if (cas_precharge_delay==4) {
-		val |= 0x08;   /* 4T */
+		val |= 0x08;	/* 4T */
 	} else if (cas_precharge_delay>4) {
 		val |= 0x0c;
 	}
@@ -139,8 +145,10 @@ unsigned long init_sc520_dram(void)
 	writeb(val, &c520_mmcr->drctmctl);
 #endif
 
-	/* We read-back the configuration of the dram
-	 * controller that the assembly code wrote */
+	/*
+	 * We read-back the configuration of the dram
+	 * controller that the assembly code wrote
+	 */
 	dram_ctrl = readl(&sc520_mmcr->drcbendadr);
 
 	bd->bi_dram[0].start = 0;
@@ -148,7 +156,6 @@ unsigned long init_sc520_dram(void)
 		/* bank 0 enabled */
 		dram_present = bd->bi_dram[1].start = (dram_ctrl & 0x7f) << 22;
 		bd->bi_dram[0].size = bd->bi_dram[1].start;
-
 	} else {
 		bd->bi_dram[0].size = 0;
 		bd->bi_dram[1].start = bd->bi_dram[0].start;
@@ -179,11 +186,6 @@ unsigned long init_sc520_dram(void)
 	} else {
 		bd->bi_dram[3].size = 0;
 	}
-
-
-#if 0
-	printf("Configured %d bytes of dram\n", dram_present);
-#endif
 	gd->ram_size = dram_present;
 
 	return dram_present;

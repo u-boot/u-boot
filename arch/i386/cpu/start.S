@@ -45,7 +45,7 @@ _i386boot_start:
 
 	/* Turn of cache (this might require a 486-class CPU) */
 	movl	%cr0, %eax
-	orl	$0x60000000,%eax
+	orl	$0x60000000, %eax
 	movl	%eax, %cr0
 	wbinvd
 
@@ -54,13 +54,13 @@ _i386boot_start:
 _start:
 	/* This is the 32-bit cold-reset entry point */
 
-	movl    $0x18,%eax	/* Load our segement registes, the
+	movl	$0x18, %eax	/* Load our segement registes, the
 				 * gdt have already been loaded by start16.S */
-	movw    %ax,%fs
-	movw	%ax,%ds
-	movw    %ax,%gs
-	movw    %ax,%es
-	movw    %ax,%ss
+	movw	%ax, %fs
+	movw	%ax, %ds
+	movw	%ax, %gs
+	movw	%ax, %es
+	movw	%ax, %ss
 
 	/* Clear the interupt vectors */
 	lidt	blank_idt_ptr
@@ -79,7 +79,7 @@ _start:
 	 * to store the return address */
 
 	/* Early platform init (setup gpio, etc ) */
-	mov     $early_board_init_ret, %ebp
+	mov	$early_board_init_ret, %ebp
 	jmp	early_board_init
 early_board_init_ret:
 
@@ -92,12 +92,12 @@ early_board_init_ret:
 
 	/* size memory */
 	mov	$mem_init_ret, %ebp
-	jmp     mem_init
+	jmp	mem_init
 mem_init_ret:
 
 	/* fetch memory size (into %eax) */
 	mov	$get_mem_size_ret, %ebp
-	jmp     get_mem_size
+	jmp	get_mem_size
 get_mem_size_ret:
 
 	/* Check we have enough memory for stack */
@@ -113,7 +113,7 @@ get_mem_size_ret:
 	jmp	die
 mem_ok:
 	/* Set stack pointer to upper memory limit*/
-	movl    %eax, %esp
+	movl	%eax, %esp
 
 	/* indicate progress */
 	movw	$0x02, %ax
@@ -150,12 +150,12 @@ stack_ok:
 	wbinvd
 
 	/* Get upper memory limit */
-	movl %esp, %ecx
-	subl $CONFIG_SYS_STACK_SIZE, %ecx
+	movl	%esp, %ecx
+	subl	$CONFIG_SYS_STACK_SIZE, %ecx
 
 	/* Create a Stack Frame */
-	pushl %ebp
-	movl %esp, %ebp
+	pushl	%ebp
+	movl	%esp, %ebp
 
 	/* stack_limit parameter */
 	pushl	%ecx
