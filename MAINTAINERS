@@ -800,6 +800,10 @@ Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 
 	SFFSDR		ARM926EJS
 
+Matt Waddel <matt.waddel@linaro.org>
+
+	ca9x4_ct_vxp	ARM ARMV7 (Quad Core)
+
 Prafulla Wadaskar <prafulla@marvell.com>
 
 	mv88f6281gtw_ge	ARM926EJS (Kirkwood SoC)
