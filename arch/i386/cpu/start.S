@@ -118,8 +118,8 @@ mem_ok:
 	cmpl	$0, %eax
 	jne	die
 	push	$0x55aa55aa
-	popl	%ebx
-	cmpl	$0x55aa55aa, %ebx
+	popl	%ecx
+	cmpl	$0x55aa55aa, %ecx
 	jne	die
 
 	wbinvd

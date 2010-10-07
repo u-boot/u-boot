@@ -174,6 +174,9 @@
 
 .globl mem_init
 mem_init:
+	/* Preserve Boot Flags */
+	movl	%ebx, %ebp
+
 	/* initialize dram controller registers */
 	xorw	%ax, %ax
 	movl	$DBCTL, %edi
@@ -517,6 +520,8 @@ bad_ram:
 	jmp	bad_reint
 
 dram_done:
+	/* Restore Boot Flags */
+	movl	%ebx, %ebp
 	jmp	mem_init_ret
 
 #if CONFIG_SYS_SDRAM_ECC_ENABLE
@@ -579,7 +584,7 @@ bank0:	movl	(%edi), %eax
 	jz	bank1
 	andl	$0x0000007f, %eax
 	shll	$22, %eax
-	movl	%eax, %ebx
+	movl	%eax, %edx
 
 bank1:	movl	(%edi), %eax
 	movl	%eax, %ecx
@@ -587,7 +592,7 @@ bank1:	movl	(%edi), %eax
 	jz	bank2
 	andl	$0x00007f00, %eax
 	shll	$14, %eax
-	movl	%eax, %ebx
+	movl	%eax, %edx
 
 bank2:	movl	(%edi), %eax
 	movl	%eax, %ecx
@@ -595,7 +600,7 @@ bank2:	movl	(%edi), %eax
 	jz	bank3
 	andl	$0x007f0000, %eax
 	shll	$6, %eax
-	movl	%eax, %ebx
+	movl	%eax, %edx
 
 bank3:	movl	(%edi), %eax
 	movl	%eax, %ecx
@@ -603,8 +608,8 @@ bank3:	movl	(%edi), %eax
 	jz	done
 	andl	$0x7f000000, %eax
 	shrl	$2, %eax
-	movl	%eax, %ebx
+	movl	%eax, %edx
 
 done:
-	movl	%ebx, %eax
+	movl	%edx, %eax
 	jmp	get_mem_size_ret
