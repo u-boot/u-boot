@@ -248,7 +248,8 @@ void boot_zimage(void *setup_base)
 int do_zboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	void *base_ptr;
-	void *bzImage_addr;
+	void *bzImage_addr = NULL;
+	char *s;
 	ulong bzImage_size = 0;
 
 	disable_interrupts();
@@ -256,10 +257,17 @@ int do_zboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* Setup board for maximum PC/AT Compatibility */
 	setup_pcat_compatibility();
 
-	/* argv[1] holds the address of the bzImage */
-	bzImage_addr = (void *)simple_strtoul(argv[1], NULL, 16);
+	if (argc >= 2)
+		/* argv[1] holds the address of the bzImage */
+		s = argv[1];
+	else
+		s = getenv("fileaddr");
 
-	if (argc == 3)
+	if (s)
+		bzImage_addr = (void *)simple_strtoul(s, NULL, 16);
+
+	if (argc >= 3)
+		/* argv[2] holds the size of the bzImage */
 		bzImage_size = simple_strtoul(argv[2], NULL, 16);
 
 	/* Lets look for*/
@@ -282,7 +290,7 @@ int do_zboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 
 U_BOOT_CMD(
-	zboot, 3, 0,	do_zboot,
+	zboot, 2, 0,	do_zboot,
 	"Boot bzImage",
 	""
 );
