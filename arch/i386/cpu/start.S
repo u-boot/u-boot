@@ -149,16 +149,10 @@ stack_ok:
 
 	wbinvd
 
-	/* Get upper memory limit */
-	movl	%esp, %ecx
-	subl	$CONFIG_SYS_STACK_SIZE, %ecx
+	/* Set the upper memory limit parameter */
+	movl	%esp, %eax
+	subl	$CONFIG_SYS_STACK_SIZE, %eax
 
-	/* Create a Stack Frame */
-	pushl	%ebp
-	movl	%esp, %ebp
-
-	/* stack_limit parameter */
-	pushl	%ecx
 	call	board_init_f	/* Enter, U-boot! */
 
 	/* indicate (lack of) progress */

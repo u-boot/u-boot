@@ -41,6 +41,4 @@ void specific_eoi(int irq);
 
 extern char exception_stack[];
 
-#define __isr__ void __attribute__ ((regparm(0)))
-
 #endif

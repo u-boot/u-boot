@@ -225,7 +225,7 @@ int disable_interrupts(void)
 }
 
 /* IRQ Low-Level Service Routine */
-__isr__ irq_llsr(struct pt_regs *regs)
+void irq_llsr(struct pt_regs *regs)
 {
 	/*
 	 * For detailed description of each exception, refer to:
@@ -370,12 +370,7 @@ asm(".globl irq_common_entry\n" \
 	"pushl %ecx\n" \
 	"pushl %ebx\n" \
 	"mov   %esp, %eax\n" \
-	"pushl %ebp\n" \
-	"movl %esp,%ebp\n" \
-	"pushl %eax\n" \
 	"call irq_llsr\n" \
-	"popl %eax\n" \
-	"leave\n"\
 	"popl %ebx\n" \
 	"popl %ecx\n" \
 	"popl %edx\n" \
