@@ -208,7 +208,7 @@ static int at91emac_phy_reset(struct eth_device *netdev)
 	at91emac_write(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR, MII_BMCR,
 		(BMCR_ANENABLE | BMCR_ANRESTART));
 
-	for (i = 0; i < 100000 / 100; i++) {
+	for (i = 0; i < 30000; i++) {
 		at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
 			MII_BMSR, &status);
 		if (status & BMSR_ANEGCOMPLETE)
