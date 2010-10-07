@@ -37,6 +37,61 @@
 #include <command.h>
 #include <asm/interrupt.h>
 
+/* Constructor for a conventional segment GDT (or LDT) entry */
+/* This is a macro so it can be used in initializers */
+#define GDT_ENTRY(flags, base, limit)			\
+	((((base)  & 0xff000000ULL) << (56-24)) |	\
+	 (((flags) & 0x0000f0ffULL) << 40) |		\
+	 (((limit) & 0x000f0000ULL) << (48-16)) |	\
+	 (((base)  & 0x00ffffffULL) << 16) |		\
+	 (((limit) & 0x0000ffffULL)))
+
+/* Simple and small GDT entries for booting only */
+
+#define GDT_ENTRY_32BIT_CS	2
+#define GDT_ENTRY_32BIT_DS	(GDT_ENTRY_32BIT_CS + 1)
+#define GDT_ENTRY_16BIT_CS	(GDT_ENTRY_32BIT_DS + 1)
+#define GDT_ENTRY_16BIT_DS	(GDT_ENTRY_16BIT_CS + 1)
+
+/*
+ * Set up the GDT
+ */
+
+struct gdt_ptr {
+	u16 len;
+	u32 ptr;
+} __attribute__((packed));
+
+static void reload_gdt(void)
+{
+	/* There are machines which are known to not boot with the GDT
+	   being 8-byte unaligned.  Intel recommends 16 byte alignment. */
+	static const u64 boot_gdt[] __attribute__((aligned(16))) = {
+		/* CS: code, read/execute, 4 GB, base 0 */
+		[GDT_ENTRY_32BIT_CS] = GDT_ENTRY(0xc09b, 0, 0xfffff),
+		/* DS: data, read/write, 4 GB, base 0 */
+		[GDT_ENTRY_32BIT_DS] = GDT_ENTRY(0xc093, 0, 0xfffff),
+		/* 16-bit CS: code, read/execute, 64 kB, base 0 */
+		[GDT_ENTRY_16BIT_CS] = GDT_ENTRY(0x109b, 0, 0x0ffff),
+		/* 16-bit DS: data, read/write, 64 kB, base 0 */
+		[GDT_ENTRY_16BIT_DS] = GDT_ENTRY(0x1093, 0, 0x0ffff),
+	};
+	static struct gdt_ptr gdt;
+
+	gdt.len = sizeof(boot_gdt)-1;
+	gdt.ptr = (u32)&boot_gdt;
+
+	asm volatile("lgdtl %0\n" \
+		     "movl $((2+1)*8), %%ecx\n" \
+		     "movl %%ecx, %%ds\n" \
+		     "movl %%ecx, %%es\n" \
+		     "movl %%ecx, %%fs\n" \
+		     "movl %%ecx, %%gs\n" \
+		     "movl %%ecx, %%ss" \
+		     : : "m" (gdt) : "ecx");
+}
+
+
 int cpu_init_f(void)
 {
 	/* initialize FPU, reset EM, set MP and NE */
@@ -51,6 +106,8 @@ int cpu_init_f(void)
 
 int cpu_init_r(void)
 {
+	reload_gdt();
+
 	/* Initialize core interrupt and exception functionality of CPU */
 	cpu_init_interrupts ();
 	return 0;
