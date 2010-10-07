@@ -190,18 +190,21 @@ void board_init_f (ulong gdp)
 	dest_addr  = (void *)gdp - (bss_end - text_start);
 	rel_offset = text_start - dest_addr;
 
-	/* First stage CPU initialization */
-	if (cpu_init_f() != 0)
-		hang();
+	/* Perform low-level initialization only when cold booted */
+	if (((gd_t *)gdp)->flags & GD_FLG_COLD_BOOT) {
+		/* First stage CPU initialization */
+		if (cpu_init_f() != 0)
+			hang();
 
-	/* First stage Board initialization */
-	if (board_early_init_f() != 0)
-		hang();
+		/* First stage Board initialization */
+		if (board_early_init_f() != 0)
+			hang();
+	}
 
 	/* Copy U-Boot into RAM */
 	dst_addr = (ulong *)dest_addr;
-	src_addr = (ulong *)text_start;
-	end_addr = (ulong *)data_end;
+	src_addr = (ulong *)(text_start + ((gd_t *)gdp)->load_off);
+	end_addr = (ulong *)(data_end  + ((gd_t *)gdp)->load_off);
 
 	while (src_addr < end_addr)
 		*dst_addr++ = *src_addr++;
@@ -214,8 +217,8 @@ void board_init_f (ulong gdp)
 		*dst_addr++ = 0x00000000;
 
 	/* Perform relocation adjustments */
-	re_src = (Elf32_Rel *)rel_dyn_start;
-	re_end = (Elf32_Rel *)rel_dyn_end;
+	re_src = (Elf32_Rel *)(rel_dyn_start + ((gd_t *)gdp)->load_off);
+	re_end = (Elf32_Rel *)(rel_dyn_end + ((gd_t *)gdp)->load_off);
 
 	do {
 		if (re_src->r_offset >= TEXT_BASE)

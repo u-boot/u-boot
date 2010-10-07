@@ -118,6 +118,11 @@ mem_ok:
 
 	wbinvd
 
+	/* Determine our load offset */
+	call	1f
+1:	popl	%ecx
+	subl	$1b, %ecx
+
 	/* Set the upper memory limit parameter */
 	subl	$CONFIG_SYS_STACK_SIZE, %eax
 
@@ -127,6 +132,7 @@ mem_ok:
 	/* %eax points to the global data structure */
 	movl	%esp, (GD_RAM_SIZE * 4)(%eax)
 	movl	%ebx, (GD_FLAGS * 4)(%eax)
+	movl	%ecx, (GD_LOAD_OFF * 4)(%eax)
 
 	call	board_init_f	/* Enter, U-boot! */
 

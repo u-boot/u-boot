@@ -41,6 +41,7 @@ typedef	struct {
 	unsigned long	baudrate;
 	unsigned long	have_console;	/* serial_init() was called */
 	unsigned long	reloc_off;	/* Relocation Offset */
+	unsigned long	load_off;	/* Load Offset */
 	unsigned long	env_addr;	/* Address  of Environment struct */
 	unsigned long	env_valid;	/* Checksum of Environment valid? */
 	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
@@ -56,20 +57,21 @@ extern gd_t *gd;
 #endif
 
 /* Word Offsets into Global Data - MUST match struct gd_t */
-#define GD_BD    0
-#define GD_FLAGS 1
-#define GD_BAUDRATE  2
-#define GD_HAVE_CONSOLE  3
-#define GD_RELOC_OFF 4
-#define GD_ENV_ADDR  5
-#define GD_ENV_VALID 6
-#define GD_CPU_CLK 7
-#define GD_BUS_CLK 8
-#define GD_RAM_SIZE  9
-#define GD_RESET_STATUS  10
-#define GD_JT    11
+#define GD_BD		0
+#define GD_FLAGS	1
+#define GD_BAUDRATE	2
+#define GD_HAVE_CONSOLE	3
+#define GD_RELOC_OFF	4
+#define GD_LOAD_OFF	5
+#define GD_ENV_ADDR	6
+#define GD_ENV_VALID	7
+#define GD_CPU_CLK	8
+#define GD_BUS_CLK	9
+#define GD_RAM_SIZE	10
+#define GD_RESET_STATUS	11
+#define GD_JT		12
 
-#define GD_SIZE    12
+#define GD_SIZE		13
 
 /*
  * Global Data Flags
