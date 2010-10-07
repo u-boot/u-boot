@@ -114,8 +114,8 @@ mem_ok:
 
 	/* Test the stack */
 	pushl	$0
-	popl	%eax
-	cmpl	$0, %eax
+	popl	%ecx
+	cmpl	$0, %ecx
 	jne	die
 	push	$0x55aa55aa
 	popl	%ecx
@@ -125,7 +125,6 @@ mem_ok:
 	wbinvd
 
 	/* Set the upper memory limit parameter */
-	movl	%esp, %eax
 	subl	$CONFIG_SYS_STACK_SIZE, %eax
 
 	call	board_init_f	/* Enter, U-boot! */
