@@ -27,4 +27,4 @@
 # default CCARBAR is at 0xff700000
 # assume U-Boot is less than 256K
 #
-TEXT_BASE = 0xfffc0000
+CONFIG_SYS_TEXT_BASE = 0xfffc0000

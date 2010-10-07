@@ -53,7 +53,7 @@
  * Base addresses -- Note these are effective addresses where the
  * actual resources get mapped (not physical addresses)
  *----------------------------------------------------------------------*/
-#define CONFIG_SYS_MONITOR_LEN		(~(TEXT_BASE) + 1)
+#define CONFIG_SYS_MONITOR_LEN		(~(CONFIG_SYS_TEXT_BASE) + 1)
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)	/* Reserve 256 kB for malloc()  */
 
 #define CONFIG_PRAM		0	/* use pram variable to overwrite */
@@ -61,7 +61,7 @@
 #define CONFIG_SYS_BOOT_BASE_ADDR	0xf0000000
 #define CONFIG_SYS_SDRAM_BASE		0x00000000	/* _must_ be 0          */
 #define CONFIG_SYS_FLASH_BASE		0xfc000000	/* start of FLASH       */
-#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_NAND_ADDR		0xd0000000	/* NAND Flash           */
 #define CONFIG_SYS_OCM_BASE		0xe0010000	/* ocm                  */
 #define CONFIG_SYS_OCM_DATA_ADDR	CONFIG_SYS_OCM_BASE

@@ -25,4 +25,4 @@
 # p3mx boards (P3M750 & P3M7448)
 #
 
-TEXT_BASE = 0xfff00000
+CONFIG_SYS_TEXT_BASE = 0xfff00000

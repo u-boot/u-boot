@@ -21,4 +21,4 @@
 # Picture Elements, Inc. JSE boards
 #
 
-TEXT_BASE = 0xFFF80000
+CONFIG_SYS_TEXT_BASE = 0xFFF80000

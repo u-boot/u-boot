@@ -68,7 +68,7 @@
 .endm
 
 _TEXT_BASE:
-	.word	TEXT_BASE	@ sdram load addr from config.mk
+	.word	CONFIG_SYS_TEXT_BASE	@ sdram load addr from config.mk
 _PHYS_FLASH:
 	.word	PHYS_FLASH_1    @ real flash address (without mirroring)
 _CAS_LATENCY:

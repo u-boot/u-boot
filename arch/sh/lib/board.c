@@ -89,7 +89,7 @@ static int sh_pci_init(void)
 
 static int sh_mem_env_init(void)
 {
-	mem_malloc_init(TEXT_BASE - CONFIG_SYS_GBL_DATA_SIZE -
+	mem_malloc_init(CONFIG_SYS_TEXT_BASE - CONFIG_SYS_GBL_DATA_SIZE -
 			CONFIG_SYS_MALLOC_LEN, CONFIG_SYS_MALLOC_LEN - 16);
 	env_relocate();
 	jumptable_init();

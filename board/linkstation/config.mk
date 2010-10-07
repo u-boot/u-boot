@@ -23,7 +23,7 @@
 
 # LinkStation/LinkStation-HG:
 #
-#       Valid values for TEXT_BASE are:
+#       Valid values for CONFIG_SYS_TEXT_BASE are:
 #
 #	Standard configuration - all models
 #       0xFFF00000   boot from flash
@@ -37,14 +37,14 @@
 
 sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
-ifndef TEXT_BASE
+ifndef CONFIG_SYS_TEXT_BASE
 # For flash image - all models
-TEXT_BASE = 0xFFF00000
+CONFIG_SYS_TEXT_BASE = 0xFFF00000
 # For RAM image
 # HLAN and LAN
-#TEXT_BASE = 0x03F00000
+#CONFIG_SYS_TEXT_BASE = 0x03F00000
 # HGLAN and HGTL
-#TEXT_BASE = 0x07F00000
+#CONFIG_SYS_TEXT_BASE = 0x07F00000
 endif
 
-PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE)
+PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE)

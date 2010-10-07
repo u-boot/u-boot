@@ -2248,7 +2248,7 @@ Configuration Settings:
 - CONFIG_SYS_MONITOR_BASE:
 		Physical start address of boot monitor code (set by
 		make config files to be same as the text base address
-		(TEXT_BASE) used when linking) - same as
+		(CONFIG_SYS_TEXT_BASE) used when linking) - same as
 		CONFIG_SYS_FLASH_BASE when booting from flash.
 
 - CONFIG_SYS_MONITOR_LEN:

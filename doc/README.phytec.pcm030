@@ -5,11 +5,11 @@ pcm030_RAMBOOT_config \
 pcm030_LOWBOOT_config:	unconfig
 	@ >include/config.h
 	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
-		{ echo "TEXT_BASE = 0xFF000000"	>board/phytec/pcm030/config.tmp ; \
+		{ echo "CONFIG_SYS_TEXT_BASE = 0xFF000000"	>board/phytec/pcm030/config.tmp ; \
 		  echo "... with LOWBOOT configuration" ; \
 		}
 	@[ -z "$(findstring RAMBOOT_,$@)" ] || \
-	       { echo "TEXT_BASE = 0x00100000" >board/phycore_mpc5200b_tiny/\
+	       { echo "CONFIG_SYS_TEXT_BASE = 0x00100000" >board/phycore_mpc5200b_tiny/\
 			config.tmp ; \
 		 echo "... with RAMBOOT configuration" ; \
 		 echo "... remember to make sure that MBAR is already \

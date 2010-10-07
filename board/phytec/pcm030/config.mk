@@ -24,7 +24,7 @@
 #
 # phyCORE-MPC5200B tiny board:
 #
-#	Valid values for TEXT_BASE are:
+#	Valid values for CONFIG_SYS_TEXT_BASE are:
 #
 #	0xFFF00000   boot high (standard configuration)
 #	0xFF000000   boot low
@@ -33,9 +33,10 @@
 
 sinclude $(TOPDIR)/board/$(BOARDDIR)/config.tmp
 
-ifndef TEXT_BASE
+ifndef CONFIG_SYS_TEXT_BASE
 ## Standard: boot high
-TEXT_BASE = 0xFFF00000
+CONFIG_SYS_TEXT_BASE = 0xFFF00000
 endif
 
-PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)/board
+PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
+	-I$(TOPDIR)/board

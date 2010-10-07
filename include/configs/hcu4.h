@@ -57,7 +57,7 @@
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000	/* _must_ be 0		*/
 #define CONFIG_SYS_FLASH_BASE		0xfff80000	/* start of FLASH	*/
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 
 /* ... with on-chip memory here (4KBytes) */
 #define CONFIG_SYS_OCM_DATA_ADDR 0xF4000000

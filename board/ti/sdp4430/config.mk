@@ -28,4 +28,4 @@
 # Linux-Kernel is expected to be at 8000'8000, entry 8000'8000
 # (mem base + reserved)
 
-TEXT_BASE = 0x80e80000
+CONFIG_SYS_TEXT_BASE = 0x80e80000

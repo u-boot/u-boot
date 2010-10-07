@@ -25,4 +25,4 @@
 # Lantec board (based on TQM8xxL config).
 #
 
-TEXT_BASE = 0x40000000
+CONFIG_SYS_TEXT_BASE = 0x40000000

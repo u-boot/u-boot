@@ -25,17 +25,17 @@
 #
 
 #
-# TEXT_BASE for SPL:
+# CONFIG_SYS_TEXT_BASE for SPL:
 #
 # On 440EP(x) platforms the SPL is located at 0xfffff000...0xffffffff,
 # in the last 4kBytes of memory space in cache.
 # We will copy this SPL into internal SRAM in start.S. So we set
-# TEXT_BASE to starting address in internal SRAM here.
+# CONFIG_SYS_TEXT_BASE to starting address in internal SRAM here.
 #
-TEXT_BASE = 0xE0013000
+CONFIG_SYS_TEXT_BASE = 0xE0013000
 
 # PAD_TO used to generate a 16kByte binary needed for the combined image
-# -> PAD_TO = TEXT_BASE + 0x4000
+# -> PAD_TO = CONFIG_SYS_TEXT_BASE + 0x4000
 PAD_TO	= 0xE0017000
 
 PLATFORM_CPPFLAGS += -DCONFIG_440=1

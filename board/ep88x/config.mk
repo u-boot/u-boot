@@ -24,4 +24,4 @@
 #
 # Embedded Planet EP88x boards
 #
-TEXT_BASE = 0xFC000000
+CONFIG_SYS_TEXT_BASE = 0xFC000000

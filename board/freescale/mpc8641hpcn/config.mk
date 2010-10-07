@@ -25,4 +25,4 @@
 # default CCSRBAR is at 0xff700000
 # assume U-Boot is less than 0.5MB
 #
-TEXT_BASE = 0xeff00000
+CONFIG_SYS_TEXT_BASE = 0xeff00000

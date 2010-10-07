@@ -26,4 +26,4 @@
 #
 
 #address where u-boot will be relocated
-TEXT_BASE = 0xc0f80000
+CONFIG_SYS_TEXT_BASE = 0xc0f80000

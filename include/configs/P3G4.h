@@ -198,7 +198,7 @@
 #define CONFIG_SYS_FLASH_BASE		0xff000000
 #define CONFIG_SYS_RESET_ADDRESS	0xfff00100
 #define	CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define	CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc */
 
 /* areas to map different things with the GT in physical space */

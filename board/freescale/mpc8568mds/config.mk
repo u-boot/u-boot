@@ -23,4 +23,4 @@
 #
 # mpc8568mds board
 #
-TEXT_BASE = 0xfff80000
+CONFIG_SYS_TEXT_BASE = 0xfff80000

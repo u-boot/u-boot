@@ -145,7 +145,7 @@ _start_e500:
 	beq	2b
 
 	/* Setup interrupt vectors */
-	lis	r1,TEXT_BASE@h
+	lis	r1,CONFIG_SYS_TEXT_BASE@h
 	mtspr	IVPR,r1
 
 	li	r1,0x0100
@@ -291,25 +291,25 @@ _start_e500:
 	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_4M)@h
 	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_4M)@l
 
-	lis     r8,FSL_BOOKE_MAS2(TEXT_BASE & 0xffc00000, (MAS2_I|MAS2_G))@h
-	ori     r8,r8,FSL_BOOKE_MAS2(TEXT_BASE & 0xffc00000, (MAS2_I|MAS2_G))@l
+	lis     r8,FSL_BOOKE_MAS2(CONFIG_SYS_TEXT_BASE & 0xffc00000, (MAS2_I|MAS2_G))@h
+	ori     r8,r8,FSL_BOOKE_MAS2(CONFIG_SYS_TEXT_BASE & 0xffc00000, (MAS2_I|MAS2_G))@l
 
 	/* The 85xx has the default boot window 0xff800000 - 0xffffffff */
 	lis     r9,FSL_BOOKE_MAS3(0xffc00000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
 	ori     r9,r9,FSL_BOOKE_MAS3(0xffc00000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
 #else
 	/*
-	 * create a temp mapping in AS=1 to the 1M TEXT_BASE space, the main
-	 * image has been relocated to TEXT_BASE on the second stage.
+	 * create a temp mapping in AS=1 to the 1M CONFIG_SYS_TEXT_BASE space, the main
+	 * image has been relocated to CONFIG_SYS_TEXT_BASE on the second stage.
 	 */
 	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_1M)@h
 	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_1M)@l
 
-	lis     r8,FSL_BOOKE_MAS2(TEXT_BASE, (MAS2_I|MAS2_G))@h
-	ori     r8,r8,FSL_BOOKE_MAS2(TEXT_BASE, (MAS2_I|MAS2_G))@l
+	lis     r8,FSL_BOOKE_MAS2(CONFIG_SYS_TEXT_BASE, (MAS2_I|MAS2_G))@h
+	ori     r8,r8,FSL_BOOKE_MAS2(CONFIG_SYS_TEXT_BASE, (MAS2_I|MAS2_G))@l
 
-	lis     r9,FSL_BOOKE_MAS3(TEXT_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
-	ori     r9,r9,FSL_BOOKE_MAS3(TEXT_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
+	lis     r9,FSL_BOOKE_MAS3(CONFIG_SYS_TEXT_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
+	ori     r9,r9,FSL_BOOKE_MAS3(CONFIG_SYS_TEXT_BASE, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
 #endif
 
 	mtspr   MAS0,r6

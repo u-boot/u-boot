@@ -122,7 +122,7 @@ void board_init (void)
 	puts ("SDRAM :\n");
 	printf ("\t\tIcache:%s\n", icache_status() ? "ON" : "OFF");
 	printf ("\t\tDcache:%s\n", dcache_status() ? "ON" : "OFF");
-	printf ("\tU-Boot Start:0x%08x\n", TEXT_BASE);
+	printf ("\tU-Boot Start:0x%08x\n", CONFIG_SYS_TEXT_BASE);
 
 #if defined(CONFIG_CMD_FLASH)
 	puts ("FLASH: ");

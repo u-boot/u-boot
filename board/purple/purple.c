@@ -222,10 +222,10 @@ static void programLoad(void)
 	FUNCPTR absEntry;
 	ulong *src,*dst;
 
-	src = (ulong *)(TEXT_BASE + 0x428);
+	src = (ulong *)(CONFIG_SYS_TEXT_BASE + 0x428);
 	dst = (ulong *)0xbf0081d0;
 
-	absEntry = (FUNCPTR)(TEXT_BASE + 0x400);
+	absEntry = (FUNCPTR)(CONFIG_SYS_TEXT_BASE + 0x400);
 	absEntry(src,dst,0x6);
 
 	src = (ulong *)((ulong)copydwords & 0xfffffff8);

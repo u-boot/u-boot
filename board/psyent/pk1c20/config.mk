@@ -21,7 +21,7 @@
 # MA 02111-1307 USA
 #
 
-TEXT_BASE = 0x01fc0000
+CONFIG_SYS_TEXT_BASE = 0x01fc0000
 
 PLATFORM_CPPFLAGS += -mno-hw-div -mno-hw-mul
 PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/$(VENDOR)/include

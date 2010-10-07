@@ -169,7 +169,7 @@
 	"rootpath=/opt/eldk/ppc_6xx\0"					\
 	"bootfile=/tftpboot/" CONFIG_SYS__BOARDNAME "/uImage\0"		\
 	"load=tftp 200000 /tftpboot/" CONFIG_SYS__BOARDNAME "/u-boot.bin\0"	\
-	"text_base=" MK_STR(TEXT_BASE) "\0"				\
+	"text_base=" MK_STR(CONFIG_SYS_TEXT_BASE) "\0"				\
 	"kernel_addr=0xFC0C0000\0"					\
 	"update=protect off ${text_base} +${filesize};"			\
 		"era ${text_base} +${filesize};"			\
@@ -239,7 +239,7 @@
 
 #define CONFIG_ENV_OVERWRITE	1	/* allow modification of vendor params */
 
-#if TEXT_BASE == CONFIG_SYS_FLASH_BASE
+#if CONFIG_SYS_TEXT_BASE == CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_LOWBOOT	1
 #endif
 
@@ -259,7 +259,7 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

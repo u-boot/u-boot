@@ -26,7 +26,7 @@ boot loader delivered with board.
 
 NOTE! When you switch between the two boot flashes, the
 base addresses will be swapped.
-Have this in mind when you compile u-boot. TEXT_BASE has
+Have this in mind when you compile u-boot. CONFIG_SYS_TEXT_BASE has
 to match the address where u-boot is located when you
 actually launch.
 

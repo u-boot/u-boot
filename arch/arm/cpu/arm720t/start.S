@@ -77,7 +77,7 @@ _fiq:			.word fiq
 
 .globl _TEXT_BASE
 _TEXT_BASE:
-	.word	TEXT_BASE
+	.word	CONFIG_SYS_TEXT_BASE
 
 #if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 .globl _armboot_start
@@ -298,11 +298,11 @@ relocate:				/* relocate U-Boot to RAM	    */
 	cmp	r0, r1			/* don't reloc during debug	    */
 	beq	stack_setup
 
-#if TEXT_BASE
+#if CONFIG_SYS_TEXT_BASE
 #ifndef CONFIG_LPC2292 /* already done in lowlevel_init */
 	ldr	r2, =0x0		/* Relocate the exception vectors   */
 	cmp	r1, r2			/* and associated data to address   */
-	ldmneia r0!, {r3-r10}		/* 0x0. Do nothing if TEXT_BASE is  */
+	ldmneia r0!, {r3-r10}		/* 0x0. Do nothing if CONFIG_SYS_TEXT_BASE is  */
 	stmneia r2!, {r3-r10}		/* 0x0. Copy the first 15 words.    */
 	ldmneia r0, {r3-r9}
 	stmneia r2, {r3-r9}
@@ -755,7 +755,7 @@ reset_cpu:
 	ldr	r0, [r1, #+NETARM_MEM_CS0_BASE_ADDR]
 	ldr	r1, =0xFFFFF000
 	and	r0, r1, r0
-	ldr	r1, =(relocate-TEXT_BASE)
+	ldr	r1, =(relocate-CONFIG_SYS_TEXT_BASE)
 	add	r0, r1, r0
 	ldr	r4, =NETARM_GEN_MODULE_BASE
 	ldr	r1, =NETARM_GEN_SW_SVC_RESETA

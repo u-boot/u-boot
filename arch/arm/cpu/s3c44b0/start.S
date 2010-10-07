@@ -65,7 +65,7 @@ _start:	b       reset
 
 .globl _TEXT_BASE
 _TEXT_BASE:
-	.word	TEXT_BASE
+	.word	CONFIG_SYS_TEXT_BASE
 
 #if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 .globl _armboot_start

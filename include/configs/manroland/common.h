@@ -106,11 +106,11 @@
 	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.bin \0" 		\
 	"u-boot_addr_r=200000\0"					\
 	"load=tftp ${u-boot_addr_r} ${u-boot}\0"			\
-	"update=protect off " xstr(TEXT_BASE) " +${filesize};"		\
-		"erase " xstr(TEXT_BASE) " +${filesize};"		\
-		"cp.b ${u-boot_addr_r} " xstr(TEXT_BASE) 		\
+	"update=protect off " xstr(CONFIG_SYS_TEXT_BASE) " +${filesize};"		\
+		"erase " xstr(CONFIG_SYS_TEXT_BASE) " +${filesize};"		\
+		"cp.b ${u-boot_addr_r} " xstr(CONFIG_SYS_TEXT_BASE) 		\
 		" ${filesize};"						\
-		"protect on " xstr(TEXT_BASE) " +${filesize}\0"		\
+		"protect on " xstr(CONFIG_SYS_TEXT_BASE) " +${filesize}\0"		\
 	""
 
 #define CONFIG_BOOTCOMMAND	"run net_nfs"

@@ -327,7 +327,7 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	200000	/* Timeout for Flash Erase (in ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	50000	/* Timeout for Flash Write (in ms) */
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE /* start of monitor	*/
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE /* start of monitor	*/
 
 #if 0
 /* XXX This doesn't work and I don't want to fix it */

@@ -25,4 +25,4 @@
 # FLASH base address for GEN860T board
 #
 
-TEXT_BASE = 0x40000000
+CONFIG_SYS_TEXT_BASE = 0x40000000

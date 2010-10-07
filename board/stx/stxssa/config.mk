@@ -27,4 +27,4 @@
 # U-Boot is less than 256K, so push
 # it further up into the flash
 #
-TEXT_BASE = 0xFFFC0000
+CONFIG_SYS_TEXT_BASE = 0xFFFC0000

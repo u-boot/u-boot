@@ -169,7 +169,7 @@
 #else
 #define	CONFIG_SYS_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/
 #endif
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define	CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
 /*
@@ -189,7 +189,7 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define	CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_ADDR		((TEXT_BASE) + 0x40000)
+#define CONFIG_ENV_ADDR		((CONFIG_SYS_TEXT_BASE) + 0x40000)
 #define	CONFIG_ENV_SECT_SIZE	0x40000		/* Total Size of Environment Sector	*/
 #define	CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE	/* Used size for environment	*/
 

@@ -23,4 +23,4 @@
 
 # Note: I make an "image" from U-Boot itself, which prefixes 0x40 bytes of
 # header info, hence start address is thus shifted.
-TEXT_BASE = 0xFFFD0040
+CONFIG_SYS_TEXT_BASE = 0xFFFD0040

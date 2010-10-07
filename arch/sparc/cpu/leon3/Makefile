@@ -44,8 +44,9 @@ $(LIB):	$(OBJS)
 include $(SRCTREE)/rules.mk
 
 $(START): $(START:.o=.S)
-	$(CC) -D__ASSEMBLY__ $(DBGFLAGS) $(OPTFLAGS) -D__KERNEL__ -DTEXT_BASE=$(TEXT_BASE) \
-	-I$(TOPDIR)/include -fno-builtin -ffreestanding -nostdinc -isystem $(gccincdir) -pipe \
+	$(CC) -D__ASSEMBLY__ $(DBGFLAGS) $(OPTFLAGS) -D__KERNEL__ \
+	-DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) -I$(TOPDIR)/include \
+	-fno-builtin -ffreestanding -nostdinc -isystem $(gccincdir) -pipe \
 	$(PLATFORM_CPPFLAGS) -Wall -Wstrict-prototypes \
 	-I$(TOPDIR)/board -c -o $(START) $(START:.o=.S)
 

@@ -102,10 +102,10 @@
 #define CONFIG_CMD_PCI
 
 
-#if (TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */
+#if (CONFIG_SYS_TEXT_BASE == 0xFF000000)		/* Boot low with 16 MB Flash */
 #   define CONFIG_SYS_LOWBOOT		1
 #else
-#   error "TEXT_BASE must be 0xFF000000"
+#   error "CONFIG_SYS_TEXT_BASE must be 0xFF000000"
 #endif
 
 /*
@@ -222,7 +222,7 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */

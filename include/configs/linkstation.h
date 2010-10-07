@@ -217,7 +217,7 @@
 
 #define CONFIG_SYS_FLASH_BASE		0xFFC00000
 #define CONFIG_SYS_FLASH_SIZE		0x00400000
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 
 #define CONFIG_SYS_RESET_ADDRESS	0xFFF00100
 #define CONFIG_SYS_EUMB_ADDR		0x80000000
@@ -240,7 +240,7 @@
 #endif
 
 /*-----------------------------------------------------------------------
- * Change TEXT_BASE in bord/linkstation/config.mk to get a RAM build
+ * Change CONFIG_SYS_TEXT_BASE in bord/linkstation/config.mk to get a RAM build
  *
  * RAM based builds are for testing purposes. A Linux module, uloader.o,
  * exists to load U-Boot and pass control to it

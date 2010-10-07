@@ -229,7 +229,7 @@
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ 0xFF800000 }
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max number of memory banks	      */
 /* What should the base address of the main FLASH be and how big is
- * it (in MBytes)? This must contain TEXT_BASE from board/ids8247/config.mk
+ * it (in MBytes)? This must contain CONFIG_SYS_TEXT_BASE from board/ids8247/config.mk
  * The main FLASH is whichever is connected to *CS0.
  */
 #define CONFIG_SYS_FLASH0_BASE 0xFFF00000
@@ -305,7 +305,7 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_FLASH0_BASE
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
 #define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()*/
 

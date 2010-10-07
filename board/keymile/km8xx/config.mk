@@ -25,4 +25,4 @@
 # mgsvud boards
 #
 
-TEXT_BASE = 0xf0000000
+CONFIG_SYS_TEXT_BASE = 0xf0000000

@@ -157,7 +157,7 @@
 /*
  * The reserved memory
  */
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE /* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE /* start of monitor */
 #define CONFIG_SYS_FLASH_BASE		0xF0000000
 #define CONFIG_SYS_PIGGY_BASE		0xE8000000
 #define	CONFIG_SYS_PIGGY_SIZE		128

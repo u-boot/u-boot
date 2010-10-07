@@ -23,4 +23,4 @@
 # image should be loaded at 0x01000000
 #
 
-TEXT_BASE = 0x03F80000
+CONFIG_SYS_TEXT_BASE = 0x03F80000

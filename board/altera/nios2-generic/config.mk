@@ -22,7 +22,7 @@
 #
 
 # we get text_base from board config header, so do not use this
-#TEXT_BASE = do-not-use-me
+#CONFIG_SYS_TEXT_BASE = do-not-use-me
 
 PLATFORM_CPPFLAGS += -mno-hw-div -mno-hw-mul
 PLATFORM_CPPFLAGS += -I$(TOPDIR)/board/$(VENDOR)/include

@@ -39,7 +39,7 @@ DRAM_SIZE:  .long   CONFIG_SYS_DRAM_SIZE
    .endm
 
 _TEXT_BASE:
-	.word	TEXT_BASE
+	.word	CONFIG_SYS_TEXT_BASE
 
 
 /*

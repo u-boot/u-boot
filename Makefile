@@ -330,18 +330,18 @@ $(obj)u-boot.ldr.srec:	$(obj)u-boot.ldr
 
 $(obj)u-boot.img:	$(obj)u-boot.bin
 		$(obj)tools/mkimage -A $(ARCH) -T firmware -C none \
-		-a $(TEXT_BASE) -e 0 \
+		-a $(CONFIG_SYS_TEXT_BASE) -e 0 \
 		-n $(shell sed -n -e 's/.*U_BOOT_VERSION//p' $(VERSION_FILE) | \
 			sed -e 's/"[	 ]*$$/ for $(BOARD) board"/') \
 		-d $< $@
 
 $(obj)u-boot.imx:       $(obj)u-boot.bin
 		$(obj)tools/mkimage -n $(IMX_CONFIG) -T imximage \
-		-e $(TEXT_BASE) -d $< $@
+		-e $(CONFIG_SYS_TEXT_BASE) -d $< $@
 
 $(obj)u-boot.kwb:       $(obj)u-boot.bin
 		$(obj)tools/mkimage -n $(KWD_CONFIG) -T kwbimage \
-		-a $(TEXT_BASE) -e $(TEXT_BASE) -d $< $@
+		-a $(CONFIG_SYS_TEXT_BASE) -e $(TEXT_BASE) -d $< $@
 
 $(obj)u-boot.sha1:	$(obj)u-boot.bin
 		$(obj)tools/ubsha1 $(obj)u-boot.bin
@@ -518,9 +518,9 @@ digsy_mtc_RAMBOOT_config:	unconfig
 	@mkdir -p $(obj)board/digsy_mtc
 	@ >$(obj)include/config.h
 	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
-		echo "TEXT_BASE = 0xFF000000" >$(obj)board/digsy_mtc/config.tmp
+		echo "CONFIG_SYS_TEXT_BASE = 0xFF000000" >$(obj)board/digsy_mtc/config.tmp
 	@[ -z "$(findstring RAMBOOT_,$@)" ] || \
-		echo "TEXT_BASE = 0x00100000" >$(obj)board/digsy_mtc/config.tmp
+		echo "CONFIG_SYS_TEXT_BASE = 0x00100000" >$(obj)board/digsy_mtc/config.tmp
 	@$(MKCONFIG) -n $@ -a digsy_mtc powerpc mpc5xxx digsy_mtc
 
 galaxy5200_LOWBOOT_config \
@@ -542,11 +542,11 @@ icecube_5200_DDR_LOWBOOT08_config:	unconfig
 	@mkdir -p $(obj)board/icecube
 	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
 		if [ "$(findstring DDR,$@)" ] ; \
-			then echo "TEXT_BASE = 0xFF800000" >$(obj)board/icecube/config.tmp ; \
-			else echo "TEXT_BASE = 0xFF000000" >$(obj)board/icecube/config.tmp ; \
+			then echo "CONFIG_SYS_TEXT_BASE = 0xFF800000" >$(obj)board/icecube/config.tmp ; \
+			else echo "CONFIG_SYS_TEXT_BASE = 0xFF000000" >$(obj)board/icecube/config.tmp ; \
 		fi
 	@[ -z "$(findstring LOWBOOT08,$@)" ] || \
-		echo "TEXT_BASE = 0xFF800000" >$(obj)board/icecube/config.tmp
+		echo "CONFIG_SYS_TEXT_BASE = 0xFF800000" >$(obj)board/icecube/config.tmp
 	@[ -z "$(findstring DDR,$@)" ] || \
 		echo "#define CONFIG_MPC5200_DDR" >>$(obj)include/config.h
 	@$(MKCONFIG) -n $@ -a IceCube powerpc mpc5xxx icecube
@@ -561,7 +561,7 @@ lite5200b_LOWBOOT_config:	unconfig
 	@[ -z "$(findstring _PM_,$@)" ] || \
 		echo "#define CONFIG_LITE5200B_PM" >>$(obj)include/config.h
 	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
-		echo "TEXT_BASE = 0xFF000000" >$(obj)board/icecube/config.tmp
+		echo "CONFIG_SYS_TEXT_BASE = 0xFF000000" >$(obj)board/icecube/config.tmp
 	@$(MKCONFIG) -n $@ -a IceCube  powerpc mpc5xxx icecube
 
 mcc200_config	\
@@ -579,7 +579,7 @@ prs200_highboot_DDR_config:	unconfig
 	@mkdir -p $(obj)include
 	@mkdir -p $(obj)board/mcc200
 	@[ -z "$(findstring highboot,$@)" ] || \
-		echo "TEXT_BASE = 0xFFF00000" >$(obj)board/mcc200/config.tmp
+		echo "CONFIG_SYS_TEXT_BASE = 0xFFF00000" >$(obj)board/mcc200/config.tmp
 	@[ -n "$(findstring _SDRAM,$@)" ] || \
 		if [ -n "$(findstring prs200,$@)" ]; \
 		then \
@@ -614,7 +614,7 @@ pcm030_LOWBOOT_config:	unconfig
 	@mkdir -p $(obj)include $(obj)board/phytec/pcm030
 	@ >$(obj)include/config.h
 	@[ -z "$(findstring LOWBOOT_,$@)" ] || \
-		echo "TEXT_BASE = 0xFF000000" >$(obj)board/phytec/pcm030/config.tmp
+		echo "CONFIG_SYS_TEXT_BASE = 0xFF000000" >$(obj)board/phytec/pcm030/config.tmp
 	@$(MKCONFIG) -n $@ -a pcm030 powerpc mpc5xxx pcm030 phytec
 
 PM520_config \
@@ -653,7 +653,7 @@ Total5200_Rev2_lowboot_config:	unconfig
 	@[ -z "$(findstring Rev2_,$@)" ] || \
 		echo "#define CONFIG_TOTAL5200_REV 2" >>$(obj)include/config.h
 	@[ -z "$(findstring lowboot_,$@)" ] || \
-		echo "TEXT_BASE = 0xFE000000" >$(obj)board/total5200/config.tmp
+		echo "CONFIG_SYS_TEXT_BASE = 0xFE000000" >$(obj)board/total5200/config.tmp
 	@$(MKCONFIG) -n $@ -a Total5200 powerpc mpc5xxx total5200
 
 cam5200_config \
@@ -688,7 +688,7 @@ TQM5200_STK100_config:	unconfig
 		  echo "#define CONFIG_TQM5200_B" >>$(obj)include/config.h ; \
 		}
 	@[ -z "$(findstring HIGHBOOT,$@)" ] || \
-		echo "TEXT_BASE = 0xFFF00000" >$(obj)board/tqm5200/config.tmp
+		echo "CONFIG_SYS_TEXT_BASE = 0xFFF00000" >$(obj)board/tqm5200/config.tmp
 	@$(MKCONFIG) -n $@ -a TQM5200 powerpc mpc5xxx tqm5200 tqc
 
 #########################################################################
@@ -921,7 +921,7 @@ acadia_nand_config:	unconfig
 	@mkdir -p $(obj)include $(obj)board/amcc/acadia
 	@mkdir -p $(obj)nand_spl/board/amcc/acadia
 	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
-	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/acadia/config.tmp
+	@echo "CONFIG_SYS_TEXT_BASE = 0x01000000" > $(obj)board/amcc/acadia/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 	@$(MKCONFIG) -n $@ -a acadia powerpc ppc4xx acadia amcc
 
@@ -929,7 +929,7 @@ bamboo_nand_config:	unconfig
 	@mkdir -p $(obj)include $(obj)board/amcc/bamboo
 	@mkdir -p $(obj)nand_spl/board/amcc/bamboo
 	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
-	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/bamboo/config.tmp
+	@echo "CONFIG_SYS_TEXT_BASE = 0x01000000" > $(obj)board/amcc/bamboo/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 	@$(MKCONFIG) -n $@ -a bamboo powerpc ppc4xx bamboo amcc
 
@@ -949,7 +949,7 @@ glacier_nand_config:	unconfig
 	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
 	@echo "#define CONFIG_$$(echo $(subst ,,$(@:_nand_config=)) | \
 		tr '[:lower:]' '[:upper:]')" >> $(obj)include/config.h
-	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/canyonlands/config.tmp
+	@echo "CONFIG_SYS_TEXT_BASE = 0x01000000" > $(obj)board/amcc/canyonlands/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 	@$(MKCONFIG) -n $@ -a canyonlands powerpc ppc4xx canyonlands amcc
 
@@ -977,7 +977,7 @@ fx12mm_flash_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/avnet/fx12mm
 	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc405-generic/u-boot-rom.lds"\
 		> $(obj)board/avnet/fx12mm/config.tmp
-	@echo "TEXT_BASE := 0xFFCB0000" \
+	@echo "CONFIG_SYS_TEXT_BASE := 0xFFCB0000" \
 		>> $(obj)board/avnet/fx12mm/config.tmp
 	@$(MKCONFIG) fx12mm powerpc ppc4xx fx12mm avnet
 
@@ -986,7 +986,7 @@ fx12mm_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/avnet/fx12mm
 	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc405-generic/u-boot-ram.lds"\
 		> $(obj)board/avnet/fx12mm/config.tmp
-	@echo "TEXT_BASE := 0x03000000" \
+	@echo "CONFIG_SYS_TEXT_BASE := 0x03000000" \
 		>> $(obj)board/avnet/fx12mm/config.tmp
 	@$(MKCONFIG) fx12mm powerpc ppc4xx fx12mm avnet
 
@@ -1014,7 +1014,7 @@ haleakala_nand_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/amcc/kilauea
 	@mkdir -p $(obj)nand_spl/board/amcc/kilauea
 	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
-	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/kilauea/config.tmp
+	@echo "CONFIG_SYS_TEXT_BASE = 0x01000000" > $(obj)board/amcc/kilauea/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 	@$(MKCONFIG) -n $@ -a kilauea powerpc ppc4xx kilauea amcc
 
@@ -1029,7 +1029,7 @@ ml507_flash_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ml507
 	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-rom.lds"\
 		> $(obj)board/xilinx/ml507/config.tmp
-	@echo "TEXT_BASE := 0xFE360000" \
+	@echo "CONFIG_SYS_TEXT_BASE := 0xFE360000" \
 		>> $(obj)board/xilinx/ml507/config.tmp
 	@$(MKCONFIG) ml507 powerpc ppc4xx ml507 xilinx
 
@@ -1038,7 +1038,7 @@ ml507_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ml507
 	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-ram.lds"\
 		> $(obj)board/xilinx/ml507/config.tmp
-	@echo "TEXT_BASE := 0x04000000"  \
+	@echo "CONFIG_SYS_TEXT_BASE := 0x04000000"  \
 		>> $(obj)board/xilinx/ml507/config.tmp
 	@$(MKCONFIG) $@ powerpc ppc4xx ml507 xilinx
 
@@ -1080,7 +1080,7 @@ rainier_nand_config: unconfig
 	@echo "#define CONFIG_NAND_U_BOOT" > $(obj)include/config.h
 	@echo "#define CONFIG_$$(echo $(subst ,,$(@:_config=)) | \
 		tr '[:lower:]' '[:upper:]')" >> $(obj)include/config.h
-	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
+	@echo "CONFIG_SYS_TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 	@$(MKCONFIG) -n $@ -a sequoia powerpc ppc4xx sequoia amcc
 
@@ -1090,7 +1090,7 @@ rainier_ramboot_config: unconfig
 	@echo "#define CONFIG_SYS_RAMBOOT" > $(obj)include/config.h
 	@echo "#define CONFIG_$$(echo $(subst ,,$(@:_config=)) | \
 		tr '[:lower:]' '[:upper:]')" >> $(obj)include/config.h
-	@echo "TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
+	@echo "CONFIG_SYS_TEXT_BASE = 0x01000000" > $(obj)board/amcc/sequoia/config.tmp
 	@echo "LDSCRIPT = board/amcc/sequoia/u-boot-ram.lds" >> \
 		$(obj)board/amcc/sequoia/config.tmp
 	@$(MKCONFIG) -n $@ -a sequoia powerpc ppc4xx sequoia amcc
@@ -1100,7 +1100,7 @@ v5fx30teval_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/avnet/v5fx30teval
 	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-ram.lds"\
 		> $(obj)board/avnet/v5fx30teval/config.tmp
-	@echo "TEXT_BASE := 0x03000000" \
+	@echo "CONFIG_SYS_TEXT_BASE := 0x03000000" \
 		>> $(obj)board/avnet/v5fx30teval/config.tmp
 	@$(MKCONFIG) $@ powerpc ppc4xx v5fx30teval avnet
 
@@ -1109,7 +1109,7 @@ v5fx30teval_flash_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/avnet/v5fx30teval
 	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-rom.lds"\
 		> $(obj)board/avnet/v5fx30teval/config.tmp
-	@echo "TEXT_BASE := 0xFF1C0000" \
+	@echo "CONFIG_SYS_TEXT_BASE := 0xFF1C0000" \
 		>> $(obj)board/avnet/v5fx30teval/config.tmp
 	@$(MKCONFIG) v5fx30teval powerpc ppc4xx v5fx30teval avnet
 
@@ -1126,7 +1126,7 @@ xilinx-ppc405-generic_flash_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ppc405-generic
 	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc405-generic/u-boot-rom.lds"\
 		> $(obj)board/xilinx/ppc405-generic/config.tmp
-	@echo "TEXT_BASE := 0xFE360000" \
+	@echo "CONFIG_SYS_TEXT_BASE := 0xFE360000" \
 		>> $(obj)board/xilinx/ppc405-generic/config.tmp
 	@$(MKCONFIG) xilinx-ppc405-generic powerpc ppc4xx ppc405-generic xilinx
 
@@ -1134,7 +1134,7 @@ xilinx-ppc405-generic_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ppc405-generic
 	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc405-generic/u-boot-ram.lds"\
 		> $(obj)board/xilinx/ppc405-generic/config.tmp
-	@echo "TEXT_BASE := 0x04000000" \
+	@echo "CONFIG_SYS_TEXT_BASE := 0x04000000" \
 		>> $(obj)board/xilinx/ppc405-generic/config.tmp
 	@$(MKCONFIG) xilinx-ppc405-generic powerpc ppc4xx ppc405-generic xilinx
 
@@ -1142,7 +1142,7 @@ xilinx-ppc440-generic_flash_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
 	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-rom.lds"\
 		> $(obj)board/xilinx/ppc440-generic/config.tmp
-	@echo "TEXT_BASE := 0xFE360000" \
+	@echo "CONFIG_SYS_TEXT_BASE := 0xFE360000" \
 		>> $(obj)board/xilinx/ppc440-generic/config.tmp
 	@$(MKCONFIG) xilinx-ppc440-generic powerpc ppc4xx ppc440-generic xilinx
 
@@ -1150,7 +1150,7 @@ xilinx-ppc440-generic_config: unconfig
 	@mkdir -p $(obj)include $(obj)board/xilinx/ppc440-generic
 	@echo "LDSCRIPT:=$(SRCTREE)/board/xilinx/ppc440-generic/u-boot-ram.lds"\
 		> $(obj)board/xilinx/ppc440-generic/config.tmp
-	@echo "TEXT_BASE := 0x04000000" \
+	@echo "CONFIG_SYS_TEXT_BASE := 0x04000000" \
 		>> $(obj)board/xilinx/ppc440-generic/config.tmp
 	@$(MKCONFIG) xilinx-ppc440-generic powerpc ppc4xx ppc440-generic xilinx
 
@@ -1265,7 +1265,7 @@ PQ2FADS-ZU_66MHz_lowboot_config	\
 	$(if $(findstring VR,$@), \
 	@echo "#define CONFIG_8260_CLKIN 66000000" >> $(obj)include/config.h))
 	@[ -z "$(findstring lowboot_,$@)" ] || \
-		echo "TEXT_BASE = 0xFF800000" >$(obj)board/freescale/mpc8260ads/config.tmp
+		echo "CONFIG_SYS_TEXT_BASE = 0xFF800000" >$(obj)board/freescale/mpc8260ads/config.tmp
 	@$(MKCONFIG) -n $@ -a MPC8260ADS powerpc mpc8260 mpc8260ads freescale
 
 muas3001_dev_config \
@@ -1295,7 +1295,7 @@ PM826_ROMBOOT_BIGFLASH_config:	unconfig
 	fi
 	@if [ "$(findstring _ROMBOOT_,$@)" ] ; then \
 		echo "#define CONFIG_BOOT_ROM" >>$(obj)include/config.h ; \
-		echo "TEXT_BASE = 0xFF800000" >$(obj)board/pm826/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0xFF800000" >$(obj)board/pm826/config.tmp ; \
 		if [ "$(findstring _BIGFLASH_,$@)" ] ; then \
 			echo "#define CONFIG_FLASH_32MB" >>$(obj)include/config.h ; \
 		fi; \
@@ -1303,9 +1303,9 @@ PM826_ROMBOOT_BIGFLASH_config:	unconfig
 		if [ "$(findstring _BIGFLASH_,$@)" ] ; then \
 			$(XECHO) "... with 32 MB Flash" ; \
 			echo "#define CONFIG_FLASH_32MB" >>$(obj)include/config.h ; \
-			echo "TEXT_BASE = 0x40000000" >$(obj)board/pm826/config.tmp ; \
+			echo "CONFIG_SYS_TEXT_BASE = 0x40000000" >$(obj)board/pm826/config.tmp ; \
 		else \
-			echo "TEXT_BASE = 0xFF000000" >$(obj)board/pm826/config.tmp ; \
+			echo "CONFIG_SYS_TEXT_BASE = 0xFF000000" >$(obj)board/pm826/config.tmp ; \
 		fi; \
 	fi
 	@$(MKCONFIG) -n $@ -a PM826 powerpc mpc8260 pm826
@@ -1321,7 +1321,7 @@ PM828_ROMBOOT_PCI_config:	unconfig
 	fi
 	@if [ "$(findstring _ROMBOOT_,$@)" ] ; then \
 		echo "#define CONFIG_BOOT_ROM" >>$(obj)include/config.h ; \
-		echo "TEXT_BASE = 0xFF800000" >$(obj)board/pm826/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0xFF800000" >$(obj)board/pm826/config.tmp ; \
 	fi
 	@$(MKCONFIG) -n $@ -a PM828 powerpc mpc8260 pm828
 
@@ -1397,13 +1397,13 @@ M52277EVB_stmicro_config :	unconfig
 	esac; \
 	if [ "$${FLASH}" = "SPANSION" ] ; then \
 		echo "#define CONFIG_SYS_SPANSION_BOOT"	>> $(obj)include/config.h ; \
-		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m52277evb/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0x00000000" > $(obj)board/freescale/m52277evb/config.tmp ; \
 		cp $(obj)board/freescale/m52277evb/u-boot.spa $(obj)board/freescale/m52277evb/u-boot.lds ; \
 	fi; \
 	if [ "$${FLASH}" = "STMICRO" ] ; then \
 		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \
 		echo "#define CONFIG_SYS_STMICRO_BOOT"	>> $(obj)include/config.h ; \
-		echo "TEXT_BASE = 0x43E00000" > $(obj)board/freescale/m52277evb/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0x43E00000" > $(obj)board/freescale/m52277evb/config.tmp ; \
 		cp $(obj)board/freescale/m52277evb/u-boot.stm $(obj)board/freescale/m52277evb/u-boot.lds ; \
 	fi
 	@$(MKCONFIG) -n $@ -a M52277EVB m68k mcf5227x m52277evb freescale
@@ -1418,10 +1418,10 @@ M5235EVB_Flash32_config:	unconfig
 	esac; \
 	if [ "$${FLASH}" != "16" ] ; then \
 		echo "#define NORFLASH_PS32BIT	1" >> $(obj)include/config.h ; \
-		echo "TEXT_BASE = 0xFFC00000" > $(obj)board/freescale/m5235evb/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0xFFC00000" > $(obj)board/freescale/m5235evb/config.tmp ; \
 		cp $(obj)board/freescale/m5235evb/u-boot.32 $(obj)board/freescale/m5235evb/u-boot.lds ; \
 	else \
-		echo "TEXT_BASE = 0xFFE00000" > $(obj)board/freescale/m5235evb/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0xFFE00000" > $(obj)board/freescale/m5235evb/config.tmp ; \
 		cp $(obj)board/freescale/m5235evb/u-boot.16 $(obj)board/freescale/m5235evb/u-boot.lds ; \
 	fi
 	@$(MKCONFIG) -n $@ -a M5235EVB m68k mcf523x m5235evb freescale
@@ -1432,13 +1432,13 @@ cobra5272_config :		unconfig
 EB+MCF-EV123_config :		unconfig
 	@mkdir -p $(obj)include
 	@mkdir -p $(obj)board/BuS/EB+MCF-EV123
-	@echo "TEXT_BASE = 0xFFE00000"|tee $(obj)board/BuS/EB+MCF-EV123/textbase.mk
+	@echo "CONFIG_SYS_TEXT_BASE = 0xFFE00000"|tee $(obj)board/BuS/EB+MCF-EV123/textbase.mk
 	@$(MKCONFIG) -n $@ EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
 
 EB+MCF-EV123_internal_config :	unconfig
 	@mkdir -p $(obj)include
 	@mkdir -p $(obj)board/BuS/EB+MCF-EV123
-	@echo "TEXT_BASE = 0xF0000000"|tee $(obj)board/BuS/EB+MCF-EV123/textbase.mk
+	@echo "CONFIG_SYS_TEXT_BASE = 0xF0000000"|tee $(obj)board/BuS/EB+MCF-EV123/textbase.mk
 	@$(MKCONFIG) -n $@ EB+MCF-EV123 m68k mcf52x2 EB+MCF-EV123 BuS
 
 M5329AFEE_config \
@@ -1468,13 +1468,13 @@ M54451EVB_stmicro_config :	unconfig
 	M54451EVB_stmicro_config)	FLASH=STMICRO;; \
 	esac; \
 	if [ "$${FLASH}" = "NOR" ] ; then \
-		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54451evb/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54451evb/config.tmp ; \
 		cp $(obj)board/freescale/m54451evb/u-boot.spa $(obj)board/freescale/m54451evb/u-boot.lds ; \
 	fi; \
 	if [ "$${FLASH}" = "STMICRO" ] ; then \
 		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \
 		echo "#define CONFIG_SYS_STMICRO_BOOT"	>> $(obj)include/config.h ; \
-		echo "TEXT_BASE = 0x47E00000" > $(obj)board/freescale/m54451evb/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0x47E00000" > $(obj)board/freescale/m54451evb/config.tmp ; \
 		cp $(obj)board/freescale/m54451evb/u-boot.stm $(obj)board/freescale/m54451evb/u-boot.lds ; \
 	fi; \
 	echo "#define CONFIG_SYS_INPUT_CLKSRC 24000000" >> $(obj)include/config.h ;
@@ -1500,18 +1500,18 @@ M54455EVB_stm33_config :	unconfig
 	esac; \
 	if [ "$${FLASH}" = "INTEL" ] ; then \
 		echo "#define CONFIG_SYS_INTEL_BOOT" >> $(obj)include/config.h ; \
-		echo "TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0x00000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
 		cp $(obj)board/freescale/m54455evb/u-boot.int $(obj)board/freescale/m54455evb/u-boot.lds ; \
 	fi; \
 	if [ "$${FLASH}" = "ATMEL" ] ; then \
 		echo "#define CONFIG_SYS_ATMEL_BOOT"	>> $(obj)include/config.h ; \
-		echo "TEXT_BASE = 0x04000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0x04000000" > $(obj)board/freescale/m54455evb/config.tmp ; \
 		cp $(obj)board/freescale/m54455evb/u-boot.atm $(obj)board/freescale/m54455evb/u-boot.lds ; \
 	fi; \
 	if [ "$${FLASH}" = "STMICRO" ] ; then \
 		echo "#define CONFIG_CF_SBF"	>> $(obj)include/config.h ; \
 		echo "#define CONFIG_SYS_STMICRO_BOOT"	>> $(obj)include/config.h ; \
-		echo "TEXT_BASE = 0x4FE00000" > $(obj)board/freescale/m54455evb/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0x4FE00000" > $(obj)board/freescale/m54455evb/config.tmp ; \
 		cp $(obj)board/freescale/m54455evb/u-boot.stm $(obj)board/freescale/m54455evb/u-boot.lds ; \
 	fi; \
 	echo "#define CONFIG_SYS_INPUT_CLKSRC $${FREQ}" >> $(obj)include/config.h ; \
@@ -1602,7 +1602,7 @@ MPC8313ERDB_NAND_66_config: unconfig
 		echo "#define CONFIG_SYS_66MHZ" >>$(obj)include/config.h ; \
 	fi ; \
 	if [ "$(findstring _NAND_,$@)" ] ; then \
-		echo "TEXT_BASE = 0x00100000" > $(obj)board/freescale/mpc8313erdb/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0x00100000" > $(obj)board/freescale/mpc8313erdb/config.tmp ; \
 		echo "#define CONFIG_NAND_U_BOOT" >>$(obj)include/config.h ; \
 	fi ;
 	@if [ "$(findstring _NAND_,$@)" ] ; then \
@@ -1648,10 +1648,10 @@ MPC8349ITXGP_config:	unconfig
 	@mkdir -p $(obj)board/freescale/mpc8349itx
 	@echo "#define CONFIG_$(subst _LOWBOOT,,$(@:_config=))" >> $(obj)include/config.h
 	@if [ "$(findstring GP,$@)" ] ; then \
-		echo "TEXT_BASE = 0xFE000000" >$(obj)board/freescale/mpc8349itx/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0xFE000000" >$(obj)board/freescale/mpc8349itx/config.tmp ; \
 	fi
 	@if [ "$(findstring LOWBOOT,$@)" ] ; then \
-		echo "TEXT_BASE = 0xFE000000" >$(obj)board/freescale/mpc8349itx/config.tmp ; \
+		echo "CONFIG_SYS_TEXT_BASE = 0xFE000000" >$(obj)board/freescale/mpc8349itx/config.tmp ; \
 	fi
 	@$(MKCONFIG) -n $@ -a MPC8349ITX powerpc mpc83xx mpc8349itx freescale
 
@@ -2135,12 +2135,12 @@ trab_old_config:	unconfig
 	@[ -z "$(findstring _bigflash,$@)" ] || \
 		{ echo "#define CONFIG_FLASH_16MB" >>$(obj)include/config.h ; \
 		  echo "#define CONFIG_RAM_16MB"   >>$(obj)include/config.h ; \
-		  echo "TEXT_BASE = 0x0CF40000" >$(obj)board/trab/config.tmp ; \
+		  echo "CONFIG_SYS_TEXT_BASE = 0x0CF40000" >$(obj)board/trab/config.tmp ; \
 		}
 	@[ -z "$(findstring _old,$@)" ] || \
 		{ echo "#define CONFIG_FLASH_8MB"  >>$(obj)include/config.h ; \
 		  echo "#define CONFIG_RAM_16MB"   >>$(obj)include/config.h ; \
-		  echo "TEXT_BASE = 0x0CF40000" >$(obj)board/trab/config.tmp ; \
+		  echo "CONFIG_SYS_TEXT_BASE = 0x0CF40000" >$(obj)board/trab/config.tmp ; \
 		}
 	@$(MKCONFIG) -n $@ -a trab arm arm920t trab - s3c24x0
 
@@ -2420,7 +2420,7 @@ sh7785lcr_config  :   unconfig
 	@echo "#define CONFIG_SH7785LCR 1" > $(obj)include/config.h
 	@if [ "$(findstring 32bit, $@)" ] ; then \
 		echo "#define CONFIG_SH_32BIT 1" >> $(obj)include/config.h ; \
-		echo "TEXT_BASE = 0x8ff80000" > \
+		echo "CONFIG_SYS_TEXT_BASE = 0x8ff80000" > \
 			$(obj)board/renesas/sh7785lcr/config.tmp ; \
 	fi
 	@$(MKCONFIG) -n $@ -a sh7785lcr sh sh4 sh7785lcr renesas

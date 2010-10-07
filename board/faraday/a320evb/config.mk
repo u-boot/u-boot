@@ -32,4 +32,4 @@
 #
 # download area is 1200'0000
 
-TEXT_BASE = 0x13f80000
+CONFIG_SYS_TEXT_BASE = 0x13f80000

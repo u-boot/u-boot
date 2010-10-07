@@ -848,8 +848,8 @@ setup_ccsrbar:
 	stw	r5, 0(r4) /* Store physical value of CCSR */
 	isync
 
-	lis	r5, TEXT_BASE@h
-	ori	r5,r5,TEXT_BASE@l
+	lis	r5, CONFIG_SYS_TEXT_BASE@h
+	ori	r5,r5,CONFIG_SYS_TEXT_BASE@l
 	lwz	r5, 0(r5)
 	isync
 

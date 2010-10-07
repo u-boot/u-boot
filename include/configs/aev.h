@@ -128,7 +128,7 @@
 
 #define	CONFIG_TIMESTAMP		/* display image timestamps */
 
-#if (TEXT_BASE == 0xFC000000)		/* Boot low */
+#if (CONFIG_SYS_TEXT_BASE == 0xFC000000)		/* Boot low */
 #   define CONFIG_SYS_LOWBOOT		1
 #endif
 
@@ -221,7 +221,7 @@
 /*
  * Flash configuration
  */
-#define CONFIG_SYS_FLASH_BASE		TEXT_BASE /* 0xFC000000 */
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_TEXT_BASE /* 0xFC000000 */
 
 /* use CFI flash driver if no module variant is spezified */
 #define CONFIG_SYS_FLASH_CFI		1	/* Flash is CFI conformant */
@@ -273,7 +273,7 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

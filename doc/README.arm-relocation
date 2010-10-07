@@ -44,7 +44,7 @@ CONFIG_SYS_ARM_WITHOUT_RELOC defined!!!
 -------------------------------------------------------------------------------------
 
 For boards which boot from nand_spl, it is possible to save a copy
-if TEXT_BASE == relocation address! This prevents that uboot code
+if CONFIG_SYS_TEXT_BASE == relocation address! This prevents that uboot code
 is copied again in relocate_code().
 
 example for the tx25 board:
@@ -61,7 +61,7 @@ e) there it copy u-boot to CONFIG_SYS_NAND_U_BOOT_DST and
 f) u-boot code steps through board_init_f() and calculates
    the relocation address and copy itself to it
 
-If TEXT_BASE == relocation address, the copying of u-boot
+If CONFIG_SYS_TEXT_BASE == relocation address, the copying of u-boot
 in f) could be saved.
 
 -------------------------------------------------------------------------------------
@@ -71,10 +71,10 @@ ToDo:
 - fill in bd_t infos (check)
 - adapt all boards
 
-- maybe adapt TEXT_BASE (this must be checked from board maintainers)
+- maybe adapt CONFIG_SYS_TEXT_BASE (this must be checked from board maintainers)
   This *must* be done for boards, which boot from NOR flash
 
-  on other boards if TEXT_BASE = relocation baseaddr, this saves
+  on other boards if CONFIG_SYS_TEXT_BASE = relocation baseaddr, this saves
   one copying from u-boot code.
 
 - new function dram_init_banksize() is actual board specific. Maybe
@@ -88,13 +88,13 @@ Relocation with NAND_SPL (example for the tx25):
   and start with code execution on this address.
 
 - The First page contains u-boot code from u-boot:nand_spl/nand_boot_fsl_nfc.c
-  which inits the dram, cpu registers, reloacte itself to TEXT_BASE  and loads
+  which inits the dram, cpu registers, reloacte itself to CONFIG_SYS_TEXT_BASE  and loads
   the "real" u-boot to CONFIG_SYS_NAND_U_BOOT_DST and starts execution
   @CONFIG_SYS_NAND_U_BOOT_START
 
 - This u-boot does no ram int, nor cpu register setup. Just looks
   where it have to relocate and relocate itself to this address.
-  If relocate address = TEXT_BASE(not the same, as the TEXT_BASE
+  If relocate address = CONFIG_SYS_TEXT_BASE(not the same, as the TEXT_BASE
   from the nand_spl code), no need to copy, just go on with bss clear
   and jump to board_init_r.
 

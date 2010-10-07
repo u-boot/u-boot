@@ -97,7 +97,7 @@
 #define CONFIG_SYS_OR1_PRELIM		0xffff0ff7      /* 64K is enough */
 #define CONFIG_SYS_LBC_LCLDEVS_BASE	0xfc000000	/* Base of localbus devices */
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor	*/
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor	*/
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT

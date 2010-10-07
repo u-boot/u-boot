@@ -7,9 +7,9 @@
 #
 
 # This is the address where U-Boot lives in flash:
-#TEXT_BASE = 0
+#CONFIG_SYS_TEXT_BASE = 0
 
 # FIXME: armboot does only work correctly when being compiled
 # for the addresses _after_ relocation to RAM!! Otherwhise the
 # .bss segment is assumed in flash...
-TEXT_BASE = 0xa1fe0000
+CONFIG_SYS_TEXT_BASE = 0xa1fe0000

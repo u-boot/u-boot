@@ -25,4 +25,4 @@
 # Wind River sbc405 boards
 #
 
-TEXT_BASE = 0xFFFC0000
+CONFIG_SYS_TEXT_BASE = 0xFFFC0000

@@ -54,9 +54,9 @@ extern int __prom_start;
 #define PROM_SIZE_MASK (PROM_OFFS-1)
 #define __va(x) ( \
 	(void *)( ((unsigned long)(x))-PROM_OFFS+ \
-	(CONFIG_SYS_PROM_OFFSET-phys_base)+PAGE_OFFSET-TEXT_BASE ) \
+	(CONFIG_SYS_PROM_OFFSET-phys_base)+PAGE_OFFSET-CONFIG_SYS_TEXT_BASE ) \
 	)
-#define __phy(x) ((void *)(((unsigned long)(x))-PROM_OFFS+CONFIG_SYS_PROM_OFFSET-TEXT_BASE))
+#define __phy(x) ((void *)(((unsigned long)(x))-PROM_OFFS+CONFIG_SYS_PROM_OFFSET-CONFIG_SYS_TEXT_BASE))
 
 struct property {
 	char *name;

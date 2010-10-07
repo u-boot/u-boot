@@ -69,10 +69,10 @@ _start:
 	shi	r7, r0, 0x2
 	shi	r6, r0, 0x6
 /*
- * Copy U-Boot code to TEXT_BASE
+ * Copy U-Boot code to CONFIG_SYS_TEXT_BASE
  * solve problem with sbrk_base
  */
-#if (CONFIG_SYS_RESET_ADDRESS != TEXT_BASE)
+#if (CONFIG_SYS_RESET_ADDRESS != CONFIG_SYS_TEXT_BASE)
 	addi	r4, r0, __end
 	addi	r5, r0, __text_start
 	rsub	r4, r5, r4	/* size = __end - __text_start */

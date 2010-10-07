@@ -251,7 +251,7 @@
 
 #define CONFIG_SYS_RESET_ADDRESS	0x3fffff00
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* u-boot code base */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* u-boot code base */
 #define CONFIG_SYS_MALLOC_LEN		(256 << 10)	/* Reserve 256 kB for malloc */
 
 /* Peripheral Device section */

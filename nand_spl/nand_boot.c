@@ -224,7 +224,7 @@ static int nand_load(struct mtd_info *mtd, unsigned int offs,
 #if defined(CONFIG_ARM) && !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 void board_init_f (ulong bootflag)
 {
-	relocate_code (TEXT_BASE - TOTAL_MALLOC_LEN, NULL, TEXT_BASE);
+	relocate_code (CONFIG_SYS_TEXT_BASE - TOTAL_MALLOC_LEN, NULL, TEXT_BASE);
 }
 #endif
 

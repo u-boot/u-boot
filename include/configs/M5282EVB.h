@@ -172,10 +172,10 @@
 
 /* If M5282 port is fully implemented the monitor base will be behind
  * the vector table. */
-#if (TEXT_BASE != CONFIG_SYS_INT_FLASH_BASE)
+#if (CONFIG_SYS_TEXT_BASE != CONFIG_SYS_INT_FLASH_BASE)
 #define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_FLASH_BASE + 0x400)
 #else
-#define CONFIG_SYS_MONITOR_BASE	(TEXT_BASE + 0x418)	/* 24 Byte for CFM-Config */
+#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_TEXT_BASE + 0x418)	/* 24 Byte for CFM-Config */
 #endif
 
 #define CONFIG_SYS_MONITOR_LEN		0x20000

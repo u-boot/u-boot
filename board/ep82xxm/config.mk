@@ -23,4 +23,4 @@
 
 # EP82xxM series boards by Embedded Planet
 
-TEXT_BASE = 0xFFF00000
+CONFIG_SYS_TEXT_BASE = 0xFFF00000

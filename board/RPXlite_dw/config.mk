@@ -26,4 +26,4 @@
 # RPXlite dw boards : lite_dw
 #
 
-TEXT_BASE = 0xff000000
+CONFIG_SYS_TEXT_BASE = 0xff000000

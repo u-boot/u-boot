@@ -2,4 +2,4 @@
 # Cerf board with PXA250 cpu
 #
 #
-TEXT_BASE = 0xa3080000
+CONFIG_SYS_TEXT_BASE = 0xa3080000

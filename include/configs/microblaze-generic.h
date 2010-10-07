@@ -57,7 +57,7 @@
 #endif
 
 /* setting reset address */
-/*#define	CONFIG_SYS_RESET_ADDRESS	TEXT_BASE*/
+/*#define	CONFIG_SYS_RESET_ADDRESS	CONFIG_SYS_TEXT_BASE*/
 
 /* ethernet */
 #ifdef XILINX_EMACLITE_BASEADDR
@@ -103,7 +103,7 @@
 
 /*
  * memory layout - Example
- * TEXT_BASE = 0x1200_0000;
+ * CONFIG_SYS_TEXT_BASE = 0x1200_0000;
  * CONFIG_SYS_SRAM_BASE = 0x1000_0000;
  * CONFIG_SYS_SRAM_SIZE = 0x0400_0000;
  *
@@ -113,7 +113,7 @@
  *
  * 0x1000_0000	CONFIG_SYS_SDRAM_BASE
  *					FREE
- * 0x1200_0000	TEXT_BASE
+ * 0x1200_0000	CONFIG_SYS_TEXT_BASE
  *		U-BOOT code
  * 0x1202_0000
  *					FREE

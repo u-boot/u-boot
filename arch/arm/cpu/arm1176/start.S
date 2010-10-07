@@ -97,7 +97,7 @@ _end_vect:
 
 .globl _TEXT_BASE
 _TEXT_BASE:
-	.word	TEXT_BASE
+	.word	CONFIG_SYS_TEXT_BASE
 
 /*
  * Below variable is very important because we use MMU in U-Boot.
@@ -205,7 +205,7 @@ cpu_init_crit:
 
 	/* Prepare to disable the MMU */
 	adr	r2, mmu_disable_phys
-	sub	r2, r2, #(CONFIG_SYS_PHY_UBOOT_BASE - TEXT_BASE)
+	sub	r2, r2, #(CONFIG_SYS_PHY_UBOOT_BASE - CONFIG_SYS_TEXT_BASE)
 	b	mmu_disable
 
 	.align 5
@@ -444,7 +444,7 @@ cpu_init_crit:
 
 	/* Prepare to disable the MMU */
 	adr	r2, mmu_disable_phys
-	sub	r2, r2, #(CONFIG_SYS_PHY_UBOOT_BASE - TEXT_BASE)
+	sub	r2, r2, #(CONFIG_SYS_PHY_UBOOT_BASE - CONFIG_SYS_TEXT_BASE)
 	b	mmu_disable
 
 	.align 5

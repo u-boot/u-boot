@@ -205,7 +205,7 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
@@ -327,12 +327,12 @@
 
 /*
  * For soldered on flash, (128kB/sector) we use 2 sectors for u-boot and
- * one for env+bootpg (TEXT_BASE=0xfffa_0000, 384kB total).  For SODIMM
+ * one for env+bootpg (CONFIG_SYS_TEXT_BASE=0xfffa_0000, 384kB total).  For SODIMM
  * flash (512kB/sector) we use 1 sector for u-boot, and one for env+bootpg
- * (TEXT_BASE=0xfff0_0000, 1MB total).  This dynamically sets the right
+ * (CONFIG_SYS_TEXT_BASE=0xfff0_0000, 1MB total).  This dynamically sets the right
  * thing for MONITOR_LEN in both cases.
  */
-#define CONFIG_SYS_MONITOR_LEN		(~TEXT_BASE + 1)
+#define CONFIG_SYS_MONITOR_LEN		(~CONFIG_SYS_TEXT_BASE + 1)
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserved for malloc */
 
 /* Serial Port */
@@ -450,10 +450,10 @@
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_SIZE		0x2000
-#if TEXT_BASE == 0xfff00000	/* Boot from 64MB SODIMM */
+#if CONFIG_SYS_TEXT_BASE == 0xfff00000	/* Boot from 64MB SODIMM */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x80000)
 #define CONFIG_ENV_SECT_SIZE	0x80000	/* 512K(one sector) for env */
-#elif TEXT_BASE == 0xfffa0000	/* Boot from 8MB soldered flash */
+#elif CONFIG_SYS_TEXT_BASE == 0xfffa0000	/* Boot from 8MB soldered flash */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + 0x40000)
 #define CONFIG_ENV_SECT_SIZE	0x20000	/* 128K(one sector) for env */
 #else
@@ -562,11 +562,11 @@
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
  "tftpflash=tftpboot $loadaddr $uboot; "			\
-	"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
-	"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
-	"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
-	"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
-	"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
+	"protect off " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "	\
+	"erase " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+	"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
+	"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
+	"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
  "consoledev=ttyS0\0"				\
  "ramdiskaddr=2000000\0"			\
  "ramdiskfile=uRamdisk\0"			\

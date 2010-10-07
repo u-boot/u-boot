@@ -85,7 +85,7 @@ _fiq:
 
 .globl _TEXT_BASE
 _TEXT_BASE:
-	.word	TEXT_BASE /* address of _start in the linked image */
+	.word	CONFIG_SYS_TEXT_BASE /* address of _start in the linked image */
 
 #if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 .globl _armboot_start

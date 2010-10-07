@@ -221,8 +221,8 @@ void board_init_f (ulong gdp)
 	re_end = (Elf32_Rel *)(rel_dyn_end + ((gd_t *)gdp)->load_off);
 
 	do {
-		if (re_src->r_offset >= TEXT_BASE)
-			if (*(Elf32_Addr *)(re_src->r_offset - rel_offset) >= TEXT_BASE)
+		if (re_src->r_offset >= CONFIG_SYS_TEXT_BASE)
+			if (*(Elf32_Addr *)(re_src->r_offset - rel_offset) >= CONFIG_SYS_TEXT_BASE)
 				*(Elf32_Addr *)(re_src->r_offset - rel_offset) -= rel_offset;
 	} while (re_src++ < re_end);
 

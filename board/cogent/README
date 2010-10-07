@@ -87,11 +87,11 @@ want the serial console on motherboard serial port A or on one of the
 8xx SMC ports, and set CONFIG_8xx_CONS_{SMC1,SMC2,NONE} accordingly
 (NONE means use Cogent motherboard serial port A).
 
-Then edit the file "cogent/config.mk". Firstly, set TEXT_BASE to be
+Then edit the file "cogent/config.mk". Firstly, set CONFIG_SYS_TEXT_BASE to be
 the base address of the EPROM for the CPU module. This should be the
 same as the value selected for CONFIG_SYS_MONITOR_BASE in
 "include/config_cogent_*.h" (in fact, I have made this automatic via
-the -DTEXT_BASE=... option in CPPFLAGS).
+the -CONFIG_SYS_TEXT_BASE=... option in CPPFLAGS).
 
 Finally, set the values of the make variables $(CMA_MB) and $(CMA_IOMS).
 

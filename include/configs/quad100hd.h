@@ -175,7 +175,7 @@
 #define CONFIG_SYS_FLASH_BASE		0xFFC00000
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256 kB for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
-#define CONFIG_SYS_MONITOR_BASE	(TEXT_BASE)
+#define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_TEXT_BASE)
 
 /*
  * For booting Linux, the board info and command line data
@@ -207,7 +207,7 @@
 #ifdef CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	0x10000	/* size of one complete sector	*/
 /* the environment is located before u-boot */
-#define CONFIG_ENV_ADDR		(TEXT_BASE - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_TEXT_BASE - CONFIG_ENV_SECT_SIZE)
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR - CONFIG_ENV_SECT_SIZE)

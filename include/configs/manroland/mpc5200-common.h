@@ -42,7 +42,7 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200,\
 					 230400 }
 
-#if (TEXT_BASE == 0xFFF00000) /* Boot low */
+#if (CONFIG_SYS_TEXT_BASE == 0xFFF00000) /* Boot low */
 #   define CONFIG_SYS_LOWBOOT		1
 #endif
 
@@ -88,7 +88,7 @@
 
 #define CONFIG_SYS_FLASH_SIZE		0x00800000 /* 8 MByte */
 
-#define CONFIG_ENV_ADDR		(TEXT_BASE+0x40000) /* second sector */
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_TEXT_BASE+0x40000) /* second sector */
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of flash banks
 					   (= chip selects) */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout [ms]*/
@@ -140,7 +140,7 @@
 #define CONFIG_SYS_INIT_RAM_END	MPC5XXX_SRAM_SIZE
 #endif
 
-#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE    CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

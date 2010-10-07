@@ -77,11 +77,11 @@
 /*
  * MUST be low boot - HIGHBOOT is not supported anymore
  */
-#if (TEXT_BASE == 0xFE000000)		/* Boot low with 32 MB Flash */
+#if (CONFIG_SYS_TEXT_BASE == 0xFE000000)		/* Boot low with 32 MB Flash */
 #   define CONFIG_SYS_LOWBOOT		1
 #   define CONFIG_SYS_LOWBOOT16	1
 #else
-#   error "TEXT_BASE must be 0xFE000000"
+#   error "CONFIG_SYS_TEXT_BASE must be 0xFE000000"
 #endif
 
 /*
@@ -160,7 +160,7 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE    CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

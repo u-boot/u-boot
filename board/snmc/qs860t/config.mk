@@ -26,4 +26,4 @@
 # Start address of 512K Socketed Flash
 #
 
-TEXT_BASE = 0xFFF00000
+CONFIG_SYS_TEXT_BASE = 0xFFF00000

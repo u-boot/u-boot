@@ -27,19 +27,20 @@
 #
 # MUCMC52 board:
 #
-#	Valid values for TEXT_BASE are:
+#	Valid values for CONFIG_SYS_TEXT_BASE are:
 #
 #	0xFFE00000   boot high
 #
 #	0x00100000   boot from RAM (for testing only)
 #
 
-ifndef TEXT_BASE
+ifndef CONFIG_SYS_TEXT_BASE
 ## Standard: boot high
-TEXT_BASE = 0xFFF00000
+CONFIG_SYS_TEXT_BASE = 0xFFF00000
 ## For testing: boot from RAM
-#TEXT_BASE = 0x00100000
+#CONFIG_SYS_TEXT_BASE = 0x00100000
 endif
 
-PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)/board
+PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
+	-I$(TOPDIR)/board
 LDSCRIPT := $(SRCTREE)/arch/powerpc/cpu/mpc5xxx/u-boot.lds

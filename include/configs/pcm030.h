@@ -71,7 +71,7 @@ Serial console configuration
 
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
 
-#if (TEXT_BASE == 0xFF000000)	/* Boot low */
+#if (CONFIG_SYS_TEXT_BASE == 0xFF000000)	/* Boot low */
 #define CONFIG_SYS_LOWBOOT 1
 #endif
 /* RAMBOOT will be defined automatically in memory section */
@@ -222,7 +222,7 @@ RTC configuration
 						CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #	define CONFIG_SYS_RAMBOOT		1
 #endif

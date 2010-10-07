@@ -75,7 +75,7 @@
  * NAND flash support (disabled by default)
  *
  * Warning: NAND support will likely increase the U-Boot image size
- * to more than 256 KB. Please adjust TEXT_BASE if necessary.
+ * to more than 256 KB. Please adjust CONFIG_SYS_TEXT_BASE if necessary.
  */
 #ifdef CONFIG_TQM8548_BE
 #define CONFIG_NAND
@@ -219,7 +219,7 @@
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms)	*/
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms)	*/
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor	*/
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor	*/
 
 /*
  * Note: when changing the Local Bus clock divider you have to
@@ -243,7 +243,7 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_LEN		(~TEXT_BASE + 1)/* Reserved for Monitor	*/
+#define CONFIG_SYS_MONITOR_LEN		(~CONFIG_SYS_TEXT_BASE + 1)/* Reserved for Monitor	*/
 #define CONFIG_SYS_MALLOC_LEN		(384 * 1024)	/* Reserved for malloc	*/
 
 /* Serial Port */
@@ -659,7 +659,7 @@
 				MK_STR(CONFIG_HOSTNAME)".dtb\0"
 #define CONFIG_ENV_BOOTFILE	"bootfile="MK_STR(CONFIG_HOSTNAME)"/uImage\0"
 #define CONFIG_ENV_UBOOT		"uboot="MK_STR(CONFIG_HOSTNAME)"/u-boot.bin\0" \
-				"uboot_addr="MK_STR(TEXT_BASE)"\0"
+				"uboot_addr="MK_STR(CONFIG_SYS_TEXT_BASE)"\0"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_ENV_BOOTFILE						\

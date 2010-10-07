@@ -19,9 +19,9 @@
 # MA 02111-1307 USA
 
 #
-# TEXT_BASE refers to image _after_ relocation.
+# CONFIG_SYS_TEXT_BASE refers to image _after_ relocation.
 #
 # NOTE: Must match value used in u-boot.lds (in this directory).
 #
 
-TEXT_BASE = 0x0FFC0000
+CONFIG_SYS_TEXT_BASE = 0x0FFC0000

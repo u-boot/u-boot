@@ -52,7 +52,7 @@
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		0xff000000	/* start of FLASH */
-#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #define CONFIG_SYS_PCI_MEMBASE		0x80000000	/* mapped pci memory */
 #define CONFIG_SYS_ISRAM_BASE		0xc0000000	/* internal SRAM */
 #define CONFIG_SYS_PCI_BASE		0xd0000000	/* internal PCI regs */
@@ -269,7 +269,7 @@ extern void out32(unsigned int, unsigned long);
  * ff000000 - ffbfffff	OS Use/Filesystem (12MB)
  */
 
-#define CONFIG_UBOOT_ENV_ADDR	MK_STR(TEXT_BASE)
+#define CONFIG_UBOOT_ENV_ADDR	MK_STR(CONFIG_SYS_TEXT_BASE)
 #define CONFIG_FDT_ENV_ADDR	MK_STR(0xfff00000)
 #define CONFIG_OS_ENV_ADDR	MK_STR(0xffc00000)
 

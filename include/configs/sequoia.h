@@ -53,7 +53,7 @@
 
 /*
  * Define this if you want support for video console with radeon 9200 pci card
- * Also set TEXT_BASE to 0xFFF80000 in board/amcc/sequoia/config.mk in this case
+ * Also set CONFIG_SYS_TEXT_BASE to 0xFFF80000 in board/amcc/sequoia/config.mk in this case
  */
 #undef CONFIG_VIDEO
 

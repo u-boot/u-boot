@@ -24,4 +24,4 @@
 #
 # Analogue&Micro Adder boards family
 #
-TEXT_BASE = 0xFE000000
+CONFIG_SYS_TEXT_BASE = 0xFE000000

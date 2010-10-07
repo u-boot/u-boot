@@ -271,7 +271,7 @@
 #define CONFIG_FDT_FIXUP_PARTITIONS
 #endif
 
-#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE	/* Start of monitor */
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE	/* Start of monitor */
 #define CONFIG_SYS_MONITOR_LEN		(512 * 1024)	/* 512 kB for monitor */
 #ifdef	CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_MALLOC_LEN		(6 * 1024 * 1024) /* for malloc */

@@ -9,8 +9,8 @@ To: Wolfgang Denk <wd@denx.de>
 >
 >How are they (should they be) set in your memory map above?
 
-_armboot_start contains the value of TEXT_BASE (0xA07E0000); it seems
-TEXT_BASE and _armboot_start are both used for the same purpose in
+_armboot_start contains the value of CONFIG_SYS_TEXT_BASE (0xA07E0000); it seems
+CONFIG_SYS_TEXT_BASE and _armboot_start are both used for the same purpose in
 different parts of the (ARM) code.
 Furthermore, the startup code (cpu/<arm>/start.S) internally uses
 another variable (_TEXT_BASE) with the same content as _armboot_start.

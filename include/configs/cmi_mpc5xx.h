@@ -142,7 +142,7 @@
 #define ANYBUS_BASE		0x03010000	/* Anybus Module */
 
 #define CONFIG_SYS_RESET_ADRESS	0x01000000	/* Adress which causes reset */
-#define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE	/* TEXT_BASE is defined in the board config.mk file.	*/
+#define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE	/* CONFIG_SYS_TEXT_BASE is defined in the board config.mk file.	*/
 						/* This adress is given to the linker with -Ttext to	*/
 						/* locate the text section at this adress.		*/
 #define	CONFIG_SYS_MONITOR_LEN		(192 << 10)	/* Reserve 192 kB for Monitor				*/

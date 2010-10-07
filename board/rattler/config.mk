@@ -27,4 +27,4 @@
 # Rattler series boards by Analogue & Micro
 #
 
-TEXT_BASE = 0xFE000000
+CONFIG_SYS_TEXT_BASE = 0xFE000000

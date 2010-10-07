@@ -23,8 +23,8 @@
 
 sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
-ifndef TEXT_BASE
-TEXT_BASE = 0xFFFA0000
+ifndef CONFIG_SYS_TEXT_BASE
+CONFIG_SYS_TEXT_BASE = 0xFFFA0000
 endif
 
 ifeq ($(debug),1)

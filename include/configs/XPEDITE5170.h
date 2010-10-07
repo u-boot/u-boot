@@ -152,7 +152,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE
 #define CONFIG_SYS_FLASH_AUTOPROTECT_LIST	{ {0xfff00000, 0xc0000}, \
 						  {0xf7f00000, 0xc0000} }
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor */
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #define CONFIG_SYS_MONITOR_BASE_EARLY	0xfff00000	/* early monitor loc */
 
 /*
@@ -492,7 +492,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 				 BATL_PP_RW			|\
 				 BATL_CACHEINHIBIT		|\
 				 BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT6U_EARLY	(TEXT_BASE			|\
+#define CONFIG_SYS_DBAT6U_EARLY	(CONFIG_SYS_TEXT_BASE			|\
 				 BATU_BL_1M			|\
 				 BATU_VS			|\
 				 BATU_VP)

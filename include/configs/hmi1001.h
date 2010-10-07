@@ -80,7 +80,7 @@
 
 #define	CONFIG_TIMESTAMP	1	/* Print image info with timestamp */
 
-#if (TEXT_BASE == 0xFFF00000) /* Boot low */
+#if (CONFIG_SYS_TEXT_BASE == 0xFFF00000) /* Boot low */
 #   define CONFIG_SYS_LOWBOOT		1
 #endif
 
@@ -149,7 +149,7 @@
 #define CONFIG_SYS_FLASH_SIZE		0x00800000 /* 8 MByte */
 #define CONFIG_SYS_MAX_FLASH_SECT	67	/* max num of sects on one chip */
 
-#define CONFIG_ENV_ADDR		(TEXT_BASE+0x40000) /* second sector */
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_TEXT_BASE+0x40000) /* second sector */
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of flash banks
 					   (= chip selects) */
 #define CONFIG_SYS_FLASH_ERASE_TOUT	240000	/* Flash Erase Timeout (in ms)	*/
@@ -204,7 +204,7 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_BASE    TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE    CONFIG_SYS_TEXT_BASE
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #   define CONFIG_SYS_RAMBOOT		1
 #endif

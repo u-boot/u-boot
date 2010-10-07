@@ -144,7 +144,7 @@
 #define PLD_CONFIG_BASE		0x04001000	/* PLD  (CS3) */
 
 #define	CONFIG_SYS_MONITOR_BASE	0xFFF00000
-/* CONFIG_SYS_FLASH_BASE	*/ /* TEXT_BASE is defined in the board config.mk file.	*/
+/* CONFIG_SYS_FLASH_BASE	*/ /* CONFIG_SYS_TEXT_BASE is defined in the board config.mk file.	*/
 						/* This adress is given to the linker with -Ttext to	*/
 						/* locate the text section at this adress.		*/
 #define	CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 192 kB for Monitor				*/

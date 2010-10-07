@@ -97,7 +97,7 @@
 #define CONFIG_SYS_RESET_ADDRESS	0xFFF00100
 
 /* What should the base address of the main FLASH be and how big is
- * it (in MBytes)? This must contain TEXT_BASE from board/ep8260/config.mk
+ * it (in MBytes)? This must contain CONFIG_SYS_TEXT_BASE from board/ep8260/config.mk
  * The main FLASH is whichever is connected to *CS0. U-Boot expects
  * this to be the SIMM.
  */
@@ -438,7 +438,7 @@
  * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  * Note also that the logic that sets CONFIG_SYS_RAMBOOT is platform dependent.
  */
-#define CONFIG_SYS_MONITOR_BASE          TEXT_BASE
+#define CONFIG_SYS_MONITOR_BASE          CONFIG_SYS_TEXT_BASE
 
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)

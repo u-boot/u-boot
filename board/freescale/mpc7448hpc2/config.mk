@@ -21,8 +21,9 @@
 #
 
 # Flash address
-TEXT_BASE = 0xFF000000
+CONFIG_SYS_TEXT_BASE = 0xFF000000
 # RAM address
-#TEXT_BASE = 0x00400000
+#CONFIG_SYS_TEXT_BASE = 0x00400000
 
-PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -maltivec -mabi=altivec -msoft-float
+PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
+	-maltivec -mabi=altivec -msoft-float

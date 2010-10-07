@@ -24,4 +24,4 @@
 #
 # XPedite5170
 #
-TEXT_BASE = 0xfff00000
+CONFIG_SYS_TEXT_BASE = 0xfff00000

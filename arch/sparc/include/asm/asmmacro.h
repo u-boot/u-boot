@@ -33,8 +33,8 @@
  * c-code can be called.
  */
 #define SAVE_ALL_HEAD \
-	sethi	%hi(trap_setup+(CONFIG_SYS_RELOC_MONITOR_BASE-TEXT_BASE)), %l4; \
-	jmpl	%l4 + %lo(trap_setup+(CONFIG_SYS_RELOC_MONITOR_BASE-TEXT_BASE)), %l6;
+	sethi	%hi(trap_setup+(CONFIG_SYS_RELOC_MONITOR_BASE-CONFIG_SYS_TEXT_BASE)), %l4; \
+	jmpl	%l4 + %lo(trap_setup+(CONFIG_SYS_RELOC_MONITOR_BASE-CONFIG_SYS_TEXT_BASE)), %l6;
 #define SAVE_ALL \
 	SAVE_ALL_HEAD \
 	nop;

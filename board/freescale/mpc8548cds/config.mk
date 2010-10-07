@@ -23,6 +23,6 @@
 #
 # mpc8548cds board
 #
-ifndef TEXT_BASE
-TEXT_BASE = 0xfff80000
+ifndef CONFIG_SYS_TEXT_BASE
+CONFIG_SYS_TEXT_BASE = 0xfff80000
 endif

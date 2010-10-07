@@ -29,6 +29,7 @@
 # for the "final" configuration, with U-Boot in flash, or the address
 # in RAM where U-Boot is loaded at for debugging.
 #
-TEXT_BASE = 0x40000000
+CONFIG_SYS_TEXT_BASE = 0x40000000
 
-PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)
+PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
+	-I$(TOPDIR)

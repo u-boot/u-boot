@@ -31,7 +31,7 @@
 
 sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
-ifndef TEXT_BASE
+ifndef CONFIG_SYS_TEXT_BASE
 ## Standard: boot high
-TEXT_BASE = 0xFFF00000
+CONFIG_SYS_TEXT_BASE = 0xFFF00000
 endif

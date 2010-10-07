@@ -109,7 +109,7 @@
 #define CONFIG_SYS_BR1_PRELIM		0xFB001801	/* 32-bit port */
 #define CONFIG_SYS_OR1_PRELIM		0xFFFF0FF7	/* 64K is enough */
 
-#define CONFIG_SYS_MONITOR_BASE	TEXT_BASE	/* start of monitor	*/
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor	*/
 
 #if (CONFIG_SYS_MONITOR_BASE < CONFIG_SYS_FLASH_BASE)
 #define CONFIG_SYS_RAMBOOT

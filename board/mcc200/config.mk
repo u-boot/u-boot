@@ -24,7 +24,7 @@
 #
 # MCC200, PRS200 boards:
 #
-#	Valid values for TEXT_BASE are:
+#	Valid values for CONFIG_SYS_TEXT_BASE are:
 #
 #	0xFC000000   boot low (standard configuration)
 #	0xFFF00000   boot high
@@ -33,13 +33,14 @@
 
 sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
-ifndef TEXT_BASE
+ifndef CONFIG_SYS_TEXT_BASE
 ## Standard: boot low
-TEXT_BASE = 0xFC000000
+CONFIG_SYS_TEXT_BASE = 0xFC000000
 ## Boot high
-# TEXT_BASE = 0xFFF00000
+# CONFIG_SYS_TEXT_BASE = 0xFFF00000
 ## For testing: boot from RAM
-# TEXT_BASE = 0x00100000
+# CONFIG_SYS_TEXT_BASE = 0x00100000
 endif
 
-PLATFORM_CPPFLAGS += -DTEXT_BASE=$(TEXT_BASE) -I$(TOPDIR)/board
+PLATFORM_CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE) \
+	-I$(TOPDIR)/board

@@ -185,7 +185,7 @@
 #else
 #define CONFIG_SYS_FLASH_BASE		CMA_MB_FLASH_BASE	/* flash on m/b */
 #endif
-#define	CONFIG_SYS_MONITOR_BASE	TEXT_BASE
+#define	CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
 #define	CONFIG_SYS_MONITOR_LEN		(128 << 10)	/* Reserve 128 kB for Monitor	*/
 #define	CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc()	*/
 
@@ -310,7 +310,7 @@
  * (the *_SIZE vars must be a power of 2)
  */
 
-#define CONFIG_SYS_CMA_CS0_BASE	TEXT_BASE		/* EPROM */
+#define CONFIG_SYS_CMA_CS0_BASE	CONFIG_SYS_TEXT_BASE		/* EPROM */
 #define CONFIG_SYS_CMA_CS0_SIZE	(1 << 20)
 #define CONFIG_SYS_CMA_CS1_BASE	CMA_MB_RAM_BASE		/* RAM + I/O SLOT 1 */
 #define CONFIG_SYS_CMA_CS1_SIZE	(64 << 20)

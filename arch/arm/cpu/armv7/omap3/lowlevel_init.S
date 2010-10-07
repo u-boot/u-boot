@@ -33,7 +33,7 @@
 #include <asm/arch/clocks_omap3.h>
 
 _TEXT_BASE:
-	.word	TEXT_BASE	/* sdram load addr from config.mk */
+	.word	CONFIG_SYS_TEXT_BASE	/* sdram load addr from config.mk */
 
 #if !defined(CONFIG_SYS_NAND_BOOT) && !defined(CONFIG_SYS_NAND_BOOT)
 /**************************************************************************
