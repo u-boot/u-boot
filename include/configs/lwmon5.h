@@ -193,6 +193,17 @@
 #define CONFIG_SYS_POST_UART_TABLE	{ CONFIG_SYS_NS16550_COM1, \
 			CONFIG_SYS_NS16550_COM2 }
 
+#define CONFIG_POST_UART  {				\
+	"UART test",					\
+	"uart",						\
+	"This test verifies the UART operation.",	\
+	POST_RAM | POST_SLOWTEST | POST_ALWAYS | POST_MANUAL,	\
+	&uart_post_test,				\
+	NULL,						\
+	NULL,						\
+	CONFIG_SYS_POST_UART				\
+	}
+
 #define CONFIG_POST_WATCHDOG  {				\
 	"Watchdog timer test",				\
 	"watchdog",					\
