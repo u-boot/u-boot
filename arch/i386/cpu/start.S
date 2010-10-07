@@ -93,6 +93,17 @@ mem_init_ret:
 	jmp	get_mem_size
 get_mem_size_ret:
 
+#if CONFIG_SYS_SDRAM_ECC_ENABLE
+	/* Skip ECC initialization if not starting from cold-reset */
+	movl	%ebx, %ecx
+	andl	$GD_FLG_COLD_BOOT, %ecx
+	jz	init_ecc_ret
+	mov	$init_ecc_ret, %ebp
+	jmp	init_ecc
+
+init_ecc_ret:
+#endif
+
 	/* Check we have enough memory for stack */
 	movl	$CONFIG_SYS_STACK_SIZE, %ecx
 	cmpl	%ecx, %eax

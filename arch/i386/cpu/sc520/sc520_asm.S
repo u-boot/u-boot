@@ -517,22 +517,11 @@ bad_ram:
 	jmp	bad_reint
 
 dram_done:
+	jmp	*%ebp
 
 #if CONFIG_SYS_SDRAM_ECC_ENABLE
-	/*
-	 * We are in the middle of an existing 'call' - Need to store the
-	 * existing return address before making another 'call'
-	 */
-	movl	%ebp, %ebx
-
-	/* Get the memory size */
-	movl	$init_ecc, %ebp
-	jmpl	get_mem_size
-
+.globl init_ecc
 init_ecc:
-	/* Restore the orignal return address */
-	movl	%ebx, %ebp
-
 	/* A nominal memory test: just a byte at each address line */
 	movl	%eax, %ecx
 	shrl	$0x1, %ecx
@@ -571,10 +560,10 @@ set_ecc:
 	movl	$ECCCTL, %edi
 	movb	$0x05, %al
 	movb	%al,(%edi)
-#endif
 
 out:
 	jmp	*%ebp
+#endif
 
 /*
  * Read and decode the sc520 DRCBENDADR MMCR and return the number of
