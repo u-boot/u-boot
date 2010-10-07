@@ -1,6 +1,8 @@
 #ifndef _I386_PTRACE_H
 #define _I386_PTRACE_H
 
+#include <asm/types.h>
+
 #define EBX 0
 #define ECX 1
 #define EDX 2
@@ -43,6 +45,28 @@ struct pt_regs {
 	int  xss;
 }  __attribute__ ((packed));
 
+struct irq_regs {
+	/* Pushed by irq_common_entry */
+	long ebx;
+	long ecx;
+	long edx;
+	long esi;
+	long edi;
+	long ebp;
+	long esp;
+	long eax;
+	long xds;
+	long xes;
+	long xfs;
+	long xgs;
+	long xss;
+	/* Pushed by vector handler (irq_<num>) */
+	long irq_id;
+	/* Pushed by cpu in response to interrupt */
+	long eip;
+	long xcs;
+	long eflags;
+}  __attribute__ ((packed));
 
 /* Arbitrarily choose the same ptrace numbers as used by the Sparc code. */
 #define PTRACE_GETREGS            12

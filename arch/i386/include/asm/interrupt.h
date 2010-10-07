@@ -27,6 +27,8 @@
 #ifndef __ASM_INTERRUPT_H_
 #define __ASM_INTERRUPT_H_ 1
 
+#include <asm/types.h>
+
 /* arch/i386/cpu/interrupts.c */
 void set_vector(u8 intnum, void *routine);
 
