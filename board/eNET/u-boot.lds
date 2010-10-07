@@ -58,7 +58,8 @@ SECTIONS
 	. = ALIGN(4);
 	__bss_start = ABSOLUTE(.);
 	.bss (NOLOAD) : { *(.bss) }
-	__bss_size = SIZEOF(.bss);
+	. = ALIGN(4);
+	__bss_end = ABSOLUTE(.);
 
 	. = ALIGN(4);
 	__rel_dyn_start = .;

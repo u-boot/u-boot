@@ -53,7 +53,7 @@ extern ulong __data_end;
 extern ulong __rel_dyn_start;
 extern ulong __rel_dyn_end;
 extern ulong __bss_start;
-extern ulong __bss_size;
+extern ulong __bss_end;
 
 const char version_string[] =
 	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
@@ -172,18 +172,22 @@ void board_init_f (ulong gdp)
 {
 	void *text_start = &__text_start;
 	void *data_end = &__data_end;
-	Elf32_Rel *rel_dyn_start = (Elf32_Rel *)&__rel_dyn_start;
-	Elf32_Rel *rel_dyn_end = (Elf32_Rel *)&__rel_dyn_end;
+	void *rel_dyn_start = &__rel_dyn_start;
+	void *rel_dyn_end = &__rel_dyn_end;
 	void *bss_start = &__bss_start;
-	ulong bss_size = (ulong)&__bss_size;
+	void *bss_end = &__bss_end;
 
-	ulong uboot_size;
+	ulong *dst_addr;
+	ulong *src_addr;
+	ulong *end_addr;
+
 	void *dest_addr;
 	ulong rel_offset;
-	Elf32_Rel *re;
+	Elf32_Rel *re_src;
+	Elf32_Rel *re_end;
 
-	uboot_size = (ulong)data_end - (ulong)text_start;
-	dest_addr  = (void *)gdp - (uboot_size + (ulong)bss_size);
+	/* Calculate destination RAM Address and relocation offset */
+	dest_addr  = (void *)gdp - (bss_end - text_start);
 	rel_offset = text_start - dest_addr;
 
 	/* First stage CPU initialization */
@@ -195,18 +199,29 @@ void board_init_f (ulong gdp)
 		hang();
 
 	/* Copy U-Boot into RAM */
-	memcpy(dest_addr, text_start, uboot_size);
+	dst_addr = (ulong *)dest_addr;
+	src_addr = (ulong *)text_start;
+	end_addr = (ulong *)data_end;
+
+	while (src_addr < end_addr)
+		*dst_addr++ = *src_addr++;
 
 	/* Clear BSS */
-	memset(bss_start - rel_offset,	0, bss_size);
+	dst_addr = (ulong *)(bss_start - rel_offset);
+	end_addr = (ulong *)(bss_end - rel_offset);
+
+	while (dst_addr < end_addr)
+		*dst_addr++ = 0x00000000;
 
 	/* Perform relocation adjustments */
-	for (re = rel_dyn_start; re < rel_dyn_end; re++)
-	{
-		if (re->r_offset >= TEXT_BASE)
-			if (*(ulong *)re->r_offset >= TEXT_BASE)
-				*(ulong *)(re->r_offset - rel_offset) -= (Elf32_Addr)rel_offset;
-	}
+	re_src = (Elf32_Rel *)rel_dyn_start;
+	re_end = (Elf32_Rel *)rel_dyn_end;
+
+	do {
+		if (re_src->r_offset >= TEXT_BASE)
+			if (*(Elf32_Addr *)(re_src->r_offset - rel_offset) >= TEXT_BASE)
+				*(Elf32_Addr *)(re_src->r_offset - rel_offset) -= rel_offset;
+	} while (re_src++ < re_end);
 
 	((gd_t *)gdp)->reloc_off = rel_offset;
 	((gd_t *)gdp)->flags |= GD_FLG_RELOC;
