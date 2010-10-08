@@ -36,6 +36,7 @@
 #define CONFIG_SYS_BOARD_NAME	"XPedite5170"
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
+#define CONFIG_BAT_RW		1	/* Use common BAT rw code */
 #define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
 #define CONFIG_ALTIVEC		1
 

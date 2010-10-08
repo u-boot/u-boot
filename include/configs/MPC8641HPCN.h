@@ -68,6 +68,7 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
+#define CONFIG_BAT_RW		1	/* Use common BAT rw code */
 #define CONFIG_HIGH_BATS	1	/* High BATs supported and enabled */
 #define CONFIG_SYS_NUM_ADDR_MAP 8	/* Number of addr map slots = 8 dbats */
 

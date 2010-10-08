@@ -31,6 +31,7 @@
 #define CONFIG_MPC8220		1
 #define CONFIG_YUKON8220	1	/* ... on Yukon board	*/
 
+#define CONFIG_BAT_RW		1	/* Use common BAT rw code */
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 
 /* Input clock running at 30Mhz, read Hid1 for the CPU multiplier to
