@@ -237,8 +237,8 @@ void env_relocate (void)
 		set_default_env(NULL);
 #else
 		show_boot_progress (-60);
-#endif
 		set_default_env("!bad CRC");
+#endif
 	} else {
 		env_relocate_spec ();
 	}
