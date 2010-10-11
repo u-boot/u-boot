@@ -61,7 +61,7 @@ typedef struct at91_emac {
 	u32	 reserved2[3];
 	u32	 hsh;
 	u32	 hsl;
-	u32	 sh1l;
+	u32	 sa1l;
 	u32	 sa1h;
 	u32	 sa2l;
 	u32	 sa2h;
