@@ -53,6 +53,11 @@ SECTIONS
 		*(.data.rel.ro)
 	}
 
+	. = ALIGN(4);
+	__rel_dyn_start = .;
+	__rel_dyn_end = .;
+	__dynsym_start = .;
+
 	__got_start = .;
 	. = ALIGN(4);
 	.got : { *(.got) }
@@ -67,4 +72,12 @@ SECTIONS
 	__bss_start = .;
 	.bss : { *(.bss) }
 	_end = .;
+	/DISCARD/ : { *(.bss*) }
+	/DISCARD/ : { *(.dynstr*) }
+	/DISCARD/ : { *(.dynsym*) }
+	/DISCARD/ : { *(.dynamic*) }
+	/DISCARD/ : { *(.hash*) }
+	/DISCARD/ : { *(.plt*) }
+	/DISCARD/ : { *(.interp*) }
+	/DISCARD/ : { *(.gnu*) }
 }

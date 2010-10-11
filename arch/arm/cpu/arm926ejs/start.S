@@ -279,10 +279,10 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
  */
 #ifdef CONFIG_NAND_SPL
 	ldr     r0, _nand_boot_ofs
-	adr	r1, _start
-	add	pc, r0, r1
-_nand_boot_ofs
-	: .word nand_boot - _start
+	mov	pc, r0
+
+_nand_boot_ofs:
+	.word nand_boot
 #else
 	ldr	r0, _board_init_r_ofs
 	adr	r1, _start
