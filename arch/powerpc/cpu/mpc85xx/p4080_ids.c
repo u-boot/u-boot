@@ -81,10 +81,16 @@ struct liodn_id_table fman2_liodn_tbl[] = {
 #endif
 
 struct liodn_id_table sec_liodn_tbl[] = {
-	SET_SEC_JR_LIODN_ENTRY(0, 146, 154),
-	SET_SEC_JR_LIODN_ENTRY(1, 147, 155),
-	SET_SEC_JR_LIODN_ENTRY(2, 178, 186),
-	SET_SEC_JR_LIODN_ENTRY(3, 179, 187),
+	/*
+	 * We assume currently that all JR are in the same partition
+	 * and as such they need to represent the same LIODN due to
+	 * a 4080 rev.2 h/w requirement that DECOs sharing from themselves
+	 * or from another DECO have the two Non-SEQ LIODN values equal
+	 */
+	SET_SEC_JR_LIODN_ENTRY(0, 146, 154), /* (0, 146, 154), */
+	SET_SEC_JR_LIODN_ENTRY(1, 146, 154), /* (1, 147, 155), */
+	SET_SEC_JR_LIODN_ENTRY(2, 146, 154), /* (2, 178, 186), */
+	SET_SEC_JR_LIODN_ENTRY(3, 146, 154), /* (3, 179, 187), */
 	SET_SEC_RTIC_LIODN_ENTRY(a, 144),
 	SET_SEC_RTIC_LIODN_ENTRY(b, 145),
 	SET_SEC_RTIC_LIODN_ENTRY(c, 176),

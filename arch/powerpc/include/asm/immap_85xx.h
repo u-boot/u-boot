@@ -1589,7 +1589,9 @@ typedef struct cpc_corenet {
 	u32	cpcerreaddr;	/* error extended address */
 	u32	cpcerraddr;	/* error address */
 	u32	cpcerrctl;	/* error control */
-	u32	res9[105];	/* pad out to 4k */
+	u32	res9[41];	/* pad out to 4k */
+	u32	cpchdbcr0;	/* hardware debug control register 0 */
+	u32	res10[63];	/* pad out to 4k */
 } cpc_corenet_t;
 
 #define CPC_CSR0_CE	0x80000000	/* Cache Enable */
@@ -1616,6 +1618,7 @@ typedef struct cpc_corenet {
 #define CPC_SRCR0_SRAMSZ_32_WAY	0x0000000a
 #define CPC_SRCR0_SRAMEN	0x00000001
 #define	CPC_ERRDIS_TMHITDIS  	0x00000080	/* multi-way hit disable */
+#define CPC_HDBCR0_CDQ_SPEC_DIS	0x08000000
 #endif /* CONFIG_SYS_FSL_CPC */
 
 /* Global Utilities Block */

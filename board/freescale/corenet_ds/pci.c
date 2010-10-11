@@ -40,10 +40,14 @@ static struct pci_controller pcie2_hose;
 static struct pci_controller pcie3_hose;
 #endif
 
+#ifdef CONFIG_PCIE4
+static struct pci_controller pcie4_hose;
+#endif
+
 void pci_init_board(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	struct fsl_pci_info pci_info[3];
+	struct fsl_pci_info pci_info[4];
 	u32 devdisr;
 	int first_free_busno = 0;
 	int num = 0;
@@ -118,6 +122,28 @@ void pci_init_board(void)
 	}
 #else
 	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_PCIE3); /* disable */
+#endif
+
+#ifdef CONFIG_PCIE4
+	pcie_configured = is_serdes_configured(PCIE4);
+
+	if (pcie_configured && !(devdisr & FSL_CORENET_DEVDISR_PCIE4)) {
+		set_next_law(CONFIG_SYS_PCIE4_MEM_PHYS, LAW_SIZE_512M,
+				LAW_TRGT_IF_PCIE_4);
+		set_next_law(CONFIG_SYS_PCIE4_IO_PHYS, LAW_SIZE_64K,
+				LAW_TRGT_IF_PCIE_4);
+		SET_STD_PCIE_INFO(pci_info[num], 4);
+		pcie_ep = fsl_setup_hose(&pcie4_hose, pci_info[num].regs);
+		printf("    PCIE4 connected to as %s (base addr %lx)\n",
+				pcie_ep ? "End Point" : "Root Complex",
+				pci_info[num].regs);
+		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+				&pcie4_hose, first_free_busno);
+	} else {
+		printf ("    PCIE4: disabled\n");
+	}
+#else
+	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_PCIE4); /* disable */
 #endif
 }
 

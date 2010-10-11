@@ -399,6 +399,14 @@
 #endif
 #define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
 
+/* controller 4, Base address 203000 */
+#define CONFIG_SYS_PCIE4_MEM_BUS	0xe0000000
+#define CONFIG_SYS_PCIE4_MEM_PHYS	0xc60000000ull
+#define CONFIG_SYS_PCIE4_MEM_SIZE	0x20000000	/* 512M */
+#define CONFIG_SYS_PCIE4_IO_BUS		0x00000000
+#define CONFIG_SYS_PCIE4_IO_PHYS	0xff8030000ull
+#define CONFIG_SYS_PCIE4_IO_SIZE	0x00010000	/* 64k */
+
 /* Qman/Bman */
 #define CONFIG_SYS_BMAN_NUM_PORTALS	10
 #define CONFIG_SYS_BMAN_MEM_BASE	0xf4000000
@@ -607,14 +615,17 @@
 #define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
+	"hwconfig=fsl_ddr:ctlr_intlv=cacheline,"		\
+	"bank_intlv=cs0_cs1\0"					\
 	"netdev=eth0\0"						\
 	"uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"			\
-	"tftpflash=tftpboot $loadaddr $uboot; "			\
-	"protect off " MK_STR(TEXT_BASE) " +$filesize; "	\
-	"erase " MK_STR(TEXT_BASE) " +$filesize; "		\
-	"cp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize; "	\
-	"protect on " MK_STR(TEXT_BASE) " +$filesize; "		\
-	"cmp.b $loadaddr " MK_STR(TEXT_BASE) " $filesize\0"	\
+	"ubootaddr=" MK_STR(TEXT_BASE) "\0"			\
+	"tftpflash=tftpboot $loadaddr $uboot && "		\
+	"protect off $ubootaddr +$filesize && "			\
+	"erase $ubootaddr +$filesize && "			\
+	"cp.b $loadaddr $ubootaddr $filesize && "		\
+	"protect on $ubootaddr +$filesize && "			\
+	"cmp.b $loadaddr $ubootaddr $filesize\0"		\
 	"consoledev=ttyS0\0"					\
 	"ramdiskaddr=2000000\0"					\
 	"ramdiskfile=p4080ds/ramdisk.uboot\0"			\
