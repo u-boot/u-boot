@@ -38,7 +38,7 @@ void  flush_cache (unsigned long dummy1, unsigned long dummy2)
 	/* disable write buffer as well (page 2-22) */
 	asm("mcr p15, 0, %0, c7, c10, 4" : : "r" (0));
 #endif
-#ifdef CONFIG_ARMCORTEXA8
+#ifdef CONFIG_ARMV7
 	void v7_flush_cache_all(void);
 
 	v7_flush_cache_all();
