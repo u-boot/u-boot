@@ -322,7 +322,7 @@ int eth_rx (void)
 #endif
 	}
 	/* Get the length of the frame that arrived */
-	switch(((in_be32 (baseaddress + XEL_RXBUFF_OFFSET + 0xC)) &
+	switch(((ntohl(in_be32 (baseaddress + XEL_RXBUFF_OFFSET + 0xC))) &
 			0xFFFF0000 ) >> 16) {
 		case 0x806:
 			length = 42 + 20; /* FIXME size of ARP */
@@ -330,7 +330,7 @@ int eth_rx (void)
 			break;
 		case 0x800:
 			length = 14 + 14 +
-			(((in_be32 (baseaddress + XEL_RXBUFF_OFFSET + 0x10)) &
+			(((ntohl(in_be32 (baseaddress + XEL_RXBUFF_OFFSET + 0x10))) &
 			0xFFFF0000) >> 16); /* FIXME size of IP packet */
 			debug ("IP Packet\n");
 			break;
