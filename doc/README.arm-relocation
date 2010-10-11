@@ -1,49 +1,54 @@
 To make relocation on arm working, the following changes are done:
 
-Add new compilerflag:
+At arch level: add linker flag -pie
 
--fPIC
+	This causes the linker to generate fixup tables .rel.dyn and .dynsym,
+	which must be applied to the relocated image before transferring
+	control to it.
 
-	-> compiler generates position independent code
+	These fixups are described in the ARM ELF documentation as type 23
+	(program-base-relative) and 2 (symbol-relative)
 
-changes in board code:
+At cpu level: modify linker file and add a relocation and fixup loop
 
-- dram_init:
-  - bd pointer is now at this point not accessible, so only
-    detect the real dramsize, and store it in gd->ram_size.
-    best detected with get_ram_size();
-    ToDo: move there also the dram initialization on boards where
-          it is possible.
-  - setup the bd_t dram bank info in the new function
-    dram_init_banksize().
+	the linker file must be modified to include the .rel.dyn and .dynsym
+	tables in the binary image, and to provide symbols for the relocation
+	code to access these tables
 
-- board.c code is adapted from ppc code
+	The relocation and fixup loop must be executed after executing
+	board_init_f at initial location and before executing board_init_r
+	at final location.
 
-- undef CONFIG_RELOC_FIXUP_WORKS
+At board level:
 
-  -> cmdtabl, and subcommand table must be handled from "hand"
-     collected in section "__datarellocal_start".
+	dram_init(): bd pointer is now at this point not accessible, so only
+	detect the real dramsize, and store it in gd->ram_size. Bst detected
+	with get_ram_size().
 
-  - How To fixup the sections:
+TODO:	move also dram initialization there on boards where it is possible.
 
-    __datarel_start, __datarelrolocal_start, __datarellocal_start and
-    __datarelro_start
+	Setup of the the bd_t dram bank info is done in the new function
+	dram_init_banksize() called after bd is accessible.
 
-    automatically? Then it should be possible to define again
-    CONFIG_RELOC_FIXUP_WORKS
+At lib level:
 
-- irq stack setup is now not longer on a fix position, instead it is
-  calculated in board_init_f, and stored in gd->irq_sp
+	Board.c code is adapted from ppc code
 
--------------------------------------------------------------------------------------
+At config level:
 
-To compile a board without relocation, define CONFIG_SYS_ARM_WITHOUT_RELOC
-This possibility will removed!! So please fix your board to compile without
-CONFIG_SYS_ARM_WITHOUT_RELOC defined!!!
+	Define CONFIG_RELOC_FIXUP_WORKS.
+	Undefine CONFIG_SYS_ARM_WITHOUT_RELOC
 
--------------------------------------------------------------------------------------
+* WARNING ** WARNING ** WARNING ** WARNING ** WARNING ** WARNING ** WARNING *
 
-For boards which boot from nand_spl, it is possible to save a copy
+Boards which are not fixed to support relocation will be REMOVED!
+
+Eventually, CONFIG_SYS_ARM_WITHOUT_RELOC and CONFIG_RELOC_FIXUP_WORKS will
+disappear and boards which have to migrated to relocation will disappear too.
+
+-----------------------------------------------------------------------------
+
+For boards which boot from nand_spl, it is possible to save one copy
 if TEXT_BASE == relocation address! This prevents that uboot code
 is copied again in relocate_code().
 
@@ -64,9 +69,9 @@ f) u-boot code steps through board_init_f() and calculates
 If TEXT_BASE == relocation address, the copying of u-boot
 in f) could be saved.
 
--------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
-ToDo:
+TODO
 
 - fill in bd_t infos (check)
 - adapt all boards
@@ -80,7 +85,7 @@ ToDo:
 - new function dram_init_banksize() is actual board specific. Maybe
   we make a weak default function in arch/arm/lib/board.c ?
 
--------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
 Relocation with NAND_SPL (example for the tx25):
 
@@ -98,158 +103,11 @@ Relocation with NAND_SPL (example for the tx25):
   from the nand_spl code), no need to copy, just go on with bss clear
   and jump to board_init_r.
 
--------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
 
-Relocation:
-How to translate flash addresses in GOT to ram addresses.
-This is automagically done from code, but this example
-shows, how this magic code works ;-)
-(example on the qong board)
+How ELF relocations 23 and 2 work.
 
-Find a variable:
-
-a) search it in System.map
-(for example flash_info)
-
-a005b4c0 B BootpID
-a005b4c4 B BootpTry
-a005b4c8 b slave
-a005b4cc B flash_info
-^^^^^^^^
-a005c908 b saved_sector.4002
-a005c910 b cfi_mtd_info
-a005c9c0 b cfi_mtd_names
-a005c9d0 B mtd_table
-
----------------------------------------
-
-b) create hexdump from u-boot code:
-
-hexdump -C u-boot > gnlmpfhex
-
----------------------------------------
-
-c) search the variables address in the hexdump
-
-
-*
-0005fc80  00 00 00 00 00 00 00 00  2c 06 01 a0 18 cd 05 a0  |........,.......|
-0005fc90  9c d4 05 a0 bc b4 05 a0  1c 7f 05 a0 f0 05 01 a0  |................|
-0005fca0  08 5a 04 a0 1c ab 05 a0  ec a4 05 a0 98 c3 01 a0  |.Z..............|
-0005fcb0  a0 d6 05 a0 04 71 05 a0  c0 f9 00 a0 3c cd 05 a0  |.....q......<...|
-0005fcc0  cc b4 05 a0 f0 fa 00 a0  f0 d6 05 a0 10 86 05 a0  |................|
-          ^^^^^^^^^^^
-0005fcd0  a4 16 06 a0 dc 64 05 a0  18 86 05 a0 52 48 05 a0  |.....d......RH..|
-0005fce0  c0 86 05 a0 24 6e 02 a0  b4 6c 05 a0 b0 94 01 a0  |....$n...l......|
-0005fcf0  1c 86 05 a0 50 85 05 a0  d4 0c 06 a0 bc 0b 06 a0  |....P...........|
-
-
--> 0005fcc0
-
-----------------------------------------
-
-d) know we calculate this address in RAM
-
-
-  8ff08000	(new address of code in RAM *1)
-
-+ 0005fcc0
-
-- 00008000	(offset of text *2)
-
-----------
-
-  8ff5fcc0	-> Addr GOT in RAM
-
-*1:
-activate debug and look for the line:
-Now running in RAM - U-Boot at: 8ff08000
-                                ^^^^^^^^
-                                new address of u-boot code in RAM
-
-*2:
-Section Headers:
-  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
-  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
-  [ 1] .text             PROGBITS        a0000000 008000 04599c 00  AX  0   0 32
-                                                  ^^^^^^
-                                                  Offset of text
-
-----------------------------------------
-
-e) now we look in 8ff5fcc0 (RAM)
-
-
-QongEVB>md 0x8ff5fcc0
-8ff5fcc0 : a005b4cc a000faf0 a005d6f0 a0058610  ................
-           ^^^^^^^^
-           Bingo, here we have the old flash address (when relocation
-           is working, here is the fixed ram address. see @ f, how
-           it gets calculated)
-
-
-----------------------------------------
-
-f) now translate it in the new RAM address
-
-  a005b4cc
-
-- a0000000     TextBase
-
-+ 8ff08000     new address of u-boot in ram
-----------
-  8ff634cc
-
-QongEVB>mm 0x8ff5fcc0 0x8ff634cc 1
-QongEVB>md 0x8ff5fcc0
-8ff5fcc0 : 8ff634cc a000faf0 a005d6f0 a0058610  .4..............
-8ff5fcd0 : a00616a4 a00564dc a0058618 a0054852  .....d......RH..
-
-As this must be done for all address in the GOT, the u-boot
-code did this automagically ... :-)
-
-----------------------------------------------
-
-g) check if the new address is really in the bss section:
-
-bss start:
-8ff6054c	(8ff08000 + 0005854C monitorlen)
-
-bss end:
-8ff698ac	(8ff08000 + 618AC)
-
-8ff634cc is in bss :-)
-
-----------------------------------------------
-
-h) u-boot prints:
-
-important  addresses:
-
-U-Boot code: A0000000 -> A005854C  BSS: -> A00618AC	TextBase 0xa0000000
-Now running in RAM - U-Boot at: 8ff08000		relocBase 0x8ff08000
-
-
----------
-
-U-Boot 2010.06-rc2-00002-gf8fbb25-dirty (Jun 18 2010 - 17:07:19)
-
-U-Boot code: A0000000 -> A005854C  BSS: -> A00618AC
-CPU:   Freescale i.MX31 at 398 MHz
-Board: DAVE/DENX Qong
-mon: FFFFFFFF gd->monLen: 000618AC
-Top of RAM usable for U-Boot at: 90000000
-LCD panel info: 640 x 480, 16 bit/pix
-Reserving 600k for LCD Framebuffer at: 8ff6a000
-Reserving 390k for U-Boot at: 8ff08000
-Reserving 1280k for malloc() at: 8fdc8000
-Reserving 28 Bytes for Board Info at: 8fdc7fe4
-Reserving 48 Bytes for Global Data at: 8fdc7fb4
-New Stack Pointer is: 8fdc7fb0
-RAM Configuration:
-Bank #0: 80000000 256 MiB
-mon: 0005854C gd->monLen: 000618AC
-Now running in RAM - U-Boot at: 8ff08000
+TBC
 
 -------------------------------------------------------------------------------------
 
