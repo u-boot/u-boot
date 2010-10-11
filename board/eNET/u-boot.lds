@@ -27,66 +27,62 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 0x06000000;		/* Location of bootcode in flash */
-	_i386boot_text_start = .;
-	.text  : { *(.text); }
+	. = TEXT_BASE;		/* Location of bootcode in flash */
+	__text_start = .;
+	.text  : { *(.text*); }
 
 	. = ALIGN(4);
-	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
-
-	_i386boot_text_size = SIZEOF(.text) + SIZEOF(.rodata);
-	. = ALIGN(4);
-
-	.data : { *(.data) }
-	. = ALIGN(4);
-
-	.interp : { *(.interp) }
-	. = ALIGN(4);
-
-	.dynsym : { *(.dynsym) }
-	. = ALIGN(4);
-
-	.dynstr : { *(.dynstr) }
-	. = ALIGN(4);
-
-	.hash : { *(.hash) }
-	. = ALIGN(4);
-
-	.got : { *(.got) }
-	. = ALIGN(4);
-
-	.got.plt : { *(.got.plt) }
-	. = ALIGN(4);
-
-	.dynamic (NOLOAD) : { *(.dynamic) }
-	. = ALIGN(4);
-
 	__u_boot_cmd_start = .;
 	.u_boot_cmd : { *(.u_boot_cmd) }
 	. = ALIGN(4);
 	__u_boot_cmd_end = .;
-	_i386boot_cmd_start = LOADADDR(.u_boot_cmd);
-
-	_i386boot_rel_dyn_start = .;
-	.rel.dyn : { *(.rel.dyn) }
-	_i386boot_rel_dyn_end = .;
 
 	. = ALIGN(4);
-	_i386boot_bss_start = ABSOLUTE(.);
+	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
+
+	. = ALIGN(4);
+	.data : { *(.data*) }
+
+	. = ALIGN(4);
+	.dynsym : { *(.dynsym*) }
+
+	. = ALIGN(4);
+	.hash : { *(.hash*) }
+
+	. = ALIGN(4);
+	.got : { *(.got*) }
+
+	. = ALIGN(4);
+	__data_end = .;
+
+	. = ALIGN(4);
+	__bss_start = ABSOLUTE(.);
 	.bss (NOLOAD) : { *(.bss) }
-	_i386boot_bss_size = SIZEOF(.bss);
+	. = ALIGN(4);
+	__bss_end = ABSOLUTE(.);
+
+	. = ALIGN(4);
+	__rel_dyn_start = .;
+	.rel.dyn : { *(.rel.dyn) }
+	__rel_dyn_end = .;
+
+	/DISCARD/ : { *(.dynstr*) }
+	/DISCARD/ : { *(.dynamic*) }
+	/DISCARD/ : { *(.plt*) }
+	/DISCARD/ : { *(.interp*) }
+	/DISCARD/ : { *(.gnu*) }
 
 	/* 16bit realmode trampoline code */
-	.realmode 0x7c0 : AT ( LOADADDR(.rel.dyn) + SIZEOF(.rel.dyn) ) { *(.realmode) }
+	.realmode 0x7c0 : AT ( LOADADDR(.rel.dyn) + SIZEOF(.rel.dyn) ) { KEEP(*(.realmode)) }
 
-	_i386boot_realmode = LOADADDR(.realmode);
-	_i386boot_realmode_size = SIZEOF(.realmode);
+	__realmode_start = LOADADDR(.realmode);
+	__realmode_size = SIZEOF(.realmode);
 
 	/* 16bit BIOS emulation code (just enough to boot Linux) */
-	.bios 0 : AT ( LOADADDR(.realmode) + SIZEOF(.realmode) ) { *(.bios) }
+	.bios 0 : AT ( LOADADDR(.realmode) + SIZEOF(.realmode) ) { KEEP(*(.bios)) }
 
-	_i386boot_bios = LOADADDR(.bios);
-	_i386boot_bios_size = SIZEOF(.bios);
+	__bios_start = LOADADDR(.bios);
+	__bios_size = SIZEOF(.bios);
 
 	/* The load addresses below assumes that the flash
 	 * will be mapped so that 0x387f0000 == 0xffff0000
@@ -98,12 +94,11 @@ SECTIONS
 	 * The fff0 offset of resetvec is important, however.
 	 */
 	. = 0xfffffe00;
-	.start32 : AT (0x0603fe00) { *(.start32); }
+	.start32 : AT (TEXT_BASE + 0x3fe00) { KEEP(*(.start32)); }
 
 	. = 0xf800;
-	.start16 : AT (0x0603f800) { *(.start16); }
+	.start16 : AT (TEXT_BASE + 0x3f800) { KEEP(*(.start16)); }
 
 	. = 0xfff0;
-	.resetvec : AT (0x0603fff0) { *(.resetvec); }
-	_i386boot_end = (LOADADDR(.resetvec) + SIZEOF(.resetvec) );
+	.resetvec : AT (TEXT_BASE + 0x3fff0) { KEEP(*(.resetvec)); }
 }

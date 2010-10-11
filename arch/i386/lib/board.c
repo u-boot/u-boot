@@ -48,13 +48,12 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Exports from the Linker Script */
-extern ulong _i386boot_text_start;
-extern ulong _i386boot_rel_dyn_start;
-extern ulong _i386boot_rel_dyn_end;
-extern ulong _i386boot_bss_start;
-extern ulong _i386boot_bss_size;
-
-void ram_bootstrap (void *, ulong);
+extern ulong __text_start;
+extern ulong __data_end;
+extern ulong __rel_dyn_start;
+extern ulong __rel_dyn_end;
+extern ulong __bss_start;
+extern ulong __bss_end;
 
 const char version_string[] =
 	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
@@ -164,85 +163,77 @@ init_fnc_t *init_sequence[] = {
 	NULL,
 };
 
-static gd_t gd_data;
 gd_t *gd;
 
 /*
  * Load U-Boot into RAM, initialize BSS, perform relocation adjustments
  */
-void board_init_f (ulong stack_limit)
+void board_init_f (ulong gdp)
 {
-	void *text_start = &_i386boot_text_start;
-	void *u_boot_cmd_end = &__u_boot_cmd_end;
-	Elf32_Rel *rel_dyn_start = (Elf32_Rel *)&_i386boot_rel_dyn_start;
-	Elf32_Rel *rel_dyn_end = (Elf32_Rel *)&_i386boot_rel_dyn_end;
-	void *bss_start = &_i386boot_bss_start;
-	ulong bss_size = (ulong)&_i386boot_bss_size;
+	void *text_start = &__text_start;
+	void *data_end = &__data_end;
+	void *rel_dyn_start = &__rel_dyn_start;
+	void *rel_dyn_end = &__rel_dyn_end;
+	void *bss_start = &__bss_start;
+	void *bss_end = &__bss_end;
 
-	ulong uboot_size;
+	ulong *dst_addr;
+	ulong *src_addr;
+	ulong *end_addr;
+
 	void *dest_addr;
 	ulong rel_offset;
-	Elf32_Rel *re;
+	Elf32_Rel *re_src;
+	Elf32_Rel *re_end;
 
-	void (*start_func)(void *, ulong);
-
-	uboot_size = (ulong)u_boot_cmd_end - (ulong)text_start;
-	dest_addr  = (void *)stack_limit - (uboot_size + (ulong)bss_size);
+	/* Calculate destination RAM Address and relocation offset */
+	dest_addr  = (void *)gdp - (bss_end - text_start);
 	rel_offset = text_start - dest_addr;
-	start_func = ram_bootstrap - rel_offset;
 
-	/* First stage CPU initialization */
-	if (cpu_init_f() != 0)
-		hang();
+	/* Perform low-level initialization only when cold booted */
+	if (((gd_t *)gdp)->flags & GD_FLG_COLD_BOOT) {
+		/* First stage CPU initialization */
+		if (cpu_init_f() != 0)
+			hang();
 
-	/* First stage Board initialization */
-	if (board_early_init_f() != 0)
-		hang();
-
-	/* Copy U-Boot into RAM */
-	memcpy(dest_addr, text_start, uboot_size);
-
-	/* Clear BSS */
-	memset(bss_start - rel_offset,	0, bss_size);
-
-	/* Perform relocation adjustments */
-	for (re = rel_dyn_start; re < rel_dyn_end; re++)
-	{
-		if (re->r_offset >= TEXT_BASE)
-			if (*(ulong *)re->r_offset >= TEXT_BASE)
-				*(ulong *)(re->r_offset - rel_offset) -= (Elf32_Addr)rel_offset;
+		/* First stage Board initialization */
+		if (board_early_init_f() != 0)
+			hang();
 	}
 
+	/* Copy U-Boot into RAM */
+	dst_addr = (ulong *)dest_addr;
+	src_addr = (ulong *)(text_start + ((gd_t *)gdp)->load_off);
+	end_addr = (ulong *)(data_end  + ((gd_t *)gdp)->load_off);
+
+	while (src_addr < end_addr)
+		*dst_addr++ = *src_addr++;
+
+	/* Clear BSS */
+	dst_addr = (ulong *)(bss_start - rel_offset);
+	end_addr = (ulong *)(bss_end - rel_offset);
+
+	while (dst_addr < end_addr)
+		*dst_addr++ = 0x00000000;
+
+	/* Perform relocation adjustments */
+	re_src = (Elf32_Rel *)(rel_dyn_start + ((gd_t *)gdp)->load_off);
+	re_end = (Elf32_Rel *)(rel_dyn_end + ((gd_t *)gdp)->load_off);
+
+	do {
+		if (re_src->r_offset >= TEXT_BASE)
+			if (*(Elf32_Addr *)(re_src->r_offset - rel_offset) >= TEXT_BASE)
+				*(Elf32_Addr *)(re_src->r_offset - rel_offset) -= rel_offset;
+	} while (re_src++ < re_end);
+
+	((gd_t *)gdp)->reloc_off = rel_offset;
+	((gd_t *)gdp)->flags |= GD_FLG_RELOC;
+
 	/* Enter the relocated U-Boot! */
-	start_func(dest_addr, rel_offset);
+	(board_init_r - rel_offset)((gd_t *)gdp, (ulong)dest_addr);
+
 	/* NOTREACHED - board_init_f() does not return */
 	while(1);
-}
-
-/*
- * We cannot initialize gd_data in board_init_f() because we would be
- * attempting to write to flash (I have even tried using manual relocation
- * adjustments on pointers but it just won't work) and board_init_r() does
- * not have enough arguments to allow us to pass the relocation offset
- * straight up. This bootstrap function (which runs in RAM) is used to
- * setup gd_data in order to pass the relocation offset to the rest of
- * U-Boot.
- *
- * TODO: The compiler optimization barrier is intended to stop GCC from
- * optimizing this function into board_init_f(). It seems to work without
- * it, but I've left it in to be sure. I think also that the barrier in
- * board_init_r() is no longer needed, but left it in 'just in case'
- */
-void ram_bootstrap (void *dest_addr, ulong rel_offset)
-{
-	/* compiler optimization barrier needed for GCC >= 3.4 */
-	__asm__ __volatile__("": : :"memory");
-
-	/* tell others: relocation done */
-	gd_data.reloc_off = rel_offset;
-	gd_data.flags |= GD_FLG_RELOC;
-
-	board_init_r(&gd_data, (ulong)dest_addr);
 }
 
 void board_init_r(gd_t *id, ulong dest_addr)
