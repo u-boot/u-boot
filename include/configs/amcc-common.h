@@ -81,17 +81,6 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 
-#if defined(CONFIG_SYS_RAMBOOT)
-/*
- * Disable NOR FLASH commands on RAM-booting version. One main reason for this
- * RAM-booting version is boards with NAND and without NOR. This image can
- * be used for initial NAND programming.
- */
-#define CONFIG_SYS_NO_FLASH
-#undef CONFIG_CMD_FLASH
-#undef CONFIG_CMD_IMLS
-#endif
-
 /*
  * Miscellaneous configurable options
  */
