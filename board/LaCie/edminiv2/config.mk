@@ -23,5 +23,5 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301 USA
 #
-
-TEXT_BASE = 0x00100000
+# TEXT_BASE must equal the intended FLASH location of u-boot.
+TEXT_BASE = 0xfff90000
