@@ -47,7 +47,9 @@
 /*
  * Values from last command.
  */
-static unsigned int	device;
+static unsigned int	bus;
+static unsigned int	cs;
+static unsigned int	mode;
 static int   		bitlen;
 static uchar 		dout[MAX_SPI_BYTES];
 static uchar 		din[MAX_SPI_BYTES];
@@ -78,8 +80,18 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	if ((flag & CMD_FLAG_REPEAT) == 0)
 	{
-		if (argc >= 2)
-			device = simple_strtoul(argv[1], NULL, 10);
+		if (argc >= 2) {
+			mode = CONFIG_DEFAULT_SPI_MODE;
+			bus = simple_strtoul(argv[1], &cp, 10);
+			if (*cp == ':') {
+				cs = simple_strtoul(cp+1, &cp, 10);
+			} else {
+				cs = bus;
+				bus = CONFIG_DEFAULT_SPI_BUS;
+			}
+			if (*cp == '.');
+				mode = simple_strtoul(cp+1, NULL, 10);
+		}
 		if (argc >= 3)
 			bitlen = simple_strtoul(argv[2], NULL, 10);
 		if (argc >= 4) {
@@ -91,7 +103,7 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				if(tmp > 15)
 					tmp -= ('a' - 'A');
 				if(tmp > 15) {
-					printf("Hex conversion error on %c, giving up.\n", *cp);
+					printf("Hex conversion error on %c\n", *cp);
 					return 1;
 				}
 				if((j % 2) == 0)
@@ -103,24 +115,20 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	if ((bitlen < 0) || (bitlen >  (MAX_SPI_BYTES * 8))) {
-		printf("Invalid bitlen %d, giving up.\n", bitlen);
+		printf("Invalid bitlen %d\n", bitlen);
 		return 1;
 	}
 
-	/* FIXME: Make these parameters run-time configurable */
-	slave = spi_setup_slave(CONFIG_DEFAULT_SPI_BUS, device, 1000000,
-			CONFIG_DEFAULT_SPI_MODE);
+	slave = spi_setup_slave(bus, cs, 1000000, mode);
 	if (!slave) {
-		printf("Invalid device %d, giving up.\n", device);
+		printf("Invalid device %d:%d\n", bus, cs);
 		return 1;
 	}
-
-	debug ("spi chipsel = %08X\n", device);
 
 	spi_claim_bus(slave);
 	if(spi_xfer(slave, bitlen, dout, din,
 				SPI_XFER_BEGIN | SPI_XFER_END) != 0) {
-		printf("Error with the SPI transaction.\n");
+		printf("Error during SPI transaction\n");
 		rcode = 1;
 	} else {
 		for(j = 0; j < ((bitlen + 7) / 8); j++) {
@@ -138,9 +146,11 @@ int do_spi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 U_BOOT_CMD(
 	sspi,	5,	1,	do_spi,
-	"SPI utility commands",
-	"<device> <bit_len> <dout> - Send <bit_len> bits from <dout> out the SPI\n"
-	"<device>  - Identifies the chip select of the device\n"
+	"SPI utility command",
+	"[<bus>:]<cs>[.<mode>] <bit_len> <dout> - Send and receive bits\n"
+	"<bus>     - Identifies the SPI bus\n"
+	"<cs>      - Identifies the chip select\n"
+	"<mode>    - Identifies the SPI mode to use\n"
 	"<bit_len> - Number of bits to send (base 10)\n"
 	"<dout>    - Hexadecimal string that gets sent"
 );
