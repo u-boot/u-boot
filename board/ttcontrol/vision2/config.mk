@@ -1,6 +1,5 @@
 #
-# (C) Copyright 2000-2003
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# Copyright 2009 Freescale Semiconductor, Inc. All Rights Reserved.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -21,28 +20,6 @@
 # MA 02111-1307 USA
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(CPU).a
-
-START	:= start.o
-COBJS	:= cpu.o
-COBJS  += syslib.o
-
-SRCS	:= $(START:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(COBJS))
-START	:= $(addprefix $(obj),$(START))
-
-all:	$(obj).depend $(START) $(LIB)
-
-$(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+LDSCRIPT = $(CPUDIR)/$(SOC)/u-boot.lds
+TEXT_BASE = 0x97800000
+IMX_CONFIG = $(SRCTREE)/board/$(BOARDDIR)/imximage_hynix.cfg

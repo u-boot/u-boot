@@ -1,5 +1,6 @@
 /*
- * (C) Copyright 2009 Freescale Semiconductor, Inc.
+ *
+ * (c) 2007 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,31 +21,32 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __BOARD_FREESCALE_MX51_EVK_H__
-#define __BOARD_FREESCALE_MX51_EVK_H__
+#ifndef __MXC_GPIO_H
+#define __MXC_GPIO_H
 
-#ifndef __ASSEMBLY__
-struct io_board_ctrl {
-	u16 led_ctrl;		/* 0x00 */
-	u16 resv1[0x03];
-	u16 sb_stat;		/* 0x08 */
-	u16 resv2[0x03];
-	u16 int_stat;		/* 0x10 */
-	u16 resv3[0x07];
-	u16 int_rest;		/* 0x20 */
-	u16 resv4[0x0B];
-	u16 int_mask;		/* 0x38 */
-	u16 resv5[0x03];
-	u16 id1;		/* 0x40 */
-	u16 resv6[0x03];
-	u16 id2;		/* 0x48 */
-	u16 resv7[0x03];
-	u16 version;		/* 0x50 */
-	u16 resv8[0x03];
-	u16 id3;		/* 0x58 */
-	u16 resv9[0x03];
-	u16 sw_reset;		/* 0x60 */
+enum mxc_gpio_direction {
+	MXC_GPIO_DIRECTION_IN,
+	MXC_GPIO_DIRECTION_OUT,
 };
+
+#ifdef CONFIG_MXC_GPIO
+extern int mxc_gpio_direction(unsigned int gpio,
+			       enum mxc_gpio_direction direction);
+extern void mxc_gpio_set(unsigned int gpio, unsigned int value);
+extern int mxc_gpio_get(unsigned int gpio);
+#else
+static inline int mxc_gpio_direction(unsigned int gpio,
+				      enum mxc_gpio_direction direction)
+{
+	return 1;
+}
+static inline int mxc_gpio_get(unsigned int gpio)
+{
+	return 1;
+}
+static inline void mxc_gpio_set(unsigned int gpio, unsigned int value)
+{
+}
 #endif
 
 #endif

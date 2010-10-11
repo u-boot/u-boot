@@ -23,9 +23,6 @@
 #ifndef __ASM_ARCH_MXC_MX51_H__
 #define __ASM_ARCH_MXC_MX51_H__
 
-#define __REG(x)	(*((volatile u32 *)(x)))
-#define __REG16(x)	(*((volatile u16 *)(x)))
-#define __REG8(x)	(*((volatile u8 *)(x)))
 /*
  * IRAM
  */
@@ -207,7 +204,12 @@
 #define BOARD_REV_1_0           0x0
 #define BOARD_REV_2_0           0x1
 
-#ifndef __ASSEMBLY__
+#if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
+#include <asm/types.h>
+
+#define __REG(x)	(*((volatile u32 *)(x)))
+#define __REG16(x)	(*((volatile u16 *)(x)))
+#define __REG8(x)	(*((volatile u8 *)(x)))
 
 struct clkctl {
 	u32	ccr;
@@ -256,6 +258,22 @@ struct weim {
 	u32	cswcr2;
 };
 
+/* GPIO Registers */
+struct gpio_regs {
+	u32	gpio_dr;
+	u32	gpio_dir;
+	u32	gpio_psr;
+};
+
+/* System Reset Controller (SRC) */
+struct src {
+	u32	scr;
+	u32	sbmr;
+	u32	srsr;
+	u32	reserved1[2];
+	u32	sisr;
+	u32	simr;
+};
 #endif /* __ASSEMBLER__*/
 
 #endif				/*  __ASM_ARCH_MXC_MX51_H__ */
