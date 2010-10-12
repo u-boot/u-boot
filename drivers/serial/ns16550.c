@@ -70,6 +70,15 @@ void NS16550_putc (NS16550_t com_port, char c)
 {
 	while ((serial_in(&com_port->lsr) & UART_LSR_THRE) == 0);
 	serial_out(c, &com_port->thr);
+
+	/*
+	 * Call watchdog_reset() upon newline. This is done here in putc
+	 * since the environment code uses a single puts() to print the complete
+	 * environment upon "printenv". So we can't put this watchdog call
+	 * in puts().
+	 */
+	if (c == '\n')
+		WATCHDOG_RESET();
 }
 
 #ifndef CONFIG_NS16550_MIN_FUNCTIONS
