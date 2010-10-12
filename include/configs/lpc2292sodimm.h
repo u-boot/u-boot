@@ -156,6 +156,6 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_MMC 1
 /* we use this ethernet chip */
-#define CONFIG_ENC28J60
+#define CONFIG_ENC28J60_LPC2292
 
 #endif	/* __CONFIG_H */

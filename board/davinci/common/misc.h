@@ -46,7 +46,7 @@ struct pinmux_resource {
 			  }
 
 int dvevm_read_mac_address(uint8_t *buf);
-void dv_configure_mac_address(uint8_t *rom_enetaddr);
+void davinci_sync_env_enetaddr(uint8_t *rom_enetaddr);
 int davinci_configure_pin_mux(const struct pinmux_config *pins, int n_pins);
 int davinci_configure_pin_mux_items(const struct pinmux_resource *item,
 				    int n_items);

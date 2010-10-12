@@ -65,21 +65,6 @@ void eth_mdio_enable(void)
 	davinci_eth_mdio_enable();
 }
 
-static u_int8_t davinci_eth_mac_addr[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-
-/*
- * This function must be called before emac_open() if you want to override
- * the default mac address.
- */
-void davinci_eth_set_mac_addr(const u_int8_t *addr)
-{
-	int i;
-
-	for (i = 0; i < sizeof (davinci_eth_mac_addr); i++) {
-		davinci_eth_mac_addr[i] = addr[i];
-	}
-}
-
 /* EMAC Addresses */
 static volatile emac_regs	*adap_emac = (emac_regs *)EMAC_BASE_ADDR;
 static volatile ewrap_regs	*adap_ewrap = (ewrap_regs *)EMAC_WRAPPER_BASE_ADDR;
@@ -99,6 +84,43 @@ static unsigned char		emac_rx_buffers[EMAC_MAX_RX_BUFFERS * (EMAC_MAX_ETHERNET_P
 static volatile u_int8_t	active_phy_addr = 0xff;
 
 phy_t				phy;
+
+static int davinci_eth_set_mac_addr(struct eth_device *dev)
+{
+	unsigned long		mac_hi;
+	unsigned long		mac_lo;
+
+	/*
+	 * Set MAC Addresses & Init multicast Hash to 0 (disable any multicast
+	 * receive)
+	 *  Using channel 0 only - other channels are disabled
+	 *  */
+	writel(0, &adap_emac->MACINDEX);
+	mac_hi = (dev->enetaddr[3] << 24) |
+		 (dev->enetaddr[2] << 16) |
+		 (dev->enetaddr[1] << 8)  |
+		 (dev->enetaddr[0]);
+	mac_lo = (dev->enetaddr[5] << 8) |
+		 (dev->enetaddr[4]);
+
+	writel(mac_hi, &adap_emac->MACADDRHI);
+#if defined(DAVINCI_EMAC_VERSION2)
+	writel(mac_lo | EMAC_MAC_ADDR_IS_VALID | EMAC_MAC_ADDR_MATCH,
+	       &adap_emac->MACADDRLO);
+#else
+	writel(mac_lo, &adap_emac->MACADDRLO);
+#endif
+
+	writel(0, &adap_emac->MACHASH1);
+	writel(0, &adap_emac->MACHASH2);
+
+	/* Set source MAC address - REQUIRED */
+	writel(mac_hi, &adap_emac->MACSRCADDRHI);
+	writel(mac_lo, &adap_emac->MACSRCADDRLO);
+
+
+	return 0;
+}
 
 static void davinci_eth_mdio_enable(void)
 {
@@ -286,8 +308,6 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 	dv_reg_p		addr;
 	u_int32_t		clkdiv, cnt;
 	volatile emac_desc	*rx_desc;
-	unsigned long		mac_hi;
-	unsigned long		mac_lo;
 
 	debug_emac("+ emac_open\n");
 
@@ -311,30 +331,7 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 	writel(1, &adap_emac->TXCONTROL);
 	writel(1, &adap_emac->RXCONTROL);
 
-	/* Set MAC Addresses & Init multicast Hash to 0 (disable any multicast receive) */
-	/* Using channel 0 only - other channels are disabled */
-	writel(0, &adap_emac->MACINDEX);
-	mac_hi = (davinci_eth_mac_addr[3] << 24) |
-		 (davinci_eth_mac_addr[2] << 16) |
-		 (davinci_eth_mac_addr[1] << 8)  |
-		 (davinci_eth_mac_addr[0]);
-	mac_lo = (davinci_eth_mac_addr[5] << 8) |
-		 (davinci_eth_mac_addr[4]);
-
-	writel(mac_hi, &adap_emac->MACADDRHI);
-#if defined(DAVINCI_EMAC_VERSION2)
-	writel(mac_lo | EMAC_MAC_ADDR_IS_VALID | EMAC_MAC_ADDR_MATCH,
-	       &adap_emac->MACADDRLO);
-#else
-	writel(mac_lo, &adap_emac->MACADDRLO);
-#endif
-
-	writel(0, &adap_emac->MACHASH1);
-	writel(0, &adap_emac->MACHASH2);
-
-	/* Set source MAC address - REQUIRED */
-	writel(mac_hi, &adap_emac->MACSRCADDRHI);
-	writel(mac_lo, &adap_emac->MACSRCADDRLO);
+	davinci_eth_set_mac_addr(dev);
 
 	/* Set DMA 8 TX / 8 RX Head pointers to 0 */
 	addr = &adap_emac->TX0HDP;
@@ -636,6 +633,7 @@ int davinci_emac_initialize(void)
 	dev->halt = davinci_eth_close;
 	dev->send = davinci_eth_send_packet;
 	dev->recv = davinci_eth_rcv_packet;
+	dev->write_hwaddr = davinci_eth_set_mac_addr;
 
 	eth_register(dev);
 

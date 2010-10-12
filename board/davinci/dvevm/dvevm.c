@@ -71,7 +71,7 @@ int misc_init_r(void)
 
 	/* Read Ethernet MAC address from EEPROM if available. */
 	if (dvevm_read_mac_address(eeprom_enetaddr))
-		dv_configure_mac_address(eeprom_enetaddr);
+		davinci_sync_env_enetaddr(eeprom_enetaddr);
 
 	i2c_read(0x39, 0x00, 1, &video_mode, 1);
 

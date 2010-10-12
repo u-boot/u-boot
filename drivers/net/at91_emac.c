@@ -208,7 +208,7 @@ static int at91emac_phy_reset(struct eth_device *netdev)
 	at91emac_write(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR, MII_BMCR,
 		(BMCR_ANENABLE | BMCR_ANRESTART));
 
-	for (i = 0; i < 100000 / 100; i++) {
+	for (i = 0; i < 30000; i++) {
 		at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
 			MII_BMSR, &status);
 		if (status & BMSR_ANEGCOMPLETE)
@@ -221,7 +221,7 @@ static int at91emac_phy_reset(struct eth_device *netdev)
 	} else {
 		printf("%s: Autonegotiation timed out (status=0x%04x)\n",
 		       netdev->name, status);
-		return 1;
+		return -1;
 	}
 	return 0;
 }
@@ -240,7 +240,7 @@ static int at91emac_phy_init(struct eth_device *netdev)
 		MII_PHYSID1, &phy_id);
 	if (phy_id == 0xffff) {
 		printf("%s: No PHY present\n", netdev->name);
-		return 1;
+		return -1;
 	}
 
 	at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
@@ -249,7 +249,7 @@ static int at91emac_phy_init(struct eth_device *netdev)
 	if (!(status & BMSR_LSTATUS)) {
 		/* Try to re-negotiate if we don't have link already. */
 		if (at91emac_phy_reset(netdev))
-			return 2;
+			return -2;
 
 		for (i = 0; i < 100000 / 100; i++) {
 			at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
@@ -261,7 +261,7 @@ static int at91emac_phy_init(struct eth_device *netdev)
 	}
 	if (!(status & BMSR_LSTATUS)) {
 		VERBOSEP("%s: link down\n", netdev->name);
-		return 3;
+		return -3;
 	} else {
 		at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR,
 			MII_ADVERTISE, &adv);
@@ -286,7 +286,7 @@ int at91emac_UpdateLinkSpeed(at91_emac_t *emac)
 	at91emac_read(emac, CONFIG_DRIVER_AT91EMAC_PHYADDR, MII_BMSR, &stat1);
 
 	if (!(stat1 & BMSR_LSTATUS))	/* link status up? */
-		return 1;
+		return -1;
 
 	if (stat1 & BMSR_100FULL) {
 		/*set Emac for 100BaseTX and Full Duplex  */
@@ -321,7 +321,7 @@ int at91emac_UpdateLinkSpeed(at91_emac_t *emac)
 			&emac->cfg);
 		return 0;
 	}
-	return 1;
+	return 0;
 }
 
 static int at91emac_init(struct eth_device *netdev, bd_t *bd)
@@ -387,7 +387,7 @@ static int at91emac_init(struct eth_device *netdev, bd_t *bd)
 		at91emac_UpdateLinkSpeed(emac);
 		return 0;
 	}
-	return 1;
+	return -1;
 }
 
 static void at91emac_halt(struct eth_device *netdev)
@@ -489,11 +489,11 @@ int at91emac_register(bd_t *bis, unsigned long iobase)
 		iobase = AT91_EMAC_BASE;
 	emac = malloc(sizeof(*emac)+512);
 	if (emac == NULL)
-		return 1;
+		return -1;
 	dev = malloc(sizeof(*dev));
 	if (dev == NULL) {
 		free(emac);
-		return 1;
+		return -1;
 	}
 	/* alignment as per Errata (64 bytes) is insufficient! */
 	emacfix = (emac_device *) (((unsigned long) emac + 0x1ff) & 0xFFFFFE00);

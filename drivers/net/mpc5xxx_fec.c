@@ -250,6 +250,13 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	mpc5xxx_fec_init_phy(dev, bis);
 
 	/*
+	 * Call board-specific PHY fixups (if any)
+	 */
+#ifdef CONFIG_RESET_PHY_R
+	reset_phy();
+#endif
+
+	/*
 	 * Initialize RxBD/TxBD rings
 	 */
 	mpc5xxx_fec_rbd_init(fec);

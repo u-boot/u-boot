@@ -26,6 +26,7 @@
 #include <common.h>
 #include <net.h>
 #include <config.h>
+#include <malloc.h>
 #include <asm/io.h>
 
 #undef DEBUG
@@ -63,26 +64,19 @@
 #define XEL_RSR_RECV_IE_MASK		0x00000008UL
 
 typedef struct {
-	unsigned int baseaddress;	/* Base address for device (IPIF) */
-	unsigned int nexttxbuffertouse;	/* Next TX buffer to write to */
-	unsigned int nextrxbuffertouse;	/* Next RX buffer to read from */
-	unsigned char deviceid;		/* Unique ID of device - for future */
+	u32 baseaddress;	/* Base address for device (IPIF) */
+	u32 nexttxbuffertouse;	/* Next TX buffer to write to */
+	u32 nextrxbuffertouse;	/* Next RX buffer to read from */
+	uchar deviceid;		/* Unique ID of device - for future */
 } xemaclite;
 
 static xemaclite emaclite;
 
 static u32 etherrxbuff[PKTSIZE_ALIGN/4]; /* Receive buffer */
 
-/* hardcoded MAC address for the Xilinx EMAC Core when env is nowhere*/
-#ifdef CONFIG_ENV_IS_NOWHERE
-static u8 emacaddr[ENET_ADDR_LENGTH] = { 0x00, 0x0a, 0x35, 0x00, 0x22, 0x01 };
-#else
-static u8 emacaddr[ENET_ADDR_LENGTH];
-#endif
-
-void xemaclite_alignedread (u32 * srcptr, void *destptr, unsigned bytecount)
+static void xemaclite_alignedread (u32 *srcptr, void *destptr, u32 bytecount)
 {
-	unsigned int i;
+	u32 i;
 	u32 alignbuffer;
 	u32 *to32ptr;
 	u32 *from32ptr;
@@ -107,9 +101,9 @@ void xemaclite_alignedread (u32 * srcptr, void *destptr, unsigned bytecount)
 	}
 }
 
-void xemaclite_alignedwrite (void *srcptr, u32 destptr, unsigned bytecount)
+static void xemaclite_alignedwrite (void *srcptr, u32 destptr, u32 bytecount)
 {
-	unsigned i;
+	u32 i;
 	u32 alignbuffer;
 	u32 *to32ptr = (u32 *) destptr;
 	u32 *from32ptr;
@@ -134,23 +128,16 @@ void xemaclite_alignedwrite (void *srcptr, u32 destptr, unsigned bytecount)
 	*to32ptr++ = alignbuffer;
 }
 
-void eth_halt (void)
+static void emaclite_halt(struct eth_device *dev)
 {
 	debug ("eth_halt\n");
 }
 
-int eth_init (bd_t * bis)
+static int emaclite_init(struct eth_device *dev, bd_t *bis)
 {
-	uchar enetaddr[6];
-
 	debug ("EmacLite Initialization Started\n");
 	memset (&emaclite, 0, sizeof (xemaclite));
-	emaclite.baseaddress = XILINX_EMACLITE_BASEADDR;
-
-	if (!eth_getenv_enetaddr("ethaddr", enetaddr)) {
-		memcpy(enetaddr, emacaddr, ENET_ADDR_LENGTH);
-		eth_setenv_enetaddr("ethaddr", enetaddr);
-	}
+	emaclite.baseaddress = dev->iobase;
 
 /*
  * TX - TX_PING & TX_PONG initialization
@@ -158,7 +145,7 @@ int eth_init (bd_t * bis)
 	/* Restart PING TX */
 	out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET, 0);
 	/* Copy MAC address */
-	xemaclite_alignedwrite (enetaddr,
+	xemaclite_alignedwrite (dev->enetaddr,
 		emaclite.baseaddress, ENET_ADDR_LENGTH);
 	/* Set the length */
 	out_be32 (emaclite.baseaddress + XEL_TPLR_OFFSET, ENET_ADDR_LENGTH);
@@ -171,7 +158,7 @@ int eth_init (bd_t * bis)
 #ifdef CONFIG_XILINX_EMACLITE_TX_PING_PONG
 	/* The same operation with PONG TX */
 	out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET, 0);
-	xemaclite_alignedwrite (enetaddr, emaclite.baseaddress +
+	xemaclite_alignedwrite (dev->enetaddr, emaclite.baseaddress +
 		XEL_BUFFER_OFFSET, ENET_ADDR_LENGTH);
 	out_be32 (emaclite.baseaddress + XEL_TPLR_OFFSET, ENET_ADDR_LENGTH);
 	out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET,
@@ -194,7 +181,7 @@ int eth_init (bd_t * bis)
 	return 0;
 }
 
-int xemaclite_txbufferavailable (xemaclite * instanceptr)
+static int xemaclite_txbufferavailable (xemaclite *instanceptr)
 {
 	u32 reg;
 	u32 txpingbusy;
@@ -216,12 +203,12 @@ int xemaclite_txbufferavailable (xemaclite * instanceptr)
 	return (!(txpingbusy && txpongbusy));
 }
 
-int eth_send (volatile void *ptr, int len) {
+static int emaclite_send (struct eth_device *dev, volatile void *ptr, int len)
+{
+	u32 reg;
+	u32 baseaddress;
 
-	unsigned int reg;
-	unsigned int baseaddress;
-
-	unsigned maxtry = 1000;
+	u32 maxtry = 1000;
 
 	if (len > ENET_MAX_MTU)
 		len = ENET_MAX_MTU;
@@ -293,11 +280,11 @@ int eth_send (volatile void *ptr, int len) {
 	return 0;
 }
 
-int eth_rx (void)
+static int emaclite_recv(struct eth_device *dev)
 {
-	unsigned int length;
-	unsigned int reg;
-	unsigned int baseaddress;
+	u32 length;
+	u32 reg;
+	u32 baseaddress;
 
 	baseaddress = emaclite.baseaddress + emaclite.nextrxbuffertouse;
 	reg = in_be32 (baseaddress + XEL_RSR_OFFSET);
@@ -322,7 +309,7 @@ int eth_rx (void)
 #endif
 	}
 	/* Get the length of the frame that arrived */
-	switch(((in_be32 (baseaddress + XEL_RXBUFF_OFFSET + 0xC)) &
+	switch(((ntohl(in_be32 (baseaddress + XEL_RXBUFF_OFFSET + 0xC))) &
 			0xFFFF0000 ) >> 16) {
 		case 0x806:
 			length = 42 + 20; /* FIXME size of ARP */
@@ -330,7 +317,7 @@ int eth_rx (void)
 			break;
 		case 0x800:
 			length = 14 + 14 +
-			(((in_be32 (baseaddress + XEL_RXBUFF_OFFSET + 0x10)) &
+			(((ntohl(in_be32 (baseaddress + XEL_RXBUFF_OFFSET + 0x10))) &
 			0xFFFF0000) >> 16); /* FIXME size of IP packet */
 			debug ("IP Packet\n");
 			break;
@@ -352,4 +339,27 @@ int eth_rx (void)
 	NetReceive ((uchar *) etherrxbuff, length);
 	return 1;
 
+}
+
+int xilinx_emaclite_initialize (bd_t *bis, int base_addr)
+{
+	struct eth_device *dev;
+
+	dev = malloc(sizeof(*dev));
+	if (dev == NULL)
+		hang();
+
+	memset(dev, 0, sizeof(*dev));
+	sprintf(dev->name, "Xilinx_Emaclite");
+
+	dev->iobase = base_addr;
+	dev->priv = 0;
+	dev->init = emaclite_init;
+	dev->halt = emaclite_halt;
+	dev->send = emaclite_send;
+	dev->recv = emaclite_recv;
+
+	eth_register(dev);
+
+	return 0;
 }

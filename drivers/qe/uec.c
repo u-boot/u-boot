@@ -1223,8 +1223,10 @@ static int uec_init(struct eth_device* dev, bd_t *bd)
 		i = 50;
 		do {
 			err = curphy->read_status(uec->mii_info);
+			if (!(((i-- > 0) && !uec->mii_info->link) || err))
+				break;
 			udelay(100000);
-		} while (((i-- > 0) && !uec->mii_info->link) || err);
+		} while (1);
 
 		if (err || i <= 0)
 			printf("warning: %s: timeout on PHY link\n", dev->name);
