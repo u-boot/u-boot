@@ -653,7 +653,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	if (strcmp(cmd, "unlock") == 0) {
-		if (arg_off_size(argc - 2, argv + 2, nand, &off, &size) < 0)
+		if (arg_off_size(argc - 2, argv + 2, &dev, &off, &size) < 0)
 			return 1;
 
 		if (!nand_unlock(&nand_info[dev], off, size)) {
