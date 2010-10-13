@@ -308,7 +308,6 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		}
 
 #if defined(CONFIG_OF_LIBFDT)
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC)
 		/* find flattened device tree */
 		ret = boot_get_fdt (flag, argc, argv, &images,
 				    &images.ft_addr, &images.ft_len);
@@ -318,7 +317,6 @@ static int bootm_start(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 		}
 
 		set_working_fdt_addr(images.ft_addr);
-#endif
 #endif
 	}
 
