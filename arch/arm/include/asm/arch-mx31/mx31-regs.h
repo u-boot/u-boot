@@ -57,6 +57,14 @@ struct clock_control_regs {
 	u32 pdr2;
 };
 
+/* GPIO Registers */
+struct gpio_regs {
+	u32	gpio_dr;
+	u32	gpio_dir;
+	u32	gpio_psr;
+};
+
+
 /* Bit definitions for RCSR register in CCM */
 #define CCM_RCSR_NF16B	(1 << 31)
 #define CCM_RCSR_NFMS	(1 << 30)
@@ -153,9 +161,9 @@ struct clock_control_regs {
 /*
  * GPIO
  */
-#define GPIO1_BASE	0x53FCC000
-#define GPIO2_BASE	0x53FD0000
-#define GPIO3_BASE	0x53FA4000
+#define GPIO1_BASE_ADDR	0x53FCC000
+#define GPIO2_BASE_ADDR	0x53FD0000
+#define GPIO3_BASE_ADDR	0x53FA4000
 #define GPIO_DR		0x00000000	/* data register */
 #define GPIO_GDIR	0x00000004	/* direction register */
 #define GPIO_PSR	0x00000008	/* pad status register */

@@ -18,6 +18,7 @@
  */
 
 #include <common.h>
+#include <watchdog.h>
 #ifdef CONFIG_MX31
 #include <asm/arch/mx31.h>
 #else
@@ -189,7 +190,8 @@ void serial_setbrg (void)
 
 int serial_getc (void)
 {
-	while (__REG(UART_PHYS + UTS) & UTS_RXEMPTY);
+	while (__REG(UART_PHYS + UTS) & UTS_RXEMPTY)
+		WATCHDOG_RESET();
 	return (__REG(UART_PHYS + URXD) & URXD_RX_DATA); /* mask out status from upper word */
 }
 
@@ -198,7 +200,8 @@ void serial_putc (const char c)
 	__REG(UART_PHYS + UTXD) = c;
 
 	/* wait for transmitter to be ready */
-	while(!(__REG(UART_PHYS + UTS) & UTS_TXEMPTY));
+	while (!(__REG(UART_PHYS + UTS) & UTS_TXEMPTY))
+		WATCHDOG_RESET();
 
 	/* If \n, also do \r */
 	if (c == '\n')

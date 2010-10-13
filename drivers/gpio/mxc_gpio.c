@@ -21,19 +21,29 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
-#include <asm/arch/mx31.h>
+#ifdef CONFIG_MX31
 #include <asm/arch/mx31-regs.h>
+#endif
+#ifdef CONFIG_MX51
+#include <asm/arch/imx-regs.h>
+#endif
+#include <asm/io.h>
+#include <mxc_gpio.h>
 
 /* GPIO port description */
 static unsigned long gpio_ports[] = {
-	[0] = GPIO1_BASE,
-	[1] = GPIO2_BASE,
-	[2] = GPIO3_BASE,
+	[0] = GPIO1_BASE_ADDR,
+	[1] = GPIO2_BASE_ADDR,
+	[2] = GPIO3_BASE_ADDR,
+#ifdef CONFIG_MX51
+	[3] = GPIO4_BASE_ADDR,
+#endif
 };
 
-int mx31_gpio_direction(unsigned int gpio, enum mx31_gpio_direction direction)
+int mxc_gpio_direction(unsigned int gpio, enum mxc_gpio_direction direction)
 {
 	unsigned int port = gpio >> 5;
+	struct gpio_regs *regs;
 	u32 l;
 
 	if (port >= ARRAY_SIZE(gpio_ports))
@@ -41,22 +51,26 @@ int mx31_gpio_direction(unsigned int gpio, enum mx31_gpio_direction direction)
 
 	gpio &= 0x1f;
 
-	l = __REG(gpio_ports[port] + GPIO_GDIR);
+	regs = (struct gpio_regs *)gpio_ports[port];
+
+	l = readl(&regs->gpio_dir);
+
 	switch (direction) {
-	case MX31_GPIO_DIRECTION_OUT:
+	case MXC_GPIO_DIRECTION_OUT:
 		l |= 1 << gpio;
 		break;
-	case MX31_GPIO_DIRECTION_IN:
+	case MXC_GPIO_DIRECTION_IN:
 		l &= ~(1 << gpio);
 	}
-	__REG(gpio_ports[port] + GPIO_GDIR) = l;
+	writel(l, &regs->gpio_dir);
 
 	return 0;
 }
 
-void mx31_gpio_set(unsigned int gpio, unsigned int value)
+void mxc_gpio_set(unsigned int gpio, unsigned int value)
 {
 	unsigned int port = gpio >> 5;
+	struct gpio_regs *regs;
 	u32 l;
 
 	if (port >= ARRAY_SIZE(gpio_ports))
@@ -64,17 +78,20 @@ void mx31_gpio_set(unsigned int gpio, unsigned int value)
 
 	gpio &= 0x1f;
 
-	l = __REG(gpio_ports[port] + GPIO_DR);
+	regs = (struct gpio_regs *)gpio_ports[port];
+
+	l = readl(&regs->gpio_dr);
 	if (value)
 		l |= 1 << gpio;
 	else
 		l &= ~(1 << gpio);
-	__REG(gpio_ports[port] + GPIO_DR) = l;
+	writel(l, &regs->gpio_dr);
 }
 
-int mx31_gpio_get(unsigned int gpio)
+int mxc_gpio_get(unsigned int gpio)
 {
 	unsigned int port = gpio >> 5;
+	struct gpio_regs *regs;
 	u32 l;
 
 	if (port >= ARRAY_SIZE(gpio_ports))
@@ -82,7 +99,9 @@ int mx31_gpio_get(unsigned int gpio)
 
 	gpio &= 0x1f;
 
-	l = (__REG(gpio_ports[port] + GPIO_DR) >> gpio) & 0x01;
+	regs = (struct gpio_regs *)gpio_ports[port];
+
+	l = (readl(&regs->gpio_dr) >> gpio) & 0x01;
 
 	return l;
 }

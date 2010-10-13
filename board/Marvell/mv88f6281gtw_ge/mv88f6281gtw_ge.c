@@ -110,17 +110,6 @@ int board_init(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-	int i;
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		gd->bd->bi_dram[i].start = kw_sdram_bar(i);
-		gd->bd->bi_dram[i].size = kw_sdram_bs(i);
-	}
-	return 0;
-}
-
 #ifdef CONFIG_MV88E61XX_SWITCH
 void reset_phy(void)
 {

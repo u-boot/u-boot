@@ -52,18 +52,18 @@
 #define CONFIG_MXC_UART	1
 #define CONFIG_SYS_MX31_UART1	1
 
-#define CONFIG_MX31_GPIO
+#define CONFIG_MXC_GPIO
 
 #define CONFIG_MXC_SPI
 #define CONFIG_DEFAULT_SPI_BUS	1
-#define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
+#define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 #define CONFIG_RTC_MC13783
 
 #define CONFIG_FSL_PMIC
 #define CONFIG_FSL_PMIC_BUS	1
 #define CONFIG_FSL_PMIC_CS	0
 #define CONFIG_FSL_PMIC_CLK	100000
-#define CONFIG_FSL_PMIC_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
+#define CONFIG_FSL_PMIC_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 
 /* FPGA */
 #define CONFIG_QONG_FPGA	1
@@ -282,8 +282,7 @@ extern int qong_nand_rdy(void *chip);
 	"mtdparts=physmap-flash.0:384k(U-Boot),128k(env1),"	\
 	"128k(env2),2432k(kernel),13m(ramdisk),-(user)"
 
-/* additions for new relocation code, must added to all boards */
-#undef CONFIG_SYS_ARM_WITHOUT_RELOC /* This board is tested with relocation support */
+/* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0x80000000
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_END		IRAM_SIZE

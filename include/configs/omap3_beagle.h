@@ -340,8 +340,7 @@ extern unsigned int boot_flash_sec;
 extern unsigned int boot_flash_type;
 #endif
 
-/* additions for new relocation code, must added to all boards */
-#undef CONFIG_SYS_ARM_WITHOUT_RELOC /* This board is tested with relocation support */
+/* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_SP_ADDR		(LOW_LEVEL_SRAM_STACK - CONFIG_SYS_GBL_DATA_SIZE)
 

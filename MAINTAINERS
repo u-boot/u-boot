@@ -552,6 +552,7 @@ Stefano Babic <sbabic@denx.de>
 	polaris		xscale
 	trizepsiv	xscale
 	mx51evk		i.MX51
+ 	vision2		i.MX51
 
 Dirk Behme <dirk.behme@gmail.com>
 
@@ -802,6 +803,10 @@ Greg Ungerer <greg.ungerer@opengear.com>
 Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 
 	SFFSDR		ARM926EJS
+
+Matt Waddel <matt.waddel@linaro.org>
+
+	ca9x4_ct_vxp	ARM ARMV7 (Quad Core)
 
 Prafulla Wadaskar <prafulla@marvell.com>
 

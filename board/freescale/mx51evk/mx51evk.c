@@ -33,12 +33,10 @@
 #include <fsl_esdhc.h>
 #include <fsl_pmic.h>
 #include <mc13892.h>
-#include "mx51evk.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static u32 system_rev;
-struct io_board_ctrl *mx51_io_board;
 
 #ifdef CONFIG_FSL_ESDHC
 struct fsl_esdhc_cfg esdhc_cfg[2] = {

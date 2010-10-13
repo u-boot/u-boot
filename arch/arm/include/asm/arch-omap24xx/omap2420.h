@@ -25,7 +25,7 @@
 #ifndef _OMAP2420_SYS_H_
 #define _OMAP2420_SYS_H_
 
-#include <asm/arch/sizes.h>
+#include <asm/sizes.h>
 
 /*
  * 2420 specific Section

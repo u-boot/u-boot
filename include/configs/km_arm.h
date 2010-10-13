@@ -180,7 +180,7 @@ int get_scl (void);
 #undef	CONFIG_JFFS2_CMDLINE
 #endif
 
-/* additions for new relocation code, must added to all boards */
+/* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_INIT_SP_ADDR		(0x00000000 + 0x1000 - /* Fix this */ \
 					CONFIG_SYS_GBL_DATA_SIZE)
