@@ -1252,7 +1252,7 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		*of_size = of_len;
 	} else {
 		*of_flat_tree = fdt_blob;
-		of_len = (CONFIG_SYS_BOOTMAPSZ + bootmap_base) - (ulong)fdt_blob;
+		of_len = *of_size + CONFIG_SYS_FDT_PAD;
 		lmb_reserve(lmb, (ulong)fdt_blob, of_len);
 		fdt_set_totalsize(*of_flat_tree, of_len);
 
