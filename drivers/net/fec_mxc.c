@@ -414,6 +414,9 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 	uint32_t base;
 	struct fec_priv *fec = (struct fec_priv *)dev->priv;
 
+	/* Initialize MAC address */
+	fec_set_hwaddr(dev);
+
 	/*
 	 * reserve memory for both buffer descriptor chains at once
 	 * Datasheet forces the startaddress of each chain is 16 byte
