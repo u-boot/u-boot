@@ -1529,7 +1529,7 @@ int submit_common_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 	if (usb_pipebulk(pipe))
 		timeout = BULK_TO;
 	else
-		timeout = 100;
+		timeout = 1000;
 
 	/* wait for it to complete */
 	for (;;) {

@@ -144,19 +144,28 @@ static void write_toggle(struct usb_device *dev, u8 ep, u8 dir_out)
 	u16 csr;
 
 	if (dir_out) {
-		if (!toggle)
-			writew(MUSB_TXCSR_CLRDATATOG, &musbr->txcsr);
-		else {
-			csr = readw(&musbr->txcsr);
+		csr = readw(&musbr->txcsr);
+		if (!toggle) {
+			if (csr & MUSB_TXCSR_MODE)
+				csr = MUSB_TXCSR_CLRDATATOG;
+			else
+				csr = 0;
+			writew(csr, &musbr->txcsr);
+		} else {
 			csr |= MUSB_TXCSR_H_WR_DATATOGGLE;
 			writew(csr, &musbr->txcsr);
 			csr |= (toggle << MUSB_TXCSR_H_DATATOGGLE_SHIFT);
 			writew(csr, &musbr->txcsr);
 		}
 	} else {
-		if (!toggle)
-			writew(MUSB_RXCSR_CLRDATATOG, &musbr->rxcsr);
-		else {
+		if (!toggle) {
+			csr = readw(&musbr->txcsr);
+			if (csr & MUSB_TXCSR_MODE)
+				csr = MUSB_RXCSR_CLRDATATOG;
+			else
+				csr = 0;
+			writew(csr, &musbr->rxcsr);
+		} else {
 			csr = readw(&musbr->rxcsr);
 			csr |= MUSB_RXCSR_H_WR_DATATOGGLE;
 			writew(csr, &musbr->rxcsr);
