@@ -29,6 +29,7 @@
 #include <linux/stddef.h>
 #include <malloc.h>
 #include <mmc.h>
+#include <errno.h>
 
 /* references to names in env_common.c */
 extern uchar default_environment[];
@@ -96,13 +97,23 @@ inline int write_env(struct mmc *mmc, unsigned long size,
 
 int saveenv(void)
 {
+	env_t	env_new;
+	ssize_t	len;
+	char	*res;
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
 
 	if (init_mmc_for_env(mmc))
 		return 1;
 
+	res = (char *)&env_new.data;
+	len = hexport('\0', &res, ENV_SIZE);
+	if (len < 0) {
+		error("Cannot export environment: errno = %d\n", errno);
+		return 1;
+	}
+	env_new.crc   = crc32(0, env_new.data, ENV_SIZE);
 	printf("Writing to MMC(%d)... ", CONFIG_SYS_MMC_ENV_DEV);
-	if (write_env(mmc, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, env_ptr)) {
+	if (write_env(mmc, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, (u_char *)&env_new)) {
 		puts("failed\n");
 		return 1;
 	}
