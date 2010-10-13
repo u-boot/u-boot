@@ -25,4 +25,6 @@
 /* Relocation to SDRAM works on all ARM boards */
 #define CONFIG_RELOC_FIXUP_WORKS
 #endif
+#define CONFIG_LMB
+#define CONFIG_SYS_BOOT_RAMDISK_HIGH
 #endif
