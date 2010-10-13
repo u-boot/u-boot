@@ -189,4 +189,15 @@ struct mxc_ccm_reg {
 #define MXC_CCM_CSCDR1_UART_CLK_PODF_OFFSET		0
 #define MXC_CCM_CSCDR1_UART_CLK_PODF_MASK		0x7
 
+/* Define the bits in register CCDR */
+#define MXC_CCM_CCDR_IPU_HS_MASK			(0x1 << 17)
+
+/* Define the bits in register CCGRx */
+#define MXC_CCM_CCGR_CG_MASK				0x3
+
+#define MXC_CCM_CCGR5_CG5_OFFSET			10
+
+/* Define the bits in register CLPCR */
+#define MXC_CCM_CLPCR_BYPASS_IPU_LPM_HS                 (0x1 << 18)
+
 #endif				/* __ARCH_ARM_MACH_MX51_CRM_REGS_H__ */
