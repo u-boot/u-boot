@@ -1561,7 +1561,7 @@ int boot_get_fdt (int flag, int argc, char * const argv[], bootm_headers_t *imag
 				goto error;
 			}
 
-			if (be32_to_cpu (fdt_totalsize (fdt_blob)) != fdt_len) {
+			if (fdt_totalsize(fdt_blob) != fdt_len) {
 				fdt_error ("fdt size != image size");
 				goto error;
 			}
@@ -1575,7 +1575,7 @@ int boot_get_fdt (int flag, int argc, char * const argv[], bootm_headers_t *imag
 	}
 
 	*of_flat_tree = fdt_blob;
-	*of_size = be32_to_cpu (fdt_totalsize (fdt_blob));
+	*of_size = fdt_totalsize(fdt_blob);
 	debug ("   of_flat_tree at 0x%08lx size 0x%08lx\n",
 			(ulong)*of_flat_tree, *of_size);
 
