@@ -667,6 +667,16 @@ int fdt_fixup_nor_flash_size(void *blob)
 }
 #endif
 
+int fdt_increase_size(void *fdt, int add_len)
+{
+	int newlen;
+
+	newlen = fdt_totalsize(fdt) + add_len;
+
+	/* Open in place with a new len */
+	return fdt_open_into(fdt, fdt, newlen);
+}
+
 #ifdef CONFIG_FDT_FIXUP_PARTITIONS
 #include <jffs2/load_kernel.h>
 #include <mtd_node.h>
@@ -699,16 +709,6 @@ int fdt_del_subnodes(const void *blob, int parent_offset)
 		}
 	}
 	return 0;
-}
-
-int fdt_increase_size(void *fdt, int add_len)
-{
-	int newlen;
-
-	newlen = fdt_totalsize(fdt) + add_len;
-
-	/* Open in place with a new len */
-	return fdt_open_into(fdt, fdt, newlen);
 }
 
 int fdt_del_partitions(void *blob, int parent_offset)
