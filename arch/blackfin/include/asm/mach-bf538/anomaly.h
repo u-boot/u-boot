@@ -11,8 +11,8 @@
  */
 
 /* This file should be up to date with:
- *  - Revision H, 07/10/2009; ADSP-BF538/BF538F Blackfin Processor Anomaly List
- *  - Revision M, 07/10/2009; ADSP-BF539/BF539F Blackfin Processor Anomaly List
+ *  - Revision I, 05/25/2010; ADSP-BF538/BF538F Blackfin Processor Anomaly List
+ *  - Revision N, 05/25/2010; ADSP-BF539/BF539F Blackfin Processor Anomaly List
  */
 
 #ifndef _MACH_ANOMALY_H_
@@ -142,6 +142,8 @@
 #define ANOMALY_05000477 (1)
 /* Reads of ITEST_COMMAND and ITEST_DATA Registers Cause Cache Corruption */
 #define ANOMALY_05000481 (1)
+/* IFLUSH sucks at life */
+#define ANOMALY_05000491 (1)
 
 /* Anomalies that don't exist on this proc */
 #define ANOMALY_05000099 (0)
@@ -184,6 +186,7 @@
 #define ANOMALY_05000430 (0)
 #define ANOMALY_05000432 (0)
 #define ANOMALY_05000435 (0)
+#define ANOMALY_05000440 (0)
 #define ANOMALY_05000447 (0)
 #define ANOMALY_05000448 (0)
 #define ANOMALY_05000456 (0)

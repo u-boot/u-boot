@@ -11,7 +11,7 @@
  */
 
 /* This file should be up to date with:
- *  - Revision I, 07/23/2009; ADSP-BF542/BF544/BF547/BF548/BF549 Blackfin Processor Anomaly List
+ *  - Revision J, 06/03/2010; ADSP-BF542/BF544/BF547/BF548/BF549 Blackfin Processor Anomaly List
  */
 
 #ifndef _MACH_ANOMALY_H_
@@ -110,8 +110,6 @@
 #define ANOMALY_05000379 (1)
 /* 8-Bit NAND Flash Boot Mode Not Functional */
 #define ANOMALY_05000382 (__SILICON_REVISION__ < 1)
-/* Some ATAPI Modes Are Not Functional */
-#define ANOMALY_05000383 (1)
 /* Boot from OTP Memory Not Functional */
 #define ANOMALY_05000385 (__SILICON_REVISION__ < 1)
 /* bfrom_SysControl() Firmware Routine Not Functional */
@@ -218,6 +216,8 @@
 #define ANOMALY_05000481 (1)
 /* Possible USB Data Corruption When Multiple Endpoints Are Accessed by the Core */
 #define ANOMALY_05000483 (1)
+/* DDR Trim May Not Be Performed for Certain VLEV Values in OTP Page PBS00L */
+#define ANOMALY_05000484 (__SILICON_REVISION__ < 3)
 /* PLL_CTL Change Using bfrom_SysControl() Can Result in Processor Overclocking */
 #define ANOMALY_05000485 (__SILICON_REVISION__ >= 2)
 /* IFLUSH sucks at life */
@@ -272,6 +272,7 @@
 #define ANOMALY_05000412 (0)
 #define ANOMALY_05000432 (0)
 #define ANOMALY_05000435 (0)
+#define ANOMALY_05000440 (0)
 #define ANOMALY_05000475 (0)
 
 #endif

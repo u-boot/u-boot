@@ -88,6 +88,8 @@
 #define ANOMALY_05000477 (1)
 /* Reads of ITEST_COMMAND and ITEST_DATA Registers Cause Cache Corruption */
 #define ANOMALY_05000481 (1)
+/* IFLUSH sucks at life */
+#define ANOMALY_05000491 (1)
 
 /* Anomalies that don't exist on this proc */
 #define ANOMALY_05000099 (0)

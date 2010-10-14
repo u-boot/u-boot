@@ -12,7 +12,7 @@
 
 /* This file should be up to date with:
  *  - Revision E, 03/15/2010; ADSP-BF526 Blackfin Processor Anomaly List
- *  - Revision G, 08/25/2009; ADSP-BF527 Blackfin Processor Anomaly List
+ *  - Revision H, 04/29/2010; ADSP-BF527 Blackfin Processor Anomaly List
  */
 
 #ifndef _MACH_ANOMALY_H_
@@ -220,6 +220,8 @@
 #define ANOMALY_05000483 (1)
 /* PLL_CTL Change Using bfrom_SysControl() Can Result in Processor Overclocking */
 #define ANOMALY_05000485 (_ANOMALY_BF526_BF527(< 2, < 3))
+/* The CODEC Zero-Cross Detect Feature is not Functional */
+#define ANOMALY_05000487 (1)
 /* IFLUSH sucks at life */
 #define ANOMALY_05000491 (1)
 

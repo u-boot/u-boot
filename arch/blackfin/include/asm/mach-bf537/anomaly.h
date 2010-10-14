@@ -11,7 +11,7 @@
  */
 
 /* This file should be up to date with:
- *  - Revision D, 09/18/2008; ADSP-BF534/ADSP-BF536/ADSP-BF537 Blackfin Processor Anomaly List
+ *  - Revision E, 05/25/2010; ADSP-BF534/ADSP-BF536/ADSP-BF537 Blackfin Processor Anomaly List
  */
 
 #ifndef _MACH_ANOMALY_H_
@@ -160,12 +160,16 @@
 #define ANOMALY_05000443 (1)
 /* False Hardware Error when RETI Points to Invalid Memory */
 #define ANOMALY_05000461 (1)
+/* Synchronization Problem at Startup May Cause SPORT Transmit Channels to Misalign */
+#define ANOMALY_05000462 (1)
 /* Interrupted 32-Bit SPORT Data Register Access Results In Underflow */
 #define ANOMALY_05000473 (1)
 /* Possible Lockup Condition whem Modifying PLL from External Memory */
 #define ANOMALY_05000475 (1)
 /* TESTSET Instruction Cannot Be Interrupted */
 #define ANOMALY_05000477 (1)
+/* Multiple Simultaneous Urgent DMA Requests May Cause DMA System Instability */
+#define ANOMALY_05000480 (__SILICON_REVISION__ < 3)
 /* Reads of ITEST_COMMAND and ITEST_DATA Registers Cause Cache Corruption */
 #define ANOMALY_05000481 (1)
 /* IFLUSH sucks at life */
@@ -211,6 +215,7 @@
 #define ANOMALY_05000430 (0)
 #define ANOMALY_05000432 (0)
 #define ANOMALY_05000435 (0)
+#define ANOMALY_05000440 (0)
 #define ANOMALY_05000447 (0)
 #define ANOMALY_05000448 (0)
 #define ANOMALY_05000456 (0)
