@@ -304,6 +304,21 @@ __LIBS := $(subst $(obj),,$(LIBS)) $(subst $(obj),,$(LIBBOARD))
 #########################################################################
 #########################################################################
 
+ifneq ($(CONFIG_BOARD_SIZE_LIMIT),)
+BOARD_SIZE_CHECK = \
+	@actual=`wc -c $@ | awk '{print $$1}'`; \
+	limit=$(CONFIG_BOARD_SIZE_LIMIT); \
+	if test $$actual -gt $$limit; then \
+		echo "$@ exceeds file size limit:"; \
+		echo "  limit:  $$limit bytes"; \
+		echo "  actual: $$actual bytes"; \
+		echo "  excess: $$((actual - limit)) bytes"; \
+		exit 1; \
+	fi
+else
+BOARD_SIZE_CHECK =
+endif
+
 # Always append ALL so that arch config.mk's can add custom ones
 ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(U_BOOT_NAND) $(U_BOOT_ONENAND)
 
@@ -317,10 +332,12 @@ $(obj)u-boot.srec:	$(obj)u-boot
 
 $(obj)u-boot.bin:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
+		$(BOARD_SIZE_CHECK)
 
 $(obj)u-boot.ldr:	$(obj)u-boot
 		$(CREATE_LDR_ENV)
 		$(LDR) -T $(CONFIG_BFIN_CPU) -c $@ $< $(LDR_FLAGS)
+		$(BOARD_SIZE_CHECK)
 
 $(obj)u-boot.ldr.hex:	$(obj)u-boot.ldr
 		$(OBJCOPY) ${OBJCFLAGS} -O ihex $< $@ -I binary
