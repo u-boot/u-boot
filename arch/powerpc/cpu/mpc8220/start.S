@@ -641,10 +641,12 @@ in_ram:
 	beq	4f
 3:	lwzu	r4,4(r3)
 	lwzux	r0,r4,r11
+	cmpwi	r0,0
 	add	r0,r0,r11
 	stw	r10,0(r3)
+	beq-	5f
 	stw	r0,0(r4)
-	bdnz	3b
+5:	bdnz	3b
 4:
 clear_bss:
 	/*
