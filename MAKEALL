@@ -492,6 +492,7 @@ LIST_ARMV7="		\
 	ca9x4_ct_vxp		\
 	devkit8000		\
 	igep0020		\
+	igep0030		\
 	mx51evk			\
 	omap3_beagle		\
 	omap3_overo		\
