@@ -24,6 +24,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/emif_defs.h>
 #include <asm/io.h>
 #include "../common/misc.h"
 #include "common.h"
@@ -96,6 +97,23 @@ int board_init(void)
 {
 #ifndef CONFIG_USE_IRQ
 	irq_init();
+#endif
+
+
+#ifdef CONFIG_NAND_DAVINCI
+	/*
+	 * NAND CS setup - cycle counts based on da850evm NAND timings in the
+	 * Linux kernel @ 25MHz EMIFA
+	 */
+	writel((DAVINCI_ABCR_WSETUP(0) |
+		DAVINCI_ABCR_WSTROBE(0) |
+		DAVINCI_ABCR_WHOLD(0) |
+		DAVINCI_ABCR_RSETUP(0) |
+		DAVINCI_ABCR_RSTROBE(1) |
+		DAVINCI_ABCR_RHOLD(0) |
+		DAVINCI_ABCR_TA(0) |
+		DAVINCI_ABCR_ASIZE_8BIT),
+	       &davinci_emif_regs->ab2cr); /* CS3 */
 #endif
 
 	/* arch number of the board */
