@@ -154,6 +154,14 @@
 #undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_NAND
+
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_MTD_DEVICE
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_LZO
+#define CONFIG_RBTREE
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
 #endif
 
 #if !defined(CONFIG_USE_NAND) && \
