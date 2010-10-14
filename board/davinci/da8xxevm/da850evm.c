@@ -54,12 +54,34 @@ static const struct pinmux_config i2c_pins[] = {
 	{ pinmux(4), 2, 3 }
 };
 
+#ifdef CONFIG_NAND_DAVINCI
+const struct pinmux_config nand_pins[] = {
+	{ pinmux(7), 1, 1 },
+	{ pinmux(7), 1, 2 },
+	{ pinmux(7), 1, 4 },
+	{ pinmux(7), 1, 5 },
+	{ pinmux(9), 1, 0 },
+	{ pinmux(9), 1, 1 },
+	{ pinmux(9), 1, 2 },
+	{ pinmux(9), 1, 3 },
+	{ pinmux(9), 1, 4 },
+	{ pinmux(9), 1, 5 },
+	{ pinmux(9), 1, 6 },
+	{ pinmux(9), 1, 7 },
+	{ pinmux(12), 1, 5 },
+	{ pinmux(12), 1, 6 }
+};
+#endif
+
 static const struct pinmux_resource pinmuxes[] = {
 #ifdef CONFIG_SPI_FLASH
 	PINMUX_ITEM(spi1_pins),
 #endif
 	PINMUX_ITEM(uart_pins),
 	PINMUX_ITEM(i2c_pins),
+#ifdef CONFIG_NAND_DAVINCI
+	PINMUX_ITEM(nand_pins),
+#endif
 };
 
 static const struct lpsc_resource lpsc[] = {
