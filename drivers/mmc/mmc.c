@@ -78,17 +78,11 @@ struct mmc *find_mmc_device(int dev_num)
 }
 
 static ulong
-mmc_bwrite(int dev_num, ulong start, lbaint_t blkcnt, const void*src)
+mmc_write_blocks(struct mmc *mmc, ulong start, lbaint_t blkcnt, const void*src)
 {
 	struct mmc_cmd cmd;
 	struct mmc_data data;
-	int err;
-	int stoperr = 0;
-	struct mmc *mmc = find_mmc_device(dev_num);
-	int blklen;
-
-	if (!mmc)
-		return -1;
+	int blklen, err;
 
 	blklen = mmc->write_bl_len;
 
@@ -96,12 +90,6 @@ mmc_bwrite(int dev_num, ulong start, lbaint_t blkcnt, const void*src)
 		printf("MMC: block number 0x%lx exceeds max(0x%lx)",
 			start + blkcnt, mmc->block_dev.lba);
 		return 0;
-	}
-	err = mmc_set_blocklen(mmc, mmc->write_bl_len);
-
-	if (err) {
-		printf("set write bl len failed\n\r");
-		return err;
 	}
 
 	if (blkcnt > 1)
@@ -134,8 +122,44 @@ mmc_bwrite(int dev_num, ulong start, lbaint_t blkcnt, const void*src)
 		cmd.cmdarg = 0;
 		cmd.resp_type = MMC_RSP_R1b;
 		cmd.flags = 0;
-		stoperr = mmc_send_cmd(mmc, &cmd, NULL);
+		err = mmc_send_cmd(mmc, &cmd, NULL);
+		if (err) {
+			printf("mmc fail to send stop cmd\n\r");
+			return err;
+		}
 	}
+
+	return blkcnt;
+}
+
+static ulong
+mmc_bwrite(int dev_num, ulong start, lbaint_t blkcnt, const void*src)
+{
+	int err;
+	struct mmc *mmc = find_mmc_device(dev_num);
+	lbaint_t cur, blocks_todo = blkcnt;
+
+	if (!mmc)
+		return -1;
+
+	err = mmc_set_blocklen(mmc, mmc->write_bl_len);
+	if (err) {
+		printf("set write bl len failed\n\r");
+		return err;
+	}
+
+	do {
+		/*
+		 * The 65535 constraint comes from some hardware has
+		 * only 16 bit width block number counter
+		 */
+		cur = (blocks_todo > 65535) ? 65535 : blocks_todo;
+		if(mmc_write_blocks(mmc, start, cur, src) != cur)
+			return -1;
+		blocks_todo -= cur;
+		start += cur;
+		src += cur * mmc->write_bl_len;
+	} while (blocks_todo > 0);
 
 	return blkcnt;
 }
