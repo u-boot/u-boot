@@ -26,6 +26,7 @@
 /*
  * Board
  */
+#define CONFIG_DRIVER_TI_EMAC
 
 /*
  * SoC Configuration
@@ -99,6 +100,20 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */
 #define NAND_MAX_CHIPS			1
 #define DEF_BOOTM			""
+#endif
+
+/*
+ * Network & Ethernet Configuration
+ */
+#ifdef CONFIG_DRIVER_TI_EMAC
+#define CONFIG_EMAC_MDIO_PHY_NUM	0
+#define CONFIG_MII
+#define CONFIG_BOOTP_DEFAULT
+#define CONFIG_BOOTP_DNS
+#define CONFIG_BOOTP_DNS2
+#define CONFIG_BOOTP_SEND_HOSTNAME
+#define CONFIG_NET_RETRY_COUNT	10
+#define CONFIG_NET_MULTI
 #endif
 
 /*

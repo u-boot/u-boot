@@ -23,8 +23,11 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <net.h>
+#include <netdev.h>
 #include <asm/arch/hardware.h>
 #include <asm/arch/emif_defs.h>
+#include <asm/arch/emac_defs.h>
 #include <asm/io.h>
 #include "../common/misc.h"
 #include "common.h"
@@ -48,6 +51,28 @@ static const struct pinmux_config uart_pins[] = {
 	{ pinmux(4), 2, 4 },
 	{ pinmux(4), 2, 5 }
 };
+
+#ifdef CONFIG_DRIVER_TI_EMAC
+static const struct pinmux_config emac_pins[] = {
+	{ pinmux(2), 8, 1 },
+	{ pinmux(2), 8, 2 },
+	{ pinmux(2), 8, 3 },
+	{ pinmux(2), 8, 4 },
+	{ pinmux(2), 8, 5 },
+	{ pinmux(2), 8, 6 },
+	{ pinmux(2), 8, 7 },
+	{ pinmux(3), 8, 0 },
+	{ pinmux(3), 8, 1 },
+	{ pinmux(3), 8, 2 },
+	{ pinmux(3), 8, 3 },
+	{ pinmux(3), 8, 4 },
+	{ pinmux(3), 8, 5 },
+	{ pinmux(3), 8, 6 },
+	{ pinmux(3), 8, 7 },
+	{ pinmux(4), 8, 0 },
+	{ pinmux(4), 8, 1 }
+};
+#endif /* CONFIG_DRIVER_TI_EMAC */
 
 /* I2C pin muxer settings */
 static const struct pinmux_config i2c_pins[] = {
@@ -142,6 +167,14 @@ int board_init(void)
 	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
 		return 1;
 
+#ifdef CONFIG_DRIVER_TI_EMAC
+	if (davinci_configure_pin_mux(emac_pins, ARRAY_SIZE(emac_pins)) != 0)
+		return 1;
+	/* set cfgchip3 to select MII */
+	writel(readl(&davinci_syscfg_regs->cfgchip3) & ~(1 << 8),
+			     &davinci_syscfg_regs->cfgchip3);
+#endif /* CONFIG_DRIVER_TI_EMAC */
+
 	/* enable the console UART */
 	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
 		DAVINCI_UART_PWREMU_MGMT_UTRST),
@@ -149,3 +182,19 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_DRIVER_TI_EMAC
+
+/*
+ * Initializes on-board ethernet controllers.
+ */
+int board_eth_init(bd_t *bis)
+{
+	if (!davinci_emac_initialize()) {
+		printf("Error: Ethernet init failed!\n");
+		return -1;
+	}
+
+	return 0;
+}
+#endif /* CONFIG_DRIVER_TI_EMAC */
