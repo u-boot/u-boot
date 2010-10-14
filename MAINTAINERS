@@ -827,6 +827,10 @@ Alex Züpke <azu@sysgo.de>
 	lart		SA1100
 	dnp1110		SA1110
 
+Enric Balletbo i Serra <eballetbo@iseebcn.com>
+
+	igep0020	ARM ARMV7 (OMAP3xx SoC)
+
 -------------------------------------------------------------------------
 
 Unknown / orphaned boards:
