@@ -71,6 +71,11 @@ struct ehci_hcor {
 #define	STD_ASS		(1 << 15)
 #define STS_HALT	(1 << 12)
 	uint32_t or_usbintr;
+#define INTR_UE         (1 << 0)                /* USB interrupt enable */
+#define INTR_UEE        (1 << 1)                /* USB error interrupt enable */
+#define INTR_PCE        (1 << 2)                /* Port change detect enable */
+#define INTR_SEE        (1 << 4)                /* system error enable */
+#define INTR_AAE        (1 << 5)                /* Interrupt on async adavance enable */
 	uint32_t or_frindex;
 	uint32_t or_ctrldssegment;
 	uint32_t or_periodiclistbase;

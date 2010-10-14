@@ -377,6 +377,20 @@
 #define CONFIG_SYS_I2C_RTC_ADDR		0x68	/* at address 0x68		*/
 
 /*
+ * USB  Support
+ */
+#define CONFIG_CMD_USB
+
+#if defined(CONFIG_CMD_USB)
+#define CONFIG_USB_EHCI				/* Enable EHCI Support	*/
+#define CONFIG_USB_EHCI_FSL			/* On a FSL platform	*/
+#define CONFIG_EHCI_MMIO_BIG_ENDIAN		/* With big-endian regs	*/
+#define CONFIG_EHCI_DESC_BIG_ENDIAN
+#define CONFIG_EHCI_IS_TDI
+#define CONFIG_USB_STORAGE
+#endif
+
+/*
  * Environment
  */
 #define CONFIG_ENV_IS_IN_FLASH	1
@@ -444,10 +458,15 @@
 					"mpc5121.nand:-(data)"
 
 
-#if defined(CONFIG_CMD_IDE) || defined(CONFIG_CMD_EXT2)
+#if defined(CONFIG_CMD_IDE) || defined(CONFIG_CMD_EXT2) || defined(CONFIG_CMD_USB)
+
 #define CONFIG_DOS_PARTITION
 #define CONFIG_MAC_PARTITION
 #define CONFIG_ISO_PARTITION
+
+#define CONFIG_CMD_FAT
+#define CONFIG_SUPPORT_VFAT
+
 #endif /* defined(CONFIG_CMD_IDE) */
 
 /*

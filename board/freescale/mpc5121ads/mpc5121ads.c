@@ -53,7 +53,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_DIU_EN |		\
 			 CLOCK_SCCR2_I2C_EN |		\
 			 CLOCK_SCCR2_MEM_EN |		\
-			 CLOCK_SCCR2_SPDIF_EN)
+			 CLOCK_SCCR2_SPDIF_EN |  	\
+			 CLOCK_SCCR2_USB1_EN | 		\
+			 CLOCK_SCCR2_USB2_EN)
 
 void __mpc5121_nfc_select_chip(struct mtd_info *mtd, int chip);
 
