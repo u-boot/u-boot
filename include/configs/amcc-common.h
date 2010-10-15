@@ -271,13 +271,13 @@
 	"load=tftp 200000 ${u-boot}\0"					\
 	"update=protect off " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"	\
 		"era " xstr(CONFIG_SYS_MONITOR_BASE) " FFFFFFFF;"		\
-		"cp.b ${fileaddr} " xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize}" \
+		"cp.b ${fileaddr} " xstr(CONFIG_SYS_MONITOR_BASE) " ${filesize}\0" \
 	"upd=run load update\0"						\
 
 #define CONFIG_AMCC_DEF_ENV_NAND_UPD					\
 	"u-boot-nand=" xstr(CONFIG_HOSTNAME) "/u-boot-nand.bin\0"	\
 	"nload=tftp 200000 ${u-boot-nand}\0"				\
-	"nupdate=nand erase 0 100000;nand write 200000 0 100000"	\
+	"nupdate=nand erase 0 100000;nand write 200000 0 100000\0"	\
 	"nupd=run nload nupdate\0"
 
 #endif /* __AMCC_COMMON_H */
