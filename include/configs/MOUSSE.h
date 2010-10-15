@@ -316,15 +316,6 @@
  */
 #define CONFIG_SYS_CACHELINE_SIZE  16
 
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD           0x01    /* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM           0x02    /* Software reboot                  */
-
 /* Localizations */
 #if 0
 #define CONFIG_ETHADDR          0:0:0:0:1:d

@@ -43,6 +43,7 @@
 
 #include <linux/config.h>
 #include <asm/processor.h>
+#include <asm/u-boot.h>
 
 #ifndef  CONFIG_IDENT_STRING
 #define  CONFIG_IDENT_STRING ""

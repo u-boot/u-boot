@@ -501,14 +501,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10	/* takes up to 10 msec	*/
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	4
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 #define	CONFIG_FEC_ENET		1	/* use FEC ethernet  */
 #define FEC_ENET
 #define CONFIG_MII

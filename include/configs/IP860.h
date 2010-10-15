@@ -458,18 +458,4 @@ typedef	struct ip860_bcsr_s {
 #define BD_CTRL_FLWE	0x20	/* Flash Write Enable			*/
 #define BD_CTRL_RWDN	0x10	/* VMEBus Requester Release When Done Enable */
 
-/*-----------------------------------------------------------------------
- *
- *-----------------------------------------------------------------------
- *
- */
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 #endif	/* __CONFIG_H */

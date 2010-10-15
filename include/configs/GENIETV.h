@@ -333,14 +333,6 @@
 			MAMR_G0CLA_A11 | MAMR_RLFA_1X | MAMR_WLFA_1X \
 			| MAMR_TLFA_4X)	/* 0x5d802114 */
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD			0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM			0x02		/* Software reboot			*/
-
 /* values according to the manual */
 
 #define CONFIG_DRAM_50MHZ		1

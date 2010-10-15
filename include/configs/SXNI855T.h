@@ -374,13 +374,6 @@
 #define DUART_BR5_VALUE ((CONFIG_SYS_DUARTA_BASE & BR_BA_MSK ) | DUART_BR_VALUE)
 #define DUART_BR6_VALUE ((CONFIG_SYS_DUARTB_BASE & BR_BA_MSK ) | DUART_BR_VALUE)
 
-/**********************************************************
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 #define CONFIG_RESET_ON_PANIC		/* reset if system panic() */
 
 #define CONFIG_ENV_IS_IN_FLASH

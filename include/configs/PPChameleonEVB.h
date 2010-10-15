@@ -559,15 +559,6 @@
 #define CONFIG_SYS_GPIO0_TSRH		0x00000000
 #define CONFIG_SYS_GPIO0_TCR		0xF7FF8014
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
-
 #define CONFIG_NO_SERIAL_EEPROM
 
 /*--------------------------------------------------------------------*/

@@ -272,12 +272,4 @@
 #define CONFIG_SYS_PB_LED		(0x80000000 >> 16)   /* GPIO16 */
 #define CONFIG_SYS_INTA_FAKE		(0x80000000 >> 23)   /* GPIO23 */
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 #endif	/* __CONFIG_H */

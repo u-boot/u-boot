@@ -398,14 +398,6 @@
 #define CONFIG_SYS_EEPROM_WP		(0x80000000 >> 0)
 
 /*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
-
-/*
  * Default speed selection (cpu_plb_opb_ebc) in MHz.
  * This value will be set if iic boot eprom is disabled.
  */

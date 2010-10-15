@@ -468,15 +468,6 @@ extern  unsigned long           bab7xx_get_gclk_freq (void);
 
 #define CONFIG_SYS_L2_BAB7xx
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD           0x01    /* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM           0x02    /* Software reboot */
-
-
 #define CONFIG_NET_MULTI                /* Multi ethernet cards support */
 #define CONFIG_TULIP
 #define CONFIG_TULIP_SELECT_MEDIA

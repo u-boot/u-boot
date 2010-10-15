@@ -618,14 +618,6 @@
 
 #define L2_ENABLE	(L2_INIT | L2CR_L2E)
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot		    */
-
 #define CONFIG_SYS_BOARD_ASM_INIT	1
 
 #define CPCI750_SLAVE_TEST	(((in8(0xf0300000) & 0x80) == 0) ? 0 : 1)

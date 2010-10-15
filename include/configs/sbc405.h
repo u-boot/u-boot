@@ -276,12 +276,4 @@
 #define SPD_EEPROM_ADDRESS	0x50
 #define CONFIG_SPD_EEPROM	1	/* use SPD EEPROM for setup		*/
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 #endif	/* __CONFIG_H */

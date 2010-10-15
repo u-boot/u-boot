@@ -486,14 +486,6 @@
 /* Initial value of the stack pointern in internal SRAM */
 #define CONFIG_SYS_INIT_SP_OFFSET    CONFIG_SYS_GBL_DATA_OFFSET
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 /* ################################################################################### */
 /* These defines will be used in arch/powerpc/cpu/ppc4xx/cpu_init.c to setup external chip selects  */
 /* They are currently undefined cause they are initiaized in board/solidcard3/init.S   */

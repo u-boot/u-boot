@@ -383,14 +383,6 @@
 			 MAMR_RLFA_16X | MAMR_WLFA_16X | MAMR_TLFA_16X)
 
 /*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02	/* Software reboot			*/
-
-/*
  * BCSRx
  *
  * Board Status and Control Registers

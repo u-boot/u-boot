@@ -431,14 +431,6 @@
 #endif
 
 /*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
-
-/*
  * PCI OHCI controller
  */
 #define CONFIG_USB_OHCI_NEW	1

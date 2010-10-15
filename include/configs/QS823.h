@@ -565,14 +565,6 @@ MAMR_RLFA_1X | MAMR_WLFA_1X | MAMR_TLFA_4X)
 #define CONFIG_SYS_BR7_PRELIM		0xF0700000
 
 /*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
-
-/*
  * Sanity checks
  */
 #if defined(CONFIG_SCC1_ENET) && defined(CONFIG_FEC_ENET)

@@ -249,14 +249,6 @@
 */
 #define FEC_INTERRUPT	SIU_LEVEL1	/* FEC interrupt */
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 /*-----------------------------------------------------------------------
  * Debug Enable Register
  *-----------------------------------------------------------------------

@@ -319,9 +319,6 @@
 #define CONFIG_SYS_HID0_INIT		HID0_ICE | HID0_ICFI
 #define CONFIG_SYS_HID0_FINAL		HID0_ICE
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
-
 #define CONFIG_SYS_XLB_PIPELINING	1	/* enable transaction pipeling */
 
 /*

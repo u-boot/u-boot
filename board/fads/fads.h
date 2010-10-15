@@ -351,14 +351,6 @@
 #define CONFIG_SYS_OR1_PRELIM	0xFFFF8110		/* 64Kbyte address space */
 #define CONFIG_SYS_BR1_PRELIM	((BCSR_ADDR) | BR_V)
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 /* values according to the manual */
 
 #define	BCSR0			((uint) (BCSR_ADDR + 0x00))

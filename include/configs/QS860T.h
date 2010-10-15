@@ -403,15 +403,6 @@ CONFIG_SPI
 /* #define CONFIG_SYS_OR7		0xFF000000 */
 /* #define CONFIG_SYS_BR7		0xE8000000 */
 
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
-
 /*
  * Sanity checks
  */

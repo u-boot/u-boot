@@ -442,14 +442,6 @@
 #define CONFIG_SYS_DBAT7U	CONFIG_SYS_IBAT7U
 #endif /* CONFIG_PCI */
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01 /* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02 /* Software reboot */
-
 #define BOOTFLASH_START	F0000000
 
 #define CONFIG_PRAM	512	/* protected RAM [KBytes] */

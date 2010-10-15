@@ -40,9 +40,6 @@
 #define CONFIG_SYS_MPC8220_CLKIN	60000000 /* ... running at 60MHz */
 #define CONFIG_SYS_MPC8220_SYSPLL_VCO_MULTIPLIER 8 /* VCO multiplier can't be read from any register */
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	*/
-
 /*
  * Serial console configuration
  */

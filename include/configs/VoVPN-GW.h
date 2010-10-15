@@ -315,10 +315,6 @@
 #define CONFIG_SYS_MONITOR_LEN			0x00020000
 #define CONFIG_SYS_MALLOC_LEN			0x00020000
 
-/* boot flags */
-#define BOOTFLAG_COLD			0x01	/* normal power-on */
-#define BOOTFLAG_WARM			0x02	/* software reboot */
-
 /* cache configuration */
 #define CONFIG_SYS_CACHELINE_SIZE		32      /* for MPC8260 */
 #if defined(CONFIG_CMD_KGDB)

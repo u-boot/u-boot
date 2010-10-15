@@ -426,14 +426,6 @@
 
 #define CONFIG_SYS_MBMR_NAND ( MBMR_WLFB_5X )
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 #define CONFIG_JFFS2_NAND 1			/* jffs2 on nand support */
 #define NAND_CACHE_PAGES 16			/* size of nand cache in 512 bytes pages */
 

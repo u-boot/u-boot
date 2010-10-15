@@ -42,8 +42,6 @@
 #define CONFIG_MPC5xxx		1	/* This is an MPC5xxx CPU */
 #define CONFIG_MPC5200		1	/* (more precisely an MPC5200 CPU) */
 #define CONFIG_SYS_MPC5XXX_CLKIN 33333333	/* ... running at 33.333333MHz */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
 
 /*
  * Valid values for CONFIG_SYS_TEXT_BASE are:

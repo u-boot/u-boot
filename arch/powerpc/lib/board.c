@@ -546,8 +546,6 @@ void board_init_f (ulong bootflag)
 	}
 #endif
 
-	bd->bi_bootflags = bootflag;	/* boot / reboot flag (for LynxOS)    */
-
 	WATCHDOG_RESET ();
 	bd->bi_intfreq = gd->cpu_clk;	/* Internal Freq, in Hz */
 	bd->bi_busfreq = gd->bus_clk;	/* Bus Freq,      in Hz */

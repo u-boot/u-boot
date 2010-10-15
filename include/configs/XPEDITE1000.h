@@ -249,12 +249,6 @@ extern void out32(unsigned int, unsigned long);
 #define CONFIG_SYS_BOOTMAPSZ		(8 << 20)	/* Initial Memory map for Linux */
 
 /*
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot */
-
-/*
  * Environment Configuration
  */
 #define CONFIG_ENV_IS_IN_FLASH	1

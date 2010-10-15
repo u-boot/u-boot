@@ -1078,13 +1078,4 @@
 			   ORxG_TRLX		       |\
 			   ORxG_EHTR)
 #endif /* CONFIG_SYS_LED_BASE */
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM	0x02	/* Software reboot		     */
-
 #endif	/* __CONFIG_H */

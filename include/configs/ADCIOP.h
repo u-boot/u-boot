@@ -202,13 +202,4 @@
 #define FLASH_BASE0_PRELIM	0xFFC00000	/* FLASH bank #0	*/
 #define FLASH_BASE1_PRELIM	0xFFE00000	/* FLASH bank #1	*/
 
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 #endif	/* __CONFIG_H */

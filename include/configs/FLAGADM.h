@@ -314,12 +314,4 @@
 #define CONFIG_SYS_OR4 ( OR_AM_MSK | OR_CSNT_SAM | OR_BI | OR_G5LS)
 #define CONFIG_SYS_BR4 ( (DSP_BASE & BR_BA_MSK) | BR_PS_16 | BR_MS_UPMB | BR_V )
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 #endif	/* __CONFIG_H */

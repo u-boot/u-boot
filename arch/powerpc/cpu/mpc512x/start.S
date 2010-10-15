@@ -43,6 +43,7 @@
 
 #include <asm/cache.h>
 #include <asm/mmu.h>
+#include <asm/u-boot.h>
 
 #ifndef  CONFIG_IDENT_STRING
 #define  CONFIG_IDENT_STRING "MPC512X"

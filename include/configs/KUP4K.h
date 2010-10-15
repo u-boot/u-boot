@@ -497,15 +497,6 @@
 
 #define LATCH_ADDR 0x90000200
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
-
 #define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot */
 #define CONFIG_AUTOBOOT_STOP_STR	"."
 #define CONFIG_SILENT_CONSOLE		1

@@ -305,13 +305,4 @@
 #define CONFIG_SYS_I2C_PLL_ADDR	0x58	/* I2C address of AMIS FS6377-01 PLL */
 #define CONFIG_I2CFAST		1	/* enable "i2cfast" env. setting     */
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- *
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
-
 #endif	/* __CONFIG_H */

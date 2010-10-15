@@ -53,8 +53,6 @@ High Level Configuration Options
 #endif
 
 #define CONFIG_SYS_MPC5XXX_CLKIN 33333333 /* ... running at 33.333333MHz */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
 
 /*-----------------------------------------------------------------------------
 Serial console configuration

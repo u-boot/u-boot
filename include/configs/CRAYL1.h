@@ -248,12 +248,4 @@
 #define EEPROM_WRITE_ADDRESS 0xA0
 #define EEPROM_READ_ADDRESS  0xA1
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 #endif	/* __CONFIG_H */

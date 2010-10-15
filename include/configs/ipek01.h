@@ -43,9 +43,6 @@
 
 #define CONFIG_MISC_INIT_R
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot */
-
 #define CONFIG_SYS_CACHELINE_SIZE	32 /* For MPC5xxx CPUs */
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_SYS_CACHELINE_SHIFT	5  /* log base 2 of the above value */

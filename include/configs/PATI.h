@@ -286,16 +286,6 @@
  */
 #define CONFIG_SYS_DER			0x00000000
 
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01			/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02			/* Software reboot			*/
-
-
 #define VERSION_TAG "released"
 #define CONFIG_ISO_STRING "MEV-10084-001"
 

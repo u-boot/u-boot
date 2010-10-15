@@ -42,6 +42,7 @@
 
 #include <asm/cache.h>
 #include <asm/mmu.h>
+#include <asm/u-boot.h>
 
 #if !defined(CONFIG_DB64360) && \
     !defined(CONFIG_DB64460) && \

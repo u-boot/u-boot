@@ -355,14 +355,6 @@ typedef unsigned int led_id_t;
 #  define CONFIG_SYS_CACHELINE_SHIFT	5	/* log base 2 of the above value	*/
 #endif
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
-
 /*-----------------------------------------------------------------------
  * PCI stuff
  *-----------------------------------------------------------------------

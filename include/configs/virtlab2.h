@@ -477,15 +477,6 @@
 			 MAMR_AMA_TYPE_1 | MAMR_DSA_1_CYCL | MAMR_G0CLA_A10 |	\
 			 MAMR_RLFA_1X	 | MAMR_WLFA_1X	   | MAMR_TLFA_4X)
 
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 /* Map peripheral control registers on CS4 */
 #define CONFIG_SYS_PERIPHERAL_BASE 0xA0000000
 #define CONFIG_SYS_PERIPHERAL_OR_AM 0xFFFF8000 /* 32 kB address mask */

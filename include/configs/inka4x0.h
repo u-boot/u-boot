@@ -47,9 +47,6 @@
 
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz		*/
 
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
-
 #define CONFIG_MISC_INIT_F	1	/* Use misc_init_f()			*/
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported			*/

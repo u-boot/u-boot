@@ -449,12 +449,4 @@
 
 #define L2_ENABLE	(L2_INIT | L2CR_L2E)
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot		    */
-
 #endif	/* __CONFIG_H */

@@ -37,8 +37,6 @@
 #endif
 
 #define CONFIG_SYS_MPC5XXX_CLKIN	33333333 /* ... running at 33.333333MHz */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH  */
-#define BOOTFLAG_WARM		0x02	/* Software reboot	     */
 #define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC5xxx CPUs */
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */
 

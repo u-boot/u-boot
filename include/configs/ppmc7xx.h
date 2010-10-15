@@ -415,16 +415,4 @@
 
 #define CONFIG_SYS_BOARD_ASM_INIT
 
-
-/*
- * Boot flags
- *
- * BOOTFLAG_COLD		- Indicates a power-on boot
- * BOOTFLAG_WARM		- Indicates a software reset
- */
-
-#define BOOTFLAG_COLD		0x01
-#define BOOTFLAG_WARM		0x02
-
-
 #endif /* __CONFIG_H */

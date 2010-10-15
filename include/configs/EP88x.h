@@ -207,12 +207,4 @@
  */
 #define CONFIG_SYS_CACHELINE_SIZE	16	/* For all MPC8xx chips			*/
 
-/*-----------------------------------------------------------------------
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from flash	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
-
 #endif /* __CONFIG_H */

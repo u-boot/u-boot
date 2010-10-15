@@ -237,14 +237,6 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from flash	*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot			*/
-
-/*-----------------------------------------------------------------------
  * Cache Configuration
  */
 #define CONFIG_SYS_CACHELINE_SIZE	32	/* For MPC8260 CPU			*/

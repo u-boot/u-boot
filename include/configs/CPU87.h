@@ -360,15 +360,6 @@
 #define CONFIG_ENV_SIZE		(2048 - 512)
 #endif
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD		0x01	/* Normal Power-On: Boot from FLASH*/
-#define BOOTFLAG_WARM		0x02	/* Software reboot		   */
-
-
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */

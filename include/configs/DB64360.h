@@ -595,14 +595,6 @@ ip=${ipaddr}:${serverip}${bootargs_end}; bootm 0x400000;\0"
 
 #define L2_ENABLE	(L2_INIT | L2CR_L2E)
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02		/* Software reboot		    */
-
 #define CONFIG_SYS_BOARD_ASM_INIT	1
 
 #endif	/* __CONFIG_H */

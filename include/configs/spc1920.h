@@ -424,12 +424,4 @@
 
 #define CONFIG_SYS_BR5_PRELIM ((CONFIG_SYS_SPC1920_PLD_BASE & BR_BA_MSK) | BR_PS_8 | BR_V)
 
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 #endif	/* __CONFIG_H */

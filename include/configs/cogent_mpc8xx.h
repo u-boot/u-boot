@@ -366,13 +366,4 @@
 #define CONFIG_SYS_OR3_PRELIM	((~(CONFIG_SYS_CMA_CS3_SIZE-1)&OR_AM_MSK)|OR_BI|OR_SETA)
 
 #endif
-
-/*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH	*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot			*/
-
 #endif	/* __CONFIG_H */

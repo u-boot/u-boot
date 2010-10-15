@@ -730,14 +730,6 @@
 #define FPGA_MAIN_IRQ		SIU_INT_IRQ2
 
 /*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define	BOOTFLAG_COLD	0x01		/* Normal Power-On: Boot from FLASH*/
-#define BOOTFLAG_WARM	0x02		/* Software reboot		*/
-
-/*
  * JFFS2 partitions
  *
  */

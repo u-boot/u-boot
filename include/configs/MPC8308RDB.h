@@ -498,14 +498,6 @@
 #define CONFIG_SYS_DBAT3U	CONFIG_SYS_IBAT3U
 
 /*
- * Internal Definitions
- *
- * Boot Flags
- */
-#define BOOTFLAG_COLD	0x01 /* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02 /* Software reboot */
-
-/*
  * Environment Configuration
  */
 
