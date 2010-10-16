@@ -1025,6 +1025,8 @@ vpac270_onenand_config	: unconfig
 	@if [ "$(findstring onenand,$@)" ] ; then \
 		echo "#define CONFIG_ONENAND_U_BOOT" \
 			>>$(obj)include/config.h ; \
+		echo "#define CONFIG_256M_U_BOOT" \
+			>>$(obj)include/config.h ; \
 	fi;
 	@if [ "$(findstring 256M,$@)" ] ; then \
 		echo "#define CONFIG_256M_U_BOOT" \
