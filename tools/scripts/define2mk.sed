@@ -18,8 +18,12 @@
 	s/="\(.*\)"$/=\1/;
 	# Concatenate string values
 	s/" *"//g;
-	# Wrap non-numeral values with quotes
-	s/=\(.*\?[^0-9].*\)$/=\"\1\"/;
+	# Assume strings as default - add quotes around values
+	s/=\(..*\)/="\1"/;
+	# but remove again from decimal numbers
+	s/="\([0-9][0-9]*\)"/=\1/;
+	# ... and from hex numbers
+	s/="\(0[Xx][0-9a-fA-F][0-9a-fA-F]*\)"/=\1/;
 	# Change '1' and empty values to "y" (not perfect, but
 	# supports conditional compilation in the makefiles
 	s/=$/=y/;
