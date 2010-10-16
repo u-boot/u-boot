@@ -68,9 +68,6 @@ static struct pci_region pci2_regions[] = {
 };
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
-
-
 void pci_init_board(void)
 #ifdef CONFIG_PCISLAVE
 {
