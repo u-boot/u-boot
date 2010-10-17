@@ -1,5 +1,134 @@
 #!/bin/bash
 
+# Tool mainly for U-Boot Quality Assurance: build one or more board
+# configurations with minimal verbosity, showing only warnings and
+# errors.
+#
+# There are several ways to select which boards to build.
+#
+# Traditionally, architecture names (like "powerpc"), CPU family names
+# (like "mpc83xx") or board names can be specified on the command
+# line; without any arguments, MAKEALL defaults to building all Power
+# Architecture systems (i. e. same as for "MAKEALL powerpc").
+#
+# With the iontroduction of the board.cfg file, it has become possible
+# to provide additional selections.  We use standard command line
+# options for this:
+#
+# -a or --arch	:	Select architecture
+# -c or --cpu	:	Select CPU family
+# -s or --soc	:	Select SoC type
+# -v or --vendor:	Select board vendor
+#
+# Selections by these options are logically ANDed; if the same option
+# is used repeatedly, such selections are ORed.  So "-v FOO -v BAR"
+# will select all configurations where the vendor is either FOO or
+# BAR.  Any additional arguments specified on the command line are
+# always build additionally.
+#
+# Examples:
+#
+# - build all Power Architecture boards:
+#
+#	MAKEALL -a powerpc
+#   or
+#	MAKEALL --arch powerpc
+#   or
+#	MAKEALL powerpc
+#
+# - build all PowerPC boards manufactured by vendor "esd":
+#
+#	MAKEALL -a powerpc -v esd
+#
+# - build all PowerPC boards manufactured either by "keymile" or
+#   "siemens":
+#
+#	MAKEALL -a powerpc -v keymile -v siemens
+#
+# - build all Freescale boards with MPC83xx CPUs, plus all 4xx boards:
+#
+#	MAKEALL -c mpc83xx -v freescale 4xx
+#
+#########################################################################
+
+SHORT_OPTS="a:c:v:s:"
+LONG_OPTS="arch:,cpu:,vendor:,soc:"
+
+# Option processing based on util-linux-2.13/getopt-parse.bash
+
+# Note that we use `"$@"' to let each command-line parameter expand to a 
+# separate word. The quotes around `$@' are essential!
+# We need TEMP as the `eval set --' would nuke the return value of
+# getopt.
+TEMP=`getopt -o ${SHORT_OPTS} --long ${LONG_OPTS} \
+     -n 'MAKEALL' -- "$@"`
+
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+# Note the quotes around `$TEMP': they are essential!
+eval set -- "$TEMP"
+
+SELECTED=''
+
+while true ; do
+	case "$1" in
+	-a|--arch)
+		# echo "Option ARCH: argument \`$2'"
+		if [ "$opt_a" ] ; then
+			opt_a="${opt_a%)} || \$2 == \"$2\")"
+		else
+			opt_a="(\$2 == \"$2\")"
+		fi
+		SELECTED='y'
+		shift 2 ;;
+	-c|--cpu)
+		# echo "Option CPU: argument \`$2'"
+		if [ "$opt_c" ] ; then
+			opt_c="${opt_c%)} || \$3 == \"$2\")"
+		else
+			opt_c="(\$3 == \"$2\")"
+		fi
+		SELECTED='y'
+		shift 2 ;;
+	-s|--soc)
+		# echo "Option SoC: argument \`$2'"
+		if [ "$opt_s" ] ; then
+			opt_s="${opt_s%)} || \$6 == \"$2\")"
+		else
+			opt_s="(\$6 == \"$2\")"
+		fi
+		SELECTED='y'
+		shift 2 ;;
+	-v|--vendor)
+		# echo "Option VENDOR: argument \`$2'"
+		if [ "$opt_v" ] ; then
+			opt_v="${opt_v%)} || \$5 == \"$2\")"
+		else
+			opt_v="(\$5 == \"$2\")"
+		fi
+		SELECTED='y'
+		shift 2 ;;
+	--)
+		shift ; break ;;
+	*)
+		echo "Internal error!" >&2 ; exit 1 ;;
+	esac
+done
+# echo "Remaining arguments:"
+# for arg do echo '--> '"\`$arg'" ; done
+
+FILTER="\$1 !~ /^#/"
+[ "$opt_a" ] && FILTER="${FILTER} && $opt_a"
+[ "$opt_c" ] && FILTER="${FILTER} && $opt_c"
+[ "$opt_s" ] && FILTER="${FILTER} && $opt_s"
+[ "$opt_v" ] && FILTER="${FILTER} && $opt_v"
+
+if [ "$SELECTED" ] ; then
+	SELECTED=$(awk '('"$FILTER"') { print $1 }' boards.cfg)
+fi
+
+#########################################################################
+
 # Print statistics when we exit
 trap exit 1 2 3 15
 trap print_stats 0
@@ -578,7 +707,8 @@ print_stats() {
 
 #-----------------------------------------------------------------------
 
-#----- for now, just run PowerPC by default -----
+# Build target groups selected by options, plus any command line args
+set -- ${SELECTED} "$@"
+# run PowerPC by default
 [ $# = 0 ] && set -- powerpc
-
 build_targets "$@"
