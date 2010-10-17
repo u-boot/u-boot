@@ -24,5 +24,4 @@
 #
 # INKA 4X0 board:
 #
-PLATFORM_CPPFLAGS += -I$(TOPDIR)/board
 LDSCRIPT := $(SRCTREE)/arch/powerpc/cpu/mpc5xxx/u-boot-customlayout.lds

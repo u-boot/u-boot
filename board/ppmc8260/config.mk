@@ -30,4 +30,3 @@
 #
 
 TEXT_END  = 0xfe080000
-PLATFORM_CPPFLAGS += -I$(TOPDIR)/board

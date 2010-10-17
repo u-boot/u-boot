@@ -21,5 +21,4 @@
 # MA 02111-1307 USA
 #
 
-PLATFORM_CPPFLAGS += -I$(TOPDIR)/board
 LDSCRIPT := $(SRCTREE)/arch/powerpc/cpu/mpc5xxx/u-boot-customlayout.lds
