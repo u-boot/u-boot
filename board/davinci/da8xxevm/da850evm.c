@@ -23,7 +23,11 @@
 
 #include <common.h>
 #include <i2c.h>
+#include <net.h>
+#include <netdev.h>
 #include <asm/arch/hardware.h>
+#include <asm/arch/emif_defs.h>
+#include <asm/arch/emac_defs.h>
 #include <asm/io.h>
 #include "../common/misc.h"
 #include "common.h"
@@ -48,11 +52,52 @@ static const struct pinmux_config uart_pins[] = {
 	{ pinmux(4), 2, 5 }
 };
 
+#ifdef CONFIG_DRIVER_TI_EMAC
+static const struct pinmux_config emac_pins[] = {
+	{ pinmux(2), 8, 1 },
+	{ pinmux(2), 8, 2 },
+	{ pinmux(2), 8, 3 },
+	{ pinmux(2), 8, 4 },
+	{ pinmux(2), 8, 5 },
+	{ pinmux(2), 8, 6 },
+	{ pinmux(2), 8, 7 },
+	{ pinmux(3), 8, 0 },
+	{ pinmux(3), 8, 1 },
+	{ pinmux(3), 8, 2 },
+	{ pinmux(3), 8, 3 },
+	{ pinmux(3), 8, 4 },
+	{ pinmux(3), 8, 5 },
+	{ pinmux(3), 8, 6 },
+	{ pinmux(3), 8, 7 },
+	{ pinmux(4), 8, 0 },
+	{ pinmux(4), 8, 1 }
+};
+#endif /* CONFIG_DRIVER_TI_EMAC */
+
 /* I2C pin muxer settings */
 static const struct pinmux_config i2c_pins[] = {
 	{ pinmux(4), 2, 2 },
 	{ pinmux(4), 2, 3 }
 };
+
+#ifdef CONFIG_NAND_DAVINCI
+const struct pinmux_config nand_pins[] = {
+	{ pinmux(7), 1, 1 },
+	{ pinmux(7), 1, 2 },
+	{ pinmux(7), 1, 4 },
+	{ pinmux(7), 1, 5 },
+	{ pinmux(9), 1, 0 },
+	{ pinmux(9), 1, 1 },
+	{ pinmux(9), 1, 2 },
+	{ pinmux(9), 1, 3 },
+	{ pinmux(9), 1, 4 },
+	{ pinmux(9), 1, 5 },
+	{ pinmux(9), 1, 6 },
+	{ pinmux(9), 1, 7 },
+	{ pinmux(12), 1, 5 },
+	{ pinmux(12), 1, 6 }
+};
+#endif
 
 static const struct pinmux_resource pinmuxes[] = {
 #ifdef CONFIG_SPI_FLASH
@@ -60,6 +105,9 @@ static const struct pinmux_resource pinmuxes[] = {
 #endif
 	PINMUX_ITEM(uart_pins),
 	PINMUX_ITEM(i2c_pins),
+#ifdef CONFIG_NAND_DAVINCI
+	PINMUX_ITEM(nand_pins),
+#endif
 };
 
 static const struct lpsc_resource lpsc[] = {
@@ -74,6 +122,23 @@ int board_init(void)
 {
 #ifndef CONFIG_USE_IRQ
 	irq_init();
+#endif
+
+
+#ifdef CONFIG_NAND_DAVINCI
+	/*
+	 * NAND CS setup - cycle counts based on da850evm NAND timings in the
+	 * Linux kernel @ 25MHz EMIFA
+	 */
+	writel((DAVINCI_ABCR_WSETUP(0) |
+		DAVINCI_ABCR_WSTROBE(0) |
+		DAVINCI_ABCR_WHOLD(0) |
+		DAVINCI_ABCR_RSETUP(0) |
+		DAVINCI_ABCR_RSTROBE(1) |
+		DAVINCI_ABCR_RHOLD(0) |
+		DAVINCI_ABCR_TA(0) |
+		DAVINCI_ABCR_ASIZE_8BIT),
+	       &davinci_emif_regs->ab2cr); /* CS3 */
 #endif
 
 	/* arch number of the board */
@@ -102,6 +167,14 @@ int board_init(void)
 	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
 		return 1;
 
+#ifdef CONFIG_DRIVER_TI_EMAC
+	if (davinci_configure_pin_mux(emac_pins, ARRAY_SIZE(emac_pins)) != 0)
+		return 1;
+	/* set cfgchip3 to select MII */
+	writel(readl(&davinci_syscfg_regs->cfgchip3) & ~(1 << 8),
+			     &davinci_syscfg_regs->cfgchip3);
+#endif /* CONFIG_DRIVER_TI_EMAC */
+
 	/* enable the console UART */
 	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
 		DAVINCI_UART_PWREMU_MGMT_UTRST),
@@ -109,3 +182,19 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_DRIVER_TI_EMAC
+
+/*
+ * Initializes on-board ethernet controllers.
+ */
+int board_eth_init(bd_t *bis)
+{
+	if (!davinci_emac_initialize()) {
+		printf("Error: Ethernet init failed!\n");
+		return -1;
+	}
+
+	return 0;
+}
+#endif /* CONFIG_DRIVER_TI_EMAC */

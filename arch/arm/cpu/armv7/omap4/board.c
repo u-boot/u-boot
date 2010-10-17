@@ -102,8 +102,13 @@ int dram_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
 
+#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	gd->bd->bi_dram[0].start = 0x80000000;
 	gd->bd->bi_dram[0].size = sdram_size();
+#else
+	gd->ram_size = sdram_size();
+#endif
+
 	return 0;
 }
 

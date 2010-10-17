@@ -27,6 +27,4 @@
 # 8000'0000 - 9fff'ffff (512 MB)
 # Linux-Kernel is expected to be at 8000'8000, entry 8000'8000
 # (mem base + reserved)
-
-# Let's place u-boot 1MB before the end of SDRAM.
-TEXT_BASE = 0x9ff00000
+TEXT_BASE = 0x80e80000

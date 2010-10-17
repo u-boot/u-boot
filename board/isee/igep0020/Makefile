@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2006
+# (C) Copyright 2000, 2001, 2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,27 +23,21 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libmmc.a
+LIB	= $(obj)lib$(BOARD).a
 
-COBJS-$(CONFIG_ATMEL_MCI) += atmel_mci.o
-COBJS-$(CONFIG_BFIN_SDH) += bfin_sdh.o
-COBJS-$(CONFIG_FSL_ESDHC) += fsl_esdhc.o
-COBJS-$(CONFIG_GENERIC_MMC) += mmc.o
-COBJS-$(CONFIG_GENERIC_ATMEL_MCI) += gen_atmel_mci.o
-COBJS-$(CONFIG_MXC_MMC) += mxcmmc.o
-COBJS-$(CONFIG_OMAP3_MMC) += omap3_mmc.o
-COBJS-$(CONFIG_OMAP_HSMMC) += omap_hsmmc.o
-COBJS-$(CONFIG_PXA_MMC) += pxa_mmc.o
-COBJS-$(CONFIG_S5P_MMC) += s5p_mmc.o
+COBJS	:= igep0020.o
 
-COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 
-all:	$(LIB)
-
-$(LIB): $(obj).depend $(OBJS)
+$(LIB):	$(obj).depend $(OBJS)
 	$(AR) $(ARFLAGS) $@ $(OBJS)
+
+clean:
+	rm -f $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

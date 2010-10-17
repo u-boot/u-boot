@@ -32,6 +32,7 @@
 #include <common.h>
 #include <twl4030.h>
 #include <asm/io.h>
+#include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/gpio.h>
@@ -169,3 +170,11 @@ void set_muxconf_regs(void)
 {
 	MUX_BEAGLE();
 }
+
+#ifdef CONFIG_GENERIC_MMC
+int board_mmc_init(bd_t *bis)
+{
+	omap_mmc_init(0);
+	return 0;
+}
+#endif

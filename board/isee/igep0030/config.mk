@@ -1,5 +1,9 @@
 #
-# Overo uses OMAP3 (ARM-CortexA8) cpu
+# (C) Copyright 2009
+# ISEE 2007 SL, <www.iseebcn.com>
+#
+# IGEP0030 uses OMAP3 (ARM-CortexA8) cpu
+# see http://www.ti.com/ for more information on Texas Instruments
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -27,3 +31,4 @@
 
 # For use with external or internal boots.
 TEXT_BASE = 0x80008000
+
