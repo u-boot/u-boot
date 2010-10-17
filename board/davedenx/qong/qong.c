@@ -25,6 +25,7 @@
 #include <netdev.h>
 #include <asm/arch/mx31.h>
 #include <asm/arch/mx31-regs.h>
+#include <asm/io.h>
 #include <nand.h>
 #include <fsl_pmic.h>
 #include <mxc_gpio.h>
@@ -73,6 +74,15 @@ int board_early_init_f (void)
 	/* set interrupt pin as input */
 	mxc_gpio_direction(QONG_FPGA_IRQ_PIN, MXC_GPIO_DIRECTION_IN);
 
+	/* FPGA JTAG Interface */
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SFS6, MUX_CTL_GPIO));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SCK6, MUX_CTL_GPIO));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_CAPTURE, MUX_CTL_GPIO));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_COMPARE, MUX_CTL_GPIO));
+	mxc_gpio_direction(QONG_FPGA_TCK_PIN, MXC_GPIO_DIRECTION_OUT);
+	mxc_gpio_direction(QONG_FPGA_TMS_PIN, MXC_GPIO_DIRECTION_OUT);
+	mxc_gpio_direction(QONG_FPGA_TDI_PIN, MXC_GPIO_DIRECTION_OUT);
+	mxc_gpio_direction(QONG_FPGA_TDO_PIN, MXC_GPIO_DIRECTION_IN);
 #endif
 
 	/* setup pins for UART1 */
@@ -87,6 +97,38 @@ int board_early_init_f (void)
 	mx31_gpio_mux(MUX_CSPI2_MISO__CSPI2_MISO);
 	mx31_gpio_mux(MUX_CSPI2_SCLK__CSPI2_CLK);
 	mx31_gpio_mux(MUX_CSPI2_SPI_RDY__CSPI2_DATAREADY_B);
+
+	/* Setup pins for USB2 Host */
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_USBH2_CLK, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_USBH2_DIR, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_USBH2_NXT, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_USBH2_STP, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_USBH2_DATA0, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_USBH2_DATA1, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_STXD3, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SRXD3, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SCK3, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SFS3, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_STXD6, MUX_CTL_FUNC));
+	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SRXD6, MUX_CTL_FUNC));
+
+#define H2_PAD_CFG (PAD_CTL_DRV_MAX | PAD_CTL_SRE_FAST | PAD_CTL_HYS_CMOS | \
+			PAD_CTL_ODE_CMOS | PAD_CTL_100K_PU)
+
+	mx31_set_pad(MX31_PIN_USBH2_CLK, H2_PAD_CFG);
+	mx31_set_pad(MX31_PIN_USBH2_DIR, H2_PAD_CFG);
+	mx31_set_pad(MX31_PIN_USBH2_NXT, H2_PAD_CFG);
+	mx31_set_pad(MX31_PIN_USBH2_STP, H2_PAD_CFG);
+	mx31_set_pad(MX31_PIN_USBH2_DATA0, H2_PAD_CFG); /* USBH2_DATA0 */
+	mx31_set_pad(MX31_PIN_USBH2_DATA1, H2_PAD_CFG); /* USBH2_DATA1 */
+	mx31_set_pad(MX31_PIN_SRXD6, H2_PAD_CFG);	/* USBH2_DATA2 */
+	mx31_set_pad(MX31_PIN_STXD6, H2_PAD_CFG);	/* USBH2_DATA3 */
+	mx31_set_pad(MX31_PIN_SFS3, H2_PAD_CFG);	/* USBH2_DATA4 */
+	mx31_set_pad(MX31_PIN_SCK3, H2_PAD_CFG);	/* USBH2_DATA5 */
+	mx31_set_pad(MX31_PIN_SRXD3, H2_PAD_CFG);	/* USBH2_DATA6 */
+	mx31_set_pad(MX31_PIN_STXD3, H2_PAD_CFG);	/* USBH2_DATA7 */
+
+	writel(readl((IOMUXC_BASE + 0x8)) | (1 << 11), IOMUXC_BASE + 0x8);
 
 	return 0;
 
@@ -145,6 +187,8 @@ int board_init (void)
 	/* board id for linux */
 	gd->bd->bi_arch_number = MACH_TYPE_QONG;
 	gd->bd->bi_boot_params = (0x80000100);	/* adress of boot parameters */
+
+	qong_fpga_init();
 
 	return 0;
 }
