@@ -554,6 +554,11 @@ Stefano Babic <sbabic@denx.de>
 	mx51evk		i.MX51
  	vision2		i.MX51
 
+Enric Balletbo i Serra <eballetbo@iseebcn.com>
+
+	igep0020	ARM ARMV7 (OMAP3xx SoC)
+	igep0030	ARM ARMV7 (OMAP3xx SoC)
+
 Dirk Behme <dirk.behme@gmail.com>
 
 	omap3_beagle	ARM ARMV7 (OMAP3530 SoC)
@@ -826,11 +831,6 @@ Alex Züpke <azu@sysgo.de>
 
 	lart		SA1100
 	dnp1110		SA1110
-
-Enric Balletbo i Serra <eballetbo@iseebcn.com>
-
-	igep0020	ARM ARMV7 (OMAP3xx SoC)
-	igep0030	ARM ARMV7 (OMAP3xx SoC)
 
 -------------------------------------------------------------------------
 
