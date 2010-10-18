@@ -18,6 +18,7 @@
 
 #if defined(CONFIG_AT91RM9200)
 #include <asm/arch-at91/at91rm9200.h>
+#define AT91_PMC_UHP	AT91RM9200_PMC_UHP
 #elif defined(CONFIG_AT91SAM9260) || defined(CONFIG_AT91SAM9G20)
 #include <asm/arch/at91sam9260.h>
 #define AT91_BASE_MCI	AT91SAM9260_BASE_MCI
