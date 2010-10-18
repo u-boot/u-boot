@@ -20,13 +20,13 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __MACH_MX51_IOMUX_H__
-#define __MACH_MX51_IOMUX_H__
+#ifndef __MACH_MX5_IOMUX_H__
+#define __MACH_MX5_IOMUX_H__
 
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/mx51_pins.h>
+#include <asm/arch/mx5x_pins.h>
 
 typedef unsigned int iomux_pin_name_t;
 
@@ -190,4 +190,4 @@ void mxc_iomux_set_pad(iomux_pin_name_t pin, u32 config);
 unsigned int mxc_iomux_get_pad(iomux_pin_name_t pin);
 void mxc_iomux_set_input(iomux_input_select_t input, u32 config);
 
-#endif				/*  __MACH_MX51_IOMUX_H__ */
+#endif				/*  __MACH_MX5_IOMUX_H__ */

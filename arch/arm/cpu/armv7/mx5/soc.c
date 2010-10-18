@@ -33,28 +33,33 @@
 #include <fsl_esdhc.h>
 #endif
 
+#if defined(CONFIG_MX51)
+#define CPU_TYPE 0x51000
+#else
+#error "CPU_TYPE not defined"
+#endif
+
 u32 get_cpu_rev(void)
 {
-	int reg;
-	int system_rev;
+	int system_rev = CPU_TYPE;
+	int reg = __raw_readl(ROM_SI_REV);
 
-	reg = __raw_readl(ROM_SI_REV);
 	switch (reg) {
 	case 0x02:
-		system_rev = 0x51000 | CHIP_REV_1_1;
+		system_rev |= CHIP_REV_1_1;
 		break;
 	case 0x10:
 		if ((__raw_readl(GPIO1_BASE_ADDR + 0x0) & (0x1 << 22)) == 0)
-			system_rev = 0x51000 | CHIP_REV_2_5;
+			system_rev |= CHIP_REV_2_5;
 		else
-			system_rev = 0x51000 | CHIP_REV_2_0;
+			system_rev |= CHIP_REV_2_0;
 		break;
 	case 0x20:
-		system_rev = 0x51000 | CHIP_REV_3_0;
+		system_rev |= CHIP_REV_3_0;
 		break;
 	return system_rev;
 	default:
-		system_rev = 0x51000 | CHIP_REV_1_0;
+		system_rev |= CHIP_REV_1_0;
 		break;
 	}
 	return system_rev;
@@ -67,9 +72,10 @@ int print_cpuinfo(void)
 	u32 cpurev;
 
 	cpurev = get_cpu_rev();
-	printf("CPU:   Freescale i.MX51 family rev%d.%d at %d MHz\n",
-		(cpurev & 0xF0) >> 4,
-		(cpurev & 0x0F) >> 4,
+	printf("CPU:   Freescale i.MX%x family rev%d.%d at %d MHz\n",
+		(cpurev & 0xFF000) >> 12,
+		(cpurev & 0x000F0) >> 4,
+		(cpurev & 0x0000F) >> 0,
 		mxc_get_clock(MXC_ARM_CLK) / 1000000);
 	return 0;
 }
