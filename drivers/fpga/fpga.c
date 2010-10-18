@@ -141,8 +141,12 @@ static int fpga_dev_info( int devnum )
 #endif
 			break;
 		case fpga_lattice:
+#if defined(CONFIG_FPGA_LATTICE)
 			printf("Lattice Device\nDescriptor @ 0x%p\n", desc);
 			ret_val = lattice_info(desc->devdesc);
+#else
+			fpga_no_sup( (char *)__FUNCTION__, "Lattice devices" );
+#endif
 			break;
 		default:
 			printf( "%s: Invalid or unsupported device type %d\n",
@@ -230,7 +234,11 @@ int fpga_load( int devnum, void *buf, size_t bsize )
 #endif
 			break;
 		case fpga_lattice:
+#if defined(CONFIG_FPGA_LATTICE)
 			ret_val = lattice_load(desc->devdesc, buf, bsize);
+#else
+			fpga_no_sup( (char *)__FUNCTION__, "Lattice devices" );
+#endif
 			break;
 		default:
 			printf( "%s: Invalid or unsupported device type %d\n",
@@ -266,7 +274,11 @@ int fpga_dump( int devnum, void *buf, size_t bsize )
 #endif
 			break;
 		case fpga_lattice:
+#if defined(CONFIG_FPGA_LATTICE)
 			ret_val = lattice_dump(desc->devdesc, buf, bsize);
+#else
+			fpga_no_sup( (char *)__FUNCTION__, "Lattice devices" );
+#endif
 			break;
 		default:
 			printf( "%s: Invalid or unsupported device type %d\n",
