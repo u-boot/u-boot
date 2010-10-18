@@ -213,4 +213,10 @@ typedef struct memctl_options_s {
 } memctl_options_t;
 
 extern phys_size_t fsl_ddr_sdram(void);
+
+typedef struct fixed_ddr_parm{
+	int min_freq;
+	int max_freq;
+	fsl_ddr_cfg_regs_t *ddr_settings;
+} fixed_ddr_parm_t;
 #endif

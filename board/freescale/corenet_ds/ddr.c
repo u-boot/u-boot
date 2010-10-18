@@ -8,9 +8,103 @@
 
 #include <common.h>
 #include <i2c.h>
-
+#include <hwconfig.h>
+#include <asm/mmu.h>
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_ddr_dimm_params.h>
+#include <asm/fsl_law.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
+extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
+				   unsigned int ctrl_num);
+
+
+/*
+ * Fixed sdram init -- doesn't use serial presence detect.
+ */
+extern fixed_ddr_parm_t fixed_ddr_parm_0[];
+#if (CONFIG_NUM_DDR_CONTROLLERS == 2)
+extern fixed_ddr_parm_t fixed_ddr_parm_1[];
+#endif
+
+phys_size_t fixed_sdram(void)
+{
+	int i;
+	sys_info_t sysinfo;
+	char buf[32];
+	fsl_ddr_cfg_regs_t ddr_cfg_regs;
+	phys_size_t ddr_size;
+	unsigned int lawbar1_target_id;
+
+	get_sys_info(&sysinfo);
+	printf("Configuring DDR for %s MT/s data rate\n",
+				strmhz(buf, sysinfo.freqDDRBus));
+
+	for (i = 0; fixed_ddr_parm_0[i].max_freq > 0; i++) {
+		if ((sysinfo.freqDDRBus > fixed_ddr_parm_0[i].min_freq) &&
+		   (sysinfo.freqDDRBus <= fixed_ddr_parm_0[i].max_freq)) {
+			memcpy(&ddr_cfg_regs,
+				fixed_ddr_parm_0[i].ddr_settings,
+				sizeof(ddr_cfg_regs));
+			break;
+		}
+	}
+
+	if (fixed_ddr_parm_0[i].max_freq == 0)
+		panic("Unsupported DDR data rate %s MT/s data rate\n",
+			strmhz(buf, sysinfo.freqDDRBus));
+
+	ddr_size = (phys_size_t) CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0);
+
+#if (CONFIG_NUM_DDR_CONTROLLERS == 2)
+	memcpy(&ddr_cfg_regs,
+		fixed_ddr_parm_1[i].ddr_settings,
+		sizeof(ddr_cfg_regs));
+	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 1);
+#endif
+
+	/*
+	 * setup laws for DDR. If not interleaving, presuming half memory on
+	 * DDR1 and the other half on DDR2
+	 */
+	if (fixed_ddr_parm_0[i].ddr_settings->cs[0].config & 0x20000000) {
+		if (set_ddr_laws(CONFIG_SYS_DDR_SDRAM_BASE,
+				 ddr_size,
+				 LAW_TRGT_IF_DDR_INTRLV) < 0) {
+			printf("ERROR setting Local Access Windows for DDR\n");
+			return 0;
+		}
+	} else {
+#if (CONFIG_NUM_DDR_CONTROLLERS == 2)
+		/* We require both controllers have identical DIMMs */
+		lawbar1_target_id = LAW_TRGT_IF_DDR_1;
+		if (set_ddr_laws(CONFIG_SYS_DDR_SDRAM_BASE,
+				 ddr_size / 2,
+				 lawbar1_target_id) < 0) {
+			printf("ERROR setting Local Access Windows for DDR\n");
+			return 0;
+		}
+		lawbar1_target_id = LAW_TRGT_IF_DDR_2;
+		if (set_ddr_laws(CONFIG_SYS_DDR_SDRAM_BASE + ddr_size / 2,
+				 ddr_size / 2,
+				 lawbar1_target_id) < 0) {
+			printf("ERROR setting Local Access Windows for DDR\n");
+			return 0;
+		}
+#else
+		lawbar1_target_id = LAW_TRGT_IF_DDR_1;
+		if (set_ddr_laws(CONFIG_SYS_DDR_SDRAM_BASE,
+				 ddr_size,
+				 lawbar1_target_id) < 0) {
+			printf("ERROR setting Local Access Windows for DDR\n");
+			return 0;
+		}
+#endif
+	}
+	return ddr_size;
+}
 
 static void get_spd(ddr3_spd_eeprom_t *spd, unsigned char i2c_address)
 {
@@ -189,4 +283,39 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 
 	/* Enable ZQ calibration */
 	popts->zq_en = 1;
+}
+
+phys_size_t initdram(int board_type)
+{
+	phys_size_t dram_size;
+	int use_spd = 0;
+
+	puts("Initializing....");
+
+#ifdef CONFIG_DDR_SPD
+	/* if hwconfig is not enabled, or "sdram" is not defined, use spd */
+	if (hwconfig_sub("fsl_ddr", "sdram")) {
+		if (hwconfig_subarg_cmp("fsl_ddr", "sdram", "spd"))
+			use_spd = 1;
+		else if (hwconfig_subarg_cmp("fsl_ddr", "sdram", "fixed"))
+			use_spd = 0;
+		else
+			use_spd = 1;
+	} else
+		use_spd = 1;
+#endif
+
+	if (use_spd) {
+		puts("using SPD\n");
+		dram_size = fsl_ddr_sdram();
+	} else {
+		puts("using fixed parameters\n");
+		dram_size = fixed_sdram();
+	}
+
+	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
+	dram_size *= 0x100000;
+
+	puts("    DDR: ");
+	return dram_size;
 }

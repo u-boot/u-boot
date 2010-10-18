@@ -29,7 +29,6 @@
 #include <asm/cache.h>
 #include <asm/immap_85xx.h>
 #include <asm/fsl_law.h>
-#include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
@@ -194,20 +193,6 @@ int misc_init_r(void)
 	}
 
 	return 0;
-}
-
-phys_size_t initdram(int board_type)
-{
-	phys_size_t dram_size;
-
-	puts("Initializing....\n");
-
-	dram_size = fsl_ddr_sdram();
-
-	setup_ddr_tlbs(dram_size / 0x100000);
-
-	puts("    DDR: ");
-	return dram_size;
 }
 
 #ifdef CONFIG_MP
