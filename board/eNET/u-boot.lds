@@ -27,7 +27,7 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = TEXT_BASE;		/* Location of bootcode in flash */
+	. = CONFIG_SYS_TEXT_BASE;	/* Location of bootcode in flash */
 	__text_start = .;
 	.text  : { *(.text*); }
 
@@ -94,11 +94,11 @@ SECTIONS
 	 * The fff0 offset of resetvec is important, however.
 	 */
 	. = 0xfffffe00;
-	.start32 : AT (TEXT_BASE + 0x3fe00) { KEEP(*(.start32)); }
+	.start32 : AT (CONFIG_SYS_TEXT_BASE + 0x3fe00) { KEEP(*(.start32)); }
 
 	. = 0xf800;
-	.start16 : AT (TEXT_BASE + 0x3f800) { KEEP(*(.start16)); }
+	.start16 : AT (CONFIG_SYS_TEXT_BASE + 0x3f800) { KEEP(*(.start16)); }
 
 	. = 0xfff0;
-	.resetvec : AT (TEXT_BASE + 0x3fff0) { KEEP(*(.resetvec)); }
+	.resetvec : AT (CONFIG_SYS_TEXT_BASE + 0x3fff0) { KEEP(*(.resetvec)); }
 }

@@ -92,11 +92,11 @@ Relocation with NAND_SPL (example for the tx25):
   the "real" u-boot to CONFIG_SYS_NAND_U_BOOT_DST and starts execution
   @CONFIG_SYS_NAND_U_BOOT_START
 
-- This u-boot does no ram int, nor cpu register setup. Just looks
-  where it have to relocate and relocate itself to this address.
-  If relocate address = CONFIG_SYS_TEXT_BASE(not the same, as the TEXT_BASE
-  from the nand_spl code), no need to copy, just go on with bss clear
-  and jump to board_init_r.
+- This u-boot does no RAM init, nor CPU register setup. Just look
+  where it has to copy and relocate itself to this address. If
+  relocate address = CONFIG_SYS_TEXT_BASE (not the same, as the
+  CONFIG_SYS_TEXT_BASE from the nand_spl code), then there is no need
+  to copy, just go on with bss clear and jump to board_init_r.
 
 -------------------------------------------------------------------------------------
 
