@@ -27,11 +27,6 @@ LIB	= $(obj)lib$(BOARD).a
 
 COBJS-y += $(BOARD).o
 COBJS-y += led.o
-COBJS-y += misc.o
-ifdef CONFIG_HAS_DATAFLASH
-COBJS-$(CONFIG_DATAFLASH_MMC_SELECT) += mux.o
-COBJS-y += partition.o
-endif
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))
