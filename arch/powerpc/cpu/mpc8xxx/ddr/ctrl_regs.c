@@ -1184,6 +1184,7 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 	unsigned int sr_it;
 	unsigned int zq_en;
 	unsigned int wrlvl_en;
+	int cs_en = 1;
 
 	memset(ddr, 0, sizeof(fsl_ddr_cfg_regs_t));
 
@@ -1250,16 +1251,23 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			 * and each controller uses rank interleaving within
 			 * itself. Therefore the starting and ending address
 			 * on each controller is twice the amount present on
-			 * each controller.
+			 * each controller. If any CS is not included in the
+			 * interleaving, the memory on that CS is not accssible
+			 * and the total memory size is reduced. The CS is also
+			 * disabled.
 			 */
 			unsigned long long ctlr_density = 0;
 			switch (popts->ba_intlv_ctl & FSL_DDR_CS0_CS1_CS2_CS3) {
 			case FSL_DDR_CS0_CS1:
 			case FSL_DDR_CS0_CS1_AND_CS2_CS3:
 				ctlr_density = dimm_params[0].rank_density * 2;
+				if (i > 1)
+					cs_en = 0;
 				break;
 			case FSL_DDR_CS2_CS3:
 				ctlr_density = dimm_params[0].rank_density;
+				if (i > 0)
+					cs_en = 0;
 				break;
 			case FSL_DDR_CS0_CS1_CS2_CS3:
 				/*
@@ -1379,8 +1387,11 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			);
 
 		debug("FSLDDR: cs[%d]_bnds = 0x%08x\n", i, ddr->cs[i].bnds);
-		set_csn_config(dimm_number, i, ddr, popts, dimm_params);
-		set_csn_config_2(i, ddr);
+		if (cs_en) {
+			set_csn_config(dimm_number, i, ddr, popts, dimm_params);
+			set_csn_config_2(i, ddr);
+		} else
+			printf("CS%d is disabled.\n", i);
 	}
 
 	set_ddr_eor(ddr, popts);
