@@ -1184,66 +1184,6 @@ bf527-ezkit-v2_config	: unconfig
 	@$(MKCONFIG) -t BF527_EZKIT_REV_2_1 \
 		bf527-ezkit blackfin blackfin bf527-ezkit
 
-#========================================================================
-# SH3 (SuperH)
-#========================================================================
-
-#########################################################################
-## sh4 (Renesas SuperH)
-#########################################################################
-
-MigoR_config :       unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_MIGO_R 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 MigoR renesas
-
-ms7750se_config: unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_MS7750SE 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 ms7750se
-
-ms7722se_config :	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_MS7722SE 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 ms7722se
-
-r2dplus_config  :   unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_R2DPLUS 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 r2dplus renesas
-
-r7780mp_config: unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_R7780MP 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 r7780mp renesas
-
-sh7763rdp_config  :   unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_SH7763RDP 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 sh7763rdp renesas
-
-sh7785lcr_32bit_config \
-sh7785lcr_config  :   unconfig
-	@mkdir -p $(obj)include
-	@mkdir -p $(obj)board/renesas/sh7785lcr
-	@echo "#define CONFIG_SH7785LCR 1" > $(obj)include/config.h
-	@if [ "$(findstring 32bit, $@)" ] ; then \
-		echo "#define CONFIG_SH_32BIT 1" >> $(obj)include/config.h ; \
-		echo "CONFIG_SYS_TEXT_BASE = 0x8ff80000" > \
-			$(obj)board/renesas/sh7785lcr/config.tmp ; \
-	fi
-	@$(MKCONFIG) -n $@ -a sh7785lcr sh sh4 sh7785lcr renesas
-
-ap325rxa_config  :   unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_AP325RXA 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 ap325rxa renesas
-
-espt_config  :   unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_ESPT 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 espt
-
 #########################################################################
 #########################################################################
 

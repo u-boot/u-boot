@@ -611,24 +611,9 @@ LIST_blackfin="$(boards_by_arch blackfin)
 
 LIST_sh2="$(boards_by_cpu sh2)"
 LIST_sh3="$(boards_by_cpu sh3)"
+LIST_sh4="$(boards_by_cpu sh4)"
 
-LIST_sh4="		\
-	ms7750se	\
-	ms7722se	\
-	MigoR		\
-	r7780mp		\
-	r2dplus		\
-	sh7763rdp	\
-	sh7785lcr	\
-	ap325rxa	\
-	espt		\
-"
-
-LIST_sh="		\
-	${LIST_sh2}	\
-	${LIST_sh3}	\
-	${LIST_sh4}	\
-"
+LIST_sh="$(boards_by_arch sh)"
 
 #########################################################################
 ## SPARC Systems
