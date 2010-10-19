@@ -1,0 +1,144 @@
+-------------------
+UBI usage in U-Boot
+-------------------
+
+Here the list of the currently implemented UBI commands:
+
+=> help ubi
+ubi - ubi commands
+
+Usage:
+ubi part [part] [offset]
+ - Show or set current partition (with optional VID header offset)
+ubi info [l[ayout]] - Display volume and ubi layout information
+ubi create[vol] volume [size] [type] - create volume name with size
+ubi write[vol] address volume size - Write volume from address with size
+ubi read[vol] address volume [size] - Read volume to address with size
+ubi remove[vol] volume - Remove volume
+[Legends]
+ volume: character name
+ size: specified in bytes
+ type: s[tatic] or d[ynamic] (default=dynamic)
+
+
+The first command that is needed to be issues is "ubi part" to connect
+one mtd partition to the UBI subsystem. This command will either create
+a new UBI device on the requested MTD partition. Or it will attach a
+previously created UBI device. The other UBI commands will only work
+when such a UBI device is attached (via "ubi part"). Here an example:
+
+=> mtdparts
+
+device nor0 <1fc000000.nor_flash>, # parts = 6
+ #: name                size            offset          mask_flags
+ 0: kernel              0x00200000      0x00000000      0
+ 1: dtb                 0x00040000      0x00200000      0
+ 2: root                0x00200000      0x00240000      0
+ 3: user                0x01ac0000      0x00440000      0
+ 4: env                 0x00080000      0x01f00000      0
+ 5: u-boot              0x00080000      0x01f80000      0
+
+active partition: nor0,0 - (kernel) 0x00200000 @ 0x00000000
+
+defaults:
+mtdids  : nor0=1fc000000.nor_flash
+mtdparts: mtdparts=1fc000000.nor_flash:2m(kernel),256k(dtb),2m(root),27392k(user),512k(env),512k(u-boot)
+
+=> ubi part root
+Creating 1 MTD partitions on "nor0":
+0x000000240000-0x000000440000 : "mtd=2"
+UBI: attaching mtd1 to ubi0
+UBI: physical eraseblock size:   262144 bytes (256 KiB)
+UBI: logical eraseblock size:    262016 bytes
+UBI: smallest flash I/O unit:    1
+UBI: VID header offset:          64 (aligned 64)
+UBI: data offset:                128
+UBI: attached mtd1 to ubi0
+UBI: MTD device name:            "mtd=2"
+UBI: MTD device size:            2 MiB
+UBI: number of good PEBs:        8
+UBI: number of bad PEBs:         0
+UBI: max. allowed volumes:       128
+UBI: wear-leveling threshold:    4096
+UBI: number of internal volumes: 1
+UBI: number of user volumes:     1
+UBI: available PEBs:             0
+UBI: total number of reserved PEBs: 8
+UBI: number of PEBs reserved for bad PEB handling: 0
+UBI: max/mean erase counter: 2/1
+
+
+Now that the UBI device is attached, this device can be modified
+using the following commands:
+
+ubi info	Display volume and ubi layout information
+ubi createvol	Create UBI volume on UBI device
+ubi removevol	Remove UBI volume from UBI device
+ubi read	Read data from UBI volume to memory
+ubi write	Write data from memory to UBI volume
+
+
+Here a few examples on the usage:
+
+=> ubi create testvol
+Creating dynamic volume testvol of size 1048064
+
+=> ubi info l
+UBI: volume information dump:
+UBI: vol_id          0
+UBI: reserved_pebs   4
+UBI: alignment       1
+UBI: data_pad        0
+UBI: vol_type        3
+UBI: name_len        7
+UBI: usable_leb_size 262016
+UBI: used_ebs        4
+UBI: used_bytes      1048064
+UBI: last_eb_bytes   262016
+UBI: corrupted       0
+UBI: upd_marker      0
+UBI: name            testvol
+
+UBI: volume information dump:
+UBI: vol_id          2147479551
+UBI: reserved_pebs   2
+UBI: alignment       1
+UBI: data_pad        0
+UBI: vol_type        3
+UBI: name_len        13
+UBI: usable_leb_size 262016
+UBI: used_ebs        2
+UBI: used_bytes      524032
+UBI: last_eb_bytes   2
+UBI: corrupted       0
+UBI: upd_marker      0
+UBI: name            layout volume
+
+=> ubi info
+UBI: MTD device name:            "mtd=2"
+UBI: MTD device size:            2 MiB
+UBI: physical eraseblock size:   262144 bytes (256 KiB)
+UBI: logical eraseblock size:    262016 bytes
+UBI: number of good PEBs:        8
+UBI: number of bad PEBs:         0
+UBI: smallest flash I/O unit:    1
+UBI: VID header offset:          64 (aligned 64)
+UBI: data offset:                128
+UBI: max. allowed volumes:       128
+UBI: wear-leveling threshold:    4096
+UBI: number of internal volumes: 1
+UBI: number of user volumes:     1
+UBI: available PEBs:             0
+UBI: total number of reserved PEBs: 8
+UBI: number of PEBs reserved for bad PEB handling: 0
+UBI: max/mean erase counter: 4/1
+
+=> ubi write 800000 testvol 80000
+Volume "testvol" found at volume id 0
+
+=> ubi read 900000 testvol 80000
+Volume testvol found at volume id 0
+read 524288 bytes from volume 0 to 900000(buf address)
+
+=> cmp.b 800000 900000 80000
+Total of 524288 bytes were the same
