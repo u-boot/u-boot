@@ -573,6 +573,10 @@ Rishi Bhattacharya <rishi@ti.com>
 
 	omap5912osk	ARM926EJS
 
+Andreas Bieﬂmann <andreas.devel@gmail.com>
+
+	at91rm9200ek	at91rm9200
+
 Cliff Brake <cliff.brake@gmail.com>
 
 	pxa255_idp	xscale
