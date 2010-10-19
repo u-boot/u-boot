@@ -731,7 +731,11 @@ int tsi108_eth_initialize (bd_t * bis)
 
 	for (index = 0; index < CONFIG_TSI108_ETH_NUM_PORTS; index++) {
 		dev = (struct eth_device *)malloc(sizeof(struct eth_device));
-
+		if (!dev) {
+			printf("tsi108: Can not allocate memory\n");
+			break;
+		}
+		memset(dev, 0, sizeof(*dev));
 		sprintf (dev->name, "TSI108_eth%d", index);
 
 		dev->iobase = ETH_BASE + (index * ETH_PORT_OFFSET);
