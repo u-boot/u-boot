@@ -22,6 +22,7 @@
 
 #include <common.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -33,13 +34,13 @@ int board_init (void)
  * Setup GPIO stuff to get serial working
  */
 #if defined( CONFIG_FFUART )
-	GPDR1 = 0x80;
-	GAFR1_L = 0x8010;
+	writel(0x80, GPDR1);
+	writel(0x8010, GAFR1_L);
 #elif defined( CONFIG_BTUART )
-	GPDR1 = 0x800;
-	GAFR1_L = 0x900000;
+	writel(0x800, GPDR1);
+	writel(0x900000, GAFR1_L);
 #endif
-	PSSR = 0x20;
+	writel(0x20, PSSR);
 
 	return 0;
 }

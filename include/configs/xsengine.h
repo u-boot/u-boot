@@ -53,6 +53,9 @@
 #define CONFIG_SYS_DRAM_BASE			0xa0000000
 #define CONFIG_SYS_DRAM_SIZE			0x04000000
 
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define	CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_GBL_DATA_SIZE + PHYS_SDRAM_1)
+
 /* FLASH organization */
 #define CONFIG_SYS_MAX_FLASH_BANKS		1		/* max number of memory banks           */
 #define CONFIG_SYS_MAX_FLASH_SECT		128		/* max number of sectors on one chip    */

@@ -1,10 +1,7 @@
 /*
- * (C) Copyright 2002
- * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
- * Marius Groeger <mgroeger@sysgo.de>
+ * Palm Tungsten|C Support
  *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * Copyright (C) 2009-2010 Marek Vasut <marek.vasut@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -23,28 +20,40 @@
  */
 
 #include <common.h>
-#include <asm/arch/AT91RM9200.h>
-#include <at91rm9200_net.h>
-#include <dm9161.h>
-#include <net.h>
+#include <command.h>
+#include <serial.h>
+#include <asm/io.h>
 
-int board_late_init(void)
+DECLARE_GLOBAL_DATA_PTR;
+
+/*
+ * Miscelaneous platform dependent initialisations
+ */
+
+int board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
+	/* Arch number of Palm Tungsten|C */
+	gd->bd->bi_arch_number = MACH_TYPE_PALMTC;
 
-	/* Fix Ethernet Initialization Bug when starting Linux from U-Boot */
-	eth_init(gd->bd);
+	/* Adress of boot parameters */
+	gd->bd->bi_boot_params = 0xa0000100;
+
+	/* Set PWM for LCD */
+	writel(0x5f, PWM_CTRL1);
+	writel(0x3ff, PWM_PERVAL1);
+	writel(892, PWM_PWDUTY1);
+
 	return 0;
 }
 
-
-/* checks if addr is in RAM */
-int addr2ram(ulong addr)
+struct serial_device *default_serial_console(void)
 {
-	int result = 0;
+	return &serial_ffuart_device;
+}
 
-	if((addr >= PHYS_SDRAM) && (addr < (PHYS_SDRAM + PHYS_SDRAM_SIZE)))
-		result = 1;
-
-	return result;
+int dram_init(void)
+{
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+	return 0;
 }

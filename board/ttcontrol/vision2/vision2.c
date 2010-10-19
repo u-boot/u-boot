@@ -26,7 +26,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/mx51_pins.h>
+#include <asm/arch/mx5x_pins.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
 #include <mxc_gpio.h>

@@ -1,8 +1,6 @@
 /*
- * Voipac PXA270 Lowlevel Hardware Initialization
- *
- * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
- *
+ * (C) Copyright 2000-2005
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -23,18 +21,36 @@
  * MA 02111-1307 USA
  */
 
-#include <config.h>
-#include <version.h>
-#include <asm/arch/pxa-regs.h>
-#include <asm/arch/macro.h>
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
+{
+	. = 0x00000000;
 
-.globl lowlevel_init
-lowlevel_init:
-	pxa_gpio_setup
-	pxa_wait_ticks	0x8000
-	pxa_mem_setup
-	pxa_wakeup
-	pxa_intr_setup
-	pxa_clock_setup
+	. = ALIGN(4);
+	.text      :
+	{
+	  cpu/pxa/start.o	(.text)
+	  *(.text)
+	}
 
-	mov	pc, lr
+	. = ALIGN(4);
+	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
+
+	. = ALIGN(4);
+	.data : { *(.data) }
+
+	. = ALIGN(4);
+	.got : { *(.got) }
+
+	. = .;
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;
+
+	. = ALIGN(4);
+	__bss_start = .;
+	.bss (NOLOAD) : { *(.bss) . = ALIGN(4); }
+	_end = .;
+}

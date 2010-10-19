@@ -27,85 +27,78 @@
 # if defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X)
 
 #include <asm/arch/pxa-regs.h>
+#include <asm/io.h>
 #include <usb.h>
 
 int usb_cpu_init(void)
 {
 #if defined(CONFIG_CPU_MONAHANS)
 	/* Enable USB host clock. */
-	CKENA |= (CKENA_2_USBHOST |  CKENA_20_UDC);
+	writel(readl(CKENA) | CKENA_2_USBHOST | CKENA_20_UDC, CKENA);
 	udelay(100);
 #endif
 #if defined(CONFIG_PXA27X)
 	/* Enable USB host clock. */
-	CKEN |= CKEN10_USBHOST;
+	writel(readl(CKEN) | CKEN10_USBHOST, CKEN);
 #endif
 
 #if defined(CONFIG_CPU_MONAHANS)
 	/* Configure Port 2 for Host (USB Client Registers) */
-	UP2OCR = 0x3000c;
+	writel(0x3000c, UP2OCR);
 #endif
 
-	UHCHR |= UHCHR_FHR;
+	writel(readl(UHCHR) | UHCHR_FHR, UHCHR);
 	wait_ms(11);
-	UHCHR &= ~UHCHR_FHR;
+	writel(readl(UHCHR) & ~UHCHR_FHR, UHCHR);
 
-	UHCHR |= UHCHR_FSBIR;
-	while (UHCHR & UHCHR_FSBIR)
+	writel(readl(UHCHR) | UHCHR_FSBIR, UHCHR);
+	while (readl(UHCHR) & UHCHR_FSBIR)
 		udelay(1);
 
 #if defined(CONFIG_CPU_MONAHANS)
-	UHCHR &= ~UHCHR_SSEP0;
+	writel(readl(UHCHR) & ~UHCHR_SSEP0, UHCHR);
 #endif
 #if defined(CONFIG_PXA27X)
-	UHCHR &= ~UHCHR_SSEP2;
+	writel(readl(UHCHR) & ~UHCHR_SSEP2, UHCHR);
 #endif
-	UHCHR &= ~UHCHR_SSEP1;
-	UHCHR &= ~UHCHR_SSE;
+	writel(readl(UHCHR) & ~(UHCHR_SSEP1 | UHCHR_SSE), UHCHR);
 
 	return 0;
 }
 
 int usb_cpu_stop(void)
 {
-	UHCHR |= UHCHR_FHR;
+	writel(readl(UHCHR) | UHCHR_FHR, UHCHR);
 	udelay(11);
-	UHCHR &= ~UHCHR_FHR;
+	writel(readl(UHCHR) & ~UHCHR_FHR, UHCHR);
 
-	UHCCOMS |= 1;
+	writel(readl(UHCCOMS) | UHCHR_FHR, UHCCOMS);
 	udelay(10);
 
 #if defined(CONFIG_CPU_MONAHANS)
-	UHCHR |= UHCHR_SSEP0;
+	writel(readl(UHCHR) | UHCHR_SSEP0, UHCHR);
 #endif
 #if defined(CONFIG_PXA27X)
-	UHCHR |= UHCHR_SSEP2;
+	writel(readl(UHCHR) | UHCHR_SSEP2, UHCHR);
 #endif
-	UHCHR |= UHCHR_SSEP1;
-	UHCHR |= UHCHR_SSE;
+	writel(readl(UHCHR) | UHCHR_SSEP1 | UHCHR_SSE, UHCHR);
+
+#if defined(CONFIG_CPU_MONAHANS)
+	/* Disable USB host clock. */
+	writel(readl(CKENA) & ~(CKENA_2_USBHOST | CKENA_20_UDC), CKENA);
+	udelay(100);
+#endif
+#if defined(CONFIG_PXA27X)
+	/* Disable USB host clock. */
+	writel(readl(CKEN) & ~CKEN10_USBHOST, CKEN);
+#endif
 
 	return 0;
 }
 
 int usb_cpu_init_fail(void)
 {
-	UHCHR |= UHCHR_FHR;
-	udelay(11);
-	UHCHR &= ~UHCHR_FHR;
-
-	UHCCOMS |= 1;
-	udelay(10);
-
-#if defined(CONFIG_CPU_MONAHANS)
-	UHCHR |= UHCHR_SSEP0;
-#endif
-#if defined(CONFIG_PXA27X)
-	UHCHR |= UHCHR_SSEP2;
-#endif
-	UHCHR |= UHCHR_SSEP1;
-	UHCHR |= UHCHR_SSE;
-
-	return 0;
+	return usb_cpu_stop();
 }
 
 # endif /* defined(CONFIG_CPU_MONAHANS) || defined(CONFIG_PXA27X) */

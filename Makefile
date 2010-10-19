@@ -358,7 +358,7 @@ $(obj)u-boot.imx:       $(obj)u-boot.bin
 
 $(obj)u-boot.kwb:       $(obj)u-boot.bin
 		$(obj)tools/mkimage -n $(KWD_CONFIG) -T kwbimage \
-		-a $(CONFIG_SYS_TEXT_BASE) -e $(TEXT_BASE) -d $< $@
+		-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) -d $< $@
 
 $(obj)u-boot.sha1:	$(obj)u-boot.bin
 		$(obj)tools/ubsha1 $(obj)u-boot.bin
@@ -1026,23 +1026,6 @@ scpu_config:	unconfig
 		echo "#define CONFIG_SCPU"	>>$(obj)include/config.h ; \
 	fi
 	@$(MKCONFIG) -n $@ -a pdnb3 arm ixp pdnb3 prodrive
-
-polaris_config \
-trizepsiv_config	:	unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring polaris,$@)" ] ; then \
-		echo "#define CONFIG_POLARIS 1"	>>$(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ -a trizepsiv arm pxa trizepsiv
-
-vpac270_nor_config \
-vpac270_onenand_config	: unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring onenand,$@)" ] ; then \
-		echo "#define CONFIG_ONENAND_U_BOOT" \
-			>>$(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ -a vpac270 arm pxa vpac270
 
 #########################################################################
 ## ARM1136 Systems

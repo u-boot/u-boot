@@ -1,4 +1,9 @@
 /*
+ * (C) Copyright 2000-2005
+ * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -14,25 +19,38 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
- *
  */
-#include <common.h>
-#include <config.h>
-#include <asm/hardware.h>
-#include <dataflash.h>
 
-AT91S_DATAFLASH_INFO dataflash_info[CONFIG_SYS_MAX_DATAFLASH_BANKS];
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
+{
+	. = 0x00000000;
 
-struct dataflash_addr cs[CONFIG_SYS_MAX_DATAFLASH_BANKS] = {
-	{CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
-	{CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS3, 3}
-};
+	. = ALIGN(4);
+	.text      :
+	{
+	  cpu/pxa/start.o	(.text)
+	  *(.text)
+	}
 
-/*define the area offsets*/
-dataflash_protect_t area_list[NB_DATAFLASH_AREA] = {
-	{0x00000000, 0x000041FF, FLAG_PROTECT_SET,	0, "Bootstrap"},
-	{0x00004200, 0x000083FF, FLAG_PROTECT_CLEAR,	0, "Environment"},
-	{0x00008400, 0x00041FFF, FLAG_PROTECT_SET,	0, "U-Boot"},
-	{0x00042000, 0x00251FFF, FLAG_PROTECT_CLEAR,	0, "Kernel"},
-	{0x00252000, 0xFFFFFFFF, FLAG_PROTECT_CLEAR,	0, "FS"},
-};
+	. = ALIGN(4);
+	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
+
+	. = ALIGN(4);
+	.data : { *(.data) }
+
+	. = ALIGN(4);
+	.got : { *(.got) }
+
+	. = .;
+	__u_boot_cmd_start = .;
+	.u_boot_cmd : { *(.u_boot_cmd) }
+	__u_boot_cmd_end = .;
+
+	. = ALIGN(4);
+	__bss_start = .;
+	.bss (NOLOAD) : { *(.bss) . = ALIGN(4); }
+	_end = .;
+}

@@ -102,7 +102,11 @@
 /*
  * This macro sets up the Memory controller of the PXA2xx CPU
  *
- * Clobbered regs: r3, r4, r5
+ * WARNING: This macro uses internally r3 and r7 regs for MEMC_BASE
+ *          and CONFIG_SYS_MDREFR_VAL correspondingly. Please do not
+ *          use this regs for other purpose inside this macro.
+ *
+ * Clobbered regs: r3, r4, r5, r6, r7
  */
 .macro	pxa_mem_setup
 	/* This comes handy when setting MDREFR */
@@ -157,7 +161,7 @@
 	bic	r5, r5, #0xf00	/* MDREFR user config with zeroed DRI */
 
 	ldr	r4, =CONFIG_SYS_MDREFR_VAL
-	mov	r6, r4
+	mov	r7, r4
 	lsl	r4, #20
 	lsr	r4, #20		/* Get a valid DRI field */
 
@@ -187,12 +191,12 @@
 	 * 6) Initialize SDRAM
 	 */
 
-	bic	r6, #MDREFR_SLFRSH
-	str	r6, [r3, #MDREFR_OFFSET]
+	bic	r7, #MDREFR_SLFRSH
+	str	r7, [r3, #MDREFR_OFFSET]
 	ldr	r4, [r3, #MDREFR_OFFSET]
 
-	orr	r6, #MDREFR_E1PIN
-	str	r6, [r3, #MDREFR_OFFSET]
+	orr	r7, #MDREFR_E1PIN
+	str	r7, [r3, #MDREFR_OFFSET]
 	ldr	r4, [r3, #MDREFR_OFFSET]
 
 	/*
@@ -250,8 +254,8 @@
 	 */
 
 	ldr	r4, [r3, #MDREFR_OFFSET]
-	and	r6, r6, #MDREFR_APD
-	orr	r4, r4, r6
+	and	r7, r7, #MDREFR_APD
+	orr	r4, r4, r7
 	str	r4, [r3, #MDREFR_OFFSET]
 	ldr	r4, [r3, #MDREFR_OFFSET]
 .endm

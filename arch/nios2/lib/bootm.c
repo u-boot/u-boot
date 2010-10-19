@@ -36,11 +36,9 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	ulong initrd_end = images->rd_end;
 	char *of_flat_tree = NULL;
 #if defined(CONFIG_OF_LIBFDT)
-	ulong of_size = 0;
-
-	/* find flattened device tree */
-	if (boot_get_fdt(flag, argc, argv, images, &of_flat_tree, &of_size))
-		return 1;
+	/* did generic code already find a device tree? */
+	if (images->ft_len)
+		of_flat_tree = images->ft_addr;
 #endif
 	if (!of_flat_tree && argc > 3)
 		of_flat_tree = (char *)simple_strtoul(argv[3], NULL, 16);

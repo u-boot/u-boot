@@ -2275,6 +2275,19 @@ Configuration Settings:
 		all data for the Linux kernel must be between "bootm_low"
 		and "bootm_low" + CONFIG_SYS_BOOTMAPSZ.
 
+- CONFIG_SYS_BOOT_RAMDISK_HIGH:
+		Enable initrd_high functionality.  If defined then the
+		initrd_high feature is enabled and the bootm ramdisk subcommand
+		is enabled.
+
+- CONFIG_SYS_BOOT_GET_CMDLINE:
+		Enables allocating and saving kernel cmdline in space between
+		"bootm_low" and "bootm_low" + BOOTMAPSZ.
+
+- CONFIG_SYS_BOOT_GET_KBD:
+		Enables allocating and saving a kernel copy of the bd_info in
+		space between "bootm_low" and "bootm_low" + BOOTMAPSZ.
+
 - CONFIG_SYS_MAX_FLASH_BANKS:
 		Max number of Flash memory banks
 

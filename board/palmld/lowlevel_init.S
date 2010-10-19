@@ -1,8 +1,7 @@
 /*
- * Aeronix Zipit Z2 Lowlevel Hardware Initialization
+ * Palm LifeDrive Lowlevel Hardware Initialization
  *
  * Copyright (C) 2010 Marek Vasut <marek.vasut@gmail.com>
- *
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -31,6 +30,12 @@
 .globl lowlevel_init
 lowlevel_init:
 	pxa_gpio_setup
+
+	/* Enable GPIO reset */
+	ldr	r0, =PCFR
+	mov	r1, #0x30
+	str	r1, [r0]
+
 	pxa_wait_ticks	0x8000
 	pxa_mem_setup
 	pxa_wakeup

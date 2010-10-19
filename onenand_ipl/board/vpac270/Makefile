@@ -1,5 +1,6 @@
-IPL	=onenand_ipl
+
 include $(TOPDIR)/config.mk
+include $(TOPDIR)/board/$(BOARDDIR)/config.mk
 
 LDSCRIPT= $(TOPDIR)/onenand_ipl/board/$(BOARDDIR)/u-boot.onenand.lds
 LDFLAGS	= -Bstatic -T $(onenandobj)u-boot.lds -Ttext $(CONFIG_SYS_TEXT_BASE) $(PLATFORM_LDFLAGS)
@@ -25,7 +26,7 @@ ALL	= $(onenandobj)onenand-ipl $(onenandobj)onenand-ipl.bin $(onenandobj)onenand
 all:	$(obj).depend $(ALL)
 
 $(onenandobj)onenand-ipl-2k.bin:	$(onenandobj)onenand-ipl
-	$(OBJCOPY) ${OBJCFLAGS} --pad-to=0x5c040400 -O binary $< $@
+	$(OBJCOPY) ${OBJCFLAGS} --pad-to=0x0800 -O binary $< $@
 
 $(onenandobj)onenand-ipl.bin:	$(onenandobj)onenand-ipl
 	$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@

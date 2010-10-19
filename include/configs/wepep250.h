@@ -183,6 +183,10 @@
 #define CONFIG_ENV_ADDR		0x20000	        /* absolute address for now  */
 #define CONFIG_ENV_SIZE		0x2000
 
+#define	PHYS_SDRAM_1			WEP_SDRAM_1
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define	CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_GBL_DATA_SIZE + PHYS_SDRAM_1)
+
 #undef  CONFIG_ENV_OVERWRITE                    /* env is not writable now   */
 
 /*

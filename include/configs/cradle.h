@@ -145,6 +145,9 @@
 
 #define CONFIG_SYS_FLASH_BASE          PHYS_FLASH_1
 
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define	CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_GBL_DATA_SIZE + PHYS_SDRAM_1)
+
 /*
  * FLASH and environment organization
  */
@@ -339,8 +342,6 @@
 #define LED_IRDA1 2
 #define LED_IRDA2 4
 #define LED_IRDA3 6
-#define CRADLE_LED_SET_REG GPSR2
-#define CRADLE_LED_CLR_REG GPCR2
 
 /* SuperIO defines */
 #define CRADLE_SIO_INDEX      0x2e

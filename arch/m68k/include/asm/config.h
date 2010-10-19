@@ -22,5 +22,8 @@
 #define _ASM_CONFIG_H_
 
 #define CONFIG_LMB
+#define CONFIG_SYS_BOOT_RAMDISK_HIGH
+#define CONFIG_SYS_BOOT_GET_CMDLINE
+#define CONFIG_SYS_BOOT_GET_KBD
 
 #endif

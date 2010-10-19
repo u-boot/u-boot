@@ -340,14 +340,17 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		char **of_flat_tree, ulong *of_size);
 #endif
 
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
+#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
 int boot_ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 		  ulong *initrd_start, ulong *initrd_end);
-
+#endif /* CONFIG_SYS_BOOT_RAMDISK_HIGH */
+#ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
 			ulong bootmap_base);
+#endif /* CONFIG_SYS_BOOT_GET_CMDLINE */
+#ifdef CONFIG_SYS_BOOT_GET_KBD
 int boot_get_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base);
-#endif /* CONFIG_PPC || CONFIG_M68K */
+#endif /* CONFIG_SYS_BOOT_GET_KBD */
 #endif /* !USE_HOSTCC */
 
 /*******************************************************************/

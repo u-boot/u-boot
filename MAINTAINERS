@@ -572,6 +572,10 @@ Rishi Bhattacharya <rishi@ti.com>
 
 	omap5912osk	ARM926EJS
 
+Andreas Bieﬂmann <andreas.devel@gmail.com>
+
+	at91rm9200ek	at91rm9200
+
 Cliff Brake <cliff.brake@gmail.com>
 
 	pxa255_idp	xscale
@@ -807,6 +811,15 @@ Greg Ungerer <greg.ungerer@opengear.com>
 	cm4008		ks8695p
 	cm4116		ks8695p
 	cm4148		ks8695p
+
+Marek Vasut <marek.vasut@gmail.com>
+
+	balloon3	xscale
+	colibri_pxa270	xscale
+	palmld		xscale
+	palmtc		xscale
+	vpac270		xscale
+	zipitz2		xscale
 
 Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 

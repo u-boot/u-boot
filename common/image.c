@@ -992,7 +992,7 @@ int boot_get_ramdisk (int argc, char * const argv[], bootm_headers_t *images,
 	return 0;
 }
 
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC)
+#ifdef CONFIG_SYS_BOOT_RAMDISK_HIGH
 /**
  * boot_ramdisk_high - relocate init ramdisk
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -1081,7 +1081,7 @@ int boot_ramdisk_high (struct lmb *lmb, ulong rd_data, ulong rd_len,
 error:
 	return -1;
 }
-#endif /* defined(CONFIG_PPC) || defined(CONFIG_M68K) || defined(CONFIG_SPARC) */
+#endif /* CONFIG_SYS_BOOT_RAMDISK_HIGH */
 
 #ifdef CONFIG_OF_LIBFDT
 static void fdt_error (const char *msg)
@@ -1252,7 +1252,7 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 		*of_size = of_len;
 	} else {
 		*of_flat_tree = fdt_blob;
-		of_len = (CONFIG_SYS_BOOTMAPSZ + bootmap_base) - (ulong)fdt_blob;
+		of_len = *of_size + CONFIG_SYS_FDT_PAD;
 		lmb_reserve(lmb, (ulong)fdt_blob, of_len);
 		fdt_set_totalsize(*of_flat_tree, of_len);
 
@@ -1561,7 +1561,7 @@ int boot_get_fdt (int flag, int argc, char * const argv[], bootm_headers_t *imag
 				goto error;
 			}
 
-			if (be32_to_cpu (fdt_totalsize (fdt_blob)) != fdt_len) {
+			if (fdt_totalsize(fdt_blob) != fdt_len) {
 				fdt_error ("fdt size != image size");
 				goto error;
 			}
@@ -1575,7 +1575,7 @@ int boot_get_fdt (int flag, int argc, char * const argv[], bootm_headers_t *imag
 	}
 
 	*of_flat_tree = fdt_blob;
-	*of_size = be32_to_cpu (fdt_totalsize (fdt_blob));
+	*of_size = fdt_totalsize(fdt_blob);
 	debug ("   of_flat_tree at 0x%08lx size 0x%08lx\n",
 			(ulong)*of_flat_tree, *of_size);
 
@@ -1588,7 +1588,7 @@ error:
 }
 #endif /* CONFIG_OF_LIBFDT */
 
-#if defined(CONFIG_PPC) || defined(CONFIG_M68K)
+#ifdef CONFIG_SYS_BOOT_GET_CMDLINE
 /**
  * boot_get_cmdline - allocate and initialize kernel cmdline
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -1630,7 +1630,9 @@ int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
 
 	return 0;
 }
+#endif /* CONFIG_SYS_BOOT_GET_CMDLINE */
 
+#ifdef CONFIG_SYS_BOOT_GET_KBD
 /**
  * boot_get_kbd - allocate and initialize kernel copy of board info
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -1663,7 +1665,7 @@ int boot_get_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base)
 
 	return 0;
 }
-#endif /* CONFIG_PPC || CONFIG_M68K */
+#endif /* CONFIG_SYS_BOOT_GET_KBD */
 #endif /* !USE_HOSTCC */
 
 #if defined(CONFIG_FIT)
