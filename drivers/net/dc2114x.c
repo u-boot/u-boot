@@ -280,6 +280,12 @@ int dc21x4x_initialize(bd_t *bis)
 
 		dev = (struct eth_device*) malloc(sizeof *dev);
 
+		if (!dev) {
+			printf("Can not allocalte memory of dc21x4x\n");
+			break;
+		}
+		memset(dev, 0, sizeof(*dev));
+
 #ifdef CONFIG_TULIP_FIX_DAVICOM
 		sprintf(dev->name, "Davicom#%d", card_number);
 #else
