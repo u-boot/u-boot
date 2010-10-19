@@ -535,6 +535,9 @@ static int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[]
 {
 	cmd_tbl_t *c;
 
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
 	mtd = &onenand_mtd;
 
 	/* Strip off leading 'onenand' command argument */
