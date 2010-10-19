@@ -610,11 +610,7 @@ LIST_blackfin="$(boards_by_arch blackfin)
 #########################################################################
 
 LIST_sh2="$(boards_by_cpu sh2)"
-
-LIST_sh3="		\
-	mpr2		\
-	ms7720se	\
-"
+LIST_sh3="$(boards_by_cpu sh3)"
 
 LIST_sh4="		\
 	ms7750se	\

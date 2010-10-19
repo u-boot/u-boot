@@ -1189,20 +1189,6 @@ bf527-ezkit-v2_config	: unconfig
 #========================================================================
 
 #########################################################################
-## sh3 (Renesas SuperH)
-#########################################################################
-
-mpr2_config: unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_MPR2 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh3 mpr2
-
-ms7720se_config: unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_MS7720SE 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh3 ms7720se
-
-#########################################################################
 ## sh4 (Renesas SuperH)
 #########################################################################
 
