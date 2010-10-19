@@ -103,7 +103,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	sh_check_cmd_arg(bootargs, CMD_ARG_RD_DOLOAD, 10);
 	/* Initrd */
 	if (images->rd_start || images->rd_end) {
-		unsigned long ramdisk_flags;
+		unsigned long ramdisk_flags = 0;
 		int val = sh_check_cmd_arg(bootargs, CMD_ARG_RD_PROMPT, 10);
 		if (val == 1)
 				ramdisk_flags |= RD_PROMPT;
