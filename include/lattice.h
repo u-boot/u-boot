@@ -308,6 +308,7 @@ int lattice_info(Lattice_desc *desc);
 
 void ispVMStart(void);
 void ispVMEnd(void);
+extern void ispVMFreeMem(void);
 signed char ispVMCode(void);
 void ispVMDelay(unsigned short int a_usMicroSecondDelay);
 void ispVMCalculateCRC32(unsigned char a_ucData);
