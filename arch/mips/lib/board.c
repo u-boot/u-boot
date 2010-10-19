@@ -276,7 +276,6 @@ void board_init_f(ulong bootflag)
 
 void board_init_r (gd_t *id, ulong dest_addr)
 {
-	cmd_tbl_t *cmdtp;
 #ifndef CONFIG_SYS_NO_FLASH
 	ulong size;
 #endif
