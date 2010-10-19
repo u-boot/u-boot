@@ -27,6 +27,7 @@
 extern u32 mx31_get_ipg_clk(void);
 #define imx_get_uartclk mx31_get_ipg_clk
 extern void mx31_gpio_mux(unsigned long mode);
+extern void mx31_set_pad(enum iomux_pins pin, u32 config);
 
 void mx31_uart1_hw_init(void);
 void mx31_spi2_hw_init(void);
