@@ -75,18 +75,18 @@ void reset_timer(void)
 void reset_timer_masked(void)
 {
 	ulong val = __raw_readl(&cur_gpt->counter);
-	lastinc = val / (CONFIG_MX51_CLK32 / CONFIG_SYS_HZ);
+	lastinc = val / (CONFIG_SYS_MX5_CLK32 / CONFIG_SYS_HZ);
 	timestamp = 0;
 }
 
 ulong get_timer_masked(void)
 {
 	ulong val = __raw_readl(&cur_gpt->counter);
-	val /= (CONFIG_MX51_CLK32 / CONFIG_SYS_HZ);
+	val /= (CONFIG_SYS_MX5_CLK32 / CONFIG_SYS_HZ);
 	if (val >= lastinc)
 		timestamp += (val - lastinc);
 	else
-		timestamp += ((0xFFFFFFFF / (CONFIG_MX51_CLK32 / CONFIG_SYS_HZ))
+		timestamp += ((0xFFFFFFFF / (CONFIG_SYS_MX5_CLK32 / CONFIG_SYS_HZ))
 				- lastinc) + val;
 	lastinc = val;
 	return timestamp;
@@ -106,7 +106,7 @@ void set_timer(ulong t)
 void __udelay(unsigned long usec)
 {
 	unsigned long now, start, tmo;
-	tmo = usec * (CONFIG_MX51_CLK32 / 1000) / 1000;
+	tmo = usec * (CONFIG_SYS_MX5_CLK32 / 1000) / 1000;
 
 	if (!tmo)
 		tmo = 1;

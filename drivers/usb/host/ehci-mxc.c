@@ -117,6 +117,8 @@ int ehci_hcd_init(void)
 
 	mxc_set_usbcontrol(CONFIG_MXC_USB_PORT, CONFIG_MXC_USB_FLAGS);
 
+	udelay(10000);
+
 	return 0;
 }
 

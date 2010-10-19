@@ -20,8 +20,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ASM_ARCH_MXC_MX51_PINS_H__
-#define __ASM_ARCH_MXC_MX51_PINS_H__
+#ifndef __ASM_ARCH_MX5_MX5X_PINS_H__
+#define __ASM_ARCH_MX5_MX5X_PINS_H__
 
 #ifndef __ASSEMBLY__
 
@@ -415,4 +415,4 @@ enum iomux_pins {
 };
 
 #endif				/* __ASSEMBLY__ */
-#endif				/* __ASM_ARCH_MXC_MX51_PINS_H__ */
+#endif				/* __ASM_ARCH_MX5_MX5X_PINS_H__ */

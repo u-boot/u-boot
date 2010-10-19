@@ -71,7 +71,7 @@ u32 get_mcu_main_clk(void)
 
 	reg = (__raw_readl(&mxc_ccm->cacrr) & MXC_CCM_CACRR_ARM_PODF_MASK) >>
 		MXC_CCM_CACRR_ARM_PODF_OFFSET;
-	freq = decode_pll(mxc_plls[PLL1_CLOCK], CONFIG_MX51_HCLK_FREQ);
+	freq = decode_pll(mxc_plls[PLL1_CLOCK], CONFIG_SYS_MX5_HCLK);
 	return freq / (reg + 1);
 }
 
@@ -84,14 +84,14 @@ static u32 get_periph_clk(void)
 
 	reg = __raw_readl(&mxc_ccm->cbcdr);
 	if (!(reg & MXC_CCM_CBCDR_PERIPH_CLK_SEL))
-		return decode_pll(mxc_plls[PLL2_CLOCK], CONFIG_MX51_HCLK_FREQ);
+		return decode_pll(mxc_plls[PLL2_CLOCK], CONFIG_SYS_MX5_HCLK);
 	reg = __raw_readl(&mxc_ccm->cbcmr);
 	switch ((reg & MXC_CCM_CBCMR_PERIPH_CLK_SEL_MASK) >>
 		MXC_CCM_CBCMR_PERIPH_CLK_SEL_OFFSET) {
 	case 0:
-		return decode_pll(mxc_plls[PLL1_CLOCK], CONFIG_MX51_HCLK_FREQ);
+		return decode_pll(mxc_plls[PLL1_CLOCK], CONFIG_SYS_MX5_HCLK);
 	case 1:
-		return decode_pll(mxc_plls[PLL3_CLOCK], CONFIG_MX51_HCLK_FREQ);
+		return decode_pll(mxc_plls[PLL3_CLOCK], CONFIG_SYS_MX5_HCLK);
 	default:
 		return 0;
 	}
@@ -146,15 +146,15 @@ static u32 get_uart_clk(void)
 		MXC_CCM_CSCMR1_UART_CLK_SEL_OFFSET) {
 	case 0x0:
 		freq = decode_pll(mxc_plls[PLL1_CLOCK],
-				    CONFIG_MX51_HCLK_FREQ);
+				    CONFIG_SYS_MX5_HCLK);
 		break;
 	case 0x1:
 		freq = decode_pll(mxc_plls[PLL2_CLOCK],
-				    CONFIG_MX51_HCLK_FREQ);
+				    CONFIG_SYS_MX5_HCLK);
 		break;
 	case 0x2:
 		freq = decode_pll(mxc_plls[PLL3_CLOCK],
-				    CONFIG_MX51_HCLK_FREQ);
+				    CONFIG_SYS_MX5_HCLK);
 		break;
 	default:
 		return 66500000;
@@ -181,7 +181,7 @@ u32 get_lp_apm(void)
 	u32 ccsr = __raw_readl(&mxc_ccm->ccsr);
 
 	if (((ccsr >> 9) & 1) == 0)
-		ret_val = CONFIG_MX51_HCLK_FREQ;
+		ret_val = CONFIG_SYS_MX5_HCLK;
 	else
 		ret_val = ((32768 * 1024));
 
@@ -207,17 +207,17 @@ u32 imx_get_cspiclk(void)
 	switch (clk_sel) {
 	case 0:
 		ret_val = decode_pll(mxc_plls[PLL1_CLOCK],
-					CONFIG_MX51_HCLK_FREQ) /
+					CONFIG_SYS_MX5_HCLK) /
 					((pre_pdf + 1) * (pdf + 1));
 		break;
 	case 1:
 		ret_val = decode_pll(mxc_plls[PLL2_CLOCK],
-					CONFIG_MX51_HCLK_FREQ) /
+					CONFIG_SYS_MX5_HCLK) /
 					((pre_pdf + 1) * (pdf + 1));
 		break;
 	case 2:
 		ret_val = decode_pll(mxc_plls[PLL3_CLOCK],
-					CONFIG_MX51_HCLK_FREQ) /
+					CONFIG_SYS_MX5_HCLK) /
 					((pre_pdf + 1) * (pdf + 1));
 		break;
 	default:
@@ -248,7 +248,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 		return imx_get_cspiclk();
 	case MXC_FEC_CLK:
 		return decode_pll(mxc_plls[PLL1_CLOCK],
-				    CONFIG_MX51_HCLK_FREQ);
+				    CONFIG_SYS_MX5_HCLK);
 	default:
 		break;
 	}
@@ -269,16 +269,16 @@ u32 imx_get_fecclk(void)
 /*
  * Dump some core clockes.
  */
-int do_mx51_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 {
 	u32 freq;
 
-	freq = decode_pll(mxc_plls[PLL1_CLOCK], CONFIG_MX51_HCLK_FREQ);
-	printf("mx51 pll1: %dMHz\n", freq / 1000000);
-	freq = decode_pll(mxc_plls[PLL2_CLOCK], CONFIG_MX51_HCLK_FREQ);
-	printf("mx51 pll2: %dMHz\n", freq / 1000000);
-	freq = decode_pll(mxc_plls[PLL3_CLOCK], CONFIG_MX51_HCLK_FREQ);
-	printf("mx51 pll3: %dMHz\n", freq / 1000000);
+	freq = decode_pll(mxc_plls[PLL1_CLOCK], CONFIG_SYS_MX5_HCLK);
+	printf("pll1: %dMHz\n", freq / 1000000);
+	freq = decode_pll(mxc_plls[PLL2_CLOCK], CONFIG_SYS_MX5_HCLK);
+	printf("pll2: %dMHz\n", freq / 1000000);
+	freq = decode_pll(mxc_plls[PLL3_CLOCK], CONFIG_SYS_MX5_HCLK);
+	printf("pll3: %dMHz\n", freq / 1000000);
 	printf("ipg clock     : %dHz\n", mxc_get_clock(MXC_IPG_CLK));
 	printf("ipg per clock : %dHz\n", mxc_get_clock(MXC_IPG_PERCLK));
 
@@ -288,7 +288,7 @@ int do_mx51_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]
 /***************************************************/
 
 U_BOOT_CMD(
-	clockinfo,	CONFIG_SYS_MAXARGS,	1,	do_mx51_showclocks,
-	"display mx51 clocks\n",
+	clockinfo,	CONFIG_SYS_MAXARGS,	1,	do_mx5_showclocks,
+	"display clocks\n",
 	""
 );
