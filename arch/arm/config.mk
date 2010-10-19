@@ -33,11 +33,6 @@ STANDALONE_LOAD_ADDR = 0xc100000
 endif
 endif
 
-ifndef CONFIG_SYS_ARM_WITHOUT_RELOC
-# needed for relocation
-PLATFORM_RELFLAGS += -fPIC
-endif
-
 ifdef CONFIG_SYS_ARM_WITHOUT_RELOC
 PLATFORM_CPPFLAGS += -DCONFIG_SYS_ARM_WITHOUT_RELOC
 endif
@@ -72,3 +67,10 @@ PLATFORM_LIBS += $(OBJTREE)/arch/arm/lib/eabi_compat.o
 endif
 endif
 LDSCRIPT := $(SRCTREE)/$(CPUDIR)/u-boot.lds
+
+ifndef CONFIG_SYS_ARM_WITHOUT_RELOC
+# needed for relocation
+ifndef CONFIG_NAND_SPL
+PLATFORM_LDFLAGS += -pie
+endif
+endif

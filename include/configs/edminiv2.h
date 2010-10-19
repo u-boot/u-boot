@@ -223,4 +223,9 @@
 #define CONFIG_SYS_RESET_ADDRESS	0xffff0000
 #define CONFIG_SYS_MAXARGS		16
 
+/* additions for new relocation code, must be added to all boards */
+#define CONFIG_SYS_SDRAM_BASE		0
+#define CONFIG_SYS_INIT_SP_ADDR	\
+	(CONFIG_SYS_SDRAM_BASE + 0x1000 - CONFIG_SYS_GBL_DATA_SIZE)
+
 #endif /* _CONFIG_EDMINIV2_H */
