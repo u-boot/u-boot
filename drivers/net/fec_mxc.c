@@ -710,6 +710,7 @@ static int fec_probe(bd_t *bd)
 		puts("fec_mxc: not enough malloc memory\n");
 		return -ENOMEM;
 	}
+	memset(edev, 0, sizeof(*edev));
 	edev->priv = fec;
 	edev->init = fec_init;
 	edev->send = fec_send;
