@@ -24,6 +24,8 @@
 #
 sinclude $(OBJTREE)/board/$(BOARDDIR)/config.tmp
 
-ifndef CONFIG_SYS_TEXT_BASE
+ifdef CONFIG_SH_32BIT
+CONFIG_SYS_TEXT_BASE = 0x8FF80000
+else
 CONFIG_SYS_TEXT_BASE = 0x0ff80000
 endif
