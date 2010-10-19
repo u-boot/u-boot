@@ -609,9 +609,8 @@ LIST_blackfin="$(boards_by_arch blackfin)
 ## SH Systems
 #########################################################################
 
-LIST_sh2="		\
-	rsk7203		\
-"
+LIST_sh2="$(boards_by_cpu sh2)"
+
 LIST_sh3="		\
 	mpr2		\
 	ms7720se	\
