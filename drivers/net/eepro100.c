@@ -450,6 +450,11 @@ int eepro100_initialize (bd_t * bis)
 		}
 
 		dev = (struct eth_device *) malloc (sizeof *dev);
+		if (!dev) {
+			printf("eepro100: Can not allocate memory\n");
+			break;
+		}
+		memset(dev, 0, sizeof(*dev));
 
 		sprintf (dev->name, "i82559#%d", card_number);
 		dev->priv = (void *) devno; /* this have to come before bus_to_phys() */
