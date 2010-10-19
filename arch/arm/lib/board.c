@@ -716,6 +716,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #if defined(CONFIG_CMD_I2C)
 	i2c_reloc();
 #endif
+#if defined(CONFIG_CMD_ONENAND)
+	onenand_reloc();
+#endif
 #endif /* !defined(CONFIG_RELOC_FIXUP_WORKS) */
 
 #ifdef CONFIG_LOGBUFFER
