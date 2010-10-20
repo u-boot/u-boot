@@ -28,8 +28,6 @@
 #include <command.h>
 #include <net.h>
 
-extern int do_bootm (cmd_tbl_t *, int, int, char * const []);
-
 static int netboot_common (proto_t, cmd_tbl_t *, int , char * const []);
 
 int do_bootp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

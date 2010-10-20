@@ -329,7 +329,6 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* Check if we should attempt an auto-start */
 	if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
 		char *local_args[2];
-		extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 		local_args[0] = argv[0];
 		local_args[1] = NULL;
 		printf ("Automatic boot of image at addr 0x%08lX ...\n", addr);

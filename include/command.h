@@ -95,6 +95,8 @@ extern int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *
 extern int cmd_get_data_size(char* arg, int default_size);
 #endif
 
+extern int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+
 #endif	/* __ASSEMBLY__ */
 
 /*

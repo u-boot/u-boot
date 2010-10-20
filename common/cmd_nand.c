@@ -789,7 +789,6 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	/* Check if we should attempt an auto-start */
 	if (((ep = getenv("autostart")) != NULL) && (strcmp(ep, "yes") == 0)) {
 		char *local_args[2];
-		extern int do_bootm(cmd_tbl_t *, int, int, char *[]);
 
 		local_args[0] = cmd;
 		local_args[1] = NULL;

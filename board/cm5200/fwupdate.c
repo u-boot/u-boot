@@ -35,7 +35,6 @@
 
 #include "fwupdate.h"
 
-extern int do_bootm(cmd_tbl_t *, int, int, char * const []);
 extern long do_fat_read(const char *, void *, unsigned long, int);
 extern int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
 
