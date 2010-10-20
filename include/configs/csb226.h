@@ -458,6 +458,9 @@
 
 #define CONFIG_SYS_PSSR_VAL        0x20
 
+#define	CONFIG_SYS_CCCR			CCCR_L27|CCCR_M2|CCCR_N10
+#define	CONFIG_SYS_CKEN			0x0
+
 /*
  * Memory settings
  */
