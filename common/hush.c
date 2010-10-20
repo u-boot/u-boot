@@ -93,8 +93,6 @@
 #include <common.h>        /* readline */
 #include <hush.h>
 #include <command.h>        /* find_cmd */
-/*cmd_boot.c*/
-extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);      /* do_bootd */
 #endif
 #ifndef __U_BOOT__
 #include <ctype.h>     /* isalpha, isdigit */
@@ -1681,8 +1679,6 @@ static int run_pipe_real(struct pipe *pi)
 			} else {
 				int rcode;
 #if defined(CONFIG_CMD_BOOTD)
-	    extern int do_bootd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-
 				/* avoid "bootd" recursion */
 				if (cmdtp->cmd == do_bootd) {
 					if (flag & CMD_FLAG_BOOTD) {
