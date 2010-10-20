@@ -514,7 +514,7 @@ static inline int is_valid_ether_addr(const u8 *addr)
 extern void	ip_to_string (IPaddr_t x, char *s);
 
 /* Convert a string to ip address */
-extern IPaddr_t string_to_ip(char *s);
+extern IPaddr_t string_to_ip(const char *s);
 
 /* Convert a VLAN id to a string */
 extern void	VLAN_to_string (ushort x, char *s);
