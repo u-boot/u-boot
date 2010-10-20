@@ -357,7 +357,7 @@ extern struct musb_regs		*musbr;
 
 /* exported functions */
 extern void musb_start(void);
-extern void musb_configure_ep(struct musb_epinfo *epinfo, u8 cnt);
+extern void musb_configure_ep(const struct musb_epinfo *epinfo, u8 cnt);
 extern void write_fifo(u8 ep, u32 length, void *fifo_data);
 extern void read_fifo(u8 ep, u32 length, void *fifo_data);
 
