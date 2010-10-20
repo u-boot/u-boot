@@ -548,7 +548,7 @@ retry_scr:
 
 /* frequency bases */
 /* divided by 10 to be nice to platforms without floating point */
-int fbase[] = {
+static const int fbase[] = {
 	10000,
 	100000,
 	1000000,
@@ -558,7 +558,7 @@ int fbase[] = {
 /* Multiplier values for TRAN_SPEED.  Multiplied by 10 to be nice
  * to platforms without floating point.
  */
-int multipliers[] = {
+static const int multipliers[] = {
 	0,	/* reserved */
 	10,
 	12,
