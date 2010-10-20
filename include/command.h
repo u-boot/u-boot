@@ -86,8 +86,6 @@ extern int cmd_auto_complete(const char *const prompt, char *buf, int *np, int *
  * void function (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
  */
 
-typedef	void	command_t (cmd_tbl_t *, int, int, char *[]);
-
 #if defined(CONFIG_CMD_MEMORY)		\
     || defined(CONFIG_CMD_I2C)		\
     || defined(CONFIG_CMD_ITEST)	\
