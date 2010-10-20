@@ -74,8 +74,8 @@ typedef enum
 
 
 extern int ext2fs_set_blk_dev(block_dev_desc_t *rbdd, int part);
-extern int ext2fs_ls (char *dirname);
-extern int ext2fs_open (char *filename);
+extern int ext2fs_ls (const char *dirname);
+extern int ext2fs_open (const char *filename);
 extern int ext2fs_read (char *buf, unsigned len);
 extern int ext2fs_mount (unsigned part_length);
 extern int ext2fs_close(void);
