@@ -27,7 +27,7 @@
 
 #include "omap24xx_i2c.h"
 
-#define I2C_TIMEOUT	10
+#define I2C_TIMEOUT	1000
 
 static void wait_for_bb (void);
 static u16 wait_for_pin (void);
@@ -392,13 +392,13 @@ int i2c_write (uchar chip, uint addr, int alen, uchar * buffer, int len)
 
 static void wait_for_bb (void)
 {
-	int timeout = 10;
+	int timeout = I2C_TIMEOUT;
 	u16 stat;
 
 	writew(0xFFFF, &i2c_base->stat);	 /* clear current interruts...*/
 	while ((stat = readw (&i2c_base->stat) & I2C_STAT_BB) && timeout--) {
 		writew (stat, &i2c_base->stat);
-		udelay (50000);
+		udelay(1000);
 	}
 
 	if (timeout <= 0) {
@@ -411,7 +411,7 @@ static void wait_for_bb (void)
 static u16 wait_for_pin (void)
 {
 	u16 status;
-	int timeout = 10;
+	int timeout = I2C_TIMEOUT;
 
 	do {
 		udelay (1000);
@@ -424,8 +424,10 @@ static u16 wait_for_pin (void)
 	if (timeout <= 0) {
 		printf ("timed out in wait_for_pin: I2C_STAT=%x\n",
 			readw (&i2c_base->stat));
-			writew(0xFFFF, &i2c_base->stat);
-}
+		writew(0xFFFF, &i2c_base->stat);
+		status = 0;
+	}
+
 	return status;
 }
 
