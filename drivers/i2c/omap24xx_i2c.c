@@ -159,58 +159,56 @@ static int i2c_read_byte (u8 devaddr, u8 regoffset, u8 * value)
 	/* no stop bit needed here */
 	writew (I2C_CON_EN | I2C_CON_MST | I2C_CON_STT | I2C_CON_TRX, &i2c_base->con);
 
-	status = wait_for_pin ();
-
-	if (status & I2C_STAT_XRDY) {
-		/* Important: have to use byte access */
-		writeb (regoffset, &i2c_base->data);
-		udelay (20000);
-		if (readw (&i2c_base->stat) & I2C_STAT_NACK) {
+	/* send register offset */
+	while (1) {
+		status = wait_for_pin();
+		if (status == 0 || status & I2C_STAT_NACK) {
 			i2c_error = 1;
+			goto read_exit;
 		}
-	} else {
-		i2c_error = 1;
+		if (status & I2C_STAT_XRDY) {
+			/* Important: have to use byte access */
+			writeb(regoffset, &i2c_base->data);
+			writew(I2C_STAT_XRDY, &i2c_base->stat);
+		}
+		if (status & I2C_STAT_ARDY) {
+			writew(I2C_STAT_ARDY, &i2c_base->stat);
+			break;
+		}
 	}
 
-	if (!i2c_error) {
-		writew (I2C_CON_EN, &i2c_base->con);
-		while (readw(&i2c_base->stat) &
-			(I2C_STAT_XRDY | I2C_STAT_ARDY)) {
-			udelay (10000);
-			/* Have to clear pending interrupt to clear I2C_STAT */
-			writew (0xFFFF, &i2c_base->stat);
+	/* set slave address */
+	writew(devaddr, &i2c_base->sa);
+	/* read one byte from slave */
+	writew(1, &i2c_base->cnt);
+	/* need stop bit here */
+	writew(I2C_CON_EN | I2C_CON_MST |
+		I2C_CON_STT | I2C_CON_STP,
+		&i2c_base->con);
+
+	/* receive data */
+	while (1) {
+		status = wait_for_pin();
+		if (status == 0 || status & I2C_STAT_NACK) {
+			i2c_error = 1;
+			goto read_exit;
 		}
-
-		/* set slave address */
-		writew (devaddr, &i2c_base->sa);
-		/* read one byte from slave */
-		writew (1, &i2c_base->cnt);
-		/* need stop bit here */
-		writew (I2C_CON_EN | I2C_CON_MST | I2C_CON_STT | I2C_CON_STP,
-			&i2c_base->con);
-
-		status = wait_for_pin ();
 		if (status & I2C_STAT_RRDY) {
 #if defined(CONFIG_OMAP243X) || defined(CONFIG_OMAP34XX) || \
     defined(CONFIG_OMAP44XX)
-			*value = readb (&i2c_base->data);
+			*value = readb(&i2c_base->data);
 #else
-			*value = readw (&i2c_base->data);
+			*value = readw(&i2c_base->data);
 #endif
-			udelay (20000);
-		} else {
-			i2c_error = 1;
+			writew(I2C_STAT_RRDY, &i2c_base->stat);
 		}
-
-		if (!i2c_error) {
-			writew (I2C_CON_EN, &i2c_base->con);
-			while (readw (&i2c_base->stat) &
-				(I2C_STAT_RRDY | I2C_STAT_ARDY)) {
-				udelay (10000);
-				writew (0xFFFF, &i2c_base->stat);
-			}
+		if (status & I2C_STAT_ARDY) {
+			writew(I2C_STAT_ARDY, &i2c_base->stat);
+			break;
 		}
 	}
+
+read_exit:
 	flush_fifo();
 	writew (0xFFFF, &i2c_base->stat);
 	writew (0, &i2c_base->cnt);
