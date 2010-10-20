@@ -27,6 +27,7 @@
  */
 #define	CONFIG_PXA27X		1	/* Marvell PXA270 CPU */
 #define	CONFIG_ZIPITZ2		1	/* Zipit Z2 board */
+#define	CONFIG_SYS_TEXT_BASE	0x0
 
 #undef	BOARD_LATE_INIT
 #undef	CONFIG_SKIP_RELOCATE_UBOOT
