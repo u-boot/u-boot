@@ -211,7 +211,7 @@ netboot_common (proto_t proto, cmd_tbl_t *cmdtp, int argc, char * const argv[])
 	flush_cache(load_addr, size);
 
 	/* Loading ok, check if we should attempt an auto-start */
-	if (((s = getenv("autostart")) != NULL) && (strcmp(s,"yes") == 0)) {
+	if (getenv_yesno("autostart")) {
 		char *local_args[2];
 		local_args[0] = argv[0];
 		local_args[1] = NULL;

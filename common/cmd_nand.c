@@ -711,7 +711,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 			   ulong offset, ulong addr, char *cmd)
 {
 	int r;
-	char *ep, *s;
+	char *s;
 	size_t cnt;
 	image_header_t *hdr;
 #if defined(CONFIG_FIT)
@@ -787,7 +787,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	load_addr = addr;
 
 	/* Check if we should attempt an auto-start */
-	if (((ep = getenv("autostart")) != NULL) && (strcmp(ep, "yes") == 0)) {
+	if (getenv_yesno("autostart")) {
 		char *local_args[2];
 
 		local_args[0] = cmd;
