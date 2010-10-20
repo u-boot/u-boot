@@ -883,29 +883,32 @@ U_BOOT_CMD(
  */
 
 #if defined(CONFIG_CMD_EDITENV)
-U_BOOT_CMD(
+U_BOOT_CMD_COMPLETE(
 	editenv, 2, 0,	do_env_edit,
 	"edit environment variable",
 	"name\n"
-	"    - edit environment variable 'name'"
+	"    - edit environment variable 'name'",
+	var_complete
 );
 #endif
 
-U_BOOT_CMD(
+U_BOOT_CMD_COMPLETE(
 	printenv, CONFIG_SYS_MAXARGS, 1,	do_env_print,
 	"print environment variables",
 	"\n    - print values of all environment variables\n"
 	"printenv name ...\n"
-	"    - print value of environment variable 'name'"
+	"    - print value of environment variable 'name'",
+	var_complete
 );
 
-U_BOOT_CMD(
+U_BOOT_CMD_COMPLETE(
 	setenv, CONFIG_SYS_MAXARGS, 0,	do_env_set,
 	"set environment variables",
 	"name value ...\n"
 	"    - set environment variable 'name' to 'value ...'\n"
 	"setenv name\n"
-	"    - delete environment variable 'name'"
+	"    - delete environment variable 'name'",
+	var_complete
 );
 
 #if defined(CONFIG_CMD_ASKENV)
@@ -926,10 +929,11 @@ U_BOOT_CMD(
 #endif
 
 #if defined(CONFIG_CMD_RUN)
-U_BOOT_CMD(
+U_BOOT_CMD_COMPLETE(
 	run,	CONFIG_SYS_MAXARGS,	1,	do_run,
 	"run commands in an environment variable",
 	"var [...]\n"
-	"    - run the commands in the environment variable(s) 'var'"
+	"    - run the commands in the environment variable(s) 'var'",
+	var_complete
 );
 #endif
