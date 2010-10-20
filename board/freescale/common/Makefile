@@ -31,6 +31,7 @@ LIB	= $(obj)libfreescale.o
 
 COBJS-$(CONFIG_FSL_CADMUS)	+= cadmus.o
 COBJS-$(CONFIG_FSL_VIA)		+= cds_via.o
+COBJS-$(CONFIG_FMAN_ENET)	+= fman.o
 COBJS-$(CONFIG_FSL_PIXIS)	+= pixis.o
 COBJS-$(CONFIG_FSL_NGPIXIS)	+= ngpixis.o
 COBJS-$(CONFIG_PQ_MDS_PIB)	+= pq-mds-pib.o

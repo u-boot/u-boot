@@ -474,7 +474,6 @@
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
 /* Default address of microcode for the Linux Fman driver */
-#define CONFIG_SYS_FMAN_FW
 #if defined(CONFIG_SPIFLASH)
 /*
  * env is stored at 0x100000, sector size is 0x10000, ucode is stored after
@@ -498,6 +497,9 @@
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
+#define CONFIG_PHYLIB_10G
+#define CONFIG_PHY_VITESSE
+#define CONFIG_PHY_TERANETICS
 #endif
 
 #ifdef CONFIG_PCI
