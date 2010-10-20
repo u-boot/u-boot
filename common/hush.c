@@ -1021,9 +1021,7 @@ static void get_user_input(struct in_str *i)
 	static char the_command[CONFIG_SYS_CBSIZE];
 
 #ifdef CONFIG_BOOT_RETRY_TIME
-#  ifdef CONFIG_RESET_TO_RETRY
-	extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-#  else
+#  ifndef CONFIG_RESET_TO_RETRY
 #	error "This currently only works with CONFIG_RESET_TO_RETRY enabled"
 #  endif
 	reset_cmd_timeout();

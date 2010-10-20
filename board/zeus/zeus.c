@@ -44,7 +44,6 @@ extern uchar default_environment[];
 
 ulong flash_get_size(ulong base, int banknum);
 void env_crc_update(void);
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 static u32 start_time;
 

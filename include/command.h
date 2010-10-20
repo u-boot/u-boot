@@ -99,6 +99,7 @@ extern int cmd_get_data_size(char* arg, int default_size);
 extern int do_bootd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 #endif
 extern int do_bootm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
+extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 #endif	/* __ASSEMBLY__ */
 

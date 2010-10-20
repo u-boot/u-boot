@@ -28,9 +28,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* Prototypes */
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-
 /* predefine these here for FPGA programming (before including fpga.c) */
 #define SET_FPGA(data)	*IXP425_GPIO_GPOUTR = (data)
 #define FPGA_DONE_STATE (*IXP425_GPIO_GPINR & CONFIG_SYS_FPGA_DONE)

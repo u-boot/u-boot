@@ -47,7 +47,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 extern ulong get_effective_memsize(void);
 static ulong get_sp (void);
 static void set_clocks_in_mhz (bd_t *kbd);
