@@ -566,13 +566,7 @@ fiq:
 /*									    */
 /****************************************************************************/
 /* Operating System Timer */
-OSTIMER_BASE:	.word	0x40a00000
-#define OSMR3	0x0C
-#define OSCR	0x10
-#define OWER	0x18
-#define OIER	0x1C
-
-	.align	5
+.align	5
 .globl reset_cpu
 
 	/* FIXME: this code is PXA250 specific. How is this handled on	    */
@@ -582,18 +576,20 @@ reset_cpu:
 
 	/* We set OWE:WME (watchdog enable) and wait until timeout happens  */
 
-	ldr	r0, OSTIMER_BASE
-	ldr	r1, [r0, #OWER]
+	ldr	r0, =OWER
+	ldr	r1, [r0]
 	orr	r1, r1, #0x0001			/* bit0: WME		    */
-	str	r1, [r0, #OWER]
+	str	r1, [r0]
 
 	/* OS timer does only wrap every 1165 seconds, so we have to set    */
 	/* the match register as well.					    */
 
-	ldr	r1, [r0, #OSCR]			/* read OS timer	    */
+	ldr	r0, =OSCR
+	ldr	r1, [r0]			/* read OS timer	    */
 	add	r1, r1, #0x800			/* let OSMR3 match after    */
 	add	r1, r1, #0x800			/* 4096*(1/3.6864MHz)=1ms   */
-	str	r1, [r0, #OSMR3]
+	ldr	r0, =OSMR3
+	str	r1, [r0]
 
 reset_endless:
 
