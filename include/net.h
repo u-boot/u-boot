@@ -520,7 +520,7 @@ extern IPaddr_t string_to_ip(char *s);
 extern void	VLAN_to_string (ushort x, char *s);
 
 /* Convert a string to a vlan id */
-extern ushort string_to_VLAN(char *s);
+extern ushort string_to_VLAN(const char *s);
 
 /* read a VLAN id from an environment variable */
 extern ushort getenv_VLAN(char *);
