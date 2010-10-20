@@ -25,3 +25,6 @@ PLATFORM_RELFLAGS += -fPIC -meabi
 
 PLATFORM_CPPFLAGS += -ffixed-r2 -mstring
 PLATFORM_CPPFLAGS += -maltivec -mabi=altivec -msoft-float
+
+# Use default linker script.  Board port can override in board/*/config.mk
+LDSCRIPT := $(SRCTREE)/arch/powerpc/cpu/mpc86xx/u-boot.lds
