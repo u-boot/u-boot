@@ -858,7 +858,7 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 		if (disk_read(cursect,
 				(mydata->fatsize == 32) ?
 				(mydata->clust_size) :
-				LINEAR_PREFETCH_SIZE,
+				LINEAR_PREFETCH_SIZE / SECTOR_SIZE,
 				do_fat_read_block) < 0) {
 			debug("Error: reading rootdir block\n");
 			return -1;
