@@ -1865,7 +1865,7 @@ NetSetIP(volatile uchar * xip, IPaddr_t dest, int dport, int sport, int len)
 	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2);
 }
 
-void copy_filename (char *dst, char *src, int size)
+void copy_filename (char *dst, const char *src, int size)
 {
 	if (*src && (*src == '"')) {
 		++src;

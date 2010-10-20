@@ -526,7 +526,7 @@ extern ushort string_to_VLAN(char *s);
 extern ushort getenv_VLAN(char *);
 
 /* copy a filename (allow for "..." notation, limit length) */
-extern void	copy_filename (char *dst, char *src, int size);
+extern void	copy_filename (char *dst, const char *src, int size);
 
 /* get a random source port */
 extern unsigned int random_port(void);
