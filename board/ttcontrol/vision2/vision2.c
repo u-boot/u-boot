@@ -37,13 +37,33 @@
 #include <fsl_esdhc.h>
 #include <fsl_pmic.h>
 #include <mc13892.h>
+#include <linux/fb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 static u32 system_rev;
 
+extern int mx51_fb_init(struct fb_videomode *mode);
+
 #ifdef CONFIG_HW_WATCHDOG
 #include <watchdog.h>
+
+static struct fb_videomode nec_nl6448bc26_09c = {
+	"NEC_NL6448BC26-09C",
+	60,	/* Refresh */
+	640,	/* xres */
+	480,	/* yres */
+	37650,	/* pixclock = 26.56Mhz */
+	48,	/* left margin */
+	16,	/* right margin */
+	31,	/* upper margin */
+	12,	/* lower margin */
+	96,	/* hsync-len */
+	2,	/* vsync-len */
+	0,	/* sync */
+	FB_VMODE_NONINTERLACED,	/* vmode */
+	0,	/* flag */
+};
 
 void hw_watchdog_reset(void)
 {
@@ -423,6 +443,9 @@ static void setup_gpios(void)
 	mxc_request_iomux(MX51_PIN_CSPI1_RDY, IOMUX_CONFIG_ALT3);
 	mxc_iomux_set_pad(MX51_PIN_CSPI1_RDY, 0x82);
 
+	/* PWM Output GPIO1_2 */
+	mxc_request_iomux(MX51_PIN_GPIO1_2, IOMUX_CONFIG_ALT1);
+
 	/*
 	 * Set GPIO1_4 to high and output; it is used to reset
 	 * the system on reboot
@@ -630,6 +653,33 @@ int board_early_init_f(void)
 	return 0;
 }
 
+static void backlight(int on)
+{
+	if (on) {
+		mxc_gpio_set(65, 1);
+		udelay(10000);
+		mxc_gpio_set(68, 1);
+	} else {
+		mxc_gpio_set(65, 0);
+		mxc_gpio_set(68, 0);
+	}
+}
+
+void lcd_enable(void)
+{
+	int ret;
+
+	mxc_request_iomux(MX51_PIN_DI1_PIN2, IOMUX_CONFIG_ALT0);
+	mxc_request_iomux(MX51_PIN_DI1_PIN3, IOMUX_CONFIG_ALT0);
+
+	mxc_gpio_set(2, 1);
+	mxc_request_iomux(MX51_PIN_GPIO1_2, IOMUX_CONFIG_ALT0);
+
+	ret = mx51_fb_init(&nec_nl6448bc26_09c);
+	if (ret)
+		puts("LCD cannot be configured\n");
+}
+
 int board_init(void)
 {
 #ifdef CONFIG_SYS_ARM_WITHOUT_RELOC
@@ -709,3 +759,21 @@ int checkboard(void)
 	return 0;
 }
 
+int do_vision_lcd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	int on;
+
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
+	on = (strcmp(argv[1], "on") == 0);
+	backlight(on);
+
+	return 0;
+}
+
+U_BOOT_CMD(
+	lcdbl, CONFIG_SYS_MAXARGS, 1, do_vision_lcd,
+	"Vision2 Backlight",
+	"lcdbl [on|off]\n"
+);
