@@ -644,9 +644,9 @@ int greth_initialize(bd_t * bis)
 
 	/* Make descriptor string */
 	if (greth->gbit_mac) {
-		sprintf(dev->name, "GRETH 10/100/GB");
+		sprintf(dev->name, "GRETH_10/100/GB");
 	} else {
-		sprintf(dev->name, "GRETH 10/100");
+		sprintf(dev->name, "GRETH_10/100");
 	}
 
 	/* initiate PHY, select speed/duplex depending on connected PHY */
