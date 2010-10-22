@@ -342,8 +342,8 @@ extern void out32(unsigned int, unsigned long);
 	"misc_args=ip=on\0"						\
 	"set_bootargs=setenv bootargs ${console_args} ${root_args} ${misc_args}\0" \
 	"bootfile=/home/user/file\0"					\
-	"osfile=/home/user/uImage-XPedite1000\0"			\
-	"fdtfile=/home/user/xpedite1000.dtb\0"				\
+	"osfile=/home/user/board.uImage\0"				\
+	"fdtfile=/home/user/board.dtb\0"				\
 	"ubootfile=/home/user/u-boot.bin\0"				\
 	"fdtaddr=c00000\0"						\
 	"osaddr=0x1000000\0"						\

@@ -462,10 +462,10 @@ Rune Torgersen <runet@innovsys.com>
 
 Peter Tyser <ptyser@xes-inc.com>
 
-	XPEDITE1000	PPC440GX
-	XPEDITE5170	MPC8640
-	XPEDITE5200	MPC8548
-	XPEDITE5370	MPC8572
+	xpedite1000	PPC440GX
+	xpedite5170	MPC8640
+	xpedite5200	MPC8548
+	xpedite5370	MPC8572
 
 David Updegraff <dave@cray.com>
 
