@@ -168,7 +168,7 @@ int greth_init(struct eth_device *dev, bd_t * bis)
 		greth->rxbd_base = (greth_bd *)
 		    memalign(0x1000, GRETH_RXBD_CNT * sizeof(greth_bd));
 		greth->txbd_base = (greth_bd *)
-		    memalign(0x1000, GRETH_RXBD_CNT * sizeof(greth_bd));
+		    memalign(0x1000, GRETH_TXBD_CNT * sizeof(greth_bd));
 
 		/* allocate buffers to all descriptors  */
 		greth->rxbuf_base =
@@ -200,7 +200,7 @@ int greth_init(struct eth_device *dev, bd_t * bis)
 	for (i = 0; i < GRETH_TXBD_CNT; i++) {
 		greth->txbd_base[i].addr = 0;
 		/* enable desciptor & set wrap bit if last descriptor */
-		if (i >= (GRETH_RXBD_CNT - 1)) {
+		if (i >= (GRETH_TXBD_CNT - 1)) {
 			greth->txbd_base[i].stat = GRETH_BD_WR;
 		} else {
 			greth->txbd_base[i].stat = 0;
