@@ -44,7 +44,8 @@ int i2c_post_test (int flags)
 {
 	unsigned int i;
 #ifndef I2C_ADDR_LIST
-	for (i = 0; i < 128; i++)
+	/* Start at address 1, address 0 is the general call address */
+	for (i = 1; i < 128; i++)
 		if (i2c_probe (i) == 0)
 			return 0;
 
@@ -55,7 +56,8 @@ int i2c_post_test (int flags)
 	int j;
 	const unsigned char i2c_addr_list[] = I2C_ADDR_LIST;
 
-	for (i = 0; i < 128; i++) {
+	/* Start at address 1, address 0 is the general call address */
+	for (i = 1; i < 128; i++) {
 		if (i2c_probe(i) != 0)
 			continue;
 
