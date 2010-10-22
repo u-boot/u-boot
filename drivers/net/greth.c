@@ -152,6 +152,16 @@ int greth_init(struct eth_device *dev, bd_t * bis)
 
 	debug("greth_init\n");
 
+	/* Reset core */
+	GRETH_REGSAVE(&regs->control, (GRETH_RESET | (greth->gb << 8) |
+		(greth->sp << 7) | (greth->fd << 4)));
+
+	/* Wait for Reset to complete */
+	while ( GRETH_REGLOAD(&regs->control) & GRETH_RESET) ;
+
+	GRETH_REGSAVE(&regs->control,
+		((greth->gb << 8) | (greth->sp << 7) | (greth->fd << 4)));
+
 	if (!greth->rxbd_base) {
 
 		/* allocate descriptors */
