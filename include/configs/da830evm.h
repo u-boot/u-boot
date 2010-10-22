@@ -42,6 +42,7 @@
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SKIP_RELOCATE_UBOOT	/* to a proper address, init done */
+#define CONFIG_SYS_TEXT_BASE		0xc1080000
 
 /*
  * Memory Info
