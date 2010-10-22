@@ -111,6 +111,20 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x10000000
 #define CONFIG_SYS_MEMTEST_END		0x20000000
+#define CONFIG_POST			(CONFIG_SYS_POST_MEMORY | \
+					 CONFIG_SYS_POST_I2C)
+#define I2C_ADDR_LIST			{CONFIG_SYS_I2C_DS1621_ADDR,	\
+					 CONFIG_SYS_I2C_DS4510_ADDR,	\
+					 CONFIG_SYS_I2C_EEPROM_ADDR,	\
+					 CONFIG_SYS_I2C_LM90_ADDR,	\
+					 CONFIG_SYS_I2C_PCA953X_ADDR0,	\
+					 CONFIG_SYS_I2C_PCA953X_ADDR1,	\
+					 CONFIG_SYS_I2C_PCA953X_ADDR2,	\
+					 CONFIG_SYS_I2C_PCA953X_ADDR3,	\
+					 CONFIG_SYS_I2C_PEX8518_ADDR,	\
+					 CONFIG_SYS_I2C_RTC_ADDR}
+/* The XPedite5370 can host an XMC which has an EEPROM at address 0x50 */
+#define I2C_ADDR_IGNORE_LIST		{0x50}
 
 /*
  * Memory map
@@ -266,6 +280,7 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_I2C_DS1621_ADDR	0x48
 #define CONFIG_DTT_DS1621
 #define CONFIG_DTT_SENSORS		{ 0 }
+#define CONFIG_SYS_I2C_LM90_ADDR	0x4c
 
 /* I2C EEPROM - AT24C128B */
 #define CONFIG_SYS_I2C_EEPROM_ADDR		0x54
