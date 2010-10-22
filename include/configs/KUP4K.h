@@ -139,9 +139,9 @@
 
 /* List of I2C addresses to be verified by POST */
 
-#define I2C_ADDR_LIST	{CONFIG_SYS_I2C_PICIO_ADDR,	\
-			CONFIG_SYS_I2C_RTC_ADDR,	\
-			}
+#define CONFIG_SYS_POST_I2C_ADDRS	{CONFIG_SYS_I2C_PICIO_ADDR,	\
+					 CONFIG_SYS_I2C_RTC_ADDR,	\
+					}
 
 #define CONFIG_RTC_PCF8563		/* use Philips PCF8563 RTC	*/
 

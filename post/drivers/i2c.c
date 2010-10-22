@@ -26,10 +26,10 @@
  *
  * For verifying the I2C bus, a full I2C bus scanning is performed.
  *
- * #ifdef I2C_ADDR_LIST
+ * #ifdef CONFIG_SYS_POST_I2C_ADDRS
  *   The test is considered as passed if all the devices and
  *   only the devices in the list are found.
- * #else [ ! I2C_ADDR_LIST ]
+ * #else [ ! CONFIG_SYS_POST_I2C_ADDRS ]
  *   The test is considered as passed if any I2C device is found.
  * #endif
  */
@@ -43,7 +43,7 @@
 int i2c_post_test (int flags)
 {
 	unsigned int i;
-#ifndef I2C_ADDR_LIST
+#ifndef CONFIG_SYS_POST_I2C_ADDRS
 	/* Start at address 1, address 0 is the general call address */
 	for (i = 1; i < 128; i++)
 		if (i2c_probe (i) == 0)
@@ -54,7 +54,7 @@ int i2c_post_test (int flags)
 #else
 	unsigned int ret  = 0;
 	int j;
-	const unsigned char i2c_addr_list[] = I2C_ADDR_LIST;
+	const unsigned char i2c_addr_list[] = CONFIG_SYS_POST_I2C_ADDRS;
 
 	/* Start at address 1, address 0 is the general call address */
 	for (i = 1; i < 128; i++) {
