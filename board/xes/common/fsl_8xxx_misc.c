@@ -22,6 +22,21 @@
 
 #include <common.h>
 #include <asm/mmu.h>
+#ifdef CONFIG_PCA953X
+#include <pca953x.h>
+
+/*
+ * Determine if a board's flashes are write protected
+ */
+int board_flash_wp_on(void)
+{
+	if (pca953x_get_val(CONFIG_SYS_I2C_PCA953X_ADDR0) &
+			CONFIG_SYS_PCA953X_NVM_WP)
+		return 1;
+
+	return 0;
+}
+#endif
 
 /*
  * Return a board's derivative model number.  For example:
