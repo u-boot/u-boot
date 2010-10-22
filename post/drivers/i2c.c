@@ -27,8 +27,12 @@
  * For verifying the I2C bus, a full I2C bus scanning is performed.
  *
  * #ifdef CONFIG_SYS_POST_I2C_ADDRS
- *   The test is considered as passed if all the devices and
- *   only the devices in the list are found.
+ *   The test is considered as passed if all the devices and only the devices
+ *   in the list are found.
+ *   #ifdef CONFIG_SYS_POST_I2C_IGNORES
+ *     Ignore devices listed in CONFIG_SYS_POST_I2C_IGNORES.  These devices
+ *     are optional or not vital to board functionality.
+ *   #endif
  * #else [ ! CONFIG_SYS_POST_I2C_ADDRS ]
  *   The test is considered as passed if any I2C device is found.
  * #endif
@@ -40,12 +44,28 @@
 
 #if CONFIG_POST & CONFIG_SYS_POST_I2C
 
+static int i2c_ignore_device(unsigned int chip)
+{
+#ifdef CONFIG_SYS_POST_I2C_IGNORES
+	const unsigned char i2c_ignore_list[] = CONFIG_SYS_POST_I2C_IGNORES;
+	int i;
+
+	for (i = 0; i < sizeof(i2c_ignore_list); i++)
+		if (i2c_ignore_list[i] == chip)
+			return 1;
+#endif
+
+	return 0;
+}
+
 int i2c_post_test (int flags)
 {
 	unsigned int i;
 #ifndef CONFIG_SYS_POST_I2C_ADDRS
 	/* Start at address 1, address 0 is the general call address */
 	for (i = 1; i < 128; i++)
+		if (i2c_ignore_device(i))
+			continue;
 		if (i2c_probe (i) == 0)
 			return 0;
 
@@ -58,6 +78,8 @@ int i2c_post_test (int flags)
 
 	/* Start at address 1, address 0 is the general call address */
 	for (i = 1; i < 128; i++) {
+		if (i2c_ignore_device(i))
+			continue;
 		if (i2c_probe(i) != 0)
 			continue;
 

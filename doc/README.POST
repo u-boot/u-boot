@@ -665,6 +665,14 @@ listed in CONFIG_SYS_POST_I2C_ADDRS are found, and no additional
 devices are detected.  If CONFIG_SYS_POST_I2C_ADDRS is not defined
 the test will pass if any I2C device is found.
 
+The CONFIG_SYS_POST_I2C_IGNORES define can be used to list I2C
+devices which may or may not be present when using
+CONFIG_SYS_POST_I2C_ADDRS.  The I2C POST test will pass regardless
+if the devices in CONFIG_SYS_POST_I2C_IGNORES are found or not.
+This is useful in cases when I2C devices are optional (eg on a
+daughtercard that may or may not be present) or not critical
+to board operation.
+
 2.2.2.2. Watchdog timer test
 
 To test the watchdog timer the scheme mentioned above (refer to
