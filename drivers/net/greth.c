@@ -42,6 +42,13 @@
 #define GRETH_PHY_TIMEOUT_MS 3000
 #endif
 
+/* Default to PHY adrress 0 not not specified */
+#ifdef CONFIG_SYS_GRLIB_GRETH_PHYADDR
+#define GRETH_PHY_ADR_DEFAULT CONFIG_SYS_GRLIB_GRETH_PHYADDR
+#else
+#define GRETH_PHY_ADR_DEFAULT 0
+#endif
+
 /* ByPass Cache when reading regs */
 #define GRETH_REGLOAD(addr)		SPARC_NOCACHE_READ(addr)
 /* Write-through cache ==> no bypassing needed on writes */
@@ -102,12 +109,12 @@ typedef struct {
 } greth_priv;
 
 /* Read MII register 'addr' from core 'regs' */
-static int read_mii(int addr, volatile greth_regs * regs)
+static int read_mii(int phyaddr, int regaddr, volatile greth_regs * regs)
 {
 	while (GRETH_REGLOAD(&regs->mdio) & GRETH_MII_BUSY) {
 	}
 
-	GRETH_REGSAVE(&regs->mdio, (0 << 11) | ((addr & 0x1F) << 6) | 2);
+	GRETH_REGSAVE(&regs->mdio, ((phyaddr & 0x1F) << 11) | ((regaddr & 0x1F) << 6) | 2);
 
 	while (GRETH_REGLOAD(&regs->mdio) & GRETH_MII_BUSY) {
 	}
@@ -119,14 +126,14 @@ static int read_mii(int addr, volatile greth_regs * regs)
 	}
 }
 
-static void write_mii(int addr, int data, volatile greth_regs * regs)
+static void write_mii(int phyaddr, int regaddr, int data, volatile greth_regs * regs)
 {
 	while (GRETH_REGLOAD(&regs->mdio) & GRETH_MII_BUSY) {
 	}
 
 	GRETH_REGSAVE(&regs->mdio,
-		      ((data & 0xFFFF) << 16) | (0 << 11) | ((addr & 0x1F) << 6)
-		      | 1);
+		      ((data & 0xFFFF) << 16) | ((phyaddr & 0x1F) << 11) |
+		      ((regaddr & 0x1F) << 6) | 1);
 
 	while (GRETH_REGLOAD(&regs->mdio) & GRETH_MII_BUSY) {
 	}
@@ -214,6 +221,26 @@ int greth_init_phy(greth_priv * dev, bd_t * bis)
 	greth_regs *regs = dev->regs;
 	int tmp, tmp1, tmp2, i;
 	unsigned int start, timeout;
+	int phyaddr = GRETH_PHY_ADR_DEFAULT;
+
+#ifndef CONFIG_SYS_GRLIB_GRETH_PHYADDR
+	/* If BSP doesn't provide a hardcoded PHY address the driver will
+	 * try to autodetect PHY address by stopping the search on the first
+	 * PHY address which has REG0 implemented.
+	 */
+	for (i=0; i<32; i++) {
+		tmp = read_mii(i, 0, regs);
+		if ( (tmp != 0) && (tmp != 0xffff) ) {
+			phyaddr = i;
+			break;
+		}
+	}
+#endif
+
+	/* Save PHY Address */
+	dev->phyaddr = phyaddr;
+
+	debug("GRETH PHY ADDRESS: %d\n", phyaddr);
 
 	/* X msecs to ticks */
 	timeout = usec2ticks(GRETH_PHY_TIMEOUT_MS * 1000);
@@ -225,17 +252,21 @@ int greth_init_phy(greth_priv * dev, bd_t * bis)
 
 	/* get phy control register default values */
 
-	while ((tmp = read_mii(0, regs)) & 0x8000) {
-		if (get_timer(start) > timeout)
+	while ((tmp = read_mii(phyaddr, 0, regs)) & 0x8000) {
+		if (get_timer(start) > timeout) {
+			debug("greth_init_phy: PHY read 1 failed\n");
 			return 1;	/* Fail */
+		}
 	}
 
 	/* reset PHY and wait for completion */
-	write_mii(0, 0x8000 | tmp, regs);
+	write_mii(phyaddr, 0, 0x8000 | tmp, regs);
 
-	while (((tmp = read_mii(0, regs))) & 0x8000) {
-		if (get_timer(start) > timeout)
+	while (((tmp = read_mii(phyaddr, 0, regs))) & 0x8000) {
+		if (get_timer(start) > timeout) {
+			debug("greth_init_phy: PHY read 2 failed\n");
 			return 1;	/* Fail */
+		}
 	}
 
 	/* Check if PHY is autoneg capable and then determine operating
@@ -246,16 +277,16 @@ int greth_init_phy(greth_priv * dev, bd_t * bis)
 	dev->sp = 0;
 	dev->auto_neg = 0;
 	if (!((tmp >> 12) & 1)) {
-		write_mii(0, 0, regs);
+		write_mii(phyaddr, 0, 0, regs);
 	} else {
 		/* wait for auto negotiation to complete and then check operating mode */
 		dev->auto_neg = 1;
 		i = 0;
-		while (!(((tmp = read_mii(1, regs)) >> 5) & 1)) {
+		while (!(((tmp = read_mii(phyaddr, 1, regs)) >> 5) & 1)) {
 			if (get_timer(start) > timeout) {
 				printf("Auto negotiation timed out. "
 				       "Selecting default config\n");
-				tmp = read_mii(0, regs);
+				tmp = read_mii(phyaddr, 0, regs);
 				dev->gb = ((tmp >> 6) & 1)
 				    && !((tmp >> 13) & 1);
 				dev->sp = !((tmp >> 6) & 1)
@@ -265,8 +296,8 @@ int greth_init_phy(greth_priv * dev, bd_t * bis)
 			}
 		}
 		if ((tmp >> 8) & 1) {
-			tmp1 = read_mii(9, regs);
-			tmp2 = read_mii(10, regs);
+			tmp1 = read_mii(phyaddr, 9, regs);
+			tmp2 = read_mii(phyaddr, 10, regs);
 			if ((tmp1 & GRETH_MII_EXTADV_1000FD) &&
 			    (tmp2 & GRETH_MII_EXTPRT_1000FD)) {
 				dev->gb = 1;
@@ -279,8 +310,8 @@ int greth_init_phy(greth_priv * dev, bd_t * bis)
 			}
 		}
 		if ((dev->gb == 0) || ((dev->gb == 1) && (dev->gbit_mac == 0))) {
-			tmp1 = read_mii(4, regs);
-			tmp2 = read_mii(5, regs);
+			tmp1 = read_mii(phyaddr, 4, regs);
+			tmp2 = read_mii(phyaddr, 5, regs);
 			if ((tmp1 & GRETH_MII_100TXFD) &&
 			    (tmp2 & GRETH_MII_100TXFD)) {
 				dev->sp = 1;
@@ -297,7 +328,7 @@ int greth_init_phy(greth_priv * dev, bd_t * bis)
 			if ((dev->gb == 1) && (dev->gbit_mac == 0)) {
 				dev->gb = 0;
 				dev->fd = 0;
-				write_mii(0, dev->sp << 13, regs);
+				write_mii(phyaddr, 0, dev->sp << 13, regs);
 			}
 		}
 
@@ -307,8 +338,8 @@ int greth_init_phy(greth_priv * dev, bd_t * bis)
 		%d Mbps %s duplex\n", dev->gbit_mac ? "10/100/1000" : "10/100", (unsigned int)(regs), (unsigned int)(dev->irq), dev->gb ? 1000 : (dev->sp ? 100 : 10), dev->fd ? "full" : "half");
 	/* Read out PHY info if extended registers are available */
 	if (tmp & 1) {
-		tmp1 = read_mii(2, regs);
-		tmp2 = read_mii(3, regs);
+		tmp1 = read_mii(phyaddr, 2, regs);
+		tmp2 = read_mii(phyaddr, 3, regs);
 		tmp1 = (tmp1 << 6) | ((tmp2 >> 10) & 0x3F);
 		tmp = tmp2 & 0xF;
 
@@ -492,8 +523,7 @@ int greth_recv(struct eth_device *dev)
 			for (i = 0; i < GRETH_RXBD_CNT; i++) {
 				printf("[%d]: Stat=0x%lx, Addr=0x%lx\n", i,
 				       GRETH_REGLOAD(&greth->rxbd_base[i].stat),
-				       GRETH_REGLOAD(&greth->rxbd_base[i].
-						     addr));
+				       GRETH_REGLOAD(&greth->rxbd_base[i].addr));
 			}
 		} else {
 			/* Process the incoming packet. */
@@ -530,7 +560,7 @@ int greth_recv(struct eth_device *dev)
 		     (unsigned int)greth->rxbd_max) ? greth->
 		    rxbd_base : (greth->rxbd_curr + 1);
 
-	};
+	}
 
 	if (enable) {
 		GRETH_REGORIN(&regs->control, GRETH_RXEN);
@@ -612,6 +642,7 @@ int greth_initialize(bd_t * bis)
 	/* initiate PHY, select speed/duplex depending on connected PHY */
 	if (greth_init_phy(greth, bis)) {
 		/* Failed to init PHY (timedout) */
+		debug("GRETH[0x%08x]: Failed to init PHY\n", greth->regs);
 		return -1;
 	}
 
@@ -640,5 +671,6 @@ int greth_initialize(bd_t * bis)
 	/* set and remember MAC address */
 	greth_set_hwaddr(greth, addr);
 
+	debug("GRETH[0x%08x]: Initialized successfully\n", greth->regs);
 	return 0;
 }
