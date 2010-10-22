@@ -36,33 +36,6 @@
 
 extern void ft_board_pci_setup(void *blob, bd_t *bd);
 
-int checkboard(void)
-{
-	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
-	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
-	char *s;
-
-	printf("Board: X-ES %s PMC\n", CONFIG_SYS_BOARD_NAME);
-	printf("       ");
-	s = getenv("board_rev");
-	if (s)
-		printf("Rev %s, ", s);
-	s = getenv("serial#");
-	if (s)
-		printf("Serial# %s, ", s);
-	s = getenv("board_cfg");
-	if (s)
-		printf("Cfg %s", s);
-	printf("\n");
-
-	out_be32(&lbc->ltesr, 0xffffffff);	/* Clear LBC error IRQs */
-	out_be32(&lbc->lteir, 0xffffffff);	/* Enable LBC error IRQs */
-	out_be32(&ecm->eedr, 0xffffffff);	/* Clear ecm errors */
-	out_be32(&ecm->eeer, 0xffffffff);	/* Enable ecm errors */
-
-	return 0;
-}
-
 static void flash_cs_fixup(void)
 {
 	int flash_sel;

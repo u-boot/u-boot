@@ -36,6 +36,7 @@
 #define CONFIG_MPC8548		1
 #define CONFIG_XPEDITE5200	1
 #define CONFIG_SYS_BOARD_NAME	"XPedite5200"
+#define CONFIG_SYS_FORM_PMC_XMC	1
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
 
 #ifndef CONFIG_SYS_TEXT_BASE

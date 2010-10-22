@@ -26,30 +26,12 @@
 #include <asm/io.h>
 #include <fdt_support.h>
 #include <pca953x.h>
+#include "../common/fsl_8xxx_misc.h"
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_PCI)
 extern void ft_board_pci_setup(void *blob, bd_t *bd);
 #endif
 
-int checkboard(void)
-{
-	char *s;
-
-	printf("Board: X-ES %s 3U VPX SBC\n", CONFIG_SYS_BOARD_NAME);
-	printf("       ");
-	s = getenv("board_rev");
-	if (s)
-		printf("Rev %s, ", s);
-	s = getenv("serial#");
-	if (s)
-		printf("Serial# %s, ", s);
-	s = getenv("board_cfg");
-	if (s)
-		printf("Cfg %s", s);
-	printf("\n");
-
-	return 0;
-}
 /*
  * Print out which flash was booted from and if booting from the 2nd flash,
  * swap flash chip selects to maintain consistent flash numbering/addresses.

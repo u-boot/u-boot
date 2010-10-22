@@ -36,26 +36,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern void ft_board_pci_setup(void *blob, bd_t *bd);
 
-int checkboard(void)
-{
-	char *s;
-
-	printf("Board: X-ES %s 3U VPX SBC\n", CONFIG_SYS_BOARD_NAME);
-	printf("       ");
-	s = getenv("board_rev");
-	if (s)
-		printf("Rev %s, ", s);
-	s = getenv("serial#");
-	if (s)
-		printf("Serial# %s, ", s);
-	s = getenv("board_cfg");
-	if (s)
-		printf("Cfg %s", s);
-	printf("\n");
-
-	return 0;
-}
-
 static void flash_cs_fixup(void)
 {
 	int flash_sel;

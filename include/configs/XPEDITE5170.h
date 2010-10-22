@@ -34,6 +34,7 @@
 #define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_XPEDITE5140	1	/* MPC8641HPCN board specific */
 #define CONFIG_SYS_BOARD_NAME	"XPedite5170"
+#define CONFIG_SYS_FORM_3U_VPX	1
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
 #define CONFIG_BAT_RW		1	/* Use common BAT rw code */
