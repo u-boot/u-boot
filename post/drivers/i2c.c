@@ -51,38 +51,35 @@ int i2c_post_test (int flags)
 	/* No devices found */
 	return -1;
 #else
-	unsigned int good = 0;
-	unsigned int bad  = 0;
+	unsigned int ret  = 0;
 	int j;
-	unsigned char i2c_addr_list[] = I2C_ADDR_LIST;
-	unsigned char i2c_miss_list[] = I2C_ADDR_LIST;
+	const unsigned char i2c_addr_list[] = I2C_ADDR_LIST;
 
 	for (i = 0; i < 128; i++) {
 		if (i2c_probe(i) != 0)
 			continue;
+
 		for (j = 0; j < sizeof(i2c_addr_list); ++j) {
 			if (i == i2c_addr_list[j]) {
-				good++;
-				i2c_miss_list[j] = 0xFF;
+				i2c_addr_list[j] = 0xff;
 				break;
 			}
 		}
 
 		if (j == sizeof(i2c_addr_list)) {
-			bad++;
-			post_log("I2C: addr %02X not expected\n", i);
+			ret = -1;
+			post_log("I2C: addr %02x not expected\n", i);
 		}
 	}
 
-	if (good != sizeof(i2c_addr_list)) {
-		for (j = 0; j < sizeof(i2c_miss_list); ++j) {
-			if (i2c_miss_list[j] != 0xFF) {
-				post_log("I2C: addr %02X did not respond\n",
-						i2c_miss_list[j]);
-			}
-		}
+	for (i = 0; i < sizeof(i2c_addr_list); ++i) {
+		if (i2c_addr_list[i] == 0xff)
+			continue;
+		post_log("I2C: addr %02x did not respond\n", i2c_addr_list[i]);
+		ret = -1;
 	}
-	return ((good == sizeof(i2c_addr_list)) && (bad == 0)) ? 0 : -1;
+
+	return ret;
 #endif
 }
 
