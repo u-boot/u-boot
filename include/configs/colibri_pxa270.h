@@ -39,7 +39,7 @@
 #define	CONFIG_ENV_SIZE			0x4000
 #define	CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
 #define	CONFIG_SYS_GBL_DATA_SIZE	128
-
+#define	CONFIG_SYS_TEXT_BASE		0x0
 #define	CONFIG_ENV_OVERWRITE		/* override default environment */
 
 #define	CONFIG_BOOTCOMMAND						\

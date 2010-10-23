@@ -36,6 +36,7 @@
 #define	CONFIG_ENV_OVERWRITE
 #define	CONFIG_SYS_MALLOC_LEN		(128*1024)
 #define	CONFIG_SYS_GBL_DATA_SIZE	128
+#define	CONFIG_SYS_TEXT_BASE	0x0
 
 #define	CONFIG_BOOTCOMMAND						\
 	"if mmc init && fatload mmc 0 0xa0000000 uboot.script ; then "	\

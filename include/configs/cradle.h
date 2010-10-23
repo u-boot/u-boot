@@ -39,7 +39,7 @@
 
 /* we will never enable dcache, because we have to setup MMU first */
 #define CONFIG_SYS_NO_DCACHE
-
+#define	CONFIG_SYS_TEXT_BASE		0x0
 /*
  * Size of malloc() pool
  */
@@ -126,15 +126,9 @@
 /*
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS    4          /* we have 2 banks of DRAM */
+#define CONFIG_NR_DRAM_BANKS    1          /* we have 1 bank of DRAM */
 #define PHYS_SDRAM_1            0xa0000000 /* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE       0x01000000 /* 64 MB */
-#define PHYS_SDRAM_2            0xa4000000 /* SDRAM Bank #2 */
-#define PHYS_SDRAM_2_SIZE       0x00000000 /* 0 MB */
-#define PHYS_SDRAM_3            0xa8000000 /* SDRAM Bank #3 */
-#define PHYS_SDRAM_3_SIZE       0x00000000 /* 0 MB */
-#define PHYS_SDRAM_4            0xac000000 /* SDRAM Bank #4 */
-#define PHYS_SDRAM_4_SIZE       0x00000000 /* 0 MB */
 
 #define PHYS_FLASH_1            0x00000000 /* Flash Bank #1 */
 #define PHYS_FLASH_2            0x04000000 /* Flash Bank #1 */
@@ -289,9 +283,9 @@
  * Clocks, power control and interrupts
  */
 #define CONFIG_SYS_PSSR_VAL        0x00000020
-#define CONFIG_SYS_CCCR_VAL        0x00000141  /* 100 MHz memory, 200 MHz CPU  */
-#define CONFIG_SYS_CKEN_VAL        0x00000060  /* FFUART and STUART enabled    */
-#define CONFIG_SYS_ICMR_VAL        0x00000000  /* No interrupts enabled        */
+#define CONFIG_SYS_CCCR        0x00000141  /* 100 MHz memory, 200 MHz CPU  */
+#define CONFIG_SYS_CKEN        0x00000060  /* FFUART and STUART enabled    */
+#define CONFIG_SYS_ICMR        0x00000000  /* No interrupts enabled        */
 
 /* FIXME
  *
@@ -319,6 +313,8 @@
 #define CONFIG_SYS_MDMRS_VAL       0x00000000
 #define CONFIG_SYS_MDREFR_VAL      0x00403018  /* Initial setting, individual bits set in lowlevel_init.S */
 #endif
+#define	CONFIG_SYS_FLYCNFG_VAL		0x00000000
+#define	CONFIG_SYS_SXCNFG_VAL		0x00000000
 
 /*
  * PCMCIA and CF Interfaces (NOT USED, these values from lubbock init)
