@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Extreme Engineering Solutions, Inc.
+ * Copyright 2009 Extreme Engineering Solutions, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -11,7 +11,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -21,41 +21,21 @@
  */
 
 #include <common.h>
-#include <command.h>
 #include <asm/processor.h>
 #include <asm/mmu.h>
-#include <asm/immap_85xx.h>
-#include <asm/fsl_pci.h>
 #include <asm/io.h>
-#include <asm/cache.h>
-#include <libfdt.h>
 #include <fdt_support.h>
 #include <pca953x.h>
+#include "../common/fsl_8xxx_misc.h"
 
-DECLARE_GLOBAL_DATA_PTR;
-
+#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_PCI)
 extern void ft_board_pci_setup(void *blob, bd_t *bd);
+#endif
 
-int checkboard(void)
-{
-	char *s;
-
-	printf("Board: X-ES %s 3U VPX SBC\n", CONFIG_SYS_BOARD_NAME);
-	printf("       ");
-	s = getenv("board_rev");
-	if (s)
-		printf("Rev %s, ", s);
-	s = getenv("serial#");
-	if (s)
-		printf("Serial# %s, ", s);
-	s = getenv("board_cfg");
-	if (s)
-		printf("Cfg %s", s);
-	printf("\n");
-
-	return 0;
-}
-
+/*
+ * Print out which flash was booted from and if booting from the 2nd flash,
+ * swap flash chip selects to maintain consistent flash numbering/addresses.
+ */
 static void flash_cs_fixup(void)
 {
 	int flash_sel;
@@ -85,22 +65,6 @@ int board_early_init_r(void)
 	pca953x_set_pol(CONFIG_SYS_I2C_PCA953X_ADDR1, 0xff, 0);
 	pca953x_set_pol(CONFIG_SYS_I2C_PCA953X_ADDR2, 0xff, 0);
 	pca953x_set_pol(CONFIG_SYS_I2C_PCA953X_ADDR3, 0xff, 0);
-
-	/*
-	 * Remap NOR flash region to caching-inhibited
-	 * so that flash can be erased/programmed properly.
-	 */
-
-	/* Flush d-cache and invalidate i-cache of any FLASH data */
-	flush_dcache();
-	invalidate_icache();
-
-	/* Invalidate existing TLB entry for NOR flash */
-	disable_tlb(0);
-	set_tlb(1, (CONFIG_SYS_FLASH_BASE2 & 0xf0000000),
-		(CONFIG_SYS_FLASH_BASE2 & 0xf0000000),
-		MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		0, 0, BOOKE_PAGESZ_256M, 1);
 
 	flash_cs_fixup();
 

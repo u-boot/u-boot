@@ -33,6 +33,7 @@
 /* High Level Configuration Options */
 #define CONFIG_XPEDITE1000	1
 #define CONFIG_SYS_BOARD_NAME	"XPedite1000"
+#define CONFIG_SYS_FORM_PMC	1
 #define CONFIG_4xx		1		/* ... PPC4xx family */
 #define CONFIG_440		1
 #define CONFIG_440GX		1		/* 440 GX */
@@ -341,8 +342,8 @@ extern void out32(unsigned int, unsigned long);
 	"misc_args=ip=on\0"						\
 	"set_bootargs=setenv bootargs ${console_args} ${root_args} ${misc_args}\0" \
 	"bootfile=/home/user/file\0"					\
-	"osfile=/home/user/uImage-XPedite1000\0"			\
-	"fdtfile=/home/user/xpedite1000.dtb\0"				\
+	"osfile=/home/user/board.uImage\0"				\
+	"fdtfile=/home/user/board.dtb\0"				\
 	"ubootfile=/home/user/u-boot.bin\0"				\
 	"fdtaddr=c00000\0"						\
 	"osaddr=0x1000000\0"						\

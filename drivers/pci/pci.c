@@ -139,7 +139,7 @@ void *pci_map_bar(pci_dev_t pdev, int bar, int flags)
  *
  */
 
-static struct pci_controller* hose_head = NULL;
+static struct pci_controller* hose_head;
 
 void pci_register_hose(struct pci_controller* hose)
 {
@@ -639,6 +639,8 @@ void pci_init(void)
 			udelay (1000);
 	}
 #endif /* CONFIG_PCI_BOOTDELAY */
+
+	hose_head = NULL;
 
 	/* now call board specific pci_init()... */
 	pci_init_board();

@@ -22,7 +22,7 @@
  */
 
 /*
- * xpedite5170 board configuration file
+ * xpedite517x board configuration file
  */
 #ifndef __CONFIG_H
 #define __CONFIG_H
@@ -34,6 +34,7 @@
 #define CONFIG_MPC8641		1	/* MPC8641 specific */
 #define CONFIG_XPEDITE5140	1	/* MPC8641HPCN board specific */
 #define CONFIG_SYS_BOARD_NAME	"XPedite5170"
+#define CONFIG_SYS_FORM_3U_VPX	1
 #define CONFIG_LINUX_RESET_VEC	0x100	/* Reset vector used by Linux */
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_pre_init */
 #define CONFIG_BAT_RW		1	/* Use common BAT rw code */
@@ -107,6 +108,21 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_SYS_MEMTEST_START	0x10000000
 #define CONFIG_SYS_MEMTEST_END		0x20000000
+#define CONFIG_POST			(CONFIG_SYS_POST_MEMORY |\
+					 CONFIG_SYS_POST_I2C)
+#define I2C_ADDR_LIST			{CONFIG_SYS_I2C_DS1621_ADDR,	\
+					 CONFIG_SYS_I2C_DS4510_ADDR,	\
+					 CONFIG_SYS_I2C_EEPROM_ADDR,	\
+					 CONFIG_SYS_I2C_LM90_ADDR,	\
+					 CONFIG_SYS_I2C_PCA9553_ADDR,	\
+					 CONFIG_SYS_I2C_PCA953X_ADDR0,	\
+					 CONFIG_SYS_I2C_PCA953X_ADDR1,	\
+					 CONFIG_SYS_I2C_PCA953X_ADDR2,	\
+					 CONFIG_SYS_I2C_PCA953X_ADDR3,	\
+					 CONFIG_SYS_I2C_PEX8518_ADDR,	\
+					 CONFIG_SYS_I2C_RTC_ADDR}
+/* The XPedite5170 can host an XMC which has an EEPROM at address 0x50 */
+#define I2C_ADDR_IGNORE_LIST		{0x50}
 
 /*
  * Memory map
@@ -258,6 +274,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_I2C_DS1621_ADDR	0x48
 #define CONFIG_DTT_DS1621
 #define CONFIG_DTT_SENSORS		{ 0 }
+#define CONFIG_SYS_I2C_LM90_ADDR	0x4c
 
 /* I2C EEPROM - AT24C128B */
 #define CONFIG_SYS_I2C_EEPROM_ADDR		0x54
@@ -281,6 +298,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_I2C_PCA953X_ADDR2	0x1e
 #define CONFIG_SYS_I2C_PCA953X_ADDR3	0x1f
 #define CONFIG_SYS_I2C_PCA953X_ADDR	CONFIG_SYS_I2C_PCA953X_ADDR0
+#define CONFIG_SYS_I2C_PCA9553_ADDR	0x62
 
 /*
  * PU = pulled high, PD = pulled low
@@ -324,18 +342,18 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
 /* PCIE1 - PEX8518 */
-#define CONFIG_SYS_PCIE1_MEM_BASE	0x80000000
-#define CONFIG_SYS_PCIE1_MEM_PHYS	CONFIG_SYS_PCIE1_MEM_BASE
+#define CONFIG_SYS_PCIE1_MEM_BUS	0x80000000
+#define CONFIG_SYS_PCIE1_MEM_PHYS	CONFIG_SYS_PCIE1_MEM_BUS
 #define CONFIG_SYS_PCIE1_MEM_SIZE	0x40000000	/* 1G */
-#define CONFIG_SYS_PCIE1_IO_BASE	0x00000000
+#define CONFIG_SYS_PCIE1_IO_BUS		0x00000000
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xe8000000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00800000	/* 8M */
 
 /* PCIE2 - VPX P1 */
-#define CONFIG_SYS_PCIE2_MEM_BASE	0xc0000000
-#define CONFIG_SYS_PCIE2_MEM_PHYS	CONFIG_SYS_PCIE2_MEM_BASE
+#define CONFIG_SYS_PCIE2_MEM_BUS	0xc0000000
+#define CONFIG_SYS_PCIE2_MEM_PHYS	CONFIG_SYS_PCIE2_MEM_BUS
 #define CONFIG_SYS_PCIE2_MEM_SIZE	0x10000000	/* 256M */
-#define CONFIG_SYS_PCIE2_IO_BASE	0x00000000
+#define CONFIG_SYS_PCIE2_IO_BUS		0x00000000
 #define CONFIG_SYS_PCIE2_IO_PHYS	0xe8800000
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00800000	/* 8M */
 
@@ -545,6 +563,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_CMD_PCA953X
 #define CONFIG_CMD_PCA953X_INFO
 #define CONFIG_CMD_PCI
+#define CONFIG_CMD_PCI_ENUM
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SNTP
@@ -725,8 +744,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 	"misc_args=ip=on\0"						\
 	"set_bootargs=setenv bootargs ${console_args} ${root_args} ${misc_args}\0" \
 	"bootfile=/home/user/file\0"					\
-	"osfile=/home/user/uImage-XPedite5170\0"			\
-	"fdtfile=/home/user/xpedite5170.dtb\0"				\
+	"osfile=/home/user/board.uImage\0"				\
+	"fdtfile=/home/user/board.dtb\0"				\
 	"ubootfile=/home/user/u-boot.bin\0"				\
 	"fdtaddr=c00000\0"						\
 	"osaddr=0x1000000\0"						\
