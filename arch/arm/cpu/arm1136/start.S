@@ -263,7 +263,7 @@ fixnext:
 	str	r1, [r0]
 	add	r2, r2, #8		/* each rel.dyn entry is 8 bytes */
 	cmp	r2, r3
-	ble	fixloop
+	blo	fixloop
 #endif
 #endif	/* #ifndef CONFIG_SKIP_RELOCATE_UBOOT */
 

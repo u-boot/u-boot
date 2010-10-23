@@ -211,7 +211,7 @@ fixloop:
 	str	r4, [r2]
 	add	r2, r2, #4
 	cmp	r2, r3
-	bne	fixloop
+	blo	fixloop
 #endif
 /*
 	now copy to sram the interrupt vector
