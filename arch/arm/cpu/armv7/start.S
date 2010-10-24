@@ -224,13 +224,13 @@ copy_loop:
 	ldr	r3, _rel_dyn_end_ofs	/* r3 <- rel dyn end ofs */
 	add	r3, r3, r0		/* r3 <- rel dyn end in FLASH */
 fixloop:
-	ldr	r0, [r2]	/* r0 <- location to fix up, IN FLASH! */
-	add	r0, r9		/* r0 <- location to fix up in RAM */
+	ldr	r0, [r2]		/* r0 <- location to fix up, IN FLASH! */
+	add	r0, r0, r9		/* r0 <- location to fix up in RAM */
 	ldr	r1, [r2, #4]
 	and	r8, r1, #0xff
-	cmp	r8, #23		/* relative fixup? */
+	cmp	r8, #23			/* relative fixup? */
 	beq	fixrel
-	cmp	r8, #2		/* absolute fixup? */
+	cmp	r8, #2			/* absolute fixup? */
 	beq	fixabs
 	/* ignore unknown type of fixup */
 	b	fixnext
@@ -247,7 +247,7 @@ fixrel:
 	add	r1, r1, r9
 fixnext:
 	str	r1, [r0]
-	add	r2, r2, #8	/* each rel.dyn entry is 8 bytes */
+	add	r2, r2, #8		/* each rel.dyn entry is 8 bytes */
 	cmp	r2, r3
 	blo	fixloop
 
