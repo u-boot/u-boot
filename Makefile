@@ -372,7 +372,8 @@ GEN_UBOOT = \
 		cd $(LNDIR) && $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \
 			--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 			-Map u-boot.map -o u-boot
-$(obj)u-boot:	depend $(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
+$(obj)u-boot:	depend \
+		$(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
 		$(GEN_UBOOT)
 ifeq ($(CONFIG_KALLSYMS),y)
 		smap=`$(call SYSTEM_MAP,u-boot) | \
@@ -426,7 +427,9 @@ updater:
 
 # Explicitly make _depend in subdirs containing multiple targets to prevent
 # parallel sub-makes creating .depend files simultaneously.
-depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
+depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) \
+		$(obj)include/autoconf.mk \
+		$(obj)include/generated/generic-asm-offsets.h
 		for dir in $(SUBDIRS) $(CPUDIR) $(dir $(LDSCRIPT)) ; do \
 			$(MAKE) -C $$dir _depend ; done
 
@@ -472,6 +475,18 @@ $(obj)include/autoconf.mk: $(obj)include/config.h
 	$(CPP) $(CFLAGS) -DDO_DEPS_ONLY -dM include/common.h | \
 		sed -n -f tools/scripts/define2mk.sed > $@.tmp && \
 	mv $@.tmp $@
+
+$(obj)include/generated/generic-asm-offsets.h:	$(obj)include/autoconf.mk.dep \
+	$(obj)lib/asm-offsets.s
+	@$(XECHO) Generating $@
+	tools/scripts/make-asm-offsets $(obj)lib/asm-offsets.s $@
+
+$(obj)lib/asm-offsets.s:	$(obj)include/autoconf.mk.dep \
+	$(src)lib/asm-offsets.c
+	@mkdir -p $(obj)lib
+	$(CC) -DDO_DEPS_ONLY \
+		$(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
+		-o $@ $(src)lib/asm-offsets.c -c -S
 
 #########################################################################
 else	# !config.mk
@@ -1206,6 +1221,7 @@ clean:
 	       $(obj)u-boot.lds						  \
 	       $(obj)arch/blackfin/cpu/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h
+	@rm -f $(obj)lib/asm-offsets.s
 	@rm -f $(obj)nand_spl/{u-boot.lds,u-boot-spl,u-boot-spl.map,System.map}
 	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl.map}
 	@rm -f $(ONENAND_BIN)
@@ -1229,6 +1245,7 @@ clobber:	clean
 	@rm -f $(obj)tools/{env/crc32.c,inca-swap-bytes}
 	@rm -f $(obj)arch/powerpc/cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
+	@rm -fr $(obj)include/generated
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -name "*" -type l -print | xargs rm -f
 	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -name "*" -type l -print | xargs rm -f
 
