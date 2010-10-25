@@ -1426,6 +1426,11 @@ int flash_real_protect (flash_info_t * info, long sector, int prot)
 #endif
 	};
 
+	/*
+	 * Flash needs to be in status register read mode for
+	 * flash_full_status_check() to work correctly
+	 */
+	flash_write_cmd(info, sector, 0, FLASH_CMD_READ_STATUS);
 	if ((retcode =
 	     flash_full_status_check (info, sector, info->erase_blk_tout,
 				      prot ? "protect" : "unprotect")) == 0) {
@@ -1975,6 +1980,13 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 				case CFI_CMDSET_INTEL_PROG_REGIONS:
 				case CFI_CMDSET_INTEL_EXTENDED:
 				case CFI_CMDSET_INTEL_STANDARD:
+					/*
+					 * Set flash to read-id mode. Otherwise
+					 * reading protected status is not
+					 * guaranteed.
+					 */
+					flash_write_cmd(info, sect_cnt, 0,
+							FLASH_CMD_READ_ID);
 					info->protect[sect_cnt] =
 						flash_isset (info, sect_cnt,
 							     FLASH_OFFSET_PROTECT,
