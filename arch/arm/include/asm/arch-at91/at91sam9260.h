@@ -56,6 +56,7 @@
 #define AT91_PIO_BASE		0xfffff400
 #define AT91_PMC_BASE		0xfffffc00
 #define AT91_RSTC_BASE		0xfffffd00
+#define AT91_SHDWN_BASE		0xfffffd10
 #define AT91_RTT_BASE		0xfffffd20
 #define AT91_PIT_BASE		0xfffffd30
 #define AT91_WDT_BASE		0xfffffd40
