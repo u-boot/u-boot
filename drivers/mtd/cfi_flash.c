@@ -74,6 +74,20 @@ flash_info_t flash_info[CFI_MAX_FLASH_BANKS];	/* FLASH chips info */
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_8BIT
 #endif
 
+/*
+ * 0xffff is an undefined value for the configuration register. When
+ * this value is returned, the configuration register shall not be
+ * written at all (default mode).
+ */
+static u16 cfi_flash_config_reg(int i)
+{
+#ifdef CONFIG_SYS_CFI_FLASH_CONFIG_REGS
+	return ((u16 [])CONFIG_SYS_CFI_FLASH_CONFIG_REGS)[i];
+#else
+	return 0xffff;
+#endif
+}
+
 #if defined(CONFIG_SYS_MAX_FLASH_BANKS_DETECT)
 int cfi_flash_num_flash_banks = CONFIG_SYS_MAX_FLASH_BANKS_DETECT;
 #endif
@@ -2033,6 +2047,31 @@ void flash_set_verbose(uint v)
 	flash_verbose = v;
 }
 
+static void cfi_flash_set_config_reg(u32 base, u16 val)
+{
+#ifdef CONFIG_SYS_CFI_FLASH_CONFIG_REGS
+	/*
+	 * Only set this config register if really defined
+	 * to a valid value (0xffff is invalid)
+	 */
+	if (val == 0xffff)
+		return;
+
+	/*
+	 * Set configuration register. Data is "encrypted" in the 16 lower
+	 * address bits.
+	 */
+	flash_write16(FLASH_CMD_SETUP, (void *)(base + (val << 1)));
+	flash_write16(FLASH_CMD_SET_CR_CONFIRM, (void *)(base + (val << 1)));
+
+	/*
+	 * Finally issue reset-command to bring device back to
+	 * read-array mode
+	 */
+	flash_write16(FLASH_CMD_RESET, (void *)base);
+#endif
+}
+
 /*-----------------------------------------------------------------------
  */
 unsigned long flash_init (void)
@@ -2055,6 +2094,10 @@ unsigned long flash_init (void)
 	/* Init: no FLASHes known */
 	for (i = 0; i < CONFIG_SYS_MAX_FLASH_BANKS; ++i) {
 		flash_info[i].flash_id = FLASH_UNKNOWN;
+
+		/* Optionally write flash configuration register */
+		cfi_flash_set_config_reg(cfi_flash_bank_addr(i),
+					 cfi_flash_config_reg(i));
 
 		if (!flash_detect_legacy(cfi_flash_bank_addr(i), i))
 			flash_get_size(cfi_flash_bank_addr(i), i);
