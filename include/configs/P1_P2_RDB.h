@@ -350,6 +350,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_EEPROM_BUS_NUM	1
 
 #define CONFIG_RTC_DS1337
+#define CONFIG_SYS_RTC_DS1337_NOOSC
 #define CONFIG_SYS_I2C_RTC_ADDR                0x68
 /*
  * General PCI
