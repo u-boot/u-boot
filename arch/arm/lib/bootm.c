@@ -177,8 +177,6 @@ static int fixup_memory_node(void *blob)
 static int bootm_linux_fdt(int machid, bootm_headers_t *images)
 {
 	ulong rd_len;
-	bd_t *bd = gd->bd;
-	char *s;
 	void (*kernel_entry)(int zero, int dt_machid, void *dtblob);
 	ulong bootmap_base = getenv_bootm_low();
 	ulong of_size = images->ft_len;
