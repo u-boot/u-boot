@@ -175,7 +175,7 @@ struct qTD {
 	uint32_t qt_buffer_hi[5];	/* Appendix B */
 	/* pad struct for 32 byte alignment */
 	uint32_t unused[3];
-} __attribute__ ((aligned (32)));
+};
 
 /* Queue Head (QH). */
 struct QH {

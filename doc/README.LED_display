@@ -14,7 +14,6 @@ This function should control the state of the LED display. Argument is
 an ORed combination of the following values:
  DISPLAY_CLEAR	-- clear the display
  DISPLAY_HOME	-- set the position to the beginning of display
- DISPLAY_MARK	-- enable mark (decimal point), if implemented
 
 int display_putc(char c);
 

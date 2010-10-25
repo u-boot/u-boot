@@ -32,6 +32,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
+	/* We have RAM, disable cache */
+	dcache_disable();
+	icache_disable();
+
 	/* Arch number of Palm Tungsten|C */
 	gd->bd->bi_arch_number = MACH_TYPE_PALMTC;
 
@@ -51,9 +55,16 @@ struct serial_device *default_serial_console(void)
 	return &serial_ffuart_device;
 }
 
+extern void pxa_dram_init(void);
 int dram_init(void)
+{
+	pxa_dram_init();
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
+	return 0;
+}
+
+void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-	return 0;
 }

@@ -35,6 +35,7 @@
 #define CONFIG_PXA250	       1	/* This is an PXA250 CPU	*/
 #define CONFIG_XM250	       1	/* on a MicroSys XM250 Board	*/
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
+#define	CONFIG_SYS_TEXT_BASE	0x0
 
 /* we will never enable dcache, because we have to setup MMU first */
 #define CONFIG_SYS_NO_DCACHE
@@ -322,9 +323,9 @@
  * Clocks, power control and interrupts
  */
 #define CONFIG_SYS_PSSR_VAL	    0x00000030
-#define CONFIG_SYS_CCCR_VAL	    0x00000161	/* 100 MHz memory, 400 MHz CPU, 400 Turbo  */
-#define CONFIG_SYS_CKEN_VAL	    0x000141ec	/* FFUART and STUART enabled	*/
-#define CONFIG_SYS_ICMR_VAL	    0x00000000	/* No interrupts enabled	*/
+#define CONFIG_SYS_CCCR		    0x00000161	/* 100 MHz memory, 400 MHz CPU, 400 Turbo  */
+#define CONFIG_SYS_CKEN		    0x000141ec	/* FFUART and STUART enabled	*/
+#define CONFIG_SYS_ICMR		    0x00000000	/* No interrupts enabled	*/
 
 /* FIXME
  *
@@ -343,6 +344,8 @@
 #define CONFIG_SYS_MDCNFG_VAL	    0x000009c9
 #define CONFIG_SYS_MDMRS_VAL	    0x00220022
 #define CONFIG_SYS_MDREFR_VAL	    0x000da018	/* Initial setting, individual bits set in lowlevel_init.S */
+#define	CONFIG_SYS_FLYCNFG_VAL		0x00000000
+#define	CONFIG_SYS_SXCNFG_VAL		0x00000000
 
 /*
  * PCMCIA and CF Interfaces (NOT USED, these values from lubbock init)

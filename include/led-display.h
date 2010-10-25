@@ -29,7 +29,6 @@
 /* Display Commands */
 #define DISPLAY_CLEAR	0x1 /* Clear the display */
 #define DISPLAY_HOME	0x2 /* Set cursor at home position */
-#define DISPLAY_MARK	0x4 /* Enable the decimal point led, if implemented */
 
 void display_set(int cmd);
 int display_putc(char c);

@@ -147,27 +147,43 @@
 #define CONFIG_PREBOOT				"run try_update"
 
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
-	"bk=run add_mtd ; run add_consolespec ; bootm 200000\0"	\
-	"cf1=diskboot 200000 0:1\0"	\
-	"bootcmd_cf1=run bcf1\0"	\
-	"bcf=setenv bootargs root=/dev/hda3\0"	\
-	"bootcmd_nfs=run bnfs\0"	\
-	"norargs=setenv bootargs root=/dev/mtdblock3 rootfstype=cramfs\0"	\
-	"bootcmd_nor=cp.b ${kernel_addr} 200000 100000; run norargs addip; run bk\0"	\
-	"bnfs=nfs 200000 ${rootpath}/boot/uImage ; run nfsargs addip ; run bk\0"	\
-	"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath}\0"	\
-	"try_update=usb start;sleep 2;usb start;sleep 1;fatload usb 0 2F0000 PCPUUPDT 2FF;usb stop;source 2F0000\0"	\
-	"env_addr=FE060000\0"	\
-	"kernel_addr=FE100000\0"	\
-	"rootfs_addr=FE200000\0"	\
-	"add_mtd=setenv bootargs ${bootargs} mtdparts=phys_mapped_flash:384k(u),640k(e),1m(k),30m(r)\0"	\
-	"bcf1=run cf1; run bcf; run addip; run bk\0"	\
-	"add_consolespec=setenv bootargs ${bootargs} console=/dev/null quiet\0"	\
-	"addip=if test \"${ethaddr}\" != \"00:00:00:00:00:00\" ; then if test -n ${ipaddr}; then setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}:${hostname}:${netdev}:off panic=1; fi ; fi\0"	\
-	"hostname=CPUP0\0"	\
-	"ethaddr=00:00:00:00:00:00\0"	\
-	"netdev=eth0\0"	\
-	"bootcmd=run bootcmd_nor\0" \
+	"bk=run add_mtd ; run add_consolespec ; bootm 200000\0"		\
+	"cf1=diskboot 200000 0:1\0"					\
+	"bootcmd_cf1=run bcf1\0"					\
+	"bcf=setenv bootargs root=/dev/hda3\0"				\
+	"bootcmd_nfs=run bnfs\0"					\
+	"norargs=setenv bootargs root=/dev/mtdblock3 rootfstype=cramfs "\
+		"panic=1\0"						\
+	"bootcmd_nor=cp.b ${kernel_addr} 200000 100000;"		\
+			"run norargs addip; run bk\0"			\
+	"bnfs=nfs 200000 ${rootpath}/boot/uImage;"			\
+			"run nfsargs addip ; run bk\0"			\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+				"nfsroot=${serverip}:${rootpath}\0"	\
+	"try_update=usb start;sleep 2;usb start;sleep 1;"		\
+			"fatload usb 0 2F0000 PCPUUPDT 2FF;usb stop;"	\
+			"source 2F0000\0"				\
+	"env_addr=FE060000\0"						\
+	"kernel_addr=FE100000\0"					\
+	"rootfs_addr=FE200000\0"					\
+	"add_mtd=setenv bootargs ${bootargs} mtdparts="			\
+		"phys_mapped_flash:384k(u),640k(e),1m(k),30m(r)\0"	\
+	"bcf1=run cf1; run bcf; run addip; run bk\0"			\
+	"add_consolespec=setenv bootargs ${bootargs} "			\
+				"console=/dev/null quiet\0"		\
+	"addip=if test -n ${ethaddr};"					\
+		"then if test -n ${ipaddr};"				\
+			"then setenv bootargs ${bootargs} "		\
+				"ip=${ipaddr}:${serverip}:${gatewayip}:"\
+				"${netmask}:${hostname}:${netdev}:off;"	\
+			"fi;"						\
+		"else;"							\
+			"setenv bootargs ${bootargs} no_ethaddr;"	\
+		"fi\0"							\
+	"hostname=CPUP0\0"						\
+	"ethaddr=00:00:00:00:00:00\0"					\
+	"netdev=eth0\0"							\
+	"bootcmd=run bootcmd_nor\0" 					\
 	""
 /*
  * IPB Bus clocking configuration.
@@ -212,6 +228,7 @@
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
 #define CONFIG_SYS_FLASH_BANKS_LIST	{CONFIG_SYS_CS0_START}
+#define CONFIG_SYS_FLASH_BANKS_SIZES	{CONFIG_SYS_CS0_SIZE}
 
 /*
  * Environment settings

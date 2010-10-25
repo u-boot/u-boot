@@ -270,8 +270,6 @@ static u8 display_buf[DISPLAY_BUF_SIZE];
 static u8 display_putc_pos;
 static u8 display_out_pos;
 
-static u8 display_dot_enable;
-
 void display_set(int cmd) {
 
 	if (cmd & DISPLAY_CLEAR) {
@@ -280,12 +278,6 @@ void display_set(int cmd) {
 
 	if (cmd & DISPLAY_HOME) {
 		display_putc_pos = 0;
-	}
-
-	if (cmd & DISPLAY_MARK) {
-		display_dot_enable = 1;
-	} else {
-		display_dot_enable = 0;
 	}
 }
 
@@ -314,10 +306,12 @@ void display_set(int cmd) {
  * A..Z		index 10..35
  * -		index 36
  * _		index 37
+ * .		index 38
  */
 
 #define SYMBOL_DASH		(36)
 #define SYMBOL_UNDERLINE	(37)
+#define SYMBOL_DOT		(38)
 
 static u8 display_char2seg7_tbl[]=
 {
@@ -337,28 +331,29 @@ static u8 display_char2seg7_tbl[]=
 	SEG_B | SEG_C | SEG_D | SEG_E | SEG_G,			/* d */
 	SEG_A | SEG_D | SEG_E | SEG_F | SEG_G,			/* E */
 	SEG_A | SEG_E | SEG_F | SEG_G,				/* F */
-	SEG_A | SEG_B | SEG_C | SEG_D | SEG_F | SEG_G,		/* g */
+	0,					/* g - not displayed */
 	SEG_B | SEG_C | SEG_E | SEG_F | SEG_G,			/* H */
-	SEG_E | SEG_F,						/* I */
-	SEG_B | SEG_C | SEG_D | SEG_E,				/* J */
-	SEG_A,						/* K - special 1 */
+	SEG_B | SEG_C,						/* I */
+	0,					/* J - not displayed */
+	0,					/* K - not displayed */
 	SEG_D | SEG_E | SEG_F,					/* L */
-	SEG_B,						/* m - special 2 */
-	SEG_C | SEG_E | SEG_G,					/* n */
-	SEG_C | SEG_D | SEG_E | SEG_G,				/* o */
+	0,					/* m - not displayed */
+	0,					/* n - not displayed */
+	SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F,		/* O */
 	SEG_A | SEG_B | SEG_E | SEG_F | SEG_G,			/* P */
-	SEG_A | SEG_B | SEG_C | SEG_F | SEG_G,			/* q */
-	SEG_E | SEG_G,						/* r */
+	0,					/* q - not displayed */
+	0,					/* r - not displayed */
 	SEG_A | SEG_C | SEG_D | SEG_F | SEG_G,			/* S */
 	SEG_D | SEG_E | SEG_F | SEG_G,				/* t */
 	SEG_B | SEG_C | SEG_D | SEG_E | SEG_F,			/* U */
-	SEG_C | SEG_D | SEG_E | SEG_F,				/* V */
-	SEG_C,						/* w - special 3 */
-	SEG_B | SEG_C | SEG_E | SEG_F | SEG_G,			/* X */
+	0,					/* V - not displayed */
+	0,					/* w - not displayed */
+	0,					/* X - not displayed */
 	SEG_B | SEG_C | SEG_D | SEG_F | SEG_G,			/* Y */
-	SEG_A | SEG_B | SEG_D | SEG_E | SEG_G,			/* Z */
+	0,					/* Z - not displayed */
 	SEG_G,							/* - */
-	SEG_D							/* _ */
+	SEG_D,							/* _ */
+	SEG_P							/* . */
 };
 
 /* Convert char to the LED segments representation */
@@ -374,23 +369,20 @@ static u8 display_char2seg7(char c)
 		c -= 'A' - 10;
 	else if (c == '-')
 		c = SYMBOL_DASH;
-	else if ((c == '_') || (c == '.'))
+	else if (c == '_')
 		c = SYMBOL_UNDERLINE;
+	else if (c == '.')
+		c = SYMBOL_DOT;
 	else
 		c = ' ';	/* display unsupported symbols as space */
 
 	if (c != ' ')
 		val = display_char2seg7_tbl[(int)c];
 
-	/* Handle DP LED here */
-	if (display_dot_enable) {
-		val |= SEG_P;
-	}
-
 	return val;
 }
 
-static inline int display_putc_nomark(char c)
+int display_putc(char c)
 {
 	if (display_putc_pos >= DISPLAY_BUF_SIZE)
 		return -1;
@@ -401,13 +393,6 @@ static inline int display_putc_nomark(char c)
 		display_buf[display_putc_pos] = display_char2seg7(c);
 
 	return c;
-}
-
-int display_putc(char c)
-{
-	/* Mark the codes from the "display" command with the DP LED */
-	display_set(DISPLAY_MARK);
-	return display_putc_nomark(c);
 }
 
 /*
@@ -493,9 +478,8 @@ void show_boot_progress(int status)
 	if (a4m072_status2code(status, buf) < 0)
 		return;
 
-	display_set(0);	/* Clear DP Led */
-	display_putc_nomark(buf[0]);
-	display_putc_nomark(buf[1]);
+	display_putc(buf[0]);
+	display_putc(buf[1]);
 	display_set(DISPLAY_HOME);
 	display_out_pos = 0;	/* reset output position */
 

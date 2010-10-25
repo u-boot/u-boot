@@ -42,6 +42,7 @@
  */
 #define CONFIG_PXA250		1	/* This is an PXA255 CPU    */
 #define CONFIG_XAENIAX		1	/* on a xaeniax board	    */
+#define	CONFIG_SYS_TEXT_BASE	0x0
 
 
 #define BOARD_LATE_INIT		1
@@ -437,8 +438,9 @@
  */
 #define CONFIG_SYS_PSSR_VAL		0x00000030
 
-#define CONFIG_SYS_CKEN_VAL            0x00000080  /*  */
-#define CONFIG_SYS_ICMR_VAL            0x00000000  /* No interrupts enabled        */
+#define CONFIG_SYS_CKEN			0x00000080  /*  */
+#define CONFIG_SYS_ICMR			0x00000000  /* No interrupts enabled        */
+#define	CONFIG_SYS_CCCR			CCCR_L27|CCCR_M2|CCCR_N10
 
 
 /*
@@ -561,6 +563,9 @@
  * [02:00]   010     - MDBL0:  SDRAM0/1 burst Length. Fixed to 4.
  */
 #define CONFIG_SYS_MDMRS_VAL		0x00320032
+
+#define	CONFIG_SYS_FLYCNFG_VAL		0x00000000
+#define	CONFIG_SYS_SXCNFG_VAL		0x00000000
 
 /*
  * PCMCIA and CF Interfaces
