@@ -331,8 +331,10 @@ _start_oneboot_ofs
 #else
 	ldr	r0, _board_init_r_ofs
 	adr	r1, _start
-	add	r0, r0, r1
-	add	lr, r0, r9
+	add	lr, r0, r1
+#ifndef CONFIG_SKIP_RELOCATE_UBOOT
+	add	lr, lr, r9
+#endif
 	/* setup parameters for board_init_r */
 	mov	r0, r5		/* gd_t */
 	mov	r1, r7		/* dest_addr */
