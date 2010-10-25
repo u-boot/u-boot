@@ -1112,18 +1112,18 @@ static int sector_erased(flash_info_t *info, int i)
 {
 	int k;
 	int size;
-	volatile unsigned long *flash;
+	u32 *flash;
 
 	/*
 	 * Check if whole sector is erased
 	 */
 	size = flash_sector_size(info, i);
-	flash = (volatile unsigned long *) info->start[i];
+	flash = (u32 *)info->start[i];
 	/* divide by 4 for longword access */
 	size = size >> 2;
 
 	for (k = 0; k < size; k++) {
-		if (*flash++ != 0xffffffff)
+		if (flash_read32(flash++) != 0xffffffff)
 			return 0;	/* not erased */
 	}
 
