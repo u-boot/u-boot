@@ -154,110 +154,78 @@ mmc_bwrite(int dev_num, ulong start, lbaint_t blkcnt, const void*src)
 	return blkcnt;
 }
 
-int mmc_read_block(struct mmc *mmc, void *dst, uint blocknum)
+int mmc_read_blocks(struct mmc *mmc, void *dst, ulong start, lbaint_t blkcnt)
 {
 	struct mmc_cmd cmd;
 	struct mmc_data data;
 
-	cmd.cmdidx = MMC_CMD_READ_SINGLE_BLOCK;
+	if (blkcnt > 1)
+		cmd.cmdidx = MMC_CMD_READ_MULTIPLE_BLOCK;
+	else
+		cmd.cmdidx = MMC_CMD_READ_SINGLE_BLOCK;
 
 	if (mmc->high_capacity)
-		cmd.cmdarg = blocknum;
+		cmd.cmdarg = start;
 	else
-		cmd.cmdarg = blocknum * mmc->read_bl_len;
+		cmd.cmdarg = start * mmc->read_bl_len;
 
 	cmd.resp_type = MMC_RSP_R1;
 	cmd.flags = 0;
 
 	data.dest = dst;
-	data.blocks = 1;
+	data.blocks = blkcnt;
 	data.blocksize = mmc->read_bl_len;
 	data.flags = MMC_DATA_READ;
 
-	return mmc_send_cmd(mmc, &cmd, &data);
-}
+	if (mmc_send_cmd(mmc, &cmd, &data))
+		return 0;
 
-int mmc_read(struct mmc *mmc, u64 src, uchar *dst, int size)
-{
-	char *buffer;
-	int i;
-	int blklen = mmc->read_bl_len;
-	int startblock = lldiv(src, mmc->read_bl_len);
-	int endblock = lldiv(src + size - 1, mmc->read_bl_len);
-	int err = 0;
-
-	/* Make a buffer big enough to hold all the blocks we might read */
-	buffer = malloc(blklen);
-
-	if (!buffer) {
-		printf("Could not allocate buffer for MMC read!\n");
-		return -1;
+	if (blkcnt > 1) {
+		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
+		cmd.cmdarg = 0;
+		cmd.resp_type = MMC_RSP_R1b;
+		cmd.flags = 0;
+		if (mmc_send_cmd(mmc, &cmd, NULL)) {
+			printf("mmc fail to send stop cmd\n");
+			return 0;
+		}
 	}
 
-	/* We always do full block reads from the card */
-	err = mmc_set_blocklen(mmc, mmc->read_bl_len);
-
-	if (err)
-		goto free_buffer;
-
-	for (i = startblock; i <= endblock; i++) {
-		int segment_size;
-		int offset;
-
-		err = mmc_read_block(mmc, buffer, i);
-
-		if (err)
-			goto free_buffer;
-
-		/*
-		 * The first block may not be aligned, so we
-		 * copy from the desired point in the block
-		 */
-		offset = (src & (blklen - 1));
-		segment_size = MIN(blklen - offset, size);
-
-		memcpy(dst, buffer + offset, segment_size);
-
-		dst += segment_size;
-		src += segment_size;
-		size -= segment_size;
-	}
-
-free_buffer:
-	free(buffer);
-
-	return err;
+	return blkcnt;
 }
 
 static ulong mmc_bread(int dev_num, ulong start, lbaint_t blkcnt, void *dst)
 {
-	int err;
-	int i;
-	struct mmc *mmc = find_mmc_device(dev_num);
+	lbaint_t cur, blocks_todo = blkcnt;
 
+	if (blkcnt == 0)
+		return 0;
+
+	struct mmc *mmc = find_mmc_device(dev_num);
 	if (!mmc)
 		return 0;
 
 	if ((start + blkcnt) > mmc->block_dev.lba) {
-		printf("MMC: block number 0x%lx exceeds max(0x%lx)",
+		printf("MMC: block number 0x%lx exceeds max(0x%lx)\n",
 			start + blkcnt, mmc->block_dev.lba);
 		return 0;
 	}
-	/* We always do full block reads from the card */
-	err = mmc_set_blocklen(mmc, mmc->read_bl_len);
 
-	if (err) {
+	if (mmc_set_blocklen(mmc, mmc->read_bl_len))
 		return 0;
-	}
 
-	for (i = start; i < start + blkcnt; i++, dst += mmc->read_bl_len) {
-		err = mmc_read_block(mmc, dst, i);
-
-		if (err) {
-			printf("block read failed: %d\n", err);
-			return i - start;
-		}
-	}
+	do {
+		/*
+		 * The 65535 constraint comes from some hardware has
+		 * only 16 bit width block number counter
+		 */
+		cur = (blocks_todo > 65535) ? 65535 : blocks_todo;
+		if(mmc_read_blocks(mmc, dst, start, cur) != cur)
+			return 0;
+		blocks_todo -= cur;
+		start += cur;
+		dst += cur * mmc->read_bl_len;
+	} while (blocks_todo > 0);
 
 	return blkcnt;
 }
