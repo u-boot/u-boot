@@ -129,9 +129,9 @@
  * Definitions for initial stack pointer and data area
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_IMMR + 0x003f9800)	/* Physical start adress of internal MPC555 writable RAM */
-#define	CONFIG_SYS_INIT_RAM_END	(CONFIG_SYS_IMMR + 0x003fffff)	/* Physical end adress of internal MPC555 used RAM area	*/
+#define	CONFIG_SYS_INIT_RAM_SIZE	(CONFIG_SYS_IMMR + 0x003fffff)	/* Physical end adress of internal MPC555 used RAM area	*/
 #define	CONFIG_SYS_GBL_DATA_SIZE	64			/* Size in bytes reserved for initial global data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	((CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_INIT_RAM_ADDR) - CONFIG_SYS_GBL_DATA_SIZE) /* Offset from the beginning of ram */
+#define CONFIG_SYS_GBL_DATA_OFFSET	((CONFIG_SYS_INIT_RAM_SIZE - CONFIG_SYS_INIT_RAM_ADDR) - CONFIG_SYS_GBL_DATA_SIZE) /* Offset from the beginning of ram */
 #define	CONFIG_SYS_INIT_SP_ADDR	0x013fa000		/* Physical start adress of inital stack */
 
 /*

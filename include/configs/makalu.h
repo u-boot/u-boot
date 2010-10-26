@@ -88,9 +88,9 @@
 #define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_SDRAM_BASE + (32 << 20))	/* 32 MiB */
 #endif /* defined(CONFIG_SYS_INIT_DCACHE_CS) */
 
-#define CONFIG_SYS_INIT_RAM_END        (4 << 10)			/*  4 KiB */
+#define CONFIG_SYS_INIT_RAM_SIZE        (4 << 10)			/*  4 KiB */
 #define CONFIG_SYS_GBL_DATA_SIZE	256		/* num bytes initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - CONFIG_SYS_GBL_DATA_SIZE)
 
 /*
  * If the data cache is being used for the primordial stack and global

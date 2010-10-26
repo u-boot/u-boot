@@ -217,9 +217,9 @@
 #define CONFIG_SYS_INIT_DCACHE_CS	4	/* use cs # 4 for data cache memory    */
 
 #define CONFIG_SYS_INIT_RAM_ADDR	0x40000000  /* inside of SDRAM			   */
-#define CONFIG_SYS_INIT_RAM_END	0x2000	/* End of used area in RAM	       */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x2000	/* Size of used area in RAM	       */
 #define CONFIG_SYS_GBL_DATA_SIZE      128  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET    (CONFIG_SYS_INIT_RAM_SIZE - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
