@@ -144,6 +144,8 @@ Dirk Eibach <eibach@gdsys.de>
 	dlvision        PPC405EP
 	gdppc440etx	PPC440EP/GR
 	intip		PPC460EX
+	io		PPC405EP
+	iocon		PPC405EP
 	neo		PPC405EP
 
 Dave Ellis <DGE@sixnetio.com>
