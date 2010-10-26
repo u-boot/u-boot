@@ -74,7 +74,7 @@ int i2c_post_test (int flags)
 #else
 	unsigned int ret  = 0;
 	int j;
-	const unsigned char i2c_addr_list[] = CONFIG_SYS_POST_I2C_ADDRS;
+	unsigned char i2c_addr_list[] = CONFIG_SYS_POST_I2C_ADDRS;
 
 	/* Start at address 1, address 0 is the general call address */
 	for (i = 1; i < 128; i++) {
