@@ -50,21 +50,21 @@ void tsc2000_spi_init(void)
 	int i;
 
 	/* Configure I/O ports. */
-	gpio->PDCON = (gpio->PDCON & 0xF3FFFF) | 0x040000;
-	gpio->PGCON = (gpio->PGCON & 0x0F3FFF) | 0x008000;
-	gpio->PGCON = (gpio->PGCON & 0x0CFFFF) | 0x020000;
-	gpio->PGCON = (gpio->PGCON & 0x03FFFF) | 0x080000;
+	gpio->pdcon = (gpio->pdcon & 0xF3FFFF) | 0x040000;
+	gpio->pgcon = (gpio->pgcon & 0x0F3FFF) | 0x008000;
+	gpio->pgcon = (gpio->pgcon & 0x0CFFFF) | 0x020000;
+	gpio->pgcon = (gpio->pgcon & 0x03FFFF) | 0x080000;
 
 	CLR_CS_TOUCH();
 
-	spi->ch[0].SPPRE = 0x1F; /* Baud-rate ca. 514kHz */
-	spi->ch[0].SPPIN = 0x01; /* SPI-MOSI holds Level after last bit */
-	spi->ch[0].SPCON = 0x1A; /* Polling, Prescaler, Master, CPOL=0,
+	spi->ch[0].sppre = 0x1F; /* Baud-rate ca. 514kHz */
+	spi->ch[0].sppin = 0x01; /* SPI-MOSI holds Level after last bit */
+	spi->ch[0].spcon = 0x1A; /* Polling, Prescaler, Master, CPOL=0,
 				    CPHA=1 */
 
 	/* Dummy byte ensures clock to be low. */
 	for (i = 0; i < 10; i++) {
-		spi->ch[0].SPTDAT = 0xFF;
+		spi->ch[0].sptdat = 0xFF;
 	}
 	spi_wait_transmit_done();
 }
@@ -74,7 +74,8 @@ void spi_wait_transmit_done(void)
 {
 	struct s3c24x0_spi * const spi = s3c24x0_get_base_spi();
 
-	while (!(spi->ch[0].SPSTA & 0x01)); /* wait until transfer is done */
+	while (!(spi->ch[0].spsta & 0x01)) /* wait until transfer is done */
+		;
 }
 
 
@@ -85,13 +86,13 @@ void tsc2000_write(unsigned short reg, unsigned short data)
 
 	SET_CS_TOUCH();
 	command = reg;
-	spi->ch[0].SPTDAT = (command & 0xFF00) >> 8;
+	spi->ch[0].sptdat = (command & 0xFF00) >> 8;
 	spi_wait_transmit_done();
-	spi->ch[0].SPTDAT = (command & 0x00FF);
+	spi->ch[0].sptdat = (command & 0x00FF);
 	spi_wait_transmit_done();
-	spi->ch[0].SPTDAT = (data & 0xFF00) >> 8;
+	spi->ch[0].sptdat = (data & 0xFF00) >> 8;
 	spi_wait_transmit_done();
-	spi->ch[0].SPTDAT = (data & 0x00FF);
+	spi->ch[0].sptdat = (data & 0x00FF);
 	spi_wait_transmit_done();
 
 	CLR_CS_TOUCH();
@@ -106,19 +107,19 @@ unsigned short tsc2000_read (unsigned short reg)
 	SET_CS_TOUCH();
 	command = 0x8000 | reg;
 
-	spi->ch[0].SPTDAT = (command & 0xFF00) >> 8;
+	spi->ch[0].sptdat = (command & 0xFF00) >> 8;
 	spi_wait_transmit_done();
-	spi->ch[0].SPTDAT = (command & 0x00FF);
+	spi->ch[0].sptdat = (command & 0x00FF);
 	spi_wait_transmit_done();
 
-	spi->ch[0].SPTDAT = 0xFF;
+	spi->ch[0].sptdat = 0xFF;
 	spi_wait_transmit_done();
-	data = spi->ch[0].SPRDAT;
-	spi->ch[0].SPTDAT = 0xFF;
+	data = spi->ch[0].sprdat;
+	spi->ch[0].sptdat = 0xFF;
 	spi_wait_transmit_done();
 
 	CLR_CS_TOUCH();
-	return (spi->ch[0].SPRDAT & 0x0FF) | (data << 8);
+	return (spi->ch[0].sprdat & 0x0FF) | (data << 8);
 }
 
 

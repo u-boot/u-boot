@@ -52,30 +52,30 @@ int board_init (void)
 
 	/* memory and cpu-speed are setup before relocation */
 	/* change the clock to be 50 MHz 1:1:1 */
-	clk_power->MPLLCON = 0x5c042;
-	clk_power->CLKDIVN = 0;
+	clk_power->mpllcon = 0x5c042;
+	clk_power->clkdivn = 0;
 	/* set up the I/O ports */
-	gpio->PACON = 0x3ffff;
-	gpio->PBCON = 0xaaaaaaaa;
-	gpio->PBUP = 0xffff;
-	gpio->PECON = 0x0;
-	gpio->PEUP = 0x0;
+	gpio->pacon = 0x3ffff;
+	gpio->pbcon = 0xaaaaaaaa;
+	gpio->pbup = 0xffff;
+	gpio->pecon = 0x0;
+	gpio->peup = 0x0;
 #ifdef CONFIG_HWFLOW
 	/*CTS[0] RTS[0] INPUT INPUT TXD[0] INPUT RXD[0] */
 	/*   10,   10,   00,   00,    10,   00,    10 */
-	gpio->PFCON=0xa22;
+	gpio->pfcon = 0xa22;
 	/* Disable pull-up on Rx, Tx, CTS and RTS pins */
-	gpio->PFUP=0x35;
+	gpio->pfup = 0x35;
 #else
 	/*INPUT INPUT INPUT INPUT TXD[0] INPUT RXD[0] */
 	/*   00,   00,   00,   00,    10,   00,    10 */
-	gpio->PFCON = 0x22;
+	gpio->pfcon = 0x22;
 	/* Disable pull-up on Rx and Tx pins */
-	gpio->PFUP = 0x5;
+	gpio->pfup = 0x5;
 #endif	/* CONFIG_HWFLOW */
-	gpio->PGCON = 0x0;
-	gpio->PGUP = 0x0;
-	gpio->OPENCR = 0x0;
+	gpio->pgcon = 0x0;
+	gpio->pgup = 0x0;
+	gpio->opencr = 0x0;
 
 	/* arch number of SAMSUNG-Board to MACH_TYPE_SMDK2400 */
 	gd->bd->bi_arch_number = MACH_TYPE_SMDK2400;

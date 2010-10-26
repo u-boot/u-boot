@@ -29,45 +29,49 @@
 #define _TSC2000_H_
 
 /* temperature channel multiplexer definitions */
-#define CON_MUX0		(gpio->PCCON = (gpio->PCCON & 0x0FFFFFCFF) | 0x00000100)
-#define CLR_MUX0		(gpio->PCDAT &= 0x0FFEF)
-#define SET_MUX0		(gpio->PCDAT |= 0x00010)
+#define CON_MUX0	(gpio->pccon = (gpio->pccon & 0x0FFFFFCFF) | 0x00000100)
+#define CLR_MUX0	(gpio->pcdat &= 0x0FFEF)
+#define SET_MUX0	(gpio->pcdat |= 0x00010)
 
-#define CON_MUX1		(gpio->PCCON = (gpio->PCCON & 0x0FFFFF3FF) | 0x00000400)
-#define CLR_MUX1		(gpio->PCDAT &= 0x0FFDF)
-#define SET_MUX1		(gpio->PCDAT |= 0x00020)
+#define CON_MUX1	(gpio->pccon = (gpio->pccon & 0x0FFFFF3FF) | 0x00000400)
+#define CLR_MUX1	(gpio->pcdat &= 0x0FFDF)
+#define SET_MUX1	(gpio->pcdat |= 0x00020)
 
-#define CON_MUX1_ENABLE		(gpio->PCCON = (gpio->PCCON & 0x0FFFFCFFF) | 0x00001000)
-#define CLR_MUX1_ENABLE		(gpio->PCDAT |= 0x00040)
-#define SET_MUX1_ENABLE		(gpio->PCDAT &= 0x0FFBF)
+#define CON_MUX1_ENABLE	(gpio->pccon = (gpio->pccon & 0x0FFFFCFFF) | 0x00001000)
+#define CLR_MUX1_ENABLE	(gpio->pcdat |= 0x00040)
+#define SET_MUX1_ENABLE	(gpio->pcdat &= 0x0FFBF)
 
-#define CON_MUX2_ENABLE		(gpio->PCCON = (gpio->PCCON & 0x0FFFF3FFF) | 0x00004000)
-#define CLR_MUX2_ENABLE		(gpio->PCDAT |= 0x00080)
-#define SET_MUX2_ENABLE		(gpio->PCDAT &= 0x0FF7F)
+#define CON_MUX2_ENABLE	(gpio->pccon = (gpio->pccon & 0x0FFFF3FFF) | 0x00004000)
+#define CLR_MUX2_ENABLE	(gpio->pcdat |= 0x00080)
+#define SET_MUX2_ENABLE	(gpio->pcdat &= 0x0FF7F)
 
-#define CON_MUX3_ENABLE		(gpio->PCCON = (gpio->PCCON & 0x0FFFCFFFF) | 0x00010000)
-#define CLR_MUX3_ENABLE		(gpio->PCDAT |= 0x00100)
-#define SET_MUX3_ENABLE		(gpio->PCDAT &= 0x0FEFF)
+#define CON_MUX3_ENABLE	(gpio->pccon = (gpio->pccon & 0x0FFFCFFFF) | 0x00010000)
+#define CLR_MUX3_ENABLE	(gpio->pcdat |= 0x00100)
+#define SET_MUX3_ENABLE	(gpio->pcdat &= 0x0FEFF)
 
-#define CON_MUX4_ENABLE		(gpio->PCCON = (gpio->PCCON & 0x0FFF3FFFF) | 0x00040000)
-#define CLR_MUX4_ENABLE		(gpio->PCDAT |= 0x00200)
-#define SET_MUX4_ENABLE		(gpio->PCDAT &= 0x0FDFF)
+#define CON_MUX4_ENABLE	(gpio->pccon = (gpio->pccon & 0x0FFF3FFFF) | 0x00040000)
+#define CLR_MUX4_ENABLE	(gpio->pcdat |= 0x00200)
+#define SET_MUX4_ENABLE	(gpio->pcdat &= 0x0FDFF)
 
-#define CON_SEL_TEMP_V_0	(gpio->PCCON = (gpio->PCCON & 0x0FFCFFFFF) | 0x00100000)
-#define CLR_SEL_TEMP_V_0	(gpio->PCDAT &= 0x0FBFF)
-#define SET_SEL_TEMP_V_0	(gpio->PCDAT |= 0x00400)
+#define CON_SEL_TEMP_V_0	(gpio->pccon = (gpio->pccon & 0x0FFCFFFFF) | \
+							0x00100000)
+#define CLR_SEL_TEMP_V_0	(gpio->pcdat &= 0x0FBFF)
+#define SET_SEL_TEMP_V_0	(gpio->pcdat |= 0x00400)
 
-#define CON_SEL_TEMP_V_1	(gpio->PCCON = (gpio->PCCON & 0x0FF3FFFFF) | 0x00400000)
-#define CLR_SEL_TEMP_V_1	(gpio->PCDAT &= 0x0F7FF)
-#define SET_SEL_TEMP_V_1	(gpio->PCDAT |= 0x00800)
+#define CON_SEL_TEMP_V_1	(gpio->pccon = (gpio->pccon & 0x0FF3FFFFF) | \
+		0x00400000)
+#define CLR_SEL_TEMP_V_1	(gpio->pcdat &= 0x0F7FF)
+#define SET_SEL_TEMP_V_1	(gpio->pcdat |= 0x00800)
 
-#define CON_SEL_TEMP_V_2	(gpio->PCCON = (gpio->PCCON & 0x0FCFFFFFF) | 0x01000000)
-#define CLR_SEL_TEMP_V_2	(gpio->PCDAT &= 0x0EFFF)
-#define SET_SEL_TEMP_V_2	(gpio->PCDAT |= 0x01000)
+#define CON_SEL_TEMP_V_2	(gpio->pccon = (gpio->pccon & 0x0FCFFFFFF) | \
+		0x01000000)
+#define CLR_SEL_TEMP_V_2	(gpio->pcdat &= 0x0EFFF)
+#define SET_SEL_TEMP_V_2	(gpio->pcdat |= 0x01000)
 
-#define CON_SEL_TEMP_V_3	(gpio->PCCON = (gpio->PCCON & 0x0F3FFFFFF) | 0x04000000)
-#define CLR_SEL_TEMP_V_3	(gpio->PCDAT &= 0x0DFFF)
-#define SET_SEL_TEMP_V_3	(gpio->PCDAT |= 0x02000)
+#define CON_SEL_TEMP_V_3	(gpio->pccon = (gpio->pccon & 0x0F3FFFFFF) | \
+		0x04000000)
+#define CLR_SEL_TEMP_V_3	(gpio->pcdat &= 0x0DFFF)
+#define SET_SEL_TEMP_V_3	(gpio->pcdat |= 0x02000)
 
 /* TSC2000 register definition */
 #define TSC2000_REG_X		((0 << 11) | (0 << 5))
@@ -130,7 +134,7 @@ static inline void SET_CS_TOUCH(void)
 {
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
-	gpio->PDDAT &= 0x5FF;
+	gpio->pddat &= 0x5FF;
 }
 
 
@@ -138,7 +142,7 @@ static inline void CLR_CS_TOUCH(void)
 {
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
-	gpio->PDDAT |= 0x200;
+	gpio->pddat |= 0x200;
 }
 
 #endif	/* _TSC2000_H_ */
