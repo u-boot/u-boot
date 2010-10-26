@@ -329,7 +329,7 @@ int i2c_probe (uchar chip)
 
 	while (1) {
 		status = wait_for_pin();
-		if (status == 0) {
+		if (status == 0 || status & I2C_STAT_AL) {
 			res = 1;
 			goto probe_exit;
 		}
