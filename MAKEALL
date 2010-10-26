@@ -599,9 +599,7 @@ LIST_avr32="$(boards_by_arch avr32)"
 ## Blackfin Systems
 #########################################################################
 
-LIST_blackfin="$(boards_by_arch blackfin)
-	bf527-ezkit-v2
-"
+LIST_blackfin="$(boards_by_arch blackfin)"
 
 #########################################################################
 ## SH Systems
