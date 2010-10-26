@@ -24,6 +24,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <common.h>
 #include <config.h>
 
@@ -414,7 +415,7 @@ copy_loop:
 stack_setup:
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
 	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN	/* malloc area              */
-	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE /* bdinfo                 */
+	sub	r0, r0, #GENERATED_GBL_DATA_SIZE /* bdinfo                 */
 #ifdef CONFIG_USE_IRQ
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif
@@ -529,7 +530,7 @@ cpu_init_crit:
 	sub	r2, r2, #(CONFIG_STACKSIZE)
 	sub	r2, r2, #(CONFIG_SYS_MALLOC_LEN)
 	/* set base 2 words into abort stack */
-	sub	r2, r2, #(CONFIG_SYS_GBL_DATA_SIZE+8)
+	sub	r2, r2, #(GENERATED_GBL_DATA_SIZE+8)
 #else
 	ldr	r2, IRQ_STACK_START_IN
 #endif
@@ -569,7 +570,7 @@ cpu_init_crit:
 	sub	r13, r13, #(CONFIG_STACKSIZE)
 	sub	r13, r13, #(CONFIG_SYS_MALLOC_LEN)
 	/* reserve a couple spots in abort stack */
-	sub	r13, r13, #(CONFIG_SYS_GBL_DATA_SIZE+8)
+	sub	r13, r13, #(GENERATED_GBL_DATA_SIZE+8)
 #else
 	ldr	r13, IRQ_STACK_START_IN		@ setup our mode stack
 #endif

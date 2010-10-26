@@ -29,6 +29,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <version.h>
 
@@ -357,7 +358,7 @@ copy_loop:				@ copy 32 bytes at a time
 stack_setup:
 	ldr	r0, _TEXT_BASE		@ upper 128 KiB: relocated uboot
 	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN @ malloc area
-	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE @ bdinfo
+	sub	r0, r0, #GENERATED_GBL_DATA_SIZE @ bdinfo
 #ifdef CONFIG_USE_IRQ
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ + CONFIG_STACKSIZE_FIQ)
 #endif
@@ -464,7 +465,7 @@ cpu_init_crit:
 #if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	ldr	r2, _armboot_start
 	sub	r2, r2, #(CONFIG_SYS_MALLOC_LEN)
-	sub	r2, r2, #(CONFIG_SYS_GBL_DATA_SIZE + 8)	@ set base 2 words into abort
+	sub	r2, r2, #(GENERATED_GBL_DATA_SIZE + 8)	@ set base 2 words into abort
 #else
 	ldr	r2, IRQ_STACK_START_IN		@ set base 2 words into abort
 						@ stack
@@ -507,7 +508,7 @@ cpu_init_crit:
 #if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	ldr	r13, _armboot_start		@ setup our mode stack (enter
 	sub	r13, r13, #(CONFIG_SYS_MALLOC_LEN)	@ move past malloc pool
-	sub	r13, r13, #(CONFIG_SYS_GBL_DATA_SIZE + 8) @ move to reserved a couple
+	sub	r13, r13, #(GENERATED_GBL_DATA_SIZE + 8) @ move to reserved a couple
 #else
 	ldr	r13, IRQ_STACK_START_IN		@ setup our mode stack (enter
 						@ in banked mode)
@@ -535,7 +536,7 @@ cpu_init_crit:
 #if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	ldr	r0, _armboot_start		@ get data regions start
 	sub	r0, r0, #(CONFIG_SYS_MALLOC_LEN)	@ move past malloc pool
-	sub	r0, r0, #(CONFIG_SYS_GBL_DATA_SIZE + 8)	@ move past gbl and a couple
+	sub	r0, r0, #(GENERATED_GBL_DATA_SIZE + 8)	@ move past gbl and a couple
 #else
 	ldr	r0, IRQ_STACK_START_IN		@ get data regions start
 						@ spots for abort stack

@@ -25,6 +25,7 @@
 /*
  *  U-Boot - Startup Code for MPC8220 CPUs
  */
+#include <asm-offsets.h>
 #include <config.h>
 #include <mpc8220.h>
 #include <timestamp.h>

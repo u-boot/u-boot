@@ -131,7 +131,6 @@
  */
 #define CONFIG_SYS_MALLOC_LEN	(1024 * 1024) /* 1MiB for malloc() */
 /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
  * Other required minimal configurations

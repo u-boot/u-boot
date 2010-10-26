@@ -244,7 +244,7 @@ void board_init_f(ulong bootflag)
 	printf("CONFIG_SYS_PROM_OFFSET:        0x%lx (%d)\n", CONFIG_SYS_PROM_OFFSET,
 	       CONFIG_SYS_PROM_SIZE);
 	printf("CONFIG_SYS_GBL_DATA_OFFSET:    0x%lx (%d)\n", CONFIG_SYS_GBL_DATA_OFFSET,
-	       CONFIG_SYS_GBL_DATA_SIZE);
+	       GENERATED_GBL_DATA_SIZE);
 #endif
 
 #ifdef CONFIG_POST

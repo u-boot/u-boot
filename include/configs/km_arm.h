@@ -108,7 +108,6 @@
 #define CONFIG_KM_CONSOLE_TTY	"ttyS0"
 
 /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
  * Other required minimal configurations
@@ -183,5 +182,5 @@ int get_scl (void);
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_INIT_SP_ADDR		(0x00000000 + 0x1000 - /* Fix this */ \
-					CONFIG_SYS_GBL_DATA_SIZE)
+					GENERATED_GBL_DATA_SIZE)
 #endif /* _CONFIG_KM_ARM_H */

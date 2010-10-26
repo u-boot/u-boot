@@ -192,7 +192,7 @@ int do_bdinfo(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 	printf("CONFIG_SYS_PROM_OFFSET        = 0x%lx (%d)\n", CONFIG_SYS_PROM_OFFSET,
 	       CONFIG_SYS_PROM_SIZE);
 	printf("CONFIG_SYS_GBL_DATA_OFFSET    = 0x%lx (%d)\n", CONFIG_SYS_GBL_DATA_OFFSET,
-	       CONFIG_SYS_GBL_DATA_SIZE);
+	       GENERATED_GBL_DATA_SIZE);
 
 #if defined(CONFIG_CMD_NET)
 	print_eth(0);

@@ -198,8 +198,7 @@ protect on ${u-boot_startaddr} ${u-boot_endaddr}"
 #define CONFIG_SYS_INIT_RAM_ADDR     0x40000000
 #define CONFIG_SYS_INIT_RAM_SIZE      0x1000
 #define CONFIG_SYS_INIT_DATA_OFFSET  (CONFIG_SYS_INIT_RAM_SIZE - CONFIG_SYS_INIT_DATA_SIZE)
-#define CONFIG_SYS_GBL_DATA_SIZE	128
-#define CONFIG_SYS_GBL_DATA_OFFSET  (CONFIG_SYS_INIT_RAM_SIZE - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET  (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*--------------------------------------------------------------------
  * NS16550 Configuration

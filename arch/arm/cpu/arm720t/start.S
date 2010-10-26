@@ -23,7 +23,7 @@
  * MA 02111-1307 USA
  */
 
-
+#include <asm-offsets.h>
 #include <config.h>
 #include <version.h>
 #include <asm/hardware.h>
@@ -327,7 +327,7 @@ copy_loop:
 stack_setup:
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
 	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN /* malloc area			    */
-	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE /* bdinfo			    */
+	sub	r0, r0, #GENERATED_GBL_DATA_SIZE /* bdinfo			    */
 #ifdef CONFIG_USE_IRQ
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif
@@ -609,7 +609,7 @@ lock_loop:
 #if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	ldr	r2, _armboot_start
 	sub	r2, r2, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
-	sub	r2, r2, #(CONFIG_SYS_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
+	sub	r2, r2, #(GENERATED_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
 #else
 	ldr	r2, IRQ_STACK_START_IN
 #endif
@@ -646,7 +646,7 @@ lock_loop:
 #if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	ldr	r13, _armboot_start		@ setup our mode stack
 	sub	r13, r13, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
-	sub	r13, r13, #(CONFIG_SYS_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
+	sub	r13, r13, #(GENERATED_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
 #else
 	ldr	r13, IRQ_STACK_START_IN		@ setup our mode stack
 #endif

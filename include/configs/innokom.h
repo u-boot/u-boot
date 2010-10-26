@@ -110,7 +110,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(256*1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128		/* size in bytes reserved for initial data */
 
 #define CONFIG_SYS_LONGHELP				/* undef to save memory         */
 #define CONFIG_SYS_PROMPT		"uboot> "	/* Monitor Command Prompt       */
@@ -195,7 +194,7 @@
 #define CONFIG_SYS_FLASH_BASE          PHYS_FLASH_1
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define	CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_GBL_DATA_SIZE + PHYS_SDRAM_1)
+#define	CONFIG_SYS_INIT_SP_ADDR		(GENERATED_GBL_DATA_SIZE + PHYS_SDRAM_1)
 
 /*
  * JFFS2 partitions

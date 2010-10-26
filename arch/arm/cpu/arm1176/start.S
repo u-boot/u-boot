@@ -30,6 +30,7 @@
  * Base codes by scsuh (sc.suh)
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <version.h>
 #ifdef CONFIG_ENABLE_MMU
@@ -546,7 +547,7 @@ skip_hw_init:
 stack_setup:
 	ldr	r0, =CONFIG_SYS_UBOOT_BASE	/* base of copy in DRAM	    */
 	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN	/* malloc area                      */
-	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE /* bdinfo                        */
+	sub	r0, r0, #GENERATED_GBL_DATA_SIZE /* bdinfo                        */
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
 	bic	sp, sp, #7		/* 8-byte alignment for ABI compliance */
 
@@ -663,7 +664,7 @@ phy_last_jump:
 	ldr	r2, _armboot_start
 	sub	r2, r2, #(CONFIG_SYS_MALLOC_LEN)
 	/* set base 2 words into abort stack */
-	sub	r2, r2, #(CONFIG_SYS_GBL_DATA_SIZE+8)
+	sub	r2, r2, #(GENERATED_GBL_DATA_SIZE+8)
 #else
 	ldr	r2, IRQ_STACK_START_IN
 #endif
@@ -687,7 +688,7 @@ phy_last_jump:
 	/* move past malloc pool */
 	sub	r13, r13, #(CONFIG_SYS_MALLOC_LEN)
 	/* move to reserved a couple spots for abort stack */
-	sub	r13, r13, #(CONFIG_SYS_GBL_DATA_SIZE + 8)
+	sub	r13, r13, #(GENERATED_GBL_DATA_SIZE + 8)
 #else
 	ldr	r13, IRQ_STACK_START_IN		@ setup our mode stack
 #endif
@@ -721,7 +722,7 @@ phy_last_jump:
 	/* move past malloc pool */
 	sub	r0, r0, #(CONFIG_SYS_MALLOC_LEN)
 	/* move past gbl and a couple spots for abort stack */
-	sub	r0, r0, #(CONFIG_SYS_GBL_DATA_SIZE + 8)
+	sub	r0, r0, #(GENERATED_GBL_DATA_SIZE + 8)
 #else
 	ldr	r13, IRQ_STACK_START_IN		@ setup our mode stack
 #endif

@@ -63,6 +63,7 @@
  *  board_init will change CS0 to be positioned at the correct
  *  address and (s)dram will be positioned at address 0
  */
+#include <asm-offsets.h>
 #include <config.h>
 #include <asm/ppc4xx.h>
 #include <timestamp.h>
@@ -1399,7 +1400,7 @@ relocate_code:
 
 	/* Flush initial global data range */
 	mr	r3, r4
-	addi	r4, r4, CONFIG_SYS_GBL_DATA_SIZE@l
+	addi	r4, r4, GENERATED_GBL_DATA_SIZE@l
 	bl	flush_dcache_range
 
 #if defined(CONFIG_SYS_INIT_DCACHE_CS)

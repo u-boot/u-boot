@@ -481,8 +481,7 @@
 
 */
 /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE     64
-#define CONFIG_SYS_GBL_DATA_OFFSET   (CONFIG_SYS_INIT_RAM_SIZE - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET   (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 /* Initial value of the stack pointern in internal SRAM */
 #define CONFIG_SYS_INIT_SP_OFFSET    CONFIG_SYS_GBL_DATA_OFFSET
 

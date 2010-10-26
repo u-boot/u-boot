@@ -24,6 +24,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <timestamp.h>
 #include "version.h"

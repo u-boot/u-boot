@@ -28,6 +28,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <version.h>
 .globl _start
@@ -380,7 +381,7 @@ stack_setup:
 	sub	sp, r0, #128		/* leave 32 words for abort-stack   */
 #else
 	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN /* malloc area			    */
-	sub	r0, r0, #CONFIG_SYS_GBL_DATA_SIZE /* bdinfo			    */
+	sub	r0, r0, #GENERATED_GBL_DATA_SIZE /* bdinfo			    */
 #ifdef CONFIG_USE_IRQ
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif
@@ -510,7 +511,7 @@ cpu_init_crit:
 #else
 	adr	r2, _start
 	sub	r2, r2, #(CONFIG_SYS_MALLOC_LEN)
-	sub	r2, r2, #(CONFIG_SYS_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
+	sub	r2, r2, #(GENERATED_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
 #endif
 	ldmia	r2, {r2 - r3}			@ get values for "aborted" pc and cpsr (into parm regs)
 	add	r0, sp, #S_FRAME_SIZE		@ grab pointer to old stack
@@ -547,7 +548,7 @@ cpu_init_crit:
 #else
 	adr	r13, _start			@ setup our mode stack (enter in banked mode)
 	sub	r13, r13, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)	@ move past malloc pool
-	sub	r13, r13, #(CONFIG_SYS_GBL_DATA_SIZE+8) @ move to reserved a couple spots for abort stack
+	sub	r13, r13, #(GENERATED_GBL_DATA_SIZE+8) @ move to reserved a couple spots for abort stack
 #endif
 
 	str	lr, [r13]			@ save caller lr in position 0 of saved stack
@@ -569,7 +570,7 @@ cpu_init_crit:
 #else
 	ldr	r0, _armboot_start		@ get data regions start
 	sub	r0, r0, #(CONFIG_SYS_MALLOC_LEN)	@ move past malloc pool
-	sub	r0, r0, #(CONFIG_SYS_GBL_DATA_SIZE+8)	@ move past gbl and a couple spots for abort stack
+	sub	r0, r0, #(GENERATED_GBL_DATA_SIZE+8)	@ move past gbl and a couple spots for abort stack
 #endif
 	str	lr, [r0]			@ save caller lr in position 0 of saved stack
 	mrs	r0, spsr			@ get the spsr

@@ -30,6 +30,7 @@
  *  board_init lies at a quite high address and when the cpu has
  *  jumped there, everything is ok.
  */
+#include <asm-offsets.h>
 #include <config.h>
 #include <mpc86xx.h>
 #include <timestamp.h>

@@ -29,6 +29,7 @@
  *  U-Boot - Startup Code for MPC512x based Embedded Boards
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <timestamp.h>
 #include <version.h>

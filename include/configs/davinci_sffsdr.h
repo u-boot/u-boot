@@ -42,7 +42,6 @@
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	20
 /* Memory Info */
 #define CONFIG_SYS_MALLOC_LEN		(0x10000 + 256*1024)	/* malloc() len */
-#define CONFIG_SYS_GBL_DATA_SIZE	128		/* reserved for initial data */
 #define CONFIG_SYS_MEMTEST_START	0x80000000	/* memtest start address */
 #define CONFIG_SYS_MEMTEST_END		0x81000000	/* 16MB RAM test */
 #define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */

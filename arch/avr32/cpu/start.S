@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
+#include <asm-offsets.h>
 #include <config.h>
 #include <asm/ptrace.h>
 #include <asm/sysreg.h>

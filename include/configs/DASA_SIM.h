@@ -116,8 +116,7 @@
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	0x00df0000 /* inside of SDRAM			*/
 #define CONFIG_SYS_INIT_RAM_SIZE	0x0f00	/* Size of used area in RAM	       */
-#define CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
