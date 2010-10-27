@@ -24,6 +24,8 @@
  * MA 02111-1307 USA
  */
 
+/* #define DEBUG */
+
 #include <common.h>
 #include <command.h>
 #include <net.h>
@@ -32,8 +34,6 @@
 #include <asm/processor.h>
 #include <ambapp.h>
 #include <asm/leon.h>
-
-/* #define DEBUG */
 
 #include "greth.h"
 
@@ -142,9 +142,8 @@ int greth_init(struct eth_device *dev, bd_t * bis)
 
 	greth_priv *greth = dev->priv;
 	greth_regs *regs = greth->regs;
-#ifdef DEBUG
-	printf("greth_init\n");
-#endif
+
+	debug("greth_init\n");
 
 	if (!greth->rxbd_base) {
 
@@ -199,9 +198,7 @@ int greth_init(struct eth_device *dev, bd_t * bis)
 
 	/* Enable Transmitter, GRETH will now scan descriptors for packets
 	 * to transmitt */
-#ifdef DEBUG
-	printf("greth_init: enabling receiver\n");
-#endif
+	debug("greth_init: enabling receiver\n");
 	GRETH_REGORIN(&regs->control, GRETH_RXEN);
 
 	return 0;
@@ -306,10 +303,8 @@ int greth_init_phy(greth_priv * dev, bd_t * bis)
 
 	}
       auto_neg_done:
-#ifdef DEBUG
-	printf("%s GRETH Ethermac at [0x%x] irq %d. Running \
+	debug("%s GRETH Ethermac at [0x%x] irq %d. Running \
 		%d Mbps %s duplex\n", dev->gbit_mac ? "10/100/1000" : "10/100", (unsigned int)(regs), (unsigned int)(dev->irq), dev->gb ? 1000 : (dev->sp ? 100 : 10), dev->fd ? "full" : "half");
-#endif
 	/* Read out PHY info if extended registers are available */
 	if (tmp & 1) {
 		tmp1 = read_mii(2, regs);
@@ -318,10 +313,8 @@ int greth_init_phy(greth_priv * dev, bd_t * bis)
 		tmp = tmp2 & 0xF;
 
 		tmp2 = (tmp2 >> 4) & 0x3F;
-#ifdef DEBUG
-		printf("PHY: Vendor %x   Device %x    Revision %d\n", tmp1,
+		debug("PHY: Vendor %x   Device %x    Revision %d\n", tmp1,
 		       tmp2, tmp);
-#endif
 	} else {
 		printf("PHY info not available\n");
 	}
@@ -338,9 +331,9 @@ void greth_halt(struct eth_device *dev)
 	greth_priv *greth;
 	greth_regs *regs;
 	int i;
-#ifdef DEBUG
-	printf("greth_halt\n");
-#endif
+
+	debug("greth_halt\n");
+
 	if (!dev || !dev->priv)
 		return;
 
@@ -376,9 +369,9 @@ int greth_send(struct eth_device *dev, volatile void *eth_data, int data_length)
 	greth_bd *txbd;
 	void *txbuf;
 	unsigned int status;
-#ifdef DEBUG
-	printf("greth_send\n");
-#endif
+
+	debug("greth_send\n");
+
 	/* send data, wait for data to be sent, then return */
 	if (((unsigned int)eth_data & (GRETH_BUF_ALIGN - 1))
 	    && !greth->gbit_mac) {
@@ -387,9 +380,6 @@ int greth_send(struct eth_device *dev, volatile void *eth_data, int data_length)
 		 */
 		if (!greth->txbuf) {
 			greth->txbuf = malloc(GRETH_RXBUF_SIZE);
-#ifdef DEBUG
-			printf("GRETH: allocated aligned tx-buf\n");
-#endif
 		}
 
 		txbuf = greth->txbuf;
@@ -455,9 +445,7 @@ int greth_recv(struct eth_device *dev)
 	unsigned char *d;
 	int enable = 0;
 	int i;
-#ifdef DEBUG
-/*	printf("greth_recv\n"); */
-#endif
+
 	/* Receive One packet only, but clear as many error packets as there are
 	 * available.
 	 */
@@ -474,10 +462,9 @@ int greth_recv(struct eth_device *dev)
 		if (status & GRETH_BD_EN) {
 			goto done;
 		}
-#ifdef DEBUG
-		printf("greth_recv: packet 0x%lx, 0x%lx, len: %d\n",
+
+		debug("greth_recv: packet 0x%lx, 0x%lx, len: %d\n",
 		       (unsigned int)rxbd, status, status & GRETH_BD_LEN);
-#endif
 
 		/* Check status for errors.
 		 */
@@ -512,12 +499,12 @@ int greth_recv(struct eth_device *dev)
 			/* Process the incoming packet. */
 			len = status & GRETH_BD_LEN;
 			d = (char *)rxbd->addr;
-#ifdef DEBUG
-			printf
+
+			debug
 			    ("greth_recv: new packet, length: %d. data: %x %x %x %x %x %x %x %x\n",
 			     len, d[0], d[1], d[2], d[3], d[4], d[5], d[6],
 			     d[7]);
-#endif
+
 			/* flush all data cache to make sure we're not reading old packet data */
 			sparc_dcache_flush_all();
 
@@ -565,10 +552,9 @@ void greth_set_hwaddr(greth_priv * greth, unsigned char *mac)
 	greth->regs->esa_msb = (mac[0] << 8) | mac[1];
 	greth->regs->esa_lsb =
 	    (mac[2] << 24) | (mac[3] << 16) | (mac[4] << 8) | mac[5];
-#ifdef DEBUG
-	printf("GRETH: New MAC address: %02x:%02x:%02x:%02x:%02x:%02x\n",
+
+	debug("GRETH: New MAC address: %02x:%02x:%02x:%02x:%02x:%02x\n",
 	       mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-#endif
 }
 
 int greth_initialize(bd_t * bis)
@@ -579,9 +565,9 @@ int greth_initialize(bd_t * bis)
 	int i;
 	char *addr_str, *end;
 	unsigned char addr[6];
-#ifdef DEBUG
-	printf("Scanning for GRETH\n");
-#endif
+
+	debug("Scanning for GRETH\n");
+
 	/* Find Device & IRQ via AMBA Plug&Play information */
 	if (ambapp_apb_first(VENDOR_GAISLER, GAISLER_ETHMAC, &apbdev) != 1) {
 		return -1;	/* GRETH not found */
@@ -594,9 +580,7 @@ int greth_initialize(bd_t * bis)
 
 	greth->regs = (greth_regs *) apbdev.address;
 	greth->irq = apbdev.irq;
-#ifdef DEBUG
-	printf("Found GRETH at 0x%lx, irq %d\n", greth->regs, greth->irq);
-#endif
+	debug("Found GRETH at 0x%lx, irq %d\n", greth->regs, greth->irq);
 	dev->priv = (void *)greth;
 	dev->iobase = (unsigned int)greth->regs;
 	dev->init = greth_init;
