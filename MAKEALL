@@ -56,7 +56,7 @@ LONG_OPTS="arch:,cpu:,vendor:,soc:"
 
 # Option processing based on util-linux-2.13/getopt-parse.bash
 
-# Note that we use `"$@"' to let each command-line parameter expand to a 
+# Note that we use `"$@"' to let each command-line parameter expand to a
 # separate word. The quotes around `$@' are essential!
 # We need TEMP as the `eval set --' would nuke the return value of
 # getopt.

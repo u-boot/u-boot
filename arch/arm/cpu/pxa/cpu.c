@@ -312,7 +312,7 @@ void pxa_wakeup(void)
 int arch_cpu_init(void)
 {
 	pxa_gpio_setup();
-//	pxa_wait_ticks(0x8000);
+/*	pxa_wait_ticks(0x8000); */
 	pxa_wakeup();
 	pxa_interrupt_setup();
 	pxa_clock_setup();

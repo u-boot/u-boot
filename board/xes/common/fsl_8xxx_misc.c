@@ -52,11 +52,9 @@ uint get_board_derivative(void)
 #endif
 
        /*
-        * The top 4 lines of the local bus address are pulled low/high and
-        * can be read to determine the least significant digit of a board's
-        * model number.
-        */
+	* The top 4 lines of the local bus address are pulled low/high and
+	* can be read to determine the least significant digit of a board's
+	* model number.
+	*/
        return gur->gpporcr >> 28;
 }
-
-

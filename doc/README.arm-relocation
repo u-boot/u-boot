@@ -93,7 +93,7 @@ Relocation with NAND_SPL (example for the tx25):
   and start with code execution on this address.
 
 - The First page contains u-boot code from u-boot:nand_spl/nand_boot_fsl_nfc.c
-  which inits the dram, cpu registers, reloacte itself to CONFIG_SYS_TEXT_BASE  and loads
+  which inits the dram, cpu registers, reloacte itself to CONFIG_SYS_TEXT_BASE	and loads
   the "real" u-boot to CONFIG_SYS_NAND_U_BOOT_DST and starts execution
   @CONFIG_SYS_NAND_U_BOOT_START
 
@@ -162,7 +162,7 @@ e) load new symbol table:
 
 (gdb) add-symbol-file u-boot 0x8ff08000
 add symbol table from file "u-boot" at
-        .text_addr = 0x8ff08000
+	.text_addr = 0x8ff08000
 (y or n) y
 Reading symbols from /home/hs/celf/u-boot/u-boot...done.
 (gdb) c
@@ -170,12 +170,12 @@ Continuing.
 ^C
 Program received signal SIGSTOP, Stopped (signal).
 0x8ff17f18 in serial_getc () at serial_mxc.c:192
-192             while (__REG(UART_PHYS + UTS) & UTS_RXEMPTY);
+192		while (__REG(UART_PHYS + UTS) & UTS_RXEMPTY);
 (gdb)
 
 add-symbol-file u-boot 0x8ff08000
-                       ^^^^^^^^^^
-                       get this address from u-boot debug printfs
+		       ^^^^^^^^^^
+		       get this address from u-boot debug printfs
 
 U-Boot 2010.06-rc2-00009-gf77b8b8-dirty (Jun 22 2010 - 09:43:46)
 
@@ -187,7 +187,7 @@ Top of RAM usable for U-Boot at: 90000000
 LCD panel info: 640 x 480, 16 bit/pix
 Reserving 600k for LCD Framebuffer at: 8ff6a000
 Reserving 391k for U-Boot at: 8ff08000
-                              ^^^^^^^^
+			      ^^^^^^^^
 Reserving 1280k for malloc() at: 8fdc8000
 Reserving 24 Bytes for Board Info at: 8fdc7fe8
 Reserving 52 Bytes for Global Data at: 8fdc7fb4
@@ -197,6 +197,6 @@ Bank #0: 80000000 256 MiB
 relocation Offset is: eff08000
 mon: 00058BAC gd->monLen: 00061F10
 Now running in RAM - U-Boot at: 8ff08000
-                                ^^^^^^^^
+				^^^^^^^^
 
 Now you can use gdb as usual :-)

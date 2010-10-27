@@ -109,7 +109,7 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 				ramdisk_flags |= RD_PROMPT;
 		else
 				ramdisk_flags &= ~RD_PROMPT;
-					
+
 		val = sh_check_cmd_arg(bootargs, CMD_ARG_RD_DOLOAD, 10);
 		if (val == 1)
 				ramdisk_flags |= RD_DOLOAD;

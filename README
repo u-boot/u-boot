@@ -2364,11 +2364,11 @@ Configuration Settings:
 
 - CONFIG_ENV_MAX_ENTRIES
 
-        Maximum number of entries in the hash table that is used
-        internally to store the environment settings. The default
-        setting is supposed to be generous and should work in most
-        cases. This setting can be used to tune behaviour; see
-        lib/hashtable.c for details.
+	Maximum number of entries in the hash table that is used
+	internally to store the environment settings. The default
+	setting is supposed to be generous and should work in most
+	cases. This setting can be used to tune behaviour; see
+	lib/hashtable.c for details.
 
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the

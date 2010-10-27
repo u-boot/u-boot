@@ -93,4 +93,3 @@ void dram_init_banksize(void)
 	dram_init();
 }
 #endif /* CONFIG_SYS_BOARD_DRAM_INIT */
-

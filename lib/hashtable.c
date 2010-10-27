@@ -56,7 +56,7 @@
 
 /*
  * [Aho,Sethi,Ullman] Compilers: Principles, Techniques and Tools, 1986
- * [Knuth]            The Art of Computer Programming, part 3 (6.4)
+ * [Knuth]	      The Art of Computer Programming, part 3 (6.4)
  */
 
 /*
@@ -252,7 +252,7 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 
 	if (htab->table[idx].used) {
 		/*
-                 * Further action might be required according to the
+		 * Further action might be required according to the
 		 * action value.
 		 */
 		unsigned hval2;
@@ -283,8 +283,8 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 
 		do {
 			/*
-                         * Because SIZE is prime this guarantees to
-                         * step through all available indices.
+			 * Because SIZE is prime this guarantees to
+			 * step through all available indices.
 			 */
 			if (idx <= hval2)
 				idx = htab->size + idx - hval2;
@@ -323,8 +323,8 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 	/* An empty bucket has been found. */
 	if (action == ENTER) {
 		/*
-                 * If table is full and another entry should be
-                 * entered return with error.
+		 * If table is full and another entry should be
+		 * entered return with error.
 		 */
 		if (htab->filled == htab->size) {
 			__set_errno(ENOMEM);

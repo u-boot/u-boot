@@ -26,13 +26,13 @@ struct fb_fix_screeninfo {
 	__u32 type;			/* see FB_TYPE_*		*/
 	__u32 type_aux;			/* Interleave for interleaved Planes */
 	__u32 visual;			/* see FB_VISUAL_*		*/
-	__u16 xpanstep;			/* zero if no hardware panning  */
-	__u16 ypanstep;			/* zero if no hardware panning  */
-	__u16 ywrapstep;		/* zero if no hardware ywrap    */
-	__u32 line_length;		/* length of a line in bytes    */
-	unsigned long mmio_start;	/* Start of Memory Mapped I/O   */
+	__u16 xpanstep;			/* zero if no hardware panning	*/
+	__u16 ypanstep;			/* zero if no hardware panning	*/
+	__u16 ywrapstep;		/* zero if no hardware ywrap	*/
+	__u32 line_length;		/* length of a line in bytes	*/
+	unsigned long mmio_start;	/* Start of Memory Mapped I/O	*/
 					/* (physical address) */
-	__u32 mmio_len;			/* Length of Memory Mapped I/O  */
+	__u32 mmio_len;			/* Length of Memory Mapped I/O	*/
 	__u32 accel;			/* Indicate to driver which	*/
 					/*  specific chip/card we have	*/
 	__u16 reserved[3];		/* Reserved for future compatibility */
@@ -56,7 +56,7 @@ struct fb_bitfield {
 
 };
 
-#define FB_NONSTD_HAM		1	/* Hold-And-Modify (HAM)        */
+#define FB_NONSTD_HAM		1	/* Hold-And-Modify (HAM)	*/
 #define FB_NONSTD_REV_PIX_IN_B	2	/* order of pixels in each byte is reversed */
 
 #define FB_ACTIVATE_NOW		0	/* set values immediately (or vbl)*/
@@ -64,38 +64,38 @@ struct fb_bitfield {
 #define FB_ACTIVATE_TEST	2	/* don't set, round up impossible */
 #define FB_ACTIVATE_MASK       15
 					/* values			*/
-#define FB_ACTIVATE_VBL	       16	/* activate values on next vbl  */
+#define FB_ACTIVATE_VBL	       16	/* activate values on next vbl	*/
 #define FB_CHANGE_CMAP_VBL     32	/* change colormap on vbl	*/
 #define FB_ACTIVATE_ALL	       64	/* change all VCs on this fb	*/
 #define FB_ACTIVATE_FORCE     128	/* force apply even when no change*/
-#define FB_ACTIVATE_INV_MODE  256       /* invalidate videomode */
+#define FB_ACTIVATE_INV_MODE  256	/* invalidate videomode */
 
 #define FB_SYNC_HOR_HIGH_ACT	1	/* horizontal sync high active	*/
 #define FB_SYNC_VERT_HIGH_ACT	2	/* vertical sync high active	*/
 #define FB_SYNC_EXT		4	/* external sync		*/
-#define FB_SYNC_COMP_HIGH_ACT	8	/* composite sync high active   */
-#define FB_SYNC_BROADCAST	16	/* broadcast video timings      */
+#define FB_SYNC_COMP_HIGH_ACT	8	/* composite sync high active	*/
+#define FB_SYNC_BROADCAST	16	/* broadcast video timings	*/
 					/* vtotal = 144d/288n/576i => PAL  */
 					/* vtotal = 121d/242n/484i => NTSC */
 #define FB_SYNC_ON_GREEN	32	/* sync on green */
 
-#define FB_VMODE_NONINTERLACED  0	/* non interlaced */
+#define FB_VMODE_NONINTERLACED	0	/* non interlaced */
 #define FB_VMODE_INTERLACED	1	/* interlaced	*/
 #define FB_VMODE_DOUBLE		2	/* double scan */
 #define FB_VMODE_ODD_FLD_FIRST	4	/* interlaced: top line first */
 #define FB_VMODE_MASK		255
 
-#define FB_VMODE_YWRAP		256	/* ywrap instead of panning     */
+#define FB_VMODE_YWRAP		256	/* ywrap instead of panning	*/
 #define FB_VMODE_SMOOTH_XPAN	512	/* smooth xpan possible (internally used) */
 #define FB_VMODE_CONUPDATE	512	/* don't update x/yoffset	*/
 
 /*
  * Display rotation support
  */
-#define FB_ROTATE_UR      0
-#define FB_ROTATE_CW      1
-#define FB_ROTATE_UD      2
-#define FB_ROTATE_CCW     3
+#define FB_ROTATE_UR	  0
+#define FB_ROTATE_CW	  1
+#define FB_ROTATE_UD	  2
+#define FB_ROTATE_CCW	  3
 
 #define PICOS2KHZ(a) (1000000000UL/(a))
 #define KHZ2PICOS(a) (1000000000UL/(a))
@@ -154,10 +154,10 @@ struct fb_con2fbmap {
 };
 
 /* VESA Blanking Levels */
-#define VESA_NO_BLANKING        0
-#define VESA_VSYNC_SUSPEND      1
-#define VESA_HSYNC_SUSPEND      2
-#define VESA_POWERDOWN          3
+#define VESA_NO_BLANKING	0
+#define VESA_VSYNC_SUSPEND	1
+#define VESA_HSYNC_SUSPEND	2
+#define VESA_POWERDOWN		3
 
 
 enum {
@@ -234,12 +234,12 @@ struct fb_image {
  */
 
 #define FB_CUR_SETIMAGE 0x01
-#define FB_CUR_SETPOS   0x02
-#define FB_CUR_SETHOT   0x04
-#define FB_CUR_SETCMAP  0x08
+#define FB_CUR_SETPOS	0x02
+#define FB_CUR_SETHOT	0x04
+#define FB_CUR_SETCMAP	0x08
 #define FB_CUR_SETSHAPE 0x10
 #define FB_CUR_SETSIZE	0x20
-#define FB_CUR_SETALL   0xFF
+#define FB_CUR_SETALL	0xFF
 
 struct fbcurpos {
 	__u16 x, y;
@@ -377,29 +377,29 @@ struct fb_cursor_user {
  *	if you own it
  */
 #define FB_EVENT_RESUME			0x03
-/*      An entry from the modelist was removed */
-#define FB_EVENT_MODE_DELETE            0x04
-/*      A driver registered itself */
-#define FB_EVENT_FB_REGISTERED          0x05
-/*      A driver unregistered itself */
-#define FB_EVENT_FB_UNREGISTERED        0x06
-/*      CONSOLE-SPECIFIC: get console to framebuffer mapping */
-#define FB_EVENT_GET_CONSOLE_MAP        0x07
-/*      CONSOLE-SPECIFIC: set console to framebuffer mapping */
-#define FB_EVENT_SET_CONSOLE_MAP        0x08
-/*      A hardware display blank change occured */
-#define FB_EVENT_BLANK                  0x09
-/*      Private modelist is to be replaced */
-#define FB_EVENT_NEW_MODELIST           0x0A
+/*	An entry from the modelist was removed */
+#define FB_EVENT_MODE_DELETE		0x04
+/*	A driver registered itself */
+#define FB_EVENT_FB_REGISTERED		0x05
+/*	A driver unregistered itself */
+#define FB_EVENT_FB_UNREGISTERED	0x06
+/*	CONSOLE-SPECIFIC: get console to framebuffer mapping */
+#define FB_EVENT_GET_CONSOLE_MAP	0x07
+/*	CONSOLE-SPECIFIC: set console to framebuffer mapping */
+#define FB_EVENT_SET_CONSOLE_MAP	0x08
+/*	A hardware display blank change occured */
+#define FB_EVENT_BLANK			0x09
+/*	Private modelist is to be replaced */
+#define FB_EVENT_NEW_MODELIST		0x0A
 /*	The resolution of the passed in fb_info about to change and
-        all vc's should be changed         */
+	all vc's should be changed	   */
 #define FB_EVENT_MODE_CHANGE_ALL	0x0B
 /*	A software display blank change occured */
-#define FB_EVENT_CONBLANK               0x0C
-/*      Get drawing requirements        */
-#define FB_EVENT_GET_REQ                0x0D
-/*      Unbind from the console if possible */
-#define FB_EVENT_FB_UNBIND              0x0E
+#define FB_EVENT_CONBLANK		0x0C
+/*	Get drawing requirements	*/
+#define FB_EVENT_GET_REQ		0x0D
+/*	Unbind from the console if possible */
+#define FB_EVENT_FB_UNBIND		0x0E
 
 struct fb_event {
 	struct fb_info *info;
@@ -421,10 +421,10 @@ struct fb_blit_caps {
  * format the hardware needs.
  */
 
-#define FB_PIXMAP_DEFAULT 1     /* used internally by fbcon */
-#define FB_PIXMAP_SYSTEM  2     /* memory is in system RAM  */
-#define FB_PIXMAP_IO      4     /* memory is iomapped       */
-#define FB_PIXMAP_SYNC    256   /* set if GPU can DMA       */
+#define FB_PIXMAP_DEFAULT 1	/* used internally by fbcon */
+#define FB_PIXMAP_SYSTEM  2	/* memory is in system RAM  */
+#define FB_PIXMAP_IO	  4	/* memory is iomapped	    */
+#define FB_PIXMAP_SYNC	  256	/* set if GPU can DMA	    */
 
 struct fb_pixmap {
 	u8  *addr;		/* pointer to memory			*/
@@ -434,10 +434,10 @@ struct fb_pixmap {
 	u32 scan_align;		/* alignment per scanline		*/
 	u32 access_align;	/* alignment per read/write (bits)	*/
 	u32 flags;		/* see FB_PIXMAP_*			*/
-	u32 blit_x;             /* supported bit block dimensions (1-32)*/
-	u32 blit_y;             /* Format: blit_x = 1 << (width - 1)    */
-	                        /*         blit_y = 1 << (height - 1)   */
-	                        /* if 0, will be set to 0xffffffff (all)*/
+	u32 blit_x;		/* supported bit block dimensions (1-32)*/
+	u32 blit_y;		/* Format: blit_x = 1 << (width - 1)	*/
+				/*	   blit_y = 1 << (height - 1)	*/
+				/* if 0, will be set to 0xffffffff (all)*/
 	/* access methods */
 	void (*writeio)(struct fb_info *info, void *dst, void *src, unsigned int size);
 	void (*readio) (struct fb_info *info, void *dst, void *src, unsigned int size);
@@ -488,7 +488,7 @@ struct fb_deferred_io {
  * meaning, it is set by the fb subsystem depending FOREIGN_ENDIAN flag
  * and host endianness. Drivers should not use this flag.
  */
-#define FBINFO_BE_MATH  0x100000
+#define FBINFO_BE_MATH	0x100000
 
 struct fb_info {
 	int node;
@@ -499,7 +499,7 @@ struct fb_info {
 	struct fb_pixmap pixmap;	/* Image hardware mapper */
 	struct fb_pixmap sprite;	/* Cursor hardware mapper */
 	struct fb_cmap cmap;		/* Current cmap */
-	struct list_head modelist;      /* mode list */
+	struct list_head modelist;	/* mode list */
 	struct fb_videomode *mode;	/* current mode */
 
 	char *screen_base;	/* Virtual address */
@@ -508,7 +508,7 @@ struct fb_info {
 #define FBINFO_STATE_RUNNING	0
 #define FBINFO_STATE_SUSPENDED	1
 	u32 state;			/* Hardware state i.e suspend */
-	void *fbcon_par;                /* fbcon use-only private area */
+	void *fbcon_par;		/* fbcon use-only private area */
 	/* From here on everything is device dependent */
 	void *par;
 };
@@ -518,14 +518,14 @@ struct fb_info {
 #define FBINFO_FLAG_MODULE	FBINFO_MODULE
 #define FBINFO_FLAG_DEFAULT	FBINFO_DEFAULT
 
-// This will go away
+/* This will go away */
 #if defined(__sparc__)
 
 /* We map all of our framebuffers such that big-endian accesses
  * are what we want, so the following is sufficient.
  */
 
-// This will go away
+/* This will go away */
 #define fb_readb sbus_readb
 #define fb_readw sbus_readw
 #define fb_readl sbus_readl
@@ -562,7 +562,7 @@ struct fb_info {
 
 #endif
 
-#define FB_LEFT_POS(p, bpp)          (fb_be_math(p) ? (32 - (bpp)) : 0)
+#define FB_LEFT_POS(p, bpp)	     (fb_be_math(p) ? (32 - (bpp)) : 0)
 #define FB_SHIFT_HIGH(p, val, bits)  (fb_be_math(p) ? (val) >> (bits) : \
 						      (val) << (bits))
 #define FB_SHIFT_LOW(p, val, bits)   (fb_be_math(p) ? (val) << (bits) : \
@@ -580,7 +580,7 @@ struct fb_info {
 #define FB_MODE_IS_VESA		4
 #define FB_MODE_IS_CALCULATED	8
 #define FB_MODE_IS_FIRST	16
-#define FB_MODE_IS_FROM_VAR     32
+#define FB_MODE_IS_FROM_VAR	32
 
 
 /* drivers/video/fbcmap.c */

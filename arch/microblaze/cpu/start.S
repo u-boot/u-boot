@@ -98,7 +98,7 @@ _start:
 	 * 0xC: 0xB808XXXX
 	 *
 	 * then it is necessary to count address for storing the most significant
-	 * 16bits from _exception_handler address and copy it to 
+	 * 16bits from _exception_handler address and copy it to
 	 * 0xa address. Big endian use offset in r10=0 that's why is it just
 	 * 0xa address. The same is done for the least significant 16 bits
 	 * for 0xe address.

@@ -11,7 +11,7 @@
 /*
  * Processor Settings
  */
-#define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
+#define CONFIG_BFIN_BOOT_MODE	    BFIN_BOOT_BYPASS
 
 
 /*
@@ -21,11 +21,11 @@
  */
 /* CONFIG_CLKIN_HZ is any value in Hz					*/
 #define CONFIG_CLKIN_HZ			16384000
-/* CLKIN_HALF controls the DF bit in PLL_CTL      0 = CLKIN		*/
-/*                                                1 = CLKIN / 2		*/
+/* CLKIN_HALF controls the DF bit in PLL_CTL	  0 = CLKIN		*/
+/*						  1 = CLKIN / 2		*/
 #define CONFIG_CLKIN_HALF		0
 /* PLL_BYPASS controls the BYPASS bit in PLL_CTL  0 = do not bypass	*/
-/*                                                1 = bypass PLL	*/
+/*						  1 = bypass PLL	*/
 #define CONFIG_PLL_BYPASS		0
 /* VCO_MULT controls the MSEL (multiplier) bits in PLL_CTL		*/
 /* Values can range from 0-63 (where 0 means 64)			*/
@@ -36,7 +36,7 @@
 /* SCLK_DIV controls the system clock divider				*/
 /* Values can range from 1-15						*/
 #define CONFIG_SCLK_DIV			3
-#define CONFIG_VR_CTL_VAL       (VLEV_110 | GAIN_20 | FREQ_1000)
+#define CONFIG_VR_CTL_VAL	(VLEV_110 | GAIN_20 | FREQ_1000)
 
 
 /*
@@ -111,13 +111,13 @@
  * it linked after the configuration sector.
  */
 # define LDS_BOARD_TEXT \
-        arch/blackfin/cpu/traps.o            (.text .text.*); \
-        arch/blackfin/cpu/interrupt.o        (.text .text.*); \
-        arch/blackfin/cpu/serial.o           (.text .text.*); \
-        common/dlmalloc.o               (.text .text.*); \
-        lib/crc32.o             (.text .text.*); \
-        . = DEFINED(env_offset) ? env_offset : .; \
-        common/env_embedded.o           (.text .text.*);
+	arch/blackfin/cpu/traps.o	     (.text .text.*); \
+	arch/blackfin/cpu/interrupt.o	     (.text .text.*); \
+	arch/blackfin/cpu/serial.o	     (.text .text.*); \
+	common/dlmalloc.o		(.text .text.*); \
+	lib/crc32.o		(.text .text.*); \
+	. = DEFINED(env_offset) ? env_offset : .; \
+	common/env_embedded.o		(.text .text.*);
 #endif
 
 

@@ -395,5 +395,3 @@ int lattice_info(Lattice_desc *desc)
 
 	return ret_val;
 }
-
-

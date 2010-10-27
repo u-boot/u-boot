@@ -55,16 +55,16 @@ unsigned int fsl_ddr_get_mem_data_rate(void)
  *     There are traditionally three board-specific SDRAM timing parameters
  *     which must be calculated based on the particular PCB artwork.  These are:
  *     1.) CPO (Read Capture Delay)
- *             - TIMING_CFG_2 register
- *             Source: Calculation based on board trace lengths and
- *                     chip-specific internal delays.
+ *	       - TIMING_CFG_2 register
+ *	       Source: Calculation based on board trace lengths and
+ *		       chip-specific internal delays.
  *     2.) CLK_ADJUST (Clock and Addr/Cmd alignment control)
- *             - DDR_SDRAM_CLK_CNTL register
- *             Source: Signal Integrity Simulations
+ *	       - DDR_SDRAM_CLK_CNTL register
+ *	       Source: Signal Integrity Simulations
  *     3.) 2T Timing on Addr/Ctl
- *             - TIMING_CFG_2 register
- *             Source: Signal Integrity Simulations
- *             Usually only needed with heavy load/very high speed (>DDR2-800)
+ *	       - TIMING_CFG_2 register
+ *	       Source: Signal Integrity Simulations
+ *	       Usually only needed with heavy load/very high speed (>DDR2-800)
  *
  *     ====== XPedite550x DDR3-800 read delay calculations ======
  *
@@ -82,14 +82,14 @@ typedef struct {
 const board_specific_parameters_t board_specific_parameters[][20] = {
 	{
 		/* Controller 0 */
-                {
+		{
 			/* DDR3-600/667 */
 			.datarate_mhz_low	= 500,
 			.datarate_mhz_high	= 750,
 			.clk_adjust		= 5,
 			.cpo			= 31,
 		},
-                {
+		{
 			/* DDR3-800 */
 			.datarate_mhz_low	= 750,
 			.datarate_mhz_high	= 850,
@@ -162,4 +162,3 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	popts->rtt_override = 1;
 	popts->rtt_override_value = 3;
 }
-
