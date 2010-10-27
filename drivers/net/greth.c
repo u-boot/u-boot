@@ -45,7 +45,7 @@
 /* ByPass Cache when reading regs */
 #define GRETH_REGLOAD(addr)		SPARC_NOCACHE_READ(addr)
 /* Write-through cache ==> no bypassing needed on writes */
-#define GRETH_REGSAVE(addr,data)	(*(unsigned int *)(addr) = (data))
+#define GRETH_REGSAVE(addr,data) (*(volatile unsigned int *)(addr) = (data))
 #define GRETH_REGORIN(addr,data) GRETH_REGSAVE(addr,GRETH_REGLOAD(addr)|data)
 #define GRETH_REGANDIN(addr,data) GRETH_REGSAVE(addr,GRETH_REGLOAD(addr)&data)
 
@@ -145,8 +145,6 @@ int greth_init(struct eth_device *dev, bd_t * bis)
 #ifdef DEBUG
 	printf("greth_init\n");
 #endif
-
-	GRETH_REGSAVE(&regs->control, 0);
 
 	if (!greth->rxbd_base) {
 
