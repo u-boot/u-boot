@@ -188,10 +188,10 @@ static void power_init(void)
 	val &= ~PWGT2SPIEN;
 	pmic_reg_write(REG_POWER_MISC, val);
 
-	/* Write needed to update Charger 0 */
-	pmic_reg_write(REG_CHARGE, VCHRG0 | VCHRG1 | VCHRG2 |
-		ICHRG0 | ICHRG1 | ICHRG2 | ICHRG3 | ICHRGTR0 |
-		OVCTRL1 | UCHEN | CHRGLEDEN | CYCLB);
+	/* Externally powered */
+	val = pmic_reg_read(REG_CHARGE);
+	val |= ICHRG0 | ICHRG1 | ICHRG2 | ICHRG3 | CHGAUTOB;
+	pmic_reg_write(REG_CHARGE, val);
 
 	/* power up the system first */
 	pmic_reg_write(REG_POWER_MISC, PWUP);
