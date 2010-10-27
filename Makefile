@@ -401,7 +401,7 @@ $(LDSCRIPT):	depend
 $(obj)u-boot.lds: $(LDSCRIPT)
 		$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
 
-$(NAND_SPL):	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
+$(NAND_SPL):	$(TIMESTAMP_FILE) $(VERSION_FILE) depend
 		$(MAKE) -C nand_spl/board/$(BOARDDIR) all
 
 $(U_BOOT_NAND):	$(NAND_SPL) $(obj)u-boot.bin
