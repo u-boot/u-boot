@@ -3,8 +3,6 @@
 
 #ifndef __ASSEMBLY__
 
-#include <common.h>
-
 /* These are declarations of exported functions available in C code */
 unsigned long get_version(void);
 int  getc(void);
@@ -12,7 +10,7 @@ int  tstc(void);
 void putc(const char);
 void puts(const char*);
 int printf(const char* fmt, ...);
-void install_hdlr(int, interrupt_handler_t*, void*);
+void install_hdlr(int, void (*interrupt_handler_t)(void *), void*);
 void free_hdlr(int);
 void *malloc(size_t);
 void free(void*);
@@ -30,7 +28,6 @@ int ustrtoul(const char *cp, char **endp, unsigned int base);
 int i2c_write (uchar, uint, int , uchar* , int);
 int i2c_read (uchar, uint, int , uchar* , int);
 #endif
-#include <spi.h>
 
 void app_startup(char * const *);
 
