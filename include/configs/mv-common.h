@@ -45,6 +45,22 @@
 #define CONFIG_KIRKWOOD_RGMII_PAD_1V8	/* Set RGMII Pad voltage to 1.8V */
 #define CONFIG_KIRKWOOD_PCIE_INIT       /* Enable PCIE Port0 for kernel */
 
+/* 
+ * By default kwbimage.cfg from board specific folder is used
+ * If for some board, different configuration file need to be used,
+ * CONFIG_SYS_KWD_CONFIG should be defined in board specific header file
+ */
+#ifndef CONFIG_SYS_KWD_CONFIG
+#define	CONFIG_SYS_KWD_CONFIG	$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage.cfg 
+#endif /* CONFIG_SYS_KWD_CONFIG */
+
+/* 
+ * CONFIG_SYS_TEXT_BASE can be defined in board specific header file, if needed
+ */
+#ifndef CONFIG_SYS_TEXT_BASE
+#define	CONFIG_SYS_TEXT_BASE	0x00600000
+#endif /* CONFIG_SYS_TEXT_BASE */
+
 #define CONFIG_I2C_MVTWSI_BASE	KW_TWSI_BASE
 #define MV_UART0_BASE		KW_UART0_BASE
 #define MV_SATA_BASE		KW_SATA_BASE
