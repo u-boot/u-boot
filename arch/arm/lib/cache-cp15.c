@@ -44,7 +44,6 @@ static void cp_delay (void)
 	asm volatile("" : : : "memory");
 }
 
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 static inline void dram_bank_mmu_setup(int bank)
 {
 	u32 *page_table = (u32 *)gd->tlb_addr;
@@ -58,18 +57,11 @@ static inline void dram_bank_mmu_setup(int bank)
 		page_table[i] = i << 20 | (3 << 10) | CACHE_SETUP;
 	}
 }
-#endif
 
 /* to activate the MMU we need to set up virtual memory: use 1M areas */
 static inline void mmu_setup(void)
 {
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	u32 *page_table = (u32 *)gd->tlb_addr;
-#else
-	static u32 __attribute__((aligned(16384))) page_table[4096];
-	bd_t *bd = gd->bd;
-	int j;
-#endif
 	int i;
 	u32 reg;
 
@@ -77,20 +69,9 @@ static inline void mmu_setup(void)
 	for (i = 0; i < 4096; i++)
 		page_table[i] = i << 20 | (3 << 10) | 0x12;
 
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		dram_bank_mmu_setup(i);
 	}
-#else
-	/* Then, enable cacheable and bufferable for RAM only */
-	for (j = 0; j < CONFIG_NR_DRAM_BANKS; j++) {
-		for (i = bd->bi_dram[j].start >> 20;
-			i < (bd->bi_dram[j].start + bd->bi_dram[j].size) >> 20;
-			i++) {
-			page_table[i] = i << 20 | (3 << 10) | CACHE_SETUP;
-		}
-	}
-#endif
 
 	/* Copy the page table address to cp15 */
 	asm volatile("mcr p15, 0, %0, c2, c0, 0"

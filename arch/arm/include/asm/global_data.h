@@ -61,7 +61,6 @@ typedef	struct	global_data {
 	unsigned long	tbu;
 	unsigned long long	timer_reset_value;
 #endif
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	mon_len;	/* monitor len */
@@ -70,7 +69,6 @@ typedef	struct	global_data {
 	unsigned long	reloc_off;
 #if !(defined(CONFIG_SYS_NO_ICACHE) && defined(CONFIG_SYS_NO_DCACHE))
 	unsigned long	tlb_addr;
-#endif
 #endif
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */

@@ -75,12 +75,6 @@ _fiq:			.word fiq
 _TEXT_BASE:
 	.word	CONFIG_SYS_TEXT_BASE
 
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-.globl _armboot_start
-_armboot_start:
-	.word _start
-#endif
-
 /*
  * These are defined in the board-specific linker script.
  */
@@ -104,7 +98,6 @@ FIQ_STACK_START:
 	.word 0x0badc0de
 #endif
 
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 /* IRQ stack memory (calculated at run-time) + 8 bytes */
 .globl IRQ_STACK_START_IN
 IRQ_STACK_START_IN:
@@ -316,127 +309,6 @@ _nand_boot: .word nand_boot
 _board_init_r: .word board_init_r
 #endif
 
-#else /* #if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC) */
-/*
- * the actual start code
- */
-
-start_code:
-	/*
-	 * set the cpu to SVC32 mode
-	 */
-	mrs	r0, cpsr
-	bic	r0, r0, #0x1f
-	orr	r0, r0, #0xd3
-	msr	cpsr, r0
-
-	bl	coloured_LED_init
-	bl	red_LED_on
-
-#if	defined(CONFIG_AT91RM9200DK) || defined(CONFIG_AT91RM9200EK)
-	/*
-	 * relocate exception table
-	 */
-	ldr	r0, =_start
-	ldr	r1, =0x0
-	mov	r2, #16
-copyex:
-	subs	r2, r2, #1
-	ldr	r3, [r0], #4
-	str	r3, [r1], #4
-	bne	copyex
-#endif
-
-#ifdef CONFIG_S3C24X0
-	/* turn off the watchdog */
-
-# if defined(CONFIG_S3C2400)
-#  define pWTCON	0x15300000
-#  define INTMSK	0x14400008	/* Interupt-Controller base addresses */
-#  define CLKDIVN	0x14800014	/* clock divisor register */
-#else
-#  define pWTCON	0x53000000
-#  define INTMSK	0x4A000008	/* Interupt-Controller base addresses */
-#  define INTSUBMSK	0x4A00001C
-#  define CLKDIVN	0x4C000014	/* clock divisor register */
-# endif
-
-	ldr	r0, =pWTCON
-	mov	r1, #0x0
-	str	r1, [r0]
-
-	/*
-	 * mask all IRQs by setting all bits in the INTMR - default
-	 */
-	mov	r1, #0xffffffff
-	ldr	r0, =INTMSK
-	str	r1, [r0]
-# if defined(CONFIG_S3C2410)
-	ldr	r1, =0x3ff
-	ldr	r0, =INTSUBMSK
-	str	r1, [r0]
-# endif
-
-	/* FCLK:HCLK:PCLK = 1:2:4 */
-	/* default FCLK is 120 MHz ! */
-	ldr	r0, =CLKDIVN
-	mov	r1, #3
-	str	r1, [r0]
-#endif	/* CONFIG_S3C24X0 */
-
-	/*
-	 * we do sys-critical inits only at reboot,
-	 * not when booting from ram!
-	 */
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
-	bl	cpu_init_crit
-#endif
-
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
-relocate:				/* relocate U-Boot to RAM	    */
-	adr	r0, _start		/* r0 <- current position of code   */
-	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
-	cmp	r0, r1			/* don't reloc during debug         */
-	beq	stack_setup
-
-	ldr	r2, _armboot_start
-	ldr	r3, _bss_start
-	sub	r2, r3, r2		/* r2 <- size of armboot            */
-	add	r2, r0, r2		/* r2 <- source end address         */
-
-copy_loop:
-	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
-	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
-	cmp	r0, r2			/* until source end address [r2]    */
-	blo	copy_loop
-#endif	/* CONFIG_SKIP_RELOCATE_UBOOT */
-
-	/* Set up the stack						    */
-stack_setup:
-	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
-	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN	/* malloc area              */
-	sub	r0, r0, #GENERATED_GBL_DATA_SIZE /* bdinfo                 */
-#ifdef CONFIG_USE_IRQ
-	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
-#endif
-	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
-	bic	sp, sp, #7		/* 8-byte alignment for ABI compliance */
-
-clear_bss:
-	ldr	r0, _bss_start		/* find start of bss segment        */
-	ldr	r1, _bss_end		/* stop here                        */
-	mov	r2, #0x00000000		/* clear                            */
-
-clbss_l:str	r2, [r0]		/* clear loop...                    */
-	add	r0, r0, #4
-	cmp	r0, r1
-	blo	clbss_l
-
-	ldr	pc, _start_armboot
-
-_start_armboot:	.word start_armboot
-#endif /* #if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC) */
-
 /*
  *************************************************************************
  *
@@ -525,15 +397,7 @@ cpu_init_crit:
 	.macro	bad_save_user_regs
 	sub	sp, sp, #S_FRAME_SIZE
 	stmia	sp, {r0 - r12}			@ Calling r0-r12
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-	ldr	r2, _armboot_start
-	sub	r2, r2, #(CONFIG_STACKSIZE)
-	sub	r2, r2, #(CONFIG_SYS_MALLOC_LEN)
-	/* set base 2 words into abort stack */
-	sub	r2, r2, #(GENERATED_GBL_DATA_SIZE+8)
-#else
 	ldr	r2, IRQ_STACK_START_IN
-#endif
 	ldmia	r2, {r2 - r3}			@ get pc, cpsr
 	add	r0, sp, #S_FRAME_SIZE		@ restore sp_SVC
 
@@ -565,15 +429,7 @@ cpu_init_crit:
 	.endm
 
 	.macro get_bad_stack
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-	ldr	r13, _armboot_start		@ setup our mode stack
-	sub	r13, r13, #(CONFIG_STACKSIZE)
-	sub	r13, r13, #(CONFIG_SYS_MALLOC_LEN)
-	/* reserve a couple spots in abort stack */
-	sub	r13, r13, #(GENERATED_GBL_DATA_SIZE+8)
-#else
 	ldr	r13, IRQ_STACK_START_IN		@ setup our mode stack
-#endif
 
 	str	lr, [r13]			@ save caller lr / spsr
 	mrs	lr, spsr

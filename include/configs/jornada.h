@@ -28,7 +28,6 @@
 #define CONFIG_SA1110			1	/* This is an SA110 CPU */
 #define CONFIG_JORNADA700		1	/* on an HP Jornada 700 series */
 #define CONFIG_SYS_FLASH_PROTECTION	1
-#define CONFIG_SYS_ARM_WITHOUT_RELOC	1
 
 #define CONFIG_SYS_TEXT_BASE		0xC1F00000
 

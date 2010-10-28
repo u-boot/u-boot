@@ -34,16 +34,9 @@ At lib level:
 
 	Board.c code is adapted from ppc code
 
-At config level:
-
-	Undefine CONFIG_SYS_ARM_WITHOUT_RELOC
-
 * WARNING ** WARNING ** WARNING ** WARNING ** WARNING ** WARNING ** WARNING *
 
 Boards which are not fixed to support relocation will be REMOVED!
-
-Eventually, CONFIG_SYS_ARM_WITHOUT_RELOC will disappear and boards
-which have to migrated to relocation will disappear too.
 
 -----------------------------------------------------------------------------
 

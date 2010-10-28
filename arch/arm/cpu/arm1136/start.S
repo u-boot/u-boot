@@ -132,14 +132,11 @@ FIQ_STACK_START:
 	.word 0x0badc0de
 #endif
 
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 /* IRQ stack memory (calculated at run-time) + 8 bytes */
 .globl IRQ_STACK_START_IN
 IRQ_STACK_START_IN:
 	.word	0x0badc0de
-#endif
 
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 /*
  * the actual reset code
  */
@@ -318,112 +315,6 @@ _rel_dyn_end_ofs:
 _dynsym_start_ofs:
 	.word __dynsym_start - _start
 
-#else /* #if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC) */
-/*
- * the actual reset code
- */
-
-reset:
-	/*
-	 * set the cpu to SVC32 mode
-	 */
-	mrs	r0,cpsr
-	bic	r0,r0,#0x1f
-	orr	r0,r0,#0xd3
-	msr	cpsr,r0
-
-#ifdef CONFIG_OMAP2420H4
-       /* Copy vectors to mask ROM indirect addr */
-	adr	r0, _start		/* r0 <- current position of code   */
-		add     r0, r0, #4				/* skip reset vector			*/
-	mov	r2, #64			/* r2 <- size to copy  */
-	add	r2, r0, r2		/* r2 <- source end address	    */
-	mov	r1, #SRAM_OFFSET0	  /* build vect addr */
-	mov	r3, #SRAM_OFFSET1
-	add	r1, r1, r3
-	mov	r3, #SRAM_OFFSET2
-	add	r1, r1, r3
-next:
-	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
-	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
-	cmp	r0, r2			/* until source end address [r2]    */
-	bne	next			/* loop until equal */
-	bl	cpy_clk_code		/* put dpll adjust code behind vectors */
-#endif
-	/* the mask ROM code should have PLL and others stable */
-#ifndef CONFIG_SKIP_LOWLEVEL_INIT
-	bl  cpu_init_crit
-#endif
-
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
-relocate:				/* relocate U-Boot to RAM	    */
-	adr	r0, _start		/* r0 <- current position of code   */
-	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
-	cmp	r0, r1			/* don't reloc during debug	    */
-#ifndef CONFIG_PRELOADER
-	beq	stack_setup
-#endif	/* CONFIG_PRELOADER */
-
-	ldr	r2, _armboot_start
-	ldr	r3, _bss_start
-	sub	r2, r3, r2		/* r2 <- size of armboot	    */
-	add	r2, r0, r2		/* r2 <- source end address	    */
-
-copy_loop:
-	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
-	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
-	cmp	r0, r2			/* until source end address [r2]    */
-	blo	copy_loop
-#endif	/* CONFIG_SKIP_RELOCATE_UBOOT */
-
-	/* Set up the stack						    */
-stack_setup:
-	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
-#ifdef CONFIG_PRELOADER
-	sub	sp, r0, #128		/* leave 32 words for abort-stack   */
-#else
-	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN /* malloc area			    */
-	sub	r0, r0, #GENERATED_GBL_DATA_SIZE /* bdinfo			    */
-#ifdef CONFIG_USE_IRQ
-	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
-#endif
-	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
-#endif	/* CONFIG_PRELOADER */
-	bic	sp, sp, #7		/* 8-byte alignment for ABI compliance */
-
-clear_bss:
-	adr	r2, _start
-	ldr	r0, _bss_start_ofs	/* find start of bss segment        */
-	add	r0, r0, r2
-	ldr	r1, _bss_end_ofs	/* stop here                        */
-	add	r1, r1, r2
-	mov	r2, #0x00000000		/* clear			    */
-
-#ifndef CONFIG_PRELOADER
-clbss_l:str	r2, [r0]		/* clear loop...		    */
-	add	r0, r0, #4
-	cmp	r0, r1
-	bne	clbss_l
-#endif
-
-	ldr	r0, _start_armboot_ofs
-	adr	r1, _start
-	add	r0, r0, r1
-	ldr	pc, r0
-
-_start_armboot_ofs:
-#ifdef CONFIG_NAND_SPL
-	.word nand_boot - _start
-#else
-#ifdef CONFIG_ONENAND_IPL
-	.word start_oneboot - _start
-#else
-	.word start_armboot - _start
-#endif /* CONFIG_ONENAND_IPL */
-#endif /* CONFIG_NAND_SPL */
-
-#endif /* #if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC) */
-
 /*
  *************************************************************************
  *
@@ -508,13 +399,7 @@ cpu_init_crit:
 	sub	sp, sp, #S_FRAME_SIZE		@ carve out a frame on current user stack
 	stmia	sp, {r0 - r12}			@ Save user registers (now in svc mode) r0-r12
 
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	ldr	r2, IRQ_STACK_START_IN		@ set base 2 words into abort stack
-#else
-	adr	r2, _start
-	sub	r2, r2, #(CONFIG_SYS_MALLOC_LEN)
-	sub	r2, r2, #(GENERATED_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
-#endif
 	ldmia	r2, {r2 - r3}			@ get values for "aborted" pc and cpsr (into parm regs)
 	add	r0, sp, #S_FRAME_SIZE		@ grab pointer to old stack
 
@@ -545,13 +430,7 @@ cpu_init_crit:
 	.endm
 
 	.macro get_bad_stack
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	ldr	r13, IRQ_STACK_START_IN		@ setup our mode stack (enter in banked mode)
-#else
-	adr	r13, _start			@ setup our mode stack (enter in banked mode)
-	sub	r13, r13, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)	@ move past malloc pool
-	sub	r13, r13, #(GENERATED_GBL_DATA_SIZE+8) @ move to reserved a couple spots for abort stack
-#endif
 
 	str	lr, [r13]			@ save caller lr in position 0 of saved stack
 	mrs	lr, spsr			@ get the spsr
@@ -567,13 +446,7 @@ cpu_init_crit:
 	.macro get_bad_stack_swi
 	sub	r13, r13, #4			@ space on current stack for scratch reg.
 	str	r0, [r13]			@ save R0's value.
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	ldr	r0, IRQ_STACK_START_IN		@ get data regions start
-#else
-	ldr	r0, _armboot_start		@ get data regions start
-	sub	r0, r0, #(CONFIG_SYS_MALLOC_LEN)	@ move past malloc pool
-	sub	r0, r0, #(GENERATED_GBL_DATA_SIZE+8)	@ move past gbl and a couple spots for abort stack
-#endif
 	str	lr, [r0]			@ save caller lr in position 0 of saved stack
 	mrs	r0, spsr			@ get the spsr
 	str	lr, [r0, #4]			@ save spsr in position 1 of saved stack

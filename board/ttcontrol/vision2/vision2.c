@@ -160,19 +160,8 @@ u32 get_board_rev(void)
 
 int dram_init(void)
 {
-#ifdef CONFIG_SYS_ARM_WITHOUT_RELOC
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = get_ram_size((long *)PHYS_SDRAM_1,
-		PHYS_SDRAM_1_SIZE);
-#if (CONFIG_NR_DRAM_BANKS > 1)
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = get_ram_size((long *)PHYS_SDRAM_2,
-		PHYS_SDRAM_2_SIZE);
-#endif
-#else
 	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_1,
 		PHYS_SDRAM_1_SIZE);
-#endif
 
 	return 0;
 }
@@ -682,9 +671,6 @@ void lcd_enable(void)
 
 int board_init(void)
 {
-#ifdef CONFIG_SYS_ARM_WITHOUT_RELOC
-	board_early_init_f();
-#endif
 	gd->bd->bi_arch_number = MACH_TYPE_TTC_VISION2;	/* board id for linux */
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;

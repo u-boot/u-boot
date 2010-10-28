@@ -299,7 +299,7 @@ fixnext:
 	add	r2, r2, #8	/* each rel.dyn entry is 8 bytes */
 	cmp	r2, r3
 	blo	fixloop
-#endif
+#endif	/* #ifndef CONFIG_PRELOADER */
 #endif	/* #ifndef CONFIG_SKIP_RELOCATE_UBOOT */
 
 clear_bss:
@@ -316,7 +316,7 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
 	add	r0, r0, #4
 	cmp	r0, r1
 	bne	clbss_l
-#endif
+#endif	/* #ifndef CONFIG_PRELOADER */
 
 /*
  * We are done. Do not return, instead branch to second part of board
@@ -343,7 +343,7 @@ _start_oneboot_ofs
 
 _board_init_r_ofs:
 	.word board_init_r - _start
-#endif
+#endif	/* CONFIG_ONENAND_IPL */
 
 _rel_dyn_start_ofs:
 	.word __rel_dyn_start - _start
@@ -352,7 +352,7 @@ _rel_dyn_end_ofs:
 _dynsym_start_ofs:
 	.word __dynsym_start - _start
 
-#else /* #if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC) */
+#else /* CONFIG_PRELOADER */
 
 /****************************************************************************/
 /*									    */
@@ -377,7 +377,7 @@ reset:
 	/* Start OneNAND IPL */
 	ldr	pc, =start_oneboot
 
-#endif /* #if !defined(CONFIG_ONENAND_IPL) */
+#endif /* CONFIG_PRELOADER */
 
 #ifndef CONFIG_PRELOADER
 /****************************************************************************/
@@ -419,13 +419,7 @@ reset:
 	stmia	sp, {r0 - r12}			/* Calling r0-r12	    */
 	add	r8, sp, #S_PC
 
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-	ldr	r2, _armboot_start
-	sub	r2, r2, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
-	sub	r2, r2, #(GENERATED_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
-#else
 	ldr	r2, IRQ_STACK_START_IN
-#endif
 	ldmia	r2, {r2 - r4}			/* get pc, cpsr, old_r0	    */
 	add	r0, sp, #S_FRAME_SIZE		/* restore sp_SVC	    */
 
@@ -460,13 +454,7 @@ reset:
 	.endm
 
 	.macro get_bad_stack
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-	ldr	r13, _armboot_start		@ setup our mode stack
-	sub	r13, r13, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
-	sub	r13, r13, #(GENERATED_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
-#else
 	ldr	r13, IRQ_STACK_START_IN		@ setup our mode stack
-#endif
 
 	str	lr, [r13]			@ save caller lr / spsr
 	mrs	lr, spsr
@@ -485,7 +473,7 @@ reset:
 	.macro get_fiq_stack			@ setup FIQ stack
 	ldr	sp, FIQ_STACK_START
 	.endm
-#endif	/* CONFIG_PRELOADER */
+#endif	/* CONFIG_PRELOADER
 
 
 /****************************************************************************/
@@ -499,7 +487,7 @@ reset:
 do_hang:
 	ldr	sp, _TEXT_BASE			/* use 32 words abort stack */
 	bl	hang				/* hang and never return */
-#else	/* !CONFIG_PRELOADER */
+#else
 	.align	5
 undefined_instruction:
 	get_bad_stack
@@ -618,4 +606,4 @@ mmu_table:
 	.word	(__base << 20) | 0xc12
 	.set	__base, __base + 1
 	.endr
-#endif
+#endif	/* CONFIG_PRELOADER */

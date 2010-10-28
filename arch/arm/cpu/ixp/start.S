@@ -98,12 +98,6 @@ _fiq:			.word fiq
 _TEXT_BASE:
 	.word	CONFIG_SYS_TEXT_BASE
 
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-.globl _armboot_start
-_armboot_start:
-	.word _start
-#endif
-
 /*
  * These are defined in the board-specific linker script.
  */
@@ -127,7 +121,6 @@ FIQ_STACK_START:
 	.word 0x0badc0de
 #endif
 
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 /* IRQ stack memory (calculated at run-time) + 8 bytes */
 .globl IRQ_STACK_START_IN
 IRQ_STACK_START_IN:
@@ -394,190 +387,6 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
 
 _board_init_r: .word board_init_r
 
-#else /* #if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC) */
-/****************************************************************************/
-/*									    */
-/* the actual reset code						    */
-/*									    */
-/****************************************************************************/
-
-reset:
-	/* disable mmu, set big-endian */
-	mov	r0, #0xf8
-	mcr	p15, 0, r0, c1, c0, 0
-	CPWAIT  r0
-
-	/* invalidate I & D caches & BTB */
-	mcr	p15, 0, r0, c7, c7, 0
-	CPWAIT	r0
-
-	/* invalidate I & Data TLB */
-	mcr	p15, 0, r0, c8, c7, 0
-	CPWAIT r0
-
-	/* drain write and fill buffers */
-	mcr	p15, 0, r0, c7, c10, 4
-	CPWAIT	r0
-
-	/* disable write buffer coalescing */
-	mrc	p15, 0, r0, c1, c0, 1
-	orr	r0, r0, #1
-	mcr	p15, 0, r0, c1, c0, 1
-	CPWAIT	r0
-
-	/* set EXP CS0 to the optimum timing */
-	ldr	r1, =CONFIG_SYS_EXP_CS0
-	ldr     r2, =IXP425_EXP_CS0
-	str     r1, [r2]
-
-	/* make sure flash is visible at 0 */
-#if 0
-	ldr	r2, =IXP425_EXP_CFG0
-	ldr     r1, [r2]
-	orr     r1, r1, #0x80000000
-	str     r1, [r2]
-#endif
-	mov	r1, #CONFIG_SYS_SDR_CONFIG
-	ldr     r2, =IXP425_SDR_CONFIG
-	str     r1, [r2]
-
-	/* disable refresh cycles */
-	mov	r1, #0
-	ldr     r3, =IXP425_SDR_REFRESH
-	str	r1, [r3]
-
-	/* send nop command */
-	mov	r1, #3
-	ldr	r4, =IXP425_SDR_IR
-	str	r1, [r4]
-	DELAY_FOR 0x4000, r0
-
-	/* set SDRAM internal refresh val */
-	ldr	r1, =CONFIG_SYS_SDRAM_REFRESH_CNT
-	str     r1, [r3]
-	DELAY_FOR 0x4000, r0
-
-	/* send precharge-all command to close all open banks */
-	mov     r1, #2
-	str     r1, [r4]
-	DELAY_FOR 0x4000, r0
-
-	/* provide 8 auto-refresh cycles */
-	mov     r1, #4
-	mov     r5, #8
-111:    str	r1, [r4]
-	DELAY_FOR 0x100, r0
-	subs	r5, r5, #1
-	bne	111b
-
-	/* set mode register in sdram */
-	mov	r1, #CONFIG_SYS_SDR_MODE_CONFIG
-	str	r1, [r4]
-	DELAY_FOR 0x4000, r0
-
-	/* send normal operation command */
-	mov	r1, #6
-	str	r1, [r4]
-	DELAY_FOR 0x4000, r0
-
-	/* copy */
-	mov     r0, #0
-	mov     r4, r0
-	add     r2, r0, #CONFIG_SYS_MONITOR_LEN
-	mov     r1, #0x10000000
-	mov     r5, r1
-
-    30:
-	ldr     r3, [r0], #4
-	str     r3, [r1], #4
-	cmp     r0, r2
-	bne     30b
-
-	/* invalidate I & D caches & BTB */
-	mcr	p15, 0, r0, c7, c7, 0
-	CPWAIT	r0
-
-	/* invalidate I & Data TLB */
-	mcr	p15, 0, r0, c8, c7, 0
-	CPWAIT r0
-
-	/* drain write and fill buffers */
-	mcr	p15, 0, r0, c7, c10, 4
-	CPWAIT	r0
-
-	/* move flash to 0x50000000 */
-	ldr	r2, =IXP425_EXP_CFG0
-	ldr     r1, [r2]
-	bic     r1, r1, #0x80000000
-	str     r1, [r2]
-
-	nop
-	nop
-	nop
-	nop
-	nop
-	nop
-
-	/* invalidate I & Data TLB */
-	mcr	p15, 0, r0, c8, c7, 0
-	CPWAIT r0
-
-	/* enable I cache */
-	mrc     p15, 0, r0, c1, c0, 0
-	orr     r0, r0, #MMU_Control_I
-	mcr     p15, 0, r0, c1, c0, 0
-	CPWAIT  r0
-
-	mrs	r0,cpsr			/* set the cpu to SVC32 mode	    */
-	bic	r0,r0,#0x1f		/* (superviser mode, M=10011)	    */
-	orr	r0,r0,#0x13
-	msr	cpsr,r0
-
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
-relocate:				/* relocate U-Boot to RAM	    */
-	adr	r0, _start		/* r0 <- current position of code   */
-	ldr	r1, _TEXT_BASE		/* test if we run from flash or RAM */
-	cmp     r0, r1                  /* don't reloc during debug         */
-	beq     stack_setup
-
-	ldr	r2, _armboot_start
-	ldr	r3, _bss_start
-	sub	r2, r3, r2		/* r2 <- size of armboot            */
-	add	r2, r0, r2		/* r2 <- source end address         */
-
-copy_loop:
-	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
-	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
-	cmp	r0, r2			/* until source end address [r2]    */
-	blo	copy_loop
-#endif	/* CONFIG_SKIP_RELOCATE_UBOOT */
-
-	/* Set up the stack						    */
-stack_setup:
-	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
-	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN	/* malloc area                      */
-	sub	r0, r0, #GENERATED_GBL_DATA_SIZE /* bdinfo                        */
-#ifdef CONFIG_USE_IRQ
-	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
-#endif
-	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
-	bic	sp, sp, #7		/* 8-byte alignment for ABI compliance */
-
-clear_bss:
-	ldr	r0, _bss_start		/* find start of bss segment        */
-	ldr	r1, _bss_end		/* stop here                        */
-	mov	r2, #0x00000000		/* clear                            */
-
-clbss_l:str	r2, [r0]		/* clear loop...                    */
-	add	r0, r0, #4
-	cmp	r0, r1
-	blo	clbss_l
-
-	ldr	pc, _start_armboot
-
-_start_armboot: .word start_armboot
-#endif /* #if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC) */
-
 
 /****************************************************************************/
 /*									    */
@@ -618,13 +427,7 @@ _start_armboot: .word start_armboot
 	stmia	sp, {r0 - r12}			/* Calling r0-r12	    */
 	add	r8, sp, #S_PC
 
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-	ldr	r2, _armboot_start
-	sub	r2, r2, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
-	sub	r2, r2, #(GENERATED_GBL_DATA_SIZE+8)  @ set base 2 words into abort stack
-#else
 	ldr	r2, IRQ_STACK_START_IN
-#endif
 	ldmia	r2, {r2 - r4}			/* get pc, cpsr, old_r0	    */
 	add	r0, sp, #S_FRAME_SIZE		/* restore sp_SVC	    */
 
@@ -659,13 +462,7 @@ _start_armboot: .word start_armboot
 	.endm
 
 	.macro get_bad_stack
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-	ldr	r13, _armboot_start		@ setup our mode stack
-	sub	r13, r13, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
-	sub	r13, r13, #(GENERATED_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
-#else
 	ldr	r13, IRQ_STACK_START_IN		@ setup our mode stack
-#endif
 
 	str	lr, [r13]			@ save caller lr / spsr
 	mrs	lr, spsr
