@@ -871,13 +871,18 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this)
 			return 0x01;
 		}
 
+/* HACK FIXME BHILL */
+#ifndef CONFIG_PELE
 		if (this->dev_ready) {
 			if (this->dev_ready(mtd))
 				break;
 		} else {
+#endif
 			if (this->read_byte(mtd) & NAND_STATUS_READY)
 				break;
+#ifndef CONFIG_PELE
 		}
+#endif
 	}
 #ifdef PPCHAMELON_NAND_TIMER_HACK
 	reset_timer();
@@ -2010,9 +2015,9 @@ static int nand_write(struct mtd_info *mtd, loff_t to, size_t len,
 	int ret;
 
 	/* Do not allow reads past end of device */
-	if ((to + len) > mtd->size)
+	if ((to + len) > mtd->size) 
 		return -EINVAL;
-	if (!len)
+	if (!len) 
 		return 0;
 
 	nand_get_device(chip, mtd, FL_WRITING);
@@ -2733,7 +2738,7 @@ int nand_scan_tail(struct mtd_info *mtd)
 	int i;
 	struct nand_chip *chip = mtd->priv;
 
-	if (!(chip->options & NAND_OWN_BUFFERS))
+	if (!(chip->options & NAND_OWN_BUFFERS)) 
 		chip->buffers = kmalloc(sizeof(*chip->buffers), GFP_KERNEL);
 	if (!chip->buffers)
 		return -ENOMEM;
@@ -2994,8 +2999,11 @@ void nand_release(struct mtd_info *mtd)
 
 	/* Free bad block table memory */
 	kfree(chip->bbt);
-	if (!(chip->options & NAND_OWN_BUFFERS))
+	chip->bbt = NULL;
+	if (!(chip->options & NAND_OWN_BUFFERS)) {
 		kfree(chip->buffers);
+		chip->buffers = NULL;
+	}
 }
 
 /* XXX U-BOOT XXX */
