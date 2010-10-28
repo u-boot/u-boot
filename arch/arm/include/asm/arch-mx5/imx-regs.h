@@ -26,7 +26,8 @@
 /*
  * IRAM
  */
-#define IRAM_BASE_ADDR		0x1FFE8000	/* internal ram */
+#define IRAM_BASE_ADDR		0x1FFE0000	/* internal ram */
+#define IRAM_SIZE		0x00020000	/* 128 KB */
 /*
  * Graphics Memory of GPU
  */

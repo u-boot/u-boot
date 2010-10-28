@@ -24,11 +24,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <asm/arch/imx-regs.h>
 
  /* High Level Configuration Options */
 
 #define CONFIG_MX51	/* in a mx51 */
-#define CONFIG_SKIP_RELOCATE_UBOOT
 
 #define CONFIG_SYS_MX5_HCLK	24000000
 #define CONFIG_SYS_MX5_CLK32		32768
@@ -51,7 +51,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 2 * 1024 * 1024)
-/* size in bytes reserved for initial data */
 
 #define BOARD_LATE_INIT
 
@@ -199,6 +198,15 @@
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM_1		CSD0_BASE_ADDR
 #define PHYS_SDRAM_1_SIZE	(512 * 1024 * 1024)
+
+#define CONFIG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
+#define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
+#define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
+
+#define CONFIG_SYS_INIT_SP_OFFSET \
+	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR \
+	(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_INIT_SP_OFFSET)
 
 #define CONFIG_SYS_DDR_CLKSEL	0
 #define CONFIG_SYS_CLKTL_CBCDR	0x59E35100

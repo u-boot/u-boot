@@ -52,9 +52,9 @@ u32 get_board_rev(void)
 
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = get_ram_size((long *)PHYS_SDRAM_1,
-			PHYS_SDRAM_1_SIZE);
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size((volatile void *)CONFIG_SYS_SDRAM_BASE,
+				PHYS_SDRAM_1_SIZE);
 	return 0;
 }
 
