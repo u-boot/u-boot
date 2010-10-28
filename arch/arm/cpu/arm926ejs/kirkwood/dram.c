@@ -81,6 +81,16 @@ int dram_init(void)
 		gd->ram_size += gd->bd->bi_dram[i].size;
 
 	}
+
+	for (; i < CONFIG_NR_DRAM_BANKS; i++) {
+		/* If above loop terminated prematurely, we need to set
+		 * remaining banks' start address & size as 0. Otherwise other
+		 * u-boot functions and Linux kernel gets wrong values which
+		 * could result in crash */
+		gd->bd->bi_dram[i].start = 0;
+		gd->bd->bi_dram[i].size = 0;
+	}
+
 	return 0;
 }
 
