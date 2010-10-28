@@ -189,7 +189,6 @@ relocate_code:
 stack_setup:
 	mov	sp, r4
 
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
 	adr	r0, _start
 	ldr	r2, _TEXT_BASE
 	ldr	r3, _bss_start_ofs
@@ -259,7 +258,6 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
 	cmp	r0, r1
 	bne	clbss_l
 #endif	/* #ifndef CONFIG_PRELOADER */
-#endif	/* #ifndef CONFIG_SKIP_RELOCATE_UBOOT */
 
 /*
  * We are done. Do not return, instead branch to second part of board
@@ -269,9 +267,7 @@ jump_2_ram:
 	ldr	r0, _board_init_r_ofs
 	adr	r1, _start
 	add	lr, r0, r1
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
 	add	lr, lr, r9
-#endif
 	/* setup parameters for board_init_r */
 	mov	r0, r5		/* gd_t */
 	mov	r1, r7		/* dest_addr */

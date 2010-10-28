@@ -68,8 +68,6 @@
 #define CONFIG_SYS_SDRC_MR_VAL2	0x00000003 /* Load Mode Register */
 #define CONFIG_SYS_SDRC_MR_VAL3	0x00000000 /* Normal Mode */
 #define CONFIG_SYS_SDRC_TR_VAL	0x000002E0 /* Write refresh rate */
-#else
-#define CONFIG_SKIP_RELOCATE_UBOOT
 #endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 
 /*

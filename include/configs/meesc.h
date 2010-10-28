@@ -48,7 +48,6 @@
 #undef CONFIG_USE_IRQ				/* don't need IRQ/FIQ stuff */
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_RELOCATE_UBOOT
 #define CONFIG_MISC_INIT_R			/* Call misc_init_r */
 
 #define CONFIG_ARCH_CPU_INIT

@@ -204,7 +204,6 @@ stack_setup:
 	cmp	r0, r6
 	beq	clear_bss
 
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
 copy_loop:
 	ldmia	r0!, {r9-r10}		/* copy from source address [r0]    */
 	stmia	r6!, {r9-r10}		/* copy to   target address [r1]    */
@@ -251,7 +250,6 @@ fixnext:
 	cmp	r2, r3
 	blo	fixloop
 #endif
-#endif	/* #ifndef CONFIG_SKIP_RELOCATE_UBOOT */
 
 clear_bss:
 #ifndef CONFIG_PRELOADER
@@ -286,9 +284,7 @@ _nand_boot_ofs:
 	ldr	r0, _board_init_r_ofs
 	adr	r1, _start
 	add	lr, r0, r1
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
 	add	lr, lr, r9
-#endif
 	/* setup parameters for board_init_r */
 	mov	r0, r5		/* gd_t */
 	mov	r1, r7		/* dest_addr */

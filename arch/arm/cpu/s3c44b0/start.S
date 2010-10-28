@@ -179,7 +179,6 @@ stack_setup:
 	cmp	r0, r6
 	beq	clear_bss
 
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
 copy_loop:
 	ldmia	r0!, {r9-r10}		/* copy from source address [r0]    */
 	stmia	r6!, {r9-r10}		/* copy to   target address [r1]    */
@@ -218,7 +217,6 @@ vector_copy_loop:
 	stmia	r1!, {r3-r10}
 	cmp	r0, r2
 	blo	vector_copy_loop
-#endif	/* #ifndef CONFIG_SKIP_RELOCATE_UBOOT */
 
 clear_bss:
 #ifndef CONFIG_PRELOADER

@@ -29,7 +29,6 @@
 #define	CONFIG_VPAC270		1	/* Toradex Colibri PXA270 board */
 
 #undef	BOARD_LATE_INIT
-#undef	CONFIG_SKIP_RELOCATE_UBOOT
 #undef	CONFIG_USE_IRQ
 #undef	CONFIG_SKIP_LOWLEVEL_INIT
 

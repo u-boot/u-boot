@@ -42,7 +42,6 @@
  * so we MUST NOT initialize critical regs like mem-timing ...
  */
 #undef CONFIG_SKIP_LOWLEVEL_INIT			/* define for developing */
-#undef CONFIG_SKIP_RELOCATE_UBOOT			/* define for developing */
 #define	CONFIG_SYS_TEXT_BASE	0x0
 
 /*

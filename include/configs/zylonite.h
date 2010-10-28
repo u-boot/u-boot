@@ -45,7 +45,6 @@
 #undef CONFIG_MMC
 #define BOARD_LATE_INIT		1
 
-#undef CONFIG_SKIP_RELOCATE_UBOOT
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 
 /* we will never enable dcache, because we have to setup MMU first */

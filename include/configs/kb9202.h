@@ -53,8 +53,6 @@
 #define CONFIG_INITRD_TAG	1
 
 #define	CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_RELOCATE_UBOOT	/* undef this for direct boot from */
-									/* NOR flash without preloader */
 
 #define	CONFIG_SYS_LONGHELP
 

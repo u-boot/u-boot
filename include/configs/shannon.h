@@ -34,7 +34,6 @@
  */
 #define CONFIG_INFERNO			/* we are using the inferno bootldr */
 #define CONFIG_SKIP_LOWLEVEL_INIT	1
-#undef  CONFIG_SKIP_RELOCATE_UBOOT
 
 /*
  * High Level Configuration Options
