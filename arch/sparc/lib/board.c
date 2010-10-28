@@ -252,13 +252,13 @@ void board_init_f(ulong bootflag)
 	post_run(NULL, POST_ROM | post_bootmode_get(0));
 #endif
 
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	/*
 	 * We have to relocate the command table manually
 	 */
 	fixup_cmdtable(&__u_boot_cmd_start,
 		(ulong)(&__u_boot_cmd_end - &__u_boot_cmd_start));
-#endif /* !defined(CONFIG_RELOC_FIXUP_WORKS) */
+#endif /* defined(CONFIG_NEEDS_MANUAL_RELOC) */
 
 #if defined(CONFIG_CMD_AMBAPP) && defined(CONFIG_SYS_AMBAPP_PRINT_ON_STARTUP)
 	puts("AMBA:\n");

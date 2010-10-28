@@ -420,13 +420,13 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	monitor_flash_len = (ulong)&__init_end - dest_addr;
 
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	/*
 	 * We have to relocate the command table manually
 	 */
 	fixup_cmdtable(&__u_boot_cmd_start,
 		(ulong)(&__u_boot_cmd_end - &__u_boot_cmd_start));
-#endif /* !defined(CONFIG_RELOC_FIXUP_WORKS) */
+#endif /* defined(CONFIG_NEEDS_MANUAL_RELOC) */
 
 	/* there are some other pointer constants we must deal with */
 #ifndef CONFIG_ENV_IS_NOWHERE

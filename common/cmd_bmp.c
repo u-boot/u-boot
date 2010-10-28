@@ -137,7 +137,7 @@ static cmd_tbl_t cmd_bmp_sub[] = {
 	U_BOOT_CMD_MKENT(display, 5, 0, do_bmp_display, "", ""),
 };
 
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 void bmp_reloc(void) {
 	fixup_cmdtable(cmd_bmp_sub, ARRAY_SIZE(cmd_bmp_sub));
 }

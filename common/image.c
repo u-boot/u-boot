@@ -520,7 +520,7 @@ char *get_table_entry_name (table_entry_t *table, char *msg, int id)
 {
 	for (; table->id >= 0; ++table) {
 		if (table->id == id)
-#if defined(USE_HOSTCC) || defined(CONFIG_RELOC_FIXUP_WORKS)
+#if defined(USE_HOSTCC) || !defined(CONFIG_NEEDS_MANUAL_RELOC)
 			return table->lname;
 #else
 			return table->lname + gd->reloc_off;
@@ -585,10 +585,10 @@ int get_table_entry_id (table_entry_t *table,
 	fprintf (stderr, "\n");
 #else
 	for (t = table; t->id >= 0; ++t) {
-#ifdef CONFIG_RELOC_FIXUP_WORKS
-		if (t->sname && strcmp(t->sname, name) == 0)
-#else
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 		if (t->sname && strcmp(t->sname + gd->reloc_off, name) == 0)
+#else
+		if (t->sname && strcmp(t->sname, name) == 0)
 #endif
 			return (t->id);
 	}

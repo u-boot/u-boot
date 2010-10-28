@@ -137,7 +137,7 @@ void post_output_backlog ( void );
 int post_run (char *name, int flags);
 int post_info (char *name);
 int post_log (char *format, ...);
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 void post_reloc (void);
 #endif
 unsigned long post_time_ms (unsigned long base);

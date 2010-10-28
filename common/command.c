@@ -466,7 +466,7 @@ int cmd_get_data_size(char* arg, int default_size)
 }
 #endif
 
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
 DECLARE_GLOBAL_DATA_PTR;
 
 void fixup_cmdtable(cmd_tbl_t *cmdtp, int size)

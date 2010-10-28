@@ -193,7 +193,7 @@ int stdio_deregister(char *devname)
 
 int stdio_init (void)
 {
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	/* already relocated for current ARM implementation */
 	ulong relocation_offset = gd->reloc_off;
 	int i;
@@ -203,7 +203,7 @@ int stdio_init (void)
 		stdio_names[i] = (char *) (((ulong) stdio_names[i]) +
 						relocation_offset);
 	}
-#endif /* !CONFIG_RELOC_FIXUP_WORKS */
+#endif /* CONFIG_NEEDS_MANUAL_RELOC */
 
 	/* Initialize the list */
 	INIT_LIST_HEAD(&(devs.list));

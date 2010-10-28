@@ -36,15 +36,14 @@ At lib level:
 
 At config level:
 
-	Define CONFIG_RELOC_FIXUP_WORKS.
 	Undefine CONFIG_SYS_ARM_WITHOUT_RELOC
 
 * WARNING ** WARNING ** WARNING ** WARNING ** WARNING ** WARNING ** WARNING *
 
 Boards which are not fixed to support relocation will be REMOVED!
 
-Eventually, CONFIG_SYS_ARM_WITHOUT_RELOC and CONFIG_RELOC_FIXUP_WORKS will
-disappear and boards which have to migrated to relocation will disappear too.
+Eventually, CONFIG_SYS_ARM_WITHOUT_RELOC will disappear and boards
+which have to migrated to relocation will disappear too.
 
 -----------------------------------------------------------------------------
 

@@ -679,15 +679,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #if !defined(CONFIG_SYS_NO_FLASH)
 	ulong flash_size;
 #endif
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
-	extern void malloc_bin_reloc (void);
-#if defined(CONFIG_CMD_BMP)
-	extern void bmp_reloc(void);
-#endif
-#if defined(CONFIG_CMD_I2C)
-	extern void i2c_reloc(void);
-#endif
-#endif
 
 	gd = id;
 	bd = gd->bd;
@@ -704,39 +695,16 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	debug ("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
-	/*
-	 * We have to relocate the command table manually
-	 */
-	fixup_cmdtable(&__u_boot_cmd_start,
-		(ulong)(&__u_boot_cmd_end - &__u_boot_cmd_start));
-#if defined(CONFIG_CMD_BMP)
-	bmp_reloc();
-#endif
-#if defined(CONFIG_CMD_I2C)
-	i2c_reloc();
-#endif
-#if defined(CONFIG_CMD_ONENAND)
-	onenand_reloc();
-#endif
-#endif /* !defined(CONFIG_RELOC_FIXUP_WORKS) */
-
 #ifdef CONFIG_LOGBUFFER
 	logbuff_init_ptrs ();
 #endif
 #ifdef CONFIG_POST
 	post_output_backlog ();
-#ifndef CONFIG_RELOC_FIXUP_WORKS
-	post_reloc ();
-#endif
 #endif
 
 	/* The Malloc area is immediately below the monitor copy in DRAM */
 	malloc_start = dest_addr - TOTAL_MALLOC_LEN;
 	mem_malloc_init (malloc_start, TOTAL_MALLOC_LEN);
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
-	malloc_bin_reloc ();
-#endif
 
 #if !defined(CONFIG_SYS_NO_FLASH)
 	puts ("FLASH: ");
