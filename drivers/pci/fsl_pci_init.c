@@ -441,6 +441,8 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 {
 	volatile ccsr_fsl_pci_t *pci;
 	struct pci_region *r;
+	pci_dev_t dev = PCI_BDF(busno,0,0);
+	u8 pcie_cap;
 
 	pci = (ccsr_fsl_pci_t *) pci_info->regs;
 
@@ -479,7 +481,9 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 		hose->last_busno = hose->first_busno;
 	}
 
-	printf("    PCIE%x on bus %02x - %02x\n", pci_info->pci_num,
+	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
+	printf("    PCI%s%x on bus %02x - %02x\n", pcie_cap == PCI_CAP_ID_EXP ?
+			"E" : "", pci_info->pci_num,
 			hose->first_busno, hose->last_busno);
 
 	return(hose->last_busno + 1);
