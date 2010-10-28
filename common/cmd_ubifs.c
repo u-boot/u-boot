@@ -98,7 +98,7 @@ int do_ubifs_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	int ret;
 
 	if (!ubifs_mounted) {
-		printf("UBIFS not mounted, use ubifs mount to mount volume first!\n");
+		printf("UBIFS not mounted, use ubifsmount to mount volume first!\n");
 		return -1;
 	}
 
