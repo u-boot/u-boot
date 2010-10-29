@@ -365,12 +365,12 @@ int vfd_init_clocks (void)
 	/* try to determine display type from the value
 	 * defined by pull-ups
 	 */
-	gpio->PCUP = (gpio->PCUP & 0xFFF0);	/* activate  GPC0...GPC3 pullups */
-	gpio->PCCON = (gpio->PCCON & 0xFFFFFF00);	/* configure GPC0...GPC3 as inputs */
+	gpio->pcup = (gpio->pcup & 0xFFF0); /* activate  GPC0...GPC3 pullups */
+	gpio->pccon = (gpio->pccon & 0xFFFFFF00); /* cfg GPC0...GPC3 inputs */
 	/* allow signals to settle */
 	for (i=0; i<10000; i++)	/* udelay isn't working yet at this point! */
 		__asm__("NOP");
-	vfd_board_id = (~gpio->PCDAT) & 0x000F;	/* read GPC0...GPC3 port pins */
+	vfd_board_id = (~gpio->pcdat) & 0x000F;	/* read GPC0...GPC3 port pins */
 
 	VFD_DISABLE;				/* activate blank for the vfd */
 
@@ -381,39 +381,39 @@ int vfd_init_clocks (void)
 		/* If new board revision, then use PWM 3 as cpld-clock */
 		/* Enable 500 Hz timer for fill level sensor to operate properly */
 		/* Configure TOUT3 as functional pin, disable pull-up */
-		gpio->PDCON &= ~0x30000;
-		gpio->PDCON |= 0x20000;
-		gpio->PDUP |= (1 << 8);
+		gpio->pdcon &= ~0x30000;
+		gpio->pdcon |= 0x20000;
+		gpio->pdup |= (1 << 8);
 
 		/* Configure the prescaler */
-		timers->TCFG0 &= ~0xff00;
-		timers->TCFG0 |= 0x0f00;
+		timers->tcfg0 &= ~0xff00;
+		timers->tcfg0 |= 0x0f00;
 
 		/* Select MUX input (divider) for timer3 (1/16) */
-		timers->TCFG1 &= ~0xf000;
-		timers->TCFG1 |= 0x3000;
+		timers->tcfg1 &= ~0xf000;
+		timers->tcfg1 |= 0x3000;
 
 		/* Enable autoreload and set the counter and compare
 		 * registers to values for the 500 Hz clock
 		 * (for a given  prescaler (15) and divider (16)):
 		 * counter = (66000000 / 500) >> 9;
 		 */
-		timers->ch[3].TCNTB = 0x101;
-		timers->ch[3].TCMPB = 0x101 / 2;
+		timers->ch[3].tcntb = 0x101;
+		timers->ch[3].tcmpb = 0x101 / 2;
 
 		/* Start timer */
-		timers->TCON = (timers->TCON | UPDATE3 | RELOAD3) & ~INVERT3;
-		timers->TCON = (timers->TCON | START3) & ~UPDATE3;
+		timers->tcon = (timers->tcon | UPDATE3 | RELOAD3) & ~INVERT3;
+		timers->tcon = (timers->tcon | START3) & ~UPDATE3;
 	}
 #endif
 	/* If old board revision, then use vm-signal as cpld-clock */
-	lcd->LCDCON2 = 0x00FFC000;
-	lcd->LCDCON3 = 0x0007FF00;
-	lcd->LCDCON4 = 0x00000000;
-	lcd->LCDCON5 = 0x00000400;
-	lcd->LCDCON1 = 0x00000B75;
+	lcd->lcdcon2 = 0x00FFC000;
+	lcd->lcdcon3 = 0x0007FF00;
+	lcd->lcdcon4 = 0x00000000;
+	lcd->lcdcon5 = 0x00000400;
+	lcd->lcdcon1 = 0x00000B75;
 	/* VM (GPD1) is used as clock for the CPLD */
-	gpio->PDCON = (gpio->PDCON & 0xFFFFFFF3) | 0x00000008;
+	gpio->pdcon = (gpio->pdcon & 0xFFFFFFF3) | 0x00000008;
 
 	return 0;
 }
@@ -485,40 +485,44 @@ int drv_vfd_init(void)
 	 * see manual S3C2400
 	 */
 	/* Stopp LCD-Controller */
-	lcd->LCDCON1 = 0x00000000;
+	lcd->lcdcon1 = 0x00000000;
 	/* frame buffer startadr */
-	lcd->LCDSADDR1 = gd->fb_base >> 1;
+	lcd->lcdsaddr1 = gd->fb_base >> 1;
 	/* frame buffer endadr */
-	lcd->LCDSADDR2 = (gd->fb_base + FRAME_BUF_SIZE) >> 1;
-	lcd->LCDSADDR3 = ((256/4));
-	lcd->LCDCON2 = 0x000DC000;
+	lcd->lcdsaddr2 = (gd->fb_base + FRAME_BUF_SIZE) >> 1;
+	lcd->lcdsaddr3 = ((256/4));
+	lcd->lcdcon2 = 0x000DC000;
 	if(gd->vfd_type == VFD_TYPE_MN11236)
-		lcd->LCDCON2 = 37 << 14;	/* MN11236: 38 lines */
+		lcd->lcdcon2 = 37 << 14;	/* MN11236: 38 lines */
 	else
-		lcd->LCDCON2 = 55 << 14;	/* T119C:   56 lines */
-	lcd->LCDCON3 = 0x0051000A;
-	lcd->LCDCON4 = 0x00000001;
+		lcd->lcdcon2 = 55 << 14;	/* T119C:   56 lines */
+	lcd->lcdcon3 = 0x0051000A;
+	lcd->lcdcon4 = 0x00000001;
 	if (gd->vfd_type && vfd_inv_data)
-		lcd->LCDCON5 = 0x000004C0;
+		lcd->lcdcon5 = 0x000004C0;
 	else
-		lcd->LCDCON5 = 0x00000440;
+		lcd->lcdcon5 = 0x00000440;
 
 	/* Port pins as LCD output */
-	gpio->PCCON =   (gpio->PCCON & 0xFFFFFF00)| 0x000000AA;
-	gpio->PDCON =   (gpio->PDCON & 0xFFFFFF03)| 0x000000A8;
+	gpio->pccon =   (gpio->pccon & 0xFFFFFF00) | 0x000000AA;
+	gpio->pdcon =   (gpio->pdcon & 0xFFFFFF03) | 0x000000A8;
 
 	/* Synchronize VFD enable with LCD controller to avoid flicker	*/
-	lcd->LCDCON1 = 0x00000B75;			/* Start LCD-Controller	*/
-	while((lcd->LCDCON5 & 0x180000)!=0x100000);	/* Wait for end of VSYNC */
-	while((lcd->LCDCON5 & 0x060000)!=0x040000);	/* Wait for next HSYNC	*/
-	while((lcd->LCDCON5 & 0x060000)==0x040000);
-	while((lcd->LCDCON5 & 0x060000)!=0x000000);
+	lcd->lcdcon1 = 0x00000B75; /* Start LCD-Controller	*/
+	while ((lcd->lcdcon5 & 0x180000) != 0x100000) /* Wait for VSYNC end */
+		;
+	while ((lcd->lcdcon5 & 0x060000) != 0x040000) /* Wait for next HSYNC */
+		;
+	while ((lcd->lcdcon5 & 0x060000) == 0x040000)
+		;
+	while ((lcd->lcdcon5 & 0x060000) != 0x000000)
+		;
 	if(gd->vfd_type)
 		VFD_ENABLE;
 
-	debug ("LCDSADDR1: %lX\n", lcd->LCDSADDR1);
-	debug ("LCDSADDR2: %lX\n", lcd->LCDSADDR2);
-	debug ("LCDSADDR3: %lX\n", lcd->LCDSADDR3);
+	debug("LCDSADDR1: %lX\n", lcd->lcdsaddr1);
+	debug("LCDSADDR2: %lX\n", lcd->lcdsaddr2);
+	debug("LCDSADDR3: %lX\n", lcd->lcdsaddr3);
 
 	return 0;
 }
@@ -532,8 +536,8 @@ void disable_vfd (void)
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	VFD_DISABLE;
-	gpio->PDCON &= ~0xC;
-	gpio->PDUP  &= ~0x2;
+	gpio->pdcon &= ~0xC;
+	gpio->pdup  &= ~0x2;
 }
 
 /************************************************************************/

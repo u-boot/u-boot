@@ -411,28 +411,28 @@ static int adc_read (unsigned int channel)
 	padc = s3c2400_get_base_adc();
 	channel &= 0x7;
 
-	padc->ADCCON &= ~ADC_STDBM; /* select normal mode */
-	padc->ADCCON &= ~(0x7 << 3); /* clear the channel bits */
-	padc->ADCCON |= ((channel << 3) | ADC_ENABLE_START);
+	padc->adccon &= ~ADC_STDBM; /* select normal mode */
+	padc->adccon &= ~(0x7 << 3); /* clear the channel bits */
+	padc->adccon |= ((channel << 3) | ADC_ENABLE_START);
 
 	while (j--) {
-		if ((padc->ADCCON & ADC_ENABLE_START) == 0)
+		if ((padc->adccon & ADC_ENABLE_START) == 0)
 			break;
 		udelay (1);
 	}
 
 	if (j == 0) {
 		printf("%s: ADC timeout\n", __FUNCTION__);
-		padc->ADCCON |= ADC_STDBM; /* select standby mode */
+		padc->adccon |= ADC_STDBM; /* select standby mode */
 		return -1;
 	}
 
-	result = padc->ADCDAT & 0x3FF;
+	result = padc->adcdat & 0x3FF;
 
-	padc->ADCCON |= ADC_STDBM; /* select standby mode */
+	padc->adccon |= ADC_STDBM; /* select standby mode */
 
 	debug ("%s: channel %d, result[DIGIT]=%d\n", __FUNCTION__,
-	       (padc->ADCCON >> 3) & 0x7, result);
+	       (padc->adccon >> 3) & 0x7, result);
 
 	/*
 	 * Wait for ADC to be ready for next conversion. This delay value was
@@ -450,8 +450,8 @@ static void adc_init (void)
 
 	padc = s3c2400_get_base_adc();
 
-	padc->ADCCON &= ~(0xff << 6); /* clear prescaler bits */
-	padc->ADCCON |= ((65 << 6) | ADC_PRSCEN); /* set prescaler */
+	padc->adccon &= ~(0xff << 6); /* clear prescaler bits */
+	padc->adccon |= ((65 << 6) | ADC_PRSCEN); /* set prescaler */
 
 	/*
 	 * Wait some time to avoid problem with very first call of
@@ -493,10 +493,10 @@ int do_power_switch (void)
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* configure GPE7 as input */
-	gpio->PECON &= ~(0x3 << (2 * 7));
+	gpio->pecon &= ~(0x3 << (2 * 7));
 
 	/* signal GPE7 from power switch is low active: 0=on , 1=off */
-	result = ((gpio->PEDAT & (1 << 7)) == (1 << 7)) ? 0 : 1;
+	result = ((gpio->pedat & (1 << 7)) == (1 << 7)) ? 0 : 1;
 
 	print_identifier ();
 	printf("%d\n", result);
@@ -561,17 +561,17 @@ int do_vfd_id (void)
 
 	/* try to red vfd board id from the value defined by pull-ups */
 
-	pcup_old = gpio->PCUP;
-	pccon_old = gpio->PCCON;
+	pcup_old = gpio->pcup;
+	pccon_old = gpio->pccon;
 
-	gpio->PCUP = (gpio->PCUP & 0xFFF0); /* activate  GPC0...GPC3 pull-ups */
-	gpio->PCCON = (gpio->PCCON & 0xFFFFFF00); /* configure GPC0...GPC3 as
+	gpio->pcup = (gpio->pcup & 0xFFF0); /* activate  GPC0...GPC3 pull-ups */
+	gpio->pccon = (gpio->pccon & 0xFFFFFF00); /* configure GPC0...GPC3 as
 						   * inputs */
 	udelay (10);            /* allow signals to settle */
-	vfd_board_id = (~gpio->PCDAT) & 0x000F;	/* read GPC0...GPC3 port pins */
+	vfd_board_id = (~gpio->pcdat) & 0x000F;	/* read GPC0...GPC3 port pins */
 
-	gpio->PCCON = pccon_old;
-	gpio->PCUP = pcup_old;
+	gpio->pccon = pccon_old;
+	gpio->pcup = pcup_old;
 
 	/* print vfd_board_id to console */
 	print_identifier ();
@@ -593,40 +593,40 @@ int do_buzzer (char * const *argv)
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* set prescaler for timer 2, 3 and 4 */
-	timers->TCFG0 &= ~0xFF00;
-	timers->TCFG0 |=  0x0F00;
+	timers->tcfg0 &= ~0xFF00;
+	timers->tcfg0 |=  0x0F00;
 
 	/* set divider for timer 2 */
-	timers->TCFG1 &= ~0xF00;
-	timers->TCFG1 |=  0x300;
+	timers->tcfg1 &= ~0xF00;
+	timers->tcfg1 |=  0x300;
 
 	/* set frequency */
 	counter = (PCLK / BUZZER_FREQ) >> 9;
-	timers->ch[2].TCNTB = counter;
-	timers->ch[2].TCMPB = counter / 2;
+	timers->ch[2].tcntb = counter;
+	timers->ch[2].tcmpb = counter / 2;
 
 	if (strcmp (argv[2], "on") == 0) {
 		debug ("%s: frequency: %d\n", __FUNCTION__,
 		       BUZZER_FREQ);
 
 		/* configure pin GPD7 as TOUT2 */
-		gpio->PDCON &= ~0xC000;
-		gpio->PDCON |= 0x8000;
+		gpio->pdcon &= ~0xC000;
+		gpio->pdcon |= 0x8000;
 
 		/* start */
-		timers->TCON = (timers->TCON | UPDATE2 | RELOAD2) &
+		timers->tcon = (timers->tcon | UPDATE2 | RELOAD2) &
 				~INVERT2;
-		timers->TCON = (timers->TCON | START2) & ~UPDATE2;
+		timers->tcon = (timers->tcon | START2) & ~UPDATE2;
 		return (0);
 	}
 	else if (strcmp (argv[2], "off") == 0) {
 		/* stop */
-		timers->TCON &= ~(START2 | RELOAD2);
+		timers->tcon &= ~(START2 | RELOAD2);
 
 		/* configure GPD7 as output and set to low */
-		gpio->PDCON &= ~0xC000;
-		gpio->PDCON |= 0x4000;
-		gpio->PDDAT &= ~0x80;
+		gpio->pdcon &= ~0xC000;
+		gpio->pdcon |= 0x4000;
+		gpio->pddat &= ~0x80;
 		return (0);
 	}
 
@@ -640,12 +640,12 @@ int do_led (char * const *argv)
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* configure PC14 and PC15 as output */
-	gpio->PCCON &= ~(0xF << 28);
-	gpio->PCCON |= (0x5 << 28);
+	gpio->pccon &= ~(0xF << 28);
+	gpio->pccon |= (0x5 << 28);
 
 	/* configure PD0 and PD4 as output */
-	gpio->PDCON &= ~((0x3 << 8) | 0x3);
-	gpio->PDCON |= ((0x1 << 8) | 0x1);
+	gpio->pdcon &= ~((0x3 << 8) | 0x3);
+	gpio->pdcon |= ((0x1 << 8) | 0x1);
 
 	switch (simple_strtoul(argv[2], NULL, 10)) {
 
@@ -655,30 +655,30 @@ int do_led (char * const *argv)
 
 	case 2:
 		if (strcmp (argv[3], "on") == 0)
-			gpio->PCDAT |= (1 << 14);
+			gpio->pcdat |= (1 << 14);
 		else
-			gpio->PCDAT &= ~(1 << 14);
+			gpio->pcdat &= ~(1 << 14);
 		return 0;
 
 	case 3:
 		if (strcmp (argv[3], "on") == 0)
-			gpio->PCDAT |= (1 << 15);
+			gpio->pcdat |= (1 << 15);
 		else
-			gpio->PCDAT &= ~(1 << 15);
+			gpio->pcdat &= ~(1 << 15);
 		return 0;
 
 	case 4:
 		if (strcmp (argv[3], "on") == 0)
-			gpio->PDDAT |= (1 << 0);
+			gpio->pddat |= (1 << 0);
 		else
-			gpio->PDDAT &= ~(1 << 0);
+			gpio->pddat &= ~(1 << 0);
 		return 0;
 
 	case 5:
 		if (strcmp (argv[3], "on") == 0)
-			gpio->PDDAT |= (1 << 4);
+			gpio->pddat |= (1 << 4);
 		else
-			gpio->PDDAT &= ~(1 << 4);
+			gpio->pddat &= ~(1 << 4);
 		return 0;
 
 	default:
@@ -695,22 +695,22 @@ int do_full_bridge (char * const *argv)
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* configure PD5 and PD6 as output */
-	gpio->PDCON &= ~((0x3 << 5*2) | (0x3 << 6*2));
-	gpio->PDCON |= ((0x1 << 5*2) | (0x1 << 6*2));
+	gpio->pdcon &= ~((0x3 << 5*2) | (0x3 << 6*2));
+	gpio->pdcon |= ((0x1 << 5*2) | (0x1 << 6*2));
 
 	if (strcmp (argv[2], "+") == 0) {
-	      gpio->PDDAT |= (1 << 5);
-	      gpio->PDDAT |= (1 << 6);
+		gpio->pddat |= (1 << 5);
+	      gpio->pddat |= (1 << 6);
 	      return 0;
 	}
 	else if (strcmp (argv[2], "-") == 0) {
-		gpio->PDDAT &= ~(1 << 5);
-		gpio->PDDAT |= (1 << 6);
+		gpio->pddat &= ~(1 << 5);
+		gpio->pddat |= (1 << 6);
 		return 0;
 	}
 	else if (strcmp (argv[2], "off") == 0) {
-		gpio->PDDAT &= ~(1 << 5);
-		gpio->PDDAT &= ~(1 << 6);
+		gpio->pddat &= ~(1 << 5);
+		gpio->pddat &= ~(1 << 6);
 		return 0;
 	}
 	printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
@@ -804,15 +804,15 @@ int do_motor (char * const *argv)
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* Configure I/O port */
-	gpio->PGCON &= ~(0x3 << 0);
-	gpio->PGCON |= (0x1 << 0);
+	gpio->pgcon &= ~(0x3 << 0);
+	gpio->pgcon |= (0x1 << 0);
 
 	if (strcmp (argv[2], "on") == 0) {
-		gpio->PGDAT &= ~(1 << 0);
+		gpio->pgdat &= ~(1 << 0);
 		return 0;
 	}
 	if (strcmp (argv[2], "off") == 0) {
-		gpio->PGDAT |= (1 << 0);
+		gpio->pgdat |= (1 << 0);
 		return 0;
 	}
 	printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);
@@ -832,36 +832,36 @@ int do_pwm (char * const *argv)
 
 	if (strcmp (argv[2], "on") == 0) {
 		/* configure pin GPD8 as TOUT3 */
-		gpio->PDCON &= ~(0x3 << 8*2);
-		gpio->PDCON |= (0x2 << 8*2);
+		gpio->pdcon &= ~(0x3 << 8*2);
+		gpio->pdcon |= (0x2 << 8*2);
 
 		/* set prescaler for timer 2, 3 and 4 */
-		timers->TCFG0 &= ~0xFF00;
-		timers->TCFG0 |= 0x0F00;
+		timers->tcfg0 &= ~0xFF00;
+		timers->tcfg0 |= 0x0F00;
 
 		/* set divider for timer 3 */
-		timers->TCFG1 &= ~(0xf << 12);
-		timers->TCFG1 |= (0x3 << 12);
+		timers->tcfg1 &= ~(0xf << 12);
+		timers->tcfg1 |= (0x3 << 12);
 
 		/* set frequency */
 		counter = (PCLK / PWM_FREQ) >> 9;
-		timers->ch[3].TCNTB = counter;
-		timers->ch[3].TCMPB = counter / 2;
+		timers->ch[3].tcntb = counter;
+		timers->ch[3].tcmpb = counter / 2;
 
 		/* start timer */
-		timers->TCON = (timers->TCON | UPDATE3 | RELOAD3) & ~INVERT3;
-		timers->TCON = (timers->TCON | START3) & ~UPDATE3;
+		timers->tcon = (timers->tcon | UPDATE3 | RELOAD3) & ~INVERT3;
+		timers->tcon = (timers->tcon | START3) & ~UPDATE3;
 		return 0;
 	}
 	if (strcmp (argv[2], "off") == 0) {
 
 		/* stop timer */
-		timers->TCON &= ~(START2 | RELOAD2);
+		timers->tcon &= ~(START2 | RELOAD2);
 
 		/* configure pin GPD8 as output and set to 0 */
-		gpio->PDCON &= ~(0x3 << 8*2);
-		gpio->PDCON |= (0x1 << 8*2);
-		gpio->PDDAT &= ~(1 << 8);
+		gpio->pdcon &= ~(0x3 << 8*2);
+		gpio->pdcon |= (0x1 << 8*2);
+		gpio->pddat &= ~(1 << 8);
 		return 0;
 	}
 	printf ("%s: invalid parameter %s\n", __FUNCTION__, argv[2]);

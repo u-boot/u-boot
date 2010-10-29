@@ -49,11 +49,11 @@ static inline void SetRTC_Access(RTC_ACCESS a)
 
 	switch (a) {
 	case RTC_ENABLE:
-		writeb(readb(&rtc->RTCCON) | 0x01, &rtc->RTCCON);
+		writeb(readb(&rtc->rtccon) | 0x01, &rtc->rtccon);
 		break;
 
 	case RTC_DISABLE:
-		writeb(readb(&rtc->RTCCON) & ~0x01, &rtc->RTCCON);
+		writeb(readb(&rtc->rtccon) & ~0x01, &rtc->rtccon);
 		break;
 	}
 }
@@ -71,23 +71,23 @@ int rtc_get(struct rtc_time *tmp)
 
 	/* read RTC registers */
 	do {
-		sec  = readb(&rtc->BCDSEC);
-		min  = readb(&rtc->BCDMIN);
-		hour = readb(&rtc->BCDHOUR);
-		mday = readb(&rtc->BCDDATE);
-		wday = readb(&rtc->BCDDAY);
-		mon  = readb(&rtc->BCDMON);
-		year = readb(&rtc->BCDYEAR);
-	} while (sec != readb(&rtc->BCDSEC));
+		sec  = readb(&rtc->bcdsec);
+		min  = readb(&rtc->bcdmin);
+		hour = readb(&rtc->bcdhour);
+		mday = readb(&rtc->bcddate);
+		wday = readb(&rtc->bcdday);
+		mon  = readb(&rtc->bcdmon);
+		year = readb(&rtc->bcdyear);
+	} while (sec != readb(&rtc->bcdsec));
 
 	/* read ALARM registers */
-	a_sec   = readb(&rtc->ALMSEC);
-	a_min   = readb(&rtc->ALMMIN);
-	a_hour  = readb(&rtc->ALMHOUR);
-	a_date  = readb(&rtc->ALMDATE);
-	a_mon   = readb(&rtc->ALMMON);
-	a_year  = readb(&rtc->ALMYEAR);
-	a_armed = readb(&rtc->RTCALM);
+	a_sec   = readb(&rtc->almsec);
+	a_min   = readb(&rtc->almmin);
+	a_hour  = readb(&rtc->almhour);
+	a_date  = readb(&rtc->almdate);
+	a_mon   = readb(&rtc->almmon);
+	a_year  = readb(&rtc->almyear);
+	a_armed = readb(&rtc->rtcalm);
 
 	/* disable access to RTC registers */
 	SetRTC_Access(RTC_DISABLE);
@@ -145,13 +145,13 @@ int rtc_set(struct rtc_time *tmp)
 	SetRTC_Access(RTC_ENABLE);
 
 	/* write RTC registers */
-	writeb(sec, &rtc->BCDSEC);
-	writeb(min, &rtc->BCDMIN);
-	writeb(hour, &rtc->BCDHOUR);
-	writeb(mday, &rtc->BCDDATE);
-	writeb(wday, &rtc->BCDDAY);
-	writeb(mon, &rtc->BCDMON);
-	writeb(year, &rtc->BCDYEAR);
+	writeb(sec, &rtc->bcdsec);
+	writeb(min, &rtc->bcdmin);
+	writeb(hour, &rtc->bcdhour);
+	writeb(mday, &rtc->bcddate);
+	writeb(wday, &rtc->bcdday);
+	writeb(mon, &rtc->bcdmon);
+	writeb(year, &rtc->bcdyear);
 
 	/* disable access to RTC registers */
 	SetRTC_Access(RTC_DISABLE);
@@ -163,8 +163,8 @@ void rtc_reset(void)
 {
 	struct s3c24x0_rtc *rtc = s3c24x0_get_base_rtc();
 
-	writeb((readb(&rtc->RTCCON) & ~0x06) | 0x08, &rtc->RTCCON);
-	writeb(readb(&rtc->RTCCON) & ~(0x08 | 0x01), &rtc->RTCCON);
+	writeb((readb(&rtc->rtccon) & ~0x06) | 0x08, &rtc->rtccon);
+	writeb(readb(&rtc->rtccon) & ~(0x08 | 0x01), &rtc->rtccon);
 }
 
 #endif

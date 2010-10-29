@@ -78,42 +78,43 @@ int board_init(void)
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
 	/* to reduce PLL lock time, adjust the LOCKTIME register */
-	clk_power->LOCKTIME = 0xFFFFFF;
+	clk_power->locktime = 0xFFFFFF;
 
 	/* configure MPLL */
-	clk_power->MPLLCON = ((M_MDIV << 12) + (M_PDIV << 4) + M_SDIV);
+	clk_power->mpllcon = ((M_MDIV << 12) + (M_PDIV << 4) + M_SDIV);
 
 	/* some delay between MPLL and UPLL */
 	delay (4000);
 
 	/* configure UPLL */
-	clk_power->UPLLCON = ((U_M_MDIV << 12) + (U_M_PDIV << 4) + U_M_SDIV);
+	clk_power->upllcon = ((U_M_MDIV << 12) + (U_M_PDIV << 4) + U_M_SDIV);
 
 	/* some delay between MPLL and UPLL */
 	delay (8000);
 
 	/* set up the I/O ports */
-	gpio->GPACON = 0x007FFFFF;
-	gpio->GPBCON = 0x002AAAAA;
-	gpio->GPBUP = 0x000002BF;
-	gpio->GPCCON = 0xAAAAAAAA;
-	gpio->GPCUP = 0x0000FFFF;
-	gpio->GPDCON = 0xAAAAAAAA;
-	gpio->GPDUP = 0x0000FFFF;
-	gpio->GPECON = 0xAAAAAAAA;
-	gpio->GPEUP = 0x000037F7;
-	gpio->GPFCON = 0x00000000;
-	gpio->GPFUP = 0x00000000;
-	gpio->GPGCON = 0xFFEAFF5A;
-	gpio->GPGUP = 0x0000F0DC;
-	gpio->GPHCON = 0x0028AAAA;
-	gpio->GPHUP = 0x00000656;
+	gpio->gpacon = 0x007FFFFF;
+	gpio->gpbcon = 0x002AAAAA;
+	gpio->gpbup = 0x000002BF;
+	gpio->gpccon = 0xAAAAAAAA;
+	gpio->gpcup = 0x0000FFFF;
+	gpio->gpdcon = 0xAAAAAAAA;
+	gpio->gpdup = 0x0000FFFF;
+	gpio->gpecon = 0xAAAAAAAA;
+	gpio->gpeup = 0x000037F7;
+	gpio->gpfcon = 0x00000000;
+	gpio->gpfup = 0x00000000;
+	gpio->gpgcon = 0xFFEAFF5A;
+	gpio->gpgup = 0x0000F0DC;
+	gpio->gphcon = 0x0028AAAA;
+	gpio->gphup = 0x00000656;
 
 	/* setup correct IRQ modes for NIC */
-	gpio->EXTINT2 = (gpio->EXTINT2 & ~(7<<8)) | (4<<8); /* rising edge mode */
+	/* rising edge mode */
+	gpio->extint2 = (gpio->extint2 & ~(7<<8)) | (4<<8);
 
 	/* select USB port 2 to be host or device (fix to host for now) */
-	gpio->MISCCR |= 0x08;
+	gpio->misccr |= 0x08;
 
 	/* init serial */
 	gd->baudrate = CONFIG_BAUDRATE;

@@ -70,7 +70,11 @@ void serial_setbrg_dev(const int dev_index)
 	val = uclk / baudrate;
 
 	writel(val / 16 - 1, &uart->ubrdiv);
-	writew(udivslot[val % 16], &uart->udivslot);
+
+	if (use_divslot)
+		writew(udivslot[val % 16], &uart->rest.slot);
+	else
+		writeb(val % 16, &uart->rest.value);
 }
 
 /*
