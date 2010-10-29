@@ -8,7 +8,6 @@ AFLAGS	+= -DCONFIG_PRELOADER -DCONFIG_ONENAND_IPL
 CFLAGS	+= -DCONFIG_PRELOADER -DCONFIG_ONENAND_IPL
 OBJCFLAGS += --gap-fill=0x00
 
-SOBJS	:= lowlevel_init.o
 SOBJS	+= start.o
 COBJS	:= vpac270.o
 COBJS	+= onenand_read.o
@@ -62,10 +61,6 @@ ifneq ($(OBJTREE), $(SRCTREE))
 $(obj)vpac270.c:
 	@rm -f $@
 	ln -s $(SRCTREE)/onenand_ipl/board/$(BOARDDIR)/vpac270.c $@
-
-$(obj)lowlevel_init.S:
-	@rm -f $@
-	ln -s $(SRCTREE)/onenand_ipl/board/$(BOARDDIR)/lowlevel_init.S $@
 endif
 
 #########################################################################

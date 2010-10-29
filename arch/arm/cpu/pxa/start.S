@@ -33,7 +33,6 @@
 #include <config.h>
 #include <version.h>
 #include <asm/arch/pxa-regs.h>
-#include <asm/arch/macro.h>
 
 /* takes care the CP15 update has taken place */
 .macro CPWAIT reg
