@@ -104,68 +104,6 @@ void pciinfo(int BusNum, int ShortPCIListing)
     }
 }
 
-static char *pci_classes_str(u8 class)
-{
-	switch (class) {
-	case PCI_CLASS_NOT_DEFINED:
-		return "Build before PCI Rev2.0";
-		break;
-	case PCI_BASE_CLASS_STORAGE:
-		return "Mass storage controller";
-		break;
-	case PCI_BASE_CLASS_NETWORK:
-		return "Network controller";
-		break;
-	case PCI_BASE_CLASS_DISPLAY:
-		return "Display controller";
-		break;
-	case PCI_BASE_CLASS_MULTIMEDIA:
-		return "Multimedia device";
-		break;
-	case PCI_BASE_CLASS_MEMORY:
-		return "Memory controller";
-		break;
-	case PCI_BASE_CLASS_BRIDGE:
-		return "Bridge device";
-		break;
-	case PCI_BASE_CLASS_COMMUNICATION:
-		return "Simple comm. controller";
-		break;
-	case PCI_BASE_CLASS_SYSTEM:
-		return "Base system peripheral";
-		break;
-	case PCI_BASE_CLASS_INPUT:
-		return "Input device";
-		break;
-	case PCI_BASE_CLASS_DOCKING:
-		return "Docking station";
-		break;
-	case PCI_BASE_CLASS_PROCESSOR:
-		return "Processor";
-		break;
-	case PCI_BASE_CLASS_SERIAL:
-		return "Serial bus controller";
-		break;
-	case PCI_BASE_CLASS_INTELLIGENT:
-		return "Intelligent controller";
-		break;
-	case PCI_BASE_CLASS_SATELLITE:
-		return "Satellite controller";
-		break;
-	case PCI_BASE_CLASS_CRYPT:
-		return "Cryptographic device";
-		break;
-	case PCI_BASE_CLASS_SIGNAL_PROCESSING:
-		return "DSP";
-		break;
-	case PCI_CLASS_OTHERS:
-		return "Does not fit any class";
-		break;
-	default:
-	return  "???";
-		break;
-	};
-}
 
 /*
  * Subroutine:  pci_header_show_brief
@@ -190,7 +128,7 @@ void pci_header_show_brief(pci_dev_t dev)
 
 	printf("0x%.4x     0x%.4x     %-23s 0x%.2x\n",
 	       vendor, device,
-	       pci_classes_str(class), subclass);
+	       pci_class_str(class), subclass);
 }
 
 /*
@@ -225,7 +163,7 @@ void pci_header_show(pci_dev_t dev)
 	PRINT ("  status register =             0x%.4x\n", word, PCI_STATUS);
 	PRINT ("  revision ID =                 0x%.2x\n", byte, PCI_REVISION_ID);
 	PRINT2("  class code =                  0x%.2x (%s)\n", byte, PCI_CLASS_CODE,
-								pci_classes_str);
+								pci_class_str);
 	PRINT ("  sub class code =              0x%.2x\n", byte, PCI_CLASS_SUB_CODE);
 	PRINT ("  programming interface =       0x%.2x\n", byte, PCI_CLASS_PROG);
 	PRINT ("  cache line =                  0x%.2x\n", byte, PCI_CACHE_LINE_SIZE);

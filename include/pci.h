@@ -536,6 +536,7 @@ extern int pci_hose_config_device(struct pci_controller *hose,
 				  pci_addr_t mem,
 				  unsigned long command);
 
+const char * pci_class_str(u8 class);
 int pci_last_busno(void);
 
 #ifdef CONFIG_MPC824X
