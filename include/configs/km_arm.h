@@ -181,6 +181,8 @@ int get_scl (void);
 
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_INIT_SP_ADDR		(0x00000000 + 0x1000 - /* Fix this */ \
-					GENERATED_GBL_DATA_SIZE)
+/* Kirkwood has 2k of Security SRAM, use it for SP */
+#define CONFIG_SYS_INIT_SP_ADDR		0xC8012000
+/* Do early setups now in board_init_f() */
+#define CONFIG_BOARD_EARLY_INIT_F
 #endif /* _CONFIG_KM_ARM_H */

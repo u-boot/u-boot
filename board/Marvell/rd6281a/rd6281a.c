@@ -31,7 +31,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int board_init(void)
+int board_early_init_f(void)
 {
 	/*
 	 * default gpio configuration
@@ -97,7 +97,11 @@ int board_init(void)
 		0
 	};
 	kirkwood_mpp_conf(kwmpp_config);
+	return 0;
+}
 
+int board_init(void)
+{
 	/*
 	 * arch number of board
 	 */
