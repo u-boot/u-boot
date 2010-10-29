@@ -11,7 +11,7 @@
 # line; without any arguments, MAKEALL defaults to building all Power
 # Architecture systems (i. e. same as for "MAKEALL powerpc").
 #
-# With the iontroduction of the board.cfg file, it has become possible
+# With the introduction of the board.cfg file, it has become possible
 # to provide additional selections.  We use standard command line
 # options for this:
 #
@@ -125,6 +125,12 @@ FILTER="\$1 !~ /^#/"
 
 if [ "$SELECTED" ] ; then
 	SELECTED=$(awk '('"$FILTER"') { print $1 }' boards.cfg)
+
+	# Make sure some boards from boards.cfg are actually found
+	if [ -z "$SELECTED" ] ; then
+		echo "Error: No boards selected, invalid arguments"
+		exit 1
+	fi
 fi
 
 #########################################################################
