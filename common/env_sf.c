@@ -272,7 +272,7 @@ int saveenv(void)
 	u32 saved_size, saved_offset;
 	char *saved_buffer = NULL;
 	u32 sector = 1;
-	int ret;
+	int ret = 1;
 	env_t	env_new;
 	char	*res;
 	ssize_t	len;
@@ -293,7 +293,6 @@ int saveenv(void)
 		saved_offset = CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE;
 		saved_buffer = malloc(saved_size);
 		if (!saved_buffer) {
-			ret = 1;
 			goto done;
 		}
 		ret = spi_flash_read(env_flash, saved_offset,
