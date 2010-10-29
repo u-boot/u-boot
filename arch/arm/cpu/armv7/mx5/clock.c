@@ -269,7 +269,7 @@ u32 imx_get_fecclk(void)
 /*
  * Dump some core clockes.
  */
-int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 freq;
 
