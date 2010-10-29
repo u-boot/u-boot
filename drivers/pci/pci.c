@@ -616,6 +616,9 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 	unsigned char header_type;
 	struct pci_config_table *cfg;
 	pci_dev_t dev;
+#ifdef CONFIG_PCI_SCAN_SHOW
+	static int indent = 0;
+#endif
 
 	sub_bus = bus;
 
@@ -646,9 +649,14 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 		pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
 
 #ifdef CONFIG_PCI_SCAN_SHOW
+		indent++;
+
+		/* Print leading space, including bus indentation */
+		printf("%*c", indent + 1, ' ');
+
 		if (pci_print_dev(hose, dev)) {
-			printf("        %02x:%02x.%x - %04x:%04x - %s\n",
-			       PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev),
+			printf("%02x:%02x.%-*x - %04x:%04x - %s\n",
+			       PCI_BUS(dev), PCI_DEV(dev), 6 - indent, PCI_FUNC(dev),
 			       vendor, device, pci_class_str(class >> 8));
 		}
 #endif
@@ -665,6 +673,10 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 			sub_bus = max(sub_bus, n);
 #endif
 		}
+
+#ifdef CONFIG_PCI_SCAN_SHOW
+		indent--;
+#endif
 
 		if (hose->fixup_irq)
 			hose->fixup_irq(hose, dev);
