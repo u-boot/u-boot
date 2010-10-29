@@ -645,6 +645,14 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 		pci_hose_read_config_word(hose, dev, PCI_DEVICE_ID, &device);
 		pci_hose_read_config_word(hose, dev, PCI_CLASS_DEVICE, &class);
 
+#ifdef CONFIG_PCI_SCAN_SHOW
+		if (pci_print_dev(hose, dev)) {
+			printf("        %02x:%02x.%x - %04x:%04x - %s\n",
+			       PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev),
+			       vendor, device, pci_class_str(class >> 8));
+		}
+#endif
+
 		cfg = pci_find_config(hose, class, vendor, device,
 				      PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev));
 		if (cfg) {
@@ -657,16 +665,9 @@ int pci_hose_scan_bus(struct pci_controller *hose, int bus)
 			sub_bus = max(sub_bus, n);
 #endif
 		}
+
 		if (hose->fixup_irq)
 			hose->fixup_irq(hose, dev);
-
-#ifdef CONFIG_PCI_SCAN_SHOW
-		if (pci_print_dev(hose, dev)) {
-			printf("        %02x:%02x.%x - %04x:%04x - %s\n",
-			       PCI_BUS(dev), PCI_DEV(dev), PCI_FUNC(dev),
-			       vendor, device, pci_class_str(class >> 8));
-		}
-#endif
 	}
 
 	return sub_bus;
