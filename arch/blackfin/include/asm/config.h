@@ -9,6 +9,9 @@
 #ifndef __ASM_BLACKFIN_CONFIG_POST_H__
 #define __ASM_BLACKFIN_CONFIG_POST_H__
 
+/* Some of our defines use this (like CONFIG_SYS_GBL_DATA_ADDR) */
+#include <asm-offsets.h>
+
 #ifndef CONFIG_BFIN_SCRATCH_REG
 # define CONFIG_BFIN_SCRATCH_REG retn
 #endif
