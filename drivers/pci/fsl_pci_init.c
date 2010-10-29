@@ -391,7 +391,7 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 	 * 1 == pci agent or pcie end-point
 	 */
 	if (!temp8) {
-		printf("           Scanning PCI bus %02x\n",
+		debug("           Scanning PCI bus %02x\n",
 			hose->current_busno);
 		hose->last_busno = pci_hose_scan_bus(hose, hose->current_busno);
 	} else {
