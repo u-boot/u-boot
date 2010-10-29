@@ -68,13 +68,13 @@ void pci_init_board(void)
 				LAW_TRGT_IF_PCIE_1);
 		SET_STD_PCIE_INFO(pci_info[num], 1);
 		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
-		printf("    PCIE1 connected to Slot 1 as %s (base addr %lx)\n",
+		printf("PCIE1: connected to Slot 1 as %s (base addr %lx)\n",
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 				&pcie1_hose, first_free_busno);
 	} else {
-		printf ("    PCIE1: disabled\n");
+		printf("PCIE1: disabled\n");
 	}
 #else
 	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_PCIE1); /* disable */
@@ -90,13 +90,13 @@ void pci_init_board(void)
 				LAW_TRGT_IF_PCIE_2);
 		SET_STD_PCIE_INFO(pci_info[num], 2);
 		pcie_ep = fsl_setup_hose(&pcie2_hose, pci_info[num].regs);
-		printf("    PCIE2 connected to Slot 3 as %s (base addr %lx)\n",
+		printf("PCIE2: connected to Slot 3 as %s (base addr %lx)\n",
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 				&pcie2_hose, first_free_busno);
 	} else {
-		printf ("    PCIE2: disabled\n");
+		printf("PCIE2: disabled\n");
 	}
 #else
 	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_PCIE2); /* disable */
@@ -112,13 +112,13 @@ void pci_init_board(void)
 				LAW_TRGT_IF_PCIE_3);
 		SET_STD_PCIE_INFO(pci_info[num], 3);
 		pcie_ep = fsl_setup_hose(&pcie3_hose, pci_info[num].regs);
-		printf("    PCIE3 connected to Slot 2 as %s (base addr %lx)\n",
+		printf("PCIE3: connected to Slot 2 as %s (base addr %lx)\n",
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 				&pcie3_hose, first_free_busno);
 	} else {
-		printf ("    PCIE3: disabled\n");
+		printf("PCIE3: disabled\n");
 	}
 #else
 	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_PCIE3); /* disable */
@@ -134,13 +134,13 @@ void pci_init_board(void)
 				LAW_TRGT_IF_PCIE_4);
 		SET_STD_PCIE_INFO(pci_info[num], 4);
 		pcie_ep = fsl_setup_hose(&pcie4_hose, pci_info[num].regs);
-		printf("    PCIE4 connected to as %s (base addr %lx)\n",
+		printf("PCIE4: connected to as %s (base addr %lx)\n",
 				pcie_ep ? "End Point" : "Root Complex",
 				pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 				&pcie4_hose, first_free_busno);
 	} else {
-		printf ("    PCIE4: disabled\n");
+		printf("PCIE4: disabled\n");
 	}
 #else
 	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_PCIE4); /* disable */

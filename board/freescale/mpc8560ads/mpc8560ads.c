@@ -252,10 +252,10 @@ int checkboard (void)
 	puts("Board: ADS\n");
 
 #ifdef CONFIG_PCI
-	printf("    PCI1: 32 bit, %d MHz (compiled)\n",
+	printf("PCI1: 32 bit, %d MHz (compiled)\n",
 	       CONFIG_SYS_CLK_FREQ / 1000000);
 #else
-	printf("    PCI1: disabled\n");
+	printf("PCI1: disabled\n");
 #endif
 
 	/*

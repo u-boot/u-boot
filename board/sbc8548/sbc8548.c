@@ -342,7 +342,7 @@ pci_init_board(void)
 		uint pci_clk_sel = porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;
 		uint pci_speed = CONFIG_SYS_CLK_FREQ;	/* get_clock_freq() */
 
-		printf ("    PCI host: %d bit, %s MHz, %s, %s\n",
+		printf("PCI: Host, %d bit, %s MHz, %s, %s\n",
 			(pci_32) ? 32 : 64,
 			(pci_speed == 33000000) ? "33" :
 			(pci_speed == 66000000) ? "66" : "unknown",
@@ -353,7 +353,7 @@ pci_init_board(void)
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pci1_hose, first_free_busno);
 	} else {
-		printf ("    PCI: disabled\n");
+		printf("PCI: disabled\n");
 	}
 
 	puts("\n");
@@ -368,11 +368,11 @@ pci_init_board(void)
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
 		SET_STD_PCIE_INFO(pci_info[num], 1);
-		printf ("    PCIE at base address %lx\n", pci_info[num].regs);
+		printf("PCIE: base address %lx\n", pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie1_hose, first_free_busno);
 	} else {
-		printf ("    PCIE: disabled\n");
+		printf("PCIE: disabled\n");
 	}
 
 	puts("\n");

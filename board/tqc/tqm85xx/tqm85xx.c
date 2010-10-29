@@ -567,7 +567,7 @@ void pci_init_board (void)
 	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
 		SET_STD_PCI_INFO(pci_info[num], 1);
 		pcie_ep = fsl_setup_hose(&pci1_hose, pci_info[num].regs);
-		printf ("\n   PCI1:  %d bit, %s MHz, %s, %s, %s\n",
+		printf("PCI1:  %d bit, %s MHz, %s, %s, %s\n",
 			(pci_32) ? 32 : 64,
 			(pci_speed == 33333333) ? "33" :
 			(pci_speed == 66666666) ? "66" : "unknown",
@@ -591,7 +591,7 @@ void pci_init_board (void)
 		}
 #endif
 	} else {
-		printf("    PCI1: disabled\n");
+		printf("PCI1: disabled\n");
 	}
 #else
 	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCI1);
@@ -603,12 +603,12 @@ void pci_init_board (void)
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)) {
 		SET_STD_PCIE_INFO(pci_info[num], 1);
 		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
-		printf("    PCIE1 connected as %s\n",
+		printf("PCIE1: connected as %s\n",
 			pcie_ep ? "Endpoint" : "Root Complex");
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie1_hose, first_free_busno);
 	} else {
-		printf("    PCIE1: disabled\n");
+		printf("PCIE1: disabled\n");
 	}
 #else
 	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE);

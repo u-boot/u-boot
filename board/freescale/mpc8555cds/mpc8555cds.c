@@ -219,17 +219,17 @@ int checkboard (void)
 		MPC85XX_CPU_BOARD_MAJOR (cpu_board_rev),
 		MPC85XX_CPU_BOARD_MINOR (cpu_board_rev), cpu_board_rev);
 
-	printf ("    PCI1: %d bit, %s MHz, %s\n",
+	printf("PCI1: %d bit, %s MHz, %s\n",
 		(pci1_32) ? 32 : 64,
 		(pci1_speed == 33000000) ? "33" :
 		(pci1_speed == 66000000) ? "66" : "unknown",
 		pci1_clk_sel ? "sync" : "async");
 
 	if (pci_dual) {
-		printf ("    PCI2: 32 bit, 66 MHz, %s\n",
+		printf("PCI2: 32 bit, 66 MHz, %s\n",
 			pci2_clk_sel ? "sync" : "async");
 	} else {
-		printf ("    PCI2: disabled\n");
+		printf("PCI2: disabled\n");
 	}
 
 	/*

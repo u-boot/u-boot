@@ -225,7 +225,7 @@ static void configure_pcie(struct fsl_pci_info *info,
 	set_next_law(info->mem_phys, law_size_bits(info->mem_size), info->law);
 	set_next_law(info->io_phys, law_size_bits(info->io_size), info->law);
 	is_endpoint = fsl_setup_hose(hose, info->regs);
-	printf("    PCIE%u connected to %s as %s (base addr %lx)\n",
+	printf("PCIE%u: connected to %s as %s (base addr %lx)\n",
 	       info->pci_num, connected,
 	       is_endpoint ? "Endpoint" : "Root Complex", info->regs);
 	bus_number = fsl_pci_init_port(info, hose, bus_number);
@@ -255,7 +255,7 @@ void pci_init_board(void)
 		SET_STD_PCIE_INFO(pci_info, 1);
 		configure_pcie(&pci_info, &pcie1_hose, serdes_slot_name(PCIE1));
 	} else {
-		printf("    PCIE1: disabled\n");
+		printf("PCIE1: disabled\n");
 	}
 #else
 	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE); /* disable */
@@ -266,7 +266,7 @@ void pci_init_board(void)
 		SET_STD_PCIE_INFO(pci_info, 2);
 		configure_pcie(&pci_info, &pcie2_hose, serdes_slot_name(PCIE2));
 	} else {
-		printf("    PCIE2: disabled\n");
+		printf("PCIE2: disabled\n");
 	}
 #else
 	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE2); /* disable */
@@ -277,7 +277,7 @@ void pci_init_board(void)
 		SET_STD_PCIE_INFO(pci_info, 3);
 		configure_pcie(&pci_info, &pcie3_hose, serdes_slot_name(PCIE3));
 	} else {
-		printf("    PCIE3: disabled\n");
+		printf("PCIE3: disabled\n");
 	}
 #else
 	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE3); /* disable */

@@ -142,9 +142,9 @@ void pci_init_board(void)
 
 		pcie3_hose.region_count = 1;
 #endif
-		printf ("    PCIE3 connected to ULI as %s (base addr %lx)\n",
-				pcie_ep ? "Endpoint" : "Root Complex",
-				pci_info[num].regs);
+		printf("PCIE3: connected to ULI as %s (base addr %lx)\n",
+			pcie_ep ? "Endpoint" : "Root Complex",
+			pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie3_hose, first_free_busno);
 
@@ -154,7 +154,7 @@ void pci_init_board(void)
 		 */
 		in_be32((u32 *)CONFIG_SYS_PCIE3_MEM_BUS);
 	} else {
-		printf ("    PCIE3: disabled\n");
+		printf("PCIE3: disabled\n");
 	}
 	puts("\n");
 #else
@@ -177,14 +177,14 @@ void pci_init_board(void)
 
 		pcie1_hose.region_count = 1;
 #endif
-		printf ("    PCIE1 connected to Slot 2 as %s (base addr %lx)\n",
+		printf("PCIE1: connected to Slot 2 as %s (base addr %lx)\n",
 				pcie_ep ? "Endpoint" : "Root Complex",
 				pci_info[num].regs);
 
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie1_hose, first_free_busno);
 	} else {
-		printf ("    PCIE1: disabled\n");
+		printf("PCIE1: disabled\n");
 	}
 
 	puts("\n");
@@ -208,13 +208,13 @@ void pci_init_board(void)
 
 		pcie2_hose.region_count = 1;
 #endif
-		printf ("    PCIE2 connected to Slot 1 as %s (base addr %lx)\n",
-				pcie_ep ? "Endpoint" : "Root Complex",
-				pci_info[num].regs);
+		printf("PCIE2: connected to Slot 1 as %s (base addr %lx)\n",
+			pcie_ep ? "Endpoint" : "Root Complex",
+			pci_info[num].regs);
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie2_hose, first_free_busno);
 	} else {
-		printf ("    PCIE2: disabled\n");
+		printf("PCIE2: disabled\n");
 	}
 
 	puts("\n");
@@ -231,7 +231,7 @@ void pci_init_board(void)
 	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
 		SET_STD_PCI_INFO(pci_info[num], 1);
 		pci_agent = fsl_setup_hose(&pci1_hose, pci_info[num].regs);
-		printf ("\n    PCI: %d bit, %s MHz, %s, %s, %s (base address %lx)\n",
+		printf("PCI: %d bit, %s MHz, %s, %s, %s (base address %lx)\n",
 			(pci_32) ? 32 : 64,
 			(pci_speed == 33333000) ? "33" :
 			(pci_speed == 66666000) ? "66" : "unknown",
@@ -243,7 +243,7 @@ void pci_init_board(void)
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pci1_hose, first_free_busno);
 	} else {
-		printf ("    PCI: disabled\n");
+		printf("PCI: disabled\n");
 	}
 
 	puts("\n");

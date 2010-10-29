@@ -95,7 +95,7 @@ void pci_init_board(void)
 	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
 		SET_STD_PCI_INFO(pci_info[num], 1);
 		pcie_ep = fsl_setup_hose(&pci1_hose, pci_info[num].regs);
-		printf("\n    PCI1: %d bit %s, %s %d MHz, %s, %s\n",
+		printf("PCI1: %d bit %s, %s %d MHz, %s, %s\n",
 			pci_32 ? 32 : 64,
 			pcix ? "PCIX" : "PCI",
 			pci_spd_norm ? ">=" : "<=",
@@ -106,7 +106,7 @@ void pci_init_board(void)
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pci1_hose, first_free_busno);
 	} else {
-		printf("    PCI1: disabled\n");
+		printf("PCI1: disabled\n");
 	}
 #elif defined CONFIG_MPC8548
 	/* PCI1 not present on MPC8572 */
@@ -119,12 +119,12 @@ void pci_init_board(void)
 	if (pcie_configured && !(devdisr & MPC8xxx_DEVDISR_PCIE1)) {
 		SET_STD_PCIE_INFO(pci_info[num], 1);
 		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
-		printf("    PCIE1 connected as %s\n",
+		printf("PCIE1: connected as %s\n",
 			pcie_ep ? "Endpoint" : "Root Complex");
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie1_hose, first_free_busno);
 	} else {
-		printf("    PCIE1: disabled\n");
+		printf("PCIE1: disabled\n");
 	}
 #else
 	setbits_be32(&gur->devdisr, MPC8xxx_DEVDISR_PCIE1);
@@ -136,12 +136,12 @@ void pci_init_board(void)
 	if (pcie_configured && !(devdisr & MPC8xxx_DEVDISR_PCIE2)) {
 		SET_STD_PCIE_INFO(pci_info[num], 2);
 		pcie_ep = fsl_setup_hose(&pcie2_hose, pci_info[num].regs);
-		printf("    PCIE2 connected as %s\n",
+		printf("PCIE2: connected as %s\n",
 			pcie_ep ? "Endpoint" : "Root Complex");
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie2_hose, first_free_busno);
 	} else {
-		printf("    PCIE2: disabled\n");
+		printf("PCIE2: disabled\n");
 	}
 #else
 	setbits_be32(&gur->devdisr, MPC8xxx_DEVDISR_PCIE2);
@@ -153,12 +153,12 @@ void pci_init_board(void)
 	if (pcie_configured && !(devdisr & MPC8xxx_DEVDISR_PCIE3)) {
 		SET_STD_PCIE_INFO(pci_info[num], 3);
 		pcie_ep = fsl_setup_hose(&pcie3_hose, pci_info[num].regs);
-		printf("    PCIE3 connected as %s\n",
+		printf("PCIE3: connected as %s\n",
 			pcie_ep ? "Endpoint" : "Root Complex");
 		first_free_busno = fsl_pci_init_port(&pci_info[num++],
 					&pcie3_hose, first_free_busno);
 	} else {
-		printf("    PCIE3: disabled\n");
+		printf("PCIE3: disabled\n");
 	}
 #else
 	setbits_be32(&gur->devdisr, MPC8xxx_DEVDISR_PCIE3);

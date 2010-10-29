@@ -391,11 +391,11 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 	 * 1 == pci agent or pcie end-point
 	 */
 	if (!temp8) {
-		printf("               Scanning PCI bus %02x\n",
+		printf("           Scanning PCI bus %02x\n",
 			hose->current_busno);
 		hose->last_busno = pci_hose_scan_bus(hose, hose->current_busno);
 	} else {
-		debug("               Not scanning PCI bus %02x. PI=%x\n",
+		debug("           Not scanning PCI bus %02x. PI=%x\n",
 			hose->current_busno, temp8);
 		hose->last_busno = hose->current_busno;
 	}
@@ -482,9 +482,9 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 	}
 
 	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
-	printf("    PCI%s%x on bus %02x - %02x\n", pcie_cap == PCI_CAP_ID_EXP ?
-			"E" : "", pci_info->pci_num,
-			hose->first_busno, hose->last_busno);
+	printf("PCI%s%x: Bus %02x - %02x\n", pcie_cap == PCI_CAP_ID_EXP ?
+		"E" : "", pci_info->pci_num,
+		hose->first_busno, hose->last_busno);
 
 	return(hose->last_busno + 1);
 }
