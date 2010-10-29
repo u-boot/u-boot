@@ -120,9 +120,9 @@ void pci_init_board(void)
 
 	if (io_sel & 1) {
 		if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII1_DIS))
-			printf ("    eTSEC1 is in sgmii mode.\n");
+			printf("eTSEC1 is in sgmii mode.\n");
 		if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII3_DIS))
-			printf ("    eTSEC3 is in sgmii mode.\n");
+			printf("eTSEC3 is in sgmii mode.\n");
 	}
 	puts("\n");
 

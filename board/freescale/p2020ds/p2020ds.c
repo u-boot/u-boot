@@ -207,9 +207,9 @@ void pci_init_board(void)
 	debug ("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
 
 	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII2_DIS))
-		printf("    eTSEC2 is in sgmii mode.\n");
+		printf("eTSEC2 is in sgmii mode.\n");
 	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII3_DIS))
-		printf("    eTSEC3 is in sgmii mode.\n");
+		printf("eTSEC3 is in sgmii mode.\n");
 
 	puts("\n");
 #ifdef CONFIG_PCIE2

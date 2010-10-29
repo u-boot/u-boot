@@ -211,12 +211,12 @@ void pci_init_board(void)
 		devdisr, sdrs2_io_sel, io_sel);
 
 	if (sdrs2_io_sel == 7)
-		printf("    Serdes2 disalbed\n");
+		printf("Serdes2 disalbed\n");
 	else if (sdrs2_io_sel == 4) {
-		printf("    eTSEC1 is in sgmii mode.\n");
-		printf("    eTSEC3 is in sgmii mode.\n");
+		printf("eTSEC1 is in sgmii mode.\n");
+		printf("eTSEC3 is in sgmii mode.\n");
 	} else if (sdrs2_io_sel == 6)
-		printf("    eTSEC1 is in sgmii mode.\n");
+		printf("eTSEC1 is in sgmii mode.\n");
 
 	puts("\n");
 #ifdef CONFIG_PCIE3
