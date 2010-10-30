@@ -310,10 +310,11 @@ Tirumala Marri <tmarri@apm.com>
 
 	bluestone       APM821XX
 
-Reinhard Meyer <r.meyer@emk-elektronik.de>
+Reinhard Meyer <reinhard.meyer@emk-elektronik.de>
 
 	TOP860		MPC860T
 	TOP5200		MPC5200
+	TOP9000		ARM926EJS (AT91SAM9xxx SoC)
 
 Tolunay Orkun <torkun@nextio.com>
 
