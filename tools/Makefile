@@ -24,6 +24,12 @@
 TOOLSUBDIRS =
 
 #
+# Include this after HOSTOS HOSTARCH check
+# so that we can act intelligently.
+#
+include $(TOPDIR)/config.mk
+
+#
 # toolchains targeting win32 generate .exe files
 #
 ifneq (,$(findstring WIN32 ,$(shell $(HOSTCC) -E -dM -xc /dev/null)))
@@ -31,12 +37,6 @@ SFX = .exe
 else
 SFX =
 endif
-
-#
-# Include this after HOSTOS HOSTARCH check
-# so that we can act intelligently.
-#
-include $(TOPDIR)/config.mk
 
 # Enable all the config-independent tools
 ifneq ($(HOST_TOOLS_ALL),)
