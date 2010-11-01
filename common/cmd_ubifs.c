@@ -72,6 +72,25 @@ int do_ubifs_mount(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+int ubifs_is_mounted(void)
+{
+	return ubifs_mounted;
+}
+
+void cmd_ubifs_umount(void)
+{
+
+	if (ubifs_sb) {
+		printf("Unmounting UBIFS volume %s!\n",
+		       ((struct ubifs_info *)(ubifs_sb->s_fs_info))->vi.name);
+		ubifs_umount(ubifs_sb->s_fs_info);
+	}
+
+	ubifs_sb = NULL;
+	ubifs_mounted = 0;
+	ubifs_initialized = 0;
+}
+
 int do_ubifs_umount(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc != 1)
@@ -82,12 +101,7 @@ int do_ubifs_umount(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return -1;
 	}
 
-	if (ubifs_sb)
-		ubifs_umount(ubifs_sb->s_fs_info);
-
-	ubifs_sb = NULL;
-	ubifs_mounted = 0;
-	ubifs_initialized = 0;
+	cmd_ubifs_umount();
 
 	return 0;
 }

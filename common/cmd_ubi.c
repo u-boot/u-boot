@@ -42,6 +42,11 @@ struct selected_dev {
 
 static struct selected_dev ubi_dev;
 
+#ifdef CONFIG_CMD_UBIFS
+int ubifs_is_mounted(void);
+void cmd_ubifs_umount(void);
+#endif
+
 static void ubi_dump_vol_info(const struct ubi_volume *vol)
 {
 	ubi_msg("volume information dump:");
@@ -471,6 +476,16 @@ static int do_ubi(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 
 		if (argc < 3)
 			return cmd_usage(cmdtp);
+
+#ifdef CONFIG_CMD_UBIFS
+		/*
+		 * Automatically unmount UBIFS partition when user
+		 * changes the UBI device. Otherwise the following
+		 * UBIFS commands will crash.
+		 */
+		if (ubifs_is_mounted())
+			cmd_ubifs_umount();
+#endif
 
 		/* todo: get dev number for NAND... */
 		ubi_dev.nr = 0;
