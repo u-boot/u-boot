@@ -3,7 +3,7 @@
  *
  * Copyright (C) 2006-2008 Nokia Corporation.
  *
- * (C) Copyright 2008-2009
+ * (C) Copyright 2008-2010
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -567,7 +567,8 @@ dump:
 	return -EINVAL;
 }
 
-static int do_readpage(struct ubifs_info *c, struct inode *inode, struct page *page)
+static int do_readpage(struct ubifs_info *c, struct inode *inode,
+		       struct page *page, int last_block_size)
 {
 	void *addr;
 	int err = 0, i;
@@ -601,17 +602,54 @@ static int do_readpage(struct ubifs_info *c, struct inode *inode, struct page *p
 			err = -ENOENT;
 			memset(addr, 0, UBIFS_BLOCK_SIZE);
 		} else {
-			ret = read_block(inode, addr, block, dn);
-			if (ret) {
-				err = ret;
-				if (err != -ENOENT)
-					break;
-			} else if (block + 1 == beyond) {
-				int dlen = le32_to_cpu(dn->size);
-				int ilen = i_size & (UBIFS_BLOCK_SIZE - 1);
+			/*
+			 * Reading last block? Make sure to not write beyond
+			 * the requested size in the destination buffer.
+			 */
+			if (((block + 1) == beyond) || last_block_size) {
+				void *buff;
+				int dlen;
 
-				if (ilen && ilen < dlen)
-					memset(addr + ilen, 0, dlen - ilen);
+				/*
+				 * We need to buffer the data locally for the
+				 * last block. This is to not pad the
+				 * destination area to a multiple of
+				 * UBIFS_BLOCK_SIZE.
+				 */
+				buff = malloc(UBIFS_BLOCK_SIZE);
+				if (!buff) {
+					printf("%s: Error, malloc fails!\n",
+					       __func__);
+					err = -ENOMEM;
+					break;
+				}
+
+				/* Read block-size into temp buffer */
+				ret = read_block(inode, buff, block, dn);
+				if (ret) {
+					err = ret;
+					if (err != -ENOENT) {
+						free(buff);
+						break;
+					}
+				}
+
+				if (last_block_size)
+					dlen = last_block_size;
+				else
+					dlen = le32_to_cpu(dn->size);
+
+				/* Now copy required size back to dest */
+				memcpy(addr, buff, dlen);
+
+				free(buff);
+			} else {
+				ret = read_block(inode, addr, block, dn);
+				if (ret) {
+					err = ret;
+					if (err != -ENOENT)
+						break;
+				}
 			}
 		}
 		if (++i >= UBIFS_BLOCKS_PER_PAGE)
@@ -649,6 +687,7 @@ int ubifs_load(char *filename, u32 addr, u32 size)
 	int err = 0;
 	int i;
 	int count;
+	int last_block_size = 0;
 
 	c->ubi = ubi_open_volume(c->vi.ubi_num, c->vi.vol_id, UBI_READONLY);
 	/* ubifs_findfile will resolve symlinks, so we know that we get
@@ -684,7 +723,13 @@ int ubifs_load(char *filename, u32 addr, u32 size)
 	page.index = 0;
 	page.inode = inode;
 	for (i = 0; i < count; i++) {
-		err = do_readpage(c, inode, &page);
+		/*
+		 * Make sure to not read beyond the requested size
+		 */
+		if (((i + 1) == count) && (size < inode->i_size))
+			last_block_size = size - (i * PAGE_SIZE);
+
+		err = do_readpage(c, inode, &page, last_block_size);
 		if (err)
 			break;
 
