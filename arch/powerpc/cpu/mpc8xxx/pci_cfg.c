@@ -138,7 +138,10 @@ static struct pci_info pci_config_info[] =
 {
 	[LAW_TRGT_IF_PCIE_1] = {
 		.cfg =   (1 << 2) | (1 << 3) | (1 << 5) | (1 << 6) |
-			 (1 << 7) | (1 << 0xe) | (1 << 0xf),
+			 (1 << 7) | (1 << 0xf),
+	},
+	[LAW_TRGT_IF_PCIE_2] = {
+		.cfg =   (1 << 3) | (1 << 0xe) | (1 << 0xf),
 	},
 };
 #elif defined(CONFIG_P1011) || defined(CONFIG_P1020) || \

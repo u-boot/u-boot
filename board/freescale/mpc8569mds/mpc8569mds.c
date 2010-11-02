@@ -622,8 +622,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 			break;
 		}
 
-		err = fdt_setprop_string(blob, nodeoff, "phy-connection-type",
-					"rmii");
+		err = fdt_fixup_phy_connection(blob, nodeoff, RMII);
+
 		if (err < 0) {
 			printf("WARNING: could not set phy-connection-type "
 				"%s.\n", fdt_strerror(err));

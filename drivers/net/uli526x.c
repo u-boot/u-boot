@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Freescale Semiconductor, Inc.
+ * Copyright 2007, 2010 Freescale Semiconductor, Inc.
  *
  * Author: Roy Zang <tie-fei.zang@freescale.com>, Sep, 2007
  *
@@ -311,7 +311,8 @@ static int uli526x_init_one(struct eth_device *dev, bd_t *bis)
 			i));
 
 	/* Set Node address */
-	if (((u16 *) db->srom)[0] == 0xffff || ((u16 *) db->srom)[0] == 0)
+	if (((db->srom[0] == 0xff) && (db->srom[1] == 0xff)) ||
+	    ((db->srom[0] == 0x00) && (db->srom[1] == 0x00)))
 	/* SROM absent, so write MAC address to ID Table */
 		set_mac_addr(dev);
 	else {		/*Exist SROM*/

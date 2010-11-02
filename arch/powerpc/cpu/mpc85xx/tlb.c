@@ -245,7 +245,8 @@ void init_addr_map(void)
 }
 #endif
 
-unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
+unsigned int
+setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
 {
 	int i;
 	unsigned int tlb_size;
@@ -275,21 +276,24 @@ unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 
 		tlb_size = (camsize - 10) / 2;
 
-		set_tlb(1, ram_tlb_address, ram_tlb_address,
+		set_tlb(1, ram_tlb_address, p_addr,
 			MAS3_SX|MAS3_SW|MAS3_SR, 0,
 			0, ram_tlb_index, tlb_size, 1);
 
 		size -= 1ULL << camsize;
 		memsize -= 1ULL << camsize;
 		ram_tlb_address += 1UL << camsize;
+		p_addr += 1UL << camsize;
 	}
 
 	if (memsize)
 		print_size(memsize, " left unmapped\n");
-
-	/*
-	 * Confirm that the requested amount of memory was mapped.
-	 */
 	return memsize_in_meg;
+}
+
+unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
+{
+	return
+		setup_ddr_tlbs_phys(CONFIG_SYS_DDR_SDRAM_BASE, memsize_in_meg);
 }
 #endif /* !CONFIG_NAND_SPL */

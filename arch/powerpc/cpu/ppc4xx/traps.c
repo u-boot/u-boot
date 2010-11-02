@@ -46,15 +46,6 @@ extern unsigned long search_exception_table(unsigned long);
  */
 #define END_OF_MEM	(gd->bd->bi_memstart + gd->bd->bi_memsize)
 
-static __inline__ void set_tsr(unsigned long val)
-{
-#if defined(CONFIG_440)
-	asm volatile("mtspr 0x150, %0" : : "r" (val));
-#else
-	asm volatile("mttsr %0" : : "r" (val));
-#endif
-}
-
 static __inline__ unsigned long get_esr(void)
 {
 	unsigned long val;
@@ -364,7 +355,7 @@ DecrementerPITException(struct pt_regs *regs)
 	/*
 	 * Reset PIT interrupt
 	 */
-	set_tsr(0x08000000);
+	mtspr(SPRN_TSR, 0x08000000);
 
 	/*
 	 * Call timer_interrupt routine in interrupts.c

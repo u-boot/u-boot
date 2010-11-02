@@ -102,6 +102,7 @@
 #define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
 #define CONFIG_SUPPORT_VFAT
+#define CONFIG_CMD_EXT2
 #define CONFIG_CMD_FAT
 #endif /* CONFIG_CMD_USB */
 
@@ -124,25 +125,16 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_CACHE
-#define CONFIG_CMD_PING
+#define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_SETEXPR
 #define CONFIG_CMD_SPI
-#define CONFIG_CMD_DATE
-#define BOARD_LATE_INIT
 
-/*
- * You can compile in a MAC address and your custom net settings by using
- * the following syntax.
- *
- * #define CONFIG_ETHADDR		xx:xx:xx:xx:xx:xx
- * #define CONFIG_SERVERIP		<server ip>
- * #define CONFIG_IPADDR		<board ip>
- * #define CONFIG_GATEWAYIP		<gateway ip>
- * #define CONFIG_NETMASK		<your netmask>
- */
+#define BOARD_LATE_INIT
 
 #define CONFIG_BOOTDELAY	5
 
@@ -164,7 +156,7 @@
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"addmisc=setenv bootargs ${bootargs}\0"				\
 	"uboot_addr=A0000000\0"						\
-	"kernel_addr=A00A0000\0"					\
+	"kernel_addr=A00C0000\0"					\
 	"ramdisk_addr=A0300000\0"					\
 	"u-boot=qong/u-boot.bin\0"					\
 	"kernel_addr_r=80800000\0"					\
@@ -296,10 +288,14 @@ extern int qong_nand_rdy(void *chip);
 #define CONFIG_LZO
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
-#define MTDIDS_DEFAULT		"nor0=physmap-flash.0"
+#define MTDIDS_DEFAULT		"nor0=physmap-flash.0,"		\
+				"nand0=gen_nand"
 #define MTDPARTS_DEFAULT	\
-	"mtdparts=physmap-flash.0:384k(U-Boot),128k(env1),"	\
-	"128k(env2),2432k(kernel),13m(ramdisk),-(user)"
+	"mtdparts=physmap-flash.0:"				\
+			"512k(U-Boot),128k(env1),128k(env2),"	\
+			"2304k(kernel),13m(ramdisk),-(user);"	\
+		"gen_nand:"					\
+			"128m(nand)"
 
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0x80000000

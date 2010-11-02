@@ -28,6 +28,7 @@
  * (easy to change)
  */
 #define CONFIG_CPU_MONAHANS	1	/* Intel Monahan CPU    */
+#define	CONFIG_CPU_PXA320
 #define CONFIG_DELTA		1	/* Delta board       */
 
 /* #define CONFIG_LCD		1 */
@@ -216,6 +217,9 @@
 #define CONFIG_SYS_DRAM_SIZE		0x04000000 /* 64 MB Ram */
 
 #undef CONFIG_SYS_SKIP_DRAM_SCRUB
+
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define	CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_GBL_DATA_SIZE + PHYS_SDRAM_1)
 
 /*
  * NAND Flash

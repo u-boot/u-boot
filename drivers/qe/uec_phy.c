@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005 Freescale Semiconductor, Inc.
+ * Copyright (C) 2005,2010 Freescale Semiconductor, Inc.
  *
  * Author: Shlomi Gridish
  *
@@ -485,7 +485,7 @@ static int marvell_init(struct uec_mii_info *mii_info)
 {
 	struct eth_device *edev = mii_info->dev;
 	uec_private_t *uec = edev->priv;
-	enum enet_interface_type iface = uec->uec_info->enet_interface_type;
+	enum fsl_phy_enet_if iface = uec->uec_info->enet_interface_type;
 	int	speed = uec->uec_info->speed;
 
 	if ((speed == 1000) &&
@@ -853,7 +853,7 @@ struct phy_info *uec_get_phy_info (struct uec_mii_info *mii_info)
 }
 
 void marvell_phy_interface_mode (struct eth_device *dev,
-				 enet_interface_type_e type,
+				 enum fsl_phy_enet_if type,
 				 int speed
 				)
 {
@@ -907,7 +907,7 @@ void marvell_phy_interface_mode (struct eth_device *dev,
 }
 
 void change_phy_interface_mode (struct eth_device *dev,
-				enet_interface_type_e type, int speed)
+				enum fsl_phy_enet_if type, int speed)
 {
 #ifdef CONFIG_PHY_MODE_NEED_CHANGE
 	marvell_phy_interface_mode (dev, type, speed);

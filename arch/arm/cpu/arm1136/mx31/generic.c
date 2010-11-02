@@ -93,17 +93,16 @@ void mx31_gpio_mux(unsigned long mode)
 
 void mx31_set_pad(enum iomux_pins pin, u32 config)
 {
-	u32 field, l;
-	void *reg;
+	u32 field, l, reg;
 
 	pin &= IOMUX_PADNUM_MASK;
 	reg = (IOMUXC_BASE + 0x154) + (pin + 2) / 3 * 4;
 	field = (pin + 2) % 3;
 
-	l = __raw_readl(reg);
+	l = __REG(reg);
 	l &= ~(0x1ff << (field * 10));
 	l |= config << (field * 10);
-	__raw_writel(l, reg);
+	__REG(reg) = l;
 
 }
 

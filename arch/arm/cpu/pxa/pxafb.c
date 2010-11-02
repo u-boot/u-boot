@@ -35,6 +35,7 @@
 #include <stdio_dev.h>
 #include <lcd.h>
 #include <asm/arch/pxa-regs.h>
+#include <asm/io.h>
 
 /* #define DEBUG */
 
@@ -56,26 +57,26 @@
 
 /* 640x480x16 @ 61 Hz */
 vidinfo_t panel_info = {
-	vl_col:		640,
-	vl_row:		480,
-	vl_width:	640,
-	vl_height:	480,
-	vl_clkp:	CONFIG_SYS_HIGH,
-	vl_oep:		CONFIG_SYS_HIGH,
-	vl_hsp:		CONFIG_SYS_HIGH,
-	vl_vsp:		CONFIG_SYS_HIGH,
-	vl_dp:		CONFIG_SYS_HIGH,
-	vl_bpix:	LCD_BPP,
-	vl_lbw:		0,
-	vl_splt:	0,
-	vl_clor:	0,
-	vl_tft:		1,
-	vl_hpw:		40,
-	vl_blw:		56,
-	vl_elw:		56,
-	vl_vpw:		20,
-	vl_bfw:		8,
-	vl_efw:		8,
+	.vl_col		= 640,
+	.vl_row		= 480,
+	.vl_width	= 640,
+	.vl_height	= 480,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_oep		= CONFIG_SYS_HIGH,
+	.vl_hsp		= CONFIG_SYS_HIGH,
+	.vl_vsp		= CONFIG_SYS_HIGH,
+	.vl_dp		= CONFIG_SYS_HIGH,
+	.vl_bpix	= LCD_BPP,
+	.vl_lbw		= 0,
+	.vl_splt	= 0,
+	.vl_clor	= 0,
+	.vl_tft		= 1,
+	.vl_hpw		= 40,
+	.vl_blw		= 56,
+	.vl_elw		= 56,
+	.vl_vpw		= 20,
+	.vl_bfw		= 8,
+	.vl_efw		= 8,
 };
 #endif /* CONFIG_PXA_VIDEO */
 
@@ -90,26 +91,26 @@ vidinfo_t panel_info = {
 # define REG_LCCR3	0x0340FF08
 
 vidinfo_t panel_info = {
-	vl_col:		640,
-	vl_row:		480,
-	vl_width:	157,
-	vl_height:	118,
-	vl_clkp:	CONFIG_SYS_HIGH,
-	vl_oep:		CONFIG_SYS_HIGH,
-	vl_hsp:		CONFIG_SYS_HIGH,
-	vl_vsp:		CONFIG_SYS_HIGH,
-	vl_dp:		CONFIG_SYS_HIGH,
-	vl_bpix:	LCD_BPP,
-	vl_lbw:		0,
-	vl_splt:	1,
-	vl_clor:	1,
-	vl_tft:		0,
-	vl_hpw:		1,
-	vl_blw:		3,
-	vl_elw:		3,
-	vl_vpw:		1,
-	vl_bfw:		0,
-	vl_efw:		0,
+	.vl_col		= 640,
+	.vl_row		= 480,
+	.vl_width	= 157,
+	.vl_height	= 118,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_oep		= CONFIG_SYS_HIGH,
+	.vl_hsp		= CONFIG_SYS_HIGH,
+	.vl_vsp		= CONFIG_SYS_HIGH,
+	.vl_dp		= CONFIG_SYS_HIGH,
+	.vl_bpix	= LCD_BPP,
+	.vl_lbw		= 0,
+	.vl_splt	= 1,
+	.vl_clor	= 1,
+	.vl_tft		= 0,
+	.vl_hpw		= 1,
+	.vl_blw		= 3,
+	.vl_elw		= 3,
+	.vl_vpw		= 1,
+	.vl_bfw		= 0,
+	.vl_efw		= 0,
 };
 #endif /* CONFIG_SHARP_LM8V31 */
 /*----------------------------------------------------------------------*/
@@ -123,26 +124,26 @@ vidinfo_t panel_info = {
 # define REG_LCCR3	0x0340FF08
 
 vidinfo_t panel_info = {
-	vl_col:		640,
-	vl_row:		480,
-	vl_width:	157,
-	vl_height:	118,
-	vl_clkp:	CONFIG_SYS_HIGH,
-	vl_oep:		CONFIG_SYS_HIGH,
-	vl_hsp:		CONFIG_SYS_HIGH,
-	vl_vsp:		CONFIG_SYS_HIGH,
-	vl_dp:		CONFIG_SYS_HIGH,
-	vl_bpix:	LCD_BPP,
-	vl_lbw:		0,
-	vl_splt:	1,
-	vl_clor:	1,
-	vl_tft:		1,
-	vl_hpw:		32,
-	vl_blw:		144,
-	vl_elw:		32,
-	vl_vpw:		2,
-	vl_bfw:		13,
-	vl_efw:		30,
+	.vl_col		= 640,
+	.vl_row		= 480,
+	.vl_width	= 157,
+	.vl_height	= 118,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_oep		= CONFIG_SYS_HIGH,
+	.vl_hsp		= CONFIG_SYS_HIGH,
+	.vl_vsp		= CONFIG_SYS_HIGH,
+	.vl_dp		= CONFIG_SYS_HIGH,
+	.vl_bpix	= LCD_BPP,
+	.vl_lbw		= 0,
+	.vl_splt	= 1,
+	.vl_clor	= 1,
+	.vl_tft		= 1,
+	.vl_hpw		= 32,
+	.vl_blw		= 144,
+	.vl_elw		= 32,
+	.vl_vpw		= 2,
+	.vl_bfw		= 13,
+	.vl_efw		= 30,
 };
 #endif /* CONFIG_VOIPAC_LCD */
 
@@ -156,26 +157,26 @@ vidinfo_t panel_info = {
 #define REG_LCCR3	0x0340FF20
 
 vidinfo_t panel_info = {
-	vl_col:		320,
-	vl_row:		240,
-	vl_width:	167,
-	vl_height:	109,
-	vl_clkp:	CONFIG_SYS_HIGH,
-	vl_oep:		CONFIG_SYS_HIGH,
-	vl_hsp:		CONFIG_SYS_HIGH,
-	vl_vsp:		CONFIG_SYS_HIGH,
-	vl_dp:		CONFIG_SYS_HIGH,
-	vl_bpix:	LCD_BPP,
-	vl_lbw:		1,
-	vl_splt:	0,
-	vl_clor:	1,
-	vl_tft:		0,
-	vl_hpw:		1,
-	vl_blw:		1,
-	vl_elw:		1,
-	vl_vpw:		7,
-	vl_bfw:		0,
-	vl_efw:		0,
+	.vl_col		= 320,
+	.vl_row		= 240,
+	.vl_width	= 167,
+	.vl_height	= 109,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_oep		= CONFIG_SYS_HIGH,
+	.vl_hsp		= CONFIG_SYS_HIGH,
+	.vl_vsp		= CONFIG_SYS_HIGH,
+	.vl_dp		= CONFIG_SYS_HIGH,
+	.vl_bpix	= LCD_BPP,
+	.vl_lbw		= 1,
+	.vl_splt	= 0,
+	.vl_clor	= 1,
+	.vl_tft		= 0,
+	.vl_hpw		= 1,
+	.vl_blw		= 1,
+	.vl_elw		= 1,
+	.vl_vpw		= 7,
+	.vl_bfw		= 0,
+	.vl_efw		= 0,
 };
 #endif /* CONFIG_HITACHI_SX14 */
 
@@ -190,28 +191,129 @@ vidinfo_t panel_info = {
 # define REG_LCCR3	0x03b00009
 
 vidinfo_t panel_info = {
-	vl_col:		240,
-	vl_row:		320,
-	vl_width:	240,
-	vl_height:	320,
-	vl_clkp:	CONFIG_SYS_HIGH,
-	vl_oep:		CONFIG_SYS_LOW,
-	vl_hsp:		CONFIG_SYS_LOW,
-	vl_vsp:		CONFIG_SYS_LOW,
-	vl_dp:		CONFIG_SYS_HIGH,
-	vl_bpix:	LCD_BPP,
-	vl_lbw:		0,
-	vl_splt:	1,
-	vl_clor:	1,
-	vl_tft:		1,
-	vl_hpw:		4,
-	vl_blw:		4,
-	vl_elw:		8,
-	vl_vpw:		4,
-	vl_bfw:		4,
-	vl_efw:		8,
+	.vl_col		= 240,
+	.vl_row		= 320,
+	.vl_width	= 240,
+	.vl_height	= 320,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_oep		= CONFIG_SYS_LOW,
+	.vl_hsp		= CONFIG_SYS_LOW,
+	.vl_vsp		= CONFIG_SYS_LOW,
+	.vl_dp		= CONFIG_SYS_HIGH,
+	.vl_bpix	= LCD_BPP,
+	.vl_lbw		= 0,
+	.vl_splt	= 1,
+	.vl_clor	= 1,
+	.vl_tft		= 1,
+	.vl_hpw		= 4,
+	.vl_blw		= 4,
+	.vl_elw		= 8,
+	.vl_vpw		= 4,
+	.vl_bfw		= 4,
+	.vl_efw		= 8,
 };
 #endif /* CONFIG_LMS283GF05 */
+
+/*----------------------------------------------------------------------*/
+
+#ifdef CONFIG_ACX517AKN
+
+# define LCD_BPP	LCD_COLOR8
+
+/* you have to set lccr0 and lccr3 (including pcd) */
+# define REG_LCCR0	0x003008f9
+# define REG_LCCR3	0x03700006
+
+vidinfo_t panel_info = {
+	.vl_col		= 320,
+	.vl_row		= 320,
+	.vl_width	= 320,
+	.vl_height	= 320,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_oep		= CONFIG_SYS_LOW,
+	.vl_hsp		= CONFIG_SYS_LOW,
+	.vl_vsp		= CONFIG_SYS_LOW,
+	.vl_dp		= CONFIG_SYS_HIGH,
+	.vl_bpix	= LCD_BPP,
+	.vl_lbw		= 0,
+	.vl_splt	= 1,
+	.vl_clor	= 1,
+	.vl_tft		= 1,
+	.vl_hpw		= 0x04,
+	.vl_blw		= 0x1c,
+	.vl_elw		= 0x08,
+	.vl_vpw		= 0x01,
+	.vl_bfw		= 0x07,
+	.vl_efw		= 0x08,
+};
+#endif /* CONFIG_ACX517AKN */
+
+/*----------------------------------------------------------------------*/
+
+#ifdef CONFIG_LQ038J7DH53
+
+# define LCD_BPP	LCD_COLOR8
+
+/* you have to set lccr0 and lccr3 (including pcd) */
+# define REG_LCCR0	0x003008f9
+# define REG_LCCR3	0x03700004
+
+vidinfo_t panel_info = {
+	.vl_col		= 320,
+	.vl_row		= 480,
+	.vl_width	= 320,
+	.vl_height	= 480,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_oep		= CONFIG_SYS_LOW,
+	.vl_hsp		= CONFIG_SYS_LOW,
+	.vl_vsp		= CONFIG_SYS_LOW,
+	.vl_dp		= CONFIG_SYS_HIGH,
+	.vl_bpix	= LCD_BPP,
+	.vl_lbw		= 0,
+	.vl_splt	= 1,
+	.vl_clor	= 1,
+	.vl_tft		= 1,
+	.vl_hpw		= 0x04,
+	.vl_blw		= 0x20,
+	.vl_elw		= 0x01,
+	.vl_vpw		= 0x01,
+	.vl_bfw		= 0x04,
+	.vl_efw		= 0x01,
+};
+#endif /* CONFIG_ACX517AKN */
+
+/*----------------------------------------------------------------------*/
+
+#ifdef CONFIG_LITTLETON_LCD
+# define LCD_BPP	LCD_COLOR8
+
+/* you have to set lccr0 and lccr3 (including pcd) */
+# define REG_LCCR0	0x003008f8
+# define REG_LCCR3	0x0300FF04
+
+vidinfo_t panel_info = {
+	.vl_col		= 480,
+	.vl_row		= 640,
+	.vl_width	= 480,
+	.vl_height	= 640,
+	.vl_clkp	= CONFIG_SYS_HIGH,
+	.vl_oep		= CONFIG_SYS_HIGH,
+	.vl_hsp		= CONFIG_SYS_HIGH,
+	.vl_vsp		= CONFIG_SYS_HIGH,
+	.vl_dp		= CONFIG_SYS_HIGH,
+	.vl_bpix	= LCD_BPP,
+	.vl_lbw		= 0,
+	.vl_splt	= 0,
+	.vl_clor	= 0,
+	.vl_tft		= 1,
+	.vl_hpw		= 9,
+	.vl_blw		= 8,
+	.vl_elw		= 24,
+	.vl_vpw		= 2,
+	.vl_bfw		= 2,
+	.vl_efw		= 4,
+};
+#endif /* CONFIG_LITTLETON_LCD */
 
 /*----------------------------------------------------------------------*/
 
@@ -377,12 +479,14 @@ static void pxafb_setup_gpio (vidinfo_t *vid)
 	{
 		debug("Setting GPIO for 4 bit data\n");
 		/* bits 58-61 */
-		GPDR1 |= (0xf << 26);
-		GAFR1_U = (GAFR1_U & ~(0xff << 20)) | (0xaa << 20);
+		writel(readl(GPDR1) | (0xf << 26), GPDR1);
+		writel((readl(GAFR1_U) & ~(0xff << 20)) | (0xaa << 20),
+			GAFR1_U);
 
 		/* bits 74-77 */
-		GPDR2 |= (0xf << 10);
-		GAFR2_L = (GAFR2_L & ~(0xff << 20)) | (0xaa << 20);
+		writel(readl(GPDR2) | (0xf << 10), GPDR2);
+		writel((readl(GAFR2_L) & ~(0xff << 20)) | (0xaa << 20),
+			GAFR2_L);
 	}
 
 	/* 8 bit interface */
@@ -391,15 +495,17 @@ static void pxafb_setup_gpio (vidinfo_t *vid)
 	{
 		debug("Setting GPIO for 8 bit data\n");
 		/* bits 58-65 */
-		GPDR1 |= (0x3f << 26);
-		GPDR2 |= (0x3);
+		writel(readl(GPDR1) | (0x3f << 26), GPDR1);
+		writel(readl(GPDR2) | (0x3), GPDR2);
 
-		GAFR1_U = (GAFR1_U & ~(0xfff << 20)) | (0xaaa << 20);
-		GAFR2_L = (GAFR2_L & ~0xf) | (0xa);
+		writel((readl(GAFR1_U) & ~(0xfff << 20)) | (0xaaa << 20),
+			GAFR1_U);
+		writel((readl(GAFR2_L) & ~0xf) | (0xa), GAFR2_L);
 
 		/* bits 74-77 */
-		GPDR2 |= (0xf << 10);
-		GAFR2_L = (GAFR2_L & ~(0xff << 20)) | (0xaa << 20);
+		writel(readl(GPDR2) | (0xf << 10), GPDR2);
+		writel((readl(GAFR2_L) & ~(0xff << 20)) | (0xaa << 20),
+			GAFR2_L);
 	}
 
 	/* 16 bit interface */
@@ -407,11 +513,12 @@ static void pxafb_setup_gpio (vidinfo_t *vid)
 	{
 		debug("Setting GPIO for 16 bit data\n");
 		/* bits 58-77 */
-		GPDR1 |= (0x3f << 26);
-		GPDR2 |= 0x00003fff;
+		writel(readl(GPDR1) | (0x3f << 26), GPDR1);
+		writel(readl(GPDR2) | 0x00003fff, GPDR2);
 
-		GAFR1_U = (GAFR1_U & ~(0xfff << 20)) | (0xaaa << 20);
-		GAFR2_L = (GAFR2_L & 0xf0000000) | 0x0aaaaaaa;
+		writel((readl(GAFR1_U) & ~(0xfff << 20)) | (0xaaa << 20),
+			GAFR1_U);
+		writel((readl(GAFR2_L) & 0xf0000000) | 0x0aaaaaaa, GAFR2_L);
 	}
 	else
 	{
@@ -425,26 +532,26 @@ static void pxafb_enable_controller (vidinfo_t *vid)
 	debug("Enabling LCD controller\n");
 
 	/* Sequence from 11.7.10 */
-	LCCR3  = vid->pxa.reg_lccr3;
-	LCCR2  = vid->pxa.reg_lccr2;
-	LCCR1  = vid->pxa.reg_lccr1;
-	LCCR0  = vid->pxa.reg_lccr0 & ~LCCR0_ENB;
-	FDADR0 = vid->pxa.fdadr0;
-	FDADR1 = vid->pxa.fdadr1;
-	LCCR0 |= LCCR0_ENB;
+	writel(vid->pxa.reg_lccr3, LCCR3);
+	writel(vid->pxa.reg_lccr2, LCCR2);
+	writel(vid->pxa.reg_lccr1, LCCR1);
+	writel(vid->pxa.reg_lccr0 & ~LCCR0_ENB, LCCR0);
+	writel(vid->pxa.fdadr0, FDADR0);
+	writel(vid->pxa.fdadr1, FDADR1);
+	writel(readl(LCCR0) | LCCR0_ENB, LCCR0);
 
 #ifdef	CONFIG_CPU_MONAHANS
-	CKENA |= CKENA_1_LCD;
+	writel(readl(CKENA) | CKENA_1_LCD, CKENA);
 #else
-	CKEN |= CKEN16_LCD;
+	writel(readl(CKEN) | CKEN16_LCD, CKEN);
 #endif
 
-	debug("FDADR0 = 0x%08x\n", (unsigned int)FDADR0);
-	debug("FDADR1 = 0x%08x\n", (unsigned int)FDADR1);
-	debug("LCCR0 = 0x%08x\n", (unsigned int)LCCR0);
-	debug("LCCR1 = 0x%08x\n", (unsigned int)LCCR1);
-	debug("LCCR2 = 0x%08x\n", (unsigned int)LCCR2);
-	debug("LCCR3 = 0x%08x\n", (unsigned int)LCCR3);
+	debug("FDADR0 = 0x%08x\n", readl(FDADR0));
+	debug("FDADR1 = 0x%08x\n", readl(FDADR1));
+	debug("LCCR0 = 0x%08x\n", readl(LCCR0));
+	debug("LCCR1 = 0x%08x\n", readl(LCCR1));
+	debug("LCCR2 = 0x%08x\n", readl(LCCR2));
+	debug("LCCR3 = 0x%08x\n", readl(LCCR3));
 }
 
 static int pxafb_init (vidinfo_t *vid)

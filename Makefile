@@ -304,6 +304,21 @@ __LIBS := $(subst $(obj),,$(LIBS)) $(subst $(obj),,$(LIBBOARD))
 #########################################################################
 #########################################################################
 
+ifneq ($(CONFIG_BOARD_SIZE_LIMIT),)
+BOARD_SIZE_CHECK = \
+	@actual=`wc -c $@ | awk '{print $$1}'`; \
+	limit=$(CONFIG_BOARD_SIZE_LIMIT); \
+	if test $$actual -gt $$limit; then \
+		echo "$@ exceeds file size limit:"; \
+		echo "  limit:  $$limit bytes"; \
+		echo "  actual: $$actual bytes"; \
+		echo "  excess: $$((actual - limit)) bytes"; \
+		exit 1; \
+	fi
+else
+BOARD_SIZE_CHECK =
+endif
+
 # Always append ALL so that arch config.mk's can add custom ones
 ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(U_BOOT_NAND) $(U_BOOT_ONENAND)
 
@@ -317,10 +332,12 @@ $(obj)u-boot.srec:	$(obj)u-boot
 
 $(obj)u-boot.bin:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
+		$(BOARD_SIZE_CHECK)
 
 $(obj)u-boot.ldr:	$(obj)u-boot
 		$(CREATE_LDR_ENV)
 		$(LDR) -T $(CONFIG_BFIN_CPU) -c $@ $< $(LDR_FLAGS)
+		$(BOARD_SIZE_CHECK)
 
 $(obj)u-boot.ldr.hex:	$(obj)u-boot.ldr
 		$(OBJCOPY) ${OBJCFLAGS} -O ihex $< $@ -I binary
@@ -341,7 +358,7 @@ $(obj)u-boot.imx:       $(obj)u-boot.bin
 
 $(obj)u-boot.kwb:       $(obj)u-boot.bin
 		$(obj)tools/mkimage -n $(KWD_CONFIG) -T kwbimage \
-		-a $(CONFIG_SYS_TEXT_BASE) -e $(TEXT_BASE) -d $< $@
+		-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) -d $< $@
 
 $(obj)u-boot.sha1:	$(obj)u-boot.bin
 		$(obj)tools/ubsha1 $(obj)u-boot.bin
@@ -1009,23 +1026,6 @@ scpu_config:	unconfig
 		echo "#define CONFIG_SCPU"	>>$(obj)include/config.h ; \
 	fi
 	@$(MKCONFIG) -n $@ -a pdnb3 arm ixp pdnb3 prodrive
-
-polaris_config \
-trizepsiv_config	:	unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring polaris,$@)" ] ; then \
-		echo "#define CONFIG_POLARIS 1"	>>$(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ -a trizepsiv arm pxa trizepsiv
-
-vpac270_nor_config \
-vpac270_onenand_config	: unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring onenand,$@)" ] ; then \
-		echo "#define CONFIG_ONENAND_U_BOOT" \
-			>>$(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ -a vpac270 arm pxa vpac270
 
 #########################################################################
 ## ARM1136 Systems

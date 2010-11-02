@@ -21,6 +21,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 
 #if defined(CONFIG_CMD_NAND)
 
@@ -95,7 +96,7 @@ static void dfc_write_buf(struct mtd_info *mtd, const u_char *buf, int len)
 	if(bytes_multi) {
 		for(i=0; i<bytes_multi; i+=4) {
 			long_buf = (unsigned long*) &buf[i];
-			NDDB = *long_buf;
+			writel(*long_buf, NDDB);
 		}
 	}
 	if(rest) {
@@ -125,7 +126,7 @@ static void dfc_read_buf(struct mtd_info *mtd, u_char* const buf, int len)
 	if(bytes_multi) {
 		for(i=0; i<bytes_multi; i+=4) {
 			long_buf = (unsigned long*) &buf[i];
-			*long_buf = NDDB;
+			*long_buf = readl(NDDB);
 		}
 	}
 
@@ -171,8 +172,8 @@ static u_char dfc_read_byte(struct mtd_info *mtd)
 	unsigned long dummy;
 
 	if(bytes_read < 0) {
-		read_buf = NDDB;
-		dummy = NDDB;
+		read_buf = readl(NDDB);
+		dummy = readl(NDDB);
 		bytes_read = 0;
 	}
 	byte = (unsigned char) (read_buf>>(8 * bytes_read++));
@@ -186,7 +187,7 @@ static u_char dfc_read_byte(struct mtd_info *mtd)
 /* calculate delta between OSCR values start and now  */
 static unsigned long get_delta(unsigned long start)
 {
-	unsigned long cur = OSCR;
+	unsigned long cur = readl(OSCR);
 
 	if(cur < start) /* OSCR overflowed */
 		return (cur + (start^0xffffffff));
@@ -197,7 +198,7 @@ static unsigned long get_delta(unsigned long start)
 /* delay function, this doesn't belong here */
 static void wait_us(unsigned long us)
 {
-	unsigned long start = OSCR;
+	unsigned long start = readl(OSCR);
 	us = DIV_ROUND_UP(us * OSCR_CLK_FREQ, 1000);
 
 	while (get_delta(start) < us) {
@@ -207,14 +208,14 @@ static void wait_us(unsigned long us)
 
 static void dfc_clear_nddb(void)
 {
-	NDCR &= ~NDCR_ND_RUN;
+	writel(readl(NDCR) & ~NDCR_ND_RUN, NDCR);
 	wait_us(CONFIG_SYS_NAND_OTHER_TO);
 }
 
 /* wait_event with timeout */
 static unsigned long dfc_wait_event(unsigned long event)
 {
-	unsigned long ndsr, timeout, start = OSCR;
+	unsigned long ndsr, timeout, start = readl(OSCR);
 
 	if(!event)
 		return 0xff000000;
@@ -226,9 +227,9 @@ static unsigned long dfc_wait_event(unsigned long event)
 					* OSCR_CLK_FREQ, 1000);
 
 	while(1) {
-		ndsr = NDSR;
+		ndsr = readl(NDSR);
 		if(ndsr & event) {
-			NDSR |= event;
+			writel(readl(NDSR) | event, NDSR);
 			break;
 		}
 		if(get_delta(start) > timeout) {
@@ -248,11 +249,11 @@ static void dfc_new_cmd(void)
 
 	while(retry++ <= CONFIG_SYS_NAND_SENDCMD_RETRY) {
 		/* Clear NDSR */
-		NDSR = 0xFFF;
+		writel(0xFFF, NDSR);
 
 		/* set NDCR[NDRUN] */
-		if(!(NDCR & NDCR_ND_RUN))
-			NDCR |= NDCR_ND_RUN;
+		if (!(readl(NDCR) & NDCR_ND_RUN))
+			writel(readl(NDCR) | NDCR_ND_RUN, NDCR);
 
 		status = dfc_wait_event(NDSR_WRCMDREQ);
 
@@ -362,9 +363,9 @@ static void dfc_cmdfunc(struct mtd_info *mtd, unsigned command,
 	}
 
  write_cmd:
-	NDCB0 = ndcb0;
-	NDCB0 = ndcb1;
-	NDCB0 = ndcb2;
+	writel(ndcb0, NDCB0);
+	writel(ndcb1, NDCB0);
+	writel(ndcb2, NDCB0);
 
 	/*  wait_event: */
 	dfc_wait_event(event);
@@ -377,36 +378,36 @@ static void dfc_gpio_init(void)
 	DFC_DEBUG2("Setting up DFC GPIO's.\n");
 
 	/* no idea what is done here, see zylonite.c */
-	GPIO4 = 0x1;
+	writel(0x1, GPIO4);
 
-	DF_ALE_WE1 = 0x00000001;
-	DF_ALE_WE2 = 0x00000001;
-	DF_nCS0 = 0x00000001;
-	DF_nCS1 = 0x00000001;
-	DF_nWE = 0x00000001;
-	DF_nRE = 0x00000001;
-	DF_IO0 = 0x00000001;
-	DF_IO8 = 0x00000001;
-	DF_IO1 = 0x00000001;
-	DF_IO9 = 0x00000001;
-	DF_IO2 = 0x00000001;
-	DF_IO10 = 0x00000001;
-	DF_IO3 = 0x00000001;
-	DF_IO11 = 0x00000001;
-	DF_IO4 = 0x00000001;
-	DF_IO12 = 0x00000001;
-	DF_IO5 = 0x00000001;
-	DF_IO13 = 0x00000001;
-	DF_IO6 = 0x00000001;
-	DF_IO14 = 0x00000001;
-	DF_IO7 = 0x00000001;
-	DF_IO15 = 0x00000001;
+	writel(0x00000001, DF_ALE_nWE1);
+	writel(0x00000001, DF_ALE_nWE2);
+	writel(0x00000001, DF_nCS0);
+	writel(0x00000001, DF_nCS1);
+	writel(0x00000001, DF_nWE);
+	writel(0x00000001, DF_nRE);
+	writel(0x00000001, DF_IO0);
+	writel(0x00000001, DF_IO8);
+	writel(0x00000001, DF_IO1);
+	writel(0x00000001, DF_IO9);
+	writel(0x00000001, DF_IO2);
+	writel(0x00000001, DF_IO10);
+	writel(0x00000001, DF_IO3);
+	writel(0x00000001, DF_IO11);
+	writel(0x00000001, DF_IO4);
+	writel(0x00000001, DF_IO12);
+	writel(0x00000001, DF_IO5);
+	writel(0x00000001, DF_IO13);
+	writel(0x00000001, DF_IO6);
+	writel(0x00000001, DF_IO14);
+	writel(0x00000001, DF_IO7);
+	writel(0x00000001, DF_IO15);
 
-	DF_nWE = 0x1901;
-	DF_nRE = 0x1901;
-	DF_CLE_NOE = 0x1900;
-	DF_ALE_WE1 = 0x1901;
-	DF_INT_RnB = 0x1900;
+	writel(0x1901, DF_nWE);
+	writel(0x1901, DF_nRE);
+	writel(0x1900, DF_CLE_nOE);
+	writel(0x1901, DF_ALE_nWE1);
+	writel(0x1900, DF_INT_RnB);
 }
 
 /*
@@ -435,7 +436,7 @@ int board_nand_init(struct nand_chip *nand)
 	dfc_gpio_init();
 
 	/* turn on the NAND Controller Clock (104 MHz @ D0) */
-	CKENA |= (CKENA_4_NAND | CKENA_9_SMC);
+	writel(readl(CKENA) | (CKENA_4_NAND | CKENA_9_SMC), CKENA);
 
 #undef CONFIG_SYS_TIMING_TIGHT
 #ifndef CONFIG_SYS_TIMING_TIGHT
@@ -490,17 +491,19 @@ int board_nand_init(struct nand_chip *nand)
 		tRP_high = 0;
 	}
 
-	NDTR0CS0 = (tCH << 19) |
+	writel((tCH << 19) |
 		(tCS << 16) |
 		(tWH << 11) |
 		(tWP << 8) |
 		(tRP_high << 6) |
 		(tRH << 3) |
-		(tRP << 0);
+		(tRP << 0),
+		NDTR0CS0);
 
-	NDTR1CS0 = (tR << 16) |
+	writel((tR << 16) |
 		(tWHR << 4) |
-		(tAR << 0);
+		(tAR << 0),
+		NDTR1CS0);
 
 	/* If it doesn't work (unlikely) think about:
 	 *  - ecc enable
@@ -517,7 +520,7 @@ int board_nand_init(struct nand_chip *nand)
 	 */
 	/* NDCR_NCSX |		/\* Chip select busy don't care *\/ */
 
-	NDCR = (NDCR_SPARE_EN |		/* use the spare area */
+	writel(NDCR_SPARE_EN |		/* use the spare area */
 		NDCR_DWIDTH_C |		/* 16bit DFC data bus width  */
 		NDCR_DWIDTH_M |		/* 16 bit Flash device data bus width */
 		(2 << 16) |		/* read id count = 7 ???? mk@tbd */
@@ -533,7 +536,8 @@ int board_nand_init(struct nand_chip *nand)
 		NDCR_SBERRM |		/* single bit error ir masked */
 		NDCR_WRDREQM |		/* write data request ir masked */
 		NDCR_RDDREQM |		/* read data request ir masked */
-		NDCR_WRCMDREQM);	/* write command request ir masked */
+		NDCR_WRCMDREQM,		/* write command request ir masked */
+		NDCR);
 
 
 	/* wait 10 us due to cmd buffer clear reset */

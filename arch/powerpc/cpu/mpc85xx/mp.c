@@ -36,6 +36,27 @@ u32 get_my_id()
 	return mfspr(SPRN_PIR);
 }
 
+/*
+ * Determine if U-Boot should keep secondary cores in reset, or let them out
+ * of reset and hold them in a spinloop
+ */
+int hold_cores_in_reset(int verbose)
+{
+	const char *s = getenv("mp_holdoff");
+
+	/* Default to no, overriden by 'y', 'yes', 'Y', 'Yes', or '1' */
+	if (s && (*s == 'y' || *s == 'Y' || *s == '1')) {
+		if (verbose) {
+			puts("Secondary cores are being held in reset.\n");
+			puts("See 'mp_holdoff' environment variable\n");
+		}
+
+		return 1;
+	}
+
+	return 0;
+}
+
 int cpu_reset(int nr)
 {
 	volatile ccsr_pic_t *pic = (void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
@@ -50,6 +71,9 @@ int cpu_reset(int nr)
 int cpu_status(int nr)
 {
 	u32 *table, id = get_my_id();
+
+	if (hold_cores_in_reset(1))
+		return 0;
 
 	if (nr == id) {
 		table = (u32 *)get_spin_virt_addr();
@@ -132,6 +156,9 @@ int cpu_release(int nr, int argc, char * const argv[])
 {
 	u32 i, val, *table = (u32 *)get_spin_virt_addr() + nr * NUM_BOOT_ENTRY;
 	u64 boot_addr;
+
+	if (hold_cores_in_reset(1))
+		return 0;
 
 	if (nr == get_my_id()) {
 		printf("Invalid to release the boot core.\n\n");
@@ -352,6 +379,10 @@ void setup_mp(void)
 	extern ulong __bootpg_addr;
 	ulong fixup = (ulong)&__secondary_start_page;
 	u32 bootpg = determine_mp_bootpg();
+
+	/* Some OSes expect secondary cores to be held in reset */
+	if (hold_cores_in_reset(0))
+		return;
 
 	/* Store the bootpg's SDRAM address for use by secondary CPU cores */
 	__bootpg_addr = bootpg;

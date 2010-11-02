@@ -288,6 +288,7 @@ static int ehci_td_buffer(struct qTD *td, void *buf, size_t sz)
 	idx = 0;
 	while (idx < 5) {
 		td->qt_buffer[idx] = cpu_to_hc32(addr);
+		td->qt_buffer_hi[idx] = 0;
 		next = (addr + 4096) & ~4095;
 		delta = next - addr;
 		if (delta >= sz)

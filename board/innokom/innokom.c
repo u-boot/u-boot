@@ -27,6 +27,7 @@
 #include <netdev.h>
 #include <asm/arch/pxa-regs.h>
 #include <asm/mach-types.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -48,20 +49,21 @@ int i2c_init_board(void)
 
 	/* disable I2C controller first, otherwhise it thinks we want to    */
 	/* talk to the slave port...                                        */
-	icr = ICR; ICR &= ~(ICR_SCLE | ICR_IUE);
+	icr = readl(ICR);
+	writel(readl(ICR) & ~(ICR_SCLE | ICR_IUE), ICR);
 
 	/* set gpio pin low _before_ we change direction to output          */
-	GPCR(70) = GPIO_bit(70);
+	writel(GPIO_bit(70), GPCR(70));
 
 	/* now toggle between output=low and high-impedance                 */
 	for (i = 0; i < 20; i++) {
-		GPDR(70) |= GPIO_bit(70);  /* output */
+		writel(readl(GPDR(70)) | GPIO_bit(70), GPDR(70));  /* output */
 		udelay(10);
-		GPDR(70) &= ~GPIO_bit(70); /* input  */
+		writel(readl(GPDR(70)) & ~GPIO_bit(70), GPDR(70)); /* input  */
 		udelay(10);
 	}
 
-	ICR = icr;
+	writel(icr, ICR);
 
 	return 0;
 }
@@ -76,7 +78,7 @@ int misc_init_r(void)
 	char *str;
 
 	/* determine if the software update key is pressed during startup   */
-	if (GPLR0 & 0x00000800) {
+	if (readl(GPLR0) & 0x00000800) {
 		printf("using bootcmd_normal (sw-update button not pressed)\n");
 		str = getenv("bootcmd_normal");
 	} else {

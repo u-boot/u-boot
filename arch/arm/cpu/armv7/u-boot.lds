@@ -53,6 +53,13 @@ SECTIONS
 	__datarelro_start = .;
 		*(.data.rel.ro)
 	}
+	. = ALIGN(4);
+	__rel_dyn_start = .;
+	.rel.dyn : { *(.rel.dyn) }
+	__rel_dyn_end = .;
+
+	__dynsym_start = .;
+	.dynsym : { *(.dynsym) }
 
 	__got_start = .;
 	. = ALIGN(4);

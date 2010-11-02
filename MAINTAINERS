@@ -102,7 +102,6 @@ Wolfgang Denk <wd@denx.de>
 	IVMS8_256	MPC860
 	LANTEC		MPC850
 	LWMON		MPC823
-	NC650		MPC852
 	R360MPI		MPC823
 	RMU		MPC850
 	RRvision	MPC823
@@ -573,6 +572,10 @@ Rishi Bhattacharya <rishi@ti.com>
 
 	omap5912osk	ARM926EJS
 
+Andreas Bieﬂmann <andreas.devel@gmail.com>
+
+	at91rm9200ek	at91rm9200
+
 Cliff Brake <cliff.brake@gmail.com>
 
 	pxa255_idp	xscale
@@ -597,6 +600,10 @@ Wolfgang Denk <wd@denx.de>
 Thomas Elste <info@elste.org>
 
 	modnet50	ARM720T (NET+50)
+
+Kristoffer Ericson <kristoffer.ericson@gmail.com>
+
+	jornada	SA1110
 
 Fabio Estevam <Fabio.Estevam@freescale.com>
 
@@ -804,6 +811,15 @@ Greg Ungerer <greg.ungerer@opengear.com>
 	cm4008		ks8695p
 	cm4116		ks8695p
 	cm4148		ks8695p
+
+Marek Vasut <marek.vasut@gmail.com>
+
+	balloon3	xscale
+	colibri_pxa270	xscale
+	palmld		xscale
+	palmtc		xscale
+	vpac270		xscale
+	zipitz2		xscale
 
 Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 

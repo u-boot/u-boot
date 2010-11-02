@@ -80,7 +80,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 4:	256M	Non-cacheable, guarded
 	 * 0xc0000000	256M	PCI express MEM First half
 	 */
-	SET_TLB_ENTRY (1, CONFIG_SYS_PCIE1_MEM_BASE, CONFIG_SYS_PCIE1_MEM_BASE,
+	SET_TLB_ENTRY (1, CONFIG_SYS_PCIE1_MEM_BUS, CONFIG_SYS_PCIE1_MEM_BUS,
 		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
 		       0, 4, BOOKE_PAGESZ_256M, 1),
 
@@ -88,8 +88,8 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 5:	256M	Non-cacheable, guarded
 	 * 0xd0000000	256M	PCI express MEM Second half
 	 */
-	SET_TLB_ENTRY (1, CONFIG_SYS_PCIE1_MEM_BASE + 0x10000000,
-		       CONFIG_SYS_PCIE1_MEM_BASE + 0x10000000,
+	SET_TLB_ENTRY (1, CONFIG_SYS_PCIE1_MEM_BUS + 0x10000000,
+		       CONFIG_SYS_PCIE1_MEM_BUS + 0x10000000,
 		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
 		       0, 5, BOOKE_PAGESZ_256M, 1),
 #else /* !CONFIG_PCIE */
@@ -155,7 +155,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 9:	 16M	Non-cacheable, guarded
 	 * 0xef000000	 16M	PCI express IO
 	 */
-	SET_TLB_ENTRY (1, CONFIG_SYS_PCIE1_IO_BASE, CONFIG_SYS_PCIE1_IO_BASE,
+	SET_TLB_ENTRY (1, CONFIG_SYS_PCIE1_IO_BUS, CONFIG_SYS_PCIE1_IO_BUS,
 		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
 		       0, 9, BOOKE_PAGESZ_16M, 1),
 #endif /* CONFIG_PCIE */
@@ -205,7 +205,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 * TLB 6:	256M	Non-cacheable, guarded
 	 * 0xc0000000	256M	PCI express MEM First half
 	 */
-	SET_TLB_ENTRY (1, CONFIG_SYS_PCIE1_MEM_BASE, CONFIG_SYS_PCIE1_MEM_BASE,
+	SET_TLB_ENTRY (1, CONFIG_SYS_PCIE1_MEM_BUS, CONFIG_SYS_PCIE1_MEM_BUS,
 		       MAS3_SX | MAS3_SW | MAS3_SR, MAS2_I | MAS2_G,
 		       0, 6, BOOKE_PAGESZ_256M, 1),
 #else /* !CONFIG_PCIE */
