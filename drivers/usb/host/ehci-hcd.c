@@ -491,6 +491,8 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 			break;
 		default:
 			dev->status = USB_ST_CRC_ERR;
+			if ((token & 0x40) == 0x40)
+				dev->status |= USB_ST_STALLED;
 			break;
 		}
 		dev->act_len = length - ((token >> 16) & 0x7fff);
