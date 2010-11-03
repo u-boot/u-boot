@@ -70,11 +70,11 @@ static inline unsigned long long usec_to_tick(unsigned long long usec)
  */
 int timer_init(void)
 {
-	at91_pmc_t *pmc = (at91_pmc_t *) AT91_PMC_BASE;
-	at91_pit_t *pit = (at91_pit_t *) AT91_PIT_BASE;
+	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
+	at91_pit_t *pit = (at91_pit_t *) ATMEL_BASE_PIT;
 
 	/* Enable PITC Clock */
-	writel(1 << AT91_ID_SYS, &pmc->pcer);
+	writel(1 << ATMEL_ID_SYS, &pmc->pcer);
 
 	/* Enable PITC */
 	writel(TIMER_LOAD_VAL | AT91_PIT_MR_EN , &pit->mr);
@@ -90,7 +90,7 @@ int timer_init(void)
  */
 unsigned long long get_ticks(void)
 {
-	at91_pit_t *pit = (at91_pit_t *) AT91_PIT_BASE;
+	at91_pit_t *pit = (at91_pit_t *) ATMEL_BASE_PIT;
 
 	ulong now = readl(&pit->piir);
 
