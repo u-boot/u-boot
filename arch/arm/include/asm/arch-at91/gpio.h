@@ -18,7 +18,7 @@
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/hardware.h>
 
-#ifdef CONFIG_AT91_LEGACY
+#ifdef CONFIG_ATMEL_LEGACY
 
 #define PIN_BASE		32
 
@@ -192,13 +192,13 @@
 #define	AT91_PIN_PE31	(PIN_BASE + 0x80 + 31)
 
 static unsigned long at91_pios[] = {
-	AT91_PIOA,
-	AT91_PIOB,
-	AT91_PIOC,
-#ifdef AT91_PIOD
-	AT91_PIOD,
-#ifdef AT91_PIOE
-	AT91_PIOE
+	ATMEL_BASE_PIOA,
+	ATMEL_BASE_PIOB,
+	ATMEL_BASE_PIOC,
+#ifdef ATMEL_BASE_PIOD
+	ATMEL_BASE_PIOD,
+#ifdef ATMEL_BASE_PIOE
+	ATMEL_BASE_PIOE
 #endif
 #endif
 };
@@ -207,7 +207,7 @@ static inline void *pin_to_controller(unsigned pin)
 {
 	pin -= PIN_BASE;
 	pin /= 32;
-	return (void *)(AT91_BASE_SYS + at91_pios[pin]);
+	return (void *)(at91_pios[pin]);
 }
 
 static inline unsigned pin_to_mask(unsigned pin)
