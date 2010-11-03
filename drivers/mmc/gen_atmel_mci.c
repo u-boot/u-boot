@@ -33,7 +33,7 @@
 #include <asm/errno.h>
 #include <asm/byteorder.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/memory-map.h>
+#include <asm/arch/hardware.h>
 #include "atmel_mci.h"
 
 #ifndef CONFIG_SYS_MMC_CLK_OD
