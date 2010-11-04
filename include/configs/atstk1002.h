@@ -24,7 +24,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/arch/memory-map.h>
+#include <asm/arch/hardware.h>
 
 #define CONFIG_AVR32			1
 #define CONFIG_AT32AP			1

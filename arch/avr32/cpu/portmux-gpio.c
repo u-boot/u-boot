@@ -22,7 +22,7 @@
 #include <common.h>
 
 #include <asm/io.h>
-#include <asm/arch/memory-map.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/gpio.h>
 
 void portmux_select_peripheral(void *port, unsigned long pin_mask,

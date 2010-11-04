@@ -29,7 +29,7 @@
 #include <asm/sdram.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hmatrix.h>
-#include <asm/arch/memory-map.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/mmu.h>
 #include <asm/arch/portmux.h>
 

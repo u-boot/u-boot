@@ -27,7 +27,7 @@
 #include <asm/processor.h>
 #include <asm/sysreg.h>
 
-#include <asm/arch/memory-map.h>
+#include <asm/arch/hardware.h>
 
 #define HANDLER_MASK	0x00ffffff
 #define INTLEV_SHIFT	30
