@@ -64,6 +64,7 @@ static void omap3_evm_get_revision(void)
        }
 }
 
+#ifdef CONFIG_USB_OMAP3
 /*
  * MUSB port on OMAP3EVM Rev >= E requires extvbus programming.
  */
@@ -76,6 +77,7 @@ u8 omap3_evm_need_extvbus(void)
 
 	return retval;
 }
+#endif
 
 /*
  * Routine: board_init
