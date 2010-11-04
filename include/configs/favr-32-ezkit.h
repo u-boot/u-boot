@@ -82,10 +82,8 @@
  */
 #define CONFIG_SYS_PLL0_OPT			0x04
 
-#undef CONFIG_USART0
-#undef CONFIG_USART1
-#undef CONFIG_USART2
-#define CONFIG_USART3			1
+#define CONFIG_USART_BASE		ATMEL_BASE_USART3
+#define CONFIG_USART_ID			3
 
 /* User serviceable stuff */
 #define CONFIG_DOS_PARTITION		1

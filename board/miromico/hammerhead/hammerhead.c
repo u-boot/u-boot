@@ -68,7 +68,8 @@ static const struct sdram_config sdram_config = {
 #ifdef CONFIG_CMD_NET
 int board_eth_init(bd_t *bis)
 {
-	return macb_eth_initialize(0, (void *)MACB0_BASE, bis->bi_phy_id[0]);
+	return macb_eth_initialize(0, (void *)ATMEL_BASE_MACB0,
+		bis->bi_phy_id[0]);
 }
 #endif
 

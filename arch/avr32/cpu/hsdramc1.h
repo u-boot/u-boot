@@ -136,8 +136,8 @@
 
 /* Register access macros */
 #define hsdramc1_readl(reg)					\
-	readl((void *)HSDRAMC_BASE + HSDRAMC1_##reg)
+	readl((void *)ATMEL_BASE_HSDRAMC + HSDRAMC1_##reg)
 #define hsdramc1_writel(reg,value)				\
-	writel((value), (void *)HSDRAMC_BASE + HSDRAMC1_##reg)
+	writel((value), (void *)ATMEL_BASE_HSDRAMC + HSDRAMC1_##reg)
 
 #endif /* __ASM_AVR32_HSDRAMC1_H__ */

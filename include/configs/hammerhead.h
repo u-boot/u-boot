@@ -59,7 +59,8 @@
  */
 #define CONFIG_SYS_PLL0_OPT			0x04
 
-#define CONFIG_USART1			1
+#define CONFIG_USART_BASE			ATMEL_BASE_USART1
+#define CONFIG_USART_ID				1
 
 #define CONFIG_HOSTNAME			hammerhead
 
