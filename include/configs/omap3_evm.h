@@ -344,6 +344,12 @@ extern unsigned int boot_flash_sec;
 extern unsigned int boot_flash_type;
 #endif
 
+/*
+ * Support for relocation
+ */
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_SP_ADDR		(LOW_LEVEL_SRAM_STACK - CONFIG_SYS_GBL_DATA_SIZE)
+
 /*----------------------------------------------------------------------------
  * SMSC9115 Ethernet from SMSC9118 family
  *----------------------------------------------------------------------------
