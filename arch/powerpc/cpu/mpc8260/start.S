@@ -907,7 +907,7 @@ in_ram:
 	lwzux	r0,r4,r11
 	cmpwi	r0,0
 	add	r0,r0,r11
-	stw	r10,0(r3)
+	stw	r4,0(r3)
 	beq-	5f
 	stw	r0,0(r4)
 5:	bdnz	3b
