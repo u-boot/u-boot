@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).a
+LIB	= $(obj)lib$(SOC).o
 
 COBJS-$(CONFIG_AT91CAP9)	+= at91cap9_devices.o
 COBJS-$(CONFIG_AT91SAM9260)	+= at91sam9260_devices.o
@@ -51,7 +51,7 @@ OBJS    := $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 all:	$(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

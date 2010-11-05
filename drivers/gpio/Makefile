@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB 	:= $(obj)libgpio.a
+LIB 	:= $(obj)libgpio.o
 
 COBJS-$(CONFIG_AT91_GPIO)	+= at91_gpio.o
 COBJS-$(CONFIG_KIRKWOOD_GPIO)	+= kw_gpio.o
@@ -38,7 +38,7 @@ OBJS 	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 
 #########################################################################

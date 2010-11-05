@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libmisc.a
+LIB	:= $(obj)libmisc.o
 
 COBJS-$(CONFIG_ALI152X) += ali512x.o
 COBJS-$(CONFIG_DS4510)  += ds4510.o
@@ -42,7 +42,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

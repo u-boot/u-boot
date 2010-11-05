@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).a
+LIB	= $(obj)lib$(SOC).o
 
 COBJS	= flash.o mmc.o mmc_hw.o spi.o
 SOBJS	= $(obj)iap_entry.o
@@ -34,7 +34,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(obj).depend $(LIB)
 
 $(LIB):	$(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
+	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
 
 # this MUST be compiled as thumb code!
 $(SOBJS):

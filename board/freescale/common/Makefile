@@ -27,7 +27,7 @@ ifneq ($(OBJTREE),$(SRCTREE))
 $(shell mkdir -p $(obj)board/$(VENDOR)/common)
 endif
 
-LIB	= $(obj)lib$(VENDOR).a
+LIB	= $(obj)lib$(VENDOR).o
 
 COBJS-$(CONFIG_FSL_CADMUS)	+= cadmus.o
 COBJS-$(CONFIG_FSL_VIA)		+= cds_via.o
@@ -53,7 +53,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS-y))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

@@ -24,7 +24,7 @@ include $(TOPDIR)/config.mk
 
 $(shell mkdir -p $(OBJTREE)/board/freescale/common)
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(CPU).o
 
 START	= start.o
 COBJS-y	:= cpu.o
@@ -50,7 +50,7 @@ START	:= $(addprefix $(obj),$(START))
 all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

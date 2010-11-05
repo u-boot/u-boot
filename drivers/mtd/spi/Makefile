@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libspi_flash.a
+LIB	:= $(obj)libspi_flash.o
 
 COBJS-$(CONFIG_SPI_FLASH)	+= spi_flash.o
 COBJS-$(CONFIG_SPI_FLASH_ATMEL)	+= atmel.o
@@ -42,7 +42,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB): $(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

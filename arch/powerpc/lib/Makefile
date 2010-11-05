@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(ARCH).a
+LIB	= $(obj)lib$(ARCH).o
 
 SOBJS-y	+= ppccache.o
 SOBJS-y	+= ppcstring.o
@@ -63,7 +63,7 @@ $(LIB):	$(obj).depend $(OBJS)
 		echo "       Upgrade to a recent toolchain."; \
 		exit 1; \
 	fi;
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

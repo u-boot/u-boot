@@ -27,7 +27,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)libubifs.a
+LIB	= $(obj)libubifs.o
 
 COBJS-$(CONFIG_CMD_UBIFS) := ubifs.o io.o super.o sb.o master.o lpt.o
 COBJS-$(CONFIG_CMD_UBIFS) += lpt_commit.o scan.o lprops.o
@@ -40,7 +40,7 @@ OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS-y))
 all:	$(LIB) $(AOBJS)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

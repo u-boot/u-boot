@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libvideo.a
+LIB	:= $(obj)libvideo.o
 
 COBJS-$(CONFIG_ATI_RADEON_FB) += ati_radeon_fb.o videomodes.o
 COBJS-$(CONFIG_ATMEL_LCD) += atmel_lcdfb.o
@@ -48,7 +48,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

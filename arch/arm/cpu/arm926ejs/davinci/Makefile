@@ -25,7 +25,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).a
+LIB	= $(obj)lib$(SOC).o
 
 COBJS-y				+= cpu.o timer.o psc.o
 COBJS-$(CONFIG_SOC_DM355)	+= dm355.o
@@ -47,7 +47,7 @@ START	:= $(addprefix $(obj),$(START))
 all:	$(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

@@ -20,7 +20,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)lib$(BOARD).a
+LIB	:= $(obj)lib$(BOARD).o
 
 COBJS	:= $(BOARD).o
 
@@ -28,7 +28,7 @@ SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 
 $(LIB): $(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

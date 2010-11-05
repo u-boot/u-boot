@@ -22,7 +22,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)libapi.a
+LIB	= $(obj)libapi.o
 
 COBJS-$(CONFIG_API) += api.o api_net.o api_storage.o api_platform-$(ARCH).o
 
@@ -31,7 +31,7 @@ SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 # defines $(obj).depend target
 include $(SRCTREE)/rules.mk

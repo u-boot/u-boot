@@ -8,7 +8,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)libddr.a
+LIB	= $(obj)libddr.o
 
 COBJS-$(CONFIG_FSL_DDR1)	+= main.o util.o ctrl_regs.o options.o \
 				   lc_common_dimm_params.o
@@ -28,7 +28,7 @@ OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 all:	$(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 include $(SRCTREE)/rules.mk
 

@@ -20,7 +20,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libusb_phy.a
+LIB	:= $(obj)libusb_phy.o
 
 COBJS-$(CONFIG_TWL4030_USB) += twl4030.o
 
@@ -31,7 +31,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

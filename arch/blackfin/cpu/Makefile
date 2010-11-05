@@ -11,7 +11,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(CPU).o
 
 EXTRA    :=
 CEXTRA   := initcode.o
@@ -42,7 +42,7 @@ SEXTRA   := $(addprefix $(obj),$(SEXTRA))
 all:	$(obj).depend $(LIB) $(obj).depend $(EXTRA) $(CEXTRA) $(SEXTRA) check_initcode
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 $(OBJS): $(obj)bootrom-asm-offsets.h
 $(obj)bootrom-asm-offsets.c: bootrom-asm-offsets.c.in bootrom-asm-offsets.awk

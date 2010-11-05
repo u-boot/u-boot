@@ -22,7 +22,7 @@
 #
 include $(OBJTREE)/include/autoconf.mk
 
-LIB	= libpostnetta.a
+LIB	= libpostnetta.o
 
 COBJS-$(CONFIG_HAS_POST)	+= codec.o dsp.o
 

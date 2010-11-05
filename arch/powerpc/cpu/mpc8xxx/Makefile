@@ -8,7 +8,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib8xxx.a
+LIB	= $(obj)lib8xxx.o
 
 ifneq ($(CPU),mpc83xx)
 COBJS-y	+= cpu.o
@@ -24,7 +24,7 @@ OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 all:	$(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 include $(SRCTREE)/rules.mk
 

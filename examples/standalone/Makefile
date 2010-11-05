@@ -50,7 +50,7 @@ BIN  = $(addsuffix .bin,$(ELF))
 
 COBJS	:= $(ELF:=.o)
 
-LIB	= $(obj)libstubs.a
+LIB	= $(obj)libstubs.o
 
 LIBAOBJS-$(ARCH)     :=
 LIBAOBJS-$(CPU)      :=
@@ -91,7 +91,7 @@ all:	$(obj).depend $(OBJS) $(LIB) $(SREC) $(BIN) $(ELF)
 
 #########################################################################
 $(LIB):	$(obj).depend $(LIBOBJS)
-		$(AR) $(ARFLAGS) $@ $(LIBOBJS)
+	$(call cmd_link_o_target, $(LIBOBJS))
 
 $(ELF):
 $(obj)%:	$(obj)%.o $(LIB)

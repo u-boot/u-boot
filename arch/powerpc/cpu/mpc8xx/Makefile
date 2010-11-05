@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 # CFLAGS += -DET_DEBUG
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(CPU).o
 
 START-y	+= start.o
 START-y	+= kgdb.o
@@ -54,7 +54,7 @@ START	:= $(addprefix $(obj),$(START-y))
 all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(obj)kgdb.o
+	$(call cmd_link_o_target, $(OBJS) $(obj)kgdb.o)
 
 #########################################################################
 

@@ -24,20 +24,20 @@
 include $(TOPDIR)/config.mk
 include $(OBJTREE)/include/autoconf.mk
 
-LIB				= libpost.a
-GPLIB-$(CONFIG_HAS_POST)	+= libgenpost.a
+LIB				= libpost.o
+GPLIB-$(CONFIG_HAS_POST)	+= libgenpost.o
 COBJS-$(CONFIG_HAS_POST)	+= post.o
 COBJS-$(CONFIG_POST_STD_LIST)	+= tests.o
 
-SPLIB-$(CONFIG_HAS_POST) = drivers/libpostdrivers.a
+SPLIB-$(CONFIG_HAS_POST) = drivers/libpostdrivers.o
 SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d lib_$(ARCH) ]; then echo \
-			    "lib_$(ARCH)/libpost$(ARCH).a"; fi)
+			    "lib_$(ARCH)/libpost$(ARCH).o"; fi)
 SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d lib_$(ARCH)/fpu ]; then echo \
-			    "lib_$(ARCH)/fpu/libpost$(ARCH)fpu.a"; fi)
+			    "lib_$(ARCH)/fpu/libpost$(ARCH)fpu.o"; fi)
 SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d cpu/$(CPU) ]; then echo \
-			    "cpu/$(CPU)/libpost$(CPU).a"; fi)
+			    "cpu/$(CPU)/libpost$(CPU).o"; fi)
 SPLIB-$(CONFIG_HAS_POST) += $(shell if [ -d board/$(BOARD) ]; then echo \
-			    "board/$(BOARD)/libpost$(BOARD).a"; fi)
+			    "board/$(BOARD)/libpost$(BOARD).o"; fi)
 
 GPLIB	:= $(addprefix $(obj),$(GPLIB-y))
 SPLIB	:= $(addprefix $(obj),$(SPLIB-y))
@@ -55,7 +55,7 @@ postdeps:
 
 # generic POST library
 $(GPLIB): $(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 # specific POST libraries
 $(SPLIB): $(obj).depend postdeps
@@ -63,9 +63,7 @@ $(SPLIB): $(obj).depend postdeps
 
 # the POST lib archive
 $(LIB): $(GPLIB) $(SPLIB)
-	(echo create $(LIB); for lib in $(GPLIB) $(SPLIB) ; \
-	 do echo addlib $$lib; done; echo save) \
-	| $(AR) -M
+	$(call cmd_link_o_target, $^)
 
 #########################################################################
 

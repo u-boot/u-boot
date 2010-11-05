@@ -29,7 +29,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)lib$(SOC).a
+LIB	:= $(obj)lib$(SOC).o
 
 COBJS-$(CONFIG_SYS_SC520) += sc520.o
 COBJS-$(CONFIG_SYS_SC520_SSI) += sc520_ssi.o
@@ -44,7 +44,7 @@ OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
 all: $(obj).depend $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

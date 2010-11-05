@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libnet.a
+LIB	:= $(obj)libnet.o
 
 COBJS-$(CONFIG_DRIVER_3C589) += 3c589.o
 COBJS-$(CONFIG_PPC4xx_EMAC) += 4xx_enet.o
@@ -87,7 +87,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libphy.a
+LIB	:= $(obj)libphy.o
 
 COBJS-$(CONFIG_BITBANGMII) += miiphybb.o
 COBJS-$(CONFIG_MV88E61XX_SWITCH) += mv88e61xx.o
@@ -35,7 +35,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

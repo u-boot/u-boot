@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libblock.a
+LIB	:= $(obj)libblock.o
 
 COBJS-$(CONFIG_SCSI_AHCI) += ahci.o
 COBJS-$(CONFIG_ATA_PIIX) += ata_piix.o
@@ -45,7 +45,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)libcramfs.a
+LIB	= $(obj)libcramfs.o
 
 AOBJS	=
 COBJS-$(CONFIG_CMD_CRAMFS) := cramfs.o
@@ -37,7 +37,7 @@ OBJS	:= $(addprefix $(obj),$(AOBJS) $(COBJS-y))
 all:	$(LIB) $(AOBJS)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 
 #########################################################################

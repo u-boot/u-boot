@@ -19,7 +19,7 @@
 #EXTRA_COMPILE_FLAGS = -DYAFFS_IGNORE_TAGS_ECC
 include $(TOPDIR)/config.mk
 
-LIB = $(obj)libyaffs2.a
+LIB = $(obj)libyaffs2.o
 
 COBJS-$(CONFIG_YAFFS2) := \
 	yaffscfg.o yaffs_ecc.o yaffsfs.o yaffs_guts.o yaffs_packedtags1.o \
@@ -36,7 +36,7 @@ CFLAGS +=    -DCONFIG_YAFFS_DIRECT -DCONFIG_YAFFS_SHORT_NAMES_IN_RAM -DCONFIG_YA
 all:  $(LIB)
 
 $(LIB): $(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 .PHONY: clean distclean
 clean:

@@ -259,3 +259,10 @@ $(obj)%.s:	%.c
 		-o $@ $< -c -S
 
 #########################################################################
+
+# If the list of objects to link is empty, just create an empty built-in.o
+cmd_link_o_target = $(if $(strip $1),\
+                      $(LD) -r -o $@ $1 ,\
+                      rm -f $@; $(AR) rcs $@ )
+
+#########################################################################

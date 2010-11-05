@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 #CFLAGS += -DDEBUG
 
-LIB	= $(obj)librtc.a
+LIB	= $(obj)librtc.o
 
 COBJS-$(CONFIG_RTC_AT91SAM9_RTT) += at91sam9_rtt.o
 COBJS-$(CONFIG_RTC_BFIN) += bfin_rtc.o
@@ -71,7 +71,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 

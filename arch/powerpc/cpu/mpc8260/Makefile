@@ -23,7 +23,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(CPU).a
+LIB	= $(obj)lib$(CPU).o
 
 START	= start.o kgdb.o
 COBJS	= traps.o serial_smc.o serial_scc.o cpu.o cpu_init.o speed.o \
@@ -41,7 +41,7 @@ START	:= $(addprefix $(obj),$(START))
 all:	$(obj).depend $(START) $(LIB)
 
 $(LIB):	$(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(obj)kgdb.o
+	$(call cmd_link_o_target, $(OBJS) $(obj)kgdb.o)
 
 #########################################################################
 

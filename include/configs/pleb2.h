@@ -88,6 +88,7 @@
 #include <config_cmd_default.h>
 
 #undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
 
 
 #define CONFIG_BOOTDELAY	3

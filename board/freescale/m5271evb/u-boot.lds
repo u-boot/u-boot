@@ -24,7 +24,7 @@
 OUTPUT_ARCH(m68k)
 /* Do we need any of these for elf?
    __DYNAMIC = 0;    */
-GROUP(libgcc.a)
+GROUP(libgcc.o)
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */

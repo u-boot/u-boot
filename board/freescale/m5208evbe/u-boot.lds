@@ -56,8 +56,8 @@ SECTIONS
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
     arch/m68k/cpu/mcf52x2/start.o		(.text)
-    arch/m68k/cpu/mcf52x2/libmcf52x2.a	(.text)
-    arch/m68k/lib/libm68k.a		(.text)
+    arch/m68k/cpu/mcf52x2/libmcf52x2.o	(.text)
+    arch/m68k/lib/libm68k.o		(.text)
     common/dlmalloc.o		(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;

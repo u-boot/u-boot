@@ -25,7 +25,7 @@ include $(TOPDIR)/config.mk
 
 # CFLAGS += -DDEBUG
 
-LIB	= $(obj)libnet.a
+LIB	= $(obj)libnet.o
 
 COBJS-$(CONFIG_CMD_NET)  += bootp.o
 COBJS-$(CONFIG_CMD_DNS)  += dns.o
@@ -43,7 +43,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 
