@@ -112,12 +112,13 @@ gafr_set:	.long	0x08600000
 .globl lowlevel_init
 lowlevel_init:
 
-	/* set output and direction of pins */
-	ldr r0, PPC_BASE
-	ldr r1, pin_set_out
-	str r1, [r0, #PPSR]
-	ldr r1, pin_set_dir
-	str r1, [r0, #PPDR]
+
+	/* this is required for flashing */
+	ldr	r0, PPC_BASE
+	ldr	r1, pin_set_out
+	str	r1, [r0, #PPSR]
+	ldr	r1, pin_set_dir
+	str	r1, [r0, #PPDR]
 
 	/* Setting up the memory and stuff */
 	/***********************************/
@@ -190,6 +191,11 @@ lowlevel_init:
 	ldr	r3, [r2]
 .endr
 
+	ldr	r2, [r0, #MDCNFG]
+	orr	r2, r2, #0x00000003
+	orr	r2, r2, #0x00030000
+	str	r2, [r0, #MDCNFG]
+
 	ldr	r1, msc0
 	str	r1, [r0, #MSC0]
 	ldr	r1, msc1
@@ -198,13 +204,7 @@ lowlevel_init:
 	str	r1, [r0, #MSC2]
 	ldr	r1, smcnfg
 	str	r1, [r0, #SMCNFG]
-	ldr	r1, mdcnfg
-	str	r1, [r0, #MDCNFG]
 	ldr	r1, mecr
 	str	r1, [r0, #MECR]
-
-	/* enable SDRAM */
-	orr	r1, r1, #0x00000001
-	str	r1, [r0, #MDCNFG]
 
 	mov	pc, lr
