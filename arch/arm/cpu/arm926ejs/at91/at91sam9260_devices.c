@@ -23,10 +23,10 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/io.h>
 
 /*
  * if CONFIG_AT91_GPIO_PULLUP ist set, keep pullups on on all

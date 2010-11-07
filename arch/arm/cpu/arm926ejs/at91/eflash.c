@@ -60,8 +60,8 @@
  * do a read-modify-write for partially programmed pages
  */
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/io.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_eefc.h>
 #include <asm/arch/at91_dbu.h>

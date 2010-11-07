@@ -36,9 +36,9 @@
 
 #include <config.h>
 #include <common.h>
+#include <asm/io.h>
 #include <asm/sizes.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/io.h>
 #include <asm/arch/at91_pio.h>
 
 int at91_set_pio_pullup(unsigned port, unsigned pin, int use_pullup)

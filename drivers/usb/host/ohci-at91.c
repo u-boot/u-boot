@@ -25,8 +25,8 @@
 
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT)
 
+#include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/io.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/clk.h>
 
