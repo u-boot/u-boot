@@ -55,7 +55,7 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mcf5227x/start.o		(.text)
+    arch/m68k/cpu/mcf5227x/start.o		(.text)
 
     *(.text)
     *(.fixup)

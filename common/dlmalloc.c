@@ -1515,18 +1515,13 @@ void *sbrk(ptrdiff_t increment)
 	ulong new = old + increment;
 
 	if ((new < mem_malloc_start) || (new > mem_malloc_end))
-		return NULL;
+		return (void *)MORECORE_FAILURE;
 
 	mem_malloc_brk = new;
 
 	return (void *)old;
 }
 
-#ifndef CONFIG_X86
-/*
- * x86 boards use a slightly different init sequence thus they implement
- * their own version of mem_malloc_init()
- */
 void mem_malloc_init(ulong start, ulong size)
 {
 	mem_malloc_start = start;
@@ -1535,7 +1530,6 @@ void mem_malloc_init(ulong start, ulong size)
 
 	memset((void *)mem_malloc_start, 0, size);
 }
-#endif
 
 /* field-extraction macros */
 
@@ -2184,6 +2178,12 @@ Void_t* mALLOc(bytes) size_t bytes;
   mbinptr q;                         /* misc temp */
 
   INTERNAL_SIZE_T nb;
+
+  /* check if mem_malloc_init() was run */
+  if ((mem_malloc_start == 0) && (mem_malloc_end == 0)) {
+    /* not initialized yet */
+    return 0;
+  }
 
   if ((long)bytes < 0) return 0;
 

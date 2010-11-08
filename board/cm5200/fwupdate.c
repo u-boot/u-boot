@@ -35,9 +35,9 @@
 
 #include "fwupdate.h"
 
-extern int do_bootm(cmd_tbl_t *, int, int, char *[]);
+extern int do_bootm(cmd_tbl_t *, int, int, char * const []);
 extern long do_fat_read(const char *, void *, unsigned long, int);
-extern int do_fat_fsload(cmd_tbl_t *, int, int, char *[]);
+extern int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
 
 static int load_rescue_image(ulong);
 
@@ -47,7 +47,7 @@ void cm5200_fwupdate(void)
 	char *rsargs;
 	char *tmp = NULL;
 	char ka[16];
-	char *argv[3] = { "bootm", ka, NULL };
+	char * const argv[3] = { "bootm", ka, NULL };
 
 	/* Check if rescue system is disabled... */
 	if (getenv("norescue")) {
@@ -99,7 +99,7 @@ static int load_rescue_image(ulong addr)
 	char *tmp;
 	char dev[7];
 	char addr_str[16];
-	char *argv[6] = { "fatload", "usb", dev, addr_str, nxri, NULL };
+	char * const argv[6] = { "fatload", "usb", dev, addr_str, nxri, NULL };
 	block_dev_desc_t *stor_dev = NULL;
 	cmd_tbl_t *bcmd;
 

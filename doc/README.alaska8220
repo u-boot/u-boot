@@ -22,7 +22,7 @@ Changed files:
 - include/asm-ppc/global_data.h added global variables - inp_clk, pci_clk,
 			    vco_clk, pev_clk, flb_clk, and bExtUart
 
-- lib_ppc/board.c	    added CONFIG_MPC8220 support
+- arch/powerpc/lib/board.c	    added CONFIG_MPC8220 support
 
 - net/eth.c		    added FEC support for MPC8220
 
@@ -37,24 +37,24 @@ Added files:
 - board/alaska/config.mk    config make
 - board/alaska/u-boot.lds   Linker description
 
-- cpu/mpc8220/dma.h	    multi-channel dma header file
-- cpu/mpc8220/dramSetup.h   dram setup header file
-- cpu/mpc8220/fec.h	    MPC8220 FEC header file
-- cpu/mpc8220/cpu.c	    cpu specific code
-- cpu/mpc8220/cpu_init.c    Flexbus ChipSelect and Mux pins setup
-- cpu/mpc8220/dramSetup.c   MPC8220 DDR SDRAM setup
-- cpu/mpc8220/fec.c	    MPC8220 FEC driver
-- cpu/mpc8220/i2c.c	    MPC8220 I2C driver
-- cpu/mpc8220/interrupts.c  interrupt support (not enable)
-- cpu/mpc8220/loadtask.c    load dma
-- cpu/mpc8220/speed.c	    system, pci, flexbus, pev, and cpu clock
-- cpu/mpc8220/traps.c	    exception
-- cpu/mpc8220/uart.c	    MPC8220 UART driver
-- cpu/mpc8220/Makefile	    Makefile
-- cpu/mpc8220/config.mk	    config make
-- cpu/mpc8220/fec_dma_task.S MPC8220 FEC multi-channel dma program
-- cpu/mpc8220/io.S	    io functions
-- cpu/mpc8220/start.S	    start up
+- arch/powerpc/cpu/mpc8220/dma.h	    multi-channel dma header file
+- arch/powerpc/cpu/mpc8220/dramSetup.h   dram setup header file
+- arch/powerpc/cpu/mpc8220/fec.h	    MPC8220 FEC header file
+- arch/powerpc/cpu/mpc8220/cpu.c	    cpu specific code
+- arch/powerpc/cpu/mpc8220/cpu_init.c    Flexbus ChipSelect and Mux pins setup
+- arch/powerpc/cpu/mpc8220/dramSetup.c   MPC8220 DDR SDRAM setup
+- arch/powerpc/cpu/mpc8220/fec.c	    MPC8220 FEC driver
+- arch/powerpc/cpu/mpc8220/i2c.c	    MPC8220 I2C driver
+- arch/powerpc/cpu/mpc8220/interrupts.c  interrupt support (not enable)
+- arch/powerpc/cpu/mpc8220/loadtask.c    load dma
+- arch/powerpc/cpu/mpc8220/speed.c	    system, pci, flexbus, pev, and cpu clock
+- arch/powerpc/cpu/mpc8220/traps.c	    exception
+- arch/powerpc/cpu/mpc8220/uart.c	    MPC8220 UART driver
+- arch/powerpc/cpu/mpc8220/Makefile	    Makefile
+- arch/powerpc/cpu/mpc8220/config.mk	    config make
+- arch/powerpc/cpu/mpc8220/fec_dma_task.S MPC8220 FEC multi-channel dma program
+- arch/powerpc/cpu/mpc8220/io.S	    io functions
+- arch/powerpc/cpu/mpc8220/start.S	    start up
 
 - include/mpc8220.h
 

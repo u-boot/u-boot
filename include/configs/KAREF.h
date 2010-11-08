@@ -82,8 +82,7 @@
 #define CONFIG_SYS_GBL_DATA_SIZE     128	     /* num bytes initial data	*/
 
 #define CONFIG_SYS_GBL_DATA_OFFSET   (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
-#define CONFIG_SYS_POST_WORD_ADDR    (CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
-#define CONFIG_SYS_INIT_SP_OFFSET    CONFIG_SYS_POST_WORD_ADDR
+#define CONFIG_SYS_INIT_SP_OFFSET    (CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 
 #define CONFIG_SYS_MONITOR_LEN	      (256 * 1024)   /* Rsrv 256kB for Mon	*/
 #define CONFIG_SYS_MALLOC_LEN	      (128 * 1024)   /* Rsrv 128kB for malloc	*/
@@ -132,6 +131,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_HARD_I2C	      1		     /* I2C hardware support	*/
 #undef	CONFIG_SOFT_I2C			     /* I2C !bit-banged		*/
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
 #define CONFIG_SYS_I2C_SPEED	      400000	     /* I2C speed 400kHz	*/
 #define CONFIG_SYS_I2C_SLAVE	      0x7F	     /* I2C slave address	*/
 #define CONFIG_SYS_I2C_NOPROBES      {0x69}	     /* Don't probe these addrs */

@@ -39,6 +39,37 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH chips	*/
 
+static int board_cpld_version(void)
+{
+	u32 cpld;
+
+	cpld = in_be32((void *)CONFIG_SYS_FPGA_FIFO_BASE);
+	if ((cpld & CONFIG_SYS_FPGA_MAGIC_MASK) != CONFIG_SYS_FPGA_MAGIC) {
+		/*
+		 * Magic not found -> "old" CPLD revision which needs
+		 * the "old" EBC configuration
+		 */
+		mtebc(PB2AP, EBC_BXAP_BME_ENABLED | EBC_BXAP_FWT_ENCODE(5) |
+		      EBC_BXAP_BWT_ENCODE(0) | EBC_BXAP_BCE_DISABLE |
+		      EBC_BXAP_BCT_2TRANS | EBC_BXAP_CSN_ENCODE(0) |
+		      EBC_BXAP_OEN_ENCODE(0) | EBC_BXAP_WBN_ENCODE(3) |
+		      EBC_BXAP_WBF_ENCODE(0) | EBC_BXAP_TH_ENCODE(4) |
+		      EBC_BXAP_RE_DISABLED | EBC_BXAP_SOR_DELAYED |
+		      EBC_BXAP_BEM_WRITEONLY | EBC_BXAP_PEN_DISABLED);
+
+		/*
+		 * Return 0 for "old" CPLD version
+		 */
+		return 0;
+	}
+
+	/*
+	 * Magic found -> "new" CPLD revision which needs no new
+	 * EBC configuration
+	 */
+	return (cpld & CONFIG_SYS_FPGA_VER_MASK) >> 8;
+}
+
 /*
  * Board early initialization function
  */
@@ -209,6 +240,13 @@ int board_early_init_f (void)
 	mtsdr(SDR0_PFC1, val);
 
 	/*
+	 * The CPLD version detection has to be the first access to
+	 * the CPLD, so we need to make this access this early and
+	 * save the CPLD version for later.
+	 */
+	gd->board_type = board_cpld_version();
+
+	/*
 	 * Configure FPGA register with PCIe reset
 	 */
 	out_be32((void *)CONFIG_SYS_FPGA_BASE, 0xff570cc4);	/* assert PCIe reset */
@@ -252,15 +290,19 @@ int board_emac_count(void)
 		return 2;
 }
 
-static int board_pcie_count(void)
+/*
+ * Override the weak default implementation and return the
+ * last PCIe slot number (max number - 1).
+ */
+int board_pcie_last(void)
 {
 	/*
 	 * 405EXr only has one EMAC interface, 405EX has two
 	 */
 	if (is_405exr())
-		return 1;
+		return 1 - 1;
 	else
-		return 2;
+		return 2 - 1;
 }
 
 int checkboard (void)
@@ -276,104 +318,7 @@ int checkboard (void)
 		puts(", serial# ");
 		puts(s);
 	}
-	putc('\n');
+	printf(" (CPLD rev. %ld)\n", gd->board_type);
 
 	return (0);
 }
-
-/*************************************************************************
- *  pci_pre_init
- *
- *  This routine is called just prior to registering the hose and gives
- *  the board the opportunity to check things. Returning a value of zero
- *  indicates that things are bad & PCI initialization should be aborted.
- *
- *      Different boards may wish to customize the pci controller structure
- *      (add regions, override default access routines, etc) or perform
- *      certain pre-initialization actions.
- *
- ************************************************************************/
-#if defined(CONFIG_PCI)
-int pci_pre_init(struct pci_controller * hose )
-{
-	return 0;
-}
-#endif  /* defined(CONFIG_PCI) */
-
-#ifdef CONFIG_PCI
-static struct pci_controller pcie_hose[2] = {{0},{0}};
-
-void pcie_setup_hoses(int busno)
-{
-	struct pci_controller *hose;
-	int i, bus;
-	int ret = 0;
-	bus = busno;
-	char *env;
-	unsigned int delay;
-
-	for (i = 0; i < board_pcie_count(); i++) {
-
-		if (is_end_point(i))
-			ret = ppc4xx_init_pcie_endport(i);
-		else
-			ret = ppc4xx_init_pcie_rootport(i);
-		if (ret == -ENODEV)
-			continue;
-		if (ret) {
-			printf("PCIE%d: initialization as %s failed\n", i,
-			       is_end_point(i) ? "endpoint" : "root-complex");
-			continue;
-		}
-
-		hose = &pcie_hose[i];
-		hose->first_busno = bus;
-		hose->last_busno = bus;
-		hose->current_busno = bus;
-
-		/* setup mem resource */
-		pci_set_region(hose->regions + 0,
-			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
-			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
-			       CONFIG_SYS_PCIE_MEMSIZE,
-			       PCI_REGION_MEM);
-		hose->region_count = 1;
-		pci_register_hose(hose);
-
-		if (is_end_point(i)) {
-			ppc4xx_setup_pcie_endpoint(hose, i);
-			/*
-			 * Reson for no scanning is endpoint can not generate
-			 * upstream configuration accesses.
-			 */
-		} else {
-			ppc4xx_setup_pcie_rootpoint(hose, i);
-			env = getenv ("pciscandelay");
-			if (env != NULL) {
-				delay = simple_strtoul(env, NULL, 10);
-				if (delay > 5)
-					printf("Warning, expect noticable delay before "
-					       "PCIe scan due to 'pciscandelay' value!\n");
-				mdelay(delay * 1000);
-			}
-
-			/*
-			 * Config access can only go down stream
-			 */
-			hose->last_busno = pci_hose_scan(hose);
-			bus = hose->last_busno + 1;
-		}
-	}
-}
-#endif
-
-#if defined(CONFIG_POST)
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed(void)
-{
-	return 0;	/* No hotkeys supported */
-}
-#endif /* CONFIG_POST */

@@ -471,7 +471,7 @@ pci_cfg_modify (pci_dev_t bdf, ulong addr, ulong size, ulong value, int incrflag
  *      pci modify[.b, .w, .l] bus.device.function [addr]
  *      pci write[.b, .w, .l] bus.device.function addr value
  */
-int do_pci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_pci (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr = 0, value = 0, size = 0;
 	pci_dev_t bdf = 0;
@@ -534,8 +534,7 @@ int do_pci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	return 1;
  usage:
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
 /***************************************************/

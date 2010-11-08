@@ -38,9 +38,44 @@
 #include <usb_defs.h>
 #include <asm/io.h>
 
+#ifdef CONFIG_USB_BLACKFIN
+# include "blackfin_usb.h"
+#endif
+
 #define MUSB_EP0_FIFOSIZE	64	/* This is non-configurable */
 
+/* EP0 */
+struct musb_ep0_regs {
+	u16	reserved4;
+	u16	csr0;
+	u16	reserved5;
+	u16	reserved6;
+	u16	count0;
+	u8	host_type0;
+	u8	host_naklimit0;
+	u8	reserved7;
+	u8	reserved8;
+	u8	reserved9;
+	u8	configdata;
+};
+
+/* EP 1-15 */
+struct musb_epN_regs {
+	u16	txmaxp;
+	u16	txcsr;
+	u16	rxmaxp;
+	u16	rxcsr;
+	u16	rxcount;
+	u8	txtype;
+	u8	txinterval;
+	u8	rxtype;
+	u8	rxinterval;
+	u8	reserved0;
+	u8	fifosize;
+};
+
 /* Mentor USB core register overlay structure */
+#ifndef musb_regs
 struct musb_regs {
 	/* common registers */
 	u8	faddr;
@@ -77,7 +112,10 @@ struct musb_regs {
 	u16	rxfifoadd;
 	u32	vcontrol;
 	u16	hwvers;
-	u16	reserved2[5];
+	u16	reserved2a[1];
+	u8	ulpi_busctl;
+	u8	reserved2b[1];
+	u16	reserved2[3];
 	u8	epinfo;
 	u8	raminfo;
 	u8	linkinfo;
@@ -97,7 +135,18 @@ struct musb_regs {
 		u8	rxhubaddr;
 		u8	rxhubport;
 	} tar[16];
-} __attribute__((aligned(32)));
+	/*
+	 * endpoint registers
+	 * ep0 elements are valid when array index is 0
+	 * otherwise epN is valid
+	 */
+	union musb_ep_regs {
+		struct musb_ep0_regs ep0;
+		struct musb_epN_regs epN;
+	} ep[16];
+
+} __attribute__((packed, aligned(32)));
+#endif
 
 /*
  * MUSB Register bits
@@ -134,6 +183,10 @@ struct musb_regs {
 #define MUSB_DEVCTL_HM		0x04
 #define MUSB_DEVCTL_HR		0x02
 #define MUSB_DEVCTL_SESSION	0x01
+
+/* ULPI VBUSCONTROL */
+#define ULPI_USE_EXTVBUS	0x01
+#define ULPI_USE_EXTVBUSIND	0x02
 
 /* TESTMODE */
 #define MUSB_TEST_FORCE_HOST	0x80
@@ -295,6 +348,7 @@ struct musb_config {
 	struct	musb_regs	*regs;
 	u32			timeout;
 	u8			musb_speed;
+	u8			extvbus;
 };
 
 /* externally defined data */
@@ -306,5 +360,35 @@ extern void musb_start(void);
 extern void musb_configure_ep(struct musb_epinfo *epinfo, u8 cnt);
 extern void write_fifo(u8 ep, u32 length, void *fifo_data);
 extern void read_fifo(u8 ep, u32 length, void *fifo_data);
+
+#if defined(CONFIG_USB_BLACKFIN)
+/* Every USB register is accessed as a 16-bit even if the value itself
+ * is only 8-bits in size.  Fun stuff.
+ */
+# undef  readb
+# define readb(addr)     (u8)bfin_read16(addr)
+# undef  writeb
+# define writeb(b, addr) bfin_write16(addr, b)
+/*
+ * The USB PHY on current Blackfin processors is a UTMI+ level 2 PHY.
+ * However, it has no ULPI support - so there are no registers at all.
+ * That means accesses to ULPI_BUSCONTROL have to be abstracted away.
+ */
+static inline u8 musb_read_ulpi_buscontrol(struct musb_regs *musbr)
+{
+	return 0;
+}
+static inline void musb_write_ulpi_buscontrol(struct musb_regs *musbr, u8 val)
+{}
+#else
+static inline u8 musb_read_ulpi_buscontrol(struct musb_regs *musbr)
+{
+	return readb(&musbr->ulpi_busctl);
+}
+static inline void musb_write_ulpi_buscontrol(struct musb_regs *musbr, u8 val)
+{
+	writeb(val, &musbr->ulpi_busctl);
+}
+#endif
 
 #endif	/* __MUSB_HDRC_DEFS_H__ */

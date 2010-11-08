@@ -238,7 +238,7 @@ reset_phy(void)
 #endif
 #if defined(CONFIG_MII) && defined(CONFIG_ETHER_ON_FCC)
 	/* reset PHY */
-	miiphy_reset("FCC1 ETHERNET", 0x0);
+	miiphy_reset("FCC1", 0x0);
 
 	/* change PHY address to 0x02 */
 	bb_miiphy_write(NULL, 0, PHY_MIPSCR, 0xf028);
@@ -259,7 +259,7 @@ board_early_init_f(void)
 #endif
 
 	/* Why is the phy reset done _after_ the ethernet
-	 * initialization in lib_ppc/board.c?
+	 * initialization in arch/powerpc/lib/board.c?
 	 * Do it here so it's done before the TSECs are used.
 	 */
 	reset_phy();

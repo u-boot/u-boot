@@ -40,8 +40,10 @@ void onenand_init(void)
 
 	onenand_scan(&onenand_mtd, 1);
 
+	if (onenand_chip.device_id & DEVICE_IS_FLEXONENAND)
+		puts("Flex-");
 	puts("OneNAND: ");
-	print_size(onenand_mtd.size, "\n");
+	print_size(onenand_chip.chipsize, "\n");
 
 #ifdef CONFIG_MTD_DEVICE
 	/*

@@ -58,6 +58,18 @@
 
 
 /*
+ * Network Settings
+ */
+#define ADI_CMDS_NETWORK	1
+#define CONFIG_NET_MULTI
+#define CONFIG_DRIVER_AX88180	1
+#define AX88180_BASE		0x2c000000
+#define CONFIG_HOSTNAME		ibf-dsp561
+/* Uncomment next line to use fixed MAC address */
+/* #define CONFIG_ETHADDR	02:80:ad:20:31:e8 */
+
+
+/*
  * Flash Settings
  */
 #define CONFIG_SYS_FLASH_CFI		/* The flash is CFI compatible */
@@ -75,7 +87,7 @@
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_BYPASS)
 #define ENV_IS_EMBEDDED
 #else
-#define ENV_IS_EMBEDDED_CUSTOM
+#define CONFIG_ENV_IS_EMBEDDED_IN_LDR
 #endif
 #ifdef ENV_IS_EMBEDDED
 /* WARNING - the following is hand-optimized to fit within
@@ -84,12 +96,12 @@
  * it linked after the configuration sector.
  */
 # define LDS_BOARD_TEXT \
-	cpu/blackfin/traps.o		(.text .text.*); \
-	cpu/blackfin/interrupt.o	(.text .text.*); \
-	cpu/blackfin/serial.o		(.text .text.*); \
+	arch/blackfin/cpu/traps.o		(.text .text.*); \
+	arch/blackfin/cpu/interrupt.o	(.text .text.*); \
+	arch/blackfin/cpu/serial.o		(.text .text.*); \
 	common/dlmalloc.o		(.text .text.*); \
-	lib_generic/crc32.o		(.text .text.*); \
-	lib_generic/zlib.o		(.text .text.*); \
+	lib/crc32.o		(.text .text.*); \
+	lib/zlib.o		(.text .text.*); \
 	board/ibf-dsp561/ibf-dsp561.o	(.text .text.*); \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	common/env_embedded.o		(.text .text.*);
@@ -100,35 +112,8 @@
  * I2C Settings
  */
 #define CONFIG_SOFT_I2C		1
-#define PF_SCL			0x1/*PF0*/
-#define PF_SDA			0x2/*PF1*/
-
-#ifdef CONFIG_SOFT_I2C
-#define I2C_INIT       do { *pFIO0_DIR |= PF_SCL; SSYNC(); } while (0)
-#define I2C_ACTIVE     do { *pFIO0_DIR |= PF_SDA; *pFIO0_INEN &= ~PF_SDA; SSYNC(); } while (0)
-#define I2C_TRISTATE   do { *pFIO0_DIR &= ~PF_SDA; *pFIO0_INEN |= PF_SDA; SSYNC(); } while (0)
-#define I2C_READ       ((*pFIO0_FLAG_D & PF_SDA) != 0)
-#define I2C_SDA(bit) \
-	do { \
-		if (bit) \
-			*pFIO0_FLAG_S = PF_SDA; \
-		else \
-			*pFIO0_FLAG_C = PF_SDA; \
-		SSYNC(); \
-	} while (0)
-#define I2C_SCL(bit) \
-	do { \
-		if (bit) \
-			*pFIO0_FLAG_S = PF_SCL; \
-		else \
-			*pFIO0_FLAG_C = PF_SCL; \
-		SSYNC(); \
-	} while (0)
-#define I2C_DELAY		udelay(5)	/* 1/4 I2C clock duration */
-
-#define CONFIG_SYS_I2C_SPEED	50000
-#define CONFIG_SYS_I2C_SLAVE	0
-#endif
+#define CONFIG_SOFT_I2C_GPIO_SCL GPIO_PF0
+#define CONFIG_SOFT_I2C_GPIO_SDA GPIO_PF1
 
 
 /*

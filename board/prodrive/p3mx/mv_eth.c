@@ -99,9 +99,9 @@ int mv64460_eth_receive (struct eth_device *dev);
 
 int mv64460_eth_xmit (struct eth_device *, volatile void *packet, int length);
 
-int mv_miiphy_read(char *devname, unsigned char phy_addr,
+int mv_miiphy_read(const char *devname, unsigned char phy_addr,
 		   unsigned char phy_reg, unsigned short *value);
-int mv_miiphy_write(char *devname, unsigned char phy_addr,
+int mv_miiphy_write(const char *devname, unsigned char phy_addr,
 		    unsigned char phy_reg, unsigned short value);
 
 int phy_setup_aneg (char *devname, unsigned char addr);
@@ -298,7 +298,7 @@ void mv6446x_eth_initialize (bd_t * bis)
 			return;
 		}
 
-		temp = getenv_r (s, buf, sizeof (buf));
+		temp = getenv_f(s, buf, sizeof (buf));
 		s = (temp > 0) ? buf : NULL;
 
 #ifdef DEBUG
@@ -397,7 +397,7 @@ void mv6446x_eth_initialize (bd_t * bis)
 			return;
 		}
 
-		temp = getenv_r (s, buf, sizeof (buf));
+		temp = getenv_f(s, buf, sizeof (buf));
 		s = (temp > 0) ? buf : NULL;
 
 #ifdef DEBUG
@@ -1137,7 +1137,7 @@ bool db64460_eth_start (struct eth_device *dev)
 *************************************************************************/
 /*
  * based on Linux code
- * arch/ppc/galileo/EVB64460/mv64460_eth.c - Driver for MV64460X ethernet ports
+ * arch/powerpc/galileo/EVB64460/mv64460_eth.c - Driver for MV64460X ethernet ports
  * Copyright (C) 2002 rabeeh@galileo.co.il
 
  * This program is free software; you can redistribute it and/or
@@ -2544,7 +2544,7 @@ static bool eth_port_read_smi_reg (ETH_PORT eth_port_num,
 	return true;
 }
 
-int mv_miiphy_read(char *devname, unsigned char phy_addr,
+int mv_miiphy_read(const char *devname, unsigned char phy_addr,
 		   unsigned char phy_reg, unsigned short *value)
 {
 	unsigned int reg_value;
@@ -2629,7 +2629,7 @@ static bool eth_port_write_smi_reg (ETH_PORT eth_port_num,
 	return true;
 }
 
-int mv_miiphy_write(char *devname, unsigned char phy_addr,
+int mv_miiphy_write(const char *devname, unsigned char phy_addr,
 		    unsigned char phy_reg, unsigned short value)
 {
 	unsigned int reg_value;

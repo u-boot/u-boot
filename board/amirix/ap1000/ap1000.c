@@ -167,7 +167,7 @@ unsigned int get_device (void)
 /*
    This function loads FPGA configurations from the SystemACE CompactFlash
 */
-int do_loadace (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_loadace (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned char *p = (unsigned char *) AP1000_SYSACE_REGBASE;
 	int cfg;
@@ -247,7 +247,7 @@ int do_loadace (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
   *     -1 if failed
   * </pre>
   */
-int do_swconfigbyte (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_swconfigbyte (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned char *sector_buffer = NULL;
 	unsigned char input_char;
@@ -311,7 +311,7 @@ int do_swconfigbyte (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 #define ONE_SECOND 1000000
 
-int do_pause (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_pause (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int pause_time;
 	unsigned int delay_time;
@@ -345,7 +345,7 @@ int do_pause (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-int do_swreconfig (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_swreconfig (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	printf ("Triggering software reconfigure (software config byte is 0x%02x)...\n",
 		*((unsigned char *) (SW_BYTE_SECTOR_ADDR + SW_BYTE_SECTOR_OFFSET)));
@@ -365,7 +365,7 @@ int do_swreconfig (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #define TEMP_ETHERM_BIT 0x02
 #define TEMP_LTHERM_BIT 0x01
 
-int do_temp_sensor (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_temp_sensor (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	char cmd;
 	int ret_val = 0;

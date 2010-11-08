@@ -17,11 +17,11 @@ Changed files:
 				added console settings from environment
 - common/devices.c		added ISA keyboard init
 - common/main.c			corrected the read of bootdelay
-- cpu/ppc4xx/405gp_pci.c	excluded file from PIP405
-- cpu/ppc4xx/i2c.c		added 16bit read write I2C support
+- arch/powerpc/cpu/ppc4xx/405gp_pci.c	excluded file from PIP405
+- arch/powerpc/cpu/ppc4xx/i2c.c		added 16bit read write I2C support
 				added page write
-- cpu/ppc4xx/speed.c		added get_PCI_freq
-- cpu/ppc4xx/start.S		added CONFIG_IDENT_STRING
+- arch/powerpc/cpu/ppc4xx/speed.c		added get_PCI_freq
+- arch/powerpc/cpu/ppc4xx/start.S		added CONFIG_IDENT_STRING
 - disk/Makefile			added part_iso for CD support
 - disk/part.c			changed to work with block device description
 				added ISO CD support
@@ -275,7 +275,7 @@ Added the config variable CONFIG_IDENT_STRING which will be added to the
 "U_BOOT_VERSION __TIME__ DATE___ " String, to allows to identify intermidiate
 and custom versions.
 Changed files:
-- cpu/ppc4xx/start.s
+- arch/powerpc/cpu/ppc4xx/start.s
 
 Firmware Image:
 ---------------
@@ -288,11 +288,11 @@ Changed files:
 
 Correct PCI Frequency for PPC405:
 ---------------------------------
-Added function (in cpu/ppc4xx/speed.c) to get the PCI frequency for PPC405 CPU.
+Added function (in arch/powerpc/cpu/ppc4xx/speed.c) to get the PCI frequency for PPC405 CPU.
 The PCI Frequency will now be set correct in the board description in common/board.c.
 (was set to the busfreq before).
 Changed files:
-- cpu/ppc4xx/speed.c
+- arch/powerpc/cpu/ppc4xx/speed.c
 - common/board.c
 
 I2C Stuff:
@@ -301,7 +301,7 @@ Added defined(CONFIG_PIP405) at several points in common/cmd_i2c.c.
 Added 16bit read/write support for I2C (PPC405), and page write to
 I2C EEPROM if defined CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE.
 Changed files:
-- cpu/ppc4xx/i2c.c
+- arch/powerpc/cpu/ppc4xx/i2c.c
 - common/cmd_i2c.c
 
 Environment / Console:

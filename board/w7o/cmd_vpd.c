@@ -32,16 +32,14 @@
  * Interpreter command to retrieve board specific Vital Product Data, "VPD"
  * ======================================================================
  */
-int do_vpd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_vpd (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	VPD vpd;			/* Board specific data struct */
 	uchar dev_addr = CONFIG_SYS_DEF_EEPROM_ADDR;
 
 	/* Validate usage */
-	if (argc > 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc > 2)
+		return cmd_usage(cmdtp);
 
 	/* Passed in EEPROM address */
 	if (argc == 2)

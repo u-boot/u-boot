@@ -173,7 +173,7 @@ int sm501_gpio_init (void)
  * read and prints the dip switch
  * and/or external config inputs (4bits) 0...0x0F
  */
-int cmd_dip (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int cmd_dip (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	vu_long rc = 0;
 
@@ -205,7 +205,7 @@ U_BOOT_CMD (dip, 1, 1, cmd_dip,
  * buz - turns Buzzer on/off
  */
 #ifdef CONFIG_BC3450_BUZZER
-static int cmd_buz (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int cmd_buz (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc != 2) {
 		printf ("Usage:\nspecify one argument: \"on\" or \"off\"\n");
@@ -236,7 +236,7 @@ U_BOOT_CMD (buz, 2, 1, cmd_buz,
 /*
  * fp - front panel commands
  */
-static int cmd_fp (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int cmd_fp (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	sm501_gpio_init ();
 
@@ -491,7 +491,7 @@ static void ds1620_write_state (struct therm *therm)
 	ds1620_out (THERM_START_CONVERT, 0, 0);
 }
 
-static int cmd_temp (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+static int cmd_temp (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	struct therm therm;
@@ -682,7 +682,7 @@ int can_init (void)
  * return 1 on CAN failure
  * return 0 if no failure
  */
-int do_can (char *argv[])
+int do_can (char * const argv[])
 {
 	int i;
 	struct mpc5xxx_mscan *can1 =
@@ -777,7 +777,7 @@ int do_can (char *argv[])
 /*
  * test - BC3450 HW test routines
  */
-int cmd_test (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int cmd_test (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_BC3450_CAN
 	int rcode;

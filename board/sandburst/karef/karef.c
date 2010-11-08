@@ -518,7 +518,7 @@ void fpga_init(void)
 	return;
 }
 
-int karefSetupVars(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int karefSetupVars(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned short sernum;
 	char envstr[255];
@@ -578,7 +578,7 @@ int karefSetupVars(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return(1);
 }
 
-int karefRecover(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int karefRecover(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned short sernum;
 	char envstr[255];

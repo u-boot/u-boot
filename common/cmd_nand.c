@@ -4,23 +4,16 @@
  * (c) 1999 Machine Vision Holdings, Inc.
  * (c) 1999, 2000 David Woodhouse <dwmw2@infradead.org>
  *
+ * Ported 'dynenv' to 'nand env.oob' command
+ * (C) 2010 Nanometrics, Inc.
+ * 'dynenv' -- Dynamic environment offset in NAND OOB
+ * (C) Copyright 2006-2007 OpenMoko, Inc.
  * Added 16-bit nand support
  * (C) 2004 Texas Instruments
  */
 
 #include <common.h>
-
-
-/*
- *
- * New NAND support
- *
- */
-#include <common.h>
 #include <linux/mtd/mtd.h>
-
-#if defined(CONFIG_CMD_NAND)
-
 #include <command.h>
 #include <watchdog.h>
 #include <malloc.h>
@@ -30,7 +23,7 @@
 
 #if defined(CONFIG_CMD_MTDPARTS)
 
-/* parition handling routines */
+/* partition handling routines */
 int mtdparts_init(void);
 int id_parse(const char *id, const char **ret_id, u8 *dev_type, u8 *dev_num);
 int find_dev_and_part(const char *id, struct mtd_device **dev,
@@ -101,7 +94,7 @@ static inline int str2long(char *p, ulong *num)
 }
 
 static int
-arg_off_size(int argc, char *argv[], nand_info_t *nand, ulong *off, size_t *size)
+arg_off_size(int argc, char * const argv[], nand_info_t *nand, ulong *off, size_t *size)
 {
 	int idx = nand_curr_device;
 #if defined(CONFIG_CMD_MTDPARTS)
@@ -204,6 +197,89 @@ static void do_nand_status(nand_info_t *nand)
 }
 #endif
 
+#ifdef CONFIG_ENV_OFFSET_OOB
+unsigned long nand_env_oob_offset;
+
+int do_nand_env_oob(cmd_tbl_t *cmdtp, nand_info_t *nand,
+		    int argc, char * const argv[])
+{
+	int ret;
+	uint32_t oob_buf[ENV_OFFSET_SIZE/sizeof(uint32_t)];
+
+	char *cmd = argv[1];
+
+	if (!strcmp(cmd, "get")) {
+		ret = get_nand_env_oob(nand, &nand_env_oob_offset);
+		if (ret)
+			return 1;
+
+		printf("0x%08lx\n", nand_env_oob_offset);
+	} else if (!strcmp(cmd, "set")) {
+		ulong addr;
+		size_t dummy_size;
+		struct mtd_oob_ops ops;
+
+		if (argc < 3)
+			goto usage;
+
+		if (arg_off_size(argc - 2, argv + 2, nand, &addr,
+				 &dummy_size) < 0) {
+			printf("Offset or partition name expected\n");
+			return 1;
+		}
+
+		if (nand->oobavail < ENV_OFFSET_SIZE) {
+			printf("Insufficient available OOB bytes:\n"
+			       "%d OOB bytes available but %d required for "
+			       "env.oob support\n",
+			       nand->oobavail, ENV_OFFSET_SIZE);
+			return 1;
+		}
+
+		if ((addr & (nand->erasesize - 1)) != 0) {
+			printf("Environment offset must be block-aligned\n");
+			return 1;
+		}
+
+		ops.datbuf = NULL;
+		ops.mode = MTD_OOB_AUTO;
+		ops.ooboffs = 0;
+		ops.ooblen = ENV_OFFSET_SIZE;
+		ops.oobbuf = (void *) oob_buf;
+
+		oob_buf[0] = ENV_OOB_MARKER;
+		oob_buf[1] = addr / nand->erasesize;
+
+		ret = nand->write_oob(nand, ENV_OFFSET_SIZE, &ops);
+		if (ret) {
+			printf("Error writing OOB block 0\n");
+			return ret;
+		}
+
+		ret = get_nand_env_oob(nand, &nand_env_oob_offset);
+		if (ret) {
+			printf("Error reading env offset in OOB\n");
+			return ret;
+		}
+
+		if (addr != nand_env_oob_offset) {
+			printf("Verification of env offset in OOB failed: "
+			       "0x%08lx expected but got 0x%08lx\n",
+			       addr, nand_env_oob_offset);
+			return 1;
+		}
+	} else {
+		goto usage;
+	}
+
+	return ret;
+
+usage:
+	return cmd_usage(cmdtp);
+}
+
+#endif
+
 static void nand_print_info(int idx)
 {
 	nand_info_t *nand = &nand_info[idx];
@@ -215,7 +291,7 @@ static void nand_print_info(int idx)
 	       nand->name, nand->erasesize >> 10);
 }
 
-int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int i, dev, ret = 0;
 	ulong addr, off;
@@ -283,8 +359,20 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	    strncmp(cmd, "read", 4) != 0 && strncmp(cmd, "write", 5) != 0 &&
 	    strcmp(cmd, "scrub") != 0 && strcmp(cmd, "markbad") != 0 &&
 	    strcmp(cmd, "biterr") != 0 &&
-	    strcmp(cmd, "lock") != 0 && strcmp(cmd, "unlock") != 0 )
+	    strcmp(cmd, "lock") != 0 && strcmp(cmd, "unlock") != 0
+#ifdef CONFIG_ENV_OFFSET_OOB
+	    && strcmp(cmd, "env.oob") != 0
+#endif
+	    )
 		goto usage;
+
+#ifdef CONFIG_ENV_OFFSET_OOB
+	/* this command operates only on the first nand device */
+	if (strcmp(cmd, "env.oob") == 0) {
+		return do_nand_env_oob(cmdtp, &nand_info[0],
+				       argc - 1, argv + 1);
+	}
+#endif
 
 	/* the following commands operate on the current device */
 	if (nand_curr_device < 0 || nand_curr_device >= CONFIG_SYS_MAX_NAND_DEVICE ||
@@ -338,8 +426,14 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 			     "are sure of what you are doing!\n"
 			     "\nReally scrub this NAND flash? <y/N>\n");
 
-			if (getc() == 'y' && getc() == '\r') {
-				opts.scrub = 1;
+			if (getc() == 'y') {
+				puts("y");
+				if (getc() == '\r')
+					opts.scrub = 1;
+				else {
+					puts("scrub aborted\n");
+					return -1;
+				}
 			} else {
 				puts("scrub aborted\n");
 				return -1;
@@ -482,11 +576,11 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #endif
 
 usage:
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
-U_BOOT_CMD(nand, CONFIG_SYS_MAXARGS, 1, do_nand,
+U_BOOT_CMD(
+	nand, CONFIG_SYS_MAXARGS, 1, do_nand,
 	"NAND sub-system",
 	"info - show available NAND devices\n"
 	"nand device [dev] - show or set current device\n"
@@ -506,6 +600,13 @@ U_BOOT_CMD(nand, CONFIG_SYS_MAXARGS, 1, do_nand,
 	"nand lock [tight] [status]\n"
 	"    bring nand to lock state or display locked pages\n"
 	"nand unlock [offset] [size] - unlock section"
+#endif
+#ifdef CONFIG_ENV_OFFSET_OOB
+	"\n"
+	"nand env.oob - environment offset in OOB of block 0 of"
+	"    first device.\n"
+	"nand env.oob set off|partition - set enviromnent offset\n"
+	"nand env.oob get - get environment offset"
 #endif
 );
 
@@ -604,7 +705,7 @@ static int nand_load_image(cmd_tbl_t *cmdtp, nand_info_t *nand,
 	return 0;
 }
 
-int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	char *boot_device = NULL;
 	int idx;
@@ -657,9 +758,8 @@ int do_nandboot(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 #if defined(CONFIG_CMD_MTDPARTS)
 usage:
 #endif
-		cmd_usage(cmdtp);
 		show_boot_progress(-53);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	show_boot_progress(53);
@@ -686,4 +786,3 @@ U_BOOT_CMD(nboot, 4, 1, do_nandboot,
 	"boot from NAND device",
 	"[partition] | [[[loadAddr] dev] offset]"
 );
-#endif

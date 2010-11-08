@@ -141,7 +141,7 @@
 
 #define CONFIG_SYS_FLASH_BASE		0xfe000000
 /*
- * The flash size is autoconfigured, but cpu/mpc5xxx/cpu_init.c needs this
+ * The flash size is autoconfigured, but arch/powerpc/cpu/mpc5xxx/cpu_init.c needs this
  * variable defined
  */
 #define CONFIG_SYS_FLASH_SIZE		0x02000000

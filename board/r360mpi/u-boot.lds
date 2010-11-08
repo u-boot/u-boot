@@ -55,10 +55,10 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mpc8xx/start.o		(.text)
-    cpu/mpc8xx/cpu_init.o	(.text)
-    cpu/mpc8xx/interrupts.o	(.text)
-    cpu/mpc8xx/traps.o		(.text)
+    arch/powerpc/cpu/mpc8xx/start.o		(.text)
+    arch/powerpc/cpu/mpc8xx/cpu_init.o	(.text)
+    arch/powerpc/cpu/mpc8xx/interrupts.o	(.text)
+    arch/powerpc/cpu/mpc8xx/traps.o		(.text)
 /***
     . = env_offset;
     common/env_embedded.o	(.text)

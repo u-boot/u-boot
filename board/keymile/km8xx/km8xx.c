@@ -147,7 +147,9 @@ phys_size_t initdram (int board_type)
 int board_early_init_r(void)
 {
 	/* setup the UPIOx */
-	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x02), 0xc0);
+	/* General Unit Reset disabled, Flash Bank enabled, UnitLed on */
+	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x02), 0xc2);
+	/* SCC4 enable, halfduplex, FCC1 powerdown, ANDI enable*/
 	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x03), 0x35);
 	return 0;
 }
@@ -160,51 +162,12 @@ int hush_init_var (void)
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 /*
- * update "memory" property in the blob
+ * update "brg" property in the blob
  */
 void ft_blob_update (void *blob, bd_t *bd)
 {
 	ulong brg_data[1] = {0};
-	ulong memory_data[2] = {0};
-	ulong *flash_data = NULL;
-	ulong flash_reg[3] = {0};
-	flash_info_t	*info;
-	int	len;
-	int	i = 0;
 
-	memory_data[0] = cpu_to_be32 (bd->bi_memstart);
-	memory_data[1] = cpu_to_be32 (bd->bi_memsize);
-	fdt_set_node_and_value (blob, "/memory", "reg", memory_data,
-				sizeof (memory_data));
-
-	len = fdt_get_node_and_value (blob, "/localbus", "ranges",
-					(void *)&flash_data);
-
-	if (flash_data == NULL) {
-		printf ("%s: error /localbus/ranges entry\n", __FUNCTION__);
-		return;
-	}
-
-	/* update Flash addr, size */
-	while ( i < (len / 4)) {
-		switch (flash_data[i]) {
-		case 0:
-			info = flash_get_info(CONFIG_SYS_FLASH_BASE);
-			flash_data[i + 1] = 0;
-			flash_data[i + 2] = cpu_to_be32 (CONFIG_SYS_FLASH_BASE);
-			flash_data[i + 3] = cpu_to_be32 (info->size);
-			break;
-		default:
-			break;
-		}
-		i += 4;
-	}
-	fdt_set_node_and_value (blob, "/localbus", "ranges", flash_data,
-				len);
-
-	flash_reg[2] = cpu_to_be32 (bd->bi_flashsize);
-	fdt_set_node_and_value (blob, "/localbus/flash@0,0", "reg", flash_reg,
-				sizeof (flash_reg));
 	/* BRG */
 	brg_data[0] = cpu_to_be32 (bd->bi_busfreq);
 	fdt_set_node_and_value (blob, "/soc/cpm", "brg-frequency", brg_data,

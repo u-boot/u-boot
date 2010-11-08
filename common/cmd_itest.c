@@ -66,12 +66,17 @@ op_tbl_t op_table [] = {
 
 static long evalexp(char *s, int w)
 {
-	long l, *p;
+	long l = 0;
+	long *p;
 
 	/* if the parameter starts with a * then assume is a pointer to the value we want */
 	if (s[0] == '*') {
 		p = (long *)simple_strtoul(&s[1], NULL, 16);
-		l = *p;
+		switch (w) {
+		case 1: return((long)(*(unsigned char *)p));
+		case 2: return((long)(*(unsigned short *)p));
+		case 4: return(*p);
+		}
 	} else {
 		l = simple_strtoul(s, NULL, 16);
 	}
@@ -155,15 +160,13 @@ int binary_test (char *op, char *arg1, char *arg2, int w)
 }
 
 /* command line interface to the shell test */
-int do_itest ( cmd_tbl_t *cmdtp, int flag, int argc, char *argv[] )
+int do_itest ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[] )
 {
 	int	value, w;
 
 	/* Validate arguments */
-	if ((argc != 4)){
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if ((argc != 4))
+		return cmd_usage(cmdtp);
 
 	/* Check for a data width specification.
 	 * Defaults to long (4) if no specification.

@@ -51,7 +51,7 @@ Keymile kmeter1 Board
 
 	tftp 10000 u-boot.bin
     => run load
-    Using FSL UEC0 device
+    Using UEC0 device
     TFTP from server 192.168.1.1; our IP address is 192.168.205.4
     Filename '/tftpboot/kmeter1/u-boot.bin'.
     Load address: 0x200000

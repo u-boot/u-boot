@@ -55,11 +55,11 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mpc8xx/start.o	(.text)
+    arch/powerpc/cpu/mpc8xx/start.o	(.text)
     common/dlmalloc.o	(.text)
-    lib_generic/vsprintf.o	(.text)
-    lib_generic/crc32.o		(.text)
-    lib_ppc/extable.o	(.text)
+    lib/vsprintf.o	(.text)
+    lib/crc32.o		(.text)
+    arch/powerpc/lib/extable.o	(.text)
 
     . = env_offset;
     common/env_embedded.o(.text)

@@ -436,14 +436,12 @@ struct qe_firmware_info *qe_get_firmware_info(void)
 	return qe_firmware_uploaded ? &qe_firmware_info : NULL;
 }
 
-static int qe_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int qe_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong addr;
 
-	if (argc < 3) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 3)
+		return cmd_usage(cmdtp);
 
 	if (strcmp(argv[1], "fw") == 0) {
 		addr = simple_strtoul(argv[2], NULL, 16);
@@ -471,8 +469,7 @@ static int qe_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return qe_upload_firmware((const struct qe_firmware *) addr);
 	}
 
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
 U_BOOT_CMD(

@@ -7,7 +7,7 @@
  *  terms of the GNU Public License, Version 2, incorporated
  *  herein by reference.
  *
- * Copyright 2004, 2007 Freescale Semiconductor, Inc.
+ * Copyright 2004, 2007, 2009  Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * maintained by Xianghua Xiao (x.xiao@motorola.com)
  * author Andy Fleming
@@ -20,22 +20,15 @@
 #include <net.h>
 #include <config.h>
 
-#ifndef CONFIG_SYS_TSEC1_OFFSET
-    #define CONFIG_SYS_TSEC1_OFFSET	(0x24000)
-#endif
-
-#define TSEC_SIZE	0x01000
-
-/* FIXME:  Should these be pushed back to 83xx and 85xx config files? */
-#if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) \
-	|| defined(CONFIG_MPC83xx)
-    #define TSEC_BASE_ADDR	(CONFIG_SYS_IMMR + CONFIG_SYS_TSEC1_OFFSET)
-#endif
+#define TSEC_SIZE 		0x01000
+#define TSEC_MDIO_OFFSET	0x01000
 
 #define STD_TSEC_INFO(num) \
 {			\
 	.regs = (tsec_t *)(TSEC_BASE_ADDR + ((num - 1) * TSEC_SIZE)), \
-	.miiregs = (tsec_t *)TSEC_BASE_ADDR, \
+	.miiregs = (tsec_mdio_t *)(MDIO_BASE_ADDR), \
+	.miiregs_sgmii = (tsec_mdio_t *)(MDIO_BASE_ADDR \
+					 + (num - 1) * TSEC_MDIO_OFFSET), \
 	.devname = CONFIG_TSEC##num##_NAME, \
 	.phyaddr = TSEC##num##_PHY_ADDR, \
 	.flags = TSEC##num##_FLAGS \
@@ -44,7 +37,9 @@
 #define SET_STD_TSEC_INFO(x, num) \
 {			\
 	x.regs = (tsec_t *)(TSEC_BASE_ADDR + ((num - 1) * TSEC_SIZE)); \
-	x.miiregs = (tsec_t *)TSEC_BASE_ADDR; \
+	x.miiregs = (tsec_mdio_t *)(MDIO_BASE_ADDR); \
+	x.miiregs_sgmii = (tsec_mdio_t *)(MDIO_BASE_ADDR \
+					  + (num - 1) * TSEC_MDIO_OFFSET); \
 	x.devname = CONFIG_TSEC##num##_NAME; \
 	x.phyaddr = TSEC##num##_PHY_ADDR; \
 	x.flags = TSEC##num##_FLAGS;\
@@ -157,6 +152,19 @@
 #define MIIM_BCM54xx_AUXSTATUS			0x19
 #define MIIM_BCM54xx_AUXSTATUS_LINKMODE_MASK	0x0700
 #define MIIM_BCM54xx_AUXSTATUS_LINKMODE_SHIFT	8
+
+#define MIIM_BCM54XX_SHD	0x1c	/* 0x1c shadow registers */
+#define MIIM_BCM54XX_SHD_WRITE	0x8000
+#define MIIM_BCM54XX_SHD_VAL(x)	((x & 0x1f) << 10)
+#define MIIM_BCM54XX_SHD_DATA(x)	((x & 0x3ff) << 0)
+#define MIIM_BCM54XX_SHD_WR_ENCODE(val, data)	\
+	(MIIM_BCM54XX_SHD_WRITE | MIIM_BCM54XX_SHD_VAL(val) | \
+	 MIIM_BCM54XX_SHD_DATA(data))
+
+#define MIIM_BCM54XX_EXP_DATA	0x15	/* Expansion register data */
+#define MIIM_BCM54XX_EXP_SEL	0x17	/* Expansion register select */
+#define MIIM_BCM54XX_EXP_SEL_SSD	0x0e00	/* Secondary SerDes select */
+#define MIIM_BCM54XX_EXP_SEL_ER	0x0f00	/* Expansion register select */
 
 /* Cicada Auxiliary Control/Status Register */
 #define MIIM_CIS8201_AUX_CONSTAT	0x1c
@@ -461,6 +469,22 @@ typedef struct tsec_hash_regs
 	uint	res2[24];
 } tsec_hash_t;
 
+typedef struct tsec_mdio {
+	uint	res1[4];
+	uint	ieventm;
+	uint	imaskm;
+	uint	res2;
+	uint	emapm;
+	uint	res3[320];
+	uint	miimcfg;	/* MII Management: Configuration */
+	uint	miimcom;	/* MII Management: Command */
+	uint	miimadd;	/* MII Management: Address */
+	uint	miimcon;	/* MII Management: Control */
+	uint	miimstat;	/* MII Management: Status */
+	uint	miimind;	/* MII Management: Indicators */
+	uint	res4[690];
+} tsec_mdio_t;
+
 typedef struct tsec
 {
 	/* General Control and Status Registers (0x2_n000) */
@@ -526,12 +550,7 @@ typedef struct tsec
 
 	uint	res51c;
 
-	uint	miimcfg;	/* MII Management: Configuration */
-	uint	miimcom;	/* MII Management: Command */
-	uint	miimadd;	/* MII Management: Address */
-	uint	miimcon;	/* MII Management: Control */
-	uint	miimstat;	/* MII Management: Status */
-	uint	miimind;	/* MII Management: Indicators */
+	uint	resmdio[6];
 
 	uint	res538;
 
@@ -565,13 +584,14 @@ typedef struct tsec
 
 /* This flag currently only has
  * meaning if we're using the eTSEC */
-#define TSEC_REDUCED	(1 << 1)
-
-#define TSEC_SGMII	(1 << 2)
+#define TSEC_REDUCED	(1 << 1)	/* MAC-PHY interface uses RGMII */
+#define TSEC_SGMII	(1 << 2)	/* MAC-PHY interface uses SGMII */
+#define TSEC_FIBER	(1 << 3)	/* PHY uses fiber, eg 1000 Base-X */
 
 struct tsec_private {
 	volatile tsec_t *regs;
-	volatile tsec_t *phyregs;
+	volatile tsec_mdio_t *phyregs;
+	volatile tsec_mdio_t *phyregs_sgmii;
 	struct phy_info *phyinfo;
 	uint phyaddr;
 	u32 flags;
@@ -630,13 +650,13 @@ struct phy_info {
 
 struct tsec_info_struct {
 	tsec_t *regs;
-	tsec_t *miiregs;
+	tsec_mdio_t *miiregs;
+	tsec_mdio_t *miiregs_sgmii;
 	char *devname;
 	unsigned int phyaddr;
 	u32 flags;
 };
 
-int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info);
 int tsec_standard_init(bd_t *bis);
 int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsec_info, int num);
 

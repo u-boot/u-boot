@@ -27,7 +27,7 @@
 
 #include <common.h>
 #include <netdev.h>
-#include <s3c2410.h>
+#include <asm/arch/s3c24x0_cpu.h>
 #include <stdio_dev.h>
 #include <i2c.h>
 
@@ -295,7 +295,7 @@ int checkboard(void)
 	int i;
 	backup_t *b = (backup_t *) s;
 
-	i = getenv_r("serial#", s, 32);
+	i = getenv_f("serial#", s, 32);
 	if ((i < 0) || strncmp (s, "VCMA9", 5)) {
 		get_backup_values (b);
 		if (strncmp (b->signature, "MPL\0", 4) != 0) {
@@ -340,7 +340,7 @@ void print_vcma9_info(void)
 	char s[50];
 	int i;
 
-	if ((i = getenv_r("serial#", s, 32)) < 0) {
+	if ((i = getenv_f("serial#", s, 32)) < 0) {
 		puts ("### No HW ID - assuming VCMA9");
 		printf("i %d", i*24);
 	} else {

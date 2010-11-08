@@ -32,6 +32,7 @@
  */
 
 #include <common.h>
+#include <netdev.h>
 #if defined(CONFIG_OMAP1610)
 #include <./configs/omap1510.h>
 #endif
@@ -302,3 +303,14 @@ void peripheral_power_enable (void)
 
 	*SW_CLOCK_REQUEST |= UART1_48MHZ_ENABLE;
 }
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_LAN91C96
+	rc = lan91c96_initialize(0, CONFIG_LAN91C96_BASE);
+#endif
+	return rc;
+}
+#endif

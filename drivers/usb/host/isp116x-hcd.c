@@ -42,7 +42,7 @@
  *
  *    [[GNU/GPL disclaimer]]
  *
- * and in part from AU1x00 OHCI HCD driver "u-boot/cpu/mips/au1x00_usb_ohci.c"
+ * and in part from AU1x00 OHCI HCD driver "u-boot/arch/mips/cpu/au1x00_usb_ohci.c"
  * (original copyright message follows):
  *
  *    URB OHCI HCD (Host Controller Driver) for USB on the AU1x00.

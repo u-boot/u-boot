@@ -35,7 +35,7 @@
  * do_fdosboot --
  *-----------------------------------------------------------------------------
  */
-int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *name;
     char *ep;
@@ -73,8 +73,7 @@ int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	name = argv [2];
 	break;
     default:
-	cmd_usage(cmdtp);
-	break;
+	return cmd_usage(cmdtp);
     }
 
     /* Init physical layer                                                   */
@@ -115,7 +114,7 @@ int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * do_fdosls --
  *-----------------------------------------------------------------------------
  */
-int do_fdosls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_fdosls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *path = "";
     int drive = CONFIG_SYS_FDC_DRIVE_NUMBER;

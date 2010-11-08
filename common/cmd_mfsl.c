@@ -31,23 +31,20 @@
 #include <command.h>
 #include <asm/asm.h>
 
-int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned int fslnum;
 	unsigned int num;
 	unsigned int blocking;
 
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	fslnum = (unsigned int)simple_strtoul (argv[1], NULL, 16);
 	blocking = (unsigned int)simple_strtoul (argv[2], NULL, 16);
 	if (fslnum < 0 || fslnum >= XILINX_FSL_NUMBER) {
 		puts ("Bad number of FSL\n");
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	switch (fslnum) {
@@ -189,24 +186,20 @@ int do_frd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-int do_fwr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_fwr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned int fslnum;
 	unsigned int num;
 	unsigned int blocking;
 
-	if (argc < 3) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 3)
+		return cmd_usage(cmdtp);
 
 	fslnum = (unsigned int)simple_strtoul (argv[1], NULL, 16);
 	num = (unsigned int)simple_strtoul (argv[2], NULL, 16);
 	blocking = (unsigned int)simple_strtoul (argv[3], NULL, 16);
-	if (fslnum < 0 || fslnum >= XILINX_FSL_NUMBER) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (fslnum < 0 || fslnum >= XILINX_FSL_NUMBER)
+		return cmd_usage(cmdtp);
 
 	switch (fslnum) {
 #if (XILINX_FSL_NUMBER > 0)
@@ -348,15 +341,14 @@ int do_fwr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 
 }
 
-int do_rspr (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_rspr (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned int reg = 0;
 	unsigned int val = 0;
 
-	if (argc < 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
 	reg = (unsigned int)simple_strtoul (argv[1], NULL, 16);
 	val = (unsigned int)simple_strtoul (argv[2], NULL, 16);
 	switch (reg) {

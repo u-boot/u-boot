@@ -74,14 +74,23 @@
 #endif	/* CONFIG_ENV_IS_IN_FLASH */
 
 #if defined(CONFIG_ENV_IS_IN_NAND)
-# ifndef CONFIG_ENV_OFFSET
-#  error "Need to define CONFIG_ENV_OFFSET when using CONFIG_ENV_IS_IN_NAND"
-# endif
+# if defined(CONFIG_ENV_OFFSET_OOB)
+#  ifdef CONFIG_ENV_OFFSET_REDUND
+#   error "CONFIG_ENV_OFFSET_REDUND is not supported when CONFIG_ENV_OFFSET_OOB"
+#   error "is set"
+#  endif
+extern unsigned long nand_env_oob_offset;
+#  define CONFIG_ENV_OFFSET nand_env_oob_offset
+# else
+#  ifndef CONFIG_ENV_OFFSET
+#   error "Need to define CONFIG_ENV_OFFSET when using CONFIG_ENV_IS_IN_NAND"
+#  endif
+#  ifdef CONFIG_ENV_OFFSET_REDUND
+#   define CONFIG_SYS_REDUNDAND_ENVIRONMENT
+#  endif
+# endif /* CONFIG_ENV_OFFSET_OOB */
 # ifndef CONFIG_ENV_SIZE
 #  error "Need to define CONFIG_ENV_SIZE when using CONFIG_ENV_IS_IN_NAND"
-# endif
-# ifdef CONFIG_ENV_OFFSET_REDUND
-#  define CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # endif
 #endif /* CONFIG_ENV_IS_IN_NAND */
 
@@ -122,6 +131,9 @@
 
 #ifdef CONFIG_SYS_REDUNDAND_ENVIRONMENT
 # define ENV_HEADER_SIZE	(sizeof(uint32_t) + 1)
+
+# define ACTIVE_FLAG   1
+# define OBSOLETE_FLAG 0
 #else
 # define ENV_HEADER_SIZE	(sizeof(uint32_t))
 #endif

@@ -14,10 +14,10 @@ The following common files have been modified by this project:
 
 MAKEALL			- TQM8260 entry added
 Makefile		- TQM8260_config entry added
-cpu/mpc8260/Makefile	- soft_i2c.o module added
-cpu/mpc8260/ether_scc.c	- TQM8260-specific definitions added, an obvious
+arch/powerpc/cpu/mpc8260/Makefile	- soft_i2c.o module added
+arch/powerpc/cpu/mpc8260/ether_scc.c	- TQM8260-specific definitions added, an obvious
 			  bug fixed (fcr -> scr)
-cpu/mpc8260/ether_fcc.c	- TQM8260-specific definitions added
+arch/powerpc/cpu/mpc8260/ether_fcc.c	- TQM8260-specific definitions added
 include/flash.h		- added definitions for the AM29LV640D Flash chip
 
 
@@ -33,7 +33,7 @@ board/tqm8260/config.mk	  - config file
 board/tqm8260/flash.c	  - flash driver (for AM29LV640D)
 board/tqm8260/ppcboot.lds - linker script
 board/tqm8260/tqm8260.c	  - ioport and memory initialization
-cpu/mpc8260/soft_i2c.c	  - software i2c EEPROM driver
+arch/powerpc/cpu/mpc8260/soft_i2c.c	  - software i2c EEPROM driver
 include/config_TQM8260.h  - main configuration file
 
 

@@ -30,7 +30,7 @@
 #include <common.h>
 #include <mpc5xxx.h>
 #include <pci.h>
-#include <asm-ppc/io.h>
+#include <asm/io.h>
 
 #include "mt46v32m16-75.h"
 

@@ -34,7 +34,17 @@ extern flash_info_t flash_info[CONFIG_SYS_MAX_FLASH_BANKS]; /* info for FLASH ch
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define CONFIG_SYS_BCSR3_PCIE		0x10
+	struct board_bcsr {
+		u8	board_id;
+		u8	cpld_rev;
+		u8	led_user;
+		u8	board_status;
+		u8	reset_ctrl;
+		u8	flash_ctrl;
+		u8	eth_ctrl;
+		u8	usb_ctrl;
+		u8	irq_ctrl;
+};
 
 #define BOARD_CANYONLANDS_PCIE	1
 #define BOARD_CANYONLANDS_SATA	2
@@ -42,7 +52,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define BOARD_ARCHES		4
 
 /*
- * Override the default functions in cpu/ppc4xx/44x_spd_ddr2.c with
+ * Override the default functions in arch/powerpc/cpu/ppc4xx/44x_spd_ddr2.c with
  * board specific values.
  */
 #if defined(CONFIG_ARCHES)
@@ -112,6 +122,9 @@ int board_early_init_f(void)
 {
 #if !defined(CONFIG_ARCHES)
 	u32 sdr0_cust0;
+	struct board_bcsr *bcsr_data =
+		(struct board_bcsr *)CONFIG_SYS_BCSR_BASE;
+
 #endif
 
 	/*
@@ -172,14 +185,10 @@ int board_early_init_f(void)
 
 #if !defined(CONFIG_ARCHES)
 	/* Enable ethernet and take out of reset */
-	out_8((void *)CONFIG_SYS_BCSR_BASE + 6, 0);
+	out_8(&bcsr_data->eth_ctrl, 0) ;
 
 	/* Remove NOR-FLASH, NAND-FLASH & EEPROM hardware write protection */
-	out_8((void *)CONFIG_SYS_BCSR_BASE + 5, 0);
-
-	/* Enable USB host & USB-OTG */
-	out_8((void *)CONFIG_SYS_BCSR_BASE + 7, 0);
-
+	out_8(&bcsr_data->flash_ctrl, 0) ;
 	mtsdr(SDR0_SRST1, 0);	/* Pull AHB out of reset default=1 */
 
 	/* Setup PLB4-AHB bridge based on the system address map */
@@ -200,6 +209,41 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+#if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_BOARD_INIT)
+int usb_board_init(void)
+{
+	struct board_bcsr *bcsr_data =
+		(struct board_bcsr *)CONFIG_SYS_BCSR_BASE;
+	u8 val;
+
+	/* Enable USB host & USB-OTG */
+	val = in_8(&bcsr_data->usb_ctrl);
+	val &= ~(BCSR_USBCTRL_OTG_RST | BCSR_USBCTRL_HOST_RST);
+	out_8(&bcsr_data->usb_ctrl, val);
+
+	return 0;
+}
+
+int usb_board_stop(void)
+{
+	struct board_bcsr *bcsr_data =
+		(struct board_bcsr *)CONFIG_SYS_BCSR_BASE;
+	u8 val;
+
+	/* Disable USB host & USB-OTG */
+	val = in_8(&bcsr_data->usb_ctrl);
+	val |= (BCSR_USBCTRL_OTG_RST | BCSR_USBCTRL_HOST_RST);
+	out_8(&bcsr_data->usb_ctrl, val);
+
+	return 0;
+}
+
+int usb_board_init_fail(void)
+{
+	return usb_board_stop();
+}
+#endif /* CONFIG_USB_OHCI_NEW && CONFIG_SYS_USB_OHCI_BOARD_INIT */
 
 #if !defined(CONFIG_ARCHES)
 static void canyonlands_sata_init(int board_type)
@@ -244,11 +288,13 @@ int get_cpu_num(void)
 #if !defined(CONFIG_ARCHES)
 int checkboard(void)
 {
+	struct board_bcsr *bcsr_data =
+		(struct board_bcsr *)CONFIG_SYS_BCSR_BASE;
 	char *s = getenv("serial#");
 
 	if (pvr_460ex()) {
 		printf("Board: Canyonlands - AMCC PPC460EX Evaluation Board");
-		if (in_8((void *)(CONFIG_SYS_BCSR_BASE + 3)) & CONFIG_SYS_BCSR3_PCIE)
+		if (in_8(&bcsr_data->board_status) & BCSR_SELECT_PCIE)
 			gd->board_type = BOARD_CANYONLANDS_PCIE;
 		else
 			gd->board_type = BOARD_CANYONLANDS_SATA;
@@ -268,7 +314,7 @@ int checkboard(void)
 		break;
 	}
 
-	printf(", Rev. %X", in_8((void *)(CONFIG_SYS_BCSR_BASE + 0)));
+	printf(", Rev. %X", in_8(&bcsr_data->cpld_rev));
 
 	if (s != NULL) {
 		puts(", serial# ");
@@ -326,141 +372,17 @@ phys_size_t initdram(int board_type)
 }
 #endif
 
-/*
- *  pci_target_init
- *
- *	The bootstrap configuration provides default settings for the pci
- *	inbound map (PIM). But the bootstrap config choices are limited and
- *	may not be sufficient for a given board.
- */
-#if defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT)
-void pci_target_init(struct pci_controller * hose )
-{
-	/*
-	 * Disable everything
-	 */
-	out_le32((void *)PCIL0_PIM0SA, 0); /* disable */
-	out_le32((void *)PCIL0_PIM1SA, 0); /* disable */
-	out_le32((void *)PCIL0_PIM2SA, 0); /* disable */
-	out_le32((void *)PCIL0_EROMBA, 0); /* disable expansion rom */
-
-	/*
-	 * Map all of SDRAM to PCI address 0x0000_0000. Note that the 440
-	 * strapping options to not support sizes such as 128/256 MB.
-	 */
-	out_le32((void *)PCIL0_PIM0LAL, CONFIG_SYS_SDRAM_BASE);
-	out_le32((void *)PCIL0_PIM0LAH, 0);
-	out_le32((void *)PCIL0_PIM0SA, ~(gd->ram_size - 1) | 1);
-	out_le32((void *)PCIL0_BAR0, 0);
-
-	/*
-	 * Program the board's subsystem id/vendor id
-	 */
-	out_le16((void *)PCIL0_SBSYSVID, CONFIG_SYS_PCI_SUBSYS_VENDORID);
-	out_le16((void *)PCIL0_SBSYSID, CONFIG_SYS_PCI_SUBSYS_DEVICEID);
-
-	out_le16((void *)PCIL0_CMD, in16r(PCIL0_CMD) | PCI_COMMAND_MEMORY);
-}
-#endif	/* defined(CONFIG_PCI) && defined(CONFIG_SYS_PCI_TARGET_INIT) */
-
 #if defined(CONFIG_PCI)
-/*
- * is_pci_host
- *
- * This routine is called to determine if a pci scan should be
- * performed. With various hardware environments (especially cPCI and
- * PPMC) it's insufficient to depend on the state of the arbiter enable
- * bit in the strap register, or generic host/adapter assumptions.
- *
- * Rather than hard-code a bad assumption in the general 440 code, the
- * 440 pci code requires the board to decide at runtime.
- *
- * Return 0 for adapter mode, non-zero for host (monarch) mode.
- */
-int is_pci_host(struct pci_controller *hose)
+int board_pcie_first(void)
 {
-	/* Board is always configured as host. */
-	return (1);
-}
-
-static struct pci_controller pcie_hose[2] = {{0},{0}};
-
-void pcie_setup_hoses(int busno)
-{
-	struct pci_controller *hose;
-	int i, bus;
-	int ret = 0;
-	char *env;
-	unsigned int delay;
-	int start;
-
-	/*
-	 * assume we're called after the PCIX hose is initialized, which takes
-	 * bus ID 0 and therefore start numbering PCIe's from 1.
-	 */
-	bus = busno;
-
 	/*
 	 * Canyonlands with SATA enabled has only one PCIe slot
 	 * (2nd one).
 	 */
 	if (gd->board_type == BOARD_CANYONLANDS_SATA)
-		start = 1;
-	else
-		start = 0;
+		return 1;
 
-	for (i = start; i <= 1; i++) {
-
-		if (is_end_point(i))
-			ret = ppc4xx_init_pcie_endport(i);
-		else
-			ret = ppc4xx_init_pcie_rootport(i);
-		if (ret == -ENODEV)
-			continue;
-		if (ret) {
-			printf("PCIE%d: initialization as %s failed\n", i,
-			       is_end_point(i) ? "endpoint" : "root-complex");
-			continue;
-		}
-
-		hose = &pcie_hose[i];
-		hose->first_busno = bus;
-		hose->last_busno = bus;
-		hose->current_busno = bus;
-
-		/* setup mem resource */
-		pci_set_region(hose->regions + 0,
-			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
-			       CONFIG_SYS_PCIE_MEMBASE + i * CONFIG_SYS_PCIE_MEMSIZE,
-			       CONFIG_SYS_PCIE_MEMSIZE,
-			       PCI_REGION_MEM);
-		hose->region_count = 1;
-		pci_register_hose(hose);
-
-		if (is_end_point(i)) {
-			ppc4xx_setup_pcie_endpoint(hose, i);
-			/*
-			 * Reson for no scanning is endpoint can not generate
-			 * upstream configuration accesses.
-			 */
-		} else {
-			ppc4xx_setup_pcie_rootpoint(hose, i);
-			env = getenv ("pciscandelay");
-			if (env != NULL) {
-				delay = simple_strtoul(env, NULL, 10);
-				if (delay > 5)
-					printf("Warning, expect noticable delay before "
-					       "PCIe scan due to 'pciscandelay' value!\n");
-				mdelay(delay * 1000);
-			}
-
-			/*
-			 * Config access can only go down stream
-			 */
-			hose->last_busno = pci_hose_scan(hose);
-			bus = hose->last_busno + 1;
-		}
-	}
+	return 0;
 }
 #endif /* CONFIG_PCI */
 

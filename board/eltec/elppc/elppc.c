@@ -117,7 +117,7 @@ phys_size_t initdram (int board_type)
  * Register PI in the MPC 107 (at offset 0x41090 of the Embedded Utilities
  * Memory Block).
  */
-int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_reset (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	out8 (MPC107_EUMB_PI, 1);
 	return (0);

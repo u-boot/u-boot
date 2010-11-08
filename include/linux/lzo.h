@@ -27,6 +27,10 @@ int lzo1x_1_compress(const unsigned char *src, size_t src_len,
 int lzo1x_decompress_safe(const unsigned char *src, size_t src_len,
 			unsigned char *dst, size_t *dst_len);
 
+/* decompress lzop format */
+int lzop_decompress(const unsigned char *src, size_t src_len,
+		    unsigned char *dst, size_t *dst_len);
+
 /*
  * Return values (< 0 = Error)
  */

@@ -150,6 +150,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_HARD_I2C		1		/* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C				/* I2C bit-banged		*/
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
 #define CONFIG_SYS_I2C_SPEED		400000		/* I2C speed and slave address	*/
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 
@@ -226,14 +227,13 @@
 #define CONFIG_SYS_NAND_ALE	30   /* our ALE is GPIO30 */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #endif
 
 /*-----------------------------------------------------------------------
  * Definitions for initial stack pointer and data area (in data cache)
  */
 /* use on chip memory (OCM) for temperary stack until sdram is tested */
-/* see ./cpu/ppc4xx/start.S */
+/* see ./arch/powerpc/cpu/ppc4xx/start.S */
 #define CONFIG_SYS_TEMP_STACK_OCM	1
 
 /* On Chip Memory location */
@@ -251,7 +251,7 @@
  * Taken from PPCBoot board/icecube/icecube.h
  */
 
-/* see ./cpu/ppc4xx/cpu_init.c ./cpu/ppc4xx/ndfc.c */
+/* see ./arch/powerpc/cpu/ppc4xx/cpu_init.c ./cpu/ppc4xx/ndfc.c */
 #define CONFIG_SYS_EBC_PB0AP		0x04002480
 /* AMD NOR flash - this corresponds to FLASH_BASE so may be correct */
 #define CONFIG_SYS_EBC_PB0CR		0xFFC5A000
@@ -269,7 +269,7 @@
  *
  * Taken in part from PPCBoot board/icecube/icecube.h
  */
-/* see ./cpu/ppc4xx/cpu_init.c ./cpu/ppc4xx/start.S */
+/* see ./arch/powerpc/cpu/ppc4xx/cpu_init.c ./cpu/ppc4xx/start.S */
 #define CONFIG_SYS_GPIO0_OSRH		0x55555550
 #define CONFIG_SYS_GPIO0_OSRL		0x00000110
 #define CONFIG_SYS_GPIO0_ISR1H		0x00000000

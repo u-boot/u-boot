@@ -137,10 +137,6 @@
 #define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR	/* physical addr of CCSRBAR */
 #define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR	*/
 
-#define CONFIG_SYS_PCI1_ADDR		(CONFIG_SYS_CCSRBAR + 0x8000)
-#define CONFIG_SYS_PCI2_ADDR		(CONFIG_SYS_CCSRBAR + 0x9000)
-#define CONFIG_SYS_PCIE1_ADDR		(CONFIG_SYS_CCSRBAR + 0xa000)
-
 /*
  * DDR Setup
  */
@@ -284,6 +280,7 @@
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400, 115200}
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CONFIG_AUTO_COMPLETE	1	/* add autocompletion support */
 #define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
 #ifdef	CONFIG_SYS_HUSH_PARSER
 #define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
@@ -371,8 +368,6 @@
 #define CONFIG_SYS_OR3_PRELIM		(P2SZ_TO_AM(CONFIG_SYS_NAND_SIZE) | OR_UPM_BI)
 
 #define NAND_BIG_DELAY_US		25	/* max tR for Samsung devices	*/
-
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 
 #endif /* CONFIG_NAND */
 
@@ -595,6 +590,7 @@
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_DTT
 #define CONFIG_CMD_MII
+#define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI

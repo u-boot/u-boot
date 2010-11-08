@@ -16,7 +16,7 @@
 #include <hwconfig.h>
 #include <i2c.h>
 #include <asm/io.h>
-#include <asm/fsl_serdes.h>
+#include <asm/fsl_mpc83xx_serdes.h>
 #include <fdt_support.h>
 #include <spd_sdram.h>
 #include <vsc7385.h>

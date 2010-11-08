@@ -136,14 +136,14 @@ static void mxcmci_softreset(struct mxcmci_host *host)
 	int i;
 
 	/* reset sequence */
-	writew(STR_STP_CLK_RESET, &host->base->str_stp_clk);
-	writew(STR_STP_CLK_RESET | STR_STP_CLK_START_CLK,
+	writel(STR_STP_CLK_RESET, &host->base->str_stp_clk);
+	writel(STR_STP_CLK_RESET | STR_STP_CLK_START_CLK,
 			&host->base->str_stp_clk);
 
 	for (i = 0; i < 8; i++)
-		writew(STR_STP_CLK_START_CLK, &host->base->str_stp_clk);
+		writel(STR_STP_CLK_START_CLK, &host->base->str_stp_clk);
 
-	writew(0xff, &host->base->res_to);
+	writel(0xff, &host->base->res_to);
 }
 
 static void mxcmci_setup_data(struct mxcmci_host *host, struct mmc_data *data)
@@ -154,8 +154,8 @@ static void mxcmci_setup_data(struct mxcmci_host *host, struct mmc_data *data)
 
 	host->data = data;
 
-	writew(nob, &host->base->nob);
-	writew(blksz, &host->base->blk_len);
+	writel(nob, &host->base->nob);
+	writel(blksz, &host->base->blk_len);
 	host->datasize = datasize;
 }
 
@@ -185,9 +185,9 @@ static int mxcmci_start_cmd(struct mxcmci_host *host, struct mmc_cmd *cmd,
 		return -EINVAL;
 	}
 
-	writew(cmd->cmdidx, &host->base->cmd);
+	writel(cmd->cmdidx, &host->base->cmd);
 	writel(cmd->cmdarg, &host->base->arg);
-	writew(cmdat, &host->base->cmd_dat_cont);
+	writel(cmdat, &host->base->cmd_dat_cont);
 
 	return 0;
 }
@@ -247,14 +247,14 @@ static int mxcmci_read_response(struct mxcmci_host *host, unsigned int stat)
 	if (cmd->resp_type & MMC_RSP_PRESENT) {
 		if (cmd->resp_type & MMC_RSP_136) {
 			for (i = 0; i < 4; i++) {
-				a = readw(&host->base->res_fifo);
-				b = readw(&host->base->res_fifo);
+				a = readl(&host->base->res_fifo) & 0xFFFF;
+				b = readl(&host->base->res_fifo) & 0xFFFF;
 				resp[i] = a << 16 | b;
 			}
 		} else {
-			a = readw(&host->base->res_fifo);
-			b = readw(&host->base->res_fifo);
-			c = readw(&host->base->res_fifo);
+			a = readl(&host->base->res_fifo) & 0xFFFF;
+			b = readl(&host->base->res_fifo) & 0xFFFF;
+			c = readl(&host->base->res_fifo) & 0xFFFF;
 			resp[0] = a << 24 | b << 8 | c >> 8;
 		}
 	}
@@ -445,7 +445,7 @@ static void mxcmci_set_clk_rate(struct mxcmci_host *host, unsigned int clk_ios)
 			prescaler <<= 1;
 	}
 
-	writew((prescaler << 4) | divider, &host->base->clk_rate);
+	writel((prescaler << 4) | divider, &host->base->clk_rate);
 }
 
 static void mxcmci_set_ios(struct mmc *mmc)
@@ -458,9 +458,9 @@ static void mxcmci_set_ios(struct mmc *mmc)
 
 	if (mmc->clock) {
 		mxcmci_set_clk_rate(host, mmc->clock);
-		writew(STR_STP_CLK_START_CLK, &host->base->str_stp_clk);
+		writel(STR_STP_CLK_START_CLK, &host->base->str_stp_clk);
 	} else {
-		writew(STR_STP_CLK_STOP_CLK, &host->base->str_stp_clk);
+		writel(STR_STP_CLK_STOP_CLK, &host->base->str_stp_clk);
 	}
 
 	host->clock = mmc->clock;
@@ -472,7 +472,7 @@ static int mxcmci_init(struct mmc *mmc)
 
 	mxcmci_softreset(host);
 
-	host->rev_no = readw(&host->base->rev_no);
+	host->rev_no = readl(&host->base->rev_no);
 	if (host->rev_no != 0x400) {
 		printf("wrong rev.no. 0x%08x. aborting.\n",
 			host->rev_no);
@@ -480,7 +480,7 @@ static int mxcmci_init(struct mmc *mmc)
 	}
 
 	/* recommended in data sheet */
-	writew(0x2db4, &host->base->read_to);
+	writel(0x2db4, &host->base->read_to);
 
 	writel(0, &host->base->int_cntr);
 

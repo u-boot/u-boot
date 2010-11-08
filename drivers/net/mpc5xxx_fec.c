@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2005
+ * (C) Copyright 2003-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * This file is based on mpc4200fec.c,
@@ -28,10 +28,6 @@ static void tfifo_print(char *devname, mpc5xxx_fec_priv *fec);
 static void rfifo_print(char *devname, mpc5xxx_fec_priv *fec);
 #endif /* DEBUG */
 
-#if (DEBUG & 0x40)
-static uint32 local_crc32(char *string, unsigned int crc_value, int len);
-#endif
-
 typedef struct {
     uint8 data[1500];           /* actual data */
     int length;                 /* actual length */
@@ -39,8 +35,8 @@ typedef struct {
     uint8 head[16];             /* MAC header(6 + 6 + 2) + 2(aligned) */
 } NBUF;
 
-int fec5xxx_miiphy_read(char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal);
-int fec5xxx_miiphy_write(char *devname, uint8 phyAddr, uint8 regAddr, uint16 data);
+int fec5xxx_miiphy_read(const char *devname, uint8 phyAddr, uint8 regAddr, uint16 *retVal);
+int fec5xxx_miiphy_write(const char *devname, uint8 phyAddr, uint8 regAddr, uint16 data);
 
 static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis);
 
@@ -336,13 +332,11 @@ static int mpc5xxx_fec_init(struct eth_device *dev, bd_t * bis)
 	 */
 	fec->eth->xmit_fsm = 0x03000000;
 
-#if defined(CONFIG_MPC5200)
 	/*
-	 * Turn off COMM bus prefetch in the MGT5200 BestComm. It doesn't
+	 * Turn off COMM bus prefetch in the MPC5200 BestComm. It doesn't
 	 * work w/ the current receive task.
 	 */
 	 sdma->PtdCntrl |= 0x00000001;
-#endif
 
 	/*
 	 * Set priority of different initiators
@@ -579,9 +573,7 @@ static int mpc5xxx_fec_init_phy(struct eth_device *dev, bd_t * bis)
 /********************************************************************/
 static void mpc5xxx_fec_halt(struct eth_device *dev)
 {
-#if defined(CONFIG_MPC5200)
 	struct mpc5xxx_sdma *sdma = (struct mpc5xxx_sdma *)MPC5XXX_SDMA;
-#endif
 	mpc5xxx_fec_priv *fec = (mpc5xxx_fec_priv *)dev->priv;
 	int counter = 0xffff;
 
@@ -611,13 +603,11 @@ static void mpc5xxx_fec_halt(struct eth_device *dev)
 	SDMA_TASK_DISABLE (FEC_XMIT_TASK_NO);
 	SDMA_TASK_DISABLE (FEC_RECV_TASK_NO);
 
-#if defined(CONFIG_MPC5200)
 	/*
-	 * Turn on COMM bus prefetch in the MGT5200 BestComm after we're
+	 * Turn on COMM bus prefetch in the MPC5200 BestComm after we're
 	 * done. It doesn't work w/ the current receive task.
 	 */
 	 sdma->PtdCntrl &= ~0x00000001;
-#endif
 
 	/*
 	 * Disable the Ethernet Controller
@@ -923,7 +913,7 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 	dev->send = mpc5xxx_fec_send;
 	dev->recv = mpc5xxx_fec_recv;
 
-	sprintf(dev->name, "FEC ETHERNET");
+	sprintf(dev->name, "FEC");
 	eth_register(dev);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
@@ -951,7 +941,7 @@ int mpc5xxx_fec_initialize(bd_t * bis)
 
 /* MII-interface related functions */
 /********************************************************************/
-int fec5xxx_miiphy_read(char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal)
+int fec5xxx_miiphy_read(const char *devname, uint8 phyAddr, uint8 regAddr, uint16 * retVal)
 {
 	ethernet_regs *eth = (ethernet_regs *)MPC5XXX_FEC;
 	uint32 reg;		/* convenient holder for the PHY register */
@@ -993,7 +983,7 @@ int fec5xxx_miiphy_read(char *devname, uint8 phyAddr, uint8 regAddr, uint16 * re
 }
 
 /********************************************************************/
-int fec5xxx_miiphy_write(char *devname, uint8 phyAddr, uint8 regAddr, uint16 data)
+int fec5xxx_miiphy_write(const char *devname, uint8 phyAddr, uint8 regAddr, uint16 data)
 {
 	ethernet_regs *eth = (ethernet_regs *)MPC5XXX_FEC;
 	uint32 reg;		/* convenient holder for the PHY register */
@@ -1025,38 +1015,3 @@ int fec5xxx_miiphy_write(char *devname, uint8 phyAddr, uint8 regAddr, uint16 dat
 
 	return 0;
 }
-
-#if (DEBUG & 0x40)
-static uint32 local_crc32(char *string, unsigned int crc_value, int len)
-{
-	int i;
-	char c;
-	unsigned int crc, count;
-
-	/*
-	 * crc32 algorithm
-	 */
-	/*
-	 * crc = 0xffffffff; * The initialized value should be 0xffffffff
-	 */
-	crc = crc_value;
-
-	for (i = len; --i >= 0;) {
-		c = *string++;
-		for (count = 0; count < 8; count++) {
-			if ((c & 0x01) ^ (crc & 0x01)) {
-				crc >>= 1;
-				crc = crc ^ 0xedb88320;
-			} else {
-				crc >>= 1;
-			}
-			c >>= 1;
-		}
-	}
-
-	/*
-	 * In big endian system, do byte swaping for crc value
-	 */
-	 /**/ return crc;
-}
-#endif	/* DEBUG */

@@ -1,6 +1,6 @@
 /*
  * NS16550 Serial Port
- * originally from linux source (arch/ppc/boot/ns16550.h)
+ * originally from linux source (arch/powerpc/boot/ns16550.h)
  *
  * Cleanup and unification
  * (C) 2009 by Detlev Zundel, DENX Software Engineering GmbH

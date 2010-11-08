@@ -24,20 +24,17 @@
 #include <config.h>
 #include <command.h>
 
-int do_interrupts(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_interrupts(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 
-	if (argc != 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc != 2)
+		return cmd_usage(cmdtp);
 
 	/* on */
-	if (strncmp(argv[1], "on", 2) == 0) {
+	if (strncmp(argv[1], "on", 2) == 0)
 		enable_interrupts();
-	} else {
+	else
 		disable_interrupts();
-	}
 
 	return 0;
 }
@@ -49,7 +46,7 @@ U_BOOT_CMD(
 );
 
 /* Implemented in $(CPU)/interrupts.c */
-int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+int do_irqinfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 U_BOOT_CMD(
 	irqinfo,    1,    1,     do_irqinfo,

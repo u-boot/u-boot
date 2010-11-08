@@ -22,7 +22,7 @@
 #include  <ppc4xx.h>
 #include  <asm/processor.h>
 #include  <asm/io.h>
-#include  <asm-ppc/u-boot.h>
+#include  <asm/u-boot.h>
 #include  "../common/nm.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -39,7 +39,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /*
  * This function is run very early, out of flash, and before devices are
- * initialized. It is called by lib_ppc/board.c:board_init_f by virtue
+ * initialized. It is called by arch/powerpc/lib/board.c:board_init_f by virtue
  * of being in the init_sequence array.
  *
  * The SDRAM has been initialized already -- start.S:start called
@@ -172,17 +172,6 @@ phys_size_t initdram(int board_type)
 
 	return dram_size;
 }
-
-#if defined(CONFIG_POST)
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed(void)
-{
-	return 0;	/* No hotkeys supported */
-}
-#endif /* CONFIG_POST */
 
 #if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
 void ft_board_setup(void *blob, bd_t *bd)

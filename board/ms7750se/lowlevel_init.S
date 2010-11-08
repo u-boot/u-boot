@@ -120,13 +120,14 @@ CCR_D_DISABLE:	.long	0x0808
 FRQCR_A:	.long	FRQCR
 FRQCR_D:
 #ifdef CONFIG_CPU_TYPE_R
-		.long	0x00000e1a	/* 12:3:3 */
+		.word	0x0e1a	/* 12:3:3 */
 #else	/* CONFIG_CPU_TYPE_R */
 #ifdef CONFIG_GOOD_SESH4
-		.long	0x00000e13	/* 6:2:1 */
+		.word	0x00e13	/* 6:2:1 */
 #else
-		.long	0x00000e23	/* 6:1:1 */
+		.word	0x00e23	/* 6:1:1 */
 #endif
+.align 2
 #endif	/* CONFIG_CPU_TYPE_R */
 
 BCR1_A:		.long	BCR1
@@ -140,15 +141,19 @@ WCR2_D:		.long	WCR2_D_VALUE	/* Per-area access and burst wait states */
 WCR3_A:		.long	WCR3
 WCR3_D:		.long	WCR3_D_VALUE	/* Address setup and data hold cycles */
 RTCSR_A:	.long	RTCSR
-RTCSR_D:	.long	0xA518		/* RTCSR Write Code A5h Data 18h */
+RTCSR_D:	.word	0xA518		/* RTCSR Write Code A5h Data 18h */
+.align 2
 RTCNT_A:	.long	RTCNT
-RTCNT_D:	.long	0xA500		/* RTCNT Write Code A5h Data 00h */
+RTCNT_D:	.word	0xA500		/* RTCNT Write Code A5h Data 00h */
+.align 2
 RTCOR_A:	.long	RTCOR
-RTCOR_D:	.long	RTCOR_D_VALUE	/* Set refresh time (about 15us) */
+RTCOR_D:	.word	RTCOR_D_VALUE	/* Set refresh time (about 15us) */
+.align 2
 SDMR3_A:	.long	SDMR3_ADDRESS
 SDMR3_D:	.long	0x00
 MCR_A:		.long	MCR
 MCR_D1:		.long	MCR_D1_VALUE
 MCR_D2:		.long	MCR_D2_VALUE
 RFCR_A:		.long	RFCR
-RFCR_D:		.long	0xA400		/* RFCR Write Code A4h Data 00h */
+RFCR_D:		.word	0xA400		/* RFCR Write Code A4h Data 00h */
+.align 2

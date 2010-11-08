@@ -75,7 +75,7 @@ TODO: external MII is not functional, only internal at the moment.
 #define DM9000_DMP_PACKET(func,packet,length)  \
 	do { \
 		int i; 							\
-		printf(func ": length: %d\n", length);			\
+		printf("%s: length: %d\n", func, length);		\
 		for (i = 0; i < length; i++) {				\
 			if (i % 8 == 0)					\
 				printf("\n%s: %02x: ", func, i);	\
@@ -117,12 +117,12 @@ static void DM9000_iow(int reg, u8 value);
 
 /* DM9000 network board routine ---------------------------- */
 
-#define DM9000_outb(d,r) ( *(volatile u8 *)r = d )
-#define DM9000_outw(d,r) ( *(volatile u16 *)r = d )
-#define DM9000_outl(d,r) ( *(volatile u32 *)r = d )
-#define DM9000_inb(r) (*(volatile u8 *)r)
-#define DM9000_inw(r) (*(volatile u16 *)r)
-#define DM9000_inl(r) (*(volatile u32 *)r)
+#define DM9000_outb(d,r) writeb(d, (volatile u8 *)(r))
+#define DM9000_outw(d,r) writew(d, (volatile u16 *)(r))
+#define DM9000_outl(d,r) writel(d, (volatile u32 *)(r))
+#define DM9000_inb(r) readb((volatile u8 *)(r))
+#define DM9000_inw(r) readw((volatile u16 *)(r))
+#define DM9000_inl(r) readl((volatile u32 *)(r))
 
 #ifdef CONFIG_DM9000_DEBUG
 static void

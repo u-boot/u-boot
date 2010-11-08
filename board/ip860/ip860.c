@@ -114,7 +114,7 @@ int checkboard (void)
 
 	puts ("Board: ");
 
-	i = getenv_r ("serial#", (char *)buf, sizeof (buf));
+	i = getenv_f("serial#", (char *)buf, sizeof (buf));
 	s = (i > 0) ? buf : NULL;
 
 	if (!s || strncmp ((char *)s, "IP860", 5)) {

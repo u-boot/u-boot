@@ -90,8 +90,8 @@ void reset_phy(void)
 {
 	unsigned short mode_control;
 
-	miiphy_read("FEC ETHERNET", CONFIG_PHY_ADDR, 0x15, &mode_control);
-	miiphy_write("FEC ETHERNET", CONFIG_PHY_ADDR, 0x15,
+	miiphy_read("FEC", CONFIG_PHY_ADDR, 0x15, &mode_control);
+	miiphy_write("FEC", CONFIG_PHY_ADDR, 0x15,
 			mode_control & 0xfffe);
 	return;
 }

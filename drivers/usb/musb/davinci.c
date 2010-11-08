@@ -24,12 +24,13 @@
 #include <common.h>
 #include <asm/io.h>
 #include "davinci.h"
+#include <asm/arch/hardware.h>
 
 /* MUSB platform configuration */
 struct musb_config musb_cfg = {
-	(struct	musb_regs *)MENTOR_USB0_BASE,
-	DAVINCI_USB_TIMEOUT,
-	0
+	.regs		= (struct musb_regs *)MENTOR_USB0_BASE,
+	.timeout	= DAVINCI_USB_TIMEOUT,
+	.musb_speed	= 0,
 };
 
 /* MUSB module register overlay */
@@ -41,10 +42,25 @@ struct davinci_usb_regs *dregs;
 static u8 phy_on(void)
 {
 	u32 timeout;
-
+#ifdef DAVINCI_DM365EVM
+	u32 val;
+#endif
 	/* Wait until the USB phy is turned on */
+#ifdef DAVINCI_DM365EVM
+	writel(USBPHY_PHY24MHZ | USBPHY_SESNDEN |
+			USBPHY_VBDTCTEN, USBPHY_CTL_PADDR);
+#else
 	writel(USBPHY_SESNDEN | USBPHY_VBDTCTEN, USBPHY_CTL_PADDR);
+#endif
 	timeout = musb_cfg.timeout;
+
+#ifdef DAVINCI_DM365EVM
+	/* Set the ownership of GIO33 to USB */
+	val = readl(PINMUX4);
+	val &= ~(PINMUX4_USBDRVBUS_BITCLEAR);
+	val |= PINMUX4_USBDRVBUS_BITSET;
+	writel(val, PINMUX4);
+#endif
 	while (timeout--)
 		if (readl(USBPHY_CTL_PADDR) & USBPHY_PHYCLKGD)
 			return 1;
@@ -70,8 +86,9 @@ int musb_platform_init(void)
 	u32  revision;
 
 	/* enable USB VBUS */
+#ifndef DAVINCI_DM365EVM
 	enable_vbus();
-
+#endif
 	/* start the on-chip USB phy and its pll */
 	if (!phy_on())
 		return -1;

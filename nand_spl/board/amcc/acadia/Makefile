@@ -68,11 +68,11 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 # from cpu directory
 $(obj)cache.S:
 	@rm -f $(obj)cache.S
-	ln -s $(SRCTREE)/cpu/ppc4xx/cache.S $(obj)cache.S
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/cache.S $(obj)cache.S
 
 $(obj)gpio.c:
 	@rm -f $(obj)gpio.c
-	ln -s $(SRCTREE)/cpu/ppc4xx/gpio.c $(obj)gpio.c
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/gpio.c $(obj)gpio.c
 
 $(obj)ndfc.c:
 	@rm -f $(obj)ndfc.c
@@ -80,11 +80,11 @@ $(obj)ndfc.c:
 
 $(obj)resetvec.S:
 	@rm -f $(obj)resetvec.S
-	ln -s $(SRCTREE)/cpu/ppc4xx/resetvec.S $(obj)resetvec.S
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/resetvec.S $(obj)resetvec.S
 
 $(obj)start.S:
 	@rm -f $(obj)start.S
-	ln -s $(SRCTREE)/cpu/ppc4xx/start.S $(obj)start.S
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/start.S $(obj)start.S
 
 # from board directory
 $(obj)memory.c:

@@ -1,5 +1,5 @@
 /* The dpalloc function used and implemented in this file was derieved
- * from PPCBoot/U-Boot file "cpu/mpc8260/commproc.c".
+ * from PPCBoot/U-Boot file "arch/powerpc/cpu/mpc8260/commproc.c".
  */
 
 /* Author: Arun Dharankar <ADharankar@ATTBI.Com>
@@ -7,7 +7,7 @@
  */
 
 /*
- * This file is based on "arch/ppc/8260_io/commproc.c" - here is it's
+ * This file is based on "arch/powerpc/8260_io/commproc.c" - here is it's
  * copyright notice:
  *
  * General Purpose functions for the global management of the
@@ -204,9 +204,9 @@ int memcmp(const void * cs,const void * ct,size_t count)
 #endif	/* STANDALONE */
 
 #ifdef STANDALONE
-int mem_to_mem_idma2intr (int argc, char *argv[])
+int mem_to_mem_idma2intr (int argc, char * const argv[])
 #else
-int do_idma (bd_t * bd, int argc, char *argv[])
+int do_idma (bd_t * bd, int argc, char * const argv[])
 #endif	/* STANDALONE */
 {
 	int i;

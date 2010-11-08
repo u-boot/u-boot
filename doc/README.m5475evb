@@ -15,14 +15,14 @@ Changed files:
 - board/freescale/m547xevb/config.mk	config make
 - board/freescale/m547xevb/u-boot.lds	Linker description
 
-- cpu/mcf547x_8x/cpu.c			cpu specific code
-- cpu/mcf547x_8x/cpu_init.c		Flexbus ChipSelect, Mux pins setup, icache and RTC extra regs
-- cpu/mcf547x_8x/interrupts.c		cpu specific interrupt support
-- cpu/mcf547x_8x/slicetimer.c		Timer support
-- cpu/mcf547x_8x/speed.c		system, pci, flexbus, and cpu clock
-- cpu/mcf547x_8x/Makefile		Makefile
-- cpu/mcf547x_8x/config.mk		config make
-- cpu/mcf547x_8x/start.S		start up assembly code
+- arch/m68k/cpu/mcf547x_8x/cpu.c			cpu specific code
+- arch/m68k/cpu/mcf547x_8x/cpu_init.c		Flexbus ChipSelect, Mux pins setup, icache and RTC extra regs
+- arch/m68k/cpu/mcf547x_8x/interrupts.c		cpu specific interrupt support
+- arch/m68k/cpu/mcf547x_8x/slicetimer.c		Timer support
+- arch/m68k/cpu/mcf547x_8x/speed.c		system, pci, flexbus, and cpu clock
+- arch/m68k/cpu/mcf547x_8x/Makefile		Makefile
+- arch/m68k/cpu/mcf547x_8x/config.mk		config make
+- arch/m68k/cpu/mcf547x_8x/start.S		start up assembly code
 
 - doc/README.m5475evb			This readme file
 
@@ -58,11 +58,11 @@ Changed files:
 
 - include/configs/M5475EVB.h		Board specific configuration file
 
-- lib_m68k/board.c			board init function
-- lib_m68k/cache.c
-- lib_m68k/interrupts			Coldfire common interrupt functions
-- lib_m68k/m68k_linux.c
-- lib_m68k/traps.c			Exception init code
+- arch/m68k/lib/board.c			board init function
+- arch/m68k/lib/cache.c
+- arch/m68k/lib/interrupts			Coldfire common interrupt functions
+- arch/m68k/lib/m68k_linux.c
+- arch/m68k/lib/traps.c			Exception init code
 
 1 MCF547x specific Options/Settings
 ====================================

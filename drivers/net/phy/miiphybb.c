@@ -143,7 +143,7 @@ void bb_miiphy_init(void)
 	}
 }
 
-static inline struct bb_miiphy_bus *bb_miiphy_getbus(char *devname)
+static inline struct bb_miiphy_bus *bb_miiphy_getbus(const char *devname)
 {
 #ifdef CONFIG_BITBANGMII_MULTI
 	int i;
@@ -246,7 +246,7 @@ static void miiphy_pre(struct bb_miiphy_bus *bus, char read,
  * Returns:
  *   0 on success
  */
-int bb_miiphy_read(char *devname, unsigned char addr,
+int bb_miiphy_read(const char *devname, unsigned char addr,
 		   unsigned char reg, unsigned short *value)
 {
 	short rdreg; /* register working value */
@@ -327,7 +327,7 @@ int bb_miiphy_read(char *devname, unsigned char addr,
  * Returns:
  *   0 on success
  */
-int bb_miiphy_write (char *devname, unsigned char addr,
+int bb_miiphy_write (const char *devname, unsigned char addr,
 		     unsigned char reg, unsigned short value)
 {
 	struct bb_miiphy_bus *bus;

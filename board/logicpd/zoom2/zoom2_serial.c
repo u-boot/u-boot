@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  *
- * This file was adapted from cpu/mpc5xxx/serial.c
+ * This file was adapted from arch/powerpc/cpu/mpc5xxx/serial.c
  *
  */
 
@@ -86,6 +86,8 @@ void quad_putc_dev (unsigned long base, const char c)
 			quad_putc_dev (base, '\r');
 
 		NS16550_putc ((NS16550_t) base, c);
+	} else {
+		usbtty_putc(c);
 	}
 }
 
@@ -94,6 +96,8 @@ void quad_puts_dev (unsigned long base, const char *s)
 	if (zoom2_debug_board_connected ()) {
 		while ((s != NULL) && (*s != '\0'))
 			quad_putc_dev (base, *s++);
+	} else {
+		usbtty_puts(s);
 	}
 }
 
@@ -101,16 +105,16 @@ int quad_getc_dev (unsigned long base)
 {
 	if (zoom2_debug_board_connected ())
 		return NS16550_getc ((NS16550_t) base);
-	else
-		return 0;
+
+	return usbtty_getc();
 }
 
 int quad_tstc_dev (unsigned long base)
 {
 	if (zoom2_debug_board_connected ())
 		return NS16550_tstc ((NS16550_t) base);
-	else
-		return 0;
+
+	return usbtty_tstc();
 }
 
 void quad_setbrg_dev (unsigned long base)

@@ -202,7 +202,7 @@ block_dev_desc_t * scsi_get_dev(int dev)
 /******************************************************************************
  * scsi boot command intepreter. Derived from diskboot
  */
-int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *boot_device = NULL;
 	char *ep;
@@ -229,8 +229,7 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		boot_device = argv[2];
 		break;
 	default:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	if (!boot_device) {
@@ -342,11 +341,12 @@ int do_scsiboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 /*********************************************************************************
  * scsi command intepreter
  */
-int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	switch (argc) {
     case 0:
-    case 1:	cmd_usage(cmdtp);	return 1;
+    case 1:	return cmd_usage(cmdtp);
+
     case 2:
 			if (strncmp(argv[1],"res",3) == 0) {
 				printf("\nReset SCSI\n");
@@ -392,8 +392,7 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 					printf("\nno SCSI devices available\n");
 				return 1;
 			}
-			cmd_usage(cmdtp);
-			return 1;
+			return cmd_usage(cmdtp);
 	case 3:
 			if (strncmp(argv[1],"dev",3) == 0) {
 				int dev = (int)simple_strtoul(argv[2], NULL, 10);
@@ -421,8 +420,7 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				}
 				return 1;
 			}
-			cmd_usage(cmdtp);
-			return 1;
+			return cmd_usage(cmdtp);
     default:
 			/* at least 4 args */
 			if (strcmp(argv[1],"read") == 0) {
@@ -437,8 +435,7 @@ int do_scsi (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 				return 0;
 			}
 	} /* switch */
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
 /****************************************************************************************

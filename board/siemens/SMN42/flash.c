@@ -2,7 +2,7 @@
  * (C) Copyright 2006 Embedded Artists AB <www.embeddedartists.com>
  *
  * (C) Copyright 2007 Gary Jennejohn garyj@denx.de
- * Modified to use the routines in cpu/arm720t/lpc2292/flash.c.
+ * Modified to use the routines in arch/arm/cpu/arm720t/lpc2292/flash.c.
  * Heavily modified to support the SMN42 board from Siemens
  *
  * This program is free software; you can redistribute it and/or

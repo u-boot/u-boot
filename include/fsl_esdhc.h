@@ -2,7 +2,7 @@
  * FSL SD/MMC Defines
  *-------------------------------------------------------------------
  *
- * Copyright 2007-2008, Freescale Semiconductor, Inc
+ * Copyright 2007-2008,2010 Freescale Semiconductor, Inc
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -27,15 +27,19 @@
 #define	__FSL_ESDHC_H__
 
 #include <asm/errno.h>
+#include <asm/byteorder.h>
 
 /* FSL eSDHC-specific constants */
 #define SYSCTL			0x0002e02c
 #define SYSCTL_INITA		0x08000000
 #define SYSCTL_TIMEOUT_MASK	0x000f0000
-#define SYSCTL_CLOCK_MASK	0x00000fff
+#define SYSCTL_CLOCK_MASK	0x0000fff0
+#define SYSCTL_RSTA		0x01000000
+#define SYSCTL_CKEN		0x00000008
 #define SYSCTL_PEREN		0x00000004
 #define SYSCTL_HCKEN		0x00000002
 #define SYSCTL_IPGEN		0x00000001
+#define SYSCTL_RSTA		0x01000000
 
 #define IRQSTAT			0x0002e030
 #define IRQSTAT_DMAE		(0x10000000)
@@ -86,6 +90,7 @@
 #define PRSSTAT_CDPL		(0x00040000)
 #define PRSSTAT_CINS		(0x00010000)
 #define PRSSTAT_BREN		(0x00000800)
+#define PRSSTAT_BWEN		(0x00000400)
 #define PRSSTAT_DLA		(0x00000004)
 #define PRSSTAT_CICHB		(0x00000002)
 #define PRSSTAT_CIDHB		(0x00000001)
@@ -117,6 +122,7 @@
 #define XFERTYP_DMAEN		0x00000001
 
 #define CINS_TIMEOUT		1000
+#define PIO_TIMEOUT		100000
 
 #define DSADDR		0x2e004
 
@@ -129,6 +135,8 @@
 
 #define WML		0x2e044
 #define WML_WRITE	0x00010000
+#define WML_RD_WML_MASK	0xff
+#define WML_WR_WML_MASK	0xff0000
 
 #define BLKATTR		0x2e004
 #define BLKATTR_CNT(x)	((x & 0xffff) << 16)
@@ -142,8 +150,31 @@
 #define ESDHC_HOSTCAPBLT_DMAS	0x00400000
 #define ESDHC_HOSTCAPBLT_HSS	0x00200000
 
+struct fsl_esdhc_cfg {
+	u32	esdhc_base;
+	u32	no_snoop;
+};
+
+/* Select the correct accessors depending on endianess */
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+#define esdhc_read32		in_le32
+#define esdhc_write32		out_le32
+#define esdhc_clrsetbits32	clrsetbits_le32
+#define esdhc_clrbits32		clrbits_le32
+#define esdhc_setbits32		setbits_le32
+#elif __BYTE_ORDER == __BIG_ENDIAN
+#define esdhc_read32		in_be32
+#define esdhc_write32		out_be32
+#define esdhc_clrsetbits32	clrsetbits_be32
+#define esdhc_clrbits32		clrbits_be32
+#define esdhc_setbits32		setbits_be32
+#else
+#error "Endianess is not defined: please fix to continue"
+#endif
+
 #ifdef CONFIG_FSL_ESDHC
 int fsl_esdhc_mmc_init(bd_t *bis);
+int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg);
 void fdt_fixup_esdhc(void *blob, bd_t *bd);
 #else
 static inline int fsl_esdhc_mmc_init(bd_t *bis) { return -ENOSYS; }

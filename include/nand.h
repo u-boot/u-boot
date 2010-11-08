@@ -130,3 +130,12 @@ void board_nand_select_device(struct nand_chip *nand, int chip);
 __attribute__((noreturn)) void nand_boot(void);
 
 #endif
+
+#ifdef CONFIG_ENV_OFFSET_OOB
+#define ENV_OOB_MARKER 0x30425645 /*"EVB0" in little-endian -- offset is stored
+				    as block number*/
+#define ENV_OOB_MARKER_OLD 0x30564e45 /*"ENV0" in little-endian -- offset is
+					stored as byte number */
+#define ENV_OFFSET_SIZE 8
+int get_nand_env_oob(nand_info_t *nand, unsigned long *result);
+#endif

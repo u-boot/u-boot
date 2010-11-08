@@ -183,31 +183,6 @@ static FDC_COMMAND_STRUCT cmd; /* global command struct */
 #define CONFIG_SYS_ISA_IO_OFFSET 0
 #endif
 
-
-#ifdef CONFIG_AMIGAONEG3SE
-unsigned char INT6_Status;
-
-void fdc_interrupt(void)
-{
-    INT6_Status = 0x80;
-}
-
-/* waits for an interrupt (polling) */
-int wait_for_fdc_int(void)
-{
-	unsigned long timeout;
-	timeout = FDC_TIME_OUT;
-	while(((volatile)INT6_Status & 0x80) == 0) {
-		timeout--;
-		udelay(10);
-		if(timeout == 0) /* timeout occured */
-			return FALSE;
-	}
-	INT6_Status = 0;
-	return TRUE;
-}
-#endif
-
 /* Supporting Functions */
 /* reads a Register of the FDC */
 unsigned char read_fdc_reg(unsigned int addr)
@@ -230,7 +205,6 @@ void write_fdc_reg(unsigned int addr, unsigned char val)
 	tmp[0]=val;
 }
 
-#ifndef CONFIG_AMIGAONEG3SE
 /* waits for an interrupt (polling) */
 int wait_for_fdc_int(void)
 {
@@ -244,8 +218,6 @@ int wait_for_fdc_int(void)
 	}
 	return TRUE;
 }
-
-#endif
 
 /* reads a byte from the FIFO of the FDC and checks direction and RQM bit
    of the MSR. returns -1 if timeout, or byte if ok */
@@ -438,7 +410,6 @@ int fdc_seek(FDC_COMMAND_STRUCT *pCMD,FD_GEO_STRUCT *pFG)
 	return(fdc_issue_cmd(pCMD,pFG));
 }
 
-#ifndef CONFIG_AMIGAONEG3SE
 /* terminates current command, by not servicing the FIFO
  * waits for interrupt and fills in the result bytes */
 int fdc_terminate(FDC_COMMAND_STRUCT *pCMD)
@@ -452,27 +423,6 @@ int fdc_terminate(FDC_COMMAND_STRUCT *pCMD)
 	}
 	return TRUE;
 }
-#endif
-#ifdef CONFIG_AMIGAONEG3SE
-int fdc_terminate(FDC_COMMAND_STRUCT *pCMD)
-{
-	int i;
-	for(i=0;i<100;i++)
-		udelay(500); /* wait 500usec for fifo overrun */
-	while((INT6_Status&0x80)==0x00); /* wait as long as no int has occured */
-	for(i=0;i<7;i++) {
-		pCMD->result[i]=(unsigned char)read_fdc_byte();
-	}
-	INT6_Status = 0;
-	return TRUE;
-}
-
-#endif
-
-#ifdef CONFIG_AMIGAONEG3SE
-#define disable_interrupts() 0
-#define enable_interrupts() (void)0
-#endif
 
 /* reads data from FDC, seek commands are issued automatic */
 int fdc_read_data(unsigned char *buffer, unsigned long blocks,FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
@@ -593,11 +543,6 @@ retrycal:
 	return TRUE;
 }
 
-#ifdef CONFIG_AMIGAONEG3SE
-#undef disable_interrupts()
-#undef enable_interrupts()
-#endif
-
 /* Scan all drives and check if drive is present and disk is inserted */
 int fdc_check_drive(FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
 {
@@ -646,11 +591,6 @@ int fdc_check_drive(FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
 int fdc_setup(int drive, FDC_COMMAND_STRUCT *pCMD, FD_GEO_STRUCT *pFG)
 {
 	int i;
-
-#ifdef CONFIG_AMIGAONEG3SE
-	irq_install_handler(6, (interrupt_handler_t *)fdc_interrupt, NULL);
-	i8259_unmask_irq(6);
-#endif
 
 #ifdef CONFIG_SYS_FDC_HW_INIT
 	fdc_hw_init ();
@@ -773,7 +713,7 @@ int fdc_fdos_read (void *buffer, int len)
 /****************************************************************************
  * main routine do_fdcboot
  */
-int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	FD_GEO_STRUCT *pFG = (FD_GEO_STRUCT *)floppy_type;
 	FDC_COMMAND_STRUCT *pCMD = &cmd;
@@ -801,8 +741,7 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		boot_drive=simple_strtoul(argv[2], NULL, 10);
 		break;
 	default:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 	/* setup FDC and scan for drives  */
 	if(fdc_setup(boot_drive,pCMD,pFG)==FALSE) {

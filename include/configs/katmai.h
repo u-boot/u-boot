@@ -37,6 +37,7 @@
 #define CONFIG_4xx			1	/* ... PPC4xx family	*/
 #define CONFIG_440			1	/* ... PPC440 family	*/
 #define CONFIG_440SPE			1	/* Specifc SPe support	*/
+#define CONFIG_440SPE_REVA		1	/* Support old Rev A.	*/
 #define CONFIG_SYS_CLK_FREQ	33333333	/* external freq to pll	*/
 #define CONFIG_SYS_4xx_RESET_TYPE	0x2	/* use chip reset on this board	*/
 
@@ -51,13 +52,6 @@
  */
 #define CONFIG_HOSTNAME		katmai
 #include "amcc-common.h"
-
-/*
- * For booting 256K-paged Linux we should have 16MB of memory
- * for Linux initial memory map
- */
-#undef CONFIG_SYS_BOOTMAPSZ
-#define CONFIG_SYS_BOOTMAPSZ	(16 << 20)
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* Call board_pre_init		*/
 #undef  CONFIG_SHOW_BOOT_PROGRESS
@@ -105,8 +99,7 @@
 #define CONFIG_SYS_GBL_DATA_SIZE	128		/* num bytes initial data */
 
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
-#define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_POST_WORD_ADDR
+#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 
 /*-----------------------------------------------------------------------
  * Serial Port
@@ -139,6 +132,11 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN 1
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
+
+/* I2C bootstrap EEPROM */
+#define CONFIG_4xx_CONFIG_I2C_EEPROM_ADDR	0x50
+#define CONFIG_4xx_CONFIG_I2C_EEPROM_OFFSET	0
+#define CONFIG_4xx_CONFIG_BLOCKSIZE		8
 
 /* I2C RTC */
 #define CONFIG_RTC_M41T11	1
@@ -182,11 +180,10 @@
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_AMCC_DEF_ENV						\
 	CONFIG_AMCC_DEF_ENV_POWERPC					\
-	CONFIG_AMCC_DEF_ENV_PPC_OLD					\
 	CONFIG_AMCC_DEF_ENV_NOR_UPD					\
-	"kernel_addr=fff10000\0"					\
-	"ramdisk_addr=fff20000\0"					\
-	"kozio=bootm ffc60000\0"					\
+	"kernel_addr=ff000000\0"					\
+	"fdt_addr=ff1e0000\0"						\
+	"ramdisk_addr=ff200000\0"					\
 	"pciconfighost=1\0"						\
 	"pcie_mode=RP:RP:RP\0"						\
 	""
@@ -194,8 +191,11 @@
 /*
  * Commands additional to the ones defined in amcc-common.h
  */
-#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_CHIP_CONFIG
 #define CONFIG_CMD_DATE
+#define CONFIG_CMD_ECCTEST
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_PCI
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_SNTP

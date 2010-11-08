@@ -19,7 +19,7 @@
 
 static struct spi_flash *flash;
 
-static int do_spi_flash_probe(int argc, char *argv[])
+static int do_spi_flash_probe(int argc, char * const argv[])
 {
 	unsigned int bus = 0;
 	unsigned int cs;
@@ -75,7 +75,7 @@ usage:
 	return 1;
 }
 
-static int do_spi_flash_read_write(int argc, char *argv[])
+static int do_spi_flash_read_write(int argc, char * const argv[])
 {
 	unsigned long addr;
 	unsigned long offset;
@@ -122,7 +122,7 @@ usage:
 	return 1;
 }
 
-static int do_spi_flash_erase(int argc, char *argv[])
+static int do_spi_flash_erase(int argc, char * const argv[])
 {
 	unsigned long offset;
 	unsigned long len;
@@ -152,7 +152,7 @@ usage:
 	return 1;
 }
 
-static int do_spi_flash(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_spi_flash(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	const char *cmd;
 
@@ -177,8 +177,7 @@ static int do_spi_flash(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		return do_spi_flash_erase(argc - 1, argv + 1);
 
 usage:
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
 U_BOOT_CMD(

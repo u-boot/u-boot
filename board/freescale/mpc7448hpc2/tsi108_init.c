@@ -323,7 +323,7 @@ int board_early_init_r (void)
 	 * We will over-ride the env_init called in board_init_f
 	 * This is really a work-around because, the HLP bank 1
 	 * where NVRAM resides is not visible during board_init_f
-	 * (lib_ppc/board.c)
+	 * (arch/powerpc/lib/board.c)
 	 * Alternatively, we could use the I2C EEPROM at start-up to configure
 	 * and enable all HLP banks and not just HLP 0 as is being done for
 	 * Taiga Rev. 2.

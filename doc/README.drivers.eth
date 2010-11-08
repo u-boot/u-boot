@@ -70,6 +70,7 @@ int ape_register(bd_t *bis, int iobase)
 	dev->halt = ape_halt;
 	dev->send = ape_send;
 	dev->recv = ape_recv;
+	dev->write_hwaddr = ape_write_hwaddr;
 
 	eth_register(dev);
 
@@ -102,11 +103,12 @@ not checking its state or doing random probing.
  -----------
 
 Now that we've registered with the ethernet layer, we can start getting some
-real work done.  You will need four functions:
+real work done.  You will need five functions:
 	int ape_init(struct eth_device *dev, bd_t *bis);
 	int ape_send(struct eth_device *dev, volatile void *packet, int length);
 	int ape_recv(struct eth_device *dev);
 	int ape_halt(struct eth_device *dev);
+	int ape_write_hwaddr(struct eth_device *dev);
 
 The init function checks the hardware (probing/identifying) and gets it ready
 for send/recv operations.  You often do things here such as resetting the MAC
@@ -149,6 +151,9 @@ int ape_recv(struct eth_device *dev)
 The halt function should turn off / disable the hardware and place it back in
 its reset state.  It can be called at any time (before any call to the related
 init function), so make sure it can handle this sort of thing.
+
+The write_hwaddr function should program the MAC address stored in dev->enetaddr
+into the Ethernet controller.
 
 So the call graph at this stage would look something like:
 some net operation (ping / tftp / whatever...)

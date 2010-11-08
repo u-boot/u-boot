@@ -52,7 +52,7 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/mpc8260/start.o	(.text)
+    arch/powerpc/cpu/mpc8260/start.o	(.text)
     *(.text)
     *(.got1)
     /*. = env_offset; */

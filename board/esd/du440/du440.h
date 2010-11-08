@@ -38,6 +38,3 @@
 #define PWR_RDY			0x10
 
 #define CPLD_IRQ		(32+30)
-
-#define PCI_VENDOR_ID_ESDGMBH	0x12fe
-#define PCI_DEVICE_ID_DU440	0x0444

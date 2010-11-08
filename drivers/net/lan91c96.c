@@ -60,6 +60,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <malloc.h>
 #include "lan91c96.h"
 #include <net.h>
 
@@ -108,11 +109,7 @@
  *
  *------------------------------------------------------------------------
  */
-#define CARDNAME "LAN91C96"
-
-#define SMC_BASE_ADDRESS CONFIG_LAN91C96_BASE
-
-#define SMC_DEV_NAME "LAN91C96"
+#define DRIVER_NAME "LAN91C96"
 #define SMC_ALLOC_MAX_TRY 5
 #define SMC_TX_TIMEOUT 30
 
@@ -124,64 +121,12 @@
 #undef USE_32_BIT
 #endif
 
-/*-----------------------------------------------------------------
- *
- *  The driver can be entered at any of the following entry points.
- *
- *-----------------------------------------------------------------
- */
-
-extern int eth_init (bd_t * bd);
-extern void eth_halt (void);
-extern int eth_rx (void);
-extern int eth_send (volatile void *packet, int length);
-#if 0
-static int smc_hw_init (void);
-#endif
-
-/*
- * This is called by  register_netdev().  It is responsible for
- * checking the portlist for the SMC9000 series chipset.  If it finds
- * one, then it will initialize the device, find the hardware information,
- * and sets up the appropriate device parameters.
- * NOTE: Interrupts are *OFF* when this procedure is called.
- *
- * NB:This shouldn't be static since it is referred to externally.
- */
-int smc_init (void);
-
-/*
- * This is called by  unregister_netdev().  It is responsible for
- * cleaning up before the driver is finally unregistered and discarded.
- */
-void smc_destructor (void);
-
-/*
- * The kernel calls this function when someone wants to use the device,
- * typically 'ifconfig ethX up'.
- */
-static int smc_open (bd_t *bd);
-
-
-/*
- * This is called by the kernel in response to 'ifconfig ethX down'.  It
- * is responsible for cleaning up everything that the open routine
- * does, and maybe putting the card into a powerdown state.
- */
-static int smc_close (void);
-
-/*
- * This is a separate procedure to handle the receipt of a packet, to
- * leave the interrupt code looking slightly cleaner
- */
-static int smc_rcv (void);
-
 /* See if a MAC address is defined in the current environment. If so use it. If not
  . print a warning and set the environment and other globals with the default.
  . If an EEPROM is present it really should be consulted.
 */
-int smc_get_ethaddr(bd_t *bd);
-int get_rom_mac(unsigned char *v_rom_mac);
+static int smc_get_ethaddr(bd_t *bd, struct eth_device *dev);
+static int get_rom_mac(struct eth_device *dev, unsigned char *v_rom_mac);
 
 /* ------------------------------------------------------------
  * Internal routines
@@ -195,7 +140,7 @@ static unsigned char smc_mac_addr[] = { 0xc0, 0x00, 0x00, 0x1b, 0x62, 0x9c };
  * the default mac address.
  */
 
-void smc_set_mac_addr (const unsigned char *addr)
+static void smc_set_mac_addr(const unsigned char *addr)
 {
 	int i;
 
@@ -204,45 +149,21 @@ void smc_set_mac_addr (const unsigned char *addr)
 	}
 }
 
-/*
- * smc_get_macaddr is no longer used. If you want to override the default
- * mac address, call smc_get_mac_addr as a part of the board initialisation.
- */
-
-#if 0
-void smc_get_macaddr (byte * addr)
-{
-	/* MAC ADDRESS AT FLASHBLOCK 1 / OFFSET 0x10 */
-	unsigned char *dnp1110_mac = (unsigned char *) (0xE8000000 + 0x20010);
-	int i;
-
-
-	for (i = 0; i < 6; i++) {
-		addr[0] = *(dnp1110_mac + 0);
-		addr[1] = *(dnp1110_mac + 1);
-		addr[2] = *(dnp1110_mac + 2);
-		addr[3] = *(dnp1110_mac + 3);
-		addr[4] = *(dnp1110_mac + 4);
-		addr[5] = *(dnp1110_mac + 5);
-	}
-}
-#endif /* 0 */
-
 /***********************************************
  * Show available memory                       *
  ***********************************************/
-void dump_memory_info (void)
+void dump_memory_info(struct eth_device *dev)
 {
 	word mem_info;
 	word old_bank;
 
-	old_bank = SMC_inw (LAN91C96_BANK_SELECT) & 0xF;
+	old_bank = SMC_inw(dev, LAN91C96_BANK_SELECT) & 0xF;
 
-	SMC_SELECT_BANK (0);
-	mem_info = SMC_inw (LAN91C96_MIR);
+	SMC_SELECT_BANK(dev, 0);
+	mem_info = SMC_inw(dev, LAN91C96_MIR);
 	PRINTK2 ("Memory: %4d available\n", (mem_info >> 8) * 2048);
 
-	SMC_SELECT_BANK (old_bank);
+	SMC_SELECT_BANK(dev, old_bank);
 }
 
 /*
@@ -252,28 +173,15 @@ void dump_memory_info (void)
 static void print_packet (byte *, int);
 #endif
 
-/* #define tx_done(dev) 1 */
-
-
-/* this does a soft reset on the device */
-static void smc_reset (void);
-
-/* Enable Interrupts, Receive, and Transmit */
-static void smc_enable (void);
-
-/* this puts the device in an inactive state */
-static void smc_shutdown (void);
-
-
-static int poll4int (byte mask, int timeout)
+static int poll4int (struct eth_device *dev, byte mask, int timeout)
 {
 	int tmo = get_timer (0) + timeout * CONFIG_SYS_HZ;
 	int is_timeout = 0;
-	word old_bank = SMC_inw (LAN91C96_BANK_SELECT);
+	word old_bank = SMC_inw(dev, LAN91C96_BANK_SELECT);
 
 	PRINTK2 ("Polling...\n");
-	SMC_SELECT_BANK (2);
-	while ((SMC_inw (LAN91C96_INT_STATS) & mask) == 0) {
+	SMC_SELECT_BANK(dev, 2);
+	while ((SMC_inw(dev, LAN91C96_INT_STATS) & mask) == 0) {
 		if (get_timer (0) >= tmo) {
 			is_timeout = 1;
 			break;
@@ -281,7 +189,7 @@ static int poll4int (byte mask, int timeout)
 	}
 
 	/* restore old bank selection */
-	SMC_SELECT_BANK (old_bank);
+	SMC_SELECT_BANK(dev, old_bank);
 
 	if (is_timeout)
 		return 1;
@@ -290,7 +198,7 @@ static int poll4int (byte mask, int timeout)
 }
 
 /*
- * Function: smc_reset( void )
+ * Function: smc_reset
  * Purpose:
  *	This sets the SMC91111 chip to its normal state, hopefully from whatever
  *	mess that any other DOS driver has put it in.
@@ -306,28 +214,28 @@ static int poll4int (byte mask, int timeout)
  *	5.  clear all interrupts
  *
 */
-static void smc_reset (void)
+static void smc_reset(struct eth_device *dev)
 {
-	PRINTK2 ("%s:smc_reset\n", SMC_DEV_NAME);
+	PRINTK2("%s:smc_reset\n", dev->name);
 
 	/* This resets the registers mostly to defaults, but doesn't
 	   affect EEPROM.  That seems unnecessary */
-	SMC_SELECT_BANK (0);
-	SMC_outw (LAN91C96_RCR_SOFT_RST, LAN91C96_RCR);
+	SMC_SELECT_BANK(dev, 0);
+	SMC_outw(dev, LAN91C96_RCR_SOFT_RST, LAN91C96_RCR);
 
 	udelay (10);
 
 	/* Disable transmit and receive functionality */
-	SMC_outw (0, LAN91C96_RCR);
-	SMC_outw (0, LAN91C96_TCR);
+	SMC_outw(dev, 0, LAN91C96_RCR);
+	SMC_outw(dev, 0, LAN91C96_TCR);
 
 	/* set the control register */
-	SMC_SELECT_BANK (1);
-	SMC_outw (SMC_inw (LAN91C96_CONTROL) | LAN91C96_CTR_BIT_8,
+	SMC_SELECT_BANK(dev, 1);
+	SMC_outw(dev, SMC_inw(dev, LAN91C96_CONTROL) | LAN91C96_CTR_BIT_8,
 			  LAN91C96_CONTROL);
 
 	/* Disable all interrupts */
-	SMC_outb (0, LAN91C96_INT_MASK);
+	SMC_outb(dev, 0, LAN91C96_INT_MASK);
 }
 
 /*
@@ -338,24 +246,24 @@ static void smc_reset (void)
  *	2.  Enable the transmitter
  *	3.  Enable the receiver
 */
-static void smc_enable ()
+static void smc_enable(struct eth_device *dev)
 {
-	PRINTK2 ("%s:smc_enable\n", SMC_DEV_NAME);
-	SMC_SELECT_BANK (0);
+	PRINTK2("%s:smc_enable\n", dev->name);
+	SMC_SELECT_BANK(dev, 0);
 
 	/* Initialize the Memory Configuration Register. See page
 	   49 of the LAN91C96 data sheet for details. */
-	SMC_outw (LAN91C96_MCR_TRANSMIT_PAGES, LAN91C96_MCR);
+	SMC_outw(dev, LAN91C96_MCR_TRANSMIT_PAGES, LAN91C96_MCR);
 
 	/* Initialize the Transmit Control Register */
-	SMC_outw (LAN91C96_TCR_TXENA, LAN91C96_TCR);
+	SMC_outw(dev, LAN91C96_TCR_TXENA, LAN91C96_TCR);
 	/* Initialize the Receive Control Register
 	 * FIXME:
 	 * The promiscuous bit set because I could not receive ARP reply
 	 * packets from the server when I send a ARP request. It only works
 	 * when I set the promiscuous bit
 	 */
-	SMC_outw (LAN91C96_RCR_RXEN | LAN91C96_RCR_PRMS, LAN91C96_RCR);
+	SMC_outw(dev, LAN91C96_RCR_RXEN | LAN91C96_RCR_PRMS, LAN91C96_RCR);
 }
 
 /*
@@ -372,18 +280,18 @@ static void smc_enable ()
  *	the manual says that it will wake up in response to any I/O requests
  *	in the register space.   Empirical results do not show this working.
  */
-static void smc_shutdown ()
+static void smc_shutdown(struct eth_device *dev)
 {
-	PRINTK2 (CARDNAME ":smc_shutdown\n");
+	PRINTK2("%s:smc_shutdown\n", dev->name);
 
 	/* no more interrupts for me */
-	SMC_SELECT_BANK (2);
-	SMC_outb (0, LAN91C96_INT_MASK);
+	SMC_SELECT_BANK(dev, 2);
+	SMC_outb(dev, 0, LAN91C96_INT_MASK);
 
 	/* and tell the card to stay away from that nasty outside world */
-	SMC_SELECT_BANK (0);
-	SMC_outb (0, LAN91C96_RCR);
-	SMC_outb (0, LAN91C96_TCR);
+	SMC_SELECT_BANK(dev, 0);
+	SMC_outb(dev, 0, LAN91C96_RCR);
+	SMC_outb(dev, 0, LAN91C96_TCR);
 }
 
 
@@ -405,7 +313,8 @@ static void smc_shutdown ()
  *	Enable the transmit interrupt, so I know if it failed
  *	Free the kernel data if I actually sent it.
  */
-static int smc_send_packet (volatile void *packet, int packet_length)
+static int smc_send_packet(struct eth_device *dev, volatile void *packet,
+		int packet_length)
 {
 	byte packet_no;
 	unsigned long ioaddr;
@@ -417,7 +326,7 @@ static int smc_send_packet (volatile void *packet, int packet_length)
 	byte status;
 
 
-	PRINTK3 ("%s:smc_hardware_send_packet\n", SMC_DEV_NAME);
+	PRINTK3("%s:smc_hardware_send_packet\n", dev->name);
 
 	length = ETH_ZLEN < packet_length ? packet_length : ETH_ZLEN;
 
@@ -437,30 +346,31 @@ static int smc_send_packet (volatile void *packet, int packet_length)
 	numPages >>= 8;				/* Divide by 256 */
 
 	if (numPages > 7) {
-		printf ("%s: Far too big packet error. \n", SMC_DEV_NAME);
+		printf("%s: Far too big packet error. \n", dev->name);
 		return 0;
 	}
 
 	/* now, try to allocate the memory */
 
-	SMC_SELECT_BANK (2);
-	SMC_outw (LAN91C96_MMUCR_ALLOC_TX | numPages, LAN91C96_MMU);
+	SMC_SELECT_BANK(dev, 2);
+	SMC_outw(dev, LAN91C96_MMUCR_ALLOC_TX | numPages, LAN91C96_MMU);
 
   again:
 	try++;
 	time_out = MEMORY_WAIT_TIME;
 	do {
-		status = SMC_inb (LAN91C96_INT_STATS);
+		status = SMC_inb(dev, LAN91C96_INT_STATS);
 		if (status & LAN91C96_IST_ALLOC_INT) {
 
-			SMC_outb (LAN91C96_IST_ALLOC_INT, LAN91C96_INT_STATS);
+			SMC_outb(dev, LAN91C96_IST_ALLOC_INT,
+					LAN91C96_INT_STATS);
 			break;
 		}
 	} while (--time_out);
 
 	if (!time_out) {
 		PRINTK2 ("%s: memory allocation, try %d failed ...\n",
-				 SMC_DEV_NAME, try);
+				 dev->name, try);
 		if (try < SMC_ALLOC_MAX_TRY)
 			goto again;
 		else
@@ -468,30 +378,30 @@ static int smc_send_packet (volatile void *packet, int packet_length)
 	}
 
 	PRINTK2 ("%s: memory allocation, try %d succeeded ...\n",
-			 SMC_DEV_NAME, try);
+			 dev->name, try);
 
 	/* I can send the packet now.. */
 
-	ioaddr = SMC_BASE_ADDRESS;
+	ioaddr = dev->iobase;
 
 	buf = (byte *) packet;
 
 	/* If I get here, I _know_ there is a packet slot waiting for me */
-	packet_no = SMC_inb (LAN91C96_ARR);
+	packet_no = SMC_inb(dev, LAN91C96_ARR);
 	if (packet_no & LAN91C96_ARR_FAILED) {
 		/* or isn't there?  BAD CHIP! */
-		printf ("%s: Memory allocation failed. \n", SMC_DEV_NAME);
+		printf("%s: Memory allocation failed. \n", dev->name);
 		return 0;
 	}
 
 	/* we have a packet address, so tell the card to use it */
-	SMC_outb (packet_no, LAN91C96_PNR);
+	SMC_outb(dev, packet_no, LAN91C96_PNR);
 
 	/* point to the beginning of the packet */
-	SMC_outw (LAN91C96_PTR_AUTO_INCR, LAN91C96_POINTER);
+	SMC_outw(dev, LAN91C96_PTR_AUTO_INCR, LAN91C96_POINTER);
 
-	PRINTK3 ("%s: Trying to xmit packet of length %x\n",
-			 SMC_DEV_NAME, length);
+	PRINTK3("%s: Trying to xmit packet of length %x\n",
+			 dev->name, length);
 
 #if SMC_DEBUG > 2
 	printf ("Transmitting Packet\n");
@@ -501,11 +411,11 @@ static int smc_send_packet (volatile void *packet, int packet_length)
 	/* send the packet length ( +6 for status, length and ctl byte )
 	   and the status word ( set to zeros ) */
 #ifdef USE_32_BIT
-	SMC_outl ((length + 6) << 16, LAN91C96_DATA_HIGH);
+	SMC_outl(dev, (length + 6) << 16, LAN91C96_DATA_HIGH);
 #else
-	SMC_outw (0, LAN91C96_DATA_HIGH);
+	SMC_outw(dev, 0, LAN91C96_DATA_HIGH);
 	/* send the packet length ( +6 for status words, length, and ctl */
-	SMC_outw ((length + 6), LAN91C96_DATA_HIGH);
+	SMC_outw(dev, (length + 6), LAN91C96_DATA_HIGH);
 #endif /* USE_32_BIT */
 
 	/* send the actual data
@@ -516,73 +426,57 @@ static int smc_send_packet (volatile void *packet, int packet_length)
 	 * almost as much time as is saved?
 	 */
 #ifdef USE_32_BIT
-	SMC_outsl (LAN91C96_DATA_HIGH, buf, length >> 2);
+	SMC_outsl(dev, LAN91C96_DATA_HIGH, buf, length >> 2);
 	if (length & 0x2)
-		SMC_outw (*((word *) (buf + (length & 0xFFFFFFFC))),
+		SMC_outw(dev, *((word *) (buf + (length & 0xFFFFFFFC))),
 				  LAN91C96_DATA_HIGH);
 #else
-	SMC_outsw (LAN91C96_DATA_HIGH, buf, (length) >> 1);
+	SMC_outsw(dev, LAN91C96_DATA_HIGH, buf, (length) >> 1);
 #endif /* USE_32_BIT */
 
 	/* Send the last byte, if there is one.   */
 	if ((length & 1) == 0) {
-		SMC_outw (0, LAN91C96_DATA_HIGH);
+		SMC_outw(dev, 0, LAN91C96_DATA_HIGH);
 	} else {
-		SMC_outw (buf[length - 1] | 0x2000, LAN91C96_DATA_HIGH);
+		SMC_outw(dev, buf[length - 1] | 0x2000, LAN91C96_DATA_HIGH);
 	}
 
 	/* and let the chipset deal with it */
-	SMC_outw (LAN91C96_MMUCR_ENQUEUE, LAN91C96_MMU);
+	SMC_outw(dev, LAN91C96_MMUCR_ENQUEUE, LAN91C96_MMU);
 
 	/* poll for TX INT */
-	if (poll4int (LAN91C96_MSK_TX_INT, SMC_TX_TIMEOUT)) {
+	if (poll4int (dev, LAN91C96_MSK_TX_INT, SMC_TX_TIMEOUT)) {
 		/* sending failed */
-		PRINTK2 ("%s: TX timeout, sending failed...\n", SMC_DEV_NAME);
+		PRINTK2("%s: TX timeout, sending failed...\n", dev->name);
 
 		/* release packet */
-		SMC_outw (LAN91C96_MMUCR_RELEASE_TX, LAN91C96_MMU);
+		SMC_outw(dev, LAN91C96_MMUCR_RELEASE_TX, LAN91C96_MMU);
 
 		/* wait for MMU getting ready (low) */
-		while (SMC_inw (LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY) {
+		while (SMC_inw(dev, LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
 			udelay (10);
-		}
 
-		PRINTK2 ("MMU ready\n");
+		PRINTK2("MMU ready\n");
 
 
 		return 0;
 	} else {
 		/* ack. int */
-		SMC_outw (LAN91C96_IST_TX_INT, LAN91C96_INT_STATS);
+		SMC_outw(dev, LAN91C96_IST_TX_INT, LAN91C96_INT_STATS);
 
-		PRINTK2 ("%s: Sent packet of length %d \n", SMC_DEV_NAME, length);
+		PRINTK2("%s: Sent packet of length %d \n", dev->name, length);
 
 		/* release packet */
-		SMC_outw (LAN91C96_MMUCR_RELEASE_TX, LAN91C96_MMU);
+		SMC_outw(dev, LAN91C96_MMUCR_RELEASE_TX, LAN91C96_MMU);
 
 		/* wait for MMU getting ready (low) */
-		while (SMC_inw (LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY) {
+		while (SMC_inw(dev, LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
 			udelay (10);
-		}
 
 		PRINTK2 ("MMU ready\n");
 	}
 
 	return length;
-}
-
-/*-------------------------------------------------------------------------
- * smc_destructor( struct net_device * dev )
- *   Input parameters:
- *	dev, pointer to the device structure
- *
- *   Output:
- *	None.
- *--------------------------------------------------------------------------
- */
-void smc_destructor ()
-{
-	PRINTK2 (CARDNAME ":smc_destructor\n");
 }
 
 
@@ -592,20 +486,20 @@ void smc_destructor ()
  * Set up everything, reset the card, etc ..
  *
  */
-static int smc_open (bd_t *bd)
+static int smc_open(bd_t *bd, struct eth_device *dev)
 {
 	int i, err;			/* used to set hw ethernet address */
 
-	PRINTK2 ("%s:smc_open\n", SMC_DEV_NAME);
+	PRINTK2("%s:smc_open\n", dev->name);
 
 	/* reset the hardware */
 
-	smc_reset ();
-	smc_enable ();
+	smc_reset(dev);
+	smc_enable(dev);
 
-	SMC_SELECT_BANK (1);
-
-	err = smc_get_ethaddr (bd);	/* set smc_mac_addr, and sync it with u-boot globals */
+	SMC_SELECT_BANK(dev, 1);
+	/* set smc_mac_addr, and sync it with u-boot globals */
+	err = smc_get_ethaddr(bd, dev);
 	if (err < 0)
 		return -1;
 #ifdef USE_32_BIT
@@ -614,11 +508,11 @@ static int smc_open (bd_t *bd)
 
 		address = smc_mac_addr[i + 1] << 8;
 		address |= smc_mac_addr[i];
-		SMC_outw (address, LAN91C96_IA0 + i);
+		SMC_outw(dev, address, LAN91C96_IA0 + i);
 	}
 #else
 	for (i = 0; i < 6; i++)
-		SMC_outb (smc_mac_addr[i], LAN91C96_IA0 + i);
+		SMC_outb(dev, smc_mac_addr[i], LAN91C96_IA0 + i);
 #endif
 	return 0;
 }
@@ -635,7 +529,7 @@ static int smc_open (bd_t *bd)
  * o otherwise, read in the packet
  *-------------------------------------------------------------
  */
-static int smc_rcv ()
+static int smc_rcv(struct eth_device *dev)
 {
 	int packet_number;
 	word status;
@@ -647,26 +541,26 @@ static int smc_rcv ()
 #endif
 
 
-	SMC_SELECT_BANK (2);
-	packet_number = SMC_inw (LAN91C96_FIFO);
+	SMC_SELECT_BANK(dev, 2);
+	packet_number = SMC_inw(dev, LAN91C96_FIFO);
 
 	if (packet_number & LAN91C96_FIFO_RXEMPTY) {
 		return 0;
 	}
 
-	PRINTK3 ("%s:smc_rcv\n", SMC_DEV_NAME);
+	PRINTK3("%s:smc_rcv\n", dev->name);
 	/*  start reading from the start of the packet */
-	SMC_outw (LAN91C96_PTR_READ | LAN91C96_PTR_RCV |
+	SMC_outw(dev, LAN91C96_PTR_READ | LAN91C96_PTR_RCV |
 			  LAN91C96_PTR_AUTO_INCR, LAN91C96_POINTER);
 
 	/* First two words are status and packet_length */
 #ifdef USE_32_BIT
-	stat_len = SMC_inl (LAN91C96_DATA_HIGH);
+	stat_len = SMC_inl(dev, LAN91C96_DATA_HIGH);
 	status = stat_len & 0xffff;
 	packet_length = stat_len >> 16;
 #else
-	status = SMC_inw (LAN91C96_DATA_HIGH);
-	packet_length = SMC_inw (LAN91C96_DATA_HIGH);
+	status = SMC_inw(dev, LAN91C96_DATA_HIGH);
+	packet_length = SMC_inw(dev, LAN91C96_DATA_HIGH);
 #endif
 
 	packet_length &= 0x07ff;	/* mask off top bits */
@@ -690,13 +584,14 @@ static int smc_rcv ()
 		   to send the DWORDs or the bytes first, or some
 		   mixture.  A mixture might improve already slow PIO
 		   performance  */
-		SMC_insl (LAN91C96_DATA_HIGH, NetRxPackets[0], packet_length >> 2);
+		SMC_insl(dev, LAN91C96_DATA_HIGH, NetRxPackets[0],
+				packet_length >> 2);
 		/* read the left over bytes */
 		if (packet_length & 3) {
 			int i;
 
 			byte *tail = (byte *) (NetRxPackets[0] + (packet_length & ~3));
-			dword leftover = SMC_inl (LAN91C96_DATA_HIGH);
+			dword leftover = SMC_inl(dev, LAN91C96_DATA_HIGH);
 
 			for (i = 0; i < (packet_length & 3); i++)
 				*tail++ = (byte) (leftover >> (8 * i)) & 0xff;
@@ -704,13 +599,14 @@ static int smc_rcv ()
 #else
 		PRINTK3 (" Reading %d words and %d byte(s) \n",
 				 (packet_length >> 1), packet_length & 1);
-		SMC_insw (LAN91C96_DATA_HIGH, NetRxPackets[0], packet_length >> 1);
+		SMC_insw(dev, LAN91C96_DATA_HIGH, NetRxPackets[0],
+				packet_length >> 1);
 
 #endif /* USE_32_BIT */
 
 #if	SMC_DEBUG > 2
 		printf ("Receiving Packet\n");
-		print_packet (NetRxPackets[0], packet_length);
+		print_packet((byte *)NetRxPackets[0], packet_length);
 #endif
 	} else {
 		/* error ... */
@@ -718,13 +614,13 @@ static int smc_rcv ()
 		is_error = 1;
 	}
 
-	while (SMC_inw (LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
+	while (SMC_inw(dev, LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
 		udelay (1);		/* Wait until not busy */
 
 	/*  error or good, tell the card to get rid of this packet */
-	SMC_outw (LAN91C96_MMUCR_RELEASE_RX, LAN91C96_MMU);
+	SMC_outw(dev, LAN91C96_MMUCR_RELEASE_RX, LAN91C96_MMU);
 
-	while (SMC_inw (LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
+	while (SMC_inw(dev, LAN91C96_MMU) & LAN91C96_MMUCR_NO_BUSY)
 		udelay (1);		/* Wait until not busy */
 
 	if (!is_error) {
@@ -745,18 +641,18 @@ static int smc_rcv ()
  * an 'ifconfig ethX down'
  *
  -----------------------------------------------------*/
-static int smc_close ()
+static int smc_close(struct eth_device *dev)
 {
-	PRINTK2 ("%s:smc_close\n", SMC_DEV_NAME);
+	PRINTK2("%s:smc_close\n", dev->name);
 
 	/* clear everything */
-	smc_shutdown ();
+	smc_shutdown(dev);
 
 	return 0;
 }
 
 #if SMC_DEBUG > 2
-static void print_packet (byte * buf, int length)
+static void print_packet(byte *buf, int length)
 {
 #if 0
 	int i;
@@ -792,86 +688,40 @@ static void print_packet (byte * buf, int length)
 }
 #endif /* SMC_DEBUG > 2 */
 
-int eth_init (bd_t * bd)
+static int  lan91c96_init(struct eth_device *dev, bd_t *bd)
 {
-	return (smc_open(bd));
+	return smc_open(bd, dev);
 }
 
-void eth_halt ()
+static void lan91c96_halt(struct eth_device *dev)
 {
-	smc_close ();
+	smc_close(dev);
 }
 
-int eth_rx ()
+static int lan91c96_recv(struct eth_device *dev)
 {
-	return smc_rcv ();
+	return smc_rcv(dev);
 }
 
-int eth_send (volatile void *packet, int length)
+static int lan91c96_send(struct eth_device *dev, volatile void *packet,
+		int length)
 {
-	return smc_send_packet (packet, length);
+	return smc_send_packet(dev, packet, length);
 }
 
-
-#if 0
-/*-------------------------------------------------------------------------
- * smc_hw_init()
- *
- *   Function:
- *      Reset and enable the device, check if the I/O space location
- *      is correct
- *
- *   Input parameters:
- *      None
- *
- *   Output:
- *	0 --> success
- *	1 --> error
- *--------------------------------------------------------------------------
- */
-static int smc_hw_init ()
-{
-	unsigned short status_test;
-
-	/* The attribute register of the LAN91C96 is located at address
-	   0x0e000000 on the lubbock platform */
-	volatile unsigned *attaddr = (unsigned *) (0x0e000000);
-
-	/* first reset, then enable the device. Sequence is critical */
-	attaddr[LAN91C96_ECOR] |= LAN91C96_ECOR_SRESET;
-	udelay (100);
-	attaddr[LAN91C96_ECOR] &= ~LAN91C96_ECOR_SRESET;
-	attaddr[LAN91C96_ECOR] |= LAN91C96_ECOR_ENABLE;
-
-	/* force 16-bit mode */
-	attaddr[LAN91C96_ECSR] &= ~LAN91C96_ECSR_IOIS8;
-	udelay (100);
-
-	/* check if the I/O address is correct, the upper byte of the
-	   bank select register should read 0x33 */
-
-	status_test = SMC_inw (LAN91C96_BANK_SELECT);
-	if ((status_test & 0xFF00) != 0x3300) {
-		printf ("Failed to initialize ethernetchip\n");
-		return 1;
-	}
-	return 0;
-}
-#endif /* 0 */
-
-/* smc_get_ethaddr (bd_t * bd)
+/* smc_get_ethaddr
  *
  * This checks both the environment and the ROM for an ethernet address. If
  * found, the environment takes precedence.
  */
 
-int smc_get_ethaddr (bd_t * bd)
+static int smc_get_ethaddr(bd_t *bd, struct eth_device *dev)
 {
 	uchar v_mac[6];
 
 	if (!eth_getenv_enetaddr("ethaddr", v_mac)) {
 		/* get ROM mac value if any */
-		if (!get_rom_mac(v_mac)) {
+		if (!get_rom_mac(dev, v_mac)) {
 			printf("\n*** ERROR: ethaddr is NOT set !!\n");
 			return -1;
 		}
@@ -888,7 +738,7 @@ int smc_get_ethaddr (bd_t * bd)
  * Note, this has omly been tested for the OMAP730 P2.
  */
 
-int get_rom_mac (unsigned char *v_rom_mac)
+static int get_rom_mac(struct eth_device *dev, unsigned char *v_rom_mac)
 {
 #ifdef HARDCODE_MAC	/* used for testing or to supress run time warnings */
 	char hw_mac_addr[] = { 0x02, 0x80, 0xad, 0x20, 0x31, 0xb8 };
@@ -897,11 +747,74 @@ int get_rom_mac (unsigned char *v_rom_mac)
 	return (1);
 #else
 	int i;
-	SMC_SELECT_BANK (1);
+	SMC_SELECT_BANK(dev, 1);
 	for (i=0; i<6; i++)
 	{
-		v_rom_mac[i] = SMC_inb (LAN91C96_IA0 + i);
+		v_rom_mac[i] = SMC_inb(dev, LAN91C96_IA0 + i);
 	}
 	return (1);
 #endif
+}
+
+/* Structure to detect the device IDs */
+struct id_type {
+	u8 id;
+	char *name;
+};
+static struct id_type supported_chips[] = {
+	{0, ""}, /* Dummy entry to prevent id check failure */
+	{9, "LAN91C110"},
+	{8, "LAN91C100FD"},
+	{7, "LAN91C100"},
+	{5, "LAN91C95"},
+	{4, "LAN91C94/LAN91C96"},
+	{3, "LAN91C90/LAN91C92"},
+};
+/* lan91c96_detect_chip
+ * See:
+ * http://www.embeddedsys.com/subpages/resources/images/documents/LAN91C96_datasheet.pdf
+ * page 71 - that is the closest we get to detect this device
+ */
+static int lan91c96_detect_chip(struct eth_device *dev)
+{
+	u8 chip_id;
+	int r;
+	SMC_SELECT_BANK(dev, 3);
+	chip_id = SMC_inw(dev, 0xA) & LAN91C96_REV_REVID;
+	SMC_SELECT_BANK(dev, 0);
+	for (r = 0; r < sizeof(supported_chips) / sizeof(struct id_type); r++)
+		if (chip_id == supported_chips[r].id)
+			return r;
+	return 0;
+}
+
+int lan91c96_initialize(u8 dev_num, int base_addr)
+{
+	struct eth_device *dev;
+	int r = 0;
+
+	dev = malloc(sizeof(*dev));
+	if (!dev) {
+		return 0;
+	}
+	memset(dev, 0, sizeof(*dev));
+
+	dev->iobase = base_addr;
+
+	/* Try to detect chip. Will fail if not present. */
+	r = lan91c96_detect_chip(dev);
+	if (!r) {
+		free(dev);
+		return 0;
+	}
+	get_rom_mac(dev, dev->enetaddr);
+
+	dev->init = lan91c96_init;
+	dev->halt = lan91c96_halt;
+	dev->send = lan91c96_send;
+	dev->recv = lan91c96_recv;
+	sprintf(dev->name, "%s-%hu", supported_chips[r].name, dev_num);
+
+	eth_register(dev);
+	return 0;
 }

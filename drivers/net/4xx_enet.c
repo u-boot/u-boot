@@ -305,9 +305,9 @@ static void mal_err (struct eth_device *dev, unsigned long isr,
 static void emac_err (struct eth_device *dev, unsigned long isr);
 
 extern int phy_setup_aneg (char *devname, unsigned char addr);
-extern int emac4xx_miiphy_read (char *devname, unsigned char addr,
+extern int emac4xx_miiphy_read (const char *devname, unsigned char addr,
 		unsigned char reg, unsigned short *value);
-extern int emac4xx_miiphy_write (char *devname, unsigned char addr,
+extern int emac4xx_miiphy_write (const char *devname, unsigned char addr,
 		unsigned char reg, unsigned short value);
 
 int board_emac_count(void);
@@ -1095,6 +1095,11 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 		miiphy_write (dev->name, reg, 0x18, 0x4101);
 		miiphy_write (dev->name, reg, 0x09, 0x0e00);
 		miiphy_write (dev->name, reg, 0x04, 0x01e1);
+#if defined(CONFIG_M88E1111_DISABLE_FIBER)
+		miiphy_read(dev->name, reg, 0x1b, &reg_short);
+		reg_short |= 0x8000;
+		miiphy_write(dev->name, reg, 0x1b, reg_short);
+#endif
 #endif
 #if defined(CONFIG_M88E1112_PHY)
 		if (bis->bi_phymode[devnum] == BI_PHYMODE_SGMII) {

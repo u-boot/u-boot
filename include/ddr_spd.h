@@ -243,6 +243,20 @@ typedef struct ddr3_spd_eeprom_s {
 			unsigned char mod_thickness;
 			/* 62 (Registered) Reference Raw Card Used */
 			unsigned char ref_raw_card;
+			/* 63 DIMM Module Attributes */
+			unsigned char modu_attr;
+			/* 64 RDIMM Thermal Heat Spreader Solution */
+			unsigned char thermal;
+			/* 65 Register Manufacturer ID Code, Least Significant Byte */
+			unsigned char reg_id_lo;
+			/* 66 Register Manufacturer ID Code, Most Significant Byte */
+			unsigned char reg_id_hi;
+			/* 67 Register Revision Number */
+			unsigned char reg_rev;
+			/* 68 Register Type */
+			unsigned char reg_type;
+			/* 69-76 RC1,3,5...15 (MS Nibble) / RC0,2,4...14 (LS Nibble) */
+			unsigned char rcw[8];
 		} registered;
 		unsigned char uc[57]; /* 60-116 Module-Specific Section */
 	} mod_section;

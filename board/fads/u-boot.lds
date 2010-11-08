@@ -50,7 +50,7 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/mpc8xx/start.o		(.text)
+    arch/powerpc/cpu/mpc8xx/start.o		(.text)
 
     /*. = DEFINED(env_offset) ? env_offset : .;*/
     common/env_embedded.o	(.ppcenv)

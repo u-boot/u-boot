@@ -88,7 +88,7 @@ static void galsdma_enable_rx(void);
 
 
 /* GT64240A errata: cant read MPSC/BRG registers... so make mirrors in ram for read/modify write */
-#define MIRROR_HACK ((struct _tag_mirror_hack *)&(gd->mirror_hack))
+#define MIRROR_HACK ((struct _tag_mirror_hack *)&(gd->mirror_hack[0]))
 
 #define GT_REG_WRITE_MIRROR_G(a,d) {MIRROR_HACK->a ## _M = d; GT_REG_WRITE(a,d);}
 #define GTREGREAD_MIRROR_G(a) (MIRROR_HACK->a ## _M)
@@ -390,7 +390,7 @@ galbrg_set_baudrate(int channel, int rate)
 
 #if defined(CONFIG_ZUMA_V2) || defined(CONFIG_P3G4)
 	/* from tclk */
-	clock = (CONFIG_SYS_BUS_HZ/(16*rate)) - 1;
+	clock = (CONFIG_SYS_BUS_CLK/(16*rate)) - 1;
 #else
 	clock = (3686400/(16*rate)) - 1;
 #endif

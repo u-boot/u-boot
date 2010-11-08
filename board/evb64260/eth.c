@@ -89,7 +89,7 @@ static const char ether_port_phy_addr[3]={4,5,6};
 /* MII PHY access routines are common for all i/f, use gal_ent0 */
 #define GT6426x_MII_DEVNAME	"gal_enet0"
 
-int gt6426x_miiphy_read(char *devname, unsigned char phy,
+int gt6426x_miiphy_read(const char *devname, unsigned char phy,
 		unsigned char reg, unsigned short *val);
 
 static inline unsigned short
@@ -345,7 +345,7 @@ gt6426x_eth_disable(void *v)
 MII utilities - write: write to an MII register via SMI
 ***************************************************************************/
 int
-gt6426x_miiphy_write(char *devname, unsigned char phy,
+gt6426x_miiphy_write(const char *devname, unsigned char phy,
 		unsigned char reg, unsigned short data)
 {
     unsigned int temp= (reg<<21) | (phy<<16) | data;
@@ -360,7 +360,7 @@ gt6426x_miiphy_write(char *devname, unsigned char phy,
 MII utilities - read: read from an MII register via SMI
 ***************************************************************************/
 int
-gt6426x_miiphy_read(char *devname, unsigned char phy,
+gt6426x_miiphy_read(const char *devname, unsigned char phy,
 		unsigned char reg, unsigned short *val)
 {
     unsigned int temp= (reg<<21) | (phy<<16) | 1<<26;
@@ -708,7 +708,7 @@ gt6426x_eth_initialize(bd_t *bis)
 				return;
 		}
 
-		temp = getenv_r (s, buf, sizeof(buf));
+		temp = getenv_f(s, buf, sizeof(buf));
 		s = (temp > 0) ? buf : NULL;
 
 #ifdef DEBUG

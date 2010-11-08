@@ -30,7 +30,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /*cmd_boot.c*/
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 extern void lxt971_no_sleep(void);
 
 /* ------------------------------------------------------------------------- */
@@ -151,7 +151,7 @@ int checkboard (void)
 	int index;
 	int len;
 	char str[64];
-	int i = getenv_r ("serial#", str, sizeof (str));
+	int i = getenv_f("serial#", str, sizeof (str));
 	const unsigned char *fpga;
 
 	puts ("Board: ");
@@ -196,7 +196,7 @@ int checkboard (void)
 /*
  * Some test routines
  */
-int do_digtest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_digtest(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	int k;
@@ -257,7 +257,7 @@ struct io {
 	short dummy;
 };
 
-int do_anatest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_anatest(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	short val;
 	int i;
@@ -353,7 +353,7 @@ void cyclicInt(void *ptr)
 }
 
 
-int do_inctest(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_inctest(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong *incin;
 	int i;

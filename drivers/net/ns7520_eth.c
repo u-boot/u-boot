@@ -761,7 +761,7 @@ enum mii_status {
 /**
  * Read a 16-bit value from an MII register.
  */
-extern int ns7520_miiphy_read(char *devname, unsigned char const addr,
+extern int ns7520_miiphy_read(const char *devname, unsigned char const addr,
 		unsigned char const reg, unsigned short *const value)
 {
 	int ret = MII_STATUS_FAILURE;
@@ -807,7 +807,7 @@ extern int ns7520_miiphy_read(char *devname, unsigned char const addr,
 /**
  * Write a 16-bit value to an MII register.
  */
-extern int ns7520_miiphy_write(char *devname, unsigned char const addr,
+extern int ns7520_miiphy_write(const char *devname, unsigned char const addr,
 		unsigned char const reg, unsigned short const value)
 {
 	int ret = MII_STATUS_FAILURE;

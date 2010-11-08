@@ -45,14 +45,12 @@ extern int transfer_pic(unsigned char, unsigned char *, int, int);
 
 int trab_vfd (ulong bitmap);
 
-int do_vfd (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_vfd (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong bitmap;
 
-	if (argc != 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc != 2)
+		return cmd_usage(cmdtp);
 
 	if (argv[1][0] == '/') {	/* select bitmap by number */
 		bitmap = simple_strtoul(argv[1]+1, NULL, 10);

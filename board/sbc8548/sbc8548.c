@@ -116,7 +116,7 @@ void
 local_bus_init(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	uint clkdiv;
 	uint lbc_hz;
@@ -152,7 +152,7 @@ sdram_init(void)
 #if defined(CONFIG_SYS_LBC_SDRAM_SIZE)
 
 	uint idx;
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
 	uint lsdmr_common;
 
@@ -163,21 +163,13 @@ sdram_init(void)
 	/*
 	 * Setup SDRAM Base and Option Registers
 	 */
-	out_be32(&lbc->or3, CONFIG_SYS_OR3_PRELIM);
-	asm("msync");
-
-	out_be32(&lbc->br3, CONFIG_SYS_BR3_PRELIM);
-	asm("msync");
-
-	out_be32(&lbc->or4, CONFIG_SYS_OR4_PRELIM);
-	asm("msync");
-
-	out_be32(&lbc->br4, CONFIG_SYS_BR4_PRELIM);
-	asm("msync");
+	set_lbc_or(3, CONFIG_SYS_OR3_PRELIM);
+	set_lbc_br(3, CONFIG_SYS_BR3_PRELIM);
+	set_lbc_or(4, CONFIG_SYS_OR4_PRELIM);
+	set_lbc_br(4, CONFIG_SYS_BR4_PRELIM);
 
 	out_be32(&lbc->lbcr, CONFIG_SYS_LBC_LBCR);
 	asm("msync");
-
 
 	out_be32(&lbc->lsrt,  CONFIG_SYS_LBC_LSRT);
 	out_be32(&lbc->mrtpr, CONFIG_SYS_LBC_MRTPR);
@@ -406,11 +398,9 @@ int last_stage_init(void)
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup(blob, bd);
-#ifdef CONFIG_PCI1
-	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
-#endif
-#ifdef CONFIG_PCIE1
-	ft_fsl_pci_setup(blob, "pci1", &pcie1_hose);
+
+#ifdef CONFIG_FSL_PCI_INIT
+	FT_FSL_PCI_SETUP;
 #endif
 }
 #endif

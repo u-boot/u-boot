@@ -28,6 +28,19 @@ Here are the places where MAC addresses might be stored:
 	      purpose of passing this information to an OS kernel we are about
 	      to boot
 
+Correct flow of setting up the MAC address (summarized):
+
+1. Read from hardware in initialize() function
+2. Read from environment in net/eth.c after initialize()
+3. Give priority to the value in the environment if a conflict
+4. Program the address into hardware if the following conditions are met:
+	a) The relevant driver has a 'write_addr' function
+	b) The user hasn't set an 'ethmacskip' environment variable
+	c) The address is valid (unicast, not all-zeros)
+
+Previous behavior had the MAC address always being programmed into hardware
+in the device's init() function.
+
 -------
  Usage
 -------

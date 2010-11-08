@@ -33,6 +33,20 @@ const omap3_sysinfo sysinfo = {
 #endif
 };
 
+/*
+ * OMAP35x EVM revision
+ * Run time detection of EVM revision is done by reading Ethernet
+ * PHY ID -
+ *      GEN_1   = 0x01150000
+ *      GEN_2   = 0x92200000
+ */
+enum {
+	OMAP3EVM_BOARD_GEN_1 = 0,	/* EVM Rev between  A - D */
+	OMAP3EVM_BOARD_GEN_2,		/* EVM Rev >= Rev E */
+};
+
+u8 get_omap3_evm_rev(void);
+
 static void setup_net_chip(void);
 
 /*

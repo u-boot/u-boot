@@ -42,7 +42,7 @@ static void show_cplb_table(uint32_t *addr, uint32_t *data)
 /*
  * display current instruction and data cplb tables
  */
-int do_cplbinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_cplbinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	printf("%s CPLB table [%08x]:\n", "Instruction", *(uint32_t *)DMEM_CONTROL);
 	show_cplb_table((uint32_t *)ICPLB_ADDR0, (uint32_t *)ICPLB_DATA0);
@@ -53,7 +53,8 @@ int do_cplbinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-U_BOOT_CMD(cplbinfo, 1, 0, do_cplbinfo,
+U_BOOT_CMD(
+	cplbinfo, 1, 0, do_cplbinfo,
 	"display current CPLB tables",
 	""
 );

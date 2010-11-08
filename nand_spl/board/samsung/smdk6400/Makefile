@@ -67,12 +67,12 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 # from cpu directory
 $(obj)start.S:
 	@rm -f $@
-	@ln -s $(TOPDIR)/cpu/arm1176/start.S $@
+	@ln -s $(TOPDIR)/arch/arm/cpu/arm1176/start.S $@
 
 # from SoC directory
 $(obj)cpu_init.S:
 	@rm -f $@
-	@ln -s $(TOPDIR)/cpu/arm1176/s3c64xx/cpu_init.S $@
+	@ln -s $(TOPDIR)/arch/arm/cpu/arm1176/s3c64xx/cpu_init.S $@
 
 # from board directory
 $(obj)lowlevel_init.S:

@@ -91,7 +91,7 @@ int misc_init_r (void)
 int checkboard (void)
 {
 	char str[64];
-	int i = getenv_r ("serial#", str, sizeof(str));
+	int i = getenv_f("serial#", str, sizeof(str));
 
 	puts ("Board: ");
 
@@ -148,7 +148,7 @@ phys_size_t initdram (int board_type)
 }
 
 #if 0 /* test-only !!! */
-int do_dumpebc(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_dumpebc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong ap, cr;
 
@@ -174,7 +174,7 @@ U_BOOT_CMD(
 );
 
 
-int do_dumpdcr(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_dumpdcr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 
@@ -196,7 +196,7 @@ U_BOOT_CMD(
 );
 
 
-int do_dumpspr(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_dumpspr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	printf("\nSpecial Purpose Registers (SPR's) for PPC405GP:");
 	printf("\n%04x %08x ", 947, mfspr(947));

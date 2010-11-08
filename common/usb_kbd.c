@@ -229,7 +229,7 @@ int usb_kbd_deregister(void)
 
 static void usb_kbd_setled(struct usb_device *dev)
 {
-	struct usb_interface_descriptor *iface;
+	struct usb_interface *iface;
 	iface = &dev->config.if_desc[0];
 	leds=0;
 	if(scroll_lock!=0)
@@ -242,7 +242,7 @@ static void usb_kbd_setled(struct usb_device *dev)
 		leds|=1;
 	usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 		USB_REQ_SET_REPORT, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-		0x200, iface->bInterfaceNumber,(void *)&leds, 1, 0);
+		0x200, iface->desc.bInterfaceNumber, (void *)&leds, 1, 0);
 
 }
 
@@ -348,17 +348,21 @@ static int usb_kbd_irq(struct usb_device *dev)
 /* probes the USB device dev for keyboard type */
 static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 {
-	struct usb_interface_descriptor *iface;
+	struct usb_interface *iface;
 	struct usb_endpoint_descriptor *ep;
 	int pipe,maxp;
 
 	if (dev->descriptor.bNumConfigurations != 1) return 0;
 	iface = &dev->config.if_desc[ifnum];
 
-	if (iface->bInterfaceClass != 3) return 0;
-	if (iface->bInterfaceSubClass != 1) return 0;
-	if (iface->bInterfaceProtocol != 1) return 0;
-	if (iface->bNumEndpoints != 1) return 0;
+	if (iface->desc.bInterfaceClass != 3)
+		return 0;
+	if (iface->desc.bInterfaceSubClass != 1)
+		return 0;
+	if (iface->desc.bInterfaceProtocol != 1)
+		return 0;
+	if (iface->desc.bNumEndpoints != 1)
+		return 0;
 
 	ep = &iface->ep_desc[0];
 
@@ -367,9 +371,9 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	USB_KBD_PRINTF("USB KBD found set protocol...\n");
 	/* ok, we found a USB Keyboard, install it */
 	/* usb_kbd_get_hid_desc(dev); */
-	usb_set_protocol(dev, iface->bInterfaceNumber, 0);
+	usb_set_protocol(dev, iface->desc.bInterfaceNumber, 0);
 	USB_KBD_PRINTF("USB KBD found set idle...\n");
-	usb_set_idle(dev, iface->bInterfaceNumber, REPEAT_RATE, 0);
+	usb_set_idle(dev, iface->desc.bInterfaceNumber, REPEAT_RATE, 0);
 	memset(&new[0], 0, 8);
 	memset(&old[0], 0, 8);
 	repeat_delay=0;

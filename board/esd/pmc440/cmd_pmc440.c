@@ -67,7 +67,7 @@ int fpga_interrupt(u32 arg)
 	return rc;
 }
 
-int do_waithci(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_waithci(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	pmc440_fpga_t *fpga = (pmc440_fpga_t *)FPGA_BA;
 
@@ -118,7 +118,7 @@ void dump_fifo(pmc440_fpga_t *fpga, int f, int *n)
 	}
 }
 
-int do_fifo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_fifo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	pmc440_fpga_t *fpga = (pmc440_fpga_t *)FPGA_BA;
 	int i;
@@ -269,7 +269,7 @@ U_BOOT_CMD(
 	"'fifo' or 'address'"
 );
 
-int do_setup_bootstrap_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_setup_bootstrap_eeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong sdsdp[5];
 	ulong delay;
@@ -344,7 +344,7 @@ U_BOOT_CMD(
 #include <environment.h>
 extern env_t *env_ptr;
 
-int do_painit(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_painit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u32 pram, nextbase, base;
 	char *v;
@@ -404,7 +404,7 @@ U_BOOT_CMD(
 );
 #endif /* CONFIG_PRAM */
 
-int do_selfreset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_selfreset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	in_be32((void*)CONFIG_SYS_RESET_BASE);
 	return 0;
@@ -415,7 +415,7 @@ U_BOOT_CMD(
 	""
 );
 
-int do_resetout(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_resetout(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	pmc440_fpga_t *fpga = (pmc440_fpga_t *)FPGA_BA;
 
@@ -452,7 +452,7 @@ U_BOOT_CMD(
 	""
 );
 
-int do_inta(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_inta(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (is_monarch()) {
 		printf("This command is only supported in non-monarch mode\n");
@@ -485,7 +485,7 @@ U_BOOT_CMD(
 );
 
 /* test-only */
-int do_pmm(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_pmm(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong pciaddr;
 
@@ -518,7 +518,7 @@ U_BOOT_CMD(
 );
 
 #if defined(CONFIG_SYS_EEPROM_WREN)
-int do_eep_wren(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_eep_wren(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int query = argc == 1;
 	int state = 0;

@@ -19,15 +19,13 @@
 
 include $(TOPDIR)/config.mk
 
-HOSTCFLAGS = -Wall -pedantic
-
 # Generated executable files
 BIN_FILES-y += imls
 
 # Source files which exist outside the tools/imls directory
-EXT_OBJ_FILES-y += lib_generic/crc32.o
-EXT_OBJ_FILES-y += lib_generic/md5.o
-EXT_OBJ_FILES-y += lib_generic/sha1.o
+EXT_OBJ_FILES-y += lib/crc32.o
+EXT_OBJ_FILES-y += lib/md5.o
+EXT_OBJ_FILES-y += lib/sha1.o
 EXT_OBJ_FILES-y += common/image.o
 
 # Source files located in the tools/imls directory
@@ -43,55 +41,48 @@ LIBFDT_OBJ_FILES-y += fdt_wip.o
 # now $(obj) is defined
 SRCS	+= $(addprefix $(SRCTREE)/,$(EXT_OBJ_FILES-y:.o=.c))
 SRCS	+= $(addprefix $(SRCTREE)/tools/,$(OBJ_FILES-y:.o=.c))
-SRCS	+= $(addprefix $(SRCTREE)/libfdt/,$(LIBFDT_OBJ_FILES-y:.o=.c))
+SRCS	+= $(addprefix $(SRCTREE)/lib/libfdt/,$(LIBFDT_OBJ_FILES-y:.o=.c))
 BINS	:= $(addprefix $(obj),$(sort $(BIN_FILES-y)))
 LIBFDT_OBJS	:= $(addprefix $(obj),$(LIBFDT_OBJ_FILES-y))
 
 #
-# Use native tools and options
+# Compile for a hosted environment on the target
 # Define __KERNEL_STRICT_NAMES to prevent typedef overlaps
 #
-CPPFLAGS   = -idirafter $(SRCTREE)/include \
+HOSTCPPFLAGS  = -idirafter $(SRCTREE)/include \
 		-idirafter $(OBJTREE)/include2 \
 		-idirafter $(OBJTREE)/include \
-	        -I $(SRCTREE)/libfdt \
+	        -I $(SRCTREE)/lib/libfdt \
 		-I $(SRCTREE)/tools \
 		-DUSE_HOSTCC -D__KERNEL_STRICT_NAMES
-CFLAGS     = $(HOSTCFLAGS) $(CPPFLAGS) -O
-
-# No -pedantic switch to avoid libfdt compilation warnings
-FIT_CFLAGS = -Wall $(CPPFLAGS) -O
-
-CC	   = $(CROSS_COMPILER)gcc
-STRIP	   = $(CROSS_COMPILER)strip
 
 ifeq ($(MTD_VERSION),old)
-CPPFLAGS += -DMTD_OLD
+HOSTCPPFLAGS += -DMTD_OLD
 endif
 
 all:	$(BINS)
 
 $(obj)imls:	$(obj)imls.o $(obj)crc32.o $(obj)image.o $(obj)md5.o \
 		$(obj)sha1.o $(LIBFDT_OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
 	$(STRIP) $@
 
 # Some files complain if compiled with -pedantic, use FIT_CFLAGS
 $(obj)image.o: $(SRCTREE)/common/image.c
-	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+	$(CC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
-$(obj)imls.o: imls.c
-	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+$(obj)imls.o: $(SRCTREE)/tools/imls/imls.c
+	$(CC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
 # Some of the tool objects need to be accessed from outside the tools/imls directory
 $(obj)%.o: $(SRCTREE)/common/%.c
-	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+	$(CC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
-$(obj)%.o: $(SRCTREE)/lib_generic/%.c
-	$(CC) -g $(CFLAGS) -c -o $@ $<
+$(obj)%.o: $(SRCTREE)/lib/%.c
+	$(CC) -g $(HOSTCFLAGS) -c -o $@ $<
 
-$(obj)%.o: $(SRCTREE)/libfdt/%.c
-	$(CC) -g $(FIT_CFLAGS) -c -o $@ $<
+$(obj)%.o: $(SRCTREE)/lib/libfdt/%.c
+	$(CC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
 clean:
 	rm -rf *.o imls

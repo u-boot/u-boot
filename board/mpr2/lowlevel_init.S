@@ -82,10 +82,10 @@ lowlevel_init:
 /*
  * PLL Settings
  */
-FRQCR_D:	.long	0x1103		/* I:B:P=8:4:2 */
-WTCNT_D:	.long	0x5A00		/* start counting at zero */
-WTCSR_D:	.long	0xA507		/* divide by 4096 */
-
+FRQCR_D:	.word	0x1103		/* I:B:P=8:4:2 */
+WTCNT_D:	.word	0x5A00		/* start counting at zero */
+WTCSR_D:	.word	0xA507		/* divide by 4096 */
+.align 2
 /*
  * Spansion S29GL256N11 @ 48 MHz
  */

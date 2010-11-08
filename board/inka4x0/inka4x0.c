@@ -187,7 +187,7 @@ int misc_init_f (void)
 	char tmp[10];
 	int i, br;
 
-	i = getenv_r("brightness", tmp, sizeof(tmp));
+	i = getenv_f("brightness", tmp, sizeof(tmp));
 	br = (i > 0)
 		? (int) simple_strtoul (tmp, NULL, 10)
 		: CONFIG_SYS_BRIGHTNESS;

@@ -55,13 +55,13 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mpc8260/start.o	(.text)
+    arch/powerpc/cpu/mpc8260/start.o	(.text)
 /*
     common/dlmalloc.o	(.text)
-    lib_ppc/ppcstring.o	(.text)
-    lib_generic/vsprintf.o	(.text)
-    lib_generic/crc32.o		(.text)
-    lib_generic/zlib.o		(.text)
+    arch/powerpc/lib/ppcstring.o	(.text)
+    lib/vsprintf.o	(.text)
+    lib/crc32.o		(.text)
+    lib/zlib.o		(.text)
 
     . = env_offset;
 */

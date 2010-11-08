@@ -47,15 +47,15 @@ struct ftrtc010 {
 
 static struct ftrtc010 *rtc = (struct ftrtc010 *)CONFIG_FTRTC010_BASE;
 
-static void ftrtc010_enable (void)
+static void ftrtc010_enable(void)
 {
-	writel (FTRTC010_CR_ENABLE, &rtc->cr);
+	writel(FTRTC010_CR_ENABLE, &rtc->cr);
 }
 
 /*
  * return current time in seconds
  */
-static unsigned long ftrtc010_time (void)
+static unsigned long ftrtc010_time(void)
 {
 	unsigned long day;
 	unsigned long hour;
@@ -64,11 +64,11 @@ static unsigned long ftrtc010_time (void)
 	unsigned long second2;
 
 	do {
-		second	= readl (&rtc->sec);
-		day	= readl (&rtc->day);
-		hour	= readl (&rtc->hour);
-		minute	= readl (&rtc->min);
-		second2	= readl (&rtc->sec);
+		second	= readl(&rtc->sec);
+		day	= readl(&rtc->day);
+		hour	= readl(&rtc->hour);
+		minute	= readl(&rtc->min);
+		second2	= readl(&rtc->sec);
 	} while (second != second2);
 
 	return day * 24 * 60 * 60 + hour * 60 * 60 + minute * 60 + second;
@@ -78,16 +78,16 @@ static unsigned long ftrtc010_time (void)
  * Get the current time from the RTC
  */
 
-int rtc_get (struct rtc_time *tmp)
+int rtc_get(struct rtc_time *tmp)
 {
 	unsigned long now;
 
-	debug ("%s(): record register: %x\n",
-	       __func__, readl (&rtc->record));
+	debug("%s(): record register: %x\n",
+	      __func__, readl(&rtc->record));
 
-	now = ftrtc010_time () + readl (&rtc->record);
+	now = ftrtc010_time() + readl(&rtc->record);
 
-	to_tm (now, tmp);
+	to_tm(now, tmp);
 
 	return 0;
 }
@@ -95,30 +95,30 @@ int rtc_get (struct rtc_time *tmp)
 /*
  * Set the RTC
  */
-int rtc_set (struct rtc_time *tmp)
+int rtc_set(struct rtc_time *tmp)
 {
 	unsigned long new;
 	unsigned long now;
 
-	debug ("%s(): DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
-	       __func__,
-	       tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
-	       tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
+	debug("%s(): DATE: %4d-%02d-%02d (wday=%d)  TIME: %2d:%02d:%02d\n",
+	      __func__,
+	      tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_wday,
+	      tmp->tm_hour, tmp->tm_min, tmp->tm_sec);
 
-	new = mktime (tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_hour,
-		      tmp->tm_min, tmp->tm_sec);
+	new = mktime(tmp->tm_year, tmp->tm_mon, tmp->tm_mday, tmp->tm_hour,
+		     tmp->tm_min, tmp->tm_sec);
 
-	now = ftrtc010_time ();
+	now = ftrtc010_time();
 
-	debug ("%s(): write %lx to record register\n", __func__, new - now);
+	debug("%s(): write %lx to record register\n", __func__, new - now);
 
-	writel (new - now, &rtc->record);
+	writel(new - now, &rtc->record);
 
 	return 0;
 }
 
-void rtc_reset (void)
+void rtc_reset(void)
 {
-	debug ("%s()\n", __func__);
-	ftrtc010_enable ();
+	debug("%s()\n", __func__);
+	ftrtc010_enable();
 }

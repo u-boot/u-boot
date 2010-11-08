@@ -332,6 +332,8 @@ extern int tqm834x_num_flash_banks;
 #define CONFIG_SYS_PROMPT		"=> "		/* Monitor Command Prompt */
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CONFIG_AUTO_COMPLETE		/* add autocompletion support   */
+
 #define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
 #ifdef	CONFIG_SYS_HUSH_PARSER
 #define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
@@ -403,7 +405,8 @@ extern int tqm834x_num_flash_banks;
 
 /* i-cache and d-cache disabled */
 #define CONFIG_SYS_HID0_INIT	0x000000000
-#define CONFIG_SYS_HID0_FINAL	CONFIG_SYS_HID0_INIT
+#define CONFIG_SYS_HID0_FINAL	(CONFIG_SYS_HID0_INIT | \
+				 HID0_ENABLE_INSTRUCTION_CACHE)
 #define CONFIG_SYS_HID2	HID2_HBE
 
 #define CONFIG_HIGH_BATS	1	/* High BATs supported */

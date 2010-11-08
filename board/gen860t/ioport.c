@@ -197,7 +197,7 @@ const mpc8xx_iop_conf_t iop_conf_tab[NUM_PORTS][PORT_BITS] = {
 
 /*
  * Configure the MPC8XX I/O ports per the ioport configuration table
- * (taken from ./cpu/mpc8260/cpu_init.c)
+ * (taken from ./arch/powerpc/cpu/mpc8260/cpu_init.c)
  */
 void config_mpc8xx_ioports (volatile immap_t * immr)
 {

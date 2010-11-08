@@ -1,0 +1,648 @@
+/*
+ * (C) Copyright 2009, 2010 Wolfgang Denk <wd@denx.de>
+ *
+ * (C) Copyright 2009-2010
+ * Michael Weiß, ifm ecomatic gmbh, michael.weiss@ifm.com
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ *
+ */
+
+#include <common.h>
+#include <asm/bitops.h>
+#include <command.h>
+#include <asm/io.h>
+#include <asm/processor.h>
+#include <asm/mpc512x.h>
+#include <fdt_support.h>
+#include <flash.h>
+#ifdef CONFIG_MISC_INIT_R
+#include <i2c.h>
+#endif
+#include <serial.h>
+#include <jffs2/load_kernel.h>
+#include <mtd_node.h>
+
+DECLARE_GLOBAL_DATA_PTR;
+
+extern flash_info_t flash_info[];
+ulong flash_get_size (phys_addr_t base, int banknum);
+
+/* Clocks in use */
+#define SCCR1_CLOCKS_EN	(CLOCK_SCCR1_CFG_EN |				\
+			 CLOCK_SCCR1_LPC_EN |				\
+			 CLOCK_SCCR1_NFC_EN |				\
+			 CLOCK_SCCR1_PSC_EN(CONFIG_PSC_CONSOLE) |	\
+			 CLOCK_SCCR1_PSCFIFO_EN |			\
+			 CLOCK_SCCR1_DDR_EN |				\
+			 CLOCK_SCCR1_FEC_EN |				\
+			 CLOCK_SCCR1_TPR_EN)
+
+#define SCCR2_CLOCKS_EN	(CLOCK_SCCR2_MEM_EN |		\
+			 CLOCK_SCCR2_SPDIF_EN |		\
+			 CLOCK_SCCR2_DIU_EN |		\
+			 CLOCK_SCCR2_I2C_EN)
+
+int board_early_init_f(void)
+{
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
+
+	/*
+	 * Initialize Local Window for FLASH-Bank1 access (CS1)
+	 */
+	out_be32(&im->sysconf.lpcs1aw,
+		CSAW_START(CONFIG_SYS_FLASH1_BASE) |
+		CSAW_STOP(CONFIG_SYS_FLASH1_BASE, CONFIG_SYS_FLASH_SIZE)
+	);
+	out_be32(&im->lpc.cs_cfg[1], CONFIG_SYS_CS1_CFG);
+
+	/*
+	 * Local Window for MRAM access (CS2)
+	 */
+	out_be32(&im->sysconf.lpcs2aw,
+		CSAW_START(CONFIG_SYS_MRAM_BASE) |
+		CSAW_STOP(CONFIG_SYS_MRAM_BASE, CONFIG_SYS_MRAM_SIZE)
+	);
+	out_be32(&im->lpc.cs_cfg[2], CONFIG_SYS_CS2_CFG);
+
+	sync_law(&im->sysconf.lpcs2aw);
+
+	/*
+	 * Configure Flash Speed
+	 */
+	out_be32(&im->lpc.cs_cfg[0], CONFIG_SYS_CS0_CFG);
+	out_be32(&im->lpc.altr, CONFIG_SYS_CS_ALETIMING);
+
+	/*
+	 * Enable clocks
+	 */
+	out_be32(&im->clk.sccr[0], SCCR1_CLOCKS_EN);
+	out_be32(&im->clk.sccr[1], SCCR2_CLOCKS_EN);
+#if defined(CONFIG_IIM) || defined(CONFIG_CMD_FUSE)
+	setbits_be32(&im->clk.sccr[1], CLOCK_SCCR2_IIM_EN);
+#endif
+
+	return 0;
+}
+
+sdram_conf_t mddrc_config[] = {
+	{
+		(512 << 20),	/* 512 MB RAM configuration */
+		{
+			CONFIG_SYS_MDDRC_SYS_CFG,
+			CONFIG_SYS_MDDRC_TIME_CFG0,
+			CONFIG_SYS_MDDRC_TIME_CFG1,
+			CONFIG_SYS_MDDRC_TIME_CFG2
+		}
+	},
+	{
+		(128 << 20),	/* 128 MB RAM configuration */
+		{
+			CONFIG_SYS_MDDRC_SYS_CFG_ALT1,
+			CONFIG_SYS_MDDRC_TIME_CFG0_ALT1,
+			CONFIG_SYS_MDDRC_TIME_CFG1_ALT1,
+			CONFIG_SYS_MDDRC_TIME_CFG2_ALT1
+		}
+	},
+};
+
+phys_size_t initdram (int board_type)
+{
+	int i;
+	u32 msize = 0;
+	u32 pdm360ng_init_seq[] = {
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_PCHG_ALL,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_RFSH,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_RFSH,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_MICRON_INIT_DEV_OP,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_EM2,
+		CONFIG_SYS_DDRCMD_NOP,
+		CONFIG_SYS_DDRCMD_PCHG_ALL,
+		CONFIG_SYS_DDRCMD_EM2,
+		CONFIG_SYS_DDRCMD_EM3,
+		CONFIG_SYS_DDRCMD_EN_DLL,
+		CONFIG_SYS_DDRCMD_RES_DLL,
+		CONFIG_SYS_DDRCMD_PCHG_ALL,
+		CONFIG_SYS_DDRCMD_RFSH,
+		CONFIG_SYS_DDRCMD_RFSH,
+		CONFIG_SYS_MICRON_INIT_DEV_OP,
+		CONFIG_SYS_DDRCMD_OCD_DEFAULT,
+		CONFIG_SYS_DDRCMD_OCD_EXIT,
+		CONFIG_SYS_DDRCMD_PCHG_ALL,
+		CONFIG_SYS_DDRCMD_NOP
+	};
+
+	for (i = 0; i < ARRAY_SIZE(mddrc_config); i++) {
+		msize = fixed_sdram(&mddrc_config[i].cfg, pdm360ng_init_seq,
+				    ARRAY_SIZE(pdm360ng_init_seq));
+		if (msize == mddrc_config[i].size)
+			break;
+	}
+
+	return msize;
+}
+
+#if defined(CONFIG_SERIAL_MULTI)
+static int set_lcd_brightness(char *);
+#endif
+
+int misc_init_r(void)
+{
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
+
+	/*
+	 * Re-configure flash setup using auto-detected info
+	 */
+	if (flash_info[1].size > 0) {
+		out_be32(&im->sysconf.lpcs1aw,
+			CSAW_START(gd->bd->bi_flashstart + flash_info[1].size) |
+			CSAW_STOP(gd->bd->bi_flashstart + flash_info[1].size,
+				  flash_info[1].size));
+		sync_law(&im->sysconf.lpcs1aw);
+		/*
+		 * Re-check to get correct base address
+		 */
+		flash_get_size (gd->bd->bi_flashstart + flash_info[1].size, 1);
+	} else {
+		/* Disable Bank 1 */
+		out_be32(&im->sysconf.lpcs1aw, 0x01000100);
+		sync_law(&im->sysconf.lpcs1aw);
+	}
+
+	out_be32(&im->sysconf.lpcs0aw,
+		CSAW_START(gd->bd->bi_flashstart) |
+		CSAW_STOP(gd->bd->bi_flashstart, flash_info[0].size));
+	sync_law(&im->sysconf.lpcs0aw);
+
+	/*
+	 * Re-check to get correct base address
+	 */
+	flash_get_size (gd->bd->bi_flashstart, 0);
+
+	/*
+	 * Re-do flash protection upon new addresses
+	 */
+	flash_protect (FLAG_PROTECT_CLEAR,
+		       gd->bd->bi_flashstart, 0xffffffff,
+		       &flash_info[0]);
+
+	/* Monitor protection ON by default */
+	flash_protect (FLAG_PROTECT_SET,
+		       CONFIG_SYS_MONITOR_BASE,
+		       CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN - 1,
+		       &flash_info[0]);
+
+	/* Environment protection ON by default */
+	flash_protect (FLAG_PROTECT_SET,
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
+		       &flash_info[0]);
+
+#ifdef CONFIG_ENV_ADDR_REDUND
+	/* Redundant environment protection ON by default */
+	flash_protect (FLAG_PROTECT_SET,
+		       CONFIG_ENV_ADDR_REDUND,
+		       CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
+		       &flash_info[0]);
+#endif
+
+#ifdef CONFIG_FSL_DIU_FB
+# if	!(defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE))
+	mpc5121_diu_init();
+#endif
+#if defined(CONFIG_SERIAL_MULTI)
+	set_lcd_brightness(0);
+#endif
+	/* Switch LCD-Backlight and LVDS-Interface on */
+	setbits_be32(&im->gpio.gpdir, 0x01040000);
+	clrsetbits_be32(&im->gpio.gpdat, 0x01000000, 0x00040000);
+#endif
+
+#if defined(CONFIG_HARD_I2C)
+	if (!getenv("ethaddr")) {
+		uchar buf[6];
+		uchar ifm_oui[3] = { 0, 2, 1, };
+		int ret;
+
+		/* I2C-0 for on-board eeprom */
+		i2c_set_bus_num(CONFIG_SYS_I2C_EEPROM_BUS_NUM);
+
+		/* Read ethaddr from EEPROM */
+		ret = i2c_read(CONFIG_SYS_I2C_EEPROM_ADDR,
+			       CONFIG_SYS_I2C_EEPROM_MAC_OFFSET, 1, buf, 6);
+		if (ret != 0) {
+			printf("Error: Unable to read MAC from I2C"
+				" EEPROM at address %02X:%02X\n",
+				CONFIG_SYS_I2C_EEPROM_ADDR,
+				CONFIG_SYS_I2C_EEPROM_MAC_OFFSET);
+			return 1;
+		}
+
+		/* Owned by IFM ? */
+		if (memcmp(buf, ifm_oui, sizeof(ifm_oui))) {
+			printf("Illegal MAC address in EEPROM: %pM\n", buf);
+			return 1;
+		}
+
+		eth_setenv_enetaddr("ethaddr", buf);
+	}
+#endif /* defined(CONFIG_HARD_I2C) */
+
+	return 0;
+}
+
+static  iopin_t ioregs_init[] = {
+	/* FUNC1=LPC_CS4 */
+	{
+		offsetof(struct ioctrl512x, io_control_pata_ce1), 1, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(1) |
+		IO_PIN_PUE(1) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC3=GPIO10 */
+	{
+		offsetof(struct ioctrl512x, io_control_pata_ce2), 1, 0,
+		IO_PIN_FMUX(3) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC1=CAN3_TX */
+	{
+		offsetof(struct ioctrl512x, io_control_pata_isolate), 1, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC3=GPIO14 */
+	{
+		offsetof(struct ioctrl512x, io_control_pata_iochrdy), 1, 0,
+		IO_PIN_FMUX(3) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC2=DIU_LD22 Sets Next 2 to DIU_LD pads */
+	/* DIU_LD22-DIU_LD23 */
+	{
+		offsetof(struct ioctrl512x, io_control_pci_ad31), 2, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(1)
+	},
+	/* FUNC2=USB1_DATA7 Sets Next 12 to USB1 pads */
+	/* USB1_DATA7-USB1_DATA0, USB1_STOP, USB1_NEXT, USB1_CLK, USB1_DIR */
+	{
+		offsetof(struct ioctrl512x, io_control_pci_ad29), 12, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(1)
+	},
+	/* FUNC1=VIU_DATA0 Sets Next 3 to VIU_DATA pads */
+	/* VIU_DATA0-VIU_DATA2 */
+	{
+		offsetof(struct ioctrl512x, io_control_pci_ad17), 3, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(1)
+	},
+	/* FUNC2=FEC_TXD_0 */
+	{
+		offsetof(struct ioctrl512x, io_control_pci_ad14), 1, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(1)
+	},
+	/* FUNC1=VIU_DATA3 Sets Next 2 to VIU_DATA pads */
+	/* VIU_DATA3, VIU_DATA4 */
+	{
+		offsetof(struct ioctrl512x, io_control_pci_ad13), 2, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(1)
+	},
+	/* FUNC2=FEC_RXD_1 Sets Next 12 to FEC pads */
+	/* FEC_RXD_1, FEC_RXD_0, FEC_RX_CLK, FEC_TX_CLK, FEC_RX_ER, FEC_RX_DV */
+	/* FEC_TX_EN, FEC_TX_ER, FEC_CRS, FEC_MDC, FEC_MDIO, FEC_COL */
+	{
+		offsetof(struct ioctrl512x, io_control_pci_ad11), 12, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(1)
+	},
+	/* FUNC2=DIU_LD03 Sets Next 25 to DIU pads */
+	/* DIU_LD00-DIU_LD21 */
+	{
+		offsetof(struct ioctrl512x, io_control_pci_cbe0), 22, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(1)
+	},
+	/* FUNC2=DIU_CLK Sets Next 3 to DIU pads */
+	/* DIU_CLK, DIU_VSYNC, DIU_HSYNC */
+	{
+		offsetof(struct ioctrl512x, io_control_spdif_txclk), 3, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC2=CAN3_RX */
+	{
+		offsetof(struct ioctrl512x, io_control_irq1), 1, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* Sets lowest slew on 2 CAN_TX Pins*/
+	{
+		offsetof(struct ioctrl512x, io_control_can1_tx), 2, 0,
+		IO_PIN_FMUX(0) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC3=CAN4_TX Sets Next 2 to CAN4 pads */
+	/* CAN4_TX, CAN4_RX */
+	{
+		offsetof(struct ioctrl512x, io_control_j1850_tx), 2, 0,
+		IO_PIN_FMUX(3) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC3=GPIO8 Sets Next 2 to GPIO pads */
+	/* GPIO8, GPIO9 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc0_0), 2, 0,
+		IO_PIN_FMUX(3) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC1=FEC_TXD_1 Sets Next 3 to FEC pads */
+	/* FEC_TXD_1, FEC_TXD_2, FEC_TXD_3 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc0_4), 3, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC1=FEC_RXD_3 Sets Next 2 to FEC pads */
+	/* FEC_RXD_3, FEC_RXD_2 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc1_4), 2, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC3=GPIO17 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc2_1), 1, 0,
+		IO_PIN_FMUX(3) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC3=GPIO2/GPT2 Sets Next 3 to GPIO pads */
+	/* GPIO2, GPIO20, GPIO21 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc2_4), 3, 0,
+		IO_PIN_FMUX(3) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC2=VIU_PIX_CLK */
+	{
+		offsetof(struct ioctrl512x, io_control_psc3_4), 1, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC3=GPIO24 Sets Next 2 to GPIO pads */
+	/* GPIO24, GPIO25 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc4_0), 2, 0,
+		IO_PIN_FMUX(3) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC1=NFC_CE2 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc4_4), 1, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(1) |
+		IO_PIN_PUE(1) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC2=VIU_DATA5 Sets Next 5 to VIU_DATA pads */
+	/* VIU_DATA5-VIU_DATA9 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc5_0), 5, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC1=LPC_TSIZ1 Sets Next 2 to LPC_TSIZ pads */
+	/* LPC_TSIZ1-LPC_TSIZ2 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc6_0), 2, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC1=LPC_TS */
+	{
+		offsetof(struct ioctrl512x, io_control_psc6_4), 1, 0,
+		IO_PIN_FMUX(1) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	},
+	/* FUNC3=GPIO16 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc7_0), 1, 0,
+		IO_PIN_FMUX(3) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC3=GPIO18 Sets Next 3 to GPIO pads */
+	/* GPIO18-GPIO19, GPT7/GPIO7 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc7_2), 3, 0,
+		IO_PIN_FMUX(3) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC3=GPIO0/GPT0 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc8_4), 1, 0,
+		IO_PIN_FMUX(3) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC3=GPIO11 Sets Next 4 to GPIO pads */
+	/* GPIO11, GPIO2, GPIO12, GPIO13 */
+	{
+		offsetof(struct ioctrl512x, io_control_psc10_3), 4, 0,
+		IO_PIN_FMUX(3) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(0)
+	},
+	/* FUNC2=DIU_DE */
+	{
+		offsetof(struct ioctrl512x, io_control_psc11_4), 1, 0,
+		IO_PIN_FMUX(2) | IO_PIN_HOLD(0) | IO_PIN_PUD(0) |
+		IO_PIN_PUE(0) | IO_PIN_ST(0) | IO_PIN_DS(3)
+	}
+};
+
+int checkboard (void)
+{
+	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
+
+	puts("Board: PDM360NG\n");
+
+	/* initialize function mux & slew rate IO inter alia on IO Pins  */
+
+	iopin_initialize(ioregs_init, ARRAY_SIZE(ioregs_init));
+
+	/* initialize IO_CONTROL_GP (GPIO/GPT-mux-register) */
+	setbits_be32(&im->io_ctrl.io_control_gp,
+		     (1 << 0) |   /* GP_MUX7->GPIO7 */
+		     (1 << 5));	  /* GP_MUX2->GPIO2 */
+
+	/* configure GPIO24 (VIU_CE), output/high */
+	setbits_be32(&im->gpio.gpdir, 0x80);
+	setbits_be32(&im->gpio.gpdat, 0x80);
+
+	return 0;
+}
+
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP)
+#ifdef CONFIG_FDT_FIXUP_PARTITIONS
+struct node_info nodes[] = {
+	{ "fsl,mpc5121-nfc",	MTD_DEV_TYPE_NAND, },
+	{ "cfi-flash",		MTD_DEV_TYPE_NOR,  },
+};
+#endif
+
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	u32 val[8];
+	int rc, i = 0;
+
+	ft_cpu_setup(blob, bd);
+	fdt_fixup_memory(blob, (u64)bd->bi_memstart, (u64)bd->bi_memsize);
+#ifdef CONFIG_FDT_FIXUP_PARTITIONS
+	fdt_fixup_mtdparts(blob, nodes, ARRAY_SIZE(nodes));
+#endif
+
+	/* Fixup NOR FLASH mapping */
+	val[i++] = 0;				/* chip select number */
+	val[i++] = 0;				/* always 0 */
+	val[i++] = gd->bd->bi_flashstart;
+	val[i++] = gd->bd->bi_flashsize;
+
+	/* Fixup MRAM mapping */
+	val[i++] = 2;				/* chip select number */
+	val[i++] = 0;				/* always 0 */
+	val[i++] = CONFIG_SYS_MRAM_BASE;
+	val[i++] = CONFIG_SYS_MRAM_SIZE;
+
+	rc = fdt_find_and_setprop(blob, "/localbus", "ranges",
+				  val, i * sizeof(u32), 1);
+	if (rc)
+		printf("Unable to update localbus ranges, err=%s\n",
+		       fdt_strerror(rc));
+
+	/* Fixup reg property in NOR Flash node */
+	i = 0;
+	val[i++] = 0;			/* always 0 */
+	val[i++] = 0;			/* start at offset 0 */
+	val[i++] = flash_info[0].size;	/* size of Bank 0 */
+
+	/* Second Bank available? */
+	if (flash_info[1].size > 0) {
+		val[i++] = 0;			/* always 0 */
+		val[i++] = flash_info[0].size;	/* offset of Bank 1 */
+		val[i++] = flash_info[1].size;	/* size of Bank 1 */
+	}
+
+	rc = fdt_find_and_setprop(blob, "/localbus/flash", "reg",
+				  val, i * sizeof(u32), 1);
+	if (rc)
+		printf("Unable to update flash reg property, err=%s\n",
+		       fdt_strerror(rc));
+}
+#endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
+
+#if defined(CONFIG_SERIAL_MULTI)
+/*
+ * If argument is NULL, set the LCD brightness to the
+ * value from "brightness" environment variable. Set
+ * the LCD brightness to the value specified by the
+ * argument otherwise. Default brightness is zero.
+ */
+#define MAX_BRIGHTNESS	99
+static int set_lcd_brightness(char *brightness)
+{
+	struct stdio_dev *cop_port;
+	char *env;
+	char cmd_buf[20];
+	int val = 0;
+	int cs = 0;
+	int len, i;
+
+	if (brightness) {
+		val = simple_strtol(brightness, NULL, 10);
+	} else {
+		env = getenv("brightness");
+		if (env)
+			val = simple_strtol(env, NULL, 10);
+	}
+
+	if (val < 0)
+		val = 0;
+
+	if (val > MAX_BRIGHTNESS)
+		val = MAX_BRIGHTNESS;
+
+	sprintf(cmd_buf, "$SB;%04d;", val);
+
+	len = strlen(cmd_buf);
+	for (i = 1; i <= len; i++)
+		cs += cmd_buf[i];
+
+	cs = (~cs + 1) & 0xff;
+	sprintf(cmd_buf + len, "%02X\n", cs);
+
+	/* IO Coprocessor communication */
+	cop_port = open_port(4, CONFIG_SYS_PDM360NG_COPROC_BAUDRATE);
+	if (!cop_port) {
+		printf("Error: Can't open IO Coprocessor port.\n");
+		return -1;
+	}
+
+	debug("%s: cmd: %s", __func__, cmd_buf);
+	write_port(cop_port, cmd_buf);
+	/*
+	 * Wait for transmission and maybe response data
+	 * before closing the port.
+	 */
+	udelay(CONFIG_SYS_PDM360NG_COPROC_READ_DELAY);
+	memset(cmd_buf, 0, sizeof(cmd_buf));
+	len = read_port(cop_port, cmd_buf, sizeof(cmd_buf));
+	if (len)
+		printf("Error: %s\n", cmd_buf);
+
+	close_port(4);
+
+	return 0;
+}
+
+static int cmd_lcd_brightness(cmd_tbl_t *cmdtp, int flag,
+			      int argc, char * const argv[])
+{
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
+	return set_lcd_brightness(argv[1]);
+}
+
+U_BOOT_CMD(lcdbr, 2, 1, cmd_lcd_brightness,
+	"set LCD brightness",
+	"<brightness> - set LCD backlight level to <brightness>.\n"
+);
+#endif /* CONFIG_SERIAL_MULTI */

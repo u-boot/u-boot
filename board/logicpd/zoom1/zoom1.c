@@ -31,6 +31,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <netdev.h>
 #include <twl4030.h>
 #include <asm/io.h>
 #include <asm/arch/mux.h>
@@ -62,7 +63,7 @@ int board_init(void)
 int misc_init_r(void)
 {
 	twl4030_power_init();
-	twl4030_led_init();
+	twl4030_led_init(TWL4030_LED_LEDEN_LEDAON | TWL4030_LED_LEDEN_LEDBON);
 	dieid_num_r();
 
 	/*
@@ -86,3 +87,14 @@ void set_muxconf_regs(void)
 	/* platform specific muxes */
 	MUX_ZOOM1_MDK();
 }
+
+#ifdef CONFIG_CMD_NET
+int board_eth_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_LAN91C96
+	rc = lan91c96_initialize(0, CONFIG_LAN91C96_BASE);
+#endif
+	return rc;
+}
+#endif

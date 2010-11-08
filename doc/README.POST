@@ -713,7 +713,7 @@ use external loopback for testing. That will need appropriate
 reconfiguration of the physical interface chip.
 
 The test routines for the SCC ethernet tests will be located in
-cpu/mpc8xx/scc.c.
+arch/powerpc/cpu/mpc8xx/scc.c.
 
 2.2.3.2. UART tests (SMC/SCC)
 
@@ -725,7 +725,7 @@ will be transmitted. These tests may be enhanced to make to perform
 test will be executed manually.
 
 The test routine for the SMC/SCC UART tests will be located in
-cpu/mpc8xx/serial.c.
+arch/powerpc/cpu/mpc8xx/serial.c.
 
 2.2.3.3. USB test
 

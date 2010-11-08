@@ -23,35 +23,20 @@
  */
 
 #include <common.h>
+#include <command.h>
+#include <libfdt.h>
 #include <mpc8xx.h>
+#include <hwconfig.h>
+#include <i2c.h>
 #include "../common/kup.h"
-#ifdef CONFIG_KUP4K_LOGO
-   #include "s1d13706.h"
-#endif
+#include <asm/io.h>
+
+static unsigned char swapbyte(unsigned char c);
+static int read_diag(void);
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#undef DEBUG
-#ifdef  DEBUG
-# define debugk(fmt,args...)    printf(fmt ,##args)
-#else
-# define debugk(fmt,args...)
-#endif
-
-typedef struct {
-	volatile unsigned char *VmemAddr;
-	volatile unsigned char *RegAddr;
-} FB_INFO_S1D13xxx;
-
-
-/* ------------------------------------------------------------------------- */
-
-#ifdef CONFIG_KUP4K_LOGO
-void lcd_logo(bd_t *bd);
-#endif
-
-
-/* ------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------- */
 
 #define	_NOT_USED_	0xFFFFFFFF
 
@@ -60,7 +45,7 @@ const uint sdram_table[] = {
 	 * Single Read. (Offset 0 in UPMA RAM)
 	 */
 	0x1F07FC04, 0xEEAEFC04, 0x11ADFC04, 0xEFBBBC00,
-	0x1FF77C47, /* last */
+	0x1FF77C47,		/* last */
 
 	/*
 	 * SDRAM Initialization (offset 5 in UPMA RAM)
@@ -70,28 +55,28 @@ const uint sdram_table[] = {
 	 * sequence, which is executed by a RUN command.
 	 *
 	 */
-		    0x1FF77C35, 0xEFEABC34, 0x1FB57C35, /* last */
+	0x1FF77C35, 0xEFEABC34, 0x1FB57C35,	/* last */
 
 	/*
 	 * Burst Read. (Offset 8 in UPMA RAM)
 	 */
 	0x1F07FC04, 0xEEAEFC04, 0x10ADFC04, 0xF0AFFC00,
-	0xF0AFFC00, 0xF1AFFC00, 0xEFBBBC00, 0x1FF77C47, /* last */
+	0xF0AFFC00, 0xF1AFFC00, 0xEFBBBC00, 0x1FF77C47,	/* last */
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/*
 	 * Single Write. (Offset 18 in UPMA RAM)
 	 */
-	0x1F27FC04, 0xEEAEBC00, 0x01B93C04, 0x1FF77C47, /* last */
+	0x1F27FC04, 0xEEAEBC00, 0x01B93C04, 0x1FF77C47,	/* last */
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/*
 	 * Burst Write. (Offset 20 in UPMA RAM)
 	 */
 	0x1F07FC04, 0xEEAEBC00, 0x10AD7C00, 0xF0AFFC00,
-	0xF0AFFC00, 0xE1BBBC04, 0x1FF77C47, /* last */
-					    _NOT_USED_,
+	0xF0AFFC00, 0xE1BBBC04, 0x1FF77C47,	/* last */
+	_NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 
@@ -99,156 +84,169 @@ const uint sdram_table[] = {
 	 * Refresh  (Offset 30 in UPMA RAM)
 	 */
 	0x1FF5FC84, 0xFFFFFC04, 0xFFFFFC04, 0xFFFFFC04,
-	0xFFFFFC84, 0xFFFFFC07, /* last */
-				_NOT_USED_, _NOT_USED_,
+	0xFFFFFC84, 0xFFFFFC07,	/* last */
+	_NOT_USED_, _NOT_USED_,
 	_NOT_USED_, _NOT_USED_, _NOT_USED_, _NOT_USED_,
 
 	/*
 	 * Exception. (Offset 3c in UPMA RAM)
 	 */
-	0x7FFFFC07, /* last */
-		    _NOT_USED_, _NOT_USED_, _NOT_USED_,
+	0x7FFFFC07,		/* last */
+	_NOT_USED_, _NOT_USED_, _NOT_USED_,
 };
 
-/* ------------------------------------------------------------------------- */
-
+/* ----------------------------------------------------------------------- */
 
 /*
  * Check Board Identity:
  */
 
-int checkboard (void)
+int checkboard(void)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	uchar *latch,rev,mod;
+	uchar rev,mod,tmp,pcf,ak_rev,ak_mod;
 
 	/*
 	 * Init ChipSelect #4 (CAN + HW-Latch)
 	 */
-	immap->im_memctl.memc_or4 = 0xFFFF8926;
-	immap->im_memctl.memc_br4 = 0x90000401;
-	__asm__ ("eieio");
-	latch=(uchar *)0x90000200;
-	rev = (*latch & 0xF8) >> 3;
-	mod=(*latch & 0x03);
-	printf ("Board: KUP4K Rev %d.%d\n",rev,mod);
-	return (0);
+	out_be32(&immap->im_memctl.memc_or4, CONFIG_SYS_OR4);
+	out_be32(&immap->im_memctl.memc_br4, CONFIG_SYS_BR4);
+
+	/*
+	 * Init ChipSelect #5 (S1D13768)
+	 */
+	out_be32(&immap->im_memctl.memc_or5, CONFIG_SYS_OR5);
+	out_be32(&immap->im_memctl.memc_br5, CONFIG_SYS_BR5);
+
+	tmp = swapbyte(in_8((unsigned char*) LATCH_ADDR));
+	rev = (tmp & 0xF8) >> 3;
+	mod = (tmp & 0x07);
+
+	i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+
+	if (read_diag())
+		gd->flags &= ~GD_FLG_SILENT;
+
+	printf("Board: KUP4K Rev %d.%d AK:",rev,mod);
+	/*
+	 * TI Application report: Before using the IO as an input,
+	 * a high must be written to the IO first
+	 */
+	pcf = 0xFF;
+	i2c_write(0x21, 0, 0 , &pcf, 1);
+	if (i2c_read(0x21, 0, 0, &pcf, 1)) {
+		puts("n/a\n");
+	} else {
+		ak_rev = (pcf & 0xF8) >> 3;
+		ak_mod = (pcf & 0x07);
+		printf("%d.%d\n", ak_rev, ak_mod);
+	}
+	return 0;
 }
 
-/* ------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------- */
 
-phys_size_t initdram (int board_type)
+
+phys_size_t initdram(int board_type)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	volatile memctl8xx_t *memctl = &immap->im_memctl;
-	long int size_b0 = 0;
-	long int size_b1 = 0;
-	long int size_b2 = 0;
-
-	upmconfig (UPMA, (uint *) sdram_table,
-			 sizeof (sdram_table) / sizeof (uint));
+	long int size = 0;
+	uchar *latch,rev,mod,tmp;
 
 	/*
-	 * Preliminary prescaler for refresh (depends on number of
-	 * banks): This value is selected for four cycles every 62.4 us
-	 * with two SDRAM banks or four cycles every 31.2 us with one
-	 * bank. It will be adjusted after memory sizing.
+	 * Init ChipSelect #4 (CAN + HW-Latch) to determine Hardware Revision
+	 * Rev 1..6 -> 48 MB RAM;   Rev >= 7 -> 96 MB
 	 */
-	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
+	out_be32(&immap->im_memctl.memc_or4, CONFIG_SYS_OR4);
+	out_be32(&immap->im_memctl.memc_br4, CONFIG_SYS_BR4);
 
-	memctl->memc_mar = 0x00000088;
+	latch = (uchar *)0x90000200;
+	tmp = swapbyte(*latch);
+	rev = (tmp & 0xF8) >> 3;
+	mod = (tmp & 0x07);
 
-	/*
-	 * Map controller banks 1 and 2 to the SDRAM banks 2 and 3 at
-	 * preliminary addresses - these have to be modified after the
-	 * SDRAM size has been determined.
-	 */
-/*	memctl->memc_or1 = CONFIG_SYS_OR1_PRELIM;	*/
-/*	memctl->memc_br1 = CONFIG_SYS_BR1_PRELIM;	*/
+	upmconfig(UPMA, (uint *) sdram_table,
+		   sizeof (sdram_table) / sizeof (uint));
 
-/*	memctl->memc_or2 = CONFIG_SYS_OR2_PRELIM;	*/
-/*	memctl->memc_br2 = CONFIG_SYS_BR2_PRELIM;	*/
+	out_be16(&memctl->memc_mptpr, CONFIG_SYS_MPTPR);
 
+	out_be32(&memctl->memc_mar, 0x00000088);
+	/* no refresh yet */
+	if(rev >= 7) {
+		out_be32(&memctl->memc_mamr,
+				 CONFIG_SYS_MAMR_9COL & (~(MAMR_PTAE)));
+	} else {
+		out_be32(&memctl->memc_mamr,
+				 CONFIG_SYS_MAMR_8COL & (~(MAMR_PTAE)));
+	}
 
-	memctl->memc_mamr = CONFIG_SYS_MAMR & (~(MAMR_PTAE));	/* no refresh yet */
-
-	udelay (200);
+	udelay(200);
 
 	/* perform SDRAM initializsation sequence */
 
-	memctl->memc_mcr = 0x80002105;	/* SDRAM bank 0 */
-	udelay (1);
-	memctl->memc_mcr = 0x80002830;	/* SDRAM bank 0 - execute twice */
-	udelay (1);
-	memctl->memc_mcr = 0x80002106;	/* SDRAM bank 0 - RUN MRS Pattern from loc 6 */
-	udelay (1);
+	/* SDRAM bank 0 */
+	out_be32(&memctl->memc_mcr, 0x80002105);
+	udelay(1);
+	out_be32(&memctl->memc_mcr, 0x80002830); /* execute twice */
+	udelay(1);
+	out_be32(&memctl->memc_mcr, 0x80002106); /* RUN MRS Pattern from loc 6 */
+	udelay(1);
 
-	memctl->memc_mcr = 0x80004105;	/* SDRAM bank 1 */
-	udelay (1);
-	memctl->memc_mcr = 0x80004830;	/* SDRAM bank 1 - execute twice */
-	udelay (1);
-	memctl->memc_mcr = 0x80004106;	/* SDRAM bank 1 - RUN MRS Pattern from loc 6 */
-	udelay (1);
+	/* SDRAM bank 1 */
+	out_be32(&memctl->memc_mcr, 0x80004105);
+	udelay(1);
+	out_be32(&memctl->memc_mcr, 0x80004830); /* execute twice */
+	udelay(1);
+	out_be32(&memctl->memc_mcr, 0x80004106); /* RUN MRS Pattern from loc 6 */
+	udelay(1);
 
-	memctl->memc_mcr = 0x80006105;	/* SDRAM bank 2 */
-	udelay (1);
-	memctl->memc_mcr = 0x80006830;	/* SDRAM bank 2 - execute twice */
-	udelay (1);
-	memctl->memc_mcr = 0x80006106;	/* SDRAM bank 2 - RUN MRS Pattern from loc 6 */
-	udelay (1);
+	/* SDRAM bank 2 */
+	out_be32(&memctl->memc_mcr, 0x80006105);
+	udelay(1);
+	out_be32(&memctl->memc_mcr, 0x80006830); /* execute twice */
+	udelay(1);
+	out_be32(&memctl->memc_mcr, 0x80006106); /* RUN MRS Pattern from loc 6 */
+	udelay(1);
 
-	memctl->memc_mamr |= MAMR_PTAE;	/* enable refresh */
-	udelay (1000);
+	setbits_be32(&memctl->memc_mamr, MAMR_PTAE); /* enable refresh */
+	udelay(1000);
 
-#if 0							/* 3 x 8MB */
-	size_b0 = 0x00800000;
-	size_b1 = 0x00800000;
-	size_b2 = 0x00800000;
-	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
-	udelay (1000);
-	memctl->memc_or1 = 0xFF800A00;
-	memctl->memc_br1 = 0x00000081;
-	memctl->memc_or2 = 0xFF000A00;
-	memctl->memc_br2 = 0x00800081;
-	memctl->memc_or3 = 0xFE000A00;
-	memctl->memc_br3 = 0x01000081;
-#else							/* 3 x 16 MB */
-	size_b0 = 0x01000000;
-	size_b1 = 0x01000000;
-	size_b2 = 0x01000000;
-	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
-	udelay (1000);
-	memctl->memc_or1 = 0xFF000A00;
-	memctl->memc_br1 = 0x00000081;
-	memctl->memc_or2 = 0xFE000A00;
-	memctl->memc_br2 = 0x01000081;
-	memctl->memc_or3 = 0xFC000A00;
-	memctl->memc_br3 = 0x02000081;
-#endif
-
-	udelay (10000);
-
-	return (size_b0 + size_b1 + size_b2);
+	out_be16(&memctl->memc_mptpr, CONFIG_SYS_MPTPR);
+	udelay(1000);
+	if(rev >= 7) {
+		size = 32 * 3 * 1024 * 1024;
+		out_be32(&memctl->memc_or1, CONFIG_SYS_OR1_9COL);
+		out_be32(&memctl->memc_br1, CONFIG_SYS_BR1_9COL);
+		out_be32(&memctl->memc_or2, CONFIG_SYS_OR2_9COL);
+		out_be32(&memctl->memc_br2, CONFIG_SYS_BR2_9COL);
+		out_be32(&memctl->memc_or3, CONFIG_SYS_OR3_9COL);
+		out_be32(&memctl->memc_br3, CONFIG_SYS_BR3_9COL);
+	} else {
+		size = 16 * 3 * 1024 * 1024;
+		out_be32(&memctl->memc_or1, CONFIG_SYS_OR1_8COL);
+		out_be32(&memctl->memc_br1, CONFIG_SYS_BR1_8COL);
+		out_be32(&memctl->memc_or2, CONFIG_SYS_OR2_8COL);
+		out_be32(&memctl->memc_br2, CONFIG_SYS_BR2_8COL);
+		out_be32(&memctl->memc_or3, CONFIG_SYS_OR3_8COL);
+		out_be32(&memctl->memc_br3, CONFIG_SYS_BR3_8COL);
+	}
+	return (size);
 }
 
-/* ------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------- */
 
-int misc_init_r (void)
+
+int misc_init_r(void)
 {
-#ifdef CONFIG_STATUS_LED
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-#endif
-#ifdef CONFIG_KUP4K_LOGO
-	bd_t *bd = gd->bd;
 
-	lcd_logo (bd);
-#endif							/* CONFIG_KUP4K_LOGO */
 #ifdef CONFIG_IDE_LED
 	/* Configure PA8 as output port */
-	immap->im_ioport.iop_padir |= 0x80;
-	immap->im_ioport.iop_paodr |= 0x80;
-	immap->im_ioport.iop_papar &= ~0x80;
-	immap->im_ioport.iop_padat |= 0x80;	/* turn it off */
+	setbits_be16(&immap->im_ioport.iop_padir, PA_8);
+	setbits_be16(&immap->im_ioport.iop_paodr, PA_8);
+	clrbits_be16(&immap->im_ioport.iop_papar, PA_8);
+	setbits_be16(&immap->im_ioport.iop_padat, PA_8); /* turn it off */
 #endif
 	load_sernum_ethaddr();
 	setenv("hw","4k");
@@ -256,149 +254,51 @@ int misc_init_r (void)
 	return (0);
 }
 
-#ifdef CONFIG_KUP4K_LOGO
 
-
-void lcd_logo (bd_t * bd)
+static int read_diag(void)
 {
-	FB_INFO_S1D13xxx fb_info;
-	S1D_INDEX s1dReg;
-	S1D_VALUE s1dValue;
-	volatile immap_t *immr = (immap_t *) CONFIG_SYS_IMMR;
-	volatile memctl8xx_t *memctl;
-	ushort i;
-	uchar *fb;
-	int rs, gs, bs;
-	int r = 8, g = 8, b = 4;
-	int r1, g1, b1;
-	int n;
-	char tmp[64];		/* long enough for environment variables */
-	int tft = 0;
+	int diag;
+	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 
-	immr->im_cpm.cp_pbpar &= ~(PB_LCD_PWM);
-	immr->im_cpm.cp_pbodr &= ~(PB_LCD_PWM);
-	immr->im_cpm.cp_pbdat &= ~(PB_LCD_PWM);	/* set to 0 = enabled */
-	immr->im_cpm.cp_pbdir |= (PB_LCD_PWM);
-
-/*----------------------------------------------------------------------------- */
-/* Initialize the chip and the frame buffer driver. */
-/*----------------------------------------------------------------------------- */
-	memctl = &immr->im_memctl;
-
-
-	/*
-	 * Init ChipSelect #5 (S1D13768)
-	 */
-	memctl->memc_or5 = 0xFFC007F0;	/* 4 MB  17 WS or externel TA */
-	memctl->memc_br5 = 0x80080801;	/* Start at 0x80080000 */
-	__asm__ ("eieio");
-
-	fb_info.VmemAddr = (unsigned char *) (S1D_PHYSICAL_VMEM_ADDR);
-	fb_info.RegAddr = (unsigned char *) (S1D_PHYSICAL_REG_ADDR);
-
-	if ((((S1D_VALUE *) fb_info.RegAddr)[0] != 0x28)
-	    || (((S1D_VALUE *) fb_info.RegAddr)[1] != 0x14)) {
-		printf ("Warning:LCD Controller S1D13706 not found\n");
-		setenv ("lcd", "none");
-		return;
-	}
-
-
-	for (i = 0; i < sizeof(aS1DRegs_prelimn) / sizeof(aS1DRegs_prelimn[0]); i++) {
-		s1dReg = aS1DRegs_prelimn[i].Index;
-		s1dValue = aS1DRegs_prelimn[i].Value;
-		debugk ("s13768 reg: %02x value: %02x\n",
-			aS1DRegs_prelimn[i].Index, aS1DRegs_prelimn[i].Value);
-		((S1D_VALUE *) fb_info.RegAddr)[s1dReg / sizeof (S1D_VALUE)] =
-			s1dValue;
-	}
-
-
-	n = getenv_r ("lcd", tmp, sizeof (tmp));
-	if (n > 0) {
-		if (!strcmp ("tft", tmp))
-			tft = 1;
+	clrbits_be16(&immr->im_ioport.iop_pcdir, PC_4);	/* input */
+	clrbits_be16(&immr->im_ioport.iop_pcpar, PC_4);	/* gpio */
+	setbits_be16(&immr->im_ioport.iop_pcdir, PC_5);	/* output */
+	clrbits_be16(&immr->im_ioport.iop_pcpar, PC_4);	/* gpio */
+	setbits_be16(&immr->im_ioport.iop_pcdat, PC_5);	/* 1 */
+	udelay(500);
+	if (in_be16(&immr->im_ioport.iop_pcdat) & PC_4) {
+		clrbits_be16(&immr->im_ioport.iop_pcdat, PC_5);/* 0 */
+		udelay(500);
+		if(in_be16(&immr->im_ioport.iop_pcdat) & PC_4)
+			diag = 0;
 		else
-			tft = 0;
-	}
-#if 0
-	if (((S1D_VALUE *) fb_info.RegAddr)[0xAC] & 0x04)
-		tft = 0;
-	else
-		tft = 1;
-#endif
-
-	debugk ("Port=0x%02x -> TFT=%d\n", tft,
-		((S1D_VALUE *) fb_info.RegAddr)[0xAC]);
-
-	/* init controller */
-	if (!tft) {
-		for (i = 0; i < sizeof(aS1DRegs_stn) / sizeof(aS1DRegs_stn[0]); i++) {
-			s1dReg = aS1DRegs_stn[i].Index;
-			s1dValue = aS1DRegs_stn[i].Value;
-			debugk ("s13768 reg: %02x value: %02x\n",
-				aS1DRegs_stn[i].Index,
-				aS1DRegs_stn[i].Value);
-			((S1D_VALUE *) fb_info.RegAddr)[s1dReg / sizeof(S1D_VALUE)] =
-				s1dValue;
-		}
-		n = getenv_r ("contrast", tmp, sizeof (tmp));
-		((S1D_VALUE *) fb_info.RegAddr)[0xB3] =
-			(n > 0) ? (uchar) simple_strtoul (tmp, NULL, 10) * 255 / 100 : 0xA0;
-		switch (bd->bi_busfreq) {
-		case 40000000:
-			((S1D_VALUE *) fb_info.RegAddr)[0x05] = 0x32;
-			((S1D_VALUE *) fb_info.RegAddr)[0x12] = 0x41;
-			break;
-		case 48000000:
-			((S1D_VALUE *) fb_info.RegAddr)[0x05] = 0x22;
-			((S1D_VALUE *) fb_info.RegAddr)[0x12] = 0x34;
-			break;
-		default:
-			printf ("KUP4K S1D1: unknown busfrequency: %ld assuming 64 MHz\n", bd->bi_busfreq);
-		case 64000000:
-			((S1D_VALUE *) fb_info.RegAddr)[0x05] = 0x32;
-			((S1D_VALUE *) fb_info.RegAddr)[0x12] = 0x66;
-			break;
-		}
-		/*   setenv("lcd","stn"); */
+			diag = 1;
 	} else {
-		for (i = 0; i < sizeof(aS1DRegs_tft) / sizeof(aS1DRegs_tft[0]); i++) {
-			s1dReg = aS1DRegs_tft[i].Index;
-			s1dValue = aS1DRegs_tft[i].Value;
-			debugk ("s13768 reg: %02x value: %02x\n",
-				aS1DRegs_tft[i].Index,
-				aS1DRegs_tft[i].Value);
-			((S1D_VALUE *) fb_info.RegAddr)[s1dReg / sizeof (S1D_VALUE)] =
-				s1dValue;
-		}
-
-		switch (bd->bi_busfreq) {
-		default:
-			printf ("KUP4K S1D1: unknown busfrequency: %ld assuming 64 MHz\n", bd->bi_busfreq);
-		case 40000000:
-			((S1D_VALUE *) fb_info.RegAddr)[0x05] = 0x42;
-			((S1D_VALUE *) fb_info.RegAddr)[0x12] = 0x30;
-			break;
-		}
-		/* setenv("lcd","tft"); */
+		diag = 0;
 	}
-
-	/* create and set colormap */
-	rs = 256 / (r - 1);
-	gs = 256 / (g - 1);
-	bs = 256 / (b - 1);
-	for (i = 0; i < 256; i++) {
-		r1 = (rs * ((i / (g * b)) % r)) * 255;
-		g1 = (gs * ((i / b) % g)) * 255;
-		b1 = (bs * ((i) % b)) * 255;
-		debugk ("%d %04x %04x %04x\n", i, r1 >> 4, g1 >> 4, b1 >> 4);
-		S1D_WRITE_PALETTE (fb_info.RegAddr, i, (r1 >> 4), (g1 >> 4),
-				   (b1 >> 4));
-	}
-
-	/* copy bitmap */
-	fb = (uchar *) (fb_info.VmemAddr);
-	memcpy (fb, (uchar *) CONFIG_KUP4K_LOGO, 320 * 240);
+	clrbits_be16(&immr->im_ioport.iop_pcdir, PC_5);	/* input */
+	return (diag);
 }
-#endif	/* CONFIG_KUP4K_LOGO */
+
+static unsigned char swapbyte(unsigned char c)
+{
+	unsigned char result = 0;
+	int i = 0;
+
+	for(i = 0; i < 8; ++i) {
+		result = result << 1;
+		result |= (c & 1);
+		c = c >> 1;
+	}
+	return result;
+}
+
+/*
+ * Device Tree Support
+ */
+#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
+void ft_board_setup(void *blob, bd_t *bd)
+{
+	ft_cpu_setup(blob, bd);
+}
+#endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */

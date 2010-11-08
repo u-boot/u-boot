@@ -85,6 +85,7 @@
 #define	CONFIG_SYS_CBSIZE	1024	/* Console I/O Buff Size */
 #define	CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE \
 		+sizeof(CONFIG_SYS_PROMPT) + 16)	/* Print Buff */
+
 /*
  * Commands configuration
  */
@@ -93,7 +94,7 @@
 #define CONFIG_CMD_AUTOSCRIPT
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_FAT
+#define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
@@ -107,7 +108,6 @@
 #define NAND_MAX_CHIPS			1
 #define CONFIG_SYS_NAND_BASE		0xD8000000	/* KW_DEFADR_NANDF */
 #define NAND_ALLOW_ERASE_ALL		1
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #endif
 
 /*
@@ -124,8 +124,8 @@
  * it has to be rounded to sector size
  */
 #define CONFIG_ENV_SIZE			0x20000	/* 128k */
-#define CONFIG_ENV_ADDR			0x40000
-#define CONFIG_ENV_OFFSET		0x40000	/* env starts here */
+#define CONFIG_ENV_ADDR			0x60000
+#define CONFIG_ENV_OFFSET		0x60000	/* env starts here */
 
 /*
  * Default environment variables
@@ -146,14 +146,16 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN	(1024 * 128) /* 128kB for malloc() */
+#define CONFIG_SYS_MALLOC_LEN	(1024 * 1024) /* 1 MiB for malloc() */
 /* size in bytes reserved for initial data */
 #define CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
  * Other required minimal configurations
  */
-#define CONFIG_CONSOLE_INFO_QUIET	/* some code reduction */
+#define CONFIG_SYS_LONGHELP
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
 #define CONFIG_ARCH_CPU_INIT	/* call arch_cpu_init() */
 #define CONFIG_ARCH_MISC_INIT	/* call arch_misc_init() */
 #define CONFIG_DISPLAY_CPUINFO	/* Display cpu info */
@@ -172,9 +174,9 @@
 #define CONFIG_NETCONSOLE	/* include NetConsole support   */
 #define CONFIG_NET_MULTI	/* specify more that one ports available */
 #define	CONFIG_MII		/* expose smi ove miiphy interface */
-#define CONFIG_KIRKWOOD_EGIGA	/* Enable kirkwood Gbe Controller Driver */
+#define CONFIG_MVGBE		/* Enable Marvell Gbe Controller Driver */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
-#define CONFIG_KIRKWOOD_EGIGA_PORTS	{1,0}	/* enable port 0 only */
+#define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #define CONFIG_RESET_PHY_R	/* use reset_phy() to init mv8831116 PHY */
@@ -192,5 +194,19 @@
 #define CONFIG_ISO_PARTITION
 #define CONFIG_SUPPORT_VFAT
 #endif /* CONFIG_CMD_USB */
+
+/*
+ * File system
+ */
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#define CONFIG_RBTREE
+#define CONFIG_MTD_DEVICE               /* needed for mtdparts commands */
+#define CONFIG_MTD_PARTITIONS
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_LZO
 
 #endif /* _CONFIG_SHEEVAPLUG_H */

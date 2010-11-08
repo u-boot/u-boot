@@ -50,7 +50,7 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/mpc5xxx/start.o	(.text)
+    arch/powerpc/cpu/mpc5xxx/start.o	(.text)
     *(.text)
     *(.got1)
     . = ALIGN(16);

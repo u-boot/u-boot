@@ -40,6 +40,12 @@
 #define CONFIG_S3C64XX		1	/* in a SAMSUNG S3C64XX Family  */
 #define CONFIG_SMDK6400		1	/* on a SAMSUNG SMDK6400 Board  */
 
+#define CONFIG_SKIP_RELOCATE_UBOOT
+
+#define CONFIG_PERIPORT_REMAP
+#define CONFIG_PERIPORT_BASE	0x70000000
+#define CONFIG_PERIPORT_SIZE	0x13
+
 #define CONFIG_SYS_SDRAM_BASE	0x50000000
 
 /* input clock of PLL: SMDK6400 has 12MHz input clock */
@@ -48,8 +54,6 @@
 #if !defined(CONFIG_NAND_SPL) && (TEXT_BASE >= 0xc0000000)
 #define CONFIG_ENABLE_MMU
 #endif
-
-#define CONFIG_MEMORY_UPPER_CODE
 
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_CMDLINE_TAG
@@ -62,8 +66,6 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
-
-#undef CONFIG_SKIP_RELOCATE_UBOOT
 
 /*
  * Size of malloc() pool
@@ -269,8 +271,6 @@
 #define CONFIG_SYS_NAND_ECCPOS		{40, 41, 42, 43, 44, 45, 46, 47, \
 				 48, 49, 50, 51, 52, 53, 54, 55, \
 				 56, 57, 58, 59, 60, 61, 62, 63}
-
-#define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 
 /* Boot configuration (define only one of next 3) */
 #define CONFIG_BOOT_NAND

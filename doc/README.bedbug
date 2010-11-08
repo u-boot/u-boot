@@ -18,15 +18,15 @@ can be easily implemented.
 ./common/board.c
 	Added call to initialize debugger on startup.
 
-./cpu/ppc4xx/Makefile
+./arch/powerpc/cpu/ppc4xx/Makefile
 	Added bedbug_405.c to the Makefile.
 
-./cpu/ppc4xx/start.S
+./arch/powerpc/cpu/ppc4xx/start.S
 	Added code to handle the debug exception (0x2000) on the 405.
 	Also added code to handle critical exceptions since the debug
 	is treated as critical on the 405.
 
-./cpu/ppc4xx/traps.c
+./arch/powerpc/cpu/ppc4xx/traps.c
 	Added more detailed output for the program exception to tell
 	if it is an illegal instruction, privileged instruction or
 	a trap. Also added debug trap handler.
@@ -51,7 +51,7 @@ can be easily implemented.
 	hardware breakpoints and stepping through code.  These
 	routines are common to all PowerPC processors.
 
-./cpu/ppc4xx/bedbug_405.c
+./arch/powerpc/cpu/ppc4xx/bedbug_405.c
 	AMCC  PPC405 specific debugger routines.
 
 
@@ -63,16 +63,16 @@ Changes:
 	common/cmd_bedbug.c
 		Added call to initialize 860 debugger.
 
-	cpu/mpc8xx/Makefile
+	arch/powerpc/cpu/mpc8xx/Makefile
 		Added new file "bedbug_860.c" to the makefile
 
-	cpu/mpc8xx/start.S
+	arch/powerpc/cpu/mpc8xx/start.S
 		Added handler for InstructionBreakpoint (0xfd00)
 
-	cpu/mpc8xx/traps.c
+	arch/powerpc/cpu/mpc8xx/traps.c
 		Added new routine DebugException()
 
 New Files:
 
-	cpu/mpc8xx/bedbug_860.c
+	arch/powerpc/cpu/mpc8xx/bedbug_860.c
 		CPU-specific routines for 860 debug registers.

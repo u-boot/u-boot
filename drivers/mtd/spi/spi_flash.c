@@ -106,7 +106,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 
 	spi = spi_setup_slave(bus, cs, max_hz, spi_mode);
 	if (!spi) {
-		debug("SF: Failed to set up slave\n");
+		printf("SF: Failed to set up slave\n");
 		return NULL;
 	}
 
@@ -147,6 +147,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 #endif
 #ifdef CONFIG_SPI_FLASH_STMICRO
 	case 0x20:
+	case 0xff: /* Let the stmicro func handle non-JEDEC ids */
 		flash = spi_flash_probe_stmicro(spi, idcode);
 		break;
 #endif
@@ -156,7 +157,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		break;
 #endif
 	default:
-		debug("SF: Unsupported manufacturer %02X\n", idcode[0]);
+		printf("SF: Unsupported manufacturer %02X\n", idcode[0]);
 		flash = NULL;
 		break;
 	}

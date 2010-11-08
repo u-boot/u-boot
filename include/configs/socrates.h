@@ -174,7 +174,7 @@
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
-#define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN		(384 * 1024)	/* Reserve 384KiB for Mon */
 #define CONFIG_SYS_MALLOC_LEN		(4 << 20)	/* Reserve 4 MB for malloc */
 
 /* FPGA and NAND */
@@ -188,8 +188,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_CMD_NAND
 
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
-
 /* LIME GDC */
 #define CONFIG_SYS_LIME_BASE		0xc8000000
 #define CONFIG_SYS_LIME_SIZE		0x04000000	/* 64 MB	*/
@@ -198,17 +196,24 @@
 
 #define CONFIG_VIDEO
 #define CONFIG_VIDEO_MB862xx
+#define CONFIG_VIDEO_MB862xx_ACCEL
 #define CONFIG_CFB_CONSOLE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
 #define CONFIG_CONSOLE_EXTRA_INFO
 #define VIDEO_FB_16BPP_PIXEL_SWAP
+#define VIDEO_FB_16BPP_WORD_SWAP
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV
 #define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_VIDEO_BMP_GZIP
 #define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)	/* decompressed img */
+
+/* SDRAM Clock frequency, 100MHz (0x0000) or 133MHz (0x10000) */
+#define CONFIG_SYS_MB862xx_CCF		0x10000
+/* SDRAM parameter */
+#define CONFIG_SYS_MB862xx_MMR		0x4157BA63
 
 /* Serial Port */
 
@@ -228,6 +233,7 @@
 	{300, 600, 1200, 2400, 4800, 9600, 19200, 38400,115200}
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CONFIG_AUTO_COMPLETE	1	/* add autocompletion support */
 #define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
 #ifdef	CONFIG_SYS_HUSH_PARSER
 #define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
@@ -337,19 +343,20 @@
  */
 #include <config_cmd_default.h>
 
+#define CONFIG_CMD_BMP
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_DTT
 #undef CONFIG_CMD_EEPROM
+#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_SDRAM
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NFS
+#undef CONFIG_CMD_NFS
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SNTP
 #define CONFIG_CMD_USB
-#define CONFIG_CMD_EXT2		/* EXT2 Support			*/
-#define CONFIG_CMD_BMP
+#define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

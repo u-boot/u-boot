@@ -55,17 +55,17 @@ SECTIONS
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
 
-    cpu/mpc8xx/start.o	(.text)
-    cpu/mpc8xx/traps.o	(.text)
-    cpu/mpc8xx/interrupts.o	(.text)
-    cpu/mpc8xx/cpu.o	(.text)
-    cpu/mpc8xx/cpu_init.o	(.text)
-    cpu/mpc8xx/speed.o	(.text)
-    cpu/mpc8xx/serial.o	(.text)
-    lib_ppc/extable.o	(.text)
-    lib_ppc/ppcstring.o	(.text)
-    lib_generic/string.o	(.text)
-    lib_generic/crc32.o		(.text)
+    arch/powerpc/cpu/mpc8xx/start.o	(.text)
+    arch/powerpc/cpu/mpc8xx/traps.o	(.text)
+    arch/powerpc/cpu/mpc8xx/interrupts.o	(.text)
+    arch/powerpc/cpu/mpc8xx/cpu.o	(.text)
+    arch/powerpc/cpu/mpc8xx/cpu_init.o	(.text)
+    arch/powerpc/cpu/mpc8xx/speed.o	(.text)
+    arch/powerpc/cpu/mpc8xx/serial.o	(.text)
+    arch/powerpc/lib/extable.o	(.text)
+    arch/powerpc/lib/ppcstring.o	(.text)
+    lib/string.o	(.text)
+    lib/crc32.o		(.text)
     common/dlmalloc.o	(.text)
     . = env_offset;
     common/env_embedded.o(.text)

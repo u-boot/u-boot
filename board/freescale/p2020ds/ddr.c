@@ -12,7 +12,7 @@
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_ddr_dimm_params.h>
 
-static void get_spd(ddr3_spd_eeprom_t *spd, unsigned char i2c_address)
+static void get_spd(generic_spd_eeprom_t *spd, unsigned char i2c_address)
 {
 	i2c_read(i2c_address, 0, 1, (uchar *)spd, sizeof(ddr3_spd_eeprom_t));
 }
@@ -22,7 +22,7 @@ unsigned int fsl_ddr_get_mem_data_rate(void)
 	return get_ddr_freq(0);
 }
 
-void fsl_ddr_get_spd(ddr3_spd_eeprom_t *ctrl_dimms_spd,
+void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
 		      unsigned int ctrl_num)
 {
 	unsigned int i;
@@ -51,27 +51,26 @@ typedef struct {
  *  cpo 2-0x1E (30)
  */
 
-
-/* XXX: these values need to be checked for all interleaving modes.  */
-/* XXX: No reliable dual-rank 800 MHz setting has been found.  It may
- *      seem reliable, but errors will appear when memory intensive
- *      program is run. */
-/* XXX: Single rank at 800 MHz is OK.  */
 const board_specific_parameters_t board_specific_parameters[][20] = {
 	{
 	/* 	memory controller 0 			*/
 	/*	  lo|  hi|  num|  clk| cpo|wrdata|2T	*/
 	/*	 mhz| mhz|ranks|adjst|    | delay|	*/
-		{  0, 333,    2,    6,   7,    3,  0},
-		{334, 400,    2,    6,   9,    3,  0},
-		{401, 549,    2,    6,  11,    3,  0},
-		{550, 680,    2,    1,  10,    5,  0},
-		{681, 850,    2,    1,  12,    5,  1},
-		{  0, 333,    1,    6,   7,    3,  0},
-		{334, 400,    1,    6,   9,    3,  0},
-		{401, 549,    1,    6,  11,    3,  0},
-		{550, 680,    1,    1,  10,    5,  0},
-		{681, 850,    1,    1,  12,    5,  0}
+#ifdef CONFIG_FSL_DDR2
+		{  0, 333,    2,    4,   0x1f,    2,  0},
+		{334, 400,    2,    4,   0x1f,    2,  0},
+		{401, 549,    2,    4,   0x1f,    2,  0},
+		{550, 680,    2,    4,   0x1f,    3,  0},
+		{681, 850,    2,    4,   0x1f,    4,  0},
+		{  0, 333,    1,    4,   0x1f,    2,  0},
+		{334, 400,    1,    4,   0x1f,    2,  0},
+		{401, 549,    1,    4,   0x1f,    2,  0},
+		{550, 680,    1,    4,   0x1f,    3,  0},
+		{681, 850,    1,    4,   0x1f,    4,  0}
+#else
+		{  0, 850,    2,    6,   0x1f,    4,  0},
+		{  0, 850,    1,    4,   0x1f,    4,  0}
+#endif
 	},
 };
 
@@ -92,18 +91,8 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	 * odt_wr_cfg to 3 for the even CS, 0 for the odd CS.
 	 */
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
-		if (i&1) {	/* odd CS */
 			popts->cs_local_opts[i].odt_rd_cfg = 0;
-			popts->cs_local_opts[i].odt_wr_cfg = 0;
-		} else {	/* even CS */
-			if (CONFIG_DIMM_SLOTS_PER_CTLR == 1) {
-				popts->cs_local_opts[i].odt_rd_cfg = 0;
-				popts->cs_local_opts[i].odt_wr_cfg = 4;
-			} else if (CONFIG_DIMM_SLOTS_PER_CTLR == 2) {
-				popts->cs_local_opts[i].odt_rd_cfg = 3;
-				popts->cs_local_opts[i].odt_wr_cfg = 3;
-			}
-		}
+			popts->cs_local_opts[i].odt_wr_cfg = 1;
 	}
 
 	/* Get clk_adjust, cpo, write_data_delay,2T, according to the board ddr
@@ -127,4 +116,13 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	 *	- number of DIMMs installed
 	 */
 	popts->half_strength_driver_enable = 0;
+	popts->wrlvl_en = 1;
+	/* Write leveling override */
+	popts->wrlvl_override = 1;
+	popts->wrlvl_sample = 0xa;
+	popts->wrlvl_start = 0x8;
+	/* Rtt and Rtt_WR override */
+	popts->rtt_override = 1;
+	popts->rtt_override_value = DDR3_RTT_120_OHM;
+	popts->rtt_wr_override_value = 0; /* Rtt_WR= dynamic ODT off */
 }

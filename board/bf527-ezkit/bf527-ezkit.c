@@ -12,6 +12,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <asm/blackfin.h>
+#include <asm/gpio.h>
 #include <asm/net.h>
 #include <asm/mach-common/bits/otp.h>
 
@@ -22,13 +23,6 @@ int checkboard(void)
 	printf("Board: ADI BF527 EZ-Kit board\n");
 	printf("       Support: http://blackfin.uclinux.org/\n");
 	return 0;
-}
-
-phys_size_t initdram(int board_type)
-{
-	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
-	return gd->bd->bi_memsize;
 }
 
 #ifdef CONFIG_BFIN_MAC
@@ -75,3 +69,14 @@ int misc_init_r(void)
 
 	return 0;
 }
+
+#ifdef CONFIG_USB_BLACKFIN
+void board_musb_init(void)
+{
+	/*
+	 * BF527 EZ-KITs require PG13 to be high for HOST mode
+	 */
+	gpio_request(GPIO_PG13, "musb-vbus");
+	gpio_direction_output(GPIO_PG13, 1);
+}
+#endif

@@ -1,6 +1,6 @@
 /*
  * NS16550 Serial Port
- * originally from linux source (arch/ppc/boot/ns16550.h)
+ * originally from linux source (arch/powerpc/boot/ns16550.h)
  * modified slightly to
  * have addresses as offsets from CONFIG_SYS_ISA_BASE
  * added a few more definitions

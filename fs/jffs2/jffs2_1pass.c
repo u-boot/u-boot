@@ -398,23 +398,26 @@ static inline void *get_fl_mem(u32 off, u32 size, void *ext_buf)
 {
 	struct mtdids *id = current_part->dev->id;
 
+	switch(id->type) {
 #if defined(CONFIG_CMD_FLASH)
-	if (id->type == MTD_DEV_TYPE_NOR) {
+	case MTD_DEV_TYPE_NOR:
 		return get_fl_mem_nor(off, size, ext_buf);
-	}
+		break;
 #endif
-
 #if defined(CONFIG_JFFS2_NAND) && defined(CONFIG_CMD_NAND)
-	if (id->type == MTD_DEV_TYPE_NAND)
+	case MTD_DEV_TYPE_NAND:
 		return get_fl_mem_nand(off, size, ext_buf);
+		break;
 #endif
-
 #if defined(CONFIG_CMD_ONENAND)
-	if (id->type == MTD_DEV_TYPE_ONENAND)
+	case MTD_DEV_TYPE_ONENAND:
 		return get_fl_mem_onenand(off, size, ext_buf);
+		break;
 #endif
-
-	printf("get_fl_mem: unknown device type, using raw offset!\n");
+	default:
+		printf("get_fl_mem: unknown device type, " \
+			"using raw offset!\n");
+	}
 	return (void*)off;
 }
 
@@ -422,23 +425,27 @@ static inline void *get_node_mem(u32 off, void *ext_buf)
 {
 	struct mtdids *id = current_part->dev->id;
 
+	switch(id->type) {
 #if defined(CONFIG_CMD_FLASH)
-	if (id->type == MTD_DEV_TYPE_NOR)
+	case MTD_DEV_TYPE_NOR:
 		return get_node_mem_nor(off, ext_buf);
+		break;
 #endif
-
 #if defined(CONFIG_JFFS2_NAND) && \
     defined(CONFIG_CMD_NAND)
-	if (id->type == MTD_DEV_TYPE_NAND)
+	case MTD_DEV_TYPE_NAND:
 		return get_node_mem_nand(off, ext_buf);
+		break;
 #endif
-
 #if defined(CONFIG_CMD_ONENAND)
-	if (id->type == MTD_DEV_TYPE_ONENAND)
+	case MTD_DEV_TYPE_ONENAND:
 		return get_node_mem_onenand(off, ext_buf);
+		break;
 #endif
-
-	printf("get_node_mem: unknown device type, using raw offset!\n");
+	default:
+		printf("get_fl_mem: unknown device type, " \
+			"using raw offset!\n");
+	}
 	return (void*)off;
 }
 
@@ -471,9 +478,8 @@ static char *compr_names[] = {
 	"COPY",
 	"DYNRUBIN",
 	"ZLIB",
-#if defined(CONFIG_JFFS2_LZO_LZARI)
+#if defined(CONFIG_JFFS2_LZO)
 	"LZO",
-	"LZARI",
 #endif
 };
 
@@ -781,12 +787,9 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 				case JFFS2_COMPR_ZLIB:
 					ret = zlib_decompress(src, lDest, jNode->csize, jNode->dsize);
 					break;
-#if defined(CONFIG_JFFS2_LZO_LZARI)
+#if defined(CONFIG_JFFS2_LZO)
 				case JFFS2_COMPR_LZO:
 					ret = lzo_decompress(src, lDest, jNode->csize, jNode->dsize);
-					break;
-				case JFFS2_COMPR_LZARI:
-					ret = lzari_decompress(src, lDest, jNode->csize, jNode->dsize);
 					break;
 #endif
 				default:

@@ -385,34 +385,38 @@ static int Spartan3_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 		} while ((*fn->init) (cookie));
 
 		/* Load the data */
-		while (bytecount < bsize) {
+		if(*fn->bwr)
+			(*fn->bwr) (data, bsize, TRUE, cookie);
+		else {
+			while (bytecount < bsize) {
 
-			/* Xilinx detects an error if INIT goes low (active)
-			   while DONE is low (inactive) */
-			if ((*fn->done) (cookie) == 0 && (*fn->init) (cookie)) {
-				puts ("** CRC error during FPGA load.\n");
-				return (FPGA_FAIL);
-			}
-			val = data [bytecount ++];
-			i = 8;
-			do {
-				/* Deassert the clock */
-				(*fn->clk) (FALSE, TRUE, cookie);
-				CONFIG_FPGA_DELAY ();
-				/* Write data */
-				(*fn->wr) ((val & 0x80), TRUE, cookie);
-				CONFIG_FPGA_DELAY ();
-				/* Assert the clock */
-				(*fn->clk) (TRUE, TRUE, cookie);
-				CONFIG_FPGA_DELAY ();
-				val <<= 1;
-				i --;
-			} while (i > 0);
+				/* Xilinx detects an error if INIT goes low (active)
+				   while DONE is low (inactive) */
+				if ((*fn->done) (cookie) == 0 && (*fn->init) (cookie)) {
+					puts ("** CRC error during FPGA load.\n");
+					return (FPGA_FAIL);
+				}
+				val = data [bytecount ++];
+				i = 8;
+				do {
+					/* Deassert the clock */
+					(*fn->clk) (FALSE, TRUE, cookie);
+					CONFIG_FPGA_DELAY ();
+					/* Write data */
+					(*fn->wr) ((val & 0x80), TRUE, cookie);
+					CONFIG_FPGA_DELAY ();
+					/* Assert the clock */
+					(*fn->clk) (TRUE, TRUE, cookie);
+					CONFIG_FPGA_DELAY ();
+					val <<= 1;
+					i --;
+				} while (i > 0);
 
 #ifdef CONFIG_SYS_FPGA_PROG_FEEDBACK
-			if (bytecount % (bsize / 40) == 0)
-				putc ('.');		/* let them know we are alive */
+				if (bytecount % (bsize / 40) == 0)
+					putc ('.');		/* let them know we are alive */
 #endif
+			}
 		}
 
 		CONFIG_FPGA_DELAY ();

@@ -68,6 +68,12 @@
 #define CPR0_SPCID	0x0120
 #define CPR0_ICFG	0x0140
 
+/* 440EPX boot strap options */
+#define BOOT_STRAP_OPTION_A	0x00000000
+#define BOOT_STRAP_OPTION_B	0x00000001
+#define BOOT_STRAP_OPTION_D	0x00000003
+#define BOOT_STRAP_OPTION_E	0x00000004
+
 /* 440gx sdr register definations */
 #define SDR0_SDSTP0	0x0020	    /* */
 #define SDR0_SDSTP1	0x0021	    /* */
@@ -1276,7 +1282,8 @@
 #define CPC0_STRP1_PAE_MASK		(0x80000000 >> 11)
 #define CPC0_STRP1_PISE_MASK		(0x80000000 >> 13)
 #endif /* defined(CONFIG_440GP) */
-#if defined(CONFIG_440GX) || defined(CONFIG_440SP)
+#if defined(CONFIG_440GX) || defined(CONFIG_440SP) || \
+    defined(CONFIG_460EX) || defined(CONFIG_460GT)
 #define SDR0_SDSTP1_PAE_MASK		(0x80000000 >> 13)
 #define SDR0_SDSTP1_PISE_MASK		(0x80000000 >> 15)
 #endif /* defined(CONFIG_440GX) || defined(CONFIG_440SP) */
@@ -1704,6 +1711,7 @@
 #if defined(CONFIG_440EP) || defined(CONFIG_440GR) || \
     defined(CONFIG_440EPX) || defined(CONFIG_440GRX)
 #define CPR0_ICFG_RLI_MASK	0x80000000
+#define CPR0_ICFG_ICS_MASK	0x00000007
 #define CPR0_SPCID_SPCIDV0_MASK	0x03000000
 #define CPR0_SPCID_SPCIDV0_DIV1	0x01000000
 #define CPR0_SPCID_SPCIDV0_DIV2	0x02000000
@@ -1712,24 +1720,12 @@
 #define CPR0_PERD_PERDV0_MASK	0x07000000
 #endif
 
-/*-----------------------------------------------------------------------------
-| IIC Register Offsets
-'----------------------------------------------------------------------------*/
-#define IICMDBUF		0x00
-#define IICSDBUF		0x02
-#define IICLMADR		0x04
-#define IICHMADR		0x05
-#define IICCNTL			0x06
-#define IICMDCNTL		0x07
-#define IICSTS			0x08
-#define IICEXTSTS		0x09
-#define IICLSADR		0x0A
-#define IICHSADR		0x0B
-#define IIC0_CLKDIV		0x0C
-#define IICINTRMSK		0x0D
-#define IICXFRCNT		0x0E
-#define IICXTCNTLSS		0x0F
-#define IICDIRECTCNTL		0x10
+#if defined(CONFIG_460EX) || defined(CONFIG_460GT)
+#define CPR0_ICFG_RLI_MASK	0x80000000
+
+#define CPR0_PLLC_RST		0x80000000
+#define CPR0_PLLC_ENG		0x40000000
+#endif
 
 /*-----------------------------------------------------------------------------
 | PCI Internal Registers et. al. (accessed via plb)

@@ -167,6 +167,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_HARD_I2C		1		/* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C				/* I2C bit-banged		*/
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
 #define CONFIG_SYS_I2C_SPEED		400000		/* I2C speed and slave address	*/
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 
@@ -254,9 +255,10 @@
 #define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 16)
 
 /* extra data in OCM */
-#define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_GBL_DATA_OFFSET - 4)
-#define CONFIG_SYS_POST_MAGIC		(CONFIG_SYS_OCM_DATA_ADDR + CONFIG_SYS_GBL_DATA_OFFSET - 8)
-#define CONFIG_SYS_POST_VAL		(CONFIG_SYS_OCM_DATA_ADDR + CONFIG_SYS_GBL_DATA_OFFSET - 12)
+#define CONFIG_SYS_POST_MAGIC		\
+		(CONFIG_SYS_OCM_DATA_ADDR + CONFIG_SYS_GBL_DATA_OFFSET - 8)
+#define CONFIG_SYS_POST_VAL		\
+		(CONFIG_SYS_OCM_DATA_ADDR + CONFIG_SYS_GBL_DATA_OFFSET - 12)
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup

@@ -30,6 +30,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_AT91_LEGACY
+
 #if defined(CONFIG_TNY_A9260_NANDFLASH) || defined(CONFIG_TNY_A9260_EEPROM)
 #define CONFIG_TNY_A9260
 #elif defined(CONFIG_TNY_A9G20_NANDFLASH) || defined(CONFIG_TNY_A9G20_EEPROM)
@@ -49,7 +51,7 @@
 #endif
 
 /* ARM asynchronous clock */
-#define AT91_MAIN_CLOCK		12000000	/* 12 MHz crystal */
+#define CONFIG_SYS_AT91_MAIN_CLOCK	12000000	/* 12 MHz crystal */
 #define CONFIG_SYS_HZ		1000
 
 #define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core */
@@ -66,6 +68,7 @@
 /*
  * Hardware drivers
  */
+#define CONFIG_AT91_GPIO	1
 #define CONFIG_ATMEL_USART	1
 #undef CONFIG_USART0
 #undef CONFIG_USART1
@@ -138,7 +141,6 @@
 #define CONFIG_ENV_OFFSET 0x60000
 #define CONFIG_ENV_OFFSET_REDUND 0x80000
 #define CONFIG_ENV_SIZE 0x20000
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #endif
 
 #define CONFIG_BOOTCOMMAND	"nboot 0x21000000 0 400000"

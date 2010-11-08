@@ -276,6 +276,35 @@ int image_rgb_to_yuyv (image_t * rgb_image, image_t * yuyv_image)
 	return 0;
 }
 
+int image_rgb888_to_rgb565(image_t *rgb888_image, image_t *rgb565_image)
+{
+	rgb_t *rgb_ptr = (rgb_t *) rgb888_image->data;
+	unsigned short *dest;
+	int count = 0;
+
+	rgb565_image->pixel_size = 2;
+	rgb565_image->bpp = 16;
+	rgb565_image->yuyv = 0;
+	rgb565_image->width = rgb888_image->width;
+	rgb565_image->height = rgb888_image->height;
+	rgb565_image->pixels = rgb565_image->width * rgb565_image->height;
+	rgb565_image->size = rgb565_image->pixels * rgb565_image->pixel_size;
+	dest = (unsigned short *) (rgb565_image->data =
+				   xmalloc(rgb565_image->size));
+	rgb565_image->palette = 0;
+	rgb565_image->palette_size = 0;
+
+	while ((count++) < rgb888_image->pixels) {
+
+		*dest++ = ((rgb_ptr->b & 0xF8) << 8) |
+			((rgb_ptr->g & 0xFC) << 3) |
+			(rgb_ptr->r >> 3);
+		rgb_ptr++;
+	}
+
+	return 0;
+}
+
 int use_gzip = 0;
 
 int image_save_header (image_t * image, char *filename, char *varname)
@@ -434,7 +463,8 @@ static void usage (int exit_status)
 		"Syntax:	easylogo [options] inputfile [outputvar [outputfile]]\n"
 		"\n"
 		"Options:\n"
-		"  -r     Output RGB instead of YUYV\n"
+		"  -r     Output RGB888 instead of YUYV\n"
+		"  -s     Output RGB565 instead of YUYV\n"
 		"  -g     Compress with gzip\n"
 		"  -b     Preallocate space in bss for decompressing image\n"
 		"  -h     Help output\n"
@@ -449,20 +479,25 @@ static void usage (int exit_status)
 int main (int argc, char *argv[])
 {
 	int c;
-	bool use_rgb = false;
+	bool use_rgb888 = false;
+	bool use_rgb565 = false;
 	char inputfile[DEF_FILELEN],
 		outputfile[DEF_FILELEN], varname[DEF_FILELEN];
 
-	image_t rgb_logo, yuyv_logo;
+	image_t rgb888_logo, rgb565_logo, yuyv_logo;
 
-	while ((c = getopt(argc, argv, "hrgb")) > 0) {
+	while ((c = getopt(argc, argv, "hrsgb")) > 0) {
 		switch (c) {
 		case 'h':
 			usage (0);
 			break;
 		case 'r':
-			use_rgb = true;
-			puts ("Using 24-bit RGB Output Fromat");
+			use_rgb888 = true;
+			puts("Using 24-bit RGB888 Output Fromat");
+			break;
+		case 's':
+			use_rgb565 = true;
+			puts("Using 16-bit RGB565 Output Fromat");
 			break;
 		case 'g':
 			use_gzip |= 0x1;
@@ -512,28 +547,35 @@ int main (int argc, char *argv[])
 	/* Import TGA logo */
 
 	printf ("L");
-	if (image_load_tga (&rgb_logo, inputfile) < 0) {
+	if (image_load_tga(&rgb888_logo, inputfile) < 0) {
 		printf ("input file not found!\n");
 		exit (1);
 	}
 
-	/* Convert it to YUYV format if wanted */
+	/* Convert, save, and free the image */
 
-	if (!use_rgb) {
+	if (!use_rgb888 && !use_rgb565) {
 		printf ("C");
-		image_rgb_to_yuyv (&rgb_logo, &yuyv_logo);
+		image_rgb_to_yuyv(&rgb888_logo, &yuyv_logo);
+
+		printf("S");
+		image_save_header(&yuyv_logo, outputfile, varname);
+		image_free(&yuyv_logo);
+	} else if (use_rgb565) {
+		printf("C");
+		image_rgb888_to_rgb565(&rgb888_logo, &rgb565_logo);
+
+		printf("S");
+		image_save_header(&rgb565_logo, outputfile, varname);
+		image_free(&rgb565_logo);
+	} else {
+		printf("S");
+		image_save_header(&rgb888_logo, outputfile, varname);
 	}
-
-	/* Save it into a header format */
-
-	printf ("S");
-	image_save_header (use_rgb ? &rgb_logo : &yuyv_logo, outputfile, varname);
 
 	/* Free original image and copy */
 
-	image_free (&rgb_logo);
-	if (!use_rgb)
-		image_free (&yuyv_logo);
+	image_free(&rgb888_logo);
 
 	printf ("\n");
 

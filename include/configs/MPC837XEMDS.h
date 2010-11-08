@@ -223,6 +223,7 @@
 #define CONFIG_SYS_LCRR_DBYP	LCRR_DBYP
 #define CONFIG_SYS_LCRR_CLKDIV	LCRR_CLKDIV_8
 #define CONFIG_SYS_LBC_LBCR		0x00000000
+#define CONFIG_FSL_ELBC		1
 
 /*
  * FLASH on the Local Bus
@@ -320,9 +321,6 @@
 #define CONFIG_OF_LIBFDT	1
 #define CONFIG_OF_BOARD_SETUP	1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
-#define CONFIG_SYS_64BIT_STRTOUL		1
-#define CONFIG_SYS_64BIT_VSPRINTF		1
 
 /* I2C */
 #define CONFIG_HARD_I2C		/* I2C with hardware support */
@@ -503,6 +501,7 @@ extern int board_pci_host_broken(void);
 #endif
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history */
+#define CONFIG_AUTO_COMPLETE		/* add autocompletion support   */
 
 #undef CONFIG_WATCHDOG		/* watchdog disabled */
 
@@ -546,8 +545,9 @@ extern int board_pci_host_broken(void);
 /*
  * Core HID Setup
  */
-#define CONFIG_SYS_HID0_INIT		0x000000000
-#define CONFIG_SYS_HID0_FINAL		HID0_ENABLE_MACHINE_CHECK
+#define CONFIG_SYS_HID0_INIT	0x000000000
+#define CONFIG_SYS_HID0_FINAL	(HID0_ENABLE_MACHINE_CHECK | \
+				 HID0_ENABLE_INSTRUCTION_CACHE)
 #define CONFIG_SYS_HID2		HID2_HBE
 
 /*
@@ -640,9 +640,7 @@ extern int board_pci_host_broken(void);
 
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR		00:E0:0C:00:83:79
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR		00:E0:0C:00:83:78
 #endif
 
 #define CONFIG_BAUDRATE 115200

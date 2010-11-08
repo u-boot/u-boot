@@ -31,6 +31,6 @@
  */
 #define Byte LZByte
 
-#include "../../lib_generic/lzma/Types.h"
+#include "../../lib/lzma/Types.h"
 
 #endif

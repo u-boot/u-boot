@@ -25,7 +25,7 @@
  * Global routines used for VCMA9
  *****************************************************************************/
 
-#include <s3c2410.h>
+#include <asm/arch/s3c24x0_cpu.h>
 
 extern int  mem_test(unsigned long start, unsigned long ramsize,int mode);
 
@@ -118,13 +118,13 @@ static inline u32 NF_Read_ECC(void)
 
 /* VCMA9 PLD regsiters */
 typedef struct {
-	S3C24X0_REG8	ID;
-	S3C24X0_REG8	NIC;
-	S3C24X0_REG8	CAN;
-	S3C24X0_REG8	MISC;
-	S3C24X0_REG8	GPCD;
-	S3C24X0_REG8	BOARD;
-	S3C24X0_REG8	SDRAM;
+	u8	ID;
+	u8	NIC;
+	u8	CAN;
+	u8	MISC;
+	u8	GPCD;
+	u8	BOARD;
+	u8	SDRAM;
 } /*__attribute__((__packed__))*/ VCMA9_PLD;
 
 #define VCMA9_PLD_BASE	0x2C000100

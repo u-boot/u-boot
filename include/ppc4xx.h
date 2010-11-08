@@ -99,13 +99,17 @@
 
 #endif /* 440EP/EPX 440GR/GRX 440SP/SPE 460EX/GT/SX 405EX*/
 
-#if defined(CONFIG_440)
 /*
- * Enable long long (%ll ...) printf format on 440 PPC's since most of
- * them support 36bit physical addressing
+ * Define ns16550 register offset for all PPC4xx SoC's. Some
+ * mostly FPGA based PPC4xx implementations use a different
+ * offset. So let's give them a chance to define their offset
+ * in the board config header.
  */
-#define CONFIG_SYS_64BIT_VSPRINTF
-#define CONFIG_SYS_64BIT_STRTOUL
+#if !defined(CONFIG_SYS_NS16550_REG_SIZE)
+#define CONFIG_SYS_NS16550_REG_SIZE	1
+#endif
+
+#if defined(CONFIG_440)
 #include <ppc440.h>
 #else
 #include <ppc405.h>

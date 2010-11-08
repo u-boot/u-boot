@@ -39,7 +39,7 @@ void __led_init (led_id_t mask, int state)
 		val &= ~mask;
 	else
 		val |= mask;
-	writel (&pio->data, val);
+	writel (val, &pio->data);
 }
 
 void __led_set (led_id_t mask, int state)
@@ -50,7 +50,7 @@ void __led_set (led_id_t mask, int state)
 		val &= ~mask;
 	else
 		val |= mask;
-	writel (&pio->data, val);
+	writel (val, &pio->data);
 }
 
 void __led_toggle (led_id_t mask)
@@ -58,5 +58,5 @@ void __led_toggle (led_id_t mask)
 	nios_pio_t *pio = (nios_pio_t *)CONFIG_SYS_LEDPIO_ADDR;
 
 	val ^= mask;
-	writel (&pio->data, val);
+	writel (val, &pio->data);
 }

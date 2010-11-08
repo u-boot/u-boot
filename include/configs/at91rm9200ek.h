@@ -26,6 +26,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_AT91_LEGACY
+
 /* ARM asynchronous clock */
 /*
  * from 18.432 MHz crystal
@@ -145,7 +147,13 @@
 /*
  * Network Driver Setting
  */
-#define CONFIG_DRIVER_ETHER
+#define CONFIG_NET_MULTI		1
+#ifdef CONFIG_NET_MULTI
+#define CONFIG_DRIVER_AT91EMAC		1
+#define CONFIG_SYS_RX_ETH_BUFFER	8
+#else
+#define CONFIG_DRIVER_ETHER		1
+#endif
 #define CONFIG_NET_RETRY_COUNT		20
 #define CONFIG_AT91C_USE_RMII
 

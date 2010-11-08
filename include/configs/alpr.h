@@ -66,8 +66,7 @@
 #define CONFIG_SYS_GBL_DATA_SIZE   128		    /* num bytes initial data	*/
 
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
-#define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_POST_WORD_ADDR
+#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 
 #define CONFIG_SYS_MONITOR_LEN	    (256 * 1024)    /* Reserve 256 kB for Mon	*/
 #define CONFIG_SYS_MALLOC_LEN	    (128 * 1024)    /* Reserve 128 kB for malloc*/
@@ -118,6 +117,7 @@
  *----------------------------------------------------------------------*/
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support	*/
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged		*/
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
 #define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed and slave address	*/
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 #define CONFIG_SYS_I2C_NOPROBES	{0x69}	/* Don't probe these addrs	*/
@@ -231,19 +231,17 @@
  */
 #include <config_cmd_default.h>
 
-#define CONFIG_CMD_ASKENV
 #define CONFIG_CMD_DHCP
-#define CONFIG_CMD_DIAG
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_FPGA
 #define CONFIG_CMD_I2C
-#define CONFIG_CMD_IRQ
+#undef CONFIG_CMD_LOADB
+#undef CONFIG_CMD_LOADS
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NAND
 #define CONFIG_CMD_NET
-#define CONFIG_CMD_PCI
-#define CONFIG_CMD_PING
 #undef CONFIG_CMD_NFS
+#define CONFIG_CMD_PCI
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled		*/
 

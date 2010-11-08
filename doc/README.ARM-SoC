@@ -1,24 +1,24 @@
 [By Steven Scholz <steven.scholz@imc-berlin.de>, 16 Aug 2004]
 
 Since the cpu/ directory gets clobbered with peripheral driver code I
-started cleaning up cpu/arm920t.
+started cleaning up arch/arm/cpu/arm920t.
 
 I introduced the concept of Soc (system on a chip) into the ./cpu
 directory. That means that code that is cpu (i.e. core) specific
 resides in
 
-	cpu/$(CPU)/
+	$(CPUDIR)/
 
 and code that is specific to some SoC (i.e. vendor specific
 peripherals around the core) is moved into
 
-	cpu/$(CPU)/$(SOC)/
+	$(CPUDIR)/$(SOC)/
 
-Thus a library/archive "cpu/$(CPU)/$(SOC)/lib$(SOC).a" will be build
+Thus a library/archive "$(CPUDIR)/$(SOC)/lib$(SOC).a" will be build
 and linked. Examples will be
 
-	cpu/arm920t/imx/
-	cpu/arm920t/s3c24x0
+	arch/arm/cpu/arm920t/imx/
+	arch/arm/cpu/arm920t/s3c24x0
 
 One can select an SoC by passing the name of it to ./mkconfig just
 like

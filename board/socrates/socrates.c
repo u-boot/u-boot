@@ -87,8 +87,6 @@ int checkboard (void)
 
 int misc_init_r (void)
 {
-	volatile ccsr_lbc_t *memctl = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
-
 	/*
 	 * Adjust flash start and offset to detected values
 	 */
@@ -99,8 +97,10 @@ int misc_init_r (void)
 	 * Check if boot FLASH isn't max size
 	 */
 	if (gd->bd->bi_flashsize < (0 - CONFIG_SYS_FLASH0)) {
-		memctl->or0 = gd->bd->bi_flashstart | (CONFIG_SYS_OR0_PRELIM & 0x00007fff);
-		memctl->br0 = gd->bd->bi_flashstart | (CONFIG_SYS_BR0_PRELIM & 0x00007fff);
+		set_lbc_or(0, gd->bd->bi_flashstart |
+			   (CONFIG_SYS_OR0_PRELIM & 0x00007fff));
+		set_lbc_br(0, gd->bd->bi_flashstart |
+			   (CONFIG_SYS_BR0_PRELIM & 0x00007fff));
 
 		/*
 		 * Re-check to get correct base address
@@ -112,8 +112,8 @@ int misc_init_r (void)
 	 * Check if only one FLASH bank is available
 	 */
 	if (gd->bd->bi_flashsize != CONFIG_SYS_MAX_FLASH_BANKS * (0 - CONFIG_SYS_FLASH0)) {
-		memctl->or1 = 0;
-		memctl->br1 = 0;
+		set_lbc_or(1, 0);
+		set_lbc_br(1, 0);
 
 		/*
 		 * Re-do flash protection upon new addresses
@@ -148,7 +148,7 @@ int misc_init_r (void)
  */
 void local_bus_init (void)
 {
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	volatile ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 	sys_info_t sysinfo;
 	uint clkdiv;
@@ -268,17 +268,6 @@ ft_board_setup(void *blob, bd_t *bd)
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
 
-#define CONFIG_SYS_LIME_SRST		((CONFIG_SYS_LIME_BASE) + 0x01FC002C)
-#define CONFIG_SYS_LIME_CCF		((CONFIG_SYS_LIME_BASE) + 0x01FC0038)
-#define CONFIG_SYS_LIME_MMR		((CONFIG_SYS_LIME_BASE) + 0x01FCFFFC)
-/* Lime clock frequency */
-#define CONFIG_SYS_LIME_CLK_100MHZ	0x00000
-#define CONFIG_SYS_LIME_CLK_133MHZ	0x10000
-/* SDRAM parameter */
-#define CONFIG_SYS_LIME_MMR_VALUE	0x4157BA63
-
-#define DISPLAY_WIDTH		800
-#define DISPLAY_HEIGHT		480
 #define DEFAULT_BRIGHTNESS	25
 #define BACKLIGHT_ENABLE	(1 << 31)
 
@@ -308,38 +297,29 @@ const gdc_regs *board_get_regs (void)
 	return init_regs;
 }
 
-#define CONFIG_SYS_LIME_CID		((CONFIG_SYS_LIME_BASE) + 0x01FC00F0)
-#define CONFIG_SYS_LIME_REV		((CONFIG_SYS_LIME_BASE) + 0x01FF8084)
 int lime_probe(void)
 {
-	volatile ccsr_lbc_t *memctl = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
 	uint cfg_br2;
 	uint cfg_or2;
-	uint reg;
+	int type;
 
-	cfg_br2 = memctl->br2;
-	cfg_or2 = memctl->or2;
+	cfg_br2 = get_lbc_br(2);
+	cfg_or2 = get_lbc_or(2);
 
 	/* Configure GPCM for CS2 */
-	memctl->br2 = 0;
-	memctl->or2 = 0xfc000410;
-	memctl->br2 = (CONFIG_SYS_LIME_BASE) | 0x00001901;
+	set_lbc_br(2, 0);
+	set_lbc_or(2, 0xfc000410);
+	set_lbc_br(2, (CONFIG_SYS_LIME_BASE) | 0x00001901);
 
-	/* Try to access GDC ID/Revision registers */
-	reg = in_be32((void *)CONFIG_SYS_LIME_CID);
-	reg = in_be32((void *)CONFIG_SYS_LIME_CID);
-	if (reg == 0x303) {
-		reg = in_be32((void *)CONFIG_SYS_LIME_REV);
-		reg = in_be32((void *)CONFIG_SYS_LIME_REV);
-		reg = ((reg & ~0xff) == 0x20050100) ? 1 : 0;
-	} else
-		reg = 0;
+	/* Get controller type */
+	type = mb862xx_probe(CONFIG_SYS_LIME_BASE);
 
 	/* Restore previous CS2 configuration */
-	memctl->br2 = 0;
-	memctl->or2 = cfg_or2;
-	memctl->br2 = cfg_br2;
-	return reg;
+	set_lbc_br(2, 0);
+	set_lbc_or(2, cfg_or2);
+	set_lbc_br(2, cfg_br2);
+
+	return (type == MB862XX_TYPE_LIME) ? 1 : 0;
 }
 
 /* Returns Lime base address */
@@ -348,21 +328,8 @@ unsigned int board_video_init (void)
 	if (!lime_probe())
 		return 0;
 
-	/*
-	 * Reset Lime controller
-	 */
-	out_be32((void *)CONFIG_SYS_LIME_SRST, 0x1);
-	udelay(200);
-
-	/* Set Lime clock to 133MHz */
-	out_be32((void *)CONFIG_SYS_LIME_CCF, CONFIG_SYS_LIME_CLK_133MHZ);
-	/* Delay required */
-	udelay(300);
-	/* Set memory parameters */
-	out_be32((void *)CONFIG_SYS_LIME_MMR, CONFIG_SYS_LIME_MMR_VALUE);
-
-	mb862xx.winSizeX = DISPLAY_WIDTH;
-	mb862xx.winSizeY = DISPLAY_HEIGHT;
+	mb862xx.winSizeX = 800;
+	mb862xx.winSizeY = 480;
 	mb862xx.gdfIndex = GDF_15BIT_555RGB;
 	mb862xx.gdfBytesPP = 2;
 

@@ -41,14 +41,21 @@ int board_eth_init(bd_t *bis);
 int cpu_eth_init(bd_t *bis);
 
 /* Driver initialization prototypes */
+int altera_tse_initialize(u8 dev_num, int mac_base,
+			  int sgdma_rx_base, int sgdma_tx_base);
+int ax88180_initialize(bd_t *bis);
 int au1x00_enet_initialize(bd_t*);
+int at91emac_register(bd_t *bis, unsigned long iobase);
 int bfin_EMAC_initialize(bd_t *bis);
 int cs8900_initialize(u8 dev_num, int base_addr);
 int dc21x4x_initialize(bd_t *bis);
 int davinci_emac_initialize(void);
+int designware_initialize(u32 id, ulong base_addr, u32 phy_addr);
 int dnet_eth_initialize(int id, void *regs, unsigned int phy_addr);
 int e1000_initialize(bd_t *bis);
 int eepro100_initialize(bd_t *bis);
+int ep93xx_eth_initialize(u8 dev_num, int base_addr);
+int ethoc_initialize(u8 dev_num, int base_addr);
 int eth_3com_initialize (bd_t * bis);
 int fec_initialize (bd_t *bis);
 int fecmxc_initialize (bd_t *bis);
@@ -56,7 +63,7 @@ int ftmac100_initialize(bd_t *bits);
 int greth_initialize(bd_t *bis);
 void gt6426x_eth_initialize(bd_t *bis);
 int inca_switch_initialize(bd_t *bis);
-int kirkwood_egiga_initialize(bd_t *bis);
+int lan91c96_initialize(u8 dev_num, int base_addr);
 int macb_eth_initialize(int id, void *regs, unsigned int phy_addr);
 int mcdmafec_initialize(bd_t *bis);
 int mcffec_initialize(bd_t *bis);
@@ -64,6 +71,7 @@ int mpc512x_fec_initialize(bd_t *bis);
 int mpc5xxx_fec_initialize(bd_t *bis);
 int mpc8220_fec_initialize(bd_t *bis);
 int mpc82xx_scc_enet_initialize(bd_t *bis);
+int mvgbe_initialize(bd_t *bis);
 int natsemi_initialize(bd_t *bis);
 int npe_initialize(bd_t *bis);
 int ns8382x_initialize(bd_t *bis);

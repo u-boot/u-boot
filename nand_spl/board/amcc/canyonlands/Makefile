@@ -71,11 +71,11 @@ $(obj)ndfc.c:
 
 $(obj)resetvec.S:
 	@rm -f $(obj)resetvec.S
-	ln -s $(SRCTREE)/cpu/ppc4xx/resetvec.S $(obj)resetvec.S
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/resetvec.S $(obj)resetvec.S
 
 $(obj)start.S:
 	@rm -f $(obj)start.S
-	ln -s $(SRCTREE)/cpu/ppc4xx/start.S $(obj)start.S
+	ln -s $(SRCTREE)/arch/powerpc/cpu/ppc4xx/start.S $(obj)start.S
 
 # from board directory
 $(obj)init.S:

@@ -99,11 +99,11 @@
 #define CONFIG_CMD_AUTOSCRIPT
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_ENV
-#define CONFIG_CMD_FAT
-#define CONFIG_CMD_NAND
 #define CONFIG_CMD_MII
+#define CONFIG_CMD_NAND
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_USB
+#define CONFIG_CMD_IDE
 
 /*
  * NAND configuration
@@ -114,7 +114,6 @@
 #define NAND_MAX_CHIPS			1
 #define CONFIG_SYS_NAND_BASE		0xD8000000	/* KW_DEFADR_NANDF */
 #define NAND_ALLOW_ERASE_ALL		1
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #endif
 
 /*
@@ -185,9 +184,9 @@
 #define CONFIG_NETCONSOLE	/* include NetConsole support   */
 #define CONFIG_NET_MULTI	/* specify more that one ports available */
 #define	CONFIG_MII		/* expose smi ove miiphy interface */
-#define CONFIG_KIRKWOOD_EGIGA	/* Enable kirkwood Gbe Controller Driver */
+#define CONFIG_MVGBE		/* Enable Marvell Gbe Controller Driver */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
-#define CONFIG_KIRKWOOD_EGIGA_PORTS	{1,0}	/* enable port 0 only */
+#define CONFIG_MVGBE_PORTS	{1, 0}	/* enable port 0 only */
 #define CONFIG_PHY_BASE_ADR	0x8
 #define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
 #define CONFIG_RESET_PHY_R	/* use reset_phy() to init mv8831116 PHY */
@@ -207,8 +206,39 @@
 #endif /* CONFIG_CMD_USB */
 
 /*
+ * IDe Support on SATA port0
+ */
+#ifdef CONFIG_CMD_IDE
+#define __io
+#define CONFIG_CMD_EXT2
+#define CONFIG_MVSATA_IDE
+#define CONFIG_IDE_PREINIT
+#define CONFIG_MVSATA_IDE_USE_PORT1
+/* Needs byte-swapping for ATA data register */
+#define CONFIG_IDE_SWAP_IO
+/* Data, registers and alternate blocks are at the same offset */
+#define CONFIG_SYS_ATA_DATA_OFFSET	(0x0100)
+#define CONFIG_SYS_ATA_REG_OFFSET	(0x0100)
+#define CONFIG_SYS_ATA_ALT_OFFSET	(0x0100)
+/* Each 8-bit ATA register is aligned to a 4-bytes address */
+#define CONFIG_SYS_ATA_STRIDE		4
+/* Controller supports 48-bits LBA addressing */
+#define CONFIG_LBA48
+/* CONFIG_CMD_IDE requires some #defines for ATA registers */
+#define CONFIG_SYS_IDE_MAXBUS		2
+#define CONFIG_SYS_IDE_MAXDEVICE	2
+/* ATA registers base is at SATA controller base */
+#define CONFIG_SYS_ATA_BASE_ADDR	KW_SATA_BASE
+/* ATA bus 0 is Kirkwood port 0 on openrd */
+#define CONFIG_SYS_ATA_IDE0_OFFSET	KW_SATA_PORT0_OFFSET
+/* ATA bus 1 is Kirkwood port 1 on openrd */
+#define CONFIG_SYS_ATA_IDE1_OFFSET	KW_SATA_PORT1_OFFSET
+#endif /* CONFIG_CMD_IDE */
+
+/*
  * File system
  */
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
 #define CONFIG_RBTREE

@@ -663,4 +663,107 @@ int usbd_endpoint_halted (struct usb_device_instance *device, int endpoint);
 void usbd_rcv_complete(struct usb_endpoint_instance *endpoint, int len, int urb_bad);
 void usbd_tx_complete (struct usb_endpoint_instance *endpoint);
 
+/* These are macros used in debugging */
+#ifdef DEBUG
+static inline void print_urb(struct urb *u)
+{
+	serial_printf("urb %p\n", (u));
+	serial_printf("\tendpoint %p\n", u->endpoint);
+	serial_printf("\tdevice %p\n", u->device);
+	serial_printf("\tbuffer %p\n", u->buffer);
+	serial_printf("\tbuffer_length %d\n", u->buffer_length);
+	serial_printf("\tactual_length %d\n", u->actual_length);
+	serial_printf("\tstatus %d\n", u->status);
+	serial_printf("\tdata %d\n", u->data);
+}
+
+static inline void print_usb_device_request(struct usb_device_request *r)
+{
+	serial_printf("usb request\n");
+	serial_printf("\tbmRequestType 0x%2.2x\n", r->bmRequestType);
+	if ((r->bmRequestType & USB_REQ_DIRECTION_MASK) == 0)
+		serial_printf("\t\tDirection : To device\n");
+	else
+		serial_printf("\t\tDirection : To host\n");
+	if ((r->bmRequestType & USB_TYPE_STANDARD) == USB_TYPE_STANDARD)
+		serial_printf("\t\tType      : Standard\n");
+	if ((r->bmRequestType & USB_TYPE_CLASS) == USB_TYPE_CLASS)
+		serial_printf("\t\tType      : Standard\n");
+	if ((r->bmRequestType & USB_TYPE_VENDOR) == USB_TYPE_VENDOR)
+		serial_printf("\t\tType      : Standard\n");
+	if ((r->bmRequestType & USB_TYPE_RESERVED) == USB_TYPE_RESERVED)
+		serial_printf("\t\tType      : Standard\n");
+	if ((r->bmRequestType & USB_REQ_RECIPIENT_MASK) ==
+	    USB_REQ_RECIPIENT_DEVICE)
+		serial_printf("\t\tRecipient : Device\n");
+	if ((r->bmRequestType & USB_REQ_RECIPIENT_MASK) ==
+	    USB_REQ_RECIPIENT_INTERFACE)
+		serial_printf("\t\tRecipient : Interface\n");
+	if ((r->bmRequestType & USB_REQ_RECIPIENT_MASK) ==
+	    USB_REQ_RECIPIENT_ENDPOINT)
+		serial_printf("\t\tRecipient : Endpoint\n");
+	if ((r->bmRequestType & USB_REQ_RECIPIENT_MASK) ==
+	    USB_REQ_RECIPIENT_OTHER)
+		serial_printf("\t\tRecipient : Other\n");
+	serial_printf("\tbRequest      0x%2.2x\n", r->bRequest);
+	if (r->bRequest == USB_REQ_GET_STATUS)
+		serial_printf("\t\tGET_STATUS\n");
+	else if (r->bRequest == USB_REQ_SET_ADDRESS)
+		serial_printf("\t\tSET_ADDRESS\n");
+	else if (r->bRequest == USB_REQ_SET_FEATURE)
+		serial_printf("\t\tSET_FEATURE\n");
+	else if (r->bRequest == USB_REQ_GET_DESCRIPTOR)
+		serial_printf("\t\tGET_DESCRIPTOR\n");
+	else if (r->bRequest == USB_REQ_SET_CONFIGURATION)
+		serial_printf("\t\tSET_CONFIGURATION\n");
+	else if (r->bRequest == USB_REQ_SET_INTERFACE)
+		serial_printf("\t\tUSB_REQ_SET_INTERFACE\n");
+	else
+		serial_printf("\tUNKNOWN %d\n", r->bRequest);
+	serial_printf("\twValue        0x%4.4x\n", r->wValue);
+	if (r->bRequest == USB_REQ_GET_DESCRIPTOR) {
+		switch (r->wValue >> 8) {
+		case USB_DESCRIPTOR_TYPE_DEVICE:
+			serial_printf("\tDEVICE\n");
+			break;
+		case USB_DESCRIPTOR_TYPE_CONFIGURATION:
+			serial_printf("\tCONFIGURATION\n");
+			break;
+		case USB_DESCRIPTOR_TYPE_STRING:
+			serial_printf("\tSTRING\n");
+			break;
+		case USB_DESCRIPTOR_TYPE_INTERFACE:
+			serial_printf("\tINTERFACE\n");
+			break;
+		case USB_DESCRIPTOR_TYPE_ENDPOINT:
+			serial_printf("\tENDPOINT\n");
+			break;
+		case USB_DESCRIPTOR_TYPE_DEVICE_QUALIFIER:
+			serial_printf("\tDEVICE_QUALIFIER\n");
+			break;
+		case USB_DESCRIPTOR_TYPE_OTHER_SPEED_CONFIGURATION:
+			serial_printf("\tOTHER_SPEED_CONFIGURATION\n");
+			break;
+		case USB_DESCRIPTOR_TYPE_INTERFACE_POWER:
+			serial_printf("\tINTERFACE_POWER\n");
+			break;
+		case USB_DESCRIPTOR_TYPE_HID:
+			serial_printf("\tHID\n");
+			break;
+		case USB_DESCRIPTOR_TYPE_REPORT:
+			serial_printf("\tREPORT\n");
+			break;
+		default:
+			serial_printf("\tUNKNOWN TYPE\n");
+			break;
+		}
+	}
+	serial_printf("\twIndex        0x%4.4x\n", r->wIndex);
+	serial_printf("\twLength       0x%4.4x\n", r->wLength);
+}
+#else
+/* stubs */
+#define print_urb(u)
+#define print_usb_device_request(r)
+#endif /* DEBUG */
 #endif

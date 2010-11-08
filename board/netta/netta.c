@@ -564,17 +564,6 @@ int pcmcia_init(void)
 
 #endif
 
-#ifdef CONFIG_POST
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed(void)
-{
-	return 0;	/* No hotkeys supported */
-}
-#endif
-
 #ifdef CONFIG_HW_WATCHDOG
 
 void hw_watchdog_reset(void)

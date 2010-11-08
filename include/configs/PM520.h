@@ -50,7 +50,6 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
 
-#ifdef CONFIG_MPC5200	/* MPC5100 PCI is not supported yet. */
 /*
  * PCI Mapping:
  * 0x40000000 - 0x4fffffff - PCI Memory
@@ -75,7 +74,6 @@
 #define CONFIG_SYS_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #undef  CONFIG_NS8382X
 
-#endif
 
 /* Partitions */
 #define CONFIG_DOS_PARTITION
@@ -111,9 +109,7 @@
 #define CONFIG_CMD_SNTP
 #define CONFIG_CMD_USB
 
-#if defined(CONFIG_MPC5200)
 #define CONFIG_CMD_PCI
-#endif
 
 
 /*
@@ -147,12 +143,10 @@
 
 #define CONFIG_BOOTCOMMAND	"run flash_self"
 
-#if defined(CONFIG_MPC5200)
 /*
  * IPB Bus clocking configuration.
  */
 #undef CONFIG_SYS_IPBCLK_EQUALS_XLBCLK		/* define for 133MHz speed */
-#endif
 /*
  * I2C configuration
  */
@@ -301,13 +295,8 @@
 /*
  * Various low-level settings
  */
-#if defined(CONFIG_MPC5200)
 #define CONFIG_SYS_HID0_INIT		HID0_ICE | HID0_ICFI
 #define CONFIG_SYS_HID0_FINAL		HID0_ICE
-#else
-#define CONFIG_SYS_HID0_INIT		0
-#define CONFIG_SYS_HID0_FINAL		0
-#endif
 
 #if defined(CONFIG_BOOT_ROM)
 #define CONFIG_SYS_BOOTCS_START	CONFIG_SYS_BOOTROM_BASE

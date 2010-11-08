@@ -221,9 +221,10 @@ i2c_init(int speed, int slaveadd)
 	unsigned int temp;
 
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
-	/* call board specific i2c bus reset routine before accessing the   */
-	/* environment, which might be in a chip on that bus. For details   */
-	/* about this problem see doc/I2C_Edge_Conditions.                  */
+	/* Call board specific i2c bus reset routine before accessing the
+	 * environment, which might be in a chip on that bus. For details
+	 * about this problem see doc/I2C_Edge_Conditions.
+	*/
 	i2c_init_board();
 #endif
 	dev = (struct fsl_i2c *) (CONFIG_SYS_IMMR + CONFIG_SYS_I2C_OFFSET);
@@ -248,6 +249,15 @@ i2c_init(int speed, int slaveadd)
 	writeb(slaveadd << 1, &dev->adr);	/* write slave address */
 	writeb(0x0, &dev->sr);			/* clear status register */
 	writeb(I2C_CR_MEN, &dev->cr);		/* start I2C controller */
+#endif
+
+#ifdef CONFIG_SYS_I2C_BOARD_LATE_INIT
+	/* Call board specific i2c bus reset routine AFTER the bus has been
+	 * initialized. Use either this callpoint or i2c_init_board;
+	 * which is called before i2c_init operations.
+	 * For details about this problem see doc/I2C_Edge_Conditions.
+	*/
+	i2c_board_late_init();
 #endif
 }
 

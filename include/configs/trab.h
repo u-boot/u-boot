@@ -40,10 +40,11 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_ARM920T		1	/* This is an arm920t CPU	*/
-#define CONFIG_S3C2400		1	/* in a SAMSUNG S3C2400 SoC	*/
-#define CONFIG_TRAB		1	/* on a TRAB Board		*/
-#undef CONFIG_TRAB_50MHZ		/* run the CPU at 50 MHz	*/
+#define CONFIG_ARM920T	1	/* This is an arm920t CPU	*/
+#define CONFIG_S3C24X0	1	/* in a SAMSUNG S3C24x0-type SoC	*/
+#define CONFIG_S3C2400	1	/* specifically a SAMSUNG S3C2400 SoC	*/
+#define CONFIG_TRAB	1	/* on a TRAB Board		*/
+#undef CONFIG_TRAB_50MHZ	/* run the CPU at 50 MHz	*/
 
 /* automatic software updates (see board/trab/auto_update.c) */
 #define CONFIG_AUTO_UPDATE	1

@@ -2140,7 +2140,4 @@ int ubifs_decompress(const void *buf, int len, void *out, int *out_len,
 /* todo: Move these to a common U-Boot header */
 int lzo1x_decompress_safe(const unsigned char *in, size_t in_len,
 			  unsigned char *out, size_t *out_len);
-
-int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
-						int stoponerr, int offset);
 #endif /* !__UBIFS_H__ */

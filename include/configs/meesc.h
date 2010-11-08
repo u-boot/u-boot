@@ -3,7 +3,7 @@
  * Stelian Pop <stelian.pop@leadtechdesign.com>
  * Lead Tech Design <www.leadtechdesign.com>
  *
- * (C) Copyright 2009
+ * (C) Copyright 2009-2010
  * Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
  * esd electronic system design gmbh <www.esd.eu>
  *
@@ -32,10 +32,11 @@
 #define __CONFIG_H
 
 /* Common stuff */
-#define CONFIG_SYS_HZ			1000	/* decrementer freq */
 #define CONFIG_MEESC			1	/* Board is esd MEESC */
 #define CONFIG_ARM926EJS		1	/* This is an ARM926EJS Core */
 #define CONFIG_AT91SAM9263		1	/* It's an AT91SAM9263 SoC */
+#define CONFIG_SYS_AT91_MAIN_CLOCK	16000000/* 16.0 MHz crystal */
+#define CONFIG_SYS_HZ			1000	/* decrementer freq */
 #define CONFIG_DISPLAY_BOARDINFO	1
 #define CONFIG_DISPLAY_CPUINFO		1	/* display cpu info and speed */
 #define CONFIG_PREBOOT				/* enable preboot variable */
@@ -48,6 +49,7 @@
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SKIP_RELOCATE_UBOOT
+#define CONFIG_MISC_INIT_R			/* Call misc_init_r */
 
 #define CONFIG_ARCH_CPU_INIT
 
@@ -56,6 +58,7 @@
  */
 
 /* Console output */
+#define CONFIG_AT91_GPIO			1
 #define CONFIG_ATMEL_USART			1
 #undef CONFIG_USART0
 #undef CONFIG_USART1
@@ -78,15 +81,14 @@
  */
 #include <config_cmd_default.h>
 #undef CONFIG_CMD_BDI
-#undef CONFIG_CMD_AUTOSCRIPT
 #undef CONFIG_CMD_FPGA
 #undef CONFIG_CMD_LOADS
 #undef CONFIG_CMD_IMLS
-#undef CONFIG_CMD_USB
 
 #define CONFIG_CMD_PING				1
 #define CONFIG_CMD_DHCP				1
 #define CONFIG_CMD_NAND				1
+#define CONFIG_CMD_USB				1
 
 /* LED */
 #define CONFIG_AT91_LED				1
@@ -118,9 +120,8 @@
 #define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
 /* our CLE is AD22 */
 #define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
-#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PD15
-#define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PA22
-
+#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIO_PORTD, 15
+#define CONFIG_SYS_NAND_READY_PIN		AT91_PIO_PORTA, 22
 #define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 #endif
 
@@ -130,6 +131,17 @@
 #define CONFIG_NET_MULTI			1
 #define CONFIG_NET_RETRY_COUNT			20
 #undef CONFIG_RESET_PHY_R
+
+/* USB */
+#define CONFIG_USB_ATMEL
+#define CONFIG_USB_OHCI_NEW			1
+#define CONFIG_DOS_PARTITION			1
+#define CONFIG_SYS_USB_OHCI_CPU_INIT		1
+#define CONFIG_SYS_USB_OHCI_REGS_BASE		0x00a00000
+#define CONFIG_SYS_USB_OHCI_SLOT_NAME		"at91sam9263"
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
+#define CONFIG_USB_STORAGE			1
+#define CONFIG_CMD_FAT				1
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000 /* load address */
 

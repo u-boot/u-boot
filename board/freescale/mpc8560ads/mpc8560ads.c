@@ -236,7 +236,7 @@ void reset_phy (void)
 #endif
 #if defined(CONFIG_MII) && defined(CONFIG_ETHER_ON_FCC)
 	/* reset PHY */
-	miiphy_reset("FCC1 ETHERNET", 0x0);
+	miiphy_reset("FCC1", 0x0);
 
 	/* change PHY address to 0x02 */
 	bb_miiphy_write(NULL, 0, PHY_MIPSCR, 0xf028);
@@ -322,7 +322,7 @@ void
 local_bus_init(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	uint clkdiv;
 	uint lbc_hz;
@@ -381,7 +381,7 @@ local_bus_init(void)
 void
 sdram_init(void)
 {
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
 
 	puts("    SDRAM: ");
@@ -390,8 +390,8 @@ sdram_init(void)
 	/*
 	 * Setup SDRAM Base and Option Registers
 	 */
-	lbc->or2 = CONFIG_SYS_OR2_PRELIM;
-	lbc->br2 = CONFIG_SYS_BR2_PRELIM;
+	set_lbc_or(2, CONFIG_SYS_OR2_PRELIM);
+	set_lbc_br(2, CONFIG_SYS_BR2_PRELIM);
 	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
 	asm("msync");
 

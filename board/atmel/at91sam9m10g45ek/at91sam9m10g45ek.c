@@ -87,6 +87,16 @@ static void at91sam9m10g45ek_nand_hw_init(void)
 }
 #endif
 
+#ifdef CONFIG_CMD_USB
+static void at91sam9m10g45ek_usb_hw_init(void)
+{
+	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9G45_ID_PIODE);
+
+	at91_set_gpio_output(AT91_PIN_PD1, 0);
+	at91_set_gpio_output(AT91_PIN_PD3, 0);
+}
+#endif
+
 #ifdef CONFIG_MACB
 static void at91sam9m10g45ek_macb_hw_init(void)
 {
@@ -217,7 +227,7 @@ void lcd_show_board_info(void)
 	lcd_printf ("(C) 2008 ATMEL Corp\n");
 	lcd_printf ("at91support@atmel.com\n");
 	lcd_printf ("%s CPU at %s MHz\n",
-		AT91_CPU_NAME,
+		CONFIG_SYS_AT91_CPU_NAME,
 		strmhz(temp, get_cpu_clk_rate()));
 
 	dram_size = 0;
@@ -251,6 +261,9 @@ int board_init(void)
 #ifdef CONFIG_CMD_NAND
 	at91sam9m10g45ek_nand_hw_init();
 #endif
+#ifdef CONFIG_CMD_USB
+	at91sam9m10g45ek_usb_hw_init();
+#endif
 #ifdef CONFIG_HAS_DATAFLASH
 	at91_spi0_hw_init(1 << 0);
 #endif
@@ -278,13 +291,6 @@ int dram_init(void)
 #ifdef CONFIG_RESET_PHY_R
 void reset_phy(void)
 {
-#ifdef CONFIG_MACB
-	/*
-	 * Initialize ethernet HW addr prior to starting Linux,
-	 * needed for nfsroot
-	 */
-	eth_init(gd->bd);
-#endif
 }
 #endif
 

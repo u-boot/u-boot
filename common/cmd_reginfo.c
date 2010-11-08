@@ -33,9 +33,11 @@ extern void ppc4xx_reginfo(void);
 #include <mpc5xxx.h>
 #elif defined (CONFIG_MPC86xx)
 extern void mpc86xx_reginfo(void);
+#elif defined(CONFIG_MPC85xx)
+extern void mpc85xx_reginfo(void);
 #endif
 
-int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #if defined(CONFIG_8xx)
 	volatile immap_t     *immap  = (immap_t *)CONFIG_SYS_IMMR;
@@ -182,6 +184,9 @@ int do_reginfo (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		*(volatile ulong*)MPC5XXX_SDRAM_CS1CFG);
 #elif defined(CONFIG_MPC86xx)
 	mpc86xx_reginfo();
+
+#elif defined(CONFIG_MPC85xx)
+	mpc85xx_reginfo();
 
 #elif defined(CONFIG_BLACKFIN)
 	puts("\nSystem Configuration registers\n");

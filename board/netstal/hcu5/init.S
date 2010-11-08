@@ -40,13 +40,13 @@ tlbtab:
 	tlbtab_start
 
 	/* TLB#0: vxWorks needs this entry for the Machine Check interrupt, */
-	tlbentry( 0x40000000, SZ_256M, 0, 0, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( 0x40000000, SZ_256M, 0, 0, AC_RWX | SA_IG )
 	/* TLB#1: TLB-entry for DDR SDRAM (Up to 2GB) */
 	tlbentry( CONFIG_SYS_SDRAM_BASE, SZ_256M, CONFIG_SYS_SDRAM_BASE, 0,
-		AC_R|AC_W|AC_X|SA_G|SA_I )
+		AC_RWX | SA_IG )
 
 	/* TLB#2: TLB-entry for EBC */
-	tlbentry( 0x80000000, SZ_256M, 0x80000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I)
+	tlbentry( 0x80000000, SZ_256M, 0x80000000, 1, AC_RWX | SA_IG)
 
 	/*
 	 * TLB#3: BOOT_CS (FLASH) must be forth. Before relocation SA_I can be
@@ -54,7 +54,7 @@ tlbtab:
 	 * to enable SA_I
 	 */
 	tlbentry( CONFIG_SYS_BOOT_BASE_ADDR, SZ_1M, CONFIG_SYS_BOOT_BASE_ADDR, 1,
-		AC_R|AC_W|AC_X|SA_G)
+		AC_RWX | SA_G)
 
 	/*
 	 * TLB entries for SDRAM are not needed on this platform.
@@ -64,43 +64,43 @@ tlbtab:
 
 	/* TLB#4: */
 	tlbentry( CONFIG_SYS_PCI_MEMBASE1, SZ_256M, CONFIG_SYS_PCI_MEMBASE1, 1,
-		AC_R|AC_W|SA_G|SA_I )
+		AC_RW | SA_IG )
 	/* TLB#5: */
 	tlbentry( CONFIG_SYS_PCI_MEMBASE2, SZ_256M, CONFIG_SYS_PCI_MEMBASE2, 1,
-		AC_R|AC_W|SA_G|SA_I )
+		AC_RW | SA_IG )
 	/* TLB#6: */
 	tlbentry( CONFIG_SYS_PCI_MEMBASE3, SZ_256M, CONFIG_SYS_PCI_MEMBASE3, 1,
-		AC_R|AC_W|SA_G|SA_I )
+		AC_RW | SA_IG )
 
 	/* TLB-entry for Internal Registers & OCM */
 	/* TLB#7: */
 	tlbentry( 0xe0000000, SZ_16M, 0xe0000000, 0,
-		AC_R|AC_W|AC_X|SA_G|SA_I )
+		AC_RWX | SA_IG )
 
 	/*TLB-entry PCI registers*/
 	/* TLB#8: */
-	tlbentry( 0xEEC00000, SZ_1K, 0xEEC00000, 1,  AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( 0xEEC00000, SZ_1K, 0xEEC00000, 1,  AC_RWX | SA_IG )
 
 	/* TLB-entry for peripherals */
 	/* TLB#9: */
-	tlbentry( 0xEF000000, SZ_16M, 0xEF000000, 1, AC_R|AC_W|AC_X|SA_G|SA_I)
+	tlbentry( 0xEF000000, SZ_16M, 0xEF000000, 1, AC_RWX | SA_IG)
 
 	/*		CAN */
 	/* TLB#10: */
-	tlbentry( CONFIG_SYS_CS_1, SZ_1K, CONFIG_SYS_CS_1, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_CS_1, SZ_1K, CONFIG_SYS_CS_1, 1, AC_RWX | SA_IG )
 
 	/* TLB#11:  CPLD and IMC-Standard 32 MB */
-	tlbentry( CONFIG_SYS_CS_2, SZ_16M, CONFIG_SYS_CS_2, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_CS_2, SZ_16M, CONFIG_SYS_CS_2, 1, AC_RWX | SA_IG )
 
 	/* TLB#12: */
 	tlbentry( CONFIG_SYS_CS_2 + 0x1000000, SZ_16M, CONFIG_SYS_CS_2 + 0x1000000, 1,
-		AC_R|AC_W|AC_X|SA_G|SA_I )
+		AC_RWX | SA_IG )
 
 	 /*		IMC-Fast 32 MB */
 	/* TLB#13: */
-	tlbentry( CONFIG_SYS_CS_3, SZ_16M, CONFIG_SYS_CS_3, 1, AC_R|AC_W|AC_X|SA_G|SA_I )
+	tlbentry( CONFIG_SYS_CS_3, SZ_16M, CONFIG_SYS_CS_3, 1, AC_RWX | SA_IG )
 	/* TLB#14: */
 	tlbentry( CONFIG_SYS_CS_3 + 0x1000000, SZ_16M, CONFIG_SYS_CS_3, 1,
-		AC_R|AC_W|AC_X|SA_G|SA_I )
+		AC_RWX | SA_IG )
 
 	tlbtab_end

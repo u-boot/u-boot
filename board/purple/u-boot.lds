@@ -24,7 +24,7 @@
 /*
 OUTPUT_FORMAT("elf32-bigmips", "elf32-bigmips", "elf32-bigmips")
 */
-OUTPUT_FORMAT("elf32-tradbigmips", "elf32-tradbigmips", "elf32-tradbigmips")
+OUTPUT_FORMAT("elf32-tradbigmips", "elf32-tradbigmips", "elf32-tradlittlemips")
 OUTPUT_ARCH(mips)
 ENTRY(_start)
 SECTIONS
@@ -34,13 +34,13 @@ SECTIONS
 	. = ALIGN(4);
 	.text       :
 	{
-	  cpu/mips/start.o		(.text)
+	  arch/mips/cpu/start.o		(.text)
 	  board/purple/lowlevel_init.o	(.text)
-	  cpu/mips/cache.o		(.text)
+	  arch/mips/cpu/cache.o		(.text)
 	  common/main.o			(.text)
 	  common/dlmalloc.o		(.text)
 	  common/cmd_boot.o		(.text)
-	  lib_generic/zlib.o		(.text)
+	  lib/zlib.o		(.text)
 	  . = DEFINED(env_offset) ? env_offset : .;
 	  common/env_embedded.o	(.ppcenv)
 

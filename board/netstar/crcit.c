@@ -56,13 +56,14 @@ static int do_crc(char *path, unsigned version)
 		fprintf(stderr, "File too large\n");
 		return EXIT_FAILURE;
 	}
-	size = (size + 3) & ~3;	/* round up to 4 bytes */
-	data[0] = size + 4;	/* add size of version field */
+	size  = (size + 3) & ~3;	/* round up to 4 bytes */
+	size += 4;			/* add size of version field */
+	data[0] = size;
 	data[1] = version;
-	data[2 + (size >> 2)] = crc32(0, (unsigned char *)(data + 1), data[0]);
+	data[size/4 + 1] = crc32(0, (unsigned char *)(data + 1), size);
 	close(fd);
 
-	if (write(STDOUT_FILENO, data, size + 3*4) == -1) {
+	if (write(STDOUT_FILENO, data, size + 4 /*size*/ + 4 /*crc*/) == -1) {
 		perror("Error writing file");
 		return EXIT_FAILURE;
 	}
@@ -70,7 +71,7 @@ static int do_crc(char *path, unsigned version)
 	return EXIT_SUCCESS;
 }
 
-int main(int argc, char **argv)
+int main(int argc, char * const *argv)
 {
 	if (argc == 2) {
 		return do_crc(argv[1], 0);

@@ -60,8 +60,9 @@
 #define CONFIG_SYS_PCI_MEMBASE1	CONFIG_SYS_PCI_MEMBASE  + 0x10000000
 #define CONFIG_SYS_PCI_MEMBASE2	CONFIG_SYS_PCI_MEMBASE1 + 0x10000000
 #define CONFIG_SYS_PCI_MEMBASE3	CONFIG_SYS_PCI_MEMBASE2 + 0x10000000
-#define CONFIG_SYS_PCI_IOBASE          0xe8000000
-
+#define CONFIG_SYS_PCI_IOBASE		0xe8000000
+#define CONFIG_SYS_PCI_SUBSYS_VENDORID	PCI_VENDOR_ID_ESDGMBH
+#define CONFIG_SYS_PCI_SUBSYS_ID	0x0444		/* device ID for DU440 */
 
 /* Don't change either of these */
 #define CONFIG_SYS_PERIPHERAL_BASE	0xef600000	/* internal peripherals	*/
@@ -168,6 +169,7 @@
  */
 #define CONFIG_HARD_I2C		1	/* I2C with hardware support    */
 #undef	CONFIG_SOFT_I2C			/* I2C bit-banged	        */
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
 #define CONFIG_SYS_I2C_SPEED		100000	/* I2C speed and slave address  */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 #define CONFIG_I2C_MULTI_BUS    1

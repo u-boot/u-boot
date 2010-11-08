@@ -29,7 +29,7 @@ int testdram (void)
 	unsigned char s[32];
 	int i;
 
-	i = getenv_r ("testmem", s, 32);
+	i = getenv_f("testmem", s, 32);
 	if (i != 0) {
 		i = (int) simple_strtoul (s, NULL, 10);
 		if ((i > 0) && (i < 0xf)) {

@@ -26,7 +26,7 @@
 #include <common.h>
 #include <netdev.h>
 #include <malloc.h>
-#include <s3c2400.h>
+#include <asm/arch/s3c24x0_cpu.h>
 #include <command.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -305,7 +305,7 @@ static char *key_match (ulong kbd_data)
 #endif							/* CONFIG_PREBOOT */
 
 /* Read Keyboard status */
-int do_kbd (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_kbd (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong kbd_data = KBD_DATA;
 	char keybd_env[KEYBD_KEY_NUM + 1];
@@ -414,7 +414,7 @@ static void tsc2000_set_brightness(void)
 	spi_init();
 	tsc2000_write(1, 2, 0x0); /* Power up DAC */
 
-	i = getenv_r("brightness", tmp, sizeof(tmp));
+	i = getenv_f("brightness", tmp, sizeof(tmp));
 	br = (i > 0)
 		? (int) simple_strtoul (tmp, NULL, 10)
 		: CONFIG_SYS_BRIGHTNESS;

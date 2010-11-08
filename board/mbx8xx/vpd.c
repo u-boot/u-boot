@@ -3,7 +3,7 @@
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
  *
- * Code in faintly related to linux/arch/ppc/8xx_io:
+ * Code in faintly related to linux/arch/powerpc/8xx_io:
  * MPC8xx CPM I2C interface. Copyright (c) 1999 Dan Malek (dmalek@jlc.net).
  *
  * This file implements functions to read the MBX's Vital Product Data

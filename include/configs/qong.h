@@ -41,7 +41,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
 /* size in bytes reserved for initial data */
 #define CONFIG_SYS_GBL_DATA_SIZE	128
 
@@ -52,6 +52,19 @@
 #define CONFIG_MXC_UART	1
 #define CONFIG_SYS_MX31_UART1	1
 
+#define CONFIG_MX31_GPIO
+
+#define CONFIG_MXC_SPI
+#define CONFIG_DEFAULT_SPI_BUS	1
+#define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
+#define CONFIG_RTC_MC13783
+
+#define CONFIG_FSL_PMIC
+#define CONFIG_FSL_PMIC_BUS	1
+#define CONFIG_FSL_PMIC_CS	0
+#define CONFIG_FSL_PMIC_CLK	100000
+#define CONFIG_FSL_PMIC_MODE	(SPI_MODE_2 | SPI_CS_HIGH)
+
 /* FPGA */
 #define CONFIG_QONG_FPGA	1
 #define CONFIG_FPGA_BASE	(CS1_BASE)
@@ -61,6 +74,17 @@
 #define CONFIG_DNET		1
 #define CONFIG_DNET_BASE	(CS1_BASE + QONG_FPGA_PERIPH_SIZE)
 #define CONFIG_NET_MULTI	1
+
+/* Framebuffer and LCD */
+#define CONFIG_LCD
+#define CONFIG_VIDEO_MX3
+#define	CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define LCD_BPP		LCD_COLOR16
+#define	CONFIG_SPLASH_SCREEN
+#define CONFIG_CMD_BMP
+#define CONFIG_BMP_16BPP
+#define CONFIG_DISPLAY_COM57H5M10XRC
 
 /*
  * Reducing the ARP timeout from default 5 seconds to 200ms we speed up the
@@ -84,7 +108,10 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_DATE
+#define BOARD_LATE_INIT
 
 /*
  * You can compile in a MAC address and your custom net settings by using
@@ -116,9 +143,9 @@
 		" console=ttymxc0,${baudrate}\0"			\
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"addmisc=setenv bootargs ${bootargs}\0"				\
-	"uboot_addr=a0000000\0"						\
-	"kernel_addr=a0080000\0"					\
-	"ramdisk_addr=a0300000\0"					\
+	"uboot_addr=A0000000\0"						\
+	"kernel_addr=A00A0000\0"					\
+	"ramdisk_addr=A0300000\0"					\
 	"u-boot=qong/u-boot.bin\0"					\
 	"kernel_addr_r=80800000\0"					\
 	"hostname=qong\0"						\
@@ -161,6 +188,10 @@
 #define CONFIG_SYS_HZ			1000
 
 #define CONFIG_CMDLINE_EDITING	1
+#define CONFIG_SYS_HUSH_PARSER		1	/* Use the HUSH parser		*/
+#ifdef	CONFIG_SYS_HUSH_PARSER
+#define	CONFIG_SYS_PROMPT_HUSH_PS2	"> "
+#endif
 
 #define CONFIG_MISC_INIT_R	1
 /*-----------------------------------------------------------------------
@@ -177,6 +208,30 @@
 #define PHYS_SDRAM_1		CSD0_BASE
 #define PHYS_SDRAM_1_SIZE	0x10000000	/* 256 MB */
 
+/*
+ * NAND driver
+ */
+
+#ifndef __ASSEMBLY__
+extern void qong_nand_plat_init(void *chip);
+extern int qong_nand_rdy(void *chip);
+#endif
+#define CONFIG_NAND_PLAT
+#define CONFIG_SYS_MAX_NAND_DEVICE     1
+#define CONFIG_SYS_NAND_BASE	CS3_BASE
+#define NAND_PLAT_INIT() qong_nand_plat_init(nand)
+
+#define QONG_NAND_CLE(chip) ((unsigned long)(chip)->IO_ADDR_W | (1 << 24))
+#define QONG_NAND_ALE(chip) ((unsigned long)(chip)->IO_ADDR_W | (1 << 23))
+#define QONG_NAND_WRITE(addr, cmd) \
+	do { \
+		__REG8(addr) = cmd; \
+	} while (0)
+
+#define NAND_PLAT_WRITE_CMD(chip, cmd) QONG_NAND_WRITE(QONG_NAND_CLE(chip), cmd)
+#define NAND_PLAT_WRITE_ADR(chip, cmd) QONG_NAND_WRITE(QONG_NAND_ALE(chip), cmd)
+#define NAND_PLAT_DEV_READY(chip)      (qong_nand_rdy(chip))
+
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
@@ -191,7 +246,7 @@
 #define	CONFIG_ENV_IS_IN_FLASH	1
 #define CONFIG_ENV_SECT_SIZE	0x20000
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x40000)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x60000)
 
 /* Address and size of Redundant Environment Sector	*/
 #define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
@@ -210,14 +265,20 @@
 #define CONFIG_SYS_FLASH_PROTECTION		1
 
 /*
- * JFFS2 partitions
+ * Filesystem
  */
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#define CONFIG_RBTREE
+#define CONFIG_MTD_PARTITIONS
 #define CONFIG_CMD_MTDPARTS
+#define CONFIG_LZO
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT		"nor0=physmap-flash.0"
 #define MTDPARTS_DEFAULT	\
-	"mtdparts=physmap-flash.0:256k(U-Boot),128k(env1),"	\
-	"128k(env2),2560k(kernel),13m(ramdisk),-(user)"
+	"mtdparts=physmap-flash.0:384k(U-Boot),128k(env1),"	\
+	"128k(env2),2432k(kernel),13m(ramdisk),-(user)"
 
 #endif /* __CONFIG_H */

@@ -94,7 +94,7 @@
  * Env Storage Settings
  */
 #if (CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_SPI_MASTER)
-#define ENV_IS_EMBEDDED_CUSTOM
+#define CONFIG_ENV_IS_EMBEDDED_IN_LDR
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_OFFSET	0x4000
 #else
@@ -112,11 +112,11 @@
  * it linked after the configuration sector.
  */
 # define LDS_BOARD_TEXT \
-	cpu/blackfin/traps.o		(.text .text.*); \
-	cpu/blackfin/interrupt.o	(.text .text.*); \
-	cpu/blackfin/serial.o		(.text .text.*); \
+	arch/blackfin/cpu/traps.o		(.text .text.*); \
+	arch/blackfin/cpu/interrupt.o	(.text .text.*); \
+	arch/blackfin/cpu/serial.o		(.text .text.*); \
 	common/dlmalloc.o		(.text .text.*); \
-	lib_generic/crc32.o		(.text .text.*); \
+	lib/crc32.o		(.text .text.*); \
 	. = DEFINED(env_offset) ? env_offset : .; \
 	common/env_embedded.o		(.text .text.*);
 #endif
@@ -132,7 +132,6 @@
 
 #define BFIN_NAND_CLE(chip) ((unsigned long)(chip)->IO_ADDR_W | (1 << 2))
 #define BFIN_NAND_ALE(chip) ((unsigned long)(chip)->IO_ADDR_W | (1 << 1))
-#define BFIN_NAND_READY     PF12
 #define BFIN_NAND_WRITE(addr, cmd) \
 	do { \
 		bfin_write8(addr, cmd); \
@@ -141,13 +140,7 @@
 
 #define NAND_PLAT_WRITE_CMD(chip, cmd) BFIN_NAND_WRITE(BFIN_NAND_CLE(chip), cmd)
 #define NAND_PLAT_WRITE_ADR(chip, cmd) BFIN_NAND_WRITE(BFIN_NAND_ALE(chip), cmd)
-#define NAND_PLAT_DEV_READY(chip)      (bfin_read_PORTHIO() & BFIN_NAND_READY)
-#define NAND_PLAT_INIT() \
-	do { \
-		bfin_write_PORTH_FER(bfin_read_PORTH_FER() & ~BFIN_NAND_READY); \
-		bfin_write_PORTHIO_DIR(bfin_read_PORTHIO_DIR() & ~BFIN_NAND_READY); \
-		bfin_write_PORTHIO_INEN(bfin_read_PORTHIO_INEN() | BFIN_NAND_READY); \
-	} while (0)
+#define NAND_PLAT_GPIO_DEV_READY       GPIO_PF12
 
 
 /*
@@ -155,8 +148,6 @@
  */
 #define CONFIG_BFIN_TWI_I2C	1
 #define CONFIG_HARD_I2C		1
-#define CONFIG_SYS_I2C_SPEED		50000
-#define CONFIG_SYS_I2C_SLAVE		0
 
 
 /*

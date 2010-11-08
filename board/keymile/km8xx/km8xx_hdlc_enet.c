@@ -2,7 +2,7 @@
  * (C) Copyright 2008
  * Gary Jennejohn, DENX Software Engineering GmbH, garyj@denx.de.
  *
- * Based in part on cpu/mpc8xx/scc.c.
+ * Based in part on arch/powerpc/cpu/mpc8xx/scc.c.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -34,7 +34,7 @@
 char keymile_slot;	/* our slot number in the backplane */
 
 /*
- * Since, except during initialization, ethact is always HDLC ETHERNET
+ * Since, except during initialization, ethact is always HDLC
  * while we're in the driver, just use serial_printf() everywhere for
  * output.  This avoids possible conflicts when netconsole is being
  * used.

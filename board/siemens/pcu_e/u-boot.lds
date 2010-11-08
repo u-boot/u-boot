@@ -52,7 +52,7 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/mpc8xx/start.o	(.text)
+    arch/powerpc/cpu/mpc8xx/start.o	(.text)
     common/env_embedded.o(.text)
     *(.text)
     *(.got1)

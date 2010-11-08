@@ -112,7 +112,7 @@ struct usb_ehci {
 	u32	perlistbase;	/* 0x154 - Periodic List Base
 					 - USB Device Address */
 	u32	ep_list_addr;	/* 0x158 - Next Asynchronous List
-					 - End Point Address */
+					 - Endpoint Address */
 	u8	res5[0x4];
 	u32	burstsize;	/* 0x160 - Programmable Burst Size */
 	u32	txfilltuning;	/* 0x164 - Host TT Transmit
@@ -124,17 +124,17 @@ struct usb_ehci {
 	u32	portsc;		/* 0x184 - Port status/control */
 	u8	res8[0x20];
 	u32	usbmode;	/* 0x1a8 - USB Device Mode */
-	u32	epsetupstat;	/* 0x1ac - End Point Setup Status */
-	u32	epprime;	/* 0x1b0 - End Point Init Status */
-	u32	epflush;	/* 0x1b4 - End Point De-initlialize */
-	u32	epstatus;	/* 0x1b8 - End Point Status */
-	u32	epcomplete;	/* 0x1bc - End Point Complete */
-	u32	epctrl0;	/* 0x1c0 - End Point Control 0 */
-	u32	epctrl1;	/* 0x1c4 - End Point Control 1 */
-	u32	epctrl2;	/* 0x1c8 - End Point Control 2 */
-	u32	epctrl3;	/* 0x1cc - End Point Control 3 */
-	u32	epctrl4;	/* 0x1d0 - End Point Control 4 */
-	u32	epctrl5;	/* 0x1d4 - End Point Control 5 */
+	u32	epsetupstat;	/* 0x1ac - Endpoint Setup Status */
+	u32	epprime;	/* 0x1b0 - Endpoint Init Status */
+	u32	epflush;	/* 0x1b4 - Endpoint De-initlialize */
+	u32	epstatus;	/* 0x1b8 - Endpoint Status */
+	u32	epcomplete;	/* 0x1bc - Endpoint Complete */
+	u32	epctrl0;	/* 0x1c0 - Endpoint Control 0 */
+	u32	epctrl1;	/* 0x1c4 - Endpoint Control 1 */
+	u32	epctrl2;	/* 0x1c8 - Endpoint Control 2 */
+	u32	epctrl3;	/* 0x1cc - Endpoint Control 3 */
+	u32	epctrl4;	/* 0x1d0 - Endpoint Control 4 */
+	u32	epctrl5;	/* 0x1d4 - Endpoint Control 5 */
 	u8	res9[0x228];
 	u32	snoop1;		/* 0x400 - Snoop 1 */
 	u32	snoop2;		/* 0x404 - Snoop 2 */

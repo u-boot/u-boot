@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -52,22 +52,26 @@
 #define I2C_BASE_ADDR	(0xEF600500 + I2C_BUS_OFFS)
 #endif
 
-#define I2C_REGISTERS_BASE_ADDRESS I2C_BASE_ADDR
-#define IIC_MDBUF	(I2C_REGISTERS_BASE_ADDRESS+IICMDBUF)
-#define IIC_SDBUF	(I2C_REGISTERS_BASE_ADDRESS+IICSDBUF)
-#define IIC_LMADR	(I2C_REGISTERS_BASE_ADDRESS+IICLMADR)
-#define IIC_HMADR	(I2C_REGISTERS_BASE_ADDRESS+IICHMADR)
-#define IIC_CNTL	(I2C_REGISTERS_BASE_ADDRESS+IICCNTL)
-#define IIC_MDCNTL	(I2C_REGISTERS_BASE_ADDRESS+IICMDCNTL)
-#define IIC_STS		(I2C_REGISTERS_BASE_ADDRESS+IICSTS)
-#define IIC_EXTSTS	(I2C_REGISTERS_BASE_ADDRESS+IICEXTSTS)
-#define IIC_LSADR	(I2C_REGISTERS_BASE_ADDRESS+IICLSADR)
-#define IIC_HSADR	(I2C_REGISTERS_BASE_ADDRESS+IICHSADR)
-#define IIC_CLKDIV	(I2C_REGISTERS_BASE_ADDRESS+IIC0_CLKDIV)
-#define IIC_INTRMSK	(I2C_REGISTERS_BASE_ADDRESS+IICINTRMSK)
-#define IIC_XFRCNT	(I2C_REGISTERS_BASE_ADDRESS+IICXFRCNT)
-#define IIC_XTCNTLSS	(I2C_REGISTERS_BASE_ADDRESS+IICXTCNTLSS)
-#define IIC_DIRECTCNTL	(I2C_REGISTERS_BASE_ADDRESS+IICDIRECTCNTL)
+struct ppc4xx_i2c {
+	u8 mdbuf;
+	u8 res1;
+	u8 sdbuf;
+	u8 res2;
+	u8 lmadr;
+	u8 hmadr;
+	u8 cntl;
+	u8 mdcntl;
+	u8 sts;
+	u8 extsts;
+	u8 lsadr;
+	u8 hsadr;
+	u8 clkdiv;
+	u8 intrmsk;
+	u8 xfrcnt;
+	u8 xtcntlss;
+	u8 directcntl;
+	u8 intr;
+};
 
 /* MDCNTL Register Bit definition */
 #define IIC_MDCNTL_HSCL		0x01

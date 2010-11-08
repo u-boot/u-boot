@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2006 Ben Warren, Qstreams Networks Inc.
- * With help from the common/soft_spi and cpu/mpc8260 drivers
+ * With help from the common/soft_spi and arch/powerpc/cpu/mpc8260 drivers
  *
  * See file CREDITS for list of people who contributed to this
  * project.

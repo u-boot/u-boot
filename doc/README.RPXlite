@@ -116,7 +116,7 @@
 	board/RPXLITE/RPXLITE.c		/* DRAM-related routines */
 	board/RPXLITE/flash.c		/* flash-related routines */
 	board/RPXLITE/config.mk		/* set text base address */
-	cpu/mpc8xx/serial.c			/* board specific register setting */
+	arch/powerpc/cpu/mpc8xx/serial.c /* board specific register setting */
 	include/config_RPXLITE.h	/* board specific registers */
 
 	See 'reg_config.txt' for register values in detail.

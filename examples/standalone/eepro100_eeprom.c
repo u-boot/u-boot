@@ -18,7 +18,6 @@
  */
 
 /* avoid unnecessary memcpy function */
-#define __HAVE_ARCH_MEMCPY
 #define _PPC_STRING_H_
 
 #include <common.h>
@@ -26,7 +25,7 @@
 
 static int reset_eeprom(unsigned long ioaddr, unsigned char *hwaddr);
 
-int eepro100_eeprom(int argc, char *argv[])
+int eepro100_eeprom(int argc, char * const argv[])
 {
 	int ret = 0;
 
@@ -77,7 +76,7 @@ static inline short inw(long addr)
 	return swap16(*(volatile short *)(addr));
 }
 
-static inline void *memcpy(void *dst, const void *src, unsigned int len)
+void *memcpy(void *dst, const void *src, unsigned int len)
 {
 	char *ret = dst;
 	while (len-- > 0) {

@@ -146,8 +146,10 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 #ifdef CONFIG_VIDEO_CORALP
 #define VIDEO_FB_LITTLE_ENDIAN
 #endif
+#ifdef CONFIG_VIDEO_MB862xx_ACCEL
 #define VIDEO_HW_RECTFILL
 #define VIDEO_HW_BITBLT
+#endif
 #endif
 
 /*****************************************************************************/
@@ -228,8 +230,8 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 #error	only one of CONFIG_CONSOLE_CURSOR,CONFIG_VIDEO_SW_CURSOR,CONFIG_VIDEO_HW_CURSOR can be defined
 #endif
 void	console_cursor (int state);
-#define CURSOR_ON  console_cursor(1);
-#define CURSOR_OFF console_cursor(0);
+#define CURSOR_ON  console_cursor(1)
+#define CURSOR_OFF console_cursor(0)
 #define CURSOR_SET
 #ifndef CONFIG_I8042_KBD
 #warning Cursor drawing on/off needs timer function s.a. drivers/input/i8042.c
@@ -246,8 +248,8 @@ void	console_cursor (int state);
 #endif
 #define CURSOR_ON
 #define CURSOR_OFF video_putchar(console_col * VIDEO_FONT_WIDTH,\
-				 console_row * VIDEO_FONT_HEIGHT, ' ');
-#define CURSOR_SET video_set_cursor();
+				 console_row * VIDEO_FONT_HEIGHT, ' ')
+#define CURSOR_SET video_set_cursor()
 #endif /* CONFIG_VIDEO_SW_CURSOR */
 
 
@@ -258,7 +260,7 @@ void	console_cursor (int state);
 #define CURSOR_ON
 #define CURSOR_OFF
 #define CURSOR_SET video_set_hw_cursor(console_col * VIDEO_FONT_WIDTH, \
-		  (console_row * VIDEO_FONT_HEIGHT) + VIDEO_LOGO_HEIGHT);
+		  (console_row * VIDEO_FONT_HEIGHT) + video_logo_height)
 #endif	/* CONFIG_VIDEO_HW_CURSOR */
 
 #ifdef	CONFIG_VIDEO_LOGO
@@ -296,7 +298,7 @@ void	console_cursor (int state);
 #define VIDEO_BURST_LEN		(VIDEO_COLS/8)
 
 #ifdef	CONFIG_VIDEO_LOGO
-#define CONSOLE_ROWS		((VIDEO_ROWS - VIDEO_LOGO_HEIGHT) / VIDEO_FONT_HEIGHT)
+#define CONSOLE_ROWS		((VIDEO_ROWS - video_logo_height) / VIDEO_FONT_HEIGHT)
 #else
 #define CONSOLE_ROWS		(VIDEO_ROWS / VIDEO_FONT_HEIGHT)
 #endif
@@ -319,7 +321,7 @@ void	console_cursor (int state);
 #else
 #define SWAP16(x)	 (x)
 #define SWAP32(x)	 (x)
-#if defined(VIDEO_FB_16BPP_PIXEL_SWAP)
+#if defined(VIDEO_FB_16BPP_WORD_SWAP)
 #define SHORTSWAP32(x)	 ( ((x) >> 16) | ((x) << 16) )
 #else
 #define SHORTSWAP32(x)	 (x)
@@ -346,6 +348,8 @@ static GraphicDevice *pGD;	/* Pointer to Graphic array */
 
 static void *video_fb_address;		/* frame buffer address */
 static void *video_console_address;	/* console buffer start address */
+
+static int video_logo_height = VIDEO_LOGO_HEIGHT;
 
 static int console_col = 0; /* cursor col */
 static int console_row = 0; /* cursor row */
@@ -400,8 +404,6 @@ static const int video_font_draw_table32[16][4] = {
 	    { 0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00000000 },
 	    { 0x00ffffff, 0x00ffffff, 0x00ffffff, 0x00ffffff } };
 
-
-int gunzip(void *, int, unsigned char *, unsigned long *);
 
 /******************************************************************************/
 
@@ -527,7 +529,7 @@ static inline void video_drawstring (int xx, int yy, unsigned char *s)
 
 static void video_putchar (int xx, int yy, unsigned char c)
 {
-	video_drawchars (xx, yy + VIDEO_LOGO_HEIGHT, &c, 1);
+	video_drawchars (xx, yy + video_logo_height, &c, 1);
 }
 
 /*****************************************************************************/
@@ -620,11 +622,11 @@ static void console_scrollup (void)
 #ifdef VIDEO_HW_BITBLT
 	video_hw_bitblt (VIDEO_PIXEL_SIZE,	/* bytes per pixel */
 			 0,	/* source pos x */
-			 VIDEO_LOGO_HEIGHT + VIDEO_FONT_HEIGHT, /* source pos y */
+			 video_logo_height + VIDEO_FONT_HEIGHT, /* source pos y */
 			 0,	/* dest pos x */
-			 VIDEO_LOGO_HEIGHT,	/* dest pos y */
+			 video_logo_height,	/* dest pos y */
 			 VIDEO_VISIBLE_COLS,	/* frame width */
-			 VIDEO_VISIBLE_ROWS - VIDEO_LOGO_HEIGHT - VIDEO_FONT_HEIGHT	/* frame height */
+			 VIDEO_VISIBLE_ROWS - video_logo_height - VIDEO_FONT_HEIGHT	/* frame height */
 		);
 #else
 	memcpyl (CONSOLE_ROW_FIRST, CONSOLE_ROW_SECOND,
@@ -649,7 +651,8 @@ static void console_scrollup (void)
 
 static void console_back (void)
 {
-	CURSOR_OFF console_col--;
+	CURSOR_OFF;
+	console_col--;
 
 	if (console_col < 0) {
 		console_col = CONSOLE_COLS - 1;
@@ -672,7 +675,7 @@ static void console_newline (void)
 	   is >= CONSOLE_COLS
 	 */
 	if (console_col < CONSOLE_COLS)
-		CURSOR_OFF
+		CURSOR_OFF;
 	console_row++;
 	console_col = 0;
 
@@ -688,7 +691,8 @@ static void console_newline (void)
 
 static void console_cr (void)
 {
-	CURSOR_OFF console_col = 0;
+	CURSOR_OFF;
+	console_col = 0;
 }
 
 /*****************************************************************************/
@@ -709,7 +713,8 @@ void video_putc (const char c)
 		break;
 
 	case 9:		/* tab 8 */
-		CURSOR_OFF console_col |= 0x0008;
+		CURSOR_OFF;
+		console_col |= 0x0008;
 		console_col &= ~0x0007;
 
 		if (console_col >= CONSOLE_COLS)
@@ -732,7 +737,8 @@ void video_putc (const char c)
 			nl = 0;
 		}
 	}
-CURSOR_SET}
+	CURSOR_SET;
+}
 
 
 /*****************************************************************************/
@@ -746,6 +752,18 @@ void video_puts (const char *s)
 }
 
 /*****************************************************************************/
+
+/*
+ * Do not enforce drivers (or board code) to provide empty
+ * video_set_lut() if they do not support 8 bpp format.
+ * Implement weak default function instead.
+ */
+void __video_set_lut (unsigned int index, unsigned char r,
+		      unsigned char g, unsigned char b)
+{
+}
+void video_set_lut (unsigned int, unsigned char, unsigned char, unsigned char)
+			__attribute__((weak, alias("__video_set_lut")));
 
 #if defined(CONFIG_CMD_BMP) || defined(CONFIG_SPLASH_SCREEN)
 
@@ -801,8 +819,193 @@ static void inline fill_555rgb_pswap(uchar *fb, int x,
 #endif
 
 /*
+ * RLE8 bitmap support
+ */
+
+#ifdef CONFIG_VIDEO_BMP_RLE8
+/* Pre-calculated color table entry */
+struct palette {
+	union {
+		unsigned short	w;	/* word */
+		unsigned int	dw;	/* double word */
+	} ce; /* color entry */
+};
+
+/*
+ * Helper to draw encoded/unencoded run.
+ */
+static void draw_bitmap (uchar **fb, uchar *bm, struct palette *p,
+			 int cnt, int enc)
+{
+	ulong addr = (ulong)*fb;
+	int *off;
+	int enc_off = 1;
+	int i;
+
+	/*
+	 * Setup offset of the color index in the bitmap.
+	 * Color index of encoded run is at offset 1.
+	 */
+	off = enc ? &enc_off : &i;
+
+	switch (VIDEO_DATA_FORMAT) {
+	case GDF__8BIT_INDEX:
+		for (i = 0; i < cnt; i++)
+			*(unsigned char *)addr++ = bm[*off];
+		break;
+	case GDF_15BIT_555RGB:
+	case GDF_16BIT_565RGB:
+		/* differences handled while pre-calculating palette */
+		for (i = 0; i < cnt; i++) {
+			*(unsigned short *)addr = p[bm[*off]].ce.w;
+			addr += 2;
+		}
+		break;
+	case GDF_32BIT_X888RGB:
+		for (i = 0; i < cnt; i++) {
+			*(unsigned long *)addr = p[bm[*off]].ce.dw;
+			addr += 4;
+		}
+		break;
+	}
+	*fb = (uchar *)addr; /* return modified address */
+}
+
+static int display_rle8_bitmap (bmp_image_t *img, int xoff, int yoff,
+				int width, int height)
+{
+	unsigned char *bm;
+	unsigned char *fbp;
+	unsigned int cnt, runlen;
+	int decode = 1;
+	int x, y, bpp, i, ncolors;
+	struct palette p[256];
+	bmp_color_table_entry_t cte;
+	int green_shift, red_off;
+
+	x = 0;
+	y = __le32_to_cpu(img->header.height) - 1;
+	ncolors = __le32_to_cpu(img->header.colors_used);
+	bpp = VIDEO_PIXEL_SIZE;
+	fbp = (unsigned char *)((unsigned int)video_fb_address +
+				(((y + yoff) * VIDEO_COLS) + xoff) * bpp);
+
+	bm = (uchar *)img + __le32_to_cpu(img->header.data_offset);
+
+	/* pre-calculate and setup palette */
+	switch (VIDEO_DATA_FORMAT) {
+	case GDF__8BIT_INDEX:
+		for (i = 0; i < ncolors; i++) {
+			cte = img->color_table[i];
+			video_set_lut (i, cte.red, cte.green, cte.blue);
+		}
+		break;
+	case GDF_15BIT_555RGB:
+	case GDF_16BIT_565RGB:
+		if (VIDEO_DATA_FORMAT == GDF_15BIT_555RGB) {
+			green_shift = 3;
+			red_off = 10;
+		} else {
+			green_shift = 2;
+			red_off = 11;
+		}
+		for (i = 0; i < ncolors; i++) {
+			cte = img->color_table[i];
+			p[i].ce.w = SWAP16((unsigned short)
+					   (((cte.red >> 3) << red_off) |
+					    ((cte.green >> green_shift) << 5) |
+					    cte.blue >> 3));
+		}
+		break;
+	case GDF_32BIT_X888RGB:
+		for (i = 0; i < ncolors; i++) {
+			cte = img->color_table[i];
+			p[i].ce.dw = SWAP32((cte.red << 16) | (cte.green << 8) |
+					     cte.blue);
+		}
+		break;
+	default:
+		printf("RLE Bitmap unsupported in video mode 0x%x\n",
+			VIDEO_DATA_FORMAT);
+		return -1;
+	}
+
+	while (decode) {
+		switch (bm[0]) {
+		case 0:
+			switch (bm[1]) {
+			case 0:
+				/* scan line end marker */
+				bm += 2;
+				x = 0;
+				y--;
+				fbp = (unsigned char *)
+					((unsigned int)video_fb_address +
+					 (((y + yoff) * VIDEO_COLS) +
+					  xoff) * bpp);
+				continue;
+			case 1:
+				/* end of bitmap data marker */
+				decode = 0;
+				break;
+			case 2:
+				/* run offset marker */
+				x += bm[2];
+				y -= bm[3];
+				fbp = (unsigned char *)
+					((unsigned int)video_fb_address +
+					 (((y + yoff) * VIDEO_COLS) +
+					  x + xoff) * bpp);
+				bm += 4;
+				break;
+			default:
+				/* unencoded run */
+				cnt = bm[1];
+				runlen = cnt;
+				bm += 2;
+				if (y < height) {
+					if (x >= width) {
+						x += runlen;
+						goto next_run;
+					}
+					if (x + runlen > width)
+						cnt = width - x;
+
+					draw_bitmap (&fbp, bm, p, cnt, 0);
+					x += runlen;
+				}
+next_run:
+				bm += runlen;
+				if (runlen & 1)
+					bm++; /* 0 padding if length is odd */
+			}
+			break;
+		default:
+			/* encoded run */
+			if (y < height) { /* only draw into visible area */
+				cnt = bm[0];
+				runlen = cnt;
+				if (x >= width) {
+					x += runlen;
+					bm += 2;
+					continue;
+				}
+				if (x + runlen > width)
+					cnt = width - x;
+
+				draw_bitmap (&fbp, bm, p, cnt, 1);
+				x += runlen;
+			}
+			bm += 2;
+			break;
+		}
+	}
+	return 0;
+}
+#endif
+
+/*
  * Display the BMP file located at address bmp_image.
- * Only uncompressed
  */
 int video_display_bitmap (ulong bmp_image, int x, int y)
 {
@@ -870,7 +1073,11 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 	debug ("Display-bmp: %d x %d  with %d colors\n",
 	       width, height, colors);
 
-	if (compression != BMP_BI_RGB) {
+	if (compression != BMP_BI_RGB
+#ifdef CONFIG_VIDEO_BMP_RLE8
+	    && compression != BMP_BI_RLE8
+#endif
+	   ) {
 		printf ("Error: compression type %ld not supported\n",
 			compression);
 #ifdef CONFIG_VIDEO_BMP_GZIP
@@ -904,12 +1111,19 @@ int video_display_bitmap (ulong bmp_image, int x, int y)
 			((y + height - 1) * VIDEO_COLS * VIDEO_PIXEL_SIZE) +
 			x * VIDEO_PIXEL_SIZE);
 
+#ifdef CONFIG_VIDEO_BMP_RLE8
+	if (compression == BMP_BI_RLE8) {
+		return display_rle8_bitmap(bmp,
+					   x, y, width, height);
+	}
+#endif
+
 	/* We handle only 8bpp or 24 bpp bitmap */
 	switch (le16_to_cpu (bmp->header.bit_count)) {
 	case 8:
 		padded_line -= width;
 		if (VIDEO_DATA_FORMAT == GDF__8BIT_INDEX) {
-			/* Copy colormap					     */
+			/* Copy colormap */
 			for (xcount = 0; xcount < colors; ++xcount) {
 				cte = bmp->color_table[xcount];
 				video_set_lut (xcount, cte.red, cte.green, cte.blue);
@@ -1101,7 +1315,7 @@ void logo_plot (void *screen, int width, int x, int y)
 
 	int xcount, i;
 	int skip   = (width - VIDEO_LOGO_WIDTH) * VIDEO_PIXEL_SIZE;
-	int ycount = VIDEO_LOGO_HEIGHT;
+	int ycount = video_logo_height;
 	unsigned char r, g, b, *logo_red, *logo_blue, *logo_green;
 	unsigned char *source;
 	unsigned char *dest = (unsigned char *)screen +
@@ -1111,11 +1325,11 @@ void logo_plot (void *screen, int width, int x, int y)
 #ifdef CONFIG_VIDEO_BMP_LOGO
 	source = bmp_logo_bitmap;
 
-	/* Allocate temporary space for computing colormap			 */
+	/* Allocate temporary space for computing colormap */
 	logo_red = malloc (BMP_LOGO_COLORS);
 	logo_green = malloc (BMP_LOGO_COLORS);
 	logo_blue = malloc (BMP_LOGO_COLORS);
-	/* Compute color map							 */
+	/* Compute color map */
 	for (i = 0; i < VIDEO_LOGO_COLORS; i++) {
 		logo_red[i] = (bmp_logo_palette[i] & 0x0f00) >> 4;
 		logo_green[i] = (bmp_logo_palette[i] & 0x00f0);
@@ -1225,6 +1439,7 @@ static void *video_logo (void)
 #endif /* CONFIG_SPLASH_SCREEN_ALIGN */
 
 		if (video_display_bitmap (addr, x, y) == 0) {
+			video_logo_height = 0;
 			return ((void *) (video_fb_address));
 		}
 	}
@@ -1249,7 +1464,7 @@ static void *video_logo (void)
 
 #ifdef CONFIG_CONSOLE_EXTRA_INFO
 	{
-		int i, n = ((VIDEO_LOGO_HEIGHT - VIDEO_FONT_HEIGHT) / VIDEO_FONT_HEIGHT);
+		int i, n = ((video_logo_height - VIDEO_FONT_HEIGHT) / VIDEO_FONT_HEIGHT);
 
 		for (i = 1; i < n; i++) {
 			video_get_info_str (i, info);
@@ -1278,7 +1493,7 @@ static void *video_logo (void)
 	}
 #endif
 
-	return (video_fb_address + VIDEO_LOGO_HEIGHT * VIDEO_LINE_LEN);
+	return (video_fb_address + video_logo_height * VIDEO_LINE_LEN);
 }
 #endif
 

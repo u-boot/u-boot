@@ -29,8 +29,6 @@
 
 #include <common.h>
 #include <exports.h>
-/* the smc91111.h gets base addr through eth_device' iobase */
-struct eth_device { unsigned long iobase; };
 #include "../drivers/net/smc91111.h"
 
 #ifndef SMC91111_EEPROM_INIT
@@ -50,14 +48,13 @@ void print_MAC (struct eth_device *dev);
 int read_eeprom_reg (struct eth_device *dev, int reg);
 void print_macaddr (struct eth_device *dev);
 
-int smc91111_eeprom (int argc, char *argv[])
+int smc91111_eeprom (int argc, char * const argv[])
 {
 	int c, i, j, done, line, reg, value, start, what;
 	char input[50];
 
-	struct eth_device dev = {
-		.iobase = CONFIG_SMC91111_BASE
-	};
+	struct eth_device dev;
+	dev.iobase = CONFIG_SMC91111_BASE;
 
 	/* Print the ABI version */
 	app_startup (argv);

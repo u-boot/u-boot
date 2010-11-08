@@ -54,12 +54,12 @@ SECTIONS
   {
     /* WARNING - the following is hand-optimized to fit within	*/
     /* the sector layout of our flash chips!	XXX FIXME XXX	*/
-    cpu/mcf52x2/start.o		(.text)
-    cpu/mcf52x2/cpu_init.o	(.text)
-    lib_m68k/traps.o		(.text)
-    cpu/mcf52x2/interrupts.o	(.text)
+    arch/m68k/cpu/mcf52x2/start.o		(.text)
+    arch/m68k/cpu/mcf52x2/cpu_init.o	(.text)
+    arch/m68k/lib/traps.o		(.text)
+    arch/m68k/cpu/mcf52x2/interrupts.o	(.text)
     common/dlmalloc.o		(.text)
-    lib_generic/zlib.o		(.text)
+    lib/zlib.o		(.text)
 
     . = DEFINED(env_offset) ? env_offset : .;
     common/env_embedded.o	(.text)

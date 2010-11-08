@@ -45,11 +45,12 @@
 #  define CONFIG_CMD_USB_STORAGE
 #  define CONFIG_DOS_PARTITION
 # endif
-# ifdef CONFIG_NAND_PLAT
+# if defined(CONFIG_NAND_PLAT) || defined(CONFIG_DRIVER_NAND_BFIN)
 #  define CONFIG_CMD_NAND
 # endif
 # ifdef CONFIG_POST
 #  define CONFIG_CMD_DIAG
+#  define CONFIG_POST_ALT_LIST
 # endif
 # ifdef CONFIG_RTC_BFIN
 #  define CONFIG_CMD_DATE
@@ -68,6 +69,7 @@
 # endif
 # if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #  define CONFIG_CMD_I2C
+#  define CONFIG_SOFT_I2C_READ_REPEATED_START
 # endif
 # ifdef CONFIG_SYS_NO_FLASH
 #  undef CONFIG_CMD_FLASH
@@ -75,20 +77,22 @@
 # else
 #  define CONFIG_CMD_JFFS2
 # endif
+# ifdef CONFIG_CMD_JFFS2
+#  define CONFIG_JFFS2_SUMMARY
+# endif
 # define CONFIG_CMD_BOOTLDR
 # define CONFIG_CMD_CACHE
 # define CONFIG_CMD_CPLBINFO
 # define CONFIG_CMD_ELF
 # define CONFIG_ELF_SIMPLE_LOAD
+# define CONFIG_CMD_GPIO
+# define CONFIG_CMD_KGDB
 # define CONFIG_CMD_REGINFO
 # define CONFIG_CMD_STRINGS
 # if defined(__ADSPBF51x__) || defined(__ADSPBF52x__) || defined(__ADSPBF54x__)
 #  define CONFIG_CMD_OTP
 #  define CONFIG_CMD_SPIBOOTLDR
 # endif
-#endif
-#ifdef CONFIG_CMD_NAND
-# define CONFIG_SYS_64BIT_VSPRINTF
 #endif
 
 /*
@@ -99,6 +103,7 @@
 #define CONFIG_AUTO_COMPLETE	1
 #define CONFIG_LOADS_ECHO	1
 #define CONFIG_JTAG_CONSOLE
+#define CONFIG_SILENT_CONSOLE
 #ifndef CONFIG_BAUDRATE
 # define CONFIG_BAUDRATE	57600
 #endif
@@ -129,6 +134,9 @@
 #endif
 #ifndef CONFIG_BOOTARGS_ROOT
 # define CONFIG_BOOTARGS_ROOT "/dev/mtdblock0 rw"
+#endif
+#ifndef FLASHBOOT_ENV_SETTINGS
+# define FLASHBOOT_ENV_SETTINGS "flashboot=bootm 0x20100000\0"
 #endif
 #define CONFIG_BOOTARGS	\
 	"root=" CONFIG_BOOTARGS_ROOT " " \
@@ -177,7 +185,19 @@
 		"erase 0x20000000 +$(filesize);" \
 		"cp.b $(loadaddr) 0x20000000 $(filesize)"
 # endif
+# ifdef CONFIG_NETCONSOLE
+#  define NETCONSOLE_ENV \
+	"nc=" \
+		"set ncip ${serverip};" \
+		"set stdin nc;" \
+		"set stdout nc" \
+		"\0"
+# else
+#  define NETCONSOLE_ENV
+# endif
 # define NETWORK_ENV_SETTINGS \
+	NETCONSOLE_ENV \
+	\
 	"ubootfile=" UBOOT_ENV_FILE "\0" \
 	"update=" \
 		"tftp $(loadaddr) $(ubootfile);" \
@@ -214,7 +234,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	NAND_ENV_SETTINGS \
 	NETWORK_ENV_SETTINGS \
-	"flashboot=bootm 0x20100000\0"
+	FLASHBOOT_ENV_SETTINGS
 
 /*
  * Network Settings
@@ -230,12 +250,26 @@
 #   define CONFIG_SYS_AUTOLOAD "no"
 #  endif
 # endif
+# define CONFIG_IP_DEFRAG
 # define CONFIG_NET_RETRY_COUNT 20
+#endif
+
+/*
+ * I2C Settings
+ */
+#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
+# ifndef CONFIG_SYS_I2C_SPEED
+#  define CONFIG_SYS_I2C_SPEED 50000
+# endif
+# ifndef CONFIG_SYS_I2C_SLAVE
+#  define CONFIG_SYS_I2C_SLAVE 0
+# endif
 #endif
 
 /*
  * Misc Settings
  */
+#define CONFIG_BFIN_SPI_GPIO_CS /* Only matters if BFIN_SPI is enabled */
 #define CONFIG_LZMA
 
 #endif

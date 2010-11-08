@@ -20,8 +20,6 @@
 #include <linux/types.h>
 #include <stdio_dev.h>
 
-int gunzip(void *, int, unsigned char *, unsigned long *);
-
 #define DMA_SIZE16	2
 
 #include <asm/mach-common/bits/ppi.h>
@@ -150,6 +148,12 @@ static void video_init(char *NTSCFrame)
 	bfin_write_DMA0_Y_MODIFY(0x0002);
 	bfin_write_DMA0_CONFIG(0x1015);
 	bfin_write_PPI_CONTROL(0x0083);
+}
+
+void video_stop(void)
+{
+	bfin_write_PPI_CONTROL(0);
+	bfin_write_DMA0_CONFIG(0);
 }
 
 int drv_video_init(void)

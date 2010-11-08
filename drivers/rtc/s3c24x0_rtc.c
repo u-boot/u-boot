@@ -30,11 +30,7 @@
 
 #if (defined(CONFIG_CMD_DATE))
 
-#if defined(CONFIG_S3C2400)
-#include <s3c2400.h>
-#elif defined(CONFIG_S3C2410)
-#include <s3c2410.h>
-#endif
+#include <asm/arch/s3c24x0_cpu.h>
 
 #include <rtc.h>
 #include <asm/io.h>

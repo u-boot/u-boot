@@ -1,0 +1,116 @@
+Summary
+=======
+
+This README is about U-Boot support for TI's ARM 926EJS based family of SoCs.
+These SOCs are used for cameras, video security and surveillance, DVR's, etc.
+DaVinci SOC's comprise of DM644x, DM646x, DM35x and DM36x series of SOC's
+Additionally there are some SOCs meant for the audio market which though have
+an OMAP part number are very similar to the DaVinci series of SOC's
+Additionally, some family members contain a TI DSP and/or graphics
+co processors along with a host of other peripherals.
+
+Currently the following boards are supported:
+
+* TI DaVinci DM644x EVM
+
+* TI DaVinci DM646x EVM
+
+* TI DaVinci DM355 EVM
+
+* TI DaVinci DM365 EVM
+
+* TI DA830 EVM
+
+* DM355 based Leopard board
+
+* DM644x based schmoogie board
+
+* DM644x based sffsdr board
+
+* DM644x based sonata board
+
+Build
+=====
+
+* TI DaVinci DM644x EVM:
+
+make davinci_dvevm_config
+make
+
+* TI DaVinci DM646x EVM:
+
+make davinci_dm6467evm_config
+make
+
+* TI DaVinci DM355 EVM:
+
+make davinci_dm355evm_config
+make
+
+* TI DaVinci DM365 EVM:
+
+make davinci_dm365evm_config
+make
+
+* TI DA830 EVM:
+
+make da830evm_config
+make
+
+* DM355 based Leopard board:
+
+make davinci_dm355leopard_config
+make
+
+* DM644x based schmoogie board:
+
+make davinci_schmoogie_config
+make
+
+* DM644x based sffsdr board:
+
+make davinci_sffsdr_config
+make
+
+* DM644x based sonata board:
+
+make davinci_sonata_config
+make
+
+Bootloaders
+===============
+
+The DaVinci SOC's use 2 bootloaders. The low level initialization
+is done by a UBL(user boot loader). The UBL is written to a NAND/NOR/SPI flash
+by a programmer. During initial bootup, the ROM Bootloader reads the UBL
+from a storage device and loads it into the IRAM. The UBL then loads the U-Boot
+into the RAM.
+The programmers and UBL are always released as part of any standard TI
+software release associated with an SOC.
+
+Links
+=====
+
+1) TI DaVinci DM355 EVM:
+http://focus.ti.com/docs/prod/folders/print/tms320dm355.html
+http://www.spectrumdigital.com/product_info.php?cPath=103&products_id=203&osCsid=c499af6087317f11b3da19b4e8f1af32
+
+2) TI DaVinci DM365 EVM:
+http://focus.ti.com/docs/prod/folders/print/tms320dm365.html?247SEM=
+http://support.spectrumdigital.com/boards/evmdm365/revc/
+
+3) DaVinci DM355 based leopard board
+http://designsomething.org/leopardboard/default.aspx
+http://www.spectrumdigital.com/product_info.php?cPath=103&products_id=192&osCsid=67c20335668ffc57cb35727106eb24b1
+
+4) TI DaVinci DM6467 EVM:
+http://focus.ti.com/docs/prod/folders/print/tms320dm6467.html
+http://support.spectrumdigital.com/boards/evmdm6467/revf/
+
+5) TI DaVinci DM6446 EVM:
+http://focus.ti.com/docs/prod/folders/print/tms320dm6446.html
+http://www.spectrumdigital.com/product_info.php?cPath=103&products_id=222
+
+6) TI DA830 EVM
+http://focus.ti.com/apps/docs/gencontent.tsp?appId=1&contentId=52385
+http://www.spectrumdigital.com/product_info.php?cPath=37&products_id=214

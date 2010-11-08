@@ -31,14 +31,6 @@
 #include <sys/stat.h>
 #include "sha1.h"
 
-#ifndef __ASSEMBLY__
-#define	__ASSEMBLY__		/* Dirty trick to get only #defines	*/
-#endif
-#include <config.h>
-#undef	__ASSEMBLY__
-
-extern void sha1_csum (unsigned char *input, int ilen, unsigned char output[20]);
-
 int main (int argc, char **argv)
 {
 	unsigned char output[20];

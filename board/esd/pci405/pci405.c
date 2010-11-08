@@ -34,8 +34,7 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Prototypes */
-int gunzip(void *, int, unsigned char *, unsigned long *);
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 unsigned long fpga_done_state(void);
 unsigned long fpga_init_state(void);
 
@@ -299,7 +298,7 @@ int misc_init_r (void)
 int checkboard (void)
 {
 	char str[64];
-	int i = getenv_r ("serial#", str, sizeof(str));
+	int i = getenv_f("serial#", str, sizeof(str));
 
 	puts ("Board: ");
 
@@ -357,7 +356,7 @@ int wpeeprom(int wp)
 	return wp_state;
 }
 
-int do_wpeeprom(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_wpeeprom(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int wp = -1;
 	if (argc >= 2) {

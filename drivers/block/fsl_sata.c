@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Freescale Semiconductor, Inc.
+ * Copyright (C) 2008,2010 Freescale Semiconductor, Inc.
  *		Dave Liu <daveliu@freescale.com>
  *
  * This program is free software; you can redistribute it and/or
@@ -21,6 +21,8 @@
 #include <common.h>
 #include <command.h>
 #include <asm/io.h>
+#include <asm/processor.h>
+#include <asm/fsl_serdes.h>
 #include <malloc.h>
 #include <libata.h>
 #include <fis.h>
@@ -128,6 +130,17 @@ int init_sata(int dev)
 		return -1;
 	}
 
+#ifdef CONFIG_MPC85xx
+	if ((dev == 0) && (!is_serdes_configured(SATA1))) {
+		printf("SATA%d [dev = %d] is not enabled\n", dev+1, dev);
+		return -1;
+	}
+	if ((dev == 1) && (!is_serdes_configured(SATA2))) {
+		printf("SATA%d [dev = %d] is not enabled\n", dev+1, dev);
+		return -1;
+	}
+#endif
+
 	/* Allocate SATA device driver struct */
 	sata = (fsl_sata_t *)malloc(sizeof(fsl_sata_t));
 	if (!sata) {
@@ -190,6 +203,27 @@ int init_sata(int dev)
 
 	/* Wait the controller offline */
 	ata_wait_register(&reg->hstatus, HSTATUS_ONOFF, 0, 1000);
+
+#if defined(CONFIG_FSL_SATA_V2) && defined(CONFIG_FSL_SATA_ERRATUM_A001)
+	/*
+	 * For P1022/1013 Rev1.0 silicon, after power on SATA host
+	 * controller is configured in legacy mode instead of the
+	 * expected enterprise mode. software needs to clear bit[28]
+	 * of HControl register to change to enterprise mode from
+	 * legacy mode.
+	 */
+	{
+		u32 svr = get_svr();
+		if (IS_SVR_REV(svr, 1, 0) &&
+		    ((SVR_SOC_VER(svr) == SVR_P1022) ||
+		     (SVR_SOC_VER(svr) == SVR_P1022_E) ||
+		     (SVR_SOC_VER(svr) == SVR_P1013) ||
+		     (SVR_SOC_VER(svr) == SVR_P1013_E))) {
+			out_le32(&reg->hstatus, 0x20000000);
+			out_le32(&reg->hcontrol, 0x00000100);
+		}
+	}
+#endif
 
 	/* Set the command header base address to CHBA register to tell DMA */
 	out_le32(&reg->chba, (u32)cmd_hdr & ~0x3);

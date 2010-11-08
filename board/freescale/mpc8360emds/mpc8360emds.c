@@ -159,7 +159,8 @@ int board_eth_init(bd_t *bd)
 		int i;
 
 		for (i = 0; i < ARRAY_SIZE(uec_info); i++)
-			uec_info[i].enet_interface = ENET_1000_RGMII_RXID;
+			uec_info[i].enet_interface_type = RGMII_RXID;
+			uec_info[i].speed = 1000;
 	}
 	return uec_eth_init(bd, uec_info, ARRAY_SIZE(uec_info));
 }
@@ -279,7 +280,7 @@ int checkboard(void)
 static int sdram_init(unsigned int base)
 {
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile fsl_lbus_t *lbc = &immap->lbus;
+	fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	const int sdram_size = CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024;
 	int rem = base % sdram_size;
 	uint *sdram_addr;
@@ -292,8 +293,8 @@ static int sdram_init(unsigned int base)
 	/*
 	 * Setup SDRAM Base and Option Registers
 	 */
-	immap->lbus.bank[2].br = base | CONFIG_SYS_BR2;
-	immap->lbus.bank[2].or = CONFIG_SYS_OR2;
+	set_lbc_br(2, base | CONFIG_SYS_BR2);
+	set_lbc_or(2, CONFIG_SYS_OR2);
 	immap->sysconf.lblaw[2].bar = base;
 	immap->sysconf.lblaw[2].ar = CONFIG_SYS_LBLAWAR2;
 

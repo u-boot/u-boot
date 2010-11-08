@@ -38,16 +38,14 @@ static u8 boot_267_nand[] = {
 	0x00, 0x00, 0x00, 0x00
 };
 
-static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_bootstrap(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	u8 chip;
 	u8 *buf;
 	int cpu_freq;
 
-	if (argc < 3) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 3)
+		return cmd_usage(cmdtp);
 
 	cpu_freq = simple_strtol(argv[1], NULL, 10);
 	if (cpu_freq != 267) {

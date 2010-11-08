@@ -406,14 +406,14 @@ int mtdparts_init(void)
 		part->offset = 0x00000000;
 #endif
 
-		part->sector_size = get_part_sector_size(id, part);
-
 		part->dev = current_mtd_dev;
 		INIT_LIST_HEAD(&part->link);
 
 		/* recalculate size if needed */
 		if (part->size == SIZE_REMAINING)
 			part->size = id->size - part->offset;
+
+		part->sector_size = get_part_sector_size(id, part);
 
 		DEBUGF("part  : name = %s, size = 0x%08lx, offset = 0x%08lx\n",
 				part->name, part->size, part->offset);
@@ -485,7 +485,7 @@ static struct part_info* jffs2_part_info(struct mtd_device *dev, unsigned int pa
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-int do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *fsname;
 	char *filename;
@@ -549,7 +549,7 @@ int do_jffs2_fsload(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-int do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *filename = "/";
 	int ret;
@@ -587,7 +587,7 @@ int do_jffs2_ls(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
  * @param argv arguments list
  * @return 0 on success, 1 otherwise
  */
-int do_jffs2_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_jffs2_fsinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	struct part_info *part;
 	char *fsname;

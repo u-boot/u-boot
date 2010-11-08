@@ -28,7 +28,7 @@
 #include <dtt.h>
 #include <i2c.h>
 
-int do_dtt (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_dtt (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	unsigned char sensors[] = CONFIG_DTT_SENSORS;

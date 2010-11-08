@@ -1045,6 +1045,7 @@ out_version:
 out_class:
 	class_destroy(ubi_class);
 out:
+	mtd_devs = 0;
 	ubi_err("UBI error: cannot initialize UBI, error %d", err);
 	return err;
 }

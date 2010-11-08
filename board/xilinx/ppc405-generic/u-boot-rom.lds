@@ -33,7 +33,7 @@ SECTIONS
 
   .bootpg 0xFFFFF000 :
   {
-    cpu/ppc4xx/start.o	(.bootpg)
+    arch/powerpc/cpu/ppc4xx/start.o	(.bootpg)
   } = 0xffff
 
   /* Read-only sections, merged into text segment: */

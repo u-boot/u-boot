@@ -71,6 +71,8 @@ board_init16:
 .section .bios, "ax"
 .code16
 .globl realmode_reset
+.hidden realmode_reset
+.type realmode_reset, @function
 realmode_reset:
 	/* Alias MMCR to 0xdf000 */
 	movw	$0xfffc, %dx

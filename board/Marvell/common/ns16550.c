@@ -1,6 +1,6 @@
 /*
  * COM1 NS16550 support
- * originally from linux source (arch/ppc/boot/ns16550.c)
+ * originally from linux source (arch/powerpc/boot/ns16550.c)
  * modified to use CONFIG_SYS_ISA_MEM and new defines
  *
  * further modified by Josh Huber <huber@mclx.com> to support

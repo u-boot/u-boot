@@ -1,5 +1,5 @@
 /*
- * linux/include/asm-arm/arch-at91/hardware.h
+ * linux/include/asm/arch-at91/hardware.h
  *
  *  Copyright (C) 2003 SAN People
  *
@@ -21,9 +21,9 @@
 #define __M501SK_H
 
 #ifndef __ASSEMBLY__
-#include <asm-arm/arch-at91rm9200/AT91RM9200.h>
+#include <asm/arch-at91rm9200/AT91RM9200.h>
 #else
-#include <asm-arm/arch-at91rm9200/AT91RM9200_inc.h>
+#include <asm/arch-at91rm9200/AT91RM9200_inc.h>
 #endif
 
 #define AT91C_PIO_PA22 ((unsigned int) 1 << 22) /* Pin Controlled by PA22 */

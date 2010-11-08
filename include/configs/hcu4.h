@@ -72,7 +72,7 @@
 #define CONFIG_SYS_INIT_RAM_END	CONFIG_SYS_OCM_DATA_SIZE
 #define CONFIG_SYS_GBL_DATA_SIZE	256		/* num bytes initial data */
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
-#define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_POST_WORD_ADDR
+#define CONFIG_SYS_INIT_SP_OFFSET	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 
 /*-----------------------------------------------------------------------
  * Serial Port
@@ -192,7 +192,6 @@
 				 CONFIG_SYS_POST_SPR)
 
 #define CONFIG_SYS_POST_UART_TABLE	{UART0_BASE}
-#define CONFIG_SYS_POST_WORD_ADDR	(CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 #undef  CONFIG_LOGBUFFER
 #define CONFIG_SYS_POST_CACHE_ADDR	0x00800000 /* free virtual address	*/
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV /* Otherwise it catches logbuffer as output */

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Freescale Semiconductor.
+ * Copyright 2009-2010 Freescale Semiconductor.
  *
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
  *
@@ -39,6 +39,9 @@
 #include <fsl_esdhc.h>
 
 #include "bcsr.h"
+#if defined(CONFIG_PQ_MDS_PIB)
+#include "../common/pq-mds-pib.h"
+#endif
 
 phys_size_t fixed_sdram(void);
 
@@ -305,7 +308,7 @@ void
 local_bus_init(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	uint clkdiv;
 	uint lbc_hz;
@@ -437,6 +440,11 @@ int board_mmc_init(bd_t *bd)
 		console_assign(stdin, "eserial1");
 		printf("Switched to UART1 (initial log has been printed to "
 		       "UART0).\n");
+
+		clrsetbits_be32(&gur->plppar1, PLPPAR1_UART0_BIT_MASK,
+					       PLPPAR1_ESDHC_4BITS_VAL);
+		clrsetbits_be32(&gur->plpdir1, PLPDIR1_UART0_BIT_MASK,
+					       PLPDIR1_ESDHC_4BITS_VAL);
 		bcsr6 |= BCSR6_SD_CARD_4BITS;
 	} else {
 		printf("should be disabled.\n");
@@ -483,6 +491,15 @@ static void fdt_board_fixup_esdhc(void *blob, bd_t *bd)
 			break;
 		}
 	}
+
+	if (hwconfig_subarg_cmp("esdhc", "mode", "4-bits")) {
+		off = fdt_node_offset_by_compatible(blob, -1, "fsl,esdhc");
+		if (off < 0) {
+			printf("WARNING: could not find esdhc node\n");
+			return;
+		}
+		fdt_delprop(blob, off, "sdhci,1-bit-only");
+	}
 }
 #else
 static inline void fdt_board_fixup_esdhc(void *blob, bd_t *bd) {}
@@ -514,77 +531,47 @@ static void fdt_board_fixup_qe_usb(void *blob, bd_t *bd)
 static struct pci_controller pcie1_hose;
 #endif  /* CONFIG_PCIE1 */
 
-int first_free_busno = 0;
-
 #ifdef CONFIG_PCI
-void
-pci_init_board(void)
+void pci_init_board(void)
 {
-	volatile ccsr_gur_t *gur;
-	uint io_sel;
-	uint host_agent;
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	struct fsl_pci_info pci_info[1];
+	u32 devdisr, pordevsr, io_sel;
+	int first_free_busno = 0;
+	int num = 0;
 
-	gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-	host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
+	int pcie_ep, pcie_configured;
+
+	devdisr = in_be32(&gur->devdisr);
+	pordevsr = in_be32(&gur->pordevsr);
+	io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
+
+	debug ("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
+
+#if defined(CONFIG_PQ_MDS_PIB)
+	pib_init();
+#endif
 
 #ifdef CONFIG_PCIE1
-{
-	volatile ccsr_fsl_pci_t *pci;
-	struct pci_controller *hose;
-	int pcie_ep;
-	struct pci_region *r;
-	int pcie_configured;
-
-	pci = (ccsr_fsl_pci_t *) CONFIG_SYS_PCIE1_ADDR;
-	hose = &pcie1_hose;
-	pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
-	r = hose->regions;
 	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 
-	if (pcie_configured && !(gur->devdisr & MPC85xx_DEVDISR_PCIE)){
-		printf ("\n    PCIE connected to slot as %s (base address %x)",
-			pcie_ep ? "End Point" : "Root Complex",
-			(uint)pci);
-
-		if (pci->pme_msg_det) {
-			pci->pme_msg_det = 0xffffffff;
-			debug (" with errors.  Clearing. Now 0x%08x",
-				pci->pme_msg_det);
-		}
-		printf ("\n");
-
-		/* outbound memory */
-		pci_set_region(r++,
-				CONFIG_SYS_PCIE1_MEM_BUS,
-				CONFIG_SYS_PCIE1_MEM_PHYS,
-				CONFIG_SYS_PCIE1_MEM_SIZE,
-				PCI_REGION_MEM);
-
-		/* outbound io */
-		pci_set_region(r++,
-				CONFIG_SYS_PCIE1_IO_BUS,
-				CONFIG_SYS_PCIE1_IO_PHYS,
-				CONFIG_SYS_PCIE1_IO_SIZE,
-				PCI_REGION_IO);
-
-		hose->region_count = r - hose->regions;
-
-		hose->first_busno=first_free_busno;
-
-		fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
-		printf ("PCIE on bus %02x - %02x\n",
-				hose->first_busno,hose->last_busno);
-
-		first_free_busno=hose->last_busno+1;
-
+	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
+		SET_STD_PCIE_INFO(pci_info[num], 1);
+		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
+		printf ("    PCIE1 connected to Slot as %s (base addr %lx)\n",
+				pcie_ep ? "Endpoint" : "Root Complex",
+				pci_info[num].regs);
+		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+					&pcie1_hose, first_free_busno);
 	} else {
-		printf ("    PCIE: disabled\n");
+		printf ("    PCIE1: disabled\n");
 	}
-}
+
+	puts("\n");
 #else
-	gur->devdisr |= MPC85xx_DEVDISR_PCIE; /* disable */
+	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE); /* disable */
 #endif
+
 }
 #endif /* CONFIG_PCI */
 
@@ -648,9 +635,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 	ft_cpu_setup(blob, bd);
 
-#ifdef CONFIG_PCIE1
-	ft_fsl_pci_setup(blob, "pci1", &pcie1_hose);
-#endif
+	FT_FSL_PCI_SETUP;
+
 	fdt_board_fixup_esdhc(blob, bd);
 	fdt_board_fixup_qe_uart(blob, bd);
 	fdt_board_fixup_qe_usb(blob, bd);

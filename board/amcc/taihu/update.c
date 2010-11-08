@@ -98,7 +98,7 @@ static uchar buf_66[] =
 	0x00
 };
 
-static int update_boot_eeprom(cmd_tbl_t* cmdtp, int flag, int argc, char *argv[])
+static int update_boot_eeprom(cmd_tbl_t* cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong len = 0x20;
 	uchar chip = CONFIG_SYS_I2C_EEPROM_ADDR;

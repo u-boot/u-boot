@@ -129,7 +129,7 @@ void si_read_i2c(u32 lbyte, int count, u8 *buffer)
 phys_size_t initdram(int board_type)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
-	volatile fsl_lbus_t *lbc= &im->lbus;
+	volatile fsl_lbc_t *lbc = &im->im_lbc;
 	u32 msize;
 
 	if ((__raw_readl(&im->sysconf.immrbar) & IMMRBAR_BASE_ADDR) != (u32) im)

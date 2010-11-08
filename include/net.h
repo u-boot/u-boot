@@ -105,6 +105,7 @@ struct eth_device {
 #ifdef CONFIG_MCAST_TFTP
 	int (*mcast) (struct eth_device*, u32 ip, u8 set);
 #endif
+	int  (*write_hwaddr) (struct eth_device*);
 	struct eth_device *next;
 	void *priv;
 };
@@ -116,7 +117,7 @@ extern void eth_try_another(int first_restart);	/* Change the device */
 extern void eth_set_current(void);		/* set nterface to ethcur var */
 #endif
 extern struct eth_device *eth_get_dev(void);	/* get the current device MAC */
-extern struct eth_device *eth_get_dev_by_name(char *devname); /* get device */
+extern struct eth_device *eth_get_dev_by_name(const char *devname);
 extern struct eth_device *eth_get_dev_by_index(int index); /* get dev @ index */
 extern int eth_get_dev_index (void);		/* get the device index */
 extern void eth_parse_enetaddr(const char *addr, uchar *enetaddr);
@@ -507,9 +508,6 @@ extern void	VLAN_to_string (ushort x, char *s);
 
 /* Convert a string to a vlan id */
 extern ushort string_to_VLAN(char *s);
-
-/* read an IP address from a environment variable */
-extern IPaddr_t getenv_IPaddr (char *);
 
 /* read a VLAN id from an environment variable */
 extern ushort getenv_VLAN(char *);

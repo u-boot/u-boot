@@ -56,6 +56,37 @@ void lcd_panel_disable(void)
 
 #define msleep(a) udelay(a * 1000)
 
+#if defined(CONFIG_DISPLAY_VBEST_VGG322403)
+#define XRES		320
+#define YRES		240
+#define PANEL_TYPE	IPU_PANEL_TFT
+#define PIXEL_CLK	156000
+#define PIXEL_FMT	IPU_PIX_FMT_RGB666
+#define H_START_WIDTH	20		/* left_margin */
+#define H_SYNC_WIDTH	30		/* hsync_len */
+#define H_END_WIDTH	(38 + 30)	/* right_margin + hsync_len */
+#define V_START_WIDTH	7		/* upper_margin */
+#define V_SYNC_WIDTH	3		/* vsync_len */
+#define V_END_WIDTH	(26 + 3)	/* lower_margin + vsync_len */
+#define SIG_POL		(DI_D3_DRDY_SHARP_POL | DI_D3_CLK_POL)
+#define IF_CONF		0
+#define IF_CLK_DIV	0x175
+#elif defined(CONFIG_DISPLAY_COM57H5M10XRC)
+#define XRES		640
+#define YRES		480
+#define PANEL_TYPE	IPU_PANEL_TFT
+#define PIXEL_CLK	40000
+#define PIXEL_FMT	IPU_PIX_FMT_RGB666
+#define H_START_WIDTH	120		/* left_margin */
+#define H_SYNC_WIDTH	30		/* hsync_len */
+#define H_END_WIDTH	(10 + 30)	/* right_margin + hsync_len */
+#define V_START_WIDTH	35		/* upper_margin */
+#define V_SYNC_WIDTH	3		/* vsync_len */
+#define V_END_WIDTH	(7 + 3)	/* lower_margin + vsync_len */
+#define SIG_POL		(DI_D3_DRDY_SHARP_POL | DI_D3_CLK_POL)
+#define IF_CONF		0
+#define IF_CLK_DIV	0x175
+#else
 #define XRES		240
 #define YRES		320
 #define PANEL_TYPE	IPU_PANEL_TFT
@@ -70,6 +101,7 @@ void lcd_panel_disable(void)
 #define SIG_POL		(DI_D3_DRDY_SHARP_POL | DI_D3_CLK_POL)
 #define IF_CONF		0
 #define IF_CLK_DIV	0x175
+#endif
 
 #define LCD_COLOR_IPU	LCD_COLOR16
 

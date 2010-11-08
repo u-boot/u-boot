@@ -93,7 +93,7 @@ phys_size_t initdram(int board_type)
 	return (SDRAM_SIZE);
 }
 
-/* In cpu/mips/cpu.c */
+/* In arch/mips/cpu/cpu.c */
 void write_one_tlb( int index, u32 pagemask, u32 hi, u32 low0, u32 low1 );
 
 void set_ledcard(u32 value){

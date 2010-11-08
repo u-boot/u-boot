@@ -20,7 +20,7 @@
 # MA 02111-1307 USA
 #
 
-ifeq ($(ARCH),ppc)
+ifeq ($(ARCH),powerpc)
 LOAD_ADDR = 0x40000
 endif
 ifeq ($(ARCH),arm)
@@ -40,13 +40,14 @@ COBJ_FILES-$(CONFIG_API) += glue.o
 COBJ_FILES-$(CONFIG_API) += libgenwrap.o
 
 # Source files which exist outside the examples/api directory
-EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/crc32.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/ctype.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/div64.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/string.o
-EXT_COBJ_FILES-$(CONFIG_API) += lib_generic/vsprintf.o
-ifeq ($(ARCH),ppc)
-EXT_SOBJ_FILES-$(CONFIG_API) += lib_ppc/ppcstring.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib/crc32.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib/ctype.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib/div64.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib/string.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib/time.o
+EXT_COBJ_FILES-$(CONFIG_API) += lib/vsprintf.o
+ifeq ($(ARCH),powerpc)
+EXT_SOBJ_FILES-$(CONFIG_API) += arch/powerpc/lib/ppcstring.o
 endif
 
 # Create a list of source files so their dependencies can be auto-generated
@@ -74,11 +75,11 @@ $(OUTPUT):	$(OBJS)
 		$(OBJCOPY) -O binary $@ $(OUTPUT).bin 2>/dev/null
 
 # Rule to build generic library C files
-$(obj)%.o: $(SRCTREE)/lib_generic/%.c
+$(obj)%.o: $(SRCTREE)/lib/%.c
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
 # Rule to build architecture-specific library assembly files
-$(obj)%.o: $(SRCTREE)/lib_$(ARCH)/%.S
+$(obj)%.o: $(SRCTREE)/arch/$(ARCH)/lib/%.S
 	$(CC) -g $(CFLAGS) -c -o $@ $<
 
 #########################################################################

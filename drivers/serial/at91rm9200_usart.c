@@ -30,8 +30,16 @@
  */
 
 #include <common.h>
+
+#ifndef CONFIG_AT91_LEGACY
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
+#define CONFIG_AT91_LEGACY
+#include <asm/arch-at91rm9200/AT91RM9200.h>
+#warning Please update to use C structur SoC access !
+#else
+#include <asm/arch/AT91RM9200.h>
+#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 

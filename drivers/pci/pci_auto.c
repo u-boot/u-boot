@@ -1,5 +1,5 @@
 /*
- * arch/ppc/kernel/pci_auto.c
+ * arch/powerpc/kernel/pci_auto.c
  *
  * PCI autoconfiguration library
  *

@@ -157,7 +157,7 @@ phys_size_t initdram (int board_type)
 	/*
 	 * ToDo: Move the asm init routine sdram_init() to this C file,
 	 * or even better use some common ppc4xx code available
-	 * in cpu/ppc4xx
+	 * in arch/powerpc/cpu/ppc4xx
 	 */
 	sdram_init();
 

@@ -126,80 +126,104 @@ the string "u_boot" or on "U_BOOT". Example:
 Versioning:
 ===========
 
-U-Boot uses a 3 level version number containing a version, a
-sub-version, and a patchlevel: "U-Boot-2.34.5" means version "2",
-sub-version "34", and patchlevel "4".
+Starting with the release in October 2008, the names of the releases
+were changed from numerical release numbers without deeper meaning
+into a time stamp based numbering. Regular releases are identified by
+names consisting of the calendar year and month of the release date.
+Additional fields (if present) indicate release candidates or bug fix
+releases in "stable" maintenance trees.
 
-The patchlevel is used to indicate certain stages of development
-between released versions, i. e. officially released versions of
-U-Boot will always have a patchlevel of "0".
+Examples:
+	U-Boot v2009.11     - Release November 2009
+	U-Boot v2009.11.1   - Release 1 in version November 2009 stable tree
+	U-Boot v2010.09-rc1 - Release candiate 1 for September 2010 release
 
 
 Directory Hierarchy:
 ====================
 
-- api		Machine/arch independent API for external apps
-- board		Board dependent files
-- common	Misc architecture independent functions
-- cpu		CPU specific files
-  - 74xx_7xx	Files specific to Freescale MPC74xx and 7xx CPUs
-  - arm720t	Files specific to ARM 720 CPUs
-  - arm920t	Files specific to ARM 920 CPUs
-    - at91rm9200 Files specific to Atmel AT91RM9200 CPU
-    - imx	Files specific to Freescale MC9328 i.MX CPUs
-    - s3c24x0	Files specific to Samsung S3C24X0 CPUs
-  - arm925t	Files specific to ARM 925 CPUs
-  - arm926ejs	Files specific to ARM 926 CPUs
-  - arm1136	Files specific to ARM 1136 CPUs
-  - at32ap	Files specific to Atmel AVR32 AP CPUs
-  - blackfin	Files specific to Analog Devices Blackfin CPUs
-  - i386	Files specific to i386 CPUs
-  - ixp		Files specific to Intel XScale IXP CPUs
-  - leon2	Files specific to Gaisler LEON2 SPARC CPU
-  - leon3	Files specific to Gaisler LEON3 SPARC CPU
-  - mcf52x2	Files specific to Freescale ColdFire MCF52x2 CPUs
-  - mcf5227x	Files specific to Freescale ColdFire MCF5227x CPUs
-  - mcf532x	Files specific to Freescale ColdFire MCF5329 CPUs
-  - mcf5445x	Files specific to Freescale ColdFire MCF5445x CPUs
-  - mcf547x_8x	Files specific to Freescale ColdFire MCF547x_8x CPUs
-  - mips	Files specific to MIPS CPUs
-  - mpc5xx	Files specific to Freescale MPC5xx  CPUs
-  - mpc5xxx	Files specific to Freescale MPC5xxx CPUs
-  - mpc8xx	Files specific to Freescale MPC8xx  CPUs
-  - mpc8220	Files specific to Freescale MPC8220 CPUs
-  - mpc824x	Files specific to Freescale MPC824x CPUs
-  - mpc8260	Files specific to Freescale MPC8260 CPUs
-  - mpc85xx	Files specific to Freescale MPC85xx CPUs
-  - nios	Files specific to Altera NIOS CPUs
-  - nios2	Files specific to Altera Nios-II CPUs
-  - ppc4xx	Files specific to AMCC PowerPC 4xx CPUs
-  - pxa		Files specific to Intel XScale PXA CPUs
-  - s3c44b0	Files specific to Samsung S3C44B0 CPUs
-  - sa1100	Files specific to Intel StrongARM SA1100 CPUs
-- disk		Code for disk drive partition handling
-- doc		Documentation (don't expect too much)
-- drivers	Commonly used device drivers
-- examples	Example code for standalone applications, etc.
-- fs		Filesystem code (cramfs, ext2, jffs2, etc.)
-- include	Header Files
-- lib_arm	Files generic to ARM	 architecture
-- lib_avr32	Files generic to AVR32	 architecture
-- lib_blackfin	Files generic to Blackfin architecture
-- lib_generic	Files generic to all	 architectures
-- lib_i386	Files generic to i386	 architecture
-- lib_m68k	Files generic to m68k	 architecture
-- lib_microblaze Files generic to microblaze architecture
-- lib_mips	Files generic to MIPS	 architecture
-- lib_nios	Files generic to NIOS	 architecture
-- lib_nios2	Files generic to NIOS2	 architecture
-- lib_ppc	Files generic to PowerPC architecture
-- lib_sh	Files generic to SH	 architecture
-- lib_sparc	Files generic to SPARC	 architecture
-- libfdt	Library files to support flattened device trees
-- net		Networking code
-- post		Power On Self Test
-- rtc		Real Time Clock drivers
-- tools		Tools to build S-Record or U-Boot images, etc.
+/arch			Architecture specific files
+  /arm			Files generic to ARM architecture
+    /cpu		CPU specific files
+      /arm720t		Files specific to ARM 720 CPUs
+      /arm920t		Files specific to ARM 920 CPUs
+	/at91rm9200	Files specific to Atmel AT91RM9200 CPU
+	/imx		Files specific to Freescale MC9328 i.MX CPUs
+	/s3c24x0	Files specific to Samsung S3C24X0 CPUs
+      /arm925t		Files specific to ARM 925 CPUs
+      /arm926ejs	Files specific to ARM 926 CPUs
+      /arm1136		Files specific to ARM 1136 CPUs
+      /ixp		Files specific to Intel XScale IXP CPUs
+      /pxa		Files specific to Intel XScale PXA CPUs
+      /s3c44b0		Files specific to Samsung S3C44B0 CPUs
+      /sa1100		Files specific to Intel StrongARM SA1100 CPUs
+    /lib		Architecture specific library files
+  /avr32		Files generic to AVR32 architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /blackfin		Files generic to Analog Devices Blackfin architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /i386			Files generic to i386 architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /m68k			Files generic to m68k architecture
+    /cpu		CPU specific files
+      /mcf52x2		Files specific to Freescale ColdFire MCF52x2 CPUs
+      /mcf5227x		Files specific to Freescale ColdFire MCF5227x CPUs
+      /mcf532x		Files specific to Freescale ColdFire MCF5329 CPUs
+      /mcf5445x		Files specific to Freescale ColdFire MCF5445x CPUs
+      /mcf547x_8x	Files specific to Freescale ColdFire MCF547x_8x CPUs
+    /lib		Architecture specific library files
+  /microblaze		Files generic to microblaze architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /mips			Files generic to MIPS architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /nios2		Files generic to Altera NIOS2 architecture
+    /cpu		CPU specific files
+    /lib		Architecture specific library files
+  /powerpc		Files generic to PowerPC architecture
+    /cpu		CPU specific files
+      /74xx_7xx		Files specific to Freescale MPC74xx and 7xx CPUs
+      /mpc5xx		Files specific to Freescale MPC5xx CPUs
+      /mpc5xxx		Files specific to Freescale MPC5xxx CPUs
+      /mpc8xx		Files specific to Freescale MPC8xx CPUs
+      /mpc8220		Files specific to Freescale MPC8220 CPUs
+      /mpc824x		Files specific to Freescale MPC824x CPUs
+      /mpc8260		Files specific to Freescale MPC8260 CPUs
+      /mpc85xx		Files specific to Freescale MPC85xx CPUs
+      /ppc4xx		Files specific to AMCC PowerPC 4xx CPUs
+    /lib		Architecture specific library files
+  /sh			Files generic to SH architecture
+    /cpu		CPU specific files
+      /sh2		Files specific to sh2 CPUs
+      /sh3		Files specific to sh3 CPUs
+      /sh4		Files specific to sh4 CPUs
+    /lib		Architecture specific library files
+  /sparc		Files generic to SPARC architecture
+    /cpu		CPU specific files
+      /leon2		Files specific to Gaisler LEON2 SPARC CPU
+      /leon3		Files specific to Gaisler LEON3 SPARC CPU
+    /lib		Architecture specific library files
+/api			Machine/arch independent API for external apps
+/board			Board dependent files
+/common			Misc architecture independent functions
+/disk			Code for disk drive partition handling
+/doc			Documentation (don't expect too much)
+/drivers		Commonly used device drivers
+/examples		Example code for standalone applications, etc.
+/fs			Filesystem code (cramfs, ext2, jffs2, etc.)
+/include		Header Files
+/lib			Files generic to all architectures
+  /libfdt		Library files to support flattened device trees
+  /lzma			Library files to support LZMA decompression
+  /lzo			Library files to support LZO decompression
+/net			Networking code
+/post			Power On Self Test
+/rtc			Real Time Clock drivers
+/tools			Tools to build S-Record or U-Boot images, etc.
 
 Software Configuration:
 =======================
@@ -777,7 +801,7 @@ The following options need to be configured:
 		CONFIG_LBA48
 
 		Set this to enable support for disks larger than 137GB
-		Also look at CONFIG_SYS_64BIT_LBA ,CONFIG_SYS_64BIT_VSPRINTF and CONFIG_SYS_64BIT_STRTOUL
+		Also look at CONFIG_SYS_64BIT_LBA.
 		Whithout these , LBA48 support uses 32bit variables and will 'only'
 		support disks up to 2.1TB.
 
@@ -821,6 +845,16 @@ The following options need to be configured:
 		Support for National dp8382[01] gigabit chips.
 
 - NETWORK Support (other):
+
+		CONFIG_DRIVER_AT91EMAC
+		Support for AT91RM9200 EMAC.
+
+			CONFIG_RMII
+			Define this to use reduced MII inteface
+
+			CONFIG_DRIVER_AT91EMAC_QUIET
+			If this defined, the driver is quiet.
+			The driver doen't show link status messages.
 
 		CONFIG_DRIVER_LAN91C96
 		Support for SMSC's LAN91C96 chips.
@@ -1123,6 +1157,12 @@ The following options need to be configured:
 		images, gzipped BMP images can be displayed via the
 		splashscreen support or the bmp command.
 
+- Run length encoded BMP image (RLE8) support: CONFIG_VIDEO_BMP_RLE8
+
+		If this option is set, 8-bit RLE compressed BMP images
+		can be displayed via the splashscreen support or the
+		bmp command.
+
 - Compression support:
 		CONFIG_BZIP2
 
@@ -1377,10 +1417,11 @@ The following options need to be configured:
 		to run and CONFIG_SYS_I2C_SLAVE to be the address of this node (ie
 		the CPU's i2c node address).
 
-		Now, the u-boot i2c code for the mpc8xx (cpu/mpc8xx/i2c.c)
-		sets the CPU up as a master node and so its address should
-		therefore be cleared to 0 (See, eg, MPC823e User's Manual
-		p.16-473). So, set CONFIG_SYS_I2C_SLAVE to 0.
+		Now, the u-boot i2c code for the mpc8xx
+		(arch/powerpc/cpu/mpc8xx/i2c.c) sets the CPU up as a master node
+		and so its address should therefore be cleared to 0 (See,
+		eg, MPC823e User's Manual p.16-473). So, set
+		CONFIG_SYS_I2C_SLAVE to 0.
 
 		CONFIG_SYS_I2C_INIT_MPC5XXX
 
@@ -1458,6 +1499,16 @@ The following options need to be configured:
 
 		#define I2C_DELAY  udelay(2)
 
+		CONFIG_SOFT_I2C_GPIO_SCL / CONFIG_SOFT_I2C_GPIO_SDA
+
+		If your arch supports the generic GPIO framework (asm/gpio.h),
+		then you may alternatively define the two GPIOs that are to be
+		used as SCL / SDA.  Any of the previous I2C_xxx macros will
+		have GPIO-based defaults assigned to them as appropriate.
+
+		You should define these to the GPIO value as given directly to
+		the generic GPIO functions.
+
 		CONFIG_SYS_I2C_INIT_BOARD
 
 		When a board is reset during an i2c bus transfer
@@ -1468,6 +1519,17 @@ The following options need to be configured:
 		connected to the bus. If this option is defined a
 		custom i2c_init_board() routine in boards/xxx/board.c
 		is run early in the boot sequence.
+
+		CONFIG_SYS_I2C_BOARD_LATE_INIT
+
+		An alternative to CONFIG_SYS_I2C_INIT_BOARD. If this option is
+		defined a custom i2c_board_late_init() routine in
+		boards/xxx/board.c is run AFTER the operations in i2c_init()
+		is completed. This callpoint can be used to unreset i2c bus
+		using CPU i2c controller register accesses for CPUs whose i2c
+		controller provide such a method. It is called at the end of
+		i2c_init() to allow i2c_init operations to setup the i2c bus
+		controller on the CPU (e.g. setting bus speed & slave address).
 
 		CONFIG_I2CFAST (PPC405GP|PPC405EP only)
 
@@ -1924,9 +1986,9 @@ Legacy uImage format:
    13	common/image.c		Start multifile image verification
    14	common/image.c		No initial ramdisk, no multifile, continue.
 
-   15	lib_<arch>/bootm.c	All preparation done, transferring control to OS
+   15	arch/<arch>/lib/bootm.c	All preparation done, transferring control to OS
 
-  -30	lib_ppc/board.c		Fatal error, hang the system
+  -30	arch/powerpc/lib/board.c	Fatal error, hang the system
   -31	post/post.c		POST test failed, detected by post_output_backlog()
   -32	post/post.c		POST test failed, detected by post_run_single()
 
@@ -2447,6 +2509,19 @@ to save the current settings.
 	- CONFIG_SYS_EEPROM_SIZE:
 	  The size in bytes of the EEPROM device.
 
+	- CONFIG_ENV_EEPROM_IS_ON_I2C
+	  define this, if you have I2C and SPI activated, and your
+	  EEPROM, which holds the environment, is on the I2C bus.
+
+	- CONFIG_I2C_ENV_EEPROM_BUS
+	  if you have an Environment on an EEPROM reached over
+	  I2C muxes, you can define here, how to reach this
+	  EEPROM. For example:
+
+	  #define CONFIG_I2C_ENV_EEPROM_BUS	  "pca9547:70:d\0"
+
+	  EEPROM which holds the environment, is reached over
+	  a pca9547 i2c mux with address 0x70, channel 3.
 
 - CONFIG_ENV_IS_IN_DATAFLASH:
 
@@ -2501,7 +2576,7 @@ to save the current settings.
 
 Please note that the environment is read-only until the monitor
 has been relocated to RAM and a RAM copy of the environment has been
-created; also, when using EEPROM you will have to use getenv_r()
+created; also, when using EEPROM you will have to use getenv_f()
 until then to read environment variables.
 
 The environment is protected by a CRC32 checksum. Before the monitor
@@ -2523,13 +2598,6 @@ use the "saveenv" command to store a valid environment.
 
 - CONFIG_SYS_FAULT_MII_ADDR:
 		MII address of the PHY to check for the Ethernet link state.
-
-- CONFIG_SYS_64BIT_VSPRINTF:
-		Makes vsprintf (and all *printf functions) support printing
-		of 64bit values by using the L quantifier
-
-- CONFIG_SYS_64BIT_STRTOUL:
-		Adds simple_strtoull that returns a 64bit value
 
 - CONFIG_NS16550_MIN_FUNCTIONS:
 		Define this if you desire to only have use of the NS16550_init
@@ -2681,7 +2749,7 @@ Low Level (hardware related) configuration options:
   CONFIG_SYS_PCI_MSTR_MEMIO_SIZE, CONFIG_SYS_POCMR1_MASK_ATTRIB, CONFIG_SYS_PCI_MSTR_IO_LOCAL,
   CONFIG_SYS_PCI_MSTR_IO_BUS, CONFIG_SYS_CPU_PCI_IO_START, CONFIG_SYS_PCI_MSTR_IO_SIZE,
   CONFIG_SYS_POCMR2_MASK_ATTRIB: (MPC826x only)
-		Overrides the default PCI memory map in cpu/mpc8260/pci.c if set.
+		Overrides the default PCI memory map in arch/powerpc/cpu/mpc8260/pci.c if set.
 
 - CONFIG_PCI_DISABLE_PCIE:
 		Disable PCI-Express on systems where it is supported but not
@@ -2989,7 +3057,9 @@ environment. As long as you don't save the environment you are
 working with an in-memory copy. In case the Flash area containing the
 environment is erased by accident, a default environment is provided.
 
-Some configuration options can be set using Environment Variables:
+Some configuration options can be set using Environment Variables.
+
+List of environment variables (most likely not complete):
 
   baudrate	- see CONFIG_BAUDRATE
 
@@ -3092,16 +3162,16 @@ Some configuration options can be set using Environment Variables:
 		  interface is currently active. For example you
 		  can do the following
 
-		  => setenv ethact FEC ETHERNET
-		  => ping 192.168.0.1 # traffic sent on FEC ETHERNET
-		  => setenv ethact SCC ETHERNET
-		  => ping 10.0.0.1 # traffic sent on SCC ETHERNET
+		  => setenv ethact FEC
+		  => ping 192.168.0.1 # traffic sent on FEC
+		  => setenv ethact SCC
+		  => ping 10.0.0.1 # traffic sent on SCC
 
   ethrotate	- When set to "no" U-Boot does not go through all
 		  available network interfaces.
 		  It just stays at the currently selected interface.
 
-   netretry	- When set to "no" each network operation will
+  netretry	- When set to "no" each network operation will
 		  either succeed or fail without retrying.
 		  When set to "once" the network operation will
 		  fail when all the available network interfaces
@@ -3117,7 +3187,18 @@ Some configuration options can be set using Environment Variables:
   tftpdstport	- If this is set, the value is used for TFTP's UDP
 		  destination port instead of the Well Know Port 69.
 
-   vlan		- When set to a value < 4095 the traffic over
+  tftpblocksize - Block size to use for TFTP transfers; if not set,
+		  we use the TFTP server's default block size
+
+  tftptimeout	- Retransmission timeout for TFTP packets (in milli-
+		  seconds, minimum value is 1000 = 1 second). Defines
+		  when a packet is considered to be lost so it has to
+		  be retransmitted. The default is 5000 = 5 seconds.
+		  Lowering this value may make downloads succeed
+		  faster in networks with high packet loss rates or
+		  with unreliable TFTP servers.
+
+  vlan		- When set to a value < 4095 the traffic over
 		  Ethernet is encapsulated/received over 802.1q
 		  VLAN tagged frames.
 
@@ -3233,6 +3314,11 @@ o If both the SROM and the environment contain a MAC address, and the
 o If neither SROM nor the environment contain a MAC address, an error
   is raised.
 
+If Ethernet drivers implement the 'write_hwaddr' function, valid MAC addresses
+will be programmed into hardware as part of the initialization process.  This
+may be skipped by setting the appropriate 'ethmacskip' environment variable.
+The naming convention is as follows:
+"ethmacskip" (=>eth0), "eth1macskip" (=>eth1) etc.
 
 Image Formats:
 ==============
@@ -3262,8 +3348,8 @@ details; basically, the header defines the following image properties:
   Currently supported: Linux, NetBSD, VxWorks, QNX, RTEMS, LynxOS,
   INTEGRITY).
 * Target CPU Architecture (Provisions for Alpha, ARM, AVR32, Intel x86,
-  IA64, MIPS, NIOS, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
-  Currently supported: ARM, AVR32, Intel x86, MIPS, NIOS, PowerPC).
+  IA64, MIPS, Nios II, PowerPC, IBM S390, SuperH, Sparc, Sparc 64 Bit;
+  Currently supported: ARM, AVR32, Intel x86, MIPS, Nios II, PowerPC).
 * Compression Type (uncompressed, gzip, bzip2)
 * Load Address
 * Entry Point
@@ -3314,7 +3400,7 @@ configure the Linux device drivers for use with your target hardware
 (no, we don't intend to provide a full virtual machine interface to
 Linux :-).
 
-But now you can ignore ALL boot loader code (in arch/ppc/mbxboot).
+But now you can ignore ALL boot loader code (in arch/powerpc/mbxboot).
 
 Just make sure your machine specific header file (for instance
 include/asm-ppc/tqm8xx.h) includes the same definition of the Board
@@ -3412,7 +3498,7 @@ So a typical call to build a U-Boot image would read:
 
 	-> tools/mkimage -n '2.4.4 kernel for TQM850L' \
 	> -A ppc -O linux -T kernel -C gzip -a 0 -e 0 \
-	> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux.gz \
+	> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/powerpc/coffboot/vmlinux.gz \
 	> examples/uImage.TQM850L
 	Image Name:   2.4.4 kernel for TQM850L
 	Created:      Wed Jul 19 02:34:59 2000
@@ -3436,10 +3522,10 @@ speed for memory and install an UNCOMPRESSED image instead: this
 needs more space in Flash, but boots much faster since it does not
 need to be uncompressed:
 
-	-> gunzip /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux.gz
+	-> gunzip /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/powerpc/coffboot/vmlinux.gz
 	-> tools/mkimage -n '2.4.4 kernel for TQM850L' \
 	> -A ppc -O linux -T kernel -C none -a 0 -e 0 \
-	> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/ppc/coffboot/vmlinux \
+	> -d /opt/elsk/ppc_8xx/usr/src/linux-2.4.4/arch/powerpc/coffboot/vmlinux \
 	> examples/uImage.TQM850L-uncompressed
 	Image Name:   2.4.4 kernel for TQM850L
 	Created:      Wed Jul 19 02:34:59 2000
@@ -3916,7 +4002,9 @@ For PowerPC, the following registers have specific use:
 	R30:	GOT pointer
 	R31:	frame pointer
 
-	(U-Boot also uses R14 as internal GOT pointer.)
+	(U-Boot also uses R12 as internal GOT pointer. r12
+	is a volatile register so r12 needs to be reset when
+	going back and forth between asm and C)
 
     ==> U-Boot will use R2 to hold a pointer to the global data
 
@@ -3945,6 +4033,14 @@ On ARM, the following registers are used:
 	R15:	program counter
 
     ==> U-Boot will use R8 to hold a pointer to the global data
+
+On Nios II, the ABI is documented here:
+	http://www.altera.com/literature/hb/nios2/n2cpu_nii51016.pdf
+
+    ==> U-Boot will use gp to hold a pointer to the global data
+
+    Note: on Nios II, we give "-G0" option to gcc and don't use gp
+    to access small data sections, so gp is free.
 
 NOTE: DECLARE_GLOBAL_DATA_PTR must be used with file-global scope,
 or current versions of GCC may "optimize" the code too much.

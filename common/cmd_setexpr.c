@@ -28,19 +28,42 @@
 #include <config.h>
 #include <command.h>
 
-int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static ulong get_arg(char *s, int w)
+{
+	ulong *p;
+
+	/*
+	 * if the parameter starts with a '*' then assume
+	 * it is a pointer to the value we want
+	 */
+
+	if (s[0] == '*') {
+		p = (ulong *)simple_strtoul(&s[1], NULL, 16);
+		switch (w) {
+		case 1: return((ulong)(*(uchar *)p));
+		case 2: return((ulong)(*(ushort *)p));
+		case 4:
+		default: return(*p);
+		}
+	} else {
+		return simple_strtoul(s, NULL, 16);
+	}
+}
+
+int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong a, b;
 	char buf[16];
+	int w;
 
 	/* Validate arguments */
-	if ((argc != 5) || (strlen(argv[3]) != 1)) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if ((argc != 5) || (strlen(argv[3]) != 1))
+		return cmd_usage(cmdtp);
 
-	a = simple_strtoul(argv[2], NULL, 16);
-	b = simple_strtoul(argv[4], NULL, 16);
+	w = cmd_get_data_size(argv[0], 4);
+
+	a = get_arg(argv[2], w);
+	b = get_arg(argv[4], w);
 
 	switch (argv[3][0]) {
 	case '|': sprintf(buf, "%lx", (a | b)); break;
@@ -64,7 +87,8 @@ int do_setexpr(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 U_BOOT_CMD(
 	setexpr, 5, 0, do_setexpr,
 	"set environment variable as the result of eval expression",
-	"name value1 <op> value2\n"
+	"[.b, .w, .l] name value1 <op> value2\n"
 	"    - set environment variable 'name' to the result of the evaluated\n"
-	"      express specified by <op>.  <op> can be &, |, ^, +, -, *, /, %"
+	"      express specified by <op>.  <op> can be &, |, ^, +, -, *, /, %\n"
+	"      size argument is only meaningful if value1 and/or value2 are memory addresses"
 );

@@ -122,12 +122,12 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	for (sect = s_first; sect <= s_last; sect++) {
 		if (info->protect[sect] == 0) {	/* not protected */
 			addr2 = (unsigned char *) info->start[sect];
-			writeb (addr, 0xaa);
-			writeb (addr,  0x55);
-			writeb (addr,  0x80);
-			writeb (addr,  0xaa);
-			writeb (addr,  0x55);
-			writeb (addr2, 0x30);
+			writeb (0xaa, addr);
+			writeb (0x55, addr);
+			writeb (0x80, addr);
+			writeb (0xaa, addr);
+			writeb (0x55, addr);
+			writeb (0x30, addr2);
 			/* Now just wait for 0xff & provide some user
 			 * feedback while we wait.
 			 */
@@ -169,9 +169,9 @@ int write_buff (flash_info_t * info, uchar * src, ulong addr, ulong cnt)
 			return (2);
 		}
 
-		writeb (cmd,  0xaa);
-		writeb (cmd,  0x55);
-		writeb (cmd,  0xa0);
+		writeb (0xaa, cmd);
+		writeb (0x55, cmd);
+		writeb (0xa0, cmd);
 		writeb (dst, b);
 
 		/* Verify write */

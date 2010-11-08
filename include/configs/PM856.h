@@ -325,6 +325,7 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_EEPROM
+#define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
     #define CONFIG_CMD_PCI

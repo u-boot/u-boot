@@ -316,7 +316,7 @@ DONE:
 	return result;
 }
 
-static int do_eeprom_dump(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_eeprom_dump(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unchar data = 0, index = 0;
 	ulong gpio_old_val;
@@ -337,14 +337,14 @@ static int do_eeprom_dump(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return 0;
 }
 
-static int do_eeprom_erase_all(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_eeprom_erase_all(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	eeprom_erase_all();
 
 	return 0;
 }
 
-static int do_eeprom_save_mac(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int do_eeprom_save_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	ulong hi16, lo32;
 	unchar ethaddr[6], i;

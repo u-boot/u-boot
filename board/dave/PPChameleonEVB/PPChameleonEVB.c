@@ -33,9 +33,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 /* ------------------------------------------------------------------------- */
 
-/* Prototypes */
-int gunzip(void *, int, unsigned char *, unsigned long *);
-
 int board_early_init_f (void)
 {
 	out32(GPIO0_OR, CONFIG_SYS_NAND0_CE);                 /* set initial outputs     */
@@ -186,7 +183,7 @@ int misc_init_r (void)
 int checkboard (void)
 {
 	char str[64];
-	int i = getenv_r ("serial#", str, sizeof(str));
+	int i = getenv_f("serial#", str, sizeof(str));
 
 	puts ("Board: ");
 

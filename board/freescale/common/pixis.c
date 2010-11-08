@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 Freescale Semiconductor
+ * Copyright 2006,2010 Freescale Semiconductor
  * Jeff Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
@@ -24,33 +24,26 @@
 
 #include <common.h>
 #include <command.h>
-#include <watchdog.h>
-#include <asm/cache.h>
 #include <asm/io.h>
 
-#include "pixis.h"
-
-
-static ulong strfractoint(uchar *strptr);
-
+#define pixis_base (u8 *)PIXIS_BASE
 
 /*
  * Simple board reset.
  */
 void pixis_reset(void)
 {
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
 	out_8(pixis_base + PIXIS_RST, 0);
-}
 
+	while (1);
+}
 
 /*
  * Per table 27, page 58 of MPC8641HPCN spec.
  */
-int set_px_sysclk(ulong sysclk)
+static int set_px_sysclk(unsigned long sysclk)
 {
 	u8 sysclk_s, sysclk_r, sysclk_v, vclkh, vclkl, sysclk_aux;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
 	switch (sysclk) {
 	case 33:
@@ -117,13 +110,13 @@ int set_px_sysclk(ulong sysclk)
 	return 1;
 }
 
-
-int set_px_mpxpll(ulong mpxpll)
+/* Set the CFG_SYSPLL bits
+ *
+ * This only has effect if PX_VCFGEN0[SYSPLL]=1, which is true if
+ * read_from_px_regs() is called.
+ */
+static int set_px_mpxpll(unsigned long mpxpll)
 {
-	u8 tmp;
-	u8 val;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
-
 	switch (mpxpll) {
 	case 2:
 	case 4:
@@ -133,28 +126,19 @@ int set_px_mpxpll(ulong mpxpll)
 	case 12:
 	case 14:
 	case 16:
-		val = (u8) mpxpll;
-		break;
-	default:
-		printf("Unsupported MPXPLL ratio.\n");
-		return 0;
+		clrsetbits_8(pixis_base + PIXIS_VSPEED1, 0x1F, mpxpll);
+		return 1;
 	}
 
-	tmp = in_8(pixis_base + PIXIS_VSPEED1);
-	tmp = (tmp & 0xF0) | (val & 0x0F);
-	out_8(pixis_base + PIXIS_VSPEED1, tmp);
-
-	return 1;
+	printf("Unsupported MPXPLL ratio.\n");
+	return 0;
 }
 
-
-int set_px_corepll(ulong corepll)
+static int set_px_corepll(unsigned long corepll)
 {
-	u8 tmp;
 	u8 val;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	switch ((int)corepll) {
+	switch (corepll) {
 	case 20:
 		val = 0x08;
 		break;
@@ -178,113 +162,132 @@ int set_px_corepll(ulong corepll)
 		return 0;
 	}
 
-	tmp = in_8(pixis_base + PIXIS_VSPEED0);
-	tmp = (tmp & 0xE0) | (val & 0x1F);
-	out_8(pixis_base + PIXIS_VSPEED0, tmp);
-
+	clrsetbits_8(pixis_base + PIXIS_VSPEED0, 0x1F, val);
 	return 1;
 }
 
+#ifndef CONFIG_SYS_PIXIS_VCFGEN0_ENABLE
+#define CONFIG_SYS_PIXIS_VCFGEN0_ENABLE		0x1C
+#endif
 
-void read_from_px_regs(int set)
+/* Tell the PIXIS where to find the COREPLL, MPXPLL, SYSCLK values
+ *
+ * The PIXIS can be programmed to look at either the on-board dip switches
+ * or various other PIXIS registers to determine the values for COREPLL,
+ * MPXPLL, and SYSCLK.
+ *
+ * CONFIG_SYS_PIXIS_VCFGEN0_ENABLE is the value to write to the PIXIS_VCFGEN0
+ * register that tells the pixis to use the various PIXIS register.
+ */
+static void read_from_px_regs(int set)
 {
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
-	u8 mask = 0x1C;	/* COREPLL, MPXPLL, SYSCLK controlled by PIXIS */
 	u8 tmp = in_8(pixis_base + PIXIS_VCFGEN0);
 
 	if (set)
-		tmp = tmp | mask;
+		tmp = tmp | CONFIG_SYS_PIXIS_VCFGEN0_ENABLE;
 	else
-		tmp = tmp & ~mask;
+		tmp = tmp & ~CONFIG_SYS_PIXIS_VCFGEN0_ENABLE;
+
 	out_8(pixis_base + PIXIS_VCFGEN0, tmp);
 }
 
+/* CONFIG_SYS_PIXIS_VBOOT_ENABLE is the value to write to the PX_VCFGEN1
+ * register that tells the pixis to use the PX_VBOOT[LBMAP] register.
+ */
+#ifndef CONFIG_SYS_PIXIS_VBOOT_ENABLE
+#define CONFIG_SYS_PIXIS_VBOOT_ENABLE	0x04
+#endif
 
-void read_from_px_regs_altbank(int set)
+/* Configure the source of the boot location
+ *
+ * The PIXIS can be programmed to look at either the on-board dip switches
+ * or the PX_VBOOT[LBMAP] register to determine where we should boot.
+ *
+ * If we want to boot from the alternate boot bank, we need to tell the PIXIS
+ * to ignore the on-board dip switches and use the PX_VBOOT[LBMAP] instead.
+ */
+static void read_from_px_regs_altbank(int set)
 {
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
-	u8 mask = 0x04;	/* FLASHBANK and FLASHMAP controlled by PIXIS */
 	u8 tmp = in_8(pixis_base + PIXIS_VCFGEN1);
 
 	if (set)
-		tmp = tmp | mask;
+		tmp = tmp | CONFIG_SYS_PIXIS_VBOOT_ENABLE;
 	else
-		tmp = tmp & ~mask;
+		tmp = tmp & ~CONFIG_SYS_PIXIS_VBOOT_ENABLE;
+
 	out_8(pixis_base + PIXIS_VCFGEN1, tmp);
 }
 
+/* CONFIG_SYS_PIXIS_VBOOT_MASK contains the bits to set in VBOOT register that
+ * tells the PIXIS what the alternate flash bank is.
+ *
+ * Note that it's not really a mask.  It contains the actual LBMAP bits that
+ * must be set to select the alternate bank.  This code assumes that the
+ * primary bank has these bits set to 0, and the alternate bank has these
+ * bits set to 1.
+ */
 #ifndef CONFIG_SYS_PIXIS_VBOOT_MASK
 #define CONFIG_SYS_PIXIS_VBOOT_MASK	(0x40)
 #endif
 
-void clear_altbank(void)
+/* Tell the PIXIS to boot from the default flash bank
+ *
+ * Program the default flash bank into the VBOOT register.  This register is
+ * used only if PX_VCFGEN1[FLASH]=1.
+ */
+static void clear_altbank(void)
 {
-	u8 tmp;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
-
-	tmp = in_8(pixis_base + PIXIS_VBOOT);
-	tmp &= ~CONFIG_SYS_PIXIS_VBOOT_MASK;
-
-	out_8(pixis_base + PIXIS_VBOOT, tmp);
+	clrbits_8(pixis_base + PIXIS_VBOOT, CONFIG_SYS_PIXIS_VBOOT_MASK);
 }
 
-
-void set_altbank(void)
+/* Tell the PIXIS to boot from the alternate flash bank
+ *
+ * Program the alternate flash bank into the VBOOT register.  This register is
+ * used only if PX_VCFGEN1[FLASH]=1.
+ */
+static void set_altbank(void)
 {
-	u8 tmp;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
-
-	tmp = in_8(pixis_base + PIXIS_VBOOT);
-	tmp |= CONFIG_SYS_PIXIS_VBOOT_MASK;
-
-	out_8(pixis_base + PIXIS_VBOOT, tmp);
+	setbits_8(pixis_base + PIXIS_VBOOT, CONFIG_SYS_PIXIS_VBOOT_MASK);
 }
 
-
-void set_px_go(void)
+/* Reset the board with watchdog disabled.
+ *
+ * This respects the altbank setting.
+ */
+static void set_px_go(void)
 {
-	u8 tmp;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
+	/* Disable the VELA sequencer and watchdog */
+	clrbits_8(pixis_base + PIXIS_VCTL, 9);
 
-	tmp = in_8(pixis_base + PIXIS_VCTL);
-	tmp = tmp & 0x1E;			/* clear GO bit */
-	out_8(pixis_base + PIXIS_VCTL, tmp);
+	/* Reboot by starting the VELA sequencer */
+	setbits_8(pixis_base + PIXIS_VCTL, 0x1);
 
-	tmp = in_8(pixis_base + PIXIS_VCTL);
-	tmp = tmp | 0x01;	/* set GO bit - start reset sequencer */
-	out_8(pixis_base + PIXIS_VCTL, tmp);
+	while (1);
 }
 
-
-void set_px_go_with_watchdog(void)
+/* Reset the board with watchdog enabled.
+ *
+ * This respects the altbank setting.
+ */
+static void set_px_go_with_watchdog(void)
 {
-	u8 tmp;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
+	/* Disable the VELA sequencer */
+	clrbits_8(pixis_base + PIXIS_VCTL, 1);
 
-	tmp = in_8(pixis_base + PIXIS_VCTL);
-	tmp = tmp & 0x1E;
-	out_8(pixis_base + PIXIS_VCTL, tmp);
+	/* Enable the watchdog and reboot by starting the VELA sequencer */
+	setbits_8(pixis_base + PIXIS_VCTL, 0x9);
 
-	tmp = in_8(pixis_base + PIXIS_VCTL);
-	tmp = tmp | 0x09;
-	out_8(pixis_base + PIXIS_VCTL, tmp);
+	while (1);
 }
 
-
-int pixis_disable_watchdog_cmd(cmd_tbl_t *cmdtp,
-			       int flag, int argc, char *argv[])
+/* Disable the watchdog
+ *
+ */
+static int pixis_disable_watchdog_cmd(cmd_tbl_t *cmdtp, int flag, int argc,
+				      char * const argv[])
 {
-	u8 tmp;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
-
-	tmp = in_8(pixis_base + PIXIS_VCTL);
-	tmp = tmp & 0x1E;
-	out_8(pixis_base + PIXIS_VCTL, tmp);
-
-	/* setting VCTL[WDEN] to 0 to disable watch dog */
-	tmp = in_8(pixis_base + PIXIS_VCTL);
-	tmp &= ~0x08;
-	out_8(pixis_base + PIXIS_VCTL, tmp);
+	/* Disable the VELA sequencer and the watchdog */
+	clrbits_8(pixis_base + PIXIS_VCTL, 9);
 
 	return 0;
 }
@@ -296,16 +299,17 @@ U_BOOT_CMD(
 );
 
 #ifdef CONFIG_PIXIS_SGMII_CMD
-int pixis_set_sgmii(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+
+/* Enable or disable SGMII mode for a TSEC
+ */
+static int pixis_set_sgmii(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int which_tsec = -1;
-	u8 *pixis_base = (u8 *)PIXIS_BASE;
-	uchar mask;
-	uchar switch_mask;
+	unsigned char mask;
+	unsigned char switch_mask;
 
-	if (argc > 2)
-		if (strcmp(argv[1], "all") != 0)
-			which_tsec = simple_strtoul(argv[1], NULL, 0);
+	if ((argc > 2) && (strcmp(argv[1], "all") != 0))
+		which_tsec = simple_strtoul(argv[1], NULL, 0);
 
 	switch (which_tsec) {
 #ifdef CONFIG_TSEC1
@@ -363,6 +367,7 @@ U_BOOT_CMD(
 	"    off - disables SGMII\n"
 	"    switch - use switch settings"
 );
+
 #endif
 
 /*
@@ -371,14 +376,13 @@ U_BOOT_CMD(
  * FPGA register values.
  * input: strptr i.e. argv[2]
  */
-
-static ulong strfractoint(uchar *strptr)
+static unsigned long strfractoint(char *strptr)
 {
-	int i, j, retval;
+	int i, j;
 	int mulconst;
-	int intarr_len = 0, decarr_len = 0, no_dec = 0;
-	ulong intval = 0, decval = 0;
-	uchar intarr[3], decarr[3];
+	int intarr_len, no_dec = 0;
+	unsigned long intval = 0, decval = 0;
+	char intarr[3], decarr[3];
 
 	/* Assign the integer part to intarr[]
 	 * If there is no decimal point i.e.
@@ -412,26 +416,21 @@ static ulong strfractoint(uchar *strptr)
 			j++;
 		}
 
-		decarr_len = j;
 		decarr[j] = '\0';
 
 		mulconst = 1;
-		for (i = 0; i < decarr_len; i++)
+		for (i = 0; i < j; i++)
 			mulconst *= 10;
-		decval = simple_strtoul((char *)decarr, NULL, 10);
+		decval = simple_strtoul(decarr, NULL, 10);
 	}
 
-	intval = simple_strtoul((char *)intarr, NULL, 10);
+	intval = simple_strtoul(intarr, NULL, 10);
 	intval = intval * mulconst;
 
-	retval = intval + decval;
-
-	return retval;
+	return intval + decval;
 }
 
-
-int
-pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+static int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned int i;
 	char *p_cf = NULL;
@@ -440,7 +439,7 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	char *p_cf_mpxpll = NULL;
 	char *p_altbank = NULL;
 	char *p_wd = NULL;
-	unsigned int unknown_param = 0;
+	int unknown_param = 0;
 
 	/*
 	 * No args is a simple reset request.
@@ -493,9 +492,9 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	 */
 	read_from_px_regs(0);
 
-	if (p_altbank) {
+	if (p_altbank)
 		read_from_px_regs_altbank(0);
-	}
+
 	clear_altbank();
 
 	/*
@@ -507,7 +506,7 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		unsigned long mpxpll;
 
 		sysclk = simple_strtoul(p_cf_sysclk, NULL, 10);
-		corepll = strfractoint((uchar *) p_cf_corepll);
+		corepll = strfractoint(p_cf_corepll);
 		mpxpll = simple_strtoul(p_cf_mpxpll, NULL, 10);
 
 		if (!(set_px_sysclk(sysclk)
@@ -536,11 +535,10 @@ pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	/*
 	 * Reset with watchdog specified.
 	 */
-	if (p_wd) {
+	if (p_wd)
 		set_px_go_with_watchdog();
-	} else {
+	else
 		set_px_go();
-	}
 
 	/*
 	 * Shouldn't be reached.

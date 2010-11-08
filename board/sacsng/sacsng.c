@@ -38,7 +38,7 @@
 extern void eth_loopback_test(void);
 #endif /* CONFIG_ETHER_LOOPBACK_TEST */
 
-extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[]);
+extern int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 #include "clkinit.h"
 #include "ioconfig.h" /* I/O configuration table */
@@ -869,15 +869,3 @@ void spi_cs_deactivate(struct spi_slave *slave)
 #endif
 
 #endif /* CONFIG_MISC_INIT_R */
-
-#ifdef CONFIG_POST
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed(void)
-{
-	return 0;	/* No hotkeys supported */
-}
-
-#endif

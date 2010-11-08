@@ -283,6 +283,7 @@
 #define CONFIG_SYS_NS16550_COM2        (CONFIG_SYS_IMMR+0x4600)
 
 #define CONFIG_CMDLINE_EDITING	1	/* add command line history	*/
+#define CONFIG_AUTO_COMPLETE		/* add autocompletion support   */
 /* Use the HUSH parser */
 #define CONFIG_SYS_HUSH_PARSER
 #ifdef  CONFIG_SYS_HUSH_PARSER
@@ -541,7 +542,8 @@
 #define CONFIG_SYS_SICRL SICRL_LDP_A
 
 #define CONFIG_SYS_HID0_INIT	0x000000000
-#define CONFIG_SYS_HID0_FINAL	HID0_ENABLE_MACHINE_CHECK
+#define CONFIG_SYS_HID0_FINAL	(HID0_ENABLE_MACHINE_CHECK | \
+				 HID0_ENABLE_INSTRUCTION_CACHE)
 
 /* #define CONFIG_SYS_HID0_FINAL		(\
 	HID0_ENABLE_INSTRUCTION_CACHE |\
@@ -631,20 +633,12 @@
 
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR		00:a0:1e:a0:13:8d
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR		00:a0:1e:a0:13:8e
 #endif
-
-#define CONFIG_IPADDR		192.168.1.234
 
 #define CONFIG_HOSTNAME		SBC8349
 #define CONFIG_ROOTPATH		/tftpboot/rootfs
 #define CONFIG_BOOTFILE		uImage
-
-#define CONFIG_SERVERIP		192.168.1.1
-#define CONFIG_GATEWAYIP	192.168.1.1
-#define CONFIG_NETMASK		255.255.255.0
 
 #define CONFIG_LOADADDR		800000	/* default location for tftp and bootm */
 

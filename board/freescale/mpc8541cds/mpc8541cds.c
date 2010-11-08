@@ -291,7 +291,7 @@ void
 local_bus_init(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	uint clkdiv;
 	uint lbc_hz;
@@ -340,7 +340,7 @@ sdram_init(void)
 #if defined(CONFIG_SYS_OR2_PRELIM) && defined(CONFIG_SYS_BR2_PRELIM)
 
 	uint idx;
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
 	uint cpu_board_rev;
 	uint lsdmr_common;
@@ -352,15 +352,10 @@ sdram_init(void)
 	/*
 	 * Setup SDRAM Base and Option Registers
 	 */
-	lbc->or2 = CONFIG_SYS_OR2_PRELIM;
-	asm("msync");
-
-	lbc->br2 = CONFIG_SYS_BR2_PRELIM;
-	asm("msync");
-
+	set_lbc_or(2, CONFIG_SYS_OR2_PRELIM);
+	set_lbc_br(2, CONFIG_SYS_BR2_PRELIM);
 	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
 	asm("msync");
-
 
 	lbc->lsrt = CONFIG_SYS_LBC_LSRT;
 	lbc->mrtpr = CONFIG_SYS_LBC_MRTPR;

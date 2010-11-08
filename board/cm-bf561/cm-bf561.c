@@ -18,16 +18,9 @@ int checkboard(void)
 	return 0;
 }
 
-phys_size_t initdram(int board_type)
-{
-	gd->bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_memsize = CONFIG_SYS_MAX_RAM_SIZE;
-	return gd->bd->bi_memsize;
-}
-
-#ifdef CONFIG_SMC91111
+#ifdef CONFIG_SMC911X
 int board_eth_init(bd_t *bis)
 {
-	return smc91111_initialize(0, CONFIG_SMC91111_BASE);
+	return smc911x_initialize(0, CONFIG_SMC911X_BASE);
 }
 #endif

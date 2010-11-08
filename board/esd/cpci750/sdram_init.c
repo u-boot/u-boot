@@ -538,14 +538,14 @@ static int check_dimm (uchar slot, AUX_MEM_DIMM_INFO * dimmInfo)
 			break;
 /*------------------------------------------------------------------------------------------------------------------------------*/
 
-#ifdef CONFIG_ECC
+#ifdef CONFIG_MV64360_ECC
 		case 11:	/* Error Check Type */
 			dimmInfo->errorCheckType = data[i];
 			DP (printf
 			    ("Error Check Type (0=NONE):			%d\n",
 			     dimmInfo->errorCheckType));
 			break;
-#endif
+#endif /* of ifdef CONFIG_MV64360_ECC */
 /*------------------------------------------------------------------------------------------------------------------------------*/
 
 		case 12:	/* Refresh Interval */
@@ -1254,6 +1254,7 @@ int setup_sdram (AUX_MEM_DIMM_INFO * info)
 	ulong tmp;
 	ulong tmp_sdram_mode = 0;	/* 0x141c */
 	ulong tmp_dunit_control_low = 0;	/* 0x1404 */
+	uint sdram_config_reg = CONFIG_SYS_SDRAM_CONFIG;
 	int i;
 
 	/* sanity checking */
@@ -1269,7 +1270,6 @@ int setup_sdram (AUX_MEM_DIMM_INFO * info)
 		DP (printf
 		    ("Module is registered, but we do not support registered Modules !!!\n"));
 
-
 	/* delay line */
 	set_dfcdlInit ();	/* may be its not needed */
 	DP (printf ("Delay line set done\n"));
@@ -1281,8 +1281,16 @@ int setup_sdram (AUX_MEM_DIMM_INFO * info)
 		    ("\n*** SDRAM_OPERATION 1418: Module still busy ... please wait... ***\n"));
 	}
 
+#ifdef CONFIG_MV64360_ECC
+	if ((info->errorCheckType == 0x2) && (CPCI750_ECC_TEST)) {
+		/* DRAM has ECC, so turn it on */
+		sdram_config_reg |= BIT18;
+		DP(printf("Enabling ECC\n"));
+	}
+#endif /* of ifdef CONFIG_MV64360_ECC */
+
 	/* SDRAM configuration */
-	GT_REG_WRITE (SDRAM_CONFIG, 0x58200400);
+	GT_REG_WRITE(SDRAM_CONFIG, sdram_config_reg);
 	DP (printf ("sdram_conf 0x1400: %08x\n", GTREGREAD (SDRAM_CONFIG)));
 
 	/* SDRAM open pages controll keep open as much as I can */
@@ -1598,7 +1606,84 @@ dram_size(long int *base, long int maxsize)
     return maxsize;
 }
 
-/* ------------------------------------------------------------------------- */
+#ifdef CONFIG_MV64360_ECC
+/*
+ * mv_dma_is_channel_active:
+ * Checks if a engine is busy.
+ */
+int mv_dma_is_channel_active(int engine)
+{
+	ulong data;
+
+	data = GTREGREAD(MV64360_DMA_CHANNEL0_CONTROL + 4 * engine);
+	if (data & BIT14)	/* activity status */
+		return 1;
+
+	return 0;
+}
+
+/*
+ * mv_dma_set_memory_space:
+ * Set a DMA memory window for the DMA's address decoding map.
+ */
+int mv_dma_set_memory_space(ulong mem_space, ulong mem_space_target,
+			    ulong mem_space_attr, ulong base_address,
+			    ulong size)
+{
+	ulong temp;
+
+	/* The base address must be aligned to the size.  */
+	if (base_address % size != 0)
+		return 0;
+
+	if (size >= 0x10000) {
+		size &= 0xffff0000;
+		base_address = (base_address & 0xffff0000);
+		/* Set the new attributes */
+		GT_REG_WRITE(MV64360_DMA_BASE_ADDR_REG0 + mem_space * 8,
+			     (base_address | mem_space_target |
+			      mem_space_attr));
+		GT_REG_WRITE((MV64360_DMA_SIZE_REG0 + mem_space * 8),
+			     (size - 1) & 0xffff0000);
+		temp = GTREGREAD(MV64360_DMA_BASE_ADDR_ENABLE_REG);
+		GT_REG_WRITE(DMA_BASE_ADDR_ENABLE_REG,
+			     (temp & ~(BIT0 << mem_space)));
+		return 1;
+	}
+
+	return 0;
+}
+
+
+/*
+ * mv_dma_transfer:
+ * Transfer data from source_addr to dest_addr on one of the 4 DMA channels.
+ */
+int mv_dma_transfer(int engine, ulong source_addr,
+		    ulong dest_addr, ulong bytes, ulong command)
+{
+	ulong eng_off_reg;	/* Engine Offset Register */
+
+	if (bytes > 0xffff)
+		command = command | BIT31;	 /* DMA_16M_DESCRIPTOR_MODE */
+
+	command = command | ((command >> 6) & 0x7);
+	eng_off_reg = engine * 4;
+	GT_REG_WRITE(MV64360_DMA_CHANNEL0_BYTE_COUNT + eng_off_reg,
+		     bytes);
+	GT_REG_WRITE(MV64360_DMA_CHANNEL0_SOURCE_ADDR + eng_off_reg,
+		     source_addr);
+	GT_REG_WRITE(MV64360_DMA_CHANNEL0_DESTINATION_ADDR + eng_off_reg,
+		     dest_addr);
+	command |= BIT12	/* DMA_CHANNEL_ENABLE */
+		| BIT9;		/* DMA_NON_CHAIN_MODE */
+
+	/* Activate DMA engine By writting to mv_dma_control_register */
+	GT_REG_WRITE(MV64360_DMA_CHANNEL0_CONTROL + eng_off_reg, command);
+
+	return 1;
+}
+#endif /* of ifdef CONFIG_MV64360_ECC */
 
 /* ppcboot interface function to SDRAM init - this is where all the
  * controlling logic happens */
@@ -1607,10 +1692,13 @@ initdram(int board_type)
 {
 	int s0 = 0, s1 = 0;
 	int checkbank[4] = { [0 ... 3] = 0 };
-		ulong bank_no, realsize, total, check;
+	ulong realsize, total, check;
 	AUX_MEM_DIMM_INFO dimmInfo1;
 	AUX_MEM_DIMM_INFO dimmInfo2;
-	int nhr;
+	int bank_no, nhr;
+#ifdef CONFIG_MV64360_ECC
+	ulong dest, mem_space_attr;
+#endif /* of ifdef CONFIG_MV64360_ECC */
 
 	/* first, use the SPD to get info about the SDRAM/ DDRRAM */
 
@@ -1668,6 +1756,28 @@ initdram(int board_type)
 		realsize = dram_size((long int *)total, check);
 		memory_map_bank(bank_no, total, realsize);
 
+#ifdef CONFIG_MV64360_ECC
+		if (((dimmInfo1.errorCheckType != 0) &&
+		     ((dimmInfo2.errorCheckType != 0) ||
+		      (dimmInfo2.numOfModuleBanks == 0))) &&
+		    (CPCI750_ECC_TEST)) {
+			printf("ECC Initialization of Bank %d:", bank_no);
+			mem_space_attr = ((~(BIT0 << bank_no)) & 0xf) << 8;
+			mv_dma_set_memory_space(0, 0, mem_space_attr, total,
+						realsize);
+			for (dest = total; dest < total + realsize;
+			     dest += _8M) {
+				mv_dma_transfer(0, total, dest, _8M,
+						BIT8 |	/* DMA_DTL_128BYTES */
+						BIT3 |	/* DMA_HOLD_SOURCE_ADDR */
+						BIT11);	/* DMA_BLOCK_TRANSFER_MODE */
+				while (mv_dma_is_channel_active(0))
+					;
+			}
+			printf(" PASS\n");
+		}
+#endif /* of ifdef CONFIG_MV64360_ECC */
+
 		total += realsize;
 	}
 
@@ -1700,3 +1810,30 @@ int set_dfcdlInit (void)
 
 	return (0);
 }
+
+int do_show_ecc(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	unsigned int ecc_counter;
+	unsigned int ecc_addr;
+
+	GT_REG_READ(0x1458, &ecc_counter);
+	GT_REG_READ(0x1450, &ecc_addr);
+	GT_REG_WRITE(0x1450, 0);
+
+	printf("Error Counter since Reset:  %8d\n", ecc_counter);
+	printf("Last error address       :0x%08x (" , ecc_addr & 0xfffffff8);
+	if (ecc_addr & 0x01)
+		printf("double");
+	else
+		printf("single");
+	printf(" bit) at DDR-RAM CS#%d\n", ((ecc_addr & 0x6) >> 1));
+
+	return 0;
+}
+
+
+U_BOOT_CMD(
+	show_ecc, 1, 1, do_show_ecc,
+	"Show Marvell MV64360 ECC Info",
+	"Show Marvell MV64360 ECC Counter and last error."
+);

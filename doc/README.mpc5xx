@@ -25,7 +25,7 @@ Added or Changed Files:
 u-boot-0.2.0/common/cmd_boot.c
 u-boot-0.2.0/common/cmd_reginfo.c
 u-boot-0.2.0/common/environment.c
-u-boot-0.2.0/cpu/mpc5xx/*
+u-boot-0.2.0/arch/powerpc/cpu/mpc5xx/*
 u-boot-0.2.0/include/cmd_reginfo.h
 u-boot-0.2.0/include/common.h
 u-boot-0.2.0/include/ppc_asm.tmpl
@@ -34,9 +34,9 @@ u-boot-0.2.0/include/mpc5xx.h
 u-boot-0.2.0/include/status_led.h
 u-boot-0.2.0/include/asm-ppc/u-boot.h
 u-boot-0.2.0/include/asm-ppc/5xx_immap.h
-u-boot-0.2.0/lib_ppc/board.c
-u-boot-0.2.0/lib_ppc/cache.c
-u-boot-0.2.0/lib_ppc/time.c
+u-boot-0.2.0/arch/powerpc/lib/board.c
+u-boot-0.2.0/arch/powerpc/lib/cache.c
+u-boot-0.2.0/arch/powerpc/lib/time.c
 u-boot-0.2.0/Makefile
 u-boot-0.2.0/CREDITS
 u-boot-0.2.0/doc/README.mpc5xx

@@ -120,7 +120,13 @@
 #define CONFIG_SYS_FLASH_EMPTY_INFO		/* print 'E' for empty sector on flinfo */
 
 #else
-#define	CONFIG_SYS_NO_FLASH		1	/* No NOR on Acadia when NAND-booting	*/
+/*
+ * No NOR-flash on Acadia when NAND-booting. We need to undef the
+ * NOR device-tree fixup code as well, since flash_info is not defined
+ * in this case.
+ */
+#define	CONFIG_SYS_NO_FLASH		1
+#undef CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
 #endif
 
 #ifdef CONFIG_ENV_IS_IN_FLASH
@@ -265,8 +271,6 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_BASE		(CONFIG_SYS_NAND_ADDR + CONFIG_SYS_NAND_CS)
 #define CONFIG_SYS_NAND_SELECT_DEVICE  1	/* nand driver supports mutipl. chips	*/
-
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 
 /*-----------------------------------------------------------------------
  * External Bus Controller (EBC) Setup

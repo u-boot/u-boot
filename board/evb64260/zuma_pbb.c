@@ -174,14 +174,14 @@ static int last_cmd = 4;		/* write increment */
 static int last_size = 64;
 
 int
-do_zuma_init_pbb (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+do_zuma_init_pbb (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	zuma_init_pbb ();
 	return 0;
 }
 
 int
-do_zuma_test_dma (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+do_zuma_test_dma (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (argc > 1) {
 		last_cmd = simple_strtoul (argv[1], NULL, 10);
@@ -194,7 +194,7 @@ do_zuma_test_dma (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 }
 
 int
-do_zuma_init_mbox (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+do_zuma_init_mbox (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	zuma_mbox_init ();
 	return 0;

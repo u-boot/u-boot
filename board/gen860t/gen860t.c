@@ -132,7 +132,7 @@ int checkboard (void)
 	char buf[64];
 	int i;
 
-	i = getenv_r ("board_id", buf, sizeof (buf));
+	i = getenv_f("board_id", buf, sizeof (buf));
 	s = (i > 0) ? buf : NULL;
 
 	if (s) {
@@ -141,7 +141,7 @@ int checkboard (void)
 		printf ("<unknown> ");
 	}
 
-	i = getenv_r ("serial#", buf, sizeof (buf));
+	i = getenv_f("serial#", buf, sizeof (buf));
 	s = (i > 0) ? buf : NULL;
 
 	if (s) {
@@ -276,7 +276,7 @@ int last_stage_init (void)
 	/*
 	 * Read the environment to see what to do with the beeper
 	 */
-	i = getenv_r ("beeper", buf, sizeof (buf));
+	i = getenv_f("beeper", buf, sizeof (buf));
 	if (i > 0) {
 		do_beeper (buf);
 	}
@@ -292,14 +292,3 @@ void board_poweroff (void)
 	puts ("### Please power off the board ###\n");
 	while (1);
 }
-
-#ifdef CONFIG_POST
-/*
- * Returns 1 if keys pressed to start the power-on long-running tests
- * Called from board_init_f().
- */
-int post_hotkeys_pressed (void)
-{
-	return 0;		/* No hotkeys supported */
-}
-#endif

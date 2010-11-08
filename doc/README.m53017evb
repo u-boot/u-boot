@@ -15,13 +15,13 @@ Changed files:
 - board/freescale/m53017evb/config.mk	config make
 - board/freescale/m53017evb/u-boot.lds	Linker description
 
-- cpu/mcf532x/cpu.c			cpu specific code
-- cpu/mcf532x/cpu_init.c		FBCS, Mux pins, icache and RTC extra regs
-- cpu/mcf532x/interrupts.c		cpu specific interrupt support
-- cpu/mcf532x/speed.c			system, flexbus, and cpu clock
-- cpu/mcf532x/Makefile			Makefile
-- cpu/mcf532x/config.mk			config make
-- cpu/mcf532x/start.S			start up assembly code
+- arch/m68k/cpu/mcf532x/cpu.c			cpu specific code
+- arch/m68k/cpu/mcf532x/cpu_init.c		FBCS, Mux pins, icache and RTC extra regs
+- arch/m68k/cpu/mcf532x/interrupts.c		cpu specific interrupt support
+- arch/m68k/cpu/mcf532x/speed.c			system, flexbus, and cpu clock
+- arch/m68k/cpu/mcf532x/Makefile			Makefile
+- arch/m68k/cpu/mcf532x/config.mk			config make
+- arch/m68k/cpu/mcf532x/start.S			start up assembly code
 
 - doc/README.m53017evb			This readme file
 
@@ -51,12 +51,12 @@ Changed files:
 
 - include/configs/M53017EVB.h		Board specific configuration file
 
-- lib_m68k/board.c			board init function
-- lib_m68k/cache.c
-- lib_m68k/interrupts			Coldfire common interrupt functions
-- lib_m68k/m68k_linux.c
-- lib_m68k/time.c			Timer functions (Dma timer and PIT)
-- lib_m68k/traps.c			Exception init code
+- arch/m68k/lib/board.c			board init function
+- arch/m68k/lib/cache.c
+- arch/m68k/lib/interrupts			Coldfire common interrupt functions
+- arch/m68k/lib/m68k_linux.c
+- arch/m68k/lib/time.c			Timer functions (Dma timer and PIT)
+- arch/m68k/lib/traps.c			Exception init code
 
 1 MCF5301x specific Options/Settings
 ====================================

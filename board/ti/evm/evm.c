@@ -37,6 +37,46 @@
 #include <asm/mach-types.h>
 #include "evm.h"
 
+static u8 omap3_evm_version;
+
+u8 get_omap3_evm_rev(void)
+{
+	return omap3_evm_version;
+}
+
+static void omap3_evm_get_revision(void)
+{
+	unsigned int smsc_id;
+
+	/* Ethernet PHY ID is stored at ID_REV register */
+	smsc_id = readl(CONFIG_SMC911X_BASE + 0x50) & 0xFFFF0000;
+	printf("Read back SMSC id 0x%x\n", smsc_id);
+
+	switch (smsc_id) {
+	/* SMSC9115 chipset */
+	case 0x01150000:
+		omap3_evm_version = OMAP3EVM_BOARD_GEN_1;
+		break;
+	/* SMSC 9220 chipset */
+	case 0x92200000:
+	default:
+		omap3_evm_version = OMAP3EVM_BOARD_GEN_2;
+       }
+}
+
+/*
+ * MUSB port on OMAP3EVM Rev >= E requires extvbus programming.
+ */
+u8 omap3_evm_need_extvbus(void)
+{
+	u8 retval = 0;
+
+	if (get_omap3_evm_rev() >= OMAP3EVM_BOARD_GEN_2)
+		retval = 1;
+
+	return retval;
+}
+
 /*
  * Routine: board_init
  * Description: Early hardware init.
@@ -121,6 +161,9 @@ static void setup_net_chip(void)
 	writel(GPIO0, &gpio3_base->cleardataout);
 	udelay(1);
 	writel(GPIO0, &gpio3_base->setdataout);
+
+	/* determine omap3evm revision */
+	omap3_evm_get_revision();
 }
 
 int board_eth_init(bd_t *bis)

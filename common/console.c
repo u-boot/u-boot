@@ -29,10 +29,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifdef CONFIG_AMIGAONEG3SE
-int console_changed = 0;
-#endif
-
 #ifdef CONFIG_SYS_CONSOLE_IS_IN_ENV
 /*
  * if overwrite_console returns 1, the stdin, stderr and stdout
@@ -205,7 +201,7 @@ static inline void console_doenv(int file, struct stdio_dev *dev)
 
 /** U-Boot INITIAL CONSOLE-NOT COMPATIBLE FUNCTIONS *************************/
 
-void serial_printf(const char *fmt, ...)
+int serial_printf(const char *fmt, ...)
 {
 	va_list args;
 	uint i;
@@ -220,6 +216,7 @@ void serial_printf(const char *fmt, ...)
 	va_end(args);
 
 	serial_puts(printbuffer);
+	return i;
 }
 
 int fgetc(int file)
@@ -273,7 +270,7 @@ void fputs(int file, const char *s)
 		console_puts(file, s);
 }
 
-void fprintf(int file, const char *fmt, ...)
+int fprintf(int file, const char *fmt, ...)
 {
 	va_list args;
 	uint i;
@@ -289,6 +286,7 @@ void fprintf(int file, const char *fmt, ...)
 
 	/* Send to desired file */
 	fputs(file, printbuffer);
+	return i;
 }
 
 /** U-Boot INITIAL CONSOLE-COMPATIBLE FUNCTION *****************************/
@@ -367,7 +365,7 @@ void puts(const char *s)
 	}
 }
 
-void printf(const char *fmt, ...)
+int printf(const char *fmt, ...)
 {
 	va_list args;
 	uint i;
@@ -383,9 +381,10 @@ void printf(const char *fmt, ...)
 
 	/* Print the string */
 	puts(printbuffer);
+	return i;
 }
 
-void vprintf(const char *fmt, va_list args)
+int vprintf(const char *fmt, va_list args)
 {
 	uint i;
 	char printbuffer[CONFIG_SYS_PBSIZE];
@@ -397,6 +396,7 @@ void vprintf(const char *fmt, va_list args)
 
 	/* Print the string */
 	puts(printbuffer);
+	return i;
 }
 
 /* test if ctrl-c was pressed */
@@ -659,10 +659,14 @@ int console_init_r(void)
 #ifdef CONFIG_SPLASH_SCREEN
 	/*
 	 * suppress all output if splash screen is enabled and we have
-	 * a bmp to display
+	 * a bmp to display. We redirect the output from frame buffer
+	 * console to serial console in this case or suppress it if
+	 * "silent" mode was requested.
 	 */
-	if (getenv("splashimage") != NULL)
-		gd->flags |= GD_FLG_SILENT;
+	if (getenv("splashimage") != NULL) {
+		if (!(gd->flags & GD_FLG_SILENT))
+			outputdev = search_device (DEV_FLAGS_OUTPUT, "serial");
+	}
 #endif
 
 	/* Scan devices looking for input and output devices */

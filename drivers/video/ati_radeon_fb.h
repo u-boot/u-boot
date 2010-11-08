@@ -49,8 +49,8 @@ struct radeonfb_info {
 	struct pci_device_id	pdev;
 	u16			family;
 
-	u32			fb_base_phys;
-	u32			mmio_base_phys;
+	u32			fb_base_bus;
+	u32			mmio_base_bus;
 
 	void			*mmio_base;
 	void			*fb_base;

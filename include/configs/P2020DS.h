@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 Freescale Semiconductor, Inc.
+ * Copyright 2007-2010 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -26,6 +26,8 @@
  */
 #ifndef __CONFIG_H
 #define __CONFIG_H
+
+#include "../board/freescale/common/ics307_clk.h"
 
 #ifdef CONFIG_MK_36BIT
 #define CONFIG_PHYS_64BIT
@@ -54,17 +56,9 @@
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
-#ifndef __ASSEMBLY__
-extern unsigned long calculate_board_sys_clk(unsigned long dummy);
-extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
-/* extern unsigned long get_board_sys_clk(unsigned long dummy); */
-/* extern unsigned long get_board_ddr_clk(unsigned long dummy); */
-#endif
-#define CONFIG_SYS_CLK_FREQ	calculate_board_sys_clk(0) /* sysclk for MPC85xx */
-#define CONFIG_DDR_CLK_FREQ	calculate_board_ddr_clk(0) /* ddrclk for MPC85xx */
+#define CONFIG_SYS_CLK_FREQ	get_board_sys_clk() /* sysclk for MPC85xx */
+#define CONFIG_DDR_CLK_FREQ	get_board_ddr_clk() /* ddrclk for MPC85xx */
 #define CONFIG_ICS307_REFCLK_HZ	33333000  /* ICS307 clock chip ref freq */
-#define CONFIG_GET_CLK_FROM_ICS307	  /* decode sysclk and ddrclk freq
-					     from ICS307 instead of switches */
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -96,14 +90,13 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 #endif
 #define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR */
 
-#define CONFIG_SYS_PCIE3_ADDR		(CONFIG_SYS_CCSRBAR+0x8000)
-#define CONFIG_SYS_PCIE2_ADDR		(CONFIG_SYS_CCSRBAR+0x9000)
-#define CONFIG_SYS_PCIE1_ADDR		(CONFIG_SYS_CCSRBAR+0xa000)
-
 /* DDR Setup */
-#define CONFIG_SYS_DDR_TLB_START 9
 #define CONFIG_VERY_BIG_RAM
+#ifdef CONFIG_MK_DDR2
+#define CONFIG_FSL_DDR2
+#else
 #define CONFIG_FSL_DDR3		1
+#endif
 #undef CONFIG_FSL_DDR_INTERACTIVE
 
 /* ECC will be enabled based on perf_mode environment variable */
@@ -120,6 +113,7 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 #define CONFIG_CHIP_SELECTS_PER_CTRL	2
 
 /* I2C addresses of SPD EEPROMs */
+#define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM		0	/* SPD EEPROM located on I2C bus 0 */
 #define SPD_EEPROM_ADDRESS1	0x51	/* CTLR 0 DIMM 0 */
 
@@ -239,7 +233,10 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
 
-#define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
+#define CONFIG_HWCONFIG			/* enable hwconfig */
+#define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
+
+#ifdef CONFIG_FSL_NGPIXIS
 #define PIXIS_BASE	0xffdf0000	/* PIXIS registers */
 #ifdef CONFIG_PHYS_64BIT
 #define PIXIS_BASE_PHYS	0xfffdf0000ull
@@ -250,62 +247,26 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 #define CONFIG_SYS_BR3_PRELIM	(BR_PHYS_ADDR(PIXIS_BASE_PHYS) | BR_PS_8 | BR_V)
 #define CONFIG_SYS_OR3_PRELIM		0xffffeff7	/* 32KB but only 4k mapped */
 
-#define PIXIS_ID		0x0	/* Board ID at offset 0 */
-#define PIXIS_VER		0x1	/* Board version at offset 1 */
-#define PIXIS_PVER		0x2	/* PIXIS FPGA version at offset 2 */
-#define PIXIS_CSR		0x3	/* PIXIS General control/status register */
-#define PIXIS_RST		0x4	/* PIXIS Reset Control register */
-#define PIXIS_PWR		0x5	/* PIXIS Power status register */
-#define PIXIS_AUX		0x6	/* Auxiliary 1 register */
-#define PIXIS_SPD		0x7	/* Register for SYSCLK speed */
-#define PIXIS_AUX2		0x8	/* Auxiliary 2 register */
-#define PIXIS_VCTL		0x10	/* VELA Control Register */
-#define PIXIS_VSTAT		0x11	/* VELA Status Register */
-#define PIXIS_VCFGEN0		0x12	/* VELA Config Enable 0 */
-#define PIXIS_VCFGEN1		0x13	/* VELA Config Enable 1 */
-#define PIXIS_VCORE0		0x14	/* VELA VCORE0 Register */
-#define PIXIS_VBOOT		0x16	/* VELA VBOOT Register */
-#define PIXIS_VSPEED0		0x17	/* VELA VSpeed 0 */
-#define PIXIS_VSPEED1		0x18	/* VELA VSpeed 1 */
-#define PIXIS_VSPEED2		0x19	/* VELA VSpeed 2 */
-#define PIXIS_VSYSCLK0		0x19	/* VELA SYSCLK0 Register */
-#define PIXIS_VSYSCLK1		0x1A	/* VELA SYSCLK1 Register */
-#define PIXIS_VSYSCLK2		0x1B	/* VELA SYSCLK2 Register */
-#define PIXIS_VDDRCLK0		0x1C	/* VELA DDRCLK0 Register */
-#define PIXIS_VDDRCLK1		0x1D	/* VELA DDRCLK1 Register */
-#define PIXIS_VDDRCLK2		0x1E	/* VELA DDRCLK2 Register */
-
-#define PIXIS_VWATCH		0x24	/* Watchdog Register */
-#define PIXIS_LED		0x25	/* LED Register */
-
-#define PIXIS_SW(x)		0x20 + (x - 1) * 2
-#define PIXIS_EN(x)		0x21 + (x - 1) * 2
-#define PIXIS_SW7_LBMAP		0xc0	/* SW7 - cfg_lbmap */
-#define PIXIS_SW7_VBANK		0x30	/* SW7 - cfg_vbank */
-
-/* old pixis referenced names */
-#define PIXIS_VCLKH		0x19	/* VELA VCLKH register */
-#define PIXIS_VCLKL		0x1A	/* VELA VCLKL register */
-#define CONFIG_SYS_PIXIS_VBOOT_MASK	0xc0
-#define PIXIS_VSPEED2_TSEC1SER	0x8
-#define PIXIS_VSPEED2_TSEC2SER	0x4
-#define PIXIS_VSPEED2_TSEC3SER	0x2
-#define PIXIS_VSPEED2_TSEC4SER	0x1
-#define PIXIS_VCFGEN1_TSEC1SER	0x20
-#define PIXIS_VCFGEN1_TSEC2SER	0x20
-#define PIXIS_VCFGEN1_TSEC3SER	0x20
-#define PIXIS_VCFGEN1_TSEC4SER	0x20
-#define PIXIS_VSPEED2_MASK	(PIXIS_VSPEED2_TSEC1SER \
-					| PIXIS_VSPEED2_TSEC2SER \
-					| PIXIS_VSPEED2_TSEC3SER \
-					| PIXIS_VSPEED2_TSEC4SER)
-#define PIXIS_VCFGEN1_MASK	(PIXIS_VCFGEN1_TSEC1SER \
-					| PIXIS_VCFGEN1_TSEC2SER \
-					| PIXIS_VCFGEN1_TSEC3SER \
-					| PIXIS_VCFGEN1_TSEC4SER)
+#define PIXIS_LBMAP_SWITCH	7
+#define PIXIS_LBMAP_MASK	0xf0
+#define PIXIS_LBMAP_SHIFT	4
+#define PIXIS_LBMAP_ALTBANK	0x20
+#endif
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000	/* Initial L1 address */
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH 0xf
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW CONFIG_SYS_INIT_RAM_ADDR
+/* The assembler doesn't like typecast */
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS \
+	((CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH * 1ull << 32) | \
+	  CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW)
+#else
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS	CONFIG_SYS_INIT_RAM_ADDR /* Initial L1 address */
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_HIGH 0
+#define CONFIG_SYS_INIT_RAM_ADDR_PHYS_LOW CONFIG_SYS_INIT_RAM_ADDR_PHYS
+#endif
 #define CONFIG_SYS_INIT_RAM_END	0x00004000	/* End of used area in RAM */
 
 #define CONFIG_SYS_GBL_DATA_SIZE	128	/* num bytes initial data */
@@ -400,13 +361,6 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 #define CONFIG_OF_LIBFDT		1
 #define CONFIG_OF_BOARD_SETUP		1
 #define CONFIG_OF_STDOUT_VIA_ALIAS	1
-
-#define CONFIG_SYS_64BIT_VSPRINTF	1
-#define CONFIG_SYS_64BIT_STRTOUL	1
-
-/* new uImage format support */
-#define CONFIG_FIT		1
-#define CONFIG_FIT_VERBOSE	1 /* enable fit_format_{error,warning}() */
 
 /* I2C */
 #define CONFIG_FSL_I2C		/* Use FSL common I2C driver */
@@ -607,6 +561,7 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_IRQ
 #define CONFIG_CMD_SETEXPR
+#define CONFIG_CMD_REGINFO
 
 #if defined(CONFIG_PCI)
 #define CONFIG_CMD_PCI
@@ -630,7 +585,8 @@ extern unsigned long calculate_board_ddr_clk(unsigned long dummy);
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	*/
-#define CONFIG_CMDLINE_EDITING		/* Command-line editing */
+#define CONFIG_CMDLINE_EDITING			/* Command-line editing */
+#define CONFIG_AUTO_COMPLETE			/* add autocompletion support */
 #define CONFIG_SYS_LOAD_ADDR	0x2000000	/* default load address */
 #define CONFIG_SYS_PROMPT	"=> "		/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)

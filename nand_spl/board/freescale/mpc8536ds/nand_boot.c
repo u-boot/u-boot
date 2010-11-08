@@ -34,12 +34,11 @@ void board_init_f(ulong bootflag)
 	int px_spd;
 	u32 plat_ratio, bus_clk, sys_clk;
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
-	ccsr_lbc_t *lbc = (void *)CONFIG_SYS_MPC85xx_LBC_ADDR;
 
 #if defined(CONFIG_SYS_BR3_PRELIM) && defined(CONFIG_SYS_OR3_PRELIM)
 	/* for FPGA */
-	out_be32(&lbc->br3, CONFIG_SYS_BR3_PRELIM);
-	out_be32(&lbc->or3, CONFIG_SYS_OR3_PRELIM);
+	set_lbc_br(3, CONFIG_SYS_BR3_PRELIM);
+	set_lbc_or(3, CONFIG_SYS_OR3_PRELIM);
 #else
 #error CONFIG_SYS_BR3_PRELIM, CONFIG_SYS_OR3_PRELIM must be defined
 #endif

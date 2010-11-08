@@ -68,22 +68,22 @@ lowlevel_init:
 	wait_timer	WAIT_200US
 
 	/*------- GPIO -------*/
-	write16 PACR_A,	PACR_D
-	write16 PBCR_A,	PBCR_D
-	write16 PCCR_A,	PCCR_D
-	write16 PDCR_A,	PDCR_D
-	write16 PECR_A,	PECR_D
-	write16 PFCR_A,	PFCR_D
-	write16 PGCR_A,	PGCR_D
+	write16 PACR_A,	PXCR_D
+	write16 PBCR_A,	PXCR_D
+	write16 PCCR_A,	PXCR_D
+	write16 PDCR_A,	PXCR_D
+	write16 PECR_A,	PXCR_D
+	write16 PFCR_A,	PXCR_D
+	write16 PGCR_A,	PXCR_D
 	write16 PHCR_A,	PHCR_D
 	write16 PJCR_A,	PJCR_D
 	write16 PKCR_A,	PKCR_D
-	write16 PLCR_A,	PLCR_D
+	write16 PLCR_A,	PXCR_D
 	write16 PMCR_A,	PMCR_D
 	write16 PNCR_A,	PNCR_D
-	write16 PPCR_A,	PPCR_D
-	write16 PQCR_A,	PQCR_D
-	write16 PRCR_A,	PRCR_D
+	write16 PPCR_A,	PXCR_D
+	write16 PQCR_A,	PXCR_D
+	write16 PRCR_A,	PXCR_D
 
 	write8	PEPUPR_A,	PEPUPR_D
 	write8	PHPUPR_A,	PHPUPR_D
@@ -179,22 +179,14 @@ lbsc_end:
 	.align 4
 
 /*------- GPIO -------*/
-PACR_D:		.long	0x0000
-PBCR_D:		.long	0x0000
-PCCR_D:		.long	0x0000
-PDCR_D:		.long	0x0000
-PECR_D:		.long	0x0000
-PFCR_D:		.long	0x0000
-PGCR_D:		.long	0x0000
-PHCR_D:		.long	0x00c0
-PJCR_D:		.long	0xc3fc
-PKCR_D:		.long	0x03ff
-PLCR_D:		.long	0x0000
-PMCR_D:		.long	0xffff
-PNCR_D:		.long	0xf0c3
-PPCR_D:		.long	0x0000
-PQCR_D:		.long	0x0000
-PRCR_D:		.long	0x0000
+/* P{A,B C,D,E,F,G,L,P,Q,R}CR_D */
+PXCR_D:		.word	0x0000
+
+PHCR_D:		.word	0x00c0
+PJCR_D:		.word	0xc3fc
+PKCR_D:		.word	0x03ff
+PMCR_D:		.word	0xffff
+PNCR_D:		.word	0xf0c3
 
 PEPUPR_D:	.long	0xff
 PHPUPR_D:	.long	0x00
@@ -203,10 +195,10 @@ PKPUPR_D:	.long	0x00
 PLPUPR_D:	.long	0x00
 PMPUPR_D:	.long	0xfc
 PNPUPR_D:	.long	0x00
-PPUPR1_D:	.long	0xffbf
-PPUPR2_D:	.long	0xff00
-P1MSELR_D:	.long	0x3780
-P2MSELR_D:	.long	0x0000
+PPUPR1_D:	.word	0xffbf
+PPUPR2_D:	.word	0xff00
+P1MSELR_D:	.word	0x3780
+P2MSELR_D:	.word	0x0000
 
 #define GPIO_BASE	0xffe70000
 PACR_A:		.long	GPIO_BASE + 0x00

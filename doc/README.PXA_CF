@@ -6,6 +6,14 @@ follow the connections of the standard lubbock. Anyway just the block
 marked memory configuration should be touched since the other parameters
 are imposed by the PXA architecture.
 
+EDIT 2010-07-01: in common/cmd_ide.c, having CONFIG_PXA_PCMCIA defined
+would cause looping on inw()/outw() rather than using insw()/outsw(),
+thus making sure IDE / ATA bytes are properly swapped. This behaviour
+is now controlled by CONFIG_IDE_SWAP_IO, therefore PXA boards with
+PCMCIA should #define CONFIG_IDE_SWAP_IO.
+
+#define CONFIG_IDE_SWAP_IO
+
 #define CONFIG_PXA_PCMCIA 1
 #define CONFIG_PXA_IDE 1
 

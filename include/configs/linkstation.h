@@ -290,7 +290,7 @@
  * taken from the orignal Linkstation boot code
  *
  * Most of the low level configuration setttings are normally used
- * in cpu/mpc824x/cpu_init.c which is NOT used by this implementation.
+ * in arch/powerpc/cpu/mpc824x/cpu_init.c which is NOT used by this implementation.
  * Low level initialisation is done in board/linkstation/early_init.S
  * The values below are included for reference purpose only
  */

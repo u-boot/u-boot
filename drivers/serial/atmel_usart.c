@@ -16,6 +16,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 #include <common.h>
+#ifndef CONFIG_AT91_LEGACY
+#define CONFIG_AT91_LEGACY
+#warning Please update to use C structur SoC access !
+#endif
 #include <watchdog.h>
 
 #include <asm/io.h>

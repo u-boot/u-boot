@@ -51,6 +51,9 @@
 #define CONFIG_SYS_CLKDIV_PBA			2
 #define CONFIG_SYS_CLKDIV_PBB			1
 
+/* Reserve VM regions for SDRAM, NOR flash and FRAM */
+#define CONFIG_SYS_NR_VM_REGIONS		3
+
 /*
  * The PLLOPT register controls the PLL like this:
  *   icp = PLLOPT<2>

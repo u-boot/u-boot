@@ -36,6 +36,7 @@
 #define CONFIG_MPC8313ERDB	1
 
 #define CONFIG_PCI
+#define CONFIG_FSL_ELBC 1
 
 #define CONFIG_MISC_INIT_R
 
@@ -236,7 +237,6 @@
 #define CONFIG_CMD_NAND 1
 #define CONFIG_NAND_FSL_ELBC 1
 #define CONFIG_SYS_NAND_BLOCK_SIZE 16384
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 
 #define CONFIG_SYS_NAND_U_BOOT_SIZE  (512 << 10)
 #define CONFIG_SYS_NAND_U_BOOT_DST   0x00100000
@@ -436,7 +436,7 @@
 #endif
 
 #define CONFIG_CMDLINE_EDITING 1
-
+#define CONFIG_AUTO_COMPLETE	/* add autocompletion support   */
 
 /*
  * Miscellaneous configurable options
@@ -514,11 +514,12 @@
 
 /* System IO Config */
 #define CONFIG_SYS_SICRH	(SICRH_TSOBI1 | SICRH_TSOBI2)	/* RGMII */
-#define CONFIG_SYS_SICRL	SICRL_USBDR			/* Enable Internal USB Phy  */
+#define CONFIG_SYS_SICRL	SICRL_USBDR_10			/* Enable Internal USB Phy  */
 
 #define CONFIG_SYS_HID0_INIT	0x000000000
 #define CONFIG_SYS_HID0_FINAL	(HID0_ENABLE_MACHINE_CHECK | \
-			 HID0_ENABLE_DYNAMIC_POWER_MANAGMENT)
+				 HID0_ENABLE_INSTRUCTION_CACHE | \
+				 HID0_ENABLE_DYNAMIC_POWER_MANAGMENT)
 
 #define CONFIG_SYS_HID2 HID2_HBE
 
@@ -581,13 +582,6 @@
  */
 #define CONFIG_ENV_OVERWRITE
 
-#define CONFIG_ETHADDR		00:E0:0C:00:95:01
-#define CONFIG_ETH1ADDR		00:E0:0C:00:95:02
-
-#define CONFIG_IPADDR		10.0.0.2
-#define CONFIG_SERVERIP		10.0.0.1
-#define CONFIG_GATEWAYIP	10.0.0.1
-#define CONFIG_NETMASK		255.0.0.0
 #define CONFIG_NETDEV		eth1
 
 #define CONFIG_HOSTNAME		mpc8313erdb

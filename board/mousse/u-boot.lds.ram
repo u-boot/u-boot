@@ -37,7 +37,7 @@ SECTIONS
   PROVIDE(_f_init_rom = .);
 
   .init : {
-      cpu/mpc824x/start.o	(.text)
+      arch/powerpc/cpu/mpc824x/start.o	(.text)
       *(.init)
   } > ram
   _init_size = SIZEOF(.init);

@@ -72,7 +72,7 @@ static long fixed_sdram(void)
 	 * Erratum DDR3 requires a 50ms delay after clearing DDRCDR[DDR_cfg],
 	 * or the DDR2 controller may fail to initialize correctly.
 	 */
-	udelay(50000);
+	__udelay(50000);
 
 	im->ddr.csbnds[0].csbnds = (msize - 1) >> 24;
 	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CONFIG;
@@ -110,7 +110,7 @@ static long fixed_sdram(void)
 phys_size_t initdram(int board_type)
 {
 	volatile immap_t *im = (volatile immap_t *)CONFIG_SYS_IMMR;
-	volatile fsl_lbus_t *lbc = &im->lbus;
+	volatile fsl_lbc_t *lbc = &im->im_lbc;
 	u32 msize;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)

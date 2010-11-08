@@ -7,6 +7,17 @@
  * usb-ohci.h
  */
 
+/*
+ * e.g. PCI controllers need this
+ */
+#ifdef CONFIG_SYS_OHCI_SWAP_REG_ACCESS
+# define ohci_readl(a) __swap_32(*((volatile u32 *)(a)))
+# define ohci_writel(a, b) (*((volatile u32 *)(b)) = __swap_32((volatile u32)a))
+#else
+# define ohci_readl(a) (*((volatile u32 *)(a)))
+# define ohci_writel(a, b) (*((volatile u32 *)(b)) = ((volatile u32)a))
+#endif /* CONFIG_SYS_OHCI_SWAP_REG_ACCESS */
+
 /* functions for doing board or CPU specific setup/cleanup */
 extern int usb_board_init(void);
 extern int usb_board_stop(void);
@@ -196,8 +207,8 @@ struct ohci_hcca {
 
 /*
  * This is the structure of the OHCI controller's memory mapped I/O
- * region.  This is Memory Mapped I/O.	You must use the readl() and
- * writel() macros defined in asm/io.h to access these!!
+ * region.  This is Memory Mapped I/O.	You must use the ohci_readl() and
+ * ohci_writel() macros defined in this file to access these!!
  */
 struct ohci_regs {
 	/* control and status registers */

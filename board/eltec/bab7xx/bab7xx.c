@@ -184,7 +184,7 @@ void after_reloc (ulong dest_addr)
  * do_reset is done here because in this case it is board specific, since the
  * 7xx CPUs can only be reset by external HW (the RTC in this case).
  */
-void do_reset (cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char *argv[])
+void do_reset (cmd_tbl_t * cmdtp, bd_t * bd, int flag, int argc, char * const argv[])
 {
 #if defined(CONFIG_RTC_MK48T59)
 	/* trigger watchdog immediately */

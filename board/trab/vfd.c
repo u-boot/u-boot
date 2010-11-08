@@ -37,7 +37,7 @@
 #include <stdarg.h>
 #include <linux/types.h>
 #include <stdio_dev.h>
-#include <s3c2400.h>
+#include <asm/arch/s3c24x0_cpu.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

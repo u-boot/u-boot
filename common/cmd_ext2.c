@@ -56,7 +56,7 @@
 #define PRINTF(fmt,args...)
 #endif
 
-int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *filename = "/";
 	int dev=0;
@@ -65,10 +65,9 @@ int do_ext2ls (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	block_dev_desc_t *dev_desc=NULL;
 	int part_length;
 
-	if (argc < 3) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc < 3)
+		return cmd_usage(cmdtp);
+
 	dev = (int)simple_strtoul (argv[2], &ep, 16);
 	dev_desc = get_dev(argv[1],dev);
 
@@ -123,7 +122,7 @@ U_BOOT_CMD(
 /******************************************************************************
  * Ext2fs boot command intepreter. Derived from diskboot
  */
-int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *filename = NULL;
 	char *ep;
@@ -164,8 +163,7 @@ int do_ext2load (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		break;
 
 	default:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	if (!filename) {

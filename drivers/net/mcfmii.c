@@ -175,38 +175,39 @@ int mii_discover_phy(struct eth_device *dev)
 #ifdef ET_DEBUG
 			printf("PHY type 0x%x pass %d type\n", phytype, pass);
 #endif
-			if (phytype != 0xffff) {
-				phyaddr = phyno;
-				phytype <<= 16;
-				phytype |=
-				    mii_send(mk_mii_read(phyno, PHY_PHYIDR2));
+			if (phytype == 0xffff)
+				continue;
+			phyaddr = phyno;
+			phytype <<= 16;
+			phytype |=
+			    mii_send(mk_mii_read(phyno, PHY_PHYIDR2));
 
 #ifdef ET_DEBUG
-				printf("PHY @ 0x%x pass %d\n", phyno, pass);
+			printf("PHY @ 0x%x pass %d\n", phyno, pass);
 #endif
 
-				for (i = 0; i < (sizeof(phyinfo) / sizeof(phy_info_t)); i++) {
-					if (phyinfo[i].phyid == phytype) {
+			for (i = 0; (i < (sizeof(phyinfo) / sizeof(phy_info_t)))
+				&& (phyinfo[i].phyid != 0); i++) {
+				if (phyinfo[i].phyid == phytype) {
 #ifdef ET_DEBUG
-						printf("phyid %x - %s\n",
-						       phyinfo[i].phyid,
-						       phyinfo[i].strid);
+					printf("phyid %x - %s\n",
+					       phyinfo[i].phyid,
+					       phyinfo[i].strid);
 #endif
-						strcpy(info->phy_name, phyinfo[i].strid);
-						info->phyname_init = 1;
-						found = 1;
-						break;
-					}
-				}
-
-				if (!found) {
-#ifdef ET_DEBUG
-					printf("0x%08x\n", phytype);
-#endif
-					strcpy(info->phy_name, "unknown");
+					strcpy(info->phy_name, phyinfo[i].strid);
 					info->phyname_init = 1;
+					found = 1;
 					break;
 				}
+			}
+
+			if (!found) {
+#ifdef ET_DEBUG
+				printf("0x%08x\n", phytype);
+#endif
+				strcpy(info->phy_name, "unknown");
+				info->phyname_init = 1;
+				break;
 			}
 		}
 	}
@@ -292,7 +293,7 @@ void __mii_init(void)
  *	  Otherwise they hang in mii_send() !!! Sorry!
  */
 
-int mcffec_miiphy_read(char *devname, unsigned char addr, unsigned char reg,
+int mcffec_miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
 		       unsigned short *value)
 {
 	short rdreg;		/* register working value */
@@ -311,7 +312,7 @@ int mcffec_miiphy_read(char *devname, unsigned char addr, unsigned char reg,
 	return 0;
 }
 
-int mcffec_miiphy_write(char *devname, unsigned char addr, unsigned char reg,
+int mcffec_miiphy_write(const char *devname, unsigned char addr, unsigned char reg,
 			unsigned short value)
 {
 	short rdreg;		/* register working value */

@@ -58,6 +58,7 @@
 
 /* Network Configuration */
 #define CONFIG_DRIVER_TI_EMAC
+#define CONFIG_EMAC_MDIO_PHY_NUM	0
 #define CONFIG_MII
 #define CONFIG_BOOTP_DEFAULT
 #define CONFIG_BOOTP_DNS
@@ -74,16 +75,54 @@
 
 /* NAND: socketed, two chipselects, normally 2 GBytes */
 #define CONFIG_NAND_DAVINCI
+#define CONFIG_SYS_NAND_CS		2
 #define CONFIG_SYS_NAND_USE_FLASH_BBT
 #define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
 #define CONFIG_SYS_NAND_PAGE_2K
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 
 #define CONFIG_SYS_NAND_LARGEPAGE
 #define CONFIG_SYS_NAND_BASE_LIST	{ 0x02000000, }
 /* socket has two chipselects, nCE0 gated by address BIT(14) */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_MAX_CHIPS	2
+
+#define PINMUX4_USBDRVBUS_BITCLEAR       0x3000
+#define PINMUX4_USBDRVBUS_BITSET         0x2000
+
+/* USB Configuration */
+#define CONFIG_USB_DAVINCI
+#define CONFIG_MUSB_HCD
+
+#ifdef CONFIG_USB_DAVINCI
+#define CONFIG_CMD_USB         /* include support for usb      */
+#define CONFIG_CMD_STORAGE     /* include support for usb      */
+#define CONFIG_CMD_FAT         /* include support for FAT/storage*/
+#define CONFIG_DOS_PARTITION   /* include support for FAT/storage*/
+#endif
+
+#ifdef CONFIG_MUSB_HCD         /* include support for usb host */
+#define CONFIG_CMD_USB         /* include support for usb cmd */
+#define CONFIG_USB_STORAGE     /* MSC class support */
+#define CONFIG_CMD_STORAGE     /* inclue support for usb-storage cmd */
+#define CONFIG_CMD_FAT         /* inclue support for FAT/storage */
+#define CONFIG_DOS_PARTITION   /* inclue support for FAT/storage */
+
+#ifdef CONFIG_USB_KEYBOARD     /* HID class support */
+#define CONFIG_SYS_USB_EVENT_POLL
+
+#define CONFIG_PREBOOT "usb start"
+#endif /* CONFIG_USB_KEYBOARD */
+#endif /* CONFIG_MUSB_HCD */
+
+#ifdef CONFIG_MUSB_UDC
+#define CONFIG_USB_DEVICE              1
+#define CONFIG_USB_TTY                 1
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV   1
+#define CONFIG_USBD_VENDORID           0x0451
+#define CONFIG_USBD_PRODUCTID          0x5678
+#define CONFIG_USBD_MANUFACTURER       "Texas Instruments"
+#define CONFIG_USBD_PRODUCT_NAME       "DM365VM"
+#endif /* CONFIG_MUSB_UDC */
 
 /* U-Boot command configuration */
 #include <config_cmd_default.h>

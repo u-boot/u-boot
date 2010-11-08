@@ -69,7 +69,7 @@ phys_size_t initdram (int board_type)
 	long dram_size = 0;
 
 #if !defined(CONFIG_RAM_AS_FLASH)
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	sys_info_t sysinfo;
 	uint temp_lbcdll = 0;
 #endif
@@ -110,8 +110,8 @@ phys_size_t initdram (int board_type)
 		gur->lbcdllcr = ((temp_lbcdll & 0xff) << 16 ) | 0x80000000;
 		asm("sync;isync;msync");
 	}
-	lbc->or2 = CONFIG_SYS_OR2_PRELIM; /* 64MB SDRAM */
-	lbc->br2 = CONFIG_SYS_BR2_PRELIM;
+	set_lbc_or(2, CONFIG_SYS_OR2_PRELIM); /* 64MB SDRAM */
+	set_lbc_br(2, CONFIG_SYS_BR2_PRELIM);
 	lbc->lbcr = CONFIG_SYS_LBC_LBCR;
 	lbc->lsdmr = CONFIG_SYS_LBC_LSDMR_1;
 	asm("sync");

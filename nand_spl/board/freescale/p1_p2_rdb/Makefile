@@ -29,7 +29,7 @@ PAD_TO := 0xfff01000
 
 include $(TOPDIR)/config.mk
 
-LDSCRIPT= $(TOPDIR)/cpu/$(CPU)/u-boot-nand_spl.lds
+LDSCRIPT= $(TOPDIR)/$(CPUDIR)/u-boot-nand_spl.lds
 LDFLAGS	= -Bstatic -T $(LDSCRIPT) -Ttext $(TEXT_BASE) $(PLATFORM_LDFLAGS)
 AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
@@ -64,15 +64,15 @@ $(nandobj)u-boot-spl:	$(OBJS)
 
 $(obj)cache.c:
 	@rm -f $(obj)cache.c
-	ln -sf $(SRCTREE)/lib_ppc/cache.c $(obj)cache.c
+	ln -sf $(SRCTREE)/arch/powerpc/lib/cache.c $(obj)cache.c
 
 $(obj)cpu_init_early.c:
 	@rm -f $(obj)cpu_init_early.c
-	ln -sf $(SRCTREE)/cpu/mpc85xx/cpu_init_early.c $(obj)cpu_init_early.c
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/cpu_init_early.c $(obj)cpu_init_early.c
 
 $(obj)cpu_init_nand.c:
 	@rm -f $(obj)cpu_init_nand.c
-	ln -sf $(SRCTREE)/cpu/mpc85xx/cpu_init_nand.c $(obj)cpu_init_nand.c
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/cpu_init_nand.c $(obj)cpu_init_nand.c
 
 $(obj)fsl_law.c:
 	@rm -f $(obj)fsl_law.c
@@ -93,19 +93,19 @@ $(obj)ns16550.c:
 
 $(obj)resetvec.S:
 	@rm -f $(obj)resetvec.S
-	ln -s $(SRCTREE)/cpu/$(CPU)/resetvec.S $(obj)resetvec.S
+	ln -s $(SRCTREE)/$(CPUDIR)/resetvec.S $(obj)resetvec.S
 
 $(obj)fixed_ivor.S:
 	@rm -f $(obj)fixed_ivor.S
-	ln -sf $(SRCTREE)/cpu/mpc85xx/fixed_ivor.S $(obj)fixed_ivor.S
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/fixed_ivor.S $(obj)fixed_ivor.S
 
 $(obj)start.S: $(obj)fixed_ivor.S
 	@rm -f $(obj)start.S
-	ln -sf $(SRCTREE)/cpu/mpc85xx/start.S $(obj)start.S
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/start.S $(obj)start.S
 
 $(obj)tlb.c:
 	@rm -f $(obj)tlb.c
-	ln -sf $(SRCTREE)/cpu/mpc85xx/tlb.c $(obj)tlb.c
+	ln -sf $(SRCTREE)/arch/powerpc/cpu/mpc85xx/tlb.c $(obj)tlb.c
 
 $(obj)tlb_table.c:
 	@rm -f $(obj)tlb_table.c

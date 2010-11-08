@@ -63,24 +63,6 @@ static void rtc_write (short reg, uchar val)
 	out8(RTC(reg),val);
 }
 
-#elif defined(CONFIG_AMIGAONEG3SE)
-
-#include "../board/MAI/AmigaOneG3SE/via686.h"
-#include "../board/MAI/AmigaOneG3SE/memio.h"
-
-
-static uchar rtc_read (short reg)
-{
-    out_byte(CMOS_ADDR, (uint8)reg);
-    return in_byte(CMOS_DATA);
-}
-
-static void rtc_write (short reg, uchar val)
-{
-    out_byte(CMOS_ADDR, (uint8)reg);
-    out_byte(CMOS_DATA, (uint8)val);
-}
-
 #elif defined(CONFIG_EVAL5200)
 
 static uchar rtc_read (short reg)

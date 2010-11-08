@@ -57,7 +57,7 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/ppc4xx/start.o		(.text)
+    arch/powerpc/cpu/ppc4xx/start.o		(.text)
 
     . = env_offset;
     common/env_embedded.o(.text)

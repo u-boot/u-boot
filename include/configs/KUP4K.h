@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000-2005
+  * (C) Copyright 2000-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * Klaus Heydeck, Kieback & Peter GmbH & Co KG, heydeck@kieback-peter.de
  *
@@ -42,46 +42,46 @@
 #undef	CONFIG_8xx_CONS_SMC2
 #undef	CONFIG_8xx_CONS_NONE
 #define CONFIG_BAUDRATE		115200	/* console baudrate		*/
-#if 0
-#define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
-#else
 #define CONFIG_BOOTDELAY	1	/* autoboot after 1 second	*/
-#endif
 
 #define CONFIG_BOARD_TYPES	1	/* support board types		*/
 
-
 #undef	CONFIG_BOOTARGS
 
-
 #define CONFIG_EXTRA_ENV_SETTINGS						\
-"slot_a_boot=setenv bootargs root=/dev/hda2 ip=off;"				\
- "run addhw; diskboot 200000 0:1; bootm 200000\0"				\
-"slot_b_boot=setenv bootargs root=/dev/hda2 ip=off;"				\
- "run addhw; diskboot 200000 2:1; bootm 200000\0"				\
-"nfs_boot=dhcp; run nfsargs addip addhw; bootm 200000\0"			\
+"slot_a_boot=setenv bootargs root=/dev/sda2 ip=off;"				\
+ "run addhw; mw.b 400000 00 80; diskboot 400000 0:1; bootm 400000\0"		\
+"slot_b_boot=setenv bootargs root=/dev/sda2 ip=off;"				\
+ "run addhw; mw.b 400000 00 80; diskboot 400000 2:1; bootm 400000\0"		\
+"nfs_boot=mw.b 400000 00 80; dhcp; run nfsargs addip addhw; bootm 400000\0"	\
+"fat_boot=mw.b 400000 00 80; fatload ide 2:1 400000 st.bin; run addhw;		\
+ bootm 400000 \0"								\
 "panic_boot=echo No Bootdevice !!! reset\0"					\
-"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath}\0"	\
+"nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${rootpath}\0"		\
 "ramargs=setenv bootargs root=/dev/ram rw\0"					\
-"addip=setenv bootargs ${bootargs} ip=${ipaddr}:${serverip}:${gatewayip}"	\
+"addip=setenv bootargs ${bootargs} ip=${ipaddr}::${gatewayip}"			\
  ":${netmask}:${hostname}:${netdev}:off\0"					\
-"addhw=setenv bootargs ${bootargs} hw=${hw} key1=${key1} panic=1\0"		\
+"addhw=setenv bootargs ${bootargs} ${mtdparts} console=${console} ${debug}	\
+ hw=${hw} key1=${key1} panic=1 mem=${mem}\0"					\
+"console=ttyCPM0,115200\0"							\
 "netdev=eth0\0"									\
-"contrast=55\0"									\
+"contrast=20\0"									\
 "silent=1\0"									\
+"mtdparts=" MTDPARTS_DEFAULT "\0"						\
 "load=tftp 200000 bootloader-4k.bitmap;tftp 100000 bootloader-4k.bin\0"		\
-"update=protect off 1:0-7;era 1:0-7;cp.b 100000 40000000 ${filesize};"		\
+"update=protect off 1:0-9;era 1:0-9;cp.b 100000 40000000 ${filesize};"		\
  "cp.b 200000 40050000 14000\0"
 
 #define CONFIG_BOOTCOMMAND  \
-    "run slot_a_boot;run slot_b_boot;run nfs_boot;run panic_boot"
+    "run fat_boot;run slot_b_boot;run slot_a_boot;run nfs_boot;run panic_boot"
 
+#define CONFIG_PREBOOT	"setenv preboot; saveenv"
 
 #define CONFIG_MISC_INIT_R	1
 #define CONFIG_MISC_INIT_F	1
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download	*/
-#undef	CONFIG_SYS_LOADS_BAUD_CHANGE		/* don't allow baudrate change	*/
+#undef	CONFIG_SYS_LOADS_BAUD_CHANGE	/* don't allow baudrate change	*/
 
 #define	CONFIG_WATCHDOG	1		/* watchdog enabled		*/
 
@@ -98,19 +98,17 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_BOOTFILESIZE
 
-
 #define CONFIG_MAC_PARTITION
 #define CONFIG_DOS_PARTITION
-
 
 /*
  * enable I2C and select the hardware/software driver
  */
-#undef	CONFIG_HARD_I2C			/* I2C with hardware support	*/
-#define	CONFIG_SOFT_I2C         1	/* I2C bit-banged		*/
+#undef	CONFIG_HARD_I2C		/* I2C with hardware support	*/
+#define	CONFIG_SOFT_I2C		/* I2C bit-banged		*/
 
-#define CONFIG_SYS_I2C_SPEED		93000	/* 93 kHz is supposed to work	*/
-#define CONFIG_SYS_I2C_SLAVE		0xFE
+#define CONFIG_SYS_I2C_SPEED	93000	/* 93 kHz is supposed to work */
+#define CONFIG_SYS_I2C_SLAVE	0xFE
 
 #ifdef CONFIG_SOFT_I2C
 /*
@@ -130,14 +128,12 @@
 #define I2C_DELAY	udelay(2)	/* 1/4 I2C clock duration */
 #endif	/* CONFIG_SOFT_I2C */
 
-
 /*-----------------------------------------------------------------------
  * I2C Configuration
  */
 
-#define CONFIG_SYS_I2C_PICIO_ADDR	0x21	/* PCF8574 IO Expander			*/
-#define CONFIG_SYS_I2C_RTC_ADDR	0x51	/* PCF8563 RTC				*/
-
+#define CONFIG_SYS_I2C_PICIO_ADDR	0x21	/* PCF8574 IO Expander */
+#define CONFIG_SYS_I2C_RTC_ADDR		0x51	/* PCF8563 RTC */
 
 /* List of I2C addresses to be verified by POST */
 
@@ -145,27 +141,13 @@
 			CONFIG_SYS_I2C_RTC_ADDR,	\
 			}
 
-
 #define CONFIG_RTC_PCF8563		/* use Philips PCF8563 RTC	*/
 
 #define CONFIG_SYS_DISCOVER_PHY
 #define CONFIG_MII
 
-#if 0
-#define CONFIG_ETHADDR                  00:0B:64:00:00:00 /* our OUI from IEEE */
-#endif
-#define CONFIG_KUP4K_LOGO               0x40050000  /* Address of logo bitmap */
-
 /* Define to allow the user to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
-#if 1
-/* POST support */
-
-#define CONFIG_POST		(CONFIG_SYS_POST_CPU	   | \
-				 CONFIG_SYS_POST_RTC	   | \
-				 CONFIG_SYS_POST_I2C)
-#endif
-
 
 /*
  * Command line configuration.
@@ -176,7 +158,9 @@
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_IDE
+#define CONFIG_CMD_MII
 #define CONFIG_CMD_NFS
+#define CONFIG_CMD_FAT
 #define CONFIG_CMD_SNTP
 
 #ifdef CONFIG_POST
@@ -191,18 +175,21 @@
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size	*/
 #else
-#define CONFIG_SYS_CBSIZE	256		/* Console I/O Buffer Size	*/
+#define CONFIG_SYS_CBSIZE	512		/* Console I/O Buffer Size	*/
 #endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16) /* Print Buffer Size */
+/* Print Buffer Size */
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS	16		/* max number of command args	*/
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size	*/
 
-#define CONFIG_SYS_MEMTEST_START	0x000400000	/* memtest works on	*/
-#define CONFIG_SYS_MEMTEST_END		0x002C00000	/* 4 ... 44 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x000400000	/* memtest works on     */
+#define CONFIG_SYS_MEMTEST_END		0x005C00000	/* 4 ... 92 MB in DRAM  */
+#define CONFIG_SYS_ALT_MEMTEST 1
+#define CONFIG_SYS_MEMTEST_SCRATCH	0x90000200	/* using latch as scratch register */
 
-#define CONFIG_SYS_LOAD_ADDR		0x200000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x400000	/* default load address */
 
-#define CONFIG_SYS_HZ		1000		/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ			1000		/* decrementer freq: 1 ms ticks */
 
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 115200 }
 
@@ -259,19 +246,22 @@
 #define CONFIG_ENV_SIZE		0x1000	/* Total Size of Environment Sector	*/
 #define CONFIG_ENV_SECT_SIZE	0x10000
 
-/* Address and size of Redundant Environment Sector	*/
-#if 0
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET+CONFIG_ENV_SIZE)
-#define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
-#endif
+/*-----------------------------------------------------------------------
+ * Dynamic MTD partition support
+ */
+#define MTDPARTS_DEFAULT	"mtdparts=40000000.flash:256k(u-boot),"	\
+						"64k(env),"		\
+						"128k(splash),"		\
+						"512k(etc),"		\
+						"64k(hw-info)"
+
 /*-----------------------------------------------------------------------
  * Hardware Information Block
  */
-#if 1
 #define CONFIG_SYS_HWINFO_OFFSET	0x000F0000	/* offset of HW Info block */
 #define CONFIG_SYS_HWINFO_SIZE		0x00000100	/* size   of HW Info block */
-#define CONFIG_SYS_HWINFO_MAGIC	0x4B26500D	/* 'K&P<CR>' */
-#endif
+#define CONFIG_SYS_HWINFO_MAGIC	0x4B26500D		/* 'K&P<CR>' */
+
 /*-----------------------------------------------------------------------
  * Cache Configuration
  */
@@ -286,12 +276,7 @@
  *-----------------------------------------------------------------------
  * Software & Bus Monitor Timer max, Bus Monitor enable, SW Watchdog freeze
  */
-#if 0 && defined(CONFIG_WATCHDOG)       /* KUP uses external TPS3705 WD */
-#define CONFIG_SYS_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | \
-			 SYPCR_SWE  | SYPCR_SWRI| SYPCR_SWP)
-#else
 #define CONFIG_SYS_SYPCR	(SYPCR_SWTC | SYPCR_BMT | SYPCR_BME | SYPCR_SWF | SYPCR_SWP)
-#endif
 
 /*-----------------------------------------------------------------------
  * SIUMCR - SIU Module Configuration				11-6
@@ -391,7 +376,6 @@
 /* Offset for alternate registers	*/
 #define CONFIG_SYS_ATA_ALT_OFFSET	0x0100
 
-
 /*-----------------------------------------------------------------------
  *
  *-----------------------------------------------------------------------
@@ -416,17 +400,19 @@
 /*
  * FLASH timing:
  */
-#define CONFIG_SYS_OR_TIMING_FLASH	(OR_ACS_DIV1  | OR_TRLX | OR_CSNT_SAM | \
-				 OR_SCY_2_CLK | OR_EHTR | OR_BI)
+#define CONFIG_SYS_OR_TIMING_FLASH	(OR_ACS_DIV2  | OR_CSNT_SAM | \
+				 OR_SCY_5_CLK | OR_EHTR | OR_BI)
 
-#define CONFIG_SYS_OR0_REMAP	(CONFIG_SYS_REMAP_OR_AM  | CONFIG_SYS_OR_TIMING_FLASH)
-#define CONFIG_SYS_OR0_PRELIM	(CONFIG_SYS_PRELIM_OR_AM | CONFIG_SYS_OR_TIMING_FLASH)
-#define CONFIG_SYS_BR0_PRELIM	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_PS_16 | BR_V )
+#define CONFIG_SYS_OR0_REMAP \
+	(CONFIG_SYS_REMAP_OR_AM  | CONFIG_SYS_OR_TIMING_FLASH)
+#define CONFIG_SYS_OR0_PRELIM \
+	(CONFIG_SYS_PRELIM_OR_AM | CONFIG_SYS_OR_TIMING_FLASH)
+#define CONFIG_SYS_BR0_PRELIM \
+	((FLASH_BASE0_PRELIM & BR_BA_MSK) | BR_PS_16 | BR_V )
 
 
 /* SDRAM timing: Multiplexed addresses, GPL5 output to GPL5_A (don't care)	*/
 #define CONFIG_SYS_OR_TIMING_SDRAM	0x00000A00
-
 
 /*
  * Memory Periodic Timer Prescaler
@@ -475,7 +461,39 @@
 /*
  * MAMR settings for SDRAM
  */
-#define CONFIG_SYS_MAMR 0x80802114
+
+/* 8 column SDRAM */
+#define CONFIG_SYS_MAMR_8COL 0x68802114
+/* 9 column SDRAM */
+#define CONFIG_SYS_MAMR_9COL 0x68904114
+
+/*
+ * Chip Selects
+ */
+#define CONFIG_SYS_OR0
+#define CONFIG_SYS_BR0
+
+#define CONFIG_SYS_OR1_8COL 0xFF000A00
+#define CONFIG_SYS_BR1_8COL 0x00000081
+#define CONFIG_SYS_OR2_8COL 0xFE000A00
+#define CONFIG_SYS_BR2_8COL 0x01000081
+#define CONFIG_SYS_OR3_8COL 0xFC000A00
+#define CONFIG_SYS_BR3_8COL 0x02000081
+
+#define CONFIG_SYS_OR1_9COL 0xFE000A00
+#define CONFIG_SYS_BR1_9COL 0x00000081
+#define CONFIG_SYS_OR2_9COL 0xFE000A00
+#define CONFIG_SYS_BR2_9COL 0x02000081
+#define CONFIG_SYS_OR3_9COL 0xFE000A00
+#define CONFIG_SYS_BR3_9COL 0x04000081
+
+#define CONFIG_SYS_OR4 0xFFFF8926
+#define CONFIG_SYS_BR4 0x90000401
+
+#define CONFIG_SYS_OR5 0xFFC007F0  /* EPSON: 4 MB  17 WS or externel TA */
+#define CONFIG_SYS_BR5 0x80080801  /* Start at 0x80080000 */
+
+#define LATCH_ADDR 0x90000200
 
 /*
  * Internal Definitions
@@ -487,11 +505,13 @@
 
 
 #define CONFIG_AUTOBOOT_KEYED		/* use key strings to stop autoboot */
-#if 0
-#define CONFIG_AUTOBOOT_PROMPT		\
-	"Boote in %d Sekunden - stop mit \"2\"\n", bootdelay
-#endif
-#define CONFIG_AUTOBOOT_STOP_STR	"." /* easy to stop for now */
-#define CONFIG_SILENT_CONSOLE	1
+#define CONFIG_AUTOBOOT_STOP_STR	"."
+#define CONFIG_SILENT_CONSOLE		1
+#define CONFIG_SYS_DEVICE_NULLDEV	1       /* enble null device		*/
+#define CONFIG_VERSION_VARIABLE		1
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT	1
+#define CONFIG_OF_BOARD_SETUP	1
 
 #endif	/* __CONFIG_H */

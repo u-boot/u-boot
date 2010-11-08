@@ -59,7 +59,7 @@ SECTIONS
   .plt : { *(.plt) }
   .text      :
   {
-    cpu/74xx_7xx/start.o	(.text)
+    arch/powerpc/cpu/74xx_7xx/start.o	(.text)
 
 /* store the environment in a seperate sector in the boot flash */
 /*    . = env_offset; */

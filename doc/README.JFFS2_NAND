@@ -5,7 +5,7 @@ To ebable, use the following #define in the board configuration file:
 #define CONFIG_JFFS2_NAND 1
 
 Configuration of partitions is similar to how this is done in  U-Boot
-for  JFFS2  on top NOR flash. If a single parition is used, it can be
+for  JFFS2  on top NOR flash. If a single partition is used, it can be
 configured using the following #defines in the configuration file:
 
 #define CONFIG_JFFS2_NAND_DEV 0			/* nand device jffs2 lives on */

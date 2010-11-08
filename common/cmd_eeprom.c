@@ -60,7 +60,7 @@ extern int eeprom_write_enable (unsigned dev_addr, int state);
 /* ------------------------------------------------------------------------- */
 
 #if defined(CONFIG_CMD_EEPROM)
-int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	const char *const fmt =
 		"\nEEPROM @0x%lX %s: addr %08lx  off %04lx  count %ld ... ";
@@ -79,7 +79,7 @@ int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		ulong cnt  = simple_strtoul (argv[4], NULL, 16);
 #endif /* CONFIG_SYS_I2C_MULTI_EEPROMS */
 
-# ifndef CONFIG_SPI
+# if !defined(CONFIG_SPI) || defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 		eeprom_init ();
 # endif /* !CONFIG_SPI */
 
@@ -104,8 +104,7 @@ int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
 		}
 	}
 
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 #endif
 
@@ -118,7 +117,7 @@ int do_eeprom ( cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
  *   0x00000nxx for EEPROM address selectors and page number at n.
  */
 
-#ifndef CONFIG_SPI
+#if !defined(CONFIG_SPI) || defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 #if !defined(CONFIG_SYS_I2C_EEPROM_ADDR_LEN) || CONFIG_SYS_I2C_EEPROM_ADDR_LEN < 1 || CONFIG_SYS_I2C_EEPROM_ADDR_LEN > 2
 #error CONFIG_SYS_I2C_EEPROM_ADDR_LEN must be 1 or 2
 #endif
@@ -176,7 +175,7 @@ int eeprom_read (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cnt
 			len = maxlen;
 #endif
 
-#ifdef CONFIG_SPI
+#if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 		spi_read (addr, alen, buffer, len);
 #else
 		if (i2c_read (addr[0], offset, alen-1, buffer, len) != 0)
@@ -272,7 +271,7 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 			len = maxlen;
 #endif
 
-#ifdef CONFIG_SPI
+#if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 		spi_write (addr, alen, buffer, len);
 #else
 #if defined(CONFIG_SYS_EEPROM_X40430)
@@ -374,7 +373,7 @@ int eeprom_write (unsigned dev_addr, unsigned offset, uchar *buffer, unsigned cn
 	return rcode;
 }
 
-#ifndef CONFIG_SPI
+#if !defined(CONFIG_SPI) || defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 int
 eeprom_probe (unsigned dev_addr, unsigned offset)
 {
@@ -403,7 +402,8 @@ eeprom_probe (unsigned dev_addr, unsigned offset)
 
 void eeprom_init  (void)
 {
-#if defined(CONFIG_SPI)
+
+#if defined(CONFIG_SPI) && !defined(CONFIG_ENV_EEPROM_IS_ON_I2C)
 	spi_init_f ();
 #endif
 #if defined(CONFIG_HARD_I2C) || \
@@ -411,6 +411,7 @@ void eeprom_init  (void)
 	i2c_init (CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
 #endif
 }
+
 /*-----------------------------------------------------------------------
  */
 

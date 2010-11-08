@@ -273,7 +273,7 @@ cmd_tbl_t cmd_ds4510[] = {
 #endif
 };
 
-int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	static uint8_t chip = CONFIG_SYS_I2C_DS4510_ADDR;
 	cmd_tbl_t *c;
@@ -294,8 +294,7 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	if (!c || !((argc == (c->maxargs)) ||
 		(((int)c->cmd == DS4510_CMD_DEVICE) &&
 		 (argc == (c->maxargs - 1))))) {
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	/* arg2 used as chip addr and pin number */
@@ -366,14 +365,12 @@ int do_ds4510(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #ifdef CONFIG_CMD_DS4510_MEM
 	/* Only eeprom, seeprom, and sram commands should make it here */
-	if (strcmp(argv[2], "read") == 0) {
+	if (strcmp(argv[2], "read") == 0)
 		rw_func = ds4510_mem_read;
-	} else if (strcmp(argv[2], "write") == 0) {
+	else if (strcmp(argv[2], "write") == 0)
 		rw_func = ds4510_mem_write;
-	} else {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	else
+		return cmd_usage(cmdtp);
 
 	addr = simple_strtoul(argv[3], NULL, 16);
 	off += simple_strtoul(argv[4], NULL, 16);

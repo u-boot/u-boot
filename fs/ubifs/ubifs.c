@@ -26,10 +26,6 @@
 #include "ubifs.h"
 #include <u-boot/zlib.h>
 
-#if !defined(CONFIG_SYS_64BIT_VSPRINTF)
-#warning Please define CONFIG_SYS_64BIT_VSPRINTF for correct output!
-#endif
-
 DECLARE_GLOBAL_DATA_PTR;
 
 /* compress.c */

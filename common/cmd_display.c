@@ -30,7 +30,7 @@
 #define CWORD_CLEAR	0x80
 #define CLEAR_DELAY	(110 * 2)
 
-int do_display (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_display (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int i;
 	int pos;

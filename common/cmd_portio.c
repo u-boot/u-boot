@@ -37,19 +37,18 @@ static uint in_last_addr, in_last_size;
 static uint out_last_addr, out_last_size, out_last_value;
 
 
-int do_portio_out (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_portio_out (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	uint addr = out_last_addr;
 	uint size = out_last_size;
 	uint value = out_last_value;
 
-	if (argc != 3) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc != 3)
+		return cmd_usage(cmdtp);
 
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
-		/* New command specified.  Check for a size specification.
+		/*
+		 * New command specified.  Check for a size specification.
 		 * Defaults to long if no or incorrect specification.
 		 */
 		size = cmd_get_data_size (argv[0], 1);
@@ -97,18 +96,17 @@ U_BOOT_CMD(
 	"[.b, .w, .l] port value\n    - output to IO port"
 );
 
-int do_portio_in (cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_portio_in (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	uint addr = in_last_addr;
 	uint size = in_last_size;
 
-	if (argc != 2) {
-		cmd_usage(cmdtp);
-		return 1;
-	}
+	if (argc != 2)
+		return cmd_usage(cmdtp);
 
 	if ((flag & CMD_FLAG_REPEAT) == 0) {
-		/* New command specified.  Check for a size specification.
+		/*
+		 * New command specified.  Check for a size specification.
 		 * Defaults to long if no or incorrect specification.
 		 */
 		size = cmd_get_data_size (argv[0], 1);

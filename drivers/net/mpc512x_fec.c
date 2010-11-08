@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2009
+ * (C) Copyright 2003-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * Derived from the MPC8xx FEC driver.
@@ -25,12 +25,8 @@ DECLARE_GLOBAL_DATA_PTR;
 #error "CONFIG_MII has to be defined!"
 #endif
 
-#if (DEBUG & 0x40)
-static u32 local_crc32(char *string, unsigned int crc_value, int len);
-#endif
-
-int fec512x_miiphy_read(char *devname, u8 phyAddr, u8 regAddr, u16 * retVal);
-int fec512x_miiphy_write(char *devname, u8 phyAddr, u8 regAddr, u16 data);
+int fec512x_miiphy_read(const char *devname, u8 phyAddr, u8 regAddr, u16 * retVal);
+int fec512x_miiphy_write(const char *devname, u8 phyAddr, u8 regAddr, u16 data);
 int mpc512x_fec_init_phy(struct eth_device *dev, bd_t * bis);
 
 static uchar rx_buff[FEC_BUFFER_SIZE];
@@ -164,7 +160,7 @@ static void mpc512x_fec_tbd_scrub (mpc512x_fec_priv *fec)
 }
 
 /********************************************************************/
-static void mpc512x_fec_set_hwaddr (mpc512x_fec_priv *fec, char *mac)
+static void mpc512x_fec_set_hwaddr (mpc512x_fec_priv *fec, unsigned char *mac)
 {
 	u8 currByte;			/* byte for which to compute the CRC */
 	int byte;			/* loop - counter */
@@ -229,6 +225,12 @@ static int mpc512x_fec_init (struct eth_device *dev, bd_t * bis)
 #if (DEBUG & 0x1)
 	printf ("mpc512x_fec_init... Begin\n");
 #endif
+
+	mpc512x_fec_set_hwaddr (fec, dev->enetaddr);
+	out_be32(&fec->eth->gaddr1, 0x00000000);
+	out_be32(&fec->eth->gaddr2, 0x00000000);
+
+	mpc512x_fec_init_phy (dev, bis);
 
 	/* Set interrupt mask register */
 	out_be32(&fec->eth->imask, 0x00000000);
@@ -615,8 +617,6 @@ int mpc512x_fec_initialize (bd_t * bis)
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	mpc512x_fec_priv *fec;
 	struct eth_device *dev;
-	int i;
-	char *tmp, *end, env_enetaddr[6];
 	void * bd;
 
 	fec = (mpc512x_fec_priv *) malloc (sizeof(*fec));
@@ -637,7 +637,7 @@ int mpc512x_fec_initialize (bd_t * bis)
 	dev->send = mpc512x_fec_send;
 	dev->recv = mpc512x_fec_recv;
 
-	sprintf (dev->name, "FEC ETHERNET");
+	sprintf (dev->name, "FEC");
 	eth_register (dev);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
@@ -667,31 +667,12 @@ int mpc512x_fec_initialize (bd_t * bis)
 	 */
 	out_be32(&fec->eth->ievent, 0xffffffff);
 
-	/*
-	 * Try to set the mac address now. The fec mac address is
-	 * a garbage after reset. When not using fec for booting
-	 * the Linux fec driver will try to work with this garbage.
-	 */
-	tmp = getenv ("ethaddr");
-	if (tmp) {
-		for (i=0; i<6; i++) {
-			env_enetaddr[i] = tmp ? simple_strtoul (tmp, &end, 16) : 0;
-			if (tmp)
-				tmp = (*end) ? end+1 : end;
-		}
-		mpc512x_fec_set_hwaddr (fec, env_enetaddr);
-		out_be32(&fec->eth->gaddr1, 0x00000000);
-		out_be32(&fec->eth->gaddr2, 0x00000000);
-	}
-
-	mpc512x_fec_init_phy (dev, bis);
-
 	return 1;
 }
 
 /* MII-interface related functions */
 /********************************************************************/
-int fec512x_miiphy_read (char *devname, u8 phyAddr, u8 regAddr, u16 * retVal)
+int fec512x_miiphy_read(const char *devname, u8 phyAddr, u8 regAddr, u16 *retVal)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile fec512x_t *eth = &im->fec;
@@ -738,7 +719,7 @@ int fec512x_miiphy_read (char *devname, u8 phyAddr, u8 regAddr, u16 * retVal)
 }
 
 /********************************************************************/
-int fec512x_miiphy_write (char *devname, u8 phyAddr, u8 regAddr, u16 data)
+int fec512x_miiphy_write(const char *devname, u8 phyAddr, u8 regAddr, u16 data)
 {
 	volatile immap_t *im = (immap_t *) CONFIG_SYS_IMMR;
 	volatile fec512x_t *eth = &im->fec;
@@ -774,40 +755,5 @@ int fec512x_miiphy_write (char *devname, u8 phyAddr, u8 regAddr, u16 data)
 
 	return 0;
 }
-
-#if (DEBUG & 0x40)
-static u32 local_crc32 (char *string, unsigned int crc_value, int len)
-{
-	int i;
-	char c;
-	unsigned int crc, count;
-
-	/*
-	 * crc32 algorithm
-	 */
-	/*
-	 * crc = 0xffffffff; * The initialized value should be 0xffffffff
-	 */
-	crc = crc_value;
-
-	for (i = len; --i >= 0;) {
-		c = *string++;
-		for (count = 0; count < 8; count++) {
-			if ((c & 0x01) ^ (crc & 0x01)) {
-				crc >>= 1;
-				crc = crc ^ 0xedb88320;
-			} else {
-				crc >>= 1;
-			}
-			c >>= 1;
-		}
-	}
-
-	/*
-	 * In big endian system, do byte swaping for crc value
-	 */
-	 /**/ return crc;
-}
-#endif	/* DEBUG */
 
 #endif /* CONFIG_MPC512x_FEC */

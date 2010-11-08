@@ -68,7 +68,7 @@ static int update_boot_eeprom(void)
 	return 0;
 }
 
-int do_update_boot_eeprom(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_update_boot_eeprom(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	return update_boot_eeprom();
 }

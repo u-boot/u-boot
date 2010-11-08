@@ -80,7 +80,7 @@ static void set_otp_timing(bool write)
 	bfrom_OtpCommand(OTP_INIT, write ? timing : timing & ~(-1 << 15));
 }
 
-int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	uint32_t ret, base_flags;
 	bool prompt_user, force_read;
@@ -88,8 +88,7 @@ int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	if (argc < 4) {
  usage:
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	prompt_user = false;
@@ -224,7 +223,8 @@ int do_otp(cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	return ret;
 }
 
-U_BOOT_CMD(otp, 7, 0, do_otp,
+U_BOOT_CMD(
+	otp, 7, 0, do_otp,
 	"One-Time-Programmable sub-system",
 	"read <addr> <page> [count] [half]\n"
 	" - read 'count' half-pages starting at 'page' (offset 'half') to 'addr'\n"

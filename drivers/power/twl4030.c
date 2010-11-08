@@ -59,57 +59,47 @@ void twl4030_power_reset_init(void)
 	}
 }
 
-
 /*
- * Power Init
+ * Set Device Group and Voltage
  */
-#define DEV_GRP_P1		0x20
-#define VAUX3_VSEL_28		0x03
-#define DEV_GRP_ALL		0xE0
-#define VPLL2_VSEL_18		0x05
-#define VDAC_VSEL_18		0x03
+void twl4030_pmrecv_vsel_cfg(u8 vsel_reg, u8 vsel_val,
+				u8 dev_grp, u8 dev_grp_sel)
+{
+	/* Select the Device Group */
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, dev_grp_sel,
+				dev_grp);
+
+	/* Select the Voltage */
+	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, vsel_val,
+				vsel_reg);
+}
 
 void twl4030_power_init(void)
 {
-	unsigned char byte;
-
 	/* set VAUX3 to 2.8V */
-	byte = DEV_GRP_P1;
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
-			     TWL4030_PM_RECEIVER_VAUX3_DEV_GRP);
-	byte = VAUX3_VSEL_28;
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
-			     TWL4030_PM_RECEIVER_VAUX3_DEDICATED);
+	twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX3_DEDICATED,
+				TWL4030_PM_RECEIVER_VAUX3_VSEL_28,
+				TWL4030_PM_RECEIVER_VAUX3_DEV_GRP,
+				TWL4030_PM_RECEIVER_DEV_GRP_P1);
 
 	/* set VPLL2 to 1.8V */
-	byte = DEV_GRP_ALL;
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
-			     TWL4030_PM_RECEIVER_VPLL2_DEV_GRP);
-	byte = VPLL2_VSEL_18;
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
-			     TWL4030_PM_RECEIVER_VPLL2_DEDICATED);
+	twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VPLL2_DEDICATED,
+				TWL4030_PM_RECEIVER_VPLL2_VSEL_18,
+				TWL4030_PM_RECEIVER_VPLL2_DEV_GRP,
+				TWL4030_PM_RECEIVER_DEV_GRP_ALL);
 
 	/* set VDAC to 1.8V */
-	byte = DEV_GRP_P1;
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
-			     TWL4030_PM_RECEIVER_VDAC_DEV_GRP);
-	byte = VDAC_VSEL_18;
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
-			     TWL4030_PM_RECEIVER_VDAC_DEDICATED);
+	twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VDAC_DEDICATED,
+				TWL4030_PM_RECEIVER_VDAC_VSEL_18,
+				TWL4030_PM_RECEIVER_VDAC_DEV_GRP,
+				TWL4030_PM_RECEIVER_DEV_GRP_P1);
 }
-
-#define VMMC1_VSEL_30		0x02
 
 void twl4030_power_mmc_init(void)
 {
-	unsigned char byte;
-
-	byte = DEV_GRP_P1;
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
-			     TWL4030_PM_RECEIVER_VMMC1_DEV_GRP);
-
-	/* 3 Volts */
-	byte = VMMC1_VSEL_30;
-	twl4030_i2c_write_u8(TWL4030_CHIP_PM_RECEIVER, byte,
-			     TWL4030_PM_RECEIVER_VMMC1_DEDICATED);
+	/* Set VMMC1 to 3 Volts */
+	twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VMMC1_DEDICATED,
+				TWL4030_PM_RECEIVER_VMMC1_VSEL_30,
+				TWL4030_PM_RECEIVER_VMMC1_DEV_GRP,
+				TWL4030_PM_RECEIVER_DEV_GRP_P1);
 }

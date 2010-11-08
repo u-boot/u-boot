@@ -26,7 +26,7 @@
 
 static int mmc_nspi (const char *);
 
-int do_dataflash_mmc_mux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_dataflash_mmc_mux (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	switch (argc) {
 	case 2:			/* on / off	*/
@@ -41,8 +41,7 @@ int do_dataflash_mmc_mux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 			AT91F_GetMuxStatus () ? "MMC" : "SPI");
 		return 0;
 	default:
-		printf ("Usage:\n%s\n", cmdtp->usage);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 	return 0;
 }
@@ -59,7 +58,7 @@ static int mmc_nspi (const char *s)
 
 U_BOOT_CMD(
 	dataflash_mmc_mux, 2, 1, do_dataflash_mmc_mux,
-	"dataflash_mmc_mux\t- enable or disable MMC or SPI\n",
+	"enable or disable MMC or SPI\n",
 	"[mmc, spi]\n"
 	"    - enable or disable MMC or SPI"
 );

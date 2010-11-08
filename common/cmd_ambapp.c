@@ -223,7 +223,7 @@ void ambapp_print_ahb(ahbctrl_pp_dev * ahb, int index)
 	printf("   irq: %-2d (ver: %d)\n", irq, ver);
 }
 
-int do_ambapp_print(cmd_tbl_t * cmdtp, int flag, int argc, char *argv[])
+int do_ambapp_print(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 
 	/* Print AHB Masters */
@@ -272,7 +272,8 @@ int ambapp_init_reloc(void)
 	return 0;
 }
 
-U_BOOT_CMD(ambapp, 1, 1, do_ambapp_print,
+U_BOOT_CMD(
+	ambapp, 1, 1, do_ambapp_print,
 	"list AMBA Plug&Play information",
 	"ambapp\n"
 	"    - lists AMBA (AHB & APB) Plug&Play devices present on the system"

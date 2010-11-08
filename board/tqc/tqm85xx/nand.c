@@ -377,7 +377,7 @@ volatile const u32 *nand_upm_patt;
  */
 static void upmb_write (u_char addr, ulong val)
 {
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	out_be32 (&lbc->mdr, val);
 
@@ -393,14 +393,14 @@ static void upmb_write (u_char addr, ulong val)
 /*
  * Initialize UPM for NAND flash access.
  */
-static void nand_upm_setup (volatile ccsr_lbc_t *lbc)
+static void nand_upm_setup (volatile fsl_lbc_t *lbc)
 {
 	uint i, j;
 	uint or3 = CONFIG_SYS_OR3_PRELIM;
 	uint clock = get_lbc_clock ();
 
-	out_be32 (&lbc->br3, 0);	/* disable bank and reset all bits */
-	out_be32 (&lbc->br3, CONFIG_SYS_BR3_PRELIM);
+	set_lbc_br(3, 0);	/* disable bank and reset all bits */
+	set_lbc_br(3, CONFIG_SYS_BR3_PRELIM);
 
 	/*
 	 * Search appropriate UPM table for bus clock.
@@ -424,7 +424,7 @@ static void nand_upm_setup (volatile ccsr_lbc_t *lbc)
 		/* EAD must be set due to TQM8548 timing specification */
 		or3 |= OR_UPM_EAD;
 
-	out_be32 (&lbc->or3, or3);
+	set_lbc_or(3, or3);
 
 	/* Assign address of table */
 	nand_upm_patt = upm_freq_table[i].upm_patt;
@@ -458,7 +458,7 @@ void board_nand_select_device (struct nand_chip *nand, int chip)
 
 int board_nand_init (struct nand_chip *nand)
 {
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	if (!nand_upm_patt)
 		nand_upm_setup (lbc);

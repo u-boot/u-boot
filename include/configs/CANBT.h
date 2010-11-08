@@ -120,9 +120,9 @@
  * Please note that CONFIG_SYS_SDRAM_BASE _must_ start at 0
  */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-#define CONFIG_SYS_FLASH_BASE		0xFFFE0000
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_FLASH_BASE
-#define CONFIG_SYS_MONITOR_LEN		(128 * 1024)	/* Reserve 128 kB for Monitor	*/
+#define CONFIG_SYS_FLASH_BASE		CONFIG_SYS_MONITOR_BASE
+#define CONFIG_SYS_MONITOR_BASE		TEXT_BASE
+#define CONFIG_SYS_MONITOR_LEN		(~(TEXT_BASE) + 1)
 #define CONFIG_SYS_MALLOC_LEN		(128 * 1024)	/* Reserve 128 kB for malloc()	*/
 
 /*
@@ -173,6 +173,7 @@
  * I2C EEPROM (CAT24WC08) for environment
  */
 #define CONFIG_HARD_I2C			/* I2C with hardware support */
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
 #define CONFIG_SYS_I2C_SPEED		400000	/* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE		0x7F
 

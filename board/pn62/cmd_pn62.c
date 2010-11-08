@@ -36,20 +36,20 @@ extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 /*
  * Command led: controls the various LEDs 0..11 on the PN62 card.
  */
-int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_led(cmd_tbl_t * cmdtp, int flag, int argc, char *const argv[])
 {
-    unsigned int number, function;
+	unsigned int number, function;
 
-    if (argc != 3) {
-	cmd_usage(cmdtp);
-	return 1;
-    }
-    number = simple_strtoul(argv[1], NULL, 10);
-    if (number > PN62_LED_MAX)
-	return 1;
-    function = simple_strtoul(argv[2], NULL, 16);
-    set_led (number, function);
-    return 0;
+	if (argc != 3)
+		return cmd_usage(cmdtp);
+
+	number = simple_strtoul(argv[1], NULL, 10);
+	if (number > PN62_LED_MAX)
+		return 1;
+
+	function = simple_strtoul(argv[2], NULL, 16);
+	set_led(number, function);
+	return 0;
 }
 U_BOOT_CMD(
 	led    ,	3,	1,	do_led,
@@ -64,7 +64,7 @@ U_BOOT_CMD(
 #define CMD_MOVE_WINDOW 0x1
 #define CMD_BOOT_IMAGE  0x2
 
-int do_loadpci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_loadpci (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
     char *s;
     ulong addr = 0, count = 0;
@@ -83,8 +83,7 @@ int do_loadpci (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 	addr = simple_strtoul(argv[1], NULL, 16);
 	break;
     default:
-       cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
     }
 
     printf ("## Ready for image download ...\n");

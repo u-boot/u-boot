@@ -16,6 +16,7 @@
 #include <linux/mii.h>
 
 #include <asm/blackfin.h>
+#include <asm/portmux.h>
 #include <asm/mach-common/bits/dma.h>
 #include <asm/mach-common/bits/emac.h>
 #include <asm/mach-common/bits/pll.h>
@@ -70,7 +71,7 @@ static int bfin_miiphy_wait(void)
 	return 0;
 }
 
-static int bfin_miiphy_read(char *devname, uchar addr, uchar reg, ushort *val)
+static int bfin_miiphy_read(const char *devname, uchar addr, uchar reg, ushort *val)
 {
 	if (bfin_miiphy_wait())
 		return 1;
@@ -81,7 +82,7 @@ static int bfin_miiphy_read(char *devname, uchar addr, uchar reg, ushort *val)
 	return 0;
 }
 
-static int bfin_miiphy_write(char *devname, uchar addr, uchar reg, ushort val)
+static int bfin_miiphy_write(const char *devname, uchar addr, uchar reg, ushort val)
 {
 	if (bfin_miiphy_wait())
 		return 1;
@@ -98,7 +99,7 @@ int bfin_EMAC_initialize(bd_t *bis)
 		hang();
 
 	memset(dev, 0, sizeof(*dev));
-	sprintf(dev->name, "Blackfin EMAC");
+	strcpy(dev->name, "bfin_mac");
 
 	dev->iobase = 0;
 	dev->priv = 0;
@@ -106,6 +107,7 @@ int bfin_EMAC_initialize(bd_t *bis)
 	dev->halt = bfin_EMAC_halt;
 	dev->send = bfin_EMAC_send;
 	dev->recv = bfin_EMAC_recv;
+	dev->write_hwaddr = bfin_EMAC_setup_addr;
 
 	eth_register(dev);
 
@@ -212,8 +214,17 @@ static int bfin_EMAC_recv(struct eth_device *dev)
 /* MDC = SCLK / MDC_freq / 2 - 1 */
 #define MDC_FREQ_TO_DIV(mdc_freq) (get_sclk() / (mdc_freq) / 2 - 1)
 
+#ifndef CONFIG_BFIN_MAC_PINS
+# ifdef CONFIG_RMII
+#  define CONFIG_BFIN_MAC_PINS P_RMII0
+# else
+#  define CONFIG_BFIN_MAC_PINS P_MII0
+# endif
+#endif
+
 static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 {
+	const unsigned short pins[] = CONFIG_BFIN_MAC_PINS;
 	u16 phydat;
 	size_t count;
 
@@ -221,42 +232,7 @@ static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 	*pVR_CTL |= CLKBUFOE;
 
 	/* Set all the pins to peripheral mode */
-#ifdef CONFIG_RMII
-	/* grab RMII pins */
-# if defined(__ADSPBF51x__)
-	*pPORTF_MUX = (*pPORTF_MUX & \
-		~(PORT_x_MUX_3_MASK | PORT_x_MUX_4_MASK | PORT_x_MUX_5_MASK)) | \
-		PORT_x_MUX_3_FUNC_1 | PORT_x_MUX_4_FUNC_1 | PORT_x_MUX_5_FUNC_1;
-	*pPORTF_FER |= PF8 | PF9 | PF10 | PF11 | PF12 | PF13 | PF14 | PF15;
-	*pPORTG_MUX = (*pPORTG_MUX & ~PORT_x_MUX_0_MASK) | PORT_x_MUX_0_FUNC_1;
-	*pPORTG_FER |= PG0 | PG1 | PG2;
-# elif defined(__ADSPBF52x__)
-	*pPORTG_MUX = (*pPORTG_MUX & ~PORT_x_MUX_6_MASK) | PORT_x_MUX_6_FUNC_2;
-	*pPORTG_FER |= PG14 | PG15;
-	*pPORTH_MUX = (*pPORTH_MUX & ~(PORT_x_MUX_0_MASK | PORT_x_MUX_1_MASK)) | \
-		PORT_x_MUX_0_FUNC_2 | PORT_x_MUX_1_FUNC_2;
-	*pPORTH_FER |= PH0 | PH1 | PH2 | PH3 | PH4 | PH5 | PH6 | PH7 | PH8;
-# else
-	*pPORTH_FER |= PH0 | PH1 | PH4 | PH5 | PH6 | PH8 | PH9 | PH14 | PH15;
-# endif
-#else
-	/* grab MII & RMII pins */
-# if defined(__ADSPBF51x__)
-	*pPORTF_MUX = (*pPORTF_MUX & \
-		~(PORT_x_MUX_0_MASK | PORT_x_MUX_1_MASK | PORT_x_MUX_3_MASK | PORT_x_MUX_4_MASK | PORT_x_MUX_5_MASK)) | \
-		PORT_x_MUX_0_FUNC_1 | PORT_x_MUX_1_FUNC_1 | PORT_x_MUX_3_FUNC_1 | PORT_x_MUX_4_FUNC_1 | PORT_x_MUX_5_FUNC_1;
-	*pPORTF_FER |= PF0 | PF1 | PF2 | PF3 | PF4 | PF5 | PF6 | PF8 | PF9 | PF10 | PF11 | PF12 | PF13 | PF14 | PF15;
-	*pPORTG_MUX = (*pPORTG_MUX & ~PORT_x_MUX_0_MASK) | PORT_x_MUX_0_FUNC_1;
-	*pPORTG_FER |= PG0 | PG1 | PG2;
-# elif defined(__ADSPBF52x__)
-	*pPORTG_MUX = (*pPORTG_MUX & ~PORT_x_MUX_6_MASK) | PORT_x_MUX_6_FUNC_2;
-	*pPORTG_FER |= PG14 | PG15;
-	*pPORTH_MUX = PORT_x_MUX_0_FUNC_2 | PORT_x_MUX_1_FUNC_2 | PORT_x_MUX_2_FUNC_2;
-	*pPORTH_FER = -1; /* all pins */
-# else
-	*pPORTH_FER = -1; /* all pins */
-# endif
-#endif
+	peripheral_request_list(pins, "bfin_mac");
 
 	/* Odd word alignment for Receive Frame DMA word */
 	/* Configure checksum support and rcve frame word alignment */
@@ -303,6 +279,19 @@ static int bfin_miiphy_init(struct eth_device *dev, int *opmode)
 	return 0;
 }
 
+static int bfin_EMAC_setup_addr(struct eth_device *dev)
+{
+	*pEMAC_ADDRLO =
+		dev->enetaddr[0] |
+		dev->enetaddr[1] << 8 |
+		dev->enetaddr[2] << 16 |
+		dev->enetaddr[3] << 24;
+	*pEMAC_ADDRHI =
+		dev->enetaddr[4] |
+		dev->enetaddr[5] << 8;
+	return 0;
+}
+
 static int bfin_EMAC_init(struct eth_device *dev, bd_t *bd)
 {
 	u32 opmode;
@@ -318,7 +307,7 @@ static int bfin_EMAC_init(struct eth_device *dev, bd_t *bd)
 		return -1;
 
 	/* Initialize EMAC address */
-	bfin_EMAC_setup_addr(dev->enetaddr);
+	bfin_EMAC_setup_addr(dev);
 
 	/* Initialize TX and RX buffer */
 	for (i = 0; i < PKTBUFSRX; i++) {
@@ -374,18 +363,6 @@ static void bfin_EMAC_halt(struct eth_device *dev)
 	*pDMA1_CONFIG = 0x0000;
 	*pDMA2_CONFIG = 0x0000;
 
-}
-
-void bfin_EMAC_setup_addr(uchar *enetaddr)
-{
-	*pEMAC_ADDRLO =
-		enetaddr[0] |
-		enetaddr[1] << 8 |
-		enetaddr[2] << 16 |
-		enetaddr[3] << 24;
-	*pEMAC_ADDRHI =
-		enetaddr[4] |
-		enetaddr[5] << 8;
 }
 
 ADI_ETHER_BUFFER *SetupRxBuffer(int no)

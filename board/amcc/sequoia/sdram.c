@@ -40,7 +40,7 @@ extern int denali_wait_for_dlllock(void);
 extern void denali_core_search_data_eye(void);
 
 #if defined(CONFIG_NAND_SPL)
-/* Using cpu/ppc4xx/speed.c to calculate the bus frequency is too big
+/* Using arch/powerpc/cpu/ppc4xx/speed.c to calculate the bus frequency is too big
  * for the 4k NAND boot image so define bus_frequency to 133MHz here
  * which is save for the refresh counter setup.
  */

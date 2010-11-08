@@ -25,10 +25,25 @@
 #include <asm/sdram.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/hmatrix.h>
+#include <asm/arch/mmu.h>
 #include <asm/arch/portmux.h>
 #include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+struct mmu_vm_range mmu_vmr_table[CONFIG_SYS_NR_VM_REGIONS] = {
+	{
+		.virt_pgno	= CONFIG_SYS_FLASH_BASE >> PAGE_SHIFT,
+		.nr_pages	= CONFIG_SYS_FLASH_SIZE >> PAGE_SHIFT,
+		.phys		= (CONFIG_SYS_FLASH_BASE >> PAGE_SHIFT)
+					| MMU_VMR_CACHE_NONE,
+	}, {
+		.virt_pgno	= CONFIG_SYS_SDRAM_BASE >> PAGE_SHIFT,
+		.nr_pages	= EBI_SDRAM_SIZE >> PAGE_SHIFT,
+		.phys		= (CONFIG_SYS_SDRAM_BASE >> PAGE_SHIFT)
+					| MMU_VMR_CACHE_WRBACK,
+	},
+};
 
 static const struct sdram_config sdram_config = {
 #if defined(CONFIG_ATSTK1006)
@@ -97,12 +112,10 @@ phys_size_t initdram(int board_type)
 	unsigned long actual_size;
 	void *sdram_base;
 
-	sdram_base = map_physmem(EBI_SDRAM_BASE, EBI_SDRAM_SIZE, MAP_NOCACHE);
+	sdram_base = uncached(EBI_SDRAM_BASE);
 
 	expected_size = sdram_init(sdram_base, &sdram_config);
 	actual_size = get_ram_size(sdram_base, expected_size);
-
-	unmap_physmem(sdram_base, EBI_SDRAM_SIZE);
 
 	if (expected_size != actual_size)
 		printf("Warning: Only %lu of %lu MiB SDRAM is working\n",

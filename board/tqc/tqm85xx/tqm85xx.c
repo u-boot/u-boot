@@ -269,8 +269,6 @@ int checkboard (void)
 
 int misc_init_r (void)
 {
-	volatile ccsr_lbc_t *memctl = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
-
 	/*
 	 * Adjust flash start and offset to detected values
 	 */
@@ -281,26 +279,27 @@ int misc_init_r (void)
 	 * Recalculate CS configuration if second FLASH bank is available
 	 */
 	if (flash_info[0].size > 0) {
-		memctl->or1 = ((-flash_info[0].size) & 0xffff8000) |
-			(CONFIG_SYS_OR1_PRELIM & 0x00007fff);
-		memctl->br1 = gd->bd->bi_flashstart |
-			(CONFIG_SYS_BR1_PRELIM & 0x00007fff);
+		set_lbc_or(1, ((-flash_info[0].size) & 0xffff8000) |
+			   (CONFIG_SYS_OR1_PRELIM & 0x00007fff));
+		set_lbc_br(1, gd->bd->bi_flashstart |
+			   (CONFIG_SYS_BR1_PRELIM & 0x00007fff));
 		/*
 		 * Re-check to get correct base address for bank 1
 		 */
 		flash_get_size (gd->bd->bi_flashstart, 0);
 	} else {
-		memctl->or1 = 0;
-		memctl->br1 = 0;
+		set_lbc_or(1, 0);
+		set_lbc_br(1, 0);
 	}
 
 	/*
 	 *  If bank 1 is equipped, bank 0 is mapped after bank 1
 	 */
-	memctl->or0 = ((-flash_info[1].size) & 0xffff8000) |
-		(CONFIG_SYS_OR0_PRELIM & 0x00007fff);
-	memctl->br0 = (gd->bd->bi_flashstart + flash_info[0].size) |
-		(CONFIG_SYS_BR0_PRELIM & 0x00007fff);
+	set_lbc_or(0, ((-flash_info[1].size) & 0xffff8000) |
+		   (CONFIG_SYS_OR0_PRELIM & 0x00007fff));
+	set_lbc_br(0, gd->bd->bi_flashstart |
+		   (CONFIG_SYS_BR0_PRELIM & 0x00007fff));
+
 	/*
 	 * Re-check to get correct base address for bank 0
 	 */
@@ -341,7 +340,7 @@ int misc_init_r (void)
  */
 static void upmc_write (u_char addr, uint val)
 {
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	out_be32 (&lbc->mdr, val);
 
@@ -358,7 +357,7 @@ static void upmc_write (u_char addr, uint val)
 
 uint get_lbc_clock (void)
 {
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	sys_info_t sys_info;
 	ulong clkdiv = lbc->lcrr & LCRR_CLKDIV;
 
@@ -386,7 +385,7 @@ uint get_lbc_clock (void)
 void local_bus_init (void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	volatile ccsr_lbc_t *lbc = (void *)(CONFIG_SYS_MPC85xx_LBC_ADDR);
+	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	uint lbc_mhz = get_lbc_clock ()  / 1000000;
 
 #ifdef CONFIG_MPC8548
@@ -502,10 +501,10 @@ void local_bus_init (void)
 	 * set if Local Bus Clock is > 83 MHz.
 	 */
 	if (lbc_mhz > 83)
-		out_be32 (&lbc->or2, CONFIG_SYS_OR2_CAN | OR_UPM_EAD);
+		set_lbc_or(2, CONFIG_SYS_OR2_CAN | OR_UPM_EAD);
 	else
-		out_be32 (&lbc->or2, CONFIG_SYS_OR2_CAN);
-	out_be32 (&lbc->br2, CONFIG_SYS_BR2_CAN);
+		set_lbc_or(2, CONFIG_SYS_OR2_CAN);
+	set_lbc_br(2, CONFIG_SYS_BR2_CAN);
 
 	/* LGPL4 is UPWAIT */
 	out_be32(&lbc->mcmr, MxMR_DSx_3_CYCL | MxMR_GPL_x4DIS | MxMR_WLFx_3X);
@@ -549,7 +548,6 @@ static inline void init_pci1(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #ifdef CONFIG_PCI1
-	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CONFIG_SYS_PCI1_ADDR;
 	struct pci_controller *hose = &pci1_hose;
 	struct pci_region *r = hose->regions;
@@ -561,7 +559,7 @@ static inline void init_pci1(void)
 	/* PORPLLSR[16] */
 	uint pci_clk_sel = gur->porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;
 
-	uint pci_agent = is_fsl_pci_agent(LAW_TRGT_IF_PCI_1, host_agent);
+	int pci_agent = fsl_setup_hose(hose, CONFIG_SYS_PCI1_ADDR);
 
 	uint pci_speed = CONFIG_SYS_CLK_FREQ;	/* PCI PSPEED in [4:5] */
 
@@ -626,17 +624,18 @@ static inline void init_pcie1(void)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #ifdef CONFIG_PCIE1
 	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-	uint host_agent = (gur->porbmsr & MPC85xx_PORBMSR_HA) >> 16;
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *)CONFIG_SYS_PCIE1_ADDR;
 	struct pci_controller *hose = &pcie1_hose;
-	int pcie_ep = is_fsl_pci_agent(LAW_TRGT_IF_PCIE_1, host_agent);
+	int pcie_ep;
 	struct pci_region *r = hose->regions;
 
 	int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
 
+	pcie_ep = fsl_setup_hose(hose, CONFIG_SYS_PCIE1_ADDR);
+
 	if (pcie_configured && !(gur->devdisr & MPC85xx_DEVDISR_PCIE)){
 		printf ("PCIe:  %s, base address %x",
-			pcie_ep ? "End point" : "Root complex", (uint)pci);
+			pcie_ep ? "Endpoint" : "Root complex", (uint)pci);
 
 		if (pci->pme_msg_det) {
 			pci->pme_msg_det = 0xffffffff;
@@ -688,12 +687,7 @@ void ft_board_setup (void *blob, bd_t *bd)
 {
 	ft_cpu_setup (blob, bd);
 
-#ifdef CONFIG_PCI1
-	ft_fsl_pci_setup(blob, "pci0", &pci1_hose);
-#endif
-#ifdef CONFIG_PCIE1
-	ft_fsl_pci_setup(blob, "pci1", &pcie1_hose);
-#endif
+	FT_FSL_PCI_SETUP;
 }
 #endif /* CONFIG_OF_BOARD_SETUP */
 
