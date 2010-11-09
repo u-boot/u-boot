@@ -29,6 +29,7 @@
 #include <linux/stddef.h>
 #include <malloc.h>
 #include <mmc.h>
+#include <search.h>
 #include <errno.h>
 
 /* references to names in env_common.c */
