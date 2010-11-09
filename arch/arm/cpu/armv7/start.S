@@ -42,6 +42,20 @@ _start: b	reset
 	ldr	pc, _irq
 	ldr	pc, _fiq
 
+#ifdef CONFIG_PELE_XILINX_FLASH_HEADER
+/* These fields MUST immediately follow the vectors */
+.word   0xAA995566	/* 0xaa995566 required for sizing of the FLASH */
+.word   0x584C4E58	/* signature 0x584C4E58 identifies the format of the image */
+.word   0x00000000	/* 0xA5C3C5A3 for encrypted images */
+.word   0x00000000	/* UserData can be anything */
+.word   0x00000120	/* LoadStart offset into FLASH where image starts */
+.word   0x00000000	/* LoadLength length of image in bytes */
+.word   0x00000000	/* DestinationAddress where in OCM the image is to be written to */
+.word   CONFIG_SYS_FLASH_BASE	/* ImageStartAddress where to jump to at handoff (_start) */
+.word   0x00000000	/* TotalImageLength - should be the same for unencrypted images */
+.word   0x00000001	/* QSPIConfigWord x1 device */
+#endif
+
 _undefined_instruction: .word undefined_instruction
 _software_interrupt:	.word software_interrupt
 _prefetch_abort:	.word prefetch_abort
@@ -190,6 +204,7 @@ _start_armboot: .word start_armboot
  * setup memory timing
  *
  *************************************************************************/
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 cpu_init_crit:
 	/*
 	 * Invalidate L1 I/D
@@ -218,6 +233,7 @@ cpu_init_crit:
 	bl	lowlevel_init		@ go setup pll,mux,memory
 	mov	lr, ip			@ restore link
 	mov	pc, lr			@ back to my caller
+#endif
 /*
  *************************************************************************
  *
