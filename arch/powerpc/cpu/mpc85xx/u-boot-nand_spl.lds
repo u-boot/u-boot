@@ -28,15 +28,15 @@ SECTIONS
 {
 	. = 0xfff00000;
 	.text : {
-		*(.text)
+		*(.text*)
 	}
 	_etext = .;
 
 	.reloc : {
 		_GOT2_TABLE_ = .;
-		*(.got2)
+		KEEP(*(.got2))
 		_FIXUP_TABLE_ = .;
-		*(.fixup)
+		KEEP(*(.fixup))
 	}
 	__got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >> 2;
 	__fixup_entries = (. - _FIXUP_TABLE_) >> 2;
@@ -54,13 +54,13 @@ SECTIONS
 	__init_end = .;
 
 	.resetvec ADDR(.text) + 0xffc : {
-		*(.resetvec)
+		KEEP(*(.resetvec))
 	} = 0xffff
 
 	__bss_start = .;
 	.bss : {
-		*(.sbss)
-		*(.bss)
+		*(.sbss*)
+		*(.bss*)
 	}
 	_end = .;
 }
