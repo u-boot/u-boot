@@ -103,33 +103,28 @@ unsigned long long get_ticks(void)
 
 void __udelay(unsigned long usec)
 {
-	unsigned long long tmp;
+	unsigned long long start;
 	ulong tmo;
 
-	tmo = usec_to_tick(usec);
-	tmp = get_ticks() + tmo;	/* get current timestamp */
-
-	while (get_ticks() < tmp)	/* loop till event */
-		;
+	start = get_ticks();		/* get current timestamp */
+	tmo = usec_to_tick(usec);	/* convert usecs to ticks */
+	while ((get_ticks() - start) < tmo)
+		;			/* loop till time has passed */
 }
 
 /*
- * reset_timer() and get_timer(base) are a pair of functions that are used by
- * some timeout/sleep mechanisms in u-boot.
+ * get_timer(base) can be used to check for timeouts or
+ * to measure elasped time relative to an event:
  *
- * reset_timer() marks the current time as epoch and
- * get_timer(base) works relative to that epoch.
+ * ulong start_time = get_timer(0) sets start_time to the current
+ * time value.
+ * get_timer(start_time) returns the time elapsed since then.
  *
  * The time is used in CONFIG_SYS_HZ units!
  */
-void reset_timer(void)
-{
-	gd->timer_reset_value = get_ticks();
-}
-
 ulong get_timer(ulong base)
 {
-	return tick_to_time(get_ticks() - gd->timer_reset_value) - base;
+	return tick_to_time(get_ticks()) - base;
 }
 
 /*
