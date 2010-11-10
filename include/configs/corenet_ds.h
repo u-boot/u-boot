@@ -475,6 +475,7 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SETEXPR
+#define CONFIG_CMD_DHCP
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
