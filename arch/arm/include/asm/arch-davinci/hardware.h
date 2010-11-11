@@ -149,6 +149,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_DDR_EMIF_DATA_BASE		0xc0000000
 #define DAVINCI_INTC_BASE			0xfffee000
 #define DAVINCI_BOOTCFG_BASE			0x01c14000
+#define JTAG_ID_REG                            (DAVINCI_BOOTCFG_BASE + 0x18)
 
 #endif /* CONFIG_SOC_DA8XX */
 
@@ -441,6 +442,21 @@ struct davinci_uart_ctrl_regs {
 #define DAVINCI_UART_PWREMU_MGMT_FREE	(1 << 0)
 #define DAVINCI_UART_PWREMU_MGMT_URRST	(1 << 13)
 #define DAVINCI_UART_PWREMU_MGMT_UTRST	(1 << 14)
+
+static inline int cpu_is_da830(void)
+{
+	unsigned int jtag_id	= REG(JTAG_ID_REG);
+	unsigned short part_no	= (jtag_id >> 12) & 0xffff;
+
+	return ((part_no == 0xb7df) ? 1 : 0);
+}
+static inline int cpu_is_da850(void)
+{
+	unsigned int jtag_id    = REG(JTAG_ID_REG);
+	unsigned short part_no  = (jtag_id >> 12) & 0xffff;
+
+	return ((part_no == 0xb7d1) ? 1 : 0);
+}
 
 #endif /* CONFIG_SOC_DA8XX */
 
