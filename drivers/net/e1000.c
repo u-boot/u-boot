@@ -5177,7 +5177,21 @@ e1000_initialize(bd_t * bis)
 		}
 
 		nic = (struct eth_device *) malloc(sizeof (*nic));
+		if (!nic) {
+			printf("Error: e1000 - Can not alloc memory\n");
+			return 0;
+		}
+
 		hw = (struct e1000_hw *) malloc(sizeof (*hw));
+		if (!hw) {
+			free(nic);
+			printf("Error: e1000 - Can not alloc memory\n");
+			return 0;
+		}
+
+		memset(nic, 0, sizeof(*dev));
+		memset(hw, 0, sizeof(*hw));
+
 		hw->pdev = devno;
 		nic->priv = hw;
 
