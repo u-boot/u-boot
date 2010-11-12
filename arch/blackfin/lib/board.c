@@ -237,12 +237,12 @@ void board_init_f(ulong bootflag)
 #endif
 
 #ifdef DEBUG
-	if (CONFIG_SYS_GBL_DATA_SIZE < sizeof(*gd))
+	if (GENERATED_GBL_DATA_SIZE < sizeof(*gd))
 		hang();
 #endif
 	serial_early_puts("Init global data\n");
 	gd = (gd_t *) (CONFIG_SYS_GBL_DATA_ADDR);
-	memset((void *)gd, 0, CONFIG_SYS_GBL_DATA_SIZE);
+	memset((void *)gd, 0, GENERATED_GBL_DATA_SIZE);
 
 	/* Board data initialization */
 	addr = (CONFIG_SYS_GBL_DATA_ADDR + sizeof(gd_t));

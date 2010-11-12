@@ -24,7 +24,6 @@
 #define DAVINCI_DM6467EVM
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_RELOCATE_UBOOT
 
 /* SoC Configuration */
 #define CONFIG_ARM926EJS				/* arm926ejs CPU */
@@ -41,7 +40,6 @@
 
 /* Memory Info */
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)	/* 1 MiB */
-#define CONFIG_SYS_GBL_DATA_SIZE	128		/* initial data */
 #define CONFIG_SYS_MEMTEST_START	0x80000000
 #define CONFIG_SYS_MEMTEST_END		0x81000000	/* 16MB RAM test */
 #define CONFIG_NR_DRAM_BANKS		1

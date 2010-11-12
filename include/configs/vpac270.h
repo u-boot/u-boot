@@ -27,13 +27,13 @@
  */
 #define	CONFIG_PXA27X		1	/* Marvell PXA270 CPU */
 #define	CONFIG_VPAC270		1	/* Voipac PXA270 board */
+#define	CONFIG_SYS_TEXT_BASE	0x0
 
 /*
  * Environment settings
  */
 #define	CONFIG_ENV_OVERWRITE
 #define	CONFIG_SYS_MALLOC_LEN		(128*1024)
-#define	CONFIG_SYS_GBL_DATA_SIZE	128
 #define	CONFIG_ARCH_CPU_INIT
 #define	CONFIG_BOOTCOMMAND						\
 	"if mmc init && fatload mmc 0 0xa4000000 uImage; then "		\
@@ -184,7 +184,7 @@
 #define	CONFIG_SYS_IPL_LOAD_ADDR	(0x5c000000)
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define	CONFIG_SYS_INIT_SP_ADDR		\
-	(PHYS_SDRAM_1 + CONFIG_SYS_GBL_DATA_SIZE + 2048)
+	(PHYS_SDRAM_1 + GENERATED_GBL_DATA_SIZE + 2048)
 
 /*
  * NOR FLASH

@@ -422,7 +422,7 @@ int post_log (char *format, ...)
 	return 0;
 }
 
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 void post_reloc (void)
 {
 	unsigned int i;

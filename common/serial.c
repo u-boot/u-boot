@@ -99,7 +99,7 @@ struct serial_device *default_serial_console(void) __attribute__((weak, alias("_
 
 int serial_register (struct serial_device *dev)
 {
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 	dev->init += gd->reloc_off;
 	dev->setbrg += gd->reloc_off;
 	dev->getc += gd->reloc_off;

@@ -317,4 +317,3 @@ void writePort(unsigned char pins, unsigned char value);
 unsigned char readPort(void);
 void sclock(void);
 #endif
-

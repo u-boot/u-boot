@@ -90,7 +90,6 @@
 #define CONFIG_SYS_MEMTEST_START	0x00000000
 #define CONFIG_SYS_MEMTEST_END		0x0FFFFFFF
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 256 * 1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* for initial data */
 
 #define BOARD_LATE_INIT		/* call board_late_init during start up */
 

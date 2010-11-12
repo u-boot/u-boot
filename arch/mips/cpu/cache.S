@@ -22,6 +22,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <asm/asm.h>
 #include <asm/regdef.h>

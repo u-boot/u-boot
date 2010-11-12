@@ -100,8 +100,9 @@ int misc_init_r(void)
 
 int board_init (void)
 {
-	/* memory and cpu-speed are setup before relocation */
-	/* so we do _nothing_ here */
+	/* We have RAM, disable cache */
+	dcache_disable();
+	icache_disable();
 
 	gd->bd->bi_arch_number = MACH_TYPE_INNOKOM;
 	gd->bd->bi_boot_params = 0xa0000100;
@@ -110,21 +111,19 @@ int board_init (void)
 	return 0;
 }
 
-
-/**
- * dram_init: - setup dynamic RAM
- *
- * @return: 0 in case of success
- */
-
-int dram_init (void)
+extern void pxa_dram_init(void);
+int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
+	pxa_dram_init();
+	gd->ram_size = PHYS_SDRAM_1_SIZE;
 	return 0;
 }
 
+void dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+}
 
 /**
  * innokom_set_led: - switch LEDs on or off

@@ -463,7 +463,7 @@
 /* Where the internal SRAM starts */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_OCM_DATA_ADDR
 /* Where the internal SRAM ends (only offset) */
-#define CONFIG_SYS_INIT_RAM_END	0x0F00
+#define CONFIG_SYS_INIT_RAM_SIZE	0x0F00
 
 /*
 
@@ -476,13 +476,12 @@
 			   |	      |
 			   | 64 Bytes |
 			   |	      |
- CONFIG_SYS_INIT_RAM_END  ------> ------------ higher address
+ CONFIG_SYS_INIT_RAM_SIZE  ------> ------------ higher address
   (offset only)
 
 */
 /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE     64
-#define CONFIG_SYS_GBL_DATA_OFFSET   (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET   (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 /* Initial value of the stack pointern in internal SRAM */
 #define CONFIG_SYS_INIT_SP_OFFSET    CONFIG_SYS_GBL_DATA_OFFSET
 

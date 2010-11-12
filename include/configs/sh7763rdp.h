@@ -85,7 +85,6 @@
 /* Size of DRAM reserved for malloc() use */
 #define CONFIG_SYS_MALLOC_LEN		(1024 * 1024)
 /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	(256)
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 
 #define CONFIG_SYS_FLASH_CFI

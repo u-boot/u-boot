@@ -54,7 +54,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128  /* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers
@@ -147,11 +146,10 @@
 #define PHYS_SDRAM_1		CSD0_BASE
 #define PHYS_SDRAM_1_SIZE	(128 * 1024 * 1024)
 
-#undef CONFIG_SYS_ARM_WITHOUT_RELOC
 #define CONFIG_SYS_SDRAM_BASE		CSD0_BASE
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
-#define CONFIG_SYS_INIT_RAM_END		IRAM_SIZE
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE		IRAM_SIZE
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + CONFIG_SYS_GBL_DATA_OFFSET)
 
 /*-----------------------------------------------------------------------

@@ -121,7 +121,7 @@ static int __init compr_init(struct ubifs_compressor *compr)
 {
 	ubifs_compressors[compr->compr_type] = compr;
 
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 	ubifs_compressors[compr->compr_type]->name += gd->reloc_off;
 	ubifs_compressors[compr->compr_type]->capi_name += gd->reloc_off;
 	ubifs_compressors[compr->compr_type]->decompress += gd->reloc_off;

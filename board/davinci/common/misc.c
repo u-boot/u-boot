@@ -33,15 +33,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-int dram_init(void)
-{
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
-	return(0);
-}
-#else
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
@@ -56,7 +47,6 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = gd->ram_size;
 }
-#endif
 
 #ifdef CONFIG_DRIVER_TI_EMAC
 

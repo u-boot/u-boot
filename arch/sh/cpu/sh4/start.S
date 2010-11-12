@@ -18,6 +18,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <version.h>
 
@@ -69,6 +70,6 @@ loop:
 ._reloc_dst_end:	.long	reloc_dst_end
 ._bss_start:		.long	bss_start
 ._bss_end:		.long	bss_end
-._gd_init:		.long	(_start - CONFIG_SYS_GBL_DATA_SIZE)
-._stack_init:		.long	(_start - CONFIG_SYS_GBL_DATA_SIZE - CONFIG_SYS_MALLOC_LEN - 16)
+._gd_init:		.long	(_start - GENERATED_GBL_DATA_SIZE)
+._stack_init:		.long	(_start - GENERATED_GBL_DATA_SIZE - CONFIG_SYS_MALLOC_LEN - 16)
 ._sh_generic_init:	.long	sh_generic_init

@@ -54,7 +54,7 @@ static void nand_init_chip(struct mtd_info *mtd, struct nand_chip *nand,
 		if (nand_scan(mtd, maxchips) == 0) {
 			if (!mtd->name)
 				mtd->name = (char *)default_nand_name;
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 			else
 				mtd->name += gd->reloc_off;
 #endif

@@ -101,7 +101,7 @@ void _serial_setbrg(const int dev_index)
 	/* value is calculated so : (int)(PCLK/16./baudrate) -1 */
 	reg = get_PCLK() / (16 * gd->baudrate) - 1;
 
-	writel(reg, &uart->UBRDIV);
+	writel(reg, &uart->ubrdiv);
 	for (i = 0; i < 100; i++)
 		/* Delay */ ;
 }
@@ -131,26 +131,26 @@ static int serial_init_dev(const int dev_index)
 #endif
 
 	/* FIFO enable, Tx/Rx FIFO clear */
-	writel(0x07, &uart->UFCON);
-	writel(0x0, &uart->UMCON);
+	writel(0x07, &uart->ufcon);
+	writel(0x0, &uart->umcon);
 
 	/* Normal,No parity,1 stop,8 bit */
-	writel(0x3, &uart->ULCON);
+	writel(0x3, &uart->ulcon);
 	/*
 	 * tx=level,rx=edge,disable timeout int.,enable rx error int.,
 	 * normal,interrupt or polling
 	 */
-	writel(0x245, &uart->UCON);
+	writel(0x245, &uart->ucon);
 
 #ifdef CONFIG_HWFLOW
-	writel(0x1, &uart->UMCON);	/* RTS up */
+	writel(0x1, &uart->umcon);	/* rts up */
 #endif
 
 	/* FIXME: This is sooooooooooooooooooo ugly */
 #if defined(CONFIG_ARCH_GTA02_v1) || defined(CONFIG_ARCH_GTA02_v2)
 	/* we need auto hw flow control on the gsm and gps port */
 	if (dev_index == 0 || dev_index == 1)
-		writel(0x10, &uart->UMCON);
+		writel(0x10, &uart->umcon);
 #endif
 	_serial_setbrg(dev_index);
 
@@ -176,10 +176,10 @@ int _serial_getc(const int dev_index)
 {
 	struct s3c24x0_uart *uart = s3c24x0_get_base_uart(dev_index);
 
-	while (!(readl(&uart->UTRSTAT) & 0x1))
+	while (!(readl(&uart->utrstat) & 0x1))
 		/* wait for character to arrive */ ;
 
-	return readb(&uart->URXH) & 0xff;
+	return readb(&uart->urxh) & 0xff;
 }
 
 #if defined(CONFIG_SERIAL_MULTI)
@@ -237,15 +237,15 @@ void _serial_putc(const char c, const int dev_index)
 		return;
 #endif
 
-	while (!(readl(&uart->UTRSTAT) & 0x2))
+	while (!(readl(&uart->utrstat) & 0x2))
 		/* wait for room in the tx FIFO */ ;
 
 #ifdef CONFIG_HWFLOW
-	while (hwflow && !(readl(&uart->UMSTAT) & 0x1))
+	while (hwflow && !(readl(&uart->umstat) & 0x1))
 		/* Wait for CTS up */ ;
 #endif
 
-	writeb(c, &uart->UTXH);
+	writeb(c, &uart->utxh);
 
 	/* If \n, also do \r */
 	if (c == '\n')
@@ -272,7 +272,7 @@ int _serial_tstc(const int dev_index)
 {
 	struct s3c24x0_uart *uart = s3c24x0_get_base_uart(dev_index);
 
-	return readl(&uart->UTRSTAT) & 0x1;
+	return readl(&uart->utrstat) & 0x1;
 }
 
 #if defined(CONFIG_SERIAL_MULTI)

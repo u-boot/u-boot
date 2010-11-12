@@ -210,7 +210,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
-#define CONFIG_SYS_GBL_DATA_SIZE	128 /* bytes for initial data */
 
 /*
  * SMSC911x Ethernet
@@ -223,6 +222,6 @@
 #endif /* (CONFIG_CMD_NET) */
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_SP_ADDR		(LOW_LEVEL_SRAM_STACK - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR		(LOW_LEVEL_SRAM_STACK - GENERATED_GBL_DATA_SIZE)
 
 #endif /* __CONFIG_H */

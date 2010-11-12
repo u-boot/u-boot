@@ -218,7 +218,6 @@
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
 
 /* Run-time memory allocatons */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 #define CONFIG_STACKSIZE		(128 * 1024)
 
 #if defined(CONFIG_USE_IRQ)

@@ -302,4 +302,3 @@ void usb_ep_autoconfig_reset(struct usb_gadget *gadget)
 #endif
 	epnum = 0;
 }
-

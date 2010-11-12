@@ -227,7 +227,7 @@ int env_import(const char *buf, int check)
 
 void env_relocate (void)
 {
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	extern void env_reloc(void);
 
 	env_reloc();

@@ -31,4 +31,3 @@
 
 # For use with external or internal boots.
 TEXT_BASE = 0x80008000
-

@@ -341,7 +341,7 @@ board_init_f (ulong bootflag)
 	bd->bi_memsize   = gd->ram_size;	/* size  of  DRAM memory in bytes */
 #ifdef CONFIG_SYS_INIT_RAM_ADDR
 	bd->bi_sramstart = CONFIG_SYS_INIT_RAM_ADDR;	/* start of  SRAM memory	*/
-	bd->bi_sramsize  = CONFIG_SYS_INIT_RAM_END;	/* size  of  SRAM memory	*/
+	bd->bi_sramsize  = CONFIG_SYS_INIT_RAM_SIZE;	/* size  of  SRAM memory	*/
 #endif
 	bd->bi_mbar_base = CONFIG_SYS_MBAR;		/* base of internal registers */
 
@@ -420,13 +420,13 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	monitor_flash_len = (ulong)&__init_end - dest_addr;
 
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
 	/*
 	 * We have to relocate the command table manually
 	 */
 	fixup_cmdtable(&__u_boot_cmd_start,
 		(ulong)(&__u_boot_cmd_end - &__u_boot_cmd_start));
-#endif /* !defined(CONFIG_RELOC_FIXUP_WORKS) */
+#endif /* defined(CONFIG_NEEDS_MANUAL_RELOC) */
 
 	/* there are some other pointer constants we must deal with */
 #ifndef CONFIG_ENV_IS_NOWHERE

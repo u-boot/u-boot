@@ -56,7 +56,7 @@ LONG_OPTS="arch:,cpu:,vendor:,soc:"
 
 # Option processing based on util-linux-2.13/getopt-parse.bash
 
-# Note that we use `"$@"' to let each command-line parameter expand to a 
+# Note that we use `"$@"' to let each command-line parameter expand to a
 # separate word. The quotes around `$@' are essential!
 # We need TEMP as the `eval set --' would nuke the return value of
 # getopt.
@@ -554,9 +554,7 @@ LIST_mips_el="			\
 ## i386 Systems
 #########################################################################
 
-LIST_x86="$(boards_by_arch i386)
-	sc520_eNET	\
-"
+LIST_x86="$(boards_by_arch i386)"
 
 #########################################################################
 ## Nios-II Systems
@@ -601,39 +599,17 @@ LIST_avr32="$(boards_by_arch avr32)"
 ## Blackfin Systems
 #########################################################################
 
-LIST_blackfin="$(boards_by_arch blackfin)
-	bf527-ezkit-v2
-"
+LIST_blackfin="$(boards_by_arch blackfin)"
 
 #########################################################################
 ## SH Systems
 #########################################################################
 
-LIST_sh2="		\
-	rsk7203		\
-"
-LIST_sh3="		\
-	mpr2		\
-	ms7720se	\
-"
+LIST_sh2="$(boards_by_cpu sh2)"
+LIST_sh3="$(boards_by_cpu sh3)"
+LIST_sh4="$(boards_by_cpu sh4)"
 
-LIST_sh4="		\
-	ms7750se	\
-	ms7722se	\
-	MigoR		\
-	r7780mp		\
-	r2dplus		\
-	sh7763rdp	\
-	sh7785lcr	\
-	ap325rxa	\
-	espt		\
-"
-
-LIST_sh="		\
-	${LIST_sh2}	\
-	${LIST_sh3}	\
-	${LIST_sh4}	\
-"
+LIST_sh="$(boards_by_arch sh)"
 
 #########################################################################
 ## SPARC Systems

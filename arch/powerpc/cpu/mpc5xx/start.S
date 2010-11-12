@@ -30,6 +30,7 @@
  *
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <mpc5xx.h>
 #include <timestamp.h>

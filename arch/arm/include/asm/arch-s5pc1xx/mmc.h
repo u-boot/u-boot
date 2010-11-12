@@ -65,7 +65,7 @@ struct mmc_host {
 	unsigned int clock;	/* Current clock (MHz) */
 };
 
-int s5p_mmc_init(int dev_index);
+int s5p_mmc_init(int dev_index, int bus_width);
 
 #endif	/* __ASSEMBLY__ */
 #endif

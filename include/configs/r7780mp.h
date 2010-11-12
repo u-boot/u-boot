@@ -101,7 +101,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(1204 * 1024)
 
 /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	(256)
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 #define CONFIG_SYS_RX_ETH_BUFFER	(8)
 

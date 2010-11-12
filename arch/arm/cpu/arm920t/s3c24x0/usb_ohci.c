@@ -1666,13 +1666,13 @@ int usb_lowlevel_init(void)
 	 * Set the 48 MHz UPLL clocking. Values are taken from
 	 * "PLL value selection guide", 6-23, s3c2400_UM.pdf.
 	 */
-	clk_power->UPLLCON = ((40 << 12) + (1 << 4) + 2);
-	gpio->MISCCR |= 0x8;	/* 1 = use pads related USB for USB host */
+	clk_power->upllcon = ((40 << 12) + (1 << 4) + 2);
+	gpio->misccr |= 0x8;	/* 1 = use pads related USB for USB host */
 
 	/*
 	 * Enable USB host clock.
 	 */
-	clk_power->CLKCON |= (1 << 4);
+	clk_power->clkcon |= (1 << 4);
 
 	memset(&gohci, 0, sizeof(struct ohci));
 	memset(&urb_priv, 0, sizeof(struct urb_priv));
@@ -1709,7 +1709,7 @@ int usb_lowlevel_init(void)
 	if (hc_reset(&gohci) < 0) {
 		hc_release_ohci(&gohci);
 		/* Initialization failed */
-		clk_power->CLKCON &= ~(1 << 4);
+		clk_power->clkcon &= ~(1 << 4);
 		return -1;
 	}
 
@@ -1722,7 +1722,7 @@ int usb_lowlevel_init(void)
 		err("can't start usb-%s", gohci.slot_name);
 		hc_release_ohci(&gohci);
 		/* Initialization failed */
-		clk_power->CLKCON &= ~(1 << 4);
+		clk_power->clkcon &= ~(1 << 4);
 		return -1;
 	}
 #ifdef	DEBUG
@@ -1748,7 +1748,7 @@ int usb_lowlevel_stop(void)
 	/* call hc_release_ohci() here ? */
 	hc_reset(&gohci);
 	/* may not want to do this */
-	clk_power->CLKCON &= ~(1 << 4);
+	clk_power->clkcon &= ~(1 << 4);
 	return 0;
 }
 

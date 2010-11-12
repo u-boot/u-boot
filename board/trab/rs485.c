@@ -51,16 +51,16 @@ static void rs485_setbrg (void)
 	reg = (33000000 / (16 * 38400)) - 1;
 
 	/* FIFO enable, Tx/Rx FIFO clear */
-	uart->UFCON = 0x07;
-	uart->UMCON = 0x0;
+	uart->ufcon = 0x07;
+	uart->umcon = 0x0;
 	/* Normal,No parity,1 stop,8 bit */
-	uart->ULCON = 0x3;
+	uart->ulcon = 0x3;
 	/*
 	 * tx=level,rx=edge,disable timeout int.,enable rx error int.,
 	 * normal,interrupt or polling
 	 */
-	uart->UCON = 0x245;
-	uart->UBRDIV = reg;
+	uart->ucon = 0x245;
+	uart->ubrdiv = reg;
 
 	for (i = 0; i < 100; i++);
 }
@@ -69,16 +69,16 @@ static void rs485_cfgio (void)
 {
 	struct s3c24x0_gpio * const gpio = s3c24x0_get_base_gpio();
 
-	gpio->PFCON &= ~(0x3 << 2);
-	gpio->PFCON |=  (0x2 << 2); /* configure GPF1 as RXD1 */
+	gpio->pfcon &= ~(0x3 << 2);
+	gpio->pfcon |=  (0x2 << 2); /* configure GPF1 as RXD1 */
 
-	gpio->PFCON &= ~(0x3 << 6);
-	gpio->PFCON |=  (0x2 << 6); /* configure GPF3 as TXD1 */
+	gpio->pfcon &= ~(0x3 << 6);
+	gpio->pfcon |=  (0x2 << 6); /* configure GPF3 as TXD1 */
 
-	gpio->PFUP |= (1 << 1); /* disable pullup on GPF1 */
-	gpio->PFUP |= (1 << 3); /* disable pullup on GPF3 */
+	gpio->pfup |= (1 << 1); /* disable pullup on GPF1 */
+	gpio->pfup |= (1 << 3); /* disable pullup on GPF3 */
 
-	gpio->PACON &= ~(1 << 11); /* set GPA11 (RS485_DE) to output */
+	gpio->pacon &= ~(1 << 11); /* set GPA11 (RS485_DE) to output */
 }
 
 /*
@@ -104,9 +104,10 @@ int rs485_getc (void)
 	struct s3c24x0_uart * const uart = s3c24x0_get_base_uart(UART_NR);
 
 	/* wait for character to arrive */
-	while (!(uart->UTRSTAT & 0x1));
+	while (!(uart->utrstat & 0x1))
+		;
 
-	return uart->URXH & 0xff;
+	return uart->urxh & 0xff;
 }
 
 /*
@@ -117,9 +118,10 @@ void rs485_putc (const char c)
 	struct s3c24x0_uart * const uart = s3c24x0_get_base_uart(UART_NR);
 
 	/* wait for room in the tx FIFO */
-	while (!(uart->UTRSTAT & 0x2));
+	while (!(uart->utrstat & 0x2))
+		;
 
-	uart->UTXH = c;
+	uart->utxh = c;
 
 	/* If \n, also do \r */
 	if (c == '\n')
@@ -133,7 +135,7 @@ int rs485_tstc (void)
 {
 	struct s3c24x0_uart * const uart = s3c24x0_get_base_uart(UART_NR);
 
-	return uart->UTRSTAT & 0x1;
+	return uart->utrstat & 0x1;
 }
 
 void rs485_puts (const char *s)
@@ -172,9 +174,9 @@ static void set_rs485de(unsigned char rs485de_state)
 
 	/* This is on PORT A bit 11 */
 	if(rs485de_state)
-		gpio->PADAT |= (1 << 11);
+		gpio->padat |= (1 << 11);
 	else
-		gpio->PADAT &= ~(1 << 11);
+		gpio->padat &= ~(1 << 11);
 }
 
 

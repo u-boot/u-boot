@@ -27,17 +27,15 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(BOARD).a
 
 COBJS	:= lubbock.o flash.o
-SOBJS	:= lowlevel_init.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
-SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
+$(LIB):	$(obj).depend $(OBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS)
 
 clean:
-	rm -f $(SOBJS) $(OBJS)
+	rm -f $(OBJS)
 
 distclean:	clean
 	rm -f $(LIB) core *.bak $(obj).depend

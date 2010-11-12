@@ -126,9 +126,9 @@
  * AX88180  WEN = 5 clocks  REN 6 clocks @ SCLK = 100 MHz
  * One extra clock needed because AX88180 is asynchronous to CPU.
  */
-                           /* bank 1   0 */
+			   /* bank 1   0 */
 #define CONFIG_EBIU_AMBCTL0_VAL 0xFFC2FFC2
-                           /* bank 3   2 */
+			   /* bank 3   2 */
 #define CONFIG_EBIU_AMBCTL1_VAL 0xFFC2FFC2
 
 /* memory layout */

@@ -40,6 +40,9 @@
 /errlog
 /reloc_off
 
+/include/generated/
+/lib/asm-offsets.s
+
 # stgit generated dirs
 patches-*
 .stgit-edit.txt

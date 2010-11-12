@@ -525,9 +525,18 @@ static cmd_tbl_t cmd_onenand_sub[] = {
 	U_BOOT_CMD_MKENT(markbad, CONFIG_SYS_MAXARGS, 0, do_onenand_markbad, "", ""),
 };
 
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
+void onenand_reloc(void) {
+	fixup_cmdtable(cmd_onenand_sub, ARRAY_SIZE(cmd_onenand_sub));
+}
+#endif
+
 static int do_onenand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *c;
+
+	if (argc < 2)
+		return cmd_usage(cmdtp);
 
 	mtd = &onenand_mtd;
 

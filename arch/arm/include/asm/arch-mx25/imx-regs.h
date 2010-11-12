@@ -108,11 +108,11 @@ struct gpt_regs {
 
 /* Watchdog Timer (WDOG) registers */
 struct wdog_regs {
-	u32 wcr;	/* Control */
-	u32 wsr;	/* Service */
-	u32 wrsr;	/* Reset Status */
-	u32 wicr;	/* Interrupt Control */
-	u32 wmcr;	/* Misc Control */
+	u16 wcr;	/* Control */
+	u16 wsr;	/* Service */
+	u16 wrsr;	/* Reset Status */
+	u16 wicr;	/* Interrupt Control */
+	u16 wmcr;	/* Misc Control */
 };
 
 /* IIM control registers */
@@ -308,7 +308,9 @@ struct iim_regs {
 #define GPT_CTRL_TEN		1		/* Timer enable	*/
 
 /* WDOG enable */
-#define WCR_WDE 0x04
+#define WCR_WDE 		0x04
+#define WSR_UNLOCK1		0x5555
+#define WSR_UNLOCK2		0xAAAA
 
 /* FUSE bank offsets */
 #define IIM0_MAC		0x1a

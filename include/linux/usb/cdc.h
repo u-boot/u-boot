@@ -9,8 +9,6 @@
  *                      Remy Bohmer <linux@bohmer.net>
  */
 
-
-
 #define USB_CDC_SUBCLASS_ACM			0x02
 #define USB_CDC_SUBCLASS_ETHERNET		0x06
 #define USB_CDC_SUBCLASS_WHCM			0x08
@@ -199,7 +197,6 @@ struct usb_cdc_line_coding {
 #define	USB_CDC_PACKET_TYPE_BROADCAST		(1 << 3)
 #define	USB_CDC_PACKET_TYPE_MULTICAST		(1 << 4) /* filtered */
 
-
 /*-------------------------------------------------------------------------*/
 
 /*
@@ -221,4 +218,3 @@ struct usb_cdc_notification {
 	__le16	wIndex;
 	__le16	wLength;
 } __attribute__ ((packed));
-

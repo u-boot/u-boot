@@ -49,20 +49,6 @@ u32 orion5x_sdram_bar(enum memory_bank bank)
 	result = winregs[bank].base;
 	return result;
 }
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-int dram_init(void)
-{
-	int i;
-
-	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
-		gd->bd->bi_dram[i].start = orion5x_sdram_bar(i);
-		gd->bd->bi_dram[i].size = get_ram_size(
-			(volatile long *) (gd->bd->bi_dram[i].start),
-			CONFIG_MAX_RAM_BANK_SIZE);
-	}
-	return 0;
-}
-#else
 int dram_init (void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
@@ -83,4 +69,3 @@ void dram_init_banksize (void)
 			CONFIG_MAX_RAM_BANK_SIZE);
 	}
 }
-#endif

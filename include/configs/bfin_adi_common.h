@@ -295,6 +295,9 @@
 /*
  * Misc Settings
  */
+#ifndef CONFIG_BOARD_SIZE_LIMIT
+# define CONFIG_BOARD_SIZE_LIMIT $$(( 256 * 1024 ))
+#endif
 #define CONFIG_BFIN_SPI_GPIO_CS /* Only matters if BFIN_SPI is enabled */
 #define CONFIG_LZMA
 

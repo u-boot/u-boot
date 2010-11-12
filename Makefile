@@ -22,9 +22,9 @@
 #
 
 VERSION = 2010
-PATCHLEVEL = 09
+PATCHLEVEL = 12
 SUBLEVEL =
-EXTRAVERSION =
+EXTRAVERSION = -rc1
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 else
@@ -357,7 +357,7 @@ $(obj)u-boot.imx:       $(obj)u-boot.bin
 		-e $(CONFIG_SYS_TEXT_BASE) -d $< $@
 
 $(obj)u-boot.kwb:       $(obj)u-boot.bin
-		$(obj)tools/mkimage -n $(KWD_CONFIG) -T kwbimage \
+		$(obj)tools/mkimage -n $(CONFIG_SYS_KWD_CONFIG) -T kwbimage \
 		-a $(CONFIG_SYS_TEXT_BASE) -e $(CONFIG_SYS_TEXT_BASE) -d $< $@
 
 $(obj)u-boot.sha1:	$(obj)u-boot.bin
@@ -372,7 +372,8 @@ GEN_UBOOT = \
 		cd $(LNDIR) && $(LD) $(LDFLAGS) $$UNDEF_SYM $(__OBJS) \
 			--start-group $(__LIBS) --end-group $(PLATFORM_LIBS) \
 			-Map u-boot.map -o u-boot
-$(obj)u-boot:	depend $(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
+$(obj)u-boot:	depend \
+		$(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
 		$(GEN_UBOOT)
 ifeq ($(CONFIG_KALLSYMS),y)
 		smap=`$(call SYSTEM_MAP,u-boot) | \
@@ -400,7 +401,7 @@ $(LDSCRIPT):	depend
 $(obj)u-boot.lds: $(LDSCRIPT)
 		$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
 
-$(NAND_SPL):	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
+$(NAND_SPL):	$(TIMESTAMP_FILE) $(VERSION_FILE) depend
 		$(MAKE) -C nand_spl/board/$(BOARDDIR) all
 
 $(U_BOOT_NAND):	$(NAND_SPL) $(obj)u-boot.bin
@@ -426,7 +427,9 @@ updater:
 
 # Explicitly make _depend in subdirs containing multiple targets to prevent
 # parallel sub-makes creating .depend files simultaneously.
-depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
+depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) \
+		$(obj)include/autoconf.mk \
+		$(obj)include/generated/generic-asm-offsets.h
 		for dir in $(SUBDIRS) $(CPUDIR) $(dir $(LDSCRIPT)) ; do \
 			$(MAKE) -C $$dir _depend ; done
 
@@ -472,6 +475,18 @@ $(obj)include/autoconf.mk: $(obj)include/config.h
 	$(CPP) $(CFLAGS) -DDO_DEPS_ONLY -dM include/common.h | \
 		sed -n -f tools/scripts/define2mk.sed > $@.tmp && \
 	mv $@.tmp $@
+
+$(obj)include/generated/generic-asm-offsets.h:	$(obj)include/autoconf.mk.dep \
+	$(obj)lib/asm-offsets.s
+	@$(XECHO) Generating $@
+	tools/scripts/make-asm-offsets $(obj)lib/asm-offsets.s $@
+
+$(obj)lib/asm-offsets.s:	$(obj)include/autoconf.mk.dep \
+	$(src)lib/asm-offsets.c
+	@mkdir -p $(obj)lib
+	$(CC) -DDO_DEPS_ONLY \
+		$(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
+		-o $@ $(src)lib/asm-offsets.c -c -S
 
 #########################################################################
 else	# !config.mk
@@ -1052,7 +1067,6 @@ mx31pdk_nand_config	: unconfig
 		echo "#define CONFIG_NAND_U_BOOT" >> $(obj)include/config.h;		\
 	else										\
 		echo "#define CONFIG_SKIP_LOWLEVEL_INIT" >> $(obj)include/config.h;	\
-		echo "#define CONFIG_SKIP_RELOCATE_UBOOT" >> $(obj)include/config.h;	\
 	fi
 	@$(MKCONFIG) -n $@ -a mx31pdk arm arm1136 mx31pdk freescale mx31
 
@@ -1176,96 +1190,6 @@ NIOS2_GENERIC = nios2-generic
 $(NIOS2_GENERIC:%=%_config) : unconfig
 	@$(MKCONFIG) $@ nios2 nios2 nios2-generic altera
 
-#========================================================================
-# Blackfin
-#========================================================================
-
-bf527-ezkit-v2_config	: unconfig
-	@$(MKCONFIG) -t BF527_EZKIT_REV_2_1 \
-		bf527-ezkit blackfin blackfin bf527-ezkit
-
-#========================================================================
-# SH3 (SuperH)
-#========================================================================
-
-#########################################################################
-## sh2 (Renesas SuperH)
-#########################################################################
-rsk7203_config: unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_RSK7203 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh2 rsk7203 renesas
-
-#########################################################################
-## sh3 (Renesas SuperH)
-#########################################################################
-
-mpr2_config: unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_MPR2 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh3 mpr2
-
-ms7720se_config: unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_MS7720SE 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh3 ms7720se
-
-#########################################################################
-## sh4 (Renesas SuperH)
-#########################################################################
-
-MigoR_config :       unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_MIGO_R 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 MigoR renesas
-
-ms7750se_config: unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_MS7750SE 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 ms7750se
-
-ms7722se_config :	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_MS7722SE 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 ms7722se
-
-r2dplus_config  :   unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_R2DPLUS 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 r2dplus renesas
-
-r7780mp_config: unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_R7780MP 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 r7780mp renesas
-
-sh7763rdp_config  :   unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_SH7763RDP 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 sh7763rdp renesas
-
-sh7785lcr_32bit_config \
-sh7785lcr_config  :   unconfig
-	@mkdir -p $(obj)include
-	@mkdir -p $(obj)board/renesas/sh7785lcr
-	@echo "#define CONFIG_SH7785LCR 1" > $(obj)include/config.h
-	@if [ "$(findstring 32bit, $@)" ] ; then \
-		echo "#define CONFIG_SH_32BIT 1" >> $(obj)include/config.h ; \
-		echo "CONFIG_SYS_TEXT_BASE = 0x8ff80000" > \
-			$(obj)board/renesas/sh7785lcr/config.tmp ; \
-	fi
-	@$(MKCONFIG) -n $@ -a sh7785lcr sh sh4 sh7785lcr renesas
-
-ap325rxa_config  :   unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_AP325RXA 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 ap325rxa renesas
-
-espt_config  :   unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_ESPT 1" > $(obj)include/config.h
-	@$(MKCONFIG) -a $@ sh sh4 espt
-
 #########################################################################
 #########################################################################
 
@@ -1296,6 +1220,7 @@ clean:
 	       $(obj)u-boot.lds						  \
 	       $(obj)arch/blackfin/cpu/bootrom-asm-offsets.[chs]
 	@rm -f $(obj)include/bmp_logo.h
+	@rm -f $(obj)lib/asm-offsets.s
 	@rm -f $(obj)nand_spl/{u-boot.lds,u-boot-spl,u-boot-spl.map,System.map}
 	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl.map}
 	@rm -f $(ONENAND_BIN)
@@ -1319,6 +1244,7 @@ clobber:	clean
 	@rm -f $(obj)tools/{env/crc32.c,inca-swap-bytes}
 	@rm -f $(obj)arch/powerpc/cpu/mpc824x/bedbug_603e.c
 	@rm -f $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm
+	@rm -fr $(obj)include/generated
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -name "*" -type l -print | xargs rm -f
 	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -name "*" -type l -print | xargs rm -f
 

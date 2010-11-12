@@ -142,10 +142,9 @@
 #define CONFIG_SYS_TEMP_STACK_OCM    1
 #define CONFIG_SYS_OCM_DATA_ADDR     CONFIG_SYS_ISRAM_BASE
 #define CONFIG_SYS_INIT_RAM_ADDR     CONFIG_SYS_ISRAM_BASE /* Initial RAM address	*/
-#define CONFIG_SYS_INIT_RAM_END      0x2000	     /* End of used area in RAM */
-#define CONFIG_SYS_GBL_DATA_SIZE     128	     /* num bytes initial data	*/
+#define CONFIG_SYS_INIT_RAM_SIZE      0x2000	     /* Size of used area in RAM */
 
-#define CONFIG_SYS_GBL_DATA_OFFSET   (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET   (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET    (CONFIG_SYS_GBL_DATA_OFFSET - 0x4)
 
 #define CONFIG_SYS_MONITOR_LEN	      (256 * 1024)   /* Rsrv 256kB for Mon	*/

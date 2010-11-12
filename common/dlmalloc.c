@@ -1491,7 +1491,7 @@ static mbinptr av_[NAV * 2 + 2] = {
  IAV(120), IAV(121), IAV(122), IAV(123), IAV(124), IAV(125), IAV(126), IAV(127)
 };
 
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 void malloc_bin_reloc (void)
 {
 	unsigned long *p = (unsigned long *)(&av_[2]);

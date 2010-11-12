@@ -75,7 +75,6 @@
 #define CONFIG_ENV_SIZE			(128 << 10)	/* 128 KiB */
 						/* Sector */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (128 << 10))
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* bytes reserved for */
 						/* initial data */
 
 /*
@@ -348,6 +347,6 @@ extern unsigned int boot_flash_type;
 
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
-#define CONFIG_SYS_INIT_SP_ADDR		(LOW_LEVEL_SRAM_STACK - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR		(LOW_LEVEL_SRAM_STACK - GENERATED_GBL_DATA_SIZE)
 
 #endif /* __CONFIG_H */

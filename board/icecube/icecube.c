@@ -80,7 +80,7 @@ void lite5200b_wakeup(void)
 	/* jump back to linux kernel code */
 	linux_wakeup = SAVED_ADDR;
 	printf("\n\nLooks like we just woke, transferring control to 0x%08lx\n",
-			linux_wakeup);
+			(unsigned long)linux_wakeup);
 	linux_wakeup();
 }
 #else

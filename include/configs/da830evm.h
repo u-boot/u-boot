@@ -41,13 +41,12 @@
 #define CONFIG_SYS_HZ_CLOCK		clk_get(DAVINCI_AUXCLK_CLKID)
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_RELOCATE_UBOOT	/* to a proper address, init done */
+#define CONFIG_SYS_TEXT_BASE		0xc1080000
 
 /*
  * Memory Info
  */
 #define CONFIG_SYS_MALLOC_LEN	(0x10000 + 1*1024*1024) /* malloc() len */
-#define CONFIG_SYS_GBL_DATA_SIZE	128 /* reserved for initial data */
 #define PHYS_SDRAM_1		DAVINCI_DDR_EMIF_DATA_BASE /* DDR Start */
 #define PHYS_SDRAM_1_SIZE	(64 << 20) /* SDRAM size 64MB */
 #define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1 /* memtest start addr */

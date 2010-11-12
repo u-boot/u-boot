@@ -20,6 +20,6 @@
 # MA 02111-1307 USA
 #
 
-LDSCRIPT = $(CPUDIR)/$(SOC)/u-boot.lds
-TEXT_BASE = 0x97800000
+CONFIG_SYS_TEXT_BASE = 0x97800000
 IMX_CONFIG = $(SRCTREE)/board/$(BOARDDIR)/imximage_hynix.cfg
+ALL += $(obj)u-boot.imx

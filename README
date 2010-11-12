@@ -2364,11 +2364,11 @@ Configuration Settings:
 
 - CONFIG_ENV_MAX_ENTRIES
 
-        Maximum number of entries in the hash table that is used
-        internally to store the environment settings. The default
-        setting is supposed to be generous and should work in most
-        cases. This setting can be used to tune behaviour; see
-        lib/hashtable.c for details.
+	Maximum number of entries in the hash table that is used
+	internally to store the environment settings. The default
+	setting is supposed to be generous and should work in most
+	cases. This setting can be used to tune behaviour; see
+	lib/hashtable.c for details.
 
 The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
@@ -2686,7 +2686,7 @@ Low Level (hardware related) configuration options:
 		area defined by CONFIG_SYS_INIT_RAM_ADDR. Usually
 		CONFIG_SYS_GBL_DATA_OFFSET is chosen such that the initial
 		data is located at the end of the available space
-		(sometimes written as (CONFIG_SYS_INIT_RAM_END -
+		(sometimes written as (CONFIG_SYS_INIT_RAM_SIZE -
 		CONFIG_SYS_INIT_DATA_SIZE), and the initial stack is just
 		below that area (growing from (CONFIG_SYS_INIT_RAM_ADDR +
 		CONFIG_SYS_GBL_DATA_OFFSET) downward.
@@ -2836,19 +2836,17 @@ Low Level (hardware related) configuration options:
 		globally (CONFIG_CMD_MEM).
 
 - CONFIG_SKIP_LOWLEVEL_INIT
-- CONFIG_SKIP_RELOCATE_UBOOT
+                [ARM only] If this variable is defined, then certain
+                low level initializations (like setting up the memory
+                controller) are omitted and/or U-Boot does not
+                relocate itself into RAM.
 
-		[ARM only] If these variables are defined, then
-		certain low level initializations (like setting up
-		the memory controller) are omitted and/or U-Boot does
-		not relocate itself into RAM.
-		Normally these variables MUST NOT be defined. The
-		only exception is when U-Boot is loaded (to RAM) by
-		some other boot loader or by a debugger which
-		performs these initializations itself.
+                Normally this variable MUST NOT be defined. The only
+                exception is when U-Boot is loaded (to RAM) by some
+                other boot loader or by a debugger which performs
+                these initializations itself.
 
 - CONFIG_PRELOADER
-
 		Modifies the behaviour of start.S when compiling a loader
 		that is executed before the actual U-Boot. E.g. when
 		compiling a NAND SPL.

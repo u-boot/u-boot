@@ -27,6 +27,7 @@
  *  U-Boot - Startup Code for MPC83xx PowerPC based Embedded Boards
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <mpc83xx.h>
 #include <timestamp.h>
@@ -1072,7 +1073,7 @@ lock_ram_in_cache:
 	 */
 	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@h
 	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@l
-	li	r4, ((CONFIG_SYS_INIT_RAM_END & ~31) + \
+	li	r4, ((CONFIG_SYS_INIT_RAM_SIZE & ~31) + \
 		     (CONFIG_SYS_INIT_RAM_ADDR & 31) + 31) / 32
 	mtctr	r4
 1:
@@ -1094,7 +1095,7 @@ unlock_ram_in_cache:
 	/* invalidate the INIT_RAM section */
 	lis	r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@h
 	ori	r3, r3, (CONFIG_SYS_INIT_RAM_ADDR & ~31)@l
-	li	r4, ((CONFIG_SYS_INIT_RAM_END & ~31) + \
+	li	r4, ((CONFIG_SYS_INIT_RAM_SIZE & ~31) + \
 		     (CONFIG_SYS_INIT_RAM_ADDR & 31) + 31) / 32
 	mtctr	r4
 1:	icbi	r0, r3
