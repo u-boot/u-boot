@@ -37,6 +37,10 @@
 #define CONFIG_FSL_CORENET		/* Freescale CoreNet platform */
 #define CONFIG_MP			/* support multiple processors */
 
+#ifndef CONFIG_SYS_TEXT_BASE
+#define CONFIG_SYS_TEXT_BASE	0xeff80000
+#endif
+
 #define CONFIG_SYS_FSL_CPC		/* Corenet Platform Cache */
 #define CONFIG_SYS_NUM_CPC		CONFIG_NUM_DDR_CONTROLLERS
 #define CONFIG_FSL_ELBC			/* Has Enhanced localbus controller */
@@ -64,7 +68,6 @@
 #endif
 
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk() /* sysclk for MPC85xx */
-#define CONFIG_ICS307_REFCLK_HZ	33333000  /* ICS307 clock chip ref freq */
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -475,6 +478,7 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SETEXPR
+#define CONFIG_CMD_DHCP
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI

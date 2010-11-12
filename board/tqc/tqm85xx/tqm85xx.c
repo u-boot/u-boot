@@ -298,7 +298,7 @@ int misc_init_r (void)
 	 */
 	set_lbc_or(0, ((-flash_info[1].size) & 0xffff8000) |
 		   (CONFIG_SYS_OR0_PRELIM & 0x00007fff));
-	set_lbc_br(0, gd->bd->bi_flashstart |
+	set_lbc_br(0, (gd->bd->bi_flashstart + flash_info[0].size) |
 		   (CONFIG_SYS_BR0_PRELIM & 0x00007fff));
 
 	/*
