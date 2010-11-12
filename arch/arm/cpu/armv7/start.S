@@ -44,16 +44,34 @@ _start: b	reset
 
 #ifdef CONFIG_PELE_XILINX_FLASH_HEADER
 /* These fields MUST immediately follow the vectors */
-.word   0xAA995566	/* 0xaa995566 required for sizing of the FLASH */
-.word   0x584C4E58	/* signature 0x584C4E58 identifies the format of the image */
-.word   0x00000000	/* 0xA5C3C5A3 for encrypted images */
-.word   0x00000000	/* UserData can be anything */
-.word   0x00000120	/* LoadStart offset into FLASH where image starts */
-.word   0x00000000	/* LoadLength length of image in bytes */
-.word   0x00000000	/* DestinationAddress where in OCM the image is to be written to */
-.word   CONFIG_SYS_FLASH_BASE	/* ImageStartAddress where to jump to at handoff (_start) */
-.word   0x00000000	/* TotalImageLength - should be the same for unencrypted images */
-.word   0x00000001	/* QSPIConfigWord x1 device */
+#define HDR_20 0xAA995566
+#define HDR_24 0x584C4E58
+#define HDR_28 0x00000000
+#define HDR_2C 0x544F4F42
+#define HDR_30 0x00000120
+#define HDR_34 0x00000000
+#define HDR_38 0x00000000
+#define HDR_3C CONFIG_SYS_FLASH_BASE
+#define HDR_40 0x00000000
+#define HDR_44 0x00000001
+#define HDR_CSUM (~(HDR_20+HDR_24+HDR_28+HDR_2C+HDR_30+HDR_34+HDR_38+HDR_3C+HDR_40+HDR_44))
+
+.word   HDR_20	/* 0xaa995566 required for sizing of the FLASH */
+.word   HDR_24	/* signature 0x584C4E58 identifies the format of the image */
+.word   HDR_28	/* 0xA5C3C5A3 for encrypted images */
+.word   HDR_2C	/* UserData can be anything */
+.word   HDR_30	/* LoadStart offset into FLASH where image starts */
+.word   HDR_34	/* LoadLength length of image in bytes */
+.word   HDR_38	/* DestinationAddress where in OCM the image is to be written to */
+.word   HDR_3C	/* ImageStartAddress where to jump to at handoff (_start) */
+.word   HDR_40	/* TotalImageLength - should be the same for unencrypted images */
+.word   HDR_44	/* QSPIConfigWord x1 device */
+.word   HDR_CSUM	/* checksum - 0x20 - 0x44, complement */
+.word   0,0,0,0,0,0,0,0
+.word   0,0,0,0,0,0,0,0
+.word   0,0,0,0,0
+.word   0xFFFFFFFF      /* 0xA0 */
+.word   0x00000000
 #endif
 
 _undefined_instruction: .word undefined_instruction
