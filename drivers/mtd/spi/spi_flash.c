@@ -146,9 +146,17 @@ static const struct {
 #ifdef CONFIG_SPI_FLASH_WINBOND
 	{ 0, 0xef, spi_flash_probe_winbond, },
 #endif
+#ifdef CONFIG_SPI_FRAM_RAMTRON
+	{ 6, 0xc2, spi_fram_probe_ramtron, },
+# undef IDCODE_CONT_LEN
+# define IDCODE_CONT_LEN 6
+#endif
 	/* Keep it sorted by best detection */
 #ifdef CONFIG_SPI_FLASH_STMICRO
 	{ 0, 0xff, spi_flash_probe_stmicro, },
+#endif
+#ifdef CONFIG_SPI_FRAM_RAMTRON_NON_JEDEC
+	{ 0, 0xff, spi_fram_probe_ramtron, },
 #endif
 };
 #define IDCODE_LEN (IDCODE_CONT_LEN + IDCODE_PART_LEN)
