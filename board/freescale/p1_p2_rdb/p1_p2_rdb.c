@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Freescale Semiconductor, Inc.
+ * Copyright 2009-2010 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -33,6 +33,7 @@
 #include <tsec.h>
 #include <vsc7385.h>
 #include <netdev.h>
+#include <rtc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -156,6 +157,7 @@ int board_early_init_r(void)
 	set_tlb(1, flashbase, CONFIG_SYS_FLASH_BASE_PHYS,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, flash_esel, BOOKE_PAGESZ_16M, 1);
+	rtc_reset();
 	return 0;
 }
 

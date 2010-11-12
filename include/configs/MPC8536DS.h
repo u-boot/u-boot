@@ -36,7 +36,12 @@
 #ifdef CONFIG_NAND
 #define CONFIG_NAND_U_BOOT		1
 #define CONFIG_RAMBOOT_NAND		1
+#ifdef CONFIG_NAND_SPL
+#define CONFIG_SYS_TEXT_BASE_SPL 0xfff00000
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE_SPL /* start of monitor */
+#else
 #define CONFIG_SYS_TEXT_BASE	0xf8f82000
+#endif /* CONFIG_NAND_SPL */
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -51,6 +56,10 @@
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xeff80000
+#endif
+
+#ifndef CONFIG_SYS_MONITOR_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
 /* High Level Configuration Options */
@@ -232,8 +241,6 @@
 #undef	CONFIG_SYS_FLASH_CHECKSUM
 #define CONFIG_SYS_FLASH_ERASE_TOUT	60000	/* Flash Erase Timeout (ms) */
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Flash Write Timeout (ms) */
-
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 
 #if defined(CONFIG_SYS_SPL) || defined(CONFIG_RAMBOOT_NAND) \
 	|| defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH)
