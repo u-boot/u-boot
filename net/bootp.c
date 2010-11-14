@@ -456,6 +456,10 @@ static int DhcpExtended (u8 * e, int message_type, IPaddr_t ServerID, IPaddr_t R
 	*e++  = 42;
 	*cnt += 1;
 #endif
+	/* no options, so back up to avoid sending an empty request list */
+	if (*cnt == 0)
+		e -= 2;
+
 	*e++  = 255;		/* End of the list */
 
 	/* Pad to minimal length */
