@@ -66,7 +66,7 @@
 
 //#define CONFIG_PELE_INIT_GEM	//this is to initialize GEM at uboot start
 #define CONFIG_PELE_IP_ENV	//this is to set ipaddr, ethaddr and serverip env variables.
-#define CONFIG_PELE_XILINX_FLASH_HEADER
+
 
 #ifndef CONFIG_SYS_NO_FLASH
 
@@ -150,5 +150,18 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE 1
 #define CONFIG_SYS_NAND_BASE XPSS_NAND_BASEADDR
 #define CONFIG_MTD_DEVICE
+
+/* Place a Xilinx Boot ROM header in u-boot image? */
+#define CONFIG_PELE_XILINX_FLASH_HEADER
+
+#ifdef CONFIG_PELE_XILINX_FLASH_HEADER
+/* Address Xilinx boot rom should use to launch u-boot */
+#ifdef CONFIG_PELE_XIL_LQSPI
+#define CONFIG_PELE_XIP_START XPSS_QSPI_LIN_BASEADDR
+#else
+/* NOR */
+#define CONFIG_PELE_XIP_START CONFIG_SYS_FLASH_BASE
+#endif
+#endif
 
 #endif /* __CONFIG_H */
