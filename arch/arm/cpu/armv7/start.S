@@ -98,30 +98,6 @@ FIQ_STACK_START:
 IRQ_STACK_START_IN:
 	.word	0x0badc0de
 
-.globl _datarel_start_ofs
-_datarel_start_ofs:
-	.word __datarel_start - _start
-
-.globl _datarelrolocal_start_ofs
-_datarelrolocal_start_ofs:
-	.word __datarelrolocal_start - _start
-
-.globl _datarellocal_start_ofs
-_datarellocal_start_ofs:
-	.word __datarellocal_start - _start
-
-.globl _datarelro_start_ofs
-_datarelro_start_ofs:
-	.word __datarelro_start - _start
-
-.globl _got_start_ofs
-_got_start_ofs:
-	.word __got_start - _start
-
-.globl _got_end_Ofs
-_got_end_ofs:
-	.word __got_end - _start
-
 /*
  * the actual reset code
  */
