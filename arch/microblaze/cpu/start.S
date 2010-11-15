@@ -51,8 +51,10 @@ _start:
 	 * 4b) BIG endian - r10 contains 0x0 because 0x2 offset is on addr 0x3
 	 */
 	addik	r6, r0, 0x2 /* BIG/LITTLE endian offset */
-	swi	r6, r0, 0
-	lbui	r10, r0, 0
+	lwi	r7, r0, 0x28
+	swi	r6, r0, 0x28 /* used first unused MB vector */
+	lbui	r10, r0, 0x28 /* used first unused MB vector */
+	swi	r7, r0, 0x28
 
 	/* add opcode instruction for 32bit jump - 2 instruction imm & brai */
 	addi	r2, r0, 0xb0000000	/* hex b000 opcode imm */
