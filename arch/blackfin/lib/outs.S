@@ -12,6 +12,7 @@
 
 .align 2
 
+.section .text._outsl
 ENTRY(_outsl)
 	P0 = R0;	/* P0 = port */
 	P1 = R1;	/* P1 = address */
@@ -23,6 +24,7 @@ ENTRY(_outsl)
 	RTS;
 ENDPROC(_outsl)
 
+.section .text._outsw
 ENTRY(_outsw)
 	P0 = R0;	/* P0 = port */
 	P1 = R1;	/* P1 = address */
@@ -34,6 +36,7 @@ ENTRY(_outsw)
 	RTS;
 ENDPROC(_outsw)
 
+.section .text._outsb
 ENTRY(_outsb)
 	P0 = R0;	/* P0 = port */
 	P1 = R1;	/* P1 = address */
@@ -45,6 +48,7 @@ ENTRY(_outsb)
 	RTS;
 ENDPROC(_outsb)
 
+.section .text._outsw_8
 ENTRY(_outsw_8)
 	P0 = R0;	/* P0 = port */
 	P1 = R1;	/* P1 = address */
