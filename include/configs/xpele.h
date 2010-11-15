@@ -22,11 +22,28 @@
 	"kernel_size=0x140000\0" 	\
 	"ramdisk_size=0x200000\0" 	\
 
-#define CONFIG_BOOTCOMMAND "echo Copying Linux from flash to RAM...; 		\
+/* Define the following to cause u-boot to have a header for the boot rom that
+   causes the boot rom to use execute in place mode from QSPI flash
+*/
+#undef CONFIG_PELE_XIL_LQSPI
+
+/* Setup the boot command to work with either QSPI or NAND flash 
+   Use NAND Flash as the default */
+
+#ifndef CONFIG_PELE_XIL_LQSPI
+#define CONFIG_BOOTCOMMAND "echo Copying Linux from NOR flash to RAM...;	\
 			    cp 0xE4100000 0x8000 ${kernel_size};		\
-			    echo Copying ramdisk from flash to RAM...; 		\
+			    echo Copying ramdisk from NOR flash to RAM...; 	\
 			    cp 0xE5000000 0x800000 ${ramdisk_size}; 		\
 			    go 0x8000"
+#else
+
+#define CONFIG_BOOTCOMMAND "echo Copying Linux from QSPI flash to RAM...;	\
+			    cp 0xFC100000 0x8000 ${kernel_size};		\
+			    echo Copying ramdisk from QSPI flash to RAM...;	\
+			    cp 0xFC800000 0x800000 ${ramdisk_size}; 		\
+			    go 0x8000"
+#endif
 
 #define CONFIG_BAUDRATE		9600
 #define CONFIG_SYS_BAUDRATE_TABLE { 9600, 38400, 115200 }
