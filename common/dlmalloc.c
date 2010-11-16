@@ -1511,6 +1511,13 @@ void *sbrk(ptrdiff_t increment)
 	ulong old = mem_malloc_brk;
 	ulong new = old + increment;
 
+	/*
+	 * if we are giving memory back make sure we clear it out since
+	 * we set MORECORE_CLEARS to 1
+	 */
+	if (increment < 0)
+		memset((void *)new, 0, -increment);
+
 	if ((new < mem_malloc_start) || (new > mem_malloc_end))
 		return (void *)MORECORE_FAILURE;
 
