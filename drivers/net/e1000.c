@@ -5189,7 +5189,7 @@ e1000_initialize(bd_t * bis)
 			return 0;
 		}
 
-		memset(nic, 0, sizeof(*dev));
+		memset(nic, 0, sizeof(*nic));
 		memset(hw, 0, sizeof(*hw));
 
 		hw->pdev = devno;
