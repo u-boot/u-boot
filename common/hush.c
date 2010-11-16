@@ -3268,7 +3268,7 @@ int parse_file_outer(void)
 }
 
 #ifdef __U_BOOT__
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 static void u_boot_hush_reloc(void)
 {
 	unsigned long addr;
@@ -3290,7 +3290,7 @@ int u_boot_hush_start(void)
 		top_vars->next = 0;
 		top_vars->flg_export = 0;
 		top_vars->flg_read_only = 1;
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 		u_boot_hush_reloc();
 #endif
 	}

@@ -136,29 +136,6 @@ void do_emif4_init(void)
  * dram_init -
  *  - Sets uboots idea of sdram size
  */
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-int dram_init(void)
-{
-	DECLARE_GLOBAL_DATA_PTR;
-	unsigned int size0 = 0, size1 = 0;
-
-	size0 = get_sdr_cs_size(CS0);
-	/*
-	 * If a second bank of DDR is attached to CS1 this is
-	 * where it can be started.  Early init code will init
-	 * memory on CS0.
-	 */
-	if ((sysinfo.mtype == DDR_COMBO) || (sysinfo.mtype == DDR_STACKED))
-		size1 = get_sdr_cs_size(CS1);
-
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = size0;
-	gd->bd->bi_dram[1].start = PHYS_SDRAM_1 + get_sdr_cs_offset(CS1);
-	gd->bd->bi_dram[1].size = size1;
-
-	return 0;
-}
-#else
 int dram_init(void)
 {
 	DECLARE_GLOBAL_DATA_PTR;
@@ -190,7 +167,6 @@ void dram_init_banksize (void)
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_1 + get_sdr_cs_offset(CS1);
 	gd->bd->bi_dram[1].size = size1;
 }
-#endif
 
 /*
  * mem_init() -

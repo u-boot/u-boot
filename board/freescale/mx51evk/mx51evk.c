@@ -52,9 +52,9 @@ u32 get_board_rev(void)
 
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = get_ram_size((long *)PHYS_SDRAM_1,
-			PHYS_SDRAM_1_SIZE);
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size((volatile void *)CONFIG_SYS_SDRAM_BASE,
+				PHYS_SDRAM_1_SIZE);
 	return 0;
 }
 
@@ -188,10 +188,10 @@ static void power_init(void)
 	val &= ~PWGT2SPIEN;
 	pmic_reg_write(REG_POWER_MISC, val);
 
-	/* Write needed to update Charger 0 */
-	pmic_reg_write(REG_CHARGE, VCHRG0 | VCHRG1 | VCHRG2 |
-		ICHRG0 | ICHRG1 | ICHRG2 | ICHRG3 | ICHRGTR0 |
-		OVCTRL1 | UCHEN | CHRGLEDEN | CYCLB);
+	/* Externally powered */
+	val = pmic_reg_read(REG_CHARGE);
+	val |= ICHRG0 | ICHRG1 | ICHRG2 | ICHRG3 | CHGAUTOB;
+	pmic_reg_write(REG_CHARGE, val);
 
 	/* power up the system first */
 	pmic_reg_write(REG_POWER_MISC, PWUP);

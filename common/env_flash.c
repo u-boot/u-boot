@@ -82,9 +82,6 @@ uchar env_get_char_spec(int index)
 	return (*((uchar *)(gd->env_addr + index)));
 }
 
-#undef debug
-#define debug printf
-
 #ifdef CONFIG_ENV_ADDR_REDUND
 
 int  env_init(void)

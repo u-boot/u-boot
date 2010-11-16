@@ -79,7 +79,6 @@
 #define CONFIG_ENV_SIZE_FLEX SZ_256K
 #define	CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + SZ_1M)
 /* bytes reserved for initial data */
-#define	CONFIG_SYS_GBL_DATA_SIZE	128
 
 /*
  * Hardware drivers

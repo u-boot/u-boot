@@ -28,6 +28,7 @@
  *
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <mpc85xx.h>
 #include <timestamp.h>

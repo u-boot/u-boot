@@ -227,8 +227,6 @@ static int fpga_mem_test(void)
 	return ret;
 }
 
-
-
 /* Verify FPGA addresslines */
 static int fpga_post_addrline(ulong *address, ulong *base, ulong size)
 {

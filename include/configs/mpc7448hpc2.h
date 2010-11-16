@@ -221,10 +221,9 @@
  */
 #undef  CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0x07d00000	/* unused memory region */
-#define CONFIG_SYS_INIT_RAM_END	0x4000/* larger space - we have SDRAM initialized */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x4000/* larger space - we have SDRAM initialized */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	128/* size in bytes reserved for init data */
-#define CONFIG_SYS_GBL_DATA_OFFSET (CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET (CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 /*-----------------------------------------------------------------------
  * Start addresses for the final memory configuration

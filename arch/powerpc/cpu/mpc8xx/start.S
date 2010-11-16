@@ -37,6 +37,7 @@
  *  board_init will change CS0 to be positioned at the correct
  *  address and (s)dram will be positioned at address 0
  */
+#include <asm-offsets.h>
 #include <config.h>
 #include <mpc8xx.h>
 #include <timestamp.h>

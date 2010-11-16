@@ -91,6 +91,9 @@ int fsl_setup_hose(struct pci_controller *hose, unsigned long addr)
 {
 	volatile ccsr_fsl_pci_t *pci = (ccsr_fsl_pci_t *) addr;
 
+	/* Reset hose to make sure its in a clean state */
+	memset(hose, 0, sizeof(struct pci_controller));
+
 	pci_setup_indirect(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
 
 	return fsl_is_pci_agent(hose);

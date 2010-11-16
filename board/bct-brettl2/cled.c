@@ -13,7 +13,7 @@
 
 int do_cled(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong addr = 0x20000000 + 0x200000; // AMS2
+	ulong addr = 0x20000000 + 0x200000; /* AMS2 */
 	uchar data;
 
 	if (argc < 2)

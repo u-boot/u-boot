@@ -143,15 +143,14 @@
  */
 #define CONFIG_SYS_INIT_RAM_ADDR	CONFIG_SYS_IMMR
 #if defined (CONFIG_IVMS8_16M)
-# define	CONFIG_SYS_INIT_RAM_END	0x2F00	/* End of used area in DPRAM	*/
+# define	CONFIG_SYS_INIT_RAM_SIZE	0x2F00	/* Size of used area in DPRAM	*/
 #elif defined (CONFIG_IVMS8_32M)
-# define	CONFIG_SYS_INIT_RAM_END	0x3000	/* End of used area in DPRAM	*/
+# define	CONFIG_SYS_INIT_RAM_SIZE	0x3000	/* Size of used area in DPRAM	*/
 #elif defined (CONFIG_IVMS8_64M)
-# define	CONFIG_SYS_INIT_RAM_END	0x3000	/* End of used area in DPRAM	*/
+# define	CONFIG_SYS_INIT_RAM_SIZE	0x3000	/* Size of used area in DPRAM	*/
 #endif
 
-#define	CONFIG_SYS_GBL_DATA_SIZE	64  /* size in bytes reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 #define	CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------

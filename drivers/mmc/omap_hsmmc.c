@@ -412,4 +412,3 @@ int omap_mmc_init(int dev_index)
 
 	return 0;
 }
-

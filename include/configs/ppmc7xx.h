@@ -297,15 +297,14 @@
  * copied to top of RAM by the init code.
  *
  * CONFIG_SYS_INIT_RAM_ADDR		- Address of Init RAM, above exception vect
- * CONFIG_SYS_INIT_RAM_END		- Size of Init RAM
- * CONFIG_SYS_GBL_DATA_SIZE		- Ammount of RAM to reserve for global data
+ * CONFIG_SYS_INIT_RAM_SIZE		- Size of Init RAM
+ * GENERATED_GBL_DATA_SIZE		- Ammount of RAM to reserve for global data
  * CONFIG_SYS_GBL_DATA_OFFSET		- Start of global data, top of stack
  */
 
 #define CONFIG_SYS_INIT_RAM_ADDR	(CONFIG_SYS_SDRAM_BASE + 0x4000)
-#define CONFIG_SYS_INIT_RAM_END	0x4000
-#define CONFIG_SYS_GBL_DATA_SIZE	128
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_END - CONFIG_SYS_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_RAM_SIZE	0x4000
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
 
 /*

@@ -127,11 +127,7 @@ static int init_baudrate (void)
 	char tmp[64];	/* long enough for environment variables */
 	int i = getenv_f("baudrate", tmp, sizeof (tmp));
 
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	gd->baudrate = (i > 0)
-#else
-	gd->bd->bi_baudrate = gd->baudrate = (i > 0)
-#endif
 			? (int) simple_strtoul (tmp, NULL, 10)
 			: CONFIG_BAUDRATE;
 
@@ -142,11 +138,7 @@ static int display_banner (void)
 {
 	printf ("\n\n%s\n\n", version_string);
 	debug ("U-Boot code: %08lX -> %08lX  BSS: -> %08lX\n",
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	       _TEXT_BASE,
-#else
-	       _armboot_start,
-#endif
 	       _bss_start_ofs+_TEXT_BASE, _bss_end_ofs+_TEXT_BASE);
 #ifdef CONFIG_MODEM_SUPPORT
 	debug ("Modem Support enabled\n");
@@ -189,16 +181,6 @@ static int display_dram_config (void)
 
 	return (0);
 }
-
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-#ifndef CONFIG_SYS_NO_FLASH
-static void display_flash_config (ulong size)
-{
-	puts ("Flash: ");
-	print_size (size, "\n");
-}
-#endif /* CONFIG_SYS_NO_FLASH */
-#endif
 
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 static int init_func_i2c (void)
@@ -246,214 +228,6 @@ typedef int (init_fnc_t) (void);
 
 int print_cpuinfo (void);
 
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-init_fnc_t *init_sequence[] = {
-#if defined(CONFIG_ARCH_CPU_INIT)
-	arch_cpu_init,		/* basic arch cpu dependent setup */
-#endif
-	board_init,		/* basic board dependent setup */
-#if defined(CONFIG_USE_IRQ)
-	interrupt_init,		/* set up exceptions */
-#endif
-	timer_init,		/* initialize timer */
-#ifdef CONFIG_FSL_ESDHC
-	get_clocks,
-#endif
-	env_init,		/* initialize environment */
-	init_baudrate,		/* initialze baudrate settings */
-	serial_init,		/* serial communications setup */
-	console_init_f,		/* stage 1 init of console */
-	display_banner,		/* say that we are here */
-#if defined(CONFIG_DISPLAY_CPUINFO)
-	print_cpuinfo,		/* display cpu info (and speed) */
-#endif
-#if defined(CONFIG_DISPLAY_BOARDINFO)
-	checkboard,		/* display board info */
-#endif
-#if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
-	init_func_i2c,
-#endif
-	dram_init,		/* configure available RAM banks */
-#if defined(CONFIG_CMD_PCI) || defined (CONFIG_PCI)
-	arm_pci_init,
-#endif
-	display_dram_config,
-	NULL,
-};
-
-void start_armboot (void)
-{
-	init_fnc_t **init_fnc_ptr;
-	char *s;
-#if defined(CONFIG_VFD) || defined(CONFIG_LCD)
-	unsigned long addr;
-#endif
-
-	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t*)(_armboot_start - CONFIG_SYS_MALLOC_LEN - sizeof(gd_t));
-	/* compiler optimization barrier needed for GCC >= 3.4 */
-	__asm__ __volatile__("": : :"memory");
-
-	memset ((void*)gd, 0, sizeof (gd_t));
-	gd->bd = (bd_t*)((char*)gd - sizeof(bd_t));
-	memset (gd->bd, 0, sizeof (bd_t));
-
-	gd->flags |= GD_FLG_RELOC;
-
-	monitor_flash_len = _bss_start - _armboot_start;
-
-	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
-		if ((*init_fnc_ptr)() != 0) {
-			hang ();
-		}
-	}
-
-	/* armboot_start is defined in the board-specific linker script */
-	mem_malloc_init (_armboot_start - CONFIG_SYS_MALLOC_LEN,
-			CONFIG_SYS_MALLOC_LEN);
-
-#ifndef CONFIG_SYS_NO_FLASH
-	/* configure available FLASH banks */
-	display_flash_config (flash_init ());
-#endif /* CONFIG_SYS_NO_FLASH */
-
-#ifdef CONFIG_VFD
-#	ifndef PAGE_SIZE
-#	  define PAGE_SIZE 4096
-#	endif
-	/*
-	 * reserve memory for VFD display (always full pages)
-	 */
-	/* bss_end is defined in the board-specific linker script */
-	addr = (_bss_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
-	vfd_setmem (addr);
-	gd->fb_base = addr;
-#endif /* CONFIG_VFD */
-
-#ifdef CONFIG_LCD
-	/* board init may have inited fb_base */
-	if (!gd->fb_base) {
-#		ifndef PAGE_SIZE
-#		  define PAGE_SIZE 4096
-#		endif
-		/*
-		 * reserve memory for LCD display (always full pages)
-		 */
-		/* bss_end is defined in the board-specific linker script */
-		addr = (_bss_end + (PAGE_SIZE - 1)) & ~(PAGE_SIZE - 1);
-		lcd_setmem (addr);
-		gd->fb_base = addr;
-	}
-#endif /* CONFIG_LCD */
-
-#if defined(CONFIG_CMD_NAND)
-	puts ("NAND:  ");
-	nand_init();		/* go init the NAND */
-#endif
-
-#if defined(CONFIG_CMD_ONENAND)
-	onenand_init();
-#endif
-
-#ifdef CONFIG_HAS_DATAFLASH
-	AT91F_DataflashInit();
-	dataflash_print_info();
-#endif
-
-#ifdef CONFIG_GENERIC_MMC
-/*
- * MMC initialization is called before relocating env.
- * Thus It is required that operations like pin multiplexer
- * be put in board_init.
- */
-	puts ("MMC:   ");
-	mmc_initialize (gd->bd);
-#endif
-
-	/* initialize environment */
-	env_relocate ();
-
-#ifdef CONFIG_VFD
-	/* must do this after the framebuffer is allocated */
-	drv_vfd_init();
-#endif /* CONFIG_VFD */
-
-#ifdef CONFIG_SERIAL_MULTI
-	serial_initialize();
-#endif
-
-	/* IP Address */
-	gd->bd->bi_ip_addr = getenv_IPaddr ("ipaddr");
-
-	stdio_init ();	/* get the devices list going. */
-
-	jumptable_init ();
-
-#if defined(CONFIG_API)
-	/* Initialize API */
-	api_init ();
-#endif
-
-	console_init_r ();	/* fully init console as a device */
-
-#if defined(CONFIG_ARCH_MISC_INIT)
-	/* miscellaneous arch dependent initialisations */
-	arch_misc_init ();
-#endif
-#if defined(CONFIG_MISC_INIT_R)
-	/* miscellaneous platform dependent initialisations */
-	misc_init_r ();
-#endif
-
-	/* enable exceptions */
-	enable_interrupts ();
-
-	/* Perform network card initialisation if necessary */
-
-#if defined(CONFIG_DRIVER_SMC91111) || defined (CONFIG_DRIVER_LAN91C96)
-	/* XXX: this needs to be moved to board init */
-	if (getenv ("ethaddr")) {
-		uchar enetaddr[6];
-		eth_getenv_enetaddr("ethaddr", enetaddr);
-		smc_set_mac_addr(enetaddr);
-	}
-#endif /* CONFIG_DRIVER_SMC91111 || CONFIG_DRIVER_LAN91C96 */
-
-	/* Initialize from environment */
-	if ((s = getenv ("loadaddr")) != NULL) {
-		load_addr = simple_strtoul (s, NULL, 16);
-	}
-#if defined(CONFIG_CMD_NET)
-	if ((s = getenv ("bootfile")) != NULL) {
-		copy_filename (BootFile, s, sizeof (BootFile));
-	}
-#endif
-
-#ifdef BOARD_LATE_INIT
-	board_late_init ();
-#endif
-
-#ifdef CONFIG_BITBANGMII
-	bb_miiphy_init();
-#endif
-#if defined(CONFIG_CMD_NET)
-#if defined(CONFIG_NET_MULTI)
-	puts ("Net:   ");
-#endif
-	eth_initialize(gd->bd);
-#if defined(CONFIG_RESET_PHY_R)
-	debug ("Reset Ethernet PHY\n");
-	reset_phy();
-#endif
-#endif
-	/* main_loop() can return to retry autoboot, if so just run it again. */
-	for (;;) {
-		main_loop ();
-	}
-
-	/* NOTREACHED - no way out of command loop except booting */
-}
-#else
 void __dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
@@ -679,15 +453,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #if !defined(CONFIG_SYS_NO_FLASH)
 	ulong flash_size;
 #endif
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
-	extern void malloc_bin_reloc (void);
-#if defined(CONFIG_CMD_BMP)
-	extern void bmp_reloc(void);
-#endif
-#if defined(CONFIG_CMD_I2C)
-	extern void i2c_reloc(void);
-#endif
-#endif
 
 	gd = id;
 	bd = gd->bd;
@@ -704,36 +469,16 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	debug ("Now running in RAM - U-Boot at: %08lx\n", dest_addr);
 
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
-	/*
-	 * We have to relocate the command table manually
-	 */
-	fixup_cmdtable(&__u_boot_cmd_start,
-		(ulong)(&__u_boot_cmd_end - &__u_boot_cmd_start));
-#if defined(CONFIG_CMD_BMP)
-	bmp_reloc();
-#endif
-#if defined(CONFIG_CMD_I2C)
-	i2c_reloc();
-#endif
-#endif /* !defined(CONFIG_RELOC_FIXUP_WORKS) */
-
 #ifdef CONFIG_LOGBUFFER
 	logbuff_init_ptrs ();
 #endif
 #ifdef CONFIG_POST
 	post_output_backlog ();
-#ifndef CONFIG_RELOC_FIXUP_WORKS
-	post_reloc ();
-#endif
 #endif
 
 	/* The Malloc area is immediately below the monitor copy in DRAM */
 	malloc_start = dest_addr - TOTAL_MALLOC_LEN;
 	mem_malloc_init (malloc_start, TOTAL_MALLOC_LEN);
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
-	malloc_bin_reloc ();
-#endif
 
 #if !defined(CONFIG_SYS_NO_FLASH)
 	puts ("FLASH: ");
@@ -896,8 +641,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	/* NOTREACHED - no way out of command loop except booting */
 }
-
-#endif /* defined(CONFIG_SYS_ARM_WITHOUT_RELOC) */
 
 void hang (void)
 {

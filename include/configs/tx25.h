@@ -66,7 +66,6 @@
 /* malloc() len */
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)	/* 1 MiB */
 /* reserved for initial data */
-#define CONFIG_SYS_GBL_DATA_SIZE	128
 /*
  * Board has 2 32MB banks of DRAM but there is a bug when using
  * both so only the first is configured
@@ -179,6 +178,6 @@
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
-					CONFIG_SYS_GBL_DATA_SIZE)
+					GENERATED_GBL_DATA_SIZE)
 
 #endif /* __CONFIG_H */

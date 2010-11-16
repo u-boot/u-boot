@@ -23,9 +23,9 @@
 #endif
 
 void qsort(void  *base,
-           size_t nel,
-           size_t width,
-           int (*comp)(const void *, const void *))
+	   size_t nel,
+	   size_t width,
+	   int (*comp)(const void *, const void *))
 {
 	size_t wgap, i, j, k;
 	char tmp;

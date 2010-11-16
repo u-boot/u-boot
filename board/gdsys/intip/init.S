@@ -25,6 +25,7 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <ppc_asm.tmpl>
 #include <config.h>
 #include <asm/mmu.h>

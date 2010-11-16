@@ -81,13 +81,13 @@ block_dev_desc_t *get_dev(char* ifname, int dev)
 	char *name;
 
 	name = drvr->name;
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 	name += gd->reloc_off;
 #endif
 	while (name) {
 		name = drvr->name;
 		reloc_get_dev = drvr->get_dev;
-#ifndef CONFIG_RELOC_FIXUP_WORKS
+#ifdef CONFIG_NEEDS_MANUAL_RELOC
 		name += gd->reloc_off;
 		reloc_get_dev += gd->reloc_off;
 #endif

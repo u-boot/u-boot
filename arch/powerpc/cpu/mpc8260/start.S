@@ -25,6 +25,7 @@
 /*
  *  U-Boot - Startup Code for MPC8260 PowerPC based Embedded Boards
  */
+#include <asm-offsets.h>
 #include <config.h>
 #include <mpc8260.h>
 #include <timestamp.h>

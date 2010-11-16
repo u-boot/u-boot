@@ -127,7 +127,7 @@ void bb_miiphy_init(void)
 	int i;
 
 	for (i = 0; i < bb_miiphy_buses_num; i++) {
-#if !defined(CONFIG_RELOC_FIXUP_WORKS)
+#if defined(CONFIG_NEEDS_MANUAL_RELOC)
 		/* Relocate the hook pointers*/
 		BB_MII_RELOCATE(bb_miiphy_buses[i].init, gd->reloc_off);
 		BB_MII_RELOCATE(bb_miiphy_buses[i].mdio_active, gd->reloc_off);

@@ -42,7 +42,7 @@ typedef struct atmel_usart3 {
 	u32	reserved1;
 	u32	ifr;
 	u32	man;
-	u32	reserved2[54]; // version and PDC not needed
+	u32	reserved2[54]; /* version and PDC not needed */
 } atmel_usart3_t;
 
 /* Bitfields in CR */

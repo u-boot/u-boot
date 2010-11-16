@@ -53,8 +53,6 @@
 #define CONFIG_INITRD_TAG	1
 
 #define	CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_RELOCATE_UBOOT	/* undef this for direct boot from */
-									/* NOR flash without preloader */
 
 #define	CONFIG_SYS_LONGHELP
 
@@ -65,7 +63,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	(roundup(CONFIG_ENV_SIZE,4096) + 128*1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_BAUDRATE 115200
 

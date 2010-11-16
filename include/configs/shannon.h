@@ -34,7 +34,6 @@
  */
 #define CONFIG_INFERNO			/* we are using the inferno bootldr */
 #define CONFIG_SKIP_LOWLEVEL_INIT	1
-#undef  CONFIG_SKIP_RELOCATE_UBOOT
 
 /*
  * High Level Configuration Options
@@ -51,7 +50,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128*1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers

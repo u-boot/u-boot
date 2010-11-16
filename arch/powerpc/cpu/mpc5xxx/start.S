@@ -25,6 +25,7 @@
 /*
  *  U-Boot - Startup Code for MPC5xxx CPUs
  */
+#include <asm-offsets.h>
 #include <config.h>
 #include <mpc5xxx.h>
 #include <timestamp.h>

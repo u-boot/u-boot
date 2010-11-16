@@ -96,7 +96,7 @@ void board_init (void)
 	ulong flash_size = 0;
 #endif
 	asm ("nop");	/* FIXME gd is not initialize - wait */
-	memset ((void *)gd, 0, CONFIG_SYS_GBL_DATA_SIZE);
+	memset ((void *)gd, 0, GENERATED_GBL_DATA_SIZE);
 	gd->bd = (bd_t *) (gd + 1);	/* At end of global data */
 	gd->baudrate = CONFIG_BAUDRATE;
 	bd = gd->bd;

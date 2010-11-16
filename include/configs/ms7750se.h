@@ -81,7 +81,6 @@
 #define CONFIG_SYS_MONITOR_LEN		(128 * 1024)
 #define CONFIG_SYS_MALLOC_LEN		(256 * 1024)		/* Size of DRAM reserved for malloc() use */
 
-#define CONFIG_SYS_GBL_DATA_SIZE	(256)			/* size in bytes reserved for initial data */
 #define CONFIG_SYS_BOOTMAPSZ		(8 * 1024 * 1024)
 #define CONFIG_SYS_RX_ETH_BUFFER	(8)
 

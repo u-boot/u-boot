@@ -85,6 +85,17 @@ static phys_addr_t __cfi_flash_bank_addr(int i)
 phys_addr_t cfi_flash_bank_addr(int i)
 	__attribute__((weak, alias("__cfi_flash_bank_addr")));
 
+static unsigned long __cfi_flash_bank_size(int i)
+{
+#ifdef CONFIG_SYS_FLASH_BANKS_SIZES
+	return ((unsigned long [])CONFIG_SYS_FLASH_BANKS_SIZES)[i];
+#else
+	return 0;
+#endif
+}
+unsigned long cfi_flash_bank_size(int i)
+	__attribute__((weak, alias("__cfi_flash_bank_size")));
+
 static void __flash_write8(u8 value, void *addr)
 {
 	__raw_writeb(value, addr);
@@ -1826,7 +1837,7 @@ static void flash_fixup_stm(flash_info_t *info, struct cfi_qry *qry)
  * The following code cannot be run from FLASH!
  *
  */
-ulong flash_get_size (phys_addr_t base, int banknum)
+ulong flash_get_size (phys_addr_t base, int banknum, unsigned long max_size)
 {
 	flash_info_t *info = &flash_info[banknum];
 	int i, j;
@@ -1915,6 +1926,13 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 		debug ("size_ratio %d port %d bits chip %d bits\n",
 		       size_ratio, info->portwidth << CFI_FLASH_SHIFT_WIDTH,
 		       info->chipwidth << CFI_FLASH_SHIFT_WIDTH);
+		info->size = 1 << qry.dev_size;
+		/* multiply the size by the number of chips */
+		info->size *= size_ratio;
+		if (max_size && (info->size > max_size)) {
+			debug("[truncated from %ldMiB]", info->size >> 20);
+			info->size = max_size;
+		}
 		debug ("found %d erase regions\n", num_erase_regions);
 		sect_cnt = 0;
 		sector = base;
@@ -1935,6 +1953,8 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 			debug ("erase_region_count = %d erase_region_size = %d\n",
 				erase_region_count, erase_region_size);
 			for (j = 0; j < erase_region_count; j++) {
+				if (sector - base >= info->size)
+					break;
 				if (sect_cnt >= CONFIG_SYS_MAX_FLASH_SECT) {
 					printf("ERROR: too many flash sectors\n");
 					break;
@@ -1968,9 +1988,6 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 		}
 
 		info->sector_count = sect_cnt;
-		info->size = 1 << qry.dev_size;
-		/* multiply the size by the number of chips */
-		info->size *= size_ratio;
 		info->buffer_size = 1 << le16_to_cpu(qry.max_buf_write_size);
 		tmp = 1 << qry.block_erase_timeout_typ;
 		info->erase_blk_tout = tmp *
@@ -2026,7 +2043,8 @@ unsigned long flash_init (void)
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 
 		if (!flash_detect_legacy(cfi_flash_bank_addr(i), i))
-			flash_get_size(cfi_flash_bank_addr(i), i);
+			flash_get_size(cfi_flash_bank_addr(i), i,
+					cfi_flash_bank_size(i));
 		size += flash_info[i].size;
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
 #ifndef CONFIG_SYS_FLASH_QUIET_TEST

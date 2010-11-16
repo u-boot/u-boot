@@ -89,9 +89,6 @@
 #define CONFIG_SYS_NUM_TLBCAMS	16
 #endif
 
-/* Relocation to SDRAM works on all PPC boards */
-#define CONFIG_RELOC_FIXUP_WORKS
-
 /* Since so many PPC SOCs have a semi-common LBC, define this here */
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) || \
 	defined(CONFIG_MPC83xx)

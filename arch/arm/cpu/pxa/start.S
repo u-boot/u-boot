@@ -8,6 +8,7 @@
  *  Copyright (C) 2002	Kyle Harris <kharris@nexus-tech.net>
  *  Copyright (C) 2003	Robert Schwebel <r.schwebel@pengutronix.de>
  *  Copyright (C) 2003	Kai-Uwe Bloem <kai-uwe.bloem@auerswald.de>
+ *  Copyright (c) 2010	Marek Vasut <marek.vasut@gmail.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -28,10 +29,10 @@
  * MA 02111-1307 USA
  */
 
+#include <asm-offsets.h>
 #include <config.h>
 #include <version.h>
 #include <asm/arch/pxa-regs.h>
-#include <asm/arch/macro.h>
 
 /* takes care the CP15 update has taken place */
 .macro CPWAIT reg
@@ -94,20 +95,16 @@ _fiq:			.word fiq
 _TEXT_BASE:
 	.word	CONFIG_SYS_TEXT_BASE
 
-.globl _armboot_start
-_armboot_start:
-	.word _start
-
 /*
  * These are defined in the board-specific linker script.
  */
-.globl _bss_start
-_bss_start:
-	.word __bss_start
+.globl _bss_start_ofs
+_bss_start_ofs:
+	.word __bss_start - _start
 
-.globl _bss_end
-_bss_end:
-	.word _end
+.globl _bss_end_ofs
+_bss_end_ofs:
+	.word _end - _start
 
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
@@ -126,30 +123,6 @@ FIQ_STACK_START:
 .globl IRQ_STACK_START_IN
 IRQ_STACK_START_IN:
 	.word	0x0badc0de
-
-.globl _datarel_start
-_datarel_start:
-	.word __datarel_start
-
-.globl _datarelrolocal_start
-_datarelrolocal_start:
-	.word __datarelrolocal_start
-
-.globl _datarellocal_start
-_datarellocal_start:
-	.word __datarellocal_start
-
-.globl _datarelro_start
-_datarelro_start:
-	.word __datarelro_start
-
-.globl _got_start
-_got_start:
-	.word __got_start
-
-.globl _got_end
-_got_end:
-	.word __got_end
 
 /*
  * the actual reset code
@@ -272,13 +245,11 @@ stack_setup:
 
 	adr	r0, _start
 	ldr	r2, _TEXT_BASE
-	ldr	r3, _bss_start
-	sub	r2, r3, r2		/* r2 <- size of armboot	    */
-	add	r2, r0, r2		/* r2 <- source end address	    */
+	ldr	r3, _bss_start_ofs
+	add	r2, r0, r3		/* r2 <- source end address	    */
 	cmp	r0, r6
 	beq	clear_bss
 
-#ifndef CONFIG_SKIP_RELOCATE_UBOOT
 	stmfd sp!, {r0-r12}
 copy_loop:
 	ldmia	r0!, {r3-r5, r7-r11}	/* copy from source address [r0]    */
@@ -288,36 +259,53 @@ copy_loop:
 	ldmfd sp!, {r0-r12}
 
 #ifndef CONFIG_PRELOADER
-	/* fix got entries */
-	ldr	r1, _TEXT_BASE		/* Text base */
-	mov	r0, r7			/* reloc addr */
-	ldr	r2, _got_start		/* addr in Flash */
-	ldr	r3, _got_end		/* addr in Flash */
-	sub	r3, r3, r1
-	add	r3, r3, r0
-	sub	r2, r2, r1
-	add	r2, r2, r0
-
+	/*
+	 * fix .rel.dyn relocations
+	 */
+	ldr	r0, _TEXT_BASE		/* r0 <- Text base */
+	sub	r9, r7, r0		/* r9 <- relocation offset */
+	ldr	r10, _dynsym_start_ofs	/* r10 <- sym table ofs */
+	add	r10, r10, r0		/* r10 <- sym table in FLASH */
+	ldr	r2, _rel_dyn_start_ofs	/* r2 <- rel dyn start ofs */
+	add	r2, r2, r0		/* r2 <- rel dyn start in FLASH */
+	ldr	r3, _rel_dyn_end_ofs	/* r3 <- rel dyn end ofs */
+	add	r3, r3, r0		/* r3 <- rel dyn end in FLASH */
 fixloop:
-	ldr	r4, [r2]
-	sub	r4, r4, r1
-	add	r4, r4, r0
-	str	r4, [r2]
-	add	r2, r2, #4
+	ldr	r0, [r2]	/* r0 <- location to fix up, IN FLASH! */
+	add	r0, r9		/* r0 <- location to fix up in RAM */
+	ldr	r1, [r2, #4]
+	and	r8, r1, #0xff
+	cmp	r8, #23		/* relative fixup? */
+	beq	fixrel
+	cmp	r8, #2		/* absolute fixup? */
+	beq	fixabs
+	/* ignore unknown type of fixup */
+	b	fixnext
+fixabs:
+	/* absolute fix: set location to (offset) symbol value */
+	mov	r1, r1, LSR #4		/* r1 <- symbol index in .dynsym */
+	add	r1, r10, r1		/* r1 <- address of symbol in table */
+	ldr	r1, [r1, #4]		/* r1 <- symbol value */
+	add	r1, r9			/* r1 <- relocated sym addr */
+	b	fixnext
+fixrel:
+	/* relative fix: increase location by offset */
+	ldr	r1, [r0]
+	add	r1, r1, r9
+fixnext:
+	str	r1, [r0]
+	add	r2, r2, #8	/* each rel.dyn entry is 8 bytes */
 	cmp	r2, r3
-	bne	fixloop
-#endif
-#endif	/* #ifndef CONFIG_SKIP_RELOCATE_UBOOT */
+	blo	fixloop
+#endif	/* #ifndef CONFIG_PRELOADER */
 
 clear_bss:
 #ifndef CONFIG_PRELOADER
-	ldr	r0, _bss_start
-	ldr	r1, _bss_end
+	ldr	r0, _bss_start_ofs
+	ldr	r1, _bss_end_ofs
 	ldr	r3, _TEXT_BASE		/* Text base */
 	mov	r4, r7			/* reloc addr */
-	sub	r0, r0, r3
 	add	r0, r0, r4
-	sub	r1, r1, r3
 	add	r1, r1, r4
 	mov	r2, #0x00000000		/* clear			    */
 
@@ -325,32 +313,41 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
 	add	r0, r0, #4
 	cmp	r0, r1
 	bne	clbss_l
-#endif
+#endif	/* #ifndef CONFIG_PRELOADER */
 
 /*
  * We are done. Do not return, instead branch to second part of board
  * initialization, now running from RAM.
  */
 #ifdef CONFIG_ONENAND_IPL
-	ldr     pc, _start_oneboot
+	ldr     r0, _start_oneboot_ofs
+	mov	pc, r0
 
-_start_oneboot: .word start_oneboot
+_start_oneboot_ofs
+	: .word start_oneboot
 #else
-	ldr	r0, _TEXT_BASE
-	ldr	r2, _board_init_r
-	sub	r2, r2, r0
-	add	r2, r2, r7	/* position from board_init_r in RAM */
+	ldr	r0, _board_init_r_ofs
+	adr	r1, _start
+	add	lr, r0, r1
+	add	lr, lr, r9
 	/* setup parameters for board_init_r */
 	mov	r0, r5		/* gd_t */
 	mov	r1, r7		/* dest_addr */
 	/* jump to it ... */
-	mov	lr, r2
 	mov	pc, lr
 
-_board_init_r: .word board_init_r
-#endif
+_board_init_r_ofs:
+	.word board_init_r - _start
+#endif	/* CONFIG_ONENAND_IPL */
 
-#else /* #if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC) */
+_rel_dyn_start_ofs:
+	.word __rel_dyn_start - _start
+_rel_dyn_end_ofs:
+	.word __rel_dyn_end - _start
+_dynsym_start_ofs:
+	.word __dynsym_start - _start
+
+#else /* CONFIG_PRELOADER */
 
 /****************************************************************************/
 /*									    */
@@ -375,7 +372,7 @@ reset:
 	/* Start OneNAND IPL */
 	ldr	pc, =start_oneboot
 
-#endif /* #if !defined(CONFIG_ONENAND_IPL) */
+#endif /* CONFIG_PRELOADER */
 
 #ifndef CONFIG_PRELOADER
 /****************************************************************************/
@@ -417,13 +414,7 @@ reset:
 	stmia	sp, {r0 - r12}			/* Calling r0-r12	    */
 	add	r8, sp, #S_PC
 
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-	ldr	r2, _armboot_start
-	sub	r2, r2, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
-	sub	r2, r2, #(CONFIG_SYS_GBL_DATA_SIZE+8)	@ set base 2 words into abort stack
-#else
 	ldr	r2, IRQ_STACK_START_IN
-#endif
 	ldmia	r2, {r2 - r4}			/* get pc, cpsr, old_r0	    */
 	add	r0, sp, #S_FRAME_SIZE		/* restore sp_SVC	    */
 
@@ -458,13 +449,7 @@ reset:
 	.endm
 
 	.macro get_bad_stack
-#if defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
-	ldr	r13, _armboot_start		@ setup our mode stack
-	sub	r13, r13, #(CONFIG_STACKSIZE+CONFIG_SYS_MALLOC_LEN)
-	sub	r13, r13, #(CONFIG_SYS_GBL_DATA_SIZE+8) @ reserved a couple spots in abort stack
-#else
 	ldr	r13, IRQ_STACK_START_IN		@ setup our mode stack
-#endif
 
 	str	lr, [r13]			@ save caller lr / spsr
 	mrs	lr, spsr
@@ -483,7 +468,7 @@ reset:
 	.macro get_fiq_stack			@ setup FIQ stack
 	ldr	sp, FIQ_STACK_START
 	.endm
-#endif	/* CONFIG_PRELOADER */
+#endif	/* CONFIG_PRELOADER
 
 
 /****************************************************************************/
@@ -497,7 +482,7 @@ reset:
 do_hang:
 	ldr	sp, _TEXT_BASE			/* use 32 words abort stack */
 	bl	hang				/* hang and never return */
-#else	/* !CONFIG_PRELOADER */
+#else
 	.align	5
 undefined_instruction:
 	get_bad_stack
@@ -567,13 +552,7 @@ fiq:
 /*									    */
 /****************************************************************************/
 /* Operating System Timer */
-OSTIMER_BASE:	.word	0x40a00000
-#define OSMR3	0x0C
-#define OSCR	0x10
-#define OWER	0x18
-#define OIER	0x1C
-
-	.align	5
+.align	5
 .globl reset_cpu
 
 	/* FIXME: this code is PXA250 specific. How is this handled on	    */
@@ -583,18 +562,20 @@ reset_cpu:
 
 	/* We set OWE:WME (watchdog enable) and wait until timeout happens  */
 
-	ldr	r0, OSTIMER_BASE
-	ldr	r1, [r0, #OWER]
+	ldr	r0, =OWER
+	ldr	r1, [r0]
 	orr	r1, r1, #0x0001			/* bit0: WME		    */
-	str	r1, [r0, #OWER]
+	str	r1, [r0]
 
 	/* OS timer does only wrap every 1165 seconds, so we have to set    */
 	/* the match register as well.					    */
 
-	ldr	r1, [r0, #OSCR]			/* read OS timer	    */
+	ldr	r0, =OSCR
+	ldr	r1, [r0]			/* read OS timer	    */
 	add	r1, r1, #0x800			/* let OSMR3 match after    */
 	add	r1, r1, #0x800			/* 4096*(1/3.6864MHz)=1ms   */
-	str	r1, [r0, #OSMR3]
+	ldr	r0, =OSMR3
+	str	r1, [r0]
 
 reset_endless:
 
@@ -620,4 +601,4 @@ mmu_table:
 	.word	(__base << 20) | 0xc12
 	.set	__base, __base + 1
 	.endr
-#endif
+#endif	/* CONFIG_PRELOADER */

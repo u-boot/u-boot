@@ -89,7 +89,7 @@ static int sh_pci_init(void)
 
 static int sh_mem_env_init(void)
 {
-	mem_malloc_init(CONFIG_SYS_TEXT_BASE - CONFIG_SYS_GBL_DATA_SIZE -
+	mem_malloc_init(CONFIG_SYS_TEXT_BASE - GENERATED_GBL_DATA_SIZE -
 			CONFIG_SYS_MALLOC_LEN, CONFIG_SYS_MALLOC_LEN - 16);
 	env_relocate();
 	jumptable_init();
@@ -144,7 +144,7 @@ void sh_generic_init(void)
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
 
-	memset(gd, 0, CONFIG_SYS_GBL_DATA_SIZE);
+	memset(gd, 0, GENERATED_GBL_DATA_SIZE);
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 

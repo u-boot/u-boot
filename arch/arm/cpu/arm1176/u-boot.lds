@@ -51,11 +51,14 @@ SECTIONS
 		*(.data.rel.ro)
 	}
 
-	__got_start = .;
 	. = ALIGN(4);
-	.got : { *(.got) }
+	__rel_dyn_start = .;
+	.rel.dyn : { *(.rel.dyn) }
+	__rel_dyn_end = .;
 
-	__got_end = .;
+	__dynsym_start = .;
+	.dynsym : { *(.dynsym) }
+
 	. = .;
 	__u_boot_cmd_start = .;
 	.u_boot_cmd : { *(.u_boot_cmd) }
@@ -65,4 +68,10 @@ SECTIONS
 	__bss_start = .;
 	.bss (NOLOAD) : { *(.bss) . = ALIGN(4); }
 	_end = .;
+
+	/DISCARD/ : { *(.dynstr*) }
+	/DISCARD/ : { *(.dynamic*) }
+	/DISCARD/ : { *(.plt*) }
+	/DISCARD/ : { *(.interp*) }
+	/DISCARD/ : { *(.gnu*) }
 }

@@ -34,7 +34,6 @@
 #undef	_CONFIG_UART4 /* internal uart 4 */
 #undef	CONFIG_SILENT_CONSOLE  /* use this to disable output */
 
-
 /*
  * BOOTP options
  */
@@ -42,7 +41,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
 
 /*
  * Command line configuration.
@@ -57,7 +55,6 @@
 #undef CONFIG_CMD_NET
 #undef CONFIG_CMD_PING
 #undef CONFIG_CMD_SOURCE
-
 
 /*
  * Boot options. Setting delay to -1 stops autostart count down.
@@ -97,9 +94,6 @@
  * Malloc pool need to host env + 128 Kb reserve for other allocations.
  */
 #define CONFIG_SYS_MALLOC_LEN	  (CONFIG_ENV_SIZE + (128<<10) )
-
-
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_STACKSIZE	(120<<10)      /* stack size */
 

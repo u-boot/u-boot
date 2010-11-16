@@ -72,8 +72,8 @@
  * it has to be rounded to sector size
  */
 #define CONFIG_ENV_SIZE			0x20000	/* 128k */
-#define CONFIG_ENV_ADDR			0x40000
-#define CONFIG_ENV_OFFSET		0x40000	/* env starts here */
+#define CONFIG_ENV_ADDR			0x60000
+#define CONFIG_ENV_OFFSET		0x60000	/* env starts here */
 
 /*
  * Default environment variables

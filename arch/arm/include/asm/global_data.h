@@ -30,7 +30,7 @@
  * global variables during system initialization (until we have set
  * up the memory controller so that we can use RAM).
  *
- * Keep it *SMALL* and remember to set CONFIG_SYS_GBL_DATA_SIZE > sizeof(gd_t)
+ * Keep it *SMALL* and remember to set GENERATED_GBL_DATA_SIZE > sizeof(gd_t)
  */
 
 typedef	struct	global_data {
@@ -61,7 +61,6 @@ typedef	struct	global_data {
 	unsigned long	tbu;
 	unsigned long long	timer_reset_value;
 #endif
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	mon_len;	/* monitor len */
@@ -70,7 +69,6 @@ typedef	struct	global_data {
 	unsigned long	reloc_off;
 #if !(defined(CONFIG_SYS_NO_ICACHE) && defined(CONFIG_SYS_NO_DCACHE))
 	unsigned long	tlb_addr;
-#endif
 #endif
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */

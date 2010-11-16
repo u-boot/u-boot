@@ -46,12 +46,8 @@ int interrupt_init (void)
 	/*
 	 * setup up stacks if necessary
 	 */
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 	IRQ_STACK_START = gd->irq_sp - 4;
 	IRQ_STACK_START_IN = gd->irq_sp + 8;
-#else
-	IRQ_STACK_START = _armboot_start - CONFIG_SYS_MALLOC_LEN - CONFIG_SYS_GBL_DATA_SIZE - 4;
-#endif
 	FIQ_STACK_START = IRQ_STACK_START - CONFIG_STACKSIZE_IRQ;
 
 	return arch_interrupt_init();
@@ -86,7 +82,6 @@ int disable_interrupts (void)
 	return (old & 0x80) == 0;
 }
 #else
-#if !defined(CONFIG_SYS_ARM_WITHOUT_RELOC)
 int interrupt_init (void)
 {
 	/*
@@ -96,7 +91,6 @@ int interrupt_init (void)
 
 	return 0;
 }
-#endif
 
 void enable_interrupts (void)
 {

@@ -497,6 +497,10 @@ int do_pci (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if ((bdf = get_pci_dev(argv[2])) == -1)
 			return 1;
 		break;
+#ifdef CONFIG_CMD_PCI_ENUM
+	case 'e':
+		break;
+#endif
 	default:		/* scan bus */
 		value = 1; /* short listing */
 		bdf = 0;   /* bus number  */
@@ -518,6 +522,11 @@ int do_pci (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 0;
 	case 'd':		/* display */
 		return pci_cfg_display(bdf, addr, size, value);
+#ifdef CONFIG_CMD_PCI_ENUM
+	case 'e':
+		pci_init();
+		return 0;
+#endif
 	case 'n':		/* next */
 		if (argc < 4)
 			goto usage;
@@ -545,6 +554,10 @@ U_BOOT_CMD(
 	"list and access PCI Configuration Space",
 	"[bus] [long]\n"
 	"    - short or long list of PCI devices on bus 'bus'\n"
+#ifdef CONFIG_CMD_PCI_ENUM
+	"pci enum\n"
+	"    - re-enumerate PCI buses\n"
+#endif
 	"pci header b.d.f\n"
 	"    - show header of PCI device 'bus.device.function'\n"
 	"pci display[.b, .w, .l] b.d.f [address] [# of objects]\n"

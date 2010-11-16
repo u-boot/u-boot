@@ -48,7 +48,6 @@
 #undef CONFIG_USE_IRQ				/* don't need IRQ/FIQ stuff */
 
 #define CONFIG_SKIP_LOWLEVEL_INIT
-#define CONFIG_SKIP_RELOCATE_UBOOT
 #define CONFIG_MISC_INIT_R		1	/* Call misc_init_r */
 
 #define CONFIG_ARCH_CPU_INIT
@@ -235,7 +234,6 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		ROUND(3 * CONFIG_ENV_SIZE + \
 					128*1024, 0x1000)
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* 128 bytes for initial data */
 
 #define CONFIG_STACKSIZE		(32 * 1024)	/* regular stack */
 

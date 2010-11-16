@@ -63,6 +63,7 @@
  *  board_init will change CS0 to be positioned at the correct
  *  address and (s)dram will be positioned at address 0
  */
+#include <asm-offsets.h>
 #include <config.h>
 #include <asm/ppc4xx.h>
 #include <timestamp.h>
@@ -182,8 +183,8 @@
 # endif
 #endif /* CONFIG_SYS_INIT_DCACHE_CS */
 
-#if (defined(CONFIG_SYS_INIT_RAM_DCACHE) && (CONFIG_SYS_INIT_RAM_END > (4 << 10)))
-#error Only 4k of init-ram is supported - please adjust CONFIG_SYS_INIT_RAM_END!
+#if (defined(CONFIG_SYS_INIT_RAM_DCACHE) && (CONFIG_SYS_INIT_RAM_SIZE > (4 << 10)))
+#error Only 4k of init-ram is supported - please adjust CONFIG_SYS_INIT_RAM_SIZE!
 #endif
 
 /*
@@ -656,8 +657,8 @@ _start:
 	/* Clear Dcache to use as RAM */
 	addis	r3,r0,CONFIG_SYS_INIT_RAM_ADDR@h
 	ori	r3,r3,CONFIG_SYS_INIT_RAM_ADDR@l
-	addis	r4,r0,CONFIG_SYS_INIT_RAM_END@h
-	ori	r4,r4,CONFIG_SYS_INIT_RAM_END@l
+	addis	r4,r0,CONFIG_SYS_INIT_RAM_SIZE@h
+	ori	r4,r4,CONFIG_SYS_INIT_RAM_SIZE@l
 	rlwinm. r5,r4,0,27,31
 	rlwinm	r5,r4,27,5,31
 	beq	..d_ran
@@ -1091,8 +1092,8 @@ _start:
 	lis	r3, CONFIG_SYS_INIT_RAM_ADDR@h
 	ori	r3, r3, CONFIG_SYS_INIT_RAM_ADDR@l
 
-	lis	r4, CONFIG_SYS_INIT_RAM_END@h
-	ori	r4, r4, CONFIG_SYS_INIT_RAM_END@l
+	lis	r4, CONFIG_SYS_INIT_RAM_SIZE@h
+	ori	r4, r4, CONFIG_SYS_INIT_RAM_SIZE@l
 
 	/*
 	 * Convert the size, in bytes, to the number of cache lines/blocks
@@ -1119,12 +1120,12 @@ _start:
 	lis	r1, CONFIG_SYS_INIT_RAM_ADDR@h
 	ori	r1, r1, CONFIG_SYS_INIT_SP_OFFSET@l
 
-	lis	r4, (CONFIG_SYS_INIT_RAM_END >> 2)@h
-	ori	r4, r4, (CONFIG_SYS_INIT_RAM_END >> 2)@l
+	lis	r4, (CONFIG_SYS_INIT_RAM_SIZE >> 2)@h
+	ori	r4, r4, (CONFIG_SYS_INIT_RAM_SIZE >> 2)@l
 	mtctr	r4
 
 	lis	r2, CONFIG_SYS_INIT_RAM_ADDR@h
-	ori	r2, r2, CONFIG_SYS_INIT_RAM_END@l
+	ori	r2, r2, CONFIG_SYS_INIT_RAM_SIZE@l
 
 	lis	r4, CONFIG_SYS_INIT_RAM_PATTERN@h
 	ori	r4, r4, CONFIG_SYS_INIT_RAM_PATTERN@l
@@ -1399,7 +1400,7 @@ relocate_code:
 
 	/* Flush initial global data range */
 	mr	r3, r4
-	addi	r4, r4, CONFIG_SYS_GBL_DATA_SIZE@l
+	addi	r4, r4, GENERATED_GBL_DATA_SIZE@l
 	bl	flush_dcache_range
 
 #if defined(CONFIG_SYS_INIT_DCACHE_CS)
@@ -1414,8 +1415,8 @@ relocate_code:
 	lis	r3, CONFIG_SYS_INIT_RAM_ADDR@h
 	ori	r3, r3, CONFIG_SYS_INIT_RAM_ADDR@l
 
-	lis	r4, CONFIG_SYS_INIT_RAM_END@h
-	ori	r4, r4, CONFIG_SYS_INIT_RAM_END@l
+	lis	r4, CONFIG_SYS_INIT_RAM_SIZE@h
+	ori	r4, r4, CONFIG_SYS_INIT_RAM_SIZE@l
 	add	r4, r4, r3
 
 	bl	invalidate_dcache_range

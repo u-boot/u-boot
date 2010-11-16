@@ -32,6 +32,7 @@
 
 #if defined(__GNUC__) && !defined(__STRICT_ANSI__)
 #define __BYTEORDER_HAS_U64__
+#define __SWAB_64_THRU_32__
 #endif
 #include <linux/byteorder/big_endian.h>
 #endif				/* _SPARC_BYTEORDER_H */

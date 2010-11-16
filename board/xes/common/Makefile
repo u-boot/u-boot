@@ -32,7 +32,11 @@ LIB	= $(obj)lib$(VENDOR).a
 COBJS-$(CONFIG_FSL_PCI_INIT)	+= fsl_8xxx_pci.o
 COBJS-$(CONFIG_MPC8572)		+= fsl_8xxx_clk.o
 COBJS-$(CONFIG_MPC86xx)		+= fsl_8xxx_clk.o
+COBJS-$(CONFIG_P2020)		+= fsl_8xxx_clk.o
 COBJS-$(CONFIG_FSL_DDR2)	+= fsl_8xxx_ddr.o
+COBJS-$(CONFIG_FSL_DDR3)	+= fsl_8xxx_ddr.o
+COBJS-$(CONFIG_MPC85xx)		+= fsl_8xxx_misc.o board.o
+COBJS-$(CONFIG_MPC86xx)		+= fsl_8xxx_misc.o board.o
 COBJS-$(CONFIG_NAND_ACTL)	+= actl_nand.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)

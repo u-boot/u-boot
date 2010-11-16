@@ -72,7 +72,6 @@
 /* Memory Info */
 /*=============*/
 #define CONFIG_SYS_MALLOC_LEN		(0x10000 + 128*1024)	/* malloc() len */
-#define CONFIG_SYS_GBL_DATA_SIZE	128		/* reserved for initial data */
 #define CONFIG_SYS_MEMTEST_START	0x80000000	/* memtest start address */
 #define CONFIG_SYS_MEMTEST_END		0x81000000	/* 16MB RAM test */
 #define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
@@ -123,7 +122,6 @@
 #define CONFIG_ENV_SECT_SIZE	512	/* Env sector Size */
 #define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KiB */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */
-#define CONFIG_SKIP_RELOCATE_UBOOT	/* to a proper address, init done */
 #define CONFIG_SYS_NAND_BASE		0x02000000
 #define CONFIG_SYS_NAND_HW_ECC
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
@@ -132,10 +130,8 @@
 #elif defined(CONFIG_SYS_USE_NOR)
 #ifdef CONFIG_NOR_UART_BOOT
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */
-#define CONFIG_SKIP_RELOCATE_UBOOT	/* to a proper address, init done */
 #else
 #undef CONFIG_SKIP_LOWLEVEL_INIT
-#undef CONFIG_SKIP_RELOCATE_UBOOT
 #endif
 #define CONFIG_ENV_IS_IN_FLASH
 #undef CONFIG_SYS_NO_FLASH

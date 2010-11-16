@@ -68,15 +68,12 @@
 #define CONFIG_SYS_SDRC_MR_VAL2	0x00000003 /* Load Mode Register */
 #define CONFIG_SYS_SDRC_MR_VAL3	0x00000000 /* Normal Mode */
 #define CONFIG_SYS_SDRC_TR_VAL	0x000002E0 /* Write refresh rate */
-#else
-#define CONFIG_SKIP_RELOCATE_UBOOT
 #endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 
 /*
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	(CONFIG_ENV_SIZE + 128*1024)
-#define CONFIG_SYS_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
 #define CONFIG_BAUDRATE		9600
 
