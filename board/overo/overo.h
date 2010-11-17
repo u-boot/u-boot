@@ -419,4 +419,8 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(MMC1_DAT6),		(IEN  | PTU | EN  | M4)) /*GPIO_128*/\
 	MUX_VAL(CP(MMC1_DAT7),		(IEN  | PTU | EN  | M4)) /*GPIO_129*/
 
+#define MUX_USRP_E() \
+	MUX_VAL(CP(MCSPI1_SOMI),	(IEN  | PTD | DIS | M4)) /*GPIO_173 */\
+	MUX_VAL(CP(MCSPI1_CS1),		(IDIS | PTD | EN  | M4)) /*GPIO_175 */\
+
 #endif

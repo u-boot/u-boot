@@ -38,6 +38,8 @@
 #define CONFIG_OMAP3430		1	/* which is in a 3430 */
 #define CONFIG_OMAP3_DEVKIT8000	1	/* working with DevKit8000 */
 
+#define	CONFIG_SYS_TEXT_BASE	0x80008000
+
 #define CONFIG_SDRC	/* The chip has SDRC controller */
 
 #include <asm/arch/cpu.h>		/* get chip and board defs */
@@ -304,5 +306,8 @@ extern unsigned int boot_flash_off;
 extern unsigned int boot_flash_sec;
 extern unsigned int boot_flash_type;
 #endif
+
+#define CONFIG_SYS_SDRAM_BASE          PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_SP_ADDR        (LOW_LEVEL_SRAM_STACK - CONFIG_SYS_GBL_DATA_SIZE)
 
 #endif /* __CONFIG_H */

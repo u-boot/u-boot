@@ -149,6 +149,13 @@ void do_sdrc_init(u32 cs, u32 early)
 			&sdrc_actim_base1->ctrla);
 		writel(readl(&sdrc_actim_base0->ctrlb),
 			&sdrc_actim_base1->ctrlb);
+
+		writel(CMD_NOP, &sdrc_base->cs[cs].manual);
+		writel(CMD_PRECHARGE, &sdrc_base->cs[cs].manual);
+		writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
+		writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
+		writel(readl(&sdrc_base->cs[CS0].mr),
+			&sdrc_base->cs[CS1].mr);
 	}
 
 	/*
