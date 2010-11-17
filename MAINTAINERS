@@ -1072,6 +1072,10 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 	BF548-EZKIT	BF548
 	BF561-EZKIT	BF561
 
+M.Hasewinkel (MHA) <info@ssv-embedded.de>
+
+	dnp5370		BF537
+
 Brent Kandetzki <brentk@teleco.com>
 
 	IP04		BF532
