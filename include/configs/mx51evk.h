@@ -216,8 +216,9 @@
  */
 #define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_ENV_SECT_SIZE    (128 * 1024)
-#define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
-#define CONFIG_ENV_IS_NOWHERE
+#define CONFIG_ENV_OFFSET      (6 * 64 * 1024)
+#define CONFIG_ENV_SIZE        (8 * 1024)
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV 0
 
 #endif
