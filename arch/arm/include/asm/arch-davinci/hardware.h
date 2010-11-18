@@ -152,6 +152,10 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_BOOTCFG_BASE			0x01c14000
 #define JTAG_ID_REG                            (DAVINCI_BOOTCFG_BASE + 0x18)
 
+#define GPIO_BANK2_REG_DIR_ADDR			(DAVINCI_GPIO_BASE + 0x38)
+#define GPIO_BANK2_REG_OPDATA_ADDR		(DAVINCI_GPIO_BASE + 0x3c)
+#define GPIO_BANK2_REG_SET_ADDR			(DAVINCI_GPIO_BASE + 0x40)
+#define GPIO_BANK2_REG_CLR_ADDR			(DAVINCI_GPIO_BASE + 0x44)
 #endif /* CONFIG_SOC_DA8XX */
 
 /* Power and Sleep Controller (PSC) Domains */
