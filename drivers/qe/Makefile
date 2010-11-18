@@ -24,7 +24,7 @@ include $(TOPDIR)/config.mk
 
 LIB	:= $(obj)libqe.o
 
-COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
+COBJS-$(and $(CONFIG_QE),$(CONFIG_OF_LIBFDT)) += fdt.o
 COBJS-$(CONFIG_QE) += qe.o uccf.o uec.o uec_phy.o
 
 COBJS	:= $(COBJS-y)
