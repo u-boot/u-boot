@@ -30,4 +30,8 @@ void irq_init(void);
 int da8xx_configure_lpsc_items(const struct lpsc_resource *item,
 				    int n_items);
 
+#if defined(CONFIG_DRIVER_TI_EMAC) && defined(CONFIG_MACH_DAVINCI_DA850_EVM)
+void da850_emac_mii_mode_sel(int mode_sel);
+#endif
+
 #endif /* __COMMON_H */

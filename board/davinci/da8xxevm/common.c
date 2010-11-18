@@ -53,3 +53,17 @@ int da8xx_configure_lpsc_items(const struct lpsc_resource *item,
 
 	return 0;
 }
+
+#if defined(CONFIG_DRIVER_TI_EMAC) && defined(CONFIG_MACH_DAVINCI_DA850_EVM)
+void da850_emac_mii_mode_sel(int mode_sel)
+{
+	int val;
+
+	val = readl(&davinci_syscfg_regs->cfgchip3);
+	if (mode_sel == 0)
+		val &= ~(1 << 8);
+	else
+		val |= (1 << 8);
+	writel(val, &davinci_syscfg_regs->cfgchip3);
+}
+#endif
