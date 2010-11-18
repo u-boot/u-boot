@@ -439,11 +439,12 @@ void nand_wait_ready(struct mtd_info *mtd)
 {
 	struct nand_chip *chip = mtd->priv;
 	u32 timeo = (CONFIG_SYS_HZ * 20) / 1000;
+	u32 time_start;
 
-	reset_timer();
+	time_start = get_timer(0);
 
 	/* wait until command is processed or timeout occures */
-	while (get_timer(0) < timeo) {
+	while (get_timer(time_start) < timeo) {
 		if (chip->dev_ready)
 			if (chip->dev_ready(mtd))
 				break;
@@ -704,6 +705,7 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this)
 {
 	unsigned long	timeo;
 	int state = this->state;
+	u32 time_start;
 
 	if (state == FL_ERASING)
 		timeo = (CONFIG_SYS_HZ * 400) / 1000;
@@ -715,10 +717,10 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this)
 	else
 		this->cmdfunc(mtd, NAND_CMD_STATUS, -1, -1);
 
-	reset_timer();
+	time_start = get_timer(0);
 
 	while (1) {
-		if (get_timer(0) > timeo) {
+		if (get_timer(time_start) > timeo) {
 			printf("Timeout!");
 			return 0x01;
 		}
@@ -732,8 +734,9 @@ static int nand_wait(struct mtd_info *mtd, struct nand_chip *this)
 		}
 	}
 #ifdef PPCHAMELON_NAND_TIMER_HACK
-	reset_timer();
-	while (get_timer(0) < 10);
+	time_start = get_timer(0);
+	while (get_timer(time_start) < 10)
+		;
 #endif /*  PPCHAMELON_NAND_TIMER_HACK */
 
 	return this->read_byte(mtd);
