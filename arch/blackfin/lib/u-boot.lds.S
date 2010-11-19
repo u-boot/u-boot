@@ -147,6 +147,7 @@ SECTIONS
 		*(.dynbss)
 		*(.bss .bss.*)
 		*(COMMON)
+		. = ALIGN(4);
 	} >ram_data
 	__bss_vma = ADDR(.bss);
 	__bss_len = SIZEOF(.bss);
