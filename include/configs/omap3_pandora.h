@@ -243,6 +243,14 @@
 /* SDRAM Bank Allocation method */
 #define SDRC_R_B_C		1
 
+#define CONFIG_SYS_TEXT_BASE		0x80008000
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_RAM_ADDR	0x4020f800
+#define CONFIG_SYS_INIT_RAM_SIZE	0x800
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR + \
+					CONFIG_SYS_INIT_RAM_SIZE - \
+					GENERATED_GBL_DATA_SIZE)
+
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
