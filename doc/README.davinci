@@ -95,6 +95,20 @@ into the RAM.
 The programmers and UBL are always released as part of any standard TI
 software release associated with an SOC.
 
+Environment Variables
+=====================
+
+The DA850 EVM allows the user to specify the maximum cpu clock allowed by the
+silicon, in Hz, via an environment variable "maxcpuclk".
+
+The maximum clock rate allowed depends on the silicon populated on the EVM.
+Please make sure you understand the restrictions placed on this clock in the
+device specific datasheet before setting up this variable. This information is
+passed to the Linux kernel using the ATAG_REVISION atag.
+
+If "maxcpuclk" is not defined, the configuration CONFIG_DA850_EVM_MAX_CPU_CLK
+is used to obtain this information.
+
 Links
 =====
 
