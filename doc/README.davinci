@@ -21,6 +21,8 @@ Currently the following boards are supported:
 
 * TI DA830 EVM
 
+* TI DA850 EVM
+
 * DM355 based Leopard board
 
 * DM644x based schmoogie board
@@ -55,6 +57,11 @@ make
 * TI DA830 EVM:
 
 make da830evm_config
+make
+
+* TI DA850 EVM:
+
+make da850evm_config
 make
 
 * DM355 based Leopard board:
@@ -114,3 +121,7 @@ http://www.spectrumdigital.com/product_info.php?cPath=103&products_id=222
 6) TI DA830 EVM
 http://focus.ti.com/apps/docs/gencontent.tsp?appId=1&contentId=52385
 http://www.spectrumdigital.com/product_info.php?cPath=37&products_id=214
+
+7) TI DA850 EVM
+http://focus.ti.com/docs/prod/folders/print/omap-l138.html
+http://www.logicpd.com/products/development-kits/zoom-omap-l138-evm-development-kit
