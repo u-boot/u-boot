@@ -86,7 +86,6 @@
 #define CONFIG_JFFS2_NAND
 #define NAND_MAX_CHIPS			1
 #define CONFIG_ENV_OFFSET		0x180000
-#define DEF_BOOTM			""
 
 /*
  * davinci_nand is a bit of a misnomer since this particular EMIF block is
