@@ -63,11 +63,12 @@ int i2c_post_test (int flags)
 	unsigned int i;
 #ifndef CONFIG_SYS_POST_I2C_ADDRS
 	/* Start at address 1, address 0 is the general call address */
-	for (i = 1; i < 128; i++)
+	for (i = 1; i < 128; i++) {
 		if (i2c_ignore_device(i))
 			continue;
 		if (i2c_probe (i) == 0)
 			return 0;
+	}
 
 	/* No devices found */
 	return -1;
