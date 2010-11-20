@@ -50,8 +50,6 @@
 
 #include "ecc.h"
 
-#if defined(CONFIG_SDRAM_PPC4xx_IBM_DDR2)
-
 #define PPC4xx_IBM_DDR2_DUMP_REGISTER(mnemonic)				\
 	do {								\
 		u32 data;						\
@@ -3194,5 +3192,3 @@ inline void ppc4xx_ibm_ddr2_register_dump(void)
 	PPC4xx_IBM_DDR2_DUMP_REGISTER(RTSR);
 #endif /* defined(DEBUG) */
 }
-
-#endif /* CONFIG_SDRAM_PPC4xx_IBM_DDR2 */
