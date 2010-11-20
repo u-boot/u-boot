@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2003-2005
+ * (C) Copyright 2003-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -210,7 +210,7 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500	/* Timeout for Flash Write (in ms)	*/
 
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_OFFSET	    0x00F40000	/*   Offset   of Environment Sector	absolute address 0xfff40000*/
+#define CONFIG_ENV_OFFSET	    0x00040000	/*   Offset   of Environment Sector	absolute address 0xfff40000*/
 #define CONFIG_ENV_SECT_SIZE	0x40000	/* Total Size of Environment Sector	*/
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + CONFIG_ENV_OFFSET)

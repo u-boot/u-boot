@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2010
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -192,11 +192,9 @@
 #define CONFIG_ENV_SECT_SIZE	0x10000
 
 #define	CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x60000)
-#define CONFIG_ENV_OFFSET		0
 #define	CONFIG_ENV_SIZE		0x4000
 
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_SYS_FLASH_BASE + 0x70000)
-#define CONFIG_ENV_OFFSET_REDUND	0
 #define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
 /*-----------------------------------------------------------------------

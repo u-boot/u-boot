@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2000
+ * (C) Copyright 2000-2010
  * Murray Jensen <Murray.Jensen@cmst.csiro.au>
  *
  * See file CREDITS for list of people who contributed to this
@@ -80,7 +80,7 @@
 #define CONFIG_CMD_I2C
 
 #undef CONFIG_CMD_NET
-
+#undef CONFIG_CMD_NFS
 
 #if 0
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
