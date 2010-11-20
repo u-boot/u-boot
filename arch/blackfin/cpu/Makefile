@@ -29,10 +29,6 @@ COBJS-y  += serial.o
 COBJS-y  += traps.o
 COBJS-$(CONFIG_HW_WATCHDOG)  += watchdog.o
 
-ifeq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
-COBJS-y  += initcode.o
-endif
-
 SRCS     := $(SEXTRA:.o=.S) $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS     := $(addprefix $(obj),$(COBJS-y) $(SOBJS))
 EXTRA    := $(addprefix $(obj),$(EXTRA))
