@@ -170,12 +170,6 @@ int misc_init_r (void)
 }
 
 /* ------------------------------------------------------------------------- */
-phys_size_t initdram (int board_type)
-{
-	return (L1_MEMSIZE);
-}
-
-/* ------------------------------------------------------------------------- */
 /* stubs so we can print dates w/o any nvram RTC.*/
 int rtc_get (struct rtc_time *tmp)
 {

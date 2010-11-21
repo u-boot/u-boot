@@ -26,7 +26,7 @@ SECTIONS
 {
   .resetvec 0xE3003FFC :
   {
-    *(.resetvec)
+    KEEP(*(.resetvec))
   } = 0xffff
 
   .text      :

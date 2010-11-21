@@ -65,6 +65,7 @@
 #define CONFIG_CMD_EEPROM
 
 #undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
 
 #undef	CONFIG_WATCHDOG			/* watchdog disabled		*/
 

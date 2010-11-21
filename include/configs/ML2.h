@@ -88,6 +88,7 @@
 #define CONFIG_CMD_JFFS2
 
 #undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_RTC
 #undef CONFIG_CMD_PCI
 #undef CONFIG_CMD_I2C
@@ -98,6 +99,14 @@
 #define CONFIG_SYS_CLK_FREQ 50000000
 
 #define CONFIG_SPD_EEPROM      1       /* use SPD EEPROM for setup    */
+
+/*
+ * I2C
+ */
+#define CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
+#define CONFIG_SYS_I2C_SLAVE	0x7F
+#define CONFIG_SYS_I2C_SPEED	400000
 
 /*
  * Miscellaneous configurable options

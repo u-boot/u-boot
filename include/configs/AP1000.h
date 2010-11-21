@@ -94,6 +94,14 @@
 #define CONFIG_SPD_EEPROM	1	/* use SPD EEPROM for setup    */
 
 /*
+ * I2C
+ */
+#define CONFIG_HARD_I2C			/* I2C with hardware support	*/
+#define CONFIG_PPC4XX_I2C		/* use PPC4xx driver		*/
+#define CONFIG_SYS_I2C_SLAVE	0x7F
+#define CONFIG_SYS_I2C_SPEED	400000
+
+/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory	    */

@@ -518,7 +518,7 @@
 
 #define CONFIG_SYS_EBC_CFG    0xb84ef000
 
-#define CONFIG_SDRAM_BANK0	/* use the standard SDRAM initialization */
+#undef CONFIG_SDRAM_BANK0	/* use private SDRAM initialization */
 #undef CONFIG_SPD_EEPROM
 
 /*
