@@ -11,7 +11,8 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
-VoVPN-GW_100MHz	powerpc	MPC8260 - 2010-10-24	Juergen Selent <j.selent@elmeg.de>
+ERIC	powerpc	405GP	-	  2010-11-21	Swen Anderson <sand@peppercon.de>
+VoVPN-GW_100MHz	powerpc	MPC8260 26fe3d2 2010-10-24	Juergen Selent <j.selent@elmeg.de>
 NC650	powerpc	MPC852	333d86d   2010-10-19	Wolfgang Denk <wd@denx.de>
 CP850	powerpc	MPC852	333d86d   2010-10-19	Wolfgang Denk <wd@denx.de>
 logodl	ARM	PXA2xx	059e778   2010-10-18	August Hoeraendl <august.hoerandl@gmx.at>
