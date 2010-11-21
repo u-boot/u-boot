@@ -954,7 +954,7 @@ static void of_bus_default_count_cells(void *blob, int parentoffset,
 	if (addrc) {
 		prop = fdt_getprop(blob, parentoffset, "#address-cells", NULL);
 		if (prop)
-			*addrc = be32_to_cpup(prop);
+			*addrc = be32_to_cpup((u32 *)prop);
 		else
 			*addrc = 2;
 	}
@@ -962,7 +962,7 @@ static void of_bus_default_count_cells(void *blob, int parentoffset,
 	if (sizec) {
 		prop = fdt_getprop(blob, parentoffset, "#size-cells", NULL);
 		if (prop)
-			*sizec = be32_to_cpup(prop);
+			*sizec = be32_to_cpup((u32 *)prop);
 		else
 			*sizec = 1;
 	}
