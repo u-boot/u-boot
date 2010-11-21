@@ -21,16 +21,6 @@
 # MA 02111-1307 USA
 #
 
-#
-# File:			config.mk
-#
-# Discription:		compiler flags and make definitions
-#
-
-
 PLATFORM_RELFLAGS +=	-fPIC -meabi
 
 PLATFORM_CPPFLAGS +=	-DCONFIG_5xx -ffixed-r2 -mpowerpc -msoft-float
-
-# Use default linker script.  Board port can override in board/*/config.mk
-LDSCRIPT := $(SRCTREE)/arch/powerpc/cpu/mpc5xx/u-boot.lds
