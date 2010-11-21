@@ -76,6 +76,7 @@
 #define CONFIG_PPCHAMELEONEVB	1	/* ...on a PPChameleonEVB board */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFB0000	/* Reserve 320 kB for Monitor */
+#define CONFIG_SYS_LDSCRIPT	"board/dave/PPChameleonEVB/u-boot.lds"
 
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* call board_early_init_f()	*/
 #define CONFIG_MISC_INIT_R	1	/* call misc_init_r()		*/
