@@ -62,6 +62,7 @@
 #include <config_cmd_default.h>
 
 #undef	CONFIG_CMD_NET		/* disabeled - causes compile errors */
+#undef	CONFIG_CMD_NFS
 
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_LOADB
