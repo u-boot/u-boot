@@ -5018,6 +5018,7 @@ TRANSMIT - Transmit a frame
 static int
 e1000_transmit(struct eth_device *nic, volatile void *packet, int length)
 {
+	void * nv_packet = (void *)packet;
 	struct e1000_hw *hw = nic->priv;
 	struct e1000_tx_desc *txp;
 	int i = 0;
@@ -5025,7 +5026,7 @@ e1000_transmit(struct eth_device *nic, volatile void *packet, int length)
 	txp = tx_base + tx_tail;
 	tx_tail = (tx_tail + 1) % 8;
 
-	txp->buffer_addr = cpu_to_le64(virt_to_bus(hw->pdev, packet));
+	txp->buffer_addr = cpu_to_le64(virt_to_bus(hw->pdev, nv_packet));
 	txp->lower.data = cpu_to_le32(hw->txd_cmd | length);
 	txp->upper.data = 0;
 	E1000_WRITE_REG(hw, TDT, tx_tail);
