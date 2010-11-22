@@ -26,40 +26,10 @@ SECTIONS
 {
 
   /* Read-only sections, merged into text segment: */
-  .interp : { *(.interp) }
-  .hash          : { *(.hash)		}
-  .dynsym        : { *(.dynsym)		}
-  .dynstr        : { *(.dynstr)		}
-  .rel.text      : { *(.rel.text)		}
-  .rela.text     : { *(.rela.text)	}
-  .rel.data      : { *(.rel.data)		}
-  .rela.data     : { *(.rela.data)	}
-  .rel.rodata    : { *(.rel.rodata)	}
-  .rela.rodata   : { *(.rela.rodata)	}
-  .rel.got       : { *(.rel.got)		}
-  .rela.got      : { *(.rela.got)		}
-  .rel.ctors     : { *(.rel.ctors)	}
-  .rela.ctors    : { *(.rela.ctors)	}
-  .rel.dtors     : { *(.rel.dtors)	}
-  .rela.dtors    : { *(.rela.dtors)	}
-  .rel.bss       : { *(.rel.bss)		}
-  .rela.bss      : { *(.rela.bss)		}
-  .rel.plt       : { *(.rel.plt)		}
-  .rela.plt      : { *(.rela.plt)		}
-  .init          : { *(.init)	}
-  .plt : { *(.plt) }
   .text      :
   {
-    arch/powerpc/cpu/mpc86xx/start.o	(.text)
-    arch/powerpc/cpu/mpc86xx/traps.o (.text)
-    arch/powerpc/cpu/mpc86xx/interrupts.o (.text)
-    arch/powerpc/cpu/mpc86xx/cpu_init.o (.text)
-    arch/powerpc/cpu/mpc86xx/cpu.o (.text)
-    arch/powerpc/cpu/mpc86xx/speed.o (.text)
-    common/dlmalloc.o (.text)
-    lib/crc32.o (.text)
-    arch/powerpc/lib/extable.o (.text)
-    lib/zlib.o (.text)
+    arch/powerpc/cpu/mpc86xx/start.o	(.text*)
+    arch/powerpc/cpu/mpc86xx/traps.o	(.text*)
     *(.text*)
    }
     _etext = .;
@@ -112,8 +82,8 @@ SECTIONS
   __bss_start = .;
   .bss (NOLOAD)       :
   {
-   *(.sbss*)
    *(.bss*)
+   *(.sbss*)
    *(COMMON)
    . = ALIGN(4);
   }
