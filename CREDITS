@@ -278,11 +278,6 @@ N: Thomas Lange
 E: thomas@corelatus.se
 D: Support for GTH, GTH2 and dbau1x00 boards; lots of PCMCIA fixes
 
-N: Marc Leeman
-E: marc.leeman@barco.com
-D: Support for Barco Streaming Video Card (SVC) and Sample Compress Network (SCN)
-W: www.barco.com
-
 N: The LEOX team
 E: team@leox.org
 D: Support for LEOX boards, DS164x RTC
