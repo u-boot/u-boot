@@ -121,7 +121,7 @@
 #define CONFIG_CMD_USB
 
 #undef	CONFIG_CMD_NET
-
+#undef	CONFIG_CMD_NFS
 
 /*
  * Autobooting

@@ -396,6 +396,7 @@
 /* use CFI flash driver */
 #define CONFIG_SYS_FLASH_CFI		1	/* Flash is CFI conformant */
 #define CONFIG_FLASH_CFI_DRIVER	1	/* Use the common driver */
+#define CONFIG_FLASH_CFI_MTD		/* with MTD support */
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_BOOTCS_START }
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of flash banks
 					   (= chip selects) */
@@ -417,7 +418,6 @@
 /* Dynamic MTD partition support */
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
-#define CONFIG_FLASH_CFI_MTD
 #define MTDIDS_DEFAULT		"nor0=TQM5200-0"
 
 #ifdef CONFIG_STK52XX
