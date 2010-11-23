@@ -44,6 +44,7 @@
 #define MVBLUE_BOARD_LYNX	2
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+#define CONFIG_SYS_LDSCRIPT	"board/mvblue/u-boot.lds"
 
 #if 0
 #define ERR_LED(code)	do { if (code) \

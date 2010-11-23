@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2001
+ * (C) Copyright 2001-2007
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -29,14 +29,22 @@ SECTIONS
   /* Read-only sections, merged into text segment: */
   .text      :
   {
+    /* WARNING - the following is hand-optimized to fit within	*/
+    /* the sector layout of our flash chips!	XXX FIXME XXX	*/
+
     arch/powerpc/cpu/mpc824x/start.o	(.text*)
+    *(.text.v*printf)
+
+    . = DEFINED(env_offset) ? env_offset : .;
+    common/env_embedded.o	(.ppcenv*)
+
     *(.text*)
     . = ALIGN(16);
     *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
   }
 
   /* Read-write section, merged into data segment: */
-  . = (. + 0x0FF) & 0xFFFFFF00;
+  . = (. + 0x0FFF) & 0xFFFFF000;
   _erotext = .;
   PROVIDE (erotext = .);
   .reloc   :
@@ -84,7 +92,6 @@ SECTIONS
    *(COMMON)
    . = ALIGN(4);
   }
-
   _end = . ;
   PROVIDE (end = .);
 }

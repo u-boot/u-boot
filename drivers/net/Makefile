@@ -30,7 +30,9 @@ COBJS-$(CONFIG_PPC4xx_EMAC) += 4xx_enet.o
 COBJS-$(CONFIG_ALTERA_TSE) += altera_tse.o
 COBJS-$(CONFIG_DRIVER_AT91EMAC) += at91_emac.o
 COBJS-$(CONFIG_DRIVER_AX88180) += ax88180.o
-COBJS-$(CONFIG_BCM570x) += bcm570x.o bcm570x_autoneg.o 5701rls.o
+COBJS-$(CONFIG_BCM570x) += bcm570x.o
+COBJS-$(CONFIG_BCM570x) += bcm570x_autoneg.o
+COBJS-$(CONFIG_BCM570x) += 5701rls.o
 COBJS-$(CONFIG_BFIN_MAC) += bfin_mac.o
 COBJS-$(CONFIG_CS8900) += cs8900.o
 COBJS-$(CONFIG_TULIP) += dc2114x.o
@@ -72,7 +74,9 @@ COBJS-$(CONFIG_DRIVER_S3C4510_ETH) += s3c4510b_eth.o
 COBJS-$(CONFIG_SH_ETHER) += sh_eth.o
 COBJS-$(CONFIG_SMC91111) += smc91111.o
 COBJS-$(CONFIG_SMC911X) += smc911x.o
-COBJS-$(CONFIG_TIGON3) += tigon3.o bcm570x_autoneg.o 5701rls.o
+COBJS-$(CONFIG_TIGON3) += tigon3.o
+COBJS-$(CONFIG_TIGON3) += bcm570x_autoneg.o
+COBJS-$(CONFIG_TIGON3) += 5701rls.o
 COBJS-$(CONFIG_DRIVER_TI_EMAC) += davinci_emac.o
 COBJS-$(CONFIG_TSEC_ENET) += tsec.o
 COBJS-$(CONFIG_TSI108_ETH) += tsi108_eth.o
@@ -80,7 +84,7 @@ COBJS-$(CONFIG_ULI526X) += uli526x.o
 COBJS-$(CONFIG_VSC7385_ENET) += vsc7385.o
 COBJS-$(CONFIG_XILINX_EMACLITE) += xilinx_emaclite.o
 
-COBJS	:= $(COBJS-y)
+COBJS	:= $(sort $(COBJS-y))
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 
