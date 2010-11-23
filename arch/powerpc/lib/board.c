@@ -694,7 +694,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	 */
 	pci_init ();
 #endif
-#if defined(CONFIG_BAB7xx)
+#if defined(CONFIG_WINBOND_83C553)
 	/*
 	 * Initialise the ISA bridge
 	 */
