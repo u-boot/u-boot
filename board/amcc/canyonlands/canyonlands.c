@@ -363,18 +363,6 @@ int checkboard(void)
 }
 #endif	/* !defined(CONFIG_ARCHES) */
 
-#if defined(CONFIG_NAND_U_BOOT)
-/*
- * NAND booting U-Boot version uses a fixed initialization, since the whole
- * I2C SPD DIMM autodetection/calibration doesn't fit into the 4k of boot
- * code.
- */
-phys_size_t initdram(int board_type)
-{
-	return CONFIG_SYS_MBYTES_SDRAM << 20;
-}
-#endif
-
 #if defined(CONFIG_PCI)
 int board_pcie_first(void)
 {
