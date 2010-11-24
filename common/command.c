@@ -108,6 +108,8 @@ cmd_tbl_t *find_cmd_tbl (const char *cmd, cmd_tbl_t *table, int table_len)
 	int len;
 	int n_found = 0;
 
+	if (!cmd)
+		return NULL;
 	/*
 	 * Some commands allow length modifiers (like "cp.b");
 	 * compare command name only until first dot.
