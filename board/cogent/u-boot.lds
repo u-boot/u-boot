@@ -21,6 +21,7 @@
  * MA 02111-1307 USA
  */
 
+#include <config.h>
 OUTPUT_ARCH(powerpc)
 
 SECTIONS
@@ -29,9 +30,12 @@ SECTIONS
   . = + SIZEOF_HEADERS;
   .text      :
   {
+#ifdef CONFIG_MPC8260
+    arch/powerpc/cpu/mpc8260/start.o	(.text*)
+#else
     arch/powerpc/cpu/mpc8xx/start.o	(.text*)
     arch/powerpc/cpu/mpc8xx/traps.o	(.text*)
-
+#endif
     *(.text*)
   }
   _etext = .;

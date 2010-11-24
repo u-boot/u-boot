@@ -108,7 +108,7 @@
 #define CONFIG_CMD_KGDB
 
 #undef CONFIG_CMD_NET
-
+#undef CONFIG_CMD_NFS
 
 #ifdef DEBUG
 #define CONFIG_BOOTDELAY	-1	/* autoboot disabled		*/
