@@ -87,6 +87,7 @@ struct uart_port {
 # define SCSCR_INIT(port) 0x32	/* TIE=0,RIE=0,TE=1,RE=1,REIE=0,CKE=1 */
 #elif defined(CONFIG_CPU_SH7722)
 # define PADR			0xA4050120
+# undef PSDR
 # define PSDR			0xA405013e
 # define PWDR			0xA4050166
 # define PSCR			0xA405011E
