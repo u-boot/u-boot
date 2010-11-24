@@ -25,13 +25,26 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#ifdef CONFIG_NAND
-#define CONFIG_NAND_U_BOOT		1
-#define CONFIG_SYS_TEXT_BASE	0x00100000
-#endif
+#define CONFIG_SYS_NAND_U_BOOT_SIZE  (512 << 10)
+#define CONFIG_SYS_NAND_U_BOOT_DST   0x00100000
+#define CONFIG_SYS_NAND_U_BOOT_START 0x00100100
+#define CONFIG_SYS_NAND_U_BOOT_OFFS  16384
+#define CONFIG_SYS_NAND_U_BOOT_RELOC 0x00010000
+
+#ifdef CONFIG_NAND_U_BOOT
+#define CONFIG_SYS_TEXT_BASE	0x00100000 /* CONFIG_SYS_NAND_U_BOOT_DST */
+#define CONFIG_SYS_TEXT_BASE_SPL 0xfff00000
+#ifdef CONFIG_NAND_SPL
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE_SPL /* start of monitor */
+#endif /* CONFIG_NAND_SPL */
+#endif /* CONFIG_NAND_U_BOOT */
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xFE000000
+#endif
+
+#ifndef CONFIG_SYS_MONITOR_BASE
+#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE	/* start of monitor */
 #endif
 
 /*
@@ -181,8 +194,6 @@
 /*
  * The reserved memory
  */
-#define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE /* start of monitor */
-
 #define CONFIG_SYS_MONITOR_LEN		(384 * 1024) /* Reserve 384 kB for Mon */
 #define CONFIG_SYS_MALLOC_LEN		(512 * 1024) /* Reserved for malloc */
 
