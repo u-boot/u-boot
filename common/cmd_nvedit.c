@@ -848,6 +848,9 @@ static int do_env (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	cmd_tbl_t *cp;
 
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
 	/* drop initial "env" arg */
 	argc--;
 	argv++;
