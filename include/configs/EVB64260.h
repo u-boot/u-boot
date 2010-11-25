@@ -43,6 +43,7 @@
 #define CONFIG_SYS_GT_6426x        GT_64260 /* with a 64260 system controller */
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff00000
+#define	CONFIG_SYS_LDSCRIPT	"board/evb64260/u-boot.lds"
 
 #define CONFIG_BAUDRATE		38400	/* console baudrate = 38400	*/
 
