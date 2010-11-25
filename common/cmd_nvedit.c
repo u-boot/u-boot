@@ -545,8 +545,7 @@ int envmatch (uchar *s1, int i2)
 static int do_env_default(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	if ((argc != 2) || (strcmp(argv[1], "-f") != 0)) {
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 	set_default_env("## Resetting to default environment\n");
 	return 0;
@@ -633,15 +632,13 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 				sep = '\n';
 				break;
 			default:
-				cmd_usage(cmdtp);
-				return 1;
+				return cmd_usage(cmdtp);
 			}
 		}
 	}
 
 	if (argc < 1) {
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	addr = (char *)simple_strtoul(argv[0], NULL, 16);
@@ -744,15 +741,13 @@ static int do_env_import(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 				del = 1;
 				break;
 			default:
-				cmd_usage(cmdtp);
-				return 1;
+				return cmd_usage(cmdtp);
 			}
 		}
 	}
 
 	if (argc < 1) {
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	if (!fmt)
@@ -860,8 +855,7 @@ static int do_env (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	if (cp)
 		return cp->cmd(cmdtp, flag, argc, argv);
 
-	cmd_usage(cmdtp);
-	return 1;
+	return cmd_usage(cmdtp);
 }
 
 U_BOOT_CMD(
