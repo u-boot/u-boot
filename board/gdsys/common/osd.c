@@ -142,8 +142,7 @@ static int osd_print(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char *text;
 
 	if (argc < 5) {
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	x = simple_strtoul(argv[1], NULL, 16);
@@ -204,8 +203,7 @@ int osd_write(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	unsigned count = (argc > 4) ?  simple_strtoul(argv[4], NULL, 16) : 1;
 
 	if ((argc < 4) || (strlen(argv[3]) % 4)) {
-		cmd_usage(cmdtp);
-		return 1;
+		return cmd_usage(cmdtp);
 	}
 
 	x = simple_strtoul(argv[1], NULL, 16);
