@@ -21,28 +21,37 @@
 #define CONFIG_EXTRA_ENV_SETTINGS 	\
 	"kernel_size=0x140000\0" 	\
 	"ramdisk_size=0x200000\0" 	\
+	"nand_kernel_size=0x300000\0" 	\
+	"nand_ramdisk_size=0x400000\0" 	\
+	"norboot=echo Copying Linux from NOR flash to RAM...;			\
+			    cp 0xE4100000 0x8000 ${kernel_size};		\
+			    echo Copying ramdisk from NOR flash to RAM...; 	\
+			    cp 0xE5000000 0x800000 ${ramdisk_size}; 		\
+			    go 0x8000\0"					\
+	"qspiboot=echo Copying Linux from QSPI flash to RAM...;			\
+			    cp 0xFC100000 0x8000 ${kernel_size};		\
+			    echo Copying ramdisk from QSPI flash to RAM...;	\
+			    cp 0xFC800000 0x800000 ${ramdisk_size}; 		\
+			    go 0x8000\0"					\
+	"nandboot=echo Copying Linux from NAND flash to RAM...;			\
+			    nand read 0x8000 0x100000 ${nand_kernel_size};	\
+			    echo Copying ramdisk from NAND flash to RAM...;	\
+			    nand read 0x800000 0x800000 ${nand_ramdisk_size}; 	\
+			    go 0x8000\0"
 
 /* Define the following to cause u-boot to have a header for the boot rom that
    causes the boot rom to use execute in place mode from QSPI flash
 */
 #undef CONFIG_PELE_XIL_LQSPI
 
-/* Setup the boot command to work with either QSPI or NAND flash 
-   Use NAND Flash as the default */
+/* default boot is NOR, then QSPI when u-boot is built for it, NAND must be selected
+   by the user
+*/
 
 #ifndef CONFIG_PELE_XIL_LQSPI
-#define CONFIG_BOOTCOMMAND "echo Copying Linux from NOR flash to RAM...;	\
-			    cp 0xE4100000 0x8000 ${kernel_size};		\
-			    echo Copying ramdisk from NOR flash to RAM...; 	\
-			    cp 0xE5000000 0x800000 ${ramdisk_size}; 		\
-			    go 0x8000"
+#define CONFIG_BOOTCOMMAND "run norboot"
 #else
-
-#define CONFIG_BOOTCOMMAND "echo Copying Linux from QSPI flash to RAM...;	\
-			    cp 0xFC100000 0x8000 ${kernel_size};		\
-			    echo Copying ramdisk from QSPI flash to RAM...;	\
-			    cp 0xFC800000 0x800000 ${ramdisk_size}; 		\
-			    go 0x8000"
+#define CONFIG_BOOTCOMMAND "run qspiboot"
 #endif
 
 #define CONFIG_BAUDRATE		9600
