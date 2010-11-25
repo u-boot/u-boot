@@ -398,7 +398,7 @@ static int esdhc_init(struct mmc *mmc)
 	esdhc_write32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
 
 	/* Set the initial clock speed */
-	set_sysctl(mmc, 400000);
+	mmc_set_clock(mmc, 400000);
 
 	/* Disable the BRR and BWR bits in IRQSTAT */
 	esdhc_clrbits32(&regs->irqstaten, IRQSTATEN_BRR | IRQSTATEN_BWR);
