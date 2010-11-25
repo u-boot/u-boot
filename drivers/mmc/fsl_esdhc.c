@@ -444,7 +444,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 {
 	struct fsl_esdhc *regs;
 	struct mmc *mmc;
-	u32 caps;
+	u32 caps, voltage_caps;
 
 	if (!cfg)
 		return -1;
@@ -462,14 +462,24 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	mmc->set_ios = esdhc_set_ios;
 	mmc->init = esdhc_init;
 
+	voltage_caps = 0;
 	caps = regs->hostcapblt;
-
 	if (caps & ESDHC_HOSTCAPBLT_VS18)
-		mmc->voltages |= MMC_VDD_165_195;
+		voltage_caps |= MMC_VDD_165_195;
 	if (caps & ESDHC_HOSTCAPBLT_VS30)
-		mmc->voltages |= MMC_VDD_29_30 | MMC_VDD_30_31;
+		voltage_caps |= MMC_VDD_29_30 | MMC_VDD_30_31;
 	if (caps & ESDHC_HOSTCAPBLT_VS33)
-		mmc->voltages |= MMC_VDD_32_33 | MMC_VDD_33_34;
+		voltage_caps |= MMC_VDD_32_33 | MMC_VDD_33_34;
+
+#ifdef CONFIG_SYS_SD_VOLTAGE
+	mmc->voltages = CONFIG_SYS_SD_VOLTAGE;
+#else
+	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
+#endif
+	if ((mmc->voltages & voltage_caps) == 0) {
+		printf("voltage not supported by controller\n");
+		return -1;
+	}
 
 	mmc->host_caps = MMC_MODE_4BIT | MMC_MODE_8BIT;
 
