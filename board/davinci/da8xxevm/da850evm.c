@@ -118,6 +118,39 @@ static const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_GPIO },
 };
 
+#ifndef CONFIG_DA850_EVM_MAX_CPU_CLK
+#define CONFIG_DA850_EVM_MAX_CPU_CLK	300000000
+#endif
+
+/*
+ * get_board_rev() - setup to pass kernel board revision information
+ * Returns:
+ * bit[0-3]	Maximum cpu clock rate supported by onboard SoC
+ *		0000b - 300 MHz
+ *		0001b - 372 MHz
+ *		0010b - 408 MHz
+ *		0011b - 456 MHz
+ */
+u32 get_board_rev(void)
+{
+	char *s;
+	u32 maxcpuclk = CONFIG_DA850_EVM_MAX_CPU_CLK;
+	u32 rev = 0;
+
+	s = getenv("maxcpuclk");
+	if (s)
+		maxcpuclk = simple_strtoul(s, NULL, 10);
+
+	if (maxcpuclk >= 456000000)
+		rev = 3;
+	else if (maxcpuclk >= 408000000)
+		rev = 2;
+	else if (maxcpuclk >= 372000000)
+		rev = 1;
+
+	return rev;
+}
+
 int board_init(void)
 {
 #ifndef CONFIG_USE_IRQ

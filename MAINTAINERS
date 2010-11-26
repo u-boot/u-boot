@@ -591,6 +591,10 @@ Po-Yu Chuang <ratbert@faraday-tech.com>
 
 	a320evb		FA526 (ARM920T-like) (a320 SoC)
 
+Eric Cooper <ecc@cmu.edu>
+
+	dockstar	ARM926EJS (Kirkwood SoC)
+
 George G. Davis <gdavis@mvista.com>
 
 	assabet		SA1100

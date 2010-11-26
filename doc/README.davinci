@@ -21,6 +21,8 @@ Currently the following boards are supported:
 
 * TI DA830 EVM
 
+* TI DA850 EVM
+
 * DM355 based Leopard board
 
 * DM644x based schmoogie board
@@ -57,6 +59,11 @@ make
 make da830evm_config
 make
 
+* TI DA850 EVM:
+
+make da850evm_config
+make
+
 * DM355 based Leopard board:
 
 make davinci_dm355leopard_config
@@ -88,6 +95,20 @@ into the RAM.
 The programmers and UBL are always released as part of any standard TI
 software release associated with an SOC.
 
+Environment Variables
+=====================
+
+The DA850 EVM allows the user to specify the maximum cpu clock allowed by the
+silicon, in Hz, via an environment variable "maxcpuclk".
+
+The maximum clock rate allowed depends on the silicon populated on the EVM.
+Please make sure you understand the restrictions placed on this clock in the
+device specific datasheet before setting up this variable. This information is
+passed to the Linux kernel using the ATAG_REVISION atag.
+
+If "maxcpuclk" is not defined, the configuration CONFIG_DA850_EVM_MAX_CPU_CLK
+is used to obtain this information.
+
 Links
 =====
 
@@ -114,3 +135,7 @@ http://www.spectrumdigital.com/product_info.php?cPath=103&products_id=222
 6) TI DA830 EVM
 http://focus.ti.com/apps/docs/gencontent.tsp?appId=1&contentId=52385
 http://www.spectrumdigital.com/product_info.php?cPath=37&products_id=214
+
+7) TI DA850 EVM
+http://focus.ti.com/docs/prod/folders/print/omap-l138.html
+http://www.logicpd.com/products/development-kits/zoom-omap-l138-evm-development-kit

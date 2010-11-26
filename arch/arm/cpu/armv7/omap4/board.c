@@ -32,6 +32,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * Routine: s_init
  * Description: Does early system init of muxing and clocks.
@@ -100,7 +102,6 @@ u32 sdram_size(void)
  */
 int dram_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 
 	gd->ram_size = sdram_size();
 

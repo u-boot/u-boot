@@ -126,7 +126,6 @@
 #define CONFIG_SYS_NAND_HW_ECC
 #define CONFIG_SYS_MAX_NAND_DEVICE	1	/* Max number of NAND devices */
 #define CONFIG_ENV_OFFSET		0x0	/* Block 0--not used by bootcode */
-#define DEF_BOOTM		""
 #elif defined(CONFIG_SYS_USE_NOR)
 #ifdef CONFIG_NOR_UART_BOOT
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* U-Boot is loaded by a bootloader */
