@@ -230,7 +230,7 @@ static int ehci_reset(void)
 	int ret = 0;
 
 	cmd = ehci_readl(&hcor->or_usbcmd);
-	cmd |= CMD_RESET;
+	cmd = (cmd & ~CMD_RUN) | CMD_RESET;
 	ehci_writel(&hcor->or_usbcmd, cmd);
 	ret = handshake((uint32_t *)&hcor->or_usbcmd, CMD_RESET, 0, 250 * 1000);
 	if (ret < 0) {
