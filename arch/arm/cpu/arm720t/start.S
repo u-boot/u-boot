@@ -81,14 +81,17 @@ _TEXT_BASE:
 
 /*
  * These are defined in the board-specific linker script.
+ * Subtracting _start from them lets the linker put their
+ * relative position in the executable instead of leaving
+ * them null.
  */
-.globl _bss_start
-_bss_start:
-	.word __bss_start
+.globl _bss_start_ofs
+_bss_start_ofs:
+	.word __bss_start - _start
 
-.globl _bss_end
-_bss_end:
-	.word _end
+.globl _bss_end_ofs
+_bss_end_ofs:
+	.word _end - _start
 
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
@@ -106,30 +109,6 @@ FIQ_STACK_START:
 .globl IRQ_STACK_START_IN
 IRQ_STACK_START_IN:
 	.word	0x0badc0de
-
-.globl _datarel_start
-_datarel_start:
-	.word __datarel_start
-
-.globl _datarelrolocal_start
-_datarelrolocal_start:
-	.word __datarelrolocal_start
-
-.globl _datarellocal_start
-_datarellocal_start:
-	.word __datarellocal_start
-
-.globl _datarelro_start
-_datarelro_start:
-	.word __datarelro_start
-
-.globl _got_start
-_got_start:
-	.word __got_start
-
-.globl _got_end
-_got_end:
-	.word __got_end
 
 /*
  * the actual reset code
@@ -184,9 +163,8 @@ stack_setup:
 
 	adr	r0, _start
 	ldr	r2, _TEXT_BASE
-	ldr	r3, _bss_start
-	sub	r2, r3, r2		/* r2 <- size of armboot	    */
-	add	r2, r0, r2		/* r2 <- source end address	    */
+	ldr	r3, _bss_start_ofs
+	add	r2, r0, r3		/* r2 <- source end address	    */
 	cmp	r0, r6
 	beq	clear_bss
 
@@ -197,35 +175,53 @@ copy_loop:
 	blo	copy_loop
 
 #ifndef CONFIG_PRELOADER
-	/* fix got entries */
-	ldr	r1, _TEXT_BASE		/* Text base */
-	mov	r0, r7			/* reloc addr */
-	ldr	r2, _got_start		/* addr in Flash */
-	ldr	r3, _got_end		/* addr in Flash */
-	sub	r3, r3, r1
-	add	r3, r3, r0
-	sub	r2, r2, r1
-	add	r2, r2, r0
-
+	/*
+	 * fix .rel.dyn relocations
+	 */
+	ldr	r0, _TEXT_BASE		/* r0 <- Text base */
+	sub	r9, r7, r0		/* r9 <- relocation offset */
+	ldr	r10, _dynsym_start_ofs	/* r10 <- sym table ofs */
+	add	r10, r10, r0		/* r10 <- sym table in FLASH */
+	ldr	r2, _rel_dyn_start_ofs	/* r2 <- rel dyn start ofs */
+	add	r2, r2, r0		/* r2 <- rel dyn start in FLASH */
+	ldr	r3, _rel_dyn_end_ofs	/* r3 <- rel dyn end ofs */
+	add	r3, r3, r0		/* r3 <- rel dyn end in FLASH */
 fixloop:
-	ldr	r4, [r2]
-	sub	r4, r4, r1
-	add	r4, r4, r0
-	str	r4, [r2]
-	add	r2, r2, #4
+	ldr	r0, [r2]		/* r0 <- location to fix up, IN FLASH! */
+	add	r0, r0, r9		/* r0 <- location to fix up in RAM */
+	ldr	r1, [r2, #4]
+	and	r8, r1, #0xff
+	cmp	r8, #23			/* relative fixup? */
+	beq	fixrel
+	cmp	r8, #2			/* absolute fixup? */
+	beq	fixabs
+	/* ignore unknown type of fixup */
+	b	fixnext
+fixabs:
+	/* absolute fix: set location to (offset) symbol value */
+	mov	r1, r1, LSR #4		/* r1 <- symbol index in .dynsym */
+	add	r1, r10, r1		/* r1 <- address of symbol in table */
+	ldr	r1, [r1, #4]		/* r1 <- symbol value */
+	add	r1, r9			/* r1 <- relocated sym addr */
+	b	fixnext
+fixrel:
+	/* relative fix: increase location by offset */
+	ldr	r1, [r0]
+	add	r1, r1, r9
+fixnext:
+	str	r1, [r0]
+	add	r2, r2, #8		/* each rel.dyn entry is 8 bytes */
 	cmp	r2, r3
 	blo	fixloop
 #endif
 
 clear_bss:
 #ifndef CONFIG_PRELOADER
-	ldr	r0, _bss_start
-	ldr	r1, _bss_end
+	ldr	r0, _bss_start_ofs
+	ldr	r1, _bss_end_ofs
 	ldr	r3, _TEXT_BASE		/* Text base */
 	mov	r4, r7			/* reloc addr */
-	sub	r0, r0, r3
 	add	r0, r0, r4
-	sub	r1, r1, r3
 	add	r1, r1, r4
 	mov	r2, #0x00000000		/* clear			    */
 
@@ -242,18 +238,25 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
  * We are done. Do not return, instead branch to second part of board
  * initialization, now running from RAM.
  */
-	ldr	r0, _TEXT_BASE
-	ldr	r2, _board_init_r
-	sub	r2, r2, r0
-	add	r2, r2, r7	/* position from board_init_r in RAM */
+	ldr	r0, _board_init_r_ofs
+	adr	r1, _start
+	add	lr, r0, r1
+	add	lr, lr, r9
 	/* setup parameters for board_init_r */
 	mov	r0, r5		/* gd_t */
 	mov	r1, r7		/* dest_addr */
 	/* jump to it ... */
-	mov	lr, r2
 	mov	pc, lr
 
-_board_init_r: .word board_init_r
+_board_init_r_ofs:
+	.word board_init_r - _start
+
+_rel_dyn_start_ofs:
+	.word __rel_dyn_start - _start
+_rel_dyn_end_ofs:
+	.word __rel_dyn_end - _start
+_dynsym_start_ofs:
+	.word __dynsym_start - _start
 
 /*
  *************************************************************************

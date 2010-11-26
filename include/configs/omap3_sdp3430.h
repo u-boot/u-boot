@@ -159,10 +159,6 @@
 #define PHYS_FLASH_SIZE			(128 << 20)
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* max sectors on one chip */
 
-/* timeout values are in milliseconds */
-#define CONFIG_SYS_FLASH_ERASE_TOUT	(100 * CONFIG_SYS_HZ)
-#define CONFIG_SYS_FLASH_WRITE_TOUT	(100 * CONFIG_SYS_HZ)
-
 /* OMITTED:  single 2 Gbit KFM2G16 OneNAND flash */
 
 #define CONFIG_ENV_IS_IN_FLASH		1
@@ -337,9 +333,6 @@
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)
-
-#define CONFIG_SYS_JFFS2_FIRST_BANK	CONFIG_SYS_MAX_FLASH_BANKS
-#define CONFIG_SYS_JFFS2_NUM_BANKS	1
 
 /*
  * NAND FLASH usage ... default nCS1:

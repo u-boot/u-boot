@@ -123,34 +123,6 @@ _bss_start_ofs:
 _bss_end_ofs:
 	.word _end - _start
 
-.globl _datarel_start_ofs
-_datarel_start_ofs:
-	.word __datarel_start - _start
-
-.globl _datarelrolocal_start_ofs
-_datarelrolocal_start_ofs:
-	.word __datarelrolocal_start - _start
-
-.globl _datarellocal_start_ofs
-_datarellocal_start_ofs:
-	.word __datarellocal_start - _start
-
-.globl _datarelro_start_ofs
-_datarelro_start_ofs:
-	.word __datarelro_start - _start
-
-.globl _rel_dyn_start_ofs
-_rel_dyn_start_ofs:
-	.word __rel_dyn_start - _start
-
-.globl _rel_dyn_end_ofs
-_rel_dyn_end_ofs:
-	.word __rel_dyn_end - _start
-
-.globl _dynsym_start_ofs
-_dynsym_start_ofs:
-	.word __dynsym_start - _start
-
 /* IRQ stack memory (calculated at run-time) + 8 bytes */
 .globl IRQ_STACK_START_IN
 IRQ_STACK_START_IN:
@@ -300,13 +272,13 @@ copy_loop:
 	ldr	r3, _rel_dyn_end_ofs	/* r3 <- rel dyn end ofs */
 	add	r3, r3, r0		/* r3 <- rel dyn end in FLASH */
 fixloop:
-	ldr	r0, [r2]	/* r0 <- location to fix up, IN FLASH! */
-	add	r0, r0, r9	/* r0 <- location to fix up in RAM */
+	ldr	r0, [r2]		/* r0 <- location to fix up, IN FLASH! */
+	add	r0, r0, r9		/* r0 <- location to fix up in RAM */
 	ldr	r1, [r2, #4]
 	and	r8, r1, #0xff
-	cmp	r8, #23		/* relative fixup? */
+	cmp	r8, #23			/* relative fixup? */
 	beq	fixrel
-	cmp	r8, #2		/* absolute fixup? */
+	cmp	r8, #2			/* absolute fixup? */
 	beq	fixabs
 	/* ignore unknown type of fixup */
 	b	fixnext
@@ -315,7 +287,7 @@ fixabs:
 	mov	r1, r1, LSR #4		/* r1 <- symbol index in .dynsym */
 	add	r1, r10, r1		/* r1 <- address of symbol in table */
 	ldr	r1, [r1, #4]		/* r1 <- symbol value */
-	add	r1, r1, r9		/* r1 <- relocated sym addr */
+	add	r1, r9			/* r1 <- relocated sym addr */
 	b	fixnext
 fixrel:
 	/* relative fix: increase location by offset */
@@ -323,7 +295,7 @@ fixrel:
 	add	r1, r1, r9
 fixnext:
 	str	r1, [r0]
-	add	r2, r2, #8	/* each rel.dyn entry is 8 bytes */
+	add	r2, r2, #8		/* each rel.dyn entry is 8 bytes */
 	cmp	r2, r3
 	blo	fixloop
 #endif
@@ -407,6 +379,13 @@ _nand_boot: .word nand_boot
 _board_init_r_ofs:
 	.word board_init_r - _start
 #endif
+
+_rel_dyn_start_ofs:
+	.word __rel_dyn_start - _start
+_rel_dyn_end_ofs:
+	.word __rel_dyn_end - _start
+_dynsym_start_ofs:
+	.word __dynsym_start - _start
 
 #ifdef CONFIG_ENABLE_MMU
 _mmu_table_base:
