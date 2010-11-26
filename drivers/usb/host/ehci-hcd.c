@@ -25,6 +25,7 @@
 #include <usb.h>
 #include <asm/io.h>
 #include <malloc.h>
+#include <watchdog.h>
 
 #include "ehci.h"
 
@@ -452,6 +453,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 		token = hc32_to_cpu(vtd->qt_token);
 		if (!(token & 0x80))
 			break;
+		WATCHDOG_RESET();
 	} while (get_timer(ts) < CONFIG_SYS_HZ);
 
 	/* Disable async schedule. */
