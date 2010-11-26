@@ -43,6 +43,8 @@
 
 #define CONFIG_SYS_CLK_FREQ	33300000	/* external freq to pll	*/
 
+#define CONFIG_4xx_DCACHE		/* enable cache in SDRAM	*/
+
 #define CONFIG_BOARD_EARLY_INIT_F	/* Call board_early_init_f	*/
 #define CONFIG_BOARD_EARLY_INIT_R	/* Call board_early_init_r	*/
 #define CONFIG_BOARD_POSTCLK_INIT	/* Call board_postclk_init	*/
@@ -321,6 +323,8 @@
 /* Update size in "reg" property of NOR FLASH device tree nodes */
 #define CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
 
+#define CONFIG_FIT			/* enable FIT image support	*/
+
 #define	CONFIG_POST_KEY_MAGIC	"3C+3E"	/* press F3 + F5 keys to force POST */
 
 #define	CONFIG_PREBOOT		"setenv bootdelay 15"
@@ -393,15 +397,17 @@
 #define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_SPLASH_SCREEN
 
-/* USB */
-#ifdef CONFIG_440EPX
-#define CONFIG_USB_OHCI
+/*
+ * USB/EHCI
+ */
+#define CONFIG_USB_EHCI			/* Enable EHCI USB support	*/
+#define CONFIG_USB_EHCI_PPC4XX		/* on PPC4xx platform		*/
+#define CONFIG_SYS_PPC4XX_USB_ADDR	0xe0000300
+#define CONFIG_EHCI_DCACHE		/* with dcache handling support	*/
+#define CONFIG_EHCI_MMIO_BIG_ENDIAN
+#define CONFIG_EHCI_DESC_BIG_ENDIAN
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET /* re-init HCD after CMD_RESET */
 #define CONFIG_USB_STORAGE
-
-/* Comment this out to enable USB 1.1 device */
-#define USB_2_0_DEVICE
-
-#endif /* CONFIG_440EPX */
 
 /* Partitions */
 #define CONFIG_MAC_PARTITION
