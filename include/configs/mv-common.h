@@ -45,16 +45,16 @@
 #define CONFIG_KIRKWOOD_RGMII_PAD_1V8	/* Set RGMII Pad voltage to 1.8V */
 #define CONFIG_KIRKWOOD_PCIE_INIT       /* Enable PCIE Port0 for kernel */
 
-/* 
+/*
  * By default kwbimage.cfg from board specific folder is used
  * If for some board, different configuration file need to be used,
  * CONFIG_SYS_KWD_CONFIG should be defined in board specific header file
  */
 #ifndef CONFIG_SYS_KWD_CONFIG
-#define	CONFIG_SYS_KWD_CONFIG	$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage.cfg 
+#define	CONFIG_SYS_KWD_CONFIG	$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage.cfg
 #endif /* CONFIG_SYS_KWD_CONFIG */
 
-/* 
+/*
  * CONFIG_SYS_TEXT_BASE can be defined in board specific header file, if needed
  */
 #ifndef CONFIG_SYS_TEXT_BASE
@@ -157,7 +157,7 @@
 #define CONFIG_CONSOLE_INFO_QUIET	/* some code reduction */
 #define CONFIG_ARCH_CPU_INIT	/* call arch_cpu_init() */
 #define CONFIG_ARCH_MISC_INIT	/* call arch_misc_init() */
-#define CONFIG_BOARD_EARLY_INIT_F /* call board_init_f for early inits */ 
+#define CONFIG_BOARD_EARLY_INIT_F /* call board_init_f for early inits */
 #define CONFIG_DISPLAY_CPUINFO	/* Display cpu info */
 #define CONFIG_NR_DRAM_BANKS	4
 #define CONFIG_STACKSIZE	0x00100000	/* regular stack- 1M */

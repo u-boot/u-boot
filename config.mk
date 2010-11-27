@@ -12,7 +12,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -53,7 +53,7 @@ HOSTSTRIP	= strip
 #
 # Mac OS X / Darwin's C preprocessor is Apple specific.  It
 # generates numerous errors and warnings.  We want to bypass it
-# and use GNU C's cpp.  To do this we pass the -traditional-cpp
+# and use GNU C's cpp.	To do this we pass the -traditional-cpp
 # option to the compiler.  Note that the -traditional-cpp flag
 # DOES NOT have the same semantics as GNU C's flag, all it does
 # is invoke the GNU preprocessor in stock ANSI/ISO C fashion.
@@ -262,7 +262,7 @@ $(obj)%.s:	%.c
 
 # If the list of objects to link is empty, just create an empty built-in.o
 cmd_link_o_target = $(if $(strip $1),\
-                      $(LD) -r -o $@ $1 ,\
-                      rm -f $@; $(AR) rcs $@ )
+		      $(LD) -r -o $@ $1 ,\
+		      rm -f $@; $(AR) rcs $@ )
 
 #########################################################################

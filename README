@@ -2836,15 +2836,15 @@ Low Level (hardware related) configuration options:
 		globally (CONFIG_CMD_MEM).
 
 - CONFIG_SKIP_LOWLEVEL_INIT
-                [ARM only] If this variable is defined, then certain
-                low level initializations (like setting up the memory
-                controller) are omitted and/or U-Boot does not
-                relocate itself into RAM.
+		[ARM only] If this variable is defined, then certain
+		low level initializations (like setting up the memory
+		controller) are omitted and/or U-Boot does not
+		relocate itself into RAM.
 
-                Normally this variable MUST NOT be defined. The only
-                exception is when U-Boot is loaded (to RAM) by some
-                other boot loader or by a debugger which performs
-                these initializations itself.
+		Normally this variable MUST NOT be defined. The only
+		exception is when U-Boot is loaded (to RAM) by some
+		other boot loader or by a debugger which performs
+		these initializations itself.
 
 - CONFIG_PRELOADER
 		Modifies the behaviour of start.S when compiling a loader
