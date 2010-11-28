@@ -33,6 +33,7 @@
  * run from RAM instead of Flash.
  */
 #define	CONFIG_SYS_TEXT_BASE	0x08000000
+#define CONFIG_SYS_LDSCRIPT	"board/amirix/ap1000/u-boot.lds"
 
 #define CONFIG_PCI	1
 

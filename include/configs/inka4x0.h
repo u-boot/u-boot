@@ -44,6 +44,7 @@
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xFFE00000	/* Standard: boot low */
 #endif
+#define CONFIG_SYS_LDSCRIPT	"arch/powerpc/cpu/mpc5xxx/u-boot-customlayout.lds"
 
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000 /* ... running at 33.000000MHz		*/
 

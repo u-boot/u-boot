@@ -50,6 +50,7 @@
 #define CONFIG_MOUSSE       1
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
+#define	CONFIG_SYS_LDSCRIPT	"board/mousse/u-boot.lds"
 
 #define CONFIG_SYS_ADDR_MAP_B      1
 
