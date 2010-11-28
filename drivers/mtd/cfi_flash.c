@@ -1837,7 +1837,7 @@ static void flash_fixup_stm(flash_info_t *info, struct cfi_qry *qry)
  * The following code cannot be run from FLASH!
  *
  */
-ulong flash_get_size (phys_addr_t base, int banknum, unsigned long max_size)
+ulong flash_get_size (phys_addr_t base, int banknum)
 {
 	flash_info_t *info = &flash_info[banknum];
 	int i, j;
@@ -1849,6 +1849,7 @@ ulong flash_get_size (phys_addr_t base, int banknum, unsigned long max_size)
 	int erase_region_size;
 	int erase_region_count;
 	struct cfi_qry qry;
+	unsigned long max_size;
 
 	memset(&qry, 0, sizeof(qry));
 
@@ -1929,6 +1930,7 @@ ulong flash_get_size (phys_addr_t base, int banknum, unsigned long max_size)
 		info->size = 1 << qry.dev_size;
 		/* multiply the size by the number of chips */
 		info->size *= size_ratio;
+		max_size = cfi_flash_bank_size(banknum);
 		if (max_size && (info->size > max_size)) {
 			debug("[truncated from %ldMiB]", info->size >> 20);
 			info->size = max_size;
@@ -2043,8 +2045,7 @@ unsigned long flash_init (void)
 		flash_info[i].flash_id = FLASH_UNKNOWN;
 
 		if (!flash_detect_legacy(cfi_flash_bank_addr(i), i))
-			flash_get_size(cfi_flash_bank_addr(i), i,
-					cfi_flash_bank_size(i));
+			flash_get_size(cfi_flash_bank_addr(i), i);
 		size += flash_info[i].size;
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
 #ifndef CONFIG_SYS_FLASH_QUIET_TEST
