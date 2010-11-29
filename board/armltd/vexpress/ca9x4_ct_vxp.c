@@ -157,7 +157,7 @@ void reset_cpu(ulong addr)
  * Delay x useconds AND perserve advance timstamp value
  *     assumes timer is ticking at 1 msec
  */
-void udelay(ulong usec)
+void __udelay(ulong usec)
 {
 	ulong tmo, tmp;
 
