@@ -49,7 +49,6 @@
 #define CONFIG_E300		1	/* E300 Family */
 #define CONFIG_MPC512X		1	/* MPC512X family */
 #define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
-#define CONFIG_FSL_DIU_LOGO_BMP	1	/* Don't include FSL DIU binary bmp */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFF00000
 
