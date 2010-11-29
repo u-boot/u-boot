@@ -163,6 +163,7 @@
 #define CONFIG_DRIVER_OMAP34XX_I2C	1
 
 #undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
 /*
  * Board NAND Info.
  */
