@@ -20,7 +20,7 @@
 
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include "common.h"
+#include <asm/arch/da8xx_common.h>
 
 #ifndef CONFIG_USE_IRQ
 void irq_init(void)

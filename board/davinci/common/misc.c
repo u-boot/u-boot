@@ -29,7 +29,7 @@
 #include <net.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
-#include "misc.h"
+#include <asm/arch/davinci_misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
