@@ -19,6 +19,9 @@
 #ifndef __COMMON_H
 #define __COMMON_H
 
+#define	HAWKBOARD_KICK0_UNLOCK		0x83e70b13
+#define	HAWKBOARD_KICK1_UNLOCK		0x95a4f1e0
+
 struct lpsc_resource {
 	const int	lpsc_no;
 };

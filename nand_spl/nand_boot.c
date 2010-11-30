@@ -236,6 +236,7 @@ void nand_boot(void)
 	/*
 	 * Init board specific nand support
 	 */
+	nand_chip.select_chip = NULL;
 	nand_info.priv = &nand_chip;
 	nand_chip.IO_ADDR_R = nand_chip.IO_ADDR_W = (void  __iomem *)CONFIG_SYS_NAND_BASE;
 	nand_chip.dev_ready = NULL;	/* preset to NULL */
