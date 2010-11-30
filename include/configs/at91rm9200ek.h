@@ -33,6 +33,20 @@
 #include <asm/sizes.h>
 
 /*
+ * set some initial configurations depending on configure target
+ *
+ * at91rm9200ek_config     -> boot from 0x0 in NOR Flash at CS0
+ * at91rm9200ek_ram_config -> continue booting from 0x20100000 in RAM; lowlevel
+ *                            initialisation was done by some preloader
+ */
+#ifdef CONFIG_RAMBOOT
+#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SYS_TEXT_BASE 0x20100000
+#else
+#define CONFIG_SYS_TEXT_BASE 0x10000000
+#endif
+
+/*
  * AT91C_XTAL_CLOCK is the frequency of external xtal in hertz
  * AT91C_MAIN_CLOCK is the frequency of PLLA output
  * AT91C_MASTER_CLOCK is the peripherial clock
