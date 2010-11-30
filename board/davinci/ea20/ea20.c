@@ -1,4 +1,9 @@
 /*
+ * (C) Copyright 2010
+ * Stefano Babic, DENX Software Engineering, sbabic@denx.de
+ *
+ * Based on da850evm.c, original Copyrights follow:
+ *
  * Copyright (C) 2010 Texas Instruments Incorporated - http://www.ti.com/
  *
  * Based on da830evm.c. Original Copyrights follow:
@@ -52,8 +57,8 @@ static const struct pinmux_config uart_pins[] = {
 };
 
 #ifdef CONFIG_DRIVER_TI_EMAC
+#define HAS_RMII 1
 static const struct pinmux_config emac_pins[] = {
-#ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
 	{ pinmux(14), 8, 2 },
 	{ pinmux(14), 8, 3 },
 	{ pinmux(14), 8, 4 },
@@ -61,32 +66,10 @@ static const struct pinmux_config emac_pins[] = {
 	{ pinmux(14), 8, 6 },
 	{ pinmux(14), 8, 7 },
 	{ pinmux(15), 8, 1 },
-#else /* ! CONFIG_DRIVER_TI_EMAC_USE_RMII */
-	{ pinmux(2), 8, 1 },
-	{ pinmux(2), 8, 2 },
-	{ pinmux(2), 8, 3 },
-	{ pinmux(2), 8, 4 },
-	{ pinmux(2), 8, 5 },
-	{ pinmux(2), 8, 6 },
-	{ pinmux(2), 8, 7 },
-	{ pinmux(3), 8, 0 },
-	{ pinmux(3), 8, 1 },
-	{ pinmux(3), 8, 2 },
-	{ pinmux(3), 8, 3 },
-	{ pinmux(3), 8, 4 },
-	{ pinmux(3), 8, 5 },
-	{ pinmux(3), 8, 6 },
-	{ pinmux(3), 8, 7 },
-#endif /* CONFIG_DRIVER_TI_EMAC_USE_RMII */
 	{ pinmux(4), 8, 0 },
 	{ pinmux(4), 8, 1 }
 };
-
-/* I2C pin muxer settings */
-static const struct pinmux_config i2c_pins[] = {
-	{ pinmux(4), 2, 2 },
-	{ pinmux(4), 2, 3 }
-};
+#endif
 
 #ifdef CONFIG_NAND_DAVINCI
 const struct pinmux_config nand_pins[] = {
@@ -107,19 +90,11 @@ const struct pinmux_config nand_pins[] = {
 };
 #endif
 
-#ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
-#define HAS_RMII 1
-#else
-#define HAS_RMII 0
-#endif
-#endif /* CONFIG_DRIVER_TI_EMAC */
-
 static const struct pinmux_resource pinmuxes[] = {
 #ifdef CONFIG_SPI_FLASH
 	PINMUX_ITEM(spi1_pins),
 #endif
 	PINMUX_ITEM(uart_pins),
-	PINMUX_ITEM(i2c_pins),
 #ifdef CONFIG_NAND_DAVINCI
 	PINMUX_ITEM(nand_pins),
 #endif
@@ -132,39 +107,6 @@ static const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_UART2 },	/* console */
 	{ DAVINCI_LPSC_GPIO },
 };
-
-#ifndef CONFIG_DA850_EVM_MAX_CPU_CLK
-#define CONFIG_DA850_EVM_MAX_CPU_CLK	300000000
-#endif
-
-/*
- * get_board_rev() - setup to pass kernel board revision information
- * Returns:
- * bit[0-3]	Maximum cpu clock rate supported by onboard SoC
- *		0000b - 300 MHz
- *		0001b - 372 MHz
- *		0010b - 408 MHz
- *		0011b - 456 MHz
- */
-u32 get_board_rev(void)
-{
-	char *s;
-	u32 maxcpuclk = CONFIG_DA850_EVM_MAX_CPU_CLK;
-	u32 rev = 0;
-
-	s = getenv("maxcpuclk");
-	if (s)
-		maxcpuclk = simple_strtoul(s, NULL, 10);
-
-	if (maxcpuclk >= 456000000)
-		rev = 3;
-	else if (maxcpuclk >= 408000000)
-		rev = 2;
-	else if (maxcpuclk >= 372000000)
-		rev = 1;
-
-	return rev;
-}
 
 int board_init(void)
 {
@@ -190,7 +132,7 @@ int board_init(void)
 #endif
 
 	/* arch number of the board */
-	gd->bd->bi_arch_number = MACH_TYPE_DAVINCI_DA850_EVM;
+	gd->bd->bi_arch_number = MACH_TYPE_EA20;
 
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
@@ -232,104 +174,22 @@ int board_init(void)
 
 #ifdef CONFIG_DRIVER_TI_EMAC
 
-#ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
-/**
- * rmii_hw_init
- *
- * DA850/OMAP-L138 EVM can interface to a daughter card for
- * additional features. This card has an I2C GPIO Expander TCA6416
- * to select the required functions like camera, RMII Ethernet,
- * character LCD, video.
- *
- * Initialization of the expander involves configuring the
- * polarity and direction of the ports. P07-P05 are used here.
- * These ports are connected to a Mux chip which enables only one
- * functionality at a time.
- *
- * For RMII phy to respond, the MII MDIO clock has to be  disabled
- * since both the PHY devices have address as zero. The MII MDIO
- * clock is controlled via GPIO2[6].
- *
- * This code is valid for Beta version of the hardware
- */
-int rmii_hw_init(void)
-{
-	const struct pinmux_config gpio_pins[] = {
-		{ pinmux(6), 8, 1 }
-	};
-	u_int8_t buf[2];
-	unsigned int temp;
-	int ret;
-
-	/* PinMux for GPIO */
-	if (davinci_configure_pin_mux(gpio_pins, ARRAY_SIZE(gpio_pins)) != 0)
-		return 1;
-
-	/* I2C Exapnder configuration */
-	/* Set polarity to non-inverted */
-	buf[0] = 0x0;
-	buf[1] = 0x0;
-	ret = i2c_write(CONFIG_SYS_I2C_EXPANDER_ADDR, 4, 1, buf, 2);
-	if (ret) {
-		printf("\nExpander @ 0x%02x write FAILED!!!\n",
-				CONFIG_SYS_I2C_EXPANDER_ADDR);
-		return ret;
-	}
-
-	/* Configure P07-P05 as outputs */
-	buf[0] = 0x1f;
-	buf[1] = 0xff;
-	ret = i2c_write(CONFIG_SYS_I2C_EXPANDER_ADDR, 6, 1, buf, 2);
-	if (ret) {
-		printf("\nExpander @ 0x%02x write FAILED!!!\n",
-				CONFIG_SYS_I2C_EXPANDER_ADDR);
-	}
-
-	/* For Ethernet RMII selection
-	 * P07(SelA)=0
-	 * P06(SelB)=1
-	 * P05(SelC)=1
-	 */
-	if (i2c_read(CONFIG_SYS_I2C_EXPANDER_ADDR, 2, 1, buf, 1)) {
-		printf("\nExpander @ 0x%02x read FAILED!!!\n",
-				CONFIG_SYS_I2C_EXPANDER_ADDR);
-	}
-
-	buf[0] &= 0x1f;
-	buf[0] |= (0 << 7) | (1 << 6) | (1 << 5);
-	if (i2c_write(CONFIG_SYS_I2C_EXPANDER_ADDR, 2, 1, buf, 1)) {
-		printf("\nExpander @ 0x%02x write FAILED!!!\n",
-				CONFIG_SYS_I2C_EXPANDER_ADDR);
-	}
-
-	/* Set the output as high */
-	temp = REG(GPIO_BANK2_REG_SET_ADDR);
-	temp |= (0x01 << 6);
-	REG(GPIO_BANK2_REG_SET_ADDR) = temp;
-
-	/* Set the GPIO direction as output */
-	temp = REG(GPIO_BANK2_REG_DIR_ADDR);
-	temp &= ~(0x01 << 6);
-	REG(GPIO_BANK2_REG_DIR_ADDR) = temp;
-
-	return 0;
-}
-#endif /* CONFIG_DRIVER_TI_EMAC_USE_RMII */
-
 /*
  * Initializes on-board ethernet controllers.
  */
 int board_eth_init(bd_t *bis)
 {
-#ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
-	/* Select RMII fucntion through the expander */
-	if (rmii_hw_init())
-		printf("RMII hardware init failed!!!\n");
-#endif
 	if (!davinci_emac_initialize()) {
 		printf("Error: Ethernet init failed!\n");
 		return -1;
 	}
+
+	/*
+	 * This board has a RMII PHY. However, the MDC line on the SOM
+	 * must not be disabled (there is no MII PHY on the
+	 * baseboard) via the GPIO2[6], because this pin
+	 * disables at the same time the SPI flash.
+	 */
 
 	return 0;
 }

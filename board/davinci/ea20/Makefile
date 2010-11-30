@@ -1,6 +1,8 @@
 #
-# (C) Copyright 2006
+# (C) Copyright 2000, 2001, 2002
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
+# Copyright (C) 2007 Sergey Kubushyn <ksi@koi8.net>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -23,26 +25,24 @@
 
 include $(TOPDIR)/config.mk
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)board/$(VENDOR)/common)
-endif
+LIB	= $(obj)lib$(BOARD).a
 
-LIB	= $(obj)lib$(VENDOR).o
+COBJS-y	+= ea20.o
 
-COBJS	:= misc.o davinci_pinmux.o
+COBJS   := $(COBJS-y)
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
 $(LIB):	$(obj).depend $(OBJS) $(SOBJS)
-	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)
 
 distclean:	clean
-	rm -f $(LIB) core *.bak $(obj).depend
+	rm -f $(LIB) core *.bak *~ .depend
 
 #########################################################################
 # This is for $(obj).depend target

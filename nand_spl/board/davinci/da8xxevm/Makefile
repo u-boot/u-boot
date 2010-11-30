@@ -27,15 +27,15 @@
 CONFIG_NAND_SPL	= y
 
 include $(TOPDIR)/config.mk
-include $(TOPDIR)/nand_spl/board/$(BOARDDIR)/config.mk
 
 LDSCRIPT= $(TOPDIR)/nand_spl/board/$(BOARDDIR)/u-boot.lds
 LDFLAGS	= -Bstatic -T $(nandobj)u-boot.lds -Ttext $(CONFIG_SYS_TEXT_BASE) $(PLATFORM_LDFLAGS)
-AFLAGS	+= -DCONFIG_NAND_SPL
-CFLAGS	+= -DCONFIG_NAND_SPL
+AFLAGS	+= -DCONFIG_PRELOADER -DCONFIG_NAND_SPL
+CFLAGS	+= -DCONFIG_PRELOADER -DCONFIG_NAND_SPL
 
-SOBJS	= start.o cpu_init.o lowlevel_init.o
-COBJS	= nand_boot.o nand_ecc.o s3c64xx.o smdk6400_nand_spl.o
+SOBJS	= start.o _udivsi3.o _divsi3.o
+COBJS	= cpu.o davinci_nand.o ns16550.o div0.o davinci_pinmux.o psc.o	\
+	misc.o hawkboard_nand_spl.o nand_boot.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
@@ -44,9 +44,10 @@ LNDIR	:= $(OBJTREE)/nand_spl/board/$(BOARDDIR)
 
 nandobj	:= $(OBJTREE)/nand_spl/
 
-ALL	= $(nandobj)u-boot-spl $(nandobj)u-boot-spl.bin $(nandobj)u-boot-spl-16k.bin
+ALL	= $(nandobj)u-boot-spl $(nandobj)u-boot-spl.bin \
+	$(nandobj)u-boot-spl-16k.bin
 
-all:	$(obj).depend $(ALL)
+all:	$(ALL)
 
 $(nandobj)u-boot-spl-16k.bin: $(nandobj)u-boot-spl
 	$(OBJCOPY) ${OBJCFLAGS} --pad-to=$(PAD_TO) -O binary $< $@
@@ -64,38 +65,65 @@ $(nandobj)u-boot.lds: $(LDSCRIPT)
 
 # create symbolic links for common files
 
-# from cpu directory
-$(obj)start.S:
-	@rm -f $@
-	@ln -s $(TOPDIR)/arch/arm/cpu/arm1176/start.S $@
-
-# from SoC directory
-$(obj)cpu_init.S:
-	@rm -f $@
-	@ln -s $(TOPDIR)/arch/arm/cpu/arm1176/s3c64xx/cpu_init.S $@
-
 # from board directory
-$(obj)lowlevel_init.S:
+$(obj)davinci_pinmux.c:
 	@rm -f $@
-	@ln -s $(TOPDIR)/board/samsung/smdk6400/lowlevel_init.S $@
+	@ln -s $(TOPDIR)/board/davinci/common/davinci_pinmux.c $@
+
+# from drivers/mtd/nand directory
+$(obj)davinci_nand.c:
+	@rm -f $@
+	@ln -s $(TOPDIR)/drivers/mtd/nand/davinci_nand.c $@
 
 # from nand_spl directory
 $(obj)nand_boot.c:
 	@rm -f $@
 	@ln -s $(TOPDIR)/nand_spl/nand_boot.c $@
 
-# from drivers/mtd/nand directory
-$(obj)nand_ecc.c:
+# from drivers/serial directory
+$(obj)ns16550.c:
 	@rm -f $@
-	@ln -s $(TOPDIR)/drivers/mtd/nand/nand_ecc.c $@
+	@ln -sf $(TOPDIR)/drivers/serial/ns16550.c $@
 
-$(obj)s3c64xx.c:
+# from cpu directory
+$(obj)start.S:
 	@rm -f $@
-	@ln -s $(TOPDIR)/drivers/mtd/nand/s3c64xx.c $@
+	ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/start.S $@
 
-$(obj)smdk6400_nand_spl.c:
+# from lib directory
+$(obj)_udivsi3.S:
 	@rm -f $@
-	@ln -s $(TOPDIR)/board/samsung/smdk6400/smdk6400_nand_spl.c $@
+	ln -s $(TOPDIR)/arch/arm/lib/_udivsi3.S $@
+
+# from lib directory
+$(obj)_divsi3.S:
+	@rm -f $@
+	ln -s $(TOPDIR)/arch/arm/lib/_divsi3.S $@
+
+# from lib directory
+$(obj)div0.c:
+	@rm -f $@
+	ln -s $(TOPDIR)/arch/arm/lib/div0.c $@
+
+# from SoC directory
+$(obj)cpu.c:
+	@rm -f $@
+	@ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/cpu.c $@
+
+# from board directory
+$(obj)hawkboard_nand_spl.c:
+	@rm -f $@
+	ln -s $(TOPDIR)/board/davinci/da8xxevm/hawkboard_nand_spl.c $@
+
+# from board directory
+$(obj)misc.c:
+	@rm -f $@
+	ln -s $(TOPDIR)/board/davinci/common/misc.c $@
+
+$(obj)psc.c:
+	@rm -f $@
+	ln -s $(TOPDIR)/arch/arm/cpu/arm926ejs/davinci/psc.c $@
+
 
 #########################################################################
 

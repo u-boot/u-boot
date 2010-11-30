@@ -549,6 +549,7 @@ Rowel Atienza <rowel@diwalabs.com>
 
 Stefano Babic <sbabic@denx.de>
 
+	ea20		davinci
 	polaris		xscale
 	trizepsiv	xscale
 	mx51evk		i.MX51
@@ -852,6 +853,11 @@ Alex Züpke <azu@sysgo.de>
 
 	lart		SA1100
 	dnp1110		SA1110
+
+Syed Mohammed Khasim <sm.khasim@gmail.com>
+Sughosh Ganu <urwithsughosh@gmail.com>
+
+	hawkboard	ARM926EJS (OMAP-L138)
 
 -------------------------------------------------------------------------
 

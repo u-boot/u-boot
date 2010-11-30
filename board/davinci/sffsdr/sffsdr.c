@@ -30,7 +30,7 @@
 #include <common.h>
 #include <i2c.h>
 #include <asm/arch/hardware.h>
-#include "../common/misc.h"
+#include <asm/arch/davinci_misc.h>
 
 #define DAVINCI_A3CR     (0x01E00014)	/* EMIF-A CS3 config register. */
 #define DAVINCI_A3CR_VAL (0x3FFFFFFD)	/* EMIF-A CS3 value for FPGA. */

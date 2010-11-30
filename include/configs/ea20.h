@@ -28,6 +28,7 @@
  */
 #define CONFIG_DRIVER_TI_EMAC
 #define CONFIG_USE_SPIFLASH
+#define CONFIG_DRIVER_TI_EMAC_USE_RMII
 
 /*
  * SoC Configuration
@@ -55,7 +56,7 @@
 #define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1 + 0x2000000)
 
 /* memtest will be run on 16MB */
-#define CONFIG_SYS_MEMTEST_END 	(PHYS_SDRAM_1 + 0x2000000 + 16*1024*1024)
+#define CONFIG_SYS_MEMTEST_END	(PHYS_SDRAM_1 + 0x2000000 + 16*1024*1024)
 
 #define CONFIG_NR_DRAM_BANKS	1 /* we have 1 bank of DRAM */
 #define CONFIG_STACKSIZE	(256*1024) /* regular stack */
@@ -82,37 +83,6 @@
 #define CONFIG_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
 
 /*
- * I2C Configuration
- */
-#define CONFIG_HARD_I2C
-#define CONFIG_DRIVER_DAVINCI_I2C
-#define CONFIG_SYS_I2C_SPEED		25000
-#define CONFIG_SYS_I2C_SLAVE		10 /* Bogus, master-only in U-Boot */
-#define CONFIG_SYS_I2C_EXPANDER_ADDR   0x20
-
-/*
- * Flash & Environment
- */
-#ifdef CONFIG_USE_NAND
-#undef CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_NAND_DAVINCI
-#define CONFIG_SYS_NO_FLASH
-#define CONFIG_ENV_IS_IN_NAND		/* U-Boot env in NAND Flash  */
-#define CONFIG_ENV_OFFSET		0x0 /* Block 0--not used by bootcode */
-#define CONFIG_ENV_SIZE			(128 << 10)
-#define	CONFIG_SYS_NAND_USE_FLASH_BBT
-#define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
-#define	CONFIG_SYS_NAND_PAGE_2K
-#define CONFIG_SYS_NAND_CS		3
-#define CONFIG_SYS_NAND_BASE		DAVINCI_ASYNC_EMIF_DATA_CE3_BASE
-#define CONFIG_SYS_CLE_MASK		0x10
-#define CONFIG_SYS_ALE_MASK		0x8
-#undef CONFIG_SYS_NAND_HW_ECC
-#define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */
-#define NAND_MAX_CHIPS			1
-#endif
-
-/*
  * Network & Ethernet Configuration
  */
 #ifdef CONFIG_DRIVER_TI_EMAC
@@ -130,7 +100,7 @@
 #undef CONFIG_ENV_IS_IN_FLASH
 #undef CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_IS_IN_SPI_FLASH
-#define CONFIG_ENV_SIZE			(64 << 10)
+#define CONFIG_ENV_SIZE			(8 << 10)
 #define CONFIG_ENV_OFFSET		(256 << 10)
 #define CONFIG_ENV_SECT_SIZE		(64 << 10)
 #define CONFIG_SYS_NO_FLASH
@@ -140,7 +110,7 @@
  * U-Boot general configuration
  */
 #define CONFIG_BOOTFILE		"uImage" /* Boot file name */
-#define CONFIG_SYS_PROMPT	"DA850-evm > " /* Command Prompt */
+#define CONFIG_SYS_PROMPT	"ea20 > " /* Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS	16 /* max number of command args */
@@ -160,10 +130,7 @@
  */
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
 #define CONFIG_CMDLINE_TAG
-#define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
-#define CONFIG_BOOTARGS		\
-	"mem=32M console=ttyS2,115200n8 root=/dev/mtdblock2 rw noinitrd ip=dhcp"
 #define CONFIG_BOOTDELAY	3
 
 /*
@@ -220,6 +187,6 @@
 
 /* additions for new relocation code, must added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - /* Fix this */ \
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - \
 					GENERATED_GBL_DATA_SIZE)
 #endif /* __CONFIG_H */

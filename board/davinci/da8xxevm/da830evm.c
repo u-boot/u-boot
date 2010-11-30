@@ -40,8 +40,7 @@
 #include <asm/arch/emif_defs.h>
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
-#include "../common/misc.h"
-#include "common.h"
+#include <asm/arch/davinci_misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
