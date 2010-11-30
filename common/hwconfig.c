@@ -75,7 +75,7 @@ const char board_hwconfig[] __attribute__((weak)) = "";
 
 static const char *__hwconfig(const char *opt, size_t *arglen)
 {
-	const char *env_hwconfig = NULL;
+	const char *env_hwconfig = NULL, *ret;
 	char buf[HWCONFIG_PRE_RELOC_BUF_SIZE];
 
 	if (gd->flags & GD_FLG_ENV_READY) {
@@ -92,17 +92,20 @@ static const char *__hwconfig(const char *opt, size_t *arglen)
 			env_hwconfig = buf;
 	}
 
-	if (env_hwconfig)
-		return hwconfig_parse(env_hwconfig, strlen(env_hwconfig),
+	if (env_hwconfig) {
+		ret = hwconfig_parse(env_hwconfig, strlen(env_hwconfig),
 				      opt, ";", ':', arglen);
+		if (ret)
+			return ret;
+	}
 
-	return hwconfig_parse(board_hwconfig, strlen(board_hwconfig),
+	ret = hwconfig_parse(board_hwconfig, strlen(board_hwconfig),
 			opt, ";", ':', arglen);
+	if (ret)
+		return ret;
 
 	return hwconfig_parse(cpu_hwconfig, strlen(cpu_hwconfig),
 			opt, ";", ':', arglen);
-
-	return NULL;
 }
 
 /*
