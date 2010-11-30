@@ -166,9 +166,9 @@ stack_setup:
 	mov	sp, r4
 
 	adr	r0, _start
-	cmp	r0, r6
 #ifndef CONFIG_PRELOADER
-	beq	jump_2_ram
+	cmp	r0, r6
+	beq	clear_bss		/* skip relocation */
 #endif
 	mov	r1, r6			/* r1 <- scratch for copy_loop */
 	ldr	r2, _TEXT_BASE
