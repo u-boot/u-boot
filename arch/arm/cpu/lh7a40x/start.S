@@ -208,10 +208,10 @@ fixloop:
 	ldr	r0, [r2]		/* r0 <- location to fix up, IN FLASH! */
 	add	r0, r0, r9		/* r0 <- location to fix up in RAM */
 	ldr	r1, [r2, #4]
-	and	r8, r1, #0xff
-	cmp	r8, #23			/* relative fixup? */
+	and	r7, r1, #0xff
+	cmp	r7, #23			/* relative fixup? */
 	beq	fixrel
-	cmp	r8, #2			/* absolute fixup? */
+	cmp	r7, #2			/* absolute fixup? */
 	beq	fixabs
 	/* ignore unknown type of fixup */
 	b	fixnext
