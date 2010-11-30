@@ -35,7 +35,7 @@ CFLAGS	+= -DCONFIG_PRELOADER -DCONFIG_NAND_SPL
 
 SOBJS	= start.o _udivsi3.o _divsi3.o
 COBJS	= cpu.o davinci_nand.o ns16550.o div0.o davinci_pinmux.o psc.o	\
-	common.o hawkboard_nand_spl.o nand_boot.o
+	misc.o hawkboard_nand_spl.o nand_boot.o
 
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
@@ -116,9 +116,9 @@ $(obj)hawkboard_nand_spl.c:
 	ln -s $(TOPDIR)/board/davinci/da8xxevm/hawkboard_nand_spl.c $@
 
 # from board directory
-$(obj)common.c:
+$(obj)misc.c:
 	@rm -f $@
-	ln -s $(TOPDIR)/board/davinci/da8xxevm/common.c $@
+	ln -s $(TOPDIR)/board/davinci/common/misc.c $@
 
 $(obj)psc.c:
 	@rm -f $@

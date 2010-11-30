@@ -41,7 +41,6 @@
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
-#include <asm/arch/da8xx_common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
