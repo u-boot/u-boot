@@ -187,6 +187,7 @@ boards_by_field()
 }
 boards_by_arch() { boards_by_field 2 "$@" ; }
 boards_by_cpu()  { boards_by_field 3 "$@" ; }
+boards_by_soc()  { boards_by_field 6 "$@" ; }
 
 #########################################################################
 ## MPC5xx Systems
@@ -439,11 +440,8 @@ LIST_ARMV7="		\
 ## AT91 Systems
 #########################################################################
 
-LIST_at91="			\
-	afeb9260		\
-	at91cap9adk		\
-	at91rm9200dk		\
-	at91rm9200ek		\
+LIST_at91="$(boards_by_soc at91)\
+	$(boards_by_soc at91rm9200)\
 	at91sam9260ek		\
 	at91sam9261ek		\
 	at91sam9263ek		\
@@ -451,19 +449,9 @@ LIST_at91="			\
 	at91sam9g20ek		\
 	at91sam9m10g45ek	\
 	at91sam9rlek		\
-	cmc_pu2			\
 	CPUAT91			\
 	CPU9260			\
 	CPU9G20			\
-	csb637			\
-	eb_cpux9k2		\
-	kb9202			\
-	meesc			\
-	mp2usb			\
-	m501sk			\
-	otc570			\
-	pm9261			\
-	pm9263			\
 	pm9g45			\
 	SBC35_A9G20		\
 	TNY_A9260		\
