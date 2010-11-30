@@ -30,7 +30,6 @@
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
-#include <asm/arch/da8xx_common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -220,7 +219,7 @@ int board_init(void)
 	if (davinci_configure_pin_mux(emac_pins, ARRAY_SIZE(emac_pins)) != 0)
 		return 1;
 
-	da850_emac_mii_mode_sel(HAS_RMII);
+	davinci_emac_mii_mode_sel(HAS_RMII);
 #endif /* CONFIG_DRIVER_TI_EMAC */
 
 	/* enable the console UART */
