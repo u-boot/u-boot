@@ -34,9 +34,9 @@
 			    cp 0xFC800000 0x800000 ${ramdisk_size}; 		\
 			    go 0x8000\0"					\
 	"nandboot=echo Copying Linux from NAND flash to RAM...;			\
-			    nand read 0x8000 0x100000 ${nand_kernel_size};	\
+			    nand read 0x8000 0x200000 ${nand_kernel_size};	\
 			    echo Copying ramdisk from NAND flash to RAM...;	\
-			    nand read 0x800000 0x800000 ${nand_ramdisk_size}; 	\
+			    nand read 0x800000 0x900000 ${nand_ramdisk_size}; 	\
 			    go 0x8000\0"
 
 /* Define the following to cause u-boot to have a header for the boot rom that
