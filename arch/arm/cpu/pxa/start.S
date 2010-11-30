@@ -244,12 +244,12 @@ stack_setup:
 	mov	sp, r4
 
 	adr	r0, _start
+	cmp	r0, r6
+	beq	clear_bss		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy_loop */
 	ldr	r2, _TEXT_BASE
 	ldr	r3, _bss_start_ofs
 	add	r2, r0, r3		/* r2 <- source end address	    */
-	cmp	r0, r6
-	beq	clear_bss
 
 	stmfd sp!, {r0-r12}
 copy_loop:
