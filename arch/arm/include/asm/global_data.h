@@ -60,6 +60,7 @@ typedef	struct	global_data {
 	unsigned long	tbl;
 	unsigned long	tbu;
 	unsigned long long	timer_reset_value;
+	unsigned long	lastinc;
 #endif
 	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
 	phys_size_t	ram_size;	/* RAM size */
