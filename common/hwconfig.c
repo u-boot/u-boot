@@ -68,8 +68,8 @@ next:
 	return NULL;
 }
 
-const char *cpu_hwconfig __attribute__((weak));
-const char *board_hwconfig __attribute__((weak));
+const char cpu_hwconfig[] __attribute__((weak)) = "";
+const char board_hwconfig[] __attribute__((weak)) = "";
 
 #define HWCONFIG_PRE_RELOC_BUF_SIZE	128
 
@@ -96,13 +96,11 @@ static const char *__hwconfig(const char *opt, size_t *arglen)
 		return hwconfig_parse(env_hwconfig, strlen(env_hwconfig),
 				      opt, ";", ':', arglen);
 
-	if (board_hwconfig)
-		return hwconfig_parse(board_hwconfig, strlen(board_hwconfig),
-				      opt, ";", ':', arglen);
+	return hwconfig_parse(board_hwconfig, strlen(board_hwconfig),
+			opt, ";", ':', arglen);
 
-	if (cpu_hwconfig)
-		return hwconfig_parse(cpu_hwconfig, strlen(cpu_hwconfig),
-				      opt, ";", ':', arglen);
+	return hwconfig_parse(cpu_hwconfig, strlen(cpu_hwconfig),
+			opt, ";", ':', arglen);
 
 	return NULL;
 }
