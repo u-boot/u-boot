@@ -160,7 +160,6 @@ relocate_code:
 	mov	r4, r0	/* save addr_sp */
 	mov	r5, r1	/* save addr of gd */
 	mov	r6, r2	/* save addr of destination */
-	mov	r7, r2	/* save addr of destination */
 
 	/* Set up the stack						    */
 stack_setup:
@@ -170,6 +169,7 @@ stack_setup:
 	ldr	r2, _TEXT_BASE
 	ldr	r3, _bss_start_ofs
 	add	r2, r0, r3		/* r2 <- source end address	    */
+	mov	r1, r6			/* r1 <- scratch for copy_loop */
 	cmp	r0, r6
 #ifndef CONFIG_PRELOADER
 	beq	jump_2_ram
@@ -177,7 +177,7 @@ stack_setup:
 
 copy_loop:
 	ldmia	r0!, {r9-r10}		/* copy from source address [r0]    */
-	stmia	r6!, {r9-r10}		/* copy to   target address [r1]    */
+	stmia	r1!, {r9-r10}		/* copy to   target address [r1]    */
 	cmp	r0, r2			/* until source end address [r2]    */
 	blo	copy_loop
 
@@ -186,7 +186,7 @@ copy_loop:
 	 * fix .rel.dyn relocations
 	 */
 	ldr	r0, _TEXT_BASE		/* r0 <- Text base */
-	sub	r9, r7, r0		/* r9 <- relocation offset */
+	sub	r9, r6, r0		/* r9 <- relocation offset */
 	ldr	r10, _dynsym_start_ofs	/* r10 <- sym table ofs */
 	add	r10, r10, r0		/* r10 <- sym table in FLASH */
 	ldr	r2, _rel_dyn_start_ofs	/* r2 <- rel dyn start ofs */
@@ -225,7 +225,7 @@ clear_bss:
 	ldr	r0, _bss_start_ofs
 	ldr	r1, _bss_end_ofs
 	ldr	r3, _TEXT_BASE		/* Text base */
-	mov	r4, r7			/* reloc addr */
+	mov	r4, r6			/* reloc addr */
 	add	r0, r0, r4
 	add	r1, r1, r4
 	mov	r2, #0x00000000		/* clear			    */
@@ -247,7 +247,7 @@ jump_2_ram:
 	add	lr, lr, r9
 	/* setup parameters for board_init_r */
 	mov	r0, r5		/* gd_t */
-	mov	r1, r7		/* dest_addr */
+	mov	r1, r6		/* dest_addr */
 	/* jump to it ... */
 	mov	pc, lr
 
