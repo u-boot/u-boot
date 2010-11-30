@@ -384,7 +384,10 @@ int clk_get(enum davinci_clk_ids id);
 /* Boot config */
 struct davinci_syscfg_regs {
 	dv_reg	revid;
-	dv_reg	rsvd[71];
+	dv_reg	rsvd[13];
+	dv_reg	kick0;
+	dv_reg	kick1;
+	dv_reg	rsvd1[56];
 	dv_reg	pinmux[20];
 	dv_reg	suspsrc;
 	dv_reg	chipsig;
