@@ -231,6 +231,8 @@
 
 #define CONFIG_DOS_PARTITION		1
 
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_LOAD_ADDR - 0x1000000)
+
 /*
  * Ethernet Contoller driver
  */

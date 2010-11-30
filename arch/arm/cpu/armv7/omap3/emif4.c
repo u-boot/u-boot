@@ -48,10 +48,11 @@ u32 is_mem_sdr(void)
  */
 u32 get_sdr_cs_size(u32 cs)
 {
-	u32 size;
+	u32 size = 0;
 
 	/* TODO: Calculate the size based on EMIF4 configuration */
-	size = CONFIG_SYS_CS0_SIZE;
+	if (cs == CS0)
+		size = CONFIG_SYS_CS0_SIZE;
 
 	return size;
 }
