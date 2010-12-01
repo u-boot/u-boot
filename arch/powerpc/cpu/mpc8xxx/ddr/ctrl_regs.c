@@ -1176,7 +1176,8 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			       fsl_ddr_cfg_regs_t *ddr,
 			       const common_timing_params_t *common_dimm,
 			       const dimm_params_t *dimm_params,
-			       unsigned int dbw_cap_adj)
+			       unsigned int dbw_cap_adj,
+			       unsigned int size_only)
 {
 	unsigned int i;
 	unsigned int cas_latency;
@@ -1393,6 +1394,13 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 		} else
 			printf("CS%d is disabled.\n", i);
 	}
+
+	/*
+	 * In the case we only need to compute the ddr sdram size, we only need
+	 * to set csn registers, so return from here.
+	 */
+	if (size_only)
+		return 0;
 
 	set_ddr_eor(ddr, popts);
 
