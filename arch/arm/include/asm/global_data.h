@@ -55,7 +55,9 @@ typedef	struct	global_data {
 	unsigned long	plla_rate_hz;
 	unsigned long	pllb_rate_hz;
 	unsigned long	at91_pllb_usb_init;
-	/* "static data" needed by at91's timer.c */
+#endif
+#ifdef CONFIG_ARM
+	/* "static data" needed by most of timer.c on ARM platforms */
 	unsigned long	timer_rate_hz;
 	unsigned long	tbl;
 	unsigned long	tbu;
