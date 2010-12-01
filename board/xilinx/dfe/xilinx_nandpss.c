@@ -216,7 +216,7 @@ static struct nand_ecclayout nand_oob_16 = {
 	.eccpos = {0, 1, 2},
 	.oobfree = {
 		{.offset = 8,
-		 . length = 8}}
+		 . length = 8} }
 };
 
 static struct nand_ecclayout nand_oob_64 = {
@@ -226,7 +226,7 @@ static struct nand_ecclayout nand_oob_64 = {
 		   58, 59, 60, 61, 62, 63},
 	.oobfree = {
 		{.offset = 2,
-		 .length = 50}}
+		 .length = 50} }
 };
 
 /**
@@ -369,10 +369,8 @@ int xnandpss_correct_data(struct mtd_info *mtd, unsigned char *buf,
 		return 1;
 	} else if (onehot(ecc_odd | ecc_even) == 1) {
 		return 1; /* one error in parity */
-	}
-	else {
-		printk(KERN_ERR "xnandpss: uncorrectable error\r\n");
-		return -1;
+	} else {
+		return -1; /* Uncorrectable error */
 	}
 }
 
@@ -559,8 +557,8 @@ void xnandpss_write_page_hwecc(struct mtd_info *mtd,
  * @chip:	nand chip info structure
  * @buf:	data buffer
  */
-static void xnandpss_write_page_swecc(struct mtd_info *mtd, struct nand_chip *chip,
-				  const uint8_t *buf)
+static void xnandpss_write_page_swecc(struct mtd_info *mtd,
+						struct nand_chip *chip, const uint8_t *buf)
 {
 	int i, eccsize = chip->ecc.size;
 	int eccbytes = chip->ecc.bytes;
@@ -584,6 +582,7 @@ static void xnandpss_write_page_swecc(struct mtd_info *mtd, struct nand_chip *ch
  * @mtd:	Pointer to the mtd info structure
  * @chip:	Pointer to the NAND chip info structure
  * @buf:	Pointer to the buffer to store read data
+ * @page:	page number to read
  *
  * This functions reads data and checks the data integrity by comparing hardware
  * generated ECC values and read ECC values from spare area.
@@ -662,8 +661,8 @@ int xnandpss_read_page_hwecc(struct mtd_info *mtd,
  * @buf:	buffer to store read data
  * @page:	page number to read
  */
-static int xnandpss_read_page_swecc(struct mtd_info *mtd, struct nand_chip *chip,
-				uint8_t *buf, int page)
+static int xnandpss_read_page_swecc(struct mtd_info *mtd,
+				struct nand_chip *chip, uint8_t *buf, int page)
 {
 	int i, eccsize = chip->ecc.size;
 	int eccbytes = chip->ecc.bytes;
@@ -780,10 +779,6 @@ static void xnandpss_cmd_function(struct mtd_info *mtd, unsigned int command,
 
 	/* Get the data phase address */
 	end_cmd_valid = 0;
-#if 0
-	if (curr_cmd->end_cmd_valid == XNANDPSS_DATA_PHASE)
-		end_cmd_valid = 1;
-#endif
 
 	data_phase_addr = (unsigned long __force)xnand->nand_base	|
 			(0x0 << CLEAR_CS_SHIFT)				|
@@ -816,9 +811,12 @@ static void xnandpss_cmd_function(struct mtd_info *mtd, unsigned int command,
 	else if (page_addr != -1)
 		cmd_data = page_addr;
 	/* Change read/write column, read id etc */
-	else if (column != -1)
+	else if (column != -1) {
+		/* Adjust columns for 16 bit bus width */
+		if (chip->options & NAND_BUSWIDTH_16)
+			column >>= 1;
 		cmd_data = column;
-	else
+	} else
 		;
 
 	xnandpss_write32(cmd_addr, cmd_data);
@@ -829,14 +827,12 @@ static void xnandpss_cmd_function(struct mtd_info *mtd, unsigned int command,
 	}
 
 	ndelay(100);
-#define READ_CMD_HACK
-#ifdef READ_CMD_HACK
+
 	if (command == NAND_CMD_READ0) {
-		while(!chip->dev_ready(mtd));
-		//udelay(20);
+		while (!chip->dev_ready(mtd))
+				;
 		return;
 	}
-#endif
 }
 
 /**
@@ -920,7 +916,11 @@ static int xnandpss_device_ready(struct mtd_info *mtd)
 
 	/* Check the raw_int_status1 bit */
 	status = xnandpss_read32(xnand->smc_regs + XSMCPSS_MC_STATUS) & 0x40;
-	return status?1:0;
+	/* Clear the interrupt condition */
+	if (status)
+		xnandpss_write32((xnand->smc_regs + XSMCPSS_MC_CLR_CONFIG),
+					(1<<4));
+	return status ? 1 : 0;
 }
 
 /**
@@ -1105,7 +1105,8 @@ int board_nand_init(struct nand_chip *nand_chip)
 			(XNANDPSS_ECC_CONFIG | ecc_page_size));
 		break;
 	default:
-		/* The software ECC routines won't work with the SMC controller */
+		/* The software ECC routines won't work with the
+				SMC controller */
 		nand_chip->ecc.mode = NAND_ECC_HW;
 		nand_chip->ecc.calculate = nand_calculate_ecc;
 		nand_chip->ecc.correct = nand_correct_data;
@@ -1141,15 +1142,18 @@ int board_nand_init(struct nand_chip *nand_chip)
 	nr_parts = parse_mtd_partitions(mtd, part_probe_types,
 					&xnand->parts, 0);
 	if (nr_parts > 0) {
-		dev_info(&pdev->dev, "found %d number of partition information"
-		" through command line", nr_parts);
+		dev_info(&pdev->dev, "found %d partitions in command line",
+				nr_parts);
 		add_mtd_partitions(mtd, xnand->parts, nr_parts);
 		return 0;
-	} else {
+	} else if (pdata->parts)
+		add_mtd_partitions(&xnand->mtd, pdata->parts, pdata->nr_parts);
+	else {
 #endif
-		dev_info(&pdev->dev, "Command line partition table is not"
-		" available, or command line partition option is not enabled"
-		"creating single partition on flash\n");
+		dev_info(&pdev->dev,
+			"Command line partition table is not available\n"
+			"or command line partition option is not enabled\n"
+			"creating single partition on flash\n");
 #endif
 		err = add_mtd_device(mtd);
 #ifdef CONFIG_MTD_CMDLINE_PARTS
