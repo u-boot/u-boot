@@ -1456,6 +1456,7 @@ static void eth_unbind(struct usb_gadget *gadget)
 /*	unregister_netdev (dev->net);*/
 /*	free_netdev(dev->net);*/
 
+	dev->gadget = NULL;
 	set_gadget_data(gadget, NULL);
 }
 
@@ -1788,6 +1789,8 @@ static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 		error("received NULL ptr");
 		goto fail;
 	}
+	if (usb_gadget_register_driver(&eth_driver) < 0)
+		goto fail;
 
 	dev->network_started = 0;
 
@@ -1895,7 +1898,12 @@ void usb_eth_halt(struct eth_device *netdev)
 		return;
 	}
 
+	/* If the gadget not registered, simple return */
+	if (!dev->gadget)
+		return;
+
 	usb_gadget_disconnect(dev->gadget);
+	usb_gadget_unregister_driver(&eth_driver);
 }
 
 static struct usb_gadget_driver eth_driver = {
@@ -1955,10 +1963,6 @@ int usb_eth_initialize(bd_t *bi)
 		status = -1;
 	}
 	if (status)
-		goto fail;
-
-	status = usb_gadget_register_driver(&eth_driver);
-	if (status < 0)
 		goto fail;
 
 	eth_register(netdev);
