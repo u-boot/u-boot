@@ -5,7 +5,7 @@
  * terms of the GNU Public License, Version 2, incorporated
  * herein by reference.
  *
- * Copyright 2004-2009 Freescale Semiconductor, Inc.
+ * Copyright 2004-2010 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * author Andy Fleming
  *
@@ -292,13 +292,12 @@ static uint tsec_local_mdio_read(volatile tsec_mdio_t *phyregs,
 
 /* By default force the TBI PHY into 1000Mbps full duplex when in SGMII mode */
 #ifndef CONFIG_TSEC_TBICR_SETTINGS
-#define TBICR_SETTINGS ( \
+#define CONFIG_TSEC_TBICR_SETTINGS ( \
 		TBICR_PHY_RESET \
+		| TBICR_ANEG_ENABLE \
 		| TBICR_FULL_DUPLEX \
 		| TBICR_SPEED1_SET \
 		)
-#else
-#define TBICR_SETTINGS CONFIG_TSEC_TBICR_SETTINGS
 #endif /* CONFIG_TSEC_TBICR_SETTINGS */
 
 /* Configure the TBI for SGMII operation */
@@ -311,7 +310,7 @@ static void tsec_configure_serdes(struct tsec_private *priv)
 	tsec_local_mdio_write(priv->phyregs_sgmii, priv->regs->tbipa, TBI_TBICON,
 			TBICON_CLK_SELECT);
 	tsec_local_mdio_write(priv->phyregs_sgmii, priv->regs->tbipa, TBI_CR,
-			TBICR_SETTINGS);
+			CONFIG_TSEC_TBICR_SETTINGS);
 }
 
 /* Discover which PHY is attached to the device, and configure it
