@@ -19,5 +19,4 @@
 #
 # Linux-Kernel is expected to be at 0x60008000
 #
-TEXT_BASE = 0x60800000
-LDSCRIPT := $(SRCTREE)/board/armltd/vexpress/u-boot.lds
+CONFIG_SYS_TEXT_BASE = 0x60800000

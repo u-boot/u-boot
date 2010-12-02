@@ -23,7 +23,6 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/sys_proto.h>
 
 /************************************************************
  * sdelay() - simple spin loop.  Will be constant time as
