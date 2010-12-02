@@ -39,9 +39,6 @@
 			    nand read 0x800000 0x900000 ${nand_ramdisk_size}; 	\
 			    go 0x8000\0"
 
-/* Define the following to cause u-boot to have a header for the boot rom that
-   causes the boot rom to use execute in place mode from QSPI flash
-*/
 #undef CONFIG_PELE_XIL_LQSPI
 
 /* default boot is NOR, then QSPI when u-boot is built for it, NAND must be selected
