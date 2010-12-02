@@ -384,6 +384,7 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 	unsigned long root_inum = 1;
 	unsigned long inum;
 	int symlink_count = 0; /* Don't allow symlink recursion */
+	char link_name[64];
 
 	strcpy(fpath, filename);
 
@@ -420,7 +421,6 @@ static unsigned long ubifs_findfile(struct super_block *sb, char *filename)
 		ui = ubifs_inode(inode);
 
 		if ((inode->i_mode & S_IFMT) == S_IFLNK) {
-			char link_name[64];
 			char buf[128];
 
 			/* We have some sort of symlink recursion, bail out */
