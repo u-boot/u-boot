@@ -57,6 +57,13 @@ static void board_init_enetaddr(uchar *mac_addr)
 	eth_setenv_enetaddr("ethaddr", mac_addr);
 }
 
+/* Only the first run of boards had a KSZ switch */
+#if defined(CONFIG_BFIN_SPI) && __SILICON_REVISION__ == 0
+# define KSZ_POSSIBLE 1
+#else
+# define KSZ_POSSIBLE 0
+#endif
+
 #define KSZ_MAX_HZ    5000000
 
 #define KSZ_WRITE     0x02
@@ -109,17 +116,16 @@ static int ksz8893m_reset(struct spi_slave *slave)
 	return ret;
 }
 
-int board_eth_init(bd_t *bis)
+static bool board_ksz_init(void)
 {
-	static bool switch_is_alive = false, phy_is_ksz = true;
-	int ret;
+	static bool switch_is_alive = false;
 
 	if (!switch_is_alive) {
 		struct spi_slave *slave = spi_setup_slave(0, 1, KSZ_MAX_HZ, SPI_MODE_3);
 		if (slave) {
 			if (!spi_claim_bus(slave)) {
-				phy_is_ksz = (ksz8893m_reg_read(slave, KSZ_REG_CHID) == 0x88);
-				ret = phy_is_ksz ? ksz8893m_reset(slave) : 0;
+				bool phy_is_ksz = (ksz8893m_reg_read(slave, KSZ_REG_CHID) == 0x88);
+				int ret = phy_is_ksz ? ksz8893m_reset(slave) : 0;
 				switch_is_alive = (ret == 0);
 				spi_release_bus(slave);
 			}
@@ -127,10 +133,16 @@ int board_eth_init(bd_t *bis)
 		}
 	}
 
-	if (switch_is_alive)
-		return bfin_EMAC_initialize(bis);
-	else
-		return -1;
+	return switch_is_alive;
+}
+
+int board_eth_init(bd_t *bis)
+{
+	if (KSZ_POSSIBLE) {
+		if (!board_ksz_init())
+			return 0;
+	}
+	return bfin_EMAC_initialize(bis);
 }
 #endif
 
