@@ -32,6 +32,7 @@
 
 #define PMUXCR_ELBCDIU_MASK	0xc0000000
 #define PMUXCR_ELBCDIU_NOR16	0x80000000
+#define PMUXCR_ELBCDIU_DIU	0x40000000
 
 /*
  * DIU Area Descriptor
@@ -131,9 +132,8 @@ int platform_diu_init(unsigned int *xres, unsigned int *yres)
 	px_brdcfg0 = in_8(lbc_lcs1_ba);
 	out_8(lbc_lcs1_ba, px_brdcfg0 | PX_BRDCFG0_ELBC_DIU);
 
-	/* Setting PMUXCR to switch to DVI from ELBC */
-	clrsetbits_be32(&gur->pmuxcr,
-		PMUXCR_ELBCDIU_MASK, PMUXCR_ELBCDIU_NOR16);
+	/* Set PMUXCR to switch the muxed pins from the LBC to the DIU */
+	clrsetbits_be32(&gur->pmuxcr, PMUXCR_ELBCDIU_MASK, PMUXCR_ELBCDIU_DIU);
 	pmuxcr = in_be32(&gur->pmuxcr);
 
 	return fsl_diu_init(*xres, pixel_format, 0);
@@ -161,7 +161,7 @@ static int set_mux_to_lbc(void)
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 
 	/* Switch the muxes only if they're currently set to DIU mode */
-	if ((in_be32(&gur->pmuxcr) & PMUXCR_ELBCDIU_MASK) ==
+	if ((in_be32(&gur->pmuxcr) & PMUXCR_ELBCDIU_MASK) !=
 	    PMUXCR_ELBCDIU_NOR16) {
 		/*
 		 * In DIU mode, the PIXIS can only be accessed indirectly
@@ -216,8 +216,17 @@ void flash_write8(u8 value, void *addr)
 	int sw = set_mux_to_lbc();
 
 	__raw_writeb(value, addr);
-	if (sw)
+	if (sw) {
+		/*
+		 * To ensure the post-write is completed to eLBC, software must
+		 * perform a dummy read from one valid address from eLBC space
+		 * before changing the eLBC_DIU from NOR mode to DIU mode.
+		 * set_mux_to_diu() includes a sync that will ensure the
+		 * __raw_readb() completes before it switches the mux.
+		 */
+		__raw_readb(addr);
 		set_mux_to_diu();
+	}
 }
 
 void flash_write16(u16 value, void *addr)
@@ -225,8 +234,17 @@ void flash_write16(u16 value, void *addr)
 	int sw = set_mux_to_lbc();
 
 	__raw_writew(value, addr);
-	if (sw)
+	if (sw) {
+		/*
+		 * To ensure the post-write is completed to eLBC, software must
+		 * perform a dummy read from one valid address from eLBC space
+		 * before changing the eLBC_DIU from NOR mode to DIU mode.
+		 * set_mux_to_diu() includes a sync that will ensure the
+		 * __raw_readb() completes before it switches the mux.
+		 */
+		__raw_readb(addr);
 		set_mux_to_diu();
+	}
 }
 
 void flash_write32(u32 value, void *addr)
@@ -234,18 +252,47 @@ void flash_write32(u32 value, void *addr)
 	int sw = set_mux_to_lbc();
 
 	__raw_writel(value, addr);
-	if (sw)
+	if (sw) {
+		/*
+		 * To ensure the post-write is completed to eLBC, software must
+		 * perform a dummy read from one valid address from eLBC space
+		 * before changing the eLBC_DIU from NOR mode to DIU mode.
+		 * set_mux_to_diu() includes a sync that will ensure the
+		 * __raw_readb() completes before it switches the mux.
+		 */
+		__raw_readb(addr);
 		set_mux_to_diu();
+	}
 }
 
 void flash_write64(u64 value, void *addr)
 {
 	int sw = set_mux_to_lbc();
+	uint32_t *p = addr;
 
-	/* There is no __raw_writeq(), so do the write manually */
-	*(volatile u64 *)addr = value;
-	if (sw)
+	/*
+	 * There is no __raw_writeq(), so do the write manually.  We don't trust
+	 * the compiler, so we use inline assembly.
+	 */
+	__asm__ __volatile__(
+		"stw%U0%X0 %2,%0;\n"
+		"stw%U1%X1 %3,%1;\n"
+		: "=m" (*p), "=m" (*(p + 1))
+		: "r" ((uint32_t) (value >> 32)), "r" ((uint32_t) (value)));
+
+	if (sw) {
+		/*
+		 * To ensure the post-write is completed to eLBC, software must
+		 * perform a dummy read from one valid address from eLBC space
+		 * before changing the eLBC_DIU from NOR mode to DIU mode.  We
+		 * read addr+4 because we just wrote to addr+4, so that's how we
+		 * maintain execution order.  set_mux_to_diu() includes a sync
+		 * that will ensure the __raw_readb() completes before it
+		 * switches the mux.
+		 */
+		__raw_readb(addr + 4);
 		set_mux_to_diu();
+	}
 }
 
 u8 flash_read8(void *addr)
