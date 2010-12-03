@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(SOC).o
 
 COBJS-$(CONFIG_USE_IRQ) += interrupts.o
+COBJS-$(CONFIG_DISPLAY_CPUINFO)	+= cpu_info.o
 COBJS-y	+= speed.o
 COBJS-y	+= timer.o
 COBJS-y	+= usb.o
