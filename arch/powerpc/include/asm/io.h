@@ -175,7 +175,10 @@ extern inline int in_8(const volatile unsigned char __iomem *addr)
 
 extern inline void out_8(volatile unsigned char __iomem *addr, int val)
 {
-	__asm__ __volatile__("stb%U0%X0 %1,%0; eieio" : "=m" (*addr) : "r" (val));
+	__asm__ __volatile__("sync;\n"
+			     "stb%U0%X0 %1,%0;\n"
+			     : "=m" (*addr)
+			     : "r" (val));
 }
 
 extern inline int in_le16(const volatile unsigned short __iomem *addr)
