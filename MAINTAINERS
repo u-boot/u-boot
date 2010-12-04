@@ -414,6 +414,7 @@ Georg Schardt <schardt@team-ctech.de>
 
 Heiko Schocher <hs@denx.de>
 
+	charon		MPC5200
 	ids8247		MPC8247
 	jupiter		MPC5200
 	kmeter1		MPC8360
