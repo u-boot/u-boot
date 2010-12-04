@@ -384,16 +384,16 @@ static int esdhc_init(struct mmc *mmc)
 	int ret = 0;
 	u8 card_absent;
 
-	/* Enable cache snooping */
-	if (cfg && !cfg->no_snoop)
-		esdhc_write32(&regs->scr, 0x00000040);
-
 	/* Reset the entire host controller */
 	esdhc_write32(&regs->sysctl, SYSCTL_RSTA);
 
 	/* Wait until the controller is available */
 	while ((esdhc_read32(&regs->sysctl) & SYSCTL_RSTA) && --timeout)
 		udelay(1000);
+
+	/* Enable cache snooping */
+	if (cfg && !cfg->no_snoop)
+		esdhc_write32(&regs->scr, 0x00000040);
 
 	esdhc_write32(&regs->sysctl, SYSCTL_HCKEN | SYSCTL_IPGEN);
 
