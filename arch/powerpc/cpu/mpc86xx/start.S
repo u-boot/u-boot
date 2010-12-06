@@ -255,7 +255,11 @@ addr_trans_enabled:
 	stwu	r0, -4(r1)	/* stack backtraces terminate cleanly	*/
 
 	GET_GOT			/* initialize GOT access	*/
-
+#if defined(__pic__) && __pic__ == 1
+	/* Needed for upcoming -msingle-pic-base */
+	bl	_GLOBAL_OFFSET_TABLE_@local-4
+	mflr	r30
+#endif
 	/* run low-level CPU init code	   (from Flash) */
 	bl	cpu_init_f
 	sync
@@ -620,6 +624,11 @@ relocate_code:
 	mr	r10, r5		/* Save copy of Destination Address	*/
 
 	GET_GOT
+#if defined(__pic__) && __pic__ == 1
+	/* Needed for upcoming -msingle-pic-base */
+	bl	_GLOBAL_OFFSET_TABLE_@local-4
+	mflr	r30
+#endif
 	mr	r3,  r5				/* Destination Address	*/
 	lis	r4, CONFIG_SYS_MONITOR_BASE@h		/* Source      Address	*/
 	ori	r4, r4, CONFIG_SYS_MONITOR_BASE@l

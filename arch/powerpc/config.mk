@@ -26,6 +26,8 @@ CROSS_COMPILE ?= ppc_8xx-
 STANDALONE_LOAD_ADDR = 0x40000
 LDFLAGS_FINAL += --gc-sections
 PLATFORM_RELFLAGS += -fpic -mrelocatable -ffunction-sections -fdata-sections
+PLATFORM_RELFLAGS += $(call cc-option,-msingle-pic-base,)
+PLATFORM_RELFLAGS += $(call cc-option,-fno-jump-tables,)
 PLATFORM_CPPFLAGS += -DCONFIG_PPC -D__powerpc__
 PLATFORM_LDFLAGS  += -n
 
