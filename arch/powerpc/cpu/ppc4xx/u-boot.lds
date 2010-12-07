@@ -23,7 +23,11 @@
 #include "config.h"	/* CONFIG_BOARDDIR */
 
 #ifndef RESET_VECTOR_ADDRESS
+#ifdef CONFIG_RESET_VECTOR_ADDRESS
+#define RESET_VECTOR_ADDRESS	CONFIG_RESET_VECTOR_ADDRESS
+#else
 #define RESET_VECTOR_ADDRESS	0xfffffffc
+#endif
 #endif
 
 OUTPUT_ARCH(powerpc)
@@ -100,7 +104,11 @@ SECTIONS
      * start.o, since the first shadow TLB only covers 4k
      * of address space.
      */
+#ifdef CONFIG_INIT_TLB
+    CONFIG_INIT_TLB (.bootpg)
+#else
     CONFIG_BOARDDIR/init.o	(.bootpg)
+#endif
   } :text = 0xffff
 #endif
 

@@ -267,7 +267,7 @@
 	/* NOTREACHED - board_init_f() does not return */
 #endif
 
-#if defined(CONFIG_SYS_RAMBOOT)
+#if defined(CONFIG_SYS_RAMBOOT) || defined(CONFIG_BOOT_FROM_XMD)
 	/*
 	 * 4xx RAM-booting U-Boot image is started from offset 0
 	 */
