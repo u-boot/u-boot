@@ -31,6 +31,9 @@ COBJS-y	+= time_sh2.o
 else
 COBJS-y	+= time.o
 endif
+ifeq ($(CONFIG_CMD_SH_ZIMAGEBOOT),y)
+COBJS-y += zimageboot.o
+endif
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
