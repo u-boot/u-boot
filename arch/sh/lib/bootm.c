@@ -100,7 +100,6 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	/* Set commandline */
 	strcpy(cmdline, bootargs);
 
-	sh_check_cmd_arg(bootargs, CMD_ARG_RD_DOLOAD, 10);
 	/* Initrd */
 	if (images->rd_start || images->rd_end) {
 		unsigned long ramdisk_flags = 0;
