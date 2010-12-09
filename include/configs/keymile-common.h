@@ -243,6 +243,7 @@
 	"release="							\
 		"setenv actual_bank ${initial_boot_bank} && "		\
 		"setenv subbootcmds \""					\
+		"checkboardidlist "					\
 		"checkboardid "						\
 		"ubiattach ubicopy "					\
 		"cramfsloadfdt cramfsloadkernel "			\
@@ -392,8 +393,34 @@
 	"default="							\
 		"setenv default 'run newenv; reset' &&  "		\
 		"run release && saveenv; reset\0"			\
+	"checkboardidlist="						\
+		"if test \"x${boardIdListHex}\" != \"x\"; then "	\
+		"IVMbidhwk=${IVM_BoardId}_${IVM_HWKey}; "		\
+		"found=0; "						\
+		"for bidhwk in \"${boardIdListHex}\"; do "		\
+		"echo trying $bidhwk ...; "				\
+		"if test \"x$bidhwk\" = \"x$IVMbidhwk\"; then "		\
+		"found=1; "						\
+		"echo match found for $bidhwk; "			\
+		"if test \"x$bidhwk\" != \"x${boardId}_${hwKey}\";then "\
+			"setenv boardid ${IVM_BoardId}; "		\
+			"setenv boardId ${IVM_BoardId}; "		\
+			"setenv hwkey ${IVM_HWKey}; "			\
+			"setenv hwKey ${IVM_HWKey}; "			\
+			"echo \"boardId set to ${boardId}\"; "		\
+			"echo \"hwKey   set to ${hwKey}\"; "		\
+			"saveenv; "					\
+		"fi; "							\
+		"fi; "							\
+		"done; "						\
+		"else "							\
+			"echo \"boardIdListHex not set, not checked\"; "\
+			"found=1; "					\
+		"fi; "							\
+		"test \"$found\" = 1 \0"				\
 	"checkboardid="							\
-		"test \"x${boardId}\" = \"x${IVM_BoardId}\"\0"		\
+		"test \"x${boardId}\" = \"x${IVM_BoardId}\" && "	\
+		"test \"x${hwKey}\" = \"x${IVM_HWKey}\"\0"		\
 	"printbootargs=print bootargs\0"				\
 	"rootfsfile="xstr(CONFIG_HOSTNAME) "/rootfsImage\0"		\
 	""
