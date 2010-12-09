@@ -120,7 +120,7 @@ int board_mmc_getcd(u8 *cd, struct mmc *mmc)
 
 int board_early_init_f(void)
 {
-	at91_shdwn_t *shdwn = (at91_shdwn_t *)AT91_SHDWN_BASE;
+	struct at91_shdwn *shdwn = (struct at91_shdwn *)AT91_SHDWN_BASE;
 
 	/*
 	 * make sure the board can be powered on by
