@@ -205,8 +205,12 @@
 #define BOARD_REV_1_0           0x0
 #define BOARD_REV_2_0           0x1
 
+#define IMX_IIM_BASE            (IIM_BASE_ADDR)
+
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
+
+extern void imx_get_mac_from_fuse(unsigned char *mac);
 
 #define __REG(x)	(*((volatile u32 *)(x)))
 #define __REG16(x)	(*((volatile u16 *)(x)))
@@ -275,6 +279,36 @@ struct src {
 	u32	sisr;
 	u32	simr;
 };
+
+struct iim_regs {
+	u32	stat;
+	u32	statm;
+	u32     err;
+	u32	emask;
+	u32	fctl;
+	u32	ua;
+	u32	la;
+	u32	sdat;
+	u32	prev;
+	u32	srev;
+	u32	preg_p;
+	u32	scs0;
+	u32	scs1;
+	u32	scs2;
+	u32	scs3;
+	u32	res0[0x1f1];
+	struct fuse_bank {
+		u32	fuse_regs[0x20];
+		u32	fuse_rsvd[0xe0];
+	} bank[4];
+};
+
+struct fuse_bank1_regs {
+	u32	fuse0_8[9];
+	u32	mac_addr[6];
+	u32	fuse15_31[0x11];
+};
+
 #endif /* __ASSEMBLER__*/
 
 #endif				/*  __ASM_ARCH_MXC_MX51_H__ */

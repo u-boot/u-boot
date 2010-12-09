@@ -100,6 +100,20 @@ int cpu_eth_init(bd_t *bis)
 	return rc;
 }
 
+#if defined(CONFIG_FEC_MXC)
+void imx_get_mac_from_fuse(unsigned char *mac)
+{
+	int i;
+	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;
+	struct fuse_bank *bank = &iim->bank[1];
+	struct fuse_bank1_regs *fuse =
+			(struct fuse_bank1_regs *)bank->fuse_regs;
+
+	for (i = 0; i < 6; i++)
+		mac[i] = readl(&fuse->mac_addr[i]) & 0xff;
+}
+#endif
+
 /*
  * Initializes on-chip MMC controllers.
  * to override, implement board_mmc_init()
