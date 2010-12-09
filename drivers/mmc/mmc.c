@@ -922,7 +922,10 @@ static int __def_mmc_init(bd_t *bis)
 }
 
 int cpu_mmc_init(bd_t *bis) __attribute__((weak, alias("__def_mmc_init")));
+/* The Xilinx toolchain doesn't properly override the weak symbol */
+#ifndef CONFIG_PELE
 int board_mmc_init(bd_t *bis) __attribute__((weak, alias("__def_mmc_init")));
+#endif
 
 void print_mmc_devices(char separator)
 {

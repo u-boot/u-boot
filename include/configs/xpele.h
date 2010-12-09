@@ -202,4 +202,14 @@
 #endif
 #endif
 
+/* Secure Digital */
+#define CONFIG_MMC     1
+
+#ifdef CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
+
 #endif /* __CONFIG_H */
