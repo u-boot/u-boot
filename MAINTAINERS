@@ -666,10 +666,6 @@ Matthias Kaehlcke <matthias@kaehlcke.net>
 Konstantin Kletschke <kletschke@synertronixx.de>
 	scb9328		ARM920T
 
-Simon Kagstrom <simon.kagstrom@netinsight.net>
-
-       openrd_base     ARM926EJS (Kirkwood SoC)
-
 Nishant Kamat <nskamat@ti.com>
 
 	omap1610h2	ARM926EJS
@@ -841,6 +837,7 @@ Prafulla Wadaskar <prafulla@marvell.com>
 
 	aspenite	ARM926EJS (ARMADA100 88AP168 SoC)
 	mv88f6281gtw_ge	ARM926EJS (Kirkwood SoC)
+	openrd_base     ARM926EJS (Kirkwood SoC)
 	rd6281a		ARM926EJS (Kirkwood SoC)
 	sheevaplug	ARM926EJS (Kirkwood SoC)
 
