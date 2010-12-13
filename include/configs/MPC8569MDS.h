@@ -263,12 +263,6 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_OR3_PRELIM	CONFIG_NAND_OR_PRELIM /* NAND Options */
 #endif
 
-/*
- * SDRAM on the LocalBus
- */
-#define CONFIG_SYS_LBC_SDRAM_BASE	0xf0000000	/* Localbus SDRAM	 */
-#define CONFIG_SYS_LBC_SDRAM_SIZE	64		/* LBC SDRAM is 64MB */
-
 #define CONFIG_SYS_LBC_LCRR	0x00000004	/* LB clock ratio reg */
 #define CONFIG_SYS_LBC_LBCR	0x00040000	/* LB config reg */
 #define CONFIG_SYS_LBC_LSRT	0x20000000	/* LB sdram refresh timer */
