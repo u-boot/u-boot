@@ -29,6 +29,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/emif4.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 extern omap3_sysinfo sysinfo;
 
 static emif4_t *emif4_base = (emif4_t *)OMAP34XX_SDRC_BASE;
@@ -139,7 +140,6 @@ void do_emif4_init(void)
  */
 int dram_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int size0 = 0, size1 = 0;
 
 	size0 = get_sdr_cs_size(CS0);
@@ -157,7 +157,6 @@ int dram_init(void)
 
 void dram_init_banksize (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int size0 = 0, size1 = 0;
 
 	size0 = get_sdr_cs_size(CS0);

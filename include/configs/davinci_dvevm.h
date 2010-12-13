@@ -50,7 +50,7 @@
 /*=======*/
 #define DV_EVM
 #define CONFIG_SYS_NAND_SMALLPAGE
-#define CONFIG_SYS_USE_NOR
+#define CONFIG_SYS_USE_NAND
 #define CONFIG_DISPLAY_CPUINFO
 /*===================*/
 /* SoC Configuration */
@@ -78,6 +78,7 @@
 #define CONFIG_STACKSIZE	(256*1024)	/* regular stack */
 #define PHYS_SDRAM_1		0x80000000	/* DDR Start */
 #define PHYS_SDRAM_1_SIZE	0x10000000	/* DDR size 256MB */
+
 #define DDR_8BANKS				/* 8-bank DDR2 (256MB) */
 /*====================*/
 /* Serial Driver info */
@@ -228,11 +229,13 @@
 #define CONFIG_PREBOOT "usb start"
 #endif
 #endif
-/*=======================*/
-/* KGDB support (if any) */
-/*=======================*/
-#ifdef CONFIG_CMD_KGDB
-#define CONFIG_KGDB_BAUDRATE	115200	/* speed to run kgdb serial port */
-#define CONFIG_KGDB_SER_INDEX	1	/* which serial port to use */
-#endif
+
+#define CONFIG_MAX_RAM_BANK_SIZE	(256 << 20)	/* 256 MB */
+
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + \
+					 CONFIG_SYS_INIT_RAM_SIZE - \
+					 GENERATED_GBL_DATA_SIZE)
+
 #endif /* __CONFIG_H */

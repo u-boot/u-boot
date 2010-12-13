@@ -37,6 +37,7 @@
 #include <asm/arch/mem.h>
 #include <asm/arch/sys_proto.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 extern omap3_sysinfo sysinfo;
 
 static struct sdrc *sdrc_base = (struct sdrc *)OMAP34XX_SDRC_BASE;
@@ -172,7 +173,6 @@ void do_sdrc_init(u32 cs, u32 early)
  */
 int dram_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int size0 = 0, size1 = 0;
 
 	size0 = get_sdr_cs_size(CS0);
@@ -194,7 +194,6 @@ int dram_init(void)
 
 void dram_init_banksize (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int size0 = 0, size1 = 0;
 
 	size0 = get_sdr_cs_size(CS0);
