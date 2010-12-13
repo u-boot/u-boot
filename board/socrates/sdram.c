@@ -39,7 +39,7 @@
  *       so this should be extended for other future boards
  *       using this routine!
  */
-long int sdram_setup(int casl)
+long int fixed_sdram(void)
 {
 	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 
@@ -85,7 +85,7 @@ phys_size_t initdram (int board_type)
 	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
 	dram_size *= 0x100000;
 #else
-	dram_size = sdram_setup(CONFIG_DDR_DEFAULT_CL);
+	dram_size = fixed_sdram();
 #endif
 	return dram_size;
 }
