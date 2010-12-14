@@ -12,11 +12,13 @@ void breakinst(void);
 int
 kgdb_setjmp(long *buf)
 {
-	asm ("mflr 0; stw 0,0(%0);"
-	     "stw 1,4(%0); stw 2,8(%0);"
-	     "mfcr 0; stw 0,12(%0);"
-	     "stmw 13,16(%0)"
-	     : : "r" (buf));
+	unsigned long temp;
+
+	asm volatile("mflr %0; stw %0,0(%1);"
+	     "stw %%r1,4(%1); stw %%r2,8(%1);"
+	     "mfcr %0; stw %0,12(%1);"
+	     "stmw %%r13,16(%1)"
+	     : "=&r"(temp) : "r" (buf));
 	/* XXX should save fp regs as well */
 	return 0;
 }
@@ -24,13 +26,16 @@ kgdb_setjmp(long *buf)
 void
 kgdb_longjmp(long *buf, int val)
 {
+	unsigned long temp;
+
 	if (val == 0)
 		val = 1;
-	asm ("lmw 13,16(%0);"
-	     "lwz 0,12(%0); mtcrf 0x38,0;"
-	     "lwz 0,0(%0); lwz 1,4(%0); lwz 2,8(%0);"
-	     "mtlr 0; mr 3,%1"
-	     : : "r" (buf), "r" (val));
+
+	asm volatile("lmw %%r13,16(%1);"
+	     "lwz %0,12(%1); mtcrf 0x38,%0;"
+	     "lwz %0,0(%1); lwz %%r1,4(%1); lwz %%r2,8(%1);"
+	     "mtlr %0; mr %%r3,%2"
+	     : "=&r"(temp) : "r" (buf), "r" (val));
 }
 
 static inline unsigned long
