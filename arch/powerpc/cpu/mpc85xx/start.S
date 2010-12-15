@@ -83,6 +83,45 @@
 
 _start_e500:
 
+#if defined(CONFIG_SECURE_BOOT) && defined(CONFIG_E500MC)
+	/* ISBC uses L2 as stack.
+	 * Disable L2 cache here so that u-boot can enable it later
+	 * as part of it's normal flow
+	*/
+
+	/* Check if L2 is enabled */
+	mfspr	r3, SPRN_L2CSR0
+	lis	r2, L2CSR0_L2E@h
+	ori	r2, r2, L2CSR0_L2E@l
+	and.	r4, r3, r2
+	beq	l2_disabled
+
+	mfspr r3, SPRN_L2CSR0
+	/* Flush L2 cache */
+	lis     r2,(L2CSR0_L2FL)@h
+	ori     r2, r2, (L2CSR0_L2FL)@l
+	or      r3, r2, r3
+	sync
+	isync
+	mtspr   SPRN_L2CSR0,r3
+	isync
+1:
+	mfspr r3, SPRN_L2CSR0
+	and. r1, r3, r2
+	bne 1b
+
+	mfspr r3, SPRN_L2CSR0
+	lis r2, L2CSR0_L2E@h
+	ori r2, r2, L2CSR0_L2E@l
+	andc r4, r3, r2
+	sync
+	isync
+	mtspr SPRN_L2CSR0,r4
+	isync
+
+l2_disabled:
+#endif
+
 /* clear registers/arrays not reset by hardware */
 
 	/* L1 */
@@ -516,7 +555,7 @@ create_init_ram_area:
 	lis     r6,FSL_BOOKE_MAS0(1, 15, 0)@h
 	ori     r6,r6,FSL_BOOKE_MAS0(1, 15, 0)@l
 
-#ifndef CONFIG_SYS_RAMBOOT
+#if !defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SECURE_BOOT)
 	/* create a temp mapping in AS=1 to the 4M boot window */
 	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_4M)@h
 	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_4M)@l
@@ -527,6 +566,20 @@ create_init_ram_area:
 	/* The 85xx has the default boot window 0xff800000 - 0xffffffff */
 	lis     r9,FSL_BOOKE_MAS3(0xffc00000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@h
 	ori     r9,r9,FSL_BOOKE_MAS3(0xffc00000, 0, (MAS3_SX|MAS3_SW|MAS3_SR))@l
+#elif !defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SECURE_BOOT)
+	/* create a temp mapping in AS = 1 for Flash mapping
+	 * created by PBL for ISBC code
+	*/
+	lis     r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_1M)@h
+	ori     r7,r7,FSL_BOOKE_MAS1(1, 1, 0, 1, BOOKE_PAGESZ_1M)@l
+
+	lis     r8,FSL_BOOKE_MAS2(CONFIG_SYS_MONITOR_BASE, (MAS2_I|MAS2_G))@h
+	ori     r8,r8,FSL_BOOKE_MAS2(CONFIG_SYS_MONITOR_BASE, (MAS2_I|MAS2_G))@l
+
+	lis     r9,FSL_BOOKE_MAS3(CONFIG_SYS_PBI_FLASH_WINDOW, 0,
+						(MAS3_SX|MAS3_SW|MAS3_SR))@h
+	ori     r9,r9,FSL_BOOKE_MAS3(CONFIG_SYS_PBI_FLASH_WINDOW, 0,
+						(MAS3_SX|MAS3_SW|MAS3_SR))@l
 #else
 	/*
 	 * create a temp mapping in AS=1 to the 1M CONFIG_SYS_MONITOR_BASE space, the main

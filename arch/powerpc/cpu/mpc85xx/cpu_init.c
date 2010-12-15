@@ -226,7 +226,9 @@ void cpu_init_f (void)
 #ifdef CONFIG_SYS_DCSRBAR_PHYS
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #endif
-
+#if defined(CONFIG_SECURE_BOOT)
+	struct law_entry law;
+#endif
 #ifdef CONFIG_MPC8548
 	ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 	uint svr = get_svr();
@@ -243,6 +245,13 @@ void cpu_init_f (void)
 
 	disable_tlb(14);
 	disable_tlb(15);
+
+#if defined(CONFIG_SECURE_BOOT)
+	/* Disable the LAW created for NOR flash by the PBI commands */
+	law = find_law(CONFIG_SYS_PBI_FLASH_BASE);
+	if (law.index != -1)
+		disable_law(law.index);
+#endif
 
 #ifdef CONFIG_CPM2
 	config_8560_ioports((ccsr_cpm_t *)CONFIG_SYS_MPC85xx_CPM_ADDR);
