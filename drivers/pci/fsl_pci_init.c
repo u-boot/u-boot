@@ -18,6 +18,8 @@
  */
 
 #include <common.h>
+#include <malloc.h>
+#include <asm/fsl_serdes.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -512,6 +514,152 @@ void fsl_pci_config_unlock(struct pci_controller *hose)
 		pci_hose_write_config_word(hose, dev, FSL_PCI_PBFR, pbfr);
 	}
 }
+
+#if defined(CONFIG_PCIE1) || defined(CONFIG_PCIE2) || \
+    defined(CONFIG_PCIE3) || defined(CONFIG_PCIE4) 
+int fsl_configure_pcie(struct fsl_pci_info *info,
+			struct pci_controller *hose,
+			const char *connected, int busno)
+{
+	int is_endpoint;
+
+	set_next_law(info->mem_phys, law_size_bits(info->mem_size), info->law);
+	set_next_law(info->io_phys, law_size_bits(info->io_size), info->law);
+	is_endpoint = fsl_setup_hose(hose, info->regs);
+	printf("PCIE%u: connected to %s as %s (base addr %lx)\n",
+	       info->pci_num, connected,
+	       is_endpoint ? "Endpoint" : "Root Complex", info->regs);
+	return fsl_pci_init_port(info, hose, busno);
+}
+
+#if defined(CONFIG_FSL_CORENET)
+	#define _DEVDISR_PCIE1 FSL_CORENET_DEVDISR_PCIE1
+	#define _DEVDISR_PCIE2 FSL_CORENET_DEVDISR_PCIE2
+	#define _DEVDISR_PCIE3 FSL_CORENET_DEVDISR_PCIE3
+	#define _DEVDISR_PCIE4 FSL_CORENET_DEVDISR_PCIE4
+	#define CONFIG_SYS_MPC8xxx_GUTS_ADDR CONFIG_SYS_MPC85xx_GUTS_ADDR
+#elif defined(CONFIG_MPC85xx)
+	#define _DEVDISR_PCIE1 MPC85xx_DEVDISR_PCIE
+	#define _DEVDISR_PCIE2 MPC85xx_DEVDISR_PCIE2
+	#define _DEVDISR_PCIE3 MPC85xx_DEVDISR_PCIE3
+	#define _DEVDISR_PCIE4 0
+	#define CONFIG_SYS_MPC8xxx_GUTS_ADDR CONFIG_SYS_MPC85xx_GUTS_ADDR
+#elif defined(CONFIG_MPC86xx)
+	#define _DEVDISR_PCIE1 MPC86xx_DEVDISR_PCIE1
+	#define _DEVDISR_PCIE2 MPC86xx_DEVDISR_PCIE2
+	#define _DEVDISR_PCIE3 0
+	#define _DEVDISR_PCIE4 0
+	#define CONFIG_SYS_MPC8xxx_GUTS_ADDR \
+		(&((immap_t *)CONFIG_SYS_IMMR)->im_gur)
+#else
+#error "No defines for DEVDISR_PCIE"
+#endif
+
+/* Implement a dummy function for those platforms w/o SERDES */
+static const char *__board_serdes_name(enum srds_prtcl device)
+{
+	switch (device) {
+#ifdef CONFIG_SYS_PCIE1_NAME
+	case PCIE1:
+		return CONFIG_SYS_PCIE1_NAME;
+#endif
+#ifdef CONFIG_SYS_PCIE2_NAME
+	case PCIE2:
+		return CONFIG_SYS_PCIE2_NAME;
+#endif
+#ifdef CONFIG_SYS_PCIE3_NAME
+	case PCIE3:
+		return CONFIG_SYS_PCIE3_NAME;
+#endif
+#ifdef CONFIG_SYS_PCIE4_NAME
+	case PCIE4:
+		return CONFIG_SYS_PCIE4_NAME;
+#endif
+	default:
+		return NULL;
+	}
+
+	return NULL;
+}
+
+__attribute__((weak, alias("__board_serdes_name"))) const char *
+board_serdes_name(enum srds_prtcl device);
+
+static u32 devdisr_mask[] = {
+	_DEVDISR_PCIE1,
+	_DEVDISR_PCIE2,
+	_DEVDISR_PCIE3,
+	_DEVDISR_PCIE4,
+};
+
+int fsl_pcie_init_ctrl(int busno, u32 devdisr, enum srds_prtcl dev,
+			struct fsl_pci_info *pci_info)
+{
+	struct pci_controller *hose;
+	int num = dev - PCIE1;
+
+	hose = calloc(1, sizeof(struct pci_controller));
+	if (!hose)
+		return busno;
+
+	if (is_serdes_configured(dev) && !(devdisr & devdisr_mask[num])) {
+		busno = fsl_configure_pcie(pci_info, hose,
+				board_serdes_name(dev), busno);
+	} else {
+		printf("PCIE%d: disabled\n", num + 1);
+	}
+
+	return busno;
+}
+
+int fsl_pcie_init_board(int busno)
+{
+	struct fsl_pci_info pci_info;
+	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC8xxx_GUTS_ADDR;
+	u32 devdisr = in_be32(&gur->devdisr);
+
+#ifdef CONFIG_PCIE1
+	SET_STD_PCIE_INFO(pci_info, 1);
+	busno = fsl_pcie_init_ctrl(busno, devdisr, PCIE1, &pci_info);
+#else
+	setbits_be32(&gur->devdisr, _DEVDISR_PCIE1); /* disable */
+#endif
+
+#ifdef CONFIG_PCIE2
+	SET_STD_PCIE_INFO(pci_info, 2);
+	busno = fsl_pcie_init_ctrl(busno, devdisr, PCIE2, &pci_info);
+#else
+	setbits_be32(&gur->devdisr, _DEVDISR_PCIE2); /* disable */
+#endif
+
+#ifdef CONFIG_PCIE3
+	SET_STD_PCIE_INFO(pci_info, 3);
+	busno = fsl_pcie_init_ctrl(busno, devdisr, PCIE3, &pci_info);
+#else
+	setbits_be32(&gur->devdisr, _DEVDISR_PCIE3); /* disable */
+#endif
+
+#ifdef CONFIG_PCIE4
+	SET_STD_PCIE_INFO(pci_info, 4);
+	busno = fsl_pcie_init_ctrl(busno, devdisr, PCIE4, &pci_info);
+#else
+	setbits_be32(&gur->devdisr, _DEVDISR_PCIE4); /* disable */
+#endif
+
+ 	return busno;
+}
+#else
+int fsl_pcie_init_ctrl(int busno, u32 devdisr, enum srds_prtcl dev,
+			struct fsl_pci_info *pci_info)
+{
+	return busno;
+}
+
+int fsl_pcie_init_board(int busno)
+{
+	return busno;
+}
+#endif
 
 #ifdef CONFIG_OF_BOARD_SETUP
 #include <libfdt.h>

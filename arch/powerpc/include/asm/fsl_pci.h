@@ -22,6 +22,8 @@
 #define __FSL_PCI_H_
 
 #include <asm/fsl_law.h>
+#include <asm/fsl_serdes.h>
+#include <pci.h>
 
 int fsl_setup_hose(struct pci_controller *hose, unsigned long addr);
 int fsl_is_pci_agent(struct pci_controller *hose);
@@ -172,6 +174,9 @@ struct fsl_pci_info {
 
 int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 				struct pci_controller *hose, int busno);
+int fsl_pcie_init_ctrl(int busno, u32 devdisr, enum srds_prtcl dev,
+			struct fsl_pci_info *pci_info);
+int fsl_pcie_init_board(int busno);
 
 #define SET_STD_PCI_INFO(x, num) \
 {			\
@@ -220,12 +225,17 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 	FT_FSL_PCIE2_SETUP; \
 	FT_FSL_PCIE3_SETUP; \
 	FT_FSL_PCIE4_SETUP;
+#define FT_FSL_PCIE_SETUP FT_FSL_PCI_SETUP
 #elif defined(CONFIG_MPC85xx)
 #define FSL_PCI_COMPAT	"fsl,mpc8540-pci"
 #define FSL_PCIE_COMPAT	"fsl,mpc8548-pcie"
 #define FT_FSL_PCI_SETUP \
 	FT_FSL_PCI1_SETUP; \
 	FT_FSL_PCI2_SETUP; \
+	FT_FSL_PCIE1_SETUP; \
+	FT_FSL_PCIE2_SETUP; \
+	FT_FSL_PCIE3_SETUP;
+#define FT_FSL_PCIE_SETUP \
 	FT_FSL_PCIE1_SETUP; \
 	FT_FSL_PCIE2_SETUP; \
 	FT_FSL_PCIE3_SETUP;
