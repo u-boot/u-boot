@@ -1,5 +1,5 @@
 /*
- * Copyright 2004,2009 Freescale Semiconductor, Inc.
+ * Copyright 2004,2009-2010 Freescale Semiconductor, Inc.
  * Jeff Brown
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
@@ -31,6 +31,7 @@
 #include <mpc86xx.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
+#include <asm/fsl_serdes.h>
 #include <asm/mp.h>
 
 void setup_bats(void);
@@ -76,6 +77,9 @@ void cpu_init_f(void)
  */
 int cpu_init_r(void)
 {
+	/* needs to be in ram since code uses global static vars */
+	fsl_serdes_init();
+
 #if defined(CONFIG_MP)
 	setup_mp();
 #endif
