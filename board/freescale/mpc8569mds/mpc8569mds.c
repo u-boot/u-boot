@@ -31,6 +31,7 @@
 #include <asm/immap_85xx.h>
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
+#include <asm/fsl_serdes.h>
 #include <asm/io.h>
 #include <spd_sdram.h>
 #include <i2c.h>
@@ -579,7 +580,7 @@ void pci_init_board(void)
 #endif
 
 #ifdef CONFIG_PCIE1
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
+	pcie_configured = is_serdes_configured(PCIE1);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
 		SET_STD_PCIE_INFO(pci_info[num], 1);

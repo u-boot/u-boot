@@ -12,7 +12,6 @@ LIB	= $(obj)lib8xxx.o
 
 ifneq ($(CPU),mpc83xx)
 COBJS-y	+= cpu.o
-COBJS-$(CONFIG_PCI)	+= pci_cfg.o
 endif
 
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o

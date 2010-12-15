@@ -38,6 +38,7 @@
 #include <asm/immap_85xx.h>
 #include <asm/fsl_pci.h>
 #include <asm/io.h>
+#include <asm/fsl_serdes.h>
 #include <linux/compiler.h>
 #include <ioports.h>
 #include <flash.h>
@@ -555,8 +556,6 @@ void pci_init_board (void)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	u32 devdisr = in_be32(&gur->devdisr);
 	u32 pordevsr = in_be32(&gur->pordevsr);
-	__maybe_unused uint io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >>
-			MPC85xx_PORDEVSR_IO_SEL_SHIFT;
 
 #ifdef CONFIG_PCI1
 	uint pci_32 = in_be32(&gur->pordevsr) & MPC85xx_PORDEVSR_PCI1_PCI32;
@@ -598,7 +597,7 @@ void pci_init_board (void)
 #endif
 
 #ifdef CONFIG_PCIE1
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
+	pcie_configured = is_serdes_configured(PCIE1);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)) {
 		SET_STD_PCIE_INFO(pci_info[num], 1);

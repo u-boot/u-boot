@@ -27,6 +27,7 @@
 #include <asm/immap_86xx.h>
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
+#include <asm/fsl_serdes.h>
 #include <i2c.h>
 #include <asm/io.h>
 #include <libfdt.h>
@@ -225,7 +226,7 @@ void pci_init_board(void)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	struct fsl_pci_info pci_info[3];
-	u32 devdisr, pordevsr, io_sel;
+	u32 devdisr, pordevsr;
 	int first_free_busno = 0;
 	int num = 0;
 
@@ -233,13 +234,9 @@ void pci_init_board(void)
 
 	devdisr = in_be32(&gur->devdisr);
 	pordevsr = in_be32(&gur->pordevsr);
-	io_sel = (pordevsr & MPC8610_PORDEVSR_IO_SEL)
-			>> MPC8610_PORDEVSR_IO_SEL_SHIFT;
-
-	debug ("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
 
 #ifdef CONFIG_PCIE1
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
+	pcie_configured = is_serdes_configured(PCIE1);
 
 	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIE1)){
 		SET_STD_PCIE_INFO(pci_info[num], 1);
@@ -260,7 +257,7 @@ void pci_init_board(void)
 #endif
 
 #ifdef CONFIG_PCIE2
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
+	pcie_configured = is_serdes_configured(PCIE2);
 
 	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIE2)){
 		SET_STD_PCIE_INFO(pci_info[num], 2);

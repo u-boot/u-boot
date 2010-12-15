@@ -35,6 +35,7 @@
 #include <asm/immap_86xx.h>
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
+#include <asm/fsl_serdes.h>
 #include <libfdt.h>
 #include <fdt_support.h>
 
@@ -210,13 +211,11 @@ void pci_init_board(void)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 	uint devdisr = in_be32(&gur->devdisr);
-	uint io_sel = (gur->pordevsr & MPC8641_PORDEVSR_IO_SEL)
-		>> MPC8641_PORDEVSR_IO_SEL_SHIFT;
 	int pcie_ep;
 	int num = 0;
 
 #ifdef CONFIG_PCIE1
-	int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
+	int pcie_configured = is_serdes_configured(PCIE1);
 
 	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIEX1)) {
 		SET_STD_PCIE_INFO(pci_info[num], 1);

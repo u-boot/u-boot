@@ -28,6 +28,7 @@
 #include <asm/immap_85xx.h>
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
+#include <asm/fsl_serdes.h>
 #include <asm/io.h>
 #include <miiphy.h>
 #include <libfdt.h>
@@ -127,7 +128,7 @@ void pci_init_board(void)
 	puts("\n");
 
 #ifdef CONFIG_PCIE3
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_3, io_sel);
+	pcie_configured = is_serdes_configured(PCIE3);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE3)){
 		SET_STD_PCIE_INFO(pci_info[num], 3);
@@ -162,7 +163,7 @@ void pci_init_board(void)
 #endif
 
 #ifdef CONFIG_PCIE1
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
+	pcie_configured = is_serdes_configured(PCIE1);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
 		SET_STD_PCIE_INFO(pci_info[num], 1);
@@ -193,7 +194,7 @@ void pci_init_board(void)
 #endif
 
 #ifdef CONFIG_PCIE2
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
+	pcie_configured = is_serdes_configured(PCIE2);
 
 	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE2)){
 		SET_STD_PCIE_INFO(pci_info[num], 2);

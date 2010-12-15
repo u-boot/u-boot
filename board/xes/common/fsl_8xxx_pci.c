@@ -24,6 +24,7 @@
 #include <common.h>
 #include <pci.h>
 #include <asm/fsl_pci.h>
+#include <asm/fsl_serdes.h>
 #include <asm/io.h>
 #include <linux/compiler.h>
 #include <libfdt.h>
@@ -81,11 +82,9 @@ void pci_init_board(void)
 	volatile ccsr_gur_t *gur = &immap->im_gur;
 #endif
 	u32 devdisr = in_be32(&gur->devdisr);
-	u32 pordevsr = in_be32(&gur->pordevsr);
-	__maybe_unused uint io_sel = (pordevsr & MPC8xxx_PORDEVSR_IO_SEL) >>
-			MPC8xxx_PORDEVSR_IO_SEL_SHIFT;
 
 #ifdef CONFIG_PCI1
+	u32 pordevsr = in_be32(&gur->pordevsr);
 	uint pci_spd_norm = in_be32(&gur->pordevsr) & MPC85xx_PORDEVSR_PCI1_SPD;
 	uint pci_32 = in_be32(&gur->pordevsr) & MPC85xx_PORDEVSR_PCI1_PCI32;
 	uint pci_arb = in_be32(&gur->pordevsr) & MPC85xx_PORDEVSR_PCI1_ARB;
@@ -114,7 +113,7 @@ void pci_init_board(void)
 #endif
 
 #ifdef CONFIG_PCIE1
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
+	pcie_configured = is_serdes_configured(PCIE1);
 
 	if (pcie_configured && !(devdisr & MPC8xxx_DEVDISR_PCIE1)) {
 		SET_STD_PCIE_INFO(pci_info[num], 1);
@@ -131,7 +130,7 @@ void pci_init_board(void)
 #endif /* CONFIG_PCIE1 */
 
 #ifdef CONFIG_PCIE2
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_2, io_sel);
+	pcie_configured = is_serdes_configured(PCIE2);
 
 	if (pcie_configured && !(devdisr & MPC8xxx_DEVDISR_PCIE2)) {
 		SET_STD_PCIE_INFO(pci_info[num], 2);
@@ -148,7 +147,7 @@ void pci_init_board(void)
 #endif /* CONFIG_PCIE2 */
 
 #ifdef CONFIG_PCIE3
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_3, io_sel);
+	pcie_configured = is_serdes_configured(PCIE3);
 
 	if (pcie_configured && !(devdisr & MPC8xxx_DEVDISR_PCIE3)) {
 		SET_STD_PCIE_INFO(pci_info[num], 3);
