@@ -232,6 +232,12 @@ void cpu_init_f (void)
 	invalidate_cpc();
 }
 
+/* Implement a dummy function for those platforms w/o SERDES */
+static void __fsl_serdes__init(void)
+{
+	return ;
+}
+__attribute__((weak, alias("__fsl_serdes__init"))) void fsl_serdes_init(void);
 
 /*
  * Initialize L2 as cache.
@@ -375,10 +381,8 @@ int cpu_init_r(void)
 	qe_reset();
 #endif
 
-#if defined(CONFIG_SYS_HAS_SERDES)
 	/* needs to be in ram since code uses global static vars */
 	fsl_serdes_init();
-#endif
 
 #if defined(CONFIG_MP)
 	setup_mp();

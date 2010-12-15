@@ -50,7 +50,6 @@
 #define CONFIG_PCIE3			/* PCIE controler 3 */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
-#define CONFIG_SYS_HAS_SERDES		/* has SERDES */
 
 #define CONFIG_SRIO1			/* SRIO port 1 */
 #define CONFIG_SRIO2			/* SRIO port 2 */
