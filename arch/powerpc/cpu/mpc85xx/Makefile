@@ -80,6 +80,8 @@ COBJS-$(CONFIG_FSL_CORENET) += fsl_corenet_serdes.o
 COBJS-$(CONFIG_MPC8536) += mpc8536_serdes.o
 COBJS-$(CONFIG_P1013)	+= p1013_serdes.o
 COBJS-$(CONFIG_P1022)	+= p1022_serdes.o
+COBJS-$(CONFIG_P2010)	+= p2020_serdes.o
+COBJS-$(CONFIG_P2020)	+= p2020_serdes.o
 COBJS-$(CONFIG_PPC_P4080) += p4080_serdes.o
 
 COBJS	= $(COBJS-y)
