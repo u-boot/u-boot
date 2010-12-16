@@ -85,7 +85,7 @@ void lcd_panel_disable(void)
 #define V_END_WIDTH	(7 + 3)	/* lower_margin + vsync_len */
 #define SIG_POL		(DI_D3_DRDY_SHARP_POL | DI_D3_CLK_POL)
 #define IF_CONF		0
-#define IF_CLK_DIV	0x175
+#define IF_CLK_DIV	0x55
 #else
 #define XRES		240
 #define YRES		320
