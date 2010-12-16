@@ -260,4 +260,16 @@ void mx25_fec_init_pins (void)
 	writel (outpadctl, &padctl->pad_fec_tdata1);
 
 }
+
+void imx_get_mac_from_fuse(unsigned char *mac)
+{
+	int i;
+	struct iim_regs *iim = (struct iim_regs *)IMX_IIM_BASE;
+	struct fuse_bank *bank = &iim->bank[0];
+	struct fuse_bank0_regs *fuse =
+			(struct fuse_bank0_regs *)bank->fuse_regs;
+
+	for (i = 0; i < 6; i++)
+		mac[i] = readl(&fuse->mac_addr[i]) & 0xff;
+}
 #endif /* CONFIG_FEC_MXC */

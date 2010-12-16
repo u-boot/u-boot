@@ -33,6 +33,20 @@
 #include <asm/sizes.h>
 
 /*
+ * set some initial configurations depending on configure target
+ *
+ * at91rm9200ek_config     -> boot from 0x0 in NOR Flash at CS0
+ * at91rm9200ek_ram_config -> continue booting from 0x20100000 in RAM; lowlevel
+ *                            initialisation was done by some preloader
+ */
+#ifdef CONFIG_RAMBOOT
+#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_SYS_TEXT_BASE 0x20100000
+#else
+#define CONFIG_SYS_TEXT_BASE 0x10000000
+#endif
+
+/*
  * AT91C_XTAL_CLOCK is the frequency of external xtal in hertz
  * AT91C_MAIN_CLOCK is the frequency of PLLA output
  * AT91C_MASTER_CLOCK is the peripherial clock
@@ -56,6 +70,8 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
+
+#define CONFIG_AT91FAMILY
 
 /*
  * Memory Configuration
@@ -90,7 +106,7 @@
 #define CONFIG_SYS_EBI_CSA_VAL	0x00000002 /* CS1=CONFIG_SYS_SDRAM */
 #define CONFIG_SYS_SDRC_CR_VAL	0x2188c155 /* set up the CONFIG_SYS_SDRAM */
 #define CONFIG_SYS_SDRAM	CONFIG_SYS_SDRAM_BASE /* address of the SDRAM */
-#define CONFIG_SYS_SDRAM1	CONFIG_SYS_SDRAM_BASE /* address of the SDRAM */
+#define CONFIG_SYS_SDRAM1	(CONFIG_SYS_SDRAM_BASE+0x80)
 #define CONFIG_SYS_SDRAM_VAL	0x00000000 /* value written to CONFIG_SYS_SDRAM */
 #define CONFIG_SYS_SDRC_MR_VAL	0x00000002 /* Precharge All */
 #define CONFIG_SYS_SDRC_MR_VAL1	0x00000004 /* refresh */

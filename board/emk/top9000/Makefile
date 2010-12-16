@@ -1,6 +1,9 @@
 #
-# (C) Copyright 2006
+# (C) Copyright 2003-2008
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
+# (C) Copyright 2010
+# Reinhard Meyer, EMK Elektronik, reinhard.meyer@emk-elektronik.de
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -12,7 +15,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,36 +26,17 @@
 
 include $(TOPDIR)/config.mk
 
-ifneq ($(OBJTREE),$(SRCTREE))
-$(shell mkdir -p $(obj)board/freescale/common)
-endif
+LIB	= $(obj)lib$(BOARD).a
 
-LIB	= $(obj)libfreescale.o
-
-COBJS-$(CONFIG_FSL_CADMUS)	+= cadmus.o
-COBJS-$(CONFIG_FSL_VIA)		+= cds_via.o
-COBJS-$(CONFIG_FSL_PIXIS)	+= pixis.o
-COBJS-$(CONFIG_FSL_NGPIXIS)	+= ngpixis.o
-COBJS-$(CONFIG_PQ_MDS_PIB)	+= pq-mds-pib.o
-COBJS-$(CONFIG_ID_EEPROM)	+= sys_eeprom.o
-COBJS-$(CONFIG_FSL_SGMII_RISER)	+= sgmii_riser.o
-
-COBJS-$(CONFIG_MPC8541CDS)	+= cds_pci_ft.o
-COBJS-$(CONFIG_MPC8548CDS)	+= cds_pci_ft.o
-COBJS-$(CONFIG_MPC8555CDS)	+= cds_pci_ft.o
-
-COBJS-$(CONFIG_MPC8536DS)	+= ics307_clk.o
-COBJS-$(CONFIG_MPC8572DS)	+= ics307_clk.o
-COBJS-$(CONFIG_P1022DS)		+= ics307_clk.o
-COBJS-$(CONFIG_P2020DS)		+= ics307_clk.o
-COBJS-$(CONFIG_P4080DS)		+= ics307_clk.o
+COBJS-y	+= top9000.o
+COBJS-$(CONFIG_ATMEL_SPI)	+= spi.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS-y))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(obj).depend $(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

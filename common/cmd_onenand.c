@@ -293,7 +293,7 @@ static int onenand_dump(struct mtd_info *mtd, ulong off, int only_oob)
 	addr = (loff_t) off;
 	memset(&ops, 0, sizeof(ops));
 	ops.datbuf = datbuf;
-	ops.oobbuf = oobbuf; /* must exist, but oob data will be appended to ops.datbuf */
+	ops.oobbuf = oobbuf;
 	ops.len = mtd->writesize;
 	ops.ooblen = mtd->oobsize;
 	ops.retlen = 0;
@@ -319,6 +319,8 @@ static int onenand_dump(struct mtd_info *mtd, ulong off, int only_oob)
 	}
 	puts("OOB:\n");
 	i = mtd->oobsize >> 3;
+	p = oobbuf;
+
 	while (i--) {
 		printf("\t%02x %02x %02x %02x %02x %02x %02x %02x\n",
 		       p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7]);

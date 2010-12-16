@@ -327,7 +327,7 @@ int cpu_init_r(void)
 	if (l2cache->l2ctl & MPC85xx_L2CTL_L2E) {
 		puts("already enabled");
 		l2srbar = l2cache->l2srbar0;
-#ifdef CONFIG_SYS_INIT_L2_ADDR
+#if defined(CONFIG_SYS_INIT_L2_ADDR) && defined(CONFIG_SYS_FLASH_BASE)
 		if (l2cache->l2ctl & MPC85xx_L2CTL_L2SRAM_ENTIRE
 				&& l2srbar >= CONFIG_SYS_FLASH_BASE) {
 			l2srbar = CONFIG_SYS_INIT_L2_ADDR;

@@ -95,16 +95,19 @@ static void flash__init(void)
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size(CONFIG_SYS_SDRAM_BASE, PHYS_SDRAM_1_SIZE);
+	gd->ram_size =
+		get_ram_size((long *)CONFIG_SYS_SDRAM_BASE, PHYS_SDRAM_1_SIZE);
 	return 0;
 }
 
 void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = get_ram_size(PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE);
+	gd->bd->bi_dram[0].size =
+			get_ram_size((long *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE);
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = get_ram_size(PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE);
+	gd->bd->bi_dram[1].size =
+			get_ram_size((long *)PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE);
 }
 
 int timer_init(void)
@@ -154,7 +157,7 @@ void reset_cpu(ulong addr)
  * Delay x useconds AND perserve advance timstamp value
  *     assumes timer is ticking at 1 msec
  */
-void udelay(ulong usec)
+void __udelay(ulong usec)
 {
 	ulong tmo, tmp;
 

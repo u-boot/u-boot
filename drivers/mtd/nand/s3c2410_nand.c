@@ -133,9 +133,15 @@ int board_nand_init(struct nand_chip *nand)
 	writel(readl(&clk_power->clkcon) | (1 << 4), &clk_power->clkcon);
 
 	/* initialize hardware */
-	twrph0 = 3;
-	twrph1 = 0;
-	tacls = 0;
+#if defined(CONFIG_S3C24XX_CUSTOM_NAND_TIMING)
+	tacls  = CONFIG_S3C24XX_TACLS;
+	twrph0 = CONFIG_S3C24XX_TWRPH0;
+	twrph1 =  CONFIG_S3C24XX_TWRPH1;
+#else
+	tacls = 4;
+	twrph0 = 8;
+	twrph1 = 8;
+#endif
 
 	cfg = S3C2410_NFCONF_EN;
 	cfg |= S3C2410_NFCONF_TACLS(tacls - 1);

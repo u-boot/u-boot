@@ -296,13 +296,13 @@
 /*
  * CS4 on Local Bus, to PIB
  */
-#define CONFIG_SYS_BR4_PRELIM	0xf8010801 /* CS4 base address at 0xf8010000 */
+#define CONFIG_SYS_BR4_PRELIM	0xf8008801 /* CS4 base address at 0xf8008000 */
 #define CONFIG_SYS_OR4_PRELIM	0xffffe9f7 /* size 32KB, port size 8bit, GPCM */
 
 /*
  * CS5 on Local Bus, to PIB
  */
-#define CONFIG_SYS_BR5_PRELIM	0xf8008801 /* CS5 base address at 0xf8008000 */
+#define CONFIG_SYS_BR5_PRELIM	0xf8010801 /* CS5 base address at 0xf8010000 */
 #define CONFIG_SYS_OR5_PRELIM	0xffffe9f7 /* size 32KB, port size 8bit, GPCM */
 
 /*

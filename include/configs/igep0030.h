@@ -110,6 +110,7 @@
 #define CONFIG_MTD_DEVICE
 
 #undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
+#undef CONFIG_CMD_NFS		/* nfs				*/
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
 

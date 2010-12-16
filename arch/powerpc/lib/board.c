@@ -645,6 +645,17 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	gd->cpu += dest_addr - CONFIG_SYS_MONITOR_BASE;
 #endif
 
+#ifdef CONFIG_SYS_EXTRA_ENV_RELOC
+	/*
+	 * Some systems need to relocate the env_addr pointer early because the
+	 * location it points to will get invalidated before env_relocate is
+	 * called.  One example is on systems that might use a L2 or L3 cache
+	 * in SRAM mode and initialize that cache from SRAM mode back to being
+	 * a cache in cpu_init_r.
+	 */
+	gd->env_addr += dest_addr - CONFIG_SYS_MONITOR_BASE;
+#endif
+
 #ifdef CONFIG_SERIAL_MULTI
 	serial_initialize();
 #endif

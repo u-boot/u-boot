@@ -204,6 +204,11 @@ void at91_macb_hw_init(void)
 #else
 	at91_set_b_periph(AT91_PIO_PORTA, 23, 0);	/* ETX2 */
 	at91_set_b_periph(AT91_PIO_PORTA, 24, 0);	/* ETX3 */
+#if defined(CONFIG_AT91SAM9G20)
+	/* 9G20 BOOT ROM initializes those pins to multi-drive, undo that */
+	at91_set_pio_multi_drive(AT91_PIO_PORTA, 23, 0);
+	at91_set_pio_multi_drive(AT91_PIO_PORTA, 24, 0);
+#endif
 #endif
 	at91_set_b_periph(AT91_PIO_PORTA, 22, 0);	/* ETXER */
 #endif

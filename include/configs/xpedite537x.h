@@ -375,6 +375,16 @@ extern unsigned long get_board_ddr_clk(unsigned long dummy);
 #define CONFIG_MII_DEFAULT_TSEC	1	/* Allow unregistered phys */
 #define CONFIG_ETHPRIME		"eTSEC2"
 
+/*
+ * In-band SGMII auto-negotiation between TBI and BCM5482S PHY fails, force
+ * 1000mbps SGMII link
+ */
+#define CONFIG_TSEC_TBICR_SETTINGS ( \
+		TBICR_PHY_RESET \
+		| TBICR_FULL_DUPLEX \
+		| TBICR_SPEED1_SET \
+		)
+
 #define CONFIG_TSEC1		1
 #define CONFIG_TSEC1_NAME	"eTSEC1"
 #define TSEC1_FLAGS		(TSEC_GIGABIT | TSEC_REDUCED)

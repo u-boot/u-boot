@@ -29,6 +29,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/emif4.h>
 
+DECLARE_GLOBAL_DATA_PTR;
 extern omap3_sysinfo sysinfo;
 
 static emif4_t *emif4_base = (emif4_t *)OMAP34XX_SDRC_BASE;
@@ -48,10 +49,11 @@ u32 is_mem_sdr(void)
  */
 u32 get_sdr_cs_size(u32 cs)
 {
-	u32 size;
+	u32 size = 0;
 
 	/* TODO: Calculate the size based on EMIF4 configuration */
-	size = CONFIG_SYS_CS0_SIZE;
+	if (cs == CS0)
+		size = CONFIG_SYS_CS0_SIZE;
 
 	return size;
 }
@@ -138,7 +140,6 @@ void do_emif4_init(void)
  */
 int dram_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int size0 = 0, size1 = 0;
 
 	size0 = get_sdr_cs_size(CS0);
@@ -156,7 +157,6 @@ int dram_init(void)
 
 void dram_init_banksize (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	unsigned int size0 = 0, size1 = 0;
 
 	size0 = get_sdr_cs_size(CS0);

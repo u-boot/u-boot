@@ -1158,6 +1158,10 @@ map_flash_by_law1:
 	bne 1b
 
 	stw r4, LBLAWAR1(r3) /* LBLAWAR1 <= 8MB Flash Size */
+	/* Wait for HW to catch up */
+	lwz r4, LBLAWAR1(r3)
+	twi 0,r4,0
+	isync
 	blr
 
 	/* Though all the LBIU Local Access Windows and LBC Banks will be
@@ -1196,5 +1200,9 @@ remap_flash_by_law0:
 	xor r4, r4, r4
 	stw r4, LBLAWBAR1(r3)
 	stw r4, LBLAWAR1(r3) /* Off LBIU LAW1 */
+	/* Wait for HW to catch up */
+	lwz r4, LBLAWAR1(r3)
+	twi 0,r4,0
+	isync
 	blr
 #endif /* CONFIG_SYS_FLASHBOOT */

@@ -32,16 +32,15 @@
 
 #include <common.h>
 
-#include <asm/io.h>
-#include <asm/hardware.h>
+#include <asm/arch/io.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/at91_tc.h>
 #include <asm/arch/at91_pmc.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* the number of clocks per CONFIG_SYS_HZ */
 #define TIMER_LOAD_VAL (CONFIG_SYS_HZ_CLOCK/CONFIG_SYS_HZ)
-
-static u32 timestamp;
-static u32 lastinc;
 
 int timer_init(void)
 {
@@ -64,8 +63,8 @@ int timer_init(void)
 	writel(TIMER_LOAD_VAL, &tc->tc[0].rc);
 
 	writel(AT91_TC_CCR_SWTRG | AT91_TC_CCR_CLKEN, &tc->tc[0].ccr);
-	lastinc = 0;
-	timestamp = 0;
+	gd->lastinc = 0;
+	gd->tbl = 0;
 
 	return 0;
 }
@@ -86,7 +85,7 @@ ulong get_timer(ulong base)
 
 void set_timer(ulong t)
 {
-	timestamp = t;
+	gd->tbl = t;
 }
 
 void __udelay(unsigned long usec)
@@ -98,8 +97,8 @@ void reset_timer_masked(void)
 {
 	/* reset time */
 	at91_tc_t *tc = (at91_tc_t *) AT91_TC_BASE;
-	lastinc = readl(&tc->tc[0].cv) & 0x0000ffff;
-	timestamp = 0;
+	gd->lastinc = readl(&tc->tc[0].cv) & 0x0000ffff;
+	gd->tbl = 0;
 }
 
 ulong get_timer_raw(void)
@@ -109,16 +108,16 @@ ulong get_timer_raw(void)
 
 	now = readl(&tc->tc[0].cv) & 0x0000ffff;
 
-	if (now >= lastinc) {
+	if (now >= gd->lastinc) {
 		/* normal mode */
-		timestamp += now - lastinc;
+		gd->tbl += now - gd->lastinc;
 	} else {
 		/* we have an overflow ... */
-		timestamp += now + TIMER_LOAD_VAL - lastinc;
+		gd->tbl += now + TIMER_LOAD_VAL - gd->lastinc;
 	}
-	lastinc = now;
+	gd->lastinc = now;
 
-	return timestamp;
+	return gd->tbl;
 }
 
 ulong get_timer_masked(void)

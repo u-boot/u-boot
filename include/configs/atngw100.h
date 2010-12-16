@@ -104,8 +104,6 @@
 #define CONFIG_BOOTP_SUBNETMASK
 #define CONFIG_BOOTP_GATEWAY
 
-#define CONFIG_DOS_PARTITION		1
-
 /*
  * Command line configuration.
  */

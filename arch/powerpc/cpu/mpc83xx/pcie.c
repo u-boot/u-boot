@@ -201,18 +201,18 @@ static void mpc83xx_pcie_init_bus(int bus, struct pci_region *reg)
 	out_le32(&out_win->tarl, 0);
 	out_le32(&out_win->tarh, 0);
 
-	for (i = 0; i < 2; i++, reg++) {
+	for (i = 0; i < 2; i++) {
 		u32 ar;
 
-		if (reg->size == 0)
+		if (reg[i].size == 0)
 			break;
 
 		out_win = &pex->bridge.pex_outbound_win[i + 1];
-		out_le32(&out_win->bar, reg->phys_start);
-		out_le32(&out_win->tarl, reg->bus_start);
+		out_le32(&out_win->bar, reg[i].phys_start);
+		out_le32(&out_win->tarl, reg[i].bus_start);
 		out_le32(&out_win->tarh, 0);
-		ar = PEX_OWAR_EN | (reg->size & PEX_OWAR_SIZE);
-		if (reg->flags & PCI_REGION_IO)
+		ar = PEX_OWAR_EN | (reg[i].size & PEX_OWAR_SIZE);
+		if (reg[i].flags & PCI_REGION_IO)
 			ar |= PEX_OWAR_TYPE_IO;
 		else
 			ar |= PEX_OWAR_TYPE_MEM;

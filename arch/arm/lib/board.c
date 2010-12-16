@@ -276,7 +276,7 @@ void board_init_f (ulong bootflag)
 	ulong addr, addr_sp;
 
 	/* Pointer is writable since we allocated a register for it */
-	gd = (gd_t *) (CONFIG_SYS_INIT_SP_ADDR);
+	gd = (gd_t *) ((CONFIG_SYS_INIT_SP_ADDR) & ~0x07);
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 

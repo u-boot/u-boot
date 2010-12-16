@@ -140,6 +140,7 @@
 
 /* Disabled commands */
 #undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support   */
 #undef CONFIG_CMD_IMLS		/* List all found images        */
 
