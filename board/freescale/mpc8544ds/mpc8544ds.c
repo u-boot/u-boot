@@ -119,12 +119,6 @@ void pci_init_board(void)
 
 	debug ("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
 
-	if (io_sel & 1) {
-		if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII1_DIS))
-			printf("eTSEC1 is in sgmii mode.\n");
-		if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII3_DIS))
-			printf("eTSEC3 is in sgmii mode.\n");
-	}
 	puts("\n");
 
 #ifdef CONFIG_PCIE3
@@ -324,20 +318,22 @@ int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_TSEC_ENET
 	struct tsec_info_struct tsec_info[2];
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	uint io_sel = (gur->pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
 	int num = 0;
 
 #ifdef CONFIG_TSEC1
 	SET_STD_TSEC_INFO(tsec_info[num], 1);
-	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII1_DIS))
+	if (is_serdes_configured(SGMII_TSEC1)) {
+		puts("eTSEC1 is in sgmii mode.\n");
 		tsec_info[num].flags |= TSEC_SGMII;
+	}
 	num++;
 #endif
 #ifdef CONFIG_TSEC3
 	SET_STD_TSEC_INFO(tsec_info[num], 3);
-	if (!(gur->pordevsr & MPC85xx_PORDEVSR_SGMII3_DIS))
+	if (is_serdes_configured(SGMII_TSEC3)) {
+		puts("eTSEC3 is in sgmii mode.\n");
 		tsec_info[num].flags |= TSEC_SGMII;
+	}
 	num++;
 #endif
 
@@ -347,8 +343,10 @@ int board_eth_init(bd_t *bis)
 		return 0;
 	}
 
-	if (io_sel & 1)
+	if (is_serdes_configured(SGMII_TSEC1) ||
+	    is_serdes_configured(SGMII_TSEC3)) {
 		fsl_sgmii_riser_init(tsec_info, num);
+	}
 
 
 	tsec_eth_init(bis, tsec_info, num);

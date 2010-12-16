@@ -26,6 +26,7 @@
 #include <asm/mmu.h>
 #include <asm/cache.h>
 #include <asm/immap_85xx.h>
+#include <asm/fsl_serdes.h>
 #include <asm/io.h>
 #include <miiphy.h>
 #include <libfdt.h>
@@ -166,10 +167,8 @@ int board_early_init_r(void)
 int board_eth_init(bd_t *bis)
 {
 	struct tsec_info_struct tsec_info[4];
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	int num = 0;
 	char *tmp;
-	u32 pordevsr;
 	unsigned int vscfw_addr;
 
 #ifdef CONFIG_TSEC1
@@ -182,9 +181,10 @@ int board_eth_init(bd_t *bis)
 #endif
 #ifdef CONFIG_TSEC3
 	SET_STD_TSEC_INFO(tsec_info[num], 3);
-	pordevsr = in_be32(&gur->pordevsr);
-	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII3_DIS))
+	if (is_serdes_configured(SGMII_TSEC3)) {
+		puts("eTSEC3 is in sgmii mode.\n");
 		tsec_info[num].flags |= TSEC_SGMII;
+	}
 	num++;
 #endif
 	if (!num) {

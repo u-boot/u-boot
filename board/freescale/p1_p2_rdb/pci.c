@@ -53,9 +53,6 @@ void pci_init_board(void)
 	devdisr = in_be32(&gur->devdisr);
 	pordevsr = in_be32(&gur->pordevsr);
 
-	if (!(pordevsr & MPC85xx_PORDEVSR_SGMII2_DIS))
-		printf("eTSEC2 is in sgmii mode.\n");
-
 	puts("\n");
 #ifdef CONFIG_PCIE2
 	pcie_configured = is_serdes_configured(PCIE2);

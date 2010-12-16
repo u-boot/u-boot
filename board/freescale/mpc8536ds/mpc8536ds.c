@@ -194,7 +194,7 @@ void pci_init_board(void)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	struct fsl_pci_info pci_info[4];
-	u32 devdisr, pordevsr, io_sel, sdrs2_io_sel;
+	u32 devdisr, pordevsr, io_sel;
 	u32 porpllsr, pci_agent, pci_speed, pci_32, pci_arb, pci_clk_sel;
 	int first_free_busno = 0;
 	int num = 0;
@@ -205,18 +205,8 @@ void pci_init_board(void)
 	pordevsr = in_be32(&gur->pordevsr);
 	porpllsr = in_be32(&gur->porpllsr);
 	io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-	sdrs2_io_sel = (pordevsr & MPC85xx_PORDEVSR_SRDS2_IO_SEL) >> 27;
 
-	debug("   pci_init_board: devdisr=%x, sdrs2_io_sel=%x, io_sel=%x\n",
-		devdisr, sdrs2_io_sel, io_sel);
-
-	if (sdrs2_io_sel == 7)
-		printf("Serdes2 disalbed\n");
-	else if (sdrs2_io_sel == 4) {
-		printf("eTSEC1 is in sgmii mode.\n");
-		printf("eTSEC3 is in sgmii mode.\n");
-	} else if (sdrs2_io_sel == 6)
-		printf("eTSEC1 is in sgmii mode.\n");
+	debug("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
 
 	puts("\n");
 #ifdef CONFIG_PCIE3
@@ -354,14 +344,12 @@ int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_TSEC_ENET
 	struct tsec_info_struct tsec_info[2];
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	int num = 0;
-	uint sdrs2_io_sel =
-		(gur->pordevsr & MPC85xx_PORDEVSR_SRDS2_IO_SEL) >> 27;
 
 #ifdef CONFIG_TSEC1
 	SET_STD_TSEC_INFO(tsec_info[num], 1);
-	if ((sdrs2_io_sel == 4) || (sdrs2_io_sel == 6)) {
+	if (is_serdes_configured(SGMII_TSEC1)) {
+		puts("eTSEC1 is in sgmii mode.\n");
 		tsec_info[num].phyaddr = 0;
 		tsec_info[num].flags |= TSEC_SGMII;
 	}
@@ -369,7 +357,8 @@ int board_eth_init(bd_t *bis)
 #endif
 #ifdef CONFIG_TSEC3
 	SET_STD_TSEC_INFO(tsec_info[num], 3);
-	if (sdrs2_io_sel == 4) {
+	if (is_serdes_configured(SGMII_TSEC3)) {
+		puts("eTSEC3 is in sgmii mode.\n");
 		tsec_info[num].phyaddr = 1;
 		tsec_info[num].flags |= TSEC_SGMII;
 	}
@@ -382,8 +371,10 @@ int board_eth_init(bd_t *bis)
 	}
 
 #ifdef CONFIG_FSL_SGMII_RISER
-	if ((sdrs2_io_sel == 4) || (sdrs2_io_sel == 6))
+	if (is_serdes_configured(SGMII_TSEC1) ||
+	    is_serdes_configured(SGMII_TSEC3)) {
 		fsl_sgmii_riser_init(tsec_info, num);
+	}
 #endif
 
 	tsec_eth_init(bis, tsec_info, num);
