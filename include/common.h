@@ -632,6 +632,7 @@ static inline IPaddr_t getenv_IPaddr (char *var)
 /* lib/qsort.c */
 void qsort(void *base, size_t nmemb, size_t size,
 	   int(*compar)(const void *, const void *));
+int strcmp_compar(const void *, const void *);
 
 /* lib/time.c */
 void	udelay        (unsigned long);

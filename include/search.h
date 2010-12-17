@@ -74,6 +74,13 @@ extern void hdestroy_r(struct hsearch_data *__htab);
 extern int hsearch_r(ENTRY __item, ACTION __action, ENTRY ** __retval,
 		     struct hsearch_data *__htab);
 
+/*
+ * Search for an entry matching `MATCH'.  Otherwise, Same semantics
+ * as hsearch_r().
+ */
+extern int hmatch_r(const char *__match, int __last_idx, ENTRY ** __retval,
+		    struct hsearch_data *__htab);
+
 /* Search and delete entry matching ITEM.key in internal hash table. */
 extern int hdelete_r(const char *__key, struct hsearch_data *__htab);
 

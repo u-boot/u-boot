@@ -202,6 +202,26 @@ void hdestroy_r(struct hsearch_data *htab)
  *   example for functions like hdelete().
  */
 
+int hmatch_r(const char *match, int last_idx, ENTRY ** retval,
+	     struct hsearch_data *htab)
+{
+	unsigned int idx;
+	size_t key_len = strlen(match);
+
+	for (idx = last_idx + 1; idx < htab->size; ++idx) {
+		if (!htab->table[idx].used)
+			continue;
+		if (!strncmp(match, htab->table[idx].entry.key, key_len)) {
+			*retval = &htab->table[idx].entry;
+			return idx;
+		}
+	}
+
+	__set_errno(ESRCH);
+	*retval = NULL;
+	return 0;
+}
+
 int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 	      struct hsearch_data *htab)
 {
