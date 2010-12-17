@@ -45,7 +45,7 @@ static struct gpio_port_t * const gpio_array[] = {
 #if defined(BF533_FAMILY)
 	(struct gpio_port_t *) FIO_FLAG_D,
 #elif defined(CONFIG_BF52x) || defined(BF537_FAMILY) || defined(CONFIG_BF51x) \
-	|| defined(BF538_FAMILY)
+	|| defined(BF538_FAMILY) || defined(CONFIG_BF50x)
 	(struct gpio_port_t *) PORTFIO,
 # if !defined(BF538_FAMILY)
 	(struct gpio_port_t *) PORTGIO,
@@ -71,7 +71,8 @@ static struct gpio_port_t * const gpio_array[] = {
 #endif
 };
 
-#if defined(CONFIG_BF52x) || defined(BF537_FAMILY) || defined(CONFIG_BF51x)
+#if defined(CONFIG_BF52x) || defined(BF537_FAMILY) || defined(CONFIG_BF51x) || \
+    defined(CONFIG_BF50x)
 static unsigned short * const port_fer[] = {
 	(unsigned short *) PORTF_FER,
 	(unsigned short *) PORTG_FER,
@@ -202,7 +203,8 @@ static void port_setup(unsigned gpio, unsigned short usage)
 	if (check_gpio(gpio))
 		return;
 
-#if defined(CONFIG_BF52x) || defined(BF537_FAMILY) || defined(CONFIG_BF51x)
+#if defined(CONFIG_BF52x) || defined(BF537_FAMILY) || defined(CONFIG_BF51x) || \
+    defined(CONFIG_BF50x)
 	if (usage == GPIO_USAGE)
 		*port_fer[gpio_bank(gpio)] &= ~gpio_bit(gpio);
 	else

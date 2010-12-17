@@ -31,13 +31,19 @@
 #define LOB(x) ((x) & 0xFF)
 #define HIB(x) (((x) >> 8) & 0xFF)
 
+#if defined(__ADSPBF50x__) || defined(__ADSPBF54x__)
+# define BFIN_UART_HW_VER 2
+#else
+# define BFIN_UART_HW_VER 1
+#endif
+
 /*
  * All Blackfin system MMRs are padded to 32bits even if the register
  * itself is only 16bits.  So use a helper macro to streamline this.
  */
 #define __BFP(m) u16 m; u16 __pad_##m
 struct bfin_mmr_serial {
-#ifdef __ADSPBF54x__
+#if BFIN_UART_HW_VER == 2
 	__BFP(dll);
 	__BFP(dlh);
 	__BFP(gctl);
@@ -88,7 +94,7 @@ struct bfin_mmr_serial {
 #endif
 #define pUART ((volatile struct bfin_mmr_serial *)UART_DLL)
 
-#ifdef __ADSPBF54x__
+#if BFIN_UART_HW_VER == 2
 # define ACCESS_LATCH()
 # define ACCESS_PORT_IER()
 #else
@@ -107,7 +113,16 @@ static inline void serial_do_portmux(void)
 		return;
 	}
 
-#if defined(__ADSPBF51x__)
+#if defined(__ADSPBF50x__)
+# define DO_MUX(port, mux_tx, mux_rx, tx, rx) \
+	bfin_write_PORT##port##_MUX((bfin_read_PORT##port##_MUX() & ~(PORT_x_MUX_##mux_tx##_MASK | PORT_x_MUX_##mux_rx##_MASK)) | PORT_x_MUX_##mux_tx##_FUNC_1 | PORT_x_MUX_##mux_rx##_FUNC_1); \
+	bfin_write_PORT##port##_FER(bfin_read_PORT##port##_FER() | P##port##tx | P##port##rx);
+	switch (CONFIG_UART_CONSOLE) {
+	case 0: DO_MUX(G, 7, 7, 12, 13); break;	/* Port G; mux 7; PG12 and PG13 */
+	case 1: DO_MUX(F, 3, 3, 6, 7);   break;	/* Port F; mux 3; PF6 and PF7 */
+	}
+	SSYNC();
+#elif defined(__ADSPBF51x__)
 # define DO_MUX(port, mux_tx, mux_rx, tx, rx) \
 	bfin_write_PORT##port##_MUX((bfin_read_PORT##port##_MUX() & ~(PORT_x_MUX_##mux_tx##_MASK | PORT_x_MUX_##mux_rx##_MASK)) | PORT_x_MUX_##mux_tx##_FUNC_2 | PORT_x_MUX_##mux_rx##_FUNC_2); \
 	bfin_write_PORT##port##_FER(bfin_read_PORT##port##_FER() | P##port##tx | P##port##rx);

@@ -19,7 +19,7 @@
 #include <asm/mach-common/bits/sdh.h>
 #include <asm/mach-common/bits/dma.h>
 
-#if defined(__ADSPBF51x__)
+#if defined(__ADSPBF50x__) || defined(__ADSPBF51x__)
 # define bfin_read_SDH_PWR_CTL		bfin_read_RSI_PWR_CONTROL
 # define bfin_write_SDH_PWR_CTL		bfin_write_RSI_PWR_CONTROL
 # define bfin_read_SDH_CLK_CTL		bfin_read_RSI_CLK_CONTROL

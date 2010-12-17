@@ -248,6 +248,8 @@ void spi_release_bus(struct spi_slave *slave)
 #elif defined(__ADSPBF537__) || defined(__ADSPBF536__) || defined(__ADSPBF534__) || \
       defined(__ADSPBF52x__) || defined(__ADSPBF51x__)
 # define SPI_DMA_BASE DMA7_NEXT_DESC_PTR
+# elif defined(__ADSPBF50x__)
+# define SPI_DMA_BASE DMA6_NEXT_DESC_PTR
 #else
 # error "Please provide SPI DMA channel defines"
 #endif
