@@ -394,6 +394,7 @@
  */
 
 /* controller 3, Slot 1, tgtid 3, Base address b000 */
+#define CONFIG_SYS_PCIE3_NAME		"Slot 1"
 #define CONFIG_SYS_PCIE3_MEM_VIRT	0x80000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE3_MEM_BUS	0xe0000000
@@ -413,6 +414,7 @@
 #define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 2, direct to uli, tgtid 2, Base address 9000 */
+#define CONFIG_SYS_PCIE2_NAME		"ULI"
 #define CONFIG_SYS_PCIE2_MEM_VIRT	0xa0000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE2_MEM_BUS	0xe0000000
@@ -432,6 +434,7 @@
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 1, Slot 2, tgtid 1, Base address a000 */
+#define CONFIG_SYS_PCIE1_NAME		"Slot 2"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xc0000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
