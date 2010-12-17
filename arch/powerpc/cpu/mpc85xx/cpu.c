@@ -331,7 +331,7 @@ phys_size_t initdram(int board_type)
 #endif
 
 	/* Some boards also have sdram on the lbc */
-	sdram_init();
+	lbc_sdram_init();
 
 	puts("DDR: ");
 	return dram_size;

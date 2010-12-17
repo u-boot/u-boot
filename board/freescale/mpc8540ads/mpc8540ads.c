@@ -122,9 +122,7 @@ local_bus_init(void)
 /*
  * Initialize SDRAM memory on the Local Bus.
  */
-
-void
-sdram_init(void)
+void lbc_sdram_init(void)
 {
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;

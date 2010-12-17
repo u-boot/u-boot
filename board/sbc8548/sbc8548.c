@@ -104,8 +104,7 @@ local_bus_init(void)
 /*
  * Initialize SDRAM memory on the Local Bus.
  */
-void
-sdram_init(void)
+void lbc_sdram_init(void)
 {
 #if defined(CONFIG_SYS_LBC_SDRAM_SIZE)
 

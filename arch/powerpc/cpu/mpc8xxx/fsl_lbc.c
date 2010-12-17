@@ -11,11 +11,11 @@
 
 #ifdef CONFIG_MPC85xx
 /* Boards should provide their own version of this if they use lbc sdram */
-void __sdram_init(void)
+void __lbc_sdram_init(void)
 {
 	/* Do nothing */
 }
-void sdram_init(void) __attribute__((weak, alias("__sdram_init")));
+void lbc_sdram_init(void) __attribute__((weak, alias("__lbc_sdram_init")));
 #endif
 
 

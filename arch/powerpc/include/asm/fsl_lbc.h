@@ -17,7 +17,7 @@
 #include <common.h>
 
 #ifdef CONFIG_MPC85xx
-void sdram_init(void);
+void lbc_sdram_init(void);
 #endif
 
 /* BR - Base Registers
