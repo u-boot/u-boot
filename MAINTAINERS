@@ -1058,6 +1058,7 @@ Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 Mike Frysinger <vapier@gentoo.org>
 Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 
+	BF506F-EZKIT	BF506
 	BF518F-EZBRD	BF518
 	BF526-EZBRD	BF526
 	BF527-AD7160-EVAL	BF527
