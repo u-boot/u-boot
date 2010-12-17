@@ -180,9 +180,9 @@ void lbc_sdram_init(void)
 	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
 	uint lsdmr_common;
 
-	puts("    SDRAM: ");
-
-	print_size (CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
+	puts("LBC SDRAM: ");
+	print_size(CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024,
+		   "\n       ");
 
 	/*
 	 * Setup SDRAM Base and Option Registers

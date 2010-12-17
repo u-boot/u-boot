@@ -121,9 +121,9 @@ void lbc_sdram_init(void)
 	uint cpu_board_rev;
 	uint lsdmr_common;
 
-	puts("    SDRAM: ");
-
-	print_size (CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
+	puts("LBC SDRAM: ");
+	print_size(CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024,
+		   "\n       ");
 
 	/*
 	 * Setup SDRAM Base and Option Registers

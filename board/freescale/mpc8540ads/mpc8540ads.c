@@ -127,8 +127,9 @@ void lbc_sdram_init(void)
 	volatile fsl_lbc_t *lbc = LBC_BASE_ADDR;
 	uint *sdram_addr = (uint *)CONFIG_SYS_LBC_SDRAM_BASE;
 
-	puts("    SDRAM: ");
-	print_size (CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024, "\n");
+	puts("LBC SDRAM: ");
+	print_size(CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024,
+		   "\n       ");
 
 	/*
 	 * Setup SDRAM Base and Option Registers
