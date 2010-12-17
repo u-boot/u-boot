@@ -58,4 +58,3 @@ void spi_cs_deactivate(struct spi_slave *slave)
 	at91_set_pio_output(cs_to_portbit[slave->bus][slave->cs].port,
 		cs_to_portbit[slave->bus][slave->cs].bit, 1);
 }
-
