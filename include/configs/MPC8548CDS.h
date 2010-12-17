@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007 Freescale Semiconductor.
+ * Copyright 2004, 2007, 2010 Freescale Semiconductor.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -353,6 +353,7 @@ extern unsigned long get_clock_freq(void);
 #endif
 
 #ifdef CONFIG_PCIE1
+#define CONFIG_SYS_PCIE1_NAME		"Slot"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xa0000000
