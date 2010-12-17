@@ -40,9 +40,9 @@
 
 /*
  * Warning: changing CONFIG_SYS_TEXT_BASE requires
- * adapting the initial boot program
+ * adapting the initial boot program.
  */
-#define CONFIG_SYS_TEXT_BASE		0x21f00000	/* 31 MB into RAM */
+#define CONFIG_SYS_TEXT_BASE		0x20000000	/* start of SDRAM */
 
 /* Command line configuration */
 #include <config_cmd_default.h>
