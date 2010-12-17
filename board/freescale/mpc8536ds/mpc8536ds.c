@@ -156,123 +156,35 @@ phys_size_t fixed_sdram (void)
 static struct pci_controller pci1_hose;
 #endif
 
-#ifdef CONFIG_PCIE1
-static struct pci_controller pcie1_hose;
-#endif
-
-#ifdef CONFIG_PCIE2
-static struct pci_controller pcie2_hose;
-#endif
-
-#ifdef CONFIG_PCIE3
-static struct pci_controller pcie3_hose;
-#endif
-
 #ifdef CONFIG_PCI
 void pci_init_board(void)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	struct fsl_pci_info pci_info[4];
-	u32 devdisr, pordevsr, io_sel;
+	struct fsl_pci_info pci_info;
+	u32 devdisr, pordevsr;
 	u32 porpllsr, pci_agent, pci_speed, pci_32, pci_arb, pci_clk_sel;
-	int first_free_busno = 0;
-	int num = 0;
+	int first_free_busno;
 
-	int pcie_ep, pcie_configured;
+	first_free_busno = fsl_pcie_init_board(0);
 
+#ifdef CONFIG_PCI1
 	devdisr = in_be32(&gur->devdisr);
 	pordevsr = in_be32(&gur->pordevsr);
 	porpllsr = in_be32(&gur->porpllsr);
-	io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
 
-	debug("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
-
-	puts("\n");
-#ifdef CONFIG_PCIE3
-	pcie_configured = is_serdes_configured(PCIE3);
-
-	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE3)){
-		set_next_law(CONFIG_SYS_PCIE3_MEM_PHYS, LAW_SIZE_512M,
-				LAW_TRGT_IF_PCIE_3);
-		set_next_law(CONFIG_SYS_PCIE3_IO_PHYS, LAW_SIZE_64K,
-				LAW_TRGT_IF_PCIE_3);
-		SET_STD_PCIE_INFO(pci_info[num], 3);
-		pcie_ep = fsl_setup_hose(&pcie3_hose, pci_info[num].regs);
-		printf("PCIE3: connected to Slot3 as %s (base address %lx)\n",
-			pcie_ep ? "Endpoint" : "Root Complex",
-			pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie3_hose, first_free_busno);
-	} else {
-		printf("PCIE3: disabled\n");
-	}
-
-	puts("\n");
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE3); /* disable */
-#endif
-
-#ifdef CONFIG_PCIE1
-	pcie_configured = is_serdes_configured(PCIE1);
-
-	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
-		set_next_law(CONFIG_SYS_PCIE1_MEM_PHYS, LAW_SIZE_128M,
-				LAW_TRGT_IF_PCIE_1);
-		set_next_law(CONFIG_SYS_PCIE1_IO_PHYS, LAW_SIZE_64K,
-				LAW_TRGT_IF_PCIE_1);
-		SET_STD_PCIE_INFO(pci_info[num], 1);
-		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
-		printf("PCIE1: connected to Slot1 as %s (base address %lx)\n",
-			pcie_ep ? "Endpoint" : "Root Complex",
-			pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie1_hose, first_free_busno);
-	} else {
-		printf("PCIE1: disabled\n");
-	}
-
-	puts("\n");
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE); /* disable */
-#endif
-
-#ifdef CONFIG_PCIE2
-	pcie_configured = is_serdes_configured(PCIE2);
-
-	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE2)){
-		set_next_law(CONFIG_SYS_PCIE2_MEM_PHYS, LAW_SIZE_128M,
-				LAW_TRGT_IF_PCIE_2);
-		set_next_law(CONFIG_SYS_PCIE2_IO_PHYS, LAW_SIZE_64K,
-				LAW_TRGT_IF_PCIE_2);
-		SET_STD_PCIE_INFO(pci_info[num], 2);
-		pcie_ep = fsl_setup_hose(&pcie2_hose, pci_info[num].regs);
-		printf("PCIE2: connected to Slot 2 as %s (base address %lx)\n",
-			pcie_ep ? "Endpoint" : "Root Complex",
-			pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie2_hose, first_free_busno);
-	} else {
-		printf("PCIE2: disabled\n");
-	}
-
-	puts("\n");
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE2); /* disable */
-#endif
-
-#ifdef CONFIG_PCI1
 	pci_speed = 66666000;
 	pci_32 = 1;
 	pci_arb = pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;
 	pci_clk_sel = porpllsr & MPC85xx_PORDEVSR_PCI1_SPD;
 
 	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
-		set_next_law(CONFIG_SYS_PCI1_MEM_PHYS, LAW_SIZE_256M,
-				LAW_TRGT_IF_PCI);
-		set_next_law(CONFIG_SYS_PCI1_IO_PHYS, LAW_SIZE_64K,
-				LAW_TRGT_IF_PCI);
-		SET_STD_PCI_INFO(pci_info[num], 1);
-		pci_agent = fsl_setup_hose(&pci1_hose, pci_info[num].regs);
+		SET_STD_PCI_INFO(pci_info, 1);
+		set_next_law(pci_info.mem_phys,
+			law_size_bits(pci_info.mem_size), pci_info.law);
+		set_next_law(pci_info.io_phys,
+			law_size_bits(pci_info.io_size), pci_info.law);
+
+		pci_agent = fsl_setup_hose(&pci1_hose, pci_info.regs);
 		printf("PCI: %d bit, %s MHz, %s, %s, %s (base address %lx)\n",
 			(pci_32) ? 32 : 64,
 			(pci_speed == 33333000) ? "33" :
@@ -280,9 +192,9 @@ void pci_init_board(void)
 			pci_clk_sel ? "sync" : "async",
 			pci_agent ? "agent" : "host",
 			pci_arb ? "arbiter" : "external-arbiter",
-			pci_info[num].regs);
+			pci_info.regs);
 
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+		first_free_busno = fsl_pci_init_port(&pci_info,
 					&pci1_hose, first_free_busno);
 	} else {
 		printf("PCI: disabled\n");
