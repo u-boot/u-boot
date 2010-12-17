@@ -50,6 +50,7 @@
 #undef CONFIG_CMD_DHCP
 #undef CONFIG_CMD_EEPROM
 #undef CONFIG_CMD_IMLS
+#undef CONFIG_CMD_NFS
 
 /*Misc*/
 #define CONFIG_BOOTDELAY		5/* autoboot after 5 seconds     */
