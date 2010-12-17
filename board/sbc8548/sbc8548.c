@@ -266,33 +266,19 @@ phys_size_t fixed_sdram(void)
 static struct pci_controller pci1_hose;
 #endif	/* CONFIG_PCI1 */
 
-#ifdef CONFIG_PCIE1
-static struct pci_controller pcie1_hose;
-#endif	/* CONFIG_PCIE1 */
-
-
 #ifdef CONFIG_PCI
 void
 pci_init_board(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	struct fsl_pci_info pci_info[2];
-	u32 devdisr, pordevsr, porpllsr, io_sel;
 	int first_free_busno = 0;
-	int num = 0;
-
-#ifdef CONFIG_PCIE1
-	int pcie_configured;
-#endif
-
-	devdisr = in_be32(&gur->devdisr);
-	pordevsr = in_be32(&gur->pordevsr);
-	porpllsr = in_be32(&gur->porpllsr);
-	io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-
-	debug("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
 
 #ifdef CONFIG_PCI1
+	struct fsl_pci_info pci_info;
+	u32 devdisr = in_be32(&gur->devdisr);
+	u32 pordevsr = in_be32(&gur->pordevsr);
+	u32 porpllsr = in_be32(&gur->porpllsr);
+
 	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
 		uint pci_32 = pordevsr & MPC85xx_PORDEVSR_PCI1_PCI32;
 		uint pci_arb = pordevsr & MPC85xx_PORDEVSR_PCI1_ARB;
@@ -306,8 +292,13 @@ pci_init_board(void)
 			pci_clk_sel ? "sync" : "async",
 			pci_arb ? "arbiter" : "external-arbiter");
 
-		SET_STD_PCI_INFO(pci_info[num], 1);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+		SET_STD_PCI_INFO(pci_info, 1);
+		set_next_law(pci_info.mem_phys,
+			law_size_bits(pci_info.mem_size), pci_info.law);
+		set_next_law(pci_info.io_phys,
+			law_size_bits(pci_info.io_size), pci_info.law);
+
+		first_free_busno = fsl_pci_init_port(&pci_info,
 					&pci1_hose, first_free_busno);
 	} else {
 		printf("PCI: disabled\n");
@@ -320,22 +311,7 @@ pci_init_board(void)
 
 	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCI2); /* disable PCI2 */
 
-#ifdef CONFIG_PCIE1
-	pcie_configured = is_serdes_configured(PCIE1);
-
-	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
-		SET_STD_PCIE_INFO(pci_info[num], 1);
-		printf("PCIE: base address %lx\n", pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie1_hose, first_free_busno);
-	} else {
-		printf("PCIE: disabled\n");
-	}
-
-	puts("\n");
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE); /* disable */
-#endif
+	fsl_pcie_init_board(first_free_busno);
 }
 #endif
 
