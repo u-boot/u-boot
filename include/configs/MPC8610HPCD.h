@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 Freescale Semiconductor, Inc.
+ * Copyright 2007, 2010 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -276,6 +276,7 @@
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00100000	/* 1M */
 
 /* controller 1, Base address 0xa000 */
+#define CONFIG_SYS_PCIE1_NAME		"ULI"
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	CONFIG_SYS_PCIE1_MEM_BUS
 #define CONFIG_SYS_PCIE1_MEM_SIZE	0x10000000	/* 256M */
@@ -284,6 +285,7 @@
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00100000	/* 1M */
 
 /* controller 2, Base Address 0x9000 */
+#define CONFIG_SYS_PCIE2_NAME		"Slot 1"
 #define CONFIG_SYS_PCIE2_MEM_BUS	0x90000000
 #define CONFIG_SYS_PCIE2_MEM_PHYS	CONFIG_SYS_PCIE2_MEM_BUS
 #define CONFIG_SYS_PCIE2_MEM_SIZE	0x10000000	/* 256M */
