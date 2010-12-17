@@ -76,19 +76,6 @@ int checkboard(void)
 	return 0;
 }
 
-phys_size_t initdram(int board_type)
-{
-	phys_size_t dram_size = 0;
-
-	puts("Initializing....\n");
-
-	dram_size = fsl_ddr_sdram();
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000) * 0x100000;
-
-	puts("    DDR: ");
-	return dram_size;
-}
-
 #define CONFIG_TFP410_I2C_ADDR	0x38
 
 /* Masks for the SSI_TDM and AUDCLK bits of the ngPIXIS BRDCFG1 register. */

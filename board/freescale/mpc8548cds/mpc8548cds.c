@@ -42,7 +42,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 void local_bus_init(void);
-void sdram_init(void);
 
 int checkboard (void)
 {
@@ -73,43 +72,6 @@ int checkboard (void)
 	ecm->eedr = 0xffffffff;		/* clear ecm errors */
 	ecm->eeer = 0xffffffff;		/* enable ecm errors */
 	return 0;
-}
-
-phys_size_t
-initdram(int board_type)
-{
-	long dram_size = 0;
-
-	puts("Initializing\n");
-
-#if defined(CONFIG_DDR_DLL)
-	{
-		/*
-		 * Work around to stabilize DDR DLL MSYNC_IN.
-		 * Errata DDR9 seems to have been fixed.
-		 * This is now the workaround for Errata DDR11:
-		 *    Override DLL = 1, Course Adj = 1, Tap Select = 0
-		 */
-
-		volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-
-		gur->ddrdllcr = 0x81000000;
-		asm("sync;isync;msync");
-		udelay(200);
-	}
-#endif
-
-	dram_size = fsl_ddr_sdram();
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-	dram_size *= 0x100000;
-
-	/*
-	 * SDRAM Initialization
-	 */
-	sdram_init();
-
-	puts("    DDR: ");
-	return dram_size;
 }
 
 /*

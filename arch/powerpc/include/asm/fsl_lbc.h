@@ -16,6 +16,10 @@
 #include <config.h>
 #include <common.h>
 
+#ifdef CONFIG_MPC85xx
+void sdram_init(void);
+#endif
+
 /* BR - Base Registers
  */
 #define BR0				0x5000		/* Register offset to immr */

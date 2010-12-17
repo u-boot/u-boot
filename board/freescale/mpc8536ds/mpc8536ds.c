@@ -42,8 +42,6 @@
 
 #include "../common/sgmii_riser.h"
 
-phys_size_t fixed_sdram(void);
-
 int board_early_init_f (void)
 {
 #ifdef CONFIG_MMC
@@ -96,25 +94,6 @@ int checkboard (void)
 	}
 
 	return 0;
-}
-
-phys_size_t
-initdram(int board_type)
-{
-	phys_size_t dram_size = 0;
-
-	puts("Initializing....");
-
-#ifdef CONFIG_SPD_EEPROM
-	dram_size = fsl_ddr_sdram();
-#else
-	dram_size = fixed_sdram();
-#endif
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-	dram_size *= 0x100000;
-
-	puts("    DDR: ");
-	return dram_size;
 }
 
 #if !defined(CONFIG_SPD_EEPROM)

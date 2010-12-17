@@ -45,8 +45,6 @@
 #include "../common/pq-mds-pib.h"
 #endif
 
-phys_size_t fixed_sdram(void);
-
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* QE_MUX_MDC */
 	{2,  31, 1, 0, 1}, /* QE_MUX_MDC               */
@@ -243,40 +241,6 @@ int checkboard (void)
 	printf ("Board: 8569 MDS\n");
 
 	return 0;
-}
-
-phys_size_t
-initdram(int board_type)
-{
-	long dram_size = 0;
-
-	puts("Initializing\n");
-
-#if defined(CONFIG_DDR_DLL)
-	/*
-	 * Work around to stabilize DDR DLL MSYNC_IN.
-	 * Errata DDR9 seems to have been fixed.
-	 * This is now the workaround for Errata DDR11:
-	 *    Override DLL = 1, Course Adj = 1, Tap Select = 0
-	 */
-	volatile ccsr_gur_t *gur =
-			(void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-
-	out_be32(&gur->ddrdllcr, 0x81000000);
-	udelay(200);
-#endif
-
-#ifdef CONFIG_SPD_EEPROM
-	dram_size = fsl_ddr_sdram();
-#else
-	dram_size = fixed_sdram();
-#endif
-
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-	dram_size *= 0x100000;
-
-	puts("    DDR: ");
-	return dram_size;
 }
 
 #if !defined(CONFIG_SPD_EEPROM)

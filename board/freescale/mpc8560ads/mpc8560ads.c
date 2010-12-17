@@ -44,8 +44,6 @@ extern void ddr_enable_ecc(unsigned int dram_size);
 
 
 void local_bus_init(void);
-void sdram_init(void);
-long int fixed_sdram(void);
 
 
 /*
@@ -266,54 +264,6 @@ int checkboard (void)
 	return 0;
 }
 
-
-phys_size_t
-initdram(int board_type)
-{
-	long dram_size = 0;
-
-	puts("Initializing\n");
-
-#if defined(CONFIG_DDR_DLL)
-	{
-	    volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	    uint temp_ddrdll = 0;
-
-	    /*
-	     * Work around to stabilize DDR DLL
-	     */
-	    temp_ddrdll = gur->ddrdllcr;
-	    gur->ddrdllcr = ((temp_ddrdll & 0xff) << 16) | 0x80000000;
-	    asm("sync;isync;msync");
-	}
-#endif
-
-#ifdef CONFIG_SPD_EEPROM
-	dram_size = fsl_ddr_sdram();
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-
-	dram_size *= 0x100000;
-#else
-	dram_size = fixed_sdram();
-#endif
-
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	/*
-	 * Initialize and enable DDR ECC.
-	 */
-	ddr_enable_ecc(dram_size);
-#endif
-
-	/*
-	 * Initialize SDRAM.
-	 */
-	sdram_init();
-
-	puts("    DDR: ");
-	return dram_size;
-}
-
-
 /*
  * Initialize Local Bus
  */
@@ -437,7 +387,7 @@ sdram_init(void)
 /*************************************************************************
  *  fixed sdram init -- doesn't use serial presence detect.
  ************************************************************************/
-long int fixed_sdram (void)
+phys_size_t fixed_sdram(void)
 {
   #ifndef CONFIG_SYS_RAMBOOT
 	volatile ccsr_ddr_t *ddr= (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);

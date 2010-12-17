@@ -44,8 +44,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-phys_size_t fixed_sdram(void);
-
 int checkboard(void)
 {
 	u8 sw;
@@ -68,31 +66,6 @@ int checkboard(void)
 		puts("Promjet\n");
 
 	return 0;
-}
-
-phys_size_t initdram(int board_type)
-{
-	phys_size_t dram_size = 0;
-
-	puts("Initializing....");
-
-#ifdef CONFIG_DDR_SPD
-	dram_size = fsl_ddr_sdram();
-#else
-	dram_size = fixed_sdram();
-
-	if (set_ddr_laws(CONFIG_SYS_DDR_SDRAM_BASE,
-			 dram_size,
-			 LAW_TRGT_IF_DDR) < 0) {
-		printf("ERROR setting Local Access Windows for DDR\n");
-		return 0;
-	};
-#endif
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-	dram_size *= 0x100000;
-
-	puts("    DDR: ");
-	return dram_size;
 }
 
 #if !defined(CONFIG_DDR_SPD)
@@ -169,6 +142,13 @@ phys_size_t fixed_sdram(void)
 	asm("sync; isync");
 	udelay(500);
 #endif
+
+	if (set_ddr_laws(CONFIG_SYS_DDR_SDRAM_BASE,
+			 CONFIG_SYS_SDRAM_SIZE * 1024 * 1024,
+			 LAW_TRGT_IF_DDR) < 0) {
+		printf("ERROR setting Local Access Windows for DDR\n");
+		return 0;
+	};
 
 	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 }

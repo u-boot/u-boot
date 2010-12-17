@@ -34,6 +34,7 @@
 #include <asm/io.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
+#include <asm/fsl_lbc.h>
 #include <post.h>
 #include <asm/processor.h>
 #include <asm/fsl_ddr_sdram.h>
@@ -285,6 +286,57 @@ void mpc85xx_reginfo(void)
 	print_laws();
 	print_lbc_regs();
 }
+
+/* Common ddr init for non-corenet fsl 85xx platforms */
+#ifndef CONFIG_FSL_CORENET
+phys_size_t initdram(int board_type)
+{
+	phys_size_t dram_size = 0;
+
+#if defined(CONFIG_DDR_DLL)
+	{
+		ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+		unsigned int x = 10;
+		unsigned int i;
+
+		/*
+		 * Work around to stabilize DDR DLL
+		 */
+		out_be32(&gur->ddrdllcr, 0x81000000);
+		asm("sync;isync;msync");
+		udelay(200);
+		while (in_be32(&gur->ddrdllcr) != 0x81000100) {
+			setbits_be32(&gur->devdisr, 0x00010000);
+			for (i = 0; i < x; i++)
+				;
+			clrbits_be32(&gur->devdisr, 0x00010000);
+			x++;
+		}
+	}
+#endif
+
+#if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD)
+	dram_size = fsl_ddr_sdram();
+#else
+	dram_size = fixed_sdram();
+#endif
+	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
+	dram_size *= 0x100000;
+
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
+	/*
+	 * Initialize and enable DDR ECC.
+	 */
+	ddr_enable_ecc(dram_size);
+#endif
+
+	/* Some boards also have sdram on the lbc */
+	sdram_init();
+
+	puts("DDR: ");
+	return dram_size;
+}
+#endif
 
 #if CONFIG_POST & CONFIG_SYS_POST_MEMORY
 

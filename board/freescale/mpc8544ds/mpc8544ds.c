@@ -68,23 +68,6 @@ int checkboard (void)
 	return 0;
 }
 
-phys_size_t
-initdram(int board_type)
-{
-	long dram_size = 0;
-
-	puts("Initializing\n");
-
-	dram_size = fsl_ddr_sdram();
-
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-
-	dram_size *= 0x100000;
-
-	puts("    DDR: ");
-	return dram_size;
-}
-
 #ifdef CONFIG_PCI1
 static struct pci_controller pci1_hose;
 #endif

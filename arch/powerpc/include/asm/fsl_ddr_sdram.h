@@ -214,6 +214,19 @@ typedef struct memctl_options_s {
 
 extern phys_size_t fsl_ddr_sdram(void);
 
+/*
+ * The 85xx boards have a common prototype for fixed_sdram so put the
+ * declaration here.
+ */
+#ifdef CONFIG_MPC85xx
+extern phys_size_t fixed_sdram(void);
+#endif
+
+#if defined(CONFIG_DDR_ECC)
+extern void ddr_enable_ecc(unsigned int dram_size);
+#endif
+
+
 typedef struct fixed_ddr_parm{
 	int min_freq;
 	int max_freq;

@@ -65,44 +65,34 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      0, 1, BOOKE_PAGESZ_1G, 1),
 
 	/*
-	 * TLB 2:	256M Cacheable, non-guarded
-	 * 0x0		256M DDR SDRAM
-	 */
-#if !defined(CONFIG_SPD_EEPROM)
-	SET_TLB_ENTRY(1, CONFIG_SYS_DDR_SDRAM_BASE, CONFIG_SYS_DDR_SDRAM_BASE,
-		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
-		      0, 2, BOOKE_PAGESZ_256M, 1),
-#endif
-
-	/*
-	 * TLB 3:	64M	Non-cacheable, guarded
+	 * TLB 2:	64M	Non-cacheable, guarded
 	 * 0xe0000000	1M	CCSRBAR
 	 * 0xe2000000	8M	PCI1 IO
 	 * 0xe2800000	8M	PCIe IO
 	 */
 	SET_TLB_ENTRY(1, CONFIG_SYS_CCSRBAR, CONFIG_SYS_CCSRBAR_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 3, BOOKE_PAGESZ_64M, 1),
+		      0, 2, BOOKE_PAGESZ_64M, 1),
 
 	/*
-	 * TLB 4:	64M	Cacheable, non-guarded
+	 * TLB 3:	64M	Cacheable, non-guarded
 	 * 0xf0000000	64M	LBC SDRAM First half
 	 */
 	SET_TLB_ENTRY(1, CONFIG_SYS_LBC_SDRAM_BASE, CONFIG_SYS_LBC_SDRAM_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
-		      0, 4, BOOKE_PAGESZ_64M, 1),
+		      0, 3, BOOKE_PAGESZ_64M, 1),
 
 	/*
-	 * TLB 5:	64M	Cacheable, non-guarded
+	 * TLB 4:	64M	Cacheable, non-guarded
 	 * 0xf4000000	64M	LBC SDRAM Second half
 	 */
 	SET_TLB_ENTRY(1, CONFIG_SYS_LBC_SDRAM_BASE + 0x4000000,
 		      CONFIG_SYS_LBC_SDRAM_BASE + 0x4000000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
-		      0, 5, BOOKE_PAGESZ_64M, 1),
+		      0, 4, BOOKE_PAGESZ_64M, 1),
 
 	/*
-	 * TLB 6:	16M	Cacheable, non-guarded
+	 * TLB 5:	16M	Cacheable, non-guarded
 	 * 0xf8000000	1M	7-segment LED display
 	 * 0xf8100000	1M	User switches
 	 * 0xf8300000	1M	Board revision
@@ -110,24 +100,24 @@ struct fsl_e_tlb_entry tlb_table[] = {
 	 */
 	SET_TLB_ENTRY(1, CONFIG_SYS_EPLD_BASE, CONFIG_SYS_EPLD_BASE,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 6, BOOKE_PAGESZ_16M, 1),
+		      0, 5, BOOKE_PAGESZ_16M, 1),
 
 	/*
-	 * TLB 7:	4M	Non-cacheable, guarded
+	 * TLB 6:	4M	Non-cacheable, guarded
 	 * 0xfb800000	4M	1st 4MB block of 64MB user FLASH
 	 */
 	SET_TLB_ENTRY(1, CONFIG_SYS_ALT_FLASH, CONFIG_SYS_ALT_FLASH,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 7, BOOKE_PAGESZ_4M, 1),
+		      0, 6, BOOKE_PAGESZ_4M, 1),
 
 	/*
-	 * TLB 8:	4M	Non-cacheable, guarded
+	 * TLB 7:	4M	Non-cacheable, guarded
 	 * 0xfbc00000	4M	2nd 4MB block of 64MB user FLASH
 	 */
 	SET_TLB_ENTRY(1, CONFIG_SYS_ALT_FLASH + 0x400000,
 		      CONFIG_SYS_ALT_FLASH + 0x400000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
-		      0, 8, BOOKE_PAGESZ_4M, 1),
+		      0, 7, BOOKE_PAGESZ_4M, 1),
 
 };
 

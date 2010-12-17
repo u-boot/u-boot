@@ -22,6 +22,7 @@
 
 #include <common.h>
 #include <asm/processor.h>
+#include <asm/fsl_ddr_sdram.h>
 #include <asm/mmu.h>
 #include <asm/io.h>
 #include <fdt_support.h>
@@ -69,6 +70,18 @@ int board_early_init_r(void)
 	flash_cs_fixup();
 
 	return 0;
+}
+
+phys_size_t initdram(int board_type)
+{
+	phys_size_t dram_size = fsl_ddr_sdram();
+
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
+	/* Initialize and enable DDR ECC */
+	ddr_enable_ecc(dram_size);
+#endif
+
+	return dram_size;
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP)

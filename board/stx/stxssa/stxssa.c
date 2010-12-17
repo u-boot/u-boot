@@ -41,8 +41,6 @@
 #include <miiphy.h>
 #include <netdev.h>
 
-long int fixed_sdram (void);
-
 /*
  * I/O Port configuration table
  *
@@ -293,37 +291,6 @@ show_activity(int flag)
 	eieio();
 	next_led_update += (get_tbclk() / 4);
 }
-
-phys_size_t
-initdram (int board_type)
-{
-	long dram_size = 0;
-
-#if defined(CONFIG_DDR_DLL)
-	{
-		volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-		uint temp_ddrdll = 0;
-
-		/* Work around to stabilize DDR DLL */
-		temp_ddrdll = gur->ddrdllcr;
-		gur->ddrdllcr = ((temp_ddrdll & 0xff) << 16) | 0x80000000;
-		asm("sync;isync;msync");
-	}
-#endif
-
-	dram_size = fsl_ddr_sdram();
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
-	dram_size *= 0x100000;
-
-#if defined(CONFIG_DDR_ECC)
-	/* Initialize and enable DDR ECC.
-	*/
-	ddr_enable_ecc(dram_size);
-#endif
-
-	return dram_size;
-}
-
 
 #if defined(CONFIG_SYS_DRAM_TEST)
 int testdram (void)
