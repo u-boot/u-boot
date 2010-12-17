@@ -65,6 +65,7 @@ sdram_conf_t ddr_cs_conf[] = {
 #define	N_DDR_CS_CONF (sizeof(ddr_cs_conf) / sizeof(ddr_cs_conf[0]))
 
 int cas_latency (void);
+static phys_size_t sdram_setup(int);
 
 /*
  * Autodetect onboard DDR SDRAM on 85xx platforms
@@ -73,7 +74,26 @@ int cas_latency (void);
  *       so this should be extended for other future boards
  *       using this routine!
  */
-long int sdram_setup (int casl)
+phys_size_t fixed_sdram(void)
+{
+	int casl = 0;
+	phys_size_t dram_size = 0;
+
+	casl = cas_latency();
+	dram_size = sdram_setup(casl);
+	if ((dram_size == 0) && (casl != CONFIG_DDR_DEFAULT_CL)) {
+		/*
+		 * Try again with default CAS latency
+		 */
+		printf("Problem with CAS lantency, using default CL %d/10!\n",
+		       CONFIG_DDR_DEFAULT_CL);
+		dram_size = sdram_setup(CONFIG_DDR_DEFAULT_CL);
+		puts("       ");
+	}
+	return dram_size;
+}
+
+static phys_size_t sdram_setup(int casl)
 {
 	int i;
 	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
@@ -376,8 +396,7 @@ long int sdram_setup (int casl)
 
 phys_size_t initdram (int board_type)
 {
-	long dram_size = 0;
-	int casl;
+	phys_size_t dram_size = 0;
 
 #if defined(CONFIG_DDR_DLL)
 	/*
@@ -407,17 +426,7 @@ phys_size_t initdram (int board_type)
 	}
 #endif
 
-	casl = cas_latency ();
-	dram_size = sdram_setup (casl);
-	if ((dram_size == 0) && (casl != CONFIG_DDR_DEFAULT_CL)) {
-		/*
-		 * Try again with default CAS latency
-		 */
-		printf ("Problem with CAS lantency, using default CL %d/10!\n",
-			CONFIG_DDR_DEFAULT_CL);
-		dram_size = sdram_setup (CONFIG_DDR_DEFAULT_CL);
-		puts ("       ");
-	}
+	dram_size = fixed_sdram();
 
 	return dram_size;
 }
