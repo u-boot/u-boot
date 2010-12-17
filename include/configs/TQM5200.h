@@ -424,12 +424,12 @@
 /* Dynamic MTD partition support */
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
-#define MTDIDS_DEFAULT		"nor0=TQM5200-0"
+#define MTDIDS_DEFAULT		"nor0=fc000000.flash"
 
 #if defined(CONFIG_CHARON) || defined(CONFIG_STK52XX)
 # if defined(CONFIG_TQM5200_B)
 #  if defined(CONFIG_SYS_LOWBOOT)
-#   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:1m(firmware),"	\
+#   define MTDPARTS_DEFAULT	"mtdparts=fc000000.flash:1m(firmware),"	\
 						"256k(dtb),"		\
 						"2304k(kernel),"	\
 						"2560k(small-fs),"	\
@@ -437,7 +437,7 @@
 						"8m(misc),"		\
 						"16m(big-fs)"
 #  else	/* highboot */
-#   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:2560k(kernel),"	\
+#   define MTDPARTS_DEFAULT	"mtdparts=fc000000.flash:2560k(kernel),"\
 						"3584k(small-fs),"	\
 						"2m(initrd),"		\
 						"8m(misc),"		\
@@ -445,7 +445,7 @@
 						"1m(firmware)"
 #  endif /* CONFIG_SYS_LOWBOOT */
 # else	/* !CONFIG_TQM5200_B */
-#   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:640k(firmware),"	\
+#   define MTDPARTS_DEFAULT	"mtdparts=fc000000.flash:640k(firmware),"\
 						"128k(dtb),"		\
 						"2304k(kernel),"	\
 						"2m(initrd),"		\
@@ -454,12 +454,12 @@
 						"15m(big-fs)"
 # endif /* CONFIG_TQM5200_B */
 #elif defined (CONFIG_CAM5200)
-#   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:768k(firmware),"	\
+#   define MTDPARTS_DEFAULT	"mtdparts=fc000000.flash:768k(firmware),"\
 						"1792k(kernel),"	\
 						"5632k(rootfs),"	\
 						"24m(home)"
 #elif defined (CONFIG_FO300)
-#   define MTDPARTS_DEFAULT	"mtdparts=TQM5200-0:640k(firmware),"	\
+#   define MTDPARTS_DEFAULT	"mtdparts=fc000000.flash:640k(firmware),"\
 						"1408k(kernel),"	\
 						"2m(initrd),"		\
 						"4m(small-fs),"		\
