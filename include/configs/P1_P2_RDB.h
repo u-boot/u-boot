@@ -146,7 +146,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_FSL_DDR2
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #undef CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
-#undef CONFIG_DDR_DLL
 
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
 

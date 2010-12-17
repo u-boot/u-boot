@@ -293,7 +293,7 @@ phys_size_t initdram(int board_type)
 {
 	phys_size_t dram_size = 0;
 
-#if defined(CONFIG_DDR_DLL)
+#if defined(CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN)
 	{
 		ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 		unsigned int x = 10;

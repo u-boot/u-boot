@@ -162,7 +162,7 @@
 
 #if defined(CONFIG_TQM8540) || defined(CONFIG_TQM8560)
 /* TQM8540 & 8560 need DLL-override */
-#define CONFIG_DDR_DLL				/* DLL fix needed	*/
+#define CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN	/* possible DLL fix needed */
 #define CONFIG_DDR_DEFAULT_CL	25		/* CAS latency 2,5	*/
 #endif /* CONFIG_TQM8540 || CONFIG_TQM8560 */
 
