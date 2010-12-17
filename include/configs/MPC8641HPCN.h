@@ -332,6 +332,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  * Addresses are mapped 1-1.
  */
 
+#define CONFIG_SYS_PCIE1_NAME		"ULI"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0x80000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
