@@ -165,6 +165,18 @@ struct pci_controller *pci_bus_to_hose (int bus)
 	return NULL;
 }
 
+struct pci_controller *find_hose_by_cfg_addr(void *cfg_addr)
+{
+	struct pci_controller *hose;
+
+	for (hose = hose_head; hose; hose = hose->next) {
+		if (hose->cfg_addr == cfg_addr)
+			return hose;
+	}
+
+	return NULL;
+}
+
 int pci_last_busno(void)
 {
 	struct pci_controller *hose = hose_head;

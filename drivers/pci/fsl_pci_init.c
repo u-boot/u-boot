@@ -518,11 +518,14 @@ void fsl_pci_config_unlock(struct pci_controller *hose)
 #include <fdt_support.h>
 
 void ft_fsl_pci_setup(void *blob, const char *pci_compat,
-			struct pci_controller *hose, unsigned long ctrl_addr)
+			unsigned long ctrl_addr)
 {
 	int off;
 	u32 bus_range[2];
 	phys_addr_t p_ctrl_addr = (phys_addr_t)ctrl_addr;
+	struct pci_controller *hose;
+
+	hose = find_hose_by_cfg_addr((void *)(ctrl_addr));
 
 	/* convert ctrl_addr to true physical address */
 	p_ctrl_addr = (phys_addr_t)ctrl_addr - CONFIG_SYS_CCSRBAR;
