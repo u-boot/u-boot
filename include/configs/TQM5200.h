@@ -273,6 +273,11 @@
 	"fdt_addr=FC100000\0"						\
 	"kernel_addr=FC140000\0"					\
 	"ramdisk_addr=FC600000\0"
+#elif defined(CONFIG_CHARON)
+#define ENV_FLASH_LAYOUT						\
+	"fdt_addr=FDFC0000\0"						\
+	"kernel_addr=FC0A0000\0"					\
+	"ramdisk_addr=FC200000\0"
 #else	/* !CONFIG_TQM5200_B */
 #define ENV_FLASH_LAYOUT						\
 	"fdt_addr=FC0A0000\0"						\
@@ -426,7 +431,7 @@
 #define CONFIG_MTD_DEVICE		/* needed for mtdparts commands */
 #define MTDIDS_DEFAULT		"nor0=fc000000.flash"
 
-#if defined(CONFIG_CHARON) || defined(CONFIG_STK52XX)
+#if defined(CONFIG_STK52XX)
 # if defined(CONFIG_TQM5200_B)
 #  if defined(CONFIG_SYS_LOWBOOT)
 #   define MTDPARTS_DEFAULT	"mtdparts=fc000000.flash:1m(firmware),"	\
@@ -458,6 +463,13 @@
 						"1792k(kernel),"	\
 						"5632k(rootfs),"	\
 						"24m(home)"
+#elif defined (CONFIG_CHARON)
+#   define MTDPARTS_DEFAULT	"mtdparts=fc000000.flash:640k(firmware),"\
+						"1408k(kernel),"	\
+						"2m(initrd),"		\
+						"4m(small-fs),"		\
+						"24320k(big-fs),"	\
+						"256k(dts)"
 #elif defined (CONFIG_FO300)
 #   define MTDPARTS_DEFAULT	"mtdparts=fc000000.flash:640k(firmware),"\
 						"1408k(kernel),"	\

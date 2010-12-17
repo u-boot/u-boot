@@ -47,6 +47,7 @@
 	"bootfile=/tftpboot/charon/uImage\0"			\
 	"fdt_file=/tftpboot/charon/charon.dtb\0"		\
 	"u-boot=/tftpboot/charon/u-boot.bin\0"			\
+	"mtdparts=" MTDPARTS_DEFAULT "\0"			\
 	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"
 
 
