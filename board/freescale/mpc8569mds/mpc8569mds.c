@@ -518,51 +518,14 @@ static void fdt_board_fixup_qe_usb(void *blob, bd_t *bd)
 	clrbits_8(&bcsr[17], BCSR17_nUSBEN);
 }
 
-#ifdef CONFIG_PCIE1
-static struct pci_controller pcie1_hose;
-#endif  /* CONFIG_PCIE1 */
-
 #ifdef CONFIG_PCI
 void pci_init_board(void)
 {
-	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	struct fsl_pci_info pci_info[1];
-	u32 devdisr, pordevsr, io_sel;
-	int first_free_busno = 0;
-	int num = 0;
-
-	int pcie_ep, pcie_configured;
-
-	devdisr = in_be32(&gur->devdisr);
-	pordevsr = in_be32(&gur->pordevsr);
-	io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >> 19;
-
-	debug ("   pci_init_board: devdisr=%x, io_sel=%x\n", devdisr, io_sel);
-
 #if defined(CONFIG_PQ_MDS_PIB)
 	pib_init();
 #endif
 
-#ifdef CONFIG_PCIE1
-	pcie_configured = is_serdes_configured(PCIE1);
-
-	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)){
-		SET_STD_PCIE_INFO(pci_info[num], 1);
-		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
-		printf("PCIE1: connected to Slot as %s (base addr %lx)\n",
-			pcie_ep ? "Endpoint" : "Root Complex",
-			pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie1_hose, first_free_busno);
-	} else {
-		printf("PCIE1: disabled\n");
-	}
-
-	puts("\n");
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE); /* disable */
-#endif
-
+	fsl_pcie_init_board(0);
 }
 #endif /* CONFIG_PCI */
 

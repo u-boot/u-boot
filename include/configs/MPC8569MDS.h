@@ -345,6 +345,7 @@ extern unsigned long get_clock_freq(void);
  * General PCI
  * Memory Addresses are mapped 1-1. I/O is mapped from 0
  */
+#define CONFIG_SYS_PCIE1_NAME		"Slot"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xa0000000
