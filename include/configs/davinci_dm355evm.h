@@ -76,6 +76,13 @@
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define CONFIG_SYS_NAND_MAX_CHIPS	2
 
+/* SD/MMC */
+#define CONFIG_MMC
+#define CONFIG_GENERIC_MMC
+#define CONFIG_DAVINCI_MMC
+#define CONFIG_DAVINCI_MMC_SD1
+#define CONFIG_MMC_MBLOCK
+
 /* USB: OTG connector */
 /* NYET -- #define CONFIG_USB_DAVINCI */
 
@@ -92,6 +99,13 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
+
+#ifdef CONFIG_MMC
+#define CONFIG_DOS_PARTITION
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_MMC
+#endif
 
 #ifdef CONFIG_NAND_DAVINCI
 #define CONFIG_CMD_MTDPARTS
@@ -131,6 +145,14 @@
 #define CONFIG_ENV_SIZE		(256 << 10)	/* 256 KiB */
 #define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET	0x3C0000
+#undef CONFIG_ENV_IS_IN_FLASH
+#endif
+
+#if defined(CONFIG_MMC) && !defined(CONFIG_ENV_IS_IN_NAND)
+#define CONFIG_CMD_ENV
+#define CONFIG_ENV_SIZE		(16 << 10)	/* 16 KiB */
+#define CONFIG_ENV_OFFSET	(51 << 9)	/* Sector 51 */
+#define CONFIG_ENV_IS_IN_MMC
 #undef CONFIG_ENV_IS_IN_FLASH
 #endif
 
