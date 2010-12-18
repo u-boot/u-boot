@@ -119,9 +119,6 @@ start_code:
 	orr	r0, r0, #0xd3
 	msr	cpsr, r0
 
-	bl	coloured_LED_init
-	bl	red_LED_on
-
 #if	defined(CONFIG_AT91RM9200DK) || defined(CONFIG_AT91RM9200EK)
 	/*
 	 * relocate exception table
