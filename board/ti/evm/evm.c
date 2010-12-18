@@ -37,9 +37,9 @@
 #include <asm/mach-types.h>
 #include "evm.h"
 
-static u8 omap3_evm_version;
+static u32 omap3_evm_version;
 
-u8 get_omap3_evm_rev(void)
+u32 get_omap3_evm_rev(void)
 {
 	return omap3_evm_version;
 }

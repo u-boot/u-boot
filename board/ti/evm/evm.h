@@ -45,7 +45,7 @@ enum {
 	OMAP3EVM_BOARD_GEN_2,		/* EVM Rev >= Rev E */
 };
 
-u8 get_omap3_evm_rev(void);
+u32 get_omap3_evm_rev(void);
 
 #if defined(CONFIG_CMD_NET)
 static void setup_net_chip(void);
