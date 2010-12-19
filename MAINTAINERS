@@ -1033,6 +1033,7 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 
 	BF518F-EZBRD	BF518
 	BF526-EZBRD	BF526
+	BF527-AD7160-EVAL	BF527
 	BF527-EZKIT	BF527
 	BF527-EZKIT-V2	BF527
 	BF527-SDP	BF527
@@ -1044,10 +1045,31 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 	BF548-EZKIT	BF548
 	BF561-EZKIT	BF561
 
-	BF527-AD7160-EVAL	BF527
+Brent Kandetzki <brentk@teleco.com>
+
+	IP04		BF532
+
+Peter Meerwald <devel@bct-electronic.com>
+
+	bct-brettl2	BF536
+
+I-SYST Micromodule <support@i-syst.com>
+
+	IBF-DSP561	BF561
+
+Wojtek Skulski <skulski@pas.rochester.edu>
+Wojtek Skulski <info@skutek.com>
+Benjamin Matthews <mben12@gmail.com>
+
+	BlackStamp	BF533
+	BlackVME	BF561
+
+Martin Strubel <strubel@section5.ch>
+
+	BF537-minotaur	BF537
+	BF537-srv1	BF537
 
 Bluetechnix Tinyboards <bluetechnix@blackfin.uclinux.org>
-Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 
 	CM-BF527	BF527
 	CM-BF533	BF533
@@ -1058,37 +1080,10 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 	TCM-BF518	BF518
 	TCM-BF537	BF537
 
-Martin Strubel <strubel@section5.ch>
-Blackfin Team <u-boot-devel@blackfin.uclinux.org>
-
-	BF537-minotaur	BF537
-	BF537-srv1	BF537
-
-Wojtek Skulski <skulski@pas.rochester.edu>
-Wojtek Skulski <info@skutek.com>
-Blackfin Team <u-boot-devel@blackfin.uclinux.org>
-Benjamin Matthews <mben12@gmail.com>
-
-	BlackStamp	BF533
-	BlackVME	BF561
-
-I-SYST Micromodule <support@i-syst.com>
-Blackfin Team <u-boot-devel@blackfin.uclinux.org>
-
-	IBF-DSP561	BF561
-
 Valentin Yakovenkov <yakovenkov@niistt.ru>
 Anton Shurpin <shurpin.aa@niistt.ru>
 
 	BF561-ACVILON	BF561
-
-Brent Kandetzki <brentk@teleco.com>
-
-	IP04		BF532
-
-Peter Meerwald <devel@bct-electronic.com>
-
-	bct-brettl2	BF536
 
 #########################################################################
 # End of MAINTAINERS list						#
