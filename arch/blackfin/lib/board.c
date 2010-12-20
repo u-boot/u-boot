@@ -283,8 +283,11 @@ void board_init_f(ulong bootflag)
 	printf("Core: %s MHz, ", strmhz(buf, get_cclk()));
 	printf("System: %s MHz\n", strmhz(buf, get_sclk()));
 
-	printf("RAM:   ");
-	print_size(bd->bi_memsize, "\n");
+	if (CONFIG_MEM_SIZE) {
+		printf("RAM:   ");
+		print_size(bd->bi_memsize, "\n");
+	}
+
 #if defined(CONFIG_POST)
 	post_init_f();
 	post_bootmode_init();
