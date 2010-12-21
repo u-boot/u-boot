@@ -27,6 +27,7 @@ LIB	:= $(obj)libmmc.o
 
 COBJS-$(CONFIG_ATMEL_MCI) += atmel_mci.o
 COBJS-$(CONFIG_BFIN_SDH) += bfin_sdh.o
+COBJS-$(CONFIG_DAVINCI_MMC) += davinci_mmc.o
 COBJS-$(CONFIG_FSL_ESDHC) += fsl_esdhc.o
 COBJS-$(CONFIG_GENERIC_MMC) += mmc.o
 COBJS-$(CONFIG_GENERIC_ATMEL_MCI) += gen_atmel_mci.o

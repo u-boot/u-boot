@@ -274,6 +274,9 @@ struct mmc {
 			struct mmc_cmd *cmd, struct mmc_data *data);
 	void (*set_ios)(struct mmc *mmc);
 	int (*init)(struct mmc *mmc);
+#ifdef CONFIG_MMC_MBLOCK
+	uint b_max;
+#endif
 };
 
 int mmc_register(struct mmc *mmc);
