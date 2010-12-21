@@ -32,6 +32,8 @@
 #include <miiphy.h>
 #endif
 
+DECLARE_GLOBAL_DATA_PTR;
+
 extern int cpu_init(void);
 extern int board_init(void);
 extern int dram_init(void);
@@ -43,8 +45,6 @@ unsigned long monitor_flash_len = CONFIG_SYS_MONITOR_LEN;
 
 static int sh_flash_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gd->bd->bi_flashsize = flash_init();
 	printf("FLASH: %ldMB\n", gd->bd->bi_flashsize / (1024*1024));
 
@@ -99,7 +99,6 @@ static int sh_mem_env_init(void)
 #if defined(CONFIG_CMD_NET)
 static int sh_net_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	gd->bd->bi_ip_addr = getenv_IPaddr("ipaddr");
 	return 0;
 }
@@ -139,8 +138,6 @@ init_fnc_t *init_sequence[] =
 
 void sh_generic_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
 

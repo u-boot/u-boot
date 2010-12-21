@@ -37,6 +37,8 @@
 #include <asm/mach-types.h>
 #include "pandora.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define TWL4030_BB_CFG_BBCHEN		(1 << 4)
 #define TWL4030_BB_CFG_BBSEL_3200MV	(3 << 2)
 #define TWL4030_BB_CFG_BBISEL_500UA	2
@@ -47,8 +49,6 @@
  */
 int board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
 	/* board id for Linux */
 	gd->bd->bi_arch_number = MACH_TYPE_OMAP3_PANDORA;

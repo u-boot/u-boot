@@ -40,6 +40,8 @@
 #include <asm/mach-types.h>
 #include "overo.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #define TWL4030_I2C_BUS			0
 #define EXPANSION_EEPROM_I2C_BUS	2
 #define EXPANSION_EEPROM_I2C_ADDRESS	0x51
@@ -87,8 +89,6 @@ static const u32 gpmc_lan_config[] = {
  */
 int board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
 	/* board id for Linux */
 	gd->bd->bi_arch_number = MACH_TYPE_OVERO;

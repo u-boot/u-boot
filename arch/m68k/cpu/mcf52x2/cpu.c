@@ -74,8 +74,7 @@ int watchdog_disable(void)
 {
 	volatile wdog_t *wdt = (volatile wdog_t *)(MMAP_WDOG);
 
-	wdt->sr = 0x5555; /* reset watchdog counteDECLARE_GLOBAL_DATA_PTR;
-r */
+	wdt->sr = 0x5555; /* reset watchdog counter */
 	wdt->sr = 0xAAAA;
 	wdt->cr = 0;	/* disable watchdog timer */
 

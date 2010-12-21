@@ -42,6 +42,8 @@
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/uart.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #ifdef CONFIG_UART_CONSOLE
 
 #include "serial.h"
@@ -95,7 +97,6 @@ void serial_set_baud(uint32_t baud)
  */
 void serial_setbrg(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	serial_set_baud(gd->baudrate);
 }
 

@@ -43,6 +43,8 @@
 #include "zoom2.h"
 #include "zoom2_serial.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /*
  * This the the zoom2, board specific, gpmc configuration for the
  * quad uart on the debug board.   The more general gpmc configurations
@@ -120,7 +122,6 @@ void zoom2_identify(void)
  */
 int board_init (void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
 	u32 *gpmc_config;
 
 	gpmc_init ();		/* in SRAM or SDRAM, finish GPMC */

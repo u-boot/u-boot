@@ -31,6 +31,8 @@
 #include <asm/mach-types.h>
 #include "sdp.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 const omap3_sysinfo sysinfo = {
 	DDR_DISCRETE,
 	"OMAP3 SDP3430 board",
@@ -101,8 +103,6 @@ extern struct gpmc *gpmc_cfg;
  */
 int board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
 	/* TODO: Dynamically pop out CS mapping and program accordingly */
 	/* Configure devices for default ON ON ON settings */

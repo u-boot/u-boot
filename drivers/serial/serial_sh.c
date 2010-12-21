@@ -21,6 +21,8 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 #if defined(CONFIG_CONS_SCIF0)
 # define SCIF_BASE	SCIF0_BASE
 #elif defined(CONFIG_CONS_SCIF1)
@@ -131,8 +133,6 @@
 
 void serial_setbrg(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	writeb(SCBRR_VALUE(gd->baudrate, CONFIG_SYS_CLK_FREQ), SCBRR);
 }
 

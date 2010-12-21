@@ -32,6 +32,8 @@
 #include <asm/mach-types.h>
 #include "igep0020.h"
 
+DECLARE_GLOBAL_DATA_PTR;
+
 /* GPMC definitions for LAN9221 chips */
 static const u32 gpmc_lan_config[] = {
     NET_LAN9221_GPMC_CONFIG1,
@@ -48,8 +50,6 @@ static const u32 gpmc_lan_config[] = {
  */
 int board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
 	/* board id for Linux */
 	gd->bd->bi_arch_number = MACH_TYPE_IGEP0020;
