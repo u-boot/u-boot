@@ -625,6 +625,7 @@ The following options need to be configured:
 		CONFIG_CMD_BOOTD	  bootd
 		CONFIG_CMD_CACHE	* icache, dcache
 		CONFIG_CMD_CONSOLE	  coninfo
+		CONFIG_CMD_CRC32	* crc32
 		CONFIG_CMD_DATE		* support for RTC, date/time...
 		CONFIG_CMD_DHCP		* DHCP support
 		CONFIG_CMD_DIAG		* Diagnostics

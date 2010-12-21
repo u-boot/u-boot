@@ -1077,6 +1077,8 @@ mod_mem(cmd_tbl_t *cmdtp, int incrflag, int flag, int argc, char * const argv[])
 	return 0;
 }
 
+#ifdef CONFIG_CMD_CRC32
+
 #ifndef CONFIG_CRC32_VERIFY
 
 int do_mem_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -1160,6 +1162,8 @@ usage:
 
 }
 #endif	/* CONFIG_CRC32_VERIFY */
+
+#endif
 
 #ifdef CONFIG_CMD_MD5SUM
 int do_md5sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -1277,6 +1281,8 @@ U_BOOT_CMD(
 	"[.b, .w, .l] addr1 addr2 count"
 );
 
+#ifdef CONFIG_CMD_CRC32
+
 #ifndef CONFIG_CRC32_VERIFY
 
 U_BOOT_CMD(
@@ -1295,6 +1301,8 @@ U_BOOT_CMD(
 );
 
 #endif	/* CONFIG_CRC32_VERIFY */
+
+#endif
 
 U_BOOT_CMD(
 	base,	2,	1,	do_mem_base,
