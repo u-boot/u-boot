@@ -861,6 +861,18 @@ The following options need to be configured:
 			Define this to use i/o functions instead of macros
 			(some hardware wont work with macros)
 
+		CONFIG_FTGMAC100
+		Support for Faraday's FTGMAC100 Gigabit SoC Ethernet
+
+			CONFIG_FTGMAC100_EGIGA
+			Define this to use GE link update with gigabit PHY.
+			Define this if FTGMAC100 is connected to gigabit PHY.
+			If your system has 10/100 PHY only, it might not occur
+			wrong behavior. Because PHY usually return timeout or
+			useless data when polling gigabit status and gigabit
+			control registers. This behavior won't affect the
+			correctnessof 10/100 link speed update.
+
 		CONFIG_SMC911X
 		Support for SMSC's LAN911x and LAN921x chips
 
