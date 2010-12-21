@@ -41,6 +41,7 @@
 #define AM29DL800BB	0x22CB
 #define AM29DL800BT	0x224A
 
+#define AM29F400BB	0x22AB
 #define AM29F800BB	0x2258
 #define AM29F800BT	0x22D6
 #define AM29LV400BB	0x22BA
@@ -294,6 +295,23 @@ static const struct amd_flash_info jedec_table[] = {
 	},
 #endif
 #ifdef CONFIG_SYS_FLASH_LEGACY_512Kx16
+	{
+		.mfr_id		= (u16)AMD_MANUFACT,
+		.dev_id		= AM29F400BB,
+		.name		= "AMD AM29F400BB",
+		.uaddr		= {
+			[1] = MTD_UADDR_0x0555_0x02AA /* x16 */
+		},
+		.DevSize	= SIZE_512KiB,
+		.CmdSet		= CFI_CMDSET_AMD_LEGACY,
+		.NumEraseRegions= 4,
+		.regions	= {
+			ERASEINFO(0x04000, 1),
+			ERASEINFO(0x02000, 2),
+			ERASEINFO(0x08000, 1),
+			ERASEINFO(0x10000, 7),
+		}
+	},
 	{
 		.mfr_id		= (u16)AMD_MANUFACT,
 		.dev_id		= AM29LV400BB,
