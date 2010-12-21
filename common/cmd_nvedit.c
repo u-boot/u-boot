@@ -76,6 +76,8 @@ SPI_FLASH|MG_DISK|NVRAM|MMC|NOWHERE}
  */
 #define	MAX_ENV_SIZE	(1 << 20)	/* 1 MiB */
 
+ulong load_addr = CONFIG_SYS_LOAD_ADDR;	/* Default Load Address */
+
 /*
  * Table with supported baudrates (defined in config_xyz.h)
  */

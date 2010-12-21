@@ -156,7 +156,6 @@ static boot_os_fn *boot_os[] = {
 #endif
 };
 
-ulong load_addr = CONFIG_SYS_LOAD_ADDR;	/* Default Load Address */
 static bootm_headers_t images;		/* pointers to os/initrd/fdt images */
 
 /* Allow for arch specific config before we boot */
