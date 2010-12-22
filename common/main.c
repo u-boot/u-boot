@@ -65,8 +65,8 @@ static int abortboot(int);
 char        console_buffer[CONFIG_SYS_CBSIZE + 1];	/* console I/O buffer	*/
 
 static char * delete_char (char *buffer, char *p, int *colp, int *np, int plen);
-static char erase_seq[] = "\b \b";		/* erase sequence	*/
-static char   tab_seq[] = "        ";		/* used to expand TABs	*/
+static const char erase_seq[] = "\b \b";		/* erase sequence	*/
+static const char   tab_seq[] = "        ";		/* used to expand TABs	*/
 
 #ifdef CONFIG_BOOT_RETRY_TIME
 static uint64_t endtime = 0;  /* must be set, default is instant timeout */
