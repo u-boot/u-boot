@@ -63,7 +63,11 @@
  */
 
 static uint flash_offset_cfi[2] = { FLASH_OFFSET_CFI, FLASH_OFFSET_CFI_ALT };
+#ifdef CONFIG_FLASH_CFI_MTD
 static uint flash_verbose = 1;
+#else
+#define flash_verbose 1
+#endif
 
 flash_info_t flash_info[CFI_MAX_FLASH_BANKS];	/* FLASH chips info */
 
@@ -2042,10 +2046,12 @@ ulong flash_get_size (phys_addr_t base, int banknum)
 	return (info->size);
 }
 
+#ifdef CONFIG_FLASH_CFI_MTD
 void flash_set_verbose(uint v)
 {
 	flash_verbose = v;
 }
+#endif
 
 static void cfi_flash_set_config_reg(u32 base, u16 val)
 {
