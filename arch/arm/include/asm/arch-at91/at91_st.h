@@ -35,7 +35,7 @@ typedef struct at91_st {
 	u32	imr;
 	u32	rtar;
 	u32	crtr;
-} __attribute__ ((packed)) at91_st_t ;
+} at91_st_t ;
 
 #define AT91_ST_CR_WDRST	1
 
