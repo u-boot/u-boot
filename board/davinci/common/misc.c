@@ -29,10 +29,11 @@
 #include <net.h>
 #include <asm/arch/hardware.h>
 #include <asm/io.h>
-#include "misc.h"
+#include <asm/arch/davinci_misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
+#ifndef CONFIG_PRELOADER
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
@@ -47,6 +48,7 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 	gd->bd->bi_dram[0].size = gd->ram_size;
 }
+#endif
 
 #ifdef CONFIG_DRIVER_TI_EMAC
 
@@ -76,6 +78,22 @@ err:
 }
 
 /*
+ * Set the mii mode as MII or RMII
+ */
+#if defined(CONFIG_DRIVER_TI_EMAC)
+void davinci_emac_mii_mode_sel(int mode_sel)
+{
+	int val;
+
+	val = readl(&davinci_syscfg_regs->cfgchip3);
+	if (mode_sel == 0)
+		val &= ~(1 << 8);
+	else
+		val |= (1 << 8);
+	writel(val, &davinci_syscfg_regs->cfgchip3);
+}
+#endif
+/*
  * If there is no MAC address in the environment, then it will be initialized
  * (silently) from the value in the EEPROM.
  */
@@ -94,79 +112,38 @@ void davinci_sync_env_enetaddr(uint8_t *rom_enetaddr)
 	}
 }
 
-#endif	/* DAVINCI_EMAC */
+#endif	/* CONFIG_DRIVER_TI_EMAC */
 
-/*
- * Change the setting of a pin multiplexer field.
- *
- * Takes an array of pinmux settings similar to:
- *
- * struct pinmux_config uart_pins[] = {
- *	{ &davinci_syscfg_regs->pinmux[8], 2, 7 },
- *	{ &davinci_syscfg_regs->pinmux[9], 2, 0 }
- * };
- *
- * Stepping through the array, each pinmux[n] register has the given value
- * set in the pin mux field specified.
- *
- * The number of pins in the array must be passed (ARRAY_SIZE can provide
- * this value conveniently).
- *
- * Returns 0 if all field numbers and values are in the correct range,
- * else returns -1.
- */
-int davinci_configure_pin_mux(const struct pinmux_config *pins,
-			      const int n_pins)
+#if defined(CONFIG_SOC_DA8XX)
+#ifndef CONFIG_USE_IRQ
+void irq_init(void)
 {
-	int i;
+	/*
+	 * Mask all IRQs by clearing the global enable and setting
+	 * the enable clear for all the 90 interrupts.
+	 */
 
-	/* check for invalid pinmux values */
-	for (i = 0; i < n_pins; i++) {
-		if (pins[i].field >= PIN_MUX_NUM_FIELDS ||
-		    (pins[i].value & ~PIN_MUX_FIELD_MASK) != 0)
-			return -1;
-	}
+	writel(0, &davinci_aintc_regs->ger);
 
-	/* configure the pinmuxes */
-	for (i = 0; i < n_pins; i++) {
-		const int offset = pins[i].field * PIN_MUX_FIELD_SIZE;
-		const unsigned int value = pins[i].value << offset;
-		const unsigned int mask = PIN_MUX_FIELD_MASK << offset;
-		const dv_reg *mux = pins[i].mux;
+	writel(0, &davinci_aintc_regs->hier);
 
-		writel(value | (readl(mux) & (~mask)), mux);
-	}
-
-	return 0;
+	writel(0xffffffff, &davinci_aintc_regs->ecr1);
+	writel(0xffffffff, &davinci_aintc_regs->ecr2);
+	writel(0xffffffff, &davinci_aintc_regs->ecr3);
 }
+#endif
 
 /*
- * Configure multiple pinmux resources.
- *
- * Takes an pinmux_resource array of pinmux_config and pin counts:
- *
- * const struct pinmux_resource pinmuxes[] = {
- *	PINMUX_ITEM(uart_pins),
- *	PINMUX_ITEM(i2c_pins),
- * };
- *
- * The number of items in the array must be passed (ARRAY_SIZE can provide
- * this value conveniently).
- *
- * Each item entry is configured in the defined order. If configuration
- * of any item fails, -1 is returned and none of the following items are
- * configured. On success, 0 is returned.
+ * Enable PSC for various peripherals.
  */
-int davinci_configure_pin_mux_items(const struct pinmux_resource *item,
+int da8xx_configure_lpsc_items(const struct lpsc_resource *item,
 				    const int n_items)
 {
 	int i;
 
-	for (i = 0; i < n_items; i++) {
-		if (davinci_configure_pin_mux(item[i].pins,
-					      item[i].n_pins) != 0)
-			return -1;
-	}
+	for (i = 0; i < n_items; i++)
+		lpsc_on(item[i].lpsc_no);
 
 	return 0;
 }
+#endif

@@ -35,6 +35,7 @@ COBJS-$(CONFIG_KIRKWOOD_SPI) += kirkwood_spi.o
 COBJS-$(CONFIG_MPC52XX_SPI) += mpc52xx_spi.o
 COBJS-$(CONFIG_MPC8XXX_SPI) += mpc8xxx_spi.o
 COBJS-$(CONFIG_MXC_SPI) += mxc_spi.o
+COBJS-$(CONFIG_OMAP3_SPI) += omap3_spi.o
 COBJS-$(CONFIG_SOFT_SPI) += soft_spi.o
 
 COBJS	:= $(COBJS-y)

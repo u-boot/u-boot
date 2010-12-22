@@ -129,6 +129,8 @@ uchar default_environment[] = {
 	"\0"
 };
 
+struct hsearch_data env_htab;
+
 static uchar env_get_char_init (int index)
 {
 	uchar c;
@@ -187,7 +189,7 @@ void set_default_env(const char *s)
 		puts("Using default environment\n\n");
 	}
 
-	if (himport((char *)default_environment,
+	if (himport_r(&env_htab, (char *)default_environment,
 		    sizeof(default_environment), '\0', 0) == 0) {
 		error("Environment import failed: errno = %d\n", errno);
 	}
@@ -213,7 +215,7 @@ int env_import(const char *buf, int check)
 		}
 	}
 
-	if (himport((char *)ep->data, ENV_SIZE, '\0', 0)) {
+	if (himport_r(&env_htab, (char *)ep->data, ENV_SIZE, '\0', 0)) {
 		gd->flags |= GD_FLG_ENV_READY;
 		return 1;
 	}

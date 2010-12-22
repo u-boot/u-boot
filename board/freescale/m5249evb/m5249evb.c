@@ -26,10 +26,6 @@
 #include <malloc.h>
 #include <asm/immap.h>
 
-
-/* Prototypes */
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-
 int checkboard (void) {
 	ulong val;
 	uchar val8;

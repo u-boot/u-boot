@@ -306,7 +306,7 @@ int misc_init_r (void)
 
 #if defined(CONFIG_HAVE_OWN_RESET)
 int
-do_reset (void *cmdtp, int flag, int argc, char * const argv[])
+do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	volatile ioport_t *iop;
 

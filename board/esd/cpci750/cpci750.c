@@ -122,7 +122,6 @@ static char show_config_tab[][15] = {{"PCI0DLL_2     "},  /* 31 */
 
 extern flash_info_t flash_info[];
 
-extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 extern int do_bootvx (cmd_tbl_t *, int, int, char *[]);
 
 /* ------------------------------------------------------------------------- */

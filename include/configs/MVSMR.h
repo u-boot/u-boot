@@ -35,6 +35,7 @@
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xFF800000
 #endif
+#define CONFIG_SYS_LDSCRIPT	"board/matrix_vision/mvsmr/u-boot.lds"
 
 #define CONFIG_SYS_MPC5XXX_CLKIN	33000000
 

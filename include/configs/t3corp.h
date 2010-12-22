@@ -120,11 +120,16 @@
  */
 #define CONFIG_SYS_FLASH_CFI		/* The flash is CFI compatible	*/
 #define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
-#define CONFIG_SYS_FLASH_CFI_AMD_RESET	1	/* Use AMD reset cmd */
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
+#define CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
 #define CONFIG_SYS_CFI_FLASH_STATUS_POLL /* use status poll method	*/
+#define CONFIG_SYS_FLASH_PROTECTION	/* use hardware flash protection */
 
-#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
-#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of memory banks */
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE, \
+			(CONFIG_SYS_FPGA1_BASE + 0x01000000) }
+#define CONFIG_SYS_CFI_FLASH_CONFIG_REGS { 0xffff,	/* don't set	*/ \
+			0xbddf }		/* set async read mode	*/
+#define CONFIG_SYS_MAX_FLASH_BANKS	2	/* max num of memory banks */
 #define CONFIG_SYS_MAX_FLASH_SECT	512	/* max num of sectors p. chip*/
 
 #define CONFIG_SYS_FLASH_ERASE_TOUT	120000	/* Timeout for Flash Erase/ms*/
@@ -355,6 +360,7 @@
 	"ramdisk_addr=fc200000\0"					\
 	"pciconfighost=1\0"						\
 	"pcie_mode=RP:RP\0"						\
+	"unlock=yes\0"							\
 	""
 
 /*
@@ -423,7 +429,7 @@
 				 EBC_BXAP_WBN_ENCODE(0)		|	\
 				 EBC_BXAP_WBF_ENCODE(0)		|	\
 				 EBC_BXAP_TH_ENCODE(1)		|	\
-				 EBC_BXAP_RE_DISABLED		|	\
+				 EBC_BXAP_RE_ENABLED		|	\
 				 EBC_BXAP_SOR_DELAYED		|	\
 				 EBC_BXAP_BEM_RW		|	\
 				 EBC_BXAP_PEN_DISABLED)
@@ -440,7 +446,7 @@
 				 EBC_BXAP_WBN_ENCODE(0)		|	\
 				 EBC_BXAP_WBF_ENCODE(0)		|	\
 				 EBC_BXAP_TH_ENCODE(1)		|	\
-				 EBC_BXAP_RE_DISABLED		|	\
+				 EBC_BXAP_RE_ENABLED		|	\
 				 EBC_BXAP_SOR_DELAYED		|	\
 				 EBC_BXAP_BEM_RW		|	\
 				 EBC_BXAP_PEN_DISABLED)
@@ -457,7 +463,7 @@
 				 EBC_BXAP_WBN_ENCODE(0)		|	\
 				 EBC_BXAP_WBF_ENCODE(0)		|	\
 				 EBC_BXAP_TH_ENCODE(1)		|	\
-				 EBC_BXAP_RE_DISABLED		|	\
+				 EBC_BXAP_RE_ENABLED		|	\
 				 EBC_BXAP_SOR_DELAYED		|	\
 				 EBC_BXAP_BEM_RW		|	\
 				 EBC_BXAP_PEN_DISABLED)

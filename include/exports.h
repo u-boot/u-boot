@@ -19,7 +19,6 @@ void free(void*);
 void __udelay(unsigned long);
 unsigned long get_timer(unsigned long);
 int vprintf(const char *, va_list);
-void do_reset (void);
 unsigned long simple_strtoul(const char *cp,char **endp,unsigned int base);
 char *getenv (char *name);
 int setenv (char *varname, char *varvalue);

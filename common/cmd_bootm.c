@@ -93,7 +93,6 @@ static int fit_check_kernel (const void *fit, int os_noffset, int verify);
 
 static void *boot_get_kernel (cmd_tbl_t *cmdtp, int flag,int argc, char * const argv[],
 		bootm_headers_t *images, ulong *os_data, ulong *os_len);
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 /*
  *  Continue booting an OS image; caller already has:

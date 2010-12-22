@@ -34,7 +34,6 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Prototypes */
-int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 unsigned long fpga_done_state(void);
 unsigned long fpga_init_state(void);
 

@@ -243,8 +243,35 @@ static int gen_get_link_speed(int phy_addr)
 {
 	u_int16_t	tmp;
 
-	if (davinci_eth_phy_read(phy_addr, MII_STATUS_REG, &tmp) && (tmp & 0x04))
+	if (davinci_eth_phy_read(phy_addr, MII_STATUS_REG, &tmp) &&
+			(tmp & 0x04)) {
+#if defined(CONFIG_DRIVER_TI_EMAC_USE_RMII) && \
+		defined(CONFIG_MACH_DAVINCI_DA850_EVM)
+		davinci_eth_phy_read(phy_addr, PHY_ANLPAR, &tmp);
+
+		/* Speed doesn't matter, there is no setting for it in EMAC. */
+		if (tmp & (PHY_ANLPAR_TXFD | PHY_ANLPAR_10FD)) {
+			/* set EMAC for Full Duplex  */
+			writel(EMAC_MACCONTROL_MIIEN_ENABLE |
+					EMAC_MACCONTROL_FULLDUPLEX_ENABLE,
+					&adap_emac->MACCONTROL);
+		} else {
+			/*set EMAC for Half Duplex  */
+			writel(EMAC_MACCONTROL_MIIEN_ENABLE,
+					&adap_emac->MACCONTROL);
+		}
+
+		if (tmp & (PHY_ANLPAR_TXFD | PHY_ANLPAR_TX))
+			writel(readl(&adap_emac->MACCONTROL) |
+					EMAC_MACCONTROL_RMIISPEED_100,
+					 &adap_emac->MACCONTROL);
+		else
+			writel(readl(&adap_emac->MACCONTROL) &
+					~EMAC_MACCONTROL_RMIISPEED_100,
+					 &adap_emac->MACCONTROL);
+#endif
 		return(1);
+	}
 
 	return(0);
 }
@@ -326,6 +353,12 @@ static int davinci_eth_open(struct eth_device *dev, bd_t *bis)
 	}
 #endif
 
+#if defined(CONFIG_DRIVER_TI_EMAC_USE_RMII) && \
+	defined(CONFIG_MACH_DAVINCI_DA850_EVM)
+	adap_ewrap->c0rxen = adap_ewrap->c1rxen = adap_ewrap->c2rxen = 0;
+	adap_ewrap->c0txen = adap_ewrap->c1txen = adap_ewrap->c2txen = 0;
+	adap_ewrap->c0miscen = adap_ewrap->c1miscen = adap_ewrap->c2miscen = 0;
+#endif
 	rx_desc = emac_rx_desc;
 
 	writel(1, &adap_emac->TXCONTROL);
@@ -480,6 +513,12 @@ static void davinci_eth_close(struct eth_device *dev)
 	writel(0, &adap_ewrap->EWCTL);
 #endif
 
+#if defined(CONFIG_DRIVER_TI_EMAC_USE_RMII) && \
+	defined(CONFIG_MACH_DAVINCI_DA850_EVM)
+	adap_ewrap->c0rxen = adap_ewrap->c1rxen = adap_ewrap->c2rxen = 0;
+	adap_ewrap->c0txen = adap_ewrap->c1txen = adap_ewrap->c2txen = 0;
+	adap_ewrap->c0miscen = adap_ewrap->c1miscen = adap_ewrap->c2miscen = 0;
+#endif
 	debug_emac("- emac_close\n");
 }
 

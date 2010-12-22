@@ -177,30 +177,6 @@ int var_complete(int argc, char * const argv[], char last_char, int maxv, char *
 	return 0;
 }
 
-static void install_auto_complete_handler(const char *cmd,
-		int (*complete)(int argc, char * const argv[], char last_char, int maxv, char *cmdv[]))
-{
-	cmd_tbl_t *cmdtp;
-
-	cmdtp = find_cmd(cmd);
-	if (cmdtp == NULL)
-		return;
-
-	cmdtp->complete = complete;
-}
-
-void install_auto_complete(void)
-{
-#if defined(CONFIG_CMD_EDITENV)
-	install_auto_complete_handler("editenv", var_complete);
-#endif
-	install_auto_complete_handler("printenv", var_complete);
-	install_auto_complete_handler("setenv", var_complete);
-#if defined(CONFIG_CMD_RUN)
-	install_auto_complete_handler("run", var_complete);
-#endif
-}
-
 /*************************************************************************************/
 
 static int complete_cmdv(int argc, char * const argv[], char last_char, int maxv, char *cmdv[])

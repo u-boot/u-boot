@@ -415,6 +415,7 @@ Georg Schardt <schardt@team-ctech.de>
 
 Heiko Schocher <hs@denx.de>
 
+	charon		MPC5200
 	ids8247		MPC8247
 	jupiter		MPC5200
 	kmeter1		MPC8360
@@ -550,6 +551,7 @@ Rowel Atienza <rowel@diwalabs.com>
 
 Stefano Babic <sbabic@denx.de>
 
+	ea20		davinci
 	polaris		xscale
 	trizepsiv	xscale
 	mx51evk		i.MX51
@@ -663,10 +665,6 @@ Matthias Kaehlcke <matthias@kaehlcke.net>
 
 Konstantin Kletschke <kletschke@synertronixx.de>
 	scb9328		ARM920T
-
-Simon Kagstrom <simon.kagstrom@netinsight.net>
-
-       openrd_base     ARM926EJS (Kirkwood SoC)
 
 Nishant Kamat <nskamat@ti.com>
 
@@ -837,7 +835,9 @@ Matt Waddel <matt.waddel@linaro.org>
 
 Prafulla Wadaskar <prafulla@marvell.com>
 
+	aspenite	ARM926EJS (ARMADA100 88AP168 SoC)
 	mv88f6281gtw_ge	ARM926EJS (Kirkwood SoC)
+	openrd_base     ARM926EJS (Kirkwood SoC)
 	rd6281a		ARM926EJS (Kirkwood SoC)
 	sheevaplug	ARM926EJS (Kirkwood SoC)
 
@@ -853,6 +853,11 @@ Alex Züpke <azu@sysgo.de>
 
 	lart		SA1100
 	dnp1110		SA1110
+
+Syed Mohammed Khasim <sm.khasim@gmail.com>
+Sughosh Ganu <urwithsughosh@gmail.com>
+
+	hawkboard	ARM926EJS (OMAP-L138)
 
 -------------------------------------------------------------------------
 

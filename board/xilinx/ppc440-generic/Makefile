@@ -43,7 +43,9 @@ SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-$(LIB):	$(OBJS) $(SOBJS)
+all: $(LIB) $(SOBJS)
+
+$(LIB):	$(OBJS)
 	$(call cmd_link_o_target, $^)
 
 clean:

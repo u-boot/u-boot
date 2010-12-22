@@ -300,14 +300,14 @@ typedef struct table_entry {
  * entry that matches the given short name. If a matching entry is
  * found, it's id is returned to the caller.
  */
-int get_table_entry_id (table_entry_t *table,
+int get_table_entry_id(const table_entry_t *table,
 		const char *table_name, const char *name);
 /*
  * get_table_entry_name() scans the translation table trying to find
  * an entry that matches the given id. If a matching entry is found,
  * its long name is returned to the caller.
  */
-char *get_table_entry_name (table_entry_t *table, char *msg, int id);
+char *get_table_entry_name(const table_entry_t *table, char *msg, int id);
 
 const char *genimg_get_os_name (uint8_t os);
 const char *genimg_get_arch_name (uint8_t arch);

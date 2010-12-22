@@ -78,6 +78,8 @@ unsigned long ticks2usec(unsigned long ticks)
 
 int init_timebase (void)
 {
+	unsigned long temp;
+
 #if defined(CONFIG_5xx) || defined(CONFIG_8xx)
 	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 
@@ -86,7 +88,8 @@ int init_timebase (void)
 #endif
 
 	/* reset */
-	asm ("li 3,0 ; mttbu 3 ; mttbl 3 ;");
+	asm volatile("li %0,0 ; mttbu %0 ; mttbl %0;"
+	     : "=&r"(temp) );
 
 #if defined(CONFIG_5xx) || defined(CONFIG_8xx)
 	/* enable */

@@ -24,7 +24,7 @@
 #include <asm/arch/nand_defs.h>
 #include <asm/arch/gpio_defs.h>
 #include <netdev.h>
-#include "../common/misc.h"
+#include <asm/arch/davinci_misc.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

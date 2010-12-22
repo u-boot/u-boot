@@ -111,7 +111,7 @@ static int env_print(char *name)
 
 		e.key = name;
 		e.data = NULL;
-		ep = hsearch (e, FIND);
+		hsearch_r(e, FIND, &ep, &env_htab);
 		if (ep == NULL)
 			return 0;
 		len = printf ("%s=%s\n", ep->key, ep->data);
@@ -119,7 +119,7 @@ static int env_print(char *name)
 	}
 
 	/* print whole list */
-	len = hexport('\n', &res, 0);
+	len = hexport_r(&env_htab, '\n', &res, 0);
 
 	if (len > 0) {
 		puts(res);
@@ -184,7 +184,7 @@ int _do_env_set (int flag, int argc, char * const argv[])
 	 */
 	e.key = name;
 	e.data = NULL;
-	ep = hsearch (e, FIND);
+	hsearch_r(e, FIND, &ep, &env_htab);
 
 	/* Check for console redirection */
 	if (strcmp(name,"stdin") == 0) {
@@ -267,7 +267,7 @@ int _do_env_set (int flag, int argc, char * const argv[])
 
 	/* Delete only ? */
 	if ((argc < 3) || argv[2] == NULL) {
-		int rc = hdelete(name);
+		int rc = hdelete_r(name, &env_htab);
 		return !rc;
 	}
 
@@ -293,7 +293,7 @@ int _do_env_set (int flag, int argc, char * const argv[])
 
 	e.key  = name;
 	e.data = value;
-	ep = hsearch(e, ENTER);
+	hsearch_r(e, ENTER, &ep, &env_htab);
 	free(value);
 	if (!ep) {
 		printf("## Error inserting \"%s\" variable, errno=%d\n",
@@ -456,7 +456,7 @@ char *getenv (char *name)
 
 		e.key  = name;
 		e.data = NULL;
-		ep = hsearch (e, FIND);
+		hsearch_r(e, FIND, &ep, &env_htab);
 
 		return (ep ? ep->data : NULL);
 	}
@@ -651,7 +651,7 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	}
 
 	if (sep) {		/* export as text file */
-		len = hexport(sep, &addr, size);
+		len = hexport_r(&env_htab, sep, &addr, size);
 		if (len < 0) {
 			error("Cannot export environment: errno = %d\n",
 				errno);
@@ -670,7 +670,7 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	else			/* export as raw binary data */
 		res = addr;
 
-	len = hexport('\0', &res, ENV_SIZE);
+	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n",
 			errno);
@@ -790,7 +790,7 @@ static int do_env_import(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 		addr = (char *)ep->data;
 	}
 
-	if (himport(addr, size, sep, del ? 0 : H_NOCLEAR) == 0) {
+	if (himport_r(&env_htab, addr, size, sep, del ? 0 : H_NOCLEAR) == 0) {
 		error("Environment import failed: errno = %d\n", errno);
 		return 1;
 	}
@@ -883,29 +883,32 @@ U_BOOT_CMD(
  */
 
 #if defined(CONFIG_CMD_EDITENV)
-U_BOOT_CMD(
+U_BOOT_CMD_COMPLETE(
 	editenv, 2, 0,	do_env_edit,
 	"edit environment variable",
 	"name\n"
-	"    - edit environment variable 'name'"
+	"    - edit environment variable 'name'",
+	var_complete
 );
 #endif
 
-U_BOOT_CMD(
+U_BOOT_CMD_COMPLETE(
 	printenv, CONFIG_SYS_MAXARGS, 1,	do_env_print,
 	"print environment variables",
 	"\n    - print values of all environment variables\n"
 	"printenv name ...\n"
-	"    - print value of environment variable 'name'"
+	"    - print value of environment variable 'name'",
+	var_complete
 );
 
-U_BOOT_CMD(
+U_BOOT_CMD_COMPLETE(
 	setenv, CONFIG_SYS_MAXARGS, 0,	do_env_set,
 	"set environment variables",
 	"name value ...\n"
 	"    - set environment variable 'name' to 'value ...'\n"
 	"setenv name\n"
-	"    - delete environment variable 'name'"
+	"    - delete environment variable 'name'",
+	var_complete
 );
 
 #if defined(CONFIG_CMD_ASKENV)
@@ -926,10 +929,11 @@ U_BOOT_CMD(
 #endif
 
 #if defined(CONFIG_CMD_RUN)
-U_BOOT_CMD(
+U_BOOT_CMD_COMPLETE(
 	run,	CONFIG_SYS_MAXARGS,	1,	do_run,
 	"run commands in an environment variable",
 	"var [...]\n"
-	"    - run the commands in the environment variable(s) 'var'"
+	"    - run the commands in the environment variable(s) 'var'",
+	var_complete
 );
 #endif

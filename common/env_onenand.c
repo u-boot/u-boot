@@ -109,7 +109,7 @@ int saveenv(void)
 	};
 
 	res = (char *)&env_new.data;
-	len = hexport('\0', &res, ENV_SIZE);
+	len = hexport_r(&env_htab, '\0', &res, ENV_SIZE);
 	if (len < 0) {
 		error("Cannot export environment: errno = %d\n", errno);
 		return 1;

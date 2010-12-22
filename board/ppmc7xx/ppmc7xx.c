@@ -88,7 +88,7 @@ int misc_init_r( void )
  *
  * Shell command to reset the board.
  */
-void do_reset( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[] )
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	printf( "Resetting...\n" );
 
@@ -100,7 +100,10 @@ void do_reset( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[] )
 	_start();
 
 	/* Should never get here */
-	while(1);
+	while(1)
+		;
+
+	return 1;
 }
 
 int board_eth_init(bd_t *bis)

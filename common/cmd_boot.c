@@ -67,8 +67,6 @@ U_BOOT_CMD(
 	"      passing 'arg' as arguments"
 );
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-
 U_BOOT_CMD(
 	reset, 1, 0,	do_reset,
 	"Perform RESET of the CPU",

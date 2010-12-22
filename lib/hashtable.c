@@ -60,11 +60,6 @@
  */
 
 /*
- * The non-reentrant version use a global space for storing the hash table.
- */
-static struct hsearch_data htab;
-
-/*
  * The reentrant version has no static variables to maintain the state.
  * Instead the interface of all functions is extended to take an argument
  * which describes the current status.
@@ -97,11 +92,6 @@ static int isprime(unsigned int number)
 	return number % div != 0;
 }
 
-int hcreate(size_t nel)
-{
-	return hcreate_r(nel, &htab);
-}
-
 /*
  * Before using the hash table we must allocate memory for it.
  * Test for an existing table are done. We allocate one element
@@ -110,6 +100,7 @@ int hcreate(size_t nel)
  * The contents of the table is zeroed, especially the field used
  * becomes zero.
  */
+
 int hcreate_r(size_t nel, struct hsearch_data *htab)
 {
 	/* Test for correct arguments.  */
@@ -143,15 +134,12 @@ int hcreate_r(size_t nel, struct hsearch_data *htab)
 /*
  * hdestroy()
  */
-void hdestroy(void)
-{
-	hdestroy_r(&htab);
-}
 
 /*
  * After using the hash table it has to be destroyed. The used memory can
  * be freed and the local static variable can be marked as not used.
  */
+
 void hdestroy_r(struct hsearch_data *htab)
 {
 	int i;
@@ -213,15 +201,6 @@ void hdestroy_r(struct hsearch_data *htab)
  *   This allows us direct access to the found hash table slot for
  *   example for functions like hdelete().
  */
-
-ENTRY *hsearch(ENTRY item, ACTION action)
-{
-	ENTRY *result;
-
-	(void) hsearch_r(item, action, &result, &htab);
-
-	return result;
-}
 
 int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 	      struct hsearch_data *htab)
@@ -369,11 +348,6 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
  * do that.
  */
 
-int hdelete(const char *key)
-{
-	return hdelete_r(key, &htab);
-}
-
 int hdelete_r(const char *key, struct hsearch_data *htab)
 {
 	ENTRY e, *ep;
@@ -441,11 +415,6 @@ int hdelete_r(const char *key, struct hsearch_data *htab)
  *		be returned if the size is not sufficient.  Any unused
  *		bytes in the string will be '\0'-padded.
  */
-
-ssize_t hexport(const char sep, char **resp, size_t size)
-{
-	return hexport_r(&htab, sep, resp, size);
-}
 
 static int cmpkey(const void *p1, const void *p2)
 {
@@ -604,11 +573,6 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
  * In theory, arbitrary separator characters can be used, but only
  * '\0' and '\n' have really been tested.
  */
-
-int himport(const char *env, size_t size, const char sep, int flag)
-{
-	return himport_r(&htab, env, size, sep, flag);
-}
 
 int himport_r(struct hsearch_data *htab,
 	      const char *env, size_t size, const char sep, int flag)

@@ -1,0 +1,92 @@
+/*
+ * (C) Copyright 2010
+ * Marvell Semiconductor <www.marvell.com>
+ * Written-by: Prafulla Wadaskar <prafulla@marvell.com>
+ * Contributor: Mahavir Jain <mjain@marvell.com>
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301 USA
+ */
+
+#include <common.h>
+#include <asm/arch/armada100.h>
+#include <asm/io.h>
+
+#define UARTCLK14745KHZ	(APBC_APBCLK | APBC_FNCLK | APBC_FNCLKSEL(1))
+#define SET_MRVL_ID	(1<<8)
+#define L2C_RAM_SEL	(1<<4)
+
+int arch_cpu_init(void)
+{
+	u32 val;
+	struct armd1cpu_registers *cpuregs =
+		(struct armd1cpu_registers *) ARMD1_CPU_BASE;
+
+	struct armd1apb1_registers *apb1clkres =
+		(struct armd1apb1_registers *) ARMD1_APBC1_BASE;
+
+	struct armd1mpmu_registers *mpmu =
+		(struct armd1mpmu_registers *) ARMD1_MPMU_BASE;
+
+	/* set SEL_MRVL_ID bit in ARMADA100_CPU_CONF register */
+	val = readl(&cpuregs->cpu_conf);
+	val = val | SET_MRVL_ID;
+	writel(val, &cpuregs->cpu_conf);
+
+	/* Enable Clocks for all hardware units */
+	writel(0xFFFFFFFF, &mpmu->acgr);
+
+	/* Turn on AIB and AIB-APB Functional clock */
+	writel(APBC_APBCLK | APBC_FNCLK, &apb1clkres->aib);
+
+	/* ensure L2 cache is not mapped as SRAM */
+	val = readl(&cpuregs->cpu_conf);
+	val = val & ~(L2C_RAM_SEL);
+	writel(val, &cpuregs->cpu_conf);
+
+	/* Enable GPIO clock */
+	writel(APBC_APBCLK, &apb1clkres->gpio);
+
+	/*
+	 * Enable Functional and APB clock at 14.7456MHz
+	 * for configured UART console
+	 */
+#if (CONFIG_SYS_NS16550_COM1 == ARMD1_UART3_BASE)
+	writel(UARTCLK14745KHZ, &apb1clkres->uart3);
+#elif (CONFIG_SYS_NS16550_COM1 == ARMD1_UART2_BASE)
+	writel(UARTCLK14745KHZ, &apb1clkres->uart2);
+#else
+	writel(UARTCLK14745KHZ, &apb1clkres->uart1);
+#endif
+	icache_enable();
+
+	return 0;
+}
+
+#if defined(CONFIG_DISPLAY_CPUINFO)
+int print_cpuinfo(void)
+{
+	u32 id;
+	struct armd1cpu_registers *cpuregs =
+		(struct armd1cpu_registers *) ARMD1_CPU_BASE;
+
+	id = readl(&cpuregs->chip_id);
+	printf("SoC:   Armada 88AP%X-%X\n", (id & 0xFFF), (id >> 0x10));
+	return 0;
+}
+#endif

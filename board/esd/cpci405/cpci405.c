@@ -32,7 +32,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 extern void __ft_board_setup(void *blob, bd_t *bd);
 
 #undef FPGA_DEBUG

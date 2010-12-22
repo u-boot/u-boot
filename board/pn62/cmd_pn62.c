@@ -31,8 +31,6 @@
 
 #if defined(CONFIG_CMD_BSP)
 
-extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
-
 /*
  * Command led: controls the various LEDs 0..11 on the PN62 card.
  */

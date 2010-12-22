@@ -31,7 +31,7 @@
 #include <asm/microblaze_intc.h>
 #include <asm/asm.h>
 
-void do_reset (void)
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 #ifdef CONFIG_SYS_GPIO_0
 	*((unsigned long *)(CONFIG_SYS_GPIO_0_ADDR)) =
@@ -41,6 +41,7 @@ void do_reset (void)
 	puts ("Reseting board\n");
 	asm ("bra r0");
 #endif
+	return 0;
 }
 
 int gpio_init (void)

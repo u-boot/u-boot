@@ -514,19 +514,19 @@ static inline int is_valid_ether_addr(const u8 *addr)
 extern void	ip_to_string (IPaddr_t x, char *s);
 
 /* Convert a string to ip address */
-extern IPaddr_t string_to_ip(char *s);
+extern IPaddr_t string_to_ip(const char *s);
 
 /* Convert a VLAN id to a string */
 extern void	VLAN_to_string (ushort x, char *s);
 
 /* Convert a string to a vlan id */
-extern ushort string_to_VLAN(char *s);
+extern ushort string_to_VLAN(const char *s);
 
 /* read a VLAN id from an environment variable */
 extern ushort getenv_VLAN(char *);
 
 /* copy a filename (allow for "..." notation, limit length) */
-extern void	copy_filename (char *dst, char *src, int size);
+extern void	copy_filename (char *dst, const char *src, int size);
 
 /* get a random source port */
 extern unsigned int random_port(void);

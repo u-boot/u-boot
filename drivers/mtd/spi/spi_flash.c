@@ -131,6 +131,9 @@ static const struct {
 #ifdef CONFIG_SPI_FLASH_ATMEL
 	{ 0, 0x1f, spi_flash_probe_atmel, },
 #endif
+#ifdef CONFIG_SPI_FLASH_EON
+	{ 0, 0x1c, spi_flash_probe_eon, },
+#endif
 #ifdef CONFIG_SPI_FLASH_MACRONIX
 	{ 0, 0xc2, spi_flash_probe_macronix, },
 #endif

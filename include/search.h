@@ -32,15 +32,6 @@
 
 #define __set_errno(val) do { errno = val; } while (0)
 
-/*
- * Prototype structure for a linked-list data structure.
- * This is the type used by the `insque' and `remque' functions.
- */
-
-/* For use with hsearch(3).  */
-typedef int (*__compar_fn_t) (__const void *, __const void *);
-typedef __compar_fn_t comparison_fn_t;
-
 /* Action which shall be performed in the call the hsearch.  */
 typedef enum {
 	FIND,
@@ -69,11 +60,9 @@ struct hsearch_data {
 };
 
 /* Create a new hashing table which will at most contain NEL elements.  */
-extern int hcreate(size_t __nel);
 extern int hcreate_r(size_t __nel, struct hsearch_data *__htab);
 
 /* Destroy current internal hashing table.  */
-extern void hdestroy(void);
 extern void hdestroy_r(struct hsearch_data *__htab);
 
 /*
@@ -82,25 +71,20 @@ extern void hdestroy_r(struct hsearch_data *__htab);
  * NULL.  If ACTION is `ENTER' replace existing data (if any) with
  * ITEM.data.
  * */
-extern ENTRY *hsearch(ENTRY __item, ACTION __action);
 extern int hsearch_r(ENTRY __item, ACTION __action, ENTRY ** __retval,
 		     struct hsearch_data *__htab);
 
 /* Search and delete entry matching ITEM.key in internal hash table. */
-extern int hdelete(const char *__key);
 extern int hdelete_r(const char *__key, struct hsearch_data *__htab);
 
-extern ssize_t hexport(const char __sep, char **__resp, size_t __size);
 extern ssize_t hexport_r(struct hsearch_data *__htab,
 		     const char __sep, char **__resp, size_t __size);
 
-extern int himport(const char *__env, size_t __size, const char __sep,
-		   int __flag);
 extern int himport_r(struct hsearch_data *__htab,
 		     const char *__env, size_t __size, const char __sep,
 		     int __flag);
 
-/* Flags for himport() / himport_r() */
+/* Flags for himport_r() */
 #define	H_NOCLEAR	1	/* do not clear hash table before importing */
 
 #endif /* search.h */

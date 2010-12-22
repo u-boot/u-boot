@@ -721,7 +721,6 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	image_header_t *hdr;  /* used for fdc boot */
 	unsigned char boot_drive;
 	int i,nrofblk;
-	char *ep;
 	int rcode = 0;
 #if defined(CONFIG_FIT)
 	const void *fit_hdr = NULL;
@@ -824,9 +823,8 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	load_addr = addr;
 
 	/* Check if we should attempt an auto-start */
-	if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
+	if (getenv_yesno("autostart")) {
 		char *local_args[2];
-		extern int do_bootm (cmd_tbl_t *, int, int, char *[]);
 
 		local_args[0] = argv[0];
 		local_args[1] = NULL;

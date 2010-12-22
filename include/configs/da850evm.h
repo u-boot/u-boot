@@ -27,6 +27,7 @@
  * Board
  */
 #define CONFIG_DRIVER_TI_EMAC
+#define CONFIG_USE_SPIFLASH
 
 /*
  * SoC Configuration
@@ -71,6 +72,15 @@
 #define CONFIG_BAUDRATE		115200		/* Default baud rate */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
+#define CONFIG_SPI
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_STMICRO
+#define CONFIG_DAVINCI_SPI
+#define CONFIG_SYS_SPI_BASE		DAVINCI_SPI1_BASE
+#define CONFIG_SYS_SPI_CLK		clk_get(DAVINCI_SPI1_CLKID)
+#define CONFIG_SF_DEFAULT_SPEED		30000000
+#define CONFIG_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
+
 /*
  * I2C Configuration
  */
@@ -78,6 +88,7 @@
 #define CONFIG_DRIVER_DAVINCI_I2C
 #define CONFIG_SYS_I2C_SPEED		25000
 #define CONFIG_SYS_I2C_SLAVE		10 /* Bogus, master-only in U-Boot */
+#define CONFIG_SYS_I2C_EXPANDER_ADDR   0x20
 
 /*
  * Flash & Environment
@@ -113,6 +124,16 @@
 #define CONFIG_BOOTP_SEND_HOSTNAME
 #define CONFIG_NET_RETRY_COUNT	10
 #define CONFIG_NET_MULTI
+#endif
+
+#ifdef CONFIG_USE_SPIFLASH
+#undef CONFIG_ENV_IS_IN_FLASH
+#undef CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SIZE			(64 << 10)
+#define CONFIG_ENV_OFFSET		(256 << 10)
+#define CONFIG_ENV_SECT_SIZE		(64 << 10)
+#define CONFIG_SYS_NO_FLASH
 #endif
 
 /*
@@ -177,6 +198,14 @@
 #define CONFIG_RBTREE
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
+#endif
+
+#ifdef CONFIG_USE_SPIFLASH
+#undef CONFIG_CMD_IMLS
+#undef CONFIG_CMD_FLASH
+#define CONFIG_CMD_SPI
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SAVEENV
 #endif
 
 #if !defined(CONFIG_USE_NAND) && \
