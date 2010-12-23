@@ -24,6 +24,3 @@
 #
 
 CONFIG_BFIN_CPU = bf537-0.2
-
-# Set some default LDR flags based on boot mode.
-LDR_FLAGS += $(LDR_FLAGS-$(CONFIG_BFIN_BOOT_MODE))

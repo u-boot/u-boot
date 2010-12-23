@@ -67,6 +67,9 @@ endif
 
 LDR_FLAGS += $(LDR_FLAGS-y)
 
+# Set some default LDR flags based on boot mode.
+LDR_FLAGS += $(LDR_FLAGS-$(CONFIG_BFIN_BOOT_MODE))
+
 ifeq ($(wildcard $(TOPDIR)/board/$(BOARD)/u-boot.lds*),)
 LDSCRIPT = $(obj)arch/$(ARCH)/lib/u-boot.lds.S
 endif
