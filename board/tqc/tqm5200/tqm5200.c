@@ -54,7 +54,8 @@ DECLARE_GLOBAL_DATA_PTR;
 void ps2mult_early_init(void);
 #endif
 
-#if defined(CONFIG_VIDEO)
+#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) && \
+    defined(CONFIG_VIDEO)
 /*
  * EDID block has been generated using Phoenix EDID Designer 1.3.
  * This tool creates a text file containing:
