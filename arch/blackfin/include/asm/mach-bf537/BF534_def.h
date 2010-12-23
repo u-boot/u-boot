@@ -10,7 +10,7 @@
 
 #include "ADSP-EDN-BF534-extended_def.h"
 
-#if defined(__BFIN_DEF_ADSP_BF537_proc__) || !defined(__BFIN_DEF_ADSP_BF536_proc__)
+#if !defined(__ADSPBF536__)
 #define L1_DATA_A_SRAM 0xFF800000 /* 0xFF800000 -> 0xFF803FFF Data Bank A SRAM */
 #define L1_DATA_A_SRAM_SIZE (0xFF803FFF - 0xFF800000 + 1)
 #define L1_DATA_A_SRAM_END (L1_DATA_A_SRAM + L1_DATA_A_SRAM_SIZE)
