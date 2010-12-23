@@ -296,6 +296,7 @@ int do_cdp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	cdp,	1,	1,	do_cdp,
 	"Perform CDP network configuration",
+	"\n"
 );
 #endif
 
