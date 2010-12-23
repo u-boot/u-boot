@@ -23,7 +23,5 @@
 # MA 02111-1307 USA
 #
 
-CONFIG_BFIN_CPU = bf561-0.5
-
 # Set some default LDR flags based on boot mode.
 LDR_FLAGS-BFIN_BOOT_PARA := --bits 16

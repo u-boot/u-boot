@@ -12,6 +12,11 @@
 /* Some of our defines use this (like CONFIG_SYS_GBL_DATA_ADDR) */
 #include <asm-offsets.h>
 
+/* Sanity check CONFIG_BFIN_CPU */
+#ifndef CONFIG_BFIN_CPU
+# error CONFIG_BFIN_CPU: your board config needs to define this
+#endif
+
 #ifndef CONFIG_BFIN_SCRATCH_REG
 # define CONFIG_BFIN_SCRATCH_REG retn
 #endif

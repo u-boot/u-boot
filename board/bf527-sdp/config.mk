@@ -23,8 +23,6 @@
 # MA 02111-1307 USA
 #
 
-CONFIG_BFIN_CPU = bf527-0.2
-
 CFLAGS_lib_generic += -O2
 CFLAGS_lzma += -O2
 
