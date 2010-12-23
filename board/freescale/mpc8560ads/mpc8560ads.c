@@ -239,10 +239,10 @@ void reset_phy (void)
 	miiphy_reset("FCC1", 0x0);
 
 	/* change PHY address to 0x02 */
-	bb_miiphy_write(NULL, 0, PHY_MIPSCR, 0xf028);
+	bb_miiphy_write(NULL, 0, MII_MIPSCR, 0xf028);
 
-	bb_miiphy_write(NULL, 0x02, PHY_BMCR,
-			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	bb_miiphy_write(NULL, 0x02, MII_BMCR,
+			BMCR_ANENABLE | BMCR_ANRESTART);
 #endif /* CONFIG_MII */
 }
 

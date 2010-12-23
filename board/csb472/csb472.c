@@ -144,11 +144,11 @@ int last_stage_init(void)
 	miiphy_reset("ppc_4xx_eth0", CONFIG_PHY_ADDR);
 
 	/* AUTO neg */
-	miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, PHY_BMCR,
-			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, MII_BMCR,
+			BMCR_ANENABLE | BMCR_ANRESTART);
 
 	/* LEDs     */
-	miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, PHY_FCSCR, 0x0d08);
+	miiphy_write("ppc_4xx_eth0", CONFIG_PHY_ADDR, MII_NWAYTEST, 0x0d08);
 
 	return 0; /* success */
 }

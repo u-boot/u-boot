@@ -354,7 +354,7 @@ int mv88e61xx_switch_initialize(struct mv88e61xx_config *swconfig)
 		printf("Invalid cpu port config, using default port5\n");
 	}
 
-	RD_PHY(name, MV88E61XX_PRT_OFST, PHY_PHYIDR2, &reg);
+	RD_PHY(name, MV88E61XX_PRT_OFST, MII_PHYSID2, &reg);
 	switch (reg &= 0xfff0) {
 	case 0x1610:
 		idstr = "88E6161";

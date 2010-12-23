@@ -261,10 +261,10 @@ int misc_init_r (void)
 	mii_init();
 
 	/* disable auto-negotiation, 100mbit, full-duplex */
-	fec8xx_miiphy_write(NULL, 0, PHY_BMCR, 0x2100);
+	fec8xx_miiphy_write(NULL, 0, MII_BMCR, 0x2100);
 
 	/* set LED's to Link, Transmit, Receive           */
-	fec8xx_miiphy_write(NULL,  0, PHY_FCSCR, 0x4122);
+	fec8xx_miiphy_write(NULL,  0, MII_NWAYTEST, 0x4122);
 
 	return 0;
 }

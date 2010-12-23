@@ -253,20 +253,20 @@ int miiphy_info(const char *devname, unsigned char addr, unsigned int *oui,
 	unsigned int reg = 0;
 	unsigned short tmp;
 
-	if (miiphy_read (devname, addr, PHY_PHYIDR2, &tmp) != 0) {
+	if (miiphy_read (devname, addr, MII_PHYSID2, &tmp) != 0) {
 		debug ("PHY ID register 2 read failed\n");
 		return (-1);
 	}
 	reg = tmp;
 
-	debug ("PHY_PHYIDR2 @ 0x%x = 0x%04x\n", addr, reg);
+	debug ("MII_PHYSID2 @ 0x%x = 0x%04x\n", addr, reg);
 
 	if (reg == 0xFFFF) {
 		/* No physical device present at this address */
 		return (-1);
 	}
 
-	if (miiphy_read (devname, addr, PHY_PHYIDR1, &tmp) != 0) {
+	if (miiphy_read (devname, addr, MII_PHYSID1, &tmp) != 0) {
 		debug ("PHY ID register 1 read failed\n");
 		return (-1);
 	}
@@ -290,11 +290,11 @@ int miiphy_reset(const char *devname, unsigned char addr)
 	unsigned short reg;
 	int timeout = 500;
 
-	if (miiphy_read (devname, addr, PHY_BMCR, &reg) != 0) {
+	if (miiphy_read (devname, addr, MII_BMCR, &reg) != 0) {
 		debug ("PHY status read failed\n");
 		return (-1);
 	}
-	if (miiphy_write (devname, addr, PHY_BMCR, reg | PHY_BMCR_RESET) != 0) {
+	if (miiphy_write (devname, addr, MII_BMCR, reg | BMCR_RESET) != 0) {
 		debug ("PHY reset failed\n");
 		return (-1);
 	}
@@ -308,7 +308,7 @@ int miiphy_reset(const char *devname, unsigned char addr)
 	 */
 	reg = 0x8000;
 	while (((reg & 0x8000) != 0) && timeout--) {
-		if (miiphy_read(devname, addr, PHY_BMCR, &reg) != 0) {
+		if (miiphy_read(devname, addr, MII_BMCR, &reg) != 0) {
 			debug("PHY status read failed\n");
 			return -1;
 		}
@@ -345,7 +345,7 @@ int miiphy_speed(const char *devname, unsigned char addr)
 	 * No 1000BASE-X, so assume 1000BASE-T/100BASE-TX/10BASE-T register set.
 	 */
 	/* Check for 1000BASE-T. */
-	if (miiphy_read (devname, addr, PHY_1000BTSR, &btsr)) {
+	if (miiphy_read (devname, addr, MII_STAT1000, &btsr)) {
 		printf ("PHY 1000BT status");
 		goto miiphy_read_failed;
 	}
@@ -356,21 +356,21 @@ int miiphy_speed(const char *devname, unsigned char addr)
 #endif /* CONFIG_PHY_GIGE */
 
 	/* Check Basic Management Control Register first. */
-	if (miiphy_read (devname, addr, PHY_BMCR, &bmcr)) {
+	if (miiphy_read (devname, addr, MII_BMCR, &bmcr)) {
 		printf ("PHY speed");
 		goto miiphy_read_failed;
 	}
 	/* Check if auto-negotiation is on. */
-	if (bmcr & PHY_BMCR_AUTON) {
+	if (bmcr & BMCR_ANENABLE) {
 		/* Get auto-negotiation results. */
-		if (miiphy_read (devname, addr, PHY_ANLPAR, &anlpar)) {
+		if (miiphy_read (devname, addr, MII_LPA, &anlpar)) {
 			printf ("PHY AN speed");
 			goto miiphy_read_failed;
 		}
-		return (anlpar & PHY_ANLPAR_100) ? _100BASET : _10BASET;
+		return (anlpar & LPA_100) ? _100BASET : _10BASET;
 	}
 	/* Get speed from basic control settings. */
-	return (bmcr & PHY_BMCR_100MB) ? _100BASET : _10BASET;
+	return (bmcr & BMCR_SPEED100) ? _100BASET : _10BASET;
 
 miiphy_read_failed:
 	printf (" read failed, assuming 10BASE-T\n");
@@ -391,7 +391,7 @@ int miiphy_duplex(const char *devname, unsigned char addr)
 	/* Check for 1000BASE-X. */
 	if (miiphy_is_1000base_x (devname, addr)) {
 		/* 1000BASE-X */
-		if (miiphy_read (devname, addr, PHY_ANLPAR, &anlpar)) {
+		if (miiphy_read (devname, addr, MII_LPA, &anlpar)) {
 			printf ("1000BASE-X PHY AN duplex");
 			goto miiphy_read_failed;
 		}
@@ -400,7 +400,7 @@ int miiphy_duplex(const char *devname, unsigned char addr)
 	 * No 1000BASE-X, so assume 1000BASE-T/100BASE-TX/10BASE-T register set.
 	 */
 	/* Check for 1000BASE-T. */
-	if (miiphy_read (devname, addr, PHY_1000BTSR, &btsr)) {
+	if (miiphy_read (devname, addr, MII_STAT1000, &btsr)) {
 		printf ("PHY 1000BT status");
 		goto miiphy_read_failed;
 	}
@@ -414,22 +414,22 @@ int miiphy_duplex(const char *devname, unsigned char addr)
 #endif /* CONFIG_PHY_GIGE */
 
 	/* Check Basic Management Control Register first. */
-	if (miiphy_read (devname, addr, PHY_BMCR, &bmcr)) {
+	if (miiphy_read (devname, addr, MII_BMCR, &bmcr)) {
 		puts ("PHY duplex");
 		goto miiphy_read_failed;
 	}
 	/* Check if auto-negotiation is on. */
-	if (bmcr & PHY_BMCR_AUTON) {
+	if (bmcr & BMCR_ANENABLE) {
 		/* Get auto-negotiation results. */
-		if (miiphy_read (devname, addr, PHY_ANLPAR, &anlpar)) {
+		if (miiphy_read (devname, addr, MII_LPA, &anlpar)) {
 			puts ("PHY AN duplex");
 			goto miiphy_read_failed;
 		}
-		return (anlpar & (PHY_ANLPAR_10FD | PHY_ANLPAR_TXFD)) ?
+		return (anlpar & (LPA_10FULL | LPA_100FULL)) ?
 		    FULL : HALF;
 	}
 	/* Get speed from basic control settings. */
-	return (bmcr & PHY_BMCR_DPLX) ? FULL : HALF;
+	return (bmcr & BMCR_FULLDPLX) ? FULL : HALF;
 
 miiphy_read_failed:
 	printf (" read failed, assuming half duplex\n");
@@ -446,12 +446,12 @@ int miiphy_is_1000base_x(const char *devname, unsigned char addr)
 #if defined(CONFIG_PHY_GIGE)
 	u16 exsr;
 
-	if (miiphy_read (devname, addr, PHY_EXSR, &exsr)) {
+	if (miiphy_read (devname, addr, MII_ESTATUS, &exsr)) {
 		printf ("PHY extended status read failed, assuming no "
 			"1000BASE-X\n");
 		return 0;
 	}
-	return 0 != (exsr & (PHY_EXSR_1000XF | PHY_EXSR_1000XH));
+	return 0 != (exsr & (ESTATUS_1000XF | ESTATUS_1000XH));
 #else
 	return 0;
 #endif
@@ -467,14 +467,14 @@ int miiphy_link(const char *devname, unsigned char addr)
 	unsigned short reg;
 
 	/* dummy read; needed to latch some phys */
-	(void)miiphy_read (devname, addr, PHY_BMSR, &reg);
-	if (miiphy_read (devname, addr, PHY_BMSR, &reg)) {
-		puts ("PHY_BMSR read failed, assuming no link\n");
+	(void)miiphy_read (devname, addr, MII_BMSR, &reg);
+	if (miiphy_read (devname, addr, MII_BMSR, &reg)) {
+		puts ("MII_BMSR read failed, assuming no link\n");
 		return (0);
 	}
 
 	/* Determine if a link is active */
-	if ((reg & PHY_BMSR_LS) != 0) {
+	if ((reg & BMSR_LSTATUS) != 0) {
 		return (1);
 	} else {
 		return (0);

@@ -1185,16 +1185,16 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 	}
 #endif /* defined(CONFIG_PHY_RESET) */
 
-	miiphy_read (dev->name, reg, PHY_BMSR, &reg_short);
+	miiphy_read (dev->name, reg, MII_BMSR, &reg_short);
 
 	/*
 	 * Wait if PHY is capable of autonegotiation and autonegotiation is not complete
 	 */
-	if ((reg_short & PHY_BMSR_AUTN_ABLE)
-	    && !(reg_short & PHY_BMSR_AUTN_COMP)) {
+	if ((reg_short & BMSR_ANEGCAPABLE)
+	    && !(reg_short & BMSR_ANEGCOMPLETE)) {
 		puts ("Waiting for PHY auto negotiation to complete");
 		i = 0;
-		while (!(reg_short & PHY_BMSR_AUTN_COMP)) {
+		while (!(reg_short & BMSR_ANEGCOMPLETE)) {
 			/*
 			 * Timeout reached ?
 			 */
@@ -1207,7 +1207,7 @@ static int ppc_4xx_eth_init (struct eth_device *dev, bd_t * bis)
 				putc ('.');
 			}
 			udelay (1000);	/* 1 ms */
-			miiphy_read (dev->name, reg, PHY_BMSR, &reg_short);
+			miiphy_read (dev->name, reg, MII_BMSR, &reg_short);
 		}
 		puts (" done\n");
 		udelay (500000);	/* another 500 ms (results in faster booting) */

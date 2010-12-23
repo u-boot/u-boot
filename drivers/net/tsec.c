@@ -377,11 +377,11 @@ static uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 	 * (ie - we're capable and it's not done)
 	 */
 	mii_reg = read_phy_reg(priv, MIIM_STATUS);
-	if ((mii_reg & PHY_BMSR_AUTN_ABLE) && !(mii_reg & PHY_BMSR_AUTN_COMP)) {
+	if ((mii_reg & BMSR_ANEGCAPABLE) && !(mii_reg & BMSR_ANEGCOMPLETE)) {
 		int i = 0;
 
 		puts("Waiting for PHY auto negotiation to complete");
-		while (!(mii_reg & PHY_BMSR_AUTN_COMP)) {
+		while (!(mii_reg & BMSR_ANEGCOMPLETE)) {
 			/*
 			 * Timeout reached ?
 			 */
@@ -427,17 +427,17 @@ static uint mii_parse_sr(uint mii_reg, struct tsec_private * priv)
 static uint mii_parse_link(uint mii_reg, struct tsec_private *priv)
 {
 	/* We're using autonegotiation */
-	if (mii_reg & PHY_BMSR_AUTN_ABLE) {
+	if (mii_reg & BMSR_ANEGCAPABLE) {
 		uint lpa = 0;
 		uint gblpa = 0;
 
 		/* Check for gigabit capability */
-		if (mii_reg & PHY_BMSR_EXT) {
+		if (mii_reg & BMSR_ERCAP) {
 			/* We want a list of states supported by
 			 * both PHYs in the link
 			 */
-			gblpa = read_phy_reg(priv, PHY_1000BTSR);
-			gblpa &= read_phy_reg(priv, PHY_1000BTCR) << 2;
+			gblpa = read_phy_reg(priv, MII_STAT1000);
+			gblpa &= read_phy_reg(priv, MII_CTRL1000) << 2;
 		}
 
 		/* Set the baseline so we only have to set them
@@ -457,29 +457,29 @@ static uint mii_parse_link(uint mii_reg, struct tsec_private *priv)
 			return 0;
 		}
 
-		lpa = read_phy_reg(priv, PHY_ANAR);
-		lpa &= read_phy_reg(priv, PHY_ANLPAR);
+		lpa = read_phy_reg(priv, MII_ADVERTISE);
+		lpa &= read_phy_reg(priv, MII_LPA);
 
-		if (lpa & (PHY_ANLPAR_TXFD | PHY_ANLPAR_TX)) {
+		if (lpa & (LPA_100FULL | LPA_100HALF)) {
 			priv->speed = 100;
 
-			if (lpa & PHY_ANLPAR_TXFD)
+			if (lpa & LPA_100FULL)
 				priv->duplexity = 1;
 
-		} else if (lpa & PHY_ANLPAR_10FD)
+		} else if (lpa & LPA_10FULL)
 			priv->duplexity = 1;
 	} else {
-		uint bmcr = read_phy_reg(priv, PHY_BMCR);
+		uint bmcr = read_phy_reg(priv, MII_BMCR);
 
 		priv->speed = 10;
 		priv->duplexity = 0;
 
-		if (bmcr & PHY_BMCR_DPLX)
+		if (bmcr & BMCR_FULLDPLX)
 			priv->duplexity = 1;
 
-		if (bmcr & PHY_BMCR_1000_MBPS)
+		if (bmcr & BMCR_SPEED1000)
 			priv->speed = 1000;
-		else if (bmcr & PHY_BMCR_100_MBPS)
+		else if (bmcr & BMCR_SPEED100)
 			priv->speed = 100;
 	}
 
@@ -1645,14 +1645,14 @@ static struct phy_info phy_info_ksz804 =  {
 	"Micrel KSZ804 PHY",
 	4,
 	(struct phy_cmd[]) { /* config */
-		{PHY_BMCR, PHY_BMCR_RESET, NULL},
-		{PHY_BMCR, PHY_BMCR_AUTON|PHY_BMCR_RST_NEG, NULL},
+		{MII_BMCR, BMCR_RESET, NULL},
+		{MII_BMCR, BMCR_ANENABLE|BMCR_ANRESTART, NULL},
 		{miim_end,}
 	},
 	(struct phy_cmd[]) { /* startup */
-		{PHY_BMSR, miim_read, NULL},
-		{PHY_BMSR, miim_read, &mii_parse_sr},
-		{PHY_BMSR, miim_read, &mii_parse_link},
+		{MII_BMSR, miim_read, NULL},
+		{MII_BMSR, miim_read, &mii_parse_sr},
+		{MII_BMSR, miim_read, &mii_parse_link},
 		{miim_end,}
 	},
 	(struct phy_cmd[]) { /* shutdown */
@@ -1666,14 +1666,14 @@ static struct phy_info phy_info_generic =  {
 	"Unknown/Generic PHY",
 	32,
 	(struct phy_cmd[]) { /* config */
-		{PHY_BMCR, PHY_BMCR_RESET, NULL},
-		{PHY_BMCR, PHY_BMCR_AUTON|PHY_BMCR_RST_NEG, NULL},
+		{MII_BMCR, BMCR_RESET, NULL},
+		{MII_BMCR, BMCR_ANENABLE|BMCR_ANRESTART, NULL},
 		{miim_end,}
 	},
 	(struct phy_cmd[]) { /* startup */
-		{PHY_BMSR, miim_read, NULL},
-		{PHY_BMSR, miim_read, &mii_parse_sr},
-		{PHY_BMSR, miim_read, &mii_parse_link},
+		{MII_BMSR, miim_read, NULL},
+		{MII_BMSR, miim_read, &mii_parse_sr},
+		{MII_BMSR, miim_read, &mii_parse_link},
 		{miim_end,}
 	},
 	(struct phy_cmd[]) { /* shutdown */

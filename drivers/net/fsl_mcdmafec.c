@@ -200,7 +200,7 @@ static int fec_send(struct eth_device *dev, volatile void *packet, int length)
 	cbd_t *pTbd, *pUsedTbd;
 	u16 phyStatus;
 
-	miiphy_read(dev->name, info->phy_addr, PHY_BMSR, &phyStatus);
+	miiphy_read(dev->name, info->phy_addr, MII_BMSR, &phyStatus);
 
 	/* process all the consumed TBDs */
 	while (info->cleanTbdNum < CONFIG_SYS_TX_ETH_BUFFER) {

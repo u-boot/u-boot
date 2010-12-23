@@ -169,24 +169,6 @@
 #define ADVERTISED_BNC			(1 << 11)
 #define ADVERTISED_10000baseT_Full	(1 << 12)
 
-/* Advertisement control register. */
-#define ADVERTISE_SLCT		0x001f	/* Selector bits	       */
-#define ADVERTISE_CSMA		0x0001	/* Only selector supported     */
-#define ADVERTISE_10HALF	0x0020	/* Try for 10mbps half-duplex  */
-#define ADVERTISE_10FULL	0x0040	/* Try for 10mbps full-duplex  */
-#define ADVERTISE_100HALF	0x0080	/* Try for 100mbps half-duplex */
-#define ADVERTISE_100FULL	0x0100	/* Try for 100mbps full-duplex */
-#define ADVERTISE_100BASE4	0x0200	/* Try for 100mbps 4k packets  */
-#define ADVERTISE_RESV		0x1c00	/* Unused...		       */
-#define ADVERTISE_RFAULT	0x2000	/* Say we can detect faults    */
-#define ADVERTISE_LPACK		0x4000	/* Ack link partners response  */
-#define ADVERTISE_NPAGE		0x8000	/* Next page bit	       */
-
-#define ADVERTISE_FULL (ADVERTISE_100FULL | ADVERTISE_10FULL | \
-			ADVERTISE_CSMA)
-#define ADVERTISE_ALL (ADVERTISE_10HALF | ADVERTISE_10FULL | \
-		       ADVERTISE_100HALF | ADVERTISE_100FULL)
-
 /* Taken from mii_if_info and sungem_phy.h */
 struct uec_mii_info {
 	/* Information about the PHY type */

@@ -85,16 +85,16 @@ int phy_setup_aneg (char *devname, unsigned char addr)
 	unsigned short ctl, adv;
 
 	/* Setup standard advertise */
-	miiphy_read (devname, addr, PHY_ANAR, &adv);
-	adv |= (PHY_ANLPAR_ACK | PHY_ANLPAR_RF | PHY_ANLPAR_T4 |
-		PHY_ANLPAR_TXFD | PHY_ANLPAR_TX | PHY_ANLPAR_10FD |
-		PHY_ANLPAR_10);
-	miiphy_write (devname, addr, PHY_ANAR, adv);
+	miiphy_read (devname, addr, MII_ADVERTISE, &adv);
+	adv |= (LPA_LPACK | LPA_RFAULT | LPA_100BASE4 |
+		LPA_100FULL | LPA_100HALF | LPA_10FULL |
+		LPA_10HALF);
+	miiphy_write (devname, addr, MII_ADVERTISE, adv);
 
 	/* Start/Restart aneg */
-	miiphy_read (devname, addr, PHY_BMCR, &ctl);
-	ctl |= (PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
-	miiphy_write (devname, addr, PHY_BMCR, ctl);
+	miiphy_read (devname, addr, MII_BMCR, &ctl);
+	ctl |= (BMCR_ANENABLE | BMCR_ANRESTART);
+	miiphy_write (devname, addr, MII_BMCR, ctl);
 
 	return 0;
 }

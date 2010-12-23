@@ -163,20 +163,20 @@ static int miiphy_restart_aneg(struct eth_device *dev)
 	 * Reset PHY, then delay 300ns
 	 */
 #ifdef CONFIG_MX27
-	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_MIPGSR, 0x00FF);
+	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, MII_DCOUNTER, 0x00FF);
 #endif
-	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_BMCR,
-			PHY_BMCR_RESET);
+	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, MII_BMCR,
+			BMCR_RESET);
 	udelay(1000);
 
 	/*
 	 * Set the auto-negotiation advertisement register bits
 	 */
-	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_ANAR,
-			PHY_ANLPAR_TXFD | PHY_ANLPAR_TX | PHY_ANLPAR_10FD |
-			PHY_ANLPAR_10 | PHY_ANLPAR_PSB_802_3);
-	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, PHY_BMCR,
-			PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, MII_ADVERTISE,
+			LPA_100FULL | LPA_100HALF | LPA_10FULL |
+			LPA_10HALF | PHY_ANLPAR_PSB_802_3);
+	miiphy_write(dev->name, CONFIG_FEC_MXC_PHYADDR, MII_BMCR,
+			BMCR_ANENABLE | BMCR_ANRESTART);
 
 	return 0;
 }
@@ -197,12 +197,12 @@ static int miiphy_wait_aneg(struct eth_device *dev)
 		}
 
 		if (miiphy_read(dev->name, CONFIG_FEC_MXC_PHYADDR,
-					PHY_BMSR, &status)) {
+					MII_BMSR, &status)) {
 			printf("%s: Autonegotiation failed. status: 0x%04x\n",
 					dev->name, status);
 			return -1;
 		}
-	} while (!(status & PHY_BMSR_LS));
+	} while (!(status & BMSR_LSTATUS));
 
 	return 0;
 }

@@ -335,7 +335,7 @@ static struct eth_device* verify_phyaddr (const char *devname,
 	}
 
 	/* read id2 register */
-	if (get_phyreg(dev, addr, PHY_PHYIDR2, &value) != 0) {
+	if (get_phyreg(dev, addr, MII_PHYSID2, &value) != 0) {
 		printf("%s: mii read timeout!\n", devname);
 		return NULL;
 	}

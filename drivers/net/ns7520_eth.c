@@ -387,8 +387,8 @@ static int ns7520_eth_reset(void)
 	    ns7520_mii_get_clock_divisor(nPhyMaxMdioClock);
 
 	/* reset PHY */
-	ns7520_mii_write(PHY_BMCR, PHY_BMCR_RESET);
-	ns7520_mii_write(PHY_BMCR, 0);
+	ns7520_mii_write(MII_BMCR, BMCR_RESET);
+	ns7520_mii_write(MII_BMCR, 0);
 
 	udelay(3000);		/* [2] p.70 says at least 300us reset recovery time. */
 
@@ -438,23 +438,23 @@ static void ns7520_link_auto_negotiate(void)
 
 	/* run auto-negotation */
 	/* define what we are capable of */
-	ns7520_mii_write(PHY_ANAR,
-			 PHY_ANLPAR_TXFD |
-			 PHY_ANLPAR_TX |
-			 PHY_ANLPAR_10FD |
-			 PHY_ANLPAR_10 |
+	ns7520_mii_write(MII_ADVERTISE,
+			 LPA_100FULL |
+			 LPA_100HALF |
+			 LPA_10FULL |
+			 LPA_10HALF |
 			 PHY_ANLPAR_PSB_802_3);
 	/* start auto-negotiation */
-	ns7520_mii_write(PHY_BMCR, PHY_BMCR_AUTON | PHY_BMCR_RST_NEG);
+	ns7520_mii_write(MII_BMCR, BMCR_ANENABLE | BMCR_ANRESTART);
 
 	/* wait for completion */
 
 	ulStartJiffies = get_timer(0);
 	while (get_timer(0) < ulStartJiffies + NS7520_MII_NEG_DELAY) {
-		uiStatus = ns7520_mii_read(PHY_BMSR);
+		uiStatus = ns7520_mii_read(MII_BMSR);
 		if ((uiStatus &
-		     (PHY_BMSR_AUTN_COMP | PHY_BMSR_LS)) ==
-		    (PHY_BMSR_AUTN_COMP | PHY_BMSR_LS)) {
+		     (BMSR_ANEGCOMPLETE | BMSR_LSTATUS)) ==
+		    (BMSR_ANEGCOMPLETE | BMSR_LSTATUS)) {
 			/* lucky we are, auto-negotiation succeeded */
 			ns7520_link_print_changed();
 			ns7520_link_update_egcr();
@@ -515,13 +515,13 @@ static void ns7520_link_print_changed(void)
 
 	DEBUG_FN(DEBUG_LINK);
 
-	uiControl = ns7520_mii_read(PHY_BMCR);
+	uiControl = ns7520_mii_read(MII_BMCR);
 
-	if ((uiControl & PHY_BMCR_AUTON) == PHY_BMCR_AUTON) {
-		/* PHY_BMSR_LS is only set on autonegotiation */
-		uiStatus = ns7520_mii_read(PHY_BMSR);
+	if ((uiControl & BMCR_ANENABLE) == BMCR_ANENABLE) {
+		/* BMSR_LSTATUS is only set on autonegotiation */
+		uiStatus = ns7520_mii_read(MII_BMSR);
 
-		if (!(uiStatus & PHY_BMSR_LS)) {
+		if (!(uiStatus & BMSR_LSTATUS)) {
 			printk(KERN_WARNING NS7520_DRIVER_NAME
 			       ": link down\n");
 			/* @TODO Linux: carrier_off */
@@ -582,12 +582,12 @@ static char ns7520_mii_identify_phy(void)
 
 	DEBUG_FN(DEBUG_MII);
 
-	phyDetected = (PhyType) uiID1 = ns7520_mii_read(PHY_PHYIDR1);
+	phyDetected = (PhyType) uiID1 = ns7520_mii_read(MII_PHYSID1);
 
 	switch (phyDetected) {
 	case PHY_LXT971A:
 		szName = "LXT971A";
-		uiID2 = ns7520_mii_read(PHY_PHYIDR2);
+		uiID2 = ns7520_mii_read(MII_PHYSID2);
 		nPhyMaxMdioClock = PHY_LXT971_MDIO_MAX_CLK;
 		cRes = 1;
 		break;

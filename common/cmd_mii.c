@@ -35,12 +35,12 @@ typedef struct _MII_reg_desc_t {
 } MII_reg_desc_t;
 
 static const MII_reg_desc_t reg_0_5_desc_tbl[] = {
-	{ 0,   "PHY control register"                },
-	{ 1,   "PHY status register"                 },
-	{ 2,   "PHY ID 1 register"                   },
-	{ 3,   "PHY ID 2 register"                   },
-	{ 4,   "Autonegotiation advertisement register" },
-	{ 5,   "Autonegotiation partner abilities register" },
+	{ MII_BMCR,      "PHY control register" },
+	{ MII_BMSR,      "PHY status register" },
+	{ MII_PHYSID1,   "PHY ID 1 register" },
+	{ MII_PHYSID2,   "PHY ID 2 register" },
+	{ MII_ADVERTISE, "Autonegotiation advertisement register" },
+	{ MII_LPA,       "Autonegotiation partner abilities register" },
 };
 
 typedef struct _MII_field_desc_t {
@@ -212,20 +212,19 @@ static int special_field(
 	const MII_field_desc_t *pdesc,
 	ushort regval)
 {
-	if ((regno == 0) && (pdesc->lo == 6)) {
-		ushort speed_bits = regval & PHY_BMCR_SPEED_MASK;
+	if ((regno == MII_BMCR) && (pdesc->lo == 6)) {
+		ushort speed_bits = regval & (BMCR_SPEED1000 | BMCR_SPEED100);
 		printf("%2u,%2u =   b%u%u    speed selection = %s Mbps",
 			6, 13,
 			(regval >>  6) & 1,
 			(regval >> 13) & 1,
-			speed_bits == PHY_BMCR_1000_MBPS ? "1000" :
-			speed_bits == PHY_BMCR_100_MBPS  ? "100" :
-			speed_bits == PHY_BMCR_10_MBPS   ? "10" :
-			"???");
+			speed_bits == BMCR_SPEED1000 ? "1000" :
+			speed_bits == BMCR_SPEED100  ? "100" :
+			"10");
 		return 1;
 	}
 
-	else if ((regno == 0) && (pdesc->lo == 8)) {
+	else if ((regno == MII_BMCR) && (pdesc->lo == 8)) {
 		printf("%2u    = %5u    duplex = %s",
 			pdesc->lo,
 			(regval >>  pdesc->lo) & 1,
@@ -233,7 +232,7 @@ static int special_field(
 		return 1;
 	}
 
-	else if ((regno == 4) && (pdesc->lo == 0)) {
+	else if ((regno == MII_ADVERTISE) && (pdesc->lo == 0)) {
 		ushort sel_bits = (regval >> pdesc->lo) & pdesc->mask;
 		printf("%2u-%2u = %5u    selector = %s",
 			pdesc->hi, pdesc->lo, sel_bits,
@@ -245,7 +244,7 @@ static int special_field(
 		return 1;
 	}
 
-	else if ((regno == 5) && (pdesc->lo == 0)) {
+	else if ((regno == MII_LPA) && (pdesc->lo == 0)) {
 		ushort sel_bits = (regval >> pdesc->lo) & pdesc->mask;
 		printf("%2u-%2u =     %u    selector = %s",
 			pdesc->hi, pdesc->lo, sel_bits,

@@ -236,7 +236,7 @@ static int gen_is_phy_connected(int phy_addr)
 {
 	u_int16_t	dummy;
 
-	return(davinci_eth_phy_read(phy_addr, PHY_PHYIDR1, &dummy));
+	return(davinci_eth_phy_read(phy_addr, MII_PHYSID1, &dummy));
 }
 
 static int gen_get_link_speed(int phy_addr)
@@ -280,19 +280,19 @@ static int gen_auto_negotiate(int phy_addr)
 {
 	u_int16_t	tmp;
 
-	if (!davinci_eth_phy_read(phy_addr, PHY_BMCR, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, MII_BMCR, &tmp))
 		return(0);
 
 	/* Restart Auto_negotiation  */
-	tmp |= PHY_BMCR_AUTON;
-	davinci_eth_phy_write(phy_addr, PHY_BMCR, tmp);
+	tmp |= BMCR_ANENABLE;
+	davinci_eth_phy_write(phy_addr, MII_BMCR, tmp);
 
 	/*check AutoNegotiate complete */
 	udelay (10000);
-	if (!davinci_eth_phy_read(phy_addr, PHY_BMSR, &tmp))
+	if (!davinci_eth_phy_read(phy_addr, MII_BMSR, &tmp))
 		return(0);
 
-	if (!(tmp & PHY_BMSR_AUTN_COMP))
+	if (!(tmp & BMSR_ANEGCOMPLETE))
 		return(0);
 
 	return(gen_get_link_speed(phy_addr));
@@ -694,14 +694,14 @@ int davinci_emac_initialize(void)
 		return(0);
 
 	/* Get PHY ID and initialize phy_ops for a detected PHY */
-	if (!davinci_eth_phy_read(active_phy_addr, PHY_PHYIDR1, &tmp)) {
+	if (!davinci_eth_phy_read(active_phy_addr, MII_PHYSID1, &tmp)) {
 		active_phy_addr = 0xff;
 		return(0);
 	}
 
 	phy_id = (tmp << 16) & 0xffff0000;
 
-	if (!davinci_eth_phy_read(active_phy_addr, PHY_PHYIDR2, &tmp)) {
+	if (!davinci_eth_phy_read(active_phy_addr, MII_PHYSID2, &tmp)) {
 		active_phy_addr = 0xff;
 		return(0);
 	}
