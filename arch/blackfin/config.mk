@@ -70,3 +70,7 @@ LDR_FLAGS += $(LDR_FLAGS-y)
 ifeq ($(wildcard $(TOPDIR)/board/$(BOARD)/u-boot.lds*),)
 LDSCRIPT = $(obj)arch/$(ARCH)/lib/u-boot.lds.S
 endif
+
+ifneq ($(CONFIG_SYS_TEXT_BASE),)
+$(error do not set CONFIG_SYS_TEXT_BASE for Blackfin boards)
+endif
