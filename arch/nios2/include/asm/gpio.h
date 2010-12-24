@@ -26,6 +26,11 @@ static inline int gpio_request(unsigned gpio, const char *label)
 	return 0;
 }
 
+static inline int gpio_free(unsigned gpio)
+{
+	return 0;
+}
+
 static inline int gpio_direction_input(unsigned gpio)
 {
 	writel(1, CONFIG_SYS_GPIO_BASE + (gpio << 2));
@@ -49,6 +54,7 @@ static inline void gpio_set_value(unsigned gpio, int value)
 }
 #else
 extern int gpio_request(unsigned gpio, const char *label);
+extern int gpio_free(unsigned gpio);
 extern int gpio_direction_input(unsigned gpio);
 extern int gpio_direction_output(unsigned gpio, int value);
 extern int gpio_get_value(unsigned gpio);
