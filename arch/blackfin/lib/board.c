@@ -390,7 +390,7 @@ void board_init_r(gd_t * id, ulong dest_addr)
 		post_run(NULL, POST_RAM | post_bootmode_get(0));
 #endif
 
-	if (bfin_os_log_check()) {
+	if (CONFIG_MEM_SIZE && bfin_os_log_check()) {
 		puts("\nLog buffer from operating system:\n");
 		bfin_os_log_dump();
 		puts("\n");
