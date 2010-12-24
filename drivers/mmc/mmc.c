@@ -117,7 +117,10 @@ mmc_write_blocks(struct mmc *mmc, ulong start, lbaint_t blkcnt, const void*src)
 		return 0;
 	}
 
-	if (blkcnt > 1) {
+	/* SPI multiblock writes terminate using a special
+	 * token, not a STOP_TRANSMISSION request.
+	 */
+	if (!mmc_host_is_spi(mmc) && blkcnt > 1) {
 		cmd.cmdidx = MMC_CMD_STOP_TRANSMISSION;
 		cmd.cmdarg = 0;
 		cmd.resp_type = MMC_RSP_R1b;
@@ -279,7 +282,8 @@ sd_send_op_cond(struct mmc *mmc)
 		 * how to manage low voltages SD card is not yet
 		 * specified.
 		 */
-		cmd.cmdarg = mmc->voltages & 0xff8000;
+		cmd.cmdarg = mmc_host_is_spi(mmc) ? 0 :
+			(mmc->voltages & 0xff8000);
 
 		if (mmc->version == SD_VERSION_2)
 			cmd.cmdarg |= OCR_HCS;
@@ -297,6 +301,18 @@ sd_send_op_cond(struct mmc *mmc)
 
 	if (mmc->version != SD_VERSION_2)
 		mmc->version = SD_VERSION_1_0;
+
+	if (mmc_host_is_spi(mmc)) { /* read OCR for spi */
+		cmd.cmdidx = MMC_CMD_SPI_READ_OCR;
+		cmd.resp_type = MMC_RSP_R3;
+		cmd.cmdarg = 0;
+		cmd.flags = 0;
+
+		err = mmc_send_cmd(mmc, &cmd, NULL);
+
+		if (err)
+			return err;
+	}
 
 	mmc->ocr = cmd.response[0];
 
@@ -318,7 +334,8 @@ int mmc_send_op_cond(struct mmc *mmc)
 	do {
 		cmd.cmdidx = MMC_CMD_SEND_OP_COND;
 		cmd.resp_type = MMC_RSP_R3;
-		cmd.cmdarg = OCR_HCS | mmc->voltages;
+		cmd.cmdarg = OCR_HCS | (mmc_host_is_spi(mmc) ? 0 :
+					mmc->voltages);
 		cmd.flags = 0;
 
 		err = mmc_send_cmd(mmc, &cmd, NULL);
@@ -331,6 +348,18 @@ int mmc_send_op_cond(struct mmc *mmc)
 
 	if (timeout <= 0)
 		return UNUSABLE_ERR;
+
+	if (mmc_host_is_spi(mmc)) { /* read OCR for spi */
+		cmd.cmdidx = MMC_CMD_SPI_READ_OCR;
+		cmd.resp_type = MMC_RSP_R3;
+		cmd.cmdarg = 0;
+		cmd.flags = 0;
+
+		err = mmc_send_cmd(mmc, &cmd, NULL);
+
+		if (err)
+			return err;
+	}
 
 	mmc->version = MMC_VERSION_UNKNOWN;
 	mmc->ocr = cmd.response[0];
@@ -386,6 +415,9 @@ int mmc_change_freq(struct mmc *mmc)
 	int err;
 
 	mmc->card_caps = 0;
+
+	if (mmc_host_is_spi(mmc))
+		return 0;
 
 	/* Only version 4 supports high-speed */
 	if (mmc->version < MMC_VERSION_4)
@@ -459,6 +491,9 @@ int sd_change_freq(struct mmc *mmc)
 	int timeout;
 
 	mmc->card_caps = 0;
+
+	if (mmc_host_is_spi(mmc))
+		return 0;
 
 	/* Read the SCR to find out if this card supports higher speeds */
 	cmd.cmdidx = MMC_CMD_APP_CMD;
@@ -610,8 +645,22 @@ int mmc_startup(struct mmc *mmc)
 	struct mmc_cmd cmd;
 	char ext_csd[512];
 
+#ifdef CONFIG_MMC_SPI_CRC_ON
+	if (mmc_host_is_spi(mmc)) { /* enable CRC check for spi */
+		cmd.cmdidx = MMC_CMD_SPI_CRC_ON_OFF;
+		cmd.resp_type = MMC_RSP_R1;
+		cmd.cmdarg = 1;
+		cmd.flags = 0;
+		err = mmc_send_cmd(mmc, &cmd, NULL);
+
+		if (err)
+			return err;
+	}
+#endif
+
 	/* Put the Card in Identify Mode */
-	cmd.cmdidx = MMC_CMD_ALL_SEND_CID;
+	cmd.cmdidx = mmc_host_is_spi(mmc) ? MMC_CMD_SEND_CID :
+		MMC_CMD_ALL_SEND_CID; /* cmd not supported in spi */
 	cmd.resp_type = MMC_RSP_R2;
 	cmd.cmdarg = 0;
 	cmd.flags = 0;
@@ -628,18 +677,20 @@ int mmc_startup(struct mmc *mmc)
 	 * For SD cards, get the Relatvie Address.
 	 * This also puts the cards into Standby State
 	 */
-	cmd.cmdidx = SD_CMD_SEND_RELATIVE_ADDR;
-	cmd.cmdarg = mmc->rca << 16;
-	cmd.resp_type = MMC_RSP_R6;
-	cmd.flags = 0;
+	if (!mmc_host_is_spi(mmc)) { /* cmd not supported in spi */
+		cmd.cmdidx = SD_CMD_SEND_RELATIVE_ADDR;
+		cmd.cmdarg = mmc->rca << 16;
+		cmd.resp_type = MMC_RSP_R6;
+		cmd.flags = 0;
 
-	err = mmc_send_cmd(mmc, &cmd, NULL);
+		err = mmc_send_cmd(mmc, &cmd, NULL);
 
-	if (err)
-		return err;
+		if (err)
+			return err;
 
-	if (IS_SD(mmc))
-		mmc->rca = (cmd.response[0] >> 16) & 0xffff;
+		if (IS_SD(mmc))
+			mmc->rca = (cmd.response[0] >> 16) & 0xffff;
+	}
 
 	/* Get the Card-Specific Data */
 	cmd.cmdidx = MMC_CMD_SEND_CSD;
@@ -715,14 +766,16 @@ int mmc_startup(struct mmc *mmc)
 		mmc->write_bl_len = 512;
 
 	/* Select the card, and put it into Transfer Mode */
-	cmd.cmdidx = MMC_CMD_SELECT_CARD;
-	cmd.resp_type = MMC_RSP_R1b;
-	cmd.cmdarg = mmc->rca << 16;
-	cmd.flags = 0;
-	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (!mmc_host_is_spi(mmc)) { /* cmd not supported in spi */
+		cmd.cmdidx = MMC_CMD_SELECT_CARD;
+		cmd.resp_type = MMC_RSP_R1b;
+		cmd.cmdarg = mmc->rca << 16;
+		cmd.flags = 0;
+		err = mmc_send_cmd(mmc, &cmd, NULL);
 
-	if (err)
-		return err;
+		if (err)
+			return err;
+	}
 
 	if (!IS_SD(mmc) && (mmc->version >= MMC_VERSION_4)) {
 		/* check  ext_csd version and capacity */

@@ -44,6 +44,7 @@
 #define MMC_MODE_HS_52MHz	0x010
 #define MMC_MODE_4BIT		0x100
 #define MMC_MODE_8BIT		0x200
+#define MMC_MODE_SPI		0x400
 
 #define SD_DATA_4BIT	0x00040000
 
@@ -75,6 +76,8 @@
 #define MMC_CMD_WRITE_SINGLE_BLOCK	24
 #define MMC_CMD_WRITE_MULTIPLE_BLOCK	25
 #define MMC_CMD_APP_CMD			55
+#define MMC_CMD_SPI_READ_OCR		58
+#define MMC_CMD_SPI_CRC_ON_OFF		59
 
 #define SD_CMD_SEND_RELATIVE_ADDR	3
 #define SD_CMD_SWITCH_FUNC		6
@@ -291,6 +294,8 @@ int board_mmc_getcd(u8 *cd, struct mmc *mmc);
 
 #ifdef CONFIG_GENERIC_MMC
 int atmel_mci_init(void *regs);
+#define mmc_host_is_spi(mmc)	((mmc)->host_caps & MMC_MODE_SPI)
+struct mmc *mmc_spi_init(uint bus, uint cs, uint speed, uint mode);
 #else
 int mmc_legacy_init(int verbose);
 #endif
