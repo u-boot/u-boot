@@ -207,7 +207,6 @@ extern int timer_init(void);
 
 void board_init_f(ulong bootflag)
 {
-	ulong addr;
 	bd_t *bd;
 	char buf[32];
 
@@ -244,14 +243,9 @@ void board_init_f(ulong bootflag)
 	gd = (gd_t *) (CONFIG_SYS_GBL_DATA_ADDR);
 	memset((void *)gd, 0, GENERATED_GBL_DATA_SIZE);
 
-	/* Board data initialization */
-	addr = (CONFIG_SYS_GBL_DATA_ADDR + sizeof(gd_t));
-
-	/* Align to 4 byte boundary */
-	addr &= ~(4 - 1);
-	bd = (bd_t *) addr;
+	bd = (bd_t *) (CONFIG_SYS_BD_INFO_ADDR);
 	gd->bd = bd;
-	memset((void *)bd, 0, sizeof(bd_t));
+	memset((void *)bd, 0, GENERATED_BD_INFO_SIZE);
 
 	bd->bi_r_version = version_string;
 	bd->bi_cpu = MK_STR(CONFIG_BFIN_CPU);
