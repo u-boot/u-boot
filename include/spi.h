@@ -176,6 +176,14 @@ void spi_cs_activate(struct spi_slave *slave);
 void spi_cs_deactivate(struct spi_slave *slave);
 
 /*-----------------------------------------------------------------------
+ * Set transfer speed.
+ * This sets a new speed to be applied for next spi_xfer().
+ *   slave:	The SPI slave
+ *   hz:	The transfer speed
+ */
+void spi_set_speed(struct spi_slave *slave, uint hz);
+
+/*-----------------------------------------------------------------------
  * Write 8 bits, then read 8 bits.
  *   slave:	The SPI slave we're communicating with
  *   byte:	Byte to be written
