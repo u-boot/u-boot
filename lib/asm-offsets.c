@@ -25,5 +25,8 @@ int main(void)
 	DEFINE(GENERATED_GBL_DATA_SIZE,
 		(sizeof(struct global_data)+15) & ~15);
 
+	DEFINE(GENERATED_BD_INFO_SIZE,
+		(sizeof(struct bd_info)+15) & ~15);
+
 	return 0;
 }
