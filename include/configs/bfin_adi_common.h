@@ -34,9 +34,13 @@
 #  define CONFIG_DOS_PARTITION
 # endif
 # ifdef CONFIG_MMC
+#  define CONFIG_CMD_EXT2
 #  define CONFIG_CMD_FAT
 #  define CONFIG_CMD_MMC
 #  define CONFIG_DOS_PARTITION
+# endif
+# ifdef CONFIG_MMC_SPI
+#  define CONFIG_CMD_MMC_SPI
 # endif
 # ifdef CONFIG_USB
 #  define CONFIG_CMD_EXT2
