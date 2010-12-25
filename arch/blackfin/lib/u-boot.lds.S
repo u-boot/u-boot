@@ -40,9 +40,13 @@
  * This is here in the first place so we can quickly test building
  * for different CPU's which may lack non-cache L1 data.
  */
+#ifndef L1_DATA_A_SRAM
+# define L1_DATA_A_SRAM      0
+# define L1_DATA_A_SRAM_SIZE 0
+#endif
 #ifndef L1_DATA_B_SRAM
-# define L1_DATA_B_SRAM      CONFIG_SYS_MONITOR_BASE
-# define L1_DATA_B_SRAM_SIZE 0
+# define L1_DATA_B_SRAM      L1_DATA_A_SRAM
+# define L1_DATA_B_SRAM_SIZE L1_DATA_A_SRAM_SIZE
 #endif
 
 /* The 0xC offset is so we don't clobber the tiny LDR jump block. */
@@ -138,7 +142,7 @@ SECTIONS
 	} >l1_data AT>ram_data
 	__data_l1_lma = LOADADDR(.data_l1);
 	__data_l1_len = SIZEOF(.data_l1);
-	ASSERT (__data_l1_len <= L1_DATA_B_SRAM_SIZE, "L1 data B overflow!")
+	ASSERT (__data_l1_len <= L1_DATA_B_SRAM_SIZE, "L1 data overflow!")
 
 	.bss :
 	{
