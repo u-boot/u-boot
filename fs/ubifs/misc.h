@@ -260,7 +260,8 @@ struct ubifs_branch *ubifs_idx_branch(const struct ubifs_info *c,
 static inline void *ubifs_idx_key(const struct ubifs_info *c,
 				  const struct ubifs_idx_node *idx)
 {
-	return (void *)((struct ubifs_branch *)idx->branches)->key;
+	const __u8 *branch = idx->branches;
+	return (void *)((struct ubifs_branch *)branch)->key;
 }
 
 /**
