@@ -87,6 +87,7 @@
 # define CONFIG_CMD_ELF
 # define CONFIG_CMD_GPIO
 # define CONFIG_CMD_KGDB
+# define CONFIG_CMD_LDRINFO
 # define CONFIG_CMD_REGINFO
 # define CONFIG_CMD_STRINGS
 # if defined(__ADSPBF51x__) || defined(__ADSPBF52x__) || defined(__ADSPBF54x__)
