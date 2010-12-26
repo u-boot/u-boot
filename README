@@ -653,6 +653,7 @@ The following options need to be configured:
 		CONFIG_CMD_ITEST	  Integer/string test of 2 values
 		CONFIG_CMD_JFFS2	* JFFS2 Support
 		CONFIG_CMD_KGDB		* kgdb
+		CONFIG_CMD_LDRINFO	  ldrinfo (display Blackfin loader)
 		CONFIG_CMD_LOADB	  loadb
 		CONFIG_CMD_LOADS	  loads
 		CONFIG_CMD_MD5SUM	  print md5 message digest
