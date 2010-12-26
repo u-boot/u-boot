@@ -767,8 +767,8 @@ static struct id_type supported_chips[] = {
 	{8, "LAN91C100FD"},
 	{7, "LAN91C100"},
 	{5, "LAN91C95"},
-	{4, "LAN91C94/LAN91C96"},
-	{3, "LAN91C90/LAN91C92"},
+	{4, "LAN91C94/96"},
+	{3, "LAN91C90/92"},
 };
 /* lan91c96_detect_chip
  * See:
