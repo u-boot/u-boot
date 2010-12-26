@@ -229,33 +229,65 @@ static uint32_t (* const bfrom_NandBoot)(int32_t dNandAddress, int32_t dFlags, i
 
 #endif /* __ASSEMBLY__ */
 
+/* Bit defines for BF53x block flags */
+#define BFLAG_53X_ZEROFILL     0x0001
+#define BFLAG_53X_RESVECT      0x0002
+#define BFLAG_53X_INIT         0x0008
+#define BFLAG_53X_IGNORE       0x0010
+#define BFLAG_53X_PFLAG_MASK   0x01E0
+#define BFLAG_53X_PFLAG_SHIFT  5
+#define BFLAG_53X_PPORT_MASK   0x0600
+#define BFLAG_53X_PPORT_SHIFT  9
+#define BFLAG_53X_COMPRESSED   0x2000
+#define BFLAG_53X_FINAL        0x8000
+
+/* Bit defines for BF56x global header */
+#define GFLAG_56X_16BIT_FLASH  0x00000001
+#define GFLAG_56X_WAIT_MASK    0x0000001E
+#define GFLAG_56X_WAIT_SHIFT   1
+#define GFLAG_56X_HOLD_MASK    0x000000C0
+#define GFLAG_56X_HOLD_SHIFT   6
+#define GFLAG_56X_SPI_MASK     0x00000700
+#define GFLAG_56X_SPI_SHIFT    8
+#define GFLAG_56X_SPI_500K     0x0
+#define GFLAG_56X_SPI_1M       0x1
+#define GFLAG_56X_SPI_2M       0x2
+#define GFLAG_56X_SIGN_MASK    0xFF000000
+#define GFLAG_56X_SIGN_SHIFT   28
+#define GFLAG_56X_SIGN_MAGIC   0xA
+
 /* Bit defines for ADI_BOOT_DATA->dFlags */
-#define BFLAG_DMACODE_MASK 0x0000000F
-#define BFLAG_SAFE         0x00000010
-#define BFLAG_AUX          0x00000020
-#define BFLAG_FILL         0x00000100
-#define BFLAG_QUICKBOOT    0x00000200
-#define BFLAG_CALLBACK     0x00000400
-#define BFLAG_INIT         0x00000800
-#define BFLAG_IGNORE       0x00001000
-#define BFLAG_INDIRECT     0x00002000
-#define BFLAG_FIRST        0x00004000
-#define BFLAG_FINAL        0x00008000
-#define BFLAG_HOOK         0x00400000
-#define BFLAG_HDRINDIRECT  0x00800000
-#define BFLAG_TYPE_MASK    0x00300000
-#define BFLAG_TYPE_1       0x00000000
-#define BFLAG_TYPE_2       0x00100000
-#define BFLAG_TYPE_3       0x00200000
-#define BFLAG_TYPE_4       0x00300000
-#define BFLAG_FASTREAD     0x00400000
-#define BFLAG_NOAUTO       0x01000000
-#define BFLAG_PERIPHERAL   0x02000000
-#define BFLAG_SLAVE        0x04000000
-#define BFLAG_WAKEUP       0x08000000
-#define BFLAG_NEXTDXE      0x10000000
-#define BFLAG_RETURN       0x20000000
-#define BFLAG_RESET        0x40000000
-#define BFLAG_NONRESTORE   0x80000000
+#define BFLAG_DMACODE_MASK     0x0000000F
+#define BFLAG_SAFE             0x00000010
+#define BFLAG_AUX              0x00000020
+#define BFLAG_FILL             0x00000100
+#define BFLAG_QUICKBOOT        0x00000200
+#define BFLAG_CALLBACK         0x00000400
+#define BFLAG_INIT             0x00000800
+#define BFLAG_IGNORE           0x00001000
+#define BFLAG_INDIRECT         0x00002000
+#define BFLAG_FIRST            0x00004000
+#define BFLAG_FINAL            0x00008000
+#define BFLAG_HDRSIGN_MASK     0xFF000000
+#define BFLAG_HDRSIGN_SHIFT    24
+#define BFLAG_HDRSIGN_MAGIC    0xAD
+#define BFLAG_HDRCHK_MASK      0x00FF0000
+#define BFLAG_HDRCHK_SHIFT     16
+#define BFLAG_HOOK             0x00400000
+#define BFLAG_HDRINDIRECT      0x00800000
+#define BFLAG_TYPE_MASK        0x00300000
+#define BFLAG_TYPE_1           0x00000000
+#define BFLAG_TYPE_2           0x00100000
+#define BFLAG_TYPE_3           0x00200000
+#define BFLAG_TYPE_4           0x00300000
+#define BFLAG_FASTREAD         0x00400000
+#define BFLAG_NOAUTO           0x01000000
+#define BFLAG_PERIPHERAL       0x02000000
+#define BFLAG_SLAVE            0x04000000
+#define BFLAG_WAKEUP           0x08000000
+#define BFLAG_NEXTDXE          0x10000000
+#define BFLAG_RETURN           0x20000000
+#define BFLAG_RESET            0x40000000
+#define BFLAG_NONRESTORE       0x80000000
 
 #endif
