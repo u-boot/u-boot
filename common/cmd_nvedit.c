@@ -559,6 +559,7 @@ static int do_env_delete(cmd_tbl_t * cmdtp, int flag, int argc, char * const arg
 	return 0;
 }
 
+#ifdef CONFIG_CMD_EXPORTENV
 /*
  * env export [-t | -b | -c] addr [size]
  *	-t:	export as text format; if size is given, data will be
@@ -695,7 +696,9 @@ sep_err:
 		cmd);
 	return 1;
 }
+#endif
 
+#ifdef CONFIG_CMD_IMPORTENV
 /*
  * env import [-d] [-t | -b | -c] addr [size]
  *	-d:	delete existing environment before importing;
@@ -805,6 +808,7 @@ sep_err:
 		cmd);
 	return 1;
 }
+#endif
 
 #if defined(CONFIG_CMD_RUN)
 extern int do_run (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
@@ -822,8 +826,12 @@ static cmd_tbl_t cmd_env_sub[] = {
 #if defined(CONFIG_CMD_EDITENV)
 	U_BOOT_CMD_MKENT(edit, 2, 0, do_env_edit, "", ""),
 #endif
+#if defined(CONFIG_CMD_EXPORTENV)
 	U_BOOT_CMD_MKENT(export, 4, 0, do_env_export, "", ""),
+#endif
+#if defined(CONFIG_CMD_IMPORTENV)
 	U_BOOT_CMD_MKENT(import, 5, 0, do_env_import, "", ""),
+#endif
 	U_BOOT_CMD_MKENT(print, CONFIG_SYS_MAXARGS, 1, do_env_print, "", ""),
 #if defined(CONFIG_CMD_RUN)
 	U_BOOT_CMD_MKENT(run, CONFIG_SYS_MAXARGS, 1, do_run, "", ""),
