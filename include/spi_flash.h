@@ -26,11 +26,6 @@
 #include <spi.h>
 #include <linux/types.h>
 
-struct spi_flash_region {
-	unsigned int	count;
-	unsigned int	size;
-};
-
 struct spi_flash {
 	struct spi_slave *spi;
 
