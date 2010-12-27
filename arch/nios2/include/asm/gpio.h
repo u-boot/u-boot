@@ -52,6 +52,11 @@ static inline void gpio_set_value(unsigned gpio, int value)
 {
 	writel(value ? 3 : 2, CONFIG_SYS_GPIO_BASE + (gpio << 2));
 }
+
+static inline int gpio_is_valid(int number)
+{
+	return ((unsigned)number) < CONFIG_SYS_GPIO_WIDTH;
+}
 #else
 extern int gpio_request(unsigned gpio, const char *label);
 extern int gpio_free(unsigned gpio);
@@ -59,6 +64,7 @@ extern int gpio_direction_input(unsigned gpio);
 extern int gpio_direction_output(unsigned gpio, int value);
 extern int gpio_get_value(unsigned gpio);
 extern void gpio_set_value(unsigned gpio, int value);
+extern int gpio_is_valid(int number);
 #endif /* CONFIG_SYS_GPIO_BASE */
 
 #endif /* _ASM_NIOS2_GPIO_H_ */
