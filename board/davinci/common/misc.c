@@ -80,7 +80,7 @@ err:
 /*
  * Set the mii mode as MII or RMII
  */
-#if defined(CONFIG_DRIVER_TI_EMAC)
+#if defined(CONFIG_SOC_DA8XX)
 void davinci_emac_mii_mode_sel(int mode_sel)
 {
 	int val;
