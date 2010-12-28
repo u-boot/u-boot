@@ -780,7 +780,7 @@ static int lan91c96_detect_chip(struct eth_device *dev)
 	u8 chip_id;
 	int r;
 	SMC_SELECT_BANK(dev, 3);
-	chip_id = SMC_inw(dev, 0xA) & LAN91C96_REV_REVID;
+	chip_id = (SMC_inw(dev, 0xA) & LAN91C96_REV_CHIPID) >> 4;
 	SMC_SELECT_BANK(dev, 0);
 	for (r = 0; r < sizeof(supported_chips) / sizeof(struct id_type); r++)
 		if (chip_id == supported_chips[r].id)
