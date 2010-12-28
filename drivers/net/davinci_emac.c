@@ -725,6 +725,13 @@ int davinci_emac_initialize(void)
 			phy.get_link_speed = dp83848_get_link_speed;
 			phy.auto_negotiate = dp83848_auto_negotiate;
 			break;
+		case PHY_ET1011C:
+			sprintf(phy.name, "ET1011C @ 0x%02x", active_phy_addr);
+			phy.init = gen_init_phy;
+			phy.is_phy_connected = gen_is_phy_connected;
+			phy.get_link_speed = et1011c_get_link_speed;
+			phy.auto_negotiate = gen_auto_negotiate;
+			break;
 		default:
 			sprintf(phy.name, "GENERIC @ 0x%02x", active_phy_addr);
 			phy.init = gen_init_phy;

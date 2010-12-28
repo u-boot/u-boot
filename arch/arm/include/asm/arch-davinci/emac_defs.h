@@ -389,4 +389,7 @@ int dp83848_get_link_speed(int phy_addr);
 int dp83848_init_phy(int phy_addr);
 int dp83848_auto_negotiate(int phy_addr);
 
+#define PHY_ET1011C	(0x282f013)
+int et1011c_get_link_speed(int phy_addr);
+
 #endif  /* _DM644X_EMAC_H_ */
