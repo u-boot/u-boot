@@ -30,7 +30,7 @@
 
 #include "gadget_chips.h"
 
-#define USB_NET_NAME "usb0"
+#define USB_NET_NAME "usb_ether"
 
 #define atomic_read
 extern struct platform_data brd;
@@ -1687,7 +1687,6 @@ autoconf_fail:
 	}
 
 	dev->net = &l_netdev;
-	strcpy(dev->net->name, USB_NET_NAME);
 
 	dev->cdc = cdc;
 	dev->zlp = zlp;
@@ -1924,7 +1923,7 @@ int usb_eth_initialize(bd_t *bi)
 	int status = 0;
 	struct eth_device *netdev = &l_netdev;
 
-	sprintf(netdev->name, "usb_ether");
+	strlcpy(netdev->name, USB_NET_NAME, sizeof(netdev->name));
 
 	netdev->init = usb_eth_init;
 	netdev->send = usb_eth_send;
