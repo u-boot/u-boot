@@ -27,7 +27,6 @@
 
 int fsl_setup_hose(struct pci_controller *hose, unsigned long addr);
 int fsl_is_pci_agent(struct pci_controller *hose);
-void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data);
 void fsl_pci_config_unlock(struct pci_controller *hose);
 void ft_fsl_pci_setup(void *blob, const char *compat, unsigned long ctrl_addr);
 
@@ -172,6 +171,7 @@ struct fsl_pci_info {
 	int pci_num;
 };
 
+void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info);
 int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 				struct pci_controller *hose, int busno);
 int fsl_pcie_init_ctrl(int busno, u32 devdisr, enum srds_prtcl dev,

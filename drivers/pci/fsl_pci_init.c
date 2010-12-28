@@ -217,8 +217,10 @@ static int fsl_pci_setup_inbound_windows(struct pci_controller *hose,
 	return 1;
 }
 
-void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
+void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 {
+	u32 cfg_addr = (u32)&((ccsr_fsl_pci_t *)pci_info->regs)->cfg_addr;
+	u32 cfg_data = (u32)&((ccsr_fsl_pci_t *)pci_info->regs)->cfg_data;
 	u16 temp16;
 	u32 temp32;
 	int enabled, r, inbound = 0;
@@ -234,10 +236,6 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 
 	u64 out_hi = 0, out_lo = -1ULL;
 	u32 pcicsrbar, pcicsrbar_sz;
-
-#ifdef DEBUG
-	int neg_link_w;
-#endif
 
 	pci_setup_indirect(hose, cfg_addr, cfg_data);
 
@@ -354,20 +352,20 @@ void fsl_pci_init(struct pci_controller *hose, u32 cfg_addr, u32 cfg_data)
 #endif
 
 		if (!enabled) {
-			debug("....PCIE link error.  Skipping scan."
-			      "LTSSM=0x%02x\n", ltssm);
+			/* Let the user know there's no PCIe link */
+			printf("no link, regs @ 0x%lx\n", pci_info->regs);
 			hose->last_busno = hose->first_busno;
 			return;
 		}
 
 		out_be32(&pci->pme_msg_det, 0xffffffff);
 		out_be32(&pci->pme_msg_int_en, 0xffffffff);
-#ifdef DEBUG
+
+		/* Print the negotiated PCIe link width */
 		pci_hose_read_config_word(hose, dev, PCI_LSR, &temp16);
-		neg_link_w = (temp16 & 0x3f0 ) >> 4;
-		printf("...PCIE LTSSM=0x%x, Negotiated link width=%d\n",
-		      ltssm, neg_link_w);
-#endif
+		printf("x%d, regs @ 0x%lx\n", (temp16 & 0x3f0 ) >> 4,
+			pci_info->regs);
+
 		hose->current_busno++; /* Start scan with secondary */
 		pciauto_prescan_setup_bridge(hose, dev, hose->current_busno);
 	}
@@ -476,7 +474,7 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 	hose->region_count = r - hose->regions;
 	hose->first_busno = busno;
 
-	fsl_pci_init(hose, (u32)&pci->cfg_addr, (u32)&pci->cfg_data);
+	fsl_pci_init(hose, pci_info);
 
 	if (fsl_is_pci_agent(hose)) {
 		fsl_pci_config_unlock(hose);
@@ -485,7 +483,7 @@ int fsl_pci_init_port(struct fsl_pci_info *pci_info,
 
 	pci_hose_read_config_byte(hose, dev, FSL_PCIE_CAP_ID, &pcie_cap);
 	printf("PCI%s%x: Bus %02x - %02x\n", pcie_cap == PCI_CAP_ID_EXP ?
-		"E" : "", pci_info->pci_num,
+		"e" : "", pci_info->pci_num,
 		hose->first_busno, hose->last_busno);
 
 	return(hose->last_busno + 1);
@@ -525,10 +523,14 @@ int fsl_configure_pcie(struct fsl_pci_info *info,
 
 	set_next_law(info->mem_phys, law_size_bits(info->mem_size), info->law);
 	set_next_law(info->io_phys, law_size_bits(info->io_size), info->law);
+
 	is_endpoint = fsl_setup_hose(hose, info->regs);
-	printf("PCIE%u: connected to %s as %s (base addr %lx)\n",
-	       info->pci_num, connected,
-	       is_endpoint ? "Endpoint" : "Root Complex", info->regs);
+	printf("PCIe%u: %s", info->pci_num,
+		is_endpoint ? "Endpoint" : "Root Complex");
+	if (connected)
+		printf(" of %s", connected);
+	puts(", ");
+
 	return fsl_pci_init_port(info, hose, busno);
 }
 
@@ -606,7 +608,7 @@ int fsl_pcie_init_ctrl(int busno, u32 devdisr, enum srds_prtcl dev,
 		busno = fsl_configure_pcie(pci_info, hose,
 				board_serdes_name(dev), busno);
 	} else {
-		printf("PCIE%d: disabled\n", num + 1);
+		printf("PCIe%d: disabled\n", num + 1);
 	}
 
 	return busno;
