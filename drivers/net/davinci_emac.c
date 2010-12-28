@@ -667,6 +667,7 @@ int davinci_emac_initialize(void)
 		return -1;
 
 	memset(dev, 0, sizeof *dev);
+	sprintf(dev->name, "DaVinci-EMAC");
 
 	dev->iobase = 0;
 	dev->init = davinci_eth_open;
