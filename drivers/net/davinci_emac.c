@@ -322,9 +322,10 @@ static void  __attribute__((unused)) davinci_eth_gigabit_enable(void)
 			 * Check if link detected is giga-bit
 			 * If Gigabit mode detected, enable gigbit in MAC
 			 */
-			writel(EMAC_MACCONTROL_GIGFORCE |
-			       EMAC_MACCONTROL_GIGABIT_ENABLE,
-			       &adap_emac->MACCONTROL);
+			writel(readl(&adap_emac->MACCONTROL) |
+				EMAC_MACCONTROL_GIGFORCE |
+				EMAC_MACCONTROL_GIGABIT_ENABLE,
+				&adap_emac->MACCONTROL);
 		}
 	}
 }
