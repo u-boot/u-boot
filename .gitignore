@@ -21,6 +21,7 @@
 /System.map
 /u-boot
 /u-boot.hex
+/u-boot.imx
 /u-boot.map
 /u-boot.bin
 /u-boot.srec
