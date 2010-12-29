@@ -48,9 +48,9 @@ static int sh_flash_init(void)
 	gd->bd->bi_flashsize = flash_init();
 
 	if (gd->bd->bi_flashsize >= (1024 * 1024))
-		printf("FLASH: %ldMB\n", gd->bd->bi_flashsize / (1024*1024));
+		printf("Flash: %ldMB\n", gd->bd->bi_flashsize / (1024*1024));
 	else
-		printf("FLASH: %ldKB\n", gd->bd->bi_flashsize / 1024);
+		printf("Flash: %ldKB\n", gd->bd->bi_flashsize / 1024);
 
 	return 0;
 }

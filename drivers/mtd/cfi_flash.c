@@ -1158,7 +1158,7 @@ void flash_print_info (flash_info_t * info)
 		return;
 	}
 
-	printf ("%s FLASH (%d x %d)",
+	printf ("%s flash (%d x %d)",
 		info->name,
 		(info->portwidth << 3), (info->chipwidth << 3));
 	if (info->size < 1024*1024)
@@ -2110,7 +2110,7 @@ unsigned long flash_init (void)
 		size += flash_info[i].size;
 		if (flash_info[i].flash_id == FLASH_UNKNOWN) {
 #ifndef CONFIG_SYS_FLASH_QUIET_TEST
-			printf ("## Unknown FLASH on Bank %d "
+			printf ("## Unknown flash on Bank %d "
 				"- Size = 0x%08lx = %ld MB\n",
 				i+1, flash_info[i].size,
 				flash_info[i].size >> 20);

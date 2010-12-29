@@ -284,7 +284,7 @@ void board_init_f(ulong bootflag)
 	malloc_bin_reloc();
 
 #if !defined(CONFIG_SYS_NO_FLASH)
-	puts("FLASH: ");
+	puts("Flash: ");
 
 	if ((flash_size = flash_init()) > 0) {
 # ifdef CONFIG_SYS_FLASH_CHECKSUM

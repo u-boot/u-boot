@@ -127,7 +127,7 @@ void board_init (void)
 	printf ("\tU-Boot Start:0x%08x\n", CONFIG_SYS_TEXT_BASE);
 
 #if defined(CONFIG_CMD_FLASH)
-	puts ("FLASH: ");
+	puts ("Flash: ");
 	bd->bi_flashstart = CONFIG_SYS_FLASH_BASE;
 	if (0 < (flash_size = flash_init ())) {
 		bd->bi_flashsize = flash_size;
