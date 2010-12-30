@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -44,6 +44,10 @@
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE	0xeff80000
 #endif
+
+#define CONFIG_SYS_SRIO
+#define CONFIG_SRIO1			/* SRIO port 1 */
+#define CONFIG_SRIO2			/* SRIO port 2 */
 
 #define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
@@ -471,6 +475,24 @@
 /*#define CONFIG_CONSOLE_CURSOR*/
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS VIDEO_IO_OFFSET
 #endif
+
+/* SRIO1 uses the same window as PCIE2 mem window */
+#define CONFIG_SYS_SRIO1_MEM_VIRT	0xa0000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_SRIO1_MEM_PHYS	0xc20000000ull
+#else
+#define CONFIG_SYS_SRIO1_MEM_PHYS	0xa0000000
+#endif
+#define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 512M */
+
+/* SRIO2 uses the same window as PCIE1 mem window */
+#define CONFIG_SYS_SRIO2_MEM_VIRT	0xc0000000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_SRIO2_MEM_PHYS	0xc40000000ull
+#else
+#define CONFIG_SYS_SRIO2_MEM_PHYS	0xc0000000
+#endif
+#define CONFIG_SYS_SRIO2_MEM_SIZE	0x20000000	/* 512M */
 
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
