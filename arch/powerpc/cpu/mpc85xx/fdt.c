@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -38,6 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 extern void ft_qe_setup(void *blob);
 extern void ft_fixup_num_cores(void *blob);
+extern void ft_srio_setup(void *blob);
 
 #ifdef CONFIG_MP
 #include "mp.h"
@@ -477,5 +478,9 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 			CONFIG_SYS_QMAN_MEM_SIZE);
 
 	fdt_fixup_qportals(blob);
+#endif
+
+#ifdef CONFIG_SYS_SRIO
+	ft_srio_setup(blob);
 #endif
 }

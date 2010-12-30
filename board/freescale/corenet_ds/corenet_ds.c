@@ -157,33 +157,9 @@ static const char *serdes_clock_to_string(u32 clock)
 int misc_init_r(void)
 {
 	serdes_corenet_t *srds_regs = (void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
-	__maybe_unused ccsr_gur_t *gur;
 	u32 actual[NUM_SRDS_BANKS];
 	unsigned int i;
 	u8 sw3;
-
-	gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-#ifdef CONFIG_SRIO1
-	if (is_serdes_configured(SRIO1)) {
-		set_next_law(CONFIG_SYS_RIO1_MEM_PHYS, LAW_SIZE_256M,
-				LAW_TRGT_IF_RIO_1);
-	} else {
-		printf ("    SRIO1: disabled\n");
-	}
-#else
-	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_SRIO1); /* disable */
-#endif
-
-#ifdef CONFIG_SRIO2
-	if (is_serdes_configured(SRIO2)) {
-		set_next_law(CONFIG_SYS_RIO2_MEM_PHYS, LAW_SIZE_256M,
-				LAW_TRGT_IF_RIO_2);
-	} else {
-		printf ("    SRIO2: disabled\n");
-	}
-#else
-	setbits_be32(&gur->devdisr, FSL_CORENET_DEVDISR_SRIO2); /* disable */
-#endif
 
 	/* Warn if the expected SERDES reference clocks don't match the
 	 * actual reference clocks.  This needs to be done after calling
@@ -217,32 +193,12 @@ void board_lmb_reserve(struct lmb *lmb)
 }
 #endif
 
-void ft_srio_setup(void *blob)
-{
-#ifdef CONFIG_SRIO1
-	if (!is_serdes_configured(SRIO1)) {
-		fdt_del_node_and_alias(blob, "rio0");
-	}
-#else
-	fdt_del_node_and_alias(blob, "rio0");
-#endif
-#ifdef CONFIG_SRIO2
-	if (!is_serdes_configured(SRIO2)) {
-		fdt_del_node_and_alias(blob, "rio1");
-	}
-#else
-	fdt_del_node_and_alias(blob, "rio1");
-#endif
-}
-
 void ft_board_setup(void *blob, bd_t *bd)
 {
 	phys_addr_t base;
 	phys_size_t size;
 
 	ft_cpu_setup(blob, bd);
-
-	ft_srio_setup(blob);
 
 	base = getenv_bootm_low();
 	size = getenv_bootm_size();
