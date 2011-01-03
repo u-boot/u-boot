@@ -37,7 +37,12 @@
 #define CLKCTL_CCGR4            0x78
 #define CLKCTL_CCGR5            0x7C
 #define CLKCTL_CCGR6            0x80
+#if defined(CONFIG_MX53)
+#define CLKCTL_CCGR7            0x84
+#define CLKCTL_CMEOR            0x88
+#elif defined(CONFIG_MX51)
 #define CLKCTL_CMEOR            0x84
+#endif
 
 /* DPLL */
 #define PLL_DP_CTL	0x00

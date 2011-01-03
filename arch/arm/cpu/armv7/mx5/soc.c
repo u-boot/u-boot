@@ -33,17 +33,20 @@
 #include <fsl_esdhc.h>
 #endif
 
-#if defined(CONFIG_MX51)
-#define CPU_TYPE 0x51000
-#else
+#if !(defined(CONFIG_MX51) || defined(CONFIG_MX53))
 #error "CPU_TYPE not defined"
 #endif
 
 u32 get_cpu_rev(void)
 {
-	int system_rev = CPU_TYPE;
+#ifdef CONFIG_MX51
+	int system_rev = 0x51000;
+#else
+	int system_rev = 0x53000;
+#endif
 	int reg = __raw_readl(ROM_SI_REV);
 
+#if defined(CONFIG_MX51)
 	switch (reg) {
 	case 0x02:
 		system_rev |= CHIP_REV_1_1;
@@ -57,11 +60,20 @@ u32 get_cpu_rev(void)
 	case 0x20:
 		system_rev |= CHIP_REV_3_0;
 		break;
-	return system_rev;
 	default:
 		system_rev |= CHIP_REV_1_0;
 		break;
 	}
+#else
+	switch (reg) {
+	case 0x20:
+		system_rev |= CHIP_REV_2_0;
+		break;
+	default:
+		system_rev |= CHIP_REV_1_0;
+		break;
+	}
+#endif
 	return system_rev;
 }
 

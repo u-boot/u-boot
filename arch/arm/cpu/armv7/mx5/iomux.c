@@ -34,7 +34,7 @@ enum iomux_reg_addr {
 	IOMUXSW_MUX_CTL = IOMUXC_BASE_ADDR,
 	IOMUXSW_MUX_END = IOMUXC_BASE_ADDR + MUX_I_END,
 	IOMUXSW_PAD_CTL = IOMUXC_BASE_ADDR + PAD_I_START,
-	IOMUXSW_INPUT_CTL = IOMUXC_BASE_ADDR,
+	IOMUXSW_INPUT_CTL = IOMUXC_BASE_ADDR + INPUT_CTL_START,
 };
 
 #define MUX_PIN_NUM_MAX (((MUX_I_END - MUX_I_START) >> 2) + 1)
@@ -44,11 +44,12 @@ static inline u32 get_mux_reg(iomux_pin_name_t pin)
 {
 	u32 mux_reg = PIN_TO_IOMUX_MUX(pin);
 
+#if defined(CONFIG_MX51)
 	if (is_soc_rev(CHIP_REV_2_0) < 0) {
 		/*
 		 * Fixup register address:
-		 *	i.MX51 TO1 has offset with the register
-		 * 	which is define as TO2.
+		 * i.MX51 TO1 has offset with the register
+		 * which is define as TO2.
 		 */
 		if ((pin == MX51_PIN_NANDF_RB5) ||
 			(pin == MX51_PIN_NANDF_RB6) ||
@@ -59,6 +60,7 @@ static inline u32 get_mux_reg(iomux_pin_name_t pin)
 		else if (mux_reg >= 0x130)
 			mux_reg += 0xC;
 	}
+#endif
 	mux_reg += IOMUXSW_MUX_CTL;
 	return mux_reg;
 }
@@ -68,11 +70,12 @@ static inline u32 get_pad_reg(iomux_pin_name_t pin)
 {
 	u32 pad_reg = PIN_TO_IOMUX_PAD(pin);
 
+#if defined(CONFIG_MX51)
 	if (is_soc_rev(CHIP_REV_2_0) < 0) {
 		/*
 		 * Fixup register address:
-		 *	i.MX51 TO1 has offset with the register
-		 * 	which is define as TO2.
+		 * i.MX51 TO1 has offset with the register
+		 * which is define as TO2.
 		 */
 		if ((pin == MX51_PIN_NANDF_RB5) ||
 			(pin == MX51_PIN_NANDF_RB6) ||
@@ -91,6 +94,7 @@ static inline u32 get_pad_reg(iomux_pin_name_t pin)
 		else
 			pad_reg += 8;
 	}
+#endif
 	pad_reg += IOMUXSW_PAD_CTL;
 	return pad_reg;
 }
@@ -98,10 +102,13 @@ static inline u32 get_pad_reg(iomux_pin_name_t pin)
 /* Get the last iomux register address */
 static inline u32 get_mux_end(void)
 {
+#if defined(CONFIG_MX51)
 	if (is_soc_rev(CHIP_REV_2_0) < 0)
 		return IOMUXC_BASE_ADDR + (0x3F8 - 4);
 	else
 		return IOMUXC_BASE_ADDR + (0x3F0 - 4);
+#endif
+	return IOMUXSW_MUX_END;
 }
 
 /*
@@ -163,4 +170,17 @@ unsigned int mxc_iomux_get_pad(iomux_pin_name_t pin)
 {
 	u32 pad_reg = get_pad_reg(pin);
 	return readl(pad_reg);
+}
+
+/*
+ * This function configures daisy-chain
+ *
+ * @param input    index of input select register
+ * @param config   the binary value of elements
+ */
+void mxc_iomux_set_input(iomux_input_select_t input, u32 config)
+{
+	u32 reg = IOMUXSW_INPUT_CTL + (input << 2);
+
+	writel(config, reg);
 }

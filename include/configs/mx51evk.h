@@ -24,8 +24,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/arch/imx-regs.h>
-
  /* High Level Configuration Options */
 
 #define CONFIG_MX51	/* in a mx51 */
@@ -37,6 +35,7 @@
 
 #define CONFIG_L2_OFF
 
+#include <asm/arch/imx-regs.h>
 /*
  * Disabled for now due to build problems under Debian and a significant
  * increase in the final file size: 144260 vs. 109536 Bytes.
