@@ -26,8 +26,14 @@
 
 #if defined(CONFIG_HARD_I2C)
 
+#if defined(CONFIG_MX31)
 #include <asm/arch/mx31.h>
 #include <asm/arch/mx31-regs.h>
+#endif
+
+#if defined(CONFIG_MX53)
+#include <asm/arch/clock.h>
+#endif
 
 #define IADR	0x00
 #define IFDR	0x04
@@ -47,7 +53,7 @@
 #define I2SR_IIF	(1 << 1)
 #define I2SR_RX_NO_AK	(1 << 0)
 
-#ifdef CONFIG_SYS_I2C_MX31_PORT1
+#if defined(CONFIG_SYS_I2C_MX31_PORT1)
 #define I2C_BASE	0x43f80000
 #define I2C_CLK_OFFSET	26
 #elif defined (CONFIG_SYS_I2C_MX31_PORT2)
@@ -56,8 +62,12 @@
 #elif defined (CONFIG_SYS_I2C_MX31_PORT3)
 #define I2C_BASE	0x43f84000
 #define I2C_CLK_OFFSET	30
+#elif defined(CONFIG_SYS_I2C_MX53_PORT1)
+#define I2C_BASE        I2C1_BASE_ADDR
+#elif defined(CONFIG_SYS_I2C_MX53_PORT2)
+#define I2C_BASE        I2C2_BASE_ADDR
 #else
-#error "define CONFIG_SYS_I2C_MX31_PORTx to use the mx31 I2C driver"
+#error "define CONFIG_SYS_I2C_MXxx_PORTx to use the I2C driver"
 #endif
 
 #ifdef DEBUG
@@ -72,11 +82,16 @@ static u16 div[] = { 30, 32, 36, 42, 48, 52, 60, 72, 80, 88, 104, 128, 144,
 
 void i2c_init(int speed, int unused)
 {
-	int freq = mx31_get_ipg_clk();
+	int freq;
 	int i;
 
+#if defined(CONFIG_MX31)
+	freq = mx31_get_ipg_clk();
 	/* start the required I2C clock */
 	__REG(CCM_CGR0) = __REG(CCM_CGR0) | (3 << I2C_CLK_OFFSET);
+#else
+	freq = mxc_get_clock(MXC_IPG_PERCLK);
+#endif
 
 	for (i = 0; i < 0x1f; i++)
 		if (freq / div[i] <= speed)
