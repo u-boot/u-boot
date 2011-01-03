@@ -160,4 +160,9 @@
 /* Reg Power Control 2*/
 #define WDIRESET	(1 << 12)
 
+/* SWx Output Volts */
+#define SWX_OUT_MASK	0x1F
+#define SWX_OUT_1_25	0x1A
+#define SWX_OUT_1_30    0X1C
+
 #endif

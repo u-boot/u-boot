@@ -562,6 +562,10 @@ Stefano Babic <sbabic@denx.de>
 	mx51evk		i.MX51
  	vision2		i.MX51
 
+Jason Liu <r64343@freescale.com>
+
+	mx53evk         i.MX53
+
 Enric Balletbo i Serra <eballetbo@iseebcn.com>
 
 	igep0020	ARM ARMV7 (OMAP3xx SoC)
