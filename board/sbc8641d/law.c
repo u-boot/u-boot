@@ -51,7 +51,6 @@ struct law_entry law_table[] = {
 #endif
 	SET_LAW(0xf8000000, LAW_SIZE_2M, LAW_TRGT_IF_LBC),
 	SET_LAW(0xfe000000, LAW_SIZE_32M, LAW_TRGT_IF_LBC),
-	SET_LAW(CONFIG_SYS_RIO_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_RIO)
 };
 
 int num_law_entries = ARRAY_SIZE(law_table);
