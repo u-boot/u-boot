@@ -1,7 +1,7 @@
 /*
  * MPC86xx Internal Memory Map
  *
- * Copyright 2004 Freescale Semiconductor
+ * Copyright 2004, 2011 Freescale Semiconductor
  * Jeff Brown (Jeffrey@freescale.com)
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
@@ -1205,6 +1205,8 @@ typedef struct ccsr_gur {
 #define MPC86xx_DEVDISR_PCI1	0x80000000
 #define MPC86xx_DEVDISR_PCIE1	0x40000000
 #define MPC86xx_DEVDISR_PCIE2	0x20000000
+#define MPC86xx_DEVDISR_SRIO	0x00080000
+#define MPC86xx_DEVDISR_RMSG	0x00040000
 #define MPC86xx_DEVDISR_CPU0	0x00008000
 #define MPC86xx_DEVDISR_CPU1	0x00004000
 #define MPC86xx_RSTCR_HRST_REQ	0x00000002
