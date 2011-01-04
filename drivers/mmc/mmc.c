@@ -30,7 +30,6 @@
 #include <part.h>
 #include <malloc.h>
 #include <linux/list.h>
-#include <mmc.h>
 #include <div64.h>
 
 /* Set block count limit because of 16 bit register limit on some hardware*/
