@@ -508,17 +508,19 @@ int fsl_esdhc_mmc_init(bd_t *bis)
 void fdt_fixup_esdhc(void *blob, bd_t *bd)
 {
 	const char *compat = "fsl,esdhc";
-	const char *status = "okay";
 
+#ifdef CONFIG_FSL_ESDHC_PIN_MUX
 	if (!hwconfig("esdhc")) {
-		status = "disabled";
-		goto out;
+		do_fixup_by_compat(blob, compat, "status", "disabled",
+				8 + 1, 1);
+		return;
 	}
+#endif
 
 	do_fixup_by_compat_u32(blob, compat, "clock-frequency",
 			       gd->sdhc_clk, 1);
-out:
-	do_fixup_by_compat(blob, compat, "status", status,
-			   strlen(status) + 1, 1);
+
+	do_fixup_by_compat(blob, compat, "status", "okay",
+			   4 + 1, 1);
 }
 #endif
