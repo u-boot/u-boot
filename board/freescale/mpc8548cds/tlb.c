@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008, 2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -58,21 +58,20 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 1, BOOKE_PAGESZ_1G, 1),
 
-#ifdef CONFIG_SYS_RIO_MEM_PHYS
 	/*
 	 * TLB 2:	256M	Non-cacheable, guarded
 	 */
-	SET_TLB_ENTRY(1, CONFIG_SYS_RIO_MEM_VIRT, CONFIG_SYS_RIO_MEM_PHYS,
+	SET_TLB_ENTRY(1, CONFIG_SYS_SRIO1_MEM_VIRT, CONFIG_SYS_SRIO1_MEM_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 2, BOOKE_PAGESZ_256M, 1),
 
 	/*
 	 * TLB 3:	256M	Non-cacheable, guarded
 	 */
-	SET_TLB_ENTRY(1, CONFIG_SYS_RIO_MEM_VIRT + 0x10000000, CONFIG_SYS_RIO_MEM_PHYS + 0x10000000,
+	SET_TLB_ENTRY(1, CONFIG_SYS_SRIO1_MEM_VIRT + 0x10000000, CONFIG_SYS_SRIO1_MEM_PHYS + 0x10000000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 3, BOOKE_PAGESZ_256M, 1),
-#endif
+
 	/*
 	 * TLB 5:	64M	Non-cacheable, guarded
 	 * 0xe000_0000	1M	CCSRBAR

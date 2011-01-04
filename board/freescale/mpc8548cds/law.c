@@ -1,5 +1,5 @@
 /*
- * Copyright 2008,2010 Freescale Semiconductor, Inc.
+ * Copyright 2008,2010-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -57,9 +57,6 @@ struct law_entry law_table[] = {
 #endif
 	/* LBC window - maps 256M 0xf0000000 -> 0xffffffff */
 	SET_LAW(CONFIG_SYS_LBC_SDRAM_BASE, LAW_SIZE_256M, LAW_TRGT_IF_LBC),
-#ifdef CONFIG_SYS_RIO_MEM_PHYS
-	SET_LAW(CONFIG_SYS_RIO_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_RIO),
-#endif
 };
 
 int num_law_entries = ARRAY_SIZE(law_table);

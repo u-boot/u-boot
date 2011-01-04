@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007, 2010 Freescale Semiconductor.
+ * Copyright 2004, 2007, 2010-2011 Freescale Semiconductor.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -40,10 +40,12 @@
 #define CONFIG_SYS_TEXT_BASE	0xfff80000
 #endif
 
+#define CONFIG_SYS_SRIO
+#define CONFIG_SRIO1			/* SRIO port 1 */
+
 #define CONFIG_PCI		/* enable any pci type devices */
 #define CONFIG_PCI1		/* PCI controller 1 */
 #define CONFIG_PCIE1		/* PCIE controler 1 (slot 1) */
-#undef CONFIG_RIO
 #undef CONFIG_PCI2
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
@@ -364,14 +366,13 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00100000	/*   1M */
 #endif
 
-#ifdef CONFIG_RIO
 /*
  * RapidIO MMU
  */
-#define CONFIG_SYS_RIO_MEM_VIRT	0xC0000000
-#define CONFIG_SYS_RIO_MEM_BUS	0xC0000000
-#define CONFIG_SYS_RIO_MEM_SIZE	0x20000000	/* 512M */
-#endif
+#define CONFIG_SYS_SRIO1_MEM_VIRT	0xC0000000
+#define CONFIG_SYS_SRIO1_MEM_BUS	0xC0000000
+#define CONFIG_SYS_SRIO1_MEM_PHYS	CONFIG_SYS_SRIO1_MEM_BUS
+#define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 512M */
 
 #ifdef CONFIG_LEGACY
 #define BRIDGE_ID 17
