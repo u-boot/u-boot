@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -34,6 +34,9 @@
 #define CONFIG_MPC8569MDS	1	/* MPC8569MDS board specific */
 
 #define CONFIG_FSL_ELBC		1	/* Has Enhance localbus controller */
+
+#define CONFIG_SYS_SRIO
+#define CONFIG_SRIO1			/* SRIO port 1 */
 
 #define CONFIG_PCI		1	/* Disable PCI/PCIE */
 #define CONFIG_PCIE1		1	/* PCIE controller */
@@ -355,9 +358,10 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xe2800000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00800000	/* 8M */
 
-#define CONFIG_SYS_SRIO_MEM_VIRT	0xc0000000
-#define CONFIG_SYS_SRIO_MEM_BUS		0xc0000000
-#define CONFIG_SYS_SRIO_MEM_PHYS	0xc0000000
+#define CONFIG_SYS_SRIO1_MEM_VIRT	0xC0000000
+#define CONFIG_SYS_SRIO1_MEM_BUS	0xC0000000
+#define CONFIG_SYS_SRIO1_MEM_PHYS	CONFIG_SYS_SRIO1_MEM_BUS
+#define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 512M */
 
 #ifdef CONFIG_QE
 /*
