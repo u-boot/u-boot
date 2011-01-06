@@ -2414,10 +2414,10 @@ static void nand_set_defaults(struct nand_chip *chip, int busw)
  */
 static const struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 						  struct nand_chip *chip,
-						  int busw, int *maf_id)
+						  int busw, int *maf_id,
+						  const struct nand_flash_dev *type)
 {
-	const struct nand_flash_dev *type = NULL;
-	int i, dev_id, maf_idx;
+	int dev_id, maf_idx;
 	int tmp_id, tmp_manf;
 
 	/* Select the device */
@@ -2456,15 +2456,14 @@ static const struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 		return ERR_PTR(-ENODEV);
 	}
 
-	/* Lookup the flash id */
-	for (i = 0; nand_flash_ids[i].name != NULL; i++) {
-		if (dev_id == nand_flash_ids[i].id) {
-			type =  &nand_flash_ids[i];
-			break;
-		}
-	}
+	if (!type)
+		type = nand_flash_ids;
 
-	if (!type) {
+	for (; type->name != NULL; type++)
+		if (dev_id == type->id)
+                        break;
+
+	if (!type->name) {
 		/* supress warning if there is no nand */
 		if (*maf_id != 0x00 && *maf_id != 0xff &&
 		    dev_id  != 0x00 && dev_id  != 0xff)
@@ -2580,13 +2579,15 @@ static const struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
  * nand_scan_ident - [NAND Interface] Scan for the NAND device
  * @mtd:	     MTD device structure
  * @maxchips:	     Number of chips to scan for
+ * @table:	     Alternative NAND ID table
  *
  * This is the first phase of the normal nand_scan() function. It
  * reads the flash ID and sets up MTD fields accordingly.
  *
  * The mtd->owner field must be set to the module of the caller.
  */
-int nand_scan_ident(struct mtd_info *mtd, int maxchips)
+int nand_scan_ident(struct mtd_info *mtd, int maxchips,
+		    const struct nand_flash_dev *table)
 {
 	int i, busw, nand_maf_id;
 	struct nand_chip *chip = mtd->priv;
@@ -2598,7 +2599,7 @@ int nand_scan_ident(struct mtd_info *mtd, int maxchips)
 	nand_set_defaults(chip, busw);
 
 	/* Read the flash type */
-	type = nand_get_flash_type(mtd, chip, busw, &nand_maf_id);
+	type = nand_get_flash_type(mtd, chip, busw, &nand_maf_id, table);
 
 	if (IS_ERR(type)) {
 #ifndef CONFIG_SYS_NAND_QUIET_TEST
@@ -2869,7 +2870,7 @@ int nand_scan(struct mtd_info *mtd, int maxchips)
 {
 	int ret;
 
-	ret = nand_scan_ident(mtd, maxchips);
+	ret = nand_scan_ident(mtd, maxchips, NULL);
 	if (!ret)
 		ret = nand_scan_tail(mtd);
 	return ret;

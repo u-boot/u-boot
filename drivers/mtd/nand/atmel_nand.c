@@ -296,7 +296,7 @@ int board_nand_init(struct nand_chip *nand)
 	mtd->priv = nand;
 
 	/* Detect NAND chips */
-	if (nand_scan_ident(mtd, 1)) {
+	if (nand_scan_ident(mtd, 1, NULL)) {
 		printk(KERN_WARNING "NAND Flash not found !\n");
 		return -ENXIO;
 	}
