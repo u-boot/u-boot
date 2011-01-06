@@ -447,16 +447,33 @@ static int check_skip_len(nand_info_t *nand, loff_t offset, size_t length)
  * @param nand  	NAND device
  * @param offset	offset in flash
  * @param length	buffer length
- * @param buf           buffer to read from
+ * @param buffer        buffer to read from
+ * @param withoob	whether write with yaffs format
  * @return		0 in case of success
  */
 int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
-			u_char *buffer)
+			u_char *buffer, int withoob)
 {
-	int rval;
+	int rval = 0, blocksize;
 	size_t left_to_write = *length;
 	u_char *p_buffer = buffer;
 	int need_skip;
+
+#ifdef CONFIG_CMD_NAND_YAFFS
+	if (withoob) {
+		int pages;
+		pages = nand->erasesize / nand->writesize;
+		blocksize = (pages * nand->oobsize) + nand->erasesize;
+		if (*length % (nand->writesize + nand->oobsize)) {
+			printf ("Attempt to write incomplete page"
+				" in yaffs mode\n");
+			return -EINVAL;
+		}
+	} else
+#endif
+	{
+		blocksize = nand->erasesize;
+	}
 
 	/*
 	 * nand_write() handles unaligned, partial page writes.
@@ -506,12 +523,44 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 			continue;
 		}
 
-		if (left_to_write < (nand->erasesize - block_offset))
+		if (left_to_write < (blocksize - block_offset))
 			write_size = left_to_write;
 		else
-			write_size = nand->erasesize - block_offset;
+			write_size = blocksize - block_offset;
 
-		rval = nand_write (nand, offset, &write_size, p_buffer);
+#ifdef CONFIG_CMD_NAND_YAFFS
+		if (withoob) {
+			int page, pages;
+			size_t pagesize = nand->writesize;
+			size_t pagesize_oob = pagesize + nand->oobsize;
+			struct mtd_oob_ops ops;
+
+			ops.len = pagesize;
+			ops.ooblen = nand->oobsize;
+			ops.mode = MTD_OOB_AUTO;
+			ops.ooboffs = 0;
+
+			pages = write_size / pagesize_oob;
+			for (page = 0; page < pages; page++) {
+				ops.datbuf = p_buffer;
+				ops.oobbuf = ops.datbuf + pagesize;
+
+				rval = nand->write_oob(nand, offset, &ops);
+				if (!rval)
+					break;
+
+				offset += pagesize;
+				p_buffer += pagesize_oob;
+			}
+		}
+		else
+#endif
+		{
+			rval = nand_write (nand, offset, &write_size, p_buffer);
+			offset += write_size;
+			p_buffer += write_size;
+		}
+
 		if (rval != 0) {
 			printf ("NAND write to offset %llx failed %d\n",
 				offset, rval);
@@ -520,8 +569,6 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 		}
 
 		left_to_write -= write_size;
-		offset        += write_size;
-		p_buffer      += write_size;
 	}
 
 	return 0;
