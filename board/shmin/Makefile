@@ -21,7 +21,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= lib$(BOARD).a
+LIB	= lib$(BOARD).o
 
 OBJS	:= shmin.o
 SOBJS	:= lowlevel_init.o
