@@ -39,6 +39,10 @@ struct km_bec_fpga {
 	unsigned char	pgy_eth;
 };
 
+#if !defined(CONFIG_PIGGY_MAC_ADRESS_OFFSET)
+#define CONFIG_PIGGY_MAC_ADRESS_OFFSET	0
+#endif
+
 int ethernet_present(void);
 int ivm_read_eeprom(void);
 

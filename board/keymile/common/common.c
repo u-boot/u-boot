@@ -228,8 +228,21 @@ static int ivm_analyze_block2(unsigned char *buf, int len)
 	/* IVM_MacAddress */
 	sprintf((char *)valbuf, "%pM", buf);
 	ivm_set_value("IVM_MacAddress", (char *)valbuf);
+	/* if an offset is defined, add it */
+#if defined(CONFIG_PIGGY_MAC_ADRESS_OFFSET)
+	if (CONFIG_PIGGY_MAC_ADRESS_OFFSET > 0) {
+		unsigned long val = (buf[4] << 16) + (buf[5] << 8) + buf[6];
+
+		val += CONFIG_PIGGY_MAC_ADRESS_OFFSET;
+		buf[4] = (val >> 16) & 0xff;
+		buf[5] = (val >> 8) & 0xff;
+		buf[6] = val & 0xff;
+		sprintf((char *)valbuf, "%pM", buf);
+	}
+#endif
 	if (getenv("ethaddr") == NULL)
 		setenv((char *)"ethaddr", (char *)valbuf);
+
 	/* IVM_MacCount */
 	count = (buf[10] << 24) +
 		   (buf[11] << 16) +
