@@ -24,10 +24,10 @@
 CROSS_COMPILE ?= ppc_8xx-
 
 STANDALONE_LOAD_ADDR = 0x40000
-
+LDFLAGS_u-boot = --gc-sections
 PLATFORM_RELFLAGS += -mrelocatable -ffunction-sections -fdata-sections
 PLATFORM_CPPFLAGS += -DCONFIG_PPC -D__powerpc__
-PLATFORM_LDFLAGS  += -n --gc-sections
+PLATFORM_LDFLAGS  += -n
 
 ifdef CONFIG_SYS_LDSCRIPT
 # need to strip off double quotes

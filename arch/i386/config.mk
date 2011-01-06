@@ -35,5 +35,6 @@ PLATFORM_CPPFLAGS += $(call cc-option, -fno-stack-protector)
 PLATFORM_CPPFLAGS += $(call cc-option, -mpreferred-stack-boundary=2)
 PLATFORM_CPPFLAGS += -DCONFIG_I386 -D__I386__
 
-LDFLAGS += --cref --gc-sections
+LDFLAGS += --cref
+LDFLAGS_u-boot += --gc-sections
 PLATFORM_RELFLAGS += -ffunction-sections

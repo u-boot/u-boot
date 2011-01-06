@@ -204,9 +204,11 @@ endif
 
 AFLAGS := $(AFLAGS_DEBUG) -D__ASSEMBLY__ $(CPPFLAGS)
 
-LDFLAGS += -Bstatic -T $(obj)u-boot.lds $(PLATFORM_LDFLAGS)
+LDFLAGS += $(PLATFORM_LDFLAGS)
+
+LDFLAGS_u-boot += -Bstatic -T $(obj)u-boot.lds $(PLATFORM_LDFLAGS)
 ifneq ($(CONFIG_SYS_TEXT_BASE),)
-LDFLAGS += -Ttext $(CONFIG_SYS_TEXT_BASE)
+LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
 endif
 
 # Location of a usable BFD library, where we define "usable" as
@@ -259,7 +261,7 @@ $(obj)%.s:	%.c
 
 # If the list of objects to link is empty, just create an empty built-in.o
 cmd_link_o_target = $(if $(strip $1),\
-		      $(LD) -r -o $@ $1 ,\
+		      $(LD) $(LDFLAGS) -r -o $@ $1,\
 		      rm -f $@; $(AR) rcs $@ )
 
 #########################################################################
