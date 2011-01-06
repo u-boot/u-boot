@@ -1,7 +1,7 @@
 /*
- * Configuation settings for shmin (T-SH7706LAN)
+ * Configuation settings for shmin (T-SH7706LAN, T-SH7706LSR)
  *
- * Copyright (C) 2010 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+ * Copyright (C) 2010, 2011 Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -28,7 +28,10 @@
 #define CONFIG_SH		1
 #define CONFIG_SH3		1
 #define CONFIG_CPU_SH7706	1
+/* T-SH7706LAN */
 #define CONFIG_SHMIN		1
+/* T-SH7706LSR*/
+/* #define CONFIG_T_SH7706LSR	1 */
 
 #define CONFIG_CMD_FLASH
 #define CONFIG_CMD_MEMORY
@@ -61,7 +64,7 @@
 /* Buffer size for Boot Arguments passed to kernel */
 #define CONFIG_SYS_BARGSIZE	512
 /* List of legal baudrate settings for this board */
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 115200 }
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600,14400,19200,38400,57600,115200 }
 
 /* SCIF */
 #define CONFIG_SCIF_CONSOLE	1
@@ -99,12 +102,22 @@
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE	(64 * 1024)
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
+
+#ifdef CONFIG_T_SH7706LSR
+#define CONFIG_ENV_ADDR		(SHMIN_FLASH_BASE_1 + 70000)
+#else
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
+#endif
+
 #define CONFIG_SYS_FLASH_ERASE_TOUT	120000
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500
 
 /* Board Clock */
+#ifdef CONFIG_T_SH7706LSR
+#define CONFIG_SYS_CLK_FREQ 40000000
+#else
 #define CONFIG_SYS_CLK_FREQ 33333333
+#endif /* CONFIG_T_SH7706LSR */
 #define CONFIG_SYS_TMU_CLK_DIV	4
 #define CONFIG_SYS_HZ	1000
 
