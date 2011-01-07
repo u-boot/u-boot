@@ -1,5 +1,5 @@
 /*
- * Copyright 2007,2010 Freescale Semiconductor, Inc
+ * Copyright 2007, 2010-2011 Freescale Semiconductor, Inc
  * Andy Fleming
  *
  * Based vaguely on the pxa mmc code:
@@ -79,6 +79,9 @@ uint esdhc_xfertyp(struct mmc_cmd *cmd, struct mmc_data *data)
 		if (data->blocks > 1) {
 			xfertyp |= XFERTYP_MSBSEL;
 			xfertyp |= XFERTYP_BCEN;
+#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC111
+			xfertyp |= XFERTYP_AC12EN;
+#endif
 		}
 
 		if (data->flags & MMC_DATA_READ)
@@ -233,6 +236,11 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	uint	irqstat;
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 	volatile struct fsl_esdhc *regs = (struct fsl_esdhc *)cfg->esdhc_base;
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC111
+	if (cmd->cmdidx == MMC_CMD_STOP_TRANSMISSION)
+		return 0;
+#endif
 
 	esdhc_write32(&regs->irqstat, -1);
 

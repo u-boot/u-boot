@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Freescale Semiconductor, Inc.
+ * Copyright 2010-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -49,6 +49,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #endif
 #if defined(CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN)
 	puts("Work-around for DDR MSYNC_IN Erratum enabled\n");
+#endif
+#if defined(CONFIG_SYS_FSL_ERRATUM_ESDHC111)
+	puts("Work-around for Erratum ESDHC111 enabled\n");
 #endif
 	return 0;
 }
