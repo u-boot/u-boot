@@ -472,6 +472,11 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 
 	voltage_caps = 0;
 	caps = regs->hostcapblt;
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC135
+	caps = caps & ~(ESDHC_HOSTCAPBLT_SRS |
+			ESDHC_HOSTCAPBLT_VS18 | ESDHC_HOSTCAPBLT_VS30);
+#endif
 	if (caps & ESDHC_HOSTCAPBLT_VS18)
 		voltage_caps |= MMC_VDD_165_195;
 	if (caps & ESDHC_HOSTCAPBLT_VS30)

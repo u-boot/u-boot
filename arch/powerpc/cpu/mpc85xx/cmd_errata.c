@@ -53,6 +53,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_SYS_FSL_ERRATUM_ESDHC111)
 	puts("Work-around for Erratum ESDHC111 enabled\n");
 #endif
+#if defined(CONFIG_SYS_FSL_ERRATUM_ESDHC135)
+	puts("Work-around for Erratum ESDHC135 enabled\n");
+#endif
 	return 0;
 }
 
