@@ -394,6 +394,14 @@ int cpu_init_r(void)
 	setup_mp();
 #endif
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC136
+	{
+		void *p;
+		p = (void *)CONFIG_SYS_DCSRBAR + 0x20520;
+		setbits_be32(p, 1 << (31 - 14));
+	}
+#endif
+
 #ifdef CONFIG_SYS_LBC_LCRR
 	/*
 	 * Modify the CLKDIV field of LCRR register to improve the writing
