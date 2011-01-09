@@ -13,6 +13,14 @@
 
 #include "ddr.h"
 
+/*
+ * Use our own stack based buffer before relocation to allow accessing longer
+ * hwconfig strings that might be in the environment before we've relocated.
+ * This is pretty fragile on both the use of stack and if the buffer is big
+ * enough. However we will get a warning from getenv_f for the later.
+ */
+#define HWCONFIG_BUFFER_SIZE	128
+
 /* Board-specific functions defined in each board's ddr.c */
 extern void fsl_ddr_board_options(memctl_options_t *popts,
 		dimm_params_t *pdimm,
@@ -24,6 +32,15 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			unsigned int ctrl_num)
 {
 	unsigned int i;
+	char buffer[HWCONFIG_BUFFER_SIZE];
+	char *buf = NULL;
+
+	/*
+	 * Extract hwconfig from environment since we have not properly setup
+	 * the environment but need it for ddr config params
+	 */
+	if (getenv_f("hwconfig", buffer, sizeof(buffer)) > 0)
+		buf = buffer;
 
 	/* Chip select options. */
 
@@ -221,7 +238,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 * should be a subset of the requested configuration.
 	 */
 #if (CONFIG_NUM_DDR_CONTROLLERS > 1)
-	if (hwconfig_sub("fsl_ddr", "ctlr_intlv")) {
+	if (hwconfig_sub_f("fsl_ddr", "ctlr_intlv", buf)) {
 		if (pdimm[0].n_ranks == 0) {
 			printf("There is no rank on CS0 for controller %d. Because only"
 				" rank on CS0 and ranks chip-select interleaved with CS0"
@@ -234,19 +251,25 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 			 * test null first. if CONFIG_HWCONFIG is not defined
 			 * hwconfig_arg_cmp returns non-zero
 			 */
-			if (hwconfig_subarg_cmp("fsl_ddr", "ctlr_intlv", "null")) {
+			if (hwconfig_subarg_cmp_f("fsl_ddr", "ctlr_intlv",
+						    "null", buf)) {
 				popts->memctl_interleaving = 0;
 				debug("memory controller interleaving disabled.\n");
-			} else if (hwconfig_subarg_cmp("fsl_ddr", "ctlr_intlv", "cacheline"))
+			} else if (hwconfig_subarg_cmp_f("fsl_ddr",
+							 "ctlr_intlv",
+							 "cacheline", buf))
 				popts->memctl_interleaving_mode =
 					FSL_DDR_CACHE_LINE_INTERLEAVING;
-			else if (hwconfig_subarg_cmp("fsl_ddr", "ctlr_intlv", "page"))
+			else if (hwconfig_subarg_cmp_f("fsl_ddr", "ctlr_intlv",
+						       "page", buf))
 				popts->memctl_interleaving_mode =
 					FSL_DDR_PAGE_INTERLEAVING;
-			else if (hwconfig_subarg_cmp("fsl_ddr", "ctlr_intlv", "bank"))
+			else if (hwconfig_subarg_cmp_f("fsl_ddr", "ctlr_intlv",
+						       "bank", buf))
 				popts->memctl_interleaving_mode =
 					FSL_DDR_BANK_INTERLEAVING;
-			else if (hwconfig_subarg_cmp("fsl_ddr", "ctlr_intlv", "superbank"))
+			else if (hwconfig_subarg_cmp_f("fsl_ddr", "ctlr_intlv",
+						       "superbank", buf))
 				popts->memctl_interleaving_mode =
 					FSL_DDR_SUPERBANK_INTERLEAVING;
 			else {
@@ -256,19 +279,24 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 		}
 	}
 #endif
-	if ((hwconfig_sub("fsl_ddr", "bank_intlv")) &&
+	if ((hwconfig_sub_f("fsl_ddr", "bank_intlv", buf)) &&
 		(CONFIG_CHIP_SELECTS_PER_CTRL > 1)) {
 		/* test null first. if CONFIG_HWCONFIG is not defined,
-		 * hwconfig_arg_cmp returns non-zero */
-		if (hwconfig_subarg_cmp("fsl_ddr", "bank_intlv", "null"))
+		 * hwconfig_subarg_cmp_f returns non-zero */
+		if (hwconfig_subarg_cmp_f("fsl_ddr", "bank_intlv",
+					    "null", buf))
 			debug("bank interleaving disabled.\n");
-		else if (hwconfig_subarg_cmp("fsl_ddr", "bank_intlv", "cs0_cs1"))
+		else if (hwconfig_subarg_cmp_f("fsl_ddr", "bank_intlv",
+						 "cs0_cs1", buf))
 			popts->ba_intlv_ctl = FSL_DDR_CS0_CS1;
-		else if (hwconfig_subarg_cmp("fsl_ddr", "bank_intlv", "cs2_cs3"))
+		else if (hwconfig_subarg_cmp_f("fsl_ddr", "bank_intlv",
+						 "cs2_cs3", buf))
 			popts->ba_intlv_ctl = FSL_DDR_CS2_CS3;
-		else if (hwconfig_subarg_cmp("fsl_ddr", "bank_intlv", "cs0_cs1_and_cs2_cs3"))
+		else if (hwconfig_subarg_cmp_f("fsl_ddr", "bank_intlv",
+						 "cs0_cs1_and_cs2_cs3", buf))
 			popts->ba_intlv_ctl = FSL_DDR_CS0_CS1_AND_CS2_CS3;
-		else if (hwconfig_subarg_cmp("fsl_ddr", "bank_intlv", "cs0_cs1_cs2_cs3"))
+		else if (hwconfig_subarg_cmp_f("fsl_ddr", "bank_intlv",
+						 "cs0_cs1_cs2_cs3", buf))
 			popts->ba_intlv_ctl = FSL_DDR_CS0_CS1_CS2_CS3;
 		else
 			printf("hwconfig has unrecognized parameter for bank_intlv.\n");
@@ -342,10 +370,11 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 		}
 	}
 
-	if (hwconfig_sub("fsl_ddr", "addr_hash")) {
-		if (hwconfig_subarg_cmp("fsl_ddr", "addr_hash", "null"))
+	if (hwconfig_sub_f("fsl_ddr", "addr_hash", buf)) {
+		if (hwconfig_subarg_cmp_f("fsl_ddr", "addr_hash", "null", buf))
 			popts->addr_hash = 0;
-		else if (hwconfig_subarg_cmp("fsl_ddr", "addr_hash", "true"))
+		else if (hwconfig_subarg_cmp_f("fsl_ddr", "addr_hash",
+					       "true", buf))
 			popts->addr_hash = 1;
 	}
 
@@ -393,11 +422,22 @@ int fsl_use_spd(void)
 	int use_spd = 0;
 
 #ifdef CONFIG_DDR_SPD
+	char buffer[HWCONFIG_BUFFER_SIZE];
+	char *buf = NULL;
+
+	/*
+	 * Extract hwconfig from environment since we have not properly setup
+	 * the environment but need it for ddr config params
+	 */
+	if (getenv_f("hwconfig", buffer, sizeof(buffer)) > 0)
+		buf = buffer;
+
 	/* if hwconfig is not enabled, or "sdram" is not defined, use spd */
-	if (hwconfig_sub("fsl_ddr", "sdram")) {
-		if (hwconfig_subarg_cmp("fsl_ddr", "sdram", "spd"))
+	if (hwconfig_sub_f("fsl_ddr", "sdram", buf)) {
+		if (hwconfig_subarg_cmp_f("fsl_ddr", "sdram", "spd", buf))
 			use_spd = 1;
-		else if (hwconfig_subarg_cmp("fsl_ddr", "sdram", "fixed"))
+		else if (hwconfig_subarg_cmp_f("fsl_ddr", "sdram",
+					       "fixed", buf))
 			use_spd = 0;
 		else
 			use_spd = 1;
