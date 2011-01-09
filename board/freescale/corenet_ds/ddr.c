@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -288,24 +288,10 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 phys_size_t initdram(int board_type)
 {
 	phys_size_t dram_size;
-	int use_spd = 0;
 
 	puts("Initializing....");
 
-#ifdef CONFIG_DDR_SPD
-	/* if hwconfig is not enabled, or "sdram" is not defined, use spd */
-	if (hwconfig_sub("fsl_ddr", "sdram")) {
-		if (hwconfig_subarg_cmp("fsl_ddr", "sdram", "spd"))
-			use_spd = 1;
-		else if (hwconfig_subarg_cmp("fsl_ddr", "sdram", "fixed"))
-			use_spd = 0;
-		else
-			use_spd = 1;
-	} else
-		use_spd = 1;
-#endif
-
-	if (use_spd) {
+	if (fsl_use_spd()) {
 		puts("using SPD\n");
 		dram_size = fsl_ddr_sdram();
 	} else {

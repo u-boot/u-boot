@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -213,6 +213,7 @@ typedef struct memctl_options_s {
 } memctl_options_t;
 
 extern phys_size_t fsl_ddr_sdram(void);
+extern int fsl_use_spd(void);
 
 /*
  * The 85xx boards have a common prototype for fixed_sdram so put the
