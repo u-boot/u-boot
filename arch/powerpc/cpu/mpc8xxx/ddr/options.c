@@ -26,6 +26,243 @@ extern void fsl_ddr_board_options(memctl_options_t *popts,
 		dimm_params_t *pdimm,
 		unsigned int ctrl_num);
 
+typedef struct {
+	unsigned int odt_rd_cfg;
+	unsigned int odt_wr_cfg;
+	unsigned int odt_rtt_norm;
+	unsigned int odt_rtt_wr;
+} dynamic_odt_t;
+
+static const dynamic_odt_t single_Q[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS_AND_OTHER_DIMM,
+		DDR3_RTT_20_OHM,
+		DDR3_RTT_120_OHM
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,	/* tied high */
+		DDR3_RTT_OFF,
+		DDR3_RTT_120_OHM
+	},
+	{	/* cs2 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS_AND_OTHER_DIMM,
+		DDR3_RTT_20_OHM,
+		DDR3_RTT_120_OHM
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,	/* tied high */
+		DDR3_RTT_OFF,
+		DDR3_RTT_120_OHM
+	}
+};
+
+static const dynamic_odt_t single_D[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_ALL,
+		DDR3_RTT_40_OHM,
+		DDR3_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR3_RTT_OFF,
+		DDR3_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0}
+};
+
+static const dynamic_odt_t single_S[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_ALL,
+		DDR3_RTT_40_OHM,
+		DDR3_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+};
+
+static const dynamic_odt_t dual_DD[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_SAME_DIMM,
+		DDR3_RTT_120_OHM,
+		DDR3_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR3_RTT_30_OHM,
+		DDR3_RTT_OFF
+	},
+	{	/* cs2 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_SAME_DIMM,
+		DDR3_RTT_120_OHM,
+		DDR3_RTT_OFF
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR3_RTT_30_OHM,
+		DDR3_RTT_OFF
+	}
+};
+
+static const dynamic_odt_t dual_DS[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_SAME_DIMM,
+		DDR3_RTT_120_OHM,
+		DDR3_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR3_RTT_30_OHM,
+		DDR3_RTT_OFF
+	},
+	{	/* cs2 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_ALL,
+		DDR3_RTT_20_OHM,
+		DDR3_RTT_120_OHM
+	},
+	{0, 0, 0, 0}
+};
+static const dynamic_odt_t dual_SD[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_ALL,
+		DDR3_RTT_20_OHM,
+		DDR3_RTT_120_OHM
+	},
+	{0, 0, 0, 0},
+	{	/* cs2 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_SAME_DIMM,
+		DDR3_RTT_120_OHM,
+		DDR3_RTT_OFF
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR3_RTT_20_OHM,
+		DDR3_RTT_OFF
+	}
+};
+
+static const dynamic_odt_t dual_SS[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_ALL,
+		DDR3_RTT_30_OHM,
+		DDR3_RTT_120_OHM
+	},
+	{0, 0, 0, 0},
+	{	/* cs2 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_ALL,
+		DDR3_RTT_30_OHM,
+		DDR3_RTT_120_OHM
+	},
+	{0, 0, 0, 0}
+};
+
+static const dynamic_odt_t dual_D0[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_SAME_DIMM,
+		DDR3_RTT_40_OHM,
+		DDR3_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR3_RTT_OFF,
+		DDR3_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0}
+};
+
+static const dynamic_odt_t dual_0D[4] = {
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{	/* cs2 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_SAME_DIMM,
+		DDR3_RTT_40_OHM,
+		DDR3_RTT_OFF
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR3_RTT_OFF,
+		DDR3_RTT_OFF
+	}
+};
+
+static const dynamic_odt_t dual_S0[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR3_RTT_40_OHM,
+		DDR3_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0}
+
+};
+
+static const dynamic_odt_t dual_0S[4] = {
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{	/* cs2 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR3_RTT_40_OHM,
+		DDR3_RTT_OFF
+	},
+	{0, 0, 0, 0}
+
+};
+
+static const dynamic_odt_t odt_unknown[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR3_RTT_120_OHM,
+		DDR3_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR3_RTT_120_OHM,
+		DDR3_RTT_OFF
+	},
+	{	/* cs2 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR3_RTT_120_OHM,
+		DDR3_RTT_OFF
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR3_RTT_120_OHM,
+		DDR3_RTT_OFF
+	}
+};
+
 unsigned int populate_memctl_options(int all_DIMMs_registered,
 			memctl_options_t *popts,
 			dimm_params_t *pdimm,
@@ -34,6 +271,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	unsigned int i;
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	char *buf = NULL;
+	const dynamic_odt_t *pdodt = odt_unknown;
 
 	/*
 	 * Extract hwconfig from environment since we have not properly setup
@@ -43,15 +281,70 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 		buf = buffer;
 
 	/* Chip select options. */
+	if (CONFIG_DIMM_SLOTS_PER_CTLR == 1) {
+		switch (pdimm[0].n_ranks) {
+		case 1:
+			pdodt = single_S;
+			break;
+		case 2:
+			pdodt = single_D;
+			break;
+		case 4:
+			pdodt = single_Q;
+			break;
+		}
+	} else if (CONFIG_DIMM_SLOTS_PER_CTLR == 2) {
+		switch (pdimm[0].n_ranks) {
+		case 2:
+			switch (pdimm[1].n_ranks) {
+			case 2:
+				pdodt = dual_DD;
+				break;
+			case 1:
+				pdodt = dual_DS;
+				break;
+			case 0:
+				pdodt = dual_D0;
+				break;
+			}
+			break;
+		case 1:
+			switch (pdimm[1].n_ranks) {
+			case 2:
+				pdodt = dual_SD;
+				break;
+			case 1:
+				pdodt = dual_SS;
+				break;
+			case 0:
+				pdodt = dual_S0;
+				break;
+			}
+			break;
+		case 0:
+			switch (pdimm[1].n_ranks) {
+			case 2:
+				pdodt = dual_0D;
+				break;
+			case 1:
+				pdodt = dual_0S;
+				break;
+			}
+			break;
+		}
+	}
 
 	/* Pick chip-select local options. */
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
-		/* If not DDR2, odt_rd_cfg and odt_wr_cfg need to be 0. */
-
-		/* only for single CS? */
-		popts->cs_local_opts[i].odt_rd_cfg = 0;
-
-		popts->cs_local_opts[i].odt_wr_cfg = 1;
+#if defined(CONFIG_FSL_DDR3)
+		popts->cs_local_opts[i].odt_rd_cfg = pdodt[i].odt_rd_cfg;
+		popts->cs_local_opts[i].odt_wr_cfg = pdodt[i].odt_wr_cfg;
+		popts->cs_local_opts[i].odt_rtt_norm = pdodt[i].odt_rtt_norm;
+		popts->cs_local_opts[i].odt_rtt_wr = pdodt[i].odt_rtt_wr;
+#else
+		popts->cs_local_opts[i].odt_rd_cfg = FSL_DDR_ODT_NEVER;
+		popts->cs_local_opts[i].odt_wr_cfg = FSL_DDR_ODT_CS;
+#endif
 		popts->cs_local_opts[i].auto_precharge = 0;
 	}
 
@@ -178,6 +471,9 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 */
 	popts->twoT_en = 0;
 	popts->threeT_en = 0;
+
+	/* for RDIMM, address parity enable */
+	popts->ap_en = 1;
 
 	/*
 	 * BSTTOPRE precharge interval

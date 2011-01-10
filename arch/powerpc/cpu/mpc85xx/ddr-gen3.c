@@ -66,6 +66,12 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->sdram_cfg_2, regs->ddr_sdram_cfg_2);
 	out_be32(&ddr->sdram_mode, regs->ddr_sdram_mode);
 	out_be32(&ddr->sdram_mode_2, regs->ddr_sdram_mode_2);
+	out_be32(&ddr->sdram_mode_3, regs->ddr_sdram_mode_3);
+	out_be32(&ddr->sdram_mode_4, regs->ddr_sdram_mode_4);
+	out_be32(&ddr->sdram_mode_5, regs->ddr_sdram_mode_5);
+	out_be32(&ddr->sdram_mode_6, regs->ddr_sdram_mode_6);
+	out_be32(&ddr->sdram_mode_7, regs->ddr_sdram_mode_7);
+	out_be32(&ddr->sdram_mode_8, regs->ddr_sdram_mode_8);
 	out_be32(&ddr->sdram_md_cntl, regs->ddr_sdram_md_cntl);
 	out_be32(&ddr->sdram_interval, regs->ddr_sdram_interval);
 	out_be32(&ddr->sdram_data_init, regs->ddr_data_init);

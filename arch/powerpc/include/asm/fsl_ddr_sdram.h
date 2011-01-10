@@ -24,6 +24,7 @@
 #define DDR_OTF		6	/* on-the-fly BC4 and BL8 */
 #define DDR_BL8		8	/* burst length 8 */
 
+#define DDR3_RTT_OFF		0
 #define DDR3_RTT_60_OHM		1 /* RTT_Nom = RZQ/4 */
 #define DDR3_RTT_120_OHM	2 /* RTT_Nom = RZQ/2 */
 #define DDR3_RTT_40_OHM		3 /* RTT_Nom = RZQ/6 */
@@ -49,6 +50,15 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define CONFIG_FSL_SDRAM_TYPE	SDRAM_TYPE_DDR3
 #endif
 #endif	/* #if defined(CONFIG_FSL_DDR1) */
+
+#define FSL_DDR_ODT_NEVER		0x0
+#define FSL_DDR_ODT_CS			0x1
+#define FSL_DDR_ODT_ALL_OTHER_CS	0x2
+#define FSL_DDR_ODT_OTHER_DIMM		0x3
+#define FSL_DDR_ODT_ALL			0x4
+#define FSL_DDR_ODT_SAME_DIMM		0x5
+#define FSL_DDR_ODT_CS_AND_OTHER_DIMM	0x6
+#define FSL_DDR_ODT_OTHER_CS_ONSAMEDIMM	0x7
 
 /* define bank(chip select) interleaving mode */
 #define FSL_DDR_CS0_CS1			0x40
@@ -106,6 +116,12 @@ typedef struct fsl_ddr_cfg_regs_s {
 	unsigned int ddr_sdram_cfg_2;
 	unsigned int ddr_sdram_mode;
 	unsigned int ddr_sdram_mode_2;
+	unsigned int ddr_sdram_mode_3;
+	unsigned int ddr_sdram_mode_4;
+	unsigned int ddr_sdram_mode_5;
+	unsigned int ddr_sdram_mode_6;
+	unsigned int ddr_sdram_mode_7;
+	unsigned int ddr_sdram_mode_8;
 	unsigned int ddr_sdram_md_cntl;
 	unsigned int ddr_sdram_interval;
 	unsigned int ddr_data_init;
@@ -156,6 +172,8 @@ typedef struct memctl_options_s {
 		unsigned int auto_precharge;
 		unsigned int odt_rd_cfg;
 		unsigned int odt_wr_cfg;
+		unsigned int odt_rtt_norm;
+		unsigned int odt_rtt_wr;
 	} cs_local_opts[CONFIG_CHIP_SELECTS_PER_CTRL];
 
 	/* Special configurations for chip select */
