@@ -300,5 +300,6 @@
 #endif
 #define CONFIG_BFIN_SPI_GPIO_CS /* Only matters if BFIN_SPI is enabled */
 #define CONFIG_LZMA
+#define CONFIG_MONITOR_IS_IN_RAM
 
 #endif
