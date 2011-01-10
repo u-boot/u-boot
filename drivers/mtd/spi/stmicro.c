@@ -220,62 +220,9 @@ static int stmicro_write(struct spi_flash *flash,
 int stmicro_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	struct stmicro_spi_flash *stm = to_stmicro_spi_flash(flash);
-	unsigned long sector_size;
-	size_t actual;
-	int ret;
-	u8 cmd[4];
-
-	/*
-	 * This function currently uses sector erase only.
-	 * probably speed things up by using bulk erase
-	 * when possible.
-	 */
-
-	sector_size = stm->params->page_size * stm->params->pages_per_sector;
-
-	if (offset % sector_size || len % sector_size) {
-		debug("SF: Erase offset/length not multiple of sector size\n");
-		return -1;
-	}
-
-	len /= sector_size;
-	cmd[0] = CMD_M25PXX_SE;
-	cmd[2] = 0x00;
-	cmd[3] = 0x00;
-
-	ret = spi_claim_bus(flash->spi);
-	if (ret) {
-		debug("SF: Unable to claim SPI bus\n");
-		return ret;
-	}
-
-	ret = 0;
-	for (actual = 0; actual < len; actual++) {
-		cmd[1] = offset >> 16;
-		offset += sector_size;
-
-		ret = spi_flash_cmd(flash->spi, CMD_M25PXX_WREN, NULL, 0);
-		if (ret < 0) {
-			debug("SF: Enabling Write failed\n");
-			break;
-		}
-
-		ret = spi_flash_cmd_write(flash->spi, cmd, 4, NULL, 0);
-		if (ret < 0) {
-			debug("SF: STMicro page erase failed\n");
-			break;
-		}
-
-		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
-		if (ret)
-			break;
-	}
-
-	debug("SF: STMicro: Successfully erased %u bytes @ 0x%x\n",
-	      len * sector_size, offset);
-
-	spi_release_bus(flash->spi);
-	return ret;
+	return spi_flash_cmd_erase(flash, CMD_M25PXX_SE,
+		stm->params->page_size * stm->params->pages_per_sector,
+		offset, len);
 }
 
 struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)

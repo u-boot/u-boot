@@ -212,67 +212,10 @@ sst_write(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 	return ret;
 }
 
-int
-sst_erase(struct spi_flash *flash, u32 offset, size_t len)
+int sst_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
-	unsigned long sector_size;
-	u32 start, end;
-	int ret;
-	u8 cmd[4];
-
-	/*
-	 * This function currently uses sector erase only.
-	 * Probably speed things up by using bulk erase
-	 * when possible.
-	 */
-
-	sector_size = SST_SECTOR_SIZE;
-
-	if (offset % sector_size) {
-		debug("SF: Erase offset not multiple of sector size\n");
-		return -1;
-	}
-
-	ret = spi_claim_bus(flash->spi);
-	if (ret) {
-		debug("SF: Unable to claim SPI bus\n");
-		return ret;
-	}
-
-	cmd[0] = CMD_SST_SE;
-	cmd[3] = 0;
-	start = offset;
-	end = start + len;
-
-	ret = 0;
-	while (offset < end) {
-		cmd[1] = offset >> 16;
-		cmd[2] = offset >> 8;
-		offset += sector_size;
-
-		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
-		      cmd[2], cmd[3], offset);
-
-		ret = sst_enable_writing(flash);
-		if (ret)
-			break;
-
-		ret = spi_flash_cmd_write(flash->spi, cmd, sizeof(cmd), NULL, 0);
-		if (ret) {
-			debug("SF: sst page erase failed\n");
-			break;
-		}
-
-		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
-		if (ret)
-			break;
-	}
-
-	debug("SF: sst: Successfully erased %lu bytes @ 0x%x\n",
-	      len * sector_size, start);
-
-	spi_release_bus(flash->spi);
-	return ret;
+	return spi_flash_cmd_erase(flash, CMD_SST_SE, SST_SECTOR_SIZE,
+		offset, len);
 }
 
 static int

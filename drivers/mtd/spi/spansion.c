@@ -223,60 +223,9 @@ static int spansion_write(struct spi_flash *flash,
 int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	struct spansion_spi_flash *spsn = to_spansion_spi_flash(flash);
-	unsigned long sector_size;
-	size_t actual;
-	int ret;
-	u8 cmd[4];
-
-	/*
-	 * This function currently uses sector erase only.
-	 * probably speed things up by using bulk erase
-	 * when possible.
-	 */
-
-	sector_size = spsn->params->page_size * spsn->params->pages_per_sector;
-
-	if (offset % sector_size || len % sector_size) {
-		debug("SF: Erase offset/length not multiple of sector size\n");
-		return -1;
-	}
-
-	cmd[0] = CMD_S25FLXX_SE;
-	cmd[2] = 0x00;
-	cmd[3] = 0x00;
-
-	ret = spi_claim_bus(flash->spi);
-	if (ret) {
-		debug("SF: Unable to claim SPI bus\n");
-		return ret;
-	}
-
-	ret = 0;
-	for (actual = 0; actual < len; actual += sector_size) {
-		cmd[1] = (offset + actual) >> 16;
-
-		ret = spi_flash_cmd(flash->spi, CMD_S25FLXX_WREN, NULL, 0);
-		if (ret < 0) {
-			debug("SF: Enabling Write failed\n");
-			break;
-		}
-
-		ret = spi_flash_cmd_write(flash->spi, cmd, 4, NULL, 0);
-		if (ret < 0) {
-			debug("SF: SPANSION page erase failed\n");
-			break;
-		}
-
-		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
-		if (ret)
-			break;
-	}
-
-	debug("SF: SPANSION: Successfully erased %u bytes @ 0x%x\n",
-	      len, offset);
-
-	spi_release_bus(flash->spi);
-	return ret;
+	return spi_flash_cmd_erase(flash, CMD_S25FLXX_SE,
+		spsn->params->page_size * spsn->params->pages_per_sector,
+		offset, len);
 }
 
 struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)

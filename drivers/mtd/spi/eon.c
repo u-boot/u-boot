@@ -141,58 +141,11 @@ static int eon_write(struct spi_flash *flash,
 
 int eon_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
-	/* block erase */
 	struct eon_spi_flash *eon = to_eon_spi_flash(flash);
-	unsigned long block_size;
-	size_t actual;
-	int ret;
-	u8 cmd[4];
-
-
-	block_size = eon->params->page_size * eon->params->pages_per_sector
-	       * eon->params->sectors_per_block;
-
-	if (offset % block_size || len % block_size) {
-		debug("SF: Erase offset/length not multiple of block size\n");
-		return -1;
-	}
-
-	len /= block_size;
-	cmd[0] = CMD_EN25Q128_BE;
-	cmd[2] = 0x00;
-	cmd[3] = 0x00;
-
-	ret = spi_claim_bus(flash->spi);
-	if (ret) {
-		debug("SF: Unable to claim SPI bus\n");
-		return ret;
-	}
-
-	ret = 0;
-	for (actual = 0; actual < len; actual++) {
-		cmd[1] = (offset / block_size) + actual;
-		ret = spi_flash_cmd(flash->spi, CMD_EN25Q128_WREN, NULL, 0);
-		if (ret < 0) {
-			debug("SF: Enabling Write failed\n");
-			break;
-		}
-
-		ret = spi_flash_cmd_write(flash->spi, cmd, 4, NULL, 0);
-		if (ret < 0) {
-			debug("SF: EON page erase failed\n");
-			break;
-		}
-
-		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
-		if (ret)
-			break;
-	}
-
-	debug("SF: EON: Successfully erased %u bytes @ 0x%x\n",
-	      len * block_size, offset);
-
-	spi_release_bus(flash->spi);
-	return ret;
+	return spi_flash_cmd_erase(flash, CMD_EN25Q128_BE,
+		eon->params->page_size * eon->params->pages_per_sector *
+			eon->params->sectors_per_block;
+		offset, len);
 }
 
 struct spi_flash *spi_flash_probe_eon(struct spi_slave *spi, u8 *idcode)

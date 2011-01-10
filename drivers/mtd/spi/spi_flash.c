@@ -14,6 +14,14 @@
 
 #include "spi_flash_internal.h"
 
+static void spi_flash_addr(u32 addr, u8 *cmd)
+{
+	/* cmd[0] is actual command */
+	cmd[1] = addr >> 16;
+	cmd[2] = addr >> 8;
+	cmd[3] = addr >> 0;
+}
+
 static int spi_flash_read_write(struct spi_slave *spi,
 				const u8 *cmd, size_t cmd_len,
 				const u8 *data_out, u8 *data_in,
@@ -108,6 +116,56 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 {
 	return spi_flash_cmd_poll_bit(flash, timeout,
 		CMD_READ_STATUS, STATUS_WIP);
+}
+
+int spi_flash_cmd_erase(struct spi_flash *flash, u8 erase_cmd,
+			u32 erase_size, u32 offset, size_t len)
+{
+	u32 start, end;
+	int ret;
+	u8 cmd[4];
+
+	if (offset % erase_size || len % erase_size) {
+		debug("SF: Erase offset/length not multiple of erase size\n");
+		return -1;
+	}
+
+	ret = spi_claim_bus(flash->spi);
+	if (ret) {
+		debug("SF: Unable to claim SPI bus\n");
+		return ret;
+	}
+
+	cmd[0] = erase_cmd;
+	start = offset;
+	end = start + len;
+
+	while (offset < end) {
+		spi_flash_addr(offset, cmd);
+		offset += erase_size;
+
+		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
+		      cmd[2], cmd[3], offset);
+
+		ret = spi_flash_cmd(flash->spi, CMD_WRITE_ENABLE, NULL, 0);
+		if (ret)
+			goto out;
+
+		ret = spi_flash_cmd_write(flash->spi, cmd, sizeof(cmd), NULL, 0);
+		if (ret)
+			goto out;
+
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
+		if (ret)
+			goto out;
+	}
+
+	debug("SF: Successfully erased %lu bytes @ %#x\n",
+	      len * erase_size, start);
+
+ out:
+	spi_release_bus(flash->spi);
+	return ret;
 }
 
 /*

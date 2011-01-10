@@ -20,6 +20,7 @@
 #define CMD_READ_ARRAY_LEGACY		0xe8
 
 #define CMD_READ_STATUS			0x05
+#define CMD_WRITE_ENABLE		0x06
 
 /* Common status */
 #define STATUS_WIP			0x01
@@ -57,6 +58,10 @@ int spi_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
  * (write-in-progress) bit to clear itself.
  */
 int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout);
+
+/* Erase sectors. */
+int spi_flash_cmd_erase(struct spi_flash *flash, u8 erase_cmd,
+			u32 erase_size, u32 offset, size_t len);
 
 /* Manufacturer-specific probe functions */
 struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode);

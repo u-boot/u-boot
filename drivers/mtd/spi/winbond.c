@@ -211,64 +211,9 @@ out:
 int winbond_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	struct winbond_spi_flash *stm = to_winbond_spi_flash(flash);
-	unsigned long sector_size;
-	unsigned int page_shift;
-	size_t actual;
-	int ret;
-	u8 cmd[4];
-
-	/*
-	 * This function currently uses sector erase only.
-	 * probably speed things up by using bulk erase
-	 * when possible.
-	 */
-
-	page_shift = stm->params->l2_page_size;
-	sector_size = (1 << page_shift) * stm->params->pages_per_sector;
-
-	if (offset % sector_size || len % sector_size) {
-		debug("SF: Erase offset/length not multiple of sector size\n");
-		return -1;
-	}
-
-	len /= sector_size;
-	cmd[0] = CMD_W25_SE;
-
-	ret = spi_claim_bus(flash->spi);
-	if (ret) {
-		debug("SF: Unable to claim SPI bus\n");
-		return ret;
-	}
-
-	for (actual = 0; actual < len; actual++) {
-		winbond_build_address(stm, &cmd[1], offset + actual * sector_size);
-		printf("Erase: %02x %02x %02x %02x\n",
-				cmd[0], cmd[1], cmd[2], cmd[3]);
-
-		ret = spi_flash_cmd(flash->spi, CMD_W25_WREN, NULL, 0);
-		if (ret < 0) {
-			debug("SF: Enabling Write failed\n");
-			goto out;
-		}
-
-		ret = spi_flash_cmd_write(flash->spi, cmd, 4, NULL, 0);
-		if (ret < 0) {
-			debug("SF: Winbond sector erase failed\n");
-			goto out;
-		}
-
-		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
-		if (ret)
-			goto out;
-	}
-
-	debug("SF: Winbond: Successfully erased %u bytes @ 0x%x\n",
-			len * sector_size, offset);
-	ret = 0;
-
-out:
-	spi_release_bus(flash->spi);
-	return ret;
+	return spi_flash_cmd_erase(flash, CMD_W25_SE,
+		(1 << stm->params->l2_page_size) * stm->params->pages_per_sector,
+		offset, len);
 }
 
 struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
