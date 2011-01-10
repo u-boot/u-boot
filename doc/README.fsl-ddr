@@ -78,6 +78,13 @@ If the DDR controller supports address hashing, it can be enabled by hwconfig.
 Syntax is:
 hwconfig=fsl_ddr:addr_hash=true
 
+Memory controller ECC on/off
+============================
+If ECC is enabled in board configuratoin file, i.e. #define CONFIG_DDR_ECC,
+ECC can be turned on/off by hwconfig.
+
+Syntax is
+hwconfig=fsl_ddr:ecc=off
 
 Memory testing options for mpc85xx
 ==================================

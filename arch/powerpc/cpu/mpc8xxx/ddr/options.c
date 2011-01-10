@@ -98,10 +98,13 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	/* Operational Mode Paramters */
 
 	/* Pick ECC modes */
-#ifdef CONFIG_DDR_ECC
-	popts->ECC_mode = 1;		  /* 0 = disabled, 1 = enabled */
-#else
 	popts->ECC_mode = 0;		  /* 0 = disabled, 1 = enabled */
+#ifdef CONFIG_DDR_ECC
+	if (hwconfig_sub_f("fsl_ddr", "ecc", buf)) {
+		if (hwconfig_subarg_cmp_f("fsl_ddr", "ecc", "on", buf))
+			popts->ECC_mode = 1;
+	} else
+		popts->ECC_mode = 1;
 #endif
 	popts->ECC_init_using_memctl = 1; /* 0 = use DMA, 1 = use memctl */
 
