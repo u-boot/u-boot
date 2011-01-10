@@ -101,6 +101,25 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define WR_DATA_DELAY_SHIFT	10
 #endif
 
+/* DDR_MD_CNTL */
+#define MD_CNTL_MD_EN		0x80000000
+#define MD_CNTL_CS_SEL_CS0	0x00000000
+#define MD_CNTL_CS_SEL_CS1	0x10000000
+#define MD_CNTL_CS_SEL_CS2	0x20000000
+#define MD_CNTL_CS_SEL_CS3	0x30000000
+#define MD_CNTL_CS_SEL_CS0_CS1	0x40000000
+#define MD_CNTL_CS_SEL_CS2_CS3	0x50000000
+#define MD_CNTL_MD_SEL_MR	0x00000000
+#define MD_CNTL_MD_SEL_EMR	0x01000000
+#define MD_CNTL_MD_SEL_EMR2	0x02000000
+#define MD_CNTL_MD_SEL_EMR3	0x03000000
+#define MD_CNTL_SET_REF		0x00800000
+#define MD_CNTL_SET_PRE		0x00400000
+#define MD_CNTL_CKE_CNTL_LOW	0x00100000
+#define MD_CNTL_CKE_CNTL_HIGH	0x00200000
+#define MD_CNTL_WRCW		0x00080000
+#define MD_CNTL_MD_VALUE(x)	(x & 0x0000FFFF)
+
 /* Record of register values computed */
 typedef struct fsl_ddr_cfg_regs_s {
 	struct {
