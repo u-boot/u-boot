@@ -24,8 +24,6 @@
 #define CMD_W25_DP		0xb9	/* Deep Power-down */
 #define CMD_W25_RES		0xab	/* Release from DP, and Read Signature */
 
-#define WINBOND_SR_WIP		(1 << 0)	/* Write-in-Progress */
-
 struct winbond_spi_flash_params {
 	uint16_t	id;
 	/* Log2 of page size in power-of-two mode */
@@ -106,43 +104,6 @@ static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 		.name			= "W25Q128",
 	},
 };
-
-static int winbond_wait_ready(struct spi_flash *flash, unsigned long timeout)
-{
-	struct spi_slave *spi = flash->spi;
-	unsigned long timebase;
-	int ret;
-	u8 status;
-	u8 cmd[4] = { CMD_W25_RDSR, 0xff, 0xff, 0xff };
-
-	ret = spi_xfer(spi, 32, &cmd[0], NULL, SPI_XFER_BEGIN);
-	if (ret) {
-		debug("SF: Failed to send command %02x: %d\n", cmd, ret);
-		return ret;
-	}
-
-	timebase = get_timer(0);
-	do {
-		ret = spi_xfer(spi, 8, NULL, &status, 0);
-		if (ret) {
-			debug("SF: Failed to get status for cmd %02x: %d\n", cmd, ret);
-			return -1;
-		}
-
-		if ((status & WINBOND_SR_WIP) == 0)
-			break;
-
-	} while (get_timer(timebase) < timeout);
-
-	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
-
-	if ((status & WINBOND_SR_WIP) == 0)
-		return 0;
-
-	debug("SF: Timed out on command %02x: %d\n", cmd, ret);
-	/* Timed out */
-	return -1;
-}
 
 /*
  * Assemble the address part of a command for Winbond devices in
@@ -230,11 +191,9 @@ static int winbond_write(struct spi_flash *flash,
 			goto out;
 		}
 
-		ret = winbond_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
-		if (ret < 0) {
-			debug("SF: Winbond page programming timed out\n");
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+		if (ret)
 			goto out;
-		}
 
 		page_addr++;
 		byte_addr = 0;
@@ -298,11 +257,9 @@ int winbond_erase(struct spi_flash *flash, u32 offset, size_t len)
 			goto out;
 		}
 
-		ret = winbond_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
-		if (ret < 0) {
-			debug("SF: Winbond sector erase timed out\n");
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
+		if (ret)
 			goto out;
-		}
 	}
 
 	debug("SF: Winbond: Successfully erased %u bytes @ 0x%x\n",

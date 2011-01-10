@@ -90,41 +90,6 @@ static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 };
 
 static int
-sst_wait_ready(struct spi_flash *flash, unsigned long timeout)
-{
-	struct spi_slave *spi = flash->spi;
-	unsigned long timebase;
-	int ret;
-	u8 byte = CMD_SST_RDSR;
-
-	ret = spi_xfer(spi, sizeof(byte) * 8, &byte, NULL, SPI_XFER_BEGIN);
-	if (ret) {
-		debug("SF: Failed to send command %02x: %d\n", byte, ret);
-		return ret;
-	}
-
-	timebase = get_timer(0);
-	do {
-		ret = spi_xfer(spi, sizeof(byte) * 8, NULL, &byte, 0);
-		if (ret)
-			break;
-
-		if ((byte & SST_SR_WIP) == 0)
-			break;
-
-	} while (get_timer(timebase) < timeout);
-
-	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
-
-	if (!ret && (byte & SST_SR_WIP) != 0)
-		ret = -1;
-
-	if (ret)
-		debug("SF: sst wait for ready timed out\n");
-	return ret;
-}
-
-static int
 sst_enable_writing(struct spi_flash *flash)
 {
 	int ret = spi_flash_cmd(flash->spi, CMD_SST_WREN, NULL, 0);
@@ -177,7 +142,7 @@ sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 	if (ret)
 		return ret;
 
-	return sst_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+	return spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
 }
 
 static int
@@ -224,7 +189,7 @@ sst_write(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 			break;
 		}
 
-		ret = sst_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
 		if (ret)
 			break;
 
@@ -298,7 +263,7 @@ sst_erase(struct spi_flash *flash, u32 offset, size_t len)
 			break;
 		}
 
-		ret = sst_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
 		if (ret)
 			break;
 	}

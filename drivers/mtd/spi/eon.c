@@ -25,8 +25,6 @@
 
 #define EON_ID_EN25Q128		0x18
 
-#define EON_SR_WIP		(1 << 0)	/* Write-in-Progress */
-
 struct eon_spi_flash_params {
 	u8 idcode1;
 	u16 page_size;
@@ -57,40 +55,6 @@ static const struct eon_spi_flash_params eon_spi_flash_table[] = {
 		.name = "EN25Q128",
 	},
 };
-
-static int eon_wait_ready(struct spi_flash *flash, unsigned long timeout)
-{
-	struct spi_slave *spi = flash->spi;
-	unsigned long timebase;
-	int ret;
-	u8 cmd = CMD_EN25Q128_RDSR;
-	u8 status;
-
-	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
-	if (ret) {
-		debug("SF: Failed to send command %02x: %d\n", cmd, ret);
-		return ret;
-	}
-
-	timebase = get_timer(0);
-	do {
-		ret = spi_xfer(spi, 8, NULL, &status, 0);
-		if (ret)
-			return -1;
-
-		if ((status & EON_SR_WIP) == 0)
-			break;
-
-	} while (get_timer(timebase) < timeout);
-
-	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
-
-	if ((status & EON_SR_WIP) == 0)
-		return 0;
-
-	/* Timed out */
-	return -1;
-}
 
 static int eon_read_fast(struct spi_flash *flash,
 			 u32 offset, size_t len, void *buf)
@@ -160,11 +124,9 @@ static int eon_write(struct spi_flash *flash,
 			break;
 		}
 
-		ret = eon_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
-		if (ret < 0) {
-			debug("SF: EON page programming timed out\n");
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+		if (ret)
 			break;
-		}
 
 		page_addr++;
 		byte_addr = 0;
@@ -221,11 +183,9 @@ int eon_erase(struct spi_flash *flash, u32 offset, size_t len)
 			break;
 		}
 
-		ret = eon_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
-		if (ret < 0) {
-			debug("SF: EON page erase timed out\n");
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
+		if (ret)
 			break;
-		}
 	}
 
 	debug("SF: EON: Successfully erased %u bytes @ 0x%x\n",

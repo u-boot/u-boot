@@ -54,8 +54,6 @@
 #define SPSN_EXT_ID_S25FL128P_64KB	0x0301
 #define SPSN_EXT_ID_S25FL032P		0x4d00
 
-#define SPANSION_SR_WIP		(1 << 0)	/* Write-in-Progress */
-
 struct spansion_spi_flash_params {
 	u16 idcode1;
 	u16 idcode2;
@@ -135,32 +133,6 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 	},
 };
 
-static int spansion_wait_ready(struct spi_flash *flash, unsigned long timeout)
-{
-	struct spi_slave *spi = flash->spi;
-	unsigned long timebase;
-	int ret;
-	u8 status;
-
-	timebase = get_timer(0);
-	do {
-		ret = spi_flash_cmd(spi, CMD_S25FLXX_RDSR, &status, sizeof(status));
-		if (ret)
-			return -1;
-
-		if ((status & SPANSION_SR_WIP) == 0)
-			break;
-
-	} while (get_timer(timebase) < timeout);
-
-
-	if ((status & SPANSION_SR_WIP) == 0)
-		return 0;
-
-	/* Timed out */
-	return -1;
-}
-
 static int spansion_read_fast(struct spi_flash *flash,
 			     u32 offset, size_t len, void *buf)
 {
@@ -233,11 +205,9 @@ static int spansion_write(struct spi_flash *flash,
 			break;
 		}
 
-		ret = spansion_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
-		if (ret < 0) {
-			debug("SF: SPANSION page programming timed out\n");
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+		if (ret)
 			break;
-		}
 
 		page_addr++;
 		byte_addr = 0;
@@ -297,12 +267,9 @@ int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
 			break;
 		}
 
-		/* Up to 2 seconds */
-		ret = spansion_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
-		if (ret < 0) {
-			debug("SF: SPANSION page erase timed out\n");
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PAGE_ERASE_TIMEOUT);
+		if (ret)
 			break;
-		}
 	}
 
 	debug("SF: SPANSION: Successfully erased %u bytes @ 0x%x\n",

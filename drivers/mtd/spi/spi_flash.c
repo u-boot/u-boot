@@ -69,6 +69,47 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 	return ret;
 }
 
+int spi_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
+			   u8 cmd, u8 poll_bit)
+{
+	struct spi_slave *spi = flash->spi;
+	unsigned long timebase;
+	int ret;
+	u8 status;
+
+	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
+	if (ret) {
+		debug("SF: Failed to send command %02x: %d\n", cmd, ret);
+		return ret;
+	}
+
+	timebase = get_timer(0);
+	do {
+		ret = spi_xfer(spi, 8, NULL, &status, 0);
+		if (ret)
+			return -1;
+
+		if ((status & poll_bit) == 0)
+			break;
+
+	} while (get_timer(timebase) < timeout);
+
+	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
+
+	if ((status & poll_bit) == 0)
+		return 0;
+
+	/* Timed out */
+	debug("SF: time out!\n");
+	return -1;
+}
+
+int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
+{
+	return spi_flash_cmd_poll_bit(flash, timeout,
+		CMD_READ_STATUS, STATUS_WIP);
+}
+
 /*
  * The following table holds all device probe functions
  *
