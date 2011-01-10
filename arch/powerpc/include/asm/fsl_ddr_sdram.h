@@ -120,6 +120,9 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define MD_CNTL_WRCW		0x00080000
 #define MD_CNTL_MD_VALUE(x)	(x & 0x0000FFFF)
 
+/* DDR_CDR1 */
+#define DDR_CDR1_DHC_EN	0x80000000
+
 /* Record of register values computed */
 typedef struct fsl_ddr_cfg_regs_s {
 	struct {
