@@ -77,6 +77,18 @@ int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 	return ret;
 }
 
+int spi_flash_cmd_read_fast(struct spi_flash *flash, u32 offset,
+		size_t len, void *data)
+{
+	u8 cmd[5];
+
+	cmd[0] = CMD_READ_ARRAY_FAST;
+	spi_flash_addr(offset, cmd);
+	cmd[4] = 0x00;
+
+	return spi_flash_read_common(flash, cmd, sizeof(cmd), data, len);
+}
+
 int spi_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
 			   u8 cmd, u8 poll_bit)
 {

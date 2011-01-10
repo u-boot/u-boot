@@ -112,26 +112,6 @@ static const struct macronix_spi_flash_params macronix_spi_flash_table[] = {
 	},
 };
 
-static int macronix_read_fast(struct spi_flash *flash,
-			      u32 offset, size_t len, void *buf)
-{
-	struct macronix_spi_flash *mcx = to_macronix_spi_flash(flash);
-	unsigned long page_addr;
-	unsigned long page_size;
-	u8 cmd[5];
-
-	page_size = mcx->params->page_size;
-	page_addr = offset / page_size;
-
-	cmd[0] = CMD_READ_ARRAY_FAST;
-	cmd[1] = page_addr >> 8;
-	cmd[2] = page_addr;
-	cmd[3] = offset % page_size;
-	cmd[4] = 0x00;
-
-	return spi_flash_read_common(flash, cmd, sizeof(cmd), buf, len);
-}
-
 static int macronix_write(struct spi_flash *flash,
 			  u32 offset, size_t len, const void *buf)
 {
@@ -234,7 +214,7 @@ struct spi_flash *spi_flash_probe_macronix(struct spi_slave *spi, u8 *idcode)
 
 	mcx->flash.write = macronix_write;
 	mcx->flash.erase = macronix_erase;
-	mcx->flash.read = macronix_read_fast;
+	mcx->flash.read = spi_flash_cmd_read_fast;
 	mcx->flash.size = params->page_size * params->pages_per_sector
 	    * params->sectors_per_block * params->nr_blocks;
 

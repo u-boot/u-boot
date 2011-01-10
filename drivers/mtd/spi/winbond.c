@@ -105,44 +105,6 @@ static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 	},
 };
 
-/*
- * Assemble the address part of a command for Winbond devices in
- * non-power-of-two page size mode.
- */
-static void winbond_build_address(struct winbond_spi_flash *stm, u8 *cmd, u32 offset)
-{
-	unsigned long page_addr;
-	unsigned long byte_addr;
-	unsigned long page_size;
-	unsigned int page_shift;
-
-	/*
-	 * The "extra" space per page is the power-of-two page size
-	 * divided by 32.
-	 */
-	page_shift = stm->params->l2_page_size;
-	page_size = (1 << page_shift);
-	page_addr = offset / page_size;
-	byte_addr = offset % page_size;
-
-	cmd[0] = page_addr >> (16 - page_shift);
-	cmd[1] = page_addr << (page_shift - 8) | (byte_addr >> 8);
-	cmd[2] = byte_addr;
-}
-
-static int winbond_read_fast(struct spi_flash *flash,
-		u32 offset, size_t len, void *buf)
-{
-	struct winbond_spi_flash *stm = to_winbond_spi_flash(flash);
-	u8 cmd[5];
-
-	cmd[0] = CMD_READ_ARRAY_FAST;
-	winbond_build_address(stm, cmd + 1, offset);
-	cmd[4] = 0x00;
-
-	return spi_flash_read_common(flash, cmd, sizeof(cmd), buf, len);
-}
-
 static int winbond_write(struct spi_flash *flash,
 		u32 offset, size_t len, const void *buf)
 {
@@ -250,7 +212,7 @@ struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 
 	stm->flash.write = winbond_write;
 	stm->flash.erase = winbond_erase;
-	stm->flash.read = winbond_read_fast;
+	stm->flash.read = spi_flash_cmd_read_fast;
 	stm->flash.size = page_size * params->pages_per_sector
 				* params->sectors_per_block
 				* params->nr_blocks;

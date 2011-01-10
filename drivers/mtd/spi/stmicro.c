@@ -134,26 +134,6 @@ static const struct stmicro_spi_flash_params stmicro_spi_flash_table[] = {
 	},
 };
 
-static int stmicro_read_fast(struct spi_flash *flash,
-			     u32 offset, size_t len, void *buf)
-{
-	struct stmicro_spi_flash *stm = to_stmicro_spi_flash(flash);
-	unsigned long page_addr;
-	unsigned long page_size;
-	u8 cmd[5];
-
-	page_size = stm->params->page_size;
-	page_addr = offset / page_size;
-
-	cmd[0] = CMD_READ_ARRAY_FAST;
-	cmd[1] = page_addr >> 8;
-	cmd[2] = page_addr;
-	cmd[3] = offset % page_size;
-	cmd[4] = 0x00;
-
-	return spi_flash_read_common(flash, cmd, sizeof(cmd), buf, len);
-}
-
 static int stmicro_write(struct spi_flash *flash,
 			 u32 offset, size_t len, const void *buf)
 {
@@ -268,7 +248,7 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 
 	stm->flash.write = stmicro_write;
 	stm->flash.erase = stmicro_erase;
-	stm->flash.read = stmicro_read_fast;
+	stm->flash.read = spi_flash_cmd_read_fast;
 	stm->flash.size = params->page_size * params->pages_per_sector
 	    * params->nr_sectors;
 

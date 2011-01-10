@@ -56,26 +56,6 @@ static const struct eon_spi_flash_params eon_spi_flash_table[] = {
 	},
 };
 
-static int eon_read_fast(struct spi_flash *flash,
-			 u32 offset, size_t len, void *buf)
-{
-	struct eon_spi_flash *eon = to_eon_spi_flash(flash);
-	unsigned long page_addr;
-	unsigned long page_size;
-	u8 cmd[5];
-
-	page_size = eon->params->page_size;
-	page_addr = offset / page_size;
-
-	cmd[0] = CMD_READ_ARRAY_FAST;
-	cmd[1] = page_addr >> 8;
-	cmd[2] = page_addr;
-	cmd[3] = offset % page_size;
-	cmd[4] = 0x00;
-
-	return spi_flash_read_common(flash, cmd, sizeof(cmd), buf, len);
-}
-
 static int eon_write(struct spi_flash *flash,
 		     u32 offset, size_t len, const void *buf)
 {
@@ -177,7 +157,7 @@ struct spi_flash *spi_flash_probe_eon(struct spi_slave *spi, u8 *idcode)
 
 	eon->flash.write = eon_write;
 	eon->flash.erase = eon_erase;
-	eon->flash.read = eon_read_fast;
+	eon->flash.read = spi_flash_cmd_read_fast;
 	eon->flash.size = params->page_size * params->pages_per_sector
 	    * params->nr_sectors;
 

@@ -108,19 +108,6 @@ sst_disable_writing(struct spi_flash *flash)
 }
 
 static int
-sst_read_fast(struct spi_flash *flash, u32 offset, size_t len, void *buf)
-{
-	u8 cmd[5] = {
-		CMD_READ_ARRAY_FAST,
-		offset >> 16,
-		offset >> 8,
-		offset,
-		0x00,
-	};
-	return spi_flash_read_common(flash, cmd, sizeof(cmd), buf, len);
-}
-
-static int
 sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 {
 	int ret;
@@ -269,7 +256,6 @@ spi_flash_probe_sst(struct spi_slave *spi, u8 *idcode)
 
 	stm->flash.write = sst_write;
 	stm->flash.erase = sst_erase;
-	stm->flash.read = sst_read_fast;
 	stm->flash.size = SST_SECTOR_SIZE * params->nr_sectors;
 
 	printf("SF: Detected %s with page size %u, total ",
