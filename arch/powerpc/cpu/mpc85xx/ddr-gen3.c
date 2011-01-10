@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/fsl_ddr_sdram.h>
+#include <asm/processor.h>
 
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 4)
 #error Invalid setting for CONFIG_CHIP_SELECTS_PER_CTRL
@@ -79,6 +80,12 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	out_be32(&ddr->ddr_sr_cntr, regs->ddr_sr_cntr);
 	out_be32(&ddr->ddr_sdram_rcw_1, regs->ddr_sdram_rcw_1);
 	out_be32(&ddr->ddr_sdram_rcw_2, regs->ddr_sdram_rcw_2);
+	out_be32(&ddr->ddr_cdr1, regs->ddr_cdr1);
+	out_be32(&ddr->ddr_cdr2, regs->ddr_cdr2);
+	out_be32(&ddr->err_disable, regs->err_disable);
+	out_be32(&ddr->err_int_en, regs->err_int_en);
+	for (i = 0; i < 32; i++)
+		out_be32(&ddr->debug[i], regs->debug[i]);
 
 	/* Set, but do not enable the memory */
 	temp_sdram_cfg = regs->ddr_sdram_cfg;
@@ -93,8 +100,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	if ((((in_be32(&ddr->sdram_cfg) >> 24) & 0x7) == SDRAM_TYPE_DDR2)
 	    && in_be32(&ddr->sdram_cfg) & 0x80000) {
 		/* set DEBUG_1[31] */
-		u32 temp = in_be32(&ddr->debug_1);
-		out_be32(&ddr->debug_1, temp | 1);
+		setbits_be32(&ddr->debug[0], 1);
 	}
 #endif
 

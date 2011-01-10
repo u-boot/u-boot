@@ -120,6 +120,11 @@ typedef struct fsl_ddr_cfg_regs_s {
 	unsigned int ddr_sdram_rcw_1;
 	unsigned int ddr_sdram_rcw_2;
 	unsigned int ddr_eor;
+	unsigned int ddr_cdr1;
+	unsigned int ddr_cdr2;
+	unsigned int err_disable;
+	unsigned int err_int_en;
+	unsigned int debug[32];
 } fsl_ddr_cfg_regs_t;
 
 typedef struct memctl_options_partial_s {
@@ -175,6 +180,7 @@ typedef struct memctl_options_s {
 	/* mirrior DIMMs for DDR3 */
 	unsigned int mirrored_dimm;
 	unsigned int quad_rank_present;
+	unsigned int ap_en;	/* address parity enable for RDIMM */
 
 	/* Global Timing Parameters */
 	unsigned int cas_latency_override;
@@ -210,6 +216,12 @@ typedef struct memctl_options_s {
 	unsigned int zq_en;
 	/* Write leveling */
 	unsigned int wrlvl_en;
+	/* RCW override for RDIMM */
+	unsigned int rcw_override;
+	unsigned int rcw_1;
+	unsigned int rcw_2;
+	/* control register 1 */
+	unsigned int ddr_cdr1;
 } memctl_options_t;
 
 extern phys_size_t fsl_ddr_sdram(void);
