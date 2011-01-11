@@ -99,7 +99,7 @@ int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	   size, load_addr);
 
     /* Check if we should attempt an auto-start */
-    if (getenv_yesno("autostart")) {
+    if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
 	char *local_args[2];
 	local_args[0] = argv[0];
 	local_args[1] = NULL;
