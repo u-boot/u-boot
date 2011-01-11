@@ -32,6 +32,7 @@ COBJS-$(CONFIG_BZIP2) += bzlib_decompress.o
 COBJS-$(CONFIG_BZIP2) += bzlib_randtable.o
 COBJS-$(CONFIG_BZIP2) += bzlib_huffman.o
 COBJS-$(CONFIG_USB_TTY) += circbuf.o
+COBJS-y += crc7.o
 COBJS-y += crc16.o
 COBJS-y += crc32.o
 COBJS-y += ctype.o
