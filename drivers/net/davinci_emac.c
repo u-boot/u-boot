@@ -247,10 +247,10 @@ static int gen_get_link_speed(int phy_addr)
 			(tmp & 0x04)) {
 #if defined(CONFIG_DRIVER_TI_EMAC_USE_RMII) && \
 		defined(CONFIG_MACH_DAVINCI_DA850_EVM)
-		davinci_eth_phy_read(phy_addr, PHY_ANLPAR, &tmp);
+		davinci_eth_phy_read(phy_addr, MII_LPA, &tmp);
 
 		/* Speed doesn't matter, there is no setting for it in EMAC. */
-		if (tmp & (PHY_ANLPAR_TXFD | PHY_ANLPAR_10FD)) {
+		if (tmp & (LPA_100FULL | LPA_10FULL)) {
 			/* set EMAC for Full Duplex  */
 			writel(EMAC_MACCONTROL_MIIEN_ENABLE |
 					EMAC_MACCONTROL_FULLDUPLEX_ENABLE,
@@ -261,7 +261,7 @@ static int gen_get_link_speed(int phy_addr)
 					&adap_emac->MACCONTROL);
 		}
 
-		if (tmp & (PHY_ANLPAR_TXFD | PHY_ANLPAR_TX))
+		if (tmp & (LPA_100FULL | LPA_100HALF))
 			writel(readl(&adap_emac->MACCONTROL) |
 					EMAC_MACCONTROL_RMIISPEED_100,
 					 &adap_emac->MACCONTROL);
