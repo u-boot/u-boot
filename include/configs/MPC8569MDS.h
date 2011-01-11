@@ -593,8 +593,8 @@ extern unsigned long get_clock_freq(void);
  * have to be in the first 16 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(16 << 20)
-					/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTMAPSZ	(16 << 20) /* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTM_LEN	(16 << 20)	/* Increase max gunzip size */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */
