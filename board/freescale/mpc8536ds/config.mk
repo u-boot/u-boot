@@ -1,5 +1,5 @@
 #
-# Copyright 2008 Freescale Semiconductor.
+# Copyright 2008, 2011 Freescale Semiconductor.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -27,16 +27,4 @@ ifndef NAND_SPL
 ifeq ($(CONFIG_NAND), y)
 LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
 endif
-endif
-
-ifeq ($(CONFIG_SDCARD), y)
-RESET_VECTOR_ADDRESS = 0xf8fffffc
-endif
-
-ifeq ($(CONFIG_SPIFLASH), y)
-RESET_VECTOR_ADDRESS = 0xf8fffffc
-endif
-
-ifndef RESET_VECTOR_ADDRESS
-RESET_VECTOR_ADDRESS = 0xeffffffc
 endif

@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 Freescale Semiconductor, Inc.
+ * Copyright 2007-2009, 2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,7 +20,11 @@
  * MA 02111-1307 USA
  */
 
-#ifndef RESET_VECTOR_ADDRESS
+#include "config.h"	/* CONFIG_BOARDDIR */
+
+#ifdef CONFIG_RESET_VECTOR_ADDRESS
+#define RESET_VECTOR_ADDRESS	CONFIG_RESET_VECTOR_ADDRESS
+#else
 #define RESET_VECTOR_ADDRESS	0xfffffffc
 #endif
 
