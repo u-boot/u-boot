@@ -1,6 +1,8 @@
 #
-# Copyright (c) 2007
-# Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+# Copyright (C) 2010 Nobuhiro Iwamatsu
+# Copyright (C) 2008 Renesas Solutions Corp.
+#
+# u-boot/board/shmin/Makefile
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -16,30 +18,26 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
-#
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(ARCH).o
+LIB	= lib$(BOARD).o
 
-SOBJS-y	+=
+OBJS	:= shmin.o
+SOBJS	:= lowlevel_init.o
 
-COBJS-y	+= board.o
-COBJS-y	+= bootm.o
-ifeq ($(CONFIG_SH2),y)
-COBJS-y	+= time_sh2.o
-else
-COBJS-y	+= time.o
-endif
-ifeq ($(CONFIG_CMD_SH_ZIMAGEBOOT),y)
-COBJS-y += zimageboot.o
-endif
+LIB	:= $(addprefix $(obj),$(LIB))
+OBJS	:= $(addprefix $(obj),$(OBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-$(LIB):	$(obj).depend $(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 

@@ -1,6 +1,7 @@
 #
-# Copyright (c) 2007
-# Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+# Copyright (C) 2010 Nobuhiro Iwamatsu
+#
+# u-boot/board/shmin/config.mk
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -16,36 +17,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
+
+#
+# TEXT_BASE refers to image _after_ relocation.
+#
+# NOTE: Must match value used in u-boot.lds (in this directory).
 #
 
-include $(TOPDIR)/config.mk
-
-LIB	= $(obj)lib$(ARCH).o
-
-SOBJS-y	+=
-
-COBJS-y	+= board.o
-COBJS-y	+= bootm.o
-ifeq ($(CONFIG_SH2),y)
-COBJS-y	+= time_sh2.o
-else
-COBJS-y	+= time.o
-endif
-ifeq ($(CONFIG_CMD_SH_ZIMAGEBOOT),y)
-COBJS-y += zimageboot.o
-endif
-
-SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
-
-$(LIB):	$(obj).depend $(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
-
-#########################################################################
-
-# defines $(obj).depend target
-include $(SRCTREE)/rules.mk
-
-sinclude $(obj).depend
-
-#########################################################################
+CONFIG_SYS_TEXT_BASE = 0x8DFB0000
