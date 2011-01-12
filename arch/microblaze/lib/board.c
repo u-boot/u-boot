@@ -90,16 +90,18 @@ void board_init (void)
 {
 	bd_t *bd;
 	init_fnc_t **init_fnc_ptr;
-	gd = (gd_t *) CONFIG_SYS_GBL_DATA_OFFSET;
+	gd = (gd_t *) (CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET);
+	bd = (bd_t *) (CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_GBL_DATA_OFFSET \
+						- GENERATED_BD_INFO_SIZE);
 	char *s;
 #if defined(CONFIG_CMD_FLASH)
 	ulong flash_size = 0;
 #endif
 	asm ("nop");	/* FIXME gd is not initialize - wait */
 	memset ((void *)gd, 0, GENERATED_GBL_DATA_SIZE);
-	gd->bd = (bd_t *) (gd + 1);	/* At end of global data */
+	memset ((void *)bd, 0, GENERATED_BD_INFO_SIZE);
+	gd->bd = bd;
 	gd->baudrate = CONFIG_BAUDRATE;
-	bd = gd->bd;
 	bd->bi_baudrate = CONFIG_BAUDRATE;
 	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
 	bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
