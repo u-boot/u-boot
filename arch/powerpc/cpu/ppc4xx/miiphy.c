@@ -100,7 +100,7 @@ int phy_setup_aneg (char *devname, unsigned char addr)
 		u16 anar = 0x0000;
 
 		if (exsr & ESTATUS_1000XF)
-			anar |= ADVERTISE_1000XFULL);
+			anar |= ADVERTISE_1000XFULL;
 
 		if (exsr & ESTATUS_1000XH)
 			anar |= ADVERTISE_1000XHALF;

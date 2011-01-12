@@ -440,7 +440,6 @@
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_NFS
-#define CONFIG_CMD_PCI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_REGINFO
 #define CONFIG_CMD_SDRAM
@@ -487,22 +486,6 @@
 #define CONFIG_LOOPW            1       /* enable loopw command         */
 #define CONFIG_MX_CYCLIC        1       /* enable mdc/mwc commands      */
 #define CONFIG_VERSION_VARIABLE 1	/* include version env variable */
-
-/*
- * PCI stuff
- */
-/* General PCI */
-#define CONFIG_PCI			/* include pci support	        */
-#undef CONFIG_PCI_PNP			/* do (not) pci plug-and-play   */
-#define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup  */
-#define CONFIG_SYS_PCI_TARGBASE        0x80000000 /* PCIaddr mapped to CONFIG_SYS_PCI_MEMBASE*/
-
-/* Board-specific PCI */
-#define CONFIG_SYS_PCI_TARGET_INIT
-#define CONFIG_SYS_PCI_MASTER_INIT
-
-#define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x10e8	/* AMCC				*/
-#define CONFIG_SYS_PCI_SUBSYS_ID       0xcafe	/* Whatever			*/
 
 #ifndef DEBUG
 #define CONFIG_HW_WATCHDOG	1	/* Use external HW-Watchdog	*/
