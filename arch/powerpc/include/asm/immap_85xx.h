@@ -1620,6 +1620,7 @@ typedef struct cpc_corenet {
 #define	CPC_ERRDIS_TMHITDIS  	0x00000080	/* multi-way hit disable */
 #define CPC_HDBCR0_CDQ_SPEC_DIS	0x08000000
 #define CPC_HDBCR0_TAG_ECC_SCRUB_DIS	0x01000000
+#define CPC_HDBCR0_DATA_ECC_SCRUB_DIS	0x00400000
 #endif /* CONFIG_SYS_FSL_CPC */
 
 /* Global Utilities Block */

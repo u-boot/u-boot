@@ -62,6 +62,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_FSL_ERRATUM_CPC_A002
 	puts("Work-around for Erratum CPC-A002 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_CPC_A003
+	puts("Work-around for Erratum CPC-A003 enabled\n");
+#endif
 
 	return 0;
 }
