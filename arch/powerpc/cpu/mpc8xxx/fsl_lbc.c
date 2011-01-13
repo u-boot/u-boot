@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Freescale Semiconductor, Inc.
+ * Copyright 2010-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,6 +33,11 @@ void print_lbc_regs(void)
 void init_early_memctl_regs(void)
 {
 	uint init_br1 = 1;
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_ELBC_A001
+	/* Set the local bus monitor timeout value to the maximum */
+	clrsetbits_be32(&(LBC_BASE_ADDR)->lbcr, LBCR_BMT|LBCR_BMTPS, 0xf);
+#endif
 
 #ifdef CONFIG_MPC85xx
 	/* if cs1 is already set via debugger, leave cs0/cs1 alone */

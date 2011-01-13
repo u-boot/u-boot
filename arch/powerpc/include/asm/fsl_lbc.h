@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004-2008,2010 Freescale Semiconductor, Inc.
+ * Copyright (C) 2004-2008,2010-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -295,6 +295,8 @@ void lbc_sdram_init(void);
 #define LBCR_EPAR_SHIFT			16
 #define LBCR_BMT			0x0000FF00
 #define LBCR_BMT_SHIFT			8
+#define LBCR_BMTPS	 		0x0000000F
+#define LBCR_BMTPS_SHIFT 		0
 
 /* LCRR - Clock Ratio Register
  */
