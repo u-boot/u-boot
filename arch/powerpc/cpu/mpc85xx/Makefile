@@ -50,6 +50,7 @@ COBJS-$(CONFIG_MPC8544) += ddr-gen2.o
 COBJS-$(CONFIG_MPC8572) += ddr-gen3.o
 COBJS-$(CONFIG_MPC8536) += ddr-gen3.o
 COBJS-$(CONFIG_MPC8569)	+= ddr-gen3.o
+COBJS-$(CONFIG_P1010)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1011)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1012)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1013)	+= ddr-gen3.o
