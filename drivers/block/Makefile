@@ -31,6 +31,7 @@ COBJS-$(CONFIG_FSL_SATA) += fsl_sata.o
 COBJS-$(CONFIG_LIBATA) += libata.o
 COBJS-$(CONFIG_CMD_MG_DISK) += mg_disk.o
 COBJS-$(CONFIG_MVSATA_IDE) += mvsata_ide.o
+COBJS-$(CONFIG_MX51_PATA) += mxc_ata.o
 COBJS-$(CONFIG_PATA_BFIN) += pata_bfin.o
 COBJS-$(CONFIG_SATA_DWC) += sata_dwc.o
 COBJS-$(CONFIG_SATA_SIL3114) += sata_sil3114.o
