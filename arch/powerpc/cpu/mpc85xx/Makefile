@@ -54,6 +54,7 @@ COBJS-$(CONFIG_P1010)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1011)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1012)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1013)	+= ddr-gen3.o
+COBJS-$(CONFIG_P1014)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1020)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1021)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1022)	+= ddr-gen3.o

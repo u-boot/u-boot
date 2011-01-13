@@ -69,7 +69,7 @@
 
 /* Enable TSEC2.0 for the platforms that have it if we are using TSEC */
 #if defined(CONFIG_TSEC_ENET) && \
-    (defined(CONFIG_P1010) || \
+    (defined(CONFIG_P1010) || defined(CONFIG_P1014) || \
      defined(CONFIG_P1020) || defined(CONFIG_P1011))
 #define CONFIG_TSECV2
 #endif
@@ -78,7 +78,7 @@
  * SEC (crypto unit) major compatible version determination
  */
 #if defined(CONFIG_FSL_CORENET) || \
-    defined(CONFIG_P1010)
+    defined(CONFIG_P1010) || defined(CONFIG_P1014)
 #define CONFIG_SYS_FSL_SEC_COMPAT	4
 #elif defined(CONFIG_MPC85xx) || defined(CONFIG_MPC83xx)
 #define CONFIG_SYS_FSL_SEC_COMPAT	2

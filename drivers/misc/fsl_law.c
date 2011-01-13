@@ -38,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
       defined(CONFIG_MPC8641) || defined(CONFIG_MPC8610)
 #define FSL_HW_NUM_LAWS 10
 #elif defined(CONFIG_MPC8536) || defined(CONFIG_MPC8572) || \
-      defined(CONFIG_P1010) || \
+      defined(CONFIG_P1010) || defined(CONFIG_P1014) || \
       defined(CONFIG_P1011) || defined(CONFIG_P1020) || \
       defined(CONFIG_P1012) || defined(CONFIG_P1021) || \
       defined(CONFIG_P1013) || defined(CONFIG_P1022) || \
