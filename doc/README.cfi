@@ -1,0 +1,29 @@
+The common CFI driver provides this weak default implementation for
+flash_cmd_reset():
+
+void __flash_cmd_reset(flash_info_t *info)
+{
+	/*
+	 * We do not yet know what kind of commandset to use, so we issue
+	 * the reset command in both Intel and AMD variants, in the hope
+	 * that AMD flash roms ignore the Intel command.
+	 */
+	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+	flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
+}
+void flash_cmd_reset(flash_info_t *info)
+	__attribute__((weak,alias("__flash_cmd_reset")));
+
+
+Some flash chips seems to have trouble with this reset sequence. In this case
+the board specific code can override this weak default version with a board
+specific function. For example the digsy_mtc board equipped with the M29W128GH
+from Numonyx needs this version to function properly:
+
+void flash_cmd_reset(flash_info_t *info)
+{
+	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+}
+
+see also:
+http://www.mail-archive.com/u-boot@lists.denx.de/msg24368.html

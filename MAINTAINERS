@@ -339,6 +339,10 @@ Denis Peter <d.peter@mpl.ch>
 	MIP405		PPC4xx
 	PIP405		PPC4xx
 
+Werner Pfister <Pfister_Werner@intercontrol.de>
+	digsy_mtc	mpc5200
+	digsy_mtc_rev5	mpc5200
+
 Kim Phillips <kim.phillips@freescale.com>
 
 	MPC8349EMDS	MPC8349
