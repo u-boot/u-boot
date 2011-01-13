@@ -142,6 +142,10 @@ static void enable_cpc(void)
 		u32 cpccfg0 = in_be32(&cpc->cpccfg0);
 		size += CPC_CFG0_SZ_K(cpccfg0);
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_CPC_A002
+		setbits_be32(&cpc->cpchdbcr0, CPC_HDBCR0_TAG_ECC_SCRUB_DIS);
+#endif
+
 		out_be32(&cpc->cpccsr0, CPC_CSR0_CE | CPC_CSR0_PE);
 		/* Read back to sync write */
 		in_be32(&cpc->cpccsr0);
