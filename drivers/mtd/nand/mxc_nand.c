@@ -22,7 +22,7 @@
 #include <nand.h>
 #include <linux/err.h>
 #include <asm/io.h>
-#if defined(CONFIG_MX25) || defined(CONFIG_MX27)
+#if defined(CONFIG_MX25) || defined(CONFIG_MX27) || defined(CONFIG_MX35)
 #include <asm/arch/imx-regs.h>
 #endif
 
@@ -50,7 +50,7 @@
  */
 #if defined(CONFIG_MX31) || defined(CONFIG_MX27)
 #define MXC_NFC_V1
-#elif defined(CONFIG_MX25)
+#elif defined(CONFIG_MX25) || defined(CONFIG_MX35)
 #define MXC_NFC_V1_1
 #else
 #warning "MXC NFC version not defined"
@@ -265,7 +265,7 @@ static int is_16bit_nand(void)
 	else
 		return 0;
 }
-#elif defined(CONFIG_MX25)
+#elif defined(CONFIG_MX25) || defined(CONFIG_MX35)
 static int is_16bit_nand(void)
 {
 	struct ccm_regs *ccm =
