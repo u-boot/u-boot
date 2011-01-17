@@ -60,6 +60,7 @@
 /* check for keypress on bootdelay==0 */
 /*#define CONFIG_ZERO_BOOTDELAY_CHECK*/
 
+#define CONFIG_SYS_TEXT_BASE		0x0FFC0000
 #define CONFIG_SYS_SDRAM_BASE		(0x08000000)
 #define CONFIG_SYS_SDRAM_SIZE		(128 * 1024 * 1024)
 
