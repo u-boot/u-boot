@@ -12,11 +12,11 @@ LIB	= $(obj)lib8xxx.o
 
 ifneq ($(CPU),mpc83xx)
 COBJS-y	+= cpu.o
-COBJS-$(CONFIG_PCI)	+= pci_cfg.o
 endif
 
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
 COBJS-$(CONFIG_FSL_LBC) += fsl_lbc.o
+COBJS-$(CONFIG_SYS_SRIO) += srio.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -35,7 +35,14 @@
 
 #define CONFIG_ICS307_REFCLK_HZ		33333000  /* ICS307 ref clk freq */
 
+#define CONFIG_SYS_FSL_ERRATUM_ESDHC111
+#define CONFIG_SYS_FSL_ERRATUM_ESDHC135
+#define CONFIG_SYS_FSL_ERRATUM_ESDHC136
+
 #define CONFIG_SYS_P4080_ERRATUM_CPU22
+#define CONFIG_SYS_FSL_ERRATUM_CPC_A002
+#define CONFIG_SYS_FSL_ERRATUM_CPC_A003
 #define CONFIG_SYS_P4080_ERRATUM_SERDES8
+#define CONFIG_SYS_FSL_ERRATUM_ELBC_A001
 
 #include "corenet_ds.h"

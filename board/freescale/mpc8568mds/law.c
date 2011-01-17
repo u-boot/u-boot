@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008, 2010-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -50,11 +50,6 @@
  */
 
 struct law_entry law_table[] = {
-	SET_LAW(CONFIG_SYS_PCI1_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_PCI),
-	SET_LAW(CONFIG_SYS_PCIE1_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_PCIE_1),
-	SET_LAW(CONFIG_SYS_PCI1_IO_PHYS, LAW_SIZE_8M, LAW_TRGT_IF_PCI),
-	SET_LAW(CONFIG_SYS_PCIE1_IO_PHYS, LAW_SIZE_8M, LAW_TRGT_IF_PCIE_1),
-	SET_LAW(CONFIG_SYS_SRIO_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_RIO),
 	/* LBC window - maps 256M.  That's SDRAM, BCSR, PIBs, and Flash */
 	SET_LAW(CONFIG_SYS_LBC_SDRAM_BASE, LAW_SIZE_256M, LAW_TRGT_IF_LBC),
 };

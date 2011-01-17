@@ -38,6 +38,7 @@
 #include <asm/immap_85xx.h>
 #include <asm/fsl_pci.h>
 #include <asm/io.h>
+#include <asm/fsl_serdes.h>
 #include <linux/compiler.h>
 #include <ioports.h>
 #include <flash.h>
@@ -540,33 +541,29 @@ void local_bus_init (void)
 static struct pci_controller pci1_hose;
 #endif /* CONFIG_PCI1 */
 
-#ifdef CONFIG_PCIE1
-static struct pci_controller pcie1_hose;
-#endif /* CONFIG_PCIE1 */
-
 void pci_init_board (void)
 {
-	struct fsl_pci_info pci_info[2];
-	int first_free_busno = 0;
-	int num = 0;
-	int pcie_ep;
-	__maybe_unused int pcie_configured;
-
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	u32 devdisr = in_be32(&gur->devdisr);
-	u32 pordevsr = in_be32(&gur->pordevsr);
-	__maybe_unused uint io_sel = (pordevsr & MPC85xx_PORDEVSR_IO_SEL) >>
-			MPC85xx_PORDEVSR_IO_SEL_SHIFT;
-
+	int first_free_busno = 0;
 #ifdef CONFIG_PCI1
+	struct fsl_pci_info pci_info;
+	int pcie_ep;
+
+	u32 devdisr = in_be32(&gur->devdisr);
+
 	uint pci_32 = in_be32(&gur->pordevsr) & MPC85xx_PORDEVSR_PCI1_PCI32;
 	uint pci_arb = in_be32(&gur->pordevsr) & MPC85xx_PORDEVSR_PCI1_ARB;
 	uint pci_speed = CONFIG_SYS_CLK_FREQ;	/* PCI PSPEED in [4:5] */
 	uint pci_clk_sel = in_be32(&gur->porpllsr) & MPC85xx_PORDEVSR_PCI1_SPD;
 
 	if (!(devdisr & MPC85xx_DEVDISR_PCI1)) {
-		SET_STD_PCI_INFO(pci_info[num], 1);
-		pcie_ep = fsl_setup_hose(&pci1_hose, pci_info[num].regs);
+		SET_STD_PCI_INFO(pci_info, 1);
+		set_next_law(pci_info.mem_phys,
+			law_size_bits(pci_info.mem_size), pci_info.law);
+		set_next_law(pci_info.io_phys,
+			law_size_bits(pci_info.io_size), pci_info.law);
+
+		pcie_ep = fsl_setup_hose(&pci1_hose, pci_info.regs);
 		printf("PCI1:  %d bit, %s MHz, %s, %s, %s\n",
 			(pci_32) ? 32 : 64,
 			(pci_speed == 33333333) ? "33" :
@@ -574,7 +571,7 @@ void pci_init_board (void)
 			pci_clk_sel ? "sync" : "async",
 			pcie_ep ? "agent" : "host",
 			pci_arb ? "arbiter" : "external-arbiter");
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
+		first_free_busno = fsl_pci_init_port(&pci_info,
 					&pci1_hose, first_free_busno);
 #ifdef CONFIG_PCIX_CHECK
 		if (!(in_be32(&gur->pordevsr) & MPC85xx_PORDEVSR_PCI1)) {
@@ -597,22 +594,7 @@ void pci_init_board (void)
 	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCI1);
 #endif
 
-#ifdef CONFIG_PCIE1
-	pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
-
-	if (pcie_configured && !(devdisr & MPC85xx_DEVDISR_PCIE)) {
-		SET_STD_PCIE_INFO(pci_info[num], 1);
-		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
-		printf("PCIE1: connected as %s\n",
-			pcie_ep ? "Endpoint" : "Root Complex");
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie1_hose, first_free_busno);
-	} else {
-		printf("PCIE1: disabled\n");
-	}
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE);
-#endif /* CONFIG_PCIE1 */
+	fsl_pcie_init_board(first_free_busno);
 }
 
 #ifdef CONFIG_OF_BOARD_SETUP

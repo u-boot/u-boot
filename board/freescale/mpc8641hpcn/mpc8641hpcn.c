@@ -26,6 +26,7 @@
 #include <asm/immap_86xx.h>
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
+#include <asm/fsl_serdes.h>
 #include <asm/io.h>
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -126,66 +127,18 @@ fixed_sdram(void)
 }
 #endif	/* !defined(CONFIG_SPD_EEPROM) */
 
-
-#if defined(CONFIG_PCI)
-static struct pci_controller pcie1_hose;
-#endif /* CONFIG_PCI */
-
-#ifdef CONFIG_PCIE2
-static struct pci_controller pcie2_hose;
-#endif	/* CONFIG_PCIE2 */
-
-int first_free_busno = 0;
-
 void pci_init_board(void)
 {
-	struct fsl_pci_info pci_info[2];
-	int pcie_ep;
-	int num = 0;
+	fsl_pcie_init_board(0);
 
 #ifdef CONFIG_PCIE1
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_CCSRBAR;
-	volatile ccsr_gur_t *gur = &immap->im_gur;
-	uint devdisr = in_be32(&gur->devdisr);
-	uint io_sel = (gur->pordevsr & MPC8641_PORDEVSR_IO_SEL)
-		>> MPC8641_PORDEVSR_IO_SEL_SHIFT;
-	int pcie_configured = is_fsl_pci_cfg(LAW_TRGT_IF_PCIE_1, io_sel);
-
-	if (pcie_configured && !(devdisr & MPC86xx_DEVDISR_PCIEX1)) {
-		SET_STD_PCIE_INFO(pci_info[num], 1);
-		pcie_ep = fsl_setup_hose(&pcie1_hose, pci_info[num].regs);
-		printf("PCIE1: connected to ULI as %s (base addr %lx)\n",
-			pcie_ep ? "Endpoint" : "Root Complex",
-			pci_info[num].regs);
-		first_free_busno = fsl_pci_init_port(&pci_info[num++],
-					&pcie1_hose, first_free_busno);
-
 		/*
 		 * Activate ULI1575 legacy chip by performing a fake
 		 * memory access.  Needed to make ULI RTC work.
 		 */
 		in_be32((unsigned *) ((char *)(CONFIG_SYS_PCIE1_MEM_VIRT
 				       + CONFIG_SYS_PCIE1_MEM_SIZE - 0x1000000)));
-
-	} else {
-		puts("PCIE1: disabled\n");
-	}
-#else
-	puts("PCIE1: disabled\n");
 #endif /* CONFIG_PCIE1 */
-
-#ifdef CONFIG_PCIE2
-	SET_STD_PCIE_INFO(pci_info[num], 2);
-	pcie_ep = fsl_setup_hose(&pcie2_hose, pci_info[num].regs);
-	printf("PCIE2: connected as %s (base addr %lx)\n",
-		pcie_ep ? "Endpoint" : "Root Complex",
-		pci_info[num].regs);
-	first_free_busno = fsl_pci_init_port(&pci_info[num++],
-				&pcie2_hose, first_free_busno);
-#else
-	puts("PCIE2: disabled\n");
-#endif /* CONFIG_PCIE2 */
-
 }
 
 

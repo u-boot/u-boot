@@ -1,7 +1,7 @@
 /*
  * MPC85xx Internal Memory Map
  *
- * Copyright 2007-2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2011 Freescale Semiconductor, Inc.
  *
  * Copyright(c) 2002,2003 Motorola Inc.
  * Xianghua Xiao (x.xiao@motorola.com)
@@ -1619,6 +1619,8 @@ typedef struct cpc_corenet {
 #define CPC_SRCR0_SRAMEN	0x00000001
 #define	CPC_ERRDIS_TMHITDIS  	0x00000080	/* multi-way hit disable */
 #define CPC_HDBCR0_CDQ_SPEC_DIS	0x08000000
+#define CPC_HDBCR0_TAG_ECC_SCRUB_DIS	0x01000000
+#define CPC_HDBCR0_DATA_ECC_SCRUB_DIS	0x00400000
 #endif /* CONFIG_SYS_FSL_CPC */
 
 /* Global Utilities Block */

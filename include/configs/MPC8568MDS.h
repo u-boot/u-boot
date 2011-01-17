@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2007 Freescale Semiconductor.
+ * Copyright 2004-2007, 2010-2011 Freescale Semiconductor.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -34,6 +34,9 @@
 #define CONFIG_MPC8568MDS	1	/* MPC8568MDS board specific */
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff80000
+
+#define CONFIG_SYS_SRIO
+#define CONFIG_SRIO1			/* SRIO port 1 */
 
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCI1		1	/* PCI controller */
@@ -82,7 +85,6 @@ extern unsigned long get_clock_freq(void);
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup*/
 #define CONFIG_DDR_SPD
-#define CONFIG_DDR_DLL			/* possible DLL fix needed */
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
@@ -294,6 +296,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_PCI1_IO_PHYS	0xe2000000
 #define CONFIG_SYS_PCI1_IO_SIZE	0x00800000	/* 8M */
 
+#define CONFIG_SYS_PCIE1_NAME		"Slot"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xa0000000
 #define CONFIG_SYS_PCIE1_MEM_PHYS	0xa0000000
@@ -303,9 +306,10 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xe2800000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00800000	/* 8M */
 
-#define CONFIG_SYS_SRIO_MEM_VIRT	0xc0000000
-#define CONFIG_SYS_SRIO_MEM_BUS	0xc0000000
-#define CONFIG_SYS_SRIO_MEM_PHYS	0xc0000000
+#define CONFIG_SYS_SRIO1_MEM_VIRT	0xC0000000
+#define CONFIG_SYS_SRIO1_MEM_BUS	0xC0000000
+#define CONFIG_SYS_SRIO1_MEM_PHYS	CONFIG_SYS_SRIO1_MEM_BUS
+#define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 512M */
 
 #ifdef CONFIG_QE
 /*
@@ -451,6 +455,7 @@ extern unsigned long get_clock_freq(void);
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(16 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTM_LEN	(16 << 20)	/* Increase max gunzip size */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */

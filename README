@@ -2787,6 +2787,24 @@ Low Level (hardware related) configuration options:
 		Disable PCI-Express on systems where it is supported but not
 		required.
 
+- CONFIG_SYS_SRIO:
+		Chip has SRIO or not
+
+- CONFIG_SRIO1:
+		Board has SRIO 1 port available
+
+- CONFIG_SRIO2:
+		Board has SRIO 2 port available
+
+- CONFIG_SYS_SRIOn_MEM_VIRT:
+		Virtual Address of SRIO port 'n' memory region
+
+- CONFIG_SYS_SRIOn_MEM_PHYS:
+		Physical Address of SRIO port 'n' memory region
+
+- CONFIG_SYS_SRIOn_MEM_SIZE:
+		Size of SRIO port 'n' memory region
+
 - CONFIG_SPD_EEPROM
 		Get DDR timing information from an I2C EEPROM. Common
 		with pluggable memory modules such as SODIMMs

@@ -1,5 +1,5 @@
 /*
- * Copyright 2008, 2010 Freescale Semiconductor, Inc.
+ * Copyright 2008, 2010-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -386,4 +386,24 @@ void check_interleaving_options(fsl_ddr_info_t *pinfo)
 			printf("Not all DIMMs are identical in size. "
 				"Memory controller interleaving disabled.\n");
 	}
+}
+
+int fsl_use_spd(void)
+{
+	int use_spd = 0;
+
+#ifdef CONFIG_DDR_SPD
+	/* if hwconfig is not enabled, or "sdram" is not defined, use spd */
+	if (hwconfig_sub("fsl_ddr", "sdram")) {
+		if (hwconfig_subarg_cmp("fsl_ddr", "sdram", "spd"))
+			use_spd = 1;
+		else if (hwconfig_subarg_cmp("fsl_ddr", "sdram", "fixed"))
+			use_spd = 0;
+		else
+			use_spd = 1;
+	} else
+		use_spd = 1;
+#endif
+
+	return use_spd;
 }

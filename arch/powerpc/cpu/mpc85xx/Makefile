@@ -66,8 +66,6 @@ COBJS-$(CONFIG_CPM2)	+= ether_fcc.o
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
 COBJS-$(CONFIG_FSL_CORENET) += liodn.o
 COBJS-$(CONFIG_MP)	+= mp.o
-COBJS-$(CONFIG_MPC8536) += mpc8536_serdes.o
-COBJS-$(CONFIG_P1022)	+= p1022_serdes.o
 COBJS-$(CONFIG_PCI)	+= pci.o
 COBJS-$(CONFIG_FSL_CORENET) += portals.o
 
@@ -77,6 +75,22 @@ COBJS-$(CONFIG_PPC_P4080) += p4080_ids.o
 COBJS-$(CONFIG_QE)	+= qe_io.o
 COBJS-$(CONFIG_CPM2)	+= serial_scc.o
 COBJS-$(CONFIG_FSL_CORENET) += fsl_corenet_serdes.o
+
+# SoC specific SERDES support
+COBJS-$(CONFIG_MPC8536) += mpc8536_serdes.o
+COBJS-$(CONFIG_MPC8544) += mpc8544_serdes.o
+COBJS-$(CONFIG_MPC8548) += mpc8548_serdes.o
+COBJS-$(CONFIG_MPC8568) += mpc8568_serdes.o
+COBJS-$(CONFIG_MPC8569) += mpc8569_serdes.o
+COBJS-$(CONFIG_MPC8572) += mpc8572_serdes.o
+COBJS-$(CONFIG_P1011)	+= p1021_serdes.o
+COBJS-$(CONFIG_P1012)	+= p1021_serdes.o
+COBJS-$(CONFIG_P1013)	+= p1013_serdes.o
+COBJS-$(CONFIG_P1020)	+= p1021_serdes.o
+COBJS-$(CONFIG_P1021)	+= p1021_serdes.o
+COBJS-$(CONFIG_P1022)	+= p1022_serdes.o
+COBJS-$(CONFIG_P2010)	+= p2020_serdes.o
+COBJS-$(CONFIG_P2020)	+= p2020_serdes.o
 COBJS-$(CONFIG_PPC_P4080) += p4080_serdes.o
 
 COBJS	= $(COBJS-y)

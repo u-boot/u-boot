@@ -1,5 +1,5 @@
 /*
- * Copyright 2006, 2010 Freescale Semiconductor.
+ * Copyright 2006, 2010-2011 Freescale Semiconductor.
  *
  * Srikanth Srinivasan (srikanth.srinivasan@freescale.com)
  *
@@ -57,18 +57,14 @@
  */
 #define CONFIG_SYS_SCRATCH_VA	0xe0000000
 
-/*
- * set this to enable Rapid IO.  PCI and RIO are mutually exclusive
- */
-/*#define CONFIG_RIO		1*/
+#define CONFIG_SYS_SRIO
+#define CONFIG_SRIO1			/* SRIO port 1 */
 
-#ifndef CONFIG_RIO			/* RIO/PCI are mutually exclusive */
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCIE1		1	/* PCIE controler 1 (ULI bridge) */
 #define CONFIG_PCIE2		1	/* PCIE controler 2 (slot) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#endif
 #define CONFIG_FSL_LAW		1	/* Use common FSL law init code */
 
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
@@ -319,19 +315,20 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 /*
  * RapidIO MMU
  */
-#define CONFIG_SYS_RIO_MEM_BASE	0x80000000	/* base address */
+#define CONFIG_SYS_SRIO1_MEM_BASE	0x80000000	/* base address */
 #ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_RIO_MEM_PHYS  0x0000000c00000000ULL
+#define CONFIG_SYS_SRIO1_MEM_PHYS  0x0000000c00000000ULL
 #else
-#define CONFIG_SYS_RIO_MEM_PHYS	CONFIG_SYS_RIO_MEM_BASE
+#define CONFIG_SYS_SRIO1_MEM_PHYS	CONFIG_SYS_SRIO1_MEM_BASE
 #endif
-#define CONFIG_SYS_RIO_MEM_SIZE	0x20000000	/* 128M */
+#define CONFIG_SYS_SRIO1_MEM_SIZE	0x20000000	/* 128M */
 
 /*
  * General PCI
  * Addresses are mapped 1-1.
  */
 
+#define CONFIG_SYS_PCIE1_NAME		"ULI"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0x80000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xe0000000
@@ -513,18 +510,18 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 				 | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CONFIG_SYS_IBAT2U	CONFIG_SYS_DBAT2U
 #else /* CONFIG_RIO */
-#define CONFIG_SYS_DBAT2L	(BAT_PHYS_ADDR(CONFIG_SYS_RIO_MEM_PHYS) \
+#define CONFIG_SYS_DBAT2L	(BAT_PHYS_ADDR(CONFIG_SYS_SRIO1_MEM_PHYS) \
 				 | BATL_PP_RW | BATL_CACHEINHIBIT | \
 				 BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT2U	(CONFIG_SYS_RIO_MEM_BASE | BATU_BL_512M \
+#define CONFIG_SYS_DBAT2U	(CONFIG_SYS_SRIO1_MEM_BASE | BATU_BL_512M \
 				 | BATU_VS | BATU_VP)
-#define CONFIG_SYS_IBAT2L	(BAT_PHYS_ADDR(CONFIG_SYS_RIO_MEM_PHYS) \
+#define CONFIG_SYS_IBAT2L	(BAT_PHYS_ADDR(CONFIG_SYS_SRIO1_MEM_PHYS) \
 				 | BATL_PP_RW | BATL_CACHEINHIBIT)
 
-#define CONFIG_SYS_DBAT2L	(CONFIG_SYS_RIO_MEM_PHYS | BATL_PP_RW \
+#define CONFIG_SYS_DBAT2L	(CONFIG_SYS_SRIO1_MEM_PHYS | BATL_PP_RW \
 			| BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_DBAT2U	(CONFIG_SYS_RIO_MEM_PHYS | BATU_BL_512M | BATU_VS | BATU_VP)
-#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_RIO_MEM_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
+#define CONFIG_SYS_DBAT2U	(CONFIG_SYS_SRIO1_MEM_PHYS | BATU_BL_512M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_SRIO1_MEM_PHYS | BATL_PP_RW | BATL_CACHEINHIBIT)
 #define CONFIG_SYS_IBAT2U	CONFIG_SYS_DBAT2U
 #endif
 

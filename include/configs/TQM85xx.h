@@ -147,6 +147,10 @@
  * DDR Setup
  */
 #define CONFIG_SYS_DDR_SDRAM_BASE	0x00000000	/* DDR is system memory	*/
+#if defined(CONFIG_TQM_BIGFLASH) || \
+	(!defined(CONFIG_TQM8548_AG) && !defined(CONFIG_TQM8548_BE))
+#define CONFIG_SYS_PPC_DDR_WIMGE (MAS2_I | MAS2_G)
+#endif
 #define CONFIG_SYS_SDRAM_BASE		CONFIG_SYS_DDR_SDRAM_BASE
 #ifdef CONFIG_TQM8548_AG
 #define CONFIG_VERY_BIG_RAM
@@ -158,7 +162,7 @@
 
 #if defined(CONFIG_TQM8540) || defined(CONFIG_TQM8560)
 /* TQM8540 & 8560 need DLL-override */
-#define CONFIG_DDR_DLL				/* DLL fix needed	*/
+#define CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN	/* possible DLL fix needed */
 #define CONFIG_DDR_DEFAULT_CL	25		/* CAS latency 2,5	*/
 #endif /* CONFIG_TQM8540 || CONFIG_TQM8560 */
 

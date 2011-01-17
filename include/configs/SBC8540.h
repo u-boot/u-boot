@@ -118,7 +118,7 @@
 #undef  CONFIG_DDR_SPD
 
 #if defined(CONFIG_MPC85xx_REV1)
-  #define CONFIG_DDR_DLL			/* possible DLL fix needed	*/
+#define CONFIG_SYS_FSL_ERRATUM_DDR_MSYNC_IN	/* possible DLL fix needed */
 #endif
 
 #undef  CONFIG_DDR_ECC			    /* only for ECC DDR module */

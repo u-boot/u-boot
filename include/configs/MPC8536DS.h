@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009,2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2009,2010-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -78,7 +78,6 @@
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
-#define CONFIG_SYS_HAS_SERDES		/* has SERDES */
 
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 #define CONFIG_E1000		1	/* Defind e1000 pci Ethernet card*/
@@ -145,7 +144,6 @@
 #undef CONFIG_FSL_DDR_INTERACTIVE
 #define CONFIG_SPD_EEPROM		/* Use SPD EEPROM for DDR setup */
 #define CONFIG_DDR_SPD
-#undef CONFIG_DDR_DLL
 
 #define CONFIG_ECC_INIT_VIA_DDRCONTROLLER	/* DDR controller or DMA? */
 #define CONFIG_MEM_INIT_VALUE	0xDeadBeef
@@ -486,6 +484,7 @@
 #define CONFIG_SYS_PCI1_IO_SIZE		0x00010000	/* 64k */
 
 /* controller 1, Slot 1, tgtid 1, Base address a000 */
+#define CONFIG_SYS_PCIE1_NAME		"Slot 1"
 #define CONFIG_SYS_PCIE1_MEM_VIRT	0x90000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE1_MEM_BUS	0xf8000000
@@ -505,6 +504,7 @@
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 2, Slot 2, tgtid 2, Base address 9000 */
+#define CONFIG_SYS_PCIE2_NAME		"Slot 2"
 #define CONFIG_SYS_PCIE2_MEM_VIRT	0x98000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE2_MEM_BUS	0xf8000000
@@ -524,6 +524,7 @@
 #define CONFIG_SYS_PCIE2_IO_SIZE	0x00010000	/* 64k */
 
 /* controller 3, direct to uli, tgtid 3, Base address 8000 */
+#define CONFIG_SYS_PCIE3_NAME		"Slot 3"
 #define CONFIG_SYS_PCIE3_MEM_VIRT	0xa0000000
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_PCIE3_MEM_BUS	0xe0000000
@@ -717,6 +718,7 @@
  * the maximum mapped by the Linux kernel during initialization.
  */
 #define CONFIG_SYS_BOOTMAPSZ	(16 << 20) /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTM_LEN	(16 << 20)	/* Increase max gunzip size */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */

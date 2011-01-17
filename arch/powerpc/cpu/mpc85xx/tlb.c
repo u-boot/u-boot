@@ -250,10 +250,14 @@ setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
 {
 	int i;
 	unsigned int tlb_size;
+	unsigned int wimge = 0;
 	unsigned int ram_tlb_address = (unsigned int)CONFIG_SYS_DDR_SDRAM_BASE;
 	unsigned int max_cam = (mfspr(SPRN_TLB1CFG) >> 16) & 0xf;
 	u64 size, memsize = (u64)memsize_in_meg << 20;
 
+#ifdef CONFIG_SYS_PPC_DDR_WIMGE
+	wimge = CONFIG_SYS_PPC_DDR_WIMGE;
+#endif
 	size = min(memsize, CONFIG_MAX_MEM_MAPPED);
 
 	/* Convert (4^max) kB to (2^max) bytes */
@@ -277,7 +281,7 @@ setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
 		tlb_size = (camsize - 10) / 2;
 
 		set_tlb(1, ram_tlb_address, p_addr,
-			MAS3_SX|MAS3_SW|MAS3_SR, 0,
+			MAS3_SX|MAS3_SW|MAS3_SR, wimge,
 			0, ram_tlb_index, tlb_size, 1);
 
 		size -= 1ULL << camsize;

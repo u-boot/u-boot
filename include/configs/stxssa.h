@@ -135,7 +135,6 @@
 #undef CONFIG_FSL_DDR_INTERACTIVE
 
 #undef	CONFIG_DDR_ECC			/* only for ECC DDR module */
-#undef CONFIG_DDR_DLL			/* possible DLL fix needed */
 #define CONFIG_DDR_2T_TIMING		/* Sets the 2T timing bit */
 
 #define CONFIG_MEM_INIT_VALUE		0xDeadBeef

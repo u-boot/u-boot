@@ -469,8 +469,9 @@ phys_size_t fsl_ddr_sdram(void)
 	/* Check for 4G or more.  Bad. */
 	if (total_memory >= (1ull << 32)) {
 		printf("Detected %lld MB of memory\n", total_memory >> 20);
-		printf("This U-Boot only supports < 4G of DDR\n");
-		printf("You could rebuild it with CONFIG_PHYS_64BIT\n");
+		printf("       This U-Boot only supports < 4G of DDR\n");
+		printf("       You could rebuild it with CONFIG_PHYS_64BIT\n");
+		printf("       "); /* re-align to match init_func_ram print */
 		total_memory = CONFIG_MAX_MEM_MAPPED;
 	}
 #endif

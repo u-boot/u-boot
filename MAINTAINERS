@@ -198,6 +198,14 @@ Siddarth Gore <gores@marvell.com>
 
 	guruplug	ARM926EJS (Kirkwood SoC)
 
+Paul Gortmaker <paul.gortmaker@windriver.com>
+
+	sbc8349		MPC8349
+	sbc8540		MPC8540
+	sbc8548		MPC8548
+	sbc8560		MPC8560
+	sbc8641d	MPC8641D
+
 Frank Gottschling <fgottschling@eltec.de>
 
 	MHPC		MPC8xx
@@ -211,11 +219,6 @@ Wolfgang Grandegger <wg@denx.de>
 	PN62		MPC8240
 	IPHASE4539	MPC8260
 	SCM		MPC8260
-
-Joe Hamman <joe.hamman@embeddedspecialties.com>
-
-	sbc8548		MPC8548
-	sbc8641d	MPC8641D
 
 Klaus Heydeck <heydeck@kieback-peter.de>
 
@@ -255,10 +258,6 @@ Sangmoon Kim <dogoil@etinsys.com>
 
 	debris		MPC8245
 	KVME080		MPC8245
-
-Robert Lazarski <robertlazarski@gmail.com>
-
-	ATUM8548	MPC8548
 
 The LEOX team <team@leox.org>
 

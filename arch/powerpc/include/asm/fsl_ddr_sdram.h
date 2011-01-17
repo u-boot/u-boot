@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -213,6 +213,20 @@ typedef struct memctl_options_s {
 } memctl_options_t;
 
 extern phys_size_t fsl_ddr_sdram(void);
+extern int fsl_use_spd(void);
+
+/*
+ * The 85xx boards have a common prototype for fixed_sdram so put the
+ * declaration here.
+ */
+#ifdef CONFIG_MPC85xx
+extern phys_size_t fixed_sdram(void);
+#endif
+
+#if defined(CONFIG_DDR_ECC)
+extern void ddr_enable_ecc(unsigned int dram_size);
+#endif
+
 
 typedef struct fixed_ddr_parm{
 	int min_freq;

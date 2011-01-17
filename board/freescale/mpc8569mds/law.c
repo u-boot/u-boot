@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -51,10 +51,7 @@ struct law_entry law_table[] = {
 #ifndef CONFIG_SPD_EEPROM
 	SET_LAW(CONFIG_SYS_DDR_SDRAM_BASE, LAW_SIZE_1G, LAW_TRGT_IF_DDR),
 #endif
-	SET_LAW(CONFIG_SYS_PCIE1_MEM_PHYS, LAW_SIZE_256M, LAW_TRGT_IF_PCIE_1),
-	SET_LAW(CONFIG_SYS_PCIE1_IO_PHYS, LAW_SIZE_8M, LAW_TRGT_IF_PCIE_1),
 	SET_LAW(CONFIG_SYS_BCSR_BASE_PHYS, LAW_SIZE_128M, LAW_TRGT_IF_LBC),
-	SET_LAW(CONFIG_SYS_SRIO_MEM_PHYS, LAW_SIZE_512M, LAW_TRGT_IF_RIO),
 };
 
 int num_law_entries = ARRAY_SIZE(law_table);

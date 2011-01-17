@@ -76,19 +76,6 @@ int checkboard(void)
 	return 0;
 }
 
-phys_size_t initdram(int board_type)
-{
-	phys_size_t dram_size = 0;
-
-	puts("Initializing....\n");
-
-	dram_size = fsl_ddr_sdram();
-	dram_size = setup_ddr_tlbs(dram_size / 0x100000) * 0x100000;
-
-	puts("    DDR: ");
-	return dram_size;
-}
-
 #define CONFIG_TFP410_I2C_ADDR	0x38
 
 /* Masks for the SSI_TDM and AUDCLK bits of the ngPIXIS BRDCFG1 register. */
@@ -200,7 +187,7 @@ static u8 serdes_dev_slot[][SATA2 + 1] = {
  * Returns the name of the slot to which the PCIe or SATA controller is
  * connected
  */
-const char *serdes_slot_name(enum srds_prtcl device)
+const char *board_serdes_name(enum srds_prtcl device)
 {
 	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
 	u32 pordevsr = in_be32(&gur->pordevsr);
@@ -215,73 +202,10 @@ const char *serdes_slot_name(enum srds_prtcl device)
 		return "Nothing";
 }
 
-static void configure_pcie(struct fsl_pci_info *info,
-			   struct pci_controller *hose,
-			   const char *connected)
-{
-	static int bus_number = 0;
-	int is_endpoint;
-
-	set_next_law(info->mem_phys, law_size_bits(info->mem_size), info->law);
-	set_next_law(info->io_phys, law_size_bits(info->io_size), info->law);
-	is_endpoint = fsl_setup_hose(hose, info->regs);
-	printf("PCIE%u: connected to %s as %s (base addr %lx)\n",
-	       info->pci_num, connected,
-	       is_endpoint ? "Endpoint" : "Root Complex", info->regs);
-	bus_number = fsl_pci_init_port(info, hose, bus_number);
-}
-
-#ifdef CONFIG_PCIE1
-static struct pci_controller pcie1_hose;
-#endif
-
-#ifdef CONFIG_PCIE2
-static struct pci_controller pcie2_hose;
-#endif
-
-#ifdef CONFIG_PCIE3
-static struct pci_controller pcie3_hose;
-#endif
-
 #ifdef CONFIG_PCI
 void pci_init_board(void)
 {
-	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
-	struct fsl_pci_info pci_info;
-	u32 devdisr = in_be32(&gur->devdisr);
-
-#ifdef CONFIG_PCIE1
-	if (is_serdes_configured(PCIE1) && !(devdisr & MPC85xx_DEVDISR_PCIE)) {
-		SET_STD_PCIE_INFO(pci_info, 1);
-		configure_pcie(&pci_info, &pcie1_hose, serdes_slot_name(PCIE1));
-	} else {
-		printf("PCIE1: disabled\n");
-	}
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE); /* disable */
-#endif
-
-#ifdef CONFIG_PCIE2
-	if (is_serdes_configured(PCIE2) && !(devdisr & MPC85xx_DEVDISR_PCIE2)) {
-		SET_STD_PCIE_INFO(pci_info, 2);
-		configure_pcie(&pci_info, &pcie2_hose, serdes_slot_name(PCIE2));
-	} else {
-		printf("PCIE2: disabled\n");
-	}
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE2); /* disable */
-#endif
-
-#ifdef CONFIG_PCIE3
-	if (is_serdes_configured(PCIE3) && !(devdisr & MPC85xx_DEVDISR_PCIE3)) {
-		SET_STD_PCIE_INFO(pci_info, 3);
-		configure_pcie(&pci_info, &pcie3_hose, serdes_slot_name(PCIE3));
-	} else {
-		printf("PCIE3: disabled\n");
-	}
-#else
-	setbits_be32(&gur->devdisr, MPC85xx_DEVDISR_PCIE3); /* disable */
-#endif
+	fsl_pcie_init_board(0);
 }
 #endif
 

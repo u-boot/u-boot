@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * This file is derived from arch/powerpc/cpu/mpc85xx/cpu.c and
  * arch/powerpc/cpu/mpc86xx/cpu.c. Basically this file contains
@@ -28,6 +28,7 @@
 #include <fdt_support.h>
 #include <asm/mp.h>
 #include <asm/fsl_enet.h>
+#include <asm/fsl_serdes.h>
 
 #if defined(CONFIG_MP) && (defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx))
 static int ft_del_cpuhandle(void *blob, int cpuhandle)
@@ -239,3 +240,23 @@ int fdt_fixup_phy_connection(void *blob, int offset, enum fsl_phy_enet_if phyc)
 	return fdt_setprop_string(blob, offset, "phy-connection-type",
 					 fsl_phy_enet_if_str[phyc]);
 }
+
+#ifdef CONFIG_SYS_SRIO
+void ft_srio_setup(void *blob)
+{
+#ifdef CONFIG_SRIO1
+	if (!is_serdes_configured(SRIO1)) {
+		fdt_del_node_and_alias(blob, "rio0");
+	}
+#else
+	fdt_del_node_and_alias(blob, "rio0");
+#endif
+#ifdef CONFIG_SRIO2
+	if (!is_serdes_configured(SRIO2)) {
+		fdt_del_node_and_alias(blob, "rio1");
+	}
+#else
+	fdt_del_node_and_alias(blob, "rio1");
+#endif
+}
+#endif
