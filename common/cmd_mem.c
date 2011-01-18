@@ -1184,7 +1184,7 @@ int do_md5sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 }
 #endif
 
-#ifdef CONFIG_CMD_SHA1
+#ifdef CONFIG_CMD_SHA1SUM
 int do_sha1sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned long addr, len;
@@ -1343,7 +1343,7 @@ U_BOOT_CMD(
 	"compute SHA1 message digest",
 	"address count"
 );
-#endif /* CONFIG_CMD_SHA1 */
+#endif /* CONFIG_CMD_SHA1SUM */
 
 #ifdef CONFIG_CMD_UNZIP
 U_BOOT_CMD(
