@@ -24,12 +24,28 @@
 
 #include <common.h>
 #include <netdev.h>
+#include <mtd/cfi_flash.h>
+#include <asm/io.h>
 
 void text_base_hook(void); /* nop hook for text_base.S */
+
+#if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CONFIG_ENV_ADDR)
+static void __early_flash_cmd_reset(void)
+{
+	/* reset flash before we read env */
+	writeb(AMD_CMD_RESET, CONFIG_ENV_ADDR);
+	writeb(FLASH_CMD_RESET, CONFIG_ENV_ADDR);
+}
+void early_flash_cmd_reset(void)
+	__attribute__((weak,alias("__early_flash_cmd_reset")));
+#endif
 
 int board_early_init_f(void)
 {
 	text_base_hook();
+#if defined(CONFIG_ENV_IS_IN_FLASH) && defined(CONFIG_ENV_ADDR)
+	early_flash_cmd_reset();
+#endif
 	return 0;
 }
 
