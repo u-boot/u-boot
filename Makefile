@@ -525,8 +525,8 @@ unconfig:
 %_config::	unconfig
 	@$(MKCONFIG) -A $(@:_config=)
 
-sinclude .boards.depend
-.boards.depend:	boards.cfg
+sinclude $(obj).boards.depend
+$(obj).boards.depend:	boards.cfg
 	awk '(NF && $$1 !~ /^#/) { print $$1 ": " $$1 "_config; $$(MAKE)" }' $< > $@
 
 #
