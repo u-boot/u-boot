@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005,2010 Freescale Semiconductor, Inc.
+ * Copyright (C) 2005,2010-2011 Freescale Semiconductor, Inc.
  *
  * Author: Shlomi Gridish
  *
@@ -313,14 +313,14 @@ static int gbit_config_aneg (struct uec_mii_info *mii_info)
 		config_genmii_advert (mii_info);
 		advertise = mii_info->advertising;
 
-		adv = phy_read (mii_info, MII_1000BASETCONTROL);
-		adv &= ~(MII_1000BASETCONTROL_FULLDUPLEXCAP |
-			 MII_1000BASETCONTROL_HALFDUPLEXCAP);
+		adv = phy_read (mii_info, MII_CTRL1000);
+		adv &= ~(ADVERTISE_1000FULL |
+			 ADVERTISE_1000HALF);
 		if (advertise & SUPPORTED_1000baseT_Half)
-			adv |= MII_1000BASETCONTROL_HALFDUPLEXCAP;
+			adv |= ADVERTISE_1000HALF;
 		if (advertise & SUPPORTED_1000baseT_Full)
-			adv |= MII_1000BASETCONTROL_FULLDUPLEXCAP;
-		phy_write (mii_info, MII_1000BASETCONTROL, adv);
+			adv |= ADVERTISE_1000FULL;
+		phy_write (mii_info, MII_CTRL1000, adv);
 
 		/* Start/Restart aneg */
 		genmii_restart_aneg (mii_info);
@@ -420,7 +420,7 @@ static int genmii_read_status (struct uec_mii_info *mii_info)
 		return err;
 
 	if (mii_info->autoneg) {
-		status = phy_read(mii_info, MII_1000BASETSTATUS);
+		status = phy_read(mii_info, MII_STAT1000);
 
 		if (status & (LPA_1000FULL | LPA_1000HALF)) {
 			mii_info->speed = SPEED_1000;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005 Freescale Semiconductor, Inc.
+ * Copyright (C) 2005, 2011 Freescale Semiconductor, Inc.
  *
  * Author: Shlomi Gridish <gridish@freescale.com>
  *
@@ -23,16 +23,6 @@
 #define MIIMIND_NOTVALID	0x00000004
 
 #define UGETH_AN_TIMEOUT	2000
-
-/* 1000BT control (Marvell & BCM54xx at least) */
-#define MII_1000BASETCONTROL		      0x09
-#define MII_1000BASETCONTROL_FULLDUPLEXCAP    0x0200
-#define MII_1000BASETCONTROL_HALFDUPLEXCAP    0x0100
-
-/* 1000BT status */
-#define MII_1000BASETSTATUS	0x0a
-#define LPA_1000FULL		0x0400
-#define LPA_1000HALF		0x0200
 
 /* Cicada Extended Control Register 1 */
 #define MII_CIS8201_EXT_CON1	    0x17
