@@ -30,7 +30,7 @@
 
 #include "gadget_chips.h"
 
-#define USB_NET_NAME "usb0"
+#define USB_NET_NAME "usb_ether"
 
 #define atomic_read
 extern struct platform_data brd;
@@ -1456,6 +1456,7 @@ static void eth_unbind(struct usb_gadget *gadget)
 /*	unregister_netdev (dev->net);*/
 /*	free_netdev(dev->net);*/
 
+	dev->gadget = NULL;
 	set_gadget_data(gadget, NULL);
 }
 
@@ -1686,7 +1687,6 @@ autoconf_fail:
 	}
 
 	dev->net = &l_netdev;
-	strcpy(dev->net->name, USB_NET_NAME);
 
 	dev->cdc = cdc;
 	dev->zlp = zlp;
@@ -1788,6 +1788,34 @@ static int usb_eth_init(struct eth_device *netdev, bd_t *bd)
 		error("received NULL ptr");
 		goto fail;
 	}
+
+	/* Configure default mac-addresses for the USB ethernet device */
+#ifdef CONFIG_USBNET_DEV_ADDR
+	strlcpy(dev_addr, CONFIG_USBNET_DEV_ADDR, sizeof(dev_addr));
+#endif
+#ifdef CONFIG_USBNET_HOST_ADDR
+	strlcpy(host_addr, CONFIG_USBNET_HOST_ADDR, sizeof(host_addr));
+#endif
+	/* Check if the user overruled the MAC addresses */
+	if (getenv("usbnet_devaddr"))
+		strlcpy(dev_addr, getenv("usbnet_devaddr"),
+			sizeof(dev_addr));
+
+	if (getenv("usbnet_hostaddr"))
+		strlcpy(host_addr, getenv("usbnet_hostaddr"),
+			sizeof(host_addr));
+
+	if (!is_eth_addr_valid(dev_addr)) {
+		error("Need valid 'usbnet_devaddr' to be set");
+		goto fail;
+	}
+	if (!is_eth_addr_valid(host_addr)) {
+		error("Need valid 'usbnet_hostaddr' to be set");
+		goto fail;
+	}
+
+	if (usb_gadget_register_driver(&eth_driver) < 0)
+		goto fail;
 
 	dev->network_started = 0;
 
@@ -1895,7 +1923,12 @@ void usb_eth_halt(struct eth_device *netdev)
 		return;
 	}
 
+	/* If the gadget not registered, simple return */
+	if (!dev->gadget)
+		return;
+
 	usb_gadget_disconnect(dev->gadget);
+	usb_gadget_unregister_driver(&eth_driver);
 }
 
 static struct usb_gadget_driver eth_driver = {
@@ -1913,10 +1946,9 @@ static struct usb_gadget_driver eth_driver = {
 
 int usb_eth_initialize(bd_t *bi)
 {
-	int status = 0;
 	struct eth_device *netdev = &l_netdev;
 
-	sprintf(netdev->name, "usb_ether");
+	strlcpy(netdev->name, USB_NET_NAME, sizeof(netdev->name));
 
 	netdev->init = usb_eth_init;
 	netdev->send = usb_eth_send;
@@ -1926,45 +1958,6 @@ int usb_eth_initialize(bd_t *bi)
 #ifdef CONFIG_MCAST_TFTP
   #error not supported
 #endif
-	/* Configure default mac-addresses for the USB ethernet device */
-#ifdef CONFIG_USBNET_DEV_ADDR
-	strncpy(dev_addr, CONFIG_USBNET_DEV_ADDR, sizeof(dev_addr));
-#endif
-#ifdef CONFIG_USBNET_HOST_ADDR
-	strncpy(host_addr, CONFIG_USBNET_HOST_ADDR, sizeof(host_addr));
-#endif
-	/* Check if the user overruled the MAC addresses */
-	if (getenv("usbnet_devaddr"))
-		strncpy(dev_addr, getenv("usbnet_devaddr"),
-			sizeof(dev_addr));
-
-	if (getenv("usbnet_hostaddr"))
-		strncpy(host_addr, getenv("usbnet_hostaddr"),
-			sizeof(host_addr));
-
-	/* Make sure both strings are terminated */
-	dev_addr[sizeof(dev_addr)-1] = '\0';
-	host_addr[sizeof(host_addr)-1] = '\0';
-
-	if (!is_eth_addr_valid(dev_addr)) {
-		error("Need valid 'usbnet_devaddr' to be set");
-		status = -1;
-	}
-	if (!is_eth_addr_valid(host_addr)) {
-		error("Need valid 'usbnet_hostaddr' to be set");
-		status = -1;
-	}
-	if (status)
-		goto fail;
-
-	status = usb_gadget_register_driver(&eth_driver);
-	if (status < 0)
-		goto fail;
-
 	eth_register(netdev);
 	return 0;
-
-fail:
-	error("%s failed. error = %d", __func__, status);
-	return status;
 }
