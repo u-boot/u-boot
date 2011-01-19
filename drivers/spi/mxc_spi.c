@@ -199,15 +199,36 @@ void spi_cs_deactivate(struct spi_slave *slave)
 			      !(mxcs->ss_pol));
 }
 
+u32 get_cspi_div(u32 div)
+{
+	int i;
+
+	for (i = 0; i < 8; i++) {
+		if (div <= (4 << i))
+			return i;
+	}
+	return i;
+}
+
 #if defined(CONFIG_MX31) || defined(CONFIG_MX35)
 static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
 	unsigned int ctrl_reg;
+	u32 clk_src;
+	u32 div;
+
+	clk_src = mxc_get_clock(MXC_CSPI_CLK);
+
+	div = clk_src / max_hz;
+	div = get_cspi_div(div);
+
+	debug("clk %d Hz, div %d, real clk %d Hz\n",
+		max_hz, div, clk_src / (4 << div));
 
 	ctrl_reg = MXC_CSPICTRL_CHIPSELECT(cs) |
 		MXC_CSPICTRL_BITCOUNT(MXC_CSPICTRL_MAXBITS) |
-		MXC_CSPICTRL_DATARATE(7) | /* FIXME: calculate data rate */
+		MXC_CSPICTRL_DATARATE(div) |
 		MXC_CSPICTRL_EN |
 #ifdef CONFIG_MX35
 		MXC_CSPICTRL_SSCTL |
