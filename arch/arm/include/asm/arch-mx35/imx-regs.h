@@ -265,6 +265,18 @@ struct gpt_regs {
 	u32 counter;	/* counter */
 };
 
+/* CSPI registers */
+struct cspi_regs {
+	u32 rxdata;
+	u32 txdata;
+	u32 ctrl;
+	u32 intr;
+	u32 dma;
+	u32 stat;
+	u32 period;
+	u32 test;
+};
+
 /* Watchdog Timer (WDOG) registers */
 struct wdog_regs {
 	u16 wcr;	/* Control */

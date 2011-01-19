@@ -64,6 +64,17 @@ struct gpio_regs {
 	u32	gpio_psr;
 };
 
+struct cspi_regs {
+	u32 rxdata;
+	u32 txdata;
+	u32 ctrl;
+	u32 intr;
+	u32 dma;
+	u32 stat;
+	u32 period;
+	u32 test;
+};
+
 #define IOMUX_PADNUM_MASK	0x1ff
 #define IOMUX_PIN(gpionum, padnum) ((padnum) & IOMUX_PADNUM_MASK)
 

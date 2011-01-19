@@ -256,6 +256,18 @@ struct src {
 	u32	simr;
 };
 
+/* CSPI registers */
+struct cspi_regs {
+	u32 rxdata;
+	u32 txdata;
+	u32 ctrl;
+	u32 cfg;
+	u32 intr;
+	u32 dma;
+	u32 stat;
+	u32 period;
+};
+
 struct iim_regs {
 	u32	stat;
 	u32	statm;
