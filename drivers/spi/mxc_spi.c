@@ -70,6 +70,8 @@ static unsigned long spi_bases[] = {
 	0x53f84000,
 };
 
+#define mxc_get_clock(x)	mx31_get_ipg_clk()
+
 #elif defined(CONFIG_MX51)
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
@@ -111,6 +113,45 @@ static unsigned long spi_bases[] = {
 	CSPI2_BASE_ADDR,
 	CSPI3_BASE_ADDR,
 };
+
+#elif defined(CONFIG_MX35)
+
+#include <asm/arch/imx-regs.h>
+#include <asm/arch/clock.h>
+
+#define MXC_CSPIRXDATA		0x00
+#define MXC_CSPITXDATA		0x04
+#define MXC_CSPICTRL		0x08
+#define MXC_CSPIINT		0x0C
+#define MXC_CSPIDMA		0x10
+#define MXC_CSPISTAT		0x14
+#define MXC_CSPIPERIOD		0x18
+#define MXC_CSPITEST		0x1C
+#define MXC_CSPIRESET		0x00
+
+#define MXC_CSPICTRL_EN		(1 << 0)
+#define MXC_CSPICTRL_MODE	(1 << 1)
+#define MXC_CSPICTRL_XCH	(1 << 2)
+#define MXC_CSPICTRL_SMC	(1 << 3)
+#define MXC_CSPICTRL_POL	(1 << 4)
+#define MXC_CSPICTRL_PHA	(1 << 5)
+#define MXC_CSPICTRL_SSCTL	(1 << 6)
+#define MXC_CSPICTRL_SSPOL	(1 << 7)
+#define MXC_CSPICTRL_CHIPSELECT(x)	(((x) & 0x3) << 12)
+#define MXC_CSPICTRL_BITCOUNT(x)	(((x) & 0xfff) << 20)
+#define MXC_CSPICTRL_DATARATE(x)	(((x) & 0x7) << 16)
+#define MXC_CSPICTRL_TC		(1 << 7)
+#define MXC_CSPICTRL_RXOVF	(1 << 6)
+#define MXC_CSPICTRL_MAXBITS	0xfff
+
+#define MXC_CSPIPERIOD_32KHZ	(1 << 15)
+#define MAX_SPI_BYTES	4
+
+static unsigned long spi_bases[] = {
+	0x43fa4000,
+	0x50010000,
+};
+
 #else
 #error "Unsupported architecture"
 #endif
@@ -158,8 +199,35 @@ void spi_cs_deactivate(struct spi_slave *slave)
 			      !(mxcs->ss_pol));
 }
 
-#ifdef CONFIG_MX51
-static s32 spi_cfg(struct mxc_spi_slave *mxcs, unsigned int cs,
+#if defined(CONFIG_MX31) || defined(CONFIG_MX35)
+static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
+		unsigned int max_hz, unsigned int mode)
+{
+	unsigned int ctrl_reg;
+
+	ctrl_reg = MXC_CSPICTRL_CHIPSELECT(cs) |
+		MXC_CSPICTRL_BITCOUNT(MXC_CSPICTRL_MAXBITS) |
+		MXC_CSPICTRL_DATARATE(7) | /* FIXME: calculate data rate */
+		MXC_CSPICTRL_EN |
+#ifdef CONFIG_MX35
+		MXC_CSPICTRL_SSCTL |
+#endif
+		MXC_CSPICTRL_MODE;
+
+	if (mode & SPI_CPHA)
+		ctrl_reg |= MXC_CSPICTRL_PHA;
+	if (mode & SPI_CPOL)
+		ctrl_reg |= MXC_CSPICTRL_POL;
+	if (mode & SPI_CS_HIGH)
+		ctrl_reg |= MXC_CSPICTRL_SSPOL;
+	mxcs->ctrl_reg = ctrl_reg;
+
+	return 0;
+}
+#endif
+
+#if defined(CONFIG_MX51)
+static s32 spi_cfg_mxc(struct mxc_spi_slave *mxcs, unsigned int cs,
 		unsigned int max_hz, unsigned int mode)
 {
 	u32 clk_src = mxc_get_clock(MXC_CSPI_CLK);
@@ -227,7 +295,7 @@ static s32 spi_cfg(struct mxc_spi_slave *mxcs, unsigned int cs,
 
 	/*
 	 * Configuration register setup
-	 * The MX51 has support different setup for each SS
+	 * The MX51 supports different setup for each SS
 	 */
 	reg_config = (reg_config & ~(1 << (cs + MXC_CSPICON_SSPOL))) |
 		(ss_pol << (cs + MXC_CSPICON_SSPOL));
@@ -363,7 +431,6 @@ int spi_xchg_single(struct spi_slave *slave, unsigned int bitlen,
 
 }
 
-
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 		void *din, unsigned long flags)
 {
@@ -441,7 +508,6 @@ static int decode_cs(struct mxc_spi_slave *mxcs, unsigned int cs)
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 			unsigned int max_hz, unsigned int mode)
 {
-	unsigned int ctrl_reg;
 	struct mxc_spi_slave *mxcs;
 	int ret;
 
@@ -467,30 +533,12 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	mxcs->base = spi_bases[bus];
 	mxcs->ss_pol = (mode & SPI_CS_HIGH) ? 1 : 0;
 
-#ifdef CONFIG_MX51
-	/* Can be used for i.MX31 too ? */
-	ctrl_reg = 0;
-	ret = spi_cfg(mxcs, cs, max_hz, mode);
+	ret = spi_cfg_mxc(mxcs, cs, max_hz, mode);
 	if (ret) {
 		printf("mxc_spi: cannot setup SPI controller\n");
 		free(mxcs);
 		return NULL;
 	}
-#else
-	ctrl_reg = MXC_CSPICTRL_CHIPSELECT(cs) |
-		MXC_CSPICTRL_BITCOUNT(31) |
-		MXC_CSPICTRL_DATARATE(7) | /* FIXME: calculate data rate */
-		MXC_CSPICTRL_EN |
-		MXC_CSPICTRL_MODE;
-
-	if (mode & SPI_CPHA)
-		ctrl_reg |= MXC_CSPICTRL_PHA;
-	if (mode & SPI_CPOL)
-		ctrl_reg |= MXC_CSPICTRL_POL;
-	if (mode & SPI_CS_HIGH)
-		ctrl_reg |= MXC_CSPICTRL_SSPOL;
-	mxcs->ctrl_reg = ctrl_reg;
-#endif
 	return &mxcs->slave;
 }
 
