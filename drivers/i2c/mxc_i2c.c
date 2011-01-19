@@ -29,9 +29,8 @@
 #if defined(CONFIG_MX31)
 #include <asm/arch/mx31.h>
 #include <asm/arch/mx31-regs.h>
-#endif
-
-#if defined(CONFIG_MX53)
+#else
+#include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #endif
 
@@ -66,8 +65,10 @@
 #define I2C_BASE        I2C1_BASE_ADDR
 #elif defined(CONFIG_SYS_I2C_MX53_PORT2)
 #define I2C_BASE        I2C2_BASE_ADDR
+#elif defined(CONFIG_SYS_I2C_MX35_PORT1)
+#define I2C_BASE	I2C_BASE_ADDR
 #else
-#error "define CONFIG_SYS_I2C_MXxx_PORTx to use the I2C driver"
+#error "define CONFIG_SYS_I2C_MX<Processor>_PORTx to use the mx I2C driver"
 #endif
 
 #ifdef DEBUG
