@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Freescale Semiconductor, Inc.
+ * Copyright 2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -58,6 +58,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 			MAS3_SX|MAS3_SR, MAS2_W|MAS2_G,
 			0, 2, BOOKE_PAGESZ_16M, 1),
 
+#if defined(CONFIG_PCI)
 	/* *I*G* - PCI */
 	SET_TLB_ENTRY(1, CONFIG_SYS_PCIE2_MEM_VIRT, CONFIG_SYS_PCIE2_MEM_PHYS,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
@@ -68,6 +69,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 			0, 4, BOOKE_PAGESZ_256K, 1),
 
+#endif /* #if defined(CONFIG_PCI) */
 	/* *I*G - NAND */
 	SET_TLB_ENTRY(1, CONFIG_SYS_NAND_BASE, CONFIG_SYS_NAND_BASE_PHYS,
 			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
