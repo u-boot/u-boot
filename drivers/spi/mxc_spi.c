@@ -372,9 +372,8 @@ int spi_xchg_single(struct spi_slave *slave, unsigned int bitlen,
 			/* Buffer is not 32-bit aligned */
 			if ((unsigned long)dout & 0x03) {
 				data = 0;
-				for (i = 0; i < 4; i++, data <<= 8) {
+				for (i = 0; i < 4; i++)
 					data = (data << 8) | (*dout++ & 0xFF);
-				}
 			} else {
 				data = *(u32 *)dout;
 				data = cpu_to_be32(data);
@@ -405,11 +404,11 @@ int spi_xchg_single(struct spi_slave *slave, unsigned int bitlen,
 	if (bitlen % 32) {
 		data = reg_read(mxcs->base + MXC_CSPIRXDATA);
 		cnt = (bitlen % 32) / 8;
+		data = cpu_to_be32(data) >> ((sizeof(data) - cnt) * 8);
 		debug("SPI Rx unaligned: 0x%x\n", data);
 		if (din) {
-			for (i = 0; i < cnt; i++, data >>= 8) {
-				*din++ = data & 0xFF;
-			}
+			memcpy(din, &data, cnt);
+			din += cnt;
 		}
 		nbytes -= cnt;
 	}
