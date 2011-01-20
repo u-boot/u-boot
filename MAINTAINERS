@@ -557,9 +557,10 @@ Rowel Atienza <rowel@diwalabs.com>
 Stefano Babic <sbabic@denx.de>
 
 	ea20		davinci
+	mx35pdk		i.MX35
+	mx51evk		i.MX51
 	polaris		xscale
 	trizepsiv	xscale
-	mx51evk		i.MX51
  	vision2		i.MX51
 
 Jason Liu <r64343@freescale.com>
