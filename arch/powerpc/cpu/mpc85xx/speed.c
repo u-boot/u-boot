@@ -162,13 +162,21 @@ void get_sys_info (sys_info_t * sysInfo)
 			sysInfo->freqDDRBus = ddr_ratio * CONFIG_DDR_CLK_FREQ;
 	}
 #endif
-#endif
 
 #ifdef CONFIG_QE
 	qe_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_QE_RATIO)
 			>> MPC85xx_PORPLLSR_QE_RATIO_SHIFT;
 	sysInfo->freqQE = qe_ratio * CONFIG_SYS_CLK_FREQ;
 #endif
+
+#ifdef CONFIG_SYS_DPAA_FMAN
+		sysInfo->freqFMan[0] = sysInfo->freqSystemBus / 2;
+#if (CONFIG_SYS_NUM_FMAN) == 2
+		sysInfo->freqFMan[1] = sysInfo->freqSystemBus / 2;
+#endif
+#endif
+
+#endif /* CONFIG_FSL_CORENET */
 
 #if defined(CONFIG_FSL_LBC)
 #if defined(CONFIG_SYS_LBC_LCRR)

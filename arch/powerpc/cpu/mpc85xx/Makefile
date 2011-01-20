@@ -69,7 +69,7 @@ COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
 COBJS-$(CONFIG_FSL_CORENET) += liodn.o
 COBJS-$(CONFIG_MP)	+= mp.o
 COBJS-$(CONFIG_PCI)	+= pci.o
-COBJS-$(CONFIG_FSL_CORENET) += portals.o
+COBJS-$(CONFIG_SYS_DPAA_QBMAN) += portals.o
 
 # various SoC specific assignments
 COBJS-$(CONFIG_PPC_P3041) += p3041_ids.o
