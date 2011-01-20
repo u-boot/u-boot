@@ -31,6 +31,7 @@
 #include <asm/types.h>
 #include <asm/fsl_dma.h>
 #include <asm/fsl_i2c.h>
+#include <asm/fsl_ifc.h>
 #include <asm/fsl_lbc.h>
 #include <asm/fsl_fman.h>
 
@@ -2232,6 +2233,7 @@ typedef struct ccsr_pme {
 #define CONFIG_SYS_MPC85xx_GPIO_OFFSET		0xF000
 #define CONFIG_SYS_MPC85xx_SATA1_OFFSET		0x18000
 #define CONFIG_SYS_MPC85xx_SATA2_OFFSET		0x19000
+#define CONFIG_SYS_MPC85xx_IFC_OFFSET		0x1e000
 #define CONFIG_SYS_MPC85xx_L2_OFFSET		0x20000
 #define CONFIG_SYS_MPC85xx_DMA_OFFSET		0x21000
 #define CONFIG_SYS_MPC85xx_USB_OFFSET		0x22000
@@ -2274,6 +2276,8 @@ typedef struct ccsr_pme {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_DDR2_OFFSET)
 #define CONFIG_SYS_LBC_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_LBC_OFFSET)
+#define CONFIG_SYS_IFC_ADDR \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_IFC_OFFSET)
 #define CONFIG_SYS_MPC85xx_ESPI_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_ESPI_OFFSET)
 #define CONFIG_SYS_MPC85xx_PCIX_ADDR \

@@ -75,7 +75,9 @@
 /* Since so many PPC SOCs have a semi-common LBC, define this here */
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) || \
 	defined(CONFIG_MPC83xx)
+#if !defined(CONFIG_FSL_IFC)
 #define CONFIG_FSL_LBC
+#endif
 #endif
 
 /* All PPC boards must swap IDE bytes */
