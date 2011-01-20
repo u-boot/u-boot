@@ -1,0 +1,63 @@
+#
+# (C) Copyright 2000-2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+#
+# (C) Copyright 2008-2009 Freescale Semiconductor, Inc.
+#
+# See file CREDITS for list of people who contributed to this
+# project.
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as
+# published by the Free Software Foundation; either version 2 of
+# the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA 02111-1307 USA
+#
+
+include $(TOPDIR)/config.mk
+
+LIB	= $(obj)lib$(SOC).o
+
+COBJS	+= generic.o
+COBJS	+= timer.o
+COBJS	+= iomux.o
+
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+
+all:	$(obj).depend $(LIB)
+
+$(LIB):	$(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
+
+$(OBJS) : $(TOPDIR)/include/asm/arch/asm-offsets.h
+
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################
+
+$(TOPDIR)/include/asm/arch/asm-offsets.h:	$(TOPDIR)/include/autoconf.mk.dep \
+	./asm-offsets.s
+	@echo Generating $@
+	$(TOPDIR)/tools/scripts/make-asm-offsets ./asm-offsets.s $@
+
+asm-offsets.s:	$(TOPDIR)/include/autoconf.mk.dep \
+	./asm-offsets.c
+	$(CC) -DDO_DEPS_ONLY \
+		$(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
+		-o $@ ./asm-offsets.c -c -S
