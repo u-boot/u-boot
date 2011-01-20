@@ -687,9 +687,9 @@ static void set_ddr_sdram_mode_2(fsl_ddr_cfg_regs_t *ddr,
 {
 	unsigned short esdmode2 = 0;	/* Extended SDRAM mode 2 */
 	unsigned short esdmode3 = 0;	/* Extended SDRAM mode 3 */
-	int i;
 
 #if defined(CONFIG_FSL_DDR3)
+	int i;
 	unsigned int rtt_wr = 0;	/* Rtt_WR - dynamic ODT off */
 	unsigned int srt = 0;	/* self-refresh temerature, normal range */
 	unsigned int asr = 0;	/* auto self-refresh disable */
