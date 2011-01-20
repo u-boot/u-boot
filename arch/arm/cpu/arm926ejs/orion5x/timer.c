@@ -90,8 +90,10 @@ static inline ulong read_timer(void)
 	      / (CONFIG_SYS_TCLK / 1000);
 }
 
-static ulong timestamp;
-static ulong lastdec;
+DECLARE_GLOBAL_DATA_PTR;
+
+#define timestamp gd->tbl
+#define lastdec gd->lastinc
 
 void reset_timer_masked(void)
 {
