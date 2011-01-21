@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Freescale Semiconductor
+ * Copyright 2010-2011 Freescale Semiconductor
  * Author: Timur Tabi <timur@freescale.com>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,3 +55,9 @@ typedef struct ngpixis {
 
 /* The PIXIS EN register that corresponds to board switch X, where x >= 1 */
 #define PIXIS_EN(x)		(pixis->s[(x) - 1].en)
+
+u8 pixis_read(unsigned int reg);
+void pixis_write(unsigned int reg, u8 value);
+
+#define PIXIS_READ(reg) pixis_read(offsetof(ngpixis_t, reg))
+#define PIXIS_WRITE(reg, value) pixis_write(offsetof(ngpixis_t, reg), value)

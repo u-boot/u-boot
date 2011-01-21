@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Freescale Semiconductor, Inc.
+ * Copyright 2010-2011 Freescale Semiconductor, Inc.
  * Authors: Timur Tabi <timur@freescale.com>
  *
  * FSL DIU Framebuffer driver
@@ -139,8 +139,6 @@ int platform_diu_init(unsigned int *xres, unsigned int *yres)
 	return fsl_diu_init(*xres, pixel_format, 0);
 }
 
-#ifdef CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
-
 /*
  * set_mux_to_lbc - disable the DIU so that we can read/write to elbc
  *
@@ -210,6 +208,68 @@ static void set_mux_to_diu(void)
 	out_be32(&gur->pmuxcr, pmuxcr);
 	in_be32(&gur->pmuxcr);
 }
+
+/*
+ * pixis_read - board-specific function to read from the PIXIS
+ *
+ * This function overrides the generic pixis_read() function, so that it can
+ * use PIXIS indirect mode if necessary.
+ */
+u8 pixis_read(unsigned int reg)
+{
+	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+
+	/* Use indirect mode if the mux is currently set to DIU mode */
+	if ((in_be32(&gur->pmuxcr) & PMUXCR_ELBCDIU_MASK) !=
+	    PMUXCR_ELBCDIU_NOR16) {
+		out_8(lbc_lcs0_ba, reg);
+		return in_8(lbc_lcs1_ba);
+	} else {
+		void *p = (void *)PIXIS_BASE;
+
+		return in_8(p + reg);
+	}
+}
+
+/*
+ * pixis_write - board-specific function to write to the PIXIS
+ *
+ * This function overrides the generic pixis_write() function, so that it can
+ * use PIXIS indirect mode if necessary.
+ */
+void pixis_write(unsigned int reg, u8 value)
+{
+	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+
+	/* Use indirect mode if the mux is currently set to DIU mode */
+	if ((in_be32(&gur->pmuxcr) & PMUXCR_ELBCDIU_MASK) !=
+	    PMUXCR_ELBCDIU_NOR16) {
+		out_8(lbc_lcs0_ba, reg);
+		out_8(lbc_lcs1_ba, value);
+		/* Do a read-back to ensure the write completed */
+		in_8(lbc_lcs1_ba);
+	} else {
+		void *p = (void *)PIXIS_BASE;
+
+		out_8(p + reg, value);
+	}
+}
+
+void pixis_bank_reset(void)
+{
+	/*
+	 * For some reason, a PIXIS bank reset does not work if the PIXIS is
+	 * in indirect mode, so switch to direct mode first.
+	 */
+	set_mux_to_lbc();
+
+	out_8(&pixis->vctl, 0);
+	out_8(&pixis->vctl, 1);
+
+	while (1);
+}
+
+#ifdef CONFIG_CFI_FLASH_USE_WEAK_ACCESSORS
 
 void flash_write8(u8 value, void *addr)
 {
