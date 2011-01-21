@@ -46,6 +46,7 @@
 #include "is42s16800a-7t.h"
 #endif
 #include <libfdt.h>
+#include <fdt_support.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -415,6 +416,10 @@ void ft_board_setup(void *blob, bd_t *bd)
 	ft_delete_node(blob, "mc,rv3029c2");
 #endif
 #if defined(CONFIG_SYS_UPDATE_FLASH_SIZE)
+#ifdef CONFIG_FDT_FIXUP_NOR_FLASH_SIZE
+	/* Update reg property in all nor flash nodes too */
+	fdt_fixup_nor_flash_size(blob);
+#endif
 	ft_adapt_flash_base(blob);
 #endif
 }
