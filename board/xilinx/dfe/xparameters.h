@@ -9,6 +9,15 @@
 #define XPAR_DDR2_SDRAM_MEM_BASEADDR	0x00000000
 #define XPAR_DDR2_SDRAM_MEM_HIGHADDR	0x00FFFFFF
 
+/* starting with PEEP8 designs, there is 256 MB of DDR */
+
+#define RTL_45
+#ifdef RTL_45
+#define XPAR_MEMORY_MB_SIZE		256
+#else
+#define XPAR_MEMORY_MB_SIZE		128
+#endif
+
 /* SCU Timer */
 #define XPAR_SCUTIMER_NUM_INSTANCES	1
 #define XPAR_SCUTIMER_DEVICE_ID		0

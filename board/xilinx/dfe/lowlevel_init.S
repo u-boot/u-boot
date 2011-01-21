@@ -106,6 +106,23 @@ doit:
 	ldr r2, =0x00020022
 	str r2, [r1]
 
+#if (XPAR_MEMORY_MB_SIZE == 256)
+/* 
+ * starting with PEEP8 designs, there is 256 MB 
+ */
+	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x3C)
+	ldr r2, =0x00000F88
+	str r2, [r1]
+
+	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x40)
+	ldr r2, =0xFF000000
+	str r2, [r1]
+
+	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x44)
+	ldr r2, =0x0FF33333
+	str r2, [r1]
+#endif
+
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x50)
 	ldr r2, =0x00000256
 	str r2, [r1]
