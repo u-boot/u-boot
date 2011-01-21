@@ -195,8 +195,8 @@ ftmac100_send (struct eth_device *dev, volatile void *packet, int length)
 {
 	struct ftmac100 *ftmac100 = (struct ftmac100 *)dev->iobase;
 	struct ftmac100_data *priv = dev->priv;
-	int tmo;
 	struct ftmac100_txdes *curr_des = priv->txdes;
+	ulong start;
 
 	if (curr_des->txdes0 & FTMAC100_TXDES0_TXDMA_OWN) {
 		debug ("%s(): no TX descriptor available\n", __func__);
@@ -224,9 +224,9 @@ ftmac100_send (struct eth_device *dev, volatile void *packet, int length)
 
 	/* wait for transfer to succeed */
 
-	tmo = get_timer (0) + 5 * CONFIG_SYS_HZ;
+	start = get_timer(0);
 	while (curr_des->txdes0 & FTMAC100_TXDES0_TXDMA_OWN) {
-		if (get_timer (0) >= tmo) {
+		if (get_timer(start) >= 5) {
 			debug ("%s(): timed out\n", __func__);
 			return -1;
 		}
