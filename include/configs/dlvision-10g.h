@@ -26,19 +26,19 @@
 
 #define CONFIG_405EP		1	/* this is a PPC405 CPU */
 #define CONFIG_4xx		1	/*  member of PPC4xx family */
-#define CONFIG_IO	        1	/*  on a Io board */
+#define CONFIG_DLVISION_10G	1	/*  on a DLVision-10G board */
 
 #define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
 
 /*
  * Include common defines/options for all AMCC eval boards
  */
-#define CONFIG_HOSTNAME		io
-#define CONFIG_IDENT_STRING	" io 0.04"
+#define CONFIG_HOSTNAME		dlvsion-10g
+#define CONFIG_IDENT_STRING	" dlvision-10g 0.01"
 #include "amcc-common.h"
 
 #define CONFIG_BOARD_EARLY_INIT_F	/* call board_early_init_f */
-#define CONFIG_LAST_STAGE_INIT		/* call last_stage_init */
+#define CONFIG_LAST_STAGE_INIT
 
 #define CONFIG_SYS_CLK_FREQ	33333333 /* external frequency to pll   */
 
@@ -116,13 +116,32 @@
 		{ { 40, 10 }, { 50, 20 }, { 60, 40 } }
 #define CONFIG_DTT_TACH_LIMIT	0xa10
 
+/* EBC peripherals */
+
+#define CONFIG_SYS_FLASH_BASE		0xFC000000
+#define CONFIG_SYS_FPGA0_BASE		0x7f100000
+#define CONFIG_SYS_FPGA1_BASE		0x7f200000
+#define CONFIG_SYS_LATCH_BASE		0x7f300000
+
+#define CONFIG_SYS_FPGA_BASE(k) \
+	(k ? CONFIG_SYS_FPGA1_BASE : CONFIG_SYS_FPGA0_BASE)
+
+#define CONFIG_SYS_FPGA_DONE(k) \
+	(k ? 0x2000 : 0x1000)
+
+#define CONFIG_SYS_FPGA_COUNT		2
+
+#define CONFIG_SYS_LATCH0_RESET		0xffff
+#define CONFIG_SYS_LATCH0_BOOT		0xffff
+#define CONFIG_SYS_LATCH1_RESET		0xffcf
+#define CONFIG_SYS_LATCH1_BOOT		0xffff
+
 /*
  * FLASH organization
  */
 #define CONFIG_SYS_FLASH_CFI		/* The flash is CFI compatible	*/
 #define CONFIG_FLASH_CFI_DRIVER		/* Use common CFI driver	*/
 
-#define CONFIG_SYS_FLASH_BASE		0xFC000000
 #define CONFIG_SYS_FLASH_BANKS_LIST	{ CONFIG_SYS_FLASH_BASE }
 
 #define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of memory banks */
@@ -146,15 +165,6 @@
 #define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR-CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 #endif
-
-/* Gbit PHYs */
-#define CONFIG_BITBANGMII		/* bit-bang MII PHY management */
-#define CONFIG_BITBANGMII_MULTI
-
-#define CONFIG_SYS_MDIO_PIN  (0x80000000 >> 13)	/* our MDIO is GPIO0 */
-#define CONFIG_SYS_MDC_PIN   (0x80000000 >> 7)	/* our MDC  is GPIO7 */
-
-#define CONFIG_SYS_GBIT_MII_BUSNAME	"io_miiphy"
 
 /*
  * PPC405 GPIO Configuration
@@ -201,7 +211,7 @@
  * Definitions for initial stack pointer and data area (in data cache)
  */
 /* use on chip memory (OCM) for temperary stack until sdram is tested */
-#define CONFIG_SYS_TEMP_STACK_OCM        1
+#define CONFIG_SYS_TEMP_STACK_OCM	1
 
 /* On Chip Memory location */
 #define CONFIG_SYS_OCM_DATA_ADDR	0xF8000000
@@ -218,36 +228,89 @@
  * External Bus Controller (EBC) Setup
  */
 
-/* Memory Bank 0 (NOR-FLASH) initialization */
-#define CONFIG_SYS_EBC_PB0AP		0xa382a880
-/* BAS=0xFC0,BS=64MB,BU=R/W,BW=16bit */
-#define CONFIG_SYS_EBC_PB0CR		0xFC0DA000
+/* Memory Bank 0 (NOR-flash) */
+#define CONFIG_SYS_EBC_PB0AP	(EBC_BXAP_BME_ENABLED		|	\
+				 EBC_BXAP_FWT_ENCODE(8)		|	\
+				 EBC_BXAP_BWT_ENCODE(7)		|	\
+				 EBC_BXAP_BCE_DISABLE		|	\
+				 EBC_BXAP_BCT_2TRANS		|	\
+				 EBC_BXAP_CSN_ENCODE(0)		|	\
+				 EBC_BXAP_OEN_ENCODE(2)		|	\
+				 EBC_BXAP_WBN_ENCODE(2)		|	\
+				 EBC_BXAP_WBF_ENCODE(2)		|	\
+				 EBC_BXAP_TH_ENCODE(4)		|	\
+				 EBC_BXAP_RE_DISABLED		|	\
+				 EBC_BXAP_SOR_NONDELAYED	|	\
+				 EBC_BXAP_BEM_WRITEONLY		|	\
+				 EBC_BXAP_PEN_DISABLED)
+#define CONFIG_SYS_EBC_PB0CR	(EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FLASH_BASE) | \
+				 EBC_BXCR_BS_64MB		|	\
+				 EBC_BXCR_BU_RW			|	\
+				 EBC_BXCR_BW_16BIT)
 
-/* Memory Bank 1 (NVRAM) initializatio */
-#define CONFIG_SYS_EBC_PB1AP		0x92015480
-/* BAS=0xFF8,BS=4MB,BU=R/W,BW=8bit  */
-#define CONFIG_SYS_EBC_PB1CR		0x7f318000
+/* Memory Bank 1 (FPGA0) */
+#define CONFIG_SYS_EBC_PB1AP	(EBC_BXAP_BME_DISABLED		|	\
+				 EBC_BXAP_TWT_ENCODE(5)		|	\
+				 EBC_BXAP_BCE_DISABLE		|	\
+				 EBC_BXAP_BCT_2TRANS		|	\
+				 EBC_BXAP_CSN_ENCODE(0)		|	\
+				 EBC_BXAP_OEN_ENCODE(2)		|	\
+				 EBC_BXAP_WBN_ENCODE(1)		|	\
+				 EBC_BXAP_WBF_ENCODE(1)		|	\
+				 EBC_BXAP_TH_ENCODE(0)		|	\
+				 EBC_BXAP_RE_DISABLED		|	\
+				 EBC_BXAP_SOR_NONDELAYED	|	\
+				 EBC_BXAP_BEM_WRITEONLY		|	\
+				 EBC_BXAP_PEN_DISABLED)
+#define CONFIG_SYS_EBC_PB1CR	(EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FPGA0_BASE) | \
+				 EBC_BXCR_BS_1MB		|	\
+				 EBC_BXCR_BU_RW			|	\
+				 EBC_BXCR_BW_16BIT)
 
-/* Memory Bank 2 (FPGA) initialization */
-#define CONFIG_SYS_FPGA0_BASE		0x7f100000
-#define CONFIG_SYS_EBC_PB2AP		0x02025080
-/* BAS=0x7f1,BS=1MB,BU=R/W,BW=16bit */
-#define CONFIG_SYS_EBC_PB2CR		0x7f11a000
+/* Memory Bank 2 (FPGA1) */
+#define CONFIG_SYS_EBC_PB2AP	(EBC_BXAP_BME_DISABLED		|	\
+				 EBC_BXAP_TWT_ENCODE(6)		|	\
+				 EBC_BXAP_BCE_DISABLE		|	\
+				 EBC_BXAP_BCT_2TRANS		|	\
+				 EBC_BXAP_CSN_ENCODE(0)		|	\
+				 EBC_BXAP_OEN_ENCODE(2)		|	\
+				 EBC_BXAP_WBN_ENCODE(1)		|	\
+				 EBC_BXAP_WBF_ENCODE(1)		|	\
+				 EBC_BXAP_TH_ENCODE(0)		|	\
+				 EBC_BXAP_RE_DISABLED		|	\
+				 EBC_BXAP_SOR_NONDELAYED	|	\
+				 EBC_BXAP_BEM_WRITEONLY		|	\
+				 EBC_BXAP_PEN_DISABLED)
+#define CONFIG_SYS_EBC_PB2CR	(EBC_BXCR_BAS_ENCODE(CONFIG_SYS_FPGA1_BASE) | \
+				 EBC_BXCR_BS_1MB		|	\
+				 EBC_BXCR_BU_RW			|	\
+				 EBC_BXCR_BW_16BIT)
 
-#define CONFIG_SYS_FPGA_BASE(k)		CONFIG_SYS_FPGA0_BASE
-#define CONFIG_SYS_FPGA_DONE(k)		0x0010
+/* Memory Bank 3 (Latches) */
+#define CONFIG_SYS_EBC_PB3AP	(EBC_BXAP_BME_ENABLED		|	\
+				 EBC_BXAP_FWT_ENCODE(8)		|	\
+				 EBC_BXAP_BWT_ENCODE(4)		|	\
+				 EBC_BXAP_BCE_DISABLE		|	\
+				 EBC_BXAP_BCT_2TRANS		|	\
+				 EBC_BXAP_CSN_ENCODE(0)		|	\
+				 EBC_BXAP_OEN_ENCODE(1)		|	\
+				 EBC_BXAP_WBN_ENCODE(1)		|	\
+				 EBC_BXAP_WBF_ENCODE(1)		|	\
+				 EBC_BXAP_TH_ENCODE(2)		|	\
+				 EBC_BXAP_RE_DISABLED		|	\
+				 EBC_BXAP_SOR_NONDELAYED	|	\
+				 EBC_BXAP_BEM_WRITEONLY		|	\
+				 EBC_BXAP_PEN_DISABLED)
+#define CONFIG_SYS_EBC_PB3CR	(EBC_BXCR_BAS_ENCODE(CONFIG_SYS_LATCH_BASE) | \
+				 EBC_BXCR_BS_1MB		|	\
+				 EBC_BXCR_BU_RW			|	\
+				 EBC_BXCR_BW_16BIT)
 
-#define CONFIG_SYS_FPGA_COUNT		1
-
-/* Memory Bank 3 (Latches) initialization */
-#define CONFIG_SYS_LATCH_BASE		0x7f200000
-#define CONFIG_SYS_EBC_PB3AP		0xa2015480
-/* BAS=0x7f2,BS=1MB,BU=R/W,BW=16bit */
-#define CONFIG_SYS_EBC_PB3CR		0x7f21a000
-
-#define CONFIG_SYS_LATCH0_RESET		0xffff
-#define CONFIG_SYS_LATCH0_BOOT		0xffff
-#define CONFIG_SYS_LATCH1_RESET		0xffbf
-#define CONFIG_SYS_LATCH1_BOOT		0xffff
+/*
+ * OSD Setup
+ */
+#define CONFIG_SYS_ICS8N3QV01
+#define CONFIG_SYS_SIL1178
+#define CONFIG_SYS_OSD_SCREENS		CONFIG_SYS_FPGA_COUNT
 
 #endif	/* __CONFIG_H */

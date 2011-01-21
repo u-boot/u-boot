@@ -32,21 +32,15 @@
 #include "../common/osd.h"
 
 enum {
-	UNITTYPE_MAIN_SERVER = 0,
+	UNITTYPE_VIDEO_USER = 0,
 	UNITTYPE_MAIN_USER = 1,
 	UNITTYPE_VIDEO_SERVER = 2,
-	UNITTYPE_VIDEO_USER = 3,
+	UNITTYPE_MAIN_SERVER = 3,
 };
 
 enum {
-	HWVER_100 = 0,
-	HWVER_104 = 1,
-	HWVER_110 = 2,
-};
-
-enum {
-	COMPRESSION_NONE = 0,
-	COMPRESSION_TYPE1_DELTA,
+	HWVER_101 = 0,
+	HWVER_110 = 1,
 };
 
 enum {
@@ -57,60 +51,71 @@ enum {
 };
 
 enum {
-	SYSCLK_147456 = 0,
+	SYSCLK_156250 = 2,
 };
 
 enum {
-	RAM_DDR2_32 = 0,
+	RAM_NONE = 0,
+	RAM_DDR2_32 = 1,
+	RAM_DDR2_64 = 2,
 };
 
-/*
- * Check Board Identity:
- */
-int checkboard(void)
+static void print_fpga_info(unsigned dev)
 {
-	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
-	char *s = getenv("serial#");
+	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(dev);
 	u16 versions = in_le16(&fpga->versions);
 	u16 fpga_version = in_le16(&fpga->fpga_version);
 	u16 fpga_features = in_le16(&fpga->fpga_features);
 	unsigned unit_type;
 	unsigned hardware_version;
 	unsigned feature_compression;
-	unsigned feature_osd;
+	unsigned feature_rs232;
 	unsigned feature_audio;
 	unsigned feature_sysclock;
 	unsigned feature_ramconfig;
+	unsigned feature_carrier_speed;
 	unsigned feature_carriers;
 	unsigned feature_video_channels;
+	int fpga_state = get_fpga_state(dev);
 
-	unit_type = (versions & 0xf000) >> 12;
+	printf("FPGA%d: ", dev);
+
 	hardware_version = versions & 0x000f;
-	feature_compression = (fpga_features & 0xe000) >> 13;
-	feature_osd = fpga_features & (1<<11);
-	feature_audio = (fpga_features & 0x0600) >> 9;
-	feature_sysclock = (fpga_features & 0x0180) >> 7;
-	feature_ramconfig = (fpga_features & 0x0060) >> 5;
-	feature_carriers = (fpga_features & 0x000c) >> 2;
+
+	if (fpga_state
+	    && !((hardware_version == HWVER_101)
+		 && (fpga_state == FPGA_STATE_DONE_FAILED))) {
+		puts("not available\n");
+		print_fpga_state(dev);
+		return;
+	}
+
+	unit_type = (versions >> 4) & 0x000f;
+	hardware_version = versions & 0x000f;
+	feature_compression = (fpga_features >> 13) & 0x0003;
+	feature_rs232 = fpga_features & (1<<11);
+	feature_audio = (fpga_features >> 9) & 0x0003;
+	feature_sysclock = (fpga_features >> 7) & 0x0003;
+	feature_ramconfig = (fpga_features >> 5) & 0x0003;
+	feature_carrier_speed = fpga_features & (1<<4);
+	feature_carriers = (fpga_features >> 2) & 0x0003;
 	feature_video_channels = fpga_features & 0x0003;
 
-	printf("Board: ");
-
-	printf("IoCon");
-
-	if (s != NULL) {
-		puts(", serial# ");
-		puts(s);
-	}
-	puts("\n       ");
-
 	switch (unit_type) {
-	case UNITTYPE_MAIN_USER:
-		printf("Mainchannel");
+	case UNITTYPE_VIDEO_USER:
+		printf("Videochannel Userside");
 		break;
 
-	case UNITTYPE_VIDEO_USER:
-		printf("Videochannel");
+	case UNITTYPE_MAIN_USER:
+		printf("Mainchannel Userside");
+		break;
+
+	case UNITTYPE_VIDEO_SERVER:
+		printf("Videochannel Serverside");
+		break;
+
+	case UNITTYPE_MAIN_SERVER:
+		printf("Mainchannel Serverside");
 		break;
 
 	default:
@@ -119,12 +124,8 @@ int checkboard(void)
 	}
 
 	switch (hardware_version) {
-	case HWVER_100:
-		printf(" HW-Ver 1.00\n");
-		break;
-
-	case HWVER_104:
-		printf(" HW-Ver 1.04\n");
+	case HWVER_101:
+		printf(" HW-Ver 1.01\n");
 		break;
 
 	case HWVER_110:
@@ -140,22 +141,7 @@ int checkboard(void)
 	printf("       FPGA V %d.%02d, features:",
 		fpga_version / 100, fpga_version % 100);
 
-
-	switch (feature_compression) {
-	case COMPRESSION_NONE:
-		printf(" no compression");
-		break;
-
-	case COMPRESSION_TYPE1_DELTA:
-		printf(" type1-deltacompression");
-		break;
-
-	default:
-		printf(" compression %d(not supported)", feature_compression);
-		break;
-	}
-
-	printf(", %sosd", feature_osd ? "" : "no ");
+	printf(" %sRS232", feature_rs232 ? "" : "no ");
 
 	switch (feature_audio) {
 	case AUDIO_NONE:
@@ -179,54 +165,75 @@ int checkboard(void)
 		break;
 	}
 
+	switch (feature_sysclock) {
+	case SYSCLK_156250:
+		printf(", clock 156.25 MHz");
+		break;
+
+	default:
+		printf(", clock %d(not supported)", feature_sysclock);
+		break;
+	}
+
 	puts(",\n       ");
 
-	switch (feature_sysclock) {
-	case SYSCLK_147456:
-		printf("clock 147.456 MHz");
-		break;
-
-	default:
-		printf("clock %d(not supported)", feature_sysclock);
-		break;
-	}
-
 	switch (feature_ramconfig) {
+	case RAM_NONE:
+		printf("no RAM");
+		break;
+
 	case RAM_DDR2_32:
-		printf(", RAM 32 bit DDR2");
+		printf("RAM 32 bit DDR2");
+		break;
+
+	case RAM_DDR2_64:
+		printf("RAM 64 bit DDR2");
 		break;
 
 	default:
-		printf(", RAM %d(not supported)", feature_ramconfig);
+		printf("RAM %d(not supported)", feature_ramconfig);
 		break;
 	}
 
-	printf(", %d carrier(s)", feature_carriers);
+	printf(", %d carrier(s) %s", feature_carriers,
+		feature_carrier_speed ? "10 Gbit/s" : "of unknown speed");
 
 	printf(", %d video channel(s)\n", feature_video_channels);
+}
+
+/*
+ * Check Board Identity:
+ */
+int checkboard(void)
+{
+	unsigned k;
+	char *s = getenv("serial#");
+
+	printf("Board: ");
+
+	printf("DLVision 10G");
+
+	if (s != NULL) {
+		puts(", serial# ");
+		puts(s);
+	}
+
+	puts("\n");
+
+	for (k = 0; k < CONFIG_SYS_FPGA_COUNT; ++k)
+		print_fpga_info(k);
 
 	return 0;
 }
 
 int last_stage_init(void)
 {
-	return osd_probe(0);
-}
+	unsigned k;
 
-/*
- * provide access to fpga gpios (for I2C bitbang)
- */
-void fpga_gpio_set(int pin)
-{
-	out_le16((void *)(CONFIG_SYS_FPGA0_BASE + 0x18), pin);
-}
+	for (k = 0; k < CONFIG_SYS_OSD_SCREENS; ++k)
+		if (!get_fpga_state(k)
+		    || (get_fpga_state(k) == FPGA_STATE_DONE_FAILED))
+			osd_probe(k);
 
-void fpga_gpio_clear(int pin)
-{
-	out_le16((void *)(CONFIG_SYS_FPGA0_BASE + 0x16), pin);
-}
-
-int fpga_gpio_get(int pin)
-{
-	return in_le16((void *)(CONFIG_SYS_FPGA0_BASE + 0x14)) & pin;
+	return 0;
 }

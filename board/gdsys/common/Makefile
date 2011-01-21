@@ -31,6 +31,7 @@ LIB	= $(obj)lib$(VENDOR).o
 
 COBJS-$(CONFIG_IO) += miiphybb.o
 COBJS-$(CONFIG_IOCON) += osd.o
+COBJS-$(CONFIG_DLVISION_10G) += osd.o
 
 COBJS   := $(COBJS-y)
 SOBJS   =

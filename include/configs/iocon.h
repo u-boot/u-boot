@@ -131,6 +131,12 @@ int fpga_gpio_get(int pin);
 #define I2C_DELAY	udelay(25)	/* 1/4 I2C clock duration */
 
 /*
+ * OSD hardware
+ */
+#define CONFIG_SYS_MPC92469AC
+#define CONFIG_SYS_CH7301
+
+/*
  * FLASH organization
  */
 #define CONFIG_SYS_FLASH_CFI		/* The flash is CFI compatible	*/
@@ -231,13 +237,15 @@ int fpga_gpio_get(int pin);
 #define CONFIG_SYS_EBC_PB1AP		0x92015480
 #define CONFIG_SYS_EBC_PB1CR		0xFB858000
 
-/* Memory Bank 2 (FPGA) initialization */
-#define CONFIG_SYS_FPGA_BASE		0x7f100000
+/* Memory Bank 2 (FPGA0) initialization */
+#define CONFIG_SYS_FPGA0_BASE		0x7f100000
 #define CONFIG_SYS_EBC_PB2AP		0x02825080
-#define CONFIG_SYS_EBC_PB2CR		(CONFIG_SYS_FPGA_BASE | 0x1a000)
+#define CONFIG_SYS_EBC_PB2CR		(CONFIG_SYS_FPGA0_BASE | 0x1a000)
 
-#define CONFIG_SYS_FPGA_RFL_LOW		0x0000
-#define CONFIG_SYS_FPGA_RFL_HIGH	0x00fe
+#define CONFIG_SYS_FPGA_BASE(k)		CONFIG_SYS_FPGA0_BASE
+#define CONFIG_SYS_FPGA_DONE(k)		0x0010
+
+#define CONFIG_SYS_FPGA_COUNT		1
 
 /* Memory Bank 3 (Latches) initialization */
 #define CONFIG_SYS_LATCH_BASE		0x7f200000
@@ -248,5 +256,12 @@ int fpga_gpio_get(int pin);
 #define CONFIG_SYS_LATCH0_BOOT		0xffff
 #define CONFIG_SYS_LATCH1_RESET		0xffff
 #define CONFIG_SYS_LATCH1_BOOT		0xffff
+
+/*
+ * OSD Setup
+ */
+#define CONFIG_SYS_MPC92469AC
+#define CONFIG_SYS_CH7301
+#define CONFIG_SYS_OSD_SCREENS		CONFIG_SYS_FPGA_COUNT
 
 #endif	/* __CONFIG_H */
