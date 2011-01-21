@@ -2,6 +2,7 @@
 
 
   Copyright(c) 1999 - 2002 Intel Corporation. All rights reserved.
+  Copyright 2011 Freescale Semiconductor, Inc.
 
   This program is free software; you can redistribute it and/or modify it
   under the terms of the GNU General Public License as published by the Free
@@ -81,6 +82,7 @@ typedef enum {
 	e1000_82571,
 	e1000_82572,
 	e1000_82573,
+	e1000_82574,
 	e1000_80003es2lan,
 	e1000_ich8lan,
 	e1000_num_macs
@@ -200,6 +202,7 @@ typedef enum {
 	e1000_phy_gg82563,
 	e1000_phy_igp_3,
 	e1000_phy_ife,
+	e1000_phy_bm,
 	e1000_phy_undefined = 0xFF
 } e1000_phy_type;
 
@@ -286,6 +289,7 @@ struct e1000_phy_stats {
 #define E1000_DEV_ID_82573E              0x108B
 #define E1000_DEV_ID_82573E_IAMT         0x108C
 #define E1000_DEV_ID_82573L              0x109A
+#define E1000_DEV_ID_82574L              0x10D3
 #define E1000_DEV_ID_82546GB_QUAD_COPPER_KSP3 0x10B5
 #define E1000_DEV_ID_80003ES2LAN_COPPER_DPT     0x1096
 #define E1000_DEV_ID_80003ES2LAN_SERDES_DPT     0x1098
@@ -2416,6 +2420,8 @@ struct e1000_hw {
 #define M88E1111_I_PHY_ID  0x01410CC0
 #define L1LXT971A_PHY_ID   0x001378E0
 #define GG82563_E_PHY_ID   0x01410CA0
+
+#define BME1000_E_PHY_ID     0x01410CB0
 
 /* Miscellaneous PHY bit definitions. */
 #define PHY_PREAMBLE			0xFFFFFFFF
