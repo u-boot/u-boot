@@ -44,8 +44,10 @@ static struct mxc_gpt *cur_gpt = (struct mxc_gpt *)GPT1_BASE_ADDR;
 #define GPTCR_CLKSOURCE_32 (4<<6)	/* Clock source */
 #define GPTCR_TEN       (1)	/* Timer enable */
 
-static ulong timestamp;
-static ulong lastinc;
+DECLARE_GLOBAL_DATA_PTR;
+
+#define timestamp (gd->tbl)
+#define lastinc (gd->lastinc)
 
 int timer_init(void)
 {
