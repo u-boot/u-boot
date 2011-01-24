@@ -44,6 +44,19 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+int board_early_init_f(void)
+{
+#ifdef CONFIG_MMC
+	ccsr_gur_t *gur = (ccsr_gur_t *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+
+	setbits_be32(&gur->pmuxcr,
+			 (MPC85xx_PMUXCR_SDHC_CD |
+			 MPC85xx_PMUXCR_SDHC_WP));
+#endif
+
+	return 0;
+}
+
 int checkboard(void)
 {
 	u8 sw;

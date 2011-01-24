@@ -78,6 +78,8 @@
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
 
+#define CONFIG_BOARD_EARLY_INIT_F	/* Call board_pre_init */
+
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
 #ifdef CONFIG_PHYS_64BIT
@@ -605,13 +607,34 @@
 /*
  * USB
  */
+#define CONFIG_USB_EHCI
+
+#ifdef CONFIG_USB_EHCI
 #define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+#endif
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
+
+/*
+ * SDHC/MMC
+ */
+#define CONFIG_MMC
+
+#ifdef CONFIG_MMC
+#define CONFIG_FSL_ESDHC
+#define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
+#define CONFIG_CMD_MMC
+#define CONFIG_GENERIC_MMC
+#endif
+
+#if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI)
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
 
 /*
  * Miscellaneous configurable options
