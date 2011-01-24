@@ -36,6 +36,7 @@ COBJS-$(CONFIG_FSL_NGPIXIS)	+= ngpixis.o
 COBJS-$(CONFIG_PQ_MDS_PIB)	+= pq-mds-pib.o
 COBJS-$(CONFIG_ID_EEPROM)	+= sys_eeprom.o
 COBJS-$(CONFIG_FSL_SGMII_RISER)	+= sgmii_riser.o
+COBJS-$(CONFIG_ENV_IS_IN_MMC)	+= sdhc_boot.o
 
 COBJS-$(CONFIG_MPC8541CDS)	+= cds_pci_ft.o
 COBJS-$(CONFIG_MPC8548CDS)	+= cds_pci_ft.o

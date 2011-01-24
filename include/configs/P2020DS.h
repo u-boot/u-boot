@@ -33,6 +33,13 @@
 #define CONFIG_PHYS_64BIT
 #endif
 
+#ifdef CONFIG_SDCARD
+#define CONFIG_SYS_RAMBOOT
+#define CONFIG_SYS_EXTRA_ENV_RELOC
+#define CONFIG_SYS_TEXT_BASE		0xf8f80000
+#define CONFIG_RESET_VECTOR_ADDRESS	0xf8fffffc
+#endif
+
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
@@ -91,6 +98,18 @@
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
 #define CONFIG_PANIC_HANG	/* do not reset board on panic */
+
+/*
+ * Config the L2 Cache
+ */
+#define CONFIG_SYS_INIT_L2_ADDR		0xf8f80000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_INIT_L2_ADDR_PHYS	0xff8f80000ull
+#else
+#define CONFIG_SYS_INIT_L2_ADDR_PHYS	CONFIG_SYS_INIT_L2_ADDR
+#endif
+#define CONFIG_SYS_L2_SIZE		(512 << 10)
+#define CONFIG_SYS_INIT_L2_END	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
 
 /*
  * Base addresses -- Note these are effective addresses where the
@@ -571,6 +590,11 @@
 /*
  * Environment
  */
+#if defined(CONFIG_SDCARD)
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_SIZE			0x2000
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#else
 #define CONFIG_ENV_IS_IN_FLASH	1
 #if CONFIG_SYS_MONITOR_BASE > 0xfff80000
 #define CONFIG_ENV_ADDR		0xfff80000
@@ -579,6 +603,7 @@
 #endif
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
+#endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
