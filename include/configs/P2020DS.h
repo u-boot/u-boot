@@ -674,13 +674,8 @@
 /* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR	00:E0:0C:02:00:FD
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR	00:E0:0C:02:01:FD
 #define CONFIG_HAS_ETH2
-#define CONFIG_ETH2ADDR	00:E0:0C:02:02:FD
-#define CONFIG_HAS_ETH3
-#define CONFIG_ETH3ADDR	00:E0:0C:02:03:FD
 #endif
 
 #define CONFIG_IPADDR		192.168.1.254
@@ -703,8 +698,8 @@
 #define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
- "perf_mode=stable\0"			\
- "memctl_intlv_ctl=2\0"						\
+ "perf_mode=performance\0"			\
+ "hwconfig=fsl_ddr:ctlr_intlv=bank,bank_intlv=cs0_cs1\0"	\
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
  "tftpflash=tftpboot $loadaddr $uboot; "			\
@@ -713,18 +708,25 @@
 	"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
 	"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
 	"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
+ "satabootcmd=setenv bootargs root=/dev/$bdev rw "	\
+	"console=$consoledev,$baudrate $othbootargs;"	\
+	"tftp $loadaddr $bootfile;"			\
+	"tftp $fdtaddr $fdtfile;"			\
+	"bootm $loadaddr - $fdtaddr"			\
  "consoledev=ttyS0\0"				\
  "ramdiskaddr=2000000\0"			\
  "ramdiskfile=p2020ds/ramdisk.uboot\0"		\
  "fdtaddr=c00000\0"				\
+ "othbootargs=cache-sram-size=0x10000\0"	\
  "fdtfile=p2020ds/p2020ds.dtb\0"		\
- "bdev=sda3\0"
+ "bdev=sda3\0"					\
+ "partition=scsi 0:0\0"
 
 #define CONFIG_HDBOOT				\
  "setenv bootargs root=/dev/$bdev rw "		\
  "console=$consoledev,$baudrate $othbootargs;"	\
- "tftp $loadaddr $bootfile;"			\
- "tftp $fdtaddr $fdtfile;"			\
+ "ext2load $partition $loadaddr $bootfile;"	\
+ "ext2load $partition $fdtaddr $fdtfile;"	\
  "bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_NFSBOOTCOMMAND		\
