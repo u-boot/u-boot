@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008-2010 Freescale Semiconductor, Inc.
+ * (C) Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -50,6 +50,19 @@ static void use_default(void);
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#if !defined(CONFIG_ENV_OFFSET)
+#define CONFIG_ENV_OFFSET 0
+#endif
+
+static int __mmc_get_env_addr(struct mmc *mmc, u32 *env_addr)
+{
+	*env_addr = CONFIG_ENV_OFFSET;
+	return 0;
+}
+__attribute__((weak, alias("__mmc_get_env_addr")))
+int mmc_get_env_addr(struct mmc *mmc, u32 *env_addr);
+
 
 uchar env_get_char_spec(int index)
 {
@@ -102,8 +115,12 @@ int saveenv(void)
 	ssize_t	len;
 	char	*res;
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+	u32 offset;
 
 	if (init_mmc_for_env(mmc))
+		return 1;
+
+	if(mmc_get_env_addr(mmc, &offset))
 		return 1;
 
 	res = (char *)&env_new.data;
@@ -114,7 +131,7 @@ int saveenv(void)
 	}
 	env_new.crc   = crc32(0, env_new.data, ENV_SIZE);
 	printf("Writing to MMC(%d)... ", CONFIG_SYS_MMC_ENV_DEV);
-	if (write_env(mmc, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, (u_char *)&env_new)) {
+	if (write_env(mmc, CONFIG_ENV_SIZE, offset, (u_char *)&env_new)) {
 		puts("failed\n");
 		return 1;
 	}
@@ -141,16 +158,22 @@ inline int read_env(struct mmc *mmc, unsigned long size,
 void env_relocate_spec(void)
 {
 #if !defined(ENV_IS_EMBEDDED)
-       char buf[CONFIG_ENV_SIZE];
+	char buf[CONFIG_ENV_SIZE];
 
 	struct mmc *mmc = find_mmc_device(CONFIG_SYS_MMC_ENV_DEV);
+	u32 offset;
 
 	if (init_mmc_for_env(mmc)) {
 		use_default();
 		return;
 	}
 
-	if (read_env(mmc, CONFIG_ENV_SIZE, CONFIG_ENV_OFFSET, buf)) {
+	if(mmc_get_env_addr(mmc, &offset)) {
+		use_default();
+		return ;
+	}
+
+	if (read_env(mmc, CONFIG_ENV_SIZE, offset, buf)) {
 		use_default();
 		return;
 	}
