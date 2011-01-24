@@ -33,6 +33,8 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
+#define CONFIG_SYS_TEXT_BASE	0x97800000
+
 #define CONFIG_L2_OFF
 
 #include <asm/arch/imx-regs.h>
