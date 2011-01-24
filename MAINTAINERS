@@ -682,8 +682,9 @@ Nishant Kamat <nskamat@ti.com>
 
 Minkyu Kang <mk7.kang@samsung.com>
 
-	s5p_goni	ARM ARMV7 (S5PC110 SoC)
-	SMDKC100	ARM ARMV7 (S5PC100 SoC)
+	SMDKC100		ARM ARMV7 (S5PC100 SoC)
+	s5p_goni		ARM ARMV7 (S5PC110 SoC)
+	s5pc210_universal	ARM ARMV7 (S5PC210 SoC)
 
 Frederik Kriewitz <frederik@kriewitz.eu>
 
