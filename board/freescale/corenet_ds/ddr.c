@@ -16,9 +16,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
-				   unsigned int ctrl_num);
-
 
 /*
  * Fixed sdram init -- doesn't use serial presence detect.

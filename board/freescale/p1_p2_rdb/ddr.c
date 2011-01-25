@@ -30,9 +30,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
-				   unsigned int ctrl_num);
-
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000003F
 #define CONFIG_SYS_DDR_CS0_CONFIG	0x80014202
 #define CONFIG_SYS_DDR_CS0_CONFIG_2	0x00000000

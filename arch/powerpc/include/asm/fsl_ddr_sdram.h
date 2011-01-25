@@ -271,6 +271,8 @@ typedef struct memctl_options_s {
 
 extern phys_size_t fsl_ddr_sdram(void);
 extern int fsl_use_spd(void);
+extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
+					unsigned int ctrl_num);
 
 /*
  * The 85xx boards have a common prototype for fixed_sdram so put the
