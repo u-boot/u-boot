@@ -338,6 +338,9 @@ void fdt_add_enet_stashing(void *fdt)
 	do_fixup_by_compat_u32(fdt, "gianfar", "rx-stash-len", 96, 1);
 
 	do_fixup_by_compat_u32(fdt, "gianfar", "rx-stash-idx", 0, 1);
+	do_fixup_by_compat(fdt, "fsl,etsec2", "bd-stash", NULL, 0, 1);
+	do_fixup_by_compat_u32(fdt, "fsl,etsec2", "rx-stash-len", 96, 1);
+	do_fixup_by_compat_u32(fdt, "fsl,etsec2", "rx-stash-idx", 0, 1);
 }
 
 #if defined(CONFIG_SYS_DPAA_FMAN) || defined(CONFIG_SYS_DPAA_PME)
