@@ -36,11 +36,11 @@
 
 #include <post.h>
 
+GNU_FPOST_ATTR
+
 #if CONFIG_POST & CONFIG_SYS_POST_FPU
 
 #include <watchdog.h>
-
-GNU_FPOST_ATTR
 
 extern int fpu_status (void);
 extern void fpu_enable (void);
