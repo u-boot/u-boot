@@ -41,9 +41,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int	io_dev;
-extern I2C_MUX_DEVICE *i2c_mux_ident_muxstring (uchar *buf);
-
 /* Multi-Purpose Pins Functionality configuration */
 u32 kwmpp_config[] = {
 	MPP0_NF_IO2,
@@ -122,13 +119,9 @@ int ethernet_present(void)
 
 int misc_init_r(void)
 {
-	I2C_MUX_DEVICE	*i2cdev;
 	char *str;
 	int mach_type;
 
-	/* add I2C Bus for I/O Expander */
-	i2cdev = i2c_mux_ident_muxstring((uchar *)"pca9554a:70:a");
-	io_dev = i2cdev->busid;
 	puts("Piggy:");
 	if (ethernet_present() == 0)
 		puts (" not");
