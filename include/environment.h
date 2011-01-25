@@ -107,7 +107,8 @@ extern unsigned long nand_env_oob_offset;
 #ifdef CONFIG_ENV_IS_EMBEDDED
 # if !defined(CONFIG_ENV_IS_IN_FLASH) && \
      !defined(CONFIG_ENV_IS_IN_NAND) && \
-     !defined(CONFIG_ENV_IS_IN_ONENAND)
+     !defined(CONFIG_ENV_IS_IN_ONENAND) && \
+     !defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 #  error "CONFIG_ENV_IS_EMBEDDED not supported for your flash type"
 # endif
 #endif
