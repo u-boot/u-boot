@@ -1,5 +1,5 @@
 /*
- * Copyright 2004,2007-2010 Freescale Semiconductor, Inc.
+ * Copyright 2004,2007-2011 Freescale Semiconductor, Inc.
  * (C) Copyright 2002, 2003 Motorola Inc.
  * Xianghua Xiao (X.Xiao@motorola.com)
  *
@@ -166,12 +166,14 @@ int checkcpu (void)
 	}
 #endif
 
+#if defined(CONFIG_FSL_LBC)
 	if (sysinfo.freqLocalBus > LCRR_CLKDIV) {
 		printf("LBC:%-4s MHz\n", strmhz(buf1, sysinfo.freqLocalBus));
 	} else {
 		printf("LBC: unknown (LCRR[CLKDIV] = 0x%02lx)\n",
 		       sysinfo.freqLocalBus);
 	}
+#endif
 
 #ifdef CONFIG_CPM2
 	printf("CPM:   %s MHz\n", strmhz(buf1, sysinfo.freqSystemBus));
@@ -284,7 +286,10 @@ void mpc85xx_reginfo(void)
 {
 	print_tlbcam();
 	print_laws();
+#if defined(CONFIG_FSL_LBC)
 	print_lbc_regs();
+#endif
+
 }
 
 /* Common ddr init for non-corenet fsl 85xx platforms */
@@ -330,8 +335,10 @@ phys_size_t initdram(int board_type)
 	ddr_enable_ecc(dram_size);
 #endif
 
+#if defined(CONFIG_FSL_LBC)
 	/* Some boards also have sdram on the lbc */
 	lbc_sdram_init();
+#endif
 
 	puts("DDR: ");
 	return dram_size;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -32,6 +32,8 @@
 #include "fsl_corenet_serdes.h"
 
 static u32 serdes_prtcl_map;
+
+#define HWCONFIG_BUFFER_SIZE	128
 
 #ifdef DEBUG
 static const char *serdes_prtcl_str[] = {
@@ -277,6 +279,15 @@ void fsl_serdes_init(void)
 	const char *srds_lpd_arg;
 	size_t arglen;
 #endif
+	char buffer[HWCONFIG_BUFFER_SIZE];
+	char *buf = NULL;
+
+	/*
+	 * Extract hwconfig from environment since we have not properly setup
+	 * the environment but need it for ddr config params
+	 */
+	if (getenv_f("hwconfig", buffer, sizeof(buffer)) > 0)
+		buf = buffer;
 
 	/* Is serdes enabled at all? */
 	if (!(in_be32(&gur->rcwsr[5]) & FSL_CORENET_RCWSR5_SRDS_EN))
@@ -295,8 +306,8 @@ void fsl_serdes_init(void)
 	if (!IS_SVR_REV(get_svr(), 1, 0))
 		for (bank = 1; bank < ARRAY_SIZE(srds_lpd_b); bank++) {
 			sprintf(srds_lpd_opt, "fsl_srds_lpd_b%u", bank + 1);
-			srds_lpd_arg = hwconfig_subarg("serdes", srds_lpd_opt,
-						       &arglen);
+			srds_lpd_arg = hwconfig_subarg_f("serdes", srds_lpd_opt,
+						       &arglen, buf);
 			if (srds_lpd_arg)
 				srds_lpd_b[bank] = simple_strtoul(srds_lpd_arg,
 								  NULL, 0);

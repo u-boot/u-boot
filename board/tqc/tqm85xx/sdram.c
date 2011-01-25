@@ -240,7 +240,7 @@ static phys_size_t sdram_setup(int casl)
 	 * 4. Before DDR_SDRAM_CFG[MEM_EN] set, write D3[21] to disable data
 	 *    training
 	 */
-	ddr->debug_3 |= 0x00000400;
+	ddr->debug[2] |= 0x00000400;
 
 	/*
 	 * 5. Wait 200 micro-seconds
@@ -282,18 +282,18 @@ static phys_size_t sdram_setup(int casl)
 	/*
 	 * 8. Clear D3[21] to re-enable data training
 	 */
-	ddr->debug_3 &= ~0x00000400;
+	ddr->debug[2] &= ~0x00000400;
 
 	/*
 	 * 9. Set D2(21) to force data training to run
 	 */
-	ddr->debug_2 |= 0x00000400;
+	ddr->debug[1] |= 0x00000400;
 
 	/*
 	 * 10. Poll on D2[21] until it is cleared by hardware
 	 */
 	asm ("sync;isync;msync");
-	while (ddr->debug_2 & 0x00000400)
+	while (ddr->debug[1] & 0x00000400)
 		asm ("eieio");
 
 	/*

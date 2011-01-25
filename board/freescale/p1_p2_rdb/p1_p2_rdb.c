@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -222,7 +222,9 @@ void ft_board_setup(void *blob, bd_t *bd)
 	base = getenv_bootm_low();
 	size = getenv_bootm_size();
 
+#if defined(CONFIG_PCI)
 	ft_pci_board_setup(blob);
+#endif /* #if defined(CONFIG_PCI) */
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 }

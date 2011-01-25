@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -29,26 +29,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/* number of LAWs in the hw implementation */
-#if defined(CONFIG_MPC8540) || defined(CONFIG_MPC8541) || \
-    defined(CONFIG_MPC8560) || defined(CONFIG_MPC8555)
-#define FSL_HW_NUM_LAWS 8
-#elif defined(CONFIG_MPC8548) || defined(CONFIG_MPC8544) || \
-      defined(CONFIG_MPC8568) || defined(CONFIG_MPC8569) || \
-      defined(CONFIG_MPC8641) || defined(CONFIG_MPC8610)
-#define FSL_HW_NUM_LAWS 10
-#elif defined(CONFIG_MPC8536) || defined(CONFIG_MPC8572) || \
-      defined(CONFIG_P1011) || defined(CONFIG_P1020) || \
-      defined(CONFIG_P1012) || defined(CONFIG_P1021) || \
-      defined(CONFIG_P1013) || defined(CONFIG_P1022) || \
-      defined(CONFIG_P2010) || defined(CONFIG_P2020)
-#define FSL_HW_NUM_LAWS 12
-#elif defined(CONFIG_PPC_P3041) || defined(CONFIG_PPC_P4080) || \
-      defined(CONFIG_PPC_P5020)
-#define FSL_HW_NUM_LAWS 32
-#else
-#error FSL_HW_NUM_LAWS not defined for this platform
-#endif
+#define FSL_HW_NUM_LAWS CONFIG_SYS_FSL_NUM_LAWS
 
 #ifdef CONFIG_FSL_CORENET
 #define LAW_BASE (CONFIG_SYS_FSL_CORENET_CCM_ADDR)

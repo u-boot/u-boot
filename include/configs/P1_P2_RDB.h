@@ -57,15 +57,21 @@
 #ifdef CONFIG_SDCARD
 #define CONFIG_RAMBOOT_SDCARD		1
 #define CONFIG_SYS_TEXT_BASE		0xf8f80000
+#define CONFIG_RESET_VECTOR_ADDRESS	0xf8fffffc
 #endif
 
 #ifdef CONFIG_SPIFLASH
 #define CONFIG_RAMBOOT_SPIFLASH		1
 #define CONFIG_SYS_TEXT_BASE		0xf8f80000
+#define CONFIG_RESET_VECTOR_ADDRESS	0xf8fffffc
 #endif
 
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE		0xeff80000
+#endif
+
+#ifndef CONFIG_RESET_VECTOR_ADDRESS
+#define CONFIG_RESET_VECTOR_ADDRESS	0xeffffffc
 #endif
 
 #ifndef CONFIG_SYS_MONITOR_BASE
@@ -77,17 +83,23 @@
 #define CONFIG_E500		1	/* BOOKE e500 family */
 #define CONFIG_MPC85xx		1	/* MPC8540/60/55/41/48/P1020/P2020,etc*/
 #define CONFIG_FSL_ELBC		1	/* Enable eLBC Support */
+
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
+#if defined(CONFIG_PCI)
 #define CONFIG_PCIE1		1	/* PCIE controler 1 (slot 1) */
 #define CONFIG_PCIE2		1	/* PCIE controler 2 (slot 2) */
 #define CONFIG_FSL_PCI_INIT	1	/* Use common FSL init code */
 #define CONFIG_FSL_PCIE_RESET	1	/* need PCIe reset errata */
 #define CONFIG_SYS_PCI_64BIT	1	/* enable 64-bit PCI resources */
+#endif /* #if defined(CONFIG_PCI) */
 #define CONFIG_FSL_LAW		1	/* Use common FSL init code */
 #define CONFIG_TSEC_ENET		/* tsec ethernet support */
 #define CONFIG_ENV_OVERWRITE
 
+#if defined(CONFIG_PCI)
 #define CONFIG_E1000		1	/*  E1000 pci Ethernet card*/
+#endif
+
 #ifndef __ASSEMBLY__
 extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
@@ -358,6 +370,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
  */
 
 /* controller 2, Slot 2, tgtid 2, Base address 9000 */
+#if defined(CONFIG_PCI)
 #define CONFIG_SYS_PCIE2_NAME		"Slot 1"
 #define CONFIG_SYS_PCIE2_MEM_VIRT	0xa0000000
 #define CONFIG_SYS_PCIE2_MEM_BUS	0xa0000000
@@ -379,8 +392,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_PCIE1_IO_PHYS	0xffc30000
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
-#if defined(CONFIG_PCI)
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
@@ -399,11 +410,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #endif	/* CONFIG_PCI */
 
-#if defined(CONFIG_TSEC_ENET)
-#ifndef CONFIG_NET_MULTI
 #define CONFIG_NET_MULTI	1
-#endif
 
+#if defined(CONFIG_TSEC_ENET)
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_MII_DEFAULT_TSEC	1	/* Allow unregistered phys */
 #define CONFIG_TSEC1	1

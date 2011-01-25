@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -55,7 +55,8 @@ typedef struct {
 #define STEP_ALL                     0xFFF
 
 extern unsigned long long
-fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step);
+fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
+				       unsigned int size_only);
 
 extern const char * step_to_string(unsigned int step);
 
@@ -64,7 +65,8 @@ compute_fsl_memctl_config_regs(const memctl_options_t *popts,
 			       fsl_ddr_cfg_regs_t *ddr,
 			       const common_timing_params_t *common_dimm,
 			       const dimm_params_t *dimm_parameters,
-			       unsigned int dbw_capacity_adjust);
+			       unsigned int dbw_capacity_adjust,
+			       unsigned int size_only);
 extern unsigned int
 compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 				      common_timing_params_t *outpdimm,

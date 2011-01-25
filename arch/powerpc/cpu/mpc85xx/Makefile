@@ -50,9 +50,11 @@ COBJS-$(CONFIG_MPC8544) += ddr-gen2.o
 COBJS-$(CONFIG_MPC8572) += ddr-gen3.o
 COBJS-$(CONFIG_MPC8536) += ddr-gen3.o
 COBJS-$(CONFIG_MPC8569)	+= ddr-gen3.o
+COBJS-$(CONFIG_P1010)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1011)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1012)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1013)	+= ddr-gen3.o
+COBJS-$(CONFIG_P1014)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1020)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1021)	+= ddr-gen3.o
 COBJS-$(CONFIG_P1022)	+= ddr-gen3.o
@@ -70,7 +72,9 @@ COBJS-$(CONFIG_PCI)	+= pci.o
 COBJS-$(CONFIG_FSL_CORENET) += portals.o
 
 # various SoC specific assignments
+COBJS-$(CONFIG_PPC_P3041) += p3041_ids.o
 COBJS-$(CONFIG_PPC_P4080) += p4080_ids.o
+COBJS-$(CONFIG_PPC_P5020) += p5020_ids.o
 
 COBJS-$(CONFIG_QE)	+= qe_io.o
 COBJS-$(CONFIG_CPM2)	+= serial_scc.o
@@ -91,7 +95,9 @@ COBJS-$(CONFIG_P1021)	+= p1021_serdes.o
 COBJS-$(CONFIG_P1022)	+= p1022_serdes.o
 COBJS-$(CONFIG_P2010)	+= p2020_serdes.o
 COBJS-$(CONFIG_P2020)	+= p2020_serdes.o
+COBJS-$(CONFIG_PPC_P3041) += p3041_serdes.o
 COBJS-$(CONFIG_PPC_P4080) += p4080_serdes.o
+COBJS-$(CONFIG_PPC_P5020) += p5020_serdes.o
 
 COBJS	= $(COBJS-y)
 COBJS	+= cpu.o

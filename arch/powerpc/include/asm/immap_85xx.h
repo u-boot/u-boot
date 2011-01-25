@@ -222,25 +222,8 @@ typedef struct ccsr_ddr {
 	u32	capture_ext_address;	/* Error Extended Addr Capture */
 	u32	err_sbe;		/* Single-Bit ECC Error Management */
 	u8	res11[164];
-	u32	debug_1;
-	u32	debug_2;
-	u32	debug_3;
-	u32	debug_4;
-	u32	debug_5;
-	u32	debug_6;
-	u32	debug_7;
-	u32	debug_8;
-	u32	debug_9;
-	u32	debug_10;
-	u32	debug_11;
-	u32	debug_12;
-	u32	debug_13;
-	u32	debug_14;
-	u32	debug_15;
-	u32	debug_16;
-	u32	debug_17;
-	u32	debug_18;
-	u8	res12[184];
+	u32	debug[32];		/* debug_1 to debug_32 */
+	u8	res12[128];
 } ccsr_ddr_t;
 
 #define DDR_EOR_RD_BDW_OPT_DIS	0x80000000 /* Read BDW Opt. disable */
@@ -2309,7 +2292,7 @@ typedef struct ccsr_pme {
 #define CONFIG_SYS_MPC85xx_CPM_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_CPM_OFFSET)
 #define CONFIG_SYS_MPC85xx_SERDES1_ADDR \
-	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES2_OFFSET)
+	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES1_OFFSET)
 #define CONFIG_SYS_MPC85xx_SERDES2_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_SERDES2_OFFSET)
 #define CONFIG_SYS_FSL_CORENET_SERDES_ADDR \

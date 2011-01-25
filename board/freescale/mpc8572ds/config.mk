@@ -1,5 +1,5 @@
 #
-# Copyright 2007-2008,2010 Freescale Semiconductor, Inc.
+# Copyright 2007-2008,2010-2011 Freescale Semiconductor, Inc.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -28,5 +28,3 @@ ifeq ($(CONFIG_NAND), y)
 LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
 endif
 endif
-
-RESET_VECTOR_ADDRESS = 0xeffffffc
