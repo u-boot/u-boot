@@ -348,4 +348,9 @@
 #define OF_TBCLK		(bd->bi_busfreq / 4)
 #define OF_STDOUT_PATH		"/soc/cpm/serial@11a90"
 
+/* enable last_stage_init */
+#define CONFIG_LAST_STAGE_INIT          1
+/* bfticu address */
+#define CONFIG_SYS_BFTICU_BASE          0x40000000
+
 #endif /* __CONFIG_H */

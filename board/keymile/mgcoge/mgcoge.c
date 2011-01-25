@@ -293,6 +293,24 @@ int checkboard(void)
 	return 0;
 }
 
+#define DIPSWITCH_OFFSET 0x89
+#define DIPSWITCH_MASK   0x0f
+
+int last_stage_init(void)
+{
+	u8 dip_switch;
+	/* Dip switch */
+	dip_switch = readb(CONFIG_SYS_BFTICU_BASE + DIPSWITCH_OFFSET);
+	dip_switch &= DIPSWITCH_MASK;
+	/* dip switch 'full reset' or 'db erase' */
+	if (dip_switch & 0x1 || dip_switch & 0x2) {
+		/* start bootloader */
+		puts("DIP:   Enabled\n");
+		setenv("actual_bank", "0");
+	}
+	return 0;
+}
+
 /*
  * Early board initalization.
  */
