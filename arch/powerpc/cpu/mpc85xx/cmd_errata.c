@@ -74,7 +74,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_FSL_ERRATUM_DDR_A003
 	puts("Work-around for Erratum DDR-A003 enabled\n");
 #endif
-
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR_115
+	puts("Work-around for Erratum DDR115 enabled\n");
+#endif
 	return 0;
 }
 

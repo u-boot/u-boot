@@ -178,7 +178,7 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	 * when operatiing in 32-bit bus mode with 4-beat bursts,
 	 * This erratum does not affect DDR3 mode, only for DDR2 mode.
 	 */
-#ifdef CONFIG_MPC8572
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR_115
 	if ((((in_be32(&ddr->sdram_cfg) >> 24) & 0x7) == SDRAM_TYPE_DDR2)
 	    && in_be32(&ddr->sdram_cfg) & 0x80000) {
 		/* set DEBUG_1[31] */
