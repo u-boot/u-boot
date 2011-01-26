@@ -199,8 +199,6 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	temp_sdram_cfg = in_be32(&ddr->sdram_cfg) & ~SDRAM_CFG_BI;
 	out_be32(&ddr->sdram_cfg, temp_sdram_cfg | SDRAM_CFG_MEM_EN);
 	asm volatile("sync;isync");
-	while (!(in_be32(&ddr->debug[1]) & 0x2))
-		;
 
 	/* Poll DDR_SDRAM_CFG_2[D_INIT] bit until auto-data init is done.  */
 	while (in_be32(&ddr->sdram_cfg_2) & 0x10) {
