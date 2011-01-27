@@ -1810,6 +1810,28 @@ static struct phy_info phy_info_rtl8211b = {
 	},
 };
 
+struct phy_info phy_info_AR8021 =  {
+        0x4dd04,
+        "AR8021",
+        4,
+        (struct phy_cmd[]) { /* config */
+                {MII_BMCR, BMCR_RESET, NULL},
+                {MII_BMCR, BMCR_ANENABLE|BMCR_ANRESTART, NULL},
+                {0x1d, 0x05, NULL},
+                {0x1e, 0x3D47, NULL},
+                {miim_end,}
+        },
+        (struct phy_cmd[]) { /* startup */
+                {MII_BMSR, miim_read, NULL},
+                {MII_BMSR, miim_read, &mii_parse_sr},
+                {MII_BMSR, miim_read, &mii_parse_link},
+                {miim_end,}
+        },
+        (struct phy_cmd[]) { /* shutdown */
+                {miim_end,}
+        }
+};
+
 static struct phy_info *phy_info[] = {
 	&phy_info_cis8204,
 	&phy_info_cis8201,
@@ -1832,6 +1854,7 @@ static struct phy_info *phy_info[] = {
 	&phy_info_VSC8221,
 	&phy_info_dp83865,
 	&phy_info_rtl8211b,
+	&phy_info_AR8021,
 	&phy_info_generic,	/* must be last; has ID 0 and 32 bit mask */
 	NULL
 };
