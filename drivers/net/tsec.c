@@ -44,31 +44,6 @@ static RTXBD rtx __attribute__ ((aligned(8)));
 #error "rtx must be 64-bit aligned"
 #endif
 
-static int tsec_send(struct eth_device *dev,
-		     volatile void *packet, int length);
-static int tsec_recv(struct eth_device *dev);
-static int tsec_init(struct eth_device *dev, bd_t * bd);
-static int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info);
-static void tsec_halt(struct eth_device *dev);
-static void init_registers(tsec_t *regs);
-static void startup_tsec(struct eth_device *dev);
-static int init_phy(struct eth_device *dev);
-void write_phy_reg(struct tsec_private *priv, uint regnum, uint value);
-uint read_phy_reg(struct tsec_private *priv, uint regnum);
-static struct phy_info *get_phy_info(struct eth_device *dev);
-static void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd);
-static void adjust_link(struct eth_device *dev);
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
-	&& !defined(BITBANGMII)
-static int tsec_miiphy_write(const char *devname, unsigned char addr,
-			     unsigned char reg, unsigned short value);
-static int tsec_miiphy_read(const char *devname, unsigned char addr,
-			    unsigned char reg, unsigned short *value);
-#endif
-#ifdef CONFIG_MCAST_TFTP
-static int tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set);
-#endif
-
 /* Default initializations for TSEC controllers. */
 
 static struct tsec_info_struct tsec_info[] = {
@@ -95,140 +70,6 @@ static struct tsec_info_struct tsec_info[] = {
 #endif
 };
 
-/*
- * Initialize all the TSEC devices
- *
- * Returns the number of TSEC devices that were initialized
- */
-int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsecs, int num)
-{
-	int i;
-	int ret, count = 0;
-
-	for (i = 0; i < num; i++) {
-		ret = tsec_initialize(bis, &tsecs[i]);
-		if (ret > 0)
-			count += ret;
-	}
-
-	return count;
-}
-
-int tsec_standard_init(bd_t *bis)
-{
-	return tsec_eth_init(bis, tsec_info, ARRAY_SIZE(tsec_info));
-}
-
-/* Initialize device structure. Returns success if PHY
- * initialization succeeded (i.e. if it recognizes the PHY)
- */
-static int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info)
-{
-	struct eth_device *dev;
-	int i;
-	struct tsec_private *priv;
-
-	dev = (struct eth_device *)malloc(sizeof *dev);
-
-	if (NULL == dev)
-		return 0;
-
-	memset(dev, 0, sizeof *dev);
-
-	priv = (struct tsec_private *)malloc(sizeof(*priv));
-
-	if (NULL == priv)
-		return 0;
-
-	privlist[num_tsecs++] = priv;
-	priv->regs = tsec_info->regs;
-	priv->phyregs = tsec_info->miiregs;
-	priv->phyregs_sgmii = tsec_info->miiregs_sgmii;
-
-	priv->phyaddr = tsec_info->phyaddr;
-	priv->flags = tsec_info->flags;
-
-	sprintf(dev->name, tsec_info->devname);
-	dev->iobase = 0;
-	dev->priv = priv;
-	dev->init = tsec_init;
-	dev->halt = tsec_halt;
-	dev->send = tsec_send;
-	dev->recv = tsec_recv;
-#ifdef CONFIG_MCAST_TFTP
-	dev->mcast = tsec_mcast_addr;
-#endif
-
-	/* Tell u-boot to get the addr from the env */
-	for (i = 0; i < 6; i++)
-		dev->enetaddr[i] = 0;
-
-	eth_register(dev);
-
-	/* Reset the MAC */
-	setbits_be32(&priv->regs->maccfg1, MACCFG1_SOFT_RESET);
-	udelay(2);  /* Soft Reset must be asserted for 3 TX clocks */
-	clrbits_be32(&priv->regs->maccfg1, MACCFG1_SOFT_RESET);
-
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
-	&& !defined(BITBANGMII)
-	miiphy_register(dev->name, tsec_miiphy_read, tsec_miiphy_write);
-#endif
-
-	/* Try to initialize PHY here, and return */
-	return init_phy(dev);
-}
-
-/* Initializes data structures and registers for the controller,
- * and brings the interface up.	 Returns the link status, meaning
- * that it returns success if the link is up, failure otherwise.
- * This allows u-boot to find the first active controller.
- */
-static int tsec_init(struct eth_device *dev, bd_t * bd)
-{
-	uint tempval;
-	char tmpbuf[MAC_ADDR_LEN];
-	int i;
-	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
-
-	/* Make sure the controller is stopped */
-	tsec_halt(dev);
-
-	/* Init MACCFG2.  Defaults to GMII */
-	out_be32(&regs->maccfg2, MACCFG2_INIT_SETTINGS);
-
-	/* Init ECNTRL */
-	out_be32(&regs->ecntrl, ECNTRL_INIT_SETTINGS);
-
-	/* Copy the station address into the address registers.
-	 * Backwards, because little endian MACS are dumb */
-	for (i = 0; i < MAC_ADDR_LEN; i++) {
-		tmpbuf[MAC_ADDR_LEN - 1 - i] = dev->enetaddr[i];
-	}
-	tempval = (tmpbuf[0] << 24) | (tmpbuf[1] << 16) | (tmpbuf[2] << 8) |
-		  tmpbuf[3];
-
-	out_be32(&regs->macstnaddr1, tempval);
-
-	tempval = *((uint *) (tmpbuf + 4));
-
-	out_be32(&regs->macstnaddr2, tempval);
-
-	/* reset the indices to zero */
-	rxIdx = 0;
-	txIdx = 0;
-
-	/* Clear out (for the most part) the other registers */
-	init_registers(regs);
-
-	/* Ready the device for tx/rx */
-	startup_tsec(dev);
-
-	/* If there's no link, fail */
-	return (priv->link ? 0 : -1);
-}
-
 /* Writes the given phy's reg with value, using the specified MDIO regs */
 static void tsec_local_mdio_write(tsec_mdio_t *phyregs, uint addr,
 		uint reg, uint value)
@@ -242,7 +83,6 @@ static void tsec_local_mdio_write(tsec_mdio_t *phyregs, uint addr,
 	while ((in_be32(&phyregs->miimind) & MIIMIND_BUSY) && timeout--)
 		;
 }
-
 
 /* Provide the default behavior of writing the PHY of this ethernet device */
 #define write_phy_reg(priv, regnum, value) \
@@ -309,46 +149,6 @@ static void tsec_configure_serdes(struct tsec_private *priv)
 			TBICON_CLK_SELECT);
 	tsec_local_mdio_write(priv->phyregs_sgmii, priv->regs->tbipa, TBI_CR,
 			CONFIG_TSEC_TBICR_SETTINGS);
-}
-
-/* Discover which PHY is attached to the device, and configure it
- * properly.  If the PHY is not recognized, then return 0
- * (failure).  Otherwise, return 1
- */
-static int init_phy(struct eth_device *dev)
-{
-	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	struct phy_info *curphy;
-	tsec_t *regs = priv->regs;
-
-	/* Assign a Physical address to the TBI */
-	out_be32(&regs->tbipa, CONFIG_SYS_TBIPA_VALUE);
-
-	/* Reset MII (due to new addresses) */
-	out_be32(&priv->phyregs->miimcfg, MIIMCFG_RESET);
-	out_be32(&priv->phyregs->miimcfg, MIIMCFG_INIT_VALUE);
-	while (in_be32(&priv->phyregs->miimind) & MIIMIND_BUSY)
-		;
-
-	/* Get the cmd structure corresponding to the attached
-	 * PHY */
-	curphy = get_phy_info(dev);
-
-	if (curphy == NULL) {
-		priv->phyinfo = NULL;
-		printf("%s: No PHY found\n", dev->name);
-
-		return 0;
-	}
-
-	if (in_be32(&regs->ecntrl) & ECNTRL_SGMII_MODE)
-		tsec_configure_serdes(priv);
-
-	priv->phyinfo = curphy;
-
-	phy_run_commands(priv, priv->phyinfo->config);
-
-	return 1;
 }
 
 /*
@@ -864,246 +664,6 @@ static uint mii_m88e1111s_setmode(uint mii_reg, struct tsec_private *priv)
 	if (priv->flags & TSEC_REDUCED)
 		mii_data = (mii_data & 0xfff0) | 0x000b;
 	return mii_data;
-}
-
-/* Initialized required registers to appropriate values, zeroing
- * those we don't care about (unless zero is bad, in which case,
- * choose a more appropriate value)
- */
-static void init_registers(tsec_t *regs)
-{
-	/* Clear IEVENT */
-	out_be32(&regs->ievent, IEVENT_INIT_CLEAR);
-
-	out_be32(&regs->imask, IMASK_INIT_CLEAR);
-
-	out_be32(&regs->hash.iaddr0, 0);
-	out_be32(&regs->hash.iaddr1, 0);
-	out_be32(&regs->hash.iaddr2, 0);
-	out_be32(&regs->hash.iaddr3, 0);
-	out_be32(&regs->hash.iaddr4, 0);
-	out_be32(&regs->hash.iaddr5, 0);
-	out_be32(&regs->hash.iaddr6, 0);
-	out_be32(&regs->hash.iaddr7, 0);
-
-	out_be32(&regs->hash.gaddr0, 0);
-	out_be32(&regs->hash.gaddr1, 0);
-	out_be32(&regs->hash.gaddr2, 0);
-	out_be32(&regs->hash.gaddr3, 0);
-	out_be32(&regs->hash.gaddr4, 0);
-	out_be32(&regs->hash.gaddr5, 0);
-	out_be32(&regs->hash.gaddr6, 0);
-	out_be32(&regs->hash.gaddr7, 0);
-
-	out_be32(&regs->rctrl, 0x00000000);
-
-	/* Init RMON mib registers */
-	memset((void *)&(regs->rmon), 0, sizeof(rmon_mib_t));
-
-	out_be32(&regs->rmon.cam1, 0xffffffff);
-	out_be32(&regs->rmon.cam2, 0xffffffff);
-
-	out_be32(&regs->mrblr, MRBLR_INIT_SETTINGS);
-
-	out_be32(&regs->minflr, MINFLR_INIT_SETTINGS);
-
-	out_be32(&regs->attr, ATTR_INIT_SETTINGS);
-	out_be32(&regs->attreli, ATTRELI_INIT_SETTINGS);
-
-}
-
-/* Configure maccfg2 based on negotiated speed and duplex
- * reported by PHY handling code
- */
-static void adjust_link(struct eth_device *dev)
-{
-	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
-	u32 ecntrl, maccfg2;
-
-	if (!priv->link) {
-		printf("%s: No link.\n", dev->name);
-		return;
-	}
-
-	/* clear all bits relative with interface mode */
-	ecntrl = in_be32(&regs->ecntrl);
-	ecntrl &= ~ECNTRL_R100;
-
-	maccfg2 = in_be32(&regs->maccfg2);
-	maccfg2 &= ~(MACCFG2_IF | MACCFG2_FULL_DUPLEX);
-
-	if (priv->duplexity)
-		maccfg2 |= MACCFG2_FULL_DUPLEX;
-
-	switch (priv->speed) {
-	case 1000:
-		maccfg2 |= MACCFG2_GMII;
-		break;
-	case 100:
-	case 10:
-		maccfg2 |= MACCFG2_MII;
-
-		/* Set R100 bit in all modes although
-		 * it is only used in RGMII mode
-		 */
-		if (priv->speed == 100)
-			ecntrl |= ECNTRL_R100;
-		break;
-	default:
-		printf("%s: Speed was bad\n", dev->name);
-		break;
-	}
-
-	out_be32(&regs->ecntrl, ecntrl);
-	out_be32(&regs->maccfg2, maccfg2);
-
-	printf("Speed: %d, %s duplex%s\n", priv->speed,
-			(priv->duplexity) ? "full" : "half",
-			(priv->flags & TSEC_FIBER) ? ", fiber mode" : "");
-}
-
-/* Set up the buffers and their descriptors, and bring up the
- * interface
- */
-static void startup_tsec(struct eth_device *dev)
-{
-	int i;
-	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
-
-	/* Point to the buffer descriptors */
-	out_be32(&regs->tbase, (unsigned int)(&rtx.txbd[txIdx]));
-	out_be32(&regs->rbase, (unsigned int)(&rtx.rxbd[rxIdx]));
-
-	/* Initialize the Rx Buffer descriptors */
-	for (i = 0; i < PKTBUFSRX; i++) {
-		rtx.rxbd[i].status = RXBD_EMPTY;
-		rtx.rxbd[i].length = 0;
-		rtx.rxbd[i].bufPtr = (uint) NetRxPackets[i];
-	}
-	rtx.rxbd[PKTBUFSRX - 1].status |= RXBD_WRAP;
-
-	/* Initialize the TX Buffer Descriptors */
-	for (i = 0; i < TX_BUF_CNT; i++) {
-		rtx.txbd[i].status = 0;
-		rtx.txbd[i].length = 0;
-		rtx.txbd[i].bufPtr = 0;
-	}
-	rtx.txbd[TX_BUF_CNT - 1].status |= TXBD_WRAP;
-
-	/* Start up the PHY */
-	if(priv->phyinfo)
-		phy_run_commands(priv, priv->phyinfo->startup);
-
-	adjust_link(dev);
-
-	/* Enable Transmit and Receive */
-	setbits_be32(&regs->maccfg1, MACCFG1_RX_EN | MACCFG1_TX_EN);
-
-	/* Tell the DMA it is clear to go */
-	setbits_be32(&regs->dmactrl, DMACTRL_INIT_SETTINGS);
-	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
-	out_be32(&regs->rstat, RSTAT_CLEAR_RHALT);
-	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
-}
-
-/* This returns the status bits of the device.	The return value
- * is never checked, and this is what the 8260 driver did, so we
- * do the same.	 Presumably, this would be zero if there were no
- * errors
- */
-static int tsec_send(struct eth_device *dev, volatile void *packet, int length)
-{
-	int i;
-	int result = 0;
-	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
-
-	/* Find an empty buffer descriptor */
-	for (i = 0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
-		if (i >= TOUT_LOOP) {
-			debug("%s: tsec: tx buffers full\n", dev->name);
-			return result;
-		}
-	}
-
-	rtx.txbd[txIdx].bufPtr = (uint) packet;
-	rtx.txbd[txIdx].length = length;
-	rtx.txbd[txIdx].status |=
-	    (TXBD_READY | TXBD_LAST | TXBD_CRC | TXBD_INTERRUPT);
-
-	/* Tell the DMA to go */
-	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
-
-	/* Wait for buffer to be transmitted */
-	for (i = 0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
-		if (i >= TOUT_LOOP) {
-			debug("%s: tsec: tx error\n", dev->name);
-			return result;
-		}
-	}
-
-	txIdx = (txIdx + 1) % TX_BUF_CNT;
-	result = rtx.txbd[txIdx].status & TXBD_STATS;
-
-	return result;
-}
-
-static int tsec_recv(struct eth_device *dev)
-{
-	int length;
-	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
-
-	while (!(rtx.rxbd[rxIdx].status & RXBD_EMPTY)) {
-
-		length = rtx.rxbd[rxIdx].length;
-
-		/* Send the packet up if there were no errors */
-		if (!(rtx.rxbd[rxIdx].status & RXBD_STATS)) {
-			NetReceive(NetRxPackets[rxIdx], length - 4);
-		} else {
-			printf("Got error %x\n",
-			       (rtx.rxbd[rxIdx].status & RXBD_STATS));
-		}
-
-		rtx.rxbd[rxIdx].length = 0;
-
-		/* Set the wrap bit if this is the last element in the list */
-		rtx.rxbd[rxIdx].status =
-		    RXBD_EMPTY | (((rxIdx + 1) == PKTBUFSRX) ? RXBD_WRAP : 0);
-
-		rxIdx = (rxIdx + 1) % PKTBUFSRX;
-	}
-
-	if (in_be32(&regs->ievent) & IEVENT_BSY) {
-		out_be32(&regs->ievent, IEVENT_BSY);
-		out_be32(&regs->rstat, RSTAT_CLEAR_RHALT);
-	}
-
-	return -1;
-
-}
-
-/* Stop the interface */
-static void tsec_halt(struct eth_device *dev)
-{
-	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	tsec_t *regs = priv->regs;
-
-	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
-	setbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
-
-	while ((in_be32(&regs->ievent) & (IEVENT_GRSC | IEVENT_GTSC))
-			!= (IEVENT_GRSC | IEVENT_GTSC))
-		;
-
-	clrbits_be32(&regs->maccfg1, MACCFG1_TX_EN | MACCFG1_RX_EN);
-
-	/* Shut down the PHY, as needed */
-	if(priv->phyinfo)
-		phy_run_commands(priv, priv->phyinfo->shutdown);
 }
 
 static struct phy_info phy_info_M88E1149S = {
@@ -2025,3 +1585,418 @@ tsec_mcast_addr (struct eth_device *dev, u8 mcast_mac, u8 set)
 	return 0;
 }
 #endif /* Multicast TFTP ? */
+
+/* Initialized required registers to appropriate values, zeroing
+ * those we don't care about (unless zero is bad, in which case,
+ * choose a more appropriate value)
+ */
+static void init_registers(tsec_t *regs)
+{
+	/* Clear IEVENT */
+	out_be32(&regs->ievent, IEVENT_INIT_CLEAR);
+
+	out_be32(&regs->imask, IMASK_INIT_CLEAR);
+
+	out_be32(&regs->hash.iaddr0, 0);
+	out_be32(&regs->hash.iaddr1, 0);
+	out_be32(&regs->hash.iaddr2, 0);
+	out_be32(&regs->hash.iaddr3, 0);
+	out_be32(&regs->hash.iaddr4, 0);
+	out_be32(&regs->hash.iaddr5, 0);
+	out_be32(&regs->hash.iaddr6, 0);
+	out_be32(&regs->hash.iaddr7, 0);
+
+	out_be32(&regs->hash.gaddr0, 0);
+	out_be32(&regs->hash.gaddr1, 0);
+	out_be32(&regs->hash.gaddr2, 0);
+	out_be32(&regs->hash.gaddr3, 0);
+	out_be32(&regs->hash.gaddr4, 0);
+	out_be32(&regs->hash.gaddr5, 0);
+	out_be32(&regs->hash.gaddr6, 0);
+	out_be32(&regs->hash.gaddr7, 0);
+
+	out_be32(&regs->rctrl, 0x00000000);
+
+	/* Init RMON mib registers */
+	memset((void *)&(regs->rmon), 0, sizeof(rmon_mib_t));
+
+	out_be32(&regs->rmon.cam1, 0xffffffff);
+	out_be32(&regs->rmon.cam2, 0xffffffff);
+
+	out_be32(&regs->mrblr, MRBLR_INIT_SETTINGS);
+
+	out_be32(&regs->minflr, MINFLR_INIT_SETTINGS);
+
+	out_be32(&regs->attr, ATTR_INIT_SETTINGS);
+	out_be32(&regs->attreli, ATTRELI_INIT_SETTINGS);
+
+}
+
+/* Configure maccfg2 based on negotiated speed and duplex
+ * reported by PHY handling code
+ */
+static void adjust_link(struct eth_device *dev)
+{
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	tsec_t *regs = priv->regs;
+	u32 ecntrl, maccfg2;
+
+	if (!priv->link) {
+		printf("%s: No link.\n", dev->name);
+		return;
+	}
+
+	/* clear all bits relative with interface mode */
+	ecntrl = in_be32(&regs->ecntrl);
+	ecntrl &= ~ECNTRL_R100;
+
+	maccfg2 = in_be32(&regs->maccfg2);
+	maccfg2 &= ~(MACCFG2_IF | MACCFG2_FULL_DUPLEX);
+
+	if (priv->duplexity)
+		maccfg2 |= MACCFG2_FULL_DUPLEX;
+
+	switch (priv->speed) {
+	case 1000:
+		maccfg2 |= MACCFG2_GMII;
+		break;
+	case 100:
+	case 10:
+		maccfg2 |= MACCFG2_MII;
+
+		/* Set R100 bit in all modes although
+		 * it is only used in RGMII mode
+		 */
+		if (priv->speed == 100)
+			ecntrl |= ECNTRL_R100;
+		break;
+	default:
+		printf("%s: Speed was bad\n", dev->name);
+		break;
+	}
+
+	out_be32(&regs->ecntrl, ecntrl);
+	out_be32(&regs->maccfg2, maccfg2);
+
+	printf("Speed: %d, %s duplex%s\n", priv->speed,
+			(priv->duplexity) ? "full" : "half",
+			(priv->flags & TSEC_FIBER) ? ", fiber mode" : "");
+}
+
+/* Set up the buffers and their descriptors, and bring up the
+ * interface
+ */
+static void startup_tsec(struct eth_device *dev)
+{
+	int i;
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	tsec_t *regs = priv->regs;
+
+	/* Point to the buffer descriptors */
+	out_be32(&regs->tbase, (unsigned int)(&rtx.txbd[txIdx]));
+	out_be32(&regs->rbase, (unsigned int)(&rtx.rxbd[rxIdx]));
+
+	/* Initialize the Rx Buffer descriptors */
+	for (i = 0; i < PKTBUFSRX; i++) {
+		rtx.rxbd[i].status = RXBD_EMPTY;
+		rtx.rxbd[i].length = 0;
+		rtx.rxbd[i].bufPtr = (uint) NetRxPackets[i];
+	}
+	rtx.rxbd[PKTBUFSRX - 1].status |= RXBD_WRAP;
+
+	/* Initialize the TX Buffer Descriptors */
+	for (i = 0; i < TX_BUF_CNT; i++) {
+		rtx.txbd[i].status = 0;
+		rtx.txbd[i].length = 0;
+		rtx.txbd[i].bufPtr = 0;
+	}
+	rtx.txbd[TX_BUF_CNT - 1].status |= TXBD_WRAP;
+
+	/* Start up the PHY */
+	if (priv->phyinfo)
+		phy_run_commands(priv, priv->phyinfo->startup);
+
+	adjust_link(dev);
+
+	/* Enable Transmit and Receive */
+	setbits_be32(&regs->maccfg1, MACCFG1_RX_EN | MACCFG1_TX_EN);
+
+	/* Tell the DMA it is clear to go */
+	setbits_be32(&regs->dmactrl, DMACTRL_INIT_SETTINGS);
+	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
+	out_be32(&regs->rstat, RSTAT_CLEAR_RHALT);
+	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
+}
+
+/* This returns the status bits of the device.	The return value
+ * is never checked, and this is what the 8260 driver did, so we
+ * do the same.	 Presumably, this would be zero if there were no
+ * errors
+ */
+static int tsec_send(struct eth_device *dev, volatile void *packet, int length)
+{
+	int i;
+	int result = 0;
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	tsec_t *regs = priv->regs;
+
+	/* Find an empty buffer descriptor */
+	for (i = 0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
+		if (i >= TOUT_LOOP) {
+			debug("%s: tsec: tx buffers full\n", dev->name);
+			return result;
+		}
+	}
+
+	rtx.txbd[txIdx].bufPtr = (uint) packet;
+	rtx.txbd[txIdx].length = length;
+	rtx.txbd[txIdx].status |=
+	    (TXBD_READY | TXBD_LAST | TXBD_CRC | TXBD_INTERRUPT);
+
+	/* Tell the DMA to go */
+	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
+
+	/* Wait for buffer to be transmitted */
+	for (i = 0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
+		if (i >= TOUT_LOOP) {
+			debug("%s: tsec: tx error\n", dev->name);
+			return result;
+		}
+	}
+
+	txIdx = (txIdx + 1) % TX_BUF_CNT;
+	result = rtx.txbd[txIdx].status & TXBD_STATS;
+
+	return result;
+}
+
+static int tsec_recv(struct eth_device *dev)
+{
+	int length;
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	tsec_t *regs = priv->regs;
+
+	while (!(rtx.rxbd[rxIdx].status & RXBD_EMPTY)) {
+
+		length = rtx.rxbd[rxIdx].length;
+
+		/* Send the packet up if there were no errors */
+		if (!(rtx.rxbd[rxIdx].status & RXBD_STATS)) {
+			NetReceive(NetRxPackets[rxIdx], length - 4);
+		} else {
+			printf("Got error %x\n",
+			       (rtx.rxbd[rxIdx].status & RXBD_STATS));
+		}
+
+		rtx.rxbd[rxIdx].length = 0;
+
+		/* Set the wrap bit if this is the last element in the list */
+		rtx.rxbd[rxIdx].status =
+		    RXBD_EMPTY | (((rxIdx + 1) == PKTBUFSRX) ? RXBD_WRAP : 0);
+
+		rxIdx = (rxIdx + 1) % PKTBUFSRX;
+	}
+
+	if (in_be32(&regs->ievent) & IEVENT_BSY) {
+		out_be32(&regs->ievent, IEVENT_BSY);
+		out_be32(&regs->rstat, RSTAT_CLEAR_RHALT);
+	}
+
+	return -1;
+
+}
+
+/* Stop the interface */
+static void tsec_halt(struct eth_device *dev)
+{
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	tsec_t *regs = priv->regs;
+
+	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
+	setbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
+
+	while ((in_be32(&regs->ievent) & (IEVENT_GRSC | IEVENT_GTSC))
+			!= (IEVENT_GRSC | IEVENT_GTSC))
+		;
+
+	clrbits_be32(&regs->maccfg1, MACCFG1_TX_EN | MACCFG1_RX_EN);
+
+	/* Shut down the PHY, as needed */
+	if (priv->phyinfo)
+		phy_run_commands(priv, priv->phyinfo->shutdown);
+}
+
+/* Initializes data structures and registers for the controller,
+ * and brings the interface up.	 Returns the link status, meaning
+ * that it returns success if the link is up, failure otherwise.
+ * This allows u-boot to find the first active controller.
+ */
+static int tsec_init(struct eth_device *dev, bd_t * bd)
+{
+	uint tempval;
+	char tmpbuf[MAC_ADDR_LEN];
+	int i;
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	tsec_t *regs = priv->regs;
+
+	/* Make sure the controller is stopped */
+	tsec_halt(dev);
+
+	/* Init MACCFG2.  Defaults to GMII */
+	out_be32(&regs->maccfg2, MACCFG2_INIT_SETTINGS);
+
+	/* Init ECNTRL */
+	out_be32(&regs->ecntrl, ECNTRL_INIT_SETTINGS);
+
+	/* Copy the station address into the address registers.
+	 * Backwards, because little endian MACS are dumb */
+	for (i = 0; i < MAC_ADDR_LEN; i++)
+		tmpbuf[MAC_ADDR_LEN - 1 - i] = dev->enetaddr[i];
+
+	tempval = (tmpbuf[0] << 24) | (tmpbuf[1] << 16) | (tmpbuf[2] << 8) |
+		  tmpbuf[3];
+
+	out_be32(&regs->macstnaddr1, tempval);
+
+	tempval = *((uint *) (tmpbuf + 4));
+
+	out_be32(&regs->macstnaddr2, tempval);
+
+	/* reset the indices to zero */
+	rxIdx = 0;
+	txIdx = 0;
+
+	/* Clear out (for the most part) the other registers */
+	init_registers(regs);
+
+	/* Ready the device for tx/rx */
+	startup_tsec(dev);
+
+	/* If there's no link, fail */
+	return priv->link ? 0 : -1;
+}
+
+/* Discover which PHY is attached to the device, and configure it
+ * properly.  If the PHY is not recognized, then return 0
+ * (failure).  Otherwise, return 1
+ */
+static int init_phy(struct eth_device *dev)
+{
+	struct tsec_private *priv = (struct tsec_private *)dev->priv;
+	struct phy_info *curphy;
+	tsec_t *regs = priv->regs;
+
+	/* Assign a Physical address to the TBI */
+	out_be32(&regs->tbipa, CONFIG_SYS_TBIPA_VALUE);
+
+	/* Reset MII (due to new addresses) */
+	out_be32(&priv->phyregs->miimcfg, MIIMCFG_RESET);
+	out_be32(&priv->phyregs->miimcfg, MIIMCFG_INIT_VALUE);
+	while (in_be32(&priv->phyregs->miimind) & MIIMIND_BUSY)
+		;
+
+	/* Get the cmd structure corresponding to the attached
+	 * PHY */
+	curphy = get_phy_info(dev);
+
+	if (curphy == NULL) {
+		priv->phyinfo = NULL;
+		printf("%s: No PHY found\n", dev->name);
+
+		return 0;
+	}
+
+	if (in_be32(&regs->ecntrl) & ECNTRL_SGMII_MODE)
+		tsec_configure_serdes(priv);
+
+	priv->phyinfo = curphy;
+
+	phy_run_commands(priv, priv->phyinfo->config);
+
+	return 1;
+}
+
+/* Initialize device structure. Returns success if PHY
+ * initialization succeeded (i.e. if it recognizes the PHY)
+ */
+static int tsec_initialize(bd_t *bis, struct tsec_info_struct *tsec_info)
+{
+	struct eth_device *dev;
+	int i;
+	struct tsec_private *priv;
+
+	dev = (struct eth_device *)malloc(sizeof *dev);
+
+	if (NULL == dev)
+		return 0;
+
+	memset(dev, 0, sizeof *dev);
+
+	priv = (struct tsec_private *)malloc(sizeof(*priv));
+
+	if (NULL == priv)
+		return 0;
+
+	privlist[num_tsecs++] = priv;
+	priv->regs = tsec_info->regs;
+	priv->phyregs = tsec_info->miiregs;
+	priv->phyregs_sgmii = tsec_info->miiregs_sgmii;
+
+	priv->phyaddr = tsec_info->phyaddr;
+	priv->flags = tsec_info->flags;
+
+	sprintf(dev->name, tsec_info->devname);
+	dev->iobase = 0;
+	dev->priv = priv;
+	dev->init = tsec_init;
+	dev->halt = tsec_halt;
+	dev->send = tsec_send;
+	dev->recv = tsec_recv;
+#ifdef CONFIG_MCAST_TFTP
+	dev->mcast = tsec_mcast_addr;
+#endif
+
+	/* Tell u-boot to get the addr from the env */
+	for (i = 0; i < 6; i++)
+		dev->enetaddr[i] = 0;
+
+	eth_register(dev);
+
+	/* Reset the MAC */
+	setbits_be32(&priv->regs->maccfg1, MACCFG1_SOFT_RESET);
+	udelay(2);  /* Soft Reset must be asserted for 3 TX clocks */
+	clrbits_be32(&priv->regs->maccfg1, MACCFG1_SOFT_RESET);
+
+#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
+	&& !defined(BITBANGMII)
+	miiphy_register(dev->name, tsec_miiphy_read, tsec_miiphy_write);
+#endif
+
+	/* Try to initialize PHY here, and return */
+	return init_phy(dev);
+}
+
+/*
+ * Initialize all the TSEC devices
+ *
+ * Returns the number of TSEC devices that were initialized
+ */
+int tsec_eth_init(bd_t *bis, struct tsec_info_struct *tsecs, int num)
+{
+	int i;
+	int ret, count = 0;
+
+	for (i = 0; i < num; i++) {
+		ret = tsec_initialize(bis, &tsecs[i]);
+		if (ret > 0)
+			count += ret;
+	}
+
+	return count;
+}
+
+int tsec_standard_init(bd_t *bis)
+{
+	return tsec_eth_init(bis, tsec_info, ARRAY_SIZE(tsec_info));
+}
+
