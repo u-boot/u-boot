@@ -901,6 +901,9 @@ The following options need to be configured:
 			CONFIG_SH_ETHER_PHY_ADDR
 			Define the ETH PHY's address
 
+			CONFIG_SH_ETHER_CACHE_WRITEBACK
+			If this option is set, the driver enables cache flush.
+
 - USB Support:
 		At the moment only the UHCI host controller is
 		supported (PIP405, MIP405, MPC5200); define
