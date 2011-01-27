@@ -1923,6 +1923,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR_SD_DATA		0x80000000
 #define MPC85xx_PMUXCR_SDHC_CD		0x40000000
 #define MPC85xx_PMUXCR_SDHC_WP		0x20000000
+#define MPC85xx_PMUXCR_TDM_ENA		0x00800000
 #define MPC85xx_PMUXCR_QE0		0x00008000
 #define MPC85xx_PMUXCR_QE1		0x00004000
 #define MPC85xx_PMUXCR_QE2		0x00002000
@@ -1998,9 +1999,13 @@ typedef struct ccsr_gur {
 	u32	ddrioovcr;	/* DDR IO Override Control */
 	u32	tsec12ioovcr;	/* eTSEC 1/2 IO override control */
 	u32	tsec34ioovcr;	/* eTSEC 3/4 IO override control */
-	u8	res16[61648];
+	u8      res16[52];
+	u32	sdhcdcr;	/* SDHC debug control register */
+	u8      res17[61592];
 } ccsr_gur_t;
 #endif
+
+#define SDHCDCR_CD_INV		0x80000000 /* invert SDHC card detect */
 
 typedef struct serdes_corenet {
 	struct {
