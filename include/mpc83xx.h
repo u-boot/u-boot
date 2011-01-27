@@ -694,14 +694,21 @@
 /* SPMR - System PLL Mode Register
  */
 #define SPMR_LBIUCM			0x80000000
+#define SPMR_LBIUCM_SHIFT		31
 #define SPMR_DDRCM			0x40000000
+#define SPMR_DDRCM_SHIFT		30
 #define SPMR_SPMF			0x0F000000
+#define SPMR_SPMF_SHIFT		24
 #define SPMR_CKID			0x00800000
 #define SPMR_CKID_SHIFT			23
 #define SPMR_COREPLL			0x007F0000
+#define SPMR_COREPLL_SHIFT		16
 #define SPMR_CEVCOD			0x000000C0
+#define SPMR_CEVCOD_SHIFT		6
 #define SPMR_CEPDF			0x00000020
+#define SPMR_CEPDF_SHIFT		5
 #define SPMR_CEPMF			0x0000001F
+#define SPMR_CEPMF_SHIFT		0
 
 /* OCCR - Output Clock Control Register
  */
