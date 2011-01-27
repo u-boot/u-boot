@@ -7,7 +7,7 @@
  *  terms of the GNU Public License, Version 2, incorporated
  *  herein by reference.
  *
- * Copyright 2004, 2007, 2009  Freescale Semiconductor, Inc.
+ * Copyright 2004, 2007, 2009, 2011  Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * maintained by Xianghua Xiao (x.xiao@motorola.com)
  * author Andy Fleming
@@ -587,9 +587,9 @@ typedef struct tsec
 #define TSEC_FIBER	(1 << 3)	/* PHY uses fiber, eg 1000 Base-X */
 
 struct tsec_private {
-	volatile tsec_t *regs;
-	volatile tsec_mdio_t *phyregs;
-	volatile tsec_mdio_t *phyregs_sgmii;
+	tsec_t *regs;
+	tsec_mdio_t *phyregs;
+	tsec_mdio_t *phyregs_sgmii;
 	struct phy_info *phyinfo;
 	uint phyaddr;
 	u32 flags;

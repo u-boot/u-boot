@@ -5,7 +5,7 @@
  * terms of the GNU Public License, Version 2, incorporated
  * herein by reference.
  *
- * Copyright 2004-2010 Freescale Semiconductor, Inc.
+ * Copyright 2004-2011 Freescale Semiconductor, Inc.
  * (C) Copyright 2003, Motorola, Inc.
  * author Andy Fleming
  *
@@ -50,7 +50,7 @@ static int tsec_recv(struct eth_device *dev);
 static int tsec_init(struct eth_device *dev, bd_t * bd);
 static int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info);
 static void tsec_halt(struct eth_device *dev);
-static void init_registers(volatile tsec_t * regs);
+static void init_registers(tsec_t *regs);
 static void startup_tsec(struct eth_device *dev);
 static int init_phy(struct eth_device *dev);
 void write_phy_reg(struct tsec_private *priv, uint regnum, uint value);
@@ -166,9 +166,9 @@ static int tsec_initialize(bd_t * bis, struct tsec_info_struct *tsec_info)
 	eth_register(dev);
 
 	/* Reset the MAC */
-	priv->regs->maccfg1 |= MACCFG1_SOFT_RESET;
+	setbits_be32(&priv->regs->maccfg1, MACCFG1_SOFT_RESET);
 	udelay(2);  /* Soft Reset must be asserted for 3 TX clocks */
-	priv->regs->maccfg1 &= ~(MACCFG1_SOFT_RESET);
+	clrbits_be32(&priv->regs->maccfg1, MACCFG1_SOFT_RESET);
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII) \
 	&& !defined(BITBANGMII)
@@ -190,16 +190,16 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 	char tmpbuf[MAC_ADDR_LEN];
 	int i;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	volatile tsec_t *regs = priv->regs;
+	tsec_t *regs = priv->regs;
 
 	/* Make sure the controller is stopped */
 	tsec_halt(dev);
 
 	/* Init MACCFG2.  Defaults to GMII */
-	regs->maccfg2 = MACCFG2_INIT_SETTINGS;
+	out_be32(&regs->maccfg2, MACCFG2_INIT_SETTINGS);
 
 	/* Init ECNTRL */
-	regs->ecntrl = ECNTRL_INIT_SETTINGS;
+	out_be32(&regs->ecntrl, ECNTRL_INIT_SETTINGS);
 
 	/* Copy the station address into the address registers.
 	 * Backwards, because little endian MACS are dumb */
@@ -209,11 +209,11 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 	tempval = (tmpbuf[0] << 24) | (tmpbuf[1] << 16) | (tmpbuf[2] << 8) |
 		  tmpbuf[3];
 
-	regs->macstnaddr1 = tempval;
+	out_be32(&regs->macstnaddr1, tempval);
 
 	tempval = *((uint *) (tmpbuf + 4));
 
-	regs->macstnaddr2 = tempval;
+	out_be32(&regs->macstnaddr2, tempval);
 
 	/* reset the indices to zero */
 	rxIdx = 0;
@@ -230,17 +230,17 @@ static int tsec_init(struct eth_device *dev, bd_t * bd)
 }
 
 /* Writes the given phy's reg with value, using the specified MDIO regs */
-static void tsec_local_mdio_write(volatile tsec_mdio_t *phyregs, uint addr,
+static void tsec_local_mdio_write(tsec_mdio_t *phyregs, uint addr,
 		uint reg, uint value)
 {
 	int timeout = 1000000;
 
-	phyregs->miimadd = (addr << 8) | reg;
-	phyregs->miimcon = value;
-	asm("sync");
+	out_be32(&phyregs->miimadd, (addr << 8) | reg);
+	out_be32(&phyregs->miimcon, value);
 
 	timeout = 1000000;
-	while ((phyregs->miimind & MIIMIND_BUSY) && timeout--) ;
+	while ((in_be32(&phyregs->miimind) & MIIMIND_BUSY) && timeout--)
+		;
 }
 
 
@@ -254,28 +254,26 @@ static void tsec_local_mdio_write(volatile tsec_mdio_t *phyregs, uint addr,
  * notvalid bit cleared), and the bus to cease activity (miimind
  * busy bit cleared), and then returns the value
  */
-static uint tsec_local_mdio_read(volatile tsec_mdio_t *phyregs,
-				uint phyid, uint regnum)
+static uint tsec_local_mdio_read(tsec_mdio_t *phyregs, uint phyid, uint regnum)
 {
 	uint value;
 
 	/* Put the address of the phy, and the register
 	 * number into MIIMADD */
-	phyregs->miimadd = (phyid << 8) | regnum;
+	out_be32(&phyregs->miimadd, (phyid << 8) | regnum);
 
 	/* Clear the command register, and wait */
-	phyregs->miimcom = 0;
-	asm("sync");
+	out_be32(&phyregs->miimcom, 0);
 
 	/* Initiate a read command, and wait */
-	phyregs->miimcom = MIIM_READ_COMMAND;
-	asm("sync");
+	out_be32(&phyregs->miimcom, MIIM_READ_COMMAND);
 
 	/* Wait for the the indication that the read is done */
-	while ((phyregs->miimind & (MIIMIND_NOTVALID | MIIMIND_BUSY))) ;
+	while ((in_be32(&phyregs->miimind) & (MIIMIND_NOTVALID | MIIMIND_BUSY)))
+		;
 
 	/* Grab the value read from the PHY */
-	value = phyregs->miimstat;
+	value = in_be32(&phyregs->miimstat);
 
 	return value;
 }
@@ -321,18 +319,16 @@ static int init_phy(struct eth_device *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
 	struct phy_info *curphy;
-	volatile tsec_t *regs = priv->regs;
+	tsec_t *regs = priv->regs;
 
 	/* Assign a Physical address to the TBI */
-	regs->tbipa = CONFIG_SYS_TBIPA_VALUE;
-	asm("sync");
+	out_be32(&regs->tbipa, CONFIG_SYS_TBIPA_VALUE);
 
 	/* Reset MII (due to new addresses) */
-	priv->phyregs->miimcfg = MIIMCFG_RESET;
-	asm("sync");
-	priv->phyregs->miimcfg = MIIMCFG_INIT_VALUE;
-	asm("sync");
-	while (priv->phyregs->miimind & MIIMIND_BUSY) ;
+	out_be32(&priv->phyregs->miimcfg, MIIMCFG_RESET);
+	out_be32(&priv->phyregs->miimcfg, MIIMCFG_INIT_VALUE);
+	while (in_be32(&priv->phyregs->miimind) & MIIMIND_BUSY)
+		;
 
 	/* Get the cmd structure corresponding to the attached
 	 * PHY */
@@ -345,7 +341,7 @@ static int init_phy(struct eth_device *dev)
 		return 0;
 	}
 
-	if (regs->ecntrl & ECNTRL_SGMII_MODE)
+	if (in_be32(&regs->ecntrl) & ECNTRL_SGMII_MODE)
 		tsec_configure_serdes(priv);
 
 	priv->phyinfo = curphy;
@@ -838,16 +834,16 @@ static uint mii_parse_dm9161_scsr(uint mii_reg, struct tsec_private * priv)
 static uint mii_cis8204_fixled(uint mii_reg, struct tsec_private * priv)
 {
 	uint phyid;
-	volatile tsec_mdio_t *regbase = priv->phyregs;
+	tsec_mdio_t *regbase = priv->phyregs;
 	int timeout = 1000000;
 
 	for (phyid = 0; phyid < 4; phyid++) {
-		regbase->miimadd = (phyid << 8) | mii_reg;
-		regbase->miimcon = MIIM_CIS8204_SLEDCON_INIT;
-		asm("sync");
+		out_be32(&regbase->miimadd, (phyid << 8) | mii_reg);
+		out_be32(&regbase->miimcon, MIIM_CIS8204_SLEDCON_INIT);
 
 		timeout = 1000000;
-		while ((regbase->miimind & MIIMIND_BUSY) && timeout--) ;
+		while ((in_be32(&regbase->miimind) & MIIMIND_BUSY) && timeout--)
+			;
 	}
 
 	return MIIM_CIS8204_SLEDCON_INIT;
@@ -874,45 +870,45 @@ static uint mii_m88e1111s_setmode(uint mii_reg, struct tsec_private *priv)
  * those we don't care about (unless zero is bad, in which case,
  * choose a more appropriate value)
  */
-static void init_registers(volatile tsec_t * regs)
+static void init_registers(tsec_t *regs)
 {
 	/* Clear IEVENT */
-	regs->ievent = IEVENT_INIT_CLEAR;
+	out_be32(&regs->ievent, IEVENT_INIT_CLEAR);
 
-	regs->imask = IMASK_INIT_CLEAR;
+	out_be32(&regs->imask, IMASK_INIT_CLEAR);
 
-	regs->hash.iaddr0 = 0;
-	regs->hash.iaddr1 = 0;
-	regs->hash.iaddr2 = 0;
-	regs->hash.iaddr3 = 0;
-	regs->hash.iaddr4 = 0;
-	regs->hash.iaddr5 = 0;
-	regs->hash.iaddr6 = 0;
-	regs->hash.iaddr7 = 0;
+	out_be32(&regs->hash.iaddr0, 0);
+	out_be32(&regs->hash.iaddr1, 0);
+	out_be32(&regs->hash.iaddr2, 0);
+	out_be32(&regs->hash.iaddr3, 0);
+	out_be32(&regs->hash.iaddr4, 0);
+	out_be32(&regs->hash.iaddr5, 0);
+	out_be32(&regs->hash.iaddr6, 0);
+	out_be32(&regs->hash.iaddr7, 0);
 
-	regs->hash.gaddr0 = 0;
-	regs->hash.gaddr1 = 0;
-	regs->hash.gaddr2 = 0;
-	regs->hash.gaddr3 = 0;
-	regs->hash.gaddr4 = 0;
-	regs->hash.gaddr5 = 0;
-	regs->hash.gaddr6 = 0;
-	regs->hash.gaddr7 = 0;
+	out_be32(&regs->hash.gaddr0, 0);
+	out_be32(&regs->hash.gaddr1, 0);
+	out_be32(&regs->hash.gaddr2, 0);
+	out_be32(&regs->hash.gaddr3, 0);
+	out_be32(&regs->hash.gaddr4, 0);
+	out_be32(&regs->hash.gaddr5, 0);
+	out_be32(&regs->hash.gaddr6, 0);
+	out_be32(&regs->hash.gaddr7, 0);
 
-	regs->rctrl = 0x00000000;
+	out_be32(&regs->rctrl, 0x00000000);
 
 	/* Init RMON mib registers */
 	memset((void *)&(regs->rmon), 0, sizeof(rmon_mib_t));
 
-	regs->rmon.cam1 = 0xffffffff;
-	regs->rmon.cam2 = 0xffffffff;
+	out_be32(&regs->rmon.cam1, 0xffffffff);
+	out_be32(&regs->rmon.cam2, 0xffffffff);
 
-	regs->mrblr = MRBLR_INIT_SETTINGS;
+	out_be32(&regs->mrblr, MRBLR_INIT_SETTINGS);
 
-	regs->minflr = MINFLR_INIT_SETTINGS;
+	out_be32(&regs->minflr, MINFLR_INIT_SETTINGS);
 
-	regs->attr = ATTR_INIT_SETTINGS;
-	regs->attreli = ATTRELI_INIT_SETTINGS;
+	out_be32(&regs->attr, ATTR_INIT_SETTINGS);
+	out_be32(&regs->attreli, ATTRELI_INIT_SETTINGS);
 
 }
 
@@ -922,44 +918,49 @@ static void init_registers(volatile tsec_t * regs)
 static void adjust_link(struct eth_device *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	volatile tsec_t *regs = priv->regs;
+	tsec_t *regs = priv->regs;
+	u32 ecntrl, maccfg2;
 
-	if (priv->link) {
-		if (priv->duplexity != 0)
-			regs->maccfg2 |= MACCFG2_FULL_DUPLEX;
-		else
-			regs->maccfg2 &= ~(MACCFG2_FULL_DUPLEX);
-
-		switch (priv->speed) {
-		case 1000:
-			regs->maccfg2 = ((regs->maccfg2 & ~(MACCFG2_IF))
-					 | MACCFG2_GMII);
-			break;
-		case 100:
-		case 10:
-			regs->maccfg2 = ((regs->maccfg2 & ~(MACCFG2_IF))
-					 | MACCFG2_MII);
-
-			/* Set R100 bit in all modes although
-			 * it is only used in RGMII mode
-			 */
-			if (priv->speed == 100)
-				regs->ecntrl |= ECNTRL_R100;
-			else
-				regs->ecntrl &= ~(ECNTRL_R100);
-			break;
-		default:
-			printf("%s: Speed was bad\n", dev->name);
-			break;
-		}
-
-		printf("Speed: %d, %s duplex%s\n", priv->speed,
-		       (priv->duplexity) ? "full" : "half",
-		       (priv->flags & TSEC_FIBER) ? ", fiber mode" : "");
-
-	} else {
+	if (!priv->link) {
 		printf("%s: No link.\n", dev->name);
+		return;
 	}
+
+	/* clear all bits relative with interface mode */
+	ecntrl = in_be32(&regs->ecntrl);
+	ecntrl &= ~ECNTRL_R100;
+
+	maccfg2 = in_be32(&regs->maccfg2);
+	maccfg2 &= ~(MACCFG2_IF | MACCFG2_FULL_DUPLEX);
+
+	if (priv->duplexity)
+		maccfg2 |= MACCFG2_FULL_DUPLEX;
+
+	switch (priv->speed) {
+	case 1000:
+		maccfg2 |= MACCFG2_GMII;
+		break;
+	case 100:
+	case 10:
+		maccfg2 |= MACCFG2_MII;
+
+		/* Set R100 bit in all modes although
+		 * it is only used in RGMII mode
+		 */
+		if (priv->speed == 100)
+			ecntrl |= ECNTRL_R100;
+		break;
+	default:
+		printf("%s: Speed was bad\n", dev->name);
+		break;
+	}
+
+	out_be32(&regs->ecntrl, ecntrl);
+	out_be32(&regs->maccfg2, maccfg2);
+
+	printf("Speed: %d, %s duplex%s\n", priv->speed,
+			(priv->duplexity) ? "full" : "half",
+			(priv->flags & TSEC_FIBER) ? ", fiber mode" : "");
 }
 
 /* Set up the buffers and their descriptors, and bring up the
@@ -969,11 +970,11 @@ static void startup_tsec(struct eth_device *dev)
 {
 	int i;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	volatile tsec_t *regs = priv->regs;
+	tsec_t *regs = priv->regs;
 
 	/* Point to the buffer descriptors */
-	regs->tbase = (unsigned int)(&rtx.txbd[txIdx]);
-	regs->rbase = (unsigned int)(&rtx.rxbd[rxIdx]);
+	out_be32(&regs->tbase, (unsigned int)(&rtx.txbd[txIdx]));
+	out_be32(&regs->rbase, (unsigned int)(&rtx.rxbd[rxIdx]));
 
 	/* Initialize the Rx Buffer descriptors */
 	for (i = 0; i < PKTBUFSRX; i++) {
@@ -998,13 +999,13 @@ static void startup_tsec(struct eth_device *dev)
 	adjust_link(dev);
 
 	/* Enable Transmit and Receive */
-	regs->maccfg1 |= (MACCFG1_RX_EN | MACCFG1_TX_EN);
+	setbits_be32(&regs->maccfg1, MACCFG1_RX_EN | MACCFG1_TX_EN);
 
 	/* Tell the DMA it is clear to go */
-	regs->dmactrl |= DMACTRL_INIT_SETTINGS;
-	regs->tstat = TSTAT_CLEAR_THALT;
-	regs->rstat = RSTAT_CLEAR_RHALT;
-	regs->dmactrl &= ~(DMACTRL_GRS | DMACTRL_GTS);
+	setbits_be32(&regs->dmactrl, DMACTRL_INIT_SETTINGS);
+	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
+	out_be32(&regs->rstat, RSTAT_CLEAR_RHALT);
+	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
 }
 
 /* This returns the status bits of the device.	The return value
@@ -1017,7 +1018,7 @@ static int tsec_send(struct eth_device *dev, volatile void *packet, int length)
 	int i;
 	int result = 0;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	volatile tsec_t *regs = priv->regs;
+	tsec_t *regs = priv->regs;
 
 	/* Find an empty buffer descriptor */
 	for (i = 0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
@@ -1033,7 +1034,7 @@ static int tsec_send(struct eth_device *dev, volatile void *packet, int length)
 	    (TXBD_READY | TXBD_LAST | TXBD_CRC | TXBD_INTERRUPT);
 
 	/* Tell the DMA to go */
-	regs->tstat = TSTAT_CLEAR_THALT;
+	out_be32(&regs->tstat, TSTAT_CLEAR_THALT);
 
 	/* Wait for buffer to be transmitted */
 	for (i = 0; rtx.txbd[txIdx].status & TXBD_READY; i++) {
@@ -1053,7 +1054,7 @@ static int tsec_recv(struct eth_device *dev)
 {
 	int length;
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	volatile tsec_t *regs = priv->regs;
+	tsec_t *regs = priv->regs;
 
 	while (!(rtx.rxbd[rxIdx].status & RXBD_EMPTY)) {
 
@@ -1076,9 +1077,9 @@ static int tsec_recv(struct eth_device *dev)
 		rxIdx = (rxIdx + 1) % PKTBUFSRX;
 	}
 
-	if (regs->ievent & IEVENT_BSY) {
-		regs->ievent = IEVENT_BSY;
-		regs->rstat = RSTAT_CLEAR_RHALT;
+	if (in_be32(&regs->ievent) & IEVENT_BSY) {
+		out_be32(&regs->ievent, IEVENT_BSY);
+		out_be32(&regs->rstat, RSTAT_CLEAR_RHALT);
 	}
 
 	return -1;
@@ -1089,15 +1090,16 @@ static int tsec_recv(struct eth_device *dev)
 static void tsec_halt(struct eth_device *dev)
 {
 	struct tsec_private *priv = (struct tsec_private *)dev->priv;
-	volatile tsec_t *regs = priv->regs;
+	tsec_t *regs = priv->regs;
 
-	regs->dmactrl &= ~(DMACTRL_GRS | DMACTRL_GTS);
-	regs->dmactrl |= (DMACTRL_GRS | DMACTRL_GTS);
+	clrbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
+	setbits_be32(&regs->dmactrl, DMACTRL_GRS | DMACTRL_GTS);
 
-	while ((regs->ievent & (IEVENT_GRSC | IEVENT_GTSC))
-		!= (IEVENT_GRSC | IEVENT_GTSC)) ;
+	while ((in_be32(&regs->ievent) & (IEVENT_GRSC | IEVENT_GTSC))
+			!= (IEVENT_GRSC | IEVENT_GTSC))
+		;
 
-	regs->maccfg1 &= ~(MACCFG1_TX_EN | MACCFG1_RX_EN);
+	clrbits_be32(&regs->maccfg1, MACCFG1_TX_EN | MACCFG1_RX_EN);
 
 	/* Shut down the PHY, as needed */
 	if(priv->phyinfo)
@@ -1904,13 +1906,14 @@ static void phy_run_commands(struct tsec_private *priv, struct phy_cmd *cmd)
 {
 	int i;
 	uint result;
-	volatile tsec_mdio_t *phyregs = priv->phyregs;
+	tsec_mdio_t *phyregs = priv->phyregs;
 
-	phyregs->miimcfg = MIIMCFG_RESET;
+	out_be32(&phyregs->miimcfg, MIIMCFG_RESET);
 
-	phyregs->miimcfg = MIIMCFG_INIT_VALUE;
+	out_be32(&phyregs->miimcfg, MIIMCFG_INIT_VALUE);
 
-	while (phyregs->miimind & MIIMIND_BUSY) ;
+	while (in_be32(&phyregs->miimind) & MIIMIND_BUSY)
+		;
 
 	for (i = 0; cmd->mii_reg != miim_end; i++) {
 		if (cmd->mii_data == miim_read) {
