@@ -858,6 +858,10 @@ Prafulla Wadaskar <prafulla@marvell.com>
 	rd6281a		ARM926EJS (Kirkwood SoC)
 	sheevaplug	ARM926EJS (Kirkwood SoC)
 
+Tom Warren <twarren@nvidia.com>
+
+	harmony		Tegra2 (ARM7 & A9 Dual Core)
+
 Matthias Weisser <weisserm@arcor.de>
 
 	jadecpu		ARM926EJS (MB86R01 SoC)
