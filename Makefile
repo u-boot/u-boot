@@ -288,17 +288,6 @@ LDPPFLAGS += \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
 
-ifeq ($(CONFIG_NAND_U_BOOT),y)
-NAND_SPL = nand_spl
-U_BOOT_NAND = $(obj)u-boot-nand.bin
-endif
-
-ifeq ($(CONFIG_ONENAND_U_BOOT),y)
-ONENAND_IPL = onenand_ipl
-U_BOOT_ONENAND = $(obj)u-boot-onenand.bin
-ONENAND_BIN ?= $(obj)onenand_ipl/onenand-ipl-2k.bin
-endif
-
 __OBJS := $(subst $(obj),,$(OBJS))
 __LIBS := $(subst $(obj),,$(LIBS)) $(subst $(obj),,$(LIBBOARD))
 
@@ -321,7 +310,16 @@ BOARD_SIZE_CHECK =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
-ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map $(U_BOOT_NAND) $(U_BOOT_ONENAND)
+ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map
+
+ifeq ($(CONFIG_NAND_U_BOOT),y)
+ALL += $(obj)u-boot-nand.bin
+endif
+
+ifeq ($(CONFIG_ONENAND_U_BOOT),y)
+ALL += $(obj)u-boot-onenand.bin
+ONENAND_BIN ?= $(obj)onenand_ipl/onenand-ipl-2k.bin
+endif
 
 all:		$(ALL)
 
@@ -402,16 +400,16 @@ $(LDSCRIPT):	depend
 $(obj)u-boot.lds: $(LDSCRIPT)
 		$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
 
-$(NAND_SPL):	$(TIMESTAMP_FILE) $(VERSION_FILE) depend
+nand_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend
 		$(MAKE) -C nand_spl/board/$(BOARDDIR) all
 
-$(U_BOOT_NAND):	$(NAND_SPL) $(obj)u-boot.bin
+$(obj)u-boot-nand.bin:	nand_spl $(obj)u-boot.bin
 		cat $(obj)nand_spl/u-boot-spl-16k.bin $(obj)u-boot.bin > $(obj)u-boot-nand.bin
 
-$(ONENAND_IPL):	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
+onenand_ipl:	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
 		$(MAKE) -C onenand_ipl/board/$(BOARDDIR) all
 
-$(U_BOOT_ONENAND):	$(ONENAND_IPL) $(obj)u-boot.bin
+$(obj)u-boot-onenand.bin:	onenand_ipl $(obj)u-boot.bin
 		cat $(ONENAND_BIN) $(obj)u-boot.bin > $(obj)u-boot-onenand.bin
 
 $(VERSION_FILE):
