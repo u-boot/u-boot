@@ -892,6 +892,15 @@ The following options need to be configured:
 			automatically converts one 32 bit word to two 16 bit
 			words you may also try CONFIG_SMC911X_32_BIT.
 
+		CONFIG_SH_ETHER
+		Support for Renesas on-chip Ethernet controller
+
+			CONFIG_SH_ETHER_USE_PORT
+			Define the number of ports to be used
+
+			CONFIG_SH_ETHER_PHY_ADDR
+			Define the ETH PHY's address
+
 - USB Support:
 		At the moment only the UHCI host controller is
 		supported (PIP405, MIP405, MPC5200); define
