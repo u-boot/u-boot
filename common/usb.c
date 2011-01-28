@@ -55,7 +55,10 @@
 #include <asm/4xx_pci.h>
 #endif
 
-#undef USB_DEBUG
+#ifdef DEBUG
+#define USB_DEBUG
+#define USB_HUB_DEBUG
+#endif
 
 #ifdef	USB_DEBUG
 #define	USB_PRINTF(fmt, args...)	printf(fmt , ##args)
@@ -959,8 +962,6 @@ void usb_scan_devices(void)
  * HUB "Driver"
  * Probes device for being a hub and configurate it
  */
-
-#undef	USB_HUB_DEBUG
 
 #ifdef	USB_HUB_DEBUG
 #define	USB_HUB_PRINTF(fmt, args...)	printf(fmt , ##args)
