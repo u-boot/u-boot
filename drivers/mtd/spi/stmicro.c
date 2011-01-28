@@ -55,10 +55,15 @@
 #define STM_ID_M25P80		0x14
 #define STM_ID_M25P128		0x18
 
+#define STM_ID_N25Q128		0x20BB1810
+
 #define STMICRO_SR_WIP		(1 << 0)	/* Write-in-Progress */
 
 struct stmicro_spi_flash_params {
 	u8 idcode1;
+	/* XILINX: idcode1 isn't specific enough;
+	 * multiple non-compatible devices match. Store complete idcode */
+	u32 idcode;
 	u16 page_size;
 	u16 pages_per_sector;
 	u16 nr_sectors;
@@ -126,6 +131,21 @@ static const struct stmicro_spi_flash_params stmicro_spi_flash_table[] = {
 		.pages_per_sector = 256,
 		.nr_sectors = 16,
 		.name = "M25P80",
+	},
+/*
+ * XILINX:
+ * This table only examines the capacity of the device.
+ * The M25P128 and N25Q128 have the same capacity (16777216)
+ * but different number of sectors, pages per sector.
+ * Match the N25Q128 which is actually present on the board.
+ */
+	{
+		.idcode1 = STM_ID_M25P128,
+		.idcode = STM_ID_N25Q128,
+		.page_size = 256,
+		.pages_per_sector = 256,
+		.nr_sectors = 256,
+		.name = "N25Q128",
 	},
 	{
 		.idcode1 = STM_ID_M25P128,
@@ -340,7 +360,15 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	for (i = 0; i < ARRAY_SIZE(stmicro_spi_flash_table); i++) {
 		params = &stmicro_spi_flash_table[i];
 		if (params->idcode1 == idcode[2]) {
-			break;
+			if (params->idcode == 0) {
+				break;
+			}
+			/* Check complete device ID, if specified */
+			if ((((params->idcode & 0xFF000000) >> 24) == idcode[0]) &&
+			    (((params->idcode & 0x00FF0000) >> 16) == idcode[1]) &&
+			    (((params->idcode & 0x000000FF) >>  0) == idcode[3])) {
+				break;
+			}
 		}
 	}
 

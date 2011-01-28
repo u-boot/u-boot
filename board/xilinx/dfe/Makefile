@@ -32,6 +32,8 @@ COBJS	:= board.o \
 	   xemacpss_g.o xemacpss_control.o xemacpss_sinit.o \
 	   xemacpss_bdring.o xemacpss.o xgmac.o \
 	   xilinx_nandpss.o \
+	   xilinx_qspipss.o \
+	   pele_qspi.o \
 	   ../common/xbasic_types.o
 
 SOBJS	:= lowlevel_init.o
