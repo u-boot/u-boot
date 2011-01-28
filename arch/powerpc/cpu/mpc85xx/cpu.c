@@ -299,6 +299,16 @@ void mpc85xx_reginfo(void)
 
 /* Common ddr init for non-corenet fsl 85xx platforms */
 #ifndef CONFIG_FSL_CORENET
+#if defined(CONFIG_SYS_RAMBOOT) && !defined(CONFIG_SYS_INIT_L2_ADDR)
+phys_size_t initdram(int board_type)
+{
+#if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD)
+	return fsl_ddr_sdram_size();
+#else
+	return CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+#endif
+}
+#else /* CONFIG_SYS_RAMBOOT */
 phys_size_t initdram(int board_type)
 {
 	phys_size_t dram_size = 0;
@@ -348,6 +358,7 @@ phys_size_t initdram(int board_type)
 	puts("DDR: ");
 	return dram_size;
 }
+#endif /* CONFIG_SYS_RAMBOOT */
 #endif
 
 #if CONFIG_POST & CONFIG_SYS_POST_MEMORY

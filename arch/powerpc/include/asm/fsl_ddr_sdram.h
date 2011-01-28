@@ -271,6 +271,7 @@ typedef struct memctl_options_s {
 } memctl_options_t;
 
 extern phys_size_t fsl_ddr_sdram(void);
+extern phys_size_t fsl_ddr_sdram_size(void);
 extern int fsl_use_spd(void);
 extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 					unsigned int ctrl_num);
