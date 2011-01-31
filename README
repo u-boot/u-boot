@@ -1660,6 +1660,11 @@ The following options need to be configured:
 		SPI EEPROM, also an instance works with Crystal A/D and
 		D/As on the SACSng board)
 
+		CONFIG_SH_SPI
+
+		Enables the driver for SPI controller on SuperH. Currently
+		only SH7757 is supported.
+
 		CONFIG_SPI_X
 
 		Enables extended (16-bit) SPI EEPROM addressing.
