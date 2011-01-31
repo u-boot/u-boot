@@ -41,7 +41,7 @@ lowlevel_init:
 	# FPGA_RST_CTRL
 	# clear resets on AXI fabric ports
 	ldr r1, =(XPSS_SYS_CTRL_BASEADDR + 0x240)
-	ldr r2, =0x00F00F0F
+	ldr r2, =0x0
 	str r2, [r1]
 
 	# TZ_DDR_RAM
