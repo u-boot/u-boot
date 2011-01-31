@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Freescale Semiconductor, Inc.
+ * Copyright 2010-2011 Freescale Semiconductor, Inc.
  * Authors: Srikanth Srinivasan <srikanth.srinivasan@freescale.com>
  *          Timur Tabi <timur@freescale.com>
  *
@@ -24,7 +24,6 @@
 #include <fdt_support.h>
 #include <tsec.h>
 #include <asm/fsl_law.h>
-#include <asm/mp.h>
 #include <netdev.h>
 #include <i2c.h>
 #include <hwconfig.h>
@@ -300,12 +299,5 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	/* Update the WM8776 node's clock frequency property */
 	ft_codec_setup(blob, "wlf,wm8776");
-}
-#endif
-
-#ifdef CONFIG_MP
-void board_lmb_reserve(struct lmb *lmb)
-{
-	cpu_mp_lmb_reserve(lmb);
 }
 #endif

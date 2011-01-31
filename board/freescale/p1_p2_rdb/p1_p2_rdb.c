@@ -229,12 +229,3 @@ void ft_board_setup(void *blob, bd_t *bd)
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
 }
 #endif
-
-#ifdef CONFIG_MP
-extern void cpu_mp_lmb_reserve(struct lmb *lmb);
-
-void board_lmb_reserve(struct lmb *lmb)
-{
-	cpu_mp_lmb_reserve(lmb);
-}
-#endif
