@@ -32,11 +32,6 @@ static void get_spd(ddr2_spd_eeprom_t *spd, unsigned char i2c_address)
 		sizeof(ddr2_spd_eeprom_t));
 }
 
-unsigned int fsl_ddr_get_mem_data_rate(void)
-{
-	return get_bus_freq(0);
-}
-
 void fsl_ddr_get_spd(ddr2_spd_eeprom_t *ctrl_dimms_spd,
 			unsigned int ctrl_num)
 {
@@ -144,7 +139,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	unsigned int datarate;
 
 	get_sys_info(&sysinfo);
-	datarate = fsl_ddr_get_mem_data_rate() / 1000000;
+	datarate = get_ddr_freq(0) / 1000000;
 
 	for (i = 0; i < ARRAY_SIZE(bopts_ctrl[ctrl_num]); i++) {
 		if ((bopts[i].datarate_mhz_low <= datarate) &&

@@ -27,11 +27,6 @@ get_spd(ddr2_spd_eeprom_t *spd, unsigned char i2c_address)
 	}
 }
 
-unsigned int fsl_ddr_get_mem_data_rate(void)
-{
-	return get_ddr_freq(0);
-}
-
 void fsl_ddr_get_spd(ddr2_spd_eeprom_t *ctrl_dimms_spd,
 			unsigned int ctrl_num)
 {

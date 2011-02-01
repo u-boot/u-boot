@@ -538,6 +538,10 @@ ulong	get_ddr_freq  (ulong);
 #if defined(CONFIG_MPC86xx)
 typedef MPC86xx_SYS_INFO sys_info_t;
 void   get_sys_info  ( sys_info_t * );
+static inline ulong get_ddr_freq(ulong dummy)
+{
+	return get_bus_freq(dummy);
+}
 #endif
 
 #if defined(CONFIG_4xx) || defined(CONFIG_IOP480)

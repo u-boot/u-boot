@@ -11,8 +11,6 @@
 
 #include "ddr.h"
 
-unsigned int fsl_ddr_get_mem_data_rate(void);
-
 /*
  * Round mclk_ps to nearest 10 ps in memory controller code.
  *
@@ -24,7 +22,7 @@ unsigned int get_memory_clk_period_ps(void)
 {
 	unsigned int mclk_ps;
 
-	mclk_ps = 2000000000000ULL / fsl_ddr_get_mem_data_rate();
+	mclk_ps = 2000000000000ULL / get_ddr_freq(0);
 	/* round to nearest 10 ps */
 	return 10 * ((mclk_ps + 5) / 10);
 }
@@ -40,7 +38,7 @@ unsigned int picos_to_mclk(unsigned int picos)
 	if (!picos)
 		return 0;
 
-	clks = fsl_ddr_get_mem_data_rate() * (unsigned long long) picos;
+	clks = get_ddr_freq(0) * (unsigned long long) picos;
 	clks_temp = clks;
 	clks = clks / ULL_2e12;
 	if (clks_temp % ULL_2e12) {

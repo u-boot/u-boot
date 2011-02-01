@@ -46,11 +46,6 @@ void fsl_ddr_get_spd(ddr3_spd_eeprom_t *ctrl_dimms_spd,
 	}
 }
 
-unsigned int fsl_ddr_get_mem_data_rate(void)
-{
-	return get_ddr_freq(0);
-}
-
 /*
  *     There are traditionally three board-specific SDRAM timing parameters
  *     which must be calculated based on the particular PCB artwork.  These are:

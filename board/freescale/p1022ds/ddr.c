@@ -15,11 +15,6 @@
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_ddr_dimm_params.h>
 
-unsigned int fsl_ddr_get_mem_data_rate(void)
-{
-	return get_ddr_freq(0);
-}
-
 void fsl_ddr_get_spd(ddr3_spd_eeprom_t *ctrl_dimms_spd, unsigned int ctrl_num)
 {
 	int ret;

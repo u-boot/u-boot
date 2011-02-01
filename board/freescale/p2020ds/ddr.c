@@ -17,11 +17,6 @@ static void get_spd(generic_spd_eeprom_t *spd, unsigned char i2c_address)
 	i2c_read(i2c_address, 0, 1, (uchar *)spd, sizeof(ddr3_spd_eeprom_t));
 }
 
-unsigned int fsl_ddr_get_mem_data_rate(void)
-{
-	return get_ddr_freq(0);
-}
-
 void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
 		      unsigned int ctrl_num)
 {
