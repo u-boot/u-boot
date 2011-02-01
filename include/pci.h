@@ -306,6 +306,7 @@
 #define PCI_DCR		0x54    /* PCIe Device Control Register */
 #define PCI_DSR		0x56    /* PCIe Device Status Register */
 #define PCI_LSR		0x5e    /* PCIe Link Status Register */
+#define PCI_LCR		0x5c    /* PCIe Link Control Register */
 #define PCI_LTSSM	0x404   /* PCIe Link Training, Status State Machine */
 #define  PCI_LTSSM_L0	0x16    /* L0 state */
 
