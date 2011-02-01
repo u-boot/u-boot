@@ -87,11 +87,8 @@ struct mxc_data_hdd_regs {
 
 /* PIO timing table */
 #define	NR_PIO_SPECS	5
-static uint16_t pio_t0[NR_PIO_SPECS]	= { 600, 383, 240, 180, 120 };
 static uint16_t pio_t1[NR_PIO_SPECS]	= { 70,  50,  30,  30,  25 };
 static uint16_t pio_t2_8[NR_PIO_SPECS]	= { 290, 290, 290, 80,  70 };
-static uint16_t pio_t2_16[NR_PIO_SPECS]	= { 165, 125, 100, 80,  70 };
-static uint16_t pio_t2i[NR_PIO_SPECS]	= { 40,  0,   0,   0,   0 };
 static uint16_t pio_t4[NR_PIO_SPECS]	= { 30,  20,  15,  10,  10 };
 static uint16_t pio_t9[NR_PIO_SPECS]	= { 20,  15,  10,  10,  10 };
 static uint16_t pio_tA[NR_PIO_SPECS]	= { 50,  50,  50,  50,  50 };
