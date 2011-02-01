@@ -87,7 +87,7 @@
 
 /* I2C addresses of SPD EEPROMs */
 #define CONFIG_SYS_SPD_BUS_NUM		1
-#define SPD_EEPROM_ADDRESS1		0x51	/* CTLR 0 DIMM 0 */
+#define SPD_EEPROM_ADDRESS		0x51	/* CTLR 0 DIMM 0 */
 
 /*
  * Memory map

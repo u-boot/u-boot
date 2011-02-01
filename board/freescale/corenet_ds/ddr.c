@@ -107,33 +107,6 @@ phys_size_t fixed_sdram(void)
 	return ddr_size;
 }
 
-static void get_spd(ddr3_spd_eeprom_t *spd, unsigned char i2c_address)
-{
-	int ret;
-
-	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd, sizeof(ddr3_spd_eeprom_t));
-	if (ret) {
-		debug("DDR: failed to read SPD from address %u\n", i2c_address);
-		memset(spd, 0, sizeof(ddr3_spd_eeprom_t));
-	}
-}
-
-void fsl_ddr_get_spd(ddr3_spd_eeprom_t *ctrl_dimms_spd,
-		      unsigned int ctrl_num)
-{
-	unsigned int i;
-	unsigned int i2c_address = 0;
-
-	for (i = 0; i < CONFIG_DIMM_SLOTS_PER_CTLR; i++) {
-		if (ctrl_num == 0 && i == 0)
-			i2c_address = SPD_EEPROM_ADDRESS1;
-		else if (ctrl_num == 1 && i == 0)
-			i2c_address = SPD_EEPROM_ADDRESS2;
-
-		get_spd(&(ctrl_dimms_spd[i]), i2c_address);
-	}
-}
-
 typedef struct {
 	u32 datarate_mhz_low;
 	u32 datarate_mhz_high;

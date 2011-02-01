@@ -130,7 +130,7 @@
 /* I2C addresses of SPD EEPROMs */
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM		0	/* SPD EEPROM located on I2C bus 0 */
-#define SPD_EEPROM_ADDRESS1	0x51	/* CTLR 0 DIMM 0 */
+#define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
 
 /* These are used when DDR doesn't use SPD.  */
 #define CONFIG_SYS_SDRAM_SIZE		1024		/* DDR is 1GB */

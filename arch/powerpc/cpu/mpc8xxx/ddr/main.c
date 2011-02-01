@@ -13,6 +13,7 @@
  */
 
 #include <common.h>
+#include <i2c.h>
 #include <asm/fsl_ddr_sdram.h>
 
 #include "ddr.h"
@@ -26,9 +27,65 @@ extern void fsl_ddr_set_lawbar(
 extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 				   unsigned int ctrl_num);
 
-/* Board-specific functions defined in each board's ddr.c */
-extern void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
-			   unsigned int ctrl_num);
+#if defined(SPD_EEPROM_ADDRESS) || \
+    defined(SPD_EEPROM_ADDRESS1) || defined(SPD_EEPROM_ADDRESS2) || \
+    defined(SPD_EEPROM_ADDRESS3) || defined(SPD_EEPROM_ADDRESS4)
+#if (CONFIG_NUM_DDR_CONTROLLERS == 1) && (CONFIG_DIMM_SLOTS_PER_CTLR == 1)
+u8 spd_i2c_addr[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR] = {
+	[0][0] = SPD_EEPROM_ADDRESS,
+};
+#endif
+#if (CONFIG_NUM_DDR_CONTROLLERS == 2) && (CONFIG_DIMM_SLOTS_PER_CTLR == 1)
+u8 spd_i2c_addr[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR] = {
+	[0][0] = SPD_EEPROM_ADDRESS1,	/* controller 1 */
+	[1][0] = SPD_EEPROM_ADDRESS2,	/* controller 2 */
+};
+#endif
+#if (CONFIG_NUM_DDR_CONTROLLERS == 2) && (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
+u8 spd_i2c_addr[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR] = {
+	[0][0] = SPD_EEPROM_ADDRESS1,	/* controller 1 */
+	[0][1] = SPD_EEPROM_ADDRESS2,	/* controller 1 */
+	[1][0] = SPD_EEPROM_ADDRESS3,	/* controller 2 */
+	[1][1] = SPD_EEPROM_ADDRESS4,	/* controller 2 */
+};
+#endif
+
+static void __get_spd(generic_spd_eeprom_t *spd, u8 i2c_address)
+{
+	int ret = i2c_read(i2c_address, 0, 1, (uchar *)spd,
+				sizeof(generic_spd_eeprom_t));
+
+	if (ret) {
+		printf("DDR: failed to read SPD from address %u\n", i2c_address);
+		memset(spd, 0, sizeof(generic_spd_eeprom_t));
+	}
+}
+
+__attribute__((weak, alias("__get_spd")))
+void get_spd(generic_spd_eeprom_t *spd, u8 i2c_address);
+
+void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
+		      unsigned int ctrl_num)
+{
+	unsigned int i;
+	unsigned int i2c_address = 0;
+
+	if (ctrl_num >= CONFIG_NUM_DDR_CONTROLLERS) {
+		printf("%s unexpected ctrl_num = %u\n", __FUNCTION__, ctrl_num);
+		return;
+	}
+
+	for (i = 0; i < CONFIG_DIMM_SLOTS_PER_CTLR; i++) {
+		i2c_address = spd_i2c_addr[ctrl_num][i];
+		get_spd(&(ctrl_dimms_spd[i]), i2c_address);
+	}
+}
+#else
+void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
+		      unsigned int ctrl_num)
+{
+}
+#endif /* SPD_EEPROM_ADDRESSx */
 
 /*
  * ASSUMPTIONS:

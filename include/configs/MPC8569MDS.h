@@ -139,8 +139,7 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
 /* I2C addresses of SPD EEPROMs */
-#define SPD_EEPROM_ADDRESS1    0x51    /* CTLR 0 DIMM 0 */
-#define SPD_EEPROM_ADDRESS2    0x52    /* CTLR 1 DIMM 0 */
+#define SPD_EEPROM_ADDRESS    0x51    /* CTLR 0 DIMM 0 */
 
 /* These are used when DDR doesn't use SPD.  */
 #define CONFIG_SYS_SDRAM_SIZE           1024		/* DDR is 1024MB */
