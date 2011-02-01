@@ -3,7 +3,7 @@
  * The Internal Memory Map for devices with QE on them. This
  * is the superset of all QE devices (8360, etc.).
  *
- * Copyright (c) 2006-2009 Freescale Semiconductor, Inc.
+ * Copyright (c) 2006-2009, 2011 Freescale Semiconductor, Inc.
  * Author: Shlomi Gridih <gridish@freescale.com>
  *
  * This program is free software; you can redistribute  it and/or modify it
@@ -15,8 +15,19 @@
 #ifndef __IMMAP_QE_H__
 #define __IMMAP_QE_H__
 
-/* QE I-RAM
-*/
+#ifdef CONFIG_MPC83xx
+#if defined(CONFIG_MPC8360)
+#define QE_MURAM_SIZE		0xc000UL
+#define MAX_QE_RISC		2
+#define QE_NUM_OF_SNUM		28
+#elif defined(CONFIG_MPC832x)
+#define QE_MURAM_SIZE		0x4000UL
+#define MAX_QE_RISC		1
+#define QE_NUM_OF_SNUM		28
+#endif
+#endif
+
+/* QE I-RAM */
 typedef struct qe_iram {
 	u32 iadd;		/* I-RAM Address Register */
 	u32 idata;		/* I-RAM Data Register    */
@@ -25,8 +36,7 @@ typedef struct qe_iram {
 	u8 res1[0x70];
 } __attribute__ ((packed)) qe_iram_t;
 
-/* QE Interrupt Controller
-*/
+/* QE Interrupt Controller */
 typedef struct qe_ic {
 	u32 qicr;
 	u32 qivec;
@@ -49,8 +59,7 @@ typedef struct qe_ic {
 	u8 res3[0x1C];
 } __attribute__ ((packed)) qe_ic_t;
 
-/* Communications Processor
-*/
+/* Communications Processor */
 typedef struct cp_qe {
 	u32 cecr;		/* QE command register */
 	u32 ceccr;		/* QE controller configuration register */
@@ -87,8 +96,7 @@ typedef struct cp_qe {
 	u8 res13[0x280];
 } __attribute__ ((packed)) cp_qe_t;
 
-/* QE Multiplexer
-*/
+/* QE Multiplexer */
 typedef struct qe_mux {
 	u32 cmxgcr;		/* CMX general clock route register    */
 	u32 cmxsi1cr_l;		/* CMX SI1 clock route low register    */
@@ -102,8 +110,7 @@ typedef struct qe_mux {
 	u8 res0[0x1C];
 } __attribute__ ((packed)) qe_mux_t;
 
-/* QE Timers
-*/
+/* QE Timers */
 typedef struct qe_timers {
 	u8 gtcfr1;		/* Timer 1 2 global configuration register */
 	u8 res0[0x3];
@@ -133,8 +140,7 @@ typedef struct qe_timers {
 	u8 res2[0x46];
 } __attribute__ ((packed)) qe_timers_t;
 
-/* BRG
-*/
+/* BRG */
 typedef struct qe_brg {
 	u32 brgc1;		/* BRG1 configuration register  */
 	u32 brgc2;		/* BRG2 configuration register  */
@@ -155,8 +161,7 @@ typedef struct qe_brg {
 	u8 res0[0x40];
 } __attribute__ ((packed)) qe_brg_t;
 
-/* SPI
-*/
+/* SPI */
 typedef struct spi {
 	u8 res0[0x20];
 	u32 spmode;		/* SPI mode register */
@@ -174,8 +179,7 @@ typedef struct spi {
 	u8 res7[0x8];
 } __attribute__ ((packed)) spi_t;
 
-/* SI
-*/
+/* SI */
 typedef struct si1 {
 	u16 siamr1;		/* SI1 TDMA mode register */
 	u16 sibmr1;		/* SI1 TDMB mode register */
@@ -222,16 +226,14 @@ typedef struct si1 {
 	u8 res9[0xBB];
 } __attribute__ ((packed)) si1_t;
 
-/* SI Routing Tables
-*/
+/* SI Routing Tables */
 typedef struct sir {
 	u8 tx[0x400];
 	u8 rx[0x400];
 	u8 res0[0x800];
 } __attribute__ ((packed)) sir_t;
 
-/* USB Controller.
-*/
+/* USB Controller.  */
 typedef struct usb_ctlr {
 	u8 usb_usmod;
 	u8 usb_usadr;
@@ -253,8 +255,7 @@ typedef struct usb_ctlr {
 	u8 res6[0x22];
 } __attribute__ ((packed)) usb_t;
 
-/* MCC
-*/
+/* MCC */
 typedef struct mcc {
 	u32 mcce;		/* MCC event register */
 	u32 mccm;		/* MCC mask register */
@@ -263,8 +264,7 @@ typedef struct mcc {
 	u8 res0[0xF0];
 } __attribute__ ((packed)) mcc_t;
 
-/* QE UCC Slow
-*/
+/* QE UCC Slow */
 typedef struct ucc_slow {
 	u32 gumr_l;		/* UCCx general mode register (low) */
 	u32 gumr_h;		/* UCCx general mode register (high) */
@@ -368,8 +368,7 @@ typedef struct ucc_ethernet {
 	u8 res5[0x200 - 0x1c4];
 } __attribute__ ((packed)) uec_t;
 
-/* QE UCC Fast
-*/
+/* QE UCC Fast */
 typedef struct ucc_fast {
 	u32 gumr;		/* UCCx general mode register */
 	u32 upsmr;		/* UCCx protocol-specific mode register  */
@@ -403,8 +402,7 @@ typedef struct ucc_fast {
 	uec_t ucc_eth;
 } __attribute__ ((packed)) ucc_fast_t;
 
-/* QE UCC
-*/
+/* QE UCC */
 typedef struct ucc_common {
 	u8 res1[0x90];
 	u8 guemr;
@@ -419,8 +417,7 @@ typedef struct ucc {
 	};
 } __attribute__ ((packed)) ucc_t;
 
-/* MultiPHY UTOPIA POS Controllers (UPC)
-*/
+/* MultiPHY UTOPIA POS Controllers (UPC) */
 typedef struct upc {
 	u32 upgcr;		/* UTOPIA/POS general configuration register */
 	u32 uplpa;		/* UTOPIA/POS last PHY address */
@@ -476,8 +473,7 @@ typedef struct upc {
 	u8 res2[0x150];
 } __attribute__ ((packed)) upc_t;
 
-/* SDMA
-*/
+/* SDMA */
 typedef struct sdma {
 	u32 sdsr;		/* Serial DMA status register */
 	u32 sdmr;		/* Serial DMA mode register */
@@ -497,8 +493,7 @@ typedef struct sdma {
 	u8 res2[0x38];
 } __attribute__ ((packed)) sdma_t;
 
-/* Debug Space
-*/
+/* Debug Space */
 typedef struct dbg {
 	u32 bpdcr;		/* Breakpoint debug command register */
 	u32 bpdsr;		/* Breakpoint debug status register */
@@ -582,40 +577,9 @@ typedef struct qe_immap {
 	u8 res14[0x300];
 	u8 res15[0x3A00];
 	u8 res16[0x8000];	/* 0x108000 -  0x110000 */
-#if defined(CONFIG_MPC8568)
-	u8 muram[0x10000];	/* 0x1_0000 -  0x2_0000 Multi-user RAM */
-	u8 res17[0x20000];	/* 0x2_0000 -  0x4_0000 */
-#elif defined(CONFIG_MPC8569)
-	u8 muram[0x20000];	/* 0x1_0000 -  0x3_0000 Multi-user RAM */
-	u8 res17[0x10000];	/* 0x3_0000 -  0x4_0000 */
-#else
-	u8 muram[0xC000];	/* 0x110000 -  0x11C000 Multi-user RAM */
-	u8 res17[0x24000];	/* 0x11C000 -  0x140000 */
-	u8 res18[0xC0000];	/* 0x140000 -  0x200000 */
-#endif
+	u8 muram[QE_MURAM_SIZE];
 } __attribute__ ((packed)) qe_map_t;
 
 extern qe_map_t *qe_immr;
-
-#if defined(CONFIG_MPC8568)
-#define QE_MURAM_SIZE		0x10000UL
-#elif defined(CONFIG_MPC8569)
-#define QE_MURAM_SIZE		0x20000UL
-#elif defined(CONFIG_MPC8360)
-#define QE_MURAM_SIZE		0xc000UL
-#elif defined(CONFIG_MPC832x)
-#define QE_MURAM_SIZE		0x4000UL
-#endif
-
-#if defined(CONFIG_MPC8323)
-#define MAX_QE_RISC     1
-#define QE_NUM_OF_SNUM	28
-#elif defined(CONFIG_MPC8569)
-#define MAX_QE_RISC     4
-#define QE_NUM_OF_SNUM	46
-#else
-#define MAX_QE_RISC	2
-#define QE_NUM_OF_SNUM	28
-#endif
 
 #endif				/* __IMMAP_QE_H__ */

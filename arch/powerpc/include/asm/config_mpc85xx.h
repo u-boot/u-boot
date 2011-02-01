@@ -67,11 +67,17 @@
 #define CONFIG_MAX_CPUS			1
 #define CONFIG_SYS_FSL_NUM_LAWS		10
 #define CONFIG_SYS_FSL_SEC_COMPAT	2
+#define QE_MURAM_SIZE			0x10000UL
+#define MAX_QE_RISC			2
+#define QE_NUM_OF_SNUM			28
 
 #elif defined(CONFIG_MPC8569)
 #define CONFIG_MAX_CPUS			1
 #define CONFIG_SYS_FSL_NUM_LAWS		10
 #define CONFIG_SYS_FSL_SEC_COMPAT	2
+#define QE_MURAM_SIZE			0x20000UL
+#define MAX_QE_RISC			4
+#define QE_NUM_OF_SNUM			46
 
 #elif defined(CONFIG_MPC8572)
 #define CONFIG_MAX_CPUS			2
