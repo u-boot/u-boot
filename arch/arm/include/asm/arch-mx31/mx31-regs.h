@@ -75,6 +75,16 @@ struct cspi_regs {
 	u32 test;
 };
 
+/* Watchdog Timer (WDOG) registers */
+#define WDOG_ENABLE	(1 << 2)
+#define WDOG_WT_SHIFT	8
+struct wdog_regs {
+	u16 wcr;	/* Control */
+	u16 wsr;	/* Service */
+	u16 wrsr;	/* Reset Status */
+};
+
+
 #define IOMUX_PADNUM_MASK	0x1ff
 #define IOMUX_PIN(gpionum, padnum) ((padnum) & IOMUX_PADNUM_MASK)
 
