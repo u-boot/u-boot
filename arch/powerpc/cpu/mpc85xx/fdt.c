@@ -486,4 +486,13 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_SYS_SRIO
 	ft_srio_setup(blob);
 #endif
+
+	/*
+	 * system-clock = CCB clock/2
+	 * Here gd->bus_clk = CCB clock
+	 * We are using the system clock as 1588 Timer reference
+	 * clock source select
+	 */
+	do_fixup_by_compat_u32(blob, "fsl,gianfar-ptp-timer",
+			"timer-frequency", gd->bus_clk/2, 1);
 }
