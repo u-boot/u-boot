@@ -322,9 +322,10 @@ static void  __attribute__((unused)) davinci_eth_gigabit_enable(void)
 			 * Check if link detected is giga-bit
 			 * If Gigabit mode detected, enable gigbit in MAC
 			 */
-			writel(EMAC_MACCONTROL_GIGFORCE |
-			       EMAC_MACCONTROL_GIGABIT_ENABLE,
-			       &adap_emac->MACCONTROL);
+			writel(readl(&adap_emac->MACCONTROL) |
+				EMAC_MACCONTROL_GIGFORCE |
+				EMAC_MACCONTROL_GIGABIT_ENABLE,
+				&adap_emac->MACCONTROL);
 		}
 	}
 }
@@ -666,6 +667,7 @@ int davinci_emac_initialize(void)
 		return -1;
 
 	memset(dev, 0, sizeof *dev);
+	sprintf(dev->name, "DaVinci-EMAC");
 
 	dev->iobase = 0;
 	dev->init = davinci_eth_open;
@@ -722,6 +724,13 @@ int davinci_emac_initialize(void)
 			phy.is_phy_connected = dp83848_is_phy_connected;
 			phy.get_link_speed = dp83848_get_link_speed;
 			phy.auto_negotiate = dp83848_auto_negotiate;
+			break;
+		case PHY_ET1011C:
+			sprintf(phy.name, "ET1011C @ 0x%02x", active_phy_addr);
+			phy.init = gen_init_phy;
+			phy.is_phy_connected = gen_is_phy_connected;
+			phy.get_link_speed = et1011c_get_link_speed;
+			phy.auto_negotiate = gen_auto_negotiate;
 			break;
 		default:
 			sprintf(phy.name, "GENERIC @ 0x%02x", active_phy_addr);

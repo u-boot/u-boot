@@ -557,10 +557,15 @@ Rowel Atienza <rowel@diwalabs.com>
 Stefano Babic <sbabic@denx.de>
 
 	ea20		davinci
+	mx35pdk		i.MX35
+	mx51evk		i.MX51
 	polaris		xscale
 	trizepsiv	xscale
-	mx51evk		i.MX51
  	vision2		i.MX51
+
+Jason Liu <r64343@freescale.com>
+
+	mx53evk         i.MX53
 
 Enric Balletbo i Serra <eballetbo@iseebcn.com>
 
@@ -677,8 +682,9 @@ Nishant Kamat <nskamat@ti.com>
 
 Minkyu Kang <mk7.kang@samsung.com>
 
-	s5p_goni	ARM ARMV7 (S5PC110 SoC)
-	SMDKC100	ARM ARMV7 (S5PC100 SoC)
+	SMDKC100		ARM ARMV7 (S5PC100 SoC)
+	s5p_goni		ARM ARMV7 (S5PC110 SoC)
+	s5pc210_universal	ARM ARMV7 (S5PC210 SoC)
 
 Frederik Kriewitz <frederik@kriewitz.eu>
 
@@ -756,6 +762,10 @@ Stelian Pop <stelian.pop@leadtechdesign.com>
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
 
+Mike Rapoport <mike@compulab.co.il>
+
+	cm_t35		ARM ARMV7 (OMAP3xx SoC)
+
 Tom Rix <Tom.Rix@windriver.com>
 
 	omap3_zoom2	ARM ARMV7 (OMAP3xx SoC)
@@ -829,6 +839,7 @@ Marek Vasut <marek.vasut@gmail.com>
 	palmtc		xscale
 	vpac270		xscale
 	zipitz2		xscale
+ 	efikamx		i.MX51
 
 Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 

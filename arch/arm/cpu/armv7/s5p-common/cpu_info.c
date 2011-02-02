@@ -32,8 +32,6 @@ int arch_cpu_init(void)
 {
 	s5p_set_cpu_id();
 
-	s5p_clock_init();
-
 	return 0;
 }
 #endif

@@ -160,4 +160,48 @@
 /* Reg Power Control 2*/
 #define WDIRESET	(1 << 12)
 
+/* SWx Output Volts */
+#define SWX_OUT_MASK	0x1F
+#define SWX_OUT_1_25	0x1A
+#define SWX_OUT_1_30    0X1C
+
+/* Buck Switchers (SW1,2,3,4) Output Voltage */
+/*
+ * NOTE: These values are for SWxHI = 0,
+ * SWxHI = 1 adds 0.5V to the desired voltage
+ */
+#define SWx_0_600V	0
+#define SWx_0_625V	1
+#define SWx_0_650V	2
+#define SWx_0_675V	3
+#define SWx_0_700V	4
+#define SWx_0_725V	5
+#define SWx_0_750V	6
+#define SWx_0_775V	7
+#define SWx_0_800V	8
+#define SWx_0_825V	9
+#define SWx_0_850V	10
+#define SWx_0_875V	11
+#define SWx_0_900V	12
+#define SWx_0_925V	13
+#define SWx_0_950V	14
+#define SWx_0_975V	15
+#define SWx_1_000V	16
+#define SWx_1_025V	17
+#define SWx_1_050V	18
+#define SWx_1_075V	19
+#define SWx_1_100V	20
+#define SWx_1_125V	21
+#define SWx_1_150V	22
+#define SWx_1_175V	23
+#define SWx_1_200V	24
+#define SWx_1_225V	25
+#define SWx_1_250V	26
+#define SWx_1_275V	27
+#define SWx_1_300V	28
+#define SWx_1_325V	29
+#define SWx_1_350V	30
+#define SWx_1_375V	31
+#define SWx_VOLT_MASK	0x1F
+
 #endif

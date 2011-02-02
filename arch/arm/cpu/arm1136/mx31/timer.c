@@ -39,8 +39,7 @@
 #define GPTCR_CLKSOURCE_32	(4 << 6)	/* Clock source		*/
 #define GPTCR_TEN		1		/* Timer enable		*/
 
-static ulong timestamp;
-static ulong lastinc;
+DECLARE_GLOBAL_DATA_PTR;
 
 /* "time" is measured in 1 / CONFIG_SYS_HZ seconds, "tick" is internal timer period */
 #ifdef CONFIG_MX31_TIMER_HIGH_PRECISION
@@ -108,8 +107,8 @@ int timer_init (void)
 void reset_timer_masked (void)
 {
 	/* reset time */
-	lastinc = GPTCNT; /* capture current incrementer value time */
-	timestamp = 0; /* start "advancing" time stamp from 0 */
+	gd->lastinc = GPTCNT; /* capture current incrementer value time */
+	gd->tbl = 0; /* start "advancing" time stamp from 0 */
 }
 
 void reset_timer(void)
@@ -121,13 +120,13 @@ unsigned long long get_ticks (void)
 {
 	ulong now = GPTCNT; /* current tick value */
 
-	if (now >= lastinc)	/* normal mode (non roll) */
+	if (now >= gd->lastinc)	/* normal mode (non roll) */
 		/* move stamp forward with absolut diff ticks */
-		timestamp += (now - lastinc);
+		gd->tbl += (now - gd->lastinc);
 	else			/* we have rollover of incrementer */
-		timestamp += (0xFFFFFFFF - lastinc) + now;
-	lastinc = now;
-	return timestamp;
+		gd->tbl += (0xFFFFFFFF - gd->lastinc) + now;
+	gd->lastinc = now;
+	return gd->tbl;
 }
 
 ulong get_timer_masked (void)
@@ -148,7 +147,7 @@ ulong get_timer (ulong base)
 
 void set_timer (ulong t)
 {
-	timestamp = time_to_tick(t);
+	gd->tbl = time_to_tick(t);
 }
 
 /* delay x useconds AND preserve advance timestamp value */

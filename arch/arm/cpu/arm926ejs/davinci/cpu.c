@@ -54,9 +54,9 @@
 #define DDR_PLLDIV	PLLC_PLLDIV2
 #endif
 
-#ifdef CONFIG_SOC_DM6447
-#define ARM_PLLDIV	PLLC_PLLDIV2
+#ifdef CONFIG_SOC_DM646X
 #define DSP_PLLDIV	PLLC_PLLDIV1
+#define ARM_PLLDIV	PLLC_PLLDIV2
 #define DDR_PLLDIV	PLLC_PLLDIV1
 #endif
 
@@ -145,7 +145,11 @@ static inline unsigned pll_postdiv(volatile void *pllbase)
 static unsigned pll_sysclk_mhz(unsigned pll_addr, unsigned div)
 {
 	volatile void	*pllbase = (volatile void *) pll_addr;
+#ifdef CONFIG_SOC_DM646X
+	unsigned	base = CFG_REFCLK_FREQ / 1000;
+#else
 	unsigned	base = CONFIG_SYS_HZ_CLOCK / 1000;
+#endif
 
 	/* the PLL might be bypassed */
 	if (REG(pllbase + PLLC_PLLCTL) & BIT(0)) {
@@ -176,6 +180,12 @@ int print_cpuinfo(void)
 	return 0;
 }
 
+#ifdef DAVINCI_DM6467EVM
+unsigned int davinci_arm_clk_get()
+{
+	return pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, ARM_PLLDIV) * 1000000;
+}
+#endif
 #endif
 
 /*

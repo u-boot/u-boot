@@ -119,9 +119,6 @@ start_code:
 	orr	r0, r0, #0xd3
 	msr	cpsr, r0
 
-	bl	coloured_LED_init
-	bl	red_LED_on
-
 #if	defined(CONFIG_AT91RM9200DK) || defined(CONFIG_AT91RM9200EK)
 	/*
 	 * relocate exception table
@@ -211,7 +208,6 @@ stack_setup:
 	cmp	r0, r6
 	beq	clear_bss		/* skip relocation */
 	mov	r1, r6			/* r1 <- scratch for copy_loop */
-	ldr	r2, _TEXT_BASE
 	ldr	r3, _bss_start_ofs
 	add	r2, r0, r3		/* r2 <- source end address	    */
 
@@ -266,7 +262,6 @@ clear_bss:
 #ifndef CONFIG_PRELOADER
 	ldr	r0, _bss_start_ofs
 	ldr	r1, _bss_end_ofs
-	ldr	r3, _TEXT_BASE		/* Text base */
 	mov	r4, r6			/* reloc addr */
 	add	r0, r0, r4
 	add	r1, r1, r4

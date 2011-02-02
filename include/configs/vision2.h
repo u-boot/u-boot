@@ -24,10 +24,11 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/arch/imx-regs.h>
 
 #define CONFIG_MX51	/* in a mx51 */
 #define CONFIG_L2_OFF
+
+#include <asm/arch/imx-regs.h>
 
 #define CONFIG_SYS_MX5_HCLK	24000000
 #define CONFIG_SYS_MX5_CLK32		32768

@@ -198,17 +198,17 @@ static void power_init(void)
 
 	/* Set core voltage to 1.1V */
 	val = pmic_reg_read(REG_SW_0);
-	val = (val & (~0x1F)) | 0x14;
+	val = (val & ~SWx_VOLT_MASK) | SWx_1_100V;
 	pmic_reg_write(REG_SW_0, val);
 
 	/* Setup VCC (SW2) to 1.25 */
 	val = pmic_reg_read(REG_SW_1);
-	val = (val & (~0x1F)) | 0x1A;
+	val = (val & ~SWx_VOLT_MASK) | SWx_1_250V;
 	pmic_reg_write(REG_SW_1, val);
 
 	/* Setup 1V2_DIG1 (SW3) to 1.25 */
 	val = pmic_reg_read(REG_SW_2);
-	val = (val & (~0x1F)) | 0x1A;
+	val = (val & ~SWx_VOLT_MASK) | SWx_1_250V;
 	pmic_reg_write(REG_SW_2, val);
 	udelay(50);
 
@@ -399,6 +399,14 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+int board_early_init_f(void)
+{
+	setup_iomux_uart();
+	setup_iomux_fec();
+
+	return 0;
+}
+
 int board_init(void)
 {
 	system_rev = get_cpu_rev();
@@ -406,9 +414,6 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_MX51_BABBAGE;
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
-
-	setup_iomux_uart();
-	setup_iomux_fec();
 
 	return 0;
 }

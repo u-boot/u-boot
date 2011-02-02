@@ -24,8 +24,6 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/arch/imx-regs.h>
-
  /* High Level Configuration Options */
 
 #define CONFIG_MX51	/* in a mx51 */
@@ -37,6 +35,7 @@
 
 #define CONFIG_L2_OFF
 
+#include <asm/arch/imx-regs.h>
 /*
  * Disabled for now due to build problems under Debian and a significant
  * increase in the final file size: 144260 vs. 109536 Bytes.
@@ -202,6 +201,8 @@
 #define CONFIG_SYS_SDRAM_BASE		(PHYS_SDRAM_1)
 #define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR)
 #define CONFIG_SYS_INIT_RAM_SIZE	(IRAM_SIZE)
+
+#define CONFIG_BOARD_EARLY_INIT_F
 
 #define CONFIG_SYS_INIT_SP_OFFSET \
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)

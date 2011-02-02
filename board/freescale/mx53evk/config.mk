@@ -1,6 +1,8 @@
 #
-# (C) Copyright 2009 Faraday Technology
-# Po-Yu Chuang <ratbert@faraday-tech.com>
+# Copyright 2010 Freescale Semiconductor, Inc. All Rights Reserved.
+#
+# See file CREDITS for list of people who contributed to this
+# project.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,18 +20,5 @@
 # MA 02111-1307 USA
 #
 
-# Faraday A320 board with FA526/FA626TE/ARM926EJ-S cpus
-#
-# see http://www.faraday-tech.com/ for more information
-
-# A320 has 1 bank of 64 MB DRAM
-#
-# 1000'0000 to 1400'0000
-#
-# Linux-Kernel is expected to be at 1000'8000, entry 1000'8000
-#
-# we load ourself to 13f8'0000
-#
-# download area is 1200'0000
-
-CONFIG_SYS_TEXT_BASE = 0x13f80000
+IMX_CONFIG = $(SRCTREE)/board/$(BOARDDIR)/imximage.cfg
+ALL += $(obj)u-boot.imx

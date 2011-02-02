@@ -20,38 +20,36 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ASM_ARCH_MXC_MX51_H__
-#define __ASM_ARCH_MXC_MX51_H__
+#ifndef __ASM_ARCH_MX5_IMX_REGS_H__
+#define __ASM_ARCH_MX5_IMX_REGS_H__
 
-/*
- * IRAM
- */
+#if defined(CONFIG_MX51)
 #define IRAM_BASE_ADDR		0x1FFE0000	/* internal ram */
-#define IRAM_SIZE		0x00020000	/* 128 KB */
-/*
- * Graphics Memory of GPU
- */
-#define GPU_BASE_ADDR		0x20000000
-#define GPU_CTRL_BASE_ADDR	0x30000000
 #define IPU_CTRL_BASE_ADDR	0x40000000
-/*
- * Debug
- */
-#define DEBUG_BASE_ADDR		0x60000000
-#define ETB_BASE_ADDR		(DEBUG_BASE_ADDR + 0x00001000)
-#define ETM_BASE_ADDR		(DEBUG_BASE_ADDR + 0x00002000)
-#define TPIU_BASE_ADDR		(DEBUG_BASE_ADDR + 0x00003000)
-#define CTI0_BASE_ADDR		(DEBUG_BASE_ADDR + 0x00004000)
-#define CTI1_BASE_ADDR		(DEBUG_BASE_ADDR + 0x00005000)
-#define CTI2_BASE_ADDR		(DEBUG_BASE_ADDR + 0x00006000)
-#define CTI3_BASE_ADDR		(DEBUG_BASE_ADDR + 0x00007000)
-#define CORTEX_DBG_BASE_ADDR	(DEBUG_BASE_ADDR + 0x00008000)
+#define SPBA0_BASE_ADDR         0x70000000
+#define AIPS1_BASE_ADDR         0x73F00000
+#define AIPS2_BASE_ADDR         0x83F00000
+#define CSD0_BASE_ADDR          0x90000000
+#define CSD1_BASE_ADDR          0xA0000000
+#define NFC_BASE_ADDR_AXI       0xCFFF0000
+#elif defined(CONFIG_MX53)
+#define IPU_CTRL_BASE_ADDR      0x18000000
+#define SPBA0_BASE_ADDR         0x50000000
+#define AIPS1_BASE_ADDR         0x53F00000
+#define AIPS2_BASE_ADDR         0x63F00000
+#define CSD0_BASE_ADDR          0x70000000
+#define CSD1_BASE_ADDR          0xB0000000
+#define NFC_BASE_ADDR_AXI       0xF7FF0000
+#define IRAM_BASE_ADDR          0xF8000000
+#else
+#error "CPU_TYPE not defined"
+#endif
+
+#define IRAM_SIZE		0x00020000	/* 128 KB */
 
 /*
  * SPBA global module enabled #0
  */
-#define SPBA0_BASE_ADDR 	0x70000000
-
 #define MMC_SDHC1_BASE_ADDR	(SPBA0_BASE_ADDR + 0x00004000)
 #define MMC_SDHC2_BASE_ADDR	(SPBA0_BASE_ADDR + 0x00008000)
 #define UART3_BASE_ADDR 	(SPBA0_BASE_ADDR + 0x0000C000)
@@ -68,8 +66,6 @@
 /*
  * AIPS 1
  */
-#define AIPS1_BASE_ADDR 	0x73F00000
-
 #define OTG_BASE_ADDR		(AIPS1_BASE_ADDR + 0x00080000)
 #define GPIO1_BASE_ADDR		(AIPS1_BASE_ADDR + 0x00084000)
 #define GPIO2_BASE_ADDR		(AIPS1_BASE_ADDR + 0x00088000)
@@ -91,11 +87,14 @@
 #define CCM_BASE_ADDR		(AIPS1_BASE_ADDR + 0x000D4000)
 #define GPC_BASE_ADDR		(AIPS1_BASE_ADDR + 0x000D8000)
 
+#if defined(CONFIG_MX53)
+#define GPIO5_BASE_ADDR         (AIPS1_BASE_ADDR + 0x000DC000)
+#define GPIO6_BASE_ADDR         (AIPS1_BASE_ADDR + 0x000E0000)
+#define GPIO7_BASE_ADDR         (AIPS1_BASE_ADDR + 0x000E4000)
+#endif
 /*
  * AIPS 2
  */
-#define AIPS2_BASE_ADDR	0x83F00000
-
 #define PLL1_BASE_ADDR		(AIPS2_BASE_ADDR + 0x00080000)
 #define PLL2_BASE_ADDR		(AIPS2_BASE_ADDR + 0x00084000)
 #define PLL3_BASE_ADDR		(AIPS2_BASE_ADDR + 0x00088000)
@@ -129,30 +128,7 @@
 #define VPU_BASE_ADDR		(AIPS2_BASE_ADDR + 0x000F4000)
 #define SAHARA_BASE_ADDR	(AIPS2_BASE_ADDR + 0x000F8000)
 
-#define TZIC_BASE_ADDR		0x8FFFC000
-
 /*
- * Memory regions and CS
- */
-#define CSD0_BASE_ADDR		0x90000000
-#define CSD1_BASE_ADDR		0xA0000000
-#define CS0_BASE_ADDR		0xB0000000
-#define CS1_BASE_ADDR		0xB8000000
-#define CS2_BASE_ADDR		0xC0000000
-#define CS3_BASE_ADDR		0xC8000000
-#define CS4_BASE_ADDR		0xCC000000
-#define CS5_BASE_ADDR		0xCE000000
-
-/*
- * NFC
- */
-#define NFC_BASE_ADDR_AXI	0xCFFF0000	/* NAND flash AXI */
-
-/*!
- * Number of GPIO port as defined in the IC Spec
- */
-#define GPIO_PORT_NUM		4
-/*!
  * Number of GPIO pins per port
  */
 #define GPIO_NUM_PIN            32
@@ -280,6 +256,18 @@ struct src {
 	u32	simr;
 };
 
+/* CSPI registers */
+struct cspi_regs {
+	u32 rxdata;
+	u32 txdata;
+	u32 ctrl;
+	u32 cfg;
+	u32 intr;
+	u32 dma;
+	u32 stat;
+	u32 period;
+};
+
 struct iim_regs {
 	u32	stat;
 	u32	statm;
@@ -311,4 +299,4 @@ struct fuse_bank1_regs {
 
 #endif /* __ASSEMBLER__*/
 
-#endif				/*  __ASM_ARCH_MXC_MX51_H__ */
+#endif				/* __ASM_ARCH_MX5_IMX_REGS_H__ */

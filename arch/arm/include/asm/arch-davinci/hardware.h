@@ -209,6 +209,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_DM646X_LPSC_EMAC	14
 #define DAVINCI_DM646X_LPSC_UART0	26
 #define DAVINCI_DM646X_LPSC_I2C		31
+#define DAVINCI_DM646X_LPSC_TIMER0	34
 
 #else /* CONFIG_SOC_DA8XX */
 

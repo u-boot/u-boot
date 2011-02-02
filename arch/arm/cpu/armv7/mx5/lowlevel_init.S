@@ -70,6 +70,7 @@
 
 /* M4IF setup */
 .macro init_m4if
+#ifdef CONFIG_MX51
 	/* VPU and IPU given higher priority (0x4)
 	 * IPU accesses with ID=0x1 given highest priority (=0xA)
 	 */
@@ -87,27 +88,31 @@
 	ldr r1, =0x001901A3
 	str r1, [r0, #0x48]
 
+#endif
 .endm /* init_m4if */
 
 .macro setup_pll pll, freq
-	ldr r2, =\pll
+	ldr r0, =\pll
 	ldr r1, =0x00001232
-	str r1, [r2, #PLL_DP_CTL] /* Set DPLL ON (set UPEN bit): BRMO=1 */
+	str r1, [r0, #PLL_DP_CTL] /* Set DPLL ON (set UPEN bit): BRMO=1 */
 	mov r1, #0x2
-	str r1, [r2, #PLL_DP_CONFIG] /* Enable auto-restart AREN bit */
+	str r1, [r0, #PLL_DP_CONFIG] /* Enable auto-restart AREN bit */
 
-	str r3, [r2, #PLL_DP_OP]
-	str r3, [r2, #PLL_DP_HFS_OP]
+	ldr r1, W_DP_OP_\freq
+	str r1, [r0, #PLL_DP_OP]
+	str r1, [r0, #PLL_DP_HFS_OP]
 
-	str r4, [r2, #PLL_DP_MFD]
-	str r4, [r2, #PLL_DP_HFS_MFD]
+	ldr r1,	W_DP_MFD_\freq
+	str r1, [r0, #PLL_DP_MFD]
+	str r1, [r0, #PLL_DP_HFS_MFD]
 
-	str r5, [r2, #PLL_DP_MFN]
-	str r5, [r2, #PLL_DP_HFS_MFN]
+	ldr r1,  W_DP_MFN_\freq
+	str r1, [r0, #PLL_DP_MFN]
+	str r1, [r0, #PLL_DP_HFS_MFN]
 
 	ldr r1, =0x00001232
-	str r1, [r2, #PLL_DP_CTL]
-1:	ldr r1, [r2, #PLL_DP_CTL]
+	str r1, [r0, #PLL_DP_CTL]
+1:	ldr r1, [r0, #PLL_DP_CTL]
 	ands r1, r1, #0x1
 	beq 1b
 .endm
@@ -115,6 +120,7 @@
 .macro init_clock
 	ldr r0, =CCM_BASE_ADDR
 
+#if defined(CONFIG_MX51)
 	/* Gate of clocks to the peripherals first */
 	ldr r1, =0x3FFFFFFF
 	str r1, [r0, #CLKCTL_CCGR0]
@@ -141,19 +147,16 @@
 1:	ldr r1, [r0, #CLKCTL_CDHIPR]
 	cmp r1, #0x0
 	bne 1b
+#endif
 
 	/* Switch ARM to step clock */
 	mov r1, #0x4
 	str r1, [r0, #CLKCTL_CCSR]
-	mov r3, #DP_OP_800
-	mov r4, #DP_MFD_800
-	mov r5, #DP_MFN_800
-	setup_pll PLL1_BASE_ADDR
 
-	mov r3, #DP_OP_665
-	mov r4, #DP_MFD_665
-	mov r5, #DP_MFN_665
-	setup_pll PLL3_BASE_ADDR
+	setup_pll PLL1_BASE_ADDR, 800
+
+#if defined(CONFIG_MX51)
+	setup_pll PLL3_BASE_ADDR, 665
 
 	/* Switch peripheral to PLL 3 */
 	ldr r0, =CCM_BASE_ADDR
@@ -162,10 +165,7 @@
 	str r1, [r0, #CLKCTL_CBCMR]
 	ldr r1, =0x13239145
 	str r1, [r0, #CLKCTL_CBCDR]
-	mov r3, #DP_OP_665
-	mov r4, #DP_MFD_665
-	mov r5, #DP_MFN_665
-	setup_pll PLL2_BASE_ADDR
+	setup_pll PLL2_BASE_ADDR, 665
 
 	/* Switch peripheral to PLL2 */
 	ldr r0, =CCM_BASE_ADDR
@@ -174,12 +174,8 @@
 	ldr r1, =0x000020C0
 	orr r1,r1,#CONFIG_SYS_DDR_CLKSEL
 	str r1, [r0, #CLKCTL_CBCMR]
-
-	mov r3, #DP_OP_216
-	mov r4, #DP_MFD_216
-	mov r5, #DP_MFN_216
-	setup_pll PLL3_BASE_ADDR
-
+#endif
+	setup_pll PLL3_BASE_ADDR, 216
 
 	/* Set the platform clock dividers */
 	ldr r0, =ARM_BASE_ADDR
@@ -188,18 +184,23 @@
 
 	ldr r0, =CCM_BASE_ADDR
 
+#if defined(CONFIG_MX51)
 	/* Run 3.0 at Full speed, for other TO's wait till we increase VDDGP */
 	ldr r1, =0x0
 	ldr r3, [r1, #ROM_SI_REV]
 	cmp r3, #0x10
 	movls r1, #0x1
 	movhi r1, #0
-	str r1, [r0, #CLKCTL_CACRR]
+#else
+	mov r1, #0
 
+#endif
+	str r1, [r0, #CLKCTL_CACRR]
 	/* Switch ARM back to PLL 1 */
 	mov r1, #0
 	str r1, [r0, #CLKCTL_CCSR]
 
+#if defined(CONFIG_MX51)
 	/* setup the rest */
 	/* Use lp_apm (24MHz) source for perclk */
 	ldr r1, =0x000020C2
@@ -208,6 +209,7 @@
 	/* ddr clock from PLL 1, all perclk dividers are 1 since using 24MHz */
 	ldr r1, =CONFIG_SYS_CLKTL_CBCDR
 	str r1, [r0, #CLKCTL_CBCDR]
+#endif
 
 	/* Restore the default values in the Gate registers */
 	ldr r1, =0xFFFFFFFF
@@ -218,13 +220,23 @@
 	str r1, [r0, #CLKCTL_CCGR4]
 	str r1, [r0, #CLKCTL_CCGR5]
 	str r1, [r0, #CLKCTL_CCGR6]
+#if defined(CONFIG_MX53)
+	str r1, [r0, #CLKCTL_CCGR7]
+#endif
 
+#if defined(CONFIG_MX51)
 	/* Use PLL 2 for UART's, get 66.5MHz from it */
 	ldr r1, =0xA5A2A020
 	str r1, [r0, #CLKCTL_CSCMR1]
 	ldr r1, =0x00C30321
 	str r1, [r0, #CLKCTL_CSCDR1]
-
+#elif defined(CONFIG_MX53)
+	ldr r1, [r0, #CLKCTL_CSCDR1]
+	orr r1, r1, #0x3f
+	eor r1, r1, #0x3f
+	orr r1, r1, #0x21
+	str r1, [r0, #CLKCTL_CSCDR1]
+#endif
 	/* make sure divider effective */
 1:	ldr r1, [r0, #CLKCTL_CDHIPR]
 	cmp r1, #0x0
@@ -249,6 +261,7 @@
 
 .globl lowlevel_init
 lowlevel_init:
+#if defined(CONFIG_MX51)
 	ldr r0, =GPIO1_BASE_ADDR
 	ldr r1, [r0, #0x0]
 	orr r1, r1, #(1 << 23)
@@ -256,6 +269,7 @@ lowlevel_init:
 	ldr r1, [r0, #0x4]
 	orr r1, r1, #(1 << 23)
 	str r1, [r0, #0x4]
+#endif
 
 	init_l2cc
 
@@ -269,9 +283,12 @@ lowlevel_init:
 	mov pc,lr
 
 /* Board level setting value */
-DDR_PERCHARGE_CMD:	.word 0x04008008
-DDR_REFRESH_CMD:	.word 0x00008010
-DDR_LMR1_W:		.word 0x00338018
-DDR_LMR_CMD:		.word 0xB2220000
-DDR_TIMING_W:		.word 0xB02567A9
-DDR_MISC_W:		.word 0x000A0104
+W_DP_OP_800:              .word DP_OP_800
+W_DP_MFD_800:             .word DP_MFD_800
+W_DP_MFN_800:             .word DP_MFN_800
+W_DP_OP_665:              .word DP_OP_665
+W_DP_MFD_665:             .word DP_MFD_665
+W_DP_MFN_665:             .word DP_MFN_665
+W_DP_OP_216:              .word DP_OP_216
+W_DP_MFD_216:             .word DP_MFD_216
+W_DP_MFN_216:             .word DP_MFN_216

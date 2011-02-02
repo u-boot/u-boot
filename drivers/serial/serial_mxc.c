@@ -50,11 +50,14 @@
 #define UART_PHYS 0x1001b000
 #elif defined(CONFIG_SYS_MX27_UART6)
 #define UART_PHYS 0x1001c000
-#elif defined(CONFIG_SYS_MX51_UART1)
+#elif defined(CONFIG_SYS_MX35_UART1) || defined(CONFIG_SYS_MX51_UART1) || \
+	defined(CONFIG_SYS_MX53_UART1)
 #define UART_PHYS UART1_BASE_ADDR
-#elif defined(CONFIG_SYS_MX51_UART2)
+#elif defined(CONFIG_SYS_MX35_UART2) || defined(CONFIG_SYS_MX51_UART2) || \
+	defined(CONFIG_SYS_MX53_UART2)
 #define UART_PHYS UART2_BASE_ADDR
-#elif defined(CONFIG_SYS_MX51_UART3)
+#elif defined(CONFIG_SYS_MX35_UART3) || defined(CONFIG_SYS_MX51_UART3) || \
+	defined(CONFIG_SYS_MX53_UART3)
 #define UART_PHYS UART3_BASE_ADDR
 #else
 #error "define CONFIG_SYS_MXxx_UARTx to use the MXC UART driver"

@@ -43,8 +43,10 @@
 #define GPTCR_CLKSOURCE_32	(4 << 1)	/* Clock source		*/
 #define GPTCR_TEN		1		/* Timer enable		*/
 
-static ulong timestamp;
-static ulong lastinc;
+DECLARE_GLOBAL_DATA_PTR;
+
+#define timestamp gd->tbl
+#define lastinc gd->lastinc
 
 /*
  * "time" is measured in 1 / CONFIG_SYS_HZ seconds,

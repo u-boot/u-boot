@@ -21,6 +21,8 @@ Currently the following boards are supported:
 
 * TI/Logic PD Zoom 2 [7]
 
+* CompuLab Ltd. CM-T35 [8]
+
 Toolchain
 =========
 
@@ -59,6 +61,11 @@ make
 * Zoom 2:
 
 make omap3_zoom2_config
+make
+
+* CM-T35:
+
+make cm_t35_config
 make
 
 Custom commands
@@ -119,7 +126,7 @@ To read a bit :
 Acknowledgements
 ================
 
-OMAP3 U-Boot is based on U-Boot tar ball [8] for BeagleBoard and EVM done by
+OMAP3 U-Boot is based on U-Boot tar ball [9] for BeagleBoard and EVM done by
 several TI employees.
 
 Links
@@ -153,6 +160,11 @@ http://www.logicpd.com/products/devkit/ti/zoom_mobile_development_kit
 [7] TI/Logic PD Zoom 2
 
 http://www.logicpd.com/sites/default/files/1012659A_Zoom_OMAP34x-II_MDP_Brief.pdf
-[8] TI OMAP3 U-Boot:
+
+[8] CompuLab Ltd. CM-T35:
+
+http://www.compulab.co.il/t3530/html/t3530-cm-datasheet.htm
+
+[9] TI OMAP3 U-Boot:
 
 http://beagleboard.googlecode.com/files/u-boot_beagle_revb.tar.gz
