@@ -464,7 +464,7 @@ static int DhcpExtended (u8 * e, int message_type, IPaddr_t ServerID, IPaddr_t R
 
 	/* Pad to minimal length */
 #ifdef	CONFIG_DHCP_MIN_EXT_LEN
-	while ((e - start) <= CONFIG_DHCP_MIN_EXT_LEN)
+	while ((e - start) < CONFIG_DHCP_MIN_EXT_LEN)
 		*e++ = 0;
 #endif
 
