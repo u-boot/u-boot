@@ -35,11 +35,11 @@
 #define CONFIG_SYS_FSL_NUM_LAWS		12
 #define CONFIG_SYS_FSL_SEC_COMPAT	2
 
-#elif defined(CONFIG_MPC8540) 
+#elif defined(CONFIG_MPC8540)
 #define CONFIG_MAX_CPUS			1
 #define CONFIG_SYS_FSL_NUM_LAWS		8
 
-#elif defined(CONFIG_MPC8541) 
+#elif defined(CONFIG_MPC8541)
 #define CONFIG_MAX_CPUS			1
 #define CONFIG_SYS_FSL_NUM_LAWS		8
 #define CONFIG_SYS_FSL_SEC_COMPAT	2

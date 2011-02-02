@@ -95,8 +95,8 @@ static struct nand_ecclayout nand_oob_64 = {
 static struct nand_ecclayout nand_oob_128 = {
 	.eccbytes = 48,
 	.eccpos = {
-		    80,  81,  82,  83,  84,  85,  86,  87,
-		    88,  89,  90,  91,  92,  93,  94,  95,
+		    80,  81,  82,  83,	84,  85,  86,  87,
+		    88,  89,  90,  91,	92,  93,  94,  95,
 		    96,  97,  98,  99, 100, 101, 102, 103,
 		   104, 105, 106, 107, 108, 109, 110, 111,
 		   112, 113, 114, 115, 116, 117, 118, 119,
@@ -1257,7 +1257,7 @@ static int nand_do_read_ops(struct mtd_info *mtd, loff_t from,
 	if (mtd->ecc_stats.failed - stats.failed)
 		return -EBADMSG;
 
-	return  mtd->ecc_stats.corrected - stats.corrected ? -EUCLEAN : 0;
+	return	mtd->ecc_stats.corrected - stats.corrected ? -EUCLEAN : 0;
 }
 
 /**
@@ -1455,7 +1455,7 @@ static int nand_do_read_oob(struct mtd_info *mtd, loff_t from,
 	uint8_t *buf = ops->oobbuf;
 
 	MTDDEBUG (MTD_DEBUG_LEVEL3, "nand_read_oob: from = 0x%08Lx, len = %i\n",
-	          (unsigned long long)from, readlen);
+		  (unsigned long long)from, readlen);
 
 	if (ops->mode == MTD_OOB_AUTO)
 		len = chip->ecc.layout->oobavail;
@@ -1464,7 +1464,7 @@ static int nand_do_read_oob(struct mtd_info *mtd, loff_t from,
 
 	if (unlikely(ops->ooboffs >= len)) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0, "nand_read_oob: "
-		          "Attempt to start read outside oob\n");
+			  "Attempt to start read outside oob\n");
 		return -EINVAL;
 	}
 
@@ -1473,7 +1473,7 @@ static int nand_do_read_oob(struct mtd_info *mtd, loff_t from,
 		     ops->ooboffs + readlen > ((mtd->size >> chip->page_shift) -
 					(from >> chip->page_shift)) * len)) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0, "nand_read_oob: "
-		          "Attempt read beyond end of device\n");
+			  "Attempt read beyond end of device\n");
 		return -EINVAL;
 	}
 
@@ -1548,7 +1548,7 @@ static int nand_read_oob(struct mtd_info *mtd, loff_t from,
 	/* Do not allow reads past end of device */
 	if (ops->datbuf && (from + ops->len) > mtd->size) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0, "nand_read_oob: "
-		          "Attempt read beyond end of device\n");
+			  "Attempt read beyond end of device\n");
 		return -EINVAL;
 	}
 
@@ -1981,7 +1981,7 @@ static int nand_do_write_oob(struct mtd_info *mtd, loff_t to,
 	struct nand_chip *chip = mtd->priv;
 
 	MTDDEBUG (MTD_DEBUG_LEVEL3, "nand_write_oob: to = 0x%08x, len = %i\n",
-	          (unsigned int)to, (int)ops->ooblen);
+		  (unsigned int)to, (int)ops->ooblen);
 
 	if (ops->mode == MTD_OOB_AUTO)
 		len = chip->ecc.layout->oobavail;
@@ -1991,13 +1991,13 @@ static int nand_do_write_oob(struct mtd_info *mtd, loff_t to,
 	/* Do not allow write past end of page */
 	if ((ops->ooboffs + ops->ooblen) > len) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0, "nand_write_oob: "
-		          "Attempt to write past end of page\n");
+			  "Attempt to write past end of page\n");
 		return -EINVAL;
 	}
 
 	if (unlikely(ops->ooboffs >= len)) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0, "nand_read_oob: "
-		          "Attempt to start write outside oob\n");
+			  "Attempt to start write outside oob\n");
 		return -EINVAL;
 	}
 
@@ -2007,7 +2007,7 @@ static int nand_do_write_oob(struct mtd_info *mtd, loff_t to,
 			((mtd->size >> chip->page_shift) -
 			 (to >> chip->page_shift)) * len)) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0, "nand_read_oob: "
-		          "Attempt write beyond end of device\n");
+			  "Attempt write beyond end of device\n");
 		return -EINVAL;
 	}
 
@@ -2063,7 +2063,7 @@ static int nand_write_oob(struct mtd_info *mtd, loff_t to,
 	/* Do not allow writes past end of device */
 	if (ops->datbuf && (to + ops->len) > mtd->size) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0, "nand_read_oob: "
-		          "Attempt read beyond end of device\n");
+			  "Attempt read beyond end of device\n");
 		return -EINVAL;
 	}
 
@@ -2166,14 +2166,14 @@ int nand_erase_nand(struct mtd_info *mtd, struct erase_info *instr,
 	/* Length must align on block boundary */
 	if (instr->len & ((1 << chip->phys_erase_shift) - 1)) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0,
-		          "nand_erase: Length not block aligned\n");
+			  "nand_erase: Length not block aligned\n");
 		return -EINVAL;
 	}
 
 	/* Do not allow erase past end of device */
 	if ((instr->len + instr->addr) > mtd->size) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0,
-		          "nand_erase: Erase past end of device\n");
+			  "nand_erase: Erase past end of device\n");
 		return -EINVAL;
 	}
 
@@ -2195,7 +2195,7 @@ int nand_erase_nand(struct mtd_info *mtd, struct erase_info *instr,
 	/* Check, if it is write protected */
 	if (nand_check_wp(mtd)) {
 		MTDDEBUG (MTD_DEBUG_LEVEL0,
-		          "nand_erase: Device is write protected!!!\n");
+			  "nand_erase: Device is write protected!!!\n");
 		instr->state = MTD_ERASE_FAILED;
 		goto erase_exit;
 	}
@@ -2249,7 +2249,7 @@ int nand_erase_nand(struct mtd_info *mtd, struct erase_info *instr,
 		/* See if block erase succeeded */
 		if (status & NAND_STATUS_FAIL) {
 			MTDDEBUG (MTD_DEBUG_LEVEL0, "nand_erase: "
-			          "Failed erase, page 0x%08x\n", page);
+				  "Failed erase, page 0x%08x\n", page);
 			instr->state = MTD_ERASE_FAILED;
 			instr->fail_addr = ((loff_t)page << chip->page_shift);
 			goto erase_exit;
@@ -2461,7 +2461,7 @@ static const struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 
 	for (; type->name != NULL; type++)
 		if (dev_id == type->id)
-                        break;
+			break;
 
 	if (!type->name) {
 		/* supress warning if there is no nand */
@@ -2569,8 +2569,8 @@ static const struct nand_flash_dev *nand_get_flash_type(struct mtd_info *mtd,
 		chip->cmdfunc = nand_command_lp;
 
 	MTDDEBUG (MTD_DEBUG_LEVEL0, "NAND device: Manufacturer ID:"
-	          " 0x%02x, Chip ID: 0x%02x (%s %s)\n", *maf_id, dev_id,
-	          nand_manuf_ids[maf_idx].name, type->name);
+		  " 0x%02x, Chip ID: 0x%02x (%s %s)\n", *maf_id, dev_id,
+		  nand_manuf_ids[maf_idx].name, type->name);
 
 	return type;
 }

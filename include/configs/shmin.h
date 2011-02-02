@@ -45,7 +45,7 @@
 #define CONFIG_BAUDRATE		115200
 #define CONFIG_BOOTARGS		"console=ttySC0,115200"
 
-/* 
+/*
  * This board has original boot loader. If you write u-boot to 0x0,
  * you should set undef.
  */

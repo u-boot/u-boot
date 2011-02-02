@@ -514,7 +514,7 @@ void fsl_pci_config_unlock(struct pci_controller *hose)
 }
 
 #if defined(CONFIG_PCIE1) || defined(CONFIG_PCIE2) || \
-    defined(CONFIG_PCIE3) || defined(CONFIG_PCIE4) 
+    defined(CONFIG_PCIE3) || defined(CONFIG_PCIE4)
 int fsl_configure_pcie(struct fsl_pci_info *info,
 			struct pci_controller *hose,
 			const char *connected, int busno)

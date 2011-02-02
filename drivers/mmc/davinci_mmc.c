@@ -401,4 +401,3 @@ int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host)
 
 	return 0;
 }
-
