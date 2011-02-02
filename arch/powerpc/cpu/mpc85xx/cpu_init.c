@@ -384,12 +384,6 @@ int cpu_init_r(void)
 
 	enable_cpc();
 
-#ifdef CONFIG_QE
-	uint qe_base = CONFIG_SYS_IMMR + 0x00080000; /* QE immr base */
-	qe_init(qe_base);
-	qe_reset();
-#endif
-
 	/* needs to be in ram since code uses global static vars */
 	fsl_serdes_init();
 
@@ -449,3 +443,12 @@ int sata_initialize(void)
 	return 1;
 }
 #endif
+
+void cpu_secondary_init_r(void)
+{
+#ifdef CONFIG_QE
+	uint qe_base = CONFIG_SYS_IMMR + 0x00080000; /* QE immr base */
+	qe_init(qe_base);
+	qe_reset();
+#endif
+}

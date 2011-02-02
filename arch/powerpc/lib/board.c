@@ -186,6 +186,12 @@ int __board_flash_wp_on(void)
 }
 int board_flash_wp_on(void) __attribute__((weak, alias("__board_flash_wp_on")));
 
+void __cpu_secondary_init_r(void)
+{
+}
+void cpu_secondary_init_r(void)
+__attribute__((weak, alias("__cpu_secondary_init_r")));
+
 static int init_func_ram (void)
 {
 #ifdef	CONFIG_BOARD_TYPES
@@ -796,6 +802,14 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	/* relocate environment function pointers etc. */
 	env_relocate ();
+
+	/*
+	 * after non-volatile devices & environment is setup and cpu code have
+	 * another round to deal with any initialization that might require
+	 * full access to the environment or loading of some image (firmware)
+	 * from a non-volatile device
+	 */
+	cpu_secondary_init_r();
 
 	/*
 	 * Fill in missing fields of bd_info.
