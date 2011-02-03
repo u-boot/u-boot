@@ -109,17 +109,20 @@
 /*
  * Only Premium/Platinum have ethernet support right now
  */
-#if defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)
+#if (defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)) && \
+	!defined(CONFIG_VCT_SMALL_IMAGE)
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SNTP
 #else
 #undef CONFIG_CMD_NET
+#undef CONFIG_CMD_NFS
 #endif
 
 /*
  * Only Premium/Platinum have USB-EHCI support right now
  */
-#if defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)
+#if (defined(CONFIG_VCT_PREMIUM) || defined(CONFIG_VCT_PLATINUM)) && \
+	!defined(CONFIG_VCT_SMALL_IMAGE)
 #define CONFIG_CMD_USB
 #define CONFIG_CMD_FAT
 #endif
