@@ -621,7 +621,7 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	gd->bd->bi_arch_number = MACH_TYPE_MX51_LANGE51;
+	gd->bd->bi_arch_number = MACH_TYPE_MX51_EFIKAMX;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	return 0;
