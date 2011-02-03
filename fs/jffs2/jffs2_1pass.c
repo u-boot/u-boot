@@ -794,7 +794,7 @@ jffs2_1pass_read_inode(struct b_lists *pL, u32 inode, char *dest)
 #endif
 				default:
 					/* unknown */
-					putLabeledWord("UNKOWN COMPRESSION METHOD = ", jNode->compr);
+					putLabeledWord("UNKNOWN COMPRESSION METHOD = ", jNode->compr);
 					put_fl_mem(jNode, pL->readbuf);
 					return -1;
 					break;

@@ -254,7 +254,7 @@ int usb_stor_scan(int mode)
 		dev = usb_get_dev_index(i); /* get device */
 		USB_STOR_PRINTF("i=%d\n", i);
 		if (dev == NULL)
-			break; /* no more devices avaiable */
+			break; /* no more devices available */
 
 		if (usb_storage_probe(dev, 0, &usb_stor[usb_max_devs])) {
 			/* OK, it's a storage device.  Iterate over its LUNs

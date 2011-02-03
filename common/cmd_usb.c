@@ -588,7 +588,7 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 					break;
 			}
 			if (dev == NULL) {
-				printf("*** NO Device avaiable ***\n");
+				printf("*** No device available ***\n");
 				return 0;
 			} else {
 				usb_display_desc(dev);

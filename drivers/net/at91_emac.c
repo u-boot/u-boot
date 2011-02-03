@@ -93,7 +93,7 @@
 #define RBF_MULTICAST (1<<30)
 #define RBF_UNICAST   (1<<29)
 #define RBF_EXTERNAL  (1<<28)
-#define RBF_UNKOWN    (1<<27)
+#define RBF_UNKNOWN   (1<<27)
 #define RBF_SIZE      0x07ff
 #define RBF_LOCAL4    (1<<26)
 #define RBF_LOCAL3    (1<<25)
