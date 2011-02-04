@@ -334,17 +334,17 @@ fsl_ddr_cfg_regs_t ddr_cfg_regs_1200_2nd = {
 };
 
 fixed_ddr_parm_t fixed_ddr_parm_0[] = {
-	{800, 900, &ddr_cfg_regs_800},
-	{900, 1000, &ddr_cfg_regs_900},
-	{1000, 1200, &ddr_cfg_regs_1000},
-	{1200, 1300, &ddr_cfg_regs_1200},
+	{750, 850, &ddr_cfg_regs_800},
+	{850, 950, &ddr_cfg_regs_900},
+	{950, 1050, &ddr_cfg_regs_1000},
+	{1050, 1250, &ddr_cfg_regs_1200},
 	{0, 0, NULL}
 };
 
 fixed_ddr_parm_t fixed_ddr_parm_1[] = {
-	{800, 900, &ddr_cfg_regs_800_2nd},
-	{900, 1000, &ddr_cfg_regs_900_2nd},
-	{1000, 1200, &ddr_cfg_regs_1000_2nd},
-	{1200, 1300, &ddr_cfg_regs_1200_2nd},
+	{750, 850, &ddr_cfg_regs_800_2nd},
+	{850, 950, &ddr_cfg_regs_900_2nd},
+	{950, 1050, &ddr_cfg_regs_1000_2nd},
+	{1050, 1250, &ddr_cfg_regs_1200_2nd},
 	{0, 0, NULL}
 };
