@@ -205,7 +205,7 @@ int saveenv(void)
 		return 1;
 	}
 	env_new.crc   = crc32(0, env_new.data, ENV_SIZE);
-	env_new.flags = ACTIVE_FLAG;
+	++env_new.flags; /* increase the serial */
 
 	if(gd->env_valid == 1) {
 		puts("Erasing redundant NAND...\n");
