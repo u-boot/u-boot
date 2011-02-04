@@ -525,9 +525,9 @@ extern unsigned long get_clock_freq(void);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
+#define CONFIG_PHY_MARVELL
 #endif
 
-#define CONFIG_SYS_FMAN_FW
 #ifndef CONFIG_NAND
 /* Default address of microcode for the Linux Fman driver */
 /* QE microcode/firmware address */

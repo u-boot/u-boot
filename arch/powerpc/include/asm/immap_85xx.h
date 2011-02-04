@@ -1984,6 +1984,9 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR_CAN2_TDM			0x00000002
 #define MPC85xx_PMUXCR_CAN2_RES			0x00000003
 #endif
+#if defined(CONFIG_P1017) || defined(CONFIG_P1023)
+#define MPC85xx_PMUXCR_TSEC1_1		0x10000000
+#else
 #define MPC85xx_PMUXCR_SD_DATA		0x80000000
 #define MPC85xx_PMUXCR_SDHC_CD		0x40000000
 #define MPC85xx_PMUXCR_SDHC_WP		0x20000000
@@ -2002,6 +2005,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR_QE10		0x00000020
 #define MPC85xx_PMUXCR_QE11		0x00000010
 #define MPC85xx_PMUXCR_QE12		0x00000008
+#endif
 #if defined(CONFIG_P1013) || defined(CONFIG_P1022)
 #define MPC85xx_PMUXCR_TDM_MASK		0x0001cc00
 #define MPC85xx_PMUXCR_TDM		0x00014800
