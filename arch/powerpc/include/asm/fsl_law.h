@@ -83,6 +83,7 @@ enum law_trgt_if {
 	LAW_TRGT_IF_DDR_INTRLV = 0x0b,
 	LAW_TRGT_IF_RIO = 0x0c,
 	LAW_TRGT_IF_RIO_2 = 0x0d,
+	LAW_TRGT_IF_DPAA_SWP_SRAM = 0x0e,
 	LAW_TRGT_IF_DDR = 0x0f,
 	LAW_TRGT_IF_DDR_2 = 0x16,	/* 2nd controller */
 };
