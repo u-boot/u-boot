@@ -21,7 +21,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/io.h>
+#include <asm/io.h>
 #include <asm/arch/at91_wdt.h>
 
 /*
