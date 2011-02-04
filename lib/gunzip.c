@@ -106,12 +106,16 @@ int zunzip(void *dst, int dstlen, unsigned char *src, unsigned long *lenp,
 	s.avail_in = *lenp - offset;
 	s.next_out = dst;
 	s.avail_out = dstlen;
-	r = inflate(&s, Z_FINISH);
-	if ((r != Z_STREAM_END) && (stoponerr==1)) {
-		printf ("Error: inflate() returned %d\n", r);
-		inflateEnd(&s);
-		return (-1);
-	}
+	do {
+		r = inflate(&s, Z_FINISH);
+		if (r != Z_STREAM_END && r != Z_BUF_ERROR && stoponerr == 1) {
+			printf("Error: inflate() returned %d\n", r);
+			inflateEnd(&s);
+			return -1;
+		}
+		s.avail_in = *lenp - offset - (int)(s.next_out - (unsigned char*)dst);
+		s.avail_out = dstlen;
+	} while (r == Z_BUF_ERROR);
 	*lenp = s.next_out - (unsigned char *) dst;
 	inflateEnd(&s);
 
