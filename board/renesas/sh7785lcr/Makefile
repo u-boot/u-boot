@@ -23,8 +23,12 @@ LIB	= $(obj)lib$(BOARD).o
 COBJS	:= sh7785lcr.o selfcheck.o rtl8169_mac.o
 SOBJS	:= lowlevel_init.o
 
-$(LIB):	$(obj).depend $(COBJS) $(SOBJS)
-	$(call cmd_link_o_target, $(COBJS) $(SOBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
+
+$(LIB): $(obj).depend $(OBJS) $(SOBJS)
+	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
 
 clean:
 	rm -f $(SOBJS) $(OBJS)

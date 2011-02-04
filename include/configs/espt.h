@@ -56,6 +56,7 @@
 #define CONFIG_BAUDRATE         115200
 #define CONFIG_CONS_SCIF0		1
 
+#define CONFIG_SYS_TEXT_BASE	0x8FFC0000
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE		256	/* Buffer size for input from the Console */

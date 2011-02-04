@@ -36,6 +36,12 @@
 #ifndef CONFIG_SH_ETHER_PHY_ADDR
 # error "Please define CONFIG_SH_ETHER_PHY_ADDR"
 #endif
+#ifdef CONFIG_SH_ETHER_CACHE_WRITEBACK
+#define flush_cache_wback(addr, len)	\
+			dcache_wback_range((u32)addr, (u32)(addr + len - 1))
+#else
+#define flush_cache_wback(...)
+#endif
 
 #define SH_ETH_PHY_DELAY 50000
 
@@ -197,6 +203,7 @@ int sh_eth_send(struct eth_device *dev, volatile void *packet, int len)
 	}
 
 	/* Update tx descriptor */
+	flush_cache_wback(packet, len);
 	port_info->tx_desc_cur->td2 = ADDR_TO_PHY(packet);
 	port_info->tx_desc_cur->td1 = len << 16;
 	/* Must preserve the end of descriptor list indication */
@@ -312,6 +319,7 @@ static int sh_eth_tx_desc_init(struct sh_eth_dev *eth)
 
 	tmp_addr = (u32) (((int)port_info->tx_desc_malloc + TX_DESC_SIZE - 1) &
 			  ~(TX_DESC_SIZE - 1));
+	flush_cache_wback(tmp_addr, NUM_TX_DESC * sizeof(struct tx_desc_s));
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->tx_desc_base = (struct tx_desc_s *)ADDR_TO_P2(tmp_addr);
 	port_info->tx_desc_cur = port_info->tx_desc_base;
@@ -361,6 +369,7 @@ static int sh_eth_rx_desc_init(struct sh_eth_dev *eth)
 
 	tmp_addr = (u32) (((int)port_info->rx_desc_malloc + RX_DESC_SIZE - 1) &
 			  ~(RX_DESC_SIZE - 1));
+	flush_cache_wback(tmp_addr, NUM_RX_DESC * sizeof(struct rx_desc_s));
 	/* Make sure we use a P2 address (non-cacheable) */
 	port_info->rx_desc_base = (struct rx_desc_s *)ADDR_TO_P2(tmp_addr);
 

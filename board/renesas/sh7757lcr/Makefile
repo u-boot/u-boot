@@ -1,7 +1,5 @@
 #
-# Copyright (C) 2010 Nobuhiro Iwamatsu
-#
-# u-boot/board/shmin/config.mk
+# Copyright (C) 2011  Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -18,10 +16,28 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 
-#
-# TEXT_BASE refers to image _after_ relocation.
-#
-# NOTE: Must match value used in u-boot.lds (in this directory).
-#
+include $(TOPDIR)/config.mk
 
-CONFIG_SYS_TEXT_BASE = 0x8DFB0000
+LIB	= $(obj)lib$(BOARD).o
+
+COBJS	:= sh7757lcr.o spi-boot.o
+SOBJS	:= lowlevel_init.o
+
+$(LIB):	$(obj).depend $(COBJS) $(SOBJS)
+	$(call cmd_link_o_target, $(COBJS) $(SOBJS))
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################
+

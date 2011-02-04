@@ -56,6 +56,7 @@
 #define SHMIN_SDRAM_BASE		(0x8C000000)
 #define SHMIN_FLASH_BASE_1		(0xA0000000)
 
+#define CONFIG_SYS_TEXT_BASE	0x8DFB0000
 #define CONFIG_SYS_LONGHELP		/* undef to save memory	*/
 #define CONFIG_SYS_PROMPT	"=> "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE	256	/* Buffer size for input from the Console */
