@@ -38,6 +38,8 @@
 /*#define CONFIG_APTIX           1    #* define if on APTIX test chip */
 /*#define CONFIG_VIRTIO          1    #* Using Virtio simulator */
 
+#define CONFIG_STANDALONE_LOAD_ADDR	0x80300000
+
 /* Clock config to target*/
 #define PRCM_CONFIG_II	1
 /* #define PRCM_CONFIG_III		1 */

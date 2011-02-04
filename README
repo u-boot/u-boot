@@ -1997,6 +1997,14 @@ The following options need to be configured:
 		example, some LED's) on your board. At the moment,
 		the following checkpoints are implemented:
 
+- Standalone program support:
+		CONFIG_STANDALONE_LOAD_ADDR
+
+		This option allows to define board specific values
+		for the address where standalone program gets loaded,
+		thus overwriting the architecutre dependent default
+		settings.
+
 Legacy uImage format:
 
   Arg	Where			When

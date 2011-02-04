@@ -23,7 +23,7 @@
 
 CROSS_COMPILE ?= bfin-uclinux-
 
-STANDALONE_LOAD_ADDR = 0x1000 -m elf32bfin
+CONFIG_STANDALONE_LOAD_ADDR ?= 0x1000 -m elf32bfin
 
 ifeq ($(CONFIG_BFIN_CPU),)
 CONFIG_BFIN_CPU := \
