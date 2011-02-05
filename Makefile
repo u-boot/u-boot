@@ -1136,45 +1136,6 @@ vct_platinumavc_onenand_small_config: unconfig
 		echo "#define CONFIG_VCT_SMALL_IMAGE" >> $(obj)include/config.h
 	@$(MKCONFIG)  -n $@ -a vct mips mips vct micronas
 
-#########################################################################
-## MIPS32 AU1X00
-#########################################################################
-
-dbau1000_config		:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_DBAU1000 1" >$(obj)include/config.h
-	@$(MKCONFIG) -a dbau1x00 mips mips dbau1x00
-
-dbau1100_config		:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_DBAU1100 1" >$(obj)include/config.h
-	@$(MKCONFIG) -a dbau1x00 mips mips dbau1x00
-
-dbau1500_config		:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_DBAU1500 1" >$(obj)include/config.h
-	@$(MKCONFIG) -a dbau1x00 mips mips dbau1x00
-
-dbau1550_config		:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_DBAU1550 1" >$(obj)include/config.h
-	@$(MKCONFIG) -a dbau1x00 mips mips dbau1x00
-
-dbau1550_el_config	:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_DBAU1550 1" >$(obj)include/config.h
-	@$(MKCONFIG) -a dbau1x00 mips mips dbau1x00
-
-gth2_config		:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_GTH2 1" >$(obj)include/config.h
-	@$(MKCONFIG) -a $@ mips mips gth2
-
-pb1000_config		:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_PB1000 1" >$(obj)include/config.h
-	@$(MKCONFIG) -a pb1x00 mips mips pb1x00
-
 qemu_mips_config	: unconfig
 	@mkdir -p $(obj)include
 	@echo "#define CONFIG_QEMU_MIPS 1" >$(obj)include/config.h
