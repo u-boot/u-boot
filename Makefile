@@ -1136,11 +1136,6 @@ vct_platinumavc_onenand_small_config: unconfig
 		echo "#define CONFIG_VCT_SMALL_IMAGE" >> $(obj)include/config.h
 	@$(MKCONFIG)  -n $@ -a vct mips mips vct micronas
 
-qemu_mips_config	: unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_QEMU_MIPS 1" >$(obj)include/config.h
-	@$(MKCONFIG) -a qemu-mips mips mips qemu-mips
-
 #========================================================================
 # Nios
 #========================================================================
