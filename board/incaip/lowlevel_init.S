@@ -283,7 +283,7 @@ lowlevel_init:
 
 	/* EBU, CGU and SDRAM Initialization.
 	 */
-	li	a0, CPU_CLOCK_RATE
+	li	a0, CONFIG_CPU_CLOCK_RATE
 	move	t0, ra
 
 	/* We rely on the fact that neither ebu_init() nor cgu_init() nor sdram_init()

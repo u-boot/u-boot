@@ -1098,19 +1098,6 @@ smdk6400_config	:	unconfig
 ## MIPS32 4Kc
 #########################################################################
 
-incaip_100MHz_config	\
-incaip_133MHz_config	\
-incaip_150MHz_config	\
-incaip_config: unconfig
-	@mkdir -p $(obj)include
-	@[ -z "$(findstring _100MHz,$@)" ] || \
-		echo "#define CPU_CLOCK_RATE 100000000" >>$(obj)include/config.h
-	@[ -z "$(findstring _133MHz,$@)" ] || \
-		echo "#define CPU_CLOCK_RATE 133000000" >>$(obj)include/config.h
-	@[ -z "$(findstring _150MHz,$@)" ] || \
-		echo "#define CPU_CLOCK_RATE 150000000" >>$(obj)include/config.h
-	@$(MKCONFIG) -n $@ -a incaip mips mips incaip
-
 vct_premium_config		\
 vct_premium_small_config	\
 vct_premium_onenand_config	\
