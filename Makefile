@@ -1092,38 +1092,6 @@ smdk6400_config	:	unconfig
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 
 #========================================================================
-# MIPS
-#========================================================================
-#########################################################################
-## MIPS32 4Kc
-#########################################################################
-
-vct_premium_config		\
-vct_premium_small_config	\
-vct_premium_onenand_config	\
-vct_premium_onenand_small_config \
-vct_platinum_config		\
-vct_platinum_small_config	\
-vct_platinum_onenand_config	\
-vct_platinum_onenand_small_config \
-vct_platinumavc_config		\
-vct_platinumavc_small_config	\
-vct_platinumavc_onenand_config	\
-vct_platinumavc_onenand_small_config: unconfig
-	@mkdir -p $(obj)include
-	@[ -z "$(findstring _premium,$@)" ] || \
-		echo "#define CONFIG_VCT_PREMIUM" > $(obj)include/config.h
-	@[ -z "$(findstring _platinum_,$@)" ] || \
-		echo "#define CONFIG_VCT_PLATINUM" > $(obj)include/config.h
-	@[ -z "$(findstring _platinumavc,$@)" ] || \
-		echo "#define CONFIG_VCT_PLATINUMAVC" > $(obj)include/config.h
-	@[ -z "$(findstring _onenand,$@)" ] || \
-		echo "#define CONFIG_VCT_ONENAND" >> $(obj)include/config.h
-	@[ -z "$(findstring _small,$@)" ] || \
-		echo "#define CONFIG_VCT_SMALL_IMAGE" >> $(obj)include/config.h
-	@$(MKCONFIG)  -n $@ -a vct mips mips vct micronas
-
-#========================================================================
 # Nios
 #========================================================================
 
