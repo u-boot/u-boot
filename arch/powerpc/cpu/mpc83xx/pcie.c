@@ -48,11 +48,26 @@ static struct {
 
 #ifdef CONFIG_83XX_GENERIC_PCIE_REGISTER_HOSES
 
+/* private structure for mpc83xx pcie hose */
+static struct mpc83xx_pcie_priv {
+	u8 index;
+} pcie_priv[PCIE_MAX_BUSES] = {
+	{
+		/* pcie controller 1 */
+		.index = 0,
+	},
+	{
+		/* pcie controller 2 */
+		.index = 1,
+	},
+};
+
 static int mpc83xx_pcie_remap_cfg(struct pci_controller *hose, pci_dev_t dev)
 {
 	int bus = PCI_BUS(dev) - hose->first_busno;
 	immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
-	pex83xx_t *pex = &immr->pciexp[bus];
+	struct mpc83xx_pcie_priv *pcie_priv = hose->priv_data;
+	pex83xx_t *pex = &immr->pciexp[pcie_priv->index];
 	struct pex_outbound_window *out_win = &pex->bridge.pex_outbound_win[0];
 	u8 devfn = PCI_DEV(dev) << 3 | PCI_FUNC(dev);
 	u32 dev_base = bus << 24 | devfn << 16;
@@ -141,6 +156,8 @@ static void mpc83xx_pcie_register_hose(int bus, struct pci_region *reg,
 	hose->last_busno = 0xff;
 
 	hose->cfg_addr = (unsigned int *)mpc83xx_pcie_cfg_space[bus].base;
+
+	hose->priv_data = &pcie_priv[bus];
 
 	pci_set_ops(hose,
 			pcie_read_config_byte,

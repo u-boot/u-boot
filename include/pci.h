@@ -420,6 +420,8 @@ struct pci_controller {
 	/* Used by ppc405 autoconfig*/
 	struct pci_region *pci_fb;
 	int current_busno;
+
+	void *priv_data;
 };
 
 extern __inline__ void pci_set_ops(struct pci_controller *hose,
