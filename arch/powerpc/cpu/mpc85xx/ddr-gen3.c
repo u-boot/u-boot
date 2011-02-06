@@ -21,6 +21,10 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	unsigned int i;
 	volatile ccsr_ddr_t *ddr;
 	u32 temp_sdram_cfg;
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
+	volatile ccsr_local_ecm_t *ecm = (void *)CONFIG_SYS_MPC85xx_ECM_ADDR;
+	u32 total_gb_size_per_controller;
+#endif
 
 	switch (ctrl_num) {
 	case 0:
@@ -178,13 +182,33 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	 * when operatiing in 32-bit bus mode with 4-beat bursts,
 	 * This erratum does not affect DDR3 mode, only for DDR2 mode.
 	 */
-#ifdef CONFIG_MPC8572
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR_115
 	if ((((in_be32(&ddr->sdram_cfg) >> 24) & 0x7) == SDRAM_TYPE_DDR2)
 	    && in_be32(&ddr->sdram_cfg) & 0x80000) {
 		/* set DEBUG_1[31] */
 		setbits_be32(&ddr->debug[0], 1);
 	}
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
+	/*
+	 * This is the combined workaround for DDR111 and DDR134
+	 * following the published errata for MPC8572
+	 */
+
+	/* 1. Set EEBACR[3] */
+	setbits_be32(&ecm->eebacr, 0x10000000);
+	debug("Setting EEBACR[3] to 0x%08x\n", in_be32(&ecm->eebacr));
+
+	/* 2. Set DINIT in SDRAM_CFG_2*/
+	setbits_be32(&ddr->sdram_cfg_2, SDRAM_CFG2_D_INIT);
+	debug("Setting sdram_cfg_2[D_INIT] to 0x%08x\n",
+		in_be32(&ddr->sdram_cfg_2));
+
+	/* 3. Set DEBUG_3[21] */
+	setbits_be32(&ddr->debug[2], 0x400);
+	debug("Setting DEBUG_3[21] to 0x%08x\n", in_be32(&ddr->debug[2]));
+
+#endif	/* part 1 of the workaound */
 
 	/*
 	 * 500 painful micro-seconds must elapse between
@@ -199,11 +223,90 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 	temp_sdram_cfg = in_be32(&ddr->sdram_cfg) & ~SDRAM_CFG_BI;
 	out_be32(&ddr->sdram_cfg, temp_sdram_cfg | SDRAM_CFG_MEM_EN);
 	asm volatile("sync;isync");
-	while (!(in_be32(&ddr->debug[1]) & 0x2))
-		;
 
 	/* Poll DDR_SDRAM_CFG_2[D_INIT] bit until auto-data init is done.  */
-	while (in_be32(&ddr->sdram_cfg_2) & 0x10) {
+	while (in_be32(&ddr->sdram_cfg_2) & SDRAM_CFG2_D_INIT)
 		udelay(10000);		/* throttle polling rate */
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134
+	/* continue this workaround */
+
+	/* 4. Clear DEBUG3[21] */
+	clrbits_be32(&ddr->debug[2], 0x400);
+	debug("Clearing D3[21] to 0x%08x\n", in_be32(&ddr->debug[2]));
+
+	/* DDR134 workaround starts */
+	/* A: Clear sdram_cfg_2[odt_cfg] */
+	clrbits_be32(&ddr->sdram_cfg_2, SDRAM_CFG2_ODT_CFG_MASK);
+	debug("Clearing SDRAM_CFG2[ODT_CFG] to 0x%08x\n",
+		in_be32(&ddr->sdram_cfg_2));
+
+	/* B: Set DEBUG1[15] */
+	setbits_be32(&ddr->debug[0], 0x10000);
+	debug("Setting D1[15] to 0x%08x\n", in_be32(&ddr->debug[0]));
+
+	/* C: Set timing_cfg_2[cpo] to 0b11111 */
+	setbits_be32(&ddr->timing_cfg_2, TIMING_CFG_2_CPO_MASK);
+	debug("Setting TMING_CFG_2[CPO] to 0x%08x\n",
+		in_be32(&ddr->timing_cfg_2));
+
+	/* D: Set D6 to 0x9f9f9f9f */
+	out_be32(&ddr->debug[5], 0x9f9f9f9f);
+	debug("Setting D6 to 0x%08x\n", in_be32(&ddr->debug[5]));
+
+	/* E: Set D7 to 0x9f9f9f9f */
+	out_be32(&ddr->debug[6], 0x9f9f9f9f);
+	debug("Setting D7 to 0x%08x\n", in_be32(&ddr->debug[6]));
+
+	/* F: Set D2[20] */
+	setbits_be32(&ddr->debug[1], 0x800);
+	debug("Setting D2[20] to 0x%08x\n", in_be32(&ddr->debug[1]));
+
+	/* G: Poll on D2[20] until cleared */
+	while (in_be32(&ddr->debug[1]) & 0x800)
+		udelay(10000);          /* throttle polling rate */
+
+	/* H: Clear D1[15] */
+	clrbits_be32(&ddr->debug[0], 0x10000);
+	debug("Setting D1[15] to 0x%08x\n", in_be32(&ddr->debug[0]));
+
+	/* I: Set sdram_cfg_2[odt_cfg] */
+	setbits_be32(&ddr->sdram_cfg_2,
+		regs->ddr_sdram_cfg_2 & SDRAM_CFG2_ODT_CFG_MASK);
+	debug("Setting sdram_cfg_2 to 0x%08x\n", in_be32(&ddr->sdram_cfg_2));
+
+	/* Continuing with the DDR111 workaround */
+	/* 5. Set D2[21] */
+	setbits_be32(&ddr->debug[1], 0x400);
+	debug("Setting D2[21] to 0x%08x\n", in_be32(&ddr->debug[1]));
+
+	/* 6. Poll D2[21] until its cleared */
+	while (in_be32(&ddr->debug[1]) & 0x400)
+		udelay(10000);          /* throttle polling rate */
+
+	/* 7. Wait for 400ms/GB */
+	total_gb_size_per_controller = 0;
+	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+		total_gb_size_per_controller +=
+				((regs->cs[i].bnds & 0xFFFF) >> 6)
+				- (regs->cs[i].bnds >> 22) + 1;
 	}
+	if (in_be32(&ddr->sdram_cfg) & 0x80000)
+		total_gb_size_per_controller <<= 1;
+	debug("Wait for %d ms\n", total_gb_size_per_controller * 400);
+	udelay(total_gb_size_per_controller * 400000);
+
+	/* 8. Set sdram_cfg_2[dinit] if options requires */
+	setbits_be32(&ddr->sdram_cfg_2,
+		regs->ddr_sdram_cfg_2 & SDRAM_CFG2_D_INIT);
+	debug("Setting sdram_cfg_2 to 0x%08x\n", in_be32(&ddr->sdram_cfg_2));
+
+	/* 9. Poll until dinit is cleared */
+	while (in_be32(&ddr->sdram_cfg_2) & SDRAM_CFG2_D_INIT)
+		udelay(10000);
+
+	/* 10. Clear EEBACR[3] */
+	clrbits_be32(&ecm->eebacr, 10000000);
+	debug("Clearing EEBACR[3] to 0x%08x\n", in_be32(&ecm->eebacr));
+#endif /* CONFIG_SYS_FSL_ERRATUM_DDR111_DDR134 */
 }

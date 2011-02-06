@@ -219,6 +219,11 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	if (timeout < 0)
 		timeout = 0;
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_ESDHC_A001
+	if ((timeout == 4) || (timeout == 8) || (timeout == 12))
+		timeout++;
+#endif
+
 	esdhc_clrsetbits32(&regs->sysctl, SYSCTL_TIMEOUT_MASK, timeout << 16);
 
 	return 0;

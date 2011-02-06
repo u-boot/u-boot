@@ -89,6 +89,11 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 #define SDRAM_CFG_2T_EN			0x00008000
 #define SDRAM_CFG_BI			0x00000001
 
+#define SDRAM_CFG2_D_INIT		0x00000010
+#define SDRAM_CFG2_ODT_CFG_MASK		0x00600000
+
+#define TIMING_CFG_2_CPO_MASK	0x0F800000
+
 #if defined(CONFIG_P4080)
 #define RD_TO_PRE_MASK		0xf
 #define RD_TO_PRE_SHIFT		13
