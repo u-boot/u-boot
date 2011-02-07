@@ -264,7 +264,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_NAND_U_BOOT_RELOC_SP		((CONFIG_SYS_INIT_L2_END - 1) & ~0xF)
 
 /* NAND flash config */
-#define CONFIG_NAND_BR_PRELIM	(CONFIG_SYS_NAND_BASE_PHYS \
+#define CONFIG_NAND_BR_PRELIM	(BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
 				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
 				| BR_PS_8	/* Port Size = 8 bit */ \
 				| BR_MS_FCM		/* MSEL = FCM */ \
@@ -294,7 +294,8 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #define CONFIG_SYS_VSC7385_BASE_PHYS	CONFIG_SYS_VSC7385_BASE
 
-#define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_VSC7385_BASE | BR_PS_8 | BR_V)
+#define CONFIG_SYS_BR2_PRELIM	(BR_PHYS_ADDR(CONFIG_SYS_VSC7385_BASE) \
+							| BR_PS_8 | BR_V)
 #define CONFIG_SYS_OR2_PRELIM	(OR_AM_128KB | OR_GPCM_CSNT | OR_GPCM_XACS | \
 				OR_GPCM_SCY_15 | OR_GPCM_SETA | OR_GPCM_TRLX | \
 				OR_GPCM_EHTR | OR_GPCM_EAD)
