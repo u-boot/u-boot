@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -139,6 +139,8 @@ void board_add_ram_info(int use_default)
 
 	if (sdram_cfg & SDRAM_CFG_32_BE)
 		puts(", 32-bit");
+	else if (sdram_cfg & SDRAM_CFG_16_BE)
+		puts(", 16-bit");
 	else
 		puts(", 64-bit");
 
