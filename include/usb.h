@@ -42,6 +42,12 @@
 
 #define USB_CNTL_TIMEOUT 100 /* 100ms timeout */
 
+/*
+ * This is the timeout to allow for submitting an urb in ms. We allow more
+ * time for a BULK device to react - some are slow.
+ */
+#define USB_TIMEOUT_MS(pipe) (usb_pipebulk(pipe) ? 5000 : 100)
+
 /* device request (setup) */
 struct devrequest {
 	unsigned char	requesttype;
