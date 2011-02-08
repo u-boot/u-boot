@@ -411,6 +411,15 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_RTC_DS1337
 #define CONFIG_SYS_RTC_DS1337_NOOSC
 #define CONFIG_SYS_I2C_RTC_ADDR                0x68
+
+/* eSPI - Enhanced SPI */
+#define CONFIG_FSL_ESPI
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_CMD_SF
+#define CONFIG_SF_DEFAULT_SPEED		10000000
+#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
+
 /*
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
@@ -527,8 +536,13 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_SYS_MMC_ENV_DEV		0
 #elif defined(CONFIG_RAMBOOT_SPIFLASH)
-	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
-	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
+	#define CONFIG_ENV_IS_IN_SPI_FLASH
+	#define CONFIG_ENV_SPI_BUS	0
+	#define CONFIG_ENV_SPI_CS	0
+	#define CONFIG_ENV_SPI_MAX_HZ	10000000
+	#define CONFIG_ENV_SPI_MODE	0
+	#define CONFIG_ENV_OFFSET	0x100000	/* 1MB */
+	#define CONFIG_ENV_SECT_SIZE	0x10000
 	#define CONFIG_ENV_SIZE		0x2000
 #endif
 #else
