@@ -181,7 +181,10 @@ int writeenv(size_t offset, u_char *buf)
 
 	return 0;
 }
+
 #ifdef CONFIG_ENV_OFFSET_REDUND
+static unsigned char env_flags;
+
 int saveenv(void)
 {
 	env_t	env_new;
@@ -205,7 +208,7 @@ int saveenv(void)
 		return 1;
 	}
 	env_new.crc   = crc32(0, env_new.data, ENV_SIZE);
-	++env_new.flags; /* increase the serial */
+	env_new.flags = ++env_flags; /* increase the serial */
 
 	if(gd->env_valid == 1) {
 		puts("Erasing redundant NAND...\n");
@@ -399,6 +402,7 @@ void env_relocate_spec(void)
 	else
 		ep = tmp_env2;
 
+	env_flags = ep->flags;
 	env_import((char *)ep, 0);
 
 	free(tmp_env1);
