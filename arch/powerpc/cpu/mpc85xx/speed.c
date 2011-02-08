@@ -262,7 +262,8 @@ int get_clocks (void)
 	gd->i2c2_clk = gd->i2c1_clk;
 
 #if defined(CONFIG_FSL_ESDHC)
-#ifdef CONFIG_MPC8569
+#if defined(CONFIG_MPC8569) || defined(CONFIG_P1010) ||\
+       defined(CONFIG_P1014)
 	gd->sdhc_clk = gd->bus_clk;
 #else
 	gd->sdhc_clk = gd->bus_clk / 2;
