@@ -521,7 +521,11 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 	#define CONFIG_ENV_IS_IN_NAND	1
 	#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
 	#define CONFIG_ENV_OFFSET	((512 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH)
+#elif defined(CONFIG_RAMBOOT_SDCARD)
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_SIZE			0x2000
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#elif defined(CONFIG_RAMBOOT_SPIFLASH)
 	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
 	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 	#define CONFIG_ENV_SIZE		0x2000
