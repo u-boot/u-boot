@@ -202,6 +202,17 @@ phys_size_t fixed_sdram (void)
 	struct cpu_type *cpu;
 	ulong ddr_freq, ddr_freq_mhz;
 
+	cpu = gd->cpu;
+	/* P1020 and it's derivatives support max 32bit DDR width */
+	if (cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1020_E ||
+		cpu->soc_ver == SVR_P1011 || cpu->soc_ver == SVR_P1011_E) {
+		ddr_size = (CONFIG_SYS_SDRAM_SIZE * 1024 * 1024 / 2);
+	} else {
+		ddr_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+	}
+#if defined(CONFIG_SYS_RAMBOOT)
+	return ddr_size;
+#endif
 	ddr_freq = get_ddr_freq(0);
 	ddr_freq_mhz = ddr_freq / 1000000;
 
@@ -220,16 +231,12 @@ phys_size_t fixed_sdram (void)
 		panic("Unsupported DDR data rate %s MT/s data rate\n",
 					strmhz(buf, ddr_freq));
 
-	cpu = gd->cpu;
 	/* P1020 and it's derivatives support max 32bit DDR width */
 	if(cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1020_E ||
 		cpu->soc_ver == SVR_P1011 || cpu->soc_ver == SVR_P1011_E) {
 		ddr_cfg_regs.ddr_sdram_cfg |= SDRAM_CFG_32_BE;
 		ddr_cfg_regs.cs[0].bnds = 0x0000001F;
-		ddr_size = (CONFIG_SYS_SDRAM_SIZE * 1024 * 1024 / 2);
 	}
-	else
-		ddr_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 
 	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0);
 
