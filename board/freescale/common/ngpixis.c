@@ -119,11 +119,50 @@ void __set_altbank(void)
 }
 void set_altbank(void) __attribute__((weak, alias("__set_altbank")));
 
+#ifdef DEBUG
+static void pixis_dump_regs(void)
+{
+	unsigned int i;
+
+	printf("id=%02x\n", PIXIS_READ(id));
+	printf("arch=%02x\n", PIXIS_READ(arch));
+	printf("scver=%02x\n", PIXIS_READ(scver));
+	printf("csr=%02x\n", PIXIS_READ(csr));
+	printf("rst=%02x\n", PIXIS_READ(rst));
+	printf("aux=%02x\n", PIXIS_READ(aux));
+	printf("spd=%02x\n", PIXIS_READ(spd));
+	printf("brdcfg0=%02x\n", PIXIS_READ(brdcfg0));
+	printf("brdcfg1=%02x\n", PIXIS_READ(brdcfg1));
+	printf("addr=%02x\n", PIXIS_READ(addr));
+	printf("data=%02x\n", PIXIS_READ(data));
+	printf("led=%02x\n", PIXIS_READ(led));
+	printf("vctl=%02x\n", PIXIS_READ(vctl));
+	printf("vstat=%02x\n", PIXIS_READ(vstat));
+	printf("vcfgen0=%02x\n", PIXIS_READ(vcfgen0));
+	printf("ocmcsr=%02x\n", PIXIS_READ(ocmcsr));
+	printf("ocmmsg=%02x\n", PIXIS_READ(ocmmsg));
+	printf("gmdbg=%02x\n", PIXIS_READ(gmdbg));
+	printf("sclk=%02x%02x%02x\n",
+	       PIXIS_READ(sclk[0]), PIXIS_READ(sclk[1]), PIXIS_READ(sclk[2]));
+	printf("dclk=%02x%02x%02x\n",
+	       PIXIS_READ(dclk[0]), PIXIS_READ(dclk[1]), PIXIS_READ(dclk[2]));
+	printf("watch=%02x\n", PIXIS_READ(watch));
+
+	for (i = 0; i < 8; i++) {
+		printf("SW%u=%02x/%02x ", i + 1,
+			PIXIS_READ(s[i].sw), PIXIS_READ(s[i].en));
+	}
+	putc('\n');
+}
+#endif
 
 int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	unsigned int i;
 	char *p_altbank = NULL;
+#ifdef DEBUG
+	char *p_dump = NULL;
+#endif
 	char *unknown_param = NULL;
 
 	/* No args is a simple reset request.
@@ -137,6 +176,13 @@ int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			continue;
 		}
 
+#ifdef DEBUG
+		if (strcmp(argv[i], "dump") == 0) {
+			p_dump = argv[i];
+			continue;
+		}
+#endif
+
 		unknown_param = argv[i];
 	}
 
@@ -144,6 +190,15 @@ int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		printf("Invalid option: %s\n", unknown_param);
 		return 1;
 	}
+
+#ifdef DEBUG
+	if (p_dump) {
+		pixis_dump_regs();
+
+		/* 'dump' ignores other commands */
+		return 0;
+	}
+#endif
 
 	if (p_altbank)
 		set_altbank();
@@ -161,4 +216,7 @@ U_BOOT_CMD(
 	"Reset the board using the FPGA sequencer",
 	"- hard reset to default bank\n"
 	"pixis_reset altbank - reset to alternate bank\n"
+#ifdef DEBUG
+	"pixis_reset dump - display the PIXIS registers\n"
+#endif
 	);
