@@ -45,7 +45,7 @@ void dram_init_banksize(void)
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
 }
 
-int board_init(void)
+int board_early_init_f(void)
 {
 	/* CS5: CPLD incl. network controller */
 	__REG(CSCR_U(5)) = 0x0000d843;
@@ -56,6 +56,11 @@ int board_init(void)
 	mx31_uart1_hw_init();
 	mx31_spi2_hw_init();
 
+	return 0;
+}
+
+int board_init(void)
+{
 	gd->bd->bi_arch_number = MACH_TYPE_MX31_3DS; /* board id for linux */
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
