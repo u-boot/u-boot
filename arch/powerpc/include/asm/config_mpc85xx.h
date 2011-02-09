@@ -88,6 +88,7 @@
 
 #elif defined(CONFIG_P1010)
 #define CONFIG_MAX_CPUS			1
+#define CONFIG_FSL_SDHC_V2_3
 #define CONFIG_SYS_FSL_NUM_LAWS		12
 #define CONFIG_TSECV2
 #define CONFIG_SYS_FSL_SEC_COMPAT	4
@@ -131,6 +132,7 @@
 
 #elif defined(CONFIG_P1014)
 #define CONFIG_MAX_CPUS			1
+#define CONFIG_FSL_SDHC_V2_3
 #define CONFIG_SYS_FSL_NUM_LAWS		12
 #define CONFIG_TSECV2
 #define CONFIG_SYS_FSL_SEC_COMPAT	4
