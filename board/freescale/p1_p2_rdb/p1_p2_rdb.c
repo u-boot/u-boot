@@ -55,38 +55,25 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define SYSCLK_MASK	0x00200000
 #define BOARDREV_MASK	0x10100000
-#define BOARDREV_B	0x10100000
 #define BOARDREV_C	0x00100000
 #define BOARDREV_D	0x00000000
 
 #define SYSCLK_66	66666666
-#define SYSCLK_50	50000000
 #define SYSCLK_100	100000000
 
 unsigned long get_board_sys_clk(ulong dummy)
 {
 	volatile ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
-	u32 val_gpdat, sysclk_gpio, board_rev_gpio;
+	u32 val_gpdat, sysclk_gpio;
 
 	val_gpdat = in_be32(&pgpio->gpdat);
 	sysclk_gpio = val_gpdat & SYSCLK_MASK;
-	board_rev_gpio = val_gpdat & BOARDREV_MASK;
-	if (board_rev_gpio == BOARDREV_C) {
-		if(sysclk_gpio == 0)
-			return SYSCLK_66;
-		else
-			return SYSCLK_100;
-	} else if (board_rev_gpio == BOARDREV_B) {
-		if(sysclk_gpio == 0)
-			return SYSCLK_66;
-		else
-			return SYSCLK_50;
-	} else if (board_rev_gpio == BOARDREV_D) {
-		if(sysclk_gpio == 0)
-			return SYSCLK_66;
-		else
-			return SYSCLK_100;
-	}
+
+	if(sysclk_gpio == 0)
+		return SYSCLK_66;
+	else
+		return SYSCLK_100;
+
 	return 0;
 }
 
@@ -113,8 +100,6 @@ int checkboard (void)
 	board_rev_gpio = val_gpdat & BOARDREV_MASK;
 	if (board_rev_gpio == BOARDREV_C)
 		board_rev = 'C';
-	else if (board_rev_gpio == BOARDREV_B)
-		board_rev = 'B';
 	else if (board_rev_gpio == BOARDREV_D)
 		board_rev = 'D';
 	else
