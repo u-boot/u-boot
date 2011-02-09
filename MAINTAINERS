@@ -863,6 +863,10 @@ Tom Warren <twarren@nvidia.com>
 	harmony		Tegra2 (ARM7 & A9 Dual Core)
 	seaboard	Tegra2 (ARM7 & A9 Dual Core)
 
+Lei Wen <leiwen@marvell.com>
+
+	dkb		ARM926EJS (PANTHEON 88AP920 SOC)
+
 Matthias Weisser <weisserm@arcor.de>
 
 	jadecpu		ARM926EJS (MB86R01 SoC)
