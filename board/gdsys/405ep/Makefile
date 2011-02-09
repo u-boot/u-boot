@@ -27,6 +27,7 @@ LIB	= $(obj)lib$(BOARD).o
 
 COBJS-$(CONFIG_IO) += io.o
 COBJS-$(CONFIG_IOCON) += iocon.o
+COBJS-$(CONFIG_DLVISION_10G) += dlvision-10g.o
 
 COBJS   := $(BOARD).o $(COBJS-y)
 SOBJS   =
