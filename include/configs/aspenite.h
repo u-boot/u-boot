@@ -41,6 +41,13 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 
 /*
+ * There is no internal RAM in ARMADA100, using DRAM
+ * TBD: dcache to be used for this
+ */
+#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE - 0x00200000)
+#define CONFIG_NR_DRAM_BANKS_MAX	2
+
+/*
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
@@ -53,6 +60,7 @@
  * to enable certain macros
  */
 #include "mv-common.h"
+#undef CONFIG_ARCH_MISC_INIT
 
 /*
  * Environment variables configurations

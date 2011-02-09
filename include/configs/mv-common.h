@@ -37,54 +37,6 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_MARVELL		1
-#define CONFIG_ARM926EJS	1	/* Basic Architecture */
-
-/* ====> Kirkwood Platform Common Definations */
-#if defined(CONFIG_KIRKWOOD)
-#define CONFIG_MD5	/* get_random_hex on krikwood needs MD5 support */
-#define CONFIG_KIRKWOOD_EGIGA_INIT	/* Enable GbePort0/1 for kernel */
-#define CONFIG_KIRKWOOD_RGMII_PAD_1V8	/* Set RGMII Pad voltage to 1.8V */
-#define CONFIG_KIRKWOOD_PCIE_INIT       /* Enable PCIE Port0 for kernel */
-
-/*
- * By default kwbimage.cfg from board specific folder is used
- * If for some board, different configuration file need to be used,
- * CONFIG_SYS_KWD_CONFIG should be defined in board specific header file
- */
-#ifndef CONFIG_SYS_KWD_CONFIG
-#define	CONFIG_SYS_KWD_CONFIG	$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage.cfg
-#endif /* CONFIG_SYS_KWD_CONFIG */
-
-/* Kirkwood has 2k of Security SRAM, use it for SP */
-#define CONFIG_SYS_INIT_SP_ADDR		0xC8012000
-#define CONFIG_NR_DRAM_BANKS_MAX	2
-
-#define CONFIG_I2C_MVTWSI_BASE	KW_TWSI_BASE
-#define MV_UART_CONSOLE_BASE	KW_UART0_BASE
-#define MV_SATA_BASE		KW_SATA_BASE
-#define MV_SATA_PORT0_OFFSET	KW_SATA_PORT0_OFFSET
-#define MV_SATA_PORT1_OFFSET	KW_SATA_PORT1_OFFSET
-
-/* ====> ARMADA100 Platform Common Definations */
-#elif defined (CONFIG_ARMADA100)
-
-#define CONFIG_SYS_TCLK		(14745600)	/* NS16550 clk config */
-#define CONFIG_SYS_HZ_CLOCK	(3250000)	/* Timer Freq. 3.25MHZ */
-#define CONFIG_MARVELL_MFP			/* Enable mvmfp driver */
-#define MV_MFPR_BASE		ARMD1_MFPR_BASE
-#define MV_UART_CONSOLE_BASE	ARMD1_UART1_BASE
-#define CONFIG_SYS_NS16550_IER	(1 << 6)	/* Bit 6 in UART_IER register
-						represents UART Unit Enable */
-/*
- * There is no internal RAM in ARMADA100, using DRAM
- * TBD: dcache to be used for this
- */
-#define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_TEXT_BASE - 0x00200000)
-#define CONFIG_NR_DRAM_BANKS_MAX	2
-
-#else
-#error "Unsupported SoC Platform..."
-#endif
 
 /*
  * Custom CONFIG_SYS_TEXT_BASE can be done in <board>.h
@@ -138,31 +90,6 @@
 		+sizeof(CONFIG_SYS_PROMPT) + 16)	/* Print Buff */
 
 /*
- * NAND configuration
- */
-#ifdef CONFIG_CMD_NAND
-#define CONFIG_NAND_KIRKWOOD
-#define CONFIG_SYS_MAX_NAND_DEVICE	1
-#define NAND_MAX_CHIPS			1
-#define CONFIG_SYS_NAND_BASE		0xD8000000	/* MV_DEFADR_NANDF */
-#define NAND_ALLOW_ERASE_ALL		1
-#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
-#endif
-
-/*
- * SPI Flash configuration
- */
-#ifdef CONFIG_CMD_SF
-#define CONFIG_SPI_FLASH		1
-#define CONFIG_HARD_SPI			1
-#define CONFIG_KIRKWOOD_SPI		1
-#define CONFIG_SPI_FLASH_MACRONIX	1
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
-#define CONFIG_ENV_SPI_MAX_HZ		50000000	/*50Mhz */
-#endif
-
-/*
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	(1024 * 1024) /* 1MiB for malloc() */
@@ -176,9 +103,7 @@
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_CONSOLE_INFO_QUIET	/* some code reduction */
 #define CONFIG_ARCH_CPU_INIT	/* call arch_cpu_init() */
-#ifndef CONFIG_ARMADA100	/* will be removed latter */
 #define CONFIG_ARCH_MISC_INIT	/* call arch_misc_init() */
-#endif /* CONFIG_ARMADA100 */
 #define CONFIG_BOARD_EARLY_INIT_F /* call board_init_f for early inits */
 #define CONFIG_DISPLAY_CPUINFO	/* Display cpu info */
 #define CONFIG_STACKSIZE	0x00100000	/* regular stack- 1M */
@@ -199,27 +124,32 @@
 #endif
 #endif /* CONFIG_NR_DRAM_BANKS */
 
+/* ====> Include platform Common Definations */
+#include <asm/arch/config.h>
+
+/* ====> Include driver Common Definations */
 /*
- * Ethernet Driver configuration
+ * Common NAND configuration
  */
-#ifdef CONFIG_CMD_NET
-#define CONFIG_CMD_MII
-#define CONFIG_NETCONSOLE	/* include NetConsole support   */
-#define CONFIG_NET_MULTI	/* specify more that one ports available */
-#define CONFIG_MII		/* expose smi ove miiphy interface */
-#define CONFIG_MVGBE		/* Enable Marvell Gbe Controller Driver */
-#define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */
-#define CONFIG_ENV_OVERWRITE	/* ethaddr can be reprogrammed */
-#define CONFIG_RESET_PHY_R	/* use reset_phy() to init mv8831116 PHY */
-#endif /* CONFIG_CMD_NET */
+#ifdef CONFIG_CMD_NAND
+#define CONFIG_SYS_MAX_NAND_DEVICE     1
+#define NAND_MAX_CHIPS                 1
+#define CONFIG_SYS_64BIT_VSPRINTF      /* needed for nand_util.c */
+#endif
 
 /*
- * USB/EHCI
+ * Common SPI Flash configuration
+ */
+#ifdef CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH		1
+#define CONFIG_SPI_FLASH_MACRONIX	1
+#endif
+
+/*
+ * Common USB/EHCI configuration
  */
 #ifdef CONFIG_CMD_USB
 #define CONFIG_USB_EHCI		/* Enable EHCI USB support */
-#define CONFIG_USB_EHCI_KIRKWOOD
-#define CONFIG_EHCI_IS_TDI
 #define CONFIG_USB_STORAGE
 #define CONFIG_DOS_PARTITION
 #define CONFIG_ISO_PARTITION
@@ -227,44 +157,9 @@
 #endif /* CONFIG_CMD_USB */
 
 /*
- * IDE Support on SATA ports
- */
-#ifdef CONFIG_CMD_IDE
-#define __io
-#define CONFIG_CMD_EXT2
-#define CONFIG_MVSATA_IDE
-#define CONFIG_IDE_PREINIT
-#define CONFIG_MVSATA_IDE_USE_PORT1
-/* Needs byte-swapping for ATA data register */
-#define CONFIG_IDE_SWAP_IO
-/* Data, registers and alternate blocks are at the same offset */
-#define CONFIG_SYS_ATA_DATA_OFFSET	(0x0100)
-#define CONFIG_SYS_ATA_REG_OFFSET	(0x0100)
-#define CONFIG_SYS_ATA_ALT_OFFSET	(0x0100)
-/* Each 8-bit ATA register is aligned to a 4-bytes address */
-#define CONFIG_SYS_ATA_STRIDE		4
-/* Controller supports 48-bits LBA addressing */
-#define CONFIG_LBA48
-/* CONFIG_CMD_IDE requires some #defines for ATA registers */
-#define CONFIG_SYS_IDE_MAXBUS		2
-#define CONFIG_SYS_IDE_MAXDEVICE	2
-/* ATA registers base is at SATA controller base */
-#define CONFIG_SYS_ATA_BASE_ADDR	MV_SATA_BASE
-#endif /* CONFIG_CMD_IDE */
-
-/*
- * I2C related stuff
- */
-#ifdef CONFIG_CMD_I2C
-#define CONFIG_I2C_MVTWSI
-#define CONFIG_SYS_I2C_SLAVE		0x0
-#define CONFIG_SYS_I2C_SPEED		100000
-#endif
-
-/*
  * File system
  */
-#ifndef CONFIG_ARMADA100	/* will be removed latter */
+#ifdef CONFIG_SYS_MVFS
 #define CONFIG_CMD_EXT2
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_FAT
@@ -275,6 +170,6 @@
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_CMD_MTDPARTS
 #define CONFIG_LZO
-#endif /* CONFIG_ARMADA100 */
+#endif
 
 #endif /* _MV_COMMON_H */
