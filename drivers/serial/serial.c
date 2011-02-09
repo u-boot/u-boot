@@ -33,6 +33,8 @@
 #include <asm/arch/orion5x.h>
 #elif defined(CONFIG_ARMADA100)
 #include <asm/arch/armada100.h>
+#elif defined(CONFIG_PANTHEON)
+#include <asm/arch/pantheon.h>
 #endif
 
 #if defined (CONFIG_SERIAL_MULTI)
