@@ -659,7 +659,7 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 				errno);
 			return 1;
 		}
-		sprintf(buf, "%zX", len);
+		sprintf(buf, "%zX", (size_t)len);
 		setenv("filesize", buf);
 
 		return 0;
@@ -685,7 +685,7 @@ static int do_env_export(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		envp->flags = ACTIVE_FLAG;
 #endif
 	}
-	sprintf(buf, "%zX", len + offsetof(env_t,data));
+	sprintf(buf, "%zX", (size_t)(len + offsetof(env_t,data)));
 	setenv("filesize", buf);
 
 	return 0;
