@@ -10,12 +10,18 @@
 #ifndef CONFIG_SYS_GPIO_BASE
 
 #define ALTERA_PIO_BASE LED_PIO_BASE
+#define ALTERA_PIO_WIDTH LED_PIO_WIDTH
 #define ALTERA_PIO_DATA (ALTERA_PIO_BASE + 0)
 #define ALTERA_PIO_DIR (ALTERA_PIO_BASE + 4)
 static u32 pio_data_reg;
 static u32 pio_dir_reg;
 
 int gpio_request(unsigned gpio, const char *label)
+{
+	return 0;
+}
+
+int gpio_free(unsigned gpio)
 {
 	return 0;
 }
@@ -56,5 +62,10 @@ void gpio_set_value(unsigned gpio, int value)
 	else
 		pio_data_reg &= ~mask;
 	writel(pio_data_reg, ALTERA_PIO_DATA);
+}
+
+int gpio_is_valid(int number)
+{
+	return ((unsigned)number) < ALTERA_PIO_WIDTH;
 }
 #endif

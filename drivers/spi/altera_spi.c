@@ -70,6 +70,11 @@ void spi_init(void)
 {
 }
 
+void spi_set_speed(struct spi_slave *slave, uint hz)
+{
+	/* altera spi core does not support programmable speed */
+}
+
 struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 				  unsigned int max_hz, unsigned int mode)
 {
