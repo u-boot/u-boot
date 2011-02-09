@@ -20,16 +20,17 @@ typedef struct ngpixis {
 	u8 scver;
 	u8 csr;
 	u8 rst;
-	u8 res1;
+	u8 serclk;
 	u8 aux;
 	u8 spd;
 	u8 brdcfg0;
 	u8 brdcfg1;	/* On some boards, this register is called 'dma' */
 	u8 addr;
-	u8 res2[2];
+	u8 brdcfg2;
+	u8 gpiodir;
 	u8 data;
 	u8 led;
-	u8 res3;
+	u8 tag;
 	u8 vctl;
 	u8 vstat;
 	u8 vcfgen0;
