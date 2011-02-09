@@ -163,15 +163,7 @@ call_board_init_f:
 	bic	sp, sp, #7 /* 8-byte alignment for ABI compliance */
 	ldr	r0,=0x00000000
 
-#ifdef CONFIG_NAND_SPL
-	bl	nand_boot
-#else
-#ifdef CONFIG_ONENAND_IPL
-	bl	start_oneboot
-#else
 	bl	board_init_f
-#endif /* CONFIG_ONENAND_IPL */
-#endif /* CONFIG_NAND_SPL */
 
 /*------------------------------------------------------------------------------*/
 
@@ -267,10 +259,10 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
  */
 #ifdef CONFIG_NAND_SPL
 	ldr     r0, _nand_boot_ofs
-	adr	r1, _start
-	add	pc, r0, r1
-_nand_boot_ofs
-	: .word nand_boot - _start
+	mov	pc, r0
+
+_nand_boot_ofs:
+	.word nand_boot
 #else
 jump_2_ram:
 	ldr	r0, _board_init_r_ofs
