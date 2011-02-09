@@ -361,6 +361,7 @@ int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #else
 		memcpy(e.id, "CCID", sizeof(e.id));
 #endif
+		update_crc();
 		return 0;
 	}
 
