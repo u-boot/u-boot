@@ -79,7 +79,7 @@ bmp_image_t *gunzip_bmp(unsigned long addr, unsigned long *lenp)
 		return NULL;
 	}
 
-	puts("Gzipped BMP image detected!\n");
+	debug("Gzipped BMP image detected!\n");
 
 	return bmp;
 }
