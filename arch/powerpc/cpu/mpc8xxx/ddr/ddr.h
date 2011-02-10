@@ -80,5 +80,5 @@ extern void check_interleaving_options(fsl_ddr_info_t *pinfo);
 extern unsigned int mclk_to_picos(unsigned int mclk);
 extern unsigned int get_memory_clk_period_ps(void);
 extern unsigned int picos_to_mclk(unsigned int picos);
-
+extern unsigned int fsl_ddr_get_mem_data_rate(void);
 #endif

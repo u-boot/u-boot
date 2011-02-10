@@ -236,9 +236,12 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 	 * tAXPD=1, need design to confirm.
 	 */
 	int tXP = max((get_memory_clk_period_ps() * 3), 7500); /* unit=ps */
+	unsigned int data_rate = fsl_ddr_get_mem_data_rate();
 	tmrd_mclk = 4;
 	/* set the turnaround time */
 	trwt_mclk = 1;
+	if ((data_rate/1000000 > 1150) || (popts->memctl_interleaving))
+		twrt_mclk = 1;
 
 	if (popts->dynamic_power == 0) {	/* powerdown is not used */
 		act_pd_exit_mclk = 1;
