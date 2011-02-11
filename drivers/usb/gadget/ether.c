@@ -22,6 +22,7 @@
 
 #include <common.h>
 #include <asm/errno.h>
+#include <linux/netdevice.h>
 #include <linux/usb/ch9.h>
 #include <linux/usb/cdc.h>
 #include <linux/usb/gadget.h>
@@ -175,6 +176,7 @@ struct eth_dev {
 	struct usb_request	*tx_req, *rx_req;
 
 	struct eth_device	*net;
+	struct net_device_stats	stats;
 	unsigned int		tx_qlen;
 
 	unsigned		zlp:1;
@@ -1274,6 +1276,28 @@ static void rx_complete(struct usb_ep *ep, struct usb_request *req)
 	struct eth_dev	*dev = ep->driver_data;
 
 	debug("%s: status %d\n", __func__, req->status);
+	switch (req->status) {
+	/* normal completion */
+	case 0:
+		dev->stats.rx_packets++;
+		dev->stats.rx_bytes += req->length;
+		break;
+
+	/* software-driven interface shutdown */
+	case -ECONNRESET:		/* unlink */
+	case -ESHUTDOWN:		/* disconnect etc */
+	/* for hardware automagic (such as pxa) */
+	case -ECONNABORTED:		/* endpoint reset */
+		break;
+
+	/* data overrun */
+	case -EOVERFLOW:
+		dev->stats.rx_over_errors++;
+		/* FALLTHROUGH */
+	default:
+		dev->stats.rx_errors++;
+		break;
+	}
 
 	packet_received = 1;
 }
@@ -1302,7 +1326,22 @@ fail1:
 
 static void tx_complete(struct usb_ep *ep, struct usb_request *req)
 {
+	struct eth_dev	*dev = ep->driver_data;
+
 	debug("%s: status %s\n", __func__, (req->status) ? "failed" : "ok");
+	switch (req->status) {
+	default:
+		dev->stats.tx_errors++;
+		debug("tx err %d\n", req->status);
+		/* FALLTHROUGH */
+	case -ECONNRESET:		/* unlink */
+	case -ESHUTDOWN:		/* disconnect etc */
+		break;
+	case 0:
+		dev->stats.tx_bytes += req->length;
+	}
+	dev->stats.tx_packets++;
+
 	packet_sent = 1;
 }
 
