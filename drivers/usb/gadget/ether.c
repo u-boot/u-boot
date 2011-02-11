@@ -1928,6 +1928,13 @@ void usb_eth_halt(struct eth_device *netdev)
 		return;
 
 	usb_gadget_disconnect(dev->gadget);
+
+	/* Clear pending interrupt */
+	if (dev->network_started) {
+		usb_gadget_handle_interrupts();
+		dev->network_started = 0;
+	}
+
 	usb_gadget_unregister_driver(&eth_driver);
 }
 
