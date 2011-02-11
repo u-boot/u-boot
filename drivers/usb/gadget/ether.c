@@ -104,6 +104,42 @@ static const char driver_desc[] = DRIVER_DESC;
 #define USB_CONNECT_TIMEOUT (3 * CONFIG_SYS_HZ)
 
 /*-------------------------------------------------------------------------*/
+
+struct eth_dev {
+	struct usb_gadget	*gadget;
+	struct usb_request	*req;		/* for control responses */
+	struct usb_request	*stat_req;	/* for cdc status */
+
+	u8			config;
+	struct usb_ep		*in_ep, *out_ep, *status_ep;
+	const struct usb_endpoint_descriptor
+				*in, *out, *status;
+
+	struct usb_request	*tx_req, *rx_req;
+
+	struct eth_device	*net;
+	struct net_device_stats	stats;
+	unsigned int		tx_qlen;
+
+	unsigned		zlp:1;
+	unsigned		cdc:1;
+	unsigned		suspended:1;
+	unsigned		network_started:1;
+	u16			cdc_filter;
+	unsigned long		todo;
+	int			mtu;
+#define	WORK_RX_MEMORY		0
+	u8			host_mac[ETH_ALEN];
+};
+
+/*
+ * This version autoconfigures as much as possible at run-time.
+ *
+ * It also ASSUMES a self-powered device, without remote wakeup,
+ * although remote wakeup support would make sense.
+ */
+
+/*-------------------------------------------------------------------------*/
 static struct eth_dev l_ethdev;
 static struct eth_device l_netdev;
 static struct usb_gadget_driver eth_driver;
@@ -162,40 +198,6 @@ static inline int BITRATE(struct usb_gadget *g)
 	return FS_BPS;
 }
 #endif
-
-struct eth_dev {
-	struct usb_gadget	*gadget;
-	struct usb_request	*req;		/* for control responses */
-	struct usb_request	*stat_req;	/* for cdc status */
-
-	u8			config;
-	struct usb_ep		*in_ep, *out_ep, *status_ep;
-	const struct usb_endpoint_descriptor
-				*in, *out, *status;
-
-	struct usb_request	*tx_req, *rx_req;
-
-	struct eth_device	*net;
-	struct net_device_stats	stats;
-	unsigned int		tx_qlen;
-
-	unsigned		zlp:1;
-	unsigned		cdc:1;
-	unsigned		suspended:1;
-	unsigned		network_started:1;
-	u16			cdc_filter;
-	unsigned long		todo;
-	int			mtu;
-#define	WORK_RX_MEMORY		0
-	u8			host_mac[ETH_ALEN];
-};
-
-/*
- * This version autoconfigures as much as possible at run-time.
- *
- * It also ASSUMES a self-powered device, without remote wakeup,
- * although remote wakeup support would make sense.
- */
 
 /*-------------------------------------------------------------------------*/
 
