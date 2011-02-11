@@ -133,9 +133,9 @@ extern inline void __raw_readsl(unsigned int addr, void *data, int longlen)
 #define __iormb()	dmb()
 #define __iowmb()	dmb()
 
-#define writeb(v,c)	({ __iowmb(); __arch_putb(v,c); v; })
-#define writew(v,c)	({ __iowmb(); __arch_putw(v,c); v; })
-#define writel(v,c)	({ __iowmb(); __arch_putl(v,c); v; })
+#define writeb(v,c)	({ u8  __v = v; __iowmb(); __arch_putb(__v,c); __v; })
+#define writew(v,c)	({ u16 __v = v; __iowmb(); __arch_putw(__v,c); __v; })
+#define writel(v,c)	({ u32 __v = v; __iowmb(); __arch_putl(__v,c); __v; })
 
 #define readb(c)	({ u8  __v = __arch_getb(c); __iormb(); __v; })
 #define readw(c)	({ u16 __v = __arch_getw(c); __iormb(); __v; })
