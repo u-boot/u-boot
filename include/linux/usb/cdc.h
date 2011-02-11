@@ -158,6 +158,9 @@ struct usb_cdc_mdlm_detail_desc {
  *
  * section 3.6.2.1 table 4 has the ACM profile, for modems.
  * section 3.8.2 table 10 has the ethernet profile.
+ *
+ * Microsoft's RNDIS stack for Ethernet is a vendor-specific CDC ACM variant,
+ * heavily dependent on the encapsulated (proprietary) command mechanism.
  */
 
 #define USB_CDC_SEND_ENCAPSULATED_COMMAND	0x00
@@ -203,7 +206,8 @@ struct usb_cdc_line_coding {
  * Class-Specific Notifications (6.3) sent by interrupt transfers
  *
  * section 3.8.2 table 11 of the CDC spec lists Ethernet notifications
- * section 3.6.2.1 table 5 specifies ACM notifications
+ * section 3.6.2.1 table 5 specifies ACM notifications, accepted by RNDIS
+ * RNDIS also defines its own bit-incompatible notifications
  */
 
 #define USB_CDC_NOTIFY_NETWORK_CONNECTION	0x00

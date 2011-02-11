@@ -28,6 +28,7 @@ LIB	:= $(obj)libusb_gadget.o
 # new USB gadget layer dependencies
 ifdef CONFIG_USB_ETHER
 COBJS-y += ether.o epautoconf.o config.o usbstring.o
+COBJS-$(CONFIG_USB_ETH_RNDIS) += rndis.o
 else
 # Devices not related to the new gadget layer depend on CONFIG_USB_DEVICE
 ifdef CONFIG_USB_DEVICE
