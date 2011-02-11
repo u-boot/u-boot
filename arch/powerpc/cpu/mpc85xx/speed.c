@@ -28,6 +28,7 @@
 
 #include <common.h>
 #include <ppc_asm.tmpl>
+#include <linux/compiler.h>
 #include <asm/processor.h>
 #include <asm/io.h>
 
@@ -156,7 +157,7 @@ void get_sys_info (sys_info_t * sysInfo)
 #endif
 	int i;
 #ifdef CONFIG_QE
-	u32 qe_ratio;
+	__maybe_unused u32 qe_ratio;
 #endif
 
 	plat_ratio = (gur->porpllsr) & 0x0000003e;
@@ -184,9 +185,14 @@ void get_sys_info (sys_info_t * sysInfo)
 #endif
 
 #ifdef CONFIG_QE
+#if defined(CONFIG_P1012) || defined(CONFIG_P1016) || \
+    defined(CONFIG_P1021) || defined(CONFIG_P1025)
+	sysInfo->freqQE =  sysInfo->freqSystemBus;
+#else
 	qe_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_QE_RATIO)
 			>> MPC85xx_PORPLLSR_QE_RATIO_SHIFT;
 	sysInfo->freqQE = qe_ratio * CONFIG_SYS_CLK_FREQ;
+#endif
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN

@@ -115,6 +115,9 @@
 #define CONFIG_SYS_FSL_SEC_COMPAT	2
 #define CONFIG_SYS_FSL_ERRATUM_ELBC_A001
 #define CONFIG_SYS_FSL_ERRATUM_ESDHC111
+#define QE_MURAM_SIZE			0x6000UL
+#define MAX_QE_RISC			1
+#define QE_NUM_OF_SNUM			28
 
 /* P1013 is single core version of P1022 */
 #elif defined(CONFIG_P1013)
@@ -155,6 +158,9 @@
 #define CONFIG_SYS_FSL_SEC_COMPAT	2
 #define CONFIG_SYS_FSL_ERRATUM_ELBC_A001
 #define CONFIG_SYS_FSL_ERRATUM_ESDHC111
+#define QE_MURAM_SIZE			0x6000UL
+#define MAX_QE_RISC			1
+#define QE_NUM_OF_SNUM			28
 
 /* P1017 is single core version of P1023 */
 #elif defined(CONFIG_P1017)
@@ -185,6 +191,9 @@
 #define CONFIG_SYS_FSL_SEC_COMPAT	2
 #define CONFIG_SYS_FSL_ERRATUM_ELBC_A001
 #define CONFIG_SYS_FSL_ERRATUM_ESDHC111
+#define QE_MURAM_SIZE			0x6000UL
+#define MAX_QE_RISC			1
+#define QE_NUM_OF_SNUM			28
 
 #elif defined(CONFIG_P1022)
 #define CONFIG_MAX_CPUS			2
@@ -225,6 +234,9 @@
 #define CONFIG_SYS_FSL_SEC_COMPAT	2
 #define CONFIG_SYS_FSL_ERRATUM_ELBC_A001
 #define CONFIG_SYS_FSL_ERRATUM_ESDHC111
+#define QE_MURAM_SIZE			0x6000UL
+#define MAX_QE_RISC			1
+#define QE_NUM_OF_SNUM			28
 
 /* P2010 is single core version of P2020 */
 #elif defined(CONFIG_P2010)
