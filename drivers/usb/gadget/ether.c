@@ -1921,9 +1921,21 @@ static void eth_start(struct eth_dev *dev, gfp_t gfp_flags)
 
 static int eth_stop(struct eth_dev *dev)
 {
+#ifdef RNDIS_COMPLETE_SIGNAL_DISCONNECT
+	unsigned long ts;
+	unsigned long timeout = CONFIG_SYS_HZ; /* 1 sec to stop RNDIS */
+#endif
+
 	if (rndis_active(dev)) {
 		rndis_set_param_medium(dev->rndis_config, NDIS_MEDIUM_802_3, 0);
 		rndis_signal_disconnect(dev->rndis_config);
+
+#ifdef RNDIS_COMPLETE_SIGNAL_DISCONNECT
+		/* Wait until host receives OID_GEN_MEDIA_CONNECT_STATUS */
+		ts = get_timer(0);
+		while (get_timer(ts) < timeout)
+			usb_gadget_handle_interrupts();
+#endif
 
 		rndis_uninit(dev->rndis_config);
 		dev->rndis = 0;
@@ -2486,6 +2498,17 @@ void usb_eth_halt(struct eth_device *netdev)
 	if (!dev->gadget)
 		return;
 
+	/*
+	 * Some USB controllers may need additional deinitialization here
+	 * before dropping pull-up (also due to hardware issues).
+	 * For example: unhandled interrupt with status stage started may
+	 * bring the controller to fully broken state (until board reset).
+	 * There are some variants to debug and fix such cases:
+	 * 1) In the case of RNDIS connection eth_stop can perform additional
+	 * interrupt handling. See RNDIS_COMPLETE_SIGNAL_DISCONNECT definition.
+	 * 2) 'pullup' callback in your UDC driver can be improved to perform
+	 * this deinitialization.
+	 */
 	eth_stop(dev);
 
 	usb_gadget_disconnect(dev->gadget);

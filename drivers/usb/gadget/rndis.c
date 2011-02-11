@@ -995,7 +995,12 @@ int rndis_signal_disconnect(int configNr)
 	rndis_per_dev_params[configNr].media_state
 			= NDIS_MEDIA_STATE_DISCONNECTED;
 
+#ifdef RNDIS_COMPLETE_SIGNAL_DISCONNECT
+	return rndis_indicate_status_msg(configNr,
+					  RNDIS_STATUS_MEDIA_DISCONNECT);
+#else
 	return 0;
+#endif
 }
 
 void rndis_uninit(int configNr)

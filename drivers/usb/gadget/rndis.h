@@ -17,6 +17,14 @@
 
 #include "ndis.h"
 
+/*
+ * By default rndis_signal_disconnect does not send status message about
+ * RNDIS disconnection to USB host (indicated as cable disconnected).
+ * Define RNDIS_COMPLETE_SIGNAL_DISCONNECT to send it.
+ * However, this will cause 1 sec delay on Ethernet device halt.
+ * Usually you do not need to define it. Mostly usable for debugging.
+ */
+
 #define RNDIS_MAXIMUM_FRAME_SIZE	1518
 #define RNDIS_MAX_TOTAL_SIZE		1558
 
