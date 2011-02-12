@@ -162,9 +162,6 @@ init_fnc_t *init_sequence[] = {
 	dram_init,		/* configure available RAM banks */
 	interrupt_init,		/* set up exceptions */
 	timer_init,
-	env_init,		/* initialize environment */
-	init_baudrate,		/* initialze baudrate settings */
-	serial_init,		/* serial communications setup */
 	display_banner,
 	display_dram_config,
 
@@ -196,6 +193,18 @@ void board_init_f(ulong boot_flags)
 	Elf32_Rel *re_end;
 
 	gd->flags = boot_flags;
+
+	if (env_init() != 0)
+		hang();
+
+	if (init_baudrate() != 0)
+		hang();
+
+	if (serial_init() != 0)
+		hang();
+
+	if (console_init_f() != 0)
+		hang();
 
 	if (dram_init_f() != 0)
 		hang();
