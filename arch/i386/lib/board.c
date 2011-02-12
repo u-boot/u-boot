@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Daniel Engstrï¿½m, Omicron Ceti AB, daniel@omicron.se
+ * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
  *
  * (C) Copyright 2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
