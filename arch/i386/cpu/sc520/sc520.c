@@ -46,11 +46,9 @@ int cpu_init_f(void)
 		/* set it to 133 MHz and write back */
 		writeb(0x02, &sc520_mmcr->cpuctl);
 		gd->cpu_clk = 133000000;
-		printf("## CPU Speed set to 133MHz\n");
 	} else {
 		/* set it to 100 MHz and write back */
 		writeb(0x01, &sc520_mmcr->cpuctl);
-		printf("## CPU Speed set to 100MHz\n");
 		gd->cpu_clk = 100000000;
 	}
 
