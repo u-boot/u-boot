@@ -25,7 +25,9 @@
 #define _U_BOOT_I386_H_	1
 
 /* cpu/.../cpu.c */
+int x86_cpu_init_r(void);
 int cpu_init_r(void);
+int x86_cpu_init_f(void);
 int cpu_init_f(void);
 
 /* cpu/.../timer.c */

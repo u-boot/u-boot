@@ -48,33 +48,11 @@ unsigned long monitor_flash_len = CONFIG_SYS_MONITOR_LEN;
 static void enet_timer_isr(void);
 static void enet_toggle_run_led(void);
 
-void init_sc520_enet (void)
-{
-	/* Set CPU Speed to 100MHz */
-	writeb(0x01, &sc520_mmcr->cpuctl);
-
-	/* wait at least one millisecond */
-	asm("movl	$0x2000,%%ecx\n"
-	    "0:	pushl %%ecx\n"
-	    "popl	%%ecx\n"
-	    "loop 0b\n": : : "ecx");
-
-	/* turn on the SDRAM write buffer */
-	writeb(0x11, &sc520_mmcr->dbctl);
-
-	/* turn on the cache and disable write through */
-	asm("movl	%%cr0, %%eax\n"
-	    "andl	$0x9fffffff, %%eax\n"
-	    "movl	%%eax, %%cr0\n"  : : : "eax");
-}
-
 /*
  * Miscellaneous platform dependent initializations
  */
 int board_early_init_f(void)
 {
-	init_sc520_enet();
-
 	writeb(0x01, &sc520_mmcr->gpcsrt);		/* GP Chip Select Recovery Time */
 	writeb(0x07, &sc520_mmcr->gpcspw);		/* GP Chip Select Pulse Width */
 	writeb(0x00, &sc520_mmcr->gpcsoff);		/* GP Chip Select Offset */

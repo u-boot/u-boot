@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB <daniel@omicron.se>.
+ * Daniel Engstrï¿½m, Omicron Ceti AB <daniel@omicron.se>.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -40,10 +40,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 volatile sc520_mmcr_t *sc520_mmcr = (sc520_mmcr_t *)0xfffef000;
 
-void init_sc520(void)
+int cpu_init_f(void)
 {
-	const u32 nw_cd_rst = ~(X86_CR0_NW | X86_CR0_CD);
-
 	/*
 	 * Set the UARTxCTL register at it's slower,
 	 * baud clock giving us a 1.8432 MHz reference
@@ -85,10 +83,7 @@ void init_sc520(void)
 	/* turn on the SDRAM write buffer */
 	writeb(0x11, &sc520_mmcr->dbctl);
 
-	/* turn on the cache and disable write through */
-	asm("movl	%%cr0, %%eax\n"
-	    "andl	%0, %%eax\n"
-	    "movl	%%eax, %%cr0\n"  : : "i" (nw_cd_rst) : "eax");
+	return x86_cpu_init_f();
 }
 
 unsigned long init_sc520_dram(void)
