@@ -67,15 +67,15 @@ _start:
 	/* Clear the interupt vectors */
 	lidt	blank_idt_ptr
 
-	/* Skip low-level initialization if not starting from cold-reset */
-	movl	%ebx, %ecx
-	andl	$GD_FLG_COLD_BOOT, %ecx
-	jz	skip_mem_init
-
 	/* Early platform init (setup gpio, etc ) */
 	jmp	early_board_init
 .globl early_board_init_ret
 early_board_init_ret:
+
+	/* Skip memory initialization if not starting from cold-reset */
+	movl	%ebx, %ecx
+	andl	$GD_FLG_COLD_BOOT, %ecx
+	jz	skip_mem_init
 
 	/* size memory */
 	jmp	mem_init
