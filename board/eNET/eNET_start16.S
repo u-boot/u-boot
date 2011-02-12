@@ -29,6 +29,7 @@
 
 /* #include <asm/ic/sc520_defs.h> */
 
+#include "config.h"
 #include "hardware.h"
 #include <asm/ic/sc520.h>
 
@@ -48,12 +49,12 @@ board_init16:
 
 	/* Map PAR for Boot Flash (BOOTCS, 512kB @ 0x380000000) */
 	movl    $(SC520_PAR14 - SC520_MMCR_BASE), %edi
-	movl	$0x8bfff800, %eax	/* TODO: Check this */
+	movl	$CONFIG_SYS_SC520_BOOTCS_PAR, %eax
 	movl	%eax, (%di)
 
 	/* Map PAR for LED, Hex Switches (GPCS6, 20 Bytes @ 0x1000) */
 	movl    $(SC520_PAR15 - SC520_MMCR_BASE), %edi
-	movl	$0x38201000, %eax
+	movl	$CONFIG_SYS_SC520_LLIO_PAR, %eax
 	movl	%eax, (%di)
 
 	/* Disable SDRAM write buffer */

@@ -53,36 +53,57 @@ static void enet_toggle_run_led(void);
  */
 int board_early_init_f(void)
 {
-	writeb(0x01, &sc520_mmcr->gpcsrt);		/* GP Chip Select Recovery Time */
-	writeb(0x07, &sc520_mmcr->gpcspw);		/* GP Chip Select Pulse Width */
-	writeb(0x00, &sc520_mmcr->gpcsoff);		/* GP Chip Select Offset */
-	writeb(0x05, &sc520_mmcr->gprdw);		/* GP Read pulse width */
-	writeb(0x01, &sc520_mmcr->gprdoff);		/* GP Read offset */
-	writeb(0x05, &sc520_mmcr->gpwrw);		/* GP Write pulse width */
-	writeb(0x01, &sc520_mmcr->gpwroff);		/* GP Write offset */
+	u16 pio_out_cfg = 0x0000;
 
-	writew(0x0630, &sc520_mmcr->piodata15_0);	/* PIO15_PIO0 Data */
-	writew(0x2000, &sc520_mmcr->piodata31_16);	/* PIO31_PIO16 Data */
-	writew(0x2000, &sc520_mmcr->piodir31_16);	/* GPIO Direction */
-	writew(0x87b5, &sc520_mmcr->piodir15_0);	/* GPIO Direction */
-	writew(0x0dfe, &sc520_mmcr->piopfs31_16);	/* GPIO pin function 31-16 reg */
-	writew(0x200a, &sc520_mmcr->piopfs15_0);	/* GPIO pin function 15-0 reg */
-	writeb(0xf8, &sc520_mmcr->cspfs);		/* Chip Select Pin Function Select */
+	/* Configure General Purpose Bus timing */
+	writeb(CONFIG_SYS_SC520_GPCSRT, &sc520_mmcr->gpcsrt);
+	writeb(CONFIG_SYS_SC520_GPCSPW, &sc520_mmcr->gpcspw);
+	writeb(CONFIG_SYS_SC520_GPCSOFF, &sc520_mmcr->gpcsoff);
+	writeb(CONFIG_SYS_SC520_GPRDW, &sc520_mmcr->gprdw);
+	writeb(CONFIG_SYS_SC520_GPRDOFF, &sc520_mmcr->gprdoff);
+	writeb(CONFIG_SYS_SC520_GPWRW, &sc520_mmcr->gpwrw);
+	writeb(CONFIG_SYS_SC520_GPWROFF, &sc520_mmcr->gpwroff);
 
-	writel(0x200713f8, &sc520_mmcr->par[2]);	/* Uart A (GPCS0, 0x013f8, 8 Bytes) */
-	writel(0x2c0712f8, &sc520_mmcr->par[3]);	/* Uart B (GPCS3, 0x012f8, 8 Bytes) */
-	writel(0x300711f8, &sc520_mmcr->par[4]);	/* Uart C (GPCS4, 0x011f8, 8 Bytes) */
-	writel(0x340710f8, &sc520_mmcr->par[5]);	/* Uart D (GPCS5, 0x010f8, 8 Bytes) */
-	writel(0xe3ffc000, &sc520_mmcr->par[6]);	/* SDRAM (0x00000000, 128MB) */
-	writel(0xaa3fd000, &sc520_mmcr->par[7]);	/* StrataFlash (ROMCS1, 0x10000000, 16MB) */
-	writel(0xca3fd100, &sc520_mmcr->par[8]);	/* StrataFlash (ROMCS2, 0x11000000, 16MB) */
-	writel(0x4203d900, &sc520_mmcr->par[9]);	/* SRAM (GPCS0, 0x19000000, 1MB) */
-	writel(0x4e03d910, &sc520_mmcr->par[10]);	/* SRAM (GPCS3, 0x19100000, 1MB) */
-	writel(0x50018100, &sc520_mmcr->par[11]);	/* DP-RAM (GPCS4, 0x18100000, 4kB) */
-	writel(0x54020000, &sc520_mmcr->par[12]);	/* CFLASH1 (0x200000000, 4kB) */
-	writel(0x5c020001, &sc520_mmcr->par[13]);	/* CFLASH2 (0x200010000, 4kB) */
-/*	writel(0x8bfff800, &sc520_mmcr->par14); */	/* BOOTCS at  0x18000000 */
-/*	writel(0x38201000, &sc520_mmcr->par15); */	/* LEDs etc (GPCS6, 0x1000, 20 Bytes */
+	/* Configure Programmable Input/Output Pins */
+	writew(CONFIG_SYS_SC520_PIODIR15_0, &sc520_mmcr->piodir15_0);
+	writew(CONFIG_SYS_SC520_PIODIR31_16, &sc520_mmcr->piodir31_16);
+	writew(CONFIG_SYS_SC520_PIOPFS31_16, &sc520_mmcr->piopfs31_16);
+	writew(CONFIG_SYS_SC520_PIOPFS15_0, &sc520_mmcr->piopfs15_0);
+	writeb(CONFIG_SYS_SC520_CSPFS, &sc520_mmcr->cspfs);
+	writeb(CONFIG_SYS_SC520_CLKSEL, &sc520_mmcr->clksel);
+
+	/*
+	 * Turn off top board
+	 * Set StrataFlash chips to 16-bit width
+	 * Set StrataFlash chips to normal (non reset/power down) mode
+	 */
+	pio_out_cfg |= CONFIG_SYS_ENET_TOP_BRD_PWR;
+	pio_out_cfg |= CONFIG_SYS_ENET_SF_WIDTH;
+	pio_out_cfg |= CONFIG_SYS_ENET_SF1_MODE;
+	pio_out_cfg |= CONFIG_SYS_ENET_SF2_MODE;
+	writew(pio_out_cfg, &sc520_mmcr->pioset15_0);
+
+	/* Turn off auxiliary power output */
+	writew(CONFIG_SYS_ENET_AUX_PWR, &sc520_mmcr->pioclr15_0);
+
+	/* Clear FPGA program mode */
+	writew(CONFIG_SYS_ENET_FPGA_PROG, &sc520_mmcr->pioset31_16);
+
+	/* Configure Programmable Address Regions */
+	writel(CONFIG_SYS_SC520_UARTA_PAR, &sc520_mmcr->par[2]);
+	writel(CONFIG_SYS_SC520_UARTB_PAR, &sc520_mmcr->par[3]);
+	writel(CONFIG_SYS_SC520_UARTC_PAR, &sc520_mmcr->par[4]);
+	writel(CONFIG_SYS_SC520_UARTD_PAR, &sc520_mmcr->par[5]);
+	writel(CONFIG_SYS_SC520_SDRAM_PAR, &sc520_mmcr->par[6]);
+	writel(CONFIG_SYS_SC520_SF1_PAR, &sc520_mmcr->par[7]);
+	writel(CONFIG_SYS_SC520_SF2_PAR, &sc520_mmcr->par[8]);
+	writel(CONFIG_SYS_SC520_SRAM1_PAR, &sc520_mmcr->par[9]);
+	writel(CONFIG_SYS_SC520_SRAM2_PAR, &sc520_mmcr->par[10]);
+	writel(CONFIG_SYS_SC520_DPRAM_PAR, &sc520_mmcr->par[11]);
+	writel(CONFIG_SYS_SC520_CF1_PAR, &sc520_mmcr->par[12]);
+	writel(CONFIG_SYS_SC520_CF2_PAR, &sc520_mmcr->par[13]);
+/*	writel(CONFIG_SYS_SC520_BOOTCS_PAR, &sc520_mmcr->par14); */
+/*	writel(CONFIG_SYS_SC520_LLIO_PAR, &sc520_mmcr->par15); */
 
 	/* Disable Watchdog */
 	writew(0x3333, &sc520_mmcr->wdtmrctl);
@@ -90,24 +111,19 @@ int board_early_init_f(void)
 	writew(0x0000, &sc520_mmcr->wdtmrctl);
 
 	/* Chip Select Configuration */
-	writew(0x0033, &sc520_mmcr->bootcsctl);
-	writew(0x0615, &sc520_mmcr->romcs1ctl);
-	writew(0x0615, &sc520_mmcr->romcs2ctl);
+	writew(CONFIG_SYS_SC520_BOOTCS_CTRL, &sc520_mmcr->bootcsctl);
+	writew(CONFIG_SYS_SC520_ROMCS1_CTRL, &sc520_mmcr->romcs1ctl);
+	writew(CONFIG_SYS_SC520_ROMCS2_CTRL, &sc520_mmcr->romcs2ctl);
 
-	/*
-	 * Set the timer pin mapping
-	 * no clock frequency selected, use 1.1892MHz
-	 */
-	writeb(0x72, &sc520_mmcr->clksel);
+	writeb(CONFIG_SYS_SC520_ADDDECCTL, &sc520_mmcr->adddecctl);
+	writeb(CONFIG_SYS_SC520_UART1CTL, &sc520_mmcr->uart1ctl);
+	writeb(CONFIG_SYS_SC520_UART2CTL, &sc520_mmcr->uart2ctl);
 
-	writeb(0x00, &sc520_mmcr->adddecctl);
-	writeb(0x07, &sc520_mmcr->uart1ctl);
-	writeb(0x07, &sc520_mmcr->uart2ctl);
-	writeb(0x06, &sc520_mmcr->sysarbctl);
-	writew(0x0003, &sc520_mmcr->sysarbmenb);
+	writeb(CONFIG_SYS_SC520_SYSARBCTL, &sc520_mmcr->sysarbctl);
+	writew(CONFIG_SYS_SC520_SYSARBMENB, &sc520_mmcr->sysarbmenb);
 
 	/* enable posted-writes */
-	writeb(0x04, &sc520_mmcr->hbctl);
+	writeb(CONFIG_SYS_SC520_HBCTL, &sc520_mmcr->hbctl);
 
 	return 0;
 }
