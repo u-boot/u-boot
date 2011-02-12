@@ -57,11 +57,6 @@ board_init16:
 	movl	$CONFIG_SYS_SC520_LLIO_PAR, %eax
 	movl	%eax, (%di)
 
-	/* Disable SDRAM write buffer */
-	movw    $(SC520_DBCTL - SC520_MMCR_BASE), %di
-	xorw    %ax, %ax
-	movb    %al, (%di)
-
 	/* Disabe MMCR alias */
 	movw	$0xfffc, %dx
 	movl	$0x000000cb, %eax

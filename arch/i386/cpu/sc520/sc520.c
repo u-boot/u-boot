@@ -31,13 +31,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-/*
- * utility functions for boards based on the AMD sc520
- *
- * void init_sc520(void)
- * unsigned long init_sc520_dram(void)
- */
-
 sc520_mmcr_t *sc520_mmcr = (sc520_mmcr_t *)SC520_MMCR_BASE;
 
 int cpu_init_f(void)
@@ -63,109 +56,6 @@ int cpu_init_f(void)
 	writeb(0x11, &sc520_mmcr->dbctl);
 
 	return x86_cpu_init_f();
-}
-
-unsigned long init_sc520_dram(void)
-{
-	bd_t *bd = gd->bd;
-
-	u32 dram_present=0;
-	u32 dram_ctrl;
-
-#ifdef CONFIG_SYS_SDRAM_DRCTMCTL
-	/* these memory control registers are set up in the assember part,
-	 * in sc520_asm.S, during 'mem_init'.  If we muck with them here,
-	 * after we are running a stack in RAM, we have troubles.  Besides,
-	 * these refresh and delay values are better ? simply specified
-	 * outright in the include/configs/{cfg} file since the HW designer
-	 * simply dictates it.
-	 */
-#else
-	u8 tmp;
-	u8 val;
-
-	int cas_precharge_delay = CONFIG_SYS_SDRAM_PRECHARGE_DELAY;
-	int refresh_rate        = CONFIG_SYS_SDRAM_REFRESH_RATE;
-	int ras_cas_delay       = CONFIG_SYS_SDRAM_RAS_CAS_DELAY;
-
-	/* set SDRAM speed here */
-
-	refresh_rate /= 78;
-	if (refresh_rate <= 1) {
-		val = 0;	/* 7.8us */
-	} else if (refresh_rate == 2) {
-		val = 1;	/* 15.6us */
-	} else if (refresh_rate == 3 || refresh_rate == 4) {
-		val = 2;	/* 31.2us */
-	} else {
-		val = 3;	/* 62.4us */
-	}
-
-	tmp = (readb(&sc520_mmcr->drcctl) & 0xcf) | (val<<4);
-	writeb(tmp, &sc520_mmcr->drcctl);
-
-	val = readb(&sc520_mmcr->drctmctl) & 0xf0;
-
-	if (cas_precharge_delay==3) {
-		val |= 0x04;	/* 3T */
-	} else if (cas_precharge_delay==4) {
-		val |= 0x08;	/* 4T */
-	} else if (cas_precharge_delay>4) {
-		val |= 0x0c;
-	}
-
-	if (ras_cas_delay > 3) {
-		val |= 2;
-	} else {
-		val |= 1;
-	}
-	writeb(val, &c520_mmcr->drctmctl);
-#endif
-
-	/*
-	 * We read-back the configuration of the dram
-	 * controller that the assembly code wrote
-	 */
-	dram_ctrl = readl(&sc520_mmcr->drcbendadr);
-
-	bd->bi_dram[0].start = 0;
-	if (dram_ctrl & 0x80) {
-		/* bank 0 enabled */
-		dram_present = bd->bi_dram[1].start = (dram_ctrl & 0x7f) << 22;
-		bd->bi_dram[0].size = bd->bi_dram[1].start;
-	} else {
-		bd->bi_dram[0].size = 0;
-		bd->bi_dram[1].start = bd->bi_dram[0].start;
-	}
-
-	if (dram_ctrl & 0x8000) {
-		/* bank 1 enabled */
-		dram_present = bd->bi_dram[2].start = (dram_ctrl & 0x7f00) << 14;
-		bd->bi_dram[1].size = bd->bi_dram[2].start -  bd->bi_dram[1].start;
-	} else {
-		bd->bi_dram[1].size = 0;
-		bd->bi_dram[2].start = bd->bi_dram[1].start;
-	}
-
-	if (dram_ctrl & 0x800000) {
-		/* bank 2 enabled */
-		dram_present = bd->bi_dram[3].start = (dram_ctrl & 0x7f0000) << 6;
-		bd->bi_dram[2].size = bd->bi_dram[3].start -  bd->bi_dram[2].start;
-	} else {
-		bd->bi_dram[2].size = 0;
-		bd->bi_dram[3].start = bd->bi_dram[2].start;
-	}
-
-	if (dram_ctrl & 0x80000000) {
-		/* bank 3 enabled */
-		dram_present  = (dram_ctrl & 0x7f000000) >> 2;
-		bd->bi_dram[3].size = dram_present -  bd->bi_dram[3].start;
-	} else {
-		bd->bi_dram[3].size = 0;
-	}
-	gd->ram_size = dram_present;
-
-	return dram_present;
 }
 
 #ifdef CONFIG_SYS_SC520_RESET

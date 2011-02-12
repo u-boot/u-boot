@@ -82,29 +82,22 @@ car_init_ret:
 	 * starting at CONFIG_SYS_CAR_ADDR to be used as a temporary stack
 	 */
 	movl	$CONFIG_SYS_INIT_SP_ADDR, %esp
+	movl	$CONFIG_SYS_INIT_GD_ADDR, %ebp
 
-	/* Skip memory initialization if not starting from cold-reset */
-	movl	%ebx, %ecx
-	andl	$GD_FLG_COLD_BOOT, %ecx
-	jz	skip_mem_init
+	/* Set Boot Flags in Global Data */
+	movl	%ebx, (GD_FLAGS * 4)(%ebp)
+
+	/* Determine our load offset (and put in Global Data) */
+	call	1f
+1:	popl	%ecx
+	subl	$1b, %ecx
+	movl	%ecx, (GD_LOAD_OFF * 4)(%ebp)
 
 	/* size memory */
-	call	mem_init
+	call	dram_init_f
 
-skip_mem_init:
-	/* fetch memory size (into %eax) */
-	call	get_mem_size
-	movl	%eax, %esp
-
-#if CONFIG_SYS_SDRAM_ECC_ENABLE
-	/* Skip ECC initialization if not starting from cold-reset */
-	movl	%ebx, %ecx
-	andl	$GD_FLG_COLD_BOOT, %ecx
-	jz	skip_ecc_init
-	call	init_ecc
-
-skip_init_ecc:
-#endif
+	/* Setup stack in SDRAM */
+	movl	(GD_RAM_SIZE * 4)(%ebp), %esp
 
 	/* Test the stack */
 	pushl	$0
@@ -118,21 +111,8 @@ skip_init_ecc:
 
 	wbinvd
 
-	/* Determine our load offset */
-	call	1f
-1:	popl	%ecx
-	subl	$1b, %ecx
-
-	/* Set the upper memory limit parameter */
-	subl	$CONFIG_SYS_STACK_SIZE, %eax
-
-	/* Pointer to temporary global data */
-	movl	$CONFIG_SYS_INIT_GD_ADDR, %edx
-
-	/* %edx points to the global data structure */
-	movl	%esp, (GD_RAM_SIZE * 4)(%edx)
-	movl	%ebx, (GD_FLAGS * 4)(%edx)
-	movl	%ecx, (GD_LOAD_OFF * 4)(%edx)
+	/* Set parameter to board_init_f() to boot flags */
+	movl	(GD_FLAGS * 4)(%ebp), %eax
 
 	call	board_init_f	/* Enter, U-boot! */
 

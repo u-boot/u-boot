@@ -285,6 +285,36 @@ extern sc520_mmcr_t *sc520_mmcr;
 #define SC520_PAR14		(SC520_PAR0 + (0x04 * 14))
 #define SC520_PAR15		(SC520_PAR0 + (0x04 * 15))
 
+/*
+ * PARs for maximum allowable 256MB of SDRAM @ 0x00000000
+ * Two PARs are required due to maximum PAR size of 128MB
+ * These are used in the SDRAM sizing code to disable caching
+ *
+ * 111 0 0 0 1 11111111111 00000000000000 }- 0xe3ffc000
+ * 111 0 0 0 1 11111111111 00100000000000 }- 0xe3ffc800
+ * \ / | | | | \----+----/ \-----+------/
+ *  |  | | | |      |            +---------- Start at 0x00000000
+ *  |  | | | |      |                                 0x08000000
+ *  |  | | | |      +----------------------- 128MB Region Size
+ *  |  | | | |                               ((2047 + 1) * 64kB)
+ *  |  | | | +------------------------------ 64kB Page Size
+ *  |  | | +-------------------------------- Writes Enabled
+ *  |  | +---------------------------------- Caching Enabled
+ *  |  +------------------------------------ Execution Enabled
+ *  +--------------------------------------- SDRAM
+ */
+#define SC520_SDRAM1_PAR	0xe3ffc000
+#define SC520_SDRAM2_PAR	0xe3ffc800
+
+#define SC520_PAR_WRITE_DIS	0x04000000
+#define SC520_PAR_CACHE_DIS	0x08000000
+#define SC520_PAR_EXEC_DIS	0x10000000
+
+/*
+ * Programmable Address Regions to cover 256MB SDRAM (Maximum supported)
+ * required for DRAM sizing code
+ */
+
 /* MMCR Register bits (not all of them :) ) */
 
 /* SSI Stuff */
@@ -314,6 +344,33 @@ extern sc520_mmcr_t *sc520_mmcr;
 #define RTC_DIS			0x04	/* RTC Disable */
 #define UART2_DIS		0x02	/* UART2 Disable */
 #define UART1_DIS		0x01	/* UART1 Disable */
+
+/*
+ * Defines used for SDRAM Sizing (number of columns and rows)
+ * Refer to section 10.6.4 - SDRAM Sizing Algorithm in the
+ * Elan SC520 Microcontroller User's Manual (Order #22004B)
+ */
+#define CACHELINESZ		0x00000010
+
+#define COL11_ADR		0x0e001e00
+#define COL10_ADR		0x0e000e00
+#define COL09_ADR		0x0e000600
+#define COL08_ADR		0x0e000200
+#define COL11_DATA		0x0b0b0b0b
+#define COL10_DATA		0x0a0a0a0a
+#define COL09_DATA		0x09090909
+#define COL08_DATA		0x08080808
+
+#define ROW14_ADR		0x0f000000
+#define ROW13_ADR		0x07000000
+#define ROW12_ADR		0x03000000
+#define ROW11_ADR		0x01000000
+#define ROW10_ADR		0x00000000
+#define ROW14_DATA		0x3f3f3f3f
+#define ROW13_DATA		0x1f1f1f1f
+#define ROW12_DATA		0x0f0f0f0f
+#define ROW11_DATA		0x07070707
+#define ROW10_DATA		0xaaaaaaaa
 
 /* 0x28000000 - 0x3fffffff is used by the flash banks */
 

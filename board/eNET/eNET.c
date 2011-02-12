@@ -160,12 +160,6 @@ int board_early_init_r(void)
 	return 0;
 }
 
-int dram_init(void)
-{
-	init_sc520_dram();
-	return 0;
-}
-
 void show_boot_progress(int val)
 {
 	uchar led_mask;

@@ -176,7 +176,7 @@ gd_t *gd;
 /*
  * Load U-Boot into RAM, initialize BSS, perform relocation adjustments
  */
-void board_init_f(ulong mem_top)
+void board_init_f(ulong boot_flags)
 {
 	void *text_start = &__text_start;
 	void *data_end = &__data_end;
@@ -194,8 +194,12 @@ void board_init_f(ulong mem_top)
 	Elf32_Rel *re_src;
 	Elf32_Rel *re_end;
 
+	gd->flags = boot_flags;
+
 	/* Calculate destination RAM Address and relocation offset */
-	dest_addr  = (void *)mem_top - (bss_end - text_start);
+	dest_addr = (void *)gd->ram_size;
+	dest_addr -= CONFIG_SYS_STACK_SIZE;
+	dest_addr -= (bss_end - text_start);
 	rel_offset = text_start - dest_addr;
 
 	/* Perform low-level initialization only when cold booted */
