@@ -33,6 +33,7 @@
  * Stuff still to be dealt with -
  */
 #define CONFIG_RTC_MC146818
+#define CONFIG_SYS_ISA_IO_BASE_ADDRESS	0
 
 /*
  * High Level Configuration Options
@@ -91,6 +92,7 @@
 #define CONFIG_CMD_BDI		/* bdinfo			*/
 #define CONFIG_CMD_BOOTD	/* bootd			*/
 #define CONFIG_CMD_CONSOLE	/* coninfo			*/
+#define CONFIG_CMD_DATE
 #define CONFIG_CMD_ECHO		/* echo arguments		*/
 #define CONFIG_CMD_FLASH	/* flinfo, erase, protect	*/
 #define CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
