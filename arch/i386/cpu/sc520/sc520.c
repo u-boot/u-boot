@@ -45,15 +45,16 @@ int cpu_init_f(void)
 		gd->cpu_clk = 100000000;
 	}
 
-
 	/* wait at least one millisecond */
 	asm("movl	$0x2000, %%ecx\n"
 	    "0:		pushl %%ecx\n"
 	    "popl	%%ecx\n"
 	    "loop 0b\n": : : "ecx");
 
-	/* turn on the SDRAM write buffer */
-	writeb(0x11, &sc520_mmcr->dbctl);
+	if (gd->flags & GD_FLG_COLD_BOOT) {
+		/* turn on the SDRAM write buffer */
+		writeb(0x11, &sc520_mmcr->dbctl);
+	}
 
 	return x86_cpu_init_f();
 }

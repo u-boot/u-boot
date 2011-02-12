@@ -207,16 +207,13 @@ void board_init_f(ulong boot_flags)
 	dest_addr -= (bss_end - text_start);
 	rel_offset = text_start - dest_addr;
 
-	/* Perform low-level initialization only when cold booted */
-	if (gd->flags & GD_FLG_COLD_BOOT) {
-		/* First stage CPU initialization */
-		if (cpu_init_f() != 0)
-			hang();
+	/* First stage CPU initialization */
+	if (cpu_init_f() != 0)
+		hang();
 
-		/* First stage Board initialization */
-		if (board_early_init_f() != 0)
-			hang();
-	}
+	/* First stage Board initialization */
+	if (board_early_init_f() != 0)
+		hang();
 
 	/* Copy U-Boot into RAM */
 	dst_addr = (ulong *)dest_addr;
