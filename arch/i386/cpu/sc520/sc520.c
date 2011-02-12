@@ -51,12 +51,18 @@ int cpu_init_f(void)
 	    "popl	%%ecx\n"
 	    "loop 0b\n": : : "ecx");
 
-	if (gd->flags & GD_FLG_COLD_BOOT) {
-		/* turn on the SDRAM write buffer */
-		writeb(0x11, &sc520_mmcr->dbctl);
-	}
-
 	return x86_cpu_init_f();
+}
+
+int cpu_init_r(void)
+{
+	/* Disable the PAR used for CAR */
+	writel(0x0000000, &sc520_mmcr->par[2]);
+
+	/* turn on the SDRAM write buffer */
+	writeb(0x11, &sc520_mmcr->dbctl);
+
+	return x86_cpu_init_r();
 }
 
 #ifdef CONFIG_SYS_SC520_RESET
