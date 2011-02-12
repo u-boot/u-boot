@@ -35,7 +35,7 @@
 
 #ifndef __ASSEMBLY__
 
-typedef	struct {
+typedef	struct global_data {
 	bd_t		*bd;
 	unsigned long	flags;
 	unsigned long	baudrate;
