@@ -36,11 +36,6 @@ SECTIONS
 	{
 	  arch/mips/cpu/start.o		(.text)
 	  board/purple/lowlevel_init.o	(.text)
-	  arch/mips/cpu/cache.o		(.text)
-	  common/main.o			(.text)
-	  common/dlmalloc.o		(.text)
-	  common/cmd_boot.o		(.text)
-	  lib/zlib.o		(.text)
 	  . = DEFINED(env_offset) ? env_offset : .;
 	  common/env_embedded.o	(.ppcenv)
 

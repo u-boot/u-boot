@@ -31,9 +31,12 @@
 #define CONFIG_MIPS32		1	/* MIPS 4Kc CPU core	*/
 #define CONFIG_INCA_IP		1	/* on a INCA-IP Board	*/
 
-#ifndef	CPU_CLOCK_RATE
-/* allowed values: 100000000, 133000000, and 150000000 */
-#define CPU_CLOCK_RATE	150000000	/* default: 150 MHz clock for the MIPS core */
+/*
+ * Clock for the MIPS core (MHz)
+ * allowed values: 100000000, 133000000, and 150000000 (default)
+ */
+#ifndef CONFIG_CPU_CLOCK_RATE
+#define CONFIG_CPU_CLOCK_RATE	150000000
 #endif
 
 #define INFINEON_EBU_BOOTCFG	0x40C4	/* CMULT = 8 */
