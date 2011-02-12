@@ -32,6 +32,7 @@ PLATFORM_CPPFLAGS += $(call cc-option, -fno-toplevel-reorder,  $(call cc-option,
 PLATFORM_CPPFLAGS += $(call cc-option, -fno-stack-protector)
 PLATFORM_CPPFLAGS += $(call cc-option, -mpreferred-stack-boundary=2)
 PLATFORM_CPPFLAGS += -fno-dwarf2-cfi-asm
+PLATFORM_CPPFLAGS += -DREALMODE_BASE=0x7c0
 
 PLATFORM_RELFLAGS += -ffunction-sections -fvisibility=hidden
 

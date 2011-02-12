@@ -27,7 +27,6 @@
 #include <asm/realmode.h>
 
 
-#define REALMODE_BASE    ((char*)0x7c0)
 #define REALMODE_MAILBOX ((char*)0xe00)
 
 
@@ -41,13 +40,14 @@ int realmode_setup(void)
 	ulong realmode_size = (ulong)&__realmode_size;
 
 	/* copy the realmode switch code */
-	if (realmode_size > (REALMODE_MAILBOX-REALMODE_BASE)) {
+	if (realmode_size > (REALMODE_MAILBOX - (char *)REALMODE_BASE)) {
 		printf("realmode switch too large (%ld bytes, max is %d)\n",
-		       realmode_size, (REALMODE_MAILBOX-REALMODE_BASE));
+		       realmode_size,
+		       (REALMODE_MAILBOX - (char *)REALMODE_BASE));
 		return -1;
 	}
 
-	memcpy(REALMODE_BASE, (void*)realmode_start, realmode_size);
+	memcpy((char *)REALMODE_BASE, (void *)realmode_start, realmode_size);
 	asm("wbinvd\n");
 
 	return 0;

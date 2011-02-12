@@ -73,7 +73,7 @@ SECTIONS
 	/DISCARD/ : { *(.gnu*) }
 
 	/* 16bit realmode trampoline code */
-	.realmode 0x7c0 : AT ( LOADADDR(.rel.dyn) + SIZEOF(.rel.dyn) ) { KEEP(*(.realmode)) }
+	.realmode REALMODE_BASE : AT ( LOADADDR(.rel.dyn) + SIZEOF(.rel.dyn) ) { KEEP(*(.realmode)) }
 
 	__realmode_start = LOADADDR(.realmode);
 	__realmode_size = SIZEOF(.realmode);
@@ -84,21 +84,13 @@ SECTIONS
 	__bios_start = LOADADDR(.bios);
 	__bios_size = SIZEOF(.bios);
 
-	/* The load addresses below assumes that the flash
-	 * will be mapped so that 0x387f0000 == 0xffff0000
-	 * at reset time
-	 *
-	 * The fe00 and ff00 offsets of the start32 and start16
-	 * segments are arbitrary, the just have to be mapped
-	 * at reset and the code have to fit.
-	 * The fff0 offset of resetvec is important, however.
+	/*
+	 * The following expressions place the 16-bit Real-Mode code and
+	 * Reset Vector at the end of the Flash ROM
 	 */
-	. = 0xfffffe00;
-	.start32 : AT (CONFIG_SYS_TEXT_BASE + 0x3fe00) { KEEP(*(.start32)); }
+	. = START_16;
+	.start16 : AT (CONFIG_SYS_TEXT_BASE + (FLASH_SIZE - RESET_SEG_SIZE + START_16)) { KEEP(*(.start16)); }
 
-	. = 0xf800;
-	.start16 : AT (CONFIG_SYS_TEXT_BASE + 0x3f800) { KEEP(*(.start16)); }
-
-	. = 0xfff0;
-	.resetvec : AT (CONFIG_SYS_TEXT_BASE + 0x3fff0) { KEEP(*(.resetvec)); }
+	. = RESET_VEC_LOC;
+	.resetvec : AT (CONFIG_SYS_TEXT_BASE + (FLASH_SIZE - RESET_SEG_SIZE + RESET_VEC_LOC)) { KEEP(*(.resetvec)); }
 }
