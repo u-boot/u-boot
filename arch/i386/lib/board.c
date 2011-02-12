@@ -189,6 +189,7 @@ void board_init_f(ulong boot_flags)
 	ulong *src_addr;
 	ulong *end_addr;
 
+	void *addr_sp;
 	void *dest_addr;
 	ulong rel_offset;
 	Elf32_Rel *re_src;
@@ -198,6 +199,7 @@ void board_init_f(ulong boot_flags)
 
 	/* Calculate destination RAM Address and relocation offset */
 	dest_addr = (void *)gd->ram_size;
+	addr_sp = dest_addr;
 	dest_addr -= CONFIG_SYS_STACK_SIZE;
 	dest_addr -= (bss_end - text_start);
 	rel_offset = text_start - dest_addr;
@@ -242,9 +244,9 @@ void board_init_f(ulong boot_flags)
 	gd->flags |= GD_FLG_RELOC;
 
 	/* Enter the relocated U-Boot! */
-	(board_init_r - rel_offset)(gd, (ulong)dest_addr);
+	relocate_code((ulong)addr_sp, gd, (ulong)dest_addr);
 
-	/* NOTREACHED - board_init_f() does not return */
+	/* NOTREACHED - relocate_code() does not return */
 	while(1);
 }
 

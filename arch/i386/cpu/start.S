@@ -96,21 +96,6 @@ car_init_ret:
 	/* size memory */
 	call	dram_init_f
 
-	/* Setup stack in SDRAM */
-	movl	(GD_RAM_SIZE * 4)(%ebp), %esp
-
-	/* Test the stack */
-	pushl	$0
-	popl	%ecx
-	cmpl	$0, %ecx
-	jne	die
-	push	$0x55aa55aa
-	popl	%ecx
-	cmpl	$0x55aa55aa, %ecx
-	jne	die
-
-	wbinvd
-
 	/* Set parameter to board_init_f() to boot flags */
 	movl	(GD_FLAGS * 4)(%ebp), %eax
 
@@ -118,6 +103,35 @@ car_init_ret:
 
 	/* indicate (lack of) progress */
 	movw	$0x85, %ax
+	jmp	die
+
+.globl relocate_code
+.type relocate_code, @function
+relocate_code:
+	/*
+	 * SDRAM has been initialised, U-Boot code has been copied into
+	 * RAM, BSS has been cleared and relocation adjustments have been
+	 * made. It is now time to jump into the in-RAM copy of U-Boot
+	 *
+	 * %eax = Address of top of stack
+	 * %edx = Address of Global Data
+	 * %ecx = Base address of in-RAM copy of U-Boot
+	 */
+
+	/* Setup stack in RAM */
+	movl	%eax, %esp
+
+	/* Setup call address of in-RAM copy of board_init_r() */
+	movl	$board_init_r, %ebp
+	subl	(GD_RELOC_OFF * 4)(%edx), %ebp
+
+	/* Setup parameters to board_init_r() */
+	movl	%edx, %eax
+	movl	%ecx, %edx
+
+	/* Jump to in-RAM copy of board_init_r() */
+	call	*%ebp
+
 die:	hlt
 	jmp	die
 	hlt
