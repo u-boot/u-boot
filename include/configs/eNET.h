@@ -169,7 +169,7 @@
 #define CONFIG_SYS_MONITOR_LEN			(256 * 1024)
 #define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 128*1024)
 /* Address of temporary Global Data */
-#define CONFIG_SYS_INIT_GD_ADDR			0x19040000
+#define CONFIG_SYS_INIT_GD_ADDR			CONFIG_SYS_CAR_ADDR
 
 
 /* allow to overwrite serial and ethaddr */
