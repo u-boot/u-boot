@@ -214,7 +214,7 @@ void board_init_f(ulong boot_flags)
 	addr_sp = dest_addr;
 	dest_addr -= CONFIG_SYS_STACK_SIZE;
 	dest_addr -= (bss_end - text_start);
-	rel_offset = text_start - dest_addr;
+	rel_offset = dest_addr - text_start;
 
 	/* First stage CPU initialization */
 	if (cpu_init_f() != 0)
@@ -233,8 +233,8 @@ void board_init_f(ulong boot_flags)
 		*dst_addr++ = *src_addr++;
 
 	/* Clear BSS */
-	dst_addr = (ulong *)(bss_start - rel_offset);
-	end_addr = (ulong *)(bss_end - rel_offset);
+	dst_addr = (ulong *)(bss_start + rel_offset);
+	end_addr = (ulong *)(bss_end + rel_offset);
 
 	while (dst_addr < end_addr)
 		*dst_addr++ = 0x00000000;
@@ -245,8 +245,8 @@ void board_init_f(ulong boot_flags)
 
 	do {
 		if (re_src->r_offset >= CONFIG_SYS_TEXT_BASE)
-			if (*(Elf32_Addr *)(re_src->r_offset - rel_offset) >= CONFIG_SYS_TEXT_BASE)
-				*(Elf32_Addr *)(re_src->r_offset - rel_offset) -= rel_offset;
+			if (*(Elf32_Addr *)(re_src->r_offset + rel_offset) >= CONFIG_SYS_TEXT_BASE)
+				*(Elf32_Addr *)(re_src->r_offset + rel_offset) += rel_offset;
 	} while (re_src++ < re_end);
 
 	gd->reloc_off = rel_offset;

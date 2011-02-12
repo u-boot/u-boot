@@ -120,7 +120,7 @@ relocate_code:
 
 	/* Setup call address of in-RAM copy of board_init_r() */
 	movl	$board_init_r, %ebp
-	subl	(GD_RELOC_OFF * 4)(%edx), %ebp
+	addl	(GD_RELOC_OFF * 4)(%edx), %ebp
 
 	/* Setup parameters to board_init_r() */
 	movl	%edx, %eax
