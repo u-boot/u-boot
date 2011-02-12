@@ -36,6 +36,7 @@
 #include <common.h>
 #include <command.h>
 #include <asm/processor.h>
+#include <asm/processor-flags.h>
 #include <asm/interrupt.h>
 
 /* Constructor for a conventional segment GDT (or LDT) entry */
@@ -88,12 +89,16 @@ static void reload_gdt(void)
 
 int cpu_init_f(void)
 {
+	const u32 em_rst = ~X86_CR0_EM;
+	const u32 mp_ne_set = X86_CR0_MP | X86_CR0_NE;
+
 	/* initialize FPU, reset EM, set MP and NE */
 	asm ("fninit\n" \
-	     "movl %cr0, %eax\n" \
-	     "andl $~0x4, %eax\n" \
-	     "orl  $0x22, %eax\n" \
-	     "movl %eax, %cr0\n" );
+	     "movl %%cr0, %%eax\n" \
+	     "andl %0, %%eax\n" \
+	     "orl  %1, %%eax\n" \
+	     "movl %%eax, %%cr0\n" \
+	     : : "i" (em_rst), "i" (mp_ne_set) : "eax");
 
 	return 0;
 }

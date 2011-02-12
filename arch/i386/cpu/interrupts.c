@@ -30,6 +30,7 @@
 #include <common.h>
 #include <asm/interrupt.h>
 #include <asm/io.h>
+#include <asm/processor-flags.h>
 
 #define DECLARE_INTERRUPT(x) \
 	".globl irq_"#x"\n" \
@@ -237,7 +238,7 @@ int disable_interrupts(void)
 
 	asm volatile ("pushfl ; popl %0 ; cli\n" : "=g" (flags) : );
 
-	return (flags&0x200); /* IE flags is bit 9 */
+	return flags & X86_EFLAGS_IF; /* IE flags is bit 9 */
 }
 
 /* IRQ Low-Level Service Routine */

@@ -26,6 +26,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/processor-flags.h>
 #include <asm/ic/sc520.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -41,6 +42,8 @@ volatile sc520_mmcr_t *sc520_mmcr = (sc520_mmcr_t *)0xfffef000;
 
 void init_sc520(void)
 {
+	const u32 nw_cd_rst = ~(X86_CR0_NW | X86_CR0_CD);
+
 	/*
 	 * Set the UARTxCTL register at it's slower,
 	 * baud clock giving us a 1.8432 MHz reference
@@ -84,8 +87,8 @@ void init_sc520(void)
 
 	/* turn on the cache and disable write through */
 	asm("movl	%%cr0, %%eax\n"
-	    "andl	$0x9fffffff, %%eax\n"
-	    "movl	%%eax, %%cr0\n"  : : : "eax");
+	    "andl	%0, %%eax\n"
+	    "movl	%%eax, %%cr0\n"  : : "i" (nw_cd_rst) : "eax");
 }
 
 unsigned long init_sc520_dram(void)
