@@ -252,16 +252,38 @@ typedef struct sc520_mmcr {
 	u8  pad_0xdc0[0x0240];
 } sc520_mmcr_t;
 
-extern volatile sc520_mmcr_t *sc520_mmcr;
+extern sc520_mmcr_t *sc520_mmcr;
 
 #endif
 
-/* MMCR Offsets (required for assembler code */
-#define SC520_DBCTL		0x0040	/* SDRAM Buffer Control Register */
-#define SC520_PAR14		0x00c0	/* Programmable Address Region 14 Register */
-#define SC520_PAR15		0x00c4	/* Programmable Address Region 15 Register */
-#define SC520_SWTMRMILLI	0x0c60  /* Software Timer Millisecond Count */
-#define SC520_SWTMRMICRO	0x0c62  /* Software Timer Microsecond Count */
+/* Memory Mapped Control Registers (MMCR) Base Address */
+#define SC520_MMCR_BASE		0xfffef000
+
+/* MMCR Addresses (required for assembler code) */
+#define SC520_DRCCTL		(SC520_MMCR_BASE + 0x010)
+#define SC520_DRCTMCTL		(SC520_MMCR_BASE + 0x012)
+#define SC520_DRCCFG		(SC520_MMCR_BASE + 0x014)
+#define SC520_DRCBENDADR	(SC520_MMCR_BASE + 0x018)
+#define SC520_ECCCTL		(SC520_MMCR_BASE + 0x020)
+#define SC520_DBCTL		(SC520_MMCR_BASE + 0x040)
+#define SC520_ECCINT		(SC520_MMCR_BASE + 0xd18)
+
+#define SC520_PAR0		(SC520_MMCR_BASE + 0x088)
+#define SC520_PAR1		(SC520_PAR0 + (0x04 * 1))
+#define SC520_PAR2		(SC520_PAR0 + (0x04 * 2))
+#define SC520_PAR3		(SC520_PAR0 + (0x04 * 3))
+#define SC520_PAR4		(SC520_PAR0 + (0x04 * 4))
+#define SC520_PAR5		(SC520_PAR0 + (0x04 * 5))
+#define SC520_PAR6		(SC520_PAR0 + (0x04 * 6))
+#define SC520_PAR7		(SC520_PAR0 + (0x04 * 7))
+#define SC520_PAR8		(SC520_PAR0 + (0x04 * 8))
+#define SC520_PAR9		(SC520_PAR0 + (0x04 * 9))
+#define SC520_PAR10		(SC520_PAR0 + (0x04 * 10))
+#define SC520_PAR11		(SC520_PAR0 + (0x04 * 11))
+#define SC520_PAR12		(SC520_PAR0 + (0x04 * 12))
+#define SC520_PAR13		(SC520_PAR0 + (0x04 * 13))
+#define SC520_PAR14		(SC520_PAR0 + (0x04 * 14))
+#define SC520_PAR15		(SC520_PAR0 + (0x04 * 15))
 
 /* MMCR Register bits (not all of them :) ) */
 

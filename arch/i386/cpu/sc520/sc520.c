@@ -38,7 +38,7 @@ DECLARE_GLOBAL_DATA_PTR;
  * unsigned long init_sc520_dram(void)
  */
 
-volatile sc520_mmcr_t *sc520_mmcr = (sc520_mmcr_t *)0xfffef000;
+sc520_mmcr_t *sc520_mmcr = (sc520_mmcr_t *)SC520_MMCR_BASE;
 
 int cpu_init_f(void)
 {

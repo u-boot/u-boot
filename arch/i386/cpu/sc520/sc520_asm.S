@@ -142,16 +142,9 @@
  */
 
 #include <config.h>
+#include <asm/ic/sc520.h>
 
 .section .text
-.equ            DRCCTL,     0x0fffef010   /* DRAM control register */
-.equ            DRCTMCTL,   0x0fffef012   /* DRAM timing control register */
-.equ            DRCCFG,     0x0fffef014   /* DRAM bank configuration register */
-.equ            DRCBENDADR, 0x0fffef018   /* DRAM bank ending address register */
-.equ            ECCCTL,     0x0fffef020   /* DRAM ECC control register */
-.equ            ECCINT,     0x0fffefd18   /* DRAM ECC nmi-INT mapping */
-.equ            DBCTL,      0x0fffef040   /* DRAM buffer control register */
-
 .equ            CACHELINESZ, 0x00000010   /* size of our cache line (read buffer) */
 .equ            COL11_ADR,  0x0e001e00    /* 11 col addrs */
 .equ            COL10_ADR,  0x0e000e00    /* 10 col addrs */
@@ -179,27 +172,27 @@ mem_init:
 
 	/* initialize dram controller registers */
 	xorw	%ax, %ax
-	movl	$DBCTL, %edi
+	movl	$SC520_DBCTL, %edi
 	movb	%al, (%edi)		/* disable write buffer */
 
-	movl	$ECCCTL, %edi
+	movl	$SC520_ECCCTL, %edi
 	movb	%al, (%edi)		/* disable ECC */
 
-	movl	$DRCTMCTL, %edi
+	movl	$SC520_DRCTMCTL, %edi
 	movb	$0x1e, %al		/* Set SDRAM timing for slowest */
 	movb	%al, (%edi)
 
 	/* setup loop to do 4 external banks starting with bank 3 */
 	movl	$0xff000000, %eax	/* enable last bank and setup */
-	movl	$DRCBENDADR, %edi	/* ending address register */
+	movl	$SC520_DRCBENDADR, %edi	/* ending address register */
 	movl	%eax, (%edi)
 
-	movl	$DRCCFG, %edi		/* setup */
+	movl	$SC520_DRCCFG, %edi		/* setup */
 	movw	$0xbbbb, %ax		/* dram config register for  */
 	movw	%ax, (%edi)
 
 	/* issue a NOP to all DRAMs */
-	movl	$DRCCTL, %edi		/* setup DRAM control register with */
+	movl	$SC520_DRCCTL, %edi	/* setup DRAM control register with */
 	movb	$0x01, %al		/* Disable refresh,disable write buffer */
 	movb	%al, (%edi)
 	movl	$CACHELINESZ, %esi	/* just a dummy address to write for */
@@ -409,7 +402,7 @@ bad_reint:
 	/*
 	 * issue all banks precharge
 	 */
-	movl	$DRCCTL, %esi		/* setup DRAM control register with */
+	movl	$SC520_DRCCTL, %esi	/* setup DRAM control register with */
 	movb	$0x02, %al		/* All banks precharge */
 	movb	%al, (%esi)
 	movl	$CACHELINESZ, %esi	/* address to init read buffer */
@@ -418,7 +411,7 @@ bad_reint:
 	/*
 	 * update ENDING ADDRESS REGISTER
 	 */
-	movl	$DRCBENDADR, %edi	/* DRAM ending address register */
+	movl	$SC520_DRCBENDADR, %edi	/* DRAM ending address register */
 	movl	%ecx, %ebx
 	addl	%ebx, %edi
 	movb	%dh, (%edi)
@@ -435,7 +428,7 @@ bad_reint:
 	shlw	%cl, %bx
 	notw	%bx
 	xchgw	%cx, %ax
-	movl	$DRCCFG, %edi
+	movl	$SC520_DRCCFG, %edi
 	movw	(%edi), %ax
 	andw	%bx, %ax
 	orw	%dx, %ax
@@ -444,7 +437,7 @@ bad_reint:
 
 	decw	%cx
 	movl	%ecx, %ebx
-	movl	$DRCBENDADR, %edi	/* DRAM ending address register */
+	movl	$SC520_DRCBENDADR, %edi	/* DRAM ending address register */
 	movb	$0xff, %al
 	addl	%ebx, %edi
 	movb	%al, (%edi)
@@ -452,7 +445,7 @@ bad_reint:
 	/*
 	 * set control register to NORMAL mode
 	 */
-	movl	$DRCCTL, %esi		/* setup DRAM control register with */
+	movl	$SC520_DRCCTL, %esi	/* setup DRAM control register with */
 	movb	$0x00, %al		/* Normal mode value */
 	movb	%al, (%esi)
 	movl	$CACHELINESZ, %esi	/* address to init read buffer */
@@ -460,7 +453,7 @@ bad_reint:
 	jmp	nextbank
 
 cleanup:
-	movl	$DRCBENDADR, %edi	/* DRAM ending address register  */
+	movl	$SC520_DRCBENDADR, %edi	/* DRAM ending address register  */
 	movw	$0x04, %cx
 	xorw	%ax, %ax
 cleanuplp:
@@ -482,7 +475,7 @@ emptybank:
 
 #if defined CONFIG_SYS_SDRAM_DRCTMCTL
 	/* just have your hardware desinger _GIVE_ you what you need here! */
-	movl	$DRCTMCTL, %edi
+	movl	$SC520_DRCTMCTL, %edi
 	movb	$CONFIG_SYS_SDRAM_DRCTMCTL, %al
 	movb	%al, (%edi)
 #else
@@ -491,7 +484,7 @@ emptybank:
 	 * Set the CAS latency now since it is hard to do
 	 * when we run from the RAM
 	 */
-	movl	$DRCTMCTL, %edi	/* DRAM timing register */
+	movl	$SC520_DRCTMCTL, %edi	/* DRAM timing register */
 	movb	(%edi), %al
 #ifdef CONFIG_SYS_SDRAM_CAS_LATENCY_2T
 	andb	$0xef, %al
@@ -502,13 +495,13 @@ emptybank:
 	movb	%al, (%edi)
 #endif
 #endif
-	movl	$DRCCTL, %edi	/* DRAM Control register */
+	movl	$SC520_DRCCTL, %edi	/* DRAM Control register */
 	movb	$0x03, %al	/* Load mode register cmd */
 	movb	%al, (%edi)
 	movw	%ax, (%esi)
 
 
-	movl	$DRCCTL, %edi	/* DRAM Control register */
+	movl	$SC520_DRCCTL, %edi	/* DRAM Control register */
 	movb	$0x18, %al	/*  Enable refresh and NORMAL mode */
 	movb	%al, (%edi)
 
@@ -553,16 +546,16 @@ set_ecc:
 
 	/* enable read, write buffers */
 	movb	$0x11, %al
-	movl	$DBCTL, %edi
+	movl	$SC520_DBCTL, %edi
 	movb	%al, (%edi)
 
 	/* enable NMI mapping for ECC */
-	movl	$ECCINT, %edi
+	movl	$SC520_ECCINT, %edi
 	movb	$0x10, %al
 	movb	%al, (%edi)
 
 	/* Turn on ECC */
-	movl	$ECCCTL, %edi
+	movl	$SC520_ECCCTL, %edi
 	movb	$0x05, %al
 	movb	%al,(%edi)
 
@@ -576,7 +569,7 @@ out:
  */
 .globl get_mem_size
 get_mem_size:
-	movl	$DRCBENDADR, %edi	/* DRAM ending address register */
+	movl	$SC520_DRCBENDADR, %edi	/* DRAM ending address register */
 
 bank0:	movl	(%edi), %eax
 	movl	%eax, %ecx

@@ -30,6 +30,7 @@
 /* #include <asm/ic/sc520_defs.h> */
 
 #include "hardware.h"
+#include <asm/ic/sc520.h>
 
 .text
 .section .start16, "ax"
@@ -46,17 +47,17 @@ board_init16:
 	movw	%ax, %ds
 
 	/* Map PAR for Boot Flash (BOOTCS, 512kB @ 0x380000000) */
-	movl    $0x00c0, %edi		/* SC520_PAR14 */
+	movl    $(SC520_PAR14 - SC520_MMCR_BASE), %edi
 	movl	$0x8bfff800, %eax	/* TODO: Check this */
 	movl	%eax, (%di)
 
 	/* Map PAR for LED, Hex Switches (GPCS6, 20 Bytes @ 0x1000) */
-	movl    $0x00c4, %edi		/* SC520_PAR15 */
+	movl    $(SC520_PAR15 - SC520_MMCR_BASE), %edi
 	movl	$0x38201000, %eax
 	movl	%eax, (%di)
 
 	/* Disable SDRAM write buffer */
-	movw    $0x0040, %di		/* SC520_DBCTL */
+	movw    $(SC520_DBCTL - SC520_MMCR_BASE), %di
 	xorw    %ax, %ax
 	movb    %al, (%di)
 
