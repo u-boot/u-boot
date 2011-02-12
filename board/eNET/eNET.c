@@ -47,6 +47,7 @@ unsigned long monitor_flash_len = CONFIG_SYS_MONITOR_LEN;
 
 static void enet_timer_isr(void);
 static void enet_toggle_run_led(void);
+static void enet_setup_pars(void);
 
 /*
  * Miscellaneous platform dependent initializations
@@ -89,21 +90,7 @@ int board_early_init_f(void)
 	/* Clear FPGA program mode */
 	writew(CONFIG_SYS_ENET_FPGA_PROG, &sc520_mmcr->pioset31_16);
 
-	/* Configure Programmable Address Regions */
-	writel(CONFIG_SYS_SC520_UARTA_PAR, &sc520_mmcr->par[2]);
-	writel(CONFIG_SYS_SC520_UARTB_PAR, &sc520_mmcr->par[3]);
-	writel(CONFIG_SYS_SC520_UARTC_PAR, &sc520_mmcr->par[4]);
-	writel(CONFIG_SYS_SC520_UARTD_PAR, &sc520_mmcr->par[5]);
-	writel(CONFIG_SYS_SC520_SDRAM_PAR, &sc520_mmcr->par[6]);
-	writel(CONFIG_SYS_SC520_SF1_PAR, &sc520_mmcr->par[7]);
-	writel(CONFIG_SYS_SC520_SF2_PAR, &sc520_mmcr->par[8]);
-	writel(CONFIG_SYS_SC520_SRAM1_PAR, &sc520_mmcr->par[9]);
-	writel(CONFIG_SYS_SC520_SRAM2_PAR, &sc520_mmcr->par[10]);
-	writel(CONFIG_SYS_SC520_DPRAM_PAR, &sc520_mmcr->par[11]);
-	writel(CONFIG_SYS_SC520_CF1_PAR, &sc520_mmcr->par[12]);
-	writel(CONFIG_SYS_SC520_CF2_PAR, &sc520_mmcr->par[13]);
-/*	writel(CONFIG_SYS_SC520_BOOTCS_PAR, &sc520_mmcr->par14); */
-/*	writel(CONFIG_SYS_SC520_LLIO_PAR, &sc520_mmcr->par15); */
+	enet_setup_pars();
 
 	/* Disable Watchdog */
 	writew(0x3333, &sc520_mmcr->wdtmrctl);
@@ -127,6 +114,50 @@ int board_early_init_f(void)
 
 	return 0;
 }
+
+static void enet_setup_pars(void)
+{
+	/*
+	 * PARs 11 and 12 are 2MB SRAM @ 0x19000000
+	 *
+	 * These are setup now because older version of U-Boot have them
+	 * mapped to a different PAR which gets clobbered which prevents
+	 * using SRAM for warm-booting a new image
+	 */
+	writel(CONFIG_SYS_SC520_SRAM1_PAR, &sc520_mmcr->par[11]);
+	writel(CONFIG_SYS_SC520_SRAM2_PAR, &sc520_mmcr->par[12]);
+
+	/* PARs 0 and 1 are Compact Flash slots (4kB each) */
+	writel(CONFIG_SYS_SC520_CF1_PAR, &sc520_mmcr->par[0]);
+	writel(CONFIG_SYS_SC520_CF2_PAR, &sc520_mmcr->par[1]);
+
+	/* PAR 2 is used for Cache-As-RAM */
+
+	/*
+	 * PARs 5 through 8 are additional NS16550 UARTS
+	 * 8 bytes each @ 0x013f8, 0x012f8, 0x011f8 and 0x010f8
+	 */
+	writel(CONFIG_SYS_SC520_UARTA_PAR, &sc520_mmcr->par[5]);
+	writel(CONFIG_SYS_SC520_UARTB_PAR, &sc520_mmcr->par[6]);
+	writel(CONFIG_SYS_SC520_UARTC_PAR, &sc520_mmcr->par[7]);
+	writel(CONFIG_SYS_SC520_UARTD_PAR, &sc520_mmcr->par[8]);
+
+	/* PARs 9 and 10 are 32MB StrataFlash @ 0x10000000 */
+	writel(CONFIG_SYS_SC520_SF1_PAR, &sc520_mmcr->par[9]);
+	writel(CONFIG_SYS_SC520_SF2_PAR, &sc520_mmcr->par[10]);
+
+	/* PAR 13 is 4kB DPRAM @ 0x18100000 (implemented in FPGA) */
+	writel(CONFIG_SYS_SC520_DPRAM_PAR, &sc520_mmcr->par[13]);
+
+	/*
+	 * PAR 14 is Low Level I/O (LEDs, Hex Switches etc)
+	 * Already configured in board_init16 (eNET_start16.S)
+	 *
+	 * PAR 15 is Boot ROM
+	 * Already configured in board_init16 (eNET_start16.S)
+	 */
+}
+
 
 int board_early_init_r(void)
 {
