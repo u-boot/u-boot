@@ -87,7 +87,12 @@ extern gd_t *gd;
 #define GD_FLG_COLD_BOOT	0x00100	/* Cold Boot */
 #define GD_FLG_WARM_BOOT	0x00200	/* Warm Boot */
 
-
+#if 0
 #define DECLARE_GLOBAL_DATA_PTR
+#else
+#define XTRN_DECLARE_GLOBAL_DATA_PTR    extern
+#define DECLARE_GLOBAL_DATA_PTR     XTRN_DECLARE_GLOBAL_DATA_PTR \
+gd_t *gd
+#endif
 
 #endif /* __ASM_GBL_DATA_H */

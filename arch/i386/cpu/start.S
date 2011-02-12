@@ -127,13 +127,13 @@ mem_ok:
 	/* Set the upper memory limit parameter */
 	subl	$CONFIG_SYS_STACK_SIZE, %eax
 
-	/* Reserve space for global data */
-	subl	$(GD_SIZE * 4), %eax
+	/* Pointer to temporary global data */
+	movl	$CONFIG_SYS_INIT_GD_ADDR, %edx
 
-	/* %eax points to the global data structure */
-	movl	%esp, (GD_RAM_SIZE * 4)(%eax)
-	movl	%ebx, (GD_FLAGS * 4)(%eax)
-	movl	%ecx, (GD_LOAD_OFF * 4)(%eax)
+	/* %edx points to the global data structure */
+	movl	%esp, (GD_RAM_SIZE * 4)(%edx)
+	movl	%ebx, (GD_FLAGS * 4)(%edx)
+	movl	%ecx, (GD_LOAD_OFF * 4)(%edx)
 
 	call	board_init_f	/* Enter, U-boot! */
 

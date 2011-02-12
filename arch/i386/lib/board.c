@@ -45,7 +45,15 @@
 #include <miiphy.h>
 #endif
 
-DECLARE_GLOBAL_DATA_PTR;
+/*
+ * Pointer to initial global data area
+ *
+ * Here we initialize it.
+ */
+#undef	XTRN_DECLARE_GLOBAL_DATA_PTR
+#define XTRN_DECLARE_GLOBAL_DATA_PTR	/* empty = allocate here */
+DECLARE_GLOBAL_DATA_PTR = (gd_t *) (CONFIG_SYS_INIT_GD_ADDR);
+
 
 /* Exports from the Linker Script */
 extern ulong __text_start;
@@ -168,7 +176,7 @@ gd_t *gd;
 /*
  * Load U-Boot into RAM, initialize BSS, perform relocation adjustments
  */
-void board_init_f (ulong gdp)
+void board_init_f(ulong mem_top)
 {
 	void *text_start = &__text_start;
 	void *data_end = &__data_end;
@@ -187,11 +195,11 @@ void board_init_f (ulong gdp)
 	Elf32_Rel *re_end;
 
 	/* Calculate destination RAM Address and relocation offset */
-	dest_addr  = (void *)gdp - (bss_end - text_start);
+	dest_addr  = (void *)mem_top - (bss_end - text_start);
 	rel_offset = text_start - dest_addr;
 
 	/* Perform low-level initialization only when cold booted */
-	if (((gd_t *)gdp)->flags & GD_FLG_COLD_BOOT) {
+	if (gd->flags & GD_FLG_COLD_BOOT) {
 		/* First stage CPU initialization */
 		if (cpu_init_f() != 0)
 			hang();
@@ -203,8 +211,8 @@ void board_init_f (ulong gdp)
 
 	/* Copy U-Boot into RAM */
 	dst_addr = (ulong *)dest_addr;
-	src_addr = (ulong *)(text_start + ((gd_t *)gdp)->load_off);
-	end_addr = (ulong *)(data_end  + ((gd_t *)gdp)->load_off);
+	src_addr = (ulong *)(text_start + gd->load_off);
+	end_addr = (ulong *)(data_end  + gd->load_off);
 
 	while (src_addr < end_addr)
 		*dst_addr++ = *src_addr++;
@@ -217,8 +225,8 @@ void board_init_f (ulong gdp)
 		*dst_addr++ = 0x00000000;
 
 	/* Perform relocation adjustments */
-	re_src = (Elf32_Rel *)(rel_dyn_start + ((gd_t *)gdp)->load_off);
-	re_end = (Elf32_Rel *)(rel_dyn_end + ((gd_t *)gdp)->load_off);
+	re_src = (Elf32_Rel *)(rel_dyn_start + gd->load_off);
+	re_end = (Elf32_Rel *)(rel_dyn_end + gd->load_off);
 
 	do {
 		if (re_src->r_offset >= CONFIG_SYS_TEXT_BASE)
@@ -226,11 +234,11 @@ void board_init_f (ulong gdp)
 				*(Elf32_Addr *)(re_src->r_offset - rel_offset) -= rel_offset;
 	} while (re_src++ < re_end);
 
-	((gd_t *)gdp)->reloc_off = rel_offset;
-	((gd_t *)gdp)->flags |= GD_FLG_RELOC;
+	gd->reloc_off = rel_offset;
+	gd->flags |= GD_FLG_RELOC;
 
 	/* Enter the relocated U-Boot! */
-	(board_init_r - rel_offset)((gd_t *)gdp, (ulong)dest_addr);
+	(board_init_r - rel_offset)(gd, (ulong)dest_addr);
 
 	/* NOTREACHED - board_init_f() does not return */
 	while(1);
@@ -242,11 +250,15 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	int i;
 	ulong size;
 	static bd_t bd_data;
+	static gd_t gd_data;
 	init_fnc_t **init_fnc_ptr;
 
 	show_boot_progress(0x21);
 
-	gd = id;
+	/* Global data pointer is now writable */
+	gd = &gd_data;
+	memcpy(gd, id, sizeof(gd_t));
+
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
 
