@@ -35,16 +35,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#undef SC520_CDP_DEBUG
-
-#ifdef	SC520_CDP_DEBUG
-#define	PRINTF(fmt,args...)	printf (fmt ,##args)
-#else
-#define PRINTF(fmt,args...)
-#endif
-
-unsigned long monitor_flash_len = CONFIG_SYS_MONITOR_LEN;
-
 static void enet_timer_isr(void);
 static void enet_toggle_run_led(void);
 static void enet_setup_pars(void);
@@ -199,22 +189,23 @@ int last_stage_init(void)
 
 	outb(0x00, LED_LATCH_ADDRESS);
 
-	register_timer_isr (enet_timer_isr);
+	register_timer_isr(enet_timer_isr);
 
 	printf("Serck Controls eNET\n");
 
 	return 0;
 }
 
-ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
+ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 {
 	if (banknum == 0) {	/* non-CFI boot flash */
 		info->portwidth = FLASH_CFI_8BIT;
 		info->chipwidth = FLASH_CFI_BY8;
 		info->interface = FLASH_CFI_X8;
 		return 1;
-	} else
+	} else {
 		return 0;
+	}
 }
 
 int board_eth_init(bd_t *bis)

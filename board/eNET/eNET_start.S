@@ -29,10 +29,3 @@ early_board_init:
 	/* No 32-bit board specific initialisation */
 	jmp	early_board_init_ret
 
-.globl cpu_halt_asm
-cpu_halt_asm:
-	movb	$0x0f, %al
-	movw	$LED_LATCH_ADDRESS, %dx
-	outb	%al, %dx
-	hlt
-	jmp cpu_halt_asm
