@@ -182,7 +182,7 @@ void print_laws(void)
 #else
 		printf("LAWBAR%02d: 0x%08x", i, in_be32(LAWBAR_ADDR(i)));
 #endif
-		printf(" LAWAR0x%02d: 0x%08x\n", i, lawar);
+		printf(" LAWAR%02d: 0x%08x\n", i, lawar);
 		printf("\t(EN: %d TGT: 0x%02x SIZE: ",
 		       (lawar & LAW_EN) ? 1 : 0, (lawar >> 20) & 0xff);
 		print_size(lawar_size(lawar), ")\n");
