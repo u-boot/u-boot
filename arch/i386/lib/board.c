@@ -235,6 +235,14 @@ static int do_elf_reloc_fixups(void)
  */
 void board_init_f(ulong boot_flags)
 {
+	/* First stage CPU initialization */
+	if (cpu_init_f() != 0)
+		hang();
+
+	/* First stage Board initialization */
+	if (board_early_init_f() != 0)
+		hang();
+
 	if (env_init() != 0)
 		hang();
 
@@ -251,14 +259,6 @@ void board_init_f(ulong boot_flags)
 		hang();
 
 	if (calculate_relocation_address() != 0)
-		hang();
-
-	/* First stage CPU initialization */
-	if (cpu_init_f() != 0)
-		hang();
-
-	/* First stage Board initialization */
-	if (board_early_init_f() != 0)
 		hang();
 
 	/* Copy U-Boot into RAM */
