@@ -161,6 +161,10 @@
  * 256kB Monitor
  */
 #define CONFIG_SYS_STACK_SIZE			0x8000
+#define CONFIG_SYS_CAR_ADDR			0x19200000
+#define CONFIG_SYS_CAR_SIZE			0x00004000
+#define CONFIG_SYS_INIT_SP_ADDR			(CONFIG_SYS_CAR_ADDR + \
+						 CONFIG_SYS_CAR_SIZE)
 #define CONFIG_SYS_MONITOR_BASE			CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN			(256 * 1024)
 #define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 128*1024)
@@ -477,6 +481,22 @@
  *  +--------------------------------------- BOOTCS
  */
 #define CONFIG_SYS_SC520_BOOTCS_PAR		0x8a01f800
+
+/*-----------------------------------------------------------------------
+ * Cache-As-RAM (Targets Boot Flash)
+ *
+ * 100 1 0 0 0 0001111 011001001000000000 }- 0x903d9200
+ * \ / | | | | \--+--/ \-------+--------/
+ *  |  | | | |    |            +------------ Start at 0x19200000
+ *  |  | | | |    +------------------------- 64k Region Size
+ *  |  | | | |                               ((15 + 1) * 4kB)
+ *  |  | | | +------------------------------ 4kB Page Size
+ *  |  | | +-------------------------------- Writes Enabled
+ *  |  | +---------------------------------- Caching Enabled
+ *  |  +------------------------------------ Execution Prevented
+ *  +--------------------------------------- BOOTCS
+ */
+#define CONFIG_SYS_SC520_CAR_PAR		0x903d9200
 
 /*-----------------------------------------------------------------------
  * PAR for Low Level I/O (LEDs, Hex Switches etc) - 33 Bytes @ 0x1000, GPCS6

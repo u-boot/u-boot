@@ -515,7 +515,7 @@ bad_ram:
 dram_done:
 	/* Restore Boot Flags */
 	movl	%ebx, %ebp
-	jmp	mem_init_ret
+	ret
 
 #if CONFIG_SYS_SDRAM_ECC_ENABLE
 .globl init_ecc
@@ -560,7 +560,7 @@ set_ecc:
 	movb	%al,(%edi)
 
 out:
-	jmp	init_ecc_ret
+	ret
 #endif
 
 /*
@@ -605,4 +605,4 @@ bank3:	movl	(%edi), %eax
 
 done:
 	movl	%edx, %eax
-	jmp	get_mem_size_ret
+	ret

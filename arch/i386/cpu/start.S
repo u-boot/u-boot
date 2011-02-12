@@ -72,40 +72,39 @@ _start:
 .globl early_board_init_ret
 early_board_init_ret:
 
+	/* Initialise Cache-As-RAM */
+	jmp	car_init
+.globl car_init_ret
+car_init_ret:
+	/*
+	 * We now have CONFIG_SYS_CAR_SIZE bytes of Cache-As-RAM (or SRAM,
+	 * or fully initialised SDRAM - we really don't care which)
+	 * starting at CONFIG_SYS_CAR_ADDR to be used as a temporary stack
+	 */
+	movl	$CONFIG_SYS_INIT_SP_ADDR, %esp
+
 	/* Skip memory initialization if not starting from cold-reset */
 	movl	%ebx, %ecx
 	andl	$GD_FLG_COLD_BOOT, %ecx
 	jz	skip_mem_init
 
 	/* size memory */
-	jmp	mem_init
-.globl mem_init_ret
-mem_init_ret:
+	call	mem_init
 
 skip_mem_init:
 	/* fetch memory size (into %eax) */
-	jmp	get_mem_size
-.globl get_mem_size_ret
-get_mem_size_ret:
+	call	get_mem_size
+	movl	%eax, %esp
 
 #if CONFIG_SYS_SDRAM_ECC_ENABLE
 	/* Skip ECC initialization if not starting from cold-reset */
 	movl	%ebx, %ecx
 	andl	$GD_FLG_COLD_BOOT, %ecx
-	jz	init_ecc_ret
-	jmp	init_ecc
+	jz	skip_ecc_init
+	call	init_ecc
 
-.globl init_ecc_ret
-init_ecc_ret:
+skip_init_ecc:
 #endif
-
-	/* Check we have enough memory for stack */
-	movl	$CONFIG_SYS_STACK_SIZE, %ecx
-	cmpl	%ecx, %eax
-	jb	die
-mem_ok:
-	/* Set stack pointer to upper memory limit*/
-	movl	%eax, %esp
 
 	/* Test the stack */
 	pushl	$0
