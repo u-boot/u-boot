@@ -191,10 +191,18 @@ void setup_pcat_compatibility()
 	 */
 	writew(0x0000,&sc520_mmcr->intpinpol);
 
-	/* Set PIT 0 -> IRQ0, RTC -> IRQ8, FP error -> IRQ13 */
+	/*
+	 * PIT 0 -> IRQ0
+	 * RTC -> IRQ8
+	 * FP error -> IRQ13
+	 * UART1 -> IRQ4
+	 * UART2 -> IRQ3
+	 */
 	writeb(SC520_IRQ0, &sc520_mmcr->pit_int_map[0]);
 	writeb(SC520_IRQ8, &sc520_mmcr->rtcmap);
 	writeb(SC520_IRQ13, &sc520_mmcr->ferrmap);
+	writeb(SC520_IRQ4, &sc520_mmcr->uart_int_map[0]);
+	writeb(SC520_IRQ3, &sc520_mmcr->uart_int_map[1]);
 
 	/* Disable all other interrupt sources */
 	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->gp_tmr_int_map[0]);
@@ -202,11 +210,6 @@ void setup_pcat_compatibility()
 	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->gp_tmr_int_map[2]);
 	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pit_int_map[1]);
 	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pit_int_map[2]);
-	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pci_int_map[0]);	/* disable PCI INT A */
-	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pci_int_map[1]);	/* disable PCI INT B */
-	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pci_int_map[2]);	/* disable PCI INT C */
-	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->pci_int_map[3]);	/* disable PCI INT D */
-	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->dmabcintmap);		/* disable DMA INT */
 	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->ssimap);
 	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->wdtmap);
 	writeb(SC520_IRQ_DISABLED, &sc520_mmcr->wpvmap);
