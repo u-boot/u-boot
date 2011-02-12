@@ -35,6 +35,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <asm/processor.h>
 #include <asm/interrupt.h>
 
 /* Constructor for a conventional segment GDT (or LDT) entry */
@@ -45,13 +46,6 @@
 	 (((limit) & 0x000f0000ULL) << (48-16)) |	\
 	 (((base)  & 0x00ffffffULL) << 16) |		\
 	 (((limit) & 0x0000ffffULL)))
-
-/* Simple and small GDT entries for booting only */
-
-#define GDT_ENTRY_32BIT_CS	2
-#define GDT_ENTRY_32BIT_DS	(GDT_ENTRY_32BIT_CS + 1)
-#define GDT_ENTRY_16BIT_CS	(GDT_ENTRY_32BIT_DS + 1)
-#define GDT_ENTRY_16BIT_DS	(GDT_ENTRY_16BIT_CS + 1)
 
 /*
  * Set up the GDT
