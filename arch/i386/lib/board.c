@@ -156,7 +156,28 @@ static void display_flash_config (ulong size)
  */
 typedef int (init_fnc_t) (void);
 
-init_fnc_t *init_sequence[] = {
+static int calculate_relocation_address(void);
+static int copy_uboot_to_ram(void);
+static int clear_bss(void);
+static int do_elf_reloc_fixups(void);
+
+init_fnc_t *init_sequence_f[] = {
+	cpu_init_f,
+	board_early_init_f,
+	env_init,
+	init_baudrate,
+	serial_init,
+	console_init_f,
+	dram_init_f,
+	calculate_relocation_address,
+	copy_uboot_to_ram,
+	clear_bss,
+	do_elf_reloc_fixups,
+
+	NULL,
+};
+
+init_fnc_t *init_sequence_r[] = {
 	cpu_init_r,		/* basic cpu dependent setup */
 	board_early_init_r,	/* basic board dependent setup */
 	dram_init,		/* configure available RAM banks */
@@ -235,41 +256,12 @@ static int do_elf_reloc_fixups(void)
  */
 void board_init_f(ulong boot_flags)
 {
-	/* First stage CPU initialization */
-	if (cpu_init_f() != 0)
-		hang();
+	init_fnc_t **init_fnc_ptr;
 
-	/* First stage Board initialization */
-	if (board_early_init_f() != 0)
-		hang();
-
-	if (env_init() != 0)
-		hang();
-
-	if (init_baudrate() != 0)
-		hang();
-
-	if (serial_init() != 0)
-		hang();
-
-	if (console_init_f() != 0)
-		hang();
-
-	if (dram_init_f() != 0)
-		hang();
-
-	if (calculate_relocation_address() != 0)
-		hang();
-
-	/* Copy U-Boot into RAM */
-	if (copy_uboot_to_ram() != 0)
-		hang();
-
-	if (clear_bss() != 0)
-		hang();
-
-	if (do_elf_reloc_fixups() != 0)
-		hang();
+	for (init_fnc_ptr = init_sequence_f; *init_fnc_ptr; ++init_fnc_ptr) {
+		if ((*init_fnc_ptr)() != 0)
+			hang();
+	}
 
 	gd->flags |= GD_FLG_RELOC;
 
@@ -283,7 +275,6 @@ void board_init_f(ulong boot_flags)
 void board_init_r(gd_t *id, ulong dest_addr)
 {
 	char *s;
-	int i;
 	ulong size;
 	static bd_t bd_data;
 	static gd_t gd_data;
@@ -307,12 +298,9 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	mem_malloc_init((((ulong)dest_addr - CONFIG_SYS_MALLOC_LEN)+3)&~3,
 			CONFIG_SYS_MALLOC_LEN);
 
-	for (init_fnc_ptr = init_sequence, i=0; *init_fnc_ptr; ++init_fnc_ptr, i++) {
-		show_boot_progress(0xa130|i);
-
-		if ((*init_fnc_ptr)() != 0) {
+	for (init_fnc_ptr = init_sequence_r; *init_fnc_ptr; ++init_fnc_ptr) {
+		if ((*init_fnc_ptr)() != 0)
 			hang ();
-		}
 	}
 	show_boot_progress(0x23);
 
