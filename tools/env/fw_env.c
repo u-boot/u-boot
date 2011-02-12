@@ -674,11 +674,7 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 				   MEMGETBADBLOCK needs 64 bits */
 	int rc;
 
-	/*
-	 * Start of the first block to be read, relies on the fact, that
-	 * erase sector size is always a power of 2
-	 */
-	blockstart = offset & ~(DEVESIZE (dev) - 1);
+	blockstart = (offset / DEVESIZE (dev)) * DEVESIZE (dev);
 
 	/* Offset inside a block */
 	block_seek = offset - blockstart;
@@ -694,8 +690,8 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 		 * To calculate the top of the range, we have to use the
 		 * global DEVOFFSET (dev), which can be different from offset
 		 */
-		top_of_range = (DEVOFFSET (dev) & ~(blocklen - 1)) +
-			ENVSECTORS (dev) * blocklen;
+		top_of_range = ((DEVOFFSET(dev) / blocklen) +
+				ENVSECTORS (dev)) * blocklen;
 
 		/* Limit to one block for the first read */
 		if (readlen > blocklen - block_seek)
@@ -749,9 +745,9 @@ static int flash_read_buf (int dev, int fd, void *buf, size_t count,
 }
 
 /*
- * Write count bytes at offset, but stay within ENVSETCORS (dev) sectors of
- * DEVOFFSET (dev). Similar to the read case above, on NOR we erase and write
- * the whole data at once.
+ * Write count bytes at offset, but stay within ENVSECTORS (dev) sectors of
+ * DEVOFFSET (dev). Similar to the read case above, on NOR and dataflash we
+ * erase and write the whole data at once.
  */
 static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 			    off_t offset, uint8_t mtd_type)
@@ -764,7 +760,7 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 	size_t erasesize;	/* erase / write length - one block on NAND,
 				   whole area on NOR */
 	size_t processed = 0;	/* progress counter */
-	size_t write_total;	/* total size to actually write - excludinig
+	size_t write_total;	/* total size to actually write - excluding
 				   bad blocks */
 	off_t erase_offset;	/* offset to the first erase block (aligned)
 				   below offset */
@@ -777,11 +773,10 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 
 	blocklen = DEVESIZE (dev);
 
-	/* Erase sector size is always a power of 2 */
-	top_of_range = (DEVOFFSET (dev) & ~(blocklen - 1)) +
-		ENVSECTORS (dev) * blocklen;
+	top_of_range = ((DEVOFFSET(dev) / blocklen) +
+					ENVSECTORS (dev)) * blocklen;
 
-	erase_offset = offset & ~(blocklen - 1);
+	erase_offset = (offset / blocklen) * blocklen;
 
 	/* Maximum area we may use */
 	erase_len = top_of_range - erase_offset;
@@ -795,7 +790,8 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 	 * to the start of the data, then count bytes of data, and to the
 	 * end of the block
 	 */
-	write_total = (block_seek + count + blocklen - 1) & ~(blocklen - 1);
+	write_total = ((block_seek + count + blocklen - 1) /
+						blocklen) * blocklen;
 
 	/*
 	 * Support data anywhere within erase sectors: read out the complete
@@ -838,7 +834,7 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 
 	erase.length = erasesize;
 
-	/* This only runs once on NOR flash */
+	/* This only runs once on NOR flash and SPI-dataflash */
 	while (processed < write_total) {
 		rc = flash_bad_block (fd, mtd_type, &blockstart);
 		if (rc < 0)		/* block test failed */
@@ -857,12 +853,14 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 		erase.start = blockstart;
 		ioctl (fd, MEMUNLOCK, &erase);
 
-		if (ioctl (fd, MEMERASE, &erase) != 0) {
-			fprintf (stderr, "MTD erase error on %s: %s\n",
-				 DEVNAME (dev),
-				 strerror (errno));
-			return -1;
-		}
+		/* Dataflash does not need an explicit erase cycle */
+		if (mtd_type != MTD_DATAFLASH)
+			if (ioctl (fd, MEMERASE, &erase) != 0) {
+				fprintf (stderr, "MTD erase error on %s: %s\n",
+					 DEVNAME (dev),
+					 strerror (errno));
+				return -1;
+			}
 
 		if (lseek (fd, blockstart, SEEK_SET) == -1) {
 			fprintf (stderr,
@@ -973,7 +971,9 @@ static int flash_read (int fd)
 		return -1;
 	}
 
-	if (mtdinfo.type != MTD_NORFLASH && mtdinfo.type != MTD_NANDFLASH) {
+	if (mtdinfo.type != MTD_NORFLASH &&
+	    mtdinfo.type != MTD_NANDFLASH &&
+	    mtdinfo.type != MTD_DATAFLASH) {
 		fprintf (stderr, "Unsupported flash type %u\n", mtdinfo.type);
 		return -1;
 	}
@@ -1143,6 +1143,9 @@ int fw_env_open(void)
 		} else if (DEVTYPE(dev_current) == MTD_NANDFLASH &&
 			   DEVTYPE(!dev_current) == MTD_NANDFLASH) {
 			environment.flag_scheme = FLAG_INCREMENTAL;
+		} else if (DEVTYPE(dev_current) == MTD_DATAFLASH &&
+			   DEVTYPE(!dev_current) == MTD_DATAFLASH) {
+			environment.flag_scheme = FLAG_BOOLEAN;
 		} else {
 			fprintf (stderr, "Incompatible flash types!\n");
 			return -1;
@@ -1234,14 +1237,29 @@ static int parse_config ()
 	strcpy (DEVNAME (0), DEVICE1_NAME);
 	DEVOFFSET (0) = DEVICE1_OFFSET;
 	ENVSIZE (0) = ENV1_SIZE;
+	/* Default values are: erase-size=env-size, #sectors=1 */
+	DEVESIZE (0) = ENVSIZE (0);
+	ENVSECTORS (0) = 1;
+#ifdef DEVICE1_ESIZE
 	DEVESIZE (0) = DEVICE1_ESIZE;
+#endif
+#ifdef DEVICE1_ENVSECTORS
 	ENVSECTORS (0) = DEVICE1_ENVSECTORS;
+#endif
+
 #ifdef HAVE_REDUND
 	strcpy (DEVNAME (1), DEVICE2_NAME);
 	DEVOFFSET (1) = DEVICE2_OFFSET;
 	ENVSIZE (1) = ENV2_SIZE;
+	/* Default values are: erase-size=env-size, #sectors=1 */
+	DEVESIZE (1) = ENVSIZE (1);
+	ENVSECTORS (1) = 1;
+#ifdef DEVICE2_ESIZE
 	DEVESIZE (1) = DEVICE2_ESIZE;
+#endif
+#ifdef DEVICE2_ENVSECTORS
 	ENVSECTORS (1) = DEVICE2_ENVSECTORS;
+#endif
 	HaveRedundEnv = 1;
 #endif
 #endif
@@ -1285,8 +1303,12 @@ static int get_config (char *fname)
 			     &DEVESIZE (i),
 			     &ENVSECTORS (i));
 
-		if (rc < 4)
+		if (rc < 3)
 			continue;
+
+		if (rc < 4)
+			/* Assume the erase size is the same as the env-size */
+			DEVESIZE(i) = ENVSIZE(i);
 
 		if (rc < 5)
 			/* Default - 1 sector */
