@@ -413,8 +413,12 @@ $(obj)u-boot-onenand.bin:	onenand_ipl $(obj)u-boot.bin
 		cat $(ONENAND_BIN) $(obj)u-boot.bin > $(obj)u-boot-onenand.bin
 
 $(VERSION_FILE):
-		@( printf '#define U_BOOT_VERSION "U-Boot %s%s"\n' "$(U_BOOT_VERSION)" \
-		 '$(shell $(TOPDIR)/tools/setlocalversion $(TOPDIR))' ) > $@.tmp
+		@( localvers='$(shell $(TOPDIR)/tools/setlocalversion $(TOPDIR))' ; \
+		   printf '#define PLAIN_VERSION "%s%s"\n' \
+			"$(U_BOOT_VERSION)" "$${localvers}" ; \
+		   printf '#define U_BOOT_VERSION "U-Boot %s%s"\n' \
+			"$(U_BOOT_VERSION)" "$${localvers}" ; \
+		) > $@.tmp
 		@( printf '#define CC_VERSION_STRING "%s"\n' \
 		 '$(shell $(CC) --version | head -n 1)' )>>  $@.tmp
 		@( printf '#define LD_VERSION_STRING "%s"\n' \
