@@ -170,30 +170,71 @@ init_fnc_t *init_sequence[] = {
 
 gd_t *gd;
 
+static int calculate_relocation_address(void)
+{
+	void *text_start = &__text_start;
+	void *bss_end = &__bss_end;
+	void *dest_addr;
+	ulong rel_offset;
+
+	/* Calculate destination RAM Address and relocation offset */
+	dest_addr = (void *)gd->ram_size;
+	dest_addr -= CONFIG_SYS_STACK_SIZE;
+	dest_addr -= (bss_end - text_start);
+	rel_offset = dest_addr - text_start;
+
+	gd->start_addr_sp = gd->ram_size;
+	gd->relocaddr = (ulong)dest_addr;
+	gd->reloc_off = rel_offset;
+
+	return 0;
+}
+
+static int copy_uboot_to_ram(void)
+{
+	ulong *dst_addr = (ulong *)gd->relocaddr;
+	ulong *src_addr = (ulong *)&__text_start;
+	ulong *end_addr = (ulong *)&__data_end;
+
+	while (src_addr < end_addr)
+		*dst_addr++ = *src_addr++;
+
+	return 0;
+}
+
+static int clear_bss(void)
+{
+	void *bss_start = &__bss_start;
+	void *bss_end = &__bss_end;
+
+	ulong *dst_addr = (ulong *)(bss_start + gd->reloc_off);
+	ulong *end_addr = (ulong *)(bss_end + gd->reloc_off);;
+
+	while (dst_addr < end_addr)
+		*dst_addr++ = 0x00000000;
+
+	return 0;
+}
+
+static int do_elf_reloc_fixups(void)
+{
+	Elf32_Rel *re_src = (Elf32_Rel *)(&__rel_dyn_start);
+	Elf32_Rel *re_end = (Elf32_Rel *)(&__rel_dyn_end);
+
+	do {
+		if (re_src->r_offset >= CONFIG_SYS_TEXT_BASE)
+			if (*(Elf32_Addr *)(re_src->r_offset + gd->reloc_off) >= CONFIG_SYS_TEXT_BASE)
+				*(Elf32_Addr *)(re_src->r_offset + gd->reloc_off) += gd->reloc_off;
+	} while (re_src++ < re_end);
+
+	return 0;
+}
+
 /*
  * Load U-Boot into RAM, initialize BSS, perform relocation adjustments
  */
 void board_init_f(ulong boot_flags)
 {
-	void *text_start = &__text_start;
-	void *data_end = &__data_end;
-	void *rel_dyn_start = &__rel_dyn_start;
-	void *rel_dyn_end = &__rel_dyn_end;
-	void *bss_start = &__bss_start;
-	void *bss_end = &__bss_end;
-
-	ulong *dst_addr;
-	ulong *src_addr;
-	ulong *end_addr;
-
-	void *addr_sp;
-	void *dest_addr;
-	ulong rel_offset;
-	Elf32_Rel *re_src;
-	Elf32_Rel *re_end;
-
-	gd->flags = boot_flags;
-
 	if (env_init() != 0)
 		hang();
 
@@ -209,12 +250,8 @@ void board_init_f(ulong boot_flags)
 	if (dram_init_f() != 0)
 		hang();
 
-	/* Calculate destination RAM Address and relocation offset */
-	dest_addr = (void *)gd->ram_size;
-	addr_sp = dest_addr;
-	dest_addr -= CONFIG_SYS_STACK_SIZE;
-	dest_addr -= (bss_end - text_start);
-	rel_offset = dest_addr - text_start;
+	if (calculate_relocation_address() != 0)
+		hang();
 
 	/* First stage CPU initialization */
 	if (cpu_init_f() != 0)
@@ -225,35 +262,19 @@ void board_init_f(ulong boot_flags)
 		hang();
 
 	/* Copy U-Boot into RAM */
-	dst_addr = (ulong *)dest_addr;
-	src_addr = (ulong *)(text_start + gd->load_off);
-	end_addr = (ulong *)(data_end  + gd->load_off);
+	if (copy_uboot_to_ram() != 0)
+		hang();
 
-	while (src_addr < end_addr)
-		*dst_addr++ = *src_addr++;
+	if (clear_bss() != 0)
+		hang();
 
-	/* Clear BSS */
-	dst_addr = (ulong *)(bss_start + rel_offset);
-	end_addr = (ulong *)(bss_end + rel_offset);
+	if (do_elf_reloc_fixups() != 0)
+		hang();
 
-	while (dst_addr < end_addr)
-		*dst_addr++ = 0x00000000;
-
-	/* Perform relocation adjustments */
-	re_src = (Elf32_Rel *)(rel_dyn_start + gd->load_off);
-	re_end = (Elf32_Rel *)(rel_dyn_end + gd->load_off);
-
-	do {
-		if (re_src->r_offset >= CONFIG_SYS_TEXT_BASE)
-			if (*(Elf32_Addr *)(re_src->r_offset + rel_offset) >= CONFIG_SYS_TEXT_BASE)
-				*(Elf32_Addr *)(re_src->r_offset + rel_offset) += rel_offset;
-	} while (re_src++ < re_end);
-
-	gd->reloc_off = rel_offset;
 	gd->flags |= GD_FLG_RELOC;
 
 	/* Enter the relocated U-Boot! */
-	relocate_code((ulong)addr_sp, gd, (ulong)dest_addr);
+	relocate_code(gd->start_addr_sp, gd, gd->relocaddr);
 
 	/* NOTREACHED - relocate_code() does not return */
 	while(1);

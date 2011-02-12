@@ -46,6 +46,8 @@ typedef	struct global_data {
 	unsigned long	env_valid;	/* Checksum of Environment valid? */
 	unsigned long	cpu_clk;	/* CPU clock in Hz!		*/
 	unsigned long	bus_clk;
+	unsigned long	relocaddr;	/* Start address of U-Boot in RAM */
+	unsigned long	start_addr_sp;	/* start_addr_stackpointer */
 	phys_size_t	ram_size;	/* RAM size */
 	unsigned long	reset_status;	/* reset status register at boot */
 	void		**jt;		/* jump table */
@@ -67,11 +69,13 @@ extern gd_t *gd;
 #define GD_ENV_VALID	7
 #define GD_CPU_CLK	8
 #define GD_BUS_CLK	9
-#define GD_RAM_SIZE	10
-#define GD_RESET_STATUS	11
-#define GD_JT		12
+#define GD_RELOC_ADDR	10
+#define GD_START_ADDR_SP	11
+#define GD_RAM_SIZE	12
+#define GD_RESET_STATUS	13
+#define GD_JT		14
 
-#define GD_SIZE		13
+#define GD_SIZE		15
 
 /*
  * Global Data Flags
