@@ -93,9 +93,6 @@ car_init_ret:
 	subl	$1b, %ecx
 	movl	%ecx, (GD_LOAD_OFF * 4)(%ebp)
 
-	/* size memory */
-	call	dram_init_f
-
 	/* Set parameter to board_init_f() to boot flags */
 	movl	(GD_FLAGS * 4)(%ebp), %eax
 

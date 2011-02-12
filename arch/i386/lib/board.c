@@ -197,6 +197,9 @@ void board_init_f(ulong boot_flags)
 
 	gd->flags = boot_flags;
 
+	if (dram_init_f() != 0)
+		hang();
+
 	/* Calculate destination RAM Address and relocation offset */
 	dest_addr = (void *)gd->ram_size;
 	addr_sp = dest_addr;

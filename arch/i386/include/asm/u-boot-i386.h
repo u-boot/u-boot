@@ -37,6 +37,7 @@ int register_timer_isr (timer_fnc_t *isr_func);
 
 /* Architecture specific - can be in arch/i386/cpu/, arch/i386/lib/, or $(BOARD)/ */
 int timer_init(void);
+int dram_init_f(void);
 
 /* cpu/.../interrupts.c */
 int cpu_init_interrupts(void);
