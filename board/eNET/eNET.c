@@ -94,11 +94,20 @@ int board_early_init_f(void)
 	writew(0x0615, &sc520_mmcr->romcs1ctl);
 	writew(0x0615, &sc520_mmcr->romcs2ctl);
 
+	/*
+	 * Set the timer pin mapping
+	 * no clock frequency selected, use 1.1892MHz
+	 */
+	writeb(0x72, &sc520_mmcr->clksel);
+
 	writeb(0x00, &sc520_mmcr->adddecctl);
 	writeb(0x07, &sc520_mmcr->uart1ctl);
 	writeb(0x07, &sc520_mmcr->uart2ctl);
 	writeb(0x06, &sc520_mmcr->sysarbctl);
 	writew(0x0003, &sc520_mmcr->sysarbmenb);
+
+	/* enable posted-writes */
+	writeb(0x04, &sc520_mmcr->hbctl);
 
 	return 0;
 }

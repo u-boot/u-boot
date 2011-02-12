@@ -42,25 +42,6 @@ sc520_mmcr_t *sc520_mmcr = (sc520_mmcr_t *)SC520_MMCR_BASE;
 
 int cpu_init_f(void)
 {
-	/*
-	 * Set the UARTxCTL register at it's slower,
-	 * baud clock giving us a 1.8432 MHz reference
-	 */
-	writeb(0x07, &sc520_mmcr->uart1ctl);
-	writeb(0x07, &sc520_mmcr->uart2ctl);
-
-	/* first set the timer pin mapping */
-	writeb(0x72, &sc520_mmcr->clksel);	/* no clock frequency selected, use 1.1892MHz */
-
-	/* enable PCI bus arbiter (concurrent mode) */
-	writeb(0x02, &sc520_mmcr->sysarbctl);
-
-	/* enable external grants */
-	writeb(0x1f, &sc520_mmcr->sysarbmenb);
-
-	/* enable posted-writes */
-	writeb(0x04, &sc520_mmcr->hbctl);
-
 	if (CONFIG_SYS_SC520_HIGH_SPEED) {
 		/* set it to 133 MHz and write back */
 		writeb(0x02, &sc520_mmcr->cpuctl);
