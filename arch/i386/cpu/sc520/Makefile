@@ -32,9 +32,9 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)lib$(SOC).o
 
 COBJS-$(CONFIG_SYS_SC520) += sc520.o
+COBJS-$(CONFIG_PCI) += sc520_pci.o
 COBJS-$(CONFIG_SYS_SC520_SSI) += sc520_ssi.o
 COBJS-$(CONFIG_SYS_SC520_TIMER) += sc520_timer.o
-COBJS-$(CONFIG_PCI) += sc520_pci.o
 
 SOBJS-$(CONFIG_SYS_SC520) += sc520_asm.o
 
