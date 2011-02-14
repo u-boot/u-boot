@@ -42,8 +42,6 @@ void cpu_init_f(void)
 
 #if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SYS_INIT_L2_ADDR)
 	ccsr_l2cache_t *l2cache = (void *)CONFIG_SYS_MPC85xx_L2_ADDR;
-	char *l2srbar;
-	int i;
 
 	out_be32(&l2cache->l2srbar0, CONFIG_SYS_INIT_L2_ADDR);
 
@@ -54,10 +52,5 @@ void cpu_init_f(void)
 	/* set L2E=1 & L2SRAM=001 */
 	out_be32(&l2cache->l2ctl,
 		(MPC85xx_L2CTL_L2E | MPC85xx_L2CTL_L2SRAM_ENTIRE));
-
-	/* Initialize L2 SRAM to zero */
-	l2srbar = (char *)CONFIG_SYS_INIT_L2_ADDR;
-	for (i = 0; i < CONFIG_SYS_L2_SIZE; i++)
-		l2srbar[i] = 0;
 #endif
 }
