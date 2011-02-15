@@ -84,7 +84,7 @@ block_dev_desc_t *get_dev(char* ifname, int dev)
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	name += gd->reloc_off;
 #endif
-	while (name) {
+	while (drvr->name) {
 		name = drvr->name;
 		reloc_get_dev = drvr->get_dev;
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
