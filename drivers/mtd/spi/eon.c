@@ -121,11 +121,7 @@ static int eon_write(struct spi_flash *flash,
 
 int eon_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
-	struct eon_spi_flash *eon = to_eon_spi_flash(flash);
-	return spi_flash_cmd_erase(flash, CMD_EN25Q128_BE,
-		eon->params->page_size * eon->params->pages_per_sector *
-			eon->params->sectors_per_block;
-		offset, len);
+	return spi_flash_cmd_erase(flash, CMD_EN25Q128_BE, offset, len);
 }
 
 struct spi_flash *spi_flash_probe_eon(struct spi_slave *spi, u8 *idcode)
@@ -158,11 +154,10 @@ struct spi_flash *spi_flash_probe_eon(struct spi_slave *spi, u8 *idcode)
 	eon->flash.write = eon_write;
 	eon->flash.erase = eon_erase;
 	eon->flash.read = spi_flash_cmd_read_fast;
+	eon->flash.sector_size = params->page_size * params->pages_per_sector
+	    * params->sectors_per_block;
 	eon->flash.size = params->page_size * params->pages_per_sector
 	    * params->nr_sectors;
-
-	debug("SF: Detected %s with page size %u, total %u bytes\n",
-	      params->name, params->page_size, eon->flash.size);
 
 	return &eon->flash;
 }

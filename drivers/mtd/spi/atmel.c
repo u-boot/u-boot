@@ -522,13 +522,10 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 		goto err;
 	}
 
+	asf->flash.sector_size = page_size;
 	asf->flash.size = page_size * params->pages_per_block
 				* params->blocks_per_sector
 				* params->nr_sectors;
-
-	printf("SF: Detected %s with page size %u, total ",
-	       params->name, page_size);
-	print_size(asf->flash.size, "\n");
 
 	return &asf->flash;
 

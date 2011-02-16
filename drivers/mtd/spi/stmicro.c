@@ -199,10 +199,7 @@ static int stmicro_write(struct spi_flash *flash,
 
 int stmicro_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
-	struct stmicro_spi_flash *stm = to_stmicro_spi_flash(flash);
-	return spi_flash_cmd_erase(flash, CMD_M25PXX_SE,
-		stm->params->page_size * stm->params->pages_per_sector,
-		offset, len);
+	return spi_flash_cmd_erase(flash, CMD_M25PXX_SE, offset, len);
 }
 
 struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
@@ -249,12 +246,8 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 	stm->flash.write = stmicro_write;
 	stm->flash.erase = stmicro_erase;
 	stm->flash.read = spi_flash_cmd_read_fast;
-	stm->flash.size = params->page_size * params->pages_per_sector
-	    * params->nr_sectors;
-
-	printf("SF: Detected %s with page size %u, total ",
-	       params->name, params->page_size);
-	print_size(stm->flash.size, "\n");
+	stm->flash.sector_size = params->page_size * params->pages_per_sector;
+	stm->flash.size = stm->flash.sector_size * params->nr_sectors;
 
 	return &stm->flash;
 }

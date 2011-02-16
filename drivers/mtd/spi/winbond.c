@@ -172,10 +172,7 @@ out:
 
 int winbond_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
-	struct winbond_spi_flash *stm = to_winbond_spi_flash(flash);
-	return spi_flash_cmd_erase(flash, CMD_W25_SE,
-		(1 << stm->params->l2_page_size) * stm->params->pages_per_sector,
-		offset, len);
+	return spi_flash_cmd_erase(flash, CMD_W25_SE, offset, len);
 }
 
 struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
@@ -213,13 +210,11 @@ struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 	stm->flash.write = winbond_write;
 	stm->flash.erase = winbond_erase;
 	stm->flash.read = spi_flash_cmd_read_fast;
+	stm->flash.sector_size = (1 << stm->params->l2_page_size) *
+		stm->params->pages_per_sector;
 	stm->flash.size = page_size * params->pages_per_sector
 				* params->sectors_per_block
 				* params->nr_blocks;
-
-	printf("SF: Detected %s with page size %u, total ",
-	       params->name, page_size);
-	print_size(stm->flash.size, "\n");
 
 	return &stm->flash;
 }

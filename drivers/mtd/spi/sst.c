@@ -201,8 +201,7 @@ sst_write(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 
 int sst_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
-	return spi_flash_cmd_erase(flash, CMD_SST_SE, SST_SECTOR_SIZE,
-		offset, len);
+	return spi_flash_cmd_erase(flash, CMD_SST_SE, offset, len);
 }
 
 static int
@@ -256,11 +255,8 @@ spi_flash_probe_sst(struct spi_slave *spi, u8 *idcode)
 
 	stm->flash.write = sst_write;
 	stm->flash.erase = sst_erase;
-	stm->flash.size = SST_SECTOR_SIZE * params->nr_sectors;
-
-	printf("SF: Detected %s with page size %u, total ",
-	       params->name, SST_SECTOR_SIZE);
-	print_size(stm->flash.size, "\n");
+	stm->flash.sector_size = SST_SECTOR_SIZE;
+	stm->flash.size = stm->flash.sector_size * params->nr_sectors;
 
 	/* Flash powers up read-only, so clear BP# bits */
 	sst_unlock(&stm->flash);

@@ -131,12 +131,13 @@ int spi_flash_cmd_wait_ready(struct spi_flash *flash, unsigned long timeout)
 }
 
 int spi_flash_cmd_erase(struct spi_flash *flash, u8 erase_cmd,
-			u32 erase_size, u32 offset, size_t len)
+			u32 offset, size_t len)
 {
-	u32 start, end;
+	u32 start, end, erase_size;
 	int ret;
 	u8 cmd[4];
 
+	erase_size = flash->sector_size;
 	if (offset % erase_size || len % erase_size) {
 		debug("SF: Erase offset/length not multiple of erase size\n");
 		return -1;
@@ -295,6 +296,10 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		printf("SF: Unsupported manufacturer %02x\n", *idp);
 		goto err_manufacturer_probe;
 	}
+
+	printf("SF: Detected %s with page size %u, total ",
+	       flash->name, flash->sector_size);
+	print_size(flash->size, "\n");
 
 	spi_release_bus(spi);
 

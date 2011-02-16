@@ -33,6 +33,8 @@ struct spi_flash {
 
 	u32		size;
 
+	u32		sector_size;
+
 	int		(*read)(struct spi_flash *flash, u32 offset,
 				size_t len, void *buf);
 	int		(*write)(struct spi_flash *flash, u32 offset,

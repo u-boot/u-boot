@@ -312,8 +312,5 @@ found:
 	sn->flash.erase = ramtron_erase;
 	sn->flash.size = params->size;
 
-	printf("SF: Detected %s with size ", params->name);
-	print_size(sn->flash.size, "\n");
-
 	return &sn->flash;
 }
