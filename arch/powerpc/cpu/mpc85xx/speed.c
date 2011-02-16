@@ -107,25 +107,45 @@ void get_sys_info (sys_info_t * sysInfo)
 #define PME_CLK_SEL	0x80000000
 #define FM1_CLK_SEL	0x40000000
 #define FM2_CLK_SEL	0x20000000
+#define HWA_ASYNC_DIV	0x04000000
+#if (CONFIG_SYS_FSL_NUM_CC_PLLS == 2)
+#define HWA_CC_PLL	1
+#elif (CONFIG_SYS_FSL_NUM_CC_PLLS == 4)
+#define HWA_CC_PLL	2	
+#else
+#error CONFIG_SYS_FSL_NUM_CC_PLLS not set or unknown case
+#endif
 	rcw_tmp = in_be32(&gur->rcwsr[7]);
 
 #ifdef CONFIG_SYS_DPAA_PME
-	if (rcw_tmp & PME_CLK_SEL)
-		sysInfo->freqPME = freqCC_PLL[2] / 2;
-	else
+	if (rcw_tmp & PME_CLK_SEL) {
+		if (rcw_tmp & HWA_ASYNC_DIV)
+			sysInfo->freqPME = freqCC_PLL[HWA_CC_PLL] / 4;
+		else
+			sysInfo->freqPME = freqCC_PLL[HWA_CC_PLL] / 2;
+	} else {
 		sysInfo->freqPME = sysInfo->freqSystemBus / 2;
+	}
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-	if (rcw_tmp & FM1_CLK_SEL)
-		sysInfo->freqFMan[0] = freqCC_PLL[2] / 2;
-	else
+	if (rcw_tmp & FM1_CLK_SEL) {
+		if (rcw_tmp & HWA_ASYNC_DIV)
+			sysInfo->freqFMan[0] = freqCC_PLL[HWA_CC_PLL] / 4;
+		else
+			sysInfo->freqFMan[0] = freqCC_PLL[HWA_CC_PLL] / 2;
+	} else {
 		sysInfo->freqFMan[0] = sysInfo->freqSystemBus / 2;
+	}
 #if (CONFIG_SYS_NUM_FMAN) == 2
-	if (rcw_tmp & FM2_CLK_SEL)
-		sysInfo->freqFMan[1] = freqCC_PLL[2] / 2;
-	else
+	if (rcw_tmp & FM2_CLK_SEL) {
+		if (rcw_tmp & HWA_ASYNC_DIV)
+			sysInfo->freqFMan[1] = freqCC_PLL[HWA_CC_PLL] / 4;
+		else
+			sysInfo->freqFMan[1] = freqCC_PLL[HWA_CC_PLL] / 2;
+	} else {
 		sysInfo->freqFMan[1] = sysInfo->freqSystemBus / 2;
+	}
 #endif
 #endif
 
