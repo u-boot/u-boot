@@ -19,6 +19,47 @@
 
 static struct spi_flash *flash;
 
+
+/*
+ * This function computes the length argument for the erase command.
+ * The length on which the command is to operate can be given in two forms:
+ * 1. <cmd> offset len  - operate on <'offset',  'len')
+ * 2. <cmd> offset +len - operate on <'offset',  'round_up(len)')
+ * If the second form is used and the length doesn't fall on the
+ * sector boundary, than it will be adjusted to the next sector boundary.
+ * If it isn't in the flash, the function will fail (return -1).
+ * Input:
+ *    arg: length specification (i.e. both command arguments)
+ * Output:
+ *    len: computed length for operation
+ * Return:
+ *    1: success
+ *   -1: failure (bad format, bad address).
+ */
+static int sf_parse_len_arg(char *arg, ulong *len)
+{
+	char *ep;
+	char round_up_len; /* indicates if the "+length" form used */
+	ulong len_arg;
+
+	round_up_len = 0;
+	if (*arg == '+') {
+		round_up_len = 1;
+		++arg;
+	}
+
+	len_arg = simple_strtoul(arg, &ep, 16);
+	if (ep == arg || *ep != '\0')
+		return -1;
+
+	if (round_up_len && flash->sector_size > 0)
+		*len = ROUND(len_arg - 1, flash->sector_size);
+	else
+		*len = len_arg;
+
+	return 1;
+}
+
 static int do_spi_flash_probe(int argc, char * const argv[])
 {
 	unsigned int bus = 0;
@@ -135,8 +176,9 @@ static int do_spi_flash_erase(int argc, char * const argv[])
 	offset = simple_strtoul(argv[1], &endp, 16);
 	if (*argv[1] == 0 || *endp != 0)
 		goto usage;
-	len = simple_strtoul(argv[2], &endp, 16);
-	if (*argv[2] == 0 || *endp != 0)
+
+	ret = sf_parse_len_arg(argv[2], &len);
+	if (ret != 1)
 		goto usage;
 
 	ret = spi_flash_erase(flash, offset, len);
@@ -148,7 +190,7 @@ static int do_spi_flash_erase(int argc, char * const argv[])
 	return 0;
 
 usage:
-	puts("Usage: sf erase offset len\n");
+	puts("Usage: sf erase offset [+]len\n");
 	return 1;
 }
 
@@ -189,5 +231,6 @@ U_BOOT_CMD(
 	"				  `offset' to memory at `addr'\n"
 	"sf write addr offset len	- write `len' bytes from memory\n"
 	"				  at `addr' to flash at `offset'\n"
-	"sf erase offset len		- erase `len' bytes from `offset'"
+	"sf erase offset [+]len		- erase `len' bytes from `offset'\n"
+	"				  `+len' round up `len' to block size"
 );
