@@ -235,6 +235,7 @@ endif
 LIBS += drivers/rtc/librtc.o
 LIBS += drivers/serial/libserial.o
 LIBS += drivers/twserial/libtws.o
+LIBS += drivers/usb/eth/libusb_eth.a
 LIBS += drivers/usb/gadget/libusb_gadget.o
 LIBS += drivers/usb/host/libusb_host.o
 LIBS += drivers/usb/musb/libusb_musb.o

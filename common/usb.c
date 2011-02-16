@@ -145,10 +145,14 @@ int usb_stop(void)
 /*
  * disables the asynch behaviour of the control message. This is used for data
  * transfers that uses the exclusiv access to the control and bulk messages.
+ * Returns the old value so it can be restored later.
  */
-void usb_disable_asynch(int disable)
+int usb_disable_asynch(int disable)
 {
+	int old_value = asynch_allowed;
+
 	asynch_allowed = !disable;
+	return old_value;
 }
 
 

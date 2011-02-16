@@ -34,6 +34,9 @@
 #ifdef CONFIG_USB_STORAGE
 static int usb_stor_curr_dev = -1; /* current device */
 #endif
+#ifdef CONFIG_USB_HOST_ETHER
+static int usb_ether_curr_dev = -1; /* current ethernet device */
+#endif
 
 /* some display routines (info command) */
 char *usb_get_class_desc(unsigned char dclass)
@@ -522,11 +525,16 @@ int do_usb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		usb_stop();
 		printf("(Re)start USB...\n");
 		i = usb_init();
+		if (i >= 0) {
 #ifdef CONFIG_USB_STORAGE
-		/* try to recognize storage devices immediately */
-		if (i >= 0)
+			/* try to recognize storage devices immediately */
 			usb_stor_curr_dev = usb_stor_scan(1);
 #endif
+#ifdef CONFIG_USB_HOST_ETHER
+			/* try to recognize ethernet devices immediately */
+			usb_ether_curr_dev = usb_host_eth_scan(1);
+#endif
+		}
 		return 0;
 	}
 	if (strncmp(argv[1], "stop", 4) == 0) {
