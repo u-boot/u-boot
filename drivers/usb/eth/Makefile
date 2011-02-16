@@ -25,6 +25,9 @@ LIB	:= $(obj)libusb_eth.a
 
 # new USB host ethernet layer dependencies
 COBJS-$(CONFIG_USB_HOST_ETHER) += usb_ether.o
+ifdef CONFIG_USB_ETHER_ASIX
+COBJS-y += asix.o
+endif
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)

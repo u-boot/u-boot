@@ -38,6 +38,13 @@ struct usb_eth_prob_dev {
 
 /* driver functions go here, each bracketed by #ifdef CONFIG_USB_ETHER_xxx */
 static const struct usb_eth_prob_dev prob_dev[] = {
+#ifdef CONFIG_USB_ETHER_ASIX
+	{
+		.before_probe = asix_eth_before_probe,
+		.probe = asix_eth_probe,
+		.get_info = asix_eth_get_info,
+	},
+#endif
 	{ },		/* END */
 };
 
