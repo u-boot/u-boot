@@ -23,7 +23,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include "ftpmu010.h"
+#include <faraday/ftpmu010.h>
 
 static struct ftpmu010 *pmu = (struct ftpmu010 *)CONFIG_FTPMU010_BASE;
 

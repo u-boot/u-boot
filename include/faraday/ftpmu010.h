@@ -143,4 +143,8 @@ struct ftpmu010 {
 #define FTPMU010_PDLLCR0_PLL1STABLE		(1 << 1)
 #define FTPMU010_PDLLCR0_PLL1DIS		(1 << 0)
 
+void ftpmu010_32768osc_enable(void);
+void ftpmu010_dlldis_disable(void);
+void ftpmu010_sdram_clk_disable(unsigned int cr0);
+
 #endif	/* __FTPMU010_H */
