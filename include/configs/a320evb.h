@@ -32,6 +32,11 @@
 #undef CONFIG_SKIP_LOWLEVEL_INIT
 
 /*-----------------------------------------------------------------------
+ * Power Management Unit
+ */
+#define CONFIG_FTPMU010_POWER
+
+/*-----------------------------------------------------------------------
  * Timer
  */
 #define CONFIG_SYS_HZ		1000	/* timer ticks per second */
