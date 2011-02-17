@@ -266,7 +266,7 @@ _nand_boot_ofs:
 #else
 jump_2_ram:
 	ldr	r0, _board_init_r_ofs
-	adr	r1, _start
+	ldr     r1, _TEXT_BASE
 	add	lr, r0, r1
 	add	lr, lr, r9
 	/* setup parameters for board_init_r */
