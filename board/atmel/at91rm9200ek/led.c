@@ -26,8 +26,10 @@
  */
 
 #include <common.h>
-#include <asm/arch/gpio.h>
+#include <asm/io.h>
+#include <asm/arch/hardware.h>
 #include <asm/arch/at91_pmc.h>
+#include <asm/arch/at91_pio.h>
 
 /* bit mask in PIO port B */
 #define	GREEN_LED	(1<<0)
@@ -36,47 +38,47 @@
 
 void	green_LED_on(void)
 {
-	at91_pio_t *pio = (at91_pio_t *)AT91_PIO_BASE;
+	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 	writel(GREEN_LED, &pio->piob.codr);
 }
 
 void	 yellow_LED_on(void)
 {
-	at91_pio_t *pio = (at91_pio_t *)AT91_PIO_BASE;
+	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 	writel(YELLOW_LED, &pio->piob.codr);
 }
 
 void	 red_LED_on(void)
 {
-	at91_pio_t *pio = (at91_pio_t *)AT91_PIO_BASE;
+	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 	writel(RED_LED, &pio->piob.codr);
 }
 
 void	green_LED_off(void)
 {
-	at91_pio_t *pio = (at91_pio_t *)AT91_PIO_BASE;
+	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 	writel(GREEN_LED, &pio->piob.sodr);
 }
 
 void	yellow_LED_off(void)
 {
-	at91_pio_t *pio = (at91_pio_t *)AT91_PIO_BASE;
+	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 	writel(YELLOW_LED, &pio->piob.sodr);
 }
 
 void	red_LED_off(void)
 {
-	at91_pio_t *pio = (at91_pio_t *)AT91_PIO_BASE;
+	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 	writel(RED_LED, &pio->piob.sodr);
 }
 
 void coloured_LED_init (void)
 {
-	at91_pmc_t *pmc = (at91_pmc_t *)AT91_PMC_BASE;
-	at91_pio_t *pio = (at91_pio_t *)AT91_PIO_BASE;
+	at91_pmc_t *pmc = (at91_pmc_t *)ATMEL_BASE_PMC;
+	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 
 	/* Enable PIOB clock */
-	writel(1 << AT91_ID_PIOB, &pmc->pcer);
+	writel(1 << ATMEL_ID_PIOB, &pmc->pcer);
 
 	/* Disable peripherals on LEDs */
 	writel(GREEN_LED | YELLOW_LED | RED_LED, &pio->piob.per);

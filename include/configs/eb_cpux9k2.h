@@ -29,12 +29,11 @@
 
 /*--------------------------------------------------------------------------*/
 
-#define CONFIG_ARM920T		1	/* This is an ARM920T Core	*/
-#define CONFIG_AT91RM9200	1	/* It's an Atmel AT91RM9200 SoC	*/
-#define CONFIG_EB_CPUX9K2	1	/* on an EP+CPUX9K2 Board	*/
-#define USE_920T_MMU		1
+#define CONFIG_AT91RM9200		/* It's an Atmel AT91RM9200 SoC	*/
+#define CONFIG_EB_CPUX9K2		/* on an EP+CPUX9K2 Board	*/
+#define USE_920T_MMU
 
-#define CONFIG_VERSION_VARIABLE 1
+#define CONFIG_VERSION_VARIABLE
 #define CONFIG_IDENT_STRING	" on EB+CPUx9K2"
 
 #include <asm/arch/hardware.h>	/* needed for port definitions */
@@ -217,19 +216,19 @@
 #define CONFIG_SYS_I2C_INIT_BOARD
 
 #define I2C_INIT	i2c_init_board();
-#define I2C_ACTIVE	writel(AT91_PMX_AA_TWD, &pio->pioa.mddr);
-#define I2C_TRISTATE	writel(AT91_PMX_AA_TWD, &pio->pioa.mder);
-#define I2C_READ	((readl(&pio->pioa.pdsr) & AT91_PMX_AA_TWD) != 0)
+#define I2C_ACTIVE	writel(ATMEL_PMX_AA_TWD, &pio->pioa.mddr);
+#define I2C_TRISTATE	writel(ATMEL_PMX_AA_TWD, &pio->pioa.mder);
+#define I2C_READ	((readl(&pio->pioa.pdsr) & ATMEL_PMX_AA_TWD) != 0)
 #define I2C_SDA(bit)						\
 	if (bit)						\
-		writel(AT91_PMX_AA_TWD, &pio->pioa.sodr);	\
+		writel(ATMEL_PMX_AA_TWD, &pio->pioa.sodr);	\
 	else							\
-		writel(AT91_PMX_AA_TWD, &pio->pioa.codr);
+		writel(ATMEL_PMX_AA_TWD, &pio->pioa.codr);
 #define I2C_SCL(bit)						\
 	if (bit)						\
-		writel(AT91_PMX_AA_TWCK, &pio->pioa.sodr);	\
+		writel(ATMEL_PMX_AA_TWCK, &pio->pioa.sodr);	\
 	else							\
-		writel(AT91_PMX_AA_TWCK, &pio->pioa.codr);
+		writel(ATMEL_PMX_AA_TWCK, &pio->pioa.codr);
 
 #define I2C_DELAY	udelay(2500000/CONFIG_SYS_I2C_SPEED)
 

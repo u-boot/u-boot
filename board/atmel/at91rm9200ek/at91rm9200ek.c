@@ -44,7 +44,7 @@ int board_init(void)
 	 * Correct IRDA resistor problem
 	 * Set PA23_TXD in Output
 	 */
-	writel(AT91_PMX_AA_TXD2, &pio->pioa.oer);
+	writel(ATMEL_PMX_AA_TXD2, &pio->pioa.oer);
 
 	/* arch number of AT91RM9200EK-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_AT91RM9200EK;
@@ -65,6 +65,6 @@ int dram_init (void)
 #ifdef CONFIG_DRIVER_AT91EMAC
 int board_eth_init(bd_t *bis)
 {
-	return at91emac_register(bis, (u32) AT91_EMAC_BASE);
+	return at91emac_register(bis, (u32) ATMEL_BASE_EMAC);
 }
 #endif
