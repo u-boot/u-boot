@@ -453,7 +453,7 @@ int eth_receive(volatile void *packet, int length)
 void eth_try_another(int first_restart)
 {
 	static struct eth_device *first_failed = NULL;
-	char *ethrotate, *act;
+	char *ethrotate;
 
 	/*
 	 * Do not rotate between network interfaces when
