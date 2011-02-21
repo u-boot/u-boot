@@ -45,8 +45,8 @@ ELF-oxc                          += eepro100_eeprom
 #
 ELF := $(strip $(ELF-y) $(ELF-$(ARCH)) $(ELF-$(BOARD)) $(ELF-$(CPU)))
 
-SREC = $(addsuffix .srec,$(ELF))
-BIN  = $(addsuffix .bin,$(ELF))
+SREC := $(addsuffix .srec,$(ELF))
+BIN  := $(addsuffix .bin,$(ELF))
 
 COBJS	:= $(ELF:=.o)
 
