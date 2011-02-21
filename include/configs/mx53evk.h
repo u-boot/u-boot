@@ -190,4 +190,7 @@
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV 0
 
+#define CONFIG_OF_LIBFDT
+#define CONFIG_SYS_BOOTMAPSZ   0x800000
+
 #endif				/* __CONFIG_H */
