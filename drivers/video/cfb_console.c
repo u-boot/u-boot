@@ -882,6 +882,8 @@ static int display_rle8_bitmap (bmp_image_t *img, int xoff, int yoff,
 	struct palette p[256];
 	bmp_color_table_entry_t cte;
 	int green_shift, red_off;
+	int limit = VIDEO_COLS * VIDEO_ROWS;
+	int pixels = 0;
 
 	x = 0;
 	y = __le32_to_cpu(img->header.height) - 1;
@@ -962,6 +964,10 @@ static int display_rle8_bitmap (bmp_image_t *img, int xoff, int yoff,
 				/* unencoded run */
 				cnt = bm[1];
 				runlen = cnt;
+				pixels += cnt;
+				if (pixels > limit)
+					goto error;
+
 				bm += 2;
 				if (y < height) {
 					if (x >= width) {
@@ -970,7 +976,6 @@ static int display_rle8_bitmap (bmp_image_t *img, int xoff, int yoff,
 					}
 					if (x + runlen > width)
 						cnt = width - x;
-
 					draw_bitmap (&fbp, bm, p, cnt, 0);
 					x += runlen;
 				}
@@ -982,9 +987,13 @@ next_run:
 			break;
 		default:
 			/* encoded run */
+			cnt = bm[0];
+			runlen = cnt;
+			pixels += cnt;
+			if (pixels > limit)
+				goto error;
+
 			if (y < height) { /* only draw into visible area */
-				cnt = bm[0];
-				runlen = cnt;
 				if (x >= width) {
 					x += runlen;
 					bm += 2;
@@ -992,7 +1001,6 @@ next_run:
 				}
 				if (x + runlen > width)
 					cnt = width - x;
-
 				draw_bitmap (&fbp, bm, p, cnt, 1);
 				x += runlen;
 			}
@@ -1001,6 +1009,9 @@ next_run:
 		}
 	}
 	return 0;
+error:
+	printf("Error: Too much encoded pixel data, validate your bitmap\n");
+	return -1;
 }
 #endif
 
