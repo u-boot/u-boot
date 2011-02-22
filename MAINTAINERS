@@ -428,6 +428,7 @@ Heiko Schocher <hs@denx.de>
 	jupiter		MPC5200
 	kmeter1		MPC8360
 	mgcoge		MPC8247
+	mgcoge2un	ARM926EJS (Kirkwood SoC)
 	mucmc52		MPC5200
 	muas3001	MPC8270
 	municse		MPC5200

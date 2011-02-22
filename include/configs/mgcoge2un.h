@@ -6,6 +6,9 @@
  * (C) Copyright 2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
+ * (C) Copyright 2010-2011
+ * Holger Brunck, Keymile GmbH Hannover, holger.brunck@keymile.com
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -25,13 +28,11 @@
  * MA 02110-1301 USA
  */
 
-/*
- * for linking errors see
- * http://lists.denx.de/pipermail/u-boot/2009-July/057350.html
- */
+/* for linking errors see
+ * http://lists.denx.de/pipermail/u-boot/2009-July/057350.html */
 
-#ifndef _CONFIG_SUEN3_H
-#define _CONFIG_SUEN3_H
+#ifndef _CONFIG_MGCOGE2UN_H
+#define _CONFIG_MGCOGE2UN_H
 
 /* include common defines/options for all arm based Keymile boards */
 #include "km_arm.h"
@@ -39,9 +40,9 @@
 /*
  * Version number information
  */
-#define CONFIG_IDENT_STRING	"\nKeymile SUEN3"
+#define CONFIG_IDENT_STRING	"\nKeymile MGCOGE2UN"
 
-#define CONFIG_HOSTNAME			suen3
+#define CONFIG_HOSTNAME			mgcoge2un
 
 /*
  * Default environment variables
@@ -56,7 +57,7 @@
 		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
 		" ${addr} " xstr(CONFIG_ENV_OFFSET_REDUND) " 4\0"	\
 	"rootpath=/opt/eldk/arm\0"					\
-	"EEprom_ivm=pca9544a:70:9\0"					\
+	"EEprom_ivm=pca9547:70:9\0"					\
 	""
 
-#endif /* _CONFIG_SUEN3_H */
+#endif /* _CONFIG_MGCOGE2UN_H */
