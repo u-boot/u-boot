@@ -28,8 +28,8 @@ PAD_TO := 0xfff04000
 include $(TOPDIR)/config.mk
 
 LDSCRIPT= $(TOPDIR)/nand_spl/board/$(BOARDDIR)/u-boot.lds
-LDFLAGS	= -Bstatic -T $(nandobj)u-boot.lds \
-	  -Ttext $(CONFIG_SYS_TEXT_BASE_SPL) $(PLATFORM_LDFLAGS)
+LDFLAGS := -T $(nandobj)u-boot.lds -Ttext $(CONFIG_SYS_TEXT_BASE_SPL) \
+	   $(LDFLAGS) $(LDFLAGS_FINAL)
 AFLAGS	+= -DCONFIG_NAND_SPL
 CFLAGS	+= -DCONFIG_NAND_SPL
 

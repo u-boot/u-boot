@@ -24,7 +24,7 @@
 CROSS_COMPILE ?= ppc_8xx-
 
 STANDALONE_LOAD_ADDR = 0x40000
-LDFLAGS_u-boot = --gc-sections
+LDFLAGS_FINAL += --gc-sections
 PLATFORM_RELFLAGS += -mrelocatable -ffunction-sections -fdata-sections
 PLATFORM_CPPFLAGS += -DCONFIG_PPC -D__powerpc__
 PLATFORM_LDFLAGS  += -n
