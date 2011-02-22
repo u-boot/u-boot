@@ -179,15 +179,15 @@ void set_sda (int state);
 void set_scl (int state);
 int get_sda (void);
 int get_scl (void);
-#define SUEN3_SDA_PIN	8
-#define SUEN3_SCL_PIN	9
-#define SUEN3_ENV_WP	38
+#define KM_KIRKWOOD_SDA_PIN	8
+#define KM_KIRKWOOD_SCL_PIN	9
+#define KM_KIRKWOOD_ENV_WP	38
 
-#define I2C_ACTIVE	__set_direction(SUEN3_SDA_PIN, 0)
-#define I2C_TRISTATE	__set_direction(SUEN3_SDA_PIN, 1)
-#define I2C_READ	(kw_gpio_get_value(SUEN3_SDA_PIN) ? 1 : 0)
-#define I2C_SDA(bit)	kw_gpio_set_value(SUEN3_SDA_PIN, bit);
-#define I2C_SCL(bit)	kw_gpio_set_value(SUEN3_SCL_PIN, bit);
+#define I2C_ACTIVE	__set_direction(KM_KIRKWOOD_SDA_PIN, 0)
+#define I2C_TRISTATE	__set_direction(KM_KIRKWOOD_SDA_PIN, 1)
+#define I2C_READ	(kw_gpio_get_value(KM_KIRKWOOD_SDA_PIN) ? 1 : 0)
+#define I2C_SDA(bit)	kw_gpio_set_value(KM_KIRKWOOD_SDA_PIN, bit)
+#define I2C_SCL(bit)	kw_gpio_set_value(KM_KIRKWOOD_SCL_PIN, bit)
 #endif
 
 #define I2C_DELAY	udelay(3)	/* 1/4 I2C clock duration */

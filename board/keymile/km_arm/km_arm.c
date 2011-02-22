@@ -93,7 +93,7 @@ u32 kwmpp_config[] = {
 	MPP41_GPIO,		/* Piggy3 LED[4] */
 	MPP42_GPIO,		/* Piggy3 LED[5] */
 	MPP43_GPIO,		/* Piggy3 LED[6] */
-	MPP44_GPIO,		/* Piggy3 LED[7] */
+	MPP44_GPIO,		/* Piggy3 LED[7], BIST_EN_L */
 	MPP45_GPIO,		/* Piggy3 LED[8] */
 	MPP46_GPIO,		/* Reserved */
 	MPP47_GPIO,		/* Reserved */
@@ -155,14 +155,14 @@ int board_early_init_f(void)
 
 #if defined(CONFIG_SOFT_I2C)
 	/* init the GPIO for I2C Bitbang driver */
-	kw_gpio_set_valid(SUEN3_SDA_PIN, 1);
-	kw_gpio_set_valid(SUEN3_SCL_PIN, 1);
-	kw_gpio_direction_output(SUEN3_SDA_PIN, 0);
-	kw_gpio_direction_output(SUEN3_SCL_PIN, 0);
+	kw_gpio_set_valid(KM_KIRKWOOD_SDA_PIN, 1);
+	kw_gpio_set_valid(KM_KIRKWOOD_SCL_PIN, 1);
+	kw_gpio_direction_output(KM_KIRKWOOD_SDA_PIN, 0);
+	kw_gpio_direction_output(KM_KIRKWOOD_SCL_PIN, 0);
 #endif
 #if defined(CONFIG_SYS_EEPROM_WREN)
-	kw_gpio_set_valid(SUEN3_ENV_WP, 38);
-	kw_gpio_direction_output(SUEN3_ENV_WP, 1);
+	kw_gpio_set_valid(KM_KIRKWOOD_ENV_WP, 38);
+	kw_gpio_direction_output(KM_KIRKWOOD_ENV_WP, 1);
 #endif
 
 	return 0;
@@ -315,15 +315,15 @@ int get_sda(void)
 
 int get_scl(void)
 {
-	return (kw_gpio_get_value(SUEN3_SCL_PIN) ? 1 : 0);
+	return kw_gpio_get_value(KM_KIRKWOOD_SCL_PIN) ? 1 : 0;
 }
 #endif
 
 #if defined(CONFIG_SYS_EEPROM_WREN)
 int eeprom_write_enable(unsigned dev_addr, int state)
 {
-	kw_gpio_set_value(SUEN3_ENV_WP, !state);
+	kw_gpio_set_value(KM_KIRKWOOD_ENV_WP, !state);
 
-	return !kw_gpio_get_value(SUEN3_ENV_WP);
+	return !kw_gpio_get_value(KM_KIRKWOOD_ENV_WP);
 }
 #endif
