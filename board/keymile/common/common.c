@@ -22,7 +22,7 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_MGCOGE)
+#if defined(CONFIG_MGCOGE) || defined(CONFIG_MGCOGE2NE)
 #include <mpc8260.h>
 #endif
 #include <ioports.h>
@@ -343,7 +343,7 @@ int ivm_read_eeprom(void)
 #define DELAY_ABORT_SEQ		62
 #define DELAY_HALF_PERIOD	(500 / (CONFIG_SYS_I2C_SPEED / 1000))
 
-#if defined(CONFIG_MGCOGE)
+#if defined(CONFIG_MGCOGE) || defined(CONFIG_MGCOGE2NE)
 #define SDA_MASK	0x00010000
 #define SCL_MASK	0x00020000
 static void set_pin(int state, unsigned long mask)

@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007-2011
+ * (C) Copyright 2007-2010
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -21,17 +21,16 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __MGCOGE2NE
+#define __MGCOGE2NE
 
 /*
  * High Level Configuration Options
  * (easy to change)
  */
-
 #define CONFIG_MPC8247
 #define CONFIG_MGCOGE
-#define CONFIG_HOSTNAME		mgcoge
+#define CONFIG_HOSTNAME		mgcoge2ne
 
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
@@ -44,26 +43,22 @@
 #define CONFIG_SYS_FLASH_SIZE		32
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_FLASH_CFI_DRIVER
-#define CONFIG_SYS_MAX_FLASH_BANKS	3
-/* max num of sects on one chip */
-#define CONFIG_SYS_MAX_FLASH_SECT	512
+#define CONFIG_SYS_MAX_FLASH_BANKS	3	/* max num of flash banks */
+#define CONFIG_SYS_MAX_FLASH_SECT	512	/*
+						 * max num of sects on one
+						 * chip
+						 */
 
 #define CONFIG_SYS_FLASH_BASE_1	0x50000000
-#define CONFIG_SYS_FLASH_SIZE_1	32
-#define CONFIG_SYS_FLASH_BASE_2	0x52000000
-#define CONFIG_SYS_FLASH_SIZE_2	32
+#define CONFIG_SYS_FLASH_SIZE_1	64
+#define CONFIG_SYS_FLASH_SIZE_2	0
 
 #define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE, \
-					CONFIG_SYS_FLASH_BASE_1, \
-					CONFIG_SYS_FLASH_BASE_2 }
-#define MTDIDS_DEFAULT		"nor3=app"
+					CONFIG_SYS_FLASH_BASE_1 }
+
+#define MTDIDS_DEFAULT		"nor2=app"
 
 /* include further common stuff for all keymile 82xx boards */
 #include "km82xx-common.h"
 
-/* enable last_stage_init */
-#define CONFIG_LAST_STAGE_INIT          1
-/* bfticu address */
-#define CONFIG_SYS_BFTICU_BASE          0x40000000
-
-#endif /* __CONFIG_H */
+#endif /* __MGCOGE2NE */

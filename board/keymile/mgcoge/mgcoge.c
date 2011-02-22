@@ -284,7 +284,11 @@ phys_size_t initdram(int board_type)
 
 int checkboard(void)
 {
+#if defined(CONFIG_MGCOGE)
 	puts("Board: Keymile mgcoge");
+#else
+	puts("Board: Keymile mgcoge2ne");
+#endif
 	if (ethernet_present())
 		puts(" with PIGGY.");
 	puts("\n");
