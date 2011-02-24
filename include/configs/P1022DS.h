@@ -508,6 +508,7 @@
 	"dium=mw e002c01c\0" 						\
 	"diuerr=md e002c014 1\0" 					\
 	"othbootargs=diufb=15M video=fslfb:1280x1024-32@60,monitor=0 tty0\0" \
+	"hwconfig=esdhc;audclk:12\0"					\
 	"monitor=0-DVI\0"
 
 #define CONFIG_HDBOOT					\
