@@ -301,16 +301,16 @@ int misc_init_r(void)
 	twl4030_power_init();
 	twl4030_led_init(TWL4030_LED_LEDEN_LEDAON | TWL4030_LED_LEDEN_LEDBON);
 
-	/* Configure GPIOs to output */
-	writel(~(GPIO23 | GPIO10 | GPIO8 | GPIO2 | GPIO1), &gpio6_base->oe);
-	writel(~(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
-		GPIO15 | GPIO14 | GPIO13 | GPIO12), &gpio5_base->oe);
-
-	/* Set GPIOs */
+	/* Set GPIO states before they are made outputs */
 	writel(GPIO23 | GPIO10 | GPIO8 | GPIO2 | GPIO1,
 		&gpio6_base->setdataout);
 	writel(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
 		GPIO15 | GPIO14 | GPIO13 | GPIO12, &gpio5_base->setdataout);
+
+	/* Configure GPIOs to output */
+	writel(~(GPIO23 | GPIO10 | GPIO8 | GPIO2 | GPIO1), &gpio6_base->oe);
+	writel(~(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
+		GPIO15 | GPIO14 | GPIO13 | GPIO12), &gpio5_base->oe);
 
 	dieid_num_r();
 
