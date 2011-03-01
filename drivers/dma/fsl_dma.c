@@ -116,10 +116,12 @@ int dmacpy(phys_addr_t dest, phys_addr_t src, phys_size_t count) {
 
 		out_dma32(&dma->dar, (u32) (dest & 0xFFFFFFFF));
 		out_dma32(&dma->sar, (u32) (src & 0xFFFFFFFF));
+#if !defined(CONFIG_MPC83xx)
 		out_dma32(&dma->satr,
 			in_dma32(&dma->satr) | (u32)((u64)src >> 32));
 		out_dma32(&dma->datr,
 			in_dma32(&dma->datr) | (u32)((u64)dest >> 32));
+#endif
 		out_dma32(&dma->bcr, xfer_size);
 		dma_sync();
 
