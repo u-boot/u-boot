@@ -72,7 +72,7 @@
 	START_GOT
 	GOT_ENTRY(_GOT2_TABLE_)
 	GOT_ENTRY(__bss_start)
-	GOT_ENTRY(_end)
+	GOT_ENTRY(__bss_end__)
 
 #ifndef CONFIG_NAND_SPL
 	GOT_ENTRY(_FIXUP_TABLE_)
@@ -977,7 +977,7 @@ clear_bss:
 	 */
 	lwz	r4,GOT(environment)
 #else
-	lwz	r4,GOT(_end)
+	lwz	r4,GOT(__bss_end__)
 #endif
 
 	cmplw	0, r3, r4

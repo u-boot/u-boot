@@ -121,7 +121,7 @@ _bss_start_ofs:
 
 .globl _bss_end_ofs
 _bss_end_ofs:
-	.word _end - _start
+	.word __bss_end__ - _start
 
 /* IRQ stack memory (calculated at run-time) + 8 bytes */
 .globl IRQ_STACK_START_IN

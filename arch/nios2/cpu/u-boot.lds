@@ -103,7 +103,7 @@ SECTIONS
 	  *(.scommon)
 	}
 	. = ALIGN(4);
-	_end = .;
+	__bss_end__ = .;
 	PROVIDE (end = .);
 
 	/* DEBUG -- symbol table, string table, etc. etc.

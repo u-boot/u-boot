@@ -76,7 +76,7 @@ static char *failed = "*** failed ***\n";
 #include <environment.h>
 
 extern ulong __init_end;
-extern ulong _end;
+extern ulong __bss_end__;
 
 extern	void timer_init(void);
 
@@ -252,7 +252,7 @@ board_init_f (ulong bootflag)
 	 *	- monitor code
 	 *	- board info struct
 	 */
-	len = (ulong)&_end - CONFIG_SYS_MONITOR_BASE;
+	len = (ulong)&__bss_end__ - CONFIG_SYS_MONITOR_BASE;
 
 	addr = CONFIG_SYS_SDRAM_BASE + gd->ram_size;
 

@@ -70,7 +70,7 @@
 	GOT_ENTRY(transfer_to_handler)
 
 	GOT_ENTRY(__init_end)
-	GOT_ENTRY(_end)
+	GOT_ENTRY(__bss_end__)
 	GOT_ENTRY(__bss_start)
 #if defined(CONFIG_HYMOD)
 	GOT_ENTRY(environment)
@@ -927,7 +927,7 @@ clear_bss:
 	 */
 	lwz	r4,GOT(environment)
 #else
-	lwz	r4,GOT(_end)
+	lwz	r4,GOT(__bss_end__)
 #endif
 
 	cmplw	0, r3, r4

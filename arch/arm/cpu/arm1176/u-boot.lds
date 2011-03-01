@@ -65,7 +65,7 @@ SECTIONS
 		__bss_start = .;
 		*(.bss)
 		 . = ALIGN(4);
-		_end = .;
+		__bss_end__ = .;
 	}
 
 	/DISCARD/ : { *(.dynstr*) }
