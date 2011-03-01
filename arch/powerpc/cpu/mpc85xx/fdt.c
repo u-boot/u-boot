@@ -473,6 +473,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	fdt_portal(blob, "fsl,bman-portal", "bman-portals",
 			(u64)CONFIG_SYS_BMAN_MEM_PHYS,
 			CONFIG_SYS_BMAN_MEM_SIZE);
+	fdt_fixup_bportals(blob);
 #endif
 
 #if defined(CONFIG_SYS_QMAN_MEM_PHYS)
