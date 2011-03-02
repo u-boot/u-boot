@@ -741,7 +741,7 @@
 #define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
- "memctl_intlv_ctl=2\0"						\
+ "hwconfig=fsl_ddr:ctlr_intlv=bank\0"				\
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
  "tftpflash=tftpboot $loadaddr $uboot; "			\
