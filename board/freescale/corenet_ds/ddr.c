@@ -170,8 +170,8 @@ const board_specific_parameters_t board_specific_parameters[][30] = {
 	 *  lo|  hi|  num|  clk| wrlvl | cpo  |wrdata|2T
 	 * mhz| mhz|ranks|adjst| start | delay|
 	 */
-		{  0, 850,    4,    1,     5,   0xff,    2,  0},
-		{851, 950,    4,    3,     5,   0xff,    2,  0},
+		{  0, 850,    4,    4,     6,   0xff,    2,  0},
+		{851, 950,    4,    5,     7,   0xff,    2,  0},
 		{951, 1050,   4,    5,     8,   0xff,    2,  0},
 		{1051, 1250,  4,    5,    10,   0xff,    2,  0},
 		{1251, 1350,  4,    5,    11,   0xff,    2,  0},
@@ -188,8 +188,8 @@ const board_specific_parameters_t board_specific_parameters[][30] = {
 	 *  lo|  hi|  num|  clk| wrlvl | cpo  |wrdata|2T
 	 * mhz| mhz|ranks|adjst| start | delay|
 	 */
-		{  0, 850,    4,    1,     5,   0xff,    2,  0},
-		{851, 950,    4,    3,     5,   0xff,    2,  0},
+		{  0, 850,    4,    4,     6,   0xff,    2,  0},
+		{851, 950,    4,    5,     7,   0xff,    2,  0},
 		{951, 1050,   4,    5,     8,   0xff,    2,  0},
 		{1051, 1250,  4,    5,    10,   0xff,    2,  0},
 		{1251, 1350,  4,    5,    11,   0xff,    2,  0},
