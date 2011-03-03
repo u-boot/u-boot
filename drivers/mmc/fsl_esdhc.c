@@ -210,7 +210,21 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	esdhc_write32(&regs->blkattr, data->blocks << 16 | data->blocksize);
 
 	/* Calculate the timeout period for data transactions */
-	timeout = fls(mmc->tran_speed/10) - 1;
+	/*
+	 * 1)Timeout period = (2^(timeout+13)) SD Clock cycles
+	 * 2)Timeout period should be minimum 0.250sec as per SD Card spec
+	 *  So, Number of SD Clock cycles for 0.25sec should be minimum
+	 *		(SD Clock/sec * 0.25 sec) SD Clock cycles
+	 *		= (mmc->tran_speed * 1/4) SD Clock cycles
+	 * As 1) >=  2)
+	 * => (2^(timeout+13)) >= mmc->tran_speed * 1/4
+	 * Taking log2 both the sides
+	 * => timeout + 13 >= log2(mmc->tran_speed/4)
+	 * Rounding up to next power of 2
+	 * => timeout + 13 = log2(mmc->tran_speed/4) + 1
+	 * => timeout + 13 = fls(mmc->tran_speed/4)
+	 */
+	timeout = fls(mmc->tran_speed/4);
 	timeout -= 13;
 
 	if (timeout > 14)
