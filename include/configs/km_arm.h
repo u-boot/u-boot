@@ -260,5 +260,7 @@ int get_scl (void);
  * 8Mbytes for switch + 4Kbytes for bootcount
  */
 #define CONFIG_KM_RESERVED_PRAM 0x801000
+/* address for the bootcount (taken from end of RAM) */
+#define BOOTCOUNT_ADDR          (CONFIG_KM_RESERVED_PRAM)
 
 #endif /* _CONFIG_KM_ARM_H */

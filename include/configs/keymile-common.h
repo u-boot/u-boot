@@ -40,13 +40,6 @@
 #endif /* CONFIG_SYS_KWD_CONFIG */
 
 /*
- * CONFIG_SYS_TEXT_BASE can be defined in board specific header file, if needed
- */
-#ifndef CONFIG_SYS_TEXT_BASE
-#define	CONFIG_SYS_TEXT_BASE	0x00400000
-#endif /* CONFIG_SYS_TEXT_BASE */
-
-/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
@@ -144,28 +137,16 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_CONCAT
 
-/* define this to use the keymile's io muxing feature */
-/*#define CONFIG_IO_MUXING */
-
-#ifdef CONFIG_IO_MUXING
-#define	CONFIG_KM_DEF_ENV_IOMUX \
-	"nc=setenv ethact HDLC \0" \
-	"nce=setenv ethact SCC \0"	\
-	"stderr=serial,nc \0"	\
-	"stdin=serial,nc \0" \
-	"stdout=serial,nc \0" \
-	"tftpsrcp=69 \0" \
-	"tftpdstp=69 \0"
-#else
 #define	CONFIG_KM_DEF_ENV_IOMUX \
 	"stderr=serial \0" \
 	"stdin=serial \0"	 \
 	"stdout=serial \0"
-#endif
 
-#ifndef CONFIG_KM_DEF_ENV_PRIVATE
-#define	CONFIG_KM_DEF_ENV_PRIVATE \
-	"kmprivate=empty\0"
+/* common powerpc specific env settings */
+#ifndef CONFIG_KM_DEF_ENV_BOOTPARAMS
+#define CONFIG_KM_DEF_ENV_BOOTPARAMS \
+	"bootparams=empty\0"	\
+	"initial_boot_bank=0\0"
 #endif
 
 #ifndef CONFIG_KM_DEF_NETDEV
@@ -184,17 +165,116 @@
 #define str(s)	#s
 
 /*
+ * bootrunner
+ * - run all commands in 'subbootcmds'
+ * - on error, stop running the remaing commands
+ */
+#define CONFIG_KM_DEF_ENV_BOOTRUNNER					\
+	"bootrunner="							\
+		"break=0; "						\
+		"for subbootcmd in ${subbootcmds}; do "			\
+		"if test ${break} -eq 0; then; "			\
+		"echo \"[INFO] running \\c\"; "				\
+		"print ${subbootcmd}; "					\
+		"run ${subbootcmd} || break=1; "			\
+		"if test ${break} -eq 1; then; "			\
+		"echo \"[ERR] failed \\c\"; "				\
+		"print ${subbootcmd}; "					\
+		"fi; "							\
+		"fi; "							\
+		"done\0"						\
+	""
+
+/*
+ * boottargets
+ * - set 'subbootcmds' for the bootrunner
+ * - set 'bootcmd' and 'altbootcmd'
+ * available targets:
+ * - 'release': for a standalone system		kernel/rootfs from flash
+ * - 'develop': for development			kernel(tftp)/rootfs(NFS)
+ * - 'ramfs': rootfilesystem in RAM		kernel(tftp)/rootfs(RAM)
+ *
+ * - 'commonargs': bootargs common to all targets
+ */
+#define CONFIG_KM_DEF_ENV_BOOTTARGETS					\
+	"commonargs="							\
+		"addip "						\
+		"addtty "						\
+		"addmem "						\
+		"addinit "						\
+		"addvar "						\
+		"addmtdparts "						\
+		"addbootcount "						\
+		"\0"							\
+	"develop="							\
+		"setenv subbootcmds \""					\
+		"tftpfdt tftpkernel "					\
+		"nfsargs ${commonargs} "				\
+		"printbootargs boot "					\
+		"\" && "						\
+		"setenv bootcmd \'"					\
+		"run bootrunner"					\
+		"\' && "						\
+		"setenv altbootcmd \'"					\
+		"run bootcmd"						\
+		"\' && "						\
+		"run setboardid && "					\
+		"saveenv && "						\
+		"reset\0"						\
+	"ramfs="							\
+		"setenv actual_bank -1 && "				\
+		"setenv subbootcmds \""					\
+		"tftpfdt tftpkernel "					\
+		"setrootfsaddr tftpramfs "				\
+		"flashargs ${commonargs} "				\
+		"addpanic addramfs "					\
+		"printbootargs boot "					\
+		"\" && "						\
+		"setenv bootcmd \'"					\
+		"run bootrunner"					\
+		"\' && "						\
+		"setenv altbootcmd \'"					\
+		"run bootcmd"						\
+		"\' && "						\
+		"run setboardid && "					\
+		"run setramfspram && "					\
+		"saveenv && "						\
+		"reset\0"						\
+	"release="							\
+		"setenv actual_bank ${initial_boot_bank} && "		\
+		"setenv subbootcmds \""					\
+		"checkboardid "						\
+		"ubiattach ubicopy "					\
+		"cramfsloadfdt cramfsloadkernel "			\
+		"flashargs ${commonargs} "				\
+		"addpanic "						\
+		"printbootargs boot "					\
+		"\" && "						\
+		"setenv bootcmd \'"					\
+		"run bootrunner; reset"					\
+		"\' && "						\
+		"setenv altbootcmd \'"					\
+		"run actual0 bootcmd; reset"				\
+		"\' && "						\
+		"saveenv && "						\
+		"reset\0"						\
+	""
+
+/*
  * bootargs
  * - modify 'bootargs'
  *
  * - 'addip': add ip configuration
+ * - 'addmem': limit kernel memory mem=
  * - 'addpanic': add kernel panic options
  * - 'addramfs': add phram device for the rootfilesysten in ram
  * - 'addtty': add console=...
+ * - 'addvar': add phram device for /var
  * - 'nfsargs': default arguments for nfs boot
  * - 'flashargs': defaults arguments for flash base boot
  *
  * processor specific settings
+ * - 'addbootcount': add boot counter
  * - 'addmtdparts': add mtd partition information
  */
 #define CONFIG_KM_DEF_ENV_BOOTARGS					\
@@ -204,6 +284,8 @@
 		"setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off\0"				\
+	"addmem="							\
+		"setenv bootargs ${bootargs} mem=0x${pnvramaddr}\0"	\
 	"addpanic="							\
 		"setenv bootargs ${bootargs} "				\
 		"panic=1 panic_on_oops=1\0"				\
@@ -214,6 +296,9 @@
 	"addtty="							\
 		"setenv bootargs ${bootargs}"				\
 		" console=" CONFIG_KM_CONSOLE_TTY ",${baudrate}\0"	\
+	"addvar="							\
+		"setenv bootargs ${bootargs} phram.phram=phvar,"	\
+		"${varaddr},0x" xstr(CONFIG_KM_PHRAM) "\0"		\
 	"nfsargs="							\
 		"setenv bootargs "					\
 		"ubi.mtd=" CONFIG_KM_UBI_LINUX_MTD_NAME " "		\
@@ -226,6 +311,14 @@
 		"rootfstype=squashfs ro\0"				\
 	""
 
+/*
+ * compute_addr
+ * - compute addresses and sizes
+ * - addresses are calculated form the end of memory 'memsize'
+ *
+ * - 'setramfspram': compute PRAM size for ramfs target
+ * - 'setrootfsaddr': compute rootfilesystem address for phram
+ */
 #define CONFIG_KM_DEF_ENV_COMPUTE_ADDR					\
 	"setboardid="							\
 		"if test \"x${boardId}\" = \"x\"; then; "		\
@@ -233,7 +326,15 @@
 		"setenv hwKey ${IVM_HWKey}; "				\
 		"else; "						\
 		"echo \\\\c; "						\
-		"fi\0"
+		"fi\0"							\
+	"setramfspram="							\
+		"setexpr value ${rootfssize} / 0x400 && "		\
+		"setexpr value 0x${value} + ${pram} && "		\
+		"setenv pram 0x${value}\0"				\
+	"setrootfsaddr="						\
+		"setexpr value ${pnvramaddr} - ${rootfssize} && "	\
+		"setenv rootfsaddr 0x${value}\0"			\
+	""
 
 /*
  * flash_boot
@@ -264,6 +365,7 @@
  * - commands for booting over the network
  *
  * - 'tftpkernel': load a kernel with tftp into ram
+ * - 'tftpramfs': load rootfs with tftp into ram
  *
  * processor specific settings
  * - 'tftpfdt': load fdt with tftp into ram
@@ -271,7 +373,11 @@
 #define CONFIG_KM_DEF_ENV_NET_BOOT					\
 	"tftpkernel="							\
 		"tftpboot ${kernel_addr_r} ${kernel_file} && "		\
-		"setenv actual_kernel_addr ${kernel_addr_r} \0"
+		"setenv actual_kernel_addr ${kernel_addr_r}\0"		\
+	"tftpramfs="							\
+		"tftpboot ${rootfsaddr} \"\\\"${rootfsfile}\\\"\" && "	\
+		"setenv loadaddr\0"					\
+	""
 
 /*
  * constants
@@ -294,14 +400,17 @@
 
 #ifndef CONFIG_KM_DEF_ENV
 #define CONFIG_KM_DEF_ENV	\
+	CONFIG_KM_DEF_ENV_BOOTPARAMS					\
 	CONFIG_KM_DEF_ENV_IOMUX						\
-	CONFIG_KM_DEF_ENV_PRIVATE					\
 	CONFIG_KM_DEF_NETDEV						\
 	CONFIG_KM_DEF_ENV_CPU						\
+	CONFIG_KM_DEF_ENV_BOOTRUNNER					\
+	CONFIG_KM_DEF_ENV_BOOTTARGETS					\
 	CONFIG_KM_DEF_ENV_BOOTARGS					\
 	CONFIG_KM_DEF_ENV_COMPUTE_ADDR					\
 	CONFIG_KM_DEF_ENV_FLASH_BOOT					\
 	CONFIG_KM_DEF_ENV_NET_BOOT					\
+	CONFIG_KM_DEF_ENV_CONSTANTS					\
 	"altbootcmd=run bootcmd\0"					\
 	"bootcmd=run default\0"						\
 	"bootlimit=2\0"							\
