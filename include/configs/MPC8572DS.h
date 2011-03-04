@@ -672,6 +672,20 @@
 #define CONFIG_CMD_EXT2
 #endif
 
+/*
+ * USB
+ */
+#define CONFIG_USB_EHCI
+
+#ifdef CONFIG_USB_EHCI
+#define CONFIG_CMD_USB
+#define CONFIG_USB_EHCI_PCI
+#define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+#define CONFIG_USB_STORAGE
+#define CONFIG_PCI_EHCI_DEVICE			0
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS	2
+#endif
+
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
 
 /*
