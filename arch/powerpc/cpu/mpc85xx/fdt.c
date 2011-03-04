@@ -635,4 +635,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	 */
 	do_fixup_by_compat_u32(blob, "fsl,gianfar-ptp-timer",
 			"timer-frequency", gd->bus_clk/2, 1);
+
+	do_fixup_by_compat_u32(blob, "fsl,flexcan-v1.0",
+			"clock_freq", gd->bus_clk, 1);
 }
