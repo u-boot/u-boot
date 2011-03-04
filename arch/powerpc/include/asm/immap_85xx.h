@@ -1937,7 +1937,17 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR_QE10		0x00000020
 #define MPC85xx_PMUXCR_QE11		0x00000010
 #define MPC85xx_PMUXCR_QE12		0x00000008
+#if defined(CONFIG_P1013) || defined(CONFIG_P1022)
+#define MPC85xx_PMUXCR_TDM_MASK		0x0001cc00
+#define MPC85xx_PMUXCR_TDM		0x00014800
+#define MPC85xx_PMUXCR_SPI_MASK		0x00600000
+#define MPC85xx_PMUXCR_SPI		0x00000000
+#endif
 	u32	pmuxcr2;	/* Alt. function signal multiplex control 2 */
+#if defined(CONFIG_P1013) || defined(CONFIG_P1022)
+#define MPC85xx_PMUXCR2_ETSECUSB_MASK	0x001f1000
+#define MPC85xx_PMUXCR2_USB		0x00150000
+#endif
 	u8	res6[8];
 	u32	devdisr;	/* Device disable control */
 #define MPC85xx_DEVDISR_PCI1		0x80000000
