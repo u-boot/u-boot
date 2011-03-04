@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -288,7 +288,7 @@ static void plat_mp_up(unsigned long bootpg)
 	 * unusable for normal operation but it does allow OSes to easily
 	 * reset a processor core to put it back into U-Boot's spinloop.
 	 */
-	clrbits_be32(&ecm->bptr, 0x80000000);
+	clrbits_be32(&ccm->bstrar, LAW_EN);
 #endif
 }
 #else
