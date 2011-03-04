@@ -137,11 +137,6 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_CONCAT
 
-#define	CONFIG_KM_DEF_ENV_IOMUX \
-	"stderr=serial \0" \
-	"stdin=serial \0"	 \
-	"stdout=serial \0"
-
 /* common powerpc specific env settings */
 #ifndef CONFIG_KM_DEF_ENV_BOOTPARAMS
 #define CONFIG_KM_DEF_ENV_BOOTPARAMS \
@@ -428,7 +423,6 @@
 #ifndef CONFIG_KM_DEF_ENV
 #define CONFIG_KM_DEF_ENV	\
 	CONFIG_KM_DEF_ENV_BOOTPARAMS					\
-	CONFIG_KM_DEF_ENV_IOMUX						\
 	CONFIG_KM_DEF_NETDEV						\
 	CONFIG_KM_DEF_ENV_CPU						\
 	CONFIG_KM_DEF_ENV_BOOTRUNNER					\
@@ -448,6 +442,9 @@
 	"load=tftpboot ${u-boot_addr_r} ${u-boot}\0"			\
 	"mtdids=" MTDIDS_DEFAULT "\0"					\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"stderr=serial\0"						\
+	"stdin=serial\0"						\
+	"stdout=serial\0"						\
 	"u-boot="xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"			\
 	"u-boot_addr_r="xstr(CONFIG_KM_KERNEL_ADDR) "\0"		\
 	""
