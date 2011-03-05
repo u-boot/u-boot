@@ -648,7 +648,7 @@ int	sprintf(char * buf, const char *fmt, ...)
 int	vsprintf(char *buf, const char *fmt, va_list args);
 
 /* lib/strmhz.c */
-char *	strmhz(char *buf, long hz);
+char *	strmhz(char *buf, unsigned long hz);
 
 /* lib/crc32.c */
 #include <u-boot/crc.h>
