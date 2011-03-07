@@ -80,27 +80,11 @@ static void bfin_reset(void)
  * PC relative call with a 25 bit immediate.  This is not enough
  * to get us from the top of SDRAM into L1.
  */
-__attribute__ ((__noreturn__))
-static inline void bfin_reset_trampoline(void)
+int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	if (board_reset)
 		board_reset();
 	while (1)
 		asm("jump (%0);" : : "a" (bfin_reset));
-}
-
-__attribute__ ((__noreturn__))
-void bfin_reset_or_hang(void)
-{
-#ifdef CONFIG_PANIC_HANG
-	hang();
-#else
-	bfin_reset_trampoline();
-#endif
-}
-
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	bfin_reset_trampoline();
 	return 0;
 }
