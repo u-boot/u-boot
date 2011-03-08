@@ -40,6 +40,9 @@
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
 
+static void i2c_write_start_seq(void);
+static int i2c_make_abort(void);
+
 int ivm_calc_crc(unsigned char *buf, int len)
 {
 	const unsigned short crc_tab[16] = {
@@ -329,8 +332,11 @@ int ivm_read_eeprom(void)
 	if (buf != NULL)
 		dev_addr = simple_strtoul((char *)buf, NULL, 16);
 
+	/* add deblocking here */
+	i2c_make_abort();
+
 	ret = i2c_read(dev_addr, 0, 1, i2c_buffer,
-			CONFIG_SYS_IVM_EEPROM_MAX_LEN);
+		CONFIG_SYS_IVM_EEPROM_MAX_LEN);
 	if (ret != 0) {
 		printf ("Error reading EEprom\n");
 		return -2;
@@ -340,7 +346,7 @@ int ivm_read_eeprom(void)
 }
 
 #if defined(CONFIG_SYS_I2C_INIT_BOARD)
-#define DELAY_ABORT_SEQ		62
+#define DELAY_ABORT_SEQ		62  /* @200kHz 9 clocks = 44us, 62us is ok */
 #define DELAY_HALF_PERIOD	(500 / (CONFIG_SYS_I2C_SPEED / 1000))
 
 #if defined(CONFIG_MGCOGE) || defined(CONFIG_MGCOGE2NE)
@@ -404,7 +410,7 @@ static void setports(int gpio)
 #endif
 
 #if !defined(CONFIG_MPC83xx)
-static void writeStartSeq(void)
+static void i2c_write_start_seq(void)
 {
 	set_sda(1);
 	udelay(DELAY_HALF_PERIOD);
@@ -426,6 +432,21 @@ static void writeStartSeq(void)
  */
 static int i2c_make_abort(void)
 {
+
+#if defined(CONFIG_HARD_I2C) && !defined(MACH_TYPE_KM_KIRKWOOD)
+	immap_t *immap = (immap_t *)CONFIG_SYS_IMMR ;
+	i2c8260_t *i2c	= (i2c8260_t *)&immap->im_i2c;
+
+	/*
+	 * disable I2C controller first, otherwhise it thinks we want to
+	 * talk to the slave port...
+	 */
+	clrbits_8(&i2c->i2c_i2mod, 0x01);
+
+	/* Set the PortPins to GPIO */
+	setports(1);
+#endif
+
 	int	scl_state = 0;
 	int	sda_state = 0;
 	int	i = 0;
@@ -449,57 +470,93 @@ static int i2c_make_abort(void)
 	}
 	if (ret == 0)
 		for (i = 0; i < 5; i++)
-			writeStartSeq();
+			i2c_write_start_seq();
 
+	/* respect stop setup time */
+	udelay(DELAY_ABORT_SEQ);
+	set_scl(1);
+	udelay(DELAY_ABORT_SEQ);
+	set_sda(1);
 	get_sda();
-	return ret;
-}
-#endif
-
-/*
- * i2c_init_board - reset i2c bus. When the board is powercycled during a
- * bus transfer it might hang; for details see doc/I2C_Edge_Conditions.
- */
-void i2c_init_board(void)
-{
-#if defined(CONFIG_MPC83xx)
-	struct fsl_i2c *dev;
-	dev = (struct fsl_i2c *) (CONFIG_SYS_IMMR + CONFIG_SYS_I2C_OFFSET);
-	uchar	dummy;
-
-	out_8(&dev->cr, (I2C_CR_MSTA));
-	out_8(&dev->cr, (I2C_CR_MEN | I2C_CR_MSTA));
-	dummy = in_8(&dev->dr);
-	dummy = in_8(&dev->dr);
-	if (dummy != 0xff) {
-		dummy = in_8(&dev->dr);
-	}
-	out_8(&dev->cr, (I2C_CR_MEN));
-	out_8(&dev->cr, 0x00);
-	out_8(&dev->cr, (I2C_CR_MEN));
-#else
-#if defined(CONFIG_HARD_I2C) && !defined(MACH_TYPE_KM_KIRKWOOD)
-	immap_t *immap = (immap_t *)CONFIG_SYS_IMMR ;
-	i2c8260_t *i2c	= (i2c8260_t *)&immap->im_i2c;
-
-	/*
-	 * disable I2C controller first, otherwhise it thinks we want to
-	 * talk to the slave port...
-	 */
-	clrbits_8(&i2c->i2c_i2mod, 0x01);
-
-	/* Set the PortPins to GPIO */
-	setports(1);
-#endif
-
-	/* Now run the AbortSequence() */
-	i2c_make_abort();
 
 #if defined(CONFIG_HARD_I2C)
 	/* Set the PortPins back to use for I2C */
 	setports(0);
 #endif
+	return ret;
+}
 #endif
+
+#if defined(CONFIG_MPC83xx)
+static void i2c_write_start_seq(void)
+{
+	struct fsl_i2c *dev;
+	dev = (struct fsl_i2c *) (CONFIG_SYS_IMMR + CONFIG_SYS_I2C_OFFSET);
+	udelay(DELAY_ABORT_SEQ);
+	out_8(&dev->cr, (I2C_CR_MEN | I2C_CR_MSTA));
+	udelay(DELAY_ABORT_SEQ);
+	out_8(&dev->cr, (I2C_CR_MEN));
+}
+
+static int i2c_make_abort(void)
+{
+	struct fsl_i2c *dev;
+	dev = (struct fsl_i2c *) (CONFIG_SYS_IMMR + CONFIG_SYS_I2C_OFFSET);
+	uchar	dummy;
+	uchar   last;
+	int     nbr_read = 0;
+	int     i = 0;
+	int	    ret = 0;
+
+	/* wait after each operation to finsh with a delay */
+	out_8(&dev->cr, (I2C_CR_MSTA));
+	udelay(DELAY_ABORT_SEQ);
+	out_8(&dev->cr, (I2C_CR_MEN | I2C_CR_MSTA));
+	udelay(DELAY_ABORT_SEQ);
+	dummy = in_8(&dev->dr);
+	udelay(DELAY_ABORT_SEQ);
+	last = in_8(&dev->dr);
+	nbr_read++;
+
+	/*
+	 * do read until the last bit is 1, but stop if the full eeprom is
+	 * read.
+	 */
+	while (((last & 0x01) != 0x01) &&
+		(nbr_read < CONFIG_SYS_IVM_EEPROM_MAX_LEN)) {
+		udelay(DELAY_ABORT_SEQ);
+		last = in_8(&dev->dr);
+		nbr_read++;
+	}
+	if ((last & 0x01) != 0x01)
+		ret = -2;
+	if ((last != 0xff) || (nbr_read > 1))
+		printf("[INFO] i2c abort after %d bytes (0x%02x)\n",
+			nbr_read, last);
+	udelay(DELAY_ABORT_SEQ);
+	out_8(&dev->cr, (I2C_CR_MEN));
+	udelay(DELAY_ABORT_SEQ);
+	/* clear status reg */
+	out_8(&dev->sr, 0);
+
+	for (i = 0; i < 5; i++)
+		i2c_write_start_seq();
+	if (ret != 0)
+		printf("[ERROR] i2c abort failed after %d bytes (0x%02x)\n",
+			nbr_read, last);
+
+	return ret;
+}
+#endif
+
+/**
+ * i2c_init_board - reset i2c bus. When the board is powercycled during a
+ * bus transfer it might hang; for details see doc/I2C_Edge_Conditions.
+ */
+void i2c_init_board(void)
+{
+	/* Now run the AbortSequence() */
+	i2c_make_abort();
 }
 #endif
 #endif
