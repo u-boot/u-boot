@@ -226,7 +226,7 @@ static int emaclite_send (struct eth_device *dev, volatile void *ptr, int len)
 		out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET +
 		XEL_BUFFER_OFFSET, 0);
 #endif
-		return 0;
+		return -1;
 	}
 
 	/* Determine the expected TX buffer address */
@@ -252,7 +252,7 @@ static int emaclite_send (struct eth_device *dev, volatile void *ptr, int len)
 			reg |= XEL_TSR_XMIT_ACTIVE_MASK;
 		}
 		out_be32 (baseaddress + XEL_TSR_OFFSET, reg);
-		return 1;
+		return 0;
 	}
 #ifdef CONFIG_XILINX_EMACLITE_TX_PING_PONG
 	/* Switch to second buffer */
@@ -273,11 +273,11 @@ static int emaclite_send (struct eth_device *dev, volatile void *ptr, int len)
 			reg |= XEL_TSR_XMIT_ACTIVE_MASK;
 		}
 		out_be32 (baseaddress + XEL_TSR_OFFSET, reg);
-		return 1;
+		return 0;
 	}
 #endif
 	puts ("Error while sending frame\n");
-	return 0;
+	return -1;
 }
 
 static int emaclite_recv(struct eth_device *dev)
@@ -337,7 +337,7 @@ static int emaclite_recv(struct eth_device *dev)
 
 	debug ("Packet receive from 0x%x, length %dB\n", baseaddress, length);
 	NetReceive ((uchar *) etherrxbuff, length);
-	return 1;
+	return length;
 
 }
 
@@ -347,7 +347,7 @@ int xilinx_emaclite_initialize (bd_t *bis, int base_addr)
 
 	dev = malloc(sizeof(*dev));
 	if (dev == NULL)
-		hang();
+		return -1;
 
 	memset(dev, 0, sizeof(*dev));
 	sprintf(dev->name, "Xilinx_Emaclite");
@@ -361,5 +361,5 @@ int xilinx_emaclite_initialize (bd_t *bis, int base_addr)
 
 	eth_register(dev);
 
-	return 0;
+	return 1;
 }
