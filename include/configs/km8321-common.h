@@ -33,9 +33,6 @@
 #define CONFIG_MPC832x	/* MPC832x CPU specific */
 #define CONFIG_KM8321	/* Keymile PBEC8321 board specific */
 
-#define CONFIG_KM_DEF_NETDEV	\
-	"netdev=eth0\0"
-
 #define CONFIG_KM_DEF_ROOTPATH		\
 	"rootpath=/opt/eldk/ppc_8xx\0"
 
@@ -117,8 +114,8 @@
 
 #define CONFIG_SYS_DDR_TIMING_3	0x00000000
 
-#define CONFIG_SYS_PIGGY_BASE	0xE8000000
-#define	CONFIG_SYS_PIGGY_SIZE	128
+#define CONFIG_SYS_KMBEC_FPGA_BASE	0xE8000000
+#define	CONFIG_SYS_KMBEC_FPGA_SIZE	128
 
 /* EEprom support */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1

@@ -134,7 +134,8 @@ const uint upma_table[] = {
 
 int board_early_init_r(void)
 {
-	struct km_bec_fpga *base = (struct km_bec_fpga *)CONFIG_SYS_PIGGY_BASE;
+	struct km_bec_fpga *base =
+		(struct km_bec_fpga *)CONFIG_SYS_KMBEC_FPGA_BASE;
 #if defined(CONFIG_SUVD3)
 	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
 	fsl_lbc_t *lbc = &immap->im_lbc;

@@ -562,7 +562,8 @@ int fdt_get_node_and_value(void *blob,
 #if !defined(MACH_TYPE_KM_KIRKWOOD)
 int ethernet_present(void)
 {
-	struct km_bec_fpga *base = (struct km_bec_fpga *)CONFIG_SYS_PIGGY_BASE;
+	struct km_bec_fpga *base =
+		(struct km_bec_fpga *)CONFIG_SYS_KMBEC_FPGA_BASE;
 
 	return in_8(&base->bprth) & PIGGY_PRESENT;
 }

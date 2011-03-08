@@ -102,7 +102,7 @@
  * driver to set the MAC.
 */
 #define CONFIG_CHECK_ETHERNET_PRESENT
-#define CONFIG_SYS_SLOT_ID_BASE		CONFIG_SYS_PIGGY_BASE
+#define CONFIG_SYS_SLOT_ID_BASE		CONFIG_SYS_KMBEC_FPGA_BASE
 #define CONFIG_SYS_SLOT_ID_OFF		(0x07)	/* register offset */
 #define CONFIG_SYS_SLOT_ID_MASK		(0x3f)	/* mask for slot ID bits */
 

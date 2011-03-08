@@ -318,7 +318,8 @@ int last_stage_init(void)
  */
 int board_early_init_r(void)
 {
-	struct km_bec_fpga *base = (struct km_bec_fpga *)CONFIG_SYS_PIGGY_BASE;
+	struct km_bec_fpga *base =
+		(struct km_bec_fpga *)CONFIG_SYS_KMBEC_FPGA_BASE;
 
 	/* setup the UPIOx */
 	/* General Unit Reset disabled, Flash Bank enabled, UnitLed on */
