@@ -117,6 +117,34 @@ int ethernet_present(void)
 	return ret;
 }
 
+int initialize_unit_leds(void)
+{
+	/*
+	 * init the unit LEDs
+	 * per default they all are
+	 * ok apart from bootstat
+	 * LED connected through BOCO
+	 * BOCO	lies at the address  0x10
+	 * LEDs are in the block CTRL_H	(addr 0x02)
+	 * BOOTSTAT LED is the first 0x01
+	 */
+	#define BOCO        0x10
+	#define CTRL_H      0x02
+	#define APPLEDMASK  0x01
+	uchar buf;
+
+	if (i2c_read(BOCO, CTRL_H, 1, &buf, 1) != 0) {
+		printf("%s: Error reading Boco\n", __func__);
+		return -1;
+	}
+	buf |= APPLEDMASK;
+	if (i2c_write(BOCO, CTRL_H, 1, &buf, 1) != 0) {
+		printf("%s: Error writing Boco\n", __func__);
+		return -1;
+	}
+	return 0;
+}
+
 int misc_init_r(void)
 {
 	char *str;
@@ -133,6 +161,9 @@ int misc_init_r(void)
 		printf("Overwriting MACH_TYPE with %d!!!\n", mach_type);
 		gd->bd->bi_arch_number = mach_type;
 	}
+
+	initialize_unit_leds();
+
 	return 0;
 }
 
@@ -239,7 +270,6 @@ void dram_init_banksize(void)
 
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		gd->bd->bi_dram[i].start = kw_sdram_bar(i);
-		gd->bd->bi_dram[i].size = kw_sdram_bs(i);
 		gd->bd->bi_dram[i].size = get_ram_size((long *)kw_sdram_bar(i),
 						       kw_sdram_bs(i));
 	}

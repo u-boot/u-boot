@@ -49,6 +49,7 @@
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
 
+#define CONFIG_SYS_TEXT_BASE	0x04000000	/* code address after reloc */
 #define CONFIG_ENV_SIZE		(128 << 10)	/* NAND chip block size	*/
 #define CONFIG_SYS_MEMTEST_START 0x00400000	/* 4M */
 #define CONFIG_SYS_MEMTEST_END	0x007fffff	/*(_8M -1) */
