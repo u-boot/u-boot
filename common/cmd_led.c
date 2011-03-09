@@ -83,7 +83,7 @@ int str_onoff (char *var)
 
 int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int state, i;
+	int state, i, match = 0;
 
 	/* Validate arguments */
 	if ((argc != 3)) {
@@ -98,6 +98,7 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	for (i = 0; led_commands[i].string; i++) {
 		if ((strcmp("all", argv[1]) == 0) ||
 		    (strcmp(led_commands[i].string, argv[1]) == 0)) {
+		    	match = 1;
 			if (led_commands[i].on) {
 				if (state) {
 					led_commands[i].on();
@@ -112,7 +113,7 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	/* If we ran out of matches, print Usage */
-	if (!led_commands[i].string && !(strcmp("all", argv[1]) == 0)) {
+	if (!match) {
 		return cmd_usage(cmdtp);
 	}
 
