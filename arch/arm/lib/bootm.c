@@ -64,6 +64,22 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 	if ((flag != 0) && (flag != BOOTM_STATE_OS_GO))
 		return 1;
 
+/* HACK BHILL FIXME */
+#if defined(CONFIG_OF_LIBFDT)
+	int ret;
+	char    *of_flat_tree = NULL;
+	ulong   of_size = 0;
+
+	/* find flattened device tree */
+	ret = boot_get_fdt (flag, argc, argv, images, &of_flat_tree, &of_size);
+	if (ret) {
+		printf("Error getting device tree: 0x%x\n", ret);
+		return 1;
+	} else {
+		printf("Using device tree at: 0x%08x\n", (unsigned)of_flat_tree);
+	}
+#endif
+
 	theKernel = (void (*)(int, int, uint))images->ep;
 
 	s = getenv ("machid");
@@ -114,7 +130,11 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 
 	cleanup_before_linux ();
 
+#if defined(CONFIG_OF_LIBFDT)
+	theKernel (0, machid, of_flat_tree);
+#else
 	theKernel (0, machid, bd->bi_boot_params);
+#endif
 	/* does not return */
 
 	return 1;

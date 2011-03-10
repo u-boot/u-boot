@@ -13,6 +13,11 @@
 
 #include "../board/xilinx/dfe/xparameters.h"
 
+/*
+ * Open Firmware flat tree
+ */
+#define CONFIG_OF_LIBFDT                1
+
 /* Default environment */
 #define CONFIG_IPADDR   10.10.70.102
 #define CONFIG_ETHADDR  00:0a:35:00:01:22
