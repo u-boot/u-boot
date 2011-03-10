@@ -34,19 +34,13 @@
 
 #define MUX_DIV_SHIFT(x)	(x * 4)
 
-/* Interval mode(Auto Reload) of PWM Timer 4 */
-#define TCON4_AUTO_RELOAD	(1 << 22)
-/* Update TCNTB4 */
-#define TCON4_UPDATE		(1 << 21)
-/* start bit of PWM Timer 4 */
-#define TCON4_START		(1 << 20)
-
 #define TCON_OFFSET(x)		((x + 1) * (!!x) << 2)
 
 #define TCON_START(x)		(1 << TCON_OFFSET(x))
 #define TCON_UPDATE(x)		(1 << (TCON_OFFSET(x) + 1))
 #define TCON_INVERTER(x)	(1 << (TCON_OFFSET(x) + 2))
 #define TCON_AUTO_RELOAD(x)	(1 << (TCON_OFFSET(x) + 3))
+#define TCON4_AUTO_RELOAD	(1 << 22)
 
 #ifndef __ASSEMBLY__
 struct s5p_timer {
