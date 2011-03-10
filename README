@@ -2944,6 +2944,12 @@ Low Level (hardware related) configuration options:
 		that is executed before the actual U-Boot. E.g. when
 		compiling a NAND SPL.
 
+- CONFIG_USE_ARCH_MEMCPY
+  CONFIG_USE_ARCH_MEMSET
+		If these options are used a optimized version of memcpy/memset will
+		be used if available. These functions may be faster under some
+		conditions but may increase the binary size.
+
 Building the Software:
 ======================
 
