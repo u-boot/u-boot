@@ -190,10 +190,7 @@ void get_sys_info (sys_info_t * sysInfo)
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-		sysInfo->freqFMan[0] = sysInfo->freqSystemBus / 2;
-#if (CONFIG_SYS_NUM_FMAN) == 2
-		sysInfo->freqFMan[1] = sysInfo->freqSystemBus / 2;
-#endif
+		sysInfo->freqFMan[0] = sysInfo->freqSystemBus;
 #endif
 
 #endif /* CONFIG_FSL_CORENET */
