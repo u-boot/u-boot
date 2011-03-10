@@ -32,10 +32,22 @@
 #include <command.h>
 #include <asm/processor.h>
 #include <asm/io.h>
+#ifdef CONFIG_POST
+#include <post.h>
+#endif
 
 int interrupt_init_cpu(unsigned int *decrementer_count)
 {
 	ccsr_pic_t __iomem *pic = (void *)CONFIG_SYS_MPC8xxx_PIC_ADDR;
+
+#ifdef CONFIG_POST
+	/*
+	 * The POST word is stored in the PIC's TFRR register which gets
+	 * cleared when the PIC is reset.  Save it off so we can restore it
+	 * later.
+	 */
+	ulong post_word = post_word_load();
+#endif
 
 	out_be32(&pic->gcr, MPC85xx_PICGCR_RST);
 	while (in_be32(&pic->gcr) & MPC85xx_PICGCR_RST)
@@ -76,6 +88,10 @@ int interrupt_init_cpu(unsigned int *decrementer_count)
 #endif
 
 	pic->ctpr=0;		/* 40080 clear current task priority register */
+#endif
+
+#ifdef CONFIG_POST
+	post_word_store(post_word);
 #endif
 
 	return (0);

@@ -35,11 +35,23 @@
 #include <mpc86xx.h>
 #include <command.h>
 #include <asm/processor.h>
+#ifdef CONFIG_POST
+#include <post.h>
+#endif
 
 int interrupt_init_cpu(unsigned long *decrementer_count)
 {
 	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
 	volatile ccsr_pic_t *pic = &immr->im_pic;
+
+#ifdef CONFIG_POST
+	/*
+	 * The POST word is stored in the PIC's TFRR register which gets
+	 * cleared when the PIC is reset.  Save it off so we can restore it
+	 * later.
+	 */
+	ulong post_word = post_word_load();
+#endif
 
 	pic->gcr = MPC86xx_PICGCR_RST;
 	while (pic->gcr & MPC86xx_PICGCR_RST)
@@ -72,6 +84,10 @@ int interrupt_init_cpu(unsigned long *decrementer_count)
 #endif
 
 	pic->ctpr = 0;	/* 40080 clear current task priority register */
+#endif
+
+#ifdef CONFIG_POST
+	post_word_store(post_word);
 #endif
 
 	return 0;
