@@ -70,6 +70,9 @@
 #define CONFIG_MMC		1
 #define CONFIG_S5P_MMC		1
 
+/* PWM */
+#define CONFIG_PWM			1
+
 /* It should define before config_cmd_default.h */
 #define CONFIG_SYS_NO_FLASH		1
 
