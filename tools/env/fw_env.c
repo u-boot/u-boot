@@ -1067,11 +1067,11 @@ static char *envmatch (char * s1, char * s2)
 int fw_env_open(void)
 {
 	int crc0, crc0_ok;
-	char flag0;
+	unsigned char flag0;
 	void *addr0;
 
 	int crc1, crc1_ok;
-	char flag1;
+	unsigned char flag1;
 	void *addr1;
 
 	struct env_image_single *single;
@@ -1185,14 +1185,13 @@ int fw_env_open(void)
 				}
 				break;
 			case FLAG_INCREMENTAL:
-				if ((flag0 == 255 && flag1 == 0) ||
-				    flag1 > flag0)
+				if (flag0 == 255 && flag1 == 0)
 					dev_current = 1;
 				else if ((flag1 == 255 && flag0 == 0) ||
-					 flag0 > flag1)
+					 flag0 >= flag1)
 					dev_current = 0;
-				else /* flags are equal - almost impossible */
-					dev_current = 0;
+				else /* flag1 > flag0 */
+					dev_current = 1;
 				break;
 			default:
 				fprintf (stderr, "Unknown flag scheme %u \n",
