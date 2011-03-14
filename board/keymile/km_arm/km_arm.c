@@ -173,7 +173,7 @@ int board_init(void)
 	/*
 	 * arch number of board
 	 */
-	gd->bd->bi_arch_number = MACH_TYPE_SUEN3;
+	gd->bd->bi_arch_number = MACH_TYPE_KM_KIRKWOOD;
 
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
