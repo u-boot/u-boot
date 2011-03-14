@@ -24,6 +24,8 @@
 #include <asm/errno.h>
 #include <asm/io.h>
 #include <mxc_gpio.h>
+#include <asm/arch/imx-regs.h>
+#include <asm/arch/clock.h>
 
 #ifdef CONFIG_MX27
 /* i.MX27 has a completely wrong register layout and register definitions in the
@@ -33,8 +35,6 @@
 "See linux mxc_spi driver from Freescale for details."
 
 #elif defined(CONFIG_MX31)
-
-#include <asm/arch/mx31.h>
 
 #define MXC_CSPICTRL_EN		(1 << 0)
 #define MXC_CSPICTRL_MODE	(1 << 1)
@@ -63,8 +63,6 @@ static unsigned long spi_bases[] = {
 #define mxc_get_clock(x)	mx31_get_ipg_clk()
 
 #elif defined(CONFIG_MX51)
-#include <asm/arch/imx-regs.h>
-#include <asm/arch/clock.h>
 
 #define MXC_CSPICTRL_EN		(1 << 0)
 #define MXC_CSPICTRL_MODE	(1 << 1)
@@ -96,9 +94,6 @@ static unsigned long spi_bases[] = {
 };
 
 #elif defined(CONFIG_MX35)
-
-#include <asm/arch/imx-regs.h>
-#include <asm/arch/clock.h>
 
 #define MXC_CSPICTRL_EN		(1 << 0)
 #define MXC_CSPICTRL_MODE	(1 << 1)

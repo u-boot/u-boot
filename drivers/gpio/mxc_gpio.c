@@ -21,12 +21,7 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
-#ifdef CONFIG_MX31
-#include <asm/arch/mx31-regs.h>
-#endif
-#if defined(CONFIG_MX51) || defined(CONFIG_MX53)
 #include <asm/arch/imx-regs.h>
-#endif
 #include <asm/io.h>
 #include <mxc_gpio.h>
 

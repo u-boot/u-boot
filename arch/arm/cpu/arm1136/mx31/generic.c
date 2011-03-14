@@ -22,7 +22,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/mx31-regs.h>
+#include <asm/arch/imx-regs.h>
 #include <asm/io.h>
 
 static u32 mx31_decode_pll(u32 reg, u32 infreq)

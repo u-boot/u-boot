@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ASM_ARCH_MX31_H
-#define __ASM_ARCH_MX31_H
+#ifndef __ASM_ARCH_CLOCK_H
+#define __ASM_ARCH_CLOCK_H
 
 extern u32 mx31_get_ipg_clk(void);
 #define imx_get_uartclk mx31_get_ipg_clk
@@ -32,4 +32,4 @@ extern void mx31_set_pad(enum iomux_pins pin, u32 config);
 void mx31_uart1_hw_init(void);
 void mx31_spi2_hw_init(void);
 
-#endif /* __ASM_ARCH_MX31_H */
+#endif /* __ASM_ARCH_CLOCK_H */

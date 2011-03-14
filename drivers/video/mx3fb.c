@@ -22,8 +22,8 @@
  */
 #include <common.h>
 #include <lcd.h>
-#include <asm/arch/mx31.h>
-#include <asm/arch/mx31-regs.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/imx-regs.h>
 #include <asm/errno.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -192,7 +192,7 @@ enum ipu_panel {
 };
 
 /* IPU Common registers */
-/* IPU_CONF and its bits already defined in mx31-regs.h */
+/* IPU_CONF and its bits already defined in imx-regs.h */
 #define IPU_CHA_BUF0_RDY	(0x04 + IPU_BASE)
 #define IPU_CHA_BUF1_RDY	(0x08 + IPU_BASE)
 #define IPU_CHA_DB_MODE_SEL	(0x0C + IPU_BASE)

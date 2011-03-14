@@ -22,7 +22,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/mx31-regs.h>
+#include <asm/arch/imx-regs.h>
 #include <div64.h>
 #include <watchdog.h>
 #include <asm/io.h>

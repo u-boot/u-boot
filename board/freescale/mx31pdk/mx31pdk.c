@@ -26,8 +26,8 @@
 
 #include <common.h>
 #include <netdev.h>
-#include <asm/arch/mx31.h>
-#include <asm/arch/mx31-regs.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/imx-regs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 

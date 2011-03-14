@@ -23,8 +23,8 @@
  */
 
 #include <common.h>
-#include <asm/arch/mx31.h>
-#include <asm/arch/mx31-regs.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/imx-regs.h>
 #include <mxc_gpio.h>
 #include <fpga.h>
 #include <lattice.h>

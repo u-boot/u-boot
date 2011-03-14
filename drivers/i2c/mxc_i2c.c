@@ -27,13 +27,8 @@
 
 #if defined(CONFIG_HARD_I2C)
 
-#if defined(CONFIG_MX31)
-#include <asm/arch/mx31.h>
-#include <asm/arch/mx31-regs.h>
-#else
-#include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
-#endif
+#include <asm/arch/imx-regs.h>
 
 #define IADR	0x00
 #define IFDR	0x04
