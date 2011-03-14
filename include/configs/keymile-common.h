@@ -27,8 +27,6 @@
 /* Do boardspecific init for all boards */
 #define CONFIG_BOARD_EARLY_INIT_R
 
-#define CONFIG_BOOTCOUNT_LIMIT
-
 /*
  * By default kwbimage.cfg from board specific folder is used
  * If for some board, different configuration file need to be used,
@@ -56,16 +54,15 @@
 #define CONFIG_CMD_IMMAP
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_PING
-#define CONFIG_CMD_DTT
 #define CONFIG_CMD_EEPROM
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_JFFS2
-#define CONFIG_JFFS2_CMDLINE
 #define CONFIG_CMD_MTDPARTS
+#define CONFIG_CMD_SETEXPR
 
 #undef	CONFIG_WATCHDOG		/* disable platform specific watchdog */
 
-#define CONFIG_BOOTDELAY	5 /* autoboot after 5 seconds */
+#define CONFIG_BOOTDELAY	2 /* autoboot after 2 seconds */
 #undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 /*
@@ -78,10 +75,10 @@
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #else
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
+#define CONFIG_SYS_CBSIZE		512	/* Console I/O Buffer Size  */
 #endif
 #define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
-#define CONFIG_SYS_MAXARGS		16
+#define CONFIG_SYS_MAXARGS		32 /* max number of command args */
 #define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 #define CONFIG_CMDLINE_EDITING
 #define CONFIG_AUTO_COMPLETE
@@ -138,8 +135,6 @@
 #define CONFIG_BOOTP_BOOTPATH
 #define CONFIG_BOOTP_GATEWAY
 #define CONFIG_BOOTP_HOSTNAME
-
-#define CONFIG_ENV_SIZE		0x04000 /* Size of Environment */
 
 #define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 

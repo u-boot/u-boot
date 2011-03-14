@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2007-2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -78,8 +78,7 @@
 #define CONFIG_8260_CLKIN	66000000	/* in Hz */
 #endif
 
-#define BOOTFLASH_START	FE000000
-#define CONFIG_PRAM	512	/* protected RAM [KBytes] */
+#define BOOTFLASH_START		0xFE000000
 
 #define MTDIDS_DEFAULT		"nor0=boot,nor1=app"
 #define MTDPARTS_DEFAULT	\
@@ -128,7 +127,7 @@
 #define CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_SYS_MONITOR_LEN		(384 << 10)
+#define CONFIG_SYS_MONITOR_LEN		(768 << 10)
 
 #define CONFIG_ENV_IS_IN_FLASH
 

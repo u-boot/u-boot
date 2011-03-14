@@ -8,7 +8,7 @@
  * Copyright (C) 2007 MontaVista Software, Inc.
  *                    Anton Vorontsov <avorontsov@ru.mvista.com>
  *
- * (C) Copyright 2008
+ * (C) Copyright 2008-2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
  * This program is free software; you can redistribute it and/or
@@ -171,7 +171,7 @@
 #undef	CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_SYS_MONITOR_LEN		(384 * 1024) /* Reserve for Mon */
+#define CONFIG_SYS_MONITOR_LEN		(768 * 1024) /* Reserve for Mon */
 
 /*
  * Initial RAM Base Address Setup
