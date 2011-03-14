@@ -37,6 +37,7 @@
 
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
+#include "km-powerpc.h"
 
 /*
  * Select serial console configuration
@@ -80,28 +81,28 @@
 
 #define BOOTFLASH_START		0xFE000000
 
-#define MTDIDS_DEFAULT		"nor0=boot,nor1=app"
-#define MTDPARTS_DEFAULT	\
-	"mtdparts=boot:384k(u-boot),128k(env),128k(envred),3456k(free);" \
-	"app:3m(esw0),10m(rootfs0),3m(esw1),10m(rootfs1),1m(var),5m(cfg)"
+#define CONFIG_KM_CONSOLE_TTY	"ttyCPM0"
 
-#ifndef CONFIG_KM_DEF_ENV		/* if not set by keymile-common.h */
-#define CONFIG_KM_DEF_ENV "km-common=empty\0"
-#endif
+#define MTDIDS_DEFAULT		"nor3=app"
+#define MTDPARTS_DEFAULT	"mtdparts="				\
+	"app:"								\
+		"768k(u-boot),"						\
+		"128k(env),"						\
+		"128k(envred),"						\
+		"3072k(free),"						\
+		"-(" CONFIG_KM_UBI_PARTITION_NAME ")"
+
 /*
  * Default environment settings
  */
-#define	CONFIG_EXTRA_ENV_SETTINGS	\
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
 	CONFIG_KM_DEF_ENV						\
-	"rootpath=/opt/eldk/ppc_82xx\0"					\
-	"addcon=setenv bootargs ${bootargs} "				\
-		"console=ttyCPM0,${baudrate}\0"				\
-	"mtdids=nor0=boot,nor1=app \0"					\
-	"partition=nor1,5 \0"						\
-	"new_env=prot off FE060000 FE09FFFF; era FE060000 FE09FFFF \0" 	\
 	"EEprom_ivm=pca9544a:70:4 \0"					\
-	"mtdparts=" MK_STR(MTDPARTS_DEFAULT) "\0"			\
 	"unlock=yes\0"							\
+	"newenv="							\
+		"prot off 0xFE0C0000 +0x40000 && "			\
+		"era 0xFE0C0000 +0x40000\0"				\
+	"rootpath=/opt/eldk/ppc_82xx\0"					\
 	""
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000

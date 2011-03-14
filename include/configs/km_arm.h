@@ -48,8 +48,29 @@
 
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
-#undef CONFIG_CMD_DTT
-#undef CONFIG_BOOTCOUNT_LIMIT
+
+#define CONFIG_ENV_SIZE		(128 << 10)	/* NAND chip block size	*/
+#define CONFIG_SYS_MEMTEST_START 0x00400000	/* 4M */
+#define CONFIG_SYS_MEMTEST_END	0x007fffff	/*(_8M -1) */
+#define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
+
+/* pseudo-non volatile RAM [hex] */
+#define CONFIG_KM_PNVRAM	0x80000
+/* physical RAM MTD size [hex] */
+#define CONFIG_KM_PHRAM		0x17F000
+
+#define CONFIG_KM_CRAMFS_ADDR	0x2400000
+#define CONFIG_KM_KERNEL_ADDR	0x2000000	/* 4096KBytes */
+
+#define CONFIG_KM_DEF_ENV_CPU						\
+	"addmtdparts=setenv bootargs ${bootargs} ${mtdparts}\0"		\
+	"boot=bootm ${actual_kernel_addr} - -\0"			\
+	"cramfsloadfdt=echo \\\\c\0"					\
+	"tftpfdt=echo \\\\c\0"						\
+	CONFIG_KM_DEF_ENV_UPDATE					\
+	""
+
+
 
 #define CONFIG_MD5	/* get_random_hex on krikwood needs MD5 support */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */

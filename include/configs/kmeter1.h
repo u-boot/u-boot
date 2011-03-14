@@ -29,16 +29,20 @@
 #define CONFIG_HOSTNAME		kmeter1
 
 #define	CONFIG_SYS_TEXT_BASE	0xF0000000
+#define CONFIG_KM_DEF_NETDEV	\
+	"netdev=eth2\0"		\
 
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
-
-#define CONFIG_KM_UBI_PARTITION_NAME	"ubi0"
+#include "km-powerpc.h"
 
 #define MTDIDS_DEFAULT		"nor0=boot"
-#define MTDPARTS_DEFAULT	\
-	"mtdparts=boot:768k(u-boot),128k(env),128k(envred),"	\
-	"-(" CONFIG_KM_UBI_PARTITION_NAME ")"
+#define MTDPARTS_DEFAULT	"mtdparts="			\
+	"boot:"							\
+		"768k(u-boot),"					\
+		"128k(env),"					\
+		"128k(envred),"					\
+		"-(" CONFIG_KM_UBI_PARTITION_NAME ")"
 
 #define CONFIG_MISC_INIT_R
 /*
@@ -455,7 +459,7 @@
 
 #define BOOTFLASH_START	F0000000
 
-#define CONFIG_PRAM	512	/* protected RAM [KBytes] */
+#define CONFIG_KM_CONSOLE_TTY	"ttyS0"
 
 /*
  * Environment Configuration
@@ -467,22 +471,14 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
        CONFIG_KM_DEF_ENV						\
-	"rootpath=/opt/eldk/ppc_82xx\0"					\
-	"addcon=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0"\
-	"ramdisk_file=/tftpboot/kmeter1/uRamdisk\0"			\
-	"loadram=tftp ${ramdisk_addr_r} ${ramdisk_file}\0"		\
-	"loadfdt=tftp ${fdt_addr_r} ${fdt_file}\0"			\
-	"loadkernel=tftp ${kernel_addr_r} ${bootfile}\0"		\
-	"unlock=yes\0"							\
-	"fdt_addr=F0080000\0"						\
-	"kernel_addr=F00a0000\0"					\
-	"ramdisk_addr=F03a0000\0"					\
-	"ramdisk_addr_r=F10000\0"					\
-	"EEprom_ivm=pca9547:70:9\0"					\
 	"dtt_bus=pca9547:70:a\0"					\
-	"mtdids=nor0=app \0"						\
-	"mtdparts=" MK_STR(MTDPARTS_DEFAULT) "\0"			\
-   ""
+	"EEprom_ivm=pca9547:70:9\0"					\
+	"newenv="							\
+		"prot off 0xF00C0000 +0x40000 && "			\
+		"era 0xF00C0000 +0x40000\0"				\
+	"rootpath=/opt/eldk/ppc_82xx\0"					\
+	"unlock=yes\0"							\
+	""
 
 #if defined(CONFIG_UEC_ETH)
 #define CONFIG_HAS_ETH0

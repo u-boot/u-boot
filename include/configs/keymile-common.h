@@ -86,10 +86,6 @@
 #define CONFIG_HUSH_INIT_VAR
 
 #define CONFIG_SYS_ALT_MEMTEST		/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00100000
-#define CONFIG_SYS_MEMTEST_END		0x00f00000 /* 1 ... 15 MB in DRAM */
-
-#define CONFIG_SYS_LOAD_ADDR		0x100000
 
 #define CONFIG_SYS_HZ			1000	/* decr. freq: 1 ms ticks */
 
@@ -142,7 +138,6 @@
 #define CONFIG_CMD_UBI
 #define CONFIG_RBTREE
 #define CONFIG_MTD_PARTITIONS
-#define CONFIG_FLASH_CFI_MTD
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_CONCAT
 
@@ -170,103 +165,152 @@
 	"kmprivate=empty\0"
 #endif
 
+#ifndef CONFIG_KM_DEF_NETDEV
+#define CONFIG_KM_DEF_NETDEV	\
+	"netdev=eth0\0"
+#endif
+
+#ifndef CONFIG_KM_UBI_PARTITION_NAME
+#define CONFIG_KM_UBI_PARTITION_NAME	"ubi0"
+#endif
+#ifndef CONFIG_KM_UBI_LINUX_MTD_NAME
+#define CONFIG_KM_UBI_LINUX_MTD_NAME	"ubi0"
+#endif
+
 #define xstr(s)	str(s)
 #define str(s)	#s
 
+/*
+ * bootargs
+ * - modify 'bootargs'
+ *
+ * - 'addip': add ip configuration
+ * - 'addpanic': add kernel panic options
+ * - 'addramfs': add phram device for the rootfilesysten in ram
+ * - 'addtty': add console=...
+ * - 'nfsargs': default arguments for nfs boot
+ * - 'flashargs': defaults arguments for flash base boot
+ *
+ * processor specific settings
+ * - 'addmtdparts': add mtd partition information
+ */
+#define CONFIG_KM_DEF_ENV_BOOTARGS					\
+	"addinit="							\
+		"setenv bootargs ${bootargs} init=${init}\0"		\
+	"addip="							\
+		"setenv bootargs ${bootargs} "				\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
+		":${hostname}:${netdev}:off\0"				\
+	"addpanic="							\
+		"setenv bootargs ${bootargs} "				\
+		"panic=1 panic_on_oops=1\0"				\
+	"addramfs="							\
+		"setenv bootargs \""					\
+		"${bootargs} phram.phram="				\
+		"rootfs${actual_bank},${rootfsaddr},${rootfssize}\"\0"	\
+	"addtty="							\
+		"setenv bootargs ${bootargs}"				\
+		" console=" CONFIG_KM_CONSOLE_TTY ",${baudrate}\0"	\
+	"nfsargs="							\
+		"setenv bootargs "					\
+		"ubi.mtd=" CONFIG_KM_UBI_LINUX_MTD_NAME " "		\
+		"root=/dev/nfs rw "					\
+		"nfsroot=${serverip}:${rootpath}\0"			\
+	"flashargs="							\
+		"setenv bootargs "					\
+		"ubi.mtd=" CONFIG_KM_UBI_LINUX_MTD_NAME " "		\
+		"root=mtdblock:rootfs${actual_bank} "			\
+		"rootfstype=squashfs ro\0"				\
+	""
+
+#define CONFIG_KM_DEF_ENV_COMPUTE_ADDR					\
+	"setboardid="							\
+		"if test \"x${boardId}\" = \"x\"; then; "		\
+		"setenv boardId ${IVM_BoardId} && "			\
+		"setenv hwKey ${IVM_HWKey}; "				\
+		"else; "						\
+		"echo \\\\c; "						\
+		"fi\0"
+
+/*
+ * flash_boot
+ * - commands for booting from flash
+ *
+ * - 'cramfsaddr': address to the cramfs (in ram)
+ * - 'cramfsloadkernel': copy kernel from a cramfs to ram
+ * - 'ubiattach': attach ubi partition
+ * - 'ubicopy': copy ubi volume to ram
+ *              - volume names: bootfs0, bootfs1, bootfs2, ...
+ * - 'ubiparition': mtd parition name for ubi
+ *
+ * processor specific settings
+ * - 'cramfsloadfdt': copy fdt from a cramfs to ram
+ */
+#define CONFIG_KM_DEF_ENV_FLASH_BOOT					\
+	"cramfsaddr="xstr(CONFIG_KM_CRAMFS_ADDR) "\0"			\
+	"cramfsloadkernel="						\
+		"cramfsload ${kernel_addr_r} uImage && "		\
+		"setenv actual_kernel_addr ${kernel_addr_r}\0"		\
+	"ubiattach=ubi part ${ubipartition}\0"				\
+	"ubicopy=ubi read ${cramfsaddr} bootfs${actual_bank}\0"		\
+	"ubipartition=" CONFIG_KM_UBI_PARTITION_NAME "\0"		\
+	""
+
+/*
+ * net_boot
+ * - commands for booting over the network
+ *
+ * - 'tftpkernel': load a kernel with tftp into ram
+ *
+ * processor specific settings
+ * - 'tftpfdt': load fdt with tftp into ram
+ */
+#define CONFIG_KM_DEF_ENV_NET_BOOT					\
+	"tftpkernel="							\
+		"tftpboot ${kernel_addr_r} ${kernel_file} && "		\
+		"setenv actual_kernel_addr ${kernel_addr_r} \0"
+
+/*
+ * constants
+ * - KM specific constants and commands
+ *
+ * - 'default': setup default environment
+ */
+#define CONFIG_KM_DEF_ENV_CONSTANTS					\
+	"actual=setenv actual_bank ${initial_boot_bank}\0"		\
+	"actual0=setenv actual_bank 0\0"				\
+	"actual_bank=${initial_boot_bank}\0"				\
+	"default="							\
+		"setenv default 'run newenv; reset' &&  "		\
+		"run release && saveenv; reset\0"			\
+	"checkboardid="							\
+		"test \"x${boardId}\" = \"x${IVM_BoardId}\"\0"		\
+	"printbootargs=print bootargs\0"				\
+	"rootfsfile="xstr(CONFIG_HOSTNAME) "/rootfsImage\0"		\
+	""
+
 #ifndef CONFIG_KM_DEF_ENV
 #define CONFIG_KM_DEF_ENV	\
-	"netdev=eth0\0"							\
-	"u-boot_addr_r=100000\0"					\
-	"kernel_addr_r=200000\0"					\
-	"fdt_addr_r=600000\0"						\
-	"ram_ws=800000 \0"						\
-	"script_ws=780000 \0"						\
-	"fdt_file=" xstr(CONFIG_HOSTNAME) "/" 				\
-		xstr(CONFIG_HOSTNAME) ".dtb\0"				\
-	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.bin \0" 		\
-	"kernel_file=" xstr(CONFIG_HOSTNAME) "/uImage \0" 		\
-	"load=tftp ${u-boot_addr_r} ${u-boot}\0"			\
-	"update=protect off " xstr(BOOTFLASH_START) " +${filesize};"	\
-		"erase " xstr(BOOTFLASH_START) "  +${filesize};"	\
-		"cp.b ${u-boot_addr_r} " xstr(BOOTFLASH_START) 		\
-		"  ${filesize};"					\
-		"protect on " xstr(BOOTFLASH_START) "  +${filesize}\0"	\
-	"load_fdt=tftp ${fdt_addr_r} ${fdt_file}; "			\
-		"setenv actual_fdt_addr ${fdt_addr_r} \0" 		\
-	"load_kernel=tftp ${kernel_addr_r} ${kernel_file}; " 		\
-		"setenv actual_kernel_addr ${kernel_addr_r} \0" 	\
-	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
-	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
-		"nfsroot=${serverip}:${rootpath}\0"			\
-	"mtdargs=setenv bootargs root=${actual_rootfs} rw "		\
-		"rootfstype=jffs2 \0" 					\
-	"altmtdargs=setenv bootargs root=${backup_rootfs} rw "		\
-		"rootfstype=jffs2 \0" 					\
-	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
-	"addip=setenv bootargs ${bootargs} "				\
-		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-		":${hostname}:${netdev}:off panic=1\0"			\
-	"addboardid=setenv bootargs ${bootargs} " 			\
-		"hwKey=${IVM_HWKey} boardId=0x${IVM_BoardId} \0" 	\
-	"addpram=setenv bootargs ${bootargs} "				\
-		"mem=${mem} pram=${pram}\0"				\
-	"pram=" xstr(CONFIG_PRAM) "k\0"					\
-	"net_nfs=tftp ${kernel_addr_r} ${kernel_file}; "		\
-		"tftp ${fdt_addr_r} ${fdt_file}; "			\
-		"run nfsargs addip addcon addboardid addpram;"		\
-		"bootm ${kernel_addr_r} - ${fdt_addr_r}\0"		\
-	"net_self=tftp ${kernel_addr_r} ${kernel_file}; "		\
-		"tftp ${fdt_addr_r} ${fdt_file}; "			\
-		"tftp ${ramdisk_addr} ${ramdisk_file}; "		\
-		"run ramargs addip addboardid addpram; "		\
-		"bootm ${kernel_addr_r} ${ramdisk_addr} ${fdt_addr_r}\0"\
-	"flash_nfs=run nfsargs addip addcon;"				\
-		"bootm ${kernel_addr} - ${fdt_addr}\0"			\
-	"flash_self=run ramargs addip addcon addboardid addpram;"	\
-		"bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
-	"bootcmd=run mtdargs addip addcon addboardid addpram; "		\
-		"bootm ${actual_kernel_addr} - ${actual_fdt_addr} \0"	\
-	"altbootcmd=run altmtdargs addip addcon addboardid addpram; "	\
-		"bootm ${backup_kernel_addr} - ${backup_fdt_addr} \0"	\
-	"actual0=setenv actual_bank 0; setenv actual_kernel_addr "	\
-		"${bank0_kernel_addr}; "				\
-		"setenv actual_fdt_addr ${bank0_fdt_addr}; "		\
-		"setenv actual_rootfs ${bank0_rootfs} \0" 		\
-	"actual1=setenv actual_bank 1; setenv actual_kernel_addr "	\
-		"${bank1_kernel_addr}; "				\
-		"setenv actual_fdt_addr ${bank1_fdt_addr}; "		\
-		"setenv actual_rootfs ${bank1_rootfs} \0" 		\
-	"backup0=setenv backup_bank 0; setenv backup_kernel_addr " 	\
-		"${bank0_kernel_addr}; "				\
-		"setenv backup_fdt_addr ${bank0_fdt_addr}; "		\
-		"setenv backup_rootfs ${bank0_rootfs} \0"		\
-	"backup1=setenv backup_bank 1; setenv backup_kernel_addr "	\
-		"${bank1_kernel_addr}; "				\
-		"setenv backup_fdt_addr ${bank1_fdt_addr}; " 		\
-		"setenv backup_rootfs ${bank1_rootfs} \0" 		\
-	"setbank0=run actual0 backup1 \0" 				\
-	"setbank1=run actual1 backup0 \0" 				\
-	"release=setenv bootcmd "					\
-		"\'run mtdargs addip addcon addboardid addpram;" 	\
-		"bootm ${actual_kernel_addr} - ${actual_fdt_addr} \'; "	\
-		"saveenv \0"						\
-	"develop=setenv bootcmd "					\
-		"\'run nfsargs addip addcon addboardid addpram;" 	\
-		"bootm ${actual_kernel_addr} - ${actual_fdt_addr} \'; "	\
-		"saveenv \0"						\
-	"developall=setenv bootcmd "					\
-		"\'run load_fdt load_kernel nfsargs "			\
-		"addip addcon addboardid addpram; "			\
-		"bootm ${actual_kernel_addr} - ${actual_fdt_addr} \'; "	\
-		"saveenv \0"						\
-	"set_new_esw_script=setenv new_esw_script "			\
-		"new_esw_0x${IVM_BoardId}_0x${IVM_HWKey}.scr \0"	\
-	"new_esw=run set_new_esw_script; "				\
-		"tftp ${script_ws} ${new_esw_script}; "			\
-		"iminfo ${script_ws}; source ${script_ws} \0"		\
-	"bootlimit=0 \0" 						\
 	CONFIG_KM_DEF_ENV_IOMUX						\
 	CONFIG_KM_DEF_ENV_PRIVATE					\
+	CONFIG_KM_DEF_NETDEV						\
+	CONFIG_KM_DEF_ENV_CPU						\
+	CONFIG_KM_DEF_ENV_BOOTARGS					\
+	CONFIG_KM_DEF_ENV_COMPUTE_ADDR					\
+	CONFIG_KM_DEF_ENV_FLASH_BOOT					\
+	CONFIG_KM_DEF_ENV_NET_BOOT					\
+	"altbootcmd=run bootcmd\0"					\
+	"bootcmd=run default\0"						\
+	"bootlimit=2\0"							\
+	"init=/sbin/init-overlay.sh\0"					\
+	"kernel_addr_r="xstr(CONFIG_KM_KERNEL_ADDR) "\0"		\
+	"kernel_file="xstr(CONFIG_HOSTNAME) "/uImage\0"			\
+	"kernel_name=uImage\0"						\
+	"load=tftpboot ${u-boot_addr_r} ${u-boot}\0"			\
+	"mtdids=" MTDIDS_DEFAULT "\0"					\
+	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
+	"u-boot="xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"			\
+	"u-boot_addr_r="xstr(CONFIG_KM_KERNEL_ADDR) "\0"		\
 	""
 #endif /* CONFIG_KM_DEF_ENV */
 
