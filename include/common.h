@@ -449,6 +449,11 @@ void		out16(unsigned int, unsigned short value);
 #if defined (CONFIG_MPC83xx)
 void		ppcDWload(unsigned int *addr, unsigned int *ret);
 void		ppcDWstore(unsigned int *addr, unsigned int *value);
+void disable_addr_trans(void);
+void enable_addr_trans(void);
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
+void ddr_enable_ecc(unsigned int dram_size);
+#endif
 #endif
 
 /* $(CPU)/cpu.c */
