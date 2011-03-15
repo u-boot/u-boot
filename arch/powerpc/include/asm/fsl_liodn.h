@@ -70,8 +70,8 @@ extern void fdt_fixup_liodn(void *blob);
 	SET_GUTS_LIODN("fsl,pq-sata-v2", liodn, sata##sataNum##liodnr,\
 		CONFIG_SYS_MPC85xx_SATA##sataNum##_OFFSET)
 
-#define SET_PCI_LIODN(pciNum, liodn) \
-	SET_GUTS_LIODN("fsl,p4080-pcie", liodn, pex##pciNum##liodnr,\
+#define SET_PCI_LIODN(compat, pciNum, liodn) \
+	SET_GUTS_LIODN(compat, liodn, pex##pciNum##liodnr,\
 		CONFIG_SYS_MPC85xx_PCIE##pciNum##_OFFSET)
 
 /* reg nodes for DMA start @ 0x300 */
