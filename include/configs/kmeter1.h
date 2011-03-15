@@ -23,11 +23,9 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_E300		1 /* E300 family */
-#define CONFIG_QE		1 /* Has QE */
-#define CONFIG_MPC83xx		1 /* MPC83xx family */
-#define CONFIG_MPC8360		1 /* MPC8360 CPU specific */
-#define CONFIG_KMETER1		1 /* KMETER1 board specific */
+#define CONFIG_QE		/* Has QE */
+#define CONFIG_MPC8360		/* MPC8360 CPU specific */
+#define CONFIG_KMETER1		/* KMETER1 board specific */
 #define CONFIG_HOSTNAME		kmeter1
 
 #define	CONFIG_SYS_TEXT_BASE	0xF0000000
@@ -42,7 +40,7 @@
 	"mtdparts=boot:768k(u-boot),128k(env),128k(envred),"	\
 	"-(" CONFIG_KM_UBI_PARTITION_NAME ")"
 
-#define CONFIG_MISC_INIT_R	1
+#define CONFIG_MISC_INIT_R
 /*
  * System Clock Setup
  */
@@ -114,8 +112,9 @@
 #define CONFIG_SYS_DDR_SIZE		2048 /* MB */
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000007f
 #define CONFIG_SYS_DDR_CS0_CONFIG	(CSCONFIG_EN | CSCONFIG_AP | \
-					 CSCONFIG_ROW_BIT_13 | \
-					 CSCONFIG_COL_BIT_10 | CSCONFIG_ODT_WR_ACS)
+					CSCONFIG_ROW_BIT_13 | \
+					CSCONFIG_COL_BIT_10 | \
+					CSCONFIG_ODT_WR_ACS)
 
 #define CONFIG_SYS_DDR_SDRAM_CFG	(SDRAM_CFG_SDRAM_TYPE_DDR2 | \
 					 SDRAM_CFG_SREN)
@@ -137,14 +136,14 @@
 				 (0 << TIMING_CFG0_WRT_SHIFT) | \
 				 (0 << TIMING_CFG0_RWT_SHIFT))
 
-#define CONFIG_SYS_DDR_TIMING_1	((      TIMING_CFG1_CASLAT_50) | \
-				 ( 2 << TIMING_CFG1_WRTORD_SHIFT) | \
-				 ( 2 << TIMING_CFG1_ACTTOACT_SHIFT) | \
-				 ( 3 << TIMING_CFG1_WRREC_SHIFT) | \
-				 ( 7 << TIMING_CFG1_REFREC_SHIFT) | \
-				 ( 3 << TIMING_CFG1_ACTTORW_SHIFT) | \
-				 ( 8 << TIMING_CFG1_ACTTOPRE_SHIFT) | \
-				 ( 3 << TIMING_CFG1_PRETOACT_SHIFT))
+#define CONFIG_SYS_DDR_TIMING_1	((TIMING_CFG1_CASLAT_50) | \
+				 (2 << TIMING_CFG1_WRTORD_SHIFT) | \
+				 (2 << TIMING_CFG1_ACTTOACT_SHIFT) | \
+				 (3 << TIMING_CFG1_WRREC_SHIFT) | \
+				 (7 << TIMING_CFG1_REFREC_SHIFT) | \
+				 (3 << TIMING_CFG1_ACTTORW_SHIFT) | \
+				 (8 << TIMING_CFG1_ACTTOPRE_SHIFT) | \
+				 (3 << TIMING_CFG1_PRETOACT_SHIFT))
 
 #define CONFIG_SYS_DDR_TIMING_2	((8 << TIMING_CFG2_FOUR_ACT_SHIFT) | \
 				 (3 << TIMING_CFG2_CKE_PLS_SHIFT) | \
@@ -172,7 +171,7 @@
 #undef	CONFIG_SYS_RAMBOOT
 #endif
 
-#define CONFIG_SYS_MONITOR_LEN		(384 * 1024) /* Reserve 384 kB for Mon */
+#define CONFIG_SYS_MONITOR_LEN		(384 * 1024) /* Reserve for Mon */
 
 /*
  * Initial RAM Base Address Setup
@@ -180,7 +179,8 @@
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xE6000000 /* Initial RAM address */
 #define CONFIG_SYS_INIT_RAM_SIZE	0x1000 /* Size of used area in RAM */
-#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
+					GENERATED_GBL_DATA_SIZE)
 
 /*
  * Local Bus Configuration & Clock Setup
@@ -208,7 +208,7 @@
 #define CONFIG_SYS_FLASH_PROTECTION	1
 #define CONFIG_SYS_FLASH_USE_BUFFER_WRITE	1
 
-#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE /* Window base at flash base */
+#define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_LBLAWAR0_PRELIM	0x8000001b /* 256MB window size */
 
 #define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE | \
@@ -220,8 +220,9 @@
 				OR_GPCM_SCY_5 | \
 				OR_GPCM_TRLX | OR_GPCM_EAD)
 
-#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of flash banks	*/
-#define CONFIG_SYS_MAX_FLASH_SECT	512	/* max num of sects on one chip */
+#define CONFIG_SYS_MAX_FLASH_BANKS	1	/* max num of flash banks */
+/* max num of sects on one chip */
+#define CONFIG_SYS_MAX_FLASH_SECT	512
 #define CONFIG_SYS_FLASH_BANKS_LIST { CONFIG_SYS_FLASH_BASE }
 
 #undef	CONFIG_SYS_FLASH_CHECKSUM
@@ -229,13 +230,13 @@
 /*
  * PRIO1/PIGGY on the local bus CS1
  */
-#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_PIGGY_BASE /* Window base at flash base */
+#define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_PIGGY_BASE
 #define CONFIG_SYS_LBLAWAR1_PRELIM	0x8000001A /* 128MB window size */
 
 #define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_PIGGY_BASE | \
 				(1 << BR_PS_SHIFT) | /* 8 bit port size */ \
 				BR_V)
-#define CONFIG_SYS_OR1_PRELIM		(MEG_TO_AM(CONFIG_SYS_PIGGY_SIZE) | /* 128MB */ \
+#define CONFIG_SYS_OR1_PRELIM	(MEG_TO_AM(CONFIG_SYS_PIGGY_SIZE) | \
 				OR_GPCM_CSNT | OR_GPCM_ACS_DIV2 | \
 				OR_GPCM_SCY_2 | \
 				OR_GPCM_TRLX | OR_GPCM_EAD)
@@ -243,7 +244,7 @@
 /*
  * PAXE on the local bus CS3
  */
-#define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_PAXE_BASE /* Window base at flash base */
+#define CONFIG_SYS_LBLAWBAR3_PRELIM	CONFIG_SYS_PAXE_BASE
 #define CONFIG_SYS_LBLAWAR3_PRELIM	0x8000001C /* 512MB window size */
 
 #define CONFIG_SYS_BR3_PRELIM	(CONFIG_SYS_PAXE_BASE | \
@@ -267,8 +268,8 @@
 #define CONFIG_SYS_NS16550_COM2	(CONFIG_SYS_IMMR+0x4600)
 
 /* Pass open firmware flat tree */
-#define CONFIG_OF_LIBFDT	1
-#define CONFIG_OF_BOARD_SETUP	1
+#define CONFIG_OF_LIBFDT
+#define CONFIG_OF_BOARD_SETUP
 #define CONFIG_OF_STDOUT_VIA_ALIAS
 
 /*
@@ -278,7 +279,7 @@
 #undef CONFIG_PCI		/* No PCI */
 
 #ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
+#define CONFIG_NET_MULTI
 #endif
 /*
  * QE UEC ethernet configuration
@@ -291,7 +292,7 @@
 
 #ifdef CONFIG_UEC_ETH1
 #define CONFIG_SYS_UEC1_UCC_NUM	3	/* UCC4 */
-#define CONFIG_SYS_UEC1_RX_CLK		QE_CLK_NONE	/* not used in RMII Mode */
+#define CONFIG_SYS_UEC1_RX_CLK		QE_CLK_NONE /* not used in RMII */
 #define CONFIG_SYS_UEC1_TX_CLK		QE_CLK17
 #define CONFIG_SYS_UEC1_ETH_TYPE	FAST_ETH
 #define CONFIG_SYS_UEC1_PHY_ADDR	0
@@ -305,17 +306,19 @@
 
 #ifndef CONFIG_SYS_RAMBOOT
 #define CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + \
+				CONFIG_SYS_MONITOR_LEN)
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K(one sector) for env */
 #define CONFIG_ENV_OFFSET	(CONFIG_SYS_MONITOR_LEN)
 
 /* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET+CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + \
+					CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	(CONFIG_ENV_SIZE)
 
 #else /* CFG_RAMBOOT */
-#define CONFIG_SYS_NO_FLASH		1	/* Flash is not usable now */
-#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
+#define CONFIG_SYS_NO_FLASH	/* Flash is not usable now */
+#define CONFIG_ENV_IS_NOWHERE	/* Store ENV in memory only */
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
 #define CONFIG_ENV_SIZE		0x2000
 #endif /* CFG_RAMBOOT */
@@ -333,9 +336,9 @@
 /* EEprom support */
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	2
 
-/* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
-#define CONFIG_DTT_LM75		1	/* ON Semi's LM75		*/
-#define CONFIG_DTT_SENSORS	{0, 1, 2, 3}	/* Sensor addresses		*/
+/* I2C SYSMON (LM75, AD7414 is almost compatible) */
+#define CONFIG_DTT_LM75		/* ON Semi's LM75 */
+#define CONFIG_DTT_SENSORS	{0, 1, 2, 3}	/* Sensor addresses */
 #define CONFIG_SYS_DTT_MAX_TEMP	70
 #define CONFIG_SYS_DTT_LOW_TEMP	-30
 #define CONFIG_SYS_DTT_HYSTERESIS	3
@@ -361,7 +364,7 @@
  * have to be in the first 256 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ		(256 << 20) /* Initial Memory map for Linux */
+#define CONFIG_SYS_BOOTMAPSZ		(256 << 20)
 
 /*
  * Core HID Setup
@@ -375,45 +378,54 @@
  * MMU Setup
  */
 
-#define CONFIG_HIGH_BATS	1	/* High BATs supported */
+#define CONFIG_HIGH_BATS	/* High BATs supported */
 
 /* DDR: cache cacheable */
 #define CONFIG_SYS_IBAT0L	(CONFIG_SYS_SDRAM_BASE | BATL_PP_10 | \
 				BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_IBAT0U	(CONFIG_SYS_SDRAM_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT0U	(CONFIG_SYS_SDRAM_BASE | BATU_BL_256M | \
+				BATU_VS | BATU_VP)
 #define CONFIG_SYS_DBAT0L	CONFIG_SYS_IBAT0L
 #define CONFIG_SYS_DBAT0U	CONFIG_SYS_IBAT0U
 
 /* IMMRBAR & PCI IO: cache-inhibit and guarded */
 #define CONFIG_SYS_IBAT1L	(CONFIG_SYS_IMMR | BATL_PP_10 | \
 				BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
-#define CONFIG_SYS_IBAT1U	(CONFIG_SYS_IMMR | BATU_BL_4M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT1U	(CONFIG_SYS_IMMR | BATU_BL_4M | BATU_VS | \
+				BATU_VP)
 #define CONFIG_SYS_DBAT1L	CONFIG_SYS_IBAT1L
 #define CONFIG_SYS_DBAT1U	CONFIG_SYS_IBAT1U
 
 /* PRIO1, PIGGY:  icache cacheable, but dcache-inhibit and guarded */
-#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_PIGGY_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT2U	(CONFIG_SYS_PIGGY_BASE | BATU_BL_128M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT2L	(CONFIG_SYS_PIGGY_BASE | BATL_PP_10 | \
+				BATL_MEMCOHERENCE)
+#define CONFIG_SYS_IBAT2U	(CONFIG_SYS_PIGGY_BASE | BATU_BL_128M | \
+				BATU_VS | BATU_VP)
 #define CONFIG_SYS_DBAT2L	(CONFIG_SYS_PIGGY_BASE | BATL_PP_10 | \
 				 BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT2U	CONFIG_SYS_IBAT2U
 
 /* FLASH: icache cacheable, but dcache-inhibit and guarded */
-#define CONFIG_SYS_IBAT3L	(CONFIG_SYS_FLASH_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT3U	(CONFIG_SYS_FLASH_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT3L	(CONFIG_SYS_FLASH_BASE | BATL_PP_10 | \
+				BATL_MEMCOHERENCE)
+#define CONFIG_SYS_IBAT3U	(CONFIG_SYS_FLASH_BASE | BATU_BL_256M | \
+				BATU_VS | BATU_VP)
 #define CONFIG_SYS_DBAT3L	(CONFIG_SYS_FLASH_BASE | BATL_PP_10 | \
 				 BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT3U	CONFIG_SYS_IBAT3U
 
 /* Stack in dcache: cacheable, no memory coherence */
 #define CONFIG_SYS_IBAT4L	(CONFIG_SYS_INIT_RAM_ADDR | BATL_PP_10)
-#define CONFIG_SYS_IBAT4U	(CONFIG_SYS_INIT_RAM_ADDR | BATU_BL_128K | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT4U	(CONFIG_SYS_INIT_RAM_ADDR | BATU_BL_128K | \
+				BATU_VS | BATU_VP)
 #define CONFIG_SYS_DBAT4L	CONFIG_SYS_IBAT4L
 #define CONFIG_SYS_DBAT4U	CONFIG_SYS_IBAT4U
 
 /* PAXE:  icache cacheable, but dcache-inhibit and guarded */
-#define CONFIG_SYS_IBAT5L	(CONFIG_SYS_PAXE_BASE | BATL_PP_10 | BATL_MEMCOHERENCE)
-#define CONFIG_SYS_IBAT5U	(CONFIG_SYS_PAXE_BASE | BATU_BL_256M | BATU_VS | BATU_VP)
+#define CONFIG_SYS_IBAT5L	(CONFIG_SYS_PAXE_BASE | BATL_PP_10 | \
+				BATL_MEMCOHERENCE)
+#define CONFIG_SYS_IBAT5U	(CONFIG_SYS_PAXE_BASE | BATU_BL_256M | \
+				BATU_VS | BATU_VP)
 #define CONFIG_SYS_DBAT5L	(CONFIG_SYS_PAXE_BASE | BATL_PP_10 | \
 				 BATL_CACHEINHIBIT | BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT5U	CONFIG_SYS_IBAT5U

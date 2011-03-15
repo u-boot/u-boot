@@ -6,6 +6,9 @@
  * (C) Copyright 2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
+ * (C) Copyright 2010-2011
+ * Heiko Schocher, DENX Software Engineering, hs@denx.de.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -25,7 +28,10 @@
  * MA 02110-1301 USA
  */
 
-/* for linking errors see http://lists.denx.de/pipermail/u-boot/2009-July/057350.html */
+/*
+ * for linking errors see
+ * http://lists.denx.de/pipermail/u-boot/2009-July/057350.html
+ */
 
 #ifndef _CONFIG_KM_ARM_H
 #define _CONFIG_KM_ARM_H

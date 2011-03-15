@@ -108,12 +108,12 @@ int ethernet_present(void)
 	int	ret = 0;
 
 	if (i2c_read(0x10, 2, 1, &buf, 1) != 0) {
-		printf ("%s: Error reading Boco\n", __FUNCTION__);
+		printf("%s: Error reading Boco\n", __func__);
 		return -1;
 	}
-	if ((buf & 0x40) == 0x40) {
+	if ((buf & 0x40) == 0x40)
 		ret = 1;
-	}
+
 	return ret;
 }
 
@@ -258,15 +258,15 @@ void reset_phy(void)
 }
 
 #if defined(CONFIG_HUSH_INIT_VAR)
-int hush_init_var (void)
+int hush_init_var(void)
 {
-	ivm_read_eeprom ();
+	ivm_read_eeprom();
 	return 0;
 }
 #endif
 
 #if defined(CONFIG_BOOTCOUNT_LIMIT)
-void bootcount_store (ulong a)
+void bootcount_store(ulong a)
 {
 	volatile ulong *save_addr;
 	volatile ulong size = 0;
@@ -279,7 +279,7 @@ void bootcount_store (ulong a)
 	writel(BOOTCOUNT_MAGIC, &save_addr[1]);
 }
 
-ulong bootcount_load (void)
+ulong bootcount_load(void)
 {
 	volatile ulong *save_addr;
 	volatile ulong size = 0;
@@ -296,31 +296,31 @@ ulong bootcount_load (void)
 #endif
 
 #if defined(CONFIG_SOFT_I2C)
-void set_sda (int state)
+void set_sda(int state)
 {
 	I2C_ACTIVE;
 	I2C_SDA(state);
 }
 
-void set_scl (int state)
+void set_scl(int state)
 {
 	I2C_SCL(state);
 }
 
-int get_sda (void)
+int get_sda(void)
 {
 	I2C_TRISTATE;
 	return I2C_READ;
 }
 
-int get_scl (void)
+int get_scl(void)
 {
 	return (kw_gpio_get_value(SUEN3_SCL_PIN) ? 1 : 0);
 }
 #endif
 
 #if defined(CONFIG_SYS_EEPROM_WREN)
-int eeprom_write_enable (unsigned dev_addr, int state)
+int eeprom_write_enable(unsigned dev_addr, int state)
 {
 	kw_gpio_set_value(SUEN3_ENV_WP, !state);
 

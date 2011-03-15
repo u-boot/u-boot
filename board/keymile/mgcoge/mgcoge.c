@@ -195,33 +195,30 @@ const iop_conf_t iop_conf_tab[4][32] = {
     }
 };
 
-/* Try SDRAM initialization with P/LSDMR=sdmr and ORx=orx
+/*
+ * Try SDRAM initialization with P/LSDMR=sdmr and ORx=orx
  *
  * This routine performs standard 8260 initialization sequence
  * and calculates the available memory size. It may be called
  * several times to try different SDRAM configurations on both
  * 60x and local buses.
  */
-static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
-						  ulong orx, volatile uchar * base)
+static long int try_init(memctl8260_t *memctl, ulong sdmr,
+				  ulong orx, uchar *base)
 {
-	volatile uchar c = 0xff;
-	volatile uint *sdmr_ptr;
-	volatile uint *orx_ptr;
+	uchar c = 0xff;
 	ulong maxsize, size;
 	int i;
 
-	/* We must be able to test a location outsize the maximum legal size
+	/*
+	 * We must be able to test a location outsize the maximum legal size
 	 * to find out THAT we are outside; but this address still has to be
 	 * mapped by the controller. That means, that the initial mapping has
 	 * to be (at least) twice as large as the maximum expected size.
 	 */
 	maxsize = (1 + (~orx | 0x7fff))/* / 2*/;
 
-	sdmr_ptr = &memctl->memc_psdmr;
-	orx_ptr = &memctl->memc_or1;
-
-	*orx_ptr = orx;
+	out_be32(&memctl->memc_or1, orx);
 
 	/*
 	 * Quote from 8260 UM (10.4.2 SDRAM Power-On Initialization, 10-35):
@@ -243,53 +240,54 @@ static long int try_init (volatile memctl8260_t * memctl, ulong sdmr,
 	 * get here. The SDRAM can be accessed at the address CONFIG_SYS_SDRAM_BASE.
 	 */
 
-	*sdmr_ptr = sdmr | PSDMR_OP_PREA;
-	*base = c;
+	out_be32(&memctl->memc_psdmr, sdmr | PSDMR_OP_PREA);
+	out_8(base, c);
 
-	*sdmr_ptr = sdmr | PSDMR_OP_CBRR;
+	out_be32(&memctl->memc_psdmr, sdmr | PSDMR_OP_CBRR);
 	for (i = 0; i < 8; i++)
-		*base = c;
+		out_8(base, c);
 
-	*sdmr_ptr = sdmr | PSDMR_OP_MRW;
-	*(base + CONFIG_SYS_MRS_OFFS) = c;	/* setting MR on address lines */
+	out_be32(&memctl->memc_psdmr, sdmr | PSDMR_OP_MRW);
+	/* setting MR on address lines */
+	out_8((uchar *)(base + CONFIG_SYS_MRS_OFFS), c);
 
-	*sdmr_ptr = sdmr | PSDMR_OP_NORM | PSDMR_RFEN;
-	*base = c;
+	out_be32(&memctl->memc_psdmr, sdmr | PSDMR_OP_NORM | PSDMR_RFEN);
+	out_8(base, c);
 
-	size = get_ram_size ((long *)base, maxsize);
-	*orx_ptr = orx | ~(size - 1);
+	size = get_ram_size((long *)base, maxsize);
+	out_be32(&memctl->memc_or1, orx | ~(size - 1));
 
 	return (size);
 }
 
-phys_size_t initdram (int board_type)
+phys_size_t initdram(int board_type)
 {
-	volatile immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
-	volatile memctl8260_t *memctl = &immap->im_memctl;
+	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
+	memctl8260_t *memctl = &immap->im_memctl;
 
 	long psize;
 
-	memctl->memc_psrt = CONFIG_SYS_PSRT;
-	memctl->memc_mptpr = CONFIG_SYS_MPTPR;
+	out_8(&memctl->memc_psrt, CONFIG_SYS_PSRT);
+	out_be16(&memctl->memc_mptpr, CONFIG_SYS_MPTPR);
 
 #ifndef CONFIG_SYS_RAMBOOT
 	/* 60x SDRAM setup:
 	 */
-	psize = try_init (memctl, CONFIG_SYS_PSDMR, CONFIG_SYS_OR1,
-						  (uchar *) CONFIG_SYS_SDRAM_BASE);
+	psize = try_init(memctl, CONFIG_SYS_PSDMR, CONFIG_SYS_OR1,
+				  (uchar *) CONFIG_SYS_SDRAM_BASE);
 #endif /* CONFIG_SYS_RAMBOOT */
 
-	icache_enable ();
+	icache_enable();
 
 	return (psize);
 }
 
 int checkboard(void)
 {
-	puts ("Board: Keymile mgcoge");
-	if (ethernet_present ())
-		puts (" with PIGGY.");
-	puts ("\n");
+	puts("Board: Keymile mgcoge");
+	if (ethernet_present())
+		puts(" with PIGGY.");
+	puts("\n");
 	return 0;
 }
 
@@ -314,25 +312,29 @@ int last_stage_init(void)
 /*
  * Early board initalization.
  */
-int board_early_init_r (void)
+int board_early_init_r(void)
 {
+	struct km_bec_fpga *base = (struct km_bec_fpga *)CONFIG_SYS_PIGGY_BASE;
+
 	/* setup the UPIOx */
 	/* General Unit Reset disabled, Flash Bank enabled, UnitLed on */
-	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x02), 0xc2);
+	out_8(&base->oprth, (WRG_RESET | H_OPORTS_14 | WRG_LED));
 	/* SCC4 enable, halfduplex, FCC1 powerdown */
-	out_8((u8 *)(CONFIG_SYS_PIGGY_BASE + 0x03), 0x15);
+	out_8(&base->oprtl, (H_OPORTS_SCC4_ENA | H_OPORTS_SCC4_FD_ENA |
+		H_OPORTS_FCC1_PW_DWN));
+
 	return 0;
 }
 
-int hush_init_var (void)
+int hush_init_var(void)
 {
-	ivm_read_eeprom ();
+	ivm_read_eeprom();
 	return 0;
 }
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-void ft_board_setup (void *blob, bd_t *bd)
+void ft_board_setup(void *blob, bd_t *bd)
 {
-	ft_cpu_setup (blob, bd);
+	ft_cpu_setup(blob, bd);
 }
 #endif /* defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT) */

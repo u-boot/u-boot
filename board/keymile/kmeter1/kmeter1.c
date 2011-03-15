@@ -30,8 +30,6 @@
 
 #include "../common/common.h"
 
-extern void disable_addr_trans (void);
-extern void enable_addr_trans (void);
 const qe_iop_conf_t qe_iop_conf_tab[] = {
 	/* port pin dir open_drain assign */
 
@@ -62,131 +60,140 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{0,  0, 0, 0, QE_IOP_TAB_END},
 };
 
-static int board_init_i2c_busses (void)
+static int board_init_i2c_busses(void)
 {
 	I2C_MUX_DEVICE *dev = NULL;
 	uchar	*buf;
 
 	/* Set up the Bus for the DTTs */
-	buf = (unsigned char *) getenv ("dtt_bus");
+	buf = (unsigned char *) getenv("dtt_bus");
 	if (buf != NULL)
-		dev = i2c_mux_ident_muxstring (buf);
+		dev = i2c_mux_ident_muxstring(buf);
 	if (dev == NULL) {
-		printf ("Error couldn't add Bus for DTT\n");
-		printf ("please setup dtt_bus to where your\n");
-		printf ("DTT is found.\n");
+		printf("Error couldn't add Bus for DTT\n");
+		printf("please setup dtt_bus to where your\n");
+		printf("DTT is found.\n");
 	}
 	return 0;
 }
 
-int board_early_init_r (void)
+int board_early_init_r(void)
 {
+	struct km_bec_fpga *base = (struct km_bec_fpga *)CONFIG_SYS_PIGGY_BASE;
 	unsigned short	svid;
 
 	/*
 	 * Because of errata in the UCCs, we have to write to the reserved
 	 * registers to slow the clocks down.
 	 */
-	svid =  SVR_REV(mfspr (SVR));
+	svid =  SVR_REV(mfspr(SVR));
 	switch (svid) {
 	case 0x0020:
+		/*
+		 * MPC8360ECE.pdf QE_ENET10 table 4:
+		 * IMMR + 0x14A8[4:5] = 11 (clk delay for UCC 2)
+		 * IMMR + 0x14A8[18:19] = 11 (clk delay for UCC 1)
+		 */
 		setbits_be32((void *)(CONFIG_SYS_IMMR + 0x14a8), 0x0c003000);
 		break;
 	case 0x0021:
+		/*
+		 * MPC8360ECE.pdf QE_ENET10 table 4:
+		 * IMMR + 0x14AC[24:27] = 1010
+		 */
 		clrsetbits_be32((void *)(CONFIG_SYS_IMMR + 0x14ac),
 			0x00000050, 0x000000a0);
 		break;
 	}
 	/* enable the PHY on the PIGGY */
-	setbits (8, (void *)(CONFIG_SYS_PIGGY_BASE + 0x10003), 0x01);
+	setbits_8(&base->pgy_eth, 0x01);
 	/* enable the Unit LED (green) */
-	setbits (8, (void *)(CONFIG_SYS_PIGGY_BASE + 0x00002), 0x01);
+	setbits_8(&base->oprth, WRL_BOOT);
 	/* take FE/GbE PHYs out of reset */
-	setbits (8, (void *)(CONFIG_SYS_PIGGY_BASE + 0x0000f), 0x1c);
+	setbits_8(&base->prst, 0x1c);
 
 	return 0;
 }
 
-int misc_init_r (void)
+int misc_init_r(void)
 {
 	/* add board specific i2c busses */
-	board_init_i2c_busses ();
+	board_init_i2c_busses();
 	return 0;
 }
 
 int fixed_sdram(void)
 {
-	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
+	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = 0;
 	u32 ddr_size;
 	u32 ddr_size_log2;
 
-	im->sysconf.ddrlaw[0].ar = LAWAR_EN | 0x1e;
-	im->ddr.csbnds[0].csbnds = CONFIG_SYS_DDR_CS0_BNDS;
-	im->ddr.cs_config[0] = CONFIG_SYS_DDR_CS0_CONFIG;
-	im->ddr.timing_cfg_0 = CONFIG_SYS_DDR_TIMING_0;
-	im->ddr.timing_cfg_1 = CONFIG_SYS_DDR_TIMING_1;
-	im->ddr.timing_cfg_2 = CONFIG_SYS_DDR_TIMING_2;
-	im->ddr.timing_cfg_3 = CONFIG_SYS_DDR_TIMING_3;
-	im->ddr.sdram_cfg = CONFIG_SYS_DDR_SDRAM_CFG;
-	im->ddr.sdram_cfg2 = CONFIG_SYS_DDR_SDRAM_CFG2;
-	im->ddr.sdram_mode = CONFIG_SYS_DDR_MODE;
-	im->ddr.sdram_mode2 = CONFIG_SYS_DDR_MODE2;
-	im->ddr.sdram_interval = CONFIG_SYS_DDR_INTERVAL;
-	im->ddr.sdram_clk_cntl = CONFIG_SYS_DDR_CLK_CNTL;
-	udelay (200);
-	im->ddr.sdram_cfg |= SDRAM_CFG_MEM_EN;
+	out_be32(&im->sysconf.ddrlaw[0].ar, (LAWAR_EN | 0x1e));
+	out_be32(&im->ddr.csbnds[0].csbnds, CONFIG_SYS_DDR_CS0_BNDS);
+	out_be32(&im->ddr.cs_config[0], CONFIG_SYS_DDR_CS0_CONFIG);
+	out_be32(&im->ddr.timing_cfg_0, CONFIG_SYS_DDR_TIMING_0);
+	out_be32(&im->ddr.timing_cfg_1, CONFIG_SYS_DDR_TIMING_1);
+	out_be32(&im->ddr.timing_cfg_2, CONFIG_SYS_DDR_TIMING_2);
+	out_be32(&im->ddr.timing_cfg_3, CONFIG_SYS_DDR_TIMING_3);
+	out_be32(&im->ddr.sdram_cfg, CONFIG_SYS_DDR_SDRAM_CFG);
+	out_be32(&im->ddr.sdram_cfg2, CONFIG_SYS_DDR_SDRAM_CFG2);
+	out_be32(&im->ddr.sdram_mode, CONFIG_SYS_DDR_MODE);
+	out_be32(&im->ddr.sdram_mode2, CONFIG_SYS_DDR_MODE2);
+	out_be32(&im->ddr.sdram_interval, CONFIG_SYS_DDR_INTERVAL);
+	out_be32(&im->ddr.sdram_clk_cntl, CONFIG_SYS_DDR_CLK_CNTL);
+	udelay(200);
+	out_be32(&im->ddr.sdram_cfg, SDRAM_CFG_MEM_EN);
 
 	msize = CONFIG_SYS_DDR_SIZE << 20;
-	disable_addr_trans ();
-	msize = get_ram_size (CONFIG_SYS_DDR_BASE, msize);
-	enable_addr_trans ();
+	disable_addr_trans();
+	msize = get_ram_size(CONFIG_SYS_DDR_BASE, msize);
+	enable_addr_trans();
 	msize /= (1024 * 1024);
 	if (CONFIG_SYS_DDR_SIZE != msize) {
 		for (ddr_size = msize << 20, ddr_size_log2 = 0;
-		     (ddr_size > 1); ddr_size = ddr_size >> 1, ddr_size_log2++)
+			(ddr_size > 1);
+			ddr_size = ddr_size >> 1, ddr_size_log2++)
 			if (ddr_size & 1)
 				return -1;
-		im->sysconf.ddrlaw[0].ar =
-		    LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE);
-		im->ddr.csbnds[0].csbnds = (((msize / 16) - 1) & 0xff);
+		out_be32(&im->sysconf.ddrlaw[0].ar,
+			(LAWAR_EN | ((ddr_size_log2 - 1) & LAWAR_SIZE)));
+		out_be32(&im->ddr.csbnds[0].csbnds,
+			(((msize / 16) - 1) & 0xff));
 	}
 
 	return msize;
 }
 
-phys_size_t initdram (int board_type)
+phys_size_t initdram(int board_type)
 {
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	extern void ddr_enable_ecc (unsigned int dram_size);
-#endif
-	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
+	immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
 	u32 msize = 0;
 
-	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
+	if ((in_be32(&im->sysconf.immrbar) & IMMRBAR_BASE_ADDR) != (u32)im)
 		return -1;
 
-	/* DDR SDRAM - Main SODIMM */
-	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
-	msize = fixed_sdram ();
+	out_be32(&im->sysconf.ddrlaw[0].bar,
+		CONFIG_SYS_DDR_BASE & LAWBAR_BAR);
+	msize = fixed_sdram();
 
 #if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
 	/*
 	 * Initialize DDR ECC byte
 	 */
-	ddr_enable_ecc (msize * 1024 * 1024);
+	ddr_enable_ecc(msize * 1024 * 1024);
 #endif
 
 	/* return total bus SDRAM size(bytes)  -- DDR */
 	return (msize * 1024 * 1024);
 }
 
-int checkboard (void)
+int checkboard(void)
 {
-	puts ("Board: Keymile kmeter1");
-	if (ethernet_present ())
-		puts (" with PIGGY.");
-	puts ("\n");
+	puts("Board: Keymile kmeter1");
+	if (ethernet_present())
+		puts(" with PIGGY.");
+	puts("\n");
 	return 0;
 }
 
@@ -194,13 +201,13 @@ int checkboard (void)
 /*
  * update property in the blob
  */
-void ft_blob_update (void *blob, bd_t *bd)
+void ft_blob_update(void *blob, bd_t *bd)
 {
   /* no board specific update */
 }
 
 
-void ft_board_setup (void *blob, bd_t *bd)
+void ft_board_setup(void *blob, bd_t *bd)
 {
 	ft_cpu_setup (blob, bd);
 	ft_blob_update (blob, bd);
@@ -208,10 +215,9 @@ void ft_board_setup (void *blob, bd_t *bd)
 #endif
 
 #if defined(CONFIG_HUSH_INIT_VAR)
-extern int ivm_read_eeprom (void);
-int hush_init_var (void)
+int hush_init_var(void)
 {
-	ivm_read_eeprom ();
+	ivm_read_eeprom();
 	return 0;
 }
 #endif

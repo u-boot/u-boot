@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008
+ * (C) Copyright 2008-2011
  * Heiko Schocher, DENX Software Engineering, hs@denx.de.
  *
  * See file CREDITS for list of people who contributed to this
@@ -25,7 +25,7 @@
 #define __CONFIG_KEYMILE_H
 
 /* Do boardspecific init for all boards */
-#define CONFIG_BOARD_EARLY_INIT_R       1
+#define CONFIG_BOARD_EARLY_INIT_R
 
 #define CONFIG_BOOTCOUNT_LIMIT
 
@@ -63,44 +63,44 @@
 #define CONFIG_JFFS2_CMDLINE
 #define CONFIG_CMD_MTDPARTS
 
-#undef	CONFIG_WATCHDOG			/* disable platform specific watchdog */
+#undef	CONFIG_WATCHDOG		/* disable platform specific watchdog */
 
-#define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds */
-#undef	CONFIG_BOOTARGS			/* the boot command will set bootargs */
+#define CONFIG_BOOTDELAY	5 /* autoboot after 5 seconds */
+#undef	CONFIG_BOOTARGS		/* the boot command will set bootargs */
 
 /*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_LONGHELP			/* undef to save memory	    */
-#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt   */
+#define CONFIG_SYS_LONGHELP			/* undef to save memory	  */
+#define CONFIG_SYS_PROMPT		"=> "	/* Monitor Command Prompt */
 #if defined(CONFIG_CMD_KGDB)
-#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size  */
+#define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 #else
-#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size  */
+#define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 #endif
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)	/* Print Buffer Size  */
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
-#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE	/* Boot Argument Buffer Size  */
-#define CONFIG_CMDLINE_EDITING		1	/* add command line history     */
-#define CONFIG_AUTO_COMPLETE		/* add autocompletion support	*/
+#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
+#define CONFIG_SYS_MAXARGS		16
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_AUTO_COMPLETE
 
-#define CONFIG_HUSH_INIT_VAR	1
+#define CONFIG_HUSH_INIT_VAR
 
 #define CONFIG_SYS_ALT_MEMTEST		/* memory test, takes time */
-#define CONFIG_SYS_MEMTEST_START	0x00100000	/* memtest works on */
-#define CONFIG_SYS_MEMTEST_END		0x00f00000	/* 1 ... 15 MB in DRAM	*/
+#define CONFIG_SYS_MEMTEST_START	0x00100000
+#define CONFIG_SYS_MEMTEST_END		0x00f00000 /* 1 ... 15 MB in DRAM */
 
-#define CONFIG_SYS_LOAD_ADDR		0x100000	/* default load address */
+#define CONFIG_SYS_LOAD_ADDR		0x100000
 
-#define CONFIG_SYS_HZ			1000	/* decrementer freq: 1 ms ticks */
+#define CONFIG_SYS_HZ			1000	/* decr. freq: 1 ms ticks */
 
-#define CONFIG_BAUDRATE		115200
+#define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
 
-#define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
-#define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
+#define CONFIG_LOADS_ECHO
+#define CONFIG_SYS_LOADS_BAUD_CHANGE
 #define CONFIG_SYS_BOARD_DRAM_INIT	/* Used board specific dram_init */
 
 /*
@@ -108,28 +108,28 @@
  * to modify in a centralized location.  This is used in the HDLC
  * driver to set the MAC.
 */
-#define CONFIG_CHECK_ETHERNET_PRESENT	1
+#define CONFIG_CHECK_ETHERNET_PRESENT
 #define CONFIG_SYS_SLOT_ID_BASE		CONFIG_SYS_PIGGY_BASE
 #define CONFIG_SYS_SLOT_ID_OFF		(0x07)	/* register offset */
 #define CONFIG_SYS_SLOT_ID_MASK		(0x3f)	/* mask for slot ID bits */
 
-#define CONFIG_I2C_MULTI_BUS	1
+#define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_MAX_I2C_BUS		1
-#define CONFIG_SYS_I2C_INIT_BOARD	1
-#define CONFIG_I2C_MUX		1
+#define CONFIG_SYS_I2C_INIT_BOARD
+#define CONFIG_I2C_MUX
 
 /* EEprom support */
-#define CONFIG_SYS_I2C_MULTI_EEPROMS	1
+#define CONFIG_SYS_I2C_MULTI_EEPROMS
 #define CONFIG_SYS_EEPROM_PAGE_WRITE_ENABLE
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS 3
-#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS 10
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_BITS	3
+#define CONFIG_SYS_EEPROM_PAGE_WRITE_DELAY_MS	10
 
 /* Support the IVM EEprom */
 #define	CONFIG_SYS_IVM_EEPROM_ADR	0x50
 #define CONFIG_SYS_IVM_EEPROM_MAX_LEN	0x400
 #define CONFIG_SYS_IVM_EEPROM_PAGE_LEN	0x100
 
-#define	CONFIG_SYS_FLASH_PROTECTION 1
+#define	CONFIG_SYS_FLASH_PROTECTION
 
 /*
  * BOOTP options
@@ -141,7 +141,7 @@
 
 #define CONFIG_ENV_SIZE		0x04000 /* Size of Environment */
 
-#define CONFIG_SYS_MALLOC_LEN	(4 * 1024 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(4 * 1024 * 1024)
 
 /* UBI Support for all Keymile boards */
 #define CONFIG_CMD_UBI
