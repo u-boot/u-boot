@@ -29,11 +29,7 @@
 #include <asm/arch/clk.h>
 #include <pwm.h>
 
-static unsigned long count_value;
-
-/* Internal tick units */
-static unsigned long long timestamp;	/* Monotonic incrementing timer */
-static unsigned long lastdec;		/* Last decremneter snapshot */
+DECLARE_GLOBAL_DATA_PTR;
 
 /* macro to read the 16 bit timer */
 static inline struct s5p_timer *s5p_get_base_timer(void)
@@ -66,14 +62,14 @@ unsigned long get_timer(unsigned long base)
 
 void set_timer(unsigned long t)
 {
-	timestamp = t;
+	gd->tbl = t;
 }
 
 /* delay x useconds */
 void __udelay(unsigned long usec)
 {
 	struct s5p_timer *const timer = s5p_get_base_timer();
-	unsigned long tmo, tmp;
+	unsigned long tmo, tmp, count_value;
 
 	count_value = readl(&timer->tcntb4);
 
@@ -98,7 +94,7 @@ void __udelay(unsigned long usec)
 	tmp = get_timer(0);
 
 	/* if setting this fordward will roll time stamp */
-	/* reset "advancing" timestamp to 0, set lastdec value */
+	/* reset "advancing" timestamp to 0, set lastinc value */
 	/* else, set advancing stamp wake up time */
 	if ((tmo + tmp + 1) < tmp)
 		reset_timer_masked();
@@ -115,23 +111,24 @@ void reset_timer_masked(void)
 	struct s5p_timer *const timer = s5p_get_base_timer();
 
 	/* reset time */
-	lastdec = readl(&timer->tcnto4);
-	timestamp = 0;
+	gd->lastinc = readl(&timer->tcnto4);
+	gd->tbl = 0;
 }
 
 unsigned long get_timer_masked(void)
 {
 	struct s5p_timer *const timer = s5p_get_base_timer();
 	unsigned long now = readl(&timer->tcnto4);
+	unsigned long count_value = readl(&timer->tcntb4);
 
-	if (lastdec >= now)
-		timestamp += lastdec - now;
+	if (gd->lastinc >= now)
+		gd->tbl += gd->lastinc - now;
 	else
-		timestamp += lastdec + count_value - now;
+		gd->tbl += gd->lastinc + count_value - now;
 
-	lastdec = now;
+	gd->lastinc = now;
 
-	return timestamp;
+	return gd->tbl;
 }
 
 /*
