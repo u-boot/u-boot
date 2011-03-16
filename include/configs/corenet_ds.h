@@ -28,6 +28,11 @@
 
 #include "../board/freescale/common/ics307_clk.h"
 
+#ifdef CONFIG_RAMBOOT_PBL
+#define CONFIG_RAMBOOT_TEXT_BASE	CONFIG_SYS_TEXT_BASE
+#define CONFIG_RESET_VECTOR_ADDRESS	0xfffffffc
+#endif
+
 /* High Level Configuration Options */
 #define CONFIG_BOOKE
 #define CONFIG_E500			/* BOOKE e500 family */
@@ -63,12 +68,17 @@
 
 #define CONFIG_ENV_OVERWRITE
 
+#if defined(CONFIG_RAMBOOT_PBL)
+	#define CONFIG_SYS_NO_FLASH	/* Store ENV in memory only */
+#endif
+
 #ifdef CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_IS_NOWHERE
 #else
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
 #endif
 
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk() /* sysclk for MPC85xx */
@@ -98,6 +108,18 @@
 #define CONFIG_SYS_MEMTEST_END		0x00400000
 #define CONFIG_SYS_ALT_MEMTEST
 #define CONFIG_PANIC_HANG	/* do not reset board on panic */
+
+/*
+ *  Config the L3 Cache as L3 SRAM
+ */
+#define CONFIG_SYS_INIT_L3_ADDR		CONFIG_RAMBOOT_TEXT_BASE
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_INIT_L3_ADDR_PHYS	(0xf00000000ull | CONFIG_RAMBOOT_TEXT_BASE)
+#else
+#define CONFIG_SYS_INIT_L3_ADDR_PHYS	CONFIG_SYS_INIT_L3_ADDR
+#endif
+#define CONFIG_SYS_L3_SIZE		(1024 << 10)
+#define CONFIG_SYS_INIT_L3_END (CONFIG_SYS_INIT_L3_ADDR + CONFIG_SYS_L3_SIZE)
 
 /*
  * Base addresses -- Note these are effective addresses where the
@@ -191,6 +213,10 @@
 #define CONFIG_SYS_FLASH_WRITE_TOUT	500		/* Flash Write Timeout (ms) */
 
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE	/* start of monitor */
+
+#if defined(CONFIG_RAMBOOT_PBL)
+#define CONFIG_SYS_RAMBOOT
+#endif
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_AMD_CHECK_DQ7
@@ -439,7 +465,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
 
