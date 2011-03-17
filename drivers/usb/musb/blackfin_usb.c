@@ -15,6 +15,10 @@
 
 #include "musb_core.h"
 
+#ifndef CONFIG_USB_BLACKFIN_CLKIN
+#define CONFIG_USB_BLACKFIN_CLKIN 24
+#endif
+
 /* MUSB platform configuration */
 struct musb_config musb_cfg = {
 	.regs       = (struct musb_regs *)USB_FADDR,
@@ -109,7 +113,8 @@ int musb_platform_init(void)
 	}
 
 	/* Configure PLL oscillator register */
-	bfin_write_USB_PLLOSC_CTRL(0x30a8);
+	bfin_write_USB_PLLOSC_CTRL(0x3080 |
+		((480 / CONFIG_USB_BLACKFIN_CLKIN) << 1));
 	SSYNC();
 
 	bfin_write_USB_SRP_CLKDIV((get_sclk()/1000) / 32 - 1);
