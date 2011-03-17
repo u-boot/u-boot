@@ -9,6 +9,10 @@
 #ifndef DDR2_DIMM_PARAMS_H
 #define DDR2_DIMM_PARAMS_H
 
+#define EDC_DATA_PARITY	1
+#define EDC_ECC		2
+#define EDC_AC_PARITY	4
+
 /* Parameters for a DDR2 dimm computed from the SPD */
 typedef struct dimm_params_s {
 

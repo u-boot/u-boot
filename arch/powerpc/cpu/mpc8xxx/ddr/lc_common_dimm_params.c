@@ -367,7 +367,8 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 	/* Determine if all DIMMs ECC capable. */
 	temp1 = 1;
 	for (i = 0; i < number_of_dimms; i++) {
-		if (dimm_params[i].n_ranks && dimm_params[i].edc_config != 2) {
+		if (dimm_params[i].n_ranks &&
+			!(dimm_params[i].edc_config & EDC_ECC)) {
 			temp1 = 0;
 			break;
 		}
