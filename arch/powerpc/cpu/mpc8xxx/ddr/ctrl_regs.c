@@ -682,7 +682,9 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 		| ((obc_cfg & 0x1) << 6)
 		| ((ap_en & 0x1) << 5)
 		| ((d_init & 0x1) << 4)
+#ifdef CONFIG_FSL_DDR3
 		| ((rcw_en & 0x1) << 2)
+#endif
 		| ((md_en & 0x1) << 0)
 		);
 	debug("FSLDDR: ddr_sdram_cfg_2 = 0x%08x\n", ddr->ddr_sdram_cfg_2);
