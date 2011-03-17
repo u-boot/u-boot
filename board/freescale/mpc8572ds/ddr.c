@@ -49,28 +49,27 @@ typedef struct {
 	u32 force_2T;
 } board_specific_parameters_t;
 
-/* ranges for parameters:
- *  wr_data_delay = 0-6
- *  clk adjust = 0-8
- *  cpo 2-0x1E (30)
+/*
+ * CPO value doesn't matter if workaround for errata 111 and 134 enabled.
+ *
+ * For DDR2 DIMM, all combinations of clk_adjust and write_data_delay have been
+ * tested. For RDIMM, clk_adjust = 4 and write_data_delay = 3 is optimized for
+ * all clocks from 400MT/s to 800MT/s, verified with Kingston KVR800D2D8P6/2G.
+ * For UDIMM, clk_adjust = 8 and write_delay = 5 is optimized for all clocks
+ * from 400MT/s to 800MT/s, verified with Micron MT18HTF25672AY-800E1.
  */
-
-
-/* XXX: these values need to be checked for all interleaving modes.  */
-/* XXX: No reliable dual-rank 800 MHz setting has been found.  It may
- *      seem reliable, but errors will appear when memory intensive
- *      program is run. */
-/* XXX: Single rank at 800 MHz is OK.  */
-const board_specific_parameters_t board_specific_parameters[][20] = {
+const board_specific_parameters_t board_specific_parameters_udimm[][20] = {
 	{
-	/* 	memory controller 0 			*/
-	/*	  lo|  hi|  num|  clk| cpo|wrdata|2T	*/
-	/*	 mhz| mhz|ranks|adjst|    | delay|	*/
-		{  0, 333,    2,    6,   7,    3,  0},
-		{334, 400,    2,    6,   9,    3,  0},
-		{401, 549,    2,    6,  11,    3,  0},
-		{550, 680,    2,    1,  10,    5,  0},
-		{681, 850,    2,    1,  12,    5,  1},
+	/*
+	 *	memory controller 0
+	 *	  lo|  hi|  num|  clk| cpo|wrdata|2T
+	 *	 mhz| mhz|ranks|adjst|    | delay|
+	 */
+		{  0, 333,    2,    8,   7,    5,  0},
+		{334, 400,    2,    8,   9,    5,  0},
+		{401, 549,    2,    8,  11,    5,  0},
+		{550, 680,    2,    8,  10,    5,  0},
+		{681, 850,    2,    8,  12,    5,  1},
 		{  0, 333,    1,    6,   7,    3,  0},
 		{334, 400,    1,    6,   9,    3,  0},
 		{401, 549,    1,    6,  11,    3,  0},
@@ -79,14 +78,16 @@ const board_specific_parameters_t board_specific_parameters[][20] = {
 	},
 
 	{
-	/*	memory controller 1			*/
-	/*	  lo|  hi|  num|  clk| cpo|wrdata|2T	*/
-	/*	 mhz| mhz|ranks|adjst|    | delay|	*/
-		{  0, 333,    2,     6,  7,    3,  0},
-		{334, 400,    2,     6,  9,    3,  0},
-		{401, 549,    2,     6, 11,    3,  0},
-		{550, 680,    2,     1, 11,    6,  0},
-		{681, 850,    2,     1, 13,    6,  1},
+	/*
+	 *	memory controller 1
+	 *	  lo|  hi|  num|  clk| cpo|wrdata|2T
+	 *	 mhz| mhz|ranks|adjst|    | delay|
+	 */
+		{  0, 333,    2,     8,  7,    5,  0},
+		{334, 400,    2,     8,  9,    5,  0},
+		{401, 549,    2,     8, 11,    5,  0},
+		{550, 680,    2,     8, 11,    5,  0},
+		{681, 850,    2,     8, 13,    5,  1},
 		{  0, 333,    1,     6,  7,    3,  0},
 		{334, 400,    1,     6,  9,    3,  0},
 		{401, 549,    1,     6, 11,    3,  0},
@@ -95,16 +96,56 @@ const board_specific_parameters_t board_specific_parameters[][20] = {
 	}
 };
 
+const board_specific_parameters_t board_specific_parameters_rdimm[][20] = {
+	{
+	/*
+	 *	memory controller 0
+	 *	  lo|  hi|  num|  clk| cpo|wrdata|2T
+	 *	 mhz| mhz|ranks|adjst|    | delay|
+	 */
+		{  0, 333,    2,    4,   7,    3,  0},
+		{334, 400,    2,    4,   9,    3,  0},
+		{401, 549,    2,    4,  11,    3,  0},
+		{550, 680,    2,    4,  10,    3,  0},
+		{681, 850,    2,    4,  12,    3,  1},
+	},
+
+	{
+	/*
+	 *	memory controller 1
+	 *	  lo|  hi|  num|  clk| cpo|wrdata|2T
+	 *	 mhz| mhz|ranks|adjst|    | delay|
+	 */
+		{  0, 333,    2,     4,  7,    3,  0},
+		{334, 400,    2,     4,  9,    3,  0},
+		{401, 549,    2,     4, 11,    3,  0},
+		{550, 680,    2,     4, 11,    3,  0},
+		{681, 850,    2,     4, 13,    3,  1},
+	}
+};
+
 void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,
 				unsigned int ctrl_num)
 {
-	const board_specific_parameters_t *pbsp =
-				&(board_specific_parameters[ctrl_num][0]);
-	u32 num_params = sizeof(board_specific_parameters[ctrl_num]) /
-				sizeof(board_specific_parameters[0][0]);
+	const board_specific_parameters_t *pbsp;
+	u32 num_params;
 	u32 i;
 	ulong ddr_freq;
+	int matched = 0;
+
+	if (!pdimm->n_ranks)
+		return;
+
+	if (popts->registered_dimm_en) {
+		pbsp = &(board_specific_parameters_rdimm[ctrl_num][0]);
+		num_params = sizeof(board_specific_parameters_rdimm[ctrl_num]) /
+				sizeof(board_specific_parameters_rdimm[0][0]);
+	} else {
+		pbsp = &(board_specific_parameters_udimm[ctrl_num][0]);
+		num_params = sizeof(board_specific_parameters_udimm[ctrl_num]) /
+				sizeof(board_specific_parameters_udimm[0][0]);
+	}
 
 	/* set odt_rd_cfg and odt_wr_cfg. If the there is only one dimm in
 	 * that controller, set odt_wr_cfg to 4 for CS0, and 0 to CS1. If
@@ -138,9 +179,14 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 			popts->cpo_override = pbsp->cpo;
 			popts->write_data_delay = pbsp->write_data_delay;
 			popts->twoT_en = pbsp->force_2T;
+			matched = 1;
+			break;
 		}
 		pbsp++;
 	}
+
+	if (!matched)
+		printf("Warning: board specific timing not found!\n");
 
 	/*
 	 * Factors to consider for half-strength driver enable:
