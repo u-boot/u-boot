@@ -1305,7 +1305,7 @@ static void set_ddr_eor(fsl_ddr_cfg_regs_t *ddr, const memctl_options_t *popts)
 {
 	if (popts->addr_hash) {
 		ddr->ddr_eor = 0x40000000;	/* address hash enable */
-		puts("Addess hashing enabled.\n");
+		puts("Address hashing enabled.\n");
 	}
 }
 
