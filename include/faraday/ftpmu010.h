@@ -23,6 +23,7 @@
 #ifndef __FTPMU010_H
 #define __FTPMU010_H
 
+#ifndef __ASSEMBLY__
 struct ftpmu010 {
 	unsigned int	IDNMBR0;	/* 0x00 */
 	unsigned int	reserved0;	/* 0x04 */
@@ -80,6 +81,7 @@ struct ftpmu010 {
 	unsigned int	ED0_RACC;	/* 0xD4 */
 	unsigned int	ED1_RACC;	/* 0xD8 */
 };
+#endif /* __ASSEMBLY__ */
 
 /*
  * ID Number 0 Register
@@ -175,8 +177,68 @@ struct ftpmu010 {
 #define FTPMU010_SDRAMHTC_DQM_DCSR		(1 << 13)
 #define FTPMU010_SDRAMHTC_SDCLK_DCSR		(1 << 12)
 
+#ifndef __ASSEMBLY__
 void ftpmu010_32768osc_enable(void);
 void ftpmu010_dlldis_disable(void);
 void ftpmu010_sdram_clk_disable(unsigned int cr0);
+#endif
+
+#ifdef __ASSEMBLY__
+#define FTPMU010_IDNMBR0	0x00
+#define FTPMU010_reserved0	0x04
+#define FTPMU010_OSCC		0x08
+#define FTPMU010_PMODE		0x0C
+#define FTPMU010_PMCR		0x10
+#define FTPMU010_PED		0x14
+#define FTPMU010_PEDSR		0x18
+#define FTPMU010_reserved1	0x1C
+#define FTPMU010_PMSR		0x20
+#define FTPMU010_PGSR		0x24
+#define FTPMU010_MFPSR		0x28
+#define FTPMU010_MISC		0x2C
+#define FTPMU010_PDLLCR0	0x30
+#define FTPMU010_PDLLCR1	0x34
+#define FTPMU010_AHBMCLKOFF	0x38
+#define FTPMU010_APBMCLKOFF	0x3C
+#define FTPMU010_DCSRCR0	0x40
+#define FTPMU010_DCSRCR1	0x44
+#define FTPMU010_DCSRCR2	0x48
+#define FTPMU010_SDRAMHTC	0x4C
+#define FTPMU010_PSPR0		0x50
+#define FTPMU010_PSPR1		0x54
+#define FTPMU010_PSPR2		0x58
+#define FTPMU010_PSPR3		0x5C
+#define FTPMU010_PSPR4		0x60
+#define FTPMU010_PSPR5		0x64
+#define FTPMU010_PSPR6		0x68
+#define FTPMU010_PSPR7		0x6C
+#define FTPMU010_PSPR8		0x70
+#define FTPMU010_PSPR9		0x74
+#define FTPMU010_PSPR10		0x78
+#define FTPMU010_PSPR11		0x7C
+#define FTPMU010_PSPR12		0x80
+#define FTPMU010_PSPR13		0x84
+#define FTPMU010_PSPR14		0x88
+#define FTPMU010_PSPR15		0x8C
+#define FTPMU010_AHBDMA_RACCS	0x90
+#define FTPMU010_reserved2	0x94
+#define FTPMU010_reserved3	0x98
+#define FTPMU010_JSS		0x9C
+#define FTPMU010_CFC_RACC	0xA0
+#define FTPMU010_SSP1_RACC	0xA4
+#define FTPMU010_UART1TX_RACC	0xA8
+#define FTPMU010_UART1RX_RACC	0xAC
+#define FTPMU010_UART2TX_RACC	0xB0
+#define FTPMU010_UART2RX_RACC	0xB4
+#define FTPMU010_SDC_RACC	0xB8
+#define FTPMU010_I2SAC97_RACC	0xBC
+#define FTPMU010_IRDATX_RACC	0xC0
+#define FTPMU010_reserved4	0xC4
+#define FTPMU010_USBD_RACC	0xC8
+#define FTPMU010_IRDARX_RACC	0xCC
+#define FTPMU010_IRDA_RACC	0xD0
+#define FTPMU010_ED0_RACC	0xD4
+#define FTPMU010_ED1_RACC	0xD8
+#endif /* __ASSEMBLY__ */
 
 #endif	/* __FTPMU010_H */
