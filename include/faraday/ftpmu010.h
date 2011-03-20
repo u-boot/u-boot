@@ -126,22 +126,54 @@ struct ftpmu010 {
 /*
  * Multi-Function Port Setting Register
  */
+#define FTPMU010_MFPSR_DEBUGSEL		(1 << 17)
+#define FTPMU010_MFPSR_DMA0PINSEL	(1 << 16)
+#define FTPMU010_MFPSR_DMA1PINSEL	(1 << 15)
 #define FTPMU010_MFPSR_MODEMPINSEL	(1 << 14)
 #define FTPMU010_MFPSR_AC97CLKOUTSEL	(1 << 13)
+#define FTPMU010_MFPSR_PWM1PINSEL	(1 << 11)
+#define FTPMU010_MFPSR_PWM0PINSEL	(1 << 10)
+#define FTPMU010_MFPSR_IRDACLKSEL	(1 << 9)
+#define FTPMU010_MFPSR_UARTCLKSEL	(1 << 8)
+#define FTPMU010_MFPSR_SSPCLKSEL	(1 << 6)
+#define FTPMU010_MFPSR_I2SCLKSEL	(1 << 5)
+#define FTPMU010_MFPSR_AC97CLKSEL	(1 << 4)
 #define FTPMU010_MFPSR_AC97PINSEL	(1 << 3)
+#define FTPMU010_MFPSR_TRIAHBDIS	(1 << 1)
+#define FTPMU010_MFPSR_TRIAHBDBG	(1 << 0)
 
 /*
  * PLL/DLL Control Register 0
+ * Note:
+ *  1. FTPMU010_PDLLCR0_HCLKOUTDIS:
+ *	Datasheet indicated it starts at bit #21 which was wrong.
+ *  2. FTPMU010_PDLLCR0_DLLFRAG:
+ * 	Datasheet indicated it has 2 bit which was wrong.
  */
-#define FTPMU010_PDLLCR0_HCLKOUTDIS(cr0)	(((cr0) >> 20) & 0xf)
-#define FTPMU010_PDLLCR0_DLLFRAG		(1 << 19)
+#define FTPMU010_PDLLCR0_HCLKOUTDIS(cr0)	(((cr0) & 0xf) << 20)
+#define FTPMU010_PDLLCR0_DLLFRAG(cr0)		(1 << 19)
 #define FTPMU010_PDLLCR0_DLLSTSEL		(1 << 18)
 #define FTPMU010_PDLLCR0_DLLSTABLE		(1 << 17)
 #define FTPMU010_PDLLCR0_DLLDIS			(1 << 16)
-#define FTPMU010_PDLLCR0_PLL1NS(cr0)		(((cr0) >> 3) & 0x1ff)
+#define FTPMU010_PDLLCR0_PLL1FRANG(cr0)		(((cr0) & 0x3) << 12)
+#define FTPMU010_PDLLCR0_PLL1NS(cr0)		(((cr0) & 0x1ff) << 3)
 #define FTPMU010_PDLLCR0_PLL1STSEL		(1 << 2)
 #define FTPMU010_PDLLCR0_PLL1STABLE		(1 << 1)
 #define FTPMU010_PDLLCR0_PLL1DIS		(1 << 0)
+
+/*
+ * SDRAM Signal Hold Time Control Register
+ */
+#define FTPMU010_SDRAMHTC_RCLK_DLY(x)		(((x) & 0xf) << 28)
+#define FTPMU010_SDRAMHTC_CTL_WCLK_DLY(x)	(((x) & 0xf) << 24)
+#define FTPMU010_SDRAMHTC_DAT_WCLK_DLY(x)	(((x) & 0xf) << 20)
+#define FTPMU010_SDRAMHTC_EBICTRL_DCSR		(1 << 18)
+#define FTPMU010_SDRAMHTC_EBIDATA_DCSR		(1 << 17)
+#define FTPMU010_SDRAMHTC_SDRAMCS_DCSR		(1 << 16)
+#define FTPMU010_SDRAMHTC_SDRAMCTL_DCSR		(1 << 15)
+#define FTPMU010_SDRAMHTC_CKE_DCSR		(1 << 14)
+#define FTPMU010_SDRAMHTC_DQM_DCSR		(1 << 13)
+#define FTPMU010_SDRAMHTC_SDCLK_DCSR		(1 << 12)
 
 void ftpmu010_32768osc_enable(void);
 void ftpmu010_dlldis_disable(void);
