@@ -744,7 +744,11 @@ static void flash_add_byte (flash_info_t * info, cfiword_t * cword, uchar c)
 static flash_sect_t find_sector (flash_info_t * info, ulong addr)
 {
 	static flash_sect_t saved_sector = 0; /* previously found sector */
+	static flash_info_t *saved_info = 0; /* previously used flash bank */
 	flash_sect_t sector = saved_sector;
+
+	if ((info != saved_info) || (sector >= info->sector_count))
+		sector = 0;
 
 	while ((info->start[sector] < addr)
 			&& (sector < info->sector_count - 1))
@@ -757,6 +761,7 @@ static flash_sect_t find_sector (flash_info_t * info, ulong addr)
 		sector--;
 
 	saved_sector = sector;
+	saved_info = info;
 	return sector;
 }
 
