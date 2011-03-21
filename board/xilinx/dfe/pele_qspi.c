@@ -137,7 +137,7 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout,
 	
 	/* Festering sore.
 	 * Assume that the beginning of a transfer with bits to
-	 * transmit must contain a defice command.
+	 * transmit must contain a device command.
 	 */
 	if (dout && flags & SPI_XFER_BEGIN) {
 		pspi->qspi.master.is_inst = 1;
