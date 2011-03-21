@@ -65,7 +65,7 @@
  * which describes the current status.
  */
 typedef struct _ENTRY {
-	unsigned int used;
+	int used;
 	ENTRY entry;
 } _ENTRY;
 
@@ -152,7 +152,7 @@ void hdestroy_r(struct hsearch_data *htab)
 
 	/* free used memory */
 	for (i = 1; i <= htab->size; ++i) {
-		if (htab->table[i].used) {
+		if (htab->table[i].used > 0) {
 			ENTRY *ep = &htab->table[i].entry;
 
 			free(ep->key);
@@ -209,7 +209,7 @@ int hmatch_r(const char *match, int last_idx, ENTRY ** retval,
 	size_t key_len = strlen(match);
 
 	for (idx = last_idx + 1; idx < htab->size; ++idx) {
-		if (!htab->table[idx].used)
+		if (htab->table[idx].used > 0)
 			continue;
 		if (!strncmp(match, htab->table[idx].entry.key, key_len)) {
 			*retval = &htab->table[idx].entry;
@@ -229,6 +229,7 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 	unsigned int count;
 	unsigned int len = strlen(item.key);
 	unsigned int idx;
+	unsigned int first_deleted = 0;
 
 	/* Compute an value for the given string. Perhaps use a better method. */
 	hval = len;
@@ -255,6 +256,10 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 		 * action value.
 		 */
 		unsigned hval2;
+
+		if (htab->table[idx].used == -1
+		    && !first_deleted)
+			first_deleted = idx;
 
 		if (htab->table[idx].used == hval
 		    && strcmp(item.key, htab->table[idx].entry.key) == 0) {
@@ -335,6 +340,9 @@ int hsearch_r(ENTRY item, ACTION action, ENTRY ** retval,
 		 * Create new entry;
 		 * create copies of item.key and item.data
 		 */
+		if (first_deleted)
+			idx = first_deleted;
+
 		htab->table[idx].used = hval;
 		htab->table[idx].entry.key = strdup(item.key);
 		htab->table[idx].entry.data = strdup(item.data);
@@ -387,7 +395,7 @@ int hdelete_r(const char *key, struct hsearch_data *htab)
 
 	free(ep->key);
 	free(ep->data);
-	htab->table[idx].used = 0;
+	htab->table[idx].used = -1;
 
 	--htab->filled;
 
@@ -467,7 +475,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
 	 */
 	for (i = 1, n = 0, totlen = 0; i <= htab->size; ++i) {
 
-		if (htab->table[i].used) {
+		if (htab->table[i].used > 0) {
 			ENTRY *ep = &htab->table[i].entry;
 
 			list[n++] = ep;
