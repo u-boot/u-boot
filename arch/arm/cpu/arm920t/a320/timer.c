@@ -19,8 +19,8 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/fttmr010.h>
 #include <faraday/ftpmu010.h>
+#include <faraday/fttmr010.h>
 
 static ulong timestamp;
 static ulong lastdec;
