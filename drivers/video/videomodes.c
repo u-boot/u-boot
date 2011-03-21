@@ -1,6 +1,7 @@
 /*
  * (C) Copyright 2004
  * Pierre Aubert, Staubli Faverges , <p.aubert@staubli.com>
+ * Copyright 2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -73,6 +74,8 @@
 ****************************************************************************/
 
 #include <common.h>
+#include <linux/ctype.h>
+
 #include "videomodes.h"
 
 const struct ctfb_vesa_modes vesa_modes[VESA_MODES_COUNT] = {
@@ -205,4 +208,65 @@ int video_get_params (struct ctfb_res_modes *pPar, char *penv)
 			p++;	/* skip ',' */
 	}
 	return bpp;
+}
+
+/*
+ * Parse the 'video-mode' environment variable
+ *
+ * Example: "video-mode=fslfb:1280x1024-32@60,monitor=dvi".  See
+ * doc/README.video for more information on how to set the variable.
+ *
+ * @xres: returned value of X-resolution
+ * @yres: returned value of Y-resolution
+ * @depth: returned value of color depth
+ * @freq: returned value of monitor frequency
+ * @options: pointer to any remaining options, or NULL
+ *
+ * Returns 1 if valid values were found, 0 otherwise
+ */
+int video_get_video_mode(unsigned int *xres, unsigned int *yres,
+	unsigned int *depth, unsigned int *freq, const char **options)
+{
+	char *p = getenv("video-mode");
+	if (!p)
+		return 0;
+
+	/* Skip over the driver name, which we don't care about. */
+	p = strchr(p, ':');
+	if (!p)
+		return 0;
+
+	/* Get the X-resolution*/
+	while (*p && !isdigit(*p))
+		p++;
+	*xres = simple_strtoul(p, &p, 10);
+	if (!*xres)
+		return 0;
+
+	/* Get the Y-resolution */
+	while (*p && !isdigit(*p))
+		p++;
+	*yres = simple_strtoul(p, &p, 10);
+	if (!*yres)
+		return 0;
+
+	/* Get the depth */
+	while (*p && !isdigit(*p))
+		p++;
+	*depth = simple_strtoul(p, &p, 10);
+	if (!*depth)
+		return 0;
+
+	/* Get the frequency */
+	while (*p && !isdigit(*p))
+		p++;
+	*freq = simple_strtoul(p, &p, 10);
+	if (!*freq)
+		return 0;
+
+	/* Find the extra options, if any */
+	p = strchr(p, ',');
+	*options = p ? p + 1 : NULL;
+
+	return 1;
 }
