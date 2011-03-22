@@ -51,7 +51,7 @@ static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data)
 	writeb(ctrl, &host->reg->hostctl);
 
 	/* We do not handle DMA boundaries, so set it to max (512 KiB) */
-	writew((7 << 12) | (512 << 0), &host->reg->blksize);
+	writew((7 << 12) | (data->blocksize & 0xFFF), &host->reg->blksize);
 	writew(data->blocks, &host->reg->blkcnt);
 }
 
