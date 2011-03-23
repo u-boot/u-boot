@@ -97,6 +97,7 @@
 #define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000
 #define CONFIG_SYS_FSL_PCIE_COMPAT	"fsl,qoriq-pcie-v2.2"
+#define CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
 
 /* P1011 is single core version of P1020 */
 #elif defined(CONFIG_P1011)
@@ -141,6 +142,7 @@
 #define CONFIG_SYS_FSL_ERRATUM_ESDHC111
 #define CONFIG_NUM_DDR_CONTROLLERS	1
 #define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000
+#define CONFIG_SYS_FSL_USB_INTERNAL_UTMI_PHY
 
 /* P1015 is single core version of P1024 */
 #elif defined(CONFIG_P1015)
