@@ -67,9 +67,6 @@ static uec_info_t uec_info[] = {
 
 static struct eth_device *devlist[MAXCONTROLLERS];
 
-u16 phy_read (struct uec_mii_info *mii_info, u16 regnum);
-void phy_write (struct uec_mii_info *mii_info, u16 regnum, u16 val);
-
 static int uec_mac_enable(uec_private_t *uec, comm_dir_e mode)
 {
 	uec_t		*uec_regs;
