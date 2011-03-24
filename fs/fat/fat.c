@@ -209,7 +209,7 @@ static __u32 get_fatent (fsdata *mydata, __u32 entry)
 
 	/* Read a new block of FAT entries into the cache. */
 	if (bufnum != mydata->fatbufnum) {
-		int getsize = FATBUFSIZE / FS_BLOCK_SIZE;
+		__u32 getsize = FATBUFSIZE / FS_BLOCK_SIZE;
 		__u8 *bufptr = mydata->fatbuf;
 		__u32 fatlength = mydata->fatlength;
 		__u32 startblock = bufnum * FATBUFBLOCKS;
@@ -279,7 +279,7 @@ static int
 get_cluster (fsdata *mydata, __u32 clustnum, __u8 *buffer,
 	     unsigned long size)
 {
-	int idx = 0;
+	__u32 idx = 0;
 	__u32 startsect;
 
 	if (clustnum > 0) {
@@ -767,12 +767,13 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 	dir_entry *dentptr;
 	__u16 prevcksum = 0xffff;
 	char *subname = "";
-	int cursect;
+	__u32 cursect;
 	int idx, isdir = 0;
 	int files = 0, dirs = 0;
 	long ret = 0;
 	int firsttime;
-	int root_cluster;
+	__u32 root_cluster;
+	int rootdir_size = 0;
 	int j;
 
 	if (read_bootsectandvi(&bs, &volinfo, &mydata->fatsize)) {
@@ -798,8 +799,6 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 		mydata->data_begin = mydata->rootdir_sect -
 					(mydata->clust_size * 2);
 	} else {
-		int rootdir_size;
-
 		rootdir_size = ((bs.dir_entries[1]  * (int)256 +
 				 bs.dir_entries[0]) *
 				 sizeof(dir_entry)) /
@@ -1006,19 +1005,17 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 		 * root directory clusters when a cluster has been
 		 * completely processed.
 		 */
-		if ((mydata->fatsize == 32) && (++j == mydata->clust_size)) {
-			int nxtsect;
-			int nxt_clust;
+		++j;
+		int fat32_end = 0;
+		if ((mydata->fatsize == 32) && (j == mydata->clust_size)) {
+			int nxtsect = 0;
+			int nxt_clust = 0;
 
 			nxt_clust = get_fatent(mydata, root_cluster);
+			fat32_end = CHECK_CLUST(nxt_clust, 32);
 
 			nxtsect = mydata->data_begin +
 				(nxt_clust * mydata->clust_size);
-
-			debug("END LOOP: sect=%d, root_clust=%d, "
-			      "n_sect=%d, n_clust=%d\n",
-			      cursect, root_cluster,
-			      nxtsect, nxt_clust);
 
 			root_cluster = nxt_clust;
 
@@ -1026,6 +1023,18 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 			j = 0;
 		} else {
 			cursect++;
+		}
+
+		/* If end of rootdir reached */
+		if ((mydata->fatsize == 32 && fat32_end) ||
+		    (mydata->fatsize != 32 && j == rootdir_size)) {
+			if (dols == LS_ROOT) {
+				printf("\n%d file(s), %d dir(s)\n\n",
+				       files, dirs);
+				return 0;
+			} else {
+				return -1;
+			}
 		}
 	}
 rootdir_done:
