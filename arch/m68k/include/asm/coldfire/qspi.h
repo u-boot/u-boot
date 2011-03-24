@@ -98,7 +98,7 @@ typedef struct qspi_ctrl {
 #define QSPI_QAR_RECV			(0x0010)
 #define QSPI_QAR_CMD			(0x0020)
 
-/* DR */
+/* DR with RAM command word definitions */
 #define QSPI_QDR_CONT			(0x8000)
 #define QSPI_QDR_BITSE			(0x4000)
 #define QSPI_QDR_DT			(0x2000)
