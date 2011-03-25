@@ -1,0 +1,32 @@
+Overview
+--------
+The P4080DS is a Freescale reference board that hosts the eight-core P4080 SOC.
+
+SerDes hwconfig configuration
+-----------------------------
+The P4080 RCW includes three sets of bits the specify which SerDes lanes
+should be powered down: SRDS_LPD_B1 (for bank one), SRDS_LPD_B2 (for bank two),
+and SRDS_LPD_B3 (for bank three).  Each of these contains four bits, one for
+each lane in the bank.  SerDes Erratum SERDES8 requires that SRDS_LPD_B2 and
+SRDS_LPD_B3 be set to 0b1111.  This forces banks two and three to be powered
+down at reset.
+
+To re-enable these banks in U-Boot, two hwconfig are available:
+"fsl_srds_lpd_b2" and "fsl_srds_lpd_b3".  The value passed via fsl_srds_lpd_b2
+is written into SRDS_LPD_B2, and the value passed via fsl_srds_lpd_b3 is into
+SRDS_LPD_B3.  Each bit represents one of each bank, and a value of '1'
+indicates that the lane should be powered down.
+
+For example, to indicate that both SerDes banks 2 and 3 are powered down, add
+the following to hwconfig:
+
+	serdes:fsl_srds_lpd_b2=0xf,fsl_srds_lpd_b3=0xf
+
+The "0xf" is a mask that corresponds to the 4 lanes A-D. The most significant
+bit corresponds to lane A.  To indicate that just lane A of bank 3 is to be
+powered down, use:
+
+	serdes:fsl_srds_lpd_b3=8
+
+These options should be specified only if U-Boot does not automatically power
+on the correct lanes.
