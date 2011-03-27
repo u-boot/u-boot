@@ -118,7 +118,7 @@ static int display_banner (void)
 	printf ("\n\n%s\n\n", version_string);
 	printf ("U-Boot code: %08lx -> %08lx  data: %08lx -> %08lx\n",
 		(unsigned long)_text, (unsigned long)_etext,
-		(unsigned long)_data, (unsigned long)_end);
+		(unsigned long)_data, (unsigned long)__bss_end__);
 	return 0;
 }
 
@@ -190,7 +190,7 @@ void board_init_f(ulong board_type)
 	 *  - stack
 	 */
 	addr = CONFIG_SYS_SDRAM_BASE + sdram_size;
-	monitor_len = _end - _text;
+	monitor_len = __bss_end__ - _text;
 
 	/*
 	 * Reserve memory for u-boot code, data and bss.

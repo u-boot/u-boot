@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2006 Atmel Corporation
+ * header file for pwm driver.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * Copyright (c) 2011 samsung electronics
+ * Donghwa Lee <dh09.lee@samsung.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,14 +19,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#ifndef __ASM_AVR32_SECTIONS_H
-#define __ASM_AVR32_SECTIONS_H
 
-/* References to section boundaries */
+#ifndef _pwm_h_
+#define _pwm_h_
 
-extern char _text[], _etext[];
-extern char _data[], __data_lma[], _edata[], __edata_lma[];
-extern char __got_start[], __got_lma[], __got_end[];
-extern char __bss_end__[];
+int	pwm_init		(int pwm_id, int div, int invert);
+int	pwm_config		(int pwm_id, int duty_ns, int period_ns);
+int	pwm_enable		(int pwm_id);
+void	pwm_disable		(int pwm_id);
 
-#endif /* __ASM_AVR32_SECTIONS_H */
+#endif /* _pwm_h_ */

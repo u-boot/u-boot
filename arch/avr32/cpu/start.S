@@ -244,7 +244,7 @@ relocate_code:
 	/* zero out .bss */
 	mov	r0, 0
 	mov	r1, 0
-	lda.w	r9, _end
+	lda.w	r9, __bss_end__
 	sub	r9, r8
 1:	st.d	r10++, r0
 	sub	r9, 8

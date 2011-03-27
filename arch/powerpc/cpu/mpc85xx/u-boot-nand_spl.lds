@@ -62,6 +62,6 @@ SECTIONS
 		*(.sbss*)
 		*(.bss*)
 	}
-	_end = .;
+	__bss_end__ = .;
 }
 ASSERT(__init_end <= 0xfff00ffc, "NAND bootstrap too big");

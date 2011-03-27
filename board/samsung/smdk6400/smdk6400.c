@@ -78,10 +78,16 @@ int board_init(void)
 	return 0;
 }
 
-int dram_init(void)
+void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+}
+
+int dram_init(void)
+{
+	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
+				PHYS_SDRAM_1_SIZE);
 
 	return 0;
 }

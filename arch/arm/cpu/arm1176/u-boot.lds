@@ -61,11 +61,13 @@ SECTIONS
 		*(.dynsym)
 	}
 
+	_end = .;
+
 	.bss __rel_dyn_start (OVERLAY) : {
 		__bss_start = .;
 		*(.bss)
 		 . = ALIGN(4);
-		_end = .;
+		__bss_end__ = .;
 	}
 
 	/DISCARD/ : { *(.dynstr*) }

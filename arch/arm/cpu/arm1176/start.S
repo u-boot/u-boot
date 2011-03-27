@@ -121,6 +121,10 @@ _bss_start_ofs:
 
 .globl _bss_end_ofs
 _bss_end_ofs:
+	.word __bss_end__ - _start
+
+.globl _end_ofs
+_end_ofs:
 	.word _end - _start
 
 /* IRQ stack memory (calculated at run-time) + 8 bytes */
@@ -352,8 +356,10 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
 	cmp	r0, r1
 	bne	clbss_l
 
+#ifndef CONFIG_NAND_SPL
 	bl coloured_LED_init
 	bl red_LED_on
+#endif
 #endif
 
 /*

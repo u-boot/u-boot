@@ -55,7 +55,22 @@ SECTIONS
 	__u_boot_cmd_end = .;
 
 	. = ALIGN(4);
+
+	.rel.dyn : {
+	__rel_dyn_start = .;
+	*(.rel*)
+	__rel_dyn_end = .;
+	}
+
+	.dynsym : {
+	__dynsym_start = .;
+	*(.dynsym)
+	}
+
+	.bss __rel_dyn_start (OVERLAY) : {
 	__bss_start = .;
-	.bss : { *(.bss) . = ALIGN(4); }
-	_end = .;
+	*(.bss)
+	. = ALIGN(4);
+	__bss_end__ = .;
+	}
 }

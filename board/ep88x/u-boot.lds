@@ -86,7 +86,7 @@ SECTIONS
    *(COMMON)
    . = ALIGN(4);
   }
-  _end = . ;
+  __bss_end__ = . ;
   PROVIDE (end = .);
 }
 ENTRY(_start)

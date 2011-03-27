@@ -62,5 +62,5 @@ SECTIONS
    . = ALIGN(4);
   }
 
-  _end = . ;
+  __bss_end__ = . ;
 }

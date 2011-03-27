@@ -35,7 +35,6 @@ SECTIONS
 	.text      :
 	{
 	  arch/arm/cpu/arm1176/start.o	(.text)
-	  arch/arm/cpu/arm1176/s3c64xx/cpu_init.o	(.text)
 	  *(.text)
 	}
 
@@ -56,7 +55,28 @@ SECTIONS
 	.mmudata : { *(.mmudata) }
 
 	. = ALIGN(4);
-	__bss_start = .;
-	.bss : { *(.bss) . = ALIGN(4); }
-	_end = .;
+
+	.rel.dyn : {
+		__rel_dyn_start = .;
+		*(.rel*)
+		__rel_dyn_end = .;
+	}
+
+	.dynsym : {
+		__dynsym_start = .;
+		*(.dynsym)
+	}
+
+	.bss __rel_dyn_start (OVERLAY) : {
+		__bss_start = .;
+		*(.bss)
+		. = ALIGN(4);
+		__bss_end__ = .;
+	}
+
+	/DISCARD/ : { *(.dynstr*) }
+	/DISCARD/ : { *(.dynamic*) }
+	/DISCARD/ : { *(.plt*) }
+	/DISCARD/ : { *(.interp*) }
+	/DISCARD/ : { *(.gnu*) }
 }
