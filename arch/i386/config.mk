@@ -40,4 +40,3 @@ PLATFORM_LDFLAGS += --emit-relocs -Bsymbolic -Bsymbolic-functions
 
 LDFLAGS_FINAL += --gc-sections -pie
 LDSCRIPT := $(SRCTREE)/$(CPUDIR)/u-boot.lds
-

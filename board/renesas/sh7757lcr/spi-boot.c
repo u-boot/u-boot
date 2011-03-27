@@ -106,4 +106,3 @@ void __uses_spiboot2 spiboot_main(void)
 
 	_start();
 }
-

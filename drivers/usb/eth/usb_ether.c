@@ -147,4 +147,3 @@ int usb_host_eth_scan(int mode)
 		return 0;
 	return -1;
 }
-

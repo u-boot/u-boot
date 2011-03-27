@@ -61,4 +61,3 @@ You can write MAC address to SPI ROM.
 		 ETHERC ch1 = 00:00:87:6c:21:81
 		GETHERC ch0 = 00:00:87:6c:21:82
 		GETHERC ch1 = 00:00:87:6c:21:83
-

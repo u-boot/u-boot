@@ -37,4 +37,3 @@ LDSCRIPT := $(subst ",,$(CONFIG_SYS_LDSCRIPT))
 else
 LDSCRIPT := $(SRCTREE)/$(CPUDIR)/u-boot.lds
 endif
-

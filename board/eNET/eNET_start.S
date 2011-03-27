@@ -28,4 +28,3 @@
 early_board_init:
 	/* No 32-bit board specific initialisation */
 	jmp	early_board_init_ret
-

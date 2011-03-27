@@ -1314,4 +1314,3 @@ void rndis_exit(void)
 {
 	/* Nothing to do */
 }
-

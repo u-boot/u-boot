@@ -76,4 +76,3 @@ static inline struct sh_spi *to_sh_spi(struct spi_slave *slave)
 }
 
 #endif
-
