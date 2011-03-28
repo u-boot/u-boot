@@ -20,13 +20,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-v=$(shell $(AS) --version | grep 'GNU assembler' | egrep -o '2\.[0-9\.]+' | cut -d. -f2)
-MIPSFLAGS:=$(shell \
-if [ "$v" -lt "14" ]; then \
-	echo "-mcpu=4kc"; \
-else \
-	echo "-march=4kc -mtune=4kc"; \
-fi)
+
+#
+# Default optimization level for MIPS32
+#
+# Note: Toolchains with binutils prior to v2.16
+# are no longer supported by U-Boot MIPS tree!
+#
+MIPSFLAGS = -march=mips32r2
 
 ifneq (,$(findstring 4KCle,$(CROSS_COMPILE)))
 ENDIANNESS = -EL
