@@ -547,6 +547,8 @@ int do_bootm_subcommand (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 #if defined(CONFIG_OF_LIBFDT)
 		case BOOTM_STATE_FDT:
 		{
+			boot_fdt_add_mem_rsv_regions(&images.lmb,
+						     images.ft_addr);
 			ret = boot_relocate_fdt(&images.lmb,
 				&images.ft_addr, &images.ft_len);
 			break;

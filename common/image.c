@@ -1185,6 +1185,34 @@ static int fit_check_fdt (const void *fit, int fdt_noffset, int verify)
 #define CONFIG_SYS_FDT_PAD 0x3000
 #endif
 
+#if defined(CONFIG_OF_LIBFDT)
+/**
+ * boot_fdt_add_mem_rsv_regions - Mark the memreserve sections as unusable
+ * @lmb: pointer to lmb handle, will be used for memory mgmt
+ * @fdt_blob: pointer to fdt blob base address
+ *
+ * Adds the memreserve regions in the dtb to the lmb block.  Adding the
+ * memreserve regions prevents u-boot from using them to store the initrd
+ * or the fdt blob.
+ */
+void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
+{
+	uint64_t addr, size;
+	int i, total;
+
+	if (fdt_check_header (fdt_blob) != 0)
+		return;
+
+	total = fdt_num_mem_rsv(fdt_blob);
+	for (i = 0; i < total; i++) {
+		if (fdt_get_mem_rsv(fdt_blob, i, &addr, &size) != 0)
+			continue;
+		printf("   reserving fdt memory region: addr=%llx size=%llx\n",
+			(unsigned long long)addr, (unsigned long long)size);
+		lmb_reserve(lmb, addr, size);
+	}
+}
+
 /**
  * boot_relocate_fdt - relocate flat device tree
  * @lmb: pointer to lmb handle, will be used for memory mgmt
@@ -1202,7 +1230,6 @@ static int fit_check_fdt (const void *fit, int fdt_noffset, int verify)
  *      0 - success
  *      1 - failure
  */
-#if defined(CONFIG_OF_LIBFDT)
 int boot_relocate_fdt (struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 {
 	void	*fdt_blob = *of_flat_tree;
