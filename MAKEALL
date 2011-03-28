@@ -507,9 +507,7 @@ LIST_mips4kc="		\
 	vct_premium_onenand_small	\
 "
 
-LIST_mips5kc="		\
-	purple		\
-"
+LIST_mips5kc=""
 
 LIST_au1xx0="		\
 	dbau1000	\

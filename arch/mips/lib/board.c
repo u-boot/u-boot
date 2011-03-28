@@ -162,9 +162,6 @@ void board_init_f(ulong bootflag)
 	init_fnc_t **init_fnc_ptr;
 	ulong addr, addr_sp, len = (ulong)&uboot_end - CONFIG_SYS_MONITOR_BASE;
 	ulong *s;
-#ifdef CONFIG_PURPLE
-	void copy_code (ulong);
-#endif
 
 	/* Pointer is writable since we allocated a register for it.
 	 */
@@ -252,13 +249,6 @@ void board_init_f(ulong bootflag)
 	bd->bi_baudrate	= gd->baudrate;		/* Console Baudrate */
 
 	memcpy (id, (void *)gd, sizeof (gd_t));
-
-	/* On the purple board we copy the code in a special way
-	 * in order to solve flash problems
-	 */
-#ifdef CONFIG_PURPLE
-	copy_code(addr);
-#endif
 
 	relocate_code (addr_sp, id, addr);
 

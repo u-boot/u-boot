@@ -311,11 +311,7 @@ LEAF(dcache_enable)
 * RETURNS: N/A
 *
 */
-#if defined(CONFIG_PURPLE)
-# define	CACHE_LOCK_SIZE	(CONFIG_SYS_DCACHE_SIZE/2)
-#else
 # define	CACHE_LOCK_SIZE	(CONFIG_SYS_DCACHE_SIZE)
-#endif
 	.globl	mips_cache_lock
 	.ent	mips_cache_lock
 mips_cache_lock:

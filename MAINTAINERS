@@ -919,7 +919,6 @@ Daniel Engström <daniel@omicron.se>
 Wolfgang Denk <wd@denx.de>
 
 	incaip		MIPS32 4Kc
-	purple		MIPS64 5Kc
 
 Thomas Lange <thomas@corelatus.se>
 	dbau1x00	MIPS32 Au1000
