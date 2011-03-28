@@ -451,6 +451,7 @@ int image_check_dcrc (const image_header_t *hdr);
 int getenv_yesno (char *var);
 ulong getenv_bootm_low(void);
 phys_size_t getenv_bootm_size(void);
+phys_size_t getenv_bootm_mapsize(void);
 void memmove_wd (void *to, void *from, size_t len, ulong chunksz);
 #endif
 
