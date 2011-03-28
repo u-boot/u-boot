@@ -128,24 +128,32 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	pdimm->data_width = pdimm->primary_sdram_width
 			  + pdimm->ec_sdram_width;
 
-	switch (spd->module_type & 0xf) {
-	case 0x01:	/* RDIMM */
-	case 0x05:	/* Mini-RDIMM */
-		pdimm->registered_dimm = 1; /* register buffered */
+	/* These are the types defined by the JEDEC DDR3 SPD spec */
+	pdimm->mirrored_dimm = 0;
+	pdimm->registered_dimm = 0;
+	switch (spd->module_type & DDR3_SPD_MODULETYPE_MASK) {
+	case DDR3_SPD_MODULETYPE_RDIMM:
+	case DDR3_SPD_MODULETYPE_MINI_RDIMM:
+		/* Registered/buffered DIMMs */
+		pdimm->registered_dimm = 1;
 		for (i = 0; i < 16; i += 2) {
-			pdimm->rcw[i] = spd->mod_section.registered.rcw[i/2] & 0x0F;
-			pdimm->rcw[i+1] = (spd->mod_section.registered.rcw[i/2] >> 4) & 0x0F;
+			u8 rcw = spd->mod_section.registered.rcw[i/2];
+			pdimm->rcw[i]   = (rcw >> 0) & 0x0F;
+			pdimm->rcw[i+1] = (rcw >> 4) & 0x0F;
 		}
 		break;
-	case 0x02:	/* UDIMM */
-	case 0x03:	/* SO-DIMM */
-	case 0x04:	/* Micro-DIMM */
-	case 0x06:	/* Mini-UDIMM */
-		pdimm->registered_dimm = 0;	/* unbuffered */
+
+	case DDR3_SPD_MODULETYPE_UDIMM:
+	case DDR3_SPD_MODULETYPE_SO_DIMM:
+	case DDR3_SPD_MODULETYPE_MICRO_DIMM:
+	case DDR3_SPD_MODULETYPE_MINI_UDIMM:
+		/* Unbuffered DIMMs */
+		if (spd->mod_section.unbuffered.addr_mapping & 0x1)
+			pdimm->mirrored_dimm = 1;
 		break;
 
 	default:
-		printf("unknown dimm_type 0x%02X\n", spd->module_type);
+		printf("unknown module_type 0x%02X\n", spd->module_type);
 		return 1;
 	}
 
@@ -302,17 +310,6 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 */
 	pdimm->tFAW_ps = (((spd->tFAW_msb & 0xf) << 8) | spd->tFAW_min)
 			* mtb_ps;
-
-	/*
-	 * We need check the address mirror for unbuffered DIMM
-	 * If SPD indicate the address map mirror, The DDR controller
-	 * need care it.
-	 */
-	if ((spd->module_type == SPD_MODULETYPE_UDIMM) ||
-	    (spd->module_type == SPD_MODULETYPE_SODIMM) ||
-	    (spd->module_type == SPD_MODULETYPE_MICRODIMM) ||
-	    (spd->module_type == SPD_MODULETYPE_MINIUDIMM))
-		pdimm->mirrored_dimm = spd->mod_section.unbuffered.addr_mapping & 0x1;
 
 	return 0;
 }

@@ -18,7 +18,7 @@ spd_check(const u8 *buf, u8 spd_rev, u8 spd_cksum)
 
 	/*
 	 * Check SPD revision supported
-	 * Rev 1.2 or less supported by this code
+	 * Rev 1.X or less supported by this code
 	 */
 	if (spd_rev >= 0x20) {
 		printf("SPD revision %02X not supported by this code\n",
