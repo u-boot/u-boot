@@ -48,6 +48,8 @@
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
 
+#define CONFIG_OF_LIBFDT		1
+
 /*
  * Size of malloc() pool
  */

@@ -47,6 +47,7 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
+#define CONFIG_OF_LIBFDT		/* enable passing of devicetree */
 
 /* Environment */
 #define CONFIG_ENV_IS_NOWHERE

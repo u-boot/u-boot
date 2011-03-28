@@ -44,6 +44,8 @@
 #define CONFIG_L2_OFF			1
 #define CONFIG_INITRD_TAG		1
 
+#define CONFIG_OF_LIBFDT		1
+
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
 
