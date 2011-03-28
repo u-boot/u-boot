@@ -25,6 +25,12 @@
 #include <i2c.h>
 #include <rtc.h>
 
+#define RTC_RV3029_CTRL1	0x00
+#define RTC_RV3029_CTRL1_EERE	(1 << 3)
+
+#define RTC_RV3029_CTRL_STATUS	0x03
+#define RTC_RV3029_CTRLS_EEBUSY	(1 << 7)
+
 #define RTC_RV3029_CTRL_RESET	0x04
 #define RTC_RV3029_CTRL_SYS_R	(1 << 4)
 
@@ -41,6 +47,12 @@
 
 #define RV3029C2_REG_HR_12_24          (1 << 6)  /* 24h/12h mode */
 #define RV3029C2_REG_HR_PM             (1 << 5)  /* PM/AM bit in 12h mode */
+
+#define RTC_RV3029_EEPROM_CTRL	0x30
+#define RTC_RV3029_TRICKLE_1K	(1 << 4)
+#define RTC_RV3029_TRICKLE_5K	(1 << 5)
+#define RTC_RV3029_TRICKLE_20K	(1 << 6)
+#define RTC_RV3029_TRICKLE_80K	(1 << 7)
 
 int rtc_get( struct rtc_time *tmp )
 {
@@ -113,6 +125,41 @@ int rtc_set( struct rtc_time *tmp )
 	return 0;
 }
 
+/* sets EERE-Bit  (automatic EEPROM refresh) */
+static void set_eere_bit(int state)
+{
+	int ret;
+	unsigned char reg_ctrl1;
+
+	ret = i2c_read(CONFIG_SYS_I2C_RTC_ADDR, RTC_RV3029_CTRL1, 1,
+			&reg_ctrl1, 1);
+
+	if (state)
+		reg_ctrl1 |= RTC_RV3029_CTRL1_EERE;
+	else
+		reg_ctrl1 &= (~RTC_RV3029_CTRL1_EERE);
+
+	ret = i2c_write(CONFIG_SYS_I2C_RTC_ADDR, RTC_RV3029_CTRL1, 1,
+		&reg_ctrl1, 1);
+}
+
+/* waits until EEPROM page is no longer busy (times out after 10ms*loops) */
+static int wait_eebusy(int loops)
+{
+	int i, ret;
+	unsigned char ctrl_status;
+
+	for (i = 0; i < loops; i++) {
+		ret = i2c_read(CONFIG_SYS_I2C_RTC_ADDR, RTC_RV3029_CTRL_STATUS,
+			1, &ctrl_status, 1);
+
+		if ((ctrl_status & RTC_RV3029_CTRLS_EEBUSY) == 0)
+			break;
+		udelay(10000);
+	}
+	return i;
+}
+
 void rtc_reset (void)
 {
 	int	ret;
@@ -121,4 +168,44 @@ void rtc_reset (void)
 	buf[0] = RTC_RV3029_CTRL_SYS_R;
 	ret = i2c_write(CONFIG_SYS_I2C_RTC_ADDR, RTC_RV3029_CTRL_RESET, 1,
 			buf, 1);
+
+#if defined(CONFIG_SYS_RV3029_TCR)
+	/*
+	 * because EEPROM_CTRL register is in EEPROM page it is necessary to
+	 * disable automatic EEPROM refresh and check if EEPROM is busy
+	 * before EEPORM_CTRL register may be accessed
+	 */
+	set_eere_bit(0);
+	wait_eebusy(100);
+	/* read current trickle charger setting */
+	ret = i2c_read(CONFIG_SYS_I2C_RTC_ADDR, RTC_RV3029_EEPROM_CTRL,
+			1, buf, 1);
+	/* enable automatic EEPROM refresh again */
+	set_eere_bit(1);
+
+	/*
+	 * to minimize EEPROM access write trickle charger setting only if it
+	 * differs from current value
+	 */
+	if ((buf[0] & 0xF0) != CONFIG_SYS_RV3029_TCR) {
+		buf[0] = (buf[0] & 0x0F) | CONFIG_SYS_RV3029_TCR;
+		/*
+		 * write trickle charger setting (disable autom. EEPROM
+		 * refresh and wait until EEPROM is idle)
+		 */
+		set_eere_bit(0);
+		wait_eebusy(100);
+		ret = i2c_write(CONFIG_SYS_I2C_RTC_ADDR,
+				RTC_RV3029_EEPROM_CTRL, 1, buf, 1);
+		/*
+		 * it is necessary to wait 10ms before EEBUSY-Bit may be read
+		 * (this is not documented in the data sheet yet, but the
+		 * manufacturer recommends it)
+		 */
+		udelay(10000);
+		/* wait until EEPROM write access is finished */
+		wait_eebusy(100);
+		set_eere_bit(1);
+	}
+#endif
 }

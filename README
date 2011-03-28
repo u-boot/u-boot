@@ -748,6 +748,8 @@ The following options need to be configured:
 		CONFIG_RTC_ISL1208	- use Intersil ISL1208 RTC
 		CONFIG_RTC_MAX6900	- use Maxim, Inc. MAX6900 RTC
 		CONFIG_SYS_RTC_DS1337_NOOSC	- Turn off the OSC output for DS1337
+		CONFIG_SYS_RV3029_TCR	- enable trickle charger on
+					  RV3029 RTC.
 
 		Note that if the RTC uses I2C, then the I2C interface
 		must also be configured. See I2C Support, below.
