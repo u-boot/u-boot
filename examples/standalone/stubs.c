@@ -187,14 +187,14 @@ void __attribute__((unused)) dummy(void)
 #include <_exports.h>
 }
 
-extern unsigned long __bss_start, __bss_end__;
+extern unsigned long __bss_start, _end;
 
 void app_startup(char * const *argv)
 {
 	unsigned char * cp = (unsigned char *) &__bss_start;
 
 	/* Zero out BSS */
-	while (cp < (unsigned char *)&__bss_end__) {
+	while (cp < (unsigned char *)&_end) {
 		*cp++ = 0;
 	}
 
