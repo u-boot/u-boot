@@ -1724,7 +1724,8 @@ static int net_check_prereq (proto_t protocol)
 			puts ("*** ERROR: `serverip' not set\n");
 			return (1);
 		}
-#if defined(CONFIG_CMD_PING) || defined(CONFIG_CMD_SNTP)
+#if defined(CONFIG_CMD_PING) || defined(CONFIG_CMD_SNTP) || \
+    defined(CONFIG_CMD_DNS)
     common:
 #endif
 
