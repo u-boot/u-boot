@@ -317,6 +317,13 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 	temp32 |= 0xf000e;		/* set URR, FER, NFER (but not CER) */
 	pci_hose_write_config_dword(hose, dev, PCI_DCR, temp32);
 
+#if defined(CONFIG_FSL_PCIE_DISABLE_ASPM)
+	temp32 = 0;
+	pci_hose_read_config_dword(hose, dev, PCI_LCR, &temp32);
+	temp32 &= ~0x03;		/* Disable ASPM  */
+	pci_hose_write_config_dword(hose, dev, PCI_LCR, temp32);
+	udelay(1);
+#endif
 	if (pcie_cap == PCI_CAP_ID_EXP) {
 		pci_hose_read_config_word(hose, dev, PCI_LTSSM, &ltssm);
 		enabled = ltssm >= PCI_LTSSM_L0;
