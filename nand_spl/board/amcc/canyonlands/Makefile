@@ -24,6 +24,8 @@
 include $(TOPDIR)/config.mk
 include $(TOPDIR)/nand_spl/board/$(BOARDDIR)/config.mk
 
+nandobj	:= $(OBJTREE)/nand_spl/
+
 LDSCRIPT= $(TOPDIR)/nand_spl/board/$(BOARDDIR)/u-boot.lds
 LDFLAGS := -T $(nandobj)u-boot.lds -Ttext $(CONFIG_SYS_TEXT_BASE) $(LDFLAGS) \
 	   $(LDFLAGS_FINAL)
@@ -41,9 +43,7 @@ COBJS	+= ndfc.o
 SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 __OBJS	:= $(SOBJS) $(COBJS)
-LNDIR	:= $(OBJTREE)/nand_spl/board/$(BOARDDIR)
-
-nandobj	:= $(OBJTREE)/nand_spl/
+LNDIR	:= $(nandobj)board/$(BOARDDIR)
 
 ALL	= $(nandobj)u-boot-spl $(nandobj)u-boot-spl.bin $(nandobj)u-boot-spl-16k.bin
 
