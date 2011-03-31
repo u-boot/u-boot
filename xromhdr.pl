@@ -66,7 +66,7 @@ $HDR_38 = 0x00000000;
 
 $HDR_3C = 0xDEADBEEF;
 if ($hdr_type eq "nor") {
- $HDR_3C = 0xE40000A8;
+ $HDR_3C = 0xE20000A8;
 } 
 if ($hdr_type eq "qspi") {
  $HDR_3C = 0xFC0000A8;

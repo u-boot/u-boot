@@ -29,9 +29,9 @@
 	"nand_kernel_size=0x400000\0" 	\
 	"nand_ramdisk_size=0x400000\0" 	\
 	"norboot=echo Copying Linux from NOR flash to RAM...;			\
-			    cp 0xE4100000 0x8000 ${kernel_size};		\
+			    cp 0xE2100000 0x8000 ${kernel_size};		\
 			    echo Copying ramdisk from NOR flash to RAM...; 	\
-			    cp 0xE5000000 0x800000 ${ramdisk_size}; 		\
+			    cp 0xE3000000 0x800000 ${ramdisk_size}; 		\
 			    go 0x8000\0"					\
 	"qspiboot=echo Copying Linux from QSPI flash to RAM...;			\
 			    cp 0xFC100000 0x8000 ${kernel_size};		\
@@ -99,7 +99,7 @@
 #ifndef CONFIG_SYS_NO_FLASH
 
 /* FLASH organization */
-#define CONFIG_SYS_FLASH_BASE           0xE4000000 
+#define CONFIG_SYS_FLASH_BASE           0xE2000000 
 #define CONFIG_SYS_FLASH_SIZE           (16*1024*1024)  /* i.e. 16MB */
 #define CONFIG_SYS_MAX_FLASH_BANKS      1       /* max number of memory banks */
 #define CONFIG_SYS_MAX_FLASH_SECT       512     /* max number of sectors/blocks on one chip */

@@ -6,7 +6,7 @@
 #include <xparameters.h>
 
 #define PARPORT_CRTL_BASEADDR                   XPSS_CRTL_PARPORT_BASEADDR
-#define NOR_FLASH_BASEADDR                      XPSS_PARPORT1_BASEADDR
+#define NOR_FLASH_BASEADDR                      XPSS_PARPORT0_BASEADDR
 
 #define PARPORT_MC_DIRECT_CMD                   0x010
 #define PARPORT_MC_SET_CYCLES                   0x014
@@ -56,7 +56,7 @@ void init_nor_flash()
 
   /* write operation mode to set_opmode registers */
   u32 set_opmode_reg = (0x1 << 13) | /* set_burst_align, see to 32 beats */
-                       (0x0 << 12) | /* set_bls, set to default I am not sure */
+                       (0x1 << 12) | /* set_bls, set to default */
                        (0x0 << 11) | /* set_adv bit, set to default */
                        (0x0 << 10) | /* set_baa, I guess we don't use baa_n */
                        (0x0 << 7) |  /* set_wr_bl, write brust length, set to 0 */
@@ -68,12 +68,12 @@ void init_nor_flash()
 
   /*
    * Issue a direct_cmd by writing to direct_cmd register
-   * This is needed becuase the UpdatesReg flag in direct_cmd updates the state of SMC
-   * I think....
+   * This is needed becuase the UpdatesReg flag in direct_cmd updates the
+   * state of SMC
    */
-  u32 direct_cmd_reg = (0x1 << 23) | /* chip 1 from interface 0 */
+  u32 direct_cmd_reg = (0x0 << 23) | /* chip 1 from interface 0 */
                        (0x2 << 21) | /* UpdateRegs operation, to update the two reg we wrote earlier*/
-                       (0x0 << 20) | /* Not sure about this one cre, what does it do? */
+                       (0x0 << 20) | /* cre */
                        (0x0);        /* addr, not use in UpdateRegs */
   Out32(PARPORT_CRTL_BASEADDR + PARPORT_MC_DIRECT_CMD, direct_cmd_reg);
 
