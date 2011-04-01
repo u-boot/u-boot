@@ -386,6 +386,52 @@ static void p4080_erratum_serdes8(serdes_corenet_t *regs, ccsr_gur_t *gur,
 }
 #endif
 
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A005
+/*
+ * If PCIe is not selected as a protocol for any lanes driven by a given PLL,
+ * that PLL should have SRDSBnPLLCR1[PLLBW_SEL] = 0.
+ */
+static void p4080_erratum_serdes_a005(serdes_corenet_t *regs, unsigned int cfg)
+{
+	enum srds_prtcl device;
+
+	switch (cfg) {
+	case 0x13:
+	case 0x16:
+		/*
+		 * If SRDS_PRTCL = 0x13 or 0x16, set SRDSB1PLLCR1[PLLBW_SEL]
+		 * to 0.
+		 */
+		clrbits_be32(&regs->bank[FSL_SRDS_BANK_1].pllcr1,
+			     SRDS_PLLCR1_PLL_BWSEL);
+		break;
+	case 0x19:
+		/*
+		 * If SRDS_PRTCL = 0x19, set SRDSB1PLLCR1[PLLBW_SEL] to 0 and
+		 * SRDSB3PLLCR1[PLLBW_SEL] to 1.
+		 */
+		clrbits_be32(&regs->bank[FSL_SRDS_BANK_1].pllcr1,
+			     SRDS_PLLCR1_PLL_BWSEL);
+		setbits_be32(&regs->bank[FSL_SRDS_BANK_3].pllcr1,
+			     SRDS_PLLCR1_PLL_BWSEL);
+		break;
+	}
+
+	/*
+	 * Set SRDSBnPLLCR1[PLLBW_SEL] to 0 for each bank that selects XAUI
+	 * before XAUI is initialized.
+	 */
+	for (device = XAUI_FM1; device <= XAUI_FM2; device++) {
+		if (is_serdes_configured(device)) {
+			int bank = serdes_get_bank_by_device(cfg, device);
+
+			clrbits_be32(&regs->bank[bank].pllcr1,
+				     SRDS_PLLCR1_PLL_BWSEL);
+		}
+	}
+}
+#endif
+
 void fsl_serdes_init(void)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -570,6 +616,8 @@ void fsl_serdes_init(void)
 	puts("\n");
 #endif
 
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A005
+	p4080_erratum_serdes_a005(srds_regs, cfg);
 #endif
 
 	for (idx = 0; idx < SRDS_MAX_BANK; idx++) {
