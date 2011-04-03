@@ -42,6 +42,7 @@
 #if defined(CONFIG_DIGSY_REV5)
 #include "is45s16800a2.h"
 #include <mtd/cfi_flash.h>
+#include <flash.h>
 #else
 #include "is42s16800a-7t.h"
 #endif
@@ -398,6 +399,7 @@ int update_flash_size (int flash_size)
 			size += flash_get_size(base, i);
 		}
 	}
+	flash_protect_default();
 	gd->bd->bi_flashstart = base;
 	return 0;
 }
