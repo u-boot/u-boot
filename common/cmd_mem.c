@@ -34,9 +34,6 @@
 #endif
 #include <watchdog.h>
 
-#include <u-boot/md5.h>
-#include <sha1.h>
-
 #ifdef	CMD_MEM_DEBUG
 #define	PRINTF(fmt,args...)	printf (fmt ,##args)
 #else
@@ -1165,83 +1162,6 @@ usage:
 
 #endif
 
-#ifdef CONFIG_CMD_MD5SUM
-int do_md5sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	unsigned long addr, len;
-	unsigned int i;
-	u8 output[16];
-
-	if (argc < 3)
-		return cmd_usage(cmdtp);
-
-	addr = simple_strtoul(argv[1], NULL, 16);
-	len = simple_strtoul(argv[2], NULL, 16);
-
-	md5((unsigned char *) addr, len, output);
-	printf("md5 for %08lx ... %08lx ==> ", addr, addr + len - 1);
-	for (i = 0; i < 16; i++)
-		printf("%02x", output[i]);
-	printf("\n");
-
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_CMD_SHA1SUM
-int do_sha1sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	unsigned long addr, len;
-	unsigned int i;
-	u8 output[20];
-
-	if (argc < 3)
-		return cmd_usage(cmdtp);
-
-	addr = simple_strtoul(argv[1], NULL, 16);
-	len = simple_strtoul(argv[2], NULL, 16);
-
-	sha1_csum((unsigned char *) addr, len, output);
-	printf("SHA1 for %08lx ... %08lx ==> ", addr, addr + len - 1);
-	for (i = 0; i < 20; i++)
-		printf("%02x", output[i]);
-	printf("\n");
-
-	return 0;
-}
-#endif
-
-#ifdef CONFIG_CMD_UNZIP
-int do_unzip ( cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
-{
-	unsigned long src, dst;
-	unsigned long src_len = ~0UL, dst_len = ~0UL;
-	char buf[32];
-
-	switch (argc) {
-		case 4:
-			dst_len = simple_strtoul(argv[3], NULL, 16);
-			/* fall through */
-		case 3:
-			src = simple_strtoul(argv[1], NULL, 16);
-			dst = simple_strtoul(argv[2], NULL, 16);
-			break;
-		default:
-			return cmd_usage(cmdtp);
-	}
-
-	if (gunzip((void *) dst, dst_len, (void *) src, &src_len) != 0)
-		return 1;
-
-	printf("Uncompressed size: %ld = 0x%lX\n", src_len, src_len);
-	sprintf(buf, "%lX", src_len);
-	setenv("filesize", buf);
-
-	return 0;
-}
-#endif /* CONFIG_CMD_UNZIP */
-
-
 /**************************************************/
 U_BOOT_CMD(
 	md,	3,	1,	do_mem_md,
@@ -1344,27 +1264,3 @@ U_BOOT_CMD(
 	"[.b, .w, .l] address value delay(ms)"
 );
 #endif /* CONFIG_MX_CYCLIC */
-
-#ifdef CONFIG_CMD_MD5SUM
-U_BOOT_CMD(
-	md5sum,	3,	1,	do_md5sum,
-	"compute MD5 message digest",
-	"address count"
-);
-#endif
-
-#ifdef CONFIG_CMD_SHA1SUM
-U_BOOT_CMD(
-	sha1sum,	3,	1,	do_sha1sum,
-	"compute SHA1 message digest",
-	"address count"
-);
-#endif /* CONFIG_CMD_SHA1SUM */
-
-#ifdef CONFIG_CMD_UNZIP
-U_BOOT_CMD(
-	unzip,	4,	1,	do_unzip,
-	"unzip a memory region",
-	"srcaddr dstaddr [dstsize]"
-);
-#endif /* CONFIG_CMD_UNZIP */
