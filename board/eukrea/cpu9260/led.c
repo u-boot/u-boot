@@ -35,65 +35,67 @@ static unsigned int saved_state[4] = {STATUS_LED_OFF, STATUS_LED_OFF,
 
 void coloured_LED_init(void)
 {
+	at91_pmc_t *pmc = (at91_pmc_t *) AT91_PMC_BASE;
+
 	/* Enable clock */
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9260_ID_PIOC);
+	writel(1 << AT91SAM9260_ID_PIOC, &pmc->pcer);
 
-	at91_set_gpio_output(CONFIG_RED_LED, 1);
-	at91_set_gpio_output(CONFIG_GREEN_LED, 1);
-	at91_set_gpio_output(CONFIG_YELLOW_LED, 1);
-	at91_set_gpio_output(CONFIG_BLUE_LED, 1);
+	at91_set_pio_output(CONFIG_RED_LED, 1);
+	at91_set_pio_output(CONFIG_GREEN_LED, 1);
+	at91_set_pio_output(CONFIG_YELLOW_LED, 1);
+	at91_set_pio_output(CONFIG_BLUE_LED, 1);
 
-	at91_set_gpio_value(CONFIG_RED_LED, 1);
-	at91_set_gpio_value(CONFIG_GREEN_LED, 1);
-	at91_set_gpio_value(CONFIG_YELLOW_LED, 1);
-	at91_set_gpio_value(CONFIG_BLUE_LED, 1);
+	at91_set_pio_value(CONFIG_RED_LED, 1);
+	at91_set_pio_value(CONFIG_GREEN_LED, 1);
+	at91_set_pio_value(CONFIG_YELLOW_LED, 1);
+	at91_set_pio_value(CONFIG_BLUE_LED, 1);
 }
 
 void red_LED_off(void)
 {
-	at91_set_gpio_value(CONFIG_RED_LED, 1);
+	at91_set_pio_value(CONFIG_RED_LED, 1);
 	saved_state[STATUS_LED_RED] = STATUS_LED_OFF;
 }
 
 void green_LED_off(void)
 {
-	at91_set_gpio_value(CONFIG_GREEN_LED, 1);
+	at91_set_pio_value(CONFIG_GREEN_LED, 1);
 	saved_state[STATUS_LED_GREEN] = STATUS_LED_OFF;
 }
 
 void yellow_LED_off(void)
 {
-	at91_set_gpio_value(CONFIG_YELLOW_LED, 1);
+	at91_set_pio_value(CONFIG_YELLOW_LED, 1);
 	saved_state[STATUS_LED_YELLOW] = STATUS_LED_OFF;
 }
 
 void blue_LED_off(void)
 {
-	at91_set_gpio_value(CONFIG_BLUE_LED, 1);
+	at91_set_pio_value(CONFIG_BLUE_LED, 1);
 	saved_state[STATUS_LED_BLUE] = STATUS_LED_OFF;
 }
 
 void red_LED_on(void)
 {
-	at91_set_gpio_value(CONFIG_RED_LED, 0);
+	at91_set_pio_value(CONFIG_RED_LED, 0);
 	saved_state[STATUS_LED_RED] = STATUS_LED_ON;
 }
 
 void green_LED_on(void)
 {
-	at91_set_gpio_value(CONFIG_GREEN_LED, 0);
+	at91_set_pio_value(CONFIG_GREEN_LED, 0);
 	saved_state[STATUS_LED_GREEN] = STATUS_LED_ON;
 }
 
 void yellow_LED_on(void)
 {
-	at91_set_gpio_value(CONFIG_YELLOW_LED, 0);
+	at91_set_pio_value(CONFIG_YELLOW_LED, 0);
 	saved_state[STATUS_LED_YELLOW] = STATUS_LED_ON;
 }
 
 void blue_LED_on(void)
 {
-	at91_set_gpio_value(CONFIG_BLUE_LED, 0);
+	at91_set_pio_value(CONFIG_BLUE_LED, 0);
 	saved_state[STATUS_LED_BLUE] = STATUS_LED_ON;
 }
 
