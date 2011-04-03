@@ -345,7 +345,11 @@
  */
 #define CONFIG_MPC5xxx_FEC	1
 #define CONFIG_MPC5xxx_FEC_MII100
+#if defined(CONFIG_DIGSY_REV5)
+#define CONFIG_PHY_ADDR		0x01
+#else
 #define CONFIG_PHY_ADDR		0x00
+#endif
 #define CONFIG_PHY_RESET_DELAY	1000
 
 #define CONFIG_NETCONSOLE		/* include NetConsole support	*/

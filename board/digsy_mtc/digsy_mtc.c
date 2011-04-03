@@ -405,6 +405,9 @@ int update_flash_size (int flash_size)
 
 void ft_board_setup(void *blob, bd_t *bd)
 {
+	int phy_addr = CONFIG_PHY_ADDR;
+	char eth_path[] = "/soc5200@f0000000/mdio@3000/ethernet-phy@0";
+
 	ft_cpu_setup(blob, bd);
 	/*
 	 * There are 2 RTC nodes in the DTS, so remove
@@ -422,5 +425,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 	ft_adapt_flash_base(blob);
 #endif
+	/* fix up the phy address */
+	do_fixup_by_path(blob, eth_path, "reg", &phy_addr, sizeof(int), 0);
 }
 #endif /* defined(CONFIG_OF_LIBFDT) && defined(CONFIG_OF_BOARD_SETUP) */
