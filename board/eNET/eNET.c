@@ -35,6 +35,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+unsigned long monitor_flash_len = CONFIG_SYS_MONITOR_LEN;
+
 static void enet_timer_isr(void);
 static void enet_toggle_run_led(void);
 static void enet_setup_pars(void);
