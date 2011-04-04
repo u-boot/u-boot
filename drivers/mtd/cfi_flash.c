@@ -2086,6 +2086,46 @@ static void cfi_flash_set_config_reg(u32 base, u16 val)
 
 /*-----------------------------------------------------------------------
  */
+
+void flash_protect_default(void)
+{
+	/* Monitor protection ON by default */
+#if (CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE) && \
+	(!defined(CONFIG_MONITOR_IS_IN_RAM))
+	flash_protect(FLAG_PROTECT_SET,
+		       CONFIG_SYS_MONITOR_BASE,
+		       CONFIG_SYS_MONITOR_BASE + monitor_flash_len  - 1,
+		       flash_get_info(CONFIG_SYS_MONITOR_BASE));
+#endif
+
+	/* Environment protection ON by default */
+#ifdef CONFIG_ENV_IS_IN_FLASH
+	flash_protect(FLAG_PROTECT_SET,
+		       CONFIG_ENV_ADDR,
+		       CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
+		       flash_get_info(CONFIG_ENV_ADDR));
+#endif
+
+	/* Redundant environment protection ON by default */
+#ifdef CONFIG_ENV_ADDR_REDUND
+	flash_protect(FLAG_PROTECT_SET,
+		       CONFIG_ENV_ADDR_REDUND,
+		       CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
+		       flash_get_info(CONFIG_ENV_ADDR_REDUND));
+#endif
+
+#if defined(CONFIG_SYS_FLASH_AUTOPROTECT_LIST)
+	for (i = 0; i < (sizeof(apl) / sizeof(struct apl_s)); i++) {
+		debug("autoprotecting from %08x to %08x\n",
+		      apl[i].start, apl[i].start + apl[i].size - 1);
+		flash_protect(FLAG_PROTECT_SET,
+			       apl[i].start,
+			       apl[i].start + apl[i].size - 1,
+			       flash_get_info(apl[i].start));
+	}
+#endif
+}
+
 unsigned long flash_init (void)
 {
 	unsigned long size = 0;
@@ -2172,42 +2212,7 @@ unsigned long flash_init (void)
 #endif /* CONFIG_SYS_FLASH_PROTECTION */
 	}
 
-	/* Monitor protection ON by default */
-#if (CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE) && \
-	(!defined(CONFIG_MONITOR_IS_IN_RAM))
-	flash_protect (FLAG_PROTECT_SET,
-		       CONFIG_SYS_MONITOR_BASE,
-		       CONFIG_SYS_MONITOR_BASE + monitor_flash_len  - 1,
-		       flash_get_info(CONFIG_SYS_MONITOR_BASE));
-#endif
-
-	/* Environment protection ON by default */
-#ifdef CONFIG_ENV_IS_IN_FLASH
-	flash_protect (FLAG_PROTECT_SET,
-		       CONFIG_ENV_ADDR,
-		       CONFIG_ENV_ADDR + CONFIG_ENV_SECT_SIZE - 1,
-		       flash_get_info(CONFIG_ENV_ADDR));
-#endif
-
-	/* Redundant environment protection ON by default */
-#ifdef CONFIG_ENV_ADDR_REDUND
-	flash_protect (FLAG_PROTECT_SET,
-		       CONFIG_ENV_ADDR_REDUND,
-		       CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1,
-		       flash_get_info(CONFIG_ENV_ADDR_REDUND));
-#endif
-
-#if defined(CONFIG_SYS_FLASH_AUTOPROTECT_LIST)
-	for (i = 0; i < (sizeof(apl) / sizeof(struct apl_s)); i++) {
-		debug("autoprotecting from %08x to %08x\n",
-		      apl[i].start, apl[i].start + apl[i].size - 1);
-		flash_protect (FLAG_PROTECT_SET,
-			       apl[i].start,
-			       apl[i].start + apl[i].size - 1,
-			       flash_get_info(apl[i].start));
-	}
-#endif
-
+	flash_protect_default();
 #ifdef CONFIG_FLASH_CFI_MTD
 	cfi_mtd_init();
 #endif
