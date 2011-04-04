@@ -209,7 +209,7 @@ int hmatch_r(const char *match, int last_idx, ENTRY ** retval,
 	size_t key_len = strlen(match);
 
 	for (idx = last_idx + 1; idx < htab->size; ++idx) {
-		if (htab->table[idx].used > 0)
+		if (htab->table[idx].used <= 0)
 			continue;
 		if (!strncmp(match, htab->table[idx].entry.key, key_len)) {
 			*retval = &htab->table[idx].entry;
