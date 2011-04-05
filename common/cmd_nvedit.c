@@ -4,7 +4,9 @@
  *
  * (C) Copyright 2001 Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Andreas Heppel <aheppel@sysgo.de>
-
+ *
+ * Copyright 2011 Freescale Semiconductor, Inc.
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -159,6 +161,37 @@ int do_env_print (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	return rcode;
 }
+
+#ifdef CONFIG_CMD_GREPENV
+static int do_env_grep (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+{
+	ENTRY *match;
+	unsigned char matched[env_htab.size / 8];
+	int rcode = 1, arg = 1, idx;
+
+	if (argc < 2)
+		return cmd_usage(cmdtp);
+
+	memset(matched, 0, env_htab.size / 8);
+
+	while (arg <= argc) {
+		idx = 0;
+		while ((idx = hstrstr_r(argv[arg], idx, &match, &env_htab))) {
+			if (!(matched[idx / 8] & (1 << (idx & 7)))) {
+				puts(match->key);
+				puts("=");
+				puts(match->data);
+				puts("\n");
+			}
+			matched[idx / 8] |= 1 << (idx & 7);
+			rcode = 0;
+		}
+		arg++;
+	}
+
+	return rcode;
+}
+#endif
 
 /*
  * Set a new environment variable,
@@ -829,6 +862,9 @@ static cmd_tbl_t cmd_env_sub[] = {
 #if defined(CONFIG_CMD_EXPORTENV)
 	U_BOOT_CMD_MKENT(export, 4, 0, do_env_export, "", ""),
 #endif
+#if defined(CONFIG_CMD_GREPENV)
+	U_BOOT_CMD_MKENT(grep, CONFIG_SYS_MAXARGS, 1, do_env_grep, "", ""),
+#endif
 #if defined(CONFIG_CMD_IMPORTENV)
 	U_BOOT_CMD_MKENT(import, 5, 0, do_env_import, "", ""),
 #endif
@@ -878,8 +914,11 @@ U_BOOT_CMD(
 #if defined(CONFIG_CMD_EDITENV)
 	"env edit name - edit environment variable\n"
 #endif
-	"env export [-t | -b | -c] addr [size] - export environmnt\n"
-	"env import [-d] [-t | -b | -c] addr [size] - import environmnt\n"
+	"env export [-t | -b | -c] addr [size] - export environment\n"
+#if defined(CONFIG_CMD_GREPENV)
+	"env grep string [...] - search environment\n"
+#endif
+	"env import [-d] [-t | -b | -c] addr [size] - import environment\n"
 	"env print [name ...] - print environment\n"
 #if defined(CONFIG_CMD_RUN)
 	"env run var [...] - run commands in an environment variable\n"
@@ -910,6 +949,16 @@ U_BOOT_CMD_COMPLETE(
 	"    - print value of environment variable 'name'",
 	var_complete
 );
+
+#ifdef CONFIG_CMD_GREPENV
+U_BOOT_CMD_COMPLETE(
+	grepenv, CONFIG_SYS_MAXARGS, 0,  do_env_grep,
+	"search environment variables",
+	"string ...\n"
+	"    - list environment name=value pairs matching 'string'",
+	var_complete
+);
+#endif
 
 U_BOOT_CMD_COMPLETE(
 	setenv, CONFIG_SYS_MAXARGS, 0,	do_env_set,
