@@ -3,46 +3,9 @@
  */
 
 #include <config.h>
-
-#ifdef CONFIG_PURPLE
-#define	serial_init	asc_serial_init
-#define	serial_putc	asc_serial_putc
-#define	serial_puts	asc_serial_puts
-#define	serial_getc	asc_serial_getc
-#define	serial_tstc	asc_serial_tstc
-#define	serial_setbrg	asc_serial_setbrg
-#endif
-
 #include <common.h>
 #include <asm/inca-ip.h>
 #include "asc_serial.h"
-
-#ifdef CONFIG_PURPLE
-
-#undef ASC_FIFO_PRESENT
-#define TOUT_LOOP	100000
-
-/* Set base address for second FPI interrupt control register bank */
-#define SFPI_INTCON_BASEADDR	0xBF0F0000
-
-/* Register offset from base address */
-#define FBS_ISR		0x00000000	/* Interrupt status register */
-#define FBS_IMR		0x00000008	/* Interrupt mask register */
-#define FBS_IDIS	0x00000010	/* Interrupt disable register */
-
-/* Interrupt status register bits */
-#define FBS_ISR_AT	0x00000040	/* ASC transmit interrupt */
-#define FBS_ISR_AR	0x00000020	/* ASC receive interrupt */
-#define FBS_ISR_AE	0x00000010	/* ASC error interrupt */
-#define FBS_ISR_AB	0x00000008	/* ASC transmit buffer interrupt */
-#define FBS_ISR_AS      0x00000004	/* ASC start of autobaud detection interrupt */
-#define FBS_ISR_AF	0x00000002	/* ASC end of autobaud detection interrupt */
-
-#else
-
-#define ASC_FIFO_PRESENT
-
-#endif
 
 
 #define SET_BIT(reg, mask)                  reg |= (mask)
@@ -71,10 +34,8 @@ static volatile incaAsc_t *pAsc = (incaAsc_t *)INCA_IP_ASC;
 
 int serial_init (void)
 {
-#ifdef CONFIG_INCA_IP
     /* we have to set PMU.EN13 bit to enable an ASC device*/
     INCAASC_PMU_ENABLE(13);
-#endif
 
     /* and we have to set CLC register*/
     CLEAR_BIT(pAsc->asc_clc, ASCCLC_DISS);
@@ -86,7 +47,6 @@ int serial_init (void)
     /* select input port */
     pAsc->asc_pisel = (CONSOLE_TTY & 0x1);
 
-#ifdef ASC_FIFO_PRESENT
     /* TXFIFO's filling level */
     SET_BITFIELD(pAsc->asc_txfcon, ASCTXFCON_TXFITLMASK,
 		    ASCTXFCON_TXFITLOFF, INCAASC_TXFIFO_FL);
@@ -98,25 +58,20 @@ int serial_init (void)
 		    ASCRXFCON_RXFITLOFF, INCAASC_RXFIFO_FL);
     /* enable RXFIFO */
     SET_BIT(pAsc->asc_rxfcon, ASCRXFCON_RXFEN);
-#endif
 
     /* enable error signals */
     SET_BIT(pAsc->asc_con, ASCCON_FEN);
     SET_BIT(pAsc->asc_con, ASCCON_OEN);
 
-#ifdef CONFIG_INCA_IP
     /* acknowledge ASC interrupts */
     ASC_INTERRUPTS_CLEAR(INCAASC_IRQ_LINE_ALL);
 
     /* disable ASC interrupts */
     ASC_INTERRUPTS_DISABLE(INCAASC_IRQ_LINE_ALL);
-#endif
 
-#ifdef ASC_FIFO_PRESENT
     /* set FIFOs into the transparent mode */
     SET_BIT(pAsc->asc_txfcon, ASCTXFCON_TXTMEN);
     SET_BIT(pAsc->asc_rxfcon, ASCRXFCON_RXTMEN);
-#endif
 
     /* set baud rate */
     serial_setbrg();
@@ -132,11 +87,7 @@ void serial_setbrg (void)
     ulong      uiReloadValue, fdv;
     ulong      f_ASC;
 
-#ifdef CONFIG_INCA_IP
     f_ASC = incaip_get_fpiclk();
-#else
-    f_ASC = ASC_CLOCK_RATE;
-#endif
 
 #ifndef INCAASC_USE_FDV
     fdv = 2;
@@ -261,15 +212,10 @@ static int serial_setopt (void)
 
 void serial_putc (const char c)
 {
-#ifdef ASC_FIFO_PRESENT
     uint txFl = 0;
-#else
-    uint timeout = 0;
-#endif
 
     if (c == '\n') serial_putc ('\r');
 
-#ifdef ASC_FIFO_PRESENT
     /* check do we have a free space in the TX FIFO */
     /* get current filling level */
     do
@@ -277,24 +223,8 @@ void serial_putc (const char c)
 	txFl = ( pAsc->asc_fstat & ASCFSTAT_TXFFLMASK ) >> ASCFSTAT_TXFFLOFF;
     }
     while ( txFl == INCAASC_TXFIFO_FULL );
-#else
-
-    while(!(*(volatile unsigned long*)(SFPI_INTCON_BASEADDR + FBS_ISR) &
-			   FBS_ISR_AB))
-    {
-	    if (timeout++ > TOUT_LOOP)
-	    {
-		    break;
-	    }
-    }
-#endif
 
     pAsc->asc_tbuf = c; /* write char to Transmit Buffer Register */
-
-#ifndef ASC_FIFO_PRESENT
-    *(volatile unsigned long*)(SFPI_INTCON_BASEADDR + FBS_ISR) = FBS_ISR_AB |
-								 FBS_ISR_AT;
-#endif
 
     /* check for errors */
     if ( pAsc->asc_con & ASCCON_OE )
@@ -324,10 +254,6 @@ int serial_getc (void)
 
     c = (char)(pAsc->asc_rbuf & symbol_mask);
 
-#ifndef ASC_FIFO_PRESENT
-    *(volatile unsigned long*)(SFPI_INTCON_BASEADDR + FBS_ISR) = FBS_ISR_AR;
-#endif
-
     return c;
 }
 
@@ -335,19 +261,10 @@ int serial_tstc (void)
 {
     int res = 1;
 
-#ifdef ASC_FIFO_PRESENT
     if ( (pAsc->asc_fstat & ASCFSTAT_RXFFLMASK) == 0 )
     {
 	res = 0;
     }
-#else
-    if (!(*(volatile unsigned long*)(SFPI_INTCON_BASEADDR + FBS_ISR) &
-								FBS_ISR_AR))
-
-    {
-	res = 0;
-    }
-#endif
     else if ( pAsc->asc_con & ASCCON_FE )
     {
 	SET_BIT(pAsc->asc_whbcon, ASCWHBCON_CLRFE);

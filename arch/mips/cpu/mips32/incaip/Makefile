@@ -1,6 +1,6 @@
 #
-# (C) Copyright 2003
-# Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
+# (C) Copyright 2011
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -20,20 +20,27 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-v=$(shell $(AS) --version | grep 'GNU assembler' | egrep -o '2\.[0-9\.]+' | cut -d. -f2)
-MIPSFLAGS:=$(shell \
-if [ "$v" -lt "14" ]; then \
-	echo "-mcpu=4kc"; \
-else \
-	echo "-march=4kc -mtune=4kc"; \
-fi)
 
-ifneq (,$(findstring 4KCle,$(CROSS_COMPILE)))
-ENDIANNESS = -EL
-else
-ENDIANNESS = -EB
-endif
+include $(TOPDIR)/config.mk
 
-MIPSFLAGS += $(ENDIANNESS)
+LIB	= $(obj)lib$(SOC).o
 
-PLATFORM_CPPFLAGS += $(MIPSFLAGS)
+SOBJS	= incaip_wdt.o
+COBJS	= incaip_clock.o asc_serial.o
+
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+
+all:	$(obj).depend $(LIB)
+
+$(LIB):	$(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################

@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2003
+# (C) Copyright 2011
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -21,12 +21,4 @@
 # MA 02111-1307 USA
 #
 
-#
-# Purple board with MIPS 5Kc CPU core
-#
-
-# ROM version
-CONFIG_SYS_TEXT_BASE = 0xB0000000
-
-# RAM version
-#CONFIG_SYS_TEXT_BASE = 0x80100000
+PLATFORM_CPPFLAGS += -mtune=4kc
