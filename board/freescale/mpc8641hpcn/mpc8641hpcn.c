@@ -1,5 +1,5 @@
 /*
- * Copyright 2006, 2007, 2010 Freescale Semiconductor.
+ * Copyright 2006, 2007, 2010-2011 Freescale Semiconductor.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -261,12 +261,3 @@ void board_reset(void)
 	while (1)
 		;
 }
-
-#ifdef CONFIG_MP
-extern void cpu_mp_lmb_reserve(struct lmb *lmb);
-
-void board_lmb_reserve(struct lmb *lmb)
-{
-	cpu_mp_lmb_reserve(lmb);
-}
-#endif

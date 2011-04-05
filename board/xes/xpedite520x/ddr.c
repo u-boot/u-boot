@@ -12,8 +12,7 @@
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_ddr_dimm_params.h>
 
-static void
-get_spd(ddr2_spd_eeprom_t *spd, unsigned char i2c_address)
+void get_spd(ddr2_spd_eeprom_t *spd, unsigned char i2c_address)
 {
 	i2c_read(i2c_address, 0, 1, (uchar *)spd, sizeof(ddr2_spd_eeprom_t));
 
@@ -25,25 +24,6 @@ get_spd(ddr2_spd_eeprom_t *spd, unsigned char i2c_address)
 		spd->dimm_type = 0x4;
 		((uchar *)spd)[63] += 0x4;
 	}
-}
-
-unsigned int fsl_ddr_get_mem_data_rate(void)
-{
-	return get_ddr_freq(0);
-}
-
-void fsl_ddr_get_spd(ddr2_spd_eeprom_t *ctrl_dimms_spd,
-			unsigned int ctrl_num)
-{
-	unsigned int i;
-
-	if (ctrl_num) {
-		printf("%s: invalid ctrl_num = %d\n", __func__, ctrl_num);
-		return;
-	}
-
-	for (i = 0; i < CONFIG_DIMM_SLOTS_PER_CTLR; i++)
-		get_spd(&(ctrl_dimms_spd[i]), SPD_EEPROM_ADDRESS);
 }
 
 void fsl_ddr_board_options(memctl_options_t *popts,

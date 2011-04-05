@@ -33,6 +33,7 @@
 #include <bzlib.h>
 #include <environment.h>
 #include <asm/byteorder.h>
+#include <asm/mp.h>
 
 #if defined(CONFIG_OF_LIBFDT)
 #include <fdt.h>
@@ -165,6 +166,10 @@ void arch_lmb_reserve(struct lmb *lmb)
 	/* adjust sp by 4K to be safe */
 	sp -= 4096;
 	lmb_reserve(lmb, sp, (CONFIG_SYS_SDRAM_BASE + get_effective_memsize() - sp));
+
+#ifdef CONFIG_MP
+	cpu_mp_lmb_reserve(lmb);
+#endif
 
 	return ;
 }

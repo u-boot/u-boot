@@ -1,5 +1,5 @@
 /**
- * Copyright 2010 Freescale Semiconductor
+ * Copyright 2010-2011 Freescale Semiconductor
  * Author: Timur Tabi <timur@freescale.com>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,61 +35,89 @@
 
 #include <common.h>
 #include <command.h>
-#include <watchdog.h>
-#include <asm/cache.h>
 #include <asm/io.h>
 
 #include "ngpixis.h"
 
+static u8 __pixis_read(unsigned int reg)
+{
+	void *p = (void *)PIXIS_BASE;
+
+	return in_8(p + reg);
+}
+u8 pixis_read(unsigned int reg) __attribute__((weak, alias("__pixis_read")));
+
+static void __pixis_write(unsigned int reg, u8 value)
+{
+	void *p = (void *)PIXIS_BASE;
+
+	out_8(p + reg, value);
+}
+void pixis_write(unsigned int reg, u8 value)
+	__attribute__((weak, alias("__pixis_write")));
+
 /*
  * Reset the board. This ignores the ENx registers.
  */
-void pixis_reset(void)
+void __pixis_reset(void)
 {
-	out_8(&pixis->rst, 0);
+	PIXIS_WRITE(rst, 0);
 
 	while (1);
 }
+void pixis_reset(void) __attribute__((weak, alias("__pixis_reset")));
 
 /*
  * Reset the board.  Like pixis_reset(), but it honors the ENx registers.
  */
-void pixis_bank_reset(void)
+void __pixis_bank_reset(void)
 {
-	out_8(&pixis->vctl, 0);
-	out_8(&pixis->vctl, 1);
+	PIXIS_WRITE(vctl, 0);
+	PIXIS_WRITE(vctl, 1);
 
 	while (1);
 }
+void pixis_bank_reset(void) __attribute__((weak, alias("__pixis_bank_reset")));
 
 /**
  * Set the boot bank to the power-on default bank
  */
-void clear_altbank(void)
+void __clear_altbank(void)
 {
+	u8 reg;
+
 	/* Tell the ngPIXIS to use this the bits in the physical switch for the
 	 * boot bank value, instead of the SWx register.  We need to be careful
 	 * only to set the bits in SWx that correspond to the boot bank.
 	 */
-	clrbits_8(&PIXIS_EN(PIXIS_LBMAP_SWITCH), PIXIS_LBMAP_MASK);
+	reg = PIXIS_READ(s[PIXIS_LBMAP_SWITCH - 1].en);
+	reg &= ~PIXIS_LBMAP_MASK;
+	PIXIS_WRITE(s[PIXIS_LBMAP_SWITCH - 1].en, reg);
 }
+void clear_altbank(void) __attribute__((weak, alias("__clear_altbank")));
 
 /**
  * Set the boot bank to the alternate bank
  */
-void set_altbank(void)
+void __set_altbank(void)
 {
+	u8 reg;
+
 	/* Program the alternate bank number into the SWx register.
 	 */
-	clrsetbits_8(&PIXIS_SW(PIXIS_LBMAP_SWITCH), PIXIS_LBMAP_MASK,
-		     PIXIS_LBMAP_ALTBANK);
+	reg = PIXIS_READ(s[PIXIS_LBMAP_SWITCH - 1].sw);
+	reg = (reg & ~PIXIS_LBMAP_MASK) | PIXIS_LBMAP_ALTBANK;
+	PIXIS_WRITE(s[PIXIS_LBMAP_SWITCH - 1].sw, reg);
 
 	/* Tell the ngPIXIS to use this the bits in the SWx register for the
 	 * boot bank value, instead of the physical switch.  We need to be
 	 * careful only to set the bits in SWx that correspond to the boot bank.
 	 */
-	setbits_8(&PIXIS_EN(PIXIS_LBMAP_SWITCH), PIXIS_LBMAP_MASK);
+	reg = PIXIS_READ(s[PIXIS_LBMAP_SWITCH - 1].en);
+	reg |= PIXIS_LBMAP_MASK;
+	PIXIS_WRITE(s[PIXIS_LBMAP_SWITCH - 1].en, reg);
 }
+void set_altbank(void) __attribute__((weak, alias("__set_altbank")));
 
 
 int pixis_reset_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])

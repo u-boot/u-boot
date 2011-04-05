@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -83,6 +83,7 @@ enum law_trgt_if {
 	LAW_TRGT_IF_DDR_INTRLV = 0x0b,
 	LAW_TRGT_IF_RIO = 0x0c,
 	LAW_TRGT_IF_RIO_2 = 0x0d,
+	LAW_TRGT_IF_DPAA_SWP_SRAM = 0x0e,
 	LAW_TRGT_IF_DDR = 0x0f,
 	LAW_TRGT_IF_DDR_2 = 0x16,	/* 2nd controller */
 };
@@ -91,6 +92,7 @@ enum law_trgt_if {
 #define LAW_TRGT_IF_PCIX	LAW_TRGT_IF_PCI
 #define LAW_TRGT_IF_PCIE_2	LAW_TRGT_IF_PCI_2
 #define LAW_TRGT_IF_RIO_1	LAW_TRGT_IF_RIO
+#define LAW_TRGT_IF_IFC		LAW_TRGT_IF_LBC
 
 #ifdef CONFIG_MPC8641
 #define LAW_TRGT_IF_PCIE_1	LAW_TRGT_IF_PCI

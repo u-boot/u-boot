@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2009 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -55,6 +55,7 @@ void init_tlbs(void)
 	return ;
 }
 
+#ifndef CONFIG_NAND_SPL
 void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
 		       phys_addr_t *rpn)
 {
@@ -73,7 +74,6 @@ void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
 #endif
 }
 
-#ifndef CONFIG_NAND_SPL
 void print_tlbcam(void)
 {
 	int i;

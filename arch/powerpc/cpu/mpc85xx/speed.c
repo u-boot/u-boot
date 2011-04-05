@@ -107,25 +107,45 @@ void get_sys_info (sys_info_t * sysInfo)
 #define PME_CLK_SEL	0x80000000
 #define FM1_CLK_SEL	0x40000000
 #define FM2_CLK_SEL	0x20000000
+#define HWA_ASYNC_DIV	0x04000000
+#if (CONFIG_SYS_FSL_NUM_CC_PLLS == 2)
+#define HWA_CC_PLL	1
+#elif (CONFIG_SYS_FSL_NUM_CC_PLLS == 4)
+#define HWA_CC_PLL	2	
+#else
+#error CONFIG_SYS_FSL_NUM_CC_PLLS not set or unknown case
+#endif
 	rcw_tmp = in_be32(&gur->rcwsr[7]);
 
 #ifdef CONFIG_SYS_DPAA_PME
-	if (rcw_tmp & PME_CLK_SEL)
-		sysInfo->freqPME = freqCC_PLL[2] / 2;
-	else
+	if (rcw_tmp & PME_CLK_SEL) {
+		if (rcw_tmp & HWA_ASYNC_DIV)
+			sysInfo->freqPME = freqCC_PLL[HWA_CC_PLL] / 4;
+		else
+			sysInfo->freqPME = freqCC_PLL[HWA_CC_PLL] / 2;
+	} else {
 		sysInfo->freqPME = sysInfo->freqSystemBus / 2;
+	}
 #endif
 
 #ifdef CONFIG_SYS_DPAA_FMAN
-	if (rcw_tmp & FM1_CLK_SEL)
-		sysInfo->freqFMan[0] = freqCC_PLL[2] / 2;
-	else
+	if (rcw_tmp & FM1_CLK_SEL) {
+		if (rcw_tmp & HWA_ASYNC_DIV)
+			sysInfo->freqFMan[0] = freqCC_PLL[HWA_CC_PLL] / 4;
+		else
+			sysInfo->freqFMan[0] = freqCC_PLL[HWA_CC_PLL] / 2;
+	} else {
 		sysInfo->freqFMan[0] = sysInfo->freqSystemBus / 2;
+	}
 #if (CONFIG_SYS_NUM_FMAN) == 2
-	if (rcw_tmp & FM2_CLK_SEL)
-		sysInfo->freqFMan[1] = freqCC_PLL[2] / 2;
-	else
+	if (rcw_tmp & FM2_CLK_SEL) {
+		if (rcw_tmp & HWA_ASYNC_DIV)
+			sysInfo->freqFMan[1] = freqCC_PLL[HWA_CC_PLL] / 4;
+		else
+			sysInfo->freqFMan[1] = freqCC_PLL[HWA_CC_PLL] / 2;
+	} else {
 		sysInfo->freqFMan[1] = sysInfo->freqSystemBus / 2;
+	}
 #endif
 #endif
 
@@ -162,13 +182,18 @@ void get_sys_info (sys_info_t * sysInfo)
 			sysInfo->freqDDRBus = ddr_ratio * CONFIG_DDR_CLK_FREQ;
 	}
 #endif
-#endif
 
 #ifdef CONFIG_QE
 	qe_ratio = ((gur->porpllsr) & MPC85xx_PORPLLSR_QE_RATIO)
 			>> MPC85xx_PORPLLSR_QE_RATIO_SHIFT;
 	sysInfo->freqQE = qe_ratio * CONFIG_SYS_CLK_FREQ;
 #endif
+
+#ifdef CONFIG_SYS_DPAA_FMAN
+		sysInfo->freqFMan[0] = sysInfo->freqSystemBus;
+#endif
+
+#endif /* CONFIG_FSL_CORENET */
 
 #if defined(CONFIG_FSL_LBC)
 #if defined(CONFIG_SYS_LBC_LCRR)
@@ -254,7 +279,8 @@ int get_clocks (void)
 	gd->i2c2_clk = gd->i2c1_clk;
 
 #if defined(CONFIG_FSL_ESDHC)
-#ifdef CONFIG_MPC8569
+#if defined(CONFIG_MPC8569) || defined(CONFIG_P1010) ||\
+       defined(CONFIG_P1014)
 	gd->sdhc_clk = gd->bus_clk;
 #else
 	gd->sdhc_clk = gd->bus_clk / 2;

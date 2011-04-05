@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -8,10 +8,16 @@
 
 #include <common.h>
 #include <asm/fsl_law.h>
+#include <div64.h>
 
 #include "ddr.h"
 
-unsigned int fsl_ddr_get_mem_data_rate(void);
+/* To avoid 64-bit full-divides, we factor this here */
+#define ULL_2e12 2000000000000ULL
+#define UL_5pow12 244140625UL
+#define UL_2pow13 (1UL << 13)
+
+#define ULL_8Fs 0xFFFFFFFFULL
 
 /*
  * Round mclk_ps to nearest 10 ps in memory controller code.
@@ -22,35 +28,51 @@ unsigned int fsl_ddr_get_mem_data_rate(void);
  */
 unsigned int get_memory_clk_period_ps(void)
 {
-	unsigned int mclk_ps;
+	unsigned int data_rate = get_ddr_freq(0);
+	unsigned int result;
 
-	mclk_ps = 2000000000000ULL / fsl_ddr_get_mem_data_rate();
-	/* round to nearest 10 ps */
-	return 10 * ((mclk_ps + 5) / 10);
+	/* Round to nearest 10ps, being careful about 64-bit multiply/divide */
+	unsigned long long mclk_ps = ULL_2e12;
+
+	/* Add 5*data_rate, for rounding */
+	mclk_ps += 5*(unsigned long long)data_rate;
+
+	/* Now perform the big divide, the result fits in 32-bits */
+	do_div(mclk_ps, data_rate);
+	result = mclk_ps;
+
+	/* We still need to round to 10ps */
+	return 10 * (result/10);
 }
 
 /* Convert picoseconds into DRAM clock cycles (rounding up if needed). */
 unsigned int picos_to_mclk(unsigned int picos)
 {
-	const unsigned long long ULL_2e12 = 2000000000000ULL;
-	const unsigned long long ULL_8Fs = 0xFFFFFFFFULL;
-	unsigned long long clks;
-	unsigned long long clks_temp;
+	unsigned long long clks, clks_rem;
 
+	/* Short circuit for zero picos */
 	if (!picos)
 		return 0;
 
-	clks = fsl_ddr_get_mem_data_rate() * (unsigned long long) picos;
-	clks_temp = clks;
-	clks = clks / ULL_2e12;
-	if (clks_temp % ULL_2e12) {
+	/* First multiply the time by the data rate (32x32 => 64) */
+	clks = picos * (unsigned long long)get_ddr_freq(0);
+
+	/*
+	 * Now divide by 5^12 and track the 32-bit remainder, then divide
+	 * by 2*(2^12) using shifts (and updating the remainder).
+	 */
+	clks_rem = do_div(clks, UL_5pow12);
+	clks_rem <<= 13;
+	clks_rem |= clks & (UL_2pow13-1);
+	clks >>= 13;
+
+	/* If we had a remainder, then round up */
+	if (clks_rem)
 		clks++;
-	}
 
-	if (clks > ULL_8Fs) {
+	/* Clamp to the maximum representable value */
+	if (clks > ULL_8Fs)
 		clks = ULL_8Fs;
-	}
-
 	return (unsigned int) clks;
 }
 
@@ -141,6 +163,8 @@ void board_add_ram_info(int use_default)
 
 	if (sdram_cfg & SDRAM_CFG_32_BE)
 		puts(", 32-bit");
+	else if (sdram_cfg & SDRAM_CFG_16_BE)
+		puts(", 16-bit");
 	else
 		puts(", 64-bit");
 

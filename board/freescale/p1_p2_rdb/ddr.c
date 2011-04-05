@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Freescale Semiconductor, Inc.
+ * Copyright 2009, 2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -29,14 +29,6 @@
 #include <asm/fsl_law.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
-				   unsigned int ctrl_num);
-
-#define DATARATE_400MHZ 400000000
-#define DATARATE_533MHZ 533333333
-#define DATARATE_667MHZ 666666666
-#define DATARATE_800MHZ 800000000
 
 #define CONFIG_SYS_DDR_CS0_BNDS		0x0000003F
 #define CONFIG_SYS_DDR_CS0_CONFIG	0x80014202
@@ -82,13 +74,13 @@ extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 #define CONFIG_SYS_DDR_INTERVAL_667	0x0a280100
 
 #define CONFIG_SYS_DDR_TIMING_3_800	0x00040000
-#define CONFIG_SYS_DDR_TIMING_0_800	0x55770802
+#define CONFIG_SYS_DDR_TIMING_0_800	0x00770802
 #define CONFIG_SYS_DDR_TIMING_1_800	0x6f6b6543
 #define CONFIG_SYS_DDR_TIMING_2_800	0x0fa074d1
 #define CONFIG_SYS_DDR_CLK_CTRL_800	0x02800000
 #define CONFIG_SYS_DDR_MODE_1_800	0x00040852
 #define CONFIG_SYS_DDR_MODE_2_800	0x00000000
-#define CONFIG_SYS_DDR_INTERVAL_800	0x0a280100
+#define CONFIG_SYS_DDR_INTERVAL_800	0x0c300100
 
 fsl_ddr_cfg_regs_t ddr_cfg_regs_400 = {
 	.cs[0].bnds = CONFIG_SYS_DDR_CS0_BNDS,
@@ -204,38 +196,47 @@ fsl_ddr_cfg_regs_t ddr_cfg_regs_800 = {
 
 phys_size_t fixed_sdram (void)
 {
-	sys_info_t sysinfo;
 	char buf[32];
 	fsl_ddr_cfg_regs_t ddr_cfg_regs;
 	size_t ddr_size;
 	struct cpu_type *cpu;
+	ulong ddr_freq, ddr_freq_mhz;
 
-	get_sys_info(&sysinfo);
+	cpu = gd->cpu;
+	/* P1020 and it's derivatives support max 32bit DDR width */
+	if (cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1020_E ||
+		cpu->soc_ver == SVR_P1011 || cpu->soc_ver == SVR_P1011_E) {
+		ddr_size = (CONFIG_SYS_SDRAM_SIZE * 1024 * 1024 / 2);
+	} else {
+		ddr_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
+	}
+#if defined(CONFIG_SYS_RAMBOOT)
+	return ddr_size;
+#endif
+	ddr_freq = get_ddr_freq(0);
+	ddr_freq_mhz = ddr_freq / 1000000;
+
 	printf("Configuring DDR for %s MT/s data rate\n",
-				strmhz(buf, sysinfo.freqDDRBus));
+				strmhz(buf, ddr_freq));
 
-	if(sysinfo.freqDDRBus <= DATARATE_400MHZ)
+	if(ddr_freq_mhz <= 400)
 		memcpy(&ddr_cfg_regs, &ddr_cfg_regs_400, sizeof(ddr_cfg_regs));
-	else if(sysinfo.freqDDRBus <= DATARATE_533MHZ)
+	else if(ddr_freq_mhz <= 533)
 		memcpy(&ddr_cfg_regs, &ddr_cfg_regs_533, sizeof(ddr_cfg_regs));
-	else if(sysinfo.freqDDRBus <= DATARATE_667MHZ)
+	else if(ddr_freq_mhz <= 667)
 		memcpy(&ddr_cfg_regs, &ddr_cfg_regs_667, sizeof(ddr_cfg_regs));
-	else if(sysinfo.freqDDRBus <= DATARATE_800MHZ)
+	else if(ddr_freq_mhz <= 800)
 		memcpy(&ddr_cfg_regs, &ddr_cfg_regs_800, sizeof(ddr_cfg_regs));
 	else
 		panic("Unsupported DDR data rate %s MT/s data rate\n",
-					strmhz(buf, sysinfo.freqDDRBus));
+					strmhz(buf, ddr_freq));
 
-	cpu = gd->cpu;
 	/* P1020 and it's derivatives support max 32bit DDR width */
 	if(cpu->soc_ver == SVR_P1020 || cpu->soc_ver == SVR_P1020_E ||
 		cpu->soc_ver == SVR_P1011 || cpu->soc_ver == SVR_P1011_E) {
 		ddr_cfg_regs.ddr_sdram_cfg |= SDRAM_CFG_32_BE;
 		ddr_cfg_regs.cs[0].bnds = 0x0000001F;
-		ddr_size = (CONFIG_SYS_SDRAM_SIZE * 1024 * 1024 / 2);
 	}
-	else
-		ddr_size = CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 
 	fsl_ddr_set_memctl_regs(&ddr_cfg_regs, 0);
 

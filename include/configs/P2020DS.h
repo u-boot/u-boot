@@ -33,6 +33,13 @@
 #define CONFIG_PHYS_64BIT
 #endif
 
+#ifdef CONFIG_SDCARD
+#define CONFIG_SYS_RAMBOOT
+#define CONFIG_SYS_EXTRA_ENV_RELOC
+#define CONFIG_SYS_TEXT_BASE		0xf8f80000
+#define CONFIG_RESET_VECTOR_ADDRESS	0xf8fffffc
+#endif
+
 /* High Level Configuration Options */
 #define CONFIG_BOOKE		1	/* BOOKE */
 #define CONFIG_E500		1	/* BOOKE e500 family */
@@ -78,6 +85,8 @@
 #define CONFIG_L2_CACHE			/* toggle L2 cache */
 #define CONFIG_BTB			/* toggle branch predition */
 
+#define CONFIG_BOARD_EARLY_INIT_F	/* Call board_pre_init */
+
 #define CONFIG_ENABLE_36BIT_PHYS	1
 
 #ifdef CONFIG_PHYS_64BIT
@@ -89,6 +98,18 @@
 #define CONFIG_SYS_MEMTEST_START	0x00200000	/* memtest works on */
 #define CONFIG_SYS_MEMTEST_END		0x00400000
 #define CONFIG_PANIC_HANG	/* do not reset board on panic */
+
+/*
+ * Config the L2 Cache
+ */
+#define CONFIG_SYS_INIT_L2_ADDR		0xf8f80000
+#ifdef CONFIG_PHYS_64BIT
+#define CONFIG_SYS_INIT_L2_ADDR_PHYS	0xff8f80000ull
+#else
+#define CONFIG_SYS_INIT_L2_ADDR_PHYS	CONFIG_SYS_INIT_L2_ADDR
+#endif
+#define CONFIG_SYS_L2_SIZE		(512 << 10)
+#define CONFIG_SYS_INIT_L2_END	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
 
 /*
  * Base addresses -- Note these are effective addresses where the
@@ -128,7 +149,7 @@
 /* I2C addresses of SPD EEPROMs */
 #define CONFIG_DDR_SPD
 #define CONFIG_SYS_SPD_BUS_NUM		0	/* SPD EEPROM located on I2C bus 0 */
-#define SPD_EEPROM_ADDRESS1	0x51	/* CTLR 0 DIMM 0 */
+#define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
 
 /* These are used when DDR doesn't use SPD.  */
 #define CONFIG_SYS_SDRAM_SIZE		1024		/* DDR is 1GB */
@@ -569,6 +590,11 @@
 /*
  * Environment
  */
+#if defined(CONFIG_SDCARD)
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_SIZE			0x2000
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#else
 #define CONFIG_ENV_IS_IN_FLASH	1
 #if CONFIG_SYS_MONITOR_BASE > 0xfff80000
 #define CONFIG_ENV_ADDR		0xfff80000
@@ -577,6 +603,7 @@
 #endif
 #define CONFIG_ENV_SIZE		0x2000
 #define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
+#endif
 
 #define CONFIG_LOADS_ECHO	1	/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change */
@@ -605,13 +632,34 @@
 /*
  * USB
  */
+#define CONFIG_USB_EHCI
+
+#ifdef CONFIG_USB_EHCI
 #define CONFIG_CMD_USB
 #define CONFIG_USB_STORAGE
-#define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
+#endif
 
 #undef CONFIG_WATCHDOG			/* watchdog disabled */
+
+/*
+ * SDHC/MMC
+ */
+#define CONFIG_MMC
+
+#ifdef CONFIG_MMC
+#define CONFIG_FSL_ESDHC
+#define CONFIG_SYS_FSL_ESDHC_ADDR	CONFIG_SYS_MPC85xx_ESDHC_ADDR
+#define CONFIG_CMD_MMC
+#define CONFIG_GENERIC_MMC
+#endif
+
+#if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI)
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_FAT
+#define CONFIG_DOS_PARTITION
+#endif
 
 /*
  * Miscellaneous configurable options
@@ -651,13 +699,8 @@
 /* The mac addresses for all ethernet interface */
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_HAS_ETH0
-#define CONFIG_ETHADDR	00:E0:0C:02:00:FD
 #define CONFIG_HAS_ETH1
-#define CONFIG_ETH1ADDR	00:E0:0C:02:01:FD
 #define CONFIG_HAS_ETH2
-#define CONFIG_ETH2ADDR	00:E0:0C:02:02:FD
-#define CONFIG_HAS_ETH3
-#define CONFIG_ETH3ADDR	00:E0:0C:02:03:FD
 #endif
 
 #define CONFIG_IPADDR		192.168.1.254
@@ -680,8 +723,8 @@
 #define CONFIG_BAUDRATE	115200
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
- "perf_mode=stable\0"			\
- "memctl_intlv_ctl=2\0"						\
+ "perf_mode=performance\0"			\
+ "hwconfig=fsl_ddr:ctlr_intlv=bank,bank_intlv=cs0_cs1\0"	\
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
  "tftpflash=tftpboot $loadaddr $uboot; "			\
@@ -690,18 +733,25 @@
 	"cp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize; "	\
 	"protect on " MK_STR(CONFIG_SYS_TEXT_BASE) " +$filesize; "		\
 	"cmp.b $loadaddr " MK_STR(CONFIG_SYS_TEXT_BASE) " $filesize\0"	\
+ "satabootcmd=setenv bootargs root=/dev/$bdev rw "	\
+	"console=$consoledev,$baudrate $othbootargs;"	\
+	"tftp $loadaddr $bootfile;"			\
+	"tftp $fdtaddr $fdtfile;"			\
+	"bootm $loadaddr - $fdtaddr"			\
  "consoledev=ttyS0\0"				\
  "ramdiskaddr=2000000\0"			\
  "ramdiskfile=p2020ds/ramdisk.uboot\0"		\
  "fdtaddr=c00000\0"				\
+ "othbootargs=cache-sram-size=0x10000\0"	\
  "fdtfile=p2020ds/p2020ds.dtb\0"		\
- "bdev=sda3\0"
+ "bdev=sda3\0"					\
+ "partition=scsi 0:0\0"
 
 #define CONFIG_HDBOOT				\
  "setenv bootargs root=/dev/$bdev rw "		\
  "console=$consoledev,$baudrate $othbootargs;"	\
- "tftp $loadaddr $bootfile;"			\
- "tftp $fdtaddr $fdtfile;"			\
+ "ext2load $partition $loadaddr $bootfile;"	\
+ "ext2load $partition $fdtaddr $fdtfile;"	\
  "bootm $loadaddr - $fdtaddr"
 
 #define CONFIG_NFSBOOTCOMMAND		\

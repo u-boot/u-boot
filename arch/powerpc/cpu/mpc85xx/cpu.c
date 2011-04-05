@@ -33,6 +33,7 @@
 #include <asm/cache.h>
 #include <asm/io.h>
 #include <asm/mmu.h>
+#include <asm/fsl_ifc.h>
 #include <asm/fsl_law.h>
 #include <asm/fsl_lbc.h>
 #include <post.h>
@@ -280,7 +281,8 @@ int cpu_mmc_init(bd_t *bis)
 
 /*
  * Print out the state of various machine registers.
- * Currently prints out LAWs, BR0/OR0, and TLBs
+ * Currently prints out LAWs, BR0/OR0 for LBC, CSPR/CSOR/Timing
+ * parameters for IFC and TLBs
  */
 void mpc85xx_reginfo(void)
 {
@@ -288,6 +290,9 @@ void mpc85xx_reginfo(void)
 	print_laws();
 #if defined(CONFIG_FSL_LBC)
 	print_lbc_regs();
+#endif
+#ifdef CONFIG_FSL_IFC
+	print_ifc_regs();
 #endif
 
 }

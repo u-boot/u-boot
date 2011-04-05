@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -38,8 +38,6 @@ extern void pci_of_setup(void *blob, bd_t *bd);
 #include "../common/ngpixis.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
-void cpu_mp_lmb_reserve(struct lmb *lmb);
 
 int checkboard (void)
 {
@@ -185,13 +183,6 @@ int misc_init_r(void)
 
 	return 0;
 }
-
-#ifdef CONFIG_MP
-void board_lmb_reserve(struct lmb *lmb)
-{
-	cpu_mp_lmb_reserve(lmb);
-}
-#endif
 
 void ft_board_setup(void *blob, bd_t *bd)
 {

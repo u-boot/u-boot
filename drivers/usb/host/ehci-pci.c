@@ -29,6 +29,7 @@
 static struct pci_device_id ehci_pci_ids[] = {
 	/* Please add supported PCI EHCI controller ids here */
 	{0x1033, 0x00E0},	/* NEC */
+	{0x10B9, 0x5239},	/* ULI1575 PCI EHCI module ids */
 	{0x12D8, 0x400F},	/* Pericom */
 	{0, 0}
 };

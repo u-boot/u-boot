@@ -1074,6 +1074,28 @@ The following options need to be configured:
 		and 16bpp modes defined by CONFIG_VIDEO_SED13806_8BPP
 		or CONFIG_VIDEO_SED13806_16BPP
 
+		CONFIG_FSL_DIU_FB
+		Enable the Freescale DIU video driver.  Reference boards for
+		SOCs that have a DIU should define this macro to enable DIU
+		support, and should also define these other macros:
+
+			CONFIG_SYS_DIU_ADDR
+			CONFIG_VIDEO
+			CONFIG_CMD_BMP
+			CONFIG_CFB_CONSOLE
+			CONFIG_VIDEO_SW_CURSOR
+			CONFIG_VGA_AS_SINGLE_DEVICE
+			CONFIG_VIDEO_LOGO
+			CONFIG_VIDEO_BMP_LOGO
+
+		The DIU driver will look for the 'monitor' environment variable,
+		and if defined, enable the DIU as a console during boot.  This
+		variable should be set to one of these values:
+
+			'0'	Output video to the DVI connector
+			'1'	Output video to the LVDS connector
+			'2'	Output video to the Dual-Link LVDS connector
+
 - Keyboard Support:
 		CONFIG_KEYBOARD
 

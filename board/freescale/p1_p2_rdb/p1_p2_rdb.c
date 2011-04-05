@@ -35,6 +35,7 @@
 #include <vsc7385.h>
 #include <netdev.h>
 #include <rtc.h>
+#include <i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -54,38 +55,25 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define SYSCLK_MASK	0x00200000
 #define BOARDREV_MASK	0x10100000
-#define BOARDREV_B	0x10100000
 #define BOARDREV_C	0x00100000
 #define BOARDREV_D	0x00000000
 
 #define SYSCLK_66	66666666
-#define SYSCLK_50	50000000
 #define SYSCLK_100	100000000
 
 unsigned long get_board_sys_clk(ulong dummy)
 {
 	volatile ccsr_gpio_t *pgpio = (void *)(CONFIG_SYS_MPC85xx_GPIO_ADDR);
-	u32 val_gpdat, sysclk_gpio, board_rev_gpio;
+	u32 val_gpdat, sysclk_gpio;
 
 	val_gpdat = in_be32(&pgpio->gpdat);
 	sysclk_gpio = val_gpdat & SYSCLK_MASK;
-	board_rev_gpio = val_gpdat & BOARDREV_MASK;
-	if (board_rev_gpio == BOARDREV_C) {
-		if(sysclk_gpio == 0)
-			return SYSCLK_66;
-		else
-			return SYSCLK_100;
-	} else if (board_rev_gpio == BOARDREV_B) {
-		if(sysclk_gpio == 0)
-			return SYSCLK_66;
-		else
-			return SYSCLK_50;
-	} else if (board_rev_gpio == BOARDREV_D) {
-		if(sysclk_gpio == 0)
-			return SYSCLK_66;
-		else
-			return SYSCLK_100;
-	}
+
+	if(sysclk_gpio == 0)
+		return SYSCLK_66;
+	else
+		return SYSCLK_100;
+
 	return 0;
 }
 
@@ -112,8 +100,6 @@ int checkboard (void)
 	board_rev_gpio = val_gpdat & BOARDREV_MASK;
 	if (board_rev_gpio == BOARDREV_C)
 		board_rev = 'C';
-	else if (board_rev_gpio == BOARDREV_B)
-		board_rev = 'B';
 	else if (board_rev_gpio == BOARDREV_D)
 		board_rev = 'D';
 	else
@@ -121,6 +107,9 @@ int checkboard (void)
 
 	cpu = gd->cpu;
 	printf ("Board: %sRDB Rev%c\n", cpu->name, board_rev);
+#ifdef CONFIG_PHYS_64BIT
+	puts ("(36-bit addrmap) \n");
+#endif
 	setbits_be32(&pgpio->gpdir, GPIO_DIR);
 
 /*
@@ -142,6 +131,30 @@ int board_early_init_r(void)
 {
 	const unsigned int flashbase = CONFIG_SYS_FLASH_BASE;
 	const u8 flash_esel = find_tlb_idx((void *)flashbase, 1);
+	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	unsigned int orig_bus = i2c_get_bus_num();
+	u8 i2c_data;
+
+	i2c_set_bus_num(1);
+	if (i2c_read(CONFIG_SYS_I2C_PCA9557_ADDR, 0,
+		1, &i2c_data, sizeof(i2c_data)) == 0) {
+		if (i2c_data & 0x2)
+			puts("NOR Flash Bank : Secondary\n");
+		else
+			puts("NOR Flash Bank : Primary\n");
+
+		if (i2c_data & 0x1) {
+			setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_SD_DATA);
+			puts("SD/MMC : 8-bit Mode\n");
+			puts("eSPI : Disabled\n");
+		} else {
+			puts("SD/MMC : 4-bit Mode\n");
+			puts("eSPI : Enabled\n");
+		}
+	} else {
+		puts("Failed reading I2C Chip 0x18 on bus 1\n");
+	}
+	i2c_set_bus_num(orig_bus);
 
 	/*
 	 * Remap Boot flash region to caching-inhibited
@@ -227,14 +240,5 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif /* #if defined(CONFIG_PCI) */
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
-}
-#endif
-
-#ifdef CONFIG_MP
-extern void cpu_mp_lmb_reserve(struct lmb *lmb);
-
-void board_lmb_reserve(struct lmb *lmb)
-{
-	cpu_mp_lmb_reserve(lmb);
 }
 #endif

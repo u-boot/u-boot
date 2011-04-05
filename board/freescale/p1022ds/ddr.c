@@ -10,32 +10,9 @@
  */
 
 #include <common.h>
-#include <i2c.h>
 
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_ddr_dimm_params.h>
-
-unsigned int fsl_ddr_get_mem_data_rate(void)
-{
-	return get_ddr_freq(0);
-}
-
-void fsl_ddr_get_spd(ddr3_spd_eeprom_t *ctrl_dimms_spd, unsigned int ctrl_num)
-{
-	int ret;
-
-	/*
-	 * The P1022 has only one DDR controller, and the board has only one
-	 * DIMM slot.
-	 */
-	ret = i2c_read(SPD_EEPROM_ADDRESS1, 0, 1, (u8 *)ctrl_dimms_spd,
-		       sizeof(ddr3_spd_eeprom_t));
-	if (ret) {
-		debug("DDR: failed to read SPD from address %u\n",
-		      SPD_EEPROM_ADDRESS1);
-		memset(ctrl_dimms_spd, 0, sizeof(ddr3_spd_eeprom_t));
-	}
-}
 
 typedef struct {
 	u32 datarate_mhz_low;

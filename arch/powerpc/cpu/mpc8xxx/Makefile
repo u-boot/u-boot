@@ -15,6 +15,7 @@ COBJS-y	+= cpu.o
 endif
 
 COBJS-$(CONFIG_OF_LIBFDT) += fdt.o
+COBJS-$(CONFIG_FSL_IFC) += fsl_ifc.o
 COBJS-$(CONFIG_FSL_LBC) += fsl_lbc.o
 COBJS-$(CONFIG_SYS_SRIO) += srio.o
 

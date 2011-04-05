@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2009-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -70,8 +70,8 @@ extern void fdt_fixup_liodn(void *blob);
 	SET_GUTS_LIODN("fsl,pq-sata-v2", liodn, sata##sataNum##liodnr,\
 		CONFIG_SYS_MPC85xx_SATA##sataNum##_OFFSET)
 
-#define SET_PCI_LIODN(pciNum, liodn) \
-	SET_GUTS_LIODN("fsl,p4080-pcie", liodn, pex##pciNum##liodnr,\
+#define SET_PCI_LIODN(compat, pciNum, liodn) \
+	SET_GUTS_LIODN(compat, liodn, pex##pciNum##liodnr,\
 		CONFIG_SYS_MPC85xx_PCIE##pciNum##_OFFSET)
 
 /* reg nodes for DMA start @ 0x300 */
@@ -85,13 +85,13 @@ extern void fdt_fixup_liodn(void *blob);
 
 #define SET_QMAN_LIODN(liodn) \
 	SET_LIODN_ENTRY_1("fsl,qman", liodn, offsetof(ccsr_qman_t, liodnr) + \
-		CONFIG_SYS_FSL_CORENET_QMAN_OFFSET, \
-		CONFIG_SYS_FSL_CORENET_QMAN_OFFSET)
+		CONFIG_SYS_FSL_QMAN_OFFSET, \
+		CONFIG_SYS_FSL_QMAN_OFFSET)
 
 #define SET_BMAN_LIODN(liodn) \
 	SET_LIODN_ENTRY_1("fsl,bman", liodn, offsetof(ccsr_bman_t, liodnr) + \
-		CONFIG_SYS_FSL_CORENET_BMAN_OFFSET, \
-		CONFIG_SYS_FSL_CORENET_BMAN_OFFSET)
+		CONFIG_SYS_FSL_BMAN_OFFSET, \
+		CONFIG_SYS_FSL_BMAN_OFFSET)
 
 #define SET_PME_LIODN(liodn) \
 	SET_LIODN_ENTRY_1("fsl,pme", liodn, offsetof(ccsr_pme_t, liodnr) + \

@@ -1,5 +1,5 @@
 /*
- * Copyright 2006, 2008-2009 Freescale Semiconductor
+ * Copyright 2006, 2008-2009, 2011 Freescale Semiconductor
  * York Sun (yorksun@freescale.com)
  * Haiying Wang (haiying.wang@freescale.com)
  * Timur Tabi (timur@freescale.com)
@@ -34,12 +34,6 @@
 #endif
 
 #ifdef CONFIG_SYS_I2C_EEPROM_NXID
-#define MAX_NUM_PORTS	8
-#define NXID_VERSION	0
-#endif
-
-#ifdef CONFIG_SYS_I2C_EEPROM_NXID_1
-#define CONFIG_SYS_I2C_EEPROM_NXID
 #define MAX_NUM_PORTS	23
 #define NXID_VERSION	1
 #endif
@@ -428,11 +422,16 @@ int do_mac(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
  * This ensures that any user-saved variables are never overwritten.
  *
  * This function must be called after relocation.
+ *
+ * For NXID v1 EEPROMs, we support loading and up-converting the older NXID v0
+ * format.  In a v0 EEPROM, there are only eight MAC addresses and the CRC is
+ * located at a different offset.
  */
 int mac_read_from_eeprom(void)
 {
 	unsigned int i;
-	u32 crc;
+	u32 crc, crc_offset = offsetof(struct eeprom, crc);
+	u32 *crcp; /* Pointer to the CRC in the data read from the EEPROM */
 
 	puts("EEPROM: ");
 
@@ -447,11 +446,31 @@ int mac_read_from_eeprom(void)
 		return -1;
 	}
 
-	crc = crc32(0, (void *)&e, sizeof(e) - 4);
-	if (crc != be32_to_cpu(e.crc)) {
+#ifdef CONFIG_SYS_I2C_EEPROM_NXID
+	/*
+	 * If we've read an NXID v0 EEPROM, then we need to set the CRC offset
+	 * to where it is in v0.
+	 */
+	if (e.version == 0)
+		crc_offset = 0x72;
+#endif
+
+	crc = crc32(0, (void *)&e, crc_offset);
+	crcp = (void *)&e + crc_offset;
+	if (crc != be32_to_cpu(*crcp)) {
 		printf("CRC mismatch (%08x != %08x)\n", crc, be32_to_cpu(e.crc));
 		return -1;
 	}
+
+#ifdef CONFIG_SYS_I2C_EEPROM_NXID
+	/*
+	 * MAC address #9 in v1 occupies the same position as the CRC in v0.
+	 * Erase it so that it's not mistaken for a MAC address.  We'll
+	 * update the CRC later.
+	 */
+	if (e.version == 0)
+		memset(e.mac[8], 0xff, 6);
+#endif
 
 	for (i = 0; i < min(e.mac_count, MAX_NUM_PORTS); i++) {
 		if (memcmp(&e.mac[i], "\0\0\0\0\0\0", 6) &&
@@ -480,6 +499,17 @@ int mac_read_from_eeprom(void)
 		be32_to_cpu(e.version));
 #else
 	printf("%c%c%c%c\n", e.id[0], e.id[1], e.id[2], e.id[3]);
+#endif
+
+#ifdef CONFIG_SYS_I2C_EEPROM_NXID
+	/*
+	 * Now we need to upconvert the data into v1 format.  We do this last so
+	 * that at boot time, U-Boot will still say "NXID v0".
+	 */
+	if (e.version == 0) {
+		e.version = NXID_VERSION;
+		update_crc();
+	}
 #endif
 
 	return 0;

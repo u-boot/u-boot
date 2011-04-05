@@ -21,14 +21,14 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0xfff00000
 
-#define CONFIG_FSL_DIU_FB	1	/* FSL DIU */
 
 /* video */
-#undef CONFIG_VIDEO
-
-#ifdef CONFIG_VIDEO
+#ifdef CONFIG_FSL_DIU_FB
+#define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x2c000)
+#define CONFIG_VIDEO
 #define CONFIG_CMD_BMP
 #define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_SW_CURSOR
 #define CONFIG_VGA_AS_SINGLE_DEVICE
 #define CONFIG_VIDEO_LOGO
 #define CONFIG_VIDEO_BMP_LOGO
@@ -88,8 +88,6 @@
 #define CONFIG_SYS_CCSRBAR_PHYS_HIGH	0x0
 #define CONFIG_SYS_CCSRBAR_PHYS		CONFIG_SYS_CCSRBAR_PHYS_LOW
 
-#define CONFIG_SYS_DIU_ADDR		(CONFIG_SYS_CCSRBAR+0x2c000)
-
 /* DDR Setup */
 #define CONFIG_FSL_DDR2
 #undef CONFIG_FSL_DDR_INTERACTIVE
@@ -108,7 +106,7 @@
 #define CONFIG_DIMM_SLOTS_PER_CTLR	1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	(2 * CONFIG_DIMM_SLOTS_PER_CTLR)
 
-#define SPD_EEPROM_ADDRESS1	0x51	/* CTLR 0 DIMM 0 */
+#define SPD_EEPROM_ADDRESS	0x51	/* CTLR 0 DIMM 0 */
 
 /* These are used when DDR doesn't use SPD.  */
 #define CONFIG_SYS_SDRAM_SIZE	256		/* DDR is 256MB */
@@ -493,9 +491,6 @@
 
 #define CONFIG_WATCHDOG			/* watchdog enabled */
 #define CONFIG_SYS_WATCHDOG_FREQ	5000	/* Feed interval, 5s */
-
-/*DIU Configuration*/
-#define DIU_CONNECT_TO_DVI		/* DIU controller connects to DVI encoder*/
 
 /*
  * Miscellaneous configurable options

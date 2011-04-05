@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -36,13 +36,25 @@
 #include <fdt_support.h>
 #include <tsec.h>
 #include <asm/fsl_law.h>
-#include <asm/mp.h>
 #include <netdev.h>
 
 #include "../common/ngpixis.h"
 #include "../common/sgmii_riser.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+int board_early_init_f(void)
+{
+#ifdef CONFIG_MMC
+	ccsr_gur_t *gur = (ccsr_gur_t *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+
+	setbits_be32(&gur->pmuxcr,
+			 (MPC85xx_PMUXCR_SDHC_CD |
+			 MPC85xx_PMUXCR_SDHC_WP));
+#endif
+
+	return 0;
+}
 
 int checkboard(void)
 {
@@ -247,12 +259,5 @@ void ft_board_setup(void *blob, bd_t *bd)
 #ifdef CONFIG_FSL_SGMII_RISER
 	fsl_sgmii_riser_fdt_fixup(blob);
 #endif
-}
-#endif
-
-#ifdef CONFIG_MP
-void board_lmb_reserve(struct lmb *lmb)
-{
-	cpu_mp_lmb_reserve(lmb);
 }
 #endif

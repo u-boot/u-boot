@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 Freescale Semiconductor, Inc.
+ * Copyright 2010-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -44,9 +44,9 @@ struct liodn_id_table liodn_tbl[] = {
 
 	SET_SDHC_LIODN(1, 156),
 
-	SET_PCI_LIODN(1, 193),
-	SET_PCI_LIODN(2, 194),
-	SET_PCI_LIODN(3, 195),
+	SET_PCI_LIODN("fsl,p4080-pcie", 1, 193),
+	SET_PCI_LIODN("fsl,p4080-pcie", 2, 194),
+	SET_PCI_LIODN("fsl,p4080-pcie", 3, 195),
 
 	SET_DMA_LIODN(1, 196),
 	SET_DMA_LIODN(2, 197),

@@ -16,9 +16,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
-				   unsigned int ctrl_num);
-
 
 /*
  * Fixed sdram init -- doesn't use serial presence detect.
@@ -31,19 +28,21 @@ extern fixed_ddr_parm_t fixed_ddr_parm_1[];
 phys_size_t fixed_sdram(void)
 {
 	int i;
-	sys_info_t sysinfo;
 	char buf[32];
 	fsl_ddr_cfg_regs_t ddr_cfg_regs;
 	phys_size_t ddr_size;
 	unsigned int lawbar1_target_id;
+	ulong ddr_freq, ddr_freq_mhz;
 
-	get_sys_info(&sysinfo);
+	ddr_freq = get_ddr_freq(0);
+	ddr_freq_mhz = ddr_freq / 1000000;
+
 	printf("Configuring DDR for %s MT/s data rate\n",
-				strmhz(buf, sysinfo.freqDDRBus));
+				strmhz(buf, ddr_freq));
 
 	for (i = 0; fixed_ddr_parm_0[i].max_freq > 0; i++) {
-		if ((sysinfo.freqDDRBus > fixed_ddr_parm_0[i].min_freq) &&
-		   (sysinfo.freqDDRBus <= fixed_ddr_parm_0[i].max_freq)) {
+		if ((ddr_freq_mhz > fixed_ddr_parm_0[i].min_freq) &&
+		   (ddr_freq_mhz <= fixed_ddr_parm_0[i].max_freq)) {
 			memcpy(&ddr_cfg_regs,
 				fixed_ddr_parm_0[i].ddr_settings,
 				sizeof(ddr_cfg_regs));
@@ -53,7 +52,7 @@ phys_size_t fixed_sdram(void)
 
 	if (fixed_ddr_parm_0[i].max_freq == 0)
 		panic("Unsupported DDR data rate %s MT/s data rate\n",
-			strmhz(buf, sysinfo.freqDDRBus));
+			strmhz(buf, ddr_freq));
 
 	ddr_size = (phys_size_t) CONFIG_SYS_SDRAM_SIZE * 1024 * 1024;
 	ddr_cfg_regs.ddr_cdr1 = DDR_CDR1_DHC_EN;
@@ -106,38 +105,6 @@ phys_size_t fixed_sdram(void)
 #endif
 	}
 	return ddr_size;
-}
-
-static void get_spd(ddr3_spd_eeprom_t *spd, unsigned char i2c_address)
-{
-	int ret;
-
-	ret = i2c_read(i2c_address, 0, 1, (uchar *)spd, sizeof(ddr3_spd_eeprom_t));
-	if (ret) {
-		debug("DDR: failed to read SPD from address %u\n", i2c_address);
-		memset(spd, 0, sizeof(ddr3_spd_eeprom_t));
-	}
-}
-
-unsigned int fsl_ddr_get_mem_data_rate(void)
-{
-	return get_ddr_freq(0);
-}
-
-void fsl_ddr_get_spd(ddr3_spd_eeprom_t *ctrl_dimms_spd,
-		      unsigned int ctrl_num)
-{
-	unsigned int i;
-	unsigned int i2c_address = 0;
-
-	for (i = 0; i < CONFIG_DIMM_SLOTS_PER_CTLR; i++) {
-		if (ctrl_num == 0 && i == 0)
-			i2c_address = SPD_EEPROM_ADDRESS1;
-		else if (ctrl_num == 1 && i == 0)
-			i2c_address = SPD_EEPROM_ADDRESS2;
-
-		get_spd(&(ctrl_dimms_spd[i]), i2c_address);
-	}
 }
 
 typedef struct {
