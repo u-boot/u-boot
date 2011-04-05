@@ -240,12 +240,12 @@ extern unsigned long get_clock_freq(void);
 #define CONFIG_CMD_NAND			1
 #define CONFIG_NAND_FSL_ELBC		1
 #define CONFIG_SYS_NAND_BLOCK_SIZE	(128 * 1024)
-#define CONFIG_NAND_BR_PRELIM	(CONFIG_SYS_NAND_BASE_PHYS \
+#define CONFIG_SYS_NAND_BR_PRELIM	(CONFIG_SYS_NAND_BASE_PHYS \
 				| (2<<BR_DECC_SHIFT) /* Use HW ECC */ \
 				| BR_PS_8	     /* Port Size = 8 bit */ \
 				| BR_MS_FCM	     /* MSEL = FCM */ \
 				| BR_V)		     /* valid */
-#define CONFIG_NAND_OR_PRELIM	(0xFFFC0000	     /* length 256K */ \
+#define CONFIG_SYS_NAND_OR_PRELIM	(0xFFFC0000	     /* length 256K */ \
 				| OR_FCM_CSCT \
 				| OR_FCM_CST \
 				| OR_FCM_CHT \
@@ -254,15 +254,15 @@ extern unsigned long get_clock_freq(void);
 				| OR_FCM_EHTR)
 
 #ifdef CONFIG_RAMBOOT_NAND
-#define CONFIG_SYS_BR0_PRELIM	CONFIG_NAND_BR_PRELIM	/* NAND Base Address */
-#define CONFIG_SYS_OR0_PRELIM	CONFIG_NAND_OR_PRELIM	/* NAND Options */
+#define CONFIG_SYS_BR0_PRELIM	CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
+#define CONFIG_SYS_OR0_PRELIM	CONFIG_SYS_NAND_OR_PRELIM/* NAND Options */
 #define CONFIG_SYS_BR3_PRELIM	CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
 #define CONFIG_SYS_OR3_PRELIM	CONFIG_FLASH_OR_PRELIM	/* NOR Options */
 #else
 #define CONFIG_SYS_BR0_PRELIM	CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
 #define CONFIG_SYS_OR0_PRELIM	CONFIG_FLASH_OR_PRELIM	/* NOR Options */
-#define CONFIG_SYS_BR3_PRELIM	CONFIG_NAND_BR_PRELIM /* NAND Base Address */
-#define CONFIG_SYS_OR3_PRELIM	CONFIG_NAND_OR_PRELIM /* NAND Options */
+#define CONFIG_SYS_BR3_PRELIM	CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
+#define CONFIG_SYS_OR3_PRELIM	CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 #endif
 
 #define CONFIG_SYS_LBC_LCRR	0x00000004	/* LB clock ratio reg */
