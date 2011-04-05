@@ -50,6 +50,16 @@ lowlevel_init:
 	ldr r2, =0xFFFFFFFF
 	str r2, [r1]
 
+	# set urgent bits with register
+	ldr r1, =(XPSS_SYS_CTRL_BASEADDR + 0x61C)
+	ldr r2, =0
+	str r2, [r1]
+
+	# urgent write, ports S2/S3
+	ldr r1, =(XPSS_SYS_CTRL_BASEADDR + 0x600)
+	ldr r2, =0xC
+	str r2, [r1]
+
 	# relock SLCR
 	ldr r1, =(XPSS_SYS_CTRL_BASEADDR + 0x4)
 	ldr r2, =0x767B
@@ -74,20 +84,28 @@ doit:
 	ldr r2, =0x000C1061
 	str r2, [r1]
 
+	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0xC)
+	ldr r2, =0x03001001
+	str r2, [r1]
+
+	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x10)
+	ldr r2, =0x00014001
+	str r2, [r1]
+
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x14)
-	ldr r2, =0x00040CD6
+	ldr r2, =0x0004e020
 	str r2, [r1]
 
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x18)
-	ldr r2, =0x049B48CD
+	ldr r2, =0x36264ccf
 	str r2, [r1]
 
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x1C)
-	ldr r2, =0x80615884
+	ldr r2, =0x820158a4
 	str r2, [r1]
 
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x20)
-	ldr r2, =0x250842CB
+	ldr r2, =0x250882c4
 	str r2, [r1]
 
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x28)
@@ -99,7 +117,7 @@ doit:
 	str r2, [r1]
 
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x30)
-	ldr r2, =0x00060B62
+	ldr r2, =0x00040952
 	str r2, [r1]
 
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x34)
@@ -129,6 +147,10 @@ doit:
 
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x5C)
 	ldr r2, =0x00002223
+	str r2, [r1]
+
+	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x64)
+	ldr r2, =0x00020FE0
 	str r2, [r1]
 
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0xA4)
