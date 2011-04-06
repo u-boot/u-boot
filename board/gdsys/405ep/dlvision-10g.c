@@ -31,6 +31,9 @@
 
 #include "../common/osd.h"
 
+#define LATCH2_BASE (CONFIG_SYS_LATCH_BASE + 0x200)
+#define LATCH2_MC2_PRESENT_N 0x0080
+
 enum {
 	UNITTYPE_VIDEO_USER = 0,
 	UNITTYPE_MAIN_USER = 1,
@@ -206,8 +209,8 @@ static void print_fpga_info(unsigned dev)
  */
 int checkboard(void)
 {
-	unsigned k;
 	char *s = getenv("serial#");
+	u16 latch2 = in_le16((void *)LATCH2_BASE);
 
 	printf("Board: ");
 
@@ -220,20 +223,27 @@ int checkboard(void)
 
 	puts("\n");
 
-	for (k = 0; k < CONFIG_SYS_FPGA_COUNT; ++k)
-		print_fpga_info(k);
+	print_fpga_info(0);
+	if (!(latch2 & LATCH2_MC2_PRESENT_N))
+		print_fpga_info(1);
 
 	return 0;
 }
 
 int last_stage_init(void)
 {
-	unsigned k;
+	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
+	u16 versions = in_le16(&fpga->versions);
+	u16 latch2 = in_le16((void *)LATCH2_BASE);
 
-	for (k = 0; k < CONFIG_SYS_OSD_SCREENS; ++k)
-		if (!get_fpga_state(k)
-		    || (get_fpga_state(k) == FPGA_STATE_DONE_FAILED))
-			osd_probe(k);
+	if (((versions >> 4) & 0x000f) != UNITTYPE_MAIN_USER)
+		return 0;
+
+	if (!get_fpga_state(0))
+		osd_probe(0);
+
+	if (!(latch2 & LATCH2_MC2_PRESENT_N) && !get_fpga_state(1))
+		osd_probe(1);
 
 	return 0;
 }
