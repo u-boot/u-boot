@@ -97,11 +97,13 @@ typedef struct ihs_fpga {
 	u16 extended_interrupt; /* 0x001c */
 	u16 reserved_1[9];	/* 0x001e */
 	ihs_i2c_t i2c;		/* 0x0030 */
-	u16 reserved_2[51];	/* 0x0038 */
+	u16 reserved_2[16];	/* 0x0038 */
+	u16 mpc3w_control;	/* 0x0058 */
+	u16 reserved_3[34];	/* 0x005a */
 	u16 videocontrol;	/* 0x009e */
-	u16 reserved_3[176];	/* 0x00a0 */
+	u16 reserved_4[176];	/* 0x00a0 */
 	ihs_osd_t osd;		/* 0x0200 */
-	u16 reserved_4[761];	/* 0x020e */
+	u16 reserved_5[761];	/* 0x020e */
 	u16 videomem;		/* 0x0800 */
 } ihs_fpga_t;
 #endif
