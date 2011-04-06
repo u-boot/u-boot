@@ -136,6 +136,8 @@
 #define CONFIG_SYS_LATCH1_RESET		0xffcf
 #define CONFIG_SYS_LATCH1_BOOT		0xffff
 
+#define CONFIG_SYS_FPGA_NO_RFL_HI
+
 /*
  * FLASH organization
  */

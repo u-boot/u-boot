@@ -34,6 +34,8 @@
 #define LATCH2_BASE (CONFIG_SYS_LATCH_BASE + 0x200)
 #define LATCH2_MC2_PRESENT_N 0x0080
 
+#define LATCH3_BASE (CONFIG_SYS_LATCH_BASE + 0x300)
+
 enum {
 	UNITTYPE_VIDEO_USER = 0,
 	UNITTYPE_MAIN_USER = 1,
@@ -62,6 +64,20 @@ enum {
 	RAM_DDR2_32 = 1,
 	RAM_DDR2_64 = 2,
 };
+
+static unsigned int get_hwver(void)
+{
+	u16 latch3 = in_le16((void *)LATCH3_BASE);
+
+	return latch3 & 0x0003;
+}
+
+static unsigned int get_mc2_present(void)
+{
+	u16 latch2 = in_le16((void *)LATCH2_BASE);
+
+	return !(latch2 & LATCH2_MC2_PRESENT_N);
+}
 
 static void print_fpga_info(unsigned dev)
 {
@@ -210,7 +226,6 @@ static void print_fpga_info(unsigned dev)
 int checkboard(void)
 {
 	char *s = getenv("serial#");
-	u16 latch2 = in_le16((void *)LATCH2_BASE);
 
 	printf("Board: ");
 
@@ -224,7 +239,7 @@ int checkboard(void)
 	puts("\n");
 
 	print_fpga_info(0);
-	if (!(latch2 & LATCH2_MC2_PRESENT_N))
+	if (get_mc2_present())
 		print_fpga_info(1);
 
 	return 0;
@@ -234,15 +249,15 @@ int last_stage_init(void)
 {
 	ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(0);
 	u16 versions = in_le16(&fpga->versions);
-	u16 latch2 = in_le16((void *)LATCH2_BASE);
 
 	if (((versions >> 4) & 0x000f) != UNITTYPE_MAIN_USER)
 		return 0;
 
-	if (!get_fpga_state(0))
+	if (!get_fpga_state(0) || (get_hwver() == HWVER_101))
 		osd_probe(0);
 
-	if (!(latch2 & LATCH2_MC2_PRESENT_N) && !get_fpga_state(1))
+	if (get_mc2_present() &&
+	    (!get_fpga_state(1) || (get_hwver() == HWVER_101)))
 		osd_probe(1);
 
 	return 0;
