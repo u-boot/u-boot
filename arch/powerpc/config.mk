@@ -29,17 +29,6 @@ PLATFORM_RELFLAGS += -fpic -mrelocatable -ffunction-sections -fdata-sections
 PLATFORM_CPPFLAGS += -DCONFIG_PPC -D__powerpc__
 PLATFORM_LDFLAGS  += -n
 
-ifdef CONFIG_SYS_LDSCRIPT
-# need to strip off double quotes
-LDSCRIPT := $(subst ",,$(CONFIG_SYS_LDSCRIPT))
-else ifdef CONFIG_NAND_SPL
-LDSCRIPT := $(SRCTREE)/$(CONFIG_BOARDDIR)/u-boot-nand.lds
-else
-ifneq ($(wildcard $(SRCTREE)/arch/powerpc/cpu/$(CPU)/u-boot.lds),)
-LDSCRIPT := $(SRCTREE)/arch/powerpc/cpu/$(CPU)/u-boot.lds
-endif
-endif
-
 #
 # When cross-compiling on NetBSD, we have to define __PPC__ or else we
 # will pick up a va_list declaration that is incompatible with the
