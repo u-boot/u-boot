@@ -376,6 +376,8 @@ int osd_probe(unsigned screen)
 	out_le16(&osd->control, 0x0049);
 
 	out_le16(&osd->xy_size, ((32 - 1) << 8) | (16 - 1));
+	out_le16(&osd->x_pos, 0x007f);
+	out_le16(&osd->y_pos, 0x005f);
 
 	return 0;
 }

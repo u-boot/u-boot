@@ -50,6 +50,9 @@ typedef struct ihs_osd {
 	u16 features;
 	u16 control;
 	u16 xy_size;
+	u16 xy_scale;
+	u16 x_pos;
+	u16 y_pos;
 } ihs_osd_t;
 
 #ifdef CONFIG_IO
@@ -79,7 +82,7 @@ typedef struct ihs_fpga {
 	u16 reserved_2[93];	/* 0x0044 */
 	u16 reflection_high;	/* 0x00fe */
 	ihs_osd_t osd;		/* 0x0100 */
-	u16 reserved_3[892];	/* 0x0108 */
+	u16 reserved_3[88];	/* 0x010e */
 	u16 videomem;		/* 0x0800 */
 } ihs_fpga_t;
 #endif
@@ -98,7 +101,7 @@ typedef struct ihs_fpga {
 	u16 videocontrol;	/* 0x009e */
 	u16 reserved_3[176];	/* 0x00a0 */
 	ihs_osd_t osd;		/* 0x0200 */
-	u16 reserved_4[764];	/* 0x0208 */
+	u16 reserved_4[761];	/* 0x020e */
 	u16 videomem;		/* 0x0800 */
 } ihs_fpga_t;
 #endif
