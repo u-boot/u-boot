@@ -132,6 +132,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define DISP_LINE_LEN	16
 
+/* implement possible board specific board init */
+void __def_i2c_init_board(void)
+{
+	return;
+}
+void i2c_init_board(void)
+	__attribute__((weak, alias("__def_i2c_init_board")));
+
 /* TODO: Implement architecture-specific get/set functions */
 unsigned int __def_i2c_get_bus_speed(void)
 {
@@ -1541,6 +1549,8 @@ int i2x_mux_select_mux(int bus)
 
 	mux = dev->mux;
 	while (mux != NULL) {
+		/* do deblocking on each level of mux, before mux config */
+		i2c_init_board();
 		if (i2c_write(mux->chip, 0, 0, &mux->channel, 1) != 0) {
 			printf ("Error setting Mux: chip:%x channel: \
 				%x\n", mux->chip, mux->channel);
@@ -1548,6 +1558,8 @@ int i2x_mux_select_mux(int bus)
 		}
 		mux = mux->next;
 	}
+	/* do deblocking on each level of mux and after mux config */
+	i2c_init_board();
 	return 0;
 }
 #endif /* CONFIG_I2C_MUX */

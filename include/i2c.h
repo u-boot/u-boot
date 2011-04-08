@@ -108,9 +108,7 @@
  * repeatedly to change the speed and slave addresses.
  */
 void i2c_init(int speed, int slaveaddr);
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
 void i2c_init_board(void);
-#endif
 #ifdef CONFIG_SYS_I2C_BOARD_LATE_INIT
 void i2c_board_late_init(void);
 #endif
