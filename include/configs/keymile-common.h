@@ -86,7 +86,7 @@
 #define CONFIG_SYS_HZ			1000	/* decr. freq: 1 ms ticks */
 
 #define CONFIG_BAUDRATE			115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200, 230400 }
+#define CONFIG_SYS_BAUDRATE_TABLE { 9600, 19200, 38400, 57600, 115200, 230400 }
 
 #define CONFIG_LOADS_ECHO
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
@@ -451,6 +451,6 @@
 	""
 #endif /* CONFIG_KM_DEF_ENV */
 
-#define CONFIG_VERSION_VARIABLE 	/* include version env variable */
+#define CONFIG_VERSION_VARIABLE	/* include version env variable */
 
 #endif /* __CONFIG_KEYMILE_H */

@@ -106,7 +106,7 @@
 #define CONFIG_BOOTMAPSZ	(8 << 20)	/* Initial Memmap for Linux */
 #define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs  */
 #define CONFIG_INITRD_TAG		/* enable INITRD tag */
-#define CONFIG_SETUP_MEMORY_TAGS 	/* enable memory tag */
+#define CONFIG_SETUP_MEMORY_TAGS	/* enable memory tag */
 
 /*
  * Commands configuration
@@ -176,10 +176,10 @@
 #ifndef __ASSEMBLY__
 #include <asm/arch-kirkwood/gpio.h>
 extern void __set_direction(unsigned pin, int high);
-void set_sda (int state);
-void set_scl (int state);
-int get_sda (void);
-int get_scl (void);
+void set_sda(int state);
+void set_scl(int state);
+int get_sda(void);
+int get_scl(void);
 #define KM_KIRKWOOD_SDA_PIN	8
 #define KM_KIRKWOOD_SCL_PIN	9
 #define KM_KIRKWOOD_ENV_WP	38
