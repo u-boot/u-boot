@@ -247,10 +247,10 @@
 		"printbootargs boot "					\
 		"\" && "						\
 		"setenv bootcmd \'"					\
-		"run bootrunner; reset"					\
+		"run actual bootrunner; reset"				\
 		"\' && "						\
 		"setenv altbootcmd \'"					\
-		"run actual0 bootcmd; reset"				\
+		"run backup bootrunner; reset"				\
 		"\' && "						\
 		"saveenv && "						\
 		"reset\0"						\
@@ -288,7 +288,7 @@
 	"addramfs="							\
 		"setenv bootargs \""					\
 		"${bootargs} phram.phram="				\
-		"rootfs${actual_bank},${rootfsaddr},${rootfssize}\"\0"	\
+		"rootfs${boot_bank},${rootfsaddr},${rootfssize}\"\0"	\
 	"addtty="							\
 		"setenv bootargs ${bootargs}"				\
 		" console=" CONFIG_KM_CONSOLE_TTY ",${baudrate}\0"	\
@@ -303,7 +303,7 @@
 	"flashargs="							\
 		"setenv bootargs "					\
 		"ubi.mtd=" CONFIG_KM_UBI_LINUX_MTD_NAME " "		\
-		"root=mtdblock:rootfs${actual_bank} "			\
+		"root=mtdblock:rootfs${boot_bank} "			\
 		"rootfstype=squashfs ro\0"				\
 	""
 
@@ -352,7 +352,7 @@
 		"cramfsload ${kernel_addr_r} uImage && "		\
 		"setenv actual_kernel_addr ${kernel_addr_r}\0"		\
 	"ubiattach=ubi part ${ubipartition}\0"				\
-	"ubicopy=ubi read ${cramfsaddr} bootfs${actual_bank}\0"		\
+	"ubicopy=ubi read ${cramfsaddr} bootfs${boot_bank}\0"		\
 	"ubipartition=" CONFIG_KM_UBI_PARTITION_NAME "\0"		\
 	""
 
@@ -382,9 +382,10 @@
  * - 'default': setup default environment
  */
 #define CONFIG_KM_DEF_ENV_CONSTANTS					\
-	"actual=setenv actual_bank ${initial_boot_bank}\0"		\
-	"actual0=setenv actual_bank 0\0"				\
+	"actual=setenv boot_bank ${actual_bank}\0"			\
+	"backup=setenv boot_bank ${backup_bank}\0"			\
 	"actual_bank=${initial_boot_bank}\0"				\
+	"backup_bank=0\0"						\
 	"default="							\
 		"setenv default 'run newenv; reset' &&  "		\
 		"run release && saveenv; reset\0"			\
