@@ -85,6 +85,8 @@
 			 PSDMR_CL_2)
 
 
+#define CONFIG_KM_BOARD_EXTRA_ENV	""
+
 /* include further common stuff for all keymile 82xx boards */
 #include "km82xx-common.h"
 

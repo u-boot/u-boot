@@ -85,6 +85,8 @@
 			PSDMR_WRC_2C				|\
 			PSDMR_CL_2)
 
+#define CONFIG_KM_BOARD_EXTRA_ENV	"bobcatreset=true\0"
+
 /* include further common stuff for all keymile 82xx boards */
 #include "km82xx-common.h"
 

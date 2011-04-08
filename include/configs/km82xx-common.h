@@ -80,6 +80,7 @@
  * Default environment settings
  */
 #define	CONFIG_EXTRA_ENV_SETTINGS					\
+	CONFIG_KM_BOARD_EXTRA_ENV					\
 	CONFIG_KM_DEF_ENV						\
 	"EEprom_ivm=pca9544a:70:4 \0"					\
 	"unlock=yes\0"							\
