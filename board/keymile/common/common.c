@@ -677,9 +677,6 @@ int ethernet_present(void)
 
 int board_eth_init(bd_t *bis)
 {
-#ifdef CONFIG_KEYMILE_HDLC_ENET
-	(void)keymile_hdlc_enet_initialize(bis);
-#endif
 	if (ethernet_present())
 		return cpu_eth_init(bis);
 

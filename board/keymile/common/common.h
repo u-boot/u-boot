@@ -46,10 +46,6 @@ struct km_bec_fpga {
 int ethernet_present(void);
 int ivm_read_eeprom(void);
 
-#ifdef CONFIG_KEYMILE_HDLC_ENET
-int keymile_hdlc_enet_initialize(bd_t *bis);
-#endif
-
 int set_km_env(void);
 int fdt_set_node_and_value(void *blob,
 			char *nodename,
