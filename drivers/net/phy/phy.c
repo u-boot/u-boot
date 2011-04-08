@@ -420,6 +420,37 @@ static LIST_HEAD(phy_drivers);
 
 int phy_init(void)
 {
+#ifdef CONFIG_PHY_ATHEROS
+	phy_atheros_init();
+#endif
+#ifdef CONFIG_PHY_BROADCOM
+	phy_broadcom_init();
+#endif
+#ifdef CONFIG_PHY_DAVICOM
+	phy_davicom_init();
+#endif
+#ifdef CONFIG_PHY_LXT
+	phy_lxt_init();
+#endif
+#ifdef CONFIG_PHY_MARVELL
+	phy_marvell_init();
+#endif
+#ifdef CONFIG_PHY_MICREL
+	phy_micrel_init();
+#endif
+#ifdef CONFIG_PHY_NATSEMI
+	phy_natsemi_init();
+#endif
+#ifdef CONFIG_PHY_REALTEK
+	phy_realtek_init();
+#endif
+#ifdef CONFIG_PHY_TERANETICS
+	phy_teranetics_init();
+#endif
+#ifdef CONFIG_PHY_VITESSE
+	phy_vitesse_init();
+#endif
+
 	return 0;
 }
 
