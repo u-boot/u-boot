@@ -28,6 +28,16 @@ enum fsl_phy_enet_if {
 	FSL_ETH_IF_NONE,
 };
 
+struct tsec_mii_mng {
+	u32 miimcfg;		/* MII management configuration reg */
+	u32 miimcom;		/* MII management command reg */
+	u32 miimadd;		/* MII management address reg */
+	u32 miimcon;		/* MII management control reg */
+	u32 miimstat;		/* MII management status reg  */
+	u32 miimind;		/* MII management indication reg */
+	u32 ifstat;		/* Interface Status Register */
+} __attribute__ ((packed));
+
 int fdt_fixup_phy_connection(void *blob, int offset, enum fsl_phy_enet_if phyc);
 
 #endif /* __ASM_PPC_FSL_ENET_H */

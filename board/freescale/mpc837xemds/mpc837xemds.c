@@ -21,6 +21,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
+#include <fsl_mdio.h>
 #include "pci.h"
 #include "../common/pq-mds-pib.h"
 
@@ -86,6 +87,7 @@ int board_mmc_init(bd_t *bd)
 #if defined(CONFIG_TSEC1) || defined(CONFIG_TSEC2)
 int board_eth_init(bd_t *bd)
 {
+	struct fsl_pq_mdio_info mdio_info;
 	struct tsec_info_struct tsec_info[2];
 	struct immap __iomem *im = (struct immap __iomem *)CONFIG_SYS_IMMR;
 	u32 rcwh = in_be32(&im->reset.rcwh);
@@ -131,6 +133,11 @@ int board_eth_init(bd_t *bd)
 	}
 	num++;
 #endif
+
+	mdio_info.regs = (struct tsec_mii_mng *)CONFIG_SYS_MDIO_BASE_ADDR;
+	mdio_info.name = DEFAULT_MII_NAME;
+	fsl_pq_mdio_init(bd, &mdio_info);
+
 	return tsec_eth_init(bd, tsec_info, num);
 }
 
