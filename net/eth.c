@@ -25,6 +25,7 @@
 #include <command.h>
 #include <net.h>
 #include <miiphy.h>
+#include <phy.h>
 
 void eth_parse_enetaddr(const char *addr, uchar *enetaddr)
 {
@@ -217,6 +218,11 @@ int eth_initialize(bd_t *bis)
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 	miiphy_init();
 #endif
+
+#ifdef CONFIG_PHYLIB
+	phy_init();
+#endif
+
 	/*
 	 * If board-specific initialization exists, call it.
 	 * If not, call a CPU-specific one

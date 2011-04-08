@@ -28,6 +28,7 @@
 
 #include <common.h>
 #include <miiphy.h>
+#include <phy.h>
 
 #include <asm/types.h>
 #include <linux/list.h>
@@ -44,22 +45,13 @@
 #define debug(fmt, args...)
 #endif /* MII_DEBUG */
 
-struct mii_dev {
-	struct list_head link;
-	const char *name;
-	int (*read)(const char *devname, unsigned char addr,
-		     unsigned char reg, unsigned short *value);
-	int (*write)(const char *devname, unsigned char addr,
-		      unsigned char reg, unsigned short value);
-};
-
 static struct list_head mii_devs;
 static struct mii_dev *current_mii;
 
 /*
  * Lookup the mii_dev struct by the registered device name.
  */
-static struct mii_dev *miiphy_get_dev_by_name(const char *devname, int quiet)
+struct mii_dev *miiphy_get_dev_by_name(const char *devname)
 {
 	struct list_head *entry;
 	struct mii_dev *dev;
@@ -75,8 +67,6 @@ static struct mii_dev *miiphy_get_dev_by_name(const char *devname, int quiet)
 			return dev;
 	}
 
-	if (!quiet)
-		printf("No such device: %s\n", devname);
 	return NULL;
 }
 
@@ -90,6 +80,25 @@ void miiphy_init(void)
 	current_mii = NULL;
 }
 
+static int legacy_miiphy_read(struct mii_dev *bus, int addr, int devad, int reg)
+{
+	unsigned short val;
+	int ret;
+	struct legacy_mii_dev *ldev = bus->priv;
+
+	ret = ldev->read(bus->name, addr, reg, &val);
+
+	return ret ? -1 : (int)val;
+}
+
+static int legacy_miiphy_write(struct mii_dev *bus, int addr, int devad,
+				int reg, u16 val)
+{
+	struct legacy_mii_dev *ldev = bus->priv;
+
+	return ldev->write(bus->name, addr, reg, val);
+}
+
 /*****************************************************************************
  *
  * Register read and write MII access routines for the device <name>.
@@ -101,11 +110,11 @@ void miiphy_register(const char *name,
 				    unsigned char reg, unsigned short value))
 {
 	struct mii_dev *new_dev;
+	struct legacy_mii_dev *ldev;
 	unsigned int name_len;
-	char *new_name;
 
 	/* check if we have unique name */
-	new_dev = miiphy_get_dev_by_name(name, 1);
+	new_dev = miiphy_get_dev_by_name(name);
 	if (new_dev) {
 		printf("miiphy_register: non unique device name '%s'\n", name);
 		return;
@@ -113,26 +122,32 @@ void miiphy_register(const char *name,
 
 	/* allocate memory */
 	name_len = strlen(name);
-	new_dev =
-		(struct mii_dev *)malloc(sizeof(struct mii_dev) + name_len + 1);
+	if (name_len > MDIO_NAME_LEN - 1) {
+		/* Hopefully this won't happen, but if it does, we'll know */
+		printf("miiphy_register: MDIO name was longer than %d\n",
+			MDIO_NAME_LEN);
+		return;
+	}
 
-	if (new_dev == NULL) {
+	new_dev = mdio_alloc();
+	ldev = malloc(sizeof(*ldev));
+
+	if (new_dev == NULL || ldev == NULL) {
 		printf("miiphy_register: cannot allocate memory for '%s'\n",
 			name);
 		return;
 	}
-	memset(new_dev, 0, sizeof(struct mii_dev) + name_len);
 
 	/* initalize mii_dev struct fields */
-	INIT_LIST_HEAD(&new_dev->link);
-	new_dev->read = read;
-	new_dev->write = write;
-	new_dev->name = new_name = (char *)(new_dev + 1);
-	strncpy(new_name, name, name_len);
-	new_name[name_len] = '\0';
+	new_dev->read = legacy_miiphy_read;
+	new_dev->write = legacy_miiphy_write;
+	sprintf(new_dev->name, name);
+	ldev->read = read;
+	ldev->write = write;
+	new_dev->priv = ldev;
 
 	debug("miiphy_register: added '%s', read=0x%08lx, write=0x%08lx\n",
-	       new_dev->name, new_dev->read, new_dev->write);
+	       new_dev->name, ldev->read, ldev->write);
 
 	/* add it to the list */
 	list_add_tail(&new_dev->link, &mii_devs);
@@ -141,17 +156,108 @@ void miiphy_register(const char *name,
 		current_mii = new_dev;
 }
 
+struct mii_dev *mdio_alloc(void)
+{
+	struct mii_dev *bus;
+
+	bus = malloc(sizeof(*bus));
+	if (!bus)
+		return bus;
+
+	memset(bus, 0, sizeof(*bus));
+
+	/* initalize mii_dev struct fields */
+	INIT_LIST_HEAD(&bus->link);
+
+	return bus;
+}
+
+int mdio_register(struct mii_dev *bus)
+{
+	if (!bus || !bus->name || !bus->read || !bus->write)
+		return -1;
+
+	/* check if we have unique name */
+	if (miiphy_get_dev_by_name(bus->name)) {
+		printf("mdio_register: non unique device name '%s'\n",
+			bus->name);
+		return -1;
+	}
+
+	/* add it to the list */
+	list_add_tail(&bus->link, &mii_devs);
+
+	if (!current_mii)
+		current_mii = bus;
+
+	return 0;
+}
+
+void mdio_list_devices(void)
+{
+	struct list_head *entry;
+
+	list_for_each(entry, &mii_devs) {
+		int i;
+		struct mii_dev *bus = list_entry(entry, struct mii_dev, link);
+
+		printf("%s:\n", bus->name);
+
+		for (i = 0; i < PHY_MAX_ADDR; i++) {
+			struct phy_device *phydev = bus->phymap[i];
+
+			if (phydev) {
+				printf("%d - %s", i, phydev->drv->name);
+
+				if (phydev->dev)
+					printf(" <--> %s\n", phydev->dev->name);
+				else
+					printf("\n");
+			}
+		}
+	}
+}
+
 int miiphy_set_current_dev(const char *devname)
 {
 	struct mii_dev *dev;
 
-	dev = miiphy_get_dev_by_name(devname, 0);
+	dev = miiphy_get_dev_by_name(devname);
 	if (dev) {
 		current_mii = dev;
 		return 0;
 	}
 
+	printf("No such device: %s\n", devname);
+
 	return 1;
+}
+
+struct mii_dev *mdio_get_current_dev(void)
+{
+	return current_mii;
+}
+
+struct phy_device *mdio_phydev_for_ethname(const char *ethname)
+{
+	struct list_head *entry;
+	struct mii_dev *bus;
+
+	list_for_each(entry, &mii_devs) {
+		int i;
+		bus = list_entry(entry, struct mii_dev, link);
+
+		for (i = 0; i < PHY_MAX_ADDR; i++) {
+			if (!bus->phymap[i] || !bus->phymap[i]->dev)
+				continue;
+
+			if (strcmp(bus->phymap[i]->dev->name, ethname) == 0)
+				return bus->phymap[i];
+		}
+	}
+
+	printf("%s is not a known ethernet\n", ethname);
+	return NULL;
 }
 
 const char *miiphy_get_current_dev(void)
@@ -187,13 +293,15 @@ static struct mii_dev *miiphy_get_active_dev(const char *devname)
 int miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
 		 unsigned short *value)
 {
-	struct mii_dev *dev;
+	struct mii_dev *bus;
 
-	dev = miiphy_get_active_dev(devname);
-	if (dev)
-		return dev->read(devname, addr, reg, value);
+	bus = miiphy_get_active_dev(devname);
+	if (bus)
+		*value = bus->read(bus, addr, MDIO_DEVAD_NONE, reg);
+	else
+		return 1;
 
-	return 1;
+	return (*value < 0) ? 1 : 0;
 }
 
 /*****************************************************************************
@@ -207,11 +315,11 @@ int miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
 int miiphy_write(const char *devname, unsigned char addr, unsigned char reg,
 		  unsigned short value)
 {
-	struct mii_dev *dev;
+	struct mii_dev *bus;
 
-	dev = miiphy_get_active_dev(devname);
-	if (dev)
-		return dev->write(devname, addr, reg, value);
+	bus = miiphy_get_active_dev(devname);
+	if (bus)
+		return bus->write(bus, addr, MDIO_DEVAD_NONE, reg, value);
 
 	return 1;
 }
@@ -279,6 +387,7 @@ int miiphy_info(const char *devname, unsigned char addr, unsigned int *oui,
 	return 0;
 }
 
+#ifndef CONFIG_PHYLIB
 /*****************************************************************************
  *
  * Reset the PHY.
@@ -322,6 +431,7 @@ int miiphy_reset(const char *devname, unsigned char addr)
 	}
 	return 0;
 }
+#endif /* !PHYLIB */
 
 /*****************************************************************************
  *
@@ -352,7 +462,6 @@ int miiphy_speed(const char *devname, unsigned char addr)
 	if (btsr != 0xFFFF &&
 			(btsr & (PHY_1000BTSR_1000FD | PHY_1000BTSR_1000HD)))
 		return _1000BASET;
-
 #endif /* CONFIG_PHY_GIGE */
 
 	/* Check Basic Management Control Register first. */
