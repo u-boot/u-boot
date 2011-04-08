@@ -34,6 +34,7 @@ extern int parse_file_outer(void);
 
 int set_local_var(const char *s, int flg_export);
 void unset_local_var(const char *name);
+char *get_local_var(const char *s);
 
 #if defined(CONFIG_HUSH_INIT_VAR)
 extern int hush_init_var (void);

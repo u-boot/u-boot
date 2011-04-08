@@ -497,7 +497,6 @@ static void remove_bg_job(struct pipe *pi);
 /*     local variable support */
 static char **make_list_in(char **inp, char *name);
 static char *insert_var_value(char *inp);
-static char *get_local_var(const char *var);
 
 #ifndef __U_BOOT__
 /* Table of built-in functions.  They can be forked or not, depending on
@@ -2169,7 +2168,7 @@ static char *get_dollar_var(char ch);
 #endif
 
 /* This is used to get/check local shell variables */
-static char *get_local_var(const char *s)
+char *get_local_var(const char *s)
 {
 	struct variables *cur;
 
