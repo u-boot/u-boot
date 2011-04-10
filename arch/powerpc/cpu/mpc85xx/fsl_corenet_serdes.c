@@ -109,10 +109,13 @@ int serdes_lane_enabled(int lane)
 		return 0;
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
-	if (!IS_SVR_REV(get_svr(), 1, 0))
-		if (bank > 0)
-			return !(srds_lpd_b[bank] &
-					(8 >> (lane - (6 + 4 * bank))));
+	/*
+	 * For banks two and three, use the srds_lpd_b[] array instead of the
+	 * RCW, because this array contains the real values of SRDS_LPD_B2 and
+	 * SRDS_LPD_B3.
+	 */
+	if (bank > 0)
+		return !(srds_lpd_b[bank] & (8 >> (lane - (6 + 4 * bank))));
 #endif
 
 	return !(in_be32(&gur->rcwsr[word]) & (0x80000000 >> bit));
@@ -303,15 +306,19 @@ void fsl_serdes_init(void)
 	}
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
-	if (!IS_SVR_REV(get_svr(), 1, 0))
-		for (bank = 1; bank < ARRAY_SIZE(srds_lpd_b); bank++) {
-			sprintf(srds_lpd_opt, "fsl_srds_lpd_b%u", bank + 1);
-			srds_lpd_arg = hwconfig_subarg_f("serdes", srds_lpd_opt,
-						       &arglen, buf);
-			if (srds_lpd_arg)
-				srds_lpd_b[bank] = simple_strtoul(srds_lpd_arg,
-								  NULL, 0);
-		}
+	/*
+	 * Store the values of the fsl_srds_lpd_b2 and fsl_srds_lpd_b3
+	 * hwconfig options into the srds_lpd_b[] array.  See README.p4080ds
+	 * for a description of these options.
+	 */
+	for (bank = 1; bank < ARRAY_SIZE(srds_lpd_b); bank++) {
+		sprintf(srds_lpd_opt, "fsl_srds_lpd_b%u", bank + 1);
+		srds_lpd_arg =
+			hwconfig_subarg_f("serdes", srds_lpd_opt, &arglen, buf);
+		if (srds_lpd_arg)
+			srds_lpd_b[bank] =
+				simple_strtoul(srds_lpd_arg, NULL, 0) & 0xf;
+	}
 #endif
 
 	/* Look for banks with all lanes disabled, and power down the bank. */
@@ -324,32 +331,12 @@ void fsl_serdes_init(void)
 	}
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
-	if (IS_SVR_REV(get_svr(), 1, 0)) {
-		/* At least one bank must be disabled due to SERDES8.  If
-		 * no bank is found to be disabled based on lane
-		 * disables, disable bank 3 because we can't turn off its
-		 * lanes in the RCW without disabling MDIO due to erratum
-		 * GEN8.
-		 *
-		 * This means that if you are relying on bank 3 being
-		 * disabled to avoid SERDES8, in some cases you cannot
-		 * also disable all lanes of another bank, or else bank
-		 * 3 won't be disabled, leaving you with a configuration
-		 * that isn't valid according to SERDES8 (e.g. if banks
-		 * 2 and 3 have the same clock, and bank 1 is disabled
-		 * instead of 3).
-		 */
-		for (bank = 0; bank < SRDS_MAX_BANK; bank++) {
-			if (!have_bank[bank])
-				break;
-		}
-
-		if (bank == SRDS_MAX_BANK)
-			have_bank[FSL_SRDS_BANK_3] = 0;
-	} else {
-		if (have_bank[FSL_SRDS_BANK_2])
-			have_bank[FSL_SRDS_BANK_3] = 1;
-	}
+	/*
+	 * Bank two uses the clock from bank three, so if bank two is enabled,
+	 * then bank three must also be enabled.
+	 */
+	if (have_bank[FSL_SRDS_BANK_2])
+		have_bank[FSL_SRDS_BANK_3] = 1;
 #endif
 
 	for (bank = 0; bank < SRDS_MAX_BANK; bank++) {
@@ -455,19 +442,16 @@ void fsl_serdes_init(void)
 		bank = idx;
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
-		if (!IS_SVR_REV(get_svr(), 1, 0)) {
-			/*
-			 * Change bank init order to 0, 2, 1, so that the
-			 * third bank's PLL is established before we
-			 * start the second bank which shares the third
-			 * bank's PLL.
-			 */
+		/*
+		 * Change bank init order to 0, 2, 1, so that the third bank's
+		 * PLL is established before we start the second bank.  The
+		 * second bank uses the third bank's PLL.
+		 */
 
-			if (idx == 1)
-				bank = FSL_SRDS_BANK_3;
-			else if (idx == 2)
-				bank = FSL_SRDS_BANK_2;
-		}
+		if (idx == 1)
+			bank = FSL_SRDS_BANK_3;
+		else if (idx == 2)
+			bank = FSL_SRDS_BANK_2;
 #endif
 
 		/* Skip disabled banks */
@@ -475,14 +459,18 @@ void fsl_serdes_init(void)
 			continue;
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
-		if (!IS_SVR_REV(get_svr(), 1, 0)) {
-			if (idx == 1) {
-				p4080_erratum_serdes8(srds_regs, gur,
-						      serdes8_devdisr,
-						      serdes8_devdisr2, cfg);
-			} else if (idx == 2) {
-				enable_bank(gur, FSL_SRDS_BANK_2);
-			}
+		if (idx == 1) {
+			/*
+			 * Re-enable devices on banks two and three that were
+			 * disabled by the RCW, and then enable bank three. The
+			 * devices need to be enabled before either bank is
+			 * powered up.
+			 */
+			p4080_erratum_serdes8(srds_regs, gur, serdes8_devdisr,
+					      serdes8_devdisr2, cfg);
+		} else if (idx == 2) {
+			/* Eable bank two now that bank three is enabled. */
+			enable_bank(gur, FSL_SRDS_BANK_2);
 		}
 #endif
 

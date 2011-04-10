@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2000
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
@@ -51,9 +51,19 @@ struct fsl_e_tlb_entry tlb_table[] = {
 
 	/* TLB 1 */
 	/* *I*** - Covers boot page */
+#if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SYS_INIT_L3_ADDR)
+	/*
+	 * *I*G - L3SRAM. When L3 is used as 1M SRAM, the address of the
+	 * SRAM is at 0xfff00000, it covered the 0xfffff000.
+	 */
+	SET_TLB_ENTRY(1, CONFIG_SYS_INIT_L3_ADDR, CONFIG_SYS_INIT_L3_ADDR,
+			MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+			0, 0, BOOKE_PAGESZ_1M, 1),
+#else
 	SET_TLB_ENTRY(1, 0xfffff000, 0xfffff000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 0, BOOKE_PAGESZ_4K, 1),
+#endif
 
 	/* *I*G* - CCSRBAR */
 	SET_TLB_ENTRY(1, CONFIG_SYS_CCSRBAR, CONFIG_SYS_CCSRBAR_PHYS,

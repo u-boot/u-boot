@@ -93,11 +93,19 @@ int checkboard(void)
 /* Choose the 11.2896Mhz codec reference clock */
 #define CONFIG_PIXIS_BRDCFG1_AUDCLK_11		0x01
 
+/* Connect to USB2 */
+#define CONFIG_PIXIS_BRDCFG0_USB2		0x10
+/* Connect to TFM bus */
+#define CONFIG_PIXIS_BRDCFG1_TDM		0x0c
+/* Connect to SPI */
+#define CONFIG_PIXIS_BRDCFG0_SPI		0x80
+
 int misc_init_r(void)
 {
 	u8 temp;
 	const char *audclk;
 	size_t arglen;
+	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 
 	/* For DVI, enable the TFP410 Encoder. */
 
@@ -115,22 +123,48 @@ int misc_init_r(void)
 		return -1;
 	debug("DVI Encoder Read: 0x%02x\n",temp);
 
+	/* Enable the USB2 in PMUXCR2 and FGPA */
+	if (hwconfig("usb2")) {
+		clrsetbits_be32(&gur->pmuxcr2, MPC85xx_PMUXCR2_ETSECUSB_MASK,
+			MPC85xx_PMUXCR2_USB);
+		setbits_8(&pixis->brdcfg0, CONFIG_PIXIS_BRDCFG0_USB2);
+	}
+
+	/* tdm and audio can not enable simultaneous*/
+	if (hwconfig("tdm") && hwconfig("audclk")){
+		printf("WARNING: TDM and AUDIO can not be enabled simultaneous !\n");
+		return -1;
+	}
+
+	/* Enable the TDM in PMUXCR and FGPA */
+	if (hwconfig("tdm")) {
+		clrsetbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_TDM_MASK,
+			MPC85xx_PMUXCR_TDM);
+		setbits_8(&pixis->brdcfg1, CONFIG_PIXIS_BRDCFG1_TDM);
+		/* TDM need some configration option by SPI */
+		clrsetbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_SPI_MASK,
+			MPC85xx_PMUXCR_SPI);
+		setbits_8(&pixis->brdcfg0, CONFIG_PIXIS_BRDCFG0_SPI);
+	}
+
 	/*
 	 * Enable the reference clock for the WM8776 codec, and route the MUX
 	 * pins for SSI. The default is the 12.288 MHz clock
 	 */
 
-	temp = in_8(&pixis->brdcfg1) & ~(CONFIG_PIXIS_BRDCFG1_SSI_TDM_MASK |
-		CONFIG_PIXIS_BRDCFG1_AUDCLK_MASK);
-	temp |= CONFIG_PIXIS_BRDCFG1_SSI_TDM_SSI;
+	if (hwconfig("audclk")) {
+		temp = in_8(&pixis->brdcfg1) & ~(CONFIG_PIXIS_BRDCFG1_SSI_TDM_MASK |
+			CONFIG_PIXIS_BRDCFG1_AUDCLK_MASK);
+		temp |= CONFIG_PIXIS_BRDCFG1_SSI_TDM_SSI;
 
-	audclk = hwconfig_arg("audclk", &arglen);
-	/* Check the first two chars only */
-	if (audclk && (strncmp(audclk, "11", 2) == 0))
-		temp |= CONFIG_PIXIS_BRDCFG1_AUDCLK_11;
-	else
-		temp |= CONFIG_PIXIS_BRDCFG1_AUDCLK_12;
-	out_8(&pixis->brdcfg1, temp);
+		audclk = hwconfig_arg("audclk", &arglen);
+		/* Check the first two chars only */
+		if (audclk && (strncmp(audclk, "11", 2) == 0))
+			temp |= CONFIG_PIXIS_BRDCFG1_AUDCLK_11;
+		else
+			temp |= CONFIG_PIXIS_BRDCFG1_AUDCLK_12;
+		setbits_8(&pixis->brdcfg1, temp);
+	}
 
 	return 0;
 }

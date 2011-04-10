@@ -219,6 +219,22 @@
 #undef CONFIG_SYS_FLASH_EMPTY_INFO
 #endif
 
+#ifndef CONFIG_DIU
+#define CONFIG_ATI
+#endif
+
+#ifdef CONFIG_ATI
+#define VIDEO_IO_OFFSET		CONFIG_SYS_PCIE1_IO_VIRT
+#define CONFIG_VIDEO
+#define CONFIG_BIOSEMU
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_ATI_RADEON_FB
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_SYS_ISA_IO_BASE_ADDRESS VIDEO_IO_OFFSET
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#endif
+
 /*
  * Pass open firmware flat tree
  */
@@ -492,6 +508,7 @@
 	"dium=mw e002c01c\0" 						\
 	"diuerr=md e002c014 1\0" 					\
 	"othbootargs=diufb=15M video=fslfb:1280x1024-32@60,monitor=0 tty0\0" \
+	"hwconfig=esdhc;audclk:12\0"					\
 	"monitor=0-DVI\0"
 
 #define CONFIG_HDBOOT					\

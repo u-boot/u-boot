@@ -361,13 +361,13 @@
 #define CONFIG_SYS_NAND_U_BOOT_RELOC_SP ((CONFIG_SYS_INIT_L2_END - 1) & ~0xF)
 
 /* NAND flash config */
-#define CONFIG_NAND_BR_PRELIM \
+#define CONFIG_SYS_NAND_BR_PRELIM \
 		(BR_PHYS_ADDR(CONFIG_SYS_NAND_BASE_PHYS) \
 		| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
 		| BR_PS_8		/* Port Size = 8 bit */ \
 		| BR_MS_FCM		/* MSEL = FCM */ \
 		| BR_V)			/* valid */
-#define CONFIG_NAND_OR_PRELIM	(0xFFFC0000	/* length 256K */ \
+#define CONFIG_SYS_NAND_OR_PRELIM	(0xFFFC0000	/* length 256K */ \
 		| OR_FCM_PGS		/* Large Page*/ \
 		| OR_FCM_CSCT \
 		| OR_FCM_CST \
@@ -377,15 +377,15 @@
 		| OR_FCM_EHTR)
 
 #ifdef CONFIG_RAMBOOT_NAND
-#define CONFIG_SYS_BR0_PRELIM  CONFIG_NAND_BR_PRELIM	/* NAND Base Address */
-#define CONFIG_SYS_OR0_PRELIM  CONFIG_NAND_OR_PRELIM	/* NAND Options */
+#define CONFIG_SYS_BR0_PRELIM  CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
+#define CONFIG_SYS_OR0_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 #define CONFIG_SYS_BR2_PRELIM  CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
 #define CONFIG_SYS_OR2_PRELIM  CONFIG_FLASH_OR_PRELIM	/* NOR Options */
 #else
 #define CONFIG_SYS_BR0_PRELIM  CONFIG_FLASH_BR_PRELIM	/* NOR Base Address */
 #define CONFIG_SYS_OR0_PRELIM  CONFIG_FLASH_OR_PRELIM	/* NOR Options */
-#define CONFIG_SYS_BR2_PRELIM  CONFIG_NAND_BR_PRELIM	/* NAND Base Address */
-#define CONFIG_SYS_OR2_PRELIM  CONFIG_NAND_OR_PRELIM	/* NAND Options */
+#define CONFIG_SYS_BR2_PRELIM  CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
+#define CONFIG_SYS_OR2_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 #endif
 
 #define CONFIG_SYS_BR4_PRELIM \
@@ -394,14 +394,14 @@
 		| BR_PS_8		/* Port Size = 8 bit */ \
 		| BR_MS_FCM		/* MSEL = FCM */ \
 		| BR_V)			/* valid */
-#define CONFIG_SYS_OR4_PRELIM	CONFIG_NAND_OR_PRELIM	/* NAND Options */
+#define CONFIG_SYS_OR4_PRELIM	CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 #define CONFIG_SYS_BR5_PRELIM \
 		(BR_PHYS_ADDR((CONFIG_SYS_NAND_BASE_PHYS + 0x80000)) \
 		| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
 		| BR_PS_8		/* Port Size = 8 bit */ \
 		| BR_MS_FCM		/* MSEL = FCM */ \
 		| BR_V)			/* valid */
-#define CONFIG_SYS_OR5_PRELIM	CONFIG_NAND_OR_PRELIM	/* NAND Options */
+#define CONFIG_SYS_OR5_PRELIM	CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 
 #define CONFIG_SYS_BR6_PRELIM \
 		(BR_PHYS_ADDR((CONFIG_SYS_NAND_BASE_PHYS + 0xc0000)) \
@@ -409,7 +409,7 @@
 		| BR_PS_8		/* Port Size = 8 bit */ \
 		| BR_MS_FCM		/* MSEL = FCM */ \
 		| BR_V)			/* valid */
-#define CONFIG_SYS_OR6_PRELIM	CONFIG_NAND_OR_PRELIM	/* NAND Options */
+#define CONFIG_SYS_OR6_PRELIM	CONFIG_SYS_NAND_OR_PRELIM	/* NAND Options */
 
 /* Serial Port - controlled on board with jumper J8
  * open - index 2

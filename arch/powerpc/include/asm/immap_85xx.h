@@ -1923,7 +1923,31 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR_SD_DATA		0x80000000
 #define MPC85xx_PMUXCR_SDHC_CD		0x40000000
 #define MPC85xx_PMUXCR_SDHC_WP		0x20000000
+#define MPC85xx_PMUXCR_TDM_ENA		0x00800000
+#define MPC85xx_PMUXCR_QE0		0x00008000
+#define MPC85xx_PMUXCR_QE1		0x00004000
+#define MPC85xx_PMUXCR_QE2		0x00002000
+#define MPC85xx_PMUXCR_QE3		0x00001000
+#define MPC85xx_PMUXCR_QE4		0x00000800
+#define MPC85xx_PMUXCR_QE5		0x00000400
+#define MPC85xx_PMUXCR_QE6		0x00000200
+#define MPC85xx_PMUXCR_QE7		0x00000100
+#define MPC85xx_PMUXCR_QE8		0x00000080
+#define MPC85xx_PMUXCR_QE9		0x00000040
+#define MPC85xx_PMUXCR_QE10		0x00000020
+#define MPC85xx_PMUXCR_QE11		0x00000010
+#define MPC85xx_PMUXCR_QE12		0x00000008
+#if defined(CONFIG_P1013) || defined(CONFIG_P1022)
+#define MPC85xx_PMUXCR_TDM_MASK		0x0001cc00
+#define MPC85xx_PMUXCR_TDM		0x00014800
+#define MPC85xx_PMUXCR_SPI_MASK		0x00600000
+#define MPC85xx_PMUXCR_SPI		0x00000000
+#endif
 	u32	pmuxcr2;	/* Alt. function signal multiplex control 2 */
+#if defined(CONFIG_P1013) || defined(CONFIG_P1022)
+#define MPC85xx_PMUXCR2_ETSECUSB_MASK	0x001f1000
+#define MPC85xx_PMUXCR2_USB		0x00150000
+#endif
 	u8	res6[8];
 	u32	devdisr;	/* Device disable control */
 #define MPC85xx_DEVDISR_PCI1		0x80000000
@@ -1956,31 +1980,42 @@ typedef struct ccsr_gur {
 	u8	res9[12];
 	u32	pvr;		/* Processor version */
 	u32	svr;		/* System version */
-	u8	res10a[8];
+	u8	res10[8];
 	u32	rstcr;		/* Reset control */
 #if defined(CONFIG_MPC8568)||defined(CONFIG_MPC8569)
-	u8	res10b[76];
+	u8	res11a[76];
 	par_io_t qe_par_io[7];
-	u8	res10c[1600];
+	u8	res11b[1600];
+#elif defined(CONFIG_P1012) || defined(CONFIG_P1016) || \
+      defined(CONFIG_P1021) || defined(CONFIG_P1025)
+	u8      res11a[12];
+	u32     iovselsr;
+	u8      res11b[60];
+	par_io_t qe_par_io[3];
+	u8      res11c[1496];
 #else
-	u8	res10b[1868];
+	u8	res11a[1868];
 #endif
 	u32	clkdvdr;	/* Clock Divide register */
-	u8	res10d[1532];
+	u8	res12[1532];
 	u32	clkocr;		/* Clock out select */
-	u8	res11[12];
+	u8	res13[12];
 	u32	ddrdllcr;	/* DDR DLL control */
-	u8	res12[12];
+	u8	res14[12];
 	u32	lbcdllcr;	/* LBC DLL control */
-	u8	res13[248];
+	u8	res15[248];
 	u32	lbiuiplldcr0;	/* LBIU PLL Debug Reg 0 */
 	u32	lbiuiplldcr1;	/* LBIU PLL Debug Reg 1 */
 	u32	ddrioovcr;	/* DDR IO Override Control */
 	u32	tsec12ioovcr;	/* eTSEC 1/2 IO override control */
 	u32	tsec34ioovcr;	/* eTSEC 3/4 IO override control */
-	u8	res15[61648];
+	u8      res16[52];
+	u32	sdhcdcr;	/* SDHC debug control register */
+	u8      res17[61592];
 } ccsr_gur_t;
 #endif
+
+#define SDHCDCR_CD_INV		0x80000000 /* invert SDHC card detect */
 
 typedef struct serdes_corenet {
 	struct {

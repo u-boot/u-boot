@@ -178,14 +178,14 @@ static int esdhc_setup_data(struct mmc *mmc, struct mmc_data *data)
 	wml_value = data->blocksize/4;
 
 	if (data->flags & MMC_DATA_READ) {
-		if (wml_value > 0x10)
-			wml_value = 0x10;
+		if (wml_value > WML_RD_WML_MAX)
+			wml_value = WML_RD_WML_MAX_VAL;
 
 		esdhc_clrsetbits32(&regs->wml, WML_RD_WML_MASK, wml_value);
 		esdhc_write32(&regs->dsaddr, (u32)data->dest);
 	} else {
-		if (wml_value > 0x80)
-			wml_value = 0x80;
+		if (wml_value > WML_WR_WML_MAX)
+			wml_value = WML_WR_WML_MAX_VAL;
 		if ((esdhc_read32(&regs->prsstat) & PRSSTAT_WPSPL) == 0) {
 			printf("\nThe SD card is locked. Can not write to a locked card.\n\n");
 			return TIMEOUT;

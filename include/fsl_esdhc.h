@@ -2,7 +2,7 @@
  * FSL SD/MMC Defines
  *-------------------------------------------------------------------
  *
- * Copyright 2007-2008,2010 Freescale Semiconductor, Inc
+ * Copyright 2007-2008,2010-2011 Freescale Semiconductor, Inc
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -135,8 +135,21 @@
 
 #define WML		0x2e044
 #define WML_WRITE	0x00010000
+#ifdef CONFIG_FSL_SDHC_V2_3
+#define WML_RD_WML_MAX		0x80
+#define WML_WR_WML_MAX		0x80
+#define WML_RD_WML_MAX_VAL	0x0
+#define WML_WR_WML_MAX_VAL	0x0
+#define WML_RD_WML_MASK		0x7f
+#define WML_WR_WML_MASK		0x7f0000
+#else
+#define WML_RD_WML_MAX		0x10
+#define WML_WR_WML_MAX		0x80
+#define WML_RD_WML_MAX_VAL	0x10
+#define WML_WR_WML_MAX_VAL	0x80
 #define WML_RD_WML_MASK	0xff
 #define WML_WR_WML_MASK	0xff0000
+#endif
 
 #define BLKATTR		0x2e004
 #define BLKATTR_CNT(x)	((x & 0xffff) << 16)

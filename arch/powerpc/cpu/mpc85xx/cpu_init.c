@@ -145,6 +145,22 @@ static void enable_cpc(void)
 	for (i = 0; i < CONFIG_SYS_NUM_CPC; i++, cpc++) {
 		u32 cpccfg0 = in_be32(&cpc->cpccfg0);
 		size += CPC_CFG0_SZ_K(cpccfg0);
+#ifdef CONFIG_RAMBOOT_PBL
+		if (in_be32(&cpc->cpcsrcr0) & CPC_SRCR0_SRAMEN) {
+			/* find and disable LAW of SRAM */
+			struct law_entry law = find_law(CONFIG_SYS_INIT_L3_ADDR);
+
+			if (law.index == -1) {
+				printf("\nFatal error happened\n");
+				return;
+			}
+			disable_law(law.index);
+
+			clrbits_be32(&cpc->cpchdbcr0, CPC_HDBCR0_CDQ_SPEC_DIS);
+			out_be32(&cpc->cpccsr0, 0);
+			out_be32(&cpc->cpcsrcr0, 0);
+		}
+#endif
 
 #ifdef CONFIG_SYS_FSL_ERRATUM_CPC_A002
 		setbits_be32(&cpc->cpchdbcr0, CPC_HDBCR0_TAG_ECC_SCRUB_DIS);
@@ -168,6 +184,9 @@ void invalidate_cpc(void)
 	cpc_corenet_t *cpc = (cpc_corenet_t *)CONFIG_SYS_FSL_CPC_ADDR;
 
 	for (i = 0; i < CONFIG_SYS_NUM_CPC; i++, cpc++) {
+		/* skip CPC when it used as all SRAM */
+		if (in_be32(&cpc->cpcsrcr0) & CPC_SRCR0_SRAMEN)
+			continue;
 		/* Flash invalidate the CPC and clear all the locks */
 		out_be32(&cpc->cpccsr0, CPC_CSR0_FI | CPC_CSR0_LFC);
 		while (in_be32(&cpc->cpccsr0) & (CPC_CSR0_FI | CPC_CSR0_LFC))
