@@ -25,6 +25,13 @@ CROSS_COMPILE ?= bfin-uclinux-
 
 STANDALONE_LOAD_ADDR = 0x1000 -m elf32bfin
 
+ifeq ($(CONFIG_BFIN_CPU),)
+CONFIG_BFIN_CPU := \
+	$(shell awk '$$2 == "CONFIG_BFIN_CPU" { print $$3 }' \
+		$(src)include/configs/$(BOARD).h)
+else
+CONFIG_BFIN_CPU := $(strip $(subst ",,$(CONFIG_BFIN_CPU)))
+endif
 CONFIG_BFIN_BOOT_MODE := $(strip $(subst ",,$(CONFIG_BFIN_BOOT_MODE)))
 
 PLATFORM_RELFLAGS += -ffixed-P3 -fomit-frame-pointer -mno-fdpic
@@ -34,7 +41,6 @@ LDFLAGS_FINAL += --gc-sections
 LDFLAGS += -m elf32bfin
 PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections
 
-PLATFORM_CPPFLAGS += -DBFIN_CPU='"$(CONFIG_BFIN_CPU)"'
 PLATFORM_RELFLAGS += -mcpu=$(CONFIG_BFIN_CPU)
 
 ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
@@ -67,6 +73,13 @@ endif
 
 LDR_FLAGS += $(LDR_FLAGS-y)
 
+# Set some default LDR flags based on boot mode.
+LDR_FLAGS += $(LDR_FLAGS-$(CONFIG_BFIN_BOOT_MODE))
+
 ifeq ($(wildcard $(TOPDIR)/board/$(BOARD)/u-boot.lds*),)
 LDSCRIPT = $(obj)arch/$(ARCH)/lib/u-boot.lds.S
+endif
+
+ifneq ($(CONFIG_SYS_TEXT_BASE),)
+$(error do not set CONFIG_SYS_TEXT_BASE for Blackfin boards)
 endif

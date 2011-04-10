@@ -11,6 +11,7 @@
 /*
  * Processor Settings
  */
+#define CONFIG_BFIN_CPU             bf538-0.4
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_BYPASS
 
 

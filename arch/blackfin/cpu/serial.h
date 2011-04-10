@@ -31,13 +31,19 @@
 #define LOB(x) ((x) & 0xFF)
 #define HIB(x) (((x) >> 8) & 0xFF)
 
+#if defined(__ADSPBF50x__) || defined(__ADSPBF54x__)
+# define BFIN_UART_HW_VER 2
+#else
+# define BFIN_UART_HW_VER 1
+#endif
+
 /*
  * All Blackfin system MMRs are padded to 32bits even if the register
  * itself is only 16bits.  So use a helper macro to streamline this.
  */
 #define __BFP(m) u16 m; u16 __pad_##m
 struct bfin_mmr_serial {
-#ifdef __ADSPBF54x__
+#if BFIN_UART_HW_VER == 2
 	__BFP(dll);
 	__BFP(dlh);
 	__BFP(gctl);
@@ -74,25 +80,21 @@ struct bfin_mmr_serial {
 };
 #undef __BFP
 
-#ifndef UART_LSR
-# if (CONFIG_UART_CONSOLE == 3)
-#  define UART_BASE UART3_DLL
-# elif (CONFIG_UART_CONSOLE == 2)
-#  define UART_BASE UART2_DLL
-# elif (CONFIG_UART_CONSOLE == 1)
-#  define UART_BASE UART1_DLL
-# elif (CONFIG_UART_CONSOLE == 0)
-#  define UART_BASE UART0_DLL
-# endif
+#define __PASTE_UART(num, pfx, sfx) pfx##num##_##sfx
+#define _PASTE_UART(num, pfx, sfx) __PASTE_UART(num, pfx, sfx)
+#define MMR_UART(mmr) _PASTE_UART(CONFIG_UART_CONSOLE, UART, DLL)
+#define P_UART(pin) _PASTE_UART(CONFIG_UART_CONSOLE, P_UART, pin)
+
+#ifndef UART_DLL
+# define UART_DLL MMR_UART(DLL)
 #else
 # if CONFIG_UART_CONSOLE != 0
 #  error CONFIG_UART_CONSOLE must be 0 on parts with only one UART
 # endif
-# define UART_BASE UART_DLL
 #endif
-#define pUART ((volatile struct bfin_mmr_serial *)UART_BASE)
+#define pUART ((volatile struct bfin_mmr_serial *)UART_DLL)
 
-#ifdef __ADSPBF54x__
+#if BFIN_UART_HW_VER == 2
 # define ACCESS_LATCH()
 # define ACCESS_PORT_IER()
 #else
@@ -106,23 +108,21 @@ __attribute__((always_inline))
 static inline void serial_do_portmux(void)
 {
 	if (!BFIN_DEBUG_EARLY_SERIAL) {
-		const unsigned short pins[] = {
-#if CONFIG_UART_CONSOLE == 0
-			P_UART0_TX, P_UART0_RX,
-#elif CONFIG_UART_CONSOLE == 1
-			P_UART1_TX, P_UART1_RX,
-#elif CONFIG_UART_CONSOLE == 2
-			P_UART2_TX, P_UART2_RX,
-#elif CONFIG_UART_CONSOLE == 3
-			P_UART3_TX, P_UART3_RX,
-#endif
-			0,
-		};
+		const unsigned short pins[] = { P_UART(RX), P_UART(TX), 0, };
 		peripheral_request_list(pins, "bfin-uart");
 		return;
 	}
 
-#if defined(__ADSPBF51x__)
+#if defined(__ADSPBF50x__)
+# define DO_MUX(port, mux_tx, mux_rx, tx, rx) \
+	bfin_write_PORT##port##_MUX((bfin_read_PORT##port##_MUX() & ~(PORT_x_MUX_##mux_tx##_MASK | PORT_x_MUX_##mux_rx##_MASK)) | PORT_x_MUX_##mux_tx##_FUNC_1 | PORT_x_MUX_##mux_rx##_FUNC_1); \
+	bfin_write_PORT##port##_FER(bfin_read_PORT##port##_FER() | P##port##tx | P##port##rx);
+	switch (CONFIG_UART_CONSOLE) {
+	case 0: DO_MUX(G, 7, 7, 12, 13); break;	/* Port G; mux 7; PG12 and PG13 */
+	case 1: DO_MUX(F, 3, 3, 6, 7);   break;	/* Port F; mux 3; PF6 and PF7 */
+	}
+	SSYNC();
+#elif defined(__ADSPBF51x__)
 # define DO_MUX(port, mux_tx, mux_rx, tx, rx) \
 	bfin_write_PORT##port##_MUX((bfin_read_PORT##port##_MUX() & ~(PORT_x_MUX_##mux_tx##_MASK | PORT_x_MUX_##mux_rx##_MASK)) | PORT_x_MUX_##mux_tx##_FUNC_2 | PORT_x_MUX_##mux_rx##_FUNC_2); \
 	bfin_write_PORT##port##_FER(bfin_read_PORT##port##_FER() | P##port##tx | P##port##rx);
@@ -141,13 +141,11 @@ static inline void serial_do_portmux(void)
 	}
 	SSYNC();
 #elif defined(__ADSPBF537__) || defined(__ADSPBF536__) || defined(__ADSPBF534__)
-# define DO_MUX(func, tx, rx) \
-	bfin_write_PORT_MUX(bfin_read_PORT_MUX() & ~(func)); \
-	bfin_write_PORTF_FER(bfin_read_PORTF_FER() | PF##tx | PF##rx);
-	switch (CONFIG_UART_CONSOLE) {
-	case 0: DO_MUX(PFDE, 0, 1); break;
-	case 1: DO_MUX(PFTE, 2, 3); break;
-	}
+	const uint16_t func[] = { PFDE, PFTE, };
+	bfin_write_PORT_MUX(bfin_read_PORT_MUX() & ~func[CONFIG_UART_CONSOLE]);
+	bfin_write_PORTF_FER(bfin_read_PORTF_FER() |
+	                     (1 << P_IDENT(P_UART(RX))) |
+	                     (1 << P_IDENT(P_UART(TX))));
 	SSYNC();
 #elif defined(__ADSPBF54x__)
 # define DO_MUX(port, tx, rx) \
@@ -160,6 +158,12 @@ static inline void serial_do_portmux(void)
 	case 3: DO_MUX(B, 6, 7); break;	/* Port B; PB6 and PB7 */
 	}
 	SSYNC();
+#elif defined(__ADSPBF561__)
+	/* UART pins could be GPIO, but they aren't pin muxed.  */
+#else
+# if (P_UART(RX) & P_DEFINED) || (P_UART(TX) & P_DEFINED)
+#  error "missing portmux logic for UART"
+# endif
 #endif
 }
 

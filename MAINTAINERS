@@ -1058,6 +1058,7 @@ Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 Mike Frysinger <vapier@gentoo.org>
 Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 
+	BF506F-EZKIT	BF506
 	BF518F-EZBRD	BF518
 	BF526-EZBRD	BF526
 	BF527-AD7160-EVAL	BF527
@@ -1071,6 +1072,10 @@ Blackfin Team <u-boot-devel@blackfin.uclinux.org>
 	BF538F-EZKIT	BF538
 	BF548-EZKIT	BF548
 	BF561-EZKIT	BF561
+
+M.Hasewinkel (MHA) <info@ssv-embedded.de>
+
+	dnp5370		BF537
 
 Brent Kandetzki <brentk@teleco.com>
 
@@ -1111,6 +1116,11 @@ Valentin Yakovenkov <yakovenkov@niistt.ru>
 Anton Shurpin <shurpin.aa@niistt.ru>
 
 	BF561-ACVILON	BF561
+
+Haitao Zhang <hzhang@ucrobotics.com>
+Chong Huang <chuang@ucrobotics.com>
+
+	bf525-ucr2	BF525
 
 #########################################################################
 # End of MAINTAINERS list						#

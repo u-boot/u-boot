@@ -426,5 +426,5 @@ void bfin_panic(struct pt_regs *regs)
 	unsigned long tflags;
 	trace_buffer_save(tflags);
 	bfin_dump(regs);
-	bfin_reset_or_hang();
+	panic("PANIC: Blackfin internal error");
 }

@@ -85,9 +85,9 @@
 # define CONFIG_CMD_CACHE
 # define CONFIG_CMD_CPLBINFO
 # define CONFIG_CMD_ELF
-# define CONFIG_ELF_SIMPLE_LOAD
 # define CONFIG_CMD_GPIO
 # define CONFIG_CMD_KGDB
+# define CONFIG_CMD_LDRINFO
 # define CONFIG_CMD_REGINFO
 # define CONFIG_CMD_STRINGS
 # if defined(__ADSPBF51x__) || defined(__ADSPBF52x__) || defined(__ADSPBF54x__)
@@ -300,5 +300,6 @@
 #endif
 #define CONFIG_BFIN_SPI_GPIO_CS /* Only matters if BFIN_SPI is enabled */
 #define CONFIG_LZMA
+#define CONFIG_MONITOR_IS_IN_RAM
 
 #endif

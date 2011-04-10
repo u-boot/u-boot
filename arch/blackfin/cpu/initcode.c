@@ -341,13 +341,13 @@ maybe_self_refresh(ADI_BOOT_DATA *bs)
 		return false;
 
 	/* If external memory is enabled, put it into self refresh first. */
-#ifdef EBIU_RSTCTL
+#if defined(EBIU_RSTCTL)
 	if (bfin_read_EBIU_RSTCTL() & DDR_SRESET) {
 		serial_putc('b');
 		bfin_write_EBIU_RSTCTL(bfin_read_EBIU_RSTCTL() | SRREQ);
 		return true;
 	}
-#else
+#elif defined(EBIU_SDGCTL)
 	if (bfin_read_EBIU_SDBCTL() & EBE) {
 		serial_putc('b');
 		bfin_write_EBIU_SDGCTL(bfin_read_EBIU_SDGCTL() | SRFS);
@@ -373,12 +373,15 @@ program_clocks(ADI_BOOT_DATA *bs, bool put_into_srfs)
 
 	/* If we're entering self refresh, make sure it has happened. */
 	if (put_into_srfs)
-#ifdef EBIU_RSTCTL
+#if defined(EBIU_RSTCTL)
 		while (!(bfin_read_EBIU_RSTCTL() & SRACK))
-#else
-		while (!(bfin_read_EBIU_SDSTAT() & SDSRA))
-#endif
 			continue;
+#elif defined(EBIU_SDGCTL)
+		while (!(bfin_read_EBIU_SDSTAT() & SDSRA))
+			continue;
+#else
+		;
+#endif
 
 	serial_putc('c');
 
@@ -536,7 +539,7 @@ program_memory_controller(ADI_BOOT_DATA *bs, bool put_into_srfs)
 	/* Program the external memory controller before we come out of
 	 * self-refresh.  This only works with our SDRAM controller.
 	 */
-#ifndef EBIU_RSTCTL
+#ifdef EBIU_SDGCTL
 # ifdef CONFIG_EBIU_SDRRC_VAL
 	bfin_write_EBIU_SDRRC(CONFIG_EBIU_SDRRC_VAL);
 # endif
@@ -552,9 +555,9 @@ program_memory_controller(ADI_BOOT_DATA *bs, bool put_into_srfs)
 
 	/* Now that we've reprogrammed, take things out of self refresh. */
 	if (put_into_srfs)
-#ifdef EBIU_RSTCTL
+#if defined(EBIU_RSTCTL)
 		bfin_write_EBIU_RSTCTL(bfin_read_EBIU_RSTCTL() & ~(SRREQ));
-#else
+#elif defined(EBIU_SDGCTL)
 		bfin_write_EBIU_SDGCTL(bfin_read_EBIU_SDGCTL() & ~(SRFS));
 #endif
 
@@ -646,10 +649,10 @@ program_async_controller(ADI_BOOT_DATA *bs)
 	serial_putc('b');
 
 	/* Not all parts have these additional MMRs. */
-#ifdef EBIU_MODE
-# ifdef CONFIG_EBIU_MBSCTL_VAL
+#ifdef EBIU_MBSCTL
 	bfin_write_EBIU_MBSCTL(CONFIG_EBIU_MBSCTL_VAL);
-# endif
+#endif
+#ifdef EBIU_MODE
 # ifdef CONFIG_EBIU_MODE_VAL
 	bfin_write_EBIU_MODE(CONFIG_EBIU_MODE_VAL);
 # endif

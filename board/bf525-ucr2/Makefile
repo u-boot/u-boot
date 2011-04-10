@@ -1,7 +1,9 @@
 #
+# U-boot - Makefile
+#
 # Copyright (c) 2005-2008 Analog Device Inc.
 #
-# (C) Copyright 2001
+# (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -23,10 +25,30 @@
 # MA 02111-1307 USA
 #
 
-# This is not actually used for Blackfin boards so do not change it
-#CONFIG_SYS_TEXT_BASE = do-not-use-me
+include $(TOPDIR)/config.mk
 
-CONFIG_BFIN_CPU = bf537-0.2
+LIB	= $(obj)lib$(BOARD).o
 
-# Set some default LDR flags based on boot mode.
-LDR_FLAGS += $(LDR_FLAGS-$(CONFIG_BFIN_BOOT_MODE))
+COBJS-y	:= $(BOARD).o
+
+SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
+SOBJS	:= $(addprefix $(obj),$(SOBJS-y))
+
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
+
+clean:
+	rm -f $(SOBJS) $(OBJS)
+
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################

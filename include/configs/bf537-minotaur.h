@@ -24,6 +24,7 @@
 /*
  * Processor Settings
  */
+#define CONFIG_BFIN_CPU             bf537-0.2
 #define CONFIG_BFIN_BOOT_MODE       BFIN_BOOT_SPI_MASTER
 
 
@@ -155,6 +156,7 @@
 # define CONFIG_CMD_PING
 #else
 # undef CONFIG_CMD_NET
+# undef CONFIG_CMD_NFS
 #endif
 
 #define CONFIG_CMD_BOOTLDR
