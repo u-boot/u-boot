@@ -61,6 +61,7 @@
 
 #define CONFIG_MXC_UART		1
 #define CONFIG_SYS_MX31_UART1	1
+#define CONFIG_HW_WATCHDOG
 
 #define CONFIG_HARD_SPI		1
 #define CONFIG_MXC_SPI		1
@@ -97,6 +98,8 @@
  * that CFG_NO_FLASH is undefined).
  */
 #undef CONFIG_CMD_IMLS
+
+#define BOARD_LATE_INIT
 
 #define CONFIG_BOOTDELAY	3
 

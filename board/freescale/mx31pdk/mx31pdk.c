@@ -28,8 +28,16 @@
 #include <netdev.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_HW_WATCHDOG
+void hw_watchdog_reset(void)
+{
+	mxc_hw_watchdog_reset();
+}
+#endif
 
 int dram_init(void)
 {
@@ -65,6 +73,14 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
+	return 0;
+}
+
+int board_late_init(void)
+{
+#ifdef CONFIG_HW_WATCHDOG
+	mxc_hw_watchdog_enable();
+#endif
 	return 0;
 }
 
