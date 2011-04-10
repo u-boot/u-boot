@@ -68,6 +68,8 @@ SECTIONS
 
 	__got_end = .;
 
+	_end = .;
+
 	. = ALIGN(4);
 	__bss_start = .;
 	.bss : { *(.bss) }
