@@ -2751,6 +2751,14 @@ Low Level (hardware related) configuration options:
 		source code. It is used to make hardware dependant
 		initializations.
 
+- CONFIG_IDE_AHB:
+		Most IDE controllers were designed to be connected with PCI
+		interface. Only few of them were designed for AHB interface.
+		When software is doing ATA command and data transfer to
+		IDE devices through IDE-AHB controller, some additional
+		registers accessing to these kind of IDE-AHB controller
+		is requierd.
+
 - CONFIG_SYS_IMMR:	Physical address of the Internal Memory.
 		DO NOT CHANGE unless you know exactly what you're
 		doing! (11-4) [MPC8xx/82xx systems only]
