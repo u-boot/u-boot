@@ -1,5 +1,5 @@
 /*
- * Copyright 2007, 2010 Freescale Semiconductor, Inc.
+ * Copyright 2007-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,6 +23,8 @@
 
 
 /* video */
+#define CONFIG_FSL_DIU_FB
+
 #ifdef CONFIG_FSL_DIU_FB
 #define CONFIG_SYS_DIU_ADDR	(CONFIG_SYS_CCSRBAR + 0x2c000)
 #define CONFIG_VIDEO
@@ -625,8 +627,6 @@
  "diuregs=md e002c000 1d\0" \
  "dium=mw e002c01c\0" \
  "diuerr=md e002c014 1\0" \
- "othbootargs=diufb=15M video=fslfb:1280x1024-32@60,monitor=0 debug\0" \
- "monitor=0-DVI\0" \
  "pmregs=md e00e1000 2b\0" \
  "lawregs=md e0000c08 4b\0" \
  "lbcregs=md e0005000 36\0" \
@@ -646,9 +646,7 @@
  "ramdiskfile=8610hpcd/ramdisk.uboot\0"                         \
  "fdtaddr=c00000\0"                                             \
  "fdtfile=8610hpcd/mpc8610_hpcd.dtb\0"                          \
- "bdev=sda3\0"							\
- "othbootargs=diufb=15M video=fslfb:1280x1024-32@60,monitor=0\0"\
- "monitor=0-DVI\0"
+ "bdev=sda3\0"
 #endif
 
 #define CONFIG_NFSBOOTCOMMAND					\

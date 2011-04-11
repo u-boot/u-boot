@@ -12,6 +12,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <linux/ctype.h>
 #include <asm/io.h>
 #include <stdio_dev.h>
 #include <video_fb.h>
@@ -81,10 +82,10 @@ void diu_set_pixel_clock(unsigned int pixclock)
 	out_be32(&gur->clkdvdr, temp | 0x80000000 | ((pixval & 0x1F) << 16));
 }
 
-int platform_diu_init(unsigned int *xres, unsigned int *yres)
+int platform_diu_init(unsigned int xres, unsigned int yres, const char *port)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
-	char *monitor_port;
+	const char *name;
 	u32 pixel_format;
 	u8 temp;
 
@@ -100,21 +101,23 @@ int platform_diu_init(unsigned int *xres, unsigned int *yres)
 
 	temp = in_8(&pixis->brdcfg1);
 
-	monitor_port = getenv("monitor");
-	if (!strncmp(monitor_port, "1", 1)) { /* 1 - Single link LVDS */
-		*xres = 1024;
-		*yres = 768;
-		/* Enable the DFP port, disable the DVI and the backlight */
-		temp &= ~(PX_BRDCFG1_DVIEN | PX_BRDCFG1_BACKLIGHT);
-		temp |= PX_BRDCFG1_DFPEN;
+	if (strncmp(port, "lvds", 4) == 0) {
+		/* Single link LVDS */
+		temp &= ~PX_BRDCFG1_DVIEN;
+		/*
+		 * LVDS also needs backlight enabled, otherwise the display
+		 * will be blank.
+		 */
+		temp |= (PX_BRDCFG1_DFPEN | PX_BRDCFG1_BACKLIGHT);
+		name = "Single-Link LVDS";
 	} else {	/* DVI */
-		*xres = 1280;
-		*yres = 1024;
 		/* Enable the DVI port, disable the DFP and the backlight */
 		temp &= ~(PX_BRDCFG1_DFPEN | PX_BRDCFG1_BACKLIGHT);
 		temp |= PX_BRDCFG1_DVIEN;
+		name = "DVI";
 	}
 
+	printf("DIU:   Switching to %s monitor @ %ux%u\n", name, xres, yres);
 	out_8(&pixis->brdcfg1, temp);
 
 	/*
@@ -136,7 +139,7 @@ int platform_diu_init(unsigned int *xres, unsigned int *yres)
 	clrsetbits_be32(&gur->pmuxcr, PMUXCR_ELBCDIU_MASK, PMUXCR_ELBCDIU_DIU);
 	pmuxcr = in_be32(&gur->pmuxcr);
 
-	return fsl_diu_init(*xres, pixel_format, 0);
+	return fsl_diu_init(xres, pixel_format, 0);
 }
 
 /*

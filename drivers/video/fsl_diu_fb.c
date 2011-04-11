@@ -1,6 +1,7 @@
 /*
- * Copyright 2007, 2010 Freescale Semiconductor, Inc.
- * York Sun <yorksun@freescale.com>
+ * Copyright 2007, 2010-2011 Freescale Semiconductor, Inc.
+ * Authors: York Sun <yorksun@freescale.com>
+ *          Timur Tabi <timur@freescale.com>
  *
  * FSL DIU Framebuffer driver
  *
@@ -24,11 +25,41 @@
  */
 
 #include <common.h>
-#include <i2c.h>
 #include <malloc.h>
 #include <asm/io.h>
 
+#include "videomodes.h"
+#include <video_fb.h>
 #include <fsl_diu_fb.h>
+
+struct fb_var_screeninfo {
+	unsigned int xres;		/* visible resolution		*/
+	unsigned int yres;
+
+	unsigned int bits_per_pixel;	/* guess what			*/
+
+	/* Timing: All values in pixclocks, except pixclock (of course) */
+	unsigned int pixclock;		/* pixel clock in ps (pico seconds) */
+	unsigned int left_margin;	/* time from sync to picture	*/
+	unsigned int right_margin;	/* time from picture to sync	*/
+	unsigned int upper_margin;	/* time from sync to picture	*/
+	unsigned int lower_margin;
+	unsigned int hsync_len;		/* length of horizontal sync	*/
+	unsigned int vsync_len;		/* length of vertical sync	*/
+	unsigned int sync;		/* see FB_SYNC_*		*/
+	unsigned int vmode;		/* see FB_VMODE_*		*/
+	unsigned int rotate;		/* angle we rotate counter clockwise */
+};
+
+struct fb_info {
+	struct fb_var_screeninfo var;	/* Current var */
+	unsigned int smem_len;		/* Length of frame buffer mem */
+	unsigned int type;		/* see FB_TYPE_*		*/
+	unsigned int line_length;	/* length of a line in bytes    */
+
+	void *screen_base;
+	unsigned long screen_size;
+};
 
 struct fb_videomode {
 	const char *name;	/* optional */
@@ -53,6 +84,7 @@ struct fb_videomode {
 
 /* This setting is used for the ifm pdm360ng with PRIMEVIEW PM070WL3 */
 static struct fb_videomode fsl_diu_mode_800 = {
+	.name		= "800x600-60",
 	.refresh	= 60,
 	.xres		= 800,
 	.yres		= 480,
@@ -74,6 +106,7 @@ static struct fb_videomode fsl_diu_mode_800 = {
  * hsync 31.5kHz, vsync 60Hz
  */
 static struct fb_videomode fsl_diu_mode_1024 = {
+	.name		= "1024x768-60",
 	.refresh	= 60,
 	.xres		= 1024,
 	.yres		= 768,
@@ -109,120 +142,137 @@ static struct fb_videomode fsl_diu_mode_1280 = {
  */
 struct diu_ad {
 	/* Word 0(32-bit) in DDR memory */
-	unsigned int pix_fmt; /* hard coding pixel format */
+	__le32 pix_fmt; /* hard coding pixel format */
 	/* Word 1(32-bit) in DDR memory */
-	unsigned int addr;
+	__le32 addr;
 	/* Word 2(32-bit) in DDR memory */
-	unsigned int src_size_g_alpha;
+	__le32 src_size_g_alpha;
 	/* Word 3(32-bit) in DDR memory */
-	unsigned int aoi_size;
+	__le32 aoi_size;
 	/* Word 4(32-bit) in DDR memory */
-	unsigned int offset_xyi;
+	__le32 offset_xyi;
 	/* Word 5(32-bit) in DDR memory */
-	unsigned int offset_xyd;
+	__le32 offset_xyd;
 	/* Word 6(32-bit) in DDR memory */
-	unsigned int ckmax_r:8;
-	unsigned int ckmax_g:8;
-	unsigned int ckmax_b:8;
-	unsigned int res9:8;
+	__le32 ckmax_r:8;
+	__le32 ckmax_g:8;
+	__le32 ckmax_b:8;
+	__le32 res9:8;
 	/* Word 7(32-bit) in DDR memory */
-	unsigned int ckmin_r:8;
-	unsigned int ckmin_g:8;
-	unsigned int ckmin_b:8;
-	unsigned int res10:8;
+	__le32 ckmin_r:8;
+	__le32 ckmin_g:8;
+	__le32 ckmin_b:8;
+	__le32 res10:8;
 	/* Word 8(32-bit) in DDR memory */
-	unsigned int next_ad;
+	__le32 next_ad;
 	/* Word 9(32-bit) in DDR memory, just for 64-bit aligned */
-	unsigned int res1;
-	unsigned int res2;
-	unsigned int res3;
-}__attribute__ ((packed));
+	__le32 res[3];
+} __attribute__ ((packed));
 
 /*
  * DIU register map
  */
 struct diu {
-	unsigned int desc[3];
-	unsigned int gamma;
-	unsigned int pallete;
-	unsigned int cursor;
-	unsigned int curs_pos;
-	unsigned int diu_mode;
-	unsigned int bgnd;
-	unsigned int bgnd_wb;
-	unsigned int disp_size;
-	unsigned int wb_size;
-	unsigned int wb_mem_addr;
-	unsigned int hsyn_para;
-	unsigned int vsyn_para;
-	unsigned int syn_pol;
-	unsigned int thresholds;
-	unsigned int int_status;
-	unsigned int int_mask;
-	unsigned int colorbar[8];
-	unsigned int filling;
-	unsigned int plut;
+	__be32 desc[3];
+	__be32 gamma;
+	__be32 pallete;
+	__be32 cursor;
+	__be32 curs_pos;
+	__be32 diu_mode;
+	__be32 bgnd;
+	__be32 bgnd_wb;
+	__be32 disp_size;
+	__be32 wb_size;
+	__be32 wb_mem_addr;
+	__be32 hsyn_para;
+	__be32 vsyn_para;
+	__be32 syn_pol;
+	__be32 thresholds;
+	__be32 int_status;
+	__be32 int_mask;
+	__be32 colorbar[8];
+	__be32 filling;
+	__be32 plut;
 } __attribute__ ((packed));
 
-struct diu_hw {
-	struct diu *diu_reg;
-	volatile unsigned int mode;		/* DIU operation mode */
+struct diu_addr {
+	void *vaddr;		/* Virtual address */
+	u32 paddr;		/* 32-bit physical address */
+	unsigned int offset;	/* Alignment offset */
 };
 
-struct diu_addr {
-	unsigned char  *  paddr;	/* Virtual address */
-	unsigned int	   offset;
-};
+static struct fb_info info;
 
 /*
- * Modes of operation of DIU
+ * Align to 64-bit(8-byte), 32-byte, etc.
  */
-#define MFB_MODE0	0	/* DIU off */
-#define MFB_MODE1	1	/* All three planes output to display */
-#define MFB_MODE2	2	/* Plane 1 to display,
-				 * planes 2+3 written back to memory */
-#define MFB_MODE3	3	/* All three planes written back to memory */
-#define MFB_MODE4	4	/* Color bar generation */
+static int allocate_buf(struct diu_addr *buf, u32 size, u32 bytes_align)
+{
+	u32 offset, ssize;
+	u32 mask;
 
-#define MAX_CURS		32
+	ssize = size + bytes_align;
+	buf->vaddr = malloc(ssize);
+	if (!buf->vaddr)
+		return -1;
 
-static struct fb_info fsl_fb_info;
-static struct diu_addr gamma, cursor;
-static struct diu_ad fsl_diu_fb_ad __attribute__ ((aligned(32)));
-static struct diu_ad dummy_ad __attribute__ ((aligned(32)));
-static unsigned char *dummy_fb;
-static struct diu_hw dr = {
-	.mode = MFB_MODE1,
-};
+	memset(buf->vaddr, 0, ssize);
+	mask = bytes_align - 1;
+	offset = (u32)buf->vaddr & mask;
+	if (offset) {
+		buf->offset = bytes_align - offset;
+		buf->vaddr += offset;
+	} else
+		buf->offset = 0;
 
-int fb_enabled = 0;
-int fb_initialized = 0;
-const int default_xres = 1280;
-const int default_pixel_format = 0x88882317;
+	buf->paddr = virt_to_phys(buf->vaddr);
+	return 0;
+}
 
-static int map_video_memory(struct fb_info *info, unsigned long bytes_align);
-static void enable_lcdc(void);
-static void disable_lcdc(void);
-static int fsl_diu_enable_panel(struct fb_info *info);
-static int fsl_diu_disable_panel(struct fb_info *info);
-static int allocate_buf(struct diu_addr *buf, u32 size, u32 bytes_align);
-void diu_set_pixel_clock(unsigned int pixclock);
+/*
+ * Allocate a framebuffer and an Area Descriptor that points to it.  Both
+ * are created in the same memory block.  The Area Descriptor is updated to
+ * point to the framebuffer memory. Memory is aligned as needed.
+ */
+static struct diu_ad *allocate_fb(unsigned int xres, unsigned int yres,
+				  unsigned int depth, void **fb)
+{
+	unsigned long size = xres * yres * depth;
+	struct diu_addr addr;
+	struct diu_ad *ad;
+	size_t ad_size = roundup(sizeof(struct diu_ad), 32);
 
-int fsl_diu_init(int xres, unsigned int pixel_format, int gamma_fix)
+	/*
+	 * Allocate a memory block that holds the Area Descriptor and the
+	 * frame buffer right behind it.  To keep the code simple, everything
+	 * is aligned on a 32-byte address.
+	 */
+	if (allocate_buf(&addr, ad_size + size, 32) < 0)
+		return NULL;
+
+	ad = addr.vaddr;
+	ad->addr = cpu_to_le32(addr.paddr + ad_size);
+	ad->aoi_size = cpu_to_le32((yres << 16) | xres);
+	ad->src_size_g_alpha = cpu_to_le32((yres << 12) | xres);
+	ad->offset_xyi = 0;
+	ad->offset_xyd = 0;
+
+	if (fb)
+		*fb = addr.vaddr + ad_size;
+
+	return ad;
+}
+
+int fsl_diu_init(int xres, u32 pixel_format, int gamma_fix)
 {
 	struct fb_videomode *fsl_diu_mode_db;
-	struct diu_ad *ad = &fsl_diu_fb_ad;
-	struct diu *hw;
-	struct fb_info *info = &fsl_fb_info;
-	struct fb_var_screeninfo *var = &info->var;
-	unsigned char *gamma_table_base;
+	struct diu_ad *ad;
+	struct diu *hw = (struct diu *)CONFIG_SYS_DIU_ADDR;
+	u8 *gamma_table_base;
 	unsigned int i, j;
-
-	debug("Enter fsl_diu_init\n");
-	dr.diu_reg = (struct diu *) (CONFIG_SYS_DIU_ADDR);
-	hw = (struct diu *) dr.diu_reg;
-
-	disable_lcdc();
+	struct diu_ad *dummy_ad;
+	struct diu_addr gamma;
+	struct diu_addr cursor;
 
 	switch (xres) {
 	case 800:
@@ -235,65 +285,40 @@ int fsl_diu_init(int xres, unsigned int pixel_format, int gamma_fix)
 		fsl_diu_mode_db = &fsl_diu_mode_1024;
 	}
 
-	if (0 == fb_initialized) {
-		allocate_buf(&gamma, 768, 32);
-		debug("gamma is allocated @ 0x%x\n",
-			(unsigned int)gamma.paddr);
-		allocate_buf(&cursor, MAX_CURS * MAX_CURS * 2, 32);
-		debug("curosr is allocated @ 0x%x\n",
-			(unsigned int)cursor.paddr);
-
-		/* create a dummy fb and dummy ad */
-		dummy_fb = malloc(64);
-		if (NULL == dummy_fb) {
-			printf("Cannot allocate dummy fb\n");
-			return -1;
-		}
-		dummy_ad.addr = cpu_to_le32((unsigned int)dummy_fb);
-		dummy_ad.pix_fmt = 0x88882317;
-		dummy_ad.src_size_g_alpha = 0x04400000;	/* alpha = 0 */
-		dummy_ad.aoi_size = 0x02000400;
-		dummy_ad.offset_xyi = 0;
-		dummy_ad.offset_xyd = 0;
-		dummy_ad.next_ad = 0;
-		/* Memory allocation for framebuffer */
-		if (map_video_memory(info, 32)) {
-			printf("Unable to allocate fb memory 1\n");
-			return -1;
-		}
+	/* The AD struct for the dummy framebuffer and the FB itself */
+	dummy_ad = allocate_fb(2, 4, 4, NULL);
+	if (!dummy_ad) {
+		printf("DIU:   Out of memory\n");
+		return -1;
 	}
-
-	memset(info->screen_base, 0, info->smem_len);
-
-	out_be32(&dr.diu_reg->desc[0], (int)&dummy_ad);
-	out_be32(&dr.diu_reg->desc[1], (int)&dummy_ad);
-	out_be32(&dr.diu_reg->desc[2], (int)&dummy_ad);
-	debug("dummy dr.diu_reg->desc[0] = 0x%x\n", dr.diu_reg->desc[0]);
-	debug("dummy desc[0] = 0x%x\n", hw->desc[0]);
+	dummy_ad->pix_fmt = 0x88883316;
 
 	/* read mode info */
-	var->xres = fsl_diu_mode_db->xres;
-	var->yres = fsl_diu_mode_db->yres;
-	var->bits_per_pixel = 32;
-	var->pixclock = fsl_diu_mode_db->pixclock;
-	var->left_margin = fsl_diu_mode_db->left_margin;
-	var->right_margin = fsl_diu_mode_db->right_margin;
-	var->upper_margin = fsl_diu_mode_db->upper_margin;
-	var->lower_margin = fsl_diu_mode_db->lower_margin;
-	var->hsync_len = fsl_diu_mode_db->hsync_len;
-	var->vsync_len = fsl_diu_mode_db->vsync_len;
-	var->sync = fsl_diu_mode_db->sync;
-	var->vmode = fsl_diu_mode_db->vmode;
-	info->line_length = var->xres * var->bits_per_pixel / 8;
+	info.var.xres = fsl_diu_mode_db->xres;
+	info.var.yres = fsl_diu_mode_db->yres;
+	info.var.bits_per_pixel = 32;
+	info.var.pixclock = fsl_diu_mode_db->pixclock;
+	info.var.left_margin = fsl_diu_mode_db->left_margin;
+	info.var.right_margin = fsl_diu_mode_db->right_margin;
+	info.var.upper_margin = fsl_diu_mode_db->upper_margin;
+	info.var.lower_margin = fsl_diu_mode_db->lower_margin;
+	info.var.hsync_len = fsl_diu_mode_db->hsync_len;
+	info.var.vsync_len = fsl_diu_mode_db->vsync_len;
+	info.var.sync = fsl_diu_mode_db->sync;
+	info.var.vmode = fsl_diu_mode_db->vmode;
+	info.line_length = info.var.xres * info.var.bits_per_pixel / 8;
+
+	/* Memory allocation for framebuffer */
+	info.smem_len =
+		info.var.xres * info.var.yres * (info.var.bits_per_pixel / 8);
+	ad = allocate_fb(info.var.xres, info.var.yres,
+			 info.var.bits_per_pixel / 8, &info.screen_base);
+	if (!ad) {
+		printf("DIU:   Out of memory\n");
+		return -1;
+	}
 
 	ad->pix_fmt = pixel_format;
-	ad->addr    = cpu_to_le32((unsigned int)info->screen_base);
-	ad->src_size_g_alpha
-			= cpu_to_le32((var->yres << 12) | var->xres);
-	/* fix me. AOI should not be greater than display size */
-	ad->aoi_size	= cpu_to_le32(( var->yres << 16) |  var->xres);
-	ad->offset_xyi = 0;
-	ad->offset_xyd = 0;
 
 	/* Disable chroma keying function */
 	ad->ckmax_r = 0;
@@ -304,195 +329,91 @@ int fsl_diu_init(int xres, unsigned int pixel_format, int gamma_fix)
 	ad->ckmin_g = 255;
 	ad->ckmin_b = 255;
 
-	gamma_table_base = gamma.paddr;
-	debug("gamma_table_base is allocated @ 0x%x\n",
-		(unsigned int)gamma_table_base);
-
-	/* Prep for DIU init  - gamma table */
-
+	/* Initialize the gamma table */
+	if (allocate_buf(&gamma, 256 * 3, 32) < 0) {
+		printf("DIU:   Out of memory\n");
+		return -1;
+	}
+	gamma_table_base = gamma.vaddr;
 	for (i = 0; i <= 2; i++)
-		for (j = 0; j <= 255; j++)
+		for (j = 0; j < 256; j++)
 			*gamma_table_base++ = j;
 
 	if (gamma_fix == 1) {	/* fix the gamma */
-		debug("Fix gamma table\n");
-		gamma_table_base = gamma.paddr;
-		for (i = 0; i < 256*3; i++) {
+		gamma_table_base = gamma.vaddr;
+		for (i = 0; i < 256 * 3; i++) {
 			gamma_table_base[i] = (gamma_table_base[i] << 2)
 				| ((gamma_table_base[i] >> 6) & 0x03);
 		}
 	}
 
-	debug("update-lcdc: HW - %p\n Disabling DIU\n", hw);
+	/* Initialize the cursor */
+	if (allocate_buf(&cursor, 32 * 32 * 2, 32) < 0) {
+		printf("DIU:   Can't alloc cursor data\n");
+		return -1;
+	}
 
 	/* Program DIU registers */
+	out_be32(&hw->diu_mode, 0);	/* Temporarily disable the DIU */
 
-	out_be32(&hw->gamma, (int)gamma.paddr);
-	out_be32(&hw->cursor, (int)cursor.paddr);
+	out_be32(&hw->gamma, gamma.paddr);
+	out_be32(&hw->cursor, cursor.paddr);
 	out_be32(&hw->bgnd, 0x007F7F7F);
-	out_be32(&hw->bgnd_wb, 0);				/* BGND_WB */
-	out_be32(&hw->disp_size, var->yres << 16 | var->xres);	/* DISP SIZE */
-	out_be32(&hw->wb_size, 0);				/* WB SIZE */
-	out_be32(&hw->wb_mem_addr, 0);				/* WB MEM ADDR */
-	out_be32(&hw->hsyn_para, var->left_margin << 22 |	/* BP_H */
-			var->hsync_len << 11   |	/* PW_H */
-			var->right_margin);		/* FP_H */
+	out_be32(&hw->bgnd_wb, 0);
+	out_be32(&hw->disp_size, info.var.yres << 16 | info.var.xres);
+	out_be32(&hw->wb_size, 0);
+	out_be32(&hw->wb_mem_addr, 0);
+	out_be32(&hw->hsyn_para, info.var.left_margin << 22 |
+			info.var.hsync_len << 11 |
+			info.var.right_margin);
 
-	out_be32(&hw->vsyn_para, var->upper_margin << 22 |	/* BP_V */
-			var->vsync_len << 11    |	/* PW_V  */
-			var->lower_margin);		/* FP_V  */
+	out_be32(&hw->vsyn_para, info.var.upper_margin << 22 |
+			info.var.vsync_len << 11 |
+			info.var.lower_margin);
 
-	out_be32(&hw->syn_pol, 0);			/* SYNC SIGNALS POLARITY */
-	out_be32(&hw->thresholds, 0x00037800);		/* The Thresholds */
-	out_be32(&hw->int_status, 0);			/* INTERRUPT STATUS */
-	out_be32(&hw->int_mask, 0);			/* INT MASK */
+	out_be32(&hw->syn_pol, 0);
+	out_be32(&hw->thresholds, 0x00037800);
+	out_be32(&hw->int_status, 0);
+	out_be32(&hw->int_mask, 0);
 	out_be32(&hw->plut, 0x01F5F666);
 	/* Pixel Clock configuration */
-	debug("DIU pixclock in ps - %d\n", var->pixclock);
-	diu_set_pixel_clock(var->pixclock);
+	diu_set_pixel_clock(info.var.pixclock);
 
-	fb_initialized = 1;
+	/* Set the frame buffers */
+	out_be32(&hw->desc[0], virt_to_phys(ad));
+	out_be32(&hw->desc[1], virt_to_phys(dummy_ad));
+	out_be32(&hw->desc[2], virt_to_phys(dummy_ad));
 
-	/* Enable the DIU */
-	fsl_diu_enable_panel(info);
-	enable_lcdc();
-
-	return 0;
-}
-
-char *fsl_fb_open(struct fb_info **info)
-{
-	*info = &fsl_fb_info;
-	return fsl_fb_info.screen_base;
-}
-
-void fsl_diu_close(void)
-{
-	struct fb_info *info = &fsl_fb_info;
-	fsl_diu_disable_panel(info);
-}
-
-static int fsl_diu_enable_panel(struct fb_info *info)
-{
-	struct diu *hw = dr.diu_reg;
-	struct diu_ad *ad = &fsl_diu_fb_ad;
-
-	debug("Entered: enable_panel\n");
-	if (in_be32(&hw->desc[0]) != (unsigned)ad)
-		out_be32(&hw->desc[0], (unsigned)ad);
-	debug("desc[0] = 0x%x\n", hw->desc[0]);
-	return 0;
-}
-
-static int fsl_diu_disable_panel(struct fb_info *info)
-{
-	struct diu *hw = dr.diu_reg;
-
-	debug("Entered: disable_panel\n");
-	if (in_be32(&hw->desc[0]) != (unsigned)&dummy_ad)
-		out_be32(&hw->desc[0], (unsigned)&dummy_ad);
-	return 0;
-}
-
-static int map_video_memory(struct fb_info *info, unsigned long bytes_align)
-{
-	unsigned long offset;
-	unsigned long mask;
-
-	debug("Entered: map_video_memory\n");
-	/* allocate maximum 1280*1024 with 32bpp */
-	info->smem_len = 1280 * 4 *1024 + bytes_align;
-	debug("MAP_VIDEO_MEMORY: smem_len = %d\n", info->smem_len);
-	info->screen_base = malloc(info->smem_len);
-	if (info->screen_base == NULL) {
-		printf("Unable to allocate fb memory\n");
-		return -1;
-	}
-	info->smem_start = (unsigned int) info->screen_base;
-	mask = bytes_align - 1;
-	offset = (unsigned long)info->screen_base & mask;
-	if (offset) {
-		info->screen_base += (bytes_align - offset);
-		info->smem_len = info->smem_len - (bytes_align - offset);
-	} else
-		info->smem_len = info->smem_len - bytes_align;
-
-	info->screen_size = info->smem_len;
-
-	debug("Allocated fb @ 0x%08lx, size=%d.\n",
-		info->smem_start, info->smem_len);
+	/* Enable the DIU, set display to all three planes */
+	out_be32(&hw->diu_mode, 1);
 
 	return 0;
 }
-
-static void enable_lcdc(void)
-{
-	struct diu *hw = dr.diu_reg;
-
-	debug("Entered: enable_lcdc, fb_enabled = %d\n", fb_enabled);
-	if (!fb_enabled) {
-		out_be32(&hw->diu_mode, dr.mode);
-		fb_enabled++;
-	}
-	debug("diu_mode = %d\n", hw->diu_mode);
-}
-
-static void disable_lcdc(void)
-{
-	struct diu *hw = dr.diu_reg;
-
-	debug("Entered: disable_lcdc, fb_enabled = %d\n", fb_enabled);
-	if (fb_enabled) {
-		out_be32(&hw->diu_mode, 0);
-		fb_enabled = 0;
-	}
-}
-
-/*
- * Align to 64-bit(8-byte), 32-byte, etc.
- */
-static int allocate_buf(struct diu_addr *buf, u32 size, u32 bytes_align)
-{
-	u32 offset, ssize;
-	u32 mask;
-
-	debug("Entered: allocate_buf\n");
-	ssize = size + bytes_align;
-	buf->paddr = malloc(ssize);
-	if (!buf->paddr)
-		return -1;
-
-	memset(buf->paddr, 0, ssize);
-	mask = bytes_align - 1;
-	offset = (u32)buf->paddr & mask;
-	if (offset) {
-		buf->offset = bytes_align - offset;
-		buf->paddr = (unsigned char *) ((u32)buf->paddr + offset);
-	} else
-		buf->offset = 0;
-	return 0;
-}
-
-#if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-#include <stdio_dev.h>
-#include <video_fb.h>
-/*
- * The Graphic Device
- */
-static GraphicDevice ctfb;
 
 void *video_hw_init(void)
 {
-	struct fb_info *info;
+	static GraphicDevice ctfb;
+	const char *options;
+	unsigned int depth = 0, freq = 0;
 
-	if (platform_diu_init(&ctfb.winSizeX, &ctfb.winSizeY) < 0)
+	if (!video_get_video_mode(&ctfb.winSizeX, &ctfb.winSizeY, &depth, &freq,
+				  &options))
+		return NULL;
+
+	/* Find the monitor port, which is a required option */
+	if (!options)
+		return NULL;
+	if (strncmp(options, "monitor=", 8) != 0)
+		return NULL;
+
+	if (platform_diu_init(ctfb.winSizeX, ctfb.winSizeY, options + 8) < 0)
 		return NULL;
 
 	/* fill in Graphic device struct */
 	sprintf(ctfb.modeIdent, "%ix%ix%i %ikHz %iHz",
-		ctfb.winSizeX, ctfb.winSizeY, 32, 64, 60);
+		ctfb.winSizeX, ctfb.winSizeY, depth, 64, freq);
 
-	ctfb.frameAdrs = (unsigned int)fsl_fb_open(&info);
+	ctfb.frameAdrs = (unsigned int)info.screen_base;
 	ctfb.plnSizeX = ctfb.winSizeX;
 	ctfb.plnSizeY = ctfb.winSizeY;
 
@@ -501,7 +422,7 @@ void *video_hw_init(void)
 
 	ctfb.isaBase = 0;
 	ctfb.pciBase = 0;
-	ctfb.memSize = info->screen_size;
+	ctfb.memSize = info.screen_size;
 
 	/* Cursor Start Address */
 	ctfb.dprBase = 0;
@@ -510,4 +431,3 @@ void *video_hw_init(void)
 
 	return &ctfb;
 }
-#endif /* defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE) */
