@@ -84,6 +84,29 @@ struct wdog_regs {
 	u16 wrsr;	/* Reset Status */
 };
 
+/* IIM Control Registers */
+struct iim_regs {
+	u32 iim_stat;
+	u32 iim_statm;
+	u32 iim_err;
+	u32 iim_emask;
+	u32 iim_fctl;
+	u32 iim_ua;
+	u32 iim_la;
+	u32 iim_sdat;
+	u32 iim_prev;
+	u32 iim_srev;
+	u32 iim_prog_p;
+	u32 iim_scs0;
+	u32 iim_scs1;
+	u32 iim_scs2;
+	u32 iim_scs3;
+};
+
+struct mx3_cpu_type {
+	u8 srev;
+	const char *v;
+};
 
 #define IOMUX_PADNUM_MASK	0x1ff
 #define IOMUX_PIN(gpionum, padnum) ((padnum) & IOMUX_PADNUM_MASK)
@@ -479,6 +502,8 @@ enum iomux_pins {
 #define CCMR_PRCS_MASK	(3 << 1)
 #define CCMR_FPM	(1 << 1)
 #define CCMR_CKIH	(2 << 1)
+
+#define MX31_IIM_BASE_ADDR	0x5001C000
 
 #define PDR0_CSI_PODF(x)	(((x) & 0x1ff) << 23)
 #define PDR0_PER_PODF(x)	(((x) & 0x1f) << 16)
