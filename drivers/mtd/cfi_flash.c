@@ -1202,8 +1202,9 @@ void flash_print_info (flash_info_t * info)
 		info->manufacturer_id);
 	printf (info->chipwidth == FLASH_CFI_16BIT ? "%04X" : "%02X",
 		info->device_id);
-	if (info->device_id == 0x7E) {
-		printf("%04X", info->device_id2);
+	if ((info->device_id & 0xff) == 0x7E) {
+		printf(info->chipwidth == FLASH_CFI_16BIT ? "%04X" : "%02X",
+		info->device_id2);
 	}
 	printf ("\n  Erase timeout: %ld ms, write timeout: %ld ms\n",
 		info->erase_blk_tout,
@@ -1599,6 +1600,14 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 	case FLASH_CFI_16BIT:
 		info->device_id = flash_read_word (info,
 						FLASH_OFFSET_DEVICE_ID);
+		if ((info->device_id & 0xff) == 0x7E) {
+			/* AMD 3-byte (expanded) device ids */
+			info->device_id2 = flash_read_uchar (info,
+						FLASH_OFFSET_DEVICE_ID2);
+			info->device_id2 <<= 8;
+			info->device_id2 |= flash_read_uchar (info,
+						FLASH_OFFSET_DEVICE_ID3);
+		}
 		break;
 	default:
 		break;
