@@ -57,7 +57,10 @@ static int do_gpio(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		goto show_usage;
 
 	/* grab the pin before we tweak it */
-	gpio_request(gpio, "cmd_gpio");
+	if (gpio_request(gpio, "cmd_gpio")) {
+		printf("gpio: requesting pin %u failed\n", gpio);
+		return -1;
+	}
 
 	/* finally, let's do it: set direction and exec command */
 	if (sub_cmd == GPIO_INPUT) {
