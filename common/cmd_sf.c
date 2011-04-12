@@ -106,9 +106,6 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 		spi_flash_free(flash);
 	flash = new;
 
-	printf("%u KiB %s at %u:%u is now current device\n",
-			flash->size >> 10, flash->name, bus, cs);
-
 	return 0;
 
 usage:
