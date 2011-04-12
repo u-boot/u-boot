@@ -581,6 +581,7 @@ static int flash_status_check (flash_info_t * info, flash_sect_t sector,
 				prompt, info->start[sector],
 				flash_read_long (info, sector, 0));
 			flash_write_cmd (info, sector, 0, info->cmd_reset);
+			udelay(1);
 			return ERR_TIMOUT;
 		}
 		udelay (1);		/* also triggers watchdog */
@@ -628,6 +629,7 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 				puts ("Vpp Low Error.\n");
 		}
 		flash_write_cmd (info, sector, 0, info->cmd_reset);
+		udelay(1);
 		break;
 	default:
 		break;
@@ -1491,6 +1493,7 @@ void flash_read_user_serial (flash_info_t * info, void *buffer, int offset,
 	flash_write_cmd (info, 0, 0, FLASH_CMD_READ_ID);
 	memcpy (dst, src + offset, len);
 	flash_write_cmd (info, 0, 0, info->cmd_reset);
+	udelay(1);
 	flash_unmap(info, 0, FLASH_OFFSET_USER_PROTECTION, src);
 }
 
@@ -1506,6 +1509,7 @@ void flash_read_factory_serial (flash_info_t * info, void *buffer, int offset,
 	flash_write_cmd (info, 0, 0, FLASH_CMD_READ_ID);
 	memcpy (buffer, src + offset, len);
 	flash_write_cmd (info, 0, 0, info->cmd_reset);
+	udelay(1);
 	flash_unmap(info, 0, FLASH_OFFSET_INTEL_PROTECTION, src);
 }
 
@@ -1537,6 +1541,7 @@ static void cfi_reverse_geometry(struct cfi_qry *qry)
 static void cmdset_intel_read_jedec_ids(flash_info_t *info)
 {
 	flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
+	udelay(1);
 	flash_write_cmd(info, 0, 0, FLASH_CMD_READ_ID);
 	udelay(1000); /* some flash are slow to respond */
 	info->manufacturer_id = flash_read_uchar (info,
@@ -1613,6 +1618,7 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 		break;
 	}
 	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+	udelay(1);
 }
 
 static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
@@ -1739,6 +1745,7 @@ void __flash_cmd_reset(flash_info_t *info)
 	 * that AMD flash roms ignore the Intel command.
 	 */
 	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+	udelay(1);
 	flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
 }
 void flash_cmd_reset(flash_info_t *info)
