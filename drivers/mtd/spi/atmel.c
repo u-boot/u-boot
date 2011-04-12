@@ -113,8 +113,35 @@ static const struct atmel_spi_flash_params atmel_spi_flash_table[] = {
 
 static int at45_wait_ready(struct spi_flash *flash, unsigned long timeout)
 {
-	return spi_flash_cmd_poll_bit(flash, timeout,
-		CMD_AT45_READ_STATUS, AT45_STATUS_READY);
+	struct spi_slave *spi = flash->spi;
+	unsigned long timebase;
+	int ret;
+	u8 cmd = CMD_AT45_READ_STATUS;
+	u8 status;
+
+	timebase = get_timer(0);
+
+	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
+	if (ret)
+		return -1;
+
+	do {
+		ret = spi_xfer(spi, 8, NULL, &status, 0);
+		if (ret)
+			return -1;
+
+		if (status & AT45_STATUS_READY)
+			break;
+	} while (get_timer(timebase) < timeout);
+
+	/* Deactivate CS */
+	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
+
+	if (status & AT45_STATUS_READY)
+		return 0;
+
+	/* Timed out */
+	return -1;
 }
 
 /*
