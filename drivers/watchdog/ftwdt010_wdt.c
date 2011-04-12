@@ -29,13 +29,13 @@
 #include <common.h>
 #include <watchdog.h>
 #include <asm/io.h>
-#include "ftwdt010_wdt.h"
+#include <faraday/ftwdt010_wdt.h>
 
 /*
  * Set the watchdog time interval.
  * Counter is 32 bit.
  */
-static int ftwdt010_wdt_settimeout(unsigned int timeout)
+int ftwdt010_wdt_settimeout(unsigned int timeout)
 {
 	unsigned int reg;
 
@@ -61,7 +61,7 @@ static int ftwdt010_wdt_settimeout(unsigned int timeout)
 	return 0;
 }
 
-void ftwdt010_wdt_reset()
+void ftwdt010_wdt_reset(void)
 {
 	struct ftwdt010_wdt *wd = (struct ftwdt010_wdt *)CONFIG_FTWDT010_BASE;
 
@@ -75,7 +75,7 @@ void ftwdt010_wdt_reset()
 	writel((FTWDT010_WDCR_RST | FTWDT010_WDCR_ENABLE), &wd->wdcr);
 }
 
-void ftwdt010_wdt_disable()
+void ftwdt010_wdt_disable(void)
 {
 	struct ftwdt010_wdt *wd = (struct ftwdt010_wdt *)CONFIG_FTWDT010_BASE;
 
@@ -90,7 +90,8 @@ void ftwdt010_wdt_disable()
 	writel(0, &wd->wdcr);
 }
 
-void hw_watchdog_reset()
+#if defined(CONFIG_HW_WATCHDOG)
+void hw_watchdog_reset(void)
 {
 	ftwdt010_wdt_reset();
 }
@@ -100,3 +101,4 @@ void hw_watchdog_init(void)
 	/* set timer in ms */
 	ftwdt010_wdt_settimeout(CONFIG_FTWDT010_HW_TIMEOUT * 1000);
 }
+#endif
