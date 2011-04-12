@@ -297,8 +297,8 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 		goto err_manufacturer_probe;
 	}
 
-	printf("SF: Detected %s with page size %u, total ",
-	       flash->name, flash->sector_size);
+	printf("SF: Detected %s with page size ", flash->name);
+	print_size(flash->sector_size, ", total ");
 	print_size(flash->size, "\n");
 
 	spi_release_bus(spi);
