@@ -328,7 +328,7 @@ out:
 /*
  * TODO: the two erase funcs (_p2/_at45) should get unified ...
  */
-int dataflash_erase_p2(struct spi_flash *flash, u32 offset, size_t len)
+static int dataflash_erase_p2(struct spi_flash *flash, u32 offset, size_t len)
 {
 	struct atmel_spi_flash *asf = to_atmel_spi_flash(flash);
 	unsigned long page_size;
@@ -387,7 +387,7 @@ out:
 	return ret;
 }
 
-int dataflash_erase_at45(struct spi_flash *flash, u32 offset, size_t len)
+static int dataflash_erase_at45(struct spi_flash *flash, u32 offset, size_t len)
 {
 	struct atmel_spi_flash *asf = to_atmel_spi_flash(flash);
 	unsigned long page_addr;

@@ -199,7 +199,7 @@ sst_write(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 	return ret;
 }
 
-int sst_erase(struct spi_flash *flash, u32 offset, size_t len)
+static int sst_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	return spi_flash_cmd_erase(flash, CMD_SST_SE, offset, len);
 }

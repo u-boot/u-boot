@@ -197,7 +197,7 @@ static int stmicro_write(struct spi_flash *flash,
 	return ret;
 }
 
-int stmicro_erase(struct spi_flash *flash, u32 offset, size_t len)
+static int stmicro_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	return spi_flash_cmd_erase(flash, CMD_M25PXX_SE, offset, len);
 }

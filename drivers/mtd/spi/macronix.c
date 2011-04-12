@@ -175,7 +175,7 @@ static int macronix_write(struct spi_flash *flash,
 	return ret;
 }
 
-int macronix_erase(struct spi_flash *flash, u32 offset, size_t len)
+static int macronix_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	return spi_flash_cmd_erase(flash, CMD_MX25XX_BE, offset, len);
 }

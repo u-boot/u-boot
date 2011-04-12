@@ -233,7 +233,7 @@ static int ramtron_write(struct spi_flash *flash,
 		CMD_RAMTRON_WRITE);
 }
 
-int ramtron_erase(struct spi_flash *flash, u32 offset, size_t len)
+static int ramtron_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	debug("SF: Erase of RAMTRON FRAMs is pointless\n");
 	return -1;

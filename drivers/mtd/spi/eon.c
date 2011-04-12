@@ -119,7 +119,7 @@ static int eon_write(struct spi_flash *flash,
 	return ret;
 }
 
-int eon_erase(struct spi_flash *flash, u32 offset, size_t len)
+static int eon_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	return spi_flash_cmd_erase(flash, CMD_EN25Q128_BE, offset, len);
 }

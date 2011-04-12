@@ -170,7 +170,7 @@ out:
 	return ret;
 }
 
-int winbond_erase(struct spi_flash *flash, u32 offset, size_t len)
+static int winbond_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	return spi_flash_cmd_erase(flash, CMD_W25_SE, offset, len);
 }

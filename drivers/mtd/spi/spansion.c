@@ -196,7 +196,7 @@ static int spansion_write(struct spi_flash *flash,
 	return ret;
 }
 
-int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
+static int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	return spi_flash_cmd_erase(flash, CMD_S25FLXX_SE, offset, len);
 }
