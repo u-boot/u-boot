@@ -196,12 +196,9 @@ static int spansion_write(struct spi_flash *flash,
 	return ret;
 }
 
-int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
+static int spansion_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
-	struct spansion_spi_flash *spsn = to_spansion_spi_flash(flash);
-	return spi_flash_cmd_erase(flash, CMD_S25FLXX_SE,
-		spsn->params->page_size * spsn->params->pages_per_sector,
-		offset, len);
+	return spi_flash_cmd_erase(flash, CMD_S25FLXX_SE, offset, len);
 }
 
 struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
@@ -240,12 +237,8 @@ struct spi_flash *spi_flash_probe_spansion(struct spi_slave *spi, u8 *idcode)
 	spsn->flash.write = spansion_write;
 	spsn->flash.erase = spansion_erase;
 	spsn->flash.read = spi_flash_cmd_read_fast;
-	spsn->flash.size = params->page_size * params->pages_per_sector
-	    * params->nr_sectors;
-
-	printf("SF: Detected %s with page size %u, total ",
-	       params->name, params->page_size);
-	print_size(spsn->flash.size, "\n");
+	spsn->flash.sector_size = params->page_size * params->pages_per_sector;
+	spsn->flash.size = spsn->flash.sector_size * params->nr_sectors;
 
 	return &spsn->flash;
 }

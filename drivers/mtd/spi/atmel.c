@@ -113,8 +113,35 @@ static const struct atmel_spi_flash_params atmel_spi_flash_table[] = {
 
 static int at45_wait_ready(struct spi_flash *flash, unsigned long timeout)
 {
-	return spi_flash_cmd_poll_bit(flash, timeout,
-		CMD_AT45_READ_STATUS, AT45_STATUS_READY);
+	struct spi_slave *spi = flash->spi;
+	unsigned long timebase;
+	int ret;
+	u8 cmd = CMD_AT45_READ_STATUS;
+	u8 status;
+
+	timebase = get_timer(0);
+
+	ret = spi_xfer(spi, 8, &cmd, NULL, SPI_XFER_BEGIN);
+	if (ret)
+		return -1;
+
+	do {
+		ret = spi_xfer(spi, 8, NULL, &status, 0);
+		if (ret)
+			return -1;
+
+		if (status & AT45_STATUS_READY)
+			break;
+	} while (get_timer(timebase) < timeout);
+
+	/* Deactivate CS */
+	spi_xfer(spi, 0, NULL, NULL, SPI_XFER_END);
+
+	if (status & AT45_STATUS_READY)
+		return 0;
+
+	/* Timed out */
+	return -1;
 }
 
 /*
@@ -301,7 +328,7 @@ out:
 /*
  * TODO: the two erase funcs (_p2/_at45) should get unified ...
  */
-int dataflash_erase_p2(struct spi_flash *flash, u32 offset, size_t len)
+static int dataflash_erase_p2(struct spi_flash *flash, u32 offset, size_t len)
 {
 	struct atmel_spi_flash *asf = to_atmel_spi_flash(flash);
 	unsigned long page_size;
@@ -360,7 +387,7 @@ out:
 	return ret;
 }
 
-int dataflash_erase_at45(struct spi_flash *flash, u32 offset, size_t len)
+static int dataflash_erase_at45(struct spi_flash *flash, u32 offset, size_t len)
 {
 	struct atmel_spi_flash *asf = to_atmel_spi_flash(flash);
 	unsigned long page_addr;
@@ -495,13 +522,10 @@ struct spi_flash *spi_flash_probe_atmel(struct spi_slave *spi, u8 *idcode)
 		goto err;
 	}
 
+	asf->flash.sector_size = page_size;
 	asf->flash.size = page_size * params->pages_per_block
 				* params->blocks_per_sector
 				* params->nr_sectors;
-
-	printf("SF: Detected %s with page size %u, total ",
-	       params->name, page_size);
-	print_size(asf->flash.size, "\n");
 
 	return &asf->flash;
 

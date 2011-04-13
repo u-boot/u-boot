@@ -26,17 +26,14 @@
 #include <spi.h>
 #include <linux/types.h>
 
-struct spi_flash_region {
-	unsigned int	count;
-	unsigned int	size;
-};
-
 struct spi_flash {
 	struct spi_slave *spi;
 
 	const char	*name;
 
 	u32		size;
+
+	u32		sector_size;
 
 	int		(*read)(struct spi_flash *flash, u32 offset,
 				size_t len, void *buf);

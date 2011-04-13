@@ -175,13 +175,9 @@ static int macronix_write(struct spi_flash *flash,
 	return ret;
 }
 
-int macronix_erase(struct spi_flash *flash, u32 offset, size_t len)
+static int macronix_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
-	struct macronix_spi_flash *mcx = to_macronix_spi_flash(flash);
-	return spi_flash_cmd_erase(flash, CMD_MX25XX_BE,
-		mcx->params->page_size * mcx->params->pages_per_sector *
-			mcx->params->sectors_per_block,
-		offset, len);
+	return spi_flash_cmd_erase(flash, CMD_MX25XX_BE, offset, len);
 }
 
 struct spi_flash *spi_flash_probe_macronix(struct spi_slave *spi, u8 *idcode)
@@ -215,12 +211,9 @@ struct spi_flash *spi_flash_probe_macronix(struct spi_slave *spi, u8 *idcode)
 	mcx->flash.write = macronix_write;
 	mcx->flash.erase = macronix_erase;
 	mcx->flash.read = spi_flash_cmd_read_fast;
-	mcx->flash.size = params->page_size * params->pages_per_sector
-	    * params->sectors_per_block * params->nr_blocks;
-
-	printf("SF: Detected %s with page size %u, total ",
-	       params->name, params->page_size);
-	print_size(mcx->flash.size, "\n");
+	mcx->flash.sector_size = params->page_size * params->pages_per_sector
+		* params->sectors_per_block;
+	mcx->flash.size = mcx->flash.sector_size * params->nr_blocks;
 
 	return &mcx->flash;
 }
