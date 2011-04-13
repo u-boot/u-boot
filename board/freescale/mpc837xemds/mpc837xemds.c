@@ -22,6 +22,7 @@
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
 #include <fsl_mdio.h>
+#include <phy.h>
 #include "pci.h"
 #include "../common/pq-mds-pib.h"
 
@@ -155,7 +156,7 @@ static void __ft_tsec_fixup(void *blob, bd_t *bd, const char *alias,
 		return;
 	}
 
-	err = fdt_fixup_phy_connection(blob, off, SGMII);
+	err = fdt_fixup_phy_connection(blob, off, PHY_INTERFACE_MODE_SGMII);
 
 	if (err) {
 		printf("WARNING: could not set phy-connection-type for %s: "

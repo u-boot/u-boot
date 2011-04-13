@@ -27,8 +27,8 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <asm/mp.h>
-#include <asm/fsl_enet.h>
 #include <asm/fsl_serdes.h>
+#include <phy.h>
 
 #if defined(CONFIG_MP) && (defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx))
 static int ft_del_cpuhandle(void *blob, int cpuhandle)
@@ -218,27 +218,10 @@ void fdt_fixup_crypto_node(void *blob, int sec_rev)
 }
 #endif
 
-int fdt_fixup_phy_connection(void *blob, int offset, enum fsl_phy_enet_if phyc)
+int fdt_fixup_phy_connection(void *blob, int offset, phy_interface_t phyc)
 {
-	static const char *fsl_phy_enet_if_str[] = {
-		[MII]		= "mii",
-		[RMII]		= "rmii",
-		[GMII]		= "gmii",
-		[RGMII]		= "rgmii",
-		[RGMII_ID]	= "rgmii-id",
-		[RGMII_RXID]	= "rgmii-rxid",
-		[SGMII]		= "sgmii",
-		[TBI]		= "tbi",
-		[RTBI]		= "rtbi",
-		[XAUI]		= "xgmii",
-		[FSL_ETH_IF_NONE] = "",
-	};
-
-	if (phyc > ARRAY_SIZE(fsl_phy_enet_if_str))
-		return fdt_setprop_string(blob, offset, "phy-connection-type", "");
-
 	return fdt_setprop_string(blob, offset, "phy-connection-type",
-					 fsl_phy_enet_if_str[phyc]);
+					 phy_string_for_interface(phyc));
 }
 
 #ifdef CONFIG_SYS_SRIO

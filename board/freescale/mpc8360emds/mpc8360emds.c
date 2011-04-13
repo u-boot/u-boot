@@ -16,6 +16,7 @@
 #include <mpc83xx.h>
 #include <i2c.h>
 #include <miiphy.h>
+#include <phy.h>
 #if defined(CONFIG_PCI)
 #include <pci.h>
 #endif
@@ -160,8 +161,9 @@ int board_eth_init(bd_t *bd)
 		int i;
 
 		for (i = 0; i < ARRAY_SIZE(uec_info); i++)
-			uec_info[i].enet_interface_type = RGMII_RXID;
-			uec_info[i].speed = 1000;
+			uec_info[i].enet_interface_type =
+				PHY_INTERFACE_MODE_RGMII_RXID;
+			uec_info[i].speed = SPEED_1000;
 	}
 	return uec_eth_init(bd, uec_info, ARRAY_SIZE(uec_info));
 }
@@ -398,7 +400,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 				                   "phy-connection-type", 0);
 				if (prop && (strcmp(prop, "rgmii-id") == 0))
 					fdt_fixup_phy_connection(blob, path,
-								RGMII_RXID);
+						PHY_INTERFACE_MODE_RGMII_RXID);
 			}
 #endif
 #if defined(CONFIG_HAS_ETH1)
@@ -410,7 +412,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 				                   "phy-connection-type", 0);
 				if (prop && (strcmp(prop, "rgmii-id") == 0))
 					fdt_fixup_phy_connection(blob, path,
-								RGMII_RXID);
+						PHY_INTERFACE_MODE_RGMII_RXID);
 			}
 #endif
 		}

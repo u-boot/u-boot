@@ -25,6 +25,7 @@
 #include "uec.h"
 #include "uec_phy.h"
 #include "miiphy.h"
+#include <phy.h>
 
 #define ugphy_printk(format, arg...)  \
 	printf(format "\n", ## arg)
@@ -456,8 +457,9 @@ static int bcm_init(struct uec_mii_info *mii_info)
 
 	gbit_config_aneg(mii_info);
 
-	if ((uec->uec_info->enet_interface_type == RGMII_RXID) &&
-	   (uec->uec_info->speed == 1000)) {
+	if ((uec->uec_info->enet_interface_type ==
+				PHY_INTERFACE_MODE_RGMII_RXID) &&
+			(uec->uec_info->speed == SPEED_1000)) {
 		u16 val;
 		int cnt = 50;
 
@@ -485,22 +487,22 @@ static int uec_marvell_init(struct uec_mii_info *mii_info)
 {
 	struct eth_device *edev = mii_info->dev;
 	uec_private_t *uec = edev->priv;
-	enum fsl_phy_enet_if iface = uec->uec_info->enet_interface_type;
+	phy_interface_t iface = uec->uec_info->enet_interface_type;
 	int	speed = uec->uec_info->speed;
 
-	if ((speed == 1000) &&
-	   (iface == RGMII_ID ||
-	    iface == RGMII_RXID ||
-	    iface == RGMII_TXID)) {
+	if ((speed == SPEED_1000) &&
+	   (iface == PHY_INTERFACE_MODE_RGMII_ID ||
+	    iface == PHY_INTERFACE_MODE_RGMII_RXID ||
+	    iface == PHY_INTERFACE_MODE_RGMII_TXID)) {
 		int temp;
 
 		temp = uec_phy_read(mii_info, MII_M1111_PHY_EXT_CR);
-		if (iface == RGMII_ID) {
+		if (iface == PHY_INTERFACE_MODE_RGMII_ID) {
 			temp |= MII_M1111_RX_DELAY | MII_M1111_TX_DELAY;
-		} else if (iface == RGMII_RXID) {
+		} else if (iface == PHY_INTERFACE_MODE_RGMII_RXID) {
 			temp &= ~MII_M1111_TX_DELAY;
 			temp |= MII_M1111_RX_DELAY;
-		} else if (iface == RGMII_TXID) {
+		} else if (iface == PHY_INTERFACE_MODE_RGMII_TXID) {
 			temp &= ~MII_M1111_RX_DELAY;
 			temp |= MII_M1111_TX_DELAY;
 		}
@@ -853,10 +855,8 @@ struct phy_info *uec_get_phy_info (struct uec_mii_info *mii_info)
 	return theInfo;
 }
 
-void marvell_phy_interface_mode (struct eth_device *dev,
-				 enum fsl_phy_enet_if type,
-				 int speed
-				)
+void marvell_phy_interface_mode(struct eth_device *dev, phy_interface_t type,
+		int speed)
 {
 	uec_private_t *uec = (uec_private_t *) dev->priv;
 	struct uec_mii_info *mii_info;
@@ -868,8 +868,8 @@ void marvell_phy_interface_mode (struct eth_device *dev,
 	}
 	mii_info = uec->mii_info;
 
-	if (type == RGMII) {
-		if (speed == 100) {
+	if (type == PHY_INTERFACE_MODE_RGMII) {
+		if (speed == SPEED_100) {
 			uec_phy_write(mii_info, 0x00, 0x9140);
 			uec_phy_write(mii_info, 0x1d, 0x001f);
 			uec_phy_write(mii_info, 0x1e, 0x200c);
@@ -890,7 +890,7 @@ void marvell_phy_interface_mode (struct eth_device *dev,
 			uec_phy_write(mii_info, 0x00, 0xa100);
 			uec_phy_write(mii_info, 0x00, 0x2100);
 			udelay (1000000);
-		} else if (speed == 10) {
+		} else if (speed == SPEED_10) {
 			uec_phy_write(mii_info, 0x14, 0x8e40);
 			uec_phy_write(mii_info, 0x1b, 0x800b);
 			uec_phy_write(mii_info, 0x14, 0x0c82);
@@ -908,7 +908,7 @@ void marvell_phy_interface_mode (struct eth_device *dev,
 }
 
 void change_phy_interface_mode (struct eth_device *dev,
-				enum fsl_phy_enet_if type, int speed)
+				phy_interface_t type, int speed)
 {
 #ifdef CONFIG_PHY_MODE_NEED_CHANGE
 	marvell_phy_interface_mode (dev, type, speed);

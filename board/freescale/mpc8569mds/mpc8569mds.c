@@ -39,6 +39,7 @@
 #include <libfdt.h>
 #include <fdt_support.h>
 #include <fsl_esdhc.h>
+#include <phy.h>
 
 #include "bcsr.h"
 #if defined(CONFIG_PQ_MDS_PIB)
@@ -550,7 +551,8 @@ void ft_board_setup(void *blob, bd_t *bd)
 			break;
 		}
 
-		err = fdt_fixup_phy_connection(blob, nodeoff, RMII);
+		err = fdt_fixup_phy_connection(blob, nodeoff,
+				PHY_INTERFACE_MODE_RMII);
 
 		if (err < 0) {
 			printf("WARNING: could not set phy-connection-type "

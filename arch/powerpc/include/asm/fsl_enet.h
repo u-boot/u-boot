@@ -13,20 +13,7 @@
 #ifndef __ASM_PPC_FSL_ENET_H
 #define __ASM_PPC_FSL_ENET_H
 
-enum fsl_phy_enet_if {
-	MII,
-	RMII,
-	GMII,
-	RGMII,
-	RGMII_ID,
-	RGMII_RXID,
-	RGMII_TXID,
-	SGMII,
-	TBI,
-	RTBI,
-	XAUI,
-	FSL_ETH_IF_NONE,
-};
+#include <phy.h>
 
 struct tsec_mii_mng {
 	u32 miimcfg;		/* MII management configuration reg */
@@ -38,6 +25,6 @@ struct tsec_mii_mng {
 	u32 ifstat;		/* Interface Status Register */
 } __attribute__ ((packed));
 
-int fdt_fixup_phy_connection(void *blob, int offset, enum fsl_phy_enet_if phyc);
+int fdt_fixup_phy_connection(void *blob, int offset, phy_interface_t phyc);
 
 #endif /* __ASM_PPC_FSL_ENET_H */
