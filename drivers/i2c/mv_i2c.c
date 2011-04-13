@@ -114,7 +114,7 @@ static void i2c_reset(void)
 static int i2c_isr_set_cleared(unsigned long set_mask,
 			       unsigned long cleared_mask)
 {
-	int timeout = 10000;
+	int timeout = 1000;
 
 	while (((ISR & set_mask) != set_mask) || ((ISR & cleared_mask) != 0)) {
 		udelay(10);
