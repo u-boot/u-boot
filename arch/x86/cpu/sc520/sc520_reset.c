@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2008-2011
+ * (C) Copyright 2011
  * Graeme Russ, <graeme.russ@gmail.com>
  *
  * (C) Copyright 2002
@@ -26,42 +26,15 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/processor-flags.h>
 #include <asm/ic/sc520.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
-sc520_mmcr_t *sc520_mmcr = (sc520_mmcr_t *)SC520_MMCR_BASE;
-
-int cpu_init_f(void)
+void reset_cpu(ulong addr)
 {
-	if (CONFIG_SYS_SC520_HIGH_SPEED) {
-		/* set it to 133 MHz and write back */
-		writeb(0x02, &sc520_mmcr->cpuctl);
-		gd->cpu_clk = 133000000;
-	} else {
-		/* set it to 100 MHz and write back */
-		writeb(0x01, &sc520_mmcr->cpuctl);
-		gd->cpu_clk = 100000000;
-	}
+	printf("Resetting using SC520 MMCR\n");
+	/* Write a '1' to the SYS_RST of the RESCFG MMCR */
+	writeb(0x01, &sc520_mmcr->rescfg);
 
-	/* wait at least one millisecond */
-	asm("movl	$0x2000, %%ecx\n"
-	    "0:		pushl %%ecx\n"
-	    "popl	%%ecx\n"
-	    "loop 0b\n": : : "ecx");
-
-	return x86_cpu_init_f();
+	/* NOTREACHED */
 }
-
-int cpu_init_r(void)
-{
-	/* Disable the PAR used for CAR */
-	writel(0x0000000, &sc520_mmcr->par[2]);
-
-	/* turn on the SDRAM write buffer */
-	writeb(0x11, &sc520_mmcr->dbctl);
-
-	return x86_cpu_init_r();
-}
-

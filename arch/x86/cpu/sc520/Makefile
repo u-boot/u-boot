@@ -33,6 +33,7 @@ LIB	:= $(obj)lib$(SOC).o
 
 COBJS-$(CONFIG_SYS_SC520) += sc520.o
 COBJS-$(CONFIG_PCI) += sc520_pci.o
+COBJS-$(CONFIG_SYS_SC520_RESET) += sc520_reset.o
 COBJS-$(CONFIG_SYS_SC520) += sc520_sdram.o
 COBJS-$(CONFIG_SYS_SC520_SSI) += sc520_ssi.o
 COBJS-$(CONFIG_SYS_SC520_TIMER) += sc520_timer.o
