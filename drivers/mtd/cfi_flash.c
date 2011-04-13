@@ -2089,6 +2089,14 @@ static void cfi_flash_set_config_reg(u32 base, u16 val)
 
 void flash_protect_default(void)
 {
+#if defined(CONFIG_SYS_FLASH_AUTOPROTECT_LIST)
+	int i;
+	struct apl_s {
+		ulong start;
+		ulong size;
+	} apl[] = CONFIG_SYS_FLASH_AUTOPROTECT_LIST;
+#endif
+
 	/* Monitor protection ON by default */
 #if (CONFIG_SYS_MONITOR_BASE >= CONFIG_SYS_FLASH_BASE) && \
 	(!defined(CONFIG_MONITOR_IS_IN_RAM))
@@ -2130,12 +2138,6 @@ unsigned long flash_init (void)
 {
 	unsigned long size = 0;
 	int i;
-#if defined(CONFIG_SYS_FLASH_AUTOPROTECT_LIST)
-	struct apl_s {
-		ulong start;
-		ulong size;
-	} apl[] = CONFIG_SYS_FLASH_AUTOPROTECT_LIST;
-#endif
 
 #ifdef CONFIG_SYS_FLASH_PROTECTION
 	/* read environment from EEPROM */
