@@ -66,7 +66,35 @@ struct mv_i2c {
 	u32 isar;
 };
 
-static struct mv_i2c *base = (struct mv_i2c *)CONFIG_MV_I2C_REG;
+static struct mv_i2c *base;
+#ifdef CONFIG_I2C_MULTI_BUS
+static u32 i2c_regs[CONFIG_MV_I2C_NUM] = CONFIG_MV_I2C_REG;
+static unsigned int bus_initialized[CONFIG_MV_I2C_NUM];
+static unsigned int current_bus;
+
+int i2c_set_bus_num(unsigned int bus)
+{
+	if ((bus < 0) || (bus >= CONFIG_MV_I2C_NUM)) {
+		printf("Bad bus: %d\n", bus);
+		return -1;
+	}
+
+	base = (struct mv_i2c *)i2c_regs[bus];
+	current_bus = bus;
+
+	if (!bus_initialized[current_bus]) {
+		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+		bus_initialized[current_bus] = 1;
+	}
+
+	return 0;
+}
+
+unsigned int i2c_get_bus_num(void)
+{
+	return current_bus;
+}
+#endif
 
 /*
  * i2c_reset: - reset the host controller
@@ -235,6 +263,12 @@ i2c_transfer_finish:
 /* ------------------------------------------------------------------------ */
 void i2c_init(int speed, int slaveaddr)
 {
+#ifdef CONFIG_I2C_MULTI_BUS
+	base = (struct mv_i2c *)i2c_regs[current_bus];
+#else
+	base = (struct mv_i2c *)CONFIG_MV_I2C_REG;
+#endif
+
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
 	u32 icr;
 	/*
