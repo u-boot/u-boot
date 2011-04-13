@@ -31,6 +31,7 @@
 #include <asm/processor.h>
 #include <ioports.h>
 #include <sata.h>
+#include <fm_eth.h>
 #include <asm/io.h>
 #include <asm/cache.h>
 #include <asm/mmu.h>
@@ -470,6 +471,10 @@ skip_l2:
 		out_be32(&usb_phy2->usb_enable_override,
 				CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE);
 	}
+#endif
+
+#ifdef CONFIG_FMAN_ENET
+	fman_enet_init();
 #endif
 
 	return 0;

@@ -96,6 +96,11 @@
 #endif /* TSEC_ENET */
 #endif /* !CONFIG_PHYLIB */
 
+/* The FMAN driver uses the PHYLIB infrastructure */
+#if defined(CONFIG_FMAN_ENET)
+#define CONFIG_PHYLIB
+#endif
+
 /* All PPC boards must swap IDE bytes */
 #define CONFIG_IDE_SWAP_IO
 

@@ -27,6 +27,7 @@
 #include <common.h>
 #include <command.h>
 #include <tsec.h>
+#include <fm_eth.h>
 #include <netdev.h>
 #include <asm/cache.h>
 #include <asm/io.h>
@@ -206,5 +207,8 @@ int cpu_eth_init(bd_t *bis)
 	tsec_standard_init(bis);
 #endif
 
+#ifdef CONFIG_FMAN_ENET
+	fm_standard_init(bis);
+#endif
 	return 0;
 }

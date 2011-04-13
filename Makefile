@@ -257,6 +257,7 @@ LIBS += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
 ifeq ($(CPU),mpc85xx)
 LIBS += drivers/qe/libqe.o
+LIBS += drivers/net/fm/libfm.o
 LIBS += arch/powerpc/cpu/mpc8xxx/ddr/libddr.o
 LIBS += arch/powerpc/cpu/mpc8xxx/lib8xxx.o
 endif
