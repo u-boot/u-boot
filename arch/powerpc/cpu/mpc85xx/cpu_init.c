@@ -436,6 +436,23 @@ int cpu_init_r(void)
 	isync();
 #endif
 
+#ifdef CONFIG_SYS_FSL_USB1_PHY_ENABLE
+	{
+		ccsr_usb_phy_t *usb_phy1 =
+			(void *)CONFIG_SYS_MPC85xx_USB1_PHY_ADDR;
+		out_be32(&usb_phy1->usb_enable_override,
+				CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE);
+	}
+#endif
+#ifdef CONFIG_SYS_FSL_USB2_PHY_ENABLE
+	{
+		ccsr_usb_phy_t *usb_phy2 =
+			(void *)CONFIG_SYS_MPC85xx_USB2_PHY_ADDR;
+		out_be32(&usb_phy2->usb_enable_override,
+				CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE);
+	}
+#endif
+
 	return 0;
 }
 
