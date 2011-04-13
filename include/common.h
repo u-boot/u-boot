@@ -272,9 +272,9 @@ int	setenv	     (char *, char *);
 # include <asm/setup.h>
 # include <asm/u-boot-arm.h>	/* ARM version to be fixed! */
 #endif /* CONFIG_ARM */
-#ifdef CONFIG_I386		/* x86 version to be fixed! */
-# include <asm/u-boot-i386.h>
-#endif /* CONFIG_I386 */
+#ifdef CONFIG_X86		/* x86 version to be fixed! */
+# include <asm/u-boot-x86.h>
+#endif /* CONFIG_X86 */
 
 #ifdef CONFIG_AUTO_COMPLETE
 int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);

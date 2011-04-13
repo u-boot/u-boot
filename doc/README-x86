@@ -1,4 +1,4 @@
-This is my attempt to port U-Boot to the i386 platform. This
+This is my attempt to port U-Boot to the x86 platform. This
 work was sponsored by my emplyer, Omicron Ceti AB. http://www.omicron.se
 
 It is currently capable of booting a linux bzImage from flash on

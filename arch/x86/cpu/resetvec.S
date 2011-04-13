@@ -1,9 +1,8 @@
 /*
- * (C) Copyright 2009
- * Graeme Russ, graeme.russ@gmail.com
+ *  U-boot - x86 Startup Code
  *
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -24,23 +23,16 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ASM_INTERRUPT_H_
-#define __ASM_INTERRUPT_H_ 1
+/* Reset vector, jumps to start16.S */
 
-#include <asm/types.h>
+.extern start16
 
-/* arch/i386/cpu/interrupts.c */
-void set_vector(u8 intnum, void *routine);
+.section .resetvec, "ax"
+.code16
+reset_vector:
+	cli
+	cld
+	jmp start16
 
-/* arch/i386/lib/interupts.c */
-void disable_irq(int irq);
-void enable_irq(int irq);
-
-/* Architecture specific functions */
-void mask_irq(int irq);
-void unmask_irq(int irq);
-void specific_eoi(int irq);
-
-extern char exception_stack[];
-
-#endif
+	.org 0xf
+	nop

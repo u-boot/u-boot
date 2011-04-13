@@ -33,7 +33,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_X86
 #define CONFIG_SYS_SC520
 #define CONFIG_SYS_SC520_SSI
 #define CONFIG_SHOW_BOOT_PROGRESS

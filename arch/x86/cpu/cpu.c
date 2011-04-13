@@ -149,7 +149,7 @@ asm(".globl generate_gpf\n"
 
 void __reset_cpu(ulong addr)
 {
-	printf("Resetting using i386 Triple Fault\n");
+	printf("Resetting using x86 Triple Fault\n");
 	set_vector(13, generate_gpf);  /* general protection fault handler */
 	set_vector(8, generate_gpf);   /* double fault handler */
 	generate_gpf();                /* start the show */

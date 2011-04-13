@@ -45,7 +45,7 @@ enum {
 
 #define XF_VERSION	6
 
-#if defined(CONFIG_I386)
+#if defined(CONFIG_X86)
 extern gd_t *global_data;
 #endif
 

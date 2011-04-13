@@ -1,6 +1,9 @@
 /*
+ * (C) Copyright 2009
+ * Graeme Russ, graeme.russ@gmail.com
+ *
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se.
+ * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,39 +24,23 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _U_BOOT_I386_H_
-#define _U_BOOT_I386_H_	1
+#ifndef __ASM_INTERRUPT_H_
+#define __ASM_INTERRUPT_H_ 1
 
-/* cpu/.../cpu.c */
-int x86_cpu_init_r(void);
-int cpu_init_r(void);
-int x86_cpu_init_f(void);
-int cpu_init_f(void);
+#include <asm/types.h>
 
-/* cpu/.../timer.c */
-void timer_isr(void *);
-typedef void (timer_fnc_t) (void);
-int register_timer_isr (timer_fnc_t *isr_func);
+/* arch/x86/cpu/interrupts.c */
+void set_vector(u8 intnum, void *routine);
 
-/* Architecture specific - can be in arch/i386/cpu/, arch/i386/lib/, or $(BOARD)/ */
-int timer_init(void);
-int dram_init_f(void);
+/* arch/x86/lib/interupts.c */
+void disable_irq(int irq);
+void enable_irq(int irq);
 
-/* cpu/.../interrupts.c */
-int cpu_init_interrupts(void);
+/* Architecture specific functions */
+void mask_irq(int irq);
+void unmask_irq(int irq);
+void specific_eoi(int irq);
 
-/* board/.../... */
-int board_init(void);
-int dram_init(void);
+extern char exception_stack[];
 
-void setup_pcat_compatibility(void);
-
-void isa_unmap_rom(u32 addr);
-u32 isa_map_rom(u32 bus_addr, int size);
-
-/* arch/i386/lib/... */
-int video_bios_init(void);
-int video_init(void);
-
-
-#endif	/* _U_BOOT_I386_H_ */
+#endif

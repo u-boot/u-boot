@@ -164,7 +164,7 @@ Directory Hierarchy:
   /blackfin		Files generic to Analog Devices Blackfin architecture
     /cpu		CPU specific files
     /lib		Architecture specific library files
-  /i386			Files generic to i386 architecture
+  /x86			Files generic to x86 architecture
     /cpu		CPU specific files
     /lib		Architecture specific library files
   /m68k			Files generic to m68k architecture

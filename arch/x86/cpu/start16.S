@@ -1,5 +1,5 @@
 /*
- *  U-boot - i386 Startup Code
+ *  U-boot - x86 Startup Code
  *
  * (C) Copyright 2008-2011
  * Graeme Russ, <graeme.russ@gmail.com>

@@ -4,7 +4,7 @@
 #define GCC_VERSION (__GNUC__ * 1000 + __GNUC_MINOR__)
 #endif /* GCC_VERSION */
 
-#if defined(CONFIG_I386)
+#if defined(CONFIG_X86)
 /*
  * x86 does not have a dedicated register to store the pointer to
  * the global_data. Thus the jump table address is stored in a
@@ -198,7 +198,7 @@ void app_startup(char * const *argv)
 		*cp++ = 0;
 	}
 
-#if defined(CONFIG_I386)
+#if defined(CONFIG_X86)
 	/* x86 does not have a dedicated register for passing global_data */
 	global_data = (gd_t *)argv[-1];
 	jt = global_data->jt;

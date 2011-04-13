@@ -1,5 +1,5 @@
 /*
- *  U-boot - i386 Startup Code
+ *  U-boot - x86 Startup Code
  *
  * (C) Copyright 2008-2011
  * Graeme Russ, <graeme.russ@gmail.com>
@@ -35,8 +35,8 @@
 .code32
 .globl _start
 .type _start, @function
-.globl _i386boot_start
-_i386boot_start:
+.globl _x86boot_start
+_x86boot_start:
 	/*
 	 * This is the fail safe 32-bit bootstrap entry point. The
 	 * following code is not executed from a cold-reset (actually, a

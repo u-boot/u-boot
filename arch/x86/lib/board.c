@@ -41,7 +41,7 @@
 #include <net.h>
 #include <ide.h>
 #include <serial.h>
-#include <asm/u-boot-i386.h>
+#include <asm/u-boot-x86.h>
 #include <elf.h>
 
 #ifdef CONFIG_BITBANGMII
