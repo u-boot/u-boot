@@ -1,9 +1,9 @@
 /*
- * (C) Copyright 2008
- * Graeme Russ, graeme.russ@gmail.com.
+ * (C) Copyright 2008-2011
+ * Graeme Russ, <graeme.russ@gmail.com>
  *
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se.
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * Portions of this file are derived from the Linux kernel source
  *  Copyright (C) 1991, 1992  Linus Torvalds
@@ -45,7 +45,7 @@
  * read/write functions for the control registers and messing everything up.
  * A memory clobber would solve the problem, but would prevent reordering of
  * all loads stores around it, which can hurt performance. Solution is to
- * use a variable and mimic reads and writes to it to enforce serialization
+ * use a variable and mimic reads and writes to it to enforce serialisation
  */
 static unsigned long __force_order;
 

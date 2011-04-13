@@ -1,7 +1,11 @@
 /*
  *  U-boot - i386 Startup Code
  *
- *  Copyright (c) 2002	Omicron Ceti AB, Daniel Engström <denaiel@omicron.se>
+ * (C) Copyright 2008-2011
+ * Graeme Russ, <graeme.russ@gmail.com>
+ *
+ * (C) Copyright 2002
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,12 +26,10 @@
  * MA 02111-1307 USA
  */
 
-
 #include <config.h>
 #include <version.h>
 #include <asm/global_data.h>
 #include <asm/processor-flags.h>
-
 
 .section .text
 .code32
@@ -56,8 +58,8 @@ _i386boot_start:
 _start:
 	/* This is the 32-bit cold-reset entry point */
 
-	movl	$0x18, %eax	/* Load our segement registes, the
-				 * gdt have already been loaded by start16.S */
+	/* Load the segement registes to match the gdt loaded in start16.S */
+	movl	$0x18, %eax
 	movw	%ax, %fs
 	movw	%ax, %ds
 	movw	%ax, %gs
@@ -82,21 +84,13 @@ car_init_ret:
 	 * starting at CONFIG_SYS_CAR_ADDR to be used as a temporary stack
 	 */
 	movl	$CONFIG_SYS_INIT_SP_ADDR, %esp
-	movl	$CONFIG_SYS_INIT_GD_ADDR, %ebp
-
-	/* Set Boot Flags in Global Data */
-	movl	%ebx, (GD_FLAGS * 4)(%ebp)
-
-	/* Determine our load offset (and put in Global Data) */
-	call	1f
-1:	popl	%ecx
-	subl	$1b, %ecx
-	movl	%ecx, (GD_LOAD_OFF * 4)(%ebp)
 
 	/* Set parameter to board_init_f() to boot flags */
-	movl	(GD_FLAGS * 4)(%ebp), %eax
+	xorl	%eax, %eax
+	movw	%bx, %ax
 
-	call	board_init_f	/* Enter, U-boot! */
+	/* Enter, U-boot! */
+	call	board_init_f
 
 	/* indicate (lack of) progress */
 	movw	$0x85, %ax

@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -41,7 +41,6 @@
  * functionality to keep the Linux Kernel happy. It is NOT
  * a general purpose replacement for a real BIOS !!
  */
-
 
 .section .bios, "ax"
 .code16

@@ -1,9 +1,9 @@
 /*
  * (C) Copyright 2009
- * Graeme Russ, graeme.russ@gmail.com
+ * Graeme Russ, <graeme.russ@gmail.com>
  *
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se.
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.

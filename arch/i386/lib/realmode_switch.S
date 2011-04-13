@@ -21,7 +21,6 @@
  * MA 02111-1307 USA
  */
 
-
 /* 32bit -> 16bit -> 32bit mode switch code */
 
 /*

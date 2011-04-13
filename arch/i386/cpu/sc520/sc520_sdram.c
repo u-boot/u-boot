@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2010
- * Graeme Russ <graeme.russ@gmail.com>.
+ * (C) Copyright 2010,2011
+ * Graeme Russ, <graeme.russ@gmail.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.

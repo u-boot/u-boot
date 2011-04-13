@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -26,9 +26,7 @@
 #include <asm/ptrace.h>
 #include <asm/realmode.h>
 
-
 #define REALMODE_MAILBOX ((char*)0xe00)
-
 
 extern ulong __realmode_start;
 extern ulong __realmode_size;
@@ -57,13 +55,11 @@ int enter_realmode(u16 seg, u16 off, struct pt_regs *in, struct pt_regs *out)
 {
 
 	/* setup out thin bios emulation */
-	if (bios_setup()) {
+	if (bios_setup())
 		return -1;
-	}
 
-	if (realmode_setup()) {
+	if (realmode_setup())
 		return -1;
-	}
 
 	in->eip = off;
 	in->xcs = seg;

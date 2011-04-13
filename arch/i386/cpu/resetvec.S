@@ -1,7 +1,8 @@
 /*
  *  U-boot - i386 Startup Code
  *
- *  Copyright (c) 2002	Omicron Ceti AB, Daniel Engström <denaiel@omicron.se>
+ * (C) Copyright 2002
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.

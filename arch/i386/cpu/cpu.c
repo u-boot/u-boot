@@ -1,6 +1,9 @@
 /*
+ * (C) Copyright 2008-2011
+ * Graeme Russ, <graeme.russ@gmail.com>
+ *
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se.
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
@@ -29,28 +32,22 @@
  * MA 02111-1307 USA
  */
 
-/*
- * CPU specific code
- */
-
 #include <common.h>
 #include <command.h>
 #include <asm/processor.h>
 #include <asm/processor-flags.h>
 #include <asm/interrupt.h>
 
-/* Constructor for a conventional segment GDT (or LDT) entry */
-/* This is a macro so it can be used in initializers */
+/*
+ * Constructor for a conventional segment GDT (or LDT) entry
+ * This is a macro so it can be used in initialisers
+ */
 #define GDT_ENTRY(flags, base, limit)			\
 	((((base)  & 0xff000000ULL) << (56-24)) |	\
 	 (((flags) & 0x0000f0ffULL) << 40) |		\
 	 (((limit) & 0x000f0000ULL) << (48-16)) |	\
 	 (((base)  & 0x00ffffffULL) << 16) |		\
 	 (((limit) & 0x0000ffffULL)))
-
-/*
- * Set up the GDT
- */
 
 struct gdt_ptr {
 	u16 len;
@@ -59,8 +56,10 @@ struct gdt_ptr {
 
 static void reload_gdt(void)
 {
-	/* There are machines which are known to not boot with the GDT
-	   being 8-byte unaligned.  Intel recommends 16 byte alignment. */
+	/*
+	 * There are machines which are known to not boot with the GDT
+	 * being 8-byte unaligned.  Intel recommends 16 byte alignment
+	 */
 	static const u64 boot_gdt[] __attribute__((aligned(16))) = {
 		/* CS: code, read/execute, 4 GB, base 0 */
 		[GDT_ENTRY_32BIT_CS] = GDT_ENTRY(0xc09b, 0, 0xfffff),
@@ -85,7 +84,6 @@ static void reload_gdt(void)
 		     "movl %%ecx, %%ss" \
 		     : : "m" (gdt) : "ecx");
 }
-
 
 int x86_cpu_init_f(void)
 {
@@ -125,7 +123,9 @@ int cpu_init_r(void) __attribute__((weak, alias("x86_cpu_init_r")));
 int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	printf ("resetting ...\n");
-	udelay(50000);				/* wait 50 ms */
+
+	/* wait 50 ms */
+	udelay(50000);
 	disable_interrupts();
 	reset_cpu(0);
 
@@ -136,7 +136,6 @@ int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 void  flush_cache (unsigned long dummy1, unsigned long dummy2)
 {
 	asm("wbinvd\n");
-	return;
 }
 
 void __attribute__ ((regparm(0))) generate_gpf(void);

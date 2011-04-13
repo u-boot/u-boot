@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -54,10 +54,9 @@ int pci_shadow_rom(pci_dev_t dev, unsigned char *dest)
 	class_code &= 0xffffff00;
 	class_code >>= 8;
 
-#if 0
-	printf("PCI Header Vendor %04x device %04x class %06x\n",
+	debug("PCI Header Vendor %04x device %04x class %06x\n",
 	       vendor, device, class_code);
-#endif
+
 	/* Enable the rom addess decoder */
 	pci_write_config_dword(dev, PCI_ROM_ADDRESS, (u32)PCI_ROM_ADDRESS_MASK);
 	pci_read_config_dword(dev, PCI_ROM_ADDRESS, &addr_reg);
@@ -70,13 +69,12 @@ int pci_shadow_rom(pci_dev_t dev, unsigned char *dest)
 
 	size = (~(addr_reg&PCI_ROM_ADDRESS_MASK))+1;
 
-#if 0
-	printf("ROM is %d bytes\n", size);
-#endif
+	debug("ROM is %d bytes\n", size);
+
 	rom_addr = pci_get_rom_window(hose, size);
-#if 0
-	printf("ROM mapped at %x \n", rom_addr);
-#endif
+
+	debug("ROM mapped at %x\n", rom_addr);
+
 	pci_write_config_dword(dev, PCI_ROM_ADDRESS,
 			       pci_phys_to_mem(dev, rom_addr)
 			       |PCI_ROM_ADDRESS_ENABLE);

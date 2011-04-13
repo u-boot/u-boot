@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -57,7 +57,7 @@
 #define OFFS_FLAGS   44    /* 16bit */
 
 #define SEGMENT      0x40
-#define STACK	     0x800			/* stack at 0x40:0x800 -> 0x800 */
+#define STACK	     0x800	/* stack at 0x40:0x800 -> 0x800 */
 
 /* save general registers */
 /* save some segments     */
@@ -67,28 +67,26 @@
 	/* setup BIOS stackpointer */
 
 #define MAKE_BIOS_STACK \
-	pushal		; \
-	pushw	%ds	; \
-	pushw	%gs	; \
-	pushw	%es	; \
-	pushw	%ss	; \
-	popw	%gs	; \
-	movw	$SEGMENT,%ax ; \
-	movw	%ax,%ds	; \
-	movw	%ax,%es	; \
-	movw	%ax,%ss	; \
-	movw	%sp,%bp	; \
-	movw	$STACK,%sp
+	pushal; \
+	pushw	%ds; \
+	pushw	%gs; \
+	pushw	%es; \
+	pushw	%ss; \
+	popw	%gs; \
+	movw	$SEGMENT, %ax; \
+	movw	%ax, %ds; \
+	movw	%ax, %es; \
+	movw	%ax, %ss; \
+	movw	%sp, %bp; \
+	movw	$STACK, %sp
 
 #define RESTORE_CALLERS_STACK \
-	pushw	%gs     ;			/* restore callers stack segment */ \
-	popw	%ss     ; \
-	movw	%bp,%sp	;			/* restore stackpointer */ \
-		\
-	popw	%es	;			/* restore segment selectors */ \
-	popw	%gs     ; \
-	popw	%ds     ; \
-		\
-	popal					/* restore GP registers */
+	pushw	%gs;		/* restore callers stack segment */ \
+	popw	%ss; \
+	movw	%bp, %sp;	/* restore stackpointer */ \
+	popw	%es;		/* restore segment selectors */ \
+	popw	%gs; \
+	popw	%ds; \
+	popal			/* restore GP registers */
 
 #endif

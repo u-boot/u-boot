@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -30,7 +30,6 @@
 #include <asm/io.h>
 #include <asm/pci.h>
 
-
 /* basic textmode I/O from linux kernel */
 static char *vidmem = (char *)0xb8000;
 static int vidport;
@@ -42,9 +41,9 @@ static void beep(int dur)
 	int i;
 
 	outb_p(3, 0x61);
-	for (i=0;i<10*dur;i++) {
+	for (i = 0; i < 10*dur; i++)
 		udelay(1000);
-	}
+
 	outb_p(0, 0x61);
 }
 
@@ -52,8 +51,8 @@ static void scroll(void)
 {
 	int i;
 
-	memcpy ( vidmem, vidmem + cols * 2, ( lines - 1 ) * cols * 2 );
-	for ( i = ( lines - 1 ) * cols * 2; i < lines * cols * 2; i += 2 )
+	memcpy(vidmem, vidmem + cols * 2, (lines - 1) * cols * 2);
+	for (i = (lines - 1) * cols * 2; i < lines * cols * 2; i += 2)
 		vidmem[i] = ' ';
 }
 
@@ -61,14 +60,14 @@ static void __video_putc(const char c, int *x, int *y)
 {
 	if (c == '\n') {
 		(*x) = 0;
-		if ( ++(*y) >= lines ) {
+		if (++(*y) >= lines) {
 			scroll();
 			(*y)--;
 		}
 	} else if (c == '\b') {
 		if ((*x) != 0) {
 			--(*x);
-			vidmem [ ( (*x) + cols * (*y) ) * 2 ] = ' ';
+			vidmem[((*x) + cols * (*y)) * 2] = ' ';
 		}
 	} else if (c == '\r') {
 		(*x) = 0;
@@ -106,16 +105,15 @@ static void __video_putc(const char c, int *x, int *y)
 		}
 	} else if (c == '\f') {
 		int i;
-		for (i=0;i<lines*cols*2;i+=2) {
+		for (i = 0; i < lines * cols * 2; i += 2)
 			vidmem[i] = 0;
-		}
 		(*x) = 0;
 		(*y) = 0;
 	} else {
-		vidmem [ ( (*x) + cols * (*y) ) * 2 ] = c;
-		if ( ++(*x) >= cols ) {
+		vidmem[((*x) + cols * (*y)) * 2] = c;
+		if (++(*x) >= cols) {
 			(*x) = 0;
-			if ( ++(*y) >= lines ) {
+			if (++(*y) >= lines) {
 				scroll();
 				(*y)--;
 			}
@@ -150,9 +148,8 @@ static void video_puts(const char *s)
 	x = orig_x;
 	y = orig_y;
 
-	while ( ( c = *s++ ) != '\0' ) {
+	while ((c = *s++) != '\0')
 		__video_putc(c, &x, &y);
-	}
 
 	orig_x = x;
 	orig_y = y;
@@ -189,10 +186,8 @@ int video_init(void)
 #if 0
 	printf("pos %x %d %d\n", pos, orig_x, orig_y);
 #endif
-	if (orig_y > lines) {
+	if (orig_y > lines)
 		orig_x = orig_y =0;
-	}
-
 
 	memset(&vga_dev, 0, sizeof(vga_dev));
 	strcpy(vga_dev.name, "vga");
@@ -203,13 +198,11 @@ int video_init(void)
 	vga_dev.tstc  = NULL;              /* 'tstc' function */
 	vga_dev.getc  = NULL;              /* 'getc' function */
 
-	if (stdio_register(&vga_dev) == 0) {
-	    return 1;
-	}
-
-	if (i8042_kbd_init()) {
+	if (stdio_register(&vga_dev) == 0)
 		return 1;
-	}
+
+	if (i8042_kbd_init())
+		return 1;
 
 	memset(&kbd_dev, 0, sizeof(kbd_dev));
 	strcpy(kbd_dev.name, "kbd");
@@ -220,18 +213,17 @@ int video_init(void)
 	kbd_dev.tstc  = i8042_tstc;  /* 'tstc' function */
 	kbd_dev.getc  = i8042_getc;  /* 'getc' function */
 
-	if (stdio_register(&kbd_dev) == 0) {
-	    return 1;
-	}
+	if (stdio_register(&kbd_dev) == 0)
+		return 1;
+
 	return 0;
 }
 
 
 int drv_video_init(void)
 {
-	if (video_bios_init()) {
+	if (video_bios_init())
 		return 1;
-	}
 
 	return video_init();
 }

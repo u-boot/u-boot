@@ -1,6 +1,9 @@
 /*
+ * (C) Copyright 2008-2011
+ * Graeme Russ, <graeme.russ@gmail.com>
+ *
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB <daniel@omicron.se>.
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,8 +23,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-
-/* stuff specific for the sc520, but independent of implementation */
 
 #include <common.h>
 #include <pci.h>
@@ -54,7 +55,6 @@ static struct {
 	{ SC520_IRQ15, 1, 0x80 }
 };
 
-
 /* The interrupt used for PCI INTA-INTD  */
 int sc520_pci_ints[15] = {
 	-1, -1, -1, -1, -1, -1, -1, -1,
@@ -68,9 +68,8 @@ int pci_sc520_set_irq(int pci_pin, int irq)
 	u8 tmpb;
 	u16 tmpw;
 
-# if 1
-	printf("set_irq(): map INT%c to IRQ%d\n", pci_pin + 'A', irq);
-#endif
+	debug("set_irq(): map INT%c to IRQ%d\n", pci_pin + 'A', irq);
+
 	if (irq < 0 || irq > 15) {
 		return -1; /* illegal irq */
 	}
@@ -138,5 +137,4 @@ void pci_sc520_init(struct pci_controller *hose)
 	/* enable target memory acceses on host brige */
 	pci_write_config_word(0, PCI_COMMAND,
 			      PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
-
 }

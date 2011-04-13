@@ -1,21 +1,21 @@
 /*
  * (C) Copyright 2009
- * Graeme Russ, graeme.russ@gmail.com
+ * Graeme Russ, <graeme.russ@gmail.com>
  *
  * (C) Copyright 2007
- * Daniel Hellstrom, Gaisler Research, daniel@gaisler.com
+ * Daniel Hellstrom, Gaisler Research, <daniel@gaisler.com>
  *
  * (C) Copyright 2006
- * Detlev Zundel, DENX Software Engineering, dzu@denx.de
+ * Detlev Zundel, DENX Software Engineering, <dzu@denx.de>
  *
  * (C) Copyright -2003
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
  *
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * (C) Copyright 2001
- * Josh Huber <huber@mclx.com>, Mission Critical Linux, Inc.
+ * Josh Huber, Mission Critical Linux, Inc, <huber@mclx.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -38,11 +38,11 @@
 
 /*
  * This file contains the high-level API for the interrupt sub-system
- * of the i386 port of U-Boot. Most of the functionality has been
+ * of the x86 port of U-Boot. Most of the functionality has been
  * shamelessly stolen from the leon2 / leon3 ports of U-Boot.
  * Daniel Hellstrom, Detlev Zundel, Wolfgang Denk and Josh Huber are
  * credited for the corresponding work on those ports. The original
- * interrupt handling routines for the i386 port were written by
+ * interrupt handling routines for the x86 port were written by
  * Daniel Engström
  */
 

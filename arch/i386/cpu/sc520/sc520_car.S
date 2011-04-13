@@ -1,6 +1,6 @@
 /*
- * (C) Copyright 2010
- * Graeme Russ <graeme.russ@gmail.com>.
+ * (C) Copyright 2010-2011
+ * Graeme Russ, <graeme.russ@gmail.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,7 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-
 
 #include <config.h>
 #include <asm/processor-flags.h>

@@ -1,9 +1,12 @@
 /*
- * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, daniel@omicron.se
+ * (C) Copyright 2008-2011
+ * Graeme Russ, <graeme.russ@gmail.com>
  *
  * (C) Copyright 2002
- * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
+ *
+ * (C) Copyright 2002
+ * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
  *
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
@@ -103,13 +106,6 @@ static int display_banner (void)
 	return (0);
 }
 
-/*
- * WARNING: this code looks "cleaner" than the PowerPC version, but
- * has the disadvantage that you either get nothing, or everything.
- * On PowerPC, you might see "DRAM: " before the system hangs - which
- * gives a simple yet clear indication which part of the
- * initialization if failing.
- */
 static int display_dram_config (void)
 {
 	int i;
@@ -140,7 +136,6 @@ static void display_flash_config (ulong size)
  * its main purpose is to initialize the RAM so that we
  * can relocate the monitor code to RAM.
  */
-
 
 /*
  * All attempts to come up with a "common" initialization sequence
@@ -251,12 +246,12 @@ static int do_elf_reloc_fixups(void)
 	return 0;
 }
 
-/*
- * Load U-Boot into RAM, initialize BSS, perform relocation adjustments
- */
+/* Load U-Boot into RAM, initialize BSS, perform relocation adjustments */
 void board_init_f(ulong boot_flags)
 {
 	init_fnc_t **init_fnc_ptr;
+
+	gd->flags = boot_flags;
 
 	for (init_fnc_ptr = init_sequence_f; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0)

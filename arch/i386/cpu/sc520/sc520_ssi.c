@@ -1,6 +1,6 @@
 /*
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB <daniel@omicron.se>.
+ * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -20,8 +20,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-
-/* stuff specific for the sc520, but independent of implementation */
 
 #include <common.h>
 #include <asm/io.h>
@@ -76,7 +74,6 @@ u8 ssi_txrx_byte(u8 data)
 
 	return readb(&sc520_mmcr->ssircv);
 }
-
 
 void ssi_tx_byte(u8 data)
 {
