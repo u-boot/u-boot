@@ -456,62 +456,6 @@ typedef void		(*ExcpHndlr) (void) ;
 		IrSR_XMITIR_IR_MODE)
 
 /*
- * I2C registers
- */
-#define IBMR		0x40301680  /* I2C Bus Monitor Register - IBMR */
-#define IDBR		0x40301688  /* I2C Data Buffer Register - IDBR */
-#define ICR		0x40301690  /* I2C Control Register - ICR */
-#define ISR		0x40301698  /* I2C Status Register - ISR */
-#define ISAR		0x403016A0  /* I2C Slave Address Register - ISAR */
-
-#ifdef CONFIG_CPU_MONAHANS
-#define PWRIBMR		0x40f500C0  /* Power I2C Bus Monitor Register-IBMR */
-#define PWRIDBR		0x40f500C4  /* Power I2C Data Buffer Register-IDBR */
-#define PWRICR		0x40f500C8  /* Power I2C Control Register - ICR */
-#define PWRISR		0x40f500CC  /* Power I2C Status Register - ISR */
-#define PWRISAR		0x40f500D0  /* Power I2C Slave Address Register-ISAR */
-#else
-#define PWRIBMR		0x40f00180  /* Power I2C Bus Monitor Register-IBMR */
-#define PWRIDBR		0x40f00188  /* Power I2C Data Buffer Register-IDBR */
-#define PWRICR		0x40f00190  /* Power I2C Control Register - ICR */
-#define PWRISR		0x40f00198  /* Power I2C Status Register - ISR */
-#define PWRISAR		0x40f001A0  /* Power I2C Slave Address Register-ISAR */
-#endif
-
-/* ----- Control register bits ---------------------------------------- */
-
-#define ICR_START	0x1		/* start bit */
-#define ICR_STOP	0x2		/* stop bit */
-#define ICR_ACKNAK	0x4		/* send ACK(0) or NAK(1) */
-#define ICR_TB		0x8		/* transfer byte bit */
-#define ICR_MA		0x10		/* master abort */
-#define ICR_SCLE	0x20		/* master clock enable, mona SCLEA */
-#define ICR_IUE		0x40		/* unit enable */
-#define ICR_GCD		0x80		/* general call disable */
-#define ICR_ITEIE	0x100		/* enable tx interrupts */
-#define ICR_IRFIE	0x200		/* enable rx interrupts, mona: DRFIE */
-#define ICR_BEIE	0x400		/* enable bus error ints */
-#define ICR_SSDIE	0x800		/* slave STOP detected int enable */
-#define ICR_ALDIE	0x1000		/* enable arbitration interrupt */
-#define ICR_SADIE	0x2000		/* slave address detected int enable */
-#define ICR_UR		0x4000		/* unit reset */
-#define ICR_FM		0x8000		/* Fast Mode */
-
-/* ----- Status register bits ----------------------------------------- */
-
-#define ISR_RWM		0x1		/* read/write mode */
-#define ISR_ACKNAK	0x2		/* ack/nak status */
-#define ISR_UB		0x4		/* unit busy */
-#define ISR_IBB		0x8		/* bus busy */
-#define ISR_SSD		0x10		/* slave stop detected */
-#define ISR_ALD		0x20		/* arbitration loss detected */
-#define ISR_ITE		0x40		/* tx buffer empty */
-#define ISR_IRF		0x80		/* rx buffer full */
-#define ISR_GCAD	0x100		/* general call address detected */
-#define ISR_SAD		0x200		/* slave address detected */
-#define ISR_BED		0x400		/* bus error no ACK/NAK */
-
-/*
  * Serial Audio Controller
  */
 /* FIXME the audio defines collide w/ the SA1111 defines.  I don't like these

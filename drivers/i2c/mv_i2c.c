@@ -8,6 +8,9 @@
  * (C) Copyright 2003 Pengutronix e.K.
  * Robert Schwebel <r.schwebel@pengutronix.de>
  *
+ * (C) Copyright 2011 Marvell Inc.
+ * Lei Wen <leiwen@marvell.com>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -34,44 +37,14 @@
 #include <asm/io.h>
 
 #ifdef CONFIG_HARD_I2C
-
-/*
- *	- CONFIG_SYS_I2C_SPEED
- *	- I2C_PXA_SLAVE_ADDR
- */
-
-#include <asm/arch/hardware.h>
-#include <asm/arch/pxa-regs.h>
 #include <i2c.h>
-
-#if (CONFIG_SYS_I2C_SPEED == 400000)
-#define I2C_ICR_INIT	(ICR_FM | ICR_BEIE | ICR_IRFIE | ICR_ITEIE | ICR_GCD \
-			| ICR_SCLE)
-#else
-#define I2C_ICR_INIT	(ICR_BEIE | ICR_IRFIE | ICR_ITEIE | ICR_GCD | ICR_SCLE)
-#endif
-
-#define I2C_ISR_INIT		0x7FF
+#include "mv_i2c.h"
 
 #ifdef DEBUG_I2C
 #define PRINTD(x) printf x
 #else
 #define PRINTD(x)
 #endif
-
-/* Shall the current transfer have a start/stop condition? */
-#define I2C_COND_NORMAL		0
-#define I2C_COND_START		1
-#define I2C_COND_STOP		2
-
-/* Shall the current transfer be ack/nacked or being waited for it? */
-#define I2C_ACKNAK_WAITACK	1
-#define I2C_ACKNAK_SENDACK	2
-#define I2C_ACKNAK_SENDNAK	4
-
-/* Specify who shall transfer the data (master or slave) */
-#define I2C_READ		0
-#define I2C_WRITE		1
 
 /* All transfers are described by this data structure */
 struct i2c_msg {
@@ -81,27 +54,37 @@ struct i2c_msg {
 	u8 data;
 };
 
+struct mv_i2c {
+	u32 ibmr;
+	u32 pad0;
+	u32 idbr;
+	u32 pad1;
+	u32 icr;
+	u32 pad2;
+	u32 isr;
+	u32 pad3;
+	u32 isar;
+};
+
+static struct mv_i2c *base = (struct mv_i2c *)CONFIG_MV_I2C_REG;
+
 /*
- * i2c_pxa_reset: - reset the host controller
+ * i2c_reset: - reset the host controller
  *
  */
 static void i2c_reset(void)
 {
-	writel(readl(ICR) & ~ICR_IUE, ICR);	/* disable unit */
-	writel(readl(ICR) | ICR_UR, ICR);	/* reset the unit */
+	writel(readl(&base->icr) & ~ICR_IUE, &base->icr); /* disable unit */
+	writel(readl(&base->icr) | ICR_UR, &base->icr);	  /* reset the unit */
 	udelay(100);
-	writel(readl(ICR) & ~ICR_IUE, ICR);	/* disable unit */
-#ifdef CONFIG_CPU_MONAHANS
-	/* | CKENB_1_PWM1 | CKENB_0_PWM0); */
-	writel(readl(CKENB) | (CKENB_4_I2C), CKENB);
-#else /* CONFIG_CPU_MONAHANS */
-	/* set the global I2C clock on */
-	writel(readl(CKEN) | CKEN14_I2C, CKEN);
-#endif
-	writel(I2C_PXA_SLAVE_ADDR, ISAR);	/* set our slave address */
-	writel(I2C_ICR_INIT, ICR);		/* set control reg values */
-	writel(I2C_ISR_INIT, ISR);		/* set clear interrupt bits */
-	writel(readl(ICR) | ICR_IUE, ICR);	/* enable unit */
+	writel(readl(&base->icr) & ~ICR_IUE, &base->icr); /* disable unit */
+
+	i2c_clk_enable();
+
+	writel(CONFIG_SYS_I2C_SLAVE, &base->isar); /* set our slave address */
+	writel(I2C_ICR_INIT, &base->icr); /* set control reg values */
+	writel(I2C_ISR_INIT, &base->isr); /* set clear interrupt bits */
+	writel(readl(&base->icr) | ICR_IUE, &base->icr); /* enable unit */
 	udelay(100);
 }
 
@@ -114,13 +97,15 @@ static void i2c_reset(void)
 static int i2c_isr_set_cleared(unsigned long set_mask,
 			       unsigned long cleared_mask)
 {
-	int timeout = 1000;
+	int timeout = 1000, isr;
 
-	while (((ISR & set_mask) != set_mask) || ((ISR & cleared_mask) != 0)) {
+	do {
+		isr = readl(&base->isr);
 		udelay(10);
 		if (timeout-- < 0)
 			return 0;
-	}
+	} while (((isr & set_mask) != set_mask)
+		|| ((isr & cleared_mask) != 0));
 
 	return 1;
 }
@@ -153,26 +138,26 @@ int i2c_transfer(struct i2c_msg *msg)
 			goto transfer_error_bus_busy;
 
 		/* start transmission */
-		writel(readl(ICR) & ~ICR_START, ICR);
-		writel(readl(ICR) & ~ICR_STOP, ICR);
-		writel(msg->data, IDBR);
+		writel(readl(&base->icr) & ~ICR_START, &base->icr);
+		writel(readl(&base->icr) & ~ICR_STOP, &base->icr);
+		writel(msg->data, &base->idbr);
 		if (msg->condition == I2C_COND_START)
-			writel(readl(ICR) | ICR_START, ICR);
+			writel(readl(&base->icr) | ICR_START, &base->icr);
 		if (msg->condition == I2C_COND_STOP)
-			writel(readl(ICR) | ICR_STOP, ICR);
+			writel(readl(&base->icr) | ICR_STOP, &base->icr);
 		if (msg->acknack == I2C_ACKNAK_SENDNAK)
-			writel(readl(ICR) | ICR_ACKNAK, ICR);
+			writel(readl(&base->icr) | ICR_ACKNAK, &base->icr);
 		if (msg->acknack == I2C_ACKNAK_SENDACK)
-			writel(readl(ICR) & ~ICR_ACKNAK, ICR);
-		writel(readl(ICR) & ~ICR_ALDIE, ICR);
-		writel(readl(ICR) | ICR_TB, ICR);
+			writel(readl(&base->icr) & ~ICR_ACKNAK, &base->icr);
+		writel(readl(&base->icr) & ~ICR_ALDIE, &base->icr);
+		writel(readl(&base->icr) | ICR_TB, &base->icr);
 
 		/* transmit register empty? */
 		if (!i2c_isr_set_cleared(ISR_ITE, 0))
 			goto transfer_error_transmit_timeout;
 
 		/* clear 'transmit empty' state */
-		writel(readl(ISR) | ISR_ITE, ISR);
+		writel(readl(&base->isr) | ISR_ITE, &base->isr);
 
 		/* wait for ACK from slave */
 		if (msg->acknack == I2C_ACKNAK_WAITACK)
@@ -187,28 +172,27 @@ int i2c_transfer(struct i2c_msg *msg)
 			goto transfer_error_bus_busy;
 
 		/* start receive */
-		writel(readl(ICR) & ~ICR_START, ICR);
-		writel(readl(ICR) & ~ICR_STOP, ICR);
+		writel(readl(&base->icr) & ~ICR_START, &base->icr);
+		writel(readl(&base->icr) & ~ICR_STOP, &base->icr);
 		if (msg->condition == I2C_COND_START)
-			writel(readl(ICR) | ICR_START, ICR);
+			writel(readl(&base->icr) | ICR_START, &base->icr);
 		if (msg->condition == I2C_COND_STOP)
-			writel(readl(ICR) | ICR_STOP, ICR);
+			writel(readl(&base->icr) | ICR_STOP, &base->icr);
 		if (msg->acknack == I2C_ACKNAK_SENDNAK)
-			writel(readl(ICR) | ICR_ACKNAK, ICR);
+			writel(readl(&base->icr) | ICR_ACKNAK, &base->icr);
 		if (msg->acknack == I2C_ACKNAK_SENDACK)
-			writel(readl(ICR) & ~ICR_ACKNAK, ICR);
-		writel(readl(ICR) & ~ICR_ALDIE, ICR);
-		writel(readl(ICR) | ICR_TB, ICR);
+			writel(readl(&base->icr) & ~ICR_ACKNAK, &base->icr);
+		writel(readl(&base->icr) & ~ICR_ALDIE, &base->icr);
+		writel(readl(&base->icr) | ICR_TB, &base->icr);
 
 		/* receive register full? */
 		if (!i2c_isr_set_cleared(ISR_IRF, 0))
 			goto transfer_error_receive_timeout;
 
-		msg->data = readl(IDBR);
+		msg->data = readl(&base->idbr);
 
 		/* clear 'receive empty' state */
-		writel(readl(ISR) | ISR_IRF, ISR);
-
+		writel(readl(&base->isr) | ISR_IRF, &base->isr);
 		break;
 	default:
 		goto transfer_error_illegal_param;
@@ -252,10 +236,21 @@ i2c_transfer_finish:
 void i2c_init(int speed, int slaveaddr)
 {
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
-	/* call board specific i2c bus reset routine before accessing the   */
-	/* environment, which might be in a chip on that bus. For details   */
-	/* about this problem see doc/I2C_Edge_Conditions.                  */
+	u32 icr;
+	/*
+	 * call board specific i2c bus reset routine before accessing the
+	 * environment, which might be in a chip on that bus. For details
+	 * about this problem see doc/I2C_Edge_Conditions.
+	 *
+	 * disable I2C controller first, otherwhise it thinks we want to
+	 * talk to the slave port...
+	 */
+	icr = readl(&base->icr);
+	writel(readl(&base->icr) & ~(ICR_SCLE | ICR_IUE), &base->icr);
+
 	i2c_init_board();
+
+	writel(icr, &base->icr);
 #endif
 }
 
