@@ -32,8 +32,10 @@
  * offset, pull,pF, drv,dF, edge,eF ,afn,aF
  */
 /* UART2 */
-#define MFP47_UART2_RXD		MFP_REG(0x198) | MFP_AF6 | MFP_DRIVE_MEDIUM
-#define MFP48_UART2_TXD		MFP_REG(0x19c) | MFP_AF6 | MFP_DRIVE_MEDIUM
+#define MFP47_UART2_RXD		(MFP_REG(0x198) | MFP_AF6 | MFP_DRIVE_MEDIUM)
+#define MFP48_UART2_TXD		(MFP_REG(0x19c) | MFP_AF6 | MFP_DRIVE_MEDIUM)
+#define MFP53_CI2C_SCL		(MFP_REG(0x1b0) | MFP_AF2 | MFP_DRIVE_MEDIUM)
+#define MFP54_CI2C_SDA		(MFP_REG(0x1b4) | MFP_AF2 | MFP_DRIVE_MEDIUM)
 
 /* More macros can be defined here... */
 

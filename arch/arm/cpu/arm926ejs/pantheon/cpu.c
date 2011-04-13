@@ -59,6 +59,12 @@ int arch_cpu_init(void)
 	/* Enable GPIO clock */
 	writel(APBC_APBCLK, &apbclkres->gpio);
 
+#ifdef CONFIG_I2C_MV
+	/* Enable I2C clock */
+	writel(APBC_RST | APBC_FNCLK | APBC_APBCLK, &apbclkres->twsi);
+	writel(APBC_FNCLK | APBC_APBCLK, &apbclkres->twsi);
+#endif
+
 	icache_enable();
 
 	return 0;
@@ -74,5 +80,11 @@ int print_cpuinfo(void)
 	id = readl(&cpuregs->chip_id);
 	printf("SoC:   PANTHEON 88AP%X-%X\n", (id & 0xFFF), (id >> 0x10));
 	return 0;
+}
+#endif
+
+#ifdef CONFIG_I2C_MV
+void i2c_clk_enable(void)
+{
 }
 #endif

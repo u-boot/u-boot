@@ -36,6 +36,10 @@ int board_early_init_f(void)
 		MFP47_UART2_RXD,
 		MFP48_UART2_TXD,
 
+		/* I2C */
+		MFP53_CI2C_SCL,
+		MFP54_CI2C_SDA,
+
 		MFP_EOC		/*End of configureation*/
 	};
 	/* configure MFP's */

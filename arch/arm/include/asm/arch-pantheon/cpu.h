@@ -50,7 +50,9 @@ struct panthapb_registers {
 	u32 uart0;	/*0x000*/
 	u32 uart1;	/*0x004*/
 	u32 gpio;	/*0x008*/
-	u8 pad0[0x034 - 0x08 - 4];
+	u8 pad0[0x02c - 0x08 - 4];
+	u32 twsi;	/*0x02c*/
+	u8 pad1[0x034 - 0x2c - 4];
 	u32 timers;	/*0x034*/
 };
 
