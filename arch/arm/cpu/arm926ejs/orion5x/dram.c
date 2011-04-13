@@ -38,7 +38,7 @@ u32 orion5x_sdram_bar(enum memory_bank bank)
 {
 	struct orion5x_ddr_addr_decode_registers *winregs =
 		(struct orion5x_ddr_addr_decode_registers *)
-		ORION5X_CPU_WIN_BASE;
+		ORION5X_DRAM_BASE;
 
 	u32 result = 0;
 	u32 enable = 0x01 & winregs[bank].size;
