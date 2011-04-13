@@ -476,6 +476,17 @@ void fsl_serdes_init(void)
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
 	/*
+	 * Display a warning if banks two and three are not disabled in the RCW,
+	 * since our work-around for SERDES8 depends on these banks being
+	 * disabled at power-on.
+	 */
+#define B2_B3 (FSL_CORENET_RCWSRn_SRDS_LPD_B2 | FSL_CORENET_RCWSRn_SRDS_LPD_B3)
+	if ((in_be32(&gur->rcwsr[5]) & B2_B3) != B2_B3) {
+		printf("Warning: SERDES8 requires banks two and "
+		       "three to be disabled in the RCW\n");
+	}
+
+	/*
 	 * Store the values of the fsl_srds_lpd_b2 and fsl_srds_lpd_b3
 	 * hwconfig options into the srds_lpd_b[] array.  See README.p4080ds
 	 * for a description of these options.
