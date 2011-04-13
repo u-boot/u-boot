@@ -21,6 +21,7 @@
  * MA 02111-1307 USA
  */
 
+#include <config.h>
 OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
 OUTPUT_ARCH(i386)
 ENTRY(_start)
@@ -89,8 +90,8 @@ SECTIONS
 	 * Reset Vector at the end of the Flash ROM
 	 */
 	. = START_16;
-	.start16 : AT (CONFIG_SYS_TEXT_BASE + (FLASH_SIZE - RESET_SEG_SIZE + START_16)) { KEEP(*(.start16)); }
+	.start16 : AT (CONFIG_SYS_TEXT_BASE + (CONFIG_SYS_MONITOR_LEN - RESET_SEG_SIZE + START_16)) { KEEP(*(.start16)); }
 
 	. = RESET_VEC_LOC;
-	.resetvec : AT (CONFIG_SYS_TEXT_BASE + (FLASH_SIZE - RESET_SEG_SIZE + RESET_VEC_LOC)) { KEEP(*(.resetvec)); }
+	.resetvec : AT (CONFIG_SYS_TEXT_BASE + (CONFIG_SYS_MONITOR_LEN - RESET_SEG_SIZE + RESET_VEC_LOC)) { KEEP(*(.resetvec)); }
 }
