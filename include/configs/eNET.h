@@ -158,16 +158,19 @@
 /*-----------------------------------------------------------------------
  * Memory organization:
  * 32kB Stack
+ * 16kB Cache-As-RAM @ 0x19200000
  * 256kB Monitor
+ * (128kB + Environment Sector Size) malloc pool
  */
-#define CONFIG_SYS_STACK_SIZE			0x8000
+#define CONFIG_SYS_STACK_SIZE			(32 * 1024)
 #define CONFIG_SYS_CAR_ADDR			0x19200000
-#define CONFIG_SYS_CAR_SIZE			0x00004000
+#define CONFIG_SYS_CAR_SIZE			(16 * 1024)
 #define CONFIG_SYS_INIT_SP_ADDR			(CONFIG_SYS_CAR_ADDR + \
 						 CONFIG_SYS_CAR_SIZE)
 #define CONFIG_SYS_MONITOR_BASE			CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_MONITOR_LEN			(256 * 1024)
-#define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 128*1024)
+#define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SECT_SIZE + \
+						 128*1024)
 /* Address of temporary Global Data */
 #define CONFIG_SYS_INIT_GD_ADDR			CONFIG_SYS_CAR_ADDR
 
@@ -198,17 +201,25 @@
 #define CONFIG_SYS_FLASH_LEGACY_512Kx8
 #define CONFIG_SYS_FLASH_ERASE_TOUT		2000	/* ms */
 #define CONFIG_SYS_FLASH_WRITE_TOUT		2000	/* ms */
+
 /*-----------------------------------------------------------------------
  * Environment configuration
+ * - Boot flash is 512kB with 64kB sectors
+ * - StrataFlash is 32MB with 128kB sectors
+ * - Redundant embedded environment is 25% of the Boot flash
+ * - Redundant StrataFlash environment is <1% of the StrataFlash
+ * - Environment is therefore located in StrataFlash
+ * - Primary copy is located in first sector of first flash
+ * - Redundant copy is located in second sector of first flash
+ * - Stack is only 32kB, so environment size is limited to 4kB
  */
 #define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_SECT_SIZE			0x20000
-#define CONFIG_ENV_SIZE				CONFIG_ENV_SECT_SIZE
+#define CONFIG_ENV_SIZE				0x01000
 #define CONFIG_ENV_ADDR				CONFIG_SYS_FLASH_BASE_1
-/* Redundant Copy */
 #define CONFIG_ENV_ADDR_REDUND			(CONFIG_SYS_FLASH_BASE_1 + \
 						 CONFIG_ENV_SECT_SIZE)
-#define CONFIG_ENV_SIZE_REDUND			CONFIG_ENV_SECT_SIZE
+#define CONFIG_ENV_SIZE_REDUND			CONFIG_ENV_SIZE
 
 /*-----------------------------------------------------------------------
  * PCI configuration
