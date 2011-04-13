@@ -905,9 +905,9 @@ Unknown / orphaned boards:
 #	Board		CPU						#
 #########################################################################
 
-Daniel Engström <daniel@omicron.se>
+Graeme Russ <graeme.russ@gmail.com>
 
-	sc520_cdp	x86
+	eNET		AMD SC520
 
 #########################################################################
 # MIPS Systems:								#
