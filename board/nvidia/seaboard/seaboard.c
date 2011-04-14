@@ -21,13 +21,32 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _BOARD_H_
-#define _BOARD_H_
+#include <common.h>
+#include <asm/io.h>
+#include <asm/arch/tegra2.h>
+#include <asm/arch/gpio.h>
 
-void tegra2_start(void);
-void clock_init(void);
-void pinmux_init(void);
-void gpio_init(void);
-void gpio_config_uart(void);
+/*
+ * Routine: gpio_config_uart
+ * Description: Force GPIO_PI3 low on Seaboard so UART4 works.
+ */
+void gpio_config_uart(void)
+{
+	int gp = GPIO_PI3;
+	struct gpio_ctlr *gpio = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
+	struct gpio_ctlr_bank *bank = &gpio->gpio_bank[GPIO_BANK(gp)];
+	u32 val;
 
-#endif	/* BOARD_H */
+	/* Enable UART via GPIO_PI3 (port 8, bit 3) so serial console works */
+	val = readl(&bank->gpio_config[GPIO_PORT(gp)]);
+	val |= 1 << GPIO_BIT(gp);
+	writel(val, &bank->gpio_config[GPIO_PORT(gp)]);
+
+	val = readl(&bank->gpio_out[GPIO_PORT(gp)]);
+	val &= ~(1 << GPIO_BIT(gp));
+	writel(val, &bank->gpio_out[GPIO_PORT(gp)]);
+
+	val = readl(&bank->gpio_dir_out[GPIO_PORT(gp)]);
+	val |= 1 << GPIO_BIT(gp);
+	writel(val, &bank->gpio_dir_out[GPIO_PORT(gp)]);
+}

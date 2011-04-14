@@ -21,13 +21,14 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _BOARD_H_
-#define _BOARD_H_
+#include <common.h>
+#include <asm/io.h>
+#include <asm/arch/tegra2.h>
 
-void tegra2_start(void);
-void clock_init(void);
-void pinmux_init(void);
-void gpio_init(void);
-void gpio_config_uart(void);
-
-#endif	/* BOARD_H */
+/*
+ * Routine: gpio_config_uart
+ * Description: Does nothing on Harmony - no conflict w/SPI.
+ */
+void gpio_config_uart(void)
+{
+}

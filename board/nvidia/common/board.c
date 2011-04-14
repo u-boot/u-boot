@@ -41,7 +41,16 @@ const struct tegra2_sysinfo sysinfo = {
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
-	debug("Board Early Init\n");
+	/* Initialize periph clocks */
+	clock_init();
+
+	/* Initialize periph pinmuxes */
+	pinmux_init();
+
+	/* Initialize periph GPIOs */
+	gpio_init();
+
+	/* Init UART, scratch regs, and start CPU */
 	tegra2_start();
 	return 0;
 }
@@ -64,10 +73,10 @@ int timer_init(void)
 static void clock_init_uart(void)
 {
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	static int pllp_init_done;
 	u32 reg;
 
-	if (!pllp_init_done) {
+	reg = readl(&clkrst->crc_pllp_base);
+	if (!(reg & PLL_BASE_OVRRIDE)) {
 		/* Override pllp setup for 216MHz operation. */
 		reg = (PLL_BYPASS | PLL_BASE_OVRRIDE | PLL_DIVP);
 		reg |= (((NVRM_PLLP_FIXED_FREQ_KHZ/500) << 8) | PLL_DIVM);
@@ -78,8 +87,6 @@ static void clock_init_uart(void)
 
 		reg &= ~PLL_BYPASS;
 		writel(reg, &clkrst->crc_pllp_base);
-
-		pllp_init_done++;
 	}
 
 	/* Now do the UART reset/clock enable */
@@ -182,6 +189,15 @@ void pinmux_init(void)
 }
 
 /*
+ * Routine: gpio_init
+ * Description: Do individual peripheral GPIO configs
+ */
+void gpio_init(void)
+{
+	gpio_config_uart();
+}
+
+/*
  * Routine: board_init
  * Description: Early hardware init.
  */
@@ -191,12 +207,6 @@ int board_init(void)
 	gd->bd->bi_boot_params = (NV_PA_SDRAM_BASE + 0x100);
 	/* board id for Linux */
 	gd->bd->bi_arch_number = CONFIG_MACH_TYPE;
-
-	/* Initialize peripheral clocks */
-	clock_init();
-
-	/* Initialize periph pinmuxes */
-	pinmux_init();
 
 	return 0;
 }
