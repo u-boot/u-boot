@@ -1322,7 +1322,6 @@ The following options need to be configured:
 		driver in use must provide a function: mcast() to join/leave a
 		multicast group.
 
-		CONFIG_BOOTP_RANDOM_DELAY
 - BOOTP Recovery Mode:
 		CONFIG_BOOTP_RANDOM_DELAY
 
