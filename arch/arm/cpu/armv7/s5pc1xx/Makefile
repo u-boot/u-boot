@@ -32,7 +32,6 @@ SOBJS	= cache.o
 SOBJS	+= reset.o
 
 COBJS	+= clock.o
-COBJS	+= sromc.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
