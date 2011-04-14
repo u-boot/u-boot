@@ -549,6 +549,35 @@ void fsl_serdes_init(void)
 		printf("%s ", serdes_prtcl_str[lane_prtcl]);
 #endif
 
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
+		/*
+		 * Set BnTTLCRy0[FLT_SEL] = 000011 and set BnTTLCRy0[17] = 1 for
+		 * each of the SerDes lanes selected as SGMII, XAUI, SRIO, or
+		 * AURORA before the device is initialized.
+		 */
+		switch (lane_prtcl) {
+		case SGMII_FM1_DTSEC1:
+		case SGMII_FM1_DTSEC2:
+		case SGMII_FM1_DTSEC3:
+		case SGMII_FM1_DTSEC4:
+		case SGMII_FM2_DTSEC1:
+		case SGMII_FM2_DTSEC2:
+		case SGMII_FM2_DTSEC3:
+		case SGMII_FM2_DTSEC4:
+		case XAUI_FM1:
+		case XAUI_FM2:
+		case SRIO1:
+		case SRIO2:
+		case AURORA:
+			clrsetbits_be32(&srds_regs->lane[idx].ttlcr0,
+					SRDS_TTLCR0_FLT_SEL_MASK,
+					SRDS_TTLCR0_FLT_SEL_750PPM |
+					SRDS_TTLCR0_PM_DIS);
+		default:
+			break;
+		}
+#endif
+
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
 		switch (lane_prtcl) {
 		case PCIE1:
@@ -595,24 +624,12 @@ void fsl_serdes_init(void)
 					    FSL_CORENET_DEVDISR2_DTSEC2_4;
 			break;
 		case XAUI_FM1:
+			serdes8_devdisr2 |= FSL_CORENET_DEVDISR2_FM1	|
+					    FSL_CORENET_DEVDISR2_10GEC1;
+			break;
 		case XAUI_FM2:
-#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
-			/*
-			 * Set BnTTLCRy0[FLT_SEL] = 000011 and set
-			 * BnTTLCRy0[17] = 1 for each of the SerDes lanes
-			 * selected as XAUI on each bank before XAUI is
-			 * initialized.
-			 */
-			clrsetbits_be32(&srds_regs->lane[idx].ttlcr0,
-					SRDS_TTLCR0_FLT_SEL_MASK,
-					0x03000000 | SRDS_TTLCR0_PM_DIS);
-#endif
-			if (lane_prtcl == XAUI_FM1)
-				serdes8_devdisr2 |= FSL_CORENET_DEVDISR2_FM1	|
-						    FSL_CORENET_DEVDISR2_10GEC1;
-			else
-				serdes8_devdisr2 |= FSL_CORENET_DEVDISR2_FM2	|
-						    FSL_CORENET_DEVDISR2_10GEC2;
+			serdes8_devdisr2 |= FSL_CORENET_DEVDISR2_FM2	|
+					    FSL_CORENET_DEVDISR2_10GEC2;
 			break;
 		case AURORA:
 			break;
