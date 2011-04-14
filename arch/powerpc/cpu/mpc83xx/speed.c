@@ -327,6 +327,8 @@ int get_clocks(void)
 	i2c1_clk = enc_clk;
 #elif defined(CONFIG_FSL_ESDHC)
 	i2c1_clk = sdhc_clk;
+#elif defined(CONFIG_MPC837x)
+	i2c1_clk = enc_clk;
 #endif
 #if !defined(CONFIG_MPC832x)
 	i2c2_clk = csb_clk; /* i2c-2 clk is equal to csb clk */
