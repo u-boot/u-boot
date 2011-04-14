@@ -21,24 +21,23 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef _SCU_H_
+#define _SCU_H_
 
-#include <asm/sizes.h>
-#include "tegra2-common.h"
+/* ARM Snoop Control Unit (SCU) registers */
+struct scu_ctlr {
+	uint scu_ctrl;		/* SCU Control Register, offset 00 */
+	uint scu_cfg;		/* SCU Config Register, offset 04 */
+	uint scu_cpu_pwr_stat;	/* SCU CPU Power Status Register, offset 08 */
+	uint scu_inv_all;	/* SCU Invalidate All Register, offset 0C */
+	uint scu_reserved0[12];	/* reserved, offset 10-3C */
+	uint scu_filt_start;	/* SCU Filtering Start Address Reg, offset 40 */
+	uint scu_filt_end;	/* SCU Filtering End Address Reg, offset 44 */
+	uint scu_reserved1[2];	/* reserved, offset 48-4C */
+	uint scu_acc_ctl;	/* SCU Access Control Register, offset 50 */
+	uint scu_ns_acc_ctl;	/* SCU Non-secure Access Cntrl Reg, offset 54 */
+};
 
-/* High-level configuration options */
-#define TEGRA2_SYSMEM		"mem=384M@0M nvmem=128M@384M mem=512M@512M"
-#define V_PROMPT		"Tegra2 (SeaBoard) # "
-#define CONFIG_TEGRA2_BOARD_STRING	"NVIDIA Seaboard"
+#define SCU_CTRL_ENABLE		(1 << 0)
 
-/* Board-specific serial config */
-#define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA2_ENABLE_UARTD
-#define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
-
-#define CONFIG_MACH_TYPE		MACH_TYPE_SEABOARD
-#define CONFIG_SYS_BOARD_ODMDATA	0x300d8011 /* lp1, 1GB */
-
-#define CONFIG_BOARD_EARLY_INIT_F
-#endif /* __CONFIG_H */
+#endif	/* SCU_H */

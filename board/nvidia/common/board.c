@@ -30,12 +30,22 @@
 #include <asm/arch/clk_rst.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/uart.h>
+#include "board.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
 const struct tegra2_sysinfo sysinfo = {
 	CONFIG_TEGRA2_BOARD_STRING
 };
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+int board_early_init_f(void)
+{
+	debug("Board Early Init\n");
+	tegra2_start();
+	return 0;
+}
+#endif	/* EARLY_INIT */
 
 /*
  * Routine: timer_init

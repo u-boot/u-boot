@@ -21,24 +21,9 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef _BOARD_H_
+#define _BOARD_H_
 
-#include <asm/sizes.h>
-#include "tegra2-common.h"
+void tegra2_start(void);
 
-/* High-level configuration options */
-#define TEGRA2_SYSMEM		"mem=384M@0M nvmem=128M@384M mem=512M@512M"
-#define V_PROMPT		"Tegra2 (SeaBoard) # "
-#define CONFIG_TEGRA2_BOARD_STRING	"NVIDIA Seaboard"
-
-/* Board-specific serial config */
-#define CONFIG_SERIAL_MULTI
-#define CONFIG_TEGRA2_ENABLE_UARTD
-#define CONFIG_SYS_NS16550_COM1		NV_PA_APB_UARTD_BASE
-
-#define CONFIG_MACH_TYPE		MACH_TYPE_SEABOARD
-#define CONFIG_SYS_BOARD_ODMDATA	0x300d8011 /* lp1, 1GB */
-
-#define CONFIG_BOARD_EARLY_INIT_F
-#endif /* __CONFIG_H */
+#endif	/* BOARD_H */
