@@ -32,6 +32,32 @@
 
 u32 s_first_boot = 1;
 
+void init_pllx(void)
+{
+	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	u32 reg;
+
+	/* If PLLX is already enabled, just return */
+	reg = readl(&clkrst->crc_pllx_base);
+	if (reg & PLL_ENABLE)
+		return;
+
+	/* Set PLLX_MISC */
+	reg = CPCON;				/* CPCON[11:8]  = 0001 */
+	writel(reg, &clkrst->crc_pllx_misc);
+
+	/* Use 12MHz clock here */
+	reg = (PLL_BYPASS | PLL_DIVM);
+	reg |= (1000 << 8);			/* DIVN = 0x3E8 */
+	writel(reg, &clkrst->crc_pllx_base);
+
+	reg |= PLL_ENABLE;
+	writel(reg, &clkrst->crc_pllx_base);
+
+	reg &= ~PLL_BYPASS;
+	writel(reg, &clkrst->crc_pllx_base);
+}
+
 static void enable_cpu_clock(int enable)
 {
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
@@ -47,6 +73,9 @@ static void enable_cpu_clock(int enable)
 	 */
 
 	if (enable) {
+		/* Initialize PLLX */
+		init_pllx();
+
 		/* Wait until all clocks are stable */
 		udelay(PLL_STABILIZATION_DELAY);
 

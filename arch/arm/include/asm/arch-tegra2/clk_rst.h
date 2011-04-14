@@ -160,8 +160,8 @@ struct clk_rst_ctlr {
 #define PLL_DIVP		(1 << 20)	/* post divider, b22:20 */
 #define PLL_DIVM		0x0C		/* input divider, b4:0 */
 
-#define SWR_UARTD_RST		(1 << 2)
-#define CLK_ENB_UARTD		(1 << 2)
+#define SWR_UARTD_RST		(1 << 1)
+#define CLK_ENB_UARTD		(1 << 1)
 #define SWR_UARTA_RST		(1 << 6)
 #define CLK_ENB_UARTA		(1 << 6)
 
@@ -188,5 +188,7 @@ struct clk_rst_ctlr {
 
 #define CPU0_CLK_STP		(1 << 8)
 #define CPU1_CLK_STP		(1 << 9)
+
+#define CPCON			(1 << 8)
 
 #endif	/* CLK_RST_H */
