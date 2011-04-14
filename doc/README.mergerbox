@@ -1,0 +1,59 @@
+Matrix Vision MergerBox
+-----------------------
+
+1.	Board Description
+
+	The MergerBox is a 120x160mm single board computing platform
+	for 3D Full-HD digital video processing.
+
+	Power Supply is 10-32VDC.
+
+2	System Components
+
+2.1	CPU
+	Freescale MPC8377 CPU running at 800MHz core and 333MHz csb.
+	256 MByte DDR-II memory @ 333MHz data rate.
+	64 MByte Nor Flash on local bus.
+	1 GByte Nand Flash on FCM.
+	1 Vitesse VSC8601 RGMII ethernet Phys.
+	1 USB host controller over ULPI I/F with 4-Port hub.
+	2 serial ports. Console running on ttyS0 @ 115200 8N1.
+	1 mPCIe expansion slot (PCIe x1 + USB) used for Wifi/Bt.
+	2 PCIe x1 busses on local mPCIe and cutom expansion connector.
+	2 SATA host ports.
+	System configuration (HRCW) is taken from I2C EEPROM.
+
+2.2	Graphics
+	SM107 emebedded video controller driving a 5" 800x480 TFT panel.
+	Connected over 32-Bit/66MHz PCI utilizing 4 MByte embedded memory.
+
+2.3	FPGA
+	Altera Cyclone-IV EP4C115 with several PCI DMA engines.
+	Connects to 7x Gennum 3G-SDI transceivers as video interconnect
+	as well as a HDMI v1.4 compliant output for 3D monitoring.
+	Utilizes two more DDR-II controllers providing 256MB memory.
+
+2.4	I2C
+	Bus1:
+		AD7418 @ 0x50 for voltage/temp. monitoring.
+		SX8650 @ 0x90 touch controller for HMI.
+		EEPROM @ 0xA0 for system setup (HRCW etc.) + vendor specifics.
+	Bus2:
+		mPCIe SMBus
+		SiI9022A @ 0x72/0xC0 HDMI transmitter.
+		TCA6416A @ 0x40 + 0x42 16-Bit I/O expander.
+		LMH1983 @ 0xCA video PLL.
+		DS1338C @ 0xD0 real-time clock with embedded crystal.
+		9FG104 @ 0xDC 4x 100MHz LVDS SerDes reference clock.
+
+3	Flash layout.
+
+	reset vector is 0x00000100, i.e. low boot.
+
+	00000000	u-boot binary.
+	00100000	FPGA raw bit file.
+	00300000	FIT image holding kernel, dtb and rescue squashfs.
+	03d00000	u-boot environment.
+	03e00000	splash image
+
+	mtd partitions are propagated to linux kernel via device tree blob.
