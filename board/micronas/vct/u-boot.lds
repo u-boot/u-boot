@@ -31,14 +31,14 @@ SECTIONS
 	. = ALIGN(4);
 	.text       :
 	{
-	  *(.text)
+	  *(.text*)
 	}
 
 	. = ALIGN(4);
 	.rodata  : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
 
 	. = ALIGN(4);
-	.data  : { *(.data) }
+	.data  : { *(.data*) }
 
 	. = .;
 	_gp = ALIGN(16) + 0x7ff0;
@@ -50,7 +50,7 @@ SECTIONS
 	}
 
 	. = ALIGN(4);
-	.sdata  : { *(.sdata) }
+	.sdata  : { *(.sdata*) }
 
 	. = ALIGN(4);
 	.u_boot_cmd : {
@@ -64,8 +64,8 @@ SECTIONS
 	num_got_entries = (__got_end - __got_start) >> 2;
 
 	. = ALIGN(4);
-	.sbss (NOLOAD)  : { *(.sbss) }
+	.sbss (NOLOAD)  : { *(.sbss*) }
 	. = ALIGN(4);
-	.bss (NOLOAD)  : { *(.bss) }
+	.bss (NOLOAD)  : { *(.bss*) }
 	uboot_end = .;
 }
