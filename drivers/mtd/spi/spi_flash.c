@@ -11,6 +11,7 @@
 #include <malloc.h>
 #include <spi.h>
 #include <spi_flash.h>
+#include <watchdog.h>
 
 #include "spi_flash_internal.h"
 
@@ -105,6 +106,8 @@ int spi_flash_cmd_poll_bit(struct spi_flash *flash, unsigned long timeout,
 
 	timebase = get_timer(0);
 	do {
+		WATCHDOG_RESET();
+
 		ret = spi_xfer(spi, 8, NULL, &status, 0);
 		if (ret)
 			return -1;
