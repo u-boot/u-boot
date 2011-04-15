@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ASM_ARCH_MX31_REGS_H
-#define __ASM_ARCH_MX31_REGS_H
+#ifndef __ASM_ARCH_MX31_IMX_REGS_H
+#define __ASM_ARCH_MX31_IMX_REGS_H
 
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
@@ -774,4 +774,4 @@ enum iomux_pins {
 #define MXC_EHCI_IPPUE_DOWN		(1 << 8)
 #define MXC_EHCI_IPPUE_UP		(1 << 9)
 
-#endif /* __ASM_ARCH_MX31_REGS_H */
+#endif /* __ASM_ARCH_MX31_IMX_REGS_H */
