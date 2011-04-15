@@ -163,7 +163,8 @@
  * Static memory controller configuration
  */
 
-#include <asm/arch/ftsmc020.h>
+#define CONFIG_FTSMC020
+#include <faraday/ftsmc020.h>
 
 #define FTSMC020_BANK0_CONFIG	(FTSMC020_BANK_ENABLE             |	\
 				 FTSMC020_BANK_BASE(PHYS_FLASH_1) |	\
@@ -196,6 +197,7 @@
 	{ FTSMC020_BANK0_CONFIG, FTSMC020_BANK0_TIMING, },	\
 	{ FTSMC020_BANK1_CONFIG, FTSMC020_BANK1_TIMING, },	\
 }
+#endif /* CONFIG_FTSMC020 */
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization

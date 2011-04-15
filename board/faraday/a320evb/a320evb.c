@@ -21,7 +21,7 @@
 #include <netdev.h>
 #include <asm/io.h>
 
-#include <asm/arch/ftsmc020.h>
+#include <faraday/ftsmc020.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
