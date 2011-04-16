@@ -923,15 +923,6 @@ cp922_XA10_config	\
 cp1026_config: unconfig
 	@board/armltd/integrator/split_by_variant.sh cp $@
 
-nhk8815_config \
-nhk8815_onenand_config:	unconfig
-	@mkdir -p $(obj)include
-	@ > $(obj)include/config.h
-	@if [ "$(findstring _onenand, $@)" ] ; then \
-		echo "#define CONFIG_BOOT_ONENAND" >> $(obj)include/config.h; \
-	fi
-	@$(MKCONFIG) -n $@ -a nhk8815 arm arm926ejs nhk8815 st nomadik
-
 xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$(subst _config,,$1))))
 
 omap1610inn_config \
