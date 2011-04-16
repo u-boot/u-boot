@@ -86,6 +86,15 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 
+int cpu_mmc_init(bd_t *bis)
+{
+	int rc = 0;
+#ifdef CONFIG_ARM_PL180_MMCI
+	rc = arm_pl180_mmci_init();
+#endif
+	return rc;
+}
+
 static void flash__init(void)
 {
 	/* Setup the sytem control register to allow writing to flash */
