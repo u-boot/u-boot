@@ -41,6 +41,8 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/mach-types.h>
 
+DECLARE_GLOBAL_DATA_PTR;
+
 const omap3_sysinfo sysinfo = {
 	DDR_DISCRETE,
 	"CM-T35 board",
@@ -73,8 +75,6 @@ static u32 gpmc_nand_config[GPMC_MAX_REG] = {
  */
 int board_init(void)
 {
-	DECLARE_GLOBAL_DATA_PTR;
-
 	gpmc_init(); /* in SRAM or SDRAM, finish GPMC */
 
 	enable_gpmc_cs_config(gpmc_nand_config, &gpmc_cfg->cs[0],
