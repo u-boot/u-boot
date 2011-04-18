@@ -351,4 +351,19 @@ extern unsigned int boot_flash_type;
 					 CONFIG_SYS_INIT_RAM_SIZE -	\
 					 GENERATED_GBL_DATA_SIZE)
 
+/* Status LED */
+#define CONFIG_STATUS_LED		1 /* Status LED enabled */
+#define CONFIG_BOARD_SPECIFIC_LED	1
+#define STATUS_LED_GREEN		0
+#define STATUS_LED_BIT			STATUS_LED_GREEN
+#define STATUS_LED_STATE		STATUS_LED_ON
+#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
+#define STATUS_LED_BOOT			STATUS_LED_BIT
+#define GREEN_LED_GPIO			186 /* CM-T35 Green LED is GPIO186 */
+
+/* GPIO banks */
+#ifdef CONFIG_STATUS_LED
+#define CONFIG_OMAP3_GPIO_6		1 /* GPIO186 is in GPIO bank 6  */
+#endif
+
 #endif /* __CONFIG_H */

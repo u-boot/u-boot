@@ -29,6 +29,7 @@
  */
 
 #include <common.h>
+#include <status_led.h>
 #include <netdev.h>
 #include <net.h>
 #include <i2c.h>
@@ -84,6 +85,10 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_CM_T35;
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
+
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+	status_led_set(STATUS_LED_BOOT, STATUS_LED_ON);
+#endif
 
 	return 0;
 }
@@ -249,7 +254,7 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(SYS_NIRQ),		(IEN  | PTU | EN  | M0)); /*SYS_nIRQ*/
 	MUX_VAL(CP(SYS_OFF_MODE),	(IEN  | PTD | DIS | M0)); /*OFF_MODE*/
 	MUX_VAL(CP(SYS_CLKOUT1),	(IEN  | PTD | DIS | M0)); /*CLKOUT1*/
-	MUX_VAL(CP(SYS_CLKOUT2),	(IDIS | PTD | DIS | M4)); /*green LED*/
+	MUX_VAL(CP(SYS_CLKOUT2),	(IDIS | PTU | DIS | M4)); /*green LED*/
 	MUX_VAL(CP(JTAG_nTRST),		(IEN  | PTD | DIS | M0)); /*JTAG_nTRST*/
 	MUX_VAL(CP(JTAG_TCK),		(IEN  | PTD | DIS | M0)); /*JTAG_TCK*/
 	MUX_VAL(CP(JTAG_TMS),		(IEN  | PTD | DIS | M0)); /*JTAG_TMS*/
