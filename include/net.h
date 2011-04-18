@@ -72,12 +72,17 @@
 typedef ulong		IPaddr_t;
 
 
-/*
- * The current receive packet handler.  Called with a pointer to the
- * application packet, and a protocol type (PORT_BOOTPC or PORT_TFTP).
- * All other packets are dealt with without calling the handler.
+/**
+ * An incoming packet handler.
+ * @param pkt    pointer to the application packet
+ * @param dport  destination UDP port
+ * @param sip    source IP address
+ * @param sport  source UDP port
+ * @param len    packet length
  */
-typedef void	rxhand_f(uchar *, unsigned, unsigned, unsigned);
+typedef void rxhand_f(uchar *pkt, unsigned dport,
+		      IPaddr_t sip, unsigned sport,
+		      unsigned len);
 
 /*
  *	A timeout handler.  Called after time interval has expired.

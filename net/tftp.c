@@ -278,7 +278,8 @@ TftpSend (void)
 
 
 static void
-TftpHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
+TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
+	    unsigned len)
 {
 	ushort proto;
 	ushort *s;

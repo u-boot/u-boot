@@ -580,7 +580,7 @@ NfsTimeout (void)
 }
 
 static void
-NfsHandler (uchar *pkt, unsigned dest, unsigned src, unsigned len)
+NfsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 {
 	int rlen;
 

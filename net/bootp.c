@@ -44,7 +44,8 @@ ulong		seed1, seed2;
 dhcp_state_t dhcp_state = INIT;
 unsigned long dhcp_leasetime = 0;
 IPaddr_t NetDHCPServerIP = 0;
-static void DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len);
+static void DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
+			unsigned len);
 
 /* For Debug */
 #if 0
@@ -282,7 +283,8 @@ static void BootpVendorProcess (u8 * ext, int size)
  *	Handle a BOOTP received packet.
  */
 static void
-BootpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
+BootpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
+	     unsigned len)
 {
 	Bootp_t *bp;
 	char	*s;
@@ -858,7 +860,8 @@ static void DhcpSendRequestPkt(Bootp_t *bp_offer)
  *	Handle DHCP received packets.
  */
 static void
-DhcpHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
+DhcpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
+	    unsigned len)
 {
 	Bootp_t *bp = (Bootp_t *)pkt;
 

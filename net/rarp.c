@@ -43,7 +43,8 @@ int		RarpTry;
  *	Handle a RARP received packet.
  */
 static void
-RarpHandler(uchar * dummi0, unsigned dummi1, unsigned dummi2, unsigned dummi3)
+RarpHandler(uchar *dummi0, unsigned dummi1, IPaddr_t sip, unsigned dummi2,
+	    unsigned dummi3)
 {
 	char *s;
 	debug("Got good RARP\n");

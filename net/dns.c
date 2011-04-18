@@ -101,7 +101,7 @@ DnsTimeout(void)
 }
 
 static void
-DnsHandler(uchar *pkt, unsigned dest, unsigned src, unsigned len)
+DnsHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src, unsigned len)
 {
 	struct header *header;
 	const unsigned char *p, *e, *s;

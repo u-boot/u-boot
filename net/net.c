@@ -555,7 +555,8 @@ startAgainTimeout(void)
 }
 
 static void
-startAgainHandler(uchar * pkt, unsigned dest, unsigned src, unsigned len)
+startAgainHandler(uchar *pkt, unsigned dest, IPaddr_t sip,
+		  unsigned src, unsigned len)
 {
 	/* Totally ignore the packet */
 }
@@ -752,13 +753,10 @@ PingTimeout (void)
 }
 
 static void
-PingHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
+PingHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
+	    unsigned len)
 {
-	IPaddr_t tmp;
-	volatile IP_t *ip = (volatile IP_t *)pkt;
-
-	tmp = NetReadIP((void *)&ip->ip_src);
-	if (tmp != NetPingIP)
+	if (sip != NetPingIP)
 		return;
 
 	NetState = NETLOOP_SUCCESS;
@@ -990,7 +988,8 @@ CDPTimeout (void)
 }
 
 static void
-CDPDummyHandler (uchar * pkt, unsigned dest, unsigned src, unsigned len)
+CDPDummyHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
+		unsigned len)
 {
 	/* nothing */
 }
@@ -1304,6 +1303,7 @@ NetReceive(volatile uchar * inpkt, int len)
 	IP_t	*ip;
 	ARP_t	*arp;
 	IPaddr_t tmp;
+	IPaddr_t src_ip;
 	int	x;
 	uchar *pkt;
 #if defined(CONFIG_CMD_CDP)
@@ -1477,7 +1477,7 @@ NetReceive(volatile uchar * inpkt, int len)
 				memcpy(NetArpWaitPacketMAC, &arp->ar_data[0], 6);
 
 #ifdef CONFIG_NETCONSOLE
-				(*packetHandler)(0,0,0,0);
+				(*packetHandler)(0, 0, 0, 0, 0);
 #endif
 				/* modify header, and transmit it */
 				memcpy(((Ethernet_t *)NetArpWaitTxPacket)->et_dest, NetArpWaitPacketMAC, 6);
@@ -1517,7 +1517,7 @@ NetReceive(volatile uchar * inpkt, int len)
 				NetCopyIP(&NetServerIP, &arp->ar_data[ 6]);
 			memcpy (NetServerEther, &arp->ar_data[ 0], 6);
 
-			(*packetHandler)(0,0,0,0);
+			(*packetHandler)(0, 0, 0, 0, 0);
 		}
 		break;
 #endif
@@ -1557,6 +1557,8 @@ NetReceive(volatile uchar * inpkt, int len)
 #endif
 			return;
 		}
+		/* Read source IP address for later use */
+		src_ip = NetReadIP(&ip->ip_src);
 		/*
 		 * The function returns the unchanged packet if it's not
 		 * a fragment, and either the complete packet or NULL if
@@ -1596,11 +1598,12 @@ NetReceive(volatile uchar * inpkt, int len)
 				 *	IP header OK.  Pass the packet to the current handler.
 				 */
 				/* XXX point to ip packet */
-				(*packetHandler)((uchar *)ip, 0, 0, 0);
+				(*packetHandler)((uchar *)ip, 0, src_ip, 0, 0);
 				return;
 			case ICMP_ECHO_REQUEST:
-				debug("Got ICMP ECHO REQUEST, return %d bytes \n",
-					ETHER_HDR_SIZE + len);
+				debug("Got ICMP ECHO REQUEST, "
+				      "return %d bytes\n",
+				      ETHER_HDR_SIZE + len);
 
 				memcpy (&et->et_dest[0], &et->et_src[0], 6);
 				memcpy (&et->et_src[ 0], NetOurEther, 6);
@@ -1678,6 +1681,7 @@ NetReceive(volatile uchar * inpkt, int len)
 		 */
 		(*packetHandler)((uchar *)ip +IP_HDR_SIZE,
 						ntohs(ip->udp_dst),
+						src_ip,
 						ntohs(ip->udp_src),
 						ntohs(ip->udp_len) - 8);
 		break;
