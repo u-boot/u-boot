@@ -272,13 +272,6 @@ void set_muxconf_regs(void)
 	MUX_VAL(CP(MMC1_DAT7),		(IEN  | PTU | EN  | M0)); /*MMC1_DAT7*/
 }
 
-#ifdef CONFIG_GENERIC_MMC
-int board_mmc_init(bd_t *bis)
-{
-	return omap_mmc_init(0);
-}
-#endif
-
 /*
  * Routine: setup_net_chip_gmpc
  * Description: Setting up the configuration GPMC registers specific to the
