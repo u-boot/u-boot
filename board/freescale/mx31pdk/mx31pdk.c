@@ -70,7 +70,7 @@ int board_init(void)
 
 int checkboard(void)
 {
-	printf("Board: i.MX31 MAX PDK (3DS)\n");
+	printf("Board: MX31PDK\n");
 	return 0;
 }
 
