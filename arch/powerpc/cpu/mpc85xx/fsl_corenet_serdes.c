@@ -432,6 +432,28 @@ static void p4080_erratum_serdes_a005(serdes_corenet_t *regs, unsigned int cfg)
 }
 #endif
 
+/*
+ * Wait for the RSTDONE bit to get set, or a one-second timeout.
+ */
+static void wait_for_rstdone(unsigned int bank)
+{
+	serdes_corenet_t *srds_regs =
+		(void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	unsigned long long end_tick;
+	u32 rstctl;
+
+	/* wait for reset complete or 1-second timeout */
+	end_tick = usec2ticks(1000000) + get_ticks();
+	do {
+		rstctl = in_be32(&srds_regs->bank[bank].rstctl);
+		if (rstctl & SRDS_RSTCTL_RSTDONE)
+			break;
+	} while (end_tick > get_ticks());
+
+	if (!(rstctl & SRDS_RSTCTL_RSTDONE))
+		printf("SERDES: timeout resetting bank %u\n", bank);
+}
+
 void fsl_serdes_init(void)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -439,7 +461,6 @@ void fsl_serdes_init(void)
 	serdes_corenet_t *srds_regs;
 	int lane, bank, idx;
 	enum srds_prtcl lane_prtcl;
-	long long end_tick;
 	int have_bank[SRDS_MAX_BANK] = {};
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
 	u32 serdes8_devdisr = 0;
@@ -450,6 +471,9 @@ void fsl_serdes_init(void)
 #endif
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
 	enum srds_prtcl device;
+#endif
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
+	int need_serdes_a001;	/* TRUE == need work-around for SERDES A001 */
 #endif
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	char *buf = NULL;
@@ -519,11 +543,32 @@ void fsl_serdes_init(void)
 		have_bank[FSL_SRDS_BANK_3] = 1;
 #endif
 
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
+	/*
+	 * The work-aroud for erratum SERDES-A001 is needed only if bank two
+	 * is disabled and bank three is enabled.
+	 */
+	need_serdes_a001 =
+		!have_bank[FSL_SRDS_BANK_2] && have_bank[FSL_SRDS_BANK_3];
+#endif
+
+	/* Power down the banks we're not interested in */
 	for (bank = 0; bank < SRDS_MAX_BANK; bank++) {
 		if (!have_bank[bank]) {
 			printf("SERDES: bank %d disabled\n", bank + 1);
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
+			/*
+			 * Erratum SERDES-A001 says bank two needs to be powered
+			 * down after bank three is powered up, so don't power
+			 * down bank two here.
+			 */
+			if (!need_serdes_a001 || (bank != FSL_SRDS_BANK_2))
+				setbits_be32(&srds_regs->bank[bank].rstctl,
+					     SRDS_RSTCTL_SDPD);
+#else
 			setbits_be32(&srds_regs->bank[bank].rstctl,
 				     SRDS_RSTCTL_SDPD);
+#endif
 		}
 	}
 
@@ -649,8 +694,6 @@ void fsl_serdes_init(void)
 #endif
 
 	for (idx = 0; idx < SRDS_MAX_BANK; idx++) {
-		u32 rstctl;
-
 		bank = idx;
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
@@ -689,20 +732,25 @@ void fsl_serdes_init(void)
 		/* reset banks for errata */
 		setbits_be32(&srds_regs->bank[bank].rstctl, SRDS_RSTCTL_RST);
 
-		/* wait for reset complete or 1-second timeout */
-		end_tick = usec2ticks(1000000) + get_ticks();
-		do {
-			rstctl = in_be32(&srds_regs->bank[bank].rstctl);
-			if (rstctl & SRDS_RSTCTL_RSTDONE)
-				break;
-		} while (end_tick > get_ticks());
-
-		if (!(rstctl & SRDS_RSTCTL_RSTDONE)) {
-			printf("SERDES: timeout resetting bank %d\n",
-			       bank + 1);
-			continue;
-		}
+		wait_for_rstdone(bank);
 	}
+
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
+	if (need_serdes_a001) {
+		/*
+		 * Bank three has been enabled, so enable bank two and then
+		 * disable it.
+		 */
+		srds_lpd_b[FSL_SRDS_BANK_2] = 0;
+		enable_bank(gur, FSL_SRDS_BANK_2);
+
+		wait_for_rstdone(FSL_SRDS_BANK_2);
+
+		/* Disable bank 2 */
+		setbits_be32(&srds_regs->bank[FSL_SRDS_BANK_2].rstctl,
+			     SRDS_RSTCTL_SDPD);
+	}
+#endif
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
 	for (device = XAUI_FM1; device <= XAUI_FM2; device++) {
