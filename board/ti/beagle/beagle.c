@@ -155,6 +155,10 @@ int misc_init_r(void)
 {
 	struct gpio *gpio5_base = (struct gpio *)OMAP34XX_GPIO5_BASE;
 	struct gpio *gpio6_base = (struct gpio *)OMAP34XX_GPIO6_BASE;
+	struct control_prog_io *prog_io_base = (struct gpio *)OMAP34XX_CTRL_BASE;
+
+	/* Enable i2c2 pullup resisters */
+	writel(~(PRG_I2C2_PULLUPRESX), &prog_io_base->io1);
 
 	switch (get_board_revision()) {
 	case REVISION_AXBX:
