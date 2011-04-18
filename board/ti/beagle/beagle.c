@@ -51,7 +51,12 @@
 #define TINCANTOOLS_TRAINER		0x04000100
 #define TINCANTOOLS_SHOWDOG		0x03000100
 #define KBADC_BEAGLEFPGA		0x01000600
-
+#define LW_BEAGLETOUCH			0x01000700
+#define BRAINMUX_LCDOG			0x01000800
+#define BRAINMUX_LCDOGTOUCH		0x02000800
+#define BBTOYS_WIFI			0x01000B00
+#define BBTOYS_VGA			0x02000B00
+#define BBTOYS_LCD			0x03000B00
 #define BEAGLE_NO_EEPROM		0xffffffff
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -246,6 +251,29 @@ int misc_init_r(void)
 		MUX_KBADC_BEAGLEFPGA();
 		setenv("buddy", "beaglefpga");
 		break;
+	case LW_BEAGLETOUCH:
+		printf("Recognized Liquidware BeagleTouch board\n");
+		setenv("buddy", "beagletouch");
+		break;
+	case BRAINMUX_LCDOG:
+		printf("Recognized Brainmux LCDog board\n");
+		setenv("buddy", "lcdog");
+		break;
+	case BRAINMUX_LCDOGTOUCH:
+		printf("Recognized Brainmux LCDog Touch board\n");
+		setenv("buddy", "lcdogtouch");
+		break;
+	case BBTOYS_WIFI:
+		printf("Recognized BeagleBoardToys WiFi board\n");
+		MUX_BBTOYS_WIFI()
+		setenv("buddy", "bbtoys-wifi");
+		break;;
+	case BBTOYS_VGA:
+		printf("Recognized BeagleBoardToys VGA board\n");
+		break;;
+	case BBTOYS_LCD:
+		printf("Recognized BeagleBoardToys LCD board\n");
+		break;;
 	case BEAGLE_NO_EEPROM:
 		printf("No EEPROM on expansion board\n");
 		setenv("buddy", "none");

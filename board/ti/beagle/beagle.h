@@ -458,4 +458,16 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(MCBSP1_DR),      (IEN  | PTU | EN  | M1)) /*MCSPI4_SOMI*/\
 	MUX_VAL(CP(MCBSP1_FSX),     (IDIS | PTU | DIS | M1)) /*MCSPI4_CS0*/
 
+#define MUX_BBTOYS_WIFI() \
+	MUX_VAL(CP(MMC2_CLK),       (IEN  | PTU | EN  | M0)) /*MMC2_CLK*/\
+	MUX_VAL(CP(MMC2_CMD),       (IEN  | PTU | EN  | M0)) /*MMC2_CMD*/\
+	MUX_VAL(CP(MMC2_DAT0),      (IEN  | PTU | EN  | M0)) /*MMC2_DAT0*/\
+	MUX_VAL(CP(MMC2_DAT1),      (IEN  | PTU | EN  | M0)) /*MMC2_DAT1*/\
+	MUX_VAL(CP(MMC2_DAT2),      (IEN  | PTU | EN  | M0)) /*MMC2_DAT2*/\
+	MUX_VAL(CP(MMC2_DAT3),      (IEN  | PTU | EN  | M0)) /*MMC2_DAT3*/\
+	MUX_VAL(CP(MMC2_DAT4),      (IDIS | PTU | EN  | M4)) /*GPIO_136 FM_EN/BT_WU*/\
+	MUX_VAL(CP(MMC2_DAT5),      (IEN  | PTU | EN  | M4)) /*GPIO_137 WLAN_IRQ*/\
+	MUX_VAL(CP(MMC2_DAT6),      (IDIS | PTU | EN  | M4)) /*GPIO_138 BT_EN*/\
+	MUX_VAL(CP(MMC2_DAT7),      (IDIS | PTU | EN  | M4)) /*GPIO_139 WLAN_EN*/
+
 #endif
