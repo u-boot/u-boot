@@ -434,6 +434,8 @@ int arm_pl180_mmci_init(void)
 		return -1;
 	}
 
+	dev->b_max = 0;
+
 	mmc_register(dev);
 	debug("registered mmc interface number is:%d\n", dev->block_dev.dev);
 

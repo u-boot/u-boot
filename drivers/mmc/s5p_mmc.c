@@ -466,6 +466,7 @@ static int s5p_mmc_initialize(int dev_index, int bus_width)
 
 	mmc_host[dev_index].clock = 0;
 	mmc_host[dev_index].reg = s5p_get_base_mmc(dev_index);
+	mmc->m_bmax = 0;
 	mmc_register(mmc);
 
 	return 0;

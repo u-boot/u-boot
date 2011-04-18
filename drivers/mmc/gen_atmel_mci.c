@@ -348,6 +348,8 @@ int atmel_mci_init(void *regs)
 	mmc->f_min = get_mci_clk_rate() / (2*256);
 	mmc->f_max = get_mci_clk_rate() / (2*1);
 
+	mmc->b_max = 0;
+
 	mmc_register(mmc);
 
 	return 0;

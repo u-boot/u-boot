@@ -511,6 +511,8 @@ static int mxcmci_initialize(bd_t *bis)
 	mmc->f_min = imx_get_perclk2() >> 7;
 	mmc->f_max = imx_get_perclk2() >> 1;
 
+	mmc->b_max = 0;
+
 	mmc_register(mmc);
 
 	return 0;

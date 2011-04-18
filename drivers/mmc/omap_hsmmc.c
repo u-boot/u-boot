@@ -465,6 +465,8 @@ int omap_mmc_init(int dev_index)
 	mmc->f_min = 400000;
 	mmc->f_max = 52000000;
 
+	mmc->b_max = 0;
+
 	mmc_register(mmc);
 
 	return 0;
