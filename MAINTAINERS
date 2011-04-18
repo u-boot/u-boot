@@ -646,6 +646,10 @@ Marius Gröger <mag@sysgo.de>
 	impa7		ARM720T (EP7211)
 	ep7312		ARM720T (EP7312)
 
+Igor Grinberg <grinberg@compulab.co.il>
+
+	cm-t35		ARM ARMV7 (OMAP3xx Soc)
+
 Kshitij Gupta <kshitij@ti.com>
 
 	omap1510inn	ARM925T
@@ -766,10 +770,6 @@ Stelian Pop <stelian.pop@leadtechdesign.com>
 	at91sam9261ek	ARM926EJS (AT91SAM9261 SoC)
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
-
-Mike Rapoport <mike@compulab.co.il>
-
-	cm_t35		ARM ARMV7 (OMAP3xx SoC)
 
 Tom Rix <Tom.Rix@windriver.com>
 
