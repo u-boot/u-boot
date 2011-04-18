@@ -10,7 +10,7 @@
  * Richard Woodruff <r-woodruff2@ti.com>
  * Syed Mohammed Khasim <x0khasim@ti.com>
  *
- * Configuration settings for the CompuLab CM-T35 board
+ * Configuration settings for the CompuLab CM-T35 and CM-T3730 boards
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -40,7 +40,7 @@
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3430		1	/* which is in a 3430 */
-#define CONFIG_CM_T35		1	/* working with CM-T35 */
+#define CONFIG_CM_T3X		1	/* working with CM-T35 and CM-T3730 */
 
 #define CONFIG_SYS_TEXT_BASE	0x80008000
 
@@ -253,7 +253,7 @@
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_PROMPT		"CM-T35 # "
+#define CONFIG_SYS_PROMPT		"CM-T3x # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
@@ -338,9 +338,9 @@ extern unsigned int boot_flash_type;
 #define CONFIG_NET_MULTI
 #define CONFIG_SMC911X
 #define CONFIG_SMC911X_32_BIT
-#define CM_T35_SMC911X_BASE	0x2C000000
-#define SB_T35_SMC911X_BASE	(CM_T35_SMC911X_BASE + (16 << 20))
-#define CONFIG_SMC911X_BASE	CM_T35_SMC911X_BASE
+#define CM_T3X_SMC911X_BASE	0x2C000000
+#define SB_T35_SMC911X_BASE	(CM_T3X_SMC911X_BASE + (16 << 20))
+#define CONFIG_SMC911X_BASE	CM_T3X_SMC911X_BASE
 #endif /* (CONFIG_CMD_NET) */
 
 /* additions for new relocation code, must be added to all boards */
