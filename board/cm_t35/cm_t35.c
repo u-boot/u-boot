@@ -1,8 +1,9 @@
 /*
- * (C) Copyright 2010
+ * (C) Copyright 2011
  * CompuLab, Ltd. <www.compulab.co.il>
  *
- * Author: Mike Rapoport <mike@compulab.co.il>
+ * Authors: Mike Rapoport <mike@compulab.co.il>
+ *	    Igor Grinberg <grinberg@compulab.co.il>
  *
  * Derived from omap3evm and Beagle Board by
  *	Manikandan Pillai <mani.pillai@ti.com>
@@ -24,8 +25,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc.
  */
 
 #include <common.h>

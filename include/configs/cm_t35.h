@@ -1,7 +1,8 @@
 /*
- * (C) Copyright 2010
+ * (C) Copyright 2011
  * CompuLab, Ltd.
  * Mike Rapoport <mike@compulab.co.il>
+ * Igor Grinberg <grinberg@compulab.co.il>
  *
  * Based on omap3_beagle.h
  * (C) Copyright 2006-2008
@@ -26,8 +27,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc.
  */
 
 #ifndef __CONFIG_H
