@@ -132,11 +132,38 @@ char *get_cpu_rev(void)
 		return "unknown";
 }
 
+char *get_reset_cause(void)
+{
+	/* read RCSR register from CCM module */
+	struct clock_control_regs *ccm =
+		(struct clock_control_regs *)CCM_BASE;
+
+	u32 cause = readl(&ccm->rcsr) & 0x07;
+
+	switch (cause) {
+	case 0x0000:
+		return "POR";
+		break;
+	case 0x0001:
+		return "RST";
+		break;
+	case 0x0002:
+		return "WDOG";
+		break;
+	case 0x0006:
+		return "JTAG";
+		break;
+	default:
+		return "unknown reset";
+	}
+}
+
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo (void)
 {
-	printf("CPU:   Freescale i.MX31 rev %s at %d MHz\n",
+	printf("CPU:   Freescale i.MX31 rev %s at %d MHz.",
 			get_cpu_rev(), mx31_get_mcu_main_clk() / 1000000);
+	printf("Reset cause: %s\n", get_reset_cause());
 	return 0;
 }
 #endif
