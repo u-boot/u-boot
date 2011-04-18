@@ -111,7 +111,7 @@
 
 /* Temp sensor/hwmon/dtt */
 #define CONFIG_DTT_LM63		1	/* National LM63	*/
-#define CONFIG_DTT_SENSORS	{ 0 }	/* Sensor addresses	*/
+#define CONFIG_DTT_SENSORS	{ 0x4c, 0x4e }	/* Sensor addresses	*/
 #define CONFIG_DTT_PWM_LOOKUPTABLE	\
 		{ { 40, 10 }, { 50, 20 }, { 60, 40 } }
 #define CONFIG_DTT_TACH_LIMIT	0xa10
