@@ -266,8 +266,6 @@
 /* End of used area in DPRAM */
 #define CONFIG_SYS_INIT_RAM_SIZE		MPC5XXX_SRAM_SIZE
 
-/* size in bytes reserved for initial data */
-
 #define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
 					 GENERATED_GBL_DATA_SIZE)
 #define CONFIG_SYS_INIT_SP_OFFSET	CONFIG_SYS_GBL_DATA_OFFSET

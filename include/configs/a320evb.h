@@ -113,10 +113,6 @@
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
 
 /*-----------------------------------------------------------------------
- * size in bytes reserved for initial data
-*/
-
-/*-----------------------------------------------------------------------
  * SDRAM controller configuration
  */
 #define CONFIG_SYS_FTSDMC020_TP0	(FTSDMC020_TP0_TRAS(2) |	\

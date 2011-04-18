@@ -46,8 +46,6 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		(2048 * 1024)
 
-/* size in bytes reserved for initial data */
-
 /*
  * Hardware drivers
  */

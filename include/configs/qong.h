@@ -42,7 +42,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 1024 * 1024)
-/* size in bytes reserved for initial data */
 
 /*
  * Hardware drivers

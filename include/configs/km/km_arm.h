@@ -135,8 +135,6 @@
 
 #define CONFIG_KM_CONSOLE_TTY	"ttyS0"
 
-/* size in bytes reserved for initial data */
-
 /*
  * Other required minimal configurations
  */

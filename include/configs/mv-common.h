@@ -93,7 +93,6 @@
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN	(1024 * 1024) /* 1MiB for malloc() */
-/* size in bytes reserved for initial data */
 
 /*
  * Other required minimal configurations

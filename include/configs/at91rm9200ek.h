@@ -220,7 +220,6 @@
  */
 #define CONFIG_SYS_MALLOC_LEN		ROUND(3 * CONFIG_ENV_SIZE + SZ_128K, \
 					     SZ_4K)
-/* size in bytes reserved for initial data */
 
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + SZ_4K \
 					- GENERATED_GBL_DATA_SIZE)

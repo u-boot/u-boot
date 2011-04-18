@@ -65,7 +65,6 @@
  */
 /* malloc() len */
 #define CONFIG_SYS_MALLOC_LEN		(1 << 20)	/* 1 MiB */
-/* reserved for initial data */
 /*
  * Board has 2 32MB banks of DRAM but there is a bug when using
  * both so only the first is configured

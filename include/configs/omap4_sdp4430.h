@@ -70,7 +70,6 @@
  */
 #define CONFIG_ENV_SIZE			(128 << 10)
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + (256 << 10))
-						/* initial data */
 /* Vector Base */
 #define CONFIG_SYS_CA9_VECTOR_BASE	SRAM_ROM_VECT_BASE
 

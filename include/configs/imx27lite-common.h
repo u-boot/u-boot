@@ -88,7 +88,6 @@
  */
 /* malloc() len */
 #define CONFIG_SYS_MALLOC_LEN		(0x10000 + 512 * 1024)
-/* reserved for initial data */
 /* memtest start address */
 #define CONFIG_SYS_MEMTEST_START	0xA0000000
 #define CONFIG_SYS_MEMTEST_END		0xA1000000	/* 16MB RAM test */
