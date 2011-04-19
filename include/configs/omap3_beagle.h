@@ -133,6 +133,11 @@
 #define CONFIG_USB_TTY			1
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 
+/* USB EHCI */
+#define CONFIG_CMD_USB
+#define CONFIG_USB_EHCI
+#define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
+
 /* commands to include */
 #include <config_cmd_default.h>
 
@@ -149,6 +154,7 @@
 
 #define CONFIG_CMD_I2C		/* I2C serial bus support	*/
 #define CONFIG_CMD_MMC		/* MMC support			*/
+#define CONFIG_USB_STORAGE	/* USB storage support		*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_LED		/* LED support			*/
 
