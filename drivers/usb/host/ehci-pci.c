@@ -42,7 +42,6 @@ static struct pci_device_id ehci_pci_ids[] = {
 int ehci_hcd_init(void)
 {
 	pci_dev_t pdev;
-	uint32_t addr;
 
 	pdev = pci_find_devices(ehci_pci_ids, CONFIG_PCI_EHCI_DEVICE);
 	if (pdev == -1) {
@@ -50,8 +49,8 @@ int ehci_hcd_init(void)
 		return -1;
 	}
 
-	pci_read_config_dword(pdev, PCI_BASE_ADDRESS_0, &addr);
-	hccr = (struct ehci_hccr *)addr;
+	hccr = (struct ehci_hccr *)pci_map_bar(pdev,
+			PCI_BASE_ADDRESS_0, PCI_REGION_MEM);
 	hcor = (struct ehci_hcor *)((uint32_t) hccr +
 			HC_LENGTH(ehci_readl(&hccr->cr_capbase)));
 
