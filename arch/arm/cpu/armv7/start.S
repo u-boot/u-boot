@@ -115,7 +115,7 @@ reset:
 	orr	r0, r0, #0xd3
 	msr	cpsr,r0
 
-#if (CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP34XX)
 	/* Copy vectors to mask ROM indirect addr */
 	adr	r0, _start		@ r0 <- current position of code
 	add	r0, r0, #4		@ skip reset vector
