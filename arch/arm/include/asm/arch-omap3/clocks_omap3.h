@@ -282,6 +282,32 @@
 #define PER_FSEL_38P4		0x07
 #define PER_M2_38P4		0x09
 
+/* PER2 DPLL */
+#define PER2_M_12		0x78
+#define PER2_N_12		0x0B
+#define PER2_FSEL_12		0x03
+#define PER2_M2_12		0x01
+
+#define PER2_M_13		0x78
+#define PER2_N_13		0x0C
+#define PER2_FSEL_13		0x03
+#define PER2_M2_13		0x01
+
+#define PER2_M_19P2		0x2EE
+#define PER2_N_19P2		0x0B
+#define PER2_FSEL_19P2		0x06
+#define PER2_M2_19P2		0x0A
+
+#define PER2_M_26		0x78
+#define PER2_N_26		0x0C
+#define PER2_FSEL_26		0x03
+#define PER2_M2_26		0x01
+
+#define PER2_M_38P4		0x2EE
+#define PER2_N_38P4		0x0B
+#define PER2_FSEL_38P4		0x06
+#define PER2_M2_38P4		0x0A
+
 /* 36XX PER DPLL */
 
 #define PER_36XX_M_12		0x1B0

@@ -360,6 +360,28 @@ get_per_dpll_param:
 	adr	r0, per_dpll_param
 	mov	pc, lr
 
+/* PER2 DPLL values */
+per2_dpll_param:
+/* 12MHz */
+.word PER2_M_12, PER2_N_12, PER2_FSEL_12, PER2_M2_12
+
+/* 13MHz */
+.word PER2_M_13, PER2_N_13, PER2_FSEL_13, PER2_M2_13
+
+/* 19.2MHz */
+.word PER2_M_19P2, PER2_N_19P2, PER2_FSEL_19P2, PER2_M2_19P2
+
+/* 26MHz */
+.word PER2_M_26, PER2_N_26, PER2_FSEL_26, PER2_M2_26
+
+/* 38.4MHz */
+.word PER2_M_38P4, PER2_N_38P4, PER2_FSEL_38P4, PER2_M2_38P4
+
+.globl get_per2_dpll_param
+get_per2_dpll_param:
+	adr	r0, per2_dpll_param
+	mov	pc, lr
+
 /*
  * Tables for 36XX/37XX devices
  *
