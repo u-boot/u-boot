@@ -286,10 +286,11 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 
-#define CONFIG_SYS_MEMTEST_START	(OMAP34XX_SDRC_CS0)	/* memtest */
-								/* works on */
-#define CONFIG_SYS_MEMTEST_END		(OMAP34XX_SDRC_CS0 + \
-					0x01F00000) /* 31MB */
+#define CONFIG_SYS_ALT_MEMTEST		1
+#define CONFIG_SYS_MEMTEST_START	(0x82000000)		/* memtest */
+								/* defaults */
+#define CONFIG_SYS_MEMTEST_END		(0x87FFFFFF) 		/* 128MB */
+#define CONFIG_SYS_MEMTEST_SCRATCH	(0x81000000)	/* dummy address */
 
 #define CONFIG_SYS_LOAD_ADDR		(OMAP34XX_SDRC_CS0)	/* default */
 							/* load address */
