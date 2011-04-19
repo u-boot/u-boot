@@ -14,7 +14,7 @@
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -94,14 +94,14 @@
 #define MMC_HS_TIMING		0x00000100
 #define MMC_HS_52MHZ		0x2
 
-#define OCR_BUSY	0x80000000
-#define OCR_HCS		0x40000000
+#define OCR_BUSY		0x80000000
+#define OCR_HCS			0x40000000
 #define OCR_VOLTAGE_MASK	0x007FFF80
 #define OCR_ACCESS_MODE		0x60000000
 
 #define MMC_STATUS_MASK		(~0x0206BF7F)
-#define MMC_STATUS_RDY_FOR_DATA (1<<8)
-#define MMC_STATUS_CURR_STATE	(0xf<<9)
+#define MMC_STATUS_RDY_FOR_DATA (1 << 8)
+#define MMC_STATUS_CURR_STATE	(0xf << 9)
 
 #define MMC_VDD_165_195		0x00000080	/* VDD voltage 1.65 - 1.95 */
 #define MMC_VDD_20_21		0x00000100	/* VDD voltage 2.0 ~ 2.1 */
@@ -147,12 +147,12 @@
  * EXT_CSD field definitions
  */
 
-#define EXT_CSD_CMD_SET_NORMAL		(1<<0)
-#define EXT_CSD_CMD_SET_SECURE		(1<<1)
-#define EXT_CSD_CMD_SET_CPSECURE	(1<<2)
+#define EXT_CSD_CMD_SET_NORMAL		(1 << 0)
+#define EXT_CSD_CMD_SET_SECURE		(1 << 1)
+#define EXT_CSD_CMD_SET_CPSECURE	(1 << 2)
 
-#define EXT_CSD_CARD_TYPE_26	(1<<0)	/* Card can run at 26MHz */
-#define EXT_CSD_CARD_TYPE_52	(1<<1)	/* Card can run at 52MHz */
+#define EXT_CSD_CARD_TYPE_26	(1 << 0)	/* Card can run at 26MHz */
+#define EXT_CSD_CARD_TYPE_52	(1 << 1)	/* Card can run at 52MHz */
 
 #define EXT_CSD_BUS_WIDTH_1	0	/* Card is in 1 bit mode */
 #define EXT_CSD_BUS_WIDTH_4	1	/* Card is in 4 bit mode */
@@ -162,21 +162,21 @@
 #define R1_APP_CMD			(1 << 5)
 
 #define MMC_RSP_PRESENT (1 << 0)
-#define MMC_RSP_136     (1 << 1)                /* 136 bit response */
-#define MMC_RSP_CRC     (1 << 2)                /* expect valid crc */
-#define MMC_RSP_BUSY    (1 << 3)                /* card may send busy */
-#define MMC_RSP_OPCODE  (1 << 4)                /* response contains opcode */
+#define MMC_RSP_136	(1 << 1)		/* 136 bit response */
+#define MMC_RSP_CRC	(1 << 2)		/* expect valid crc */
+#define MMC_RSP_BUSY	(1 << 3)		/* card may send busy */
+#define MMC_RSP_OPCODE	(1 << 4)		/* response contains opcode */
 
-#define MMC_RSP_NONE    (0)
-#define MMC_RSP_R1      (MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+#define MMC_RSP_NONE	(0)
+#define MMC_RSP_R1	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
 #define MMC_RSP_R1b	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE| \
 			MMC_RSP_BUSY)
-#define MMC_RSP_R2      (MMC_RSP_PRESENT|MMC_RSP_136|MMC_RSP_CRC)
-#define MMC_RSP_R3      (MMC_RSP_PRESENT)
-#define MMC_RSP_R4      (MMC_RSP_PRESENT)
-#define MMC_RSP_R5      (MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
-#define MMC_RSP_R6      (MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
-#define MMC_RSP_R7      (MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+#define MMC_RSP_R2	(MMC_RSP_PRESENT|MMC_RSP_136|MMC_RSP_CRC)
+#define MMC_RSP_R3	(MMC_RSP_PRESENT)
+#define MMC_RSP_R4	(MMC_RSP_PRESENT)
+#define MMC_RSP_R5	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+#define MMC_RSP_R6	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
+#define MMC_RSP_R7	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
 
 
 struct mmc_cid {
