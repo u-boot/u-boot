@@ -27,8 +27,8 @@
 static unsigned int saved_state[2] = {STATUS_LED_OFF, STATUS_LED_OFF};
 
 /* GPIO pins for the LEDs */
-#define BEAGLE_LED_USR0	149
-#define BEAGLE_LED_USR1	150
+#define BEAGLE_LED_USR0	150
+#define BEAGLE_LED_USR1	149
 
 #ifdef STATUS_LED_GREEN
 void green_LED_off (void)
