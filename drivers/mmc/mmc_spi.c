@@ -208,6 +208,11 @@ static int mmc_spi_request(struct mmc *mmc, struct mmc_cmd *cmd,
 			cmd->response[0] = swab32(cmd->response[0]);
 			debug("r32 %x\n", cmd->response[0]);
 			break;
+		case MMC_CMD_SEND_STATUS:
+			spi_xfer(spi, 1 * 8, NULL, cmd->response, 0);
+			cmd->response[0] = (cmd->response[0] & 0xff) ?
+				MMC_STATUS_ERROR : MMC_STATUS_RDY_FOR_DATA;
+			break;
 		}
 	} else {
 		debug("%s:data %x %x %x\n", __func__,
