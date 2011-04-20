@@ -55,7 +55,7 @@ struct ehci_hccr {
 #define HCS_N_PORTS(p)		(((p) >> 0) & 0xf)
 	uint32_t cr_hccparams;
 	uint8_t cr_hcsp_portrt[8];
-} __attribute__ ((packed));
+} __attribute__ ((packed, aligned(4)));
 
 struct ehci_hcor {
 	uint32_t or_usbcmd;
@@ -85,7 +85,7 @@ struct ehci_hcor {
 #define FLAG_CF		(1 << 0)	/* true:  we'll support "high speed" */
 	uint32_t or_portsc[CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS];
 	uint32_t or_systune;
-} __attribute__ ((packed));
+} __attribute__ ((packed, aligned(4)));
 
 #define USBMODE		0x68		/* USB Device mode */
 #define USBMODE_SDIS	(1 << 3)	/* Stream disable */
