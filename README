@@ -625,6 +625,7 @@ The following options need to be configured:
 		CONFIG_CMD_BOOTD	  bootd
 		CONFIG_CMD_CACHE	* icache, dcache
 		CONFIG_CMD_CONSOLE	  coninfo
+		CONFIG_CMD_CRC32	* crc32
 		CONFIG_CMD_DATE		* support for RTC, date/time...
 		CONFIG_CMD_DHCP		* DHCP support
 		CONFIG_CMD_DIAG		* Diagnostics
@@ -637,18 +638,21 @@ The following options need to be configured:
 		CONFIG_CMD_EDITENV	  edit env variable
 		CONFIG_CMD_EEPROM	* EEPROM read/write support
 		CONFIG_CMD_ELF		* bootelf, bootvx
+		CONFIG_CMD_EXPORTENV	* export the environment
 		CONFIG_CMD_SAVEENV	  saveenv
 		CONFIG_CMD_FDC		* Floppy Disk Support
 		CONFIG_CMD_FAT		* FAT partition support
 		CONFIG_CMD_FDOS		* Dos diskette Support
 		CONFIG_CMD_FLASH	  flinfo, erase, protect
 		CONFIG_CMD_FPGA		  FPGA device initialization support
+		CONFIG_CMD_GO		* the 'go' command (exec code)
 		CONFIG_CMD_HWFLOW	* RTS/CTS hw flow control
 		CONFIG_CMD_I2C		* I2C serial bus support
 		CONFIG_CMD_IDE		* IDE harddisk support
 		CONFIG_CMD_IMI		  iminfo
 		CONFIG_CMD_IMLS		  List all found images
 		CONFIG_CMD_IMMAP	* IMMR dump support
+		CONFIG_CMD_IMPORTENV	* import an environment
 		CONFIG_CMD_IRQ		* irqinfo
 		CONFIG_CMD_ITEST	  Integer/string test of 2 values
 		CONFIG_CMD_JFFS2	* JFFS2 Support
