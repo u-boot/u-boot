@@ -394,7 +394,7 @@ int fdt_fixup_memory_banks(void *blob, u64 start[], u64 size[], int banks)
 {
 	int err, nodeoffset;
 	int addr_cell_len, size_cell_len, len;
-	u8 tmp[banks * 8];
+	u8 tmp[banks * 16]; /* Up to 64-bit address + 64-bit size */
 	int bank;
 
 	err = fdt_check_header(blob);
