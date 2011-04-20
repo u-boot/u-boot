@@ -77,6 +77,33 @@ u32 get_cpu_rev(void)
 	return system_rev;
 }
 
+static char *get_reset_cause(void)
+{
+	u32 cause;
+	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
+
+	cause = readl(&src_regs->srsr);
+	writel(cause, &src_regs->srsr);
+
+	switch (cause) {
+	case 0x00001:
+		return "POR";
+	case 0x00004:
+		return "CSU";
+	case 0x00008:
+		return "IPP USER";
+	case 0x00010:
+		return "WDOG";
+	case 0x00020:
+		return "JTAG HIGH-Z";
+	case 0x00040:
+		return "JTAG SW";
+	case 0x10000:
+		return "WARM BOOT";
+	default:
+		return "unknown reset";
+	}
+}
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
@@ -89,6 +116,7 @@ int print_cpuinfo(void)
 		(cpurev & 0x000F0) >> 4,
 		(cpurev & 0x0000F) >> 0,
 		mxc_get_clock(MXC_ARM_CLK) / 1000000);
+	printf("Reset cause: %s\n", get_reset_cause());
 	return 0;
 }
 #endif
