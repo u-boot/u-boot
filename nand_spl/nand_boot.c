@@ -90,6 +90,10 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 		cmd = NAND_CMD_READ0;
 	}
 
+	/* Shift the offset from byte addressing to word addressing. */
+	if (this->options & NAND_BUSWIDTH_16)
+		offs >>= 1;
+
 	/* Begin command latch cycle */
 	this->cmd_ctrl(mtd, cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 	/* Set ALE and clear CLE to start address cycle */
