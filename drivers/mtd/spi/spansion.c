@@ -53,6 +53,7 @@
 #define SPSN_EXT_ID_S25FL128P_256KB	0x0300
 #define SPSN_EXT_ID_S25FL128P_64KB	0x0301
 #define SPSN_EXT_ID_S25FL032P		0x4d00
+#define SPSN_EXT_ID_S25FL129P		0x4d01
 
 struct spansion_spi_flash_params {
 	u16 idcode1;
@@ -119,6 +120,14 @@ static const struct spansion_spi_flash_params spansion_spi_flash_table[] = {
 		.pages_per_sector = 256,
 		.nr_sectors = 64,
 		.name = "S25FL032P",
+	},
+	{
+		.idcode1 = SPSN_ID_S25FL128P,
+		.idcode2 = SPSN_EXT_ID_S25FL129P,
+		.page_size = 256,
+		.pages_per_sector = 256,
+		.nr_sectors = 256,
+		.name = "S25FL129P_64K",
 	},
 };
 
