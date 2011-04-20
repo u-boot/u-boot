@@ -60,6 +60,22 @@ struct macronix_spi_flash_params {
 
 static const struct macronix_spi_flash_params macronix_spi_flash_table[] = {
 	{
+		.idcode = 0x2013,
+		.page_size = 256,
+		.pages_per_sector = 16,
+		.sectors_per_block = 16,
+		.nr_blocks = 8,
+		.name = "MX25L4005",
+	},
+	{
+		.idcode = 0x2014,
+		.page_size = 256,
+		.pages_per_sector = 16,
+		.sectors_per_block = 16,
+		.nr_blocks = 16,
+		.name = "MX25L8005",
+	},
+	{
 		.idcode = 0x2015,
 		.page_size = 256,
 		.pages_per_sector = 16,
