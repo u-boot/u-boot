@@ -599,6 +599,10 @@ Rick Bronson <rick@efn.org>
 
 	AT91RM9200DK	at91rm9200
 
+Luca Ceresoli <luca.ceresoli@comelit.it>
+
+	dig297		ARM ARMV7 (OMAP3530 SoC)
+
 Po-Yu Chuang <ratbert@faraday-tech.com>
 
 	a320evb		FA526 (ARM920T-like) (a320 SoC)
