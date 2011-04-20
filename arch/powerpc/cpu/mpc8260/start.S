@@ -236,11 +236,7 @@ in_flash:
 	/*--------------------------------------------------------------*/
 
 	GET_GOT			/* initialize GOT access		*/
-#if defined(__pic__) && __pic__ == 1
-	/* Needed for upcoming -msingle-pic-base */
-	bl	_GLOBAL_OFFSET_TABLE_@local-4
-	mflr	r30
-#endif
+
 	/* r3: IMMR */
 	bl	cpu_init_f	/* run low-level CPU init code (in Flash)*/
 

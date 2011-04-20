@@ -262,11 +262,6 @@
 	bl	reconfig_tlb0
 #endif
 	GET_GOT
-#if defined(__pic__) && __pic__ == 1
-	/* Needed for upcoming -msingle-pic-base */
-	bl	_GLOBAL_OFFSET_TABLE_@local-4
-	mflr	r30
-#endif
 	bl	cpu_init_f	/* run low-level CPU init code	   (from Flash) */
 	bl	board_init_f
 	/* NOTREACHED - board_init_f() does not return */
@@ -804,11 +799,7 @@ _start:
 	ori	r0,r0, RESET_VECTOR@l
 	stwu	r1,-8(r1)		/* Save back chain and move SP */
 	stw	r0,+12(r1)		/* Save return addr (underflow vect) */
-#if defined(__pic__) && __pic__ == 1
-	/* Needed for upcoming -msingle-pic-base */
-	bl	_GLOBAL_OFFSET_TABLE_@local-4
-	mflr	r30
-#endif
+
 #ifdef CONFIG_NAND_SPL
 	bl	nand_boot_common	/* will not return */
 #else
@@ -923,11 +914,7 @@ _start:
 	stwu	r0, -4(r1)		/* stack backtraces terminate cleanly	*/
 
 	GET_GOT			/* initialize GOT access			*/
-#if defined(__pic__) && __pic__ == 1
-	/* Needed for upcoming -msingle-pic-base */
-	bl	_GLOBAL_OFFSET_TABLE_@local-4
-	mflr	r30
-#endif
+
 	bl	board_init_f	/* run first part of init code (from Flash)	*/
 	/* NOTREACHED - board_init_f() does not return */
 
@@ -1192,11 +1179,6 @@ _start:
 	stw	r0, +12(r1)		/* Save return addr (underflow vect) */
 #endif /* CONFIG_SYS_INIT_DCACHE_CS */
 
-#if defined(__pic__) && __pic__ == 1
-	/* Needed for upcoming -msingle-pic-base */
-	bl	_GLOBAL_OFFSET_TABLE_@local-4
-	mflr	r30
-#endif
 #ifdef CONFIG_NAND_SPL
 	bl	nand_boot_common	/* will not return */
 #else
