@@ -358,14 +358,4 @@
  *  - rest for filesystem
  */
 
-/*--------------------------------------------------------------------------*/
-
-#ifndef __ASSEMBLY__
-extern unsigned int boot_flash_base;
-extern volatile unsigned int boot_flash_env_addr;
-extern unsigned int boot_flash_off;
-extern unsigned int boot_flash_sec;
-extern unsigned int boot_flash_type;
-#endif
-
 #endif				/* __CONFIG_H */

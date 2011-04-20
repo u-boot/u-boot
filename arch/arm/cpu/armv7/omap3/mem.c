@@ -31,16 +31,6 @@
 #include <asm/arch/sys_proto.h>
 #include <command.h>
 
-/*
- * Only One NAND allowed on board at a time.
- * The GPMC CS Base for the same
- */
-unsigned int boot_flash_base;
-unsigned int boot_flash_off;
-unsigned int boot_flash_sec;
-unsigned int boot_flash_type;
-volatile unsigned int boot_flash_env_addr;
-
 struct gpmc *gpmc_cfg;
 
 #if defined(CONFIG_CMD_NAND)
@@ -134,10 +124,6 @@ void gpmc_init(void)
 	const u32 *gpmc_config = NULL;
 	u32 base = 0;
 	u32 size = 0;
-#if defined(CONFIG_ENV_IS_IN_NAND) || defined(CONFIG_ENV_IS_IN_ONENAND)
-	u32 f_off = CONFIG_SYS_MONITOR_LEN;
-	u32 f_sec = 0;
-#endif
 #endif
 	u32 config = 0;
 
@@ -162,15 +148,6 @@ void gpmc_init(void)
 	base = PISMO1_NAND_BASE;
 	size = PISMO1_NAND_SIZE;
 	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[0], base, size);
-#if defined(CONFIG_ENV_IS_IN_NAND)
-	f_off = SMNAND_ENV_OFFSET;
-	f_sec = (128 << 10);	/* 128 KiB */
-	/* env setup */
-	boot_flash_base = base;
-	boot_flash_off = f_off;
-	boot_flash_sec = f_sec;
-	boot_flash_env_addr = f_off;
-#endif
 #endif
 
 #if defined(CONFIG_CMD_ONENAND)
@@ -178,14 +155,5 @@ void gpmc_init(void)
 	base = PISMO1_ONEN_BASE;
 	size = PISMO1_ONEN_SIZE;
 	enable_gpmc_cs_config(gpmc_config, &gpmc_cfg->cs[0], base, size);
-#if defined(CONFIG_ENV_IS_IN_ONENAND)
-	f_off = ONENAND_ENV_OFFSET;
-	f_sec = (128 << 10);	/* 128 KiB */
-	/* env setup */
-	boot_flash_base = base;
-	boot_flash_off = f_off;
-	boot_flash_sec = f_sec;
-	boot_flash_env_addr = f_off;
-#endif
 #endif
 }

@@ -298,33 +298,31 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
-#define CONFIG_SYS_FLASH_BASE		boot_flash_base
+#if defined(CONFIG_CMD_NAND)
+#define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
+#elif defined(CONFIG_CMD_ONENAND)
+#define CONFIG_SYS_FLASH_BASE		PISMO1_ONEN_BASE
+#endif
 
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_ONENAND_BASE		ONENAND_MAP
 
+#define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
+#define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
+
 #if defined(CONFIG_CMD_NAND)
 #define CONFIG_NAND_OMAP_GPMC
 #define GPMC_NAND_ECC_LP_x16_LAYOUT	1
 #define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
 #elif defined(CONFIG_CMD_ONENAND)
 #define CONFIG_ENV_IS_IN_ONENAND	1
+#define CONFIG_ENV_OFFSET		ONENAND_ENV_OFFSET
 #endif
-#define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
-#define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
-#define CONFIG_SYS_ENV_SECT_SIZE	boot_flash_sec
-#define CONFIG_ENV_OFFSET		boot_flash_off
-#define CONFIG_ENV_ADDR			boot_flash_env_addr
-
-#ifndef __ASSEMBLY__
-extern unsigned int boot_flash_base;
-extern volatile unsigned int boot_flash_env_addr;
-extern unsigned int boot_flash_off;
-extern unsigned int boot_flash_sec;
-extern unsigned int boot_flash_type;
-#endif
+#define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
+#define CONFIG_ENV_ADDR			CONFIG_ENV_OFFSET
 
 /*
  * Support for relocation
