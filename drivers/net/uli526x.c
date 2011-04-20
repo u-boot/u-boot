@@ -175,9 +175,9 @@ static u16 read_srom_word(long, int);
 static void uli526x_descriptor_init(struct uli526x_board_info *, unsigned long);
 static void allocate_rx_buffer(struct uli526x_board_info *);
 static void update_cr6(u32, unsigned long);
-static u16 phy_read(unsigned long, u8, u8, u32);
+static u16 uli_phy_read(unsigned long, u8, u8, u32);
 static u16 phy_readby_cr10(unsigned long, u8, u8);
-static void phy_write(unsigned long, u8, u8, u16, u32);
+static void uli_phy_write(unsigned long, u8, u8, u16, u32);
 static void phy_writeby_cr10(unsigned long, u8, u8, u16);
 static void phy_write_1bit(unsigned long, u32, u32);
 static u16 phy_read_1bit(unsigned long, u32);
@@ -349,7 +349,7 @@ static void uli526x_disable(struct eth_device *dev)
 		/* Reset & stop ULI526X board */
 		outl(ULI526X_RESET, db->ioaddr + DCR0);
 		udelay(5);
-		phy_write(db->ioaddr, db->phy_addr, 0, 0x8000, db->chip_id);
+		uli_phy_write(db->ioaddr, db->phy_addr, 0, 0x8000, db->chip_id);
 
 		/* reset the board */
 		db->cr6_data &= ~(CR6_RXSC | CR6_TXSC);	/* Disable Tx/Rx */
@@ -385,7 +385,7 @@ static void uli526x_init(struct eth_device *dev)
 	db->tx_packet_cnt = 0;
 	for (phy_tmp = 0; phy_tmp < 32; phy_tmp++) {
 		/* peer add */
-		phy_value = phy_read(db->ioaddr, phy_tmp, 3, db->chip_id);
+		phy_value = uli_phy_read(db->ioaddr, phy_tmp, 3, db->chip_id);
 		if (phy_value != 0xffff && phy_value != 0) {
 			db->phy_addr = phy_tmp;
 			break;
@@ -404,10 +404,10 @@ static void uli526x_init(struct eth_device *dev)
 
 	if (!(inl(db->ioaddr + DCR12) & 0x8)) {
 		/* Phyxcer capability setting */
-		phy_reg_reset = phy_read(db->ioaddr,
+		phy_reg_reset = uli_phy_read(db->ioaddr,
 			db->phy_addr, 0, db->chip_id);
 		phy_reg_reset = (phy_reg_reset | 0x8000);
-		phy_write(db->ioaddr, db->phy_addr, 0,
+		uli_phy_write(db->ioaddr, db->phy_addr, 0,
 			phy_reg_reset, db->chip_id);
 		udelay(500);
 
@@ -781,7 +781,8 @@ static void uli526x_set_phyxcer(struct uli526x_board_info *db)
 	u16 phy_reg;
 
 	/* Phyxcer capability setting */
-	phy_reg = phy_read(db->ioaddr, db->phy_addr, 4, db->chip_id) & ~0x01e0;
+	phy_reg = uli_phy_read(db->ioaddr,
+			db->phy_addr, 4, db->chip_id) & ~0x01e0;
 
 	if (db->media_mode & ULI526X_AUTO) {
 		/* AUTO Mode */
@@ -802,10 +803,10 @@ static void uli526x_set_phyxcer(struct uli526x_board_info *db)
 		phy_reg |= db->PHY_reg4;
 		db->media_mode |= ULI526X_AUTO;
 	}
-	phy_write(db->ioaddr, db->phy_addr, 4, phy_reg, db->chip_id);
+	uli_phy_write(db->ioaddr, db->phy_addr, 4, phy_reg, db->chip_id);
 
 	/* Restart Auto-Negotiation */
-	phy_write(db->ioaddr, db->phy_addr, 0, 0x1200, db->chip_id);
+	uli_phy_write(db->ioaddr, db->phy_addr, 0, 0x1200, db->chip_id);
 	udelay(50);
 }
 
@@ -813,7 +814,7 @@ static void uli526x_set_phyxcer(struct uli526x_board_info *db)
  *	Write a word to Phy register
  */
 
-static void phy_write(unsigned long iobase, u8 phy_addr, u8 offset,
+static void uli_phy_write(unsigned long iobase, u8 phy_addr, u8 offset,
 	u16 phy_data, u32 chip_id)
 {
 	u16 i;
@@ -862,7 +863,8 @@ static void phy_write(unsigned long iobase, u8 phy_addr, u8 offset,
  *	Read a word data from phy register
  */
 
-static u16 phy_read(unsigned long iobase, u8 phy_addr, u8 offset, u32 chip_id)
+static u16 uli_phy_read(unsigned long iobase, u8 phy_addr, u8 offset,
+			u32 chip_id)
 {
 	int i;
 	u16 phy_data;

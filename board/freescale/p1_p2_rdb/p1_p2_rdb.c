@@ -31,6 +31,7 @@
 #include <miiphy.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <fsl_mdio.h>
 #include <tsec.h>
 #include <vsc7385.h>
 #include <netdev.h>
@@ -179,6 +180,7 @@ int board_early_init_r(void)
 #ifdef CONFIG_TSEC_ENET
 int board_eth_init(bd_t *bis)
 {
+	struct fsl_pq_mdio_info mdio_info;
 	struct tsec_info_struct tsec_info[4];
 	int num = 0;
 	char *tmp;
@@ -215,6 +217,10 @@ int board_eth_init(bd_t *bis)
 	} else
 		puts("No address specified for VSC7385 microcode.\n");
 #endif
+
+	mdio_info.regs = (struct tsec_mii_mng *)CONFIG_SYS_MDIO_BASE_ADDR;
+	mdio_info.name = DEFAULT_MII_NAME;
+	fsl_pq_mdio_init(bis, &mdio_info);
 
 	tsec_eth_init(bis, tsec_info, num);
 

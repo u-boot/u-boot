@@ -110,8 +110,8 @@ static board_info_t dm9000_info;
 
 /* function declaration ------------------------------------- */
 static int dm9000_probe(void);
-static u16 phy_read(int);
-static void phy_write(int, u16);
+static u16 dm9000_phy_read(int);
+static void dm9000_phy_write(int, u16);
 static u8 DM9000_ior(int);
 static void DM9000_iow(int reg, u8 value);
 
@@ -361,7 +361,7 @@ static int dm9000_init(struct eth_device *dev, bd_t *bd)
 	DM9000_iow(DM9000_IMR, IMR_PAR);
 
 	i = 0;
-	while (!(phy_read(1) & 0x20)) {	/* autonegation complete bit */
+	while (!(dm9000_phy_read(1) & 0x20)) {	/* autonegation complete bit */
 		udelay(1000);
 		i++;
 		if (i == 10000) {
@@ -371,7 +371,7 @@ static int dm9000_init(struct eth_device *dev, bd_t *bd)
 	}
 
 	/* see what we've got */
-	lnk = phy_read(17) >> 12;
+	lnk = dm9000_phy_read(17) >> 12;
 	printf("operating at ");
 	switch (lnk) {
 	case 1:
@@ -445,7 +445,7 @@ static void dm9000_halt(struct eth_device *netdev)
 	DM9000_DBG("%s\n", __func__);
 
 	/* RESET devie */
-	phy_write(0, 0x8000);	/* PHY RESET */
+	dm9000_phy_write(0, 0x8000);	/* PHY RESET */
 	DM9000_iow(DM9000_GPR, 0x01);	/* Power-Down PHY */
 	DM9000_iow(DM9000_IMR, 0x80);	/* Disable all interrupt */
 	DM9000_iow(DM9000_RCR, 0x00);	/* Disable RX */
@@ -581,7 +581,7 @@ DM9000_iow(int reg, u8 value)
    Read a word from phyxcer
 */
 static u16
-phy_read(int reg)
+dm9000_phy_read(int reg)
 {
 	u16 val;
 
@@ -593,7 +593,7 @@ phy_read(int reg)
 	val = (DM9000_ior(DM9000_EPDRH) << 8) | DM9000_ior(DM9000_EPDRL);
 
 	/* The read data keeps on REG_0D & REG_0E */
-	DM9000_DBG("phy_read(0x%x): 0x%x\n", reg, val);
+	DM9000_DBG("dm9000_phy_read(0x%x): 0x%x\n", reg, val);
 	return val;
 }
 
@@ -601,7 +601,7 @@ phy_read(int reg)
    Write a word to phyxcer
 */
 static void
-phy_write(int reg, u16 value)
+dm9000_phy_write(int reg, u16 value)
 {
 
 	/* Fill the phyxcer register into REG_0C */
@@ -613,7 +613,7 @@ phy_write(int reg, u16 value)
 	DM9000_iow(DM9000_EPCR, 0xa);	/* Issue phyxcer write command */
 	udelay(500);			/* Wait write complete */
 	DM9000_iow(DM9000_EPCR, 0x0);	/* Clear phyxcer write command */
-	DM9000_DBG("phy_write(reg:0x%x, value:0x%x)\n", reg, value);
+	DM9000_DBG("dm9000_phy_write(reg:0x%x, value:0x%x)\n", reg, value);
 }
 
 int dm9000_initialize(bd_t *bis)

@@ -22,6 +22,7 @@
 #include <asm/io.h>
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <fsl_mdio.h>
 #include <tsec.h>
 #include <asm/fsl_law.h>
 #include <netdev.h>
@@ -279,6 +280,7 @@ int board_early_init_r(void)
  */
 int board_eth_init(bd_t *bis)
 {
+	struct fsl_pq_mdio_info mdio_info;
 	struct tsec_info_struct tsec_info[2];
 	unsigned int num = 0;
 
@@ -290,6 +292,10 @@ int board_eth_init(bd_t *bis)
 	SET_STD_TSEC_INFO(tsec_info[num], 2);
 	num++;
 #endif
+
+	mdio_info.regs = (struct tsec_mii_mng *)CONFIG_SYS_MDIO_BASE_ADDR;
+	mdio_info.name = DEFAULT_MII_NAME;
+	fsl_pq_mdio_init(bis, &mdio_info);
 
 	return tsec_eth_init(bis, tsec_info, num) + pci_eth_init(bis);
 }

@@ -30,6 +30,7 @@
 #include "uec.h"
 #include "uec_phy.h"
 #include "miiphy.h"
+#include <phy.h>
 
 /* Default UTBIPAR SMI address */
 #ifndef CONFIG_UTBIPAR_INIT_TBIPA
@@ -66,9 +67,6 @@ static uec_info_t uec_info[] = {
 #define MAXCONTROLLERS	(8)
 
 static struct eth_device *devlist[MAXCONTROLLERS];
-
-u16 phy_read (struct uec_mii_info *mii_info, u16 regnum);
-void phy_write (struct uec_mii_info *mii_info, u16 regnum, u16 val);
 
 static int uec_mac_enable(uec_private_t *uec, comm_dir_e mode)
 {
@@ -324,9 +322,9 @@ static int uec_set_mac_duplex(uec_private_t *uec, int duplex)
 }
 
 static int uec_set_mac_if_mode(uec_private_t *uec,
-		enum fsl_phy_enet_if if_mode, int speed)
+		phy_interface_t if_mode, int speed)
 {
-	enum fsl_phy_enet_if	enet_if_mode;
+	phy_interface_t		enet_if_mode;
 	uec_info_t		*uec_info;
 	uec_t			*uec_regs;
 	u32			upsmr;
@@ -348,15 +346,15 @@ static int uec_set_mac_if_mode(uec_private_t *uec,
 	upsmr &= ~(UPSMR_RPM | UPSMR_TBIM | UPSMR_R10M | UPSMR_RMM);
 
 	switch (speed) {
-		case 10:
+		case SPEED_10:
 			maccfg2 |= MACCFG2_INTERFACE_MODE_NIBBLE;
 			switch (enet_if_mode) {
-				case MII:
+				case PHY_INTERFACE_MODE_MII:
 					break;
-				case RGMII:
+				case PHY_INTERFACE_MODE_RGMII:
 					upsmr |= (UPSMR_RPM | UPSMR_R10M);
 					break;
-				case RMII:
+				case PHY_INTERFACE_MODE_RMII:
 					upsmr |= (UPSMR_R10M | UPSMR_RMM);
 					break;
 				default:
@@ -364,15 +362,15 @@ static int uec_set_mac_if_mode(uec_private_t *uec,
 					break;
 			}
 			break;
-		case 100:
+		case SPEED_100:
 			maccfg2 |= MACCFG2_INTERFACE_MODE_NIBBLE;
 			switch (enet_if_mode) {
-				case MII:
+				case PHY_INTERFACE_MODE_MII:
 					break;
-				case RGMII:
+				case PHY_INTERFACE_MODE_RGMII:
 					upsmr |= UPSMR_RPM;
 					break;
-				case RMII:
+				case PHY_INTERFACE_MODE_RMII:
 					upsmr |= UPSMR_RMM;
 					break;
 				default:
@@ -380,23 +378,24 @@ static int uec_set_mac_if_mode(uec_private_t *uec,
 					break;
 			}
 			break;
-		case 1000:
+		case SPEED_1000:
 			maccfg2 |= MACCFG2_INTERFACE_MODE_BYTE;
 			switch (enet_if_mode) {
-				case GMII:
+				case PHY_INTERFACE_MODE_GMII:
 					break;
-				case TBI:
+				case PHY_INTERFACE_MODE_TBI:
 					upsmr |= UPSMR_TBIM;
 					break;
-				case RTBI:
+				case PHY_INTERFACE_MODE_RTBI:
 					upsmr |= (UPSMR_RPM | UPSMR_TBIM);
 					break;
-				case RGMII_RXID:
-				case RGMII_ID:
-				case RGMII:
+				case PHY_INTERFACE_MODE_RGMII_RXID:
+				case PHY_INTERFACE_MODE_RGMII_TXID:
+				case PHY_INTERFACE_MODE_RGMII_ID:
+				case PHY_INTERFACE_MODE_RGMII:
 					upsmr |= UPSMR_RPM;
 					break;
-				case SGMII:
+				case PHY_INTERFACE_MODE_SGMII:
 					upsmr |= UPSMR_SGMM;
 					break;
 				default:
@@ -521,7 +520,7 @@ static void adjust_link(struct eth_device *dev)
 	struct uec_mii_info	*mii_info = uec->mii_info;
 
 	extern void change_phy_interface_mode(struct eth_device *dev,
-				 enum fsl_phy_enet_if mode, int speed);
+				 phy_interface_t mode, int speed);
 	uec_regs = uec->uec_regs;
 
 	if (mii_info->link) {
@@ -539,19 +538,19 @@ static void adjust_link(struct eth_device *dev)
 		}
 
 		if (mii_info->speed != uec->oldspeed) {
-			enum fsl_phy_enet_if	mode = \
+			phy_interface_t mode =
 				uec->uec_info->enet_interface_type;
 			if (uec->uec_info->uf_info.eth_type == GIGA_ETH) {
 				switch (mii_info->speed) {
-				case 1000:
+				case SPEED_1000:
 					break;
-				case 100:
+				case SPEED_100:
 					printf ("switching to rgmii 100\n");
-					mode = RGMII;
+					mode = PHY_INTERFACE_MODE_RGMII;
 					break;
-				case 10:
+				case SPEED_10:
 					printf ("switching to rgmii 10\n");
-					mode = RGMII;
+					mode = PHY_INTERFACE_MODE_RGMII;
 					break;
 				default:
 					printf("%s: Ack,Speed(%d)is illegal\n",
@@ -1115,8 +1114,8 @@ static int uec_startup(uec_private_t *uec)
 	out_be32(&uec_regs->utbipar, utbipar);
 
 	/* Configure the TBI for SGMII operation */
-	if ((uec->uec_info->enet_interface_type == SGMII) &&
-	   (uec->uec_info->speed == 1000)) {
+	if ((uec->uec_info->enet_interface_type == PHY_INTERFACE_MODE_SGMII) &&
+	   (uec->uec_info->speed == SPEED_1000)) {
 		uec_write_phy_reg(uec->dev, uec_regs->utbipar,
 			ENET_TBI_MII_ANA, TBIANA_SETTINGS);
 

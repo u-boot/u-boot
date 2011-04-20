@@ -36,6 +36,7 @@
 #include <libfdt.h>
 #include <spd_sdram.h>
 #include <fdt_support.h>
+#include <fsl_mdio.h>
 #include <tsec.h>
 #include <netdev.h>
 #include <sata.h>
@@ -234,6 +235,7 @@ int board_early_init_r(void)
 int board_eth_init(bd_t *bis)
 {
 #ifdef CONFIG_TSEC_ENET
+	struct fsl_pq_mdio_info mdio_info;
 	struct tsec_info_struct tsec_info[2];
 	int num = 0;
 
@@ -267,6 +269,10 @@ int board_eth_init(bd_t *bis)
 		fsl_sgmii_riser_init(tsec_info, num);
 	}
 #endif
+
+	mdio_info.regs = (struct tsec_mii_mng *)CONFIG_SYS_MDIO_BASE_ADDR;
+	mdio_info.name = DEFAULT_MII_NAME;
+	fsl_pq_mdio_init(bis, &mdio_info);
 
 	tsec_eth_init(bis, tsec_info, num);
 #endif
