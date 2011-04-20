@@ -34,8 +34,8 @@
 struct led_tbl_s {
 	char		*string;	/* String for use in the command */
 	led_id_t	mask;		/* Mask used for calling __led_set() */
-	void		(*on)(void);	/* Optional fucntion for turning LED on */
-	void		(*off)(void);	/* Optional fucntion for turning LED on */
+	void		(*off)(void);	/* Optional function for turning LED off */
+	void		(*on)(void);	/* Optional function for turning LED on */
 };
 
 typedef struct led_tbl_s led_tbl_t;
