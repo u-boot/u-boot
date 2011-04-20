@@ -31,6 +31,7 @@ COBJS-$(CONFIG_DAVINCI_MMC) += davinci_mmc.o
 COBJS-$(CONFIG_FSL_ESDHC) += fsl_esdhc.o
 COBJS-$(CONFIG_GENERIC_MMC) += mmc.o
 COBJS-$(CONFIG_GENERIC_ATMEL_MCI) += gen_atmel_mci.o
+COBJS-$(CONFIG_MMC_SPI) += mmc_spi.o
 COBJS-$(CONFIG_MXC_MMC) += mxcmmc.o
 COBJS-$(CONFIG_OMAP3_MMC) += omap3_mmc.o
 COBJS-$(CONFIG_OMAP_HSMMC) += omap_hsmmc.o

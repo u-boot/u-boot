@@ -332,11 +332,11 @@ esdhc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 		do {
 			irqstat = esdhc_read32(&regs->irqstat);
 
-			if (irqstat & DATA_ERR)
-				return COMM_ERR;
-
 			if (irqstat & IRQSTAT_DTOE)
 				return TIMEOUT;
+
+			if (irqstat & DATA_ERR)
+				return COMM_ERR;
 		} while (!(irqstat & IRQSTAT_TC) &&
 				(esdhc_read32(&regs->prsstat) & PRSSTAT_DLA));
 #endif
