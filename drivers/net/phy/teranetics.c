@@ -41,6 +41,25 @@ int tn2020_config(struct phy_device *phydev)
 	return 0;
 }
 
+int tn2020_startup(struct phy_device *phydev)
+{
+	if (phydev->port != PORT_FIBRE)
+		return gen10g_startup(phydev);
+
+	/*
+	 * The TN2020 only pretends to support fiber.
+	 * It works, but it doesn't look like it works,
+	 * so the link status reports no link.
+	 */
+	phydev->link = 1;
+
+	/* For now just lie and say it's 10G all the time */
+	phydev->speed = SPEED_10000;
+	phydev->duplex = DUPLEX_FULL;
+
+	return 0;
+}
+
 struct phy_driver tn2020_driver = {
 	.name = "Teranetics TN2020",
 	.uid = 0x00a19410,
@@ -50,7 +69,7 @@ struct phy_driver tn2020_driver = {
 			MDIO_DEVS_PHYXS | MDIO_DEVS_AN |
 			MDIO_DEVS_VEND1 | MDIO_DEVS_VEND2),
 	.config = &tn2020_config,
-	.startup = &gen10g_startup,
+	.startup = &tn2020_startup,
 	.shutdown = &gen10g_shutdown,
 };
 
