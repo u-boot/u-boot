@@ -108,6 +108,7 @@ static void init_port(void)
 #define CMD24	(24)		/* WRITE_BLOCK */
 #define CMD25	(25)		/* WRITE_MULTIPLE_BLOCK */
 #define CMD41	(41)		/* SEND_OP_COND (ACMD) */
+#define CMD51	(51)		/* SEND_SCR (ACMD) */
 #define CMD52	(52)		/*  */
 #define CMD55	(55)		/* APP_CMD */
 #define CMD58	(58)		/* READ_OCR */
@@ -171,6 +172,9 @@ make_command (unsigned cmd)
 	case CMD25:
 	case CMD41:
 		retval |= RSP_R3;
+		break;
+	case CMD51:
+		retval |= RSP_R1;
 		break;
 	case CMD52:
 	case CMD55:
@@ -266,10 +270,22 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 		}
 	} 
 
-	cmd->response[0] = sd_in32(SD_RSP_R);
-	cmd->response[1] = sd_in32(SD_RSP_R+4);
-	cmd->response[2] = sd_in32(SD_RSP_R+8);
-	cmd->response[3] = sd_in32(SD_RSP_R+12);
+	if (cmd->resp_type == MMC_RSP_R2) {
+		int i;
+		
+		/* RESP_136 */
+		/* CRC is stripped so we need to do some shifting. */
+		for (i = 0;i < 4;i++) {
+			cmd->response[i] = sd_in32(SD_RSP_R + (3-i)*4) << 8;
+			if (i != 3) {
+				cmd->response[i] |=
+					sd_in8((SD_RSP_R + (3-i)*4)-1);
+			}
+		}
+	} else {
+		/* RESP_48 */
+		cmd->response[0] = sd_in32(SD_RSP_R);
+	}
 
 	if (cmdreg & SD_CMD_DATA) {
 		memcpy(data->dest, sd_dma_buffer, 512);
@@ -280,6 +296,10 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 
 static void pele_sdh_set_ios(struct mmc *mmc)
 {
+#ifdef DEBUG
+	printf("%s: voltages: 0x%x clock: 0x%x bus_width: 0x%x\n", __FUNCTION__,
+		mmc->voltages, mmc->clock, mmc->bus_width);
+#endif
 }
 static int pele_sdh_init(struct mmc *mmc)
 {
@@ -308,10 +328,10 @@ int board_mmc_init(bd_t *bd)
 	mmc->host_caps = MMC_MODE_4BIT;
 
 	mmc->voltages = MMC_VDD_32_33 | MMC_VDD_33_34;
-#if 0
-	mmc->f_max = get_sclk();
+        
+        mmc->f_max = 52000000;
 	mmc->f_min = mmc->f_max >> 9;
-#endif
+
 	mmc->block_dev.part_type = PART_TYPE_DOS;
 
 	mmc_register(mmc);
