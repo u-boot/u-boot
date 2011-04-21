@@ -1,58 +1,54 @@
 #!/bin/bash
-
 # Tool mainly for U-Boot Quality Assurance: build one or more board
 # configurations with minimal verbosity, showing only warnings and
 # errors.
-#
-# There are several ways to select which boards to build.
-#
-# Traditionally, architecture names (like "powerpc"), CPU family names
-# (like "mpc83xx") or board names can be specified on the command
-# line; without any arguments, MAKEALL defaults to building all Power
-# Architecture systems (i. e. same as for "MAKEALL powerpc").
-#
-# With the introduction of the board.cfg file, it has become possible
-# to provide additional selections.  We use standard command line
-# options for this:
-#
-# -a or --arch	:	Select architecture
-# -c or --cpu	:	Select CPU family
-# -s or --soc	:	Select SoC type
-# -v or --vendor:	Select board vendor
-#
-# Selections by these options are logically ANDed; if the same option
-# is used repeatedly, such selections are ORed.  So "-v FOO -v BAR"
-# will select all configurations where the vendor is either FOO or
-# BAR.  Any additional arguments specified on the command line are
-# always build additionally.
-#
-# Examples:
-#
-# - build all Power Architecture boards:
-#
-#	MAKEALL -a powerpc
-#   or
-#	MAKEALL --arch powerpc
-#   or
-#	MAKEALL powerpc
-#
-# - build all PowerPC boards manufactured by vendor "esd":
-#
-#	MAKEALL -a powerpc -v esd
-#
-# - build all PowerPC boards manufactured either by "keymile" or
-#   "siemens":
-#
-#	MAKEALL -a powerpc -v keymile -v siemens
-#
-# - build all Freescale boards with MPC83xx CPUs, plus all 4xx boards:
-#
-#	MAKEALL -c mpc83xx -v freescale 4xx
-#
-#########################################################################
 
-SHORT_OPTS="a:c:v:s:"
-LONG_OPTS="arch:,cpu:,vendor:,soc:"
+usage()
+{
+	# if exiting with 0, write to stdout, else write to stderr
+	local ret=${1:-0}
+	[ "${ret}" -eq 1 ] && exec 1>&2
+	cat <<-EOF
+	Usage: MAKEALL [options] [--] [boards-to-build]
+
+	Options:
+	  -a ARCH,   --arch ARCH       Build all boards with arch ARCH
+	  -c CPU,    --cpu CPU         Build all boards with cpu CPU
+	  -v VENDOR, --vendor VENDOR   Build all boards with vendor VENDOR
+	  -s SOC,    --soc SOC         Build all boards with soc SOC
+	  -h,        --help            This help output
+
+	Selections by these options are logically ANDed; if the same option
+	is used repeatedly, such selections are ORed.  So "-v FOO -v BAR"
+	will select all configurations where the vendor is either FOO or
+	BAR.  Any additional arguments specified on the command line are
+	always build additionally.  See the boards.cfg file for more info.
+
+	If no boards are specified, then the default is "powerpc".
+
+	Environment variables:
+	  BUILD_NCPUS      number of parallel make jobs (default: auto)
+	  CROSS_COMPILE    cross-compiler toolchain prefix (default: "")
+	  MAKEALL_LOGDIR   output all logs to here (default: ./LOG/)
+	  BUILD_DIR        output build directory (default: ./)
+
+	Examples:
+	  - build all Power Architecture boards:
+	      MAKEALL -a powerpc
+	      MAKEALL --arch powerpc
+	      MAKEALL powerpc
+	  - build all PowerPC boards manufactured by vendor "esd":
+	      MAKEALL -a powerpc -v esd
+	  - build all PowerPC boards manufactured either by "keymile" or "siemens":
+	      MAKEALL -a powerpc -v keymile -v siemens
+	  - build all Freescale boards with MPC83xx CPUs, plus all 4xx boards:
+	      MAKEALL -c mpc83xx -v freescale 4xx
+	EOF
+	exit ${ret}
+}
+
+SHORT_OPTS="ha:c:v:s:"
+LONG_OPTS="help,arch:,cpu:,vendor:,soc:"
 
 # Option processing based on util-linux-2.13/getopt-parse.bash
 
@@ -63,7 +59,7 @@ LONG_OPTS="arch:,cpu:,vendor:,soc:"
 TEMP=`getopt -o ${SHORT_OPTS} --long ${LONG_OPTS} \
      -n 'MAKEALL' -- "$@"`
 
-if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+[ $? != 0 ] && usage 1
 
 # Note the quotes around `$TEMP': they are essential!
 eval set -- "$TEMP"
@@ -108,6 +104,8 @@ while true ; do
 		fi
 		SELECTED='y'
 		shift 2 ;;
+	-h|--help)
+		usage ;;
 	--)
 		shift ; break ;;
 	*)
