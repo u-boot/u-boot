@@ -105,7 +105,7 @@ struct iim_regs {
 
 struct mx3_cpu_type {
 	u8 srev;
-	const char *v;
+	char *v;
 };
 
 #define IOMUX_PADNUM_MASK	0x1ff
