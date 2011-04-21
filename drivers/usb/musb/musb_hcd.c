@@ -853,8 +853,11 @@ int submit_control_msg(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 #ifdef MUSB_NO_MULTIPOINT
 	/* Control message is for the HUB? */
-	if (devnum == rh_devnum)
-		return musb_submit_rh_msg(dev, pipe, buffer, len, setup);
+	if (devnum == rh_devnum) {
+		int stat = musb_submit_rh_msg(dev, pipe, buffer, len, setup);
+		if (stat)
+			return stat;
+	}
 #endif
 
 	/* select control endpoint */
