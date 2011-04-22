@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2010 Albert ARIBAUD <albert.aribaud@free.fr>
+ * Copyright (C) 2010 Albert ARIBAUD <albert.u.boot@aribaud.net>
  *
- * Written-by: Albert ARIBAUD <albert.aribaud@free.fr>
+ * Written-by: Albert ARIBAUD <albert.u.boot@aribaud.net>
  *
  * See file CREDITS for list of people who contributed to this
  * project.

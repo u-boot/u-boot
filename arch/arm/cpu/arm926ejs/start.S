@@ -10,7 +10,7 @@
  *  Copyright (c) 2002	Gary Jennejohn <garyj@denx.de>
  *  Copyright (c) 2003	Richard Woodruff <r-woodruff2@ti.com>
  *  Copyright (c) 2003	Kshitij <kshitij@ti.com>
- *  Copyright (c) 2010	Albert Aribaud <albert.aribaud@free.fr>
+ *  Copyright (c) 2010	Albert Aribaud <albert.u.boot@aribaud.net>
  *
  * See file CREDITS for list of people who contributed to this
  * project.

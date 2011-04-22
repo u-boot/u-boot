@@ -547,7 +547,7 @@ Unknown / orphaned boards:
 #	Board		CPU						#
 #########################################################################
 
-Albert ARIBAUD <albert.aribaud@free.fr>
+Albert ARIBAUD <albert.u.boot@aribaud.net>
 
 	edminiv2	ARM926EJS (Orion5x SoC)
 
