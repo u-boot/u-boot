@@ -699,47 +699,7 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	u32 system_rev = get_cpu_rev();
-	u32 cause;
-	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
-
-	puts("Board: TTControl Vision II CPU V");
-
-	switch (system_rev & 0xff) {
-	case CHIP_REV_3_0:
-		puts("3.0 [");
-		break;
-	case CHIP_REV_2_5:
-		puts("2.5 [");
-		break;
-	case CHIP_REV_2_0:
-		puts("2.0 [");
-		break;
-	case CHIP_REV_1_1:
-		puts("1.1 [");
-		break;
-	case CHIP_REV_1_0:
-	default:
-		puts("1.0 [");
-		break;
-	}
-
-	cause = src_regs->srsr;
-	switch (cause) {
-	case 0x0001:
-		puts("POR");
-		break;
-	case 0x0009:
-		puts("RST");
-		break;
-	case 0x0010:
-	case 0x0011:
-		puts("WDOG");
-		break;
-	default:
-		printf("unknown 0x%x", cause);
-	}
-	puts("]\n");
+	puts("Board: TTControl Vision II CPU V\n");
 
 	return 0;
 }
