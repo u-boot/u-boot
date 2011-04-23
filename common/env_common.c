@@ -47,7 +47,7 @@ static uchar env_get_char_init (int index);
 #define XMK_STR(x)	#x
 #define MK_STR(x)	XMK_STR(x)
 
-uchar default_environment[] = {
+const uchar default_environment[] = {
 #ifdef	CONFIG_BOOTARGS
 	"bootargs="	CONFIG_BOOTARGS			"\0"
 #endif
@@ -162,7 +162,7 @@ uchar env_get_char (int index)
 	return (c);
 }
 
-uchar *env_get_addr (int index)
+const uchar *env_get_addr (int index)
 {
 	if (gd->env_valid)
 		return (uchar *)(gd->env_addr + index);

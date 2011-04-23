@@ -74,7 +74,7 @@ static env_t *flash_addr_new = (env_t *)CONFIG_ENV_ADDR_REDUND;
 static ulong end_addr_new = CONFIG_ENV_ADDR_REDUND + CONFIG_ENV_SECT_SIZE - 1;
 #endif /* CONFIG_ENV_ADDR_REDUND */
 
-extern uchar default_environment[];
+extern const uchar default_environment[];
 
 
 uchar env_get_char_spec(int index)
