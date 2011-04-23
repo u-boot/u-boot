@@ -46,6 +46,14 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 		const void *data, size_t data_len);
 
 /*
+ * Enable writing on the SPI flash.
+ */
+static inline int spi_flash_cmd_write_enable(struct spi_flash *flash)
+{
+	return spi_flash_cmd(flash->spi, CMD_WRITE_ENABLE, NULL, 0);
+}
+
+/*
  * Same as spi_flash_cmd_read() except it also claims/releases the SPI
  * bus. Used as common part of the ->read() operation.
  */

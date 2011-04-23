@@ -96,7 +96,7 @@ static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 static int
 sst_enable_writing(struct spi_flash *flash)
 {
-	int ret = spi_flash_cmd(flash->spi, CMD_SST_WREN, NULL, 0);
+	int ret = spi_flash_cmd_write_enable(flash);
 	if (ret)
 		debug("SF: Enabling Write failed\n");
 	return ret;

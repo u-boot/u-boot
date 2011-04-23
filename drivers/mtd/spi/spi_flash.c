@@ -163,7 +163,7 @@ int spi_flash_cmd_erase(struct spi_flash *flash, u8 erase_cmd,
 		debug("SF: erase %2x %2x %2x %2x (%x)\n", cmd[0], cmd[1],
 		      cmd[2], cmd[3], offset);
 
-		ret = spi_flash_cmd(flash->spi, CMD_WRITE_ENABLE, NULL, 0);
+		ret = spi_flash_cmd_write_enable(flash);
 		if (ret)
 			goto out;
 

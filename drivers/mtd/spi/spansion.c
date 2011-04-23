@@ -168,7 +168,7 @@ static int spansion_write(struct spi_flash *flash,
 		    ("PP: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %d\n",
 		     buf + actual, cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
 
-		ret = spi_flash_cmd(flash->spi, CMD_S25FLXX_WREN, NULL, 0);
+		ret = spi_flash_cmd_write_enable(flash);
 		if (ret < 0) {
 			debug("SF: Enabling Write failed\n");
 			break;

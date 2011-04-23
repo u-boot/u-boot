@@ -198,7 +198,7 @@ static int ramtron_common(struct spi_flash *flash,
 
 	if (command == CMD_RAMTRON_WRITE) {
 		/* send WREN */
-		ret = spi_flash_cmd(flash->spi, CMD_RAMTRON_WREN, NULL, 0);
+		ret = spi_flash_cmd_write_enable(flash);
 		if (ret < 0) {
 			debug("SF: Enabling Write failed\n");
 			goto releasebus;

@@ -140,7 +140,7 @@ static int winbond_write(struct spi_flash *flash,
 			buf + actual,
 			cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
 
-		ret = spi_flash_cmd(flash->spi, CMD_W25_WREN, NULL, 0);
+		ret = spi_flash_cmd_write_enable(flash);
 		if (ret < 0) {
 			debug("SF: Enabling Write failed\n");
 			goto out;
