@@ -140,7 +140,7 @@ cmd_tbl_t *find_cmd (const char *cmd)
 	return find_cmd_tbl(cmd, &__u_boot_cmd_start, len);
 }
 
-int cmd_usage(cmd_tbl_t *cmdtp)
+int cmd_usage(const cmd_tbl_t *cmdtp)
 {
 	printf("%s - %s\n\n", cmdtp->name, cmdtp->usage);
 
