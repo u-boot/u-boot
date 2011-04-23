@@ -46,15 +46,6 @@
 #define CMD_M25PXX_DP		0xb9	/* Deep Power-down */
 #define CMD_M25PXX_RES		0xab	/* Release from DP, and Read Signature */
 
-#define STM_ID_M25P10		0x11
-#define STM_ID_M25P16		0x15
-#define STM_ID_M25P20		0x12
-#define STM_ID_M25P32		0x16
-#define STM_ID_M25P40		0x13
-#define STM_ID_M25P64		0x17
-#define STM_ID_M25P80		0x14
-#define STM_ID_M25P128		0x18
-
 struct stmicro_spi_flash_params {
 	u8 idcode1;
 	u16 page_size;
@@ -65,56 +56,56 @@ struct stmicro_spi_flash_params {
 
 static const struct stmicro_spi_flash_params stmicro_spi_flash_table[] = {
 	{
-		.idcode1 = STM_ID_M25P10,
+		.idcode1 = 0x11,
 		.page_size = 256,
 		.pages_per_sector = 128,
 		.nr_sectors = 4,
 		.name = "M25P10",
 	},
 	{
-		.idcode1 = STM_ID_M25P16,
+		.idcode1 = 0x15,
 		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 32,
 		.name = "M25P16",
 	},
 	{
-		.idcode1 = STM_ID_M25P20,
+		.idcode1 = 0x12,
 		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 4,
 		.name = "M25P20",
 	},
 	{
-		.idcode1 = STM_ID_M25P32,
+		.idcode1 = 0x16,
 		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 64,
 		.name = "M25P32",
 	},
 	{
-		.idcode1 = STM_ID_M25P40,
+		.idcode1 = 0x13,
 		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 8,
 		.name = "M25P40",
 	},
 	{
-		.idcode1 = STM_ID_M25P64,
+		.idcode1 = 0x17,
 		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 128,
 		.name = "M25P64",
 	},
 	{
-		.idcode1 = STM_ID_M25P80,
+		.idcode1 = 0x14,
 		.page_size = 256,
 		.pages_per_sector = 256,
 		.nr_sectors = 16,
 		.name = "M25P80",
 	},
 	{
-		.idcode1 = STM_ID_M25P128,
+		.idcode1 = 0x18,
 		.page_size = 256,
 		.pages_per_sector = 1024,
 		.nr_sectors = 64,
