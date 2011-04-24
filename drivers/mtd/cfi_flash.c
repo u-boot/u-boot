@@ -581,6 +581,7 @@ static int flash_status_check (flash_info_t * info, flash_sect_t sector,
 				prompt, info->start[sector],
 				flash_read_long (info, sector, 0));
 			flash_write_cmd (info, sector, 0, info->cmd_reset);
+			udelay(1);
 			return ERR_TIMOUT;
 		}
 		udelay (1);		/* also triggers watchdog */
@@ -628,6 +629,7 @@ static int flash_full_status_check (flash_info_t * info, flash_sect_t sector,
 				puts ("Vpp Low Error.\n");
 		}
 		flash_write_cmd (info, sector, 0, info->cmd_reset);
+		udelay(1);
 		break;
 	default:
 		break;
@@ -1202,8 +1204,9 @@ void flash_print_info (flash_info_t * info)
 		info->manufacturer_id);
 	printf (info->chipwidth == FLASH_CFI_16BIT ? "%04X" : "%02X",
 		info->device_id);
-	if (info->device_id == 0x7E) {
-		printf("%04X", info->device_id2);
+	if ((info->device_id & 0xff) == 0x7E) {
+		printf(info->chipwidth == FLASH_CFI_16BIT ? "%04X" : "%02X",
+		info->device_id2);
 	}
 	printf ("\n  Erase timeout: %ld ms, write timeout: %ld ms\n",
 		info->erase_blk_tout,
@@ -1490,6 +1493,7 @@ void flash_read_user_serial (flash_info_t * info, void *buffer, int offset,
 	flash_write_cmd (info, 0, 0, FLASH_CMD_READ_ID);
 	memcpy (dst, src + offset, len);
 	flash_write_cmd (info, 0, 0, info->cmd_reset);
+	udelay(1);
 	flash_unmap(info, 0, FLASH_OFFSET_USER_PROTECTION, src);
 }
 
@@ -1505,6 +1509,7 @@ void flash_read_factory_serial (flash_info_t * info, void *buffer, int offset,
 	flash_write_cmd (info, 0, 0, FLASH_CMD_READ_ID);
 	memcpy (buffer, src + offset, len);
 	flash_write_cmd (info, 0, 0, info->cmd_reset);
+	udelay(1);
 	flash_unmap(info, 0, FLASH_OFFSET_INTEL_PROTECTION, src);
 }
 
@@ -1536,6 +1541,7 @@ static void cfi_reverse_geometry(struct cfi_qry *qry)
 static void cmdset_intel_read_jedec_ids(flash_info_t *info)
 {
 	flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
+	udelay(1);
 	flash_write_cmd(info, 0, 0, FLASH_CMD_READ_ID);
 	udelay(1000); /* some flash are slow to respond */
 	info->manufacturer_id = flash_read_uchar (info,
@@ -1599,11 +1605,20 @@ static void cmdset_amd_read_jedec_ids(flash_info_t *info)
 	case FLASH_CFI_16BIT:
 		info->device_id = flash_read_word (info,
 						FLASH_OFFSET_DEVICE_ID);
+		if ((info->device_id & 0xff) == 0x7E) {
+			/* AMD 3-byte (expanded) device ids */
+			info->device_id2 = flash_read_uchar (info,
+						FLASH_OFFSET_DEVICE_ID2);
+			info->device_id2 <<= 8;
+			info->device_id2 |= flash_read_uchar (info,
+						FLASH_OFFSET_DEVICE_ID3);
+		}
 		break;
 	default:
 		break;
 	}
 	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+	udelay(1);
 }
 
 static int cmdset_amd_init(flash_info_t *info, struct cfi_qry *qry)
@@ -1730,6 +1745,7 @@ void __flash_cmd_reset(flash_info_t *info)
 	 * that AMD flash roms ignore the Intel command.
 	 */
 	flash_write_cmd(info, 0, 0, AMD_CMD_RESET);
+	udelay(1);
 	flash_write_cmd(info, 0, 0, FLASH_CMD_RESET);
 }
 void flash_cmd_reset(flash_info_t *info)
@@ -1852,9 +1868,10 @@ static void flash_fixup_stm(flash_info_t *info, struct cfi_qry *qry)
 	if (qry->num_erase_regions > 1) {
 		/* reverse geometry if top boot part */
 		if (info->cfi_version < 0x3131) {
-			/* CFI < 1.1, guess by device id (M29W320{DT,ET} only) */
-			if (info->device_id == 0x22CA ||
-			    info->device_id == 0x2256) {
+			/* CFI < 1.1, guess by device id */
+			if (info->device_id == 0x22CA || /* M29W320DT */
+			    info->device_id == 0x2256 || /* M29W320ET */
+			    info->device_id == 0x22D7) { /* M29W800DT */
 				cfi_reverse_geometry(qry);
 			}
 		}
