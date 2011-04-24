@@ -110,6 +110,11 @@ int board_early_init_f(void)
 
 	for (k = 0; k < CONFIG_SYS_FPGA_COUNT; ++k) {
 		ihs_fpga_t *fpga = (ihs_fpga_t *) CONFIG_SYS_FPGA_BASE(k);
+#ifdef CONFIG_SYS_FPGA_NO_RFL_HI
+		u16 *reflection_target = &fpga->reflection_low;
+#else
+		u16 *reflection_target = &fpga->reflection_high;
+#endif
 		/*
 		 * wait for fpga out of reset
 		 */
@@ -117,9 +122,11 @@ int board_early_init_f(void)
 		while (1) {
 			out_le16(&fpga->reflection_low,
 				REFLECTION_TESTPATTERN);
-			if (in_le16(&fpga->reflection_high) ==
+
+			if (in_le16(reflection_target) ==
 				REFLECTION_TESTPATTERN_INV)
 				break;
+
 			udelay(100000);
 			if (ctr++ > 5) {
 				gd->fpga_state[k] |=
