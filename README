@@ -2011,6 +2011,20 @@ The following options need to be configured:
 		thus overwriting the architecutre dependent default
 		settings.
 
+- Frame Buffer Address:
+	CONFIG_FB_ADDR
+
+	Define CONFIG_FB_ADDR if you want to use specific address for
+	frame buffer.
+	Then system will reserve the frame buffer address to defined address
+	instead of lcd_setmem (this function grab the memory for frame buffer
+	by panel's size).
+
+	Please see board_init_f function.
+
+	If you want this config option then,
+	please define it at your board config file
+
 Legacy uImage format:
 
   Arg	Where			When
