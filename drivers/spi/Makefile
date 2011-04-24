@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	:= $(obj)libspi.o
 
 COBJS-$(CONFIG_ALTERA_SPI) += altera_spi.o
+COBJS-$(CONFIG_ANDES_SPI) += andes_spi.o
 COBJS-$(CONFIG_ATMEL_DATAFLASH_SPI) += atmel_dataflash_spi.o
 COBJS-$(CONFIG_ATMEL_SPI) += atmel_spi.o
 COBJS-$(CONFIG_BFIN_SPI) += bfin_spi.o
