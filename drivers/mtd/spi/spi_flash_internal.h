@@ -20,6 +20,7 @@
 #define CMD_READ_ARRAY_LEGACY		0xe8
 
 #define CMD_PAGE_PROGRAM		0x02
+#define CMD_WRITE_DISABLE		0x04
 #define CMD_READ_STATUS			0x05
 #define CMD_WRITE_ENABLE		0x06
 
@@ -59,6 +60,14 @@ int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
 static inline int spi_flash_cmd_write_enable(struct spi_flash *flash)
 {
 	return spi_flash_cmd(flash->spi, CMD_WRITE_ENABLE, NULL, 0);
+}
+
+/*
+ * Disable writing on the SPI flash.
+ */
+static inline int spi_flash_cmd_write_disable(struct spi_flash *flash)
+{
+	return spi_flash_cmd(flash->spi, CMD_WRITE_DISABLE, NULL, 0);
 }
 
 /*

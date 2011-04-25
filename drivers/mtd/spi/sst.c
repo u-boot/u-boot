@@ -105,7 +105,7 @@ sst_enable_writing(struct spi_flash *flash)
 static int
 sst_disable_writing(struct spi_flash *flash)
 {
-	int ret = spi_flash_cmd(flash->spi, CMD_SST_WRDI, NULL, 0);
+	int ret = spi_flash_cmd_write_disable(flash);
 	if (ret)
 		debug("SF: Disabling Write failed\n");
 	return ret;
