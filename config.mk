@@ -211,6 +211,10 @@ CFLAGS := $(CPPFLAGS) -Wall -Wstrict-prototypes
 endif
 
 CFLAGS += $(call cc-option,-fno-stack-protector)
+# Some toolchains enable security related warning flags by default,
+# but they don't make much sense in the u-boot world, so disable them.
+CFLAGS += $(call cc-option,-Wno-format-nonliteral)
+CFLAGS += $(call cc-option,-Wno-format-security)
 
 # $(CPPFLAGS) sets -g, which causes gcc to pass a suitable -g<format>
 # option to the assembler.
