@@ -56,69 +56,6 @@ static const struct eon_spi_flash_params eon_spi_flash_table[] = {
 	},
 };
 
-static int eon_write(struct spi_flash *flash,
-		     u32 offset, size_t len, const void *buf)
-{
-	struct eon_spi_flash *eon = to_eon_spi_flash(flash);
-	unsigned long page_addr;
-	unsigned long byte_addr;
-	unsigned long page_size;
-	size_t chunk_len;
-	size_t actual;
-	int ret;
-	u8 cmd[4];
-
-	page_size = eon->params->page_size;
-	page_addr = offset / page_size;
-	byte_addr = offset % page_size;
-
-	ret = spi_claim_bus(flash->spi);
-	if (ret) {
-		debug("SF: Unable to claim SPI bus\n");
-		return ret;
-	}
-
-	ret = 0;
-	for (actual = 0; actual < len; actual += chunk_len) {
-		chunk_len = min(len - actual, page_size - byte_addr);
-
-		cmd[0] = CMD_EN25Q128_PP;
-		cmd[1] = page_addr >> 8;
-		cmd[2] = page_addr;
-		cmd[3] = byte_addr;
-
-		debug
-		    ("PP: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %d\n",
-		     buf + actual, cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
-
-		ret = spi_flash_cmd_write_enable(flash);
-		if (ret < 0) {
-			debug("SF: Enabling Write failed\n");
-			break;
-		}
-
-		ret = spi_flash_cmd_write(flash->spi, cmd, 4,
-					  buf + actual, chunk_len);
-		if (ret < 0) {
-			debug("SF: EON Page Program failed\n");
-			break;
-		}
-
-		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
-		if (ret)
-			break;
-
-		page_addr++;
-		byte_addr = 0;
-	}
-
-	debug("SF: EON: Successfully programmed %u bytes @ 0x%x\n",
-	      len, offset);
-
-	spi_release_bus(flash->spi);
-	return ret;
-}
-
 static int eon_erase(struct spi_flash *flash, u32 offset, size_t len)
 {
 	return spi_flash_cmd_erase(flash, CMD_EN25Q128_BE, offset, len);
@@ -151,9 +88,10 @@ struct spi_flash *spi_flash_probe_eon(struct spi_slave *spi, u8 *idcode)
 	eon->flash.spi = spi;
 	eon->flash.name = params->name;
 
-	eon->flash.write = eon_write;
+	eon->flash.write = spi_flash_cmd_write_multi;
 	eon->flash.erase = eon_erase;
 	eon->flash.read = spi_flash_cmd_read_fast;
+	eon->flash.page_size = params->page_size;
 	eon->flash.sector_size = params->page_size * params->pages_per_sector
 	    * params->sectors_per_block;
 	eon->flash.size = params->page_size * params->pages_per_sector

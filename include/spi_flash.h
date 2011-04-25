@@ -31,8 +31,11 @@ struct spi_flash {
 
 	const char	*name;
 
+	/* Total flash size */
 	u32		size;
-
+	/* Write (page) size */
+	u32		page_size;
+	/* Erase (sector) size */
 	u32		sector_size;
 
 	int		(*read)(struct spi_flash *flash, u32 offset,

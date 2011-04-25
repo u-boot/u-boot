@@ -65,6 +65,63 @@ int spi_flash_cmd_write(struct spi_slave *spi, const u8 *cmd, size_t cmd_len,
 	return spi_flash_read_write(spi, cmd, cmd_len, data, NULL, data_len);
 }
 
+int spi_flash_cmd_write_multi(struct spi_flash *flash, u32 offset,
+		size_t len, const void *buf)
+{
+	unsigned long page_addr, byte_addr, page_size;
+	size_t chunk_len, actual;
+	int ret;
+	u8 cmd[4];
+
+	page_size = flash->page_size;
+	page_addr = offset / page_size;
+	byte_addr = offset % page_size;
+
+	ret = spi_claim_bus(flash->spi);
+	if (ret) {
+		debug("SF: unable to claim SPI bus\n");
+		return ret;
+	}
+
+	cmd[0] = CMD_PAGE_PROGRAM;
+	for (actual = 0; actual < len; actual += chunk_len) {
+		chunk_len = min(len - actual, page_size - byte_addr);
+
+		cmd[1] = page_addr >> 8;
+		cmd[2] = page_addr;
+		cmd[3] = byte_addr;
+
+		debug("PP: 0x%p => cmd = { 0x%02x 0x%02x%02x%02x } chunk_len = %zu\n",
+		      buf + actual, cmd[0], cmd[1], cmd[2], cmd[3], chunk_len);
+
+		ret = spi_flash_cmd_write_enable(flash);
+		if (ret < 0) {
+			debug("SF: enabling write failed\n");
+			break;
+		}
+
+		ret = spi_flash_cmd_write(flash->spi, cmd, 4,
+					  buf + actual, chunk_len);
+		if (ret < 0) {
+			debug("SF: write failed\n");
+			break;
+		}
+
+		ret = spi_flash_cmd_wait_ready(flash, SPI_FLASH_PROG_TIMEOUT);
+		if (ret)
+			break;
+
+		page_addr++;
+		byte_addr = 0;
+	}
+
+	debug("SF: program %s %zu bytes @ %#x\n",
+	      ret ? "failure" : "success", len, offset);
+
+	spi_release_bus(flash->spi);
+	return ret;
+}
+
 int spi_flash_read_common(struct spi_flash *flash, const u8 *cmd,
 		size_t cmd_len, void *data, size_t data_len)
 {
