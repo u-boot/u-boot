@@ -36,8 +36,12 @@
 #define SST_SR_AAI		(1 << 6)	/* Addressing mode */
 #define SST_SR_BPL		(1 << 7)	/* BP bits lock */
 
+#define SST_FEAT_WP		(1 << 0)	/* Supports AAI word program */
+#define SST_FEAT_MBP		(1 << 1)	/* Supports multibyte program */
+
 struct sst_spi_flash_params {
 	u8 idcode1;
+	u8 flags;
 	u16 nr_sectors;
 	const char *name;
 };
@@ -53,41 +57,51 @@ static inline struct sst_spi_flash *to_sst_spi_flash(struct spi_flash *flash)
 }
 
 #define SST_SECTOR_SIZE (4 * 1024)
+#define SST_PAGE_SIZE   256
 static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 	{
 		.idcode1 = 0x8d,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 128,
 		.name = "SST25VF040B",
 	},{
 		.idcode1 = 0x8e,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 256,
 		.name = "SST25VF080B",
 	},{
 		.idcode1 = 0x41,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 512,
 		.name = "SST25VF016B",
 	},{
 		.idcode1 = 0x4a,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 1024,
 		.name = "SST25VF032B",
 	},{
 		.idcode1 = 0x4b,
+		.flags = SST_FEAT_MBP,
 		.nr_sectors = 2048,
 		.name = "SST25VF064C",
 	},{
 		.idcode1 = 0x01,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 16,
 		.name = "SST25WF512",
 	},{
 		.idcode1 = 0x02,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 32,
 		.name = "SST25WF010",
 	},{
 		.idcode1 = 0x03,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 64,
 		.name = "SST25WF020",
 	},{
 		.idcode1 = 0x04,
+		.flags = SST_FEAT_WP,
 		.nr_sectors = 128,
 		.name = "SST25WF040",
 	},
@@ -137,7 +151,7 @@ sst_byte_write(struct spi_flash *flash, u32 offset, const void *buf)
 }
 
 static int
-sst_write(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
+sst_write_wp(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 {
 	size_t actual, cmd_len;
 	int ret;
@@ -257,9 +271,13 @@ spi_flash_probe_sst(struct spi_slave *spi, u8 *idcode)
 	stm->flash.spi = spi;
 	stm->flash.name = params->name;
 
-	stm->flash.write = sst_write;
+	if (stm->params->flags & SST_FEAT_WP)
+		stm->flash.write = sst_write_wp;
+	else
+		stm->flash.write = spi_flash_cmd_write_multi;
 	stm->flash.erase = sst_erase;
 	stm->flash.read = spi_flash_cmd_read_fast;
+	stm->flash.page_size = SST_PAGE_SIZE;
 	stm->flash.sector_size = SST_SECTOR_SIZE;
 	stm->flash.size = stm->flash.sector_size * params->nr_sectors;
 
