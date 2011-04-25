@@ -113,7 +113,7 @@ typedef struct tid_8xx_cpmtimer_s {
 
 void setPeriod (tid_8xx_cpmtimer_t *hwp, ulong interval);
 
-static char *usage = "\n[q, b, e, ?] ";
+static const char usage[] = "\n[q, b, e, ?] ";
 
 int timer (int argc, char * const argv[])
 {
@@ -186,7 +186,7 @@ int timer (int argc, char * const argv[])
 	/* clear all events */
 	*hwp->terp = (CPMT_EVENT_CAP | CPMT_EVENT_REF);
 
-	printf (usage);
+	puts(usage);
 	running = 0;
 	while ((c = getc()) != 'q') {
 	    if (c == 'b') {
@@ -255,7 +255,7 @@ int timer (int argc, char * const argv[])
 	    } else {
 		printf ("\nEnter: q - quit, b - start timer, e - stop timer, ? - get status\n");
 	    }
-	    printf (usage);
+	    puts(usage);
 	}
 	if (running) {
 		printf ("Stopping timer\n");

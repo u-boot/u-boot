@@ -62,7 +62,7 @@ int atmLoad()
   volatile iop8xx_t      *iop    = &immap->im_ioport;
 
   timers->cpmt_tgcr &=  0x0FFF; SYNC;             /* Disable Timer 4 */
-  immap->im_cpm.cp_scc[4].scc_gsmrl = 0x0; SYNC; /* Disable SCC4 */
+  immap->im_cpm.cp_scc[3].scc_gsmrl = 0x0; SYNC; /* Disable SCC4 */
   iop->iop_pdpar &= 0x3FFF; SYNC;                 /* Disable SAR and UTOPIA */
 
   if ( atmMemInit() != OK ) return ERROR;
@@ -96,7 +96,7 @@ void atmUnload()
   volatile iop8xx_t      *iop    = &immap->im_ioport;
 
   timers->cpmt_tgcr &=  0x0FFF; SYNC;             /* Disable Timer 4 */
-  immap->im_cpm.cp_scc[4].scc_gsmrl = 0x0; SYNC;  /* Disable SCC4 */
+  immap->im_cpm.cp_scc[3].scc_gsmrl = 0x0; SYNC;  /* Disable SCC4 */
   iop->iop_pdpar &= 0x3FFF; SYNC;                 /* Disable SAR and UTOPIA */
   g_atm.loaded = FALSE;
 }
