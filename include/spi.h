@@ -26,13 +26,6 @@
 
 /* Controller-specific definitions: */
 
-/* CONFIG_HARD_SPI triggers SPI bus initialization in PowerPC */
-#ifdef CONFIG_MPC8XXX_SPI
-# ifndef CONFIG_HARD_SPI
-#  define CONFIG_HARD_SPI
-# endif
-#endif
-
 /* SPI mode flags */
 #define	SPI_CPHA	0x01			/* clock phase */
 #define	SPI_CPOL	0x02			/* clock polarity */
