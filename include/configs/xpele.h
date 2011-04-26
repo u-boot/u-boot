@@ -28,6 +28,7 @@
 	"ramdisk_size=0x200000\0" 	\
 	"nand_kernel_size=0x400000\0" 	\
 	"nand_ramdisk_size=0x400000\0" 	\
+	"bootcmd=run modeboot\0"	\
 	"norboot=echo Copying Linux from NOR flash to RAM...;			\
 			    cp 0xE2100000 0x8000 ${kernel_size};		\
 			    echo Copying ramdisk from NOR flash to RAM...; 	\
@@ -217,5 +218,7 @@
 #define CONFIG_CMD_FAT
 #define CONFIG_DOS_PARTITION
 #endif
+
+#define BOARD_LATE_INIT	1
 
 #endif /* __CONFIG_H */

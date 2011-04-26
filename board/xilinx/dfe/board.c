@@ -12,6 +12,14 @@
 #define PARPORT_MC_SET_CYCLES                   0x014
 #define PARPORT_MC_SET_OPMODE                   0x018
 
+#define BOOT_MODE_REG     (XPSS_SYS_CTRL_BASEADDR + 0x25C)
+#define BOOT_MODES_MASK    0x0000000F
+#define QSPI_MODE         (0x00000000)            /**< QSPI */
+#define NAND_FLASH_MODE   (0x00000001)            /**< NAND */
+#define NOR_FLASH_MODE    (0x00000002)            /**< NOR  */
+#define SD_MODE           (0x00000008)            /**< Secure Digital card */
+
+
 DECLARE_GLOBAL_DATA_PTR;
 
 /* Where should these really go? */
@@ -88,6 +96,32 @@ int board_init(void)
 {
 	icache_enable();
 	init_nor_flash();
+
+	return 0;
+}
+
+int board_late_init (void)
+{
+	u32 boot_mode;
+
+	boot_mode = (In32(BOOT_MODE_REG) & BOOT_MODES_MASK);
+	switch(boot_mode) {
+	case QSPI_MODE:
+		setenv("modeboot", "run qspiboot");
+		break;
+	case NAND_FLASH_MODE:
+		setenv("modeboot", "run nandboot");
+		break;
+	case NOR_FLASH_MODE:
+		setenv("modeboot", "run norboot");
+		break;
+	case SD_MODE:
+		setenv("modeboot", "run sdboot");
+		break;
+	default:
+		setenv("modeboot", "");
+		break;
+	}
 	return 0;
 }
 
