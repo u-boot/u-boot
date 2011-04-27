@@ -544,11 +544,12 @@ int do_bootm_subcommand (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 		}
 			break;
 #endif
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_SYS_BOOTMAPSZ)
+#if defined(CONFIG_OF_LIBFDT)
 		case BOOTM_STATE_FDT:
 		{
-			ulong bootmap_base = getenv_bootm_low();
-			ret = boot_relocate_fdt(&images.lmb, bootmap_base,
+			boot_fdt_add_mem_rsv_regions(&images.lmb,
+						     images.ft_addr);
+			ret = boot_relocate_fdt(&images.lmb,
 				&images.ft_addr, &images.ft_len);
 			break;
 		}

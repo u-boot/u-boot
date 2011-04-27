@@ -454,6 +454,22 @@ phys_size_t getenv_bootm_size(void)
 #endif
 }
 
+phys_size_t getenv_bootm_mapsize(void)
+{
+	phys_size_t tmp;
+	char *s = getenv ("bootm_mapsize");
+	if (s) {
+		tmp = (phys_size_t)simple_strtoull (s, NULL, 16);
+		return tmp;
+	}
+
+#if defined(CONFIG_SYS_BOOTMAPSZ)
+	return CONFIG_SYS_BOOTMAPSZ;
+#else
+	return getenv_bootm_size();
+#endif
+}
+
 void memmove_wd (void *to, void *from, size_t len, ulong chunksz)
 {
 	if (to == from)
@@ -1169,10 +1185,37 @@ static int fit_check_fdt (const void *fit, int fdt_noffset, int verify)
 #define CONFIG_SYS_FDT_PAD 0x3000
 #endif
 
+#if defined(CONFIG_OF_LIBFDT)
+/**
+ * boot_fdt_add_mem_rsv_regions - Mark the memreserve sections as unusable
+ * @lmb: pointer to lmb handle, will be used for memory mgmt
+ * @fdt_blob: pointer to fdt blob base address
+ *
+ * Adds the memreserve regions in the dtb to the lmb block.  Adding the
+ * memreserve regions prevents u-boot from using them to store the initrd
+ * or the fdt blob.
+ */
+void boot_fdt_add_mem_rsv_regions(struct lmb *lmb, void *fdt_blob)
+{
+	uint64_t addr, size;
+	int i, total;
+
+	if (fdt_check_header (fdt_blob) != 0)
+		return;
+
+	total = fdt_num_mem_rsv(fdt_blob);
+	for (i = 0; i < total; i++) {
+		if (fdt_get_mem_rsv(fdt_blob, i, &addr, &size) != 0)
+			continue;
+		printf("   reserving fdt memory region: addr=%llx size=%llx\n",
+			(unsigned long long)addr, (unsigned long long)size);
+		lmb_reserve(lmb, addr, size);
+	}
+}
+
 /**
  * boot_relocate_fdt - relocate flat device tree
  * @lmb: pointer to lmb handle, will be used for memory mgmt
- * @bootmap_base: base address of the bootmap region
  * @of_flat_tree: pointer to a char* variable, will hold fdt start address
  * @of_size: pointer to a ulong variable, will hold fdt length
  *
@@ -1187,9 +1230,7 @@ static int fit_check_fdt (const void *fit, int fdt_noffset, int verify)
  *      0 - success
  *      1 - failure
  */
-#if defined(CONFIG_SYS_BOOTMAPSZ)
-int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
-		char **of_flat_tree, ulong *of_size)
+int boot_relocate_fdt (struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 {
 	void	*fdt_blob = *of_flat_tree;
 	void	*of_start = 0;
@@ -1209,7 +1250,7 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 	/* Pad the FDT by a specified amount */
 	of_len = *of_size + CONFIG_SYS_FDT_PAD;
 	of_start = (void *)(unsigned long)lmb_alloc_base(lmb, of_len, 0x1000,
-			(CONFIG_SYS_BOOTMAPSZ + bootmap_base));
+			getenv_bootm_mapsize() + getenv_bootm_low());
 
 	if (of_start == 0) {
 		puts("device tree - allocation error\n");
@@ -1238,7 +1279,7 @@ int boot_relocate_fdt (struct lmb *lmb, ulong bootmap_base,
 error:
 	return 1;
 }
-#endif /* CONFIG_SYS_BOOTMAPSZ */
+#endif /* CONFIG_OF_LIBFDT */
 
 /**
  * boot_get_fdt - main fdt handling routine
@@ -1567,11 +1608,9 @@ error:
  * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @cmd_start: pointer to a ulong variable, will hold cmdline start
  * @cmd_end: pointer to a ulong variable, will hold cmdline end
- * @bootmap_base: ulong variable, holds offset in physical memory to
- * base of bootmap
  *
  * boot_get_cmdline() allocates space for kernel command line below
- * BOOTMAPSZ + bootmap_base address. If "bootargs" U-boot environemnt
+ * BOOTMAPSZ + getenv_bootm_low() address. If "bootargs" U-boot environemnt
  * variable is present its contents is copied to allocated kernel
  * command line.
  *
@@ -1579,14 +1618,13 @@ error:
  *      0 - success
  *     -1 - failure
  */
-int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
-			ulong bootmap_base)
+int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end)
 {
 	char *cmdline;
 	char *s;
 
 	cmdline = (char *)(ulong)lmb_alloc_base(lmb, CONFIG_SYS_BARGSIZE, 0xf,
-					 CONFIG_SYS_BOOTMAPSZ + bootmap_base);
+				getenv_bootm_mapsize() + getenv_bootm_low());
 
 	if (cmdline == NULL)
 		return -1;
@@ -1610,21 +1648,19 @@ int boot_get_cmdline (struct lmb *lmb, ulong *cmd_start, ulong *cmd_end,
  * boot_get_kbd - allocate and initialize kernel copy of board info
  * @lmb: pointer to lmb handle, will be used for memory mgmt
  * @kbd: double pointer to board info data
- * @bootmap_base: ulong variable, holds offset in physical memory to
- * base of bootmap
  *
  * boot_get_kbd() allocates space for kernel copy of board info data below
- * BOOTMAPSZ + bootmap_base address and kernel board info is initialized with
- * the current u-boot board info data.
+ * BOOTMAPSZ + getenv_bootm_low() address and kernel board info is initialized
+ * with the current u-boot board info data.
  *
  * returns:
  *      0 - success
  *     -1 - failure
  */
-int boot_get_kbd (struct lmb *lmb, bd_t **kbd, ulong bootmap_base)
+int boot_get_kbd (struct lmb *lmb, bd_t **kbd)
 {
 	*kbd = (bd_t *)(ulong)lmb_alloc_base(lmb, sizeof(bd_t), 0xf,
-				      CONFIG_SYS_BOOTMAPSZ + bootmap_base);
+				getenv_bootm_mapsize() + getenv_bootm_low());
 	if (*kbd == NULL)
 		return -1;
 

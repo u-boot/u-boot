@@ -96,7 +96,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 		debug ("   Booting using OF flat tree...\n");
 		WATCHDOG_RESET ();
 		(*kernel) ((bd_t *)of_flat_tree, 0, 0, EPAPR_MAGIC,
-			   CONFIG_SYS_BOOTMAPSZ, 0, 0);
+			   getenv_bootm_mapsize(), 0, 0);
 		/* does not return */
 	} else
 #endif
@@ -186,7 +186,6 @@ static void boot_prep_linux(void)
 
 static int boot_cmdline_linux(bootm_headers_t *images)
 {
-	ulong bootmap_base = getenv_bootm_low();
 	ulong of_size = images->ft_len;
 	struct lmb *lmb = &images->lmb;
 	ulong *cmd_start = &images->cmdline_start;
@@ -196,7 +195,7 @@ static int boot_cmdline_linux(bootm_headers_t *images)
 
 	if (!of_size) {
 		/* allocate space and init command line */
-		ret = boot_get_cmdline (lmb, cmd_start, cmd_end, bootmap_base);
+		ret = boot_get_cmdline (lmb, cmd_start, cmd_end);
 		if (ret) {
 			puts("ERROR with allocation of cmdline\n");
 			return ret;
@@ -208,7 +207,6 @@ static int boot_cmdline_linux(bootm_headers_t *images)
 
 static int boot_bd_t_linux(bootm_headers_t *images)
 {
-	ulong bootmap_base = getenv_bootm_low();
 	ulong of_size = images->ft_len;
 	struct lmb *lmb = &images->lmb;
 	bd_t **kbd = &images->kbd;
@@ -217,7 +215,7 @@ static int boot_bd_t_linux(bootm_headers_t *images)
 
 	if (!of_size) {
 		/* allocate space for kernel copy of board info */
-		ret = boot_get_kbd (lmb, kbd, bootmap_base);
+		ret = boot_get_kbd (lmb, kbd);
 		if (ret) {
 			puts("ERROR with allocation of kernel bd\n");
 			return ret;
@@ -235,12 +233,15 @@ static int boot_body_linux(bootm_headers_t *images)
 	ulong *initrd_start = &images->initrd_start;
 	ulong *initrd_end = &images->initrd_end;
 #if defined(CONFIG_OF_LIBFDT)
-	ulong bootmap_base = getenv_bootm_low();
 	ulong of_size = images->ft_len;
 	char **of_flat_tree = &images->ft_addr;
 #endif
 
 	int ret;
+
+#if defined(CONFIG_OF_LIBFDT)
+	boot_fdt_add_mem_rsv_regions(lmb, *of_flat_tree);
+#endif
 
 	/* allocate space and init command line */
 	ret = boot_cmdline_linux(images);
@@ -257,8 +258,8 @@ static int boot_body_linux(bootm_headers_t *images)
 	if (ret)
 		return ret;
 
-#if defined(CONFIG_OF_LIBFDT) && defined(CONFIG_SYS_BOOTMAPSZ)
-	ret = boot_relocate_fdt(lmb, bootmap_base, of_flat_tree, &of_size);
+#if defined(CONFIG_OF_LIBFDT)
+	ret = boot_relocate_fdt(lmb, of_flat_tree, &of_size);
 	if (ret)
 		return ret;
 
@@ -296,7 +297,7 @@ static int boot_body_linux(bootm_headers_t *images)
 		if (*initrd_start && *initrd_end)
 			fdt_initrd(*of_flat_tree, *initrd_start, *initrd_end, 1);
 	}
-#endif	/* CONFIG_OF_LIBFDT && CONFIG_SYS_BOOTMAPSZ */
+#endif	/* CONFIG_OF_LIBFDT */
 	return 0;
 }
 
