@@ -197,7 +197,6 @@
 	{ FTSMC020_BANK0_CONFIG, FTSMC020_BANK0_TIMING, },	\
 	{ FTSMC020_BANK1_CONFIG, FTSMC020_BANK1_TIMING, },	\
 }
-#endif /* CONFIG_FTSMC020 */
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
