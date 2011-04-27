@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000 - 2009
+# (C) Copyright 2000 - 2011
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -739,10 +739,17 @@ The following options need to be configured:
 - Watchdog:
 		CONFIG_WATCHDOG
 		If this variable is defined, it enables watchdog
-		support. There must be support in the platform specific
-		code for a watchdog. For the 8xx and 8260 CPUs, the
-		SIU Watchdog feature is enabled in the SYPCR
-		register.
+		support for the SoC. There must be support in the SoC
+		specific code for a watchdog. For the 8xx and 8260
+		CPUs, the SIU Watchdog feature is enabled in the SYPCR
+		register.  When supported for a specific SoC is
+		available, then no further board specific code should
+		be needed to use it.
+
+		CONFIG_HW_WATCHDOG
+		When using a watchdog circuitry external to the used
+		SoC, then define this variable and provide board
+		specific code for the "hw_watchdog_reset" function.
 
 - U-Boot Version:
 		CONFIG_VERSION_VARIABLE
