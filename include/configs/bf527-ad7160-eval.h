@@ -128,9 +128,8 @@
  * SPI_MMC Settings
  */
 #define CONFIG_MMC
-#define CONFIG_CMD_EXT2
-#define CONFIG_SPI_MMC
-#define CONFIG_SPI_MMC_DEFAULT_CS (MAX_CTRL_CS + GPIO_PH3)
+#define CONFIG_GENERIC_MMC
+#define CONFIG_MMC_SPI
 
 
 /*

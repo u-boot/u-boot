@@ -34,9 +34,13 @@
 #  define CONFIG_DOS_PARTITION
 # endif
 # ifdef CONFIG_MMC
+#  define CONFIG_CMD_EXT2
 #  define CONFIG_CMD_FAT
 #  define CONFIG_CMD_MMC
 #  define CONFIG_DOS_PARTITION
+# endif
+# ifdef CONFIG_MMC_SPI
+#  define CONFIG_CMD_MMC_SPI
 # endif
 # ifdef CONFIG_USB
 #  define CONFIG_CMD_EXT2
@@ -273,6 +277,7 @@
  */
 #ifdef CONFIG_SPI_FLASH_ALL
 # define CONFIG_SPI_FLASH_ATMEL
+# define CONFIG_SPI_FLASH_EON
 # define CONFIG_SPI_FLASH_MACRONIX
 # define CONFIG_SPI_FLASH_SPANSION
 # define CONFIG_SPI_FLASH_SST
