@@ -23,15 +23,23 @@
 
 #include <common.h>
 #include <netdev.h>
-#include <asm/arch/mx31.h>
-#include <asm/arch/mx31-regs.h>
+#include <asm/arch/clock.h>
+#include <asm/arch/imx-regs.h>
 #include <asm/io.h>
 #include <nand.h>
 #include <fsl_pmic.h>
 #include <mxc_gpio.h>
 #include "qong_fpga.h"
+#include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
+
+#ifdef CONFIG_HW_WATCHDOG
+void hw_watchdog_reset(void)
+{
+	mxc_hw_watchdog_reset();
+}
+#endif
 
 int dram_init (void)
 {
@@ -201,6 +209,10 @@ int board_late_init(void)
 	val = pmic_reg_read(REG_POWER_CTL0);
 	pmic_reg_write(REG_POWER_CTL0, val | COINCHEN);
 	pmic_reg_write(REG_INT_STATUS1, RTCRSTI);
+
+#ifdef CONFIG_HW_WATCHDOG
+	mxc_hw_watchdog_enable();
+#endif
 
 	return 0;
 }

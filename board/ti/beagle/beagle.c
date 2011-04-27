@@ -30,6 +30,9 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#ifdef CONFIG_STATUS_LED
+#include <status_led.h>
+#endif
 #include <twl4030.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
@@ -37,7 +40,18 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/gpio.h>
 #include <asm/mach-types.h>
+#ifdef CONFIG_USB_EHCI
+#include <usb.h>
+#include <asm/arch/clocks.h>
+#include <asm/arch/clocks_omap3.h>
+#include <asm/arch/ehci_omap3.h>
+/* from drivers/usb/host/ehci-core.h */
+extern struct ehci_hccr *hccr;
+extern volatile struct ehci_hcor *hcor;
+#endif
 #include "beagle.h"
+
+#define pr_debug(fmt, args...) debug(fmt, ##args)
 
 #define TWL4030_I2C_BUS			0
 #define EXPANSION_EEPROM_I2C_BUS	1
@@ -48,7 +62,12 @@
 #define TINCANTOOLS_TRAINER		0x04000100
 #define TINCANTOOLS_SHOWDOG		0x03000100
 #define KBADC_BEAGLEFPGA		0x01000600
-
+#define LW_BEAGLETOUCH			0x01000700
+#define BRAINMUX_LCDOG			0x01000800
+#define BRAINMUX_LCDOGTOUCH		0x02000800
+#define BBTOYS_WIFI			0x01000B00
+#define BBTOYS_VGA			0x02000B00
+#define BBTOYS_LCD			0x03000B00
 #define BEAGLE_NO_EEPROM		0xffffffff
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -73,6 +92,10 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_OMAP3_BEAGLE;
 	/* boot param addr */
 	gd->bd->bi_boot_params = (OMAP34XX_SDRC_CS0 + 0x100);
+
+#if defined(CONFIG_STATUS_LED) && defined(STATUS_LED_BOOT)
+	status_led_set (STATUS_LED_BOOT, STATUS_LED_ON);
+#endif
 
 	return 0;
 }
@@ -148,23 +171,24 @@ int misc_init_r(void)
 {
 	struct gpio *gpio5_base = (struct gpio *)OMAP34XX_GPIO5_BASE;
 	struct gpio *gpio6_base = (struct gpio *)OMAP34XX_GPIO6_BASE;
+	struct control_prog_io *prog_io_base = (struct gpio *)OMAP34XX_CTRL_BASE;
+
+	/* Enable i2c2 pullup resisters */
+	writel(~(PRG_I2C2_PULLUPRESX), &prog_io_base->io1);
 
 	switch (get_board_revision()) {
 	case REVISION_AXBX:
 		printf("Beagle Rev Ax/Bx\n");
 		setenv("beaglerev", "AxBx");
-		setenv("mpurate", "600");
 		break;
 	case REVISION_CX:
 		printf("Beagle Rev C1/C2/C3\n");
 		setenv("beaglerev", "Cx");
-		setenv("mpurate", "600");
 		MUX_BEAGLE_C();
 		break;
 	case REVISION_C4:
 		printf("Beagle Rev C4\n");
 		setenv("beaglerev", "C4");
-		setenv("mpurate", "720");
 		MUX_BEAGLE_C();
 		/* Set VAUX2 to 1.8V for EHCI PHY */
 		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
@@ -172,10 +196,19 @@ int misc_init_r(void)
 					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
 					TWL4030_PM_RECEIVER_DEV_GRP_P1);
 		break;
-	case REVISION_XM:
+	case REVISION_XM_A:
 		printf("Beagle xM Rev A\n");
 		setenv("beaglerev", "xMA");
-		setenv("mpurate", "1000");
+		MUX_BEAGLE_XM();
+		/* Set VAUX2 to 1.8V for EHCI PHY */
+		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
+					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
+					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
+					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+		break;
+	case REVISION_XM_B:
+		printf("Beagle xM Rev B\n");
+		setenv("beaglerev", "xMB");
 		MUX_BEAGLE_XM();
 		/* Set VAUX2 to 1.8V for EHCI PHY */
 		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
@@ -185,6 +218,12 @@ int misc_init_r(void)
 		break;
 	default:
 		printf("Beagle unknown 0x%02x\n", get_board_revision());
+		MUX_BEAGLE_XM();
+		/* Set VAUX2 to 1.8V for EHCI PHY */
+		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
+					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
+					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
+					TWL4030_PM_RECEIVER_DEV_GRP_P1);
 	}
 
 	switch (get_expansion_id()) {
@@ -223,6 +262,29 @@ int misc_init_r(void)
 		MUX_KBADC_BEAGLEFPGA();
 		setenv("buddy", "beaglefpga");
 		break;
+	case LW_BEAGLETOUCH:
+		printf("Recognized Liquidware BeagleTouch board\n");
+		setenv("buddy", "beagletouch");
+		break;
+	case BRAINMUX_LCDOG:
+		printf("Recognized Brainmux LCDog board\n");
+		setenv("buddy", "lcdog");
+		break;
+	case BRAINMUX_LCDOGTOUCH:
+		printf("Recognized Brainmux LCDog Touch board\n");
+		setenv("buddy", "lcdogtouch");
+		break;
+	case BBTOYS_WIFI:
+		printf("Recognized BeagleBoardToys WiFi board\n");
+		MUX_BBTOYS_WIFI()
+		setenv("buddy", "bbtoys-wifi");
+		break;;
+	case BBTOYS_VGA:
+		printf("Recognized BeagleBoardToys VGA board\n");
+		break;;
+	case BBTOYS_LCD:
+		printf("Recognized BeagleBoardToys LCD board\n");
+		break;;
 	case BEAGLE_NO_EEPROM:
 		printf("No EEPROM on expansion board\n");
 		setenv("buddy", "none");
@@ -273,3 +335,98 @@ int board_mmc_init(bd_t *bis)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_USB_EHCI
+
+#define GPIO_PHY_RESET 147
+
+/* Reset is needed otherwise the kernel-driver will throw an error. */
+int ehci_hcd_stop(void)
+{
+	pr_debug("Resetting OMAP3 EHCI\n");
+	omap_set_gpio_dataout(GPIO_PHY_RESET, 0);
+	writel(OMAP_UHH_SYSCONFIG_SOFTRESET, OMAP3_UHH_BASE + OMAP_UHH_SYSCONFIG);
+	return 0;
+}
+
+/* Call usb_stop() before starting the kernel */
+void show_boot_progress(int val)
+{
+	if(val == 15)
+		usb_stop();
+}
+
+/*
+ * Initialize the OMAP3 EHCI controller and PHY on the BeagleBoard.
+ * Based on "drivers/usb/host/ehci-omap.c" from Linux 2.6.37.
+ * See there for additional Copyrights.
+ */
+int ehci_hcd_init(void)
+{
+	pr_debug("Initializing OMAP3 ECHI\n");
+
+	/* Put the PHY in RESET */
+	omap_request_gpio(GPIO_PHY_RESET);
+	omap_set_gpio_direction(GPIO_PHY_RESET, 0);
+	omap_set_gpio_dataout(GPIO_PHY_RESET, 0);
+
+	/* Hold the PHY in RESET for enough time till DIR is high */
+	/* Refer: ISSUE1 */
+	udelay(10);
+
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+	/* Enable USBHOST_L3_ICLK (USBHOST_MICLK) */
+	sr32(&prcm_base->iclken_usbhost, 0, 1, 1);
+	/*
+	 * Enable USBHOST_48M_FCLK (USBHOST_FCLK1)
+	 * and USBHOST_120M_FCLK (USBHOST_FCLK2)
+	 */
+	sr32(&prcm_base->fclken_usbhost, 0, 2, 3);
+	/* Enable USBTTL_ICLK */
+	sr32(&prcm_base->iclken3_core, 2, 1, 1);
+	/* Enable USBTTL_FCLK */
+	sr32(&prcm_base->fclken3_core, 2, 1, 1);
+	pr_debug("USB clocks enabled\n");
+
+	/* perform TLL soft reset, and wait until reset is complete */
+	writel(OMAP_USBTLL_SYSCONFIG_SOFTRESET,
+		OMAP3_USBTLL_BASE + OMAP_USBTLL_SYSCONFIG);
+	/* Wait for TLL reset to complete */
+	while (!(readl(OMAP3_USBTLL_BASE + OMAP_USBTLL_SYSSTATUS)
+			& OMAP_USBTLL_SYSSTATUS_RESETDONE));
+	pr_debug("TLL reset done\n");
+
+	writel(OMAP_USBTLL_SYSCONFIG_ENAWAKEUP |
+		OMAP_USBTLL_SYSCONFIG_SIDLEMODE |
+		OMAP_USBTLL_SYSCONFIG_CACTIVITY,
+		OMAP3_USBTLL_BASE + OMAP_USBTLL_SYSCONFIG);
+
+	/* Put UHH in NoIdle/NoStandby mode */
+	writel(OMAP_UHH_SYSCONFIG_ENAWAKEUP
+		| OMAP_UHH_SYSCONFIG_SIDLEMODE
+		| OMAP_UHH_SYSCONFIG_CACTIVITY
+		| OMAP_UHH_SYSCONFIG_MIDLEMODE,
+		OMAP3_UHH_BASE + OMAP_UHH_SYSCONFIG);
+
+	/* setup burst configurations */
+	writel(OMAP_UHH_HOSTCONFIG_INCR4_BURST_EN
+		| OMAP_UHH_HOSTCONFIG_INCR8_BURST_EN
+		| OMAP_UHH_HOSTCONFIG_INCR16_BURST_EN,
+		OMAP3_UHH_BASE + OMAP_UHH_HOSTCONFIG);
+
+	/*
+	 * Refer ISSUE1:
+	 * Hold the PHY in RESET for enough time till
+	 * PHY is settled and ready
+	 */
+	udelay(10);
+	omap_set_gpio_dataout(GPIO_PHY_RESET, 1);
+
+	hccr = (struct ehci_hccr *)(OMAP3_EHCI_BASE);
+	hcor = (struct ehci_hcor *)(OMAP3_EHCI_BASE + 0x10);
+
+	pr_debug("OMAP3 EHCI init done\n");
+	return 0;
+}
+
+#endif /* CONFIG_USB_EHCI */

@@ -22,7 +22,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include <asm/arch/mx31-regs.h>
+#include <asm/arch/imx-regs.h>
 
  /* High Level Configuration Options */
 #define CONFIG_ARM1136		1		/* This is an arm1136 CPU core */

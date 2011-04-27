@@ -145,7 +145,7 @@ int cpu_mmc_init (bd_t * bis)
 }
 
 #ifdef CONFIG_MXC_UART
-void mx25_uart_init_pins (void)
+void mx25_uart1_init_pins(void)
 {
 	struct iomuxc_mux_ctl *muxctl;
 	struct iomuxc_pad_ctl *padctl;

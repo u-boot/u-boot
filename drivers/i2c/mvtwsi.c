@@ -2,7 +2,7 @@
  * Driver for the TWSI (i2c) controller found on the Marvell
  * orion5x and kirkwood SoC families.
  *
- * Author: Albert Aribaud <albert.aribaud@free.fr>
+ * Author: Albert Aribaud <albert.u.boot@aribaud.net>
  * Copyright (c) 2010 Albert Aribaud.
  *
  * See file CREDITS for list of people who contributed to this

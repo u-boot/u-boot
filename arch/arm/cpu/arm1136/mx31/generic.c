@@ -22,7 +22,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/mx31-regs.h>
+#include <asm/arch/imx-regs.h>
 #include <asm/io.h>
 
 static u32 mx31_decode_pll(u32 reg, u32 infreq)
@@ -106,11 +106,64 @@ void mx31_set_pad(enum iomux_pins pin, u32 config)
 
 }
 
+struct mx3_cpu_type mx31_cpu_type[] = {
+	{ .srev = 0x00,	.v = "1.0"  },
+	{ .srev = 0x10,	.v = "1.1"  },
+	{ .srev = 0x11,	.v = "1.1"  },
+	{ .srev = 0x12,	.v = "1.15" },
+	{ .srev = 0x13,	.v = "1.15" },
+	{ .srev = 0x14,	.v = "1.2"  },
+	{ .srev = 0x15,	.v = "1.2"  },
+	{ .srev = 0x28,	.v = "2.0"  },
+	{ .srev = 0x29,	.v = "2.0"  },
+};
+
+char *get_cpu_rev(void)
+{
+	u32 i, srev;
+
+	/* read SREV register from IIM module */
+	struct iim_regs *iim = (struct iim_regs *)MX31_IIM_BASE_ADDR;
+	srev = readl(&iim->iim_srev);
+
+	for (i = 0; i < ARRAY_SIZE(mx31_cpu_type); i++)
+		if (srev == mx31_cpu_type[i].srev)
+			return mx31_cpu_type[i].v;
+		return "unknown";
+}
+
+char *get_reset_cause(void)
+{
+	/* read RCSR register from CCM module */
+	struct clock_control_regs *ccm =
+		(struct clock_control_regs *)CCM_BASE;
+
+	u32 cause = readl(&ccm->rcsr) & 0x07;
+
+	switch (cause) {
+	case 0x0000:
+		return "POR";
+		break;
+	case 0x0001:
+		return "RST";
+		break;
+	case 0x0002:
+		return "WDOG";
+		break;
+	case 0x0006:
+		return "JTAG";
+		break;
+	default:
+		return "unknown reset";
+	}
+}
+
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo (void)
 {
-	printf("CPU:   Freescale i.MX31 at %d MHz\n",
-		mx31_get_mcu_main_clk() / 1000000);
+	printf("CPU:   Freescale i.MX31 rev %s at %d MHz.",
+			get_cpu_rev(), mx31_get_mcu_main_clk() / 1000000);
+	printf("Reset cause: %s\n", get_reset_cause());
 	return 0;
 }
 #endif

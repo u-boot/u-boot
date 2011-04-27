@@ -1,7 +1,8 @@
 /*
- * (C) Copyright 2010
+ * (C) Copyright 2011
  * CompuLab, Ltd.
  * Mike Rapoport <mike@compulab.co.il>
+ * Igor Grinberg <grinberg@compulab.co.il>
  *
  * Based on omap3_beagle.h
  * (C) Copyright 2006-2008
@@ -9,7 +10,7 @@
  * Richard Woodruff <r-woodruff2@ti.com>
  * Syed Mohammed Khasim <x0khasim@ti.com>
  *
- * Configuration settings for the CompuLab CM-T35 board
+ * Configuration settings for the CompuLab CM-T35 and CM-T3730 boards
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -26,8 +27,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Foundation, Inc.
  */
 
 #ifndef __CONFIG_H
@@ -40,7 +40,7 @@
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3430		1	/* which is in a 3430 */
-#define CONFIG_CM_T35		1	/* working with CM-T35 */
+#define CONFIG_CM_T3X		1	/* working with CM-T35 and CM-T3730 */
 
 #define CONFIG_SYS_TEXT_BASE	0x80008000
 
@@ -110,9 +110,8 @@
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
-#define CONFIG_GENERIC_MMC		1
 #define CONFIG_MMC			1
-#define CONFIG_OMAP_HSMMC		1
+#define CONFIG_OMAP3_MMC		1
 #define CONFIG_DOS_PARTITION		1
 
 /* DDR - I use Micron DDR */
@@ -244,14 +243,17 @@
 		"fi; " \
 	"else run nandboot; fi"
 
-#define CONFIG_AUTO_COMPLETE		1
 /*
  * Miscellaneous configurable options
  */
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMDLINE_EDITING
+#define CONFIG_TIMESTAMP
+#define CONFIG_SYS_AUTOLOAD     "no"
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
 #define CONFIG_SYS_HUSH_PARSER		/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
-#define CONFIG_SYS_PROMPT		"CM-T35 # "
+#define CONFIG_SYS_PROMPT		"CM-T3x # "
 #define CONFIG_SYS_CBSIZE		256	/* Console I/O Buffer Size */
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
@@ -310,7 +312,9 @@
 
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 2 sectors */
 
-#define CONFIG_SYS_FLASH_BASE		boot_flash_base
+#if defined(CONFIG_CMD_NAND)
+#define CONFIG_SYS_FLASH_BASE		PISMO1_NAND_BASE
+#endif
 
 /* Monitor at start of flash */
 #define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_FLASH_BASE
@@ -320,25 +324,17 @@
 #define ONENAND_ENV_OFFSET		0x260000 /* environment starts here */
 #define SMNAND_ENV_OFFSET		0x260000 /* environment starts here */
 
-#define CONFIG_SYS_ENV_SECT_SIZE	boot_flash_sec
-#define CONFIG_ENV_OFFSET		boot_flash_off
+#define CONFIG_SYS_ENV_SECT_SIZE	(128 << 10)	/* 128 KiB */
+#define CONFIG_ENV_OFFSET		SMNAND_ENV_OFFSET
 #define CONFIG_ENV_ADDR			SMNAND_ENV_OFFSET
-
-#ifndef __ASSEMBLY__
-extern unsigned int boot_flash_base;
-extern volatile unsigned int boot_flash_env_addr;
-extern unsigned int boot_flash_off;
-extern unsigned int boot_flash_sec;
-extern unsigned int boot_flash_type;
-#endif
 
 #if defined(CONFIG_CMD_NET)
 #define CONFIG_NET_MULTI
 #define CONFIG_SMC911X
 #define CONFIG_SMC911X_32_BIT
-#define CM_T35_SMC911X_BASE	0x2C000000
-#define SB_T35_SMC911X_BASE	(CM_T35_SMC911X_BASE + (16 << 20))
-#define CONFIG_SMC911X_BASE	CM_T35_SMC911X_BASE
+#define CM_T3X_SMC911X_BASE	0x2C000000
+#define SB_T35_SMC911X_BASE	(CM_T3X_SMC911X_BASE + (16 << 20))
+#define CONFIG_SMC911X_BASE	CM_T3X_SMC911X_BASE
 #endif /* (CONFIG_CMD_NET) */
 
 /* additions for new relocation code, must be added to all boards */
@@ -348,5 +344,20 @@ extern unsigned int boot_flash_type;
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_INIT_RAM_ADDR +	\
 					 CONFIG_SYS_INIT_RAM_SIZE -	\
 					 GENERATED_GBL_DATA_SIZE)
+
+/* Status LED */
+#define CONFIG_STATUS_LED		1 /* Status LED enabled */
+#define CONFIG_BOARD_SPECIFIC_LED	1
+#define STATUS_LED_GREEN		0
+#define STATUS_LED_BIT			STATUS_LED_GREEN
+#define STATUS_LED_STATE		STATUS_LED_ON
+#define STATUS_LED_PERIOD		(CONFIG_SYS_HZ / 2)
+#define STATUS_LED_BOOT			STATUS_LED_BIT
+#define GREEN_LED_GPIO			186 /* CM-T35 Green LED is GPIO186 */
+
+/* GPIO banks */
+#ifdef CONFIG_STATUS_LED
+#define CONFIG_OMAP3_GPIO_6		1 /* GPIO186 is in GPIO bank 6  */
+#endif
 
 #endif /* __CONFIG_H */

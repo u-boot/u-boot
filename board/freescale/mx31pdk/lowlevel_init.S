@@ -21,7 +21,7 @@
  */
 
 #include <config.h>
-#include <asm/arch/mx31-regs.h>
+#include <asm/arch/imx-regs.h>
 #include <asm/macro.h>
 
 .globl lowlevel_init

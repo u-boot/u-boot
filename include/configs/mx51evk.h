@@ -33,6 +33,8 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
+#define CONFIG_SYS_TEXT_BASE	0x97800000
+
 #define CONFIG_L2_OFF
 
 #include <asm/arch/imx-regs.h>
@@ -221,5 +223,8 @@
 #define CONFIG_ENV_SIZE        (8 * 1024)
 #define CONFIG_ENV_IS_IN_MMC
 #define CONFIG_SYS_MMC_ENV_DEV 0
+
+#define CONFIG_OF_LIBFDT
+#define CONFIG_SYS_BOOTMAPSZ   0x800000
 
 #endif

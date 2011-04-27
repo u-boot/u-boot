@@ -127,14 +127,61 @@
  */
 #define CONFIG_TWL4030_POWER		1
 
-/* Environment information */
-#define CONFIG_BOOTCOMMAND \
-	"mmc init 0 ; fatload mmc 0 0x80000000 setup.ini ; source \0"
-
 #define CONFIG_BOOTDELAY		3
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"usbtty=cdc_acm\0"
+	"usbtty=cdc_acm\0" \
+	"loadaddr=0x82000000\0" \
+	"usbtty=cdc_acm\0" \
+	"console=ttyS2,115200n8\0" \
+	"mpurate=500\0" \
+	"vram=12M\0" \
+	"dvimode=1024x768MR-16@60\0" \
+	"defaultdisplay=dvi\0" \
+	"mmcdev=0\0" \
+	"mmcroot=/dev/mmcblk0p2 rw\0" \
+	"mmcrootfstype=ext3 rootwait\0" \
+	"nandroot=/dev/mtdblock4 rw\0" \
+	"nandrootfstype=jffs2\0" \
+	"mmcargs=setenv bootargs console=${console} " \
+		"mpurate=${mpurate} " \
+		"vram=${vram} " \
+		"omapfb.mode=dvi:${dvimode} " \
+		"omapfb.debug=y " \
+		"omapdss.def_disp=${defaultdisplay} " \
+		"root=${mmcroot} " \
+		"rootfstype=${mmcrootfstype}\0" \
+	"nandargs=setenv bootargs console=${console} " \
+		"mpurate=${mpurate} " \
+		"vram=${vram} " \
+		"omapfb.mode=dvi:${dvimode} " \
+		"omapfb.debug=y " \
+		"omapdss.def_disp=${defaultdisplay} " \
+		"root=${nandroot} " \
+		"rootfstype=${nandrootfstype}\0" \
+	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
+	"bootscript=echo Running bootscript from mmc ...; " \
+		"source ${loadaddr}\0" \
+	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
+	"mmcboot=echo Booting from mmc ...; " \
+		"run mmcargs; " \
+		"bootm ${loadaddr}\0" \
+	"nandboot=echo Booting from onenand ...; " \
+		"run nandargs; " \
+		"onenand read ${loadaddr} 280000 400000; " \
+		"bootm ${loadaddr}\0" \
+
+#define CONFIG_BOOTCOMMAND \
+	"if mmc rescan ${mmcdev}; then " \
+		"if run loadbootscript; then " \
+			"run bootscript; " \
+		"else " \
+			"if run loaduimage; then " \
+				"run mmcboot; " \
+			"else run nandboot; " \
+			"fi; " \
+		"fi; " \
+	"else run nandboot; fi"
 
 #define CONFIG_AUTO_COMPLETE		1
 

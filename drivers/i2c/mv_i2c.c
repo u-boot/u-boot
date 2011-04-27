@@ -8,6 +8,9 @@
  * (C) Copyright 2003 Pengutronix e.K.
  * Robert Schwebel <r.schwebel@pengutronix.de>
  *
+ * (C) Copyright 2011 Marvell Inc.
+ * Lei Wen <leiwen@marvell.com>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -30,53 +33,18 @@
  * Murray.Jensen@cmst.csiro.au, 27-Jan-01.
  */
 
-/* FIXME: this file is PXA255 specific! What about other XScales? */
-
 #include <common.h>
 #include <asm/io.h>
 
 #ifdef CONFIG_HARD_I2C
-
-/*
- *	- CONFIG_SYS_I2C_SPEED
- *	- I2C_PXA_SLAVE_ADDR
- */
-
-#include <asm/arch/hardware.h>
-#include <asm/arch/pxa-regs.h>
 #include <i2c.h>
-
-/*#define	DEBUG_I2C	1	/###* activate local debugging output  */
-#define I2C_PXA_SLAVE_ADDR	0x1	/* slave pxa unit address           */
-
-#if (CONFIG_SYS_I2C_SPEED == 400000)
-#define I2C_ICR_INIT	(ICR_FM | ICR_BEIE | ICR_IRFIE | ICR_ITEIE | ICR_GCD | ICR_SCLE)
-#else
-#define I2C_ICR_INIT	(ICR_BEIE | ICR_IRFIE | ICR_ITEIE | ICR_GCD | ICR_SCLE)
-#endif
-
-#define I2C_ISR_INIT		0x7FF
+#include "mv_i2c.h"
 
 #ifdef DEBUG_I2C
 #define PRINTD(x) printf x
 #else
 #define PRINTD(x)
 #endif
-
-
-/* Shall the current transfer have a start/stop condition? */
-#define I2C_COND_NORMAL		0
-#define I2C_COND_START		1
-#define I2C_COND_STOP		2
-
-/* Shall the current transfer be ack/nacked or being waited for it? */
-#define I2C_ACKNAK_WAITACK	1
-#define I2C_ACKNAK_SENDACK	2
-#define I2C_ACKNAK_SENDNAK	4
-
-/* Specify who shall transfer the data (master or slave) */
-#define I2C_READ		0
-#define I2C_WRITE		1
 
 /* All transfers are described by this data structure */
 struct i2c_msg {
@@ -86,53 +54,91 @@ struct i2c_msg {
 	u8 data;
 };
 
+struct mv_i2c {
+	u32 ibmr;
+	u32 pad0;
+	u32 idbr;
+	u32 pad1;
+	u32 icr;
+	u32 pad2;
+	u32 isr;
+	u32 pad3;
+	u32 isar;
+};
 
-/**
- * i2c_pxa_reset: - reset the host controller
+static struct mv_i2c *base;
+#ifdef CONFIG_I2C_MULTI_BUS
+static u32 i2c_regs[CONFIG_MV_I2C_NUM] = CONFIG_MV_I2C_REG;
+static unsigned int bus_initialized[CONFIG_MV_I2C_NUM];
+static unsigned int current_bus;
+
+int i2c_set_bus_num(unsigned int bus)
+{
+	if ((bus < 0) || (bus >= CONFIG_MV_I2C_NUM)) {
+		printf("Bad bus: %d\n", bus);
+		return -1;
+	}
+
+	base = (struct mv_i2c *)i2c_regs[bus];
+	current_bus = bus;
+
+	if (!bus_initialized[current_bus]) {
+		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+		bus_initialized[current_bus] = 1;
+	}
+
+	return 0;
+}
+
+unsigned int i2c_get_bus_num(void)
+{
+	return current_bus;
+}
+#endif
+
+/*
+ * i2c_reset: - reset the host controller
  *
  */
-
-static void i2c_reset( void )
+static void i2c_reset(void)
 {
-	writel(readl(ICR) & ~ICR_IUE, ICR);	/* disable unit */
-	writel(readl(ICR) | ICR_UR, ICR);	/* reset the unit */
+	writel(readl(&base->icr) & ~ICR_IUE, &base->icr); /* disable unit */
+	writel(readl(&base->icr) | ICR_UR, &base->icr);	  /* reset the unit */
 	udelay(100);
-	writel(readl(ICR) & ~ICR_IUE, ICR);	/* disable unit */
-#ifdef CONFIG_CPU_MONAHANS
-	/* | CKENB_1_PWM1 | CKENB_0_PWM0); */
-	writel(readl(CKENB) | (CKENB_4_I2C), CKENB);
-#else /* CONFIG_CPU_MONAHANS */
-	/* set the global I2C clock on */
-	writel(readl(CKEN) | CKEN14_I2C, CKEN);
-#endif
-	writel(I2C_PXA_SLAVE_ADDR, ISAR);	/* set our slave address */
-	writel(I2C_ICR_INIT, ICR);		/* set control reg values */
-	writel(I2C_ISR_INIT, ISR);		/* set clear interrupt bits */
-	writel(readl(ICR) | ICR_IUE, ICR);	/* enable unit */
+	writel(readl(&base->icr) & ~ICR_IUE, &base->icr); /* disable unit */
+
+	i2c_clk_enable();
+
+	writel(CONFIG_SYS_I2C_SLAVE, &base->isar); /* set our slave address */
+	writel(I2C_ICR_INIT, &base->icr); /* set control reg values */
+	writel(I2C_ISR_INIT, &base->isr); /* set clear interrupt bits */
+	writel(readl(&base->icr) | ICR_IUE, &base->icr); /* enable unit */
 	udelay(100);
 }
 
-
-/**
+/*
  * i2c_isr_set_cleared: - wait until certain bits of the I2C status register
  *	                  are set and cleared
  *
  * @return: 1 in case of success, 0 means timeout (no match within 10 ms).
  */
-static int i2c_isr_set_cleared( unsigned long set_mask, unsigned long cleared_mask )
+static int i2c_isr_set_cleared(unsigned long set_mask,
+			       unsigned long cleared_mask)
 {
-	int timeout = 10000;
+	int timeout = 1000, isr;
 
-	while( ((ISR & set_mask)!=set_mask) || ((ISR & cleared_mask)!=0) ){
-		udelay( 10 );
-		if( timeout-- < 0 ) return 0;
-	}
+	do {
+		isr = readl(&base->isr);
+		udelay(10);
+		if (timeout-- < 0)
+			return 0;
+	} while (((isr & set_mask) != set_mask)
+		|| ((isr & cleared_mask) != 0));
 
 	return 1;
 }
 
-
-/**
+/*
  * i2c_transfer: - Transfer one byte over the i2c bus
  *
  * This function can tranfer a byte over the i2c bus in both directions.
@@ -153,77 +159,71 @@ int i2c_transfer(struct i2c_msg *msg)
 	if (!msg)
 		goto transfer_error_msg_empty;
 
-	switch(msg->direction) {
-
+	switch (msg->direction) {
 	case I2C_WRITE:
-
 		/* check if bus is not busy */
-		if (!i2c_isr_set_cleared(0,ISR_IBB))
+		if (!i2c_isr_set_cleared(0, ISR_IBB))
 			goto transfer_error_bus_busy;
 
 		/* start transmission */
-		writel(readl(ICR) & ~ICR_START, ICR);
-		writel(readl(ICR) & ~ICR_STOP, ICR);
-		writel(msg->data, IDBR);
+		writel(readl(&base->icr) & ~ICR_START, &base->icr);
+		writel(readl(&base->icr) & ~ICR_STOP, &base->icr);
+		writel(msg->data, &base->idbr);
 		if (msg->condition == I2C_COND_START)
-			writel(readl(ICR) | ICR_START, ICR);
+			writel(readl(&base->icr) | ICR_START, &base->icr);
 		if (msg->condition == I2C_COND_STOP)
-			writel(readl(ICR) | ICR_STOP, ICR);
+			writel(readl(&base->icr) | ICR_STOP, &base->icr);
 		if (msg->acknack == I2C_ACKNAK_SENDNAK)
-			writel(readl(ICR) | ICR_ACKNAK, ICR);
+			writel(readl(&base->icr) | ICR_ACKNAK, &base->icr);
 		if (msg->acknack == I2C_ACKNAK_SENDACK)
-			writel(readl(ICR) & ~ICR_ACKNAK, ICR);
-		writel(readl(ICR) & ~ICR_ALDIE, ICR);
-		writel(readl(ICR) | ICR_TB, ICR);
+			writel(readl(&base->icr) & ~ICR_ACKNAK, &base->icr);
+		writel(readl(&base->icr) & ~ICR_ALDIE, &base->icr);
+		writel(readl(&base->icr) | ICR_TB, &base->icr);
 
 		/* transmit register empty? */
-		if (!i2c_isr_set_cleared(ISR_ITE,0))
+		if (!i2c_isr_set_cleared(ISR_ITE, 0))
 			goto transfer_error_transmit_timeout;
 
 		/* clear 'transmit empty' state */
-		writel(readl(ISR) | ISR_ITE, ISR);
+		writel(readl(&base->isr) | ISR_ITE, &base->isr);
 
 		/* wait for ACK from slave */
 		if (msg->acknack == I2C_ACKNAK_WAITACK)
-			if (!i2c_isr_set_cleared(0,ISR_ACKNAK))
+			if (!i2c_isr_set_cleared(0, ISR_ACKNAK))
 				goto transfer_error_ack_missing;
 		break;
 
 	case I2C_READ:
 
 		/* check if bus is not busy */
-		if (!i2c_isr_set_cleared(0,ISR_IBB))
+		if (!i2c_isr_set_cleared(0, ISR_IBB))
 			goto transfer_error_bus_busy;
 
 		/* start receive */
-		writel(readl(ICR) & ~ICR_START, ICR);
-		writel(readl(ICR) & ~ICR_STOP, ICR);
+		writel(readl(&base->icr) & ~ICR_START, &base->icr);
+		writel(readl(&base->icr) & ~ICR_STOP, &base->icr);
 		if (msg->condition == I2C_COND_START)
-			writel(readl(ICR) | ICR_START, ICR);
+			writel(readl(&base->icr) | ICR_START, &base->icr);
 		if (msg->condition == I2C_COND_STOP)
-			writel(readl(ICR) | ICR_STOP, ICR);
+			writel(readl(&base->icr) | ICR_STOP, &base->icr);
 		if (msg->acknack == I2C_ACKNAK_SENDNAK)
-			writel(readl(ICR) | ICR_ACKNAK, ICR);
+			writel(readl(&base->icr) | ICR_ACKNAK, &base->icr);
 		if (msg->acknack == I2C_ACKNAK_SENDACK)
-			writel(readl(ICR) & ~ICR_ACKNAK, ICR);
-		writel(readl(ICR) & ~ICR_ALDIE, ICR);
-		writel(readl(ICR) | ICR_TB, ICR);
+			writel(readl(&base->icr) & ~ICR_ACKNAK, &base->icr);
+		writel(readl(&base->icr) & ~ICR_ALDIE, &base->icr);
+		writel(readl(&base->icr) | ICR_TB, &base->icr);
 
 		/* receive register full? */
-		if (!i2c_isr_set_cleared(ISR_IRF,0))
+		if (!i2c_isr_set_cleared(ISR_IRF, 0))
 			goto transfer_error_receive_timeout;
 
-		msg->data = readl(IDBR);
+		msg->data = readl(&base->idbr);
 
 		/* clear 'receive empty' state */
-		writel(readl(ISR) | ISR_IRF, ISR);
-
+		writel(readl(&base->isr) | ISR_IRF, &base->isr);
 		break;
-
 	default:
-
 		goto transfer_error_illegal_param;
-
 	}
 
 	return 0;
@@ -253,34 +253,47 @@ transfer_error_bus_busy:
 		ret = -6; goto i2c_transfer_finish;
 
 i2c_transfer_finish:
-		PRINTD(("i2c_transfer: ISR: 0x%04x\n",ISR));
+		PRINTD(("i2c_transfer: ISR: 0x%04x\n", ISR));
 		i2c_reset();
 		return ret;
-
 }
 
 /* ------------------------------------------------------------------------ */
 /* API Functions                                                            */
 /* ------------------------------------------------------------------------ */
-
 void i2c_init(int speed, int slaveaddr)
 {
+#ifdef CONFIG_I2C_MULTI_BUS
+	base = (struct mv_i2c *)i2c_regs[current_bus];
+#else
+	base = (struct mv_i2c *)CONFIG_MV_I2C_REG;
+#endif
+
 #ifdef CONFIG_SYS_I2C_INIT_BOARD
-	/* call board specific i2c bus reset routine before accessing the   */
-	/* environment, which might be in a chip on that bus. For details   */
-	/* about this problem see doc/I2C_Edge_Conditions.                  */
+	u32 icr;
+	/*
+	 * call board specific i2c bus reset routine before accessing the
+	 * environment, which might be in a chip on that bus. For details
+	 * about this problem see doc/I2C_Edge_Conditions.
+	 *
+	 * disable I2C controller first, otherwhise it thinks we want to
+	 * talk to the slave port...
+	 */
+	icr = readl(&base->icr);
+	writel(readl(&base->icr) & ~(ICR_SCLE | ICR_IUE), &base->icr);
+
 	i2c_init_board();
+
+	writel(icr, &base->icr);
 #endif
 }
 
-
-/**
+/*
  * i2c_probe: - Test if a chip answers for a given i2c address
  *
  * @chip:	address of the chip which is searched for
  * @return:	0 if a chip was found, -1 otherwhise
  */
-
 int i2c_probe(uchar chip)
 {
 	struct i2c_msg msg;
@@ -291,19 +304,20 @@ int i2c_probe(uchar chip)
 	msg.acknack   = I2C_ACKNAK_WAITACK;
 	msg.direction = I2C_WRITE;
 	msg.data      = (chip << 1) + 1;
-	if (i2c_transfer(&msg)) return -1;
+	if (i2c_transfer(&msg))
+		return -1;
 
 	msg.condition = I2C_COND_STOP;
 	msg.acknack   = I2C_ACKNAK_SENDNAK;
 	msg.direction = I2C_READ;
 	msg.data      = 0x00;
-	if (i2c_transfer(&msg)) return -1;
+	if (i2c_transfer(&msg))
+		return -1;
 
 	return 0;
 }
 
-
-/**
+/*
  * i2c_read: - Read multiple bytes from an i2c device
  *
  * The higher level routines take into account that this function is only
@@ -316,14 +330,13 @@ int i2c_probe(uchar chip)
  * @len:	how much byte do we want to read
  * @return:	0 in case of success
  */
-
 int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
 	struct i2c_msg msg;
 	u8 addr_bytes[3]; /* lowest...highest byte of data address */
-	int ret;
 
-	PRINTD(("i2c_read(chip=0x%02x, addr=0x%02x, alen=0x%02x, len=0x%02x)\n",chip,addr,alen,len));
+	PRINTD(("i2c_read(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
+		"len=0x%02x)\n", chip, addr, alen, len));
 
 	i2c_reset();
 
@@ -332,9 +345,10 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	msg.condition = I2C_COND_START;
 	msg.acknack   = I2C_ACKNAK_WAITACK;
 	msg.direction = I2C_WRITE;
-	msg.data      = (chip << 1);
-	msg.data     &= 0xFE;
-	if ((ret=i2c_transfer(&msg))) return -1;
+	msg.data = (chip << 1);
+	msg.data &= 0xFE;
+	if (i2c_transfer(&msg))
+		return -1;
 
 	/*
 	 * send memory address bytes;
@@ -346,15 +360,14 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	addr_bytes[2] = (u8)((addr >> 16) & 0x000000FF);
 
 	while (--alen >= 0) {
-
-		PRINTD(("i2c_read: send memory word address byte %1d\n",alen));
+		PRINTD(("i2c_read: send memory word address byte %1d\n", alen));
 		msg.condition = I2C_COND_NORMAL;
 		msg.acknack   = I2C_ACKNAK_WAITACK;
 		msg.direction = I2C_WRITE;
 		msg.data      = addr_bytes[alen];
-		if ((ret=i2c_transfer(&msg))) return -1;
+		if (i2c_transfer(&msg))
+			return -1;
 	}
-
 
 	/* start read sequence */
 	PRINTD(("i2c_read: start read sequence\n"));
@@ -363,12 +376,12 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	msg.direction = I2C_WRITE;
 	msg.data      = (chip << 1);
 	msg.data     |= 0x01;
-	if ((ret=i2c_transfer(&msg))) return -1;
+	if (i2c_transfer(&msg))
+		return -1;
 
 	/* read bytes; send NACK at last byte */
 	while (len--) {
-
-		if (len==0) {
+		if (len == 0) {
 			msg.condition = I2C_COND_STOP;
 			msg.acknack   = I2C_ACKNAK_SENDNAK;
 		} else {
@@ -378,12 +391,13 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 
 		msg.direction = I2C_READ;
 		msg.data      = 0x00;
-		if ((ret=i2c_transfer(&msg))) return -1;
+		if (i2c_transfer(&msg))
+			return -1;
 
 		*buffer = msg.data;
-		PRINTD(("i2c_read: reading byte (0x%08x)=0x%02x\n",(unsigned int)buffer,*buffer));
+		PRINTD(("i2c_read: reading byte (0x%08x)=0x%02x\n",
+			(unsigned int)buffer, *buffer));
 		buffer++;
-
 	}
 
 	i2c_reset();
@@ -391,8 +405,7 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	return 0;
 }
 
-
-/**
+/*
  * i2c_write: -  Write multiple bytes to an i2c device
  *
  * The higher level routines take into account that this function is only
@@ -405,13 +418,13 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
  * @len:	how much byte do we want to read
  * @return:	0 in case of success
  */
-
 int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 {
 	struct i2c_msg msg;
 	u8 addr_bytes[3]; /* lowest...highest byte of data address */
 
-	PRINTD(("i2c_write(chip=0x%02x, addr=0x%02x, alen=0x%02x, len=0x%02x)\n",chip,addr,alen,len));
+	PRINTD(("i2c_write(chip=0x%02x, addr=0x%02x, alen=0x%02x, "
+		"len=0x%02x)\n", chip, addr, alen, len));
 
 	i2c_reset();
 
@@ -420,9 +433,10 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	msg.condition = I2C_COND_START;
 	msg.acknack   = I2C_ACKNAK_WAITACK;
 	msg.direction = I2C_WRITE;
-	msg.data      = (chip << 1);
-	msg.data     &= 0xFE;
-	if (i2c_transfer(&msg)) return -1;
+	msg.data = (chip << 1);
+	msg.data &= 0xFE;
+	if (i2c_transfer(&msg))
+		return -1;
 
 	/*
 	 * send memory address bytes;
@@ -433,21 +447,21 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 	addr_bytes[2] = (u8)((addr >> 16) & 0x000000FF);
 
 	while (--alen >= 0) {
-
 		PRINTD(("i2c_write: send memory word address\n"));
 		msg.condition = I2C_COND_NORMAL;
 		msg.acknack   = I2C_ACKNAK_WAITACK;
 		msg.direction = I2C_WRITE;
 		msg.data      = addr_bytes[alen];
-		if (i2c_transfer(&msg)) return -1;
+		if (i2c_transfer(&msg))
+			return -1;
 	}
 
 	/* write bytes; send NACK at last byte */
 	while (len--) {
+		PRINTD(("i2c_write: writing byte (0x%08x)=0x%02x\n",
+			(unsigned int)buffer, *buffer));
 
-		PRINTD(("i2c_write: writing byte (0x%08x)=0x%02x\n",(unsigned int)buffer,*buffer));
-
-		if (len==0)
+		if (len == 0)
 			msg.condition = I2C_COND_STOP;
 		else
 			msg.condition = I2C_COND_NORMAL;
@@ -456,14 +470,12 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 		msg.direction = I2C_WRITE;
 		msg.data      = *(buffer++);
 
-		if (i2c_transfer(&msg)) return -1;
-
+		if (i2c_transfer(&msg))
+			return -1;
 	}
 
 	i2c_reset();
 
 	return 0;
-
 }
-
 #endif	/* CONFIG_HARD_I2C */

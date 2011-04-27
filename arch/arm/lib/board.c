@@ -356,9 +356,13 @@ void board_init_f (ulong bootflag)
 #endif /* CONFIG_VFD */
 
 #ifdef CONFIG_LCD
+#ifdef CONFIG_FB_ADDR
+	gd->fb_base = CONFIG_FB_ADDR;
+#else
 	/* reserve memory for LCD display (always full pages) */
 	addr = lcd_setmem (addr);
 	gd->fb_base = addr;
+#endif /* CONFIG_FB_ADDR */
 #endif /* CONFIG_LCD */
 
 	/*
@@ -399,7 +403,7 @@ void board_init_f (ulong bootflag)
 		CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ, addr_sp);
 #endif
 	/* leave 3 words for abort-stack    */
-	addr_sp -= 3;
+	addr_sp -= 12;
 
 	/* 8-byte alignment for ABI compliance */
 	addr_sp &= ~0x07;

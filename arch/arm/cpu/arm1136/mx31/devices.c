@@ -24,8 +24,8 @@
  */
 
 #include <common.h>
-#include <asm/arch/mx31-regs.h>
-#include <asm/arch/mx31.h>
+#include <asm/arch/imx-regs.h>
+#include <asm/arch/clock.h>
 
 #ifdef CONFIG_SYS_MX31_UART1
 void mx31_uart1_hw_init(void)

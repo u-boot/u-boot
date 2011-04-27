@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Albert ARIBAUD <albert.aribaud@free.fr>
+ * Copyright (C) 2010 Albert ARIBAUD <albert.u.boot@aribaud.net>
  *
  * Based on original Kirkwood support which is
  * (C) Copyright 2009
@@ -42,6 +42,7 @@
 #define ORION5X_REGISTER(x)			(ORION5X_REGS_PHY_BASE + x)
 
 /* Documented registers */
+#define ORION5X_DRAM_BASE			(ORION5X_REGISTER(0x01500))
 #define ORION5X_TWSI_BASE			(ORION5X_REGISTER(0x11000))
 #define ORION5X_UART0_BASE			(ORION5X_REGISTER(0x12000))
 #define ORION5X_UART1_BASE			(ORION5X_REGISTER(0x12100))

@@ -20,7 +20,7 @@
 #include <config.h>
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/ftsmc020.h>
+#include <faraday/ftsmc020.h>
 
 struct ftsmc020_config {
 	unsigned int	config;

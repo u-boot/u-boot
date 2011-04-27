@@ -21,8 +21,8 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ASM_ARCH_MX31_REGS_H
-#define __ASM_ARCH_MX31_REGS_H
+#ifndef __ASM_ARCH_MX31_IMX_REGS_H
+#define __ASM_ARCH_MX31_IMX_REGS_H
 
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
@@ -73,6 +73,39 @@ struct cspi_regs {
 	u32 stat;
 	u32 period;
 	u32 test;
+};
+
+/* Watchdog Timer (WDOG) registers */
+#define WDOG_ENABLE	(1 << 2)
+#define WDOG_WT_SHIFT	8
+struct wdog_regs {
+	u16 wcr;	/* Control */
+	u16 wsr;	/* Service */
+	u16 wrsr;	/* Reset Status */
+};
+
+/* IIM Control Registers */
+struct iim_regs {
+	u32 iim_stat;
+	u32 iim_statm;
+	u32 iim_err;
+	u32 iim_emask;
+	u32 iim_fctl;
+	u32 iim_ua;
+	u32 iim_la;
+	u32 iim_sdat;
+	u32 iim_prev;
+	u32 iim_srev;
+	u32 iim_prog_p;
+	u32 iim_scs0;
+	u32 iim_scs1;
+	u32 iim_scs2;
+	u32 iim_scs3;
+};
+
+struct mx3_cpu_type {
+	u8 srev;
+	char *v;
 };
 
 #define IOMUX_PADNUM_MASK	0x1ff
@@ -470,6 +503,8 @@ enum iomux_pins {
 #define CCMR_FPM	(1 << 1)
 #define CCMR_CKIH	(2 << 1)
 
+#define MX31_IIM_BASE_ADDR	0x5001C000
+
 #define PDR0_CSI_PODF(x)	(((x) & 0x1ff) << 23)
 #define PDR0_PER_PODF(x)	(((x) & 0x1f) << 16)
 #define PDR0_HSP_PODF(x)	(((x) & 0x7) << 11)
@@ -739,4 +774,4 @@ enum iomux_pins {
 #define MXC_EHCI_IPPUE_DOWN		(1 << 8)
 #define MXC_EHCI_IPPUE_UP		(1 << 9)
 
-#endif /* __ASM_ARCH_MX31_REGS_H */
+#endif /* __ASM_ARCH_MX31_IMX_REGS_H */

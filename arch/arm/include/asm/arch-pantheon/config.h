@@ -34,5 +34,15 @@
 #define MV_UART_CONSOLE_BASE	PANTHEON_UART1_BASE
 #define CONFIG_SYS_NS16550_IER	(1 << 6)	/* Bit 6 in UART_IER register
 						represents UART Unit Enable */
+/*
+ * I2C definition
+ */
+#ifdef CONFIG_CMD_I2C
+#define CONFIG_I2C_MV			1
+#define CONFIG_MV_I2C_REG		0xd4011000
+#define CONFIG_HARD_I2C			1
+#define CONFIG_SYS_I2C_SPEED		0
+#define CONFIG_SYS_I2C_SLAVE		0xfe
+#endif
 
 #endif /* _PANTHEON_CONFIG_H */

@@ -278,6 +278,25 @@ static void dpll4_init_34xx(u32 sil_index, u32 clk_index)
 	wait_on_value(ST_PERIPH_CLK, 2, &prcm_base->idlest_ckgen, LDELAY);
 }
 
+static void dpll5_init_34xx(u32 sil_index, u32 clk_index)
+{
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+	dpll_param *ptr = (dpll_param *) get_per2_dpll_param();
+
+	/* Moving it to the right sysclk base */
+	ptr = ptr + clk_index;
+
+	/* PER2 DPLL (DPLL5) */
+	sr32(&prcm_base->clken2_pll, 0, 3, PLL_STOP);
+	wait_on_value(1, 0, &prcm_base->idlest2_ckgen, LDELAY);
+	sr32(&prcm_base->clksel5_pll, 0, 5, ptr->m2); /* set M2 (usbtll_fck) */
+	sr32(&prcm_base->clksel4_pll, 8, 11, ptr->m); /* set m (11-bit multiplier) */
+	sr32(&prcm_base->clksel4_pll, 0, 7, ptr->n); /* set n (7-bit divider)*/
+	sr32(&prcm_base->clken_pll, 4, 4, ptr->fsel);   /* FREQSEL */
+	sr32(&prcm_base->clken2_pll, 0, 3, PLL_LOCK);   /* lock mode */
+	wait_on_value(1, 1, &prcm_base->idlest2_ckgen, LDELAY);
+}
+
 static void mpu_init_34xx(u32 sil_index, u32 clk_index)
 {
 	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
@@ -587,6 +606,7 @@ void prcm_init(void)
 
 		dpll3_init_34xx(sil_index, clk_index);
 		dpll4_init_34xx(sil_index, clk_index);
+		dpll5_init_34xx(sil_index, clk_index);
 		iva_init_34xx(sil_index, clk_index);
 		mpu_init_34xx(sil_index, clk_index);
 

@@ -80,6 +80,11 @@
 #define PHYS_SDRAM_1_SIZE	0x04000000	/* 64 MB */
 #define PHYS_SDRAM_2		0x08000000	/* SDR-SDRAM BANK #2*/
 #define PHYS_SDRAM_2_SIZE	0x04000000	/* 64 MB */
+#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
+#define CONFIG_SYS_SDRAM_SIZE	(PHYS_SDRAM_1_SIZE + PHYS_SDRAM_2_SIZE)
+/* The IPL loads us at 0, tell so to u-boot. Put stack pointer 1M into RAM */
+#define CONFIG_SYS_TEXT_BASE    0x00000000
+#define CONFIG_SYS_INIT_SP_ADDR (CONFIG_SYS_TEXT_BASE + (1<<20))
 
 #define CONFIG_STACKSIZE	(128 * 1024)	/* regular stack */
 #ifdef CONFIG_USE_IRQ

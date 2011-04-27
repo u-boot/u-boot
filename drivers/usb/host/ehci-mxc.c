@@ -20,7 +20,7 @@
 #include <common.h>
 #include <usb.h>
 #include <asm/io.h>
-#include <asm/arch/mx31-regs.h>
+#include <asm/arch/imx-regs.h>
 #include <usb/ehci-fsl.h>
 #include <errno.h>
 

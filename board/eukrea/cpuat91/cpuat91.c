@@ -47,24 +47,23 @@ int board_init(void)
 	/* arch number of CPUAT91-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_CPUAT91;
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
 	return 0;
 }
 
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size((volatile long *)CONFIG_SYS_SDRAM_BASE,
+			CONFIG_SYS_SDRAM_SIZE);
 	return 0;
 }
 
 #ifdef CONFIG_DRIVER_AT91EMAC
 int board_eth_init(bd_t *bis)
 {
-	int rc = 0;
-	rc = at91emac_register(bis, 0);
-	return rc;
+	return at91emac_register(bis, (u32) AT91_EMAC_BASE);
 }
 #endif
 

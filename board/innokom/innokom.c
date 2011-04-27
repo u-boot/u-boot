@@ -45,12 +45,7 @@ DECLARE_GLOBAL_DATA_PTR;
  */
 int i2c_init_board(void)
 {
-	int i, icr;
-
-	/* disable I2C controller first, otherwhise it thinks we want to    */
-	/* talk to the slave port...                                        */
-	icr = readl(ICR);
-	writel(readl(ICR) & ~(ICR_SCLE | ICR_IUE), ICR);
+	int i;
 
 	/* set gpio pin low _before_ we change direction to output          */
 	writel(GPIO_bit(70), GPCR(70));
@@ -62,8 +57,6 @@ int i2c_init_board(void)
 		writel(readl(GPDR(70)) & ~GPIO_bit(70), GPDR(70)); /* input  */
 		udelay(10);
 	}
-
-	writel(icr, ICR);
 
 	return 0;
 }

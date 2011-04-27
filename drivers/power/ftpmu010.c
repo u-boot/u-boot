@@ -23,12 +23,12 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include "ftpmu010.h"
+#include <faraday/ftpmu010.h>
 
-static struct ftpmu010 *pmu = (struct ftpmu010 *)CONFIG_FTPMU010_BASE;
-
+/* OSCC: OSC Control Register */
 void ftpmu010_32768osc_enable(void)
 {
+	static struct ftpmu010 *pmu = (struct ftpmu010 *)CONFIG_FTPMU010_BASE;
 	unsigned int oscc;
 
 	/* enable the 32768Hz oscillator */
@@ -46,8 +46,31 @@ void ftpmu010_32768osc_enable(void)
 	writel(oscc, &pmu->OSCC);
 }
 
+/* MFPSR: Multi-Function Port Setting Register */
+void ftpmu010_mfpsr_select_dev(unsigned int dev)
+{
+	static struct ftpmu010 *pmu = (struct ftpmu010 *)CONFIG_FTPMU010_BASE;
+	unsigned int mfpsr;
+
+	mfpsr = readl(&pmu->MFPSR);
+	mfpsr |= dev;
+	writel(mfpsr, &pmu->MFPSR);
+}
+
+void ftpmu010_mfpsr_diselect_dev(unsigned int dev)
+{
+	static struct ftpmu010 *pmu = (struct ftpmu010 *)CONFIG_FTPMU010_BASE;
+	unsigned int mfpsr;
+
+	mfpsr = readl(&pmu->MFPSR);
+	mfpsr &= ~dev;
+	writel(mfpsr, &pmu->MFPSR);
+}
+
+/* PDLLCR0: PLL/DLL Control Register 0 */
 void ftpmu010_dlldis_disable(void)
 {
+	static struct ftpmu010 *pmu = (struct ftpmu010 *)CONFIG_FTPMU010_BASE;
 	unsigned int pdllcr0;
 
 	pdllcr0 = readl(&pmu->PDLLCR0);
@@ -57,9 +80,21 @@ void ftpmu010_dlldis_disable(void)
 
 void ftpmu010_sdram_clk_disable(unsigned int cr0)
 {
+	static struct ftpmu010 *pmu = (struct ftpmu010 *)CONFIG_FTPMU010_BASE;
 	unsigned int pdllcr0;
 
 	pdllcr0 = readl(&pmu->PDLLCR0);
 	pdllcr0 |= FTPMU010_PDLLCR0_HCLKOUTDIS(cr0);
 	writel(pdllcr0, &pmu->PDLLCR0);
+}
+
+/* SDRAMHTC: SDRAM Signal Hold Time Control */
+void ftpmu010_sdramhtc_set(unsigned int val)
+{
+	static struct ftpmu010 *pmu = (struct ftpmu010 *)CONFIG_FTPMU010_BASE;
+	unsigned int sdramhtc;
+
+	sdramhtc = readl(&pmu->SDRAMHTC);
+	sdramhtc |= val;
+	writel(sdramhtc, &pmu->SDRAMHTC);
 }

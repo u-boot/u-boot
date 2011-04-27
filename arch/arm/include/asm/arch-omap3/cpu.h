@@ -347,10 +347,13 @@ struct prcm {
 	u32 clksel2_pll_mpu;	/* 0x944 */
 	u8 res6[0xb8];
 	u32 fclken1_core;	/* 0xa00 */
-	u8 res7[0xc];
+	u32 res_fclken2_core;
+	u32 fclken3_core;	/* 0xa08 */
+	u8 res7[0x4];
 	u32 iclken1_core;	/* 0xa10 */
 	u32 iclken2_core;	/* 0xa14 */
-	u8 res8[0x28];
+	u32 iclken3_core;	/* 0xa18 */
+	u8 res8[0x24];
 	u32 clksel_core;	/* 0xa40 */
 	u8 res9[0xbc];
 	u32 fclken_gfx;		/* 0xb00 */
@@ -368,13 +371,17 @@ struct prcm {
 	u32 clksel_wkup;	/* 0xc40 */
 	u8 res16[0xbc];
 	u32 clken_pll;		/* 0xd00 */
-	u8 res17[0x1c];
+	u32 clken2_pll;	        /* 0xd04 */
+	u8 res17[0x18];
 	u32 idlest_ckgen;	/* 0xd20 */
-	u8 res18[0x1c];
+	u32 idlest2_ckgen;	/* 0xd24 */
+	u8 res18[0x18];
 	u32 clksel1_pll;	/* 0xd40 */
 	u32 clksel2_pll;	/* 0xd44 */
 	u32 clksel3_pll;	/* 0xd48 */
-	u8 res19[0xb4];
+	u32 clksel4_pll;	/* 0xd4c */
+	u32 clksel5_pll;	/* 0xd50 */
+	u8 res19[0xac];
 	u32 fclken_dss;		/* 0xe00 */
 	u8 res20[0xc];
 	u32 iclken_dss;		/* 0xe10 */
@@ -394,6 +401,10 @@ struct prcm {
 	u32 clksel_per;		/* 0x1040 */
 	u8 res28[0xfc];
 	u32 clksel1_emu;	/* 0x1140 */
+	u8 res29[0x2bc];
+	u32 fclken_usbhost;	/* 0x1400 */
+	u8 res30[0xc];
+	u32 iclken_usbhost;	/* 0x1410 */
 };
 #else /* __ASSEMBLY__ */
 #define CM_CLKSEL_CORE		0x48004a40

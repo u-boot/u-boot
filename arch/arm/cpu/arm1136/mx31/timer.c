@@ -22,8 +22,10 @@
  */
 
 #include <common.h>
-#include <asm/arch/mx31-regs.h>
+#include <asm/arch/imx-regs.h>
 #include <div64.h>
+#include <watchdog.h>
+#include <asm/io.h>
 
 #define TIMER_BASE 0x53f90000 /* General purpose timer 1 */
 
@@ -165,5 +167,39 @@ void __udelay (unsigned long usec)
 
 void reset_cpu (ulong addr)
 {
-	__REG16(WDOG_BASE) = 4;
+	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE;
+	wdog->wcr = WDOG_ENABLE;
+	while (1)
+		;
 }
+
+#ifdef CONFIG_HW_WATCHDOG
+void mxc_hw_watchdog_enable(void)
+{
+	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE;
+	u16 secs;
+
+	/*
+	 * The timer watchdog can be set between
+	 * 0.5 and 128 Seconds. If not defined
+	 * in configuration file, sets 64 Seconds
+	 */
+#ifdef CONFIG_SYS_WD_TIMER_SECS
+	secs = (CONFIG_SYS_WD_TIMER_SECS << 1) & 0xFF;
+	if (!secs) secs = 1;
+#else
+	secs = 64;
+#endif
+	writew(readw(&wdog->wcr) | (secs << WDOG_WT_SHIFT) | WDOG_ENABLE,
+		&wdog->wcr);
+}
+
+
+void mxc_hw_watchdog_reset(void)
+{
+	struct wdog_regs *wdog = (struct wdog_regs *)WDOG_BASE;
+
+	writew(0x5555, &wdog->wsr);
+	writew(0xAAAA, &wdog->wsr);
+}
+#endif

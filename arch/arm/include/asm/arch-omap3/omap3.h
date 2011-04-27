@@ -50,6 +50,20 @@
 /* CONTROL */
 #define OMAP34XX_CTRL_BASE		(OMAP34XX_L4_IO_BASE + 0x2000)
 
+#ifndef __ASSEMBLY__
+/* Signal Integrity Parameter Control Registers */
+struct control_prog_io {
+	unsigned char res[0x408];
+	unsigned int io2;		/* 0x408 */
+	unsigned char res2[0x38];
+	unsigned int io0;		/* 0x444 */
+	unsigned int io1;		/* 0x448 */
+};
+#endif /* __ASSEMBLY__ */
+
+/* Bit definition for CONTROL_PROG_IO1 */
+#define PRG_I2C2_PULLUPRESX		0x00000001
+
 /* UART */
 #define OMAP34XX_UART1			(OMAP34XX_L4_IO_BASE + 0x6a000)
 #define OMAP34XX_UART2			(OMAP34XX_L4_IO_BASE + 0x6c000)

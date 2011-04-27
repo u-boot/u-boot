@@ -141,9 +141,9 @@ void tx25_fec_init(void)
 int board_init()
 {
 #ifdef CONFIG_MXC_UART
-	extern void mx25_uart_init_pins(void);
+	extern void mx25_uart1_init_pins(void);
 
-	mx25_uart_init_pins();
+	mx25_uart1_init_pins();
 #endif
 	/* board id for linux */
 	gd->bd->bi_arch_number = MACH_TYPE_TX25;

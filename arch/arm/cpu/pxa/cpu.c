@@ -318,3 +318,13 @@ int arch_cpu_init(void)
 	pxa_clock_setup();
 	return 0;
 }
+
+void i2c_clk_enable(void)
+{
+	/* set the global I2C clock on */
+#ifdef CONFIG_CPU_MONAHANS
+	writel(readl(CKENB) | (CKENB_4_I2C), CKENB);
+#else
+	writel(readl(CKEN) | CKEN14_I2C, CKEN);
+#endif
+}

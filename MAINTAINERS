@@ -547,7 +547,7 @@ Unknown / orphaned boards:
 #	Board		CPU						#
 #########################################################################
 
-Albert ARIBAUD <albert.aribaud@free.fr>
+Albert ARIBAUD <albert.u.boot@aribaud.net>
 
 	edminiv2	ARM926EJS (Orion5x SoC)
 
@@ -599,6 +599,10 @@ Rick Bronson <rick@efn.org>
 
 	AT91RM9200DK	at91rm9200
 
+Luca Ceresoli <luca.ceresoli@comelit.it>
+
+	dig297		ARM ARMV7 (OMAP3530 SoC)
+
 Po-Yu Chuang <ratbert@faraday-tech.com>
 
 	a320evb		FA526 (ARM920T-like) (a320 SoC)
@@ -645,6 +649,10 @@ Marius Gröger <mag@sysgo.de>
 
 	impa7		ARM720T (EP7211)
 	ep7312		ARM720T (EP7312)
+
+Igor Grinberg <grinberg@compulab.co.il>
+
+	cm-t35		ARM ARMV7 (OMAP3xx Soc)
 
 Kshitij Gupta <kshitij@ti.com>
 
@@ -726,6 +734,10 @@ Eric Millbrandt <emillbrandt@dekaresearch.com>
 
 	galaxy5200	mpc5200
 
+Nagendra T S  <nagendra@mistralsolutions.com>
+
+   am3517_crane    ARM ARMV7 (AM35x SoC)
+
 Rolf Offermanns <rof@sysgo.de>
 
 	shannon		SA1100
@@ -762,10 +774,6 @@ Stelian Pop <stelian.pop@leadtechdesign.com>
 	at91sam9261ek	ARM926EJS (AT91SAM9261 SoC)
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
 	at91sam9rlek	ARM926EJS (AT91SAM9RL SoC)
-
-Mike Rapoport <mike@compulab.co.il>
-
-	cm_t35		ARM ARMV7 (OMAP3xx SoC)
 
 Tom Rix <Tom.Rix@windriver.com>
 

@@ -19,12 +19,8 @@
 
 #include <common.h>
 #include <watchdog.h>
-#ifdef CONFIG_MX31
-#include <asm/arch/mx31.h>
-#else
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
-#endif
 
 #define __REG(x)     (*((volatile u32 *)(x)))
 

@@ -1,6 +1,6 @@
 /*
- *
- * (c) 2007 Pengutronix, Sascha Hauer <s.hauer@pengutronix.de>
+ *  (C) Copyright 2010,2011
+ *  NVIDIA Corporation <www.nvidia.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -21,15 +21,13 @@
  * MA 02111-1307 USA
  */
 
-#ifndef __ASM_ARCH_MX31_H
-#define __ASM_ARCH_MX31_H
+#ifndef _BOARD_H_
+#define _BOARD_H_
 
-extern u32 mx31_get_ipg_clk(void);
-#define imx_get_uartclk mx31_get_ipg_clk
-extern void mx31_gpio_mux(unsigned long mode);
-extern void mx31_set_pad(enum iomux_pins pin, u32 config);
+void tegra2_start(void);
+void clock_init(void);
+void pinmux_init(void);
+void gpio_init(void);
+void gpio_config_uart(void);
 
-void mx31_uart1_hw_init(void);
-void mx31_spi2_hw_init(void);
-
-#endif /* __ASM_ARCH_MX31_H */
+#endif	/* BOARD_H */

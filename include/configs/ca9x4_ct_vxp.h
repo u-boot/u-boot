@@ -30,6 +30,7 @@
 /* Board info register */
 #define SYS_ID				0x10000000
 #define CONFIG_REVISION_TAG		1
+#define CONFIG_SYS_TEXT_BASE		0x60800000
 
 /* High Level Configuration Options */
 #define CONFIG_ARMV7			1

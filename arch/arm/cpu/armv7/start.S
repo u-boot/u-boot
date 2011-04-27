@@ -70,6 +70,18 @@ _end_vect:
 _TEXT_BASE:
 	.word	CONFIG_SYS_TEXT_BASE
 
+#ifdef CONFIG_TEGRA2
+/*
+ * Tegra2 uses 2 separate CPUs - the AVP (ARM7TDMI) and the CPU (dual A9s).
+ * U-Boot runs on the AVP first, setting things up for the CPU (PLLs,
+ * muxes, clocks, clamps, etc.). Then the AVP halts, and expects the CPU
+ * to pick up its reset vector, which points here.
+ */
+.globl _armboot_start
+_armboot_start:
+        .word _start
+#endif
+
 /*
  * These are defined in the board-specific linker script.
  */
@@ -115,7 +127,7 @@ reset:
 	orr	r0, r0, #0xd3
 	msr	cpsr,r0
 
-#if (CONFIG_OMAP34XX)
+#if defined(CONFIG_OMAP34XX)
 	/* Copy vectors to mask ROM indirect addr */
 	adr	r0, _start		@ r0 <- current position of code
 	add	r0, r0, #4		@ skip reset vector

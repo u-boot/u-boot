@@ -2011,6 +2011,20 @@ The following options need to be configured:
 		thus overwriting the architecutre dependent default
 		settings.
 
+- Frame Buffer Address:
+	CONFIG_FB_ADDR
+
+	Define CONFIG_FB_ADDR if you want to use specific address for
+	frame buffer.
+	Then system will reserve the frame buffer address to defined address
+	instead of lcd_setmem (this function grab the memory for frame buffer
+	by panel's size).
+
+	Please see board_init_f function.
+
+	If you want this config option then,
+	please define it at your board config file
+
 Legacy uImage format:
 
   Arg	Where			When
@@ -2946,6 +2960,12 @@ Low Level (hardware related) configuration options:
 		Modifies the behaviour of start.S when compiling a loader
 		that is executed before the actual U-Boot. E.g. when
 		compiling a NAND SPL.
+
+- CONFIG_USE_ARCH_MEMCPY
+  CONFIG_USE_ARCH_MEMSET
+		If these options are used a optimized version of memcpy/memset will
+		be used if available. These functions may be faster under some
+		conditions but may increase the binary size.
 
 Building the Software:
 ======================
