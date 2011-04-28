@@ -164,6 +164,7 @@ Program received signal SIGSTOP, Stopped (signal).
 add-symbol-file u-boot 0x8ff08000
 		       ^^^^^^^^^^
 		       get this address from u-boot bdinfo command
+		       or get it from gd->relocaddr in gdb
 
  => bdinfo
 rch_number = XXXXXXXXXX
@@ -181,5 +182,12 @@ reloc off   = XXXXXXXXXX
 irq_sp      = XXXXXXXXXX
 sp start    = XXXXXXXXXX
 FB base     = XXXXXXXXXX
+
+or interrupt execution by any means and re-load the symbols at the location
+specified by gd->relocaddr -- this is only valid after board_init_f.
+
+(gdb) set $s = gd->relocaddr
+(gdb) symbol-file
+(gdb) add-symbol-file u-boot $s
 
 Now you can use gdb as usual :-)
