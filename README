@@ -1096,13 +1096,10 @@ The following options need to be configured:
 			CONFIG_VIDEO_LOGO
 			CONFIG_VIDEO_BMP_LOGO
 
-		The DIU driver will look for the 'monitor' environment variable,
-		and if defined, enable the DIU as a console during boot.  This
-		variable should be set to one of these values:
-
-			'0'	Output video to the DVI connector
-			'1'	Output video to the LVDS connector
-			'2'	Output video to the Dual-Link LVDS connector
+		The DIU driver will look for the 'video-mode' environment
+		variable, and if defined, enable the DIU as a console during
+		boot.  See the documentation file README.video for a
+		description of this variable.
 
 - Keyboard Support:
 		CONFIG_KEYBOARD
