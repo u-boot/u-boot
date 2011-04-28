@@ -94,10 +94,31 @@ int checkboard(void)
 	volatile ccsr_local_mcm_t *mcm = &immap->im_local_mcm;
 	u8 *pixis_base = (u8 *)PIXIS_BASE;
 
-	printf ("Board: MPC8610HPCD, System ID: 0x%02x, "
-		"System Version: 0x%02x, FPGA Version: 0x%02x\n",
+	printf ("Board: MPC8610HPCD, Sys ID: 0x%02x, "
+		"Sys Ver: 0x%02x, FPGA Ver: 0x%02x, ",
 		in_8(pixis_base + PIXIS_ID), in_8(pixis_base + PIXIS_VER),
 		in_8(pixis_base + PIXIS_PVER));
+
+	/*
+	 * The MPC8610 HPCD workbook says that LBMAP=11 is the "normal" boot
+	 * bank and LBMAP=00 is the alternate bank.  However, the pixis
+	 * altbank code can only set bits, not clear them, so we treat 00 as
+	 * the normal bank and 11 as the alternate.
+	 */
+	switch (in_8(pixis_base + PIXIS_VBOOT) & 0xC0) {
+	case 0:
+		puts("vBank: Standard\n");
+		break;
+	case 0x40:
+		puts("Promjet\n");
+		break;
+	case 0x80:
+		puts("NAND\n");
+		break;
+	case 0xC0:
+		puts("vBank: Alternate\n");
+		break;
+	}
 
 	mcm->abcr |= 0x00010000; /* 0 */
 	mcm->hpmr3 = 0x80000008; /* 4c */
