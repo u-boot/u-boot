@@ -207,11 +207,6 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{0,  0, 0, 0, QE_IOP_TAB_END},
 };
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 int board_early_init_r(void)
 {
 	void *reg = (void *)(CONFIG_SYS_IMMR + 0x14a8);

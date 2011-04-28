@@ -66,11 +66,6 @@ const qe_iop_conf_t qe_iop_conf_tab[] = {
 	{0,  0, 0, 0, QE_IOP_TAB_END}, /* END of table */
 };
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 int fixed_sdram(void);
 
 phys_size_t initdram(int board_type)
