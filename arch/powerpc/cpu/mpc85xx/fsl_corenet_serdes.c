@@ -32,6 +32,18 @@
 #include <asm/errno.h>
 #include "fsl_corenet_serdes.h"
 
+/*
+ * The work-arounds for erratum SERDES8 and SERDES-A001 are linked together.
+ * The code is already very complicated as it is, and separating the two
+ * completely would just make things worse.  We try to keep them as separate
+ * as possible, but for now we require SERDES8 if SERDES_A001 is defined.
+ */
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
+#ifndef CONFIG_SYS_P4080_ERRATUM_SERDES8
+#error "CONFIG_SYS_P4080_ERRATUM_SERDES_A001 requires CONFIG_SYS_P4080_ERRATUM_SERDES8"
+#endif
+#endif
+
 static u32 serdes_prtcl_map;
 
 #define HWCONFIG_BUFFER_SIZE	128
@@ -259,9 +271,28 @@ void serdes_reset_rx(enum srds_prtcl device)
 #endif
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
+/*
+ * Enable a SERDES bank that was disabled via the RCW
+ *
+ * We only call this function for SERDES8 and SERDES-A001 in cases we really
+ * want to enable the bank, whether we actually want to use the lanes or not,
+ * so make sure at least one lane is enabled.  We're only enabling this one
+ * lane to satisfy errata requirements that the bank be enabled.
+ *
+ * We use a local variable instead of srds_lpd_b[] because we want drivers to
+ * think that the lanes actually are disabled.
+ */
 static void enable_bank(ccsr_gur_t *gur, int bank)
 {
 	u32 rcw5;
+	u32 temp_lpd_b = srds_lpd_b[bank];
+
+	/*
+	 * If we're asked to disable all lanes, just pretend we're doing
+	 * that.
+	 */
+	if (temp_lpd_b == 0xF)
+		temp_lpd_b = 0xE;
 
 	/*
 	 * Enable the lanes SRDS_LPD_Bn.  The RCW bits are read-only in
@@ -270,10 +301,10 @@ static void enable_bank(ccsr_gur_t *gur, int bank)
 	rcw5 = in_be32(gur->rcwsr + 5);
 	if (bank == FSL_SRDS_BANK_2) {
 		rcw5 &= ~FSL_CORENET_RCWSRn_SRDS_LPD_B2;
-		rcw5 |= srds_lpd_b[bank] << 26;
+		rcw5 |= temp_lpd_b << 26;
 	} else if (bank == FSL_SRDS_BANK_3) {
 		rcw5 &= ~FSL_CORENET_RCWSRn_SRDS_LPD_B3;
-		rcw5 |= srds_lpd_b[bank] << 18;
+		rcw5 |= temp_lpd_b << 18;
 	} else {
 		printf("SERDES: enable_bank: bad bank %d\n", bank + 1);
 		return;
@@ -343,8 +374,6 @@ static void p4080_erratum_serdes8(serdes_corenet_t *regs, ccsr_gur_t *gur,
 		 */
 		setbits_be32(&regs->bank[FSL_SRDS_BANK_3].pllcr1,
 			     SRDS_PLLCR1_PLL_BWSEL);
-
-		enable_bank(gur, FSL_SRDS_BANK_3);
 		break;
 
 	case 0x0f:
@@ -379,10 +408,9 @@ static void p4080_erratum_serdes8(serdes_corenet_t *regs, ccsr_gur_t *gur,
 				SRDS_PLLCR0_FRATE_SEL_MASK,
 				SRDS_PLLCR0_FRATE_SEL_6_25);
 		break;
-	default:
-		enable_bank(gur, FSL_SRDS_BANK_3);
 	}
 
+	enable_bank(gur, FSL_SRDS_BANK_3);
 }
 #endif
 
@@ -451,7 +479,7 @@ static void wait_for_rstdone(unsigned int bank)
 	} while (end_tick > get_ticks());
 
 	if (!(rstctl & SRDS_RSTCTL_RSTDONE))
-		printf("SERDES: timeout resetting bank %u\n", bank);
+		printf("SERDES: timeout resetting bank %u\n", bank + 1);
 }
 
 void fsl_serdes_init(void)
@@ -523,6 +551,14 @@ void fsl_serdes_init(void)
 			srds_lpd_b[bank] =
 				simple_strtoul(srds_lpd_arg, NULL, 0) & 0xf;
 	}
+
+	if ((cfg == 0xf) || (cfg == 0x10)) {
+		/*
+		 * For SERDES protocols 0xF and 0x10, force bank 3 to be
+		 * disabled, because it is not supported.
+		 */
+		srds_lpd_b[FSL_SRDS_BANK_3] = 0xF;
+	}
 #endif
 
 	/* Look for banks with all lanes disabled, and power down the bank. */
@@ -546,7 +582,10 @@ void fsl_serdes_init(void)
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
 	/*
 	 * The work-aroud for erratum SERDES-A001 is needed only if bank two
-	 * is disabled and bank three is enabled.
+	 * is disabled and bank three is enabled.  The converse is also true,
+	 * but SERDES8 ensures that bank 3 is always enabled if bank 2 is
+	 * enabled, so there's no point in complicating the code to handle
+	 * that situation.
 	 */
 	need_serdes_a001 =
 		!have_bank[FSL_SRDS_BANK_2] && have_bank[FSL_SRDS_BANK_3];
@@ -724,29 +763,17 @@ void fsl_serdes_init(void)
 			p4080_erratum_serdes8(srds_regs, gur, serdes8_devdisr,
 					      serdes8_devdisr2, cfg);
 		} else if (idx == 2) {
-			/* Eable bank two now that bank three is enabled. */
+			/* Enable bank two now that bank three is enabled. */
 			enable_bank(gur, FSL_SRDS_BANK_2);
 		}
 #endif
-
-		/* reset banks for errata */
-		setbits_be32(&srds_regs->bank[bank].rstctl, SRDS_RSTCTL_RST);
 
 		wait_for_rstdone(bank);
 	}
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
 	if (need_serdes_a001) {
-		/*
-		 * Bank three has been enabled, so enable bank two and then
-		 * disable it.
-		 */
-		srds_lpd_b[FSL_SRDS_BANK_2] = 0;
-		enable_bank(gur, FSL_SRDS_BANK_2);
-
-		wait_for_rstdone(FSL_SRDS_BANK_2);
-
-		/* Disable bank 2 */
+		/* Bank 3 has been enabled, so now we can disable bank 2 */
 		setbits_be32(&srds_regs->bank[FSL_SRDS_BANK_2].rstctl,
 			     SRDS_RSTCTL_SDPD);
 	}
