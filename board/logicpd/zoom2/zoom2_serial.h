@@ -33,7 +33,6 @@ extern int zoom2_debug_board_connected (void);
 
 #define S(a) #a
 #define N(a) S(quad##a)
-#define U(a) S(UART##a)
 
 #define QUAD_INIT(n)				\
 int quad_init_##n(void)				\
@@ -63,7 +62,6 @@ int quad_tstc_##n(void)				\
 struct serial_device zoom2_serial_device##n =	\
 {						\
 	N(n),					\
-	U(n),					\
 	quad_init_##n,				\
 	NULL,					\
 	quad_setbrg_##n,			\

@@ -118,9 +118,8 @@ static NS16550_t serial_ports[4] = {
 	serial_puts_dev(port, s);}
 
 /* Serial device descriptor */
-#define INIT_ESERIAL_STRUCTURE(port,name,bus) {\
+#define INIT_ESERIAL_STRUCTURE(port, name) {\
 	name,\
-	bus,\
 	eserial##port##_init,\
 	NULL,\
 	eserial##port##_setbrg,\
@@ -326,16 +325,16 @@ serial_setbrg(void)
 
 DECLARE_ESERIAL_FUNCTIONS(1);
 struct serial_device eserial1_device =
-	INIT_ESERIAL_STRUCTURE(1,"eserial0","EUART1");
+	INIT_ESERIAL_STRUCTURE(1, "eserial0");
 DECLARE_ESERIAL_FUNCTIONS(2);
 struct serial_device eserial2_device =
-	INIT_ESERIAL_STRUCTURE(2,"eserial1","EUART2");
+	INIT_ESERIAL_STRUCTURE(2, "eserial1");
 DECLARE_ESERIAL_FUNCTIONS(3);
 struct serial_device eserial3_device =
-	INIT_ESERIAL_STRUCTURE(3,"eserial2","EUART3");
+	INIT_ESERIAL_STRUCTURE(3, "eserial2");
 DECLARE_ESERIAL_FUNCTIONS(4);
 struct serial_device eserial4_device =
-	INIT_ESERIAL_STRUCTURE(4,"eserial3","EUART4");
+	INIT_ESERIAL_STRUCTURE(4, "eserial3");
 
 __weak struct serial_device *default_serial_console(void)
 {

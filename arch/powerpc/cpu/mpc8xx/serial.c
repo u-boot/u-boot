@@ -391,7 +391,6 @@ smc_tstc(void)
 struct serial_device serial_smc_device =
 {
 	"serial_smc",
-	"SMC",
 	smc_init,
 	NULL,
 	smc_setbrg,
@@ -662,7 +661,6 @@ scc_tstc(void)
 struct serial_device serial_scc_device =
 {
 	"serial_scc",
-	"SCC",
 	scc_init,
 	NULL,
 	scc_setbrg,
@@ -702,7 +700,7 @@ kgdb_serial_init(void)
 {
 	int i = -1;
 
-	if (strcmp(default_serial_console()->ctlr, "SMC") == 0)
+	if (strcmp(default_serial_console()->name, "serial_smc") == 0)
 	{
 #if defined(CONFIG_8xx_CONS_SMC1)
 		i = 1;
@@ -710,7 +708,7 @@ kgdb_serial_init(void)
 		i = 2;
 #endif
 	}
-	else if (strcmp(default_serial_console()->ctlr, "SMC") == 0)
+	else if (strcmp(default_serial_console()->name, "serial_scc") == 0)
 	{
 #if defined(CONFIG_8xx_CONS_SCC1)
 		i = 1;
@@ -725,7 +723,7 @@ kgdb_serial_init(void)
 
 	if (i >= 0)
 	{
-		serial_printf("[on %s%d] ", default_serial_console()->ctlr, i);
+		serial_printf("[on %s%d] ", default_serial_console()->name, i);
 	}
 }
 

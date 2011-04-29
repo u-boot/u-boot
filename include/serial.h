@@ -2,11 +2,9 @@
 #define __SERIAL_H__
 
 #define NAMESIZE 16
-#define CTLRSIZE 8
 
 struct serial_device {
 	char name[NAMESIZE];
-	char ctlr[CTLRSIZE];
 
 	int  (*init) (void);
 	int  (*uninit) (void);

@@ -268,7 +268,6 @@ static int ffuart_tstc(void)
 struct serial_device serial_ffuart_device =
 {
 	"serial_ffuart",
-	"PXA",
 	ffuart_init,
 	NULL,
 	ffuart_setbrg,
@@ -313,7 +312,6 @@ static int btuart_tstc(void)
 struct serial_device serial_btuart_device =
 {
 	"serial_btuart",
-	"PXA",
 	btuart_init,
 	NULL,
 	btuart_setbrg,
@@ -358,7 +356,6 @@ static int stuart_tstc(void)
 struct serial_device serial_stuart_device =
 {
 	"serial_stuart",
-	"PXA",
 	stuart_init,
 	NULL,
 	stuart_setbrg,

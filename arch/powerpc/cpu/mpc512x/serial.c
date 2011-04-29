@@ -319,9 +319,8 @@ int serial_getcts_dev(unsigned int idx)
 		serial_puts_dev(port, s); \
 	}
 
-#define INIT_PSC_SERIAL_STRUCTURE(port, name, bus) { \
+#define INIT_PSC_SERIAL_STRUCTURE(port, name) { \
 	name, \
-	bus, \
 	serial##port##_init, \
 	serial##port##_uninit, \
 	serial##port##_setbrg, \
@@ -334,25 +333,25 @@ int serial_getcts_dev(unsigned int idx)
 #if defined(CONFIG_SYS_PSC1)
 DECLARE_PSC_SERIAL_FUNCTIONS(1);
 struct serial_device serial1_device =
-INIT_PSC_SERIAL_STRUCTURE(1, "psc1", "UART1");
+INIT_PSC_SERIAL_STRUCTURE(1, "psc1");
 #endif
 
 #if defined(CONFIG_SYS_PSC3)
 DECLARE_PSC_SERIAL_FUNCTIONS(3);
 struct serial_device serial3_device =
-INIT_PSC_SERIAL_STRUCTURE(3, "psc3", "UART3");
+INIT_PSC_SERIAL_STRUCTURE(3, "psc3");
 #endif
 
 #if defined(CONFIG_SYS_PSC4)
 DECLARE_PSC_SERIAL_FUNCTIONS(4);
 struct serial_device serial4_device =
-INIT_PSC_SERIAL_STRUCTURE(4, "psc4", "UART4");
+INIT_PSC_SERIAL_STRUCTURE(4, "psc4");
 #endif
 
 #if defined(CONFIG_SYS_PSC6)
 DECLARE_PSC_SERIAL_FUNCTIONS(6);
 struct serial_device serial6_device =
-INIT_PSC_SERIAL_STRUCTURE(6, "psc6", "UART6");
+INIT_PSC_SERIAL_STRUCTURE(6, "psc6");
 #endif
 
 __weak struct serial_device *default_serial_console(void)

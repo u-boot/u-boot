@@ -339,7 +339,6 @@ int serial1_tstc(void)
 struct serial_device serial0_device =
 {
 	"serial0",
-	"UART0",
 	serial0_init,
 	NULL,
 	serial0_setbrg,
@@ -357,7 +356,6 @@ __weak struct serial_device *default_serial_console(void)
 struct serial_device serial1_device =
 {
 	"serial1",
-	"UART1",
 	serial1_init,
 	NULL,
 	serial1_setbrg,

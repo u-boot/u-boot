@@ -69,9 +69,8 @@ DECLARE_GLOBAL_DATA_PTR;
 		serial_puts_dev(port, s); \
 	}
 
-#define INIT_S3C_SERIAL_STRUCTURE(port, name, bus) { \
+#define INIT_S3C_SERIAL_STRUCTURE(port, name) { \
 	name, \
-	bus, \
 	s3serial##port##_init, \
 	NULL,\
 	s3serial##port##_setbrg, \
@@ -304,13 +303,13 @@ void serial_puts(const char *s)
 #if defined(CONFIG_SERIAL_MULTI)
 DECLARE_S3C_SERIAL_FUNCTIONS(0);
 struct serial_device s3c24xx_serial0_device =
-INIT_S3C_SERIAL_STRUCTURE(0, "s3ser0", "S3UART1");
+INIT_S3C_SERIAL_STRUCTURE(0, "s3ser0");
 DECLARE_S3C_SERIAL_FUNCTIONS(1);
 struct serial_device s3c24xx_serial1_device =
-INIT_S3C_SERIAL_STRUCTURE(1, "s3ser1", "S3UART2");
+INIT_S3C_SERIAL_STRUCTURE(1, "s3ser1");
 DECLARE_S3C_SERIAL_FUNCTIONS(2);
 struct serial_device s3c24xx_serial2_device =
-INIT_S3C_SERIAL_STRUCTURE(2, "s3ser2", "S3UART3");
+INIT_S3C_SERIAL_STRUCTURE(2, "s3ser2");
 
 __weak struct serial_device *default_serial_console(void)
 {
