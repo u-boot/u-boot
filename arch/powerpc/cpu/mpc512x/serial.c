@@ -30,6 +30,7 @@
  */
 
 #include <common.h>
+#include <linux/compiler.h>
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <serial.h>
@@ -353,6 +354,17 @@ DECLARE_PSC_SERIAL_FUNCTIONS(6);
 struct serial_device serial6_device =
 INIT_PSC_SERIAL_STRUCTURE(6, "psc6", "UART6");
 #endif
+
+__weak struct serial_device *default_serial_console(void)
+{
+#if (CONFIG_PSC_CONSOLE == 3)
+	return &serial3_device;
+#elif (CONFIG_PSC_CONSOLE == 6)
+	return &serial6_device;
+#else
+#error "invalid CONFIG_PSC_CONSOLE"
+#endif
+}
 
 #else
 

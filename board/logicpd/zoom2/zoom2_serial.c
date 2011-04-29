@@ -132,3 +132,8 @@ QUAD_INIT (0)
 QUAD_INIT (1)
 QUAD_INIT (2)
 QUAD_INIT (3)
+
+struct serial_device *default_serial_console(void)
+{
+	return ZOOM2_DEFAULT_SERIAL_DEVICE;
+}

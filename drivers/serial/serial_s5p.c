@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <linux/compiler.h>
 #include <asm/io.h>
 #include <asm/arch/uart.h>
 #include <asm/arch/clk.h>
@@ -205,3 +206,18 @@ struct serial_device s5p_serial2_device =
 DECLARE_S5P_SERIAL_FUNCTIONS(3);
 struct serial_device s5p_serial3_device =
 	INIT_S5P_SERIAL_STRUCTURE(3, "s5pser3", "S5PUART3");
+
+__weak struct serial_device *default_serial_console(void)
+{
+#if defined(CONFIG_SERIAL0)
+	return &s5p_serial0_device;
+#elif defined(CONFIG_SERIAL1)
+	return &s5p_serial1_device;
+#elif defined(CONFIG_SERIAL2)
+	return &s5p_serial2_device;
+#elif defined(CONFIG_SERIAL3)
+	return &s5p_serial3_device;
+#else
+#error "CONFIG_SERIAL? missing."
+#endif
+}

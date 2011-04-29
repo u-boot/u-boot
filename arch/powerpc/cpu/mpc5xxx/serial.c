@@ -34,6 +34,7 @@
  */
 
 #include <common.h>
+#include <linux/compiler.h>
 #include <mpc5xxx.h>
 
 #if defined (CONFIG_SERIAL_MULTI)
@@ -347,6 +348,11 @@ struct serial_device serial0_device =
 	serial0_putc,
 	serial0_puts,
 };
+
+__weak struct serial_device *default_serial_console(void)
+{
+	return &serial0_device;
+}
 
 struct serial_device serial1_device =
 {

@@ -22,6 +22,7 @@
  */
 
 #include <common.h>
+#include <linux/compiler.h>
 
 #include <ns16550.h>
 #ifdef CONFIG_NS87308
@@ -335,4 +336,20 @@ struct serial_device eserial3_device =
 DECLARE_ESERIAL_FUNCTIONS(4);
 struct serial_device eserial4_device =
 	INIT_ESERIAL_STRUCTURE(4,"eserial3","EUART4");
+
+__weak struct serial_device *default_serial_console(void)
+{
+#if CONFIG_CONS_INDEX == 1
+	return &eserial1_device;
+#elif CONFIG_CONS_INDEX == 2
+	return &eserial2_device;
+#elif CONFIG_CONS_INDEX == 3
+	return &eserial3_device;
+#elif CONFIG_CONS_INDEX == 4
+	return &eserial4_device;
+#else
+#error "Bad CONFIG_CONS_INDEX."
+#endif
+}
+
 #endif /* CONFIG_SERIAL_MULTI */

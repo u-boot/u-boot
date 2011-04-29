@@ -26,6 +26,7 @@
 #include <command.h>
 #include <serial.h>
 #include <watchdog.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -672,6 +673,15 @@ struct serial_device serial_scc_device =
 };
 
 #endif	/* CONFIG_8xx_CONS_SCCx */
+
+__weak struct serial_device *default_serial_console(void)
+{
+#if defined(CONFIG_8xx_CONS_SMC1) || defined(CONFIG_8xx_CONS_SMC2)
+	return &serial_smc_device;
+#else
+	return &serial_scc_device;
+#endif
+}
 
 #ifdef CONFIG_MODEM_SUPPORT
 void disable_putc(void)
