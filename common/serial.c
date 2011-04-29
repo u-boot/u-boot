@@ -30,7 +30,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static struct serial_device *serial_devices = NULL;
 static struct serial_device *serial_current = NULL;
 
-int serial_register (struct serial_device *dev)
+void serial_register(struct serial_device *dev)
 {
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
 	dev->init += gd->reloc_off;
@@ -43,8 +43,6 @@ int serial_register (struct serial_device *dev)
 
 	dev->next = serial_devices;
 	serial_devices = dev;
-
-	return 0;
 }
 
 void serial_initialize (void)
