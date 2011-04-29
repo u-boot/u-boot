@@ -394,9 +394,8 @@ int davinci_mmc_init(bd_t *bis, struct davinci_mmc *host)
 	mmc->voltages = host->voltages;
 	mmc->host_caps = host->host_caps;
 
-#ifdef CONFIG_MMC_MBLOCK
 	mmc->b_max = DAVINCI_MAX_BLOCKS;
-#endif
+
 	mmc_register(mmc);
 
 	return 0;

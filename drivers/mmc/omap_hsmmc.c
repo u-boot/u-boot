@@ -465,6 +465,16 @@ int omap_mmc_init(int dev_index)
 	mmc->f_min = 400000;
 	mmc->f_max = 52000000;
 
+	mmc->b_max = 0;
+
+#if defined(CONFIG_OMAP34XX)
+	/*
+	 * Silicon revs 2.1 and older do not support multiblock transfers.
+	 */
+	if ((get_cpu_family() == CPU_OMAP34XX) && (get_cpu_rev() <= CPU_3XX_ES21))
+		mmc->b_max = 1;
+#endif
+
 	mmc_register(mmc);
 
 	return 0;

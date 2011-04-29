@@ -243,8 +243,7 @@ mmc_bwrite(int dev_num, ulong start, lbaint_t blkcnt, const void*src)
 		return 0;
 
 	do {
-		cur = (blocks_todo > CONFIG_SYS_MMC_MAX_BLK_COUNT) ?
-		       CONFIG_SYS_MMC_MAX_BLK_COUNT : blocks_todo;
+		cur = (blocks_todo > mmc->b_max) ?  mmc->b_max : blocks_todo;
 		if(mmc_write_blocks(mmc, start, cur, src) != cur)
 			return 0;
 		blocks_todo -= cur;
@@ -320,8 +319,7 @@ static ulong mmc_bread(int dev_num, ulong start, lbaint_t blkcnt, void *dst)
 		return 0;
 
 	do {
-		cur = (blocks_todo > CONFIG_SYS_MMC_MAX_BLK_COUNT) ?
-		       CONFIG_SYS_MMC_MAX_BLK_COUNT : blocks_todo;
+		cur = (blocks_todo > mmc->b_max) ?  mmc->b_max : blocks_todo;
 		if(mmc_read_blocks(mmc, dst, start, cur) != cur)
 			return 0;
 		blocks_todo -= cur;
@@ -1029,6 +1027,8 @@ int mmc_register(struct mmc *mmc)
 	mmc->block_dev.removable = 1;
 	mmc->block_dev.block_read = mmc_bread;
 	mmc->block_dev.block_write = mmc_bwrite;
+	if (!mmc->b_max)
+		mmc->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 
 	INIT_LIST_HEAD (&mmc->link);
 

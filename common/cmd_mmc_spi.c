@@ -74,6 +74,7 @@ static int do_mmc_spi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 	printf("%s: %d at %u:%u hz %u mode %u\n", mmc->name, mmc->block_dev.dev,
 	       bus, cs, speed, mode);
+	mmc_init(mmc);
 	return 0;
 
 usage:
