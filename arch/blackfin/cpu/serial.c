@@ -49,9 +49,9 @@ DECLARE_GLOBAL_DATA_PTR;
 #include "serial.h"
 
 #ifdef CONFIG_DEBUG_SERIAL
-uint16_t cached_lsr[256];
-uint16_t cached_rbr[256];
-size_t cache_count;
+static uint16_t cached_lsr[256];
+static uint16_t cached_rbr[256];
+static size_t cache_count;
 
 /* The LSR is read-to-clear on some parts, so we have to make sure status
  * bits aren't inadvertently lost when doing various tests.  This also
@@ -112,11 +112,6 @@ int serial_init(void)
 	serial_initialize();
 	serial_setbrg();
 	uart_lsr_clear();
-#ifdef CONFIG_DEBUG_SERIAL
-	cache_count = 0;
-	memset(cached_lsr, 0x00, sizeof(cached_lsr));
-	memset(cached_rbr, 0x00, sizeof(cached_rbr));
-#endif
 	return 0;
 }
 
