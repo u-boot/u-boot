@@ -53,4 +53,11 @@ enum srds_prtcl {
 int is_serdes_configured(enum srds_prtcl device);
 void fsl_serdes_init(void);
 
+#ifdef CONFIG_FSL_CORENET
+int serdes_get_first_lane(enum srds_prtcl device);
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
+void serdes_reset_rx(enum srds_prtcl device);
+#endif
+#endif
+
 #endif /* __FSL_SERDES_H */

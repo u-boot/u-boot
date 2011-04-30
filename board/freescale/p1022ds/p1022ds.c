@@ -46,6 +46,9 @@ int board_early_init_f(void)
 	/* Set the pin muxing to enable ETSEC2. */
 	clrbits_be32(&gur->pmuxcr2, 0x001F8000);
 
+	/* Enable the SPI */
+	clrsetbits_8(&pixis->brdcfg0, PIXIS_ELBC_SPI_MASK, PIXIS_SPI);
+
 	return 0;
 }
 

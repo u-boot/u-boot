@@ -234,13 +234,14 @@ int do_reset (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 /*
  * Get timebase clock frequency
  */
+#ifndef CONFIG_SYS_FSL_TBCLK_DIV
+#define CONFIG_SYS_FSL_TBCLK_DIV 8
+#endif
 unsigned long get_tbclk (void)
 {
-#ifdef CONFIG_FSL_CORENET
-	return (gd->bus_clk + 8) / 16;
-#else
-	return (gd->bus_clk + 4UL)/8UL;
-#endif
+	unsigned long tbclk_div = CONFIG_SYS_FSL_TBCLK_DIV;
+
+	return (gd->bus_clk + (tbclk_div >> 1)) / tbclk_div;
 }
 
 

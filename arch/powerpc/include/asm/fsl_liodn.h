@@ -115,8 +115,16 @@ extern void fdt_fixup_liodn(void *blob);
 		FM_PPID_RX_PORT_OFFSET(fmNum, enetNum + 16), \
 		CONFIG_SYS_FSL_FM##fmNum##_RX##enetNum##_10G_OFFSET) \
 
+/*
+ * handle both old and new versioned SEC properties:
+ * "fsl,secX.Y" became "fsl,sec-vX.Y" during development
+ */
 #define SET_SEC_JR_LIODN_ENTRY(jrNum, liodnA, liodnB) \
 	SET_LIODN_ENTRY_2("fsl,sec4.0-job-ring", liodnA, liodnB,\
+		offsetof(ccsr_sec_t, jrliodnr[jrNum].ls) + \
+		CONFIG_SYS_FSL_SEC_OFFSET, \
+		CONFIG_SYS_FSL_SEC_OFFSET + 0x1000 + 0x1000 * jrNum), \
+	SET_LIODN_ENTRY_2("fsl,sec-v4.0-job-ring", liodnA, liodnB,\
 		offsetof(ccsr_sec_t, jrliodnr[jrNum].ls) + \
 		CONFIG_SYS_FSL_SEC_OFFSET, \
 		CONFIG_SYS_FSL_SEC_OFFSET + 0x1000 + 0x1000 * jrNum)
@@ -124,6 +132,11 @@ extern void fdt_fixup_liodn(void *blob);
 /* This is a bit evil since we treat rtic param as both a string & hex value */
 #define SET_SEC_RTIC_LIODN_ENTRY(rtic, liodnA) \
 	SET_LIODN_ENTRY_1("fsl,sec4.0-rtic-memory", \
+		liodnA,	\
+		offsetof(ccsr_sec_t, rticliodnr[0x##rtic-0xa].ls) + \
+		CONFIG_SYS_FSL_SEC_OFFSET, \
+		CONFIG_SYS_FSL_SEC_OFFSET + 0x6100 + 0x20 * (0x##rtic-0xa)), \
+	SET_LIODN_ENTRY_1("fsl,sec-v4.0-rtic-memory", \
 		liodnA,	\
 		offsetof(ccsr_sec_t, rticliodnr[0x##rtic-0xa].ls) + \
 		CONFIG_SYS_FSL_SEC_OFFSET, \

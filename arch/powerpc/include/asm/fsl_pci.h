@@ -230,7 +230,9 @@ int fsl_pcie_init_board(int busno);
 #define FT_FSL_PCIE3_SETUP __FT_FSL_PCIE_SETUP(blob, FSL_PCIE_COMPAT, 3)
 #define FT_FSL_PCIE4_SETUP __FT_FSL_PCIE_SETUP(blob, FSL_PCIE_COMPAT, 4)
 
-#if defined(CONFIG_FSL_CORENET)
+#if !defined(CONFIG_PCI)
+#define FT_FSL_PCI_SETUP
+#elif defined(CONFIG_FSL_CORENET)
 #define FSL_PCIE_COMPAT	"fsl,p4080-pcie"
 #define FT_FSL_PCI_SETUP \
 	FT_FSL_PCIE1_SETUP; \

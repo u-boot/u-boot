@@ -170,6 +170,8 @@
 #define PIXIS_LBMAP_SWITCH	7
 #define PIXIS_LBMAP_MASK	0xF0
 #define PIXIS_LBMAP_ALTBANK	0x20
+#define PIXIS_ELBC_SPI_MASK	0xc0
+#define PIXIS_SPI		0x80
 
 #define CONFIG_SYS_INIT_RAM_LOCK
 #define CONFIG_SYS_INIT_RAM_ADDR	0xffd00000 /* Initial L1 address */
@@ -267,6 +269,19 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 #define CONFIG_SYS_EEPROM_BUS_NUM	1
+
+/*
+ * eSPI - Enhanced SPI
+ */
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_SPANSION
+
+#define CONFIG_HARD_SPI
+#define CONFIG_FSL_ESPI
+
+#define CONFIG_CMD_SF
+#define CONFIG_SF_DEFAULT_SPEED		10000000
+#define CONFIG_SF_DEFAULT_MODE		0
 
 /*
  * General PCI
@@ -462,11 +477,11 @@
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 16 MB of memory, since this is
+ * have to be in the first 64 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(16 << 20)	/* Initial Memory map for Linux*/
-#define CONFIG_SYS_BOOTM_LEN	(16 << 20)	/* Increase max gunzip size */
+#define CONFIG_SYS_BOOTMAPSZ	(64 << 20)	/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
 #ifdef CONFIG_CMD_KGDB
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */

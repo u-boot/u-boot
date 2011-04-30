@@ -29,6 +29,7 @@
 #include <asm/io.h>
 #include <asm/processor.h>
 #include <asm/fsl_law.h>
+#include <asm/errno.h>
 #include "fsl_corenet_serdes.h"
 
 static u32 serdes_prtcl_map;
@@ -91,7 +92,7 @@ int serdes_get_lane_idx(int lane)
 	return lanes[lane].idx;
 }
 
-int serdes_get_bank(int lane)
+int serdes_get_bank_by_lane(int lane)
 {
 	return lanes[lane].bank;
 }
@@ -131,6 +132,125 @@ int is_serdes_configured(enum srds_prtcl device)
 
 	return (1 << device) & serdes_prtcl_map;
 }
+
+static int __serdes_get_first_lane(uint32_t prtcl, enum srds_prtcl device)
+{
+	int i;
+
+	for (i = 0; i < SRDS_MAX_LANES; i++) {
+		if (serdes_get_prtcl(prtcl, i) == device)
+			return i;
+	}
+
+	return -ENODEV;
+}
+
+/*
+ * Returns the SERDES lane (0..SRDS_MAX_LANES-1) that routes to the given
+ * device. This depends on the current SERDES protocol, as defined in the RCW.
+ *
+ * Returns a negative error code if SERDES is disabled or the given device is
+ * not supported in the current SERDES protocol.
+ */
+int serdes_get_first_lane(enum srds_prtcl device)
+{
+	u32 prtcl;
+	const ccsr_gur_t *gur;
+
+	gur = (typeof(gur))CONFIG_SYS_MPC85xx_GUTS_ADDR;
+
+	/* Is serdes enabled at all? */
+	if (unlikely((in_be32(&gur->rcwsr[5]) & 0x2000) == 0))
+		return -ENODEV;
+
+	prtcl = (in_be32(&gur->rcwsr[4]) & FSL_CORENET_RCWSR4_SRDS_PRTCL) >> 26;
+
+	return __serdes_get_first_lane(prtcl, device);
+}
+
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
+/*
+ * Returns the SERDES bank (1, 2, or 3) that a given device is on for a given
+ * SERDES protocol.
+ *
+ * Returns a negative error code if the given device is not supported for the
+ * given SERDES protocol.
+ */
+static int serdes_get_bank_by_device(uint32_t prtcl, enum srds_prtcl device)
+{
+	int lane;
+
+	lane = __serdes_get_first_lane(prtcl, device);
+	if (unlikely(lane < 0))
+		return lane;
+
+	return serdes_get_bank_by_lane(lane);
+}
+
+static uint32_t __serdes_get_lane_count(uint32_t prtcl, enum srds_prtcl device,
+					int first)
+{
+	int lane;
+
+	for (lane = first; lane < SRDS_MAX_LANES; lane++) {
+		if (serdes_get_prtcl(prtcl, lane) != device)
+			break;
+	}
+
+	return lane - first;
+}
+
+static void __serdes_reset_rx(serdes_corenet_t *regs,
+			      uint32_t prtcl,
+			      enum srds_prtcl device)
+{
+	int lane, idx, first, last;
+
+	lane = __serdes_get_first_lane(prtcl, device);
+	if (unlikely(lane < 0))
+		return;
+	first = serdes_get_lane_idx(lane);
+	last = first + __serdes_get_lane_count(prtcl, device, lane);
+
+	/*
+	 * Set BnGCRy0[RRST] = 0 for each lane in the each bank that is
+	 * selected as XAUI to place the lane into reset.
+	*/
+	for (idx = first; idx < last; idx++)
+		clrbits_be32(&regs->lane[idx].gcr0, SRDS_GCR0_RRST);
+
+	/* Wait at least 250 ns */
+	udelay(1);
+
+	/*
+	 * Set BnGCRy0[RRST] = 1 for each lane in the each bank that is
+	 * selected as XAUI to bring the lane out of reset.
+	 */
+	for (idx = first; idx < last; idx++)
+		setbits_be32(&regs->lane[idx].gcr0, SRDS_GCR0_RRST);
+}
+
+void serdes_reset_rx(enum srds_prtcl device)
+{
+	u32 prtcl;
+	const ccsr_gur_t *gur;
+	serdes_corenet_t *regs;
+
+	if (unlikely(device == NONE))
+		return;
+
+	gur = (typeof(gur))CONFIG_SYS_MPC85xx_GUTS_ADDR;
+
+	/* Is serdes enabled at all? */
+	if (unlikely((in_be32(&gur->rcwsr[5]) & 0x2000) == 0))
+		return;
+
+	regs = (typeof(regs))CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	prtcl = (in_be32(&gur->rcwsr[4]) & FSL_CORENET_RCWSR4_SRDS_PRTCL) >> 26;
+
+	__serdes_reset_rx(regs, prtcl, device);
+}
+#endif
 
 #ifndef CONFIG_SYS_DCSRBAR_PHYS
 #define CONFIG_SYS_DCSRBAR_PHYS	0x80000000 /* Must be 1GB-aligned for rev1.0 */
@@ -266,6 +386,74 @@ static void p4080_erratum_serdes8(serdes_corenet_t *regs, ccsr_gur_t *gur,
 }
 #endif
 
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A005
+/*
+ * If PCIe is not selected as a protocol for any lanes driven by a given PLL,
+ * that PLL should have SRDSBnPLLCR1[PLLBW_SEL] = 0.
+ */
+static void p4080_erratum_serdes_a005(serdes_corenet_t *regs, unsigned int cfg)
+{
+	enum srds_prtcl device;
+
+	switch (cfg) {
+	case 0x13:
+	case 0x16:
+		/*
+		 * If SRDS_PRTCL = 0x13 or 0x16, set SRDSB1PLLCR1[PLLBW_SEL]
+		 * to 0.
+		 */
+		clrbits_be32(&regs->bank[FSL_SRDS_BANK_1].pllcr1,
+			     SRDS_PLLCR1_PLL_BWSEL);
+		break;
+	case 0x19:
+		/*
+		 * If SRDS_PRTCL = 0x19, set SRDSB1PLLCR1[PLLBW_SEL] to 0 and
+		 * SRDSB3PLLCR1[PLLBW_SEL] to 1.
+		 */
+		clrbits_be32(&regs->bank[FSL_SRDS_BANK_1].pllcr1,
+			     SRDS_PLLCR1_PLL_BWSEL);
+		setbits_be32(&regs->bank[FSL_SRDS_BANK_3].pllcr1,
+			     SRDS_PLLCR1_PLL_BWSEL);
+		break;
+	}
+
+	/*
+	 * Set SRDSBnPLLCR1[PLLBW_SEL] to 0 for each bank that selects XAUI
+	 * before XAUI is initialized.
+	 */
+	for (device = XAUI_FM1; device <= XAUI_FM2; device++) {
+		if (is_serdes_configured(device)) {
+			int bank = serdes_get_bank_by_device(cfg, device);
+
+			clrbits_be32(&regs->bank[bank].pllcr1,
+				     SRDS_PLLCR1_PLL_BWSEL);
+		}
+	}
+}
+#endif
+
+/*
+ * Wait for the RSTDONE bit to get set, or a one-second timeout.
+ */
+static void wait_for_rstdone(unsigned int bank)
+{
+	serdes_corenet_t *srds_regs =
+		(void *)CONFIG_SYS_FSL_CORENET_SERDES_ADDR;
+	unsigned long long end_tick;
+	u32 rstctl;
+
+	/* wait for reset complete or 1-second timeout */
+	end_tick = usec2ticks(1000000) + get_ticks();
+	do {
+		rstctl = in_be32(&srds_regs->bank[bank].rstctl);
+		if (rstctl & SRDS_RSTCTL_RSTDONE)
+			break;
+	} while (end_tick > get_ticks());
+
+	if (!(rstctl & SRDS_RSTCTL_RSTDONE))
+		printf("SERDES: timeout resetting bank %u\n", bank);
+}
+
 void fsl_serdes_init(void)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -273,7 +461,6 @@ void fsl_serdes_init(void)
 	serdes_corenet_t *srds_regs;
 	int lane, bank, idx;
 	enum srds_prtcl lane_prtcl;
-	long long end_tick;
 	int have_bank[SRDS_MAX_BANK] = {};
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
 	u32 serdes8_devdisr = 0;
@@ -281,6 +468,12 @@ void fsl_serdes_init(void)
 	char srds_lpd_opt[16];
 	const char *srds_lpd_arg;
 	size_t arglen;
+#endif
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
+	enum srds_prtcl device;
+#endif
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
+	int need_serdes_a001;	/* TRUE == need work-around for SERDES A001 */
 #endif
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	char *buf = NULL;
@@ -307,6 +500,17 @@ void fsl_serdes_init(void)
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
 	/*
+	 * Display a warning if banks two and three are not disabled in the RCW,
+	 * since our work-around for SERDES8 depends on these banks being
+	 * disabled at power-on.
+	 */
+#define B2_B3 (FSL_CORENET_RCWSRn_SRDS_LPD_B2 | FSL_CORENET_RCWSRn_SRDS_LPD_B3)
+	if ((in_be32(&gur->rcwsr[5]) & B2_B3) != B2_B3) {
+		printf("Warning: SERDES8 requires banks two and "
+		       "three to be disabled in the RCW\n");
+	}
+
+	/*
 	 * Store the values of the fsl_srds_lpd_b2 and fsl_srds_lpd_b3
 	 * hwconfig options into the srds_lpd_b[] array.  See README.p4080ds
 	 * for a description of these options.
@@ -325,7 +529,7 @@ void fsl_serdes_init(void)
 	for (lane = 0; lane < SRDS_MAX_LANES; lane++) {
 		enum srds_prtcl lane_prtcl = serdes_get_prtcl(cfg, lane);
 		if (serdes_lane_enabled(lane)) {
-			have_bank[serdes_get_bank(lane)] = 1;
+			have_bank[serdes_get_bank_by_lane(lane)] = 1;
 			serdes_prtcl_map |= (1 << lane_prtcl);
 		}
 	}
@@ -339,11 +543,32 @@ void fsl_serdes_init(void)
 		have_bank[FSL_SRDS_BANK_3] = 1;
 #endif
 
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
+	/*
+	 * The work-aroud for erratum SERDES-A001 is needed only if bank two
+	 * is disabled and bank three is enabled.
+	 */
+	need_serdes_a001 =
+		!have_bank[FSL_SRDS_BANK_2] && have_bank[FSL_SRDS_BANK_3];
+#endif
+
+	/* Power down the banks we're not interested in */
 	for (bank = 0; bank < SRDS_MAX_BANK; bank++) {
 		if (!have_bank[bank]) {
 			printf("SERDES: bank %d disabled\n", bank + 1);
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
+			/*
+			 * Erratum SERDES-A001 says bank two needs to be powered
+			 * down after bank three is powered up, so don't power
+			 * down bank two here.
+			 */
+			if (!need_serdes_a001 || (bank != FSL_SRDS_BANK_2))
+				setbits_be32(&srds_regs->bank[bank].rstctl,
+					     SRDS_RSTCTL_SDPD);
+#else
 			setbits_be32(&srds_regs->bank[bank].rstctl,
 				     SRDS_RSTCTL_SDPD);
+#endif
 		}
 	}
 
@@ -367,6 +592,35 @@ void fsl_serdes_init(void)
 		}
 
 		printf("%s ", serdes_prtcl_str[lane_prtcl]);
+#endif
+
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
+		/*
+		 * Set BnTTLCRy0[FLT_SEL] = 000011 and set BnTTLCRy0[17] = 1 for
+		 * each of the SerDes lanes selected as SGMII, XAUI, SRIO, or
+		 * AURORA before the device is initialized.
+		 */
+		switch (lane_prtcl) {
+		case SGMII_FM1_DTSEC1:
+		case SGMII_FM1_DTSEC2:
+		case SGMII_FM1_DTSEC3:
+		case SGMII_FM1_DTSEC4:
+		case SGMII_FM2_DTSEC1:
+		case SGMII_FM2_DTSEC2:
+		case SGMII_FM2_DTSEC3:
+		case SGMII_FM2_DTSEC4:
+		case XAUI_FM1:
+		case XAUI_FM2:
+		case SRIO1:
+		case SRIO2:
+		case AURORA:
+			clrsetbits_be32(&srds_regs->lane[idx].ttlcr0,
+					SRDS_TTLCR0_FLT_SEL_MASK,
+					SRDS_TTLCR0_FLT_SEL_750PPM |
+					SRDS_TTLCR0_PM_DIS);
+		default:
+			break;
+		}
 #endif
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
@@ -415,13 +669,12 @@ void fsl_serdes_init(void)
 					    FSL_CORENET_DEVDISR2_DTSEC2_4;
 			break;
 		case XAUI_FM1:
+			serdes8_devdisr2 |= FSL_CORENET_DEVDISR2_FM1	|
+					    FSL_CORENET_DEVDISR2_10GEC1;
+			break;
 		case XAUI_FM2:
-			if (lane_prtcl == XAUI_FM1)
-				serdes8_devdisr2 |= FSL_CORENET_DEVDISR2_FM1	|
-						    FSL_CORENET_DEVDISR2_10GEC1;
-			else
-				serdes8_devdisr2 |= FSL_CORENET_DEVDISR2_FM2	|
-						    FSL_CORENET_DEVDISR2_10GEC2;
+			serdes8_devdisr2 |= FSL_CORENET_DEVDISR2_FM2	|
+					    FSL_CORENET_DEVDISR2_10GEC2;
 			break;
 		case AURORA:
 			break;
@@ -436,9 +689,11 @@ void fsl_serdes_init(void)
 	puts("\n");
 #endif
 
-	for (idx = 0; idx < SRDS_MAX_BANK; idx++) {
-		u32 rstctl;
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A005
+	p4080_erratum_serdes_a005(srds_regs, cfg);
+#endif
 
+	for (idx = 0; idx < SRDS_MAX_BANK; idx++) {
 		bank = idx;
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
@@ -477,18 +732,30 @@ void fsl_serdes_init(void)
 		/* reset banks for errata */
 		setbits_be32(&srds_regs->bank[bank].rstctl, SRDS_RSTCTL_RST);
 
-		/* wait for reset complete or 1-second timeout */
-		end_tick = usec2ticks(1000000) + get_ticks();
-		do {
-			rstctl = in_be32(&srds_regs->bank[bank].rstctl);
-			if (rstctl & SRDS_RSTCTL_RSTDONE)
-				break;
-		} while (end_tick > get_ticks());
-
-		if (!(rstctl & SRDS_RSTCTL_RSTDONE)) {
-			printf("SERDES: timeout resetting bank %d\n",
-			       bank + 1);
-			continue;
-		}
+		wait_for_rstdone(bank);
 	}
+
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES_A001
+	if (need_serdes_a001) {
+		/*
+		 * Bank three has been enabled, so enable bank two and then
+		 * disable it.
+		 */
+		srds_lpd_b[FSL_SRDS_BANK_2] = 0;
+		enable_bank(gur, FSL_SRDS_BANK_2);
+
+		wait_for_rstdone(FSL_SRDS_BANK_2);
+
+		/* Disable bank 2 */
+		setbits_be32(&srds_regs->bank[FSL_SRDS_BANK_2].rstctl,
+			     SRDS_RSTCTL_SDPD);
+	}
+#endif
+
+#ifdef CONFIG_SYS_P4080_ERRATUM_SERDES9
+	for (device = XAUI_FM1; device <= XAUI_FM2; device++) {
+		if (is_serdes_configured(device))
+			__serdes_reset_rx(srds_regs, cfg, device);
+	}
+#endif
 }

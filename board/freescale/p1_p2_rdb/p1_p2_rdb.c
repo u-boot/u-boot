@@ -47,6 +47,7 @@ DECLARE_GLOBAL_DATA_PTR;
 #define RGMII_PHY_RST_SET	0x02000000
 
 #define USB_RST_CLR		0x04000000
+#define USB2_PORT_OUT_EN        0x01000000
 
 #define GPIO_DIR		0x060f0000
 
@@ -125,6 +126,19 @@ int checkboard (void)
  */
 	clrsetbits_be32(&pgpio->gpdat, USB_RST_CLR, BOARD_PERI_RST_SET);
 
+	return 0;
+}
+
+int misc_init_r(void)
+{
+#if defined(CONFIG_SDCARD) || defined(CONFIG_SPIFLASH)
+	ccsr_gur_t *gur = (void *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	ccsr_gpio_t *gpio = (void *)CONFIG_SYS_MPC85xx_GPIO_ADDR;
+
+	setbits_be32(&gpio->gpdir, USB2_PORT_OUT_EN);
+	setbits_be32(&gpio->gpdat, USB2_PORT_OUT_EN);
+	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_ELBC_OFF_USB2_ON);
+#endif
 	return 0;
 }
 

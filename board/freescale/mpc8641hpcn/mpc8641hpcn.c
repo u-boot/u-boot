@@ -34,11 +34,6 @@
 
 phys_size_t fixed_sdram(void);
 
-int board_early_init_f(void)
-{
-	return 0;
-}
-
 int checkboard(void)
 {
 	u8 vboot;

@@ -44,6 +44,12 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_SYS_P4080_ERRATUM_SERDES8)
 	puts("Work-around for Erratum SERDES8 enabled\n");
 #endif
+#if defined(CONFIG_SYS_P4080_ERRATUM_SERDES9)
+	puts("Work-around for Erratum SERDES9 enabled\n");
+#endif
+#if defined(CONFIG_SYS_P4080_ERRATUM_SERDES_A005)
+	puts("Work-around for Erratum SERDES-A005 enabled\n");
+#endif
 #if defined(CONFIG_SYS_P4080_ERRATUM_CPU22)
 	puts("Work-around for Erratum CPU22 enabled\n");
 #endif

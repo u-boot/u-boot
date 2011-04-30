@@ -38,47 +38,46 @@ void print_ifc_regs(void)
 void init_early_memctl_regs(void)
 {
 #if defined(CONFIG_SYS_CSPR0) && defined(CONFIG_SYS_CSOR0)
-	set_ifc_cspr(IFC_CS0, CONFIG_SYS_CSPR0);
-	set_ifc_amask(IFC_CS0, CONFIG_SYS_AMASK0);
-	set_ifc_csor(IFC_CS0, CONFIG_SYS_CSOR0);
-
 	set_ifc_ftim(IFC_CS0, IFC_FTIM0, CONFIG_SYS_CS0_FTIM0);
 	set_ifc_ftim(IFC_CS0, IFC_FTIM1, CONFIG_SYS_CS0_FTIM1);
 	set_ifc_ftim(IFC_CS0, IFC_FTIM2, CONFIG_SYS_CS0_FTIM2);
 	set_ifc_ftim(IFC_CS0, IFC_FTIM3, CONFIG_SYS_CS0_FTIM3);
+
+	set_ifc_cspr(IFC_CS0, CONFIG_SYS_CSPR0);
+	set_ifc_amask(IFC_CS0, CONFIG_SYS_AMASK0);
+	set_ifc_csor(IFC_CS0, CONFIG_SYS_CSOR0);
 #endif
 
 #if defined(CONFIG_SYS_CSPR1) && defined(CONFIG_SYS_CSOR1)
-	set_ifc_csor(IFC_CS1, CONFIG_SYS_CSOR1);
-	set_ifc_amask(IFC_CS1, CONFIG_SYS_AMASK1);
-	set_ifc_cspr(IFC_CS1, CONFIG_SYS_CSPR1);
-
 	set_ifc_ftim(IFC_CS1, IFC_FTIM0, CONFIG_SYS_CS1_FTIM0);
 	set_ifc_ftim(IFC_CS1, IFC_FTIM1, CONFIG_SYS_CS1_FTIM1);
 	set_ifc_ftim(IFC_CS1, IFC_FTIM2, CONFIG_SYS_CS1_FTIM2);
 	set_ifc_ftim(IFC_CS1, IFC_FTIM3, CONFIG_SYS_CS1_FTIM3);
+
+	set_ifc_csor(IFC_CS1, CONFIG_SYS_CSOR1);
+	set_ifc_amask(IFC_CS1, CONFIG_SYS_AMASK1);
+	set_ifc_cspr(IFC_CS1, CONFIG_SYS_CSPR1);
 #endif
 
 #if defined(CONFIG_SYS_CSPR2) && defined(CONFIG_SYS_CSOR2)
-	set_ifc_csor(IFC_CS2, CONFIG_SYS_CSOR2);
-	set_ifc_amask(IFC_CS2, CONFIG_SYS_AMASK2);
-	set_ifc_cspr(IFC_CS2, CONFIG_SYS_CSPR2);
-
 	set_ifc_ftim(IFC_CS2, IFC_FTIM0, CONFIG_SYS_CS2_FTIM0);
 	set_ifc_ftim(IFC_CS2, IFC_FTIM1, CONFIG_SYS_CS2_FTIM1);
 	set_ifc_ftim(IFC_CS2, IFC_FTIM2, CONFIG_SYS_CS2_FTIM2);
 	set_ifc_ftim(IFC_CS2, IFC_FTIM3, CONFIG_SYS_CS2_FTIM3);
 
+	set_ifc_csor(IFC_CS2, CONFIG_SYS_CSOR2);
+	set_ifc_amask(IFC_CS2, CONFIG_SYS_AMASK2);
+	set_ifc_cspr(IFC_CS2, CONFIG_SYS_CSPR2);
 #endif
 
 #if defined(CONFIG_SYS_CSPR3) && defined(CONFIG_SYS_CSOR3)
-	set_ifc_cspr(IFC_CS3, CONFIG_SYS_CSPR3);
-	set_ifc_amask(IFC_CS3, CONFIG_SYS_AMASK3);
-	set_ifc_csor(IFC_CS3, CONFIG_SYS_CSOR3);
-
 	set_ifc_ftim(IFC_CS3, IFC_FTIM0, CONFIG_SYS_CS3_FTIM0);
 	set_ifc_ftim(IFC_CS3, IFC_FTIM1, CONFIG_SYS_CS3_FTIM1);
 	set_ifc_ftim(IFC_CS3, IFC_FTIM2, CONFIG_SYS_CS3_FTIM2);
 	set_ifc_ftim(IFC_CS3, IFC_FTIM3, CONFIG_SYS_CS3_FTIM3);
+
+	set_ifc_cspr(IFC_CS3, CONFIG_SYS_CSPR3);
+	set_ifc_amask(IFC_CS3, CONFIG_SYS_AMASK3);
+	set_ifc_csor(IFC_CS3, CONFIG_SYS_CSOR3);
 #endif
 }

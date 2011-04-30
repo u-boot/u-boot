@@ -13,11 +13,11 @@
 #include "ddr.h"
 
 /* To avoid 64-bit full-divides, we factor this here */
-#define ULL_2e12 2000000000000ULL
-#define UL_5pow12 244140625UL
-#define UL_2pow13 (1UL << 13)
+#define ULL_2E12 2000000000000ULL
+#define UL_5POW12 244140625UL
+#define UL_2POW13 (1UL << 13)
 
-#define ULL_8Fs 0xFFFFFFFFULL
+#define ULL_8FS 0xFFFFFFFFULL
 
 /*
  * Round mclk_ps to nearest 10 ps in memory controller code.
@@ -32,7 +32,7 @@ unsigned int get_memory_clk_period_ps(void)
 	unsigned int result;
 
 	/* Round to nearest 10ps, being careful about 64-bit multiply/divide */
-	unsigned long long mclk_ps = ULL_2e12;
+	unsigned long long mclk_ps = ULL_2E12;
 
 	/* Add 5*data_rate, for rounding */
 	mclk_ps += 5*(unsigned long long)data_rate;
@@ -61,9 +61,9 @@ unsigned int picos_to_mclk(unsigned int picos)
 	 * Now divide by 5^12 and track the 32-bit remainder, then divide
 	 * by 2*(2^12) using shifts (and updating the remainder).
 	 */
-	clks_rem = do_div(clks, UL_5pow12);
+	clks_rem = do_div(clks, UL_5POW12);
 	clks_rem <<= 13;
-	clks_rem |= clks & (UL_2pow13-1);
+	clks_rem |= clks & (UL_2POW13-1);
 	clks >>= 13;
 
 	/* If we had a remainder, then round up */
@@ -71,8 +71,8 @@ unsigned int picos_to_mclk(unsigned int picos)
 		clks++;
 
 	/* Clamp to the maximum representable value */
-	if (clks > ULL_8Fs)
-		clks = ULL_8Fs;
+	if (clks > ULL_8FS)
+		clks = ULL_8FS;
 	return (unsigned int) clks;
 }
 

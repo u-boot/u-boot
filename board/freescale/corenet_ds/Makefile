@@ -28,7 +28,9 @@ LIB	= $(obj)lib$(BOARD).o
 
 COBJS-y	+= $(BOARD).o
 COBJS-y	+= ddr.o
+COBJS-$(CONFIG_P3041DS)	+= p3041ds_ddr.o
 COBJS-$(CONFIG_P4080DS)	+= p4080ds_ddr.o
+COBJS-$(CONFIG_P5020DS)	+= p5020ds_ddr.o
 COBJS-$(CONFIG_PCI)	+= pci.o
 COBJS-y	+= law.o
 COBJS-y	+= tlb.o

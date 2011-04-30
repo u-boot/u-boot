@@ -244,6 +244,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_FLASH_AMD_CHECK_DQ7
 
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
+#define CONFIG_MISC_INIT_R
 #define CONFIG_HWCONFIG
 
 #define CONFIG_SYS_INIT_RAM_LOCK	1
@@ -410,6 +411,15 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_RTC_DS1337
 #define CONFIG_SYS_RTC_DS1337_NOOSC
 #define CONFIG_SYS_I2C_RTC_ADDR                0x68
+
+/* eSPI - Enhanced SPI */
+#define CONFIG_FSL_ESPI
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_CMD_SF
+#define CONFIG_SF_DEFAULT_SPEED		10000000
+#define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
+
 /*
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
@@ -521,9 +531,18 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 	#define CONFIG_ENV_IS_IN_NAND	1
 	#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
 	#define CONFIG_ENV_OFFSET	((512 * 1024) + CONFIG_SYS_NAND_BLOCK_SIZE)
-#elif defined(CONFIG_RAMBOOT_SDCARD) || defined(CONFIG_RAMBOOT_SPIFLASH)
-	#define CONFIG_ENV_IS_NOWHERE	1	/* Store ENV in memory only */
-	#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - 0x1000)
+#elif defined(CONFIG_RAMBOOT_SDCARD)
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_ENV_SIZE			0x2000
+#define CONFIG_SYS_MMC_ENV_DEV		0
+#elif defined(CONFIG_RAMBOOT_SPIFLASH)
+	#define CONFIG_ENV_IS_IN_SPI_FLASH
+	#define CONFIG_ENV_SPI_BUS	0
+	#define CONFIG_ENV_SPI_CS	0
+	#define CONFIG_ENV_SPI_MAX_HZ	10000000
+	#define CONFIG_ENV_SPI_MODE	0
+	#define CONFIG_ENV_OFFSET	0x100000	/* 1MB */
+	#define CONFIG_ENV_SECT_SIZE	0x10000
 	#define CONFIG_ENV_SIZE		0x2000
 #endif
 #else
@@ -611,11 +630,11 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 /*
  * For booting Linux, the board info and command line data
- * have to be in the first 16 MB of memory, since this is
+ * have to be in the first 64 MB of memory, since this is
  * the maximum mapped by the Linux kernel during initialization.
  */
-#define CONFIG_SYS_BOOTMAPSZ	(16 << 20)/* Initial Memory map for Linux*/
-#define CONFIG_SYS_BOOTM_LEN	(16 << 20)	/* Increase max gunzip size */
+#define CONFIG_SYS_BOOTMAPSZ	(64 << 20)/* Initial Memory map for Linux*/
+#define CONFIG_SYS_BOOTM_LEN	(64 << 20)	/* Increase max gunzip size */
 
 #if defined(CONFIG_CMD_KGDB)
 #define CONFIG_KGDB_BAUDRATE	230400	/* speed to run kgdb serial port */

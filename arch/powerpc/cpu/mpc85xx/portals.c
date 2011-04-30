@@ -31,6 +31,7 @@
 #include <asm/fsl_liodn.h>
 
 static ccsr_qman_t *qman = (void *)CONFIG_SYS_FSL_QMAN_ADDR;
+static ccsr_bman_t *bman = (void *)CONFIG_SYS_FSL_BMAN_ADDR;
 
 void setup_portals(void)
 {
@@ -249,4 +250,33 @@ err:
 
 		off = fdt_node_offset_by_compatible(blob, off, "fsl,qman-portal");
 	}
+}
+
+void fdt_fixup_bportals(void *blob)
+{
+	int off, err;
+	unsigned int maj, min;
+	u32 rev_1 = in_be32(&bman->ip_rev_1);
+	char compat[64];
+	int compat_len;
+
+	maj = (rev_1 >> 8) & 0xff;
+	min = rev_1 & 0xff;
+
+	compat_len = sprintf(compat, "fsl,bman-portal-%u.%u", maj, min) + 1;
+	compat_len += sprintf(compat + compat_len, "fsl,bman-portal") + 1;
+
+	off = fdt_node_offset_by_compatible(blob, -1, "fsl,bman-portal");
+	while (off != -FDT_ERR_NOTFOUND) {
+		err = fdt_setprop(blob, off, "compatible", compat, compat_len);
+		if (err < 0) {
+			printf("ERROR: unable to create props for %s: %s\n",
+				fdt_get_name(blob, off, NULL),
+						 fdt_strerror(err));
+			return;
+		}
+
+		off = fdt_node_offset_by_compatible(blob, off, "fsl,bman-portal");
+	}
+
 }
