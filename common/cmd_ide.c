@@ -160,7 +160,7 @@ static uchar ide_wait  (int dev, ulong t);
 #define IDE_SPIN_UP_TIME_OUT 5000 /* 5 sec spin-up timeout */
 
 static void input_data(int dev, ulong *sect_buf, int words);
-static void output_data(int dev, ulong *sect_buf, int words);
+static void output_data(int dev, const ulong *sect_buf, int words);
 static void ident_cpy (unsigned char *dest, unsigned char *src, unsigned int len);
 
 #ifndef CONFIG_SYS_ATA_PORT_ADDR
@@ -875,7 +875,7 @@ input_swap_data(int dev, ulong *sect_buf, int words)
 
 #if defined(CONFIG_IDE_SWAP_IO)
 static void
-output_data(int dev, ulong *sect_buf, int words)
+output_data(int dev, const ulong *sect_buf, int words)
 {
 #if defined(CONFIG_CPC45)
 	uchar	*dbuf;
@@ -919,7 +919,7 @@ output_data(int dev, ulong *sect_buf, int words)
 }
 #else	/* ! CONFIG_IDE_SWAP_IO */
 static void
-output_data(int dev, ulong *sect_buf, int words)
+output_data(int dev, const ulong *sect_buf, int words)
 {
 #if defined(CONFIG_IDE_AHB)
 	ide_write_data(dev, sect_buf, words);
@@ -1348,7 +1348,7 @@ IDE_READ_E:
 /* ------------------------------------------------------------------------- */
 
 
-ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, void *buffer)
+ulong ide_write (int device, lbaint_t blknr, ulong blkcnt, const void *buffer)
 {
 	ulong n = 0;
 	unsigned char c;
