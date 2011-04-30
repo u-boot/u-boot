@@ -91,9 +91,9 @@ int mdio_read_ranges(struct mii_dev *bus, int addrlo,
 
 		for (devad = devadlo; devad <= devadhi; devad++) {
 			for (reg = reglo; reg <= reghi; reg++) {
-				u16 val;
-				val = bus->read(bus, addr, devad, reg);
+				int val;
 
+				val = bus->read(bus, addr, devad, reg);
 				if (val < 0) {
 					printf("Error\n");
 
