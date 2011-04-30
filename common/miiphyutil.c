@@ -294,14 +294,18 @@ int miiphy_read(const char *devname, unsigned char addr, unsigned char reg,
 		 unsigned short *value)
 {
 	struct mii_dev *bus;
+	int ret;
 
 	bus = miiphy_get_active_dev(devname);
-	if (bus)
-		*value = bus->read(bus, addr, MDIO_DEVAD_NONE, reg);
-	else
+	if (!bus)
 		return 1;
 
-	return (*value < 0) ? 1 : 0;
+	ret = bus->read(bus, addr, MDIO_DEVAD_NONE, reg);
+	if (ret < 0)
+		return 1;
+
+	*value = (unsigned short)ret;
+	return 0;
 }
 
 /*****************************************************************************
