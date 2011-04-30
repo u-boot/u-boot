@@ -24,6 +24,8 @@
 __attribute__((always_inline))
 static inline void serial_init(void)
 {
+	uint32_t uart_base = UART_DLL;
+
 #ifdef __ADSPBF54x__
 # ifdef BFIN_BOOT_UART_USE_RTS
 #  define BFIN_UART_USE_RTS 1
@@ -65,13 +67,13 @@ static inline void serial_init(void)
 
 	if (BFIN_DEBUG_EARLY_SERIAL) {
 		int ucen = bfin_read16(&pUART->gctl) & UCEN;
-		serial_early_init();
+		serial_early_init(uart_base);
 
 		/* If the UART is off, that means we need to program
 		 * the baud rate ourselves initially.
 		 */
 		if (ucen != UCEN)
-			serial_early_set_baud(CONFIG_BAUDRATE);
+			serial_early_set_baud(uart_base, CONFIG_BAUDRATE);
 	}
 }
 
@@ -79,6 +81,8 @@ __attribute__((always_inline))
 static inline void serial_deinit(void)
 {
 #ifdef __ADSPBF54x__
+	uint32_t uart_base = UART_DLL;
+
 	if (BFIN_UART_USE_RTS && CONFIG_BFIN_BOOT_MODE == BFIN_BOOT_UART) {
 		/* clear forced RTS rather than relying on auto RTS */
 		bfin_write16(&pUART->mcr, bfin_read16(&pUART->mcr) & ~FCPOL);
@@ -89,6 +93,8 @@ static inline void serial_deinit(void)
 __attribute__((always_inline))
 static inline void serial_putc(char c)
 {
+	uint32_t uart_base = UART_DLL;
+
 	if (!BFIN_DEBUG_EARLY_SERIAL)
 		return;
 
@@ -519,7 +525,7 @@ update_serial_clocks(ADI_BOOT_DATA *bs, uint sdivB, uint divB, uint vcoB)
 		unsigned int quotient;
 		for (quotient = 0; dividend > 0; ++quotient)
 			dividend -= divisor;
-		serial_early_put_div(quotient - ANOMALY_05000230);
+		serial_early_put_div(UART_DLL, quotient - ANOMALY_05000230);
 		serial_putc('c');
 	}
 

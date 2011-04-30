@@ -82,17 +82,19 @@ struct bfin_mmr_serial {
 
 #define __PASTE_UART(num, pfx, sfx) pfx##num##_##sfx
 #define _PASTE_UART(num, pfx, sfx) __PASTE_UART(num, pfx, sfx)
-#define MMR_UART(mmr) _PASTE_UART(CONFIG_UART_CONSOLE, UART, DLL)
-#define P_UART(pin) _PASTE_UART(CONFIG_UART_CONSOLE, P_UART, pin)
+#define MMR_UART(n) _PASTE_UART(n, UART, DLL)
+#define _P_UART(n, pin) _PASTE_UART(n, P_UART, pin)
+#define P_UART(pin) _P_UART(CONFIG_UART_CONSOLE, pin)
 
 #ifndef UART_DLL
-# define UART_DLL MMR_UART(DLL)
+# define UART_DLL MMR_UART(CONFIG_UART_CONSOLE)
 #else
+# define UART0_DLL UART_DLL
 # if CONFIG_UART_CONSOLE != 0
 #  error CONFIG_UART_CONSOLE must be 0 on parts with only one UART
 # endif
 #endif
-#define pUART ((volatile struct bfin_mmr_serial *)UART_DLL)
+#define pUART ((volatile struct bfin_mmr_serial *)uart_base)
 
 #if BFIN_UART_HW_VER == 2
 # define ACCESS_LATCH()
@@ -168,11 +170,8 @@ static inline void serial_do_portmux(void)
 }
 
 __attribute__((always_inline))
-static inline void serial_early_init(void)
+static inline int uart_init(uint32_t uart_base)
 {
-	/* handle portmux crap on different Blackfins */
-	serial_do_portmux();
-
 	/* always enable UART -- avoids anomalies 05000309 and 05000350 */
 	bfin_write16(&pUART->gctl, UCEN);
 
@@ -180,10 +179,30 @@ static inline void serial_early_init(void)
 	bfin_write16(&pUART->lcr, WLS_8);
 
 	SSYNC();
+
+	return 0;
 }
 
 __attribute__((always_inline))
-static inline void serial_early_put_div(uint16_t divisor)
+static inline int serial_early_init(uint32_t uart_base)
+{
+	/* handle portmux crap on different Blackfins */
+	serial_do_portmux();
+
+	return uart_init(uart_base);
+}
+
+__attribute__((always_inline))
+static inline int serial_early_uninit(uint32_t uart_base)
+{
+	/* disable the UART by clearing UCEN */
+	bfin_write16(&pUART->gctl, 0);
+
+	return 0;
+}
+
+__attribute__((always_inline))
+static inline void serial_early_put_div(uint32_t uart_base, uint16_t divisor)
 {
 	/* Set DLAB in LCR to Access DLL and DLH */
 	ACCESS_LATCH();
@@ -202,6 +221,8 @@ static inline void serial_early_put_div(uint16_t divisor)
 __attribute__((always_inline))
 static inline uint16_t serial_early_get_div(void)
 {
+	uint32_t uart_base = UART_DLL;
+
 	/* Set DLAB in LCR to Access DLL and DLH */
 	ACCESS_LATCH();
 	SSYNC();
@@ -223,13 +244,14 @@ static inline uint16_t serial_early_get_div(void)
 #endif
 
 __attribute__((always_inline))
-static inline void serial_early_set_baud(uint32_t baud)
+static inline void serial_early_set_baud(uint32_t uart_base, uint32_t baud)
 {
 	/* Translate from baud into divisor in terms of SCLK.  The
 	 * weird multiplication is to make sure we over sample just
 	 * a little rather than under sample the incoming signals.
 	 */
-	serial_early_put_div((get_sclk() + (baud * 8)) / (baud * 16) - ANOMALY_05000230);
+	serial_early_put_div(uart_base,
+		(get_sclk() + (baud * 8)) / (baud * 16) - ANOMALY_05000230);
 }
 
 #ifndef BFIN_IN_INITCODE

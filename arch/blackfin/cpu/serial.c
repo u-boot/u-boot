@@ -39,6 +39,8 @@
 
 #include <common.h>
 #include <watchdog.h>
+#include <serial.h>
+#include <linux/compiler.h>
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/uart.h>
 
@@ -59,14 +61,14 @@ static size_t cache_count;
  * tally of all the status bits.
  */
 static uint16_t uart_lsr_save;
-static uint16_t uart_lsr_read(void)
+static uint16_t uart_lsr_read(uint32_t uart_base)
 {
 	uint16_t lsr = bfin_read16(&pUART->lsr);
 	uart_lsr_save |= (lsr & (OE|PE|FE|BI));
 	return lsr | uart_lsr_save;
 }
 /* Just do the clear for everyone since it can't hurt. */
-static void uart_lsr_clear(void)
+static void uart_lsr_clear(uint32_t uart_base)
 {
 	uart_lsr_save = 0;
 	bfin_write16(&pUART->lsr, bfin_read16(&pUART->lsr) | -1);
@@ -76,46 +78,17 @@ static void uart_lsr_clear(void)
  * bits get set/cleared, we don't really care since we don't read them
  * anyways (and thus anomaly 05000099 is irrelevant).
  */
-static uint16_t uart_lsr_read(void)
+static inline uint16_t uart_lsr_read(uint32_t uart_base)
 {
 	return bfin_read16(&pUART->lsr);
 }
-static void uart_lsr_clear(void)
+static void uart_lsr_clear(uint32_t uart_base)
 {
 	bfin_write16(&pUART->lsr, bfin_read16(&pUART->lsr) | -1);
 }
 #endif
 
-/* Symbol for our assembly to call. */
-void serial_set_baud(uint32_t baud)
-{
-	serial_early_set_baud(baud);
-}
-
-/* Symbol for common u-boot code to call.
- * Setup the baudrate (brg: baudrate generator).
- */
-void serial_setbrg(void)
-{
-	serial_set_baud(gd->baudrate);
-}
-
-/* Symbol for our assembly to call. */
-void serial_initialize(void)
-{
-	serial_early_init();
-}
-
-/* Symbol for common u-boot code to call. */
-int serial_init(void)
-{
-	serial_initialize();
-	serial_setbrg();
-	uart_lsr_clear();
-	return 0;
-}
-
-void serial_putc(const char c)
+static void uart_putc(uint32_t uart_base, const char c)
 {
 	/* send a \r for compatibility */
 	if (c == '\n')
@@ -124,7 +97,7 @@ void serial_putc(const char c)
 	WATCHDOG_RESET();
 
 	/* wait for the hardware fifo to clear up */
-	while (!(uart_lsr_read() & THRE))
+	while (!(uart_lsr_read(uart_base) & THRE))
 		continue;
 
 	/* queue the character for transmission */
@@ -134,18 +107,18 @@ void serial_putc(const char c)
 	WATCHDOG_RESET();
 }
 
-int serial_tstc(void)
+static int uart_tstc(uint32_t uart_base)
 {
 	WATCHDOG_RESET();
-	return (uart_lsr_read() & DR) ? 1 : 0;
+	return (uart_lsr_read(uart_base) & DR) ? 1 : 0;
 }
 
-int serial_getc(void)
+static int uart_getc(uint32_t uart_base)
 {
 	uint16_t uart_rbr_val;
 
 	/* wait for data ! */
-	while (!serial_tstc())
+	while (!uart_tstc(uart_base))
 		continue;
 
 	/* grab the new byte */
@@ -153,7 +126,7 @@ int serial_getc(void)
 
 #ifdef CONFIG_DEBUG_SERIAL
 	/* grab & clear the LSR */
-	uint16_t uart_lsr_val = uart_lsr_read();
+	uint16_t uart_lsr_val = uart_lsr_read(uart_base);
 
 	cached_lsr[cache_count] = uart_lsr_val;
 	cached_rbr[cache_count] = uart_rbr_val;
@@ -175,9 +148,157 @@ int serial_getc(void)
 		return -1;
 	}
 #endif
-	uart_lsr_clear();
+	uart_lsr_clear(uart_base);
 
 	return uart_rbr_val;
+}
+
+#ifdef CONFIG_SYS_BFIN_UART
+
+static void uart_puts(uint32_t uart_base, const char *s)
+{
+	while (*s)
+		uart_putc(uart_base, *s++);
+}
+
+#define DECL_BFIN_UART(n) \
+static int uart##n##_init(void) \
+{ \
+	const unsigned short pins[] = { _P_UART(n, RX), _P_UART(n, TX), 0, }; \
+	peripheral_request_list(pins, "bfin-uart"); \
+	uart_init(MMR_UART(n)); \
+	serial_early_set_baud(MMR_UART(n), gd->baudrate); \
+	uart_lsr_clear(MMR_UART(n)); \
+	return 0; \
+} \
+\
+static int uart##n##_uninit(void) \
+{ \
+	return serial_early_uninit(MMR_UART(n)); \
+} \
+\
+static void uart##n##_setbrg(void) \
+{ \
+	serial_early_set_baud(MMR_UART(n), gd->baudrate); \
+} \
+\
+static int uart##n##_getc(void) \
+{ \
+	return uart_getc(MMR_UART(n)); \
+} \
+\
+static int uart##n##_tstc(void) \
+{ \
+	return uart_tstc(MMR_UART(n)); \
+} \
+\
+static void uart##n##_putc(const char c) \
+{ \
+	uart_putc(MMR_UART(n), c); \
+} \
+\
+static void uart##n##_puts(const char *s) \
+{ \
+	uart_puts(MMR_UART(n), s); \
+} \
+\
+struct serial_device bfin_serial##n##_device = { \
+	.name   = "bfin_uart"#n, \
+	.init   = uart##n##_init, \
+	.uninit = uart##n##_uninit, \
+	.setbrg = uart##n##_setbrg, \
+	.getc   = uart##n##_getc, \
+	.tstc   = uart##n##_tstc, \
+	.putc   = uart##n##_putc, \
+	.puts   = uart##n##_puts, \
+};
+
+#ifdef UART0_DLL
+DECL_BFIN_UART(0)
+#endif
+#ifdef UART1_DLL
+DECL_BFIN_UART(1)
+#endif
+#ifdef UART2_DLL
+DECL_BFIN_UART(2)
+#endif
+#ifdef UART3_DLL
+DECL_BFIN_UART(3)
+#endif
+
+__weak struct serial_device *default_serial_console(void)
+{
+#if CONFIG_UART_CONSOLE == 0
+	return &bfin_serial0_device;
+#elif CONFIG_UART_CONSOLE == 1
+	return &bfin_serial1_device;
+#elif CONFIG_UART_CONSOLE == 2
+	return &bfin_serial2_device;
+#elif CONFIG_UART_CONSOLE == 3
+	return &bfin_serial3_device;
+#endif
+}
+
+void serial_register_bfin_uart(void)
+{
+#ifdef UART0_DLL
+	serial_register(&bfin_serial0_device);
+#endif
+#ifdef UART1_DLL
+	serial_register(&bfin_serial1_device);
+#endif
+#ifdef UART2_DLL
+	serial_register(&bfin_serial2_device);
+#endif
+#ifdef UART3_DLL
+	serial_register(&bfin_serial3_device);
+#endif
+}
+
+#else
+
+/* Symbol for our assembly to call. */
+void serial_set_baud(uint32_t baud)
+{
+	serial_early_set_baud(UART_DLL, baud);
+}
+
+/* Symbol for common u-boot code to call.
+ * Setup the baudrate (brg: baudrate generator).
+ */
+void serial_setbrg(void)
+{
+	serial_set_baud(gd->baudrate);
+}
+
+/* Symbol for our assembly to call. */
+void serial_initialize(void)
+{
+	serial_early_init(UART_DLL);
+}
+
+/* Symbol for common u-boot code to call. */
+int serial_init(void)
+{
+	serial_initialize();
+	serial_setbrg();
+	uart_lsr_clear(UART_DLL);
+	return 0;
+}
+
+int serial_tstc(void)
+{
+	return uart_tstc(UART_DLL);
+}
+
+int serial_getc(void)
+{
+	return uart_getc(UART_DLL);
+}
+
+void serial_putc(const char c)
+{
+	uart_putc(UART_DLL, c);
 }
 
 void serial_puts(const char *s)
@@ -185,5 +306,7 @@ void serial_puts(const char *s)
 	while (*s)
 		serial_putc(*s++);
 }
+
+#endif
 
 #endif
