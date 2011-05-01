@@ -360,3 +360,15 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 #endif
+
+/*
+ * Hardcoded flash setup:
+ * Flash 0 is a non-CFI AMD AM29F400BB flash.
+ */
+ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
+{
+	info->portwidth = FLASH_CFI_16BIT;
+	info->chipwidth = FLASH_CFI_BY16;
+	info->interface = FLASH_CFI_X16;
+	return 1;
+}
