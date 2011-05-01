@@ -1718,7 +1718,6 @@ static int net_check_prereq (proto_t protocol)
 #if defined(CONFIG_CMD_NFS)
 	case NFS:
 #endif
-	case NETCONS:
 	case TFTP:
 		if (NetServerIP == 0) {
 			puts ("*** ERROR: `serverip' not set\n");
@@ -1728,7 +1727,9 @@ static int net_check_prereq (proto_t protocol)
     defined(CONFIG_CMD_DNS)
     common:
 #endif
+		/* Fall through */
 
+	case NETCONS:
 		if (NetOurIP == 0) {
 			puts ("*** ERROR: `ipaddr' not set\n");
 			return (1);
