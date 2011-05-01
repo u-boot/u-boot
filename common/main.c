@@ -288,17 +288,6 @@ void main_loop (void)
 	char bcs_set[16];
 #endif /* CONFIG_BOOTCOUNT_LIMIT */
 
-#if defined(CONFIG_VFD) && defined(VFD_TEST_LOGO)
-	ulong bmp = 0;		/* default bitmap */
-	extern int trab_vfd (ulong bitmap);
-
-#ifdef CONFIG_MODEM_SUPPORT
-	if (do_mdm_init)
-		bmp = 1;	/* alternate bitmap */
-#endif
-	trab_vfd (bmp);
-#endif	/* CONFIG_VFD && VFD_TEST_LOGO */
-
 #ifdef CONFIG_BOOTCOUNT_LIMIT
 	bootcount = bootcount_load();
 	bootcount++;

@@ -937,29 +937,6 @@ SX1_config:		unconfig
 	fi;
 	@$(MKCONFIG) -n $@ SX1 arm arm925t sx1
 
-# TRAB default configuration:	8 MB Flash, 32 MB RAM
-trab_config \
-trab_bigram_config \
-trab_bigflash_config \
-trab_old_config:	unconfig
-	@mkdir -p $(obj)include
-	@mkdir -p $(obj)board/trab
-	@[ -z "$(findstring _bigram,$@)" ] || \
-		{ echo "#define CONFIG_FLASH_8MB"  >>$(obj)include/config.h ; \
-		  echo "#define CONFIG_RAM_32MB"   >>$(obj)include/config.h ; \
-		}
-	@[ -z "$(findstring _bigflash,$@)" ] || \
-		{ echo "#define CONFIG_FLASH_16MB" >>$(obj)include/config.h ; \
-		  echo "#define CONFIG_RAM_16MB"   >>$(obj)include/config.h ; \
-		  echo "CONFIG_SYS_TEXT_BASE = 0x0CF40000" >$(obj)board/trab/config.tmp ; \
-		}
-	@[ -z "$(findstring _old,$@)" ] || \
-		{ echo "#define CONFIG_FLASH_8MB"  >>$(obj)include/config.h ; \
-		  echo "#define CONFIG_RAM_16MB"   >>$(obj)include/config.h ; \
-		  echo "CONFIG_SYS_TEXT_BASE = 0x0CF40000" >$(obj)board/trab/config.tmp ; \
-		}
-	@$(MKCONFIG) -n $@ -a trab arm arm920t trab - s3c24x0
-
 tx25_config	: unconfig
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 	@$(MKCONFIG) $@ arm arm926ejs tx25 karo mx25
@@ -1079,7 +1056,7 @@ clean:
 	@rm -f $(obj)board/cray/L1/{bootscript.c,bootscript.image}	  \
 	       $(obj)board/matrix_vision/*/bootscript.img		  \
 	       $(obj)board/netstar/{eeprom,crcek,crcit,*.srec,*.bin}	  \
-	       $(obj)board/trab/trab_fkt   $(obj)board/voiceblue/eeprom   \
+	       $(obj)board/voiceblue/eeprom 				  \
 	       $(obj)board/armltd/{integratorap,integratorcp}/u-boot.lds  \
 	       $(obj)u-boot.lds						  \
 	       $(obj)arch/blackfin/cpu/bootrom-asm-offsets.[chs]

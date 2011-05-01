@@ -606,9 +606,6 @@ void mii_init (void);
 /* $(CPU)/.../lcd.c */
 ulong	lcd_setmem (ulong);
 
-/* $(CPU)/.../vfd.c */
-ulong	vfd_setmem (ulong);
-
 /* $(CPU)/.../video.c */
 ulong	video_setmem (ulong);
 

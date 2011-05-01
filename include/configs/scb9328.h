@@ -95,7 +95,6 @@
 #define CONFIG_CMDLINE_TAG	     1	 /* send commandline to Kernel	     */
 #define CONFIG_SETUP_MEMORY_TAGS     1	 /* send memory definition to kernel */
 #define CONFIG_INITRD_TAG	     1	 /* send initrd params		     */
-#undef	CONFIG_VFD			 /* do not send framebuffer setup    */
 
 /*
  * Malloc pool need to host env + 128 Kb reserve for other allocations.

@@ -24,7 +24,7 @@
 /*
  * To build the utility with the run-time configuration
  * uncomment the next line.
- * See included "fw_env.config" sample file (TRAB board)
+ * See included "fw_env.config" sample file
  * for notes on configuration.
  */
 #define CONFIG_FILE     "/etc/fw_env.config"

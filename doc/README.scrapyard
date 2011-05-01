@@ -11,11 +11,12 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
+trab	arm	S3C2400	-	  2011-05-01	Gary Jennejohn <garyj@denx.de>
 xsengine ARM	PXA2xx	4262a7c   2010-10-20
 wepep250 ARM	PXA2xx	7369478   2010-10-20	Peter Figuli <peposh@etc.sk>
 delta	ARM	PXA2xx	75e2035   2010-10-20
 mp2usb	ARM	AT91RM2900 	ee986e2	2011-01-25	Eric Bénard <eric@eukrea.com>
-barco	powerpc	MPC8245	-	  2010-11-23	Marc Leeman <marc.leeman@barco.com>
+barco	powerpc	MPC8245	afaa27b	  2010-11-23	Marc Leeman <marc.leeman@barco.com>
 ERIC	powerpc	405GP	d9ba451	  2010-11-21	Swen Anderson <sand@peppercon.de>
 VoVPN-GW_100MHz	powerpc	MPC8260 26fe3d2 2010-10-24	Juergen Selent <j.selent@elmeg.de>
 NC650	powerpc	MPC852	333d86d   2010-10-19	Wolfgang Denk <wd@denx.de>

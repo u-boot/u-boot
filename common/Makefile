@@ -160,7 +160,6 @@ COBJS-$(CONFIG_USB_STORAGE) += usb_storage.o
 endif
 COBJS-$(CONFIG_CMD_XIMG) += cmd_ximg.o
 COBJS-$(CONFIG_YAFFS2) += cmd_yaffs2.o
-COBJS-$(CONFIG_VFD) += cmd_vfd.o
 
 # others
 COBJS-$(CONFIG_DDR_SPD) += ddr_spd.o

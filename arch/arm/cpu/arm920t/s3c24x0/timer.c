@@ -177,7 +177,7 @@ ulong get_tbclk(void)
 {
 	ulong tbclk;
 
-#if defined(CONFIG_SMDK2400) || defined(CONFIG_TRAB)
+#if defined(CONFIG_SMDK2400)
 	tbclk = timer_load_val * 100;
 #elif defined(CONFIG_SBC2410X) || \
       defined(CONFIG_SMDK2410) || \
@@ -197,12 +197,6 @@ ulong get_tbclk(void)
 void reset_cpu(ulong ignored)
 {
 	struct s3c24x0_watchdog *watchdog;
-
-#ifdef CONFIG_TRAB
-	extern void disable_vfd(void);
-
-	disable_vfd();
-#endif
 
 	watchdog = s3c24x0_get_base_watchdog();
 

@@ -716,7 +716,6 @@ The following options need to be configured:
 		CONFIG_CMD_SPI		* SPI serial bus support
 		CONFIG_CMD_TFTPSRV	* TFTP transfer in server mode
 		CONFIG_CMD_USB		* USB support
-		CONFIG_CMD_VFD		* VFD support (TRAB)
 		CONFIG_CMD_CDP		* Cisco Discover Protocol support
 		CONFIG_CMD_FSL		* Microblaze FSL support
 
@@ -2230,7 +2229,7 @@ FIT uImage format:
 Modem Support:
 --------------
 
-[so far only for SMDK2400 and TRAB boards]
+[so far only for SMDK2400 boards]
 
 - Modem support enable:
 		CONFIG_MODEM_SUPPORT

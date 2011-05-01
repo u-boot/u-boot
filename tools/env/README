@@ -34,9 +34,6 @@ following lines are relevant:
 #define DEVICE2_ESIZE     0x4000
 #define DEVICE2_ENVSECTORS     2
 
-Current configuration matches the environment layout of the TRAB
-board.
-
 Un-define HAVE_REDUND, if you want to use the utlities on a system
 that does not have support for redundant environment enabled.
 If HAVE_REDUND is undefined, DEVICE2_NAME is ignored,
