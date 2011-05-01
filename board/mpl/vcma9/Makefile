@@ -28,8 +28,8 @@ endif
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	:= vcma9.o cmd_vcma9.o
-COBJS	+= ../common/common_util.o
+COBJS	:= ../common/common_util.o
+COBJS	+= $(BOARD).o cmd_$(BOARD).o
 
 SOBJS	:= lowlevel_init.o
 

@@ -43,15 +43,6 @@ static uchar cs8900_chksum(ushort data)
 
 DECLARE_GLOBAL_DATA_PTR;
 
-extern void print_vcma9_info(void);
-extern int vcma9_cantest(int);
-extern int vcma9_nandtest(void);
-extern int vcma9_nanderase(void);
-extern int vcma9_nandread(ulong);
-extern int vcma9_nandwrite(ulong);
-extern int vcma9_dactest(int);
-extern int do_mplcommon(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
-
 /* ------------------------------------------------------------------------- */
 
 int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
@@ -60,7 +51,7 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	char cs8900_name[10];
 	if (strcmp(argv[1], "info") == 0)
 	{
-		print_vcma9_info();
+		vcma9_print_info();
 		return 0;
 	}
 #if defined(CONFIG_CS8900)
@@ -133,48 +124,6 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return 0;
 	}
 #endif
-#if 0
-	if (strcmp(argv[1], "cantest") == 0) {
-		if (argc >= 3)
-			vcma9_cantest(strcmp(argv[2], "s") ? 0 : 1);
-		else
-			vcma9_cantest(0);
-		return 0;
-	}
-	if (strcmp(argv[1], "nandtest") == 0) {
-		vcma9_nandtest();
-		return 0;
-	}
-	if (strcmp(argv[1], "nanderase") == 0) {
-		vcma9_nanderase();
-		return 0;
-	}
-	if (strcmp(argv[1], "nandread") == 0) {
-		ulong offset = 0;
-
-		if (argc >= 3)
-			offset = simple_strtoul(argv[2], NULL, 16);
-
-		vcma9_nandread(offset);
-		return 0;
-	}
-	if (strcmp(argv[1], "nandwrite") == 0) {
-		ulong offset = 0;
-
-		if (argc >= 3)
-			offset = simple_strtoul(argv[2], NULL, 16);
-
-		vcma9_nandwrite(offset);
-		return 0;
-	}
-	if (strcmp(argv[1], "dactest") == 0) {
-		if (argc >= 3)
-			vcma9_dactest(strcmp(argv[2], "s") ? 0 : 1);
-		else
-		vcma9_dactest(0);
-		return 0;
-	}
-#endif
 
 	return (do_mplcommon(cmdtp, flag, argc, argv));
 }
@@ -182,5 +131,6 @@ int do_vcma9(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	vcma9, 6, 1, do_vcma9,
 	"VCMA9 specific commands",
-	"flash mem [SrcAddr]\n    - updates U-Boot with image in memory"
+	"flash mem [SrcAddr] - updates U-Boot with image in memory\n"
+	"vcma9 info                - displays board information"
 );
