@@ -38,6 +38,8 @@
 #define CONFIG_S3C2410	1	/* specifically a SAMSUNG S3C2410 SoC	*/
 #define CONFIG_VCMA9	1	/* on a MPL VCMA9 Board  */
 
+#define CONFIG_SYS_TEXT_BASE	0x0
+
 /* input clock of PLL */
 #define CONFIG_SYS_CLK_FREQ	12000000/* VCMA9 has 12MHz input clock	*/
 
