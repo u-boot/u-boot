@@ -27,12 +27,10 @@ struct ftsmc020_config {
 	unsigned int	timing;
 };
 
-static struct ftsmc020_config config[] = CONFIG_SYS_FTSMC020_CONFIGS;
-
-static struct ftsmc020 *smc = (struct ftsmc020 *)CONFIG_FTSMC020_BASE;
-
 static void ftsmc020_setup_bank(unsigned int bank, struct ftsmc020_config *cfg)
 {
+	struct ftsmc020 *smc = (struct ftsmc020 *)CONFIG_FTSMC020_BASE;
+
 	if (bank > 3) {
 		printf("bank # %u invalid\n", bank);
 		return;
@@ -44,6 +42,7 @@ static void ftsmc020_setup_bank(unsigned int bank, struct ftsmc020_config *cfg)
 
 void ftsmc020_init(void)
 {
+	struct ftsmc020_config config[] = CONFIG_SYS_FTSMC020_CONFIGS;
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(config); i++)
