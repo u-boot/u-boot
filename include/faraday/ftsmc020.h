@@ -48,6 +48,10 @@ void ftsmc020_init(void);
 
 #define FTSMC020_BANK_WPROT	(1 << 11)
 
+#define FTSMC020_BANK_TYPE1	(1 << 10)
+#define FTSMC020_BANK_TYPE2	(1 << 9)
+#define FTSMC020_BANK_TYPE3	(1 << 8)
+
 #define FTSMC020_BANK_SIZE_32K	(0xb << 4)
 #define FTSMC020_BANK_SIZE_64K	(0xc << 4)
 #define FTSMC020_BANK_SIZE_128K	(0xd << 4)
@@ -59,6 +63,7 @@ void ftsmc020_init(void);
 #define FTSMC020_BANK_SIZE_8M	(0x3 << 4)
 #define FTSMC020_BANK_SIZE_16M	(0x4 << 4)
 #define FTSMC020_BANK_SIZE_32M	(0x5 << 4)
+#define FTSMC020_BANK_SIZE_64M	(0x6 << 4)
 
 #define FTSMC020_BANK_MBW_8	(0x0 << 0)
 #define FTSMC020_BANK_MBW_16	(0x1 << 0)
