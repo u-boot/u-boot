@@ -25,13 +25,15 @@
 
 #ifndef __ASSEMBLY__
 
+struct ftsmc020_bank {
+	unsigned int    cr;
+	unsigned int    tpr;
+};
+
 struct ftsmc020 {
-	struct {
-		unsigned int	cr;	/* 0x00, 0x08, 0x10, 0x18 */
-		unsigned int	tpr;	/* 0x04, 0x0c, 0x14, 0x1c */
-	} bank[4];
-	unsigned int	pad[8];	/* 0x20 - 0x3c */
-	unsigned int	ssr;	/* 0x40 */
+	struct ftsmc020_bank bank[4];	/* 0x00 - 0x1c */
+	unsigned int	pad[8];		/* 0x20 - 0x3c */
+	unsigned int	ssr;		/* 0x40 */
 };
 
 void ftsmc020_init(void);
