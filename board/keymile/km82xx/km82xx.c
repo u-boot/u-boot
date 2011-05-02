@@ -296,15 +296,14 @@ int checkboard(void)
 	return 0;
 }
 
-#define DIPSWITCH_OFFSET 0x89
-#define DIPSWITCH_MASK   0x0f
-
 int last_stage_init(void)
 {
+	struct bfticu_iomap *base =
+		(struct bfticu_iomap *)CONFIG_SYS_FPGA_BASE;
 	u8 dip_switch;
-	/* Dip switch */
-	dip_switch = readb(CONFIG_SYS_BFTICU_BASE + DIPSWITCH_OFFSET);
-	dip_switch &= DIPSWITCH_MASK;
+
+	dip_switch = in_8(&base->mswitch);
+	dip_switch &= BFTICU_DIPSWITCH_MASK;
 	/* dip switch 'full reset' or 'db erase' */
 	if (dip_switch & 0x1 || dip_switch & 0x2) {
 		/* start bootloader */
