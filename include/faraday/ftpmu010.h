@@ -180,7 +180,10 @@ struct ftpmu010 {
 #ifndef __ASSEMBLY__
 void ftpmu010_32768osc_enable(void);
 void ftpmu010_dlldis_disable(void);
+void ftpmu010_mfpsr_diselect_dev(unsigned int dev);
+void ftpmu010_mfpsr_select_dev(unsigned int dev);
 void ftpmu010_sdram_clk_disable(unsigned int cr0);
+void ftpmu010_sdramhtc_set(unsigned int val);
 #endif
 
 #ifdef __ASSEMBLY__
