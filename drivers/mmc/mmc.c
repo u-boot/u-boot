@@ -577,6 +577,18 @@ int mmc_change_freq(struct mmc *mmc)
 	return 0;
 }
 
+int mmc_switch_part(int dev_num, unsigned int part_num)
+{
+	struct mmc *mmc = find_mmc_device(dev_num);
+
+	if (!mmc)
+		return -1;
+
+	return mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CONF,
+			  (mmc->part_config & ~PART_ACCESS_MASK)
+			  | (part_num & PART_ACCESS_MASK));
+}
+
 int sd_switch(struct mmc *mmc, int mode, int group, u8 value, u8 *resp)
 {
 	struct mmc_cmd cmd;
@@ -899,6 +911,7 @@ int mmc_startup(struct mmc *mmc)
 			return err;
 	}
 
+	mmc->part_config = MMCPART_NOAVAILABLE;
 	if (!IS_SD(mmc) && (mmc->version >= MMC_VERSION_4)) {
 		/* check  ext_csd version and capacity */
 		err = mmc_send_ext_csd(mmc, ext_csd);
@@ -907,6 +920,10 @@ int mmc_startup(struct mmc *mmc)
 					ext_csd[214] << 16 | ext_csd[215] << 24;
 			mmc->capacity *= 512;
 		}
+
+		/* store the partition info of emmc */
+		if (ext_csd[160] & PART_SUPPORT)
+			mmc->part_config = ext_csd[179];
 	}
 
 	if (IS_SD(mmc))
@@ -1048,6 +1065,9 @@ int mmc_init(struct mmc *mmc)
 {
 	int err;
 
+	if (mmc->has_init)
+		return 0;
+
 	err = mmc->init(mmc);
 
 	if (err)
@@ -1061,6 +1081,9 @@ int mmc_init(struct mmc *mmc)
 
 	if (err)
 		return err;
+
+	/* The internal partition reset to user partition(0) at every CMD0*/
+	mmc->part_num = 0;
 
 	/* Test for SD version 2 */
 	err = mmc_send_if_cond(mmc);
@@ -1078,7 +1101,12 @@ int mmc_init(struct mmc *mmc)
 		}
 	}
 
-	return mmc_startup(mmc);
+	err = mmc_startup(mmc);
+	if (err)
+		mmc->has_init = 0;
+	else
+		mmc->has_init = 1;
+	return err;
 }
 
 /*

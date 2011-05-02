@@ -138,6 +138,7 @@
  * EXT_CSD fields
  */
 
+#define EXT_CSD_PART_CONF	179	/* R/W */
 #define EXT_CSD_BUS_WIDTH	183	/* R/W */
 #define EXT_CSD_HS_TIMING	185	/* R/W */
 #define EXT_CSD_CARD_TYPE	196	/* RO */
@@ -179,6 +180,9 @@
 #define MMC_RSP_R6	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
 #define MMC_RSP_R7	(MMC_RSP_PRESENT|MMC_RSP_CRC|MMC_RSP_OPCODE)
 
+#define MMCPART_NOAVAILABLE	(0xff)
+#define PART_ACCESS_MASK	(0x7)
+#define PART_SUPPORT		(0x1)
 
 struct mmc_cid {
 	unsigned long psn;
@@ -263,6 +267,7 @@ struct mmc {
 	void *priv;
 	uint voltages;
 	uint version;
+	uint has_init;
 	uint f_min;
 	uint f_max;
 	int high_capacity;
@@ -275,6 +280,8 @@ struct mmc {
 	uint csd[4];
 	uint cid[4];
 	ushort rca;
+	char part_config;
+	char part_num;
 	uint tran_speed;
 	uint read_bl_len;
 	uint write_bl_len;
@@ -297,6 +304,7 @@ int mmc_set_dev(int dev_num);
 void print_mmc_devices(char separator);
 int get_mmc_num(void);
 int board_mmc_getcd(u8 *cd, struct mmc *mmc);
+int mmc_switch_part(int dev_num, unsigned int part_num);
 
 #ifdef CONFIG_GENERIC_MMC
 int atmel_mci_init(void *regs);

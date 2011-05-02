@@ -164,6 +164,7 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return 1;
 		}
 
+		mmc->has_init = 0;
 		mmc_init(mmc);
 
 		return 0;
@@ -189,14 +190,22 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		print_mmc_devices('\n');
 		return 0;
 	} else if (strcmp(argv[1], "dev") == 0) {
-		int dev;
+		int dev, part = -1;
 		struct mmc *mmc;
 
 		if (argc == 2)
 			dev = curr_device;
 		else if (argc == 3)
 			dev = simple_strtoul(argv[2], NULL, 10);
-		else
+		else if (argc == 4) {
+			dev = (int)simple_strtoul(argv[2], NULL, 10);
+			part = (int)simple_strtoul(argv[3], NULL, 10);
+			if (part > PART_ACCESS_MASK) {
+				printf("#part_num shouldn't be larger"
+					" than %d\n", PART_ACCESS_MASK);
+				return 1;
+			}
+		} else
 			return cmd_usage(cmdtp);
 
 		mmc = find_mmc_device(dev);
@@ -205,8 +214,29 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			return 1;
 		}
 
+		mmc_init(mmc);
+		if (part != -1) {
+			int ret;
+			if (mmc->part_config == MMCPART_NOAVAILABLE) {
+				printf("Card doesn't support part_switch\n");
+				return 1;
+			}
+
+			if (part != mmc->part_num) {
+				ret = mmc_switch_part(dev, part);
+				if (!ret)
+					mmc->part_num = part;
+
+				printf("switch to partions #%d, %s\n",
+						part, (!ret) ? "OK" : "ERROR");
+			}
+		}
 		curr_device = dev;
-		printf("mmc%d is current device\n", curr_device);
+		if (mmc->part_config == MMCPART_NOAVAILABLE)
+			printf("mmc%d is current device\n", curr_device);
+		else
+			printf("mmc%d(part %d) is current device\n",
+				curr_device, mmc->part_num);
 
 		return 0;
 	} else if (strcmp(argv[1], "read") == 0) {
@@ -269,6 +299,6 @@ U_BOOT_CMD(
 	"mmc write addr blk# cnt\n"
 	"mmc rescan\n"
 	"mmc part - lists available partition on current mmc device\n"
-	"mmc dev [dev] - show or set current mmc device\n"
+	"mmc dev [dev] [part] - show or set current mmc device [partition]\n"
 	"mmc list - lists available devices");
 #endif
