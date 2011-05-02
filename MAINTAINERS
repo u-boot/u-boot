@@ -429,7 +429,7 @@ Heiko Schocher <hs@denx.de>
 	kmeter1		MPC8360
 	kmsupx5		MPC8321
 	mgcoge		MPC8247
-	mgcoge2ne	MPC8247
+	mgcoge3ne	MPC8247
 	mgcoge2un	ARM926EJS (Kirkwood SoC)
 	mucmc52		MPC5200
 	muas3001	MPC8270

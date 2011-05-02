@@ -288,7 +288,7 @@ int checkboard(void)
 #if defined(CONFIG_MGCOGE)
 	puts("Board: Keymile mgcoge");
 #else
-	puts("Board: Keymile mgcoge2ne");
+	puts("Board: Keymile mgcoge3ne");
 #endif
 	if (ethernet_present())
 		puts(" with PIGGY.");
@@ -314,6 +314,28 @@ int last_stage_init(void)
 	return 0;
 }
 
+#ifdef CONFIG_MGCOGE3NE
+/*
+ * For mgcoge3ne boards, the mgcoge3un control is controlled from
+ * a GPIO line on the PPC CPU. If bobcatreset is set the line
+ * will toggle once what forces the mgocge3un part to restart
+ * immediately.
+ */
+void handle_mgcoge3un_reset(void)
+{
+	char *bobcatreset = getenv("bobcatreset");
+	if (bobcatreset) {
+		if (strcmp(bobcatreset, "true") == 0) {
+			puts("Forcing bobcat reset\n");
+			set_pin(0, 0x00000004);	/* clear PD29 to reset arm */
+			udelay(1000);
+			set_pin(1, 0x00000004);
+		} else
+			set_pin(1, 0x00000004);	/* set PD29 to not reset arm */
+	}
+}
+#endif
+
 /*
  * Early board initalization.
  */
@@ -329,6 +351,9 @@ int board_early_init_r(void)
 	out_8(&base->oprtl, (H_OPORTS_SCC4_ENA | H_OPORTS_SCC4_FD_ENA |
 		H_OPORTS_FCC1_PW_DWN));
 
+#ifdef CONFIG_MGCOGE3NE
+	handle_mgcoge3un_reset();
+#endif
 	return 0;
 }
 

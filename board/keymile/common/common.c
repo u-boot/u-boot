@@ -22,7 +22,7 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_MGCOGE) || defined(CONFIG_MGCOGE2NE)
+#if defined(CONFIG_KM82XX)
 #include <mpc8260.h>
 #endif
 #include <ioports.h>
@@ -398,10 +398,10 @@ int ivm_read_eeprom(void)
 #define DELAY_ABORT_SEQ		62  /* @200kHz 9 clocks = 44us, 62us is ok */
 #define DELAY_HALF_PERIOD	(500 / (CONFIG_SYS_I2C_SPEED / 1000))
 
-#if defined(CONFIG_MGCOGE) || defined(CONFIG_MGCOGE2NE)
+#if defined(CONFIG_KM_82XX)
 #define SDA_MASK	0x00010000
 #define SCL_MASK	0x00020000
-static void set_pin(int state, unsigned long mask)
+void set_pin(int state, unsigned long mask)
 {
 	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3);
 
