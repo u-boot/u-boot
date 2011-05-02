@@ -295,6 +295,7 @@ void mmc_set_clock(struct mmc *mmc, uint clock);
 struct mmc *find_mmc_device(int dev_num);
 int mmc_set_dev(int dev_num);
 void print_mmc_devices(char separator);
+int get_mmc_num(void);
 int board_mmc_getcd(u8 *cd, struct mmc *mmc);
 
 #ifdef CONFIG_GENERIC_MMC

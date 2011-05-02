@@ -1110,6 +1110,11 @@ void print_mmc_devices(char separator)
 	printf("\n");
 }
 
+int get_mmc_num(void)
+{
+	return cur_dev_num;
+}
+
 int mmc_initialize(bd_t *bis)
 {
 	INIT_LIST_HEAD (&mmc_devices);
