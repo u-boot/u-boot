@@ -41,8 +41,12 @@ struct cramfs_super super;
 
 /* CPU address space offset calculation macro, struct part_info offset is
  * device address space offset, so we need to shift it by a device start address. */
+#if !defined(CONFIG_SYS_NO_FLASH)
 extern flash_info_t flash_info[];
 #define PART_OFFSET(x)	(x->offset + flash_info[x->dev->id->num].start[0])
+#else
+#define PART_OFFSET(x)	(x->offset)
+#endif
 
 static int cramfs_read_super (struct part_info *info)
 {
