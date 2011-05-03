@@ -1223,3 +1223,70 @@ err_size:
 	return ret;
 }
 #endif
+
+/*
+ * Verify the physical address of device tree node for a given alias
+ *
+ * This function locates the device tree node of a given alias, and then
+ * verifies that the physical address of that device matches the given
+ * parameter.  It displays a message if there is a mismatch.
+ *
+ * Returns 1 on success, 0 on failure
+ */
+int fdt_verify_alias_address(void *fdt, int anode, const char *alias, u64 addr)
+{
+	const char *path;
+	const u32 *reg;
+	int node, len;
+	u64 dt_addr;
+
+	path = fdt_getprop(fdt, anode, alias, NULL);
+	if (!path) {
+		/* If there's no such alias, then it's not a failure */
+		return 1;
+	}
+
+	node = fdt_path_offset(fdt, path);
+	if (node < 0) {
+		printf("Warning: device tree alias '%s' points to invalid "
+		       "node %s.\n", alias, path);
+		return 0;
+	}
+
+	reg = fdt_getprop(fdt, node, "reg", &len);
+	if (!reg) {
+		printf("Warning: device tree node '%s' has no address.\n",
+		       path);
+		return 0;
+	}
+
+	dt_addr = fdt_translate_address(fdt, node, reg);
+	if (addr != dt_addr) {
+		printf("Warning: U-Boot configured device %s at address %llx,\n"
+		       " but the device tree has it address %llx.\n",
+		       alias, addr, dt_addr);
+		return 0;
+	}
+
+	return 1;
+}
+
+/*
+ * Returns the base address of an SOC or PCI node
+ */
+u64 fdt_get_base_address(void *fdt, int node)
+{
+	int size;
+	u32 naddr;
+	const u32 *prop;
+
+	prop = fdt_getprop(fdt, node, "#address-cells", &size);
+	if (prop && size == 4)
+		naddr = *prop;
+	else
+		naddr = 2;
+
+	prop = fdt_getprop(fdt, node, "ranges", &size);
+
+	return prop ? fdt_translate_address(fdt, node, prop + naddr) : 0;
+}

@@ -90,5 +90,9 @@ int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
 int fdt_alloc_phandle(void *blob);
 int fdt_add_edid(void *blob, const char *compat, unsigned char *buf);
 
+int fdt_verify_alias_address(void *fdt, int anode, const char *alias,
+			      u64 addr);
+u64 fdt_get_base_address(void *fdt, int node);
+
 #endif /* ifdef CONFIG_OF_LIBFDT */
 #endif /* ifndef __FDT_SUPPORT_H */
