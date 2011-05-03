@@ -226,6 +226,24 @@ static int boot_bd_t_linux(bootm_headers_t *images)
 	return ret;
 }
 
+/*
+ * Verify the device tree.
+ *
+ * This function is called after all device tree fix-ups have been enacted,
+ * so that the final device tree can be verified.  The definition of "verified"
+ * is up to the specific implementation.  However, it generally means that the
+ * addresses of some of the devices in the device tree are compared with the
+ * actual addresses at which U-Boot has placed them.
+ *
+ * Returns 1 on success, 0 on failure.  If 0 is returned, U-boot will halt the
+ * boot process.
+ */
+static int __ft_verify_fdt(void *fdt)
+{
+	return 1;
+}
+__attribute__((weak, alias("__ft_verify_fdt"))) int ft_verify_fdt(void *fdt);
+
 static int boot_body_linux(bootm_headers_t *images)
 {
 	ulong rd_len;
@@ -298,6 +316,9 @@ static int boot_body_linux(bootm_headers_t *images)
 		/* fixup the initrd now that we know where it should be */
 		if (*initrd_start && *initrd_end)
 			fdt_initrd(*of_flat_tree, *initrd_start, *initrd_end, 1);
+
+		if (!ft_verify_fdt(*of_flat_tree))
+			return -1;
 	}
 #endif	/* CONFIG_OF_LIBFDT */
 	return 0;
