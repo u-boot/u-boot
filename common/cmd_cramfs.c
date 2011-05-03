@@ -43,7 +43,7 @@
 #endif
 
 #ifdef CONFIG_CRAMFS_CMDLINE
-flash_info_t flash_info[1];
+#include <flash.h>
 
 #ifndef CONFIG_CMD_JFFS2
 #include <linux/stat.h>
