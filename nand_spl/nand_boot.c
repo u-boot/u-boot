@@ -22,9 +22,6 @@
 #include <nand.h>
 #include <asm/io.h>
 
-#define CONFIG_SYS_NAND_READ_DELAY \
-	{ volatile int dummy; int i; for (i=0; i<10000; i++) dummy = i; }
-
 static int nand_ecc_pos[] = CONFIG_SYS_NAND_ECCPOS;
 
 #if (CONFIG_SYS_NAND_PAGE_SIZE <= 512)
@@ -61,11 +58,8 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 	/*
 	 * Wait a while for the data to be ready
 	 */
-	if (this->dev_ready)
-		while (!this->dev_ready(mtd))
-			;
-	else
-		CONFIG_SYS_NAND_READ_DELAY;
+	while (!this->dev_ready(mtd))
+		;
 
 	return 0;
 }
@@ -80,11 +74,8 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 	void (*hwctrl)(struct mtd_info *mtd, int cmd,
 			unsigned int ctrl) = this->cmd_ctrl;
 
-	if (this->dev_ready)
-		while (!this->dev_ready(mtd))
-			;
-	else
-		CONFIG_SYS_NAND_READ_DELAY;
+	while (!this->dev_ready(mtd))
+		;
 
 	/* Emulate NAND_CMD_READOOB */
 	if (cmd == NAND_CMD_READOOB) {
@@ -120,11 +111,8 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 	/*
 	 * Wait a while for the data to be ready
 	 */
-	if (this->dev_ready)
-		while (!this->dev_ready(mtd))
-			;
-	else
-		CONFIG_SYS_NAND_READ_DELAY;
+	while (!this->dev_ready(mtd))
+		;
 
 	return 0;
 }
