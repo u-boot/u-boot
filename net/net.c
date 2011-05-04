@@ -654,14 +654,14 @@ void NetStartAgain(void)
  */
 
 void
-NetSetHandler(rxhand_f * f)
+NetSetHandler(rxhand_f *f)
 {
 	packetHandler = f;
 }
 
 
 void
-NetSetTimeout(ulong iv, thand_f * f)
+NetSetTimeout(ulong iv, thand_f *f)
 {
 	if (iv == 0) {
 		timeHandler = (thand_f *)0;
@@ -674,7 +674,7 @@ NetSetTimeout(ulong iv, thand_f * f)
 
 
 void
-NetSendPacket(volatile uchar * pkt, int len)
+NetSendPacket(volatile uchar *pkt, int len)
 {
 	(void) eth_send(pkt, len);
 }
@@ -769,9 +769,9 @@ int PingSend(void)
 	ip->ip_p     = 0x01;		/* ICMP */
 	ip->ip_sum   = 0;
 	/* already in network byte order */
-	NetCopyIP((void*)&ip->ip_src, &NetOurIP);
+	NetCopyIP((void *)&ip->ip_src, &NetOurIP);
 	/* - "" - */
-	NetCopyIP((void*)&ip->ip_dst, &NetPingIP);
+	NetCopyIP((void *)&ip->ip_dst, &NetPingIP);
 	ip->ip_sum   = ~NetCksum((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2);
 
 	s = &ip->udp_src;		/* XXX ICMP starts here */
@@ -1047,7 +1047,7 @@ CDPDummyHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 }
 
 static void
-CDPHandler(const uchar * pkt, unsigned len)
+CDPHandler(const uchar *pkt, unsigned len)
 {
 	const uchar *t;
 	const ushort *ss;
@@ -1353,7 +1353,7 @@ static inline IP_t *NetDefragment(IP_t *ip, int *lenp)
 #endif
 
 void
-NetReceive(volatile uchar * inpkt, int len)
+NetReceive(volatile uchar *inpkt, int len)
 {
 	Ethernet_t *et;
 	IP_t	*ip;
@@ -1664,8 +1664,8 @@ NetReceive(volatile uchar * inpkt, int len)
 
 				ip->ip_sum = 0;
 				ip->ip_off = 0;
-				NetCopyIP((void*)&ip->ip_dst, &ip->ip_src);
-				NetCopyIP((void*)&ip->ip_src, &NetOurIP);
+				NetCopyIP((void *)&ip->ip_dst, &ip->ip_src);
+				NetCopyIP((void *)&ip->ip_src, &NetOurIP);
 				ip->ip_sum = ~NetCksum((uchar *)ip,
 						       IP_HDR_SIZE_NO_UDP >> 1);
 
@@ -1837,14 +1837,14 @@ common:
 /**********************************************************************/
 
 int
-NetCksumOk(uchar * ptr, int len)
+NetCksumOk(uchar *ptr, int len)
 {
 	return !((NetCksum(ptr, len) + 1) & 0xfffe);
 }
 
 
 unsigned
-NetCksum(uchar * ptr, int len)
+NetCksum(uchar *ptr, int len)
 {
 	ulong	xsum;
 	ushort *p = (ushort *)ptr;
@@ -1871,7 +1871,7 @@ NetEthHdrSize(void)
 }
 
 int
-NetSetEther(volatile uchar * xet, uchar * addr, uint prot)
+NetSetEther(volatile uchar *xet, uchar * addr, uint prot)
 {
 	Ethernet_t *et = (Ethernet_t *)xet;
 	ushort myvlanid;
@@ -1896,7 +1896,7 @@ NetSetEther(volatile uchar * xet, uchar * addr, uint prot)
 }
 
 void
-NetSetIP(volatile uchar * xip, IPaddr_t dest, int dport, int sport, int len)
+NetSetIP(volatile uchar *xip, IPaddr_t dest, int dport, int sport, int len)
 {
 	IP_t *ip = (IP_t *)xip;
 
@@ -1922,9 +1922,9 @@ NetSetIP(volatile uchar * xip, IPaddr_t dest, int dport, int sport, int len)
 	ip->ip_p     = 17;		/* UDP */
 	ip->ip_sum   = 0;
 	/* already in network byte order */
-	NetCopyIP((void*)&ip->ip_src, &NetOurIP);
+	NetCopyIP((void *)&ip->ip_src, &NetOurIP);
 	/* - "" - */
-	NetCopyIP((void*)&ip->ip_dst, &dest);
+	NetCopyIP((void *)&ip->ip_dst, &dest);
 	ip->udp_src  = htons(sport);
 	ip->udp_dst  = htons(dport);
 	ip->udp_len  = htons(8 + len);
