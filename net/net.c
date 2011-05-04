@@ -1616,7 +1616,8 @@ NetReceive(volatile uchar *inpkt, int len)
 		 * a fragment, and either the complete packet or NULL if
 		 * it is a fragment (if !CONFIG_IP_DEFRAG, it returns NULL)
 		 */
-		if (!(ip = NetDefragment(ip, &len)))
+		ip = NetDefragment(ip, &len);
+		if (!ip)
 			return;
 		/*
 		 * watch for ICMP host redirects
