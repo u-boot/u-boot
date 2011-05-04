@@ -367,9 +367,8 @@ NetLoop(proto_t protocol)
 		 */
 		NetTxPacket = &PktBuf[0] + (PKTALIGN - 1);
 		NetTxPacket -= (ulong)NetTxPacket % PKTALIGN;
-		for (i = 0; i < PKTBUFSRX; i++) {
+		for (i = 0; i < PKTBUFSRX; i++)
 			NetRxPackets[i] = NetTxPacket + (i+1)*PKTSIZE_ALIGN;
-		}
 	}
 
 	if (!NetArpWaitTxPacket) {
@@ -491,11 +490,10 @@ restart:
 	/*
 	 * Echo the inverted link state to the fault LED.
 	 */
-	if (miiphy_link(eth_get_dev()->name, CONFIG_SYS_FAULT_MII_ADDR)) {
+	if (miiphy_link(eth_get_dev()->name, CONFIG_SYS_FAULT_MII_ADDR))
 		status_led_set(STATUS_LED_RED, STATUS_LED_OFF);
-	} else {
+	else
 		status_led_set(STATUS_LED_RED, STATUS_LED_ON);
-	}
 #endif /* CONFIG_SYS_FAULT_ECHO_LINK_DOWN, ... */
 #endif /* CONFIG_MII, ... */
 
@@ -1095,9 +1093,8 @@ CDPHandler(const uchar * pkt, unsigned len)
 		ss = (const ushort *)pkt;
 		type = ntohs(ss[0]);
 		tlen = ntohs(ss[1]);
-		if (tlen > len) {
+		if (tlen > len)
 			goto pkt_short;
-		}
 
 		pkt += tlen;
 		len -= tlen;
@@ -1477,26 +1474,20 @@ NetReceive(volatile uchar * inpkt, int len)
 			printf("bad length %d < %d\n", len, ARP_HDR_SIZE);
 			return;
 		}
-		if (ntohs(arp->ar_hrd) != ARP_ETHER) {
+		if (ntohs(arp->ar_hrd) != ARP_ETHER)
 			return;
-		}
-		if (ntohs(arp->ar_pro) != PROT_IP) {
+		if (ntohs(arp->ar_pro) != PROT_IP)
 			return;
-		}
-		if (arp->ar_hln != 6) {
+		if (arp->ar_hln != 6)
 			return;
-		}
-		if (arp->ar_pln != 4) {
+		if (arp->ar_pln != 4)
 			return;
-		}
 
-		if (NetOurIP == 0) {
+		if (NetOurIP == 0)
 			return;
-		}
 
-		if (NetReadIP(&arp->ar_data[16]) != NetOurIP) {
+		if (NetReadIP(&arp->ar_data[16]) != NetOurIP)
 			return;
-		}
 
 		switch (ntohs(arp->ar_op)) {
 		case ARPOP_REQUEST:
@@ -1601,13 +1592,11 @@ NetReceive(volatile uchar * inpkt, int len)
 		debug("len=%d, v=%02x\n", len, ip->ip_hl_v & 0xff);
 
 		/* Can't deal with anything except IPv4 */
-		if ((ip->ip_hl_v & 0xf0) != 0x40) {
+		if ((ip->ip_hl_v & 0xf0) != 0x40)
 			return;
-		}
 		/* Can't deal with IP options (headers != 20 bytes) */
-		if ((ip->ip_hl_v & 0x0f) > 0x05) {
+		if ((ip->ip_hl_v & 0x0f) > 0x05)
 			return;
-		}
 		/* Check the Checksum of the header */
 		if (!NetCksumOk((uchar *)ip, IP_HDR_SIZE_NO_UDP / 2)) {
 			puts("checksum bad\n");
@@ -1950,9 +1939,8 @@ void copy_filename(char *dst, const char *src, int size)
 		--size;
 	}
 
-	while ((--size > 0) && *src && (*src != '"')) {
+	while ((--size > 0) && *src && (*src != '"'))
 		*dst++ = *src++;
-	}
 	*dst = '\0';
 }
 
