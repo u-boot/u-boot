@@ -26,6 +26,7 @@
 #include <mpc8260.h>
 #endif
 #include <ioports.h>
+#include <command.h>
 #include <malloc.h>
 #include <hush.h>
 #include <net.h>
@@ -682,3 +683,36 @@ int board_eth_init(bd_t *bis)
 
 	return -1;
 }
+
+/*
+ * do_setboardid command
+ * read out the board id and the hw key from the intventory EEPROM and set
+ * this values as environment variables.
+ */
+static int do_setboardid(cmd_tbl_t *cmdtp, int flag, int argc,
+				char *const argv[])
+{
+	unsigned char buf[32];
+	char *p;
+
+	p = get_local_var("IVM_BoardId");
+	if (p == NULL) {
+		printf("can't get the IVM_Boardid\n");
+		return 1;
+	}
+	sprintf((char *)buf, "%s", p);
+	setenv("boardid", (char *)buf);
+
+	p = get_local_var("IVM_HWKey");
+	if (p == NULL) {
+		printf("can't get the IVM_HWKey\n");
+		return 1;
+	}
+	sprintf((char *)buf, "%s", p);
+	setenv("hwkey", (char *)buf);
+
+	return 0;
+}
+
+U_BOOT_CMD(km_setboardid, 1, 0, do_setboardid, "setboardid", "read out bid and "
+				 "hwkey from IVM and set in environment");
