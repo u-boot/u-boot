@@ -169,13 +169,8 @@
 		"break=0; "						\
 		"for subbootcmd in ${subbootcmds}; do "			\
 		"if test ${break} -eq 0; then; "			\
-		"echo \"[INFO] running \\c\"; "				\
 		"print ${subbootcmd}; "					\
 		"run ${subbootcmd} || break=1; "			\
-		"if test ${break} -eq 1; then; "			\
-		"echo \"[ERR] failed \\c\"; "				\
-		"print ${subbootcmd}; "					\
-		"fi; "							\
 		"fi; "							\
 		"done\0"						\
 	""
@@ -186,8 +181,6 @@
  * - set 'bootcmd' and 'altbootcmd'
  * available targets:
  * - 'release': for a standalone system		kernel/rootfs from flash
- * - 'develop': for development			kernel(tftp)/rootfs(NFS)
- * - 'ramfs': rootfilesystem in RAM		kernel(tftp)/rootfs(RAM)
  *
  * - 'commonargs': bootargs common to all targets
  */
@@ -201,40 +194,6 @@
 		"addmtdparts "						\
 		"addbootcount "						\
 		"\0"							\
-	"develop="							\
-		"setenv subbootcmds \""					\
-		"tftpfdt tftpkernel "					\
-		"nfsargs ${commonargs} "				\
-		"printbootargs boot "					\
-		"\" && "						\
-		"setenv bootcmd \'"					\
-		"run bootrunner"					\
-		"\' && "						\
-		"setenv altbootcmd \'"					\
-		"run bootcmd"						\
-		"\' && "						\
-		"run setboardid && "					\
-		"saveenv && "						\
-		"reset\0"						\
-	"ramfs="							\
-		"setenv actual_bank -1 && "				\
-		"setenv subbootcmds \""					\
-		"tftpfdt tftpkernel "					\
-		"setrootfsaddr tftpramfs "				\
-		"flashargs ${commonargs} "				\
-		"addpanic addramfs "					\
-		"printbootargs boot "					\
-		"\" && "						\
-		"setenv bootcmd \'"					\
-		"run bootrunner"					\
-		"\' && "						\
-		"setenv altbootcmd \'"					\
-		"run bootcmd"						\
-		"\' && "						\
-		"run setboardid && "					\
-		"run setramfspram && "					\
-		"saveenv && "						\
-		"reset\0"						\
 	"release="							\
 		"setenv actual_bank ${initial_boot_bank} && "		\
 		"setenv subbootcmds \""					\
@@ -242,8 +201,7 @@
 		"ubiattach ubicopy "					\
 		"cramfsloadfdt cramfsloadkernel "			\
 		"flashargs ${commonargs} "				\
-		"addpanic "						\
-		"printbootargs boot "					\
+		"addpanic boot "					\
 		"\" && "						\
 		"setenv bootcmd \'"					\
 		"run actual bootrunner; reset"				\
@@ -251,8 +209,12 @@
 		"setenv altbootcmd \'"					\
 		"run backup bootrunner; reset"				\
 		"\' && "						\
-		"saveenv && "						\
+		"saveenv && saveenv && "				\
 		"reset\0"						\
+	"debug_env="							\
+		"tftp 200000 " CONFIG_KM_ARCH_DBG_FILE " && "		\
+		"env import -t 200000 ${filesize} && "			\
+		"run debug_env_common\0"				\
 	""
 
 /*
@@ -262,10 +224,8 @@
  * - 'addip': add ip configuration
  * - 'addmem': limit kernel memory mem=
  * - 'addpanic': add kernel panic options
- * - 'addramfs': add phram device for the rootfilesysten in ram
  * - 'addtty': add console=...
  * - 'addvar': add phram device for /var
- * - 'nfsargs': default arguments for nfs boot
  * - 'flashargs': defaults arguments for flash base boot
  *
  * processor specific settings
@@ -280,25 +240,15 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off\0"				\
 	"addmem="							\
-		"setenv bootargs ${bootargs} mem=0x${pnvramaddr}\0"	\
+		"setenv bootargs ${bootargs} mem=${pnvramaddr}\0"	\
 	"addpanic="							\
-		"setenv bootargs ${bootargs} "				\
-		"panic=1 panic_on_oops=1\0"				\
-	"addramfs="							\
-		"setenv bootargs \""					\
-		"${bootargs} phram.phram="				\
-		"rootfs${boot_bank},${rootfsaddr},${rootfssize}\"\0"	\
+		"setenv bootargs ${bootargs} panic=1 panic_on_oops=1\0"	\
 	"addtty="							\
 		"setenv bootargs ${bootargs}"				\
 		" console=" CONFIG_KM_CONSOLE_TTY ",${baudrate}\0"	\
 	"addvar="							\
 		"setenv bootargs ${bootargs} phram.phram=phvar,"	\
-		"${varaddr},0x" xstr(CONFIG_KM_PHRAM) "\0"		\
-	"nfsargs="							\
-		"setenv bootargs "					\
-		"ubi.mtd=" CONFIG_KM_UBI_LINUX_MTD_NAME " "		\
-		"root=/dev/nfs rw "					\
-		"nfsroot=${serverip}:${rootpath}\0"			\
+		"${varaddr}," xstr(CONFIG_KM_PHRAM) "\0"		\
 	"flashargs="							\
 		"setenv bootargs "					\
 		"ubi.mtd=" CONFIG_KM_UBI_LINUX_MTD_NAME " "		\
@@ -307,71 +257,25 @@
 	""
 
 /*
- * compute_addr
- * - compute addresses and sizes
- * - addresses are calculated form the end of memory 'memsize'
- *
- * - 'setramfspram': compute PRAM size for ramfs target
- * - 'setrootfsaddr': compute rootfilesystem address for phram
- */
-#define CONFIG_KM_DEF_ENV_COMPUTE_ADDR					\
-	"setboardid="							\
-		"if test \"x${boardId}\" = \"x\"; then; "		\
-		"setenv boardId ${IVM_BoardId} && "			\
-		"setenv hwKey ${IVM_HWKey}; "				\
-		"else; "						\
-		"echo \\\\c; "						\
-		"fi\0"							\
-	"setramfspram="							\
-		"setexpr value ${rootfssize} / 0x400 && "		\
-		"setexpr value 0x${value} + ${pram} && "		\
-		"setenv pram 0x${value}\0"				\
-	"setrootfsaddr="						\
-		"setexpr value ${pnvramaddr} - ${rootfssize} && "	\
-		"setenv rootfsaddr 0x${value}\0"			\
-	""
-
-/*
  * flash_boot
  * - commands for booting from flash
  *
- * - 'cramfsaddr': address to the cramfs (in ram)
  * - 'cramfsloadkernel': copy kernel from a cramfs to ram
  * - 'ubiattach': attach ubi partition
  * - 'ubicopy': copy ubi volume to ram
  *              - volume names: bootfs0, bootfs1, bootfs2, ...
- * - 'ubiparition': mtd parition name for ubi
  *
  * processor specific settings
  * - 'cramfsloadfdt': copy fdt from a cramfs to ram
  */
 #define CONFIG_KM_DEF_ENV_FLASH_BOOT					\
-	"cramfsaddr="xstr(CONFIG_KM_CRAMFS_ADDR) "\0"			\
+	"cramfsaddr=" xstr(CONFIG_KM_CRAMFS_ADDR) "\0"			\
 	"cramfsloadkernel="						\
 		"cramfsload ${kernel_addr_r} uImage && "		\
 		"setenv actual_kernel_addr ${kernel_addr_r}\0"		\
-	"ubiattach=ubi part ${ubipartition}\0"				\
-	"ubicopy=ubi read ${cramfsaddr} bootfs${boot_bank}\0"		\
-	"ubipartition=" CONFIG_KM_UBI_PARTITION_NAME "\0"		\
-	""
-
-/*
- * net_boot
- * - commands for booting over the network
- *
- * - 'tftpkernel': load a kernel with tftp into ram
- * - 'tftpramfs': load rootfs with tftp into ram
- *
- * processor specific settings
- * - 'tftpfdt': load fdt with tftp into ram
- */
-#define CONFIG_KM_DEF_ENV_NET_BOOT					\
-	"tftpkernel="							\
-		"tftpboot ${kernel_addr_r} ${kernel_file} && "		\
-		"setenv actual_kernel_addr ${kernel_addr_r}\0"		\
-	"tftpramfs="							\
-		"tftpboot ${rootfsaddr} \"\\\"${rootfsfile}\\\"\" && "	\
-		"setenv loadaddr\0"					\
+	"ubiattach=ubi part " CONFIG_KM_UBI_PARTITION_NAME "\0"		\
+	"ubicopy=ubi read "xstr(CONFIG_KM_CRAMFS_ADDR)			\
+			" bootfs${boot_bank}\0"				\
 	""
 
 /*
@@ -388,8 +292,6 @@
 	"default="							\
 		"setenv default 'run newenv; reset' &&  "		\
 		"run release && saveenv; reset\0"			\
-	"printbootargs=print bootargs\0"				\
-	"rootfsfile="xstr(CONFIG_HOSTNAME) "/rootfsImage\0"		\
 	"checkboardid=km_checkbidhwk\0"					\
 	""
 
@@ -401,17 +303,13 @@
 	CONFIG_KM_DEF_ENV_BOOTRUNNER					\
 	CONFIG_KM_DEF_ENV_BOOTTARGETS					\
 	CONFIG_KM_DEF_ENV_BOOTARGS					\
-	CONFIG_KM_DEF_ENV_COMPUTE_ADDR					\
 	CONFIG_KM_DEF_ENV_FLASH_BOOT					\
-	CONFIG_KM_DEF_ENV_NET_BOOT					\
 	CONFIG_KM_DEF_ENV_CONSTANTS					\
 	"altbootcmd=run bootcmd\0"					\
 	"bootcmd=run default\0"						\
 	"bootlimit=2\0"							\
 	"init=/sbin/init-overlay.sh\0"					\
 	"kernel_addr_r="xstr(CONFIG_KM_KERNEL_ADDR) "\0"		\
-	"kernel_file="xstr(CONFIG_HOSTNAME) "/uImage\0"			\
-	"kernel_name=uImage\0"						\
 	"load=tftpboot ${u-boot_addr_r} ${u-boot}\0"			\
 	"mtdids=" MTDIDS_DEFAULT "\0"					\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"				\

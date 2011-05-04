@@ -1,0 +1,23 @@
+debug-common-env.txt
+============================
+This file defines environment variables which are valid for powerpc boards
+and for arm boards.
+
+addramfs: add phram device for the rootfilesysten in ram
+develop: for development, laod kernel via tftp and mount  rootfs via NFS
+nfsargs: default arguments for nfs boot
+ramfs: load rootfilesystem in RAM  kernel
+rootfsfile: loacation of the rootfs file for ramfs
+setramfspram: compute PRAM size for ramfs target
+setrootfsaddr: compute rootfilesystem address for phram
+tftpkernel: load a kernel with tftp into ram
+tftpramfs: load rootfs with tftp into ram
+
+debug-ppc-env.txt
+============================
+fdt_file: location of the dtb file on the tftp server
+tftpfdt: load dtb file and set fdt address
+
+debug-arm-env.txt
+============================
+tftpfdt: for arm only a dummy variable, because we have no fdt on arm

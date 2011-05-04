@@ -67,20 +67,14 @@
 #define CONFIG_KM_FDT_ADDR	0x7E0000	/* 128Kbytes */
 
 #define CONFIG_KM_DEF_ENV_CPU						\
-	"addbootcount=echo \\\\c\0"					\
-	"addmtdparts=echo \\\\c\0"					\
+	"addbootcount=true\0"						\
+	"addmtdparts=true\0"						\
 	"boot=bootm ${actual_kernel_addr} - ${actual_fdt_addr}\0"	\
 	"cramfsloadfdt="						\
 		"cramfsload ${fdt_addr_r} "				\
 		"fdt_0x${IVM_BoardId}_0x${IVM_HWKey}.dtb && "		\
 		"setenv actual_fdt_addr ${fdt_addr_r}\0"		\
 	"fdt_addr_r=" xstr(CONFIG_KM_FDT_ADDR) "\0"			\
-	"fdt_file="							\
-		xstr(CONFIG_HOSTNAME) "/"				\
-		xstr(CONFIG_HOSTNAME) ".dtb\0"				\
-	"tftpfdt="							\
-		"tftpboot ${fdt_addr_r} ${fdt_file} && "		\
-		"setenv actual_fdt_addr ${fdt_addr_r} \0"		\
 	"update="							\
 		"protect off " xstr(BOOTFLASH_START) " +${filesize} && "\
 		"erase " xstr(BOOTFLASH_START) "  +${filesize} && "	\
@@ -88,5 +82,7 @@
 		"  ${filesize} && "					\
 		"protect on " xstr(BOOTFLASH_START) "  +${filesize}\0"  \
 	""
+
+#define CONFIG_KM_ARCH_DBG_FILE		"scripts/debug-ppc-env.txt"
 
 #endif /* __CONFIG_KEYMILE_POWERPC_H */

@@ -66,12 +66,11 @@
 #define CONFIG_KM_DEF_ENV_CPU						\
 	"addmtdparts=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"boot=bootm ${actual_kernel_addr} - -\0"			\
-	"cramfsloadfdt=echo \\\\c\0"					\
-	"tftpfdt=echo \\\\c\0"						\
+	"cramfsloadfdt=true\0"						\
 	CONFIG_KM_DEF_ENV_UPDATE					\
 	""
 
-
+#define CONFIG_KM_ARCH_DBG_FILE		"scripts/debug-arm-env.txt"
 
 #define CONFIG_MD5	/* get_random_hex on krikwood needs MD5 support */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
