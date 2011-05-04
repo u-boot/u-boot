@@ -227,17 +227,19 @@ static const int casl_table[] = { 20, 25, 30 };
 
 int cas_latency (void)
 {
-	char *s = getenv ("serial#");
+	char buf[128];
 	int casl;
 	int val;
 	int i;
 
 	casl = CONFIG_DDR_DEFAULT_CL;
 
-	if (s != NULL) {
-		if (strncmp(s + strlen (s) - strlen (CASL_STRING1),
+	i = getenv_f("serial#", buf, sizeof(buf));
+
+	if (i >0) {
+		if (strncmp(buf + strlen (buf) - strlen (CASL_STRING1),
 			    CASL_STRING2, strlen (CASL_STRING2)) == 0) {
-			val = simple_strtoul (s + strlen (s) - 2, NULL, 10);
+			val = simple_strtoul (buf + strlen (buf) - 2, NULL, 10);
 
 			for (i = 0; i < N_CASL; ++i) {
 				if (val == casl_table[i]) {
@@ -252,12 +254,13 @@ int cas_latency (void)
 
 int checkboard (void)
 {
-	char *s = getenv ("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	printf ("Board: %s", CONFIG_BOARDNAME);
-	if (s != NULL) {
-		puts (", serial# ");
-		puts (s);
+	if (i > 0) {
+		puts(", serial# ");
+		puts(buf);
 	}
 	putc ('\n');
 

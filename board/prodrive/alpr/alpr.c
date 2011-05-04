@@ -133,12 +133,13 @@ static int board_rev(void)
 
 int checkboard (void)
 {
-	char *s = getenv ("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	printf ("Board: ALPR");
-	if (s != NULL) {
-		puts (", serial# ");
-		puts (s);
+	if (i > 0) {
+		puts(", serial# ");
+		puts(buf);
 	}
 	printf(" (Rev. %d)\n", board_rev());
 

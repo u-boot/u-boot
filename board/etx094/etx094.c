@@ -92,8 +92,9 @@ const uint sdram_table[] = {
 
 int checkboard (void)
 {
-	char *s = getenv ("serial#");
-	char *e;
+	char buf[64];
+	int i;
+	int l = getenv_f("serial#", buf, sizeof(buf));
 
 	puts ("Board: ");
 
@@ -103,19 +104,16 @@ int checkboard (void)
 	gd->board_type = 1; /* 1 = 1SDRAM-Device */
 #endif
 
-	if (!s || strncmp (s, "ETX_", 4)) {
+	if (l < 0 || strncmp(buf, "ETX_", 4)) {
 		puts ("### No HW ID - assuming ETX_094\n");
 		read_hw_vers ();
 		return (0);
 	}
 
-	for (e = s; *e; ++e) {
-		if (*e == ' ')
+	for (i = 0; i < l; ++i) {
+		if (buf[i] == ' ')
 			break;
-	}
-
-	for (; s < e; ++s) {
-		putc (*s);
+		putc(buf[i]);
 	}
 	putc ('\n');
 

@@ -101,13 +101,14 @@ int board_init(void)
  */
 int checkboard(void)
 {
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	puts("Board: PDNB3");
 
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	putc('\n');
 

@@ -191,15 +191,16 @@ phys_size_t initdram(int board_type)
 
 int checkboard(void)
 {
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	puts ("Board: InterControl digsyMTC");
 #if defined(CONFIG_DIGSY_REV5)
 	puts (" rev5");
 #endif
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", ");
-		puts(s);
+		puts(buf);
 	}
 	putc('\n');
 

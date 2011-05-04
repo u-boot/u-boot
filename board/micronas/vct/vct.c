@@ -80,8 +80,9 @@ phys_size_t initdram(int board_type)
 
 int checkboard(void)
 {
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 	u32 config0 = read_c0_prid();
-	char *s = getenv("serial#");
 
 	if ((config0 & 0xff0000) == PRID_COMP_LEGACY
 	    && (config0 & 0xff00) == PRID_IMP_LX4280) {
@@ -108,9 +109,9 @@ int checkboard(void)
 	}
 
 	printf("Board: Micronas VCT " BOARD_NAME BOARD_NAME_ADD);
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	putc('\n');
 

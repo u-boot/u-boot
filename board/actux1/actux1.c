@@ -89,14 +89,15 @@ int board_init (void)
  */
 int checkboard (void)
 {
-	char *s = getenv ("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	puts ("Board: AcTux-1 rev.");
 	putc (ACTUX1_BOARDREL + 'A' - 1);
 
-	if (s != NULL) {
-		puts (", serial# ");
-		puts (s);
+	if (i > 0) {
+		puts(", serial# ");
+		puts(buf);
 	}
 	putc ('\n');
 

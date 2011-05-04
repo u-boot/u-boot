@@ -83,7 +83,8 @@ int board_init (void)
  */
 int checkboard(void)
 {
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 #ifdef CONFIG_IXDPG425
 	puts("Board: IXDPG425 - Intel Network Gateway Reference Platform");
@@ -91,9 +92,9 @@ int checkboard(void)
 	puts("Board: IXDP425 - Intel Development Platform");
 #endif
 
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	putc('\n');
 

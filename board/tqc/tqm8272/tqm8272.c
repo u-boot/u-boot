@@ -514,12 +514,16 @@ static inline int scanChar (char *p, int len, unsigned long *number)
 static int dump_hwib(void)
 {
 	HWIB_INFO	*hw = &hwinf;
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 	volatile immap_t *immr = (immap_t *)CONFIG_SYS_IMMR;
-	char *s = getenv("serial#");
+
+	if (i < 0)
+		buf[0] = '\0';
 
 	if (hw->OK) {
 		printf ("HWIB on %x\n", HWIB_INFO_START_ADDR);
-		printf ("serial : %s\n", s);
+		printf ("serial : %s\n", buf);
 		printf ("ethaddr: %s\n", hw->ethaddr);
 		printf ("FLASH	: %x nr:%d\n", hw->flash, hw->flash_nr);
 		printf ("RAM	: %x cs:%d\n", hw->ram, hw->ram_cs);

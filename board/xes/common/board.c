@@ -13,7 +13,9 @@
 int checkboard(void)
 {
 	char name[] = CONFIG_SYS_BOARD_NAME;
+	char buf[64];
 	char *s;
+	int i;
 
 #ifdef CONFIG_SYS_FORM_CUSTOM
 	s = "Custom";
@@ -52,12 +54,15 @@ int checkboard(void)
 
 	/* Display board specific information */
 	puts("       ");
-	if ((s = getenv("board_rev")))
-		printf("Rev %s, ", s);
-	if ((s = getenv("serial#")))
-		printf("Serial# %s, ", s);
-	if ((s = getenv("board_cfg")))
-		printf("Cfg %s", s);
+	i = getenv_f("board_rev", buf, sizeof(buf));
+	if (i > 0)
+		printf("Rev %s, ", buf);
+	i = getenv_f("serial#", buf, sizeof(buf));
+	if (i > 0)
+		printf("Serial# %s, ", buf);
+	i = getenv_f("board_cfg", buf, sizeof(buf));
+	if (i > 0)
+		printf("Cfg %s", buf);
 	puts("\n");
 
 	return 0;

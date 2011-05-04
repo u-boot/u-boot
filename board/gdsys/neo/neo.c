@@ -53,7 +53,8 @@ int board_early_init_f(void)
  */
 int checkboard(void)
 {
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 	u16 val = in_le16((void *)CONFIG_FPGA_BASE + 2);
 	u8 unit_type;
 	u8 hardware_cpu_ports;
@@ -62,9 +63,9 @@ int checkboard(void)
 
 	printf("Board: CATCenter Neo");
 
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	puts("\n       ");
 

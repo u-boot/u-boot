@@ -225,15 +225,16 @@ static void print_fpga_info(unsigned dev)
  */
 int checkboard(void)
 {
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	printf("Board: ");
 
 	printf("DLVision 10G");
 
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 
 	puts("\n");

@@ -32,20 +32,19 @@
 
 int checkboard(void)
 {
-	char tmp[64];
-	char *s, *e;
-	int i = getenv_f("serial", tmp, sizeof(tmp));
+	char buf[64];
+	int i;
+	int l = getenv_f("serial#", buf, sizeof(buf));
 
-	if (i < 0) {
+	if (l < 0) {
 		printf("Avnet Virtex4 FX12 with no serial #");
 	} else {
-		for (e = tmp; *e; ++e) {
-			if (*e == ' ')
-				break;
-		}
 		printf("Avnet Virtex4 FX12 Minimodul # ");
-		for (s = tmp; s < e; ++s)
-			putc(*s);
+		for (i = 0; i < l; ++i) {
+			if (buf[i] == ' ')
+				break;
+			putc(buf[i]);
+		}
 	}
 	putc('\n');
 	return 0;

@@ -335,13 +335,14 @@ void after_reloc (ulong dest_addr, gd_t * gd)
 
 int checkboard (void)
 {
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	printf("Board: %s", CONFIG_SYS_BOARD_NAME);
 
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	putc('\n');
 

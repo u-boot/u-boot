@@ -87,14 +87,16 @@ const uint sdram_table[] = {
 
 int checkboard (void)
 {
-	char *s = getenv ("serial#");
+	char buf[64];
+	int i;
+	int l = getenv_f("serial#", buf, sizeof(buf));
 
 	puts ("Board QUANTUM, Serial No: ");
 
-	for (; s && *s; ++s) {
-		if (*s == ' ')
+	for (i = 0; i < l; ++i) {
+		if (buf[i] == ' ')
 			break;
-		putc (*s);
+		putc (buf[i]);
 	}
 	putc ('\n');
 	return (0);		/* success */

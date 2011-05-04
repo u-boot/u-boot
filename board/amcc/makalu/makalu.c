@@ -224,13 +224,14 @@ int misc_init_r(void)
 
 int checkboard (void)
 {
-	char *s = getenv("serial#");
+	char buf[64];
+	int i = getenv_f("serial#", buf, sizeof(buf));
 
 	printf("Board: Makalu - AMCC PPC405EX Evaluation Board");
 
-	if (s != NULL) {
+	if (i > 0) {
 		puts(", serial# ");
-		puts(s);
+		puts(buf);
 	}
 	putc('\n');
 
