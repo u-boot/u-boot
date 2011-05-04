@@ -1103,51 +1103,50 @@ CDPHandler(const uchar *pkt, unsigned len)
 		tlen -= 4;
 
 		switch (type) {
-			case CDP_DEVICE_ID_TLV:
-				break;
-			case CDP_ADDRESS_TLV:
-				break;
-			case CDP_PORT_ID_TLV:
-				break;
-			case CDP_CAPABILITIES_TLV:
-				break;
-			case CDP_VERSION_TLV:
-				break;
-			case CDP_PLATFORM_TLV:
-				break;
-			case CDP_NATIVE_VLAN_TLV:
-				nvlan = *ss;
-				break;
-			case CDP_APPLIANCE_VLAN_TLV:
-				t = (const uchar *)ss;
-				while (tlen > 0) {
-					if (tlen < 3)
-						goto pkt_short;
+		case CDP_DEVICE_ID_TLV:
+			break;
+		case CDP_ADDRESS_TLV:
+			break;
+		case CDP_PORT_ID_TLV:
+			break;
+		case CDP_CAPABILITIES_TLV:
+			break;
+		case CDP_VERSION_TLV:
+			break;
+		case CDP_PLATFORM_TLV:
+			break;
+		case CDP_NATIVE_VLAN_TLV:
+			nvlan = *ss;
+			break;
+		case CDP_APPLIANCE_VLAN_TLV:
+			t = (const uchar *)ss;
+			while (tlen > 0) {
+				if (tlen < 3)
+					goto pkt_short;
 
-					applid = t[0];
-					ss = (const ushort *)(t + 1);
+				applid = t[0];
+				ss = (const ushort *)(t + 1);
 
 #ifdef CONFIG_CDP_APPLIANCE_VLAN_TYPE
-					if (applid ==
-					    CONFIG_CDP_APPLIANCE_VLAN_TYPE)
-						vlan = *ss;
+				if (applid == CONFIG_CDP_APPLIANCE_VLAN_TYPE)
+					vlan = *ss;
 #else
-					/* XXX will this work; dunno */
-					vlan = ntohs(*ss);
+				/* XXX will this work; dunno */
+				vlan = ntohs(*ss);
 #endif
-					t += 3; tlen -= 3;
-				}
-				break;
-			case CDP_TRIGGER_TLV:
-				break;
-			case CDP_POWER_CONSUMPTION_TLV:
-				break;
-			case CDP_SYSNAME_TLV:
-				break;
-			case CDP_SYSOBJECT_TLV:
-				break;
-			case CDP_MANAGEMENT_ADDRESS_TLV:
-				break;
+				t += 3; tlen -= 3;
+			}
+			break;
+		case CDP_TRIGGER_TLV:
+			break;
+		case CDP_POWER_CONSUMPTION_TLV:
+			break;
+		case CDP_SYSNAME_TLV:
+			break;
+		case CDP_SYSOBJECT_TLV:
+			break;
+		case CDP_MANAGEMENT_ADDRESS_TLV:
+			break;
 		}
 	}
 
@@ -1608,7 +1607,7 @@ NetReceive(volatile uchar *inpkt, int len)
 #ifdef CONFIG_MCAST_TFTP
 			if (Mcast_addr != tmp)
 #endif
-			return;
+				return;
 		}
 		/* Read source IP address for later use */
 		src_ip = NetReadIP(&ip->ip_src);
@@ -1883,7 +1882,7 @@ NetSetEther(volatile uchar *xet, uchar * addr, uint prot)
 	memcpy(et->et_dest, addr, 6);
 	memcpy(et->et_src, NetOurEther, 6);
 	if ((myvlanid & VLAN_IDMASK) == VLAN_NONE) {
-	et->et_protlen = htons(prot);
+		et->et_protlen = htons(prot);
 		return ETHER_HDR_SIZE;
 	} else {
 		VLAN_Ethernet_t *vet = (VLAN_Ethernet_t *)xet;
