@@ -383,7 +383,7 @@ NetLoop(proto_t protocol)
 #endif
 	if (eth_init(bd) < 0) {
 		eth_halt();
-		return(-1);
+		return -1;
 	}
 
 restart:
@@ -406,7 +406,7 @@ restart:
 	case 1:
 		/* network not configured */
 		eth_halt();
-		return (-1);
+		return -1;
 
 #ifdef CONFIG_NET_MULTI
 	case 2:
@@ -521,7 +521,7 @@ restart:
 		if (ctrlc()) {
 			eth_halt();
 			puts("\nAbort\n");
-			return (-1);
+			return -1;
 		}
 
 		ArpTimeoutCheck();
@@ -578,7 +578,7 @@ restart:
 			return NetBootFileXferSize;
 
 		case NETLOOP_FAIL:
-			return (-1);
+			return -1;
 		}
 	}
 }
@@ -1756,7 +1756,7 @@ static int net_check_prereq(proto_t protocol)
 	case PING:
 		if (NetPingIP == 0) {
 			puts("*** ERROR: ping address not given\n");
-			return (1);
+			return 1;
 		}
 		goto common;
 #endif
@@ -1764,7 +1764,7 @@ static int net_check_prereq(proto_t protocol)
 	case SNTP:
 		if (NetNtpServerIP == 0) {
 			puts("*** ERROR: NTP server address not given\n");
-			return (1);
+			return 1;
 		}
 		goto common;
 #endif
@@ -1782,7 +1782,7 @@ static int net_check_prereq(proto_t protocol)
 	case TFTP:
 		if (NetServerIP == 0) {
 			puts("*** ERROR: `serverip' not set\n");
-			return (1);
+			return 1;
 		}
 #if	defined(CONFIG_CMD_PING) || defined(CONFIG_CMD_SNTP) || \
 	defined(CONFIG_CMD_DNS)
@@ -1793,7 +1793,7 @@ common:
 	case NETCONS:
 		if (NetOurIP == 0) {
 			puts("*** ERROR: `ipaddr' not set\n");
-			return (1);
+			return 1;
 		}
 		/* Fall through */
 
@@ -1811,7 +1811,7 @@ common:
 			switch (num) {
 			case -1:
 				puts("*** ERROR: No ethernet found.\n");
-				return (1);
+				return 1;
 			case 0:
 				puts("*** ERROR: `ethaddr' not set\n");
 				break;
@@ -1822,17 +1822,17 @@ common:
 			}
 
 			NetStartAgain();
-			return (2);
+			return 2;
 #else
 			puts("*** ERROR: `ethaddr' not set\n");
-			return (1);
+			return 1;
 #endif
 		}
 		/* Fall through */
 	default:
-		return (0);
+		return 0;
 	}
-	return (0);		/* OK */
+	return 0;		/* OK */
 }
 /**********************************************************************/
 
@@ -1854,7 +1854,7 @@ NetCksum(uchar *ptr, int len)
 		xsum += *p++;
 	xsum = (xsum & 0xffff) + (xsum >> 16);
 	xsum = (xsum & 0xffff) + (xsum >> 16);
-	return (xsum & 0xffff);
+	return xsum & 0xffff;
 }
 
 int
@@ -1998,5 +1998,5 @@ ushort string_to_VLAN(const char *s)
 
 ushort getenv_VLAN(char *var)
 {
-	return (string_to_VLAN(getenv(var)));
+	return string_to_VLAN(getenv(var));
 }
