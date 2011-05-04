@@ -34,7 +34,7 @@
 #define _CONFIG_SUEN3_H
 
 /* include common defines/options for all arm based Keymile boards */
-#include "km_arm.h"
+#include "km/km_arm.h"
 
 /*
  * Version number information

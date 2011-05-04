@@ -34,7 +34,7 @@
 	"netdev=eth2\0"		\
 
 /* include common defines/options for all 83xx Keymile boards */
-#include "km83xx-common.h"
+#include "km/km83xx-common.h"
 
 #define CONFIG_MISC_INIT_R
 /*

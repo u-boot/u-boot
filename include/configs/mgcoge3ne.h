@@ -37,8 +37,8 @@
 #define	CONFIG_SYS_TEXT_BASE	0xFE000000
 
 /* include common defines/options for all Keymile boards */
-#include "keymile-common.h"
-#include "km-powerpc.h"
+#include "km/keymile-common.h"
+#include "km/km-powerpc.h"
 
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
 #define CONFIG_SYS_FLASH_BASE		0xFE000000
@@ -88,7 +88,7 @@
 #define CONFIG_KM_BOARD_EXTRA_ENV	"bobcatreset=true\0"
 
 /* include further common stuff for all keymile 82xx boards */
-#include "km82xx-common.h"
+#include "km/km82xx-common.h"
 
 /* bfticu address */
 #define CONFIG_SYS_BFTICU_BASE          0x40000000

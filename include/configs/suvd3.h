@@ -30,7 +30,7 @@
 #define	CONFIG_SYS_TEXT_BASE	0xF0000000
 
 /* include common defines/options for all 8321 Keymile boards */
-#include "km8321-common.h"
+#include "km/km8321-common.h"
 
 #define CONFIG_SYS_APP1_BASE		0xA0000000
 #define	CONFIG_SYS_APP1_SIZE		256 /* Megabytes */

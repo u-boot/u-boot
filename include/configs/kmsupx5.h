@@ -36,7 +36,7 @@
 #define	CONFIG_SYS_TEXT_BASE	0xF0000000
 
 /* include common defines/options for all 8321 Keymile boards */
-#include "km8321-common.h"
+#include "km/km8321-common.h"
 
 /*
  * Init Local Bus Memory Controller:
