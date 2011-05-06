@@ -124,12 +124,11 @@ int board_init(void)
 }
 
 #ifdef CONFIG_RESET_PHY_R
-/* Configure and enable MV88E1116 PHY */
-void reset_phy(void)
+/* Configure and enable MV88E1116/88E1121 PHY */
+void mv_phy_init(char *name)
 {
 	u16 reg;
 	u16 devadr;
-	char *name = "egiga0";
 
 	if (miiphy_set_current_dev(name))
 		return;
@@ -154,6 +153,24 @@ void reset_phy(void)
 	/* reset the phy */
 	miiphy_reset(name, devadr);
 
-	printf("88E1116 Initialized on %s\n", name);
+	printf(PHY_NO" Initialized on %s\n", name);
+}
+
+void reset_phy(void)
+{
+	mv_phy_init("egiga0");
+
+#ifdef CONFIG_BOARD_IS_OPENRD_CLIENT
+	/* Kirkwood ethernet driver is written with the assumption that in case
+	 * of multiple PHYs, their addresses are consecutive. But unfortunately
+	 * in case of OpenRD-Client, PHY addresses are not consecutive.*/
+	miiphy_write("egiga1", 0xEE, 0xEE, 24);
+#endif
+
+#if defined(CONFIG_BOARD_IS_OPENRD_CLIENT) || \
+	defined(CONFIG_BOARD_IS_OPENRD_ULTIMATE)
+	/* configure and initialize both PHY's */
+	mv_phy_init("egiga1");
+#endif
 }
 #endif /* CONFIG_RESET_PHY_R */
