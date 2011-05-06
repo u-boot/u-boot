@@ -27,8 +27,8 @@
  * MA 02110-1301 USA
  */
 
-#ifndef _CONFIG_OPENRD_BASE_H
-#define _CONFIG_OPENRD_BASE_H
+#ifndef _CONFIG_OPENRD_H
+#define _CONFIG_OPENRD_H
 
 /*
  * Version number information

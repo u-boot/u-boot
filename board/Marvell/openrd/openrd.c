@@ -31,7 +31,7 @@
 #include <miiphy.h>
 #include <asm/arch/kirkwood.h>
 #include <asm/arch/mpp.h>
-#include "openrd_base.h"
+#include "openrd.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
