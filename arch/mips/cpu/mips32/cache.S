@@ -51,75 +51,6 @@
 	.set	pop
 	.endm
 
-/*
- * cacheop macro to automate cache operations
- * first some helpers...
- */
-#define _mincache(size, maxsize) \
-   bltu  size,maxsize,9f ; \
-   move  size,maxsize ;    \
-9:
-
-#define _align(minaddr, maxaddr, linesize) \
-   .set noat ; \
-   subu  AT,linesize,1 ;   \
-   not   AT ;        \
-   and   minaddr,AT ;      \
-   addu  maxaddr,-1 ;      \
-   and   maxaddr,AT ;      \
-   .set at
-
-/* general operations */
-#define doop1(op1) \
-   cache op1,0(a0)
-#define doop2(op1, op2) \
-   cache op1,0(a0) ;    \
-   nop ;          \
-   cache op2,0(a0)
-
-/* specials for cache initialisation */
-#define doop1lw(op1) \
-   lw zero,0(a0)
-#define doop1lw1(op1) \
-   cache op1,0(a0) ;    \
-   lw zero,0(a0) ;      \
-   cache op1,0(a0)
-#define doop121(op1,op2) \
-   cache op1,0(a0) ;    \
-   nop;           \
-   cache op2,0(a0) ;    \
-   nop;           \
-   cache op1,0(a0)
-
-#define _oploopn(minaddr, maxaddr, linesize, tag, ops) \
-   .set  noreorder ;    \
-10:   doop##tag##ops ;  \
-   bne     minaddr,maxaddr,10b ; \
-   add      minaddr,linesize ;   \
-   .set  reorder
-
-/* finally the cache operation macros */
-#define vcacheopn(kva, n, cacheSize, cacheLineSize, tag, ops) \
-   blez  n,11f ;        \
-   addu  n,kva ;        \
-   _align(kva, n, cacheLineSize) ; \
-   _oploopn(kva, n, cacheLineSize, tag, ops) ; \
-11:
-
-#define icacheopn(kva, n, cacheSize, cacheLineSize, tag, ops) \
-   _mincache(n, cacheSize);   \
-   blez  n,11f ;        \
-   addu  n,kva ;        \
-   _align(kva, n, cacheLineSize) ; \
-   _oploopn(kva, n, cacheLineSize, tag, ops) ; \
-11:
-
-#define vcacheop(kva, n, cacheSize, cacheLineSize, op) \
-   vcacheopn(kva, n, cacheSize, cacheLineSize, 1, (op))
-
-#define icacheop(kva, n, cacheSize, cacheLineSize, op) \
-   icacheopn(kva, n, cacheSize, cacheLineSize, 1, (op))
-
 	.macro	f_fill64 dst, offset, val
 	LONG_S	\val, (\offset +  0 * LONGSIZE)(\dst)
 	LONG_S	\val, (\offset +  1 * LONGSIZE)(\dst)
@@ -302,27 +233,3 @@ LEAF(dcache_enable)
 	mtc0	t0, CP0_CONFIG
 	jr	ra
 	END(dcache_enable)
-
-#ifdef CONFIG_SYS_INIT_RAM_LOCK_MIPS
-/*******************************************************************************
-*
-* mips_cache_lock - lock RAM area pointed to by a0 in cache.
-*
-* RETURNS: N/A
-*
-*/
-# define	CACHE_LOCK_SIZE	(CONFIG_SYS_DCACHE_SIZE)
-	.globl	mips_cache_lock
-	.ent	mips_cache_lock
-mips_cache_lock:
-	li	a1, CKSEG0 - CACHE_LOCK_SIZE
-	addu	a0, a1
-	li	a2, CACHE_LOCK_SIZE
-	li	a3, CONFIG_SYS_CACHELINE_SIZE
-	move	a1, a2
-	icacheop(a0,a1,a2,a3,0x1d)
-
-	jr	ra
-
-	.end	mips_cache_lock
-#endif /* CONFIG_SYS_INIT_RAM_LOCK_MIPS */

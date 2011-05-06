@@ -252,13 +252,6 @@ reset:
 
 	/* Set up temporary stack.
 	 */
-#ifdef CONFIG_SYS_INIT_RAM_LOCK_MIPS
-	li	a0, CONFIG_SYS_INIT_SP_OFFSET
-	la	t9, mips_cache_lock
-	jalr	t9
-	nop
-#endif
-
 	li	t0, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
 	la	sp, 0(t0)
 
