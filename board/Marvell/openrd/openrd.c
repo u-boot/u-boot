@@ -110,7 +110,13 @@ int board_init(void)
 	/*
 	 * arch number of board
 	 */
+#if defined(CONFIG_BOARD_IS_OPENRD_BASE)
 	gd->bd->bi_arch_number = MACH_TYPE_OPENRD_BASE;
+#elif defined(CONFIG_BOARD_IS_OPENRD_CLIENT)
+	gd->bd->bi_arch_number = MACH_TYPE_OPENRD_CLIENT;
+#elif defined(CONFIG_BOARD_IS_OPENRD_ULTIMATE)
+	gd->bd->bi_arch_number = MACH_TYPE_OPENRD_ULTIMATE;
+#endif
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;

@@ -33,7 +33,19 @@
 /*
  * Version number information
  */
-#define CONFIG_IDENT_STRING	"\nOpenRD_base"
+#ifdef CONFIG_BOARD_IS_OPENRD_ULTIMATE
+# define CONFIG_IDENT_STRING	"\nOpenRD-Ultimate"
+#else
+# ifdef CONFIG_BOARD_IS_OPENRD_CLIENT
+#  define CONFIG_IDENT_STRING	"\nOpenRD-Client"
+# else
+#  ifdef CONFIG_BOARD_IS_OPENRD_BASE
+#   define CONFIG_IDENT_STRING	"\nOpenRD-Base"
+#  else
+#   error Unknown OpenRD board specified
+#  endif
+# endif
+#endif
 
 /*
  * High Level Configuration Options (easy to change)
