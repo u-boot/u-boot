@@ -76,8 +76,8 @@
  * mips_init_icache(uint PRId, ulong icache_size, unchar icache_linesz)
  */
 LEAF(mips_init_icache)
-	blez	a1, 9f
-	mtc0	zero, CP0_TAGLO
+	blez		a1, 9f
+	mtc0		zero, CP0_TAGLO
 	/* clear tag to invalidate */
 	PTR_LI		t0, INDEX_BASE
 	PTR_ADDU	t1, t0, a1
@@ -94,15 +94,15 @@ LEAF(mips_init_icache)
 1:	cache_op	Index_Store_Tag_I t0
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 1b
-9:	jr	ra
+9:	jr		ra
 	END(mips_init_icache)
 
 /*
  * mips_init_dcache(uint PRId, ulong dcache_size, unchar dcache_linesz)
  */
 LEAF(mips_init_dcache)
-	blez	a1, 9f
-	mtc0	zero, CP0_TAGLO
+	blez		a1, 9f
+	mtc0		zero, CP0_TAGLO
 	/* clear all tags */
 	PTR_LI		t0, INDEX_BASE
 	PTR_ADDU	t1, t0, a1
@@ -119,25 +119,23 @@ LEAF(mips_init_dcache)
 1:	cache_op	Index_Store_Tag_D t0
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 1b
-9:	jr	ra
+9:	jr		ra
 	END(mips_init_dcache)
 
-/*******************************************************************************
-*
-* mips_cache_reset - low level initialisation of the primary caches
-*
-* This routine initialises the primary caches to ensure that they
-* have good parity.  It must be called by the ROM before any cached locations
-* are used to prevent the possibility of data with bad parity being written to
-* memory.
-* To initialise the instruction cache it is essential that a source of data
-* with good parity is available. This routine
-* will initialise an area of memory starting at location zero to be used as
-* a source of parity.
-*
-* RETURNS: N/A
-*
-*/
+/*
+ * mips_cache_reset - low level initialisation of the primary caches
+ *
+ * This routine initialises the primary caches to ensure that they have good
+ * parity.  It must be called by the ROM before any cached locations are used
+ * to prevent the possibility of data with bad parity being written to memory.
+ *
+ * To initialise the instruction cache it is essential that a source of data
+ * with good parity is available. This routine will initialise an area of
+ * memory starting at location zero to be used as a source of parity.
+ *
+ * RETURNS: N/A
+ *
+ */
 NESTED(mips_cache_reset, 0, ra)
 	move	RA, ra
 	li	t2, CONFIG_SYS_ICACHE_SIZE
@@ -185,13 +183,12 @@ NESTED(mips_cache_reset, 0, ra)
 	jr	RA
 	END(mips_cache_reset)
 
-/*******************************************************************************
-*
-* dcache_status - get cache status
-*
-* RETURNS: 0 - cache disabled; 1 - cache enabled
-*
-*/
+/*
+ * dcache_status - get cache status
+ *
+ * RETURNS: 0 - cache disabled; 1 - cache enabled
+ *
+ */
 LEAF(dcache_status)
 	mfc0	t0, CP0_CONFIG
 	li	t1, CONF_CM_UNCACHED
@@ -202,13 +199,12 @@ LEAF(dcache_status)
 2:	jr	ra
 	END(dcache_status)
 
-/*******************************************************************************
-*
-* dcache_disable - disable cache
-*
-* RETURNS: N/A
-*
-*/
+/*
+ * dcache_disable - disable cache
+ *
+ * RETURNS: N/A
+ *
+ */
 LEAF(dcache_disable)
 	mfc0	t0, CP0_CONFIG
 	li	t1, -8
@@ -218,13 +214,12 @@ LEAF(dcache_disable)
 	jr	ra
 	END(dcache_disable)
 
-/*******************************************************************************
-*
-* dcache_enable - enable cache
-*
-* RETURNS: N/A
-*
-*/
+/*
+ * dcache_enable - enable cache
+ *
+ * RETURNS: N/A
+ *
+ */
 LEAF(dcache_enable)
 	mfc0	t0, CP0_CONFIG
 	ori	t0, CONF_CM_CMASK

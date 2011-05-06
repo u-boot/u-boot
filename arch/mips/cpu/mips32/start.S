@@ -62,11 +62,11 @@
 	.globl _start
 	.text
 _start:
-	RVECENT(reset,0)	/* U-boot entry point */
-	RVECENT(reset,1)	/* software reboot */
-#if defined(CONFIG_INCA_IP)
-	.word INFINEON_EBU_BOOTCFG /* EBU init code, fetched during booting */
-	.word 0x00000000           /* phase of the flash                    */
+	RVECENT(reset,0)			# U-boot entry point
+	RVECENT(reset,1)			# software reboot
+#ifdef CONFIG_INCA_IP
+	.word INFINEON_EBU_BOOTCFG		# EBU init code, fetched during
+	.word 0x00000000			# booting phase of the flash
 #else
 	RVECENT(romReserved,2)
 #endif
@@ -131,7 +131,7 @@ _start:
 	RVECENT(romReserved,61)
 	RVECENT(romReserved,62)
 	RVECENT(romReserved,63)
-	XVECENT(romExcHandle,0x200)	/* bfc00200: R4000 tlbmiss vector */
+	XVECENT(romExcHandle,0x200)	# bfc00200: R4000 tlbmiss vector
 	RVECENT(romReserved,65)
 	RVECENT(romReserved,66)
 	RVECENT(romReserved,67)
@@ -147,7 +147,7 @@ _start:
 	RVECENT(romReserved,77)
 	RVECENT(romReserved,78)
 	RVECENT(romReserved,79)
-	XVECENT(romExcHandle,0x280)	/* bfc00280: R4000 xtlbmiss vector */
+	XVECENT(romExcHandle,0x280)	# bfc00280: R4000 xtlbmiss vector
 	RVECENT(romReserved,81)
 	RVECENT(romReserved,82)
 	RVECENT(romReserved,83)
@@ -163,7 +163,7 @@ _start:
 	RVECENT(romReserved,93)
 	RVECENT(romReserved,94)
 	RVECENT(romReserved,95)
-	XVECENT(romExcHandle,0x300)	/* bfc00300: R4000 cache vector */
+	XVECENT(romExcHandle,0x300)	# bfc00300: R4000 cache vector
 	RVECENT(romReserved,97)
 	RVECENT(romReserved,98)
 	RVECENT(romReserved,99)
@@ -179,7 +179,7 @@ _start:
 	RVECENT(romReserved,109)
 	RVECENT(romReserved,110)
 	RVECENT(romReserved,111)
-	XVECENT(romExcHandle,0x380)	/* bfc00380: R4000 general vector */
+	XVECENT(romExcHandle,0x380)	# bfc00380: R4000 general vector
 	RVECENT(romReserved,113)
 	RVECENT(romReserved,114)
 	RVECENT(romReserved,115)
@@ -196,19 +196,19 @@ _start:
 	RVECENT(romReserved,126)
 	RVECENT(romReserved,127)
 
-	/* We hope there are no more reserved vectors!
+	/*
+	 * We hope there are no more reserved vectors!
 	 * 128 * 8 == 1024 == 0x400
 	 * so this is address R_VEC+0x400 == 0xbfc00400
 	 */
 	.align 4
 reset:
 
-	/* Clear watch registers.
-	 */
+	/* Clear watch registers */
 	mtc0	zero, CP0_WATCHLO
 	mtc0	zero, CP0_WATCHHI
 
-	/* WP(Watch Pending), SW0/1 should be cleared. */
+	/* WP(Watch Pending), SW0/1 should be cleared */
 	mtc0	zero, CP0_CAUSE
 
 	setup_c0_status_reset
@@ -217,47 +217,42 @@ reset:
 	mtc0	zero, CP0_COUNT
 	mtc0	zero, CP0_COMPARE
 
-#if !defined(CONFIG_SKIP_LOWLEVEL_INIT)
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 	/* CONFIG0 register */
 	li	t0, CONF_CM_UNCACHED
 	mtc0	t0, CP0_CONFIG
-#endif /* !CONFIG_SKIP_LOWLEVEL_INIT */
+#endif
 
-	/* Initialize $gp.
-	 */
+	/* Initialize $gp */
 	bal	1f
-	nop
+	 nop
 	.word	_gp
 1:
 	lw	gp, 0(ra)
 
-#if !defined(CONFIG_SKIP_LOWLEVEL_INIT)
-	/* Initialize any external memory.
-	 */
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
+	/* Initialize any external memory */
 	la	t9, lowlevel_init
 	jalr	t9
-	nop
+	 nop
 
-	/* Initialize caches...
-	 */
+	/* Initialize caches... */
 	la	t9, mips_cache_reset
 	jalr	t9
-	nop
+	 nop
 
-	/* ... and enable them.
-	 */
+	/* ... and enable them */
 	li	t0, CONF_CM_CACHABLE_NONCOHERENT
 	mtc0	t0, CP0_CONFIG
-#endif /* !CONFIG_SKIP_LOWLEVEL_INIT */
+#endif
 
-	/* Set up temporary stack.
-	 */
+	/* Set up temporary stack */
 	li	t0, CONFIG_SYS_SDRAM_BASE + CONFIG_SYS_INIT_SP_OFFSET
 	la	sp, 0(t0)
 
 	la	t9, board_init_f
 	jr	t9
-	nop
+	 nop
 
 /*
  * void relocate_code (addr_sp, gd, addr_moni)
@@ -272,13 +267,13 @@ reset:
 	.globl	relocate_code
 	.ent	relocate_code
 relocate_code:
-	move	sp, a0		/* Set new stack pointer	*/
+	move	sp, a0			# set new stack pointer
 
 	li	t0, CONFIG_SYS_MONITOR_BASE
 	la	t3, in_ram
-	lw	t2, -12(t3)	/* t2 <-- uboot_end_data	*/
+	lw	t2, -12(t3)		# t2 <-- uboot_end_data
 	move	t1, a2
-	move	s2, a2		/* s2 <-- destination address	*/
+	move	s2, a2			# s2 <-- destination address
 
 	/*
 	 * Fix $gp:
@@ -287,8 +282,8 @@ relocate_code:
 	 */
 	move	t6, gp
 	sub	gp, CONFIG_SYS_MONITOR_BASE
-	add	gp, a2		/* gp now adjusted		*/
-	sub	s1, gp, t6	/* s1 <-- relocation offset	*/
+	add	gp, a2			# gp now adjusted
+	sub	s1, gp, t6		# s1 <-- relocation offset
 
 	/*
 	 * t0 = source address
@@ -299,30 +294,28 @@ relocate_code:
 	/*
 	 * Save destination address and size for later usage in flush_cache()
 	 */
-	move	s0, a1		/* save gd in s0		*/
-	move	a0, t1		/* a0 <-- destination addr	*/
-	sub	a1, t2, t0	/* a1 <-- size			*/
+	move	s0, a1			# save gd in s0
+	move	a0, t1			# a0 <-- destination addr
+	sub	a1, t2, t0		# a1 <-- size
 
 1:
 	lw	t3, 0(t0)
 	sw	t3, 0(t1)
 	addu	t0, 4
 	ble	t0, t2, 1b
-	addu	t1, 4		/* delay slot			*/
+	 addu	t1, 4
 
-	/* If caches were enabled, we would have to flush them here.
-	 */
+	/* If caches were enabled, we would have to flush them here. */
 
 	/* a0 & a1 are already set up for flush_cache(start, size) */
 	la	t9, flush_cache
 	jalr	t9
-	nop
+	 nop
 
-	/* Jump to where we've relocated ourselves.
-	 */
+	/* Jump to where we've relocated ourselves */
 	addi	t0, s2, in_ram - _start
 	jr	t0
-	nop
+	 nop
 
 	.word	_gp
 	.word	_GLOBAL_OFFSET_TABLE_
@@ -337,45 +330,43 @@ in_ram:
 	 * GOT[0] is reserved. GOT[1] is also reserved for the dynamic object
 	 * generated by GNU ld. Skip these reserved entries from relocation.
 	 */
-	lw	t3, -4(t0)	/* t3 <-- num_got_entries	*/
-	lw	t4, -16(t0)	/* t4 <-- _GLOBAL_OFFSET_TABLE_	*/
-	lw	t5, -20(t0)	/* t5 <-- _gp	*/
-	sub	t4, t5		/* compute offset*/
-	add	t4, t4, gp	/* t4 now holds relocated _GLOBAL_OFFSET_TABLE_	*/
-	addi	t4, t4, 8	/* Skipping first two entries.	*/
+	lw	t3, -4(t0)		# t3 <-- num_got_entries
+	lw	t4, -16(t0)		# t4 <-- _GLOBAL_OFFSET_TABLE_
+	lw	t5, -20(t0)		# t5 <-- _gp
+	sub	t4, t5			# compute offset
+	add	t4, t4, gp		# t4 now holds relocated _G_O_T_
+	addi	t4, t4, 8		# skipping first two entries
 	li	t2, 2
 1:
 	lw	t1, 0(t4)
 	beqz	t1, 2f
-	add	t1, s1
+	 add	t1, s1
 	sw	t1, 0(t4)
 2:
 	addi	t2, 1
 	blt	t2, t3, 1b
-	addi	t4, 4		/* delay slot			*/
+	 addi	t4, 4
 
-	/* Clear BSS.
-	 */
-	lw	t1, -12(t0)	/* t1 <-- uboot_end_data	*/
-	lw	t2, -8(t0)	/* t2 <-- uboot_end		*/
-	add	t1, s1		/* adjust pointers		*/
+	/* Clear BSS */
+	lw	t1, -12(t0)		# t1 <-- uboot_end_data
+	lw	t2, -8(t0)		# t2 <-- uboot_end
+	add	t1, s1			# adjust pointers
 	add	t2, s1
 
 	sub	t1, 4
 1:
 	addi	t1, 4
 	bltl	t1, t2, 1b
-	sw	zero, 0(t1)	/* delay slot			*/
+	 sw	zero, 0(t1)
 
-	move	a0, s0		/* a0 <-- gd			*/
+	move	a0, s0			# a0 <-- gd
 	la	t9, board_init_r
 	jr	t9
-	move	a1, s2		/* delay slot			*/
+	 move	a1, s2
 
 	.end	relocate_code
 
-	/* Exception handlers.
-	 */
+	/* Exception handlers */
 romReserved:
 	b	romReserved
 
