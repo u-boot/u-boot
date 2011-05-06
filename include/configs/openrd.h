@@ -60,6 +60,7 @@
  * Commands configuration
  */
 #define CONFIG_SYS_NO_FLASH		/* Declare no flash (NOR/SPI) */
+#define CONFIG_SYS_MVFS
 #include <config_cmd_default.h>
 #define CONFIG_CMD_AUTOSCRIPT
 #define CONFIG_CMD_DHCP
