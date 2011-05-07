@@ -1101,7 +1101,7 @@ clean:
 	       $(obj)examples/standalone/interrupt			  \
 	       $(obj)examples/standalone/mem_to_mem_idma2intr		  \
 	       $(obj)examples/standalone/sched				  \
-	       $(obj)examples/standalone/smc91111_eeprom		  \
+	       $(obj)examples/standalone/smc911{11,x}_eeprom		  \
 	       $(obj)examples/standalone/test_burst			  \
 	       $(obj)examples/standalone/timer
 	@rm -f $(obj)examples/api/demo{,.bin}
