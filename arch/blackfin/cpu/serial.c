@@ -142,7 +142,7 @@ static int uart_getc(uint32_t uart_base)
 		printf("\tDLL=0x%x DLH=0x%x\n", dll, dlh);
 		do {
 			--cache_count;
-			printf("\t%3i: RBR=0x%02x LSR=0x%02x\n", cache_count,
+			printf("\t%3zu: RBR=0x%02x LSR=0x%02x\n", cache_count,
 				cached_rbr[cache_count], cached_lsr[cache_count]);
 		} while (cache_count > 0);
 		return -1;
