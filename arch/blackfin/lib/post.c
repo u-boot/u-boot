@@ -1,69 +1,66 @@
 /*
- * BF537-STAMP POST code
+ * Blackfin POST code
  *
- * Enter bugs at http://blackfin.uclinux.org/
- *
- * Copyright (c) 2005-2009 Analog Devices Inc.
+ * Copyright (c) 2005-2011 Analog Devices Inc.
  *
  * Licensed under the GPL-2 or later.
  */
 
 #include <common.h>
 #include <config.h>
-#include <command.h>
-#include <asm/blackfin.h>
+#include <post.h>
+
 #include <asm/gpio.h>
 
-/****************************************************
- * LED1 ---- PF6	LED2 ---- PF7		    *
- * LED3 ---- PF8	LED4 ---- PF9		    *
- * LED5 ---- PF10	LED6 ---- PF11		    *
- ****************************************************/
+#if CONFIG_POST & CONFIG_SYS_POST_BSPEC1
 int led_post_test(int flags)
 {
-	unsigned int leds[] = {
-		GPIO_PF6, GPIO_PF7, GPIO_PF8,
-		GPIO_PF9, GPIO_PF10, GPIO_PF11,
-	};
+	unsigned leds[] = { CONFIG_POST_BSPEC1_GPIO_LEDS };
 	int i;
 
+	/* First turn them all off */
 	for (i = 0; i < ARRAY_SIZE(leds); ++i) {
-		gpio_request(leds[i], "post");
+		if (gpio_request(leds[i], "post")) {
+			printf("could not request gpio %u\n", leds[i]);
+			continue;
+		}
 		gpio_direction_output(leds[i], 0);
+	}
 
+	/* Now turn them on one by one */
+	for (i = 0; i < ARRAY_SIZE(leds); ++i) {
 		printf("LED%i on", i + 1);
 		gpio_set_value(leds[i], 1);
 		udelay(1000000);
 		printf("\b\b\b\b\b\b\b");
-
 		gpio_free(leds[i]);
 	}
 
 	return 0;
 }
+#endif
 
-/************************************************
- *  SW10 ---- PF5	SW11 ---- PF4		*
- *  SW12 ---- PF3	SW13 ---- PF2		*
- ************************************************/
+#if CONFIG_POST & CONFIG_SYS_POST_BSPEC2
 int button_post_test(int flags)
 {
-	unsigned int buttons[] = {
-		GPIO_PF2, GPIO_PF3, GPIO_PF4, GPIO_PF5,
-	};
-	unsigned int sws[] = { 13, 12, 11, 10, };
+	unsigned buttons[] = { CONFIG_POST_BSPEC2_GPIO_BUTTONS };
+	unsigned int sws[] = { CONFIG_POST_BSPEC2_GPIO_NAMES };
 	int i, delay = 5;
 	unsigned short value = 0;
 	int result = 0;
 
 	for (i = 0; i < ARRAY_SIZE(buttons); ++i) {
-		gpio_request(buttons[i], "post");
+		if (gpio_request(buttons[i], "post")) {
+			printf("could not request gpio %u\n", buttons[i]);
+			continue;
+		}
 		gpio_direction_input(buttons[i]);
 
 		delay = 5;
 		printf("\n--------Press SW%i: %2d ", sws[i], delay);
 		while (delay--) {
-			for (i = 0; i < 100; i++) {
+			int j;
+			for (j = 0; j < 100; j++) {
 				value = gpio_get_value(buttons[i]);
 				if (value != 0)
 					break;
@@ -85,3 +82,4 @@ int button_post_test(int flags)
 
 	return result;
 }
+#endif
