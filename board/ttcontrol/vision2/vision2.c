@@ -45,9 +45,6 @@ static u32 system_rev;
 
 extern int mx51_fb_init(struct fb_videomode *mode);
 
-#ifdef CONFIG_HW_WATCHDOG
-#include <watchdog.h>
-
 static struct fb_videomode nec_nl6448bc26_09c = {
 	"NEC_NL6448BC26-09C",
 	60,	/* Refresh */
@@ -65,6 +62,8 @@ static struct fb_videomode nec_nl6448bc26_09c = {
 	0,	/* flag */
 };
 
+#ifdef CONFIG_HW_WATCHDOG
+#include <watchdog.h>
 void hw_watchdog_reset(void)
 {
 	int val;
