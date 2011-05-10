@@ -51,6 +51,10 @@ int serial_init(void)
 void serial_putc(char c)
 {
 	while ((xdfuart_readl(SR) & XDFUART_SR_TXFULL) != 0);
+	if (c == '\n') {
+		xdfuart_writel(FIFO,'\r');
+		while ((xdfuart_readl(SR) & XDFUART_SR_TXFULL) != 0);
+	}
 	xdfuart_writel(FIFO,c);
 }
 
