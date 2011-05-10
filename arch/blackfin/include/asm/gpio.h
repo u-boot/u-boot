@@ -142,8 +142,10 @@ struct gpio_port_t {
 
 #ifdef CONFIG_BFIN_GPIO_TRACK
 void bfin_gpio_labels(void);
+void bfin_gpio_free(unsigned gpio);
 #else
 #define bfin_gpio_labels()
+#define bfin_gpio_free(gpio)
 #define bfin_gpio_request(gpio, label) bfin_gpio_request(gpio)
 #define bfin_special_gpio_request(gpio, label) bfin_special_gpio_request(gpio)
 #endif
@@ -154,7 +156,6 @@ int bfin_special_gpio_request(unsigned gpio, const char *label);
 #endif
 
 int bfin_gpio_request(unsigned gpio, const char *label);
-void bfin_gpio_free(unsigned gpio);
 int bfin_gpio_direction_input(unsigned gpio);
 int bfin_gpio_direction_output(unsigned gpio, int value);
 int bfin_gpio_get_value(unsigned gpio);
