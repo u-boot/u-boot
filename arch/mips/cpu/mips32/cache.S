@@ -51,75 +51,6 @@
 	.set	pop
 	.endm
 
-/*
- * cacheop macro to automate cache operations
- * first some helpers...
- */
-#define _mincache(size, maxsize) \
-   bltu  size,maxsize,9f ; \
-   move  size,maxsize ;    \
-9:
-
-#define _align(minaddr, maxaddr, linesize) \
-   .set noat ; \
-   subu  AT,linesize,1 ;   \
-   not   AT ;        \
-   and   minaddr,AT ;      \
-   addu  maxaddr,-1 ;      \
-   and   maxaddr,AT ;      \
-   .set at
-
-/* general operations */
-#define doop1(op1) \
-   cache op1,0(a0)
-#define doop2(op1, op2) \
-   cache op1,0(a0) ;    \
-   nop ;          \
-   cache op2,0(a0)
-
-/* specials for cache initialisation */
-#define doop1lw(op1) \
-   lw zero,0(a0)
-#define doop1lw1(op1) \
-   cache op1,0(a0) ;    \
-   lw zero,0(a0) ;      \
-   cache op1,0(a0)
-#define doop121(op1,op2) \
-   cache op1,0(a0) ;    \
-   nop;           \
-   cache op2,0(a0) ;    \
-   nop;           \
-   cache op1,0(a0)
-
-#define _oploopn(minaddr, maxaddr, linesize, tag, ops) \
-   .set  noreorder ;    \
-10:   doop##tag##ops ;  \
-   bne     minaddr,maxaddr,10b ; \
-   add      minaddr,linesize ;   \
-   .set  reorder
-
-/* finally the cache operation macros */
-#define vcacheopn(kva, n, cacheSize, cacheLineSize, tag, ops) \
-   blez  n,11f ;        \
-   addu  n,kva ;        \
-   _align(kva, n, cacheLineSize) ; \
-   _oploopn(kva, n, cacheLineSize, tag, ops) ; \
-11:
-
-#define icacheopn(kva, n, cacheSize, cacheLineSize, tag, ops) \
-   _mincache(n, cacheSize);   \
-   blez  n,11f ;        \
-   addu  n,kva ;        \
-   _align(kva, n, cacheLineSize) ; \
-   _oploopn(kva, n, cacheLineSize, tag, ops) ; \
-11:
-
-#define vcacheop(kva, n, cacheSize, cacheLineSize, op) \
-   vcacheopn(kva, n, cacheSize, cacheLineSize, 1, (op))
-
-#define icacheop(kva, n, cacheSize, cacheLineSize, op) \
-   icacheopn(kva, n, cacheSize, cacheLineSize, 1, (op))
-
 	.macro	f_fill64 dst, offset, val
 	LONG_S	\val, (\offset +  0 * LONGSIZE)(\dst)
 	LONG_S	\val, (\offset +  1 * LONGSIZE)(\dst)
@@ -145,8 +76,8 @@
  * mips_init_icache(uint PRId, ulong icache_size, unchar icache_linesz)
  */
 LEAF(mips_init_icache)
-	blez	a1, 9f
-	mtc0	zero, CP0_TAGLO
+	blez		a1, 9f
+	mtc0		zero, CP0_TAGLO
 	/* clear tag to invalidate */
 	PTR_LI		t0, INDEX_BASE
 	PTR_ADDU	t1, t0, a1
@@ -163,15 +94,15 @@ LEAF(mips_init_icache)
 1:	cache_op	Index_Store_Tag_I t0
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 1b
-9:	jr	ra
+9:	jr		ra
 	END(mips_init_icache)
 
 /*
  * mips_init_dcache(uint PRId, ulong dcache_size, unchar dcache_linesz)
  */
 LEAF(mips_init_dcache)
-	blez	a1, 9f
-	mtc0	zero, CP0_TAGLO
+	blez		a1, 9f
+	mtc0		zero, CP0_TAGLO
 	/* clear all tags */
 	PTR_LI		t0, INDEX_BASE
 	PTR_ADDU	t1, t0, a1
@@ -188,25 +119,23 @@ LEAF(mips_init_dcache)
 1:	cache_op	Index_Store_Tag_D t0
 	PTR_ADDU	t0, a2
 	bne		t0, t1, 1b
-9:	jr	ra
+9:	jr		ra
 	END(mips_init_dcache)
 
-/*******************************************************************************
-*
-* mips_cache_reset - low level initialisation of the primary caches
-*
-* This routine initialises the primary caches to ensure that they
-* have good parity.  It must be called by the ROM before any cached locations
-* are used to prevent the possibility of data with bad parity being written to
-* memory.
-* To initialise the instruction cache it is essential that a source of data
-* with good parity is available. This routine
-* will initialise an area of memory starting at location zero to be used as
-* a source of parity.
-*
-* RETURNS: N/A
-*
-*/
+/*
+ * mips_cache_reset - low level initialisation of the primary caches
+ *
+ * This routine initialises the primary caches to ensure that they have good
+ * parity.  It must be called by the ROM before any cached locations are used
+ * to prevent the possibility of data with bad parity being written to memory.
+ *
+ * To initialise the instruction cache it is essential that a source of data
+ * with good parity is available. This routine will initialise an area of
+ * memory starting at location zero to be used as a source of parity.
+ *
+ * RETURNS: N/A
+ *
+ */
 NESTED(mips_cache_reset, 0, ra)
 	move	RA, ra
 	li	t2, CONFIG_SYS_ICACHE_SIZE
@@ -254,13 +183,12 @@ NESTED(mips_cache_reset, 0, ra)
 	jr	RA
 	END(mips_cache_reset)
 
-/*******************************************************************************
-*
-* dcache_status - get cache status
-*
-* RETURNS: 0 - cache disabled; 1 - cache enabled
-*
-*/
+/*
+ * dcache_status - get cache status
+ *
+ * RETURNS: 0 - cache disabled; 1 - cache enabled
+ *
+ */
 LEAF(dcache_status)
 	mfc0	t0, CP0_CONFIG
 	li	t1, CONF_CM_UNCACHED
@@ -271,13 +199,12 @@ LEAF(dcache_status)
 2:	jr	ra
 	END(dcache_status)
 
-/*******************************************************************************
-*
-* dcache_disable - disable cache
-*
-* RETURNS: N/A
-*
-*/
+/*
+ * dcache_disable - disable cache
+ *
+ * RETURNS: N/A
+ *
+ */
 LEAF(dcache_disable)
 	mfc0	t0, CP0_CONFIG
 	li	t1, -8
@@ -287,13 +214,12 @@ LEAF(dcache_disable)
 	jr	ra
 	END(dcache_disable)
 
-/*******************************************************************************
-*
-* dcache_enable - enable cache
-*
-* RETURNS: N/A
-*
-*/
+/*
+ * dcache_enable - enable cache
+ *
+ * RETURNS: N/A
+ *
+ */
 LEAF(dcache_enable)
 	mfc0	t0, CP0_CONFIG
 	ori	t0, CONF_CM_CMASK
@@ -302,27 +228,3 @@ LEAF(dcache_enable)
 	mtc0	t0, CP0_CONFIG
 	jr	ra
 	END(dcache_enable)
-
-#ifdef CONFIG_SYS_INIT_RAM_LOCK_MIPS
-/*******************************************************************************
-*
-* mips_cache_lock - lock RAM area pointed to by a0 in cache.
-*
-* RETURNS: N/A
-*
-*/
-# define	CACHE_LOCK_SIZE	(CONFIG_SYS_DCACHE_SIZE)
-	.globl	mips_cache_lock
-	.ent	mips_cache_lock
-mips_cache_lock:
-	li	a1, CKSEG0 - CACHE_LOCK_SIZE
-	addu	a0, a1
-	li	a2, CACHE_LOCK_SIZE
-	li	a3, CONFIG_SYS_CACHELINE_SIZE
-	move	a1, a2
-	icacheop(a0,a1,a2,a3,0x1d)
-
-	jr	ra
-
-	.end	mips_cache_lock
-#endif /* CONFIG_SYS_INIT_RAM_LOCK_MIPS */
