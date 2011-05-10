@@ -196,7 +196,7 @@ static void post_get_flags (int *test_flags)
 			 POST_CRITICAL };
 	char *var[] = { "post_poweron", "post_normal", "post_slowtest",
 			"post_critical" };
-	int varnum = sizeof (var) / sizeof (var[0]);
+	int varnum = ARRAY_SIZE(var);
 	char list[128];			/* long enough for POST list */
 	char *name;
 	char *s;

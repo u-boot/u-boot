@@ -75,8 +75,7 @@ static struct cpu_post_threei_s
 	0xffff8000
     },
 };
-static unsigned int cpu_post_threei_size =
-    sizeof (cpu_post_threei_table) / sizeof (struct cpu_post_threei_s);
+static unsigned int cpu_post_threei_size = ARRAY_SIZE(cpu_post_threei_table);
 
 int cpu_post_test_threei (void)
 {

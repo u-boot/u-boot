@@ -61,8 +61,7 @@ static struct cpu_post_srawi_s
 	0xf0000000
     },
 };
-static unsigned int cpu_post_srawi_size =
-    sizeof (cpu_post_srawi_table) / sizeof (struct cpu_post_srawi_s);
+static unsigned int cpu_post_srawi_size = ARRAY_SIZE(cpu_post_srawi_table);
 
 int cpu_post_test_srawi (void)
 {

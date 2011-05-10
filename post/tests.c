@@ -305,4 +305,4 @@ struct post_test post_list[] =
 #endif
 };
 
-unsigned int post_list_size = sizeof (post_list) / sizeof (struct post_test);
+unsigned int post_list_size = ARRAY_SIZE(post_list);

@@ -156,8 +156,7 @@ static struct {
 	{0x3f3,	"DBDR",		0x00000000,	0x00000000},
 };
 
-static int spr_test_list_size =
-		sizeof (spr_test_list) / sizeof (spr_test_list[0]);
+static int spr_test_list_size = ARRAY_SIZE(spr_test_list);
 
 int spr_post_test (int flags)
 {

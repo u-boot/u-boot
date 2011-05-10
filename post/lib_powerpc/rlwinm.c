@@ -59,8 +59,7 @@ static struct cpu_post_rlwinm_s
 	0x0000ff00
    },
 };
-static unsigned int cpu_post_rlwinm_size =
-    sizeof (cpu_post_rlwinm_table) / sizeof (struct cpu_post_rlwinm_s);
+static unsigned int cpu_post_rlwinm_size = ARRAY_SIZE(cpu_post_rlwinm_table);
 
 int cpu_post_test_rlwinm (void)
 {

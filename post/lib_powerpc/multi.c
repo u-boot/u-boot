@@ -57,7 +57,7 @@ int cpu_post_test_multi (void)
 	    ASM_BLR,
 	};
 
-	for (i = 0; i < sizeof(src) / sizeof(src[0]); i ++)
+	for (i = 0; i < ARRAY_SIZE(src); ++i)
 	{
 	    src[i] = i;
 	    dst[i] = 0;

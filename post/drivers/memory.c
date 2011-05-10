@@ -225,7 +225,7 @@ const unsigned long long otherpattern = 0x0123456789abcdefULL;
 static int memory_post_dataline(unsigned long long * pmem)
 {
 	unsigned long long temp64 = 0;
-	int num_patterns = sizeof(pattern)/ sizeof(pattern[0]);
+	int num_patterns = ARRAY_SIZE(pattern);
 	int i;
 	unsigned int hi, lo, pathi, patlo;
 	int ret = 0;
