@@ -356,7 +356,7 @@ static int kwbimage_verify_header (unsigned char *ptr, int image_size,
 
 	calc_exthdrcsum = kwbimage_checksum8 ((void *)exthdr,
 			sizeof(extbhr_t) - sizeof(uint8_t), 0);
-	if (calc_hdrcsum != mhdr->checkSum)
+	if (calc_exthdrcsum != exthdr->checkSum)
 		return -FDT_ERR_BADSTRUCTURE; /* exthdr csum not matched */
 
 	return 0;
