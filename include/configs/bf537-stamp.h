@@ -257,6 +257,7 @@
 /* Define if want to do post memory test */
 #undef CONFIG_POST
 #ifdef CONFIG_POST
+#define CONFIG_SYS_POST_HOTKEYS_GPIO	GPIO_PF5
 #define FLASH_START_POST_BLOCK	11	/* Should > = 11 */
 #define FLASH_END_POST_BLOCK	71	/* Should < = 71 */
 #endif

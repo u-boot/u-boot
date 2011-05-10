@@ -14,39 +14,6 @@
 #include <asm/blackfin.h>
 #include <asm/gpio.h>
 
-/* Using sw10-PF5 as the hotkey */
-int post_hotkeys_pressed(void)
-{
-	int delay = 3;
-	int i;
-	unsigned short value;
-
-	gpio_request(GPIO_PF5, "post");
-	gpio_direction_input(GPIO_PF5);
-
-	printf("########Press SW10 to enter Memory POST########: %2d ", delay);
-	while (delay--) {
-		for (i = 0; i < 100; i++) {
-			value = gpio_get_value(GPIO_PF5);
-			if (value != 0) {
-				break;
-			}
-			udelay(10000);
-		}
-		printf("\b\b\b%2d ", delay);
-	}
-	printf("\b\b\b 0");
-	printf("\n");
-	if (value == 0)
-		return 0;
-	else {
-		printf("Hotkey has been pressed, Enter POST . . . . . .\n");
-		return 1;
-	}
-
-	gpio_free(GPIO_PF5);
-}
-
 int uart_post_test(int flags)
 {
 	return 0;
