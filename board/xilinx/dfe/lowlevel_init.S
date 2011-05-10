@@ -137,7 +137,7 @@ doit:
 	str r2, [r1]
 
 	ldr r1, =(XPSS_DDR_CTRL_BASEADDR + 0x44)
-	ldr r2, =0x0FF33333
+	ldr r2, =0x0FF66666
 	str r2, [r1]
 #endif
 
