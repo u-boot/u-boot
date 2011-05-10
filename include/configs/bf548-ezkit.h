@@ -203,8 +203,8 @@
 	GPIO_PB8, GPIO_PB9, GPIO_PB10, GPIO_PB11
 #define CONFIG_POST_BSPEC2_GPIO_NAMES \
 	13, 12, 11, 10,
-#define FLASH_START_POST_BLOCK 11       /* Should > = 11 */
-#define FLASH_END_POST_BLOCK   71       /* Should < = 71 */
+#define CONFIG_SYS_POST_FLASH_START	10
+#define CONFIG_SYS_POST_FLASH_END	127
 #endif
 
 

@@ -264,8 +264,8 @@
 	GPIO_PF5, GPIO_PF4, GPIO_PF3, GPIO_PF2,
 #define CONFIG_POST_BSPEC2_GPIO_NAMES \
 	10, 11, 12, 13,
-#define FLASH_START_POST_BLOCK	11	/* Should > = 11 */
-#define FLASH_END_POST_BLOCK	71	/* Should < = 71 */
+#define CONFIG_SYS_POST_FLASH_START	11
+#define CONFIG_SYS_POST_FLASH_END	71
 #endif
 
 /* These are for board tests */
