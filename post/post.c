@@ -26,6 +26,10 @@
 #include <watchdog.h>
 #include <post.h>
 
+#ifdef CONFIG_SYS_POST_HOTKEYS_GPIO
+#include <asm/gpio.h>
+#endif
+
 #ifdef CONFIG_LOGBUFFER
 #include <logbuff.h>
 #endif
@@ -68,6 +72,23 @@ int post_init_f (void)
  */
 int __post_hotkeys_pressed(void)
 {
+#ifdef CONFIG_SYS_POST_HOTKEYS_GPIO
+	int ret;
+	unsigned gpio = CONFIG_SYS_POST_HOTKEYS_GPIO;
+
+	ret = gpio_request(gpio, "hotkeys");
+	if (ret) {
+		printf("POST: gpio hotkey request failed\n");
+		return 0;
+	}
+
+	gpio_direction_input(gpio);
+	ret = gpio_get_value(gpio);
+	gpio_free(gpio);
+
+	return ret;
+#endif
+
 	return 0;	/* No hotkeys supported */
 }
 int post_hotkeys_pressed(void)
