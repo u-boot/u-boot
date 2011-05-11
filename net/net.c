@@ -117,23 +117,23 @@ DECLARE_GLOBAL_DATA_PTR;
 /** BOOTP EXTENTIONS **/
 
 /* Our subnet mask (0=unknown) */
-IPaddr_t	NetOurSubnetMask=0;
+IPaddr_t	NetOurSubnetMask;
 /* Our gateways IP address */
-IPaddr_t	NetOurGatewayIP=0;
+IPaddr_t	NetOurGatewayIP;
 /* Our DNS IP address */
-IPaddr_t	NetOurDNSIP=0;
+IPaddr_t	NetOurDNSIP;
 #if defined(CONFIG_BOOTP_DNS2)
 /* Our 2nd DNS IP address */
-IPaddr_t	NetOurDNS2IP=0;
+IPaddr_t	NetOurDNS2IP;
 #endif
 /* Our NIS domain */
-char		NetOurNISDomain[32]={0,};
+char		NetOurNISDomain[32] = {0,};
 /* Our hostname */
-char		NetOurHostName[32]={0,};
+char		NetOurHostName[32] = {0,};
 /* Our bootpath */
-char		NetOurRootPath[64]={0,};
+char		NetOurRootPath[64] = {0,};
 /* Our bootfile size in blocks */
-ushort		NetBootFileSize=0;
+ushort		NetBootFileSize;
 
 #ifdef CONFIG_MCAST_TFTP	/* Multicast TFTP */
 IPaddr_t Mcast_addr;
@@ -146,8 +146,7 @@ ulong		NetBootFileXferSize;
 /* Our ethernet address */
 uchar		NetOurEther[6];
 /* Boot server enet address */
-uchar		NetServerEther[6] =
-			{ 0, 0, 0, 0, 0, 0 };
+uchar		NetServerEther[6];
 /* Our IP addr (0 = unknown) */
 IPaddr_t	NetOurIP;
 /* Server IP addr (0 = unknown) */
@@ -159,27 +158,24 @@ int		NetRxPacketLen;
 /* IP packet ID */
 unsigned	NetIPID;
 /* Ethernet bcast address */
-uchar		NetBcastAddr[6] =
-			{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
-uchar		NetEtherNullAddr[6] =
-			{ 0, 0, 0, 0, 0, 0 };
+uchar		NetBcastAddr[6] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+uchar		NetEtherNullAddr[6];
 #ifdef CONFIG_API
 void		(*push_packet)(volatile void *, int len) = 0;
 #endif
 #if defined(CONFIG_CMD_CDP)
 /* Ethernet bcast address */
-uchar		NetCDPAddr[6] =
-			{ 0x01, 0x00, 0x0c, 0xcc, 0xcc, 0xcc };
+uchar		NetCDPAddr[6] = { 0x01, 0x00, 0x0c, 0xcc, 0xcc, 0xcc };
 #endif
 /* Network loop state */
 int		NetState;
 #ifdef CONFIG_NET_MULTI
 /* Tried all network devices */
-int		NetRestartWrap = 0;
+int		NetRestartWrap;
 /* Network loop restarted */
-static int	NetRestarted = 0;
+static int	NetRestarted;
 /* At least one device configured */
-static int	NetDevExists = 0;
+static int	NetDevExists;
 #endif
 
 /* XXX in both little & big endian machines 0xFFFF == ntohs(-1) */
@@ -206,7 +202,7 @@ static void CDPStart(void);
 /* NTP server IP address */
 IPaddr_t	NetNtpServerIP;
 /* offset time from UTC */
-int		NetTimeOffset=0;
+int		NetTimeOffset;
 #endif
 
 #ifdef CONFIG_NETCONSOLE
@@ -228,7 +224,7 @@ static ulong	timeStart;
 /* Current timeout value */
 static ulong	timeDelta;
 /* THE transmit packet */
-volatile uchar *NetTxPacket = 0;
+volatile uchar *NetTxPacket;
 
 static int net_check_prereq (proto_t protocol);
 
@@ -319,7 +315,7 @@ void ArpTimeoutCheck(void)
 static void
 NetInitLoop(proto_t protocol)
 {
-	static int env_changed_id = 0;
+	static int env_changed_id;
 	bd_t *bd = gd->bd;
 	int env_id = get_env_id ();
 
