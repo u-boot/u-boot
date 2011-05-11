@@ -33,7 +33,9 @@
 
 /* SATA port registers */
 struct mvsata_port_registers {
-	u32 reserved1[192];
+	u32 reserved0[10];
+	u32 edma_cmd;
+	u32 reserved1[181];
 	/* offset 0x300 : ATA Interface registers */
 	u32 sstatus;
 	u32 serror;
@@ -76,6 +78,7 @@ struct mvsata_port_registers {
  * and for SStatus DETection.
  */
 
+#define MVSATA_EDMA_CMD_ATA_RST		0x00000004
 #define MVSATA_SCONTROL_DET_MASK		0x0000000F
 #define MVSATA_SCONTROL_DET_NONE		0x00000000
 #define MVSATA_SCONTROL_DET_INIT		0x00000001
@@ -114,6 +117,11 @@ static int mvsata_ide_initialize_port(struct mvsata_port_registers *port)
 	u32 control;
 	u32 status;
 	u32 timeleft = 10000; /* wait at most 10 ms for SATA reset to complete */
+
+	/* Hard reset */
+	writel(MVSATA_EDMA_CMD_ATA_RST, &port->edma_cmd);
+	udelay(25); /* taken from original marvell port */
+	writel(0, &port->edma_cmd);
 
 	/* Set control IPM to 3 (no low power) and DET to 1 (initialize) */
 	control = readl(&port->scontrol);
