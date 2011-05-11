@@ -89,13 +89,13 @@
 				(0x1 << 6))	/* Disable ECC interrupt */
 
 /* Assuming 50MHz clock (20ns cycle time) and 3V operation */
-#define XNANDPSS_SET_CYCLES	((0x1 << 20) |	/* t_rr from nand_cycles */ \
-				(0x1 << 17)  |	/* t_ar from nand_cycles */ \
+#define XNANDPSS_SET_CYCLES	((0x2 << 20) |	/* t_rr from nand_cycles */ \
+				(0x2 << 17)  |	/* t_ar from nand_cycles */ \
 				(0x1 << 14)  |	/* t_clr from nand_cycles */ \
-				(0x1 << 11)  |	/* t_wp from nand_cycles */ \
-				(0x1 << 8)   |	/* t_rea from nand_cycles */ \
-				(0x2 << 4)   |	/* t_wc from nand_cycles */ \
-				(0x2 << 0))	/* t_rc from nand_cycles */
+				(0x3 << 11)  |	/* t_wp from nand_cycles */ \
+				(0x2 << 8)   |	/* t_rea from nand_cycles */ \
+				(0x5 << 4)   |	/* t_wc from nand_cycles */ \
+				(0x5 << 0))	/* t_rc from nand_cycles */
 
 #define XNANDPSS_SET_OPMODE	0x0
 
@@ -187,6 +187,11 @@ struct xnandpss_info {
 	unsigned long		end_cmd;
 };
 
+#define NAND_CMD_GET_FEATURES	0xEE
+#define NAND_CMD_SET_FEATURES	0xEF
+
+#define ONDIE_ECC_FEATURE_ADDR	0x90
+
 /*
  * The NAND flash operations command format
  */
@@ -199,6 +204,8 @@ static struct xnandpss_command_format xnandpss_commands[] __devinitdata = {
 	{NAND_CMD_RNDIN, NAND_CMD_NONE, 2, NAND_CMD_NONE},
 	{NAND_CMD_ERASE1, NAND_CMD_ERASE2, 3, XNANDPSS_CMD_PHASE},
 	{NAND_CMD_RESET, NAND_CMD_NONE, 0, NAND_CMD_NONE},
+	{NAND_CMD_GET_FEATURES, NAND_CMD_NONE, 1, NAND_CMD_NONE},
+	{NAND_CMD_SET_FEATURES, NAND_CMD_NONE, 1, NAND_CMD_NONE},
 	{NAND_CMD_NONE, NAND_CMD_NONE, 0, 0},
 	/* Add all the flash commands supported by the flash device and Linux */
 	/* The cache program command is not supported by driver because driver
@@ -227,6 +234,49 @@ static struct nand_ecclayout nand_oob_64 = {
 	.oobfree = {
 		{.offset = 2,
 		 .length = 50} }
+};
+
+static struct nand_ecclayout ondie_nand_oob_64 = {
+	.eccbytes = 32,
+
+	.eccpos = {
+		8, 9, 10, 11, 12, 13, 14, 15,
+		24, 25, 26, 27, 28, 29, 30, 31,
+		40, 41, 42, 43, 44, 45, 46, 47,
+		56, 57, 58, 59, 60, 61, 62, 63
+	},
+
+	.oobfree = {
+		{ .offset = 4, .length = 4 },
+		{ .offset = 20, .length = 4 },
+		{ .offset = 36, .length = 4 },
+		{ .offset = 52, .length = 4 }
+	}
+};
+
+/* Generic flash bbt decriptors
+*/
+static uint8_t bbt_pattern[] = {'B', 'b', 't', '0' };
+static uint8_t mirror_pattern[] = {'1', 't', 'b', 'B' };
+
+static struct nand_bbt_descr bbt_main_descr = {
+        .options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE
+                | NAND_BBT_2BIT | NAND_BBT_VERSION | NAND_BBT_PERCHIP,
+        .offs = 4,
+        .len = 4,
+        .veroffs = 20,
+        .maxblocks = 4,
+        .pattern = bbt_pattern
+};
+
+static struct nand_bbt_descr bbt_mirror_descr = {
+        .options = NAND_BBT_LASTBLOCK | NAND_BBT_CREATE | NAND_BBT_WRITE
+                | NAND_BBT_2BIT | NAND_BBT_VERSION | NAND_BBT_PERCHIP,
+        .offs = 4,
+        .len = 4,
+        .veroffs = 20,
+        .maxblocks = 4,
+        .pattern = mirror_pattern
 };
 
 /**
@@ -951,6 +1001,12 @@ int board_nand_init(struct nand_chip *nand_chip)
 	int  nr_parts;
 	static const char *part_probe_types[] = {"cmdlinepart", NULL};
 #endif
+	u8 maf_id, dev_id;
+	u8 get_feature[4];
+	u8 set_feature[4] = {0x08, 0x00, 0x00, 0x00};
+	unsigned long ecc_cfg;
+	int ondie_ecc_enabled = 0;
+
 #ifdef LINUX_ONLY_NOT_UBOOT
 	xnand = kzalloc(sizeof(struct xnandpss_info), GFP_KERNEL);
 #else
@@ -1051,19 +1107,6 @@ int board_nand_init(struct nand_chip *nand_chip)
 	nand_chip->options = NAND_NO_AUTOINCR | NAND_USE_FLASH_BBT;
 #endif
 
-	/* Hardware ECC generates 3 bytes ECC code for each 512 bytes */
-	nand_chip->ecc.mode = NAND_ECC_HW;
-	nand_chip->ecc.size = XNANDPSS_ECC_SIZE;
-	nand_chip->ecc.bytes = 3;
-	nand_chip->ecc.calculate = xnandpss_calculate_hwecc;
-	nand_chip->ecc.correct = xnandpss_correct_data;
-	nand_chip->ecc.hwctl = NULL;
-	nand_chip->ecc.read_page = xnandpss_read_page_hwecc;
-	nand_chip->ecc.write_page = xnandpss_write_page_hwecc;
-	nand_chip->ecc.read_page_raw = xnandpss_read_page_raw;
-	nand_chip->ecc.write_page_raw = xnandpss_write_page_raw;
-	nand_chip->ecc.read_oob = xnandpss_read_oob;
-	nand_chip->ecc.write_oob = xnandpss_write_oob;
 #ifdef LINUX_ONLY_NOT_UBOOT
 	platform_set_drvdata(pdev, xnand);
 #endif
@@ -1082,52 +1125,114 @@ int board_nand_init(struct nand_chip *nand_chip)
 		goto out_unmap_all_mem;
 	}
 
-	switch (mtd->writesize) {
-	case 512:
-		ecc_page_size = 0x1;
-		/* Set the ECC memory config register */
+	/* Send the command for reading device ID */
+	nand_chip->cmdfunc(mtd, NAND_CMD_READID, 0x00, -1);
+
+	/* Read manufacturer and device IDs */
+	maf_id = nand_chip->read_byte(mtd);
+	dev_id = nand_chip->read_byte(mtd);
+
+	if ((maf_id == 0x2c) && (dev_id == 0xaa)) {
+		nand_chip->cmdfunc(mtd, NAND_CMD_SET_FEATURES,
+						ONDIE_ECC_FEATURE_ADDR, -1);
+		nand_chip->write_buf(mtd, set_feature, 4);
+
+		nand_chip->cmdfunc(mtd, NAND_CMD_GET_FEATURES,
+						ONDIE_ECC_FEATURE_ADDR, -1);
+		nand_chip->read_buf(mtd, get_feature, 4);
+
+		if (get_feature[0] & 0x08)
+			ondie_ecc_enabled = 1;
+	}
+
+	if (ondie_ecc_enabled) {
+		/* bypass the controller ECC block */
+		ecc_cfg = xnandpss_read32(xnand->smc_regs +
+			XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET));
+		ecc_cfg &= ~0xc;
 		xnandpss_write32(xnand->smc_regs +
 			(XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET)),
-			(XNANDPSS_ECC_CONFIG | ecc_page_size));
-		break;
-	case 1024:
-		ecc_page_size = 0x2;
-		/* Set the ECC memory config register */
-		xnandpss_write32(xnand->smc_regs +
-			(XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET)),
-			(XNANDPSS_ECC_CONFIG | ecc_page_size));
-		break;
-	case 2048:
-		ecc_page_size = 0x3;
-		/* Set the ECC memory config register */
-		xnandpss_write32(xnand->smc_regs +
-			(XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET)),
-			(XNANDPSS_ECC_CONFIG | ecc_page_size));
-		break;
-	default:
+			ecc_cfg);
+
 		/* The software ECC routines won't work with the
 				SMC controller */
 		nand_chip->ecc.mode = NAND_ECC_HW;
-		nand_chip->ecc.calculate = nand_calculate_ecc;
-		nand_chip->ecc.correct = nand_correct_data;
-		nand_chip->ecc.read_page = xnandpss_read_page_swecc;
-		/* nand_chip->ecc.read_subpage = nand_read_subpage; */
-		nand_chip->ecc.write_page = xnandpss_write_page_swecc;
+		nand_chip->ecc.read_page = xnandpss_read_page_raw;
+		nand_chip->ecc.write_page = xnandpss_write_page_raw;
 		nand_chip->ecc.read_page_raw = xnandpss_read_page_raw;
 		nand_chip->ecc.write_page_raw = xnandpss_write_page_raw;
 		nand_chip->ecc.read_oob = xnandpss_read_oob;
 		nand_chip->ecc.write_oob = xnandpss_write_oob;
-		nand_chip->ecc.size = 256;
-		nand_chip->ecc.bytes = 3;
-		break;
-	}
+		nand_chip->ecc.size = mtd->writesize;
+		nand_chip->ecc.bytes = 0;
 
-	if (mtd->oobsize == 16)
-		nand_chip->ecc.layout = &nand_oob_16;
-	else if (mtd->oobsize == 64)
-		nand_chip->ecc.layout = &nand_oob_64;
-	else
-		;
+		nand_chip->ecc.layout = &ondie_nand_oob_64;
+
+		/* Use the BBT pattern descriptors */
+		nand_chip->bbt_td = &bbt_main_descr;
+		nand_chip->bbt_md = &bbt_mirror_descr;
+	} else {
+		/* Hardware ECC generates 3 bytes ECC code for each 512 bytes */
+		nand_chip->ecc.mode = NAND_ECC_HW;
+		nand_chip->ecc.size = XNANDPSS_ECC_SIZE;
+		nand_chip->ecc.bytes = 3;
+		nand_chip->ecc.calculate = xnandpss_calculate_hwecc;
+		nand_chip->ecc.correct = xnandpss_correct_data;
+		nand_chip->ecc.hwctl = NULL;
+		nand_chip->ecc.read_page = xnandpss_read_page_hwecc;
+		nand_chip->ecc.write_page = xnandpss_write_page_hwecc;
+		nand_chip->ecc.read_page_raw = xnandpss_read_page_raw;
+		nand_chip->ecc.write_page_raw = xnandpss_write_page_raw;
+		nand_chip->ecc.read_oob = xnandpss_read_oob;
+		nand_chip->ecc.write_oob = xnandpss_write_oob;
+
+		switch (mtd->writesize) {
+		case 512:
+			ecc_page_size = 0x1;
+			/* Set the ECC memory config register */
+			xnandpss_write32(xnand->smc_regs +
+				(XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET)),
+				(XNANDPSS_ECC_CONFIG | ecc_page_size));
+			break;
+		case 1024:
+			ecc_page_size = 0x2;
+			/* Set the ECC memory config register */
+			xnandpss_write32(xnand->smc_regs +
+				(XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET)),
+				(XNANDPSS_ECC_CONFIG | ecc_page_size));
+			break;
+		case 2048:
+			ecc_page_size = 0x3;
+			/* Set the ECC memory config register */
+			xnandpss_write32(xnand->smc_regs +
+				(XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET)),
+				(XNANDPSS_ECC_CONFIG | ecc_page_size));
+			break;
+		default:
+			/* The software ECC routines won't work with the
+					SMC controller */
+			nand_chip->ecc.mode = NAND_ECC_HW;
+			nand_chip->ecc.calculate = nand_calculate_ecc;
+			nand_chip->ecc.correct = nand_correct_data;
+			nand_chip->ecc.read_page = xnandpss_read_page_swecc;
+			/* nand_chip->ecc.read_subpage = nand_read_subpage; */
+			nand_chip->ecc.write_page = xnandpss_write_page_swecc;
+			nand_chip->ecc.read_page_raw = xnandpss_read_page_raw;
+			nand_chip->ecc.write_page_raw = xnandpss_write_page_raw;
+			nand_chip->ecc.read_oob = xnandpss_read_oob;
+			nand_chip->ecc.write_oob = xnandpss_write_oob;
+			nand_chip->ecc.size = 256;
+			nand_chip->ecc.bytes = 3;
+			break;
+		}
+
+		if (mtd->oobsize == 16)
+			nand_chip->ecc.layout = &nand_oob_16;
+		else if (mtd->oobsize == 64)
+			nand_chip->ecc.layout = &nand_oob_64;
+		else
+			;
+	}
 
 	/* second phase scan */
 	if (nand_scan_tail(mtd)) {
