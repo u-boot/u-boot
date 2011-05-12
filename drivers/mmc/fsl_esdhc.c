@@ -525,6 +525,7 @@ int fsl_esdhc_initialize(bd_t *bis, struct fsl_esdhc_cfg *cfg)
 	mmc->f_min = 400000;
 	mmc->f_max = MIN(gd->sdhc_clk, 52000000);
 
+	mmc->b_max = 0;
 	mmc_register(mmc);
 
 	return 0;
