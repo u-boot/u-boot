@@ -293,6 +293,7 @@
 		"setenv default 'run newenv; reset' &&  "		\
 		"run release && saveenv; reset\0"			\
 	"checkboardid=km_checkbidhwk\0"					\
+	"pnvramsize=" xstr(CONFIG_KM_PNVRAM) "\0"			\
 	""
 
 #ifndef CONFIG_KM_DEF_ENV
