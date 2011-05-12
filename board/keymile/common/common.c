@@ -32,6 +32,7 @@
 #include <net.h>
 #include <netdev.h>
 #include <asm/io.h>
+#include <linux/ctype.h>
 
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
@@ -716,3 +717,158 @@ static int do_setboardid(cmd_tbl_t *cmdtp, int flag, int argc,
 
 U_BOOT_CMD(km_setboardid, 1, 0, do_setboardid, "setboardid", "read out bid and "
 				 "hwkey from IVM and set in environment");
+
+/*
+ * command km_checkbidhwk
+ *	if "boardid" and "hwkey" are not already set in the environment, do:
+ *		if a "boardIdListHex" exists in the environment:
+ *			- read ivm data for boardid and hwkey
+ *			- compare each entry of the boardIdListHex with the
+ *				IVM data:
+ *			if match:
+ *				set environment variables boardid, boardId,
+ *				hwkey, hwKey to	the found values
+ *				both (boardid and boardId) are set because
+ *				they might be used differently in the
+ *				application and in the init scripts (?)
+ *	return 0 in case of match, 1 if not match or error
+ */
+int do_checkboardidhwk(cmd_tbl_t *cmdtp, int flag, int argc,
+			char *const argv[])
+{
+	unsigned long ivmbid = 0, ivmhwkey = 0;
+	unsigned long envbid = 0, envhwkey = 0;
+	char *p;
+	int verbose = argc > 1 && *argv[1] == 'v';
+	int rc = 0;
+
+	/*
+	 * first read out the real inventory values, these values are
+	 * already stored in the local hush variables
+	 */
+	p = get_local_var("IVM_BoardId");
+	if (p == NULL) {
+		printf("can't get the IVM_Boardid\n");
+		return 1;
+	}
+	rc = strict_strtoul(p, 16, &ivmbid);
+
+	p = get_local_var("IVM_HWKey");
+	if (p == NULL) {
+		printf("can't get the IVM_HWKey\n");
+		return 1;
+	}
+	rc = strict_strtoul(p, 16, &ivmhwkey);
+
+	if (!ivmbid || !ivmhwkey) {
+		printf("Error: IVM_BoardId and/or IVM_HWKey not set!\n");
+		return rc;
+	}
+
+	/* now try to read values from environment if available */
+	p = getenv("boardid");
+	if (p != NULL)
+		rc = strict_strtoul(p, 16, &envbid);
+	p = getenv("hwkey");
+	if (p != NULL)
+		rc = strict_strtoul(p, 16, &envhwkey);
+
+	if (rc != 0) {
+		printf("strict_strtoul returns error: %d", rc);
+		return rc;
+	}
+
+	if (!envbid || !envhwkey) {
+		/*
+		 * BoardId/HWkey not available in the environment, so try the
+		 * environment variable for BoardId/HWkey list
+		 */
+		char *bidhwklist = getenv("boardIdListHex");
+
+		if (bidhwklist) {
+			int found = 0;
+			char *rest = bidhwklist;
+			char *endp;
+
+			if (verbose) {
+				printf("IVM_BoardId: %ld, IVM_HWKey=%ld\n",
+					ivmbid, ivmhwkey);
+				printf("boardIdHwKeyList: %s\n",
+					bidhwklist);
+			}
+			while (!found) {
+				/* loop over each bid/hwkey pair in the list */
+				unsigned long bid   = 0;
+				unsigned long hwkey = 0;
+
+				while (*rest && !isxdigit(*rest))
+					rest++;
+				/*
+				 * use simple_strtoul because we need &end and
+				 * we know we got non numeric char at the end
+				 */
+				bid = simple_strtoul(rest, &endp, 16);
+				/* BoardId and HWkey are separated with a "_" */
+				if (*endp == '_') {
+					rest  = endp + 1;
+					/*
+					 * use simple_strtoul because we need
+					 * &end
+					 */
+					hwkey = simple_strtoul(rest, &endp, 16);
+					rest  = endp;
+					while (*rest && !isxdigit(*rest))
+						rest++;
+				}
+				if ((!bid) || (!hwkey)) {
+					/* end of list */
+					break;
+				}
+				if (verbose) {
+					printf("trying bid=0x%lX, hwkey=%ld\n",
+						bid, hwkey);
+				}
+				/*
+				 * Compare the values of the found entry in the
+				 * list with the valid values which are stored
+				 * in the inventory eeprom. If they are equal
+				 * store the values in environment variables
+				 * and save the environment.
+				 * This can only happen once for the lifetime
+				 * of a board, because once saved the function
+				 * will never reach the while loop.
+				 */
+				if ((bid == ivmbid) && (hwkey == ivmhwkey)) {
+					char buf[10];
+
+					found = 1;
+					envbid   = bid;
+					envhwkey = hwkey;
+					sprintf(buf, "%lx", bid);
+					setenv("boardid", buf);
+					sprintf(buf, "%lx", hwkey);
+					setenv("hwkey", buf);
+					saveenv();
+				}
+			} /* end while( ! found ) */
+		}
+	}
+
+	/* compare now the values */
+	if ((ivmbid == envbid) && (ivmhwkey == envhwkey)) {
+		printf("boardid=0x%3lX, hwkey=%ld\n", envbid, envhwkey);
+		rc = 0; /* match */
+	} else {
+		printf("Error: env bId=0x%3lX, hwKey=%ld\n", envbid, envhwkey);
+		printf("       IVM bId=0x%3lX, hwKey=%ld\n", ivmbid, ivmhwkey);
+		rc = 1; /* don't match */
+	}
+	return rc;
+}
+
+U_BOOT_CMD(km_checkbidhwk, 2, 0, do_checkboardidhwk,
+		"check boardid and hwkey",
+		"[v]\n  - check environment parameter "\
+		"\"boardIdListHex\" against stored boardid and hwkey "\
+		"from the IVM\n    v: verbose output"
+);
