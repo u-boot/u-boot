@@ -113,6 +113,9 @@
 #define CONFIG_SYS_RESET_ADDRESS 0xffff0000	/* Rst Vector Adr */
 #define CONFIG_SYS_MAXARGS	16	/* max number of command args */
 
+/* ====> Include platform Common Definitions */
+#include <asm/arch/config.h>
+
 /*
  * DRAM Banks configuration, Custom config can be done in <board>.h
  */
@@ -124,10 +127,7 @@
 #endif
 #endif /* CONFIG_NR_DRAM_BANKS */
 
-/* ====> Include platform Common Definations */
-#include <asm/arch/config.h>
-
-/* ====> Include driver Common Definations */
+/* ====> Include driver Common Definitions */
 /*
  * Common NAND configuration
  */
