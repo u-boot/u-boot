@@ -140,7 +140,7 @@ NOPEDOBJS := $(addprefix $(obj),$(NOPED_OBJ_FILES-y))
 # Use native tools and options
 # Define __KERNEL_STRICT_NAMES to prevent typedef overlaps
 #
-HOSTCFLAGS =	-idirafter $(SRCTREE)/include \
+HOSTCPPFLAGS =	-idirafter $(SRCTREE)/include \
 		-idirafter $(OBJTREE)/include2 \
 		-idirafter $(OBJTREE)/include \
 	        -I $(SRCTREE)/lib/libfdt \
@@ -201,10 +201,10 @@ $(obj)ubsha1$(SFX):	$(obj)os_support.o $(obj)sha1.o $(obj)ubsha1.o
 	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
 
 # Some of the tool objects need to be accessed from outside the tools directory
-$(subst common/,,$(filter common/%,$(EXT_OBJ_FILES-y))): $(obj)%.o: $(SRCTREE)/common/%.c
+$(obj)%.o: $(SRCTREE)/common/%.c
 	$(HOSTCC) -g $(HOSTCFLAGS_NOPED) -c -o $@ $<
 
-$(subst lib/,,$(filter lib/%,$(EXT_OBJ_FILES-y))): $(obj)%.o: $(SRCTREE)/lib/%.c
+$(obj)%.o: $(SRCTREE)/lib/%.c
 	$(HOSTCC) -g $(HOSTCFLAGS) -c -o $@ $<
 
 $(obj)%.o: $(SRCTREE)/lib/libfdt/%.c
