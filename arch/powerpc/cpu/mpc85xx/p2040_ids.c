@@ -77,6 +77,9 @@ struct liodn_id_table fman1_liodn_tbl[] = {
 	SET_FMAN_RX_1G_LIODN(1, 2, 12),
 	SET_FMAN_RX_1G_LIODN(1, 3, 13),
 	SET_FMAN_RX_1G_LIODN(1, 4, 14),
+#if (CONFIG_SYS_NUM_FM1_10GEC == 1)
+	SET_FMAN_RX_10G_LIODN(1, 0, 15),
+#endif
 };
 int fman1_liodn_tbl_sz = ARRAY_SIZE(fman1_liodn_tbl);
 #endif

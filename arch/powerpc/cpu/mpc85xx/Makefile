@@ -65,6 +65,7 @@ COBJS-$(CONFIG_P1025)	+= ddr-gen3.o
 COBJS-$(CONFIG_P2010)	+= ddr-gen3.o
 COBJS-$(CONFIG_P2020)	+= ddr-gen3.o
 COBJS-$(CONFIG_PPC_P2040)	+= ddr-gen3.o
+COBJS-$(CONFIG_PPC_P2041)	+= ddr-gen3.o
 COBJS-$(CONFIG_PPC_P3041)	+= ddr-gen3.o
 COBJS-$(CONFIG_PPC_P4080)	+= ddr-gen3.o
 COBJS-$(CONFIG_PPC_P5020)	+= ddr-gen3.o
@@ -78,6 +79,7 @@ COBJS-$(CONFIG_SYS_DPAA_QBMAN) += portals.o
 
 # various SoC specific assignments
 COBJS-$(CONFIG_PPC_P2040) += p2040_ids.o
+COBJS-$(CONFIG_PPC_P2041) += p2040_ids.o
 COBJS-$(CONFIG_PPC_P3041) += p3041_ids.o
 COBJS-$(CONFIG_PPC_P4080) += p4080_ids.o
 COBJS-$(CONFIG_PPC_P5020) += p5020_ids.o
@@ -110,6 +112,7 @@ COBJS-$(CONFIG_P1025)	+= p1021_serdes.o
 COBJS-$(CONFIG_P2010)	+= p2020_serdes.o
 COBJS-$(CONFIG_P2020)	+= p2020_serdes.o
 COBJS-$(CONFIG_PPC_P2040) += p2040_serdes.o
+COBJS-$(CONFIG_PPC_P2041) += p2041_serdes.o
 COBJS-$(CONFIG_PPC_P3041) += p3041_serdes.o
 COBJS-$(CONFIG_PPC_P4080) += p4080_serdes.o
 COBJS-$(CONFIG_PPC_P5020) += p5020_serdes.o
