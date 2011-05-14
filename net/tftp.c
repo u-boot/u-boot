@@ -125,8 +125,8 @@ static unsigned short TftpBlkSizeOption = TFTP_MTU_BLOCKSIZE;
 #define MTFTP_BITMAPSIZE	0x1000
 static unsigned *Bitmap;
 static int PrevBitmapHole, Mapsize = MTFTP_BITMAPSIZE;
-static uchar ProhibitMcast = 0, MasterClient = 0;
-static uchar Multicast = 0;
+static uchar ProhibitMcast, MasterClient;
+static uchar Multicast;
 extern IPaddr_t Mcast_addr;
 static int Mcast_port;
 static ulong TftpEndingBlock; /* can get 'last' block before done..*/
