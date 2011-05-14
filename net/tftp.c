@@ -307,13 +307,11 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 #endif
 		return;
 	}
-	if (TftpState != STATE_RRQ && src != TftpServerPort) {
+	if (TftpState != STATE_RRQ && src != TftpServerPort)
 		return;
-	}
 
-	if (len < 2) {
+	if (len < 2)
 		return;
-	}
 	len -= 2;
 	/* warning: don't use increment (++) in ntohs() macros!! */
 	s = (ushort *)pkt;
@@ -393,11 +391,10 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		}
 #endif
 		else {
-			if (((TftpBlock - 1) % 10) == 0) {
+			if (((TftpBlock - 1) % 10) == 0)
 				putc('#');
-			} else if ((TftpBlock % (10 * HASHES_PER_LINE)) == 0) {
+			else if ((TftpBlock % (10 * HASHES_PER_LINE)) == 0)
 				puts("\n\t ");
-			}
 		}
 
 		if (TftpState == STATE_RRQ)
@@ -638,13 +635,11 @@ TftpStart(void)
 
 #ifdef CONFIG_TFTP_PORT
 	ep = getenv("tftpdstp");
-	if (ep != NULL) {
+	if (ep != NULL)
 		TftpServerPort = simple_strtol(ep, NULL, 10);
-	}
 	ep = getenv("tftpsrcp");
-	if (ep != NULL) {
+	if (ep != NULL)
 		TftpOurPort = simple_strtol(ep, NULL, 10);
-	}
 #endif
 	TftpBlock = 0;
 
