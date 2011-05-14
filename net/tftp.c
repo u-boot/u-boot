@@ -146,7 +146,7 @@ mcast_cleanup(void)
 #endif	/* CONFIG_MCAST_TFTP */
 
 static __inline__ void
-store_block(unsigned block, uchar * src, unsigned len)
+store_block(unsigned block, uchar *src, unsigned len)
 {
 	ulong offset = block * TftpBlkSize + TftpBlockWrapOffset;
 	ulong newsize = offset + len;
@@ -193,9 +193,9 @@ static void TftpTimeout(void);
 static void
 TftpSend(void)
 {
-	volatile uchar *	pkt;
-	volatile uchar *	xp;
-	int			len = 0;
+	volatile uchar *pkt;
+	volatile uchar *xp;
+	int		len = 0;
 	volatile ushort *s;
 
 #ifdef CONFIG_MCAST_TFTP
@@ -340,19 +340,19 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		 * something like "len-8" may give a *huge* number
 		 */
 		for (i = 0; i+8 < len; i++) {
-			if (strcmp((char*)pkt+i, "blksize") == 0) {
+			if (strcmp((char *)pkt+i, "blksize") == 0) {
 				TftpBlkSize = (unsigned short)
-					simple_strtoul((char*)pkt+i+8, NULL,
+					simple_strtoul((char *)pkt+i+8, NULL,
 						       10);
 				debug("Blocksize ack: %s, %d\n",
-					(char*)pkt+i+8, TftpBlkSize);
+					(char *)pkt+i+8, TftpBlkSize);
 			}
 #ifdef CONFIG_TFTP_TSIZE
-			if (strcmp((char*)pkt+i, "tsize") == 0) {
-				TftpTsize = simple_strtoul((char*)pkt+i+6,
+			if (strcmp((char *)pkt+i, "tsize") == 0) {
+				TftpTsize = simple_strtoul((char *)pkt+i+6,
 							   NULL, 10);
 				debug("size = %s, %d\n",
-					 (char*)pkt+i+6, TftpTsize);
+					 (char *)pkt+i+6, TftpTsize);
 			}
 #endif
 		}
