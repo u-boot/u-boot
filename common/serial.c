@@ -24,6 +24,8 @@
 #include <common.h>
 #include <serial.h>
 #include <stdio_dev.h>
+#include <post.h>
+#include <linux/compiler.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -221,3 +223,91 @@ void serial_puts (const char *s)
 
 	serial_current->puts (s);
 }
+
+#if CONFIG_POST & CONFIG_SYS_POST_UART
+static const int bauds[] = CONFIG_SYS_BAUDRATE_TABLE;
+
+/* Mark weak until post/cpu/.../uart.c migrate over */
+__weak
+int uart_post_test(int flags)
+{
+	unsigned char c;
+	int ret, saved_baud, b;
+	struct serial_device *saved_dev, *s;
+	bd_t *bd = gd->bd;
+
+	/* Save current serial state */
+	ret = 0;
+	saved_dev = serial_current;
+	saved_baud = bd->bi_baudrate;
+
+	for (s = serial_devices; s; s = s->next) {
+		/* If this driver doesn't support loop back, skip it */
+		if (!s->loop)
+			continue;
+
+		/* Test the next device */
+		serial_current = s;
+
+		ret = serial_init();
+		if (ret)
+			goto done;
+
+		/* Consume anything that happens to be queued */
+		while (serial_tstc())
+			serial_getc();
+
+		/* Enable loop back */
+		s->loop(1);
+
+		/* Test every available baud rate */
+		for (b = 0; b < ARRAY_SIZE(bauds); ++b) {
+			bd->bi_baudrate = bauds[b];
+			serial_setbrg();
+
+			/*
+			 * Stick to printable chars to avoid issues:
+			 *  - terminal corruption
+			 *  - serial program reacting to sequences and sending
+			 *    back random extra data
+			 *  - most serial drivers add in extra chars (like \r\n)
+			 */
+			for (c = 0x20; c < 0x7f; ++c) {
+				/* Send it out */
+				serial_putc(c);
+
+				/* Make sure it's the same one */
+				ret = (c != serial_getc());
+				if (ret) {
+					s->loop(0);
+					goto done;
+				}
+
+				/* Clean up the output in case it was sent */
+				serial_putc('\b');
+				ret = ('\b' != serial_getc());
+				if (ret) {
+					s->loop(0);
+					goto done;
+				}
+			}
+		}
+
+		/* Disable loop back */
+		s->loop(0);
+
+		/* XXX: There is no serial_uninit() !? */
+		if (s->uninit)
+			s->uninit();
+	}
+
+ done:
+	/* Restore previous serial state */
+	serial_current = saved_dev;
+	bd->bi_baudrate = saved_baud;
+	serial_reinit_all();
+	serial_setbrg();
+
+	return ret;
+}
+#endif

@@ -1,6 +1,8 @@
 #ifndef __SERIAL_H__
 #define __SERIAL_H__
 
+#include <post.h>
+
 #define NAMESIZE 16
 
 struct serial_device {
@@ -13,6 +15,9 @@ struct serial_device {
 	int (*tstc) (void);
 	void (*putc) (const char c);
 	void (*puts) (const char *s);
+#if CONFIG_POST & CONFIG_SYS_POST_UART
+	void (*loop) (int);
+#endif
 
 	struct serial_device *next;
 };
