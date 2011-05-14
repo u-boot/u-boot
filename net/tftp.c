@@ -307,7 +307,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		if (Multicast
 		 && (!Mcast_port || (dest != Mcast_port)))
 #endif
-		return;
+			return;
 	}
 	if (TftpState != STATE_RRQ && src != TftpServerPort)
 		return;
@@ -603,11 +603,12 @@ TftpStart(void)
 
 	/* Check if we need to send across this subnet */
 	if (NetOurGatewayIP && NetOurSubnetMask) {
-	    IPaddr_t OurNet	= NetOurIP    & NetOurSubnetMask;
-	    IPaddr_t ServerNet	= TftpServerIP & NetOurSubnetMask;
+		IPaddr_t OurNet	= NetOurIP    & NetOurSubnetMask;
+		IPaddr_t ServerNet	= TftpServerIP & NetOurSubnetMask;
 
-	    if (OurNet != ServerNet)
-		printf("; sending through gateway %pI4", &NetOurGatewayIP);
+		if (OurNet != ServerNet)
+			printf("; sending through gateway %pI4",
+			       &NetOurGatewayIP);
 	}
 	putc('\n');
 
