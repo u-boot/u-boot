@@ -1,7 +1,7 @@
 /*
- *	Copyright 1994, 1995, 2000 Neil Russell.
- *	(See License)
- *	Copyright 2000, 2001 DENX Software Engineering, Wolfgang Denk, wd@denx.de
+ * Copyright 1994, 1995, 2000 Neil Russell.
+ * (See License)
+ * Copyright 2000, 2001 DENX Software Engineering, Wolfgang Denk, wd@denx.de
  */
 
 #include <common.h>
@@ -10,15 +10,18 @@
 #include "tftp.h"
 #include "bootp.h"
 
-#define WELL_KNOWN_PORT	69		/* Well known TFTP port #		*/
-#define TIMEOUT		5000UL		/* Millisecs to timeout for lost pkt */
+/* Well known TFTP port # */
+#define WELL_KNOWN_PORT	69
+/* Millisecs to timeout for lost pkt */
+#define TIMEOUT		5000UL
 #ifndef	CONFIG_NET_RETRY_COUNT
-# define TIMEOUT_COUNT	10		/* # of timeouts before giving up  */
+/* # of timeouts before giving up */
+# define TIMEOUT_COUNT	10
 #else
 # define TIMEOUT_COUNT  (CONFIG_NET_RETRY_COUNT * 2)
 #endif
-					/* (for checking the image size)	*/
-#define HASHES_PER_LINE	65		/* Number of "loading" hashes per line	*/
+/* Number of "loading" hashes per line (for checking the image size) */
+#define HASHES_PER_LINE	65
 
 /*
  *	TFTP operations.
@@ -56,17 +59,25 @@ enum {
 };
 
 static IPaddr_t TftpServerIP;
-static int	TftpServerPort;		/* The UDP port at their end		*/
-static int	TftpOurPort;		/* The UDP port at our end		*/
+/* The UDP port at their end */
+static int	TftpServerPort;
+/* The UDP port at our end */
+static int	TftpOurPort;
 static int	TftpTimeoutCount;
-static ulong	TftpBlock;		/* packet sequence number		*/
-static ulong	TftpLastBlock;		/* last packet sequence number received */
-static ulong	TftpBlockWrap;		/* count of sequence number wraparounds */
-static ulong	TftpBlockWrapOffset;	/* memory offset due to wrapping	*/
+/* packet sequence number */
+static ulong	TftpBlock;
+/* last packet sequence number received */
+static ulong	TftpLastBlock;
+/* count of sequence number wraparounds */
+static ulong	TftpBlockWrap;
+/* memory offset due to wrapping */
+static ulong	TftpBlockWrapOffset;
 static int	TftpState;
 #ifdef CONFIG_TFTP_TSIZE
-static int	TftpTsize;		/* The file size reported by the server */
-static short	TftpNumchars;		/* The number of hashes we printed      */
+/* The file size reported by the server */
+static int	TftpTsize;
+/* The number of hashes we printed */
+static short	TftpNumchars;
 #endif
 
 #define STATE_RRQ	1
@@ -75,8 +86,10 @@ static short	TftpNumchars;		/* The number of hashes we printed      */
 #define STATE_BAD_MAGIC	4
 #define STATE_OACK	5
 
-#define TFTP_BLOCK_SIZE		512		    /* default TFTP block size	*/
-#define TFTP_SEQUENCE_SIZE	((ulong)(1<<16))    /* sequence number is 16 bit */
+/* default TFTP block size */
+#define TFTP_BLOCK_SIZE		512
+/* sequence number is 16 bit */
+#define TFTP_SEQUENCE_SIZE	((ulong)(1<<16))
 
 #define DEFAULT_NAME_LEN	(8 + 4 + 1)
 static char default_filename[DEFAULT_NAME_LEN];
@@ -273,7 +286,8 @@ TftpSend (void)
 		break;
 	}
 
-	NetSendUDPPacket(NetServerEther, TftpServerIP, TftpServerPort, TftpOurPort, len);
+	NetSendUDPPacket(NetServerEther, TftpServerIP, TftpServerPort,
+			 TftpOurPort, len);
 }
 
 
@@ -333,7 +347,8 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 			}
 #ifdef CONFIG_TFTP_TSIZE
 			if (strcmp ((char*)pkt+i,"tsize") == 0) {
-				TftpTsize = simple_strtoul((char*)pkt+i+6,NULL,10);
+				TftpTsize = simple_strtoul((char*)pkt+i+6,
+							   NULL, 10);
 				debug("size = %s, %d\n",
 					 (char*)pkt+i+6, TftpTsize);
 			}
@@ -361,12 +376,15 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		 */
 		if (TftpBlock == 0) {
 			TftpBlockWrap++;
-			TftpBlockWrapOffset += TftpBlkSize * TFTP_SEQUENCE_SIZE;
-			printf ("\n\t %lu MB received\n\t ", TftpBlockWrapOffset>>20);
+			TftpBlockWrapOffset +=
+				TftpBlkSize * TFTP_SEQUENCE_SIZE;
+			printf ("\n\t %lu MB received\n\t ",
+				TftpBlockWrapOffset>>20);
 		}
 #ifdef CONFIG_TFTP_TSIZE
 		else if (TftpTsize) {
-			while (TftpNumchars < NetBootFileXferSize * 50 / TftpTsize) {
+			while (TftpNumchars <
+			       NetBootFileXferSize * 50 / TftpTsize) {
 				putc('#');
 				TftpNumchars++;
 			}
@@ -466,7 +484,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 			 *	run it.
 			 */
 #ifdef CONFIG_TFTP_TSIZE
-			/* Print out the hash marks for the last packet received */
+			/* Print hash marks for the last packet received */
 			while (TftpTsize && TftpNumchars < 49) {
 				putc('#');
 				TftpNumchars++;
