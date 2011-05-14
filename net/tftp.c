@@ -552,10 +552,12 @@ TftpStart(void)
 	 * Allow the user to choose TFTP blocksize and timeout.
 	 * TFTP protocol has a minimal timeout of 1 second.
 	 */
-	if ((ep = getenv("tftpblocksize")) != NULL)
+	ep = getenv("tftpblocksize");
+	if (ep != NULL)
 		TftpBlkSizeOption = simple_strtol(ep, NULL, 10);
 
-	if ((ep = getenv("tftptimeout")) != NULL)
+	ep = getenv("tftptimeout");
+	if (ep != NULL)
 		TftpTimeoutMSecs = simple_strtol(ep, NULL, 10);
 
 	if (TftpTimeoutMSecs < 1000) {
@@ -635,10 +637,12 @@ TftpStart(void)
 	TftpOurPort = 1024 + (get_timer(0) % 3072);
 
 #ifdef CONFIG_TFTP_PORT
-	if ((ep = getenv("tftpdstp")) != NULL) {
+	ep = getenv("tftpdstp");
+	if (ep != NULL) {
 		TftpServerPort = simple_strtol(ep, NULL, 10);
 	}
-	if ((ep = getenv("tftpsrcp")) != NULL) {
+	ep = getenv("tftpsrcp");
+	if (ep != NULL) {
 		TftpOurPort = simple_strtol(ep, NULL, 10);
 	}
 #endif
@@ -721,7 +725,8 @@ static void parse_multicast_oack(char *pkt, int len)
 		/* I malloc instead of pre-declare; so that if the file ends
 		 * up being too big for this bitmap I can retry
 		 */
-		if (!(Bitmap = malloc(Mapsize))) {
+		Bitmap = malloc(Mapsize);
+		if (!Bitmap) {
 			printf("No Bitmap, no multicast. Sorry.\n");
 			ProhibitMcast = 1;
 			return;
@@ -734,7 +739,8 @@ static void parse_multicast_oack(char *pkt, int len)
 	if (Mcast_addr != addr) {
 		if (Mcast_addr)
 			eth_mcast_join(Mcast_addr, 0);
-		if (eth_mcast_join(Mcast_addr = addr, 1)) {
+		Mcast_addr = addr;
+		if (eth_mcast_join(Mcast_addr, 1)) {
 			printf("Fail to set mcast, revert to TFTP\n");
 			ProhibitMcast = 1;
 			mcast_cleanup();
