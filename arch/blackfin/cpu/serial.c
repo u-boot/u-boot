@@ -38,6 +38,7 @@
  */
 
 #include <common.h>
+#include <post.h>
 #include <watchdog.h>
 #include <serial.h>
 #include <linux/compiler.h>
@@ -153,6 +154,30 @@ static int uart_getc(uint32_t uart_base)
 	return uart_rbr_val;
 }
 
+#if CONFIG_POST & CONFIG_SYS_POST_UART
+# define LOOP(x) x
+#else
+# define LOOP(x)
+#endif
+
+LOOP(
+static void uart_loop(uint32_t uart_base, int state)
+{
+	u16 mcr;
+
+	/* Drain the TX fifo first so bytes don't come back */
+	while (!(uart_lsr_read(uart_base) & TEMT))
+		continue;
+
+	mcr = bfin_read(&pUART->mcr);
+	if (state)
+		mcr |= LOOP_ENA | MRTS;
+	else
+		mcr &= ~(LOOP_ENA | MRTS);
+	bfin_write(&pUART->mcr, mcr);
+}
+)
+
 #ifdef CONFIG_SYS_BFIN_UART
 
 static void uart_puts(uint32_t uart_base, const char *s)
@@ -202,6 +227,13 @@ static void uart##n##_puts(const char *s) \
 	uart_puts(MMR_UART(n), s); \
 } \
 \
+LOOP( \
+static void uart##n##_loop(int state) \
+{ \
+	uart_loop(MMR_UART(n), state); \
+} \
+) \
+\
 struct serial_device bfin_serial##n##_device = { \
 	.name   = "bfin_uart"#n, \
 	.init   = uart##n##_init, \
@@ -211,6 +243,7 @@ struct serial_device bfin_serial##n##_device = { \
 	.tstc   = uart##n##_tstc, \
 	.putc   = uart##n##_putc, \
 	.puts   = uart##n##_puts, \
+	LOOP(.loop = uart##n##_loop) \
 };
 
 #ifdef UART0_DLL
@@ -306,6 +339,13 @@ void serial_puts(const char *s)
 	while (*s)
 		serial_putc(*s++);
 }
+
+LOOP(
+void serial_loop(int state)
+{
+	uart_loop(UART_DLL, state);
+}
+)
 
 #endif
 
