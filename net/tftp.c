@@ -136,8 +136,10 @@ static void parse_multicast_oack(char *pkt, int len);
 static void
 mcast_cleanup(void)
 {
-	if (Mcast_addr) eth_mcast_join(Mcast_addr, 0);
-	if (Bitmap) free(Bitmap);
+	if (Mcast_addr)
+		eth_mcast_join(Mcast_addr, 0);
+	if (Bitmap)
+		free(Bitmap);
 	Bitmap = NULL;
 	Mcast_addr = Multicast = Mcast_port = 0;
 	TftpEndingBlock = -1;
@@ -703,7 +705,8 @@ static void parse_multicast_oack(char *pkt, int len)
 			}
 		}
 	}
-	if (!port || !mc_adr || !mc) return;
+	if (!port || !mc_adr || !mc)
+		return;
 	if (Multicast && MasterClient) {
 		printf("I got a OACK as master Client, WRONG!\n");
 		return;
