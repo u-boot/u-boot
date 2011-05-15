@@ -22,9 +22,6 @@
 #include <nand.h>
 #include <asm/io.h>
 
-#define CONFIG_SYS_NAND_READ_DELAY \
-	{ volatile int dummy; int i; for (i=0; i<10000; i++) dummy = i; }
-
 static int nand_ecc_pos[] = CONFIG_SYS_NAND_ECCPOS;
 
 #if (CONFIG_SYS_NAND_PAGE_SIZE <= 512)
@@ -61,11 +58,8 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 	/*
 	 * Wait a while for the data to be ready
 	 */
-	if (this->dev_ready)
-		while (!this->dev_ready(mtd))
-			;
-	else
-		CONFIG_SYS_NAND_READ_DELAY;
+	while (!this->dev_ready(mtd))
+		;
 
 	return 0;
 }
@@ -77,12 +71,11 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 {
 	struct nand_chip *this = mtd->priv;
 	int page_addr = page + block * CONFIG_SYS_NAND_PAGE_COUNT;
+	void (*hwctrl)(struct mtd_info *mtd, int cmd,
+			unsigned int ctrl) = this->cmd_ctrl;
 
-	if (this->dev_ready)
-		while (!this->dev_ready(mtd))
-			;
-	else
-		CONFIG_SYS_NAND_READ_DELAY;
+	while (!this->dev_ready(mtd))
+		;
 
 	/* Emulate NAND_CMD_READOOB */
 	if (cmd == NAND_CMD_READOOB) {
@@ -95,34 +88,31 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 		offs >>= 1;
 
 	/* Begin command latch cycle */
-	this->cmd_ctrl(mtd, cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
+	hwctrl(mtd, cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
 	/* Set ALE and clear CLE to start address cycle */
 	/* Column address */
-	this->cmd_ctrl(mtd, offs & 0xff,
+	hwctrl(mtd, offs & 0xff,
 		       NAND_CTRL_ALE | NAND_CTRL_CHANGE); /* A[7:0] */
-	this->cmd_ctrl(mtd, (offs >> 8) & 0xff, NAND_CTRL_ALE); /* A[11:9] */
+	hwctrl(mtd, (offs >> 8) & 0xff, NAND_CTRL_ALE); /* A[11:9] */
 	/* Row address */
-	this->cmd_ctrl(mtd, (page_addr & 0xff), NAND_CTRL_ALE); /* A[19:12] */
-	this->cmd_ctrl(mtd, ((page_addr >> 8) & 0xff),
+	hwctrl(mtd, (page_addr & 0xff), NAND_CTRL_ALE); /* A[19:12] */
+	hwctrl(mtd, ((page_addr >> 8) & 0xff),
 		       NAND_CTRL_ALE); /* A[27:20] */
 #ifdef CONFIG_SYS_NAND_5_ADDR_CYCLE
 	/* One more address cycle for devices > 128MiB */
-	this->cmd_ctrl(mtd, (page_addr >> 16) & 0x0f,
+	hwctrl(mtd, (page_addr >> 16) & 0x0f,
 		       NAND_CTRL_ALE); /* A[31:28] */
 #endif
 	/* Latch in address */
-	this->cmd_ctrl(mtd, NAND_CMD_READSTART,
+	hwctrl(mtd, NAND_CMD_READSTART,
 		       NAND_CTRL_CLE | NAND_CTRL_CHANGE);
-	this->cmd_ctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
+	hwctrl(mtd, NAND_CMD_NONE, NAND_NCE | NAND_CTRL_CHANGE);
 
 	/*
 	 * Wait a while for the data to be ready
 	 */
-	if (this->dev_ready)
-		while (!this->dev_ready(mtd))
-			;
-	else
-		CONFIG_SYS_NAND_READ_DELAY;
+	while (!this->dev_ready(mtd))
+		;
 
 	return 0;
 }
@@ -244,6 +234,7 @@ void nand_boot(void)
 	nand_info.priv = &nand_chip;
 	nand_chip.IO_ADDR_R = nand_chip.IO_ADDR_W = (void  __iomem *)CONFIG_SYS_NAND_BASE;
 	nand_chip.dev_ready = NULL;	/* preset to NULL */
+	nand_chip.options = 0;
 	board_nand_init(&nand_chip);
 
 	if (nand_chip.select_chip)
