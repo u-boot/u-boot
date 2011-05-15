@@ -30,6 +30,7 @@
 #include <twl4030.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
+#include <asm/arch/sys_proto.h>
 
 /* If we fail after 1 second wait, something is really bad */
 #define MAX_RETRY_MS	1000
