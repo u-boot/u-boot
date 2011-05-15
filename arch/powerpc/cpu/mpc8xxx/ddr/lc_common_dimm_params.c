@@ -38,9 +38,9 @@ compute_cas_latency_ddr3(const dimm_params_t *dimm_params,
 	}
 	/* validate if the memory clk is in the range of dimms */
 	if (mclk_ps < tCKmin_X_ps) {
-		printf("The DIMM max tCKmin is %d ps,"
-			"doesn't support the MCLK cycle %d ps\n",
-			tCKmin_X_ps, mclk_ps);
+		printf("DDR clock (MCLK cycle %u ps) is faster than "
+			"the slowest DIMM(s) (tCKmin %u ps) can support.\n",
+			mclk_ps, tCKmin_X_ps);
 		return 1;
 	}
 	/* determine the acutal cas latency */
