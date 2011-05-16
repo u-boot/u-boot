@@ -341,7 +341,8 @@ int do_sntp (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	else NetTimeOffset = simple_strtol (toff, NULL, 10);
 
 	if (NetLoop(SNTP) < 0) {
-		printf("SNTP failed: host %s not responding\n", argv[1]);
+		printf("SNTP failed: host %pI4 not responding\n",
+			&NetNtpServerIP);
 		return 1;
 	}
 
