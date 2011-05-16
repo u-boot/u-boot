@@ -228,6 +228,11 @@ static void BootpVendorFieldProcess (u8 * ext)
 			NetOurNISDomain[size] = 0;
 		}
 		break;
+#if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
+	case 42:	/* NTP server IP */
+		NetCopyIP(&NetNtpServerIP, (IPaddr_t *) (ext + 2));
+		break;
+#endif
 		/* Application layer fields */
 	case 43:		/* Vendor specific info - Not yet supported	*/
 		/*
@@ -278,6 +283,11 @@ static void BootpVendorProcess (u8 * ext, int size)
 
 	if (NetBootFileSize)
 		debug("NetBootFileSize: %d\n", NetBootFileSize);
+
+#if defined(CONFIG_CMD_SNTP) && defined(CONFIG_BOOTP_NTPSERVER)
+	if (NetNtpServerIP)
+		debug("NetNtpServerIP : %pI4\n", &NetNtpServerIP);
+#endif
 }
 /*
  *	Handle a BOOTP received packet.
@@ -537,6 +547,11 @@ static int BootpExtended (u8 * e)
 	*e++ = 40;		/* NIS Domain name request */
 	*e++ = 32;
 	e   += 32;
+#endif
+#if defined(CONFIG_BOOTP_NTPSERVER)
+	*e++ = 42;
+	*e++ = 4;
+	e   += 4;
 #endif
 
 	*e++ = 255;		/* End of the list */
