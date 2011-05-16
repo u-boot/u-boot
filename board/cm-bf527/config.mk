@@ -25,3 +25,4 @@
 
 CFLAGS_lib += -O2
 CFLAGS_lib/lzma += -O2
+CFLAGS_lib/zlib += -O2
