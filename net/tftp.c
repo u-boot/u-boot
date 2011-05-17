@@ -2,6 +2,8 @@
  * Copyright 1994, 1995, 2000 Neil Russell.
  * (See License)
  * Copyright 2000, 2001 DENX Software Engineering, Wolfgang Denk, wd@denx.de
+ * Copyright 2011 Comelit Group SpA,
+ *                Luca Ceresoli <luca.ceresoli@comelit.it>
  */
 
 #include <common.h>
@@ -85,6 +87,7 @@ static short	TftpNumchars;
 #define STATE_TOO_LARGE	3
 #define STATE_BAD_MAGIC	4
 #define STATE_OACK	5
+#define STATE_RECV_WRQ	6
 
 /* default TFTP block size */
 #define TFTP_BLOCK_SIZE		512
@@ -257,6 +260,8 @@ TftpSend(void)
 							    (Mapsize*8), 0);
 		/*..falling..*/
 #endif
+
+	case STATE_RECV_WRQ:
 	case STATE_DATA:
 		xp = pkt;
 		s = (ushort *)pkt;
@@ -309,7 +314,8 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 #endif
 			return;
 	}
-	if (TftpState != STATE_SEND_RRQ && src != TftpRemotePort)
+	if (TftpState != STATE_SEND_RRQ && src != TftpRemotePort &&
+	    TftpState != STATE_RECV_WRQ)
 		return;
 
 	if (len < 2)
@@ -322,11 +328,23 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 	switch (ntohs(proto)) {
 
 	case TFTP_RRQ:
-	case TFTP_WRQ:
 	case TFTP_ACK:
 		break;
 	default:
 		break;
+
+#ifdef CONFIG_CMD_TFTPSRV
+	case TFTP_WRQ:
+		debug("Got WRQ\n");
+		TftpRemoteIP = sip;
+		TftpRemotePort = src;
+		TftpOurPort = 1024 + (get_timer(0) % 3072);
+		TftpLastBlock = 0;
+		TftpBlockWrap = 0;
+		TftpBlockWrapOffset = 0;
+		TftpSend(); /* Send ACK(0) */
+		break;
+#endif
 
 	case TFTP_OACK:
 		debug("Got OACK: %s %s\n",
@@ -402,7 +420,8 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		if (TftpState == STATE_SEND_RRQ)
 			debug("Server did not acknowledge timeout option!\n");
 
-		if (TftpState == STATE_SEND_RRQ || TftpState == STATE_OACK) {
+		if (TftpState == STATE_SEND_RRQ || TftpState == STATE_OACK ||
+		    TftpState == STATE_RECV_WRQ) {
 			/* first block received */
 			TftpState = STATE_DATA;
 			TftpRemotePort = src;
@@ -537,7 +556,8 @@ TftpTimeout(void)
 	} else {
 		puts("T ");
 		NetSetTimeout(TftpTimeoutMSecs, TftpTimeout);
-		TftpSend();
+		if (TftpState != STATE_RECV_WRQ)
+			TftpSend();
 	}
 }
 
@@ -660,6 +680,40 @@ TftpStart(void)
 
 	TftpSend();
 }
+
+#ifdef CONFIG_CMD_TFTPSRV
+void
+TftpStartServer(void)
+{
+	tftp_filename[0] = 0;
+
+#if defined(CONFIG_NET_MULTI)
+	printf("Using %s device\n", eth_get_name());
+#endif
+	printf("Listening for TFTP transfer on %pI4\n", &NetOurIP);
+	printf("Load address: 0x%lx\n", load_addr);
+
+	puts("Loading: *\b");
+
+	TftpTimeoutCountMax = TIMEOUT_COUNT;
+	TftpTimeoutCount = 0;
+	TftpTimeoutMSecs = TIMEOUT;
+	NetSetTimeout(TftpTimeoutMSecs, TftpTimeout);
+
+	/* Revert TftpBlkSize to dflt */
+	TftpBlkSize = TFTP_BLOCK_SIZE;
+	TftpBlock = 0;
+	TftpOurPort = WELL_KNOWN_PORT;
+
+#ifdef CONFIG_TFTP_TSIZE
+	TftpTsize = 0;
+	TftpNumchars = 0;
+#endif
+
+	TftpState = STATE_RECV_WRQ;
+	NetSetHandler(TftpHandler);
+}
+#endif /* CONFIG_CMD_TFTPSRV */
 
 #ifdef CONFIG_MCAST_TFTP
 /* Credits: atftp project.
