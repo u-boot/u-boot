@@ -458,7 +458,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		store_block(TftpBlock - 1, pkt + 2, len);
 
 		/*
-		 *	Acknoledge the block just received, which will prompt
+		 *	Acknowledge the block just received, which will prompt
 		 *	the remote for the next one.
 		 */
 #ifdef CONFIG_MCAST_TFTP
