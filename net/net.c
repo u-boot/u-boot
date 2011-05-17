@@ -423,7 +423,11 @@ restart:
 			/* always use ARP to get server ethernet address */
 			TftpStart();
 			break;
-
+#ifdef CONFIG_CMD_TFTPSRV
+		case TFTPSRV:
+			TftpStartServer();
+			break;
+#endif
 #if defined(CONFIG_CMD_DHCP)
 		case DHCP:
 			BootpTry = 0;
@@ -1791,6 +1795,7 @@ common:
 		/* Fall through */
 
 	case NETCONS:
+	case TFTPSRV:
 		if (NetOurIP == 0) {
 			puts("*** ERROR: `ipaddr' not set\n");
 			return 1;
