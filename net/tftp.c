@@ -58,9 +58,9 @@ enum {
 	TFTP_ERR_FILE_ALREADY_EXISTS = 6,
 };
 
-static IPaddr_t TftpServerIP;
+static IPaddr_t TftpRemoteIP;
 /* The UDP port at their end */
-static int	TftpServerPort;
+static int	TftpRemotePort;
 /* The UDP port at our end */
 static int	TftpOurPort;
 static int	TftpTimeoutCount;
@@ -289,7 +289,7 @@ TftpSend(void)
 		break;
 	}
 
-	NetSendUDPPacket(NetServerEther, TftpServerIP, TftpServerPort,
+	NetSendUDPPacket(NetServerEther, TftpRemoteIP, TftpRemotePort,
 			 TftpOurPort, len);
 }
 
@@ -309,7 +309,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 #endif
 			return;
 	}
-	if (TftpState != STATE_RRQ && src != TftpServerPort)
+	if (TftpState != STATE_RRQ && src != TftpRemotePort)
 		return;
 
 	if (len < 2)
@@ -333,7 +333,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 			pkt,
 			pkt + strlen((char *)pkt) + 1);
 		TftpState = STATE_OACK;
-		TftpServerPort = src;
+		TftpRemotePort = src;
 		/*
 		 * Check for 'blksize' option.
 		 * Careful: "i" is signed, "len" is unsigned, thus
@@ -405,7 +405,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 		if (TftpState == STATE_RRQ || TftpState == STATE_OACK) {
 			/* first block received */
 			TftpState = STATE_DATA;
-			TftpServerPort = src;
+			TftpRemotePort = src;
 			TftpLastBlock = 0;
 			TftpBlockWrap = 0;
 			TftpBlockWrapOffset = 0;
@@ -440,7 +440,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 
 		/*
 		 *	Acknoledge the block just received, which will prompt
-		 *	the server for the next one.
+		 *	the remote for the next one.
 		 */
 #ifdef CONFIG_MCAST_TFTP
 		/* if I am the MasterClient, actively calculate what my next
@@ -569,7 +569,7 @@ TftpStart(void)
 	debug("TFTP blocksize = %i, timeout = %ld ms\n",
 		TftpBlkSizeOption, TftpTimeoutMSecs);
 
-	TftpServerIP = NetServerIP;
+	TftpRemoteIP = NetServerIP;
 	if (BootFile[0] == '\0') {
 		sprintf(default_filename, "%02lX%02lX%02lX%02lX.img",
 			NetOurIP & 0xFF,
@@ -589,7 +589,7 @@ TftpStart(void)
 			strncpy(tftp_filename, BootFile, MAX_LEN);
 			tftp_filename[MAX_LEN-1] = 0;
 		} else {
-			TftpServerIP = string_to_ip(BootFile);
+			TftpRemoteIP = string_to_ip(BootFile);
 			strncpy(tftp_filename, p + 1, MAX_LEN);
 			tftp_filename[MAX_LEN-1] = 0;
 		}
@@ -599,14 +599,14 @@ TftpStart(void)
 	printf("Using %s device\n", eth_get_name());
 #endif
 	printf("TFTP from server %pI4"
-		"; our IP address is %pI4", &TftpServerIP, &NetOurIP);
+		"; our IP address is %pI4", &TftpRemoteIP, &NetOurIP);
 
 	/* Check if we need to send across this subnet */
 	if (NetOurGatewayIP && NetOurSubnetMask) {
 		IPaddr_t OurNet	= NetOurIP    & NetOurSubnetMask;
-		IPaddr_t ServerNet	= TftpServerIP & NetOurSubnetMask;
+		IPaddr_t RemoteNet	= TftpRemoteIP & NetOurSubnetMask;
 
-		if (OurNet != ServerNet)
+		if (OurNet != RemoteNet)
 			printf("; sending through gateway %pI4",
 			       &NetOurGatewayIP);
 	}
@@ -630,7 +630,7 @@ TftpStart(void)
 	NetSetTimeout(TftpTimeoutMSecs, TftpTimeout);
 	NetSetHandler(TftpHandler);
 
-	TftpServerPort = WELL_KNOWN_PORT;
+	TftpRemotePort = WELL_KNOWN_PORT;
 	TftpTimeoutCount = 0;
 	TftpState = STATE_RRQ;
 	/* Use a pseudo-random port unless a specific port is set */
@@ -639,7 +639,7 @@ TftpStart(void)
 #ifdef CONFIG_TFTP_PORT
 	ep = getenv("tftpdstp");
 	if (ep != NULL)
-		TftpServerPort = simple_strtol(ep, NULL, 10);
+		TftpRemotePort = simple_strtol(ep, NULL, 10);
 	ep = getenv("tftpsrcp");
 	if (ep != NULL)
 		TftpOurPort = simple_strtol(ep, NULL, 10);
