@@ -199,6 +199,33 @@ static unsigned long s5pc210_get_uart_clk(int dev_index)
 	return uclk;
 }
 
+/* s5pc210: set the mmc clock */
+static void s5pc210_set_mmc_clk(int dev_index, unsigned int div)
+{
+	struct s5pc210_clock *clk =
+		(struct s5pc210_clock *)samsung_get_base_clock();
+	unsigned int addr;
+	unsigned int val;
+
+	/*
+	 * CLK_DIV_FSYS1
+	 * MMC0_PRE_RATIO [15:8], MMC1_PRE_RATIO [31:24]
+	 * CLK_DIV_FSYS2
+	 * MMC2_PRE_RATIO [15:8], MMC3_PRE_RATIO [31:24]
+	 */
+	if (dev_index < 2) {
+		addr = (unsigned int)&clk->div_fsys1;
+	} else {
+		addr = (unsigned int)&clk->div_fsys2;
+		dev_index -= 2;
+	}
+
+	val = readl(addr);
+	val &= ~(0xff << ((dev_index << 4) + 8));
+	val |= (div & 0xff) << ((dev_index << 4) + 8);
+	writel(val, addr);
+}
+
 unsigned long get_pll_clk(int pllreg)
 {
 	return s5pc210_get_pll_clk(pllreg);
@@ -217,4 +244,9 @@ unsigned long get_pwm_clk(void)
 unsigned long get_uart_clk(int dev_index)
 {
 	return s5pc210_get_uart_clk(dev_index);
+}
+
+void set_mmc_clk(int dev_index, unsigned int div)
+{
+	s5pc210_set_mmc_clk(dev_index, div);
 }

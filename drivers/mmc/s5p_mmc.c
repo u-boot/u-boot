@@ -22,6 +22,7 @@
 #include <mmc.h>
 #include <asm/io.h>
 #include <asm/arch/mmc.h>
+#include <asm/arch/clk.h>
 
 /* support 4 mmc hosts */
 struct mmc mmc_dev[4];
@@ -291,6 +292,8 @@ static void mmc_change_clock(struct mmc_host *host, uint clock)
 	clk = (div << 8) | (1 << 0);
 	writew(clk, &host->reg->clkcon);
 
+	set_mmc_clk(host->dev_index, div);
+
 	/* Wait max 10 ms */
 	timeout = 10;
 	while (!(readw(&host->reg->clkcon) & (1 << 1))) {
@@ -464,6 +467,7 @@ static int s5p_mmc_initialize(int dev_index, int bus_width)
 	mmc->f_min = 400000;
 	mmc->f_max = 52000000;
 
+	mmc_host[dev_index].dev_index = dev_index;
 	mmc_host[dev_index].clock = 0;
 	mmc_host[dev_index].reg = s5p_get_base_mmc(dev_index);
 	mmc->b_max = 0;
