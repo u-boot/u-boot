@@ -80,7 +80,7 @@ static int	TftpTsize;
 static short	TftpNumchars;
 #endif
 
-#define STATE_RRQ	1
+#define STATE_SEND_RRQ	1
 #define STATE_DATA	2
 #define STATE_TOO_LARGE	3
 #define STATE_BAD_MAGIC	4
@@ -215,7 +215,7 @@ TftpSend(void)
 
 	switch (TftpState) {
 
-	case STATE_RRQ:
+	case STATE_SEND_RRQ:
 		xp = pkt;
 		s = (ushort *)pkt;
 		*s++ = htons(TFTP_RRQ);
@@ -309,7 +309,7 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 #endif
 			return;
 	}
-	if (TftpState != STATE_RRQ && src != TftpRemotePort)
+	if (TftpState != STATE_SEND_RRQ && src != TftpRemotePort)
 		return;
 
 	if (len < 2)
@@ -399,10 +399,10 @@ TftpHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 				puts("\n\t ");
 		}
 
-		if (TftpState == STATE_RRQ)
+		if (TftpState == STATE_SEND_RRQ)
 			debug("Server did not acknowledge timeout option!\n");
 
-		if (TftpState == STATE_RRQ || TftpState == STATE_OACK) {
+		if (TftpState == STATE_SEND_RRQ || TftpState == STATE_OACK) {
 			/* first block received */
 			TftpState = STATE_DATA;
 			TftpRemotePort = src;
@@ -632,7 +632,7 @@ TftpStart(void)
 
 	TftpRemotePort = WELL_KNOWN_PORT;
 	TftpTimeoutCount = 0;
-	TftpState = STATE_RRQ;
+	TftpState = STATE_SEND_RRQ;
 	/* Use a pseudo-random port unless a specific port is set */
 	TftpOurPort = 1024 + (get_timer(0) % 3072);
 
