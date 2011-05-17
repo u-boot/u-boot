@@ -62,10 +62,12 @@
 /*
  * Network Settings
  */
-/* TCM-BF537E has no PHY on it, but EXT-BF5xx-USB/Ethernet board has */
 #ifndef __ADSPBF534__
 #define ADI_CMDS_NETWORK	1
 #define CONFIG_BFIN_MAC
+#define CONFIG_SMC911X		1
+#define CONFIG_SMC911X_BASE	0x20308000
+#define CONFIG_SMC911X_16_BIT
 #define CONFIG_NETCONSOLE	1
 #define CONFIG_NET_MULTI	1
 #endif
