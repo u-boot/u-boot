@@ -34,7 +34,6 @@
 #define _DataFlash_h
 
 
-#include <asm/arch/hardware.h>
 #include "config.h"
 
 /*number of protected area*/

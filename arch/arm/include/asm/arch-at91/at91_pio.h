@@ -76,32 +76,19 @@ typedef struct at91_port {
 	u32	reserved6[85];
 } at91_port_t;
 
-#if defined(CONFIG_AT91SAM9260) || defined(CONFIG_AT91SAM9261) || \
-	defined(CONFIG_AT91SAM9G10) || defined(CONFIG_AT91SAM9G20)
-#define AT91_PIO_PORTS	3
-#elif defined(CONFIG_AT91SAM9263) || defined(CONFIG_AT91SAM9G45) || \
-	defined(CONFIG_AT91SAM9M10G45)
-#define AT91_PIO_PORTS	5
-#elif defined(CONFIG_AT91RM9200) || defined(CONFIG_AT91CAP9) || \
-	defined(CONFIG_AT91SAM9RL)
-#define AT91_PIO_PORTS	4
-#else
-#error "Unsupported cpu. Please update at91_pio.h"
-#endif
-
 typedef union at91_pio {
 	struct {
 		at91_port_t	pioa;
 		at91_port_t	piob;
 		at91_port_t	pioc;
-	#if (AT91_PIO_PORTS > 3)
+	#if (ATMEL_PIO_PORTS > 3)
 		at91_port_t	piod;
 	#endif
-	#if (AT91_PIO_PORTS > 4)
+	#if (ATMEL_PIO_PORTS > 4)
 		at91_port_t	pioe;
 	#endif
 	} ;
-	at91_port_t port[AT91_PIO_PORTS];
+	at91_port_t port[ATMEL_PIO_PORTS];
 } at91_pio_t;
 
 #ifdef CONFIG_AT91_GPIO

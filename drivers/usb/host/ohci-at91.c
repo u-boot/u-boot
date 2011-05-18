@@ -25,14 +25,14 @@
 
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT)
 
+#include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/io.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/clk.h>
 
 int usb_cpu_init(void)
 {
-	at91_pmc_t *pmc	= (at91_pmc_t *)AT91_PMC_BASE;
+	at91_pmc_t *pmc	= (at91_pmc_t *)ATMEL_BASE_PMC;
 
 #if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \
     defined(CONFIG_AT91SAM9263) || defined(CONFIG_AT91SAM9G20) || \
@@ -53,11 +53,11 @@ int usb_cpu_init(void)
 #endif
 
 	/* Enable USB host clock. */
-	writel(1 << AT91_ID_UHP, &pmc->pcer);
+	writel(1 << ATMEL_ID_UHP, &pmc->pcer);
 #ifdef CONFIG_AT91SAM9261
-	writel(AT91_PMC_UHP | AT91_PMC_HCK0, &pmc->scer);
+	writel(ATMEL_PMC_UHP | AT91_PMC_HCK0, &pmc->scer);
 #else
-	writel(AT91_PMC_UHP, &pmc->scer);
+	writel(ATMEL_PMC_UHP, &pmc->scer);
 #endif
 
 	return 0;
@@ -65,14 +65,14 @@ int usb_cpu_init(void)
 
 int usb_cpu_stop(void)
 {
-	at91_pmc_t *pmc	= (at91_pmc_t *)AT91_PMC_BASE;
+	at91_pmc_t *pmc	= (at91_pmc_t *)ATMEL_BASE_PMC;
 
 	/* Disable USB host clock. */
-	writel(1 << AT91_ID_UHP, &pmc->pcdr);
+	writel(1 << ATMEL_ID_UHP, &pmc->pcdr);
 #ifdef CONFIG_AT91SAM9261
-	writel(AT91_PMC_UHP | AT91_PMC_HCK0, &pmc->scdr);
+	writel(ATMEL_PMC_UHP | AT91_PMC_HCK0, &pmc->scdr);
 #else
-	writel(AT91_PMC_UHP, &pmc->scdr);
+	writel(ATMEL_PMC_UHP, &pmc->scdr);
 #endif
 
 #if defined(CONFIG_AT91CAP9) || defined(CONFIG_AT91SAM9260) || \

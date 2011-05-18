@@ -23,10 +23,10 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/io.h>
 
 #ifdef CONFIG_RED_LED
 void red_LED_on(void)

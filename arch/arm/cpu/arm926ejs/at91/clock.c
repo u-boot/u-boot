@@ -12,8 +12,8 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/io.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/clk.h>
 
@@ -57,7 +57,7 @@ static unsigned long at91_css_to_rate(unsigned long css)
 {
 	switch (css) {
 	case AT91_PMC_MCKR_CSS_SLOW:
-		return AT91_SLOW_CLOCK;
+		return CONFIG_SYS_AT91_SLOW_CLOCK;
 	case AT91_PMC_MCKR_CSS_MAIN:
 		return gd->main_clk_rate_hz;
 	case AT91_PMC_MCKR_CSS_PLLA:
@@ -145,7 +145,7 @@ static u32 at91_pll_rate(u32 freq, u32 reg)
 int at91_clock_init(unsigned long main_clock)
 {
 	unsigned freq, mckr;
-	at91_pmc_t *pmc = (at91_pmc_t *) AT91_PMC_BASE;
+	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 #ifndef CONFIG_SYS_AT91_MAIN_CLOCK
 	unsigned tmp;
 	/*
@@ -159,7 +159,7 @@ int at91_clock_init(unsigned long main_clock)
 			tmp = readl(&pmc->mcfr);
 		} while (!(tmp & AT91_PMC_MCFR_MAINRDY));
 		tmp &= AT91_PMC_MCFR_MAINF_MASK;
-		main_clock = tmp * (AT91_SLOW_CLOCK / 16);
+		main_clock = tmp * (CONFIG_SYS_AT91_SLOW_CLOCK / 16);
 	}
 #endif
 	gd->main_clk_rate_hz = main_clock;

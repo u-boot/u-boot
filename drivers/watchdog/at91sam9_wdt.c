@@ -21,7 +21,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <asm/arch/hardware.h>
-#include <asm/arch/io.h>
+#include <asm/io.h>
 #include <asm/arch/at91_wdt.h>
 
 /*
@@ -42,7 +42,7 @@
 static int at91_wdt_settimeout(unsigned int timeout)
 {
 	unsigned int reg;
-	at91_wdt_t *wd 	= (at91_wdt_t *) AT91_WDT_BASE;
+	at91_wdt_t *wd = (at91_wdt_t *) ATMEL_BASE_WDT;
 
 	/* Check if disabled */
 	if (readl(&wd->mr) & AT91_WDT_MR_WDDIS) {
@@ -69,7 +69,7 @@ static int at91_wdt_settimeout(unsigned int timeout)
 
 void hw_watchdog_reset(void)
 {
-	at91_wdt_t *wd 	= (at91_wdt_t *) AT91_WDT_BASE;
+	at91_wdt_t *wd = (at91_wdt_t *) ATMEL_BASE_WDT;
 	writel(AT91_WDT_CR_WDRSTT | AT91_WDT_CR_KEY, &wd->cr);
 }
 

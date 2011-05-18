@@ -27,7 +27,7 @@
 #include <asm/processor.h>
 #include <asm/sysreg.h>
 
-#include <asm/arch/memory-map.h>
+#include <asm/arch/hardware.h>
 
 #define HANDLER_MASK	0x00ffffff
 #define INTLEV_SHIFT	30
@@ -125,7 +125,7 @@ static int set_interrupt_handler(unsigned int nr, void (*handler)(void),
 
 	intpr = (handler_addr & HANDLER_MASK);
 	intpr |= (priority & INTLEV_MASK) << INTLEV_SHIFT;
-	writel(intpr, (void *)INTC_BASE + 4 * nr);
+	writel(intpr, (void *)ATMEL_BASE_INTC + 4 * nr);
 
 	return 0;
 }

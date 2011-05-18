@@ -117,7 +117,7 @@ struct hmatrix_regs {
 
 /* Register access macros */
 #define __hmatrix_reg(reg)					\
-	(((volatile struct hmatrix_regs *)HMATRIX_BASE)->reg)
+	(((volatile struct hmatrix_regs *)ATMEL_BASE_HMATRIX)->reg)
 #define hmatrix_read(reg)					\
 	(__hmatrix_reg(reg))
 #define hmatrix_write(reg, value)				\

@@ -238,8 +238,8 @@ typedef struct atmel_mci {
  * Register access macros
  */
 #define mmci_readl(reg)					\
-	readl((void *)MMCI_BASE + MMCI_##reg)
+	readl((void *)ATMEL_BASE_MMCI + MMCI_##reg)
 #define mmci_writel(reg,value)				\
-	writel((value), (void *)MMCI_BASE + MMCI_##reg)
+	writel((value), (void *)ATMEL_BASE_MMCI + MMCI_##reg)
 
 #endif /* __CPU_AT32AP_ATMEL_MCI_H__ */

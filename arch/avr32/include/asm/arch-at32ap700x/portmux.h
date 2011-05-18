@@ -24,11 +24,11 @@
 
 #include <asm/arch/gpio.h>
 
-#define PORTMUX_PORT_A		((void *)PIOA_BASE)
-#define PORTMUX_PORT_B		((void *)PIOB_BASE)
-#define PORTMUX_PORT_C		((void *)PIOC_BASE)
-#define PORTMUX_PORT_D		((void *)PIOD_BASE)
-#define PORTMUX_PORT_E		((void *)PIOE_BASE)
+#define PORTMUX_PORT_A		((void *)ATMEL_BASE_PIOA)
+#define PORTMUX_PORT_B		((void *)ATMEL_BASE_PIOB)
+#define PORTMUX_PORT_C		((void *)ATMEL_BASE_PIOC)
+#define PORTMUX_PORT_D		((void *)ATMEL_BASE_PIOD)
+#define PORTMUX_PORT_E		((void *)ATMEL_BASE_PIOE)
 
 void portmux_enable_ebi(unsigned int bus_width, unsigned int addr_width,
 		unsigned long flags, unsigned long drive_strength);
