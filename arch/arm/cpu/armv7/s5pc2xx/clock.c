@@ -124,28 +124,34 @@ static unsigned long s5pc210_get_pwm_clk(void)
 	unsigned int sel;
 	unsigned int ratio;
 
-	/*
-	 * CLK_SRC_PERIL0
-	 * PWM_SEL [27:24]
-	 */
-	sel = readl(&clk->src_peril0);
-	sel = (sel >> 24) & 0xf;
+	if (s5p_get_cpu_rev() == 0) {
+		/*
+		 * CLK_SRC_PERIL0
+		 * PWM_SEL [27:24]
+		 */
+		sel = readl(&clk->src_peril0);
+		sel = (sel >> 24) & 0xf;
 
-	if (sel == 0x6)
+		if (sel == 0x6)
+			sclk = get_pll_clk(MPLL);
+		else if (sel == 0x7)
+			sclk = get_pll_clk(EPLL);
+		else if (sel == 0x8)
+			sclk = get_pll_clk(VPLL);
+		else
+			return 0;
+
+		/*
+		 * CLK_DIV_PERIL3
+		 * PWM_RATIO [3:0]
+		 */
+		ratio = readl(&clk->div_peril3);
+		ratio = ratio & 0xf;
+	} else if (s5p_get_cpu_rev() == 1) {
 		sclk = get_pll_clk(MPLL);
-	else if (sel == 0x7)
-		sclk = get_pll_clk(EPLL);
-	else if (sel == 0x8)
-		sclk = get_pll_clk(VPLL);
-	else
+		ratio = 8;
+	} else
 		return 0;
-
-	/*
-	 * CLK_DIV_PERIL3
-	 * PWM_RATIO [3:0]
-	 */
-	ratio = readl(&clk->div_peril3);
-	ratio = ratio & 0xf;
 
 	pclk = sclk / (ratio + 1);
 
