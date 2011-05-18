@@ -33,11 +33,8 @@ static int nand_command(struct mtd_info *mtd, int block, int page, int offs, u8 
 	struct nand_chip *this = mtd->priv;
 	int page_addr = page + block * CONFIG_SYS_NAND_PAGE_COUNT;
 
-	if (this->dev_ready)
-		while (!this->dev_ready(mtd))
-			;
-	else
-		CONFIG_SYS_NAND_READ_DELAY;
+	while (!this->dev_ready(mtd))
+		;
 
 	/* Begin command latch cycle */
 	this->cmd_ctrl(mtd, cmd, NAND_CTRL_CLE | NAND_CTRL_CHANGE);
