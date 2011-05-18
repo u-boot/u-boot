@@ -36,7 +36,7 @@ int gen10g_shutdown(struct phy_device *phydev)
 int gen10g_startup(struct phy_device *phydev)
 {
 	int devad, reg;
-	u32 mmd_mask = phydev->mmds;
+	u32 mmd_mask = phydev->mmds & MDIO_DEVS_LINK;
 
 	phydev->link = 1;
 
@@ -44,8 +44,12 @@ int gen10g_startup(struct phy_device *phydev)
 	phydev->speed = SPEED_10000;
 	phydev->duplex = DUPLEX_FULL;
 
+	/*
+	 * Go through all the link-reporting devices, and make sure
+	 * they're all up and happy
+	 */
 	for (devad = 0; mmd_mask; devad++, mmd_mask = mmd_mask >> 1) {
-		if (!mmd_mask & 1)
+		if (!(mmd_mask & 1))
 			continue;
 
 		/* Read twice because link state is latched and a

@@ -120,6 +120,14 @@
 #define MDIO_DEVS_VEND1			MDIO_DEVS_PRESENT(MDIO_MMD_VEND1)
 #define MDIO_DEVS_VEND2			MDIO_DEVS_PRESENT(MDIO_MMD_VEND2)
 
+#define MDIO_DEVS_LINK			(MDIO_DEVS_PMAPMD | \
+					MDIO_DEVS_WIS | \
+					MDIO_DEVS_PCS | \
+					MDIO_DEVS_PHYXS | \
+					MDIO_DEVS_DTEXS | \
+					MDIO_DEVS_AN)
+
+
 
 /* Control register 2. */
 #define MDIO_PMA_CTRL2_TYPE		0x000f	/* PMA/PMD type selection */
