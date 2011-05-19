@@ -247,13 +247,13 @@ void init_laws(void)
 #error FSL_HW_NUM_LAWS can not be greater than 32 w/o code changes
 #endif
 
-	/* 
+	/*
 	 * Any LAWs that were set up before we booted assume they are meant to
 	 * be around and mark them used.
 	 */
 	for (i = 0; i < FSL_HW_NUM_LAWS; i++) {
 		u32 lawar = in_be32(LAWAR_ADDR(i));
-		
+
 		if (lawar & LAW_EN)
 			gd->used_laws |= (1 << i);
 	}

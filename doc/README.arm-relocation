@@ -177,9 +177,9 @@ ip_addr     = XXXXXXXXXX
 baudrate    = XXXXXXXXXX
 TLB addr    = XXXXXXXXXX
 relocaddr   = 0x8ff08000
-              ^^^^^^^^^^
+	      ^^^^^^^^^^
 reloc off   = XXXXXXXXXX
-irq_sp      = XXXXXXXXXX
+irq_sp	    = XXXXXXXXXX
 sp start    = XXXXXXXXXX
 FB base     = XXXXXXXXXX
 

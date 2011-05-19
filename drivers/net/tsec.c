@@ -593,4 +593,3 @@ int tsec_standard_init(bd_t *bis)
 
 	return tsec_eth_init(bis, tsec_info, ARRAY_SIZE(tsec_info));
 }
-

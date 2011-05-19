@@ -88,4 +88,3 @@ void __led_set (led_id_t mask, int state)
 	}
 #endif
 }
-

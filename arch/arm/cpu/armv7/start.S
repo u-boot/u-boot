@@ -79,7 +79,7 @@ _TEXT_BASE:
  */
 .globl _armboot_start
 _armboot_start:
-        .word _start
+	.word _start
 #endif
 
 /*

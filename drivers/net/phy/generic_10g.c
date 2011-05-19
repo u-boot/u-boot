@@ -102,4 +102,3 @@ struct phy_driver gen10g_driver = {
 	.startup	= gen10g_startup,
 	.shutdown	= gen10g_shutdown,
 };
-

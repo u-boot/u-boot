@@ -96,7 +96,7 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	}
 
 	for (i = 0; led_commands[i].string; i++) {
-		if ((strcmp("all", argv[1]) == 0) || 
+		if ((strcmp("all", argv[1]) == 0) ||
 		    (strcmp(led_commands[i].string, argv[1]) == 0)) {
 			if (led_commands[i].on) {
 				if (state) {

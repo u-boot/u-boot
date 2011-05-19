@@ -64,4 +64,3 @@ int cpu_init_r(void)
 
 	return x86_cpu_init_r();
 }
-

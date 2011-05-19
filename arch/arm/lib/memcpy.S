@@ -238,4 +238,3 @@ memcpy:
 17:		forward_copy_shift	pull=16	push=16
 
 18:		forward_copy_shift	pull=24	push=8
-

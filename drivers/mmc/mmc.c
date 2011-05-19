@@ -434,14 +434,14 @@ int mmc_send_op_cond(struct mmc *mmc)
  	cmd.resp_type = MMC_RSP_R3;
  	cmd.cmdarg = 0;
  	cmd.flags = 0;
- 
+
  	err = mmc_send_cmd(mmc, &cmd, NULL);
- 
+
  	if (err)
  		return err;
- 
+
  	udelay(1000);
- 
+
 	do {
 		cmd.cmdidx = MMC_CMD_SEND_OP_COND;
 		cmd.resp_type = MMC_RSP_R3;

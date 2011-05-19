@@ -59,4 +59,3 @@ struct fsl_pq_mdio_info {
 int fsl_pq_mdio_init(bd_t *bis, struct fsl_pq_mdio_info *info);
 
 #endif /* __FSL_PHY_H__ */
-

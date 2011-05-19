@@ -34,4 +34,3 @@
 #define CONFIG_ICS307_REFCLK_HZ		25000000  /* ICS307 ref clk freq */
 
 #include "corenet_ds.h"
-

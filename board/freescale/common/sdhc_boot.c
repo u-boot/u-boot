@@ -61,4 +61,3 @@ int mmc_get_env_addr(struct mmc *mmc, u32 *env_addr)
 
 	return 0;
 }
-
