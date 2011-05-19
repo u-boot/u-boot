@@ -24,6 +24,7 @@
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
 
+#ifdef CONFIG_SYS_DPAA_QBMAN
 struct qportal_info qp_info[CONFIG_SYS_QMAN_NUM_PORTALS] = {
 	/* dqrr liodn, frame data liodn, liodn off, sdest */
 	SET_QP_INFO( 1,  2,  1, 0),
@@ -37,6 +38,7 @@ struct qportal_info qp_info[CONFIG_SYS_QMAN_NUM_PORTALS] = {
 	SET_QP_INFO(17, 18,  9, 0), /* for now sdest to 0 */
 	SET_QP_INFO(19, 20, 10, 0), /* for now sdest to 0 */
 };
+#endif
 
 struct liodn_id_table liodn_tbl[] = {
 	SET_USB_LIODN(1, "fsl-usb2-mph", 127),
@@ -55,10 +57,13 @@ struct liodn_id_table liodn_tbl[] = {
 	SET_GUTS_LIODN(NULL, 199, rio2liodnr, 0),
 	SET_GUTS_LIODN(NULL, 200, rmuliodnr, 0),
 
+#ifdef CONFIG_SYS_DPAA_QBMAN
 	SET_QMAN_LIODN(31),
 	SET_BMAN_LIODN(32),
+#endif
 	SET_PME_LIODN(128),
 };
+int liodn_tbl_sz = ARRAY_SIZE(liodn_tbl);
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 struct liodn_id_table fman1_liodn_tbl[] = {
@@ -68,6 +73,7 @@ struct liodn_id_table fman1_liodn_tbl[] = {
 	SET_FMAN_RX_1G_LIODN(1, 3, 14),
 	SET_FMAN_RX_10G_LIODN(1, 0, 15),
 };
+int fman1_liodn_tbl_sz = ARRAY_SIZE(fman1_liodn_tbl);
 
 #if (CONFIG_SYS_NUM_FMAN == 2)
 struct liodn_id_table fman2_liodn_tbl[] = {
@@ -77,6 +83,7 @@ struct liodn_id_table fman2_liodn_tbl[] = {
 	SET_FMAN_RX_1G_LIODN(2, 3, 19),
 	SET_FMAN_RX_10G_LIODN(2, 0, 20),
 };
+int fman2_liodn_tbl_sz = ARRAY_SIZE(fman2_liodn_tbl);
 #endif
 #endif
 
@@ -101,6 +108,7 @@ struct liodn_id_table sec_liodn_tbl[] = {
 	SET_SEC_DECO_LIODN_ENTRY(3, 132, 164),
 	SET_SEC_DECO_LIODN_ENTRY(4, 133, 165),
 };
+int sec_liodn_tbl_sz = ARRAY_SIZE(sec_liodn_tbl);
 
 struct liodn_id_table liodn_bases[] = {
 	[FSL_HW_PORTAL_SEC]  = SET_LIODN_BASE_2(96, 106),
@@ -114,8 +122,3 @@ struct liodn_id_table liodn_bases[] = {
 	[FSL_HW_PORTAL_PME]   = SET_LIODN_BASE_2(116, 133),
 #endif
 };
-
-int liodn_tbl_sz = ARRAY_SIZE(liodn_tbl);
-int fman1_liodn_tbl_sz = ARRAY_SIZE(fman1_liodn_tbl);
-int fman2_liodn_tbl_sz = ARRAY_SIZE(fman2_liodn_tbl);
-int sec_liodn_tbl_sz = ARRAY_SIZE(sec_liodn_tbl);

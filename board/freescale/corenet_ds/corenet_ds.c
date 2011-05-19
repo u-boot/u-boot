@@ -142,7 +142,9 @@ int board_early_init_r(void)
 			0, flash_esel, BOOKE_PAGESZ_256M, 1);	/* ts, esel, tsize, iprot */
 
 	set_liodns();
+#ifdef CONFIG_SYS_DPAA_QBMAN
 	setup_portals();
+#endif
 
 	return 0;
 }
