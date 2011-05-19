@@ -68,17 +68,34 @@
 
 #define CONFIG_ENV_OVERWRITE
 
-#if defined(CONFIG_RAMBOOT_PBL)
-	#define CONFIG_SYS_NO_FLASH	/* Store ENV in memory only */
-#endif
-
 #ifdef CONFIG_SYS_NO_FLASH
 #define CONFIG_ENV_IS_NOWHERE
 #else
-#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI
+#endif
+
+#if defined(CONFIG_SPIFLASH)
+#define CONFIG_SYS_EXTRA_ENV_RELOC
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SPI_BUS              0
+#define CONFIG_ENV_SPI_CS               0
+#define CONFIG_ENV_SPI_MAX_HZ           10000000
+#define CONFIG_ENV_SPI_MODE             0
+#define CONFIG_ENV_SIZE                 0x2000          /* 8KB */
+#define CONFIG_ENV_OFFSET               0x100000        /* 1MB */
+#define CONFIG_ENV_SECT_SIZE            0x10000
+#elif defined(CONFIG_SDCARD)
+#define CONFIG_SYS_EXTRA_ENV_RELOC
+#define CONFIG_ENV_IS_IN_MMC
+#define CONFIG_SYS_MMC_ENV_DEV          0
+#define CONFIG_ENV_SIZE			0x2000
+#define CONFIG_ENV_OFFSET		(512 * 1097)
+#else
+#define CONFIG_ENV_IS_IN_FLASH
 #define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE - CONFIG_ENV_SECT_SIZE)
+#define CONFIG_ENV_SIZE		0x2000
+#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
 #endif
 
 #define CONFIG_SYS_CLK_FREQ	get_board_sys_clk() /* sysclk for MPC85xx */
@@ -351,6 +368,16 @@
 #define CONFIG_SYS_SRIO2_MEM_SIZE	0x10000000	/* 256M */
 
 /*
+ * eSPI - Enhanced SPI
+ */
+#define CONFIG_FSL_ESPI
+#define CONFIG_SPI_FLASH
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_CMD_SF
+#define CONFIG_SF_DEFAULT_SPEED         10000000
+#define CONFIG_SF_DEFAULT_MODE          0
+
+/*
  * General PCI
  * Memory space is mapped 1-1, but I/O space must start from 0.
  */
@@ -503,9 +530,6 @@
 /*
  * Environment
  */
-#define CONFIG_ENV_SIZE		0x2000
-#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
-
 #define CONFIG_LOADS_ECHO		/* echo on for serial download */
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	/* allow baudrate change */
 
