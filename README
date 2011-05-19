@@ -2917,6 +2917,14 @@ Low Level (hardware related) configuration options:
 - CONFIG_SYS_SRIOn_MEM_SIZE:
 		Size of SRIO port 'n' memory region
 
+- CONFIG_SYS_NDFC_16
+		Defined to tell the NDFC that the NAND chip is using a
+		16 bit bus.
+
+- CONFIG_SYS_NDFC_EBC0_CFG
+		Sets the EBC0_CFG register for the NDFC. If not defined
+		a default value will be used.
+
 - CONFIG_SPD_EEPROM
 		Get DDR timing information from an I2C EEPROM. Common
 		with pluggable memory modules such as SODIMMs

@@ -122,10 +122,15 @@ static int nand_is_bad_block(struct mtd_info *mtd, int block)
 	nand_command(mtd, block, 0, CONFIG_SYS_NAND_BAD_BLOCK_POS, NAND_CMD_READOOB);
 
 	/*
-	 * Read one byte
+	 * Read one byte (or two if it's a 16 bit chip).
 	 */
-	if (readb(this->IO_ADDR_R) != 0xff)
-		return 1;
+	if (this->options & NAND_BUSWIDTH_16) {
+		if (readw(this->IO_ADDR_R) != 0xffff)
+			return 1;
+	} else {
+		if (readb(this->IO_ADDR_R) != 0xff)
+			return 1;
+	}
 
 	return 0;
 }
