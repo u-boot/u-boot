@@ -693,7 +693,7 @@ U_BOOT_CMD(
 	"    write 'size' bytes starting at offset 'off' with yaffs format\n"
 	"    from memory address 'addr', skipping bad blocks.\n"
 #endif
-	"nand erase[.spread] [clean] [off [size]] - erase 'size' bytes "
+	"nand erase[.spread] [clean] off size - erase 'size' bytes "
 	"from offset 'off'\n"
 	"    With '.spread', erase enough for given file size, otherwise,\n"
 	"    'size' includes skipped bad blocks.\n"
