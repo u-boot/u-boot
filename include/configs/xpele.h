@@ -147,8 +147,9 @@
 #define CONFIG_TTC0	1
 #define CONFIG_GEM0	1
 
-/* XPAR_CPU_CORTEXA9_CORE_CLOCK_FREQ_HZ */
-#define CONFIG_SYS_HZ	10000000 
+#define TIMER_CLOCK                     5000000
+#define CONFIG_TIMER_PRESCALE           255
+#define CONFIG_SYS_HZ                   (TIMER_CLOCK / CONFIG_TIMER_PRESCALE)
 
 /* And here... */
 #define CONFIG_SYS_LOAD_ADDR	0 /* default? */

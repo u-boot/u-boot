@@ -19,8 +19,6 @@
  * (C) Copyright 2008
  * Guennadi Liakhovetki, DENX Software Engineering, <lg@denx.de>
  *
- * And thoroughly mangled into dragonfire form, probably never to escape Xilinx.
- *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -87,7 +85,7 @@ int timer_init()
 	/* Clear prescaler control bits */
 	val &= ~XSCUTIMER_CONTROL_PRESCALER_MASK;
 	/* Set prescaler value */
-	val |= (0xFF << XSCUTIMER_CONTROL_PRESCALER_SHIFT);
+	val |= (CONFIG_TIMER_PRESCALE << XSCUTIMER_CONTROL_PRESCALER_SHIFT);
 	/* Enable the decrementer */
 	val |= XSCUTIMER_CONTROL_ENABLE_MASK;
 	XScuTimer_WriteReg(XSCUTIMER_CONTROL_OFFSET, val);
@@ -129,8 +127,7 @@ unsigned long long get_ticks(void)
  */
 ulong get_tbclk(void)
 {
-	/* We overrun in 100s */
-	return (ulong)(TIMER_LOAD_VAL / 100);
+	return (ulong)CONFIG_SYS_HZ;
 }
 
 void reset_timer_masked(void)
@@ -148,7 +145,6 @@ void reset_timer(void)
 ulong get_timer_masked(void)
 {
 	unsigned long long res = get_ticks();
-	do_div (res, (CONFIG_SYS_HZ / 1000000) );
 	return res;
 }
 
@@ -159,7 +155,7 @@ ulong get_timer(ulong base)
 
 void set_timer(ulong t)
 {
-	timestamp = t * (TIMER_LOAD_VAL / (100 * CONFIG_SYS_HZ));
+	timestamp = t;
 }
 
 void __udelay(unsigned long usec)
@@ -167,9 +163,11 @@ void __udelay(unsigned long usec)
 	unsigned long long tmp;
 	ulong tmo;
 
-	tmo = (usec + 9) / 10;
+	tmo = usec / (1000000 / CONFIG_SYS_HZ);
 	tmp = get_ticks() + tmo;	/* get current timestamp */
 
-	while (get_ticks() < tmp)/* loop till event */
+	while (get_ticks() < tmp) { /* loop till event */ 
 		 /*NOP*/;
+	}
 }
+
