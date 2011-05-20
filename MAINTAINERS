@@ -639,10 +639,6 @@ Fabio Estevam <fabio.estevam@freescale.com>
 
 	mx31pdk		i.MX31
 
-Peter Figuli <peposh@etc.sk>
-
-	wepep250	xscale
-
 Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
 
 	meesc		ARM926EJS (AT91SAM9263 SoC)
