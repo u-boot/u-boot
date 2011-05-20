@@ -58,8 +58,10 @@ void init_early_memctl_regs(void)
 #endif
 	/* now restrict to preliminary range */
 	if (init_br1) {
+#if defined(CONFIG_SYS_BR0_PRELIM) && defined(CONFIG_SYS_OR0_PRELIM)
 		set_lbc_br(0, CONFIG_SYS_BR0_PRELIM);
 		set_lbc_or(0, CONFIG_SYS_OR0_PRELIM);
+#endif
 
 #if defined(CONFIG_SYS_BR1_PRELIM) && defined(CONFIG_SYS_OR1_PRELIM)
 		set_lbc_or(1, CONFIG_SYS_OR1_PRELIM);
