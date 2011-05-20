@@ -13,6 +13,7 @@
 *~
 *.swp
 *.patch
+*.bin
 
 #
 # Top-level generic files
@@ -23,14 +24,15 @@
 /u-boot.hex
 /u-boot.imx
 /u-boot.map
-/u-boot.bin
 /u-boot.srec
 /u-boot.ldr
 /u-boot.ldr.hex
 /u-boot.ldr.srec
+/u-boot.img
+/u-boot.kwb
+/u-boot.sha1
+/u-boot.dis
 /u-boot.lds
-/u-boot-onenand.bin
-/u-boot-flexonenand.bin
 
 #
 # Generated files
