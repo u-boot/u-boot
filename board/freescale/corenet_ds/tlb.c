@@ -98,6 +98,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      0, 6, BOOKE_PAGESZ_256K, 1),
 
 	/* Bman/Qman */
+#ifdef CONFIG_SYS_BMAN_MEM_PHYS
 	SET_TLB_ENTRY(1, CONFIG_SYS_BMAN_MEM_BASE, CONFIG_SYS_BMAN_MEM_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 9, BOOKE_PAGESZ_1M, 1),
@@ -105,6 +106,8 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      CONFIG_SYS_BMAN_MEM_PHYS + 0x00100000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 10, BOOKE_PAGESZ_1M, 1),
+#endif
+#ifdef CONFIG_SYS_QMAN_MEM_PHYS
 	SET_TLB_ENTRY(1, CONFIG_SYS_QMAN_MEM_BASE, CONFIG_SYS_QMAN_MEM_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, 0,
 		      0, 11, BOOKE_PAGESZ_1M, 1),
@@ -112,6 +115,7 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      CONFIG_SYS_QMAN_MEM_PHYS + 0x00100000,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 12, BOOKE_PAGESZ_1M, 1),
+#endif
 #ifdef CONFIG_SYS_DCSRBAR_PHYS
 	SET_TLB_ENTRY(1, CONFIG_SYS_DCSRBAR, CONFIG_SYS_DCSRBAR_PHYS,
 		      MAS3_SX|MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
