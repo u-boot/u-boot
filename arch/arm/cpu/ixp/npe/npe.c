@@ -621,9 +621,12 @@ int npe_initialize(bd_t * bis)
 			if (ixFeatureCtrlDeviceRead() == IX_FEATURE_CTRL_DEVICE_TYPE_IXP42X) {
 				switch (ixFeatureCtrlProductIdRead() & IX_FEATURE_CTRL_SILICON_STEPPING_MASK) {
 				case IX_FEATURE_CTRL_SILICON_TYPE_B0:
+				default: /* newer than B0 */
 					/*
-					 * If it is B0 Silicon, we only enable port when its corresponding
-					 * Eth Coprocessor is available.
+					 * If it is B0 or newer Silicon, we
+					 * only enable port when its
+					 * corresponding Eth Coprocessor is
+					 * available.
 					 */
 					if (ixFeatureCtrlComponentCheck(IX_FEATURECTRL_ETH0) ==
 					    IX_FEATURE_CTRL_COMPONENT_ENABLED)
