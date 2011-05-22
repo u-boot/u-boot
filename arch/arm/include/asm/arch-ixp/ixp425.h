@@ -391,9 +391,8 @@
 #define IXP425_TIMER_REG(x) (IXP425_TIMER_BASE_PHYS+(x))
 #endif
 
-#if 0 /* test-only: also defined in npe/include/... */
-#define IXP425_OSTS	IXP425_TIMER_REG(IXP425_OSTS_OFFSET)
-#endif
+/* _B to avoid collision: also defined in npe/include/... */
+#define IXP425_OSTS_B	IXP425_TIMER_REG(IXP425_OSTS_OFFSET)
 #define IXP425_OST1	IXP425_TIMER_REG(IXP425_OST1_OFFSET)
 #define IXP425_OSRT1	IXP425_TIMER_REG(IXP425_OSRT1_OFFSET)
 #define IXP425_OST2	IXP425_TIMER_REG(IXP425_OST2_OFFSET)
