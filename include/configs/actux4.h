@@ -37,12 +37,11 @@
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
+#define CONFIG_BOARD_EARLY_INIT_F	1
 
 /***************************************************************
  * U-boot generic defines start here.
  ***************************************************************/
-#undef CONFIG_USE_IRQ
-
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 128*1024)
 
@@ -53,6 +52,15 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_ELF
+
+#define CONFIG_PCI
+#ifdef CONFIG_PCI
+#define CONFIG_CMD_PCI
+#define CONFIG_PCI_PNP
+#define CONFIG_IXP_PCI
+#define CONFIG_PCI_SCAN_SHOW
+#define CONFIG_CMD_PCI_ENUM
+#endif
 
 #define CONFIG_BOOTCOMMAND		"run boot_flash"
 /* enable passing of ATAGs */
@@ -81,8 +89,9 @@
 #define CONFIG_SYS_MEMTEST_START		0x00400000
 #define CONFIG_SYS_MEMTEST_END			0x00800000
 
-/* spec says 66.666 MHz, but it appears to be 33 */
-#define CONFIG_SYS_HZ				3333333
+/* timer clock - 2* OSC_IN system clock */
+#define CONFIG_IXP425_TIMER_CLK                 66000000
+#define CONFIG_SYS_HZ				1000
 
 /* default load address */
 #define CONFIG_SYS_LOAD_ADDR			0x00010000
@@ -97,10 +106,6 @@
  * The stack sizes are set up in start.S using the settings below
  */
 #define CONFIG_STACKSIZE		(128*1024)	/* regular stack */
-#ifdef CONFIG_USE_IRQ
-# define CONFIG_STACKSIZE_IRQ		(4*1024)	/* IRQ stack */
-# define CONFIG_STACKSIZE_FIQ		(4*1024)	/* FIQ stack */
-#endif
 
 /* Expansion bus settings */
 #define CONFIG_SYS_EXP_CS0			0xbd113003
@@ -108,7 +113,7 @@
 /* SDRAM settings */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0x00000000
-#define CONFIG_SYS_DRAM_BASE			0x00000000
+#define CONFIG_SYS_SDRAM_BASE			0x00000000
 
 /* 32MB SDRAM */
 #define CONFIG_SYS_SDR_CONFIG			0x18
@@ -118,6 +123,7 @@
 #define CONFIG_SYS_DRAM_SIZE			0x02000000
 
 /* FLASH organization */
+#define CONFIG_SYS_TEXT_BASE		0x50000000
 #define CONFIG_SYS_MAX_FLASH_BANKS		2
 /* max # of sectors per chip */
 #define CONFIG_SYS_MAX_FLASH_SECT		70
@@ -128,6 +134,7 @@
 #define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
 #define CONFIG_SYS_MONITOR_BASE		PHYS_FLASH_1
 #define CONFIG_SYS_MONITOR_LEN			(252 << 10)
+#define CONFIG_BOARD_SIZE_LIMIT			258048
 
 /* Use common CFI driver */
 #define CONFIG_SYS_FLASH_CFI
@@ -152,6 +159,7 @@
 #define	CONFIG_PHY_ADDR			0x1C
 /* MII PHY management */
 #define CONFIG_MII			1
+
 /* Number of ethernet rx buffers & descriptors */
 #define CONFIG_SYS_RX_ETH_BUFFER		16
 
@@ -180,19 +188,22 @@
 	"mtd=IXP4XX-Flash.0:252k(uboot),4k(uboot_env);"			\
 	"IXP4XX-Flash.1:128k(ucode),1280k(linux),-(root)\0"		\
 	"kerneladdr=51020000\0"						\
+	"kernelfile=actux4/uImage\0"					\
+	"rootfile=actux4/rootfs\0"					\
 	"rootaddr=51160000\0"						\
 	"loadaddr=10000\0"						\
 	"updateboot_ser=mw.b 10000 ff 40000;"				\
 	" loady ${loadaddr};"						\
 	" run eraseboot writeboot\0"					\
 	"updateboot_net=mw.b 10000 ff 40000;"				\
-	" tftp ${loadaddr} u-boot.bin;"					\
+	" tftp ${loadaddr} actux4/u-boot.bin;"					\
 	" run eraseboot writeboot\0"					\
 	"eraseboot=protect off 50000000 5003efff;"			\
 	" erase 50000000 +${filesize}\0"				\
 	"writeboot=cp.b 10000 50000000 ${filesize}\0"			\
-	"eraseenv=protect off 5003f000 5003ffff;"			\
-	" erase 5003f000 5003ffff\0"					\
+	"updateucode=loady;"						\
+	" era ${npe_ucode} +${filesize};"				\
+	" cp.b ${loadaddr} ${npe_ucode} ${filesize}\0"			\
 	"updateroot=tftp ${loadaddr} ${rootfile};"			\
 	" era ${rootaddr} +${filesize};"				\
 	" cp.b ${loadaddr} ${rootaddr} ${filesize}\0"			\
@@ -210,5 +221,9 @@
 	"boot_net=run netargs addtty addeth;"				\
 	" tftpboot ${loadaddr} ${kernelfile};"				\
 	" bootm\0"
+
+/* additions for new relocation code, must be added to all boards */
+#define CONFIG_SYS_INIT_SP_ADDR						\
+	(CONFIG_SYS_SDRAM_BASE + 0x1000 - GENERATED_GBL_DATA_SIZE)
 
 #endif /* __CONFIG_H */
