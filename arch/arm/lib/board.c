@@ -262,9 +262,6 @@ init_fnc_t *init_sequence[] = {
 	init_func_i2c,
 #endif
 	dram_init,		/* configure available RAM banks */
-#if defined(CONFIG_CMD_PCI) || defined (CONFIG_PCI)
-	arm_pci_init,
-#endif
 	NULL,
 };
 
@@ -533,6 +530,9 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	/* initialize environment */
 	env_relocate ();
 
+#if defined(CONFIG_CMD_PCI) || defined(CONFIG_PCI)
+	arm_pci_init();
+#endif
 #ifdef CONFIG_VFD
 	/* must do this after the framebuffer is allocated */
 	drv_vfd_init();
