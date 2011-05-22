@@ -36,72 +36,76 @@
 #include <malloc.h>
 #include <asm/arch/ixp425.h>
 #include <asm/io.h>
-
 #include <miiphy.h>
-
 #include "actux3_hw.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int board_init (void)
+int board_early_init_f(void)
+{
+	/* CS1: IPAC-X */
+	writel(0x94d10013, IXP425_EXP_CS1);
+	/* CS5: Debug port */
+	writel(0x9d520003, IXP425_EXP_CS5);
+	/* CS6: Release/Option register */
+	writel(0x81860001, IXP425_EXP_CS6);
+	/* CS7: LEDs */
+	writel(0x80900003, IXP425_EXP_CS7);
+
+	return 0;
+}
+
+int board_init(void)
 {
 	gd->bd->bi_arch_number = MACH_TYPE_ACTUX3;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;
 
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_IORST);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_ETHRST);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_DSR);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_DCD);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_LED5_GN);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_LED6_RT);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_LED6_GN);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_IORST);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_ETHRST);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_DSR);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_DCD);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_LED5_GN);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_LED6_RT);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_LED6_GN);
 
-	GPIO_OUTPUT_CLEAR (CONFIG_SYS_GPIO_IORST);
-	GPIO_OUTPUT_CLEAR (CONFIG_SYS_GPIO_ETHRST);
+	GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_IORST);
+	GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_ETHRST);
 
-	GPIO_OUTPUT_CLEAR (CONFIG_SYS_GPIO_DSR);
-	GPIO_OUTPUT_SET (CONFIG_SYS_GPIO_DCD);
+	GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_DSR);
+	GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_DCD);
 
-	GPIO_OUTPUT_CLEAR (CONFIG_SYS_GPIO_LED5_GN);
-	GPIO_OUTPUT_CLEAR (CONFIG_SYS_GPIO_LED6_RT);
-	GPIO_OUTPUT_CLEAR (CONFIG_SYS_GPIO_LED6_GN);
+	GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_LED5_GN);
+	GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_LED6_RT);
+	GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_LED6_GN);
 
 	/*
 	 * Setup GPIO's for Interrupt inputs
 	 */
-	GPIO_OUTPUT_DISABLE (CONFIG_SYS_GPIO_DBGINT);
-	GPIO_OUTPUT_DISABLE (CONFIG_SYS_GPIO_ETHINT);
+	GPIO_OUTPUT_DISABLE(CONFIG_SYS_GPIO_DBGINT);
+	GPIO_OUTPUT_DISABLE(CONFIG_SYS_GPIO_ETHINT);
 
 	/*
 	 * Setup GPIO's for 33MHz clock output
 	 */
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_PCI_CLK);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_EXTBUS_CLK);
-	*IXP425_GPIO_GPCLKR = 0x011001FF;
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_PCI_CLK);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_EXTBUS_CLK);
+	writel(0x011001FF, IXP425_GPIO_GPCLKR);
 
-	/* CS1: IPAC-X */
-	*IXP425_EXP_CS1 = 0x94d10013;
-	/* CS5: Debug port */
-	*IXP425_EXP_CS5 = 0x9d520003;
-	/* CS6: Release/Option register */
-	*IXP425_EXP_CS6 = 0x81860001;
-	/* CS7: LEDs */
-	*IXP425_EXP_CS7 = 0x80900003;
+	/* we need a minimum PCI reset pulse width after enabling the clock */
+	udelay(533);
+	GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_IORST);
+	GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_ETHRST);
 
-	udelay (533);
-	GPIO_OUTPUT_SET (CONFIG_SYS_GPIO_IORST);
-	GPIO_OUTPUT_SET (CONFIG_SYS_GPIO_ETHRST);
-
-	ACTUX3_LED1_RT (1);
-	ACTUX3_LED1_GN (0);
-	ACTUX3_LED2_RT (0);
-	ACTUX3_LED2_GN (0);
-	ACTUX3_LED3_RT (0);
-	ACTUX3_LED3_GN (0);
-	ACTUX3_LED4_GN (0);
-	ACTUX3_LED5_RT (0);
+	ACTUX3_LED1_RT(1);
+	ACTUX3_LED1_GN(0);
+	ACTUX3_LED2_RT(0);
+	ACTUX3_LED2_GN(0);
+	ACTUX3_LED3_RT(0);
+	ACTUX3_LED3_GN(0);
+	ACTUX3_LED4_GN(0);
+	ACTUX3_LED5_RT(0);
 
 	return 0;
 }
@@ -109,21 +113,21 @@ int board_init (void)
 /*
  * Check Board Identity
  */
-int checkboard (void)
+int checkboard(void)
 {
 	char buf[64];
 	int i = getenv_f("serial#", buf, sizeof(buf));
 
-	puts ("Board: AcTux-3 rev.");
-	putc (ACTUX3_BOARDREL + 'A' - 1);
+	puts("Board: AcTux-3 rev.");
+	putc(ACTUX3_BOARDREL + 'A' - 1);
 
 	if (i > 0) {
 		puts (", serial# ");
 		puts (buf);
 	}
-	putc ('\n');
+	putc('\n');
 
-	return (0);
+	return 0;
 }
 
 /*************************************************************************
@@ -132,34 +136,32 @@ int checkboard (void)
  * 1 = Rev. A
  * 2 = Rev. B
  *************************************************************************/
-u32 get_board_rev (void)
+u32 get_board_rev(void)
 {
 	return ACTUX3_BOARDREL;
 }
 
-int dram_init (void)
+int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
-	return (0);
+	gd->ram_size = get_ram_size(CONFIG_SYS_SDRAM_BASE, 128<<20);
+	return 0;
 }
 
-void reset_phy (void)
+void reset_phy(void)
 {
 	int i;
 
 	/* initialize the PHY */
-	miiphy_reset ("NPE0", CONFIG_PHY_ADDR);
+	miiphy_reset("NPE0", CONFIG_PHY_ADDR);
 
 	/* all LED outputs = Link/Act */
-	miiphy_write ("NPE0", CONFIG_PHY_ADDR, 0x16, 0x0AAA);
+	miiphy_write("NPE0", CONFIG_PHY_ADDR, 0x16, 0x0AAA);
 
 	/*
 	 * The Marvell 88E6060 switch comes up with all ports disabled.
 	 * set all ethernet switch ports to forwarding state
 	*/
 	for (i = 1; i <= 5; i++)
-		miiphy_write ("NPE0", CONFIG_PHY_ADDR + 8 + i, 0x04, 0x03);
+		miiphy_write("NPE0", CONFIG_PHY_ADDR + 8 + i, 0x04, 0x03);
 
 }
