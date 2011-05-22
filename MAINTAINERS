@@ -569,8 +569,8 @@ Stefano Babic <sbabic@denx.de>
 	ea20		davinci
 	mx35pdk		i.MX35
 	mx51evk		i.MX51
-	polaris		xscale
-	trizepsiv	xscale
+	polaris		xscale/pxa
+	trizepsiv	xscale/pxa
  	vision2		i.MX51
 
 Jason Liu <r64343@freescale.com>
@@ -603,7 +603,7 @@ Andreas Bieﬂmann <andreas.devel@gmail.com>
 
 Cliff Brake <cliff.brake@gmail.com>
 
-	pxa255_idp	xscale
+	pxa255_idp	xscale/pxa
 
 Rick Bronson <rick@efn.org>
 
@@ -718,7 +718,7 @@ Sergey Kubushyn <ksi@koi8.net>
 
 Prakash Kumar <prakash@embedx.com>
 
-	cerf250		xscale
+	cerf250		xscale/pxa
 
 Vipin Kumar <vipin.kumar@st.com>
 
@@ -796,9 +796,9 @@ John Rigby <jcrigby@gmail.com>
 
 Stefan Roese <sr@denx.de>
 
-	ixdpg425	xscale
-	pdnb3		xscale
-	scpu		xscale
+	ixdpg425	xscale/ixp
+	pdnb3		xscale/ixp
+	scpu		xscale/ixp
 
 Alessandro Rubini <rubini@unipv.it>
 Nomadik Linux Team <STN_WMM_nomadik_linux@list.st.com>
@@ -824,15 +824,15 @@ Heiko Schocher <hs@denx.de>
 
 Robert Schwebel <r.schwebel@pengutronix.de>
 
-	csb226		xscale
-	innokom		xscale
+	csb226		xscale/pxa
+	innokom		xscale/pxa
 
 Michael Schwingen <michael@schwingen.org>
 
-	actux1		xscale
-	actux2		xscale
-	actux3		xscale
-	actux4		xscale
+	actux1		xscale/ixp
+	actux2		xscale/ixp
+	actux3		xscale/ixp
+	actux4		xscale/ixp
 
 Andrea Scian <andrea.scian@dave-tech.it>
 
@@ -856,12 +856,12 @@ Greg Ungerer <greg.ungerer@opengear.com>
 
 Marek Vasut <marek.vasut@gmail.com>
 
-	balloon3	xscale
-	colibri_pxa270	xscale
-	palmld		xscale
-	palmtc		xscale
-	vpac270		xscale
-	zipitz2		xscale
+	balloon3	xscale/pxa
+	colibri_pxa270	xscale/pxa
+	palmld		xscale/pxa
+	palmtc		xscale/pxa
+	vpac270		xscale/pxa
+	zipitz2		xscale/pxa
  	efikamx		i.MX51
 
 Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
@@ -912,9 +912,9 @@ Sughosh Ganu <urwithsughosh@gmail.com>
 Unknown / orphaned boards:
  	Board		CPU	Last known maintainer / Comment
 .........................................................................
-	cradle		xscale	Kyle Harris <kharris@nexus-tech.net> / dead address
-	ixdp425		xscale	Kyle Harris <kharris@nexus-tech.net> / dead address
-	lubbock		xscale	Kyle Harris <kharris@nexus-tech.net> / dead address
+	cradle		xscale/pxa	Kyle Harris <kharris@nexus-tech.net> / dead address
+	ixdp425		xscale/ixp	Kyle Harris <kharris@nexus-tech.net> / dead address
+	lubbock		xscale/pxa	Kyle Harris <kharris@nexus-tech.net> / dead address
 
 	imx31_phycore_eet i.MX31  Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned
 	mx31ads		  i.MX31  Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned
