@@ -30,6 +30,7 @@
 
 #include <common.h>
 #include <asm/arch/ixp425.h>
+#include <watchdog.h>
 
 /*
  *               14.7456 MHz
@@ -85,7 +86,8 @@ int serial_init (void)
 void serial_putc (const char c)
 {
 	/* wait for room in the tx FIFO on UART */
-	while ((LSR(CONFIG_SYS_IXP425_CONSOLE) & LSR_TEMT) == 0);
+	while ((LSR(CONFIG_SYS_IXP425_CONSOLE) & LSR_TEMT) == 0)
+		WATCHDOG_RESET();	/* Reset HW Watchdog, if needed */
 
 	THR(CONFIG_SYS_IXP425_CONSOLE) = c;
 
@@ -111,7 +113,8 @@ int serial_tstc (void)
  */
 int serial_getc (void)
 {
-	while (!(LSR(CONFIG_SYS_IXP425_CONSOLE) & LSR_DR));
+	while (!(LSR(CONFIG_SYS_IXP425_CONSOLE) & LSR_DR))
+		WATCHDOG_RESET();	/* Reset HW Watchdog, if needed */
 
 	return (char) RBR(CONFIG_SYS_IXP425_CONSOLE) & 0xff;
 }
