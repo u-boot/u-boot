@@ -665,7 +665,7 @@ static void print_data(const void *data, int len)
 
 		printf("<");
 		for (j = 0, p = data; j < len/4; j ++)
-			printf("0x%x%s", p[j], j < (len/4 - 1) ? " " : "");
+			printf("0x%x%s", fdt32_to_cpu(p[j]), j < (len/4 - 1) ? " " : "");
 		printf(">");
 	} else { /* anything else... hexdump */
 		const u8 *s;
