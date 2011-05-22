@@ -50,7 +50,6 @@ PCI_HOSE_OP(write, byte, u8)
 PCI_HOSE_OP(write, word, u16)
 PCI_HOSE_OP(write, dword, u32)
 
-#ifndef CONFIG_IXP425
 #define PCI_OP(rw, size, type, error_code)				\
 int pci_##rw##_config_##size(pci_dev_t dev, int offset, type value)	\
 {									\
@@ -71,7 +70,6 @@ PCI_OP(read, dword, u32 *, *value = 0xffffffff)
 PCI_OP(write, byte, u8, )
 PCI_OP(write, word, u16, )
 PCI_OP(write, dword, u32, )
-#endif	/* CONFIG_IXP425 */
 
 #define PCI_READ_VIA_DWORD_OP(size, type, off_mask)			\
 int pci_hose_read_config_##size##_via_dword(struct pci_controller *hose,\
@@ -190,7 +188,6 @@ int pci_last_busno(void)
 	return hose->last_busno;
 }
 
-#ifndef CONFIG_IXP425
 pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 {
 	struct pci_controller * hose;
@@ -246,7 +243,6 @@ pci_dev_t pci_find_devices(struct pci_device_id *ids, int index)
 
 	return (-1);
 }
-#endif	/* CONFIG_IXP425 */
 
 pci_dev_t pci_find_device(unsigned int vendor, unsigned int device, int index)
 {
