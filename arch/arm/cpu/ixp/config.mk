@@ -27,6 +27,11 @@ BIG_ENDIAN = y
 PLATFORM_RELFLAGS += -fno-common -ffixed-r8 -msoft-float -mbig-endian
 
 PLATFORM_CPPFLAGS += -mbig-endian -march=armv5te -mtune=strongarm1100
+
+# -fdata-sections triggers "section .bss overlaps section .rel.dyn" linker error
+PLATFORM_RELFLAGS += -ffunction-sections
+LDFLAGS_u-boot += --gc-sections
+
 # =========================================================================
 #
 # Supply options according to compiler version
