@@ -359,35 +359,52 @@ static int npe_init(struct eth_device *dev, bd_t * bis)
 
 	debug("%s: 1\n", __FUNCTION__);
 
-	miiphy_read (dev->name, p_npe->phy_no, MII_BMSR, &reg_short);
+#ifdef CONFIG_MII_NPE0_FIXEDLINK
+	if (0 == p_npe->eth_id) {
+		speed = CONFIG_MII_NPE0_SPEED;
+		duplex = CONFIG_MII_NPE0_FULLDUPLEX ? FULL : HALF;
+	} else
+#endif
+#ifdef CONFIG_MII_NPE1_FIXEDLINK
+	if (1 == p_npe->eth_id) {
+		speed = CONFIG_MII_NPE1_SPEED;
+		duplex = CONFIG_MII_NPE1_FULLDUPLEX ? FULL : HALF;
+	} else
+#endif
+	{
+		miiphy_read(dev->name, p_npe->phy_no, MII_BMSR, &reg_short);
 
-	/*
-	 * Wait if PHY is capable of autonegotiation and autonegotiation is not complete
-	 */
-	if ((reg_short & BMSR_ANEGCAPABLE) && !(reg_short & BMSR_ANEGCOMPLETE)) {
-		puts ("Waiting for PHY auto negotiation to complete");
-		i = 0;
-		while (!(reg_short & BMSR_ANEGCOMPLETE)) {
-			/*
-			 * Timeout reached ?
-			 */
-			if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
-				puts (" TIMEOUT !\n");
-				break;
-			}
+		/*
+		 * Wait if PHY is capable of autonegotiation and
+		 * autonegotiation is not complete
+		 */
+		if ((reg_short & BMSR_ANEGCAPABLE) &&
+		    !(reg_short & BMSR_ANEGCOMPLETE)) {
+			puts("Waiting for PHY auto negotiation to complete");
+			i = 0;
+			while (!(reg_short & BMSR_ANEGCOMPLETE)) {
+				/*
+				 * Timeout reached ?
+				 */
+				if (i > PHY_AUTONEGOTIATE_TIMEOUT) {
+					puts(" TIMEOUT !\n");
+					break;
+				}
 
-			if ((i++ % 1000) == 0) {
-				putc ('.');
-				miiphy_read (dev->name, p_npe->phy_no, MII_BMSR, &reg_short);
+				if ((i++ % 1000) == 0) {
+					putc('.');
+					miiphy_read(dev->name, p_npe->phy_no,
+						     MII_BMSR, &reg_short);
+				}
+				udelay(1000);	/* 1 ms */
 			}
-			udelay (1000);	/* 1 ms */
+			puts(" done\n");
+			/* another 500 ms (results in faster booting) */
+			udelay(500000);
 		}
-		puts (" done\n");
-		udelay (500000);	/* another 500 ms (results in faster booting) */
+		speed = miiphy_speed(dev->name, p_npe->phy_no);
+		duplex = miiphy_duplex(dev->name, p_npe->phy_no);
 	}
-
-	speed = miiphy_speed (dev->name, p_npe->phy_no);
-	duplex = miiphy_duplex (dev->name, p_npe->phy_no);
 
 	if (p_npe->print_speed) {
 		p_npe->print_speed = 0;
