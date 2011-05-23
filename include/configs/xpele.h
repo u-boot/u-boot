@@ -47,24 +47,17 @@
 
 #undef CONFIG_PELE_XIL_LQSPI
 
-/* default boot is NOR, then QSPI when u-boot is built for it, NAND must be selected
-   by the user
-*/
+/* default boot is according to the bootmode switch settings */
+#define CONFIG_BOOTCOMMAND "run modeboot"
 
-#ifndef CONFIG_PELE_XIL_LQSPI
-#define CONFIG_BOOTCOMMAND "run norboot"
-#else
-#define CONFIG_BOOTCOMMAND "run qspiboot"
-#endif
-
-#define CONFIG_BAUDRATE		9600
+#define CONFIG_BAUDRATE		115200
 #define CONFIG_SYS_BAUDRATE_TABLE { 9600, 38400, 115200 }
 #define CONFIG_BOOTDELAY	2 /* -1 to Disable autoboot */
 
 #define	CONFIG_PSS_SERIAL
 #define	CONFIG_RTC_XPSSRTC
 
-#include <config_cmd_default.h>	/* FIXME: check this! */
+#include <config_cmd_default.h>	
 #define CONFIG_CMD_DATE		/* RTC? */
 #define CONFIG_CMD_PING		/* Might be useful for debugging */
 #define CONFIG_CMD_SAVEENV	/* Command to save ENV to Flash */

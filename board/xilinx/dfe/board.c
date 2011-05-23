@@ -14,10 +14,10 @@
 
 #define BOOT_MODE_REG     (XPSS_SYS_CTRL_BASEADDR + 0x25C)
 #define BOOT_MODES_MASK    0x0000000F
-#define QSPI_MODE         (0x00000000)            /**< QSPI */
+#define SD_MODE           (0x00000000)            /**< Secure Digital card */
 #define NAND_FLASH_MODE   (0x00000001)            /**< NAND */
 #define NOR_FLASH_MODE    (0x00000002)            /**< NOR  */
-#define SD_MODE           (0x00000008)            /**< Secure Digital card */
+#define QSPI_MODE         (0x00000008)            /**< QSPI */
 
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -138,13 +138,19 @@ int dram_init(void)
  */
 void reset_cpu(ulong addr)
 {
-	puts("Warning: this reset doesn't work.");
-	/* hah. */
-	goto *((void*)0x0);
+	u32 *slcr_p;
+
+	slcr_p = (u32*)XPSS_SYS_CTRL_BASEADDR;
+
+	/* unlock SLCR */
+	*(slcr_p + 2) = 0xDF0D;
+	/* Tickle soft reset bit */
+	*(slcr_p + 128) = 1;
+
+	while(1) {;}
 }
 
 void do_reset(void)
 {
 	reset_cpu(0);
-	goto *((void*)0x0); /* call optimized out? */
 }
