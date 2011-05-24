@@ -719,10 +719,12 @@ void ide_init (void)
 
 /* ------------------------------------------------------------------------- */
 
+#ifdef CONFIG_PARTITIONS
 block_dev_desc_t * ide_get_dev(int dev)
 {
 	return (dev < CONFIG_SYS_IDE_MAXDEVICE) ? &ide_dev_desc[dev] : NULL;
 }
+#endif
 
 
 #ifdef CONFIG_IDE_8xx_DIRECT

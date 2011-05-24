@@ -522,10 +522,12 @@ mg_write_exit:
 	return err;
 }
 
+#ifdef CONFIG_PARTITIONS
 block_dev_desc_t *mg_disk_get_dev(int dev)
 {
 	return ((block_dev_desc_t *) & mg_disk_dev);
 }
+#endif
 
 /* must override this function */
 struct mg_drv_data * __attribute__((weak)) mg_get_drv_data (void)

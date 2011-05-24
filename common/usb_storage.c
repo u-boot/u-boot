@@ -173,11 +173,12 @@ unsigned long usb_stor_write(int device, unsigned long blknr,
 struct usb_device * usb_get_dev_index(int index);
 void uhci_show_temp_int_td(void);
 
+#ifdef CONFIG_PARTITIONS
 block_dev_desc_t *usb_stor_get_dev(int index)
 {
 	return (index < usb_max_devs) ? &usb_dev_desc[index] : NULL;
 }
-
+#endif
 
 void usb_show_progress(void)
 {

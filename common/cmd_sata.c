@@ -57,10 +57,12 @@ int __sata_initialize(void)
 }
 int sata_initialize(void) __attribute__((weak,alias("__sata_initialize")));
 
+#ifdef CONFIG_PARTITIONS
 block_dev_desc_t *sata_get_dev(int dev)
 {
 	return (dev < CONFIG_SYS_SATA_MAX_DEVICE) ? &sata_dev_desc[dev] : NULL;
 }
+#endif
 
 int do_sata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

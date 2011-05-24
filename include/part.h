@@ -96,6 +96,7 @@ typedef struct disk_partition {
 } disk_partition_t;
 
 /* Misc _get_dev functions */
+#ifdef CONFIG_PARTITIONS
 block_dev_desc_t* get_dev(char* ifname, int dev);
 block_dev_desc_t* ide_get_dev(int dev);
 block_dev_desc_t* sata_get_dev(int dev);
@@ -110,7 +111,22 @@ int get_partition_info (block_dev_desc_t * dev_desc, int part, disk_partition_t 
 void print_part (block_dev_desc_t *dev_desc);
 void  init_part (block_dev_desc_t *dev_desc);
 void dev_print(block_dev_desc_t *dev_desc);
+#else
+static inline block_dev_desc_t* get_dev(char* ifname, int dev) { return NULL; }
+static inline block_dev_desc_t* ide_get_dev(int dev) { return NULL; }
+static inline block_dev_desc_t* sata_get_dev(int dev) { return NULL; }
+static inline block_dev_desc_t* scsi_get_dev(int dev) { return NULL; }
+static inline block_dev_desc_t* usb_stor_get_dev(int dev) { return NULL; }
+static inline block_dev_desc_t* mmc_get_dev(int dev) { return NULL; }
+static inline block_dev_desc_t* systemace_get_dev(int dev) { return NULL; }
+static inline block_dev_desc_t* mg_disk_get_dev(int dev) { return NULL; }
 
+static inline int get_partition_info (block_dev_desc_t * dev_desc, int part,
+	disk_partition_t *info) { return -1; }
+static inline void print_part (block_dev_desc_t *dev_desc) {}
+static inline void  init_part (block_dev_desc_t *dev_desc) {}
+static inline void dev_print(block_dev_desc_t *dev_desc) {}
+#endif
 
 #ifdef CONFIG_MAC_PARTITION
 /* disk/part_mac.c */
