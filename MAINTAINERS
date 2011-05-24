@@ -704,6 +704,10 @@ Minkyu Kang <mk7.kang@samsung.com>
 	s5p_goni		ARM ARMV7 (S5PC110 SoC)
 	s5pc210_universal	ARM ARMV7 (S5PC210 SoC)
 
+Chander Kashyap <k.chander@samsung.com>
+
+	SMDKV310		ARM ARMV7 (S5PC210 SoC)
+
 Frederik Kriewitz <frederik@kriewitz.eu>
 
 	devkit8000	ARM ARMV7 (OMAP3530 SoC)
