@@ -581,7 +581,8 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 				printf("Unknown nand command suffix '%s'.\n", s);
 				return 1;
 			}
-			ret = nand_write_skip_bad(nand, off, &rwsize, (u_char *)addr, 1);
+			ret = nand_write_skip_bad(nand, off, &rwsize,
+						(u_char *)addr, WITH_YAFFS_OOB);
 #endif
 		} else if (!strcmp(s, ".oob")) {
 			/* out-of-band data */

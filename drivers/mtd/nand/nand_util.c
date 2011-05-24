@@ -448,11 +448,11 @@ static int check_skip_len(nand_info_t *nand, loff_t offset, size_t length)
  * @param offset	offset in flash
  * @param length	buffer length
  * @param buffer        buffer to read from
- * @param withoob	whether write with yaffs format
+ * @param flags		flags modifying the behaviour of the write to NAND
  * @return		0 in case of success
  */
 int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
-			u_char *buffer, int withoob)
+			u_char *buffer, int flags)
 {
 	int rval = 0, blocksize;
 	size_t left_to_write = *length;
@@ -460,7 +460,7 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 	int need_skip;
 
 #ifdef CONFIG_CMD_NAND_YAFFS
-	if (withoob) {
+	if (flags & WITH_YAFFS_OOB) {
 		int pages;
 		pages = nand->erasesize / nand->writesize;
 		blocksize = (pages * nand->oobsize) + nand->erasesize;
@@ -529,7 +529,7 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 			write_size = blocksize - block_offset;
 
 #ifdef CONFIG_CMD_NAND_YAFFS
-		if (withoob) {
+		if (flags & WITH_YAFFS_OOB) {
 			int page, pages;
 			size_t pagesize = nand->writesize;
 			size_t pagesize_oob = pagesize + nand->oobsize;

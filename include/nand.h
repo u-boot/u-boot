@@ -114,8 +114,11 @@ typedef struct nand_erase_options nand_erase_options_t;
 
 int nand_read_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 		       u_char *buffer);
+
+#define WITH_YAFFS_OOB	(1 << 0) /* whether write with yaffs format */
+
 int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
-			u_char *buffer, int withoob);
+			u_char *buffer, int flags);
 int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts);
 
 #define NAND_LOCK_STATUS_TIGHT	0x01
