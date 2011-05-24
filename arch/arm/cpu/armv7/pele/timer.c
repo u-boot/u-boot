@@ -107,7 +107,7 @@ unsigned long long get_ticks(void)
 {
 	ulong now;
 
-	now = XScuTimer_GetCounterValue();
+	now = XScuTimer_GetCounterValue() /  (TIMER_TICK_HZ/CONFIG_SYS_HZ);
 
 	if (lastdec >= now) {
 		/* normal mode */
@@ -133,7 +133,7 @@ ulong get_tbclk(void)
 void reset_timer_masked(void)
 {
 	/* reset time */
-	lastdec = XScuTimer_GetCounterValue();
+	lastdec = XScuTimer_GetCounterValue() /  (TIMER_TICK_HZ/CONFIG_SYS_HZ);
 	timestamp = 0;
 }
 
