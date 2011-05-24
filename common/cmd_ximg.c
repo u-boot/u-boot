@@ -215,6 +215,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			memmove ((char *) dest, (char *)data, len);
 #endif	/* CONFIG_HW_WATCHDOG || CONFIG_WATCHDOG */
 			break;
+#ifdef CONFIG_GZIP
 		case IH_COMP_GZIP:
 			printf ("   Uncompressing part %d ... ", part);
 			if (gunzip ((void *) dest, unc_len,
@@ -223,6 +224,7 @@ do_imgextract(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 				return 1;
 			}
 			break;
+#endif
 #if defined(CONFIG_BZIP2)
 		case IH_COMP_BZIP2:
 			{
