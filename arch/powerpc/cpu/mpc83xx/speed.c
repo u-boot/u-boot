@@ -483,7 +483,8 @@ int get_clocks(void)
 	gd->qe_clk = qe_clk;
 	gd->brg_clk = brg_clk;
 #endif
-#if defined(CONFIG_MPC837x)
+#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+	defined(CONFIG_MPC837x)
 	gd->pciexp1_clk = pciexp1_clk;
 	gd->pciexp2_clk = pciexp2_clk;
 #endif
@@ -543,7 +544,8 @@ int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 #if defined(CONFIG_MPC834x)
 	printf("  USB MPH:             %-4s MHz\n", strmhz(buf, gd->usbmph_clk));
 #endif
-#if defined(CONFIG_MPC837x)
+#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x) || \
+	defined(CONFIG_MPC837x)
 	printf("  PCIEXP1:             %-4s MHz\n", strmhz(buf, gd->pciexp1_clk));
 	printf("  PCIEXP2:             %-4s MHz\n", strmhz(buf, gd->pciexp2_clk));
 #endif
