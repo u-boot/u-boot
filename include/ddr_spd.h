@@ -219,7 +219,9 @@ typedef struct ddr3_spd_eeprom_s {
 					     Delay Time*/
 	unsigned char opt_features;    /* 30 SDRAM Optional Features */
 	unsigned char therm_ref_opt;   /* 31 SDRAM Thermal and Refresh Opts */
-	unsigned char res_32_59[28];   /* 32-59 Reserved, General Section */
+	unsigned char therm_sensor;    /* 32 Module Thermal Sensor */
+	unsigned char device_type;     /* 33 SDRAM device type */
+	unsigned char res_34_59[26];   /* 34-59 Reserved, General Section */
 
 	/* Module-Specific Section: Bytes 60-116 */
 	union {
