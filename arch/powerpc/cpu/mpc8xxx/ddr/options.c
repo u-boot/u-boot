@@ -418,8 +418,19 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	/* Choose dynamic power management mode. */
 	popts->dynamic_power = 0;
 
-	/* 0 = 64-bit, 1 = 32-bit, 2 = 16-bit */
-	popts->data_bus_width = 0;
+	/*
+	 * check first dimm for primary sdram width
+	 * presuming all dimms are similar
+	 * 0 = 64-bit, 1 = 32-bit, 2 = 16-bit
+	 */
+	if (pdimm[0].primary_sdram_width == 64)
+		popts->data_bus_width = 0;
+	else if (pdimm[0].primary_sdram_width == 32)
+		popts->data_bus_width = 1;
+	else if (pdimm[0].primary_sdram_width == 16)
+		popts->data_bus_width = 2;
+	else
+		panic("Error: invalid primary sdram width!\n");
 
 	/* Choose burst length. */
 #if defined(CONFIG_FSL_DDR3)
@@ -427,8 +438,13 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	popts->OTF_burst_chop_en = 0;	/* on-the-fly burst chop disable */
 	popts->burst_length = DDR_BL8;	/* Fixed 8-beat burst len */
 #else
-	popts->OTF_burst_chop_en = 1;	/* on-the-fly burst chop */
-	popts->burst_length = DDR_OTF;	/* on-the-fly BC4 and BL8 */
+	if (popts->data_bus_width == 1) {	/* 32-bit bus */
+		popts->OTF_burst_chop_en = 0;
+		popts->burst_length = DDR_BL8;
+	} else {
+		popts->OTF_burst_chop_en = 1;	/* on-the-fly burst chop */
+		popts->burst_length = DDR_OTF;	/* on-the-fly BC4 and BL8 */
+	}
 #endif
 #else
 	popts->burst_length = DDR_BL4;	/* has to be 4 for DDR2 */
