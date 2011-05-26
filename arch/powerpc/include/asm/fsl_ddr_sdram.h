@@ -181,6 +181,9 @@ typedef struct memctl_options_partial_s {
 	unsigned int all_DIMMs_minimum_tRCD_ps;
 } memctl_options_partial_t;
 
+#define DDR_DATA_BUS_WIDTH_64 0
+#define DDR_DATA_BUS_WIDTH_32 1
+#define DDR_DATA_BUS_WIDTH_16 2
 /*
  * Generalized parameters for memory controller configuration,
  * might be a little specific to the FSL memory controller

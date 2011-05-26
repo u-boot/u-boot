@@ -174,7 +174,19 @@ int step_assign_addresses(fsl_ddr_info_t *pinfo,
 		switch (pinfo->memctl_opts[i].data_bus_width) {
 		case 2:
 			/* 16-bit */
-			printf("can't handle 16-bit mode yet\n");
+			for (j = 0; j < CONFIG_DIMM_SLOTS_PER_CTLR; j++) {
+				unsigned int dw;
+				if (!pinfo->dimm_params[i][j].n_ranks)
+					continue;
+				dw = pinfo->dimm_params[i][j].primary_sdram_width;
+				if ((dw == 72 || dw == 64)) {
+					dbw_cap_adj[i] = 2;
+					break;
+				} else if ((dw == 40 || dw == 32)) {
+					dbw_cap_adj[i] = 1;
+					break;
+				}
+			}
 			break;
 
 		case 1:

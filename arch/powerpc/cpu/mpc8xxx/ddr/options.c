@@ -438,7 +438,8 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	popts->OTF_burst_chop_en = 0;	/* on-the-fly burst chop disable */
 	popts->burst_length = DDR_BL8;	/* Fixed 8-beat burst len */
 #else
-	if (popts->data_bus_width == 1) {	/* 32-bit bus */
+	if ((popts->data_bus_width == 1) || (popts->data_bus_width == 2)) {
+		/* 32-bit or 16-bit bus */
 		popts->OTF_burst_chop_en = 0;
 		popts->burst_length = DDR_BL8;
 	} else {
