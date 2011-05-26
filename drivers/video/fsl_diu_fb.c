@@ -78,13 +78,9 @@ struct fb_videomode {
 	unsigned int flag;
 };
 
-#define FB_SYNC_VERT_HIGH_ACT	2	/* vertical sync high active	*/
-#define FB_SYNC_COMP_HIGH_ACT	8	/* composite sync high active   */
-#define FB_VMODE_NONINTERLACED  0	/* non interlaced */
-
 /* This setting is used for the ifm pdm360ng with PRIMEVIEW PM070WL3 */
-static struct fb_videomode fsl_diu_mode_800 = {
-	.name		= "800x600-60",
+static struct fb_videomode fsl_diu_mode_800_480 = {
+	.name		= "800x480-60",
 	.refresh	= 60,
 	.xres		= 800,
 	.yres		= 480,
@@ -99,13 +95,30 @@ static struct fb_videomode fsl_diu_mode_800 = {
 	.vmode		= FB_VMODE_NONINTERLACED
 };
 
+/* For the SHARP LQ084S3LG01, used on the P1022DS board */
+static struct fb_videomode fsl_diu_mode_800_600 = {
+	.name		= "800x600-60",
+	.refresh	= 60,
+	.xres		= 800,
+	.yres		= 600,
+	.pixclock	= 25000,
+	.left_margin	= 88,
+	.right_margin	= 40,
+	.upper_margin	= 23,
+	.lower_margin	= 1,
+	.hsync_len	= 128,
+	.vsync_len	= 4,
+	.sync		= FB_SYNC_COMP_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
+	.vmode		= FB_VMODE_NONINTERLACED
+};
+
 /*
  * These parameters give default parameters
  * for video output 1024x768,
  * FIXME - change timing to proper amounts
  * hsync 31.5kHz, vsync 60Hz
  */
-static struct fb_videomode fsl_diu_mode_1024 = {
+static struct fb_videomode fsl_diu_mode_1024_768 = {
 	.name		= "1024x768-60",
 	.refresh	= 60,
 	.xres		= 1024,
@@ -121,7 +134,7 @@ static struct fb_videomode fsl_diu_mode_1024 = {
 	.vmode		= FB_VMODE_NONINTERLACED
 };
 
-static struct fb_videomode fsl_diu_mode_1280 = {
+static struct fb_videomode fsl_diu_mode_1280_1024 = {
 	.name		= "1280x1024-60",
 	.refresh	= 60,
 	.xres		= 1280,
@@ -263,7 +276,7 @@ static struct diu_ad *allocate_fb(unsigned int xres, unsigned int yres,
 	return ad;
 }
 
-int fsl_diu_init(int xres, u32 pixel_format, int gamma_fix)
+int fsl_diu_init(u16 xres, u16 yres, u32 pixel_format, int gamma_fix)
 {
 	struct fb_videomode *fsl_diu_mode_db;
 	struct diu_ad *ad;
@@ -274,15 +287,23 @@ int fsl_diu_init(int xres, u32 pixel_format, int gamma_fix)
 	struct diu_addr gamma;
 	struct diu_addr cursor;
 
-	switch (xres) {
-	case 800:
-		fsl_diu_mode_db = &fsl_diu_mode_800;
+/* Convert the X,Y resolution pair into a single number */
+#define RESOLUTION(x, y) (((u32)(x) << 16) | (y))
+
+	switch (RESOLUTION(xres, yres)) {
+	case RESOLUTION(800, 480):
+		fsl_diu_mode_db = &fsl_diu_mode_800_480;
 		break;
-	case 1280:
-		fsl_diu_mode_db = &fsl_diu_mode_1280;
+	case RESOLUTION(800, 600):
+		fsl_diu_mode_db = &fsl_diu_mode_800_600;
+	case RESOLUTION(1024, 768):
+		fsl_diu_mode_db = &fsl_diu_mode_1024_768;
+	case RESOLUTION(1280, 1024):
+		fsl_diu_mode_db = &fsl_diu_mode_1280_1024;
 		break;
 	default:
-		fsl_diu_mode_db = &fsl_diu_mode_1024;
+		printf("DIU:   Unsupported resolution %ux%u\n", xres, yres);
+		return -1;
 	}
 
 	/* The AD struct for the dummy framebuffer and the FB itself */

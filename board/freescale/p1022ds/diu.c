@@ -139,7 +139,7 @@ int platform_diu_init(unsigned int xres, unsigned int yres, const char *port)
 	clrsetbits_be32(&gur->pmuxcr, PMUXCR_ELBCDIU_MASK, PMUXCR_ELBCDIU_DIU);
 	pmuxcr = in_be32(&gur->pmuxcr);
 
-	return fsl_diu_init(xres, pixel_format, 0);
+	return fsl_diu_init(xres, yres, pixel_format, 0);
 }
 
 /*

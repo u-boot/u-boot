@@ -83,5 +83,5 @@ int platform_diu_init(unsigned int xres, unsigned int yres, const char *port)
 	printf("DIU:   Switching to %s monitor @ %ux%u\n", name, xres, yres);
 	out_8(&pixis->brdcfg0, temp);
 
-	return fsl_diu_init(xres, pixel_format, gamma_fix);
+	return fsl_diu_init(xres, yres, pixel_format, gamma_fix);
 }

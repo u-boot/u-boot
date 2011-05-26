@@ -56,5 +56,5 @@ int platform_diu_init(unsigned int xres, unsigned int yres, const char *port)
 	unsigned int pixel_format = 0x88883316;
 
 	debug("mpc5121_diu_init\n");
-	return fsl_diu_init(xres, pixel_format, 0);
+	return fsl_diu_init(xres, yres, pixel_format, 0);
 }
