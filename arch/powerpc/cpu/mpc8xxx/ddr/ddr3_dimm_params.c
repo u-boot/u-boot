@@ -114,7 +114,8 @@ ddr_compute_dimm_parameters(const ddr3_spd_eeprom_t *spd,
 	 * and copying the part name in ASCII from the SPD onto it
 	 */
 	memset(pdimm->mpart, 0, sizeof(pdimm->mpart));
-	memcpy(pdimm->mpart, spd->mpart, sizeof(pdimm->mpart) - 1);
+	if ((spd->info_size_crc & 0xF) > 1)
+		memcpy(pdimm->mpart, spd->mpart, sizeof(pdimm->mpart) - 1);
 
 	/* DIMM organization parameters */
 	pdimm->n_ranks = ((spd->organization >> 3) & 0x7) + 1;
