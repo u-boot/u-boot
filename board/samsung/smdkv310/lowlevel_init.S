@@ -170,7 +170,7 @@ system_clock_init:
 	 * COREM1_RATIO[8]	0x7
 	 * COREM0_RATIO[4]	0x3
 	 */
-	ldr	r1, =0x01133730
+	ldr	r1, =0x0133730
 	ldr	r2, =0x14500			@CLK_DIV_CPU0_OFFSET
 	str	r1, [r0, r2]
 
@@ -245,7 +245,7 @@ system_clock_init:
 	str	r1, [r0, r2]
 
 	/* MMC[2:3] */
-	ldr	r1, =0x000f020f			/* 800(MPLL) / (15 + 1) */
+	ldr	r1, =0x000f000f			/* 800(MPLL) / (15 + 1) */
 	ldr	r2, =0x0C548			@ CLK_DIV_FSYS2
 	str	r1, [r0, r2]
 
