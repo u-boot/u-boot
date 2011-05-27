@@ -271,6 +271,9 @@ typedef struct memctl_options_s {
 	unsigned int rcw_2;
 	/* control register 1 */
 	unsigned int ddr_cdr1;
+
+	unsigned int trwt_override;
+	unsigned int trwt;			/* read-to-write turnaround */
 } memctl_options_t;
 
 extern phys_size_t fsl_ddr_sdram(void);

@@ -267,6 +267,9 @@ static void set_timing_cfg_0(fsl_ddr_cfg_regs_t *ddr,
 	tmrd_mclk = 2;
 #endif
 
+	if (popts->trwt_override)
+		trwt_mclk = popts->trwt;
+
 	ddr->timing_cfg_0 = (0
 		| ((trwt_mclk & 0x3) << 30)	/* RWT */
 		| ((twrt_mclk & 0x3) << 28)	/* WRT */
