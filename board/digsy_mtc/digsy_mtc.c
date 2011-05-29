@@ -48,6 +48,7 @@
 #endif
 #include <libfdt.h>
 #include <fdt_support.h>
+#include <i2c.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -207,6 +208,69 @@ int checkboard(void)
 	return 0;
 }
 
+#if defined(CONFIG_VIDEO)
+
+#define GPIO_USB1_0		0x00010000	/* Power-On pin */
+#define GPIO_USB1_9		0x08		/* PX_~EN pin */
+
+#define GPIO_EE_DO		0x10		/* PSC6_0 (DO) pin */
+#define GPIO_EE_CTS		0x20		/* PSC6_1 (CTS) pin */
+#define GPIO_EE_DI		0x10000000	/* PSC6_2 (DI) pin */
+#define GPIO_EE_CLK		0x20000000	/* PSC6_3 (CLK) pin */
+
+#define GPT_GPIO_ON		0x00000034	/* GPT as simple GPIO, high */
+
+/* ExBo I2C Addresses */
+#define EXBO_EE_I2C_ADDRESS	0x56
+
+static void exbo_hw_init(void)
+{
+	struct mpc5xxx_gpt *gpt = (struct mpc5xxx_gpt *)MPC5XXX_GPT;
+	struct mpc5xxx_gpio *gpio = (struct mpc5xxx_gpio *)MPC5XXX_GPIO;
+	struct mpc5xxx_wu_gpio *wu_gpio =
+				(struct mpc5xxx_wu_gpio *)MPC5XXX_WU_GPIO;
+	unsigned char val;
+
+	/* 1st, check if extension board is present */
+	if (i2c_read(EXBO_EE_I2C_ADDRESS, 0, 1, &val, 1))
+		return;
+
+	/* configure IrDA pins (PSC6 port) as gpios */
+	gpio->port_config &= 0xFF8FFFFF;
+
+	/* Init for USB1_0, EE_CLK and EE_DI - Low */
+	setbits_be32(&gpio->simple_ddr,
+			GPIO_USB1_0 | GPIO_EE_CLK | GPIO_EE_DI);
+	clrbits_be32(&gpio->simple_ode,
+			GPIO_USB1_0 | GPIO_EE_CLK | GPIO_EE_DI);
+	clrbits_be32(&gpio->simple_dvo,
+			GPIO_USB1_0 | GPIO_EE_CLK | GPIO_EE_DI);
+	setbits_be32(&gpio->simple_gpioe,
+			GPIO_USB1_0 | GPIO_EE_CLK | GPIO_EE_DI);
+
+	/* Init for EE_DO, EE_CTS - Input */
+	clrbits_8(&wu_gpio->ddr, GPIO_EE_DO | GPIO_EE_CTS);
+	setbits_8(&wu_gpio->enable, GPIO_EE_DO | GPIO_EE_CTS);
+
+	/* Init for PX_~EN (USB1_9) - High */
+	clrbits_8(&gpio->sint_ode, GPIO_USB1_9);
+	setbits_8(&gpio->sint_ddr, GPIO_USB1_9);
+	clrbits_8(&gpio->sint_inten, GPIO_USB1_9);
+	setbits_8(&gpio->sint_dvo, GPIO_USB1_9);
+	setbits_8(&gpio->sint_gpioe, GPIO_USB1_9);
+
+	/* Init for ~OE Switch (GPIO3) - Timer_0 GPIO High */
+	out_be32(&gpt[0].emsr, GPT_GPIO_ON);
+	/* Init for S Switch (GPIO4) - Timer_1 GPIO High */
+	out_be32(&gpt[1].emsr, GPT_GPIO_ON);
+
+	/* Power-On camera supply */
+	setbits_be32(&gpio->simple_dvo, GPIO_USB1_0);
+}
+#else
+static inline void exbo_hw_init(void) {}
+#endif /* CONFIG_VIDEO */
+
 int board_early_init_r(void)
 {
 #ifdef CONFIG_MPC52XX_SPI
@@ -223,6 +287,8 @@ int board_early_init_r(void)
 	setbits_be32((void *)MPC5XXX_ADDECR, (1 << 17));
 	/* enable CS0 */
 	setbits_be32((void *)MPC5XXX_ADDECR, (1 << 16));
+
+	exbo_hw_init();
 
 #if defined(CONFIG_USB_OHCI_NEW) && defined(CONFIG_SYS_USB_OHCI_CPU_INIT)
 	/* Low level USB init, required for proper kernel operation */

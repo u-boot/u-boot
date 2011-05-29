@@ -86,10 +86,37 @@
 #define CONFIG_BZIP2
 
 /*
+ * Video
+ */
+#define CONFIG_VIDEO
+
+#ifdef CONFIG_VIDEO
+#define CONFIG_VIDEO_MB862xx
+#define CONFIG_VIDEO_MB862xx_ACCEL
+#define CONFIG_VIDEO_CORALP
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_VIDEO_BMP_GZIP
+#define CONFIG_SYS_VIDEO_LOGO_MAX_SIZE	(2 << 20)	/* decompressed img */
+
+/* Coral-PA clock frequency, geo and other both 133MHz */
+#define CONFIG_SYS_MB862xx_CCF	0x00050000
+/* Video SDRAM parameters */
+#define CONFIG_SYS_MB862xx_MMR	0x11d7fa72
+#endif
+
+/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
 
+#ifdef CONFIG_VIDEO
+#define CONFIG_CMD_BMP
+#endif
 #define CONFIG_CMD_DFL
 #define CONFIG_CMD_CACHE
 #define CONFIG_CMD_DATE
