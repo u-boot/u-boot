@@ -31,6 +31,8 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+static uchar user_out;
+
 static const char *led_names[] = {
 	"diag",
 	"can1",
@@ -112,6 +114,8 @@ static int do_mtc_led(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	else
 		pcmd.cmd_val2 = 0;
 
+	pcmd.user_out = user_out;
+
 	mtc_calculate_checksum(&pcmd);
 	err = msp430_xfer(&pcmd, &prx);
 
@@ -128,6 +132,7 @@ static int do_mtc_key(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	memset(&prx, 0, sizeof(prx));
 
 	pcmd.cmd = CMD_GET_VIM;
+	pcmd.user_out = user_out;
 
 	mtc_calculate_checksum(&pcmd);
 	err = msp430_xfer(&pcmd, &prx);
@@ -160,6 +165,7 @@ static int do_mtc_digout(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 
 	pcmd.cmd = CMD_GET_VIM;
 	pcmd.user_out = channel_mask;
+	user_out = channel_mask;
 
 	mtc_calculate_checksum(&pcmd);
 	err = msp430_xfer(&pcmd, &prx);
@@ -187,6 +193,7 @@ static int do_mtc_digin(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 	memset(&prx, 0, sizeof(prx));
 
 	pcmd.cmd = CMD_GET_VIM;
+	pcmd.user_out = user_out;
 
 	mtc_calculate_checksum(&pcmd);
 	err = msp430_xfer(&pcmd, &prx);
@@ -205,6 +212,7 @@ static int do_mtc_appreg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	rx_msp_cmd prx;
 	int err;
 	char buf[5];
+	uchar appreg;
 
 	/* read appreg */
 	memset(&pcmd, 0, sizeof(pcmd));
@@ -214,13 +222,34 @@ static int do_mtc_appreg(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv
 	pcmd.cmd_val0 = 5;	/* max. Count */
 	pcmd.cmd_val1 = 5;	/* max. Time */
 	pcmd.cmd_val2 = 0;	/* =0 means read appreg */
+	pcmd.user_out = user_out;
 
 	mtc_calculate_checksum(&pcmd);
 	err = msp430_xfer(&pcmd, &prx);
 
+	/* on success decide between read or write */
 	if (!err) {
-		sprintf(buf, "%d", prx.ack2);
-		setenv("appreg", buf);
+		if (argc == 2) {
+			appreg = simple_strtol(argv[1], NULL, 10);
+			if (appreg == 0) {
+				printf("mtc appreg: invalid parameter - "
+				       "must be between 1 and 255\n");
+				return -1;
+			}
+			memset(&pcmd, 0, sizeof(pcmd));
+			pcmd.cmd = CMD_WD_PARA;
+			pcmd.cmd_val0 = prx.ack3; /* max. Count */
+			pcmd.cmd_val1 = prx.ack0; /* max. Time */
+			pcmd.cmd_val2 = appreg;	  /* !=0 means write appreg */
+			pcmd.user_out = user_out;
+			memset(&prx, 0, sizeof(prx));
+
+			mtc_calculate_checksum(&pcmd);
+			err = msp430_xfer(&pcmd, &prx);
+		} else {
+			sprintf(buf, "%d", prx.ack2);
+			setenv("appreg", buf);
+		}
 	}
 
 	return err;
@@ -236,6 +265,7 @@ static int do_mtc_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 	memset(&prx, 0, sizeof(prx));
 
 	pcmd.cmd = CMD_FW_VERSION;
+	pcmd.user_out = user_out;
 
 	mtc_calculate_checksum(&pcmd);
 	err = msp430_xfer(&pcmd, &prx);
@@ -259,6 +289,7 @@ static int do_mtc_state(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 
 	pcmd.cmd = CMD_WD_WDSTATE;
 	pcmd.cmd_val2 = 1;
+	pcmd.user_out = user_out;
 
 	mtc_calculate_checksum(&pcmd);
 	err = msp430_xfer(&pcmd, &prx);
@@ -288,8 +319,10 @@ cmd_tbl_t cmd_mtc_sub[] = {
 	"returns state of user key", ""),
 	U_BOOT_CMD_MKENT(version, 0, 1, do_mtc_version,
 	"returns firmware version of supervisor uC", ""),
-	U_BOOT_CMD_MKENT(appreg, 0, 1, do_mtc_appreg,
-	"reads appreg value and stores in environment variable 'appreg'", ""),
+	U_BOOT_CMD_MKENT(appreg, 1, 1, do_mtc_appreg,
+	"reads or writes appreg value and stores in environment "
+	"variable 'appreg'",
+	"[value] - value (1 - 255) to write to appreg"),
 	U_BOOT_CMD_MKENT(digin, 1, 1, do_mtc_digin,
 	"returns state of digital input",
 	"<channel_num> - get state of digital input (1 or 2)\n"),
@@ -342,8 +375,9 @@ U_BOOT_CMD(mtc, 5, 1, cmd_mtc,
 	"  [blink]: blink interval in 100ms steps (1 - 10; 0 = static)\n"
 	"key - returns state of user key\n"
 	"version - returns firmware version of supervisor uC\n"
-	"appreg - reads appreg value and stores in environment variable"
-	" 'appreg'\n"
+	"appreg [value] - reads (in environment variable 'appreg') or writes"
+	" appreg value\n"
+	"  [value]: value (1 - 255) to write to appreg\n"
 	"digin [channel] - returns state of digital input (1 or 2)\n"
 	"digout <on|off> <on|off> - sets state of two digital outputs\n"
 	"state - displays state\n"
