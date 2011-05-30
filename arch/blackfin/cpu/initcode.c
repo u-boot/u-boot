@@ -4,7 +4,7 @@
  * cannot make any function calls as it may be executed all by itself by
  * the Blackfin's bootrom in LDR format.
  *
- * Copyright (c) 2004-2008 Analog Devices Inc.
+ * Copyright (c) 2004-2011 Analog Devices Inc.
  *
  * Licensed under the GPL-2 or later.
  */
@@ -107,6 +107,8 @@ static inline void serial_putc(char c)
 		continue;
 }
 
+#include "initcode.h"
+
 __attribute__((always_inline)) static inline void
 program_nmi_handler(void)
 {
@@ -170,21 +172,6 @@ program_nmi_handler(void)
 
 #ifndef CONFIG_PLL_CTL_VAL
 # define CONFIG_PLL_CTL_VAL (SPORT_HYST | (CONFIG_VCO_MULT << 9) | CONFIG_CLKIN_HALF)
-#endif
-
-#ifndef CONFIG_EBIU_RSTCTL_VAL
-# define CONFIG_EBIU_RSTCTL_VAL 0 /* only MDDRENABLE is useful */
-#endif
-#if ((CONFIG_EBIU_RSTCTL_VAL & 0xFFFFFFC4) != 0)
-# error invalid EBIU_RSTCTL value: must not set reserved bits
-#endif
-
-#ifndef CONFIG_EBIU_MBSCTL_VAL
-# define CONFIG_EBIU_MBSCTL_VAL 0
-#endif
-
-#if defined(CONFIG_EBIU_DDRQUE_VAL) && ((CONFIG_EBIU_DDRQUE_VAL & 0xFFFF8000) != 0)
-# error invalid EBIU_DDRQUE value: must not set reserved bits
 #endif
 
 /* Make sure our voltage value is sane so we don't blow up! */
@@ -640,34 +627,6 @@ check_hibernation(ADI_BOOT_DATA *bs, u16 vr_ctl, bool put_into_srfs)
 	}
 
 	serial_putc('e');
-}
-
-__attribute__((always_inline)) static inline void
-program_async_controller(ADI_BOOT_DATA *bs)
-{
-	serial_putc('a');
-
-	/* Program the async banks controller. */
-	bfin_write_EBIU_AMBCTL0(CONFIG_EBIU_AMBCTL0_VAL);
-	bfin_write_EBIU_AMBCTL1(CONFIG_EBIU_AMBCTL1_VAL);
-	bfin_write_EBIU_AMGCTL(CONFIG_EBIU_AMGCTL_VAL);
-
-	serial_putc('b');
-
-	/* Not all parts have these additional MMRs. */
-#ifdef EBIU_MBSCTL
-	bfin_write_EBIU_MBSCTL(CONFIG_EBIU_MBSCTL_VAL);
-#endif
-#ifdef EBIU_MODE
-# ifdef CONFIG_EBIU_MODE_VAL
-	bfin_write_EBIU_MODE(CONFIG_EBIU_MODE_VAL);
-# endif
-# ifdef CONFIG_EBIU_FCTL_VAL
-	bfin_write_EBIU_FCTL(CONFIG_EBIU_FCTL_VAL);
-# endif
-#endif
-
-	serial_putc('c');
 }
 
 BOOTROM_CALLED_FUNC_ATTR
