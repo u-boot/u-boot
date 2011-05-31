@@ -41,6 +41,16 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+/*
+ * BOCO FPGA definitions
+ */
+#define BOCO		0x10
+#define REG_CTRL_H		0x02
+#define MASK_WRL_UNITRUN	0x01
+#define MASK_RBX_PGY_PRESENT	0x40
+#define REG_IRQ_CIRQ2		0x2d
+#define MASK_RBI_DEFECT_16	0x01
+
 /* Multi-Purpose Pins Functionality configuration */
 u32 kwmpp_config[] = {
 	MPP0_NF_IO2,
@@ -102,43 +112,64 @@ u32 kwmpp_config[] = {
 	0
 };
 
+#if defined(CONFIG_MGCOGE3UN)
+/*
+ * Wait for startup OK from mgcoge3ne
+ */
+int startup_allowed(void)
+{
+	unsigned char buf;
+
+	/*
+	 * Read CIRQ16 bit (bit 0)
+	 */
+	if (i2c_read(BOCO, REG_IRQ_CIRQ2, 1, &buf, 1) != 0)
+		printf("%s: Error reading Boco\n", __func__);
+	else
+		if ((buf & MASK_RBI_DEFECT_16) == MASK_RBI_DEFECT_16)
+			return 1;
+	return 0;
+}
+
+/*
+ * mgcoge3un has always ethernet present. Its connected to the 6061 switch
+ * and provides ICNev and piggy4 connections.
+ */
+int ethernet_present(void)
+{
+	return 1;
+}
+#else
 int ethernet_present(void)
 {
 	uchar	buf;
 	int	ret = 0;
 
-	if (i2c_read(0x10, 2, 1, &buf, 1) != 0) {
+	if (i2c_read(BOCO, REG_CTRL_H, 1, &buf, 1) != 0) {
 		printf("%s: Error reading Boco\n", __func__);
 		return -1;
 	}
-	if ((buf & 0x40) == 0x40)
+	if ((buf & MASK_RBX_PGY_PRESENT) == MASK_RBX_PGY_PRESENT)
 		ret = 1;
 
 	return ret;
 }
+#endif
 
 int initialize_unit_leds(void)
 {
 	/*
-	 * init the unit LEDs
-	 * per default they all are
+	 * Init the unit LEDs per default they all are
 	 * ok apart from bootstat
-	 * LED connected through BOCO
-	 * BOCO	lies at the address  0x10
-	 * LEDs are in the block CTRL_H	(addr 0x02)
-	 * BOOTSTAT LED is the first 0x01
 	 */
-	#define BOCO        0x10
-	#define CTRL_H      0x02
-	#define APPLEDMASK  0x01
 	uchar buf;
 
-	if (i2c_read(BOCO, CTRL_H, 1, &buf, 1) != 0) {
+	if (i2c_read(BOCO, REG_CTRL_H, 1, &buf, 1) != 0) {
 		printf("%s: Error reading Boco\n", __func__);
 		return -1;
 	}
-	buf |= APPLEDMASK;
-	if (i2c_write(BOCO, CTRL_H, 1, &buf, 1) != 0) {
+	buf |= MASK_WRL_UNITRUN;
+	if (i2c_write(BOCO, REG_CTRL_H, 1, &buf, 1) != 0) {
 		printf("%s: Error writing Boco\n", __func__);
 		return -1;
 	}
@@ -167,6 +198,27 @@ int misc_init_r(void)
 		printf("Overwriting MACH_TYPE with %d!!!\n", mach_type);
 		gd->bd->bi_arch_number = mach_type;
 	}
+#if defined(CONFIG_MGCOGE3UN)
+	char *wait_for_ne;
+	wait_for_ne = getenv("waitforne");
+	if (wait_for_ne != NULL) {
+		if (strcmp(wait_for_ne, "true") == 0) {
+			int cnt = 0;
+			puts("NE go: ");
+			while (startup_allowed() == 0) {
+				udelay(200000);
+				cnt++;
+				if (cnt == 5)
+					puts("wait\b\b\b\b");
+				if (cnt == 10) {
+					cnt = 0;
+					puts("    \b\b\b\b");
+				}
+			}
+			puts("OK\n");
+		}
+	}
+#endif
 
 	initialize_unit_leds();
 	set_km_env();

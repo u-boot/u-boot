@@ -50,4 +50,29 @@
 /* we use a new RAM type on mgcoge3un board */
 #define CONFIG_SYS_KWD_CONFIG $(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-memphis.cfg
 
+/*
+ * mgcoge3un has a fixed link to the marvell switch
+ * with 100MB full duplex and autoneg off, for this
+ * reason we have to change the default settings
+ */
+#define PORT_SERIAL_CONTROL_VALUE		( \
+	MVGBE_FORCE_LINK_PASS			| \
+	MVGBE_DIS_AUTO_NEG_FOR_DUPLX		| \
+	MVGBE_DIS_AUTO_NEG_FOR_FLOW_CTRL	| \
+	MVGBE_ADV_NO_FLOW_CTRL			| \
+	MVGBE_FORCE_FC_MODE_NO_PAUSE_DIS_TX	| \
+	MVGBE_FORCE_BP_MODE_NO_JAM		| \
+	(1 << 9) /* Reserved bit has to be 1 */	| \
+	MVGBE_DO_NOT_FORCE_LINK_FAIL		| \
+	MVGBE_DIS_AUTO_NEG_SPEED_GMII		| \
+	MVGBE_DTE_ADV_0				| \
+	MVGBE_MIIPHY_MAC_MODE			| \
+	MVGBE_AUTO_NEG_NO_CHANGE		| \
+	MVGBE_MAX_RX_PACKET_1552BYTE		| \
+	MVGBE_CLR_EXT_LOOPBACK			| \
+	MVGBE_SET_FULL_DUPLEX_MODE		| \
+	MVGBE_DIS_FLOW_CTRL_TX_RX_IN_FULL_DUPLEX	|\
+	MVGBE_SET_GMII_SPEED_TO_10_100	|\
+	MVGBE_SET_MII_SPEED_TO_100)
+
 #endif /* _CONFIG_MGCOGE3UN_H */
