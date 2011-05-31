@@ -123,7 +123,7 @@ mem_ctrl_asm_init:
 	ldr	r1, =0x00312640
 	str	r1, [r0, #0x04]		@DMC_MEMCONTROL]
 
-#ifdef MIU_LINEAR
+#ifdef CONFIG_MIU_LINEAR
 	ldr	r1, =0x40e01323
 	str	r1, [r0, #0x08]		@DMC_MEMCONFIG0
 	ldr	r1, =0x60e01323
@@ -255,7 +255,7 @@ mem_ctrl_asm_init:
 	ldr	r1, =0x00312640
 	str	r1, [r0, #0x04]		@DMC_MEMCONTROL]
 
-#ifdef MIU_LINEAR
+#ifdef CONFIG_MIU_LINEAR
 	ldr	r1, =0x40e01323
 	str	r1, [r0, #0x08]		@DMC_MEMCONFIG0
 	ldr	r1, =0x60e01323
