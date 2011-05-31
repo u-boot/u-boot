@@ -64,6 +64,9 @@
 #define CONFIG_KM_KERNEL_ADDR	0x2000000	/* 4096KBytes */
 
 #define CONFIG_KM_DEF_ENV_CPU						\
+	"addbootcount="							\
+		"setenv bootargs ${bootargs} "				\
+		"bootcountaddr=${bootcountaddr}\0"			\
 	"addmtdparts=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"boot=bootm ${actual_kernel_addr} - -\0"			\
 	"cramfsloadfdt=true\0"						\

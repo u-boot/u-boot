@@ -145,15 +145,21 @@ int initialize_unit_leds(void)
 	return 0;
 }
 
+#if defined(CONFIG_BOOTCOUNT_LIMIT)
+void set_bootcount_addr(void)
+{
+	uchar buf[32];
+	unsigned int bootcountaddr;
+	bootcountaddr = gd->ram_size - BOOTCOUNT_ADDR;
+	sprintf((char *)buf, "0x%x", bootcountaddr);
+	setenv("bootcountaddr", (char *)buf);
+}
+#endif
+
 int misc_init_r(void)
 {
 	char *str;
 	int mach_type;
-
-	puts("Piggy:");
-	if (ethernet_present() == 0)
-		puts (" not");
-	puts(" present\n");
 
 	str = getenv("mach_type");
 	if (str != NULL) {
@@ -163,7 +169,10 @@ int misc_init_r(void)
 	}
 
 	initialize_unit_leds();
-
+	set_km_env();
+#if defined(CONFIG_BOOTCOUNT_LIMIT)
+	set_bootcount_addr();
+#endif
 	return 0;
 }
 
@@ -182,7 +191,6 @@ int board_early_init_f(void)
 	writel(tmp | FLASH_GPIO_PIN , KW_GPIO0_BASE);
 	tmp = readl(KW_GPIO0_BASE + 4);
 	writel(tmp & (~FLASH_GPIO_PIN) , KW_GPIO0_BASE + 4);
-	printf("KM: setting NAND mode\n");
 
 #if defined(CONFIG_SOFT_I2C)
 	/* init the GPIO for I2C Bitbang driver */
@@ -209,12 +217,6 @@ int board_init(void)
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = kw_sdram_bar(0) + 0x100;
 
-	return 0;
-}
-
-int last_stage_init(void)
-{
-	set_km_env();
 	return 0;
 }
 
