@@ -384,6 +384,7 @@ static inline void smc911x_reg_write(struct eth_device *dev,
 #define WUCSR_MPEN			0x00000002
 
 /* Chip ID values */
+#define CHIP_89218	0x218a
 #define CHIP_9115	0x115
 #define CHIP_9116	0x116
 #define CHIP_9117	0x117
@@ -402,6 +403,7 @@ struct chip_id {
 };
 
 static const struct chip_id chip_ids[] =  {
+	{ CHIP_89218, "LAN89218" },
 	{ CHIP_9115, "LAN9115" },
 	{ CHIP_9116, "LAN9116" },
 	{ CHIP_9117, "LAN9117" },
