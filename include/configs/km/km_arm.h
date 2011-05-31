@@ -91,6 +91,7 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		CONFIG_SYS_TCLK
 #define CONFIG_SYS_NS16550_COM1		KW_UART0_BASE
+#define CONFIG_SYS_NS16550_COM2		KW_UART1_BASE
 
 /*
  * Serial Port configuration
@@ -135,7 +136,12 @@
 
 #define BOOTFLASH_START		0x0
 
+/* Kirkwood has two serial IF */
+#if (CONFIG_CONS_INDEX == 2)
+#define CONFIG_KM_CONSOLE_TTY	"ttyS1"
+#else
 #define CONFIG_KM_CONSOLE_TTY	"ttyS0"
+#endif
 
 /*
  * Other required minimal configurations
