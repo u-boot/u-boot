@@ -430,13 +430,10 @@ Heiko Schocher <hs@denx.de>
 	kmsupx5		MPC8321
 	mgcoge		MPC8247
 	mgcoge3ne	MPC8247
-	mgcoge2un	ARM926EJS (Kirkwood SoC)
 	mucmc52		MPC5200
 	muas3001	MPC8270
 	municse		MPC5200
 	sc3		PPC405GP
-	suen3		ARM926EJS (Kirkwood SoC)
-	suen8		ARM926EJS (Kirkwood SoC)
 	suvd3		MPC8321
 	tuda1		MPC8321
 	tuxa1		MPC8321
@@ -820,6 +817,9 @@ Jens Scharsig <esw@bus-elektronik.de>
 Heiko Schocher <hs@denx.de>
 
 	magnesium	i.MX27
+	mgcoge3un	ARM926EJS (Kirkwood SoC)
+	suen3		ARM926EJS (Kirkwood SoC)
+	suen8		ARM926EJS (Kirkwood SoC)
 
 Robert Schwebel <r.schwebel@pengutronix.de>
 

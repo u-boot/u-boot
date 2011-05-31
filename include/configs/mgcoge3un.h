@@ -31,8 +31,8 @@
 /* for linking errors see
  * http://lists.denx.de/pipermail/u-boot/2009-July/057350.html */
 
-#ifndef _CONFIG_MGCOGE2UN_H
-#define _CONFIG_MGCOGE2UN_H
+#ifndef _CONFIG_MGCOGE3UN_H
+#define _CONFIG_MGCOGE3UN_H
 
 /* include common defines/options for all arm based Keymile boards */
 #include "km/km_arm.h"
@@ -40,11 +40,14 @@
 /*
  * Version number information
  */
-#define CONFIG_IDENT_STRING	"\nKeymile MGCOGE2UN"
-
-#define CONFIG_HOSTNAME			mgcoge2un
+#define CONFIG_IDENT_STRING	"\nKeymile MGCOGE3UN"
+#define CONFIG_HOSTNAME		mgcoge3un
+#define CONFIG_MGCOGE3UN
 
 #define KM_IVM_BUS	"pca9547:70:9" /* I2C2 (Mux-Port 1)*/
 #define KM_ENV_BUS	"pca9547:70:d" /* I2C2 (Mux-Port 5)*/
 
-#endif /* _CONFIG_MGCOGE2UN_H */
+/* we use a new RAM type on mgcoge3un board */
+#define CONFIG_SYS_KWD_CONFIG $(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-memphis.cfg
+
+#endif /* _CONFIG_MGCOGE3UN_H */
