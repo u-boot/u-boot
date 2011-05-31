@@ -239,6 +239,21 @@ int get_scl(void);
 		"sf write ${u-boot_addr_r} 0 ${filesize};"		\
 		"spi off\0"
 
+/*
+ * Default environment variables
+ */
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+	CONFIG_KM_DEF_ENV						\
+	"newenv=setenv addr 0x100000 && "				\
+		"i2c dev 1; mw.b ${addr} 0 4 && "			\
+		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
+		" ${addr} " xstr(CONFIG_ENV_OFFSET) " 4 && "		\
+		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
+		" ${addr} " xstr(CONFIG_ENV_OFFSET_REDUND) " 4\0"	\
+	"rootpath=/opt/eldk/arm\0"					\
+	"EEprom_ivm=" KM_IVM_BUS "\0"					\
+	""
+
 #if defined(CONFIG_SYS_NO_FLASH)
 #define CONFIG_KM_UBI_PARTITION_NAME   "ubi0"
 #undef	CONFIG_FLASH_CFI_MTD
