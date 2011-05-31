@@ -31,15 +31,6 @@
 #define CONFIG_BOOTCOUNT_LIMIT
 
 /*
- * By default kwbimage.cfg from board specific folder is used
- * If for some board, different configuration file need to be used,
- * CONFIG_SYS_KWD_CONFIG should be defined in board specific header file
- */
-#ifndef CONFIG_SYS_KWD_CONFIG
-#define	CONFIG_SYS_KWD_CONFIG	$(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage.cfg
-#endif /* CONFIG_SYS_KWD_CONFIG */
-
-/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
