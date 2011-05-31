@@ -500,9 +500,10 @@ int memory_post_test(int flags)
 			unsigned long i;
 			for (i = 0; i < (memsize >> 20) && ret == 0; i++) {
 				if (ret == 0)
-					ret = memory_post_tests(i << 20, 0x800);
+					ret = memory_post_tests(vstart +
+						(i << 20), 0x800);
 				if (ret == 0)
-					ret = memory_post_tests(
+					ret = memory_post_tests(vstart +
 						(i << 20) + 0xff800, 0x800);
 			}
 		}
