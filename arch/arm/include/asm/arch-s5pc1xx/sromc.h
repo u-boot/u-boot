@@ -23,8 +23,8 @@
  * 	 Only SROMC is defined as of now
  */
 
-#ifndef __ASM_ARCH_SMC_H_
-#define __ASM_ARCH_SMC_H_
+#ifndef __ASM_ARCH_SROMC_H_
+#define __ASM_ARCH_SROMC_H_
 
 #define SMC_DATA16_WIDTH(x)    (1<<((x*4)+0))
 #define SMC_BYTE_ADDR_MODE(x)  (1<<((x*4)+1))  /* 0-> Half-word base address*/
@@ -41,13 +41,13 @@
 #define SMC_BC_PMC(x)  (x << 0)  /* normal(1data)page mode configuration */
 
 #ifndef __ASSEMBLY__
-struct s5pc1xx_smc {
+struct s5p_sromc {
 	unsigned int	bw;
 	unsigned int	bc[6];
 };
 #endif	/* __ASSEMBLY__ */
 
 /* Configure the Band Width and Bank Control Regs for required SROMC Bank */
-void s5pc1xx_config_sromc(u32 srom_bank, u32 smc_bw_conf, u32 smc_bc_conf);
+void s5p_config_sromc(u32 srom_bank, u32 srom_bw_conf, u32 srom_bc_conf);
 
 #endif /* __ASM_ARCH_SMC_H_ */

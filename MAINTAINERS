@@ -430,13 +430,10 @@ Heiko Schocher <hs@denx.de>
 	kmsupx5		MPC8321
 	mgcoge		MPC8247
 	mgcoge3ne	MPC8247
-	mgcoge2un	ARM926EJS (Kirkwood SoC)
 	mucmc52		MPC5200
 	muas3001	MPC8270
 	municse		MPC5200
 	sc3		PPC405GP
-	suen3		ARM926EJS (Kirkwood SoC)
-	suen8		ARM926EJS (Kirkwood SoC)
 	suvd3		MPC8321
 	tuda1		MPC8321
 	tuxa1		MPC8321
@@ -574,6 +571,7 @@ Stefano Babic <sbabic@denx.de>
 Jason Liu <r64343@freescale.com>
 
 	mx53evk         i.MX53
+	mx53loco        i.MX53
 
 Enric Balletbo i Serra <eballetbo@iseebcn.com>
 
@@ -638,6 +636,7 @@ Kristoffer Ericson <kristoffer.ericson@gmail.com>
 Fabio Estevam <fabio.estevam@freescale.com>
 
 	mx31pdk		i.MX31
+	mx53smd		i.MX53
 
 Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
 
@@ -697,6 +696,10 @@ Minkyu Kang <mk7.kang@samsung.com>
 	SMDKC100		ARM ARMV7 (S5PC100 SoC)
 	s5p_goni		ARM ARMV7 (S5PC110 SoC)
 	s5pc210_universal	ARM ARMV7 (S5PC210 SoC)
+
+Chander Kashyap <k.chander@samsung.com>
+
+	SMDKV310		ARM ARMV7 (S5PC210 SoC)
 
 Frederik Kriewitz <frederik@kriewitz.eu>
 
@@ -810,6 +813,9 @@ Jens Scharsig <esw@bus-elektronik.de>
 Heiko Schocher <hs@denx.de>
 
 	magnesium	i.MX27
+	mgcoge3un	ARM926EJS (Kirkwood SoC)
+	suen3		ARM926EJS (Kirkwood SoC)
+	suen8		ARM926EJS (Kirkwood SoC)
 
 Robert Schwebel <r.schwebel@pengutronix.de>
 

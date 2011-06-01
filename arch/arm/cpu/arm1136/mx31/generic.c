@@ -133,7 +133,7 @@ u32 get_cpu_rev(void)
 	return srev | 0x8000;
 }
 
-char *get_reset_cause(void)
+static char *get_reset_cause(void)
 {
 	/* read RCSR register from CCM module */
 	struct clock_control_regs *ccm =
@@ -144,16 +144,12 @@ char *get_reset_cause(void)
 	switch (cause) {
 	case 0x0000:
 		return "POR";
-		break;
 	case 0x0001:
 		return "RST";
-		break;
 	case 0x0002:
 		return "WDOG";
-		break;
 	case 0x0006:
 		return "JTAG";
-		break;
 	default:
 		return "unknown reset";
 	}

@@ -64,6 +64,9 @@
 #define CONFIG_KM_KERNEL_ADDR	0x2000000	/* 4096KBytes */
 
 #define CONFIG_KM_DEF_ENV_CPU						\
+	"addbootcount="							\
+		"setenv bootargs ${bootargs} "				\
+		"bootcountaddr=${bootcountaddr}\0"			\
 	"addmtdparts=setenv bootargs ${bootargs} ${mtdparts}\0"		\
 	"boot=bootm ${actual_kernel_addr} - -\0"			\
 	"cramfsloadfdt=true\0"						\
@@ -88,6 +91,7 @@
 #define CONFIG_SYS_NS16550_REG_SIZE	(-4)
 #define CONFIG_SYS_NS16550_CLK		CONFIG_SYS_TCLK
 #define CONFIG_SYS_NS16550_COM1		KW_UART0_BASE
+#define CONFIG_SYS_NS16550_COM2		KW_UART1_BASE
 
 /*
  * Serial Port configuration
@@ -132,7 +136,12 @@
 
 #define BOOTFLASH_START		0x0
 
+/* Kirkwood has two serial IF */
+#if (CONFIG_CONS_INDEX == 2)
+#define CONFIG_KM_CONSOLE_TTY	"ttyS1"
+#else
 #define CONFIG_KM_CONSOLE_TTY	"ttyS0"
+#endif
 
 /*
  * Other required minimal configurations
@@ -239,9 +248,25 @@ int get_scl(void);
 		"sf write ${u-boot_addr_r} 0 ${filesize};"		\
 		"spi off\0"
 
+/*
+ * Default environment variables
+ */
+#define CONFIG_EXTRA_ENV_SETTINGS					\
+	CONFIG_KM_DEF_ENV						\
+	"newenv=setenv addr 0x100000 && "				\
+		"i2c dev 1; mw.b ${addr} 0 4 && "			\
+		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
+		" ${addr} " xstr(CONFIG_ENV_OFFSET) " 4 && "		\
+		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
+		" ${addr} " xstr(CONFIG_ENV_OFFSET_REDUND) " 4\0"	\
+	"rootpath=/opt/eldk/arm\0"					\
+	"EEprom_ivm=" KM_IVM_BUS "\0"					\
+	""
+
 #if defined(CONFIG_SYS_NO_FLASH)
 #define CONFIG_KM_UBI_PARTITION_NAME   "ubi0"
 #undef	CONFIG_FLASH_CFI_MTD
+#undef	CONFIG_CMD_JFFS2
 #undef	CONFIG_JFFS2_CMDLINE
 #endif
 

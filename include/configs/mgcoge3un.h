@@ -31,8 +31,8 @@
 /* for linking errors see
  * http://lists.denx.de/pipermail/u-boot/2009-July/057350.html */
 
-#ifndef _CONFIG_MGCOGE2UN_H
-#define _CONFIG_MGCOGE2UN_H
+#ifndef _CONFIG_MGCOGE3UN_H
+#define _CONFIG_MGCOGE3UN_H
 
 /* include common defines/options for all arm based Keymile boards */
 #include "km/km_arm.h"
@@ -40,26 +40,39 @@
 /*
  * Version number information
  */
-#define CONFIG_IDENT_STRING	"\nKeymile MGCOGE2UN"
-
-#define CONFIG_HOSTNAME			mgcoge2un
+#define CONFIG_IDENT_STRING	"\nKeymile MGCOGE3UN"
+#define CONFIG_HOSTNAME		mgcoge3un
+#define CONFIG_MGCOGE3UN
 
 #define KM_IVM_BUS	"pca9547:70:9" /* I2C2 (Mux-Port 1)*/
 #define KM_ENV_BUS	"pca9547:70:d" /* I2C2 (Mux-Port 5)*/
 
-/*
- * Default environment variables
- */
-#define CONFIG_EXTRA_ENV_SETTINGS					\
-	CONFIG_KM_DEF_ENV						\
-	"newenv=setenv addr 0x100000 && "				\
-		"i2c dev 1; mw.b ${addr} 0 4 && "			\
-		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
-		" ${addr} " xstr(CONFIG_ENV_OFFSET) " 4 && "		\
-		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
-		" ${addr} " xstr(CONFIG_ENV_OFFSET_REDUND) " 4\0"	\
-	"rootpath=/opt/eldk/arm\0"					\
-	"EEprom_ivm=" KM_IVM_BUS "\0"					\
-	""
+/* we use a new RAM type on mgcoge3un board */
+#define CONFIG_SYS_KWD_CONFIG $(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-memphis.cfg
 
-#endif /* _CONFIG_MGCOGE2UN_H */
+/*
+ * mgcoge3un has a fixed link to the marvell switch
+ * with 100MB full duplex and autoneg off, for this
+ * reason we have to change the default settings
+ */
+#define PORT_SERIAL_CONTROL_VALUE		( \
+	MVGBE_FORCE_LINK_PASS			| \
+	MVGBE_DIS_AUTO_NEG_FOR_DUPLX		| \
+	MVGBE_DIS_AUTO_NEG_FOR_FLOW_CTRL	| \
+	MVGBE_ADV_NO_FLOW_CTRL			| \
+	MVGBE_FORCE_FC_MODE_NO_PAUSE_DIS_TX	| \
+	MVGBE_FORCE_BP_MODE_NO_JAM		| \
+	(1 << 9) /* Reserved bit has to be 1 */	| \
+	MVGBE_DO_NOT_FORCE_LINK_FAIL		| \
+	MVGBE_DIS_AUTO_NEG_SPEED_GMII		| \
+	MVGBE_DTE_ADV_0				| \
+	MVGBE_MIIPHY_MAC_MODE			| \
+	MVGBE_AUTO_NEG_NO_CHANGE		| \
+	MVGBE_MAX_RX_PACKET_1552BYTE		| \
+	MVGBE_CLR_EXT_LOOPBACK			| \
+	MVGBE_SET_FULL_DUPLEX_MODE		| \
+	MVGBE_DIS_FLOW_CTRL_TX_RX_IN_FULL_DUPLEX	|\
+	MVGBE_SET_GMII_SPEED_TO_10_100	|\
+	MVGBE_SET_MII_SPEED_TO_100)
+
+#endif /* _CONFIG_MGCOGE3UN_H */

@@ -431,41 +431,7 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	puts("Board: MX51EVK ");
+	puts("Board: MX51EVK\n");
 
-	switch (system_rev & 0xff) {
-	case CHIP_REV_3_0:
-		puts("3.0 [");
-		break;
-	case CHIP_REV_2_5:
-		puts("2.5 [");
-		break;
-	case CHIP_REV_2_0:
-		puts("2.0 [");
-		break;
-	case CHIP_REV_1_1:
-		puts("1.1 [");
-		break;
-	case CHIP_REV_1_0:
-	default:
-		puts("1.0 [");
-		break;
-	}
-
-	switch (__raw_readl(SRC_BASE_ADDR + 0x8)) {
-	case 0x0001:
-		puts("POR");
-		break;
-	case 0x0009:
-		puts("RST");
-		break;
-	case 0x0010:
-	case 0x0011:
-		puts("WDOG");
-		break;
-	default:
-		puts("unknown");
-	}
-	puts("]\n");
 	return 0;
 }

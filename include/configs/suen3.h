@@ -46,19 +46,4 @@
 #define KM_IVM_BUS	"pca9544a:70:9"	/* I2C2 (Mux-Port 1)*/
 #define KM_ENV_BUS	"pca9544a:70:d"	/* I2C2 (Mux-Port 5)*/
 
-/*
- * Default environment variables
- */
-#define CONFIG_EXTRA_ENV_SETTINGS					\
-	CONFIG_KM_DEF_ENV						\
-	"newenv=setenv addr 0x100000 && "				\
-		"i2c dev 1; mw.b ${addr} 0 4 && "			\
-		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
-		" ${addr} " xstr(CONFIG_ENV_OFFSET) " 4 && "		\
-		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
-		" ${addr} " xstr(CONFIG_ENV_OFFSET_REDUND) " 4\0"	\
-	"rootpath=/opt/eldk/arm\0"					\
-	"EEprom_ivm=" KM_IVM_BUS "\0"					\
-	""
-
 #endif /* _CONFIG_SUEN3_H */

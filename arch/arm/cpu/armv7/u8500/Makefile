@@ -1,5 +1,6 @@
 #
-# Copyright 2009 Freescale Semiconductor, Inc. All Rights Reserved.
+# (C) Copyright 2000-2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -20,6 +21,26 @@
 # MA 02111-1307 USA
 #
 
-CONFIG_SYS_TEXT_BASE = 0x97800000
-IMX_CONFIG = $(SRCTREE)/board/$(BOARDDIR)/imximage_hynix.cfg
-ALL += $(obj)u-boot.imx
+include $(TOPDIR)/config.mk
+
+LIB	= $(obj)lib$(SOC).o
+
+COBJS	= timer.o clock.o
+SOBJS	= lowlevel.o
+
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))
+
+all:	$(obj).depend $(LIB)
+
+$(LIB):	$(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################

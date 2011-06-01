@@ -38,6 +38,7 @@
 #include <asm/arch/systimer.h>
 #include <asm/arch/sysctrl.h>
 #include <asm/arch/wdt.h>
+#include "../drivers/mmc/arm_pl180_mmci.h"
 
 static ulong timestamp;
 static ulong lastdec;

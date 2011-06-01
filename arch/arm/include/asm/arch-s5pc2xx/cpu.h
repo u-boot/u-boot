@@ -51,6 +51,12 @@
 #include <asm/io.h>
 /* CPU detection macros */
 extern unsigned int s5p_cpu_id;
+extern unsigned int s5p_cpu_rev;
+
+static inline int s5p_get_cpu_rev(void)
+{
+	return s5p_cpu_rev;
+}
 
 static inline void s5p_set_cpu_id(void)
 {
@@ -61,8 +67,12 @@ static inline void s5p_set_cpu_id(void)
 	 * 0xC200: S5PC210 EVT0
 	 * 0xC210: S5PC210 EVT1
 	 */
-	if (s5p_cpu_id == 0xC200)
+	if (s5p_cpu_id == 0xC200) {
 		s5p_cpu_id |= 0x10;
+		s5p_cpu_rev = 0;
+	} else if (s5p_cpu_id == 0xC210) {
+		s5p_cpu_rev = 1;
+	}
 }
 
 #define IS_SAMSUNG_TYPE(type, id)			\
