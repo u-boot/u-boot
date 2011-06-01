@@ -45,9 +45,6 @@ static u32 system_rev;
 
 extern int mx51_fb_init(struct fb_videomode *mode);
 
-#ifdef CONFIG_HW_WATCHDOG
-#include <watchdog.h>
-
 static struct fb_videomode nec_nl6448bc26_09c = {
 	"NEC_NL6448BC26-09C",
 	60,	/* Refresh */
@@ -65,6 +62,8 @@ static struct fb_videomode nec_nl6448bc26_09c = {
 	0,	/* flag */
 };
 
+#ifdef CONFIG_HW_WATCHDOG
+#include <watchdog.h>
 void hw_watchdog_reset(void)
 {
 	int val;
@@ -700,47 +699,7 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	u32 system_rev = get_cpu_rev();
-	u32 cause;
-	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
-
-	puts("Board: TTControl Vision II CPU V");
-
-	switch (system_rev & 0xff) {
-	case CHIP_REV_3_0:
-		puts("3.0 [");
-		break;
-	case CHIP_REV_2_5:
-		puts("2.5 [");
-		break;
-	case CHIP_REV_2_0:
-		puts("2.0 [");
-		break;
-	case CHIP_REV_1_1:
-		puts("1.1 [");
-		break;
-	case CHIP_REV_1_0:
-	default:
-		puts("1.0 [");
-		break;
-	}
-
-	cause = src_regs->srsr;
-	switch (cause) {
-	case 0x0001:
-		puts("POR");
-		break;
-	case 0x0009:
-		puts("RST");
-		break;
-	case 0x0010:
-	case 0x0011:
-		puts("WDOG");
-		break;
-	default:
-		printf("unknown 0x%x", cause);
-	}
-	puts("]\n");
+	puts("Board: TTControl Vision II CPU V\n");
 
 	return 0;
 }

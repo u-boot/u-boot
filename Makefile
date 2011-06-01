@@ -322,6 +322,10 @@ ALL += $(obj)u-boot-onenand.bin
 ONENAND_BIN ?= $(obj)onenand_ipl/onenand-ipl-2k.bin
 endif
 
+ifeq ($(CONFIG_MMC_U_BOOT),y)
+ALL += $(obj)mmc_spl/u-boot-mmc-spl.bin
+endif
+
 all:		$(ALL)
 
 $(obj)u-boot.hex:	$(obj)u-boot
@@ -412,6 +416,11 @@ onenand_ipl:	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
 
 $(obj)u-boot-onenand.bin:	onenand_ipl $(obj)u-boot.bin
 		cat $(ONENAND_BIN) $(obj)u-boot.bin > $(obj)u-boot-onenand.bin
+
+mmc_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend
+		$(MAKE) -C mmc_spl/board/$(BOARDDIR) all
+
+$(obj)mmc_spl/u-boot-mmc-spl.bin:	mmc_spl
 
 $(VERSION_FILE):
 		@( localvers='$(shell $(TOPDIR)/tools/setlocalversion $(TOPDIR))' ; \
@@ -1123,6 +1132,7 @@ clean:
 	@rm -f $(obj)lib/asm-offsets.s
 	@rm -f $(obj)nand_spl/{u-boot.lds,u-boot-spl,u-boot-spl.map,System.map}
 	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl.map}
+	@rm -f $(obj)mmc_spl/{u-boot.lds,u-boot-spl,u-boot-spl.map,u-boot-spl.bin,u-boot-mmc-spl.bin}
 	@rm -f $(ONENAND_BIN)
 	@rm -f $(obj)onenand_ipl/u-boot.lds
 	@rm -f $(TIMESTAMP_FILE) $(VERSION_FILE)
@@ -1147,6 +1157,7 @@ clobber:	clean
 	@rm -fr $(obj)include/generated
 	@[ ! -d $(obj)nand_spl ] || find $(obj)nand_spl -name "*" -type l -print | xargs rm -f
 	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -name "*" -type l -print | xargs rm -f
+	@[ ! -d $(obj)mmc_spl ] || find $(obj)mmc_spl -name "*" -type l -print | xargs rm -f
 
 ifeq ($(OBJTREE),$(SRCTREE))
 mrproper \

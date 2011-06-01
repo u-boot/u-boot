@@ -33,17 +33,17 @@
 #include <asm/arch/imx-regs.h>
 
 /* High Level Configuration Options */
-#define CONFIG_ARM1136		1	/* This is an arm1136 CPU core */
-#define CONFIG_MX31		1	/* in a mx31 */
+#define CONFIG_ARM1136			/* This is an arm1136 CPU core */
+#define CONFIG_MX31			/* in a mx31 */
 #define CONFIG_MX31_HCLK_FREQ	26000000
 #define CONFIG_MX31_CLK32	32768
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
-#define CONFIG_SETUP_MEMORY_TAGS	1
-#define CONFIG_INITRD_TAG		1
+#define CONFIG_CMDLINE_TAG			/* enable passing of ATAGs */
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
 
 #if defined(CONFIG_NAND_U_BOOT) && !defined(CONFIG_NAND_SPL)
 #define CONFIG_SKIP_LOWLEVEL_INIT
@@ -58,12 +58,12 @@
  * Hardware drivers
  */
 
-#define CONFIG_MXC_UART		1
-#define CONFIG_SYS_MX31_UART1	1
+#define CONFIG_MXC_UART
+#define CONFIG_SYS_MX31_UART1
 #define CONFIG_HW_WATCHDOG
 
-#define CONFIG_HARD_SPI		1
-#define CONFIG_MXC_SPI		1
+#define CONFIG_HARD_SPI
+#define CONFIG_MXC_SPI
 #define CONFIG_DEFAULT_SPI_BUS	1
 #define CONFIG_DEFAULT_SPI_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
 
@@ -72,7 +72,7 @@
 #define CONFIG_FSL_PMIC_CS	2
 #define CONFIG_FSL_PMIC_CLK	1000000
 #define CONFIG_FSL_PMIC_MODE	(SPI_MODE_0 | SPI_CS_HIGH)
-#define CONFIG_RTC_MC13783	1
+#define CONFIG_RTC_MC13783
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -114,9 +114,9 @@
 		"nand write 0x81000000 0x0 0x40000\0"
 
 #define CONFIG_NET_MULTI
-#define CONFIG_SMC911X		1
+#define CONFIG_SMC911X
 #define CONFIG_SMC911X_BASE	0xB6000000
-#define CONFIG_SMC911X_32_BIT	1
+#define CONFIG_SMC911X_32_BIT
 
 /*
  * Miscellaneous configurable options
@@ -141,7 +141,7 @@
 
 #define CONFIG_SYS_HZ			1000
 
-#define CONFIG_CMDLINE_EDITING	1
+#define CONFIG_CMDLINE_EDITING
 
 /*-----------------------------------------------------------------------
  * Stack sizes
@@ -156,7 +156,7 @@
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM_1		CSD0_BASE
 #define PHYS_SDRAM_1_SIZE	(128 * 1024 * 1024)
-#define CONFIG_BOARD_EARLY_INIT_F	1
+#define CONFIG_BOARD_EARLY_INIT_F
 
 #define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
 #define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
@@ -168,9 +168,9 @@
  * FLASH and environment organization
  */
 /* No NOR flash present */
-#define CONFIG_SYS_NO_FLASH	1
+#define CONFIG_SYS_NO_FLASH
 
-#define CONFIG_ENV_IS_IN_NAND		1
+#define CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_OFFSET		0x40000
 #define CONFIG_ENV_OFFSET_REDUND	0x60000
 #define CONFIG_ENV_SIZE			(128 * 1024)

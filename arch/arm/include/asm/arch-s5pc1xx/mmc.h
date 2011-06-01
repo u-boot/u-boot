@@ -64,6 +64,7 @@ struct mmc_host {
 	struct s5p_mmc *reg;
 	unsigned int version;	/* SDHCI spec. version */
 	unsigned int clock;	/* Current clock (MHz) */
+	int dev_index;
 };
 
 int s5p_mmc_init(int dev_index, int bus_width);

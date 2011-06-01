@@ -24,7 +24,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/smc.h>
+#include <asm/arch/sromc.h>
 #include <asm/arch/gpio.h>
 #include <netdev.h>
 
@@ -50,7 +50,7 @@ static void smc9115_pre_init(void)
 			| SMC_BC_TACP(0x6) | SMC_BC_PMC(0x0);
 
 	/* Select and configure the SROMC bank */
-	s5pc1xx_config_sromc(CONFIG_ENV_SROM_BANK, smc_bw_conf, smc_bc_conf);
+	s5p_config_sromc(CONFIG_ENV_SROM_BANK, smc_bw_conf, smc_bc_conf);
 }
 
 int board_init(void)

@@ -65,14 +65,10 @@ u32 get_cpu_rev(void)
 		break;
 	}
 #else
-	switch (reg) {
-	case 0x20:
-		system_rev |= CHIP_REV_2_0;
-		break;
-	default:
+	if (reg < 0x20)
 		system_rev |= CHIP_REV_1_0;
-		break;
-	}
+	else
+		system_rev |= reg;
 #endif
 	return system_rev;
 }

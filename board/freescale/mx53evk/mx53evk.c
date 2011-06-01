@@ -372,26 +372,7 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	u32 cause;
-	struct src *src_regs = (struct src *)SRC_BASE_ADDR;
+	puts("Board: MX53EVK\n");
 
-	puts("Board: MX53EVK [");
-
-	cause = src_regs->srsr;
-	switch (cause) {
-	case 0x0001:
-		printf("POR");
-		break;
-	case 0x0009:
-		printf("RST");
-		break;
-	case 0x0010:
-	case 0x0011:
-		printf("WDOG");
-		break;
-	default:
-		printf("unknown");
-	}
-	printf("]\n");
 	return 0;
 }
