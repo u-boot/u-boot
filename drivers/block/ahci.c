@@ -468,7 +468,7 @@ static char *ata_id_strcpy(u16 *target, u16 *src, int len)
 {
 	int i;
 	for (i = 0; i < len / 2; i++)
-		target[i] = le16_to_cpu(src[i]);
+		target[i] = swab16(src[i]);
 	return (char *)target;
 }
 
