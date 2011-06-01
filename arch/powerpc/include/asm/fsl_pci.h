@@ -233,7 +233,7 @@ int fsl_pcie_init_board(int busno);
 #if !defined(CONFIG_PCI)
 #define FT_FSL_PCI_SETUP
 #elif defined(CONFIG_FSL_CORENET)
-#define FSL_PCIE_COMPAT	"fsl,p4080-pcie"
+#define FSL_PCIE_COMPAT	CONFIG_SYS_FSL_PCIE_COMPAT
 #define FT_FSL_PCI_SETUP \
 	FT_FSL_PCIE1_SETUP; \
 	FT_FSL_PCIE2_SETUP; \
@@ -242,7 +242,11 @@ int fsl_pcie_init_board(int busno);
 #define FT_FSL_PCIE_SETUP FT_FSL_PCI_SETUP
 #elif defined(CONFIG_MPC85xx)
 #define FSL_PCI_COMPAT	"fsl,mpc8540-pci"
+#ifdef CONFIG_SYS_FSL_PCIE_COMPAT
+#define FSL_PCIE_COMPAT	CONFIG_SYS_FSL_PCIE_COMPAT
+#else
 #define FSL_PCIE_COMPAT	"fsl,mpc8548-pcie"
+#endif
 #define FT_FSL_PCI_SETUP \
 	FT_FSL_PCI1_SETUP; \
 	FT_FSL_PCI2_SETUP; \
