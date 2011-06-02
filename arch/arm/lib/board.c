@@ -626,7 +626,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 		pram += (LOGBUFF_LEN + LOGBUFF_OVERHEAD) / 1024;
 #endif
 #endif
-		sprintf((char *)memsz, "%ldk", (bd->bi_memsize / 1024) - pram);
+		sprintf((char *)memsz, "%ldk", (gd->ram_size / 1024) - pram);
 		setenv("mem", (char *)memsz);
 	}
 #endif
