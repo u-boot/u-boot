@@ -383,6 +383,8 @@ static int configure_phy(struct eth_device *dev)
 		priv->address = phy_addr;
 	else
 		return -1;
+#else
+	phy_addr = priv->address;
 #endif
 	if (dw_reset_phy(dev) < 0)
 		return -1;
