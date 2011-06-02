@@ -40,7 +40,7 @@ CFLAGS	+= -DCONFIG_SPL_BUILD
 SOBJS	= start.o mem_setup.o lowlevel_init.o
 COBJS	= mmc_boot.o
 
-SRCS	:= $(addprefix $(obj),$(SOBJS:.o=.S) $(COBJS:.o=.c))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
 __OBJS	:= $(SOBJS) $(COBJS)
 LNDIR	:= $(OBJTREE)/mmc_spl/board/$(BOARDDIR)
@@ -76,25 +76,25 @@ $(mmcobj)u-boot.lds: $(LDSCRIPT)
 # create symbolic links for common files
 
 # from cpu directory
-$(obj)start.S:
+start.S:
 	@rm -f $@
 	@ln -s $(TOPDIR)/arch/arm/cpu/armv7/start.S $@
 
 # from board directory
-$(obj)mem_setup.S:
+mem_setup.S:
 	@rm -f $@
 	@ln -s $(TOPDIR)/board/samsung/smdkv310/mem_setup.S $@
 
-$(obj)lowlevel_init.S:
+lowlevel_init.S:
 	@rm -f $@
 	@ln -s $(TOPDIR)/board/samsung/smdkv310/lowlevel_init.S $@
 
 #########################################################################
 
-$(obj)%.o:	$(obj)%.S
+$(obj)%.o:	%.S
 	$(CC) $(AFLAGS) -c -o $@ $<
 
-$(obj)%.o:	$(obj)%.c
+$(obj)%.o:	%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # defines $(obj).depend target
