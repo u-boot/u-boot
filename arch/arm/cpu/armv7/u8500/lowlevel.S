@@ -28,8 +28,8 @@ lowlevel_init:
 	.align	5
 .globl reset_cpu
 reset_cpu:
-        ldr r0, =CFG_PRCMU_BASE
-        ldr r1, =0x1
-        str r1, [r0, #0x228]
+	ldr r0, =CFG_PRCMU_BASE
+	ldr r1, =0x1
+	str r1, [r0, #0x228]
 _loop_forever:
 	b	_loop_forever

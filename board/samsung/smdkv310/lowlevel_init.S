@@ -50,7 +50,7 @@ lowlevel_init:
 
 	/* check reset status  */
 	ldr     r0, =(S5PC210_POWER_BASE + 0x81C)	@ INFORM7
-        ldr     r1, [r0]
+	ldr     r1, [r0]
 
 	/* AFTR wakeup reset */
 	ldr	r2, =S5P_CHECK_DIDLE

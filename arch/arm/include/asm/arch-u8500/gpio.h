@@ -38,25 +38,25 @@
 
 
 struct gpio_register {
-	u32 gpio_dat;	/* data register *//*0x000 */
-	u32 gpio_dats;	/* data Set register *//*0x004 */
-	u32 gpio_datc;	/* data Clear register *//*0x008 */
-	u32 gpio_pdis;	/* Pull disable register *//*0x00C */
-	u32 gpio_dir;	/* data direction register *//*0x010 */
-	u32 gpio_dirs;	/* data dir Set register *//*0x014 */
-	u32 gpio_dirc;	/* data dir Clear register *//*0x018 */
-	u32 gpio_slpm;	/* Sleep mode register *//*0x01C */
-	u32 gpio_afsa;	/* AltFun A Select reg *//*0x020 */
-	u32 gpio_afsb;	/* AltFun B Select reg *//*0x024 */
-	u32 gpio_lowemi;/* low EMI Select reg *//*0x028 */
+	u32 gpio_dat;	/* data register : 0x000 */
+	u32 gpio_dats;	/* data Set register : 0x004 */
+	u32 gpio_datc;	/* data Clear register : 0x008 */
+	u32 gpio_pdis;	/* Pull disable register : 0x00C */
+	u32 gpio_dir;	/* data direction register : 0x010 */
+	u32 gpio_dirs;	/* data dir Set register : 0x014 */
+	u32 gpio_dirc;	/* data dir Clear register : 0x018 */
+	u32 gpio_slpm;	/* Sleep mode register : 0x01C */
+	u32 gpio_afsa;	/* AltFun A Select reg : 0x020 */
+	u32 gpio_afsb;	/* AltFun B Select reg : 0x024 */
+	u32 gpio_lowemi;/* low EMI Select reg : 0x028 */
 	u32 reserved_1[(0x040 - 0x02C) >> 2];	/*0x028-0x3C Reserved*/
-	u32 gpio_rimsc;	/* rising edge intr set/clear *//*0x040 */
-	u32 gpio_fimsc;	/* falling edge intr set/clear register *//*0x044 */
-	u32 gpio_mis;	/* masked interrupt status register *//*0x048 */
-	u32 gpio_ic;	/* Interrupt Clear register *//*0x04C */
-	u32 gpio_rwimsc;/* Rising-edge Wakeup IMSC register *//*0x050 */
-	u32 gpio_fwimsc;/* Falling-edge Wakeup IMSC register *//*0x054 */
-	u32 gpio_wks;	/* Wakeup Status register *//*0x058 */
+	u32 gpio_rimsc;	/* rising edge intr set/clear : 0x040 */
+	u32 gpio_fimsc;	/* falling edge intr set/clear register : 0x044 */
+	u32 gpio_mis;	/* masked interrupt status register : 0x048 */
+	u32 gpio_ic;	/* Interrupt Clear register : 0x04C */
+	u32 gpio_rwimsc;/* Rising-edge Wakeup IMSC register : 0x050 */
+	u32 gpio_fwimsc;/* Falling-edge Wakeup IMSC register : 0x054 */
+	u32 gpio_wks;	/* Wakeup Status register : 0x058 */
 };
 
 /* Error values returned by functions */
