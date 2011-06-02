@@ -452,13 +452,17 @@ static int memory_post_tests (unsigned long start, unsigned long size)
 	return ret;
 }
 
+/*
+ * !! this is only valid, if you have contiguous memory banks !!
+ */
 __attribute__((weak))
 int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
 {
 	bd_t *bd = gd->bd;
+
 	*vstart = CONFIG_SYS_SDRAM_BASE;
-	*size = (bd->bi_memsize >= 256 << 20 ?
-			256 << 20 : bd->bi_memsize) - (1 << 20);
+	*size = (gd->ram_size >= 256 << 20 ?
+			256 << 20 : gd->ram_size) - (1 << 20);
 
 	/* Limit area to be tested with the board info struct */
 	if ((*vstart) + (*size) > (ulong)bd)
