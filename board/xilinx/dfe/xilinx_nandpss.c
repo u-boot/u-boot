@@ -204,6 +204,7 @@ static struct xnandpss_command_format xnandpss_commands[] __devinitdata = {
 	{NAND_CMD_RNDIN, NAND_CMD_NONE, 2, NAND_CMD_NONE},
 	{NAND_CMD_ERASE1, NAND_CMD_ERASE2, 3, XNANDPSS_CMD_PHASE},
 	{NAND_CMD_RESET, NAND_CMD_NONE, 0, NAND_CMD_NONE},
+	{NAND_CMD_PARAM, NAND_CMD_NONE, 1, NAND_CMD_NONE},
 	{NAND_CMD_GET_FEATURES, NAND_CMD_NONE, 1, NAND_CMD_NONE},
 	{NAND_CMD_SET_FEATURES, NAND_CMD_NONE, 1, NAND_CMD_NONE},
 	{NAND_CMD_NONE, NAND_CMD_NONE, 0, 0},
@@ -220,10 +221,10 @@ static struct xnandpss_command_format xnandpss_commands[] __devinitdata = {
 /* Define default oob placement schemes for large and small page devices */
 static struct nand_ecclayout nand_oob_16 = {
 	.eccbytes = 3,
-	.eccpos = {0, 1, 2},
+	.eccpos = {13, 14, 15},
 	.oobfree = {
-		{.offset = 8,
-		 . length = 8} }
+		{.offset = 0,
+		 . length = 12} }
 };
 
 static struct nand_ecclayout nand_oob_64 = {
@@ -1006,6 +1007,7 @@ int board_nand_init(struct nand_chip *nand_chip)
 	u8 set_feature[4] = {0x08, 0x00, 0x00, 0x00};
 	unsigned long ecc_cfg;
 	int ondie_ecc_enabled = 0;
+	int ez_nand_supported = 0;
 
 #ifdef LINUX_ONLY_NOT_UBOOT
 	xnand = kzalloc(sizeof(struct xnandpss_info), GFP_KERNEL);
@@ -1143,9 +1145,13 @@ int board_nand_init(struct nand_chip *nand_chip)
 
 		if (get_feature[0] & 0x08)
 			ondie_ecc_enabled = 1;
+	} else if ((nand_chip->onfi_version == 23) &&
+				(nand_chip->onfi_params.features & (1 << 9))) {
+		printk(KERN_INFO "\nClear NAND flash detected\n");
+		ez_nand_supported = 1;
 	}
 
-	if (ondie_ecc_enabled) {
+	if (ondie_ecc_enabled || ez_nand_supported) {
 		/* bypass the controller ECC block */
 		ecc_cfg = xnandpss_read32(xnand->smc_regs +
 			XSMCPSS_ECC_MEMCFG_OFFSET(XSMCPSS_ECC_IF1_OFFSET));
@@ -1166,11 +1172,13 @@ int board_nand_init(struct nand_chip *nand_chip)
 		nand_chip->ecc.size = mtd->writesize;
 		nand_chip->ecc.bytes = 0;
 
-		nand_chip->ecc.layout = &ondie_nand_oob_64;
-
-		/* Use the BBT pattern descriptors */
-		nand_chip->bbt_td = &bbt_main_descr;
-		nand_chip->bbt_md = &bbt_mirror_descr;
+		/* On-Die ECC spare bytes offset 8 is used for ECC codes */
+		if (ondie_ecc_enabled) {
+			nand_chip->ecc.layout = &ondie_nand_oob_64;
+			/* Use the BBT pattern descriptors */
+			nand_chip->bbt_td = &bbt_main_descr;
+			nand_chip->bbt_md = &bbt_mirror_descr;
+		}
 	} else {
 		/* Hardware ECC generates 3 bytes ECC code for each 512 bytes */
 		nand_chip->ecc.mode = NAND_ECC_HW;
