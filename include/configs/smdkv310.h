@@ -165,4 +165,7 @@
 #define CONFIG_SMC911X_16_BIT
 #define CONFIG_ENV_SROM_BANK		1
 #endif /*CONFIG_CMD_NET*/
+
+/* Enable devicetree support */
+#define CONFIG_OF_LIBFDT
 #endif	/* __CONFIG_H */
