@@ -48,23 +48,47 @@ SECTIONS
 
 	  *(.text)
 	}
+	. = ALIGN(4);
+	.rodata : { *(.rodata) }
 
 	. = ALIGN(4);
-	.rodata : { *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*))) }
+	.data : {
+		*(.data)
+	}
 
 	. = ALIGN(4);
-	.data : { *(.data) }
-
-	. = ALIGN(4);
-	.got : { *(.got) }
-
-	. = .;
 	__u_boot_cmd_start = .;
 	.u_boot_cmd : { *(.u_boot_cmd) }
 	__u_boot_cmd_end = .;
 
 	. = ALIGN(4);
-	__bss_start = .;
-	.bss : { *(.bss) . = ALIGN(4); }
-	__bss_end__ = .;
+
+	.rel.dyn : {
+		__rel_dyn_start = .;
+		*(.rel*)
+		__rel_dyn_end = .;
+	}
+
+	.dynsym : {
+		__dynsym_start = .;
+		*(.dynsym)
+	}
+
+	_end = .;
+
+	.bss __rel_dyn_start (OVERLAY) : {
+		__bss_start = .;
+		*(.bss)
+		 . = ALIGN(4);
+		__bss_end__ = .;
+	}
+
+	/DISCARD/ : { *(.bss*) }
+	/DISCARD/ : { *(.dynstr*) }
+	/DISCARD/ : { *(.dynsym*) }
+	/DISCARD/ : { *(.dynamic*) }
+	/DISCARD/ : { *(.hash*) }
+	/DISCARD/ : { *(.plt*) }
+	/DISCARD/ : { *(.interp*) }
+	/DISCARD/ : { *(.gnu*) }
 }

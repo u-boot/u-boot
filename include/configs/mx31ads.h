@@ -33,6 +33,8 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
+#define CONFIG_SYS_TEXT_BASE		0xA0000000
+
 /*
  * Disabled for now due to build problems under Debian and a significant increase
  * in the final file size: 144260 vs. 109536 Bytes.
@@ -160,6 +162,15 @@
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM_1		CSD0_BASE
 #define PHYS_SDRAM_1_SIZE	(128 * 1024 * 1024)
+#define CONFIG_BOARD_EARLY_INIT_F
+
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
+						GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_INIT_RAM_ADDR + \
+						CONFIG_SYS_GBL_DATA_OFFSET)
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
