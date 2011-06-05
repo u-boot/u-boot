@@ -831,11 +831,7 @@ int do_checkboardidhwk(cmd_tbl_t *cmdtp, int flag, int argc,
 				 * Compare the values of the found entry in the
 				 * list with the valid values which are stored
 				 * in the inventory eeprom. If they are equal
-				 * store the values in environment variables
-				 * and save the environment.
-				 * This can only happen once for the lifetime
-				 * of a board, because once saved the function
-				 * will never reach the while loop.
+				 * set the values in environment variables.
 				 */
 				if ((bid == ivmbid) && (hwkey == ivmhwkey)) {
 					char buf[10];
@@ -847,7 +843,6 @@ int do_checkboardidhwk(cmd_tbl_t *cmdtp, int flag, int argc,
 					setenv("boardid", buf);
 					sprintf(buf, "%lx", hwkey);
 					setenv("hwkey", buf);
-					saveenv();
 				}
 			} /* end while( ! found ) */
 		}
