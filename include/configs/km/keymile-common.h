@@ -83,16 +83,6 @@
 #define CONFIG_SYS_LOADS_BAUD_CHANGE
 #define CONFIG_SYS_BOARD_DRAM_INIT	/* Used board specific dram_init */
 
-/*
- * How to get access to the slot ID.  Put this here to make it easy
- * to modify in a centralized location.  This is used in the HDLC
- * driver to set the MAC.
-*/
-#define CONFIG_CHECK_ETHERNET_PRESENT
-#define CONFIG_SYS_SLOT_ID_BASE		CONFIG_SYS_KMBEC_FPGA_BASE
-#define CONFIG_SYS_SLOT_ID_OFF		(0x07)	/* register offset */
-#define CONFIG_SYS_SLOT_ID_MASK		(0x3f)	/* mask for slot ID bits */
-
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_MAX_I2C_BUS		1
 #define CONFIG_SYS_I2C_INIT_BOARD
