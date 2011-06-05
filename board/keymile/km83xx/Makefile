@@ -28,7 +28,7 @@ endif
 
 LIB	= $(obj)lib$(BOARD).o
 
-COBJS	+= $(BOARD).o ../common/common.o
+COBJS	+= $(BOARD).o ../common/common.o ../common/ivm.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))

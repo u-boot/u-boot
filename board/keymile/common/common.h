@@ -138,4 +138,5 @@ int fdt_get_node_and_value(void *blob,
 				void **var);
 
 int i2c_soft_read_pin(void);
+int i2c_make_abort(void);
 #endif /* __KEYMILE_COMMON_H */
