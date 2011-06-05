@@ -278,8 +278,7 @@ static int ivm_analyze_block2(unsigned char *buf, int len)
 		sprintf((char *)valbuf, "%pM", buf);
 	}
 #endif
-	if (getenv("ethaddr") == NULL)
-		setenv((char *)"ethaddr", (char *)valbuf);
+	setenv((char *)"ethaddr", (char *)valbuf);
 
 	/* IVM_MacCount */
 	count = (buf[10] << 24) +
