@@ -315,6 +315,8 @@ int last_stage_init(void)
 }
 
 #ifdef CONFIG_MGCOGE3NE
+static void set_pin(int state, unsigned long mask);
+
 /*
  * For mgcoge3ne boards, the mgcoge3un control is controlled from
  * a GPIO line on the PPC CPU. If bobcatreset is set the line
@@ -363,6 +365,64 @@ int hush_init_var(void)
 	return 0;
 }
 
+#define SDA_MASK	0x00010000
+#define SCL_MASK	0x00020000
+
+static void set_pin(int state, unsigned long mask)
+{
+	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3);
+
+	if (state)
+		setbits_be32(&iop->pdat, mask);
+	else
+		clrbits_be32(&iop->pdat, mask);
+
+	setbits_be32(&iop->pdir, mask);
+}
+
+static int get_pin(unsigned long mask)
+{
+	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3);
+
+	clrbits_be32(&iop->pdir, mask);
+	return 0 != (in_be32(&iop->pdat) & mask);
+}
+
+void set_sda(int state)
+{
+	set_pin(state, SDA_MASK);
+}
+
+void set_scl(int state)
+{
+	set_pin(state, SCL_MASK);
+}
+
+int get_sda(void)
+{
+	return get_pin(SDA_MASK);
+}
+
+int get_scl(void)
+{
+	return get_pin(SCL_MASK);
+}
+
+#if defined(CONFIG_HARD_I2C)
+static void setports(int gpio)
+{
+	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3);
+
+	if (gpio) {
+		clrbits_be32(&iop->ppar, (SDA_MASK | SCL_MASK));
+		clrbits_be32(&iop->podr, (SDA_MASK | SCL_MASK));
+	} else {
+		setbits_be32(&iop->ppar, (SDA_MASK | SCL_MASK));
+		clrbits_be32(&iop->pdir, (SDA_MASK | SCL_MASK));
+		setbits_be32(&iop->podr, (SDA_MASK | SCL_MASK));
+	}
+}
+#endif
 #if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
 void ft_board_setup(void *blob, bd_t *bd)
 {

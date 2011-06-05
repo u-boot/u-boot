@@ -25,9 +25,6 @@
  */
 
 #include <common.h>
-#if defined(CONFIG_KM82XX)
-#include <mpc8260.h>
-#endif
 #include <ioports.h>
 #include <command.h>
 #include <malloc.h>
@@ -44,6 +41,7 @@
 #include "common.h"
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
+#endif
 
 static void i2c_write_start_seq(void);
 DECLARE_GLOBAL_DATA_PTR;
@@ -83,69 +81,8 @@ int set_km_env(void)
 	return 0;
 }
 
-#if defined(CONFIG_SYS_I2C_INIT_BOARD)
 #define DELAY_ABORT_SEQ		62  /* @200kHz 9 clocks = 44us, 62us is ok */
 #define DELAY_HALF_PERIOD	(500 / (CONFIG_SYS_I2C_SPEED / 1000))
-
-#if defined(CONFIG_KM_82XX)
-#define SDA_MASK	0x00010000
-#define SCL_MASK	0x00020000
-void set_pin(int state, unsigned long mask)
-{
-	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3);
-
-	if (state)
-		setbits_be32(&iop->pdat, mask);
-	else
-		clrbits_be32(&iop->pdat, mask);
-
-	setbits_be32(&iop->pdir, mask);
-}
-
-static int get_pin(unsigned long mask)
-{
-	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3);
-
-	clrbits_be32(&iop->pdir, mask);
-	return 0 != (in_be32(&iop->pdat) & mask);
-}
-
-static void set_sda(int state)
-{
-	set_pin(state, SDA_MASK);
-}
-
-static void set_scl(int state)
-{
-	set_pin(state, SCL_MASK);
-}
-
-static int get_sda(void)
-{
-	return get_pin(SDA_MASK);
-}
-
-static int get_scl(void)
-{
-	return get_pin(SCL_MASK);
-}
-
-#if defined(CONFIG_HARD_I2C)
-static void setports(int gpio)
-{
-	ioport_t *iop = ioport_addr((immap_t *)CONFIG_SYS_IMMR, 3);
-
-	if (gpio) {
-		clrbits_be32(&iop->ppar, (SDA_MASK | SCL_MASK));
-		clrbits_be32(&iop->podr, (SDA_MASK | SCL_MASK));
-	} else {
-		setbits_be32(&iop->ppar, (SDA_MASK | SCL_MASK));
-		clrbits_be32(&iop->pdir, (SDA_MASK | SCL_MASK));
-		setbits_be32(&iop->podr, (SDA_MASK | SCL_MASK));
-	}
-}
-#endif
-#endif
 
 #if !defined(CONFIG_MPC83xx)
 static void i2c_write_start_seq(void)
@@ -223,7 +160,7 @@ int i2c_make_abort(void)
 #endif
 	return ret;
 }
-#endif
+#endif /* !MPC83xx */
 
 #if defined(CONFIG_MPC83xx)
 static void i2c_write_start_seq(void)
@@ -296,8 +233,6 @@ void i2c_init_board(void)
 	/* Now run the AbortSequence() */
 	i2c_make_abort();
 }
-#endif
-#endif
 
 #if !defined(MACH_TYPE_KM_KIRKWOOD)
 int ethernet_present(void)

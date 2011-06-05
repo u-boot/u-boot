@@ -124,7 +124,6 @@ struct bfticu_iomap {
 
 int ethernet_present(void);
 int ivm_read_eeprom(void);
-void set_pin(int state, unsigned long mask);
 
 int set_km_env(void);
 int fdt_set_node_and_value(void *blob,

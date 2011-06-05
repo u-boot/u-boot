@@ -139,6 +139,13 @@
 			} while (0)
 #define I2C_DELAY	udelay(5)	/* 1/4 I2C clock duration */
 
+#ifndef __ASSEMBLY__
+void set_sda(int state);
+void set_scl(int state);
+int get_sda(void);
+int get_scl(void);
+#endif
+
 /* I2C SYSMON (LM75, AD7414 is almost compatible)			*/
 #define CONFIG_DTT_LM75			/* ON Semi's LM75		*/
 #define CONFIG_DTT_SENSORS	{0}	/* Sensor addresses		*/
