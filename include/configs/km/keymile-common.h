@@ -223,6 +223,8 @@
 	"backup_bank=0\0"						\
 	"release=run newenv; reset\0"					\
 	"pnvramsize=" xstr(CONFIG_KM_PNVRAM) "\0"			\
+	"testbootcmd=setenv boot_bank ${test_bank}; "			\
+		"run ${subbootcmds}; reset\0"				\
 	""
 
 #ifndef CONFIG_KM_DEF_ENV
