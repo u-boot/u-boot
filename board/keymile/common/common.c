@@ -299,61 +299,6 @@ void i2c_init_board(void)
 #endif
 #endif
 
-#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-int fdt_set_node_and_value(void *blob,
-				char *nodename,
-				char *regname,
-				void *var,
-				int size)
-{
-	int ret = 0;
-	int nodeoffset = 0;
-
-	nodeoffset = fdt_path_offset(blob, nodename);
-	if (nodeoffset >= 0) {
-		ret = fdt_setprop(blob, nodeoffset, regname, var,
-					size);
-		if (ret < 0)
-			printf("ft_blob_update(): cannot set %s/%s "
-				"property err:%s\n", nodename, regname,
-				fdt_strerror(ret));
-	} else {
-		printf("ft_blob_update(): cannot find %s node "
-			"err:%s\n", nodename, fdt_strerror(nodeoffset));
-	}
-	return ret;
-}
-
-int fdt_get_node_and_value(void *blob,
-				char *nodename,
-				char *propname,
-				void **var)
-{
-	int len;
-	int nodeoffset = 0;
-
-	nodeoffset = fdt_path_offset(blob, nodename);
-	if (nodeoffset >= 0) {
-		*var = (void *)fdt_getprop(blob, nodeoffset, propname, &len);
-		if (len == 0) {
-			/* no value */
-			printf("%s no value\n", __func__);
-			return -1;
-		} else if (len > 0) {
-			return len;
-		} else {
-			printf("libfdt fdt_getprop(): %s\n",
-				fdt_strerror(len));
-			return -2;
-		}
-	} else {
-		printf("%s: cannot find %s node err:%s\n", __func__,
-			nodename, fdt_strerror(nodeoffset));
-		return -3;
-	}
-}
-#endif
-
 #if !defined(MACH_TYPE_KM_KIRKWOOD)
 int ethernet_present(void)
 {
