@@ -118,7 +118,9 @@
 #define CONFIG_MTD_DEVICE
 #define CONFIG_MTD_CONCAT
 
-/* common powerpc specific env settings */
+#define CONFIG_CMD_CRAMFS
+#define CONFIG_CRAMFS_CMDLINE
+
 #ifndef CONFIG_KM_DEF_ENV_BOOTPARAMS
 #define CONFIG_KM_DEF_ENV_BOOTPARAMS \
 	"actual_bank=0\0"
