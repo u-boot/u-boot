@@ -40,7 +40,6 @@ int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
     char *name;
     char *ep;
     int size;
-    int rcode = 0;
     char buf [12];
     int drive = CONFIG_SYS_FDC_DRIVE_NUMBER;
 
@@ -98,15 +97,7 @@ int do_fdosboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
     printf("Floppy DOS load complete: %d bytes loaded to 0x%lx\n",
 	   size, load_addr);
 
-    /* Check if we should attempt an auto-start */
-    if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
-	char *local_args[2];
-	local_args[0] = argv[0];
-	local_args[1] = NULL;
-	printf ("Automatic boot of image at addr 0x%08lX ...\n", load_addr);
-	rcode = do_bootm (cmdtp, 0, 1, local_args);
-    }
-    return rcode;
+    return bootm_maybe_autostart(cmdtp, argv[0]);
 }
 
 /*-----------------------------------------------------------------------------

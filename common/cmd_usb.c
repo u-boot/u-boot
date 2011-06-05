@@ -356,7 +356,7 @@ int do_usbboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char *boot_device = NULL;
 	char *ep;
-	int dev, part = 1, rcode;
+	int dev, part = 1;
 	ulong addr, cnt;
 	disk_partition_t info;
 	image_header_t *hdr;
@@ -490,16 +490,7 @@ int do_usbboot(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	flush_cache(addr, (cnt+1)*info.blksz);
 
-	/* Check if we should attempt an auto-start */
-	if (((ep = getenv("autostart")) != NULL) && (strcmp(ep, "yes") == 0)) {
-		char *local_args[2];
-		local_args[0] = argv[0];
-		local_args[1] = NULL;
-		printf("Automatic boot of image at addr 0x%08lX ...\n", addr);
-		rcode = do_bootm(cmdtp, 0, 1, local_args);
-		return rcode;
-	}
-	return 0;
+	return bootm_maybe_autostart(cmdtp, argv[0]);
 }
 #endif /* CONFIG_USB_STORAGE */
 

@@ -721,8 +721,6 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	image_header_t *hdr;  /* used for fdc boot */
 	unsigned char boot_drive;
 	int i,nrofblk;
-	char *ep;
-	int rcode = 0;
 #if defined(CONFIG_FIT)
 	const void *fit_hdr = NULL;
 #endif
@@ -823,19 +821,7 @@ int do_fdcboot (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* Loading ok, update default load address */
 	load_addr = addr;
 
-	/* Check if we should attempt an auto-start */
-	if (((ep = getenv("autostart")) != NULL) && (strcmp(ep,"yes") == 0)) {
-		char *local_args[2];
-
-		local_args[0] = argv[0];
-		local_args[1] = NULL;
-
-		printf ("Automatic boot of image at addr 0x%08lX ...\n", addr);
-
-		do_bootm (cmdtp, 0, 1, local_args);
-		rcode ++;
-	}
-	return rcode;
+	return bootm_maybe_autostart(cmdtp, argv[0]);
 }
 
 U_BOOT_CMD(
