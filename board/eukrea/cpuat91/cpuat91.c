@@ -63,7 +63,7 @@ int dram_init(void)
 #ifdef CONFIG_DRIVER_AT91EMAC
 int board_eth_init(bd_t *bis)
 {
-	return at91emac_register(bis, (u32) AT91_EMAC_BASE);
+	return at91emac_register(bis, (u32) ATMEL_BASE_EMAC);
 }
 #endif
 
@@ -71,8 +71,8 @@ int board_eth_init(bd_t *bis)
 void i2c_init_board(void)
 {
 	u32 pin;
-	at91_pmc_t *pmc = (at91_pmc_t *) AT91_PMC_BASE;
-	at91_pio_t *pio = (at91_pio_t *) AT91_PIO_BASE;
+	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
+	at91_pio_t *pio = (at91_pio_t *) ATMEL_BASE_PIO;
 
 	writel(1 << AT91_ID_PIOA, &pmc->pcer);
 	pin = AT91_PMX_AA_TWD | AT91_PMX_AA_TWCK;
