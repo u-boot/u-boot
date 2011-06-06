@@ -27,38 +27,53 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#define CONFIG_AT91_LEGACY
-
-/* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* 18.432 MHz crystal */
-#define CONFIG_SYS_HZ		1000
-
-#define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
-
-#ifdef CONFIG_AT91SAM9G20EK
-#define CONFIG_AT91SAM9G20	1	/* It's an Atmel AT91SAM9G20 SoC*/
-#else
-#define CONFIG_AT91SAM9260	1	/* It's an Atmel AT91SAM9260 SoC*/
-#endif
-
-#define CONFIG_ARCH_CPU_INIT
-#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
-
-#define CONFIG_CMDLINE_TAG	1	/* enable passing of ATAGs	*/
-#define CONFIG_SETUP_MEMORY_TAGS 1
-#define CONFIG_INITRD_TAG	1
-
-#define CONFIG_SKIP_LOWLEVEL_INIT
+/*
+ * SoC must be defined first, before hardware.h is included.
+ * In this case SoC is defined in boards.cfg.
+ */
+#include <asm/hardware.h>
 
 /*
- * Hardware drivers
+ * Warning: changing CONFIG_SYS_TEXT_BASE requires
+ * adapting the initial boot program.
+ * Since the linker has to swallow that define, we must use a pure
+ * hex number here!
  */
-#define CONFIG_AT91_GPIO	1
-#define CONFIG_ATMEL_USART	1
-#undef CONFIG_USART0
-#undef CONFIG_USART1
-#undef CONFIG_USART2
-#define CONFIG_USART3		1	/* USART 3 is DBGU */
+#define CONFIG_SYS_TEXT_BASE		0x21f00000
+
+/* ARM asynchronous clock */
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
+#define CONFIG_SYS_AT91_MAIN_CLOCK	18432000	/* main clock xtal */
+#define CONFIG_SYS_HZ			1000
+
+/* Define actual evaluation board type from used processor type */
+#ifdef CONFIG_AT91SAM9G20
+# define CONFIG_AT91SAM9G20EK	/* It's an Atmel AT91SAM9G20 EK */
+#else
+# define CONFIG_AT91SAM9260EK	/* It's an Atmel AT91SAM9260 EK */
+#endif
+
+/* Misc CPU related */
+#define CONFIG_ARCH_CPU_INIT
+#undef	CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
+#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs */
+#define CONFIG_SETUP_MEMORY_TAGS
+#define CONFIG_INITRD_TAG
+#define CONFIG_SKIP_LOWLEVEL_INIT
+#define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_DISPLAY_CPUINFO
+
+/* general purpose I/O */
+#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
+#define CONFIG_AT91_GPIO
+#define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
+
+/* serial console */
+#define CONFIG_ATMEL_USART
+#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
+#define	CONFIG_USART_ID			ATMEL_ID_SYS
+#define CONFIG_BAUDRATE			115200
+#define CONFIG_SYS_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
 
 /* LED */
 #define CONFIG_AT91_LED
@@ -91,10 +106,26 @@
 #define CONFIG_CMD_NAND		1
 #define CONFIG_CMD_USB		1
 
-/* SDRAM */
+/*
+ * SDRAM: 1 bank, min 32, max 128 MB
+ * Initialized before u-boot gets started.
+ */
 #define CONFIG_NR_DRAM_BANKS		1
-#define PHYS_SDRAM			0x20000000
-#define PHYS_SDRAM_SIZE			0x04000000	/* 64 megs */
+#define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
+#define CONFIG_SYS_SDRAM_SIZE		0x04000000
+
+/*
+ * Initial stack pointer: 4k - GENERATED_GBL_DATA_SIZE in internal SRAM,
+ * leaving the correct space for initial global data structure above
+ * that address while providing maximum stack area below.
+ */
+#ifdef CONFIG_AT91SAM9XE
+# define CONFIG_SYS_INIT_SP_ADDR \
+	(ATMEL_BASE_SRAM + 0x1000 - GENERATED_GBL_DATA_SIZE)
+#else
+# define CONFIG_SYS_INIT_SP_ADDR \
+	(ATMEL_BASE_SRAM1 + 0x1000 - GENERATED_GBL_DATA_SIZE)
+#endif
 
 /* DataFlash */
 #define CONFIG_ATMEL_DATAFLASH_SPI
@@ -115,16 +146,13 @@
 /* NAND flash */
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_NAND_ATMEL
-#define CONFIG_SYS_MAX_NAND_DEVICE		1
-#define CONFIG_SYS_NAND_BASE			0x40000000
-#define CONFIG_SYS_NAND_DBW_8			1
-/* our ALE is AD21 */
-#define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
-/* our CLE is AD22 */
-#define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
-#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PC14
-#define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PC13
-
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_SYS_NAND_BASE		ATMEL_BASE_CS3
+#define CONFIG_SYS_NAND_DBW_8
+#define CONFIG_SYS_NAND_MASK_ALE	(1 << 21)
+#define CONFIG_SYS_NAND_MASK_CLE	(1 << 22)
+#define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIN_PC14
+#define CONFIG_SYS_NAND_READY_PIN	AT91_PIN_PC13
 #endif
 
 /* NOR flash - no real flash on this board */
@@ -150,7 +178,7 @@
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
 
-#define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
+#define CONFIG_SYS_MEMTEST_START		CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END			0x23e00000
 
 #ifdef CONFIG_SYS_USE_DATAFLASH_CS0
@@ -197,9 +225,6 @@
 				"rw rootfstype=jffs2"
 
 #endif
-
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
 
 #define CONFIG_SYS_PROMPT		"U-Boot> "
 #define CONFIG_SYS_CBSIZE		256
