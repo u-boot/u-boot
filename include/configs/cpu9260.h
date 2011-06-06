@@ -37,8 +37,7 @@
 
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000
 #define CONFIG_SYS_HZ		1000
-
-#define CONFIG_ARM926EJS
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 
 #if defined(CONFIG_CPU9G20)
 #define CONFIG_AT91SAM9G20
@@ -47,6 +46,8 @@
 #else
 #error "Unknown board"
 #endif
+
+#include <asm/arch/hardware.h>
 
 #define CONFIG_AT91FAMILY
 #define CONFIG_ARCH_CPU_INIT
@@ -251,10 +252,8 @@
 #define CONFIG_AT91SAM9_WATCHDOG
 #define CONFIG_AT91_GPIO
 #define CONFIG_ATMEL_USART
-#undef CONFIG_USART0
-#undef CONFIG_USART1
-#undef CONFIG_USART2
-#define CONFIG_USART3
+#define CONFIG_USART_BASE	ATMEL_BASE_DBGU
+#define CONFIG_USART_ID		ATMEL_ID_SYS
 
 #define CONFIG_BOOTDELAY	3
 

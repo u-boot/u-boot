@@ -4,7 +4,7 @@
  * Lead Tech Design <www.leadtechdesign.com>
  * Ilko Iliev <www.ronetix.at>
  *
- * (C) Copyright 2009
+ * (C) Copyright 2009-2011
  * Eric Benard <eric@eukrea.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -27,16 +27,15 @@
  */
 
 #include <common.h>
-#include <asm/sizes.h>
+#include <asm/io.h>
 #include <asm/arch/at91sam9260.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
+#include <asm/arch/at91_matrix.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
-#include <asm/arch/at91_matrix.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/io.h>
 #include <asm/arch/hardware.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 #include <net.h>
@@ -54,9 +53,9 @@ DECLARE_GLOBAL_DATA_PTR;
 static void cpu9260_nand_hw_init(void)
 {
 	unsigned long csa;
-	at91_smc_t *smc = (at91_smc_t *) AT91_SMC_BASE;
-	at91_matrix_t *matrix = (at91_matrix_t *) AT91_MATRIX_BASE;
-	at91_pmc_t *pmc = (at91_pmc_t *) AT91_PMC_BASE;
+	at91_smc_t *smc = (at91_smc_t *) ATMEL_BASE_SMC;
+	at91_matrix_t *matrix = (at91_matrix_t *) ATMEL_BASE_MATRIX;
+	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 
 	/* Enable CS3 */
 	csa = readl(&matrix->csa) | AT91_MATRIX_CSA_EBI_CS3A;
@@ -93,7 +92,7 @@ static void cpu9260_nand_hw_init(void)
 		&smc->cs[3].mode);
 #endif
 
-	writel(1 << AT91SAM9260_ID_PIOC, &pmc->pcer);
+	writel(1 << ATMEL_ID_PIOC, &pmc->pcer);
 
 	/* Configure RDY/BSY */
 	at91_set_pio_input(CONFIG_SYS_NAND_READY_PIN, 1);
@@ -107,11 +106,11 @@ static void cpu9260_nand_hw_init(void)
 static void cpu9260_macb_hw_init(void)
 {
 	unsigned long rstcmr;
-	at91_pmc_t *pmc = (at91_pmc_t *) AT91_PMC_BASE;
-	at91_rstc_t *rstc = (at91_rstc_t *) AT91_RSTC_BASE;
+	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
+	at91_rstc_t *rstc = (at91_rstc_t *) ATMEL_BASE_RSTC;
 
 	/* Enable clock */
-	writel(1 << AT91SAM9260_ID_EMAC, &pmc->pcer);
+	writel(1 << ATMEL_ID_EMAC0, &pmc->pcer);
 
 	at91_set_pio_pullup(AT91_PIO_PORTA, 17, 1);
 
@@ -136,14 +135,14 @@ static void cpu9260_macb_hw_init(void)
 
 int board_early_init_f(void)
 {
-	at91_pmc_t *pmc = (at91_pmc_t *) AT91_PMC_BASE;
+	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 
-	writel((1 << AT91SAM9260_ID_PIOA) |
-		(1 << AT91SAM9260_ID_PIOC) |
-		(1 << AT91SAM9260_ID_PIOB),
+	writel((1 << ATMEL_ID_PIOA) |
+		(1 << ATMEL_ID_PIOB) |
+		(1 << ATMEL_ID_PIOC),
 		&pmc->pcer);
 
-	at91_serial_hw_init();
+	at91_seriald_hw_init();
 
 	return 0;
 }
@@ -184,7 +183,7 @@ int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_MACB
-	rc = macb_eth_initialize(0, (void *)AT91_EMAC_BASE, 0);
+	rc = macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC0, 0);
 #endif
 	return rc;
 }

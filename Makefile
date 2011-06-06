@@ -820,14 +820,6 @@ at91sam9rlek_config	:	unconfig
 	fi;
 	@$(MKCONFIG) -n $@ -a at91sam9rlek arm arm926ejs at91sam9rlek atmel at91
 
-CPU9G20_128M_config \
-CPU9G20_config \
-CPU9260_128M_config \
-CPU9260_config	:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_$(@:_config=) 1" >$(obj)include/config.h
-	@$(MKCONFIG) -n $@ -a cpu9260 arm arm926ejs cpu9260 eukrea at91
-
 at91sam9m10g45ek_nandflash_config \
 at91sam9m10g45ek_dataflash_config \
 at91sam9m10g45ek_dataflash_cs0_config \

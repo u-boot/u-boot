@@ -28,17 +28,17 @@
 #include <asm/arch/at91sam9260.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/io.h>
+#include <asm/io.h>
 
 static unsigned int saved_state[4] = {STATUS_LED_OFF, STATUS_LED_OFF,
 		STATUS_LED_OFF, STATUS_LED_OFF};
 
 void coloured_LED_init(void)
 {
-	at91_pmc_t *pmc = (at91_pmc_t *) AT91_PMC_BASE;
+	at91_pmc_t *pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 
 	/* Enable clock */
-	writel(1 << AT91SAM9260_ID_PIOC, &pmc->pcer);
+	writel(1 << ATMEL_ID_PIOC, &pmc->pcer);
 
 	at91_set_pio_output(CONFIG_RED_LED, 1);
 	at91_set_pio_output(CONFIG_GREEN_LED, 1);
