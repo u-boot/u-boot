@@ -182,18 +182,14 @@
 #define CONFIG_SYS_MONITOR_LEN		(256 * 1024)	/* Reserve 256KiB */
 
 #define	CONFIG_ENV_IS_IN_FLASH	1
-#define CONFIG_ENV_SECT_SIZE	(32 * 1024)
+#define CONFIG_ENV_SECT_SIZE	(128 * 1024)
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
+#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN)
 
 /* Address and size of Redundant Environment Sector	*/
-#define CONFIG_ENV_OFFSET_REDUND	(CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE)
+#define CONFIG_ENV_ADDR_REDUND	(CONFIG_ENV_ADDR + CONFIG_ENV_SIZE)
 #define CONFIG_ENV_SIZE_REDUND	CONFIG_ENV_SIZE
 
-/* S29WS256N NOR flash has 4 32KiB small sectors at the beginning and at the end.
- * The rest of 32MiB is in 128KiB big sectors. U-Boot occupies the low 4 sectors,
- * if we put environment next to it, we will have to occupy 128KiB for it.
- * Putting it at the top of flash we use only 32KiB. */
-#define CONFIG_ENV_ADDR		(CONFIG_SYS_MONITOR_BASE + CONFIG_ENV_SECT_SIZE)
 
 /*-----------------------------------------------------------------------
  * CFI FLASH driver setup
