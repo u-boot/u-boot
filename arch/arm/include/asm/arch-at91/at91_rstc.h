@@ -16,7 +16,7 @@
 #ifndef AT91_RSTC_H
 #define AT91_RSTC_H
 
-#define AT91_ASM_RSTC_MR	(AT91_RSTC_BASE + 0x08)
+#define AT91_ASM_RSTC_MR	(ATMEL_BASE_RSTC + 0x08)
 
 #ifndef __ASSEMBLY__
 
