@@ -141,6 +141,7 @@
  */
 #define ATMEL_PIO_PORTS		3		/* these SoCs have 3 PIO */
 #define ATMEL_PMC_UHP		AT91SAM926x_PMC_UHP
+#define ATMEL_BASE_PIO		ATMEL_BASE_PIOA
 
 /*
  * SoC specific defines

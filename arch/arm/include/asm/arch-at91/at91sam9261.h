@@ -125,6 +125,7 @@
  * Other misc defines
  */
 #define ATMEL_PIO_PORTS		3		/* theese SoCs have 3 PIO */
+#define ATMEL_BASE_PIO		ATMEL_BASE_PIOA
 
 /*
  * SoC specific defines

@@ -128,6 +128,7 @@
  * Other misc defines
  */
 #define ATMEL_PIO_PORTS		5		/* this SoCs has 5 PIO */
+#define ATMEL_BASE_PIO		ATMEL_BASE_PIOA
 
 /*
  * Cpu Name
