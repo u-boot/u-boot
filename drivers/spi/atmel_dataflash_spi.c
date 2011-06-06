@@ -21,10 +21,9 @@
 
 #include <common.h>
 #ifndef CONFIG_AT91_LEGACY
-# define CONFIG_ATMEL_LEGACY
+# define CONFIG_AT91_LEGACY
 # warning Please update to use C structure SoC access !
 #endif
-#include <common.h>
 #include <spi.h>
 #include <malloc.h>
 
