@@ -19,6 +19,8 @@
 #include <asm/mach-common/bits/pll.h>
 #include <asm/mach-common/bits/uart.h>
 
+#define BUG() while (1) { asm volatile("emuexcpt;"); }
+
 #include "serial.h"
 
 __attribute__((always_inline))
