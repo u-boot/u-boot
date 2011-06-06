@@ -39,6 +39,8 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
+#define CONFIG_SYS_TEXT_BASE	0xa0000000
+
 /* Temporarily disabled */
 #if 0
 #define CONFIG_OF_LIBFDT		1
