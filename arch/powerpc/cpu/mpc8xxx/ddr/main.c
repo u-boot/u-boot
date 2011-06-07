@@ -343,12 +343,20 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 					&(pinfo->dimm_params[i][j]);
 
 				retval = compute_dimm_parameters(spd, pdimm, i);
+#ifdef CONFIG_SYS_DDR_RAW_TIMING
+				if (retval != 0) {
+					printf("SPD error! Trying fallback to "
+					"raw timing calculation\n");
+					fsl_ddr_get_dimm_params(pdimm, i, j);
+				}
+#else
 				if (retval == 2) {
 					printf("Error: compute_dimm_parameters"
 					" non-zero returned FATAL value "
 					"for memctl=%u dimm=%u\n", i, j);
 					return 0;
 				}
+#endif
 				if (retval) {
 					debug("Warning: compute_dimm_parameters"
 					" non-zero return value for memctl=%u "
