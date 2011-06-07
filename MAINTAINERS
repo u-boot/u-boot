@@ -641,6 +641,7 @@ Kristoffer Ericson <kristoffer.ericson@gmail.com>
 Fabio Estevam <fabio.estevam@freescale.com>
 
 	mx31pdk		i.MX31
+	mx53ard		i.MX53
 	mx53smd		i.MX53
 
 Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
