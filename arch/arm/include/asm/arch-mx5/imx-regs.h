@@ -214,6 +214,11 @@
 #define WDOG_EN		(1 << 8)
 #define WDOG_LIMIT(x)	(((x) & 0x3) << 9)
 
+#define CS0_128					0
+#define CS0_64M_CS1_64M				1
+#define CS0_64M_CS1_32M_CS2_32M			2
+#define CS0_32M_CS1_32M_CS2_32M_CS3_32M		3
+
 /*
  * Number of GPIO pins per port
  */
