@@ -689,7 +689,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 	"nandfdtaddr=80000\0"		\
 	"nandimgsize=400000\0"		\
 	"nandfdtsize=80000\0"		\
-	"usb_phy_type=ulpi\0"		\
+	"hwconfig=usb1:dr_mode=host,phy_type=ulpi\0"	\
 	"vscfw_addr=ef000000\0"	\
 	"othbootargs=ramdisk_size=600000\0" \
 	"usbfatboot=setenv bootargs root=/dev/ram rw "	\

@@ -262,6 +262,7 @@
 
 #define CONFIG_BOARD_EARLY_INIT_R	/* call board_early_init_r function */
 
+#define CONFIG_HWCONFIG			/* enable hwconfig */
 #define CONFIG_FSL_PIXIS	1	/* use common PIXIS code */
 #define PIXIS_BASE	0xffdf0000	/* PIXIS registers */
 #ifdef CONFIG_PHYS_64BIT
@@ -782,7 +783,7 @@
  "fdtaddr=c00000\0"				\
  "fdtfile=8536ds/mpc8536ds.dtb\0"		\
  "bdev=sda3\0"					\
- "usb_phy_type=ulpi\0"
+ "hwconfig=usb1:dr_mode=host,phy_type=ulpi\0"
 
 #define CONFIG_HDBOOT				\
  "setenv bootargs root=/dev/$bdev rw "		\

@@ -752,7 +752,8 @@
 
 #define	CONFIG_EXTRA_ENV_SETTINGS				\
  "perf_mode=performance\0"			\
- "hwconfig=fsl_ddr:ctlr_intlv=bank,bank_intlv=cs0_cs1\0"	\
+	"hwconfig=fsl_ddr:ctlr_intlv=bank,bank_intlv=cs0_cs1;"	\
+	"usb1:dr_mode=host,phy_type=ulpi\0"			\
  "netdev=eth0\0"						\
  "uboot=" MK_STR(CONFIG_UBOOTPATH) "\0"				\
  "tftpflash=tftpboot $loadaddr $uboot; "			\
