@@ -358,6 +358,29 @@ struct weim {
 	u32	ear;
 };
 
+#if defined(CONFIG_MX51)
+struct iomuxc {
+	u32	gpr0;
+	u32	gpr1;
+	u32	omux0;
+	u32	omux1;
+	u32	omux2;
+	u32	omux3;
+	u32	omux4;
+};
+#elif defined(CONFIG_MX53)
+struct iomuxc {
+	u32	gpr0;
+	u32	gpr1;
+	u32	gpr2;
+	u32	omux0;
+	u32	omux1;
+	u32	omux2;
+	u32	omux3;
+	u32	omux4;
+};
+#endif
+
 /* GPIO Registers */
 struct gpio_regs {
 	u32	gpio_dr;
