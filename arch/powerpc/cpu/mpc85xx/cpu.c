@@ -336,7 +336,9 @@ phys_size_t initdram(int board_type)
 	}
 #endif
 
-#if defined(CONFIG_SPD_EEPROM) || defined(CONFIG_DDR_SPD)
+#if	defined(CONFIG_SPD_EEPROM)	|| \
+	defined(CONFIG_DDR_SPD)		|| \
+	defined(CONFIG_SYS_DDR_RAW_TIMING)
 	dram_size = fsl_ddr_sdram();
 #else
 	dram_size = fixed_sdram();

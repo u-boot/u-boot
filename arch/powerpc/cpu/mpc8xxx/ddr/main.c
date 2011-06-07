@@ -325,6 +325,7 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 
 	switch (start_step) {
 	case STEP_GET_SPD:
+#if defined(CONFIG_DDR_SPD) || defined(CONFIG_SPD_EEPROM)
 		/* STEP 1:  Gather all DIMM SPD data */
 		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
 			fsl_ddr_get_spd(pinfo->spd_installed_dimms[i], i);
@@ -356,6 +357,17 @@ fsl_ddr_compute(fsl_ddr_info_t *pinfo, unsigned int start_step,
 			}
 		}
 
+#else
+	case STEP_COMPUTE_DIMM_PARMS:
+		for (i = 0; i < CONFIG_NUM_DDR_CONTROLLERS; i++) {
+			for (j = 0; j < CONFIG_DIMM_SLOTS_PER_CTLR; j++) {
+				dimm_params_t *pdimm =
+					&(pinfo->dimm_params[i][j]);
+				fsl_ddr_get_dimm_params(pdimm, i, j);
+			}
+		}
+		debug("Filling dimm parameters from board specific file\n");
+#endif
 	case STEP_COMPUTE_COMMON_PARMS:
 		/*
 		 * STEP 3: Compute a common set of timing parameters

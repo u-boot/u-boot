@@ -2948,6 +2948,12 @@ Low Level (hardware related) configuration options:
 		one, specify here. Note that the value must resolve
 		to something your driver can deal with.
 
+- CONFIG_SYS_DDR_RAW_TIMING
+		Get DDR timing information from other than SPD. Common with
+		soldered DDR chips onboard without SPD. DDR raw timing
+		parameters are extracted from datasheet and hard-coded into
+		header files or board specific files.
+
 - CONFIG_SYS_83XX_DDR_USES_CS0
 		Only for 83xx systems. If specified, then DDR should
 		be configured using CS0 and CS1 instead of CS2 and CS3.

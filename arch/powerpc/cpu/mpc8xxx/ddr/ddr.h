@@ -14,6 +14,7 @@
 
 #include "common_timing_params.h"
 
+#if defined(CONFIG_DDR_SPD) || defined(CONFIG_SPD_EEPROM)
 /*
  * Bind the main DDR setup driver's generic names
  * to this specific DDR technology.
@@ -25,6 +26,7 @@ compute_dimm_parameters(const generic_spd_eeprom_t *spd,
 {
 	return ddr_compute_dimm_parameters(spd, pdimm, dimm_number);
 }
+#endif
 
 /*
  * Data Structures
@@ -80,4 +82,9 @@ extern void check_interleaving_options(fsl_ddr_info_t *pinfo);
 extern unsigned int mclk_to_picos(unsigned int mclk);
 extern unsigned int get_memory_clk_period_ps(void);
 extern unsigned int picos_to_mclk(unsigned int picos);
+
+/* board specific function */
+int fsl_ddr_get_dimm_params(dimm_params_t *pdimm,
+			unsigned int controller_number,
+			unsigned int dimm_number);
 #endif
