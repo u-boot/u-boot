@@ -26,16 +26,14 @@
 
 #include <common.h>
 #include <asm/sizes.h>
-#include <asm/arch/at91sam9263.h>
+#include <asm/io.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/at91_matrix.h>
-#include <asm/arch/at91_pio.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/io.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch/gpio.h>
 #include <lcd.h>
 #include <atmel_lcdc.h>
 #include <dataflash.h>
@@ -55,8 +53,8 @@ DECLARE_GLOBAL_DATA_PTR;
 static void pm9263_nand_hw_init(void)
 {
 	unsigned long csa;
-	at91_smc_t 	*smc 	= (at91_smc_t *) AT91_SMC0_BASE;
-	at91_matrix_t 	*matrix = (at91_matrix_t *) AT91_MATRIX_BASE;
+	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC0;
+	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
 
 	/* Enable CS3 */
 	csa = readl(&matrix->csa[0]) | AT91_MATRIX_CSA_EBI_CS3A;
@@ -95,7 +93,7 @@ static void pm9263_nand_hw_init(void)
 #ifdef CONFIG_MACB
 static void pm9263_macb_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
 	/*
 	 * PB27 enables the 50MHz oscillator for Ethernet PHY
@@ -106,7 +104,7 @@ static void pm9263_macb_hw_init(void)
 	at91_set_pio_value(AT91_PIO_PORTB, 27, 1); /* 1- enable, 0 - disable */
 
 	/* Enable clock */
-	writel(1 << AT91SAM9263_ID_EMAC, &pmc->pcer);
+	writel(1 << ATMEL_ID_EMAC, &pmc->pcer);
 
 	/*
 	 * Disable pull-up on:
@@ -145,7 +143,7 @@ vidinfo_t panel_info = {
 	vl_vsync_len:	1,
 	vl_upper_margin:1,
 	vl_lower_margin:0,
-	mmio:		AT91SAM9263_LCDC_BASE,
+	mmio:		ATMEL_BASE_LCDC,
 };
 
 void lcd_enable(void)
@@ -168,8 +166,8 @@ static int pm9263_lcd_hw_psram_init(void)
 {
 	volatile uint16_t x;
 	unsigned long csa;
-	at91_smc_t 	*smc 	= (at91_smc_t *) AT91_SMC1_BASE;
-	at91_matrix_t 	*matrix = (at91_matrix_t *) AT91_MATRIX_BASE;
+	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC1;
+	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
 
 	/* Enable CS3  3.3v, no pull-ups */
 	csa = readl(&matrix->csa[1]) | AT91_MATRIX_CSA_DBPUC |
@@ -249,7 +247,7 @@ static int pm9263_lcd_hw_psram_init(void)
 
 static void pm9263_lcd_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
 	at91_set_a_periph(AT91_PIO_PORTC, 0, 0);	/* LCDVSYNC */
 	at91_set_a_periph(AT91_PIO_PORTC, 1, 0);	/* LCDHSYNC */
@@ -275,7 +273,7 @@ static void pm9263_lcd_hw_init(void)
 	at91_set_a_periph(AT91_PIO_PORTC, 26, 0);	/* LCDD22 */
 	at91_set_a_periph(AT91_PIO_PORTC, 27, 0);	/* LCDD23 */
 
-	writel(1 << AT91SAM9263_ID_LCDC, &pmc->pcer);
+	writel(1 << ATMEL_ID_LCDC, &pmc->pcer);
 
 	/* Power Control */
 	at91_set_pio_output(AT91_PIO_PORTA, 22, 1);
@@ -285,9 +283,9 @@ static void pm9263_lcd_hw_init(void)
 	/* initialize te PSRAM */
 	int stat = pm9263_lcd_hw_psram_init();
 
-	gd->fb_base = (stat == 0) ? PHYS_PSRAM : AT91SAM9263_SRAM0_BASE;
+	gd->fb_base = (stat == 0) ? PHYS_PSRAM : ATMEL_BASE_SRAM0;
 #else
-	gd->fb_base = AT91SAM9263_SRAM0_BASE;
+	gd->fb_base = ATMEL_BASE_SRAM0;
 #endif
 
 }
@@ -341,14 +339,14 @@ void lcd_show_board_info(void)
 
 int board_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
 	/* Enable Ctrlc */
 	console_init_f();
 
-	writel((1 << AT91SAM9263_ID_PIOA) |
-		(1 << AT91SAM9263_ID_PIOCDE) |
-		(1 << AT91SAM9263_ID_PIOB),
+	writel((1 << ATMEL_ID_PIOA) |
+		(1 << ATMEL_ID_PIOCDE) |
+		(1 << ATMEL_ID_PIOB),
 		&pmc->pcer);
 
 	/* arch number of AT91SAM9263EK-Board */
@@ -357,7 +355,7 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	at91_serial_hw_init();
+	at91_seriald_hw_init();
 #ifdef CONFIG_CMD_NAND
 	pm9263_nand_hw_init();
 #endif
@@ -400,7 +398,7 @@ int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_MACB
-	rc = macb_eth_initialize(0, (void *)AT91_EMAC_BASE, 0x01);
+	rc = macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC, 0x01);
 #endif
 	return rc;
 }
@@ -417,7 +415,7 @@ int checkboard (void)
 		ss = "(PSRAM)";
 		break;
 
-	case AT91SAM9263_SRAM0_BASE:
+	case ATMEL_BASE_SRAM0:
 		ss = "(Internal SRAM)";
 		break;
 
