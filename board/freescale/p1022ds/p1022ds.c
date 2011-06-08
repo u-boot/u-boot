@@ -308,7 +308,8 @@ int board_eth_init(bd_t *bis)
  * ft_codec_setup - fix up the clock-frequency property of the codec node
  *
  * Update the clock-frequency property based on the value of the 'audclk'
- * hwconfig option.  If audclk is not specified, then default to 12.288MHz.
+ * hwconfig option.  If audclk is not specified, then don't write anything
+ * to the device tree, because it means that the codec clock is disabled.
  */
 static void ft_codec_setup(void *blob, const char *compatible)
 {
@@ -317,12 +318,15 @@ static void ft_codec_setup(void *blob, const char *compatible)
 	u32 freq;
 
 	audclk = hwconfig_arg("audclk", &arglen);
-	if (audclk && (strncmp(audclk, "11", 2) == 0))
-		freq = 11289600;
-	else
-		freq = 12288000;
+	if (audclk) {
+		if (strncmp(audclk, "11", 2) == 0)
+			freq = 11289600;
+		else
+			freq = 12288000;
 
-	do_fixup_by_compat_u32(blob, compatible, "clock-frequency", freq, 1);
+		do_fixup_by_compat_u32(blob, compatible, "clock-frequency",
+				       freq, 1);
+	}
 }
 
 void ft_board_setup(void *blob, bd_t *bd)
