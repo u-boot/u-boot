@@ -29,6 +29,10 @@
 #include <asm/mp.h>
 #include <asm/fsl_serdes.h>
 #include <phy.h>
+#include <hwconfig.h>
+#ifdef CONFIG_HAS_FSL_DR_USB
+#include <usb.h>
+#endif
 
 #if defined(CONFIG_MP) && (defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx))
 static int ft_del_cpuhandle(void *blob, int cpuhandle)
@@ -84,22 +88,18 @@ void ft_fixup_num_cores(void *blob) {
 #endif /* defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx) */
 
 #ifdef CONFIG_HAS_FSL_DR_USB
-void fdt_fixup_dr_usb(void *blob, bd_t *bd)
+static void fdt_fixup_usb_mode_phy_type(void *blob, const char *mode,
+				const char *phy_type)
 {
-	char *mode;
-	char *type;
 	const char *compat = "fsl-usb2-dr";
 	const char *prop_mode = "dr_mode";
 	const char *prop_type = "phy_type";
+	static int start_offset = -1;
 	int node_offset;
 	int err;
 
-	mode = getenv("usb_dr_mode");
-	type = getenv("usb_phy_type");
-	if (!mode && !type)
-		return;
-
-	node_offset = fdt_node_offset_by_compatible(blob, 0, compat);
+	node_offset = fdt_node_offset_by_compatible(blob,
+			start_offset, compat);
 	if (node_offset < 0) {
 		printf("WARNING: could not find compatible node %s: %s.\n",
 			compat, fdt_strerror(node_offset));
@@ -114,12 +114,65 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 			       prop_mode, compat, fdt_strerror(err));
 	}
 
-	if (type) {
-		err = fdt_setprop(blob, node_offset, prop_type, type,
-				  strlen(type) + 1);
+	if (phy_type) {
+		err = fdt_setprop(blob, node_offset, prop_type, phy_type,
+				  strlen(phy_type) + 1);
 		if (err < 0)
 			printf("WARNING: could not set %s for %s: %s.\n",
 			       prop_type, compat, fdt_strerror(err));
+	}
+
+	start_offset = node_offset;
+}
+
+void fdt_fixup_dr_usb(void *blob, bd_t *bd)
+{
+	const char *modes[] = { "host", "peripheral", "otg" };
+	const char *phys[] = { "ulpi", "umti" };
+	const char *mode = NULL;
+	const char *phy_type = NULL;
+	char usb1_defined = 0;
+	char str[5];
+	int i, j;
+
+	for (i = 1; i <= USB_MAX_DEVICE; i++) {
+		int mode_idx = -1, phy_idx = -1;
+		sprintf(str, "%s%d", "usb", i);
+		if (hwconfig(str)) {
+			for (j = 0; j < sizeof(modes); j++) {
+				if (hwconfig_subarg_cmp(str, "dr_mode",
+						modes[j])) {
+					mode_idx = j;
+					break;
+				}
+			}
+			for (j = 0; j < sizeof(phys); j++) {
+				if (hwconfig_subarg_cmp(str, "phy_type",
+						phys[j])) {
+					phy_idx = j;
+					break;
+				}
+			}
+			if (mode_idx >= 0)
+				fdt_fixup_usb_mode_phy_type(blob,
+					modes[mode_idx], NULL);
+			if (phy_idx >= 0)
+				fdt_fixup_usb_mode_phy_type(blob,
+					NULL, phys[phy_idx]);
+			if (!strcmp(str, "usb1"))
+				usb1_defined = 1;
+			if (mode_idx < 0 && phy_idx < 0)
+				printf("WARNING: invalid phy or mode\n");
+		} else {
+			break;
+		}
+	}
+	if (!usb1_defined) {
+		mode = getenv("usb_dr_mode");
+		phy_type = getenv("usb_phy_type");
+		if (!mode && !phy_type)
+			return;
+		fdt_fixup_usb_mode_phy_type(blob, mode, phy_type);
 	}
 }
 #endif /* CONFIG_HAS_FSL_DR_USB */
