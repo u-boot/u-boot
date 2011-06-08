@@ -28,15 +28,21 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int dram_init (void)
+int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size((volatile void *)PHYS_SDRAM_1,
+				PHYS_SDRAM_1_SIZE);
 	return 0;
 }
 
-int board_init (void)
+void dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+}
+
+int board_early_init_f(void)
 {
 	int i;
 
@@ -94,6 +100,11 @@ int board_init (void)
 	readb(CS4_BASE + 8);
 	readb(CS4_BASE + 7);
 
+	return 0;
+}
+
+int board_init(void)
+{
 	gd->bd->bi_arch_number = MACH_TYPE_MX31ADS;	/* board id for linux */
 	gd->bd->bi_boot_params = 0x80000100;	/* adress of boot parameters */
 
