@@ -823,10 +823,6 @@ at91sam9g45ekes_config	:	unconfig
 	fi;
 	@$(MKCONFIG) -n $@ -a at91sam9m10g45ek arm arm926ejs at91sam9m10g45ek atmel at91
 
-pm9g45_config	:	unconfig
-	@mkdir -p $(obj)include
-	@$(MKCONFIG) -a pm9g45 arm arm926ejs pm9g45 ronetix at91
-
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.
 integratorap_config	\
