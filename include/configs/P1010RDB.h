@@ -59,6 +59,13 @@
 #endif /* CONFIG_NAND_SPL */
 #endif
 
+
+#ifdef CONFIG_NAND_SECBOOT	/* NAND Boot */
+#define CONFIG_RAMBOOT_NAND
+#define CONFIG_SYS_TEXT_BASE		0x11000000
+#define CONFIG_RESET_VECTOR_ADDRESS	0x1107fffc
+#endif
+
 #ifndef CONFIG_SYS_TEXT_BASE
 #define CONFIG_SYS_TEXT_BASE		0xeff80000
 #endif
@@ -345,7 +352,7 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_NAND_DDR_LAW		11
 
 /* Set up IFC registers for boot location NOR/NAND */
-#ifdef CONFIG_NAND_U_BOOT
+#if defined(CONFIG_NAND_U_BOOT) || defined(CONFIG_NAND_SECBOOT)
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NAND_CSPR
 #define CONFIG_SYS_AMASK0		CONFIG_SYS_NAND_AMASK
 #define CONFIG_SYS_CSOR0		CONFIG_SYS_NAND_CSOR
@@ -501,7 +508,7 @@ extern unsigned long get_sdram_size(void);
  * SPI interface will not be available in case of NAND boot SPI CS0 will be
  * used for SLIC
  */
-#ifndef CONFIG_NAND_U_BOOT
+#if !defined(CONFIG_NAND_U_BOOT) || !defined(CONFIG_NAND_SECBOOT)
 /* eSPI - Enhanced SPI */
 #define CONFIG_FSL_ESPI
 #define CONFIG_SPI_FLASH
@@ -761,5 +768,9 @@ extern unsigned long get_sdram_size(void);
 	"bootm $loadaddr $ramdiskaddr $fdtaddr"
 
 #define CONFIG_BOOTCOMMAND CONFIG_RAMBOOTCOMMAND
+
+#ifdef CONFIG_SECURE_BOOT
+#include <asm/fsl_secure_boot.h>
+#endif
 
 #endif	/* __CONFIG_H */
