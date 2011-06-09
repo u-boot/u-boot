@@ -522,9 +522,10 @@ static int macb_write_hwaddr(struct eth_device *dev)
 	u16 hwaddr_top;
 
 	/* set hardware address */
-	hwaddr_bottom = cpu_to_le32(*((u32 *)dev->enetaddr));
+	hwaddr_bottom = dev->enetaddr[0] | dev->enetaddr[1] << 8 |
+			dev->enetaddr[2] << 16 | dev->enetaddr[3] << 24;
 	macb_writel(macb, SA1B, hwaddr_bottom);
-	hwaddr_top = cpu_to_le16(*((u16 *)(dev->enetaddr + 4)));
+	hwaddr_top = dev->enetaddr[4] | dev->enetaddr[5] << 8;
 	macb_writel(macb, SA1T, hwaddr_top);
 	return 0;
 }
