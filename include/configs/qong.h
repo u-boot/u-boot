@@ -24,7 +24,7 @@
 
 #include <asm/arch/imx-regs.h>
 
- /* High Level Configuration Options */
+/* High Level Configuration Options */
 #define CONFIG_ARM1136		1	/* This is an arm1136 CPU core */
 #define CONFIG_MX31		1	/* in a mx31 */
 #define CONFIG_QONG		1
@@ -33,6 +33,8 @@
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
+
+#define CONFIG_SYS_TEXT_BASE 0xa0000000
 
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */
 #define CONFIG_SETUP_MEMORY_TAGS	1
