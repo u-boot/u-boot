@@ -161,6 +161,8 @@
 
 #define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 
+#define PHYS_SRAM		0x20000000
+
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
  */
@@ -189,5 +191,8 @@
 #define CONFIG_ENV_SECT_SIZE	PHYS_FLASH_SECT_SIZE	/* Total Size of Environment Sector */
 #define CONFIG_ENV_SIZE		CONFIG_ENV_SECT_SIZE
 #define CONFIG_ENV_OFFSET		( CONFIG_SYS_MONITOR_BASE + CONFIG_SYS_MONITOR_LEN )	/* Environment after Monitor */
+
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_SP_ADDR 	PHYS_SRAM
 
 #endif	/* __CONFIG_H */
