@@ -481,11 +481,13 @@ static int at91emac_write_hwaddr(struct eth_device *netdev)
 	dev = (emac_device *) netdev->priv;
 
 	writel(1 << ATMEL_ID_EMAC, &pmc->pcer);
-	DEBUG_AT91EMAC("init MAC-ADDR %x%x \n",
-		cpu_to_le16(*((u16 *)(netdev->enetaddr + 4))),
-		cpu_to_le32(*((u32 *)netdev->enetaddr)));
-	writel(cpu_to_le32(*((u32 *)netdev->enetaddr)), &emac->sa2l);
-	writel(cpu_to_le16(*((u16 *)(netdev->enetaddr + 4))), &emac->sa2h);
+	DEBUG_AT91EMAC("init MAC-ADDR %02x:%02x:%02x:%02x:%02x:%02x\n",
+		netdev->enetaddr[5], netdev->enetaddr[4], netdev->enetaddr[3],
+		netdev->enetaddr[2], netdev->enetaddr[1], netdev->enetaddr[0]);
+	writel( (netdev->enetaddr[0] | netdev->enetaddr[1] << 8 |
+			netdev->enetaddr[2] << 16 | netdev->enetaddr[3] << 24),
+			&emac->sa2l);
+	writel((netdev->enetaddr[4] | netdev->enetaddr[5] << 8), &emac->sa2h);
 	DEBUG_AT91EMAC("init MAC-ADDR %x%x \n",
 		readl(&emac->sa2h), readl(&emac->sa2l));
 	return 0;
