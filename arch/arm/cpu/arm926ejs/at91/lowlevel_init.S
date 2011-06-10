@@ -35,7 +35,7 @@
 #include <asm/arch/at91sam9_sdramc.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_rstc.h>
-#ifdef CONFIG_AT91_LEGACY
+#ifdef CONFIG_ATMEL_LEGACY
 #include <asm/arch/at91sam9_matrix.h>
 #endif
 #ifndef CONFIG_SYS_MATRIX_EBICSA_VAL
