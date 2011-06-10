@@ -27,13 +27,21 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-/* ARM asynchronous clock */
-#define CONFIG_SYS_AT91_MAIN_CLOCK	16367660	/* 16.367 MHz crystal */
-#define CONFIG_SYS_HZ		1000
+/*
+ * SoC must be defined first, before hardware.h is included.
+ * In this case SoC is defined in boards.cfg.
+ */
+#include <asm/hardware.h>
 
-#define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
-#define CONFIG_AT91SAM9263	1	/* It's an Atmel AT91SAM9263 SoC*/
-#define CONFIG_AT91SAM9263EK	1	/* on an AT91SAM9263EK Board	*/
+#define CONFIG_SYS_TEXT_BASE		0x21F00000
+
+/* ARM asynchronous clock */
+#define CONFIG_SYS_AT91_MAIN_CLOCK	16367660 /* 16.367 MHz crystal */
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768
+#define CONFIG_SYS_HZ			1000
+
+#define CONFIG_AT91SAM9263EK	1	/* It's an AT91SAM9263EK Board */
+
 #define CONFIG_ARCH_CPU_INIT
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 
@@ -43,17 +51,27 @@
 
 #ifndef CONFIG_SYS_USE_BOOT_NORFLASH
 #define CONFIG_SKIP_LOWLEVEL_INIT
+#else
+#define CONFIG_SYS_USE_NORFLASH
 #endif
+
+#define CONFIG_BOARD_EARLY_INIT_F
+
+#define CONFIG_DISPLAY_CPUINFO
 
 /*
  * Hardware drivers
  */
-#define CONFIG_AT91_GPIO	1
-#define CONFIG_ATMEL_USART	1
-#undef CONFIG_USART0
-#undef CONFIG_USART1
-#undef CONFIG_USART2
-#define CONFIG_USART3		1	/* USART 3 is DBGU */
+#define CONFIG_ATMEL_LEGACY
+#define CONFIG_AT91_GPIO		1
+#define CONFIG_AT91_GPIO_PULLUP		1
+
+/* serial console */
+#define CONFIG_ATMEL_USART
+#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
+#define CONFIG_USART_ID			ATMEL_ID_SYS
+#define CONFIG_BAUDRATE			115200
+#define CONFIG_SYS_BAUDRATE_TABLE	{115200, 19200, 38400, 57600, 9600}
 
 /* LCD */
 #define CONFIG_LCD			1
@@ -62,16 +80,16 @@
 #undef LCD_TEST_PATTERN
 #define CONFIG_LCD_INFO			1
 #define CONFIG_LCD_INFO_BELOW_LOGO	1
-#define CONFIG_SYS_WHITE_ON_BLACK		1
+#define CONFIG_SYS_WHITE_ON_BLACK	1
 #define CONFIG_ATMEL_LCD		1
 #define CONFIG_ATMEL_LCD_BGR555		1
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV		1
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV	1
 
 /* LED */
 #define CONFIG_AT91_LED
-#define	CONFIG_RED_LED		AT91_PIO_PORTB, 7	/* the power led */
-#define	CONFIG_GREEN_LED	AT91_PIO_PORTB, 8	/* the user1 led */
-#define	CONFIG_YELLOW_LED	AT91_PIO_PORTC, 29	/* the user2 led */
+#define	CONFIG_RED_LED		AT91_PIN_PB7	/* the power led */
+#define	CONFIG_GREEN_LED	AT91_PIN_PB8	/* the user1 led */
+#define	CONFIG_YELLOW_LED	AT91_PIN_PC29	/* the user2 led */
 
 #define CONFIG_BOOTDELAY	3
 
@@ -101,8 +119,11 @@
 
 /* SDRAM */
 #define CONFIG_NR_DRAM_BANKS		1
-#define PHYS_SDRAM			0x20000000
-#define PHYS_SDRAM_SIZE			0x04000000	/* 64 megs */
+#define CONFIG_SYS_SDRAM_BASE		ATMEL_BASE_CS1
+#define CONFIG_SYS_SDRAM_SIZE		0x04000000
+
+#define CONFIG_SYS_INIT_SP_ADDR \
+	(ATMEL_BASE_SRAM1 + 0x1000 - GENERATED_GBL_DATA_SIZE)
 
 /* DataFlash */
 #define CONFIG_ATMEL_DATAFLASH_SPI
@@ -254,19 +275,14 @@
 #ifdef CONFIG_CMD_NAND
 #define CONFIG_NAND_ATMEL
 #define CONFIG_SYS_MAX_NAND_DEVICE		1
-#define CONFIG_SYS_NAND_BASE			0x40000000
+#define CONFIG_SYS_NAND_BASE			ATMEL_BASE_CS3
 #define CONFIG_SYS_NAND_DBW_8			1
 /* our ALE is AD21 */
 #define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
 /* our CLE is AD22 */
 #define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
-#define CONFIG_SYS_NAND_ENABLE_PIN	AT91_PIO_PORTD, 15
-#define CONFIG_SYS_NAND_READY_PIN	AT91_PIO_PORTA, 22
-/*
-#define CONFIG_SYS_NAND_ENABLE_PIN  AT91_PIN_PD15
-#define CONFIG_SYS_NAND_READY_PIN  AT91_PIN_PA22
-*/
-
+#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PD15
+#define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PA22
 
 #define CONFIG_SYS_64BIT_VSPRINTF		/* needed for nand_util.c */
 #endif
@@ -291,7 +307,7 @@
 
 #define CONFIG_SYS_LOAD_ADDR			0x22000000	/* load address */
 
-#define CONFIG_SYS_MEMTEST_START		PHYS_SDRAM
+#define CONFIG_SYS_MEMTEST_START		CONFIG_SYS_SDRAM_BASE
 #define CONFIG_SYS_MEMTEST_END			0x23e00000
 
 #ifdef CONFIG_SYS_USE_DATAFLASH
@@ -311,7 +327,7 @@
 #elif CONFIG_SYS_USE_NANDFLASH
 
 /* bootstrap + u-boot + env + linux in nandflash */
-#define CONFIG_ENV_IS_IN_NAND	1
+#define CONFIG_ENV_IS_IN_NAND		1
 #define CONFIG_ENV_OFFSET		0x60000
 #define CONFIG_ENV_OFFSET_REDUND	0x80000
 #define CONFIG_ENV_SIZE		0x20000		/* 1 sector = 128 kB */
@@ -323,15 +339,12 @@
 
 #endif
 
-#define CONFIG_BAUDRATE		115200
-#define CONFIG_SYS_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
-
 #define CONFIG_SYS_PROMPT		"U-Boot> "
 #define CONFIG_SYS_CBSIZE		256
 #define CONFIG_SYS_MAXARGS		16
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_LONGHELP		1
-#define CONFIG_CMDLINE_EDITING	1
+#define CONFIG_CMDLINE_EDITING		1
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
@@ -339,12 +352,10 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN		ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)
+#define CONFIG_SYS_MALLOC_LEN	ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
-#ifdef CONFIG_USE_IRQ
-#error CONFIG_USE_IRQ not supported
-#endif
+#undef CONFIG_USE_IRQ
 
 #endif
