@@ -579,6 +579,7 @@ void prcm_init(void)
 
 		dpll3_init_36xx(0, clk_index);
 		dpll4_init_36xx(0, clk_index);
+		dpll5_init_34xx(0, clk_index);
 		iva_init_36xx(0, clk_index);
 		mpu_init_36xx(0, clk_index);
 
