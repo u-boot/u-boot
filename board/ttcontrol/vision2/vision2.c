@@ -169,11 +169,11 @@ static void setup_weim(void)
 {
 	struct weim  *pweim = (struct weim *)WEIM_BASE_ADDR;
 
-	pweim->csgcr1 = 0x004100b9;
-	pweim->csgcr2 = 0x00000001;
-	pweim->csrcr1 = 0x0a018000;
-	pweim->csrcr2 = 0;
-	pweim->cswcr1 = 0x0704a240;
+	pweim->cs0gcr1 = 0x004100b9;
+	pweim->cs0gcr2 = 0x00000001;
+	pweim->cs0rcr1 = 0x0a018000;
+	pweim->cs0rcr2 = 0;
+	pweim->cs0wcr1 = 0x0704a240;
 }
 
 static void setup_uart(void)
