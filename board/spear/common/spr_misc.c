@@ -46,9 +46,7 @@ int dram_init(void)
 	struct xloader_table_1_2 *table_1_2;
 	struct chip_data *chip = &chip_data;
 
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = get_ram_size(PHYS_SDRAM_1,
-					       PHYS_SDRAM_1_MAXSIZE);
+	gd->ram_size = get_ram_size(PHYS_SDRAM_1, PHYS_SDRAM_1_MAXSIZE);
 
 	if (XLOADER_TABLE_VERSION_1_1 == xloader_tb->table_version) {
 		table_1_1 = &xloader_tb->table.table_1_1;
@@ -64,6 +62,12 @@ int dram_init(void)
 	}
 
 	return 0;
+}
+
+void dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = gd->ram_size;
 }
 
 int misc_init_r(void)
