@@ -30,15 +30,24 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int dram_init (void)
+int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size((volatile void *)PHYS_SDRAM_1,
+				PHYS_SDRAM_1_SIZE);
+	return 0;
+}
+
+int board_init(void)
+{
+
+	gd->bd->bi_arch_number = MACH_TYPE_PCM037;	/* board id for linux */
+	gd->bd->bi_boot_params = (0x80000100);	/* adress of boot parameters */
 
 	return 0;
 }
 
-int board_init (void)
+int board_early_init_f(void)
 {
 	__REG(CSCR_U(0)) = 0x0000cf03; /* CS0: Nor Flash */
 	__REG(CSCR_L(0)) = 0x10000d03;
@@ -61,9 +70,6 @@ int board_init (void)
 	/* setup pins for I2C2 (for EEPROM, RTC) */
 	mx31_gpio_mux(MUX_CSPI2_MOSI__I2C2_SCL);
 	mx31_gpio_mux(MUX_CSPI2_MISO__I2C2_SDA);
-
-	gd->bd->bi_arch_number = MACH_TYPE_PCM037;	/* board id for linux */
-	gd->bd->bi_boot_params = (0x80000100);		/* adress of boot parameters */
 
 	return 0;
 }

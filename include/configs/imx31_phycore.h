@@ -28,6 +28,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#include <asm/arch/imx-regs.h>
+
  /* High Level Configuration Options */
 #define CONFIG_ARM1136		1    /* This is an arm1136 CPU core */
 #define CONFIG_MX31		1    /* in a mx31 */
@@ -143,6 +145,16 @@
 #define CONFIG_NR_DRAM_BANKS	1
 #define PHYS_SDRAM_1		0x80000000
 #define PHYS_SDRAM_1_SIZE	(128 * 1024 * 1024)
+#define CONFIG_BOARD_EARLY_INIT_F
+#define CONFIG_SYS_TEXT_BASE		0xA0000000
+
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_RAM_ADDR	IRAM_BASE_ADDR
+#define CONFIG_SYS_INIT_RAM_SIZE	IRAM_SIZE
+#define CONFIG_SYS_GBL_DATA_OFFSET	(CONFIG_SYS_INIT_RAM_SIZE - \
+						GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR	(CONFIG_SYS_INIT_RAM_ADDR + \
+						CONFIG_SYS_GBL_DATA_OFFSET)
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
