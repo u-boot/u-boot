@@ -78,7 +78,7 @@ void SetAsynchMode (void)
 
 static u32 mc9328sid;
 
-int board_init (void)
+int board_early_init_f(void)
 {
 	volatile unsigned int tmp;
 
@@ -112,10 +112,6 @@ int board_init (void)
 
 	SetAsynchMode ();
 
-	gd->bd->bi_arch_number = MACH_TYPE_MX1ADS;
-
-	gd->bd->bi_boot_params = 0x08000100;	/* adress of boot parameters    */
-
 	icache_enable ();
 	dcache_enable ();
 
@@ -130,6 +126,15 @@ int board_init (void)
 /*	MX1_INTTYPEH = 0;
 	MX1_INTTYPEL = 0;
 */
+	return 0;
+}
+
+int board_init(void)
+{
+	gd->bd->bi_arch_number = MACH_TYPE_MX1ADS;
+
+	gd->bd->bi_boot_params = 0x08000100;	/* adress of boot parameters */
+
 	return 0;
 }
 
@@ -161,12 +166,18 @@ int board_late_init (void)
 	return 0;
 }
 
-int dram_init (void)
+int dram_init(void)
+{
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size((volatile void *)PHYS_SDRAM_1,
+				PHYS_SDRAM_1_SIZE);
+	return 0;
+}
+
+void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
 	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
-	return 0;
 }
 
 #ifdef CONFIG_CMD_NET
