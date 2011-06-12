@@ -54,6 +54,7 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_INITRD_TAG
+#define CONFIG_BOARD_EARLY_INIT_F
 
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SYS_USE_MAIN_OSCILLATOR
@@ -87,9 +88,9 @@
 #define CONFIG_SYS_SDRC_TR_VAL	0x000002E0 /* Write refresh rate */
 #endif	/* CONFIG_SKIP_LOWLEVEL_INIT */
 
-/* define one of these to choose the DBGU, USART0 or USART1 as console */
-#define CONFIG_AT91RM9200_USART
-#define CONFIG_DBGU
+#define CONFIG_ATMEL_USART
+#define CONFIG_USART_BASE	ATMEL_BASE_DBGU
+#define CONFIG_USART_ID		0/* ignored in arm */
 
 #undef CONFIG_HARD_I2C
 #undef CONFIG_SOFT_I2C

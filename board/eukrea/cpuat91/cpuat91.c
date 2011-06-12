@@ -32,6 +32,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/at91_pmc.h>
+#include <asm/arch/at91_common.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -51,6 +52,13 @@ int board_init(void)
 
 	return 0;
 }
+
+int board_early_init_f(void)
+{
+	at91_seriald_hw_init();
+	return 0;
+}
+
 
 int dram_init(void)
 {
