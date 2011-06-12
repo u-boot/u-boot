@@ -1,6 +1,7 @@
 /*
  * [origin: Linux kernel linux/arch/arm/mach-at91/clock.c]
  *
+ * Copyright (C) 2011 Andreas Bießmann
  * Copyright (C) 2005 David Brownell
  * Copyright (C) 2005 Ivan Kokshaysky
  * Copyright (C) 2009 Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
@@ -10,7 +11,6 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  */
-
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/hardware.h>
@@ -59,20 +59,12 @@ static unsigned at91_pll_calc(unsigned main_freq, unsigned out_freq)
 		 * Warning: some newer products need 2MHz min.
 		 */
 		input = main_freq / i;
-#if defined(CONFIG_AT91SAM9G20)
-		if (input < 2000000)
-			continue;
-#endif
 		if (input < 100000)
 			continue;
 		if (input > 32000000)
 			continue;
 
 		mul1 = out_freq / input;
-#if defined(CONFIG_AT91SAM9G20)
-		if (mul > 63)
-			continue;
-#endif
 		if (mul1 > 2048)
 			continue;
 		if (mul1 < 2)
@@ -111,6 +103,7 @@ static u32 at91_pll_rate(u32 freq, u32 reg)
 
 	return freq;
 }
+
 
 int at91_clock_init(unsigned long main_clock)
 {
@@ -154,29 +147,14 @@ int at91_clock_init(unsigned long main_clock)
 	 * For now, assume this parentage won't change.
 	 */
 	mckr = readl(&pmc->mckr);
-#if defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
-	/* plla divisor by 2 */
-	gd->plla_rate_hz /= (1 << ((mckr & 1 << 12) >> 12));
-#endif
 	gd->mck_rate_hz = at91_css_to_rate(mckr & AT91_PMC_MCKR_CSS_MASK);
 	freq = gd->mck_rate_hz;
 
 	freq /= (1 << ((mckr & AT91_PMC_MCKR_PRES_MASK) >> 2));	/* prescale */
-#if defined(CONFIG_AT91SAM9G20)
-	/* mdiv ; (x >> 7) = ((x >> 8) * 2) */
-	gd->mck_rate_hz = (mckr & AT91_PMC_MCKR_MDIV_MASK) ?
-		freq / ((mckr & AT91_PMC_MCKR_MDIV_MASK) >> 7) : freq;
-	if (mckr & AT91_PMC_MCKR_MDIV_MASK)
-		freq /= 2;			/* processor clock division */
-#elif defined(CONFIG_AT91SAM9G45) || defined(CONFIG_AT91SAM9M10G45)
-	gd->mck_rate_hz = (mckr & AT91_PMC_MCKR_MDIV_MASK) ==
-		(AT91_PMC_MCKR_MDIV_2 | AT91_PMC_MCKR_MDIV_4)
-		? freq / 3
-		: freq / (1 << ((mckr & AT91_PMC_MCKR_MDIV_MASK) >> 8));
-#else
-	gd->mck_rate_hz = freq / (1 << ((mckr & AT91_PMC_MCKR_MDIV_MASK) >> 8));
-#endif
+	/* mdiv */
+	gd->mck_rate_hz = freq / (1 + ((mckr & AT91_PMC_MCKR_MDIV_MASK) >> 8));
 	gd->cpu_clk_rate_hz = freq;
 
 	return 0;
 }
+
