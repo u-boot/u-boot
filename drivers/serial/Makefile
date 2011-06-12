@@ -28,7 +28,6 @@ LIB	:= $(obj)libserial.o
 COBJS-$(CONFIG_ALTERA_UART) += altera_uart.o
 COBJS-$(CONFIG_ALTERA_JTAG_UART) += altera_jtag_uart.o
 COBJS-$(CONFIG_ARM_DCC) += arm_dcc.o
-COBJS-$(CONFIG_AT91RM9200_USART) += at91rm9200_usart.o
 COBJS-$(CONFIG_ATMEL_USART) += atmel_usart.o
 COBJS-$(CONFIG_MCFUART) += mcfuart.o
 COBJS-$(CONFIG_NS9750_UART) += ns9750_serial.o
