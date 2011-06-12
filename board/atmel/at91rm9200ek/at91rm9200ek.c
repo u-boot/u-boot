@@ -31,6 +31,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/at91_pmc.h>
+#include <asm/arch/at91_common.h>
 #include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -51,6 +52,12 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
+	return 0;
+}
+
+int board_early_init_f(void)
+{
+	at91_seriald_hw_init();
 	return 0;
 }
 
