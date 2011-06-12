@@ -37,6 +37,7 @@
 #endif
 
 #define AT91C_XTAL_CLOCK		18432000
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 #define AT91C_MAIN_CLOCK		((AT91C_XTAL_CLOCK / 4) * 39)
 #define AT91C_MASTER_CLOCK		(AT91C_MAIN_CLOCK / 3)
 #define CONFIG_SYS_HZ_CLOCK		(AT91C_MASTER_CLOCK / 2)
@@ -45,10 +46,10 @@
 #define CONFIG_ARM920T
 #define CONFIG_AT91RM9200
 #define CONFIG_CPUAT91
-#define CONFIG_AT91FAMILY
-
 #undef CONFIG_USE_IRQ
 #define USE_920T_MMU
+
+#include <asm/hardware.h>	/* needed for port definitions */
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS

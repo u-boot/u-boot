@@ -29,6 +29,7 @@ SOBJS	+= lowlevel_init.o
 COBJS	+= reset.o
 COBJS	+= timer.o
 COBJS	+= clock.o
+COBJS	+= cpu.o
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))

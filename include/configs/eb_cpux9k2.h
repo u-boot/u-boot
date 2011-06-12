@@ -36,7 +36,7 @@
 #define CONFIG_VERSION_VARIABLE
 #define CONFIG_IDENT_STRING	" on EB+CPUx9K2"
 
-#include <asm/arch/hardware.h>	/* needed for port definitions */
+#include <asm/hardware.h>	/* needed for port definitions */
 
 #define CONFIG_MISC_INIT_R
 
@@ -69,7 +69,7 @@
 #define CONFIG_SYS_HZ		1000
 #define CONFIG_SYS_HZ_CLOCK 	(AT91C_MASTER_CLOCK / 2)
 
-#define AT91_SLOW_CLOCK			32768		/* slow clock */
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock */
 
 #define CONFIG_CMDLINE_TAG		1
 #define CONFIG_SETUP_MEMORY_TAGS	1

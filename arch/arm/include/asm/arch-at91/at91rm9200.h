@@ -22,6 +22,7 @@
 #define __AT91RM9200_H__
 
 #define CONFIG_AT91FAMILY	/* it's a member of AT91 */
+#define CONFIG_ARCH_CPU_INIT	/* we need arch_cpu_init() for hw timers */
 #define CONFIG_ARM920T		/* This is an ARM920T Core	*/
 
 /* Periperial Identifiers */

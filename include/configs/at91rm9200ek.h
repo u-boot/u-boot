@@ -55,6 +55,7 @@
  * CONFIG_SYS_HZ is the tick rate for timer tc0
  */
 #define AT91C_XTAL_CLOCK		18432000
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768
 #define AT91C_MAIN_CLOCK		((AT91C_XTAL_CLOCK / 4) * 39)
 #define AT91C_MASTER_CLOCK		(AT91C_MAIN_CLOCK / 3 )
 #define CONFIG_SYS_HZ_CLOCK		(AT91C_MASTER_CLOCK / 2)
@@ -65,6 +66,8 @@
 #define CONFIG_AT91RM9200EK
 #define CONFIG_CPUAT91
 #define USE_920T_MMU
+
+#include <asm/hardware.h>	/* needed for port definitions */
 
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
