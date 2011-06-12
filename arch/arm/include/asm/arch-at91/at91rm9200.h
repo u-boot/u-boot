@@ -21,9 +21,10 @@
 #ifndef __AT91RM9200_H__
 #define __AT91RM9200_H__
 
-#define CONFIG_AT91FAMILY	/* it's a member of AT91 */
+#define CONFIG_AT91FAMILY	/* it's a member of AT91 family */
+#define CONFIG_ARM920T		/* it's an ARM920T Core */
 #define CONFIG_ARCH_CPU_INIT	/* we need arch_cpu_init() for hw timers */
-#define CONFIG_ARM920T		/* This is an ARM920T Core	*/
+#define CONFIG_AT91_GPIO	/* and require always gpio features */
 
 /* Periperial Identifiers */
 
@@ -78,6 +79,10 @@
 #define ATMEL_BASE_AIC		0xFFFFF000
 #define ATMEL_BASE_DBGU		0xFFFFF200
 #define ATMEL_BASE_PIO		0xFFFFF400	/* 4x 0x200 Offset */
+#define ATMEL_BASE_PIOA		0xFFFFF400
+#define ATMEL_BASE_PIOB		0xFFFFF600
+#define ATMEL_BASE_PIOC		0xFFFFF800
+#define ATMEL_BASE_PIOD		0xFFFFFA00
 #define ATMEL_BASE_PMC		0xFFFFFC00
 #define ATMEL_BASE_ST		0xFFFFFD00
 #define ATMEL_BASE_RTC		0xFFFFFE00
