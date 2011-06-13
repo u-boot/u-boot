@@ -101,7 +101,7 @@ void davinci_sync_env_enetaddr(uint8_t *rom_enetaddr)
 {
 	uint8_t env_enetaddr[6];
 
-	eth_getenv_enetaddr_by_index(0, env_enetaddr);
+	eth_getenv_enetaddr_by_index("eth", 0, env_enetaddr);
 	if (!memcmp(env_enetaddr, "\0\0\0\0\0\0", 6)) {
 		/* There is no MAC address in the environment, so we initialize
 		 * it from the value in the EEPROM. */

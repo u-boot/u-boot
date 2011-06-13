@@ -80,6 +80,7 @@ int is_eth_dev_on_usb_host(void)
  */
 static void probe_valid_drivers(struct usb_device *dev)
 {
+	struct eth_device *eth;
 	int j;
 
 	for (j = 0; prob_dev[j].probe && prob_dev[j].get_info; j++) {
@@ -88,9 +89,10 @@ static void probe_valid_drivers(struct usb_device *dev)
 		/*
 		 * ok, it is a supported eth device. Get info and fill it in
 		 */
+		eth = &usb_eth[usb_max_eth_dev].eth_dev;
 		if (prob_dev[j].get_info(dev,
 			&usb_eth[usb_max_eth_dev],
-			&usb_eth[usb_max_eth_dev].eth_dev)) {
+			eth)) {
 			/* found proper driver */
 			/* register with networking stack */
 			usb_max_eth_dev++;
@@ -100,7 +102,10 @@ static void probe_valid_drivers(struct usb_device *dev)
 			 * call since eth_current_changed (internally called)
 			 * relies on it
 			 */
-			eth_register(&usb_eth[usb_max_eth_dev - 1].eth_dev);
+			eth_register(eth);
+			if (eth_write_hwaddr(eth, "usbeth",
+					usb_max_eth_dev - 1))
+				puts("Warning: failed to set MAC address\n");
 			break;
 			}
 		}

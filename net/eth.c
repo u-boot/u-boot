@@ -54,10 +54,11 @@ int eth_setenv_enetaddr(char *name, const uchar *enetaddr)
 	return setenv(name, buf);
 }
 
-int eth_getenv_enetaddr_by_index(int index, uchar *enetaddr)
+int eth_getenv_enetaddr_by_index(const char *base_name, int index,
+				 uchar *enetaddr)
 {
 	char enetvar[32];
-	sprintf(enetvar, index ? "eth%daddr" : "ethaddr", index);
+	sprintf(enetvar, index ? "%s%daddr" : "%saddr", base_name, index);
 	return eth_getenv_enetaddr(enetvar, enetaddr);
 }
 
@@ -188,6 +189,38 @@ static void eth_current_changed(void)
 #endif
 }
 
+int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
+		   int eth_number)
+{
+	unsigned char env_enetaddr[6];
+	int ret = 0;
+
+	if (!eth_getenv_enetaddr_by_index(base_name, eth_number, env_enetaddr))
+		return -1;
+
+	if (memcmp(env_enetaddr, "\0\0\0\0\0\0", 6)) {
+		if (memcmp(dev->enetaddr, "\0\0\0\0\0\0", 6) &&
+			memcmp(dev->enetaddr, env_enetaddr, 6)) {
+			printf("\nWarning: %s MAC addresses don't match:\n",
+				dev->name);
+			printf("Address in SROM is         %pM\n",
+				dev->enetaddr);
+			printf("Address in environment is  %pM\n",
+				env_enetaddr);
+		}
+
+		memcpy(dev->enetaddr, env_enetaddr, 6);
+	}
+
+	if (dev->write_hwaddr &&
+		!eth_mac_skip(eth_number) &&
+		is_valid_ether_addr(dev->enetaddr)) {
+		ret = dev->write_hwaddr(dev);
+	}
+
+	return ret;
+}
+
 int eth_register(struct eth_device *dev)
 {
 	struct eth_device *d;
@@ -208,7 +241,6 @@ int eth_register(struct eth_device *dev)
 
 int eth_initialize(bd_t *bis)
 {
-	unsigned char env_enetaddr[6];
 	int eth_number = 0;
 
 	eth_devices = NULL;
@@ -264,27 +296,8 @@ int eth_initialize(bd_t *bis)
 			if (strchr(dev->name, ' '))
 				puts("\nWarning: eth device name has a space!\n");
 
-			eth_getenv_enetaddr_by_index(eth_number, env_enetaddr);
-
-			if (memcmp(env_enetaddr, "\0\0\0\0\0\0", 6)) {
-				if (memcmp(dev->enetaddr, "\0\0\0\0\0\0", 6) &&
-				    memcmp(dev->enetaddr, env_enetaddr, 6))
-				{
-					printf ("\nWarning: %s MAC addresses don't match:\n",
-						dev->name);
-					printf ("Address in SROM is         %pM\n",
-						dev->enetaddr);
-					printf ("Address in environment is  %pM\n",
-						env_enetaddr);
-				}
-
-				memcpy(dev->enetaddr, env_enetaddr, 6);
-			}
-			if (dev->write_hwaddr &&
-				!eth_mac_skip(eth_number) &&
-				is_valid_ether_addr(dev->enetaddr)) {
-				dev->write_hwaddr(dev);
-			}
+			if (eth_write_hwaddr(dev, NULL, eth_number))
+				puts("Warning: failed to set MAC address\n");
 
 			eth_number++;
 			dev = dev->next;
@@ -359,7 +372,8 @@ int eth_init(bd_t *bis)
 	do {
 		uchar env_enetaddr[6];
 
-		if (eth_getenv_enetaddr_by_index(eth_number, env_enetaddr))
+		if (eth_getenv_enetaddr_by_index("eth", eth_number,
+						 env_enetaddr))
 			memcpy(dev->enetaddr, env_enetaddr, 6);
 
 		++eth_number;

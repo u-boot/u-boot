@@ -504,7 +504,7 @@ int designware_initialize(u32 id, ulong base_addr, u32 phy_addr)
 	dev->iobase = (int)base_addr;
 	dev->priv = priv;
 
-	eth_getenv_enetaddr_by_index(id, &dev->enetaddr[0]);
+	eth_getenv_enetaddr_by_index("eth", id, &dev->enetaddr[0]);
 
 	priv->dev = dev;
 	priv->mac_regs_p = (struct eth_mac_regs *)base_addr;
