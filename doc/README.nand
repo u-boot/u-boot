@@ -78,6 +78,16 @@ Commands:
       should work well, but loading an image copied from another flash is
       going to be trouble if there are any bad blocks.
 
+   nand write.trimffs addr ofs|partition size
+      Enabled by the CONFIG_CMD_NAND_TRIMFFS macro. This command will write to
+      the NAND flash in a manner identical to the 'nand write' command
+      described above -- with the additional check that all pages at the end
+      of eraseblocks which contain only 0xff data will not be written to the
+      NAND flash. This behaviour is required when flashing UBI images
+      containing UBIFS volumes as per the UBI FAQ[1].
+
+      [1] http://www.linux-mtd.infradead.org/doc/ubi.html#L_flasher_algo
+
    nand write.oob addr ofs|partition size
       Write `size' bytes from `addr' to the out-of-band data area
       corresponding to `ofs' in NAND flash. This is limited to the 16 bytes
