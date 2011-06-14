@@ -461,6 +461,9 @@ int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 
 #ifdef CONFIG_CMD_NAND_YAFFS
 	if (flags & WITH_YAFFS_OOB) {
+		if (flags & ~WITH_YAFFS_OOB)
+			return -EINVAL;
+
 		int pages;
 		pages = nand->erasesize / nand->writesize;
 		blocksize = (pages * nand->oobsize) + nand->erasesize;

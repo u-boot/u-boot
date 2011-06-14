@@ -115,7 +115,9 @@ typedef struct nand_erase_options nand_erase_options_t;
 int nand_read_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 		       u_char *buffer);
 
-#define WITH_YAFFS_OOB	(1 << 0) /* whether write with yaffs format */
+#define WITH_YAFFS_OOB	(1 << 0) /* whether write with yaffs format. This flag
+				  * is a 'mode' meaning it cannot be mixed with
+				  * other flags */
 
 int nand_write_skip_bad(nand_info_t *nand, loff_t offset, size_t *length,
 			u_char *buffer, int flags);
