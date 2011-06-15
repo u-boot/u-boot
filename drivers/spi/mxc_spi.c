@@ -31,7 +31,7 @@
 /* i.MX27 has a completely wrong register layout and register definitions in the
  * datasheet, the correct one is in the Freescale's Linux driver */
 
-#error "i.MX27 CSPI not supported due to drastic differences in register definisions" \
+#error "i.MX27 CSPI not supported due to drastic differences in register definitions" \
 "See linux mxc_spi driver from Freescale for details."
 
 #elif defined(CONFIG_MX31)
