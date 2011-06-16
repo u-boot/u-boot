@@ -159,7 +159,13 @@ struct gpio {
 #define SRAM_VECT_CODE			(SRAM_OFFSET0 | SRAM_OFFSET1 | \
 					 SRAM_OFFSET2)
 
+#define OMAP3_PUBLIC_SRAM_BASE		0x40208000 /* Works for GP & EMU */
+#define OMAP3_PUBLIC_SRAM_END		0x40210000
+
 #define LOW_LEVEL_SRAM_STACK		0x4020FFFC
+
+/* scratch area - accessible on both EMU and GP */
+#define OMAP3_PUBLIC_SRAM_SCRATCH_AREA	OMAP3_PUBLIC_SRAM_BASE
 
 #define DEBUG_LED1			149	/* gpio */
 #define DEBUG_LED2			150	/* gpio */
@@ -226,5 +232,19 @@ struct gpio {
 #define AM3517			0x1c00
 
 #define OMAP3730		0x0c00
+
+/*
+ * ROM code API related flags
+ */
+#define OMAP3_GP_ROMCODE_API_L2_INVAL		1
+#define OMAP3_GP_ROMCODE_API_WRITE_ACR		3
+
+/*
+ * EMU device PPA HAL related flags
+ */
+#define OMAP3_EMU_HAL_API_L2_INVAL		40
+#define OMAP3_EMU_HAL_API_WRITE_ACR		42
+
+#define OMAP3_EMU_HAL_START_HAL_CRITICAL	4
 
 #endif

@@ -37,8 +37,12 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mem.h>
 #include <asm/cache.h>
+#include <asm/armv7.h>
 
+/* Declarations */
 extern omap3_sysinfo sysinfo;
+static void omap3_setup_aux_cr(void);
+static void omap3_invalidate_l2_cache_secure(void);
 
 /******************************************************************************
  * Routine: delay
@@ -166,27 +170,13 @@ void s_init(void)
 
 	try_unlock_memory();
 
-	/*
-	 * Right now flushing at low MPU speed.
-	 * Need to move after clock init
-	 */
-	invalidate_dcache(get_device_type());
-#ifndef CONFIG_ICACHE_OFF
-	icache_enable();
-#endif
+	/* Errata workarounds */
+	omap3_setup_aux_cr();
 
-#ifdef CONFIG_L2_OFF
-	l2_cache_disable();
-#else
-	l2_cache_enable();
+#ifndef CONFIG_SYS_L2CACHE_OFF
+	/* Invalidate L2-cache from secure mode */
+	omap3_invalidate_l2_cache_secure();
 #endif
-	/*
-	 * Writing to AuxCR in U-boot using SMI for GP DEV
-	 * Currently SMI in Kernel on ES2 devices seems to have an issue
-	 * Once that is resolved, we can postpone this config to kernel
-	 */
-	if (get_device_type() == GP_DEVICE)
-		setup_auxcr();
 
 	set_muxconf_regs();
 	delay(100);
@@ -292,3 +282,111 @@ int checkboard (void)
 	return 0;
 }
 #endif	/* CONFIG_DISPLAY_BOARDINFO */
+
+static void omap3_emu_romcode_call(u32 service_id, u32 *parameters)
+{
+	u32 i, num_params = *parameters;
+	u32 *sram_scratch_space = (u32 *)OMAP3_PUBLIC_SRAM_SCRATCH_AREA;
+
+	/*
+	 * copy the parameters to an un-cached area to avoid coherency
+	 * issues
+	 */
+	for (i = 0; i < num_params; i++) {
+		__raw_writel(*parameters, sram_scratch_space);
+		parameters++;
+		sram_scratch_space++;
+	}
+
+	/* Now make the PPA call */
+	do_omap3_emu_romcode_call(service_id, OMAP3_PUBLIC_SRAM_SCRATCH_AREA);
+}
+
+static void omap3_update_aux_cr_secure(u32 set_bits, u32 clear_bits)
+{
+	u32 acr;
+
+	/* Read ACR */
+	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
+	acr &= ~clear_bits;
+	acr |= set_bits;
+
+	if (get_device_type() == GP_DEVICE) {
+		omap3_gp_romcode_call(OMAP3_GP_ROMCODE_API_WRITE_ACR,
+				       acr);
+	} else {
+		struct emu_hal_params emu_romcode_params;
+		emu_romcode_params.num_params = 1;
+		emu_romcode_params.param1 = acr;
+		omap3_emu_romcode_call(OMAP3_EMU_HAL_API_WRITE_ACR,
+				       (u32 *)&emu_romcode_params);
+	}
+}
+
+static void omap3_update_aux_cr(u32 set_bits, u32 clear_bits)
+{
+	u32 acr;
+
+	/* Read ACR */
+	asm volatile ("mrc p15, 0, %0, c1, c0, 1" : "=r" (acr));
+	acr &= ~clear_bits;
+	acr |= set_bits;
+
+	/* Write ACR - affects non-secure banked bits */
+	asm volatile ("mcr p15, 0, %0, c1, c0, 1" : : "r" (acr));
+}
+
+static void omap3_setup_aux_cr(void)
+{
+	/* Workaround for Cortex-A8 errata: #454179 #430973
+	 *	Set "IBE" bit
+	 *	Set "Disable Brach Size Mispredicts" bit
+	 * Workaround for erratum #621766
+	 *	Enable L1NEON bit
+	 * ACR |= (IBE | DBSM | L1NEON) => ACR |= 0xE0
+	 */
+	omap3_update_aux_cr_secure(0xE0, 0);
+}
+
+#ifndef CONFIG_SYS_L2CACHE_OFF
+/* Invalidate the entire L2 cache from secure mode */
+static void omap3_invalidate_l2_cache_secure(void)
+{
+	if (get_device_type() == GP_DEVICE) {
+		omap3_gp_romcode_call(OMAP3_GP_ROMCODE_API_L2_INVAL,
+				      0);
+	} else {
+		struct emu_hal_params emu_romcode_params;
+		emu_romcode_params.num_params = 1;
+		emu_romcode_params.param1 = 0;
+		omap3_emu_romcode_call(OMAP3_EMU_HAL_API_L2_INVAL,
+				       (u32 *)&emu_romcode_params);
+	}
+}
+
+void v7_outer_cache_enable(void)
+{
+	/* Set L2EN */
+	omap3_update_aux_cr_secure(0x2, 0);
+
+	/*
+	 * On some revisions L2EN bit is banked on some revisions it's not
+	 * No harm in setting both banked bits(in fact this is required
+	 * by an erratum)
+	 */
+	omap3_update_aux_cr(0x2, 0);
+}
+
+void v7_outer_cache_disable(void)
+{
+	/* Clear L2EN */
+	omap3_update_aux_cr_secure(0, 0x2);
+
+	/*
+	 * On some revisions L2EN bit is banked on some revisions it's not
+	 * No harm in clearing both banked bits(in fact this is required
+	 * by an erratum)
+	 */
+	omap3_update_aux_cr(0, 0x2);
+}
+#endif

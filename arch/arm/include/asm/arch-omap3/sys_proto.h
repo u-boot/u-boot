@@ -27,6 +27,11 @@ typedef struct {
 	char *nand_string;
 } omap3_sysinfo;
 
+struct emu_hal_params {
+	u32 num_params;
+	u32 param1;
+};
+
 void prcm_init(void);
 void per_clocks_enable(void);
 
@@ -53,9 +58,7 @@ u32 is_running_in_sdram(void);
 u32 is_running_in_sram(void);
 u32 is_running_in_flash(void);
 u32 get_device_type(void);
-void l2cache_enable(void);
 void secureworld_exit(void);
-void setup_auxcr(void);
 void try_unlock_memory(void);
 u32 get_boot_type(void);
 void invalidate_dcache(u32);
@@ -66,5 +69,6 @@ void make_cs1_contiguous(void);
 void omap_nand_switch_ecc(int);
 void power_init_r(void);
 void dieid_num_r(void);
-
+void do_omap3_emu_romcode_call(u32 service_id, u32 parameters);
+void omap3_gp_romcode_call(u32 service_id, u32 parameter);
 #endif
