@@ -734,6 +734,7 @@ Sergey Lapin <slapin@ossfans.org>
 Valentin Longchamp <valentin.longchamp@keymile.com>
 
 	km_kirkwood	ARM926EJS (Kirkwood SoC)
+	portl2		ARM926EJS (Kirkwood SoC)
 
 Nishanth Menon <nm@ti.com>
 

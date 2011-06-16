@@ -364,6 +364,7 @@ LIST_ARM9="			\
 	openrd_base		\
 	openrd_client		\
 	openrd_ultimate		\
+	portl2			\
 	rd6281a			\
 	sbc2410x		\
 	scb9328			\

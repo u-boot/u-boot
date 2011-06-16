@@ -130,10 +130,12 @@ int startup_allowed(void)
 			return 1;
 	return 0;
 }
+#endif
 
+#if (defined(CONFIG_MGCOGE3UN)|defined(CONFIG_PORTL2))
 /*
- * mgcoge3un has always ethernet present. Its connected to the 6061 switch
- * and provides ICNev and piggy4 connections.
+ * These two boards have always ethernet present. Its connected to the mv
+ * switch.
  */
 int ethernet_present(void)
 {
@@ -335,7 +337,7 @@ void dram_init_banksize(void)
 	}
 }
 
-#if defined(CONFIG_MGCOGE3UN)
+#if (defined(CONFIG_MGCOGE3UN)|defined(CONFIG_PORTL2))
 
 #define	PHY_LED_SEL	0x18
 #define PHY_LED0_LINK	(0x5)
