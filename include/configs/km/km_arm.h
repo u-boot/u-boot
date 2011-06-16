@@ -208,7 +208,7 @@ int get_scl(void);
 #define CONFIG_SYS_EEPROM_WREN
 #define CONFIG_ENV_OFFSET		0x0 /* no bracets! */
 #define CONFIG_ENV_SIZE			(0x2000 - CONFIG_ENV_OFFSET)
-#define CONFIG_I2C_ENV_EEPROM_BUS	"pca9547:70:d\0"
+#define CONFIG_I2C_ENV_EEPROM_BUS	KM_ENV_BUS "\0"
 
 /* offset redund: (CONFIG_ENV_OFFSET + CONFIG_ENV_SIZE) */
 #define CONFIG_SYS_REDUNDAND_ENVIRONMENT
