@@ -34,6 +34,12 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+void __arm_init_before_mmu(void)
+{
+}
+void arm_init_before_mmu(void)
+	__attribute__((weak, alias("__arm_init_before_mmu")));
+
 static void cp_delay (void)
 {
 	volatile int i;
@@ -65,6 +71,7 @@ static inline void mmu_setup(void)
 	int i;
 	u32 reg;
 
+	arm_init_before_mmu();
 	/* Set up an identity-mapping for all 4GB, rw for everyone */
 	for (i = 0; i < 4096; i++)
 		page_table[i] = i << 20 | (3 << 10) | 0x12;

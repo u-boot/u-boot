@@ -38,11 +38,6 @@ void  __flush_cache(unsigned long start, unsigned long size)
 	/* disable write buffer as well (page 2-22) */
 	asm("mcr p15, 0, %0, c7, c10, 4" : : "r" (0));
 #endif
-#ifdef CONFIG_OMAP34XX
-	void v7_flush_cache_all(void);
-
-	v7_flush_cache_all();
-#endif
 	return;
 }
 void  flush_cache(unsigned long start, unsigned long size)

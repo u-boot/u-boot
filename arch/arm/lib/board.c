@@ -450,6 +450,12 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
 	monitor_flash_len = _end_ofs;
+	/*
+	 * Enable D$:
+	 * I$, if needed, must be already enabled in start.S
+	 */
+	dcache_enable();
+
 	debug ("monitor flash len: %08lX\n", monitor_flash_len);
 	board_init();	/* Setup chipselects */
 

@@ -255,6 +255,14 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
  * initialization, now running from RAM.
  */
 jump_2_ram:
+/*
+ * If I-cache is enabled invalidate it
+ */
+#ifndef CONFIG_SYS_ICACHE_OFF
+	mcr	p15, 0, r0, c7, c5, 0	@ invalidate icache
+	mcr     p15, 0, r0, c7, c10, 4	@ DSB
+	mcr     p15, 0, r0, c7, c5, 4	@ ISB
+#endif
 	ldr	r0, _board_init_r_ofs
 	adr	r1, _start
 	add	lr, r0, r1
@@ -290,6 +298,9 @@ cpu_init_crit:
 	mov	r0, #0			@ set up for MCR
 	mcr	p15, 0, r0, c8, c7, 0	@ invalidate TLBs
 	mcr	p15, 0, r0, c7, c5, 0	@ invalidate icache
+	mcr	p15, 0, r0, c7, c5, 6	@ invalidate BP array
+	mcr     p15, 0, r0, c7, c10, 4	@ DSB
+	mcr     p15, 0, r0, c7, c5, 4	@ ISB
 
 	/*
 	 * disable MMU stuff and caches
@@ -298,7 +309,12 @@ cpu_init_crit:
 	bic	r0, r0, #0x00002000	@ clear bits 13 (--V-)
 	bic	r0, r0, #0x00000007	@ clear bits 2:0 (-CAM)
 	orr	r0, r0, #0x00000002	@ set bit 1 (--A-) Align
-	orr	r0, r0, #0x00000800	@ set bit 12 (Z---) BTB
+	orr	r0, r0, #0x00000800	@ set bit 11 (Z---) BTB
+#ifdef CONFIG_SYS_ICACHE_OFF
+	bic	r0, r0, #0x00001000	@ clear bit 12 (I) I-cache
+#else
+	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-cache
+#endif
 	mcr	p15, 0, r0, c1, c0, 0
 
 	/*
