@@ -6,6 +6,9 @@
  * (C) Copyright 2009
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
+ * (C) Copyright 2011
+ * Holger Brunck, Keymile GmbH Hannover, holger.brunck@keymile.de
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -30,8 +33,8 @@
  * http://lists.denx.de/pipermail/u-boot/2009-July/057350.html
  */
 
-#ifndef _CONFIG_SUEN3_H
-#define _CONFIG_SUEN3_H
+#ifndef _CONFIG_KM_KIRKWOOD_H
+#define _CONFIG_KM_KIRKWOOD_H
 
 /* include common defines/options for all arm based Keymile boards */
 #include "km/km_arm.h"
@@ -39,11 +42,16 @@
 /*
  * Version number information
  */
-#define CONFIG_IDENT_STRING	"\nKeymile SUEN3"
+#ifdef CONFIG_KM_DISABLE_PCI
+#define CONFIG_IDENT_STRING	"\nKeymile Kirkwood"
+#undef  CONFIG_KIRKWOOD_PCIE_INIT
+#else
+#define CONFIG_IDENT_STRING	"\nKeymile Kirkwood PCI"
+#endif
 
-#define CONFIG_HOSTNAME			suen3
+#define CONFIG_HOSTNAME			km_kirkwood
 
 #define KM_IVM_BUS	"pca9544a:70:9"	/* I2C2 (Mux-Port 1)*/
 #define KM_ENV_BUS	"pca9544a:70:d"	/* I2C2 (Mux-Port 5)*/
 
-#endif /* _CONFIG_SUEN3_H */
+#endif /* _CONFIG_KM_KIRKWOOD */

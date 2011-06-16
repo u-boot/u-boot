@@ -731,6 +731,10 @@ Sergey Lapin <slapin@ossfans.org>
 
 	afeb9260	ARM926EJS (AT91SAM9260 SoC)
 
+Valentin Longchamp <valentin.longchamp@keymile.com>
+
+	km_kirkwood	ARM926EJS (Kirkwood SoC)
+
 Nishanth Menon <nm@ti.com>
 
 	omap3_sdp3430	ARM ARMV7 (OMAP3xx SoC)
@@ -819,8 +823,6 @@ Heiko Schocher <hs@denx.de>
 
 	magnesium	i.MX27
 	mgcoge3un	ARM926EJS (Kirkwood SoC)
-	suen3		ARM926EJS (Kirkwood SoC)
-	suen8		ARM926EJS (Kirkwood SoC)
 
 Robert Schwebel <r.schwebel@pengutronix.de>
 

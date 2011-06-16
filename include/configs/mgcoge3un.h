@@ -76,4 +76,9 @@
 	MVGBE_SET_GMII_SPEED_TO_10_100	|\
 	MVGBE_SET_MII_SPEED_TO_100)
 
+/*
+ * PCIe port not used on mgcoge3un
+ */
+#undef  CONFIG_KIRKWOOD_PCIE_INIT
+
 #endif /* _CONFIG_MGCOGE3UN_H */

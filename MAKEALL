@@ -347,6 +347,7 @@ LIST_ARM9="			\
 	guruplug		\
 	imx27lite		\
 	jadecpu			\
+	km_kirkwood		\
 	lpd7a400		\
 	magnesium		\
 	mv88f6281gtw_ge		\
@@ -373,7 +374,6 @@ LIST_ARM9="			\
 	spear310		\
 	spear320		\
 	spear600		\
-	suen3			\
 	VCMA9			\
 	versatile		\
 	versatileab		\
