@@ -48,6 +48,7 @@
 #define KM_ENV_BUS	"pca9547:70:d" /* I2C2 (Mux-Port 5)*/
 
 /* we use a new RAM type on mgcoge3un board */
+#undef CONFIG_SYS_KWD_CONFIG
 #define CONFIG_SYS_KWD_CONFIG $(SRCTREE)/$(CONFIG_BOARDDIR)/kwbimage-memphis.cfg
 
 /*

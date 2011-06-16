@@ -40,7 +40,6 @@
  * High Level Configuration Options (easy to change)
  */
 #define CONFIG_MARVELL
-#define CONFIG_ARM926EJS		/* Basic Architecture */
 #define CONFIG_FEROCEON_88FR131		/* CPU Core subversion */
 #define CONFIG_KIRKWOOD			/* SOC Family Name */
 #define CONFIG_KW88F6281		/* SOC Name */
@@ -48,6 +47,12 @@
 
 /* include common defines/options for all Keymile boards */
 #include "keymile-common.h"
+
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_SF
+#define CONFIG_SOFT_I2C		/* I2C bit-banged	*/
+
+#include "asm/arch/config.h"
 
 #define CONFIG_SYS_TEXT_BASE	0x04000000	/* code address after reloc */
 #define CONFIG_ENV_SIZE		(128 << 10)	/* NAND chip block size	*/
@@ -75,12 +80,7 @@
 
 #define CONFIG_KM_ARCH_DBG_FILE		"scripts/debug-arm-env.txt"
 
-#define CONFIG_MD5	/* get_random_hex on krikwood needs MD5 support */
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
-#define CONFIG_KIRKWOOD_EGIGA_INIT	/* Enable GbePort0/1 for kernel */
-#undef  CONFIG_KIRKWOOD_PCIE_INIT	/* Disable PCIE Port0 for kernel */
-#define CONFIG_KIRKWOOD_RGMII_PAD_1V8	/* Set RGMII Pad voltage to 1.8V */
-
 #define CONFIG_MISC_INIT_R
 
 /*
@@ -116,7 +116,6 @@
  */
 #define CONFIG_CMD_ELF
 #define CONFIG_CMD_MTDPARTS
-#define CONFIG_CMD_NAND
 #define CONFIG_CMD_NFS
 
 /*
@@ -131,8 +130,6 @@
  */
 #define CONFIG_SYS_MAX_NAND_DEVICE	1
 #define NAND_MAX_CHIPS			1
-#define CONFIG_NAND_KIRKWOOD
-#define CONFIG_SYS_NAND_BASE		0xd8000000
 
 #define BOOTFLASH_START		0x0
 
@@ -175,8 +172,6 @@
 /*
  * I2C related stuff
  */
-#define	CONFIG_SOFT_I2C		/* I2C bit-banged	*/
-
 #define	CONFIG_KIRKWOOD_GPIO		/* Enable GPIO Support */
 #if defined(CONFIG_SOFT_I2C)
 #ifndef __ASSEMBLY__
@@ -200,8 +195,6 @@ int get_scl(void);
 #define I2C_DELAY	udelay(3)	/* 1/4 I2C clock duration */
 #define I2C_SOFT_DECLARATIONS
 
-#define	CONFIG_SYS_I2C_SLAVE		0x0
-#define	CONFIG_SYS_I2C_SPEED		100000
 #endif
 
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x50
@@ -224,15 +217,8 @@ int get_scl(void);
 #define CONFIG_ENV_OFFSET_REDUND	0x2000 /* no bracets! */
 #define CONFIG_ENV_SIZE_REDUND		(CONFIG_ENV_SIZE)
 
-#define CONFIG_CMD_SF
-
 #define CONFIG_SPI_FLASH
-#define CONFIG_HARD_SPI
-#define CONFIG_KIRKWOOD_SPI
 #define CONFIG_SPI_FLASH_STMICRO
-#define CONFIG_ENV_SPI_BUS		0
-#define CONFIG_ENV_SPI_CS		0
-#define CONFIG_ENV_SPI_MAX_HZ		50000000	/* 50Mhz */
 
 #define FLASH_GPIO_PIN			0x00010000
 
@@ -272,8 +258,6 @@ int get_scl(void);
 
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE		0x00000000
-/* Kirkwood has 2k of Security SRAM, use it for SP */
-#define CONFIG_SYS_INIT_SP_ADDR		0xC8012000
 /* Do early setups now in board_init_f() */
 #define CONFIG_BOARD_EARLY_INIT_F
 
