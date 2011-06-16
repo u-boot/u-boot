@@ -55,7 +55,6 @@
 #include "asm/arch/config.h"
 
 #define CONFIG_SYS_TEXT_BASE	0x04000000	/* code address after reloc */
-#define CONFIG_ENV_SIZE		(128 << 10)	/* NAND chip block size	*/
 #define CONFIG_SYS_MEMTEST_START 0x00400000	/* 4M */
 #define CONFIG_SYS_MEMTEST_END	0x007fffff	/*(_8M -1) */
 #define CONFIG_SYS_LOAD_ADDR	0x00800000	/* default load adr- 8M */
@@ -208,7 +207,6 @@ int get_scl(void);
 #define CONFIG_ENV_EEPROM_IS_ON_I2C
 #define CONFIG_SYS_EEPROM_WREN
 #define CONFIG_ENV_OFFSET		0x0 /* no bracets! */
-#undef	CONFIG_ENV_SIZE
 #define CONFIG_ENV_SIZE			(0x2000 - CONFIG_ENV_OFFSET)
 #define CONFIG_I2C_ENV_EEPROM_BUS	"pca9547:70:d\0"
 
