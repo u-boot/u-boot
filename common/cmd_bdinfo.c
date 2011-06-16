@@ -345,7 +345,7 @@ int do_bdinfo(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("ip_addr     = %pI4\n", &bd->bi_ip_addr);
 #endif
 	printf("baudrate    = %d bps\n", bd->bi_baudrate);
-#if !(defined(CONFIG_SYS_NO_ICACHE) && defined(CONFIG_SYS_NO_DCACHE))
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	print_num("TLB addr", gd->tlb_addr);
 #endif
 	print_num("relocaddr", gd->relocaddr);

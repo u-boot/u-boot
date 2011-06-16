@@ -38,7 +38,7 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_L2_OFF
+#define CONFIG_SYS_L2CACHE_OFF
 
 /*
  * Bootloader Components Configuration

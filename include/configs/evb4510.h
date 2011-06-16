@@ -43,7 +43,8 @@
 #define CONFIG_ARM_THUMB	1	/* this is an ARM7TDMI	 */
 #define CONFIG_S3C4510B		1	/* it's a S3C4510B chip	 */
 #define CONFIG_EVB4510		1	/* on an EVB4510 Board	 */
-#define CONFIG_SYS_NO_CP15_CACHE
+#define CONFIG_SYS_ICACHE_OFF
+#define CONFIG_SYS_DCACHE_OFF
 
 #define CONFIG_USE_IRQ
 #define CONFIG_STACKSIZE_IRQ    (4*1024)

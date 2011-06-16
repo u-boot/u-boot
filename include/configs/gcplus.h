@@ -49,7 +49,7 @@
 
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff */
 /* we will never enable dcache, because we have to setup MMU first */
-#define CONFIG_SYS_NO_DCACHE
+#define CONFIG_SYS_DCACHE_OFF
 
 #define CONFIG_CMDLINE_TAG	 1	/* enable passing of ATAGs	*/
 #define CONFIG_SETUP_MEMORY_TAGS 1

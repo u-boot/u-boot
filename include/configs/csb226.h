@@ -44,7 +44,7 @@
 					/* for timer/console/ethernet       */
 
 /* we will never enable dcache, because we have to setup MMU first */
-#define CONFIG_SYS_NO_DCACHE
+#define CONFIG_SYS_DCACHE_OFF
 #define	CONFIG_SYS_TEXT_BASE	0x0
 /*
  * Hardware drivers

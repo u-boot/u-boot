@@ -38,7 +38,7 @@
 #define	CONFIG_SYS_TEXT_BASE	0x0
 
 /* we will never enable dcache, because we have to setup MMU first */
-#define CONFIG_SYS_NO_DCACHE
+#define CONFIG_SYS_DCACHE_OFF
 
 /*
  * Size of malloc() pool; this lives below the uppermost 128 KiB which are

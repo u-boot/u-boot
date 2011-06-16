@@ -47,7 +47,7 @@
 #define CONFIG_DISPLAY_BOARDINFO	1
 
 /* Keep L2 Cache Disabled */
-#define CONFIG_L2_OFF			1
+#define CONFIG_SYS_L2CACHE_OFF			1
 
 /* Clock Defines */
 #define V_OSCK			38400000	/* Clock output from T2 */

@@ -38,7 +38,8 @@
 #define CONFIG_B2			1	/* on an B2 Board      */
 #define CONFIG_ARM_THUMB	1	/* this is an ARM7TDMI */
 #undef  CONFIG_ARM7_REVD		/* disable ARM720 REV.D Workarounds */
-#define CONFIG_SYS_NO_CP15_CACHE
+#define CONFIG_SYS_ICACHE_OFF
+#define CONFIG_SYS_DCACHE_OFF
 #define CONFIG_ARCH_CPU_INIT
 
 #define CONFIG_S3C44B0_CLOCK_SPEED	75 /* we have a 75Mhz S3C44B0*/

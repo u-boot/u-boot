@@ -103,16 +103,16 @@ case "$cpu" in
 #undef CONFIG_CM_INIT  /* CM may not have initialization reg */
 #undef CONFIG_CM_TCRAM /* CM may not have TCRAM */
 /* May not be processor without cache support */
-#define CONFIG_SYS_NO_ICACHE 1
-#define CONFIG_SYS_NO_DCACHE 1
+#define CONFIG_SYS_ICACHE_OFF 1
+#define CONFIG_SYS_DCACHE_OFF 1
 _EOF
 	;;
 
 	arm720t)
 	cat >> ${config_file} << _EOF
 /* May not be processor without cache support */
-#define CONFIG_SYS_NO_ICACHE 1
-#define CONFIG_SYS_NO_DCACHE 1
+#define CONFIG_SYS_ICACHE_OFF 1
+#define CONFIG_SYS_DCACHE_OFF 1
 _EOF
 	;;
 esac

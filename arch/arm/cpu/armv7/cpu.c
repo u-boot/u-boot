@@ -35,9 +35,6 @@
 #include <command.h>
 #include <asm/system.h>
 #include <asm/cache.h>
-#ifndef CONFIG_L2_OFF
-#include <asm/arch/sys_proto.h>
-#endif
 
 static void cache_flush(void);
 

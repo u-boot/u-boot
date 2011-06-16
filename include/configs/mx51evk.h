@@ -35,7 +35,7 @@
 
 #define CONFIG_SYS_TEXT_BASE	0x97800000
 
-#define CONFIG_L2_OFF
+#define CONFIG_SYS_L2CACHE_OFF
 
 #include <asm/arch/imx-regs.h>
 /*

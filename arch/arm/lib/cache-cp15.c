@@ -24,7 +24,7 @@
 #include <common.h>
 #include <asm/system.h>
 
-#if !(defined(CONFIG_SYS_NO_ICACHE) && defined(CONFIG_SYS_NO_DCACHE))
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 
 #if defined(CONFIG_SYS_ARM_CACHE_WRITETHROUGH)
 #define CACHE_SETUP	0x1a
@@ -118,7 +118,7 @@ static void cache_disable(uint32_t cache_bit)
 }
 #endif
 
-#ifdef CONFIG_SYS_NO_ICACHE
+#ifdef CONFIG_SYS_ICACHE_OFF
 void icache_enable (void)
 {
 	return;
@@ -150,7 +150,7 @@ int icache_status(void)
 }
 #endif
 
-#ifdef CONFIG_SYS_NO_DCACHE
+#ifdef CONFIG_SYS_DCACHE_OFF
 void dcache_enable (void)
 {
 	return;

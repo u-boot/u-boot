@@ -70,7 +70,7 @@ typedef	struct	global_data {
 	unsigned long	irq_sp;		/* irq stack pointer */
 	unsigned long	start_addr_sp;	/* start_addr_stackpointer */
 	unsigned long	reloc_off;
-#if !(defined(CONFIG_SYS_NO_ICACHE) && defined(CONFIG_SYS_NO_DCACHE))
+#if !(defined(CONFIG_SYS_ICACHE_OFF) && defined(CONFIG_SYS_DCACHE_OFF))
 	unsigned long	tlb_addr;
 #endif
 	void		**jt;		/* jump table */
