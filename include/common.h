@@ -413,6 +413,7 @@ void	icache_disable(void);
 int	dcache_status (void);
 void	dcache_enable (void);
 void	dcache_disable(void);
+void	mmu_disable(void);
 void	relocate_code (ulong, gd_t *, ulong) __attribute__ ((noreturn));
 ulong	get_endaddr   (void);
 void	trap_init     (ulong);
@@ -611,9 +612,11 @@ ulong	video_setmem (ulong);
 
 /* arch/$(ARCH)/lib/cache.c */
 void	flush_cache   (unsigned long, unsigned long);
+void	flush_dcache_all(void);
 void	flush_dcache_range(unsigned long start, unsigned long stop);
 void	invalidate_dcache_range(unsigned long start, unsigned long stop);
-
+void	invalidate_dcache_all(void);
+void	invalidate_icache_all(void);
 
 /* arch/$(ARCH)/lib/ticks.S */
 unsigned long long get_ticks(void);

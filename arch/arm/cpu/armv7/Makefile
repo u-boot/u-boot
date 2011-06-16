@@ -26,7 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(CPU).o
 
 START	:= start.o
-COBJS	:= cpu.o
+COBJS	:= cpu.o cache_v7.o
 COBJS  += syslib.o
 
 SRCS	:= $(START:.o=.S) $(COBJS:.o=.c)
