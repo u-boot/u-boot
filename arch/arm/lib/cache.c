@@ -25,7 +25,7 @@
 
 #include <common.h>
 
-void  flush_cache (unsigned long dummy1, unsigned long dummy2)
+void  __flush_cache(unsigned long start, unsigned long size)
 {
 #if defined(CONFIG_OMAP2420) || defined(CONFIG_ARM1136)
 	void arm1136_cache_flush(void);
@@ -45,3 +45,5 @@ void  flush_cache (unsigned long dummy1, unsigned long dummy2)
 #endif
 	return;
 }
+void  flush_cache(unsigned long start, unsigned long size)
+	__attribute__((weak, alias("__flush_cache")));
