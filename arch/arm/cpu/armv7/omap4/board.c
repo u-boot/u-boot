@@ -127,3 +127,15 @@ int arch_cpu_init(void)
 	set_muxconf_regs();
 	return 0;
 }
+
+#ifndef CONFIG_SYS_L2CACHE_OFF
+void v7_outer_cache_enable(void)
+{
+	set_pl310_ctrl_reg(1);
+}
+
+void v7_outer_cache_disable(void)
+{
+	set_pl310_ctrl_reg(0);
+}
+#endif
