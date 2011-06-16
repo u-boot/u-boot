@@ -92,13 +92,18 @@ static inline void mmu_setup(void)
 	set_cr(reg | CR_M);
 }
 
+static int mmu_enabled(void)
+{
+	return get_cr() & CR_M;
+}
+
 /* cache_bit must be either CR_I or CR_C */
 static void cache_enable(uint32_t cache_bit)
 {
 	uint32_t reg;
 
 	/* The data cache is not active unless the mmu is enabled too */
-	if (cache_bit == CR_C)
+	if ((cache_bit == CR_C) && !mmu_enabled())
 		mmu_setup();
 	reg = get_cr();	/* get control reg. */
 	cp_delay();
@@ -117,7 +122,7 @@ static void cache_disable(uint32_t cache_bit)
 			return;
 		/* if disabling data cache, disable mmu too */
 		cache_bit |= CR_M;
-		flush_cache(0, ~0);
+		flush_dcache_all();
 	}
 	reg = get_cr();
 	cp_delay();

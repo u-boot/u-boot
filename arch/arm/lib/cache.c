@@ -42,3 +42,14 @@ void  __flush_cache(unsigned long start, unsigned long size)
 }
 void  flush_cache(unsigned long start, unsigned long size)
 	__attribute__((weak, alias("__flush_cache")));
+
+/*
+ * Default implementation:
+ * do a range flush for the entire range
+ */
+void	__flush_dcache_all(void)
+{
+	flush_cache(0, ~0);
+}
+void	flush_dcache_all(void)
+	__attribute__((weak, alias("__flush_dcache_all")));
