@@ -653,6 +653,12 @@ Sedji Gaouaou<sedji.gaouaou@atmel.com>
 	at91sam9g10ek		ARM926EJS (AT91SAM9G10 SoC)
 	at91sam9m10g45ek	ARM926EJS (AT91SAM9G45 SoC)
 
+Simon Guinot <simon.guinot@sequanux.org>
+
+	inetspace_v2	ARM926EJS (Kirkwood SoC)
+	netspace_v2	ARM926EJS (Kirkwood SoC)
+	netspace_max_v2	ARM926EJS (Kirkwood SoC)
+
 Marius Gröger <mag@sysgo.de>
 
 	impa7		ARM720T (EP7211)
