@@ -128,6 +128,10 @@
 #define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_SYS_USB_EHCI_MAX_ROOT_PORTS 3
+#define CONFIG_USB_HOST_ETHER
+#define CONFIG_USB_ETHER_SMSC95XX
+
+#define CONFIG_NET_MULTI
 
 /* commands to include */
 #include <config_cmd_default.h>
@@ -148,13 +152,15 @@
 #define CONFIG_USB_STORAGE	/* USB storage support		*/
 #define CONFIG_CMD_NAND		/* NAND support			*/
 #define CONFIG_CMD_LED		/* LED support			*/
+#define CONFIG_CMD_NET      /* bootp, tftpboot, rarpboot    */
+#define CONFIG_CMD_NFS      /* NFS support          */
+#define CONFIG_CMD_PING
+
 
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
 #undef CONFIG_CMD_IMI		/* iminfo			*/
 #undef CONFIG_CMD_IMLS		/* List all found images	*/
-#undef CONFIG_CMD_NET		/* bootp, tftpboot, rarpboot	*/
-#undef CONFIG_CMD_NFS		/* NFS support			*/
 
 #define CONFIG_SYS_NO_FLASH
 #define CONFIG_HARD_I2C			1
