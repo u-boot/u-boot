@@ -216,6 +216,16 @@ int misc_init_r(void)
 					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
 					TWL4030_PM_RECEIVER_DEV_GRP_P1);
 		break;
+	case REVISION_XM_C:
+		printf("Beagle xM Rev C\n");
+		setenv("beaglerev", "xMC");
+		MUX_BEAGLE_XM();
+		/* Set VAUX2 to 1.8V for EHCI PHY */
+		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
+					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
+					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
+					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+		break;
 	default:
 		printf("Beagle unknown 0x%02x\n", get_board_revision());
 		MUX_BEAGLE_XM();
