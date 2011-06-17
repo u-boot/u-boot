@@ -356,6 +356,12 @@ int ehci_hcd_stop(void)
 	pr_debug("Resetting OMAP3 EHCI\n");
 	omap_set_gpio_dataout(GPIO_PHY_RESET, 0);
 	writel(OMAP_UHH_SYSCONFIG_SOFTRESET, OMAP3_UHH_BASE + OMAP_UHH_SYSCONFIG);
+	/* disable USB clocks */
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+	sr32(&prcm_base->iclken_usbhost, 0, 1, 0);
+	sr32(&prcm_base->fclken_usbhost, 0, 2, 0);
+	sr32(&prcm_base->iclken3_core, 2, 1, 0);
+	sr32(&prcm_base->fclken3_core, 2, 1, 0);
 	return 0;
 }
 
