@@ -48,17 +48,21 @@ CONFIG_NETCONSOLE = y
 CONFIG_SHA1_CHECK_UB_IMG = y
 endif
 
+# Merge all the different vars for envcrc into one
+ENVCRC-$(CONFIG_ENV_IS_EMBEDDED) = y
+ENVCRC-$(CONFIG_ENV_IS_IN_DATAFLASH) = y
+ENVCRC-$(CONFIG_ENV_IS_IN_EEPROM) = y
+ENVCRC-$(CONFIG_ENV_IS_IN_FLASH) = y
+ENVCRC-$(CONFIG_ENV_IS_IN_ONENAND) = y
+ENVCRC-$(CONFIG_ENV_IS_IN_NAND) = y
+ENVCRC-$(CONFIG_ENV_IS_IN_NVRAM) = y
+ENVCRC-$(CONFIG_ENV_IS_IN_SPI_FLASH) = y
+CONFIG_BUILD_ENVCRC ?= $(ENVCRC-y)
+
 # Generated executable files
 BIN_FILES-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
 BIN_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
-BIN_FILES-$(CONFIG_ENV_IS_EMBEDDED) += envcrc$(SFX)
-BIN_FILES-$(CONFIG_ENV_IS_IN_DATAFLASH) += envcrc$(SFX)
-BIN_FILES-$(CONFIG_ENV_IS_IN_EEPROM) += envcrc$(SFX)
-BIN_FILES-$(CONFIG_ENV_IS_IN_FLASH) += envcrc$(SFX)
-BIN_FILES-$(CONFIG_ENV_IS_IN_ONENAND) += envcrc$(SFX)
-BIN_FILES-$(CONFIG_ENV_IS_IN_NAND) += envcrc$(SFX)
-BIN_FILES-$(CONFIG_ENV_IS_IN_NVRAM) += envcrc$(SFX)
-BIN_FILES-$(CONFIG_ENV_IS_IN_SPI_FLASH) += envcrc$(SFX)
+BIN_FILES-$(CONFIG_BUILD_ENVCRC) += envcrc$(SFX)
 BIN_FILES-$(CONFIG_CMD_NET) += gen_eth_addr$(SFX)
 BIN_FILES-$(CONFIG_CMD_LOADS) += img2srec$(SFX)
 BIN_FILES-$(CONFIG_INCA_IP) += inca-swap-bytes$(SFX)
@@ -67,7 +71,7 @@ BIN_FILES-$(CONFIG_NETCONSOLE) += ncb$(SFX)
 BIN_FILES-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1$(SFX)
 
 # Source files which exist outside the tools directory
-EXT_OBJ_FILES-y += common/env_embedded.o
+EXT_OBJ_FILES-$(CONFIG_BUILD_ENVCRC) += common/env_embedded.o
 EXT_OBJ_FILES-y += common/image.o
 EXT_OBJ_FILES-y += lib/crc32.o
 EXT_OBJ_FILES-y += lib/md5.o
@@ -77,7 +81,7 @@ EXT_OBJ_FILES-y += lib/sha1.o
 OBJ_FILES-$(CONFIG_LCD_LOGO) += bmp_logo.o
 OBJ_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo.o
 NOPED_OBJ_FILES-y += default_image.o
-OBJ_FILES-y += envcrc.o
+OBJ_FILES-$(CONFIG_BUILD_ENVCRC) += envcrc.o
 NOPED_OBJ_FILES-y += fit_image.o
 OBJ_FILES-$(CONFIG_CMD_NET) += gen_eth_addr.o
 OBJ_FILES-$(CONFIG_CMD_LOADS) += img2srec.o
