@@ -154,36 +154,6 @@ RELFLAGS= $(PLATFORM_RELFLAGS)
 DBGFLAGS= -g # -DDEBUG
 OPTFLAGS= -Os #-fomit-frame-pointer
 
-# If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
-# that (or fail if absent).  Otherwise, search for a linker script in a
-# standard location.
-
-ifndef LDSCRIPT
-	#LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
-	ifdef CONFIG_SYS_LDSCRIPT
-		# need to strip off double quotes
-		LDSCRIPT := $(subst ",,$(CONFIG_SYS_LDSCRIPT))
-	endif
-endif
-
-ifndef LDSCRIPT
-	ifeq ($(CONFIG_NAND_U_BOOT),y)
-		LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
-		ifeq ($(wildcard $(LDSCRIPT)),)
-			LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
-		endif
-	endif
-	ifeq ($(wildcard $(LDSCRIPT)),)
-		LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds
-	endif
-	ifeq ($(wildcard $(LDSCRIPT)),)
-		LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot.lds
-	endif
-	ifeq ($(wildcard $(LDSCRIPT)),)
-$(error could not find linker script)
-	endif
-endif
-
 OBJCFLAGS += --gap-fill=0xff
 
 gccincdir := $(shell $(CC) -print-file-name=include)

@@ -163,6 +163,36 @@ endif
 # load other configuration
 include $(TOPDIR)/config.mk
 
+# If board code explicitly specified LDSCRIPT or CONFIG_SYS_LDSCRIPT, use
+# that (or fail if absent).  Otherwise, search for a linker script in a
+# standard location.
+
+ifndef LDSCRIPT
+	#LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds.debug
+	ifdef CONFIG_SYS_LDSCRIPT
+		# need to strip off double quotes
+		LDSCRIPT := $(subst ",,$(CONFIG_SYS_LDSCRIPT))
+	endif
+endif
+
+ifndef LDSCRIPT
+	ifeq ($(CONFIG_NAND_U_BOOT),y)
+		LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot-nand.lds
+		ifeq ($(wildcard $(LDSCRIPT)),)
+			LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot-nand.lds
+		endif
+	endif
+	ifeq ($(wildcard $(LDSCRIPT)),)
+		LDSCRIPT := $(TOPDIR)/board/$(BOARDDIR)/u-boot.lds
+	endif
+	ifeq ($(wildcard $(LDSCRIPT)),)
+		LDSCRIPT := $(TOPDIR)/$(CPUDIR)/u-boot.lds
+	endif
+	ifeq ($(wildcard $(LDSCRIPT)),)
+$(error could not find linker script)
+	endif
+endif
+
 #########################################################################
 # U-Boot objects....order is important (i.e. start must be first)
 
