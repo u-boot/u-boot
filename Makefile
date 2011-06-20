@@ -140,7 +140,7 @@ SUBDIRS	= tools \
 	  examples/standalone \
 	  examples/api
 
-.PHONY : $(SUBDIRS)
+.PHONY : $(SUBDIRS) $(VERSION_FILE)
 
 ifeq ($(obj)include/config.mk,$(wildcard $(obj)include/config.mk))
 
@@ -293,7 +293,7 @@ LIBS += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
 
 LIBS := $(addprefix $(obj),$(sort $(LIBS)))
-.PHONY : $(LIBS) $(TIMESTAMP_FILE) $(VERSION_FILE)
+.PHONY : $(LIBS) $(TIMESTAMP_FILE)
 
 LIBBOARD = board/$(BOARDDIR)/lib$(BOARD).o
 LIBBOARD := $(addprefix $(obj),$(LIBBOARD))
@@ -452,19 +452,6 @@ mmc_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend
 
 $(obj)mmc_spl/u-boot-mmc-spl.bin:	mmc_spl
 
-$(VERSION_FILE):
-		@( localvers='$(shell $(TOPDIR)/tools/setlocalversion $(TOPDIR))' ; \
-		   printf '#define PLAIN_VERSION "%s%s"\n' \
-			"$(U_BOOT_VERSION)" "$${localvers}" ; \
-		   printf '#define U_BOOT_VERSION "U-Boot %s%s"\n' \
-			"$(U_BOOT_VERSION)" "$${localvers}" ; \
-		) > $@.tmp
-		@( printf '#define CC_VERSION_STRING "%s"\n' \
-		 '$(shell $(CC) --version | head -n 1)' )>>  $@.tmp
-		@( printf '#define LD_VERSION_STRING "%s"\n' \
-		 '$(shell $(LD) -v | head -n 1)' )>>  $@.tmp
-		@cmp -s $@ $@.tmp && rm -f $@.tmp || mv -f $@.tmp $@
-
 $(TIMESTAMP_FILE):
 		@LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"' > $@
 		@LC_ALL=C date +'#define U_BOOT_TIME "%T"' >> $@
@@ -539,20 +526,33 @@ $(obj)lib/asm-offsets.s:	$(obj)include/autoconf.mk.dep \
 else	# !config.mk
 all $(obj)u-boot.hex $(obj)u-boot.srec $(obj)u-boot.bin \
 $(obj)u-boot.img $(obj)u-boot.dis $(obj)u-boot \
-$(filter-out tools,$(SUBDIRS)) $(TIMESTAMP_FILE) $(VERSION_FILE) \
+$(filter-out tools,$(SUBDIRS)) $(TIMESTAMP_FILE) \
 updater depend dep tags ctags etags cscope $(obj)System.map:
 	@echo "System not configured - see README" >&2
 	@ exit 1
 
-tools:
+tools: $(VERSION_FILE)
 	$(MAKE) -C $@ all
 endif	# config.mk
+
+$(VERSION_FILE):
+		@( localvers='$(shell $(TOPDIR)/tools/setlocalversion $(TOPDIR))' ; \
+		   printf '#define PLAIN_VERSION "%s%s"\n' \
+			"$(U_BOOT_VERSION)" "$${localvers}" ; \
+		   printf '#define U_BOOT_VERSION "U-Boot %s%s"\n' \
+			"$(U_BOOT_VERSION)" "$${localvers}" ; \
+		) > $@.tmp
+		@( printf '#define CC_VERSION_STRING "%s"\n' \
+		 '$(shell $(CC) --version | head -n 1)' )>>  $@.tmp
+		@( printf '#define LD_VERSION_STRING "%s"\n' \
+		 '$(shell $(LD) -v | head -n 1)' )>>  $@.tmp
+		@cmp -s $@ $@.tmp && rm -f $@.tmp || mv -f $@.tmp $@
 
 easylogo env gdb:
 	$(MAKE) -C tools/$@ all MTD_VERSION=${MTD_VERSION}
 gdbtools: gdb
 
-tools-all: easylogo env gdb
+tools-all: easylogo env gdb $(VERSION_FILE)
 	$(MAKE) -C tools HOST_TOOLS_ALL=y
 
 .PHONY : CHANGELOG
