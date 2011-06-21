@@ -14,10 +14,11 @@
 
 #define BOOT_MODE_REG     (XPSS_SYS_CTRL_BASEADDR + 0x25C)
 #define BOOT_MODES_MASK    0x0000000F
+#define QSPI_MODE         (0x00000001)            /**< QSPI */
 #define NOR_FLASH_MODE    (0x00000002)            /**< NOR  */
 #define NAND_FLASH_MODE   (0x00000004)            /**< NAND */
-#define QSPI_MODE         (0x00000008)            /**< QSPI */
-#define SD_MODE           (0x0000000C)            /**< Secure Digital card */
+#define SD_MODE           (0x00000005)            /**< Secure Digital card */
+
 
 
 DECLARE_GLOBAL_DATA_PTR;
