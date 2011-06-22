@@ -75,6 +75,9 @@
 #define MMC_CMD_READ_MULTIPLE_BLOCK	18
 #define MMC_CMD_WRITE_SINGLE_BLOCK	24
 #define MMC_CMD_WRITE_MULTIPLE_BLOCK	25
+#define MMC_CMD_ERASE_GROUP_START	35
+#define MMC_CMD_ERASE_GROUP_END		36
+#define MMC_CMD_ERASE			38
 #define MMC_CMD_APP_CMD			55
 #define MMC_CMD_SPI_READ_OCR		58
 #define MMC_CMD_SPI_CRC_ON_OFF		59
@@ -84,6 +87,8 @@
 #define SD_CMD_SEND_IF_COND		8
 
 #define SD_CMD_APP_SET_BUS_WIDTH	6
+#define SD_CMD_ERASE_WR_BLK_START	32
+#define SD_CMD_ERASE_WR_BLK_END		33
 #define SD_CMD_APP_SEND_OP_COND		41
 #define SD_CMD_APP_SEND_SCR		51
 
@@ -98,6 +103,8 @@
 #define OCR_HCS			0x40000000
 #define OCR_VOLTAGE_MASK	0x007FFF80
 #define OCR_ACCESS_MODE		0x60000000
+
+#define SECURE_ERASE		0x80000000
 
 #define MMC_STATUS_MASK		(~0x0206BF7F)
 #define MMC_STATUS_RDY_FOR_DATA (1 << 8)
@@ -285,6 +292,7 @@ struct mmc {
 	uint tran_speed;
 	uint read_bl_len;
 	uint write_bl_len;
+	uint erase_grp_size;
 	u64 capacity;
 	block_dev_desc_t block_dev;
 	int (*send_cmd)(struct mmc *mmc,

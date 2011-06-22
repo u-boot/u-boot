@@ -174,6 +174,88 @@ struct mmc *find_mmc_device(int dev_num)
 	return NULL;
 }
 
+static ulong mmc_erase_t(struct mmc *mmc, ulong start, lbaint_t blkcnt)
+{
+	struct mmc_cmd cmd;
+	ulong end;
+	int err, start_cmd, end_cmd;
+
+	if (mmc->high_capacity)
+		end = start + blkcnt - 1;
+	else {
+		end = (start + blkcnt - 1) * mmc->write_bl_len;
+		start *= mmc->write_bl_len;
+	}
+
+	if (IS_SD(mmc)) {
+		start_cmd = SD_CMD_ERASE_WR_BLK_START;
+		end_cmd = SD_CMD_ERASE_WR_BLK_END;
+	} else {
+		start_cmd = MMC_CMD_ERASE_GROUP_START;
+		end_cmd = MMC_CMD_ERASE_GROUP_END;
+	}
+
+	cmd.cmdidx = start_cmd;
+	cmd.cmdarg = start;
+	cmd.resp_type = MMC_RSP_R1;
+	cmd.flags = 0;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err)
+		goto err_out;
+
+	cmd.cmdidx = end_cmd;
+	cmd.cmdarg = end;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err)
+		goto err_out;
+
+	cmd.cmdidx = MMC_CMD_ERASE;
+	cmd.cmdarg = SECURE_ERASE;
+	cmd.resp_type = MMC_RSP_R1b;
+
+	err = mmc_send_cmd(mmc, &cmd, NULL);
+	if (err)
+		goto err_out;
+
+	return 0;
+
+err_out:
+	puts("mmc erase failed\n");
+	return err;
+}
+
+static unsigned long
+mmc_berase(int dev_num, unsigned long start, lbaint_t blkcnt)
+{
+	int err = 0;
+	struct mmc *mmc = find_mmc_device(dev_num);
+	lbaint_t blk = 0, blk_r = 0;
+
+	if (!mmc)
+		return -1;
+
+	if ((start % mmc->erase_grp_size) || (blkcnt % mmc->erase_grp_size))
+		printf("\n\nCaution! Your devices Erase group is 0x%x\n"
+			"The erase range would be change to 0x%lx~0x%lx\n\n",
+		       mmc->erase_grp_size, start & ~(mmc->erase_grp_size - 1),
+		       ((start + blkcnt + mmc->erase_grp_size)
+		       & ~(mmc->erase_grp_size - 1)) - 1);
+
+	while (blk < blkcnt) {
+		blk_r = ((blkcnt - blk) > mmc->erase_grp_size) ?
+			mmc->erase_grp_size : (blkcnt - blk);
+		err = mmc_erase_t(mmc, start + blk, blk_r);
+		if (err)
+			break;
+
+		blk += blk_r;
+	}
+
+	return blk;
+}
+
 static ulong
 mmc_write_blocks(struct mmc *mmc, ulong start, lbaint_t blkcnt, const void*src)
 {
@@ -911,6 +993,10 @@ int mmc_startup(struct mmc *mmc)
 			return err;
 	}
 
+	/*
+	 * For SD, its erase group is always one sector
+	 */
+	mmc->erase_grp_size = 1;
 	mmc->part_config = MMCPART_NOAVAILABLE;
 	if (!IS_SD(mmc) && (mmc->version >= MMC_VERSION_4)) {
 		/* check  ext_csd version and capacity */
@@ -919,6 +1005,21 @@ int mmc_startup(struct mmc *mmc)
 			mmc->capacity = ext_csd[212] << 0 | ext_csd[213] << 8 |
 					ext_csd[214] << 16 | ext_csd[215] << 24;
 			mmc->capacity *= 512;
+		}
+
+		/*
+		 * Check whether GROUP_DEF is set, if yes, read out
+		 * group size from ext_csd directly, or calculate
+		 * the group size from the csd value.
+		 */
+		if (ext_csd[175])
+			mmc->erase_grp_size = ext_csd[224] * 512 * 1024;
+		else {
+			int erase_gsz, erase_gmul;
+			erase_gsz = (mmc->csd[2] & 0x00007c00) >> 10;
+			erase_gmul = (mmc->csd[2] & 0x000003e0) >> 5;
+			mmc->erase_grp_size = (erase_gsz + 1)
+				* (erase_gmul + 1);
 		}
 
 		/* store the partition info of emmc */
@@ -1044,6 +1145,7 @@ int mmc_register(struct mmc *mmc)
 	mmc->block_dev.removable = 1;
 	mmc->block_dev.block_read = mmc_bread;
 	mmc->block_dev.block_write = mmc_bwrite;
+	mmc->block_dev.block_erase = mmc_berase;
 	if (!mmc->b_max)
 		mmc->b_max = CONFIG_SYS_MMC_MAX_BLK_COUNT;
 

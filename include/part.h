@@ -49,6 +49,9 @@ typedef struct block_dev_desc {
 				       unsigned long start,
 				       lbaint_t blkcnt,
 				       const void *buffer);
+	unsigned long   (*block_erase)(int dev,
+				       unsigned long start,
+				       lbaint_t blkcnt);
 	void		*priv;		/* driver private struct pointer */
 }block_dev_desc_t;
 
