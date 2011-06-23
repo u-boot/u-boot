@@ -391,15 +391,15 @@ void main_loop (void)
 
 # ifdef CONFIG_MENUKEY
 	if (menukey == CONFIG_MENUKEY) {
-	    s = getenv("menucmd");
-	    if (s) {
+		s = getenv("menucmd");
+		if (s) {
 # ifndef CONFIG_SYS_HUSH_PARSER
-		run_command (s, 0);
+			run_command(s, 0);
 # else
-		parse_string_outer(s, FLAG_PARSE_SEMICOLON |
-				    FLAG_EXIT_FROM_LOOP);
+			parse_string_outer(s, FLAG_PARSE_SEMICOLON |
+						FLAG_EXIT_FROM_LOOP);
 # endif
-	    }
+		}
 	}
 #endif /* CONFIG_MENUKEY */
 #endif /* CONFIG_BOOTDELAY */
