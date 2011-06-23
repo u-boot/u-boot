@@ -62,6 +62,13 @@ PLATFORM_LIBS += $(OBJTREE)/arch/arm/lib/eabi_compat.o
 endif
 endif
 
+ifdef CONFIG_SYS_LDSCRIPT
+# need to strip off double quotes
+LDSCRIPT := $(subst ",,$(CONFIG_SYS_LDSCRIPT))
+else
+LDSCRIPT := $(SRCTREE)/$(CPUDIR)/u-boot.lds
+endif
+
 # needed for relocation
 ifndef CONFIG_NAND_SPL
 LDFLAGS_u-boot += -pie

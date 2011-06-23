@@ -32,7 +32,7 @@ SECTIONS
 	.text : {
 		arch/arm/cpu/ixp/start.o(.text*)
 		net/libnet.o(.text*)
-		board/actux2/libactux2.o(.text*)
+		board/dvlhost/libdvlhost.o(.text*)
 		arch/arm/cpu/ixp/libixp.o(.text*)
 		drivers/serial/libserial.o(.text*)
 

@@ -30,15 +30,15 @@ SECTIONS
 
 	. = ALIGN (4);
 	.text : {
-		arch/arm/cpu/ixp/start.o(.text)
-		lib/string.o(.text)
-		lib/vsprintf.o(.text)
-		arch/arm/lib/board.o(.text)
-		common/dlmalloc.o(.text)
-		arch/arm/cpu/ixp/cpu.o(.text)
+		arch/arm/cpu/ixp/start.o(.text*)
+		net/libnet.o(.text*)
+		board/actux1/libactux1.o(.text*)
+		arch/arm/cpu/ixp/libixp.o(.text*)
+		drivers/serial/libserial.o(.text*)
+
 		. = env_offset;
 		common/env_embedded.o(.ppcenv)
-		* (.text)
+		*(.text*)
 	}
 
 	. = ALIGN (4);
@@ -47,7 +47,7 @@ SECTIONS
 	}
 	. = ALIGN (4);
 	.data : {
-		*(.data)
+		*(.data*)
 	}
 	. = ALIGN (4);
 	.got : {
@@ -61,10 +61,27 @@ SECTIONS
 	__u_boot_cmd_end =.;
 
 	. = ALIGN (4);
-	__bss_start =.;
-	.bss (NOLOAD): {
-		*(.bss)
-		. = ALIGN(4);
+	.rel.dyn : {
+		__rel_dyn_start = .;
+		*(.rel*)
+		__rel_dyn_end = .;
+	}
+
+	.dynsym : {
+		__dynsym_start = .;
+		*(.dynsym)
+	}
+
+	.bss __rel_dyn_start (OVERLAY) : {
+		__bss_start = .;
+		*(.bss*)
+		 . = ALIGN(4);
+		_end = .;
 	}
 	__bss_end__ =.;
+	/DISCARD/ : { *(.dynstr*) }
+	/DISCARD/ : { *(.dynamic*) }
+	/DISCARD/ : { *(.plt*) }
+	/DISCARD/ : { *(.interp*) }
+	/DISCARD/ : { *(.gnu*) }
 }

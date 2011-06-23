@@ -43,50 +43,55 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int board_init (void)
+int board_early_init_f(void)
+{
+	/* CS1: IPAC-X */
+	writel(0x94d10013, IXP425_EXP_CS1);
+	/* CS5: Debug port */
+	writel(0x9d520003, IXP425_EXP_CS5);
+	/* CS6: HW release register */
+	writel(0x81860001, IXP425_EXP_CS6);
+	/* CS7: LEDs */
+	writel(0x80900003, IXP425_EXP_CS7);
+
+	return 0;
+}
+
+int board_init(void)
 {
 	gd->bd->bi_arch_number = MACH_TYPE_ACTUX2;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;
 
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_IORST);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_ETHRST);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_DSR);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_DCD);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_IORST);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_ETHRST);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_DSR);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_DCD);
 
-	GPIO_OUTPUT_CLEAR (CONFIG_SYS_GPIO_IORST);
-	GPIO_OUTPUT_CLEAR (CONFIG_SYS_GPIO_ETHRST);
+	GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_IORST);
+	GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_ETHRST);
 
-	GPIO_OUTPUT_CLEAR (CONFIG_SYS_GPIO_DSR);
-	GPIO_OUTPUT_SET (CONFIG_SYS_GPIO_DCD);
+	GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_DSR);
+	GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_DCD);
 
-	/* Setup GPIO's for Interrupt inputs */
-	GPIO_OUTPUT_DISABLE (CONFIG_SYS_GPIO_DBGINT);
-	GPIO_OUTPUT_DISABLE (CONFIG_SYS_GPIO_ETHINT);
+	/* Setup GPIOs for Interrupt inputs */
+	GPIO_OUTPUT_DISABLE(CONFIG_SYS_GPIO_DBGINT);
+	GPIO_OUTPUT_DISABLE(CONFIG_SYS_GPIO_ETHINT);
 
-	/* Setup GPIO's for 33MHz clock output */
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_PCI_CLK);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_EXTBUS_CLK);
-	*IXP425_GPIO_GPCLKR = 0x011001FF;
+	/* Setup GPIOs for 33MHz clock output */
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_PCI_CLK);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_EXTBUS_CLK);
+	writel(0x011001FF, IXP425_GPIO_GPCLKR);
 
-	/* CS1: IPAC-X */
-	*IXP425_EXP_CS1 = 0x94d10013;
-	/* CS5: Debug port */
-	*IXP425_EXP_CS5 = 0x9d520003;
-	/* CS6: HW release register */
-	*IXP425_EXP_CS6 = 0x81860001;
-	/* CS7: LEDs */
-	*IXP425_EXP_CS7 = 0x80900003;
+	udelay(533);
+	GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_IORST);
+	GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_ETHRST);
 
-	udelay (533);
-	GPIO_OUTPUT_SET (CONFIG_SYS_GPIO_IORST);
-	GPIO_OUTPUT_SET (CONFIG_SYS_GPIO_ETHRST);
-
-	ACTUX2_LED1 (1);
-	ACTUX2_LED2 (0);
-	ACTUX2_LED3 (0);
-	ACTUX2_LED4 (0);
+	ACTUX2_LED1(1);
+	ACTUX2_LED2(0);
+	ACTUX2_LED3(0);
+	ACTUX2_LED4(0);
 
 	return 0;
 }
@@ -94,29 +99,27 @@ int board_init (void)
 /*
  * Check Board Identity
  */
-int checkboard (void)
+int checkboard(void)
 {
 	char buf[64];
 	int i = getenv_f("serial#", buf, sizeof(buf));
 
-	puts ("Board: AcTux-2 rev.");
-	putc (ACTUX2_BOARDREL + 'A' - 1);
+	puts("Board: AcTux-2 rev.");
+	putc(ACTUX2_BOARDREL + 'A' - 1);
 
 	if (i > 0) {
 		puts(", serial# ");
 		puts(buf);
 	}
-	putc ('\n');
+	putc('\n');
 
-	return (0);
+	return 0;
 }
 
-int dram_init (void)
+int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
-	return (0);
+	gd->ram_size = get_ram_size(CONFIG_SYS_SDRAM_BASE, 128<<20);
+	return 0;
 }
 
 /*************************************************************************
@@ -125,13 +128,13 @@ int dram_init (void)
  * 1 = Rev. A
  * 2 = Rev. B
  *************************************************************************/
-u32 get_board_rev (void)
+u32 get_board_rev(void)
 {
 	return ACTUX2_BOARDREL;
 }
 
-void reset_phy (void)
+void reset_phy(void)
 {
 	/* init IcPlus IP175C ethernet switch to native IP175C mode */
-	miiphy_write ("NPE0", 29, 31, 0x175C);
+	miiphy_write("NPE0", 29, 31, 0x175C);
 }

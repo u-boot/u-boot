@@ -1,4 +1,7 @@
 /*
+ * (C) Copyright 2010
+ * Michael Schwingen, michael@schwingen.org
+ *
  * (C) Copyright 2006
  * Stefan Roese, DENX Software Engineering, sr@denx.de.
  *
@@ -31,105 +34,94 @@
 
 #include <common.h>
 #include <asm/arch/ixp425.h>
+#include <asm/io.h>
+#include <div64.h>
 
-#ifdef CONFIG_TIMER_IRQ
-
-#define FREQ		66666666
-#define CLOCK_TICK_RATE	(((FREQ / CONFIG_SYS_HZ & ~IXP425_OST_RELOAD_MASK) + 1) * CONFIG_SYS_HZ)
-#define LATCH		((CLOCK_TICK_RATE + CONFIG_SYS_HZ/2) / CONFIG_SYS_HZ)	/* For divider */
+DECLARE_GLOBAL_DATA_PTR;
 
 /*
- * When interrupts are enabled, use timer 2 for time/delay generation...
+ * The IXP42x time-stamp timer runs at 2*OSC_IN (66.666MHz when using a
+ * 33.333MHz crystal).
  */
-
-static volatile ulong timestamp;
-
-static void timer_isr(void *data)
+static inline unsigned long long tick_to_time(unsigned long long tick)
 {
-	unsigned int *pTime = (unsigned int *)data;
-
-	(*pTime)++;
-
-	/*
-	 * Reset IRQ source
-	 */
-	*IXP425_OSST = IXP425_OSST_TIMER_2_PEND;
+	tick *= CONFIG_SYS_HZ;
+	do_div(tick, CONFIG_IXP425_TIMER_CLK);
+	return tick;
 }
 
-ulong get_timer (ulong base)
+static inline unsigned long long time_to_tick(unsigned long long time)
 {
-	return timestamp - base;
+	time *= CONFIG_IXP425_TIMER_CLK;
+	do_div(time, CONFIG_SYS_HZ);
+	return time;
 }
 
-void reset_timer (void)
+static inline unsigned long long us_to_tick(unsigned long long us)
 {
-	timestamp = 0;
+	us = us * CONFIG_IXP425_TIMER_CLK + 999999;
+	do_div(us, 1000000);
+	return us;
 }
 
-int timer_init (void)
+unsigned long long get_ticks(void)
 {
-	/* install interrupt handler for timer */
-	irq_install_handler(IXP425_TIMER_2_IRQ, timer_isr, (void *)&timestamp);
+	ulong now = readl(IXP425_OSTS_B);
 
-	/* setup the Timer counter value */
-	*IXP425_OSRT2 = (LATCH & ~IXP425_OST_RELOAD_MASK) | IXP425_OST_ENABLE;
-
-	/* enable timer irq */
-	*IXP425_ICMR = (1 << IXP425_TIMER_2_IRQ);
-
-	return 0;
-}
-#else
-ulong get_timer (ulong base)
-{
-       return get_timer_masked () - base;
-}
-
-void ixp425_udelay(unsigned long usec)
-{
-	/*
-	 * This function has a max usec, but since it is called from udelay
-	 * we should not have to worry... be happy
-	 */
-	unsigned long usecs = CONFIG_SYS_HZ/1000000L & ~IXP425_OST_RELOAD_MASK;
-
-	*IXP425_OSST = IXP425_OSST_TIMER_1_PEND;
-	usecs |= IXP425_OST_ONE_SHOT | IXP425_OST_ENABLE;
-	*IXP425_OSRT1 = usecs;
-	while (!(*IXP425_OSST & IXP425_OSST_TIMER_1_PEND));
-}
-
-void __udelay (unsigned long usec)
-{
-	while (usec--) ixp425_udelay(1);
-}
-
-static ulong reload_constant = 0xfffffff0;
-
-void reset_timer_masked (void)
-{
-	ulong reload = reload_constant | IXP425_OST_ONE_SHOT | IXP425_OST_ENABLE;
-
-	*IXP425_OSST = IXP425_OSST_TIMER_1_PEND;
-	*IXP425_OSRT1 = reload;
-}
-
-ulong get_timer_masked (void)
-{
-	/*
-	 * Note that it is possible for this to wrap!
-	 * In this case we return max.
-	 */
-	ulong current = *IXP425_OST1;
-	if (*IXP425_OSST & IXP425_OSST_TIMER_1_PEND)
-	{
-		return reload_constant;
+	if (readl(IXP425_OSST) & IXP425_OSST_TIMER_TS_PEND) {
+		/* rollover of timestamp timer register */
+		gd->timestamp += (0xFFFFFFFF - gd->lastinc) + now + 1;
+		writel(IXP425_OSST_TIMER_TS_PEND, IXP425_OSST);
+	} else {
+		/* move stamp forward with absolut diff ticks */
+		gd->timestamp += (now - gd->lastinc);
 	}
-	return (reload_constant - current);
+	gd->lastinc = now;
+	return gd->timestamp;
+}
+
+
+void reset_timer_masked(void)
+{
+	/* capture current timestamp counter */
+	gd->lastinc = readl(IXP425_OSTS_B);
+	/* start "advancing" time stamp from 0 */
+	gd->timestamp = 0;
+}
+
+void reset_timer(void)
+{
+	reset_timer_masked();
+}
+
+ulong get_timer_masked(void)
+{
+	return tick_to_time(get_ticks());
+}
+
+ulong get_timer(ulong base)
+{
+	return get_timer_masked() - base;
+}
+
+void set_timer(ulong t)
+{
+	gd->timestamp = time_to_tick(t);
+}
+
+/* delay x useconds AND preserve advance timestamp value */
+void __udelay(unsigned long usec)
+{
+	unsigned long long tmp;
+
+	tmp = get_ticks() + us_to_tick(usec);
+
+	while (get_ticks() < tmp)
+		;
 }
 
 int timer_init(void)
 {
+	writel(IXP425_OSST_TIMER_TS_PEND, IXP425_OSST);
 	return 0;
 }
-#endif

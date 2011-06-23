@@ -36,8 +36,6 @@
 #include <asm/arch/ixp425.h>
 #include <asm/system.h>
 
-ulong loops_per_jiffy;
-
 static void cache_flush(void);
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
@@ -51,17 +49,14 @@ int print_cpuinfo (void)
 	puts("CPU:   Intel IXP425 at ");
 	switch ((id & 0x000003f0) >> 4) {
 	case 0x1c:
-		loops_per_jiffy = 887467;
 		speed = 533;
 		break;
 
 	case 0x1d:
-		loops_per_jiffy = 666016;
 		speed = 400;
 		break;
 
 	case 0x1f:
-		loops_per_jiffy = 442901;
 		speed = 266;
 		break;
 	}

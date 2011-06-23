@@ -1,8 +1,9 @@
 /*
- * (C) Copyright 2007
+ * (C) Copyright 2009
  * Michael Schwingen, michael@schwingen.org
  *
- * Configuration settings for the AcTux-1 board.
+ * Configuration settings for the
+ * dLAN200 AV Wireless G ("dvlhost") board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -27,25 +28,23 @@
 #define __CONFIG_H
 
 #define CONFIG_IXP425			1
-#define CONFIG_ACTUX1			1
+#define CONFIG_DVLHOST			1
 
 #define CONFIG_DISPLAY_CPUINFO		1
 #define CONFIG_DISPLAY_BOARDINFO	1
 
 #define CONFIG_IXP_SERIAL
-#define CONFIG_SYS_IXP425_CONSOLE		IXP425_UART2
+#define CONFIG_SYS_IXP425_CONSOLE	IXP425_UART2
 #define CONFIG_BAUDRATE			115200
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK	/* check for keypress on bootdelay==0 */
 #define CONFIG_BOARD_EARLY_INIT_F	1
-#define CONFIG_SYS_LDSCRIPT	"board/actux1/u-boot.lds"
+#define CONFIG_SYS_LDSCRIPT	"board/dvlhost/u-boot.lds"
 
 /***************************************************************
  * U-boot generic defines start here.
  ***************************************************************/
-/*
- * Size of malloc() pool
- */
+/* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN			(CONFIG_ENV_SIZE + 128*1024)
 
 /* allow to overwrite serial and ethaddr */
@@ -55,6 +54,7 @@
 #include <config_cmd_default.h>
 
 #define CONFIG_CMD_ELF
+#define CONFIG_PCI
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
 #define CONFIG_PCI_PNP
@@ -68,7 +68,6 @@
 #define CONFIG_CMDLINE_TAG		1
 #define CONFIG_SETUP_MEMORY_TAGS	1
 #define CONFIG_INITRD_TAG		1
-#define CONFIG_REVISION_TAG		1
 
 #if defined(CONFIG_CMD_KGDB)
 # define CONFIG_KGDB_BAUDRATE		230400
@@ -78,89 +77,72 @@
 
 /* Miscellaneous configurable options */
 #define CONFIG_SYS_LONGHELP
-#define CONFIG_SYS_PROMPT			"=> "
+#define CONFIG_SYS_PROMPT		"=> "
 /* Console I/O Buffer Size */
-#define CONFIG_SYS_CBSIZE			256
+#define CONFIG_SYS_CBSIZE		256
 /* Print Buffer Size */
-#define CONFIG_SYS_PBSIZE			(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
+#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 /* max number of command args */
-#define CONFIG_SYS_MAXARGS			16
+#define CONFIG_SYS_MAXARGS		16
 /* Boot Argument Buffer Size */
-#define CONFIG_SYS_BARGSIZE			CONFIG_SYS_CBSIZE
+#define CONFIG_SYS_BARGSIZE		CONFIG_SYS_CBSIZE
 
-#define CONFIG_SYS_MEMTEST_START		0x00400000
-#define CONFIG_SYS_MEMTEST_END			0x00800000
+#define CONFIG_SYS_MEMTEST_START	0x00000000
+#define CONFIG_SYS_MEMTEST_END		0x01D80000
 
 /* timer clock - 2* OSC_IN system clock */
-#define CONFIG_IXP425_TIMER_CLK                 66666666
-#define CONFIG_SYS_HZ				1000
+#define CONFIG_IXP425_TIMER_CLK         66666666
+#define CONFIG_SYS_HZ			1000
 
 /* default load address */
-#define CONFIG_SYS_LOAD_ADDR			0x00010000
+#define CONFIG_SYS_LOAD_ADDR		0x00010000
 
 /* valid baudrates */
-#define CONFIG_SYS_BAUDRATE_TABLE		{ 9600, 19200, 38400, 57600,	\
+#define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, \
 					  115200, 230400 }
 #define CONFIG_SERIAL_RTS_ACTIVE	1
 
 /*
  * Stack sizes
+ *
  * The stack sizes are set up in start.S using the settings below
  */
 #define CONFIG_STACKSIZE		(128*1024)	/* regular stack */
 
 /* Expansion bus settings */
-#define CONFIG_SYS_EXP_CS0			0xbd113842
+#define CONFIG_SYS_EXP_CS0		0xbd113442
 
 /* SDRAM settings */
 #define CONFIG_NR_DRAM_BANKS		1
 #define PHYS_SDRAM_1			0x00000000
-#define CONFIG_SYS_SDRAM_BASE			0x00000000
+#define CONFIG_SYS_SDRAM_BASE		0x00000000
 
-#ifdef CONFIG_RAM_32MB
-# define CONFIG_SYS_SDR_CONFIG			0x18
-# define PHYS_SDRAM_1_SIZE		0x02000000
-# define CONFIG_SYS_SDRAM_REFRESH_CNT		0x81a
-# define CONFIG_SYS_SDR_MODE_CONFIG		0x1
-# define CONFIG_SYS_DRAM_SIZE			0x02000000
-#else /* 16MB SDRAM */
-# define CONFIG_SYS_SDR_CONFIG			0x3A
-# define PHYS_SDRAM_1_SIZE		0x01000000
-# define CONFIG_SYS_SDRAM_REFRESH_CNT		0x81a
-# define CONFIG_SYS_SDR_MODE_CONFIG		0x1
-# define CONFIG_SYS_DRAM_SIZE			0x01000000
-#endif
+/* 32MB SDRAM: 2* 8Mx16, CL3 */
+#define CONFIG_SYS_SDR_CONFIG		0x18
+#define PHYS_SDRAM_1_SIZE		0x02000000
+#define CONFIG_SYS_SDRAM_REFRESH_CNT	0x800
+#define CONFIG_SYS_SDR_MODE_CONFIG	0x1
+#define CONFIG_SYS_DRAM_SIZE		PHYS_SDRAM_1_SIZE
 
-
-
-/* FLASH organization */
+/* FLASH organization: one Spansion S29AL032D-04 Flash */
 #define CONFIG_SYS_TEXT_BASE		0x50000000
-#ifdef CONFIG_FLASH2X2
-# define CONFIG_SYS_MAX_FLASH_BANKS		2
+#define CONFIG_SYS_MAX_FLASH_BANKS	1
 /* max number of sectors on one chip */
-# define CONFIG_SYS_MAX_FLASH_SECT		40
-# define PHYS_FLASH_1			0x50000000
-# define PHYS_FLASH_2			0x50200000
-# define CONFIG_SYS_FLASH_BANKS_LIST		{ PHYS_FLASH_1, PHYS_FLASH_2 }
-#endif
-#ifdef CONFIG_FLASH1X8
-# define CONFIG_SYS_MAX_FLASH_BANKS		1
-/* max number of sectors on one chip */
-# define CONFIG_SYS_MAX_FLASH_SECT		140
-# define PHYS_FLASH_1			0x50000000
-# define CONFIG_SYS_FLASH_BANKS_LIST		{ PHYS_FLASH_1 }
-#endif
+#define CONFIG_SYS_MAX_FLASH_SECT	140
+#define PHYS_FLASH_1			0x50000000
+#define CONFIG_SYS_FLASH_BANKS_LIST	{ PHYS_FLASH_1 }
 
-#define CONFIG_SYS_FLASH_BASE			PHYS_FLASH_1
+#define CONFIG_SYS_FLASH_BASE		PHYS_FLASH_1
 #define CONFIG_SYS_MONITOR_BASE		PHYS_FLASH_1
-#define CONFIG_SYS_MONITOR_LEN			(256 << 10)
-#define CONFIG_BOARD_SIZE_LIMIT			262144
+#define CONFIG_SYS_MONITOR_LEN		(256 << 10)
+#define CONFIG_BOARD_SIZE_LIMIT         262144
 
 /* Use common CFI driver */
 #define CONFIG_SYS_FLASH_CFI
 #define CONFIG_FLASH_CFI_DRIVER
 /* no byte writes on IXP4xx */
-#define CONFIG_SYS_FLASH_CFI_WIDTH		FLASH_CFI_16BIT
+#define CONFIG_SYS_FLASH_CFI_WIDTH	FLASH_CFI_16BIT
+
 /* print 'E' for empty sector on flinfo */
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 
@@ -168,17 +150,28 @@
 
 /* include IXP4xx NPE support */
 #define CONFIG_IXP4XX_NPE		1
+
 #define CONFIG_NET_MULTI		1
-/* NPE0 PHY address */
-#define	CONFIG_PHY_ADDR			0
-/* NPE1 PHY address (HW Release E only) */
-#define	CONFIG_PHY1_ADDR		1
+/* NPE0 PHY: MII dLAN200 AVmodule, 100BaseT-FDX fixed */
+#define	CONFIG_PHY_ADDR			0x18
+/* NPE1 PHY: MII IP175 switch, port 5 is host port */
+#define	CONFIG_PHY1_ADDR		0x05
 /* MII PHY management */
 #define CONFIG_MII			1
-/* Number of ethernet rx buffers & descriptors */
-#define CONFIG_SYS_RX_ETH_BUFFER		16
-#define CONFIG_RESET_PHY_R		1
+/* fixed-speed powerline modem without standard PHY registers on MII */
+#define CONFIG_MII_NPE0_FIXEDLINK       1
+#define CONFIG_MII_NPE0_SPEED           100
+#define CONFIG_MII_NPE0_FULLDUPLEX      1
+/* fixed-speed switch without standard PHY registers on MII */
+#define CONFIG_MII_NPE1_FIXEDLINK       1
+#define CONFIG_MII_NPE1_SPEED           100
+#define CONFIG_MII_NPE1_FULLDUPLEX      1
 
+/* Number of ethernet rx buffers & descriptors */
+#define CONFIG_SYS_RX_ETH_BUFFER	16
+#define CONFIG_RESET_PHY_R		1
+/* ethernet switch connected to MII port */
+#define CONFIG_MII_ETHSWITCH		1
 #define CONFIG_HAS_ETH1			1
 
 #define CONFIG_CMD_DHCP
@@ -194,7 +187,7 @@
 #define CONFIG_BOOTP_HOSTNAME
 
 /* Cache Configuration */
-#define CONFIG_SYS_CACHELINE_SIZE		32
+#define CONFIG_SYS_CACHELINE_SIZE	32
 
 /*
  * environment organization:
@@ -203,21 +196,23 @@
 #define	CONFIG_ENV_IS_IN_FLASH		1
 #define CONFIG_ENV_SIZE			0x2000
 #define CONFIG_ENV_ADDR			(PHYS_FLASH_1 + 0x4000)
-#define CONFIG_SYS_USE_PPCENV			1
+#define CONFIG_SYS_USE_PPCENV		1
 
 #define CONFIG_EXTRA_ENV_SETTINGS					\
 	"npe_ucode=50040000\0"						\
-	"mtd=IXP4XX-Flash.0:256k(uboot),64k(ucode),1152k(linux),-(root)\0" \
+	"ethprime=NPE1\0"						\
+	"ethrotate=no\0"						\
+	"mtd=IXP4XX-Flash.0:256k(uboot),64k(ucode),1152k(linux),-(root),\0" \
 	"kerneladdr=50050000\0"						\
-	"kernelfile=actux1/uImage\0"					\
-	"rootfile=actux1/rootfs\0"					\
+	"kernelfile=dvlhost/uImage\0"					\
+	"rootfile=dvlhost/rootfs\0"					\
 	"rootaddr=50170000\0"						\
 	"loadaddr=10000\0"						\
 	"updateboot_ser=mw.b 10000 ff 40000;"				\
 	" loady ${loadaddr};"						\
 	" run eraseboot writeboot\0"					\
 	"updateboot_net=mw.b 10000 ff 40000;"				\
-	" tftp ${loadaddr} actux1/u-boot.bin;"				\
+	" tftp ${loadaddr} dvlhost/u-boot.bin;"				\
 	" run eraseboot writeboot\0"					\
 	"eraseboot=protect off 50000000 50003fff;"			\
 	" protect off 50006000 5003ffff;"				\
@@ -238,7 +233,7 @@
 	" rootfstype=squashfs,jffs2 init=/etc/preinit\0"		\
 	"netargs=setenv bootargs mtdparts=${mtd} root=/dev/mtdblock3"	\
 	" rootfstype=squashfs,jffs2 init=/etc/preinit\0"		\
-	"addtty=setenv bootargs ${bootargs} console=ttyS1,${baudrate}\0" \
+	"addtty=setenv bootargs ${bootargs} console=ttyS0,${baudrate}\0" \
 	"addeth=setenv bootargs ${bootargs} ethaddr=${ethaddr}\0"	\
 	"boot_flash=run flashargs addtty addeth;"			\
 	" bootm ${kerneladdr}\0"					\

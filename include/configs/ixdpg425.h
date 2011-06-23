@@ -53,9 +53,6 @@
 /*
  * Misc configuration options
  */
-#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
-#define CONFIG_USE_IRQ          1	/* we need IRQ stuff for timer	*/
-#define CONFIG_TIMER_IRQ
 
 #define CONFIG_BOOTCOUNT_LIMIT		/* support for bootcount limit	*/
 #define CONFIG_SYS_BOOTCOUNT_ADDR	0x60003000 /* inside qmrg sram		*/
@@ -115,6 +112,7 @@
 #define CONFIG_SYS_MEMTEST_END         0x00800000      /* 4 ... 8 MB in DRAM   */
 #define CONFIG_SYS_LOAD_ADDR           0x00010000      /* default load address */
 
+#define CONFIG_IXP425_TIMER_CLK		66666666
 #define CONFIG_SYS_HZ			1000		/* decrementer freq: 1 ms ticks */
 
 						/* valid baudrates */
@@ -178,6 +176,8 @@
 #define CONFIG_NR_DRAM_BANKS    1          /* we have 2 banks of DRAM */
 #define PHYS_SDRAM_1            0x00000000 /* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE       0x02000000 /* 32 MB */
+
+#define CONFIG_SYS_TEXT_BASE	0x50000000
 
 #define PHYS_FLASH_1            0x50000000 /* Flash Bank #1 */
 #define PHYS_FLASH_SIZE         0x01000000 /* 16 MB */
@@ -247,5 +247,10 @@
  * Cache Configuration
  */
 #define CONFIG_SYS_CACHELINE_SIZE	32
+
+/* additions for new relocation code, must be added to all boards */
+#define CONFIG_SYS_SDRAM_BASE 0
+#define CONFIG_SYS_INIT_SP_ADDR						\
+	(CONFIG_SYS_SDRAM_BASE + 0x1000 - GENERATED_GBL_DATA_SIZE)
 
 #endif  /* __CONFIG_H */

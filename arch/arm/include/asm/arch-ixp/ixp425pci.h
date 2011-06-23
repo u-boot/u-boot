@@ -22,87 +22,20 @@
  * MA 02111-1307 USA
  */
 
-#ifndef _IXP425PCI_H_
-#define _IXP425PCI_H_
+#ifndef _IXP425PCI_H
+#define _IXP425PCI_H
 
-#define TRUE	1
-#define FALSE	0
 #define OK	0
 #define ERROR	-1
-#define BOOL	int
 
-#define IXP425_PCI_MAX_BAR_PER_FUNC  6
-#define IXP425_PCI_MAX_BAR (IXP425_PCI_MAX_BAR_PER_FUNC * \
-			    IXP425_PCI_MAX_FUNC_ON_BUS)
-
-enum PciBarId
-{
-	CSR_BAR=0,
-	IO_BAR,
-	SD_BAR,
-	NO_BAR
-};
-
-/*Base address register descriptor*/
-typedef struct
-{
-	unsigned int size;
-	unsigned int address;
-} PciBar;
-
-typedef struct
-{
-	unsigned int bus;
-	unsigned int device;
-	unsigned int func;
-	unsigned int irq;
-	BOOL error;
-	unsigned short vendor_id;
-	unsigned short device_id;
-	/*We need an extra entry in this array for dummy placeholder*/
-	PciBar bar[IXP425_PCI_MAX_BAR_PER_FUNC + 1];
-} PciDevice;
+struct pci_controller;
+extern void pci_ixp_init(struct pci_controller *hose);
 
 /* Mask definitions*/
-#define IXP425_PCI_TOP_WORD_OF_LONG_MASK	0xffff0000
-#define IXP425_PCI_TOP_BYTE_OF_LONG_MASK	0xff000000
-#define IXP425_PCI_BOTTOM_WORD_OF_LONG_MASK	0x0000ffff
-#define IXP425_PCI_BOTTOM_TRIBYTES_OF_LONG_MASK 0x00ffffff
 #define IXP425_PCI_BOTTOM_NIBBLE_OF_LONG_MASK	0x0000000f
-#define IXP425_PCI_MAX_UINT32			0xffffffff
-
-
-#define IXP425_PCI_BAR_QUERY			0xffffffff
-
-#define IXP425_PCI_BAR_MEM_BASE 0x100000
-#define IXP425_PCI_BAR_IO_BASE	0x000000
-
-/*define the maximum number of bus segments - we support a single segment*/
-#define IXP425_PCI_MAX_BUS  1
-/*define the maximum number of cards per bus segment*/
-#define IXP425_PCI_MAX_DEV  4
-/*define the maximum number of functions per device*/
-#define IXP425_PCI_MAX_FUNC 8
-/* define the maximum number of separate functions that we can
-   potentially have on the bus*/
-#define IXP425_PCI_MAX_FUNC_ON_BUS (1+ IXP425_PCI_MAX_FUNC *	\
-				    IXP425_PCI_MAX_DEV *	\
-				    IXP425_PCI_MAX_BUS)
-/*define the maximum number of BARs per function*/
-#define IXP425_PCI_MAX_BAR_PER_FUNC  6
-#define IXP425_PCI_MAX_BAR (IXP425_PCI_MAX_BAR_PER_FUNC *	\
-			    IXP425_PCI_MAX_FUNC_ON_BUS)
 
 #define PCI_NP_CBE_BESL	 (4)
 #define PCI_NP_AD_FUNCSL (8)
-
-#define REG_WRITE(b,o,v) (*(volatile unsigned int*)((b+o))=(v))
-#define REG_READ(b,o,v)	 ((v)=(*(volatile unsigned int*)((b+o))))
-
-#define PCI_DELAY	500
-#define USEC_LOOP_COUNT 533
-#define PCI_SETTLE_USEC 200
-#define PCI_MIN_RESET_ASSERT_USEC 2000
 
 /*Register addressing definitions for PCI controller configuration
   and status registers*/
@@ -149,28 +82,6 @@ typedef struct
 #define NP_CMD_CONFIGREAD  (0xa)
 #define NP_CMD_CONFIGWRITE (0xb)
 */
-
-/*define the default setting of the AHB memory base reg*/
-#define IXP425_PCI_AHBMEMBASE_DEFAULT 0x00010203
-#define IXP425_PCI_AHBIOBASE_DEFAULT  0x0
-#define IXP425_PCI_PCIMEMBASE_DEFAULT 0x0
-
-/*define the default settings for the controller's BARs*/
-#ifdef IXP425_PCI_SIMPLE_MAPPING
-#define IXP425_PCI_BAR_0_DEFAULT 0x00000000
-#define IXP425_PCI_BAR_1_DEFAULT 0x01000000
-#define IXP425_PCI_BAR_2_DEFAULT 0x02000000
-#define IXP425_PCI_BAR_3_DEFAULT 0x03000000
-#define IXP425_PCI_BAR_4_DEFAULT 0x00000000
-#define IXP425_PCI_BAR_5_DEFAULT 0x00000000
-#else
-#define IXP425_PCI_BAR_0_DEFAULT 0x40000000
-#define IXP425_PCI_BAR_1_DEFAULT 0x41000000
-#define IXP425_PCI_BAR_2_DEFAULT 0x42000000
-#define IXP425_PCI_BAR_3_DEFAULT 0x43000000
-#define IXP425_PCI_BAR_4_DEFAULT 0x00000000
-#define IXP425_PCI_BAR_5_DEFAULT 0x00000000
-#endif
 
 /*Configuration Port register bit definitions*/
 #define PCI_CRP_WRITE BIT(16)
@@ -228,17 +139,6 @@ typedef struct
 #define PCI_CFG_SPECIAL_USE	0x41
 #define PCI_CFG_MODE		0x43
 
-/*Specify the initial command we send to PCI devices*/
-#define INITIAL_PCI_CMD (PCI_CMD_IO_ENABLE	   \
-			 | PCI_CMD_MEM_ENABLE	   \
-			 | PCI_CMD_MASTER_ENABLE   \
-			 | PCI_CMD_WI_ENABLE)
-
-/*define the sub vendor and subsystem to be used */
-#define IXP425_PCI_SUB_VENDOR_SYSTEM 0x00000000
-
-#define PCI_IRQ_LINES		4
-
 #define PCI_CMD_IO_ENABLE	0x0001	/* IO access enable */
 #define PCI_CMD_MEM_ENABLE	0x0002	/* memory access enable */
 #define PCI_CMD_MASTER_ENABLE	0x0004	/* bus master enable */
@@ -286,27 +186,5 @@ typedef struct
 #define PCI_DMACTRL_PADE0   BIT(13)
 #define PCI_DMACTRL_PADC1   BIT(14)
 #define PCI_DMACTRL_PADE1   BIT(15)
-
-/* GPIO related register */
-#undef IXP425_GPIO_GPOUTR
-#undef IXP425_GPIO_GPOER
-#undef IXP425_GPIO_GPINR
-#undef IXP425_GPIO_GPISR
-#undef IXP425_GPIO_GPIT1R
-#undef IXP425_GPIO_GPIT2R
-#undef IXP425_GPIO_GPCLKR
-
-#define IXP425_GPIO_GPOUTR	0xC8004000
-#define IXP425_GPIO_GPOER	0xC8004004
-#define IXP425_GPIO_GPINR	0xC8004008
-#define IXP425_GPIO_GPISR	0xC800400C
-#define IXP425_GPIO_GPIT1R	0xC8004010
-#define IXP425_GPIO_GPIT2R	0xC8004014
-#define IXP425_GPIO_GPCLKR	0xC8004018
-
-#define READ_GPIO_REG(addr,val) \
-		(val) = *((volatile int *)(addr));
-#define WRITE_GPIO_REG(addr,val) \
-		*((volatile int *)(addr)) = (val);
 
 #endif

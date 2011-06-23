@@ -35,92 +35,107 @@
 #include <command.h>
 #include <malloc.h>
 #include <asm/arch/ixp425.h>
-
+#include <asm/io.h>
 #include <miiphy.h>
+#ifdef CONFIG_PCI
+#include <pci.h>
+#include <asm/arch/ixp425pci.h>
+#endif
 
 #include "actux4_hw.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int board_init (void)
+int board_early_init_f(void)
+{
+	writel(0xbd113c42, IXP425_EXP_CS1);
+	return 0;
+}
+
+int board_init(void)
 {
 	gd->bd->bi_arch_number = MACH_TYPE_ACTUX4;
 
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x00000100;
 
-	GPIO_OUTPUT_CLEAR (CONFIG_SYS_GPIO_nPWRON);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_nPWRON);
+	GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_nPWRON);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_nPWRON);
 
-	GPIO_OUTPUT_CLEAR (CONFIG_SYS_GPIO_IORST);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_IORST);
+	GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_IORST);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_IORST);
 
 	/* led not populated on board*/
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_LED3);
-	GPIO_OUTPUT_SET (CONFIG_SYS_GPIO_LED3);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_LED3);
+	GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_LED3);
 
 	/* middle LED */
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_LED2);
-	GPIO_OUTPUT_SET (CONFIG_SYS_GPIO_LED2);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_LED2);
+	GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_LED2);
 
 	/* right LED */
 	/* weak pulldown = LED weak on */
-	GPIO_OUTPUT_DISABLE (CONFIG_SYS_GPIO_LED1);
-	GPIO_OUTPUT_SET (CONFIG_SYS_GPIO_LED1);
+	GPIO_OUTPUT_DISABLE(CONFIG_SYS_GPIO_LED1);
+	GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_LED1);
 
 	/* Setup GPIO's for Interrupt inputs */
-	GPIO_OUTPUT_DISABLE (CONFIG_SYS_GPIO_USBINTA);
-	GPIO_OUTPUT_DISABLE (CONFIG_SYS_GPIO_USBINTB);
-	GPIO_OUTPUT_DISABLE (CONFIG_SYS_GPIO_USBINTC);
-	GPIO_OUTPUT_DISABLE (CONFIG_SYS_GPIO_RTCINT);
-	GPIO_OUTPUT_DISABLE (CONFIG_SYS_GPIO_PCI_INTA);
-	GPIO_OUTPUT_DISABLE (CONFIG_SYS_GPIO_PCI_INTB);
+	GPIO_OUTPUT_DISABLE(CONFIG_SYS_GPIO_USBINTA);
+	GPIO_OUTPUT_DISABLE(CONFIG_SYS_GPIO_USBINTB);
+	GPIO_OUTPUT_DISABLE(CONFIG_SYS_GPIO_USBINTC);
+	GPIO_OUTPUT_DISABLE(CONFIG_SYS_GPIO_RTCINT);
+	GPIO_OUTPUT_DISABLE(CONFIG_SYS_GPIO_PCI_INTA);
+	GPIO_OUTPUT_DISABLE(CONFIG_SYS_GPIO_PCI_INTB);
 
-	GPIO_INT_ACT_LOW_SET (CONFIG_SYS_GPIO_USBINTA);
-	GPIO_INT_ACT_LOW_SET (CONFIG_SYS_GPIO_USBINTB);
-	GPIO_INT_ACT_LOW_SET (CONFIG_SYS_GPIO_USBINTC);
-	GPIO_INT_ACT_LOW_SET (CONFIG_SYS_GPIO_RTCINT);
-	GPIO_INT_ACT_LOW_SET (CONFIG_SYS_GPIO_PCI_INTA);
-	GPIO_INT_ACT_LOW_SET (CONFIG_SYS_GPIO_PCI_INTB);
+	GPIO_INT_ACT_LOW_SET(CONFIG_SYS_GPIO_USBINTA);
+	GPIO_INT_ACT_LOW_SET(CONFIG_SYS_GPIO_USBINTB);
+	GPIO_INT_ACT_LOW_SET(CONFIG_SYS_GPIO_USBINTC);
+	GPIO_INT_ACT_LOW_SET(CONFIG_SYS_GPIO_RTCINT);
+	GPIO_INT_ACT_LOW_SET(CONFIG_SYS_GPIO_PCI_INTA);
+	GPIO_INT_ACT_LOW_SET(CONFIG_SYS_GPIO_PCI_INTB);
 
 	/* Setup GPIO's for 33MHz clock output */
-	*IXP425_GPIO_GPCLKR = 0x011001FF;
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_EXTBUS_CLK);
-	GPIO_OUTPUT_ENABLE (CONFIG_SYS_GPIO_PCI_CLK);
+	writel(0x011001FF, IXP425_GPIO_GPCLKR);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_EXTBUS_CLK);
+	GPIO_OUTPUT_ENABLE(CONFIG_SYS_GPIO_PCI_CLK);
 
-	*IXP425_EXP_CS1 = 0xbd113c42;
-
-	udelay (10000);
-	GPIO_OUTPUT_SET (CONFIG_SYS_GPIO_IORST);
-	udelay (10000);
-	GPIO_OUTPUT_CLEAR (CONFIG_SYS_GPIO_IORST);
-	udelay (10000);
-	GPIO_OUTPUT_SET (CONFIG_SYS_GPIO_IORST);
+	udelay(10000);
+	GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_IORST);
+	udelay(10000);
+	GPIO_OUTPUT_CLEAR(CONFIG_SYS_GPIO_IORST);
+	udelay(10000);
+	GPIO_OUTPUT_SET(CONFIG_SYS_GPIO_IORST);
 
 	return 0;
 }
 
 /* Check Board Identity */
-int checkboard (void)
+int checkboard(void)
 {
-	puts ("Board: AcTux-4\n");
-	return (0);
+	puts("Board: AcTux-4\n");
+	return 0;
 }
 
-int dram_init (void)
+int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-
-	return (0);
+	gd->ram_size = get_ram_size(CONFIG_SYS_SDRAM_BASE, 128<<20);
+	return 0;
 }
+
+#ifdef CONFIG_PCI
+struct pci_controller hose;
+
+void pci_init_board(void)
+{
+	pci_ixp_init(&hose);
+}
+#endif
 
 /*
  * Hardcoded flash setup:
  * Flash 0 is a non-CFI SST 39VF020 flash, 8 bit flash / 8 bit bus.
  * Flash 1 is an Intel *16 flash using the CFI driver.
  */
-ulong board_flash_get_legacy (ulong base, int banknum, flash_info_t * info)
+ulong board_flash_get_legacy(ulong base, int banknum, flash_info_t *info)
 {
 	if (banknum == 0) {	/* non-CFI boot flash */
 		info->portwidth = 1;
