@@ -29,6 +29,10 @@ LIB	= $(obj)lib$(BOARD).o
 
 COBJS	:= efikamx.o
 
+ifdef	CONFIG_CMD_USB
+COBJS	+= efikamx-usb.o
+endif
+
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
 SOBJS	:= $(addprefix $(obj),$(SOBJS))
