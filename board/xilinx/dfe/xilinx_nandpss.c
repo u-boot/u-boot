@@ -1134,7 +1134,14 @@ int board_nand_init(struct nand_chip *nand_chip)
 	maf_id = nand_chip->read_byte(mtd);
 	dev_id = nand_chip->read_byte(mtd);
 
-	if ((maf_id == 0x2c) && (dev_id == 0xaa)) {
+	if ((maf_id == 0x2c) && ((dev_id == 0xf1) || (dev_id == 0xa1) || (dev_id == 0xb1) ||
+				(dev_id == 0xaa) || (dev_id == 0xba) ||
+				(dev_id == 0xda) || (dev_id == 0xca) ||
+				(dev_id == 0xac) || (dev_id == 0xbc) ||
+				(dev_id == 0xdc) || (dev_id == 0xcc) ||
+				(dev_id == 0xa3) || (dev_id == 0xb3) ||
+				(dev_id == 0xd3) || (dev_id == 0xc3))) {
+		printf("OnDie ECC flash\n");
 		nand_chip->cmdfunc(mtd, NAND_CMD_SET_FEATURES,
 						ONDIE_ECC_FEATURE_ADDR, -1);
 		nand_chip->write_buf(mtd, set_feature, 4);
@@ -1147,7 +1154,6 @@ int board_nand_init(struct nand_chip *nand_chip)
 			ondie_ecc_enabled = 1;
 	} else if ((nand_chip->onfi_version == 23) &&
 				(nand_chip->onfi_params.features & (1 << 9))) {
-		printk(KERN_INFO "\nClear NAND flash detected\n");
 		ez_nand_supported = 1;
 	}
 
