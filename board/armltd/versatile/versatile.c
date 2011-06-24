@@ -51,7 +51,7 @@ void show_boot_progress(int progress)
  * Miscellaneous platform dependent initialisations
  */
 
-int board_init (void)
+int board_early_init_f (void)
 {
 	/*
 	 * set clock frequency:
@@ -62,6 +62,11 @@ int board_init (void)
 	  ((VERSATILE_TIMCLK << VERSATILE_TIMER1_EnSel) | (VERSATILE_TIMCLK << VERSATILE_TIMER2_EnSel) |
 	   (VERSATILE_TIMCLK << VERSATILE_TIMER3_EnSel) | (VERSATILE_TIMCLK << VERSATILE_TIMER4_EnSel));
 
+	return 0;
+}
+
+int board_init (void)
+{
 	/* arch number of Versatile Board */
 	gd->bd->bi_arch_number = MACH_TYPE_VERSATILE_PB;
 
@@ -88,6 +93,9 @@ int misc_init_r (void)
 ******************************/
 int dram_init (void)
 {
+	/* dram_init must store complete ramsize in gd->ram_size */
+	gd->ram_size = get_ram_size((volatile void *)CONFIG_SYS_SDRAM_BASE,
+				PHYS_SDRAM_1_SIZE);
 	return 0;
 }
 

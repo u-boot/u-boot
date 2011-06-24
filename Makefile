@@ -934,15 +934,6 @@ edb9315a_config: unconfig
 	@$(MKCONFIG) -n $@ -t $(@:_config=) edb93xx arm arm920t edb93xx - ep93xx
 
 #########################################################################
-# ARM supplied Versatile development boards
-#########################################################################
-
-versatile_config	\
-versatileab_config	\
-versatilepb_config :	unconfig
-	@board/armltd/versatile/split_by_variant.sh $@
-
-#########################################################################
 ## XScale Systems
 #########################################################################
 
