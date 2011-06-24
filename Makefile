@@ -1105,12 +1105,9 @@ clobber:	clean
 	@[ ! -d $(obj)onenand_ipl ] || find $(obj)onenand_ipl -name "*" -type l -print | xargs rm -f
 	@[ ! -d $(obj)mmc_spl ] || find $(obj)mmc_spl -name "*" -type l -print | xargs rm -f
 
-ifeq ($(OBJTREE),$(SRCTREE))
 mrproper \
 distclean:	clobber unconfig
-else
-mrproper \
-distclean:	clobber unconfig
+ifneq ($(OBJTREE),$(SRCTREE))
 	rm -rf $(obj)*
 endif
 
