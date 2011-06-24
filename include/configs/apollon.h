@@ -266,4 +266,8 @@
 					"-(ubifs)"
 #endif
 
+#define PHYS_SRAM			0x4020F800
+#define CONFIG_SYS_SDRAM_BASE		PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_SP_ADDR 	PHYS_SRAM
+
 #endif /* __CONFIG_H */
