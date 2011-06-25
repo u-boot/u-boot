@@ -21,7 +21,7 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	:= $(obj)libusb_eth.a
+LIB	:= $(obj)libusb_eth.o
 
 # new USB host ethernet layer dependencies
 COBJS-$(CONFIG_USB_HOST_ETHER) += usb_ether.o
@@ -36,7 +36,7 @@ OBJS	:= $(addprefix $(obj),$(COBJS))
 all:	$(LIB)
 
 $(LIB):	$(obj).depend $(OBJS)
-	$(AR) $(ARFLAGS) $@ $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
 
 #########################################################################
 
