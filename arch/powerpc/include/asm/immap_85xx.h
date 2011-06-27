@@ -2017,7 +2017,7 @@ typedef struct ccsr_gur {
 #define MPC85xx_PMUXCR2_PLL_LKDT_EXPOSE		0x00001000
 #endif
 #if defined(CONFIG_P1013) || defined(CONFIG_P1022)
-#define MPC85xx_PMUXCR2_ETSECUSB_MASK	0x001f1000
+#define MPC85xx_PMUXCR2_ETSECUSB_MASK	0x001f8000
 #define MPC85xx_PMUXCR2_USB		0x00150000
 #endif
 	u8	res6[8];
