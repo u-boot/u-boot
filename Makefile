@@ -1,5 +1,5 @@
 #
-# (C) Copyright 2000-2010
+# (C) Copyright 2000-2011
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # See file CREDITS for list of people who contributed to this
@@ -24,7 +24,7 @@
 VERSION = 2011
 PATCHLEVEL = 06
 SUBLEVEL =
-EXTRAVERSION = -rc3
+EXTRAVERSION =
 ifneq "$(SUBLEVEL)" ""
 U_BOOT_VERSION = $(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
 else
