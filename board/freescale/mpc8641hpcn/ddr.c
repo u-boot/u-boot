@@ -127,6 +127,11 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 		}
 	}
 
+	if (i == num_params) {
+		printf("Warning: board specific timing not found "
+			"for data rate %lu MT/s!\n", ddr_freq);
+	}
+
 	/* 2T timing enable */
 	popts->twoT_en = 1;
 }

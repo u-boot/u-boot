@@ -104,7 +104,6 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	u32 num_params;
 	u32 i;
 	ulong ddr_freq;
-	int matched = 0;
 
 	if (!pdimm->n_ranks)
 		return;
@@ -151,14 +150,15 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 			popts->cpo_override = pbsp->cpo;
 			popts->write_data_delay = pbsp->write_data_delay;
 			popts->twoT_en = pbsp->force_2T;
-			matched = 1;
 			break;
 		}
 		pbsp++;
 	}
 
-	if (!matched)
-		printf("Warning: board specific timing not found!\n");
+	if (i == num_params) {
+		printf("Warning: board specific timing not found "
+			"for data rate %lu MT/s!\n", ddr_freq);
+	}
 
 	/*
 	 * Factors to consider for half-strength driver enable:
