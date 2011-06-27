@@ -131,8 +131,6 @@
 # define CONFIG_SYS_DRAM_SIZE			0x01000000
 #endif
 
-
-
 /* FLASH organization */
 #define CONFIG_SYS_TEXT_BASE		0x50000000
 #ifdef CONFIG_FLASH2X2

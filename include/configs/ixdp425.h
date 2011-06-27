@@ -126,8 +126,6 @@
  * Hardware drivers
  */
 
-
-
 /*
  * Physical Memory Map
  */
@@ -246,7 +244,6 @@
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_INIT_SP_ADDR						\
 	(CONFIG_SYS_SDRAM_BASE + 0x1000 - GENERATED_GBL_DATA_SIZE)
-
 
 /*
  * GPIO settings

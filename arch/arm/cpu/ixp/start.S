@@ -551,8 +551,5 @@ reset_cpu:
 	str     r1, [r2]
 	b	reset_endless
 
-
 reset_endless:
-
 	b	reset_endless
-
