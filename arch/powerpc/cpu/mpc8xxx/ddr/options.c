@@ -423,14 +423,33 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	 * presuming all dimms are similar
 	 * 0 = 64-bit, 1 = 32-bit, 2 = 16-bit
 	 */
-	if (pdimm[0].primary_sdram_width == 64)
-		popts->data_bus_width = 0;
-	else if (pdimm[0].primary_sdram_width == 32)
-		popts->data_bus_width = 1;
-	else if (pdimm[0].primary_sdram_width == 16)
-		popts->data_bus_width = 2;
-	else
-		panic("Error: invalid primary sdram width!\n");
+#if defined(CONFIG_FSL_DDR1) || defined(CONFIG_FSL_DDR2)
+	if (pdimm[0].n_ranks != 0) {
+		if ((pdimm[0].data_width >= 64) && \
+			(pdimm[0].data_width <= 72))
+			popts->data_bus_width = 0;
+		else if ((pdimm[0].data_width >= 32) || \
+			(pdimm[0].data_width <= 40))
+			popts->data_bus_width = 1;
+		else {
+			panic("Error: data width %u is invalid!\n",
+				pdimm[0].data_width);
+		}
+	}
+#else
+	if (pdimm[0].n_ranks != 0) {
+		if (pdimm[0].primary_sdram_width == 64)
+			popts->data_bus_width = 0;
+		else if (pdimm[0].primary_sdram_width == 32)
+			popts->data_bus_width = 1;
+		else if (pdimm[0].primary_sdram_width == 16)
+			popts->data_bus_width = 2;
+		else {
+			panic("Error: primary sdram width %u is invalid!\n",
+				pdimm[0].primary_sdram_width);
+		}
+	}
+#endif
 
 	/* Choose burst length. */
 #if defined(CONFIG_FSL_DDR3)
