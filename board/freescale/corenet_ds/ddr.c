@@ -219,7 +219,7 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 	popts->ddr_cdr1 = DDR_CDR1_DHC_EN;
 
 	/* override SPD values. rcw_2 should vary at differnt speed */
-	if (pdimm[0].n_ranks == 4) {
+	if (pdimm[0].registered_dimm == 1) {
 		popts->rcw_override = 1;
 		popts->rcw_1 = 0x000a5a00;
 		if (ddr_freq <= 800)
