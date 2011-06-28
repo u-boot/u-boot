@@ -34,18 +34,6 @@ struct winbond_spi_flash_params {
 	const char	*name;
 };
 
-/* spi_flash needs to be first so upper layers can free() it */
-struct winbond_spi_flash {
-	struct spi_flash flash;
-	const struct winbond_spi_flash_params *params;
-};
-
-static inline struct winbond_spi_flash *
-to_winbond_spi_flash(struct spi_flash *flash)
-{
-	return container_of(flash, struct winbond_spi_flash, flash);
-}
-
 static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 	{
 		.id			= 0x3015,
@@ -113,9 +101,9 @@ static int winbond_erase(struct spi_flash *flash, u32 offset, size_t len)
 struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 {
 	const struct winbond_spi_flash_params *params;
-	unsigned page_size;
-	struct winbond_spi_flash *stm;
+	struct spi_flash *flash;
 	unsigned int i;
+	unsigned page_size;
 
 	for (i = 0; i < ARRAY_SIZE(winbond_spi_flash_table); i++) {
 		params = &winbond_spi_flash_table[i];
@@ -129,27 +117,26 @@ struct spi_flash *spi_flash_probe_winbond(struct spi_slave *spi, u8 *idcode)
 		return NULL;
 	}
 
-	stm = malloc(sizeof(struct winbond_spi_flash));
-	if (!stm) {
+	flash = malloc(sizeof(*flash));
+	if (!flash) {
 		debug("SF: Failed to allocate memory\n");
 		return NULL;
 	}
 
-	stm->params = params;
-	stm->flash.spi = spi;
-	stm->flash.name = params->name;
+	flash->spi = spi;
+	flash->name = params->name;
 
 	/* Assuming power-of-two page size initially. */
 	page_size = 1 << params->l2_page_size;
 
-	stm->flash.write = spi_flash_cmd_write_multi;
-	stm->flash.erase = winbond_erase;
-	stm->flash.read = spi_flash_cmd_read_fast;
-	stm->flash.page_size = page_size;
-	stm->flash.sector_size = page_size * stm->params->pages_per_sector;
-	stm->flash.size = page_size * params->pages_per_sector
+	flash->write = spi_flash_cmd_write_multi;
+	flash->erase = winbond_erase;
+	flash->read = spi_flash_cmd_read_fast;
+	flash->page_size = page_size;
+	flash->sector_size = page_size * params->pages_per_sector;
+	flash->size = page_size * params->pages_per_sector
 				* params->sectors_per_block
 				* params->nr_blocks;
 
-	return &stm->flash;
+	return flash;
 }

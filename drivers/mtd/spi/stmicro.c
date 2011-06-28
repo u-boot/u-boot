@@ -63,18 +63,6 @@ struct stmicro_spi_flash_params {
 	const char *name;
 };
 
-/* spi_flash needs to be first so upper layers can free() it */
-struct stmicro_spi_flash {
-	struct spi_flash flash;
-	const struct stmicro_spi_flash_params *params;
-};
-
-static inline struct stmicro_spi_flash *to_stmicro_spi_flash(struct spi_flash
-							     *flash)
-{
-	return container_of(flash, struct stmicro_spi_flash, flash);
-}
-
 static const struct stmicro_spi_flash_params stmicro_spi_flash_table[] = {
 	{
 		.idcode1 = STM_ID_M25P10,
@@ -142,7 +130,7 @@ static int stmicro_erase(struct spi_flash *flash, u32 offset, size_t len)
 struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 {
 	const struct stmicro_spi_flash_params *params;
-	struct stmicro_spi_flash *stm;
+	struct spi_flash *flash;
 	unsigned int i;
 
 	if (idcode[0] == 0xff) {
@@ -170,22 +158,21 @@ struct spi_flash *spi_flash_probe_stmicro(struct spi_slave *spi, u8 * idcode)
 		return NULL;
 	}
 
-	stm = malloc(sizeof(struct stmicro_spi_flash));
-	if (!stm) {
+	flash = malloc(sizeof(*flash));
+	if (!flash) {
 		debug("SF: Failed to allocate memory\n");
 		return NULL;
 	}
 
-	stm->params = params;
-	stm->flash.spi = spi;
-	stm->flash.name = params->name;
+	flash->spi = spi;
+	flash->name = params->name;
 
-	stm->flash.write = spi_flash_cmd_write_multi;
-	stm->flash.erase = stmicro_erase;
-	stm->flash.read = spi_flash_cmd_read_fast;
-	stm->flash.page_size = params->page_size;
-	stm->flash.sector_size = params->page_size * params->pages_per_sector;
-	stm->flash.size = stm->flash.sector_size * params->nr_sectors;
+	flash->write = spi_flash_cmd_write_multi;
+	flash->erase = stmicro_erase;
+	flash->read = spi_flash_cmd_read_fast;
+	flash->page_size = params->page_size;
+	flash->sector_size = params->page_size * params->pages_per_sector;
+	flash->size = flash->sector_size * params->nr_sectors;
 
-	return &stm->flash;
+	return flash;
 }

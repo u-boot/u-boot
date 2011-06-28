@@ -34,17 +34,6 @@ struct eon_spi_flash_params {
 	const char *name;
 };
 
-/* spi_flash needs to be first so upper layers can free() it */
-struct eon_spi_flash {
-	struct spi_flash flash;
-	const struct eon_spi_flash_params *params;
-};
-
-static inline struct eon_spi_flash *to_eon_spi_flash(struct spi_flash *flash)
-{
-	return container_of(flash, struct eon_spi_flash, flash);
-}
-
 static const struct eon_spi_flash_params eon_spi_flash_table[] = {
 	{
 		.idcode1 = EON_ID_EN25Q128,
@@ -64,7 +53,7 @@ static int eon_erase(struct spi_flash *flash, u32 offset, size_t len)
 struct spi_flash *spi_flash_probe_eon(struct spi_slave *spi, u8 *idcode)
 {
 	const struct eon_spi_flash_params *params;
-	struct eon_spi_flash *eon;
+	struct spi_flash *flash;
 	unsigned int i;
 
 	for (i = 0; i < ARRAY_SIZE(eon_spi_flash_table); ++i) {
@@ -78,24 +67,23 @@ struct spi_flash *spi_flash_probe_eon(struct spi_slave *spi, u8 *idcode)
 		return NULL;
 	}
 
-	eon = malloc(sizeof(*eon));
-	if (!eon) {
+	flash = malloc(sizeof(*flash));
+	if (!flash) {
 		debug("SF: Failed to allocate memory\n");
 		return NULL;
 	}
 
-	eon->params = params;
-	eon->flash.spi = spi;
-	eon->flash.name = params->name;
+	flash->spi = spi;
+	flash->name = params->name;
 
-	eon->flash.write = spi_flash_cmd_write_multi;
-	eon->flash.erase = eon_erase;
-	eon->flash.read = spi_flash_cmd_read_fast;
-	eon->flash.page_size = params->page_size;
-	eon->flash.sector_size = params->page_size * params->pages_per_sector
+	flash->write = spi_flash_cmd_write_multi;
+	flash->erase = eon_erase;
+	flash->read = spi_flash_cmd_read_fast;
+	flash->page_size = params->page_size;
+	flash->sector_size = params->page_size * params->pages_per_sector
 	    * params->sectors_per_block;
-	eon->flash.size = params->page_size * params->pages_per_sector
+	flash->size = params->page_size * params->pages_per_sector
 	    * params->nr_sectors;
 
-	return &eon->flash;
+	return flash;
 }
