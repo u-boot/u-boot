@@ -283,6 +283,7 @@ _rel_dyn_end_ofs:
 _dynsym_start_ofs:
 	.word __dynsym_start - _start
 
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 /*************************************************************************
  *
  * CPU_init_critical registers
@@ -327,6 +328,7 @@ cpu_init_crit:
 	bl	lowlevel_init		@ go setup pll,mux,memory
 	mov	lr, ip			@ restore link
 	mov	pc, lr			@ back to my caller
+#endif
 /*
  *************************************************************************
  *
