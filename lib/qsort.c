@@ -17,11 +17,6 @@
 
 #include <linux/types.h>
 #include <exports.h>
-#if 0
-#include <assert.h>
-#else
-#define assert(arg)
-#endif
 
 void qsort(void  *base,
 	   size_t nel,

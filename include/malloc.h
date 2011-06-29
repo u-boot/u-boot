@@ -285,14 +285,6 @@ extern "C" {
 
 */
 
-#ifdef DEBUG
-/* #include <assert.h> */
-#define assert(x) ((void)0)
-#else
-#define assert(x) ((void)0)
-#endif
-
-
 /*
   INTERNAL_SIZE_T is the word-size used for internal bookkeeping
   of chunk sizes. On a 64-bit machine, you can reduce malloc
