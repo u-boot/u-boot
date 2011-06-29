@@ -90,6 +90,9 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A002769
 	puts("Work-around for Erratum IFC-A002769 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_P1010_A003549
+	puts("Work-around for Erratum P1010-A003549 enabled\n");
+#endif
 	return 0;
 }
 
