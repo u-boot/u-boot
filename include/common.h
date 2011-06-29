@@ -653,7 +653,7 @@ int strict_strtoul(const char *cp, unsigned int base, unsigned long *res);
 unsigned long long	simple_strtoull(const char *cp,char **endp,unsigned int base);
 long	simple_strtol(const char *cp,char **endp,unsigned int base);
 void	panic(const char *fmt, ...)
-		__attribute__ ((format (__printf__, 1, 2)));
+		__attribute__ ((format (__printf__, 1, 2), noreturn));
 int	sprintf(char * buf, const char *fmt, ...)
 		__attribute__ ((format (__printf__, 2, 3)));
 int	vsprintf(char *buf, const char *fmt, va_list args);
