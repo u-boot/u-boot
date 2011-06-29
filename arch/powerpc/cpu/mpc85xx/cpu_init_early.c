@@ -21,6 +21,7 @@
 #include <asm/processor.h>
 #include <asm/mmu.h>
 #include <asm/fsl_law.h>
+#include <asm/io.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -40,8 +41,8 @@ void cpu_init_early_f(void)
 	for (i = 0; i < sizeof(gd_t); i++)
 		((char *)gd)[i] = 0;
 
-	mas0 = MAS0_TLBSEL(0) | MAS0_ESEL(0);
-	mas1 = MAS1_VALID | MAS1_TID(0) | MAS1_TS | MAS1_TSIZE(BOOKE_PAGESZ_4K);
+	mas0 = MAS0_TLBSEL(1) | MAS0_ESEL(13);
+	mas1 = MAS1_VALID | MAS1_TID(0) | MAS1_TS | MAS1_TSIZE(BOOKE_PAGESZ_1M);
 	mas2 = FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR, MAS2_I|MAS2_G);
 	mas3 = FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_PHYS, 0, MAS3_SW|MAS3_SR);
 	mas7 = FSL_BOOKE_MAS7(CONFIG_SYS_CCSRBAR_PHYS);
@@ -49,6 +50,6 @@ void cpu_init_early_f(void)
 	write_tlb(mas0, mas1, mas2, mas3, mas7);
 
 	init_laws();
-	invalidate_tlb(0);
+	invalidate_tlb(1);
 	init_tlbs();
 }
