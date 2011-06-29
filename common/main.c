@@ -56,10 +56,6 @@ void update_tftp (void);
 
 #define MAX_DELAY_STOP_STR 32
 
-#if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
-static int abortboot(int);
-#endif
-
 #undef DEBUG_PARSER
 
 char        console_buffer[CONFIG_SYS_CBSIZE + 1];	/* console I/O buffer	*/
@@ -91,7 +87,7 @@ extern void mdm_init(void); /* defined in board.c */
  */
 #if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
 # if defined(CONFIG_AUTOBOOT_KEYED)
-static __inline__ int abortboot(int bootdelay)
+static inline int abortboot(int bootdelay)
 {
 	int abort = 0;
 	uint64_t etime = endtick(bootdelay);
@@ -205,7 +201,7 @@ static __inline__ int abortboot(int bootdelay)
 static int menukey = 0;
 #endif
 
-static __inline__ int abortboot(int bootdelay)
+static inline int abortboot(int bootdelay)
 {
 	int abort = 0;
 
