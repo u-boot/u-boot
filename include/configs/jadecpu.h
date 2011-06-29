@@ -29,9 +29,13 @@
 #define CONFIG_MB86R0x
 #define CONFIG_MB86R0x_IOCLK	get_bus_freq(0)
 #define CONFIG_SYS_HZ		1000
+#define CONFIG_SYS_TEXT_BASE	0x10000000
 
 #define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
+
+#define CONFIG_USE_ARCH_MEMCPY
+#define CONFIG_USE_ARCH_MEMSET
 
 /*
  * Environment settings
@@ -39,7 +43,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"gs_fast_boot=setenv bootdelay 5\0" \
 	"gs_slow_boot=setenv bootdelay 10\0" \
-	"bootcmd=mw.l 0x40000000 0 1024; usb start;" \
+	"bootcmd=dcache off; mw.l 0x40000000 0 1024; usb start;" \
 		"fatls usb 0; fatload usb 0 0x40000000 jadecpu-init.bin;" \
 		"bootelf 0x40000000\0" \
 	""
@@ -122,13 +126,14 @@
 #undef CONFIG_CMD_NFS
 #undef CONFIG_CMD_XIMG
 
-#define CONFIG_CMD_BMP		1
-#define CONFIG_CMD_CAN		1
-#define CONFIG_CMD_DHCP		1
-#define CONFIG_CMD_ELF		1
-#define CONFIG_CMD_FAT		1
-#define CONFIG_CMD_PING		1
-#define CONFIG_CMD_USB		1
+#define CONFIG_CMD_BMP
+#define CONFIG_CMD_CAN
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ELF
+#define CONFIG_CMD_FAT
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_USB
+#define CONFIG_CMD_CACHE
 
 #define CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
@@ -196,7 +201,8 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN	(0x400000 - 0x8000)
+#define CONFIG_SYS_MALLOC_LEN	(10 << 20)
+#define CONFIG_SYS_MEM_TOP_HIDE	(4 << 20)
 
 #define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
 
