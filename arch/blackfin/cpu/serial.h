@@ -288,16 +288,16 @@ static inline void serial_early_puts(const char *s)
  */
 #ifdef CONFIG_DEBUG_EARLY_SERIAL
 # define serial_early_puts(str) \
-	call _get_pc; \
-	jump 1f; \
+	.section .rodata; \
+	7: \
 	.ascii "Early:"; \
 	.ascii __FILE__; \
 	.ascii ": "; \
 	.ascii str; \
 	.asciz "\n"; \
-	.align 4; \
-1: \
-	R0 += 2; \
+	.previous; \
+	R0.L = 7b; \
+	R0.H = 7b; \
 	call _serial_puts;
 #else
 # define serial_early_puts(str)
