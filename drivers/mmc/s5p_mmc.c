@@ -232,9 +232,15 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 						__func__, mask);
 				return -1;
 			} else if (mask & (1 << 3)) {
-				/* DMA Interrupt */
+				/*
+				 * DMA Interrupt, restart the transfer where
+				 * it was interrupted.
+				 */
+				unsigned int address = readl(&host->reg->sysad);
+
 				debug("DMA end\n");
-				break;
+				writel((1 << 3), &host->reg->norintsts);
+				writel(address, &host->reg->sysad);
 			} else if (mask & (1 << 1)) {
 				/* Transfer Complete */
 				debug("r/w is done\n");
@@ -425,12 +431,13 @@ static int mmc_core_init(struct mmc *mmc)
 	 * NORMAL Interrupt Status Enable Register init
 	 * [5] ENSTABUFRDRDY : Buffer Read Ready Status Enable
 	 * [4] ENSTABUFWTRDY : Buffer write Ready Status Enable
+	 * [3] ENSTADMAINT : DMA Interrupt Status Enable
 	 * [1] ENSTASTANSCMPLT : Transfre Complete Status Enable
 	 * [0] ENSTACMDCMPLT : Command Complete Status Enable
-	*/
+	 */
 	mask = readl(&host->reg->norintstsen);
 	mask &= ~(0xffff);
-	mask |= (1 << 5) | (1 << 4) | (1 << 1) | (1 << 0);
+	mask |= (1 << 5) | (1 << 4) | (1 << 3) | (1 << 1) | (1 << 0);
 	writel(mask, &host->reg->norintstsen);
 
 	/*
