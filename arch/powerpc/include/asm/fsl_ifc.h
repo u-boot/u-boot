@@ -951,5 +951,10 @@ struct fsl_ifc {
 	struct fsl_ifc_gpcm ifc_gpcm;
 };
 
+#ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A002769
+#undef CSPR_MSEL_NOR
+#define CSPR_MSEL_NOR	CSPR_MSEL_GPCM
+#endif
+
 #endif /* __ASSEMBLY__ */
 #endif /* __ASM_PPC_FSL_IFC_H */
