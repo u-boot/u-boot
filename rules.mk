@@ -42,4 +42,14 @@ $(HOSTOBJS): $(obj)%.o: %.c
 $(NOPEDOBJS): $(obj)%.o: %.c
 	$(HOSTCC) $(HOSTCFLAGS_NOPED) $(HOSTCFLAGS_$(@F)) $(HOSTCFLAGS_$(BCURDIR)) -o $@ $< -c
 
+$(TOPDIR)/include/asm/arch/asm-offsets.h:	$(TOPDIR)/include/autoconf.mk.dep \
+	$(TOPDIR)/$(CPUDIR)/$(SOC)/asm-offsets.s
+	@echo Generating $@
+	$(TOPDIR)/tools/scripts/make-asm-offsets $(TOPDIR)/$(CPUDIR)/$(SOC)/asm-offsets.s $@
+
+$(TOPDIR)/$(CPUDIR)/$(SOC)/asm-offsets.s:	$(TOPDIR)/include/autoconf.mk.dep \
+	$(TOPDIR)/$(CPUDIR)/$(SOC)/asm-offsets.c
+	$(CC) -DDO_DEPS_ONLY \
+		$(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
+		-o $@ $(TOPDIR)/$(CPUDIR)/$(SOC)/asm-offsets.c -c -S
 #########################################################################
