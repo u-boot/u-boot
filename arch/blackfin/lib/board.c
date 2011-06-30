@@ -53,7 +53,7 @@ static inline void serial_early_puts(const char *s)
 
 static int display_banner(void)
 {
-	printf("\n\n%s\n\n", version_string);
+	display_options();
 	printf("CPU:   ADSP %s "
 		"(Detected Rev: 0.%d) "
 		"(%s boot)\n",
