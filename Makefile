@@ -533,6 +533,7 @@ tools: $(VERSION_FILE)
 endif	# config.mk
 
 $(VERSION_FILE):
+		@mkdir -p $(dir $(VERSION_FILE))
 		@( localvers='$(shell $(TOPDIR)/tools/setlocalversion $(TOPDIR))' ; \
 		   printf '#define PLAIN_VERSION "%s%s"\n' \
 			"$(U_BOOT_VERSION)" "$${localvers}" ; \
