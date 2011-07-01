@@ -60,16 +60,16 @@ $HDR_20 = 0xAA995566;
 $HDR_24 = 0x584C4E58;
 $HDR_28 = 0x00000000;
 $HDR_2C = 0x544F4F42;
-$HDR_30 = 0x00000120;
+$HDR_30 = 0x000008A0;
 $HDR_34 = 0x00000000;
 $HDR_38 = 0x00000000;
 
 $HDR_3C = 0xDEADBEEF;
 if ($hdr_type eq "nor") {
- $HDR_3C = 0xE20000A8;
+ $HDR_3C = 0xE20008A0;
 } 
 if ($hdr_type eq "qspi") {
- $HDR_3C = 0xFC0000A8;
+ $HDR_3C = 0xFC0008A0;
 }
 
 $HDR_40 = 0x00000000;
@@ -93,8 +93,11 @@ for ($i = 0; $i < 21; $i++) {
     print OUTFILE pack('V', 0);
 }
 # A0 
-print OUTFILE pack('V', 0xFFFFFFFF);
-print OUTFILE pack('V', 0);
+# 256 reg init pairs
+for ($i = 0; $i < 256; $i++) {
+    print OUTFILE pack('V', 0xFFFFFFFF);
+    print OUTFILE pack('V', 0);
+}
 
 close($OUTFILE);
 
