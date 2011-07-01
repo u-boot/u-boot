@@ -38,7 +38,7 @@ int board_init (void)
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 #ifdef CONFIG_MXC_UART
-	mx27_uart_init_pins();
+	mx27_uart1_init_pins();
 #endif
 #ifdef CONFIG_FEC_MXC
 	mx27_fec_init_pins();

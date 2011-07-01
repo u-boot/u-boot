@@ -29,7 +29,7 @@
 extern void imx_gpio_mode (int gpio_mode);
 
 #ifdef CONFIG_MXC_UART
-extern void mx27_uart_init_pins(void);
+extern void mx27_uart1_init_pins(void);
 #endif /* CONFIG_MXC_UART */
 
 #ifdef CONFIG_FEC_MXC
