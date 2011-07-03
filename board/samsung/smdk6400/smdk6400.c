@@ -72,7 +72,6 @@ int board_init(void)
 	/* Enable WAIT */
 	SROM_BW_REG |= 4 | 8 | 1;
 
-	gd->bd->bi_arch_number = MACH_TYPE;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	return 0;

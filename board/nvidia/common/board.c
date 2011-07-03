@@ -318,8 +318,6 @@ int board_init(void)
 {
 	/* boot param addr */
 	gd->bd->bi_boot_params = (NV_PA_SDRAM_BASE + 0x100);
-	/* board id for Linux */
-	gd->bd->bi_arch_number = CONFIG_MACH_TYPE;
 
 	return 0;
 }
