@@ -152,7 +152,7 @@ int misc_init_r(void)
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
-	gd->ram_size = get_ram_size((volatile void *)PHYS_SDRAM,
+	gd->ram_size = get_ram_size((void *)PHYS_SDRAM,
 					PHYS_SDRAM_SIZE);
 
 	return 0;

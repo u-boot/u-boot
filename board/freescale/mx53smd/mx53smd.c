@@ -44,8 +44,8 @@ int dram_init(void)
 {
 	u32 size1, size2;
 
-	size1 = get_ram_size((volatile void *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE);
-	size2 = get_ram_size((volatile void *)PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE);
+	size1 = get_ram_size((void *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE);
+	size2 = get_ram_size((void *)PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE);
 
 	gd->ram_size = size1 + size2;
 

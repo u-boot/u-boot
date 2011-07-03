@@ -53,7 +53,7 @@ int dram_init (void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
 	gd->ram_size = get_ram_size(
-			(volatile long *) orion5x_sdram_bar(0),
+			(long *) orion5x_sdram_bar(0),
 			CONFIG_MAX_RAM_BANK_SIZE);
 	return 0;
 }
@@ -65,7 +65,7 @@ void dram_init_banksize (void)
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		gd->bd->bi_dram[i].start = orion5x_sdram_bar(i);
 		gd->bd->bi_dram[i].size = get_ram_size(
-			(volatile long *) (gd->bd->bi_dram[i].start),
+			(long *) (gd->bd->bi_dram[i].start),
 			CONFIG_MAX_RAM_BANK_SIZE);
 	}
 }

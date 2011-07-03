@@ -67,7 +67,7 @@ int board_init (void)
 int dram_init (void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
-	gd->ram_size = get_ram_size((volatile void *)CONFIG_SYS_SDRAM_BASE,
+	gd->ram_size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
 				PHYS_SDRAM_1_SIZE);
 	return 0;
 }
@@ -75,11 +75,11 @@ int dram_init (void)
 void dram_init_banksize(void)
 {
 	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
-	gd->bd->bi_dram[0].size = get_ram_size((volatile void *)CONFIG_SYS_SDRAM_BASE,
+	gd->bd->bi_dram[0].size = get_ram_size((void *)CONFIG_SYS_SDRAM_BASE,
 			PHYS_SDRAM_1_SIZE);
 #if CONFIG_NR_DRAM_BANKS > 1
 	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
-	gd->bd->bi_dram[1].size = get_ram_size((volatile void *)PHYS_SDRAM_2,
+	gd->bd->bi_dram[1].size = get_ram_size((void *)PHYS_SDRAM_2,
 			PHYS_SDRAM_2_SIZE);
 #endif
 }

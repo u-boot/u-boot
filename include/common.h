@@ -317,7 +317,7 @@ const char *symbol_lookup(unsigned long addr, unsigned long *caddr);
 void	api_init (void);
 
 /* common/memsize.c */
-long	get_ram_size  (volatile long *, long);
+long	get_ram_size  (long *, long);
 
 /* $(BOARD)/$(BOARD).c */
 void	reset_phy     (void);

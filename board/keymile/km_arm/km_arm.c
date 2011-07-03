@@ -321,7 +321,7 @@ int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
 	/* Fix this */
-	gd->ram_size = get_ram_size((volatile void *)kw_sdram_bar(0),
+	gd->ram_size = get_ram_size((void *)kw_sdram_bar(0),
 				kw_sdram_bs(0));
 	return 0;
 }
