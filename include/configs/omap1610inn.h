@@ -34,7 +34,8 @@
 #define CONFIG_OMAP	1			/* in a TI OMAP core    */
 #define CONFIG_OMAP1610	1		/* which is in a 1610  */
 #define CONFIG_INNOVATOROMAP1610	1	/*  a Innovator Board  */
-#define CONFIG_MACH_OMAP_INNOVATOR	/* Select board mach-type */
+
+#define CONFIG_MACH_TYPE	MACH_TYPE_OMAP_INNOVATOR
 
 /* input clock of PLL */
 /* the OMAP1610 Innovator has 12MHz input clock */
