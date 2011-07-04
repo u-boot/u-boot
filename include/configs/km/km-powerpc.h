@@ -75,6 +75,7 @@
 		"cramfsload ${fdt_addr_r} "				\
 		"fdt_0x${IVM_BoardId}_0x${IVM_HWKey}.dtb\0"		\
 	"fdt_addr_r=" xstr(CONFIG_KM_FDT_ADDR) "\0"			\
+	"u-boot="xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"			\
 	"update="							\
 		"protect off " xstr(BOOTFLASH_START) " +${filesize} && "\
 		"erase " xstr(BOOTFLASH_START) "  +${filesize} && "	\

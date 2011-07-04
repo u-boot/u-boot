@@ -248,7 +248,6 @@
 	"stderr=serial\0"						\
 	"stdin=serial\0"						\
 	"stdout=serial\0"						\
-	"u-boot="xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"			\
 	""
 #endif /* CONFIG_KM_DEF_ENV */
 

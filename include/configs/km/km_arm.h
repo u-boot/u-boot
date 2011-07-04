@@ -74,6 +74,7 @@
 #define CONFIG_KM_DEF_ENV_CPU						\
 	"boot=bootm ${load_addr_r} - -\0"				\
 	"cramfsloadfdt=true\0"						\
+	"u-boot="xstr(CONFIG_HOSTNAME) "/u-boot.kwb\0"			\
 	CONFIG_KM_DEF_ENV_UPDATE					\
 	""
 
