@@ -139,6 +139,7 @@ int i2c_make_abort(void)
 			sda_state = get_sda();
 			if (scl_state && sda_state) {
 				ret = 0;
+				printf("[INFO] i2c abort after %d clocks\n", i);
 				break;
 			}
 		}
@@ -146,6 +147,8 @@ int i2c_make_abort(void)
 	if (ret == 0)
 		for (i = 0; i < 5; i++)
 			i2c_write_start_seq();
+	else
+		printf("[ERROR] i2c abort failed\n");
 
 	/* respect stop setup time */
 	udelay(DELAY_ABORT_SEQ);
