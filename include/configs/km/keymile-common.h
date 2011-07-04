@@ -131,8 +131,7 @@
 /* common powerpc specific env settings */
 #ifndef CONFIG_KM_DEF_ENV_BOOTPARAMS
 #define CONFIG_KM_DEF_ENV_BOOTPARAMS \
-	"bootparams=empty\0"	\
-	"initial_boot_bank=0\0"
+	"actual_bank=0\0"
 #endif
 
 #ifndef CONFIG_KM_DEF_NETDEV
@@ -151,57 +150,15 @@
 #define str(s)	#s
 
 /*
- * bootrunner
- * - run all commands in 'subbootcmds'
- * - on error, stop running the remaing commands
- */
-#define CONFIG_KM_DEF_ENV_BOOTRUNNER					\
-	"bootrunner="							\
-		"break=0; "						\
-		"for subbootcmd in ${subbootcmds}; do "			\
-		"if test ${break} -eq 0; then; "			\
-		"print ${subbootcmd}; "					\
-		"run ${subbootcmd} || break=1; "			\
-		"fi; "							\
-		"done\0"						\
-	""
-
-/*
  * boottargets
- * - set 'subbootcmds' for the bootrunner
+ * - set 'subbootcmds'
  * - set 'bootcmd' and 'altbootcmd'
  * available targets:
  * - 'release': for a standalone system		kernel/rootfs from flash
- *
- * - 'commonargs': bootargs common to all targets
  */
 #define CONFIG_KM_DEF_ENV_BOOTTARGETS					\
-	"commonargs="							\
-		"addip "						\
-		"addtty "						\
-		"addmem "						\
-		"addinit "						\
-		"addvar "						\
-		"addmtdparts "						\
-		"addbootcount "						\
-		"\0"							\
-	"release="							\
-		"setenv actual_bank ${initial_boot_bank} && "		\
-		"setenv subbootcmds \""					\
-		"checkboardid "						\
-		"ubiattach ubicopy "					\
-		"cramfsloadfdt cramfsloadkernel "			\
-		"flashargs ${commonargs} "				\
-		"addpanic boot "					\
-		"\" && "						\
-		"setenv bootcmd \'"					\
-		"run actual bootrunner; reset"				\
-		"\' && "						\
-		"setenv altbootcmd \'"					\
-		"run backup bootrunner; reset"				\
-		"\' && "						\
-		"saveenv && saveenv && "				\
-		"reset\0"						\
+	"subbootcmds=ubiattach ubicopy cramfsloadfdt cramfsloadkernel "	\
+		"flashargs add_default addpanic boot\0"			\
 	"debug_env="							\
 		"tftp 200000 " CONFIG_KM_ARCH_DBG_FILE " && "		\
 		"env import -t 200000 ${filesize} && "			\
@@ -212,37 +169,26 @@
  * bootargs
  * - modify 'bootargs'
  *
- * - 'addip': add ip configuration
- * - 'addmem': limit kernel memory mem=
+ * - 'add_default': default bootargs common for all arm/ppc boards
  * - 'addpanic': add kernel panic options
- * - 'addtty': add console=...
- * - 'addvar': add phram device for /var
  * - 'flashargs': defaults arguments for flash base boot
  *
- * processor specific settings
- * - 'addbootcount': add boot counter
- * - 'addmtdparts': add mtd partition information
  */
 #define CONFIG_KM_DEF_ENV_BOOTARGS					\
-	"addinit="							\
-		"setenv bootargs ${bootargs} init=${init}\0"		\
-	"addip="							\
+	"add_default="							\
 		"setenv bootargs ${bootargs} "				\
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
-		":${hostname}:${netdev}:off\0"				\
-	"addmem="							\
-		"setenv bootargs ${bootargs} mem=${pnvramaddr}\0"	\
+		":${hostname}:${netdev}:off3"				\
+		" console=" CONFIG_KM_CONSOLE_TTY ",${baudrate}"	\
+		" mem=${pnvramaddr} init=${init}"			\
+		" phram.phram=phvar,${varaddr}," xstr(CONFIG_KM_PHRAM)	\
+		" ubi.mtd=" CONFIG_KM_UBI_LINUX_MTD_NAME " "		\
+		CONFIG_KM_DEF_BOOT_ARGS_CPU				\
+		"\0"							\
 	"addpanic="							\
 		"setenv bootargs ${bootargs} panic=1 panic_on_oops=1\0"	\
-	"addtty="							\
-		"setenv bootargs ${bootargs}"				\
-		" console=" CONFIG_KM_CONSOLE_TTY ",${baudrate}\0"	\
-	"addvar="							\
-		"setenv bootargs ${bootargs} phram.phram=phvar,"	\
-		"${varaddr}," xstr(CONFIG_KM_PHRAM) "\0"		\
 	"flashargs="							\
 		"setenv bootargs "					\
-		"ubi.mtd=" CONFIG_KM_UBI_LINUX_MTD_NAME " "		\
 		"root=mtdblock:rootfs${boot_bank} "			\
 		"rootfstype=squashfs ro\0"				\
 	""
@@ -261,9 +207,7 @@
  */
 #define CONFIG_KM_DEF_ENV_FLASH_BOOT					\
 	"cramfsaddr=" xstr(CONFIG_KM_CRAMFS_ADDR) "\0"			\
-	"cramfsloadkernel="						\
-		"cramfsload ${kernel_addr_r} uImage && "		\
-		"setenv actual_kernel_addr ${kernel_addr_r}\0"		\
+	"cramfsloadkernel=cramfsload ${load_addr_r} uImage\0"		\
 	"ubiattach=ubi part " CONFIG_KM_UBI_PARTITION_NAME "\0"		\
 	"ubicopy=ubi read "xstr(CONFIG_KM_CRAMFS_ADDR)			\
 			" bootfs${boot_bank}\0"				\
@@ -276,14 +220,8 @@
  * - 'default': setup default environment
  */
 #define CONFIG_KM_DEF_ENV_CONSTANTS					\
-	"actual=setenv boot_bank ${actual_bank}\0"			\
-	"backup=setenv boot_bank ${backup_bank}\0"			\
-	"actual_bank=${initial_boot_bank}\0"				\
 	"backup_bank=0\0"						\
-	"default="							\
-		"setenv default 'run newenv; reset' &&  "		\
-		"run release && saveenv; reset\0"			\
-	"checkboardid=km_checkbidhwk\0"					\
+	"release=run newenv; reset\0"					\
 	"pnvramsize=" xstr(CONFIG_KM_PNVRAM) "\0"			\
 	""
 
@@ -292,24 +230,27 @@
 	CONFIG_KM_DEF_ENV_BOOTPARAMS					\
 	CONFIG_KM_DEF_NETDEV						\
 	CONFIG_KM_DEF_ENV_CPU						\
-	CONFIG_KM_DEF_ENV_BOOTRUNNER					\
 	CONFIG_KM_DEF_ENV_BOOTTARGETS					\
 	CONFIG_KM_DEF_ENV_BOOTARGS					\
 	CONFIG_KM_DEF_ENV_FLASH_BOOT					\
 	CONFIG_KM_DEF_ENV_CONSTANTS					\
 	"altbootcmd=run bootcmd\0"					\
-	"bootcmd=run default\0"						\
+	"bootcmd=km_checkbidhwk &&  "					\
+	"	setenv bootcmd \'setenv boot_bank ${actual_bank}; "	\
+			"run ${subbootcmds}; reset\' && "		\
+		"setenv altbootcmd \'setenv boot_bank ${backup_bank}; "	\
+			"run ${subbootcmds}; reset\' && "		\
+		"saveenv && saveenv && boot\0"				\
 	"bootlimit=2\0"							\
 	"init=/sbin/init-overlay.sh\0"					\
-	"kernel_addr_r="xstr(CONFIG_KM_KERNEL_ADDR) "\0"		\
-	"load=tftpboot ${u-boot_addr_r} ${u-boot}\0"			\
+	"load_addr_r="xstr(CONFIG_KM_KERNEL_ADDR) "\0"			\
+	"load=tftpboot ${load_addr_r} ${u-boot}\0"			\
 	"mtdids=" MTDIDS_DEFAULT "\0"					\
 	"mtdparts=" MTDPARTS_DEFAULT "\0"				\
 	"stderr=serial\0"						\
 	"stdin=serial\0"						\
 	"stdout=serial\0"						\
 	"u-boot="xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"			\
-	"u-boot_addr_r="xstr(CONFIG_KM_KERNEL_ADDR) "\0"		\
 	""
 #endif /* CONFIG_KM_DEF_ENV */
 

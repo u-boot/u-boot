@@ -67,12 +67,12 @@
 #define CONFIG_KM_CRAMFS_ADDR	0x2400000
 #define CONFIG_KM_KERNEL_ADDR	0x2000000	/* 4096KBytes */
 
+/* architecture specific default bootargs */
+#define CONFIG_KM_DEF_BOOT_ARGS_CPU					\
+		"bootcountaddr=${bootcountaddr} ${mtdparts}"
+
 #define CONFIG_KM_DEF_ENV_CPU						\
-	"addbootcount="							\
-		"setenv bootargs ${bootargs} "				\
-		"bootcountaddr=${bootcountaddr}\0"			\
-	"addmtdparts=setenv bootargs ${bootargs} ${mtdparts}\0"		\
-	"boot=bootm ${actual_kernel_addr} - -\0"			\
+	"boot=bootm ${load_addr_r} - -\0"				\
 	"cramfsloadfdt=true\0"						\
 	CONFIG_KM_DEF_ENV_UPDATE					\
 	""
@@ -229,7 +229,7 @@ int get_scl(void);
 #define	CONFIG_KM_DEF_ENV_UPDATE					\
 	"update="							\
 		"spi on;sf probe 0;sf erase 0 50000;"			\
-		"sf write ${u-boot_addr_r} 0 ${filesize};"		\
+		"sf write ${load_addr_r} 0 ${filesize};"		\
 		"spi off\0"
 
 /*
