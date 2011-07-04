@@ -77,8 +77,6 @@
 	CONFIG_KM_DEF_ENV_UPDATE					\
 	""
 
-#define CONFIG_KM_ARCH_DBG_FILE		"scripts/debug-arm-env.txt"
-
 #define CONFIG_SKIP_LOWLEVEL_INIT	/* disable board lowlevel_init */
 #define CONFIG_MISC_INIT_R
 
@@ -243,7 +241,7 @@ int get_scl(void);
 		" ${addr} " xstr(CONFIG_ENV_OFFSET) " 4 && "		\
 		"eeprom write " xstr(CONFIG_SYS_DEF_EEPROM_ADDR)	\
 		" ${addr} " xstr(CONFIG_ENV_OFFSET_REDUND) " 4\0"	\
-	"rootpath=/opt/eldk/arm\0"					\
+	"arch=arm\0"							\
 	"EEprom_ivm=" KM_IVM_BUS "\0"					\
 	""
 

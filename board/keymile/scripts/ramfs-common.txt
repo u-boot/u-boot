@@ -1,0 +1,12 @@
+addramfs=setenv bootargs "${bootargs} mem=${rootfsaddr} phram.phram=rootfs${boot_bank},${rootfsaddr},${rootfssize}"
+actual_bank=-1
+altbootcmd=run ${subbootcmds}
+bootcmd=run ${subbootcmds}
+subbootcmds=tftpfdt tftpkernel setrootfsaddr tftpramfs flashargs add_default addpanic addramfs boot
+nfsargs=setenv bootargs root=/dev/nfs rw nfsroot=${serverip}:${rootpath}
+configure=km_setboardid && run setramfspram && saveenv && reset
+setramfspram=setexpr value 0 + ${rootfssize} && setexpr value 0x${value} / 0x400 && setexpr value 0x${value} + ${pram} && setenv pram 0x${value}
+rootfsfile=${hostname}/rootfsImage
+setrootfsaddr=setexpr value ${pnvramaddr} - ${rootfssize} && setenv rootfsaddr 0x${value}
+tftpkernel=tftpboot ${load_addr_r} ${hostname}/uImage
+tftpramfs=tftpboot ${rootfsaddr} ${hostname}/rootfsImage

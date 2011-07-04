@@ -1,9 +1,0 @@
-addramfs=setenv bootargs "${bootargs} phram.phram=rootfs${boot_bank},${rootfsaddr},${rootfssize}"
-develop=setenv subbootcmds "tftpfdt tftpkernel nfsargs ${commonargs} boot " && setenv bootcmd 'run bootrunner' && setenv altbootcmd 'run bootcmd' && km_setboardid && saveenv && reset
-nfsargs=setenv bootargs ubi.mtd=ubi0 root=/dev/nfs rw nfsroot=${serverip}:${rootpath}
-ramfs=setenv actual_bank -1 && setenv subbootcmds "tftpfdt tftpkernel setrootfsaddr tftpramfs flashargs ${commonargs} addpanic addramfs boot " && setenv bootcmd 'run bootrunner' && setenv altbootcmd 'run bootcmd' && run setboardid && run setramfspram && run setpnvramaddr && saveenv && reset
-rootfsfile=${hostname}/rootfsImage
-setramfspram=setexpr value 0 + ${reservedpram} && setexpr value 0x${value} + ${rootfssize} && setexpr value 0x${value} + ${varsize} && setexpr value 0x${value} + ${pnvramsize} && setexpr value 0x${value} / 0x400 && setenv pram 0x${value}
-tftpkernel=tftpboot ${kernel_addr_r} ${hostname}/uImage && setenv actual_kernel_addr ${kernel_addr_r}
-tftpramfs=tftpboot ${rootfsaddr} ${hostname}/rootfsImage && setenv loadaddr
-setrootfsaddr=setexpr value ${pnvramsize} - ${rootfssize} && setenv rootfsaddr 0x${value}

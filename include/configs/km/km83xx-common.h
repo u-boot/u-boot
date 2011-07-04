@@ -302,14 +302,13 @@
 #define CONFIG_KM_DEF_ENV "km-common=empty\0"
 #endif
 
-#ifndef CONFIG_KM_DEF_ROOTPATH
-#define CONFIG_KM_DEF_ROOTPATH		\
-	"rootpath=/opt/eldk/ppc_82xx\0"
+#ifndef CONFIG_KM_DEF_ARCH
+#define CONFIG_KM_DEF_ARCH	"arch=ppc_82xx\0"
 #endif
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	CONFIG_KM_DEF_ENV						\
-	CONFIG_KM_DEF_ROOTPATH						\
+	CONFIG_KM_DEF_ARCH						\
 	"dtt_bus=pca9547:70:a\0"					\
 	"EEprom_ivm=pca9547:70:9\0"					\
 	"newenv="							\

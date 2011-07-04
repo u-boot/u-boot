@@ -33,8 +33,7 @@
 #define CONFIG_MPC832x	/* MPC832x CPU specific */
 #define CONFIG_KM8321	/* Keymile PBEC8321 board specific */
 
-#define CONFIG_KM_DEF_ROOTPATH		\
-	"rootpath=/opt/eldk/ppc_8xx\0"
+#define CONFIG_KM_DEF_ARCH	"arch=ppc_8xx\0"
 
 /* include common defines/options for all 83xx Keymile boards */
 #include "km83xx-common.h"

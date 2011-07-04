@@ -1,2 +1,0 @@
-debug_env_common=tftpboot 0x200000 scripts/debug-common-env.txt && env import -t 0x200000 ${filesize}
-tftpfdt=true

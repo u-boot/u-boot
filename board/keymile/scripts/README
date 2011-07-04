@@ -1,23 +1,31 @@
-debug-common-env.txt
-============================
-This file defines environment variables which are valid for powerpc boards
-and for arm boards.
+These scripts are needed for our development usecases. Copy this directory
+into your tftp root directory to be able to use this scripts.
+cp -r <u-boot-repo>/board/keymile/scripts <your_tftp_root>/
 
-addramfs: add phram device for the rootfilesysten in ram
-develop: for development, laod kernel via tftp and mount  rootfs via NFS
-nfsargs: default arguments for nfs boot
-ramfs: load rootfilesystem in RAM  kernel
-rootfsfile: loacation of the rootfs file for ramfs
-setramfspram: compute PRAM size for ramfs target
-setrootfsaddr: compute rootfilesystem address for phram
-tftpkernel: load a kernel with tftp into ram
-tftpramfs: load rootfs with tftp into ram
+To load and configure these usecase, two environment variables in the u-boot
+default environment must be parsed:
+run develop : setup environment to configure for rootfs via nfs
+run ramfs   : setup environment to configure for rootfs in ram
 
-debug-ppc-env.txt
-============================
-fdt_file: location of the dtb file on the tftp server
-tftpfdt: load dtb file and set fdt address
+Last change: 20.05.2011
 
-debug-arm-env.txt
+develop-common.txt
 ============================
-tftpfdt: for arm only a dummy variable, because we have no fdt on arm
+This file defines variables for working with rootfs via nfs for powerpc and
+arm.
+
+develop-<arch>.txt
+============================
+This file defines architecture specific variables for working with rootfs via
+nfs arm.
+
+
+ramfs-common.txt
+============================
+This file defines variables for working with rootfs inside the ram for powerpc
+and arm.
+
+ramfs-<arch>.txt
+============================
+This file defines architecture specific variables for working with rootfs inside
+ram.

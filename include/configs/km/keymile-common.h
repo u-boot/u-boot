@@ -159,10 +159,14 @@
 #define CONFIG_KM_DEF_ENV_BOOTTARGETS					\
 	"subbootcmds=ubiattach ubicopy cramfsloadfdt cramfsloadkernel "	\
 		"flashargs add_default addpanic boot\0"			\
-	"debug_env="							\
-		"tftp 200000 " CONFIG_KM_ARCH_DBG_FILE " && "		\
+	"develop="							\
+		"tftp 200000 scripts/develop-${arch}.txt && "		\
 		"env import -t 200000 ${filesize} && "			\
-		"run debug_env_common\0"				\
+		"run setup_debug_env\0"					\
+	"ramfs="							\
+		"tftp 200000 scripts/ramfs-${arch}.txt && "		\
+		"env import -t 200000 ${filesize} && "			\
+		"run setup_debug_env\0"					\
 	""
 
 /*

@@ -83,6 +83,4 @@
 		"protect on " xstr(BOOTFLASH_START) "  +${filesize}\0"  \
 	""
 
-#define CONFIG_KM_ARCH_DBG_FILE		"scripts/debug-ppc-env.txt"
-
 #endif /* __CONFIG_KEYMILE_POWERPC_H */

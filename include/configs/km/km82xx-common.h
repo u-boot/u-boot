@@ -87,7 +87,7 @@
 	"newenv="							\
 		"prot off 0xFE0C0000 +0x40000 && "			\
 		"era 0xFE0C0000 +0x40000\0"				\
-	"rootpath=/opt/eldk/ppc_82xx\0"					\
+	"arch=ppc_82xx\0"					\
 	""
 
 #define CONFIG_SYS_MONITOR_BASE	CONFIG_SYS_TEXT_BASE
