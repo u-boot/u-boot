@@ -270,6 +270,7 @@ static int do_setboardid(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 	sprintf((char *)buf, "%s", p);
 	setenv("boardid", (char *)buf);
+	printf("set boardid=%s\n", buf);
 
 	p = get_local_var("IVM_HWKey");
 	if (p == NULL) {
@@ -278,6 +279,8 @@ static int do_setboardid(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 	sprintf((char *)buf, "%s", p);
 	setenv("hwkey", (char *)buf);
+	printf("set hwkey=%s\n", buf);
+	printf("Execute manually saveenv for persistent storage.\n");
 
 	return 0;
 }
@@ -421,7 +424,8 @@ int do_checkboardidhwk(cmd_tbl_t *cmdtp, int flag, int argc,
 		printf("boardid=0x%3lX, hwkey=%ld\n", envbid, envhwkey);
 		rc = 0; /* match */
 	} else {
-		printf("Error: env bId=0x%3lX, hwKey=%ld\n", envbid, envhwkey);
+		printf("Error: env boardid=0x%3lX, hwkey=%ld\n", envbid,
+			envhwkey);
 		printf("       IVM bId=0x%3lX, hwKey=%ld\n", ivmbid, ivmhwkey);
 		rc = 1; /* don't match */
 	}
