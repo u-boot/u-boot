@@ -853,7 +853,7 @@ int mmc_startup(struct mmc *mmc)
 {
 	int err;
 	uint mult, freq;
-	u64 cmult, csize;
+	u64 cmult, csize, capacity;
 	struct mmc_cmd cmd;
 	char ext_csd[512];
 	int timeout = 1000;
@@ -1002,9 +1002,16 @@ int mmc_startup(struct mmc *mmc)
 		/* check  ext_csd version and capacity */
 		err = mmc_send_ext_csd(mmc, ext_csd);
 		if (!err & (ext_csd[192] >= 2)) {
-			mmc->capacity = ext_csd[212] << 0 | ext_csd[213] << 8 |
-					ext_csd[214] << 16 | ext_csd[215] << 24;
-			mmc->capacity *= 512;
+			/*
+			 * According to the JEDEC Standard, the value of
+			 * ext_csd's capacity is valid if the value is more
+			 * than 2GB
+			 */
+			capacity = ext_csd[212] << 0 | ext_csd[213] << 8 |
+				   ext_csd[214] << 16 | ext_csd[215] << 24;
+			capacity *= 512;
+			if (capacity > 2 * 1024 * 1024 * 1024)
+				mmc->capacity = capacity;
 		}
 
 		/*
