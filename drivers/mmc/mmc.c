@@ -531,6 +531,10 @@ int mmc_send_op_cond(struct mmc *mmc)
 				(mmc->voltages &
 				(cmd.response[0] & OCR_VOLTAGE_MASK)) |
 				(cmd.response[0] & OCR_ACCESS_MODE));
+
+		if (mmc->host_caps & MMC_MODE_HC)
+			cmd.cmdarg |= OCR_HCS;
+
 		cmd.flags = 0;
 
 		err = mmc_send_cmd(mmc, &cmd, NULL);
@@ -1010,7 +1014,7 @@ int mmc_startup(struct mmc *mmc)
 			capacity = ext_csd[212] << 0 | ext_csd[213] << 8 |
 				   ext_csd[214] << 16 | ext_csd[215] << 24;
 			capacity *= 512;
-			if (capacity > 2 * 1024 * 1024 * 1024)
+			if ((capacity >> 20) > 2 * 1024)
 				mmc->capacity = capacity;
 		}
 

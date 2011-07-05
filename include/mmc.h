@@ -45,6 +45,7 @@
 #define MMC_MODE_4BIT		0x100
 #define MMC_MODE_8BIT		0x200
 #define MMC_MODE_SPI		0x400
+#define MMC_MODE_HC		0x800
 
 #define SD_DATA_4BIT	0x00040000
 
