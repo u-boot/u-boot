@@ -1371,7 +1371,18 @@ int board_nand_init(struct nand_chip *this)
 
 	/* Blocks to be unlocked */
 	writew(0x0, &host->regs->nfc_unlockstart_blkaddr);
-	writew(0x4000, &host->regs->nfc_unlockend_blkaddr);
+	/* Originally (Freescale LTIB 2.6.21) 0x4000 was written to the
+	 * unlockend_blkaddr, but the magic 0x4000 does not always work
+	 * when writing more than some 32 megabytes (on 2k page nands)
+	 * However 0xFFFF doesn't seem to have this kind
+	 * of limitation (tried it back and forth several times).
+	 * The linux kernel driver sets this to 0xFFFF for the v2 controller
+	 * only, but probably this was not tested there for v1.
+	 * The very same limitation seems to apply to this kernel driver.
+	 * This might be NAND chip specific and the i.MX31 datasheet is
+	 * extremely vague about the semantics of this register.
+	 */
+	writew(0xFFFF, &host->regs->nfc_unlockend_blkaddr);
 
 	/* Unlock Block Command for given address range */
 	writew(0x4, &host->regs->nfc_wrprot);
