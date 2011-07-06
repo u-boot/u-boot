@@ -904,6 +904,7 @@ Lei Wen <leiwen@marvell.com>
 Matthias Weisser <weisserm@arcor.de>
 
 	jadecpu		ARM926EJS (MB86R01 SoC)
+	zmx25		ARM926EJS (imx25 SoC)
 
 Richard Woodruff <r-woodruff2@ti.com>
 
