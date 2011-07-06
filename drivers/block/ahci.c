@@ -78,13 +78,15 @@ static int waiting_for_cmd_completed(volatile u8 *offset,
 
 static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 {
+#ifndef CONFIG_SCSI_AHCI_PLAT
 	pci_dev_t pdev = probe_ent->dev;
+	u16 tmp16;
+	unsigned short vendor;
+#endif
 	volatile u8 *mmio = (volatile u8 *)probe_ent->mmio_base;
 	u32 tmp, cap_save;
-	u16 tmp16;
 	int i, j;
 	volatile u8 *port_mmio;
-	unsigned short vendor;
 
 	cap_save = readl(mmio + HOST_CAP);
 	cap_save &= ((1 << 28) | (1 << 17));
@@ -110,6 +112,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 	writel(cap_save, mmio + HOST_CAP);
 	writel_with_flush(0xf, mmio + HOST_PORTS_IMPL);
 
+#ifndef CONFIG_SCSI_AHCI_PLAT
 	pci_read_config_word(pdev, PCI_VENDOR_ID, &vendor);
 
 	if (vendor == PCI_VENDOR_ID_INTEL) {
@@ -118,7 +121,7 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 		tmp16 |= 0xf;
 		pci_write_config_word(pdev, 0x92, tmp16);
 	}
-
+#endif
 	probe_ent->cap = readl(mmio + HOST_CAP);
 	probe_ent->port_map = readl(mmio + HOST_PORTS_IMPL);
 	probe_ent->n_ports = (probe_ent->cap & 0x1f) + 1;
@@ -183,22 +186,24 @@ static int ahci_host_init(struct ahci_probe_ent *probe_ent)
 	writel(tmp | HOST_IRQ_EN, mmio + HOST_CTL);
 	tmp = readl(mmio + HOST_CTL);
 	debug("HOST_CTL 0x%x\n", tmp);
-
+#ifndef CONFIG_SCSI_AHCI_PLAT
 	pci_read_config_word(pdev, PCI_COMMAND, &tmp16);
 	tmp |= PCI_COMMAND_MASTER;
 	pci_write_config_word(pdev, PCI_COMMAND, tmp16);
-
+#endif
 	return 0;
 }
 
 
 static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 {
+#ifndef CONFIG_SCSI_AHCI_PLAT
 	pci_dev_t pdev = probe_ent->dev;
+	u16 cc;
+#endif
 	volatile u8 *mmio = (volatile u8 *)probe_ent->mmio_base;
 	u32 vers, cap, impl, speed;
 	const char *speed_s;
-	u16 cc;
 	const char *scc_s;
 
 	vers = readl(mmio + HOST_VERSION);
@@ -213,6 +218,9 @@ static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 	else
 		speed_s = "?";
 
+#ifdef CONFIG_SCSI_AHCI_PLAT
+	scc_s = "SATA";
+#else
 	pci_read_config_word(pdev, 0x0a, &cc);
 	if (cc == 0x0101)
 		scc_s = "IDE";
@@ -222,7 +230,7 @@ static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 		scc_s = "RAID";
 	else
 		scc_s = "unknown";
-
+#endif
 	printf("AHCI %02x%02x.%02x%02x "
 	       "%u slots %u ports %s Gbps 0x%x impl %s mode\n",
 	       (vers >> 24) & 0xff,
@@ -249,6 +257,7 @@ static void ahci_print_info(struct ahci_probe_ent *probe_ent)
 	       cap & (1 << 13) ? "part " : "");
 }
 
+#ifndef CONFIG_SCSI_AHCI_PLAT
 static int ahci_init_one(pci_dev_t pdev)
 {
 	u16 vendor;
@@ -291,7 +300,7 @@ static int ahci_init_one(pci_dev_t pdev)
       err_out:
 	return rc;
 }
-
+#endif
 
 #define MAX_DATA_BYTE_COUNT  (4*1024*1024)
 
@@ -667,7 +676,9 @@ void scsi_low_level_init(int busdevfunc)
 	int i;
 	u32 linkmap;
 
+#ifndef CONFIG_SCSI_AHCI_PLAT
 	ahci_init_one(busdevfunc);
+#endif
 
 	linkmap = probe_ent->link_port_map;
 
@@ -682,6 +693,49 @@ void scsi_low_level_init(int busdevfunc)
 	}
 }
 
+#ifdef CONFIG_SCSI_AHCI_PLAT
+int ahci_init(u32 base)
+{
+	int i, rc = 0;
+	u32 linkmap;
+
+	memset(ataid, 0, sizeof(ataid));
+
+	probe_ent = malloc(sizeof(struct ahci_probe_ent));
+	memset(probe_ent, 0, sizeof(struct ahci_probe_ent));
+
+	probe_ent->host_flags = ATA_FLAG_SATA
+				| ATA_FLAG_NO_LEGACY
+				| ATA_FLAG_MMIO
+				| ATA_FLAG_PIO_DMA
+				| ATA_FLAG_NO_ATAPI;
+	probe_ent->pio_mask = 0x1f;
+	probe_ent->udma_mask = 0x7f;	/*Fixme,assume to support UDMA6 */
+
+	probe_ent->mmio_base = base;
+
+	/* initialize adapter */
+	rc = ahci_host_init(probe_ent);
+	if (rc)
+		goto err_out;
+
+	ahci_print_info(probe_ent);
+
+	linkmap = probe_ent->link_port_map;
+
+	for (i = 0; i < CONFIG_SYS_SCSI_MAX_SCSI_ID; i++) {
+		if (((linkmap >> i) & 0x01)) {
+			if (ahci_port_start((u8) i)) {
+				printf("Can not start port %d\n", i);
+				continue;
+			}
+			ahci_set_feature((u8) i);
+		}
+	}
+err_out:
+	return rc;
+}
+#endif
 
 void scsi_bus_reset(void)
 {
