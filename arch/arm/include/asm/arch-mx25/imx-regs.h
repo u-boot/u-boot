@@ -86,8 +86,8 @@ struct esdramc_regs {
 
 /* GPIO registers */
 struct gpio_regs {
-	u32 dr;		/* data */
-	u32 dir;	/* direction */
+	u32 gpio_dr;	/* data */
+	u32 gpio_dir;	/* direction */
 	u32 psr;	/* pad satus */
 	u32 icr1;	/* interrupt config 1 */
 	u32 icr2;	/* interrupt config 2 */
@@ -356,5 +356,11 @@ struct aips_regs {
 #define WCR_WDE 		0x04
 #define WSR_UNLOCK1		0x5555
 #define WSR_UNLOCK2		0xAAAA
+
+/* Names used in GPIO driver */
+#define GPIO1_BASE_ADDR		IMX_GPIO1_BASE
+#define GPIO2_BASE_ADDR		IMX_GPIO2_BASE
+#define GPIO3_BASE_ADDR		IMX_GPIO3_BASE
+#define GPIO4_BASE_ADDR		IMX_GPIO4_BASE
 
 #endif				/* _IMX_REGS_H */

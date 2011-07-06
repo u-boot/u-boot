@@ -24,6 +24,11 @@
 #ifndef __MXC_GPIO_H
 #define __MXC_GPIO_H
 
+/* Converts a GPIO port number and the internal bit position
+ * to the GPIO number
+ */
+#define MXC_GPIO_PORT_TO_NUM(port, bit) (((port - 1) << 5) + (bit & 0x1f))
+
 enum mxc_gpio_direction {
 	MXC_GPIO_DIRECTION_IN,
 	MXC_GPIO_DIRECTION_OUT,

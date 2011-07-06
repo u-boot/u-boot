@@ -70,18 +70,18 @@ void tx25_fec_init(void)
 	writel(0x0, &padctl->pad_d11);
 
 	/* drop PHY power and assert reset (low) */
-	val = readl(&gpio4->dr) & ~((1 << 7) | (1 << 9));
-	writel(val, &gpio4->dr);
-	val = readl(&gpio4->dir) | (1 << 7) | (1 << 9);
-	writel(val, &gpio4->dir);
+	val = readl(&gpio4->gpio_dr) & ~((1 << 7) | (1 << 9));
+	writel(val, &gpio4->gpio_dr);
+	val = readl(&gpio4->gpio_dir) | (1 << 7) | (1 << 9);
+	writel(val, &gpio4->gpio_dir);
 
 	mdelay(5);
 
 	debug("resetting phy\n");
 
 	/* turn on PHY power leaving reset asserted */
-	val = readl(&gpio4->dr) | 1 << 9;
-	writel(val, &gpio4->dr);
+	val = readl(&gpio4->gpio_dr) | 1 << 9;
+	writel(val, &gpio4->gpio_dr);
 
 	mdelay(10);
 
@@ -111,19 +111,19 @@ void tx25_fec_init(void)
 	/*
 	 * set each to 1 and make each an output
 	 */
-	val = readl(&gpio3->dr) | (1 << 10) | (1 << 11) | (1 << 12);
-	writel(val, &gpio3->dr);
-	val = readl(&gpio3->dir) | (1 << 10) | (1 << 11) | (1 << 12);
-	writel(val, &gpio3->dir);
+	val = readl(&gpio3->gpio_dr) | (1 << 10) | (1 << 11) | (1 << 12);
+	writel(val, &gpio3->gpio_dr);
+	val = readl(&gpio3->gpio_dir) | (1 << 10) | (1 << 11) | (1 << 12);
+	writel(val, &gpio3->gpio_dir);
 
 	mdelay(22);		/* this value came from RedBoot */
 
 	/*
 	 * deassert PHY reset
 	 */
-	val = readl(&gpio4->dr) | 1 << 7;
-	writel(val, &gpio4->dr);
-	writel(val, &gpio4->dr);
+	val = readl(&gpio4->gpio_dr) | 1 << 7;
+	writel(val, &gpio4->gpio_dr);
+	writel(val, &gpio4->gpio_dr);
 
 	mdelay(5);
 
