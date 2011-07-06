@@ -697,9 +697,6 @@ Matthias Kaehlcke <matthias@kaehlcke.net>
 	edb9315			ARM920T (EP9315)
 	edb9315a		ARM920T (EP9315)
 
-Konstantin Kletschke <kletschke@synertronixx.de>
-	scb9328		ARM920T
-
 Nishant Kamat <nskamat@ti.com>
 
 	omap1610h2	ARM926EJS
@@ -713,6 +710,9 @@ Minkyu Kang <mk7.kang@samsung.com>
 Chander Kashyap <k.chander@samsung.com>
 
 	SMDKV310		ARM ARMV7 (S5PC210 SoC)
+
+Torsten Koschorrek <koschorrek@synertronixx.de>
+	scb9328		ARM920T (i.MXL)
 
 Frederik Kriewitz <frederik@kriewitz.eu>
 
