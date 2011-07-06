@@ -746,7 +746,7 @@ enum iomux_pins {
 #define IRAM_SIZE	(16 * 1024)
 
 #define MX31_AIPS1_BASE_ADDR	0x43f00000
-#define MX31_OTG_BASE_ADDR	(MX31_AIPS1_BASE_ADDR + 0x88000)
+#define IMX_USB_BASE		(MX31_AIPS1_BASE_ADDR + 0x88000)
 
 /* USB portsc */
 /* values for portsc field */
