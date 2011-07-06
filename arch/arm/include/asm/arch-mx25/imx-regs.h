@@ -141,6 +141,45 @@ struct fuse_bank0_regs {
 	u32 mac_addr[6];
 };
 
+/* Multi-Layer AHB Crossbar Switch (MAX) registers */
+struct max_regs {
+	u32 mpr0;
+	u32 pad00[3];
+	u32 sgpcr0;
+	u32 pad01[59];
+	u32 mpr1;
+	u32 pad02[3];
+	u32 sgpcr1;
+	u32 pad03[59];
+	u32 mpr2;
+	u32 pad04[3];
+	u32 sgpcr2;
+	u32 pad05[59];
+	u32 mpr3;
+	u32 pad06[3];
+	u32 sgpcr3;
+	u32 pad07[59];
+	u32 mpr4;
+	u32 pad08[3];
+	u32 sgpcr4;
+	u32 pad09[251];
+	u32 mgpcr0;
+	u32 pad10[63];
+	u32 mgpcr1;
+	u32 pad11[63];
+	u32 mgpcr2;
+	u32 pad12[63];
+	u32 mgpcr3;
+	u32 pad13[63];
+	u32 mgpcr4;
+};
+
+/* AHB <-> IP-Bus Interface (AIPS) */
+struct aips_regs {
+	u32 mpr_0_7;
+	u32 mpr_8_15;
+};
+
 #endif
 
 /* AIPS 1 */
