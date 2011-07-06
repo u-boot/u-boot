@@ -288,8 +288,10 @@ static int boot_body_linux(bootm_headers_t *images)
 			return ret;
 		of_size = ret;
 
-		if (*initrd_start && *initrd_end)
+		if (*initrd_start && *initrd_end) {
 			of_size += FDT_RAMDISK_OVERHEAD;
+			fdt_set_totalsize(*of_flat_tree, of_size);
+		}
 		/* Create a new LMB reservation */
 		lmb_reserve(lmb, (ulong)*of_flat_tree, of_size);
 
