@@ -32,7 +32,6 @@
  * High Level Configuration Options
  * (easy to change)
  */
-#define CONFIG_ARMV7		1	/* This is an ARM V7 CPU core */
 #define CONFIG_SAMSUNG		1	/* in a SAMSUNG core */
 #define CONFIG_S5P		1	/* which is in a S5P Family */
 #define CONFIG_S5PC100		1	/* which is in a S5PC100 */

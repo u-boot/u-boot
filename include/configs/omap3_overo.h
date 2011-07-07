@@ -23,7 +23,6 @@
 /*
  * High Level Configuration Options
  */
-#define CONFIG_ARMV7		1	/* This is an ARM V7 CPU core */
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP34XX		1	/* which is a 34XX */
 #define CONFIG_OMAP3430		1	/* which is in a 3430 */
