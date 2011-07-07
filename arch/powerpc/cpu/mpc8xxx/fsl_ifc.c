@@ -43,9 +43,11 @@ void init_early_memctl_regs(void)
 	set_ifc_ftim(IFC_CS0, IFC_FTIM2, CONFIG_SYS_CS0_FTIM2);
 	set_ifc_ftim(IFC_CS0, IFC_FTIM3, CONFIG_SYS_CS0_FTIM3);
 
+#if !defined(CONFIG_SYS_FSL_ERRATUM_IFC_A003399) || defined(CONFIG_SYS_RAMBOOT)
 	set_ifc_cspr(IFC_CS0, CONFIG_SYS_CSPR0);
 	set_ifc_amask(IFC_CS0, CONFIG_SYS_AMASK0);
 	set_ifc_csor(IFC_CS0, CONFIG_SYS_CSOR0);
+#endif
 #endif
 
 #if defined(CONFIG_SYS_CSPR1) && defined(CONFIG_SYS_CSOR1)
