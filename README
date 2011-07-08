@@ -2563,6 +2563,11 @@ The following definitions that deal with the placement and management
 of environment data (variable area); in general, we support the
 following configurations:
 
+- CONFIG_BUILD_ENVCRC:
+
+	Builds up envcrc with the target environment so that external utils
+	may easily extract it and embed it in final U-Boot images.
+
 - CONFIG_ENV_IS_IN_FLASH:
 
 	Define this if the environment is in flash memory.

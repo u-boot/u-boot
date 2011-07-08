@@ -761,4 +761,9 @@ int cpu_release(int nr, int argc, char * const argv[]);
 #define ALIGN(x,a)		__ALIGN_MASK((x),(typeof(x))(a)-1)
 #define __ALIGN_MASK(x,mask)	(((x)+(mask))&~(mask))
 
+/* Pull in stuff for the build system */
+#ifdef DO_DEPS_ONLY
+# include <environment.h>
+#endif
+
 #endif	/* __COMMON_H_ */
