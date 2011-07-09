@@ -1234,8 +1234,10 @@ int boot_relocate_fdt (struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 {
 	void	*fdt_blob = *of_flat_tree;
 	void	*of_start = 0;
+	char	*fdt_high;
 	ulong	of_len = 0;
 	int	err;
+	int	disable_relocation = 0;
 
 	/* nothing to do */
 	if (*of_size == 0)
@@ -1249,26 +1251,62 @@ int boot_relocate_fdt (struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 	/* position on a 4K boundary before the alloc_current */
 	/* Pad the FDT by a specified amount */
 	of_len = *of_size + CONFIG_SYS_FDT_PAD;
-	of_start = (void *)(unsigned long)lmb_alloc_base(lmb, of_len, 0x1000,
-			getenv_bootm_mapsize() + getenv_bootm_low());
+
+	/* If fdt_high is set use it to select the relocation address */
+	fdt_high = getenv("fdt_high");
+	if (fdt_high) {
+		void *desired_addr = (void *)simple_strtoul(fdt_high, NULL, 16);
+
+		if (((ulong) desired_addr) == ~0UL) {
+			/* All ones means use fdt in place */
+			desired_addr = fdt_blob;
+			disable_relocation = 1;
+		}
+		if (desired_addr) {
+			of_start =
+			    (void *)(ulong) lmb_alloc_base(lmb, of_len, 0x1000,
+							   ((ulong)
+							    desired_addr)
+							   + of_len);
+			if (desired_addr && of_start != desired_addr) {
+				puts("Failed using fdt_high value for Device Tree");
+				goto error;
+			}
+		} else {
+			of_start =
+			    (void *)(ulong) mb_alloc(lmb, of_len, 0x1000);
+		}
+	} else {
+		of_start =
+		    (void *)(ulong) lmb_alloc_base(lmb, of_len, 0x1000,
+						   getenv_bootm_mapsize()
+						   + getenv_bootm_low());
+	}
 
 	if (of_start == 0) {
 		puts("device tree - allocation error\n");
 		goto error;
 	}
 
-	debug ("## device tree at %p ... %p (len=%ld [0x%lX])\n",
-		fdt_blob, fdt_blob + *of_size - 1, of_len, of_len);
+	if (disable_relocation) {
+		/* We assume there is space after the existing fdt to use for padding */
+		fdt_set_totalsize(of_start, of_len);
+		printf("   Using Device Tree in place at %p, end %p\n",
+		       of_start, of_start + of_len - 1);
+	} else {
+		debug ("## device tree at %p ... %p (len=%ld [0x%lX])\n",
+			fdt_blob, fdt_blob + *of_size - 1, of_len, of_len);
 
-	printf ("   Loading Device Tree to %p, end %p ... ",
-		of_start, of_start + of_len - 1);
+		printf ("   Loading Device Tree to %p, end %p ... ",
+			of_start, of_start + of_len - 1);
 
-	err = fdt_open_into (fdt_blob, of_start, of_len);
-	if (err != 0) {
-		fdt_error ("fdt move failed");
-		goto error;
+		err = fdt_open_into (fdt_blob, of_start, of_len);
+		if (err != 0) {
+			fdt_error ("fdt move failed");
+			goto error;
+		}
+		puts ("OK\n");
 	}
-	puts ("OK\n");
 
 	*of_flat_tree = of_start;
 	*of_size = of_len;

@@ -3305,6 +3305,15 @@ List of environment variables (most likely not complete):
 		  This can be used to load and uncompress arbitrary
 		  data.
 
+  fdt_high	- if set this restricts the maximum address that the
+		  flattened device tree will be copied into upon boot.
+		  If this is set to the special value 0xFFFFFFFF then
+		  the fdt will not be copied at all on boot.  For this
+		  to work it must reside in writable memory, have
+		  sufficient padding on the end of it for u-boot to
+		  add the information it needs into it, and the memory
+		  must be accessible by the kernel.
+
   i2cfast	- (PPC405GP|PPC405EP only)
 		  if set to 'y' configures Linux I2C driver for fast
 		  mode (400kHZ). This environment variable is used in
