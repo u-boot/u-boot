@@ -205,6 +205,14 @@ static inline void ehci_invalidate_dcache(struct QH *qh)
 }
 #endif /* CONFIG_EHCI_DCACHE */
 
+void __ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
+{
+	mdelay(50);
+}
+
+void ehci_powerup_fixup(uint32_t *status_reg, uint32_t *reg)
+	__attribute__((weak, alias("__ehci_powerup_fixup")));
+
 static int handshake(uint32_t *ptr, uint32_t mask, uint32_t done, int usec)
 {
 	uint32_t result;
@@ -713,8 +721,8 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 				 * usb 2.0 specification say 50 ms resets on
 				 * root
 				 */
-				wait_ms(50);
-				/* terminate the reset */
+				ehci_powerup_fixup(status_reg, &reg);
+
 				ehci_writel(status_reg, reg & ~EHCI_PS_PR);
 				/*
 				 * A host controller must terminate the reset
