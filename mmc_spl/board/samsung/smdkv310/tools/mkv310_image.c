@@ -26,6 +26,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #define CHECKSUM_OFFSET		(14*1024-4)
 #define BUFSIZE			(16*1024)
