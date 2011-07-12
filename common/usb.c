@@ -957,8 +957,8 @@ void usb_scan_devices(void)
 	/* insert "driver" if possible */
 #ifdef CONFIG_USB_KEYBOARD
 	drv_usb_kbd_init();
-	USB_PRINTF("scan end\n");
 #endif
+	USB_PRINTF("scan end\n");
 }
 
 
