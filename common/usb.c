@@ -1166,6 +1166,7 @@ void usb_hub_port_connect_change(struct usb_device *dev, int port)
 
 	dev->children[port] = usb;
 	usb->parent = dev;
+	usb->portnr = port + 1;
 	/* Run it through the hoops (find a driver, etc) */
 	if (usb_new_device(usb)) {
 		/* Woops, disable the port */
