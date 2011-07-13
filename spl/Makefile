@@ -36,6 +36,17 @@ endif
 LIBS-y += board/$(BOARDDIR)/lib$(BOARD).o
 LIBS-$(HAVE_VENDOR_COMMON_LIB) += board/$(VENDOR)/common/lib$(VENDOR).o
 
+LIBS-$(CONFIG_SPL_LIBCOMMON_SUPPORT) += common/libcommon.o
+LIBS-$(CONFIG_SPL_LIBDISK_SUPPORT) += disk/libdisk.o
+LIBS-$(CONFIG_SPL_I2C_SUPPORT) += drivers/i2c/libi2c.o
+LIBS-$(CONFIG_SPL_GPIO_SUPPORT) += drivers/gpio/libgpio.o
+LIBS-$(CONFIG_SPL_MMC_SUPPORT) += drivers/mmc/libmmc.o
+LIBS-$(CONFIG_SPL_SERIAL_SUPPORT) += drivers/serial/libserial.o
+LIBS-$(CONFIG_SPL_SPI_FLASH_SUPPORT) += drivers/mtd/spi/libspi_flash.o
+LIBS-$(CONFIG_SPL_SPI_SUPPORT) += drivers/spi/libspi.o
+LIBS-$(CONFIG_SPL_FAT_SUPPORT) += fs/fat/libfat.o
+LIBS-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/libgeneric.o
+
 START := $(addprefix $(SPLTREE)/,$(START))
 LIBS := $(addprefix $(SPLTREE)/,$(sort $(LIBS-y)))
 
