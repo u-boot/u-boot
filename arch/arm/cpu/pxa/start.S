@@ -43,7 +43,7 @@ sub  pc,pc,#4
 
 .globl _start
 _start: b	reset
-#ifdef CONFIG_PRELOADER
+#ifdef CONFIG_SPL_BUILD
 	ldr	pc, _hang
 	ldr	pc, _hang
 	ldr	pc, _hang
@@ -77,7 +77,7 @@ _data_abort:		.word data_abort
 _not_used:		.word not_used
 _irq:			.word irq
 _fiq:			.word fiq
-#endif	/* CONFIG_PRELOADER */
+#endif	/* CONFIG_SPL_BUILD */
 
 	.balignl 16,0xdeadbeef
 
@@ -122,7 +122,7 @@ FIQ_STACK_START:
 	.word 0x0badc0de
 #endif /* CONFIG_USE_IRQ */
 
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 /* IRQ stack memory (calculated at run-time) + 8 bytes */
 .globl IRQ_STACK_START_IN
 IRQ_STACK_START_IN:
@@ -262,7 +262,7 @@ copy_loop:
 	blo	copy_loop
 	ldmfd sp!, {r0-r12}
 
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 	/*
 	 * fix .rel.dyn relocations
 	 */
@@ -301,10 +301,10 @@ fixnext:
 	add	r2, r2, #8	/* each rel.dyn entry is 8 bytes */
 	cmp	r2, r3
 	blo	fixloop
-#endif	/* #ifndef CONFIG_PRELOADER */
+#endif	/* #ifndef CONFIG_SPL_BUILD */
 
 clear_bss:
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 	ldr	r0, _bss_start_ofs
 	ldr	r1, _bss_end_ofs
 	mov	r4, r6			/* reloc addr */
@@ -316,7 +316,7 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
 	add	r0, r0, #4
 	cmp	r0, r1
 	bne	clbss_l
-#endif	/* #ifndef CONFIG_PRELOADER */
+#endif	/* #ifndef CONFIG_SPL_BUILD */
 
 /*
  * We are done. Do not return, instead branch to second part of board
@@ -350,7 +350,7 @@ _rel_dyn_end_ofs:
 _dynsym_start_ofs:
 	.word __dynsym_start - _start
 
-#else /* CONFIG_PRELOADER */
+#else /* CONFIG_SPL_BUILD */
 
 /****************************************************************************/
 /*									    */
@@ -375,9 +375,9 @@ reset:
 	/* Start OneNAND IPL */
 	ldr	pc, =start_oneboot
 
-#endif /* CONFIG_PRELOADER */
+#endif /* CONFIG_SPL_BUILD */
 
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 /****************************************************************************/
 /*									    */
 /* Interrupt handling							    */
@@ -471,7 +471,7 @@ reset:
 	.macro get_fiq_stack			@ setup FIQ stack
 	ldr	sp, FIQ_STACK_START
 	.endm
-#endif	/* CONFIG_PRELOADER
+#endif	/* CONFIG_SPL_BUILD
 
 
 /****************************************************************************/
@@ -480,7 +480,7 @@ reset:
 /*									    */
 /****************************************************************************/
 
-#ifdef CONFIG_PRELOADER
+#ifdef CONFIG_SPL_BUILD
 	.align	5
 do_hang:
 	ldr	sp, _TEXT_BASE			/* use 32 words abort stack */
@@ -545,7 +545,7 @@ fiq:
 	get_bad_stack
 	bad_save_user_regs
 	bl	do_fiq
-#endif	/* CONFIG_PRELOADER */
+#endif	/* CONFIG_SPL_BUILD */
 #endif /* CONFIG_USE_IRQ */
 
 /****************************************************************************/
@@ -584,7 +584,7 @@ reset_endless:
 
 	b	reset_endless
 
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 .section .mmudata, "a"
 	.align	14
 	.globl	mmu_table
@@ -604,4 +604,4 @@ mmu_table:
 	.word	(__base << 20) | 0xc12
 	.set	__base, __base + 1
 	.endr
-#endif	/* CONFIG_PRELOADER */
+#endif	/* CONFIG_SPL_BUILD */

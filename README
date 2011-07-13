@@ -3075,7 +3075,7 @@ Low Level (hardware related) configuration options:
 		other boot loader or by a debugger which performs
 		these initializations itself.
 
-- CONFIG_PRELOADER
+- CONFIG_SPL_BUILD
 		Modifies the behaviour of start.S when compiling a loader
 		that is executed before the actual U-Boot. E.g. when
 		compiling a NAND SPL.

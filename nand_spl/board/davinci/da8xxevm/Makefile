@@ -33,8 +33,8 @@ nandobj	:= $(OBJTREE)/nand_spl/
 LDSCRIPT= $(TOPDIR)/nand_spl/board/$(BOARDDIR)/u-boot.lds
 LDFLAGS := -T $(nandobj)u-boot.lds -Ttext $(CONFIG_SYS_TEXT_BASE) $(LDFLAGS) \
 	   $(LDFLAGS_FINAL)
-AFLAGS	+= -DCONFIG_PRELOADER -DCONFIG_NAND_SPL
-CFLAGS	+= -DCONFIG_PRELOADER -DCONFIG_NAND_SPL
+AFLAGS	+= -DCONFIG_SPL_BUILD -DCONFIG_NAND_SPL
+CFLAGS	+= -DCONFIG_SPL_BUILD -DCONFIG_NAND_SPL
 
 SOBJS	= start.o _udivsi3.o _divsi3.o
 COBJS	= cpu.o davinci_nand.o ns16550.o div0.o davinci_pinmux.o psc.o	\

@@ -33,7 +33,7 @@
 #include <version.h>
 .globl _start
 _start: b	reset
-#ifdef CONFIG_PRELOADER
+#ifdef CONFIG_SPL_BUILD
 	ldr	pc, _hang
 	ldr	pc, _hang
 	ldr	pc, _hang
@@ -68,7 +68,7 @@ _not_used:		.word not_used
 _irq:			.word irq
 _fiq:			.word fiq
 _pad:			.word 0x12345678 /* now 16*4=64 */
-#endif	/* CONFIG_PRELOADER */
+#endif	/* CONFIG_SPL_BUILD */
 .global _end_vect
 _end_vect:
 
@@ -201,7 +201,7 @@ copy_loop:
 	cmp	r0, r2			/* until source end address [r2]    */
 	blo	copy_loop
 
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 	/*
 	 * fix .rel.dyn relocations
 	 */
@@ -243,7 +243,7 @@ fixnext:
 #endif
 
 clear_bss:
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 	ldr	r0, _bss_start_ofs
 	ldr	r1, _bss_end_ofs
 	mov	r4, r6			/* reloc addr */
@@ -255,7 +255,7 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
 	add	r0, r0, #4
 	cmp	r0, r1
 	bne	clbss_l
-#endif	/* #ifndef CONFIG_PRELOADER */
+#endif	/* #ifndef CONFIG_SPL_BUILD */
 
 /*
  * We are done. Do not return, instead branch to second part of board
@@ -329,7 +329,7 @@ cpu_init_crit:
 	mov	pc, lr		/* back to my caller */
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */
 
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 /*
  *************************************************************************
  *
@@ -436,17 +436,17 @@ cpu_init_crit:
 	.macro get_fiq_stack			@ setup FIQ stack
 	ldr	sp, FIQ_STACK_START
 	.endm
-#endif	/* CONFIG_PRELOADER */
+#endif	/* CONFIG_SPL_BUILD */
 
 /*
  * exception handlers
  */
-#ifdef CONFIG_PRELOADER
+#ifdef CONFIG_SPL_BUILD
 	.align	5
 do_hang:
 	ldr	sp, _TEXT_BASE			/* use 32 words about stack */
 	bl	hang				/* hang and never return */
-#else	/* !CONFIG_PRELOADER */
+#else	/* !CONFIG_SPL_BUILD */
 	.align	5
 undefined_instruction:
 	get_bad_stack
@@ -519,4 +519,4 @@ arm1136_cache_flush:
 		mcr	p15, 0, r1, c7, c14, 0	@ invalidate D cache
 #endif
 		mov	pc, lr			@ back to caller
-#endif	/* CONFIG_PRELOADER */
+#endif	/* CONFIG_SPL_BUILD */

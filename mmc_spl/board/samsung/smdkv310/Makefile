@@ -35,7 +35,7 @@ LDSCRIPT= $(TOPDIR)/mmc_spl/board/$(BOARDDIR)/u-boot.lds
 LDFLAGS	= -Bstatic -T $(mmcobj)u-boot.lds -Ttext $(CONFIG_SYS_TEXT_BASE) $(PLATFORM_LDFLAGS)
 AFLAGS	+= -DCONFIG_MMC_SPL
 CFLAGS	+= -DCONFIG_MMC_SPL
-CFLAGS	+= -DCONFIG_PRELOADER
+CFLAGS	+= -DCONFIG_SPL_BUILD
 
 SOBJS	= start.o mem_setup.o lowlevel_init.o
 COBJS	= mmc_boot.o

@@ -364,7 +364,7 @@ void board_init_f (ulong bootflag)
 
 	debug ("Reserving %ldk for U-Boot at: %08lx\n", gd->mon_len >> 10, addr);
 
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 	/*
 	 * reserve memory for malloc() arena
 	 */
