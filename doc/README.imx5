@@ -1,0 +1,17 @@
+U-Boot for Freescale i.MX5x
+
+This file contains information for the port of U-Boot to the Freescale
+i.MX5x SoCs.
+
+1. CONFIGURATION OPTIONS/SETTINGS
+---------------------------------
+
+1.1 CONFIG_MX51_PLL_ERRATA: Workaround for i.MX51 PLL errata.
+    This option should be enabled by all boards using the i.MX51 silicon
+    version up until (including) 3.0 running at 800MHz.
+    The PLL's in the i.MX51 processor can go out of lock due to a metastable
+    condition in an analog flip-flop when used at high frequencies.
+    This workaround implements an undocumented feature in the PLL (dither
+    mode), which causes the effect of this failure to be much lower (in terms
+    of frequency deviation), avoiding system failure, or at least decreasing
+    the likelihood of system failure.
