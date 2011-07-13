@@ -26,17 +26,15 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)libcommon.o
 
 # core
+ifndef CONFIG_SPL_BUILD
 COBJS-y += main.o
-COBJS-y += console.o
 COBJS-y += command.o
 COBJS-y += dlmalloc.o
 COBJS-y += exports.o
 COBJS-$(CONFIG_SYS_HUSH_PARSER) += hush.o
 COBJS-y += image.o
-COBJS-y += memsize.o
 COBJS-y += s_record.o
 COBJS-$(CONFIG_SERIAL_MULTI) += serial.o
-COBJS-y += stdio.o
 COBJS-y += xyzModem.o
 
 # core command
@@ -173,6 +171,11 @@ COBJS-$(CONFIG_LYNXKDI) += lynxkdi.o
 COBJS-$(CONFIG_MODEM_SUPPORT) += modem.o
 COBJS-$(CONFIG_UPDATE_TFTP) += update.o
 COBJS-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
+endif
+
+COBJS-y += console.o
+COBJS-y += memsize.o
+COBJS-y += stdio.o
 
 
 COBJS	:= $(sort $(COBJS-y))

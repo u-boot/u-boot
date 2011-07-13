@@ -26,6 +26,7 @@ include $(TOPDIR)/config.mk
 LIB	= $(obj)lib$(ARCH).o
 LIBGCC	= $(obj)libgcc.o
 
+ifndef CONFIG_SPL_BUILD
 GLSOBJS	+= _ashldi3.o
 GLSOBJS	+= _ashrdi3.o
 GLSOBJS	+= _divsi3.o
@@ -45,6 +46,7 @@ COBJS-y	+= interrupts.o
 COBJS-y	+= reset.o
 SOBJS-$(CONFIG_USE_ARCH_MEMSET) += memset.o
 SOBJS-$(CONFIG_USE_ARCH_MEMCPY) += memcpy.o
+endif
 
 SRCS	:= $(GLSOBJS:.o=.S) $(GLCOBJS:.o=.c) \
 	   $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
