@@ -44,7 +44,7 @@ PLATFORM_RELFLAGS += -ffunction-sections -fdata-sections
 PLATFORM_RELFLAGS += -mcpu=$(CONFIG_BFIN_CPU)
 
 ifneq ($(CONFIG_BFIN_BOOT_MODE),BFIN_BOOT_BYPASS)
-ALL += $(obj)u-boot.ldr
+ALL-y += $(obj)u-boot.ldr
 endif
 ifeq ($(CONFIG_ENV_IS_EMBEDDED_IN_LDR),y)
 CREATE_LDR_ENV = $(obj)tools/envcrc --binary > $(obj)env-ldr.o

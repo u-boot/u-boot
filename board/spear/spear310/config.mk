@@ -25,7 +25,7 @@
 
 CONFIG_SYS_TEXT_BASE = 0x00700000
 
-ALL += $(obj)u-boot.img
+ALL-y += $(obj)u-boot.img
 
 # Environment variables in NAND
 ifeq ($(ENV),NAND)

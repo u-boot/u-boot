@@ -341,22 +341,14 @@ BOARD_SIZE_CHECK =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
-ALL += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map
+ALL-y += $(obj)u-boot.srec $(obj)u-boot.bin $(obj)System.map
 
-ifeq ($(CONFIG_NAND_U_BOOT),y)
-ALL += $(obj)u-boot-nand.bin
-endif
-
-ifeq ($(CONFIG_ONENAND_U_BOOT),y)
-ALL += $(obj)u-boot-onenand.bin
+ALL-$(CONFIG_NAND_U_BOOT) += $(obj)u-boot-nand.bin
+ALL-$(CONFIG_ONENAND_U_BOOT) += $(obj)u-boot-onenand.bin
 ONENAND_BIN ?= $(obj)onenand_ipl/onenand-ipl-2k.bin
-endif
+ALL-$(CONFIG_MMC_U_BOOT) += $(obj)mmc_spl/u-boot-mmc-spl.bin
 
-ifeq ($(CONFIG_MMC_U_BOOT),y)
-ALL += $(obj)mmc_spl/u-boot-mmc-spl.bin
-endif
-
-all:		$(ALL)
+all:		$(ALL-y)
 
 $(obj)u-boot.hex:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O ihex $< $@
@@ -1096,7 +1088,7 @@ clobber:	clean
 		| xargs -0 rm -f
 	@rm -f $(OBJS) $(obj)*.bak $(obj)ctags $(obj)etags $(obj)TAGS \
 		$(obj)cscope.* $(obj)*.*~
-	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL)
+	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL-y)
 	@rm -f $(obj)u-boot.kwb
 	@rm -f $(obj)u-boot.imx
 	@rm -f $(obj)tools/{env/crc32.c,inca-swap-bytes}
