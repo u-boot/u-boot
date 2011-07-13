@@ -348,6 +348,7 @@ ALL-$(CONFIG_NAND_U_BOOT) += $(obj)u-boot-nand.bin
 ALL-$(CONFIG_ONENAND_U_BOOT) += $(obj)u-boot-onenand.bin
 ONENAND_BIN ?= $(obj)onenand_ipl/onenand-ipl-2k.bin
 ALL-$(CONFIG_MMC_U_BOOT) += $(obj)mmc_spl/u-boot-mmc-spl.bin
+ALL-$(CONFIG_SPL) += $(obj)spl/u-boot-spl.bin
 
 all:		$(ALL-y)
 
@@ -444,6 +445,9 @@ mmc_spl:	$(TIMESTAMP_FILE) $(VERSION_FILE) depend
 		$(MAKE) -C mmc_spl/board/$(BOARDDIR) all
 
 $(obj)mmc_spl/u-boot-mmc-spl.bin:	mmc_spl
+
+$(obj)spl/u-boot-spl.bin:		depend
+		$(MAKE) -C spl all
 
 $(TIMESTAMP_FILE):
 		@LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"' > $@
@@ -1076,6 +1080,7 @@ clean:
 	@rm -f $(obj)mmc_spl/{u-boot.lds,u-boot-spl,u-boot-spl.map,u-boot-spl.bin,u-boot-mmc-spl.bin}
 	@rm -f $(ONENAND_BIN)
 	@rm -f $(obj)onenand_ipl/u-boot.lds
+	@rm -f $(obj)spl/{u-boot-spl,u-boot-spl.bin,u-boot-spl.lds,u-boot-spl.map}
 	@rm -f $(TIMESTAMP_FILE) $(VERSION_FILE)
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
