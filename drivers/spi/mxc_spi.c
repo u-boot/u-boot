@@ -60,8 +60,6 @@ static unsigned long spi_bases[] = {
 	0x53f84000,
 };
 
-#define mxc_get_clock(x)	mx31_get_ipg_clk()
-
 #elif defined(CONFIG_MX51)
 
 #define MXC_CSPICTRL_EN		(1 << 0)
