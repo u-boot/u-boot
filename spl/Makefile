@@ -47,6 +47,13 @@ LIBS-$(CONFIG_SPL_SPI_SUPPORT) += drivers/spi/libspi.o
 LIBS-$(CONFIG_SPL_FAT_SUPPORT) += fs/fat/libfat.o
 LIBS-$(CONFIG_SPL_LIBGENERIC_SUPPORT) += lib/libgeneric.o
 
+ifeq ($(SOC),omap3)
+LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
+endif
+ifeq ($(SOC),omap4)
+LIBS-y += $(CPUDIR)/omap-common/libomap-common.o
+endif
+
 START := $(addprefix $(SPLTREE)/,$(START))
 LIBS := $(addprefix $(SPLTREE)/,$(sort $(LIBS-y)))
 
