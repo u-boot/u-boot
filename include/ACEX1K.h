@@ -76,6 +76,7 @@ typedef struct {
 #define Altera_EP2C8_SIZE	247942
 #define Altera_EP2C20_SIZE	586562
 #define Altera_EP2C35_SIZE	883905
+#define Altera_EP3C5_SIZE	368011		/* .rbf size in bytes */
 
 /* Descriptor Macros
  *********************************************************************/
