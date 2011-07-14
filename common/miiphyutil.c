@@ -111,7 +111,8 @@ void miiphy_register(const char *name,
 {
 	struct mii_dev *new_dev;
 	struct legacy_mii_dev *ldev;
-	unsigned int name_len;
+
+	BUG_ON(strlen(name) >= MDIO_NAME_LEN);
 
 	/* check if we have unique name */
 	new_dev = miiphy_get_dev_by_name(name);
@@ -121,14 +122,6 @@ void miiphy_register(const char *name,
 	}
 
 	/* allocate memory */
-	name_len = strlen(name);
-	if (name_len > MDIO_NAME_LEN - 1) {
-		/* Hopefully this won't happen, but if it does, we'll know */
-		printf("miiphy_register: MDIO name was longer than %d\n",
-			MDIO_NAME_LEN);
-		return;
-	}
-
 	new_dev = mdio_alloc();
 	ldev = malloc(sizeof(*ldev));
 
@@ -141,7 +134,8 @@ void miiphy_register(const char *name,
 	/* initalize mii_dev struct fields */
 	new_dev->read = legacy_miiphy_read;
 	new_dev->write = legacy_miiphy_write;
-	sprintf(new_dev->name, name);
+	strncpy(new_dev->name, name, MDIO_NAME_LEN);
+	new_dev->name[MDIO_NAME_LEN - 1] = 0;
 	ldev->read = read;
 	ldev->write = write;
 	new_dev->priv = ldev;
