@@ -173,9 +173,11 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 
 		mmc->has_init = 0;
-		mmc_init(mmc);
 
-		return 0;
+		if (mmc_init(mmc))
+			return 1;
+		else
+			return 0;
 	} else if (strncmp(argv[1], "part", 4) == 0) {
 		block_dev_desc_t *mmc_dev;
 		struct mmc *mmc = find_mmc_device(curr_device);
