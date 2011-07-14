@@ -38,6 +38,7 @@ static char* entries_to_keep[] = {
 #define MV_MAX_ENV_ENTRY_LENGTH	64
 #define MV_KEEP_ENTRIES		ARRAY_SIZE(entries_to_keep)
 
+#ifndef CONFIG_ENV_IS_NOWHERE
 void mv_reset_environment(void)
 {
 	int i;
@@ -67,6 +68,7 @@ void mv_reset_environment(void)
 
 	saveenv();
 }
+#endif
 
 int mv_load_fpga(void)
 {
