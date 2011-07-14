@@ -293,18 +293,18 @@ static int post_run_single (struct post_test *test,
 					gd->flags |= GD_FLG_POSTSTOP;
 			}
 		} else {
-		if ((*test->test) (flags) != 0) {
-			post_log ("FAILED\n");
-			show_boot_progress (-32);
-			show_post_progress(i, POST_AFTER, POST_FAILED);
-			if (test_flags & POST_CRITICAL)
-				gd->flags |= GD_FLG_POSTFAIL;
-			if (test_flags & POST_STOP)
-				gd->flags |= GD_FLG_POSTSTOP;
-		}
-		else
-			post_log ("PASSED\n");
-			show_post_progress(i, POST_AFTER, POST_PASSED);
+			if ((*test->test)(flags) != 0) {
+				post_log("FAILED\n");
+				show_boot_progress(-32);
+				show_post_progress(i, POST_AFTER, POST_FAILED);
+				if (test_flags & POST_CRITICAL)
+					gd->flags |= GD_FLG_POSTFAIL;
+				if (test_flags & POST_STOP)
+					gd->flags |= GD_FLG_POSTSTOP;
+			} else {
+				post_log("PASSED\n");
+				show_post_progress(i, POST_AFTER, POST_PASSED);
+			}
 		}
 
 		if ((test_flags & POST_REBOOT) && !(flags & POST_MANUAL)) {
