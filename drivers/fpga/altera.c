@@ -60,7 +60,7 @@ int altera_load( Altera_desc *desc, void *buf, size_t bsize )
 					__FUNCTION__);
 			ret_val = ACEX1K_load (desc, buf, bsize);
 #elif defined(CONFIG_FPGA_CYCLON2)
-			PRINTF ("%s: Launching the CYCLON II Loader...\n",
+			PRINTF ("%s: Launching the CYCLONE II Loader...\n",
 					__FUNCTION__);
 			ret_val = CYC2_load (desc, buf, bsize);
 #else
