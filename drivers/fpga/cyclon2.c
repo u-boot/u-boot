@@ -63,6 +63,16 @@ int CYC2_load (Altera_desc * desc, void *buf, size_t bsize)
 		ret_val = CYC2_ps_load (desc, buf, bsize);
 		break;
 
+	case fast_passive_parallel:
+		/* Fast Passive Parallel (FPP) and PS only differ in what is
+		 * done in the write() callback. Use the existing PS load
+		 * function for FPP, too.
+		 */
+		PRINTF ("%s: Launching Fast Passive Parallel Loader\n",
+		      __FUNCTION__);
+		ret_val = CYC2_ps_load(desc, buf, bsize);
+		break;
+
 		/* Add new interface types here */
 
 	default:
