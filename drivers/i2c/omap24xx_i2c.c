@@ -399,7 +399,7 @@ static void wait_for_bb (void)
 	int timeout = I2C_TIMEOUT;
 	u16 stat;
 
-	writew(0xFFFF, &i2c_base->stat);	 /* clear current interruts...*/
+	writew(0xFFFF, &i2c_base->stat);	/* clear current interrupts...*/
 	while ((stat = readw (&i2c_base->stat) & I2C_STAT_BB) && timeout--) {
 		writew (stat, &i2c_base->stat);
 		udelay(1000);

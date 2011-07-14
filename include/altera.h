@@ -51,18 +51,18 @@ typedef enum {				/* typedef Altera_iface */
 	passive_parallel_asynchronous,	/* parallel data */
 	passive_serial_asynchronous,	/* serial data w/ internal clock (not used)	*/
 	altera_jtag_mode,		/* jtag/tap serial (not used ) */
-	fast_passive_parallel,	/* fast passive parallel (FPP) */
+	fast_passive_parallel,		/* fast passive parallel (FPP) */
 	fast_passive_parallel_security,	/* fast passive parallel with security (FPPS) */
 	max_altera_iface_type		/* insert all new types before this */
 } Altera_iface;				/* end, typedef Altera_iface */
 
 typedef enum {			/* typedef Altera_Family */
-    min_altera_type,		/* insert all new types after this */
-    Altera_ACEX1K,		/* ACEX1K Family */
-    Altera_CYC2,		/* CYCLONII Family */
+	min_altera_type,	/* insert all new types after this */
+	Altera_ACEX1K,		/* ACEX1K Family */
+	Altera_CYC2,		/* CYCLONII Family */
 	Altera_StratixII,	/* StratixII Familiy */
 /* Add new models here */
-    max_altera_type		/* insert all new types before this */
+	max_altera_type		/* insert all new types before this */
 } Altera_Family;		/* end, typedef Altera_Family */
 
 typedef struct {		/* typedef Altera_desc */

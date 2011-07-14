@@ -1397,8 +1397,8 @@ static int i2c_mux_get_busid (void)
 	return tmp;
 }
 
-/* Analyses a Muxstring and sends immediately the
-   Commands to the Muxes. Runs from Flash.
+/* Analyses a Muxstring and immediately sends the
+   commands to the muxes. Runs from flash.
  */
 int i2c_mux_ident_muxstring_f (uchar *buf)
 {

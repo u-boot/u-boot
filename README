@@ -1723,12 +1723,12 @@ The following options need to be configured:
 		=>
 
 		If you now switch to the new I2C Bus 3 with "i2c dev 3"
-		u-boot sends First the Commando to the mux@70 to enable
-		channel 6, and then the Commando to the mux@71 to enable
+		u-boot first sends the command to the mux@70 to enable
+		channel 6, and then the command to the mux@71 to enable
 		the channel 4.
 
 		After that, you can use the "normal" i2c commands as
-		usual, to communicate with your I2C devices behind
+		usual to communicate with your I2C devices behind
 		the 2 muxes.
 
 		This option is actually implemented for the bitbanging
