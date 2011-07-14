@@ -442,6 +442,16 @@ The following options need to be configured:
 		crash. This is needed for buggy hardware (uc101) where
 		no pull down resistor is connected to the signal IDE5V_DD7.
 
+		CONFIG_MACH_TYPE	[relevant for ARM only][mandatory]
+
+		This setting is mandatory for all boards that have only one
+		machine type and must be used to specify the machine type
+		number as it appears in the ARM machine registry
+		(see http://www.arm.linux.org.uk/developer/machines/).
+		Only boards that have multiple machine types supported
+		in a single configuration file and the machine type is
+		runtime discoverable, do not have to use this setting.
+
 - vxWorks boot parameters:
 
 		bootvx constructs a valid bootline using the following
