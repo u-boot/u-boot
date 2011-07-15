@@ -85,13 +85,6 @@ ulong read_timer(void)
 	return val;
 }
 
-void reset_timer_masked(void)
-{
-	/* reset time */
-	gd->tbl = read_timer();
-	gd->tbu = 0;
-}
-
 ulong get_timer_masked(void)
 {
 	ulong now = read_timer();
@@ -151,7 +144,8 @@ int timer_init(void)
 	/* Enable timer 0 */
 	writel(0x1, &panthtimers->cer);
 	/* init the gd->tbu and gd->tbl value */
-	reset_timer_masked();
+	gd->tbl = read_timer();
+	gd->tbu = 0;
 
 	return 0;
 }

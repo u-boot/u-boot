@@ -44,12 +44,6 @@ void __udelay (unsigned long usec)
 	udelay_masked (usec);
 }
 
-
-void reset_timer_masked (void)
-{
-	OSCR = 0;
-}
-
 ulong get_timer_masked (void)
 {
 	return OSCR;

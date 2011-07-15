@@ -59,7 +59,7 @@ static inline unsigned long long us_to_tick(unsigned long long us)
 
 int timer_init (void)
 {
-	reset_timer_masked();
+	writel(0, OSCR);
 
 	return 0;
 }
@@ -72,12 +72,6 @@ ulong get_timer (ulong base)
 void __udelay (unsigned long usec)
 {
 	udelay_masked (usec);
-}
-
-
-void reset_timer_masked (void)
-{
-	writel(0, OSCR);
 }
 
 ulong get_timer_masked (void)

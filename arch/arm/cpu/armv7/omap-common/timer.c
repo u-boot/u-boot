@@ -55,7 +55,9 @@ int timer_init(void)
 	writel((CONFIG_SYS_PTV << 2) | TCLR_PRE | TCLR_AR | TCLR_ST,
 		&timer_base->tclr);
 
-	reset_timer_masked();	/* init the timestamp and lastinc value */
+	/* reset time, capture current incrementer value time */
+	gd->lastinc = readl(&timer_base->tcrr) / (TIMER_CLOCK / CONFIG_SYS_HZ);
+	gd->tbl = 0;		/* start "advancing" time stamp from 0 */
 
 	return 0;
 }
@@ -82,13 +84,6 @@ void __udelay(unsigned long usec)
 			tmo -= now - last;
 		last = now;
 	}
-}
-
-void reset_timer_masked(void)
-{
-	/* reset time, capture current incrementer value time */
-	gd->lastinc = readl(&timer_base->tcrr) / (TIMER_CLOCK / CONFIG_SYS_HZ);
-	gd->tbl = 0;		/* start "advancing" time stamp from 0 */
 }
 
 ulong get_timer_masked(void)

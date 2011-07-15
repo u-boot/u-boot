@@ -106,13 +106,6 @@ int timer_init (void)
 	return 0;
 }
 
-void reset_timer_masked (void)
-{
-	/* reset time */
-	gd->lastinc = GPTCNT; /* capture current incrementer value time */
-	gd->tbl = 0; /* start "advancing" time stamp from 0 */
-}
-
 unsigned long long get_ticks (void)
 {
 	ulong now = GPTCNT; /* current tick value */

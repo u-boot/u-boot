@@ -52,6 +52,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int timer_init(void)
 {
 	int i;
+	ulong val;
 
 	/* setup GP Timer 1 */
 	__raw_writel(GPTCR_SWR, &cur_gpt->control);
@@ -65,15 +66,12 @@ int timer_init(void)
 	/* Freerun Mode, PERCLK1 input */
 	i = __raw_readl(&cur_gpt->control);
 	__raw_writel(i | GPTCR_CLKSOURCE_32 | GPTCR_TEN, &cur_gpt->control);
-	reset_timer_masked();
-	return 0;
-}
 
-void reset_timer_masked(void)
-{
-	ulong val = __raw_readl(&cur_gpt->counter);
+	val = __raw_readl(&cur_gpt->counter);
 	lastinc = val / (CONFIG_SYS_MX5_CLK32 / CONFIG_SYS_HZ);
 	timestamp = 0;
+
+	return 0;
 }
 
 ulong get_timer_masked(void)

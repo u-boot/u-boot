@@ -56,7 +56,9 @@ int timer_init (void)
 		CONFIG_SYS_TIMERBASE + CNTL_TIMER);
 
 	/* init the timestamp and lastdec value */
-	reset_timer_masked();
+	lastdec = __raw_readl(CONFIG_SYS_TIMERBASE + READ_TIM) /
+			(TIMER_CLOCK / CONFIG_SYS_HZ);
+	timestamp = 0;	       /* start "advancing" time stamp from 0 */
 
 	return 0;
 }
@@ -83,14 +85,6 @@ void __udelay (unsigned long usec)
 			tmo -= last - now;
 		last = now;
 	}
-}
-
-void reset_timer_masked (void)
-{
-	/* reset time */
-	lastdec = __raw_readl(CONFIG_SYS_TIMERBASE + READ_TIM) /
-			(TIMER_CLOCK / CONFIG_SYS_HZ);
-	timestamp = 0;	       /* start "advancing" time stamp from 0 */
 }
 
 ulong get_timer_masked (void)

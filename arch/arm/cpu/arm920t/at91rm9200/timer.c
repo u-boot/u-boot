@@ -81,13 +81,6 @@ void __udelay (unsigned long usec)
 	udelay_masked(usec);
 }
 
-void reset_timer_masked (void)
-{
-	/* reset time */
-	lastinc = READ_TIMER;
-	timestamp = 0;
-}
-
 ulong get_timer_raw (void)
 {
 	ulong now = READ_TIMER;

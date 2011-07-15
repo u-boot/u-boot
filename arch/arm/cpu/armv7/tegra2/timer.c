@@ -69,13 +69,6 @@ void __udelay(unsigned long usec)
 	}
 }
 
-void reset_timer_masked(void)
-{
-	/* reset time, capture current incrementer value time */
-	gd->lastinc = readl(&timer_base->cntr_1us) / (TIMER_CLK/CONFIG_SYS_HZ);
-	gd->tbl = 0;		/* start "advancing" time stamp from 0 */
-}
-
 ulong get_timer_masked(void)
 {
 	ulong now;

@@ -88,13 +88,6 @@ DECLARE_GLOBAL_DATA_PTR;
 #define timestamp gd->tbl
 #define lastdec gd->lastinc
 
-void reset_timer_masked(void)
-{
-	/* reset time */
-	lastdec = READ_TIMER;
-	timestamp = 0;
-}
-
 ulong get_timer_masked(void)
 {
 	ulong now = READ_TIMER;
@@ -154,7 +147,8 @@ int timer_init(void)
 	writel(cntmrctrl, CNTMR_CTRL_REG);
 
 	/* init the timestamp and lastdec value */
-	reset_timer_masked();
+	lastdec = READ_TIMER;
+	timestamp = 0;
 
 	return 0;
 }

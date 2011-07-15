@@ -135,13 +135,6 @@ ulong get_tbclk(void)
 	return (ulong)(timer_load_val / 100);
 }
 
-void reset_timer_masked(void)
-{
-	/* reset time */
-	lastdec = read_timer();
-	timestamp = 0;
-}
-
 ulong get_timer_masked(void)
 {
 	unsigned long long res = get_ticks();

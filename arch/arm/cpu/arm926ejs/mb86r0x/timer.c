@@ -68,7 +68,9 @@ int timer_init(void)
 
 	writel(ctrl, &timer->control);
 
-	reset_timer_masked();
+	/* capture current value time */
+	lastdec = readl(&timer->value);
+	timestamp = 0; /* start "advancing" time stamp from 0 */
 
 	return 0;
 }
@@ -92,16 +94,6 @@ unsigned long long get_ticks(void)
 	}
 	lastdec = now;
 	return timestamp;
-}
-
-void reset_timer_masked(void)
-{
-	struct mb86r0x_timer * timer = (struct mb86r0x_timer *)
-					MB86R0x_TIMER_BASE;
-
-	/* capture current value time */
-	lastdec = readl(&timer->value);
-	timestamp = 0; /* start "advancing" time stamp from 0 */
 }
 
 ulong get_timer_masked(void)

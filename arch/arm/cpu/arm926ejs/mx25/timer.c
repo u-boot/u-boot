@@ -121,15 +121,6 @@ int timer_init(void)
 	return 0;
 }
 
-void reset_timer_masked(void)
-{
-	struct gpt_regs *gpt = (struct gpt_regs *)IMX_GPT1_BASE;
-	/* reset time */
-	/* capture current incrementer value time */
-	lastinc = readl(&gpt->counter);
-	timestamp = 0; /* start "advancing" time stamp from 0 */
-}
-
 unsigned long long get_ticks (void)
 {
 	struct gpt_regs *gpt = (struct gpt_regs *)IMX_GPT1_BASE;

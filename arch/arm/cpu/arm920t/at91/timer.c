@@ -82,14 +82,6 @@ void __udelay(unsigned long usec)
 	udelay_masked(usec);
 }
 
-void reset_timer_masked(void)
-{
-	/* reset time */
-	at91_tc_t *tc = (at91_tc_t *) ATMEL_BASE_TC;
-	gd->lastinc = readl(&tc->tc[0].cv) & 0x0000ffff;
-	gd->tbl = 0;
-}
-
 ulong get_timer_raw(void)
 {
 	at91_tc_t *tc = (at91_tc_t *) ATMEL_BASE_TC;
