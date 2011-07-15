@@ -173,6 +173,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	int iflag, cflag, prot, sect;
 	int rc = ERR_OK;
 	int chip;
+	ulong start;
 
 	/* first look for protection bits */
 
@@ -213,7 +214,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		printf ("Erasing sector %2d ... ", sect);
 
 		/* arm simple, non interrupt dependent timer */
-		reset_timer_masked ();
+		start = get_timer(0);
 
 		if (info->protect[sect] == 0) {	/* not protected */
 			vu_short *addr = (vu_short *) (info->start[sect]);
@@ -233,7 +234,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 				result = *addr;
 
 				/* check timeout */
-				if (get_timer_masked () >
+				if (get_timer(start) >
 				    CONFIG_SYS_FLASH_ERASE_TOUT) {
 					MEM_FLASH_ADDR1 = CMD_READ_ARRAY;
 					chip = TMO;
@@ -295,6 +296,7 @@ static int write_hword (flash_info_t * info, ulong dest, ushort data)
 	int rc = ERR_OK;
 	int cflag, iflag;
 	int chip;
+	ulong start;
 
 	/*
 	 * Check if Flash is (sufficiently) erased
@@ -322,7 +324,7 @@ static int write_hword (flash_info_t * info, ulong dest, ushort data)
 	*addr = data;
 
 	/* arm simple, non interrupt dependent timer */
-	reset_timer_masked ();
+	get_timer(start);
 
 	/* wait until flash is ready */
 	chip = 0;
@@ -330,7 +332,7 @@ static int write_hword (flash_info_t * info, ulong dest, ushort data)
 		result = *addr;
 
 		/* check timeout */
-		if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			chip = ERR | TMO;
 			break;
 		}

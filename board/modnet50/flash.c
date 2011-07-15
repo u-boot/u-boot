@@ -291,6 +291,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 {
 	int flag, sect, setup_offset = 0;
 	int rc = ERR_OK;
+	ulong start;
 
 	if (info->flash_id == FLASH_UNKNOWN) {
 		printf ("- missing\n");
@@ -338,14 +339,14 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 						(__u16) SECERASE_CMD;
 
 					/* wait some time */
-					reset_timer_masked ();
-					while (get_timer_masked () < 1000) {
+					start = get_timer(0);
+					while (get_timer(start) < 1000) {
 					}
 
 					/* arm simple, non interrupt dependent timer */
-					reset_timer_masked ();
+					start = get_timer(0);
 					while (flash_check_erase_amd (info->start[sect])) {
-						if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
+						if (get_timer(start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 							printf ("timeout!\n");
 							/* OOPS: reach timeout,
 							 * try to reset chip
@@ -411,6 +412,7 @@ static int write_word (flash_info_t * info, ulong dest, ushort data)
 {
 	int rc = ERR_OK;
 	int flag;
+	ulong start;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*(__u16 *) (dest) & data) != data)
@@ -446,10 +448,10 @@ static int write_word (flash_info_t * info, ulong dest, ushort data)
 	}
 
 	/* arm simple, non interrupt dependent timer */
-	reset_timer_masked ();
+	start = get_timer(0);
 
 	while (flash_check_write_amd (dest)) {
-		if (get_timer_masked () > CONFIG_SYS_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			printf ("timeout! @ %08lX\n", dest);
 			/* OOPS: reach timeout,
 			 *       try to reset chip */

@@ -472,7 +472,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	FPWV *addr;
 	int flag, prot, sect;
 	int intel = (info->flash_id & FLASH_VENDMASK) == FLASH_MAN_INTEL;
-	ulong now, last;
+	ulong start, now, last;
 	int rcode = 0;
 
 	if ((s_first < 0) || (s_first > s_last)) {
@@ -516,8 +516,6 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		printf ("\n");
 	}
 
-	reset_timer_masked ();
-
 	/* Start erase on unprotected sectors */
 	for (sect = s_first; sect <= s_last && rcode == 0; sect++) {
 
@@ -527,7 +525,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 		/* Disable interrupts which might cause a timeout here */
 		flag = disable_interrupts ();
 
-		reset_timer_masked ();
+		start = get_timer(0);
 		last = 0;
 
 		addr = (FPWV *) (info->start[sect]);
@@ -559,7 +557,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 
 		while ((*addr & (FPW) 0x00800080) != (FPW) 0x00800080) {
 			if ((now =
-			     get_timer_masked ()) > CONFIG_SYS_FLASH_ERASE_TOUT) {
+			     get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 				printf ("Timeout\n");
 
 				if (intel) {
@@ -661,6 +659,7 @@ static int write_word_amd (flash_info_t * info, FPWV * dest, FPW data)
 	int flag;
 	int res = 0;		/* result, assume success       */
 	FPWV *base;		/* first address in flash bank  */
+	ulong start;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*dest & data) != data) {
@@ -683,12 +682,12 @@ static int write_word_amd (flash_info_t * info, FPWV * dest, FPW data)
 	if (flag)
 		enable_interrupts ();
 
-	reset_timer_masked ();
+	start = get_timer(0);
 
 	/* data polling for D7 */
 	while (res == 0
 	       && (*dest & (FPW) 0x00800080) != (data & (FPW) 0x00800080)) {
-		if (get_timer_masked () > CONFIG_SYS_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*dest = (FPW) 0x00F000F0;	/* reset bank */
 			res = 1;
 		}
@@ -711,6 +710,7 @@ static int write_word_intel (flash_info_t * info, FPWV * dest, FPW data)
 {
 	int flag;
 	int res = 0;		/* result, assume success       */
+	ulong start;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*dest & data) != data) {
@@ -730,10 +730,10 @@ static int write_word_intel (flash_info_t * info, FPWV * dest, FPW data)
 	if (flag)
 		enable_interrupts ();
 
-	reset_timer_masked ();
+	start = get_timer(0);
 
 	while (res == 0 && (*dest & (FPW) 0x00800080) != (FPW) 0x00800080) {
-		if (get_timer_masked () > CONFIG_SYS_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*dest = (FPW) 0x00B000B0;	/* Suspend program      */
 			res = 1;
 		}

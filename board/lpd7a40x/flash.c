@@ -229,6 +229,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	ulong result, result1;
 	int iflag, prot, sect;
 	int rc = ERR_OK;
+	ulong start;
 
 #ifdef USE_920T_MMU
 	int cflag;
@@ -284,7 +285,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			sect, info->start[sect]);
 
 		/* arm simple, non interrupt dependent timer */
-		reset_timer_masked();
+		start = get_timer(0);
 
 		if (info->protect[sect] == 0) {	/* not protected */
 			vu_long *addr = (vu_long *) (info->start[sect]);
@@ -297,7 +298,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 			/* wait until flash is ready */
 			do {
 				/* check timeout */
-				if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
+				if (get_timer(start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 					*addr = CMD_STATUS_RESET;
 					result = BIT_TIMEOUT;
 					break;
@@ -357,6 +358,7 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 	ulong result;
 	int rc = ERR_OK;
 	int iflag;
+	ulong start;
 
 #ifdef USE_920T_MMU
 	int cflag;
@@ -387,12 +389,12 @@ static int write_word (flash_info_t * info, ulong dest, ulong data)
 	*addr = data;
 
 	/* arm simple, non interrupt dependent timer */
-	reset_timer_masked ();
+	start = get_timer(0);
 
 	/* wait until flash is ready */
 	do {
 		/* check timeout */
-		if (get_timer_masked () > CONFIG_SYS_FLASH_ERASE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 			*addr = CMD_SUSPEND;
 			result = BIT_TIMEOUT;
 			break;

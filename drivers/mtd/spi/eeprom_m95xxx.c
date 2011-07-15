@@ -75,6 +75,7 @@ ssize_t spi_write (uchar *addr, int alen, uchar *buffer, int len)
 {
 	struct spi_slave *slave;
 	char buf[3];
+	ulong start;
 
 	slave = spi_setup_slave(CONFIG_DEFAULT_SPI_BUS, 1, 1000000,
 			CONFIG_DEFAULT_SPI_MODE);
@@ -102,7 +103,7 @@ ssize_t spi_write (uchar *addr, int alen, uchar *buffer, int len)
 	if(spi_xfer(slave, len * 8, buffer, NULL, SPI_XFER_END))
 		return -1;
 
-	reset_timer_masked();
+	start = get_timer(0);
 	do {
 		buf[0] = SPI_EEPROM_RDSR;
 		buf[1] = 0;
@@ -111,7 +112,7 @@ ssize_t spi_write (uchar *addr, int alen, uchar *buffer, int len)
 		if (!(buf[1] & 1))
 			break;
 
-	} while (get_timer_masked() < CONFIG_SYS_SPI_WRITE_TOUT);
+	} while (get_timer(start) < CONFIG_SYS_SPI_WRITE_TOUT);
 
 	if (buf[1] & 1)
 		printf ("*** spi_write: Time out while writing!\n");

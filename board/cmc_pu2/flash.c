@@ -264,7 +264,7 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 {
 	vu_short *addr = (vu_short *)(info->start[0]);
 	int flag, prot, sect, ssect, l_sect;
-	ulong now, last;
+	ulong now, last, start;
 
 	debug ("flash_erase: first: %d last: %d\n", s_first, s_last);
 
@@ -335,11 +335,11 @@ int	flash_erase (flash_info_t *info, int s_first, int s_last)
 		if (l_sect < 0)
 			goto DONE;
 
-		reset_timer_masked ();
+		start = get_timer(0);
 		last  = 0;
 		addr = (vu_short *)(info->start[l_sect]);
 		while ((addr[0] & 0x0080) != 0x0080) {
-			if ((now = get_timer_masked ()) > CONFIG_SYS_FLASH_ERASE_TOUT) {
+			if ((now = get_timer(start)) > CONFIG_SYS_FLASH_ERASE_TOUT) {
 				printf ("Timeout\n");
 				return 1;
 			}
@@ -434,6 +434,7 @@ static int write_word_amd (flash_info_t *info, vu_short *dest, ushort data)
 {
 	int flag;
 	vu_short *base;		/* first address in flash bank	*/
+	ulong start;
 
 	/* Check if Flash is (sufficiently) erased */
 	if ((*dest & data) != data) {
@@ -455,11 +456,11 @@ static int write_word_amd (flash_info_t *info, vu_short *dest, ushort data)
 	if (flag)
 		enable_interrupts();
 
-	reset_timer_masked ();
+	start = get_timer(0);
 
 	/* data polling for D7 */
 	while ((*dest & 0x0080) != (data & 0x0080)) {
-		if (get_timer_masked () > CONFIG_SYS_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*dest = 0x00F0;	/* reset bank */
 			return (1);
 		}
