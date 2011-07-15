@@ -108,6 +108,7 @@ void AT91F_SpiEnable(int cs)
 unsigned int AT91F_SpiWrite ( AT91PS_DataflashDesc pDesc )
 {
 	unsigned int timeout;
+	unsigned long start;
 
 	pDesc->state = BUSY;
 
@@ -132,12 +133,12 @@ unsigned int AT91F_SpiWrite ( AT91PS_DataflashDesc pDesc )
 	}
 
 	/* arm simple, non interrupt dependent timer */
-	reset_timer_masked();
+	start = get_timer(0);
 	timeout = 0;
 
 	AT91C_BASE_SPI->SPI_PTCR = AT91C_PDC_TXTEN + AT91C_PDC_RXTEN;
 	while(!(AT91C_BASE_SPI->SPI_SR & AT91C_SPI_RXBUFF) &&
-		((timeout = get_timer_masked() ) < CONFIG_SYS_SPI_WRITE_TOUT));
+		((timeout = get_timer(start) ) < CONFIG_SYS_SPI_WRITE_TOUT));
 	AT91C_BASE_SPI->SPI_PTCR = AT91C_PDC_TXTDIS + AT91C_PDC_RXTDIS;
 	pDesc->state = IDLE;
 
