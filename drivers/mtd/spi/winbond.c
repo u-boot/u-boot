@@ -36,6 +36,14 @@ struct winbond_spi_flash_params {
 
 static const struct winbond_spi_flash_params winbond_spi_flash_table[] = {
 	{
+		.id			= 0x3013,
+		.l2_page_size		= 8,
+		.pages_per_sector	= 16,
+		.sectors_per_block	= 16,
+		.nr_blocks		= 8,
+		.name			= "W25X40",
+	},
+	{
 		.id			= 0x3015,
 		.l2_page_size		= 8,
 		.pages_per_sector	= 16,
