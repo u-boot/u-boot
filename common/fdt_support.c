@@ -1195,6 +1195,46 @@ int fdt_alloc_phandle(void *blob)
 	return phandle + 1;
 }
 
+/*
+ * fdt_create_phandle: Create a phandle property for the given node
+ *
+ * @fdt: ptr to device tree
+ * @nodeoffset: node to update
+ * @phandle: phandle value to set (must be unique)
+*/
+int fdt_create_phandle(void *fdt, int nodeoffset, uint32_t phandle)
+{
+	int ret;
+
+#ifdef DEBUG
+	int off = fdt_node_offset_by_phandle(fdt, phandle);
+
+	if ((off >= 0) && (off != nodeoffset)) {
+		char buf[64];
+
+		fdt_get_path(fdt, nodeoffset, buf, sizeof(buf));
+		printf("Trying to update node %s with phandle %u ",
+		       buf, phandle);
+
+		fdt_get_path(fdt, off, buf, sizeof(buf));
+		printf("that already exists in node %s.\n", buf);
+		return -FDT_ERR_BADPHANDLE;
+	}
+#endif
+
+	ret = fdt_setprop_cell(fdt, nodeoffset, "phandle", phandle);
+	if (ret < 0)
+		return ret;
+
+	/*
+	 * For now, also set the deprecated "linux,phandle" property, so that we
+	 * don't break older kernels.
+	 */
+	ret = fdt_setprop_cell(fdt, nodeoffset, "linux,phandle", phandle);
+
+	return ret;
+}
+
 #if defined(CONFIG_VIDEO)
 int fdt_add_edid(void *blob, const char *compat, unsigned char *edid_buf)
 {
