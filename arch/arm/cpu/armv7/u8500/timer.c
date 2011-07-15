@@ -129,11 +129,6 @@ ulong get_timer(ulong base)
 	return get_timer_masked() - base;
 }
 
-void set_timer(ulong t)
-{
-	gd->tbl = t;
-}
-
 /*
  * Emulation of Power architecture long long timebase.
  *

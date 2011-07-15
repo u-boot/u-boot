@@ -67,11 +67,6 @@ ulong get_timer (ulong base)
 	return get_timer_masked () - base;
 }
 
-void set_timer (ulong t)
-{
-	gd->tbl	= t;
-}
-
 /* delay x useconds AND preserve advance timestamp value */
 void __udelay (unsigned long usec)
 {

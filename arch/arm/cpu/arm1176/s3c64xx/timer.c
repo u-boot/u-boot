@@ -159,11 +159,6 @@ ulong get_timer(ulong base)
 	return get_timer_masked() - base;
 }
 
-void set_timer(ulong t)
-{
-	timestamp = t * (timer_load_val / (100 * CONFIG_SYS_HZ));
-}
-
 void __udelay(unsigned long usec)
 {
 	unsigned long long tmp;

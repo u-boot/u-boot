@@ -111,11 +111,6 @@ ulong get_timer(ulong base)
 		base);
 }
 
-void set_timer(ulong t)
-{
-	gd->tbu = t;
-}
-
 void __udelay(unsigned long usec)
 {
 	ulong delayticks;

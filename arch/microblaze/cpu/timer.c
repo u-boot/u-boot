@@ -45,11 +45,6 @@ ulong get_timer (ulong base)
 }
 #endif
 
-void set_timer (ulong t)
-{
-	timestamp = t;
-}
-
 #ifdef CONFIG_SYS_INTC_0
 #ifdef CONFIG_SYS_TIMER_0
 microblaze_timer_t *tmr = (microblaze_timer_t *) (CONFIG_SYS_TIMER_0_ADDR);

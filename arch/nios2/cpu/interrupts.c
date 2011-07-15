@@ -98,12 +98,6 @@ ulong get_timer (ulong base)
 	return (timestamp - base);
 }
 
-void set_timer (ulong t)
-{
-	timestamp = t;
-}
-
-
 /* The board must handle this interrupt if a timer is not
  * provided.
  */

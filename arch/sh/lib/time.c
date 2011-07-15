@@ -139,15 +139,10 @@ unsigned long get_timer (unsigned long base)
 	return tick_to_time(get_ticks()) - base;
 }
 
-void set_timer (unsigned long t)
-{
-	writel((0 - t), TCNT0);
-}
-
 void reset_timer (void)
 {
 	tmu_timer_stop(0);
-	set_timer (0);
+	writel(0, TCNT0);
 	tmu_timer_start(0);
 }
 

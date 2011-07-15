@@ -103,8 +103,3 @@ ulong get_timer (ulong base)
 {
 	return (system_ticks - base);
 }
-
-void set_timer (ulong t)
-{
-	system_ticks = t;
-}

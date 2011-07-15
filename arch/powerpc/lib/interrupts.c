@@ -146,8 +146,3 @@ ulong get_timer (ulong base)
 {
 	return (timestamp - base);
 }
-
-void set_timer (ulong t)
-{
-	timestamp = t;
-}

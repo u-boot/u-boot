@@ -365,8 +365,6 @@ void board_init_f(ulong bootflag)
 
 	udelay(20);
 
-	set_timer(0);
-
 	/* Initialize from environment */
 	if ((s = getenv("loadaddr")) != NULL) {
 		load_addr = simple_strtoul(s, NULL, 16);

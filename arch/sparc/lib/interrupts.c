@@ -100,11 +100,6 @@ ulong get_timer(ulong base)
 	return (timestamp - base);
 }
 
-void set_timer(ulong t)
-{
-	timestamp = t;
-}
-
 void timer_interrupt_init(void)
 {
 	int irq;

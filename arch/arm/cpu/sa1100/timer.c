@@ -44,11 +44,6 @@ ulong get_timer (ulong base)
 	return get_timer_masked ();
 }
 
-void set_timer (ulong t)
-{
-	/* nop */
-}
-
 void __udelay (unsigned long usec)
 {
 	udelay_masked (usec);

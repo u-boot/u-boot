@@ -92,10 +92,6 @@ ulong get_timer(ulong base)
 	return (tmp / 1000) - base;
 }
 
-void set_timer(ulong t)
-{
-}
-
 /*
  * delay x useconds AND preserve advance timstamp value
  * GPTCNT is now supposed to tick 1 by 1 us.

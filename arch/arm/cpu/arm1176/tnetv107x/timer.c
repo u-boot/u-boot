@@ -88,11 +88,6 @@ ulong get_timer(ulong base)
 	return (get_timer_raw() / (TIMER_LOAD_VAL / TIM_CLK_DIV)) - base;
 }
 
-void set_timer(ulong t)
-{
-	timestamp = t;
-}
-
 unsigned long long get_ticks(void)
 {
 	return get_timer(0);

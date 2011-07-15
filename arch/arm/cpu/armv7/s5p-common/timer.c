@@ -60,11 +60,6 @@ unsigned long get_timer(unsigned long base)
 	return get_timer_masked() - base;
 }
 
-void set_timer(unsigned long t)
-{
-	gd->tbl = t;
-}
-
 /* delay x useconds */
 void __udelay(unsigned long usec)
 {

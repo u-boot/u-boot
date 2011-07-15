@@ -58,11 +58,6 @@ ulong get_timer(ulong base)
 	return get_timer_masked() - base;
 }
 
-void set_timer(ulong t)
-{
-	gd->tbl = t;
-}
-
 /* delay x useconds */
 void __udelay(unsigned long usec)
 {

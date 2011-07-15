@@ -76,11 +76,6 @@ ulong get_timer(ulong base)
        return (get_timer_masked() - base);
 }
 
-void set_timer(ulong t)
-{
-	timer_ticks = t;
-}
-
 void __udelay(ulong usec)
 {
 	ulong start = get_timer_masked();

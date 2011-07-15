@@ -126,10 +126,6 @@ ulong get_timer(ulong base)
 	return (timestamp - base);
 }
 
-void set_timer(ulong t)
-{
-	timestamp = t;
-}
 #endif				/* CONFIG_MCFTMR */
 
 #if defined(CONFIG_MCFPIT)
@@ -173,14 +169,6 @@ void timer_init(void)
 	timerp->pcsr |= PIT_PCSR_PRE(CONFIG_SYS_PIT_PRESCALE) | PIT_PCSR_EN;
 }
 
-void set_timer(ulong t)
-{
-	volatile pit_t *timerp = (pit_t *) (CONFIG_SYS_PIT_BASE);
-
-	timestamp = 0;
-	timerp->pmr = lastinc = 0;
-}
-
 ulong get_timer(ulong base)
 {
 	unsigned short now, diff;
@@ -196,8 +184,8 @@ ulong get_timer(ulong base)
 
 void wait_ticks(unsigned long ticks)
 {
-	set_timer(0);
-	while (get_timer(0) < ticks) ;
+	u32 start = get_timer(0);
+	while (get_timer(start) < ticks) ;
 }
 #endif				/* CONFIG_MCFPIT */
 

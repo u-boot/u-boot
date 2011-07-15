@@ -363,8 +363,6 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 	udelay(20);
 
-	set_timer (0);
-
 	/* Initialize from environment */
 	if ((s = getenv ("loadaddr")) != NULL) {
 		load_addr = simple_strtoul (s, NULL, 16);

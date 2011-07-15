@@ -117,12 +117,6 @@ ulong get_timer (ulong base_ticks)
 	return get_timer_masked () - base_ticks;
 }
 
-void set_timer (ulong ticks)
-{
-	timestamp   = ticks;
-	total_count = ticks * div_timer;
-}
-
 /* delay usec useconds */
 void __udelay (unsigned long usec)
 {

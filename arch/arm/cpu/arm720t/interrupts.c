@@ -219,11 +219,6 @@ ulong get_timer (ulong base)
 	return get_timer_masked () - base;
 }
 
-void set_timer (ulong t)
-{
-	timestamp = t;
-}
-
 void __udelay (unsigned long usec)
 {
 	ulong tmo;

@@ -574,8 +574,6 @@ void board_init_r (gd_t *id, ulong dest_addr)
 
 	udelay (20);
 
-	set_timer (0);
-
 	/* Insert function pointers now that we have relocated the code */
 
 	/* Initialize from environment */

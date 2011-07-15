@@ -77,22 +77,6 @@ unsigned long get_timer(unsigned long base)
 	return (unsigned long)(now >> 32) - base;
 }
 
-void set_timer(unsigned long t)
-{
-	unsigned long long ticks = t;
-	unsigned long lo, hi, hi_new;
-
-	ticks = (ticks * get_tbclk()) / CONFIG_SYS_HZ;
-	hi = ticks >> 32;
-	lo = ticks & 0xffffffffUL;
-
-	do {
-		timer_overflow = hi;
-		sysreg_write(COUNT, lo);
-		hi_new = timer_overflow;
-	} while (hi_new != hi);
-}
-
 /*
  * For short delays only. It will overflow after a few seconds.
  */

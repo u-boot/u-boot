@@ -170,11 +170,6 @@ ulong get_timer (ulong base)
 	return get_timer_masked () - base;
 }
 
-void set_timer (ulong t)
-{
-	timestamp = time_to_tick(t);
-}
-
 /* delay x useconds AND preserve advance timstamp value */
 void __udelay (unsigned long usec)
 {
