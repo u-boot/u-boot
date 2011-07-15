@@ -36,7 +36,7 @@
 #define RATE_MASK(x)		(0x1 << (x + 16))
 #define RATE_SET(x)		(0x1 << (x + 16))
 
-void gpio_cfg_pin(struct s5p_gpio_bank *bank, int gpio, int cfg)
+void s5p_gpio_cfg_pin(struct s5p_gpio_bank *bank, int gpio, int cfg)
 {
 	unsigned int value;
 
@@ -46,11 +46,11 @@ void gpio_cfg_pin(struct s5p_gpio_bank *bank, int gpio, int cfg)
 	writel(value, &bank->con);
 }
 
-void gpio_direction_output(struct s5p_gpio_bank *bank, int gpio, int en)
+void s5p_gpio_direction_output(struct s5p_gpio_bank *bank, int gpio, int en)
 {
 	unsigned int value;
 
-	gpio_cfg_pin(bank, gpio, GPIO_OUTPUT);
+	s5p_gpio_cfg_pin(bank, gpio, GPIO_OUTPUT);
 
 	value = readl(&bank->dat);
 	value &= ~DAT_MASK(gpio);
@@ -59,12 +59,12 @@ void gpio_direction_output(struct s5p_gpio_bank *bank, int gpio, int en)
 	writel(value, &bank->dat);
 }
 
-void gpio_direction_input(struct s5p_gpio_bank *bank, int gpio)
+void s5p_gpio_direction_input(struct s5p_gpio_bank *bank, int gpio)
 {
-	gpio_cfg_pin(bank, gpio, GPIO_INPUT);
+	s5p_gpio_cfg_pin(bank, gpio, GPIO_INPUT);
 }
 
-void gpio_set_value(struct s5p_gpio_bank *bank, int gpio, int en)
+void s5p_gpio_set_value(struct s5p_gpio_bank *bank, int gpio, int en)
 {
 	unsigned int value;
 
@@ -75,7 +75,7 @@ void gpio_set_value(struct s5p_gpio_bank *bank, int gpio, int en)
 	writel(value, &bank->dat);
 }
 
-unsigned int gpio_get_value(struct s5p_gpio_bank *bank, int gpio)
+unsigned int s5p_gpio_get_value(struct s5p_gpio_bank *bank, int gpio)
 {
 	unsigned int value;
 
@@ -83,7 +83,7 @@ unsigned int gpio_get_value(struct s5p_gpio_bank *bank, int gpio)
 	return !!(value & DAT_MASK(gpio));
 }
 
-void gpio_set_pull(struct s5p_gpio_bank *bank, int gpio, int mode)
+void s5p_gpio_set_pull(struct s5p_gpio_bank *bank, int gpio, int mode)
 {
 	unsigned int value;
 
@@ -102,7 +102,7 @@ void gpio_set_pull(struct s5p_gpio_bank *bank, int gpio, int mode)
 	writel(value, &bank->pull);
 }
 
-void gpio_set_drv(struct s5p_gpio_bank *bank, int gpio, int mode)
+void s5p_gpio_set_drv(struct s5p_gpio_bank *bank, int gpio, int mode)
 {
 	unsigned int value;
 
@@ -123,7 +123,7 @@ void gpio_set_drv(struct s5p_gpio_bank *bank, int gpio, int mode)
 	writel(value, &bank->drv);
 }
 
-void gpio_set_rate(struct s5p_gpio_bank *bank, int gpio, int mode)
+void s5p_gpio_set_rate(struct s5p_gpio_bank *bank, int gpio, int mode)
 {
 	unsigned int value;
 

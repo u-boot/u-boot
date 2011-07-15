@@ -37,7 +37,7 @@ static void smc9115_pre_init(void)
 	u32 smc_bw_conf, smc_bc_conf;
 
 	/* gpio configuration GPK0CON */
-	gpio_cfg_pin(&gpio2->y0, CONFIG_ENV_SROM_BANK, GPIO_FUNC(2));
+	s5p_gpio_cfg_pin(&gpio2->y0, CONFIG_ENV_SROM_BANK, GPIO_FUNC(2));
 
 	/* Ethernet needs bus width of 16 bits */
 	smc_bw_conf = SROMC_DATA16_WIDTH(CONFIG_ENV_SROM_BANK);
@@ -116,10 +116,10 @@ int board_mmc_init(bd_t *bis)
 	 */
 	for (i = 0; i < 7; i++) {
 		/* GPK2[0:6] special function 2 */
-		gpio_cfg_pin(&gpio2->k2, i, GPIO_FUNC(0x2));
+		s5p_gpio_cfg_pin(&gpio2->k2, i, GPIO_FUNC(0x2));
 
 		/* GPK2[0:6] drv 4x */
-		gpio_set_drv(&gpio2->k2, i, GPIO_DRV_4X);
+		s5p_gpio_set_drv(&gpio2->k2, i, GPIO_DRV_4X);
 
 		/* GPK2[0:1] pull disable */
 		if (i == 0 || i == 1) {
@@ -128,7 +128,7 @@ int board_mmc_init(bd_t *bis)
 		}
 
 		/* GPK2[2:6] pull up */
-		gpio_set_pull(&gpio2->k2, i, GPIO_PULL_UP);
+		s5p_gpio_set_pull(&gpio2->k2, i, GPIO_PULL_UP);
 	}
 	err = s5p_mmc_init(2, 4);
 	return err;
