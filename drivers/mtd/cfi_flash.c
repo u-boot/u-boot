@@ -573,7 +573,9 @@ static int flash_status_check (flash_info_t * info, flash_sect_t sector,
 #endif
 
 	/* Wait for command completion */
+#ifdef CONFIG_SYS_LOW_RES_TIMER
 	reset_timer();
+#endif
 	start = get_timer (0);
 	while (flash_is_busy (info, sector)) {
 		if (get_timer (start) > tout) {
@@ -662,7 +664,9 @@ static int flash_status_poll(flash_info_t *info, void *src, void *dst,
 #endif
 
 	/* Wait for command completion */
+#ifdef CONFIG_SYS_LOW_RES_TIMER
 	reset_timer();
+#endif
 	start = get_timer(0);
 	while (1) {
 		switch (info->portwidth) {

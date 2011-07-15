@@ -91,7 +91,9 @@ static unsigned int mg_wait (u32 expect, u32 msec)
 	u32 from, cur, err;
 
 	err = MG_ERR_NONE;
+#ifdef CONFIG_SYS_LOW_RES_TIMER
 	reset_timer();
+#endif
 	from = get_timer(0);
 
 	status = readb(mg_base() + MG_REG_STATUS);
