@@ -112,11 +112,6 @@ ulong get_timer_masked(void)
 	return timestamp;
 }
 
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer(ulong base)
 {
 	return get_timer_masked() - base;

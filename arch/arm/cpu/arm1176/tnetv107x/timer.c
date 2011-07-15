@@ -60,15 +60,6 @@ int timer_init(void)
 	return 0;
 }
 
-void reset_timer(void)
-{
-	lastinc = timestamp = 0;
-
-	__raw_writel(0,		&regs->tcr);
-	__raw_writel(0,		&regs->tim34);
-	__raw_writel(2 << 22,	&regs->tcr);
-}
-
 static ulong get_timer_raw(void)
 {
 	ulong now = __raw_readl(&regs->tim34);

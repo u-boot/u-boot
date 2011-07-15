@@ -95,11 +95,6 @@ void timer_init(void)
 	timerp->cr = SLT_CR_RUN | SLT_CR_IEN | SLT_CR_TEN;
 }
 
-void reset_timer(void)
-{
-	timestamp = 0;
-}
-
 ulong get_timer(ulong base)
 {
 	return (timestamp - base);

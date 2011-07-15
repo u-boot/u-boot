@@ -69,11 +69,6 @@ int timer_init(void)
 	return 0;
 }
 
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 void reset_timer_masked(void)
 {
 	ulong val = __raw_readl(&cur_gpt->counter);

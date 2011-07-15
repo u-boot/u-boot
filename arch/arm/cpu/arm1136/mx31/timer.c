@@ -113,11 +113,6 @@ void reset_timer_masked (void)
 	gd->tbl = 0; /* start "advancing" time stamp from 0 */
 }
 
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 unsigned long long get_ticks (void)
 {
 	ulong now = GPTCNT; /* current tick value */

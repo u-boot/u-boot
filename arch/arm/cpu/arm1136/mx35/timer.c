@@ -73,11 +73,6 @@ inline ulong get_timer_masked(void)
 	return val;
 }
 
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer(ulong base)
 {
 	ulong tmp;

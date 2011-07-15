@@ -34,11 +34,6 @@ int timer_init (void)
 	return 0;
 }
 
-void reset_timer (void)
-{
-	reset_timer_masked ();
-}
-
 ulong get_timer (ulong base)
 {
 	return get_timer_masked ();

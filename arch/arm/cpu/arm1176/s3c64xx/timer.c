@@ -142,11 +142,6 @@ void reset_timer_masked(void)
 	timestamp = 0;
 }
 
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer_masked(void)
 {
 	unsigned long long res = get_ticks();

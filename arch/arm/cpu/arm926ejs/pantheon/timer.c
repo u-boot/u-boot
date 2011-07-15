@@ -108,11 +108,6 @@ ulong get_timer_masked(void)
 	return gd->tbu;
 }
 
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer(ulong base)
 {
 	return ((get_timer_masked() / (CONFIG_SYS_HZ_CLOCK / 1000)) -

@@ -48,11 +48,6 @@ struct timerus *timer_base = (struct timerus *)NV_PA_TMRUS_BASE;
 #define TIMER_LOAD_VAL	0xffffffff
 
 /* timer without interrupts */
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer(ulong base)
 {
 	return get_timer_masked() - base;

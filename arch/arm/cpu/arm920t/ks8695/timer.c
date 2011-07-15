@@ -33,7 +33,7 @@ ulong timer_ticks;
 
 int timer_init (void)
 {
-	reset_timer();
+	reset_timer_masked();
 
 	return 0;
 }
@@ -53,11 +53,6 @@ void reset_timer_masked(void)
 	ks8695_write(KS8695_TIMER1_PCOUNT, TIMER_PULSE);
 	ks8695_write(KS8695_TIMER_CTRL, 0x2);
 	timer_ticks = 0;
-}
-
-void reset_timer(void)
-{
-	reset_timer_masked();
 }
 
 ulong get_timer_masked(void)

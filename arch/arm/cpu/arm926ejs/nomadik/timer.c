@@ -40,16 +40,12 @@
 /* Configure a free-running, auto-wrap counter with no prescaler */
 int timer_init(void)
 {
+	ulong val;
+
 	writel(MTU_CRn_ENA | MTU_CRn_PRESCALE_1 | MTU_CRn_32BITS,
 	       CONFIG_SYS_TIMERBASE + MTU_CR(0));
-	reset_timer();
-	return 0;
-}
 
-/* Restart counting from 0 */
-void reset_timer(void)
-{
-	ulong val;
+	/* Reset the timer */
 	writel(0, CONFIG_SYS_TIMERBASE + MTU_LR(0));
 	/*
 	 * The load-register isn't really immediate: it changes on clock
@@ -59,6 +55,8 @@ void reset_timer(void)
 	val = READ_TIMER();
 	while (READ_TIMER() == val)
 		;
+
+	return 0;
 }
 
 /* Return how many HZ passed since "base" */

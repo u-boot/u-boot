@@ -78,11 +78,6 @@ int timer_init(void)
 	return(0);
 }
 
-void reset_timer(void)
-{
-	gd->timer_reset_value = get_ticks();
-}
-
 /*
  * Get the current 64 bit timer tick count
  */

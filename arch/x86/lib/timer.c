@@ -94,11 +94,6 @@ void timer_isr(void *unused)
 	}
 }
 
-void reset_timer (void)
-{
-	system_ticks = 0;
-}
-
 ulong get_timer (ulong base)
 {
 	return (system_ticks - base);

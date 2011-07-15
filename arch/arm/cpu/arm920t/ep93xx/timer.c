@@ -97,11 +97,6 @@ void reset_timer_masked(void)
 	timer.ticks = 0;
 }
 
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 void __udelay(unsigned long usec)
 {
 	unsigned long long target;

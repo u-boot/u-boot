@@ -90,14 +90,6 @@ ulong get_timer(ulong base)
 	return (get_usec() / 1000) - base;
 }
 
-void reset_timer(void)
-{
-	cmt_timer_stop(0);
-	writew(CMT_TIMER_RESET, CMCOR_0);
-	cmt0_timer = 0;
-	cmt_timer_start(0);
-}
-
 void __udelay(unsigned long usec)
 {
 	unsigned long end = get_usec() + usec;

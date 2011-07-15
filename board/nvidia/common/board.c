@@ -66,7 +66,6 @@ int board_early_init_f(void)
  */
 int timer_init(void)
 {
-	reset_timer();
 	return 0;
 }
 

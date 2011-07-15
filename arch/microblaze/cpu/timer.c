@@ -28,11 +28,6 @@
 
 volatile int timestamp = 0;
 
-void reset_timer (void)
-{
-	timestamp = 0;
-}
-
 #ifdef CONFIG_SYS_TIMER_0
 ulong get_timer (ulong base)
 {
@@ -61,7 +56,7 @@ int timer_init (void)
 	tmr->control = TIMER_INTERRUPT | TIMER_RESET;
 	tmr->control =
 	    TIMER_ENABLE | TIMER_ENABLE_INTR | TIMER_RELOAD | TIMER_DOWN_COUNT;
-	reset_timer ();
+	timestamp = 0;
 	install_interrupt_handler (CONFIG_SYS_TIMER_0_IRQ, timer_isr, (void *)tmr);
 	return 0;
 }

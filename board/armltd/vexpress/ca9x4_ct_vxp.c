@@ -199,11 +199,6 @@ void reset_timer_masked(void)
 	timestamp = 0;
 }
 
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer_masked(void)
 {
 	ulong now = readl(&systimer_base->timer0value) / 1000;

@@ -107,11 +107,6 @@ int timer_init (void)
 /*
  * timer without interrupts
  */
-void reset_timer (void)
-{
-	reset_timer_masked ();
-}
-
 ulong get_timer (ulong base_ticks)
 {
 	return get_timer_masked () - base_ticks;

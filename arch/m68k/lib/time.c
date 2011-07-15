@@ -116,11 +116,6 @@ void timer_init(void)
 	    DTIM_DTMR_FRR | DTIM_DTMR_ORRI | DTIM_DTMR_RST_EN;
 }
 
-void reset_timer(void)
-{
-	timestamp = 0;
-}
-
 ulong get_timer(ulong base)
 {
 	return (timestamp - base);

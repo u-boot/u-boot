@@ -152,8 +152,3 @@ ulong get_timer(ulong base)
 
 	return (milisec - base);
 }
-
-void reset_timer(void)
-{
-	timer_init();
-}

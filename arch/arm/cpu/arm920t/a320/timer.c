@@ -81,12 +81,6 @@ void reset_timer_masked(void)
 	debug("%s(): lastdec = %lx\n", __func__, lastdec);
 }
 
-void reset_timer(void)
-{
-	debug("%s()\n", __func__);
-	reset_timer_masked();
-}
-
 /*
  * return timer ticks
  */

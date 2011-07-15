@@ -89,11 +89,6 @@ void reset_timer_masked(void)
 	gd->timestamp = 0;
 }
 
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer_masked(void)
 {
 	return tick_to_time(get_ticks());

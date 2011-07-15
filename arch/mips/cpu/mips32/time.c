@@ -42,12 +42,6 @@ int timer_init(void)
 	return 0;
 }
 
-void reset_timer(void)
-{
-	timestamp = 0;
-	write_c0_compare(read_c0_count() + CYCLES_PER_JIFFY);
-}
-
 ulong get_timer(ulong base)
 {
 	unsigned int count;

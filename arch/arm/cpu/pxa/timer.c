@@ -59,14 +59,9 @@ static inline unsigned long long us_to_tick(unsigned long long us)
 
 int timer_init (void)
 {
-	reset_timer();
+	reset_timer_masked();
 
 	return 0;
-}
-
-void reset_timer (void)
-{
-	reset_timer_masked ();
 }
 
 ulong get_timer (ulong base)

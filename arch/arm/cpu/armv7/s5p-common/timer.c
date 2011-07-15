@@ -50,11 +50,6 @@ int timer_init(void)
 /*
  * timer without interrupts
  */
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 unsigned long get_timer(unsigned long base)
 {
 	return get_timer_masked() - base;

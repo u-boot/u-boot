@@ -62,13 +62,6 @@ unsigned long long get_ticks(void)
 	return ((unsigned long long)hi_now << 32) | lo;
 }
 
-void reset_timer(void)
-{
-	sysreg_write(COUNT, 0);
-	cpu_sync_pipeline();	/* process any pending interrupts */
-	timer_overflow = 0;
-}
-
 unsigned long get_timer(unsigned long base)
 {
 	u64 now = get_ticks();

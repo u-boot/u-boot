@@ -121,11 +121,6 @@ void __udelay(unsigned long usec)
 		 /*NOP*/;
 }
 
-void reset_timer(void)
-{
-	reset_timer_masked();
-}
-
 ulong get_timer(ulong base)
 {
 	return get_timer_masked() - base;
