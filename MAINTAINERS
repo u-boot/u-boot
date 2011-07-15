@@ -550,6 +550,10 @@ Unknown / orphaned boards:
 
 	EVB64260	MPC7xx_74xx
 
+	integratorcp	various
+	versatile	ARM926EJ-S
+	versatile	ARM926EJ-S
+
 
 #########################################################################
 # ARM Systems:								#
@@ -777,11 +781,8 @@ Sandeep Paulraj <s-paulraj@ti.com>
 	davinci_dm365evm	ARM926EJS
 	davinci_dm6467evm	ARM926EJS
 
-Peter Pearse <peter.pearse@arm.com>
-	integratorcp	All current ARM supplied & supported core modules
-			-see http://www.arm.com/products/DevTools/Hardware_Platforms.html
-	versatile	ARM926EJ-S
-	versatile	ARM926EJ-S
+Linus Walleij <linus.walleij@linaro.org>
+	integratorap	ARM920T
 
 Dave Peverley <dpeverley@mpc-data.co.uk>
 
