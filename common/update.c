@@ -238,13 +238,17 @@ static int update_fit_getparams(const void *fit, int noffset, ulong *addr,
 	return 0;
 }
 
-void update_tftp(void)
+int update_tftp(ulong addr)
 {
 	char *filename, *env_addr;
 	int images_noffset, ndepth, noffset;
 	ulong update_addr, update_fladdr, update_size;
-	ulong addr;
 	void *fit;
+	int ret = 0;
+
+	/* use already present image */
+	if (addr)
+		goto got_update_file;
 
 	printf("Auto-update from TFTP: ");
 
@@ -253,7 +257,7 @@ void update_tftp(void)
 	if (filename == NULL) {
 		printf("failed, env. variable '%s' not found\n",
 							UPDATE_FILE_ENV);
-		return;
+		return 1;
 	}
 
 	printf("trying update file '%s'\n", filename);
@@ -268,15 +272,16 @@ void update_tftp(void)
 	if (update_load(filename, CONFIG_UPDATE_TFTP_MSEC_MAX,
 					CONFIG_UPDATE_TFTP_CNT_MAX, addr)) {
 		printf("Can't load update file, aborting auto-update\n");
-		return;
+		return 1;
 	}
 
+got_update_file:
 	fit = (void *)addr;
 
 	if (!fit_check_format((void *)fit)) {
 		printf("Bad FIT format of the update file, aborting "
 							"auto-update\n");
-		return;
+		return 1;
 	}
 
 	/* process updates */
@@ -293,6 +298,7 @@ void update_tftp(void)
 
 		if (!fit_image_check_hashes(fit, noffset)) {
 			printf("Error: invalid update hash, aborting\n");
+			ret = 1;
 			goto next_node;
 		}
 
@@ -301,15 +307,17 @@ void update_tftp(void)
 					&update_fladdr, &update_size)) {
 			printf("Error: can't get update parameteres, "
 								"aborting\n");
+			ret = 1;
 			goto next_node;
 		}
 		if (update_flash(update_addr, update_fladdr, update_size)) {
 			printf("Error: can't flash update, aborting\n");
+			ret = 1;
 			goto next_node;
 		}
 next_node:
 		noffset = fdt_next_node(fit, noffset, &ndepth);
 	}
 
-	return;
+	return ret;
 }

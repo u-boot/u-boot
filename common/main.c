@@ -51,7 +51,7 @@ void inline __show_boot_progress (int val) {}
 void show_boot_progress (int val) __attribute__((weak, alias("__show_boot_progress")));
 
 #if defined(CONFIG_UPDATE_TFTP)
-void update_tftp (void);
+int update_tftp (ulong addr);
 #endif /* CONFIG_UPDATE_TFTP */
 
 #define MAX_DELAY_STOP_STR 32
@@ -341,7 +341,7 @@ void main_loop (void)
 #endif /* CONFIG_PREBOOT */
 
 #if defined(CONFIG_UPDATE_TFTP)
-	update_tftp ();
+	update_tftp (0UL);
 #endif /* CONFIG_UPDATE_TFTP */
 
 #if defined(CONFIG_BOOTDELAY) && (CONFIG_BOOTDELAY >= 0)
