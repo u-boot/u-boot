@@ -146,6 +146,12 @@ _bss_end_ofs:
 _end_ofs:
 	.word _end - _start
 
+#ifdef CONFIG_NAND_U_BOOT
+.globl _end
+_end:
+	.word __bss_end__
+#endif
+
 #ifdef CONFIG_USE_IRQ
 /* IRQ stack memory (calculated at run-time) */
 .globl IRQ_STACK_START
