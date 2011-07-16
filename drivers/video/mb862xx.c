@@ -204,7 +204,7 @@ unsigned int pci_video_init (void)
 	u16 device;
 
 	if ((devbusfn = pci_find_devices (supported, 0)) < 0) {
-		puts ("PCI video controller not found!\n");
+		puts("controller not present\n");
 		return 0;
 	}
 
