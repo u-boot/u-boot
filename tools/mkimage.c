@@ -158,6 +158,8 @@ main (int argc, char **argv)
 	init_fit_image_type ();
 	/* Init Default image generation/list support */
 	init_default_image_type ();
+	/* Init Davinci UBL support */
+	init_ubl_image_type();
 
 	params.cmdname = *argv;
 	params.addr = params.ep = 0;

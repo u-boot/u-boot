@@ -157,6 +157,7 @@
 #define IH_TYPE_FLATDT		8	/* Binary Flat Device Tree Blob	*/
 #define IH_TYPE_KWBIMAGE	9	/* Kirkwood Boot Image		*/
 #define IH_TYPE_IMXIMAGE	10	/* Freescale IMXBoot Image	*/
+#define IH_TYPE_UBLIMAGE	11	/* Davinci UBL Image		*/
 
 /*
  * Compression Types

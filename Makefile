@@ -394,6 +394,10 @@ $(obj)u-boot.sha1:	$(obj)u-boot.bin
 $(obj)u-boot.dis:	$(obj)u-boot
 		$(OBJDUMP) -d $< > $@
 
+$(obj)u-boot.ubl:       $(obj)u-boot-nand.bin
+		$(obj)tools/mkimage -n $(UBL_CONFIG) -T ublimage \
+		-e $(CONFIG_SYS_TEXT_BASE) -d $< $@
+
 GEN_UBOOT = \
 		UNDEF_SYM=`$(OBJDUMP) -x $(LIBBOARD) $(LIBS) | \
 		sed  -n -e 's/.*\($(SYM_PREFIX)__u_boot_cmd_.*\)/-u\1/p'|sort|uniq`;\
@@ -1102,6 +1106,7 @@ clobber:	clean
 	@rm -f $(obj)u-boot $(obj)u-boot.map $(obj)u-boot.hex $(ALL-y)
 	@rm -f $(obj)u-boot.kwb
 	@rm -f $(obj)u-boot.imx
+	@rm -f $(obj)u-boot.ubl
 	@rm -f $(obj)tools/{env/crc32.c,inca-swap-bytes}
 	@rm -f $(obj)arch/powerpc/cpu/mpc824x/bedbug_603e.c
 	@rm -fr $(obj)include/asm/proc $(obj)include/asm/arch $(obj)include/asm

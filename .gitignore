@@ -33,6 +33,7 @@
 /u-boot.sha1
 /u-boot.dis
 /u-boot.lds
+/u-boot.ubl
 
 #
 # Generated files

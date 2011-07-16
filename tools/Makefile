@@ -92,6 +92,7 @@ NOPED_OBJ_FILES-y += mkimage.o
 OBJ_FILES-$(CONFIG_NETCONSOLE) += ncb.o
 NOPED_OBJ_FILES-y += os_support.o
 OBJ_FILES-$(CONFIG_SHA1_CHECK_UB_IMG) += ubsha1.o
+NOPED_OBJ_FILES-y += ublimage.o
 
 # Don't build by default
 #ifeq ($(ARCH),ppc)
@@ -192,6 +193,7 @@ $(obj)mkimage$(SFX):	$(obj)crc32.o \
 			$(obj)mkimage.o \
 			$(obj)os_support.o \
 			$(obj)sha1.o \
+			$(obj)ublimage.o \
 			$(LIBFDT_OBJS)
 	$(HOSTCC) $(HOSTCFLAGS) $(HOSTLDFLAGS) -o $@ $^
 	$(HOSTSTRIP) $@

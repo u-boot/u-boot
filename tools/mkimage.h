@@ -143,5 +143,6 @@ void init_kwb_image_type (void);
 void init_imx_image_type (void);
 void init_default_image_type (void);
 void init_fit_image_type (void);
+void init_ubl_image_type(void);
 
 #endif /* _MKIIMAGE_H_ */

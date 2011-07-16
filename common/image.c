@@ -141,6 +141,7 @@ static const table_entry_t uimage_type[] = {
 	{	IH_TYPE_FLATDT,     "flat_dt",    "Flat Device Tree",	},
 	{	IH_TYPE_KWBIMAGE,   "kwbimage",   "Kirkwood Boot Image",},
 	{	IH_TYPE_IMXIMAGE,   "imximage",   "Freescale i.MX Boot Image",},
+	{	IH_TYPE_UBLIMAGE,   "ublimage",   "Davinci UBL image",},
 	{	-1,		    "",		  "",			},
 };
 
