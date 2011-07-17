@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
+assabet	arm	sa1100	-	  2011-07-16	George G. Davis <gdavis@mvista.com>
 trab	arm	S3C2400	-	  2011-05-01	Gary Jennejohn <garyj@denx.de>
 xsengine ARM	PXA2xx	4262a7c   2010-10-20
 wepep250 ARM	PXA2xx	7369478   2010-10-20	Peter Figuli <peposh@etc.sk>
