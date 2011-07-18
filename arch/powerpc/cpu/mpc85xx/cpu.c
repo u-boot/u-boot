@@ -374,6 +374,8 @@ void read_tlbcam_entry(int idx, u32 *valid, u32 *tsize, unsigned long *epn,
 unsigned int
 	setup_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg);
 
+void clear_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg);
+
 static void dump_spd_ddr_reg(void)
 {
 	int i, j, k, m;
@@ -460,19 +462,9 @@ static int reset_tlb(phys_addr_t p_addr, u32 size, phys_addr_t *phys_offset)
 	u32 vstart = CONFIG_SYS_DDR_SDRAM_BASE;
 	unsigned long epn;
 	u32 tsize, valid, ptr;
-	phys_addr_t rpn = 0;
 	int ddr_esel;
 
-	ptr = vstart;
-
-	while (ptr < (vstart + size)) {
-		ddr_esel = find_tlb_idx((void *)ptr, 1);
-		if (ddr_esel != -1) {
-			read_tlbcam_entry(ddr_esel, &valid, &tsize, &epn, &rpn);
-			disable_tlb(ddr_esel);
-		}
-		ptr += TSIZE_TO_BYTES(tsize);
-	}
+	clear_ddr_tlbs_phys(p_addr, size>>20);
 
 	/* Setup new tlb to cover the physical address */
 	setup_ddr_tlbs_phys(p_addr, size>>20);

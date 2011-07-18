@@ -489,6 +489,7 @@ extern int find_free_tlbcam(void);
 extern void print_tlbcam(void);
 
 extern unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg);
+extern void clear_ddr_tlbs(unsigned int memsize_in_meg);
 
 extern void write_tlb(u32 _mas0, u32 _mas1, u32 _mas2, u32 _mas3, u32 _mas7);
 

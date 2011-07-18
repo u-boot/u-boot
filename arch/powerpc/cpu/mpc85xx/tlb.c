@@ -300,4 +300,33 @@ unsigned int setup_ddr_tlbs(unsigned int memsize_in_meg)
 	return
 		setup_ddr_tlbs_phys(CONFIG_SYS_DDR_SDRAM_BASE, memsize_in_meg);
 }
+
+/* Invalidate the DDR TLBs for the requested size */
+void clear_ddr_tlbs_phys(phys_addr_t p_addr, unsigned int memsize_in_meg)
+{
+	u32 vstart = CONFIG_SYS_DDR_SDRAM_BASE;
+	unsigned long epn;
+	u32 tsize, valid, ptr;
+	phys_addr_t rpn = 0;
+	int ddr_esel;
+	u64 memsize = (u64)memsize_in_meg << 20;
+
+	ptr = vstart;
+
+	while (ptr < (vstart + memsize)) {
+		ddr_esel = find_tlb_idx((void *)ptr, 1);
+		if (ddr_esel != -1) {
+			read_tlbcam_entry(ddr_esel, &valid, &tsize, &epn, &rpn);
+			disable_tlb(ddr_esel);
+		}
+		ptr += TSIZE_TO_BYTES(tsize);
+	}
+}
+
+void clear_ddr_tlbs(unsigned int memsize_in_meg)
+{
+	clear_ddr_tlbs_phys(CONFIG_SYS_DDR_SDRAM_BASE, memsize_in_meg);
+}
+
+
 #endif /* !CONFIG_NAND_SPL */
