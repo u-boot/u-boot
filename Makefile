@@ -468,15 +468,19 @@ TAG_SUBDIRS = $(SUBDIRS)
 TAG_SUBDIRS += $(dir $(__LIBS))
 TAG_SUBDIRS += include
 
+FIND := find
+FINDFLAGS := -L
+
 tags ctags:
-		ctags -w -o $(obj)ctags `find $(TAG_SUBDIRS) \
+		ctags -w -o $(obj)ctags `$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) \
 						-name '*.[chS]' -print`
 
 etags:
-		etags -a -o $(obj)etags `find $(TAG_SUBDIRS) \
+		etags -a -o $(obj)etags `$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) \
 						-name '*.[chS]' -print`
 cscope:
-		find $(TAG_SUBDIRS) -name '*.[chS]' -print > cscope.files
+		$(FIND) $(FINDFLAGS) $(TAG_SUBDIRS) -name '*.[chS]' -print > \
+						cscope.files
 		cscope -b -q -k
 
 SYSTEM_MAP = \
