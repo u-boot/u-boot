@@ -104,10 +104,11 @@ $(if $(BUILD_DIR),,$(error output directory "$(saved-output)" does not exist))
 endif # ifneq ($(BUILD_DIR),)
 
 OBJTREE		:= $(if $(BUILD_DIR),$(BUILD_DIR),$(CURDIR))
+SPLTREE		:= $(OBJTREE)/spl
 SRCTREE		:= $(CURDIR)
 TOPDIR		:= $(SRCTREE)
 LNDIR		:= $(OBJTREE)
-export	TOPDIR SRCTREE OBJTREE
+export	TOPDIR SRCTREE OBJTREE SPLTREE
 
 MKCONFIG	:= $(SRCTREE)/mkconfig
 export MKCONFIG

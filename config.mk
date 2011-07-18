@@ -23,19 +23,31 @@
 
 #########################################################################
 
-ifneq ($(OBJTREE),$(SRCTREE))
 ifeq ($(CURDIR),$(SRCTREE))
 dir :=
 else
 dir := $(subst $(SRCTREE)/,,$(CURDIR))
 endif
 
+ifneq ($(OBJTREE),$(SRCTREE))
+# Create object files for SPL in a separate directory
+ifeq ($(CONFIG_SPL_BUILD),y)
+obj := $(if $(dir),$(SPLTREE)/$(dir)/,$(SPLTREE)/)
+else
 obj := $(if $(dir),$(OBJTREE)/$(dir)/,$(OBJTREE)/)
+endif
 src := $(if $(dir),$(SRCTREE)/$(dir)/,$(SRCTREE)/)
 
 $(shell mkdir -p $(obj))
 else
+# Create object files for SPL in a separate directory
+ifeq ($(CONFIG_SPL_BUILD),y)
+obj := $(if $(dir),$(SPLTREE)/$(dir)/,$(SPLTREE)/)
+
+$(shell mkdir -p $(obj))
+else
 obj :=
+endif
 src :=
 endif
 
@@ -160,8 +172,23 @@ gccincdir := $(shell $(CC) -print-file-name=include)
 
 CPPFLAGS := $(DBGFLAGS) $(OPTFLAGS) $(RELFLAGS)		\
 	-D__KERNEL__
+
+# Enable garbage collection of un-used sections for SPL
+ifeq ($(CONFIG_SPL_BUILD),y)
+CPPFLAGS += -ffunction-sections -fdata-sections
+LDFLAGS_FINAL += --gc-sections
+endif
+
 ifneq ($(CONFIG_SYS_TEXT_BASE),)
 CPPFLAGS += -DCONFIG_SYS_TEXT_BASE=$(CONFIG_SYS_TEXT_BASE)
+endif
+
+ifneq ($(CONFIG_SPL_TEXT_BASE),)
+CPPFLAGS += -DCONFIG_SPL_TEXT_BASE=$(CONFIG_SPL_TEXT_BASE)
+endif
+
+ifeq ($(CONFIG_SPL_BUILD),y)
+CPPFLAGS += -DCONFIG_SPL_BUILD
 endif
 
 ifneq ($(RESET_VECTOR_ADDRESS),)
@@ -204,6 +231,11 @@ LDFLAGS_FINAL += -Bstatic
 LDFLAGS_u-boot += -T $(obj)u-boot.lds $(LDFLAGS_FINAL)
 ifneq ($(CONFIG_SYS_TEXT_BASE),)
 LDFLAGS_u-boot += -Ttext $(CONFIG_SYS_TEXT_BASE)
+endif
+
+LDFLAGS_u-boot-spl += -T $(obj)u-boot-spl.lds $(LDFLAGS_FINAL)
+ifneq ($(CONFIG_SPL_TEXT_BASE),)
+LDFLAGS_u-boot-spl += -Ttext $(CONFIG_SPL_TEXT_BASE)
 endif
 
 # Location of a usable BFD library, where we define "usable" as
