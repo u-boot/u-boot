@@ -130,6 +130,9 @@ int misc_init_r(void)
 #endif
 	omap3_evm_get_revision();
 
+#if defined(CONFIG_CMD_NET)
+	reset_net_chip();
+#endif
 	dieid_num_r();
 
 	return 0;
@@ -153,7 +156,6 @@ void set_muxconf_regs(void)
  */
 static void setup_net_chip(void)
 {
-	struct gpio *gpio3_base = (struct gpio *)OMAP34XX_GPIO3_BASE;
 	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
 
 	/* Configure GPMC registers */
@@ -172,6 +174,14 @@ static void setup_net_chip(void)
 	/* Enable off mode for ALE in PADCONF_GPMC_NADV_ALE register */
 	writew(readw(&ctrl_base->gpmc_nadv_ale) | 0x0E00,
 		&ctrl_base->gpmc_nadv_ale);
+}
+
+/**
+ * Reset the ethernet chip.
+ */
+static void reset_net_chip(void)
+{
+	struct gpio *gpio3_base = (struct gpio *)OMAP34XX_GPIO3_BASE;
 
 	/* Make GPIO 64 as output pin */
 	writel(readl(&gpio3_base->oe) & ~(GPIO0), &gpio3_base->oe);
