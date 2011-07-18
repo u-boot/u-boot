@@ -444,7 +444,6 @@ LIST_ARMV7="		\
 #########################################################################
 
 LIST_at91="$(boards_by_soc at91)\
-	$(boards_by_soc at91rm9200)\
 	at91sam9260ek		\
 	at91sam9261ek		\
 	at91sam9263ek		\
