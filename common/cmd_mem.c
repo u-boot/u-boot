@@ -1092,7 +1092,7 @@ int do_mem_crc (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 	length = simple_strtoul (argv[2], NULL, 16);
 
-	crc = crc32 (0, (const uchar *) addr, length);
+	crc = crc32_wd (0, (const uchar *) addr, length, CHUNKSZ_CRC32);
 
 	printf ("CRC32 for %08lx ... %08lx ==> %08lx\n",
 			addr, addr + length - 1, crc);
@@ -1137,7 +1137,7 @@ usage:
 	addr += base_address;
 	length = simple_strtoul(*av++, NULL, 16);
 
-	crc = crc32(0, (const uchar *) addr, length);
+	crc = crc32_wd (0, (const uchar *) addr, length, CHUNKSZ_CRC32);
 
 	if (!verify) {
 		printf ("CRC32 for %08lx ... %08lx ==> %08lx\n",
