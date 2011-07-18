@@ -363,6 +363,12 @@ static phys_size_t sdram_setup(int casl)
 	udelay (1000);
 #endif /* CONFIG_TQM8548 */
 
+	/*
+	 * get_ram_size() depends on having tlbs for the DDR, but they are
+	 * not yet setup because we don't know the size.  Set up a temp
+	 * mapping and delete it when done.
+	 */
+	setup_ddr_tlbs(CONFIG_SYS_DDR_EARLY_SIZE_MB);
 	for (i = 0; i < N_DDR_CS_CONF; i++) {
 		ddr->cs0_config = ddr_cs_conf[i].reg;
 
@@ -376,6 +382,7 @@ static phys_size_t sdram_setup(int casl)
 			break;
 		}
 	}
+	clear_ddr_tlbs(CONFIG_SYS_DDR_EARLY_SIZE_MB);
 
 #ifdef CONFIG_TQM8548
 	if (i < N_DDR_CS_CONF) {
