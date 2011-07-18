@@ -37,7 +37,7 @@ static int do_md5sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	addr = simple_strtoul(argv[1], NULL, 16);
 	len = simple_strtoul(argv[2], NULL, 16);
 
-	md5((unsigned char *) addr, len, output);
+	md5_wd((unsigned char *) addr, len, output, CHUNKSZ_MD5);
 	printf("md5 for %08lx ... %08lx ==> ", addr, addr + len - 1);
 	for (i = 0; i < 16; i++)
 		printf("%02x", output[i]);
