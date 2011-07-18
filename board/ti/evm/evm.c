@@ -153,6 +153,7 @@ void set_muxconf_regs(void)
 	MUX_EVM();
 }
 
+#ifdef CONFIG_CMD_NET
 /*
  * Routine: setup_net_chip
  * Description: Setting up the configuration GPMC registers specific to the
@@ -219,3 +220,4 @@ int board_eth_init(bd_t *bis)
 #endif
 	return rc;
 }
+#endif /* CONFIG_CMD_NET */
