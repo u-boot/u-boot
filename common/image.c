@@ -1274,7 +1274,7 @@ int boot_relocate_fdt (struct lmb *lmb, char **of_flat_tree, ulong *of_size)
 			}
 		} else {
 			of_start =
-			    (void *)(ulong) mb_alloc(lmb, of_len, 0x1000);
+			    (void *)(ulong) lmb_alloc(lmb, of_len, 0x1000);
 		}
 	} else {
 		of_start =
