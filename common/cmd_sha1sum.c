@@ -37,7 +37,7 @@ static int do_sha1sum(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	addr = simple_strtoul(argv[1], NULL, 16);
 	len = simple_strtoul(argv[2], NULL, 16);
 
-	sha1_csum((unsigned char *) addr, len, output);
+	sha1_csum_wd((unsigned char *) addr, len, output, CHUNKSZ_SHA1);
 	printf("SHA1 for %08lx ... %08lx ==> ", addr, addr + len - 1);
 	for (i = 0; i < 20; i++)
 		printf("%02x", output[i]);
