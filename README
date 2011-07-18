@@ -2255,6 +2255,45 @@ FIT uImage format:
 		Adds the MTD partitioning infrastructure from the Linux
 		kernel. Needed for UBI support.
 
+- SPL framework
+                CONFIG_SPL
+                Enable building of SPL globally.
+
+                CONFIG_SPL_TEXT_BASE
+                TEXT_BASE for linking the SPL binary.
+
+                CONFIG_SPL_LDSCRIPT
+                LDSCRIPT for linking the SPL binary.
+
+                CONFIG_SPL_LIBCOMMON_SUPPORT
+                Support for common/libcommon.o in SPL binary
+
+                CONFIG_SPL_LIBDISK_SUPPORT
+                Support for disk/libdisk.o in SPL binary
+
+                CONFIG_SPL_I2C_SUPPORT
+                Support for drivers/i2c/libi2c.o in SPL binary
+
+                CONFIG_SPL_GPIO_SUPPORT
+                Support for drivers/gpio/libgpio.o in SPL binary
+
+                CONFIG_SPL_MMC_SUPPORT
+                Support for drivers/mmc/libmmc.o in SPL binary
+
+                CONFIG_SPL_SERIAL_SUPPORT
+                Support for drivers/serial/libserial.o in SPL binary
+
+                CONFIG_SPL_SPI_FLASH_SUPPORT
+                Support for drivers/mtd/spi/libspi_flash.o in SPL binary
+
+                CONFIG_SPL_SPI_SUPPORT
+                Support for drivers/spi/libspi.o in SPL binary
+
+                CONFIG_SPL_FAT_SUPPORT
+                Support for fs/fat/libfat.o in SPL binary
+
+                CONFIG_SPL_LIBGENERIC_SUPPORT
+                Support for lib/libgeneric.o in SPL binary
 
 Modem Support:
 --------------
