@@ -57,7 +57,7 @@ void davinci_sync_env_enetaddr(uint8_t *rom_enetaddr);
 int davinci_configure_pin_mux(const struct pinmux_config *pins, int n_pins);
 int davinci_configure_pin_mux_items(const struct pinmux_resource *item,
 				    int n_items);
-#if defined(CONFIG_DRIVER_TI_EMAC) && defined(CONFIG_MACH_DAVINCI_DA850_EVM)
+#if defined(CONFIG_DRIVER_TI_EMAC) && defined(CONFIG_SOC_DA8XX)
 void davinci_emac_mii_mode_sel(int mode_sel);
 #endif
 #if defined(CONFIG_SOC_DA8XX)
