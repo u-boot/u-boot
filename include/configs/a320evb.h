@@ -25,6 +25,12 @@
 #include <asm/arch/a320.h>
 
 /*
+ * Linux kernel tagged list
+ */
+#define CONFIG_CMDLINE_TAG
+#define CONFIG_SETUP_MEMORY_TAGS
+
+/*
  * CPU and Board Configuration Options
  */
 #undef CONFIG_USE_IRQ		/* we don't need IRQ/FIQ stuff */
