@@ -40,25 +40,3 @@ The method for updating
 4. Convert arch, driver and boards file to new SoC
 5. remove legacy code, if all boards and drives are ready
 
- Join AT91 and AT91RM9200 SoC
-==============================
-
-Approximately 95 percent of AT91 and AT91RM9200 SoC parts are the same.
-So, we should use the chance, to join both archs togetter.
-
-To do this follow step needed:
-
-1. change Makefile
-	@$(MKCONFIG) $(@:_config=) arm arm920t board vendor at91rm9200
-  to
-	@$(MKCONFIG) $(@:_config=) arm arm920t board vendor at91
-2. remove CONFIG_AT91_LEGACY in board config
-3. convert boards file to new SoC access
-4. convert or change drivers
-
-To support the joining process, a new SoC dir (at91) has been adding to
-arm920t arch directory. This directory contains files like at91rm9200 dir, but
-uses the new c structure Soc access. The advantage of this is, we don't merge
-old Soc access code and new code while the board are not converted.
-Finally we can delete the whole at91rm9200 dir, if all board support the
-new AT91-SoC access.
