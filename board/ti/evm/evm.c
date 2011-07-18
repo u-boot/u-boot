@@ -33,9 +33,13 @@
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/gpio.h>
 #include <i2c.h>
 #include <asm/mach-types.h>
 #include "evm.h"
+
+#define OMAP3EVM_GPIO_ETH_RST_GEN1		64
+#define OMAP3EVM_GPIO_ETH_RST_GEN2		7
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -181,17 +185,30 @@ static void setup_net_chip(void)
  */
 static void reset_net_chip(void)
 {
-	struct gpio *gpio3_base = (struct gpio *)OMAP34XX_GPIO3_BASE;
+	int ret;
+	int rst_gpio;
 
-	/* Make GPIO 64 as output pin */
-	writel(readl(&gpio3_base->oe) & ~(GPIO0), &gpio3_base->oe);
+	if (get_omap3_evm_rev() == OMAP3EVM_BOARD_GEN_1) {
+		rst_gpio = OMAP3EVM_GPIO_ETH_RST_GEN1;
+	} else {
+		rst_gpio = OMAP3EVM_GPIO_ETH_RST_GEN2;
+	}
 
-	/* Now send a pulse on the GPIO pin */
-	writel(GPIO0, &gpio3_base->setdataout);
+	ret = omap_request_gpio(rst_gpio);
+	if (ret < 0) {
+		printf("Unable to get GPIO %d\n", rst_gpio);
+		return ;
+	}
+
+	/* Configure as output */
+	omap_set_gpio_direction(rst_gpio, 0);
+
+	/* Send a pulse on the GPIO pin */
+	omap_set_gpio_dataout(rst_gpio, 1);
 	udelay(1);
-	writel(GPIO0, &gpio3_base->cleardataout);
+	omap_set_gpio_dataout(rst_gpio, 0);
 	udelay(1);
-	writel(GPIO0, &gpio3_base->setdataout);
+	omap_set_gpio_dataout(rst_gpio, 1);
 }
 
 int board_eth_init(bd_t *bis)
