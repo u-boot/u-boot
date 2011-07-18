@@ -32,7 +32,7 @@ DECLARE_GLOBAL_DATA_PTR;
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
-	gd->ram_size = get_ram_size((volatile void *)PHYS_SDRAM_1,
+	gd->ram_size = get_ram_size((void *)PHYS_SDRAM_1,
 				PHYS_SDRAM_1_SIZE);
 	return 0;
 }

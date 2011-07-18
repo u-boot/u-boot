@@ -63,7 +63,7 @@ int board_early_init_f(void)
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
-	gd->ram_size = get_ram_size((volatile long *)CONFIG_SYS_SDRAM_BASE,
+	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
 			CONFIG_SYS_SDRAM_SIZE);
 	return 0;
 }

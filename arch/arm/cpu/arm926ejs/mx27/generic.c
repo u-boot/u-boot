@@ -271,7 +271,7 @@ void imx_gpio_mode(int gpio_mode)
 }
 
 #ifdef CONFIG_MXC_UART
-void mx27_uart_init_pins(void)
+void mx27_uart1_init_pins(void)
 {
 	int i;
 	unsigned int mode[] = {

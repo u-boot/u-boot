@@ -1,8 +1,6 @@
 #
-# (C) Copyright 2000-2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
-#
-# (C) Copyright 2008-2009 Freescale Semiconductor, Inc.
+# (c) 2010 Graf-Syteco, Matthias Weisser
+# <weisserm@arcor.de>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -25,22 +23,23 @@
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).o
+LIB	= $(obj)lib$(BOARD).o
 
-COBJS	+= generic.o
-COBJS	+= timer.o
-COBJS	+= iomux.o
+COBJS-y	+= zmx25.o
+SOBJS	:= lowlevel_init.o
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS))
+SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS-y))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-all:	$(obj).depend $(LIB)
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
 
-$(LIB):	$(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
+clean:
+	rm -f $(SOBJS) $(OBJS)
 
-$(OBJS) : $(TOPDIR)/include/asm/arch/asm-offsets.h
-
+distclean:	clean
+	rm -f $(LIB) core *.bak $(obj).depend
 
 #########################################################################
 

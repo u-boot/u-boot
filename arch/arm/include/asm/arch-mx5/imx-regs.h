@@ -317,9 +317,27 @@ struct clkctl {
 	u32	ccgr4;
 	u32	ccgr5;
 	u32	ccgr6;
+#if defined(CONFIG_MX53)
+	u32	ccgr7;
+#endif
 	u32	cmeor;
 };
 
+/* DPLL registers */
+struct dpll {
+	u32	dp_ctl;
+	u32	dp_config;
+	u32	dp_op;
+	u32	dp_mfd;
+	u32	dp_mfn;
+	u32	dp_mfn_minus;
+	u32	dp_mfn_plus;
+	u32	dp_hfs_op;
+	u32	dp_hfs_mfd;
+	u32	dp_hfs_mfn;
+	u32	dp_mfn_togc;
+	u32	dp_destat;
+};
 /* WEIM registers */
 struct weim {
 	u32	cs0gcr1;

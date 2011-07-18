@@ -162,6 +162,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	int rc = ERR_OK;
 	unsigned long base;
 	unsigned long addr;
+	ulong start;
 
 	if ((info->flash_id & FLASH_VENDMASK) !=
 	    (FUJ_MANUFACT & FLASH_VENDMASK)) {
@@ -192,7 +193,7 @@ int flash_erase (flash_info_t * info, int s_first, int s_last)
 	/* Start erase on unprotected sectors */
 	for (sect = s_first; sect <= s_last && !ctrlc (); sect++) {
 		/* ARM simple, non interrupt dependent timer */
-		reset_timer_masked ();
+		start = get_timer(0);
 
 		if (info->protect[sect] == 0) {	/* not protected */
 
@@ -232,6 +233,7 @@ static int write_word (flash_info_t * info, ulong dest, ushort data)
 {
 	int flag;
 	unsigned long base;
+	ulong start;
 
 	/* Check if Flash is (sufficiently) erased
 	 */
@@ -250,7 +252,7 @@ static int write_word (flash_info_t * info, ulong dest, ushort data)
 	flag = disable_interrupts ();
 
 	/* arm simple, non interrupt dependent timer */
-	reset_timer_masked ();
+	start = get_timer(0);
 
 	base = dest & 0xF0000000;
 	FL_WORD (base + (0x555 << 1)) = 0xAA;

@@ -126,6 +126,11 @@
 #define SCB9328_SDRAM_1		0x08000000	/* SDRAM bank #1	   */
 #define SCB9328_SDRAM_1_SIZE	0x01000000	/* 16 MB		   */
 
+#define CONFIG_SYS_TEXT_BASE	0x10000000
+
+#define CONFIG_SYS_SDRAM_BASE	SCB9328_SDRAM_1
+#define CONFIG_SYS_INIT_SP_ADDR	(SCB9328_SDRAM_1 + 0xf00000)
+
 /*
  * Configuration for FLASH memory for the Synertronixx board
  */

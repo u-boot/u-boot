@@ -23,6 +23,7 @@
 
 #include <common.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/arch/clock.h>
 #include <asm/io.h>
 
 static u32 mx31_decode_pll(u32 reg, u32 infreq)
@@ -60,7 +61,7 @@ static u32 mx31_get_mcu_main_clk(void)
 	return mx31_get_mpl_dpdgck_clk();
 }
 
-u32 mx31_get_ipg_clk(void)
+static u32 mx31_get_ipg_clk(void)
 {
 	u32 freq = mx31_get_mcu_main_clk();
 	u32 pdr0 = __REG(CCM_PDR0);
@@ -76,6 +77,24 @@ void mx31_dump_clocks(void)
 	u32 cpufreq = mx31_get_mcu_main_clk();
 	printf("mx31 cpu clock: %dMHz\n",cpufreq / 1000000);
 	printf("ipg clock     : %dHz\n", mx31_get_ipg_clk());
+}
+
+unsigned int mxc_get_clock(enum mxc_clock clk)
+{
+	switch (clk) {
+	case MXC_ARM_CLK:
+		return mx31_get_mcu_main_clk();
+	case MXC_IPG_CLK:
+	case MXC_CSPI_CLK:
+	case MXC_UART_CLK:
+		return mx31_get_ipg_clk();
+	}
+	return -1;
+}
+
+u32 imx_get_uartclk(void)
+{
+	return mxc_get_clock(MXC_UART_CLK);
 }
 
 void mx31_gpio_mux(unsigned long mode)

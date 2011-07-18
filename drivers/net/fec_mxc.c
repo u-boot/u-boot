@@ -86,7 +86,7 @@ static int fec_miiphy_read(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 	/*
 	 * wait for the related interrupt
 	 */
-	start = get_timer_masked();
+	start = get_timer(0);
 	while (!(readl(&fec->eth->ievent) & FEC_IEVENT_MII)) {
 		if (get_timer(start) > (CONFIG_SYS_HZ / 1000)) {
 			printf("Read MDIO failed...\n");
@@ -138,7 +138,7 @@ static int fec_miiphy_write(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 	/*
 	 * wait for the MII interrupt
 	 */
-	start = get_timer_masked();
+	start = get_timer(0);
 	while (!(readl(&fec->eth->ievent) & FEC_IEVENT_MII)) {
 		if (get_timer(start) > (CONFIG_SYS_HZ / 1000)) {
 			printf("Write MDIO failed...\n");
@@ -189,7 +189,7 @@ static int miiphy_wait_aneg(struct eth_device *dev)
 	/*
 	 * Wait for AN completion
 	 */
-	start = get_timer_masked();
+	start = get_timer(0);
 	do {
 		if (get_timer(start) > (CONFIG_SYS_HZ * 5)) {
 			printf("%s: Autonegotiation timeout\n", dev->name);

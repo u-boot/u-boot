@@ -24,8 +24,15 @@
 #ifndef __ASM_ARCH_CLOCK_H
 #define __ASM_ARCH_CLOCK_H
 
-extern u32 mx31_get_ipg_clk(void);
-#define imx_get_uartclk mx31_get_ipg_clk
+enum mxc_clock {
+	MXC_ARM_CLK,
+	MXC_IPG_CLK,
+	MXC_CSPI_CLK,
+	MXC_UART_CLK,
+};
+
+unsigned int mxc_get_clock(enum mxc_clock clk);
+extern u32 imx_get_uartclk();
 extern void mx31_gpio_mux(unsigned long mode);
 extern void mx31_set_pad(enum iomux_pins pin, u32 config);
 

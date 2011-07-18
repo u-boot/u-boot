@@ -106,6 +106,11 @@ static inline int test_bit(int nr, const void * addr)
     return ((unsigned char *) addr)[nr >> 3] & (1U << (nr & 7));
 }
 
+static inline int __ilog2(unsigned int x)
+{
+	return generic_fls(x) - 1;
+}
+
 /*
  * ffz = Find First Zero in word. Undefined if no zero exists,
  * so code should check against ~0UL first..
