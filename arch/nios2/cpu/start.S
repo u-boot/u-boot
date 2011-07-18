@@ -23,7 +23,6 @@
 
 #include <asm-offsets.h>
 #include <config.h>
-#include <timestamp.h>
 #include <version.h>
 
 /*************************************************************************
@@ -196,14 +195,8 @@ dly_clks:
 	bge	r4, r0, dly_clks
 	ret
 
-
-#if !defined(CONFIG_IDENT_STRING)
-#define CONFIG_IDENT_STRING ""
-#endif
 	.data
 	.globl	version_string
 
 version_string:
-	.ascii U_BOOT_VERSION
-	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
-	.ascii CONFIG_IDENT_STRING, "\0"
+	.ascii U_BOOT_VERSION_STRING, "\0"

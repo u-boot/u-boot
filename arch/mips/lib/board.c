@@ -25,7 +25,6 @@
 #include <command.h>
 #include <malloc.h>
 #include <stdio_dev.h>
-#include <timestamp.h>
 #include <version.h>
 #include <net.h>
 #include <environment.h>
@@ -49,9 +48,6 @@ extern ulong uboot_end_data;
 extern ulong uboot_end;
 
 ulong monitor_flash_len;
-
-const char version_string[] =
-	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
 
 static char *failed = "*** failed ***\n";
 

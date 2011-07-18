@@ -24,8 +24,9 @@
 #include <common.h>
 #include <command.h>
 #include <version.h>
+#include <linux/compiler.h>
 
-extern char version_string[];
+const char __weak version_string[] = U_BOOT_VERSION_STRING;
 
 int do_version(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {

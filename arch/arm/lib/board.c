@@ -42,7 +42,6 @@
 #include <command.h>
 #include <malloc.h>
 #include <stdio_dev.h>
-#include <timestamp.h>
 #include <version.h>
 #include <net.h>
 #include <serial.h>
@@ -69,13 +68,6 @@ ulong monitor_flash_len;
 extern int  AT91F_DataflashInit(void);
 extern void dataflash_print_info(void);
 #endif
-
-#ifndef CONFIG_IDENT_STRING
-#define CONFIG_IDENT_STRING ""
-#endif
-
-const char version_string[] =
-	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")"CONFIG_IDENT_STRING;
 
 #ifdef CONFIG_DRIVER_RTL8019
 extern void rtl8019_get_enetaddr (uchar * addr);

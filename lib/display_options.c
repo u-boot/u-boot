@@ -23,13 +23,12 @@
 
 #include <config.h>
 #include <common.h>
+#include <version.h>
 #include <linux/ctype.h>
 #include <asm/io.h>
 
 int display_options (void)
 {
-	extern char version_string[];
-
 #if defined(BUILD_TAG)
 	printf ("\n\n%s, Build: %s\n\n", version_string, BUILD_TAG);
 #else

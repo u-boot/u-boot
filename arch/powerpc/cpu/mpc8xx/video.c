@@ -33,7 +33,6 @@
 #include <common.h>
 #include <config.h>
 #include <version.h>
-#include <timestamp.h>
 #include <i2c.h>
 #include <linux/types.h>
 #include <stdio_dev.h>

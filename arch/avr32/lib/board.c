@@ -23,7 +23,6 @@
 #include <command.h>
 #include <malloc.h>
 #include <stdio_dev.h>
-#include <timestamp.h>
 #include <version.h>
 #include <net.h>
 
@@ -40,9 +39,6 @@
 #endif
 
 DECLARE_GLOBAL_DATA_PTR;
-
-const char version_string[] =
-	U_BOOT_VERSION " ("U_BOOT_DATE" - "U_BOOT_TIME") " CONFIG_IDENT_STRING;
 
 unsigned long monitor_flash_len;
 

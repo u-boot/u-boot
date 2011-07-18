@@ -91,6 +91,7 @@ CONFIG_VIDEO_HW_CURSOR:	     - Uses the hardware cursor capability of the
 */
 
 #include <common.h>
+#include <version.h>
 
 #include <malloc.h>
 
@@ -1458,7 +1459,6 @@ void logo_plot (void *screen, int width, int x, int y)
 static void *video_logo (void)
 {
 	char info[128];
-	extern char version_string;
 	int space, len, y_off = 0;
 
 #ifdef CONFIG_SPLASH_SCREEN

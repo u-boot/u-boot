@@ -30,6 +30,7 @@
 #include <common.h>
 #include <watchdog.h>
 #include <command.h>
+#include <version.h>
 #ifdef CONFIG_MODEM_SUPPORT
 #include <malloc.h>		/* for free() prototype */
 #endif
@@ -307,8 +308,6 @@ void main_loop (void)
 
 #ifdef CONFIG_VERSION_VARIABLE
 	{
-		extern char version_string[];
-
 		setenv ("ver", version_string);  /* set version variable */
 	}
 #endif /* CONFIG_VERSION_VARIABLE */

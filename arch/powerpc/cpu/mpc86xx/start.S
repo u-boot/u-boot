@@ -33,7 +33,6 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc86xx.h>
-#include <timestamp.h>
 #include <version.h>
 
 #include <ppc_asm.tmpl>
@@ -42,10 +41,6 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 #include <asm/u-boot.h>
-
-#ifndef	CONFIG_IDENT_STRING
-#define CONFIG_IDENT_STRING ""
-#endif
 
 /*
  * Need MSR_DR | MSR_IR enabled to access I/O (printf) in exceptions
@@ -78,9 +73,7 @@
 	.long	0x27051956		/* U-Boot Magic Number */
 	.globl	version_string
 version_string:
-	.ascii	U_BOOT_VERSION
-	.ascii	" (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
-	.ascii	CONFIG_IDENT_STRING, "\0"
+	.ascii U_BOOT_VERSION_STRING, "\0"
 
 	. = EXC_OFF_SYS_RESET
 	.globl	_start

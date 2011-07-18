@@ -27,15 +27,12 @@
 #include <common.h>
 #include <command.h>
 #include <malloc.h>
-#include <timestamp.h>
 #include <version.h>
 #include <watchdog.h>
 #include <stdio_dev.h>
 #include <net.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-const char version_string[] = U_BOOT_VERSION " ("U_BOOT_DATE" - "U_BOOT_TIME")";
 
 #ifdef CONFIG_SYS_GPIO_0
 extern int gpio_init (void);

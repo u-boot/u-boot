@@ -35,7 +35,6 @@
 #include <watchdog.h>
 #include <command.h>
 #include <stdio_dev.h>
-#include <timestamp.h>
 #include <version.h>
 #include <malloc.h>
 #include <net.h>
@@ -65,9 +64,6 @@ extern ulong __rel_dyn_start;
 extern ulong __rel_dyn_end;
 extern ulong __bss_start;
 extern ulong __bss_end;
-
-const char version_string[] =
-	U_BOOT_VERSION" (" U_BOOT_DATE " - " U_BOOT_TIME ")";
 
 /************************************************************************
  * Init Utilities							*

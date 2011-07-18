@@ -35,7 +35,6 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <74xx_7xx.h>
-#include <timestamp.h>
 #include <version.h>
 
 #include <ppc_asm.tmpl>
@@ -50,10 +49,6 @@
     !defined(CONFIG_CPCI750) && \
     !defined(CONFIG_P3Mx)
 #include <galileo/gt64260R.h>
-#endif
-
-#ifndef  CONFIG_IDENT_STRING
-#define  CONFIG_IDENT_STRING ""
 #endif
 
 /* We don't want the  MMU yet.
@@ -89,9 +84,7 @@
 	.long	0x27051956		/* U-Boot Magic Number		*/
 	.globl	version_string
 version_string:
-	.ascii	U_BOOT_VERSION
-	.ascii	" (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
-	.ascii	CONFIG_IDENT_STRING, "\0"
+	.ascii U_BOOT_VERSION_STRING, "\0"
 
 	. = EXC_OFF_SYS_RESET
 	.globl	_start

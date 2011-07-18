@@ -40,7 +40,6 @@
 #include <asm-offsets.h>
 #include <config.h>
 #include <mpc824x.h>
-#include <timestamp.h>
 #include <version.h>
 
 #define _LINUX_CONFIG_H 1	/* avoid reading Linux autoconf.h file	*/
@@ -51,10 +50,6 @@
 #include <asm/cache.h>
 #include <asm/mmu.h>
 #include <asm/u-boot.h>
-
-#ifndef CONFIG_IDENT_STRING
-#define CONFIG_IDENT_STRING ""
-#endif
 
 /* We don't want the MMU yet.
 */
@@ -92,9 +87,7 @@
 	.long	0x27051956		/* U-Boot Magic Number			*/
 	.globl	version_string
 version_string:
-	.ascii U_BOOT_VERSION
-	.ascii " (", U_BOOT_DATE, " - ", U_BOOT_TIME, ")"
-	.ascii CONFIG_IDENT_STRING, "\0"
+	.ascii U_BOOT_VERSION_STRING, "\0"
 
 	. = EXC_OFF_SYS_RESET
 	.globl	_start
