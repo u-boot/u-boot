@@ -147,7 +147,7 @@ Directory Hierarchy:
     /cpu		CPU specific files
       /arm720t		Files specific to ARM 720 CPUs
       /arm920t		Files specific to ARM 920 CPUs
-	/at91rm9200	Files specific to Atmel AT91RM9200 CPU
+	/at91		Files specific to Atmel AT91RM9200 CPU
 	/imx		Files specific to Freescale MC9328 i.MX CPUs
 	/s3c24x0	Files specific to Samsung S3C24X0 CPUs
       /arm925t		Files specific to ARM 925 CPUs
