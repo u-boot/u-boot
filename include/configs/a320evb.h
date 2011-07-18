@@ -24,29 +24,29 @@
 
 #include <asm/arch/a320.h>
 
-/*-----------------------------------------------------------------------
+/*
  * CPU and Board Configuration Options
  */
 #undef CONFIG_USE_IRQ		/* we don't need IRQ/FIQ stuff */
 
 #undef CONFIG_SKIP_LOWLEVEL_INIT
 
-/*-----------------------------------------------------------------------
+/*
  * Power Management Unit
  */
 #define CONFIG_FTPMU010_POWER
 
-/*-----------------------------------------------------------------------
+/*
  * Timer
  */
 #define CONFIG_SYS_HZ		1000	/* timer ticks per second */
 
-/*-----------------------------------------------------------------------
+/*
  * Real Time Clock
  */
 #define CONFIG_RTC_FTRTC010
 
-/*-----------------------------------------------------------------------
+/*
  * Serial console configuration
  */
 
@@ -62,7 +62,7 @@
 /* valid baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE	{ 9600, 19200, 38400, 57600, 115200 }
 
-/*-----------------------------------------------------------------------
+/*
  * Ethernet
  */
 #define CONFIG_NET_MULTI
@@ -70,7 +70,7 @@
 
 #define CONFIG_BOOTDELAY	3
 
-/*-----------------------------------------------------------------------
+/*
  * Command line configuration.
  */
 #include <config_cmd_default.h>
@@ -79,7 +79,7 @@
 #define CONFIG_CMD_DATE
 #define CONFIG_CMD_PING
 
-/*-----------------------------------------------------------------------
+/*
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP			/* undef to save memory */
@@ -96,7 +96,7 @@
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE
 
-/*-----------------------------------------------------------------------
+/*
  * Stack sizes
  *
  * The stack sizes are set up in start.S using the settings below
@@ -107,12 +107,12 @@
 #define CONFIG_STACKSIZE_FIQ	(4 * 1024)	/* FIQ stack */
 #endif
 
-/*-----------------------------------------------------------------------
+/*
  * Size of malloc() pool
  */
 #define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
 
-/*-----------------------------------------------------------------------
+/*
  * SDRAM controller configuration
  */
 #define CONFIG_SYS_FTSDMC020_TP0	(FTSDMC020_TP0_TRAS(2) |	\
@@ -132,7 +132,7 @@
 					 FTSDMC020_BANK_MBW_32   |	\
 					 FTSDMC020_BANK_SIZE_64M)
 
-/*-----------------------------------------------------------------------
+/*
  * Physical Memory Map
  */
 #define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
@@ -155,7 +155,7 @@
 
 #define CONFIG_SYS_TEXT_BASE		0
 
-/*-----------------------------------------------------------------------
+/*
  * Static memory controller configuration
  */
 
@@ -194,7 +194,7 @@
 	{ FTSMC020_BANK1_CONFIG, FTSMC020_BANK1_TIMING, },	\
 }
 
-/*-----------------------------------------------------------------------
+/*
  * FLASH and environment organization
  */
 
