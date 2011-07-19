@@ -56,9 +56,16 @@ PLATFORM_CPPFLAGS += $(call cc-option,\
 
 # For EABI, make sure to provide raise()
 ifneq (,$(findstring -mabi=aapcs-linux,$(PLATFORM_CPPFLAGS)))
-# This file is parsed several times; make sure to add only once.
-ifeq (,$(findstring arch/arm/lib/eabi_compat.o,$(PLATFORM_LIBS)))
-PLATFORM_LIBS += $(OBJTREE)/arch/arm/lib/eabi_compat.o
+# This file is parsed many times, so the string may get added multiple
+# times. Also, the prefix needs to be different based on whether
+# CONFIG_SPL_BUILD is defined or not. 'filter-out' the existing entry
+# before adding the correct one.
+ifdef CONFIG_SPL_BUILD
+PLATFORM_LIBS := $(SPLTREE)/arch/arm/lib/eabi_compat.o \
+	$(filter-out %/arch/arm/lib/eabi_compat.o, $(PLATFORM_LIBS))
+else
+PLATFORM_LIBS := $(OBJTREE)/arch/arm/lib/eabi_compat.o \
+	$(filter-out %/arch/arm/lib/eabi_compat.o, $(PLATFORM_LIBS))
 endif
 endif
 
