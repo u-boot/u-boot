@@ -29,6 +29,7 @@ LIB	= $(obj)lib$(BOARD).o
 COBJS-y	+= $(BOARD).o
 COBJS-y += cpld.o
 COBJS-y	+= ddr.o
+COBJS-y	+= eth.o
 COBJS-y	+= law.o
 COBJS-y	+= tlb.o
 COBJS-$(CONFIG_PCI) += pci.o

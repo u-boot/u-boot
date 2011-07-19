@@ -32,6 +32,7 @@
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
+#include <fm_eth.h>
 
 extern void pci_of_setup(void *blob, bd_t *bd);
 
@@ -200,4 +201,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 	fdt_fixup_liodn(blob);
+#ifdef CONFIG_SYS_DPAA_FMAN
+	fdt_fixup_fman_ethernet(blob);
+#endif
 }
