@@ -2,6 +2,7 @@
  * (C) Copyright 2009 SAMSUNG Electronics
  * Minkyu Kang <mk7.kang@samsung.com>
  * Jaehoon Chung <jh80.chung@samsung.com>
+ * Portions Copyright 2011 NVIDIA Corporation
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,24 +22,46 @@
 #include <common.h>
 #include <mmc.h>
 #include <asm/io.h>
-#include <asm/arch/mmc.h>
-#include <asm/arch/clk.h>
+#include <asm/arch/clk_rst.h>
+#include "tegra2_mmc.h"
 
 /* support 4 mmc hosts */
 struct mmc mmc_dev[4];
 struct mmc_host mmc_host[4];
 
-static inline struct s5p_mmc *s5p_get_base_mmc(int dev_index)
+static inline struct tegra2_mmc *tegra2_get_base_mmc(int dev_index)
 {
-	unsigned long offset = dev_index * sizeof(struct s5p_mmc);
-	return (struct s5p_mmc *)(samsung_get_base_mmc() + offset);
+	unsigned long offset;
+	debug("tegra2_get_base_mmc: dev_index = %d\n", dev_index);
+
+	switch (dev_index) {
+	case 0:
+		offset = TEGRA2_SDMMC4_BASE;
+		break;
+	case 1:
+		offset = TEGRA2_SDMMC3_BASE;
+		break;
+	case 2:
+		offset = TEGRA2_SDMMC2_BASE;
+		break;
+	case 3:
+		offset = TEGRA2_SDMMC1_BASE;
+		break;
+	default:
+		offset = TEGRA2_SDMMC4_BASE;
+		break;
+	}
+
+	return (struct tegra2_mmc *)(offset);
 }
 
 static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data)
 {
 	unsigned char ctrl;
 
-	debug("data->dest: %08x\n", (u32)data->dest);
+	debug("data->dest: %08X, data->blocks: %u, data->blocksize: %u\n",
+	(u32)data->dest, data->blocks, data->blocksize);
+
 	writel((u32)data->dest, &host->reg->sysad);
 	/*
 	 * DMASEL[4:3]
@@ -48,7 +71,7 @@ static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data)
 	 * 11 = Selects 64-bit Address ADMA2
 	 */
 	ctrl = readb(&host->reg->hostctl);
-	ctrl &= ~(3 << 3);
+	ctrl &= ~(3 << 3);			/* SDMA */
 	writeb(ctrl, &host->reg->hostctl);
 
 	/* We do not handle DMA boundaries, so set it to max (512 KiB) */
@@ -59,7 +82,7 @@ static void mmc_prepare_data(struct mmc_host *host, struct mmc_data *data)
 static void mmc_set_transfer_mode(struct mmc_host *host, struct mmc_data *data)
 {
 	unsigned short mode;
-
+	debug(" mmc_set_transfer_mode called\n");
 	/*
 	 * TRNMOD
 	 * MUL1SIN0[5]	: Multi/Single Block Select
@@ -87,6 +110,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 	unsigned int timeout;
 	unsigned int mask;
 	unsigned int retry = 0x100000;
+	debug(" mmc_send_cmd called\n");
 
 	/* Wait max 10 ms */
 	timeout = 10;
@@ -101,7 +125,7 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 		mask |= (1 << 1);
 
 	/*
-	 * We shouldn't wait for data inihibit for stop commands, even
+	 * We shouldn't wait for data inhibit for stop commands, even
 	 * though they might use busy signaling
 	 */
 	if (data)
@@ -250,49 +274,71 @@ static int mmc_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd,
 
 static void mmc_change_clock(struct mmc_host *host, uint clock)
 {
-	int div;
+	int div, hw_div;
 	unsigned short clk;
 	unsigned long timeout;
-	unsigned long ctrl2;
+	unsigned int reg, hostbase;
+	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	debug(" mmc_change_clock called\n");
 
-	/*
-	 * SELBASECLK[5:4]
-	 * 00/01 = HCLK
-	 * 10 = EPLL
-	 * 11 = XTI or XEXTCLK
-	 */
-	ctrl2 = readl(&host->reg->control2);
-	ctrl2 &= ~(3 << 4);
-	ctrl2 |= (2 << 4);
-	writel(ctrl2, &host->reg->control2);
-
-	writew(0, &host->reg->clkcon);
-
-	/* XXX: we assume that clock is between 40MHz and 50MHz */
+	/* Change Tegra2 SDMMCx clock divisor here */
+	/* Source is 216MHz, PLLP_OUT0 */
 	if (clock == 0)
 		goto out;
-	else if (clock <= 400000)
-		div = 0x100;
-	else if (clock <= 20000000)
-		div = 4;
+
+	div = 1;
+	if (clock <= 400000) {
+		hw_div = ((9-1)<<1);		/* Best match is 375KHz */
+		div = 64;
+	} else if (clock <= 20000000)
+		hw_div = ((11-1)<<1);		/* Best match is 19.6MHz */
 	else if (clock <= 26000000)
-		div = 2;
+		hw_div = ((9-1)<<1);		/* Use 24MHz */
 	else
-		div = 1;
-	debug("div: %d\n", div);
+		hw_div = ((4-1)<<1) + 1;	/* 4.5 divisor for 48MHz */
+
+	debug("mmc_change_clock: hw_div = %d, card clock div = %d\n",
+		hw_div, div);
+
+	/* Change SDMMCx divisor */
+
+	hostbase = readl(&host->base);
+	debug("mmc_change_clock: hostbase = %08X\n", hostbase);
+
+	if (hostbase == TEGRA2_SDMMC1_BASE) {
+		reg = readl(&clkrst->crc_clk_src_sdmmc1);
+		reg &= 0xFFFFFF00;	/* divisor (7.1) = 00 */
+		reg |= hw_div;		/* n-1 */
+		writel(reg, &clkrst->crc_clk_src_sdmmc1);
+	} else if (hostbase == TEGRA2_SDMMC2_BASE) {
+		reg = readl(&clkrst->crc_clk_src_sdmmc2);
+		reg &= 0xFFFFFF00;	/* divisor (7.1) = 00 */
+		reg |= hw_div;		/* n-1 */
+		writel(reg, &clkrst->crc_clk_src_sdmmc2);
+	} else if (hostbase == TEGRA2_SDMMC3_BASE) {
+		reg = readl(&clkrst->crc_clk_src_sdmmc3);
+		reg &= 0xFFFFFF00;	/* divisor (7.1) = 00 */
+		reg |= hw_div;		/* n-1 */
+		writel(reg, &clkrst->crc_clk_src_sdmmc3);
+	} else {
+		reg = readl(&clkrst->crc_clk_src_sdmmc4);
+		reg &= 0xFFFFFF00;	/* divisor (7.1) = 00 */
+		reg |= hw_div;		/* n-1 */
+		writel(reg, &clkrst->crc_clk_src_sdmmc4);
+	}
+
+	writew(0, &host->reg->clkcon);
 
 	div >>= 1;
 	/*
 	 * CLKCON
-	 * SELFREQ[15:8]	: base clock divied by value
+	 * SELFREQ[15:8]	: base clock divided by value
 	 * ENSDCLK[2]		: SD Clock Enable
 	 * STBLINTCLK[1]	: Internal Clock Stable
 	 * ENINTCLK[0]		: Internal Clock Enable
 	 */
 	clk = (div << 8) | (1 << 0);
 	writew(clk, &host->reg->clkcon);
-
-	set_mmc_clk(host->dev_index, div);
 
 	/* Wait max 10 ms */
 	timeout = 10;
@@ -308,6 +354,9 @@ static void mmc_change_clock(struct mmc_host *host, uint clock)
 	clk |= (1 << 2);
 	writew(clk, &host->reg->clkcon);
 
+	debug("mmc_change_clock: clkcon = %08X\n", clk);
+	debug("mmc_change_clock: CLK_SOURCE_SDMMCx = %08X\n", reg);
+
 out:
 	host->clock = clock;
 }
@@ -316,39 +365,11 @@ static void mmc_set_ios(struct mmc *mmc)
 {
 	struct mmc_host *host = mmc->priv;
 	unsigned char ctrl;
-	unsigned long val;
+	debug(" mmc_set_ios called\n");
 
 	debug("bus_width: %x, clock: %d\n", mmc->bus_width, mmc->clock);
 
-	/*
-	 * SELCLKPADDS[17:16]
-	 * 00 = 2mA
-	 * 01 = 4mA
-	 * 10 = 7mA
-	 * 11 = 9mA
-	 */
-	writel(0x3 << 16, &host->reg->control4);
-
-	val = readl(&host->reg->control2);
-	val &= (0x3 << 4);
-
-	val |=	(1 << 31) |	/* write status clear async mode enable */
-		(1 << 30) |	/* command conflict mask enable */
-		(1 << 14) |	/* Feedback Clock Enable for Rx Clock */
-		(1 << 8);	/* SDCLK hold enable */
-
-	writel(val, &host->reg->control2);
-
-	/*
-	 * FCSEL1[15] FCSEL0[7]
-	 * FCSel[1:0] : Rx Feedback Clock Delay Control
-	 *	Inverter delay means10ns delay if SDCLK 50MHz setting
-	 *	01 = Delay1 (basic delay)
-	 *	11 = Delay2 (basic delay + 2ns)
-	 *	00 = Delay3 (inverter delay)
-	 *	10 = Delay4 (inverter delay + 2ns)
-	 */
-	writel(0x8080, &host->reg->control3);
+	/* Change clock first */
 
 	mmc_change_clock(host, mmc->clock);
 
@@ -369,19 +390,14 @@ static void mmc_set_ios(struct mmc *mmc)
 	else
 		ctrl &= ~(1 << 1);
 
-	/*
-	 * OUTEDGEINV[2]
-	 * 1 = Riging edge output
-	 * 0 = Falling edge output
-	 */
-	ctrl &= ~(1 << 2);
-
 	writeb(ctrl, &host->reg->hostctl);
+	debug("mmc_set_ios: hostctl = %08X\n", ctrl);
 }
 
 static void mmc_reset(struct mmc_host *host)
 {
 	unsigned int timeout;
+	debug(" mmc_reset called\n");
 
 	/*
 	 * RSTALL[0] : Software reset for all
@@ -410,17 +426,18 @@ static int mmc_core_init(struct mmc *mmc)
 {
 	struct mmc_host *host = (struct mmc_host *)mmc->priv;
 	unsigned int mask;
+	debug(" mmc_core_init called\n");
 
 	mmc_reset(host);
 
 	host->version = readw(&host->reg->hcver);
+	debug("host version = %x\n", host->version);
 
 	/* mask all */
 	writel(0xffffffff, &host->reg->norintstsen);
 	writel(0xffffffff, &host->reg->norintsigen);
 
 	writeb(0xe, &host->reg->timeoutcon);	/* TMCLK * 2^27 */
-
 	/*
 	 * NORMAL Interrupt Status Enable Register init
 	 * [5] ENSTABUFRDRDY : Buffer Read Ready Status Enable
@@ -445,13 +462,15 @@ static int mmc_core_init(struct mmc *mmc)
 	return 0;
 }
 
-static int s5p_mmc_initialize(int dev_index, int bus_width)
+static int tegra2_mmc_initialize(int dev_index, int bus_width)
 {
 	struct mmc *mmc;
 
+	debug(" mmc_initialize called\n");
+
 	mmc = &mmc_dev[dev_index];
 
-	sprintf(mmc->name, "SAMSUNG SD/MMC");
+	sprintf(mmc->name, "Tegra2 SD/MMC");
 	mmc->priv = &mmc_host[dev_index];
 	mmc->send_cmd = mmc_send_cmd;
 	mmc->set_ios = mmc_set_ios;
@@ -462,21 +481,30 @@ static int s5p_mmc_initialize(int dev_index, int bus_width)
 		mmc->host_caps = MMC_MODE_8BIT;
 	else
 		mmc->host_caps = MMC_MODE_4BIT;
-	mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
+	mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
 
-	mmc->f_min = 400000;
-	mmc->f_max = 52000000;
+	/*
+	 * min freq is for card identification, and is the highest
+	 *  low-speed SDIO card frequency (actually 400KHz)
+	 * max freq is highest HS eMMC clock as per the SD/MMC spec
+	 *  (actually 52MHz)
+	 * Both of these are the closest equivalents w/216MHz source
+	 *  clock and Tegra2 SDMMC divisors.
+	 */
+	mmc->f_min = 375000;
+	mmc->f_max = 48000000;
 
-	mmc_host[dev_index].dev_index = dev_index;
 	mmc_host[dev_index].clock = 0;
-	mmc_host[dev_index].reg = s5p_get_base_mmc(dev_index);
-	mmc->b_max = 0;
+	mmc_host[dev_index].reg = tegra2_get_base_mmc(dev_index);
+	mmc_host[dev_index].base = (unsigned int)mmc_host[dev_index].reg;
 	mmc_register(mmc);
 
 	return 0;
 }
 
-int s5p_mmc_init(int dev_index, int bus_width)
+int tegra2_mmc_init(int dev_index, int bus_width)
 {
-	return s5p_mmc_initialize(dev_index, bus_width);
+	debug(" tegra2_mmc_init: index %d, bus width %d\n",
+		dev_index, bus_width);
+	return tegra2_mmc_initialize(dev_index, bus_width);
 }

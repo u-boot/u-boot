@@ -1064,6 +1064,15 @@ The following options need to be configured:
 		enabled with CONFIG_CMD_MMC. The MMC driver also works with
 		the FAT fs. This is enabled with CONFIG_CMD_FAT.
 
+		CONFIG_SH_MMCIF
+		Support for Renesas on-chip MMCIF controller
+
+			CONFIG_SH_MMCIF_ADDR
+			Define the base address of MMCIF registers
+
+			CONFIG_SH_MMCIF_CLK
+			Define the clock frequency for MMCIF
+
 - Journaling Flash filesystem support:
 		CONFIG_JFFS2_NAND, CONFIG_JFFS2_NAND_OFF, CONFIG_JFFS2_NAND_SIZE,
 		CONFIG_JFFS2_NAND_DEV

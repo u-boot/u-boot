@@ -29,5 +29,6 @@ void clock_init(void);
 void pinmux_init(void);
 void gpio_init(void);
 void gpio_config_uart(void);
+int tegra2_mmc_init(int dev_index, int bus_width);
 
 #endif	/* BOARD_H */

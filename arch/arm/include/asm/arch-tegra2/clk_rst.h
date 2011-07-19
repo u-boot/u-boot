@@ -191,4 +191,9 @@ struct clk_rst_ctlr {
 
 #define CPCON			(1 << 8)
 
+#define SWR_SDMMC4_RST		(1 << 15)
+#define CLK_ENB_SDMMC4		(1 << 15)
+#define SWR_SDMMC3_RST		(1 << 5)
+#define CLK_ENB_SDMMC3		(1 << 5)
+
 #endif	/* CLK_RST_H */

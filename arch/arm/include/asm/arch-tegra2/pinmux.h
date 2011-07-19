@@ -51,5 +51,11 @@ struct pmux_tri_ctlr {
 #define Z_GMC			(1 << 29)
 #define Z_IRRX			(1 << 20)
 #define Z_IRTX			(1 << 19)
+#define Z_GMA			(1 << 28)
+#define Z_GME			(1 << 0)
+#define Z_ATB			(1 << 1)
+#define Z_SDB			(1 << 15)
+#define Z_SDC			(1 << 1)
+#define Z_SDD			(1 << 2)
 
 #endif	/* PINMUX_H */

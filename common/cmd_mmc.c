@@ -87,6 +87,12 @@ U_BOOT_CMD(
 );
 #else /* !CONFIG_GENERIC_MMC */
 
+enum mmc_state {
+	MMC_INVALID,
+	MMC_READ,
+	MMC_WRITE,
+	MMC_ERASE,
+};
 static void print_mmcinfo(struct mmc *mmc)
 {
 	printf("Device: %s\n", mmc->name);
@@ -144,6 +150,8 @@ U_BOOT_CMD(
 
 int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	enum mmc_state state;
+
 	if (argc < 2)
 		return cmd_usage(cmdtp);
 
@@ -165,9 +173,11 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		}
 
 		mmc->has_init = 0;
-		mmc_init(mmc);
 
-		return 0;
+		if (mmc_init(mmc))
+			return 1;
+		else
+			return 0;
 	} else if (strncmp(argv[1], "part", 4) == 0) {
 		block_dev_desc_t *mmc_dev;
 		struct mmc *mmc = find_mmc_device(curr_device);
@@ -239,53 +249,61 @@ int do_mmcops(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 				curr_device, mmc->part_num);
 
 		return 0;
-	} else if (strcmp(argv[1], "read") == 0) {
-		void *addr = (void *)simple_strtoul(argv[2], NULL, 16);
-		u32 cnt = simple_strtoul(argv[4], NULL, 16);
-		u32 n;
-		u32 blk = simple_strtoul(argv[3], NULL, 16);
+	}
+
+	if (strcmp(argv[1], "read") == 0)
+		state = MMC_READ;
+	else if (strcmp(argv[1], "write") == 0)
+		state = MMC_WRITE;
+	else if (strcmp(argv[1], "erase") == 0)
+		state = MMC_ERASE;
+	else
+		state = MMC_INVALID;
+
+	if (state != MMC_INVALID) {
 		struct mmc *mmc = find_mmc_device(curr_device);
+		int idx = 2;
+		u32 blk, cnt, n;
+		void *addr;
+
+		if (state != MMC_ERASE) {
+			addr = (void *)simple_strtoul(argv[idx], NULL, 16);
+			++idx;
+		} else
+			addr = 0;
+		blk = simple_strtoul(argv[idx], NULL, 16);
+		cnt = simple_strtoul(argv[idx + 1], NULL, 16);
 
 		if (!mmc) {
 			printf("no mmc device at slot %x\n", curr_device);
 			return 1;
 		}
 
-		printf("\nMMC read: dev # %d, block # %d, count %d ... ",
-				curr_device, blk, cnt);
+		printf("\nMMC %s: dev # %d, block # %d, count %d ... ",
+				argv[1], curr_device, blk, cnt);
 
 		mmc_init(mmc);
 
-		n = mmc->block_dev.block_read(curr_device, blk, cnt, addr);
-
-		/* flush cache after read */
-		flush_cache((ulong)addr, cnt * 512); /* FIXME */
-
-		printf("%d blocks read: %s\n",
-				n, (n==cnt) ? "OK" : "ERROR");
-		return (n == cnt) ? 0 : 1;
-	} else if (strcmp(argv[1], "write") == 0) {
-		void *addr = (void *)simple_strtoul(argv[2], NULL, 16);
-		u32 cnt = simple_strtoul(argv[4], NULL, 16);
-		u32 n;
-		struct mmc *mmc = find_mmc_device(curr_device);
-
-		int blk = simple_strtoul(argv[3], NULL, 16);
-
-		if (!mmc) {
-			printf("no mmc device at slot %x\n", curr_device);
-			return 1;
+		switch (state) {
+		case MMC_READ:
+			n = mmc->block_dev.block_read(curr_device, blk,
+						      cnt, addr);
+			/* flush cache after read */
+			flush_cache((ulong)addr, cnt * 512); /* FIXME */
+			break;
+		case MMC_WRITE:
+			n = mmc->block_dev.block_write(curr_device, blk,
+						      cnt, addr);
+			break;
+		case MMC_ERASE:
+			n = mmc->block_dev.block_erase(curr_device, blk, cnt);
+			break;
+		default:
+			BUG();
 		}
 
-		printf("\nMMC write: dev # %d, block # %d, count %d ... ",
-				curr_device, blk, cnt);
-
-		mmc_init(mmc);
-
-		n = mmc->block_dev.block_write(curr_device, blk, cnt, addr);
-
-		printf("%d blocks written: %s\n",
-				n, (n == cnt) ? "OK" : "ERROR");
+		printf("%d blocks %s: %s\n",
+				n, argv[1], (n == cnt) ? "OK" : "ERROR");
 		return (n == cnt) ? 0 : 1;
 	}
 
@@ -297,6 +315,7 @@ U_BOOT_CMD(
 	"MMC sub system",
 	"read addr blk# cnt\n"
 	"mmc write addr blk# cnt\n"
+	"mmc erase blk# cnt\n"
 	"mmc rescan\n"
 	"mmc part - lists available partition on current mmc device\n"
 	"mmc dev [dev] [part] - show or set current mmc device [partition]\n"
