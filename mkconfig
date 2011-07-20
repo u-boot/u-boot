@@ -148,7 +148,7 @@ fi
 echo "/* Automatically generated - do not edit */" >>config.h
 
 for i in ${TARGETS} ; do
-	i="`echo ${i} | sed '/=/ {s/=/\t/;q } ; { s/$/\t1/ }'`"
+	i="`echo ${i} | sed '/=/ {s/=/	/;q; } ; { s/$/	1/; }'`"
 	echo "#define CONFIG_${i}" >>config.h ;
 done
 
