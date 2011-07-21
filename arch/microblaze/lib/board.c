@@ -166,6 +166,12 @@ void board_init (void)
 	/* Initialize stdio devices */
 	stdio_init ();
 
+	/* Initialize the jump table for applications */
+	jumptable_init();
+
+	/* Initialize the console (after the relocation and devices init) */
+	console_init_r();
+
 	if ((s = getenv ("loadaddr")) != NULL) {
 		load_addr = simple_strtoul (s, NULL, 16);
 	}
