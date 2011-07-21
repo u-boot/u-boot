@@ -248,6 +248,8 @@
 /* OCP_CONFIG */
 #define OMAP44XX_REG_SYS_THRESH_MAX_SHIFT		24
 #define OMAP44XX_REG_SYS_THRESH_MAX_MASK		(0xf << 24)
+#define OMAP44XX_REG_MPU_THRESH_MAX_SHIFT		20
+#define OMAP44XX_REG_MPU_THRESH_MAX_MASK		(0xf << 20)
 #define OMAP44XX_REG_LL_THRESH_MAX_SHIFT		16
 #define OMAP44XX_REG_LL_THRESH_MAX_MASK			(0xf << 16)
 #define OMAP44XX_REG_PR_OLD_COUNT_SHIFT			0
@@ -471,6 +473,9 @@
 
 /* DMM */
 #define OMAP44XX_DMM_LISA_MAP_BASE	0x4E000040
+
+/* Memory Adapter (4460 onwards) */
+#define OMAP44XX_MA_LISA_MAP_BASE		0x482AF040
 
 /* DMM_LISA_MAP */
 #define OMAP44XX_SYS_ADDR_SHIFT		24
@@ -774,8 +779,9 @@ struct control_lpddr2io_regs {
 	((REG_PD_TIM << OMAP44XX_REG_PD_TIM_SHDW_SHIFT)\
 			& OMAP44XX_REG_PD_TIM_SHDW_MASK))
 
-/* EMIF_L3_CONFIG register value for ES1*/
-#define EMIF_L3_CONFIG_VAL_SYS_THRESH_0A_LL_THRESH_00	0x0A0000FF
+/* EMIF_L3_CONFIG register value */
+#define EMIF_L3_CONFIG_VAL_SYS_10_LL_0	0x0A0000FF
+#define EMIF_L3_CONFIG_VAL_SYS_10_MPU_3_LL_0	0x0A300000
 /*
  * Value of bits 12:31 of DDR_PHY_CTRL_1 register:
  * All these fields have magic values dependent on frequency and

@@ -151,22 +151,13 @@ static void emif_update_timings(u32 base, const struct emif_regs *regs)
 	writel(regs->zq_config, &emif->emif_zq_config);
 	writel(regs->temp_alert_config, &emif->emif_temp_alert_config);
 	writel(regs->emif_ddr_phy_ctlr_1, &emif->emif_ddr_phy_ctrl_1_shdw);
-	/*
-	 * Workaround:
-	 * In a specific situation, the OCP interface between the DMM and
-	 * EMIF may hang.
-	 * 1. A TILER port is used to perform 2D burst writes of
-	 *       width 1 and height 8
-	 * 2. ELLAn port is used to perform reads
-	 * 3. All accesses are routed to the same EMIF controller
-	 *
-	 * Work around to avoid this issue REG_SYS_THRESH_MAX value should
-	 * be kept higher than default 0x7. As per recommondation 0x0A will
-	 * be used for better performance with REG_LL_THRESH_MAX = 0x00
-	 */
-	if (omap_revision() == OMAP4430_ES1_0) {
-		writel(EMIF_L3_CONFIG_VAL_SYS_THRESH_0A_LL_THRESH_00,
-		       &emif->emif_l3_config);
+
+	if (omap_revision() >= OMAP4460_ES1_0) {
+		writel(EMIF_L3_CONFIG_VAL_SYS_10_MPU_3_LL_0,
+			&emif->emif_l3_config);
+	} else {
+		writel(EMIF_L3_CONFIG_VAL_SYS_10_LL_0,
+			&emif->emif_l3_config);
 	}
 }
 
@@ -504,7 +495,7 @@ static u32 get_read_idle_ctrl_reg(u8 volt_ramp)
 {
 	u32 idle = 0, val = 0;
 	if (volt_ramp)
-		val = ns_2_cycles(READ_IDLE_INTERVAL_DVFS) / 64 + 1;
+		val = ns_2_cycles(READ_IDLE_INTERVAL_DVFS) / 64 - 1;
 	else
 		/*Maximum value in normal conditions - suggested by hw team */
 		val = 0x1FF;
@@ -1237,6 +1228,20 @@ static void dmm_init(u32 base)
 		&hw_lisa_map_regs->dmm_lisa_map_1);
 	writel(lisa_map_regs->dmm_lisa_map_0,
 		&hw_lisa_map_regs->dmm_lisa_map_0);
+
+	if (omap_revision() >= OMAP4460_ES1_0) {
+		hw_lisa_map_regs =
+		    (struct dmm_lisa_map_regs *)OMAP44XX_MA_LISA_MAP_BASE;
+
+		writel(lisa_map_regs->dmm_lisa_map_3,
+			&hw_lisa_map_regs->dmm_lisa_map_3);
+		writel(lisa_map_regs->dmm_lisa_map_2,
+			&hw_lisa_map_regs->dmm_lisa_map_2);
+		writel(lisa_map_regs->dmm_lisa_map_1,
+			&hw_lisa_map_regs->dmm_lisa_map_1);
+		writel(lisa_map_regs->dmm_lisa_map_0,
+			&hw_lisa_map_regs->dmm_lisa_map_0);
+	}
 }
 
 /*
