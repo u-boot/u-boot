@@ -40,6 +40,7 @@ void sr32(void *, u32, u32, u32);
 u32 wait_on_value(u32, u32, void *, u32);
 void sdelay(unsigned long);
 void set_pl310_ctrl_reg(u32 val);
+void omap_rev_string(char *omap4_rev_string);
 
 static inline u32 running_from_sdram(void)
 {
@@ -86,6 +87,12 @@ static inline u32 omap4_hw_init_context(void)
 	else
 		return OMAP_INIT_CONTEXT_UBOOT_FROM_NOR;
 #endif
+}
+
+static inline u32 omap_revision(void)
+{
+	extern u32 *const omap4_revision;
+	return *omap4_revision;
 }
 
 #endif

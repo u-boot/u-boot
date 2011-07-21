@@ -28,12 +28,15 @@
  * MA 02111-1307 USA
  */
 #include <common.h>
+#include <asm/armv7.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
 #include "omap4_mux_data.h"
 
 DECLARE_GLOBAL_DATA_PTR;
+
+u32 *const omap4_revision = (u32 *)OMAP4_SRAM_SCRATCH_OMAP4_REV;
 
 void do_set_mux(u32 base, struct pad_conf_entry const *array, int size)
 {
@@ -72,6 +75,66 @@ static void set_mux_conf_regs(void)
 	}
 }
 
+static u32 cortex_a9_rev(void)
+{
+
+	unsigned int rev;
+
+	/* Read Main ID Register (MIDR) */
+	asm ("mrc p15, 0, %0, c0, c0, 0" : "=r" (rev));
+
+	return rev;
+}
+
+static void init_omap4_revision(void)
+{
+	/*
+	 * For some of the ES2/ES1 boards ID_CODE is not reliable:
+	 * Also, ES1 and ES2 have different ARM revisions
+	 * So use ARM revision for identification
+	 */
+	unsigned int arm_rev = cortex_a9_rev();
+
+	switch (arm_rev) {
+	case MIDR_CORTEX_A9_R0P1:
+		*omap4_revision = OMAP4430_ES1_0;
+		break;
+	case MIDR_CORTEX_A9_R1P2:
+		switch (readl(CONTROL_ID_CODE)) {
+		case OMAP4_CONTROL_ID_CODE_ES2_0:
+			*omap4_revision = OMAP4430_ES2_0;
+			break;
+		case OMAP4_CONTROL_ID_CODE_ES2_1:
+			*omap4_revision = OMAP4430_ES2_1;
+			break;
+		case OMAP4_CONTROL_ID_CODE_ES2_2:
+			*omap4_revision = OMAP4430_ES2_2;
+			break;
+		default:
+			*omap4_revision = OMAP4430_ES2_0;
+			break;
+		}
+		break;
+	case MIDR_CORTEX_A9_R1P3:
+		*omap4_revision = OMAP4430_ES2_3;
+		break;
+	default:
+		*omap4_revision = OMAP4430_SILICON_ID_INVALID;
+		break;
+	}
+}
+
+void omap_rev_string(char *omap4_rev_string)
+{
+	u32 omap4_rev = omap_revision();
+	u32 omap4_variant = (omap4_rev & 0xFFFF0000) >> 16;
+	u32 major_rev = (omap4_rev & 0x00000F00) >> 8;
+	u32 minor_rev = (omap4_rev & 0x000000F0) >> 4;
+
+	sprintf(omap4_rev_string, "OMAP%x ES%x.%x", omap4_variant, major_rev,
+		minor_rev);
+}
+
 /*
  * Routine: s_init
  * Description: Does early system init of watchdog, muxing,  andclocks
@@ -88,6 +151,7 @@ static void set_mux_conf_regs(void)
  */
 void s_init(void)
 {
+	init_omap4_revision();
 	watchdog_init();
 	set_mux_conf_regs();
 }

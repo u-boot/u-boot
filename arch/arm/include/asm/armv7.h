@@ -25,6 +25,11 @@
 #define ARMV7_H
 #include <linux/types.h>
 
+/* Cortex-A9 revisions */
+#define MIDR_CORTEX_A9_R0P1	0x410FC091
+#define MIDR_CORTEX_A9_R1P2	0x411FC092
+#define MIDR_CORTEX_A9_R1P3	0x411FC093
+
 /* CCSIDR */
 #define CCSIDR_LINE_SIZE_OFFSET		0
 #define CCSIDR_LINE_SIZE_MASK		0x7
