@@ -87,7 +87,7 @@ static void boot_jump_linux(bootm_headers_t *images)
 		 *   r8: 0
 		 *   r9: 0
 		 */
-#if defined(CONFIG_85xx) || defined(CONFIG_440)
+#if defined(CONFIG_MPC85xx) || defined(CONFIG_440)
  #define EPAPR_MAGIC	(0x45504150)
 #else
  #define EPAPR_MAGIC	(0x65504150)
