@@ -46,8 +46,6 @@ _start:
 	addik	r6, r0, 0x2 /* BIG/LITTLE endian offset */
 	swi	r6, r0, 0
 	lbui	r10, r0, 0
-	swi	r6, r0, 0x40
-	swi	r10, r0, 0x50
 
 	/* add opcode instruction for 32bit jump - 2 instruction imm & brai*/
 	addi	r6, r0, 0xb0000000	/* hex b000 opcode imm */
