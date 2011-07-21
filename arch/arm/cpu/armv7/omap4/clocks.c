@@ -830,9 +830,9 @@ void prcm_init(void)
 	case OMAP_INIT_CONTEXT_SPL:
 	case OMAP_INIT_CONTEXT_UBOOT_FROM_NOR:
 	case OMAP_INIT_CONTEXT_UBOOT_AFTER_CH:
+		enable_basic_clocks();
 		scale_vcores();
 		setup_dplls();
-		enable_basic_clocks();
 		setup_non_essential_dplls();
 		enable_non_essential_clocks();
 		break;

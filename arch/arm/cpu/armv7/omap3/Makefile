@@ -29,7 +29,6 @@ SOBJS	:= lowlevel_init.o
 
 COBJS	+= board.o
 COBJS	+= clock.o
-COBJS	+= gpio.o
 COBJS	+= mem.o
 COBJS	+= sys_info.o
 

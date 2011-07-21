@@ -36,24 +36,13 @@
  * published by the Free Software Foundation.
  */
 #include <common.h>
-#include <asm/arch/gpio.h>
+#include <asm/omap_gpio.h>
 #include <asm/io.h>
 #include <asm/errno.h>
 
-static struct gpio_bank gpio_bank_34xx[6] = {
-	{ (void *)OMAP34XX_GPIO1_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP34XX_GPIO2_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP34XX_GPIO3_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP34XX_GPIO4_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP34XX_GPIO5_BASE, METHOD_GPIO_24XX },
-	{ (void *)OMAP34XX_GPIO6_BASE, METHOD_GPIO_24XX },
-};
-
-static struct gpio_bank *gpio_bank = &gpio_bank_34xx[0];
-
-static inline struct gpio_bank *get_gpio_bank(int gpio)
+static inline const struct gpio_bank *get_gpio_bank(int gpio)
 {
-	return &gpio_bank[gpio >> 5];
+	return &omap_gpio_bank[gpio >> 5];
 }
 
 static inline int get_gpio_index(int gpio)
@@ -79,14 +68,15 @@ static int check_gpio(int gpio)
 	return 0;
 }
 
-static void _set_gpio_direction(struct gpio_bank *bank, int gpio, int is_input)
+static void _set_gpio_direction(const struct gpio_bank *bank, int gpio,
+				int is_input)
 {
 	void *reg = bank->base;
 	u32 l;
 
 	switch (bank->method) {
 	case METHOD_GPIO_24XX:
-		reg += OMAP24XX_GPIO_OE;
+		reg += OMAP_GPIO_OE;
 		break;
 	default:
 		return;
@@ -101,7 +91,7 @@ static void _set_gpio_direction(struct gpio_bank *bank, int gpio, int is_input)
 
 void omap_set_gpio_direction(int gpio, int is_input)
 {
-	struct gpio_bank *bank;
+	const struct gpio_bank *bank;
 
 	if (check_gpio(gpio) < 0)
 		return;
@@ -109,7 +99,8 @@ void omap_set_gpio_direction(int gpio, int is_input)
 	_set_gpio_direction(bank, get_gpio_index(gpio), is_input);
 }
 
-static void _set_gpio_dataout(struct gpio_bank *bank, int gpio, int enable)
+static void _set_gpio_dataout(const struct gpio_bank *bank, int gpio,
+				int enable)
 {
 	void *reg = bank->base;
 	u32 l = 0;
@@ -117,9 +108,9 @@ static void _set_gpio_dataout(struct gpio_bank *bank, int gpio, int enable)
 	switch (bank->method) {
 	case METHOD_GPIO_24XX:
 		if (enable)
-			reg += OMAP24XX_GPIO_SETDATAOUT;
+			reg += OMAP_GPIO_SETDATAOUT;
 		else
-			reg += OMAP24XX_GPIO_CLEARDATAOUT;
+			reg += OMAP_GPIO_CLEARDATAOUT;
 		l = 1 << gpio;
 		break;
 	default:
@@ -132,7 +123,7 @@ static void _set_gpio_dataout(struct gpio_bank *bank, int gpio, int enable)
 
 void omap_set_gpio_dataout(int gpio, int enable)
 {
-	struct gpio_bank *bank;
+	const struct gpio_bank *bank;
 
 	if (check_gpio(gpio) < 0)
 		return;
@@ -142,7 +133,7 @@ void omap_set_gpio_dataout(int gpio, int enable)
 
 int omap_get_gpio_datain(int gpio)
 {
-	struct gpio_bank *bank;
+	const struct gpio_bank *bank;
 	void *reg;
 
 	if (check_gpio(gpio) < 0)
@@ -151,7 +142,7 @@ int omap_get_gpio_datain(int gpio)
 	reg = bank->base;
 	switch (bank->method) {
 	case METHOD_GPIO_24XX:
-		reg += OMAP24XX_GPIO_DATAIN;
+		reg += OMAP_GPIO_DATAIN;
 		break;
 	default:
 		return -EINVAL;
@@ -160,7 +151,7 @@ int omap_get_gpio_datain(int gpio)
 			& (1 << get_gpio_index(gpio))) != 0;
 }
 
-static void _reset_gpio(struct gpio_bank *bank, int gpio)
+static void _reset_gpio(const struct gpio_bank *bank, int gpio)
 {
 	_set_gpio_direction(bank, get_gpio_index(gpio), 1);
 }
@@ -175,7 +166,7 @@ int omap_request_gpio(int gpio)
 
 void omap_free_gpio(int gpio)
 {
-	struct gpio_bank *bank;
+	const struct gpio_bank *bank;
 
 	if (check_gpio(gpio) < 0)
 		return;
