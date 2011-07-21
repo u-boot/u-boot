@@ -37,8 +37,8 @@ static u8 serdes_cfg_tbl[][SRDS_MAX_LANES] = {
 		PCIE2, PCIE2, PCIE2, NONE, NONE, NONE, NONE, SATA1,
 		SATA2, NONE, NONE, NONE, NONE, },
 	[0x9] = {NONE, NONE, SGMII_FM1_DTSEC1, SGMII_FM1_DTSEC2, PCIE2,
-		PCIE2, PCIE2, PCIE2, NONE, NONE, NONE, NONE,
-		NONE, NONE, NONE, NONE, NONE, NONE, },
+		PCIE2, PCIE2, PCIE2, NONE, NONE, XAUI_FM1, XAUI_FM1,
+		XAUI_FM1, XAUI_FM1, NONE, NONE, NONE, NONE, },
 	[0xa] = {NONE, NONE, SGMII_FM1_DTSEC1, SGMII_FM1_DTSEC2, PCIE2,
 		PCIE2, PCIE2, PCIE2, NONE, NONE, PCIE3, PCIE3, PCIE3,
 		PCIE3, NONE, NONE, NONE, NONE, },
@@ -53,8 +53,8 @@ static u8 serdes_cfg_tbl[][SRDS_MAX_LANES] = {
 		SGMII_FM1_DTSEC4, NONE, NONE, NONE, NONE, SATA1, SATA2, NONE,
 		NONE, NONE, NONE, },
 	[0x17] = {NONE, NONE, PCIE1, PCIE3, PCIE2, PCIE2, SGMII_FM1_DTSEC3,
-		SGMII_FM1_DTSEC4, NONE, NONE, NONE, NONE, NONE,
-		NONE, NONE, NONE, NONE, NONE, },
+		SGMII_FM1_DTSEC4, NONE, NONE, XAUI_FM1, XAUI_FM1, XAUI_FM1,
+		XAUI_FM1, NONE, NONE, NONE, NONE, },
 	[0x19] = {NONE, NONE, SGMII_FM1_DTSEC1, SGMII_FM1_DTSEC2, PCIE2,
 		PCIE2, SGMII_FM1_DTSEC3, SGMII_FM1_DTSEC4, NONE, NONE,
 		NONE, NONE, SATA1, SATA2, NONE, NONE, NONE, NONE, },
@@ -68,17 +68,33 @@ static u8 serdes_cfg_tbl[][SRDS_MAX_LANES] = {
 
 enum srds_prtcl serdes_get_prtcl(int cfg, int lane)
 {
+	enum srds_prtcl prtcl;
+	u32 svr = get_svr();
+	u32 ver = SVR_SOC_VER(svr);
+
 	if (!serdes_lane_enabled(lane))
 		return NONE;
 
-	return serdes_cfg_tbl[cfg][lane];
+	prtcl = serdes_cfg_tbl[cfg][lane];
+
+	/* P2040[e] does not support XAUI */
+	if (((ver == SVR_P2040) || (ver == SVR_P2040_E)) && (prtcl == XAUI_FM1))
+		prtcl = NONE;
+
+	return prtcl;
 }
 
 int is_serdes_prtcl_valid(u32 prtcl)
 {
 	int i;
+	u32 svr = get_svr();
+	u32 ver = SVR_SOC_VER(svr);
 
 	if (prtcl > ARRAY_SIZE(serdes_cfg_tbl))
+		return 0;
+
+	/* P2040[e] does not support XAUI */
+	if (((ver == SVR_P2040) || (ver == SVR_P2040_E)) && (prtcl == XAUI_FM1))
 		return 0;
 
 	for (i = 0; i < SRDS_MAX_LANES; i++) {
