@@ -68,6 +68,7 @@ typedef int (init_fnc_t) (void);
 init_fnc_t *init_sequence[] = {
 	env_init,
 	serial_init,
+	console_init_f,
 #ifdef CONFIG_SYS_GPIO_0
 	gpio_init,
 #endif
