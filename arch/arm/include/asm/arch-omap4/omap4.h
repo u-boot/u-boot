@@ -143,6 +143,7 @@ struct s32ktimer {
 #define OMAP4430_ES2_1	0x44300210
 #define OMAP4430_ES2_2	0x44300220
 #define OMAP4430_ES2_3	0x44300230
+#define OMAP4460_ES1_0	0x44600100
 
 /* ROM code defines */
 /* Boot device */

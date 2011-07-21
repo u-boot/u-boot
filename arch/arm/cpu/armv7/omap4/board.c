@@ -140,6 +140,9 @@ static void init_omap4_revision(void)
 	case MIDR_CORTEX_A9_R1P3:
 		*omap4_revision = OMAP4430_ES2_3;
 		break;
+	case MIDR_CORTEX_A9_R2P10:
+		*omap4_revision = OMAP4460_ES1_0;
+		break;
 	default:
 		*omap4_revision = OMAP4430_SILICON_ID_INVALID;
 		break;
