@@ -22,6 +22,7 @@
 #define _SYS_PROTO_H_
 
 #include <asm/arch/omap4.h>
+#include <asm/arch/clocks.h>
 #include <asm/io.h>
 #include <asm/omap_common.h>
 #include <asm/arch/mux_omap4.h>
@@ -30,6 +31,8 @@ struct omap_sysinfo {
 	char *board_string;
 };
 extern const struct omap_sysinfo sysinfo;
+
+extern struct omap4_prcm_regs *const prcm;
 
 void gpmc_init(void);
 void watchdog_init(void);
@@ -41,6 +44,11 @@ u32 wait_on_value(u32, u32, void *, u32);
 void sdelay(unsigned long);
 void set_pl310_ctrl_reg(u32 val);
 void omap_rev_string(char *omap4_rev_string);
+void prcm_init(void);
+void bypass_dpll(u32 *const base);
+void freq_update_core(void);
+u32 get_sys_clk_freq(void);
+u32 omap4_ddr_clk(void);
 
 static inline u32 running_from_sdram(void)
 {

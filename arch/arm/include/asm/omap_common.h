@@ -25,6 +25,9 @@
 #ifndef	_OMAP_COMMON_H_
 #define	_OMAP_COMMON_H_
 
+/* Max value for DPLL multiplier M */
+#define OMAP_DPLL_MAX_N	127
+
 /* HW Init Context */
 #define OMAP_INIT_CONTEXT_SPL			0
 #define OMAP_INIT_CONTEXT_UBOOT_FROM_NOR	1

@@ -28,6 +28,7 @@ LIB	=  $(obj)lib$(SOC).o
 SOBJS	+= lowlevel_init.o
 
 COBJS	+= board.o
+COBJS	+= clocks.o
 COBJS	+= mem.o
 COBJS	+= sys_info.o
 

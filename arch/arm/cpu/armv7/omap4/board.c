@@ -154,6 +154,7 @@ void s_init(void)
 	init_omap4_revision();
 	watchdog_init();
 	set_mux_conf_regs();
+	prcm_init();
 }
 
 /*
