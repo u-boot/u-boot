@@ -108,6 +108,8 @@
  * These can be toggled for performance analysis, otherwise use default.
  */
 #define CONFIG_SYS_CACHE_STASHING
+#define CONFIG_BACKSIDE_L2_CACHE
+#define CONFIG_SYS_INIT_L2CSR0		L2CSR0_L2E
 #define CONFIG_BTB			/* toggle branch predition */
 
 #define CONFIG_ENABLE_36BIT_PHYS
