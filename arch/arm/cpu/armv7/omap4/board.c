@@ -32,6 +32,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
+#include <asm/arch/emif.h>
 #include "omap4_mux_data.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -193,13 +194,13 @@ u32 omap4_sdram_size(void)
 {
 	u32 section, i, total_size = 0, size, addr;
 	for (i = 0; i < 4; i++) {
-		section	= __raw_readl(DMM_LISA_MAP_BASE + i*4);
-		addr = section & DMM_LISA_MAP_SYS_ADDR_MASK;
+		section	= __raw_readl(OMAP44XX_DMM_LISA_MAP_BASE + i*4);
+		addr = section & OMAP44XX_SYS_ADDR_MASK;
 		/* See if the address is valid */
 		if ((addr >= OMAP44XX_DRAM_ADDR_SPACE_START) &&
 		    (addr < OMAP44XX_DRAM_ADDR_SPACE_END)) {
-			size	= ((section & DMM_LISA_MAP_SYS_SIZE_MASK) >>
-				    DMM_LISA_MAP_SYS_SIZE_SHIFT);
+			size	= ((section & OMAP44XX_SYS_SIZE_MASK) >>
+				   OMAP44XX_SYS_SIZE_SHIFT);
 			size	= 1 << size;
 			size	*= SZ_16M;
 			total_size += size;

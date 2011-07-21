@@ -243,4 +243,9 @@
 #define CONFIG_SYS_PL310_BASE	0x48242000
 #endif
 
+/* Defines for SDRAM init */
+#ifndef CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS
+#define CONFIG_SYS_DEFAULT_LPDDR2_TIMINGS
+#endif
+
 #endif /* __CONFIG_H */
