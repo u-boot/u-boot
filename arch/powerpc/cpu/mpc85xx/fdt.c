@@ -228,6 +228,12 @@ static inline void ft_fixup_l2cache(void *blob)
 	u32 *ph;
 	u32 l2cfg0 = mfspr(SPRN_L2CFG0);
 	u32 size, line_size, num_ways, num_sets;
+	int has_l2 = 1;
+
+	/* P2040/P2040E has no L2, so dont set any L2 props */
+	if ((SVR_SOC_VER(get_svr()) == SVR_P2040) ||
+	    (SVR_SOC_VER(get_svr()) == SVR_P2040_E))
+		has_l2 = 0;
 
 	size = (l2cfg0 & 0x3fff) * 64 * 1024;
 	num_ways = ((l2cfg0 >> 14) & 0x1f) + 1;
@@ -250,21 +256,22 @@ static inline void ft_fixup_l2cache(void *blob)
 			goto next;
 		}
 
+		if (has_l2) {
 #ifdef CONFIG_SYS_CACHE_STASHING
-		{
 			u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
 			if (reg)
 				fdt_setprop_cell(blob, l2_off, "cache-stash-id",
 					 (*reg * 2) + 32 + 1);
-		}
 #endif
 
-		fdt_setprop(blob, l2_off, "cache-unified", NULL, 0);
-		fdt_setprop_cell(blob, l2_off, "cache-block-size", line_size);
-		fdt_setprop_cell(blob, l2_off, "cache-size", size);
-		fdt_setprop_cell(blob, l2_off, "cache-sets", num_sets);
-		fdt_setprop_cell(blob, l2_off, "cache-level", 2);
-		fdt_setprop(blob, l2_off, "compatible", "cache", 6);
+			fdt_setprop(blob, l2_off, "cache-unified", NULL, 0);
+			fdt_setprop_cell(blob, l2_off, "cache-block-size",
+						line_size);
+			fdt_setprop_cell(blob, l2_off, "cache-size", size);
+			fdt_setprop_cell(blob, l2_off, "cache-sets", num_sets);
+			fdt_setprop_cell(blob, l2_off, "cache-level", 2);
+			fdt_setprop(blob, l2_off, "compatible", "cache", 6);
+		}
 
 		if (l3_off < 0) {
 			ph = (u32 *)fdt_getprop(blob, l2_off, "next-level-cache", 0);

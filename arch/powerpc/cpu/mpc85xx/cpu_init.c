@@ -392,6 +392,12 @@ int cpu_init_r(void)
 		puts("enabled\n");
 	}
 #elif defined(CONFIG_BACKSIDE_L2_CACHE)
+	if ((SVR_SOC_VER(get_svr()) == SVR_P2040) ||
+	    (SVR_SOC_VER(get_svr()) == SVR_P2040_E)) {
+		puts("N/A\n");
+		goto skip_l2;
+	}
+
 	u32 l2cfg0 = mfspr(SPRN_L2CFG0);
 
 	/* invalidate the L2 cache */
@@ -412,6 +418,8 @@ int cpu_init_r(void)
 			;
 		printf("%d KB enabled\n", (l2cfg0 & 0x3fff) * 64);
 	}
+
+skip_l2:
 #else
 	puts("disabled\n");
 #endif
