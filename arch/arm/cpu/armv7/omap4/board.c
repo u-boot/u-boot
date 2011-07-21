@@ -31,17 +31,65 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
+#include "omap4_mux_data.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
+void do_set_mux(u32 base, struct pad_conf_entry const *array, int size)
+{
+	int i;
+	struct pad_conf_entry *pad = (struct pad_conf_entry *) array;
+
+	for (i = 0; i < size; i++, pad++)
+		writew(pad->val, base + pad->offset);
+}
+
+static void set_muxconf_regs_essential(void)
+{
+	do_set_mux(CONTROL_PADCONF_CORE, core_padconf_array_essential,
+		   sizeof(core_padconf_array_essential) /
+		   sizeof(struct pad_conf_entry));
+
+	do_set_mux(CONTROL_PADCONF_WKUP, wkup_padconf_array_essential,
+		   sizeof(wkup_padconf_array_essential) /
+		   sizeof(struct pad_conf_entry));
+}
+
+static void set_mux_conf_regs(void)
+{
+	switch (omap4_hw_init_context()) {
+	case OMAP_INIT_CONTEXT_SPL:
+		set_muxconf_regs_essential();
+		break;
+	case OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL:
+		set_muxconf_regs_non_essential();
+		break;
+	case OMAP_INIT_CONTEXT_UBOOT_FROM_NOR:
+	case OMAP_INIT_CONTEXT_UBOOT_AFTER_CH:
+		set_muxconf_regs_essential();
+		set_muxconf_regs_non_essential();
+		break;
+	}
+}
+
 /*
  * Routine: s_init
- * Description: Does early system init of muxing and clocks.
- *              - Called path is with SRAM stack.
+ * Description: Does early system init of watchdog, muxing,  andclocks
+ * Watchdog disable is done always. For the rest what gets done
+ * depends on the boot mode in which this function is executed
+ *   1. s_init of SPL running from SRAM
+ *   2. s_init of U-Boot running from FLASH
+ *   3. s_init of U-Boot loaded to SDRAM by SPL
+ *   4. s_init of U-Boot loaded to SDRAM by ROM code using the
+ *	Configuration Header feature
+ * Please have a look at the respective functions to see what gets
+ * done in each of these cases
+ * This function is called with SRAM stack.
  */
 void s_init(void)
 {
 	watchdog_init();
+	set_mux_conf_regs();
 }
 
 /*
@@ -124,7 +172,6 @@ int checkboard(void)
 */
 int arch_cpu_init(void)
 {
-	set_muxconf_regs();
 	return 0;
 }
 
