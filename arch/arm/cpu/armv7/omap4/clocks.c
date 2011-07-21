@@ -791,6 +791,39 @@ void lock_dpll(u32 *const base)
 	wait_for_lock(base);
 }
 
+void setup_clocks_for_console(void)
+{
+	/* Do not add any spl_debug prints in this function */
+	clrsetbits_le32(&prcm->cm_l4per_clkstctrl, CD_CLKCTRL_CLKTRCTRL_MASK,
+			CD_CLKCTRL_CLKTRCTRL_SW_WKUP <<
+			CD_CLKCTRL_CLKTRCTRL_SHIFT);
+
+	/* Enable all UARTs - console will be on one of them */
+	clrsetbits_le32(&prcm->cm_l4per_uart1_clkctrl,
+			MODULE_CLKCTRL_MODULEMODE_MASK,
+			MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN <<
+			MODULE_CLKCTRL_MODULEMODE_SHIFT);
+
+	clrsetbits_le32(&prcm->cm_l4per_uart2_clkctrl,
+			MODULE_CLKCTRL_MODULEMODE_MASK,
+			MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN <<
+			MODULE_CLKCTRL_MODULEMODE_SHIFT);
+
+	clrsetbits_le32(&prcm->cm_l4per_uart3_clkctrl,
+			MODULE_CLKCTRL_MODULEMODE_MASK,
+			MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN <<
+			MODULE_CLKCTRL_MODULEMODE_SHIFT);
+
+	clrsetbits_le32(&prcm->cm_l4per_uart3_clkctrl,
+			MODULE_CLKCTRL_MODULEMODE_MASK,
+			MODULE_CLKCTRL_MODULEMODE_SW_EXPLICIT_EN <<
+			MODULE_CLKCTRL_MODULEMODE_SHIFT);
+
+	clrsetbits_le32(&prcm->cm_l4per_clkstctrl, CD_CLKCTRL_CLKTRCTRL_MASK,
+			CD_CLKCTRL_CLKTRCTRL_HW_AUTO <<
+			CD_CLKCTRL_CLKTRCTRL_SHIFT);
+}
+
 void prcm_init(void)
 {
 	switch (omap4_hw_init_context()) {

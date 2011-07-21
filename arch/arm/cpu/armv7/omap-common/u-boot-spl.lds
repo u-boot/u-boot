@@ -1,8 +1,10 @@
 /*
+ * (C) Copyright 2002
+ * Gary Jennejohn, DENX Software Engineering, <garyj@denx.de>
+ *
  * (C) Copyright 2010
  * Texas Instruments, <www.ti.com>
- *
- * Aneesh V <aneesh@ti.com>
+ *	Aneesh V <aneesh@ti.com>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -22,18 +24,39 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
  * MA 02111-1307 USA
  */
-#ifndef	_OMAP_COMMON_H_
-#define	_OMAP_COMMON_H_
 
-/* Max value for DPLL multiplier M */
-#define OMAP_DPLL_MAX_N	127
+MEMORY { .sram : ORIGIN = CONFIG_SPL_TEXT_BASE,\
+		LENGTH = CONFIG_SPL_MAX_SIZE }
+MEMORY { .sdram : ORIGIN = CONFIG_SPL_BSS_START_ADDR, \
+		LENGTH = CONFIG_SPL_BSS_MAX_SIZE }
 
-/* HW Init Context */
-#define OMAP_INIT_CONTEXT_SPL			0
-#define OMAP_INIT_CONTEXT_UBOOT_FROM_NOR	1
-#define OMAP_INIT_CONTEXT_UBOOT_AFTER_SPL	2
-#define OMAP_INIT_CONTEXT_UBOOT_AFTER_CH	3
+OUTPUT_FORMAT("elf32-littlearm", "elf32-littlearm", "elf32-littlearm")
+OUTPUT_ARCH(arm)
+ENTRY(_start)
+SECTIONS
+{
+	.text      :
+	{
+	__start = .;
+	  arch/arm/cpu/armv7/start.o	(.text)
+	  *(.text*)
+	} >.sram
 
-void preloader_console_init(void);
+	. = ALIGN(4);
+	.rodata : { *(SORT_BY_ALIGNMENT(.rodata*)) } >.sram
 
-#endif /* _OMAP_COMMON_H_ */
+	. = ALIGN(4);
+	.data : { *(SORT_BY_ALIGNMENT(.data*)) } >.sram
+	. = ALIGN(4);
+	__image_copy_end = .;
+	_end = .;
+
+	.bss :
+	{
+		. = ALIGN(4);
+		__bss_start = .;
+		*(.bss*)
+		. = ALIGN(4);
+		__bss_end__ = .;
+	} >.sdram
+}
