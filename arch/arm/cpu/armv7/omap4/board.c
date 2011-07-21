@@ -189,7 +189,7 @@ void watchdog_init(void)
  * This is needed because the size of memory installed may be
  * different on different versions of the board
  */
-u32 sdram_size(void)
+u32 omap4_sdram_size(void)
 {
 	u32 section, i, total_size = 0, size, addr;
 	for (i = 0; i < 4; i++) {
@@ -215,8 +215,8 @@ u32 sdram_size(void)
  */
 int dram_init(void)
 {
-
-	gd->ram_size = sdram_size();
+	sdram_init();
+	gd->ram_size = omap4_sdram_size();
 
 	return 0;
 }

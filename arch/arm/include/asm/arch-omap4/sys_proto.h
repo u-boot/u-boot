@@ -49,6 +49,8 @@ void bypass_dpll(u32 *const base);
 void freq_update_core(void);
 u32 get_sys_clk_freq(void);
 u32 omap4_ddr_clk(void);
+void sdram_init(void);
+u32 omap4_sdram_size(void);
 
 static inline u32 running_from_sdram(void)
 {
