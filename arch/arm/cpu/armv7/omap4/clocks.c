@@ -66,7 +66,18 @@ static const u32 sys_clk_array[8] = {
  * Please use this tool for creating the table for any new frequency.
  */
 
-/* dpll locked at 1584 MHz - MPU clk at 792 MHz(OPP Turbo) */
+/* dpll locked at 1840 MHz MPU clk at 920 MHz(OPP Turbo 4460) - DCC OFF */
+static const struct dpll_params mpu_dpll_params_1840mhz[NUM_SYS_CLKS] = {
+	{230, 2, 1, -1, -1, -1, -1, -1},	/* 12 MHz   */
+	{920, 12, 1, -1, -1, -1, -1, -1},	/* 13 MHz   */
+	{219, 3, 1, -1, -1, -1, -1, -1},	/* 16.8 MHz */
+	{575, 11, 1, -1, -1, -1, -1, -1},	/* 19.2 MHz */
+	{460, 12, 1, -1, -1, -1, -1, -1},	/* 26 MHz   */
+	{920, 26, 1, -1, -1, -1, -1, -1},	/* 27 MHz   */
+	{575, 23, 1, -1, -1, -1, -1, -1}	/* 38.4 MHz */
+};
+
+/* dpll locked at 1584 MHz - MPU clk at 792 MHz(OPP Turbo 4430) */
 static const struct dpll_params mpu_dpll_params_1584mhz[NUM_SYS_CLKS] = {
 	{66, 0, 1, -1, -1, -1, -1, -1},		/* 12 MHz   */
 	{792, 12, 1, -1, -1, -1, -1, -1},	/* 13 MHz   */
@@ -320,6 +331,47 @@ u32 omap4_ddr_clk(void)
 	return ddr_clk;
 }
 
+/*
+ * Lock MPU dpll
+ *
+ * Resulting MPU frequencies:
+ * 4430 ES1.0	: 600 MHz
+ * 4430 ES2.x	: 792 MHz (OPP Turbo)
+ * 4460		: 920 MHz (OPP Turbo) - DCC disabled
+ */
+void configure_mpu_dpll(void)
+{
+	const struct dpll_params *params;
+	struct dpll_regs *mpu_dpll_regs;
+	u32 omap4_rev, sysclk_ind;
+
+	omap4_rev = omap_revision();
+	sysclk_ind = get_sys_clk_index();
+
+	if (omap4_rev == OMAP4430_ES1_0)
+		params = &mpu_dpll_params_1200mhz[sysclk_ind];
+	else if (omap4_rev < OMAP4460_ES1_0)
+		params = &mpu_dpll_params_1584mhz[sysclk_ind];
+	else
+		params = &mpu_dpll_params_1840mhz[sysclk_ind];
+
+	/* DCC and clock divider settings for 4460 */
+	if (omap4_rev >= OMAP4460_ES1_0) {
+		mpu_dpll_regs =
+			(struct dpll_regs *)&prcm->cm_clkmode_dpll_mpu;
+		bypass_dpll(&prcm->cm_clkmode_dpll_mpu);
+		clrbits_le32(&prcm->cm_mpu_mpu_clkctrl,
+			MPU_CLKCTRL_CLKSEL_EMIF_DIV_MODE_MASK);
+		setbits_le32(&prcm->cm_mpu_mpu_clkctrl,
+			MPU_CLKCTRL_CLKSEL_ABE_DIV_MODE_MASK);
+		clrbits_le32(&mpu_dpll_regs->cm_clksel_dpll,
+			CM_CLKSEL_DCC_EN_MASK);
+	}
+
+	do_setup_dpll(&prcm->cm_clkmode_dpll_mpu, params, DPLL_LOCK);
+	debug("MPU DPLL locked\n");
+}
+
 static void setup_dplls(void)
 {
 	u32 sysclk_ind, temp;
@@ -349,12 +401,7 @@ static void setup_dplls(void)
 	debug("PER DPLL locked\n");
 
 	/* MPU dpll */
-	if (omap_revision() == OMAP4430_ES1_0)
-		params = &mpu_dpll_params_1200mhz[sysclk_ind];
-	else
-		params = &mpu_dpll_params_1584mhz[sysclk_ind];
-	do_setup_dpll(&prcm->cm_clkmode_dpll_mpu, params, DPLL_LOCK);
-	debug("MPU DPLL locked\n");
+	configure_mpu_dpll();
 }
 
 static void setup_non_essential_dplls(void)

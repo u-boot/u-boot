@@ -105,9 +105,11 @@ struct omap4_prcm_regs {
 	u32 cm_ssc_deltamstep_dpll_ddrphy;
 	u32 pad014[5];
 	u32 cm_shadow_freq_config1;
+	u32 pad0141[47];
+	u32 cm_mpu_mpu_clkctrl;
 
 	/* cm1.dsp */
-	u32 pad015[103];
+	u32 pad015[55];
 	u32 cm_dsp_clkstctrl;
 	u32 pad016[7];
 	u32 cm_dsp_dsp_clkctrl;
@@ -515,6 +517,8 @@ struct omap4_prcm_regs {
 #define CM_CLKSEL_DPLL_M_MASK			(0x7FF << 8)
 #define CM_CLKSEL_DPLL_N_SHIFT			0
 #define CM_CLKSEL_DPLL_N_MASK			0x7F
+#define CM_CLKSEL_DCC_EN_SHIFT			22
+#define CM_CLKSEL_DCC_EN_MASK			(1 << 22)
 
 #define OMAP4_DPLL_MAX_N	127
 
@@ -595,6 +599,12 @@ struct omap4_prcm_regs {
 
 /* CM_L3INIT_USBPHY_CLKCTRL */
 #define USBPHY_CLKCTRL_OPTFCLKEN_PHY_48M_MASK	8
+
+/* CM_MPU_MPU_CLKCTRL */
+#define MPU_CLKCTRL_CLKSEL_EMIF_DIV_MODE_SHIFT	24
+#define MPU_CLKCTRL_CLKSEL_EMIF_DIV_MODE_MASK	(1 << 24)
+#define MPU_CLKCTRL_CLKSEL_ABE_DIV_MODE_SHIFT	25
+#define MPU_CLKCTRL_CLKSEL_ABE_DIV_MODE_MASK	(1 << 25)
 
 /* Clock frequencies */
 #define OMAP_SYS_CLK_FREQ_38_4_MHZ	38400000
