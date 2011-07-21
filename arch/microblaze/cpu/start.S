@@ -30,6 +30,13 @@
 	.text
 	.global _start
 _start:
+	/*
+	 * reserve registers:
+	 * r10: Stores little/big endian offset for vectors
+	 * r2: Stores imm opcode
+	 * r3: Stores brai opcode
+	 */
+
 	mts	rmsr, r0	/* disable cache */
 	addi	r1, r0, CONFIG_SYS_INIT_SP_OFFSET
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
@@ -47,21 +54,15 @@ _start:
 	swi	r6, r0, 0
 	lbui	r10, r0, 0
 
-	/* add opcode instruction for 32bit jump - 2 instruction imm & brai*/
-	addi	r6, r0, 0xb0000000	/* hex b000 opcode imm */
-	swi	r6, r0, 0x0	/* reset address */
-	swi	r6, r0, 0x8	/* user vector exception */
-	swi	r6, r0, 0x10	/* interrupt */
-	swi	r6, r0, 0x20	/* hardware exception */
-
-	addi	r6, r0, 0xb8080000	/* hew b808 opcode brai*/
-	swi	r6, r0, 0x4	/* reset address */
-	swi	r6, r0, 0xC	/* user vector exception */
-	swi	r6, r0, 0x14	/* interrupt */
-	swi	r6, r0, 0x24	/* hardware exception */
+	/* add opcode instruction for 32bit jump - 2 instruction imm & brai */
+	addi	r2, r0, 0xb0000000	/* hex b000 opcode imm */
+	addi	r3, r0, 0xb8080000	/* hew b808 opcode brai */
 
 #ifdef CONFIG_SYS_RESET_ADDRESS
 	/* reset address */
+	swi	r2, r0, 0x0	/* reset address - imm opcode */
+	swi	r3, r0, 0x4	/* reset address - brai opcode */
+
 	addik	r6, r0, CONFIG_SYS_RESET_ADDRESS
 	sw	r6, r1, r0
 	lhu	r7, r1, r0
@@ -88,6 +89,9 @@ _start:
 
 #ifdef CONFIG_SYS_USR_EXCEP
 	/* user_vector_exception */
+	swi	r2, r0, 0x8	/* user vector exception - imm opcode */
+	swi	r3, r0, 0xC	/* user vector exception - brai opcode */
+
 	addik	r6, r0, _exception_handler
 	sw	r6, r1, r0
 	/*
@@ -119,6 +123,9 @@ _start:
 
 #ifdef CONFIG_SYS_INTC_0
 	/* interrupt_handler */
+	swi	r2, r0, 0x10	/* interrupt - imm opcode */
+	swi	r3, r0, 0x14	/* interrupt - brai opcode */
+
 	addik	r6, r0, _interrupt_handler
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
@@ -129,6 +136,9 @@ _start:
 #endif
 
 	/* hardware exception */
+	swi	r2, r0, 0x20	/* hardware exception - imm opcode */
+	swi	r3, r0, 0x24	/* hardware exception - brai opcode */
+
 	addik	r6, r0, _hw_exception_handler
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
