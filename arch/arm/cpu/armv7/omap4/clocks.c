@@ -34,6 +34,7 @@
 #include <asm/arch/clocks.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/utils.h>
+#include <asm/omap_gpio.h>
 
 #ifndef CONFIG_SPL_BUILD
 /*
@@ -421,6 +422,34 @@ static void setup_non_essential_dplls(void)
 	do_setup_dpll(&prcm->cm_clkmode_dpll_abe, params, DPLL_LOCK);
 }
 
+static void do_scale_tps62361(u32 reg, u32 volt_mv)
+{
+	u32 temp, step;
+
+	step = volt_mv - TPS62361_BASE_VOLT_MV;
+	step /= 10;
+
+	/*
+	 * Select SET1 in TPS62361:
+	 * VSEL1 is grounded on board. So the following selects
+	 * VSEL1 = 0 and VSEL0 = 1
+	 */
+	omap_set_gpio_direction(TPS62361_VSEL0_GPIO, 0);
+	omap_set_gpio_dataout(TPS62361_VSEL0_GPIO, 1);
+
+	temp = TPS62361_I2C_SLAVE_ADDR |
+	    (reg << PRM_VC_VAL_BYPASS_REGADDR_SHIFT) |
+	    (step << PRM_VC_VAL_BYPASS_DATA_SHIFT) |
+	    PRM_VC_VAL_BYPASS_VALID_BIT;
+	debug("do_scale_tps62361: volt - %d step - 0x%x\n", volt_mv, step);
+
+	writel(temp, &prcm->prm_vc_val_bypass);
+	if (!wait_on_value(PRM_VC_VAL_BYPASS_VALID_BIT, 0,
+				&prcm->prm_vc_val_bypass, LDELAY)) {
+		puts("Scaling voltage failed for vdd_mpu from TPS\n");
+	}
+}
+
 static void do_scale_vcore(u32 vcore_reg, u32 volt_mv)
 {
 	u32 temp, offset_code;
@@ -461,7 +490,7 @@ static void do_scale_vcore(u32 vcore_reg, u32 volt_mv)
  */
 static void scale_vcores(void)
 {
-	u32 volt, sys_clk_khz, cycles_hi, cycles_low, temp;
+	u32 volt, sys_clk_khz, cycles_hi, cycles_low, temp, omap4_rev;
 
 	sys_clk_khz = get_sys_clk_freq() / 1000;
 
@@ -481,23 +510,45 @@ static void scale_vcores(void)
 	/* Disable high speed mode and all advanced features */
 	writel(0x0, &prcm->prm_vc_cfg_i2c_mode);
 
+	omap4_rev = omap_revision();
+	/* TPS - supplies vdd_mpu on 4460 */
+	if (omap4_rev >= OMAP4460_ES1_0) {
+		volt = 1430;
+		do_scale_tps62361(TPS62361_REG_ADDR_SET1, volt);
+	}
+
 	/*
-	 * VCORE 1 - 4430 : supplies vdd_mpu
+	 * VCORE 1
+	 *
+	 * 4430 : supplies vdd_mpu
 	 * Setting a high voltage for Nitro mode as smart reflex is not enabled.
 	 * We use the maximum possible value in the AVS range because the next
 	 * higher voltage in the discrete range (code >= 0b111010) is way too
 	 * high
+	 *
+	 * 4460 : supplies vdd_core
 	 */
-	volt = 1417;
-	do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
+	if (omap4_rev < OMAP4460_ES1_0) {
+		volt = 1417;
+		do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
+	} else {
+		volt = 1200;
+		do_scale_vcore(SMPS_REG_ADDR_VCORE1, volt);
+	}
 
 	/* VCORE 2 - supplies vdd_iva */
 	volt = 1200;
 	do_scale_vcore(SMPS_REG_ADDR_VCORE2, volt);
 
-	/* VCORE 3 - supplies vdd_core */
-	volt = 1200;
-	do_scale_vcore(SMPS_REG_ADDR_VCORE3, volt);
+	/*
+	 * VCORE 3
+	 * 4430 : supplies vdd_core
+	 * 4460 : not connected
+	 */
+	if (omap4_rev < OMAP4460_ES1_0) {
+		volt = 1200;
+		do_scale_vcore(SMPS_REG_ADDR_VCORE3, volt);
+	}
 }
 
 static inline void enable_clock_domain(u32 *const clkctrl_reg, u32 enable_mode)
