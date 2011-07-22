@@ -67,7 +67,7 @@
  *
  * Interrupt Transfers.
  * --------------------
- * For Interupt transfers USB_MAX_TEMP_INT_TD Transfer descriptor are available. They
+ * For Interrupt transfers USB_MAX_TEMP_INT_TD Transfer descriptor are available. They
  * will be inserted after the appropriate (depending the interval setting) skeleton TD.
  * If an interrupt has been detected the dev->irqhandler is called. The status and number
  * of transfered bytes is stored in dev->irq_status resp. dev->irq_act_len. If the

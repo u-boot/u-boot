@@ -589,7 +589,7 @@
  +------+----------------+------------------------------------------------------------
  |  #   | Name           | Comment
  +------+----------------+------------------------------------------------------------
- | IRQ1 | UINTER_3V      | S interupt chips interrupt (common)
+ | IRQ1 | UINTER_3V      | S interrupt chips interrupt (common)
  | IRQ3 | IRQ_DSP        | DSP interrupt
  | IRQ4 | IRQ_DSP1       | Extra DSP interrupt
  +------+----------------+------------------------------------------------------------

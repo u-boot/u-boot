@@ -44,7 +44,7 @@ typedef struct rtc5200 {
 	volatile ulong	aier;	/* MBAR+0x80C: alarm and interrupt enable register */
 	volatile ulong	ctr;	/* MBAR+0x810: current time register */
 	volatile ulong	cdr;	/* MBAR+0x814: current data register */
-	volatile ulong	asir;	/* MBAR+0x818: alarm and stopwatch interupt register */
+	volatile ulong	asir;	/* MBAR+0x818: alarm and stopwatch interrupt register */
 	volatile ulong	piber;	/* MBAR+0x81C: periodic interrupt and bus error register */
 	volatile ulong	trdr;	/* MBAR+0x820: test register/divides register */
 } RTC5200;

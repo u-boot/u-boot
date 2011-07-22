@@ -786,7 +786,7 @@ xyzModem_stream_terminate (bool abort, int (*getc) (void))
       ZM_DEBUG (zm_dprintf ("Engaging cleanup mode...\n"));
       /*
        * Consume any trailing crap left in the inbuffer from
-       * previous recieved blocks. Since very few files are an exact multiple
+       * previous received blocks. Since very few files are an exact multiple
        * of the transfer block size, there will almost always be some gunk here.
        * If we don't eat it now, RedBoot will think the user typed it.
        */

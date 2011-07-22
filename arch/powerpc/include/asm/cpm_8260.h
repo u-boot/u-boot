@@ -117,7 +117,7 @@ typedef struct cpm_buf_desc {
 	uint	cbd_bufaddr;	/* Buffer address in host memory */
 } cbd_t;
 
-#define BD_SC_EMPTY	((ushort)0x8000)	/* Recieve is empty */
+#define BD_SC_EMPTY	((ushort)0x8000)	/* Receive is empty */
 #define BD_SC_READY	((ushort)0x8000)	/* Transmit is ready */
 #define BD_SC_WRAP	((ushort)0x2000)	/* Last buffer descriptor */
 #define BD_SC_INTRPT	((ushort)0x1000)	/* Interrupt on change */

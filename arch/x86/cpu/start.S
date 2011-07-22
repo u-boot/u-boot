@@ -66,7 +66,7 @@ _start:
 	movw	%ax, %es
 	movw	%ax, %ss
 
-	/* Clear the interupt vectors */
+	/* Clear the interrupt vectors */
 	lidt	blank_idt_ptr
 
 	/* Early platform init (setup gpio, etc ) */

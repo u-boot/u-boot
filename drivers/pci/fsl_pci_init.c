@@ -316,7 +316,7 @@ void fsl_pci_init(struct pci_controller *hose, struct fsl_pci_info *pci_info)
 	hose->current_busno = hose->first_busno;
 
 	out_be32(&pci->pedr, 0xffffffff);	/* Clear any errors */
-	out_be32(&pci->peer, ~0x20140);	/* Enable All Error Interupts except
+	out_be32(&pci->peer, ~0x20140);	/* Enable All Error Interrupts except
 					 * - Master abort (pci)
 					 * - Master PERR (pci)
 					 * - ICCA (PCIe)

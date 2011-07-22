@@ -51,7 +51,7 @@ struct NS16550
 #define dlm ier
 
 #define FCR_FIFO_EN     0x01    /*fifo enable*/
-#define FCR_RXSR        0x02    /*reciever soft reset*/
+#define FCR_RXSR        0x02    /*receiver soft reset*/
 #define FCR_TXSR        0x04    /*transmitter soft reset*/
 
 

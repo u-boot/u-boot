@@ -306,7 +306,7 @@ i2c_read(uchar dev_addr, unsigned int offset, int len, uchar* data,
 	status = i2c_get_data(data, len);
 	if (status) {
 #ifdef DEBUG_I2C
-		printf("Data not recieved: 0x%02x\n", status);
+		printf("Data not received: 0x%02x\n", status);
 #endif
 		return status;
 	}

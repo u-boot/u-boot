@@ -142,11 +142,11 @@ copyex:
 
 # if defined(CONFIG_S3C2400)
 #  define pWTCON	0x15300000
-#  define INTMSK	0x14400008	/* Interupt-Controller base addresses */
+#  define INTMSK	0x14400008	/* Interrupt-Controller base addresses */
 #  define CLKDIVN	0x14800014	/* clock divisor register */
 #else
 #  define pWTCON	0x53000000
-#  define INTMSK	0x4A000008	/* Interupt-Controller base addresses */
+#  define INTMSK	0x4A000008	/* Interrupt-Controller base addresses */
 #  define INTSUBMSK	0x4A00001C
 #  define CLKDIVN	0x4C000014	/* clock divisor register */
 # endif

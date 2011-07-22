@@ -1182,7 +1182,7 @@
 #define CHANNEL2_REGISTER10				0x9070
 #define CHANNEL2_REGISTER11				0x9074
 
-/* MPSCs Interupts  */
+/* MPSCs Interrupts  */
 
 #define MPSC0_CAUSE					0xb824
 #define MPSC0_MASK					0xb8a4

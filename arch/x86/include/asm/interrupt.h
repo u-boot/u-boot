@@ -32,7 +32,7 @@
 /* arch/x86/cpu/interrupts.c */
 void set_vector(u8 intnum, void *routine);
 
-/* arch/x86/lib/interupts.c */
+/* arch/x86/lib/interrupts.c */
 void disable_irq(int irq);
 void enable_irq(int irq);
 

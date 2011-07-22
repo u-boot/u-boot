@@ -386,7 +386,7 @@ ixQMgrNotificationEnable (IxQMgrQId qId,
 				     &dispatchQInfo[qId].statusMask);
 
 
-    /* Set the interupt source is this queue is in the range 0-31 */
+    /* Set the interrupt source is this queue is in the range 0-31 */
     if (qId < IX_QMGR_MIN_QUEUPP_QID)
     {
 	ixQMgrAqmIfIntSrcSelWrite (qId, srcSel);

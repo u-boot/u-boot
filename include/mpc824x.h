@@ -258,7 +258,7 @@
 #define PLTR		0x8000000d  /* PCI Latancy Timer Register */
 #define PHTR		0x8000000e  /* PCI Header Type Register */
 #define BISTCTRL	0x8000000f  /* BIST Control */
-#define LMBAR		0x80000010  /* Local Base Addres Register */
+#define LMBAR		0x80000010  /* Local Base Address Register */
 #define PCSRBAR		0x80000014  /* PCSR Base Address Register */
 #define ILR		0x8000003c  /* PCI Interrupt Line Register */
 #define IPR		0x8000003d  /* Interrupt Pin Register */

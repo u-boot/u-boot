@@ -139,7 +139,7 @@ int flash_sect_roundb (ulong *addr)
 		} /* bank */
 	}
 	if (!found) {
-		/* error, addres not in flash */
+		/* error, address not in flash */
 		printf("Error: end address (0x%08lx) not in flash!\n", *addr);
 		return 1;
 	}

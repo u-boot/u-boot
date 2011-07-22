@@ -39,7 +39,7 @@
 
 #define	CONFIG_SYS_TEXT_BASE	0x80000000
 
-/* IMMR Base Addres Register, use Freescale default: 0xff400000 */
+/* IMMR Base Address Register, use Freescale default: 0xff400000 */
 #define CONFIG_SYS_IMMR		0xff400000
 
 /* System clock. Primary input clock when in PCI host mode */

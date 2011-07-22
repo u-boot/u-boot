@@ -274,7 +274,7 @@ _dynsym_start_ofs:
 
 #if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
 
-/* Interupt-Controller base addresses */
+/* Interrupt-Controller base addresses */
 INTMR1:		.word	0x80000280 @ 32 bit size
 INTMR2:		.word	0x80001280 @ 16 bit size
 INTMR3:		.word	0x80002280 @  8 bit size

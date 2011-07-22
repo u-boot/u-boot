@@ -124,7 +124,7 @@ reset:
 	msr	cpsr,r0
 
 #define pWDTCTL		0x80001400  /* Watchdog Timer control register */
-#define pINTENC		0x8000050C  /* Interupt-Controller enable clear register */
+#define pINTENC		0x8000050C  /* Interrupt-Controller enable clear register */
 #define pCLKSET		0x80000420  /* clock divisor register */
 
 	/* disable watchdog, set watchdog control register to

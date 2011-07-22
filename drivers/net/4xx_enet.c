@@ -1704,7 +1704,7 @@ int enetInt (struct eth_device *dev)
 			rc = 0;
 		}
 
-		/* handle MAL RX EOB interupt from a receive */
+		/* handle MAL RX EOB interrupt from a receive */
 		/* check for EOB on valid channels	     */
 		if (uic_mal & UIC_MAL_RXEOB) {
 			mal_eob = mfdcr(MAL0_RXEOBISR);

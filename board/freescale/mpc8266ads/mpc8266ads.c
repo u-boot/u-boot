@@ -392,7 +392,7 @@ phys_size_t initdram(int board_type)
        The 11th column addre will still be mucxed correctly onto the bus.
 
        Also be aware that the MPC8266ADS board Rev B has not connected
-       Row addres 13 to anything.
+       Row address 13 to anything.
 
        The fix is to connect ADD16 (from U37-47) to SADDR12 (U28-126)
     */

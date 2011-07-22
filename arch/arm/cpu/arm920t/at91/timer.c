@@ -59,7 +59,7 @@ int timer_init(void)
 	when the value in TC_RC is reached */
 	writel(AT91_TC_CMR_TCCLKS_CLOCK1 | AT91_TC_CMR_CPCTRG, &tc->tc[0].cmr);
 
-	writel(0xFFFFFFFF, &tc->tc[0].idr); /* disable interupts */
+	writel(0xFFFFFFFF, &tc->tc[0].idr); /* disable interrupts */
 	writel(TIMER_LOAD_VAL, &tc->tc[0].rc);
 
 	writel(AT91_TC_CCR_SWTRG | AT91_TC_CCR_CLKEN, &tc->tc[0].ccr);

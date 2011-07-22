@@ -263,7 +263,7 @@ _dynsym_start_ofs:
  */
 
 
-/* Interupt-Controller base address */
+/* Interrupt-Controller base address */
 IC_BASE:	.word	0x90050000
 #define ICMR	0x04
 

@@ -27,6 +27,6 @@
 #define EEPROM_ADDR_IDENT	0	/* identification word offset */
 #define EEPROM_ADDR_LEN_SYS	2	/* system area lenght offset */
 #define EEPROM_ADDR_LEN_SYSCFG	4	/* system config area length offset */
-#define EEPROM_ADDR_ETHADDR	23	/* ethernet addres offset */
+#define EEPROM_ADDR_ETHADDR	23	/* ethernet address offset */
 
 #endif

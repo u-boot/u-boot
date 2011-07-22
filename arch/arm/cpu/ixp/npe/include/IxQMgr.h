@@ -570,7 +570,7 @@ typedef enum
  * @brief Queue interrupt source select.
  *
  * This enum defines the different source conditions on a queue that result in
- * an interupt being fired by the AQM. Interrupt source is configurable for
+ * an interrupt being fired by the AQM. Interrupt source is configurable for
  * queues 0-31 only. The interrupt source for queues 32-63 is hardwired to the
  * NE(Nearly Empty) status flag.
  *
