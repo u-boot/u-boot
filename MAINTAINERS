@@ -193,12 +193,6 @@ Matthias Fuchs <matthias.fuchs@esd-electronics.com>
 	WUH405		PPC405EP
 	CMS700		PPC405EP
 
-Niklaus Giger <niklaus.giger@netstal.com>
-
-	HCU4		PPC405GPr
-	MCU25		PPC405GPr
-	HCU5		PPC440EPx
-
 Siddarth Gore <gores@marvell.com>
 
 	guruplug	ARM926EJS (Kirkwood SoC)
