@@ -212,7 +212,8 @@
 #define CONFIG_BOOTDELAY		2
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
-	"loadaddr=0x82000000\0" \
+	"loadaddr=0x80200000\0" \
+	"rdaddr=0x81000000\0" \
 	"usbtty=cdc_acm\0" \
 	"usbethaddr=de:ad:be:ef\0" \
 	"bootfile=uImage.beagle\0" \
@@ -222,13 +223,15 @@
 	"optargs=\0" \
 	"camera=none\0" \
 	"vram=12M\0" \
-	"dvimode=1024x768MR-16@60\0" \
+	"dvimode=640x480MR-16@60\0" \
 	"defaultdisplay=dvi\0" \
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext3 rootwait\0" \
 	"nandroot=/dev/mtdblock4 rw\0" \
 	"nandrootfstype=jffs2\0" \
+	"ramroot=/dev/ram0 rw ramdisk_size=65536 initrd=0x81000000,64M\0" \
+	"ramrootfstype=ext2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"mpurate=${mpurate} " \
@@ -253,6 +256,16 @@
 	"loadbootenv=fatload mmc ${mmcdev} ${loadaddr} ${bootenv}\0" \
 	"importbootenv=echo Importing environment from mmc ...; " \
 		"env import -t $loadaddr $filesize\0" \
+	"ramargs=setenv bootargs console=${console} " \
+		"${optargs} " \
+		"mpurate=${mpurate} " \
+		"buddy=${buddy} "\
+		"vram=${vram} " \
+		"omapfb.mode=dvi:${dvimode} " \
+		"omapdss.def_disp=${defaultdisplay} " \
+		"root=${ramroot} " \
+		"rootfstype=${ramrootfstype}\0" \
+	"loadramdisk=fatload mmc ${mmcdev} ${rdaddr} ramdisk.gz\0" \
 	"loaduimagefat=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
 	"loaduimage=ext2load mmc ${mmcdev}:2 ${loadaddr} /boot/uImage\0" \
 	"mmcboot=echo Booting from mmc ...; " \
@@ -261,6 +274,9 @@
 	"nandboot=echo Booting from nand ...; " \
 		"run nandargs; " \
 		"nand read ${loadaddr} 280000 400000; " \
+		"bootm ${loadaddr}\0" \
+	"ramboot=echo Booting from ramdisk ...; " \
+		"run ramargs; " \
 		"bootm ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
