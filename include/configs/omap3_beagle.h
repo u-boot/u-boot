@@ -114,6 +114,12 @@
 /* DDR - I use Micron DDR */
 #define CONFIG_OMAP3_MICRON_DDR		1
 
+/* Enable Multi Bus support for I2C */
+#define CONFIG_I2C_MULTI_BUS		1
+
+/* Probe all devices */
+#define CONFIG_SYS_I2C_NOPROBES		{0x0, 0x0}
+
 /* USB */
 #define CONFIG_MUSB_UDC			1
 #define CONFIG_USB_OMAP3		1
