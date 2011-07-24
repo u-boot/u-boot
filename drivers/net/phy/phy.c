@@ -714,7 +714,7 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 
 	phydev->dev = dev;
 
-	printf("%s connected to %s\n", dev->name, phydev->drv->name);
+	debug("%s connected to %s\n", dev->name, phydev->drv->name);
 
 	return phydev;
 }
