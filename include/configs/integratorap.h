@@ -81,9 +81,15 @@
  * Command line configuration.
  */
 
+
 #define CONFIG_CMD_IMI
 #define CONFIG_CMD_BDI
+#define CONFIG_CMD_BOOTD
 #define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_IMLS
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_LOADS
 
 
 #define CONFIG_BOOTDELAY	2
