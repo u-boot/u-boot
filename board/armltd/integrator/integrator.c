@@ -86,15 +86,9 @@ int misc_init_r (void)
 	return (0);
 }
 
-/******************************
- Routine:
- Description:
-******************************/
 int dram_init (void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size	 = PHYS_SDRAM_1_SIZE;
-
+	gd->bd->bi_dram[0].start = CONFIG_SYS_SDRAM_BASE;
 #ifdef CONFIG_CM_SPD_DETECT
 	{
 extern void dram_query(void);
@@ -118,8 +112,13 @@ extern void dram_query(void);
 	 */
 	sdram_shift		 = ((cm_reg_sdram & 0x0000001C)/4)%4;
 	gd->bd->bi_dram[0].size	 = 0x01000000 << sdram_shift;
-
+	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
+				    0x01000000 << sdram_shift);
 	}
+#else
+	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+	gd->ram_size = get_ram_size((long *)CONFIG_SYS_SDRAM_BASE,
+				    PHYS_SDRAM_1_SIZE);
 #endif /* CM_SPD_DETECT */
 
 	return 0;

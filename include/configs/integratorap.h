@@ -47,7 +47,7 @@
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_CM_INIT		1
 #define CONFIG_CM_REMAP		1
-#undef CONFIG_CM_SPD_DETECT
+#define CONFIG_CM_SPD_DETECT
 
 /*
  * Size of malloc() pool
