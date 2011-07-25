@@ -123,7 +123,7 @@ int board_mmc_init(bd_t *bis)
 
 		/* GPK2[0:1] pull disable */
 		if (i == 0 || i == 1) {
-			gpio_set_pull(&gpio2->k2, i, GPIO_PULL_NONE);
+			s5p_gpio_set_pull(&gpio2->k2, i, GPIO_PULL_NONE);
 			continue;
 		}
 
