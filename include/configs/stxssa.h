@@ -43,7 +43,7 @@
 #define CONFIG_STXSSA		1	/* Silicon Tx GPPP SSA board specific*/
 #define CONFIG_MPC8560		1
 
-#define	CONFIG_SYS_TEXT_BASE	0xFFFC0000
+#define	CONFIG_SYS_TEXT_BASE	0xFFF80000
 
 #define CONFIG_PCI			/* PCI ethernet support	*/
 #define CONFIG_TSEC_ENET		/* tsec ethernet support*/
@@ -193,6 +193,11 @@
 #ifdef	CONFIG_SYS_HUSH_PARSER
 #define CONFIG_SYS_PROMPT_HUSH_PS2 "> "
 #endif
+
+/* pass open firmware flat tree */
+#define CONFIG_OF_LIBFDT		1
+#define CONFIG_OF_BOARD_SETUP		1
+#define CONFIG_OF_STDOUT_VIA_ALIAS	1
 
 /*
  * I2C
