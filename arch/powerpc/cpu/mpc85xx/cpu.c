@@ -46,7 +46,6 @@ int checkcpu (void)
 {
 	sys_info_t sysinfo;
 	uint pvr, svr;
-	uint fam;
 	uint ver;
 	uint major, minor;
 	struct cpu_type *cpu;
@@ -94,30 +93,25 @@ int checkcpu (void)
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, svr);
 
 	pvr = get_pvr();
-	fam = PVR_FAM(pvr);
 	ver = PVR_VER(pvr);
 	major = PVR_MAJ(pvr);
 	minor = PVR_MIN(pvr);
 
 	printf("Core:  ");
-	if (PVR_FAM(PVR_85xx)) {
-		switch(PVR_MEM(pvr)) {
-		case 0x1:
-		case 0x2:
-			puts("E500");
-			break;
-		case 0x3:
-			puts("E500MC");
-			break;
-		case 0x4:
-			puts("E5500");
-			break;
-		default:
-			puts("Unknown");
-			break;
-		}
-	} else {
+	switch(ver) {
+	case PVR_VER_E500_V1:
+	case PVR_VER_E500_V2:
+		puts("E500");
+		break;
+	case PVR_VER_E500MC:
+		puts("E500MC");
+		break;
+	case PVR_VER_E5500:
+		puts("E5500");
+		break;
+	default:
 		puts("Unknown");
+		break;
 	}
 
 	printf(", Version: %d.%d, (0x%08x)\n", major, minor, pvr);

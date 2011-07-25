@@ -938,6 +938,10 @@
 #define PVR_85xx	0x80200000
 #define PVR_85xx_REV1	(PVR_85xx | 0x0010)
 #define PVR_85xx_REV2	(PVR_85xx | 0x0020)
+#define PVR_VER_E500_V1	0x8020
+#define PVR_VER_E500_V2	0x8021
+#define PVR_VER_E500MC	0x8023
+#define PVR_VER_E5500	0x8024
 
 #define PVR_86xx	0x80040000
 
