@@ -93,7 +93,7 @@
 
 
 #define CONFIG_BOOTDELAY	2
-#define CONFIG_BOOTARGS		"root=/dev/mtdblock0 mem=32M console=ttyAM0 console=tty"
+#define CONFIG_BOOTARGS		"root=/dev/mtdblock0 console=ttyAM0 console=tty"
 #define CONFIG_BOOTCOMMAND	""
 
 /*
