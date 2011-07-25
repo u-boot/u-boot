@@ -140,6 +140,12 @@ SIB at Block62 End Block62 address 0x24f80000
 #define CONFIG_NR_DRAM_BANKS	1		/* we have 1 bank of DRAM */
 #define PHYS_SDRAM_1		0x00000000	/* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	0x08000000	/* 128 MB */
+#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
+#define CONFIG_SYS_INIT_RAM_SIZE PHYS_SDRAM_1_SIZE
+#define CONFIG_SYS_GBL_DATA_OFFSET (CONFIG_SYS_SDRAM_BASE + \
+				    CONFIG_SYS_INIT_RAM_SIZE - \
+				    GENERATED_GBL_DATA_SIZE)
+#define CONFIG_SYS_INIT_SP_ADDR CONFIG_SYS_GBL_DATA_OFFSET
 
 /*-----------------------------------------------------------------------
  * FLASH and environment organization
