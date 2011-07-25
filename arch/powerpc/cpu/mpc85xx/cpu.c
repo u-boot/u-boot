@@ -352,7 +352,7 @@ phys_size_t initdram(int board_type)
 	lbc_sdram_init();
 #endif
 
-	puts("DDR: ");
+	debug("DDR: ");
 	return dram_size;
 }
 #endif /* CONFIG_SYS_RAMBOOT */

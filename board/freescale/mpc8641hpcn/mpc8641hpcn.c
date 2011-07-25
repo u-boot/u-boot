@@ -69,7 +69,7 @@ initdram(int board_type)
 
 	setup_ddr_bat(dram_size);
 
-	puts("    DDR: ");
+	debug("    DDR: ");
 	return dram_size;
 }
 

@@ -110,6 +110,6 @@ phys_size_t initdram(int board_type)
 	dram_size = setup_ddr_tlbs(dram_size / 0x100000);
 	dram_size *= 0x100000;
 
-	puts("    DDR: ");
+	debug("    DDR: ");
 	return dram_size;
 }
