@@ -192,6 +192,7 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 {
 	u32 status;
 	u16 cmdreg;
+	int result = 0;
 
 #ifdef DEBUG_VERBOSE
 	printf("pele_sdh_request: cmdidx: %d arg: 0x%x\n",
@@ -254,9 +255,11 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 				SD_RST_CMD|SD_RST_DATA);
 
 			if (status & (SD_INT_ERR_CTIMEOUT|SD_INT_ERR_DTIMEOUT)) {
-				return TIMEOUT;
+				result = TIMEOUT;
+				goto exit;
 			} else {
-				return COMM_ERR;
+				result = COMM_ERR;
+				goto exit;
 			}
 		}
 		if (status & SD_INT_CMD_CMPL) {
@@ -291,7 +294,11 @@ static int pele_sdh_request(struct mmc *mmc, struct mmc_cmd *cmd,
 		memcpy(data->dest, sd_dma_buffer, 512);
 	}
 
-	return 0;
+exit:
+	/* Clear all pending interrupt status */
+	sd_out32(SD_INT_STAT_R, 0xFFFFFFFF);
+
+	return result;
 }
 
 static void pele_sdh_set_ios(struct mmc *mmc)
