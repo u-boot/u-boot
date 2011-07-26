@@ -33,7 +33,7 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#ifndef CONFIG_PRELOADER
+#ifndef CONFIG_SPL_BUILD
 int dram_init(void)
 {
 	/* dram_init must store complete ramsize in gd->ram_size */
