@@ -147,6 +147,7 @@ unsigned long post_time_ms (unsigned long base);
 extern struct post_test post_list[];
 extern unsigned int post_list_size;
 extern int post_hotkeys_pressed(void);
+extern int memory_post_test(int flags);
 
 /*
  *  If GCC is configured to use a version of GAS that supports
