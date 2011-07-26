@@ -26,17 +26,15 @@
 
 #include <common.h>
 #include <asm/sizes.h>
-#include <asm/arch/at91sam9261.h>
+#include <asm/io.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/at91_matrix.h>
-#include <asm/arch/at91_pio.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/at91_pio.h>
-#include <asm/arch/io.h>
-#include <asm/arch/hardware.h>
+#include <asm/arch/gpio.h>
+
 #include <lcd.h>
 #include <atmel_lcdc.h>
 #include <dataflash.h>
@@ -56,9 +54,9 @@ DECLARE_GLOBAL_DATA_PTR;
 static void pm9261_nand_hw_init(void)
 {
 	unsigned long csa;
-	at91_smc_t 	*smc 	= (at91_smc_t *) AT91_SMC_BASE;
-	at91_matrix_t 	*matrix = (at91_matrix_t *) AT91_MATRIX_BASE;
-	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
+	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
 	/* Enable CS3 */
 	csa = readl(&matrix->csa) | AT91_MATRIX_CSA_EBI_CS3A;
@@ -86,8 +84,8 @@ static void pm9261_nand_hw_init(void)
 		AT91_SMC_MODE_TDF_CYCLE(2),
 		&smc->cs[3].mode);
 
-	writel(1 << AT91SAM9261_ID_PIOA |
-		1 << AT91SAM9261_ID_PIOC,
+	writel(1 << ATMEL_ID_PIOA |
+		1 << ATMEL_ID_PIOC,
 		&pmc->pcer);
 
 	/* Configure RDY/BSY */
@@ -105,8 +103,8 @@ static void pm9261_nand_hw_init(void)
 #ifdef CONFIG_DRIVER_DM9000
 static void pm9261_dm9000_hw_init(void)
 {
-	at91_smc_t 	*smc 	= (at91_smc_t *) AT91_SMC_BASE;
-	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
 	/* Configure SMC CS2 for DM9000 */
 	writel(AT91_SMC_SETUP_NWE(2) | AT91_SMC_SETUP_NCS_WR(0) |
@@ -127,7 +125,7 @@ static void pm9261_dm9000_hw_init(void)
 		&smc->cs[2].mode);
 
 	/* Configure Interrupt pin as input, no pull-up */
-	writel(1 << AT91SAM9261_ID_PIOA, &pmc->pcer);
+	writel(1 << ATMEL_ID_PIOA, &pmc->pcer);
 	at91_set_pio_input(AT91_PIO_PORTA, 24, 0);
 }
 #endif
@@ -147,7 +145,7 @@ vidinfo_t panel_info = {
 	vl_vsync_len:	1,
 	vl_upper_margin:1,
 	vl_lower_margin:0,
-	mmio:		AT91SAM9261_LCDC_BASE,
+	mmio:		ATMEL_BASE_LCDC,
 };
 
 void lcd_enable(void)
@@ -162,7 +160,7 @@ void lcd_disable(void)
 
 static void pm9261_lcd_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
 	at91_set_a_periph(AT91_PIO_PORTB, 1, 0);	/* LCDHSYNC */
 	at91_set_a_periph(AT91_PIO_PORTB, 2, 0);	/* LCDDOTCK */
@@ -189,7 +187,7 @@ static void pm9261_lcd_hw_init(void)
 
 	writel(1 << 17, &pmc->scer); /* LCD controller Clock, AT91SAM9261 only */
 
-	gd->fb_base = AT91SAM9261_SRAM_BASE;
+	gd->fb_base = ATMEL_BASE_SRAM;
 }
 
 #ifdef CONFIG_LCD_INFO
@@ -241,13 +239,13 @@ void lcd_show_board_info(void)
 
 int board_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
 	/* Enable Ctrlc */
 	console_init_f();
 
-	writel(1 << AT91SAM9261_ID_PIOA |
-		1 << AT91SAM9261_ID_PIOC,
+	writel(1 << ATMEL_ID_PIOA |
+		1 << ATMEL_ID_PIOC,
 		&pmc->pcer);
 
 	/* arch number of PM9261-Board */
@@ -256,7 +254,7 @@ int board_init(void)
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	at91_serial_hw_init();
+	at91_seriald_hw_init();
 #ifdef CONFIG_CMD_NAND
 	pm9261_nand_hw_init();
 #endif
