@@ -187,7 +187,6 @@ extern int post_hotkeys_pressed(void);
 #define CONFIG_SYS_POST_CODEC		0x00200000
 #define CONFIG_SYS_POST_COPROC		0x00400000
 
-int memory_post_test(int flags);
 #endif /* CONFIG_POST */
 
 #endif /* _POST_H */
