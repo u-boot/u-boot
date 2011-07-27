@@ -34,6 +34,7 @@ include $(TOPDIR)/config.mk
 LDSCRIPT= $(TOPDIR)/mmc_spl/board/$(BOARDDIR)/u-boot.lds
 LDFLAGS	= -Bstatic -T $(mmcobj)u-boot.lds -Ttext $(CONFIG_SYS_TEXT_BASE) $(PLATFORM_LDFLAGS)
 AFLAGS	+= -DCONFIG_MMC_SPL
+AFLAGS	+= -DCONFIG_SPL_BUILD
 CFLAGS	+= -DCONFIG_MMC_SPL
 CFLAGS	+= -DCONFIG_SPL_BUILD
 

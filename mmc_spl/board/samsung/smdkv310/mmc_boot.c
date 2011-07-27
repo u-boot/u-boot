@@ -57,33 +57,3 @@ void board_init_r(gd_t *id, ulong dest_addr)
 void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3)
 {
 }
-
-void do_undefined_instruction(struct pt_regs *pt_regs)
-{
-}
-
-void do_software_interrupt(struct pt_regs *pt_regs)
-{
-}
-
-void do_prefetch_abort(struct pt_regs *pt_regs)
-{
-}
-
-void do_data_abort(struct pt_regs *pt_regs)
-{
-}
-
-void do_not_used(struct pt_regs *pt_regs)
-{
-}
-
-void do_fiq(struct pt_regs *pt_regs)
-{
-}
-
-#ifndef CONFIG_USE_IRQ
-void do_irq(struct pt_regs *pt_regs)
-{
-}
-#endif
