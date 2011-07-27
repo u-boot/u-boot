@@ -27,6 +27,10 @@
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
 
+#ifndef CONFIG_SYS_MIPS_CACHE_MODE
+#define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
+#endif
+
 	/*
 	 * For the moment disable interrupts, mark the kernel mode and
 	 * set ST0_KX so that the CPU does not spit fire when using
@@ -249,7 +253,7 @@ reset:
 	 nop
 
 	/* ... and enable them */
-	li	t0, CONF_CM_CACHABLE_NONCOHERENT
+	li	t0, CONFIG_SYS_MIPS_CACHE_MODE
 	mtc0	t0, CP0_CONFIG
 #endif
 
