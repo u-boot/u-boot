@@ -4479,9 +4479,7 @@ Coding Standards:
 
 All contributions to U-Boot should conform to the Linux kernel
 coding style; see the file "Documentation/CodingStyle" and the script
-"scripts/Lindent" in your Linux kernel source directory.  In sources
-originating from U-Boot a style corresponding to "Lindent -pcs" (adding
-spaces before parameters to function calls) is actually used.
+"scripts/Lindent" in your Linux kernel source directory.
 
 Source files originating from a different project (for example the
 MTD subsystem) are generally exempt from these guidelines and are not
@@ -4494,9 +4492,9 @@ in your code.
 
 Please also stick to the following formatting rules:
 - remove any trailing white space
-- use TAB characters for indentation, not spaces
+- use TAB characters for indentation and vertical alignment, not spaces
 - make sure NOT to use DOS '\r\n' line feeds
-- do not add more than 2 empty lines to source files
+- do not add more than 2 consecutive empty lines to source files
 - do not add trailing empty lines to source files
 
 Submissions which do not conform to the standards may be returned
@@ -4530,14 +4528,14 @@ it:
 * For major contributions, your entry to the CREDITS file
 
 * When you add support for a new board, don't forget to add this
-  board to the MAKEALL script, too.
+  board to the MAINTAINERS file, too.
 
 * If your patch adds new configuration options, don't forget to
   document these in the README file.
 
 * The patch itself. If you are using git (which is *strongly*
   recommended) you can easily generate the patch using the
-  "git-format-patch". If you then use "git-send-email" to send it to
+  "git format-patch". If you then use "git send-email" to send it to
   the U-Boot mailing list, you will avoid most of the common problems
   with some other mail clients.
 
