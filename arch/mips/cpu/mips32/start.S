@@ -64,9 +64,16 @@
 _start:
 	RVECENT(reset,0)			# U-boot entry point
 	RVECENT(reset,1)			# software reboot
-#ifdef CONFIG_INCA_IP
-	.word INFINEON_EBU_BOOTCFG		# EBU init code, fetched during
-	.word 0x00000000			# booting phase of the flash
+#ifdef CONFIG_SYS_XWAY_EBU_BOOTCFG
+	/*
+	 * Almost all Lantiq XWAY SoC devices have an external bus unit (EBU) to
+	 * access external NOR flashes. If the board boots from NOR flash the
+	 * internal BootROM does a blind read at address 0xB0000010 to read the
+	 * initial configuration for that EBU in order to access the flash
+	 * device with correct parameters. This config option is board-specific.
+	 */
+	.word CONFIG_SYS_XWAY_EBU_BOOTCFG
+	.word 0x00000000
 #else
 	RVECENT(romReserved,2)
 #endif

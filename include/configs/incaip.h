@@ -41,7 +41,7 @@
 #define CONFIG_CPU_CLOCK_RATE	150000000
 #endif
 
-#define INFINEON_EBU_BOOTCFG	0x40C4	/* CMULT = 8 */
+#define CONFIG_SYS_XWAY_EBU_BOOTCFG	0x40C4	/* CMULT = 8 */
 
 #define CONFIG_BOOTDELAY	5	/* autoboot after 5 seconds	*/
 
