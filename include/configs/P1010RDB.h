@@ -33,6 +33,7 @@
 
 #ifdef CONFIG_P1010RDB
 #define CONFIG_P1010
+#define CONFIG_NAND_FSL_IFC
 #endif
 
 #ifdef CONFIG_SDCARD
@@ -45,6 +46,17 @@
 #define CONFIG_RAMBOOT_SPIFLASH
 #define CONFIG_SYS_TEXT_BASE		0x11000000
 #define CONFIG_RESET_VECTOR_ADDRESS	0x1107fffc
+#endif
+
+#ifdef CONFIG_NAND	/* NAND Boot */
+#define CONFIG_RAMBOOT_NAND
+#define CONFIG_NAND_U_BOOT
+#define CONFIG_SYS_TEXT_BASE_SPL	0xff800000
+#ifdef CONFIG_NAND_SPL
+#define CONFIG_SYS_MONITOR_BASE		CONFIG_SYS_TEXT_BASE_SPL
+#else
+#define CONFIG_SYS_TEXT_BASE		0x11001000
+#endif /* CONFIG_NAND_SPL */
 #endif
 
 #ifndef CONFIG_SYS_TEXT_BASE
@@ -221,6 +233,11 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_CCSRBAR			0xffe00000
 #define CONFIG_SYS_CCSRBAR_PHYS_LOW		CONFIG_SYS_CCSRBAR
 
+/* Don't relocate CCSRBAR while in NAND_SPL */
+#ifdef CONFIG_NAND_SPL
+#define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
+#endif
+
 /*
  * Memory map
  *
@@ -305,6 +322,12 @@ extern unsigned long get_sdram_size(void);
 				| CSOR_NAND_SPRZ_16	/* Spare size = 16 */ \
 				| CSOR_NAND_PB(32))	/* 32 Pages Per Block */
 
+#define CONFIG_SYS_NAND_BASE_LIST	{ CONFIG_SYS_NAND_BASE }
+#define CONFIG_SYS_MAX_NAND_DEVICE	1
+#define CONFIG_MTD_NAND_VERIFY_WRITE
+#define CONFIG_CMD_NAND
+#define CONFIG_SYS_NAND_BLOCK_SIZE	(16 * 1024)
+
 /* NAND Flash Timing Params */
 #define CONFIG_SYS_NAND_FTIM0		FTIM0_NAND_TCCST(0x01) | \
 					FTIM0_NAND_TWP(0x0C)   | \
@@ -322,6 +345,22 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_NAND_DDR_LAW		11
 
 /* Set up IFC registers for boot location NOR/NAND */
+#ifdef CONFIG_NAND_U_BOOT
+#define CONFIG_SYS_CSPR0		CONFIG_SYS_NAND_CSPR
+#define CONFIG_SYS_AMASK0		CONFIG_SYS_NAND_AMASK
+#define CONFIG_SYS_CSOR0		CONFIG_SYS_NAND_CSOR
+#define CONFIG_SYS_CS0_FTIM0		CONFIG_SYS_NAND_FTIM0
+#define CONFIG_SYS_CS0_FTIM1		CONFIG_SYS_NAND_FTIM1
+#define CONFIG_SYS_CS0_FTIM2		CONFIG_SYS_NAND_FTIM2
+#define CONFIG_SYS_CS0_FTIM3		CONFIG_SYS_NAND_FTIM3
+#define CONFIG_SYS_CSPR1		CONFIG_SYS_NOR_CSPR
+#define CONFIG_SYS_AMASK1		CONFIG_SYS_NOR_AMASK
+#define CONFIG_SYS_CSOR1		CONFIG_SYS_NOR_CSOR
+#define CONFIG_SYS_CS1_FTIM0		CONFIG_SYS_NOR_FTIM0
+#define CONFIG_SYS_CS1_FTIM1		CONFIG_SYS_NOR_FTIM1
+#define CONFIG_SYS_CS1_FTIM2		CONFIG_SYS_NOR_FTIM2
+#define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NOR_FTIM3
+#else
 #define CONFIG_SYS_CSPR0		CONFIG_SYS_NOR_CSPR
 #define CONFIG_SYS_AMASK0		CONFIG_SYS_NOR_AMASK
 #define CONFIG_SYS_CSOR0		CONFIG_SYS_NOR_CSOR
@@ -336,6 +375,16 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_CS1_FTIM1		CONFIG_SYS_NAND_FTIM1
 #define CONFIG_SYS_CS1_FTIM2		CONFIG_SYS_NAND_FTIM2
 #define CONFIG_SYS_CS1_FTIM3		CONFIG_SYS_NAND_FTIM3
+#endif
+
+/* NAND boot: 8K NAND loader config */
+#define CONFIG_SYS_NAND_SPL_SIZE	0x2000
+#define CONFIG_SYS_NAND_U_BOOT_SIZE	(512 << 10)
+#define CONFIG_SYS_NAND_U_BOOT_DST	(0x11000000 - CONFIG_SYS_NAND_SPL_SIZE)
+#define CONFIG_SYS_NAND_U_BOOT_START	0x11000000
+#define CONFIG_SYS_NAND_U_BOOT_OFFS	(0)
+#define CONFIG_SYS_NAND_U_BOOT_RELOC	0x10000
+#define CONFIG_SYS_NAND_U_BOOT_RELOC_SP	(CONFIG_SYS_NAND_U_BOOT_RELOC + 0x10000)
 
 /* CPLD on IFC */
 #define CONFIG_SYS_CPLD_BASE		0xffb00000
@@ -393,6 +442,9 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_SYS_NS16550_SERIAL
 #define CONFIG_SYS_NS16550_REG_SIZE	1
 #define CONFIG_SYS_NS16550_CLK		get_bus_freq(0)
+#ifdef CONFIG_NAND_SPL
+#define CONFIG_NS16550_MIN_FUNCTIONS
+#endif
 
 #define CONFIG_SERIAL_MULTI		/* Enable both serial ports */
 #define CONFIG_SYS_CONSOLE_IS_IN_ENV	/* determine from environment */
@@ -449,6 +501,7 @@ extern unsigned long get_sdram_size(void);
  * SPI interface will not be available in case of NAND boot SPI CS0 will be
  * used for SLIC
  */
+#ifndef CONFIG_NAND_U_BOOT
 /* eSPI - Enhanced SPI */
 #define CONFIG_FSL_ESPI
 #define CONFIG_SPI_FLASH
@@ -456,6 +509,7 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_CMD_SF
 #define CONFIG_SF_DEFAULT_SPEED		10000000
 #define CONFIG_SF_DEFAULT_MODE		SPI_MODE_0
+#endif
 
 #if defined(CONFIG_TSEC_ENET)
 #ifndef CONFIG_NET_MULTI
@@ -559,6 +613,11 @@ extern unsigned long get_sdram_size(void);
 #define CONFIG_ENV_OFFSET	0x100000	/* 1MB */
 #define CONFIG_ENV_SECT_SIZE	0x10000
 #define CONFIG_ENV_SIZE		0x2000
+#elif defined(CONFIG_NAND_U_BOOT)
+#define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_SIZE		CONFIG_SYS_NAND_BLOCK_SIZE
+#define CONFIG_ENV_OFFSET	CONFIG_SYS_NAND_U_BOOT_SIZE
+#define CONFIG_ENV_RANGE	(3 * CONFIG_ENV_SIZE)
 #else
 #define CONFIG_ENV_IS_NOWHERE		/* Store ENV in memory only */
 #define CONFIG_ENV_ADDR			(CONFIG_SYS_MONITOR_BASE - 0x1000)
