@@ -548,8 +548,6 @@ Unknown / orphaned boards:
 
 	EVB64260	MPC7xx_74xx
 
-	integratorcp	various
-	versatile	ARM926EJ-S
 	versatile	ARM926EJ-S
 
 
@@ -777,7 +775,8 @@ Sandeep Paulraj <s-paulraj@ti.com>
 	davinci_dm6467evm	ARM926EJS
 
 Linus Walleij <linus.walleij@linaro.org>
-	integratorap	ARM920T
+	integratorap	various
+	integratorcp	various
 
 Dave Peverley <dpeverley@mpc-data.co.uk>
 
