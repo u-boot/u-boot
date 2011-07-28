@@ -163,8 +163,6 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 				usb1_defined = 1;
 			if (mode_idx < 0 && phy_idx < 0)
 				printf("WARNING: invalid phy or mode\n");
-		} else {
-			break;
 		}
 	}
 	if (!usb1_defined) {
