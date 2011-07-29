@@ -1494,7 +1494,7 @@ static void *video_logo (void)
 
 	logo_plot (video_fb_address, VIDEO_COLS, 0, 0);
 
-	sprintf (info, " %s", &version_string);
+	sprintf (info, " %s", version_string);
 
 	space = (VIDEO_LINE_LEN / 2 - VIDEO_INFO_X) / VIDEO_FONT_WIDTH;
 	len = strlen(info);
