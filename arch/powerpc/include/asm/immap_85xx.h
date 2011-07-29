@@ -1759,7 +1759,8 @@ typedef struct ccsr_gur {
 	u32	cgencrl;	/* Core general control */
 	u8	res31[184];
 	u32	sriopstecr;	/* SRIO prescaler timer enable control */
-	u8	res32[1788];
+	u32	dcsrcr;		/* DCSR Control register */
+	u8	res32[1784];
 	u32	pmuxcr;		/* Pin multiplexing control */
 	u8	res33[60];
 	u32	iovselsr;	/* I/O voltage selection status */
@@ -1771,6 +1772,10 @@ typedef struct ccsr_gur {
 	u32	sdhcpcr;	/* eSDHC polarity configuration */
 	u8	res37[380];
 } ccsr_gur_t;
+
+#define FSL_CORENET_DCSR_SZ_MASK	0x00000003
+#define FSL_CORENET_DCSR_SZ_4M		0x0
+#define FSL_CORENET_DCSR_SZ_1G		0x3
 
 /*
  * On p4080 we have an LIODN for msg unit (rmu) but not maintenance

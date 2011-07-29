@@ -222,6 +222,10 @@ static void corenet_tb_init(void)
 void cpu_init_f (void)
 {
 	extern void m8560_cpm_reset (void);
+#ifdef CONFIG_SYS_DCSRBAR_PHYS
+	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+#endif
+
 #ifdef CONFIG_MPC8548
 	ccsr_local_ecm_t *ecm = (void *)(CONFIG_SYS_MPC85xx_ECM_ADDR);
 	uint svr = get_svr();
@@ -262,6 +266,13 @@ void cpu_init_f (void)
 
 	/* Invalidate the CPC before DDR gets enabled */
 	invalidate_cpc();
+
+ #ifdef CONFIG_SYS_DCSRBAR_PHYS
+	/* set DCSRCR so that DCSR space is 1G */
+	setbits_be32(&gur->dcsrcr, FSL_CORENET_DCSR_SZ_1G);
+	in_be32(&gur->dcsrcr);
+#endif
+
 }
 
 /* Implement a dummy function for those platforms w/o SERDES */
@@ -381,6 +392,12 @@ int cpu_init_r(void)
 		puts("enabled\n");
 	}
 #elif defined(CONFIG_BACKSIDE_L2_CACHE)
+	if ((SVR_SOC_VER(get_svr()) == SVR_P2040) ||
+	    (SVR_SOC_VER(get_svr()) == SVR_P2040_E)) {
+		puts("N/A\n");
+		goto skip_l2;
+	}
+
 	u32 l2cfg0 = mfspr(SPRN_L2CFG0);
 
 	/* invalidate the L2 cache */
@@ -401,6 +418,8 @@ int cpu_init_r(void)
 			;
 		printf("%d KB enabled\n", (l2cfg0 & 0x3fff) * 64);
 	}
+
+skip_l2:
 #else
 	puts("disabled\n");
 #endif

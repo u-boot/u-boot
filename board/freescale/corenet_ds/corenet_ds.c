@@ -236,6 +236,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 	fdt_fixup_liodn(blob);
+	fdt_fixup_dr_usb(blob, bd);
 }
 
 int board_eth_init(bd_t *bis)

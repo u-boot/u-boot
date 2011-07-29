@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  * Kumar Gala <kumar.gala@freescale.com>
  *
  * See file CREDITS for list of people who contributed to this
@@ -144,6 +144,18 @@ __secondary_start_page:
 #endif
 
 #ifdef CONFIG_BACKSIDE_L2_CACHE
+	/* skip L2 setup on P2040/P2040E as they have no L2 */
+	mfspr	r2,SPRN_SVR
+	lis	r3,SVR_P2040@h
+	ori	r3,r3,SVR_P2040@l
+	cmpw	r2,r3
+	beq 3f
+
+	lis	r3,SVR_P2040_E@h
+	ori	r3,r3,SVR_P2040_E@l
+	cmpw	r2,r3
+	beq 3f
+
 	/* Enable/invalidate the L2 cache */
 	msync
 	lis	r2,(L2CSR0_L2FI|L2CSR0_L2LFC)@h
@@ -169,6 +181,7 @@ __secondary_start_page:
 	andis.	r1,r3,L2CSR0_L2E@h
 	beq	2b
 #endif
+3:
 
 #define EPAPR_MAGIC		(0x45504150)
 #define ENTRY_ADDR_UPPER	0
