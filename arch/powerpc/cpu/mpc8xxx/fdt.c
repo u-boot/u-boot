@@ -30,9 +30,8 @@
 #include <asm/fsl_serdes.h>
 #include <phy.h>
 #include <hwconfig.h>
-#ifdef CONFIG_HAS_FSL_DR_USB
-#include <usb.h>
-#endif
+
+#define FSL_MAX_NUM_USB_CTRLS	2
 
 #if defined(CONFIG_MP) && (defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx))
 static int ft_del_cpuhandle(void *blob, int cpuhandle)
@@ -135,7 +134,7 @@ void fdt_fixup_dr_usb(void *blob, bd_t *bd)
 	char str[5];
 	int i, j;
 
-	for (i = 1; i <= USB_MAX_DEVICE; i++) {
+	for (i = 1; i <= FSL_MAX_NUM_USB_CTRLS; i++) {
 		int mode_idx = -1, phy_idx = -1;
 		sprintf(str, "%s%d", "usb", i);
 		if (hwconfig(str)) {
