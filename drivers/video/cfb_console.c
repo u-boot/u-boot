@@ -348,13 +348,6 @@ void console_cursor(int state);
 #endif
 #endif
 
-#if defined(DEBUG) || defined(DEBUG_CFB_CONSOLE)
-#define PRINTD(x)		printf(x)
-#else
-#define PRINTD(x)
-#endif
-
-
 #ifdef CONFIG_CONSOLE_EXTRA_INFO
 /*
  * setup a board string: type, speed, etc.
@@ -1736,7 +1729,7 @@ static int video_init(void)
 
 #ifdef CONFIG_VIDEO_LOGO
 	/* Plot the logo and get start point of console */
-	PRINTD("Video: Drawing the logo ...\n");
+	debug("Video: Drawing the logo ...\n");
 	video_console_address = video_logo();
 #else
 	video_console_address = video_fb_address;
@@ -1775,7 +1768,7 @@ int drv_video_init(void)
 	skip_dev_init = (video_init() == -1);
 
 #if !defined(CONFIG_VGA_AS_SINGLE_DEVICE)
-	PRINTD("KBD: Keyboard init ...\n");
+	debug("KBD: Keyboard init ...\n");
 	skip_dev_init |= (VIDEO_KBD_INIT_FCT == -1);
 #endif
 
