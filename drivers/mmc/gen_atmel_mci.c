@@ -183,10 +183,6 @@ mci_send_cmd(struct mmc *mmc, struct mmc_cmd *cmd, struct mmc_data *data)
 	/* Figure out the transfer arguments */
 	cmdr = mci_encode_cmd(cmd, data, &error_flags);
 
-	if (data)
-		writel(MMCI_BF(BCNT, data->blocks) |
-			MMCI_BF(BLKLEN,	mmc->read_bl_len), &mci->blkr);
-
 	/* Send the command */
 	writel(cmd->cmdarg, &mci->argr);
 	writel(cmdr, &mci->cmdr);
