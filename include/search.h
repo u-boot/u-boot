@@ -39,7 +39,7 @@ typedef enum {
 } ACTION;
 
 typedef struct entry {
-	char *key;
+	const char *key;
 	char *data;
 } ENTRY;
 

@@ -155,7 +155,7 @@ void hdestroy_r(struct hsearch_data *htab)
 		if (htab->table[i].used > 0) {
 			ENTRY *ep = &htab->table[i].entry;
 
-			free(ep->key);
+			free((void *)ep->key);
 			free(ep->data);
 		}
 	}
@@ -416,7 +416,7 @@ int hdelete_r(const char *key, struct hsearch_data *htab)
 	/* free used ENTRY */
 	debug("hdelete: DELETING key \"%s\"\n", key);
 
-	free(ep->key);
+	free((void *)ep->key);
 	free(ep->data);
 	htab->table[idx].used = -1;
 
@@ -564,7 +564,7 @@ ssize_t hexport_r(struct hsearch_data *htab, const char sep,
 	 * export sorted list of result data
 	 */
 	for (i = 0, p = res; i < n; ++i) {
-		char *s;
+		const char *s;
 
 		s = list[i]->key;
 		while (*s)

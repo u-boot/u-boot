@@ -262,13 +262,13 @@ void	doc_probe(unsigned long physadr);
 int	env_init     (void);
 void	env_relocate (void);
 int	envmatch     (uchar *, int);
-char	*getenv	     (char *);
-int	getenv_f     (char *name, char *buf, unsigned len);
+char	*getenv	     (const char *);
+int	getenv_f     (const char *name, char *buf, unsigned len);
 int	saveenv	     (void);
 #ifdef CONFIG_PPC		/* ARM version to be fixed! */
-int inline setenv   (char *, char *);
+int inline setenv    (const char *, const char *);
 #else
-int	setenv	     (char *, char *);
+int	setenv	     (const char *, const char *);
 #endif /* CONFIG_PPC */
 #ifdef CONFIG_ARM
 # include <asm/mach-types.h>
