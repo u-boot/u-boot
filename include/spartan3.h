@@ -27,9 +27,9 @@
 
 #include <xilinx.h>
 
-extern int Spartan3_load( Xilinx_desc *desc, void *image, size_t size );
-extern int Spartan3_dump( Xilinx_desc *desc, void *buf, size_t bsize );
-extern int Spartan3_info( Xilinx_desc *desc );
+extern int Spartan3_load(Xilinx_desc *desc, const void *image, size_t size);
+extern int Spartan3_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
+extern int Spartan3_info(Xilinx_desc *desc);
 
 /* Slave Parallel Implementation function table */
 typedef struct {

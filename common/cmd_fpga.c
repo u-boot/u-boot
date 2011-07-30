@@ -289,7 +289,7 @@ int do_fpga (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			{
 				const void *fit_hdr = (const void *)fpga_data;
 				int noffset;
-				void *fit_data;
+				const void *fit_data;
 
 				if (fit_uname == NULL) {
 					puts ("No FIT subimage unit name\n");

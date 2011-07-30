@@ -47,13 +47,13 @@
 #define CONFIG_SYS_FPGA_WAIT CONFIG_SYS_HZ/10		/* 100 ms */
 #endif
 
-static int CYC2_ps_load( Altera_desc *desc, void *buf, size_t bsize );
-static int CYC2_ps_dump( Altera_desc *desc, void *buf, size_t bsize );
+static int CYC2_ps_load(Altera_desc *desc, const void *buf, size_t bsize);
+static int CYC2_ps_dump(Altera_desc *desc, const void *buf, size_t bsize);
 /* static int CYC2_ps_info( Altera_desc *desc ); */
 
 /* ------------------------------------------------------------------------- */
 /* CYCLON2 Generic Implementation */
-int CYC2_load (Altera_desc * desc, void *buf, size_t bsize)
+int CYC2_load(Altera_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -83,7 +83,7 @@ int CYC2_load (Altera_desc * desc, void *buf, size_t bsize)
 	return ret_val;
 }
 
-int CYC2_dump (Altera_desc * desc, void *buf, size_t bsize)
+int CYC2_dump(Altera_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -110,7 +110,7 @@ int CYC2_info( Altera_desc *desc )
 
 /* ------------------------------------------------------------------------- */
 /* CYCLON2 Passive Serial Generic Implementation                                  */
-static int CYC2_ps_load (Altera_desc * desc, void *buf, size_t bsize)
+static int CYC2_ps_load(Altera_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume the worst */
 	Altera_CYC2_Passive_Serial_fns *fn = desc->iface_fns;
@@ -210,7 +210,7 @@ static int CYC2_ps_load (Altera_desc * desc, void *buf, size_t bsize)
 	return ret_val;
 }
 
-static int CYC2_ps_dump (Altera_desc * desc, void *buf, size_t bsize)
+static int CYC2_ps_dump(Altera_desc *desc, const void *buf, size_t bsize)
 {
 	/* Readback is only available through the Slave Parallel and         */
 	/* boundary-scan interfaces.                                         */

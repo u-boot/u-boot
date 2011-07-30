@@ -52,7 +52,7 @@ static fpga_desc desc_table[CONFIG_MAX_FPGA_DEVICES];
 
 /* Local static functions */
 static __attribute__((__const__)) fpga_desc * __attribute__((__const__)) fpga_get_desc( int devnum );
-static __attribute__((__const__)) fpga_desc * __attribute__((__const__)) fpga_validate( int devnum, void *buf,
+static __attribute__((__const__)) fpga_desc * __attribute__((__const__)) fpga_validate(int devnum, const void *buf,
 					 size_t bsize, char *fn );
 static int fpga_dev_info( int devnum );
 
@@ -94,7 +94,7 @@ static __attribute__((__const__)) fpga_desc * __attribute__((__const__)) fpga_ge
 /* fpga_validate
  *	generic parameter checking code
  */
-static __attribute__((__const__)) fpga_desc * __attribute__((__const__)) fpga_validate( int devnum, void *buf,
+static __attribute__((__const__)) fpga_desc * __attribute__((__const__)) fpga_validate(int devnum, const void *buf,
 					 size_t bsize, char *fn )
 {
 	fpga_desc * desc = fpga_get_desc( devnum );
@@ -212,7 +212,7 @@ int fpga_add( fpga_type devtype, void *desc )
 /*
  *	Generic multiplexing code
  */
-int fpga_load( int devnum, void *buf, size_t bsize )
+int fpga_load(int devnum, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;           /* assume failure */
 	fpga_desc * desc = fpga_validate( devnum, buf, bsize, (char *)__FUNCTION__ );
@@ -252,7 +252,7 @@ int fpga_load( int devnum, void *buf, size_t bsize )
 /* fpga_dump
  *	generic multiplexing code
  */
-int fpga_dump( int devnum, void *buf, size_t bsize )
+int fpga_dump(int devnum, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;           /* assume failure */
 	fpga_desc * desc = fpga_validate( devnum, buf, bsize, (char *)__FUNCTION__ );

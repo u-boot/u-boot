@@ -101,13 +101,13 @@
 #define CONFIG_SYS_FPGA_WAIT_CONFIG	CONFIG_SYS_HZ/5	/* 200 ms */
 #endif
 
-static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize);
-static int Virtex2_ssm_dump (Xilinx_desc * desc, void *buf, size_t bsize);
+static int Virtex2_ssm_load(Xilinx_desc *desc, const void *buf, size_t bsize);
+static int Virtex2_ssm_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
 
-static int Virtex2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize);
-static int Virtex2_ss_dump (Xilinx_desc * desc, void *buf, size_t bsize);
+static int Virtex2_ss_load(Xilinx_desc *desc, const void *buf, size_t bsize);
+static int Virtex2_ss_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
 
-int Virtex2_load (Xilinx_desc * desc, void *buf, size_t bsize)
+int Virtex2_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -129,7 +129,7 @@ int Virtex2_load (Xilinx_desc * desc, void *buf, size_t bsize)
 	return ret_val;
 }
 
-int Virtex2_dump (Xilinx_desc * desc, void *buf, size_t bsize)
+int Virtex2_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -170,7 +170,7 @@ int Virtex2_info (Xilinx_desc * desc)
  *    INIT_B and DONE lines.  If both are high, configuration has
  *    succeeded. Congratulations!
  */
-static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
+static int Virtex2_ssm_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 	Xilinx_Virtex2_Slave_SelectMap_fns *fn = desc->iface_fns;
@@ -369,7 +369,7 @@ static int Virtex2_ssm_load (Xilinx_desc * desc, void *buf, size_t bsize)
 /*
  * Read the FPGA configuration data
  */
-static int Virtex2_ssm_dump (Xilinx_desc * desc, void *buf, size_t bsize)
+static int Virtex2_ssm_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 	Xilinx_Virtex2_Slave_SelectMap_fns *fn = desc->iface_fns;
@@ -421,13 +421,13 @@ static int Virtex2_ssm_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 	return ret_val;
 }
 
-static int Virtex2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
+static int Virtex2_ss_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	printf ("%s: Slave Serial Loading is unsupported\n", __FUNCTION__);
 	return FPGA_FAIL;
 }
 
-static int Virtex2_ss_dump (Xilinx_desc * desc, void *buf, size_t bsize)
+static int Virtex2_ss_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	printf ("%s: Slave Serial Dumping is unsupported\n", __FUNCTION__);
 	return FPGA_FAIL;

@@ -30,13 +30,13 @@
 
 #include <altera.h>
 
-extern int ACEX1K_load( Altera_desc *desc, void *image, size_t size );
-extern int ACEX1K_dump( Altera_desc *desc, void *buf, size_t bsize );
-extern int ACEX1K_info( Altera_desc *desc );
+extern int ACEX1K_load(Altera_desc *desc, const void *image, size_t size);
+extern int ACEX1K_dump(Altera_desc *desc, const void *buf, size_t bsize);
+extern int ACEX1K_info(Altera_desc *desc);
 
-extern int CYC2_load( Altera_desc *desc, void *image, size_t size );
-extern int CYC2_dump( Altera_desc *desc, void *buf, size_t bsize );
-extern int CYC2_info( Altera_desc *desc );
+extern int CYC2_load(Altera_desc *desc, const void *image, size_t size);
+extern int CYC2_dump(Altera_desc *desc, const void *buf, size_t bsize);
+extern int CYC2_info(Altera_desc *desc);
 
 /* Slave Serial Implementation function table */
 typedef struct {

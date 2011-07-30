@@ -45,7 +45,7 @@
 static int altera_validate (Altera_desc * desc, const char *fn);
 
 /* ------------------------------------------------------------------------- */
-int altera_load( Altera_desc *desc, void *buf, size_t bsize )
+int altera_load(Altera_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
@@ -85,7 +85,7 @@ int altera_load( Altera_desc *desc, void *buf, size_t bsize )
 	return ret_val;
 }
 
-int altera_dump( Altera_desc *desc, void *buf, size_t bsize )
+int altera_dump(Altera_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 

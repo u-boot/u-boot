@@ -48,7 +48,7 @@ static int xilinx_validate (Xilinx_desc * desc, char *fn);
 
 /* ------------------------------------------------------------------------- */
 
-int xilinx_load (Xilinx_desc * desc, void *buf, size_t bsize)
+int xilinx_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 
@@ -95,7 +95,7 @@ int xilinx_load (Xilinx_desc * desc, void *buf, size_t bsize)
 	return ret_val;
 }
 
-int xilinx_dump (Xilinx_desc * desc, void *buf, size_t bsize)
+int xilinx_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume a failure */
 

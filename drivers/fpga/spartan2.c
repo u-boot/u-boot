@@ -48,17 +48,17 @@
 #define CONFIG_SYS_FPGA_WAIT CONFIG_SYS_HZ/100	/* 10 ms */
 #endif
 
-static int Spartan2_sp_load( Xilinx_desc *desc, void *buf, size_t bsize );
-static int Spartan2_sp_dump( Xilinx_desc *desc, void *buf, size_t bsize );
-/* static int Spartan2_sp_info( Xilinx_desc *desc ); */
+static int Spartan2_sp_load(Xilinx_desc *desc, const void *buf, size_t bsize);
+static int Spartan2_sp_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
+/* static int Spartan2_sp_info(Xilinx_desc *desc ); */
 
-static int Spartan2_ss_load( Xilinx_desc *desc, void *buf, size_t bsize );
-static int Spartan2_ss_dump( Xilinx_desc *desc, void *buf, size_t bsize );
-/* static int Spartan2_ss_info( Xilinx_desc *desc ); */
+static int Spartan2_ss_load(Xilinx_desc *desc, const void *buf, size_t bsize);
+static int Spartan2_ss_dump(Xilinx_desc *desc, const void *buf, size_t bsize);
+/* static int Spartan2_ss_info(Xilinx_desc *desc ); */
 
 /* ------------------------------------------------------------------------- */
 /* Spartan-II Generic Implementation */
-int Spartan2_load (Xilinx_desc * desc, void *buf, size_t bsize)
+int Spartan2_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -81,7 +81,7 @@ int Spartan2_load (Xilinx_desc * desc, void *buf, size_t bsize)
 	return ret_val;
 }
 
-int Spartan2_dump (Xilinx_desc * desc, void *buf, size_t bsize)
+int Spartan2_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -113,7 +113,7 @@ int Spartan2_info( Xilinx_desc *desc )
 /* ------------------------------------------------------------------------- */
 /* Spartan-II Slave Parallel Generic Implementation */
 
-static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
+static int Spartan2_sp_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume the worst */
 	Xilinx_Spartan2_Slave_Parallel_fns *fn = desc->iface_fns;
@@ -265,7 +265,7 @@ static int Spartan2_sp_load (Xilinx_desc * desc, void *buf, size_t bsize)
 	return ret_val;
 }
 
-static int Spartan2_sp_dump (Xilinx_desc * desc, void *buf, size_t bsize)
+static int Spartan2_sp_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume the worst */
 	Xilinx_Spartan2_Slave_Parallel_fns *fn = desc->iface_fns;
@@ -313,7 +313,7 @@ static int Spartan2_sp_dump (Xilinx_desc * desc, void *buf, size_t bsize)
 
 /* ------------------------------------------------------------------------- */
 
-static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
+static int Spartan2_ss_load(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;	/* assume the worst */
 	Xilinx_Spartan2_Slave_Serial_fns *fn = desc->iface_fns;
@@ -456,7 +456,7 @@ static int Spartan2_ss_load (Xilinx_desc * desc, void *buf, size_t bsize)
 	return ret_val;
 }
 
-static int Spartan2_ss_dump (Xilinx_desc * desc, void *buf, size_t bsize)
+static int Spartan2_ss_dump(Xilinx_desc *desc, const void *buf, size_t bsize)
 {
 	/* Readback is only available through the Slave Parallel and         */
 	/* boundary-scan interfaces.                                         */

@@ -72,11 +72,11 @@ typedef struct {		/* typedef fpga_desc */
 
 
 /* root function definitions */
-extern void fpga_init( void );
-extern int fpga_add( fpga_type devtype, void *desc );
-extern int fpga_count( void );
-extern int fpga_load( int devnum, void *buf, size_t bsize );
-extern int fpga_dump( int devnum, void *buf, size_t bsize );
-extern int fpga_info( int devnum );
+extern void fpga_init(void);
+extern int fpga_add(fpga_type devtype, void *desc);
+extern int fpga_count(void);
+extern int fpga_load(int devnum, const void *buf, size_t bsize);
+extern int fpga_dump(int devnum, const void *buf, size_t bsize);
+extern int fpga_info(int devnum);
 
 #endif	/* _FPGA_H_ */
