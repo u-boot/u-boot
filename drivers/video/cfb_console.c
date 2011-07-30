@@ -366,8 +366,8 @@ static void *video_console_address;	/* console buffer start address */
 
 static int video_logo_height = VIDEO_LOGO_HEIGHT;
 
-static int console_col = 0;	/* cursor col */
-static int console_row = 0;	/* cursor row */
+static int console_col;		/* cursor col */
+static int console_row;		/* cursor row */
 
 static u32 eorx, fgx, bgx;	/* color pats */
 
@@ -1559,18 +1559,21 @@ static void *video_logo(void)
 	char *s;
 	ulong addr;
 
-	if ((s = getenv("splashimage")) != NULL) {
+	s = getenv("splashimage");
+	if (s != NULL) {
 		int x = 0, y = 0;
 
 		addr = simple_strtoul(s, NULL, 16);
 #ifdef CONFIG_SPLASH_SCREEN_ALIGN
-		if ((s = getenv("splashpos")) != NULL) {
+		s = getenv("splashpos");
+		if (s != NULL) {
 			if (s[0] == 'm')
 				x = BMP_ALIGN_CENTER;
 			else
 				x = simple_strtol(s, NULL, 0);
 
-			if ((s = strchr(s + 1, ',')) != NULL) {
+			s = strchr(s + 1, ',');
+			if (s != NULL) {
 				if (s[1] == 'm')
 					y = BMP_ALIGN_CENTER;
 				else
@@ -1648,7 +1651,8 @@ static int video_init(void)
 {
 	unsigned char color8;
 
-	if ((pGD = video_hw_init()) == NULL)
+	pGD = video_hw_init();
+	if (pGD == NULL)
 		return -1;
 
 	video_fb_address = (void *) VIDEO_FB_ADRS;
