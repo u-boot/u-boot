@@ -222,6 +222,9 @@ typedef void (interrupt_handler_t)(void *);
 
 void	hang		(void) __attribute__ ((noreturn));
 
+int	timer_init(void);
+int	cpu_init(void);
+
 /* */
 phys_size_t initdram (int);
 int	display_options (void);

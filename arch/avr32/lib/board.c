@@ -30,7 +30,6 @@
 #include <miiphy.h>
 #endif
 
-#include <asm/initcalls.h>
 #include <asm/sections.h>
 #include <asm/arch/mmu.h>
 

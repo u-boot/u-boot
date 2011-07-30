@@ -63,7 +63,4 @@ void	reset_timer_masked	(void);
 ulong	get_timer_masked	(void);
 void	udelay_masked		(unsigned long usec);
 
-/* cpu/.../timer.c */
-int	timer_init		(void);
-
 #endif	/* _U_BOOT_ARM_H_ */
