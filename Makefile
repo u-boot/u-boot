@@ -802,29 +802,6 @@ M5485HFE_config :	unconfig
 ## ARM926EJ-S Systems
 #########################################################################
 
-at91sam9261ek_nandflash_config \
-at91sam9261ek_dataflash_cs0_config \
-at91sam9261ek_dataflash_cs3_config \
-at91sam9261ek_config \
-at91sam9g10ek_nandflash_config \
-at91sam9g10ek_dataflash_cs0_config \
-at91sam9g10ek_dataflash_cs3_config \
-at91sam9g10ek_config	:	unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring 9g10,$@)" ] ; then \
-		echo "#define CONFIG_AT91SAM9G10EK 1"	>>$(obj)include/config.h ; \
-	else \
-		echo "#define CONFIG_AT91SAM9261EK 1"	>>$(obj)include/config.h ; \
-	fi;
-	@if [ "$(findstring _nandflash,$@)" ] ; then \
-		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
-	elif [ "$(findstring dataflash_cs0,$@)" ] ; then \
-		echo "#define CONFIG_SYS_USE_DATAFLASH_CS3 1"	>>$(obj)include/config.h ; \
-	else \
-		echo "#define CONFIG_SYS_USE_DATAFLASH_CS0 1"	>>$(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ -a at91sam9261ek arm arm926ejs at91sam9261ek atmel at91
-
 at91sam9263ek_norflash_config \
 at91sam9263ek_norflash_boot_config \
 at91sam9263ek_nandflash_config \
