@@ -100,14 +100,6 @@ struct s32ktimer {
 
 #endif /* __ASSEMBLY__ */
 
-/* OMAP3 GPIO registers */
-#define OMAP34XX_GPIO1_BASE		0x48310000
-#define OMAP34XX_GPIO2_BASE		0x49050000
-#define OMAP34XX_GPIO3_BASE		0x49052000
-#define OMAP34XX_GPIO4_BASE		0x49054000
-#define OMAP34XX_GPIO5_BASE		0x49056000
-#define OMAP34XX_GPIO6_BASE		0x49058000
-
 #ifndef __ASSEMBLY__
 struct gpio {
 	unsigned char res1[0x34];

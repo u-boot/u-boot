@@ -38,7 +38,7 @@
 #include <asm/arch/mem.h>
 #include <asm/cache.h>
 #include <asm/armv7.h>
-#include <asm/omap_gpio.h>
+#include <asm/arch/gpio.h>
 
 /* Declarations */
 extern omap3_sysinfo sysinfo;

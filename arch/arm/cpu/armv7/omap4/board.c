@@ -33,7 +33,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
 #include <asm/arch/emif.h>
-#include <asm/omap_gpio.h>
+#include <asm/arch/gpio.h>
 #include "omap4_mux_data.h"
 
 DECLARE_GLOBAL_DATA_PTR;
