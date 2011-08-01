@@ -220,9 +220,6 @@ int checkboard(void)
 
 #define GPT_GPIO_ON		0x00000034	/* GPT as simple GPIO, high */
 
-/* ExBo I2C Addresses */
-#define EXBO_EE_I2C_ADDRESS	0x56
-
 static void exbo_hw_init(void)
 {
 	struct mpc5xxx_gpt *gpt = (struct mpc5xxx_gpt *)MPC5XXX_GPT;
@@ -232,7 +229,7 @@ static void exbo_hw_init(void)
 	unsigned char val;
 
 	/* 1st, check if extension board is present */
-	if (i2c_read(EXBO_EE_I2C_ADDRESS, 0, 1, &val, 1))
+	if (i2c_read(CONFIG_SYS_EXBO_EE_I2C_ADDRESS, 0, 1, &val, 1))
 		return;
 
 	/* configure IrDA pins (PSC6 port) as gpios */

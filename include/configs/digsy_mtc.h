@@ -288,6 +288,13 @@
 #define CONFIG_SYS_DS1339_TCR_VAL	0xAB	/* diode + 4k resistor */
 #endif
 
+/* ExBo I2C Addresses */
+#if defined(CONFIG_DIGSY_REV5)
+#define CONFIG_SYS_EXBO_EE_I2C_ADDRESS	0x54
+#else
+#define CONFIG_SYS_EXBO_EE_I2C_ADDRESS	0x56
+#endif
+
 /*
  * Flash configuration
  */
