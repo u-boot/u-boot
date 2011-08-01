@@ -498,6 +498,48 @@ struct mb86r0x_gdc {
 	uint32_t pad08[7*1024];
 };
 
+/* mb86r0x ddr2c */
+struct mb86r0x_ddr2c {
+	uint16_t dric;
+	uint16_t dric1;
+	uint16_t dric2;
+	uint16_t drca;
+	uint16_t drcm;
+	uint16_t drcst1;
+	uint16_t drcst2;
+	uint16_t drcr;
+	uint16_t pad00[8];
+	uint16_t drcf;
+	uint16_t pad01[7];
+	uint16_t drasr;
+	uint16_t pad02[15];
+	uint16_t drims;
+	uint16_t pad03[7];
+	uint16_t dros;
+	uint16_t pad04;
+	uint16_t dribsodt1;
+	uint16_t dribsocd;
+	uint16_t dribsocd2;
+	uint16_t pad05[3];
+	uint16_t droaba;
+	uint16_t pad06[9];
+	uint16_t drobs;
+	uint16_t pad07[5];
+	uint16_t drimr1;
+	uint16_t drimr2;
+	uint16_t drimr3;
+	uint16_t drimr4;
+	uint16_t droisr1;
+	uint16_t droisr2;
+};
+
+/* mb86r0x memc */
+struct mb86r0x_memc {
+	uint32_t mcfmode[8];
+	uint32_t mcftim[8];
+	uint32_t mcfarea[8];
+};
+
 #endif /* __ASSEMBLY__ */
 
 /*
