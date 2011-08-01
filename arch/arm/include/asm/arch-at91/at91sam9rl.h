@@ -15,116 +15,117 @@
 #define AT91SAM9RL_H
 
 /*
+ * defines to be used in other places
+ */
+#define CONFIG_ARM926EJS	/* ARM926EJS Core */
+#define CONFIG_AT91FAMILY	/* it's a member of AT91 */
+
+/*
  * Peripheral identifiers/interrupts.
  */
-#define AT91_ID_FIQ		0	/* Advanced Interrupt Controller (FIQ) */
-#define AT91_ID_SYS		1	/* System Controller */
-#define AT91SAM9RL_ID_PIOA	2	/* Parallel IO Controller A */
-#define AT91SAM9RL_ID_PIOB	3	/* Parallel IO Controller B */
-#define AT91SAM9RL_ID_PIOC	4	/* Parallel IO Controller C */
-#define AT91SAM9RL_ID_PIOD	5	/* Parallel IO Controller D */
-#define AT91SAM9RL_ID_US0	6	/* USART 0 */
-#define AT91SAM9RL_ID_US1	7	/* USART 1 */
-#define AT91SAM9RL_ID_US2	8	/* USART 2 */
-#define AT91SAM9RL_ID_US3	9	/* USART 3 */
-#define AT91SAM9RL_ID_MCI	10	/* Multimedia Card Interface */
-#define AT91SAM9RL_ID_TWI0	11	/* TWI 0 */
-#define AT91SAM9RL_ID_TWI1	12	/* TWI 1 */
-#define AT91SAM9RL_ID_SPI	13	/* Serial Peripheral Interface */
-#define AT91SAM9RL_ID_SSC0	14	/* Serial Synchronous Controller 0 */
-#define AT91SAM9RL_ID_SSC1	15	/* Serial Synchronous Controller 1 */
-#define AT91SAM9RL_ID_TC0	16	/* Timer Counter 0 */
-#define AT91SAM9RL_ID_TC1	17	/* Timer Counter 1 */
-#define AT91SAM9RL_ID_TC2	18	/* Timer Counter 2 */
-#define AT91SAM9RL_ID_PWMC	19	/* Pulse Width Modulation Controller */
-#define AT91SAM9RL_ID_TSC	20	/* Touch Screen Controller */
-#define AT91SAM9RL_ID_DMA	21	/* DMA Controller */
-#define AT91SAM9RL_ID_UDPHS	22	/* USB Device HS */
-#define AT91SAM9RL_ID_LCDC	23	/* LCD Controller */
-#define AT91SAM9RL_ID_AC97C	24	/* AC97 Controller */
-#define AT91SAM9RL_ID_IRQ0	31	/* Advanced Interrupt Controller (IRQ0) */
-
-#define AT91_SDRAMC_BASE	0xffffea00
-#define AT91_SMC_BASE		0xffffec00
-#define AT91_MATRIX_BASE	0xffffee00
-#define AT91_PIO_BASE		0xfffff400
-#define AT91_PMC_BASE		0xfffffc00
-#define AT91_RSTC_BASE		0xfffffd00
-#define AT91_PIT_BASE		0xfffffd30
-#define AT91_WDT_BASE		0xfffffd40
-
-#ifdef CONFIG_AT91_LEGACY
+#define ATMEL_ID_FIQ	0	/* Advanced Interrupt Controller (FIQ) */
+#define ATMEL_ID_SYS	1	/* System Peripherals */
+#define ATMEL_ID_PIOA	2	/* Parallel IO Controller A */
+#define ATMEL_ID_PIOB	3	/* Parallel IO Controller B */
+#define ATMEL_ID_PIOC	4	/* Parallel IO Controller C */
+#define ATMEL_ID_PIOD	5	/* Parallel IO Controller D */
+#define ATMEL_ID_USART0	6	/* USART 0 */
+#define ATMEL_ID_USART1	7	/* USART 1 */
+#define ATMEL_ID_USART2	8	/* USART 2 */
+#define ATMEL_ID_USART3	9	/* USART 3 */
+#define ATMEL_ID_MCI	10	/* Multimedia Card Interface */
+#define ATMEL_ID_TWI0	11	/* TWI 0 */
+#define ATMEL_ID_TWI1	12	/* TWI 1 */
+#define ATMEL_ID_SPI	13	/* Serial Peripheral Interface */
+#define ATMEL_ID_SSC0	14	/* Serial Synchronous Controller 0 */
+#define ATMEL_ID_SSC1	15	/* Serial Synchronous Controller 1 */
+#define ATMEL_ID_TC0	16	/* Timer Counter 0 */
+#define ATMEL_ID_TC1	17	/* Timer Counter 1 */
+#define ATMEL_ID_TC2	18	/* Timer Counter 2 */
+#define ATMEL_ID_PWMC	19	/* Pulse Width Modulation Controller */
+#define ATMEL_ID_TSC	20	/* Touch Screen Controller */
+#define ATMEL_ID_DMA	21	/* DMA Controller */
+#define ATMEL_ID_UDPHS	22	/* USB Device HS */
+#define ATMEL_ID_LCDC	23	/* LCD Controller */
+#define ATMEL_ID_AC97C	24	/* AC97 Controller */
+#define ATMEL_ID_IRQ0	31	/* Advanced Interrupt Controller (IRQ0) */
 
 /*
  * User Peripheral physical base addresses.
  */
-#define AT91SAM9RL_BASE_TCB0	0xfffa0000
-#define AT91SAM9RL_BASE_TC0	0xfffa0000
-#define AT91SAM9RL_BASE_TC1	0xfffa0040
-#define AT91SAM9RL_BASE_TC2	0xfffa0080
-#define AT91SAM9RL_BASE_MCI	0xfffa4000
-#define AT91SAM9RL_BASE_TWI0	0xfffa8000
-#define AT91SAM9RL_BASE_TWI1	0xfffac000
-#define AT91SAM9RL_BASE_US0	0xfffb0000
-#define AT91SAM9RL_BASE_US1	0xfffb4000
-#define AT91SAM9RL_BASE_US2	0xfffb8000
-#define AT91SAM9RL_BASE_US3	0xfffbc000
-#define AT91SAM9RL_BASE_SSC0	0xfffc0000
-#define AT91SAM9RL_BASE_SSC1	0xfffc4000
-#define AT91SAM9RL_BASE_PWMC	0xfffc8000
-#define AT91SAM9RL_BASE_SPI	0xfffcc000
-#define AT91SAM9RL_BASE_TSC	0xfffd0000
-#define AT91SAM9RL_BASE_UDPHS	0xfffd4000
-#define AT91SAM9RL_BASE_AC97C	0xfffd8000
-#define AT91_BASE_SYS		0xffffc000
+#define ATMEL_BASE_TCB0		0xfffa0000
+#define ATMEL_BASE_TC0		0xfffa0000
+#define ATMEL_BASE_TC1		0xfffa0040
+#define ATMEL_BASE_TC2		0xfffa0080
+#define ATMEL_BASE_MCI		0xfffa4000
+#define ATMEL_BASE_TWI0		0xfffa8000
+#define ATMEL_BASE_TWI1		0xfffac000
+#define ATMEL_BASE_USART0	0xfffb0000
+#define ATMEL_BASE_USART1	0xfffb4000
+#define ATMEL_BASE_USART2	0xfffb8000
+#define ATMEL_BASE_USART3	0xfffbc000
+#define ATMEL_BASE_SSC0		0xfffc0000
+#define ATMEL_BASE_SSC1		0xfffc4000
+#define ATMEL_BASE_PWMC		0xfffc8000
+#define ATMEL_BASE_SPI0		0xfffcc000
+#define ATMEL_BASE_TSC		0xfffd0000
+#define ATMEL_BASE_UDPHS	0xfffd4000
+#define ATMEL_BASE_AC97C	0xfffd8000
+#define ATMEL_BASE_SYS		0xffffc000
 
 /*
- * System Peripherals (offset from AT91_BASE_SYS)
+ * System Peripherals
  */
-#define AT91_DMA	(0xffffe600 - AT91_BASE_SYS)
-#define AT91_ECC	(0xffffe800 - AT91_BASE_SYS)
-#define AT91_SDRAMC	(0xffffea00 - AT91_BASE_SYS)
-#define AT91_SMC	(0xffffec00 - AT91_BASE_SYS)
-#define AT91_MATRIX	(0xffffee00 - AT91_BASE_SYS)
-#define AT91_CCFG	(0xffffef10 - AT91_BASE_SYS)
-#define AT91_AIC	(0xfffff000 - AT91_BASE_SYS)
-#define AT91_DBGU	(0xfffff200 - AT91_BASE_SYS)
-#define AT91_PIOA	(0xfffff400 - AT91_BASE_SYS)
-#define AT91_PIOB	(0xfffff600 - AT91_BASE_SYS)
-#define AT91_PIOC	(0xfffff800 - AT91_BASE_SYS)
-#define AT91_PIOD	(0xfffffa00 - AT91_BASE_SYS)
-#define AT91_PMC	(0xfffffc00 - AT91_BASE_SYS)
-#define AT91_RSTC	(0xfffffd00 - AT91_BASE_SYS)
-#define AT91_SHDWC	(0xfffffd10 - AT91_BASE_SYS)
-#define AT91_RTT	(0xfffffd20 - AT91_BASE_SYS)
-#define AT91_PIT	(0xfffffd30 - AT91_BASE_SYS)
-#define AT91_WDT	(0xfffffd40 - AT91_BASE_SYS)
-#define AT91_SCKCR	(0xfffffd50 - AT91_BASE_SYS)
-#define AT91_GPBR	(0xfffffd60 - AT91_BASE_SYS)
-#define AT91_RTC	(0xfffffe00 - AT91_BASE_SYS)
-
-#define AT91_USART0	AT91SAM9RL_BASE_US0
-#define AT91_USART1	AT91SAM9RL_BASE_US1
-#define AT91_USART2	AT91SAM9RL_BASE_US2
-#define AT91_USART3	AT91SAM9RL_BASE_US3
-
-#endif /* CONFIG_AT91_LEGACY */
+#define ATMEL_BASE_DMA		0xffffe600
+#define ATMEL_BASE_ECC		0xffffe800
+#define ATMEL_BASE_SDRAMC	0xffffea00
+#define ATMEL_BASE_SMC		0xffffec00
+#define ATMEL_BASE_MATRIX	0xffffee00
+#define ATMEL_BASE_CCFG		0xffffef10
+#define ATMEL_BASE_AIC		0xfffff000
+#define ATMEL_BASE_DBGU		0xfffff200
+#define ATMEL_BASE_PIOA		0xfffff400
+#define ATMEL_BASE_PIOB		0xfffff600
+#define ATMEL_BASE_PIOC		0xfffff800
+#define ATMEL_BASE_PIOD		0xfffffa00
+#define ATMEL_BASE_PMC		0xfffffc00
+#define ATMEL_BASE_RSTC		0xfffffd00
+#define ATMEL_BASE_SHDWC	0xfffffd10
+#define ATMEL_BASE_RTT		0xfffffd20
+#define ATMEL_BASE_PIT		0xfffffd30
+#define ATMEL_BASE_WDT		0xfffffd40
+#define ATMEL_BASE_SCKCR	0xfffffd50
+#define ATMEL_BASE_GPBR		0xfffffd60
+#define ATMEL_BASE_RTC		0xfffffe00
 
 /*
  * Internal Memory.
  */
-#define AT91SAM9RL_SRAM_BASE	0x00300000	/* Internal SRAM base address */
-#define AT91SAM9RL_SRAM_SIZE	SZ_16K		/* Internal SRAM size (16Kb) */
+#define ATMEL_BASE_SRAM		0x00300000	/* Internal SRAM base address */
+#define ATMEL_BASE_ROM		0x00400000	/* Internal ROM base address */
 
-#define AT91SAM9RL_ROM_BASE	0x00400000	/* Internal ROM base address */
-#define AT91SAM9RL_ROM_SIZE	(2 * SZ_16K)	/* Internal ROM size (32Kb) */
+#define ATMEL_BASE_LCDC		0x00500000	/* LCD Controller */
+#define ATMEL_UHP_BASE		0x00600000	/* USB Device HS controller */
 
-#define AT91SAM9RL_LCDC_BASE	0x00500000	/* LCD Controller */
-#define AT91SAM9RL_UDPHS_BASE	0x00600000	/* USB Device HS controller */
+/*
+ * External memory
+ */
+#define ATMEL_BASE_CS0		0x10000000
+#define ATMEL_BASE_CS1		0x20000000	/* SDRAM */
+#define ATMEL_BASE_CS2		0x30000000
+#define ATMEL_BASE_CS3		0x40000000	/* NAND */
+#define ATMEL_BASE_CS4		0x50000000	/* Compact Flash Slot 0 */
+#define ATMEL_BASE_CS5		0x60000000	/* Compact Flash Slot 1 */
+
+/*
+ * Other misc defines
+ */
+#define ATMEL_PIO_PORTS		4		/* this SoC has 4 PIO */
+#define ATMEL_BASE_PIO		ATMEL_BASE_PIOA
 
 /*
  * Cpu Name
  */
-#define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9RL"
+#define ATMEL_CPU_NAME		"AT91SAM9RL"
 
 #endif
