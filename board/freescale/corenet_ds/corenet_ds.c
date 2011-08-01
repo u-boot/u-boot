@@ -34,8 +34,6 @@
 #include <asm/fsl_liodn.h>
 #include <fm_eth.h>
 
-extern void pci_of_setup(void *blob, bd_t *bd);
-
 #include "../common/ngpixis.h"
 #include "corenet_ds.h"
 
