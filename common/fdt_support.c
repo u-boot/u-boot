@@ -1196,13 +1196,13 @@ int fdt_alloc_phandle(void *blob)
 }
 
 /*
- * fdt_create_phandle: Create a phandle property for the given node
+ * fdt_set_phandle: Create a phandle property for the given node
  *
  * @fdt: ptr to device tree
  * @nodeoffset: node to update
  * @phandle: phandle value to set (must be unique)
-*/
-int fdt_create_phandle(void *fdt, int nodeoffset, uint32_t phandle)
+ */
+int fdt_set_phandle(void *fdt, int nodeoffset, uint32_t phandle)
 {
 	int ret;
 
