@@ -52,7 +52,7 @@
 #endif
 #endif /* CONFIG_DTT_ADM1021 */
 
-extern int dtt_init (void);
+extern int dtt_init_one(int);
 extern int dtt_read(int sensor, int reg);
 extern int dtt_write(int sensor, int reg, int val);
 extern int dtt_get_temp(int sensor);

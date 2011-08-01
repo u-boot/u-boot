@@ -50,7 +50,7 @@ int dtt_write(int sensor, int reg, int val)
 	return 0;
 }
 
-int dtt_init(void)
+int dtt_init_one(int sensor)
 {
 	printf("ADT7460 at I2C address 0x%2x\n", ADT7460_ADDRESS);
 

@@ -89,7 +89,7 @@ int dtt_write(int sensor, int reg, int val)
 #define DTT_CONFIG	0x40
 #define DTT_ADR		0x48
 
-static int _dtt_init(int sensor)
+int dtt_init_one(int sensor)
 {
 	int	man;
 	int	adr;
@@ -111,25 +111,8 @@ static int _dtt_init(int sensor)
 
 	debug ("DTT:   Found LM81@%x Rev: %d\n", adr, rev);
 	return 0;
-} /* _dtt_init() */
+} /* dtt_init_one() */
 
-
-int dtt_init (void)
-{
-    int i;
-    unsigned char sensors[] = CONFIG_DTT_SENSORS;
-    const char *const header = "DTT:   ";
-
-    for (i = 0; i < sizeof(sensors); i++) {
-	if (_dtt_init(sensors[i]) != 0)
-	    printf("%s%d FAILED INIT\n", header, i+1);
-	else
-	    printf("%s%d is %i C\n", header, i+1,
-		   dtt_get_temp(sensors[i]));
-    }
-
-    return (0);
-} /* dtt_init() */
 
 #define TEMP_FROM_REG(temp) \
    ((temp)<256?((((temp)&0x1fe) >> 1) * 10)	 + ((temp) & 1) * 5:  \

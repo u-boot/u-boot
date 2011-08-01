@@ -112,7 +112,7 @@ int dtt_write(int const sensor, int const reg, int const val)
 			      dlen);
 } /* dtt_write() */
 
-static int _dtt_init(int const sensor)
+int dtt_init_one(int const sensor)
 {
 	int val;
 
@@ -148,23 +148,7 @@ static int _dtt_init(int const sensor)
 
 	dtt_read(sensor, DTT_CONTROL);	/* clear temperature flags */
 	return 0;
-} /* _dtt_init() */
-
-int dtt_init(void)
-{
-	int i;
-	unsigned char sensors[] = CONFIG_DTT_SENSORS;
-	const char *const header = "DTT:   ";
-
-	for (i = 0; i < sizeof(sensors); i++) {
-		if (0 != _dtt_init(sensors[i]))
-			printf("%s%d FAILED INIT\n", header, i + 1);
-		else
-			printf("%s%d is %i C\n", header, i + 1,
-			       dtt_get_temp(sensors[i]));
-	}
-	return 0;
-} /* dtt_init() */
+} /* dtt_init_one() */
 
 int dtt_get_temp(int const sensor)
 {

@@ -101,7 +101,7 @@ static int is_lm64(int sensor)
 	return sensor && (sensor != DTT_I2C_LM63_ADDR);
 }
 
-static int _dtt_init(int sensor)
+int dtt_init_one(int sensor)
 {
 	int i;
 	int val;
@@ -174,21 +174,4 @@ int dtt_get_temp(int sensor)
 
 	/* Ignore LSB for now, U-Boot only prints natural numbers */
 	return temp >> 8;
-}
-
-int dtt_init(void)
-{
-	int i;
-	unsigned char sensors[] = CONFIG_DTT_SENSORS;
-	const char *const header = "DTT:   ";
-
-	for (i = 0; i < sizeof(sensors); i++) {
-		if (_dtt_init(sensors[i]) != 0)
-			printf("%s%d FAILED INIT\n", header, i + 1);
-		else
-			printf("%s%d is %i C\n", header, i + 1,
-			       dtt_get_temp(sensors[i]));
-	}
-
-	return 0;
 }
