@@ -23,6 +23,7 @@
  */
 
 #include <common.h>
+#include <asm/io.h>
 #include <asm/arch/at91sam9rl.h>
 #include <asm/arch/at91sam9rl_matrix.h>
 #include <asm/arch/at91sam9_smc.h>
@@ -31,7 +32,7 @@
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/clk.h>
 #include <asm/arch/gpio.h>
-#include <asm/arch/io.h>
+
 #include <lcd.h>
 #include <atmel_lcdc.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
@@ -48,33 +49,37 @@ DECLARE_GLOBAL_DATA_PTR;
 #ifdef CONFIG_CMD_NAND
 static void at91sam9rlek_nand_hw_init(void)
 {
+	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
+	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 	unsigned long csa;
 
 	/* Enable CS3 */
-	csa = at91_sys_read(AT91_MATRIX_EBICSA);
-	at91_sys_write(AT91_MATRIX_EBICSA,
-		       csa | AT91_MATRIX_CS3A_SMC_SMARTMEDIA);
+	csa = readl(&matrix->ebicsa);
+	csa |= AT91_MATRIX_CS3A_SMC_SMARTMEDIA;
+
+	writel(csa, &matrix->ebicsa);
 
 	/* Configure SMC CS3 for NAND/SmartMedia */
-	at91_sys_write(AT91_SMC_SETUP(3),
-		       AT91_SMC_NWESETUP_(1) | AT91_SMC_NCS_WRSETUP_(0) |
-		       AT91_SMC_NRDSETUP_(1) | AT91_SMC_NCS_RDSETUP_(0));
-	at91_sys_write(AT91_SMC_PULSE(3),
-		       AT91_SMC_NWEPULSE_(3) | AT91_SMC_NCS_WRPULSE_(3) |
-		       AT91_SMC_NRDPULSE_(3) | AT91_SMC_NCS_RDPULSE_(3));
-	at91_sys_write(AT91_SMC_CYCLE(3),
-		       AT91_SMC_NWECYCLE_(5) | AT91_SMC_NRDCYCLE_(5));
-	at91_sys_write(AT91_SMC_MODE(3),
-		       AT91_SMC_READMODE | AT91_SMC_WRITEMODE |
-		       AT91_SMC_EXNWMODE_DISABLE |
+	writel(AT91_SMC_SETUP_NWE(1) | AT91_SMC_SETUP_NCS_WR(0) |
+		AT91_SMC_SETUP_NRD(1) | AT91_SMC_SETUP_NCS_RD(0),
+		&smc->cs[3].setup);
+	writel(AT91_SMC_PULSE_NWE(3) | AT91_SMC_PULSE_NCS_WR(3) |
+		AT91_SMC_PULSE_NRD(3) | AT91_SMC_PULSE_NCS_RD(3),
+		&smc->cs[3].pulse);
+	writel(AT91_SMC_CYCLE_NWE(5) | AT91_SMC_CYCLE_NRD(5),
+		&smc->cs[3].cycle);
+	writel(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |
+		AT91_SMC_MODE_EXNW_DISABLE |
 #ifdef CONFIG_SYS_NAND_DBW_16
-		       AT91_SMC_DBW_16 |
+		AT91_SMC_MODE_DBW_16 |
 #else /* CONFIG_SYS_NAND_DBW_8 */
-		       AT91_SMC_DBW_8 |
+		AT91_SMC_MODE_DBW_8 |
 #endif
-		       AT91_SMC_TDF_(2));
+		AT91_SMC_MODE_TDF_CYCLE(2),
+		&smc->cs[3].mode);
 
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9RL_ID_PIOD);
+	writel(1 << ATMEL_ID_PIOD, &pmc->pcer);
 
 	/* Configure RDY/BSY */
 	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
@@ -102,7 +107,7 @@ vidinfo_t panel_info = {
 	vl_vsync_len:	1,
 	vl_upper_margin:1,
 	vl_lower_margin:0,
-	mmio:		AT91SAM9RL_LCDC_BASE,
+	mmio:		ATMEL_BASE_LCDC,
 };
 
 void lcd_enable(void)
@@ -116,6 +121,8 @@ void lcd_disable(void)
 }
 static void at91sam9rlek_lcd_hw_init(void)
 {
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+
 	at91_set_B_periph(AT91_PIN_PC1, 0);	/* LCDPWR */
 	at91_set_A_periph(AT91_PIN_PC5, 0);	/* LCDHSYNC */
 	at91_set_A_periph(AT91_PIN_PC6, 0);	/* LCDDOTCK */
@@ -138,9 +145,7 @@ static void at91sam9rlek_lcd_hw_init(void)
 	at91_set_B_periph(AT91_PIN_PC24, 0);	/* LCDD22 */
 	at91_set_B_periph(AT91_PIN_PC25, 0);	/* LCDD23 */
 
-	at91_sys_write(AT91_PMC_PCER, 1 << AT91SAM9RL_ID_LCDC);
-
-	gd->fb_base = 0;
+	writel(1 << ATMEL_ID_LCDC, &pmc->pcer);
 }
 
 #ifdef CONFIG_LCD_INFO
@@ -157,7 +162,7 @@ void lcd_show_board_info(void)
 	lcd_printf ("(C) 2008 ATMEL Corp\n");
 	lcd_printf ("at91support@atmel.com\n");
 	lcd_printf ("%s CPU at %s MHz\n",
-		CONFIG_SYS_AT91_CPU_NAME,
+		ATMEL_CPU_NAME,
 		strmhz(temp, get_cpu_clk_rate()));
 
 	dram_size = 0;
@@ -173,6 +178,17 @@ void lcd_show_board_info(void)
 #endif /* CONFIG_LCD_INFO */
 #endif
 
+int board_early_init_f(void)
+{
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
+
+	/* Enable clocks for all PIOs */
+	writel((1 << ATMEL_ID_PIOA) | (1 << ATMEL_ID_PIOB) |
+		(1 << ATMEL_ID_PIOC) | (1 << ATMEL_ID_PIOD),
+		&pmc->pcer);
+
+	return 0;
+}
 
 int board_init(void)
 {
@@ -182,9 +198,9 @@ int board_init(void)
 	/* arch number of AT91SAM9RLEK-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_AT91SAM9RLEK;
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-	at91_serial_hw_init();
+	at91_seriald_hw_init();
 #ifdef CONFIG_CMD_NAND
 	at91sam9rlek_nand_hw_init();
 #endif
@@ -199,7 +215,8 @@ int board_init(void)
 
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_SIZE;
+	gd->ram_size = get_ram_size(
+		(void *)CONFIG_SYS_SDRAM_BASE,
+		CONFIG_SYS_SDRAM_SIZE);
 	return 0;
 }

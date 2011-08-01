@@ -844,18 +844,6 @@ at91sam9263ek_config	:	unconfig
 	fi;
 	@$(MKCONFIG) -n $@ -a at91sam9263ek arm arm926ejs at91sam9263ek atmel at91
 
-at91sam9rlek_nandflash_config \
-at91sam9rlek_dataflash_config \
-at91sam9rlek_dataflash_cs0_config \
-at91sam9rlek_config	:	unconfig
-	@mkdir -p $(obj)include
-	@if [ "$(findstring _nandflash,$@)" ] ; then \
-		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
-	else \
-		echo "#define CONFIG_SYS_USE_DATAFLASH 1"	>>$(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ -a at91sam9rlek arm arm926ejs at91sam9rlek atmel at91
-
 at91sam9m10g45ek_nandflash_config \
 at91sam9m10g45ek_dataflash_config \
 at91sam9m10g45ek_dataflash_cs0_config \
