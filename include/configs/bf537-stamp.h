@@ -260,7 +260,6 @@
 #define FLASH_START_POST_BLOCK	11	/* Should > = 11 */
 #define FLASH_END_POST_BLOCK	71	/* Should < = 71 */
 #endif
-#define CONFIG_SYS_POST_WORD_ADDR	0xFF903FFC
 
 /* These are for board tests */
 #if 0

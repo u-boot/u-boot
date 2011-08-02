@@ -105,6 +105,9 @@ void serial_initialize (void)
 	serial_register(&serial6_device);
 #endif
 #endif
+#if defined(CONFIG_SYS_BFIN_UART)
+	serial_register_bfin_uart();
+#endif
 	serial_assign (default_serial_console ()->name);
 }
 

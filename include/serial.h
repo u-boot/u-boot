@@ -74,6 +74,15 @@ extern struct serial_device serial_ffuart_device;
 extern struct serial_device serial_btuart_device;
 extern struct serial_device serial_stuart_device;
 
+#if defined(CONFIG_SYS_BFIN_UART)
+extern void serial_register_bfin_uart(void);
+extern struct serial_device bfin_serial0_device;
+extern struct serial_device bfin_serial1_device;
+extern struct serial_device bfin_serial2_device;
+extern struct serial_device bfin_serial3_device;
+#endif
+
+extern void serial_register(struct serial_device *);
 extern void serial_initialize(void);
 extern void serial_stdio_init(void);
 extern int serial_assign(char * name);

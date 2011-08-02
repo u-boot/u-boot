@@ -112,6 +112,10 @@
 #ifndef CONFIG_BAUDRATE
 # define CONFIG_BAUDRATE	57600
 #endif
+#ifndef CONFIG_DEBUG_EARLY_SERIAL
+# define CONFIG_SERIAL_MULTI
+# define CONFIG_SYS_BFIN_UART
+#endif
 
 /*
  * Debug Settings
@@ -200,7 +204,8 @@
 	"nc=" \
 		"set ncip ${serverip};" \
 		"set stdin nc;" \
-		"set stdout nc" \
+		"set stdout nc;" \
+		"set stderr nc" \
 		"\0"
 # else
 #  define NETCONSOLE_ENV
@@ -271,6 +276,11 @@
 # define CONFIG_IP_DEFRAG
 # define CONFIG_NET_RETRY_COUNT 20
 #endif
+
+/*
+ * Flash Settings
+ */
+#define CONFIG_FLASH_SHOW_PROGRESS 45
 
 /*
  * SPI Settings

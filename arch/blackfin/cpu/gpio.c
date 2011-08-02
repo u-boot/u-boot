@@ -665,6 +665,7 @@ int bfin_gpio_request(unsigned gpio, const char *label)
 	return 0;
 }
 
+#ifdef CONFIG_BFIN_GPIO_TRACK
 void bfin_gpio_free(unsigned gpio)
 {
 	if (check_gpio(gpio) < 0)
@@ -679,6 +680,7 @@ void bfin_gpio_free(unsigned gpio)
 
 	set_label(gpio, "free");
 }
+#endif
 
 #ifdef BFIN_SPECIAL_GPIO_BANKS
 DECLARE_RESERVED_MAP(special_gpio, gpio_bank(MAX_RESOURCES));

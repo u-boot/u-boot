@@ -121,6 +121,9 @@
 #ifndef CONFIG_SYS_MEMTEST_END
 # define CONFIG_SYS_MEMTEST_END (CONFIG_STACKBASE - 8192 + 4)
 #endif
+#ifndef CONFIG_SYS_POST_WORD_ADDR
+# define CONFIG_SYS_POST_WORD_ADDR (L1_DATA_B_SRAM + L1_DATA_B_SRAM_SIZE - 4)
+#endif
 
 /* Check to make sure everything fits in external RAM */
 #if CONFIG_SYS_MAX_RAM_SIZE && \

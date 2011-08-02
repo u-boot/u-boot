@@ -22,10 +22,14 @@
 #define peripheral_request_list(per, label) peripheral_request_list(per)
 #endif
 
+#ifndef __ASSEMBLY__
+
 int peripheral_request(unsigned short per, const char *label);
 void peripheral_free(unsigned short per);
 int peripheral_request_list(const unsigned short per[], const char *label);
 void peripheral_free_list(const unsigned short per[]);
+
+#endif
 
 #include <asm/blackfin.h>
 

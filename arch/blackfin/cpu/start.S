@@ -33,7 +33,6 @@
 #include <config.h>
 #include <asm/blackfin.h>
 #include <asm/mach-common/bits/core.h>
-#include <asm/mach-common/bits/dma.h>
 #include <asm/mach-common/bits/pll.h>
 
 #include "serial.h"
