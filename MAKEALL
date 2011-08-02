@@ -444,11 +444,6 @@ LIST_ARMV7="		\
 #########################################################################
 
 LIST_at91="$(boards_by_soc at91)\
-	at91sam9260ek		\
-	at91sam9261ek		\
-	at91sam9263ek		\
-	at91sam9g10ek		\
-	at91sam9g20ek		\
 	at91sam9m10g45ek	\
 	pm9g45			\
 	SBC35_A9G20		\
