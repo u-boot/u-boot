@@ -180,6 +180,7 @@ Directory Hierarchy:
     /lib		Architecture specific library files
   /mips			Files generic to MIPS architecture
     /cpu		CPU specific files
+      /mips32		Files specific to MIPS32 CPUs
     /lib		Architecture specific library files
   /nios2		Files generic to Altera NIOS2 architecture
     /cpu		CPU specific files
@@ -381,6 +382,38 @@ The following options need to be configured:
 		ratio. Valid values are 1 (default if undefined) and
 		2. The core frequency as calculated above is multiplied
 		by this value.
+
+- MIPS CPU options:
+		CONFIG_SYS_INIT_SP_OFFSET
+
+		Offset relative to CONFIG_SYS_SDRAM_BASE for initial stack
+		pointer. This is needed for the temporary stack before
+		relocation.
+
+		CONFIG_SYS_MIPS_CACHE_MODE
+
+		Cache operation mode for the MIPS CPU.
+		See also arch/mips/include/asm/mipsregs.h.
+		Possible values are:
+			CONF_CM_CACHABLE_NO_WA
+			CONF_CM_CACHABLE_WA
+			CONF_CM_UNCACHED
+			CONF_CM_CACHABLE_NONCOHERENT
+			CONF_CM_CACHABLE_CE
+			CONF_CM_CACHABLE_COW
+			CONF_CM_CACHABLE_CUW
+			CONF_CM_CACHABLE_ACCELERATED
+
+		CONFIG_SYS_XWAY_EBU_BOOTCFG
+
+		Special option for Lantiq XWAY SoCs for booting from NOR flash.
+		See also arch/mips/cpu/mips32/start.S.
+
+		CONFIG_XWAY_SWAP_BYTES
+
+		Enable compilation of tools/xway-swap-bytes needed for Lantiq
+		XWAY SoCs for booting from NOR flash. The U-Boot image needs to
+		be swapped if a flash programmer is used.
 
 - Linux Kernel Interface:
 		CONFIG_CLOCKS_IN_MHZ
@@ -3070,7 +3103,7 @@ Low Level (hardware related) configuration options:
 		globally (CONFIG_CMD_MEM).
 
 - CONFIG_SKIP_LOWLEVEL_INIT
-		[ARM only] If this variable is defined, then certain
+		[ARM, MIPS only] If this variable is defined, then certain
 		low level initializations (like setting up the memory
 		controller) are omitted and/or U-Boot does not
 		relocate itself into RAM.

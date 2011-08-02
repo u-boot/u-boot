@@ -27,6 +27,10 @@
 #include <asm/regdef.h>
 #include <asm/mipsregs.h>
 
+#ifndef CONFIG_SYS_MIPS_CACHE_MODE
+#define CONFIG_SYS_MIPS_CACHE_MODE CONF_CM_CACHABLE_NONCOHERENT
+#endif
+
 	/*
 	 * For the moment disable interrupts, mark the kernel mode and
 	 * set ST0_KX so that the CPU does not spit fire when using
@@ -64,9 +68,16 @@
 _start:
 	RVECENT(reset,0)			# U-boot entry point
 	RVECENT(reset,1)			# software reboot
-#ifdef CONFIG_INCA_IP
-	.word INFINEON_EBU_BOOTCFG		# EBU init code, fetched during
-	.word 0x00000000			# booting phase of the flash
+#ifdef CONFIG_SYS_XWAY_EBU_BOOTCFG
+	/*
+	 * Almost all Lantiq XWAY SoC devices have an external bus unit (EBU) to
+	 * access external NOR flashes. If the board boots from NOR flash the
+	 * internal BootROM does a blind read at address 0xB0000010 to read the
+	 * initial configuration for that EBU in order to access the flash
+	 * device with correct parameters. This config option is board-specific.
+	 */
+	.word CONFIG_SYS_XWAY_EBU_BOOTCFG
+	.word 0x00000000
 #else
 	RVECENT(romReserved,2)
 #endif
@@ -242,7 +253,7 @@ reset:
 	 nop
 
 	/* ... and enable them */
-	li	t0, CONF_CM_CACHABLE_NONCOHERENT
+	li	t0, CONFIG_SYS_MIPS_CACHE_MODE
 	mtc0	t0, CP0_CONFIG
 #endif
 
