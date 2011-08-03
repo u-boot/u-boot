@@ -250,7 +250,7 @@ static int memory_post_dataline(unsigned long long * pmem)
 			hi = (temp64>>32) & 0xffffffff;
 			lo = temp64 & 0xffffffff;
 
-			post_log ("Memory (date line) error at %08x, "
+			post_log("Memory (date line) error at %08x, "
 				  "wrote %08x%08x, read %08x%08x !\n",
 					  pmem, pathi, patlo, hi, lo);
 			ret = -1;
@@ -281,7 +281,7 @@ static int memory_post_addrline(ulong *testaddr, ulong *base, ulong size)
 			}
 #endif
 			if(readback == *testaddr) {
-				post_log ("Memory (address line) error at %08x<->%08x, "
+				post_log("Memory (address line) error at %08x<->%08x, "
 					"XOR value %08x !\n",
 					testaddr, target, xor);
 				ret = -1;
@@ -291,7 +291,7 @@ static int memory_post_addrline(ulong *testaddr, ulong *base, ulong size)
 	return ret;
 }
 
-static int memory_post_test1 (unsigned long start,
+static int memory_post_test1(unsigned long start,
 			      unsigned long size,
 			      unsigned long val)
 {
@@ -303,13 +303,13 @@ static int memory_post_test1 (unsigned long start,
 	for (i = 0; i < size / sizeof (ulong); i++) {
 		mem[i] = val;
 		if (i % 1024 == 0)
-			WATCHDOG_RESET ();
+			WATCHDOG_RESET();
 	}
 
-	for (i = 0; i < size / sizeof (ulong) && ret == 0; i++) {
+	for (i = 0; i < size / sizeof (ulong) && !ret; i++) {
 		readback = mem[i];
 		if (readback != val) {
-			post_log ("Memory error at %08x, "
+			post_log("Memory error at %08x, "
 				  "wrote %08x, read %08x !\n",
 					  mem + i, val, readback);
 
@@ -317,13 +317,13 @@ static int memory_post_test1 (unsigned long start,
 			break;
 		}
 		if (i % 1024 == 0)
-			WATCHDOG_RESET ();
+			WATCHDOG_RESET();
 	}
 
 	return ret;
 }
 
-static int memory_post_test2 (unsigned long start, unsigned long size)
+static int memory_post_test2(unsigned long start, unsigned long size)
 {
 	unsigned long i;
 	ulong *mem = (ulong *) start;
@@ -333,13 +333,13 @@ static int memory_post_test2 (unsigned long start, unsigned long size)
 	for (i = 0; i < size / sizeof (ulong); i++) {
 		mem[i] = 1 << (i % 32);
 		if (i % 1024 == 0)
-			WATCHDOG_RESET ();
+			WATCHDOG_RESET();
 	}
 
-	for (i = 0; i < size / sizeof (ulong) && ret == 0; i++) {
+	for (i = 0; i < size / sizeof (ulong) && !ret; i++) {
 		readback = mem[i];
 		if (readback != (1 << (i % 32))) {
-			post_log ("Memory error at %08x, "
+			post_log("Memory error at %08x, "
 				  "wrote %08x, read %08x !\n",
 					  mem + i, 1 << (i % 32), readback);
 
@@ -347,13 +347,13 @@ static int memory_post_test2 (unsigned long start, unsigned long size)
 			break;
 		}
 		if (i % 1024 == 0)
-			WATCHDOG_RESET ();
+			WATCHDOG_RESET();
 	}
 
 	return ret;
 }
 
-static int memory_post_test3 (unsigned long start, unsigned long size)
+static int memory_post_test3(unsigned long start, unsigned long size)
 {
 	unsigned long i;
 	ulong *mem = (ulong *) start;
@@ -363,13 +363,13 @@ static int memory_post_test3 (unsigned long start, unsigned long size)
 	for (i = 0; i < size / sizeof (ulong); i++) {
 		mem[i] = i;
 		if (i % 1024 == 0)
-			WATCHDOG_RESET ();
+			WATCHDOG_RESET();
 	}
 
-	for (i = 0; i < size / sizeof (ulong) && ret == 0; i++) {
+	for (i = 0; i < size / sizeof (ulong) && !ret; i++) {
 		readback = mem[i];
 		if (readback != i) {
-			post_log ("Memory error at %08x, "
+			post_log("Memory error at %08x, "
 				  "wrote %08x, read %08x !\n",
 					  mem + i, i, readback);
 
@@ -377,13 +377,13 @@ static int memory_post_test3 (unsigned long start, unsigned long size)
 			break;
 		}
 		if (i % 1024 == 0)
-			WATCHDOG_RESET ();
+			WATCHDOG_RESET();
 	}
 
 	return ret;
 }
 
-static int memory_post_test4 (unsigned long start, unsigned long size)
+static int memory_post_test4(unsigned long start, unsigned long size)
 {
 	unsigned long i;
 	ulong *mem = (ulong *) start;
@@ -393,13 +393,13 @@ static int memory_post_test4 (unsigned long start, unsigned long size)
 	for (i = 0; i < size / sizeof (ulong); i++) {
 		mem[i] = ~i;
 		if (i % 1024 == 0)
-			WATCHDOG_RESET ();
+			WATCHDOG_RESET();
 	}
 
-	for (i = 0; i < size / sizeof (ulong) && ret == 0; i++) {
+	for (i = 0; i < size / sizeof (ulong) && !ret; i++) {
 		readback = mem[i];
 		if (readback != ~i) {
-			post_log ("Memory error at %08x, "
+			post_log("Memory error at %08x, "
 				  "wrote %08x, read %08x !\n",
 					  mem + i, ~i, readback);
 
@@ -407,47 +407,48 @@ static int memory_post_test4 (unsigned long start, unsigned long size)
 			break;
 		}
 		if (i % 1024 == 0)
-			WATCHDOG_RESET ();
+			WATCHDOG_RESET();
 	}
 
 	return ret;
 }
 
-static int memory_post_tests (unsigned long start, unsigned long size)
+static int memory_post_tests(unsigned long start, unsigned long size)
 {
 	int ret = 0;
 
-	if (ret == 0)
-		ret = memory_post_dataline ((unsigned long long *)start);
-	WATCHDOG_RESET ();
-	if (ret == 0)
-		ret = memory_post_addrline ((ulong *)start, (ulong *)start, size);
-	WATCHDOG_RESET ();
-	if (ret == 0)
-		ret = memory_post_addrline ((ulong *)(start + size - 8),
+	if (!ret)
+		ret = memory_post_dataline((unsigned long long *)start);
+	WATCHDOG_RESET();
+	if (!ret)
+		ret = memory_post_addrline((ulong *)start, (ulong *)start,
+						size);
+	WATCHDOG_RESET();
+	if (!ret)
+		ret = memory_post_addrline((ulong *)(start + size - 8),
 					    (ulong *)start, size);
-	WATCHDOG_RESET ();
-	if (ret == 0)
-		ret = memory_post_test1 (start, size, 0x00000000);
-	WATCHDOG_RESET ();
-	if (ret == 0)
-		ret = memory_post_test1 (start, size, 0xffffffff);
-	WATCHDOG_RESET ();
-	if (ret == 0)
-		ret = memory_post_test1 (start, size, 0x55555555);
-	WATCHDOG_RESET ();
-	if (ret == 0)
-		ret = memory_post_test1 (start, size, 0xaaaaaaaa);
-	WATCHDOG_RESET ();
-	if (ret == 0)
-		ret = memory_post_test2 (start, size);
-	WATCHDOG_RESET ();
-	if (ret == 0)
-		ret = memory_post_test3 (start, size);
-	WATCHDOG_RESET ();
-	if (ret == 0)
-		ret = memory_post_test4 (start, size);
-	WATCHDOG_RESET ();
+	WATCHDOG_RESET();
+	if (!ret)
+		ret = memory_post_test1(start, size, 0x00000000);
+	WATCHDOG_RESET();
+	if (!ret)
+		ret = memory_post_test1(start, size, 0xffffffff);
+	WATCHDOG_RESET();
+	if (!ret)
+		ret = memory_post_test1(start, size, 0x55555555);
+	WATCHDOG_RESET();
+	if (!ret)
+		ret = memory_post_test1(start, size, 0xaaaaaaaa);
+	WATCHDOG_RESET();
+	if (!ret)
+		ret = memory_post_test2(start, size);
+	WATCHDOG_RESET();
+	if (!ret)
+		ret = memory_post_test3(start, size);
+	WATCHDOG_RESET();
+	if (!ret)
+		ret = memory_post_test4(start, size);
+	WATCHDOG_RESET();
 
 	return ret;
 }
@@ -502,11 +503,11 @@ int memory_post_test(int flags)
 			ret = memory_post_tests(vstart, memsize);
 		} else {			/* POST_NORMAL */
 			unsigned long i;
-			for (i = 0; i < (memsize >> 20) && ret == 0; i++) {
-				if (ret == 0)
+			for (i = 0; i < (memsize >> 20) && !ret; i++) {
+				if (!ret)
 					ret = memory_post_tests(vstart +
 						(i << 20), 0x800);
-				if (ret == 0)
+				if (!ret)
 					ret = memory_post_tests(vstart +
 						(i << 20) + 0xff800, 0x800);
 			}
