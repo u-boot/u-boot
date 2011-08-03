@@ -121,6 +121,7 @@ void post_bootmode_init (void)
 
 	/* Reset activity record */
 	gd->post_log_word = 0;
+	gd->post_log_res = 0;
 }
 
 int post_bootmode_get (unsigned int *last_test)
@@ -144,12 +145,12 @@ int post_bootmode_get (unsigned int *last_test)
 /* POST tests run before relocation only mark status bits .... */
 static void post_log_mark_start ( unsigned long testid )
 {
-	gd->post_log_word |= (testid)<<16;
+	gd->post_log_word |= testid;
 }
 
 static void post_log_mark_succ ( unsigned long testid )
 {
-	gd->post_log_word |= testid;
+	gd->post_log_res |= testid;
 }
 
 /* ... and the messages are output once we are relocated */
@@ -158,9 +159,9 @@ void post_output_backlog ( void )
 	int j;
 
 	for (j = 0; j < post_list_size; j++) {
-		if (gd->post_log_word & (post_list[j].testid<<16)) {
+		if (gd->post_log_word & (post_list[j].testid)) {
 			post_log ("POST %s ", post_list[j].cmd);
-			if (gd->post_log_word & post_list[j].testid)
+			if (gd->post_log_res & post_list[j].testid)
 				post_log ("PASSED\n");
 			else {
 				post_log ("FAILED\n");

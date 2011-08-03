@@ -37,6 +37,7 @@ typedef	struct	global_data {
 	unsigned long	env_valid;	/* Checksum of Environment valid */
 #if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
 	unsigned long	post_log_word;	/* Record POST activities */
+	unsigned long	post_log_res; /* success of POST test */
 	unsigned long	post_init_f_time; /* When post_init_f started */
 #endif
 	void		**jt;		/* Standalone app jump table */
