@@ -35,8 +35,6 @@
 
 #define CONFIG_SYS_TEXT_BASE	0x97800000
 
-#define CONFIG_SYS_L2CACHE_OFF
-
 #include <asm/arch/imx-regs.h>
 /*
  * Disabled for now due to build problems under Debian and a significant
