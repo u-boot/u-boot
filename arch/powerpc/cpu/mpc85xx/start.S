@@ -279,6 +279,240 @@ _start_e500:
 
 #endif /* CONFIG_MPC8569 */
 
+/*
+ * Relocate CCSR, if necessary.  We relocate CCSR if (obviously) the default
+ * location is not where we want it.  This typically happens on a 36-bit
+ * system, where we want to move CCSR to near the top of 36-bit address space.
+ *
+ * To move CCSR, we create two temporary TLBs, one for the old location, and
+ * another for the new location.  On CoreNet systems, we also need to create
+ * a special, temporary LAW.
+ *
+ * As a general rule, TLB0 is used for short-term TLBs, and TLB1 is used for
+ * long-term TLBs, so we use TLB0 here.
+ */
+#if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR_PHYS)
+
+#if !defined(CONFIG_SYS_CCSRBAR_PHYS_HIGH) || !defined(CONFIG_SYS_CCSRBAR_PHYS_LOW)
+#error "CONFIG_SYS_CCSRBAR_PHYS_HIGH and CONFIG_SYS_CCSRBAR_PHYS_LOW) must be defined."
+#endif
+
+purge_old_ccsr_tlb:
+	lis	r8, CONFIG_SYS_CCSRBAR@h
+	ori	r8, r8, CONFIG_SYS_CCSRBAR@l
+	lis	r9, (CONFIG_SYS_CCSRBAR + 0x1000)@h
+	ori	r9, r9, (CONFIG_SYS_CCSRBAR + 0x1000)@l
+
+	/*
+	 * In a multi-stage boot (e.g. NAND boot), a previous stage may have
+	 * created a TLB for CCSR, which will interfere with our relocation
+	 * code.  Since we're going to create a new TLB for CCSR anyway,
+	 * it should be safe to delete this old TLB here.  We have to search
+	 * for it, though.
+	 */
+
+	li	r1, 0
+	mtspr	MAS6, r1	/* Search the current address space and PID */
+	tlbsx	0, r8
+	mfspr	r1, MAS1
+	andis.  r2, r1, MAS1_VALID@h	/* Check for the Valid bit */
+	beq     1f			/* Skip if no TLB found */
+
+	rlwinm	r1, r1, 0, 1, 31	/* Clear Valid bit */
+	mtspr	MAS1, r1
+	tlbwe
+1:
+
+create_ccsr_new_tlb:
+	/*
+	 * Create a TLB for the new location of CCSR.  Register R8 is reserved
+	 * for the virtual address of this TLB (CONFIG_SYS_CCSRBAR).
+	 */
+	lis     r0, FSL_BOOKE_MAS0(0, 0, 0)@h
+	ori     r0, r0, FSL_BOOKE_MAS0(0, 0, 0)@l
+	lis     r1, FSL_BOOKE_MAS1(1, 0, 0, 0, BOOKE_PAGESZ_4K)@h
+	ori     r1, r1, FSL_BOOKE_MAS1(1, 0, 0, 0, BOOKE_PAGESZ_4K)@l
+	lis     r2, FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR, (MAS2_I|MAS2_G))@h
+	ori     r2, r2, FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR, (MAS2_I|MAS2_G))@l
+	lis     r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_PHYS_LOW, 0, (MAS3_SW|MAS3_SR))@h
+	ori     r3, r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_PHYS_LOW, 0, (MAS3_SW|MAS3_SR))@l
+	lis	r7, CONFIG_SYS_CCSRBAR_PHYS_HIGH@h
+	ori	r7, r7, CONFIG_SYS_CCSRBAR_PHYS_HIGH@l
+	mtspr   MAS0, r0
+	mtspr   MAS1, r1
+	mtspr   MAS2, r2
+	mtspr   MAS3, r3
+	mtspr   MAS7, r7
+	isync
+	msync
+	tlbwe
+
+	/*
+	 * Create a TLB for the old location of CCSR.  Register R9 is reserved
+	 * for the virtual address of this TLB (CONFIG_SYS_CCSRBAR + 0x1000).
+	 */
+create_ccsr_old_tlb:
+	lis     r0, FSL_BOOKE_MAS0(0, 1, 0)@h
+	ori     r0, r0, FSL_BOOKE_MAS0(0, 1, 0)@l
+	lis     r2, FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR + 0x1000, (MAS2_I|MAS2_G))@h
+	ori     r2, r2, FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR + 0x1000, (MAS2_I|MAS2_G))@l
+	lis     r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_DEFAULT, 0, (MAS3_SW|MAS3_SR))@h
+	ori     r3, r3, FSL_BOOKE_MAS3(CONFIG_SYS_CCSRBAR_DEFAULT, 0, (MAS3_SW|MAS3_SR))@l
+	li	r7, 0	/* The default CCSR address is always a 32-bit number */
+	mtspr   MAS0, r0
+	/* MAS1 is the same as above */
+	mtspr   MAS2, r2
+	mtspr   MAS3, r3
+	mtspr   MAS7, r7
+	isync
+	msync
+	tlbwe
+
+#ifdef CONFIG_FSL_CORENET
+
+#define CCSR_LAWBARH0	(CONFIG_SYS_CCSRBAR + 0x1000)
+#define LAW_EN		0x80000000
+#define LAW_SIZE_4K	0xb
+#define CCSRBAR_LAWAR	(LAW_EN | (0x1e << 20) | LAW_SIZE_4K)
+#define CCSRAR_C	0x80000000	/* Commit */
+
+create_temp_law:
+	/*
+	 * On CoreNet systems, we create the temporary LAW using a special LAW
+	 * target ID of 0x1e.  LAWBARH is at offset 0xc00 in CCSR.
+	 */
+	lis     r0, CONFIG_SYS_CCSRBAR_PHYS_HIGH@h
+	ori     r0, r0, CONFIG_SYS_CCSRBAR_PHYS_HIGH@l
+	lis     r1, CONFIG_SYS_CCSRBAR_PHYS_LOW@h
+	ori     r1, r1, CONFIG_SYS_CCSRBAR_PHYS_LOW@l
+	lis     r2, CCSRBAR_LAWAR@h
+	ori     r2, r2, CCSRBAR_LAWAR@l
+
+	stw     r0, 0xc00(r9)	/* LAWBARH0 */
+	stw     r1, 0xc04(r9)	/* LAWBARL0 */
+	sync
+	stw     r2, 0xc08(r9)	/* LAWAR0 */
+
+	/*
+	 * Read back from LAWAR to ensure the update is complete.  e500mc
+	 * cores also require an isync.
+	 */
+	lwz	r0, 0xc08(r9)	/* LAWAR0 */
+	isync
+
+	/*
+	 * Read the current CCSRBARH and CCSRBARL using load word instructions.
+	 * Follow this with an isync instruction. This forces any outstanding
+	 * accesses to configuration space to completion.
+	 */
+read_old_ccsrbar:
+	lwz	r0, 0(r9)	/* CCSRBARH */
+	lwz	r0, 4(r9)	/* CCSRBARH */
+	isync
+
+	/*
+	 * Write the new values for CCSRBARH and CCSRBARL to their old
+	 * locations.  The CCSRBARH has a shadow register. When the CCSRBARH
+	 * has a new value written it loads a CCSRBARH shadow register. When
+	 * the CCSRBARL is written, the CCSRBARH shadow register contents
+	 * along with the CCSRBARL value are loaded into the CCSRBARH and
+	 * CCSRBARL registers, respectively.  Follow this with a sync
+	 * instruction.
+	 */
+write_new_ccsrbar:
+	lis	r0, CONFIG_SYS_CCSRBAR_PHYS_HIGH@h
+	ori	r0, r0, CONFIG_SYS_CCSRBAR_PHYS_HIGH@l
+	lis	r1, CONFIG_SYS_CCSRBAR_PHYS_LOW@h
+	ori	r1, r1, CONFIG_SYS_CCSRBAR_PHYS_LOW@l
+	lis	r2, CCSRAR_C@h
+	ori	r2, r2, CCSRAR_C@l
+
+	stw	r0, 0(r9)	/* Write to CCSRBARH */
+	sync			/* Make sure we write to CCSRBARH first */
+	stw	r1, 4(r9)	/* Write to CCSRBARL */
+	sync
+
+	/*
+	 * Write a 1 to the commit bit (C) of CCSRAR at the old location.
+	 * Follow this with a sync instruction.
+	 */
+	stw	r2, 8(r9)
+	sync
+
+	/* Delete the temporary LAW */
+delete_temp_law:
+	li	r1, 0
+	stw	r1, 0xc08(r8)
+	sync
+	stw	r1, 0xc00(r8)
+	stw	r1, 0xc04(r8)
+	sync
+
+#else /* #ifdef CONFIG_FSL_CORENET */
+
+write_new_ccsrbar:
+	/*
+	 * Read the current value of CCSRBAR using a load word instruction
+	 * followed by an isync. This forces all accesses to configuration
+	 * space to complete.
+	 */
+	sync
+	lwz	r0, 0(r9)
+	isync
+
+/* CONFIG_SYS_CCSRBAR_PHYS right shifted by 12 */
+#define CCSRBAR_PHYS_RS12 ((CONFIG_SYS_CCSRBAR_PHYS_HIGH << 20) | \
+			   (CONFIG_SYS_CCSRBAR_PHYS_LOW >> 12))
+
+	/* Write the new value to CCSRBAR. */
+	lis	r0, CCSRBAR_PHYS_RS12@h
+	ori	r0, r0, CCSRBAR_PHYS_RS12@l
+	stw	r0, 0(r9)
+	sync
+
+	/*
+	 * The manual says to perform a load of an address that does not
+	 * access configuration space or the on-chip SRAM using an existing TLB,
+	 * but that doesn't appear to be necessary.  We will do the isync,
+	 * though.
+	 */
+	isync
+
+	/*
+	 * Read the contents of CCSRBAR from its new location, followed by
+	 * another isync.
+	 */
+	lwz	r0, 0(r8)
+	isync
+
+#endif  /* #ifdef CONFIG_FSL_CORENET */
+
+	/* Delete the temporary TLBs */
+delete_temp_tlbs:
+	lis     r0, FSL_BOOKE_MAS0(0, 0, 0)@h
+	ori     r0, r0, FSL_BOOKE_MAS0(0, 0, 0)@l
+	li	r1, 0
+	lis     r2, FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR, (MAS2_I|MAS2_G))@h
+	ori     r2, r2, FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR, (MAS2_I|MAS2_G))@l
+	mtspr   MAS0, r0
+	mtspr   MAS1, r1
+	mtspr   MAS2, r2
+	isync
+	msync
+	tlbwe
+
+	lis     r0, FSL_BOOKE_MAS0(0, 1, 0)@h
+	ori     r0, r0, FSL_BOOKE_MAS0(0, 1, 0)@l
+	lis     r2, FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR + 0x1000, (MAS2_I|MAS2_G))@h
+	ori     r2, r2, FSL_BOOKE_MAS2(CONFIG_SYS_CCSRBAR + 0x1000, (MAS2_I|MAS2_G))@l
+	mtspr   MAS0, r0
+	mtspr   MAS2, r2
+	isync
+	msync
+	tlbwe
+#endif /* #if (CONFIG_SYS_CCSRBAR_DEFAULT != CONFIG_SYS_CCSRBAR_PHYS) */
+
+create_init_ram_area:
 	lis     r6,FSL_BOOKE_MAS0(1, 15, 0)@h
 	ori     r6,r6,FSL_BOOKE_MAS0(1, 15, 0)@l
 
