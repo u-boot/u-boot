@@ -191,7 +191,8 @@ static void post_bootmode_test_off (void)
 	post_word_store (word);
 }
 
-static void post_get_flags (int *test_flags)
+#ifndef CONFIG_POST_SKIP_ENV_FLAGS
+static void post_get_env_flags(int *test_flags)
 {
 	int  flag[] = {  POST_POWERON,   POST_NORMAL,   POST_SLOWTEST,
 			 POST_CRITICAL };
@@ -203,10 +204,6 @@ static void post_get_flags (int *test_flags)
 	char *s;
 	int last;
 	int i, j;
-
-	for (j = 0; j < post_list_size; j++) {
-		test_flags[j] = post_list[j].flags;
-	}
 
 	for (i = 0; i < varnum; i++) {
 		if (getenv_f(var[i], list, sizeof (list)) <= 0)
@@ -245,6 +242,19 @@ static void post_get_flags (int *test_flags)
 			name = s + 1;
 		}
 	}
+}
+#endif
+
+static void post_get_flags(int *test_flags)
+{
+	int j;
+
+	for (j = 0; j < post_list_size; j++)
+		test_flags[j] = post_list[j].flags;
+
+#ifndef CONFIG_POST_SKIP_ENV_FLAGS
+	post_get_env_flags(test_flags);
+#endif
 
 	for (j = 0; j < post_list_size; j++) {
 		if (test_flags[j] & POST_POWERON) {
