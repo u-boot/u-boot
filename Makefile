@@ -827,13 +827,6 @@ pm9g45_config	:	unconfig
 	@mkdir -p $(obj)include
 	@$(MKCONFIG) -a pm9g45 arm arm926ejs pm9g45 ronetix at91
 
-SBC35_A9G20_NANDFLASH_config \
-SBC35_A9G20_EEPROM_config \
-SBC35_A9G20_config	:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_$(@:_config=) 1" >$(obj)include/config.h
-	@$(MKCONFIG) -n $@ -a sbc35_a9g20 arm arm926ejs sbc35_a9g20 calao at91
-
 TNY_A9G20_NANDFLASH_config \
 TNY_A9G20_EEPROM_config \
 TNY_A9G20_config \

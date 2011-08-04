@@ -446,7 +446,6 @@ LIST_ARMV7="		\
 LIST_at91="$(boards_by_soc at91)\
 	at91sam9m10g45ek	\
 	pm9g45			\
-	SBC35_A9G20		\
 	TNY_A9260		\
 	TNY_A9G20		\
 "
