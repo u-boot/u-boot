@@ -827,16 +827,6 @@ pm9g45_config	:	unconfig
 	@mkdir -p $(obj)include
 	@$(MKCONFIG) -a pm9g45 arm arm926ejs pm9g45 ronetix at91
 
-TNY_A9G20_NANDFLASH_config \
-TNY_A9G20_EEPROM_config \
-TNY_A9G20_config \
-TNY_A9260_NANDFLASH_config \
-TNY_A9260_EEPROM_config \
-TNY_A9260_config	:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_$(@:_config=) 1" >$(obj)include/config.h
-	@$(MKCONFIG) -n $@ -a tny_a9260 arm arm926ejs tny_a9260 calao at91
-
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.
 integratorap_config	\
