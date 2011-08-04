@@ -593,6 +593,10 @@ Eric Benard <eric@eukrea.com>
 	cpu9260		ARM926EJS (AT91SAM9260 SoC)
 	cpu9G20		ARM926EJS (AT91SAM9G20 SoC)
 
+Ajay Bhargav <ajay.bhargav@einfochips.com>
+
+	gplugd		ARM926EJS (ARMADA100 88AP168 SoC)
+
 Rishi Bhattacharya <rishi@ti.com>
 
 	omap5912osk	ARM926EJS
