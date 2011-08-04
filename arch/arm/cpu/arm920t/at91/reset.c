@@ -43,10 +43,6 @@ void  __attribute__((weak)) board_reset(void)
 void reset_cpu(ulong ignored)
 {
 	at91_st_t *st = (at91_st_t *) ATMEL_BASE_ST;
-#if defined(CONFIG_AT91RM9200_USART)
-	/*shutdown the console to avoid strange chars during reset */
-	serial_exit();
-#endif
 
 	board_reset();
 

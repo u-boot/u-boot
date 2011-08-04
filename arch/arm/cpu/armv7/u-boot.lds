@@ -55,6 +55,8 @@ SECTIONS
 
 	. = ALIGN(4);
 
+	__image_copy_end = .;
+
 	.rel.dyn : {
 		__rel_dyn_start = .;
 		*(.rel*)

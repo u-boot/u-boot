@@ -37,6 +37,13 @@
 #include <asm/cache.h>
 #include <asm/armv7.h>
 
+void save_boot_params_default(u32 r0, u32 r1, u32 r2, u32 r3)
+{
+}
+
+void save_boot_params(u32 r0, u32 r1, u32 r2, u32 r3)
+	__attribute__((weak, alias("save_boot_params_default")));
+
 int cleanup_before_linux(void)
 {
 	/*

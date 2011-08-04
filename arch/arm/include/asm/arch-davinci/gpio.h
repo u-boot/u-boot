@@ -63,4 +63,12 @@ struct davinci_gpio_bank {
 #define davinci_gpio_bank45 ((struct davinci_gpio *)DAVINCI_GPIO_BANK45)
 #define davinci_gpio_bank67 ((struct davinci_gpio *)DAVINCI_GPIO_BANK67)
 
+#define gpio_status()		gpio_info()
+#define GPIO_NAME_SIZE		20
+#define MAX_NUM_GPIOS		144
+#define GPIO_BANK(gp)		(davinci_gpio_bank01 + ((gp) >> 5))
+#define GPIO_BIT(gp)		((gp) & 0x1F)
+
+void gpio_info(void);
+
 #endif

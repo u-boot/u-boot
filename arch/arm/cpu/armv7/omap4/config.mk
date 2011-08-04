@@ -1,12 +1,12 @@
 #
-# (C) Copyright 2006-2009
-# Texas Instruments Incorporated, <www.ti.com>
-#
-# OMAP 4430 SDP
-# see http://www.ti.com/ for more information on Texas Instruments
-#
+# Copyright 2011 Linaro Limited
 # See file CREDITS for list of people who contributed to this
 # project.
+#
+# (C) Copyright 2010
+# Texas Instruments, <www.ti.com>
+#
+# Aneesh V <aneesh@ti.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License as
@@ -15,7 +15,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -23,9 +23,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
 #
-# SDRAM Address Space:
-# 8000'0000 - 9fff'ffff (512 MB)
-# Linux-Kernel is expected to be at 8000'8000, entry 8000'8000
-# (mem base + reserved)
-
-CONFIG_SYS_TEXT_BASE = 0x80e80000
+ifdef CONFIG_SPL_BUILD
+ALL-y	+= $(OBJTREE)/MLO
+else
+ALL-y	+= $(obj)u-boot.img
+endif

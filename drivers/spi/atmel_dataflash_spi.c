@@ -19,10 +19,20 @@
  *
  */
 
+/*
+ * This driver desperately needs rework:
+ *
+ * - use structure SoC access
+ * - get rid of including asm/arch/at91_spi.h
+ * - remove asm/arch/at91_spi.h
+ * - get rid of all CONFIG_ATMEL_LEGACY defines and uses
+ *
+ * 02-Aug-2010 Reinhard Meyer <uboot@emk-elektronik.de>
+ */
+
 #include <common.h>
-#ifndef CONFIG_AT91_LEGACY
-# define CONFIG_AT91_LEGACY
-# warning Please update to use C structure SoC access !
+#ifndef CONFIG_ATMEL_LEGACY
+# define CONFIG_ATMEL_LEGACY
 #endif
 #include <spi.h>
 #include <malloc.h>

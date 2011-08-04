@@ -1,9 +1,9 @@
 #
-# (C) Copyright 2006-2009
-# Texas Instruments Incorporated, <www.ti.com>
+# (C) Copyright 2001-2006
+# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
-# OMAP 4430 SDP
-# see http://www.ti.com/ for more information on Texas Instruments
+# Copyright (C) 2011
+# Corscience GmbH & Co.KG, Andreas Bießmann <biessmann@corscience.de>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -15,17 +15,31 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 # MA 02111-1307 USA
-#
-# SDRAM Address Space:
-# 8000'0000 - 9fff'ffff (512 MB)
-# Linux-Kernel is expected to be at 8000'8000, entry 8000'8000
-# (mem base + reserved)
 
-CONFIG_SYS_TEXT_BASE = 0x80e80000
+include $(TOPDIR)/config.mk
+
+LIB     := $(obj)lib$(BOARD).o
+
+COBJS-y += $(BOARD).o
+
+SRCS    := $(COBJS-y:.o=.c)
+OBJS    := $(addprefix $(obj),$(COBJS-y))
+
+$(LIB): $(obj).depend $(OBJS)
+	$(call cmd_link_o_target, $(OBJS))
+
+#########################################################################
+
+# defines $(obj).depend target
+include $(SRCTREE)/rules.mk
+
+sinclude $(obj).depend
+
+#########################################################################

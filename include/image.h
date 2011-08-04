@@ -158,6 +158,7 @@
 #define IH_TYPE_KWBIMAGE	9	/* Kirkwood Boot Image		*/
 #define IH_TYPE_IMXIMAGE	10	/* Freescale IMXBoot Image	*/
 #define IH_TYPE_UBLIMAGE	11	/* Davinci UBL Image		*/
+#define IH_TYPE_OMAPIMAGE	12	/* TI OMAP Config Header Image	*/
 
 /*
  * Compression Types

@@ -33,10 +33,6 @@
 #include <command.h>
 #include <asm/system.h>
 
-#ifdef CONFIG_AT91_LEGACY
-#warning Your board is using legacy AT91RM9200 SoC access. Please update!
-#endif
-
 static void cache_flush(void);
 
 int cleanup_before_linux (void)

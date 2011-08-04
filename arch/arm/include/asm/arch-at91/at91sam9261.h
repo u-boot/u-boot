@@ -104,7 +104,7 @@
 #define ATMEL_SIZE_SRAM		0x00028000	/* Internal SRAM size (160Kb) */
 
 #define ATMEL_BASE_ROM		0x00400000	/* Internal ROM base address */
-#define ATMEL_SIZE_ROM		SZ_32K		/* Internal ROM size (32Kb) */
+#define ATMEL_SIZE_ROM		0x00008000	/* Internal ROM size (32Kb) */
 
 #define ATMEL_BASE_UHP		0x00500000	/* USB Host controller */
 #define ATMEL_BASE_LCDC		0x00600000	/* LDC controller */
@@ -125,6 +125,7 @@
  * Other misc defines
  */
 #define ATMEL_PIO_PORTS		3		/* theese SoCs have 3 PIO */
+#define ATMEL_PMC_UHP		AT91SAM926x_PMC_UHP
 #define ATMEL_BASE_PIO		ATMEL_BASE_PIOA
 
 /*

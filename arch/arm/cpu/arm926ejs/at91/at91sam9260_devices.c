@@ -138,7 +138,7 @@ void at91_spi1_hw_init(unsigned long cs_mask)
 		at91_set_b_periph(AT91_PIO_PORTC, 4, 1);
 	}
 	if (cs_mask & (1 << 3)) {
-		at91_set_pio_output(AT91_PIO_PORTC, 3, 1);
+		at91_set_b_periph(AT91_PIO_PORTC, 3, 1);
 	}
 	if (cs_mask & (1 << 4)) {
 		at91_set_pio_output(AT91_PIO_PORTB, 3, 1);

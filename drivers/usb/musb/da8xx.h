@@ -25,7 +25,7 @@
 #define __DA8XX_MUSB_H__
 
 #include <asm/arch/hardware.h>
-#include <asm/arch/gpio_defs.h>
+#include <asm/arch/gpio.h>
 #include "musb_core.h"
 
 /* Base address of da8xx usb0 wrapper */

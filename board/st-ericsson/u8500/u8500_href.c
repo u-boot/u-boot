@@ -27,6 +27,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/sys_proto.h>
 #ifdef CONFIG_MMC
+#include "prcmu-fw.h"
 #include "../../../drivers/mmc/arm_pl180_mmci.h"
 #endif
 

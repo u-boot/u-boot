@@ -25,7 +25,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/mmc_host_def.h>
 
-#include "panda.h"
+#include "panda_mux_data.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -65,27 +65,14 @@ int misc_init_r(void)
 	return 0;
 }
 
-void do_set_mux(u32 base, struct pad_conf_entry const *array, int size)
+void set_muxconf_regs_non_essential(void)
 {
-	int i;
-	struct pad_conf_entry *pad = (struct pad_conf_entry *) array;
-
-	for (i = 0; i < size; i++, pad++)
-		writew(pad->val, base + pad->offset);
-}
-
-/**
- * @brief set_muxconf_regs Setting up the configuration Mux registers
- * specific to the board.
- */
-void set_muxconf_regs(void)
-{
-	do_set_mux(CONTROL_PADCONF_CORE, core_padconf_array,
-		   sizeof(core_padconf_array) /
+	do_set_mux(CONTROL_PADCONF_CORE, core_padconf_array_non_essential,
+		   sizeof(core_padconf_array_non_essential) /
 		   sizeof(struct pad_conf_entry));
 
-	do_set_mux(CONTROL_PADCONF_WKUP, wkup_padconf_array,
-		   sizeof(wkup_padconf_array) /
+	do_set_mux(CONTROL_PADCONF_WKUP, wkup_padconf_array_non_essential,
+		   sizeof(wkup_padconf_array_non_essential) /
 		   sizeof(struct pad_conf_entry));
 }
 

@@ -22,7 +22,7 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/emif_defs.h>
 #include <asm/arch/nand_defs.h>
-#include <asm/arch/gpio_defs.h>
+#include <asm/arch/gpio.h>
 #include <netdev.h>
 #include <asm/arch/davinci_misc.h>
 #ifdef CONFIG_DAVINCI_MMC

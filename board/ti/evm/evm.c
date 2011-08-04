@@ -33,9 +33,13 @@
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/gpio.h>
 #include <i2c.h>
 #include <asm/mach-types.h>
 #include "evm.h"
+
+#define OMAP3EVM_GPIO_ETH_RST_GEN1		64
+#define OMAP3EVM_GPIO_ETH_RST_GEN2		7
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -130,6 +134,9 @@ int misc_init_r(void)
 #endif
 	omap3_evm_get_revision();
 
+#if defined(CONFIG_CMD_NET)
+	reset_net_chip();
+#endif
 	dieid_num_r();
 
 	return 0;
@@ -146,6 +153,7 @@ void set_muxconf_regs(void)
 	MUX_EVM();
 }
 
+#ifdef CONFIG_CMD_NET
 /*
  * Routine: setup_net_chip
  * Description: Setting up the configuration GPMC registers specific to the
@@ -153,7 +161,6 @@ void set_muxconf_regs(void)
  */
 static void setup_net_chip(void)
 {
-	struct gpio *gpio3_base = (struct gpio *)OMAP34XX_GPIO3_BASE;
 	struct ctrl *ctrl_base = (struct ctrl *)OMAP34XX_CTRL_BASE;
 
 	/* Configure GPMC registers */
@@ -172,16 +179,37 @@ static void setup_net_chip(void)
 	/* Enable off mode for ALE in PADCONF_GPMC_NADV_ALE register */
 	writew(readw(&ctrl_base->gpmc_nadv_ale) | 0x0E00,
 		&ctrl_base->gpmc_nadv_ale);
+}
 
-	/* Make GPIO 64 as output pin */
-	writel(readl(&gpio3_base->oe) & ~(GPIO0), &gpio3_base->oe);
+/**
+ * Reset the ethernet chip.
+ */
+static void reset_net_chip(void)
+{
+	int ret;
+	int rst_gpio;
 
-	/* Now send a pulse on the GPIO pin */
-	writel(GPIO0, &gpio3_base->setdataout);
+	if (get_omap3_evm_rev() == OMAP3EVM_BOARD_GEN_1) {
+		rst_gpio = OMAP3EVM_GPIO_ETH_RST_GEN1;
+	} else {
+		rst_gpio = OMAP3EVM_GPIO_ETH_RST_GEN2;
+	}
+
+	ret = omap_request_gpio(rst_gpio);
+	if (ret < 0) {
+		printf("Unable to get GPIO %d\n", rst_gpio);
+		return ;
+	}
+
+	/* Configure as output */
+	omap_set_gpio_direction(rst_gpio, 0);
+
+	/* Send a pulse on the GPIO pin */
+	omap_set_gpio_dataout(rst_gpio, 1);
 	udelay(1);
-	writel(GPIO0, &gpio3_base->cleardataout);
+	omap_set_gpio_dataout(rst_gpio, 0);
 	udelay(1);
-	writel(GPIO0, &gpio3_base->setdataout);
+	omap_set_gpio_dataout(rst_gpio, 1);
 }
 
 int board_eth_init(bd_t *bis)
@@ -192,3 +220,4 @@ int board_eth_init(bd_t *bis)
 #endif
 	return rc;
 }
+#endif /* CONFIG_CMD_NET */

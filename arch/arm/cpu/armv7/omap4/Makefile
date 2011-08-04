@@ -28,8 +28,14 @@ LIB	=  $(obj)lib$(SOC).o
 SOBJS	+= lowlevel_init.o
 
 COBJS	+= board.o
+COBJS	+= clocks.o
+COBJS	+= emif.o
+COBJS	+= sdram_elpida.o
+
+ifndef CONFIG_SPL_BUILD
 COBJS	+= mem.o
 COBJS	+= sys_info.o
+endif
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS) $(SOBJS))

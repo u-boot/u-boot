@@ -1,6 +1,13 @@
 #
-# (C) Copyright 2000-2006
-# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
+# (C) Copyright 2011
+# eInfochips Ltd. <www.einfochips.com>
+# Written-by: Ajay Bhargav <ajay.bhargav@einfochips.com>
+#
+# Based on Aspenite:
+# (C) Copyright 2010
+# Marvell Semiconductor <www.marvell.com>
+# Written-by: Prafulla Wadaskar <prafulla@marvell.com>
+# Contributor: Mahavir Jain <mjain@marvell.com>
 #
 # See file CREDITS for list of people who contributed to this
 # project.
@@ -12,39 +19,33 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
-# MA 02111-1307 USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301 USA
 #
 
 include $(TOPDIR)/config.mk
 
-LIB	= $(obj)lib$(SOC).o
+LIB     = $(obj)lib$(BOARD).o
 
-SOBJS	+= lowlevel_init.o
+COBJS	:= gplugd.o
 
-COBJS	+= bcm5221.o
-COBJS	+= dm9161.o
-COBJS	+= ether.o
-COBJS	+= i2c.o
-COBJS-$(CONFIG_KS8721_PHY)	+= ks8721.o
-COBJS	+= lxt972.o
-COBJS	+= reset.o
-COBJS	+= spi.o
-COBJS	+= timer.o
-COBJS	+= usb.o
+SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
+OBJS	:= $(addprefix $(obj),$(COBJS))
+SOBJS	:= $(addprefix $(obj),$(SOBJS))
 
-SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c) $(COBJS-y:.o=.c)
-OBJS	:= $(addprefix $(obj),$(SOBJS) $(COBJS) $(COBJS-y))
+$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
+	$(AR) $(ARFLAGS) $@ $(OBJS) $(SOBJS)
 
-all:	$(obj).depend $(LIB)
+clean:
+	rm -f $(SOBJS) $(OBJS)
 
-$(LIB):	$(OBJS)
-	$(call cmd_link_o_target, $(OBJS))
+distclean:	clean
+	rm -f $(LIB) core *.bak .depend
 
 #########################################################################
 
