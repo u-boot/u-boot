@@ -35,7 +35,6 @@
 #include <asm/realmode.h>
 #include <asm/byteorder.h>
 #include <asm/bootparam.h>
-#include <asm/ic/sc520.h>
 
 /*
  * Memory lay-out:

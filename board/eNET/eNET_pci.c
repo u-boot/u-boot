@@ -27,7 +27,7 @@
 #include <common.h>
 #include <pci.h>
 #include <asm/pci.h>
-#include <asm/ic/pci.h>
+#include <asm/arch/pci.h>
 
 static void pci_enet_fixup_irq(struct pci_controller *hose, pci_dev_t dev)
 {
