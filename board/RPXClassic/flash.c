@@ -1,6 +1,6 @@
 /*
  * (C)  Copyright 2001
- * St‰ubli Faverges - <www.staubli.com>
+ * St√§ubli Faverges - <www.staubli.com>
  * Pierre AUBERT  p.aubert@staubli.com
  * U-Boot port on RPXClassic LF (CLLF_BW31) board
  *

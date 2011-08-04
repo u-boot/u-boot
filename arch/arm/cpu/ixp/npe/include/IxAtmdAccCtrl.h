@@ -975,7 +975,7 @@ typedef struct
     * @li 1 - Generate HEC.
     * @li 0 - Disable HEC generation.
     */
-    unsigned int txCOSET:1;    /**< [24] If enabled the HEC is Exclusive-ORÆed with the value 0x55 before
+    unsigned int txCOSET:1;    /**< [24] If enabled the HEC is Exclusive-OR'ed with the value 0x55 before
   * being presented on the Utopia bus.
   * @li 1 - Enable HEC ExOR with value 0x55
   * @li 0 - Use generated HEC value.
@@ -1302,7 +1302,7 @@ typedef struct
     @li 1 - HEC checking enabled
     @li 0 - HEC checking disabled */
 
-    unsigned int rxCOSET:1;  /**< [25] If enabled the HEC is Exclusive-ORÆed with the value 0x55
+    unsigned int rxCOSET:1;  /**< [25] If enabled the HEC is Exclusive-OR'ed with the value 0x55
   before being tested with the received HEC.
   @li 1 - Enable HEC ExOR with value 0x55.
     @li 0 - Use generated HEC value.*/
@@ -1320,9 +1320,9 @@ typedef struct
 
     unsigned int rxHashEnbGFC:1;      /**< [15] Specifies if the VPI field [11:8]/GFC field should be
       included in the Hash data input or if the bits should be padded
-      with 1Æb0.
+      with 1'b0.
       @li 1 - VPI [11:8]/GFC field valid and used in Hash residue calculation.
-      @li 0 - VPI [11:8]/GFC field padded with 1Æb0 */
+      @li 0 - VPI [11:8]/GFC field padded with 1'b0 */
 
     unsigned int rxPreHash:1; /**< [14] Enable Pre-hash value generation. Specifies if the
  incoming cell data should be pre-hashed to allow VPI/VCI header look-up
@@ -1489,10 +1489,10 @@ typedef struct
     unsigned int invalidSizeOvrInt:1;   /**< [9] Enable CBI Receive Status Condition if the InvalidSizeCount
      register overflows.
      @li 1 - CBI Receive Status Condition asserted.
-      @li¸0 - No CBI Receive Status asserted */
+     @li 0 - No CBI Receive Status asserted */
 
     unsigned int rxIdleOvrInt:1;      /**< [8] Enable CBI Receive Status Condition if the RxIdleCount overflows.
-      @li    1 - CBI Receive Condition asserted.
+      @li 1 - CBI Receive Condition asserted.
       @li 0 - No CBI Receive Condition asserted */
 
     unsigned int reserved_2:3;    /**< [7:5] These bits are always 0 */
@@ -1679,7 +1679,7 @@ typedef struct
     unsigned int txReset:1;   /**< [25] Resets the Utopia Coprocessor transmit module to a known state.
     * @li Note: All transmit configuration and status registers will be reset
     * to their reset values.
-    * @li 0 - Normal operating mode¸
+    * @li 0 - Normal operating mode
     * @li 1 - Reset transmit modules
     */
 

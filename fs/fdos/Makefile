@@ -3,7 +3,7 @@
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
 # (C) Copyright 2002
-# St‰ubli Faverges - <www.staubli.com>
+# St√§ubli Faverges - <www.staubli.com>
 # Pierre AUBERT  p.aubert@staubli.com
 #
 #

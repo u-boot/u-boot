@@ -279,7 +279,7 @@ usbcore: registered new device driver usb
 NET: Registered protocol family 2
 IP route cache hash table entries: 1024 (order: 0, 4096 bytes) TCP established hash table entries: 1024 (order: 1, 8192 bytes) TCP bind hash table entries: 1024 (order: 0, 4096 bytes)
 TCP: Hash tables configured (established 1024 bind 1024) TCP reno registered
-JFFS2 version 2.2. (NAND) © 2001-2006 Red Hat, Inc.
+JFFS2 version 2.2. (NAND) Â© 2001-2006 Red Hat, Inc.
 io scheduler noop registered
 io scheduler cfq registered (default)
 ColdFire internal UART serial driver version 1.00 ttyS0 at 0xfc060000 (irq = 90) is a builtin ColdFire UART

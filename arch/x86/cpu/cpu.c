@@ -3,7 +3,7 @@
  * Graeme Russ, <graeme.russ@gmail.com>
  *
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
+ * Daniel EngstrÃ¶m, Omicron Ceti AB, <daniel@omicron.se>
  *
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>

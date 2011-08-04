@@ -63,7 +63,7 @@
 
 /* Mapping:
  * +-------------+------------+------------+--------------------------------+
- * ¦ PCI MemAddr | PCI IOAddr | Local Addr | Device / Function              |
+ * | PCI MemAddr | PCI IOAddr | Local Addr | Device / Function              |
  * +-------------+------------+------------+--------------------------------+
  * |  0x00000000 |            | 0xA0000000 | ISA Memory (hard wired)        |
  * |  0x00FFFFFF |            | 0xA0FFFFFF |                                |

@@ -20,7 +20,7 @@
  *
  * Adapted for U-Boot:
  * (C) Copyright 2001 Denis Peter, MPL AG Switzerland
- * (C) Copyright 2008, Daniel Hellström, daniel@gaisler.com
+ * (C) Copyright 2008, Daniel HellstrÃ¶m, daniel@gaisler.com
  *     Added AMBA Plug&Play detection of GRUSB, modified interrupt handler.
  *     Added cache flushes where needed.
  *

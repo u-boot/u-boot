@@ -365,7 +365,7 @@ int board_early_init_f (void)
 	 *
 	 * This is just a preliminary fix, intended to turn off TENA
 	 * as soon as possible to avoid noise on the network. Once
-	 * I²C is running we will make sure the interface is
+	 * I2C is running we will make sure the interface is
 	 * correctly initialized.
 	 */
 	immr->im_cpm.cp_pbpar &= ~PB_ENET_TENA;

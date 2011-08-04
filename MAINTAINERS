@@ -74,7 +74,7 @@ Joe D'Abbraccio <ljd015@freescale.com>
 
 	MPC837xERDB	MPC837x
 
-Kári Davíðsson <kd@flaga.is>
+KÃ¡ri DavÃ­Ã°sson <kd@flaga.is>
 
 	FLAGADM		MPC823
 
@@ -601,7 +601,7 @@ Rishi Bhattacharya <rishi@ti.com>
 
 	omap5912osk	ARM926EJS
 
-Andreas Bießmann <andreas.devel@gmail.com>
+Andreas BieÃŸmann <andreas.devel@gmail.com>
 
 	at91rm9200ek	at91rm9200
 	grasshopper	avr32
@@ -664,7 +664,7 @@ Simon Guinot <simon.guinot@sequanux.org>
 	netspace_v2	ARM926EJS (Kirkwood SoC)
 	netspace_max_v2	ARM926EJS (Kirkwood SoC)
 
-Marius Gröger <mag@sysgo.de>
+Marius GrÃ¶ger <mag@sysgo.de>
 
 	impa7		ARM720T (EP7211)
 	ep7312		ARM720T (EP7312)
@@ -752,7 +752,7 @@ Nishanth Menon <nm@ti.com>
 	omap3_sdp3430	ARM ARMV7 (OMAP3xx SoC)
 	omap3_zoom1	ARM ARMV7 (OMAP3xx SoC)
 
-David Müller <d.mueller@elsoft.ch>
+David MÃ¼ller <d.mueller@elsoft.ch>
 
 	smdk2410	ARM920T
 	VCMA9		ARM920T
@@ -910,7 +910,7 @@ Richard Woodruff <r-woodruff2@ti.com>
 
 	omap2420h4	ARM1136EJS
 
-Alex Züpke <azu@sysgo.de>
+Alex ZÃ¼pke <azu@sysgo.de>
 
 	lart		SA1100
 	dnp1110		SA1110

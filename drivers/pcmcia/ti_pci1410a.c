@@ -2,7 +2,7 @@
  * (C) Copyright 2000-2002
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB
+ * Daniel EngstrÃ¶m, Omicron Ceti AB
  *
  * See file CREDITS for list of people who contributed to this
  * project.

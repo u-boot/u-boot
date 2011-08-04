@@ -386,7 +386,7 @@ TCP: Hash tables configured (established 1024 bind 1024)
 IP-Config: Incomplete network configuration information.
 NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
 VFS: Mounted root (ext2 filesystem).
-Freeing unused kernel memory: 44k iné
+Freeing unused kernel memory: 44k init
 init started:  BusyBox v0.60.2 (2002.07.01-12:06+0000) multi-call Configuring hostname
 Configuring lo...
 Configuring eth0...

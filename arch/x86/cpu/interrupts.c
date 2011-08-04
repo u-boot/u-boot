@@ -3,7 +3,7 @@
  * Graeme Russ, <graeme.russ@gmail.com>
  *
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
+ * Daniel EngstrÃ¶m, Omicron Ceti AB, <daniel@omicron.se>
  *
  * Portions of this file are derived from the Linux kernel source
  *  Copyright (C) 1991, 1992  Linus Torvalds
@@ -246,7 +246,7 @@ void irq_llsr(struct irq_regs *regs)
 {
 	/*
 	 * For detailed description of each exception, refer to:
-	 * Intel® 64 and IA-32 Architectures Software Developer's Manual
+	 * IntelÂ® 64 and IA-32 Architectures Software Developer's Manual
 	 * Volume 1: Basic Architecture
 	 * Order Number: 253665-029US, November 2008
 	 * Table 6-1. Exceptions and Interrupts

@@ -378,7 +378,7 @@ initdram (int board_type)
 	 *
 	 * "At system reset, initialization software must set up the
 	 *  programmable parameters in the memory controller banks registers
-	 *  (ORx, BRx, P/LSDMR). After all memory parameters are conﬁgured,
+	 *  (ORx, BRx, P/LSDMR). After all memory parameters are configured,
 	 *  system software should execute the following initialization sequence
 	 *  for each SDRAM device.
 	 *

@@ -4,7 +4,7 @@
  *  Copyright (C) 1998	Dan Malek <dmalek@jlc.net>
  *  Copyright (C) 1999	Magnus Damm <kieraypc01.p.y.kie.era.ericsson.se>
  *  Copyright (C) 2000	Wolfgang Denk <wd@denx.de>
- *  Copyright (c) 2001	Alex Züpke <azu@sysgo.de>
+ *  Copyright (c) 2001	Alex ZÃ¼pke <azu@sysgo.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.

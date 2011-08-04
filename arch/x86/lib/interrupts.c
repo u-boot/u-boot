@@ -12,7 +12,7 @@
  * Wolfgang Denk, DENX Software Engineering, <wd@denx.de>
  *
  * (C) Copyright 2002
- * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
+ * Daniel EngstrÃ¶m, Omicron Ceti AB, <daniel@omicron.se>
  *
  * (C) Copyright 2001
  * Josh Huber, Mission Critical Linux, Inc, <huber@mclx.com>
@@ -43,7 +43,7 @@
  * Daniel Hellstrom, Detlev Zundel, Wolfgang Denk and Josh Huber are
  * credited for the corresponding work on those ports. The original
  * interrupt handling routines for the x86 port were written by
- * Daniel Engström
+ * Daniel EngstrÃ¶m
  */
 
 #include <common.h>

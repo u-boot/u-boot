@@ -1,8 +1,8 @@
 /*
  *  armboot - Startup Code for ARM720 CPU-core
  *
- *  Copyright (c) 2001	Marius Gröger <mag@sysgo.de>
- *  Copyright (c) 2002	Alex Züpke <azu@sysgo.de>
+ *  Copyright (c) 2001	Marius GrÃ¶ger <mag@sysgo.de>
+ *  Copyright (c) 2002	Alex ZÃ¼pke <azu@sysgo.de>
  *
  * See file CREDITS for list of people who contributed to this
  * project.

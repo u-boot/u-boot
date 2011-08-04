@@ -1,5 +1,5 @@
 /* ported from ctfb.c (linux kernel):
- * Created in Jan - July 2000 by Thomas Höhenleitner <th@visuelle-maschinen.de>
+ * Created in Jan - July 2000 by Thomas HÃ¶henleitner <th@visuelle-maschinen.de>
  *
  * Ported to U-Boot:
  * (C) Copyright 2002 Denis Peter, MPL AG Switzerland
@@ -626,25 +626,25 @@ FindBestPQFittingMN (unsigned int p, unsigned int q, unsigned int mnmin,
 
 /* that is the hardware < 69000 we have to manage
  +---------+  +-------------------+  +----------------------+  +--+
- | REFCLK  |__|NTSC Divisor Select|__|FVCO Reference Divisor|__|÷N|__
- | 14.3MHz |  |(NTSCDS) (÷1, ÷5)  |  |Select (RDS) (÷1, ÷4) |  |  |  |
+ | REFCLK  |__|NTSC Divisor Select|__|FVCO Reference Divisor|__|Ã·N|__
+ | 14.3MHz |  |(NTSCDS) (Ã·1, Ã·5)  |  |Select (RDS) (Ã·1, Ã·4) |  |  |  |
  +---------+  +-------------------+  +----------------------+  +--+  |
   ___________________________________________________________________|
  |
  |                                    fvco                      fout
  | +--------+  +------------+  +-----+     +-------------------+   +----+
  +-| Phase  |__|Charge Pump |__| VCO |_____|Post Divisor (PD)  |___|CLK |--->
- +-| Detect |  |& Filter VCO|  |     |  |  |÷1, 2, 4, 8, 16, 32|   |    |
+ +-| Detect |  |& Filter VCO|  |     |  |  |Ã·1, 2, 4, 8, 16, 32|   |    |
  | +--------+  +------------+  +-----+  |  +-------------------+   +----+
  |                                      |
  |    +--+   +---------------+          |
- |____|÷M|___|VCO Loop Divide|__________|
-      |  |   |(VLD)(÷4, ÷16) |
+ |____|Ã·M|___|VCO Loop Divide|__________|
+      |  |   |(VLD)(Ã·4, Ã·16) |
       +--+   +---------------+
 ****************************************************************************
   that is the hardware >= 69000 we have to manage
  +---------+  +--+
- | REFCLK  |__|÷N|__
+ | REFCLK  |__|Ã·N|__
  | 14.3MHz |  |  |  |
  +---------+  +--+  |
   __________________|
@@ -652,12 +652,12 @@ FindBestPQFittingMN (unsigned int p, unsigned int q, unsigned int mnmin,
  |                                    fvco                      fout
  | +--------+  +------------+  +-----+     +-------------------+   +----+
  +-| Phase  |__|Charge Pump |__| VCO |_____|Post Divisor (PD)  |___|CLK |--->
- +-| Detect |  |& Filter VCO|  |     |  |  |÷1, 2, 4, 8, 16, 32|   |    |
+ +-| Detect |  |& Filter VCO|  |     |  |  |Ã·1, 2, 4, 8, 16, 32|   |    |
  | +--------+  +------------+  +-----+  |  +-------------------+   +----+
  |                                      |
  |    +--+   +---------------+          |
- |____|÷M|___|VCO Loop Divide|__________|
-      |  |   |(VLD)(÷1, ÷4)  |
+ |____|Ã·M|___|VCO Loop Divide|__________|
+      |  |   |(VLD)(Ã·1, Ã·4)  |
       +--+   +---------------+
 
 

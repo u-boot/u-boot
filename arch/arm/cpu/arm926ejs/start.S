@@ -5,8 +5,8 @@
  *
  *  ----- Adapted for OMAP1610 OMAP730 from ARM925t code ------
  *
- *  Copyright (c) 2001	Marius Gröger <mag@sysgo.de>
- *  Copyright (c) 2002	Alex Züpke <azu@sysgo.de>
+ *  Copyright (c) 2001	Marius GrÃ¶ger <mag@sysgo.de>
+ *  Copyright (c) 2002	Alex ZÃ¼pke <azu@sysgo.de>
  *  Copyright (c) 2002	Gary Jennejohn <garyj@denx.de>
  *  Copyright (c) 2003	Richard Woodruff <r-woodruff2@ti.com>
  *  Copyright (c) 2003	Kshitij <kshitij@ti.com>

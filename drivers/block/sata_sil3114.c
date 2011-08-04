@@ -1,5 +1,5 @@
 /*
- * Copyright (C) Excito Elektronik i Skåne AB, All rights reserved.
+ * Copyright (C) Excito Elektronik i SkÃ¥ne AB, All rights reserved.
  * Author: Tor Krill <tor@excito.com>
  *
  * This program is free software; you can redistribute it and/or

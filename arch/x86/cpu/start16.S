@@ -5,7 +5,7 @@
  * Graeme Russ, <graeme.russ@gmail.com>
  *
  * (C) Copyright 2002,2003
- * Daniel Engström, Omicron Ceti AB, <daniel@omicron.se>
+ * Daniel EngstrÃ¶m, Omicron Ceti AB, <daniel@omicron.se>
  *
  * See file CREDITS for list of people who contributed to this
  * project.
