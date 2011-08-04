@@ -798,31 +798,6 @@ M5485HFE_config :	unconfig
 # ARM
 #========================================================================
 
-#########################################################################
-## ARM926EJ-S Systems
-#########################################################################
-
-at91sam9m10g45ek_nandflash_config \
-at91sam9m10g45ek_dataflash_config \
-at91sam9m10g45ek_dataflash_cs0_config \
-at91sam9m10g45ek_config \
-at91sam9g45ekes_nandflash_config \
-at91sam9g45ekes_dataflash_config \
-at91sam9g45ekes_dataflash_cs0_config \
-at91sam9g45ekes_config	:	unconfig
-	@mkdir -p $(obj)include
-		@if [ "$(findstring 9m10,$@)" ] ; then \
-		echo "#define CONFIG_AT91SAM9M10G45EK 1"	>>$(obj)include/config.h ; \
-	else \
-		echo "#define CONFIG_AT91SAM9G45EKES 1"	>>$(obj)include/config.h ; \
-	fi;
-	@if [ "$(findstring _nandflash,$@)" ] ; then \
-		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
-	else \
-		echo "#define CONFIG_ATMEL_SPI 1"	>>$(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ -a at91sam9m10g45ek arm arm926ejs at91sam9m10g45ek atmel at91
-
 ########################################################################
 ## ARM Integrator boards - see doc/README-integrator for more info.
 integratorap_config	\
