@@ -118,18 +118,8 @@
 #define CONFIG_SYS_L2_SIZE		(512 << 10)
 #define CONFIG_SYS_INIT_L2_END	(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
-#define CONFIG_SYS_CCSRBAR		0xffe00000	/* relocated CCSRBAR */
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_CCSRBAR_PHYS		0xfffe00000ull	/* physical addr of CCSRBAR */
-#else
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR	/* physical addr of CCSRBAR */
-#endif
-#define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR */
+#define CONFIG_SYS_CCSRBAR		0xffe00000
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
 #define CONFIG_VERY_BIG_RAM

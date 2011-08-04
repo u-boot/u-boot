@@ -64,18 +64,8 @@
 #define CONFIG_SYS_MEMTEST_START	0x00000000
 #define CONFIG_SYS_MEMTEST_END		0x7fffffff
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default */
-#define CONFIG_SYS_CCSRBAR		0xffe00000	/* relocated CCSRBAR */
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_CCSRBAR_PHYS		0xfffe00000ull
-#else
-#define CONFIG_SYS_CCSRBAR_PHYS		CONFIG_SYS_CCSRBAR
-#endif
-#define CONFIG_SYS_IMMR			CONFIG_SYS_CCSRBAR
+#define CONFIG_SYS_CCSRBAR		0xffe00000
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /* DDR Setup */
 #define CONFIG_DDR_SPD

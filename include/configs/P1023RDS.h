@@ -99,15 +99,6 @@ extern unsigned long get_clock_freq(void);
 
 #define CONFIG_SYS_LBC_LBCR	0x00000000	/* Implement conversion of
 						addresses in the LBC */
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff600000	/* CCSRBAR Default */
-#define CONFIG_SYS_CCSRBAR		0xff600000	/* relocated CCSRBAR */
-/* physical addr of CCSRBAR */
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR
-#define CONFIG_SYS_IMMR	CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR */
 
 /* DDR Setup */
 #define CONFIG_VERY_BIG_RAM

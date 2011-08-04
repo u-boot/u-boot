@@ -2862,6 +2862,43 @@ Low Level (hardware related) configuration options:
 		and RPXsuper) to be able to adjust the position of
 		the IMMR register after a reset.
 
+- CONFIG_SYS_CCSRBAR_DEFAULT:
+		Default (power-on reset) physical address of CCSR on Freescale
+		PowerPC SOCs.
+
+- CONFIG_SYS_CCSRBAR:
+		Virtual address of CCSR.  On a 32-bit build, this is typically
+		the same value as CONFIG_SYS_CCSRBAR_DEFAULT.
+
+		CONFIG_SYS_DEFAULT_IMMR must also be set to this value,
+		for cross-platform code that uses that macro instead.
+
+- CONFIG_SYS_CCSRBAR_PHYS:
+		Physical address of CCSR.  CCSR can be relocated to a new
+		physical address, if desired.  In this case, this macro should
+		be set to that address.  Otherwise, it should be set to the
+		same value as CONFIG_SYS_CCSRBAR_DEFAULT.  For example, CCSR
+		is typically relocated on 36-bit builds.  It is recommended
+		that this macro be defined via the _HIGH and _LOW macros:
+
+		#define CONFIG_SYS_CCSRBAR_PHYS ((CONFIG_SYS_CCSRBAR_PHYS_HIGH
+			* 1ull) << 32 | CONFIG_SYS_CCSRBAR_PHYS_LOW)
+
+- CONFIG_SYS_CCSRBAR_PHYS_HIGH:
+		Bits 33-36 of CONFIG_SYS_CCSRBAR_PHYS.  This value is typically
+		either 0 (32-bit build) or 0xF (36-bit build).  This macro is
+		used in assembly code, so it must not contain typecasts or
+		integer size suffixes (e.g. "ULL").
+
+- CONFIG_SYS_CCSRBAR_PHYS_LOW:
+		Lower 32-bits of CONFIG_SYS_CCSRBAR_PHYS.  This macro is
+		used in assembly code, so it must not contain typecasts or
+		integer size suffixes (e.g. "ULL").
+
+- CONFIG_SYS_CCSR_DO_NOT_RELOCATE:
+		If this macro is defined, then CONFIG_SYS_CCSRBAR_PHYS will be
+		forced to a value that ensures that CCSR is not relocated.
+
 - Floppy Disk Support:
 		CONFIG_SYS_FDC_DRIVE_NUMBER
 

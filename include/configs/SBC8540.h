@@ -94,20 +94,6 @@
 #error "You can only use ONE of PCI Ethernet Card or TSEC Ethernet or CPM FCC."
 #endif
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000	/* CCSRBAR Default	*/
-
-#if XXX
-  #define CONFIG_SYS_CCSRBAR		0xfdf00000	/* relocated CCSRBAR	*/
-#else
-  #define CONFIG_SYS_CCSRBAR		0xff700000	/* default CCSRBAR	*/
-#endif
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR	/* physical addr of CCSRBAR */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR	*/
-
 #define CONFIG_SYS_SDRAM_SIZE		512		/* DDR is 512MB */
 
 /* DDR Setup */
