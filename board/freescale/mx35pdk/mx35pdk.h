@@ -59,24 +59,6 @@
 #define CCM_CCMR_CONFIG		0x003F4208
 #define CCM_PDR0_CONFIG		0x00801000
 
-#define PLL_BRM_OFFSET	31
-#define PLL_PD_OFFSET	26
-#define PLL_MFD_OFFSET	16
-#define PLL_MFI_OFFSET	10
-
-#define _PLL_BRM(x)	((x) << PLL_BRM_OFFSET)
-#define _PLL_PD(x)	(((x) - 1) << PLL_PD_OFFSET)
-#define _PLL_MFD(x)	(((x) - 1) << PLL_MFD_OFFSET)
-#define _PLL_MFI(x)	((x) << PLL_MFI_OFFSET)
-#define _PLL_MFN(x)	(x)
-#define _PLL_SETTING(brm, pd, mfd, mfi, mfn) \
-	(_PLL_BRM(brm) | _PLL_PD(pd) | _PLL_MFD(mfd) | _PLL_MFI(mfi) |\
-	 _PLL_MFN(mfn))
-
-#define CCM_MPLL_532_HZ	_PLL_SETTING(1, 1, 12, 11, 1)
-#define CCM_MPLL_399_HZ _PLL_SETTING(0, 1, 16, 8, 5)
-#define CCM_PPLL_300_HZ _PLL_SETTING(0, 1, 4, 6, 1)
-
 /* MEMORY SETTING */
 #define ESDCTL_0x92220000	0x92220000
 #define ESDCTL_0xA2220000	0xA2220000
