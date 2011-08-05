@@ -34,7 +34,7 @@
 #include <lattice.h>
 
 static lattice_board_specific_func *pfns;
-static char *fpga_image;
+static const char *fpga_image;
 static unsigned long read_bytes;
 static unsigned long bufsize;
 static unsigned short expectedCRC;
@@ -302,7 +302,7 @@ static int lattice_validate(Lattice_desc *desc, const char *fn)
 	return ret_val;
 }
 
-int lattice_load(Lattice_desc *desc, void *buf, size_t bsize)
+int lattice_load(Lattice_desc *desc, const void *buf, size_t bsize)
 {
 	int ret_val = FPGA_FAIL;
 
@@ -335,7 +335,7 @@ int lattice_load(Lattice_desc *desc, void *buf, size_t bsize)
 	return ret_val;
 }
 
-int lattice_dump(Lattice_desc *desc, void *buf, size_t bsize)
+int lattice_dump(Lattice_desc *desc, const void *buf, size_t bsize)
 {
 	puts("Dump not supported for Lattice FPGA\n");
 
