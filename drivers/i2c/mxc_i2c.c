@@ -73,6 +73,10 @@ struct mxc_i2c_regs {
 #define I2C_BASE        I2C2_BASE_ADDR
 #elif defined(CONFIG_SYS_I2C_MX35_PORT1)
 #define I2C_BASE	I2C_BASE_ADDR
+#elif defined(CONFIG_SYS_I2C_MX35_PORT2)
+#define I2C_BASE	I2C2_BASE_ADDR
+#elif defined(CONFIG_SYS_I2C_MX35_PORT3)
+#define I2C_BASE	I2C3_BASE_ADDR
 #else
 #error "define CONFIG_SYS_I2C_MX<Processor>_PORTx to use the mx I2C driver"
 #endif
