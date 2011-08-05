@@ -417,27 +417,8 @@ LIST_ARM11="			\
 #########################################################################
 ## ARMV7 Systems
 #########################################################################
-LIST_ARMV7="		\
-	am3517_crane		\
-	am3517_evm		\
-	ca9x4_ct_vxp		\
-	devkit8000		\
-	dig297			\
-	igep0020		\
-	igep0030		\
-	mx51evk			\
-	omap3_beagle		\
-	omap3_overo		\
-	omap3_evm		\
-	omap3_pandora		\
-	omap3_sdp3430		\
-	omap3_zoom1		\
-	omap3_zoom2		\
-	omap4_panda		\
-	omap4_sdp4430		\
-	s5p_goni		\
-	smdkc100		\
-"
+
+LIST_ARMV7="$(boards_by_cpu armv7)"
 
 #########################################################################
 ## AT91 Systems
