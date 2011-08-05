@@ -422,12 +422,39 @@ U_BOOT_CMD(
 	""
 );
 
+static char *get_reset_cause(void)
+{
+	/* read RCSR register from CCM module */
+	struct ccm_regs *ccm =
+		(struct ccm_regs *)IMX_CCM_BASE;
+
+	u32 cause = readl(&ccm->rcsr) & 0x0F;
+
+	switch (cause) {
+	case 0x0000:
+		return "POR";
+	case 0x0002:
+		return "JTAG";
+	case 0x0004:
+		return "RST";
+	case 0x0008:
+		return "WDOG";
+	default:
+		return "unknown reset";
+	}
+}
+
 #if defined(CONFIG_DISPLAY_CPUINFO)
 int print_cpuinfo(void)
 {
-	printf("CPU:   Freescale i.MX35 at %d MHz\n",
+	u32 srev = get_cpu_rev();
+
+	printf("CPU:   Freescale i.MX35 rev %d.%d at %d MHz.\n",
+		(srev & 0xF0) >> 4, (srev & 0x0F),
 		get_mcu_main_clk() / 1000000);
-	/* mxc_dump_clocks(); */
+
+	printf("Reset cause: %s\n", get_reset_cause());
+
 	return 0;
 }
 #endif
