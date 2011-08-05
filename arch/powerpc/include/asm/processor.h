@@ -1176,13 +1176,17 @@ struct cpu_type {
 	char name[15];
 	u32 soc_ver;
 	u32 num_cores;
+	u32 mask;	/* which cpu(s) actually exist */
 };
 
 struct cpu_type *identify_cpu(u32 ver);
 
 #if defined(CONFIG_MPC85xx) || defined(CONFIG_MPC86xx)
 #define CPU_TYPE_ENTRY(n, v, nc) \
-	{ .name = #n, .soc_ver = SVR_##v, .num_cores = (nc), }
+	{ .name = #n, .soc_ver = SVR_##v, .num_cores = (nc), \
+	  .mask = (1 << (nc)) - 1 }
+#define CPU_TYPE_ENTRY_MASK(n, v, nc, m) \
+	{ .name = #n, .soc_ver = SVR_##v, .num_cores = (nc), .mask = (m) }
 #else
 #if defined(CONFIG_MPC83xx)
 #define CPU_TYPE_ENTRY(x) {#x, SPR_##x}

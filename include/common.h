@@ -485,7 +485,22 @@ void ddr_enable_ecc(unsigned int dram_size);
 #endif
 
 /* $(CPU)/cpu.c */
+static inline int cpumask_next(int cpu, unsigned int mask)
+{
+	for (cpu++; !((1 << cpu) & mask); cpu++)
+		;
+
+	return cpu;
+}
+
+#define for_each_cpu(iter, cpu, num_cpus, mask) \
+	for (iter = 0, cpu = cpumask_next(-1, mask); \
+		iter < num_cpus; \
+		iter++, cpu = cpumask_next(cpu, mask)) \
+
 int	cpu_numcores  (void);
+u32	cpu_mask      (void);
+int	is_core_valid (unsigned int);
 int	probecpu      (void);
 int	checkcpu      (void);
 int	checkicache   (void);

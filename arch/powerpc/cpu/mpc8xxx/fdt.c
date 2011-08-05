@@ -63,7 +63,7 @@ void ft_fixup_num_cores(void *blob) {
 	while (off != -FDT_ERR_NOTFOUND) {
 		u32 *reg = (u32 *)fdt_getprop(blob, off, "reg", 0);
 
-		if ((*reg > num_cores-1) || (is_core_disabled(*reg))) {
+		if (!is_core_valid(*reg) || is_core_disabled(*reg)) {
 			int ph = fdt_get_phandle(blob, off);
 
 			/* Delete the cpu node once there are no cpu handles */

@@ -32,9 +32,8 @@ cpu_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return cmd_usage(cmdtp);
 
 	cpuid = simple_strtoul(argv[1], NULL, 10);
-	if (cpuid >= cpu_numcores()) {
-		printf ("Core num: %lu is out of range[0..%d]\n",
-				cpuid, cpu_numcores() - 1);
+	if (!is_core_valid(cpuid)) {
+		printf ("Core num: %lu is not valid\n",	cpuid);
 		return 1;
 	}
 
