@@ -209,16 +209,17 @@ static __u32 get_fatent (fsdata *mydata, __u32 entry)
 
 	/* Read a new block of FAT entries into the cache. */
 	if (bufnum != mydata->fatbufnum) {
-		__u32 getsize = FATBUFSIZE / mydata->sect_size;
+		__u32 getsize = FATBUFBLOCKS;
 		__u8 *bufptr = mydata->fatbuf;
 		__u32 fatlength = mydata->fatlength;
 		__u32 startblock = bufnum * FATBUFBLOCKS;
 
+		if (getsize > fatlength)
+			getsize = fatlength;
+
 		fatlength *= mydata->sect_size;	/* We want it in bytes now */
 		startblock += mydata->fat_sect;	/* Offset from start of disk */
 
-		if (getsize > fatlength)
-			getsize = fatlength;
 		if (disk_read(startblock, getsize, bufptr) < 0) {
 			debug("Error reading FAT blocks\n");
 			return ret;
