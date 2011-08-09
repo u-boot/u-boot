@@ -160,7 +160,7 @@ int board_mmc_init(bd_t *bis)
 		 * you should set it HIGH since it removes the inverter
 		 */
 		/* MASSMEMORY_EN: XMDMDATA_6: GPE3[6] */
-		gpio_direction_output(&gpio1->e3, 6, 0);
+		s5p_gpio_direction_output(&gpio1->e3, 6, 0);
 		break;
 	default:
 		/*
@@ -168,7 +168,7 @@ int board_mmc_init(bd_t *bis)
 		 * But set it as HIGH to ensure
 		 */
 		/* MASSMEMORY_EN: XMDMADDR_3: GPE1[3] */
-		gpio_direction_output(&gpio1->e1, 3, 1);
+		s5p_gpio_direction_output(&gpio1->e1, 3, 1);
 		break;
 	}
 
@@ -192,25 +192,25 @@ int board_mmc_init(bd_t *bis)
 		if (i == 2)
 			continue;
 		/* GPK0[0:6] special function 2 */
-		gpio_cfg_pin(&gpio2->k0, i, 0x2);
+		s5p_gpio_cfg_pin(&gpio2->k0, i, 0x2);
 		/* GPK0[0:6] pull disable */
-		gpio_set_pull(&gpio2->k0, i, GPIO_PULL_NONE);
+		s5p_gpio_set_pull(&gpio2->k0, i, GPIO_PULL_NONE);
 		/* GPK0[0:6] drv 4x */
-		gpio_set_drv(&gpio2->k0, i, GPIO_DRV_4X);
+		s5p_gpio_set_drv(&gpio2->k0, i, GPIO_DRV_4X);
 	}
 
 	for (i = 3; i < 7; i++) {
 		/* GPK1[3:6] special function 3 */
-		gpio_cfg_pin(&gpio2->k1, i, 0x3);
+		s5p_gpio_cfg_pin(&gpio2->k1, i, 0x3);
 		/* GPK1[3:6] pull disable */
-		gpio_set_pull(&gpio2->k1, i, GPIO_PULL_NONE);
+		s5p_gpio_set_pull(&gpio2->k1, i, GPIO_PULL_NONE);
 		/* GPK1[3:6] drv 4x */
-		gpio_set_drv(&gpio2->k1, i, GPIO_DRV_4X);
+		s5p_gpio_set_drv(&gpio2->k1, i, GPIO_DRV_4X);
 	}
 
 	/* T-flash detect */
-	gpio_cfg_pin(&gpio2->x3, 4, 0xf);
-	gpio_set_pull(&gpio2->x3, 4, GPIO_PULL_UP);
+	s5p_gpio_cfg_pin(&gpio2->x3, 4, 0xf);
+	s5p_gpio_set_pull(&gpio2->x3, 4, GPIO_PULL_UP);
 
 	/*
 	 * MMC device init
@@ -223,7 +223,7 @@ int board_mmc_init(bd_t *bis)
 	 * Check the T-flash  detect pin
 	 * GPX3[4] T-flash detect pin
 	 */
-	if (!gpio_get_value(&gpio2->x3, 4)) {
+	if (!s5p_gpio_get_value(&gpio2->x3, 4)) {
 		/*
 		 * SD card GPIO:
 		 * GPK2[0]	SD_2_CLK(2)
@@ -235,11 +235,11 @@ int board_mmc_init(bd_t *bis)
 			if (i == 2)
 				continue;
 			/* GPK2[0:6] special function 2 */
-			gpio_cfg_pin(&gpio2->k2, i, 0x2);
+			s5p_gpio_cfg_pin(&gpio2->k2, i, 0x2);
 			/* GPK2[0:6] pull disable */
-			gpio_set_pull(&gpio2->k2, i, GPIO_PULL_NONE);
+			s5p_gpio_set_pull(&gpio2->k2, i, GPIO_PULL_NONE);
 			/* GPK2[0:6] drv 4x */
-			gpio_set_drv(&gpio2->k2, i, GPIO_DRV_4X);
+			s5p_gpio_set_drv(&gpio2->k2, i, GPIO_DRV_4X);
 		}
 		err = s5p_mmc_init(2, 4);
 	}
