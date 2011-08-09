@@ -49,7 +49,6 @@ static int omapimage_check_image_types(uint8_t type)
 	if (type == IH_TYPE_OMAPIMAGE)
 		return EXIT_SUCCESS;
 	else {
-		fprintf(stderr, "Unknown OMAP image type - %x", type);
 		return EXIT_FAILURE;
 	}
 }
