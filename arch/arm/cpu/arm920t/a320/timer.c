@@ -18,20 +18,35 @@
  */
 
 #include <common.h>
+#include <div64.h>
 #include <asm/io.h>
 #include <faraday/ftpmu010.h>
 #include <faraday/fttmr010.h>
 
-static ulong timestamp;
-static ulong lastdec;
-
-static struct fttmr010 *tmr = (struct fttmr010 *)CONFIG_FTTMR010_BASE;
+DECLARE_GLOBAL_DATA_PTR;
 
 #define TIMER_CLOCK	32768
 #define TIMER_LOAD_VAL	0xffffffff
 
+static inline unsigned long long tick_to_time(unsigned long long tick)
+{
+	tick *= CONFIG_SYS_HZ;
+	do_div(tick, gd->timer_rate_hz);
+
+	return tick;
+}
+
+static inline unsigned long long usec_to_tick(unsigned long long usec)
+{
+	usec *= gd->timer_rate_hz;
+	do_div(usec, 1000000);
+
+	return usec;
+}
+
 int timer_init(void)
 {
+	struct fttmr010 *tmr = (struct fttmr010 *)CONFIG_FTTMR010_BASE;
 	unsigned int cr;
 
 	debug("%s()\n", __func__);
@@ -59,106 +74,57 @@ int timer_init(void)
 	cr |= FTTMR010_TM3_ENABLE;
 	writel(cr, &tmr->cr);
 
-	/* init the timestamp and lastdec value */
-	reset_timer_masked();
+	gd->timer_rate_hz = TIMER_CLOCK;
+	gd->tbu = gd->tbl = 0;
 
 	return 0;
 }
 
 /*
- * timer without interrupts
- */
-
-/*
- * reset time
- */
-void reset_timer_masked(void)
-{
-	/* capure current decrementer value time */
-	lastdec = readl(&tmr->timer3_counter) / (TIMER_CLOCK / CONFIG_SYS_HZ);
-	timestamp = 0;		/* start "advancing" time stamp from 0 */
-
-	debug("%s(): lastdec = %lx\n", __func__, lastdec);
-}
-
-/*
- * return timer ticks
- */
-ulong get_timer_masked(void)
-{
-	/* current tick value */
-	ulong now = readl(&tmr->timer3_counter) / (TIMER_CLOCK / CONFIG_SYS_HZ);
-
-	debug("%s(): now = %lx, lastdec = %lx\n", __func__, now, lastdec);
-
-	if (lastdec >= now) {
-		/*
-		 * normal mode (non roll)
-		 * move stamp fordward with absoulte diff ticks
-		 */
-		timestamp += lastdec - now;
-	} else {
-		/*
-		 * we have overflow of the count down timer
-		 *
-		 * nts = ts + ld + (TLV - now)
-		 * ts=old stamp, ld=time that passed before passing through -1
-		 * (TLV-now) amount of time after passing though -1
-		 * nts = new "advancing time stamp"...it could also roll and
-		 * cause problems.
-		 */
-		timestamp += lastdec + TIMER_LOAD_VAL - now;
-	}
-
-	lastdec = now;
-
-	debug("%s() returns %lx\n", __func__, timestamp);
-
-	return timestamp;
-}
-
-/*
- * return difference between timer ticks and base
- */
-ulong get_timer(ulong base)
-{
-	debug("%s(%lx)\n", __func__, base);
-	return get_timer_masked() - base;
-}
-
-/* delay x useconds AND preserve advance timestamp value */
-void __udelay(unsigned long usec)
-{
-	long tmo = usec * (TIMER_CLOCK / 1000) / 1000;
-	unsigned long now, last = readl(&tmr->timer3_counter);
-
-	debug("%s(%lu)\n", __func__, usec);
-	while (tmo > 0) {
-		now = readl(&tmr->timer3_counter);
-		if (now > last) /* count down timer overflow */
-			tmo -= TIMER_LOAD_VAL + last - now;
-		else
-			tmo -= last - now;
-		last = now;
-	}
-}
-
-/*
- * This function is derived from PowerPC code (read timebase as long long).
- * On ARM it just returns the timer value.
+ * Get the current 64 bit timer tick count
  */
 unsigned long long get_ticks(void)
 {
-	debug("%s()\n", __func__);
-	return get_timer(0);
+	struct fttmr010 *tmr = (struct fttmr010 *)CONFIG_FTTMR010_BASE;
+	ulong now = TIMER_LOAD_VAL - readl(&tmr->timer3_counter);
+
+	/* increment tbu if tbl has rolled over */
+	if (now < gd->tbl)
+		gd->tbu++;
+	gd->tbl = now;
+	return (((unsigned long long)gd->tbu) << 32) | gd->tbl;
+}
+
+void __udelay(unsigned long usec)
+{
+	unsigned long long start;
+	ulong tmo;
+
+	start = get_ticks();		/* get current timestamp */
+	tmo = usec_to_tick(usec);	/* convert usecs to ticks */
+	while ((get_ticks() - start) < tmo)
+		;			/* loop till time has passed */
 }
 
 /*
- * This function is derived from PowerPC code (timebase clock frequency).
- * On ARM it returns the number of timer ticks per second.
+ * get_timer(base) can be used to check for timeouts or
+ * to measure elasped time relative to an event:
+ *
+ * ulong start_time = get_timer(0) sets start_time to the current
+ * time value.
+ * get_timer(start_time) returns the time elapsed since then.
+ *
+ * The time is used in CONFIG_SYS_HZ units!
+ */
+ulong get_timer(ulong base)
+{
+	return tick_to_time(get_ticks()) - base;
+}
+
+/*
+ * Return the number of timer ticks per second.
  */
 ulong get_tbclk(void)
 {
-	debug("%s()\n", __func__);
-	return CONFIG_SYS_HZ;
+	return gd->timer_rate_hz;
 }
