@@ -81,8 +81,8 @@ static void v7_inval_dcache_level_setway(u32 level, u32 num_sets,
 					: : "r" (setway));
 		}
 	}
-	/* DMB to make sure the operation is complete */
-	CP15DMB;
+	/* DSB to make sure the operation is complete */
+	CP15DSB;
 }
 
 static void v7_clean_inval_dcache_level_setway(u32 level, u32 num_sets,
@@ -108,8 +108,8 @@ static void v7_clean_inval_dcache_level_setway(u32 level, u32 num_sets,
 					: : "r" (setway));
 		}
 	}
-	/* DMB to make sure the operation is complete */
-	CP15DMB;
+	/* DSB to make sure the operation is complete */
+	CP15DSB;
 }
 
 static void v7_maint_dcache_level_setway(u32 level, u32 operation)
@@ -227,8 +227,8 @@ static void v7_dcache_maint_range(u32 start, u32 stop, u32 range_op)
 		break;
 	}
 
-	/* DMB to make sure the operation is complete */
-	CP15DMB;
+	/* DSB to make sure the operation is complete */
+	CP15DSB;
 }
 
 /* Invalidate TLB */
