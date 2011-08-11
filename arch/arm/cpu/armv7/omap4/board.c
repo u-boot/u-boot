@@ -299,3 +299,11 @@ void v7_outer_cache_disable(void)
 	set_pl310_ctrl_reg(0);
 }
 #endif
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+void enable_caches(void)
+{
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
+}
+#endif

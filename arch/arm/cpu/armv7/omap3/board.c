@@ -402,3 +402,11 @@ void v7_outer_cache_disable(void)
 	omap3_update_aux_cr(0, 0x2);
 }
 #endif
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+void enable_caches(void)
+{
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
+}
+#endif
