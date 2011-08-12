@@ -798,32 +798,6 @@ M5485HFE_config :	unconfig
 # ARM
 #========================================================================
 
-########################################################################
-## ARM Integrator boards - see doc/README-integrator for more info.
-integratorap_config	\
-ap_config		\
-ap966_config		\
-ap922_config		\
-ap922_XA10_config	\
-ap7_config		\
-ap720t_config		\
-ap920t_config		\
-ap926ejs_config		\
-ap946es_config: unconfig
-	@board/armltd/integrator/split_by_variant.sh ap $@
-
-integratorcp_config	\
-cp_config		\
-cp920t_config		\
-cp926ejs_config		\
-cp946es_config		\
-cp1136_config		\
-cp966_config		\
-cp922_config		\
-cp922_XA10_config	\
-cp1026_config: unconfig
-	@board/armltd/integrator/split_by_variant.sh cp $@
-
 xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$(subst _config,,$1))))
 
 omap1610inn_config \
@@ -970,7 +944,6 @@ clean:
 	       $(obj)board/matrix_vision/*/bootscript.img		  \
 	       $(obj)board/netstar/{eeprom,crcek,crcit,*.srec,*.bin}	  \
 	       $(obj)board/voiceblue/eeprom 				  \
-	       $(obj)board/armltd/{integratorap,integratorcp}/u-boot.lds  \
 	       $(obj)u-boot.lds						  \
 	       $(obj)arch/blackfin/cpu/bootrom-asm-offsets.[chs]	  \
 	       $(obj)arch/blackfin/cpu/init.{lds,elf}

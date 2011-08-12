@@ -31,6 +31,8 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#define CONFIG_INTEGRATOR
+#define CONFIG_ARCH_INTEGRATOR
 /*
  * High Level Configuration Options
  * (easy to change)
