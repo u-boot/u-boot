@@ -24,8 +24,6 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/gpio.h>
 
-static unsigned int saved_state[2] = {STATUS_LED_OFF, STATUS_LED_OFF};
-
 /* GPIO pins for the LEDs */
 #define BEAGLE_LED_USR0	150
 #define BEAGLE_LED_USR1	149
@@ -49,22 +47,22 @@ void __led_init (led_id_t mask, int state)
 
 void __led_toggle (led_id_t mask)
 {
+	int state, toggle_gpio = 0;
 #ifdef STATUS_LED_BIT
-	if (STATUS_LED_BIT & mask) {
-		if (STATUS_LED_ON == saved_state[0])
-			__led_set(STATUS_LED_BIT, 0);
-		else
-			__led_set(STATUS_LED_BIT, 1);
-	}
+	if (!toggle_gpio && STATUS_LED_BIT & mask)
+		toggle_gpio = BEAGLE_LED_USR0;
 #endif
 #ifdef STATUS_LED_BIT1
-	if (STATUS_LED_BIT1 & mask) {
-		if (STATUS_LED_ON == saved_state[1])
-			__led_set(STATUS_LED_BIT1, 0);
-		else
-			__led_set(STATUS_LED_BIT1, 1);
-	}
+	if (!toggle_gpio && STATUS_LED_BIT1 & mask)
+		toggle_gpio = BEAGLE_LED_USR1;
 #endif
+	if (toggle_gpio) {
+		if (!omap_request_gpio(toggle_gpio)) {
+			omap_set_gpio_direction(toggle_gpio, 0);
+			state = omap_get_gpio_dataout(toggle_gpio);
+			omap_set_gpio_dataout(toggle_gpio, !state);
+		}
+	}
 }
 
 void __led_set (led_id_t mask, int state)
@@ -75,7 +73,6 @@ void __led_set (led_id_t mask, int state)
 			omap_set_gpio_direction(BEAGLE_LED_USR0, 0);
 			omap_set_gpio_dataout(BEAGLE_LED_USR0, state);
 		}
-		saved_state[0] = state;
 	}
 #endif
 #ifdef STATUS_LED_BIT1
@@ -84,7 +81,6 @@ void __led_set (led_id_t mask, int state)
 			omap_set_gpio_direction(BEAGLE_LED_USR1, 0);
 			omap_set_gpio_dataout(BEAGLE_LED_USR1, state);
 		}
-		saved_state[1] = state;
 	}
 #endif
 }

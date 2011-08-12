@@ -36,6 +36,7 @@ struct led_tbl_s {
 	led_id_t	mask;		/* Mask used for calling __led_set() */
 	void		(*off)(void);	/* Optional function for turning LED off */
 	void		(*on)(void);	/* Optional function for turning LED on */
+	void		(*toggle)(void);/* Optional function for toggling LED */
 };
 
 typedef struct led_tbl_s led_tbl_t;
@@ -43,70 +44,85 @@ typedef struct led_tbl_s led_tbl_t;
 static const led_tbl_t led_commands[] = {
 #ifdef CONFIG_BOARD_SPECIFIC_LED
 #ifdef STATUS_LED_BIT
-	{ "0", STATUS_LED_BIT, NULL, NULL },
+	{ "0", STATUS_LED_BIT, NULL, NULL, NULL },
 #endif
 #ifdef STATUS_LED_BIT1
-	{ "1", STATUS_LED_BIT1, NULL, NULL },
+	{ "1", STATUS_LED_BIT1, NULL, NULL, NULL },
 #endif
 #ifdef STATUS_LED_BIT2
-	{ "2", STATUS_LED_BIT2, NULL, NULL },
+	{ "2", STATUS_LED_BIT2, NULL, NULL, NULL },
 #endif
 #ifdef STATUS_LED_BIT3
-	{ "3", STATUS_LED_BIT3, NULL, NULL },
+	{ "3", STATUS_LED_BIT3, NULL, NULL, NULL },
 #endif
 #endif
 #ifdef STATUS_LED_GREEN
-	{ "green", STATUS_LED_GREEN, green_LED_off, green_LED_on },
+	{ "green", STATUS_LED_GREEN, green_LED_off, green_LED_on, NULL },
 #endif
 #ifdef STATUS_LED_YELLOW
-	{ "yellow", STATUS_LED_YELLOW, yellow_LED_off, yellow_LED_on },
+	{ "yellow", STATUS_LED_YELLOW, yellow_LED_off, yellow_LED_on, NULL },
 #endif
 #ifdef STATUS_LED_RED
-	{ "red", STATUS_LED_RED, red_LED_off, red_LED_on },
+	{ "red", STATUS_LED_RED, red_LED_off, red_LED_on, NULL },
 #endif
 #ifdef STATUS_LED_BLUE
-	{ "blue", STATUS_LED_BLUE, blue_LED_off, blue_LED_on },
+	{ "blue", STATUS_LED_BLUE, blue_LED_off, blue_LED_on, NULL },
 #endif
-	{ NULL, 0, NULL, NULL }
+	{ NULL, 0, NULL, NULL, NULL }
 };
 
-int str_onoff (char *var)
+enum led_cmd { LED_ON, LED_OFF, LED_TOGGLE };
+
+enum led_cmd get_led_cmd(char *var)
 {
 	if (strcmp(var, "off") == 0) {
-		return 0;
+		return LED_OFF;
 	}
 	if (strcmp(var, "on") == 0) {
-		return 1;
+		return LED_ON;
 	}
+	if (strcmp(var, "toggle") == 0)
+		return LED_TOGGLE;
 	return -1;
 }
 
 int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	int state, i, match = 0;
+	int i, match = 0;
+	enum led_cmd cmd;
 
 	/* Validate arguments */
 	if ((argc != 3)) {
 		return cmd_usage(cmdtp);
 	}
 
-	state = str_onoff(argv[2]);
-	if (state < 0) {
+	cmd = get_led_cmd(argv[2]);
+	if (cmd < 0) {
 		return cmd_usage(cmdtp);
 	}
 
 	for (i = 0; led_commands[i].string; i++) {
 		if ((strcmp("all", argv[1]) == 0) ||
 		    (strcmp(led_commands[i].string, argv[1]) == 0)) {
-		    	match = 1;
-			if (led_commands[i].on) {
-				if (state) {
+			match = 1;
+			switch (cmd) {
+			case LED_ON:
+				if (led_commands[i].on)
 					led_commands[i].on();
-				} else {
+				else
+					__led_set(led_commands[i].mask, 1);
+				break;
+			case LED_OFF:
+				if (led_commands[i].off)
 					led_commands[i].off();
-				}
-			} else {
-				__led_set(led_commands[i].mask, state);
+				else
+					__led_set(led_commands[i].mask, 0);
+				break;
+			case LED_TOGGLE:
+				if (led_commands[i].toggle)
+					led_commands[i].toggle();
+				else
+					__led_toggle(led_commands[i].mask);
 			}
 			/* Need to set only 1 led if led_name wasn't 'all' */
 			if (strcmp("all", argv[1]) != 0)
@@ -151,6 +167,6 @@ U_BOOT_CMD(
 #ifdef STATUS_LED_BLUE
 	"blue|"
 #endif
-	"all] [on|off]\n",
-	"led [led_name] [on|off] sets or clears led(s)\n"
+	"all] [on|off|toggle]\n",
+	"led [led_name] [on|off|toggle] sets or clears led(s)\n"
 );
