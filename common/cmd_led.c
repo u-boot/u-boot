@@ -108,7 +108,9 @@ int do_led (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			} else {
 				__led_set(led_commands[i].mask, state);
 			}
-			break;
+			/* Need to set only 1 led if led_name wasn't 'all' */
+			if (strcmp("all", argv[1]) != 0)
+				break;
 		}
 	}
 
