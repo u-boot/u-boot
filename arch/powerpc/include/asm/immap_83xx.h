@@ -113,7 +113,7 @@ typedef struct gtm83xx {
 	u8 cfr1;		/* Timer1/2 Configuration */
 	u8 res0[3];
 	u8 cfr2;		/* Timer3/4 Configuration */
-	u8 res1[10];
+	u8 res1[11];
 	u16 mdr1;		/* Timer1 Mode Register */
 	u16 mdr2;		/* Timer2 Mode Register */
 	u16 rfr1;		/* Timer1 Reference Register */
