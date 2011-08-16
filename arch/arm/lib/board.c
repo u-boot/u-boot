@@ -275,10 +275,6 @@ void board_init_f(ulong bootflag)
 
 	gd->mon_len = _bss_end_ofs;
 
-#ifdef CONFIG_MACH_TYPE
-	gd->bd->bi_arch_number = CONFIG_MACH_TYPE; /* board id for Linux */
-#endif
-
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0) {
 			hang ();
@@ -376,6 +372,11 @@ void board_init_f(ulong bootflag)
 	gd->bd = bd;
 	debug("Reserving %zu Bytes for Board Info at: %08lx\n",
 			sizeof (bd_t), addr_sp);
+
+#ifdef CONFIG_MACH_TYPE
+	gd->bd->bi_arch_number = CONFIG_MACH_TYPE; /* board id for Linux */
+#endif
+
 	addr_sp -= sizeof (gd_t);
 	id = (gd_t *) addr_sp;
 	debug("Reserving %zu Bytes for Global Data at: %08lx\n",
