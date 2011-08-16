@@ -53,3 +53,15 @@ void	__flush_dcache_all(void)
 }
 void	flush_dcache_all(void)
 	__attribute__((weak, alias("__flush_dcache_all")));
+
+
+/*
+ * Default implementation of enable_caches()
+ * Real implementation should be in platform code
+ */
+void __enable_caches(void)
+{
+	puts("WARNING: Caches not enabled\n");
+}
+void enable_caches(void)
+	__attribute__((weak, alias("__enable_caches")));
