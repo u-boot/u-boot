@@ -417,8 +417,8 @@ int do_mx35_showclocks(cmd_tbl_t *cmdtp,
 }
 
 U_BOOT_CMD(
-	clockinfo,	CONFIG_SYS_MAXARGS,	1,	do_mx35_showclocks,
-	"display clocks\n",
+	clocks,	CONFIG_SYS_MAXARGS, 1, do_mx35_showclocks,
+	"display clocks",
 	""
 );
 

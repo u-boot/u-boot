@@ -288,7 +288,7 @@ int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 /***************************************************/
 
 U_BOOT_CMD(
-	clockinfo,	CONFIG_SYS_MAXARGS,	1,	do_mx5_showclocks,
-	"display clocks\n",
+	clocks,	CONFIG_SYS_MAXARGS, 1, do_mx5_showclocks,
+	"display clocks",
 	""
 );
