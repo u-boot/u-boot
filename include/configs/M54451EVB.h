@@ -127,7 +127,7 @@
 	"load=tftp ${loadaddr} ${sbfhdr};"	\
 	"tftp " MK_STR(CONFIG_SYS_LOAD_ADDR2) " ${uboot} \0"	\
 	"upd=run load; run prog\0"		\
-	"prog=sf probe 0:1 10000 1;"		\
+	"prog=sf probe 0:1 1000000 3;"		\
 	"sf erase 0 30000;"			\
 	"sf write ${loadaddr} 0 30000;"		\
 	"save\0"				\
@@ -244,14 +244,16 @@
 #define CONFIG_SYS_MEMTEST_END		((CONFIG_SYS_SDRAM_SIZE - 3) << 20)
 
 #ifdef CONFIG_CF_SBF
+#	define CONFIG_SERIAL_BOOT
 #	define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_TEXT_BASE + 0x400)
 #else
 #	define CONFIG_SYS_MONITOR_BASE	(CONFIG_SYS_FLASH_BASE + 0x400)
 #endif
 #define CONFIG_SYS_BOOTPARAMS_LEN	64*1024
 #define CONFIG_SYS_MONITOR_LEN		(256 << 10)	/* Reserve 256 kB for Monitor */
-#define CONFIG_SYS_MALLOC_LEN		(128 << 10)	/* Reserve 128 kB for malloc() */
 
+/* Reserve 256 kB for malloc() */
+#define CONFIG_SYS_MALLOC_LEN		(256 << 10)
 /*
  * For booting Linux, the board info and command line data
  * have to be in the first 8 MB of memory, since this is
@@ -261,7 +263,8 @@
 #define CONFIG_SYS_BOOTMAPSZ		(CONFIG_SYS_SDRAM_BASE + (CONFIG_SYS_SDRAM_SIZE << 20))
 
 /* Configuration for environment
- * Environment is embedded in u-boot in the second sector of the flash
+ * Environment is not embedded in u-boot. First time runing may have env
+ * crc error warning if there is no correct environment on the flash.
  */
 #if defined(CONFIG_SYS_STMICRO_BOOT)
 #	define CONFIG_ENV_IS_IN_SPI_FLASH	1
@@ -271,9 +274,9 @@
 #	define CONFIG_ENV_SECT_SIZE	0x10000
 #else
 #	define CONFIG_ENV_IS_IN_FLASH	1
-#	define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x8000)
+#	define CONFIG_ENV_ADDR		(CONFIG_SYS_FLASH_BASE + 0x40000)
 #	define CONFIG_ENV_SIZE		0x2000
-#	define CONFIG_ENV_SECT_SIZE	0x8000
+#	define CONFIG_ENV_SECT_SIZE	0x20000
 #endif
 #undef CONFIG_ENV_OVERWRITE
 
