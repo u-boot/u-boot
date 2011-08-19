@@ -33,7 +33,7 @@
 /* Maximum Long File Name length supported here is 128 UTF-16 code units */
 #define VFAT_MAXLEN_BYTES	256 /* Maximum LFN buffer in bytes */
 #define VFAT_MAXSEQ		9   /* Up to 9 of 13 2-byte UTF-16 entries */
-#define LINEAR_PREFETCH_SIZE	(mydata->sect_size*2) /* Prefetch buffer size */
+#define PREFETCH_BLOCKS		2
 
 #define MAX_CLUSTSIZE	65536
 #define DIRENTSPERBLOCK	(mydata->sect_size / sizeof(dir_entry))

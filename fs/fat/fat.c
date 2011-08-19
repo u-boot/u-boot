@@ -440,10 +440,9 @@ get_vfatname (fsdata *mydata, int curclust, __u8 *cluster,
 {
 	dir_entry *realdent;
 	dir_slot *slotptr = (dir_slot *)retdent;
-	__u8 *buflimit = cluster + ((curclust == 0) ?
-					LINEAR_PREFETCH_SIZE :
-					(mydata->clust_size * mydata->sect_size)
-				   );
+	__u8 *buflimit = cluster + mydata->sect_size * ((curclust == 0) ?
+							PREFETCH_BLOCKS :
+							mydata->clust_size);
 	__u8 counter = (slotptr->id & ~LAST_LONG_ENTRY_MASK) & 0xff;
 	int idx = 0;
 
@@ -880,7 +879,7 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 		if (disk_read(cursect,
 				(mydata->fatsize == 32) ?
 				(mydata->clust_size) :
-				LINEAR_PREFETCH_SIZE / mydata->sect_size,
+				PREFETCH_BLOCKS,
 				do_fat_read_block) < 0) {
 			debug("Error: reading rootdir block\n");
 			goto exit;
