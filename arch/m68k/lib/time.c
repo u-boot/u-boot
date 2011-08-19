@@ -91,7 +91,7 @@ void dtimer_interrupt(void *not_used)
 	}
 }
 
-void timer_init(void)
+int timer_init(void)
 {
 	volatile dtmr_t *timerp = (dtmr_t *) (CONFIG_SYS_TMR_BASE);
 
@@ -114,6 +114,8 @@ void timer_init(void)
 	/* set a period of 1us, set timer mode to restart and enable timer and interrupt */
 	timerp->tmr = CONFIG_SYS_TIMER_PRESCALER | DTIM_DTMR_CLK_DIV1 |
 	    DTIM_DTMR_FRR | DTIM_DTMR_ORRI | DTIM_DTMR_RST_EN;
+
+	return 0;
 }
 
 ulong get_timer(ulong base)
@@ -162,6 +164,8 @@ void timer_init(void)
 	timerp->pcsr = PIT_PCSR_OVW;
 	timerp->pmr = lastinc = 0;
 	timerp->pcsr |= PIT_PCSR_PRE(CONFIG_SYS_PIT_PRESCALE) | PIT_PCSR_EN;
+
+	return 0;
 }
 
 ulong get_timer(ulong base)
