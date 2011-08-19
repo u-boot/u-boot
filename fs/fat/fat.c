@@ -788,7 +788,7 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 	int files = 0, dirs = 0;
 	long ret = -1;
 	int firsttime;
-	__u32 root_cluster;
+	__u32 root_cluster = 0;
 	int rootdir_size = 0;
 	int j;
 
@@ -797,12 +797,12 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 		return -1;
 	}
 
-	root_cluster = bs.root_cluster;
-
-	if (mydata->fatsize == 32)
+	if (mydata->fatsize == 32) {
+		root_cluster = bs.root_cluster;
 		mydata->fatlength = bs.fat32_length;
-	else
+	} else {
 		mydata->fatlength = bs.fat_length;
+	}
 
 	mydata->fat_sect = bs.reserved;
 
@@ -904,9 +904,7 @@ do_fat_read (const char *filename, void *buffer, unsigned long maxsize,
 						((dir_slot *)dentptr)->alias_checksum;
 
 					get_vfatname(mydata,
-						     (mydata->fatsize == 32) ?
-						     root_cluster :
-						     0,
+						     root_cluster,
 						     do_fat_read_block,
 						     dentptr, l_name);
 
