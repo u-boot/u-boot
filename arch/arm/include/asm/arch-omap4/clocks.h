@@ -679,12 +679,12 @@ struct dpll_regs {
 struct dpll_params {
 	u32 m;
 	u32 n;
-	u8 m2;
-	u8 m3;
-	u8 m4;
-	u8 m5;
-	u8 m6;
-	u8 m7;
+	s8 m2;
+	s8 m3;
+	s8 m4;
+	s8 m5;
+	s8 m6;
+	s8 m7;
 };
 
 #endif /* _CLOCKS_OMAP4_H_ */
