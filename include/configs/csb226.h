@@ -141,7 +141,7 @@
 						/*    ^^      Run Mode Speed = 2x Mem Speed  */
 						/* ^^         Turbo Mode Sp. = 1x Run M. Sp. */
 
-#define CONFIG_SYS_MONITOR_LEN		0x20000		/* 128 KiB */
+#define CONFIG_SYS_MONITOR_LEN		0x1c000		/* 112 KiB */
 
 						/* valid baudrates */
 #define CONFIG_SYS_BAUDRATE_TABLE      { 9600, 19200, 38400, 57600, 115200 }
