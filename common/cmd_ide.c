@@ -985,9 +985,8 @@ input_data(int dev, ulong *sect_buf, int words)
  */
 static void ide_ident (block_dev_desc_t *dev_desc)
 {
-	ulong iobuf[ATA_SECTORWORDS];
 	unsigned char c;
-	hd_driveid_t *iop = (hd_driveid_t *)iobuf;
+	hd_driveid_t iop;
 
 #ifdef CONFIG_ATAPI
 	int retries = 0;
@@ -1073,11 +1072,11 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 		return;
 #endif
 
-	input_swap_data (device, iobuf, ATA_SECTORWORDS);
+	input_swap_data (device, (ulong *)&iop, ATA_SECTORWORDS);
 
-	ident_cpy ((unsigned char*)dev_desc->revision, iop->fw_rev, sizeof(dev_desc->revision));
-	ident_cpy ((unsigned char*)dev_desc->vendor, iop->model, sizeof(dev_desc->vendor));
-	ident_cpy ((unsigned char*)dev_desc->product, iop->serial_no, sizeof(dev_desc->product));
+	ident_cpy ((unsigned char*)dev_desc->revision, iop.fw_rev, sizeof(dev_desc->revision));
+	ident_cpy ((unsigned char*)dev_desc->vendor, iop.model, sizeof(dev_desc->vendor));
+	ident_cpy ((unsigned char*)dev_desc->product, iop.serial_no, sizeof(dev_desc->product));
 #ifdef __LITTLE_ENDIAN
 	/*
 	 * firmware revision, model, and serial number have Big Endian Byte
@@ -1092,14 +1091,14 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	strswab (dev_desc->product);
 #endif /* __LITTLE_ENDIAN */
 
-	if ((iop->config & 0x0080)==0x0080)
+	if ((iop.config & 0x0080) == 0x0080)
 		dev_desc->removable = 1;
 	else
 		dev_desc->removable = 0;
 
 #ifdef CONFIG_TUNE_PIO
 	/* Mode 0 - 2 only, are directly determined by word 51. */
-	pio_mode = iop->tPIO;
+	pio_mode = iop.tPIO;
 	if (pio_mode > 2) {
 		printf("WARNING: Invalid PIO (word 51 = %d).\n", pio_mode);
 		pio_mode = 0; /* Force it to dead slow, and hope for the best... */
@@ -1109,18 +1108,18 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	 * shall set bit 1 of word 53 to one and support the fields contained
 	 * in words 64 through 70.
 	 */
-	if (iop->field_valid & 0x02) {
+	if (iop.field_valid & 0x02) {
 		/* Mode 3 and above are possible.  Check in order from slow
 		 * to fast, so we wind up with the highest mode allowed.
 		 */
-		if (iop->eide_pio_modes & 0x01)
+		if (iop.eide_pio_modes & 0x01)
 			pio_mode = 3;
-		if (iop->eide_pio_modes & 0x02)
+		if (iop.eide_pio_modes & 0x02)
 			pio_mode = 4;
-		if (ata_id_is_cfa((u16 *)iop)) {
-			if ((iop->cf_advanced_caps & 0x07) == 0x01)
+		if (ata_id_is_cfa((u16 *)&iop)) {
+			if ((iop.cf_advanced_caps & 0x07) == 0x01)
 				pio_mode = 5;
-			if ((iop->cf_advanced_caps & 0x07) == 0x02)
+			if ((iop.cf_advanced_caps & 0x07) == 0x02)
 				pio_mode = 6;
 		}
 	}
@@ -1133,19 +1132,19 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	/*
 	 * Drive PIO mode autoselection
 	 */
-	mode = iop->tPIO;
+	mode = iop.tPIO;
 
 	printf ("tPIO = 0x%02x = %d\n",mode, mode);
 	if (mode > 2) {		/* 2 is maximum allowed tPIO value */
 		mode = 2;
 		debug ("Override tPIO -> 2\n");
 	}
-	if (iop->field_valid & 2) {	/* drive implements ATA2? */
+	if (iop.field_valid & 2) {	/* drive implements ATA2? */
 		debug ("Drive implements ATA2\n");
-		if (iop->capability & 8) {	/* drive supports use_iordy? */
-			cycle_time = iop->eide_pio_iordy;
+		if (iop.capability & 8) {	/* drive supports use_iordy? */
+			cycle_time = iop.eide_pio_iordy;
 		} else {
-			cycle_time = iop->eide_pio;
+			cycle_time = iop.eide_pio;
 		}
 		debug ("cycle time = %d\n", cycle_time);
 		mode = 4;
@@ -1166,7 +1165,7 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 
 #ifdef __BIG_ENDIAN
 	/* swap shorts */
-	dev_desc->lba = (iop->lba_capacity << 16) | (iop->lba_capacity >> 16);
+	dev_desc->lba = (iop.lba_capacity << 16) | (iop.lba_capacity >> 16);
 #else	/* ! __BIG_ENDIAN */
 	/*
 	 * do not swap shorts on little endian
@@ -1174,16 +1173,16 @@ static void ide_ident (block_dev_desc_t *dev_desc)
 	 * See CF+ and CompactFlash Specification Revision 2.0:
 	 * 6.2.1.6: Identfy Drive, Table 39, Word Address 57-58 for details.
 	 */
-	dev_desc->lba = iop->lba_capacity;
+	dev_desc->lba = iop.lba_capacity;
 #endif	/* __BIG_ENDIAN */
 
 #ifdef CONFIG_LBA48
-	if (iop->command_set_2 & 0x0400) { /* LBA 48 support */
+	if (iop.command_set_2 & 0x0400) { /* LBA 48 support */
 		dev_desc->lba48 = 1;
-		dev_desc->lba = (unsigned long long)iop->lba48_capacity[0] |
-						  ((unsigned long long)iop->lba48_capacity[1] << 16) |
-						  ((unsigned long long)iop->lba48_capacity[2] << 32) |
-						  ((unsigned long long)iop->lba48_capacity[3] << 48);
+		dev_desc->lba = (unsigned long long)iop.lba48_capacity[0] |
+						  ((unsigned long long)iop.lba48_capacity[1] << 16) |
+						  ((unsigned long long)iop.lba48_capacity[2] << 32) |
+						  ((unsigned long long)iop.lba48_capacity[3] << 48);
 	} else {
 		dev_desc->lba48 = 0;
 	}
