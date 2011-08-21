@@ -31,7 +31,7 @@
 #include <netdev.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
-#include <mxc_gpio.h>
+#include <asm/gpio.h>
 
 #define ETHERNET_INT		(1 * 32 + 31)  /* GPIO2_31 */
 
@@ -93,9 +93,9 @@ int board_mmc_getcd(u8 *cd, struct mmc *mmc)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		*cd = mxc_gpio_get(1); /*GPIO1_1*/
+		*cd = gpio_get_value(1); /*GPIO1_1*/
 	else
-		*cd = mxc_gpio_get(4); /*GPIO1_4*/
+		*cd = gpio_get_value(4); /*GPIO1_4*/
 
 	return 0;
 }
@@ -176,7 +176,7 @@ static void weim_smc911x_iomux(void)
 {
 	/* ETHERNET_INT as GPIO2_31 */
 	mxc_request_iomux(MX53_PIN_EIM_EB3, IOMUX_CONFIG_ALT1);
-	mxc_gpio_direction(ETHERNET_INT, MXC_GPIO_DIRECTION_IN);
+	gpio_direction_input(ETHERNET_INT);
 
 	/* Data bus */
 	mxc_request_iomux(MX53_PIN_EIM_D16, IOMUX_CONFIG_ALT0);
