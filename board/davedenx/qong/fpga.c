@@ -25,7 +25,7 @@
 #include <common.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
-#include <mxc_gpio.h>
+#include <asm/gpio.h>
 #include <fpga.h>
 #include <lattice.h>
 #include "qong_fpga.h"
@@ -41,22 +41,22 @@ static void qong_jtag_init(void)
 
 static void qong_fpga_jtag_set_tdi(int value)
 {
-	mxc_gpio_set(QONG_FPGA_TDI_PIN, value);
+	gpio_set_value(QONG_FPGA_TDI_PIN, value);
 }
 
 static void qong_fpga_jtag_set_tms(int value)
 {
-	mxc_gpio_set(QONG_FPGA_TMS_PIN, value);
+	gpio_set_value(QONG_FPGA_TMS_PIN, value);
 }
 
 static void qong_fpga_jtag_set_tck(int value)
 {
-	mxc_gpio_set(QONG_FPGA_TCK_PIN, value);
+	gpio_set_value(QONG_FPGA_TCK_PIN, value);
 }
 
 static int qong_fpga_jtag_get_tdo(void)
 {
-	return mxc_gpio_get(QONG_FPGA_TDO_PIN);
+	return gpio_get_value(QONG_FPGA_TDO_PIN);
 }
 
 lattice_board_specific_func qong_fpga_fns = {

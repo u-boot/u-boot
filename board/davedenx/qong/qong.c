@@ -28,7 +28,7 @@
 #include <asm/io.h>
 #include <nand.h>
 #include <fsl_pmic.h>
-#include <mxc_gpio.h>
+#include <asm/gpio.h>
 #include "qong_fpga.h"
 #include <watchdog.h>
 
@@ -51,9 +51,9 @@ int dram_init (void)
 
 static void qong_fpga_reset(void)
 {
-	mxc_gpio_set(QONG_FPGA_RST_PIN, 0);
+	gpio_set_value(QONG_FPGA_RST_PIN, 0);
 	udelay(30);
-	mxc_gpio_set(QONG_FPGA_RST_PIN, 1);
+	gpio_set_value(QONG_FPGA_RST_PIN, 1);
 
 	udelay(300);
 }
@@ -76,21 +76,20 @@ int board_early_init_f (void)
 
 	/* FPGA reset  Pin */
 	/* rstn = 0 */
-	mxc_gpio_set(QONG_FPGA_RST_PIN, 0);
-	mxc_gpio_direction(QONG_FPGA_RST_PIN, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(QONG_FPGA_RST_PIN, 0);
 
 	/* set interrupt pin as input */
-	mxc_gpio_direction(QONG_FPGA_IRQ_PIN, MXC_GPIO_DIRECTION_IN);
+	gpio_direction_input(QONG_FPGA_IRQ_PIN);
 
 	/* FPGA JTAG Interface */
 	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SFS6, MUX_CTL_GPIO));
 	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_SCK6, MUX_CTL_GPIO));
 	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_CAPTURE, MUX_CTL_GPIO));
 	mx31_gpio_mux(IOMUX_MODE(MUX_CTL_COMPARE, MUX_CTL_GPIO));
-	mxc_gpio_direction(QONG_FPGA_TCK_PIN, MXC_GPIO_DIRECTION_OUT);
-	mxc_gpio_direction(QONG_FPGA_TMS_PIN, MXC_GPIO_DIRECTION_OUT);
-	mxc_gpio_direction(QONG_FPGA_TDI_PIN, MXC_GPIO_DIRECTION_OUT);
-	mxc_gpio_direction(QONG_FPGA_TDO_PIN, MXC_GPIO_DIRECTION_IN);
+	gpio_direction_output(QONG_FPGA_TCK_PIN, 0);
+	gpio_direction_output(QONG_FPGA_TMS_PIN, 0);
+	gpio_direction_output(QONG_FPGA_TDI_PIN, 0);
+	gpio_direction_input(QONG_FPGA_TDO_PIN);
 #endif
 
 	/* setup pins for UART1 */
@@ -263,27 +262,26 @@ static void board_nand_setup(void)
 	qong_fpga_reset();
 
 	/* Enable NAND flash */
-	mxc_gpio_set(15, 1);
-	mxc_gpio_set(14, 1);
-	mxc_gpio_direction(15, MXC_GPIO_DIRECTION_OUT);
-	mxc_gpio_direction(16, MXC_GPIO_DIRECTION_IN);
-	mxc_gpio_direction(14, MXC_GPIO_DIRECTION_IN);
-	mxc_gpio_set(15, 0);
+	gpio_set_value(15, 1);
+	gpio_set_value(14, 1);
+	gpio_direction_output(15, 0);
+	gpio_direction_input(16);
+	gpio_direction_input(14);
 
 }
 
 int qong_nand_rdy(void *chip)
 {
 	udelay(1);
-	return mxc_gpio_get(16);
+	return gpio_get_value(16);
 }
 
 void qong_nand_select_chip(struct mtd_info *mtd, int chip)
 {
 	if (chip >= 0)
-		mxc_gpio_set(15, 0);
+		gpio_set_value(15, 0);
 	else
-		mxc_gpio_set(15, 1);
+		gpio_set_value(15, 1);
 
 }
 
