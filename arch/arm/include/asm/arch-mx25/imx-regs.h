@@ -84,18 +84,6 @@ struct esdramc_regs {
 	u32 cdlyl;	/* delay line cycle length debug */
 };
 
-/* GPIO registers */
-struct gpio_regs {
-	u32 gpio_dr;	/* data */
-	u32 gpio_dir;	/* direction */
-	u32 psr;	/* pad satus */
-	u32 icr1;	/* interrupt config 1 */
-	u32 icr2;	/* interrupt config 2 */
-	u32 imr;	/* interrupt mask */
-	u32 isr;	/* interrupt status */
-	u32 edge_sel;	/* edge select */
-};
-
 /* General Purpose Timer (GPT) registers */
 struct gpt_regs {
 	u32 ctrl;   	/* control */
