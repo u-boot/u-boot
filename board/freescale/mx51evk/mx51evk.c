@@ -22,6 +22,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx5x_pins.h>
 #include <asm/arch/iomux.h>
@@ -180,7 +181,6 @@ static void setup_iomux_spi(void)
 static void power_init(void)
 {
 	unsigned int val;
-	unsigned int reg;
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)MXC_CCM_BASE;
 
 	/* Write needed to Power Gate 2 register */
@@ -249,13 +249,7 @@ static void power_init(void)
 	pmic_reg_write(REG_MODE_1, val);
 	udelay(200);
 
-	reg = readl(GPIO2_BASE_ADDR + 0x0);
-	reg &= ~0x4000;  /* Lower reset line */
-	writel(reg, GPIO2_BASE_ADDR + 0x0);
-
-	reg = readl(GPIO2_BASE_ADDR + 0x4);
-	reg |= 0x4000;	/* configure GPIO lines as output */
-	writel(reg, GPIO2_BASE_ADDR + 0x4);
+	gpio_direction_output(46, 0);
 
 	/* Reset the ethernet controller over GPIO */
 	writel(0x1, IOMUXC_BASE_ADDR + 0x0AC);
@@ -267,9 +261,7 @@ static void power_init(void)
 
 	udelay(500);
 
-	reg = readl(GPIO2_BASE_ADDR + 0x0);
-	reg |= 0x4000;
-	writel(reg, GPIO2_BASE_ADDR + 0x0);
+	gpio_set_value(46, 1);
 }
 
 #ifdef CONFIG_FSL_ESDHC
@@ -278,9 +270,9 @@ int board_mmc_getcd(u8 *cd, struct mmc *mmc)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		*cd = readl(GPIO1_BASE_ADDR) & 0x01;
+		*cd = gpio_get_value(0);
 	else
-		*cd = readl(GPIO1_BASE_ADDR) & 0x40;
+		*cd = gpio_get_value(6);
 
 	return 0;
 }
