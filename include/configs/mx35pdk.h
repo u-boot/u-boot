@@ -63,6 +63,7 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		0xfe
 #define CONFIG_MXC_SPI
+#define CONFIG_MXC_GPIO
 
 
 /*

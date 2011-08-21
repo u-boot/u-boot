@@ -34,7 +34,7 @@
 #include <mc9sdz60.h>
 #include <mc13892.h>
 #include <linux/types.h>
-#include <mxc_gpio.h>
+#include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 #include <netdev.h>
 
@@ -240,8 +240,7 @@ int board_late_init(void)
 		mxc_request_iomux(MX35_PIN_COMPARE, MUX_CONFIG_GPIO);
 		mxc_iomux_set_input(MUX_IN_GPIO1_IN_5, INPUT_CTL_PATH0);
 
-		mxc_gpio_direction(37, MXC_GPIO_DIRECTION_OUT);
-		mxc_gpio_set(37, 1);
+		gpio_direction_output(37, 1);
 	}
 
 	val = mc9sdz60_reg_read(MC9SDZ60_REG_GPIO_1) | 0x04;
