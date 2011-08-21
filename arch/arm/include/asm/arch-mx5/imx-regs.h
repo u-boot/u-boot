@@ -409,13 +409,6 @@ struct iomuxc {
 };
 #endif
 
-/* GPIO Registers */
-struct gpio_regs {
-	u32	gpio_dr;
-	u32	gpio_dir;
-	u32	gpio_psr;
-};
-
 /* System Reset Controller (SRC) */
 struct src {
 	u32	scr;
