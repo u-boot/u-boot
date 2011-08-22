@@ -27,6 +27,7 @@ LIB 	:= $(obj)libgpio.o
 
 COBJS-$(CONFIG_AT91_GPIO)	+= at91_gpio.o
 COBJS-$(CONFIG_KIRKWOOD_GPIO)	+= kw_gpio.o
+COBJS-$(CONFIG_MARVELL_GPIO)	+= mvgpio.o
 COBJS-$(CONFIG_MARVELL_MFP)	+= mvmfp.o
 COBJS-$(CONFIG_MXC_GPIO)	+= mxc_gpio.o
 COBJS-$(CONFIG_PCA953X)		+= pca953x.o
