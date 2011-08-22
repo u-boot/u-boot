@@ -6,6 +6,7 @@
  */
 
 #include <common.h>
+#include <malloc.h>
 #include <spi_flash.h>
 
 #include <asm/io.h>
@@ -109,6 +110,80 @@ static int do_spi_flash_probe(int argc, char * const argv[])
 	return 0;
 }
 
+/**
+ * Write a block of data to SPI flash, first checking if it is different from
+ * what is already there.
+ *
+ * If the data being written is the same, then *skipped is incremented by len.
+ *
+ * @param flash		flash context pointer
+ * @param offset	flash offset to write
+ * @param len		number of bytes to write
+ * @param buf		buffer to write from
+ * @param cmp_buf	read buffer to use to compare data
+ * @param skipped	Count of skipped data (incremented by this function)
+ * @return NULL if OK, else a string containing the stage which failed
+ */
+static const char *spi_flash_update_block(struct spi_flash *flash, u32 offset,
+		size_t len, const char *buf, char *cmp_buf, size_t *skipped)
+{
+	debug("offset=%#x, sector_size=%#x, len=%#x\n",
+		offset, flash->sector_size, len);
+	if (spi_flash_read(flash, offset, len, cmp_buf))
+		return "read";
+	if (memcmp(cmp_buf, buf, len) == 0) {
+		debug("Skip region %x size %x: no change\n",
+			offset, len);
+		*skipped += len;
+		return NULL;
+	}
+	if (spi_flash_erase(flash, offset, len))
+		return "erase";
+	if (spi_flash_write(flash, offset, len, buf))
+		return "write";
+	return NULL;
+}
+
+/**
+ * Update an area of SPI flash by erasing and writing any blocks which need
+ * to change. Existing blocks with the correct data are left unchanged.
+ *
+ * @param flash		flash context pointer
+ * @param offset	flash offset to write
+ * @param len		number of bytes to write
+ * @param buf		buffer to write from
+ * @return 0 if ok, 1 on error
+ */
+static int spi_flash_update(struct spi_flash *flash, u32 offset,
+		size_t len, const char *buf)
+{
+	const char *err_oper = NULL;
+	char *cmp_buf;
+	const char *end = buf + len;
+	size_t todo;		/* number of bytes to do in this pass */
+	size_t skipped;		/* statistics */
+
+	cmp_buf = malloc(flash->sector_size);
+	if (cmp_buf) {
+		for (skipped = 0; buf < end && !err_oper;
+				buf += todo, offset += todo) {
+			todo = min(end - buf, flash->sector_size);
+			err_oper = spi_flash_update_block(flash, offset, todo,
+					buf, cmp_buf, &skipped);
+		}
+	} else {
+		err_oper = "malloc";
+	}
+	free(cmp_buf);
+	if (err_oper) {
+		printf("SPI flash failed in %s step\n", err_oper);
+		return 1;
+	}
+	printf("%zu bytes written, %zu bytes skipped\n", len - skipped,
+	       skipped);
+	return 0;
+}
+
 static int do_spi_flash_read_write(int argc, char * const argv[])
 {
 	unsigned long addr;
@@ -137,7 +212,9 @@ static int do_spi_flash_read_write(int argc, char * const argv[])
 		return 1;
 	}
 
-	if (strcmp(argv[0], "read") == 0)
+	if (strcmp(argv[0], "update") == 0)
+		ret = spi_flash_update(flash, offset, len, buf);
+	else if (strcmp(argv[0], "read") == 0)
 		ret = spi_flash_read(flash, offset, len, buf);
 	else
 		ret = spi_flash_write(flash, offset, len, buf);
@@ -203,7 +280,8 @@ static int do_spi_flash(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[
 		return 1;
 	}
 
-	if (strcmp(cmd, "read") == 0 || strcmp(cmd, "write") == 0)
+	if (strcmp(cmd, "read") == 0 || strcmp(cmd, "write") == 0 ||
+	    strcmp(cmd, "update") == 0)
 		ret = do_spi_flash_read_write(argc, argv);
 	else if (strcmp(cmd, "erase") == 0)
 		ret = do_spi_flash_erase(argc, argv);
@@ -228,5 +306,7 @@ U_BOOT_CMD(
 	"sf write addr offset len	- write `len' bytes from memory\n"
 	"				  at `addr' to flash at `offset'\n"
 	"sf erase offset [+]len		- erase `len' bytes from `offset'\n"
-	"				  `+len' round up `len' to block size"
+	"				  `+len' round up `len' to block size\n"
+	"sf update addr offset len	- erase and write `len' bytes from memory\n"
+	"				  at `addr' to flash at `offset'"
 );
