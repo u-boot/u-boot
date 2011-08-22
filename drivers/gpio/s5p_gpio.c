@@ -141,3 +141,47 @@ void s5p_gpio_set_rate(struct s5p_gpio_bank *bank, int gpio, int mode)
 
 	writel(value, &bank->drv);
 }
+
+struct s5p_gpio_bank *s5p_gpio_get_bank(int nr)
+{
+	int bank = nr / GPIO_PER_BANK;
+	bank *= sizeof(struct s5p_gpio_bank);
+
+	return (struct s5p_gpio_bank *) (s5p_gpio_base(nr) + bank);
+}
+
+int s5p_gpio_get_pin(int nr)
+{
+	return nr % GPIO_PER_BANK;
+}
+
+int gpio_request(int gpio, const char *label)
+{
+	return 0;
+}
+
+int gpio_direction_input(int nr)
+{
+	s5p_gpio_direction_input(s5p_gpio_get_bank(nr),
+				s5p_gpio_get_pin(nr));
+	return 0;
+}
+
+int gpio_direction_output(int nr, int value)
+{
+	s5p_gpio_direction_output(s5p_gpio_get_bank(nr),
+				 s5p_gpio_get_pin(nr), value);
+	return 0;
+}
+
+int gpio_get_value(int nr)
+{
+	return (int) s5p_gpio_get_value(s5p_gpio_get_bank(nr),
+				       s5p_gpio_get_pin(nr));
+}
+
+void gpio_set_value(int nr, int value)
+{
+	s5p_gpio_set_value(s5p_gpio_get_bank(nr),
+			  s5p_gpio_get_pin(nr), value);
+}
