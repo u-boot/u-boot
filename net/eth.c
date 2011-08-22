@@ -108,6 +108,8 @@ struct eth_device *eth_get_dev_by_name(const char *devname)
 {
 	struct eth_device *dev, *target_dev;
 
+	BUG_ON(devname == NULL);
+
 	if (!eth_devices)
 		return NULL;
 
