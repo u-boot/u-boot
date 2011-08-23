@@ -127,10 +127,10 @@
 #define CONFIG_BOOTCOMMAND		"run bootflash;"
 #define CONFIG_EXTRA_ENV_SETTINGS \
 		"loadaddr=0x80008000\0" \
-		"initrd=0x61000000\0" \
-		"kerneladdr=0x44100000\0" \
-		"initrdaddr=0x44800000\0" \
-		"maxinitrd=0x1800000\0" \
+		"ramdisk_addr_r=0x61000000\0" \
+		"kernel_addr=0x44100000\0" \
+		"ramdisk_addr=0x44800000\0" \
+		"maxramdisk=0x1800000\0" \
 		"console=ttyAMA0,38400n8\0" \
 		"dram=1024M\0" \
 		"root=/dev/sda1 rw\0" \
@@ -140,8 +140,8 @@
 			"mem=${dram} mtdparts=${mtd} mmci.fmax=190000 " \
 			"devtmpfs.mount=0  vmalloc=256M\0" \
 		"bootflash=run flashargs; " \
-			"cp ${initrdaddr} ${initrd} ${maxinitrd}; " \
-			"bootm ${kerneladdr} ${initrd}\0"
+			"cp ${ramdisk_addr} ${ramdisk_addr_r} ${maxramdisk}; " \
+			"bootm ${kernel_addr} ${ramdisk_addr_r}\0"
 
 /* FLASH and environment organization */
 #define PHYS_FLASH_SIZE			0x04000000	/* 64MB */
