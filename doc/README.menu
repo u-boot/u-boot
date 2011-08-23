@@ -45,7 +45,7 @@ struct menu;
 /*
  * menu_create() - Creates a menu handle with default settings
  */
-struct menu *menu_create(char *title, int prompt,
+struct menu *menu_create(char *title, int timeout, int prompt,
 				void (*item_data_print)(void *));
 
 /*
@@ -60,7 +60,7 @@ int menu_default_set(struct menu *m, char *item_key);
 
 /*
  * menu_get_choice() - Returns the user's selected menu entry, or the
- * default if the menu is set to not prompt.
+ * default if the menu is set to not prompt or the timeout expires.
  */
 int menu_get_choice(struct menu *m, void **choice);
 
@@ -90,7 +90,7 @@ char *pick_a_tool(void)
 	int i;
 	char *tool = NULL;
 
-	m = menu_create("Tools", 1, NULL);
+	m = menu_create("Tools", 0, 1, NULL);
 
 	for(i = 0; tools[i]; i++) {
 		if (menu_item_add(m, tools[i], tools[i]) != 1) {

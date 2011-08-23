@@ -20,7 +20,7 @@
 
 struct menu;
 
-struct menu *menu_create(char *title, int prompt,
+struct menu *menu_create(char *title, int timeout, int prompt,
 				void (*item_data_print)(void *));
 int menu_default_set(struct menu *m, char *item_key);
 int menu_get_choice(struct menu *m, void **choice);

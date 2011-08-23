@@ -43,6 +43,7 @@ struct menu_item {
  */
 struct menu {
 	struct menu_item *default_item;
+	int timeout;
 	char *title;
 	int prompt;
 	void (*item_data_print)(void *);
@@ -158,13 +159,29 @@ static inline struct menu_item *menu_item_by_key(struct menu *m,
 }
 
 /*
+ * Wait for the user to hit a key according to the timeout set for the menu.
+ * Returns 1 if the user hit a key, or 0 if the timeout expired.
+ */
+static inline int menu_interrupted(struct menu *m)
+{
+	if (!m->timeout)
+		return 0;
+
+	if (abortboot(m->timeout/10))
+		return 1;
+
+	return 0;
+}
+
+/*
  * Checks whether or not the default menu item should be used without
- * prompting for a user choice.  If the menu is set to always prompt, return
- * 0. Otherwise, return 1 to indicate we should use the default menu item.
+ * prompting for a user choice. If the menu is set to always prompt, or the
+ * user hits a key during the timeout period, return 0. Otherwise, return 1 to
+ * indicate we should use the default menu item.
  */
 static inline int menu_use_default(struct menu *m)
 {
-	return !m->prompt;
+	return !m->prompt && !menu_interrupted(m);
 }
 
 /*
@@ -250,7 +267,8 @@ int menu_default_set(struct menu *m, char *item_key)
 
 /*
  * menu_get_choice() - Returns the user's selected menu entry, or the default
- * if the menu is set to not prompt. This is safe to call more than once.
+ * if the menu is set to not prompt or the timeout expires. This is safe to
+ * call more than once.
  *
  * m - Points to a menu created by menu_create().
  *
@@ -259,8 +277,8 @@ int menu_default_set(struct menu *m, char *item_key)
  * written at the location it points to.
  *
  * Returns 1 if successful, -EINVAL if m or choice is NULL, -ENOENT if no
- * default has been set and the menu is set to not prompt, or -EINTR if the
- * user exits the menu via ^c.
+ * default has been set and the menu is set to not prompt or the timeout
+ * expires, or -EINTR if the user exits the menu via ^c.
  */
 int menu_get_choice(struct menu *m, void **choice)
 {
@@ -330,7 +348,12 @@ int menu_item_add(struct menu *m, char *item_key, void *item_data)
  * list of menu items. It will be copied to internal storage, and is safe to
  * discard after passing to menu_create().
  *
- * prompt - If 0, don't ask for user input.
+ * timeout - A delay in seconds to wait for user input. If 0, timeout is
+ * disabled, and the default choice will be returned unless prompt is 1.
+ *
+ * prompt - If 0, don't ask for user input unless there is an interrupted
+ * timeout. If 1, the user will be prompted for input regardless of the value
+ * of timeout.
  *
  * item_data_print - If not NULL, will be called for each item when the menu
  * is displayed, with the pointer to the item's data passed as the argument.
@@ -341,7 +364,7 @@ int menu_item_add(struct menu *m, char *item_key, void *item_data)
  * Returns a pointer to the menu if successful, or NULL if there is
  * insufficient memory available to create the menu.
  */
-struct menu *menu_create(char *title, int prompt,
+struct menu *menu_create(char *title, int timeout, int prompt,
 				void (*item_data_print)(void *))
 {
 	struct menu *m;
@@ -353,6 +376,7 @@ struct menu *menu_create(char *title, int prompt,
 
 	m->default_item = NULL;
 	m->prompt = prompt;
+	m->timeout = timeout;
 	m->item_data_print = item_data_print;
 
 	if (title) {
