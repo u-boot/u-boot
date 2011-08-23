@@ -1097,9 +1097,8 @@ int parse_line (char *line, char *argv[])
 	while (nargs < CONFIG_SYS_MAXARGS) {
 
 		/* skip any white space */
-		while ((*line == ' ') || (*line == '\t')) {
+		while ((*line == ' ') || (*line == '\t'))
 			++line;
-		}
 
 		if (*line == '\0') {	/* end of line, no more args	*/
 			argv[nargs] = NULL;
@@ -1112,9 +1111,8 @@ int parse_line (char *line, char *argv[])
 		argv[nargs++] = line;	/* begin of argument string	*/
 
 		/* find end of string */
-		while (*line && (*line != ' ') && (*line != '\t')) {
+		while (*line && (*line != ' ') && (*line != '\t'))
 			++line;
-		}
 
 		if (*line == '\0') {	/* end of line, no more args	*/
 			argv[nargs] = NULL;
