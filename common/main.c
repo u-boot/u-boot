@@ -40,6 +40,7 @@
 #endif
 
 #include <post.h>
+#include <linux/ctype.h>
 
 #if defined(CONFIG_SILENT_CONSOLE) || defined(CONFIG_POST) || defined(CONFIG_CMDLINE_EDITING)
 DECLARE_GLOBAL_DATA_PTR;
@@ -1097,7 +1098,7 @@ int parse_line (char *line, char *argv[])
 	while (nargs < CONFIG_SYS_MAXARGS) {
 
 		/* skip any white space */
-		while ((*line == ' ') || (*line == '\t'))
+		while (isblank(*line))
 			++line;
 
 		if (*line == '\0') {	/* end of line, no more args	*/
@@ -1111,7 +1112,7 @@ int parse_line (char *line, char *argv[])
 		argv[nargs++] = line;	/* begin of argument string	*/
 
 		/* find end of string */
-		while (*line && (*line != ' ') && (*line != '\t'))
+		while (*line && !isblank(*line))
 			++line;
 
 		if (*line == '\0') {	/* end of line, no more args	*/

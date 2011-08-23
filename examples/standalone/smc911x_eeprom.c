@@ -16,6 +16,7 @@
 
 #include <common.h>
 #include <exports.h>
+#include <linux/ctype.h>
 #include "../drivers/net/smc911x.h"
 
 /**
@@ -128,7 +129,7 @@ static int write_eeprom_reg(struct eth_device *dev, u8 value, u8 reg)
  */
 static char *skip_space(char *buf)
 {
-	while (buf[0] == ' ' || buf[0] == '\t')
+	while (isblank(buf[0]))
 		++buf;
 	return buf;
 }
@@ -357,7 +358,7 @@ int smc911x_eeprom(int argc, char * const argv[])
 			continue;
 
 		/* Only accept 1 letter commands */
-		if (line[0] && line[1] && line[1] != ' ' && line[1] != '\t')
+		if (line[0] && line[1] && !isblank(line[1]))
 			goto unknown_cmd;
 
 		/* Now parse the command */

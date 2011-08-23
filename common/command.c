@@ -27,6 +27,7 @@
 
 #include <common.h>
 #include <command.h>
+#include <linux/ctype.h>
 
 /*
  * Use puts() instead of printf() to avoid printf buffer overflow
@@ -165,7 +166,7 @@ int var_complete(int argc, char * const argv[], char last_char, int maxv, char *
 	static char tmp_buf[512];
 	int space;
 
-	space = last_char == '\0' || last_char == ' ' || last_char == '\t';
+	space = last_char == '\0' || isblank(last_char);
 
 	if (space && argc == 1)
 		return env_complete("", maxv, cmdv, sizeof(tmp_buf), tmp_buf);
@@ -206,7 +207,7 @@ static int complete_cmdv(int argc, char * const argv[], char last_char, int maxv
 	}
 
 	/* more than one arg or one but the start of the next */
-	if (argc > 1 || (last_char == '\0' || last_char == ' ' || last_char == '\t')) {
+	if (argc > 1 || (last_char == '\0' || isblank(last_char))) {
 		cmdtp = find_cmd(argv[0]);
 		if (cmdtp == NULL || cmdtp->complete == NULL) {
 			cmdv[0] = NULL;
@@ -257,7 +258,7 @@ static int make_argv(char *s, int argvsz, char *argv[])
 	while (argc < argvsz - 1) {
 
 		/* skip any white space */
-		while ((*s == ' ') || (*s == '\t'))
+		while (isblank(*s))
 			++s;
 
 		if (*s == '\0')	/* end of s, no more args	*/
@@ -266,7 +267,7 @@ static int make_argv(char *s, int argvsz, char *argv[])
 		argv[argc++] = s;	/* begin of argument string	*/
 
 		/* find end of string */
-		while (*s && (*s != ' ') && (*s != '\t'))
+		while (*s && !isblank(*s))
 			++s;
 
 		if (*s == '\0')		/* end of s, no more args	*/
