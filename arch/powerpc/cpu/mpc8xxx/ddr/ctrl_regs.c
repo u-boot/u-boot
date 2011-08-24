@@ -94,6 +94,10 @@ static inline int fsl_ddr_get_rtt(void)
  *       6 if 2.5ns > tCK >= 1.875ns
  *       7 if 1.875ns > tCK >= 1.5ns
  *       8 if 1.5ns > tCK >= 1.25ns
+ *       9 if 1.25ns > tCK >= 1.07ns
+ *       10 if 1.07ns > tCK >= 0.935ns
+ *       11 if 0.935ns > tCK >= 0.833ns
+ *       12 if 0.833ns > tCK >= 0.75ns
  */
 static inline unsigned int compute_cas_write_latency(void)
 {
@@ -108,8 +112,18 @@ static inline unsigned int compute_cas_write_latency(void)
 		cwl = 7;
 	else if (mclk_ps >= 1250)
 		cwl = 8;
-	else
-		cwl = 8;
+	else if (mclk_ps >= 1070)
+		cwl = 9;
+	else if (mclk_ps >= 935)
+		cwl = 10;
+	else if (mclk_ps >= 833)
+		cwl = 11;
+	else if (mclk_ps >= 750)
+		cwl = 12;
+	else {
+		cwl = 12;
+		printf("Warning: CWL is out of range\n");
+	}
 	return cwl;
 }
 
