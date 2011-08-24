@@ -332,7 +332,15 @@ int misc_init_r(void)
 		setenv(expansion_config.env_var, expansion_config.env_setting);
 
 	twl4030_power_init();
-	twl4030_led_init(TWL4030_LED_LEDEN_LEDAON | TWL4030_LED_LEDEN_LEDBON);
+	switch (get_board_revision()) {
+	case REVISION_XM_A:
+	case REVISION_XM_B:
+		twl4030_led_init(TWL4030_LED_LEDEN_LEDBON);
+		break;
+	default:
+		twl4030_led_init(TWL4030_LED_LEDEN_LEDAON | TWL4030_LED_LEDEN_LEDBON);
+		break;
+	}
 
 	/* Set GPIO states before they are made outputs */
 	writel(GPIO23 | GPIO10 | GPIO8 | GPIO2 | GPIO1,
