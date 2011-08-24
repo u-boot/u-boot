@@ -118,53 +118,111 @@ typedef struct {
 	u32 force_2T;
 } board_specific_parameters_t;
 
-/* ranges for parameters:
- *  wr_data_delay = 0-6
- *  clk adjust = 0-8
- *  cpo 2-0x1E (30)
- */
-
-
-/* XXX: these values need to be checked for all interleaving modes.  */
-/* XXX: No reliable dual-rank 800 MHz setting has been found.  It may
- *      seem reliable, but errors will appear when memory intensive
- *      program is run. */
-/* XXX: Single rank at 800 MHz is OK.  */
-const board_specific_parameters_t board_specific_parameters[][30] = {
+const board_specific_parameters_t board_specific_parameters_udimm[][30] = {
 	{
 	/*
 	 * memory controller 0
 	 *  lo|  hi|  num|  clk| wrlvl | cpo  |wrdata|2T
-	 * mhz| mhz|ranks|adjst| start | delay|
+	 * mhz| mhz|ranks|adjst| start |      |delay |
 	 */
 		{  0, 850,    4,    4,     6,   0xff,    2,  0},
 		{851, 950,    4,    5,     7,   0xff,    2,  0},
 		{951, 1050,   4,    5,     8,   0xff,    2,  0},
 		{1051, 1250,  4,    5,    10,   0xff,    2,  0},
 		{1251, 1350,  4,    5,    11,   0xff,    2,  0},
+		{1351, 1666,  4,    5,    12,   0xff,    2,  0},
 		{  0, 850,    2,    5,     6,   0xff,    2,  0},
 		{851, 950,    2,    5,     7,   0xff,    2,  0},
 		{951, 1050,   2,    5,     7,   0xff,    2,  0},
 		{1051, 1250,  2,    4,     6,   0xff,    2,  0},
 		{1251, 1350,  2,    5,     7,   0xff,    2,  0},
+		{1351, 1666,  2,    5,     8,   0xff,    2,  0},
+		{  0, 850,    1,    4,     5,   0xff,    2,  0},
+		{851, 950,    1,    4,     7,   0xff,    2,  0},
+		{951, 1050,   1,    4,     8,   0xff,    2,  0},
+		{1051, 1250,  1,    4,     8,   0xff,    2,  0},
+		{1251, 1350,  1,    4,     8,   0xff,    2,  0},
+		{1351, 1666,  1,    4,     8,   0xff,    2,  0},
 	},
 
 	{
 	/*
 	 * memory controller 1
 	 *  lo|  hi|  num|  clk| wrlvl | cpo  |wrdata|2T
-	 * mhz| mhz|ranks|adjst| start | delay|
+	 * mhz| mhz|ranks|adjst| start |      |delay |
 	 */
 		{  0, 850,    4,    4,     6,   0xff,    2,  0},
 		{851, 950,    4,    5,     7,   0xff,    2,  0},
 		{951, 1050,   4,    5,     8,   0xff,    2,  0},
 		{1051, 1250,  4,    5,    10,   0xff,    2,  0},
 		{1251, 1350,  4,    5,    11,   0xff,    2,  0},
+		{1351, 1666,  4,    5,    12,   0xff,    2,  0},
 		{  0, 850,    2,    5,     6,   0xff,    2,  0},
 		{851, 950,    2,    5,     7,   0xff,    2,  0},
 		{951, 1050,   2,    5,     7,   0xff,    2,  0},
 		{1051, 1250,  2,    4,     6,   0xff,    2,  0},
 		{1251, 1350,  2,    5,     7,   0xff,    2,  0},
+		{1351, 1666,  2,    5,     8,   0xff,    2,  0},
+		{  0, 850,    1,    4,     5,   0xff,    2,  0},
+		{851, 950,    1,    4,     7,   0xff,    2,  0},
+		{951, 1050,   1,    4,     8,   0xff,    2,  0},
+		{1051, 1250,  1,    4,     8,   0xff,    2,  0},
+		{1251, 1350,  1,    4,     8,   0xff,    2,  0},
+		{1351, 1666,  1,    4,     8,   0xff,    2,  0},
+	}
+};
+
+const board_specific_parameters_t board_specific_parameters_rdimm[][30] = {
+	{
+	/*
+	 * memory controller 0
+	 *  lo|  hi|  num|  clk| wrlvl | cpo  |wrdata|2T
+	 * mhz| mhz|ranks|adjst| start |      |delay |
+	 */
+		{  0, 850,    4,    4,     6,   0xff,    2,  0},
+		{851, 950,    4,    5,     7,   0xff,    2,  0},
+		{951, 1050,   4,    5,     8,   0xff,    2,  0},
+		{1051, 1250,  4,    5,    10,   0xff,    2,  0},
+		{1251, 1350,  4,    5,    11,   0xff,    2,  0},
+		{1351, 1666,  4,    5,    12,   0xff,    2,  0},
+		{  0, 850,    2,    4,     6,   0xff,    2,  0},
+		{851, 950,    2,    4,     7,   0xff,    2,  0},
+		{951, 1050,   2,    4,     7,   0xff,    2,  0},
+		{1051, 1250,  2,    4,     8,   0xff,    2,  0},
+		{1251, 1350,  2,    4,     8,   0xff,    2,  0},
+		{1351, 1666,  2,    4,     8,   0xff,    2,  0},
+		{  0, 850,    1,    4,     5,   0xff,    2,  0},
+		{851, 950,    1,    4,     7,   0xff,    2,  0},
+		{951, 1050,   1,    4,     8,   0xff,    2,  0},
+		{1051, 1250,  1,    4,     8,   0xff,    2,  0},
+		{1251, 1350,  1,    4,     8,   0xff,    2,  0},
+		{1351, 1666,  1,    4,     8,   0xff,    2,  0},
+	},
+
+	{
+	/*
+	 * memory controller 1
+	 *  lo|  hi|  num|  clk| wrlvl | cpo  |wrdata|2T
+	 * mhz| mhz|ranks|adjst| start |      |delay |
+	 */
+		{  0, 850,    4,    4,     6,   0xff,    2,  0},
+		{851, 950,    4,    5,     7,   0xff,    2,  0},
+		{951, 1050,   4,    5,     8,   0xff,    2,  0},
+		{1051, 1250,  4,    5,    10,   0xff,    2,  0},
+		{1251, 1350,  4,    5,    11,   0xff,    2,  0},
+		{1351, 1666,  4,    5,    12,   0xff,    2,  0},
+		{  0, 850,    2,    4,     6,   0xff,    2,  0},
+		{851, 950,    2,    4,     7,   0xff,    2,  0},
+		{951, 1050,   2,    4,     7,   0xff,    2,  0},
+		{1051, 1250,  2,    4,     8,   0xff,    2,  0},
+		{1251, 1350,  2,    4,     8,   0xff,    2,  0},
+		{1351, 1666,  2,    4,     8,   0xff,    2,  0},
+		{  0, 850,    1,    4,     5,   0xff,    2,  0},
+		{851, 950,    1,    4,     7,   0xff,    2,  0},
+		{951, 1050,   1,    4,     8,   0xff,    2,  0},
+		{1051, 1250,  1,    4,     8,   0xff,    2,  0},
+		{1251, 1350,  1,    4,     8,   0xff,    2,  0},
+		{1351, 1666,  1,    4,     8,   0xff,    2,  0},
 	}
 };
 
@@ -172,13 +230,20 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 				dimm_params_t *pdimm,
 				unsigned int ctrl_num)
 {
-	const board_specific_parameters_t *pbsp =
-				&(board_specific_parameters[ctrl_num][0]);
-	u32 num_params = sizeof(board_specific_parameters[ctrl_num]) /
-				sizeof(board_specific_parameters[0][0]);
+	const board_specific_parameters_t *pbsp;
+	u32 num_params;
 	u32 i;
 	ulong ddr_freq;
 
+	if (popts->registered_dimm_en) {
+		pbsp = &(board_specific_parameters_rdimm[ctrl_num][0]);
+		num_params = sizeof(board_specific_parameters_rdimm[ctrl_num]) /
+				sizeof(board_specific_parameters_rdimm[0][0]);
+	} else {
+		pbsp = &(board_specific_parameters_udimm[ctrl_num][0]);
+		num_params = sizeof(board_specific_parameters_udimm[ctrl_num]) /
+				sizeof(board_specific_parameters_udimm[0][0]);
+	}
 	/* Get clk_adjust, cpo, write_data_delay,2T, according to the board ddr
 	 * freqency and n_banks specified in board_specific_parameters table.
 	 */
