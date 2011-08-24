@@ -272,6 +272,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	char *buf = NULL;
 	const dynamic_odt_t *pdodt = odt_unknown;
+	ulong ddr_freq;
 
 	/*
 	 * Extract hwconfig from environment since we have not properly setup
@@ -715,6 +716,20 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 
 	if (pdimm[0].n_ranks == 4)
 		popts->quad_rank_present = 1;
+
+	ddr_freq = get_ddr_freq(0) / 1000000;
+	if (popts->registered_dimm_en) {
+		popts->rcw_override = 1;
+		popts->rcw_1 = 0x000a5a00;
+		if (ddr_freq <= 800)
+			popts->rcw_2 = 0x00000000;
+		else if (ddr_freq <= 1066)
+			popts->rcw_2 = 0x00100000;
+		else if (ddr_freq <= 1333)
+			popts->rcw_2 = 0x00200000;
+		else
+			popts->rcw_2 = 0x00300000;
+	}
 
 	fsl_ddr_board_options(popts, pdimm, ctrl_num);
 

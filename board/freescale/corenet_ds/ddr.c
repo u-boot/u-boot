@@ -223,20 +223,6 @@ void fsl_ddr_board_options(memctl_options_t *popts,
 
 	/* DHC_EN =1, ODT = 60 Ohm */
 	popts->ddr_cdr1 = DDR_CDR1_DHC_EN;
-
-	/* override SPD values. rcw_2 should vary at differnt speed */
-	if (pdimm[0].registered_dimm == 1) {
-		popts->rcw_override = 1;
-		popts->rcw_1 = 0x000a5a00;
-		if (ddr_freq <= 800)
-			popts->rcw_2 = 0x00000000;
-		else if (ddr_freq <= 1066)
-			popts->rcw_2 = 0x00100000;
-		else if (ddr_freq <= 1333)
-			popts->rcw_2 = 0x00200000;
-		else
-			popts->rcw_2 = 0x00300000;
-	}
 }
 
 phys_size_t initdram(int board_type)
