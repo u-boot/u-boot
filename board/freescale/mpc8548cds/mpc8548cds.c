@@ -30,7 +30,6 @@
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
-#include <spd_sdram.h>
 #include <miiphy.h>
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -38,8 +37,6 @@
 #include "../common/cadmus.h"
 #include "../common/eeprom.h"
 #include "../common/via.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 void local_bus_init(void);
 
@@ -209,10 +206,6 @@ static struct pci_config_table pci_mpc85xxcds_config_table[] = {
 
 static struct pci_controller pci1_hose;
 #endif	/* CONFIG_PCI */
-
-#ifdef CONFIG_PCI2
-static struct pci_controller pci2_hose;
-#endif	/* CONFIG_PCI2 */
 
 void pci_init_board(void)
 {
