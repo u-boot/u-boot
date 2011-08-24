@@ -69,9 +69,6 @@ int checkcpu (void)
 
 	svr = get_svr();
 	major = SVR_MAJ(svr);
-#ifdef CONFIG_MPC8536
-	major &= 0x7; /* the msb of this nibble is a mfg code */
-#endif
 	minor = SVR_MIN(svr);
 
 	if (cpu_numcores() > 1) {
