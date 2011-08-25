@@ -64,7 +64,6 @@
 #define XEL_RSR_RECV_IE_MASK		0x00000008UL
 
 typedef struct {
-	u32 baseaddress;	/* Base address for device (IPIF) */
 	u32 nexttxbuffertouse;	/* Next TX buffer to write to */
 	u32 nextrxbuffertouse;	/* Next RX buffer to read from */
 } xemaclite;
@@ -136,43 +135,44 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
 {
 	debug ("EmacLite Initialization Started\n");
 	memset (&emaclite, 0, sizeof (xemaclite));
-	emaclite.baseaddress = dev->iobase;
 
 /*
  * TX - TX_PING & TX_PONG initialization
  */
 	/* Restart PING TX */
-	out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET, 0);
+	out_be32 (dev->iobase + XEL_TSR_OFFSET, 0);
 	/* Copy MAC address */
 	xemaclite_alignedwrite (dev->enetaddr,
-		emaclite.baseaddress, ENET_ADDR_LENGTH);
+		dev->iobase, ENET_ADDR_LENGTH);
 	/* Set the length */
-	out_be32 (emaclite.baseaddress + XEL_TPLR_OFFSET, ENET_ADDR_LENGTH);
+	out_be32 (dev->iobase + XEL_TPLR_OFFSET, ENET_ADDR_LENGTH);
 	/* Update the MAC address in the EMAC Lite */
-	out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET, XEL_TSR_PROG_MAC_ADDR);
+	out_be32 (dev->iobase + XEL_TSR_OFFSET, XEL_TSR_PROG_MAC_ADDR);
 	/* Wait for EMAC Lite to finish with the MAC address update */
-	while ((in_be32 (emaclite.baseaddress + XEL_TSR_OFFSET) &
-		XEL_TSR_PROG_MAC_ADDR) != 0) ;
+	while ((in_be32 (dev->iobase + XEL_TSR_OFFSET) &
+		XEL_TSR_PROG_MAC_ADDR) != 0)
+		;
 
 #ifdef CONFIG_XILINX_EMACLITE_TX_PING_PONG
 	/* The same operation with PONG TX */
-	out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET, 0);
-	xemaclite_alignedwrite (dev->enetaddr, emaclite.baseaddress +
+	out_be32 (dev->iobase + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET, 0);
+	xemaclite_alignedwrite(dev->enetaddr, dev->iobase +
 		XEL_BUFFER_OFFSET, ENET_ADDR_LENGTH);
-	out_be32 (emaclite.baseaddress + XEL_TPLR_OFFSET, ENET_ADDR_LENGTH);
-	out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET,
+	out_be32 (dev->iobase + XEL_TPLR_OFFSET, ENET_ADDR_LENGTH);
+	out_be32 (dev->iobase + XEL_TSR_OFFSET + XEL_BUFFER_OFFSET,
 		XEL_TSR_PROG_MAC_ADDR);
-	while ((in_be32 (emaclite.baseaddress + XEL_TSR_OFFSET +
-		XEL_BUFFER_OFFSET) & XEL_TSR_PROG_MAC_ADDR) != 0) ;
+	while ((in_be32 (dev->iobase + XEL_TSR_OFFSET +
+		XEL_BUFFER_OFFSET) & XEL_TSR_PROG_MAC_ADDR) != 0)
+		;
 #endif
 
 /*
  * RX - RX_PING & RX_PONG initialization
  */
 	/* Write out the value to flush the RX buffer */
-	out_be32 (emaclite.baseaddress + XEL_RSR_OFFSET, XEL_RSR_RECV_IE_MASK);
+	out_be32 (dev->iobase + XEL_RSR_OFFSET, XEL_RSR_RECV_IE_MASK);
 #ifdef CONFIG_XILINX_EMACLITE_RX_PING_PONG
-	out_be32 (emaclite.baseaddress + XEL_RSR_OFFSET + XEL_BUFFER_OFFSET,
+	out_be32 (dev->iobase + XEL_RSR_OFFSET + XEL_BUFFER_OFFSET,
 		XEL_RSR_RECV_IE_MASK);
 #endif
 
@@ -220,16 +220,16 @@ static int emaclite_send (struct eth_device *dev, volatile void *ptr, int len)
 	if (!maxtry) {
 		printf ("Error: Timeout waiting for ethernet TX buffer\n");
 		/* Restart PING TX */
-		out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET, 0);
+		out_be32 (dev->iobase + XEL_TSR_OFFSET, 0);
 #ifdef CONFIG_XILINX_EMACLITE_TX_PING_PONG
-		out_be32 (emaclite.baseaddress + XEL_TSR_OFFSET +
+		out_be32 (dev->iobase + XEL_TSR_OFFSET +
 		XEL_BUFFER_OFFSET, 0);
 #endif
 		return -1;
 	}
 
 	/* Determine the expected TX buffer address */
-	baseaddress = (emaclite.baseaddress + emaclite.nexttxbuffertouse);
+	baseaddress = (dev->iobase + emaclite.nexttxbuffertouse);
 
 	/* Determine if the expected buffer address is empty */
 	reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
@@ -261,7 +261,7 @@ static int emaclite_send (struct eth_device *dev, volatile void *ptr, int len)
 	if (((reg & XEL_TSR_XMIT_BUSY_MASK) == 0)
 		&& ((in_be32 ((baseaddress) + XEL_TSR_OFFSET)
 			& XEL_TSR_XMIT_ACTIVE_MASK) == 0)) {
-		debug ("Send packet from 0x%x\n", baseaddress);
+		debug("Send packet from 0x%x\n", baseaddress);
 		/* Write the frame to the buffer */
 		xemaclite_alignedwrite ((void *) ptr, baseaddress, len);
 		out_be32 (baseaddress + XEL_TPLR_OFFSET,(len &
@@ -285,7 +285,7 @@ static int emaclite_recv(struct eth_device *dev)
 	u32 reg;
 	u32 baseaddress;
 
-	baseaddress = emaclite.baseaddress + emaclite.nextrxbuffertouse;
+	baseaddress = dev->iobase + emaclite.nextrxbuffertouse;
 	reg = in_be32 (baseaddress + XEL_RSR_OFFSET);
 	debug ("Testing data at address 0x%x\n", baseaddress);
 	if ((reg & XEL_RSR_RECV_DONE_MASK) == XEL_RSR_RECV_DONE_MASK) {
