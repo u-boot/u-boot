@@ -350,7 +350,7 @@ int xilinx_emaclite_initialize (bd_t *bis, int base_addr)
 		return -1;
 
 	memset(dev, 0, sizeof(*dev));
-	sprintf(dev->name, "Xilinx_Emaclite");
+	sprintf(dev->name, "Xelite.%x", base_addr);
 
 	dev->iobase = base_addr;
 	dev->priv = 0;
