@@ -344,11 +344,10 @@ int xilinx_emaclite_initialize (bd_t *bis, int base_addr)
 {
 	struct eth_device *dev;
 
-	dev = malloc(sizeof(*dev));
+	dev = calloc(1, sizeof(*dev));
 	if (dev == NULL)
 		return -1;
 
-	memset(dev, 0, sizeof(*dev));
 	sprintf(dev->name, "Xelite.%x", base_addr);
 
 	dev->iobase = base_addr;
