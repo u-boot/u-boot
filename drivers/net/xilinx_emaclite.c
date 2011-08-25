@@ -67,7 +67,6 @@ typedef struct {
 	u32 baseaddress;	/* Base address for device (IPIF) */
 	u32 nexttxbuffertouse;	/* Next TX buffer to write to */
 	u32 nextrxbuffertouse;	/* Next RX buffer to read from */
-	uchar deviceid;		/* Unique ID of device - for future */
 } xemaclite;
 
 static xemaclite emaclite;
