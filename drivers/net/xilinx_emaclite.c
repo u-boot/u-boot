@@ -63,12 +63,10 @@
 /* Recv interrupt enable bit */
 #define XEL_RSR_RECV_IE_MASK		0x00000008UL
 
-typedef struct {
+struct xemaclite {
 	u32 nexttxbuffertouse;	/* Next TX buffer to write to */
 	u32 nextrxbuffertouse;	/* Next RX buffer to read from */
-} xemaclite;
-
-static xemaclite emaclite;
+};
 
 static u32 etherrxbuff[PKTSIZE_ALIGN/4]; /* Receive buffer */
 
@@ -134,7 +132,6 @@ static void emaclite_halt(struct eth_device *dev)
 static int emaclite_init(struct eth_device *dev, bd_t *bis)
 {
 	debug ("EmacLite Initialization Started\n");
-	memset (&emaclite, 0, sizeof (xemaclite));
 
 /*
  * TX - TX_PING & TX_PONG initialization
@@ -180,22 +177,24 @@ static int emaclite_init(struct eth_device *dev, bd_t *bis)
 	return 0;
 }
 
-static int xemaclite_txbufferavailable (xemaclite *instanceptr)
+static int xemaclite_txbufferavailable(struct eth_device *dev)
 {
 	u32 reg;
 	u32 txpingbusy;
 	u32 txpongbusy;
+	struct xemaclite *emaclite = dev->priv;
+
 	/*
 	 * Read the other buffer register
 	 * and determine if the other buffer is available
 	 */
-	reg = in_be32 (instanceptr->baseaddress +
-			instanceptr->nexttxbuffertouse + 0);
+	reg = in_be32 (dev->iobase +
+			emaclite->nexttxbuffertouse + 0);
 	txpingbusy = ((reg & XEL_TSR_XMIT_BUSY_MASK) ==
 			XEL_TSR_XMIT_BUSY_MASK);
 
-	reg = in_be32 (instanceptr->baseaddress +
-			(instanceptr->nexttxbuffertouse ^ XEL_TSR_OFFSET) + 0);
+	reg = in_be32 (dev->iobase +
+			(emaclite->nexttxbuffertouse ^ XEL_TSR_OFFSET) + 0);
 	txpongbusy = ((reg & XEL_TSR_XMIT_BUSY_MASK) ==
 			XEL_TSR_XMIT_BUSY_MASK);
 
@@ -206,13 +205,14 @@ static int emaclite_send (struct eth_device *dev, volatile void *ptr, int len)
 {
 	u32 reg;
 	u32 baseaddress;
+	struct xemaclite *emaclite = dev->priv;
 
 	u32 maxtry = 1000;
 
 	if (len > ENET_MAX_MTU)
 		len = ENET_MAX_MTU;
 
-	while (!xemaclite_txbufferavailable (&emaclite) && maxtry) {
+	while (!xemaclite_txbufferavailable(dev) && maxtry) {
 		udelay (10);
 		maxtry--;
 	}
@@ -229,7 +229,7 @@ static int emaclite_send (struct eth_device *dev, volatile void *ptr, int len)
 	}
 
 	/* Determine the expected TX buffer address */
-	baseaddress = (dev->iobase + emaclite.nexttxbuffertouse);
+	baseaddress = (dev->iobase + emaclite->nexttxbuffertouse);
 
 	/* Determine if the expected buffer address is empty */
 	reg = in_be32 (baseaddress + XEL_TSR_OFFSET);
@@ -238,7 +238,7 @@ static int emaclite_send (struct eth_device *dev, volatile void *ptr, int len)
 			& XEL_TSR_XMIT_ACTIVE_MASK) == 0)) {
 
 #ifdef CONFIG_XILINX_EMACLITE_TX_PING_PONG
-		emaclite.nexttxbuffertouse ^= XEL_BUFFER_OFFSET;
+		emaclite->nexttxbuffertouse ^= XEL_BUFFER_OFFSET;
 #endif
 		debug ("Send packet from 0x%x\n", baseaddress);
 		/* Write the frame to the buffer */
@@ -284,13 +284,14 @@ static int emaclite_recv(struct eth_device *dev)
 	u32 length;
 	u32 reg;
 	u32 baseaddress;
+	struct xemaclite *emaclite = dev->priv;
 
-	baseaddress = dev->iobase + emaclite.nextrxbuffertouse;
+	baseaddress = dev->iobase + emaclite->nextrxbuffertouse;
 	reg = in_be32 (baseaddress + XEL_RSR_OFFSET);
 	debug ("Testing data at address 0x%x\n", baseaddress);
 	if ((reg & XEL_RSR_RECV_DONE_MASK) == XEL_RSR_RECV_DONE_MASK) {
 #ifdef CONFIG_XILINX_EMACLITE_RX_PING_PONG
-		emaclite.nextrxbuffertouse ^= XEL_BUFFER_OFFSET;
+		emaclite->nextrxbuffertouse ^= XEL_BUFFER_OFFSET;
 #endif
 	} else {
 #ifndef CONFIG_XILINX_EMACLITE_RX_PING_PONG
@@ -343,15 +344,23 @@ static int emaclite_recv(struct eth_device *dev)
 int xilinx_emaclite_initialize (bd_t *bis, int base_addr)
 {
 	struct eth_device *dev;
+	struct xemaclite *emaclite;
 
 	dev = calloc(1, sizeof(*dev));
 	if (dev == NULL)
 		return -1;
 
+	emaclite = calloc(1, sizeof(struct xemaclite));
+	if (emaclite == NULL) {
+		free(dev);
+		return -1;
+	}
+
+	dev->priv = emaclite;
+
 	sprintf(dev->name, "Xelite.%x", base_addr);
 
 	dev->iobase = base_addr;
-	dev->priv = 0;
 	dev->init = emaclite_init;
 	dev->halt = emaclite_halt;
 	dev->send = emaclite_send;
