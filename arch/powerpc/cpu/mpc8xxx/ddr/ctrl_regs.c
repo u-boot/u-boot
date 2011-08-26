@@ -160,7 +160,7 @@ static void set_csn_config(int dimm_number, int i, fsl_ddr_cfg_regs_t *ddr,
 		break;
 	case 2:
 		if ((dimm_number == 0 && dimm_params[0].n_ranks > 2) || \
-		   (dimm_number > 1 && dimm_params[dimm_number].n_ranks > 0))
+		   (dimm_number >= 1 && dimm_params[dimm_number].n_ranks > 0))
 			go_config = 1;
 		break;
 	case 3:
@@ -631,7 +631,7 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int sr_ie = 0;		/* Self-refresh interrupt enable */
 	unsigned int dll_rst_dis;	/* DLL reset disable */
 	unsigned int dqs_cfg;		/* DQS configuration */
-	unsigned int odt_cfg;		/* ODT configuration */
+	unsigned int odt_cfg = 0;	/* ODT configuration */
 	unsigned int num_pr;		/* Number of posted refreshes */
 	unsigned int obc_cfg;		/* On-The-Fly Burst Chop Cfg */
 	unsigned int ap_en;		/* Address Parity Enable */
@@ -639,15 +639,16 @@ static void set_ddr_sdram_cfg_2(fsl_ddr_cfg_regs_t *ddr,
 	unsigned int rcw_en = 0;	/* Register Control Word Enable */
 	unsigned int md_en = 0;		/* Mirrored DIMM Enable */
 	unsigned int qd_en = 0;		/* quad-rank DIMM Enable */
+	int i;
 
 	dll_rst_dis = 1;	/* Make this configurable */
 	dqs_cfg = popts->DQS_config;
-	if (popts->cs_local_opts[0].odt_rd_cfg
-	    || popts->cs_local_opts[0].odt_wr_cfg) {
-		/* FIXME */
-		odt_cfg = 2;
-	} else {
-		odt_cfg = 0;
+	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
+		if (popts->cs_local_opts[i].odt_rd_cfg
+			|| popts->cs_local_opts[i].odt_wr_cfg) {
+			odt_cfg = SDRAM_CFG2_ODT_ONLY_READ;
+			break;
+		}
 	}
 
 	num_pr = 1;	/* Make this configurable */
@@ -1032,7 +1033,7 @@ static void set_ddr_sdram_mode(fsl_ddr_cfg_regs_t *ddr,
 #if defined(CONFIG_FSL_DDR2)
 	const unsigned int mclk_ps = get_memory_clk_period_ps();
 #endif
-
+	dqs_en = !popts->DQS_config;
 	rtt = fsl_ddr_get_rtt();
 
 	al = additive_latency;

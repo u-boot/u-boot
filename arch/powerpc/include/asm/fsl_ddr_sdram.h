@@ -92,6 +92,10 @@ typedef ddr3_spd_eeprom_t generic_spd_eeprom_t;
 
 #define SDRAM_CFG2_D_INIT		0x00000010
 #define SDRAM_CFG2_ODT_CFG_MASK		0x00600000
+#define SDRAM_CFG2_ODT_NEVER		0
+#define SDRAM_CFG2_ODT_ONLY_WRITE	1
+#define SDRAM_CFG2_ODT_ONLY_READ	2
+#define SDRAM_CFG2_ODT_ALWAYS		3
 
 #define TIMING_CFG_2_CPO_MASK	0x0F800000
 
