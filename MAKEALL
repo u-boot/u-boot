@@ -318,14 +318,6 @@ LIST_ARM9="			\
 	aspenite		\
 	da830evm		\
 	da850evm		\
-	edb9301			\
-	edb9302			\
-	edb9302a		\
-	edb9307			\
-	edb9307a		\
-	edb9312			\
-	edb9315			\
-	edb9315a		\
 	edminiv2		\
 	guruplug		\
 	imx27lite		\

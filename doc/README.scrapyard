@@ -11,6 +11,14 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
+edb9301	arm	arm920t	-	  2011-07-17
+edb9302	arm	arm920t	-	  2011-07-17
+edb9302a arm	arm920t	-	  2011-07-17
+edb9307	 arm	arm920t	-	  2011-07-17
+edb9307a arm	arm920t	-	  2011-07-17
+edb9312	arm	arm920t	-	  2011-07-17
+edb9315	arm	arm920t	-	  2011-07-17
+edb9315a arm	arm920t	-	  2011-07-17
 B2	arm	s3c44b0 -	  2011-07-16	Andrea Scian <andrea.scian@dave-tech.it>
 armadillo arm	arm720t	-	  2011-07-16	Rowel Atienza <rowel@diwalabs.com>
 assabet	arm	sa1100	-	  2011-07-16	George G. Davis <gdavis@mvista.com>

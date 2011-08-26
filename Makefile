@@ -851,16 +851,6 @@ tx25_config	: unconfig
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 	@$(MKCONFIG) $@ arm arm926ejs tx25 karo mx25
 
-edb9301_config \
-edb9302_config \
-edb9302a_config \
-edb9307_config \
-edb9307a_config \
-edb9312_config \
-edb9315_config \
-edb9315a_config: unconfig
-	@$(MKCONFIG) -n $@ -t $(@:_config=) edb93xx arm arm920t edb93xx - ep93xx
-
 #########################################################################
 ## XScale Systems
 #########################################################################
