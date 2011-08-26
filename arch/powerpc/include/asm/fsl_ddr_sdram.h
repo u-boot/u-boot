@@ -31,6 +31,11 @@
 #define DDR3_RTT_20_OHM		4 /* RTT_Nom = RZQ/12 */
 #define DDR3_RTT_30_OHM		5 /* RTT_Nom = RZQ/8 */
 
+#define DDR2_RTT_OFF		0
+#define DDR2_RTT_75_OHM		1
+#define DDR2_RTT_150_OHM	2
+#define DDR2_RTT_50_OHM		3
+
 #if defined(CONFIG_FSL_DDR1)
 #define FSL_DDR_MIN_TCKE_PULSE_WIDTH_DDR	(1)
 typedef ddr1_spd_eeprom_t generic_spd_eeprom_t;

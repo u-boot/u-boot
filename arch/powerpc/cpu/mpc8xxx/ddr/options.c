@@ -26,14 +26,15 @@ extern void fsl_ddr_board_options(memctl_options_t *popts,
 		dimm_params_t *pdimm,
 		unsigned int ctrl_num);
 
-typedef struct {
+struct dynamic_odt {
 	unsigned int odt_rd_cfg;
 	unsigned int odt_wr_cfg;
 	unsigned int odt_rtt_norm;
 	unsigned int odt_rtt_wr;
-} dynamic_odt_t;
+};
 
-static const dynamic_odt_t single_Q[4] = {
+#ifdef CONFIG_FSL_DDR3
+static const struct dynamic_odt single_Q[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_CS_AND_OTHER_DIMM,
@@ -60,7 +61,7 @@ static const dynamic_odt_t single_Q[4] = {
 	}
 };
 
-static const dynamic_odt_t single_D[4] = {
+static const struct dynamic_odt single_D[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_ALL,
@@ -77,7 +78,7 @@ static const dynamic_odt_t single_D[4] = {
 	{0, 0, 0, 0}
 };
 
-static const dynamic_odt_t single_S[4] = {
+static const struct dynamic_odt single_S[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_ALL,
@@ -89,7 +90,7 @@ static const dynamic_odt_t single_S[4] = {
 	{0, 0, 0, 0},
 };
 
-static const dynamic_odt_t dual_DD[4] = {
+static const struct dynamic_odt dual_DD[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_SAME_DIMM,
@@ -116,7 +117,7 @@ static const dynamic_odt_t dual_DD[4] = {
 	}
 };
 
-static const dynamic_odt_t dual_DS[4] = {
+static const struct dynamic_odt dual_DS[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_SAME_DIMM,
@@ -137,7 +138,7 @@ static const dynamic_odt_t dual_DS[4] = {
 	},
 	{0, 0, 0, 0}
 };
-static const dynamic_odt_t dual_SD[4] = {
+static const struct dynamic_odt dual_SD[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_OTHER_DIMM,
 		FSL_DDR_ODT_ALL,
@@ -159,7 +160,7 @@ static const dynamic_odt_t dual_SD[4] = {
 	}
 };
 
-static const dynamic_odt_t dual_SS[4] = {
+static const struct dynamic_odt dual_SS[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_OTHER_DIMM,
 		FSL_DDR_ODT_ALL,
@@ -176,7 +177,7 @@ static const dynamic_odt_t dual_SS[4] = {
 	{0, 0, 0, 0}
 };
 
-static const dynamic_odt_t dual_D0[4] = {
+static const struct dynamic_odt dual_D0[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_SAME_DIMM,
@@ -193,7 +194,7 @@ static const dynamic_odt_t dual_D0[4] = {
 	{0, 0, 0, 0}
 };
 
-static const dynamic_odt_t dual_0D[4] = {
+static const struct dynamic_odt dual_0D[4] = {
 	{0, 0, 0, 0},
 	{0, 0, 0, 0},
 	{	/* cs2 */
@@ -210,7 +211,7 @@ static const dynamic_odt_t dual_0D[4] = {
 	}
 };
 
-static const dynamic_odt_t dual_S0[4] = {
+static const struct dynamic_odt dual_S0[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_CS,
@@ -223,7 +224,7 @@ static const dynamic_odt_t dual_S0[4] = {
 
 };
 
-static const dynamic_odt_t dual_0S[4] = {
+static const struct dynamic_odt dual_0S[4] = {
 	{0, 0, 0, 0},
 	{0, 0, 0, 0},
 	{	/* cs2 */
@@ -236,7 +237,7 @@ static const dynamic_odt_t dual_0S[4] = {
 
 };
 
-static const dynamic_odt_t odt_unknown[4] = {
+static const struct dynamic_odt odt_unknown[4] = {
 	{	/* cs0 */
 		FSL_DDR_ODT_NEVER,
 		FSL_DDR_ODT_CS,
@@ -262,7 +263,218 @@ static const dynamic_odt_t odt_unknown[4] = {
 		DDR3_RTT_OFF
 	}
 };
+#else	/* CONFIG_FSL_DDR3 */
+static const struct dynamic_odt single_Q[4] = {
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0}
+};
 
+static const struct dynamic_odt single_D[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_ALL,
+		DDR2_RTT_150_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0}
+};
+
+static const struct dynamic_odt single_S[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_ALL,
+		DDR2_RTT_150_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+};
+
+static const struct dynamic_odt dual_DD[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	},
+	{	/* cs2 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	}
+};
+
+static const struct dynamic_odt dual_DS[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	},
+	{	/* cs2 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0}
+};
+
+static const struct dynamic_odt dual_SD[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{	/* cs2 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	}
+};
+
+static const struct dynamic_odt dual_SS[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{	/* cs2 */
+		FSL_DDR_ODT_OTHER_DIMM,
+		FSL_DDR_ODT_OTHER_DIMM,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0}
+};
+
+static const struct dynamic_odt dual_D0[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_ALL,
+		DDR2_RTT_150_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0}
+};
+
+static const struct dynamic_odt dual_0D[4] = {
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{	/* cs2 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_ALL,
+		DDR2_RTT_150_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	}
+};
+
+static const struct dynamic_odt dual_S0[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR2_RTT_150_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{0, 0, 0, 0}
+
+};
+
+static const struct dynamic_odt dual_0S[4] = {
+	{0, 0, 0, 0},
+	{0, 0, 0, 0},
+	{	/* cs2 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR2_RTT_150_OHM,
+		DDR2_RTT_OFF
+	},
+	{0, 0, 0, 0}
+
+};
+
+static const struct dynamic_odt odt_unknown[4] = {
+	{	/* cs0 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs1 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	},
+	{	/* cs2 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_CS,
+		DDR2_RTT_75_OHM,
+		DDR2_RTT_OFF
+	},
+	{	/* cs3 */
+		FSL_DDR_ODT_NEVER,
+		FSL_DDR_ODT_NEVER,
+		DDR2_RTT_OFF,
+		DDR2_RTT_OFF
+	}
+};
+#endif
 unsigned int populate_memctl_options(int all_DIMMs_registered,
 			memctl_options_t *popts,
 			dimm_params_t *pdimm,
@@ -271,7 +483,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 	unsigned int i;
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	char *buf = NULL;
-	const dynamic_odt_t *pdodt = odt_unknown;
+	const struct dynamic_odt *pdodt = odt_unknown;
 	ulong ddr_freq;
 
 	/*
@@ -337,7 +549,7 @@ unsigned int populate_memctl_options(int all_DIMMs_registered,
 
 	/* Pick chip-select local options. */
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
-#if defined(CONFIG_FSL_DDR3)
+#if defined(CONFIG_FSL_DDR3) || defined(CONFIG_FSL_DDR2)
 		popts->cs_local_opts[i].odt_rd_cfg = pdodt[i].odt_rd_cfg;
 		popts->cs_local_opts[i].odt_wr_cfg = pdodt[i].odt_wr_cfg;
 		popts->cs_local_opts[i].odt_rtt_norm = pdodt[i].odt_rtt_norm;
