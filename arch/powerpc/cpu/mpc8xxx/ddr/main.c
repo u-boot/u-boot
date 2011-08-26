@@ -34,14 +34,17 @@ extern void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 u8 spd_i2c_addr[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR] = {
 	[0][0] = SPD_EEPROM_ADDRESS,
 };
-#endif
-#if (CONFIG_NUM_DDR_CONTROLLERS == 2) && (CONFIG_DIMM_SLOTS_PER_CTLR == 1)
+#elif (CONFIG_NUM_DDR_CONTROLLERS == 1) && (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
+u8 spd_i2c_addr[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR] = {
+	[0][0] = SPD_EEPROM_ADDRESS1,	/* controller 1 */
+	[0][1] = SPD_EEPROM_ADDRESS2,	/* controller 1 */
+};
+#elif (CONFIG_NUM_DDR_CONTROLLERS == 2) && (CONFIG_DIMM_SLOTS_PER_CTLR == 1)
 u8 spd_i2c_addr[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR] = {
 	[0][0] = SPD_EEPROM_ADDRESS1,	/* controller 1 */
 	[1][0] = SPD_EEPROM_ADDRESS2,	/* controller 2 */
 };
-#endif
-#if (CONFIG_NUM_DDR_CONTROLLERS == 2) && (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
+#elif (CONFIG_NUM_DDR_CONTROLLERS == 2) && (CONFIG_DIMM_SLOTS_PER_CTLR == 2)
 u8 spd_i2c_addr[CONFIG_NUM_DDR_CONTROLLERS][CONFIG_DIMM_SLOTS_PER_CTLR] = {
 	[0][0] = SPD_EEPROM_ADDRESS1,	/* controller 1 */
 	[0][1] = SPD_EEPROM_ADDRESS2,	/* controller 1 */
