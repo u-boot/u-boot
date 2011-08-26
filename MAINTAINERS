@@ -788,7 +788,6 @@ Manikandan Pillai <mani.pillai@ti.com>
 
 Stelian Pop <stelian.pop@leadtechdesign.com>
 
-	at91cap9adk	ARM926EJS (AT91CAP9 SoC)
 	at91sam9260ek	ARM926EJS (AT91SAM9260 SoC)
 	at91sam9261ek	ARM926EJS (AT91SAM9261 SoC)
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
