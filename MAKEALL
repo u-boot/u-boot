@@ -323,7 +323,6 @@ LIST_ARM9="			\
 	imx27lite		\
 	jadecpu			\
 	km_kirkwood		\
-	lpd7a400		\
 	magnesium		\
 	mv88f6281gtw_ge		\
 	mx1ads			\
