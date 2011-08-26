@@ -845,10 +845,6 @@ Michael Schwingen <michael@schwingen.org>
 	actux4		xscale/ixp
 	dvlhost		xscale/ixp
 
-Andrea Scian <andrea.scian@dave-tech.it>
-
-	B2		ARM7TDMI (S3C44B0X)
-
 Nick Thompson <nick.thompson@gefanuc.com>
 
 	da830evm	ARM926EJS (DA830/OMAP-L137)
