@@ -177,7 +177,8 @@ struct uart_port {
 #elif defined(CONFIG_CPU_SH7201) || \
 	defined(CONFIG_CPU_SH7203) || \
 	defined(CONFIG_CPU_SH7206) || \
-	defined(CONFIG_CPU_SH7263)
+	defined(CONFIG_CPU_SH7263) || \
+	defined(CONFIG_CPU_SH7264)
 # define SCSPTR0 0xfffe8020 /* 16 bit SCIF */
 # define SCSPTR1 0xfffe8820 /* 16 bit SCIF */
 # define SCSPTR2 0xfffe9020 /* 16 bit SCIF */
@@ -685,6 +686,8 @@ static inline int scbrr_calc(struct uart_port port, int bps, int clk)
 #define SCBRR_VALUE(bps, clk) scbrr_calc(sh_sci, bps, clk)
 #elif defined(__H8300H__) || defined(__H8300S__)
 #define SCBRR_VALUE(bps, clk) (((clk*1000/32)/bps)-1)
+#elif defined(CONFIG_CPU_SH7264)
+#define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps))
 #else /* Generic SH */
 #define SCBRR_VALUE(bps, clk) ((clk+16*bps)/(32*bps)-1)
 #endif
