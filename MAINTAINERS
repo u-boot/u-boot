@@ -564,10 +564,6 @@ Albert ARIBAUD <albert.u.boot@aribaud.net>
 
 	edminiv2	ARM926EJS (Orion5x SoC)
 
-Rowel Atienza <rowel@diwalabs.com>
-
-	armadillo	ARM720T
-
 Stefano Babic <sbabic@denx.de>
 
 	ea20		davinci
