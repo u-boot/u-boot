@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
+voiceblue arm	arm925t	-	  2011-07-17
 smdk2400 arm	arm920t	-	  2011-07-17	Gary Jennejohn <garyj@denx.de>
 sbc2410x arm	arm920t	-	  2011-07-17
 netstar	arm	arm925t	-	  2011-07-17

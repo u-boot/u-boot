@@ -349,7 +349,6 @@ LIST_ARM9="			\
 	versatile		\
 	versatileab		\
 	versatilepb		\
-	voiceblue		\
 	davinci_dvevm		\
 	davinci_schmoogie	\
 	davinci_sffsdr		\
