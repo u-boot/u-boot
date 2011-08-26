@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,7 +18,11 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			     unsigned int ctrl_num)
 {
 	unsigned int i;
-	volatile ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC85xx_DDR_ADDR;
+#ifdef CONFIG_MPC83xx
+	ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC83xx_DDR_ADDR;
+#else
+	ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC85xx_DDR_ADDR;
+#endif
 
 	if (ctrl_num) {
 		printf("%s unexpected ctrl_num = %u\n", __FUNCTION__, ctrl_num);

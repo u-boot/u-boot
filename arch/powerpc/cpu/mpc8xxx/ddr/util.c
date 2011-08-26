@@ -129,10 +129,13 @@ fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 
 void board_add_ram_info(int use_default)
 {
-#if defined(CONFIG_MPC85xx)
-	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
+#if defined(CONFIG_MPC83xx)
+	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
+	ccsr_ddr_t *ddr = (void *)&immap->ddr;
+#elif defined(CONFIG_MPC85xx)
+	ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 #elif defined(CONFIG_MPC86xx)
-	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC86xx_DDR_ADDR);
+	ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC86xx_DDR_ADDR);
 #endif
 #if (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	uint32_t cs0_config = in_be32(&ddr->cs0_config);

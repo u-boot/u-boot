@@ -162,7 +162,13 @@ COBJS-$(CONFIG_CMD_XIMG) += cmd_ximg.o
 COBJS-$(CONFIG_YAFFS2) += cmd_yaffs2.o
 
 # others
-COBJS-$(CONFIG_DDR_SPD) += ddr_spd.o
+ifdef CONFIG_DDR_SPD
+SPD := y
+endif
+ifdef CONFIG_SPD_EEPROM
+SPD := y
+endif
+COBJS-$(SPD) += ddr_spd.o
 COBJS-$(CONFIG_HWCONFIG) += hwconfig.o
 COBJS-$(CONFIG_CONSOLE_MUX) += iomux.o
 COBJS-y += flash.o
