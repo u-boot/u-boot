@@ -340,7 +340,6 @@ LIST_ARM9="			\
 	rd6281a			\
 	scb9328			\
 	sheevaplug		\
-	smdk2400		\
 	smdk2410		\
 	spear300		\
 	spear310		\

@@ -685,10 +685,6 @@ Grazvydas Ignotas <notasas@gmail.com>
 
 	omap3_pandora	ARM ARMV7 (OMAP3xx SoC)
 
-Gary Jennejohn <garyj@denx.de>
-
-	smdk2400	ARM920T
-
 Matthias Kaehlcke <matthias@kaehlcke.net>
 	edb9301			ARM920T (EP9301)
 	edb9302			ARM920T (EP9302)
