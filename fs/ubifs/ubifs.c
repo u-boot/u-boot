@@ -360,6 +360,8 @@ out:
 		return err;
 	}
 
+	if (file->private_data)
+		kfree(file->private_data);
 	if (file)
 		free(file);
 	if (dentry)
@@ -367,10 +369,6 @@ out:
 	if (dir)
 		free(dir);
 
-	if (file->private_data)
-		kfree(file->private_data);
-	file->private_data = NULL;
-	file->f_pos = 2;
 	return 0;
 }
 
