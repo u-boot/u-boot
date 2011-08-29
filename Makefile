@@ -866,10 +866,6 @@ SX1_config:		unconfig
 	fi;
 	@$(MKCONFIG) -n $@ SX1 arm arm925t sx1
 
-tx25_config	: unconfig
-	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
-	@$(MKCONFIG) $@ arm arm926ejs tx25 karo mx25
-
 #########################################################################
 ## XScale Systems
 #########################################################################
