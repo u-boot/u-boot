@@ -28,6 +28,7 @@
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/imx25-pinmux.h>
+#include <asm/gpio.h>
 
 static void mdelay(int n)
 {
