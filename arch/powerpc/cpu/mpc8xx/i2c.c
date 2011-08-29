@@ -633,22 +633,19 @@ int i2c_read(uchar chip, uint addr, int alen, uchar *buffer, int len)
 
 	rc = i2c_send(&state, chip, 0, I2CF_START_COND, alen, &xaddr[4-alen]);
 	if (rc != 0) {
-		if (gd->have_console)
-			printf("i2c_read: i2c_send failed (%d)\n", rc);
+		printf("i2c_read: i2c_send failed (%d)\n", rc);
 		return 1;
 	}
 
 	rc = i2c_receive(&state, chip, 0, I2CF_STOP_COND, len, buffer);
 	if (rc != 0) {
-		if (gd->have_console)
-			printf("i2c_read: i2c_receive failed (%d)\n", rc);
+		printf("i2c_read: i2c_receive failed (%d)\n", rc);
 		return 1;
 	}
 
 	rc = i2c_doio(&state);
 	if (rc != 0) {
-		if (gd->have_console)
-			printf("i2c_read: i2c_doio failed (%d)\n", rc);
+		printf("i2c_read: i2c_doio failed (%d)\n", rc);
 		return 1;
 	}
 	return 0;
@@ -683,22 +680,19 @@ int i2c_write(uchar chip, uint addr, int alen, uchar *buffer, int len)
 
 	rc = i2c_send(&state, chip, 0, I2CF_START_COND, alen, &xaddr[4-alen]);
 	if (rc != 0) {
-		if (gd->have_console)
-			printf("i2c_write: first i2c_send failed (%d)\n", rc);
+		printf("i2c_write: first i2c_send failed (%d)\n", rc);
 		return 1;
 	}
 
 	rc = i2c_send(&state, 0, 0, I2CF_STOP_COND, len, buffer);
 	if (rc != 0) {
-		if (gd->have_console)
-			printf("i2c_write: second i2c_send failed (%d)\n", rc);
+		printf("i2c_write: second i2c_send failed (%d)\n", rc);
 		return 1;
 	}
 
 	rc = i2c_doio(&state);
 	if (rc != 0) {
-		if (gd->have_console)
-			printf("i2c_write: i2c_doio failed (%d)\n", rc);
+		printf("i2c_write: i2c_doio failed (%d)\n", rc);
 		return 1;
 	}
 	return 0;

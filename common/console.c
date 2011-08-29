@@ -298,6 +298,9 @@ int getc(void)
 		return 0;
 #endif
 
+	if (!gd->have_console)
+		return 0;
+
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Get from the standard input */
 		return fgetc(stdin);
@@ -313,6 +316,9 @@ int tstc(void)
 	if (gd->flags & GD_FLG_DISABLE_CONSOLE)
 		return 0;
 #endif
+
+	if (!gd->have_console)
+		return 0;
 
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Test the standard input */
@@ -335,6 +341,9 @@ void putc(const char c)
 		return;
 #endif
 
+	if (!gd->have_console)
+		return;
+
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Send to the standard output */
 		fputc(stdout, c);
@@ -356,6 +365,9 @@ void puts(const char *s)
 		return;
 #endif
 
+	if (!gd->have_console)
+		return;
+
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Send to the standard output */
 		fputs(stdout, s);
@@ -370,6 +382,9 @@ int printf(const char *fmt, ...)
 	va_list args;
 	uint i;
 	char printbuffer[CONFIG_SYS_PBSIZE];
+
+	if (!gd->have_console)
+		return 0;
 
 	va_start(args, fmt);
 
@@ -388,6 +403,9 @@ int vprintf(const char *fmt, va_list args)
 {
 	uint i;
 	char printbuffer[CONFIG_SYS_PBSIZE];
+
+	if (!gd->have_console)
+		return 0;
 
 	/* For this to work, printbuffer must be larger than
 	 * anything we ever want to print.

@@ -119,7 +119,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef DEBUG_I2C
 #define PRINTD(fmt,args...)	do {	\
-	if (gd->have_console)		\
 		printf (fmt ,##args);	\
 	} while (0)
 #else
