@@ -40,23 +40,21 @@ void init_pllx(void)
 	u32 reg;
 
 	/* If PLLX is already enabled, just return */
-	reg = readl(&pll->pll_base);
-	if (reg & PLL_ENABLE)
+	if (readl(&pll->pll_base) & PLL_ENABLE_MASK)
 		return;
 
 	/* Set PLLX_MISC */
-	reg = CPCON;				/* CPCON[11:8]  = 0001 */
-	writel(reg, &pll->pll_misc);
+	writel(1 << PLL_CPCON_SHIFT, &pll->pll_misc);
 
 	/* Use 12MHz clock here */
-	reg = (PLL_BYPASS | PLL_DIVM_VALUE);
-	reg |= (1000 << 8);			/* DIVN = 0x3E8 */
+	reg = PLL_BYPASS_MASK | (12 << PLL_DIVM_SHIFT);
+	reg |= 1000 << PLL_DIVN_SHIFT;
 	writel(reg, &pll->pll_base);
 
-	reg |= PLL_ENABLE;
+	reg |= PLL_ENABLE_MASK;
 	writel(reg, &pll->pll_base);
 
-	reg &= ~PLL_BYPASS;
+	reg &= ~PLL_BYPASS_MASK;
 	writel(reg, &pll->pll_base);
 }
 
@@ -90,16 +88,11 @@ static void enable_cpu_clock(int enable)
 	 * always stop the clock to CPU 1.
 	 */
 	clk = readl(&clkrst->crc_clk_cpu_cmplx);
-	clk |= CPU1_CLK_STP;
+	clk |= 1 << CPU1_CLK_STP_SHIFT;
 
-	if (enable) {
-		/* Unstop the CPU clock */
-		clk &= ~CPU0_CLK_STP;
-	} else {
-		/* Stop the CPU clock */
-		clk |= CPU0_CLK_STP;
-	}
-
+	/* Stop/Unstop the CPU clock */
+	clk &= ~CPU0_CLK_STP_MASK;
+	clk |= !enable << CPU0_CLK_STP_SHIFT;
 	writel(clk, &clkrst->crc_clk_cpu_cmplx);
 
 	clock_enable(PERIPH_ID_CPU);
@@ -177,9 +170,6 @@ static void enable_cpu_power_rail(void)
 
 static void reset_A9_cpu(int reset)
 {
-	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	u32 cpu;
-
 	/*
 	* NOTE:  Regardless of whether the request is to hold the CPU in reset
 	*        or take it out of reset, every processor in the CPU complex
@@ -188,19 +178,10 @@ static void reset_A9_cpu(int reset)
 	*        are multiple processors in the CPU complex.
 	*/
 
-	/* Hold CPU 1 in reset */
-	cpu = SET_DBGRESET1 | SET_DERESET1 | SET_CPURESET1;
-	writel(cpu, &clkrst->crc_cpu_cmplx_set);
-
-	if (reset) {
-		/* Now place CPU0 into reset */
-		cpu |= SET_DBGRESET0 | SET_DERESET0 | SET_CPURESET0;
-		writel(cpu, &clkrst->crc_cpu_cmplx_set);
-	} else {
-		/* Take CPU0 out of reset */
-		cpu = CLR_DBGRESET0 | CLR_DERESET0 | CLR_CPURESET0;
-		writel(cpu, &clkrst->crc_cpu_cmplx_clr);
-	}
+	/* Hold CPU 1 in reset, and CPU 0 if asked */
+	reset_cmplx_set_enable(1, crc_rst_cpu | crc_rst_de | crc_rst_debug, 1);
+	reset_cmplx_set_enable(0, crc_rst_cpu | crc_rst_de | crc_rst_debug,
+			       reset);
 
 	/* Enable/Disable master CPU reset */
 	reset_set_enable(PERIPH_ID_CPU, reset);

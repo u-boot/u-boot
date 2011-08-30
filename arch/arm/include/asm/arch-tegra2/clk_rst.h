@@ -140,43 +140,6 @@ struct clk_rst_ctlr {
 	uint crc_cpu_cmplx_clr;		/* _CPU_CMPLX_CLR_0,	0x344 */
 };
 
-#define PLL_BYPASS		(1 << 31)
-#define PLL_ENABLE		(1 << 30)
-#define PLL_BASE_OVRRIDE	(1 << 28)
-#define PLL_DIVP_VALUE		(1 << 20)	/* post divider, b22:20 */
-#define PLL_DIVM_VALUE		0x0C		/* input divider, b4:0 */
-
-#define SWR_UARTD_RST		(1 << 1)
-#define CLK_ENB_UARTD		(1 << 1)
-#define SWR_UARTA_RST		(1 << 6)
-#define CLK_ENB_UARTA		(1 << 6)
-
-#define SWR_CPU_RST		(1 << 0)
-#define CLK_ENB_CPU		(1 << 0)
-#define SWR_CSITE_RST		(1 << 9)
-#define CLK_ENB_CSITE		(1 << 9)
-
-#define SET_CPURESET0		(1 << 0)
-#define SET_DERESET0		(1 << 4)
-#define SET_DBGRESET0		(1 << 12)
-
-#define SET_CPURESET1		(1 << 1)
-#define SET_DERESET1		(1 << 5)
-#define SET_DBGRESET1		(1 << 13)
-
-#define CLR_CPURESET0		(1 << 0)
-#define CLR_DERESET0		(1 << 4)
-#define CLR_DBGRESET0		(1 << 12)
-
-#define CLR_CPURESET1		(1 << 1)
-#define CLR_DERESET1		(1 << 5)
-#define CLR_DBGRESET1		(1 << 13)
-
-#define CPU0_CLK_STP		(1 << 8)
-#define CPU1_CLK_STP		(1 << 9)
-
-#define CPCON			(1 << 8)
-
 /* CLK_RST_CONTROLLER_CLK_CPU_CMPLX_0 */
 #define CPU1_CLK_STP_SHIFT	9
 

@@ -81,20 +81,20 @@ static void clock_init_uart(void)
 	u32 reg;
 
 	reg = readl(&pll->pll_base);
-	if (!(reg & PLL_BASE_OVRRIDE)) {
+	if (!(reg & PLL_BASE_OVRRIDE_MASK)) {
 		/* Override pllp setup for 216MHz operation. */
-		reg = (PLL_BYPASS | PLL_BASE_OVRRIDE | PLL_DIVP_VALUE);
-		reg |= (((NVRM_PLLP_FIXED_FREQ_KHZ/500) << 8) | PLL_DIVM_VALUE);
+		reg = PLL_BYPASS_MASK | PLL_BASE_OVRRIDE_MASK |
+			(1 << PLL_DIVP_SHIFT) | (0xc << PLL_DIVM_SHIFT);
+		reg |= (NVRM_PLLP_FIXED_FREQ_KHZ / 500) << PLL_DIVN_SHIFT;
 		writel(reg, &pll->pll_base);
 
-		reg |= PLL_ENABLE;
+		reg |= PLL_ENABLE_MASK;
 		writel(reg, &pll->pll_base);
 
-		reg &= ~PLL_BYPASS;
+		reg &= ~PLL_BYPASS_MASK;
 		writel(reg, &pll->pll_base);
 	}
 
-	/* Now do the UART reset/clock enable */
 #if defined(CONFIG_TEGRA2_ENABLE_UARTA)
 	/* Assert UART reset and enable clock */
 	reset_set_enable(PERIPH_ID_UART1, 1);
