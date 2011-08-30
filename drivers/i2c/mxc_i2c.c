@@ -89,14 +89,11 @@ void i2c_init(int speed, int unused)
 #if defined(CONFIG_MX31)
 	struct clock_control_regs *sc_regs =
 		(struct clock_control_regs *)CCM_BASE;
-
-	freq = mx31_get_ipg_clk();
 	/* start the required I2C clock */
 	writel(readl(&sc_regs->cgr0) | (3 << I2C_CLK_OFFSET),
 		&sc_regs->cgr0);
-#else
-	freq = mxc_get_clock(MXC_IPG_PERCLK);
 #endif
+	freq = mxc_get_clock(MXC_IPG_PERCLK);
 
 	for (i = 0; i < 0x1f; i++)
 		if (freq / div[i] <= speed)
