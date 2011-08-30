@@ -888,14 +888,6 @@ apollon_config		: unconfig
 	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk
 	@$(MKCONFIG) $@ arm arm1136 apollon - omap24xx
 
-imx31_phycore_eet_config \
-imx31_phycore_config	: unconfig
-	@mkdir -p $(obj)include
-	@if [ -n "$(findstring _eet_,$@)" ]; then			\
-		echo "#define CONFIG_IMX31_PHYCORE_EET" >> $(obj)include/config.h;	\
-	fi
-	@$(MKCONFIG) -n $@ -a imx31_phycore arm arm1136 imx31_phycore - mx31
-
 mx31pdk_config \
 mx31pdk_nand_config	: unconfig
 	@mkdir -p $(obj)include
