@@ -85,6 +85,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	case MXC_ARM_CLK:
 		return mx31_get_mcu_main_clk();
 	case MXC_IPG_CLK:
+	case MXC_IPG_PERCLK:
 	case MXC_CSPI_CLK:
 	case MXC_UART_CLK:
 		return mx31_get_ipg_clk();

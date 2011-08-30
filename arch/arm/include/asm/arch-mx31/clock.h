@@ -27,6 +27,7 @@
 enum mxc_clock {
 	MXC_ARM_CLK,
 	MXC_IPG_CLK,
+	MXC_IPG_PERCLK,
 	MXC_CSPI_CLK,
 	MXC_UART_CLK,
 };
