@@ -304,7 +304,7 @@ int eth_initialize(bd_t *bis)
 			if (strchr(dev->name, ' '))
 				puts("\nWarning: eth device name has a space!\n");
 
-			if (eth_write_hwaddr(dev, NULL, eth_number))
+			if (eth_write_hwaddr(dev, "eth", eth_number))
 				puts("Warning: failed to set MAC address\n");
 
 			eth_number++;
