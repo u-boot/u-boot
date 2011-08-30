@@ -24,15 +24,34 @@
 #ifndef _CLK_RST_H_
 #define _CLK_RST_H_
 
+/* PLL registers - there are several PLLs in the clock controller */
+struct clk_pll {
+	uint pll_base;		/* the control register */
+	uint pll_out;		/* output control */
+	uint reserved;
+	uint pll_misc;		/* other misc things */
+};
+
+/* PLL registers - there are several PLLs in the clock controller */
+struct clk_pll_simple {
+	uint pll_base;		/* the control register */
+	uint pll_misc;		/* other misc things */
+};
+
+/*
+ * Most PLLs use the clk_pll structure, but some have a simpler two-member
+ * structure for which we use clk_pll_simple. The reason for this non-
+ * othogonal setup is not stated.
+ */
+#define TEGRA_CLK_PLLS		6
+#define TEGRA_CLK_SIMPLE_PLLS	3	/* Number of simple PLLs */
+#define TEGRA_CLK_REGS		3	/* Number of clock enable registers */
+
 /* Clock/Reset Controller (CLK_RST_CONTROLLER_) regs */
 struct clk_rst_ctlr {
-	uint crc_rst_src;		/* _RST_SOURCE_0,	0x00 */
-	uint crc_rst_dev_l;		/* _RST_DEVICES_L_0,	0x04 */
-	uint crc_rst_dev_h;		/* _RST_DEVICES_H_0,	0x08 */
-	uint crc_rst_dev_u;		/* _RST_DEVICES_U_0,	0x0C */
-	uint crc_clk_out_enb_l;		/* _CLK_OUT_ENB_L_0,	0x10 */
-	uint crc_clk_out_enb_h;		/* _CLK_OUT_ENB_H_0,	0x14 */
-	uint crc_clk_out_enb_u;		/* _CLK_OUT_ENB_U_0,	0x18 */
+	uint crc_rst_src;			/* _RST_SOURCE_0,0x00 */
+	uint crc_rst_dev[TEGRA_CLK_REGS];	/* _RST_DEVICES_L/H/U_0 */
+	uint crc_clk_out_enb[TEGRA_CLK_REGS];	/* _CLK_OUT_ENB_L/H/U_0 */
 	uint crc_reserved0;		/* reserved_0,		0x1C */
 	uint crc_cclk_brst_pol;		/* _CCLK_BURST_POLICY_0,0x20 */
 	uint crc_super_cclk_div;	/* _SUPER_CCLK_DIVIDER_0,0x24 */
@@ -52,44 +71,11 @@ struct clk_rst_ctlr {
 	uint crc_osc_freq_det_stat;	/* _OSC_FREQ_DET_STATUS_0,0x5C */
 	uint crc_reserved2[8];		/* reserved_2[8],	0x60-7C */
 
-	uint crc_pllc_base;		/* _PLLC_BASE_0,	0x80 */
-	uint crc_pllc_out;		/* _PLLC_OUT_0,		0x84 */
-	uint crc_reserved3;		/* reserved_3,		0x88 */
-	uint crc_pllc_misc;		/* _PLLC_MISC_0,	0x8C */
+	struct clk_pll crc_pll[TEGRA_CLK_PLLS];	/* PLLs from 0x80 to 0xdc */
 
-	uint crc_pllm_base;		/* _PLLM_BASE_0,	0x90 */
-	uint crc_pllm_out;		/* _PLLM_OUT_0,		0x94 */
-	uint crc_reserved4;		/* reserved_4,		0x98 */
-	uint crc_pllm_misc;		/* _PLLM_MISC_0,	0x9C */
+	/* PLLs from 0xe0 to 0xf4    */
+	struct clk_pll_simple crc_pll_simple[TEGRA_CLK_SIMPLE_PLLS];
 
-	uint crc_pllp_base;		/* _PLLP_BASE_0,	0xA0 */
-	uint crc_pllp_outa;		/* _PLLP_OUTA_0,	0xA4 */
-	uint crc_pllp_outb;		/* _PLLP_OUTB_0,	0xA8 */
-	uint crc_pllp_misc;		/* _PLLP_MISC_0,	0xAC */
-
-	uint crc_plla_base;		/* _PLLA_BASE_0,	0xB0 */
-	uint crc_plla_out;		/* _PLLA_OUT_0,		0xB4 */
-	uint crc_reserved5;		/* reserved_5,		0xB8 */
-	uint crc_plla_misc;		/* _PLLA_MISC_0,	0xBC */
-
-	uint crc_pllu_base;		/* _PLLU_BASE_0,	0xC0 */
-	uint crc_reserved6;		/* _reserved_6,		0xC4 */
-	uint crc_reserved7;		/* _reserved_7,		0xC8 */
-	uint crc_pllu_misc;		/* _PLLU_MISC_0,	0xCC */
-
-	uint crc_plld_base;		/* _PLLD_BASE_0,	0xD0 */
-	uint crc_reserved8;		/* _reserved_8,		0xD4 */
-	uint crc_reserved9;		/* _reserved_9,		0xD8 */
-	uint crc_plld_misc;		/* _PLLD_MISC_0,	0xDC */
-
-	uint crc_pllx_base;		/* _PLLX_BASE_0,	0xE0 */
-	uint crc_pllx_misc;		/* _PLLX_MISC_0,	0xE4 */
-
-	uint crc_plle_base;		/* _PLLE_BASE_0,	0xE8 */
-	uint crc_plle_misc;		/* _PLLE_MISC_0,	0xEC */
-
-	uint crc_plls_base;		/* _PLLS_BASE_0,	0xF0 */
-	uint crc_plls_misc;		/* _PLLS_MISC_0,	0xF4 */
 	uint crc_reserved10;		/* _reserved_10,	0xF8 */
 	uint crc_reserved11;		/* _reserved_11,	0xFC */
 
@@ -157,8 +143,8 @@ struct clk_rst_ctlr {
 #define PLL_BYPASS		(1 << 31)
 #define PLL_ENABLE		(1 << 30)
 #define PLL_BASE_OVRRIDE	(1 << 28)
-#define PLL_DIVP		(1 << 20)	/* post divider, b22:20 */
-#define PLL_DIVM		0x0C		/* input divider, b4:0 */
+#define PLL_DIVP_VALUE		(1 << 20)	/* post divider, b22:20 */
+#define PLL_DIVM_VALUE		0x0C		/* input divider, b4:0 */
 
 #define SWR_UARTD_RST		(1 << 1)
 #define CLK_ENB_UARTD		(1 << 1)
@@ -191,9 +177,37 @@ struct clk_rst_ctlr {
 
 #define CPCON			(1 << 8)
 
-#define SWR_SDMMC4_RST		(1 << 15)
-#define CLK_ENB_SDMMC4		(1 << 15)
-#define SWR_SDMMC3_RST		(1 << 5)
-#define CLK_ENB_SDMMC3		(1 << 5)
+/* CLK_RST_CONTROLLER_CLK_CPU_CMPLX_0 */
+#define CPU1_CLK_STP_SHIFT	9
+
+#define CPU0_CLK_STP_SHIFT	8
+#define CPU0_CLK_STP_MASK	(1U << CPU0_CLK_STP_SHIFT)
+
+/* CLK_RST_CONTROLLER_PLLx_BASE_0 */
+#define PLL_BYPASS_SHIFT	31
+#define PLL_BYPASS_MASK		(1U << PLL_BYPASS_SHIFT)
+
+#define PLL_ENABLE_SHIFT	30
+#define PLL_ENABLE_MASK		(1U << PLL_ENABLE_SHIFT)
+
+#define PLL_BASE_OVRRIDE_MASK	(1U << 28)
+
+#define PLL_DIVP_SHIFT		20
+
+#define PLL_DIVN_SHIFT		8
+
+#define PLL_DIVM_SHIFT		0
+
+/* CLK_RST_CONTROLLER_PLLx_MISC_0 */
+#define PLL_CPCON_SHIFT		8
+#define PLL_CPCON_MASK		(15U << PLL_CPCON_SHIFT)
+
+#define PLL_LFCON_SHIFT		4
+
+#define PLLU_VCO_FREQ_SHIFT	20
+
+/* CLK_RST_CONTROLLER_OSC_CTRL_0 */
+#define OSC_FREQ_SHIFT		30
+#define OSC_FREQ_MASK		(3U << OSC_FREQ_SHIFT)
 
 #endif	/* CLK_RST_H */

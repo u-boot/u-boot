@@ -25,6 +25,7 @@
 #include <asm/io.h>
 #include <asm/arch/tegra2.h>
 #include <asm/arch/clk_rst.h>
+#include <asm/arch/clock.h>
 #include <asm/arch/pmc.h>
 #include <asm/arch/pinmux.h>
 #include <asm/arch/scu.h>
@@ -35,33 +36,34 @@ u32 s_first_boot = 1;
 void init_pllx(void)
 {
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
+	struct clk_pll *pll = &clkrst->crc_pll[CLOCK_PLL_ID_XCPU];
 	u32 reg;
 
 	/* If PLLX is already enabled, just return */
-	reg = readl(&clkrst->crc_pllx_base);
+	reg = readl(&pll->pll_base);
 	if (reg & PLL_ENABLE)
 		return;
 
 	/* Set PLLX_MISC */
 	reg = CPCON;				/* CPCON[11:8]  = 0001 */
-	writel(reg, &clkrst->crc_pllx_misc);
+	writel(reg, &pll->pll_misc);
 
 	/* Use 12MHz clock here */
-	reg = (PLL_BYPASS | PLL_DIVM);
+	reg = (PLL_BYPASS | PLL_DIVM_VALUE);
 	reg |= (1000 << 8);			/* DIVN = 0x3E8 */
-	writel(reg, &clkrst->crc_pllx_base);
+	writel(reg, &pll->pll_base);
 
 	reg |= PLL_ENABLE;
-	writel(reg, &clkrst->crc_pllx_base);
+	writel(reg, &pll->pll_base);
 
 	reg &= ~PLL_BYPASS;
-	writel(reg, &clkrst->crc_pllx_base);
+	writel(reg, &pll->pll_base);
 }
 
 static void enable_cpu_clock(int enable)
 {
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	u32 reg, clk;
+	u32 clk;
 
 	/*
 	 * NOTE:
@@ -83,10 +85,6 @@ static void enable_cpu_clock(int enable)
 		writel(SUPER_CCLK_DIVIDER, &clkrst->crc_super_cclk_div);
 	}
 
-	/* Fetch the register containing the main CPU complex clock enable */
-	reg = readl(&clkrst->crc_clk_out_enb_l);
-	reg |= CLK_ENB_CPU;
-
 	/*
 	 * Read the register containing the individual CPU clock enables and
 	 * always stop the clock to CPU 1.
@@ -103,7 +101,8 @@ static void enable_cpu_clock(int enable)
 	}
 
 	writel(clk, &clkrst->crc_clk_cpu_cmplx);
-	writel(reg, &clkrst->crc_clk_out_enb_l);
+
+	clock_enable(PERIPH_ID_CPU);
 }
 
 static int is_cpu_powered(void)
@@ -179,7 +178,7 @@ static void enable_cpu_power_rail(void)
 static void reset_A9_cpu(int reset)
 {
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	u32 reg, cpu;
+	u32 cpu;
 
 	/*
 	* NOTE:  Regardless of whether the request is to hold the CPU in reset
@@ -193,44 +192,27 @@ static void reset_A9_cpu(int reset)
 	cpu = SET_DBGRESET1 | SET_DERESET1 | SET_CPURESET1;
 	writel(cpu, &clkrst->crc_cpu_cmplx_set);
 
-	reg = readl(&clkrst->crc_rst_dev_l);
 	if (reset) {
 		/* Now place CPU0 into reset */
 		cpu |= SET_DBGRESET0 | SET_DERESET0 | SET_CPURESET0;
 		writel(cpu, &clkrst->crc_cpu_cmplx_set);
-
-		/* Enable master CPU reset */
-		reg |= SWR_CPU_RST;
 	} else {
 		/* Take CPU0 out of reset */
 		cpu = CLR_DBGRESET0 | CLR_DERESET0 | CLR_CPURESET0;
 		writel(cpu, &clkrst->crc_cpu_cmplx_clr);
-
-		/* Disable master CPU reset */
-		reg &= ~SWR_CPU_RST;
 	}
 
-	writel(reg, &clkrst->crc_rst_dev_l);
+	/* Enable/Disable master CPU reset */
+	reset_set_enable(PERIPH_ID_CPU, reset);
 }
 
 static void clock_enable_coresight(int enable)
 {
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	u32 rst, clk, src;
+	u32 rst, src;
 
-	rst = readl(&clkrst->crc_rst_dev_u);
-	clk = readl(&clkrst->crc_clk_out_enb_u);
-
-	if (enable) {
-		rst &= ~SWR_CSITE_RST;
-		clk |= CLK_ENB_CSITE;
-	} else {
-		rst |= SWR_CSITE_RST;
-		clk &= ~CLK_ENB_CSITE;
-	}
-
-	writel(clk, &clkrst->crc_clk_out_enb_u);
-	writel(rst, &clkrst->crc_rst_dev_u);
+	clock_set_enable(PERIPH_ID_CORESIGHT, enable);
+	reset_set_enable(PERIPH_ID_CORESIGHT, !enable);
 
 	if (enable) {
 		/*
