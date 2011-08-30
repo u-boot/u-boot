@@ -67,26 +67,11 @@ _start:
 
 	addik	r6, r0, CONFIG_SYS_RESET_ADDRESS
 	sw	r6, r1, r0
-	lhu	r7, r1, r0
-	shi	r7, r0, 0x2
-	shi	r6, r0, 0x6
-/*
- * Copy U-Boot code to CONFIG_SYS_TEXT_BASE
- * solve problem with sbrk_base
- */
-#if (CONFIG_SYS_RESET_ADDRESS != CONFIG_SYS_TEXT_BASE)
-	addi	r4, r0, __end
-	addi	r5, r0, __text_start
-	rsub	r4, r5, r4	/* size = __end - __text_start */
-	addi	r6, r0, CONFIG_SYS_RESET_ADDRESS	/* source address */
-	addi	r7, r0, 0	/* counter */
-4:
-	lw	r8, r6, r7
-	sw	r8, r5, r7
-	addi	r7, r7, 0x4
-	cmp	r8, r4, r7
-	blti	r8, 4b
-#endif
+	lhu	r7, r1, r10
+	rsubi	r8, r10, 0x2
+	sh	r7, r0, r8
+	rsubi	r8, r10, 0x6
+	sh	r6, r0, r8
 #endif
 
 #ifdef CONFIG_SYS_USR_EXCEP
