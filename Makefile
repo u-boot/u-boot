@@ -888,16 +888,6 @@ apollon_config		: unconfig
 	@echo "CONFIG_ONENAND_U_BOOT = y" >> $(obj)include/config.mk
 	@$(MKCONFIG) $@ arm arm1136 apollon - omap24xx
 
-mx31pdk_config \
-mx31pdk_nand_config	: unconfig
-	@mkdir -p $(obj)include
-	@if [ -n "$(findstring _nand_,$@)" ]; then					\
-		echo "#define CONFIG_NAND_U_BOOT" >> $(obj)include/config.h;		\
-	else										\
-		echo "#define CONFIG_SKIP_LOWLEVEL_INIT" >> $(obj)include/config.h;	\
-	fi
-	@$(MKCONFIG) -n $@ -a mx31pdk arm arm1136 mx31pdk freescale mx31
-
 #########################################################################
 ## ARM1176 Systems
 #########################################################################
