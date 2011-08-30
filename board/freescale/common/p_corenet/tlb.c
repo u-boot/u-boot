@@ -44,10 +44,17 @@ struct fsl_e_tlb_entry tlb_table[] = {
 		      CONFIG_SYS_INIT_RAM_ADDR_PHYS + 12 * 1024,
 		      MAS3_SW|MAS3_SR, 0,
 		      0, 0, BOOKE_PAGESZ_4K, 0),
+#ifdef CPLD_BASE
+	SET_TLB_ENTRY(0, CPLD_BASE, CPLD_BASE_PHYS,
+		      MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
+		      0, 0, BOOKE_PAGESZ_4K, 0),
+#endif
 
+#ifdef PIXIS_BASE
 	SET_TLB_ENTRY(0, PIXIS_BASE, PIXIS_BASE_PHYS,
 		      MAS3_SW|MAS3_SR, MAS2_I|MAS2_G,
 		      0, 0, BOOKE_PAGESZ_4K, 0),
+#endif
 
 	/* TLB 1 */
 	/* *I*** - Covers boot page */
