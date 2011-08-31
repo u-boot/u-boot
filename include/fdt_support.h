@@ -36,6 +36,13 @@ void do_fixup_by_path(void *fdt, const char *path, const char *prop,
 		      const void *val, int len, int create);
 void do_fixup_by_path_u32(void *fdt, const char *path, const char *prop,
 			  u32 val, int create);
+
+static inline void do_fixup_by_path_string(void *fdt, const char *path,
+					   const char *prop, const char *status)
+{
+	do_fixup_by_path(fdt, path, prop, status, strlen(status) + 1, 1);
+}
+
 void do_fixup_by_prop(void *fdt,
 		      const char *pname, const void *pval, int plen,
 		      const char *prop, const void *val, int len,
