@@ -255,6 +255,9 @@ int	print_buffer (ulong addr, void* data, uint width, uint count, uint linelen);
 /* common/main.c */
 void	main_loop	(void);
 int	run_command	(const char *cmd, int flag);
+#ifdef CONFIG_CMD_PXE
+int run_command2(const char *cmd, int flag);
+#endif
 int	readline	(const char *const prompt);
 int	readline_into_buffer	(const char *const prompt, char * buffer);
 int	parse_line (char *, char *[]);
@@ -284,6 +287,9 @@ extern ulong load_addr;		/* Default Load Address */
 
 /* common/cmd_doc.c */
 void	doc_probe(unsigned long physadr);
+
+/* common/cmd_net.c */
+int do_tftpb(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[]);
 
 /* common/cmd_nvedit.c */
 int	env_init     (void);

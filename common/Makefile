@@ -136,6 +136,7 @@ COBJS-$(CONFIG_CMD_PCI) += cmd_pci.o
 endif
 COBJS-y += cmd_pcmcia.o
 COBJS-$(CONFIG_CMD_PORTIO) += cmd_portio.o
+COBJS-$(CONFIG_CMD_PXE) += cmd_pxe.o
 COBJS-$(CONFIG_CMD_REGINFO) += cmd_reginfo.o
 COBJS-$(CONFIG_CMD_REISER) += cmd_reiser.o
 COBJS-$(CONFIG_CMD_SATA) += cmd_sata.o
