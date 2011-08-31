@@ -29,7 +29,7 @@
 #define FLAG_REPARSING       (1 << 2)	  /* >=2nd pass */
 
 extern int u_boot_hush_start(void);
-extern int parse_string_outer(char *, int);
+extern int parse_string_outer(const char *, int);
 extern int parse_file_outer(void);
 
 int set_local_var(const char *s, int flg_export);

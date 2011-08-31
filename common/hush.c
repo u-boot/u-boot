@@ -3217,7 +3217,7 @@ int parse_stream_outer(struct in_str *inp, int flag)
 #ifndef __U_BOOT__
 static int parse_string_outer(const char *s, int flag)
 #else
-int parse_string_outer(char *s, int flag)
+int parse_string_outer(const char *s, int flag)
 #endif	/* __U_BOOT__ */
 {
 	struct in_str input;
