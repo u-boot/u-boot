@@ -174,16 +174,6 @@ void arch_lmb_reserve(struct lmb *lmb)
 	return ;
 }
 
-static void boot_prep_linux(void)
-{
-#ifdef CONFIG_MP
-	/* if we are MP make sure to flush the dcache() to any changes are made
-	 * visibile to all other cores */
-	flush_dcache();
-#endif
-	return ;
-}
-
 static int boot_cmdline_linux(bootm_headers_t *images)
 {
 	ulong of_size = images->ft_len;
@@ -339,17 +329,19 @@ int do_bootm_linux(int flag, int argc, char * const argv[], bootm_headers_t *ima
 		return 0;
 	}
 
-	if (flag & BOOTM_STATE_OS_PREP) {
-		boot_prep_linux();
+	/*
+	 * We do nothing & report success to retain compatiablity with older
+	 * versions of u-boot in which this use to flush the dcache on MP
+	 * systems
+	 */
+	if (flag & BOOTM_STATE_OS_PREP)
 		return 0;
-	}
 
 	if (flag & BOOTM_STATE_OS_GO) {
 		boot_jump_linux(images);
 		return 0;
 	}
 
-	boot_prep_linux();
 	ret = boot_body_linux(images);
 	if (ret)
 		return ret;

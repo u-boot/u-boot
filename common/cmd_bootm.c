@@ -432,6 +432,9 @@ static int bootm_load_os(image_info_t os, ulong *load_end, int boot_progress)
 		printf ("Unimplemented compression type %d\n", comp);
 		return BOOTM_ERR_UNIMPLEMENTED;
 	}
+
+	flush_cache(load, (*load_end - load) * sizeof(ulong));
+
 	puts ("OK\n");
 	debug ("   kernel loaded at 0x%08lx, end = 0x%08lx\n", load, *load_end);
 	if (boot_progress)
