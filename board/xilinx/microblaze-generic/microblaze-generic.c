@@ -72,6 +72,12 @@ int fsl_init2 (void) {
 int board_eth_init(bd_t *bis)
 {
 	int ret = 0;
+
+#ifdef CONFIG_XILINX_AXIEMAC
+	ret |= xilinx_axiemac_initialize(bis, XILINX_AXIEMAC_BASEADDR,
+						XILINX_AXIDMA_BASEADDR);
+#endif
+
 #ifdef CONFIG_XILINX_EMACLITE
 	u32 txpp = 0;
 	u32 rxpp = 0;
