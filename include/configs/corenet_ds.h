@@ -56,7 +56,6 @@
 #define CONFIG_PCI			/* Enable PCI/PCIE */
 #define CONFIG_PCIE1			/* PCIE controler 1 */
 #define CONFIG_PCIE2			/* PCIE controler 2 */
-#define CONFIG_PCIE3			/* PCIE controler 3 */
 #define CONFIG_FSL_PCI_INIT		/* Use common FSL init code */
 #define CONFIG_SYS_PCI_64BIT		/* enable 64-bit PCI resources */
 
@@ -199,7 +198,6 @@
 	(BR_PHYS_ADDR(CONFIG_SYS_FLASH_BASE_PHYS) | BR_PS_16 | BR_V)
 #define CONFIG_SYS_OR1_PRELIM	0xf8000ff7
 
-#define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
 #define PIXIS_BASE		0xffdf0000	/* PIXIS registers */
 #ifdef CONFIG_PHYS_64BIT
 #define PIXIS_BASE_PHYS		0xfffdf0000ull
@@ -230,8 +228,6 @@
 #endif
 
 /* Nand Flash */
-#if defined(CONFIG_P3041DS) || defined(CONFIG_P5020DS)
-#define CONFIG_NAND_FSL_ELBC
 #ifdef CONFIG_NAND_FSL_ELBC
 #define CONFIG_SYS_NAND_BASE		0xffa00000
 #ifdef CONFIG_PHYS_64BIT
@@ -272,11 +268,10 @@
 #define CONFIG_SYS_BR2_PRELIM  CONFIG_SYS_NAND_BR_PRELIM /* NAND Base Address */
 #define CONFIG_SYS_OR2_PRELIM  CONFIG_SYS_NAND_OR_PRELIM /* NAND Options */
 #endif
-#endif /* CONFIG_NAND_FSL_ELBC */
 #else
 #define CONFIG_SYS_BR0_PRELIM  CONFIG_SYS_FLASH_BR_PRELIM /* NOR Base Address */
 #define CONFIG_SYS_OR0_PRELIM  CONFIG_SYS_FLASH_OR_PRELIM /* NOR Options */
-#endif
+#endif /* CONFIG_NAND_FSL_ELBC */
 
 #define CONFIG_SYS_FLASH_EMPTY_INFO
 #define CONFIG_SYS_FLASH_AMD_CHECK_DQ7
@@ -586,8 +581,6 @@
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_CMD_EXT2
 #define CONFIG_HAS_FSL_DR_USB
-
-#define CONFIG_MMC
 
 #ifdef CONFIG_MMC
 #define CONFIG_FSL_ESDHC

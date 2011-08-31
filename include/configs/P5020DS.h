@@ -28,7 +28,12 @@
 #define CONFIG_PHYS_64BIT
 #define CONFIG_PPC_P5020
 
+#define CONFIG_FSL_NGPIXIS		/* use common ngPIXIS code */
+
+#define CONFIG_MMC
+#define CONFIG_NAND_FSL_ELBC
 #define CONFIG_FSL_SATA_V2
+#define CONFIG_PCIE3
 #define CONFIG_PCIE4
 
 #define CONFIG_ICS307_REFCLK_HZ		25000000  /* ICS307 ref clk freq */
