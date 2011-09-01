@@ -21,8 +21,12 @@
  * will not allocate storage for arrays of size 0
  */
 
+#include <linux/types.h>
+
 #if !defined(CONFIG_SYS_NS16550_REG_SIZE) || (CONFIG_SYS_NS16550_REG_SIZE == 0)
 #error "Please define NS16550 registers size."
+#elif defined(CONFIG_SYS_NS16550_MEM32)
+#define UART_REG(x) u32 x
 #elif (CONFIG_SYS_NS16550_REG_SIZE > 0)
 #define UART_REG(x)						   \
 	unsigned char prepad_##x[CONFIG_SYS_NS16550_REG_SIZE - 1]; \

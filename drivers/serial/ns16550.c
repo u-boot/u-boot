@@ -19,6 +19,12 @@
 #ifdef CONFIG_SYS_NS16550_PORT_MAPPED
 #define serial_out(x,y)	outb(x,(ulong)y)
 #define serial_in(y)	inb((ulong)y)
+#elif defined(CONFIG_SYS_NS16550_MEM32) && (CONFIG_SYS_NS16550_REG_SIZE > 0)
+#define serial_out(x,y) out_be32(y,x)
+#define serial_in(y) 	in_be32(y)
+#elif defined(CONFIG_SYS_NS16550_MEM32) && (CONFIG_SYS_NS16550_REG_SIZE < 0)
+#define serial_out(x,y) out_le32(y,x)
+#define serial_in(y) 	in_le32(y)
 #else
 #define serial_out(x,y) writeb(x,y)
 #define serial_in(y) 	readb(y)
