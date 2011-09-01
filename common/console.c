@@ -329,6 +329,39 @@ int tstc(void)
 	return serial_tstc();
 }
 
+#ifdef CONFIG_PRE_CONSOLE_BUFFER
+#define CIRC_BUF_IDX(idx) ((idx) % (unsigned long)CONFIG_PRE_CON_BUF_SZ)
+
+static void pre_console_putc(const char c)
+{
+	char *buffer = (char *)CONFIG_PRE_CON_BUF_ADDR;
+
+	buffer[CIRC_BUF_IDX(gd->precon_buf_idx++)] = c;
+}
+
+static void pre_console_puts(const char *s)
+{
+	while (*s)
+		pre_console_putc(*s++);
+}
+
+static void print_pre_console_buffer(void)
+{
+	unsigned long i = 0;
+	char *buffer = (char *)CONFIG_PRE_CON_BUF_ADDR;
+
+	if (gd->precon_buf_idx > CONFIG_PRE_CON_BUF_SZ)
+		i = gd->precon_buf_idx - CONFIG_PRE_CON_BUF_SZ;
+
+	while (i < gd->precon_buf_idx)
+		putc(buffer[CIRC_BUF_IDX(i++)]);
+}
+#else
+static inline void pre_console_putc(const char c) {}
+static inline void pre_console_puts(const char *s) {}
+static inline void print_pre_console_buffer(void) {}
+#endif
+
 void putc(const char c)
 {
 #ifdef CONFIG_SILENT_CONSOLE
@@ -342,7 +375,7 @@ void putc(const char c)
 #endif
 
 	if (!gd->have_console)
-		return;
+		return pre_console_putc(c);
 
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Send to the standard output */
@@ -366,7 +399,7 @@ void puts(const char *s)
 #endif
 
 	if (!gd->have_console)
-		return;
+		return pre_console_puts(s);
 
 	if (gd->flags & GD_FLG_DEVINIT) {
 		/* Send to the standard output */
@@ -383,8 +416,10 @@ int printf(const char *fmt, ...)
 	uint i;
 	char printbuffer[CONFIG_SYS_PBSIZE];
 
+#ifndef CONFIG_PRE_CONSOLE_BUFFER
 	if (!gd->have_console)
 		return 0;
+#endif
 
 	va_start(args, fmt);
 
@@ -404,8 +439,10 @@ int vprintf(const char *fmt, va_list args)
 	uint i;
 	char printbuffer[CONFIG_SYS_PBSIZE];
 
+#ifndef CONFIG_PRE_CONSOLE_BUFFER
 	if (!gd->have_console)
 		return 0;
+#endif
 
 	/* For this to work, printbuffer must be larger than
 	 * anything we ever want to print.
@@ -546,6 +583,8 @@ int console_init_f(void)
 	if (getenv("silent") != NULL)
 		gd->flags |= GD_FLG_SILENT;
 #endif
+
+	print_pre_console_buffer();
 
 	return 0;
 }

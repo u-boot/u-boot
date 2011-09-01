@@ -619,6 +619,20 @@ The following options need to be configured:
 		must be defined, to setup the maximum idle timeout for
 		the SMC.
 
+- Pre-Console Buffer:
+                Prior to the console being initialised (i.e. serial UART
+                initialised etc) all console output is silently discarded.
+                Defining CONFIG_PRE_CONSOLE_BUFFER will cause U-Boot to
+                buffer any console messages prior to the console being
+                initialised to a buffer of size CONFIG_PRE_CON_BUF_SZ
+                bytes located at CONFIG_PRE_CON_BUF_ADDR. The buffer is
+                a circular buffer, so if more than CONFIG_PRE_CON_BUF_SZ
+                bytes are output before the console is  initialised, the
+                earlier bytes are discarded.
+
+                'Sane' compilers will generate smaller code if
+                CONFIG_PRE_CON_BUF_SZ is a power of 2
+
 - Boot Delay:	CONFIG_BOOTDELAY - in seconds
 		Delay before automatically booting the default image;
 		set to -1 to disable autoboot.

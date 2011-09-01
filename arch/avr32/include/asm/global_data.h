@@ -38,6 +38,9 @@ typedef	struct	global_data {
 	unsigned long	baudrate;
 	unsigned long	stack_end;	/* highest stack address */
 	unsigned long	have_console;	/* serial_init() was called */
+#ifdef CONFIG_PRE_CONSOLE_BUFFER
+	unsigned long	precon_buf_idx;	/* Pre-Console buffer index */
+#endif
 	unsigned long	reloc_off;	/* Relocation Offset */
 	unsigned long	env_addr;	/* Address of env struct */
 	unsigned long	env_valid;	/* Checksum of env valid? */
