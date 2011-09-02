@@ -78,6 +78,10 @@ typedef	struct	global_data {
 #endif
 	void		**jt;		/* jump table */
 	char		env_buf[32];	/* buffer for getenv() before reloc. */
+#if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
+	unsigned long	post_log_word; /* Record POST activities */
+	unsigned long	post_init_f_time; /* When post_init_f started */
+#endif
 } gd_t;
 
 /*

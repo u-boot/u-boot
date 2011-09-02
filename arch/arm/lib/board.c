@@ -48,6 +48,8 @@
 #include <nand.h>
 #include <onenand_uboot.h>
 #include <mmc.h>
+#include <post.h>
+#include <logbuff.h>
 
 #ifdef CONFIG_BITBANGMII
 #include <miiphy.h>
