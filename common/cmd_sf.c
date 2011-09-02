@@ -53,7 +53,7 @@ static int sf_parse_len_arg(char *arg, ulong *len)
 		return -1;
 
 	if (round_up_len && flash->sector_size > 0)
-		*len = ROUND(len_arg - 1, flash->sector_size);
+		*len = ROUND(len_arg, flash->sector_size);
 	else
 		*len = len_arg;
 
