@@ -33,6 +33,7 @@
 
 #if defined(CONFIG_POST) || defined(CONFIG_LOGBUFFER)
 
+#ifndef CONFIG_POST_EXTERNAL_WORD_FUNCS
 #ifdef CONFIG_SYS_POST_WORD_ADDR
 #define _POST_WORD_ADDR	CONFIG_SYS_POST_WORD_ADDR
 #else
@@ -85,6 +86,13 @@ static inline void post_word_store (ulong value)
 {
 	out_le32((volatile void *)(_POST_WORD_ADDR), value);
 }
+
+#else
+
+extern ulong post_word_load(void);
+extern void post_word_store(ulong value);
+
+#endif /* CONFIG_POST_EXTERNAL_WORD_FUNCS */
 #endif /* defined (CONFIG_POST) || defined(CONFIG_LOGBUFFER) */
 #endif /* __ASSEMBLY__ */
 
