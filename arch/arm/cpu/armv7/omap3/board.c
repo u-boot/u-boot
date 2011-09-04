@@ -38,7 +38,7 @@
 #include <asm/arch/mem.h>
 #include <asm/cache.h>
 #include <asm/armv7.h>
-#include <asm/omap_gpio.h>
+#include <asm/arch/gpio.h>
 
 /* Declarations */
 extern omap3_sysinfo sysinfo;
@@ -400,5 +400,13 @@ void v7_outer_cache_disable(void)
 	 * by an erratum)
 	 */
 	omap3_update_aux_cr(0, 0x2);
+}
+#endif
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+void enable_caches(void)
+{
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
 }
 #endif

@@ -29,7 +29,7 @@
 #include <asm/arch/mx5x_pins.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
-#include <mxc_gpio.h>
+#include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/errno.h>
 #include <i2c.h>
@@ -69,9 +69,9 @@ void hw_watchdog_reset(void)
 	int val;
 
 	/* toggle watchdog trigger pin */
-	val = mxc_gpio_get(66);
+	val = gpio_get_value(66);
 	val = val ? 0 : 1;
-	mxc_gpio_set(66, val);
+	gpio_set_value(66, val);
 }
 #endif
 
@@ -233,30 +233,22 @@ static void reset_peripherals(int reset)
 	if (reset) {
 
 		/* reset_n is on NANDF_D15 */
-		mxc_gpio_set(89, 0);
-		mxc_gpio_direction(89, MXC_GPIO_DIRECTION_OUT);
+		gpio_direction_output(89, 0);
 
 #ifdef CONFIG_VISION2_HW_1_0
 		/*
 		 * set FEC Configuration lines
 		 * set levels of FEC config lines
 		 */
-		mxc_gpio_set(75, 0);
-		mxc_gpio_set(74, 1);
-		mxc_gpio_set(95, 1);
-		mxc_gpio_direction(75, MXC_GPIO_DIRECTION_OUT);
-		mxc_gpio_direction(74, MXC_GPIO_DIRECTION_OUT);
-		mxc_gpio_direction(95, MXC_GPIO_DIRECTION_OUT);
+		gpio_direction_output(75, 0);
+		gpio_direction_output(74, 1);
+		gpio_direction_output(95, 1);
 
 		/* set direction of FEC config lines */
-		mxc_gpio_set(59, 0);
-		mxc_gpio_set(60, 0);
-		mxc_gpio_set(61, 0);
-		mxc_gpio_set(55, 1);
-		mxc_gpio_direction(59, MXC_GPIO_DIRECTION_OUT);
-		mxc_gpio_direction(60, MXC_GPIO_DIRECTION_OUT);
-		mxc_gpio_direction(61, MXC_GPIO_DIRECTION_OUT);
-		mxc_gpio_direction(55, MXC_GPIO_DIRECTION_OUT);
+		gpio_direction_output(59, 0);
+		gpio_direction_output(60, 0);
+		gpio_direction_output(61, 0);
+		gpio_direction_output(55, 1);
 
 		/* FEC_RXD1 - sel GPIO (2-23) for configuration -> 1 */
 		mxc_request_iomux(MX51_PIN_EIM_EB3, IOMUX_CONFIG_ALT1);
@@ -283,7 +275,7 @@ static void reset_peripherals(int reset)
 			PAD_CTL_DRV_VOT_HIGH | PAD_CTL_DRV_MAX);
 	} else {
 		/* set FEC Control lines */
-		mxc_gpio_direction(89, MXC_GPIO_DIRECTION_IN);
+		gpio_direction_input(89);
 		udelay(500);
 
 #ifdef CONFIG_VISION2_HW_1_0
@@ -438,31 +430,23 @@ static void setup_gpios(void)
 	 * Set GPIO1_4 to high and output; it is used to reset
 	 * the system on reboot
 	 */
-	mxc_gpio_set(4, 1);
-	mxc_gpio_direction(4, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(4, 1);
 
-	mxc_gpio_set(7, 0);
-	mxc_gpio_direction(7, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(7, 0);
 	for (i = 65; i < 71; i++) {
-		mxc_gpio_set(i, 0);
-		mxc_gpio_direction(i, MXC_GPIO_DIRECTION_OUT);
+		gpio_direction_output(i, 0);
 	}
 
-	mxc_gpio_set(94, 0);
-	mxc_gpio_direction(94, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(94, 0);
 
 	/* Set POWER_OFF high */
-	mxc_gpio_set(91, 1);
-	mxc_gpio_direction(91, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(91, 1);
 
-	mxc_gpio_set(90, 0);
-	mxc_gpio_direction(90, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(90, 0);
 
-	mxc_gpio_set(122, 0);
-	mxc_gpio_direction(122, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(122, 0);
 
-	mxc_gpio_set(121, 1);
-	mxc_gpio_direction(121, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(121, 1);
 
 	WATCHDOG_RESET();
 }
@@ -551,7 +535,7 @@ int get_mmc_getcd(u8 *cd, struct mmc *mmc)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		*cd = mxc_gpio_get(0);
+		*cd = gpio_get_value(0);
 	else
 		*cd = 0;
 
@@ -623,8 +607,7 @@ int board_early_init_f(void)
 	init_drive_strength();
 
 	/* Setup debug led */
-	mxc_gpio_set(6, 0);
-	mxc_gpio_direction(6, MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(6, 0);
 	mxc_request_iomux(MX51_PIN_GPIO1_6, IOMUX_CONFIG_ALT0);
 	mxc_iomux_set_pad(MX51_PIN_GPIO1_6, PAD_CTL_DRV_MAX | PAD_CTL_SRE_FAST);
 
@@ -644,12 +627,12 @@ int board_early_init_f(void)
 static void backlight(int on)
 {
 	if (on) {
-		mxc_gpio_set(65, 1);
+		gpio_set_value(65, 1);
 		udelay(10000);
-		mxc_gpio_set(68, 1);
+		gpio_set_value(68, 1);
 	} else {
-		mxc_gpio_set(65, 0);
-		mxc_gpio_set(68, 0);
+		gpio_set_value(65, 0);
+		gpio_set_value(68, 0);
 	}
 }
 
@@ -660,7 +643,7 @@ void lcd_enable(void)
 	mxc_request_iomux(MX51_PIN_DI1_PIN2, IOMUX_CONFIG_ALT0);
 	mxc_request_iomux(MX51_PIN_DI1_PIN3, IOMUX_CONFIG_ALT0);
 
-	mxc_gpio_set(2, 1);
+	gpio_set_value(2, 1);
 	mxc_request_iomux(MX51_PIN_GPIO1_2, IOMUX_CONFIG_ALT0);
 
 	ret = mx51_fb_init(&nec_nl6448bc26_09c);

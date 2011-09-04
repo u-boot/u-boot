@@ -26,7 +26,6 @@
 
 
 #define CONFIG_MX51	/* in a mx51 */
-#define CONFIG_SYS_L2CACHE_OFF
 #define CONFIG_SYS_TEXT_BASE	0x97800000
 
 #include <asm/arch/imx-regs.h>

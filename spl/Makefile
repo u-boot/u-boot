@@ -93,7 +93,17 @@ endif
 
 ALL-y	+= $(obj)u-boot-spl.bin
 
+ifdef CONFIG_SAMSUNG
+ALL-y	+= $(obj)$(BOARD)-spl.bin
+endif
+
 all:	$(ALL-y)
+
+ifdef CONFIG_SAMSUNG
+$(obj)$(BOARD)-spl.bin: $(obj)u-boot-spl.bin
+	$(TOPDIR)/board/$(BOARDDIR)/tools/mk$(BOARD)spl.exe \
+		$(obj)u-boot-spl.bin $(obj)$(BOARD)-spl.bin
+endif
 
 $(obj)u-boot-spl.bin:	$(obj)u-boot-spl
 	$(OBJCOPY) $(OBJCFLAGS) -O binary $< $@

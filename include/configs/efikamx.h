@@ -40,8 +40,6 @@
 
 #define CONFIG_SYS_TEXT_BASE		0x97800000
 
-#define CONFIG_SYS_L2CACHE_OFF
-
 /*
  * Bootloader Components Configuration
  */

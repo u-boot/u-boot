@@ -50,6 +50,7 @@ extern struct ehci_hccr *hccr;
 extern volatile struct ehci_hcor *hcor;
 #endif
 #include "beagle.h"
+#include <command.h>
 
 #define pr_debug(fmt, args...) debug(fmt, ##args)
 
@@ -164,6 +165,28 @@ unsigned int get_expansion_id(void)
 }
 
 /*
+ * Configure DSS to display background color on DVID
+ * Configure VENC to display color bar on S-Video
+ */
+void beagle_display_init(void)
+{
+	omap3_dss_venc_config(&venc_config_std_tv, VENC_HEIGHT, VENC_WIDTH);
+	switch (get_board_revision()) {
+	case REVISION_AXBX:
+	case REVISION_CX:
+	case REVISION_C4:
+		omap3_dss_panel_config(&dvid_cfg);
+		break;
+	case REVISION_XM_A:
+	case REVISION_XM_B:
+	case REVISION_XM_C:
+	default:
+		omap3_dss_panel_config(&dvid_cfg_xm);
+		break;
+	}
+}
+
+/*
  * Routine: misc_init_r
  * Description: Configure board specific parts
  */
@@ -209,6 +232,16 @@ int misc_init_r(void)
 	case REVISION_XM_B:
 		printf("Beagle xM Rev B\n");
 		setenv("beaglerev", "xMB");
+		MUX_BEAGLE_XM();
+		/* Set VAUX2 to 1.8V for EHCI PHY */
+		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
+					TWL4030_PM_RECEIVER_VAUX2_VSEL_18,
+					TWL4030_PM_RECEIVER_VAUX2_DEV_GRP,
+					TWL4030_PM_RECEIVER_DEV_GRP_P1);
+		break;
+	case REVISION_XM_C:
+		printf("Beagle xM Rev C\n");
+		setenv("beaglerev", "xMC");
 		MUX_BEAGLE_XM();
 		/* Set VAUX2 to 1.8V for EHCI PHY */
 		twl4030_pmrecv_vsel_cfg(TWL4030_PM_RECEIVER_VAUX2_DEDICATED,
@@ -299,20 +332,30 @@ int misc_init_r(void)
 		setenv(expansion_config.env_var, expansion_config.env_setting);
 
 	twl4030_power_init();
-	twl4030_led_init(TWL4030_LED_LEDEN_LEDAON | TWL4030_LED_LEDEN_LEDBON);
+	switch (get_board_revision()) {
+	case REVISION_XM_A:
+	case REVISION_XM_B:
+		twl4030_led_init(TWL4030_LED_LEDEN_LEDBON);
+		break;
+	default:
+		twl4030_led_init(TWL4030_LED_LEDEN_LEDAON | TWL4030_LED_LEDEN_LEDBON);
+		break;
+	}
+
+	/* Set GPIO states before they are made outputs */
+	writel(GPIO23 | GPIO10 | GPIO8 | GPIO2 | GPIO1,
+		&gpio6_base->setdataout);
+	writel(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
+		GPIO15 | GPIO14 | GPIO13 | GPIO12, &gpio5_base->setdataout);
 
 	/* Configure GPIOs to output */
 	writel(~(GPIO23 | GPIO10 | GPIO8 | GPIO2 | GPIO1), &gpio6_base->oe);
 	writel(~(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
 		GPIO15 | GPIO14 | GPIO13 | GPIO12), &gpio5_base->oe);
 
-	/* Set GPIOs */
-	writel(GPIO23 | GPIO10 | GPIO8 | GPIO2 | GPIO1,
-		&gpio6_base->setdataout);
-	writel(GPIO31 | GPIO30 | GPIO29 | GPIO28 | GPIO22 | GPIO21 |
-		GPIO15 | GPIO14 | GPIO13 | GPIO12, &gpio5_base->setdataout);
-
 	dieid_num_r();
+	beagle_display_init();
+	omap3_dss_enable();
 
 	return 0;
 }
@@ -346,6 +389,12 @@ int ehci_hcd_stop(void)
 	pr_debug("Resetting OMAP3 EHCI\n");
 	omap_set_gpio_dataout(GPIO_PHY_RESET, 0);
 	writel(OMAP_UHH_SYSCONFIG_SOFTRESET, OMAP3_UHH_BASE + OMAP_UHH_SYSCONFIG);
+	/* disable USB clocks */
+	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
+	sr32(&prcm_base->iclken_usbhost, 0, 1, 0);
+	sr32(&prcm_base->fclken_usbhost, 0, 2, 0);
+	sr32(&prcm_base->iclken3_core, 2, 1, 0);
+	sr32(&prcm_base->fclken3_core, 2, 1, 0);
 	return 0;
 }
 
@@ -430,3 +479,58 @@ int ehci_hcd_init(void)
 }
 
 #endif /* CONFIG_USB_EHCI */
+
+/*
+ * This command returns the status of the user button on beagle xM
+ * Input - none
+ * Returns - 	1 if button is held down
+ *		0 if button is not held down
+ */
+int do_userbutton (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+{
+	int     button = 0;
+	int	gpio;
+
+	/*
+	 * pass address parameter as argv[0] (aka command name),
+	 * and all remaining args
+	 */
+	switch (get_board_revision()) {
+	case REVISION_AXBX:
+	case REVISION_CX:
+	case REVISION_C4:
+		gpio = 7;
+		break;
+	case REVISION_XM_A:
+	case REVISION_XM_B:
+	case REVISION_XM_C:
+	default:
+		gpio = 4;
+		break;
+	}
+	omap_request_gpio(gpio);
+	omap_set_gpio_direction(gpio, 1);
+	printf("The user button is currently ");
+	if(omap_get_gpio_datain(gpio))
+	{
+		button = 1;
+		printf("PRESSED.\n");
+	}
+	else
+	{
+		button = 0;
+		printf("NOT pressed.\n");
+	}
+
+	omap_free_gpio(gpio);
+
+	return !button;
+}
+
+/* -------------------------------------------------------------------- */
+
+U_BOOT_CMD(
+	userbutton, CONFIG_SYS_MAXARGS, 1,	do_userbutton,
+	"Return the status of the BeagleBoard USER button",
+	""
+);

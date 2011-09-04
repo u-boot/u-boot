@@ -34,7 +34,7 @@
 #include <mc9sdz60.h>
 #include <mc13892.h>
 #include <linux/types.h>
-#include <mxc_gpio.h>
+#include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 #include <netdev.h>
 
@@ -52,10 +52,23 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)
 {
-	gd->ram_size = get_ram_size((long *)PHYS_SDRAM_1,
-		PHYS_SDRAM_1_SIZE);
+	u32 size1, size2;
+
+	size1 = get_ram_size((void *)PHYS_SDRAM_1, PHYS_SDRAM_1_SIZE);
+	size2 = get_ram_size((void *)PHYS_SDRAM_2, PHYS_SDRAM_2_SIZE);
+
+	gd->ram_size = size1 + size2;
 
 	return 0;
+}
+
+void dram_init_banksize(void)
+{
+	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
+	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
+
+	gd->bd->bi_dram[1].start = PHYS_SDRAM_2;
+	gd->bd->bi_dram[1].size = PHYS_SDRAM_2_SIZE;
 }
 
 static void setup_iomux_i2c(void)
@@ -227,8 +240,7 @@ int board_late_init(void)
 		mxc_request_iomux(MX35_PIN_COMPARE, MUX_CONFIG_GPIO);
 		mxc_iomux_set_input(MUX_IN_GPIO1_IN_5, INPUT_CTL_PATH0);
 
-		mxc_gpio_direction(37, MXC_GPIO_DIRECTION_OUT);
-		mxc_gpio_set(37, 1);
+		gpio_direction_output(37, 1);
 	}
 
 	val = mc9sdz60_reg_read(MC9SDZ60_REG_GPIO_1) | 0x04;

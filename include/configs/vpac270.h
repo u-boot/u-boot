@@ -51,7 +51,6 @@
 #define	CONFIG_BOOTDELAY		2	/* Autoboot delay */
 #define	CONFIG_CMDLINE_TAG
 #define	CONFIG_SETUP_MEMORY_TAGS
-#define	CONFIG_SYS_TEXT_BASE		0x0
 #define	CONFIG_LZMA			/* LZMA compression support */
 
 /*

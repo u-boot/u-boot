@@ -457,7 +457,7 @@ static void davinci_eth_ch_teardown(int ch)
 
 	if (ch == EMAC_CH_TX) {
 		/* Init TX channel teardown */
-		writel(1, &adap_emac->TXTEARDOWN);
+		writel(0, &adap_emac->TXTEARDOWN);
 		do {
 			/*
 			 * Wait here for Tx teardown completion interrupt to
@@ -476,7 +476,7 @@ static void davinci_eth_ch_teardown(int ch)
 		writel(0, &adap_emac->TX0HDP);
 	} else {
 		/* Init RX channel teardown */
-		writel(1, &adap_emac->RXTEARDOWN);
+		writel(0, &adap_emac->RXTEARDOWN);
 		do {
 			/*
 			 * Wait here for Rx teardown completion interrupt to

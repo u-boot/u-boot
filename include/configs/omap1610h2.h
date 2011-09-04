@@ -34,7 +34,8 @@
 #define CONFIG_OMAP		1	/* in a TI OMAP core */
 #define CONFIG_OMAP1610		1	/* which is in a 1610 */
 #define CONFIG_H2_OMAP1610	1	/* on an H2 Board */
-#define CONFIG_MACH_OMAP_H2		/* Select board mach-type */
+
+#define CONFIG_MACH_TYPE	MACH_TYPE_OMAP_H2
 
 /* input clock of PLL */
 /* the OMAP1610 H2 has 12MHz input clock */

@@ -63,13 +63,6 @@ static inline void delay (unsigned long loops)
 
 int board_init (void)
 {
-	if (machine_is_omap_h2())
-		gd->bd->bi_arch_number = MACH_TYPE_OMAP_H2;
-	else if (machine_is_omap_innovator())
-		gd->bd->bi_arch_number = MACH_TYPE_OMAP_INNOVATOR;
-	else
-		gd->bd->bi_arch_number = MACH_TYPE_OMAP_GENERIC;
-
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = 0x10000100;
 

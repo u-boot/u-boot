@@ -41,7 +41,7 @@ static void smc9115_pre_init(void)
 		(struct s5pc100_gpio *)samsung_get_base_gpio();
 
 	/* gpio configuration GPK0CON */
-	gpio_cfg_pin(&gpio->k0, CONFIG_ENV_SROM_BANK, GPIO_FUNC(2));
+	s5p_gpio_cfg_pin(&gpio->k0, CONFIG_ENV_SROM_BANK, GPIO_FUNC(2));
 
 	/* Ethernet needs bus width of 16 bits */
 	smc_bw_conf = SMC_DATA16_WIDTH(CONFIG_ENV_SROM_BANK);

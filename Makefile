@@ -798,78 +798,6 @@ M5485HFE_config :	unconfig
 # ARM
 #========================================================================
 
-#########################################################################
-## ARM926EJ-S Systems
-#########################################################################
-
-at91sam9m10g45ek_nandflash_config \
-at91sam9m10g45ek_dataflash_config \
-at91sam9m10g45ek_dataflash_cs0_config \
-at91sam9m10g45ek_config \
-at91sam9g45ekes_nandflash_config \
-at91sam9g45ekes_dataflash_config \
-at91sam9g45ekes_dataflash_cs0_config \
-at91sam9g45ekes_config	:	unconfig
-	@mkdir -p $(obj)include
-		@if [ "$(findstring 9m10,$@)" ] ; then \
-		echo "#define CONFIG_AT91SAM9M10G45EK 1"	>>$(obj)include/config.h ; \
-	else \
-		echo "#define CONFIG_AT91SAM9G45EKES 1"	>>$(obj)include/config.h ; \
-	fi;
-	@if [ "$(findstring _nandflash,$@)" ] ; then \
-		echo "#define CONFIG_SYS_USE_NANDFLASH 1"	>>$(obj)include/config.h ; \
-	else \
-		echo "#define CONFIG_ATMEL_SPI 1"	>>$(obj)include/config.h ; \
-	fi;
-	@$(MKCONFIG) -n $@ -a at91sam9m10g45ek arm arm926ejs at91sam9m10g45ek atmel at91
-
-pm9g45_config	:	unconfig
-	@mkdir -p $(obj)include
-	@$(MKCONFIG) -a pm9g45 arm arm926ejs pm9g45 ronetix at91
-
-SBC35_A9G20_NANDFLASH_config \
-SBC35_A9G20_EEPROM_config \
-SBC35_A9G20_config	:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_$(@:_config=) 1" >$(obj)include/config.h
-	@$(MKCONFIG) -n $@ -a sbc35_a9g20 arm arm926ejs sbc35_a9g20 calao at91
-
-TNY_A9G20_NANDFLASH_config \
-TNY_A9G20_EEPROM_config \
-TNY_A9G20_config \
-TNY_A9260_NANDFLASH_config \
-TNY_A9260_EEPROM_config \
-TNY_A9260_config	:	unconfig
-	@mkdir -p $(obj)include
-	@echo "#define CONFIG_$(@:_config=) 1" >$(obj)include/config.h
-	@$(MKCONFIG) -n $@ -a tny_a9260 arm arm926ejs tny_a9260 calao at91
-
-########################################################################
-## ARM Integrator boards - see doc/README-integrator for more info.
-integratorap_config	\
-ap_config		\
-ap966_config		\
-ap922_config		\
-ap922_XA10_config	\
-ap7_config		\
-ap720t_config		\
-ap920t_config		\
-ap926ejs_config		\
-ap946es_config: unconfig
-	@board/armltd/integrator/split_by_variant.sh ap $@
-
-integratorcp_config	\
-cp_config		\
-cp920t_config		\
-cp926ejs_config		\
-cp946es_config		\
-cp1136_config		\
-cp966_config		\
-cp922_config		\
-cp922_XA10_config	\
-cp1026_config: unconfig
-	@board/armltd/integrator/split_by_variant.sh cp $@
-
 xtract_omap1610xxx = $(subst _cs0boot,,$(subst _cs3boot,,$(subst _cs_autoboot,,$(subst _config,,$1))))
 
 omap1610inn_config \
@@ -922,16 +850,6 @@ SX1_config:		unconfig
 tx25_config	: unconfig
 	@echo "CONFIG_NAND_U_BOOT = y" >> $(obj)include/config.mk
 	@$(MKCONFIG) $@ arm arm926ejs tx25 karo mx25
-
-edb9301_config \
-edb9302_config \
-edb9302a_config \
-edb9307_config \
-edb9307a_config \
-edb9312_config \
-edb9315_config \
-edb9315a_config: unconfig
-	@$(MKCONFIG) -n $@ -t $(@:_config=) edb93xx arm arm920t edb93xx - ep93xx
 
 #########################################################################
 ## XScale Systems
@@ -1014,9 +932,7 @@ clean:
 	       $(obj)tools/ncb		   $(obj)tools/ubsha1
 	@rm -f $(obj)board/cray/L1/{bootscript.c,bootscript.image}	  \
 	       $(obj)board/matrix_vision/*/bootscript.img		  \
-	       $(obj)board/netstar/{eeprom,crcek,crcit,*.srec,*.bin}	  \
 	       $(obj)board/voiceblue/eeprom 				  \
-	       $(obj)board/armltd/{integratorap,integratorcp}/u-boot.lds  \
 	       $(obj)u-boot.lds						  \
 	       $(obj)arch/blackfin/cpu/bootrom-asm-offsets.[chs]	  \
 	       $(obj)arch/blackfin/cpu/init.{lds,elf}

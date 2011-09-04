@@ -26,6 +26,7 @@
 #include <asm/armv7.h>
 #include <asm/pl310.h>
 #include <config.h>
+#include <common.h>
 
 struct pl310_regs *const pl310 = (struct pl310_regs *)CONFIG_SYS_PL310_BASE;
 
@@ -89,21 +90,23 @@ void v7_outer_cache_inval_range(u32 start, u32 stop)
 	u32 pa, line_size = 32;
 
 	/*
-	 * If start address is not aligned to cache-line flush the first
-	 * line to prevent affecting somebody else's buffer
+	 * If start address is not aligned to cache-line do not
+	 * invalidate the first cache-line
 	 */
 	if (start & (line_size - 1)) {
-		v7_outer_cache_flush_range(start, start + 1);
+		printf("ERROR: %s - start address is not aligned - 0x%08x\n",
+			__func__, start);
 		/* move to next cache line */
 		start = (start + line_size - 1) & ~(line_size - 1);
 	}
 
 	/*
-	 * If stop address is not aligned to cache-line flush the last
-	 * line to prevent affecting somebody else's buffer
+	 * If stop address is not aligned to cache-line do not
+	 * invalidate the last cache-line
 	 */
 	if (stop & (line_size - 1)) {
-		v7_outer_cache_flush_range(stop, stop + 1);
+		printf("ERROR: %s - stop address is not aligned - 0x%08x\n",
+			__func__, stop);
 		/* align to the beginning of this cache line */
 		stop &= ~(line_size - 1);
 	}

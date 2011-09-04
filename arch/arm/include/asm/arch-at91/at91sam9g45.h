@@ -129,10 +129,24 @@
 #define ATMEL_BASE_VDEC		0x00900000	/* Video Decoder Controller */
 
 /*
+ * External memory
+ */
+#define ATMEL_BASE_CS0		0x10000000
+#define ATMEL_BASE_CS1		0x20000000
+#define ATMEL_BASE_CS2		0x30000000
+#define ATMEL_BASE_CS3		0x40000000
+#define ATMEL_BASE_CS4		0x50000000
+#define ATMEL_BASE_CS5		0x60000000
+#define ATMEL_BASE_CS6		0x70000000
+#define ATMEL_BASE_CS7		0x80000000
+
+/*
  * Other misc defines
  */
 #define ATMEL_PIO_PORTS		5		/* this SoCs has 5 PIO */
-
+#define ATMEL_BASE_PIO		ATMEL_BASE_PIOA
+#define ATMEL_PMC_UHP		AT91SAM926x_PMC_UHP
+#define ATMEL_ID_UHP		ATMEL_ID_UHPHS
 /*
  * Cpu Name
  */

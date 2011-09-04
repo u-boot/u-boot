@@ -36,7 +36,7 @@
  * published by the Free Software Foundation.
  */
 #include <common.h>
-#include <asm/omap_gpio.h>
+#include <asm/arch/gpio.h>
 #include <asm/io.h>
 #include <asm/errno.h>
 

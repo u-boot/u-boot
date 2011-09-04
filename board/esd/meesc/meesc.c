@@ -3,7 +3,7 @@
  * Stelian Pop <stelian.pop@leadtechdesign.com>
  * Lead Tech Design <www.leadtechdesign.com>
  *
- * (C) Copyright 2009-2010
+ * (C) Copyright 2009-2011
  * Daniel Gorsulowski <daniel.gorsulowski@esd.eu>
  * esd electronic system design gmbh <www.esd.eu>
  *
@@ -27,7 +27,7 @@
  */
 
 #include <common.h>
-#include <asm/arch/at91sam9263.h>
+#include <asm/io.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
@@ -35,8 +35,6 @@
 #include <asm/arch/at91_matrix.h>
 #include <asm/arch/at91_pio.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/hardware.h>
-#include <asm/arch/io.h>
 #include <netdev.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -67,8 +65,8 @@ int get_hw_rev(void)
 static void meesc_nand_hw_init(void)
 {
 	unsigned long csa;
-	at91_smc_t 	*smc 	= (at91_smc_t *) AT91_SMC0_BASE;
-	at91_matrix_t 	*matrix = (at91_matrix_t *) AT91_MATRIX_BASE;
+	at91_smc_t	*smc	= (at91_smc_t *) ATMEL_BASE_SMC0;
+	at91_matrix_t	*matrix = (at91_matrix_t *) ATMEL_BASE_MATRIX;
 
 	/* Enable CS3 */
 	csa = readl(&matrix->csa[0]) | AT91_MATRIX_CSA_EBI_CS3A;
@@ -88,7 +86,7 @@ static void meesc_nand_hw_init(void)
 	writel(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |
 		AT91_SMC_MODE_EXNW_DISABLE |
 		AT91_SMC_MODE_DBW_8 |
-		AT91_SMC_MODE_TDF_CYCLE(2),
+		AT91_SMC_MODE_TDF_CYCLE(3),
 		&smc->cs[3].mode);
 
 	/* Configure RDY/BSY */
@@ -102,9 +100,9 @@ static void meesc_nand_hw_init(void)
 #ifdef CONFIG_MACB
 static void meesc_macb_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+	at91_pmc_t	*pmc	= (at91_pmc_t *) ATMEL_BASE_PMC;
 	/* Enable clock */
-	writel(1 << AT91SAM9263_ID_EMAC, &pmc->pcer);
+	writel(1 << ATMEL_ID_EMAC, &pmc->pcer);
 	at91_macb_hw_init();
 }
 #endif
@@ -117,7 +115,7 @@ static void meesc_macb_hw_init(void)
  */
 static void meesc_ethercat_hw_init(void)
 {
-	at91_smc_t 	*smc1 	= (at91_smc_t *) AT91_SMC1_BASE;
+	at91_smc_t	*smc1	= (at91_smc_t *) ATMEL_BASE_SMC1;
 
 	/* Configure SMC EBI1_CS0 for EtherCAT */
 	writel(AT91_SMC_SETUP_NWE(0) | AT91_SMC_SETUP_NCS_WR(0) |
@@ -142,8 +140,9 @@ static void meesc_ethercat_hw_init(void)
 
 int dram_init(void)
 {
-	gd->bd->bi_dram[0].start = PHYS_SDRAM;
-	gd->bd->bi_dram[0].size = get_ram_size((long *) PHYS_SDRAM, (1 << 27));
+	gd->ram_size = get_ram_size(
+		(void *)CONFIG_SYS_SDRAM_BASE,
+		CONFIG_SYS_SDRAM_SIZE);
 	return 0;
 }
 
@@ -151,7 +150,7 @@ int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_MACB
-	rc = macb_eth_initialize(0, (void *)AT91_EMAC_BASE, 0x00);
+	rc = macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC, 0x00);
 #endif
 	return rc;
 }
@@ -225,7 +224,7 @@ int misc_init_r(void)
 {
 	char		*str;
 	char		buf[32];
-	at91_pmc_t	*pmc = (at91_pmc_t *) AT91_PMC_BASE;
+	at91_pmc_t	*pmc = (at91_pmc_t *) ATMEL_BASE_PMC;
 
 	/*
 	 * Normally the processor clock has a divisor of 2.
@@ -246,24 +245,28 @@ int misc_init_r(void)
 }
 #endif /* CONFIG_MISC_INIT_R */
 
-int board_init(void)
+int board_early_init_f(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+	at91_pmc_t	*pmc	= (at91_pmc_t *) ATMEL_BASE_PMC;
 
-	/* Peripheral Clock Enable Register */
-	writel(1 << AT91SAM9263_ID_PIOA |
-		1 << AT91SAM9263_ID_PIOB |
-		1 << AT91SAM9263_ID_PIOCDE |
-		1 << AT91SAM9263_ID_UHP,
+	/* enable all clocks */
+	writel((1 << ATMEL_ID_PIOA) | (1 << ATMEL_ID_PIOB) |
+		(1 << ATMEL_ID_PIOCDE) | (1 << ATMEL_ID_UHP),
 		&pmc->pcer);
 
+	at91_seriald_hw_init();
+
+	return 0;
+}
+
+int board_init(void)
+{
 	/* initialize ET1100 Controller */
 	meesc_ethercat_hw_init();
 
 	/* adress of boot parameters */
-	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
+	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
 
-	at91_serial_hw_init();
 #ifdef CONFIG_CMD_NAND
 	meesc_nand_hw_init();
 #endif

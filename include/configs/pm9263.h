@@ -28,6 +28,12 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+/*
+ * SoC must be defined first, before hardware.h is included.
+ * In this case SoC is defined in boards.cfg.
+ */
+#include <asm/hardware.h>
+
 /* ARM asynchronous clock */
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
@@ -36,16 +42,15 @@
 #define MASTER_PLL_MUL		65
 #define MAIN_PLL_DIV		2	/* 2 or 4 */
 #define CONFIG_SYS_AT91_MAIN_CLOCK	18432000
+#define CONFIG_SYS_AT91_SLOW_CLOCK	32768		/* slow clock xtal */
 
 #define CONFIG_SYS_HZ		1000
 
-#define CONFIG_ARM926EJS	1	/* This is an ARM926EJS Core	*/
-#define CONFIG_AT91SAM9263	1	/* It's an Atmel AT91SAM9263 SoC*/
+#define CONFIG_SYS_AT91_CPU_NAME	"AT91SAM9263"
 #define CONFIG_PM9263		1	/* on a Ronetix PM9263 Board	*/
 #define CONFIG_ARCH_CPU_INIT
 #undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
 #define CONFIG_SYS_TEXT_BASE	0
-#define CONFIG_AT91FAMILY
 
 /* clocks */
 #define CONFIG_SYS_MOR_VAL						\
@@ -170,10 +175,8 @@
  */
 #define CONFIG_AT91_GPIO	1
 #define CONFIG_ATMEL_USART	1
-#undef CONFIG_USART0
-#undef CONFIG_USART1
-#undef CONFIG_USART2
-#define CONFIG_USART3		1	/* USART 3 is DBGU */
+#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
+#define	CONFIG_USART_ID			ATMEL_ID_SYS
 
 /* LCD */
 #define CONFIG_LCD			1

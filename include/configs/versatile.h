@@ -39,10 +39,6 @@
 #define CONFIG_VERSATILE	1	/* in Versatile Platform Board	*/
 #define CONFIG_ARCH_VERSATILE	1	/* Specifically, a Versatile	*/
 
-#ifndef CONFIG_ARCH_VERSATILE_AB	/* AB				*/
-#define CONFIG_ARCH_VERSATILE_PB	/* Versatile PB is default	*/
-#endif
-
 #define CONFIG_SYS_MEMTEST_START	0x100000
 #define CONFIG_SYS_MEMTEST_END		0x10000000
 #define CONFIG_SYS_HZ			(1000000 / 256)

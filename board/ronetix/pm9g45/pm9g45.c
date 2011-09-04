@@ -29,16 +29,14 @@
 
 #include <common.h>
 #include <asm/sizes.h>
-#include <asm/arch/at91sam9g45.h>
+#include <asm/io.h>
 #include <asm/arch/at91sam9_smc.h>
 #include <asm/arch/at91_common.h>
 #include <asm/arch/at91_pmc.h>
 #include <asm/arch/at91_rstc.h>
 #include <asm/arch/at91_matrix.h>
-#include <asm/arch/at91_pio.h>
+#include <asm/arch/gpio.h>
 #include <asm/arch/clk.h>
-#include <asm/arch/io.h>
-#include <asm/arch/hardware.h>
 #if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
 #include <net.h>
 #endif
@@ -54,9 +52,9 @@ DECLARE_GLOBAL_DATA_PTR;
 static void pm9g45_nand_hw_init(void)
 {
 	unsigned long csa;
-	at91_smc_t	*smc	= (at91_smc_t *) AT91_SMC_BASE;
-	at91_matrix_t	*matrix = (at91_matrix_t *) AT91_MATRIX_BASE;
-	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
+	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
 	/* Enable CS3 */
 	csa = readl(&matrix->ccr[6]) | AT91_MATRIX_CSA_EBI_CS3A;
@@ -80,7 +78,7 @@ static void pm9g45_nand_hw_init(void)
 		AT91_SMC_MODE_TDF_CYCLE(3),
 		&smc->cs[3].mode);
 
-	writel(1 << AT91SAM9G45_ID_PIOC, &pmc->pcer);
+	writel(1 << ATMEL_ID_PIOC, &pmc->pcer);
 
 #ifdef CONFIG_SYS_NAND_READY_PIN
 	/* Configure RDY/BSY */
@@ -95,7 +93,7 @@ static void pm9g45_nand_hw_init(void)
 #ifdef CONFIG_MACB
 static void pm9g45_macb_hw_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
 	/*
 	 * PD2 enables the 50MHz oscillator for Ethernet PHY
@@ -106,7 +104,7 @@ static void pm9g45_macb_hw_init(void)
 	at91_set_pio_value(AT91_PIO_PORTD, 2, 1); /* 1- enable, 0 - disable */
 
 	/* Enable clock */
-	writel(1 << AT91SAM9G45_ID_EMAC, &pmc->pcer);
+	writel(1 << ATMEL_ID_EMAC, &pmc->pcer);
 
 	/*
 	 * Disable pull-up on:
@@ -131,22 +129,22 @@ static void pm9g45_macb_hw_init(void)
 
 int board_init(void)
 {
-	at91_pmc_t	*pmc	= (at91_pmc_t *) AT91_PMC_BASE;
+	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
 
 	/* Enable Ctrlc */
 	console_init_f();
 
-	writel((1 << AT91SAM9G45_ID_PIOA) |
-		(1 << AT91SAM9G45_ID_PIOB) |
-		(1 << AT91SAM9G45_ID_PIOC) |
-		(1 << AT91SAM9G45_ID_PIODE), &pmc->pcer);
+	writel((1 << ATMEL_ID_PIOA) |
+		(1 << ATMEL_ID_PIOB) |
+		(1 << ATMEL_ID_PIOC) |
+		(1 << ATMEL_ID_PIODE), &pmc->pcer);
 
 	/* arch number of AT91SAM9M10G45EK-Board */
 	gd->bd->bi_arch_number = MACH_TYPE_PM9G45;
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
-	at91_serial_hw_init();
+	at91_seriald_hw_init();
 #ifdef CONFIG_CMD_NAND
 	pm9g45_nand_hw_init();
 #endif
@@ -188,7 +186,7 @@ int board_eth_init(bd_t *bis)
 {
 	int rc = 0;
 #ifdef CONFIG_MACB
-	rc = macb_eth_initialize(0, (void *)AT91_EMAC_BASE, 0x01);
+	rc = macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC, 0x01);
 #endif
 	return rc;
 }

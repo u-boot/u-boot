@@ -65,7 +65,7 @@
 /*
  * Architecture magic and machine type
  */
-#define MACH_TYPE		1270
+#define CONFIG_MACH_TYPE		1270
 
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO

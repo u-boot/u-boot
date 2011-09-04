@@ -461,7 +461,6 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	/* Check that the TD processing happened */
 	if (token & 0x80) {
 		printf("EHCI timed out on TD - token=%#x\n", token);
-		goto fail;
 	}
 
 	/* Disable async schedule. */

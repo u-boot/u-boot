@@ -33,7 +33,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/sizes.h>
 #include <asm/arch/emif.h>
-#include <asm/omap_gpio.h>
+#include <asm/arch/gpio.h>
 #include "omap4_mux_data.h"
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -297,5 +297,13 @@ void v7_outer_cache_enable(void)
 void v7_outer_cache_disable(void)
 {
 	set_pl310_ctrl_reg(0);
+}
+#endif
+
+#ifndef CONFIG_SYS_DCACHE_OFF
+void enable_caches(void)
+{
+	/* Enable D-cache. I-cache is already enabled in start.S */
+	dcache_enable();
 }
 #endif

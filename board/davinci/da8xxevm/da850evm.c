@@ -30,6 +30,7 @@
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
+#include <hwconfig.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -105,6 +106,57 @@ const struct pinmux_config nand_pins[] = {
 	{ pinmux(12), 1, 5 },
 	{ pinmux(12), 1, 6 }
 };
+#elif defined(CONFIG_USE_NOR)
+/* NOR pin muxer settings */
+const struct pinmux_config nor_pins[] = {
+	/* GP0[11] is required for NOR to work on Rev 3 EVMs */
+	{ pinmux(0), 8, 4 },	/* GP0[11] */
+	{ pinmux(5), 1, 6 },
+	{ pinmux(6), 1, 6 },
+	{ pinmux(7), 1, 0 },
+	{ pinmux(7), 1, 4 },
+	{ pinmux(7), 1, 5 },
+	{ pinmux(8), 1, 0 },
+	{ pinmux(8), 1, 1 },
+	{ pinmux(8), 1, 2 },
+	{ pinmux(8), 1, 3 },
+	{ pinmux(8), 1, 4 },
+	{ pinmux(8), 1, 5 },
+	{ pinmux(8), 1, 6 },
+	{ pinmux(8), 1, 7 },
+	{ pinmux(9), 1, 0 },
+	{ pinmux(9), 1, 1 },
+	{ pinmux(9), 1, 2 },
+	{ pinmux(9), 1, 3 },
+	{ pinmux(9), 1, 4 },
+	{ pinmux(9), 1, 5 },
+	{ pinmux(9), 1, 6 },
+	{ pinmux(9), 1, 7 },
+	{ pinmux(10), 1, 0 },
+	{ pinmux(10), 1, 1 },
+	{ pinmux(10), 1, 2 },
+	{ pinmux(10), 1, 3 },
+	{ pinmux(10), 1, 4 },
+	{ pinmux(10), 1, 5 },
+	{ pinmux(10), 1, 6 },
+	{ pinmux(10), 1, 7 },
+	{ pinmux(11), 1, 0 },
+	{ pinmux(11), 1, 1 },
+	{ pinmux(11), 1, 2 },
+	{ pinmux(11), 1, 3 },
+	{ pinmux(11), 1, 4 },
+	{ pinmux(11), 1, 5 },
+	{ pinmux(11), 1, 6 },
+	{ pinmux(11), 1, 7 },
+	{ pinmux(12), 1, 0 },
+	{ pinmux(12), 1, 1 },
+	{ pinmux(12), 1, 2 },
+	{ pinmux(12), 1, 3 },
+	{ pinmux(12), 1, 4 },
+	{ pinmux(12), 1, 5 },
+	{ pinmux(12), 1, 6 },
+	{ pinmux(12), 1, 7 }
+};
 #endif
 
 #ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
@@ -114,6 +166,64 @@ const struct pinmux_config nand_pins[] = {
 #endif
 #endif /* CONFIG_DRIVER_TI_EMAC */
 
+void dsp_lpsc_on(unsigned domain, unsigned int id)
+{
+	dv_reg_p mdstat, mdctl, ptstat, ptcmd;
+	struct davinci_psc_regs *psc_regs;
+
+	psc_regs = davinci_psc0_regs;
+	mdstat = &psc_regs->psc0.mdstat[id];
+	mdctl = &psc_regs->psc0.mdctl[id];
+	ptstat = &psc_regs->ptstat;
+	ptcmd = &psc_regs->ptcmd;
+
+	while (*ptstat & (0x1 << domain))
+		;
+
+	if ((*mdstat & 0x1f) == 0x03)
+		return;                 /* Already on and enabled */
+
+	*mdctl |= 0x03;
+
+	*ptcmd = 0x1 << domain;
+
+	while (*ptstat & (0x1 << domain))
+		;
+	while ((*mdstat & 0x1f) != 0x03)
+		;		/* Probably an overkill... */
+}
+
+static void dspwake(void)
+{
+	unsigned *resetvect = (unsigned *)DAVINCI_L3CBARAM_BASE;
+	u32 val;
+
+	/* if the device is ARM only, return */
+	if ((readl(CHIP_REV_ID_REG) & 0x3f) == 0x10)
+		return;
+
+	if (hwconfig_subarg_cmp_f("dsp", "wake", "no", NULL))
+		return;
+
+	*resetvect++ = 0x1E000; /* DSP Idle */
+	/* clear out the next 10 words as NOP */
+	memset(resetvect, 0, sizeof(unsigned) *10);
+
+	/* setup the DSP reset vector */
+	writel(DAVINCI_L3CBARAM_BASE, HOST1CFG);
+
+	dsp_lpsc_on(1, DAVINCI_LPSC_GEM);
+	val = readl(PSC0_MDCTL + (15 * 4));
+	val |= 0x100;
+	writel(val, (PSC0_MDCTL + (15 * 4)));
+}
+
+int misc_init_r(void)
+{
+	dspwake();
+	return 0;
+}
+
 static const struct pinmux_resource pinmuxes[] = {
 #ifdef CONFIG_SPI_FLASH
 	PINMUX_ITEM(spi1_pins),
@@ -122,6 +232,8 @@ static const struct pinmux_resource pinmuxes[] = {
 	PINMUX_ITEM(i2c_pins),
 #ifdef CONFIG_NAND_DAVINCI
 	PINMUX_ITEM(nand_pins),
+#elif defined(CONFIG_USE_NOR)
+	PINMUX_ITEM(nor_pins),
 #endif
 };
 
@@ -168,6 +280,7 @@ u32 get_board_rev(void)
 
 int board_init(void)
 {
+	u32 val;
 #ifndef CONFIG_USE_IRQ
 	irq_init();
 #endif
@@ -214,6 +327,16 @@ int board_init(void)
 	/* configure pinmux settings */
 	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
 		return 1;
+
+#ifdef CONFIG_USE_NOR
+	/* Set the GPIO direction as output */
+	clrbits_be32((u32 *)GPIO_BANK0_REG_DIR_ADDR, (0x01 << 11));
+
+	/* Set the output as low */
+	val = readl(GPIO_BANK0_REG_SET_ADDR);
+	val |= (0x01 << 11);
+	writel(val, GPIO_BANK0_REG_CLR_ADDR);
+#endif
 
 #ifdef CONFIG_DRIVER_TI_EMAC
 	if (davinci_configure_pin_mux(emac_pins, ARRAY_SIZE(emac_pins)) != 0)

@@ -57,13 +57,6 @@ struct clock_control_regs {
 	u32 pdr2;
 };
 
-/* GPIO Registers */
-struct gpio_regs {
-	u32	gpio_dr;
-	u32	gpio_dir;
-	u32	gpio_psr;
-};
-
 struct cspi_regs {
 	u32 rxdata;
 	u32 txdata;

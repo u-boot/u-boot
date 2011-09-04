@@ -29,8 +29,6 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
-#define CONFIG_SYS_L2CACHE_OFF
-
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_CMDLINE_TAG		1	/* enable passing of ATAGs */

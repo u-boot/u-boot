@@ -35,7 +35,6 @@ COBJS-$(CONFIG_MMC_SPI) += mmc_spi.o
 COBJS-$(CONFIG_ARM_PL180_MMCI) += arm_pl180_mmci.o
 COBJS-$(CONFIG_MV_SDHCI) += mv_sdhci.o
 COBJS-$(CONFIG_MXC_MMC) += mxcmmc.o
-COBJS-$(CONFIG_OMAP3_MMC) += omap3_mmc.o
 COBJS-$(CONFIG_OMAP_HSMMC) += omap_hsmmc.o
 COBJS-$(CONFIG_PXA_MMC) += pxa_mmc.o
 COBJS-$(CONFIG_S5P_MMC) += s5p_mmc.o

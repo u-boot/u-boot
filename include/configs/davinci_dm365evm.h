@@ -33,6 +33,9 @@
 #define CONFIG_SYS_HZ_CLOCK		24000000	/* timer0 freq */
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SOC_DM365
+#define CONFIG_SYS_ICACHE_OFF
+#define CONFIG_SYS_DCACHE_OFF
+#define CONFIG_SYS_L2CACHE_OFF
 
 /* Memory Info */
 #define CONFIG_NR_DRAM_BANKS		1
@@ -166,7 +169,7 @@
 /* U-Boot general configuration */
 #undef CONFIG_USE_IRQ				/* No IRQ/FIQ in U-Boot */
 #define CONFIG_BOOTFILE		"uImage"	/* Boot file name */
-#define CONFIG_SYS_PROMPT	"DM365 EVM # "	/* Monitor Command Prompt */
+#define CONFIG_SYS_PROMPT	"DM36x EVM # "	/* Monitor Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024		/* Console I/O Buffer Size  */
 #define CONFIG_SYS_PBSIZE			/* Print buffer size */ \
 		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)

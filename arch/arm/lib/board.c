@@ -275,10 +275,6 @@ void board_init_f(ulong bootflag)
 
 	gd->mon_len = _bss_end_ofs;
 
-#ifdef CONFIG_MACH_TYPE
-	gd->bd->bi_arch_number = CONFIG_MACH_TYPE; /* board id for Linux */
-#endif
-
 	for (init_fnc_ptr = init_sequence; *init_fnc_ptr; ++init_fnc_ptr) {
 		if ((*init_fnc_ptr)() != 0) {
 			hang ();
@@ -376,6 +372,11 @@ void board_init_f(ulong bootflag)
 	gd->bd = bd;
 	debug("Reserving %zu Bytes for Board Info at: %08lx\n",
 			sizeof (bd_t), addr_sp);
+
+#ifdef CONFIG_MACH_TYPE
+	gd->bd->bi_arch_number = CONFIG_MACH_TYPE; /* board id for Linux */
+#endif
+
 	addr_sp -= sizeof (gd_t);
 	id = (gd_t *) addr_sp;
 	debug("Reserving %zu Bytes for Global Data at: %08lx\n",
@@ -451,11 +452,9 @@ void board_init_r(gd_t *id, ulong dest_addr)
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
 	monitor_flash_len = _end_ofs;
-	/*
-	 * Enable D$:
-	 * I$, if needed, must be already enabled in start.S
-	 */
-	dcache_enable();
+
+	/* Enable caches */
+	enable_caches();
 
 	debug("monitor flash len: %08lX\n", monitor_flash_len);
 	board_init();	/* Setup chipselects */
@@ -626,7 +625,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 		pram += (LOGBUFF_LEN + LOGBUFF_OVERHEAD) / 1024;
 #endif
 #endif
-		sprintf((char *)memsz, "%ldk", (bd->bi_memsize / 1024) - pram);
+		sprintf((char *)memsz, "%ldk", (gd->ram_size / 1024) - pram);
 		setenv("mem", (char *)memsz);
 	}
 #endif

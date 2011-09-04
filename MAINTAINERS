@@ -564,10 +564,6 @@ Albert ARIBAUD <albert.u.boot@aribaud.net>
 
 	edminiv2	ARM926EJS (Orion5x SoC)
 
-Rowel Atienza <rowel@diwalabs.com>
-
-	armadillo	ARM720T
-
 Stefano Babic <sbabic@denx.de>
 
 	ea20		davinci
@@ -632,7 +628,6 @@ Eric Cooper <ecc@cmu.edu>
 
 George G. Davis <gdavis@mvista.com>
 
-	assabet		SA1100
 	gcplus		SA1100
 
 Wolfgang Denk <wd@denx.de>
@@ -690,10 +685,6 @@ Grazvydas Ignotas <notasas@gmail.com>
 
 	omap3_pandora	ARM ARMV7 (OMAP3xx SoC)
 
-Gary Jennejohn <garyj@denx.de>
-
-	smdk2400	ARM920T
-
 Matthias Kaehlcke <matthias@kaehlcke.net>
 	edb9301			ARM920T (EP9301)
 	edb9302			ARM920T (EP9302)
@@ -716,6 +707,7 @@ Minkyu Kang <mk7.kang@samsung.com>
 
 Chander Kashyap <k.chander@samsung.com>
 
+	origen			ARM ARMV7 (S5PC210 SoC)
 	SMDKV310		ARM ARMV7 (S5PC210 SoC)
 
 Torsten Koschorrek <koschorrek@synertronixx.de>
@@ -797,7 +789,6 @@ Manikandan Pillai <mani.pillai@ti.com>
 
 Stelian Pop <stelian.pop@leadtechdesign.com>
 
-	at91cap9adk	ARM926EJS (AT91CAP9 SoC)
 	at91sam9260ek	ARM926EJS (AT91SAM9260 SoC)
 	at91sam9261ek	ARM926EJS (AT91SAM9261 SoC)
 	at91sam9263ek	ARM926EJS (AT91SAM9263 SoC)
@@ -849,10 +840,6 @@ Michael Schwingen <michael@schwingen.org>
 	actux3		xscale/ixp
 	actux4		xscale/ixp
 	dvlhost		xscale/ixp
-
-Andrea Scian <andrea.scian@dave-tech.it>
-
-	B2		ARM7TDMI (S3C44B0X)
 
 Nick Thompson <nick.thompson@gefanuc.com>
 

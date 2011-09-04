@@ -32,7 +32,7 @@ enum mxc_clock {
 };
 
 unsigned int mxc_get_clock(enum mxc_clock clk);
-extern u32 imx_get_uartclk();
+extern u32 imx_get_uartclk(void);
 extern void mx31_gpio_mux(unsigned long mode);
 extern void mx31_set_pad(enum iomux_pins pin, u32 config);
 

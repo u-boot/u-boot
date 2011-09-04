@@ -129,6 +129,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_TIMER1_BASE			0x01c21000
 #define DAVINCI_WDOG_BASE			0x01c21000
 #define DAVINCI_PLL_CNTRL0_BASE			0x01c11000
+#define DAVINCI_PLL_CNTRL1_BASE			0x01e1a000
 #define DAVINCI_PSC0_BASE			0x01c10000
 #define DAVINCI_PSC1_BASE			0x01e27000
 #define DAVINCI_SPI0_BASE			0x01c41000
@@ -152,8 +153,16 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_DDR_EMIF_DATA_BASE		0xc0000000
 #define DAVINCI_INTC_BASE			0xfffee000
 #define DAVINCI_BOOTCFG_BASE			0x01c14000
+#define DAVINCI_L3CBARAM_BASE			0x80000000
 #define JTAG_ID_REG                            (DAVINCI_BOOTCFG_BASE + 0x18)
+#define CHIP_REV_ID_REG				(DAVINCI_BOOTCFG_BASE + 0x24)
+#define HOST1CFG				(DAVINCI_BOOTCFG_BASE + 0x44)
+#define PSC0_MDCTL				(DAVINCI_PSC0_BASE + 0xa00)
 
+#define GPIO_BANK0_REG_DIR_ADDR			(DAVINCI_GPIO_BASE + 0x10)
+#define GPIO_BANK0_REG_OPDATA_ADDR		(DAVINCI_GPIO_BASE + 0x14)
+#define GPIO_BANK0_REG_SET_ADDR			(DAVINCI_GPIO_BASE + 0x18)
+#define GPIO_BANK0_REG_CLR_ADDR			(DAVINCI_GPIO_BASE + 0x1c)
 #define GPIO_BANK2_REG_DIR_ADDR			(DAVINCI_GPIO_BASE + 0x38)
 #define GPIO_BANK2_REG_OPDATA_ADDR		(DAVINCI_GPIO_BASE + 0x3c)
 #define GPIO_BANK2_REG_SET_ADDR			(DAVINCI_GPIO_BASE + 0x40)
@@ -387,7 +396,8 @@ struct davinci_pllc_regs {
 	dv_reg	emucnt1;
 };
 
-#define davinci_pllc_regs ((struct davinci_pllc_regs *)DAVINCI_PLL_CNTRL0_BASE)
+#define davinci_pllc0_regs ((struct davinci_pllc_regs *)DAVINCI_PLL_CNTRL0_BASE)
+#define davinci_pllc1_regs ((struct davinci_pllc_regs *)DAVINCI_PLL_CNTRL1_BASE)
 #define DAVINCI_PLLC_DIV_MASK	0x1f
 
 #define ASYNC3          get_async3_src()

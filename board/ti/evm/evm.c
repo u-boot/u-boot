@@ -33,6 +33,7 @@
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/mmc_host_def.h>
 #include <asm/arch/gpio.h>
 #include <i2c.h>
 #include <asm/mach-types.h>
@@ -221,3 +222,11 @@ int board_eth_init(bd_t *bis)
 	return rc;
 }
 #endif /* CONFIG_CMD_NET */
+
+#ifdef CONFIG_GENERIC_MMC
+int board_mmc_init(bd_t *bis)
+{
+	omap_mmc_init(0);
+	return 0;
+}
+#endif

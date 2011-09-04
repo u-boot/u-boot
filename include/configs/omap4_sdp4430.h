@@ -190,7 +190,7 @@
 #define CONFIG_SYS_HUSH_PARSER	/* use "hush" command parser */
 #define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
 #define CONFIG_SYS_PROMPT		"OMAP4430 SDP # "
-#define CONFIG_SYS_CBSIZE		256
+#define CONFIG_SYS_CBSIZE		512
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
@@ -251,7 +251,7 @@
 /* Defines for SPL */
 #define CONFIG_SPL
 #define CONFIG_SPL_TEXT_BASE		0x40304350
-#define CONFIG_SPL_MAX_SIZE		0x8000	/* 32 K */
+#define CONFIG_SPL_MAX_SIZE		(38 * 1024)
 #define CONFIG_SPL_STACK		LOW_LEVEL_SRAM_STACK
 
 #define CONFIG_SPL_BSS_START_ADDR	0x80000000

@@ -27,7 +27,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/mx5x_pins.h>
 #include <asm/arch/iomux.h>
-#include <mxc_gpio.h>
+#include <asm/gpio.h>
 #include <asm/errno.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/arch/crm_regs.h>
@@ -76,28 +76,23 @@ u32 get_efika_rev(void)
 	 *      rev1.4: 1,0,0
 	 */
 	mxc_request_iomux(MX51_PIN_NANDF_CS0, IOMUX_CONFIG_GPIO);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0),
-				MXC_GPIO_DIRECTION_OUT);
 	/* set to 1 in order to get correct value on board rev1.1 */
-	mxc_gpio_set(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0), 1);
+	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0), 1);
 
 	mxc_request_iomux(MX51_PIN_NANDF_CS0, IOMUX_CONFIG_GPIO);
 	mxc_iomux_set_pad(MX51_PIN_NANDF_CS0, PAD_CTL_100K_PU);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0),
-				MXC_GPIO_DIRECTION_IN);
-	rev |= (!!mxc_gpio_get(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0))) << 0;
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0));
+	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS0))) << 0;
 
 	mxc_request_iomux(MX51_PIN_NANDF_CS1, IOMUX_CONFIG_GPIO);
 	mxc_iomux_set_pad(MX51_PIN_NANDF_CS1, PAD_CTL_100K_PU);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS1),
-				MXC_GPIO_DIRECTION_IN);
-	rev |= (!!mxc_gpio_get(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS1))) << 1;
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS1));
+	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_NANDF_CS1))) << 1;
 
 	mxc_request_iomux(MX51_PIN_NANDF_RB3, IOMUX_CONFIG_GPIO);
 	mxc_iomux_set_pad(MX51_PIN_NANDF_RB3, PAD_CTL_100K_PU);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_NANDF_RB3),
-				MXC_GPIO_DIRECTION_IN);
-	rev |= (!!mxc_gpio_get(IOMUX_TO_GPIO(MX51_PIN_NANDF_RB3))) << 2;
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_NANDF_RB3));
+	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_NANDF_RB3))) << 2;
 
 	return (~rev & 0x7) + 1;
 }
@@ -154,15 +149,11 @@ static void setup_iomux_spi(void)
 
 	/* Configure SS0 as a GPIO */
 	mxc_request_iomux(MX51_PIN_CSPI1_SS0, IOMUX_CONFIG_GPIO);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS0),
-				MXC_GPIO_DIRECTION_OUT);
-	mxc_gpio_set(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS0), 0);
+	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS0), 0);
 
 	/* Configure SS1 as a GPIO */
 	mxc_request_iomux(MX51_PIN_CSPI1_SS1, IOMUX_CONFIG_GPIO);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS1),
-				MXC_GPIO_DIRECTION_OUT);
-	mxc_gpio_set(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS1), 1);
+	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSPI1_SS1), 1);
 
 	/* 000: Select mux mode: ALT0 mux port: SS2 of instance: ecspi1. */
 	mxc_request_iomux(MX51_PIN_CSPI1_RDY, IOMUX_CONFIG_ALT0);
@@ -282,9 +273,9 @@ int board_mmc_getcd(u8 *absent, struct mmc *mmc)
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		*absent = mxc_gpio_get(IOMUX_TO_GPIO(MX51_PIN_GPIO1_0));
+		*absent = gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_GPIO1_0));
 	else
-		*absent = mxc_gpio_get(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8));
+		*absent = gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8));
 
 	return 0;
 }
@@ -307,10 +298,8 @@ int board_mmc_init(bd_t *bis)
 		PAD_CTL_100K_PU | PAD_CTL_ODE_OPENDRAIN_NONE |
 		PAD_CTL_SRE_FAST);
 
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_GPIO1_0),
-				MXC_GPIO_DIRECTION_IN);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_GPIO1_1),
-				MXC_GPIO_DIRECTION_IN);
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_GPIO1_0));
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_GPIO1_1));
 
 	/* Internal SDHC1 IOMUX + SDHC2 IOMUX on old boards */
 	if (get_efika_rev() < EFIKAMX_BOARD_REV_12) {
@@ -389,10 +378,8 @@ int board_mmc_init(bd_t *bis)
 			PAD_CTL_100K_PU | PAD_CTL_ODE_OPENDRAIN_NONE |
 			PAD_CTL_SRE_FAST);
 
-		mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8),
-					MXC_GPIO_DIRECTION_IN);
-		mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_GPIO1_7),
-					MXC_GPIO_DIRECTION_IN);
+		gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8));
+		gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_GPIO1_7));
 
 		ret = fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 		if (!ret)
@@ -508,25 +495,24 @@ void setup_iomux_led(void)
 {
 	/* Blue LED */
 	mxc_request_iomux(MX51_PIN_CSI1_D9, IOMUX_CONFIG_ALT3);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9),
-				MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9), 0);
+
 	/* Green LED */
 	mxc_request_iomux(MX51_PIN_CSI1_VSYNC, IOMUX_CONFIG_ALT3);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC),
-				MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC), 0);
+
 	/* Red LED */
 	mxc_request_iomux(MX51_PIN_CSI1_HSYNC, IOMUX_CONFIG_ALT3);
-	mxc_gpio_direction(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC),
-				MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC), 0);
 }
 
 void efikamx_toggle_led(uint32_t mask)
 {
-	mxc_gpio_set(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9),
+	gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9),
 			mask & EFIKAMX_LED_BLUE);
-	mxc_gpio_set(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC),
+	gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC),
 			mask & EFIKAMX_LED_GREEN);
-	mxc_gpio_set(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC),
+	gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC),
 			mask & EFIKAMX_LED_RED);
 }
 

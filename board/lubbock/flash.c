@@ -408,7 +408,7 @@ static int write_data (flash_info_t *info, ulong dest, FPW data)
 
 	/* wait while polling the status register */
 	while (((status = *addr) & (FPW) 0x00800080) != (FPW) 0x00800080) {
-		if (get_timer(start)) > CONFIG_SYS_FLASH_WRITE_TOUT) {
+		if (get_timer(start) > CONFIG_SYS_FLASH_WRITE_TOUT) {
 			*addr = (FPW) 0x00FF00FF;	/* restore read mode */
 			return (1);
 		}

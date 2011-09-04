@@ -29,7 +29,7 @@
  *
  */
 #include <common.h>
-#include <mxc_gpio.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/imx25-pinmux.h>
@@ -56,8 +56,7 @@ int board_init()
 
 	/* Setup of core volatage selection pin to run at 1.4V */
 	writel(gpio_mux_mode5, &muxctl->pad_ext_armclk); /* VCORE GPIO3[15] */
-	mxc_gpio_direction(MXC_GPIO_PORT_TO_NUM(3, 15), MXC_GPIO_DIRECTION_OUT);
-	mxc_gpio_set(MXC_GPIO_PORT_TO_NUM(3, 15), 1);
+	gpio_direction_output(MXC_GPIO_PORT_TO_NUM(3, 15), 1);
 
 	/* Setup of input daisy chains for SD card pins*/
 	writel(gpio_mux_mode0_sion, &muxctl->pad_sd1_cmd);
@@ -69,11 +68,10 @@ int board_init()
 
 	/* Setup of digital output for USB power and OC */
 	writel(gpio_mux_mode5, &muxctl->pad_csi_d3); /* USB Power GPIO1[28] */
-	mxc_gpio_direction(MXC_GPIO_PORT_TO_NUM(1, 28), MXC_GPIO_DIRECTION_OUT);
-	mxc_gpio_set(MXC_GPIO_PORT_TO_NUM(1, 28), 1);
+	gpio_direction_output(MXC_GPIO_PORT_TO_NUM(1, 28), 1);
 
 	writel(gpio_mux_mode5, &muxctl->pad_csi_d2); /* USB OC GPIO1[27] */
-	mxc_gpio_direction(MXC_GPIO_PORT_TO_NUM(1, 18), MXC_GPIO_DIRECTION_IN);
+	gpio_direction_input(MXC_GPIO_PORT_TO_NUM(1, 18));
 
 	/* Setup of digital output control pins */
 	writel(gpio_mux_mode5, &muxctl->pad_csi_d8); /* Ouput 1 Ctrl GPIO1[7] */
@@ -85,25 +83,21 @@ int board_init()
 	writel(0, &padctl->pad_csi_d5); /* Ouput 2 Stat pull up off */
 
 	/* Switch both output drivers off */
-	mxc_gpio_set(MXC_GPIO_PORT_TO_NUM(1, 7), 0);
-	mxc_gpio_direction(MXC_GPIO_PORT_TO_NUM(1, 7), MXC_GPIO_DIRECTION_OUT);
-	mxc_gpio_set(MXC_GPIO_PORT_TO_NUM(1, 6), 0);
-	mxc_gpio_direction(MXC_GPIO_PORT_TO_NUM(1, 6), MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(MXC_GPIO_PORT_TO_NUM(1, 7), 0);
+	gpio_direction_output(MXC_GPIO_PORT_TO_NUM(1, 6), 0);
 
 	/* Setup of key input pin GPIO2[29]*/
 	writel(gpio_mux_mode5 | MX25_PIN_MUX_SION, &muxctl->pad_kpp_row0);
 	writel(0, &padctl->pad_kpp_row0); /* Key pull up off */
-	mxc_gpio_direction(MXC_GPIO_PORT_TO_NUM(2, 29), MXC_GPIO_DIRECTION_IN);
+	gpio_direction_input(MXC_GPIO_PORT_TO_NUM(2, 29));
 
 	/* Setup of status LED outputs */
 	writel(gpio_mux_mode5, &muxctl->pad_csi_d9);	/* GPIO4[21] */
 	writel(gpio_mux_mode5, &muxctl->pad_csi_d4);	/* GPIO1[29] */
 
 	/* Switch both LEDs off */
-	mxc_gpio_set(MXC_GPIO_PORT_TO_NUM(4, 21), 0);
-	mxc_gpio_direction(MXC_GPIO_PORT_TO_NUM(4, 21), MXC_GPIO_DIRECTION_OUT);
-	mxc_gpio_set(MXC_GPIO_PORT_TO_NUM(1, 29), 0);
-	mxc_gpio_direction(MXC_GPIO_PORT_TO_NUM(1, 29), MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(MXC_GPIO_PORT_TO_NUM(4, 21), 0);
+	gpio_direction_output(MXC_GPIO_PORT_TO_NUM(1, 29), 0);
 
 	/* Setup of CAN1 and CAN2 signals */
 	writel(gpio_mux_mode6, &muxctl->pad_gpio_a);	/* CAN1 TX */
@@ -158,13 +152,12 @@ int board_late_init(void)
 	writel(gpio_mux_mode2, &muxctl->pad_uart2_cts);
 
 	/* assert PHY reset (low) */
-	mxc_gpio_set(MXC_GPIO_PORT_TO_NUM(3, 16), 0);
-	mxc_gpio_direction(MXC_GPIO_PORT_TO_NUM(3, 16), MXC_GPIO_DIRECTION_OUT);
+	gpio_direction_output(MXC_GPIO_PORT_TO_NUM(3, 16), 0);
 
 	udelay(5000);
 
 	/* deassert PHY reset */
-	mxc_gpio_set(MXC_GPIO_PORT_TO_NUM(3, 16), 1);
+	gpio_set_value(MXC_GPIO_PORT_TO_NUM(3, 16), 1);
 
 	udelay(5000);
 #endif
@@ -172,12 +165,12 @@ int board_late_init(void)
 	e = getenv("gs_base_board");
 	if (e != NULL) {
 		if (strcmp(e, "G283") == 0) {
-			int key = mxc_gpio_get(MXC_GPIO_PORT_TO_NUM(2, 29));
+			int key = gpio_get_value(MXC_GPIO_PORT_TO_NUM(2, 29));
 
 			if (key) {
 				/* Switch on both LEDs to inidcate boot mode */
-				mxc_gpio_set(MXC_GPIO_PORT_TO_NUM(1, 29), 0);
-				mxc_gpio_set(MXC_GPIO_PORT_TO_NUM(4, 21), 0);
+				gpio_set_value(MXC_GPIO_PORT_TO_NUM(1, 29), 0);
+				gpio_set_value(MXC_GPIO_PORT_TO_NUM(4, 21), 0);
 
 				setenv("preboot", "run gs_slow_boot");
 			} else

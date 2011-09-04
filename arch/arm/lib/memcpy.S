@@ -60,6 +60,9 @@
 .globl memcpy
 memcpy:
 
+		cmp	r0, r1
+		moveq	pc, lr
+
 		enter	r4, lr
 
 		subs	r2, r2, #4

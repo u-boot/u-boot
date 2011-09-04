@@ -2,6 +2,9 @@
  * Copyright (C) 2009
  * Guennadi Liakhovetski, DENX Software Engineering, <lg@denx.de>
  *
+ * Copyright (C) 2011
+ * Stefano Babic, DENX Software Engineering, <sbabic@denx.de>
+ *
  * See file CREDITS for list of people who contributed to this
  * project.
  *
@@ -22,9 +25,15 @@
  */
 #include <common.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/gpio.h>
 #include <asm/io.h>
-#include <mxc_gpio.h>
 #include <errno.h>
+
+enum mxc_gpio_direction {
+	MXC_GPIO_DIRECTION_IN,
+	MXC_GPIO_DIRECTION_OUT,
+};
+
 
 /* GPIO port description */
 static unsigned long gpio_ports[] = {
@@ -41,7 +50,8 @@ static unsigned long gpio_ports[] = {
 #endif
 };
 
-int mxc_gpio_direction(unsigned int gpio, enum mxc_gpio_direction direction)
+static int mxc_gpio_direction(unsigned int gpio,
+	enum mxc_gpio_direction direction)
 {
 	unsigned int port = gpio >> 5;
 	struct gpio_regs *regs;
@@ -68,7 +78,7 @@ int mxc_gpio_direction(unsigned int gpio, enum mxc_gpio_direction direction)
 	return 0;
 }
 
-void mxc_gpio_set(unsigned int gpio, unsigned int value)
+void gpio_set_value(int gpio, int value)
 {
 	unsigned int port = gpio >> 5;
 	struct gpio_regs *regs;
@@ -89,7 +99,7 @@ void mxc_gpio_set(unsigned int gpio, unsigned int value)
 	writel(l, &regs->gpio_dr);
 }
 
-int mxc_gpio_get(unsigned int gpio)
+int gpio_get_value(int gpio)
 {
 	unsigned int port = gpio >> 5;
 	struct gpio_regs *regs;
@@ -105,4 +115,37 @@ int mxc_gpio_get(unsigned int gpio)
 	l = (readl(&regs->gpio_dr) >> gpio) & 0x01;
 
 	return l;
+}
+
+int gpio_request(int gp, const char *label)
+{
+	unsigned int port = gp >> 5;
+	if (port >= ARRAY_SIZE(gpio_ports))
+		return -EINVAL;
+	return 0;
+}
+
+void gpio_free(int gp)
+{
+}
+
+void gpio_toggle_value(int gp)
+{
+	gpio_set_value(gp, !gpio_get_value(gp));
+}
+
+int gpio_direction_input(int gp)
+{
+	return mxc_gpio_direction(gp, MXC_GPIO_DIRECTION_IN);
+}
+
+int gpio_direction_output(int gp, int value)
+{
+	int ret = mxc_gpio_direction(gp, MXC_GPIO_DIRECTION_OUT);
+
+	if (ret < 0)
+		return ret;
+
+	gpio_set_value(gp, value);
+	return 0;
 }

@@ -63,6 +63,7 @@
 #define CONFIG_SYS_I2C_SPEED		100000
 #define CONFIG_SYS_I2C_SLAVE		0xfe
 #define CONFIG_MXC_SPI
+#define CONFIG_MXC_GPIO
 
 
 /*
@@ -173,11 +174,11 @@
 /*
  * Physical Memory Map
  */
-#define CONFIG_NR_DRAM_BANKS	1
+#define CONFIG_NR_DRAM_BANKS	2
 #define PHYS_SDRAM_1		CSD0_BASE_ADDR
 #define PHYS_SDRAM_1_SIZE	(128 * 1024 * 1024)
-#define iomem_valid_addr(addr, size) \
-	(addr >= PHYS_SDRAM_1 && addr <= (PHYS_SDRAM_1 + PHYS_SDRAM_1_SIZE))
+#define PHYS_SDRAM_2		CSD1_BASE_ADDR
+#define PHYS_SDRAM_2_SIZE	(128 * 1024 * 1024)
 
 #define CONFIG_SYS_SDRAM_BASE		CSD0_BASE_ADDR
 #define CONFIG_SYS_INIT_RAM_ADDR	(IRAM_BASE_ADDR + 0x10000)

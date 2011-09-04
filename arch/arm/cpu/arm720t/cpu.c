@@ -82,9 +82,4 @@ static void cache_flush (void)
 
 	asm ("mcr p15, 0, %0, c7, c5, 0": :"r" (i));
 }
-#elif defined(CONFIG_INTEGRATOR) && defined(CONFIG_ARCH_INTEGRATOR)
-	/* No specific cache setup for IntegratorAP/CM720T as yet */
-	void icache_enable (void)
-	{
-	}
 #endif
