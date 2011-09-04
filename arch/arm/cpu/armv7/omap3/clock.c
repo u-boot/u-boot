@@ -399,7 +399,7 @@ static void dpll3_init_36xx(u32 sil_index, u32 clk_index)
 		/* L3 */
 		sr32(&prcm_base->clksel_core, 0, 2, CORE_L3_DIV);
 		/* GFX */
-		sr32(&prcm_base->clksel_gfx,  0, 3, GFX_DIV);
+		sr32(&prcm_base->clksel_gfx,  0, 3, GFX_DIV_36X);
 		/* RESET MGR */
 		sr32(&prcm_base->clksel_wkup, 1, 2, WKUP_RSM);
 		/* FREQSEL (CORE_DPLL_FREQSEL): CM_CLKEN_PLL[4:7] */
