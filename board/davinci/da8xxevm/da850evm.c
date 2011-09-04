@@ -109,6 +109,8 @@ const struct pinmux_config nand_pins[] = {
 #elif defined(CONFIG_USE_NOR)
 /* NOR pin muxer settings */
 const struct pinmux_config nor_pins[] = {
+	/* GP0[11] is required for NOR to work on Rev 3 EVMs */
+	{ pinmux(0), 8, 4 },	/* GP0[11] */
 	{ pinmux(5), 1, 6 },
 	{ pinmux(6), 1, 6 },
 	{ pinmux(7), 1, 0 },
@@ -278,6 +280,7 @@ u32 get_board_rev(void)
 
 int board_init(void)
 {
+	u32 val;
 #ifndef CONFIG_USE_IRQ
 	irq_init();
 #endif
@@ -324,6 +327,16 @@ int board_init(void)
 	/* configure pinmux settings */
 	if (davinci_configure_pin_mux_items(pinmuxes, ARRAY_SIZE(pinmuxes)))
 		return 1;
+
+#ifdef CONFIG_USE_NOR
+	/* Set the GPIO direction as output */
+	clrbits_be32((u32 *)GPIO_BANK0_REG_DIR_ADDR, (0x01 << 11));
+
+	/* Set the output as low */
+	val = readl(GPIO_BANK0_REG_SET_ADDR);
+	val |= (0x01 << 11);
+	writel(val, GPIO_BANK0_REG_CLR_ADDR);
+#endif
 
 #ifdef CONFIG_DRIVER_TI_EMAC
 	if (davinci_configure_pin_mux(emac_pins, ARRAY_SIZE(emac_pins)) != 0)
