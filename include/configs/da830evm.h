@@ -49,8 +49,8 @@
  */
 #define CONFIG_SYS_MALLOC_LEN	(0x10000 + 1*1024*1024) /* malloc() len */
 #define PHYS_SDRAM_1			0xc0000000 /* SDRAM Start */
-#define CONFIG_SYS_MEMTEST_START	PHYS_SDRAM_1 /* memtest start addr */
-#define CONFIG_SYS_MEMTEST_END 	(PHYS_SDRAM_1 + 16*1024*1024) /* 16MB test */
+#define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1 + 0x2000000)
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 32 << 20)
 #define CONFIG_NR_DRAM_BANKS	1 /* we have 1 bank of DRAM */
 #define CONFIG_STACKSIZE	(256*1024) /* regular stack */
 
@@ -168,7 +168,7 @@
 #define CONFIG_SYS_PBSIZE	(CONFIG_SYS_CBSIZE+sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS	16 /* max number of command args */
 #define CONFIG_SYS_BARGSIZE	CONFIG_SYS_CBSIZE /* Boot Args Buffer Size */
-#define CONFIG_SYS_LOAD_ADDR	(CONFIG_SYS_MEMTEST_START + 0x700000)
+#define CONFIG_SYS_LOAD_ADDR	(PHYS_SDRAM_1 + 0x700000)
 #define CONFIG_VERSION_VARIABLE
 #define CONFIG_AUTO_COMPLETE	/* Won't work with hush so far, may be later */
 #define CONFIG_SYS_HUSH_PARSER
@@ -181,7 +181,7 @@
 /*
  * Linux Information
  */
-#define LINUX_BOOT_PARAM_ADDR	(CONFIG_SYS_MEMTEST_START + 0x100)
+#define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_BOOTARGS		"mem=32M console=ttyS2,115200n8 root=/dev/mtdblock/2 rw noinitrd ip=dhcp"
