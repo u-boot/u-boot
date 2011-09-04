@@ -97,7 +97,8 @@
 #define CONFIG_SYS_BAUDRATE_TABLE	{4800, 9600, 19200, 38400, 57600,\
 					115200}
 #define CONFIG_MMC			1
-#define CONFIG_OMAP3_MMC		1
+#define CONFIG_GENERIC_MMC		1
+#define CONFIG_OMAP_HSMMC		1
 #define CONFIG_DOS_PARTITION		1
 
 /* DDR - I use Micron DDR */
@@ -198,6 +199,7 @@
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"loadaddr=0x82000000\0" \
 	"usbtty=cdc_acm\0" \
+	"mmcdev=0\0" \
 	"console=ttyS2,115200n8\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"root=/dev/mmcblk0p2 rw " \
@@ -205,10 +207,10 @@
 	"nandargs=setenv bootargs console=${console} " \
 		"root=/dev/mtdblock4 rw " \
 		"rootfstype=jffs2\0" \
-	"loadbootscript=fatload mmc 0 ${loadaddr} boot.scr\0" \
+	"loadbootscript=fatload mmc ${mmcdev} ${loadaddr} boot.scr\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
 		"source ${loadaddr}\0" \
-	"loaduimage=fatload mmc 0 ${loadaddr} uImage\0" \
+	"loaduimage=fatload mmc ${mmcdev} ${loadaddr} uImage\0" \
 	"mmcboot=echo Booting from mmc ...; " \
 		"run mmcargs; " \
 		"bootm ${loadaddr}\0" \
@@ -218,7 +220,7 @@
 		"bootm ${loadaddr}\0" \
 
 #define CONFIG_BOOTCOMMAND \
-	"if mmc init; then " \
+	"if mmc rescan ${mmcdev}; then " \
 		"if run loadbootscript; then " \
 			"run bootscript; " \
 		"else " \
