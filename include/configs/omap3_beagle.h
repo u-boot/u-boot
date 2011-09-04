@@ -157,6 +157,7 @@
 #define CONFIG_CMD_NFS      /* NFS support          */
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
+#define CONFIG_CMD_SETEXPR	/* Evaluate expressions		*/
 
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
@@ -282,7 +283,7 @@
 /* Print Buffer Size */
 #define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + \
 					sizeof(CONFIG_SYS_PROMPT) + 16)
-#define CONFIG_SYS_MAXARGS		16	/* max number of command args */
+#define CONFIG_SYS_MAXARGS		32	/* max number of command args */
 /* Boot Argument Buffer Size */
 #define CONFIG_SYS_BARGSIZE		(CONFIG_SYS_CBSIZE)
 
