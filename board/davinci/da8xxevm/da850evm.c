@@ -105,6 +105,55 @@ const struct pinmux_config nand_pins[] = {
 	{ pinmux(12), 1, 5 },
 	{ pinmux(12), 1, 6 }
 };
+#elif defined(CONFIG_USE_NOR)
+/* NOR pin muxer settings */
+const struct pinmux_config nor_pins[] = {
+	{ pinmux(5), 1, 6 },
+	{ pinmux(6), 1, 6 },
+	{ pinmux(7), 1, 0 },
+	{ pinmux(7), 1, 4 },
+	{ pinmux(7), 1, 5 },
+	{ pinmux(8), 1, 0 },
+	{ pinmux(8), 1, 1 },
+	{ pinmux(8), 1, 2 },
+	{ pinmux(8), 1, 3 },
+	{ pinmux(8), 1, 4 },
+	{ pinmux(8), 1, 5 },
+	{ pinmux(8), 1, 6 },
+	{ pinmux(8), 1, 7 },
+	{ pinmux(9), 1, 0 },
+	{ pinmux(9), 1, 1 },
+	{ pinmux(9), 1, 2 },
+	{ pinmux(9), 1, 3 },
+	{ pinmux(9), 1, 4 },
+	{ pinmux(9), 1, 5 },
+	{ pinmux(9), 1, 6 },
+	{ pinmux(9), 1, 7 },
+	{ pinmux(10), 1, 0 },
+	{ pinmux(10), 1, 1 },
+	{ pinmux(10), 1, 2 },
+	{ pinmux(10), 1, 3 },
+	{ pinmux(10), 1, 4 },
+	{ pinmux(10), 1, 5 },
+	{ pinmux(10), 1, 6 },
+	{ pinmux(10), 1, 7 },
+	{ pinmux(11), 1, 0 },
+	{ pinmux(11), 1, 1 },
+	{ pinmux(11), 1, 2 },
+	{ pinmux(11), 1, 3 },
+	{ pinmux(11), 1, 4 },
+	{ pinmux(11), 1, 5 },
+	{ pinmux(11), 1, 6 },
+	{ pinmux(11), 1, 7 },
+	{ pinmux(12), 1, 0 },
+	{ pinmux(12), 1, 1 },
+	{ pinmux(12), 1, 2 },
+	{ pinmux(12), 1, 3 },
+	{ pinmux(12), 1, 4 },
+	{ pinmux(12), 1, 5 },
+	{ pinmux(12), 1, 6 },
+	{ pinmux(12), 1, 7 }
+};
 #endif
 
 #ifdef CONFIG_DRIVER_TI_EMAC_USE_RMII
@@ -122,6 +171,8 @@ static const struct pinmux_resource pinmuxes[] = {
 	PINMUX_ITEM(i2c_pins),
 #ifdef CONFIG_NAND_DAVINCI
 	PINMUX_ITEM(nand_pins),
+#elif defined(CONFIG_USE_NOR)
+	PINMUX_ITEM(nor_pins),
 #endif
 };
 
