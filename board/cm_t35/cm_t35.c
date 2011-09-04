@@ -313,6 +313,14 @@ void set_muxconf_regs(void)
 		cm_t3730_set_muxconf();
 }
 
+#ifdef CONFIG_GENERIC_MMC
+int board_mmc_init(bd_t *bis)
+{
+	omap_mmc_init(0);
+	return 0;
+}
+#endif
+
 /*
  * Routine: setup_net_chip_gmpc
  * Description: Setting up the configuration GPMC registers specific to the
