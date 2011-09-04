@@ -213,6 +213,8 @@
 	"console=ttyS2,115200n8\0" \
 	"mpurate=auto\0" \
 	"buddy=none "\
+	"optargs=\0" \
+	"camera=none\0" \
 	"vram=12M\0" \
 	"dvimode=1024x768MR-16@60\0" \
 	"defaultdisplay=dvi\0" \
@@ -222,16 +224,20 @@
 	"nandroot=/dev/mtdblock4 rw\0" \
 	"nandrootfstype=jffs2\0" \
 	"mmcargs=setenv bootargs console=${console} " \
+		"${optargs} " \
 		"mpurate=${mpurate} " \
 		"buddy=${buddy} "\
+		"camera=${camera} "\
 		"vram=${vram} " \
 		"omapfb.mode=dvi:${dvimode} " \
 		"omapdss.def_disp=${defaultdisplay} " \
 		"root=${mmcroot} " \
 		"rootfstype=${mmcrootfstype}\0" \
 	"nandargs=setenv bootargs console=${console} " \
+		"${optargs} " \
 		"mpurate=${mpurate} " \
 		"buddy=${buddy} "\
+		"camera=${camera} "\
 		"vram=${vram} " \
 		"omapfb.mode=dvi:${dvimode} " \
 		"omapdss.def_disp=${defaultdisplay} " \
