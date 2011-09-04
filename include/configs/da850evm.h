@@ -159,6 +159,7 @@
 /*
  * U-Boot general configuration
  */
+#define CONFIG_MISC_INIT_R
 #define CONFIG_BOOTFILE		"uImage" /* Boot file name */
 #define CONFIG_SYS_PROMPT	"U-Boot > " /* Command Prompt */
 #define CONFIG_SYS_CBSIZE	1024 /* Console I/O Buffer Size	*/
@@ -179,12 +180,14 @@
  * Linux Information
  */
 #define LINUX_BOOT_PARAM_ADDR	(PHYS_SDRAM_1 + 0x100)
+#define CONFIG_HWCONFIG		/* enable hwconfig */
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_REVISION_TAG
 #define CONFIG_SETUP_MEMORY_TAGS
 #define CONFIG_BOOTARGS		\
 	"mem=32M console=ttyS2,115200n8 root=/dev/mtdblock2 rw noinitrd ip=dhcp"
 #define CONFIG_BOOTDELAY	3
+#define CONFIG_EXTRA_ENV_SETTINGS	"hwconfig=dsp:wake=yes"
 
 /*
  * U-Boot commands
