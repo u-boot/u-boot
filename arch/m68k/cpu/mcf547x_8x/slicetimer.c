@@ -72,7 +72,7 @@ void dtimer_interrupt(void *not_used)
 	}
 }
 
-void timer_init(void)
+int timer_init(void)
 {
 	volatile slt_t *timerp = (slt_t *) (CONFIG_SYS_TMR_BASE);
 
@@ -93,6 +93,7 @@ void timer_init(void)
 	/* set a period of 1us, set timer mode to restart and
 	   enable timer and interrupt */
 	timerp->cr = SLT_CR_RUN | SLT_CR_IEN | SLT_CR_TEN;
+	return 0;
 }
 
 ulong get_timer(ulong base)

@@ -81,6 +81,8 @@
 #define outl(val, port)		out_le32((u32 *)((port)+_IO_BASE), (val))
 #endif
 
+#define mb() __asm__ __volatile__ ("" : : : "memory")
+
 extern inline void _insb(volatile u8 * port, void *buf, int ns)
 {
 	u8 *data = (u8 *) buf;

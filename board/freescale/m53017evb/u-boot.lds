@@ -22,51 +22,20 @@
  */
 
 OUTPUT_ARCH(m68k)
-/* Do we need any of these for elf?
-   __DYNAMIC = 0;    */
+
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
-  . = + SIZEOF_HEADERS;
-  .interp : { *(.interp) }
-  .hash          : { *(.hash)		}
-  .dynsym        : { *(.dynsym)		}
-  .dynstr        : { *(.dynstr)		}
-  .rel.text      : { *(.rel.text)		}
-  .rela.text     : { *(.rela.text)	}
-  .rel.data      : { *(.rel.data)		}
-  .rela.data     : { *(.rela.data)	}
-  .rel.rodata    : { *(.rel.rodata)	}
-  .rela.rodata   : { *(.rela.rodata)	}
-  .rel.got       : { *(.rel.got)		}
-  .rela.got      : { *(.rela.got)		}
-  .rel.ctors     : { *(.rel.ctors)	}
-  .rela.ctors    : { *(.rela.ctors)	}
-  .rel.dtors     : { *(.rel.dtors)	}
-  .rela.dtors    : { *(.rela.dtors)	}
-  .rel.bss       : { *(.rel.bss)		}
-  .rela.bss      : { *(.rela.bss)		}
-  .rel.plt       : { *(.rel.plt)		}
-  .rela.plt      : { *(.rela.plt)		}
-  .init          : { *(.init)	}
-  .plt : { *(.plt) }
   .text      :
   {
-    /* WARNING - the following is hand-optimized to fit within	*/
-    /* the sector layout of our flash chips!	XXX FIXME XXX	*/
-
-    arch/m68k/cpu/mcf532x/start.o		(.text)
-    arch/m68k/cpu/mcf532x/libmcf532x.o	(.text)
-    arch/m68k/lib/libm68k.o		(.text)
-    common/dlmalloc.o		(.text)
-    lib/zlib.o		(.text)
+    arch/m68k/cpu/mcf532x/start.o		(.text*)
+    arch/m68k/cpu/mcf532x/libmcf532x.o	(.text*)
+    arch/m68k/lib/libm68k.o		(.text*)
 
     . = DEFINED(env_offset) ? env_offset : .;
-    common/env_embedded.o	(.text)
+    common/env_embedded.o	(.text*)
 
-    *(.text)
-    *(.fixup)
-    *(.got1)
+    *(.text*)
   }
   _etext = .;
   PROVIDE (etext = .);
@@ -74,9 +43,6 @@ SECTIONS
   {
     *(SORT_BY_ALIGNMENT(SORT_BY_NAME(.rodata*)))
   }
-  .fini      : { *(.fini)    } =0
-  .ctors     : { *(.ctors)   }
-  .dtors     : { *(.dtors)   }
 
   /* Read-write section, merged into data segment: */
   . = (. + 0x00FF) & 0xFFFFFF00;
@@ -86,24 +52,20 @@ SECTIONS
   .reloc   :
   {
     __got_start = .;
-    *(.got)
+    KEEP(*(.got))
     __got_end = .;
     _GOT2_TABLE_ = .;
-    *(.got2)
+    KEEP(*(.got2))
     _FIXUP_TABLE_ = .;
-    *(.fixup)
+    KEEP(*(.fixup))
   }
   __got2_entries = (_FIXUP_TABLE_ - _GOT2_TABLE_) >>2;
   __fixup_entries = (. - _FIXUP_TABLE_)>>2;
 
   .data    :
   {
-    *(.data)
-    *(.data1)
-    *(.sdata)
-    *(.sdata2)
-    *(.dynamic)
-    CONSTRUCTORS
+    *(.data*)
+    *(.sdata*)
   }
   _edata  =  .;
   PROVIDE (edata = .);
@@ -112,7 +74,6 @@ SECTIONS
   __u_boot_cmd_start = .;
   .u_boot_cmd : { *(.u_boot_cmd) }
   __u_boot_cmd_end = .;
-
 
   . = .;
   __start___ex_table = .;
@@ -130,9 +91,8 @@ SECTIONS
   .bss (NOLOAD)       :
   {
    _sbss = .;
-   *(.sbss) *(.scommon)
-   *(.dynbss)
-   *(.bss)
+   *(.sbss*)
+   *(.bss*)
    *(COMMON)
    . = ALIGN(4);
    _ebss = .;

@@ -724,6 +724,7 @@ M54455EVB_stm33_config :	unconfig
 		cp $(obj)board/freescale/m54455evb/u-boot.stm $(obj)board/freescale/m54455evb/u-boot.lds ; \
 	fi; \
 	echo "#define CONFIG_SYS_INPUT_CLKSRC $${FREQ}" >> $(obj)include/config.h ; \
+	$(XECHO) "... with $${FREQ}Hz input clock"
 	@$(MKCONFIG) -n $@ -a M54455EVB m68k mcf5445x m54455evb freescale
 
 M5475AFE_config \

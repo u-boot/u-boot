@@ -78,8 +78,6 @@ static char *failed = "*** failed ***\n";
 extern ulong __init_end;
 extern ulong __bss_end__;
 
-extern	void timer_init(void);
-
 #if defined(CONFIG_WATCHDOG)
 # define INIT_FUNC_WATCHDOG_INIT	watchdog_init,
 # define WATCHDOG_DISABLE		watchdog_disable
