@@ -151,6 +151,26 @@ int omap_get_gpio_datain(int gpio)
 			& (1 << get_gpio_index(gpio))) != 0;
 }
 
+int omap_get_gpio_dataout(int gpio)
+{
+	struct gpio_bank *bank;
+	void *reg;
+
+	if (check_gpio(gpio) < 0)
+		return -EINVAL;
+	bank = get_gpio_bank(gpio);
+	reg = bank->base;
+	switch (bank->method) {
+	case METHOD_GPIO_24XX:
+		reg += OMAP_GPIO_DATAOUT;
+		break;
+	default:
+		return -EINVAL;
+	}
+	return (__raw_readl(reg)
+			& (1 << get_gpio_index(gpio))) != 0;
+}
+
 static void _reset_gpio(const struct gpio_bank *bank, int gpio)
 {
 	_set_gpio_direction(bank, get_gpio_index(gpio), 1);

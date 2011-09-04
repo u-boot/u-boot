@@ -61,5 +61,7 @@ void omap_set_gpio_direction(int gpio, int is_input);
 void omap_set_gpio_dataout(int gpio, int enable);
 /* Get the value of a gpio input */
 int omap_get_gpio_datain(int gpio);
+/* Get the value of a gpio output */
+int omap_get_gpio_dataout(int gpio);
 
 #endif /* _GPIO_H_ */
