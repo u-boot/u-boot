@@ -191,6 +191,16 @@ struct gpio {
 #define CPU_3XX_ES312		7
 #define CPU_3XX_MAX_REV		8
 
+/*
+ * 37xx real hardware:
+ * ES1.0 onwards, the value maps to contents of IDCODE register [31:28].
+ */
+
+#define CPU_37XX_ES10		0
+#define CPU_37XX_ES11		1
+#define CPU_37XX_ES12		2
+#define CPU_37XX_MAX_REV	3
+
 #define CPU_3XX_ID_SHIFT	28
 
 #define WIDTH_8BIT		0x0000

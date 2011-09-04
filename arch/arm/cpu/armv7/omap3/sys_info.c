@@ -46,6 +46,12 @@ static char *rev_s[CPU_3XX_MAX_REV] = {
 				"3.1.2"};
 #endif /* CONFIG_DISPLAY_CPUINFO */
 
+/* this is the revision table for 37xx CPUs */
+static char *rev_s_37xx[CPU_37XX_MAX_REV] = {
+				"1.0",
+				"1.1",
+				"1.2"};
+
 /*****************************************************************
  * dieid_num_r(void) - read and set die ID
  *****************************************************************/
@@ -347,7 +353,12 @@ int print_cpuinfo (void)
 		sec_s = "?";
 	}
 
-	printf("%s%s-%s ES%s, CPU-OPP2, L3-165MHz, Max CPU Clock %s\n",
+	if (CPU_OMAP36XX == get_cpu_family())
+		printf("%s%s-%s ES%s, CPU-OPP2, L3-165MHz, Max CPU Clock %s\n",
+			cpu_family_s, cpu_s, sec_s,
+			rev_s_37xx[get_cpu_rev()], max_clk);
+	else
+		printf("%s%s-%s ES%s, CPU-OPP2, L3-165MHz, Max CPU Clock %s\n",
 			cpu_family_s, cpu_s, sec_s,
 			rev_s[get_cpu_rev()], max_clk);
 
