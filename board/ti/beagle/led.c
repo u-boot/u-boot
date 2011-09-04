@@ -29,12 +29,12 @@
 #define BEAGLE_LED_USR1	149
 
 #ifdef STATUS_LED_GREEN
-void green_LED_off (void)
+void green_led_off(void)
 {
 	__led_set (STATUS_LED_GREEN, 0);
 }
 
-void green_LED_on (void)
+void green_led_on(void)
 {
 	__led_set (STATUS_LED_GREEN, 1);
 }

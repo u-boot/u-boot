@@ -36,37 +36,37 @@
 #define	YELLOW_LED	(1<<1)
 #define	RED_LED		(1<<2)
 
-void	green_LED_on(void)
+void	green_led_on(void)
 {
 	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 	writel(GREEN_LED, &pio->piob.codr);
 }
 
-void	 yellow_LED_on(void)
+void	 yellow_led_on(void)
 {
 	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 	writel(YELLOW_LED, &pio->piob.codr);
 }
 
-void	 red_LED_on(void)
+void	 red_led_on(void)
 {
 	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 	writel(RED_LED, &pio->piob.codr);
 }
 
-void	green_LED_off(void)
+void	green_led_off(void)
 {
 	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 	writel(GREEN_LED, &pio->piob.sodr);
 }
 
-void	yellow_LED_off(void)
+void	yellow_led_off(void)
 {
 	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 	writel(YELLOW_LED, &pio->piob.sodr);
 }
 
-void	red_LED_off(void)
+void	red_led_off(void)
 {
 	at91_pio_t *pio = (at91_pio_t *)ATMEL_BASE_PIO;
 	writel(RED_LED, &pio->piob.sodr);

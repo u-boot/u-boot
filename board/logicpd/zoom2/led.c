@@ -36,7 +36,7 @@ static unsigned int saved_state[2] = {STATUS_LED_OFF, STATUS_LED_OFF};
 #define ZOOM2_LED_BLUE	154
 #define ZOOM2_LED_BLUE2	61
 
-void red_LED_off (void)
+void red_led_off(void)
 {
 	/* red */
 	if (!gpio_request(ZOOM2_LED_RED, "")) {
@@ -46,7 +46,7 @@ void red_LED_off (void)
 	saved_state[STATUS_LED_RED] = STATUS_LED_OFF;
 }
 
-void blue_LED_off (void)
+void blue_led_off(void)
 {
 	/* blue */
 	if (!gpio_request(ZOOM2_LED_BLUE, "")) {
@@ -62,9 +62,9 @@ void blue_LED_off (void)
 	saved_state[STATUS_LED_BLUE] = STATUS_LED_OFF;
 }
 
-void red_LED_on (void)
+void red_led_on(void)
 {
-	blue_LED_off ();
+	blue_led_off();
 
 	/* red */
 	if (!gpio_request(ZOOM2_LED_RED, "")) {
@@ -74,9 +74,9 @@ void red_LED_on (void)
 	saved_state[STATUS_LED_RED] = STATUS_LED_ON;
 }
 
-void blue_LED_on (void)
+void blue_led_on(void)
 {
-	red_LED_off ();
+	red_led_off();
 
 	/* blue */
 	if (!gpio_request(ZOOM2_LED_BLUE, "")) {
@@ -102,14 +102,14 @@ void __led_toggle (led_id_t mask)
 {
 	if (STATUS_LED_BLUE == mask) {
 		if (STATUS_LED_ON == saved_state[STATUS_LED_BLUE])
-			blue_LED_off ();
+			blue_led_off();
 		else
-			blue_LED_on ();
+			blue_led_on();
 	} else if (STATUS_LED_RED == mask) {
 		if (STATUS_LED_ON == saved_state[STATUS_LED_RED])
-			red_LED_off ();
+			red_led_off();
 		else
-			red_LED_on ();
+			red_led_on();
 	}
 }
 
@@ -117,13 +117,13 @@ void __led_set (led_id_t mask, int state)
 {
 	if (STATUS_LED_BLUE == mask) {
 		if (STATUS_LED_ON == state)
-			blue_LED_on ();
+			blue_led_on();
 		else
-			blue_LED_off ();
+			blue_led_off();
 	} else if (STATUS_LED_RED == mask) {
 		if (STATUS_LED_ON == state)
-			red_LED_on ();
+			red_led_on();
 		else
-			red_LED_off ();
+			red_led_off();
 	}
 }

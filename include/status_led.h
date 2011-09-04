@@ -357,24 +357,24 @@ extern void __led_set (led_id_t mask, int state);
  */
 #ifndef	__ASSEMBLY__
 extern void	coloured_LED_init (void);
-extern void	red_LED_on(void);
-extern void	red_LED_off(void);
-extern void	green_LED_on(void);
-extern void	green_LED_off(void);
-extern void	yellow_LED_on(void);
-extern void	yellow_LED_off(void);
-extern void	blue_LED_on(void);
-extern void	blue_LED_off(void);
+extern void	red_led_on(void);
+extern void	red_led_off(void);
+extern void	green_led_on(void);
+extern void	green_led_off(void);
+extern void	yellow_led_on(void);
+extern void	yellow_led_off(void);
+extern void	blue_led_on(void);
+extern void	blue_led_off(void);
 #else
 	.extern LED_init
-	.extern red_LED_on
-	.extern red_LED_off
-	.extern yellow_LED_on
-	.extern yellow_LED_off
-	.extern green_LED_on
-	.extern green_LED_off
-	.extern blue_LED_on
-	.extern blue_LED_off
+	.extern red_led_on
+	.extern red_led_off
+	.extern yellow_led_on
+	.extern yellow_led_off
+	.extern green_led_on
+	.extern green_led_off
+	.extern blue_led_on
+	.extern blue_led_off
 #endif
 
 #endif	/* CONFIG_STATUS_LED	*/

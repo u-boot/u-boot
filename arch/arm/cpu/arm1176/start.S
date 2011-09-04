@@ -358,7 +358,7 @@ clbss_l:str	r2, [r0]		/* clear loop...		    */
 
 #ifndef CONFIG_NAND_SPL
 	bl coloured_LED_init
-	bl red_LED_on
+	bl red_led_on
 #endif
 #endif
 

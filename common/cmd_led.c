@@ -57,16 +57,16 @@ static const led_tbl_t led_commands[] = {
 #endif
 #endif
 #ifdef STATUS_LED_GREEN
-	{ "green", STATUS_LED_GREEN, green_LED_off, green_LED_on, NULL },
+	{ "green", STATUS_LED_GREEN, green_led_off, green_led_on, NULL },
 #endif
 #ifdef STATUS_LED_YELLOW
-	{ "yellow", STATUS_LED_YELLOW, yellow_LED_off, yellow_LED_on, NULL },
+	{ "yellow", STATUS_LED_YELLOW, yellow_led_off, yellow_led_on, NULL },
 #endif
 #ifdef STATUS_LED_RED
-	{ "red", STATUS_LED_RED, red_LED_off, red_LED_on, NULL },
+	{ "red", STATUS_LED_RED, red_led_off, red_led_on, NULL },
 #endif
 #ifdef STATUS_LED_BLUE
-	{ "blue", STATUS_LED_BLUE, blue_LED_off, blue_LED_on, NULL },
+	{ "blue", STATUS_LED_BLUE, blue_led_off, blue_led_on, NULL },
 #endif
 	{ NULL, 0, NULL, NULL, NULL }
 };
