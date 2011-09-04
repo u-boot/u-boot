@@ -607,7 +607,9 @@ void prcm_init(void)
 		dpll3_init_34xx(sil_index, clk_index);
 		dpll4_init_34xx(sil_index, clk_index);
 		dpll5_init_34xx(sil_index, clk_index);
-		iva_init_34xx(sil_index, clk_index);
+		if (get_cpu_family() != CPU_AM35XX)
+			iva_init_34xx(sil_index, clk_index);
+
 		mpu_init_34xx(sil_index, clk_index);
 
 		/* Lock MPU DPLL to set frequency */
@@ -674,7 +676,9 @@ void per_clocks_enable(void)
 	/* Enable the ICLK for 32K Sync Timer as its used in udelay */
 	sr32(&prcm_base->iclken_wkup, 2, 1, 0x1);
 
-	sr32(&prcm_base->fclken_iva2, 0, 32, FCK_IVA2_ON);
+	if (get_cpu_family() != CPU_AM35XX)
+		sr32(&prcm_base->fclken_iva2, 0, 32, FCK_IVA2_ON);
+
 	sr32(&prcm_base->fclken1_core, 0, 32, FCK_CORE1_ON);
 	sr32(&prcm_base->iclken1_core, 0, 32, ICK_CORE1_ON);
 	sr32(&prcm_base->iclken2_core, 0, 32, ICK_CORE2_ON);
@@ -682,8 +686,10 @@ void per_clocks_enable(void)
 	sr32(&prcm_base->iclken_wkup, 0, 32, ICK_WKUP_ON);
 	sr32(&prcm_base->fclken_dss, 0, 32, FCK_DSS_ON);
 	sr32(&prcm_base->iclken_dss, 0, 32, ICK_DSS_ON);
-	sr32(&prcm_base->fclken_cam, 0, 32, FCK_CAM_ON);
-	sr32(&prcm_base->iclken_cam, 0, 32, ICK_CAM_ON);
+	if (get_cpu_family() != CPU_AM35XX) {
+		sr32(&prcm_base->fclken_cam, 0, 32, FCK_CAM_ON);
+		sr32(&prcm_base->iclken_cam, 0, 32, ICK_CAM_ON);
+	}
 	sr32(&prcm_base->fclken_per, 0, 32, FCK_PER_ON);
 	sr32(&prcm_base->iclken_per, 0, 32, ICK_PER_ON);
 
