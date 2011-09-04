@@ -37,6 +37,7 @@
 #define PLLC_PLLDIV4	0x160
 #define PLLC_PLLDIV5	0x164
 #define PLLC_PLLDIV6	0x168
+#define PLLC_PLLDIV7	0x16c
 #define PLLC_PLLDIV8	0x170
 #define PLLC_PLLDIV9	0x174
 
@@ -61,11 +62,9 @@
 #endif
 
 #ifdef CONFIG_SOC_DA8XX
-const dv_reg * const sysdiv[7] = {
-	&davinci_pllc_regs->plldiv1, &davinci_pllc_regs->plldiv2,
-	&davinci_pllc_regs->plldiv3, &davinci_pllc_regs->plldiv4,
-	&davinci_pllc_regs->plldiv5, &davinci_pllc_regs->plldiv6,
-	&davinci_pllc_regs->plldiv7
+unsigned int sysdiv[9] = {
+	PLLC_PLLDIV1, PLLC_PLLDIV2, PLLC_PLLDIV3, PLLC_PLLDIV4, PLLC_PLLDIV5,
+	PLLC_PLLDIV6, PLLC_PLLDIV7, PLLC_PLLDIV8, PLLC_PLLDIV9
 };
 
 int clk_get(enum davinci_clk_ids id)
@@ -74,19 +73,27 @@ int clk_get(enum davinci_clk_ids id)
 	int pllm;
 	int post_div;
 	int pll_out;
+	unsigned int pll_base;
 
 	pll_out = CONFIG_SYS_OSCIN_FREQ;
 
 	if (id == DAVINCI_AUXCLK_CLKID)
 		goto out;
 
+	if ((id >> 16) == 1)
+		pll_base = (unsigned int)davinci_pllc1_regs;
+	else
+		pll_base = (unsigned int)davinci_pllc0_regs;
+
+	id &= 0xFFFF;
+
 	/*
 	 * Lets keep this simple. Combining operations can result in
 	 * unexpected approximations
 	 */
-	pre_div = (readl(&davinci_pllc_regs->prediv) &
-		   DAVINCI_PLLC_DIV_MASK) + 1;
-	pllm = readl(&davinci_pllc_regs->pllm) + 1;
+	pre_div = (readl(pll_base + PLLC_PREDIV) &
+		DAVINCI_PLLC_DIV_MASK) + 1;
+	pllm = readl(pll_base + PLLC_PLLM) + 1;
 
 	pll_out /= pre_div;
 	pll_out *= pllm;
@@ -94,15 +101,16 @@ int clk_get(enum davinci_clk_ids id)
 	if (id == DAVINCI_PLLM_CLKID)
 		goto out;
 
-	post_div = (readl(&davinci_pllc_regs->postdiv) &
-		    DAVINCI_PLLC_DIV_MASK) + 1;
+	post_div = (readl(pll_base + PLLC_POSTDIV) &
+		DAVINCI_PLLC_DIV_MASK) + 1;
 
 	pll_out /= post_div;
 
 	if (id == DAVINCI_PLLC_CLKID)
 		goto out;
 
-	pll_out /= (readl(sysdiv[id - 1]) & DAVINCI_PLLC_DIV_MASK) + 1;
+	pll_out /= (readl(pll_base + sysdiv[id - 1]) &
+		DAVINCI_PLLC_DIV_MASK) + 1;
 
 out:
 	return pll_out;

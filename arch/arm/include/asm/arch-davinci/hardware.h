@@ -129,6 +129,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_TIMER1_BASE			0x01c21000
 #define DAVINCI_WDOG_BASE			0x01c21000
 #define DAVINCI_PLL_CNTRL0_BASE			0x01c11000
+#define DAVINCI_PLL_CNTRL1_BASE			0x01e1a000
 #define DAVINCI_PSC0_BASE			0x01c10000
 #define DAVINCI_PSC1_BASE			0x01e27000
 #define DAVINCI_SPI0_BASE			0x01c41000
@@ -387,7 +388,8 @@ struct davinci_pllc_regs {
 	dv_reg	emucnt1;
 };
 
-#define davinci_pllc_regs ((struct davinci_pllc_regs *)DAVINCI_PLL_CNTRL0_BASE)
+#define davinci_pllc0_regs ((struct davinci_pllc_regs *)DAVINCI_PLL_CNTRL0_BASE)
+#define davinci_pllc1_regs ((struct davinci_pllc_regs *)DAVINCI_PLL_CNTRL1_BASE)
 #define DAVINCI_PLLC_DIV_MASK	0x1f
 
 #define ASYNC3          get_async3_src()
