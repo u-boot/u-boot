@@ -57,7 +57,6 @@ static void dsp_init(struct mb86r0x_gdc_dsp *dsp, char *modestr,
 	u16 l2dx, l2dy, l2wx, l2wy, l2ww, l2wh;
 	unsigned long div;
 	int bpp;
-	u32 i;
 
 	bpp = video_get_params(&var_mode, modestr);
 
