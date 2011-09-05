@@ -280,11 +280,13 @@ u32 get_board_rev(void)
 
 int board_init(void)
 {
+#ifdef CONFIG_USE_NOR
 	u32 val;
+#endif
+
 #ifndef CONFIG_USE_IRQ
 	irq_init();
 #endif
-
 
 #ifdef CONFIG_NAND_DAVINCI
 	/*
