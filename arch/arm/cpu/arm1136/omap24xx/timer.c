@@ -41,13 +41,6 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static void reset_timer_masked (void)
-{
-	/* reset time */
-	gd->lastinc = READ_TIMER;	/* capture current incrementer value time */
-	gd->tbl = 0;			/* start "advancing" time stamp from 0 */
-}
-
 int timer_init (void)
 {
 	int32_t val;
@@ -57,7 +50,9 @@ int timer_init (void)
 	val = (CONFIG_SYS_PTV << 2) | BIT5 | BIT1 | BIT0;		/* mask to enable timer*/
 	*((int32_t *) (CONFIG_SYS_TIMERBASE + TCLR)) = val;	/* start timer */
 
-	reset_timer_masked(); /* init the timestamp and lastinc value */
+	/* reset time */
+	gd->lastinc = READ_TIMER;	/* capture current incrementer value */
+	gd->tbl = 0;			/* start "advancing" time stamp */
 
 	return(0);
 }
@@ -84,10 +79,13 @@ void __udelay (unsigned long usec)
 	}
 
 	tmp = get_timer (0);		/* get current timestamp */
-	if ( (tmo + tmp + 1) < tmp )	/* if setting this forward will roll time stamp */
-		reset_timer_masked ();	/* reset "advancing" timestamp to 0, set lastinc value */
-	else
+	if ((tmo + tmp + 1) < tmp) {	/* if setting this forward will roll */
+					/* time stamp, then reset time */
+		gd->lastinc = READ_TIMER;	/* capture incrementer value */
+		gd->tbl = 0;			/* start time stamp */
+	} else {
 		tmo	+= tmp;		/* else, set advancing stamp wake up time */
+	}
 	while (get_timer_masked () < tmo)/* loop till event */
 		/*NOP*/;
 }
