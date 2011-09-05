@@ -1,7 +1,7 @@
 CONFIG_NAND_SPL	= y
+PAD_TO	:= 2048
 
 include $(TOPDIR)/config.mk
-include $(TOPDIR)/nand_spl/board/$(BOARDDIR)/config.mk
 
 nandobj	:= $(OBJTREE)/nand_spl/
 
