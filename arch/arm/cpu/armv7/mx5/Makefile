@@ -45,6 +45,4 @@ include $(SRCTREE)/rules.mk
 
 sinclude $(obj).depend
 
-lowlevel_init.o : $(TOPDIR)/include/asm/arch/asm-offsets.h
-
 #########################################################################

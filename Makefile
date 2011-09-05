@@ -464,7 +464,8 @@ updater:
 # parallel sub-makes creating .depend files simultaneously.
 depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) \
 		$(obj)include/autoconf.mk \
-		$(obj)include/generated/generic-asm-offsets.h
+		$(obj)include/generated/generic-asm-offsets.h \
+		$(obj)include/generated/asm-offsets.h
 		for dir in $(SUBDIRS) $(CPUDIR) $(dir $(LDSCRIPT)) ; do \
 			$(MAKE) -C $$dir _depend ; done
 
@@ -526,6 +527,21 @@ $(obj)lib/asm-offsets.s:	$(obj)include/autoconf.mk.dep \
 	$(CC) -DDO_DEPS_ONLY \
 		$(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
 		-o $@ $(src)lib/asm-offsets.c -c -S
+
+$(obj)include/generated/asm-offsets.h:	$(obj)include/autoconf.mk.dep \
+	$(obj)$(CPUDIR)/$(SOC)/asm-offsets.s
+	@echo Generating $@
+	tools/scripts/make-asm-offsets $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s $@
+
+$(obj)$(CPUDIR)/$(SOC)/asm-offsets.s:	$(obj)include/autoconf.mk.dep
+	@mkdir -p $(obj)$(CPUDIR)/$(SOC)
+	if [ -f $(src)$(CPUDIR)/$(SOC)/asm-offsets.c ];then \
+		$(CC) -DDO_DEPS_ONLY \
+		$(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR)) \
+			-o $@ $(src)$(CPUDIR)/$(SOC)/asm-offsets.c -c -S; \
+	else \
+		touch $@; \
+	fi
 
 #########################################################################
 else	# !config.mk
@@ -939,6 +955,8 @@ clean:
 	       $(obj)arch/blackfin/cpu/init.{lds,elf}
 	@rm -f $(obj)include/bmp_logo.h
 	@rm -f $(obj)lib/asm-offsets.s
+	@rm -f $(obj)include/generated/asm-offsets.h
+	@rm -f $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s
 	@rm -f $(obj)nand_spl/{u-boot.lds,u-boot-nand_spl.lds,u-boot-spl,u-boot-spl.map,System.map}
 	@rm -f $(obj)onenand_ipl/onenand-{ipl,ipl.bin,ipl.map}
 	@rm -f $(obj)mmc_spl/{u-boot.lds,u-boot-spl,u-boot-spl.map,u-boot-spl.bin,u-boot-mmc-spl.bin}

@@ -21,7 +21,7 @@
 
 #include <config.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/asm-offsets.h>
+#include <generated/asm-offsets.h>
 
 /*
  * L2CC Cache setup/invalidation/disable

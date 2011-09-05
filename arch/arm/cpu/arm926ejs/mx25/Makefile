@@ -34,8 +34,6 @@ all:	$(obj).depend $(LIB)
 $(LIB):	$(OBJS)
 	$(call cmd_link_o_target, $(OBJS))
 
-$(OBJS) : $(TOPDIR)/include/asm/arch/asm-offsets.h
-
 #########################################################################
 
 # defines $(obj).depend target

@@ -27,7 +27,7 @@
 #include <asm/macro.h>
 #include <asm/arch/macro.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/asm-offsets.h>
+#include <generated/asm-offsets.h>
 
 /*
  * clocks

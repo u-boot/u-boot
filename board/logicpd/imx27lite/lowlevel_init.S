@@ -26,7 +26,7 @@
 #include <version.h>
 #include <asm/macro.h>
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/asm-offsets.h>
+#include <generated/asm-offsets.h>
 
 SOC_ESDCTL_BASE_W:	.word	IMX_ESD_BASE
 SOC_SI_ID_REG_W:	.word	IMX_SYSTEM_CTL_BASE

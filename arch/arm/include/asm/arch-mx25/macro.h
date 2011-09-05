@@ -31,7 +31,7 @@
 #ifdef __ASSEMBLY__
 
 #include <asm/arch/imx-regs.h>
-#include <asm/arch/asm-offsets.h>
+#include <generated/asm-offsets.h>
 
 .macro init_aips
 	write32	IMX_AIPS1_BASE + AIPS_MPR_0_7, 0x77777777
