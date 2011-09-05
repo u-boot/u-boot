@@ -168,7 +168,7 @@ int fpga_done_fn (int cookie)
 /* writes the complete buffer to the FPGA
    writing the complete buffer in one function is much faster,
    then calling it for every bit */
-int fpga_write_fn (void *buf, size_t len, int flush, int cookie)
+int fpga_write_fn (const void *buf, size_t len, int flush, int cookie)
 {
 	size_t bytecount = 0;
 	unsigned char *data = (unsigned char *) buf;
