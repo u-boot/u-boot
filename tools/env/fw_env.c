@@ -488,7 +488,7 @@ int fw_setenv(int argc, char *argv[])
 			value = (char *)malloc(len - strlen(name));
 			if (!value) {
 				fprintf(stderr,
-				"Cannot malloc %u bytes: %s\n",
+				"Cannot malloc %zu bytes: %s\n",
 				len - strlen(name), strerror(errno));
 				return -1;
 			}
@@ -802,7 +802,7 @@ static int flash_write_buf (int dev, int fd, void *buf, size_t count,
 		data = malloc (erase_len);
 		if (!data) {
 			fprintf (stderr,
-				 "Cannot malloc %u bytes: %s\n",
+				 "Cannot malloc %zu bytes: %s\n",
 				 erase_len, strerror (errno));
 			return -1;
 		}
