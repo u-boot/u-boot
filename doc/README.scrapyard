@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
+modnet50 arm	arm720t	-	  2011-09-05	Thomas Elste <info@elste.org>
 lpc2292sodimm arm arm720t -	  2011-09-05
 lart	arm	sa1100	-	  2011-09-05	Alex Züpke <azu@sysgo.de>
 impa7	arm	arm720t	-	  2011-09-05	Marius Gröger <mag@sysgo.de>

@@ -628,10 +628,6 @@ Wolfgang Denk <wd@denx.de>
 	imx27lite	i.MX27
 	qong		i.MX31
 
-Thomas Elste <info@elste.org>
-
-	modnet50	ARM720T (NET+50)
-
 Kristoffer Ericson <kristoffer.ericson@gmail.com>
 
 	jornada	SA1110

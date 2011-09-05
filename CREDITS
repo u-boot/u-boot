@@ -133,11 +133,6 @@ N: Dave Ellis
 E: DGE@sixnetio.com
 D: EEPROM Speedup, SXNI855T port
 
-N: Thomas Elste
-E: info@elste.org
-D: Port for the ModNET50 Board, NET+50 CPU Port
-W: http://www.imms.de
-
 N: Daniel Engstr?m
 E: daniel@omicron.se
 D: x86 port, Support for sc520_cdp board
