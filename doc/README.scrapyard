@@ -11,34 +11,34 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
-at91rm9200dk arm arm920t -	  2011-07-17
-m501sk	arm	arm920t	-	  2011-07-17
-kb9202	arm	arm920t	-	  2011-07-17
-csb637	arm	arm920t	-	  2011-07-17
-cmc_pu2	arm	arm920t	-	  2011-07-17
-at91cap9adk arm	arm926ejs -	  2011-07-17	Stelian Pop <stelian.pop@leadtechdesign.com>
-voiceblue arm	arm925t	-	  2011-07-17
-smdk2400 arm	arm920t	-	  2011-07-17	Gary Jennejohn <garyj@denx.de>
-sbc2410x arm	arm920t	-	  2011-07-17
-netstar	arm	arm925t	-	  2011-07-17
-mx1fs2	arm	arm920t	-	  2011-07-17
-lpd7a404 arm	lh7a40x	-	  2011-07-17
-edb9301	arm	arm920t	-	  2011-07-17
-edb9302	arm	arm920t	-	  2011-07-17
-edb9302a arm	arm920t	-	  2011-07-17
-edb9307	 arm	arm920t	-	  2011-07-17
-edb9307a arm	arm920t	-	  2011-07-17
-edb9312	arm	arm920t	-	  2011-07-17
-edb9315	arm	arm920t	-	  2011-07-17
-edb9315a arm	arm920t	-	  2011-07-17
-B2	arm	s3c44b0 -	  2011-07-16	Andrea Scian <andrea.scian@dave-tech.it>
-armadillo arm	arm720t	-	  2011-07-16	Rowel Atienza <rowel@diwalabs.com>
-assabet	arm	sa1100	-	  2011-07-16	George G. Davis <gdavis@mvista.com>
-trab	arm	S3C2400	-	  2011-05-01	Gary Jennejohn <garyj@denx.de>
+at91rm9200dk arm arm920t 1c85752  2011-07-17
+m501sk	arm	arm920t	b1a2bd4	  2011-07-17
+kb9202	arm	arm920t	5bd3814	  2011-07-17
+csb637	arm	arm920t	d14af08	  2011-07-17
+cmc_pu2	arm	arm920t	37a9b4d	  2011-07-17
+at91cap9adk arm	arm926ejs b550834 2011-07-17	Stelian Pop <stelian.pop@leadtechdesign.com>
+voiceblue arm	arm925t	1b793a4	  2011-07-17
+smdk2400 arm	arm920t	ad218a8	  2011-07-17	Gary Jennejohn <garyj@denx.de>
+sbc2410x arm	arm920t	1f7f0ed	  2011-07-17
+netstar	arm	arm925t	6ea2405	  2011-07-17
+mx1fs2	arm	arm920t	6962419	  2011-07-17
+lpd7a404 arm	lh7a40x	957731e	  2011-07-17
+edb9301	arm	arm920t	716f7ad	  2011-07-17
+edb9302	arm	arm920t	716f7ad	  2011-07-17
+edb9302a arm	arm920t	716f7ad	  2011-07-17
+edb9307	 arm	arm920t	716f7ad	  2011-07-17
+edb9307a arm	arm920t	716f7ad	  2011-07-17
+edb9312	arm	arm920t	716f7ad	  2011-07-17
+edb9315	arm	arm920t	716f7ad	  2011-07-17
+edb9315a arm	arm920t	716f7ad	  2011-07-17
+B2	arm	s3c44b0 5dcf536	  2011-07-16	Andrea Scian <andrea.scian@dave-tech.it>
+armadillo arm	arm720t	be28857	  2011-07-16	Rowel Atienza <rowel@diwalabs.com>
+assabet	arm	sa1100	c91e90d	  2011-07-16	George G. Davis <gdavis@mvista.com>
+trab	arm	S3C2400	566e5cf	  2011-05-01	Gary Jennejohn <garyj@denx.de>
 xsengine ARM	PXA2xx	4262a7c   2010-10-20
 wepep250 ARM	PXA2xx	7369478   2010-10-20	Peter Figuli <peposh@etc.sk>
 delta	ARM	PXA2xx	75e2035   2010-10-20
-mp2usb	ARM	AT91RM2900 	ee986e2	2011-01-25	Eric Bénard <eric@eukrea.com>
+mp2usb	ARM	AT91RM2900  ee986e2 2011-01-25	Eric Bénard <eric@eukrea.com>
 barco	powerpc	MPC8245	afaa27b	  2010-11-23	Marc Leeman <marc.leeman@barco.com>
 ERIC	powerpc	405GP	d9ba451	  2010-11-21	Swen Anderson <sand@peppercon.de>
 VoVPN-GW_100MHz	powerpc	MPC8260 26fe3d2 2010-10-24	Juergen Selent <j.selent@elmeg.de>
