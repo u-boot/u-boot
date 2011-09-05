@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
+SMN42	arm	arm720t	-	  2011-09-05
 at91rm9200dk arm arm920t 1c85752  2011-07-17
 m501sk	arm	arm920t	b1a2bd4	  2011-07-17
 kb9202	arm	arm920t	5bd3814	  2011-07-17
