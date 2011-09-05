@@ -74,7 +74,7 @@ You can use the following functions to access the console:
     fgetc	(like getc but redirected to a file)
 
 Remember that all FILE-related functions CANNOT be used before
-U-Boot relocation (done in 'board_init_r' in common/board.c).
+U-Boot relocation (done in 'board_init_r' in arch/*/lib/board.c).
 
 HOW CAN I USE STANDARD FILE INTO APPLICATIONS?
 ----------------------------------------------
