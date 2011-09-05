@@ -118,7 +118,7 @@
 #define CONFIG_I2C_MULTI_BUS		1
 
 /* Probe all devices */
-#define CONFIG_SYS_I2C_NOPROBES		{0x0, 0x0}
+#define CONFIG_SYS_I2C_NOPROBES		{{0x0, 0x0}}
 
 /* USB */
 #define CONFIG_MUSB_UDC			1
