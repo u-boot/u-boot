@@ -82,7 +82,6 @@ D: Port to the gw8260 board
 N: Curt Brune
 E: curt@cucy.com
 D: Added support for Samsung S3C4510B CPU (ARM7tdmi based SoC)
-D: Added support for ESPD-Inc. EVB4510 Board
 W: http://www.cucy.com
 
 N: Jonathan De Bruyne

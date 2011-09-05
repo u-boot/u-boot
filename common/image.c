@@ -970,17 +970,6 @@ int boot_get_ramdisk (int argc, char * const argv[], bootm_headers_t *images,
 			rd_data = rd_len = rd_load = 0;
 			return 1;
 		}
-
-#if defined(CONFIG_B2) || defined(CONFIG_EVB4510) || defined(CONFIG_ARMADILLO)
-		/*
-		 * We need to copy the ramdisk to SRAM to let Linux boot
-		 */
-		if (rd_data) {
-			memmove ((void *)rd_load, (uchar *)rd_data, rd_len);
-			rd_data = rd_load;
-		}
-#endif /* CONFIG_B2 || CONFIG_EVB4510 || CONFIG_ARMADILLO */
-
 	} else if (images->legacy_hdr_valid &&
 			image_check_type (&images->legacy_hdr_os_copy, IH_TYPE_MULTI)) {
 		/*
