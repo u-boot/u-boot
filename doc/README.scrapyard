@@ -11,6 +11,7 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
+zylonite arm	pxa	-	  2011-09-05
 shannon arm	sa1100	-	  2011-09-05	Rolf Offermanns <rof@sysgo.de>
 modnet50 arm	arm720t	-	  2011-09-05	Thomas Elste <info@elste.org>
 lpc2292sodimm arm arm720t -	  2011-09-05
