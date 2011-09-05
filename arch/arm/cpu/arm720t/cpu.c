@@ -36,7 +36,7 @@
 #include <asm/hardware.h>
 #include <asm/system.h>
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
+#if defined(CONFIG_IMPA7)
 static void cache_flush(void);
 #endif
 
@@ -50,7 +50,7 @@ int cleanup_before_linux (void)
 	 * and we set the CPU-speed to 73 MHz - see start.S for details
 	 */
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
+#if defined(CONFIG_IMPA7)
 	disable_interrupts ();
 
 	/* turn off I-cache */
@@ -74,7 +74,7 @@ int cleanup_before_linux (void)
 	return 0;
 }
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
+#if defined(CONFIG_IMPA7)
 /* flush I/D-cache */
 static void cache_flush (void)
 {

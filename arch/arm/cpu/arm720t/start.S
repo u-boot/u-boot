@@ -272,7 +272,7 @@ _dynsym_start_ofs:
  *************************************************************************
  */
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
+#if defined(CONFIG_IMPA7)
 
 /* Interrupt-Controller base addresses */
 INTMR1:		.word	0x80000280 @ 32 bit size
@@ -301,7 +301,7 @@ MEMMAP_ADR:	.word	MEMMAP
 #endif
 
 cpu_init_crit:
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
+#if defined(CONFIG_IMPA7)
 
 	/*
 	 * mask all IRQs by clearing all bits in the INTMRs
@@ -634,7 +634,7 @@ fiq:
 
 #endif
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
+#if defined(CONFIG_IMPA7)
 	.align	5
 .globl reset_cpu
 reset_cpu:

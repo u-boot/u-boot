@@ -149,7 +149,7 @@ int timer_init (void)
 
 	/* set timer 2 counter */
 	lastdec = TIMER_LOAD_VAL;
-#elif defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_ARMADILLO)
+#elif defined(CONFIG_IMPA7)
 	/* disable all interrupts */
 	IO_INTMR1 = 0;
 
@@ -207,7 +207,7 @@ int timer_init (void)
  */
 
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_EP7312) || defined(CONFIG_NETARM) || defined(CONFIG_ARMADILLO) || defined(CONFIG_LPC2292)
+#if defined(CONFIG_IMPA7) || defined(CONFIG_NETARM) || defined(CONFIG_LPC2292)
 
 ulong get_timer (ulong base)
 {
