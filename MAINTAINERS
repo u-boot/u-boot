@@ -657,10 +657,6 @@ Simon Guinot <simon.guinot@sequanux.org>
 	netspace_v2	ARM926EJS (Kirkwood SoC)
 	netspace_max_v2	ARM926EJS (Kirkwood SoC)
 
-Marius Gröger <mag@sysgo.de>
-
-	impa7		ARM720T (EP7211)
-
 Igor Grinberg <grinberg@compulab.co.il>
 
 	cm-t35		ARM ARMV7 (OMAP3xx Soc)

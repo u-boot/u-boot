@@ -149,18 +149,6 @@ int timer_init (void)
 
 	/* set timer 2 counter */
 	lastdec = TIMER_LOAD_VAL;
-#elif defined(CONFIG_IMPA7)
-	/* disable all interrupts */
-	IO_INTMR1 = 0;
-
-	/* operate timer 1 in prescale mode */
-	IO_SYSCON1 |= SYSCON1_TC1M;
-
-	/* select 2kHz clock source for timer 1 */
-	IO_SYSCON1 &= ~SYSCON1_TC1S;
-
-	/* set timer 1 counter */
-	lastdec = IO_TC1D = TIMER_LOAD_VAL;
 #elif defined(CONFIG_S3C4510B)
 	/* configure free running timer 0 */
 	PUT_REG( REG_TMOD, 0x0);
@@ -207,7 +195,7 @@ int timer_init (void)
  */
 
 
-#if defined(CONFIG_IMPA7) || defined(CONFIG_NETARM) || defined(CONFIG_LPC2292)
+#if defined(CONFIG_NETARM) || defined(CONFIG_LPC2292)
 
 ulong get_timer (ulong base)
 {
