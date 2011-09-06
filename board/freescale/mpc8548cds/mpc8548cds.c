@@ -120,7 +120,7 @@ void lbc_sdram_init(void)
 
 	puts("LBC SDRAM: ");
 	print_size(CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024,
-		   "\n       ");
+		   "\n");
 
 	/*
 	 * Setup SDRAM Base and Option Registers
@@ -236,7 +236,7 @@ void pci_init_board(void)
 			law_size_bits(pci_info.io_size), pci_info.law);
 
 		pci_agent = fsl_setup_hose(&pci1_hose, pci_info.regs);
-		printf("PCI: %d bit, %s MHz, %s, %s, %s (base address %lx)\n",
+		printf("PCI1: %d bit, %s MHz, %s, %s, %s (base address %lx)\n",
 			(pci_32) ? 32 : 64,
 			(pci_speed == 33333000) ? "33" :
 			(pci_speed == 66666000) ? "66" : "unknown",
@@ -261,7 +261,7 @@ void pci_init_board(void)
 		}
 #endif
 	} else {
-		printf("PCI: disabled\n");
+		printf("PCI1: disabled\n");
 	}
 
 	puts("\n");
