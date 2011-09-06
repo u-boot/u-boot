@@ -204,9 +204,8 @@
 #define CONFIG_BTB
 
 #define CONFIG_BOARD_EARLY_INIT_F	/* Call board_pre_init */
-#ifdef CONFIG_PHYS_64BIT
+
 #define CONFIG_ENABLE_36BIT_PHYS
-#endif
 
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_ADDR_MAP			1
