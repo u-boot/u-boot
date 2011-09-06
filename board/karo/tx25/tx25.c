@@ -29,6 +29,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/imx25-pinmux.h>
 #include <asm/gpio.h>
+#include <asm/arch/sys_proto.h>
 
 static void mdelay(int n)
 {
@@ -142,8 +143,6 @@ void tx25_fec_init(void)
 int board_init()
 {
 #ifdef CONFIG_MXC_UART
-	extern void mx25_uart1_init_pins(void);
-
 	mx25_uart1_init_pins();
 #endif
 	/* board id for linux */
