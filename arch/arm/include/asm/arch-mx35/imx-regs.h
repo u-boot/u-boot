@@ -323,9 +323,5 @@ struct esdc_regs {
 
 #define CCM_RCSR_NF_16BIT_SEL	(1 << 14)
 
-extern unsigned int get_board_rev(void);
-extern int is_soc_rev(int rev);
-extern int sdhc_init(void);
-
 #endif
 #endif /* __ASM_ARCH_MX35_H */
