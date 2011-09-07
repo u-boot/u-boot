@@ -305,7 +305,7 @@ void pxa_wakeup(void)
 		pxa_dram_init();
 		icache_disable();
 		dcache_disable();
-		asm volatile("mov	pc, %0"::"r"(readl(PSSR)));
+		asm volatile("mov	pc, %0"::"r"(readl(PSPR)));
 	}
 }
 
