@@ -115,7 +115,8 @@ int mmc_send_status(struct mmc *mmc, int timeout)
 
 	cmd.cmdidx = MMC_CMD_SEND_STATUS;
 	cmd.resp_type = MMC_RSP_R1;
-	cmd.cmdarg = 0;
+	if (!mmc_host_is_spi(mmc))
+		cmd.cmdarg = mmc->rca << 16;
 	cmd.flags = 0;
 
 	do {
