@@ -117,13 +117,14 @@ typedef struct _gpt_entry_attributes {
 	unsigned long long type_guid_specific:16;
 } __attribute__ ((packed)) gpt_entry_attributes;
 
+#define PARTNAME_SZ	(72 / sizeof(efi_char16_t))
 typedef struct _gpt_entry {
 	efi_guid_t partition_type_guid;
 	efi_guid_t unique_partition_guid;
 	unsigned char starting_lba[8];
 	unsigned char ending_lba[8];
 	gpt_entry_attributes attributes;
-	efi_char16_t partition_name[72 / sizeof(efi_char16_t)];
+	efi_char16_t partition_name[PARTNAME_SZ];
 }
 __attribute__ ((packed)) gpt_entry;
 

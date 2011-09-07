@@ -35,6 +35,7 @@
 #include <ide.h>
 #include <malloc.h>
 #include "part_efi.h"
+#include <linux/ctype.h>
 
 #if defined(CONFIG_CMD_IDE) || \
     defined(CONFIG_CMD_MG_DISK) || \
@@ -99,6 +100,20 @@ static gpt_entry *alloc_read_gpt_entries(block_dev_desc_t * dev_desc,
 
 static int is_pte_valid(gpt_entry * pte);
 
+static char *print_efiname(gpt_entry *pte)
+{
+	static char name[PARTNAME_SZ + 1];
+	int i;
+	for (i = 0; i < PARTNAME_SZ; i++) {
+		u8 c;
+		c = pte->partition_name[i] & 0xff;
+		c = (c && !isprint(c)) ? '.' : c;
+		name[i] = c;
+	}
+	name[PARTNAME_SZ] = 0;
+	return name;
+}
+
 /*
  * Public Functions (include/part.h)
  */
@@ -122,12 +137,12 @@ void print_part_efi(block_dev_desc_t * dev_desc)
 
 	debug("%s: gpt-entry at 0x%08X\n", __FUNCTION__, (unsigned int)*pgpt_pte);
 
-	printf("Part  Start LBA  End LBA\n");
+	printf("Part\tName\t\t\tStart LBA\tEnd LBA\n");
 	for (i = 0; i < le32_to_int(gpt_head.num_partition_entries); i++) {
 
 		if (is_pte_valid(&(*pgpt_pte)[i])) {
-			printf("%s%d  0x%llX    0x%llX\n", GPT_ENTRY_NAME,
-				(i + 1),
+			printf("%3d\t%-18s\t0x%08llX\t0x%08llX\n", (i + 1),
+				print_efiname(&(*pgpt_pte)[i]),
 				le64_to_int((*pgpt_pte)[i].starting_lba),
 				le64_to_int((*pgpt_pte)[i].ending_lba));
 		} else {
@@ -169,7 +184,8 @@ int get_partition_info_efi(block_dev_desc_t * dev_desc, int part,
 		     - info->start;
 	info->blksz = GPT_BLOCK_SIZE;
 
-	sprintf((char *)info->name, "%s%d", GPT_ENTRY_NAME, part);
+	sprintf((char *)info->name, "%s",
+			print_efiname(&(*pgpt_pte)[part - 1]));
 	sprintf((char *)info->type, "U-Boot");
 
 	debug("%s: start 0x%lX, size 0x%lX, name %s", __FUNCTION__,
