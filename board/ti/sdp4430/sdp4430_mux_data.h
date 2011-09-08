@@ -212,19 +212,16 @@ const struct pad_conf_entry wkup_padconf_array_non_essential[] = {
 	{PAD0_FREF_SLICER_IN, (M0)},		/* fref_slicer_in */
 	{PAD1_FREF_CLK_IOREQ, (M0)},		/* fref_clk_ioreq */
 	{PAD0_FREF_CLK0_OUT, (M2)},		/* sys_drm_msecure */
-	{PAD1_FREF_CLK3_REQ, (PTU | IEN | M0)},	/* # */
+	{PAD1_FREF_CLK3_REQ, (M3)},		/* gpio_wk30 - Debug led-1 */
 	{PAD0_FREF_CLK3_OUT, (M0)},		/* fref_clk3_out */
-	{PAD1_FREF_CLK4_REQ, (PTU | IEN | M0)},	/* # */
-	{PAD0_FREF_CLK4_OUT, (M0)},		/* # */
+	{PAD1_FREF_CLK4_REQ, (M3)},		/* gpio_wk7 - Debug led-2 */
+	{PAD0_FREF_CLK4_OUT, (M3)},		/* gpio_wk8 - Debug led-3 */
 	{PAD0_SYS_NRESPWRON, (M0)},		/* sys_nrespwron */
 	{PAD1_SYS_NRESWARM, (M0)},		/* sys_nreswarm */
 	{PAD0_SYS_PWR_REQ, (PTU | M0)},		/* sys_pwr_req */
 	{PAD1_SYS_PWRON_RESET, (M3)},		/* gpio_wk29 */
 	{PAD0_SYS_BOOT6, (IEN | M3)},		/* gpio_wk9 */
 	{PAD1_SYS_BOOT7, (IEN | M3)},		/* gpio_wk10 */
-	{PAD1_FREF_CLK3_REQ, (M3)},		/* gpio_wk30 */
-	{PAD1_FREF_CLK4_REQ, (M3)},		/* gpio_wk7 */
-	{PAD0_FREF_CLK4_OUT, (M3)},		/* gpio_wk8 */
 };
 
 #endif /* _SDP4430_MUX_DATA_H */
