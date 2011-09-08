@@ -141,24 +141,24 @@ static const struct lpddr2_device_details elpida_2G_S4_details = {
 	.manufacturer	= LPDDR2_MANUFACTURER_ELPIDA
 };
 
-static void emif_get_device_details_sdp(u32 emif_nr,
-		struct lpddr2_device_details *cs0_device_details,
-		struct lpddr2_device_details *cs1_device_details)
+struct lpddr2_device_details *emif_get_device_details_sdp(u32 emif_nr, u8 cs,
+			struct lpddr2_device_details *lpddr2_dev_details)
 {
 	u32 omap_rev = omap_revision();
 
 	/* EMIF1 & EMIF2 have identical configuration */
-	*cs0_device_details = elpida_2G_S4_details;
-
-	if (omap_rev == OMAP4430_ES1_0)
-		cs1_device_details = NULL;
-	else
-		*cs1_device_details = elpida_2G_S4_details;
+	if ((omap_rev == OMAP4430_ES1_0) && (cs == CS1)) {
+		/* Nothing connected on CS1 for ES1.0 */
+		return NULL;
+	} else {
+		/* In all other cases Elpida 2G device */
+		*lpddr2_dev_details = elpida_2G_S4_details;
+		return lpddr2_dev_details;
+	}
 }
 
-void emif_get_device_details(u32 emif_nr,
-		struct lpddr2_device_details *cs0_device_details,
-		struct lpddr2_device_details *cs1_device_details)
+struct lpddr2_device_details *emif_get_device_details(u32 emif_nr, u8 cs,
+			struct lpddr2_device_details *lpddr2_dev_details)
 	__attribute__((weak, alias("emif_get_device_details_sdp")));
 
 #endif /* CONFIG_SYS_EMIF_PRECALCULATED_TIMING_REGS */

@@ -963,10 +963,11 @@ static u8 is_lpddr2_sdram_present(u32 base, u32 cs,
 	return 1;
 }
 
-static struct lpddr2_device_details *get_lpddr2_details(u32 base, u8 cs,
+struct lpddr2_device_details *emif_get_device_details(u32 emif_nr, u8 cs,
 			struct lpddr2_device_details *lpddr2_dev_details)
 {
 	u32 phy;
+	u32 base = (emif_nr == 1) ? OMAP44XX_EMIF1 : OMAP44XX_EMIF2;
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
 
 	if (!lpddr2_dev_details)
@@ -984,40 +985,6 @@ static struct lpddr2_device_details *get_lpddr2_details(u32 base, u8 cs,
 	display_sdram_details(emif_num(base), cs, lpddr2_dev_details);
 
 	return lpddr2_dev_details;
-}
-
-void emif_get_device_details(u32 emif_nr,
-		struct lpddr2_device_details *cs0_device_details,
-		struct lpddr2_device_details *cs1_device_details)
-{
-	u32 base = (emif_nr == 1) ? OMAP44XX_EMIF1 : OMAP44XX_EMIF2;
-
-	if (running_from_sdram()) {
-		/*
-		 * We can not do automatic discovery running from SDRAM
-		 * Most likely we came here by mistake. Indicate error
-		 * by returning NULL
-		 */
-		cs0_device_details = NULL;
-		cs1_device_details = NULL;
-	} else {
-		/*
-		 * Automatically find the device details:
-		 *
-		 * Reset the PHY after each call to get_lpddr2_details().
-		 * If there is nothing connected to a given chip select
-		 * (typically CS1) mode register reads will mess up with
-		 * the PHY state and subsequent initialization won't work.
-		 * PHY reset brings back PHY to a good state.
-		 */
-		cs0_device_details =
-		    get_lpddr2_details(base, CS0, cs0_device_details);
-		emif_reset_phy(base);
-
-		cs1_device_details =
-		    get_lpddr2_details(base, CS1, cs1_device_details);
-		emif_reset_phy(base);
-	}
 }
 #endif /* CONFIG_SYS_AUTOMATIC_SDRAM_DETECTION */
 
@@ -1051,10 +1018,12 @@ static void do_sdram_init(u32 base)
 	 * - Obtained from user otherwise
 	 */
 	struct lpddr2_device_details cs0_dev_details, cs1_dev_details;
-	emif_get_device_details(emif_nr, &cs0_dev_details,
-				&cs1_dev_details);
-	dev_details.cs0_device_details = &cs0_dev_details;
-	dev_details.cs1_device_details = &cs1_dev_details;
+	emif_reset_phy(base);
+	dev_details.cs0_device_details = emif_get_device_details(base, CS0,
+						&cs0_dev_details);
+	dev_details.cs1_device_details = emif_get_device_details(base, CS1,
+						&cs1_dev_details);
+	emif_reset_phy(base);
 
 	/* Return if no devices on this EMIF */
 	if (!dev_details.cs0_device_details &&

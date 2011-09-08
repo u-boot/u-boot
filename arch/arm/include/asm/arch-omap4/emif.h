@@ -1029,9 +1029,8 @@ struct emif_regs {
 void emif_get_reg_dump(u32 emif_nr, const struct emif_regs **regs);
 void emif_get_dmm_regs(const struct dmm_lisa_map_regs **dmm_lisa_regs);
 #else
-void emif_get_device_details(u32 emif_nr,
-		struct lpddr2_device_details *cs0_device_details,
-		struct lpddr2_device_details *cs1_device_details);
+struct lpddr2_device_details *emif_get_device_details(u32 emif_nr, u8 cs,
+			struct lpddr2_device_details *lpddr2_dev_details);
 void emif_get_device_timings(u32 emif_nr,
 		const struct lpddr2_device_timings **cs0_device_timings,
 		const struct lpddr2_device_timings **cs1_device_timings);
