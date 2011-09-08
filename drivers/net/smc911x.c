@@ -237,7 +237,7 @@ static int smc911x_rx(struct eth_device *dev)
 
 #if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
 /* wrapper for smc911x_eth_phy_read */
-static int smc911x_miiphy_read(char *devname, u8 phy, u8 reg, u16 *val)
+static int smc911x_miiphy_read(const char *devname, u8 phy, u8 reg, u16 *val)
 {
 	struct eth_device *dev = eth_get_dev_by_name(devname);
 	if (dev)
@@ -245,7 +245,7 @@ static int smc911x_miiphy_read(char *devname, u8 phy, u8 reg, u16 *val)
 	return -1;
 }
 /* wrapper for smc911x_eth_phy_write */
-static int smc911x_miiphy_write(char *devname, u8 phy, u8 reg, u16 val)
+static int smc911x_miiphy_write(const char *devname, u8 phy, u8 reg, u16 val)
 {
 	struct eth_device *dev = eth_get_dev_by_name(devname);
 	if (dev)
