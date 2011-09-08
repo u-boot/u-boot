@@ -333,7 +333,6 @@ LIST_ARM9="			\
 	spear320		\
 	spear600		\
 	VCMA9			\
-	versatile		\
 	versatileab		\
 	versatilepb		\
 	davinci_dvevm		\
