@@ -40,6 +40,9 @@
 #include <asm/io.h>
 #include <asm/errno.h>
 
+#define OMAP_GPIO_DIR_OUT	0
+#define OMAP_GPIO_DIR_IN	1
+
 static inline const struct gpio_bank *get_gpio_bank(int gpio)
 {
 	return &omap_gpio_bank[gpio >> 5];
@@ -53,17 +56,17 @@ static inline int get_gpio_index(int gpio)
 static inline int gpio_valid(int gpio)
 {
 	if (gpio < 0)
-		return -1;
+		return -EINVAL;
 	if (gpio < 192)
 		return 0;
-	return -1;
+	return -EINVAL;
 }
 
 static int check_gpio(int gpio)
 {
 	if (gpio_valid(gpio) < 0) {
 		printf("ERROR : check_gpio: invalid GPIO %d\n", gpio);
-		return -1;
+		return -EINVAL;
 	}
 	return 0;
 }
@@ -89,14 +92,29 @@ static void _set_gpio_direction(const struct gpio_bank *bank, int gpio,
 	__raw_writel(l, reg);
 }
 
-void omap_set_gpio_direction(int gpio, int is_input)
+/**
+ * Get the direction of the GPIO by reading the GPIO_OE register
+ * corresponding to the specified bank.
+ */
+static int _get_gpio_direction(const struct gpio_bank *bank, int gpio)
 {
-	const struct gpio_bank *bank;
+	void *reg = bank->base;
+	u32 v;
 
-	if (check_gpio(gpio) < 0)
-		return;
-	bank = get_gpio_bank(gpio);
-	_set_gpio_direction(bank, get_gpio_index(gpio), is_input);
+	switch (bank->method) {
+	case METHOD_GPIO_24XX:
+		reg += OMAP_GPIO_OE;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	v = __raw_readl(reg);
+
+	if (v & (1 << gpio))
+		return OMAP_GPIO_DIR_IN;
+	else
+		return OMAP_GPIO_DIR_OUT;
 }
 
 static void _set_gpio_dataout(const struct gpio_bank *bank, int gpio,
@@ -121,20 +139,27 @@ static void _set_gpio_dataout(const struct gpio_bank *bank, int gpio,
 	__raw_writel(l, reg);
 }
 
-void omap_set_gpio_dataout(int gpio, int enable)
+/**
+ * Set value of the specified gpio
+ */
+void gpio_set_value(int gpio, int value)
 {
 	const struct gpio_bank *bank;
 
 	if (check_gpio(gpio) < 0)
 		return;
 	bank = get_gpio_bank(gpio);
-	_set_gpio_dataout(bank, get_gpio_index(gpio), enable);
+	_set_gpio_dataout(bank, get_gpio_index(gpio), value);
 }
 
-int omap_get_gpio_datain(int gpio)
+/**
+ * Get value of the specified gpio
+ */
+int gpio_get_value(int gpio)
 {
 	const struct gpio_bank *bank;
 	void *reg;
+	int input;
 
 	if (check_gpio(gpio) < 0)
 		return -EINVAL;
@@ -142,7 +167,17 @@ int omap_get_gpio_datain(int gpio)
 	reg = bank->base;
 	switch (bank->method) {
 	case METHOD_GPIO_24XX:
-		reg += OMAP_GPIO_DATAIN;
+		input = _get_gpio_direction(bank, get_gpio_index(gpio));
+		switch (input) {
+		case OMAP_GPIO_DIR_IN:
+			reg += OMAP_GPIO_DATAIN;
+			break;
+		case OMAP_GPIO_DIR_OUT:
+			reg += OMAP_GPIO_DATAOUT;
+			break;
+		default:
+			return -EINVAL;
+		}
 		break;
 	default:
 		return -EINVAL;
@@ -151,32 +186,45 @@ int omap_get_gpio_datain(int gpio)
 			& (1 << get_gpio_index(gpio))) != 0;
 }
 
-int omap_get_gpio_dataout(int gpio)
+/**
+ * Set gpio direction as input
+ */
+int gpio_direction_input(unsigned gpio)
 {
-	struct gpio_bank *bank;
-	void *reg;
+	const struct gpio_bank *bank;
 
 	if (check_gpio(gpio) < 0)
 		return -EINVAL;
-	bank = get_gpio_bank(gpio);
-	reg = bank->base;
-	switch (bank->method) {
-	case METHOD_GPIO_24XX:
-		reg += OMAP_GPIO_DATAOUT;
-		break;
-	default:
-		return -EINVAL;
-	}
-	return (__raw_readl(reg)
-			& (1 << get_gpio_index(gpio))) != 0;
-}
 
-static void _reset_gpio(const struct gpio_bank *bank, int gpio)
-{
+	bank = get_gpio_bank(gpio);
 	_set_gpio_direction(bank, get_gpio_index(gpio), 1);
+
+	return 0;
 }
 
-int omap_request_gpio(int gpio)
+/**
+ * Set gpio direction as output
+ */
+int gpio_direction_output(unsigned gpio, int value)
+{
+	const struct gpio_bank *bank;
+
+	if (check_gpio(gpio) < 0)
+		return -EINVAL;
+
+	bank = get_gpio_bank(gpio);
+	_set_gpio_dataout(bank, get_gpio_index(gpio), value);
+	_set_gpio_direction(bank, get_gpio_index(gpio), 0);
+
+	return 0;
+}
+
+/**
+ * Request a gpio before using it.
+ *
+ * NOTE: Argument 'label' is unused.
+ */
+int gpio_request(int gpio, const char *label)
 {
 	if (check_gpio(gpio) < 0)
 		return -EINVAL;
@@ -184,7 +232,10 @@ int omap_request_gpio(int gpio)
 	return 0;
 }
 
-void omap_free_gpio(int gpio)
+/**
+ * Reset and free the gpio after using it.
+ */
+void gpio_free(unsigned gpio)
 {
 	const struct gpio_bank *bank;
 
@@ -192,5 +243,5 @@ void omap_free_gpio(int gpio)
 		return;
 	bank = get_gpio_bank(gpio);
 
-	_reset_gpio(bank, gpio);
+	_set_gpio_direction(bank, get_gpio_index(gpio), 1);
 }

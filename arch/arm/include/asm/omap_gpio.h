@@ -49,19 +49,4 @@ extern const struct gpio_bank *const omap_gpio_bank;
 
 #define METHOD_GPIO_24XX	4
 
-/* This is the interface */
-
-/* Request a gpio before using it */
-int omap_request_gpio(int gpio);
-/* Reset and free a gpio after using it */
-void omap_free_gpio(int gpio);
-/* Sets the gpio as input or output */
-void omap_set_gpio_direction(int gpio, int is_input);
-/* Set or clear a gpio output */
-void omap_set_gpio_dataout(int gpio, int enable);
-/* Get the value of a gpio input */
-int omap_get_gpio_datain(int gpio);
-/* Get the value of a gpio output */
-int omap_get_gpio_dataout(int gpio);
-
 #endif /* _GPIO_H_ */
