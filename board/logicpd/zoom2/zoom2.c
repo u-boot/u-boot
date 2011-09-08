@@ -36,7 +36,7 @@
 #include <twl4030.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
-#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
@@ -90,12 +90,12 @@ void zoom2_identify(void)
 	 * and they are not commonly used.  They are mentioned here
 	 * only for completeness.
 	 */
-	if (!omap_request_gpio(94)) {
+	if (!gpio_request(94, "")) {
 		unsigned int val;
 
-		omap_set_gpio_direction(94, 1);
-		val = omap_get_gpio_datain(94);
-		omap_free_gpio(94);
+		gpio_direction_input(94);
+		val = gpio_get_value(94);
+		gpio_free(94);
 
 		if (val)
 			revision = ZOOM2_REVISION_BETA;

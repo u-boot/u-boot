@@ -36,7 +36,7 @@
 #include <asm/arch/mux.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include <asm/mach-types.h>
 #include "overo.h"
 
@@ -106,21 +106,21 @@ int get_board_revision(void)
 {
 	int revision;
 
-	if (!omap_request_gpio(112) &&
-	    !omap_request_gpio(113) &&
-	    !omap_request_gpio(115)) {
+	if (!gpio_request(112, "") &&
+	    !gpio_request(113, "") &&
+	    !gpio_request(115, "")) {
 
-		omap_set_gpio_direction(112, 1);
-		omap_set_gpio_direction(113, 1);
-		omap_set_gpio_direction(115, 1);
+		gpio_direction_input(112);
+		gpio_direction_input(113);
+		gpio_direction_input(115);
 
-		revision = omap_get_gpio_datain(115) << 2 |
-			   omap_get_gpio_datain(113) << 1 |
-			   omap_get_gpio_datain(112);
+		revision = gpio_get_value(115) << 2 |
+			   gpio_get_value(113) << 1 |
+			   gpio_get_value(112);
 
-		omap_free_gpio(112);
-		omap_free_gpio(113);
-		omap_free_gpio(115);
+		gpio_free(112);
+		gpio_free(113);
+		gpio_free(115);
 	} else {
 		printf("Error: unable to acquire board revision GPIOs\n");
 		revision = -1;
@@ -139,21 +139,21 @@ int get_sdio2_config(void)
 {
 	int sdio_direct;
 
-	if (!omap_request_gpio(130) && !omap_request_gpio(139)) {
+	if (!gpio_request(130, "") && !gpio_request(139, "")) {
 
-		omap_set_gpio_direction(130, 0);
-		omap_set_gpio_direction(139, 1);
+		gpio_direction_output(130, 0);
+		gpio_direction_input(139);
 
 		sdio_direct = 1;
-		omap_set_gpio_dataout(130, 0);
-		if (omap_get_gpio_datain(139) == 0) {
-			omap_set_gpio_dataout(130, 1);
-			if (omap_get_gpio_datain(139) == 1)
+		gpio_set_value(130, 0);
+		if (gpio_get_value(139) == 0) {
+			gpio_set_value(130, 1);
+			if (gpio_get_value(139) == 1)
 				sdio_direct = 0;
 		}
 
-		omap_free_gpio(130);
-		omap_free_gpio(139);
+		gpio_free(130);
+		gpio_free(139);
 	} else {
 		printf("Error: unable to acquire sdio2 clk GPIOs\n");
 		sdio_direct = -1;
@@ -322,13 +322,13 @@ static void setup_net_chip(void)
 		&ctrl_base->gpmc_nadv_ale);
 
 	/* Make GPIO 64 as output pin and send a magic pulse through it */
-	if (!omap_request_gpio(64)) {
-		omap_set_gpio_direction(64, 0);
-		omap_set_gpio_dataout(64, 1);
+	if (!gpio_request(64, "")) {
+		gpio_direction_output(64, 0);
+		gpio_set_value(64, 1);
 		udelay(1);
-		omap_set_gpio_dataout(64, 0);
+		gpio_set_value(64, 0);
 		udelay(1);
-		omap_set_gpio_dataout(64, 1);
+		gpio_set_value(64, 1);
 	}
 }
 #endif

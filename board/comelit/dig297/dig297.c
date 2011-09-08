@@ -42,7 +42,7 @@
 #include <asm/arch/mux.h>
 #include <asm/arch/mem.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include <asm/mach-types.h>
 #include "dig297.h"
 
@@ -177,13 +177,13 @@ static void setup_net_chip(void)
 	       &ctrl_base->gpmc_nadv_ale);
 
 	/* Make GPIO 12 as output pin and send a magic pulse through it */
-	if (!omap_request_gpio(NET_LAN9221_RESET_GPIO)) {
-		omap_set_gpio_direction(NET_LAN9221_RESET_GPIO, 0);
-		omap_set_gpio_dataout(NET_LAN9221_RESET_GPIO, 1);
+	if (!gpio_request(NET_LAN9221_RESET_GPIO, "")) {
+		gpio_direction_output(NET_LAN9221_RESET_GPIO, 0);
+		gpio_set_value(NET_LAN9221_RESET_GPIO, 1);
 		udelay(1);
-		omap_set_gpio_dataout(NET_LAN9221_RESET_GPIO, 0);
+		gpio_set_value(NET_LAN9221_RESET_GPIO, 0);
 		udelay(31000);	/* Should be >= 30ms according to datasheet */
-		omap_set_gpio_dataout(NET_LAN9221_RESET_GPIO, 1);
+		gpio_set_value(NET_LAN9221_RESET_GPIO, 1);
 	}
 }
 #endif /* CONFIG_CMD_NET */

@@ -22,7 +22,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/io.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 
 static unsigned int saved_state[2] = {STATUS_LED_OFF, STATUS_LED_OFF};
 
@@ -39,9 +39,9 @@ static unsigned int saved_state[2] = {STATUS_LED_OFF, STATUS_LED_OFF};
 void red_LED_off (void)
 {
 	/* red */
-	if (!omap_request_gpio(ZOOM2_LED_RED)) {
-		omap_set_gpio_direction(ZOOM2_LED_RED, 0);
-		omap_set_gpio_dataout(ZOOM2_LED_RED, 0);
+	if (!gpio_request(ZOOM2_LED_RED, "")) {
+		gpio_direction_output(ZOOM2_LED_RED, 0);
+		gpio_set_value(ZOOM2_LED_RED, 0);
 	}
 	saved_state[STATUS_LED_RED] = STATUS_LED_OFF;
 }
@@ -49,15 +49,15 @@ void red_LED_off (void)
 void blue_LED_off (void)
 {
 	/* blue */
-	if (!omap_request_gpio(ZOOM2_LED_BLUE)) {
-		omap_set_gpio_direction(ZOOM2_LED_BLUE, 0);
-		omap_set_gpio_dataout(ZOOM2_LED_BLUE, 0);
+	if (!gpio_request(ZOOM2_LED_BLUE, "")) {
+		gpio_direction_output(ZOOM2_LED_BLUE, 0);
+		gpio_set_value(ZOOM2_LED_BLUE, 0);
 	}
 
 	/* blue 2 */
-	if (!omap_request_gpio(ZOOM2_LED_BLUE2)) {
-		omap_set_gpio_direction(ZOOM2_LED_BLUE2, 0);
-		omap_set_gpio_dataout(ZOOM2_LED_BLUE2, 0);
+	if (!gpio_request(ZOOM2_LED_BLUE2, "")) {
+		gpio_direction_output(ZOOM2_LED_BLUE2, 0);
+		gpio_set_value(ZOOM2_LED_BLUE2, 0);
 	}
 	saved_state[STATUS_LED_BLUE] = STATUS_LED_OFF;
 }
@@ -67,9 +67,9 @@ void red_LED_on (void)
 	blue_LED_off ();
 
 	/* red */
-	if (!omap_request_gpio(ZOOM2_LED_RED)) {
-		omap_set_gpio_direction(ZOOM2_LED_RED, 0);
-		omap_set_gpio_dataout(ZOOM2_LED_RED, 1);
+	if (!gpio_request(ZOOM2_LED_RED, "")) {
+		gpio_direction_output(ZOOM2_LED_RED, 0);
+		gpio_set_value(ZOOM2_LED_RED, 1);
 	}
 	saved_state[STATUS_LED_RED] = STATUS_LED_ON;
 }
@@ -79,15 +79,15 @@ void blue_LED_on (void)
 	red_LED_off ();
 
 	/* blue */
-	if (!omap_request_gpio(ZOOM2_LED_BLUE)) {
-		omap_set_gpio_direction(ZOOM2_LED_BLUE, 0);
-		omap_set_gpio_dataout(ZOOM2_LED_BLUE, 1);
+	if (!gpio_request(ZOOM2_LED_BLUE, "")) {
+		gpio_direction_output(ZOOM2_LED_BLUE, 0);
+		gpio_set_value(ZOOM2_LED_BLUE, 1);
 	}
 
 	/* blue 2 */
-	if (!omap_request_gpio(ZOOM2_LED_BLUE2)) {
-		omap_set_gpio_direction(ZOOM2_LED_BLUE2, 0);
-		omap_set_gpio_dataout(ZOOM2_LED_BLUE2, 1);
+	if (!gpio_request(ZOOM2_LED_BLUE2, "")) {
+		gpio_direction_output(ZOOM2_LED_BLUE2, 0);
+		gpio_set_value(ZOOM2_LED_BLUE2, 1);
 	}
 
 	saved_state[STATUS_LED_BLUE] = STATUS_LED_ON;

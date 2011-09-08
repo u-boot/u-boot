@@ -38,7 +38,7 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
-#include <asm/arch/gpio.h>
+#include <asm/gpio.h>
 #include <asm/mach-types.h>
 #ifdef CONFIG_USB_EHCI
 #include <usb.h>
@@ -116,21 +116,21 @@ int get_board_revision(void)
 {
 	int revision;
 
-	if (!omap_request_gpio(171) &&
-	    !omap_request_gpio(172) &&
-	    !omap_request_gpio(173)) {
+	if (!gpio_request(171, "") &&
+	    !gpio_request(172, "") &&
+	    !gpio_request(173, "")) {
 
-		omap_set_gpio_direction(171, 1);
-		omap_set_gpio_direction(172, 1);
-		omap_set_gpio_direction(173, 1);
+		gpio_direction_input(171);
+		gpio_direction_input(172);
+		gpio_direction_input(173);
 
-		revision = omap_get_gpio_datain(173) << 2 |
-			   omap_get_gpio_datain(172) << 1 |
-			   omap_get_gpio_datain(171);
+		revision = gpio_get_value(173) << 2 |
+			   gpio_get_value(172) << 1 |
+			   gpio_get_value(171);
 
-		omap_free_gpio(171);
-		omap_free_gpio(172);
-		omap_free_gpio(173);
+		gpio_free(171);
+		gpio_free(172);
+		gpio_free(173);
 	} else {
 		printf("Error: unable to acquire board revision GPIOs\n");
 		revision = -1;
@@ -387,7 +387,7 @@ int board_mmc_init(bd_t *bis)
 int ehci_hcd_stop(void)
 {
 	pr_debug("Resetting OMAP3 EHCI\n");
-	omap_set_gpio_dataout(GPIO_PHY_RESET, 0);
+	gpio_set_value(GPIO_PHY_RESET, 0);
 	writel(OMAP_UHH_SYSCONFIG_SOFTRESET, OMAP3_UHH_BASE + OMAP_UHH_SYSCONFIG);
 	/* disable USB clocks */
 	struct prcm *prcm_base = (struct prcm *)PRCM_BASE;
@@ -415,9 +415,9 @@ int ehci_hcd_init(void)
 	pr_debug("Initializing OMAP3 ECHI\n");
 
 	/* Put the PHY in RESET */
-	omap_request_gpio(GPIO_PHY_RESET);
-	omap_set_gpio_direction(GPIO_PHY_RESET, 0);
-	omap_set_gpio_dataout(GPIO_PHY_RESET, 0);
+	gpio_request(GPIO_PHY_RESET, "");
+	gpio_direction_output(GPIO_PHY_RESET, 0);
+	gpio_set_value(GPIO_PHY_RESET, 0);
 
 	/* Hold the PHY in RESET for enough time till DIR is high */
 	/* Refer: ISSUE1 */
@@ -469,7 +469,7 @@ int ehci_hcd_init(void)
 	 * PHY is settled and ready
 	 */
 	udelay(10);
-	omap_set_gpio_dataout(GPIO_PHY_RESET, 1);
+	gpio_set_value(GPIO_PHY_RESET, 1);
 
 	hccr = (struct ehci_hccr *)(OMAP3_EHCI_BASE);
 	hcor = (struct ehci_hcor *)(OMAP3_EHCI_BASE + 0x10);
@@ -508,10 +508,10 @@ int do_userbutton (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		gpio = 4;
 		break;
 	}
-	omap_request_gpio(gpio);
-	omap_set_gpio_direction(gpio, 1);
+	gpio_request(gpio, "");
+	gpio_direction_input(gpio);
 	printf("The user button is currently ");
-	if(omap_get_gpio_datain(gpio))
+	if (gpio_get_value(gpio))
 	{
 		button = 1;
 		printf("PRESSED.\n");
@@ -522,7 +522,7 @@ int do_userbutton (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 		printf("NOT pressed.\n");
 	}
 
-	omap_free_gpio(gpio);
+	gpio_free(gpio);
 
 	return !button;
 }
