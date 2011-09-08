@@ -2140,7 +2140,7 @@ yaffs_Object *yaffs_CreateNewObject(yaffs_Device * dev, int number,
 {
 
 	yaffs_Object *theObject;
-	yaffs_Tnode *tn;
+	yaffs_Tnode *tn = NULL;
 
 	if (number < 0) {
 		number = yaffs_CreateNewObjectNumber(dev);
@@ -2255,7 +2255,7 @@ static yaffs_Object *yaffs_MknodObject(yaffs_ObjectType type,
 				       const YCHAR * aliasString, __u32 rdev)
 {
 	yaffs_Object *in;
-	YCHAR *str;
+	YCHAR *str = NULL;
 
 	yaffs_Device *dev = parent->myDev;
 
@@ -4605,8 +4605,8 @@ int yaffs_ReadDataFromFile(yaffs_Object * in, __u8 * buffer, loff_t offset,
 			   int nBytes)
 {
 
-	int chunk;
-	int start;
+	__u32 chunk;
+	__u32 start;
 	int nToCopy;
 	int n = nBytes;
 	int nDone = 0;
@@ -4725,8 +4725,8 @@ int yaffs_WriteDataToFile(yaffs_Object * in, const __u8 * buffer, loff_t offset,
 			  int nBytes, int writeThrough)
 {
 
-	int chunk;
-	int start;
+	__u32 chunk;
+	__u32 start;
 	int nToCopy;
 	int n = nBytes;
 	int nDone = 0;
@@ -4960,8 +4960,8 @@ int yaffs_ResizeFile(yaffs_Object * in, loff_t newSize)
 {
 
 	int oldFileSize = in->variant.fileVariant.fileSize;
-	int newSizeOfPartialChunk;
-	int newFullChunks;
+	__u32 newSizeOfPartialChunk;
+	__u32 newFullChunks;
 
 	yaffs_Device *dev = in->myDev;
 
@@ -7232,7 +7232,8 @@ int yaffs_GutsInitialise(yaffs_Device * dev)
 			dev->nShortOpCaches = YAFFS_MAX_SHORT_OP_CACHES;
 		}
 
-		buf = dev->srCache =  YMALLOC(srCacheBytes);
+		dev->srCache = YMALLOC(srCacheBytes);
+		buf = (__u8 *)dev->srCache;
 
 		if(dev->srCache)
 			memset(dev->srCache,0,srCacheBytes);
