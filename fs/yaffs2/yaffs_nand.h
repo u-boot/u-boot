@@ -33,7 +33,7 @@ int yaffs_MarkBlockBad(yaffs_Device * dev, int blockNo);
 int yaffs_QueryInitialBlockState(yaffs_Device * dev,
 						 int blockNo,
 						 yaffs_BlockState * state,
-						 unsigned *sequenceNumber);
+						 int *sequenceNumber);
 
 int yaffs_EraseBlockInNAND(struct yaffs_DeviceStruct *dev,
 				  int blockInNAND);
