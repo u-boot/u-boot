@@ -66,7 +66,7 @@ int do_ywr (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
     ulong value = simple_strtoul(argv[2], NULL, 16);
     ulong numValues = simple_strtoul(argv[3], NULL, 16);
 
-    printf ("Writing value (%x) %x times to %s... ", value, numValues, filename);
+    printf ("Writing value (%lx) %lx times to %s... ", value, numValues, filename);
 
     cmd_yaffs_write_file(filename,value,numValues);
 
