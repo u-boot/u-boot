@@ -31,6 +31,7 @@
  */
 #include <common.h>
 #include <asm/omap_common.h>
+#include <asm/gpio.h>
 #include <asm/arch/clocks.h>
 #include <asm/arch/sys_proto.h>
 #include <asm/utils.h>
@@ -481,8 +482,8 @@ static void do_scale_tps62361(u32 reg, u32 volt_mv)
 	 * VSEL1 is grounded on board. So the following selects
 	 * VSEL1 = 0 and VSEL0 = 1
 	 */
-	omap_set_gpio_direction(TPS62361_VSEL0_GPIO, 0);
-	omap_set_gpio_dataout(TPS62361_VSEL0_GPIO, 1);
+	gpio_direction_output(TPS62361_VSEL0_GPIO, 0);
+	gpio_set_value(TPS62361_VSEL0_GPIO, 1);
 
 	temp = TPS62361_I2C_SLAVE_ADDR |
 	    (reg << PRM_VC_VAL_BYPASS_REGADDR_SHIFT) |

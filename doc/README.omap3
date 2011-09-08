@@ -98,24 +98,24 @@ gpio
 
 To set a bit :
 
-	if (!omap_request_gpio(N)) {
-		omap_set_gpio_direction(N, 0);
-		omap_set_gpio_dataout(N, 1);
+	if (!gpio_request(N, "")) {
+		gpio_direction_output(N, 0);
+		gpio_set_value(N, 1);
 	}
 
 To clear a bit :
 
-	if (!omap_request_gpio(N)) {
-		omap_set_gpio_direction(N, 0);
-		omap_set_gpio_dataout(N, 0);
+	if (!gpio_request(N, "")) {
+		gpio_direction_output(N, 0);
+		gpio_set_value(N, 0);
 	}
 
 To read a bit :
 
-	if (!omap_request_gpio(N)) {
-		omap_set_gpio_direction(N, 1);
-		val = omap_get_gpio_datain(N);
-		omap_free_gpio(N);
+	if (!gpio_request(N, "")) {
+		gpio_direction_input(N);
+		val = gpio_get_value(N);
+		gpio_free(N);
 	}
 	if (val)
 		printf("GPIO N is set\n");
