@@ -391,17 +391,17 @@ static int yaffs_CountChunkBits(yaffs_Device * dev, int blk)
  * Verification code
  */
 
-static int yaffs_SkipVerification(yaffs_Device *dev)
+static Y_INLINE int yaffs_SkipVerification(yaffs_Device *dev)
 {
 	return !(yaffs_traceMask & (YAFFS_TRACE_VERIFY | YAFFS_TRACE_VERIFY_FULL));
 }
 
-static int yaffs_SkipFullVerification(yaffs_Device *dev)
+static Y_INLINE int yaffs_SkipFullVerification(yaffs_Device *dev)
 {
 	return !(yaffs_traceMask & (YAFFS_TRACE_VERIFY_FULL));
 }
 
-static int yaffs_SkipNANDVerification(yaffs_Device *dev)
+static Y_INLINE int yaffs_SkipNANDVerification(yaffs_Device *dev)
 {
 	return !(yaffs_traceMask & (YAFFS_TRACE_VERIFY_NAND));
 }
