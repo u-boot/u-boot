@@ -54,8 +54,6 @@
 /* LPDDR2 IO regs */
 #define LPDDR2_IO_REGS_BASE	0x4A100638
 
-#define CONTROL_EFUSE_2		0x4A100704
-
 /* CONTROL_ID_CODE */
 #define CONTROL_ID_CODE		0x4A002204
 
@@ -84,6 +82,9 @@
 /* GPMC */
 #define OMAP44XX_GPMC_BASE	0x50000000
 
+/* SYSTEM CONTROL MODULE */
+#define SYSCTRL_GENERAL_CORE_BASE	0x4A002000
+
 /*
  * Hardware Register Details
  */
@@ -108,6 +109,22 @@
 #define PRM_RSTCTRL		PRM_DEVICE_BASE
 #define PRM_RSTCTRL_RESET	0x01
 
+/* Control Module */
+#define LDOSRAM_ACTMODE_VSET_IN_MASK	(0x1F << 5)
+#define LDOSRAM_VOLT_CTRL_OVERRIDE	0x0401040f
+#define CONTROL_EFUSE_1_OVERRIDE	0x1C4D0110
+#define CONTROL_EFUSE_2_OVERRIDE	0x00084000
+
+/* LPDDR2 IO regs */
+#define CONTROL_LPDDR2IO_SLEW_125PS_DRV8_PULL_DOWN	0x1C1C1C1C
+#define CONTROL_LPDDR2IO_SLEW_325PS_DRV8_GATE_KEEPER	0x9E9E9E9E
+#define CONTROL_LPDDR2IO_SLEW_315PS_DRV12_PULL_DOWN	0x7C7C7C7C
+#define LPDDR2IO_GR10_WD_MASK				(3 << 17)
+#define CONTROL_LPDDR2IO_3_VAL		0xA0888C00
+
+/* CONTROL_EFUSE_2 */
+#define CONTROL_EFUSE_2_NMOS_PMOS_PTV_CODE_1		0x00ffc000
+
 #ifndef __ASSEMBLY__
 
 struct s32ktimer {
@@ -115,6 +132,30 @@ struct s32ktimer {
 	unsigned int s32k_cr;	/* 0x10 */
 };
 
+struct omap4_sys_ctrl_regs {
+	unsigned int pad1[129];
+	unsigned int control_id_code;			/* 0x4A002204 */
+	unsigned int pad11[22];
+	unsigned int control_std_fuse_opp_bgap;		/* 0x4a002260 */
+	unsigned int pad2[47];
+	unsigned int control_ldosram_iva_voltage_ctrl;	/* 0x4A002320 */
+	unsigned int control_ldosram_mpu_voltage_ctrl;	/* 0x4A002324 */
+	unsigned int control_ldosram_core_voltage_ctrl;	/* 0x4A002328 */
+	unsigned int pad3[260341];
+	unsigned int control_efuse_1;			/* 0x4A100700 */
+	unsigned int control_efuse_2;			/* 0x4A100704 */
+};
+
+struct control_lpddr2io_regs {
+	unsigned int control_lpddr2io1_0;
+	unsigned int control_lpddr2io1_1;
+	unsigned int control_lpddr2io1_2;
+	unsigned int control_lpddr2io1_3;
+	unsigned int control_lpddr2io2_0;
+	unsigned int control_lpddr2io2_1;
+	unsigned int control_lpddr2io2_2;
+	unsigned int control_lpddr2io2_3;
+};
 #endif /* __ASSEMBLY__ */
 
 /*

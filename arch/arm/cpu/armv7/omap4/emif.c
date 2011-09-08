@@ -1063,30 +1063,6 @@ static void do_sdram_init(u32 base)
 	debug("<<do_sdram_init() %x\n", base);
 }
 
-void sdram_init_pads(void)
-{
-	u32 lpddr2io;
-	struct control_lpddr2io_regs *lpddr2io_regs =
-		(struct control_lpddr2io_regs *)LPDDR2_IO_REGS_BASE;
-	u32 omap4_rev = omap_revision();
-
-	if (omap4_rev == OMAP4430_ES1_0)
-		lpddr2io = CONTROL_LPDDR2IO_SLEW_125PS_DRV8_PULL_DOWN;
-	else if (omap4_rev == OMAP4430_ES2_0)
-		lpddr2io = CONTROL_LPDDR2IO_SLEW_325PS_DRV8_GATE_KEEPER;
-	else
-		return;		/* Post ES2.1 reset values will work */
-
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io1_0);
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io1_1);
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io1_2);
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io2_0);
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io2_1);
-	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io2_2);
-
-	writel(CONTROL_EFUSE_2_NMOS_PMOS_PTV_CODE_1, CONTROL_EFUSE_2);
-}
-
 static void emif_post_init_config(u32 base)
 {
 	struct emif_reg_struct *emif = (struct emif_reg_struct *)base;
@@ -1243,7 +1219,6 @@ void sdram_init(void)
 	debug("in_sdram = %d\n", in_sdram);
 
 	if (!in_sdram) {
-		sdram_init_pads();
 		bypass_dpll(&prcm->cm_clkmode_dpll_core);
 	}
 

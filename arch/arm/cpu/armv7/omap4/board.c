@@ -70,6 +70,67 @@ u32 omap_boot_mode(void)
 {
 	return omap4_boot_mode;
 }
+
+/*
+ * Some tuning of IOs for optimal power and performance
+ */
+static void do_io_settings(void)
+{
+	u32 lpddr2io;
+	struct control_lpddr2io_regs *lpddr2io_regs =
+		(struct control_lpddr2io_regs *)LPDDR2_IO_REGS_BASE;
+	struct omap4_sys_ctrl_regs *const ctrl =
+		(struct omap4_sys_ctrl_regs *)SYSCTRL_GENERAL_CORE_BASE;
+
+	u32 omap4_rev = omap_revision();
+
+	if (omap4_rev == OMAP4430_ES1_0)
+		lpddr2io = CONTROL_LPDDR2IO_SLEW_125PS_DRV8_PULL_DOWN;
+	else if (omap4_rev == OMAP4430_ES2_0)
+		lpddr2io = CONTROL_LPDDR2IO_SLEW_325PS_DRV8_GATE_KEEPER;
+	else
+		lpddr2io = CONTROL_LPDDR2IO_SLEW_315PS_DRV12_PULL_DOWN;
+
+	/* EMIF1 */
+	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io1_0);
+	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io1_1);
+	/* No pull for GR10 as per hw team's recommendation */
+	writel(lpddr2io & ~LPDDR2IO_GR10_WD_MASK,
+		&lpddr2io_regs->control_lpddr2io1_2);
+	writel(CONTROL_LPDDR2IO_3_VAL, &lpddr2io_regs->control_lpddr2io1_3);
+
+	/* EMIF2 */
+	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io2_0);
+	writel(lpddr2io, &lpddr2io_regs->control_lpddr2io2_1);
+	/* No pull for GR10 as per hw team's recommendation */
+	writel(lpddr2io & ~LPDDR2IO_GR10_WD_MASK,
+		&lpddr2io_regs->control_lpddr2io2_2);
+	writel(CONTROL_LPDDR2IO_3_VAL, &lpddr2io_regs->control_lpddr2io2_3);
+
+	/*
+	 * Some of these settings (TRIM values) come from eFuse and are
+	 * in turn programmed in the eFuse at manufacturing time after
+	 * calibration of the device. Do the software over-ride only if
+	 * the device is not correctly trimmed
+	 */
+	if (!(readl(&ctrl->control_std_fuse_opp_bgap) & 0xFFFF)) {
+
+		writel(LDOSRAM_VOLT_CTRL_OVERRIDE,
+			&ctrl->control_ldosram_iva_voltage_ctrl);
+
+		writel(LDOSRAM_VOLT_CTRL_OVERRIDE,
+			&ctrl->control_ldosram_mpu_voltage_ctrl);
+
+		writel(LDOSRAM_VOLT_CTRL_OVERRIDE,
+			&ctrl->control_ldosram_core_voltage_ctrl);
+	}
+
+	if (!readl(&ctrl->control_efuse_1))
+		writel(CONTROL_EFUSE_1_OVERRIDE, &ctrl->control_efuse_1);
+
+	if (!readl(&ctrl->control_efuse_2))
+		writel(CONTROL_EFUSE_2_OVERRIDE, &ctrl->control_efuse_2);
+}
 #endif
 
 void do_set_mux(u32 base, struct pad_conf_entry const *array, int size)
@@ -197,6 +258,7 @@ void s_init(void)
 	set_mux_conf_regs();
 #ifdef CONFIG_SPL_BUILD
 	preloader_console_init();
+	do_io_settings();
 #endif
 	prcm_init();
 #ifdef CONFIG_SPL_BUILD
