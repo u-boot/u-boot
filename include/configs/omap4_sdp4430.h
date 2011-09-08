@@ -37,7 +37,9 @@
 #include <configs/omap4_common.h>
 
 /* Battery Charger */
+#ifndef CONFIG_SPL_BUILD
 #define CONFIG_CMD_BAT			1
+#endif
 
 /* ENV related config options */
 #define CONFIG_ENV_IS_IN_MMC		1

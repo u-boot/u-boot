@@ -28,6 +28,7 @@
 #include <part.h>
 #include <i2c.h>
 #include <twl4030.h>
+#include <twl6030.h>
 #include <asm/io.h>
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/sys_proto.h>
@@ -38,7 +39,27 @@
 static int mmc_read_data(hsmmc_t *mmc_base, char *buf, unsigned int size);
 static int mmc_write_data(hsmmc_t *mmc_base, const char *buf, unsigned int siz);
 static struct mmc hsmmc_dev[2];
-unsigned char mmc_board_init(hsmmc_t *mmc_base)
+
+#if defined(CONFIG_OMAP44XX) && defined(CONFIG_TWL6030_POWER)
+static void omap4_vmmc_pbias_config(struct mmc *mmc)
+{
+	u32 value = 0;
+	struct omap4_sys_ctrl_regs *const ctrl =
+		(struct omap4_sys_ctrl_regs *)SYSCTRL_GENERAL_CORE_BASE;
+
+
+	value = readl(&ctrl->control_pbiaslite);
+	value &= ~(MMC1_PBIASLITE_PWRDNZ | MMC1_PWRDNZ);
+	writel(value, &ctrl->control_pbiaslite);
+	/* set VMMC to 3V */
+	twl6030_power_mmc_init();
+	value = readl(&ctrl->control_pbiaslite);
+	value |= MMC1_PBIASLITE_VMODE | MMC1_PBIASLITE_PWRDNZ | MMC1_PWRDNZ;
+	writel(value, &ctrl->control_pbiaslite);
+}
+#endif
+
+unsigned char mmc_board_init(struct mmc *mmc)
 {
 #if defined(CONFIG_TWL4030_POWER)
 	twl4030_power_mmc_init();
@@ -67,7 +88,11 @@ unsigned char mmc_board_init(hsmmc_t *mmc_base)
 		&prcm_base->iclken1_core);
 #endif
 
-/* TODO add appropriate OMAP4 init - none currently necessary */
+#if defined(CONFIG_OMAP44XX) && defined(CONFIG_TWL6030_POWER)
+	/* PBIAS config needed for MMC1 only */
+	if (mmc->block_dev.dev == 0)
+		omap4_vmmc_pbias_config(mmc);
+#endif
 
 	return 0;
 }
@@ -108,7 +133,7 @@ static int mmc_init_setup(struct mmc *mmc)
 	unsigned int dsor;
 	ulong start;
 
-	mmc_board_init(mmc_base);
+	mmc_board_init(mmc);
 
 	writel(readl(&mmc_base->sysconfig) | MMC_SOFTRESET,
 		&mmc_base->sysconfig);

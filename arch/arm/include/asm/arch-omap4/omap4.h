@@ -125,6 +125,10 @@
 /* CONTROL_EFUSE_2 */
 #define CONTROL_EFUSE_2_NMOS_PMOS_PTV_CODE_1		0x00ffc000
 
+#define MMC1_PWRDNZ					(1 << 26)
+#define MMC1_PBIASLITE_PWRDNZ				(1 << 22)
+#define MMC1_PBIASLITE_VMODE				(1 << 21)
+
 #ifndef __ASSEMBLY__
 
 struct s32ktimer {
@@ -141,7 +145,9 @@ struct omap4_sys_ctrl_regs {
 	unsigned int control_ldosram_iva_voltage_ctrl;	/* 0x4A002320 */
 	unsigned int control_ldosram_mpu_voltage_ctrl;	/* 0x4A002324 */
 	unsigned int control_ldosram_core_voltage_ctrl;	/* 0x4A002328 */
-	unsigned int pad3[260341];
+	unsigned int pad3[260277];
+	unsigned int control_pbiaslite;			/* 0x4A100600 */
+	unsigned int pad4[63];
 	unsigned int control_efuse_1;			/* 0x4A100700 */
 	unsigned int control_efuse_2;			/* 0x4A100704 */
 };
