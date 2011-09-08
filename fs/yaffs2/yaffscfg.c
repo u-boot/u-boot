@@ -313,7 +313,7 @@ void cmd_yaffs_mread_file(char *fn, char *addr)
 
 	yaffs_stat(fn,&s);
 
-	printf ("Copy %s to 0x%08x... ", fn, addr);
+	printf ("Copy %s to 0x%p... ", fn, addr);
 	h = yaffs_open(fn, O_RDWR,0);
 	if(h<0)
 	{
@@ -368,7 +368,7 @@ void cmd_yaffs_ls(const char *mountpt, int longlist)
 			{
 				sprintf(tempstr, "%s/%s", mountpt, de->d_name);
 				yaffs_stat(tempstr, &stat);
-				printf("%-25s\t%7d\n",de->d_name, stat.st_size);
+				printf("%-25s\t%7ld\n",de->d_name, stat.st_size);
 			}
 			else
 			{
