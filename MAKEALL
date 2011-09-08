@@ -300,66 +300,24 @@ LIST_SA="$(boards_by_cpu sa1100)"
 ## ARM9 Systems
 #########################################################################
 
-LIST_ARM9="			\
-	a320evb			\
-	aspenite		\
-	da830evm		\
-	da850evm		\
-	edminiv2		\
-	guruplug		\
-	imx27lite		\
-	jadecpu			\
-	km_kirkwood		\
-	magnesium		\
-	mv88f6281gtw_ge		\
-	mx1ads			\
-	nhk8815			\
-	nhk8815_onenand		\
-	omap1510inn		\
+LIST_ARM9="$(boards_by_cpu arm920t)	\
+	$(boards_by_cpu arm926ejs)	\
+	$(boards_by_cpu arm925t)	\
 	omap1610h2		\
 	omap1610inn		\
-	omap5912osk		\
 	omap730p2		\
-	openrd_base		\
-	openrd_client		\
-	openrd_ultimate		\
-	portl2			\
-	rd6281a			\
-	scb9328			\
-	sheevaplug		\
-	smdk2410		\
-	spear300		\
-	spear310		\
-	spear320		\
-	spear600		\
-	VCMA9			\
-	versatileab		\
-	versatilepb		\
-	davinci_dvevm		\
-	davinci_schmoogie	\
-	davinci_sffsdr		\
-	davinci_sonata		\
-	davinci_dm355evm	\
-	davinci_dm355leopard	\
-	davinci_dm365evm	\
-	davinci_dm6467evm	\
 "
 
 #########################################################################
 ## ARM11 Systems
 #########################################################################
-LIST_ARM11="			\
-	omap2420h4		\
+LIST_ARM11="$(boards_by_cpu arm1136)	\
 	apollon			\
-	imx31_litekit		\
 	imx31_phycore		\
 	imx31_phycore_eet	\
-	mx31ads			\
 	mx31pdk			\
 	mx31pdk_nand		\
-	qong			\
 	smdk6400		\
-	tnetv107x_evm		\
 "
 
 #########################################################################
