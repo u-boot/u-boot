@@ -114,6 +114,9 @@
 #define CONFIG_NR_DRAM_BANKS	1	   /* we have 1 bank of DRAM */
 #define PHYS_SDRAM_1		0x00000000 /* SDRAM Bank #1 */
 #define PHYS_SDRAM_1_SIZE	0x02000000 /* 32 MB */
+#define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
+
+#define CONFIG_SYS_INIT_SP_ADDR	0x00020000 /* lowest 128k of RAM */
 
 #define PHYS_FLASH_1		0x02000000 /* Flash Bank #1 */
 #define PHYS_FLASH_SECT_SIZE    0x00020000 /* 128 KB sectors (x1) */
