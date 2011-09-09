@@ -739,7 +739,7 @@ int ubifs_load(char *filename, u32 addr, u32 size)
 	if (err)
 		printf("Error reading file '%s'\n", filename);
 	else {
-	        sprintf(buf, "%lX", size);
+	        sprintf(buf, "%X", size);
 		setenv("filesize", buf);
 		printf("Done\n");
 	}
