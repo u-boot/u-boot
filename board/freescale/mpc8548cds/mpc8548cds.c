@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2007, 2009-2010 Freescale Semiconductor, Inc.
+ * Copyright 2004, 2007, 2009-2011 Freescale Semiconductor, Inc.
  *
  * (C) Copyright 2002 Scott McNutt <smcnutt@artesyncp.com>
  *
@@ -207,8 +207,7 @@ static struct pci_config_table pci_mpc85xxcds_config_table[] = {
 	{},
 };
 
-static struct pci_controller pci1_hose = {
-	config_table: pci_mpc85xxcds_config_table};
+static struct pci_controller pci1_hose;
 #endif	/* CONFIG_PCI */
 
 #ifdef CONFIG_PCI2
@@ -253,6 +252,7 @@ void pci_init_board(void)
 			pci_arb ? "arbiter" : "external-arbiter",
 			pci_info.regs);
 
+		pci1_hose.config_table = pci_mpc85xxcds_config_table;
 		first_free_busno = fsl_pci_init_port(&pci_info,
 					&pci1_hose, first_free_busno);
 
