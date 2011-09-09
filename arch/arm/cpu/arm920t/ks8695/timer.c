@@ -24,6 +24,14 @@
 #include <asm/arch/platform.h>
 
 /*
+ * Initial timer set constants. Nothing complicated, just set for a 1ms
+ * tick.
+ */
+#define	TIMER_INTERVAL	(TICKS_PER_uSEC * mSEC_1)
+#define	TIMER_COUNT	(TIMER_INTERVAL / 2)
+#define	TIMER_PULSE	TIMER_COUNT
+
+/*
  * Handy KS8695 register access functions.
  */
 #define	ks8695_read(a)    *((volatile ulong *) (KS8695_IO_BASE + (a)))
@@ -41,14 +49,6 @@ int timer_init (void)
 
 	return 0;
 }
-
-/*
- * Initial timer set constants. Nothing complicated, just set for a 1ms
- * tick.
- */
-#define	TIMER_INTERVAL	(TICKS_PER_uSEC * mSEC_1)
-#define	TIMER_COUNT	(TIMER_INTERVAL / 2)
-#define	TIMER_PULSE	TIMER_COUNT
 
 ulong get_timer_masked(void)
 {
