@@ -38,6 +38,7 @@
 #define CONFIG_INITRD_TAG	 1
 
 #define CONFIG_DRIVER_KS8695ETH		/* use KS8695 ethernet driver	*/
+#define CONFIG_NET_MULTI
 
 /*
  * Size of malloc() pool
