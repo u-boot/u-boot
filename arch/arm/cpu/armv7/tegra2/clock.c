@@ -28,14 +28,6 @@
 #include <asm/arch/tegra2.h>
 #include <common.h>
 
-#ifdef DEBUG
-#define assert(x)	\
-	({ if (!(x)) printf("Assertion failure '%s' %s line %d\n", \
-		#x, __FILE__, __LINE__); })
-#else
-#define assert(x)
-#endif
-
 /*
  * Get the oscillator frequency, from the corresponding hardware configuration
  * field.
