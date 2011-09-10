@@ -28,6 +28,7 @@
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
 #include <ns16550.h>
+#include <nand.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
