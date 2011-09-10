@@ -2318,6 +2318,22 @@ typedef struct ccsr_usb_phy {
 } ccsr_usb_phy_t;
 #define CONFIG_SYS_FSL_USB_ENABLE_OVERRIDE 1
 
+#ifdef CONFIG_SYS_FSL_RAID_ENGINE
+struct ccsr_raide {
+	u8	res0[0x543];
+	u32	liodnbr;			/* LIODN Base Register */
+	u8	res1[0xab8];
+	struct {
+		struct {
+			u32	cfg0;		/* cfg register 0 */
+			u32	cfg1;		/* cfg register 1 */
+			u8	res1[0x3f8];
+		} ring[2];
+		u8	res[0x800];
+	} jq[2];
+};
+#endif
+
 #ifdef CONFIG_FSL_CORENET
 #define CONFIG_SYS_FSL_CORENET_CCM_OFFSET	0x0000
 #define CONFIG_SYS_MPC85xx_DDR_OFFSET		0x8000
@@ -2348,6 +2364,7 @@ typedef struct ccsr_usb_phy {
 #define CONFIG_SYS_FSL_CORENET_PME_OFFSET	0x316000
 #define CONFIG_SYS_FSL_QMAN_OFFSET		0x318000
 #define CONFIG_SYS_FSL_BMAN_OFFSET		0x31a000
+#define CONFIG_SYS_FSL_RAID_ENGINE_OFFSET	0x320000
 #define CONFIG_SYS_FSL_FM1_OFFSET		0x400000
 #define CONFIG_SYS_FSL_FM1_RX0_1G_OFFSET	0x488000
 #define CONFIG_SYS_FSL_FM1_RX1_1G_OFFSET	0x489000
@@ -2418,6 +2435,8 @@ typedef struct ccsr_usb_phy {
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_BMAN_OFFSET)
 #define CONFIG_SYS_FSL_CORENET_PME_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_CORENET_PME_OFFSET)
+#define CONFIG_SYS_FSL_RAID_ENGINE_ADDR \
+	(CONFIG_SYS_IMMR + CONFIG_SYS_FSL_RAID_ENGINE_OFFSET)
 #define CONFIG_SYS_MPC85xx_GUTS_ADDR \
 	(CONFIG_SYS_IMMR + CONFIG_SYS_MPC85xx_GUTS_OFFSET)
 #define CONFIG_SYS_FSL_CORENET_CCM_ADDR \

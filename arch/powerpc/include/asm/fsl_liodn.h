@@ -147,9 +147,18 @@ extern void fdt_fixup_liodn(void *blob);
 		offsetof(ccsr_sec_t, decoliodnr[num].ls) + \
 		CONFIG_SYS_FSL_SEC_OFFSET, 0)
 
+#define SET_RAID_ENGINE_JQ_LIODN_ENTRY(jqNum, rNum, liodnA) \
+	SET_LIODN_ENTRY_1("fsl,raideng-v1.0-job-ring", \
+	liodnA, \
+	offsetof(struct ccsr_raide, jq[jqNum].ring[rNum].cfg1) + \
+	CONFIG_SYS_FSL_RAID_ENGINE_OFFSET, \
+	offsetof(struct ccsr_raide, jq[jqNum].ring[rNum].cfg0) + \
+	CONFIG_SYS_FSL_RAID_ENGINE_OFFSET)
+
 extern struct liodn_id_table liodn_tbl[], liodn_bases[], sec_liodn_tbl[];
+extern struct liodn_id_table raide_liodn_tbl[];
 extern struct liodn_id_table fman1_liodn_tbl[], fman2_liodn_tbl[];
-extern int liodn_tbl_sz, sec_liodn_tbl_sz;
+extern int liodn_tbl_sz, sec_liodn_tbl_sz, raide_liodn_tbl_sz;
 extern int fman1_liodn_tbl_sz, fman2_liodn_tbl_sz;
 
 #endif
