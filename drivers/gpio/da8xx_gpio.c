@@ -27,12 +27,10 @@
 #include <asm/arch/hardware.h>
 #include <asm/arch/davinci_misc.h>
 
-
 static struct gpio_registry {
 	int is_registered;
 	char name[GPIO_NAME_SIZE];
 } gpio_registry[MAX_NUM_GPIOS];
-
 
 #define pinmux(x)       (&davinci_syscfg_regs->pinmux[x])
 
@@ -183,8 +181,6 @@ static const struct pinmux_config gpio_pinmux[] = {
 	{ pinmux(18), 8, 2 },
 };
 
-
-
 int gpio_request(int gp, const char *label)
 {
 	if (gp >= MAX_NUM_GPIOS)
@@ -202,12 +198,10 @@ int gpio_request(int gp, const char *label)
 	return 0;
 }
 
-
 void gpio_free(int gp)
 {
 	gpio_registry[gp].is_registered = 0;
 }
-
 
 void gpio_toggle_value(int gp)
 {
@@ -217,7 +211,6 @@ void gpio_toggle_value(int gp)
 	gpio_set_value(gp, !gpio_get_value(gp));
 }
 
-
 int gpio_direction_input(int gp)
 {
 	struct davinci_gpio *bank;
@@ -226,7 +219,6 @@ int gpio_direction_input(int gp)
 	setbits_le32(&bank->dir, 1U << GPIO_BIT(gp));
 	return 0;
 }
-
 
 int gpio_direction_output(int gp, int value)
 {
@@ -238,7 +230,6 @@ int gpio_direction_output(int gp, int value)
 	return 0;
 }
 
-
 int gpio_get_value(int gp)
 {
 	struct davinci_gpio *bank;
@@ -248,7 +239,6 @@ int gpio_get_value(int gp)
 	ip = in_le32(&bank->in_data) & (1U << GPIO_BIT(gp));
 	return ip ? 1 : 0;
 }
-
 
 void gpio_set_value(int gp, int value)
 {
@@ -261,7 +251,6 @@ void gpio_set_value(int gp, int value)
 	else
 		bank->clr_data = 1U << GPIO_BIT(gp);
 }
-
 
 void gpio_info(void)
 {

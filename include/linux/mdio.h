@@ -127,8 +127,6 @@
 					MDIO_DEVS_DTEXS | \
 					MDIO_DEVS_AN)
 
-
-
 /* Control register 2. */
 #define MDIO_PMA_CTRL2_TYPE		0x000f	/* PMA/PMD type selection */
 #define MDIO_PMA_CTRL2_10GBCX4		0x0000	/* 10GBASE-CX4 type */

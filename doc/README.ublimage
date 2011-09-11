@@ -101,22 +101,22 @@ This steps are done automagically if you do a "make all"
 Structure of this binary (Example for the cam_enc_4xx board with a NAND
 page size = 0x800):
 
-offset :    0x00000 | 0x800       | 0x3800
-content:    UBL     | nand_spl    | u-boot code
-            Header  | code        |
+offset :    0x00000 | 0x800	  | 0x3800
+content:    UBL     | nand_spl	  | u-boot code
+	    Header  | code	  |
 
 The NAND layout looks for example like this:
 
 (Example for the cam_enc_4xx board with a NAND page size = 0x800, block
 size = 0x20000 and CONFIG_SYS_NROF_UBL_HEADER 5):
 
-offset :    0x80000 | 0xa0000     | 0xa3000
-content:    UBL     | nand_spl    | u-boot code
-            Header  | code        |
-            ^         ^
-	    ^         0xa0000 = CONFIG_SYS_NROF_UBL_HEADER * 0x20000
-            ^
-            0x80000 = Block 4 * 0x20000
+offset :    0x80000 | 0xa0000	  | 0xa3000
+content:    UBL     | nand_spl	  | u-boot code
+	    Header  | code	  |
+	    ^	      ^
+	    ^	      0xa0000 = CONFIG_SYS_NROF_UBL_HEADER * 0x20000
+	    ^
+	    0x80000 = Block 4 * 0x20000
 
 If the cpu starts in NAND boot mode, it checks the UBL descriptor
 starting with block 1 (page 0).  When a valid UBL signature is found,
@@ -132,7 +132,7 @@ read and processed.
 
 Once the user-specified start-up conditions are set, the RBL copies the
 nand_spl into ARM internal RAM, starting at address 0x0000: 0020.
-                                                            ^^^^
+							    ^^^^
 
 The nand_spl code itself now does necessary intializations, and at least,
 copies the u-boot code from NAND into RAM, and jumps to it ...

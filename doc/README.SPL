@@ -34,7 +34,7 @@ endif
 COBJS-$(CONFIG_SPL_BUILD) += foo.o
 
 #ifdef CONFIG_SPL_BUILD
-        foo();
+	foo();
 #endif
 
 

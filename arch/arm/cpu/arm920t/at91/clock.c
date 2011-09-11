@@ -104,7 +104,6 @@ static u32 at91_pll_rate(u32 freq, u32 reg)
 	return freq;
 }
 
-
 int at91_clock_init(unsigned long main_clock)
 {
 	unsigned freq, mckr;
@@ -157,4 +156,3 @@ int at91_clock_init(unsigned long main_clock)
 
 	return 0;
 }
-

@@ -39,4 +39,3 @@ The method for updating
 3. add new structures for SoC access
 4. Convert arch, driver and boards file to new SoC
 5. remove legacy code, if all boards and drives are ready
-

@@ -40,4 +40,3 @@ int arch_cpu_init(void)
 {
 	return at91_clock_init(CONFIG_SYS_AT91_MAIN_CLOCK);
 }
-
