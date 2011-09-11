@@ -712,7 +712,7 @@ static int fec_probe(bd_t *bd)
 
 	/* Reset chip. */
 	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_RESET, &fec->eth->ecntrl);
-	while (readl(&fec->eth->ecntrl) & 1)
+	while (readl(&fec->eth->ecntrl) & FEC_ECNTRL_RESET)
 		udelay(10);
 
 	/*
