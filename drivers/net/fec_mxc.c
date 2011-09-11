@@ -71,6 +71,7 @@ static int fec_miiphy_read(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 {
 	struct eth_device *edev = eth_get_dev_by_name(dev);
 	struct fec_priv *fec = (struct fec_priv *)edev->priv;
+	struct ethernet_regs *eth = fec->eth;
 
 	uint32_t reg;		/* convenient holder for the PHY register */
 	uint32_t phy;		/* convenient holder for the PHY */
@@ -80,18 +81,18 @@ static int fec_miiphy_read(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 	 * reading from any PHY's register is done by properly
 	 * programming the FEC's MII data register.
 	 */
-	writel(FEC_IEVENT_MII, &fec->eth->ievent);
+	writel(FEC_IEVENT_MII, &eth->ievent);
 	reg = regAddr << FEC_MII_DATA_RA_SHIFT;
 	phy = phyAddr << FEC_MII_DATA_PA_SHIFT;
 
 	writel(FEC_MII_DATA_ST | FEC_MII_DATA_OP_RD | FEC_MII_DATA_TA |
-			phy | reg, &fec->eth->mii_data);
+			phy | reg, &eth->mii_data);
 
 	/*
 	 * wait for the related interrupt
 	 */
 	start = get_timer(0);
-	while (!(readl(&fec->eth->ievent) & FEC_IEVENT_MII)) {
+	while (!(readl(&eth->ievent) & FEC_IEVENT_MII)) {
 		if (get_timer(start) > (CONFIG_SYS_HZ / 1000)) {
 			printf("Read MDIO failed...\n");
 			return -1;
@@ -101,12 +102,12 @@ static int fec_miiphy_read(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 	/*
 	 * clear mii interrupt bit
 	 */
-	writel(FEC_IEVENT_MII, &fec->eth->ievent);
+	writel(FEC_IEVENT_MII, &eth->ievent);
 
 	/*
 	 * it's now safe to read the PHY's register
 	 */
-	*retVal = readl(&fec->eth->mii_data);
+	*retVal = readl(&eth->mii_data);
 	debug("fec_miiphy_read: phy: %02x reg:%02x val:%#x\n", phyAddr,
 			regAddr, *retVal);
 	return 0;
@@ -128,6 +129,7 @@ static int fec_miiphy_write(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 {
 	struct eth_device *edev = eth_get_dev_by_name(dev);
 	struct fec_priv *fec = (struct fec_priv *)edev->priv;
+	struct ethernet_regs *eth = fec->eth;
 
 	uint32_t reg;		/* convenient holder for the PHY register */
 	uint32_t phy;		/* convenient holder for the PHY */
@@ -137,13 +139,13 @@ static int fec_miiphy_write(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 	phy = phyAddr << FEC_MII_DATA_PA_SHIFT;
 
 	writel(FEC_MII_DATA_ST | FEC_MII_DATA_OP_WR |
-		FEC_MII_DATA_TA | phy | reg | data, &fec->eth->mii_data);
+		FEC_MII_DATA_TA | phy | reg | data, &eth->mii_data);
 
 	/*
 	 * wait for the MII interrupt
 	 */
 	start = get_timer(0);
-	while (!(readl(&fec->eth->ievent) & FEC_IEVENT_MII)) {
+	while (!(readl(&eth->ievent) & FEC_IEVENT_MII)) {
 		if (get_timer(start) > (CONFIG_SYS_HZ / 1000)) {
 			printf("Write MDIO failed...\n");
 			return -1;
@@ -153,7 +155,7 @@ static int fec_miiphy_write(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 	/*
 	 * clear MII interrupt bit
 	 */
-	writel(FEC_IEVENT_MII, &fec->eth->ievent);
+	writel(FEC_IEVENT_MII, &eth->ievent);
 	debug("fec_miiphy_write: phy: %02x reg:%02x val:%#x\n", phyAddr,
 			regAddr, data);
 
