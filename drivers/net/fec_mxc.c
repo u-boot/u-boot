@@ -773,7 +773,7 @@ static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 	eth_register(edev);
 
 	if (fec_get_hwaddr(edev, ethaddr) == 0) {
-		printf("got MAC address from fuse: %pM\n", ethaddr);
+		debug("got MAC address from fuse: %pM\n", ethaddr);
 		memcpy(edev->enetaddr, ethaddr, 6);
 	}
 
