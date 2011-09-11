@@ -117,7 +117,7 @@ static void fec_mii_setspeed(struct fec_priv *fec)
 	writel((((imx_get_fecclk() / 1000000) + 2) / 5) << 1,
 			&fec->eth->mii_speed);
 	debug("fec_init: mii_speed %#lx\n",
-			fec->eth->mii_speed);
+			readl(&fec->eth->mii_speed));
 }
 static int fec_miiphy_write(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 		uint16_t data)
