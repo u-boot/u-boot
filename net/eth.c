@@ -227,12 +227,7 @@ int eth_register(struct eth_device *dev)
 {
 	struct eth_device *d;
 
-	size_t len = strlen(dev->name);
-	if (len >= NAMESIZE) {
-		printf("Network driver name is too long (%zu >= %zu): %s\n",
-						len, NAMESIZE, dev->name);
-		return -1;
-	}
+	assert(strlen(dev->name) < NAMESIZE);
 
 	if (!eth_devices) {
 		eth_current = eth_devices = dev;
