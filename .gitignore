@@ -46,6 +46,7 @@
 
 /include/generated/
 /lib/asm-offsets.s
+/arch/*/cpu/asm-offsets.s
 
 # stgit generated dirs
 patches-*
