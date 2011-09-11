@@ -26,7 +26,13 @@ obj := $(OBJTREE)/spl/
 HAVE_VENDOR_COMMON_LIB := $(shell [ -f $(SRCTREE)/board/$(VENDOR)/common/Makefile ] \
 			&& echo y || echo n)
 
-START := $(CPUDIR)/start.o
+ifdef	CONFIG_SPL_START_S_PATH
+START_PATH := $(subst ",,$(CONFIG_SPL_START_S_PATH))
+else
+START_PATH := $(CPUDIR)
+endif
+
+START := $(START_PATH)/start.o
 
 LIBS-y += arch/$(ARCH)/lib/lib$(ARCH).o
 LIBS-y += $(CPUDIR)/lib$(CPU).o
@@ -121,7 +127,7 @@ $(obj)u-boot-spl:	depend $(START) $(LIBS) $(obj)u-boot-spl.lds
 	$(GEN_UBOOT)
 
 $(START):	depend
-	$(MAKE) -C $(SRCTREE)/$(CPUDIR) $@
+	$(MAKE) -C $(SRCTREE)/$(START_PATH) $@
 
 $(LIBS):	depend
 	$(MAKE) -C $(SRCTREE)$(dir $(subst $(SPLTREE),,$@))
