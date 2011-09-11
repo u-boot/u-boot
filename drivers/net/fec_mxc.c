@@ -448,6 +448,8 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 	rcntrl = PKTSIZE << FEC_RCNTRL_MAX_FL_SHIFT;
 	if (fec->xcv_type == SEVENWIRE)
 		rcntrl |= FEC_RCNTRL_FCE;
+	else if (fec->xcv_type == RMII)
+		rcntrl |= FEC_RCNTRL_RMII;
 	else	/* MII mode */
 		rcntrl |= FEC_RCNTRL_FCE | FEC_RCNTRL_MII_MODE;
 
