@@ -400,6 +400,7 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 {
 	uint32_t base;
 	struct fec_priv *fec = (struct fec_priv *)dev->priv;
+	uint32_t rcntrl;
 
 	/* Initialize MAC address */
 	fec_set_hwaddr(dev);
@@ -442,19 +443,19 @@ static int fec_init(struct eth_device *dev, bd_t* bd)
 	/*
 	 * Set FEC-Lite receive control register(R_CNTRL):
 	 */
-	if (fec->xcv_type == SEVENWIRE) {
-		/*
-		 * Frame length=1518; 7-wire mode
-		 */
-		writel(0x05ee0020, &fec->eth->r_cntrl);	/* FIXME 0x05ee0000 */
-	} else {
-		/*
-		 * Frame length=1518; MII mode;
-		 */
-		writel(0x05ee0024, &fec->eth->r_cntrl);	/* FIXME 0x05ee0004 */
 
+	/* Start with frame length = 1518, common for all modes. */
+	rcntrl = PKTSIZE << FEC_RCNTRL_MAX_FL_SHIFT;
+	if (fec->xcv_type == SEVENWIRE)
+		rcntrl |= FEC_RCNTRL_FCE;
+	else	/* MII mode */
+		rcntrl |= FEC_RCNTRL_FCE | FEC_RCNTRL_MII_MODE;
+
+	writel(rcntrl, &fec->eth->r_cntrl);
+
+	if (fec->xcv_type == MII10 || fec->xcv_type == MII100)
 		fec_mii_setspeed(fec);
-	}
+
 	/*
 	 * Set Opcode/Pause Duration Register
 	 */
@@ -731,7 +732,8 @@ static int fec_probe(bd_t *bd)
 	/*
 	 * Frame length=1518; MII mode;
 	 */
-	writel(0x05ee0024, &fec->eth->r_cntrl);	/* FIXME 0x05ee0004 */
+	writel((PKTSIZE << FEC_RCNTRL_MAX_FL_SHIFT) | FEC_RCNTRL_FCE |
+		FEC_RCNTRL_MII_MODE, &fec->eth->r_cntrl);
 	fec_mii_setspeed(fec);
 
 	sprintf(edev->name, "FEC");
