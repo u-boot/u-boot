@@ -38,6 +38,10 @@ DECLARE_GLOBAL_DATA_PTR;
 #error "CONFIG_MII has to be defined!"
 #endif
 
+#ifndef	CONFIG_FEC_XCV_TYPE
+#define	CONFIG_FEC_XCV_TYPE	MII100
+#endif
+
 #undef DEBUG
 
 struct nbuf {
@@ -711,7 +715,7 @@ static int fec_probe(bd_t *bd)
 	fec->eth = (struct ethernet_regs *)IMX_FEC_BASE;
 	fec->bd = bd;
 
-	fec->xcv_type = MII100;
+	fec->xcv_type = CONFIG_FEC_XCV_TYPE;
 
 	/* Reset chip. */
 	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_RESET, &fec->eth->ecntrl);
