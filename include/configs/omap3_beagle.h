@@ -167,6 +167,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_SETEXPR	/* Evaluate expressions		*/
+#define CONFIG_CMD_GPIO     /* Enable gpio command */
 
 #undef CONFIG_CMD_FLASH		/* flinfo, erase, protect	*/
 #undef CONFIG_CMD_FPGA		/* FPGA configuration Support	*/
@@ -280,10 +281,16 @@
 	"ramboot=echo Booting from ramdisk ...; " \
 		"run ramargs; " \
 		"bootm ${loadaddr}\0" \
-
+	"userbutton=if gpio input 173; then run userbutton_xm; " \
+		"else run userbutton_nonxm; fi;\0" \
+	"userbutton_xm=gpio input 4;\0" \
+	"userbutton_nonxm=gpio input 7;\0"
+/* "run userbutton" will return 1 (false) if is pressed and 0 (false) if not */
 #define CONFIG_BOOTCOMMAND \
 	"if mmc rescan ${mmcdev}; then " \
-		"if userbutton; then " \
+		"if run userbutton; then " \
+			"setenv bootenv uEnv.txt;" \
+		"else " \
 			"setenv bootenv user.txt;" \
 		"fi;" \
 		"echo SD/MMC found on device ${mmcdev};" \
