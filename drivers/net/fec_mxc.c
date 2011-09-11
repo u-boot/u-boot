@@ -695,18 +695,22 @@ static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 	struct eth_device *edev;
 	struct fec_priv *fec;
 	unsigned char ethaddr[6];
+	uint32_t start;
+	int ret = 0;
 
 	/* create and fill edev struct */
 	edev = (struct eth_device *)malloc(sizeof(struct eth_device));
 	if (!edev) {
 		puts("fec_mxc: not enough malloc memory for eth_device\n");
-		return -ENOMEM;
+		ret = -ENOMEM;
+		goto err1;
 	}
 
 	fec = (struct fec_priv *)malloc(sizeof(struct fec_priv));
 	if (!fec) {
 		puts("fec_mxc: not enough malloc memory for fec_priv\n");
-		return -ENOMEM;
+		ret = -ENOMEM;
+		goto err2;
 	}
 
 	memset(edev, 0, sizeof(*edev));
@@ -726,8 +730,14 @@ static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 
 	/* Reset chip. */
 	writel(readl(&fec->eth->ecntrl) | FEC_ECNTRL_RESET, &fec->eth->ecntrl);
-	while (readl(&fec->eth->ecntrl) & FEC_ECNTRL_RESET)
+	start = get_timer(0);
+	while (readl(&fec->eth->ecntrl) & FEC_ECNTRL_RESET) {
+		if (get_timer(start) > (CONFIG_SYS_HZ * 5)) {
+			printf("FEC MXC: Timeout reseting chip\n");
+			goto err3;
+		}
 		udelay(10);
+	}
 
 	/*
 	 * Set interrupt mask register
@@ -767,7 +777,14 @@ static int fec_probe(bd_t *bd, int dev_id, int phy_id, uint32_t base_addr)
 		memcpy(edev->enetaddr, ethaddr, 6);
 	}
 
-	return 0;
+	return ret;
+
+err3:
+	free(fec);
+err2:
+	free(edev);
+err1:
+	return ret;
 }
 
 #ifndef	CONFIG_FEC_MXC_MULTI
