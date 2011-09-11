@@ -34,7 +34,6 @@ extern void mx27_uart1_init_pins(void);
 
 #ifdef CONFIG_FEC_MXC
 extern void mx27_fec_init_pins(void);
-extern void imx_get_mac_from_fuse(unsigned char *mac);
 #endif /* CONFIG_FEC_MXC */
 
 #ifdef CONFIG_MXC_MMC

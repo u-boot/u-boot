@@ -282,8 +282,6 @@
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
 
-extern void imx_get_mac_from_fuse(unsigned char *mac);
-
 #define __REG(x)	(*((volatile u32 *)(x)))
 #define __REG16(x)	(*((volatile u16 *)(x)))
 #define __REG8(x)	(*((volatile u8 *)(x)))

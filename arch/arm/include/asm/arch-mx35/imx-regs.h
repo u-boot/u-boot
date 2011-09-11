@@ -178,8 +178,6 @@
 #if !(defined(__KERNEL_STRICT_NAMES) || defined(__ASSEMBLY__))
 #include <asm/types.h>
 
-extern void imx_get_mac_from_fuse(unsigned char *mac);
-
 enum mxc_main_clocks {
 	CPU_CLK,
 	AHB_CLK,
