@@ -153,6 +153,7 @@ static int fec_miiphy_write(const char *dev, uint8_t phyAddr, uint8_t regAddr,
 static int miiphy_restart_aneg(struct eth_device *dev)
 {
 	struct fec_priv *fec = (struct fec_priv *)dev->priv;
+	int ret = 0;
 
 	/*
 	 * Wake up from sleep if necessary
@@ -173,7 +174,11 @@ static int miiphy_restart_aneg(struct eth_device *dev)
 			LPA_10HALF | PHY_ANLPAR_PSB_802_3);
 	miiphy_write(dev->name, fec->phy_id, MII_BMCR,
 			BMCR_ANENABLE | BMCR_ANRESTART);
-	return 0;
+
+	if (fec->mii_postcall)
+		ret = fec->mii_postcall(fec->phy_id);
+
+	return ret;
 }
 
 static int miiphy_wait_aneg(struct eth_device *dev)
@@ -785,4 +790,11 @@ int fecmxc_initialize_multi(bd_t *bd, int dev_id, int phy_id, uint32_t addr)
 	lout = fec_probe(bd, dev_id, phy_id, addr);
 
 	return lout;
+}
+
+int fecmxc_register_mii_postcall(struct eth_device *dev, int (*cb)(int))
+{
+	struct fec_priv *fec = (struct fec_priv *)dev->priv;
+	fec->mii_postcall = cb;
+	return 0;
 }

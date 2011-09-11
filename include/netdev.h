@@ -186,4 +186,9 @@ struct mv88e61xx_config {
 int mv88e61xx_switch_initialize(struct mv88e61xx_config *swconfig);
 #endif /* CONFIG_MV88E61XX_SWITCH */
 
+/*
+ * Allow FEC to fine-tune MII configuration on boards which require this.
+ */
+int fecmxc_register_mii_postcall(struct eth_device *dev, int (*cb)(int));
+
 #endif /* _NETDEV_H_ */
