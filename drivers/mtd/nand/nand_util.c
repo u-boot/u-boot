@@ -57,12 +57,6 @@ typedef struct mtd_info	  mtd_info_t;
 #define cpu_to_je16(x) (x)
 #define cpu_to_je32(x) (x)
 
-/*****************************************************************************/
-static int nand_block_bad_scrub(struct mtd_info *mtd, loff_t ofs, int getchip)
-{
-	return 0;
-}
-
 /**
  * nand_erase_opts: - erase NAND flash with support for various options
  *		      (jffs2 formating)
@@ -82,7 +76,6 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	int bbtest = 1;
 	int result;
 	int percent_complete = -1;
-	int (*nand_block_bad_old)(struct mtd_info *, loff_t, int) = NULL;
 	const char *mtd_device = meminfo->name;
 	struct mtd_oob_ops oob_opts;
 	struct nand_chip *chip = meminfo->priv;
@@ -110,17 +103,15 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	 * and disable bad block table while erasing.
 	 */
 	if (opts->scrub) {
-		struct nand_chip *priv_nand = meminfo->priv;
-
-		nand_block_bad_old = priv_nand->block_bad;
-		priv_nand->block_bad = nand_block_bad_scrub;
-		/* we don't need the bad block table anymore...
+		erase.scrub = opts->scrub;
+		/*
+		 * We don't need the bad block table anymore...
 		 * after scrub, there are no bad blocks left!
 		 */
-		if (priv_nand->bbt) {
-			kfree(priv_nand->bbt);
+		if (chip->bbt) {
+			kfree(chip->bbt);
 		}
-		priv_nand->bbt = NULL;
+		chip->bbt = NULL;
 	}
 
 	for (erased_length = 0;
@@ -204,12 +195,8 @@ int nand_erase_opts(nand_info_t *meminfo, const nand_erase_options_t *opts)
 	if (!opts->quiet)
 		printf("\n");
 
-	if (nand_block_bad_old) {
-		struct nand_chip *priv_nand = meminfo->priv;
-
-		priv_nand->block_bad = nand_block_bad_old;
-		priv_nand->scan_bbt(meminfo);
-	}
+	if (opts->scrub)
+		chip->scan_bbt(meminfo);
 
 	return 0;
 }
