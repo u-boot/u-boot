@@ -57,6 +57,7 @@ extern int sysmon1_post_test(int flags);
 extern int coprocessor_post_test(int flags);
 extern int led_post_test(int flags);
 extern int button_post_test(int flags);
+extern int memory_regions_post_test(int flags);
 
 extern int sysmon_init_f (void);
 
@@ -316,6 +317,18 @@ struct post_test post_list[] =
 	NULL,
 	NULL,
 	CONFIG_SYS_POST_FLASH
+    },
+#endif
+#if CONFIG_POST & CONFIG_SYS_POST_MEM_REGIONS
+    {
+	"Memory regions test",
+	"mem_regions",
+	"This test checks regularly placed regions of the RAM.",
+	POST_ROM | POST_SLOWTEST | POST_PREREL,
+	&memory_regions_post_test,
+	NULL,
+	NULL,
+	CONFIG_SYS_POST_MEM_REGIONS
     },
 #endif
 };

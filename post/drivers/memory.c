@@ -153,7 +153,7 @@
 #include <post.h>
 #include <watchdog.h>
 
-#if CONFIG_POST & CONFIG_SYS_POST_MEMORY
+#if CONFIG_POST & (CONFIG_SYS_POST_MEMORY | CONFIG_SYS_POST_MEM_REGIONS)
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -413,23 +413,29 @@ static int memory_post_test4(unsigned long start, unsigned long size)
 	return ret;
 }
 
-static int memory_post_tests(unsigned long start, unsigned long size)
+static int memory_post_test_lines(unsigned long start, unsigned long size)
 {
 	int ret = 0;
 
-	if (!ret)
-		ret = memory_post_dataline((unsigned long long *)start);
+	ret = memory_post_dataline((unsigned long long *)start);
 	WATCHDOG_RESET();
 	if (!ret)
 		ret = memory_post_addrline((ulong *)start, (ulong *)start,
-						size);
+				size);
 	WATCHDOG_RESET();
 	if (!ret)
-		ret = memory_post_addrline((ulong *)(start + size - 8),
-					    (ulong *)start, size);
+		ret = memory_post_addrline((ulong *)(start+size-8),
+				(ulong *)start, size);
 	WATCHDOG_RESET();
-	if (!ret)
-		ret = memory_post_test1(start, size, 0x00000000);
+
+	return ret;
+}
+
+static int memory_post_test_patterns(unsigned long start, unsigned long size)
+{
+	int ret = 0;
+
+	ret = memory_post_test1(start, size, 0x00000000);
 	WATCHDOG_RESET();
 	if (!ret)
 		ret = memory_post_test1(start, size, 0xffffffff);
@@ -449,6 +455,33 @@ static int memory_post_tests(unsigned long start, unsigned long size)
 	if (!ret)
 		ret = memory_post_test4(start, size);
 	WATCHDOG_RESET();
+
+	return ret;
+}
+
+static int memory_post_test_regions(unsigned long start, unsigned long size)
+{
+	unsigned long i;
+	int ret = 0;
+
+	for (i = 0; i < (size >> 20) && (!ret); i++) {
+		if (!ret)
+			ret = memory_post_test_patterns(i << 20, 0x800);
+		if (!ret)
+			ret = memory_post_test_patterns((i << 20) + 0xff800,
+				0x800);
+	}
+
+	return ret;
+}
+
+static int memory_post_tests(unsigned long start, unsigned long size)
+{
+	int ret = 0;
+
+	ret = memory_post_test_lines(start, size);
+	if (!ret)
+		ret = memory_post_test_patterns(start, size);
 
 	return ret;
 }
@@ -490,6 +523,21 @@ void arch_memory_failure_handle(void)
 	return;
 }
 
+int memory_regions_post_test(int flags)
+{
+	int ret = 0;
+	phys_addr_t phys_offset = 0;
+	u32 memsize, vstart;
+
+	arch_memory_test_prepare(&vstart, &memsize, &phys_offset);
+
+	ret = memory_post_test_lines(vstart, memsize);
+	if (!ret)
+		ret = memory_post_test_regions(vstart, memsize);
+
+	return ret;
+}
+
 int memory_post_test(int flags)
 {
 	int ret = 0;
@@ -502,15 +550,7 @@ int memory_post_test(int flags)
 		if (flags & POST_SLOWTEST) {
 			ret = memory_post_tests(vstart, memsize);
 		} else {			/* POST_NORMAL */
-			unsigned long i;
-			for (i = 0; i < (memsize >> 20) && !ret; i++) {
-				if (!ret)
-					ret = memory_post_tests(vstart +
-						(i << 20), 0x800);
-				if (!ret)
-					ret = memory_post_tests(vstart +
-						(i << 20) + 0xff800, 0x800);
-			}
+			ret = memory_post_test_regions(vstart, memsize);
 		}
 	} while (!ret &&
 		!arch_memory_test_advance(&vstart, &memsize, &phys_offset));
@@ -522,4 +562,4 @@ int memory_post_test(int flags)
 	return ret;
 }
 
-#endif /* CONFIG_POST & CONFIG_SYS_POST_MEMORY */
+#endif /* CONFIG_POST&(CONFIG_SYS_POST_MEMORY|CONFIG_SYS_POST_MEM_REGIONS) */

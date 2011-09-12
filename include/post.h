@@ -196,6 +196,7 @@ extern int memory_post_test(int flags);
 #define CONFIG_SYS_POST_CODEC		0x00200000
 #define CONFIG_SYS_POST_COPROC		0x00400000
 #define CONFIG_SYS_POST_FLASH		0x00800000
+#define CONFIG_SYS_POST_MEM_REGIONS	0x01000000
 
 #endif /* CONFIG_POST */
 
