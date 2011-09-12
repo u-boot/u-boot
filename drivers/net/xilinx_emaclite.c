@@ -31,8 +31,6 @@
 
 #undef DEBUG
 
-#define ENET_MAX_MTU		PKTSIZE
-#define ENET_MAX_MTU_ALIGNED	PKTSIZE_ALIGN
 #define ENET_ADDR_LENGTH	6
 
 /* EmacLite constants */
@@ -212,8 +210,8 @@ static int emaclite_send (struct eth_device *dev, volatile void *ptr, int len)
 
 	u32 maxtry = 1000;
 
-	if (len > ENET_MAX_MTU)
-		len = ENET_MAX_MTU;
+	if (len > PKTSIZE)
+		len = PKTSIZE;
 
 	while (!xemaclite_txbufferavailable(dev) && maxtry) {
 		udelay (10);
@@ -328,8 +326,8 @@ static int emaclite_recv(struct eth_device *dev)
 			debug ("IP Packet\n");
 			break;
 		default:
-			debug ("Other Packet\n");
-			length = ENET_MAX_MTU;
+			debug("Other Packet\n");
+			length = PKTSIZE;
 			break;
 	}
 
