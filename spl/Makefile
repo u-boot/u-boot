@@ -110,7 +110,7 @@ all:	$(ALL-y)
 
 ifdef CONFIG_SAMSUNG
 $(obj)$(BOARD)-spl.bin: $(obj)u-boot-spl.bin
-	$(TOPDIR)/board/$(BOARDDIR)/tools/mk$(BOARD)spl.exe \
+	$(OBJTREE)/tools/mk$(BOARD)spl \
 		$(obj)u-boot-spl.bin $(obj)$(BOARD)-spl.bin
 endif
 
