@@ -448,6 +448,39 @@ int get_scl(void)
 }
 #endif
 
+#if defined(CONFIG_POST)
+
+#define KM_POST_EN_L	44
+#define POST_WORD_OFF	8
+
+int post_hotkeys_pressed(void)
+{
+	return !kw_gpio_get_value(KM_POST_EN_L);
+}
+
+ulong post_word_load(void)
+{
+	volatile void* addr = (void *) (gd->ram_size - BOOTCOUNT_ADDR + POST_WORD_OFF);
+	return in_le32(addr);
+
+}
+void post_word_store(ulong value)
+{
+	volatile void* addr = (void *) (gd->ram_size - BOOTCOUNT_ADDR + POST_WORD_OFF);
+	out_le32(addr, value);
+}
+
+int arch_memory_test_prepare(u32 *vstart, u32 *size, phys_addr_t *phys_offset)
+{
+	*vstart = CONFIG_SYS_SDRAM_BASE;
+
+	/* we go up to relocation plus a 1 MB margin */
+	*size = CONFIG_SYS_TEXT_BASE - (1<<20);
+
+	return 0;
+}
+#endif
+
 #if defined(CONFIG_SYS_EEPROM_WREN)
 int eeprom_write_enable(unsigned dev_addr, int state)
 {

@@ -272,4 +272,10 @@ int get_scl(void);
 /* address for the bootcount (taken from end of RAM) */
 #define BOOTCOUNT_ADDR          (CONFIG_KM_RESERVED_PRAM)
 
+/* enable POST tests */
+#define CONFIG_POST	(CONFIG_SYS_POST_MEM_REGIONS)
+#define CONFIG_POST_SKIP_ENV_FLAGS
+#define CONFIG_POST_EXTERNAL_WORD_FUNCS
+#define CONFIG_CMD_DIAG
+
 #endif /* _CONFIG_KM_ARM_H */
