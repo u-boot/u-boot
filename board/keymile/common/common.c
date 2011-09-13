@@ -64,20 +64,32 @@ int set_km_env(void)
 	unsigned int pnvramaddr;
 	unsigned int pram;
 	unsigned int varaddr;
+	unsigned int kernelmem;
+	char *p;
+	unsigned long rootfssize = 0;
 
 	pnvramaddr = gd->ram_size - CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM
 			- CONFIG_KM_PNVRAM;
 	sprintf((char *)buf, "0x%x", pnvramaddr);
 	setenv("pnvramaddr", (char *)buf);
 
-	pram = (CONFIG_KM_RESERVED_PRAM + CONFIG_KM_PHRAM + CONFIG_KM_PNVRAM) /
-		0x400;
+	/* try to read rootfssize (ram image) from envrionment */
+	p = getenv("rootfssize");
+	if (p != NULL)
+		strict_strtoul(p, 16, &rootfssize);
+	pram = (rootfssize + CONFIG_KM_RESERVED_PRAM + CONFIG_KM_PHRAM +
+		CONFIG_KM_PNVRAM) / 0x400;
 	sprintf((char *)buf, "0x%x", pram);
 	setenv("pram", (char *)buf);
 
 	varaddr = gd->ram_size - CONFIG_KM_RESERVED_PRAM - CONFIG_KM_PHRAM;
 	sprintf((char *)buf, "0x%x", varaddr);
 	setenv("varaddr", (char *)buf);
+
+	kernelmem = gd->ram_size - 0x400 * pram;
+	sprintf((char *)buf, "0x%x", kernelmem);
+	setenv("kernelmem", (char *)buf);
+
 	return 0;
 }
 

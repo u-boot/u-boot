@@ -170,7 +170,7 @@
 		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
 		":${hostname}:${netdev}:off3"				\
 		" console=" CONFIG_KM_CONSOLE_TTY ",${baudrate}"	\
-		" mem=${pnvramaddr} init=${init}"			\
+		" mem=${kernelmem} init=${init}"			\
 		" phram.phram=phvar,${varaddr}," xstr(CONFIG_KM_PHRAM)	\
 		" ubi.mtd=" CONFIG_KM_UBI_LINUX_MTD_NAME " "		\
 		CONFIG_KM_DEF_BOOT_ARGS_CPU				\
