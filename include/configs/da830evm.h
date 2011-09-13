@@ -50,7 +50,8 @@
 #define CONFIG_SYS_MALLOC_LEN	(0x10000 + 1*1024*1024) /* malloc() len */
 #define PHYS_SDRAM_1			0xc0000000 /* SDRAM Start */
 #define CONFIG_SYS_MEMTEST_START	(PHYS_SDRAM_1 + 0x2000000)
-#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + 32 << 20)
+#define CONFIG_SYS_MEMTEST_END		(CONFIG_SYS_MEMTEST_START + \
+						(32 << 20))
 #define CONFIG_NR_DRAM_BANKS	1 /* we have 1 bank of DRAM */
 #define CONFIG_STACKSIZE	(256*1024) /* regular stack */
 
