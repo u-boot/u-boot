@@ -34,10 +34,6 @@
 #include <asm/io.h>
 #include <linux/ctype.h>
 
-#if defined(CONFIG_OF_BOARD_SETUP) && defined(CONFIG_OF_LIBFDT)
-#include <libfdt.h>
-#endif
-
 #include "common.h"
 #if defined(CONFIG_HARD_I2C) || defined(CONFIG_SOFT_I2C)
 #include <i2c.h>
