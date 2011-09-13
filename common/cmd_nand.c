@@ -464,10 +464,21 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		nand_erase_options_t opts;
 		/* "clean" at index 2 means request to write cleanmarker */
 		int clean = argc > 2 && !strcmp("clean", argv[2]);
-		int o = clean ? 3 : 2;
+		int scrub_yes = argc > 2 && !strcmp("-y", argv[2]);
+		int o = (clean || scrub_yes) ? 3 : 2;
 		int scrub = !strncmp(cmd, "scrub", 5);
 		int spread = 0;
 		int args = 2;
+		const char *scrub_warn =
+			"Warning: "
+			"scrub option will erase all factory set bad blocks!\n"
+			"         "
+			"There is no reliable way to recover them.\n"
+			"         "
+			"Use this command only for testing purposes if you\n"
+			"         "
+			"are sure of what you are doing!\n"
+			"\nReally scrub this NAND flash? <y/N>\n";
 
 		if (cmd[5] != 0) {
 			if (!strcmp(&cmd[5], ".spread")) {
@@ -504,19 +515,12 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		opts.spread = spread;
 
 		if (scrub) {
-			puts("Warning: "
-			     "scrub option will erase all factory set "
-			     "bad blocks!\n"
-			     "         "
-			     "There is no reliable way to recover them.\n"
-			     "         "
-			     "Use this command only for testing purposes "
-			     "if you\n"
-			     "         "
-			     "are sure of what you are doing!\n"
-			     "\nReally scrub this NAND flash? <y/N>\n");
+			if (!scrub_yes)
+				puts(scrub_warn);
 
-			if (getc() == 'y') {
+			if (scrub_yes)
+				opts.scrub = 1;
+			else if (getc() == 'y') {
 				puts("y");
 				if (getc() == '\r')
 					opts.scrub = 1;
@@ -733,7 +737,7 @@ U_BOOT_CMD(
 	"nand erase.chip [clean] - erase entire chip'\n"
 	"nand bad - show bad blocks\n"
 	"nand dump[.oob] off - dump page\n"
-	"nand scrub off size | scrub.part partition | scrub.chip\n"
+	"nand scrub [-y] off size | scrub.part partition | scrub.chip\n"
 	"    really clean NAND erasing bad blocks (UNSAFE)\n"
 	"nand markbad off [...] - mark bad block(s) at offset (UNSAFE)\n"
 	"nand biterr off - make a bit error at offset (UNSAFE)"
