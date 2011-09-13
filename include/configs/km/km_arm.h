@@ -74,7 +74,8 @@
 
 /* architecture specific default bootargs */
 #define CONFIG_KM_DEF_BOOT_ARGS_CPU					\
-		"bootcountaddr=${bootcountaddr} ${mtdparts}"
+		"bootcountaddr=${bootcountaddr} ${mtdparts}"		\
+		" boardid=0x${IVM_BoardId} hwkey=0x${IVM_HWKey}"
 
 #define CONFIG_KM_DEF_ENV_CPU						\
 	"boot=bootm ${load_addr_r} - -\0"				\
