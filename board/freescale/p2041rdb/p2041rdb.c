@@ -130,6 +130,20 @@ int board_early_init_r(void)
 	return 0;
 }
 
+unsigned long get_board_sys_clk(unsigned long dummy)
+{
+	u8 sysclk_conf = CPLD_READ(sysclk_sw1);
+
+	switch (sysclk_conf & 0x7) {
+	case CPLD_SYSCLK_83:
+		return 83333333;
+	case CPLD_SYSCLK_100:
+		return 100000000;
+	default:
+		return 66666666;
+	}
+}
+
 static const char *serdes_clock_to_string(u32 clock)
 {
 	switch (clock) {

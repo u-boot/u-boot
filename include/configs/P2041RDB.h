@@ -102,7 +102,10 @@
 	#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
 #endif
 
-#define CONFIG_SYS_CLK_FREQ	66666666
+#ifndef __ASSEMBLY__
+unsigned long get_board_sys_clk(unsigned long dummy);
+#endif
+#define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0)
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
