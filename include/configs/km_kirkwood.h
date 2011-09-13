@@ -54,4 +54,7 @@
 #define KM_IVM_BUS	"pca9544a:70:9"	/* I2C2 (Mux-Port 1)*/
 #define KM_ENV_BUS	"pca9544a:70:d"	/* I2C2 (Mux-Port 5)*/
 
+/* GPIO Pin from kirkwood connected to PROGRAM_B pin of the xilinx FPGA */
+#define KM_XLX_PROGRAM_B_PIN    39
+
 #endif /* _CONFIG_KM_KIRKWOOD */

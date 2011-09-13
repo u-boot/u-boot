@@ -267,7 +267,12 @@ int board_early_init_f(void)
 	kw_gpio_set_valid(KM_KIRKWOOD_ENV_WP, 38);
 	kw_gpio_direction_output(KM_KIRKWOOD_ENV_WP, 1);
 #endif
-
+#if defined(CONFIG_KM_RECONFIG_XLX)
+	/* trigger the reconfiguration of the xilinx fpga */
+	kw_gpio_set_valid(KM_XLX_PROGRAM_B_PIN, 1);
+	kw_gpio_direction_output(KM_XLX_PROGRAM_B_PIN, 0);
+	kw_gpio_direction_input(KM_XLX_PROGRAM_B_PIN);
+#endif
 	return 0;
 }
 
