@@ -32,6 +32,8 @@
 #include <mvmfp.h>
 #include <asm/arch/mfp.h>
 #include <asm/arch/armada100.h>
+#include <asm/gpio.h>
+#include <miiphy.h>
 
 #ifdef CONFIG_ARMADA100_FEC
 #include <net.h>
@@ -83,6 +85,11 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_SHEEVAD;
 	/* adress of boot parameters */
 	gd->bd->bi_boot_params = armd1_sdram_base(0) + 0x100;
+	/* Assert PHY_RST# */
+	gpio_direction_output(CONFIG_SYS_GPIO_PHY_RST, GPIO_LOW);
+	udelay(10);
+	/* Deassert PHY_RST# */
+	gpio_set_value(CONFIG_SYS_GPIO_PHY_RST, GPIO_HIGH);
 	return 0;
 }
 
@@ -97,4 +104,30 @@ int board_eth_init(bd_t *bis)
 
 	return armada100_fec_register(ARMD1_FEC_BASE);
 }
+
+#ifdef CONFIG_RESET_PHY_R
+/* Configure and initialize PHY chip 88E3015 */
+void reset_phy(void)
+{
+	u16 phy_adr;
+	const char *name = "armd-fec0";
+
+	if (miiphy_set_current_dev(name))
+		return;
+
+	/* command to read PHY dev address */
+	if (miiphy_read(name, 0xff, 0xff, &phy_adr)) {
+		printf("Err..%s could not read PHY dev address\n", __func__);
+		return;
+	}
+
+	/* Set Ethernet LED in TX blink mode */
+	miiphy_write(name, phy_adr, PHY_LED_MAN_REG, 0x00);
+	miiphy_write(name, phy_adr, PHY_LED_PAR_SEL_REG, PHY_LED_VAL);
+
+	/* reset the phy */
+	miiphy_reset(name, phy_adr);
+	debug("88E3015 Initialized on %s\n", name);
+}
+#endif /* CONFIG_RESET_PHY_R */
 #endif /* CONFIG_ARMADA100_FEC */

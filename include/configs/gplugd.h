@@ -77,6 +77,20 @@
 #define CONFIG_BOOTP_DHCP_REQUEST_DELAY		50000
 #endif /* CONFIG_CMD_NET */
 
+/* GPIO Support */
+#define CONFIG_MARVELL_GPIO
+
+/* PHY configuration */
+#define CONFIG_MII
+#define CONFIG_CMD_MII
+#define CONFIG_RESET_PHY_R
+/* 88E3015 register definition */
+#define PHY_LED_PAR_SEL_REG		22
+#define PHY_LED_MAN_REG			25
+#define PHY_LED_VAL			0x5b	/* LINK LED1, ACT LED2 */
+/* GPIO Configuration for PHY */
+#define CONFIG_SYS_GPIO_PHY_RST		104	/* GPIO104 */
+
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
