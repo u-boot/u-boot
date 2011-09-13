@@ -46,7 +46,11 @@
 #define CONFIG_PORTL2
 
 #define KM_IVM_BUS	"pca9544a:70:9" /* I2C2 (Mux-Port 1)*/
-#define KM_ENV_BUS	"pca9544a:70:a" /* I2C2 (Mux-Port 2)*/
+/*
+ * Note: This is only valid for HW > P1A if you got an outdated P1A
+ *       use KM_ENV_BUS  "pca9544a:70:a"
+ */
+#define KM_ENV_BUS	"pca9544a:70:d"	/* I2C2 (Mux-Port 5)*/
 
 /*
  * portl2 has a fixed link to the XMPP backplane
