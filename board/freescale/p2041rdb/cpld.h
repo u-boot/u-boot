@@ -29,6 +29,7 @@ typedef struct cpld_data {
 	u8 fbank_sel;		/* 0xb - Flash bank selection */
 	u8 serdes_mux;		/* 0xc - Multiplexed pin Select Register */
 	u8 sw[1];		/* 0xd - SW2 Status */
+	u8 system_rst_default;	/* 0xe - system reset to default register */
 } __attribute__ ((packed)) cpld_data_t;
 
 #define SERDES_MUX_LANE_6_MASK	0x2
@@ -39,6 +40,7 @@ typedef struct cpld_data {
 #define SERDES_MUX_LANE_C_SHIFT	2
 #define SERDES_MUX_LANE_D_MASK	0x8
 #define SERDES_MUX_LANE_D_SHIFT	3
+#define CPLD_SWITCH_BANK_ENABLE	0x40
 
 /* Pointer to the CPLD register set */
 #define cpld ((cpld_data_t *)CPLD_BASE)

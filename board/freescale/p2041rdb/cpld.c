@@ -53,7 +53,11 @@ void cpld_reset(void) __attribute__((weak, alias("__cpld_reset")));
  */
 void __cpld_set_altbank(void)
 {
+	u8 reg5 = CPLD_READ(sw_ctl_on);
+
+	CPLD_WRITE(sw_ctl_on, reg5 | CPLD_SWITCH_BANK_ENABLE);
 	CPLD_WRITE(fbank_sel, 1);
+	CPLD_WRITE(system_rst, 1);
 }
 void cpld_set_altbank(void)
 	__attribute__((weak, alias("__cpld_set_altbank")));
@@ -61,12 +65,12 @@ void cpld_set_altbank(void)
 /**
  * Set the boot bank to the default bank
  */
-void __cpld_clear_altbank(void)
+void __cpld_set_defbank(void)
 {
-	CPLD_WRITE(fbank_sel, 0);
+	CPLD_WRITE(system_rst_default, 1);
 }
-void cpld_clear_altbank(void)
-	__attribute__((weak, alias("__cpld_clear_altbank")));
+void cpld_set_defbank(void)
+	__attribute__((weak, alias("__cpld_set_defbank")));
 
 #ifdef DEBUG
 static void cpld_dump_regs(void)
@@ -101,9 +105,7 @@ int cpld_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		if (strcmp(argv[2], "altbank") == 0)
 			cpld_set_altbank();
 		else
-			cpld_clear_altbank();
-
-		cpld_reset();
+			cpld_set_defbank();
 	} else if (strcmp(argv[1], "watchdog") == 0) {
 		static char *period[8] = {"1ms", "10ms", "30ms", "disable",
 			"100ms", "1s", "10s", "60s"};
