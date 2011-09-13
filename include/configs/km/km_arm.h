@@ -260,7 +260,6 @@ int get_scl(void);
 #if defined(CONFIG_SYS_NO_FLASH)
 #define CONFIG_KM_UBI_PARTITION_NAME   "ubi0"
 #undef	CONFIG_FLASH_CFI_MTD
-#undef	CONFIG_CMD_JFFS2
 #undef	CONFIG_JFFS2_CMDLINE
 #endif
 
