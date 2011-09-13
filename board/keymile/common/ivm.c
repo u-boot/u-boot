@@ -221,7 +221,12 @@ static int ivm_analyze_block2(unsigned char *buf, int len)
 		sprintf((char *)valbuf, "%pM", buf);
 	}
 #endif
+#ifdef MACH_TYPE_KM_KIRKWOOD
 	setenv((char *)"ethaddr", (char *)valbuf);
+#else
+	if (getenv("ethaddr") == NULL)
+		setenv((char *)"ethaddr", (char *)valbuf);
+#endif
 
 	/* IVM_MacCount */
 	count = (buf[10] << 24) +
