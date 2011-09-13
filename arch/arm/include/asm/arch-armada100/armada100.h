@@ -41,6 +41,10 @@
 /* Functional Clock Selection Mask */
 #define APBC_FNCLKSEL(x)        (((x) & 0xf) << 4)
 
+/* Fast Ethernet Controller Clock register definition */
+#define FE_CLK_RST		0x1
+#define FE_CLK_ENA		0x8
+
 /* Register Base Addresses */
 #define ARMD1_DRAM_BASE		0xB0000000
 #define ARMD1_FEC_BASE		0xC0800000
@@ -82,6 +86,59 @@ struct armd1mpmu_registers {
 	u32 aprr;	/*0x1020*/
 	u32 acgr;	/*0x1024*/
 	u32 arsr;	/*0x1028*/
+};
+
+/*
+ * Application Subsystem Power Management
+ * Refer Datasheet Appendix A.9
+ */
+struct armd1apmu_registers {
+	u32 pcr;		/* 0x000 */
+	u32 ccr;		/* 0x004 */
+	u32 pad1;
+	u32 ccsr;		/* 0x00C */
+	u32 fc_timer;		/* 0x010 */
+	u32 pad2;
+	u32 ideal_cfg;		/* 0x018 */
+	u8 pad3[0x04C - 0x018 - 4];
+	u32 lcdcrc;		/* 0x04C */
+	u32 cciccrc;		/* 0x050 */
+	u32 sd1crc;		/* 0x054 */
+	u32 sd2crc;		/* 0x058 */
+	u32 usbcrc;		/* 0x05C */
+	u32 nfccrc;		/* 0x060 */
+	u32 dmacrc;		/* 0x064 */
+	u32 pad4;
+	u32 buscrc;		/* 0x06C */
+	u8 pad5[0x07C - 0x06C - 4];
+	u32 wake_clr;		/* 0x07C */
+	u8 pad6[0x090 - 0x07C - 4];
+	u32 core_status;	/* 0x090 */
+	u32 rfsc;		/* 0x094 */
+	u32 imr;		/* 0x098 */
+	u32 irwc;		/* 0x09C */
+	u32 isr;		/* 0x0A0 */
+	u8 pad7[0x0B0 - 0x0A0 - 4];
+	u32 mhst;		/* 0x0B0 */
+	u32 msr;		/* 0x0B4 */
+	u8 pad8[0x0C0 - 0x0B4 - 4];
+	u32 msst;		/* 0x0C0 */
+	u32 pllss;		/* 0x0C4 */
+	u32 smb;		/* 0x0C8 */
+	u32 gccrc;		/* 0x0CC */
+	u8 pad9[0x0D4 - 0x0CC - 4];
+	u32 smccrc;		/* 0x0D4 */
+	u32 pad10;
+	u32 xdcrc;		/* 0x0DC */
+	u32 sd3crc;		/* 0x0E0 */
+	u32 sd4crc;		/* 0x0E4 */
+	u8 pad11[0x0F0 - 0x0E4 - 4];
+	u32 cfcrc;		/* 0x0F0 */
+	u32 mspcrc;		/* 0x0F4 */
+	u32 cmucrc;		/* 0x0F8 */
+	u32 fecrc;		/* 0x0FC */
+	u32 pciecrc;		/* 0x100 */
+	u32 epdcrc;		/* 0x104 */
 };
 
 /*

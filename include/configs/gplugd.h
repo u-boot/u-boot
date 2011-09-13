@@ -62,8 +62,20 @@
 #define CONFIG_CMD_I2C
 #define CONFIG_CMD_AUTOSCRIPT
 #undef CONFIG_CMD_FPGA
-#undef CONFIG_CMD_NET
-#undef CONFIG_CMD_NFS
+
+/* Disable DCACHE */
+#define CONFIG_SYS_DCACHE_OFF
+
+/* Network configuration */
+#ifdef CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_NET_MULTI
+#define CONFIG_ARMADA100_FEC
+
+/* DHCP Support */
+#define CONFIG_CMD_DHCP
+#define CONFIG_BOOTP_DHCP_REQUEST_DELAY		50000
+#endif /* CONFIG_CMD_NET */
 
 /*
  * mv-common.h should be defined after CMD configs since it used them

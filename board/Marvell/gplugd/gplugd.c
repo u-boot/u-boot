@@ -33,6 +33,11 @@
 #include <asm/arch/mfp.h>
 #include <asm/arch/armada100.h>
 
+#ifdef CONFIG_ARMADA100_FEC
+#include <net.h>
+#include <netdev.h>
+#endif /* CONFIG_ARMADA100_FEC */
+
 DECLARE_GLOBAL_DATA_PTR;
 
 int board_early_init_f(void)
@@ -45,6 +50,26 @@ int board_early_init_f(void)
 		/* Enable Console on UART3 */
 		MFPO8_UART3_TXD,
 		MFPO9_UART3_RXD,
+
+		/* Ethernet PHY Interface */
+		MFP086_ETH_TXCLK,
+		MFP087_ETH_TXEN,
+		MFP088_ETH_TXDQ3,
+		MFP089_ETH_TXDQ2,
+		MFP090_ETH_TXDQ1,
+		MFP091_ETH_TXDQ0,
+		MFP092_ETH_CRS,
+		MFP093_ETH_COL,
+		MFP094_ETH_RXCLK,
+		MFP095_ETH_RXER,
+		MFP096_ETH_RXDQ3,
+		MFP097_ETH_RXDQ2,
+		MFP098_ETH_RXDQ1,
+		MFP099_ETH_RXDQ0,
+		MFP100_ETH_MDC,
+		MFP101_ETH_MDIO,
+		MFP103_ETH_RXDV,
+
 		MFP_EOC		/*End of configuration*/
 	};
 	/* configure MFP's */
@@ -60,3 +85,16 @@ int board_init(void)
 	gd->bd->bi_boot_params = armd1_sdram_base(0) + 0x100;
 	return 0;
 }
+
+#ifdef CONFIG_ARMADA100_FEC
+int board_eth_init(bd_t *bis)
+{
+	struct armd1apmu_registers *apmu_regs =
+		(struct armd1apmu_registers *)ARMD1_APMU_BASE;
+
+	/* Enable clock of ethernet controller */
+	writel(FE_CLK_RST | FE_CLK_ENA, &apmu_regs->fecrc);
+
+	return armada100_fec_register(ARMD1_FEC_BASE);
+}
+#endif /* CONFIG_ARMADA100_FEC */
