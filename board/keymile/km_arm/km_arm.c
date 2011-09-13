@@ -405,6 +405,15 @@ int hush_init_var(void)
 #endif
 
 #if defined(CONFIG_BOOTCOUNT_LIMIT)
+const ulong patterns[]      = {	0x00000000,
+				0xFFFFFFFF,
+				0xFF00FF00,
+				0x0F0F0F0F,
+				0xF0F0F0F0};
+const ulong NBR_OF_PATTERNS = sizeof(patterns)/sizeof(*patterns);
+const ulong OFFS_PATTERN    = 3;
+const ulong REPEAT_PATTERN  = 1000;
+
 void bootcount_store(ulong a)
 {
 	volatile ulong *save_addr;
@@ -416,21 +425,34 @@ void bootcount_store(ulong a)
 	save_addr = (ulong*)(size - BOOTCOUNT_ADDR);
 	writel(a, save_addr);
 	writel(BOOTCOUNT_MAGIC, &save_addr[1]);
+
+	for (i = 0; i < REPEAT_PATTERN; i++)
+		writel(patterns[i % NBR_OF_PATTERNS],
+			&save_addr[i+OFFS_PATTERN]);
+
 }
 
 ulong bootcount_load(void)
 {
 	volatile ulong *save_addr;
 	volatile ulong size = 0;
-	int i;
+	ulong counter = 0;
+	int i, tmp;
+
 	for (i = 0; i < CONFIG_NR_DRAM_BANKS; i++) {
 		size += gd->bd->bi_dram[i].size;
 	}
 	save_addr = (ulong*)(size - BOOTCOUNT_ADDR);
-	if (readl(&save_addr[1]) != BOOTCOUNT_MAGIC)
-		return 0;
-	else
-		return readl(save_addr);
+
+	counter = readl(&save_addr[0]);
+
+	/* Is the counter reliable, check in the big pattern for bit errors */
+	for (i = 0; (i < REPEAT_PATTERN) && (counter != 0); i++) {
+		tmp = readl(&save_addr[i+OFFS_PATTERN]);
+		if (tmp != patterns[i % NBR_OF_PATTERNS])
+			counter = 0;
+	}
+	return counter;
 }
 #endif
 
