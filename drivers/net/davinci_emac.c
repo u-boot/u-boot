@@ -680,6 +680,9 @@ int davinci_emac_initialize(void)
 
 	davinci_eth_mdio_enable();
 
+	/* let the EMAC detect the PHYs */
+	udelay(5000);
+
 	for (i = 0; i < 256; i++) {
 		if (readl(&adap_mdio->ALIVE))
 			break;
