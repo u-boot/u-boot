@@ -132,6 +132,9 @@ int nand_lock( nand_info_t *meminfo, int tight );
 int nand_unlock( nand_info_t *meminfo, ulong start, ulong length );
 int nand_get_lock_status(nand_info_t *meminfo, loff_t offset);
 
+void nand_spl_load_image(loff_t offs, unsigned int size, uchar *dst);
+void nand_deselect(void);
+
 #ifdef CONFIG_SYS_NAND_SELECT_DEVICE
 void board_nand_select_device(struct nand_chip *nand, int chip);
 #endif

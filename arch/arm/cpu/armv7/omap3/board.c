@@ -39,6 +39,7 @@
 #include <asm/cache.h>
 #include <asm/armv7.h>
 #include <asm/arch/gpio.h>
+#include <asm/omap_common.h>
 
 /* Declarations */
 extern omap3_sysinfo sysinfo;
@@ -55,6 +56,41 @@ static const struct gpio_bank gpio_bank_34xx[6] = {
 };
 
 const struct gpio_bank *const omap_gpio_bank = gpio_bank_34xx;
+
+#ifdef CONFIG_SPL_BUILD
+/*
+* We use static variables because global data is not ready yet.
+* Initialized data is available in SPL right from the beginning.
+* We would not typically need to save these parameters in regular
+* U-Boot. This is needed only in SPL at the moment.
+*/
+u32 omap3_boot_device = BOOT_DEVICE_NAND;
+
+/* auto boot mode detection is not possible for OMAP3 - hard code */
+u32 omap_boot_mode(void)
+{
+	switch (omap_boot_device()) {
+	case BOOT_DEVICE_MMC2:
+		return MMCSD_MODE_RAW;
+	case BOOT_DEVICE_MMC1:
+		return MMCSD_MODE_FAT;
+		break;
+	case BOOT_DEVICE_NAND:
+		return NAND_MODE_HW_ECC;
+		break;
+	default:
+		puts("spl: ERROR:  unknown device - can't select boot mode\n");
+		hang();
+	}
+}
+
+u32 omap_boot_device(void)
+{
+	return omap3_boot_device;
+}
+
+#endif /* CONFIG_SPL_BUILD */
+
 
 /******************************************************************************
  * Routine: delay
@@ -197,6 +233,10 @@ void s_init(void)
 
 	per_clocks_enable();
 
+#ifdef CONFIG_SPL_BUILD
+	preloader_console_init();
+#endif
+
 	if (!in_sdram)
 		mem_init();
 }
@@ -245,7 +285,7 @@ void abort(void)
 {
 }
 
-#ifdef CONFIG_NAND_OMAP_GPMC
+#if defined(CONFIG_NAND_OMAP_GPMC) & !defined(CONFIG_SPL_BUILD)
 /******************************************************************************
  * OMAP3 specific command to switch between NAND HW and SW ecc
  *****************************************************************************/
@@ -273,7 +313,7 @@ U_BOOT_CMD(
 	"[hw/sw] - Switch between NAND hardware (hw) or software (sw) ecc algorithm"
 );
 
-#endif /* CONFIG_NAND_OMAP_GPMC */
+#endif /* CONFIG_NAND_OMAP_GPMC & !CONFIG_SPL_BUILD */
 
 #ifdef CONFIG_DISPLAY_BOARDINFO
 /**
@@ -410,3 +450,9 @@ void enable_caches(void)
 	dcache_enable();
 }
 #endif
+
+void omap_rev_string(char *omap_rev_string)
+{
+	sprintf(omap_rev_string, "OMAP3, sorry revision detection" \
+		" unimplemented");
+}

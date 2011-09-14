@@ -37,6 +37,7 @@
 void preloader_console_init(void);
 
 /* Boot device */
+#ifdef CONFIG_OMAP44XX /* OMAP4 */
 #define BOOT_DEVICE_NONE	0
 #define BOOT_DEVICE_XIP		1
 #define BOOT_DEVICE_XIPWAIT	2
@@ -44,13 +45,43 @@ void preloader_console_init(void);
 #define BOOT_DEVICE_ONE_NAND	4
 #define BOOT_DEVICE_MMC1	5
 #define BOOT_DEVICE_MMC2	6
+#elif CONFIG_OMAP34XX /* OMAP3 */
+#define BOOT_DEVICE_NONE	0
+#define BOOT_DEVICE_XIP		1
+#define BOOT_DEVICE_NAND	2
+#define BOOT_DEVICE_ONE_NAND	3
+#define BOOT_DEVICE_MMC2	5 /*emmc*/
+#define BOOT_DEVICE_MMC1	6
+#define BOOT_DEVICE_XIPWAIT	7
+#endif
 
 /* Boot type */
 #define	MMCSD_MODE_UNDEFINED	0
 #define MMCSD_MODE_RAW		1
 #define MMCSD_MODE_FAT		2
+#define NAND_MODE_HW_ECC	3
+
+struct spl_image_info {
+	const char *name;
+	u8 os;
+	u32 load_addr;
+	u32 entry_point;
+	u32 size;
+};
+
+extern struct spl_image_info spl_image;
 
 u32 omap_boot_device(void);
 u32 omap_boot_mode(void);
+
+
+/* SPL common function s*/
+void spl_parse_image_header(const struct image_header *header);
+
+/* NAND SPL functions */
+void spl_nand_load_image(void);
+
+/* MMC SPL functions */
+void spl_mmc_load_image(void);
 
 #endif /* _OMAP_COMMON_H_ */
