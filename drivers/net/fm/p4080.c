@@ -44,6 +44,12 @@ static int is_device_disabled(enum fm_port port)
 	return port_to_devdisr[port] & devdisr2;
 }
 
+void fman_disable_port(enum fm_port port)
+{
+	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	setbits_be32(&gur->devdisr2, port_to_devdisr[port]);
+}
+
 phy_interface_t fman_port_enet_if(enum fm_port port)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);

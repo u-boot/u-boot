@@ -123,6 +123,14 @@ void fman_enet_init(void)
 	return ;
 }
 
+void fm_disable_port(enum fm_port port)
+{
+	int i = fm_port_to_index(port);
+
+	fm_info[i].enabled = 0;
+	fman_disable_port(port);
+}
+
 void fm_info_set_mdio(enum fm_port port, struct mii_dev *bus)
 {
 	int i = fm_port_to_index(port);
