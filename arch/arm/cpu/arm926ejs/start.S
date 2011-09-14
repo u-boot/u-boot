@@ -51,9 +51,18 @@
  */
 
 
+#ifdef CONFIG_SYS_DV_NOR_BOOT_CFG
+.globl _start
+_start:
+.globl _NOR_BOOT_CFG
+_NOR_BOOT_CFG:
+	.word	CONFIG_SYS_DV_NOR_BOOT_CFG
+	b	reset
+#else
 .globl _start
 _start:
 	b	reset
+#endif
 #ifdef CONFIG_SPL_BUILD
 /* No exception handlers in preloader */
 	ldr	pc, _hang

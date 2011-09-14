@@ -139,3 +139,12 @@ http://www.spectrumdigital.com/product_info.php?cPath=37&products_id=214
 7) TI DA850 EVM
 http://focus.ti.com/docs/prod/folders/print/omap-l138.html
 http://www.logicpd.com/products/development-kits/zoom-omap-l138-evm-development-kit
+
+Davinci special defines
+=======================
+
+CONFIG_SYS_DV_NOR_BOOT_CFG:	AM18xx based boards, booting in NOR Boot mode
+				need a "NOR Boot Configuration Word" stored
+				in the NOR Flash. This define adds this.
+				More Info about this, see:
+				spraba5a.pdf chapter 3.1
