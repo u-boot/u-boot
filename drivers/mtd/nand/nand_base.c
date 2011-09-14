@@ -213,7 +213,7 @@ static void nand_write_buf(struct mtd_info *mtd, const uint8_t *buf, int len)
  *
  * Default read function for 8bit buswith
  */
-static void nand_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
+void nand_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
 {
 	int i;
 	struct nand_chip *chip = mtd->priv;
@@ -269,7 +269,7 @@ static void nand_write_buf16(struct mtd_info *mtd, const uint8_t *buf, int len)
  *
  * Default read function for 16bit buswith
  */
-static void nand_read_buf16(struct mtd_info *mtd, uint8_t *buf, int len)
+void nand_read_buf16(struct mtd_info *mtd, uint8_t *buf, int len)
 {
 	int i;
 	struct nand_chip *chip = mtd->priv;

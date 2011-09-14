@@ -61,6 +61,14 @@ static void omap_nand_hwcontrol(struct mtd_info *mtd, int32_t cmd,
 		writeb(cmd, this->IO_ADDR_W);
 }
 
+#ifdef CONFIG_SPL_BUILD
+/* Check wait pin as dev ready indicator */
+int omap_spl_dev_ready(struct mtd_info *mtd)
+{
+	return gpmc_cfg->status & (1 << 8);
+}
+#endif
+
 /*
  * omap_hwecc_init - Initialize the Hardware ECC for NAND flash in
  *                   GPMC controller
@@ -224,6 +232,7 @@ static void omap_enable_hwecc(struct mtd_info *mtd, int32_t mode)
 	}
 }
 
+#ifndef CONFIG_SPL_BUILD
 /*
  * omap_nand_switch_ecc - switch the ECC operation b/w h/w ecc and s/w ecc.
  * The default is to come up on s/w ecc
@@ -280,6 +289,7 @@ void omap_nand_switch_ecc(int32_t hardware)
 
 	nand->options &= ~NAND_OWN_BUFFERS;
 }
+#endif /* CONFIG_SPL_BUILD */
 
 /*
  * Board-specific NAND initialization. The following members of the
@@ -338,7 +348,24 @@ int board_nand_init(struct nand_chip *nand)
 
 	nand->chip_delay = 100;
 	/* Default ECC mode */
+#ifndef CONFIG_SPL_BUILD
 	nand->ecc.mode = NAND_ECC_SOFT;
+#else
+	nand->ecc.mode = NAND_ECC_HW;
+	nand->ecc.layout = &hw_nand_oob;
+	nand->ecc.size = CONFIG_SYS_NAND_ECCSIZE;
+	nand->ecc.bytes = CONFIG_SYS_NAND_ECCBYTES;
+	nand->ecc.hwctl = omap_enable_hwecc;
+	nand->ecc.correct = omap_correct_data;
+	nand->ecc.calculate = omap_calculate_ecc;
+	omap_hwecc_init(nand);
+
+	if (nand->options & NAND_BUSWIDTH_16)
+		nand->read_buf = nand_read_buf16;
+	else
+		nand->read_buf = nand_read_buf;
+	nand->dev_ready = omap_spl_dev_ready;
+#endif
 
 	return 0;
 }
