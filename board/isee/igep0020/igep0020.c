@@ -29,6 +29,7 @@
 #include <asm/arch/mmc_host_def.h>
 #include <asm/arch/mux.h>
 #include <asm/arch/sys_proto.h>
+#include <asm/arch/omap_gpmc.h>
 #include <asm/mach-types.h>
 #include "igep0020.h"
 
