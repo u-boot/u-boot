@@ -39,22 +39,9 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/arch/timer_defs.h>
 
 DECLARE_GLOBAL_DATA_PTR;
-
-struct davinci_timer {
-	u_int32_t	pid12;
-	u_int32_t	emumgt;
-	u_int32_t	na1;
-	u_int32_t	na2;
-	u_int32_t	tim12;
-	u_int32_t	tim34;
-	u_int32_t	prd12;
-	u_int32_t	prd34;
-	u_int32_t	tcr;
-	u_int32_t	tgcr;
-	u_int32_t	wdtcr;
-};
 
 static struct davinci_timer * const timer =
 	(struct davinci_timer *)CONFIG_SYS_TIMERBASE;
