@@ -142,6 +142,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_EMAC_WRAPPER_CNTRL_REGS_BASE	0x01e22000
 #define DAVINCI_EMAC_WRAPPER_RAM_BASE		0x01e20000
 #define DAVINCI_MDIO_CNTRL_REGS_BASE		0x01e24000
+#define DAVINCI_SYSCFG1_BASE			0x01e2c000
 #define DAVINCI_MMC_SD0_BASE			0x01c40000
 #define DAVINCI_MMC_SD1_BASE			0x01e1b000
 #define DAVINCI_TIMER2_BASE			0x01f0c000
@@ -447,6 +448,21 @@ struct davinci_syscfg_regs {
 #define DAVINCI_SYSCFG_SUSPSRC_SPI1		(1 << 22)
 #define DAVINCI_SYSCFG_SUSPSRC_UART2		(1 << 20)
 #define DAVINCI_SYSCFG_SUSPSRC_TIMER0		(1 << 27)
+
+struct davinci_syscfg1_regs {
+	dv_reg	vtpio_ctl;
+	dv_reg	ddr_slew;
+	dv_reg	deepsleep;
+	dv_reg	pupd_ena;
+	dv_reg	pupd_sel;
+	dv_reg	rxactive;
+	dv_reg	pwrdwn;
+};
+
+#define davinci_syscfg1_regs \
+	((struct davinci_syscfg1_regs *)DAVINCI_SYSCFG1_BASE)
+
+#define DDR_SLEW_CMOSEN_BIT	4
 
 /* Interrupt controller */
 struct davinci_aintc_regs {
