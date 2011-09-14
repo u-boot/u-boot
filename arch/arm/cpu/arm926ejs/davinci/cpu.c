@@ -115,7 +115,18 @@ int clk_get(enum davinci_clk_ids id)
 out:
 	return pll_out;
 }
-#endif /* CONFIG_SOC_DA8XX */
+#ifdef CONFIG_DISPLAY_CPUINFO
+int print_cpuinfo(void)
+{
+	printf("Cores: ARM %d MHz",
+			clk_get(DAVINCI_ARM_CLKID) / 1000000);
+	printf("\nDDR:   %d MHz\n",
+			/* DDR PHY uses an x2 input clock */
+			clk_get(0x10001) / 1000000);
+	return 0;
+}
+#endif
+#else /* CONFIG_SOC_DA8XX */
 
 #ifdef CONFIG_DISPLAY_CPUINFO
 
@@ -194,7 +205,8 @@ unsigned int davinci_arm_clk_get()
 	return pll_sysclk_mhz(DAVINCI_PLL_CNTRL0_BASE, ARM_PLLDIV) * 1000000;
 }
 #endif
-#endif
+#endif /* CONFIG_DISPLAY_CPUINFO */
+#endif /* !CONFIG_SOC_DA8XX */
 
 /*
  * Initializes on-chip ethernet controllers.
