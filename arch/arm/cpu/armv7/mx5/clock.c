@@ -333,18 +333,20 @@ int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	u32 freq;
 
 	freq = decode_pll(mxc_plls[PLL1_CLOCK], CONFIG_SYS_MX5_HCLK);
-	printf("pll1: %dMHz\n", freq / 1000000);
+	printf("PLL1       %8d MHz\n", freq / 1000000);
 	freq = decode_pll(mxc_plls[PLL2_CLOCK], CONFIG_SYS_MX5_HCLK);
-	printf("pll2: %dMHz\n", freq / 1000000);
+	printf("PLL2       %8d MHz\n", freq / 1000000);
 	freq = decode_pll(mxc_plls[PLL3_CLOCK], CONFIG_SYS_MX5_HCLK);
-	printf("pll3: %dMHz\n", freq / 1000000);
+	printf("PLL3       %8d MHz\n", freq / 1000000);
 #ifdef	CONFIG_MX53
 	freq = decode_pll(mxc_plls[PLL4_CLOCK], CONFIG_SYS_MX5_HCLK);
-	printf("pll4: %dMHz\n", freq / 1000000);
+	printf("PLL4       %8d MHz\n", freq / 1000000);
 #endif
-	printf("ahb clock     : %dHz\n", mxc_get_clock(MXC_AHB_CLK));
-	printf("ipg clock     : %dHz\n", mxc_get_clock(MXC_IPG_CLK));
-	printf("ipg per clock : %dHz\n", mxc_get_clock(MXC_IPG_PERCLK));
+
+	printf("\n");
+	printf("AHB        %8d kHz\n", mxc_get_clock(MXC_AHB_CLK) / 1000);
+	printf("IPG        %8d kHz\n", mxc_get_clock(MXC_IPG_CLK) / 1000);
+	printf("IPG PERCLK %8d kHz\n", mxc_get_clock(MXC_IPG_PERCLK) / 1000);
 
 	return 0;
 }
