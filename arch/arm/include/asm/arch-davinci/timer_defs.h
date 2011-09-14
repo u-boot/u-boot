@@ -37,4 +37,8 @@ struct davinci_timer {
 	u_int32_t	wdtcr;
 };
 
+#ifdef CONFIG_HW_WATCHDOG
+void davinci_hw_watchdog_enable(void);
+void davinci_hw_watchdog_reset(void);
+#endif
 #endif /* _TIMER_DEFS_H_ */
