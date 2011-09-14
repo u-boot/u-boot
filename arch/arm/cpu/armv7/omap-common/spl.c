@@ -38,14 +38,11 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
+struct spl_image_info spl_image;
+
 /* Define global data structure pointer to it*/
 static gd_t gdata __attribute__ ((section(".data")));
 static bd_t bdata __attribute__ ((section(".data")));
-static const char *image_name;
-static u8 image_os;
-static u32 image_load_addr;
-static u32 image_entry_point;
-static u32 image_size;
 
 inline void hang(void)
 {
@@ -66,194 +63,40 @@ void board_init_f(ulong dummy)
 	relocate_code(CONFIG_SPL_STACK, &gdata, CONFIG_SPL_TEXT_BASE);
 }
 
-#ifdef CONFIG_GENERIC_MMC
-int board_mmc_init(bd_t *bis)
-{
-	switch (omap_boot_device()) {
-	case BOOT_DEVICE_MMC1:
-		omap_mmc_init(0);
-		break;
-	case BOOT_DEVICE_MMC2:
-		omap_mmc_init(1);
-		break;
-	}
-	return 0;
-}
-#endif
-
-static void parse_image_header(const struct image_header *header)
+void spl_parse_image_header(const struct image_header *header)
 {
 	u32 header_size = sizeof(struct image_header);
 
 	if (__be32_to_cpu(header->ih_magic) == IH_MAGIC) {
-		image_size = __be32_to_cpu(header->ih_size) + header_size;
-		image_entry_point = __be32_to_cpu(header->ih_load);
+		spl_image.size = __be32_to_cpu(header->ih_size) + header_size;
+		spl_image.entry_point = __be32_to_cpu(header->ih_load);
 		/* Load including the header */
-		image_load_addr = image_entry_point - header_size;
-		image_os = header->ih_os;
-		image_name = (const char *)&header->ih_name;
+		spl_image.load_addr = spl_image.entry_point - header_size;
+		spl_image.os = header->ih_os;
+		spl_image.name = (const char *)&header->ih_name;
 		debug("spl: payload image: %s load addr: 0x%x size: %d\n",
-			image_name, image_load_addr, image_size);
+			spl_image.name, spl_image.load_addr, spl_image.size);
 	} else {
 		/* Signature not found - assume u-boot.bin */
 		printf("mkimage signature not found - ih_magic = %x\n",
 			header->ih_magic);
 		puts("Assuming u-boot.bin ..\n");
 		/* Let's assume U-Boot will not be more than 200 KB */
-		image_size = 200 * 1024;
-		image_entry_point = CONFIG_SYS_TEXT_BASE;
-		image_load_addr = CONFIG_SYS_TEXT_BASE;
-		image_os = IH_OS_U_BOOT;
-		image_name = "U-Boot";
+		spl_image.size = 200 * 1024;
+		spl_image.entry_point = CONFIG_SYS_TEXT_BASE;
+		spl_image.load_addr = CONFIG_SYS_TEXT_BASE;
+		spl_image.os = IH_OS_U_BOOT;
+		spl_image.name = "U-Boot";
 	}
 }
 
-static void mmc_load_image_raw(struct mmc *mmc)
-{
-	u32 image_size_sectors, err;
-	const struct image_header *header;
-
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
-						sizeof(struct image_header));
-
-	/* read image header to find the image size & load address */
-	err = mmc->block_dev.block_read(0,
-			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR, 1,
-			(void *)header);
-
-	if (err <= 0)
-		goto end;
-
-	parse_image_header(header);
-
-	/* convert size to sectors - round up */
-	image_size_sectors = (image_size + MMCSD_SECTOR_SIZE - 1) /
-				MMCSD_SECTOR_SIZE;
-
-	/* Read the header too to avoid extra memcpy */
-	err = mmc->block_dev.block_read(0,
-			CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR,
-			image_size_sectors, (void *)image_load_addr);
-
-end:
-	if (err <= 0) {
-		printf("spl: mmc blk read err - %d\n", err);
-		hang();
-	}
-}
-
-static void mmc_load_image_fat(struct mmc *mmc)
-{
-	s32 err;
-	struct image_header *header;
-
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE -
-						sizeof(struct image_header));
-
-	err = fat_register_device(&mmc->block_dev,
-				CONFIG_SYS_MMC_SD_FAT_BOOT_PARTITION);
-	if (err) {
-		printf("spl: fat register err - %d\n", err);
-		hang();
-	}
-
-	err = file_fat_read(CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME,
-				(u8 *)header, sizeof(struct image_header));
-	if (err <= 0)
-		goto end;
-
-	parse_image_header(header);
-
-	err = file_fat_read(CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME,
-				(u8 *)image_load_addr, 0);
-
-end:
-	if (err <= 0) {
-		printf("spl: error reading image %s, err - %d\n",
-			CONFIG_SPL_FAT_LOAD_PAYLOAD_NAME, err);
-		hang();
-	}
-}
-static void mmc_load_image(void) __attribute__((unused));
-static void mmc_load_image(void)
-{
-	struct mmc *mmc;
-	int err;
-	u32 boot_mode;
-
-	mmc_initialize(gd->bd);
-	/* We register only one device. So, the dev id is always 0 */
-	mmc = find_mmc_device(0);
-	if (!mmc) {
-		puts("spl: mmc device not found!!\n");
-		hang();
-	}
-
-	err = mmc_init(mmc);
-	if (err) {
-		printf("spl: mmc init failed: err - %d\n", err);
-		hang();
-	}
-/* For OMAP3 there is no automatic boot mode detection */
-#ifdef CONFIG_OMAP34XX
-	boot_mode = CONFIG_SYS_MMC_SD_BOOTMODE;
-#else
-	boot_mode = omap_boot_mode();
-#endif
-	if (boot_mode == MMCSD_MODE_RAW) {
-		debug("boot mode - RAW\n");
-		mmc_load_image_raw(mmc);
-	} else if (boot_mode == MMCSD_MODE_FAT) {
-		debug("boot mode - FAT\n");
-		mmc_load_image_fat(mmc);
-	} else {
-		puts("spl: wrong MMC boot mode\n");
-		hang();
-	}
-}
-
-#ifdef CONFIG_SPL_NAND_SUPPORT
-static void nand_load_image(void) __attribute__ ((unused));
-static void nand_load_image(void)
-{
-	struct image_header *header;
-
-	gpmc_init();
-	nand_init();
-
-	/*use CONFIG_SYS_TEXT_BASE as temporary storage area */
-	header = (struct image_header *)(CONFIG_SYS_TEXT_BASE);
-
-#ifdef CONFIG_NAND_ENV_DST
-	nand_spl_load_image(CONFIG_ENV_OFFSET,
-		CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
-	parse_image_header(header);
-	nand_spl_load_image(CONFIG_ENV_OFFSET, image_size,
-		(void *)image_load_addr);
-#ifdef CONFIG_ENV_OFFSET_REDUND
-	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND,
-		CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
-	parse_image_header(header);
-	nand_spl_load_image(CONFIG_ENV_OFFSET_REDUND, image_size,
-		(void *)image_load_addr);
-#endif
-#endif
-	/* Load u-boot */
-	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
-		CONFIG_SYS_NAND_PAGE_SIZE, (void *)header);
-	parse_image_header(header);
-	nand_spl_load_image(CONFIG_SYS_NAND_U_BOOT_OFFS,
-		image_size, (void *)image_load_addr);
-	nand_deselect();
-}
-#endif /* CONFIG_SPL_NAND_SUPPORT */
-void jump_to_image_no_args(void)
+static void jump_to_image_no_args(void)
 {
 	typedef void (*image_entry_noargs_t)(void)__attribute__ ((noreturn));
 	image_entry_noargs_t image_entry =
-			(image_entry_noargs_t) image_entry_point;
+			(image_entry_noargs_t) spl_image.entry_point;
 
-	debug("image entry point: 0x%X\n", image_entry_point);
+	debug("image entry point: 0x%X\n", spl_image.entry_point);
 	image_entry();
 }
 
@@ -272,12 +115,12 @@ void board_init_r(gd_t *id, ulong dummy)
 #ifdef CONFIG_SPL_MMC_SUPPORT
 	case BOOT_DEVICE_MMC1:
 	case BOOT_DEVICE_MMC2:
-		mmc_load_image();
+		spl_mmc_load_image();
 		break;
 #endif
 #ifdef CONFIG_SPL_NAND_SUPPORT
 	case BOOT_DEVICE_NAND:
-		nand_load_image();
+		spl_nand_load_image();
 		break;
 #endif
 	default:
@@ -286,7 +129,7 @@ void board_init_r(gd_t *id, ulong dummy)
 		break;
 	}
 
-	switch (image_os) {
+	switch (spl_image.os) {
 	case IH_OS_U_BOOT:
 		debug("Jumping to U-Boot\n");
 		jump_to_image_no_args();

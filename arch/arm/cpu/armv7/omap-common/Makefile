@@ -33,6 +33,12 @@ COBJS	+= gpio.o
 
 ifdef CONFIG_SPL_BUILD
 COBJS	+= spl.o
+ifdef CONFIG_SPL_NAND_SUPPORT
+COBJS	+= spl_nand.o
+endif
+ifdef CONFIG_SPL_MMC_SUPPORT
+COBJS	+= spl_mmc.o
+endif
 endif
 
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)
