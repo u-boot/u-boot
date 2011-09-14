@@ -322,6 +322,11 @@ void davinci_errata_workarounds(void);
 
 #else /* CONFIG_SOC_DA8XX */
 
+#define	PSC_ENABLE		0x3
+#define	PSC_DISABLE		0x2
+#define	PSC_SYNCRESET		0x1
+#define	PSC_SWRSTDISABLE	0x0
+
 #define PSC_PSC0_MODULE_ID_CNT		16
 #define PSC_PSC1_MODULE_ID_CNT		32
 
@@ -463,6 +468,12 @@ struct davinci_syscfg1_regs {
 	((struct davinci_syscfg1_regs *)DAVINCI_SYSCFG1_BASE)
 
 #define DDR_SLEW_CMOSEN_BIT	4
+
+#define VTP_POWERDWN		(1 << 6)
+#define VTP_LOCK		(1 << 7)
+#define VTP_CLKRZ		(1 << 13)
+#define VTP_READY		(1 << 15)
+#define VTP_IOPWRDWN		(1 << 14)
 
 /* Interrupt controller */
 struct davinci_aintc_regs {
