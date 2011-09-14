@@ -257,6 +257,7 @@ void s_init(void)
 	watchdog_init();
 	set_mux_conf_regs();
 #ifdef CONFIG_SPL_BUILD
+	setup_clocks_for_console();
 	preloader_console_init();
 	do_io_settings();
 #endif

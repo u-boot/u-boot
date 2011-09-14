@@ -249,6 +249,7 @@ void board_init_r(gd_t *id, ulong dummy)
 	}
 }
 
+/* This requires UART clocks to be enabled */
 void preloader_console_init(void)
 {
 	const char *u_boot_rev = U_BOOT_VERSION;
@@ -259,7 +260,6 @@ void preloader_console_init(void)
 	gd->flags |= GD_FLG_RELOC;
 	gd->baudrate = CONFIG_BAUDRATE;
 
-	setup_clocks_for_console();
 	serial_init();		/* serial communications setup */
 
 	/* Avoid a second "U-Boot" coming from this string */
