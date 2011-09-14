@@ -261,9 +261,14 @@ static int setup_phy(struct eth_device *dev)
 
 	/* interface - look at tsec */
 	phydev = phy_connect(emaclite->bus, emaclite->phyaddr, dev, 0);
-
-	phydev->supported &= supported;
-	phydev->advertising = phydev->supported;
+	/*
+	 * Phy can support 1000baseT but device NOT that's why phydev->supported
+	 * must be setup for 1000baseT. phydev->advertising setups what speeds
+	 * will be used for autonegotiation where 1000baseT must be disabled.
+	 */
+	phydev->supported = supported | SUPPORTED_1000baseT_Half |
+						SUPPORTED_1000baseT_Full;
+	phydev->advertising = supported;
 	emaclite->phydev = phydev;
 	phy_config(phydev);
 	phy_startup(phydev);
