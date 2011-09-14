@@ -8,6 +8,9 @@
  * Copyright (C) 2004-2010
  * Texas Instruments Incorporated - http://www.ti.com/
  *
+ * Copyright (C) 2011
+ * Corscience GmbH & Co. KG - Simon Schwarz <schwarz@corscience.de>
+ *
  * Author :
  *     Vaibhav Hiremath <hvaibhav@ti.com>
  *
@@ -133,13 +136,40 @@ void do_sdrc_init(u32 cs, u32 early)
 		sdelay(0x20000);
 	}
 
+/* As long as V_MCFG and V_RFR_CTRL is not defined for all OMAP3 boards we need
+ * to prevent this to be build in non-SPL build */
+#ifdef CONFIG_SPL_BUILD
+	/* If we use a SPL there is no x-loader nor config header so we have
+	 * to do the job ourselfs
+	 */
+	if (cs == CS0) {
+		sdrc_actim_base0 = (struct sdrc_actim *)SDRC_ACTIM_CTRL0_BASE;
+
+		/* General SDRC config */
+		writel(V_MCFG, &sdrc_base->cs[cs].mcfg);
+		writel(V_RFR_CTRL, &sdrc_base->cs[cs].rfr_ctrl);
+
+		/* AC timings */
+		writel(V_ACTIMA_165, &sdrc_actim_base0->ctrla);
+		writel(V_ACTIMB_165, &sdrc_actim_base0->ctrlb);
+
+		/* Initialize */
+		writel(CMD_NOP, &sdrc_base->cs[cs].manual);
+		writel(CMD_PRECHARGE, &sdrc_base->cs[cs].manual);
+		writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
+		writel(CMD_AUTOREFRESH, &sdrc_base->cs[cs].manual);
+
+		writel(V_MR, &sdrc_base->cs[cs].mr);
+	}
+#endif
+
 	/*
 	 * SDRC timings are set up by x-load or config header
 	 * We don't need to redo them here.
 	 * Older x-loads configure only CS0
 	 * configure CS1 to handle this ommission
 	 */
-	if (cs) {
+	if (cs == CS1) {
 		sdrc_actim_base0 = (struct sdrc_actim *)SDRC_ACTIM_CTRL0_BASE;
 		sdrc_actim_base1 = (struct sdrc_actim *)SDRC_ACTIM_CTRL1_BASE;
 		writel(readl(&sdrc_base->cs[CS0].mcfg),
