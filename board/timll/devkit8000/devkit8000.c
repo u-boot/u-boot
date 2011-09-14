@@ -128,7 +128,7 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
-#ifdef CONFIG_DRIVER_DM9000
+#if defined(CONFIG_DRIVER_DM9000) & !defined(CONFIG_SPL_BUILD)
 /*
  * Routine: board_eth_init
  * Description: Setting up the Ethernet hardware.
