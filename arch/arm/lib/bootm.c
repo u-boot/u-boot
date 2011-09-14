@@ -206,6 +206,8 @@ static int bootm_linux_fdt(int machid, bootm_headers_t *images)
 
 	fixup_memory_node(*of_flat_tree);
 
+	fdt_fixup_ethernet(*of_flat_tree);
+
 	fdt_initrd(*of_flat_tree, *initrd_start, *initrd_end, 1);
 
 	announce_and_cleanup();
