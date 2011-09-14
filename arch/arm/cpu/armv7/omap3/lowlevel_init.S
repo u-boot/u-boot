@@ -35,6 +35,11 @@
 _TEXT_BASE:
 	.word	CONFIG_SYS_TEXT_BASE	/* sdram load addr from config.mk */
 
+.global save_boot_params
+save_boot_params:
+	#warning "Please implement save_boot_params for OMAP3"
+	bx lr
+
 .global omap3_gp_romcode_call
 omap3_gp_romcode_call:
 	PUSH {r4-r12, lr} @ Save all registers from ROM code!
