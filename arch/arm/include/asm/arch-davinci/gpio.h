@@ -35,6 +35,7 @@
 #define DAVINCI_GPIO_BANK23	0x01E26038
 #define DAVINCI_GPIO_BANK45	0x01E26060
 #define DAVINCI_GPIO_BANK67	0x01E26088
+#define DAVINCI_GPIO_BANK8	0x01E260B0
 #endif /* CONFIG_SOC_DA8XX */
 
 struct davinci_gpio {
@@ -62,6 +63,7 @@ struct davinci_gpio_bank {
 #define davinci_gpio_bank23 ((struct davinci_gpio *)DAVINCI_GPIO_BANK23)
 #define davinci_gpio_bank45 ((struct davinci_gpio *)DAVINCI_GPIO_BANK45)
 #define davinci_gpio_bank67 ((struct davinci_gpio *)DAVINCI_GPIO_BANK67)
+#define davinci_gpio_bank8 ((struct davinci_gpio *)DAVINCI_GPIO_BANK8)
 
 #define gpio_status()		gpio_info()
 #define GPIO_NAME_SIZE		20
