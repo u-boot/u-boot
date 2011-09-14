@@ -194,8 +194,12 @@ static void mmc_load_image(void)
 		printf("spl: mmc init failed: err - %d\n", err);
 		hang();
 	}
-
+/* For OMAP3 there is no automatic boot mode detection */
+#ifdef CONFIG_OMAP34XX
+	boot_mode = CONFIG_SYS_MMC_SD_BOOTMODE;
+#else
 	boot_mode = omap_boot_mode();
+#endif
 	if (boot_mode == MMCSD_MODE_RAW) {
 		debug("boot mode - RAW\n");
 		mmc_load_image_raw(mmc);

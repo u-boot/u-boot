@@ -37,8 +37,13 @@ _TEXT_BASE:
 
 .global save_boot_params
 save_boot_params:
-	#warning "Please implement save_boot_params for OMAP3"
-	bx lr
+#ifdef CONFIG_SPL_BUILD
+	ldr	r4, =omap3_boot_device
+	ldr	r5, [r0, #0x4]
+	and	r5, r5, #0xff
+	str	r5, [r4]
+#endif
+	bx	lr
 
 .global omap3_gp_romcode_call
 omap3_gp_romcode_call:
