@@ -214,6 +214,11 @@ static int ublimage_check_image_types(uint8_t type)
 static int ublimage_verify_header(unsigned char *ptr, int image_size,
 			struct mkimage_params *params)
 {
+	struct ubl_header *ubl_hdr = (struct ubl_header *)ptr;
+
+	if ((ubl_hdr->magic & 0xFFFFFF00) != UBL_MAGIC_BASE)
+		return -1;
+
 	return 0;
 }
 
