@@ -214,6 +214,7 @@ void pci_init_board(void)
 	u32 devdisr, pordevsr, io_sel;
 	u32 porpllsr, pci_agent, pci_speed, pci_32, pci_arb, pci_clk_sel;
 	int first_free_busno = 0;
+	char buf[32];
 
 	devdisr = in_be32(&gur->devdisr);
 	pordevsr = in_be32(&gur->pordevsr);
@@ -238,8 +239,7 @@ void pci_init_board(void)
 		pci_agent = fsl_setup_hose(&pci1_hose, pci_info.regs);
 		printf("PCI1: %d bit, %s MHz, %s, %s, %s (base address %lx)\n",
 			(pci_32) ? 32 : 64,
-			(pci_speed == 33333000) ? "33" :
-			(pci_speed == 66666000) ? "66" : "unknown",
+			strmhz(buf, pci_speed),
 			pci_clk_sel ? "sync" : "async",
 			pci_agent ? "agent" : "host",
 			pci_arb ? "arbiter" : "external-arbiter",

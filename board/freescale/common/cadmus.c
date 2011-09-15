@@ -1,5 +1,5 @@
 /*
- * Copyright 2004 Freescale Semiconductor.
+ * Copyright 2004, 2011 Freescale Semiconductor.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -61,12 +61,12 @@ get_clock_freq(void)
 	uint pci1_speed = (cadmus->cm_pci >> 2) & 0x3; /* PSPEED in [4:5] */
 
 	if (pci1_speed == 0) {
-		return 33000000;
+		return 33333333;
 	} else if (pci1_speed == 1) {
-		return 66000000;
+		return 66666666;
 	} else {
 		/* Really, unknown. Be safe? */
-		return 33000000;
+		return 33333333;
 	}
 }
 
