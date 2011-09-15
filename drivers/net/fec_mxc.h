@@ -275,6 +275,8 @@ struct fec_priv {
 	bd_t *bd;
 	void *rdb_ptr;
 	void *base_ptr;
+	int dev_id;
+	int phy_id;
 };
 
 /**
