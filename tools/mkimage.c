@@ -248,6 +248,9 @@ main (int argc, char **argv)
 					usage ();
 				params.imagename = *++argv;
 				goto NXTARG;
+			case 's':
+				params.skipcpy = 1;
+				break;
 			case 'v':
 				params.vflag++;
 				break;
@@ -361,11 +364,15 @@ NXTARG:		;
 	}
 
 	/*
-	 * Must be -w then:
-	 *
-	 * write dummy header, to be fixed later
+	 * In case there an header with a variable
+	 * length will be added, the corresponding
+	 * function is called. This is responsible to
+	 * allocate memory for the header itself.
 	 */
-	memset (tparams->hdr, 0, tparams->header_size);
+	if (tparams->vrec_header)
+		tparams->vrec_header(&params, tparams);
+	else
+		memset(tparams->hdr, 0, tparams->header_size);
 
 	if (write(ifd, tparams->hdr, tparams->header_size)
 					!= tparams->header_size) {
@@ -374,7 +381,9 @@ NXTARG:		;
 		exit (EXIT_FAILURE);
 	}
 
-	if (params.type == IH_TYPE_MULTI || params.type == IH_TYPE_SCRIPT) {
+	if (!params.skipcpy &&
+		(params.type == IH_TYPE_MULTI ||
+			params.type == IH_TYPE_SCRIPT)) {
 		char *file = params.datafile;
 		uint32_t size;
 
