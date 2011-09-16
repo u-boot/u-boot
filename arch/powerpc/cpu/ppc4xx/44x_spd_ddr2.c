@@ -657,6 +657,13 @@ phys_size_t initdram(int board_type)
 #endif
 
 	/*
+	 * Flush the dcache before removing the TLB with caches
+	 * enabled. Otherwise this might lead to problems later on,
+	 * e.g. while booting Linux (as seen on ICON-440SPe).
+	 */
+	flush_dcache();
+
+	/*
 	 * Now after initialization (auto-calibration and ECC generation)
 	 * remove the TLB entries with caches enabled and program again with
 	 * desired cache functionality
