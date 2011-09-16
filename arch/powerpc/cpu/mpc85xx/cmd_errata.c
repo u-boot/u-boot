@@ -96,6 +96,10 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 #ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A003399
 	puts("Work-around for Erratum IFC A-003399 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_NMG_DDR120
+	if ((SVR_MAJ(svr) == 1) || IS_SVR_REV(svr, 2, 0))
+		puts("Work-around for Erratum NMG DDR120 enabled\n");
+#endif
 	return 0;
 }
 
