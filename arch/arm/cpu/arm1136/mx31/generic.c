@@ -180,7 +180,7 @@ int print_cpuinfo (void)
 {
 	u32 srev = get_cpu_rev();
 
-	printf("CPU:   Freescale i.MX31 rev %d.%d%s at %d MHz.",
+	printf("CPU:   Freescale i.MX31 rev %d.%d%s at %d MHz.\n",
 			(srev & 0xF0) >> 4, (srev & 0x0F),
 			((srev & 0x8000) ? " unknown" : ""),
 			mx31_get_mcu_main_clk() / 1000000);
