@@ -45,7 +45,7 @@ void preloader_console_init(void);
 #define BOOT_DEVICE_ONE_NAND	4
 #define BOOT_DEVICE_MMC1	5
 #define BOOT_DEVICE_MMC2	6
-#elif CONFIG_OMAP34XX /* OMAP3 */
+#elif defined(CONFIG_OMAP34XX)	/* OMAP3 */
 #define BOOT_DEVICE_NONE	0
 #define BOOT_DEVICE_XIP		1
 #define BOOT_DEVICE_NAND	2
