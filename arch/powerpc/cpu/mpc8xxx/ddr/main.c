@@ -135,7 +135,6 @@ void fsl_ddr_get_spd(generic_spd_eeprom_t *ctrl_dimms_spd,
  *				|  interleaving
  */
 
-#ifdef DEBUG
 const char *step_string_tbl[] = {
 	"STEP_GET_SPD",
 	"STEP_COMPUTE_DIMM_PARMS",
@@ -156,7 +155,6 @@ const char * step_to_string(unsigned int step) {
 
 	return step_string_tbl[s];
 }
-#endif
 
 int step_assign_addresses(fsl_ddr_info_t *pinfo,
 			  unsigned int dbw_cap_adj[],
@@ -499,7 +497,12 @@ phys_size_t fsl_ddr_sdram(void)
 	memset(&info, 0, sizeof(fsl_ddr_info_t));
 
 	/* Compute it once normally. */
-	total_memory = fsl_ddr_compute(&info, STEP_GET_SPD, 0);
+#ifdef CONFIG_FSL_DDR_INTERACTIVE
+	if (getenv("ddr_interactive"))
+		total_memory = fsl_ddr_interactive(&info);
+	else
+#endif
+		total_memory = fsl_ddr_compute(&info, STEP_GET_SPD, 0);
 
 	/* Check for memory controller interleaving. */
 	memctl_interleaved = 0;

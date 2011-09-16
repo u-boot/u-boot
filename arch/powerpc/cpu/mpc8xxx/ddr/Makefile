@@ -1,5 +1,5 @@
 #
-# Copyright 2008 Freescale Semiconductor, Inc.
+# Copyright 2008-2011 Freescale Semiconductor, Inc.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -30,6 +30,7 @@ COBJS-$(CONFIG_FSL_DDR2)	+= ddr2_dimm_params.o
 COBJS-$(CONFIG_FSL_DDR3)	+= ddr3_dimm_params.o
 endif
 
+COBJS-$(CONFIG_FSL_DDR_INTERACTIVE) += interactive.o
 
 SRCS	:= $(START:.o=.S) $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)
 OBJS	:= $(addprefix $(obj),$(SOBJS-y) $(COBJS-y))
