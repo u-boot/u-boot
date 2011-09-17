@@ -687,7 +687,7 @@ eth_loopback_test (void)
 	immr->im_cpmux.cmx_fcr = CMXFCR_RF1CS_CLK10|CMXFCR_TF1CS_CLK11|\
 	    CMXFCR_RF2CS_CLK13|CMXFCR_TF2CS_CLK14|\
 	    CMXFCR_RF3CS_CLK15|CMXFCR_TF3CS_CLK16;
-#elif defined(CONFIG_SBC8260) || defined(CONFIG_SACSng)
+#elif defined(CONFIG_SACSng)
 	/*
 	 * Attention: this is board-specific
 	 * 1, FCC2

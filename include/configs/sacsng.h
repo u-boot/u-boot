@@ -10,8 +10,7 @@
  * Advent Networks, Inc. <http://www.adventnetworks.com>
  * Jay Monkman <jtm@smoothsmoothie.com>
  *
- * Configuration settings for the WindRiver SBC8260 board.
- *	See http://www.windriver.com/products/html/sbc8260.html
+ * Configuration settings for the SACSng 8260 board.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -547,7 +546,6 @@
  *****************************************************************************/
 
 #define CONFIG_MPC8260		1	/* This is an MPC8260 CPU   */
-#define CONFIG_SBC8260		1	/* on an EST SBC8260 Board  */
 #define CONFIG_SACSng		1	/* munged for the SACSng */
 #define CONFIG_CPM2		1	/* Has a CPM2 */
 
