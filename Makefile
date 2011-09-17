@@ -137,9 +137,7 @@ unexport CDPATH
 
 # The "tools" are needed early, so put this first
 # Don't include stuff already done in $(LIBS)
-SUBDIRS	= tools \
-	  examples/standalone \
-	  examples/api
+SUBDIRS	= tools
 
 .PHONY : $(SUBDIRS) $(VERSION_FILE) $(TIMESTAMP_FILE)
 
@@ -155,6 +153,11 @@ sinclude $(obj)include/autoconf.mk
 # load ARCH, BOARD, and CPU configuration
 include $(obj)include/config.mk
 export	ARCH CPU BOARD VENDOR SOC
+
+ifndef CONFIG_SANDBOX
+SUBDIRS += examples/standalone \
+	  examples/api
+endif
 
 # set default to nothing for native builds
 ifeq ($(HOSTARCH),$(ARCH))
