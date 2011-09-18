@@ -164,8 +164,8 @@ static void auto_load(void)
 			return;
 		}
 #endif
-	TftpStart();
 	}
+	TftpStart();
 }
 
 #if !defined(CONFIG_CMD_DHCP)
