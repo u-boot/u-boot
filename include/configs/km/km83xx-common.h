@@ -284,12 +284,7 @@
 
 /*
  * Internal Definitions
- *
- * Boot Flags
  */
-#define BOOTFLAG_COLD	0x01 /* Normal Power-On: Boot from FLASH */
-#define BOOTFLAG_WARM	0x02 /* Software reboot */
-
 #define BOOTFLASH_START	0xF0000000
 
 #define CONFIG_KM_CONSOLE_TTY	"ttyS0"
