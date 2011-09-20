@@ -1182,14 +1182,11 @@ int fdt_node_offset_by_compat_reg(void *blob, const char *compat,
  */
 int fdt_alloc_phandle(void *blob)
 {
-	int offset, len, phandle = 0;
-	const u32 *val;
+	int offset, phandle = 0;
 
 	for (offset = fdt_next_node(blob, -1, NULL); offset >= 0;
 	     offset = fdt_next_node(blob, offset, NULL)) {
-		val = fdt_getprop(blob, offset, "linux,phandle", &len);
-		if (val)
-			phandle = max(*val, phandle);
+		phandle = max(phandle, fdt_get_phandle(blob, offset));
 	}
 
 	return phandle + 1;
