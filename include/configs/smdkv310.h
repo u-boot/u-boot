@@ -90,7 +90,9 @@
 
 #define CONFIG_BOOTDELAY		3
 #define CONFIG_ZERO_BOOTDELAY_CHECK
-#define CONFIG_MMC_U_BOOT
+
+/* MMC SPL */
+#define CONFIG_SPL
 
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0 40007000 uImage; bootm 40007000"
 
