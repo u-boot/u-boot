@@ -93,6 +93,7 @@
 
 /* MMC SPL */
 #define CONFIG_SPL
+#define COPY_BL2_FNPTR_ADDR	0x00002488
 
 #define CONFIG_BOOTCOMMAND	"fatload mmc 0 40007000 uImage; bootm 40007000"
 

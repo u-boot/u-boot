@@ -23,15 +23,16 @@
 #include<common.h>
 #include<config.h>
 
-typedef u32(*copy_sd_mmc_to_mem) \
-	(u32 start_block, u32 block_count, u32 *dest_addr);
-
-
+/*
+* Copy U-boot from mmc to RAM:
+* COPY_BL2_FNPTR_ADDR: Address in iRAM, which Contains
+* API (Data transfer from mmc to ram)
+*/
 void copy_uboot_to_ram(void)
 {
-	copy_sd_mmc_to_mem copy_bl2 = (copy_sd_mmc_to_mem)(0x00002488);
-	copy_bl2(BL2_START_OFFSET,\
-		BL2_SIZE_BLOC_COUNT, (u32 *)CONFIG_SYS_TEXT_BASE);
+	u32 (*copy_bl2)(u32, u32, u32) = (void *)COPY_BL2_FNPTR_ADDR;
+
+	copy_bl2(BL2_START_OFFSET, BL2_SIZE_BLOC_COUNT, CONFIG_SYS_TEXT_BASE);
 }
 
 void board_init_f(unsigned long bootflag)
