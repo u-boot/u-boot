@@ -57,7 +57,6 @@ int board_init(void)
 
 	smc9115_pre_init();
 
-	gd->bd->bi_arch_number = MACH_TYPE_SMDKV310;
 	gd->bd->bi_boot_params = (PHYS_SDRAM_1 + 0x100UL);
 	return 0;
 }

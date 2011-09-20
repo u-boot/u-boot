@@ -37,6 +37,9 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
+/* Mach Type */
+#define CONFIG_MACH_TYPE		MACH_TYPE_SMDKV310
+
 /* Keep L2 Cache Disabled */
 #define CONFIG_L2_OFF			1
 
