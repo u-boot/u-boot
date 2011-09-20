@@ -504,9 +504,8 @@ void fdt_fixup_fman_firmware(void *blob)
 		       fdt_strerror(rc));
 		return;
 	}
-	phandle = fdt_alloc_phandle(blob);
-	rc = fdt_setprop_cell(blob, fwnode, "linux,phandle", phandle);
-	if (rc < 0) {
+	phandle = fdt_create_phandle(blob, fwnode);
+	if (!phandle) {
 		char s[64];
 		fdt_get_path(blob, fwnode, s, sizeof(s));
 		printf("Could not add phandle property to node %s: %s\n", s,
