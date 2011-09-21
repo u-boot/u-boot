@@ -230,6 +230,6 @@ int do_pmic(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 U_BOOT_CMD(
 	pmic,	CONFIG_SYS_MAXARGS, 1, do_pmic,
 	"Freescale PMIC (Atlas)",
-	"dump [numregs] dump registers\n"
+	"dump [numregs] - dump registers\n"
 	"pmic write <reg> <value> - write register"
 );
