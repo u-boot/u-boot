@@ -43,24 +43,6 @@ const struct tegra2_sysinfo sysinfo = {
 	CONFIG_TEGRA2_BOARD_STRING
 };
 
-#ifdef CONFIG_BOARD_EARLY_INIT_F
-int board_early_init_f(void)
-{
-	/* Initialize periph clocks */
-	clock_init();
-
-	/* Initialize periph pinmuxes */
-	pinmux_init();
-
-	/* Initialize periph GPIOs */
-	gpio_init();
-
-	/* Init UART, scratch regs, and start CPU */
-	tegra2_start();
-	return 0;
-}
-#endif	/* EARLY_INIT */
-
 /*
  * Routine: timer_init
  * Description: init the timestamp and lastinc value
@@ -155,6 +137,7 @@ static void pin_mux_uart(void)
 #endif	/* CONFIG_TEGRA2_ENABLE_UARTD */
 }
 
+#ifdef CONFIG_TEGRA2_MMC
 /*
  * Routine: clock_init_mmc
  * Description: init the PLL and clocks for the SDMMC controllers
@@ -235,33 +218,7 @@ static void pin_mux_mmc(void)
 	pinmux_tristate_disable(PIN_SDD);
 	pinmux_tristate_disable(PIN_SDB);
 }
-
-/*
- * Routine: clock_init
- * Description: Do individual peripheral clock reset/enables
- */
-void clock_init(void)
-{
-	clock_init_uart();
-}
-
-/*
- * Routine: pinmux_init
- * Description: Do individual peripheral pinmux configs
- */
-void pinmux_init(void)
-{
-	pin_mux_uart();
-}
-
-/*
- * Routine: gpio_init
- * Description: Do individual peripheral GPIO configs
- */
-void gpio_init(void)
-{
-	gpio_config_uart();
-}
+#endif
 
 /*
  * Routine: board_init
@@ -307,3 +264,21 @@ int board_mmc_getcd(u8 *cd, struct mmc *mmc)
 	return 0;
 }
 #endif
+
+#ifdef CONFIG_BOARD_EARLY_INIT_F
+int board_early_init_f(void)
+{
+	/* Initialize UART clocks */
+	clock_init_uart();
+
+	/* Initialize periph pinmuxes */
+	pin_mux_uart();
+
+	/* Initialize periph GPIOs */
+	gpio_config_uart();
+
+	/* Init UART, scratch regs, and start CPU */
+	tegra2_start();
+	return 0;
+}
+#endif	/* EARLY_INIT */
