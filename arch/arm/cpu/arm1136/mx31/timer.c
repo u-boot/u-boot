@@ -173,8 +173,8 @@ void mxc_hw_watchdog_enable(void)
 #else
 	secs = 64;
 #endif
-	writew(readw(&wdog->wcr) | (secs << WDOG_WT_SHIFT) | WDOG_ENABLE,
-		&wdog->wcr);
+	setbits_le16(&wdog->wcr, (secs << WDOG_WT_SHIFT) | WDOG_ENABLE
+							 | WDOG_WDZST);
 }
 
 

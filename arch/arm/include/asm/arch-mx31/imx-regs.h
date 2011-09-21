@@ -71,6 +71,8 @@ struct cspi_regs {
 /* Watchdog Timer (WDOG) registers */
 #define WDOG_ENABLE	(1 << 2)
 #define WDOG_WT_SHIFT	8
+#define WDOG_WDZST	(1 << 0)
+
 struct wdog_regs {
 	u16 wcr;	/* Control */
 	u16 wsr;	/* Service */
