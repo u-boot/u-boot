@@ -100,7 +100,6 @@ const struct pad_conf_entry core_padconf_array_non_essential[] = {
 	{USBB1_HSIC_STROBE, (IEN | OFF_EN | OFF_PD | OFF_IN | M0)},	/* usbb1_hsic_strobe */
 	{USBC1_ICUSB_DP, (IEN | M0)},					/* usbc1_icusb_dp */
 	{USBC1_ICUSB_DM, (IEN | M0)},					/* usbc1_icusb_dm */
-	{ABE_MCBSP2_CLKX, (IEN | OFF_EN | OFF_PD | OFF_IN | M0)},	/* abe_mcbsp2_clkx */
 	{ABE_MCBSP2_DR, (IEN | OFF_EN | OFF_OUT_PTD | M0)},		/* abe_mcbsp2_dr */
 	{ABE_MCBSP2_DX, (OFF_EN | OFF_OUT_PTD | M0)},			/* abe_mcbsp2_dx */
 	{ABE_MCBSP2_FSX, (IEN | OFF_EN | OFF_PD | OFF_IN | M0)},	/* abe_mcbsp2_fsx */
@@ -202,6 +201,14 @@ const struct pad_conf_entry core_padconf_array_non_essential[] = {
 	{DPM_EMU19, (IEN | M5)},					/* dispc2_data0 */
 };
 
+const struct pad_conf_entry core_padconf_array_non_essential_4430[] = {
+	{ABE_MCBSP2_CLKX, (IEN | OFF_EN | OFF_PD | OFF_IN | M0)},	/* abe_mcbsp2_clkx */
+};
+
+const struct pad_conf_entry core_padconf_array_non_essential_4460[] = {
+	{ABE_MCBSP2_CLKX, (PTU | OFF_EN | OFF_OUT_PTU | M3)},		/* led status_1 */
+};
+
 const struct pad_conf_entry wkup_padconf_array_non_essential[] = {
 	{PAD0_SIM_IO, (IEN | M0)},		/* sim_io */
 	{PAD1_SIM_CLK, (M0)},			/* sim_clk */
@@ -214,7 +221,6 @@ const struct pad_conf_entry wkup_padconf_array_non_essential[] = {
 	{PAD0_FREF_CLK0_OUT, (M2)},		/* sys_drm_msecure */
 	{PAD1_FREF_CLK3_REQ, M7},					/* safe mode */
 	{PAD0_FREF_CLK3_OUT, (M0)},		/* fref_clk3_out */
-	{PAD1_FREF_CLK4_REQ, (PTU | M3)},	/* led status_1 */
 	{PAD0_FREF_CLK4_OUT, (PTU | M3)},	/* led status_2 */
 	{PAD0_SYS_NRESPWRON, (M0)},		/* sys_nrespwron */
 	{PAD1_SYS_NRESWARM, (M0)},		/* sys_nreswarm */
@@ -222,6 +228,10 @@ const struct pad_conf_entry wkup_padconf_array_non_essential[] = {
 	{PAD1_SYS_PWRON_RESET, (M3)},		/* gpio_wk29 */
 	{PAD0_SYS_BOOT6, (IEN | M3)},		/* gpio_wk9 */
 	{PAD1_SYS_BOOT7, (IEN | M3)},		/* gpio_wk10 */
+};
+
+const struct pad_conf_entry wkup_padconf_array_non_essential_4430[] = {
+	{PAD1_FREF_CLK4_REQ, (PTU | M3)},	/* led status_1 */
 };
 
 #endif /* _PANDA_MUX_DATA_H_ */
