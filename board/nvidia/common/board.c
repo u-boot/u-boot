@@ -86,21 +86,15 @@ static void clock_init_uart(void)
  */
 static void pin_mux_uart(void)
 {
-	struct pmux_tri_ctlr *pmt = (struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
-	u32 reg;
-
 #if defined(CONFIG_TEGRA2_ENABLE_UARTA)
-	reg = readl(&pmt->pmt_ctl_c);
-	reg &= 0xFFF0FFFF;	/* IRRX_/IRTX_SEL [19:16] = 00 UARTA */
-	writel(reg, &pmt->pmt_ctl_c);
+	pinmux_set_func(PINGRP_IRRX, PMUX_FUNC_UARTA);
+	pinmux_set_func(PINGRP_IRTX, PMUX_FUNC_UARTA);
 
 	pinmux_tristate_disable(PINGRP_IRRX);
 	pinmux_tristate_disable(PINGRP_IRTX);
 #endif	/* CONFIG_TEGRA2_ENABLE_UARTA */
 #if defined(CONFIG_TEGRA2_ENABLE_UARTD)
-	reg = readl(&pmt->pmt_ctl_b);
-	reg &= 0xFFFFFFF3;	/* GMC_SEL [3:2] = 00, UARTD */
-	writel(reg, &pmt->pmt_ctl_b);
+	pinmux_set_func(PINGRP_GMC, PMUX_FUNC_UARTD);
 
 	pinmux_tristate_disable(PINGRP_GMC);
 #endif	/* CONFIG_TEGRA2_ENABLE_UARTD */
@@ -123,33 +117,19 @@ static void clock_init_mmc(void)
  */
 static void pin_mux_mmc(void)
 {
-	struct pmux_tri_ctlr *pmt = (struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
-	u32 reg;
-
-	/* SDMMC4 */
-	/* config 2, x8 on 2nd set of pins */
-	reg = readl(&pmt->pmt_ctl_a);
-	reg |= (3 << 16);	/* ATB_SEL [17:16] = 11 SDIO4 */
-	writel(reg, &pmt->pmt_ctl_a);
-	reg = readl(&pmt->pmt_ctl_b);
-	reg |= (3 << 0);	/* GMA_SEL [1:0] = 11 SDIO4 */
-	writel(reg, &pmt->pmt_ctl_b);
-	reg = readl(&pmt->pmt_ctl_d);
-	reg |= (3 << 0);	/* GME_SEL [1:0] = 11 SDIO4 */
-	writel(reg, &pmt->pmt_ctl_d);
+	/* SDMMC4: config 3, x8 on 2nd set of pins */
+	pinmux_set_func(PINGRP_ATB, PMUX_FUNC_SDIO4);
+	pinmux_set_func(PINGRP_GMA, PMUX_FUNC_SDIO4);
+	pinmux_set_func(PINGRP_GME, PMUX_FUNC_SDIO4);
 
 	pinmux_tristate_disable(PINGRP_ATB);
 	pinmux_tristate_disable(PINGRP_GMA);
 	pinmux_tristate_disable(PINGRP_GME);
 
-	/* SDMMC3 */
-	/* SDIO3_CLK, SDIO3_CMD, SDIO3_DAT[3:0] */
-	reg = readl(&pmt->pmt_ctl_d);
-	reg &= 0xFFFF03FF;
-	reg |= (2 << 10);	/* SDB_SEL [11:10] = 01 SDIO3 */
-	reg |= (2 << 12);	/* SDC_SEL [13:12] = 01 SDIO3 */
-	reg |= (2 << 14);	/* SDD_SEL [15:14] = 01 SDIO3 */
-	writel(reg, &pmt->pmt_ctl_d);
+	/* SDMMC3: SDIO3_CLK, SDIO3_CMD, SDIO3_DAT[3:0] */
+	pinmux_set_func(PINGRP_SDB, PMUX_FUNC_SDIO3);
+	pinmux_set_func(PINGRP_SDC, PMUX_FUNC_SDIO3);
+	pinmux_set_func(PINGRP_SDD, PMUX_FUNC_SDIO3);
 
 	pinmux_tristate_disable(PINGRP_SDC);
 	pinmux_tristate_disable(PINGRP_SDD);
