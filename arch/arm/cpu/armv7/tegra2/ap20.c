@@ -36,7 +36,7 @@ u32 s_first_boot = 1;
 void init_pllx(void)
 {
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	struct clk_pll *pll = &clkrst->crc_pll[CLOCK_PLL_ID_XCPU];
+	struct clk_pll *pll = &clkrst->crc_pll[CLOCK_ID_XCPU];
 	u32 reg;
 
 	/* If PLLX is already enabled, just return */

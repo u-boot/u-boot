@@ -77,7 +77,7 @@ int timer_init(void)
 static void clock_init_uart(void)
 {
 	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	struct clk_pll *pll = &clkrst->crc_pll[CLOCK_PLL_ID_PERIPH];
+	struct clk_pll *pll = &clkrst->crc_pll[CLOCK_ID_PERIPH];
 	u32 reg;
 
 	reg = readl(&pll->pll_base);

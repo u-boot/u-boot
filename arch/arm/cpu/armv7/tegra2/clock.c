@@ -42,7 +42,7 @@ enum clock_osc_freq clock_get_osc_freq(void)
 	return (reg & OSC_FREQ_MASK) >> OSC_FREQ_SHIFT;
 }
 
-unsigned long clock_start_pll(enum clock_pll_id clkid, u32 divm, u32 divn,
+unsigned long clock_start_pll(enum clock_id clkid, u32 divm, u32 divn,
 		u32 divp, u32 cpcon, u32 lfcon)
 {
 	struct clk_rst_ctlr *clkrst =
@@ -50,7 +50,7 @@ unsigned long clock_start_pll(enum clock_pll_id clkid, u32 divm, u32 divn,
 	u32 data;
 	struct clk_pll *pll;
 
-	assert(clock_pll_id_isvalid(clkid));
+	assert(clock_id_isvalid(clkid));
 	pll = &clkrst->crc_pll[clkid];
 
 	/*
@@ -66,7 +66,7 @@ unsigned long clock_start_pll(enum clock_pll_id clkid, u32 divm, u32 divn,
 	data = (divm << PLL_DIVM_SHIFT) | (divn << PLL_DIVN_SHIFT) |
 			(0 << PLL_BYPASS_SHIFT) | (1 << PLL_ENABLE_SHIFT);
 
-	if (clkid == CLOCK_PLL_ID_USB)
+	if (clkid == CLOCK_ID_USB)
 		data |= divp << PLLU_VCO_FREQ_SHIFT;
 	else
 		data |= divp << PLL_DIVP_SHIFT;

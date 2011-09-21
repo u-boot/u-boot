@@ -22,7 +22,7 @@
 /* Tegra2 clock control functions */
 
 #ifndef _CLOCK_H
-
+#define _CLOCK_H
 
 /* Set of oscillator frequencies supported in the internal API. */
 enum clock_osc_freq {
@@ -36,22 +36,22 @@ enum clock_osc_freq {
 };
 
 /* The PLLs supported by the hardware */
-enum clock_pll_id {
-	CLOCK_PLL_ID_FIRST,
-	CLOCK_PLL_ID_CGENERAL = CLOCK_PLL_ID_FIRST,
-	CLOCK_PLL_ID_MEMORY,
-	CLOCK_PLL_ID_PERIPH,
-	CLOCK_PLL_ID_AUDIO,
-	CLOCK_PLL_ID_USB,
-	CLOCK_PLL_ID_DISPLAY,
+enum clock_id {
+	CLOCK_ID_FIRST,
+	CLOCK_ID_CGENERAL = CLOCK_ID_FIRST,
+	CLOCK_ID_MEMORY,
+	CLOCK_ID_PERIPH,
+	CLOCK_ID_AUDIO,
+	CLOCK_ID_USB,
+	CLOCK_ID_DISPLAY,
 
 	/* now the simple ones */
-	CLOCK_PLL_ID_FIRST_SIMPLE,
-	CLOCK_PLL_ID_XCPU = CLOCK_PLL_ID_FIRST_SIMPLE,
-	CLOCK_PLL_ID_EPCI,
-	CLOCK_PLL_ID_SFROM32KHZ,
+	CLOCK_ID_FIRST_SIMPLE,
+	CLOCK_ID_XCPU = CLOCK_ID_FIRST_SIMPLE,
+	CLOCK_ID_EPCI,
+	CLOCK_ID_SFROM32KHZ,
 
-	CLOCK_PLL_ID_COUNT,
+	CLOCK_ID_COUNT,
 };
 
 /* The clocks supported by the hardware */
@@ -80,7 +80,7 @@ enum periph_id {
 
 	/* 16 */
 	PERIPH_ID_TWC,
-	PERIPH_ID_PWC,
+	PERIPH_ID_PWM,
 	PERIPH_ID_I2S2,
 	PERIPH_ID_EPP,
 	PERIPH_ID_VI,
@@ -181,8 +181,7 @@ enum periph_id {
 #define PERIPH_MASK(id) (1 << ((id) & 0x1f))
 
 /* return 1 if a PLL ID is in range */
-#define clock_pll_id_isvalid(id) ((id) >= CLOCK_PLL_ID_FIRST && \
-		(id) < CLOCK_PLL_ID_COUNT)
+#define clock_id_isvalid(id) ((id) >= CLOCK_ID_FIRST && (id) < CLOCK_ID_COUNT)
 
 /* return 1 if a peripheral ID is in range */
 #define clock_periph_id_isvalid(id) ((id) >= PERIPH_ID_FIRST && \
@@ -194,7 +193,7 @@ enum periph_id {
 /* return the current oscillator clock frequency */
 enum clock_osc_freq clock_get_osc_freq(void);
 
-/*
+/**
  * Start PLL using the provided configuration parameters.
  *
  * @param id	clock id
@@ -206,7 +205,7 @@ enum clock_osc_freq clock_get_osc_freq(void);
  *
  * @returns monotonic time in us that the PLL will be stable
  */
-unsigned long clock_start_pll(enum clock_pll_id id, u32 divm, u32 divn,
+unsigned long clock_start_pll(enum clock_id id, u32 divm, u32 divn,
 		u32 divp, u32 cpcon, u32 lfcon);
 
 /*
@@ -224,7 +223,7 @@ void clock_enable(enum periph_id clkid);
  */
 void clock_set_enable(enum periph_id clkid, int enable);
 
-/*
+/**
  * Reset a peripheral. This puts it in reset, waits for a delay, then takes
  * it out of reset and waits for th delay again.
  *
@@ -233,7 +232,7 @@ void clock_set_enable(enum periph_id clkid, int enable);
  */
 void reset_periph(enum periph_id periph_id, int us_delay);
 
-/*
+/**
  * Put a peripheral into or out of reset.
  *
  * @param periph_id	peripheral to reset
@@ -251,7 +250,7 @@ enum crc_reset_id {
 	crc_rst_debug = 1 << 4,
 };
 
-/*
+/**
  * Put parts of the CPU complex into or out of reset.\
  *
  * @param cpu		cpu number (0 or 1 on Tegra2)
