@@ -52,62 +52,31 @@ int timer_init(void)
 	return 0;
 }
 
+static void enable_uart(enum periph_id pid)
+{
+	/* Assert UART reset and enable clock */
+	reset_set_enable(pid, 1);
+	clock_enable(pid);
+	clock_ll_set_source(pid, 0);	/* UARTx_CLK_SRC = 00, PLLP_OUT0 */
+
+	/* wait for 2us */
+	udelay(2);
+
+	/* De-assert reset to UART */
+	reset_set_enable(pid, 0);
+}
+
 /*
  * Routine: clock_init_uart
  * Description: init the PLL and clock for the UART(s)
  */
 static void clock_init_uart(void)
 {
-	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	struct clk_pll *pll = &clkrst->crc_pll[CLOCK_ID_PERIPH];
-	u32 reg;
-
-	reg = readl(&pll->pll_base);
-	if (!(reg & PLL_BASE_OVRRIDE_MASK)) {
-		/* Override pllp setup for 216MHz operation. */
-		reg = PLL_BYPASS_MASK | PLL_BASE_OVRRIDE_MASK |
-			(1 << PLL_DIVP_SHIFT) | (0xc << PLL_DIVM_SHIFT);
-		reg |= (NVRM_PLLP_FIXED_FREQ_KHZ / 500) << PLL_DIVN_SHIFT;
-		writel(reg, &pll->pll_base);
-
-		reg |= PLL_ENABLE_MASK;
-		writel(reg, &pll->pll_base);
-
-		reg &= ~PLL_BYPASS_MASK;
-		writel(reg, &pll->pll_base);
-	}
-
 #if defined(CONFIG_TEGRA2_ENABLE_UARTA)
-	/* Assert UART reset and enable clock */
-	reset_set_enable(PERIPH_ID_UART1, 1);
-	clock_enable(PERIPH_ID_UART1);
-
-	/* Enable pllp_out0 to UART */
-	reg = readl(&clkrst->crc_clk_src_uarta);
-	reg &= 0x3FFFFFFF;	/* UARTA_CLK_SRC = 00, PLLP_OUT0 */
-	writel(reg, &clkrst->crc_clk_src_uarta);
-
-	/* wait for 2us */
-	udelay(2);
-
-	/* De-assert reset to UART */
-	reset_set_enable(PERIPH_ID_UART1, 0);
+	enable_uart(PERIPH_ID_UART1);
 #endif	/* CONFIG_TEGRA2_ENABLE_UARTA */
 #if defined(CONFIG_TEGRA2_ENABLE_UARTD)
-	/* Assert UART reset and enable clock */
-	reset_set_enable(PERIPH_ID_UART4, 1);
-	clock_enable(PERIPH_ID_UART4);
-
-	/* Enable pllp_out0 to UART */
-	reg = readl(&clkrst->crc_clk_src_uartd);
-	reg &= 0x3FFFFFFF;	/* UARTD_CLK_SRC = 00, PLLP_OUT0 */
-	writel(reg, &clkrst->crc_clk_src_uartd);
-
-	/* wait for 2us */
-	udelay(2);
-
-	/* De-assert reset to UART */
-	reset_set_enable(PERIPH_ID_UART4, 0);
+	enable_uart(PERIPH_ID_UART4);
 #endif	/* CONFIG_TEGRA2_ENABLE_UARTD */
 }
 
@@ -144,40 +113,8 @@ static void pin_mux_uart(void)
  */
 static void clock_init_mmc(void)
 {
-	struct clk_rst_ctlr *clkrst = (struct clk_rst_ctlr *)NV_PA_CLK_RST_BASE;
-	u32 reg;
-
-	/* Do the SDMMC resets/clock enables */
-	reset_set_enable(PERIPH_ID_SDMMC4, 1);
-	clock_enable(PERIPH_ID_SDMMC4);
-
-	/* Enable pllp_out0 to SDMMC4 */
-	reg = readl(&clkrst->crc_clk_src_sdmmc4);
-	reg &= 0x3FFFFF00;	/* SDMMC4_CLK_SRC = 00, PLLP_OUT0 */
-	reg |= (10 << 1);	/* n-1, 11-1 shl 1 */
-	writel(reg, &clkrst->crc_clk_src_sdmmc4);
-
-	/*
-	 * As per the Tegra2 TRM, section 5.3.4:
-	 * 'Wait 2 us for the clock to flush through the pipe/logic'
-	 */
-	udelay(2);
-
-	reset_set_enable(PERIPH_ID_SDMMC4, 1);
-
-	reset_set_enable(PERIPH_ID_SDMMC3, 1);
-	clock_enable(PERIPH_ID_SDMMC3);
-
-	/* Enable pllp_out0 to SDMMC4, set divisor to 11 for 20MHz */
-	reg = readl(&clkrst->crc_clk_src_sdmmc3);
-	reg &= 0x3FFFFF00;	/* SDMMC3_CLK_SRC = 00, PLLP_OUT0 */
-	reg |= (10 << 1);	/* n-1, 11-1 shl 1 */
-	writel(reg, &clkrst->crc_clk_src_sdmmc3);
-
-	/* wait for 2us */
-	udelay(2);
-
-	reset_set_enable(PERIPH_ID_SDMMC3, 0);
+	clock_start_periph_pll(PERIPH_ID_SDMMC4, CLOCK_ID_PERIPH, 20000000);
+	clock_start_periph_pll(PERIPH_ID_SDMMC3, CLOCK_ID_PERIPH, 20000000);
 }
 
 /*
@@ -226,6 +163,9 @@ static void pin_mux_mmc(void)
  */
 int board_init(void)
 {
+	clock_init();
+	clock_verify();
+
 	/* boot param addr */
 	gd->bd->bi_boot_params = (NV_PA_SDRAM_BASE + 0x100);
 
@@ -268,6 +208,9 @@ int board_mmc_getcd(u8 *cd, struct mmc *mmc)
 #ifdef CONFIG_BOARD_EARLY_INIT_F
 int board_early_init_f(void)
 {
+	/* Initialize essential common plls */
+	clock_early_init();
+
 	/* Initialize UART clocks */
 	clock_init_uart();
 
