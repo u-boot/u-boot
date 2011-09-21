@@ -452,7 +452,7 @@ static int tegra2_mmc_initialize(int dev_index, int bus_width)
 		mmc->host_caps = MMC_MODE_8BIT;
 	else
 		mmc->host_caps = MMC_MODE_4BIT;
-	mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS;
+	mmc->host_caps |= MMC_MODE_HS_52MHz | MMC_MODE_HS | MMC_MODE_HC;
 
 	/*
 	 * min freq is for card identification, and is the highest

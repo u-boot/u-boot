@@ -24,6 +24,9 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/tegra2.h>
+#ifdef CONFIG_TEGRA2_MMC
+#include <mmc.h>
+#endif
 
 /*
  * Routine: gpio_config_uart
@@ -32,3 +35,26 @@
 void gpio_config_uart(void)
 {
 }
+
+#ifdef CONFIG_TEGRA2_MMC
+/*
+ * Routine: gpio_config_mmc
+ * Description: Set GPIOs for SD card
+ */
+void gpio_config_mmc(void)
+{
+	/* Not implemented for now */
+}
+
+/* this is a weak define that we are overriding */
+int board_mmc_getcd(u8 *cd, struct mmc *mmc)
+{
+	debug("board_mmc_getcd called\n");
+	/*
+	 * Hard-code CD presence for now. Need to add GPIO inputs
+	 * for Harmony
+	 */
+	*cd = 1;
+	return 0;
+}
+#endif

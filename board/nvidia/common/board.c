@@ -160,6 +160,7 @@ int board_mmc_init(bd_t *bd)
 	/* Enable clocks, muxes, etc. for SDMMC controllers */
 	clock_init_mmc();
 	pin_mux_mmc();
+	gpio_config_mmc();
 
 	debug("board_mmc_init: init eMMC\n");
 	/* init dev 0, eMMC chip, with 4-bit bus */
@@ -169,18 +170,6 @@ int board_mmc_init(bd_t *bd)
 	/* init dev 1, SD slot, with 4-bit bus */
 	tegra2_mmc_init(1, 4);
 
-	return 0;
-}
-
-/* this is a weak define that we are overriding */
-int board_mmc_getcd(u8 *cd, struct mmc *mmc)
-{
-	debug("board_mmc_getcd called\n");
-	/*
-	 * Hard-code CD presence for now. Need to add GPIO inputs
-	 * for Seaboard & Harmony (& Kaen/Aebl/Wario?)
-	 */
-	*cd = 1;
 	return 0;
 }
 #endif
