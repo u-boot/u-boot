@@ -200,13 +200,13 @@ static void init_omap4_revision(void)
 		break;
 	case MIDR_CORTEX_A9_R1P2:
 		switch (readl(CONTROL_ID_CODE)) {
-		case OMAP4_CONTROL_ID_CODE_ES2_0:
+		case OMAP4430_CONTROL_ID_CODE_ES2_0:
 			*omap4_revision = OMAP4430_ES2_0;
 			break;
-		case OMAP4_CONTROL_ID_CODE_ES2_1:
+		case OMAP4430_CONTROL_ID_CODE_ES2_1:
 			*omap4_revision = OMAP4430_ES2_1;
 			break;
-		case OMAP4_CONTROL_ID_CODE_ES2_2:
+		case OMAP4430_CONTROL_ID_CODE_ES2_2:
 			*omap4_revision = OMAP4430_ES2_2;
 			break;
 		default:
