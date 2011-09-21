@@ -94,15 +94,15 @@ static void pin_mux_uart(void)
 	reg &= 0xFFF0FFFF;	/* IRRX_/IRTX_SEL [19:16] = 00 UARTA */
 	writel(reg, &pmt->pmt_ctl_c);
 
-	pinmux_tristate_disable(PIN_IRRX);
-	pinmux_tristate_disable(PIN_IRTX);
+	pinmux_tristate_disable(PINGRP_IRRX);
+	pinmux_tristate_disable(PINGRP_IRTX);
 #endif	/* CONFIG_TEGRA2_ENABLE_UARTA */
 #if defined(CONFIG_TEGRA2_ENABLE_UARTD)
 	reg = readl(&pmt->pmt_ctl_b);
 	reg &= 0xFFFFFFF3;	/* GMC_SEL [3:2] = 00, UARTD */
 	writel(reg, &pmt->pmt_ctl_b);
 
-	pinmux_tristate_disable(PIN_GMC);
+	pinmux_tristate_disable(PINGRP_GMC);
 #endif	/* CONFIG_TEGRA2_ENABLE_UARTD */
 }
 
@@ -138,9 +138,9 @@ static void pin_mux_mmc(void)
 	reg |= (3 << 0);	/* GME_SEL [1:0] = 11 SDIO4 */
 	writel(reg, &pmt->pmt_ctl_d);
 
-	pinmux_tristate_disable(PIN_ATB);
-	pinmux_tristate_disable(PIN_GMA);
-	pinmux_tristate_disable(PIN_GME);
+	pinmux_tristate_disable(PINGRP_ATB);
+	pinmux_tristate_disable(PINGRP_GMA);
+	pinmux_tristate_disable(PINGRP_GME);
 
 	/* SDMMC3 */
 	/* SDIO3_CLK, SDIO3_CMD, SDIO3_DAT[3:0] */
@@ -151,9 +151,9 @@ static void pin_mux_mmc(void)
 	reg |= (2 << 14);	/* SDD_SEL [15:14] = 01 SDIO3 */
 	writel(reg, &pmt->pmt_ctl_d);
 
-	pinmux_tristate_disable(PIN_SDC);
-	pinmux_tristate_disable(PIN_SDD);
-	pinmux_tristate_disable(PIN_SDB);
+	pinmux_tristate_disable(PINGRP_SDC);
+	pinmux_tristate_disable(PINGRP_SDD);
+	pinmux_tristate_disable(PINGRP_SDB);
 }
 #endif
 

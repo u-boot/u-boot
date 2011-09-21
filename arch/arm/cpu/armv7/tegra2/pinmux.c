@@ -27,7 +27,7 @@
 #include <common.h>
 
 
-void pinmux_set_tristate(enum pmux_pin pin, int enable)
+void pinmux_set_tristate(enum pmux_pingrp pin, int enable)
 {
 	struct pmux_tri_ctlr *pmt = (struct pmux_tri_ctlr *)NV_PA_APB_MISC_BASE;
 	u32 *tri = &pmt->pmt_tri[TRISTATE_REG(pin)];
@@ -41,12 +41,12 @@ void pinmux_set_tristate(enum pmux_pin pin, int enable)
 	writel(reg, tri);
 }
 
-void pinmux_tristate_enable(enum pmux_pin pin)
+void pinmux_tristate_enable(enum pmux_pingrp pin)
 {
 	pinmux_set_tristate(pin, 1);
 }
 
-void pinmux_tristate_disable(enum pmux_pin pin)
+void pinmux_tristate_disable(enum pmux_pingrp pin)
 {
 	pinmux_set_tristate(pin, 0);
 }

@@ -24,137 +24,137 @@
 #ifndef _PINMUX_H_
 #define _PINMUX_H_
 
-/* Pins which we can set to tristate or normal */
-enum pmux_pin {
+/* Pin groups which we can set to tristate or normal */
+enum pmux_pingrp {
 	/* APB_MISC_PP_TRISTATE_REG_A_0 */
-	PIN_ATA,
-	PIN_ATB,
-	PIN_ATC,
-	PIN_ATD,
-	PIN_CDEV1,
-	PIN_CDEV2,
-	PIN_CSUS,
-	PIN_DAP1,
+	PINGRP_ATA,
+	PINGRP_ATB,
+	PINGRP_ATC,
+	PINGRP_ATD,
+	PINGRP_CDEV1,
+	PINGRP_CDEV2,
+	PINGRP_CSUS,
+	PINGRP_DAP1,
 
-	PIN_DAP2,
-	PIN_DAP3,
-	PIN_DAP4,
-	PIN_DTA,
-	PIN_DTB,
-	PIN_DTC,
-	PIN_DTD,
-	PIN_DTE,
+	PINGRP_DAP2,
+	PINGRP_DAP3,
+	PINGRP_DAP4,
+	PINGRP_DTA,
+	PINGRP_DTB,
+	PINGRP_DTC,
+	PINGRP_DTD,
+	PINGRP_DTE,
 
-	PIN_GPU,
-	PIN_GPV,
-	PIN_I2CP,
-	PIN_IRTX,
-	PIN_IRRX,
-	PIN_KBCB,
-	PIN_KBCA,
-	PIN_PMC,
+	PINGRP_GPU,
+	PINGRP_GPV,
+	PINGRP_I2CP,
+	PINGRP_IRTX,
+	PINGRP_IRRX,
+	PINGRP_KBCB,
+	PINGRP_KBCA,
+	PINGRP_PMC,
 
-	PIN_PTA,
-	PIN_RM,
-	PIN_KBCE,
-	PIN_KBCF,
-	PIN_GMA,
-	PIN_GMC,
-	PIN_SDMMC1,
-	PIN_OWC,
+	PINGRP_PTA,
+	PINGRP_RM,
+	PINGRP_KBCE,
+	PINGRP_KBCF,
+	PINGRP_GMA,
+	PINGRP_GMC,
+	PINGRP_SDMMC1,
+	PINGRP_OWC,
 
 	/* 32: APB_MISC_PP_TRISTATE_REG_B_0 */
-	PIN_GME,
-	PIN_SDC,
-	PIN_SDD,
-	PIN_RESERVED0,
-	PIN_SLXA,
-	PIN_SLXC,
-	PIN_SLXD,
-	PIN_SLXK,
+	PINGRP_GME,
+	PINGRP_SDC,
+	PINGRP_SDD,
+	PINGRP_RESERVED0,
+	PINGRP_SLXA,
+	PINGRP_SLXC,
+	PINGRP_SLXD,
+	PINGRP_SLXK,
 
-	PIN_SPDI,
-	PIN_SPDO,
-	PIN_SPIA,
-	PIN_SPIB,
-	PIN_SPIC,
-	PIN_SPID,
-	PIN_SPIE,
-	PIN_SPIF,
+	PINGRP_SPDI,
+	PINGRP_SPDO,
+	PINGRP_SPIA,
+	PINGRP_SPIB,
+	PINGRP_SPIC,
+	PINGRP_SPID,
+	PINGRP_SPIE,
+	PINGRP_SPIF,
 
-	PIN_SPIG,
-	PIN_SPIH,
-	PIN_UAA,
-	PIN_UAB,
-	PIN_UAC,
-	PIN_UAD,
-	PIN_UCA,
-	PIN_UCB,
+	PINGRP_SPIG,
+	PINGRP_SPIH,
+	PINGRP_UAA,
+	PINGRP_UAB,
+	PINGRP_UAC,
+	PINGRP_UAD,
+	PINGRP_UCA,
+	PINGRP_UCB,
 
-	PIN_RESERVED1,
-	PIN_ATE,
-	PIN_KBCC,
-	PIN_RESERVED2,
-	PIN_RESERVED3,
-	PIN_GMB,
-	PIN_GMD,
-	PIN_DDC,
+	PINGRP_RESERVED1,
+	PINGRP_ATE,
+	PINGRP_KBCC,
+	PINGRP_RESERVED2,
+	PINGRP_RESERVED3,
+	PINGRP_GMB,
+	PINGRP_GMD,
+	PINGRP_DDC,
 
 	/* 64: APB_MISC_PP_TRISTATE_REG_C_0 */
-	PIN_LD0,
-	PIN_LD1,
-	PIN_LD2,
-	PIN_LD3,
-	PIN_LD4,
-	PIN_LD5,
-	PIN_LD6,
-	PIN_LD7,
+	PINGRP_LD0,
+	PINGRP_LD1,
+	PINGRP_LD2,
+	PINGRP_LD3,
+	PINGRP_LD4,
+	PINGRP_LD5,
+	PINGRP_LD6,
+	PINGRP_LD7,
 
-	PIN_LD8,
-	PIN_LD9,
-	PIN_LD10,
-	PIN_LD11,
-	PIN_LD12,
-	PIN_LD13,
-	PIN_LD14,
-	PIN_LD15,
+	PINGRP_LD8,
+	PINGRP_LD9,
+	PINGRP_LD10,
+	PINGRP_LD11,
+	PINGRP_LD12,
+	PINGRP_LD13,
+	PINGRP_LD14,
+	PINGRP_LD15,
 
-	PIN_LD16,
-	PIN_LD17,
-	PIN_LHP0,
-	PIN_LHP1,
-	PIN_LHP2,
-	PIN_LVP0,
-	PIN_LVP1,
-	PIN_HDINT,
+	PINGRP_LD16,
+	PINGRP_LD17,
+	PINGRP_LHP0,
+	PINGRP_LHP1,
+	PINGRP_LHP2,
+	PINGRP_LVP0,
+	PINGRP_LVP1,
+	PINGRP_HDINT,
 
-	PIN_LM0,
-	PIN_LM1,
-	PIN_LVS,
-	PIN_LSC0,
-	PIN_LSC1,
-	PIN_LSCK,
-	PIN_LDC,
-	PIN_LCSN,
+	PINGRP_LM0,
+	PINGRP_LM1,
+	PINGRP_LVS,
+	PINGRP_LSC0,
+	PINGRP_LSC1,
+	PINGRP_LSCK,
+	PINGRP_LDC,
+	PINGRP_LCSN,
 
 	/* 96: APB_MISC_PP_TRISTATE_REG_D_0 */
-	PIN_LSPI,
-	PIN_LSDA,
-	PIN_LSDI,
-	PIN_LPW0,
-	PIN_LPW1,
-	PIN_LPW2,
-	PIN_LDI,
-	PIN_LHS,
+	PINGRP_LSPI,
+	PINGRP_LSDA,
+	PINGRP_LSDI,
+	PINGRP_LPW0,
+	PINGRP_LPW1,
+	PINGRP_LPW2,
+	PINGRP_LDI,
+	PINGRP_LHS,
 
-	PIN_LPP,
-	PIN_RESERVED4,
-	PIN_KBCD,
-	PIN_GPU7,
-	PIN_DTF,
-	PIN_UDA,
-	PIN_CRTP,
-	PIN_SDB,
+	PINGRP_LPP,
+	PINGRP_RESERVED4,
+	PINGRP_KBCD,
+	PINGRP_GPU7,
+	PINGRP_DTF,
+	PINGRP_UDA,
+	PINGRP_CRTP,
+	PINGRP_SDB,
 };
 
 
@@ -172,25 +172,25 @@ struct pmux_tri_ctlr {
 
 	uint pmt_reserved[22];		/* ABP_MISC_PP_ reserved offs 28-7C */
 
-	uint pmt_ctl_a;			/* _PIN_MUX_CTL_A_0, offset 80 */
-	uint pmt_ctl_b;			/* _PIN_MUX_CTL_B_0, offset 84 */
-	uint pmt_ctl_c;			/* _PIN_MUX_CTL_C_0, offset 88 */
-	uint pmt_ctl_d;			/* _PIN_MUX_CTL_D_0, offset 8C */
-	uint pmt_ctl_e;			/* _PIN_MUX_CTL_E_0, offset 90 */
-	uint pmt_ctl_f;			/* _PIN_MUX_CTL_F_0, offset 94 */
-	uint pmt_ctl_g;			/* _PIN_MUX_CTL_G_0, offset 98 */
+	uint pmt_ctl_a;			/* _PINGRP_MUX_CTL_A_0, offset 80 */
+	uint pmt_ctl_b;			/* _PINGRP_MUX_CTL_B_0, offset 84 */
+	uint pmt_ctl_c;			/* _PINGRP_MUX_CTL_C_0, offset 88 */
+	uint pmt_ctl_d;			/* _PINGRP_MUX_CTL_D_0, offset 8C */
+	uint pmt_ctl_e;			/* _PINGRP_MUX_CTL_E_0, offset 90 */
+	uint pmt_ctl_f;			/* _PINGRP_MUX_CTL_F_0, offset 94 */
+	uint pmt_ctl_g;			/* _PINGRP_MUX_CTL_G_0, offset 98 */
 };
 
-/* Converts a pin number to a tristate register: 0=A, 1=B, 2=C, 3=D */
+/* Converts a pin group to a tristate register: 0=A, 1=B, 2=C, 3=D */
 #define TRISTATE_REG(id) ((id) >> 5)
 
 /* Mask value for a tristate (within TRISTATE_REG(id)) */
 #define TRISTATE_MASK(id) (1 << ((id) & 0x1f))
 
-/* Set a pin to tristate */
-void pinmux_tristate_enable(enum pmux_pin pin);
+/* Set a pin group to tristate */
+void pinmux_tristate_enable(enum pmux_pingrp pin);
 
-/* Set a pin to normal (non tristate) */
-void pinmux_tristate_disable(enum pmux_pin pin);
+/* Set a pin group to normal (non tristate) */
+void pinmux_tristate_disable(enum pmux_pingrp pin);
 
 #endif	/* PINMUX_H */
