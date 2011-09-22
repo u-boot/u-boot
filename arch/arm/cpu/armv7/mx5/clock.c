@@ -141,18 +141,35 @@ static u32 get_periph_clk(void)
 }
 
 /*
+ * Get the rate of ahb clock.
+ */
+static u32 get_ahb_clk(void)
+{
+	uint32_t freq, div, reg;
+
+	freq = get_periph_clk();
+
+	reg = __raw_readl(&mxc_ccm->cbcdr);
+	div = ((reg & MXC_CCM_CBCDR_AHB_PODF_MASK) >>
+			MXC_CCM_CBCDR_AHB_PODF_OFFSET) + 1;
+
+	return freq / div;
+}
+
+/*
  * Get the rate of ipg clock.
  */
 static u32 get_ipg_clk(void)
 {
-	u32 ahb_podf, ipg_podf;
+	uint32_t freq, reg, div;
 
-	ahb_podf = __raw_readl(&mxc_ccm->cbcdr);
-	ipg_podf = (ahb_podf & MXC_CCM_CBCDR_IPG_PODF_MASK) >>
-			MXC_CCM_CBCDR_IPG_PODF_OFFSET;
-	ahb_podf = (ahb_podf & MXC_CCM_CBCDR_AHB_PODF_MASK) >>
-			MXC_CCM_CBCDR_AHB_PODF_OFFSET;
-	return get_periph_clk() / ((ahb_podf + 1) * (ipg_podf + 1));
+	freq = get_ahb_clk();
+
+	reg = __raw_readl(&mxc_ccm->cbcdr);
+	div = ((reg & MXC_CCM_CBCDR_IPG_PODF_MASK) >>
+			MXC_CCM_CBCDR_IPG_PODF_OFFSET) + 1;
+
+	return freq / div;
 }
 
 /*
@@ -279,7 +296,7 @@ unsigned int mxc_get_clock(enum mxc_clock clk)
 	case MXC_ARM_CLK:
 		return get_mcu_main_clk();
 	case MXC_AHB_CLK:
-		break;
+		return get_ahb_clk();
 	case MXC_IPG_CLK:
 		return get_ipg_clk();
 	case MXC_IPG_PERCLK:
@@ -325,6 +342,7 @@ int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	freq = decode_pll(mxc_plls[PLL4_CLOCK], CONFIG_SYS_MX5_HCLK);
 	printf("pll4: %dMHz\n", freq / 1000000);
 #endif
+	printf("ahb clock     : %dHz\n", mxc_get_clock(MXC_AHB_CLK));
 	printf("ipg clock     : %dHz\n", mxc_get_clock(MXC_IPG_CLK));
 	printf("ipg per clock : %dHz\n", mxc_get_clock(MXC_IPG_PERCLK));
 
