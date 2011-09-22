@@ -362,15 +362,31 @@ usage:
 
 #endif
 
-static void nand_print_info(int idx)
+static void nand_print_and_set_info(int idx)
 {
 	nand_info_t *nand = &nand_info[idx];
 	struct nand_chip *chip = nand->priv;
+	const int bufsz = 32;
+	char buf[bufsz];
+
 	printf("Device %d: ", idx);
 	if (chip->numchips > 1)
 		printf("%dx ", chip->numchips);
 	printf("%s, sector size %u KiB\n",
 	       nand->name, nand->erasesize >> 10);
+	printf("  Page size  %8d b\n", nand->writesize);
+	printf("  OOB size   %8d b\n", nand->oobsize);
+	printf("  Erase size %8d b\n", nand->erasesize);
+
+	/* Set geometry info */
+	sprintf(buf, "%x", nand->writesize);
+	setenv("nand_writesize", buf);
+
+	sprintf(buf, "%x", nand->oobsize);
+	setenv("nand_oobsize", buf);
+
+	sprintf(buf, "%x", nand->erasesize);
+	setenv("nand_erasesize", buf);
 }
 
 int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
@@ -407,7 +423,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 		putc('\n');
 		for (i = 0; i < CONFIG_SYS_MAX_NAND_DEVICE; i++) {
 			if (nand_info[i].name)
-				nand_print_info(i);
+				nand_print_and_set_info(i);
 		}
 		return 0;
 	}
@@ -418,7 +434,7 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 			if (dev < 0 || dev >= CONFIG_SYS_MAX_NAND_DEVICE)
 				puts("no devices available\n");
 			else
-				nand_print_info(dev);
+				nand_print_and_set_info(dev);
 			return 0;
 		}
 
