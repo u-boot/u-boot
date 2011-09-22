@@ -30,6 +30,8 @@
 #define CONFIG_DISPLAY_CPUINFO
 #define CONFIG_DISPLAY_BOARDINFO
 
+#define CONFIG_MACH_TYPE	MACH_TYPE_MX53_LOCO
+
 #include <asm/arch/imx-regs.h>
 
 #define CONFIG_CMDLINE_TAG
