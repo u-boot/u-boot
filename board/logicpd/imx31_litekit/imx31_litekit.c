@@ -70,7 +70,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	gd->bd->bi_arch_number = MACH_TYPE_MX31LITE; /* board id for linux */
 	gd->bd->bi_boot_params = (0x80000100);	/* adress of boot parameters */
 
 	return 0;

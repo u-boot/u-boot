@@ -41,6 +41,8 @@
 
 #define CONFIG_SYS_TEXT_BASE	0xa0000000
 
+#define CONFIG_MACH_TYPE	MACH_TYPE_MX31LITE
+
 /* Temporarily disabled */
 #if 0
 #define CONFIG_OF_LIBFDT		1
