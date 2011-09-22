@@ -35,6 +35,8 @@
 
 #define CONFIG_SYS_TEXT_BASE		0xA0000000
 
+#define CONFIG_MACH_TYPE	MACH_TYPE_MX31ADS
+
 /*
  * Disabled for now due to build problems under Debian and a significant increase
  * in the final file size: 144260 vs. 109536 Bytes.
