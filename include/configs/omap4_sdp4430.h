@@ -48,4 +48,3 @@
 #define CONFIG_SYS_PROMPT		"OMAP4430 SDP # "
 
 #endif /* __CONFIG_SDP4430_H */
-

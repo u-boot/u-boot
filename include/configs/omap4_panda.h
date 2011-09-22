@@ -41,4 +41,3 @@
 #define CONFIG_SYS_PROMPT		"Panda # "
 
 #endif /* __CONFIG_PANDA_H */
-
