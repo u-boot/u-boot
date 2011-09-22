@@ -37,12 +37,6 @@ int dram_init(void)
 	return 0;
 }
 
-void dram_init_banksize(void)
-{
-	gd->bd->bi_dram[0].start = PHYS_SDRAM_1;
-	gd->bd->bi_dram[0].size = PHYS_SDRAM_1_SIZE;
-}
-
 int board_early_init_f(void)
 {
 	__REG(CSCR_U(0)) = 0x0000cf03; /* CS0: Nor Flash */
