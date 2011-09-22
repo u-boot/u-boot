@@ -403,7 +403,6 @@ int board_init(void)
 {
 	system_rev = get_cpu_rev();
 
-	gd->bd->bi_arch_number = MACH_TYPE_MX51_BABBAGE;
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 

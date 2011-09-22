@@ -48,6 +48,7 @@
 
 #define CONFIG_OF_LIBFDT		1
 
+#define CONFIG_MACH_TYPE	MACH_TYPE_MX51_BABBAGE
 /*
  * Size of malloc() pool
  */
