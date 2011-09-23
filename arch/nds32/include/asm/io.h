@@ -165,6 +165,24 @@ static inline unsigned int readl(unsigned int *addr)
 #define __raw_base_readw(base, off)	__arch_base_getw(base, off)
 #define __raw_base_readl(base, off)	__arch_base_getl(base, off)
 
+#define out_arch(type, endian, a, v)	__raw_write##type(cpu_to_##endian(v), a)
+#define in_arch(type, endian, a)	endian##_to_cpu(__raw_read##type(a))
+
+#define out_le32(a, v)			out_arch(l, le32, a, v)
+#define out_le16(a, v)			out_arch(w, le16, a, v)
+
+#define in_le32(a)			in_arch(l, le32, a)
+#define in_le16(a)			in_arch(w, le16, a)
+
+#define out_be32(a, v)			out_arch(l, be32, a, v)
+#define out_be16(a, v)			out_arch(w, be16, a, v)
+
+#define in_be32(a)			in_arch(l, be32, a)
+#define in_be16(a)			in_arch(w, be16, a)
+
+#define out_8(a, v)			__raw_writeb(v, a)
+#define in_8(a)				__raw_readb(a)
+
 /*
  * Now, pick up the machine-defined IO definitions
  * #include <asm/arch/io.h>
