@@ -602,6 +602,22 @@ int do_nand(cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 				ret = nand->read_oob(nand, off, &ops);
 			else
 				ret = nand->write_oob(nand, off, &ops);
+		} else if (!strcmp(s, ".raw")) {
+			/* Raw access */
+			mtd_oob_ops_t ops = {
+				.datbuf = (u8 *)addr,
+				.oobbuf = ((u8 *)addr) + nand->writesize,
+				.len = nand->writesize,
+				.ooblen = nand->oobsize,
+				.mode = MTD_OOB_RAW
+			};
+
+			rwsize = nand->writesize + nand->oobsize;
+
+			if (read)
+				ret = nand->read_oob(nand, off, &ops);
+			else
+				ret = nand->write_oob(nand, off, &ops);
 		} else {
 			printf("Unknown nand command suffix '%s'.\n", s);
 			return 1;
@@ -695,6 +711,9 @@ U_BOOT_CMD(
 	"nand write - addr off|partition size\n"
 	"    read/write 'size' bytes starting at offset 'off'\n"
 	"    to/from memory address 'addr', skipping bad blocks.\n"
+	"nand read.raw - addr off|partition\n"
+	"nand write.raw - addr off|partition\n"
+	"    Use read.raw/write.raw to avoid ECC and access the page as-is.\n"
 #ifdef CONFIG_CMD_NAND_TRIMFFS
 	"nand write.trimffs - addr off|partition size\n"
 	"    write 'size' bytes starting at offset 'off' from memory address\n"

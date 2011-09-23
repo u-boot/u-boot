@@ -94,6 +94,15 @@ Commands:
       of data for one 512-byte page or 2 256-byte pages. There is no check
       for bad blocks.
 
+   nand read.raw addr ofs|partition
+      Read page from `ofs' in NAND flash to `addr'. This reads the raw page,
+      so ECC is avoided and the OOB area is read as well.
+
+   nand write.raw addr ofs|partition
+      Write page from `addr' to `ofs' in NAND flash. This writes the raw page,
+      so ECC is avoided and the OOB area is written as well, making the whole
+      page written as-is.
+
 Configuration Options:
 
    CONFIG_CMD_NAND
