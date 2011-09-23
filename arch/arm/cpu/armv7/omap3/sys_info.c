@@ -44,13 +44,13 @@ static char *rev_s[CPU_3XX_MAX_REV] = {
 				"UNKNOWN",
 				"UNKNOWN",
 				"3.1.2"};
-#endif /* CONFIG_DISPLAY_CPUINFO */
 
 /* this is the revision table for 37xx CPUs */
 static char *rev_s_37xx[CPU_37XX_MAX_REV] = {
 				"1.0",
 				"1.1",
 				"1.2"};
+#endif /* CONFIG_DISPLAY_CPUINFO */
 
 /*****************************************************************
  * dieid_num_r(void) - read and set die ID
