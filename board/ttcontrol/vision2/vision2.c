@@ -653,7 +653,6 @@ void lcd_enable(void)
 
 int board_init(void)
 {
-	gd->bd->bi_arch_number = MACH_TYPE_TTC_VISION2;	/* board id for linux */
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 

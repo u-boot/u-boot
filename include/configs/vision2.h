@@ -41,6 +41,8 @@
 #define CONFIG_INITRD_TAG
 #define BOARD_LATE_INIT
 
+#define CONFIG_MACH_TYPE	MACH_TYPE_TTC_VISION2
+
 /*
  * Size of malloc() pool
  */
