@@ -117,8 +117,6 @@ int board_init()
 	writel(input_select1, &inputselect->i2c3_ipp_sda_in);	/* I2C3 SDA */
 	writel(input_select2, &inputselect->i2c3_ipp_scl_in);	/* I2C3 SCL */
 
-	/* board id for linux */
-	gd->bd->bi_arch_number = MACH_TYPE_ZMX25;
 	gd->bd->bi_boot_params = PHYS_SDRAM + 0x100;
 
 	return 0;
