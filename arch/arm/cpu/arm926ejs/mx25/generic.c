@@ -105,29 +105,6 @@ ulong imx_get_perclk (int clk)
 	return lldiv (fref, div);
 }
 
-static char *get_reset_cause(void)
-{
-	/* read RCSR register from CCM module */
-	struct ccm_regs *ccm =
-		(struct ccm_regs *)IMX_CCM_BASE;
-
-	u32 cause = readl(&ccm->rcsr) & 0x0f;
-
-	if (cause == 0)
-		return "POR";
-	else if (cause == 1)
-		return "RST";
-	else if ((cause & 2) == 2)
-		return "WDOG";
-	else if ((cause & 4) == 4)
-		return "SW RESET";
-	else if ((cause & 8) == 8)
-		return "JTAG";
-	else
-		return "unknown reset";
-
-}
-
 u32 get_cpu_rev(void)
 {
 	u32 srev;
@@ -153,6 +130,29 @@ u32 get_cpu_rev(void)
 }
 
 #if defined(CONFIG_DISPLAY_CPUINFO)
+static char *get_reset_cause(void)
+{
+	/* read RCSR register from CCM module */
+	struct ccm_regs *ccm =
+		(struct ccm_regs *)IMX_CCM_BASE;
+
+	u32 cause = readl(&ccm->rcsr) & 0x0f;
+
+	if (cause == 0)
+		return "POR";
+	else if (cause == 1)
+		return "RST";
+	else if ((cause & 2) == 2)
+		return "WDOG";
+	else if ((cause & 4) == 4)
+		return "SW RESET";
+	else if ((cause & 8) == 8)
+		return "JTAG";
+	else
+		return "unknown reset";
+
+}
+
 int print_cpuinfo (void)
 {
 	char buf[32];
