@@ -316,10 +316,9 @@ int ide_preinit(void)
 
 	/* auto-detect IDE controller */
 	if (ftide_controller_probe()) {
-		printf("Faraday %s driver version %s\n", FTIDE_IP_NAME,
-		FTIDE_DRIVER_VERSION);
+		printf("FTIDE020_S\n");
 	} else {
-		printf("Faraday ATA controller not found.\n");
+		printf("FTIDE020_S ATA controller not found.\n");
 		return API_ENODEV;
 	}
 
