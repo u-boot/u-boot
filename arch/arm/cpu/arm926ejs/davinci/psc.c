@@ -83,7 +83,7 @@ void lpsc_on(unsigned int id)
 	while (readl(ptstat) & 0x01)
 		continue;
 
-	if ((readl(mdstat) & 0x1f) == 0x03)
+	if ((readl(mdstat) & PSC_MDSTAT_STATE) == 0x03)
 		return; /* Already on and enabled */
 
 	writel(readl(mdctl) | 0x03, mdctl);
@@ -114,7 +114,7 @@ void lpsc_on(unsigned int id)
 
 	while (readl(ptstat) & 0x01)
 		continue;
-	while ((readl(mdstat) & 0x1f) != 0x03)
+	while ((readl(mdstat) & PSC_MDSTAT_STATE) != 0x03)
 		continue;
 }
 

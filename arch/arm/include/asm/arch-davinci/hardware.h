@@ -356,6 +356,8 @@ struct davinci_psc_regs {
 
 #endif /* CONFIG_SOC_DA8XX */
 
+#define PSC_MDSTAT_STATE		0x3f
+
 #ifndef CONFIG_SOC_DA8XX
 
 /* Miscellania... */
