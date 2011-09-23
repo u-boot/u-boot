@@ -486,7 +486,7 @@ int ehci_hcd_init(void)
  * Returns - 	1 if button is held down
  *		0 if button is not held down
  */
-int do_userbutton (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
+int do_userbutton(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int     button = 0;
 	int	gpio;
