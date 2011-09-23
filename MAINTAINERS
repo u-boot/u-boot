@@ -797,8 +797,6 @@ Nomadik Linux Team <STN_WMM_nomadik_linux@list.st.com>
 Steve Sakoman <sakoman@gmail.com>
 
 	omap3_overo	ARM ARMV7 (OMAP3xx SoC)
-	omap4_panda	ARM ARMV7 (OMAP4xx SoC)
-	omap4_sdp4430	ARM ARMV7 (OMAP4xx SoC)
 
 Jens Scharsig <esw@bus-elektronik.de>
 
@@ -837,6 +835,11 @@ Greg Ungerer <greg.ungerer@opengear.com>
 	cm4008		ks8695p
 	cm4116		ks8695p
 	cm4148		ks8695p
+
+Aneesh V <aneesh@ti.com>
+
+	omap4_panda	ARM ARMV7 (OMAP4xx SoC)
+	omap4_sdp4430	ARM ARMV7 (OMAP4xx SoC)
 
 Marek Vasut <marek.vasut@gmail.com>
 
