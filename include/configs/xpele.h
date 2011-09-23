@@ -29,20 +29,23 @@
 	"nand_kernel_size=0x400000\0" 	\
 	"nand_ramdisk_size=0x400000\0" 	\
 	"bootcmd=run modeboot\0"	\
-	"norboot=echo Copying Linux from NOR flash to RAM...;			\
-			    cp 0xE2100000 0x8000 ${kernel_size};		\
-			    echo Copying ramdisk from NOR flash to RAM...; 	\
-			    cp 0xE3000000 0x800000 ${ramdisk_size}; 		\
-			    go 0x8000\0"					\
-	"qspiboot=echo Copying Linux from QSPI flash to RAM...;			\
-			    cp 0xFC100000 0x8000 ${kernel_size};		\
-			    echo Copying ramdisk from QSPI flash to RAM...;	\
-			    cp 0xFC800000 0x800000 ${ramdisk_size}; 		\
-			    go 0x8000\0"					\
-	"nandboot=echo Copying Linux from NAND flash to RAM...;			\
-			    nand read 0x8000 0x200000 ${nand_kernel_size};	\
-			    echo Copying ramdisk from NAND flash to RAM...;	\
-			    nand read 0x800000 0x900000 ${nand_ramdisk_size}; 	\
+	"norboot=echo Copying Linux from NOR flash to RAM...; \
+			    cp 0xE2100000 0x8000 ${kernel_size}; \
+			    cp 0xE2600000 0x1000000 0x8000; \
+			    echo Copying ramdisk...; \
+			    cp 0xE3000000 0x800000 ${ramdisk_size}; \
+			    go 0x8000\0" \
+	"qspiboot=echo Copying Linux from QSPI flash to RAM...; \
+			    cp 0xFC100000 0x8000 ${kernel_size}; \
+			    cp 0xFC600000 0x1000000 0x8000; \
+			    echo Copying ramdisk...; \
+			    cp 0xFC800000 0x800000 ${ramdisk_size};\
+			    go 0x8000\0" \
+	"nandboot=echo Copying Linux from NAND flash to RAM...;	\
+			    nand read 0x8000 0x200000 ${nand_kernel_size}; \
+			    nand read 0x1000000 0x700000 0x20000; \
+			    echo Copying ramdisk...; \
+			    nand read 0x800000 0x900000 ${nand_ramdisk_size}; \
 			    go 0x8000\0"
 
 #undef CONFIG_PELE_XIL_LQSPI
