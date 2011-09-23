@@ -1578,7 +1578,7 @@ int boot_get_fdt (int flag, int argc, char * const argv[], bootm_headers_t *imag
 			goto error;
 		}
 
-		printf ("   Booting using the fdt blob at 0x%x\n", (int)fdt_blob);
+		printf("   Booting using the fdt blob at 0x%p\n", fdt_blob);
 
 	} else if (images->legacy_hdr_valid &&
 			image_check_type (&images->legacy_hdr_os_copy, IH_TYPE_MULTI)) {
@@ -1597,7 +1597,7 @@ int boot_get_fdt (int flag, int argc, char * const argv[], bootm_headers_t *imag
 		if (fdt_len) {
 
 			fdt_blob = (char *)fdt_data;
-			printf ("   Booting using the fdt at 0x%x\n", (int)fdt_blob);
+			printf("   Booting using the fdt at 0x%p\n", fdt_blob);
 
 			if (fdt_check_header (fdt_blob) != 0) {
 				fdt_error ("image is not a fdt");
