@@ -29,11 +29,13 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/crm_regs.h>
 #include <asm/arch/clock.h>
+#include <div64.h>
 
 enum pll_clocks {
 	PLL1_CLOCK = 0,
 	PLL2_CLOCK,
 	PLL3_CLOCK,
+	PLL4_CLOCK,
 	PLL_CLOCKS,
 };
 
@@ -41,25 +43,65 @@ struct mxc_pll_reg *mxc_plls[PLL_CLOCKS] = {
 	[PLL1_CLOCK] = (struct mxc_pll_reg *)PLL1_BASE_ADDR,
 	[PLL2_CLOCK] = (struct mxc_pll_reg *)PLL2_BASE_ADDR,
 	[PLL3_CLOCK] = (struct mxc_pll_reg *)PLL3_BASE_ADDR,
+#ifdef	CONFIG_MX53
+	[PLL4_CLOCK] = (struct mxc_pll_reg *)PLL4_BASE_ADDR,
+#endif
 };
 
 struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)MXC_CCM_BASE;
 
 /*
- * Calculate the frequency of this pll.
+ * Calculate the frequency of PLLn.
  */
-static u32 decode_pll(struct mxc_pll_reg *pll, u32 infreq)
+static uint32_t decode_pll(struct mxc_pll_reg *pll, uint32_t infreq)
 {
-	u32 mfi, mfn, mfd, pd;
+	uint32_t ctrl, op, mfd, mfn, mfi, pdf, ret;
+	uint64_t refclk, temp;
+	int32_t mfn_abs;
 
-	mfn = __raw_readl(&pll->mfn);
-	mfd = __raw_readl(&pll->mfd) + 1;
-	mfi = __raw_readl(&pll->op);
-	pd = (mfi  & 0xF) + 1;
-	mfi = (mfi >> 4) & 0xF;
-	mfi = (mfi >= 5) ? mfi : 5;
+	ctrl = readl(&pll->ctrl);
 
-	return ((4 * (infreq / 1000) * (mfi * mfd + mfn)) / (mfd * pd)) * 1000;
+	if (ctrl & MXC_DPLLC_CTL_HFSM) {
+		mfn = __raw_readl(&pll->hfs_mfn);
+		mfd = __raw_readl(&pll->hfs_mfd);
+		op = __raw_readl(&pll->hfs_op);
+	} else {
+		mfn = __raw_readl(&pll->mfn);
+		mfd = __raw_readl(&pll->mfd);
+		op = __raw_readl(&pll->op);
+	}
+
+	mfd &= MXC_DPLLC_MFD_MFD_MASK;
+	mfn &= MXC_DPLLC_MFN_MFN_MASK;
+	pdf = op & MXC_DPLLC_OP_PDF_MASK;
+	mfi = (op & MXC_DPLLC_OP_MFI_MASK) >> MXC_DPLLC_OP_MFI_OFFSET;
+
+	/* 21.2.3 */
+	if (mfi < 5)
+		mfi = 5;
+
+	/* Sign extend */
+	if (mfn >= 0x04000000) {
+		mfn |= 0xfc000000;
+		mfn_abs = -mfn;
+	} else
+		mfn_abs = mfn;
+
+	refclk = infreq * 2;
+	if (ctrl & MXC_DPLLC_CTL_DPDCK0_2_EN)
+		refclk *= 2;
+
+	refclk /= pdf + 1;
+	temp = refclk * mfn_abs;
+	do_div(temp, mfd + 1);
+	ret = refclk * mfi;
+
+	if ((int)mfn < 0)
+		ret -= temp;
+	else
+		ret += temp;
+
+	return ret;
 }
 
 /*
@@ -279,6 +321,10 @@ int do_mx5_showclocks(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	printf("pll2: %dMHz\n", freq / 1000000);
 	freq = decode_pll(mxc_plls[PLL3_CLOCK], CONFIG_SYS_MX5_HCLK);
 	printf("pll3: %dMHz\n", freq / 1000000);
+#ifdef	CONFIG_MX53
+	freq = decode_pll(mxc_plls[PLL4_CLOCK], CONFIG_SYS_MX5_HCLK);
+	printf("pll4: %dMHz\n", freq / 1000000);
+#endif
 	printf("ipg clock     : %dHz\n", mxc_get_clock(MXC_IPG_CLK));
 	printf("ipg per clock : %dHz\n", mxc_get_clock(MXC_IPG_PERCLK));
 
