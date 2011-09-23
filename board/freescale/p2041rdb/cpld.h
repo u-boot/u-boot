@@ -19,7 +19,7 @@ typedef struct cpld_data {
 	u8 cpld_ver_sub;	/* 0x1 - CPLD Minor Revision Register */
 	u8 pcba_ver;		/* 0x2 - PCBA Revision Register */
 	u8 system_rst;		/* 0x3 - system reset register */
-	u8 wd_cfg;		/* 0x4 - Watchdog Period Setting Register */
+	u8 res0;		/* 0x4 - not used */
 	u8 sw_ctl_on;		/* 0x5 - Switch Control Enable Register */
 	u8 por_cfg;		/* 0x6 - POR Control Register */
 	u8 switch_strobe;	/* 0x7 - Multiplexed pin Select Register */

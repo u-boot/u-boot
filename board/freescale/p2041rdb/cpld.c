@@ -79,7 +79,6 @@ static void cpld_dump_regs(void)
 	printf("cpld_ver_sub	= 0x%02x\n", CPLD_READ(cpld_ver_sub));
 	printf("pcba_ver	= 0x%02x\n", CPLD_READ(pcba_ver));
 	printf("system_rst	= 0x%02x\n", CPLD_READ(system_rst));
-	printf("wd_cfg		= 0x%02x\n", CPLD_READ(wd_cfg));
 	printf("sw_ctl_on	= 0x%02x\n", CPLD_READ(sw_ctl_on));
 	printf("por_cfg		= 0x%02x\n", CPLD_READ(por_cfg));
 	printf("switch_strobe	= 0x%02x\n", CPLD_READ(switch_strobe));
@@ -96,7 +95,6 @@ static void cpld_dump_regs(void)
 int cpld_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	int rc = 0;
-	unsigned int i;
 
 	if (argc <= 1)
 		return cmd_usage(cmdtp);
@@ -106,13 +104,6 @@ int cpld_cmd(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			cpld_set_altbank();
 		else
 			cpld_set_defbank();
-	} else if (strcmp(argv[1], "watchdog") == 0) {
-		static char *period[8] = {"1ms", "10ms", "30ms", "disable",
-			"100ms", "1s", "10s", "60s"};
-		for (i = 0; i < ARRAY_SIZE(period); i++) {
-			if (strcmp(argv[2], period[i]) == 0)
-				CPLD_WRITE(wd_cfg, i);
-		}
 	} else if (strcmp(argv[1], "lane_mux") == 0) {
 		u32 lane = simple_strtoul(argv[2], NULL, 16);
 		u8 val = (u8)simple_strtoul(argv[3], NULL, 16);
@@ -156,8 +147,6 @@ U_BOOT_CMD(
 	"Reset the board or pin mulexing selection using the CPLD sequencer",
 	"reset - hard reset to default bank\n"
 	"cpld_cmd reset altbank - reset to alternate bank\n"
-	"cpld_cmd watchdog <watchdog_period> - set the watchdog period\n"
-	"	period: 1ms 10ms 30ms 100ms 1s 10s 60s disable\n"
 	"cpld_cmd lane_mux <lane> <mux_value> - set multiplexed lane pin\n"
 	"	lane 6: 0 -> slot1\n"
 	"		1 -> SGMII (Default)\n"
