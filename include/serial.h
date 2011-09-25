@@ -50,6 +50,13 @@ extern struct serial_device serial4_device;
 extern struct serial_device serial6_device;
 #endif
 
+#if defined(CONFIG_XILINX_UARTLITE)
+extern struct serial_device uartlite_serial0_device;
+extern struct serial_device uartlite_serial1_device;
+extern struct serial_device uartlite_serial2_device;
+extern struct serial_device uartlite_serial3_device;
+#endif
+
 #if defined(CONFIG_S3C2410)
 extern struct serial_device s3c24xx_serial0_device;
 extern struct serial_device s3c24xx_serial1_device;
