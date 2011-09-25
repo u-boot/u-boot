@@ -62,10 +62,13 @@ void efikamx_toggle_led(uint32_t mask);
 #define	EFIKAMX_BOARD_REV_13	0x3
 #define	EFIKAMX_BOARD_REV_14	0x4
 
+#define	EFIKASB_BOARD_REV_13	0x1
+#define	EFIKASB_BOARD_REV_20	0x2
+
 /*
  * Board identification
  */
-u32 get_efika_rev(void)
+u32 get_efikamx_rev(void)
 {
 	u32 rev = 0;
 	/*
@@ -95,6 +98,31 @@ u32 get_efika_rev(void)
 	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_NANDF_RB3))) << 2;
 
 	return (~rev & 0x7) + 1;
+}
+
+inline u32 get_efikasb_rev(void)
+{
+	u32 rev = 0;
+
+	mxc_request_iomux(MX51_PIN_EIM_CS3, IOMUX_CONFIG_GPIO);
+	mxc_iomux_set_pad(MX51_PIN_EIM_CS3, PAD_CTL_100K_PU);
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_EIM_CS3));
+	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_EIM_CS3))) << 0;
+
+	mxc_request_iomux(MX51_PIN_EIM_CS4, IOMUX_CONFIG_GPIO);
+	mxc_iomux_set_pad(MX51_PIN_EIM_CS4, PAD_CTL_100K_PU);
+	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_EIM_CS4));
+	rev |= (!!gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_EIM_CS4))) << 1;
+
+	return rev;
+}
+
+inline uint32_t get_efika_rev(void)
+{
+	if (machine_is_efikamx())
+		return get_efikamx_rev();
+	else
+		return get_efikasb_rev();
 }
 
 u32 get_board_rev(void)
@@ -268,25 +296,36 @@ struct fsl_esdhc_cfg esdhc_cfg[2] = {
 	{MMC_SDHC2_BASE_ADDR, 1},
 };
 
+static inline uint32_t efika_mmc_cd(void)
+{
+	if (machine_is_efikamx())
+		return MX51_PIN_GPIO1_0;
+	else
+		return MX51_PIN_EIM_CS2;
+}
+
 int board_mmc_getcd(u8 *absent, struct mmc *mmc)
 {
 	struct fsl_esdhc_cfg *cfg = (struct fsl_esdhc_cfg *)mmc->priv;
+	uint32_t cd = efika_mmc_cd();
 
 	if (cfg->esdhc_base == MMC_SDHC1_BASE_ADDR)
-		*absent = gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_GPIO1_0));
+		*absent = gpio_get_value(IOMUX_TO_GPIO(cd));
 	else
 		*absent = gpio_get_value(IOMUX_TO_GPIO(MX51_PIN_GPIO1_8));
 
 	return 0;
 }
+
 int board_mmc_init(bd_t *bis)
 {
 	int ret;
+	uint32_t cd = efika_mmc_cd();
 
 	/* SDHC1 is used on all revisions, setup control pins first */
-	mxc_request_iomux(MX51_PIN_GPIO1_0,
+	mxc_request_iomux(cd,
 		IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
-	mxc_iomux_set_pad(MX51_PIN_GPIO1_0,
+	mxc_iomux_set_pad(cd,
 		PAD_CTL_DRV_HIGH | PAD_CTL_HYS_ENABLE |
 		PAD_CTL_PUE_KEEPER | PAD_CTL_100K_PU |
 		PAD_CTL_ODE_OPENDRAIN_NONE |
@@ -298,11 +337,12 @@ int board_mmc_init(bd_t *bis)
 		PAD_CTL_100K_PU | PAD_CTL_ODE_OPENDRAIN_NONE |
 		PAD_CTL_SRE_FAST);
 
-	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_GPIO1_0));
+	gpio_direction_input(IOMUX_TO_GPIO(cd));
 	gpio_direction_input(IOMUX_TO_GPIO(MX51_PIN_GPIO1_1));
 
 	/* Internal SDHC1 IOMUX + SDHC2 IOMUX on old boards */
-	if (get_efika_rev() < EFIKAMX_BOARD_REV_12) {
+	if (machine_is_efikasb() || (machine_is_efikamx() &&
+		(get_efika_rev() < EFIKAMX_BOARD_REV_12))) {
 		/* SDHC1 IOMUX */
 		mxc_request_iomux(MX51_PIN_SD1_CMD,
 			IOMUX_CONFIG_ALT0 | IOMUX_CONFIG_SION);
@@ -414,6 +454,7 @@ int board_mmc_init(bd_t *bis)
 
 		ret = fsl_esdhc_initialize(bis, &esdhc_cfg[0]);
 	}
+
 	return ret;
 }
 #endif
@@ -493,27 +534,44 @@ static inline void setup_iomux_ata(void) { }
  */
 void setup_iomux_led(void)
 {
-	/* Blue LED */
-	mxc_request_iomux(MX51_PIN_CSI1_D9, IOMUX_CONFIG_ALT3);
-	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9), 0);
+	if (machine_is_efikamx()) {
+		/* Blue LED */
+		mxc_request_iomux(MX51_PIN_CSI1_D9, IOMUX_CONFIG_ALT3);
+		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9), 0);
 
-	/* Green LED */
-	mxc_request_iomux(MX51_PIN_CSI1_VSYNC, IOMUX_CONFIG_ALT3);
-	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC), 0);
+		/* Green LED */
+		mxc_request_iomux(MX51_PIN_CSI1_VSYNC, IOMUX_CONFIG_ALT3);
+		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC), 0);
 
-	/* Red LED */
-	mxc_request_iomux(MX51_PIN_CSI1_HSYNC, IOMUX_CONFIG_ALT3);
-	gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC), 0);
+		/* Red LED */
+		mxc_request_iomux(MX51_PIN_CSI1_HSYNC, IOMUX_CONFIG_ALT3);
+		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC), 0);
+	} else {
+		/* CAPS-LOCK LED */
+		mxc_request_iomux(MX51_PIN_EIM_CS0, IOMUX_CONFIG_GPIO);
+		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_EIM_CS0), 0);
+
+		/* ALARM-LED LED */
+		mxc_request_iomux(MX51_PIN_GPIO1_3, IOMUX_CONFIG_GPIO);
+		gpio_direction_output(IOMUX_TO_GPIO(MX51_PIN_GPIO1_3), 0);
+	}
 }
 
 void efikamx_toggle_led(uint32_t mask)
 {
-	gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9),
-			mask & EFIKAMX_LED_BLUE);
-	gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC),
-			mask & EFIKAMX_LED_GREEN);
-	gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC),
-			mask & EFIKAMX_LED_RED);
+	if (machine_is_efikamx()) {
+		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_D9),
+				mask & EFIKAMX_LED_BLUE);
+		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_VSYNC),
+				mask & EFIKAMX_LED_GREEN);
+		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_CSI1_HSYNC),
+				mask & EFIKAMX_LED_RED);
+	} else {
+		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_EIM_CS0),
+				mask & EFIKAMX_LED_BLUE);
+		gpio_set_value(IOMUX_TO_GPIO(MX51_PIN_GPIO1_3),
+				!(mask & EFIKAMX_LED_GREEN));
+	}
 }
 
 /*
@@ -607,7 +665,6 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
-	gd->bd->bi_arch_number = MACH_TYPE_MX51_EFIKAMX;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
 	return 0;
@@ -629,7 +686,24 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	puts("Board: Efika MX\n");
+	u32 rev = get_efika_rev();
+
+	if (machine_is_efikamx()) {
+		printf("Board: Efika MX, rev1.%i\n", rev & 0xf);
+		return 0;
+	} else {
+		switch (rev) {
+		case EFIKASB_BOARD_REV_13:
+			printf("Board: Efika SB rev1.3\n");
+			break;
+		case EFIKASB_BOARD_REV_20:
+			printf("Board: Efika SB rev2.0\n");
+			break;
+		default:
+			printf("Board: Efika SB, rev Unknown\n");
+			break;
+		}
+	}
 
 	return 0;
 }
