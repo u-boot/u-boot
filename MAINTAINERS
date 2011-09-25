@@ -851,6 +851,7 @@ Marek Vasut <marek.vasut@gmail.com>
 	vpac270		xscale/pxa
 	zipitz2		xscale/pxa
  	efikamx		i.MX51
+	efikasb		i.MX51
 
 Hugo Villeneuve <hugo.villeneuve@lyrtech.com>
 
