@@ -437,7 +437,7 @@ LIST_microblaze="$(boards_by_arch microblaze)"
 ## ColdFire Systems
 #########################################################################
 
-LIST_coldfire="$(boards_by_arch m68k)
+LIST_m68k="$(boards_by_arch m68k)
 	astro_mcf5373l		\
 	cobra5272		\
 	EB+MCF-EV123		\
@@ -451,6 +451,7 @@ LIST_coldfire="$(boards_by_arch m68k)
 	M5475AFE		\
 	M5485AFE		\
 "
+LIST_coldfire=${LIST_m68k}
 
 #########################################################################
 ## AVR32 Systems
