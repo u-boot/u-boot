@@ -98,6 +98,26 @@ static unsigned char usb_kbd_numkey_shifted[] = {
 	'|', '~', ':', '"', '~', '<', '>', '?'
 };
 
+static int usb_kbd_irq_worker(struct usb_device *dev);
+
+/******************************************************************
+ * Interrupt polling
+ ******************************************************************/
+static inline void usb_kbd_poll_for_event(struct usb_device *dev)
+{
+#if	defined(CONFIG_SYS_USB_EVENT_POLL)
+	usb_event_poll();
+	usb_kbd_irq_worker(dev);
+#elif	defined(CONFIG_SYS_USB_EVENT_POLL_VIA_CONTROL_EP)
+	struct usb_interface *iface;
+	iface = &dev->config.if_desc[0];
+	usb_get_report(dev, iface->desc.bInterfaceNumber,
+			1, 1, new, sizeof(new));
+	if (memcmp(old, new, sizeof(new)))
+		usb_kbd_irq_worker(dev);
+#endif
+}
+
 /******************************************************************
  * Queue handling
  ******************************************************************/
@@ -121,9 +141,14 @@ static void usb_kbd_put_queue(char data)
 /* test if a character is in the queue */
 static int usb_kbd_testc(void)
 {
-#ifdef CONFIG_SYS_USB_EVENT_POLL
-	usb_event_poll();
-#endif
+	struct stdio_dev *dev;
+	struct usb_device *usb_kbd_dev;
+
+	dev = stdio_get_by_name("usbkbd");
+	usb_kbd_dev = (struct usb_device *)dev->priv;
+
+	usb_kbd_poll_for_event(usb_kbd_dev);
+
 	if (usb_in_pointer == usb_out_pointer)
 		return 0; /* no data */
 	else
@@ -133,11 +158,16 @@ static int usb_kbd_testc(void)
 static int usb_kbd_getc(void)
 {
 	char c;
-	while (usb_in_pointer == usb_out_pointer) {
-#ifdef CONFIG_SYS_USB_EVENT_POLL
-		usb_event_poll();
-#endif
-	}
+
+	struct stdio_dev *dev;
+	struct usb_device *usb_kbd_dev;
+
+	dev = stdio_get_by_name("usbkbd");
+	usb_kbd_dev = (struct usb_device *)dev->priv;
+
+	while (usb_in_pointer == usb_out_pointer)
+		usb_kbd_poll_for_event(usb_kbd_dev);
+
 	if ((usb_out_pointer+1) == USB_KBD_BUFFER_LEN)
 		usb_out_pointer = 0;
 	else
@@ -323,15 +353,10 @@ static int usb_kbd_translate(unsigned char scancode, unsigned char modifier,
 }
 
 /* Interrupt service routine */
-static int usb_kbd_irq(struct usb_device *dev)
+static int usb_kbd_irq_worker(struct usb_device *dev)
 {
 	int i, res;
 
-	if ((dev->irq_status != 0) || (dev->irq_act_len != 8)) {
-		USB_KBD_PRINTF("usb_keyboard Error %lX, len %d\n",
-				dev->irq_status, dev->irq_act_len);
-		return 1;
-	}
 	res = 0;
 
 	switch (new[0]) {
@@ -360,6 +385,17 @@ static int usb_kbd_irq(struct usb_device *dev)
 	memcpy(&old[0], &new[0], 8);
 
 	return 1; /* install IRQ Handler again */
+}
+
+static int usb_kbd_irq(struct usb_device *dev)
+{
+	if ((dev->irq_status != 0) || (dev->irq_act_len != 8)) {
+		USB_KBD_PRINTF("usb_keyboard Error %lX, len %d\n",
+				dev->irq_status, dev->irq_act_len);
+		return 1;
+	}
+
+	return usb_kbd_irq_worker(dev);
 }
 
 /* probes the USB device dev for keyboard type */
