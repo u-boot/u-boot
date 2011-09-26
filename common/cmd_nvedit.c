@@ -460,7 +460,6 @@ int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	char buffer[CONFIG_SYS_CBSIZE];
 	char *init_val;
-	int len;
 
 	if (argc < 2)
 		return cmd_usage(cmdtp);
@@ -468,7 +467,7 @@ int do_env_edit(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	/* Set read buffer to initial value or empty sting */
 	init_val = getenv(argv[1]);
 	if (init_val)
-		len = sprintf(buffer, "%s", init_val);
+		sprintf(buffer, "%s", init_val);
 	else
 		buffer[0] = '\0';
 
