@@ -63,7 +63,7 @@
 #ifdef	USB_DEBUG
 #define	USB_PRINTF(fmt, args...)	printf(fmt , ##args)
 #else
-#define USB_PRINTF(fmt, args...)
+static inline void USB_PRINTF(const char *fmt, ...) {}
 #endif
 
 #define USB_BUFSIZ	512
@@ -970,7 +970,7 @@ void usb_scan_devices(void)
 #ifdef	USB_HUB_DEBUG
 #define	USB_HUB_PRINTF(fmt, args...)	printf(fmt , ##args)
 #else
-#define USB_HUB_PRINTF(fmt, args...)
+static inline void USB_HUB_PRINTF(const char *fmt, ...) {}
 #endif
 
 

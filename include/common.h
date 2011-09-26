@@ -120,8 +120,8 @@ typedef volatile unsigned char	vu_char;
 #define debug(fmt,args...)	printf (fmt ,##args)
 #define debugX(level,fmt,args...) if (DEBUG>=level) printf(fmt,##args);
 #else
-#define debug(fmt,args...)
-#define debugX(level,fmt,args...)
+static inline void debug(const char *fmt, ...) {}
+static inline void debugX(int level, const char *fmt, ...) {}
 #endif	/* DEBUG */
 
 #ifdef DEBUG
