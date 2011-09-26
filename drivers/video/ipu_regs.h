@@ -402,15 +402,15 @@ static inline struct ipu_dc_ch *dc_ch_offset(int ch)
 
 #define DP_REG			((struct ipu_dp *)(IPU_CTRL_BASE_ADDR + \
 				IPU_DP_REG_BASE))
-#define DP_COM_CONF(flow)	(&DP_REG->com_conf_sync)
-#define DP_GRAPH_WIND_CTRL(flow) (&DP_REG->graph_wind_ctrl_sync)
-#define DP_CSC_A_0(flow)	(&DP_REG->csca_sync[0])
-#define DP_CSC_A_1(flow)	(&DP_REG->csca_sync[1])
-#define DP_CSC_A_2(flow)	(&DP_REG->csca_sync[2])
-#define DP_CSC_A_3(flow)	(&DP_REG->csca_sync[3])
+#define DP_COM_CONF()		(&DP_REG->com_conf_sync)
+#define DP_GRAPH_WIND_CTRL()	(&DP_REG->graph_wind_ctrl_sync)
+#define DP_CSC_A_0()		(&DP_REG->csca_sync[0])
+#define DP_CSC_A_1()		(&DP_REG->csca_sync[1])
+#define DP_CSC_A_2()		(&DP_REG->csca_sync[2])
+#define DP_CSC_A_3()		(&DP_REG->csca_sync[3])
 
-#define DP_CSC_0(flow)		(&DP_REG->csc_sync[0])
-#define DP_CSC_1(flow)		(&DP_REG->csc_sync[1])
+#define DP_CSC_0()		(&DP_REG->csc_sync[0])
+#define DP_CSC_1()		(&DP_REG->csc_sync[1])
 
 /* DC template opcodes */
 #define WROD(lf)		(0x18 | (lf << 1))
