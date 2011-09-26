@@ -455,6 +455,7 @@ int flash_sect_erase (ulong addr_first, ulong addr_last)
 
 int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
+	int rcode = 0;
 #ifndef CONFIG_SYS_NO_FLASH
 	flash_info_t *info;
 	ulong bank;
@@ -465,24 +466,25 @@ int do_protect (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	u8 dev_type, dev_num, pnum;
 #endif
 #endif /* CONFIG_SYS_NO_FLASH */
-#if !defined(CONFIG_SYS_NO_FLASH) || defined(CONFIG_HAS_DATAFLASH)
-	ulong addr_first, addr_last;
-#endif
 #ifdef CONFIG_HAS_DATAFLASH
 	int status;
 #endif
+#if !defined(CONFIG_SYS_NO_FLASH) || defined(CONFIG_HAS_DATAFLASH)
 	int p;
-	int rcode = 0;
+	ulong addr_first, addr_last;
+#endif
 
 	if (argc < 3)
 		return cmd_usage(cmdtp);
 
+#if !defined(CONFIG_SYS_NO_FLASH) || defined(CONFIG_HAS_DATAFLASH)
 	if (strcmp(argv[1], "off") == 0)
 		p = 0;
 	else if (strcmp(argv[1], "on") == 0)
 		p = 1;
 	else
 		return cmd_usage(cmdtp);
+#endif
 
 #ifdef CONFIG_HAS_DATAFLASH
 	if ((strcmp(argv[2], "all") != 0) && (strcmp(argv[2], "bank") != 0)) {
