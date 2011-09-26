@@ -471,7 +471,7 @@ int do_mem_base (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 
 int do_mem_loop (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	ulong	addr, length, i, junk;
+	ulong	addr, length, i;
 	int	size;
 	volatile uint	*longp;
 	volatile ushort *shortp;
@@ -518,7 +518,7 @@ int do_mem_loop (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			longp = (uint *)addr;
 			i = length;
 			while (i-- > 0)
-				junk = *longp++;
+				*longp++;
 		}
 	}
 	if (size == 2) {
@@ -526,14 +526,14 @@ int do_mem_loop (cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 			shortp = (ushort *)addr;
 			i = length;
 			while (i-- > 0)
-				junk = *shortp++;
+				*shortp++;
 		}
 	}
 	for (;;) {
 		cp = (u_char *)addr;
 		i = length;
 		while (i-- > 0)
-			junk = *cp++;
+			*cp++;
 	}
 }
 
