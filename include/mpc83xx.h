@@ -1054,6 +1054,12 @@
 #define TIMING_CFG2_FOUR_ACT_SHIFT	0
 
 /*
+ * TIMING_CFG_3 - DDR SDRAM Timing Configuration 3
+ */
+#define TIMING_CFG3_EXT_REFREC		0x00070000
+#define TIMING_CFG3_EXT_REFREC_SHIFT	16
+
+/*
  * DDR_SDRAM_CFG - DDR SDRAM Control Configuration
  */
 #define SDRAM_CFG_MEM_EN		0x80000000
