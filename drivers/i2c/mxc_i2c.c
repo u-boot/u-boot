@@ -95,7 +95,7 @@ static u16 i2c_clk_div[50][2] = {
 	{ 3072,	0x1E }, { 3840,	0x1F }
 };
 
-static u8 clk_idx;
+static u8 clk_div;
 
 /*
  * Calculate and set proper clock divider
@@ -105,7 +105,6 @@ static void i2c_imx_set_clk(unsigned int rate)
 	struct mxc_i2c_regs *i2c_regs = (struct mxc_i2c_regs *)I2C_BASE;
 	unsigned int i2c_clk_rate;
 	unsigned int div;
-	int i;
 
 #if defined(CONFIG_MX31)
 	struct clock_control_regs *sc_regs =
@@ -120,16 +119,15 @@ static void i2c_imx_set_clk(unsigned int rate)
 	i2c_clk_rate = mxc_get_clock(MXC_IPG_PERCLK);
 	div = (i2c_clk_rate + rate - 1) / rate;
 	if (div < i2c_clk_div[0][0])
-		i = 0;
+		clk_div = 0;
 	else if (div > i2c_clk_div[ARRAY_SIZE(i2c_clk_div) - 1][0])
-		i = ARRAY_SIZE(i2c_clk_div) - 1;
+		clk_div = ARRAY_SIZE(i2c_clk_div) - 1;
 	else
-		for (i = 0; i2c_clk_div[i][0] < div; i++)
+		for (clk_div = 0; i2c_clk_div[clk_div][0] < div; clk_div++)
 			;
 
 	/* Store divider value */
-	clk_idx = i2c_clk_div[i][1];
-	writeb(clk_idx, &i2c_regs->ifdr);
+	writeb(i2c_clk_div[clk_div][1], &i2c_regs->ifdr);
 }
 
 /*
@@ -150,6 +148,23 @@ void i2c_init(int speed, int unused)
 {
 	i2c_imx_set_clk(speed);
 	i2c_reset();
+}
+
+/*
+ * Set I2C Speed
+ */
+int i2c_set_bus_speed(unsigned int speed)
+{
+	i2c_init(speed, 0);
+	return 0;
+}
+
+/*
+ * Get I2C Speed
+ */
+unsigned int i2c_get_bus_speed(void)
+{
+	return mxc_get_clock(MXC_IPG_PERCLK) / i2c_clk_div[clk_div][0];
 }
 
 /*
@@ -218,7 +233,7 @@ int i2c_imx_start(void)
 	unsigned int temp = 0;
 	int result;
 
-	writeb(clk_idx, &i2c_regs->ifdr);
+	writeb(i2c_clk_div[clk_div][1], &i2c_regs->ifdr);
 
 	/* Enable I2C controller */
 	writeb(0, &i2c_regs->i2sr);
