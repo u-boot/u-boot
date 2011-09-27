@@ -207,8 +207,14 @@ int misc_init_r(void)
 	if (wait_for_ne != NULL) {
 		if (strcmp(wait_for_ne, "true") == 0) {
 			int cnt = 0;
+			int abort = 0;
 			puts("NE go: ");
 			while (startup_allowed() == 0) {
+				if (tstc()) {
+					(void) getc(); /* consume input */
+					abort = 1;
+					break;
+				}
 				udelay(200000);
 				cnt++;
 				if (cnt == 5)
@@ -218,7 +224,10 @@ int misc_init_r(void)
 					puts("    \b\b\b\b");
 				}
 			}
-			puts("OK\n");
+			if (abort == 1)
+				printf("\nAbort waiting for ne\n");
+			else
+				puts("OK\n");
 		}
 	}
 #endif
