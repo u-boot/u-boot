@@ -69,3 +69,5 @@ MVS1	powerpc	MPC823	306620b   2008-08-26	Andre Schwarz <andre.schwarz@matrix-vis
 adsvix	ARM	PXA27x	7610db1   2008-07-30	Adrian Filipi <adrian.filipi@eurotech.com>
 R5200	ColdFire	48ead7a   2008-03-31	Zachary P. Landau <zachary.landau@labxtechnologies.com>
 CPCI440	powerpc	440GP	b568fd2   2007-12-27	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
+ixdpg425 ARM xscale/ixp		- 2011-09-22	Stefan Roese <sr@denx.de>
+ixdp425 ARM xscale/ixp		- 2011-09-22	Kyle Harris <kharris@nexus-tech.net>

@@ -786,7 +786,6 @@ John Rigby <jcrigby@gmail.com>
 
 Stefan Roese <sr@denx.de>
 
-	ixdpg425	xscale/ixp
 	pdnb3		xscale/ixp
 	scpu		xscale/ixp
 
@@ -894,7 +893,6 @@ Unknown / orphaned boards:
  	Board		CPU	Last known maintainer / Comment
 .........................................................................
 	cradle		xscale/pxa	Kyle Harris <kharris@nexus-tech.net> / dead address
-	ixdp425		xscale/ixp	Kyle Harris <kharris@nexus-tech.net> / dead address
 	lubbock		xscale/pxa	Kyle Harris <kharris@nexus-tech.net> / dead address
 
 	imx31_phycore_eet i.MX31  Guennadi Liakhovetski <g.liakhovetski@gmx.de> / resigned
