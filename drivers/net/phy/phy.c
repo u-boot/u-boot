@@ -318,10 +318,13 @@ static int genphy_parse_link(struct phy_device *phydev)
 		lpa = phy_read(phydev, MDIO_DEVAD_NONE, MII_ADVERTISE);
 		lpa &= phy_read(phydev, MDIO_DEVAD_NONE, MII_LPA);
 
-		if (lpa & (LPA_100FULL | LPA_100HALF))
+		if (lpa & (LPA_100FULL | LPA_100HALF)) {
 			phydev->speed = SPEED_100;
 
-		if (lpa & (LPA_100FULL | LPA_10FULL))
+			if (lpa & LPA_100FULL)
+				phydev->duplex = DUPLEX_FULL;
+
+		} else if (lpa & LPA_10FULL)
 			phydev->duplex = DUPLEX_FULL;
 	} else {
 		u32 bmcr = phy_read(phydev, MDIO_DEVAD_NONE, MII_BMCR);
