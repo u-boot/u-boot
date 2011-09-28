@@ -600,6 +600,21 @@ int board_mmc_init(bd_t *bis)
 }
 #endif
 
+void lcd_enable(void)
+{
+	int ret;
+
+	mxc_request_iomux(MX51_PIN_DI1_PIN2, IOMUX_CONFIG_ALT0);
+	mxc_request_iomux(MX51_PIN_DI1_PIN3, IOMUX_CONFIG_ALT0);
+
+	gpio_set_value(2, 1);
+	mxc_request_iomux(MX51_PIN_GPIO1_2, IOMUX_CONFIG_ALT0);
+
+	ret = mx51_fb_init(&nec_nl6448bc26_09c);
+	if (ret)
+		puts("LCD cannot be configured\n");
+}
+
 int board_early_init_f(void)
 {
 
@@ -636,25 +651,14 @@ static void backlight(int on)
 	}
 }
 
-void lcd_enable(void)
-{
-	int ret;
-
-	mxc_request_iomux(MX51_PIN_DI1_PIN2, IOMUX_CONFIG_ALT0);
-	mxc_request_iomux(MX51_PIN_DI1_PIN3, IOMUX_CONFIG_ALT0);
-
-	gpio_set_value(2, 1);
-	mxc_request_iomux(MX51_PIN_GPIO1_2, IOMUX_CONFIG_ALT0);
-
-	ret = mx51_fb_init(&nec_nl6448bc26_09c);
-	if (ret)
-		puts("LCD cannot be configured\n");
-}
-
 int board_init(void)
 {
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
+
+	lcd_enable();
+
+	backlight(1);
 
 	return 0;
 }
@@ -675,6 +679,8 @@ int board_late_init(void)
 	reset_peripherals(0);
 	udelay(2000);
 #endif
+
+	setenv("stdout", "serial");
 
 	return 0;
 }
