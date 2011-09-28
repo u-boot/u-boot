@@ -46,7 +46,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN		(2048 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(10 * 1024 * 1024)
 
 /*
  * Hardware drivers
@@ -207,12 +207,11 @@
  * Framebuffer and LCD
  */
 #define CONFIG_PREBOOT
-#define CONFIG_LCD
+#define CONFIG_VIDEO
 #define CONFIG_VIDEO_MX5
-#define CONFIG_SYS_CONSOLE_ENV_OVERWRITE
-#define CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV
-#define LCD_BPP		LCD_COLOR16
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_VIDEO_BMP_RLE8
 #define CONFIG_SPLASH_SCREEN
 #define CONFIG_CMD_BMP
 #define CONFIG_BMP_16BPP
