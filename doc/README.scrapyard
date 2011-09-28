@@ -11,17 +11,19 @@ easily if here is something they might want to dig for...
 
 Board	Arch	CPU	removed	    Commit	last known maintainer/contact
 =============================================================================
-zylonite arm	pxa	-	  2011-09-05
-shannon arm	sa1100	-	  2011-09-05	Rolf Offermanns <rof@sysgo.de>
-modnet50 arm	arm720t	-	  2011-09-05	Thomas Elste <info@elste.org>
-lpc2292sodimm arm arm720t -	  2011-09-05
-lart	arm	sa1100	-	  2011-09-05	Alex Züpke <azu@sysgo.de>
-impa7	arm	arm720t	-	  2011-09-05	Marius Gröger <mag@sysgo.de>
-gcplus	arm	sa1100	-	  2011-09-05	George G. Davis <gdavis@mvista.com>
-evb4510	arm	arm720t	-	  2011-09-05	Curt Brune <curt@cucy.com>
-ep7312	arm	arm720t	-	  2011-09-05	Marius Gröger <mag@sysgo.de>
-dnp1110	arm	sa1100	-	  2011-09-05	Alex Züpke <azu@sysgo.de>
-SMN42	arm	arm720t	-	  2011-09-05
+ixdpg425 arm	ixp	0ca8eb7	  2011-09-22	Stefan Roese <sr@denx.de>
+ixdp425 arm	ixp	0ca8eb7	  2011-09-22	Kyle Harris <kharris@nexus-tech.net>
+zylonite arm	pxa	b66521a	  2011-09-05
+shannon arm	sa1100	5df092d	  2011-09-05	Rolf Offermanns <rof@sysgo.de>
+modnet50 arm	arm720t	9c62815	  2011-09-05	Thomas Elste <info@elste.org>
+lpc2292sodimm arm arm720t d1a067a  2011-09-05
+lart	arm	sa1100	3d57573	  2011-09-05	Alex Züpke <azu@sysgo.de>
+impa7	arm	arm720t	c1f8750	  2011-09-05	Marius Gröger <mag@sysgo.de>
+gcplus	arm	sa1100	2c650e2	  2011-09-05	George G. Davis <gdavis@mvista.com>
+evb4510	arm	arm720t	26e670e	  2011-09-05	Curt Brune <curt@cucy.com>
+ep7312	arm	arm720t	c8f63b4	  2011-09-05	Marius Gröger <mag@sysgo.de>
+dnp1110	arm	sa1100	fc5e5ce	  2011-09-05	Alex Züpke <azu@sysgo.de>
+SMN42	arm	arm720t	6aac646	  2011-09-05
 at91rm9200dk arm arm920t 1c85752  2011-07-17
 m501sk	arm	arm920t	b1a2bd4	  2011-07-17
 kb9202	arm	arm920t	5bd3814	  2011-07-17
@@ -69,5 +71,3 @@ MVS1	powerpc	MPC823	306620b   2008-08-26	Andre Schwarz <andre.schwarz@matrix-vis
 adsvix	ARM	PXA27x	7610db1   2008-07-30	Adrian Filipi <adrian.filipi@eurotech.com>
 R5200	ColdFire	48ead7a   2008-03-31	Zachary P. Landau <zachary.landau@labxtechnologies.com>
 CPCI440	powerpc	440GP	b568fd2   2007-12-27	Matthias Fuchs <matthias.fuchs@esd-electronics.com>
-ixdpg425 ARM xscale/ixp		- 2011-09-22	Stefan Roese <sr@denx.de>
-ixdp425 ARM xscale/ixp		- 2011-09-22	Kyle Harris <kharris@nexus-tech.net>
