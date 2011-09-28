@@ -95,6 +95,7 @@ Interfaces
 ==========
 
 gpio
+----
 
 To set a bit :
 
@@ -121,6 +122,23 @@ To read a bit :
 		printf("GPIO N is set\n");
 	else
 		printf("GPIO N is clear\n");
+
+dma
+---
+void omap3_dma_init(void)
+	Init the DMA module
+int omap3_dma_get_conf_chan(uint32_t chan, struct dma4_chan *config);
+	Read config of the channel
+int omap3_dma_conf_chan(uint32_t chan, struct dma4_chan *config);
+	Write config to the channel
+int omap3_dma_conf_transfer(uint32_t chan, uint32_t *src, uint32_t *dst,
+		uint32_t sze)
+	Config source, destination and size of a transfer
+int omap3_dma_wait_for_transfer(uint32_t chan)
+	Wait for a transfer to end - this hast to be called before a channel
+	or the data the channel transferd are used.
+int omap3_dma_get_revision(uint32_t *minor, uint32_t *major)
+	Read silicon Revision of the DMA module
 
 
 Acknowledgements
