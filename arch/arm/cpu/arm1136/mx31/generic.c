@@ -25,6 +25,7 @@
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/clock.h>
 #include <asm/io.h>
+#include <asm/arch/sys_proto.h>
 
 static u32 mx31_decode_pll(u32 reg, u32 infreq)
 {
@@ -138,6 +139,16 @@ void mx31_set_pad(enum iomux_pins pin, u32 config)
 	l |= config << (field * 10);
 	writel(l, reg);
 
+}
+
+void mxc_setup_weimcs(int cs, const struct mxc_weimcs *weimcs)
+{
+	struct mx31_weim *weim = (struct mx31_weim *) WEIM_BASE;
+	struct mx31_weim_cscr *cscr = &weim->cscr[cs];
+
+	writel(weimcs->upper, &cscr->upper);
+	writel(weimcs->lower, &cscr->lower);
+	writel(weimcs->additional, &cscr->additional);
 }
 
 struct mx3_cpu_type mx31_cpu_type[] = {

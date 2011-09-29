@@ -472,6 +472,18 @@ enum iomux_pins {
 #define CCM_RCSR_NF16B	(1 << 31)
 #define CCM_RCSR_NFMS	(1 << 30)
 
+/* WEIM CS control registers */
+struct mx31_weim_cscr {
+	u32 upper;
+	u32 lower;
+	u32 additional;
+	u32 reserved;
+};
+
+struct mx31_weim {
+	struct mx31_weim_cscr cscr[6];
+};
+
 #endif
 
 #define __REG(x)     (*((volatile u32 *)(x)))
@@ -550,10 +562,27 @@ enum iomux_pins {
 #define ESDCTL_BL(x)			((x) << 7)
 #define ESDCTL_PRCT(x)			((x) << 0)
 
+/* 13 fields of the upper CS control register */
+#define CSCR_U(sp, wp, bcd, bcs, psz, pme, sync, dol, \
+		cnc, wsc, ew, wws, edc) \
+	((sp) << 31 | (wp) << 30 | (bcd) << 28 | (psz) << 22 | (pme) << 21 |\
+	 (sync) << 20 | (dol) << 16 | (cnc) << 14 | (wsc) << 8 | (ew) << 7 |\
+	 (wws) << 4 | (edc) << 0)
+/* 12 fields of the lower CS control register */
+#define CSCR_L(oea, oen, ebwa, ebwn, \
+		csa, ebc, dsz, csn, psr, cre, wrap, csen) \
+	((oea) << 28 | (oen) << 24 | (ebwa) << 20 | (ebwn) << 16 |\
+	 (csa) << 12 | (ebc) << 11 | (dsz) << 8 | (csn) << 4 |\
+	 (psr) << 3 | (cre) << 2 | (wrap) << 1 | (csen) << 0)
+/* 14 fields of the additional CS control register */
+#define CSCR_A(ebra, ebrn, rwa, rwn, mum, lah, lbn, lba, dww, dct, \
+		wwu, age, cnc2, fce) \
+	((ebra) << 28 | (ebrn) << 24 | (rwa) << 20 | (rwn) << 16 |\
+	 (mum) << 15 | (lah) << 13 | (lbn) << 10 | (lba) << 8 |\
+	 (dww) << 6 | (dct) << 4 | (wwu) << 3 |\
+	 (age) << 2 | (cnc2) << 1 | (fce) << 0)
+
 #define WEIM_BASE	0xb8002000
-#define CSCR_U(x)	(WEIM_BASE + (x) * 0x10)
-#define CSCR_L(x)	(WEIM_BASE + 4 + (x) * 0x10)
-#define CSCR_A(x)	(WEIM_BASE + 8 + (x) * 0x10)
 
 #define IOMUXC_BASE	0x43FAC000
 #define IOMUXC_GPR	(IOMUXC_BASE + 0x8)

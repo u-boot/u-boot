@@ -28,6 +28,7 @@
 #include <netdev.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/imx-regs.h>
+#include <asm/arch/sys_proto.h>
 #include <watchdog.h>
 
 DECLARE_GLOBAL_DATA_PTR;
@@ -50,9 +51,16 @@ int dram_init(void)
 int board_early_init_f(void)
 {
 	/* CS5: CPLD incl. network controller */
-	__REG(CSCR_U(5)) = 0x0000d843;
-	__REG(CSCR_L(5)) = 0x22252521;
-	__REG(CSCR_A(5)) = 0x22220a00;
+	static const struct mxc_weimcs cs5 = {
+		/*    sp wp bcd bcs psz pme sync dol cnc wsc ew wws edc */
+		CSCR_U(0, 0,  0,  0,  0,  0,   0,  0,  3, 24, 0,  4,  3),
+		/*   oea oen ebwa ebwn csa ebc dsz csn psr cre wrap csen */
+		CSCR_L(2,  2,   2,   5,  2,  0,  5,  2,  0,  0,   0,   1),
+		/*  ebra ebrn rwa rwn mum lah lbn lba dww dct wwu age cnc2 fce*/
+		CSCR_A(2,   2,  2,  2,  0,  0,  2,  2,  0,  0,  0,  0,   0,  0)
+	};
+
+	mxc_setup_weimcs(5, &cs5);
 
 	/* Setup UART1 and SPI2 pins */
 	mx31_uart1_hw_init();
