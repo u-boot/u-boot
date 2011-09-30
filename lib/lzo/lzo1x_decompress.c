@@ -32,7 +32,6 @@ static const unsigned char lzop_magic[] = {
 
 static inline const unsigned char *parse_header(const unsigned char *src)
 {
-	u8 level = 0;
 	u16 version;
 	int i;
 
@@ -47,7 +46,7 @@ static inline const unsigned char *parse_header(const unsigned char *src)
 	version = get_unaligned_be16(src);
 	src += 7;
 	if (version >= 0x0940)
-		level = *src++;
+		src++;
 	if (get_unaligned_be32(src) & HEADER_HAS_FILTER)
 		src += 4; /* filter info */
 
