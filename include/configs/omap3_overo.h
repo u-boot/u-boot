@@ -163,8 +163,8 @@
 	"mmcdev=0\0" \
 	"mmcroot=/dev/mmcblk0p2 rw\0" \
 	"mmcrootfstype=ext3 rootwait\0" \
-	"nandroot=/dev/mtdblock4 rw\0" \
-	"nandrootfstype=jffs2\0" \
+	"nandroot=ubi0:rootfs ubi.mtd=4\0" \
+	"nandrootfstype=ubifs\0" \
 	"mmcargs=setenv bootargs console=${console} " \
 		"${optargs} " \
 		"mpurate=${mpurate} " \
