@@ -253,7 +253,7 @@ transfer_error_bus_busy:
 		ret = -6; goto i2c_transfer_finish;
 
 i2c_transfer_finish:
-		PRINTD(("i2c_transfer: ISR: 0x%04x\n", ISR));
+		PRINTD(("i2c_transfer: ISR: 0x%04x\n", readl(&base->isr)));
 		i2c_reset();
 		return ret;
 }
