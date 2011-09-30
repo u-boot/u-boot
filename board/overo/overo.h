@@ -160,10 +160,10 @@ const omap3_sysinfo sysinfo = {
 	MUX_VAL(CP(DSS_DATA22),		(IDIS | PTD | DIS | M0)) /*DSS_DATA22*/\
 	MUX_VAL(CP(DSS_DATA23),		(IDIS | PTD | DIS | M0)) /*DSS_DATA23*/\
  /*CAMERA*/\
-	MUX_VAL(CP(CAM_HS),		(IEN  | PTU | EN  | M0)) /*CAM_HS */\
-	MUX_VAL(CP(CAM_VS),		(IEN  | PTU | EN  | M0)) /*CAM_VS */\
+	MUX_VAL(CP(CAM_HS),		(IEN  | PTU | DIS | M0)) /*CAM_HS */\
+	MUX_VAL(CP(CAM_VS),		(IEN  | PTU | DIS | M0)) /*CAM_VS */\
 	MUX_VAL(CP(CAM_XCLKA),		(IDIS | PTD | DIS | M0)) /*CAM_XCLKA*/\
-	MUX_VAL(CP(CAM_PCLK),		(IEN  | PTU | EN  | M0)) /*CAM_PCLK*/\
+	MUX_VAL(CP(CAM_PCLK),		(IEN  | PTU | DIS | M0)) /*CAM_PCLK*/\
 	MUX_VAL(CP(CAM_FLD),		(IDIS | PTD | DIS | M4)) /*CAM_FLD*/\
 	MUX_VAL(CP(CAM_D0),		(IEN  | PTD | DIS | M0)) /*CAM_D0*/\
 	MUX_VAL(CP(CAM_D1),		(IEN  | PTD | DIS | M0)) /*CAM_D1*/\
