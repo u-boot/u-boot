@@ -467,7 +467,12 @@ int ubi_destroy_gluebi(struct ubi_volume *vol);
 void ubi_gluebi_updated(struct ubi_volume *vol);
 #else
 #define ubi_create_gluebi(ubi, vol) 0
-#define ubi_destroy_gluebi(vol) 0
+
+static inline int ubi_destroy_gluebi(struct ubi_volume *vol)
+{
+	return 0;
+}
+
 #define ubi_gluebi_updated(vol)
 #endif
 
