@@ -46,8 +46,7 @@
 /reloc_off
 
 /include/generated/
-/lib/asm-offsets.s
-/arch/*/cpu/asm-offsets.s
+asm-offsets.s
 
 # stgit generated dirs
 patches-*
