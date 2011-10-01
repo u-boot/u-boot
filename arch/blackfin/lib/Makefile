@@ -46,7 +46,7 @@ COBJS-y	+= clocks.o
 COBJS-$(CONFIG_CMD_CACHE_DUMP) += cmd_cache_dump.o
 COBJS-$(CONFIG_CMD_KGDB) += kgdb.o
 COBJS-y	+= muldi3.o
-COBJS-$(CONFIG_POST_ALT_LIST) += tests.o
+COBJS-$(CONFIG_HAS_POST) += post.o
 COBJS-y	+= string.o
 
 SRCS	:= $(SOBJS-y:.o=.S) $(COBJS-y:.o=.c)

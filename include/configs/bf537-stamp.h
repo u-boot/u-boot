@@ -257,8 +257,15 @@
 /* Define if want to do post memory test */
 #undef CONFIG_POST
 #ifdef CONFIG_POST
-#define FLASH_START_POST_BLOCK	11	/* Should > = 11 */
-#define FLASH_END_POST_BLOCK	71	/* Should < = 71 */
+#define CONFIG_SYS_POST_HOTKEYS_GPIO	GPIO_PF5
+#define CONFIG_POST_BSPEC1_GPIO_LEDS \
+	GPIO_PF6, GPIO_PF7, GPIO_PF8, GPIO_PF9, GPIO_PF10, GPIO_PF11,
+#define CONFIG_POST_BSPEC2_GPIO_BUTTONS \
+	GPIO_PF5, GPIO_PF4, GPIO_PF3, GPIO_PF2,
+#define CONFIG_POST_BSPEC2_GPIO_NAMES \
+	10, 11, 12, 13,
+#define CONFIG_SYS_POST_FLASH_START	11
+#define CONFIG_SYS_POST_FLASH_END	71
 #endif
 
 /* These are for board tests */

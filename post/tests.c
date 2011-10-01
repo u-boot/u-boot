@@ -55,6 +55,8 @@ extern int fpga_post_test (int flags);
 extern int lwmon5_watchdog_post_test(int flags);
 extern int sysmon1_post_test(int flags);
 extern int coprocessor_post_test(int flags);
+extern int led_post_test(int flags);
+extern int button_post_test(int flags);
 
 extern int sysmon_init_f (void);
 

@@ -13,7 +13,6 @@
 #define SCLK_NUM	3
 
 void post_out_buff(char *buff);
-int post_key_pressed(void);
 void post_init_pll(int mult, int div);
 int post_init_sdram(int sclk);
 void post_init_uart(int sclk);
@@ -52,7 +51,7 @@ int memory_post_test(int flags)
 		sclk_temp -= CONFIG_SCLK_DIV;
 	sclk = sclk * 1000000;
 	post_init_uart(sclk);
-	if (post_key_pressed() == 0)
+	if (post_hotkeys_pressed() == 0)
 		return 0;
 
 	for (m = 0; m < CCLK_NUM; m++) {
@@ -128,66 +127,6 @@ void post_out_buff(char *buff)
 	}
 	for (i = 0; i < 0x80000; i++)
 		;
-}
-
-/* Using sw10-PF5 as the hotkey */
-#define KEY_LOOP 0x80000
-#define KEY_DELAY 0x80
-int post_key_pressed(void)
-{
-	int i, n;
-	unsigned short value;
-
-	bfin_write_PORTF_FER(bfin_read_PORTF_FER() & ~PF5);
-	bfin_write_PORTFIO_DIR(bfin_read_PORTFIO_DIR() & ~PF5);
-	bfin_write_PORTFIO_INEN(bfin_read_PORTFIO_INEN() | PF5);
-	SSYNC();
-
-	post_out_buff("########Press SW10 to enter Memory POST########: 3\0");
-	for (i = 0; i < KEY_LOOP; i++) {
-		value = bfin_read_PORTFIO() & PF5;
-		if (bfin_read_UART0_RBR() == 0x0D) {
-			value = 0;
-			goto key_pressed;
-		}
-		if (value != 0)
-			goto key_pressed;
-		for (n = 0; n < KEY_DELAY; n++)
-			asm("nop");
-	}
-	post_out_buff("\b2\0");
-
-	for (i = 0; i < KEY_LOOP; i++) {
-		value = bfin_read_PORTFIO() & PF5;
-		if (bfin_read_UART0_RBR() == 0x0D) {
-			value = 0;
-			goto key_pressed;
-		}
-		if (value != 0)
-			goto key_pressed;
-		for (n = 0; n < KEY_DELAY; n++)
-			asm("nop");
-	}
-	post_out_buff("\b1\0");
-
-	for (i = 0; i < KEY_LOOP; i++) {
-		value = bfin_read_PORTFIO() & PF5;
-		if (bfin_read_UART0_RBR() == 0x0D) {
-			value = 0;
-			goto key_pressed;
-		}
-		if (value != 0)
-			goto key_pressed;
-		for (n = 0; n < KEY_DELAY; n++)
-			asm("nop");
-	}
-      key_pressed:
-	post_out_buff("\b0");
-	post_out_buff("\n\r\0");
-	if (value == 0)
-		return 0;
-	post_out_buff("Hotkey has been pressed, Enter POST . . . . . .\n\r\0");
-	return 1;
 }
 
 void post_init_pll(int mult, int div)
