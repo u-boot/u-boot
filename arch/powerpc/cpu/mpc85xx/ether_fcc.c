@@ -52,8 +52,7 @@
 #include <miiphy.h>
 #endif
 
-#if defined(CONFIG_ETHER_ON_FCC) && defined(CONFIG_CMD_NET) && \
-	defined(CONFIG_NET_MULTI)
+#if defined(CONFIG_ETHER_ON_FCC) && defined(CONFIG_CMD_NET)
 
 static struct ether_fcc_info_s
 {

@@ -169,14 +169,12 @@ uchar		NetCDPAddr[6] = { 0x01, 0x00, 0x0c, 0xcc, 0xcc, 0xcc };
 #endif
 /* Network loop state */
 int		NetState;
-#ifdef CONFIG_NET_MULTI
 /* Tried all network devices */
 int		NetRestartWrap;
 /* Network loop restarted */
 static int	NetRestarted;
 /* At least one device configured */
 static int	NetDevExists;
-#endif
 
 /* XXX in both little & big endian machines 0xFFFF == ntohs(-1) */
 /* default is without VLAN */
@@ -347,10 +345,8 @@ NetLoop(proto_t protocol)
 {
 	bd_t *bd = gd->bd;
 
-#ifdef CONFIG_NET_MULTI
 	NetRestarted = 0;
 	NetDevExists = 0;
-#endif
 
 	/* XXX problem with bss workaround */
 	NetArpWaitPacketMAC = NULL;
@@ -379,20 +375,14 @@ NetLoop(proto_t protocol)
 	}
 
 	eth_halt();
-#ifdef CONFIG_NET_MULTI
 	eth_set_current();
-#endif
 	if (eth_init(bd) < 0) {
 		eth_halt();
 		return -1;
 	}
 
 restart:
-#ifdef CONFIG_NET_MULTI
 	memcpy(NetOurEther, eth_get_dev()->enetaddr, 6);
-#else
-	eth_getenv_enetaddr("ethaddr", NetOurEther);
-#endif
 
 	NetState = NETLOOP_CONTINUE;
 
@@ -409,16 +399,12 @@ restart:
 		eth_halt();
 		return -1;
 
-#ifdef CONFIG_NET_MULTI
 	case 2:
 		/* network device not configured */
 		break;
-#endif /* CONFIG_NET_MULTI */
 
 	case 0:
-#ifdef CONFIG_NET_MULTI
 		NetDevExists = 1;
-#endif
 		switch (protocol) {
 		case TFTP:
 			/* always use ARP to get server ethernet address */
@@ -562,9 +548,7 @@ restart:
 		switch (NetState) {
 
 		case NETLOOP_RESTART:
-#ifdef CONFIG_NET_MULTI
 			NetRestarted = 1;
-#endif
 			goto restart;
 
 		case NETLOOP_SUCCESS:
@@ -630,10 +614,6 @@ void NetStartAgain(void)
 
 	NetTryCount++;
 
-#ifndef CONFIG_NET_MULTI
-	NetSetTimeout(10000UL, startAgainTimeout);
-	NetSetHandler(startAgainHandler);
-#else	/* !CONFIG_NET_MULTI*/
 	eth_halt();
 #if !defined(CONFIG_NET_DO_NOT_TRY_ANOTHER)
 	eth_try_another(!NetRestarted);
@@ -650,7 +630,6 @@ void NetStartAgain(void)
 	} else {
 		NetState = NETLOOP_RESTART;
 	}
-#endif	/* CONFIG_NET_MULTI */
 }
 
 /**********************************************************************/
@@ -816,9 +795,7 @@ PingHandler(uchar *pkt, unsigned dest, IPaddr_t sip, unsigned src,
 
 static void PingStart(void)
 {
-#if defined(CONFIG_NET_MULTI)
 	printf("Using %s device\n", eth_get_name());
-#endif	/* CONFIG_NET_MULTI */
 	NetSetTimeout(10000UL, PingTimeout);
 	NetSetHandler(PingHandler);
 
@@ -1168,9 +1145,7 @@ CDPHandler(const uchar *pkt, unsigned len)
 
 static void CDPStart(void)
 {
-#if defined(CONFIG_NET_MULTI)
 	printf("Using %s device\n", eth_get_name());
-#endif
 	CDPSeq = 0;
 	CDPOK = 0;
 
@@ -1810,7 +1785,6 @@ common:
 	case CDP:
 	case DHCP:
 		if (memcmp(NetOurEther, "\0\0\0\0\0\0", 6) == 0) {
-#ifdef CONFIG_NET_MULTI
 			extern int eth_get_dev_index(void);
 			int num = eth_get_dev_index();
 
@@ -1829,10 +1803,6 @@ common:
 
 			NetStartAgain();
 			return 2;
-#else
-			puts("*** ERROR: `ethaddr' not set\n");
-			return 1;
-#endif
 		}
 		/* Fall through */
 	default:

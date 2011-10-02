@@ -387,10 +387,8 @@ void board_init_f(ulong bootflag)
 	bb_miiphy_init();
 #endif
 #if defined(CONFIG_CMD_NET)
-#if defined(CONFIG_NET_MULTI)
 	WATCHDOG_RESET();
 	puts("Net:   ");
-#endif
 	eth_initialize(bd);
 #endif
 

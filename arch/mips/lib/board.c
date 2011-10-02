@@ -372,9 +372,7 @@ void board_init_r (gd_t *id, ulong dest_addr)
 	bb_miiphy_init();
 #endif
 #if defined(CONFIG_CMD_NET)
-#if defined(CONFIG_NET_MULTI)
 	puts ("Net:   ");
-#endif
 	eth_initialize(gd->bd);
 #endif
 

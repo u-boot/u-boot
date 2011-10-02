@@ -78,7 +78,6 @@ CONFIG_SYS_UART_PORT		-- define UART port number, start with 0, 1 and 2
 CONFIG_BAUDRATE		-- define UART baudrate
 
 CONFIG_FSLDMAFEC	-- define to use common dma FEC driver
-CONFIG_NET_MULTI	-- define to use multi FEC in u-boot
 CONFIG_MII		-- enable to use MII driver
 CONFIG_CF_DOMII		-- enable to use MII feature in cmd_mii.c
 CONFIG_SYS_DISCOVER_PHY	-- enable PHY discovery

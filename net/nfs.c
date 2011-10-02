@@ -714,9 +714,7 @@ NfsStart (void)
 	nfs_filename = basename (nfs_path);
 	nfs_path     = dirname (nfs_path);
 
-#if defined(CONFIG_NET_MULTI)
 	printf ("Using %s device\n", eth_get_name());
-#endif
 
 	printf("File transfer via NFS from server %pI4"
 		"; our IP address is %pI4", &NfsServerIP, &NetOurIP);

@@ -3511,12 +3511,10 @@ List of environment variables (most likely not complete):
 
   bootstopkey	- see CONFIG_AUTOBOOT_STOP_STR
 
-  ethprime	- When CONFIG_NET_MULTI is enabled controls which
-		  interface is used first.
+  ethprime	- controls which interface is used first.
 
-  ethact	- When CONFIG_NET_MULTI is enabled controls which
-		  interface is currently active. For example you
-		  can do the following
+  ethact	- controls which interface is currently active.
+		  For example you can do the following
 
 		  => setenv ethact FEC
 		  => ping 192.168.0.1 # traffic sent on FEC

@@ -15,8 +15,7 @@
 #include "fec.h"
 
 #undef  DEBUG
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI) && \
-    defined(CONFIG_MPC8220_FEC)
+#if defined(CONFIG_CMD_NET) && defined(CONFIG_MPC8220_FEC)
 
 #if !(defined(CONFIG_MII) || defined(CONFIG_CMD_MII))
 #error "CONFIG_MII has to be defined!"

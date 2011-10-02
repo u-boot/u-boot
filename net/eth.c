@@ -62,8 +62,6 @@ int eth_getenv_enetaddr_by_index(const char *base_name, int index,
 	return eth_getenv_enetaddr(enetvar, enetaddr);
 }
 
-#ifdef CONFIG_NET_MULTI
-
 static int eth_mac_skip(int index)
 {
 	char enetvar[15];
@@ -172,23 +170,18 @@ int eth_get_dev_index (void)
 
 static void eth_current_changed(void)
 {
-#ifdef CONFIG_NET_MULTI
-	{
-		char *act = getenv("ethact");
-		/* update current ethernet name */
-		if (eth_current)
-		{
-			if (act == NULL || strcmp(act, eth_current->name) != 0)
-				setenv("ethact", eth_current->name);
-		}
-		/*
-		 * remove the variable completely if there is no active
-		 * interface
-		 */
-		else if (act != NULL)
-			setenv("ethact", NULL);
+	char *act = getenv("ethact");
+	/* update current ethernet name */
+	if (eth_current) {
+		if (act == NULL || strcmp(act, eth_current->name) != 0)
+			setenv("ethact", eth_current->name);
 	}
-#endif
+	/*
+	 * remove the variable completely if there is no active
+	 * interface
+	 */
+	else if (act != NULL)
+		setenv("ethact", NULL);
 }
 
 int eth_write_hwaddr(struct eth_device *dev, const char *base_name,
@@ -535,23 +528,3 @@ char *eth_get_name (void)
 {
 	return (eth_current ? eth_current->name : "unknown");
 }
-
-#else /* !CONFIG_NET_MULTI */
-
-#warning Ethernet driver is deprecated.  Please update to use CONFIG_NET_MULTI
-
-extern int mcf52x2_miiphy_initialize(bd_t *bis);
-
-
-int eth_initialize(bd_t *bis)
-{
-#if defined(CONFIG_MII) || defined(CONFIG_CMD_MII)
-	miiphy_init();
-#endif
-
-#if defined(CONFIG_MCF52x2)
-	mcf52x2_miiphy_initialize(bis);
-#endif
-	return 0;
-}
-#endif

@@ -32,7 +32,7 @@ Skeleton NIC driver for Etherboot
 #include "eth.h"
 #include "eth_addrtbl.h"
 
-#if defined(CONFIG_CMD_NET) && defined(CONFIG_NET_MULTI)
+#if defined(CONFIG_CMD_NET)
 
 #define GT6426x_ETH_BUF_SIZE	1536
 

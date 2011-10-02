@@ -151,7 +151,6 @@ As with built-in networking, you will also want to enable some network
 commands, for example:
 
 #define CONFIG_CMD_NET
-#define CONFIG_NET_MULTI
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 

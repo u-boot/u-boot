@@ -26,7 +26,6 @@ int checkboard(void)
 
 static void board_init_enetaddr(char *var)
 {
-#ifdef CONFIG_NET_MULTI
 	uchar enetaddr[6];
 
 	if (eth_getenv_enetaddr(var, enetaddr))
@@ -35,7 +34,6 @@ static void board_init_enetaddr(char *var)
 	printf("Warning: %s: generating 'random' MAC address\n", var);
 	bfin_gen_rand_mac(enetaddr);
 	eth_setenv_enetaddr(var, enetaddr);
-#endif
 }
 
 #ifndef CONFIG_BFIN_MAC

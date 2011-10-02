@@ -330,9 +330,7 @@ void board_init_r(gd_t *new_gd, ulong dest_addr)
 	s = getenv("bootfile");
 	if (s)
 		copy_filename(BootFile, s, sizeof(BootFile));
-#if defined(CONFIG_NET_MULTI)
 	puts("Net:   ");
-#endif
 	eth_initialize(gd->bd);
 #endif
 

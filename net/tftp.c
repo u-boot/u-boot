@@ -615,9 +615,7 @@ TftpStart(void)
 		}
 	}
 
-#if defined(CONFIG_NET_MULTI)
 	printf("Using %s device\n", eth_get_name());
-#endif
 	printf("TFTP from server %pI4"
 		"; our IP address is %pI4", &TftpRemoteIP, &NetOurIP);
 
@@ -687,9 +685,7 @@ TftpStartServer(void)
 {
 	tftp_filename[0] = 0;
 
-#if defined(CONFIG_NET_MULTI)
 	printf("Using %s device\n", eth_get_name());
-#endif
 	printf("Listening for TFTP transfer on %pI4\n", &NetOurIP);
 	printf("Load address: 0x%lx\n", load_addr);
 

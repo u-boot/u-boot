@@ -606,10 +606,8 @@ void board_init_r (gd_t *id, ulong dest_addr)
 #if defined(FEC_ENET)
 	eth_init(bd);
 #endif
-#if defined(CONFIG_NET_MULTI)
 	puts ("Net:   ");
 	eth_initialize (bd);
-#endif
 #endif
 
 #ifdef CONFIG_POST
