@@ -122,7 +122,6 @@
 /*
  * Network device (RTL8139) support
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_RTL8139
 
 #endif /* __CONFIG_H */

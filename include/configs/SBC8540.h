@@ -238,7 +238,6 @@
 
 #if defined(CONFIG_TSEC_ENET)		/* TSEC Ethernet port */
 
-#  define CONFIG_NET_MULTI	1
 #  define CONFIG_MPC85xx_TSEC1
 #  define CONFIG_MPC85xx_TSEC1_NAME	"TSEC0"
 #  define CONFIG_MII		1	/* MII PHY management		*/

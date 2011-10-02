@@ -183,7 +183,6 @@ extern void out32(unsigned int, unsigned long);
  */
 #define CONFIG_PPC4xx_EMAC
 #define CONFIG_PHY_GIGE		1	/* Include GbE speed/duplex detection */
-#define CONFIG_NET_MULTI	1
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_PHY_RESET	1	/* reset phy upon startup */
 #define CONFIG_SYS_RX_ETH_BUFFER 32	/* Number of ethernet rx buffers & descriptors */

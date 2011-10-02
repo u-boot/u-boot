@@ -52,7 +52,6 @@
 #define	CONFIG_PHY_ADDR		1	/* PHY address; handling of ENET */
 #define CONFIG_BOARD_EARLY_INIT_F 1	/* early setup for 405gp */
 #define CONFIG_MISC_INIT_R	1	/* so that a misc_init_r() is called */
-#define CONFIG_NET_MULTI
 
 #define CONFIG_CONS_INDEX	1	/* Use UART0			*/
 #define CONFIG_SYS_NS16550

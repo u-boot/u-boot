@@ -109,7 +109,6 @@
  * if CONFIG_ETHER_NONE is defined, then either the ethernet routines must be
  * defined elsewhere (as for the console), or CONFIG_CMD_NET must be unset.
  */
-#define CONFIG_NET_MULTI
 #undef	CONFIG_ETHER_NONE		/* define if ether on something else */
 
 #undef	CONFIG_ETHER_ON_SCC		/* define if ether on SCC	*/

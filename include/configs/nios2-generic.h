@@ -92,7 +92,6 @@
 #undef CONFIG_CMD_XIMG
 
 #ifdef CONFIG_CMD_NET
-# define CONFIG_NET_MULTI
 # define CONFIG_CMD_DHCP
 # define CONFIG_CMD_PING
 #endif

@@ -199,7 +199,6 @@
 /*
  * SMSC91C111 Network Card
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC91111		1
 #define CONFIG_SMC91111_BASE		0x10000300  /* chip select 3         */
 #define CONFIG_SMC_USE_32_BIT		1          /* 32 bit bus  */

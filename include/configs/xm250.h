@@ -50,7 +50,6 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC91111
 #define CONFIG_SMC91111_BASE		0x04000300
 #undef	CONFIG_SMC91111_EXT_PHY

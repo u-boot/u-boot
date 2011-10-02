@@ -211,7 +211,6 @@
 /*-----------------------------------------------------------------------
  * Ethernet stuff
  */
-#define CONFIG_NET_MULTI
 
 #if defined(CONFIG_LAN) || defined(CONFIG_HLAN)
 #define CONFIG_TULIP

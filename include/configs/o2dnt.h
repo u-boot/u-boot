@@ -65,7 +65,6 @@
 
 #define CONFIG_SYS_XLB_PIPELINING	1
 
-#define CONFIG_NET_MULTI	1
 #define CONFIG_EEPRO100
 #define CONFIG_SYS_RX_ETH_BUFFER	8  /* use 8 rx buffer on eepro100  */
 #define CONFIG_NS8382X		1

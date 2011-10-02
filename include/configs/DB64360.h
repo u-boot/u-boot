@@ -158,7 +158,6 @@ if we use PCI it has its own MAC addr */
 #define CONFIG_MPSC_PORT	0
 
 /* to change the default ethernet port, use this define (options: 0, 1, 2) */
-#define CONFIG_NET_MULTI
 #define MV_ETH_DEVS 2
 
 /* #undef CONFIG_ETHER_PORT_MII	 */

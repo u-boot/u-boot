@@ -86,7 +86,6 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC91111
 #define CONFIG_SMC91111_BASE	(PXA_CS5_PHYS + IDP_CS5_ETH_OFFSET + 0x300)
 #define CONFIG_SMC_USE_32_BIT	1

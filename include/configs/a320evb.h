@@ -71,7 +71,6 @@
 /*
  * Ethernet
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_FTMAC100
 
 #define CONFIG_BOOTDELAY	3

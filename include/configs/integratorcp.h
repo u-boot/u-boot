@@ -54,7 +54,6 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC91111
 #define CONFIG_SMC_USE_32_BIT
 #define CONFIG_SMC91111_BASE    0xC8000000

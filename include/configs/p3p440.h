@@ -171,7 +171,6 @@
 #define CONFIG_PHY_ADDR		0x1c	/* PHY address			*/
 #define CONFIG_HAS_ETH1
 #define CONFIG_PHY1_ADDR	0x1d	/* EMAC1 PHY address		*/
-#define CONFIG_NET_MULTI	1
 #define CONFIG_SYS_RX_ETH_BUFFER	32	/* Number of ethernet rx buffers & descriptors */
 
 #define CONFIG_NETCONSOLE		/* include NetConsole support	*/

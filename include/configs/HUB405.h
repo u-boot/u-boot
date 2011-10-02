@@ -62,7 +62,6 @@
 #define CONFIG_LXT971_NO_SLEEP  1       /* disable sleep mode in LXT971 */
 
 #define CONFIG_PHY_CLK_FREQ	EMAC_STACR_CLK_66MHZ /* 66 MHz OPB clock*/
-#define CONFIG_NET_MULTI
 
 
 /*

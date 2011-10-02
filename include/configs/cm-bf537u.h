@@ -67,7 +67,6 @@
 #define CONFIG_SMC911X_BASE	0x20308000
 #define CONFIG_SMC911X_16_BIT
 #define CONFIG_NETCONSOLE	1
-#define CONFIG_NET_MULTI	1
 #endif
 #define CONFIG_HOSTNAME		cm-bf537u
 /* Uncomment next line to use fixed MAC address */

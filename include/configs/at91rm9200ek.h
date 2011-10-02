@@ -147,7 +147,6 @@
 /*
  * Network Driver Setting
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_DRIVER_AT91EMAC
 #define CONFIG_SYS_RX_ETH_BUFFER	16
 #define CONFIG_RMII

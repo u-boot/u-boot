@@ -128,7 +128,6 @@
 #define CONFIG_TSI108_ETH
 #define CONFIG_TSI108_ETH_NUM_PORTS	2
 
-#define CONFIG_NET_MULTI
 
 #define CONFIG_BOOTFILE		zImage.initrd.elf
 #define CONFIG_LOADADDR		0x400000

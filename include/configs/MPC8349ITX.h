@@ -384,7 +384,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 #define CONFIG_SYS_PCI2_IO_SIZE	0x01000000	/* 16M */
 #endif
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #ifndef CONFIG_PCI_PNP
@@ -408,7 +407,6 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #ifdef CONFIG_TSEC_ENET
 
-#define CONFIG_NET_MULTI
 #define CONFIG_MII
 #define CONFIG_PHY_GIGE		/* In case CONFIG_CMD_MII is specified */
 

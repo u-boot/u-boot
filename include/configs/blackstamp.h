@@ -30,7 +30,6 @@
 /*
  * Board settings
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC91111	1
 #define CONFIG_SMC91111_BASE	0x20300300
 

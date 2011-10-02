@@ -150,7 +150,6 @@
 
 #if defined(CONFIG_CMD_NET)
 /*
-#define CONFIG_NET_MULTI
 #define CONFIG_RTL8169
 */
 /* AX88796L Support(NE2000 base chip) */

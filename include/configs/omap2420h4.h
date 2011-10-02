@@ -82,7 +82,6 @@
 /*
  * SMC91c96 Etherent
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_LAN91C96
 #define CONFIG_LAN91C96_BASE     (H4_CS1_BASE+0x300)
 #define CONFIG_LAN91C96_EXT_PHY

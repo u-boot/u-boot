@@ -80,7 +80,6 @@
 /*
  * Ethernet
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC911X
 #define CONFIG_SMC911X_BASE	0x02000000
 #define CONFIG_SMC911X_16_BIT

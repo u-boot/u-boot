@@ -149,7 +149,6 @@
 /*
  * Network chip
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_CS8900
 #define CONFIG_CS8900_BUS32
 #define CONFIG_CS8900_BASE	0x08000000

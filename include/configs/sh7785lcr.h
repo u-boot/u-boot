@@ -175,7 +175,6 @@
 #define CONFIG_PCI_SYS_SIZE	CONFIG_SYS_SDRAM_SIZE
 
 /* Network device (RTL8169) support */
-#define CONFIG_NET_MULTI
 #define CONFIG_RTL8169
 
 /* ENV setting */

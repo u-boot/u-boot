@@ -266,7 +266,6 @@
 #ifndef USE_GRETH
 
 /* USE SMC91C111 MAC */
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC91111          1
 #define CONFIG_SMC91111_BASE		0x20000300	/* chip select 3         */
 #define CONFIG_SMC_USE_32_BIT		1	/* 32 bit bus  */
@@ -277,7 +276,6 @@
 #else
 
 /* USE GRETH Ethernet Driver */
-#define CONFIG_NET_MULTI	1
 #define CONFIG_GRETH	1
 
 /* Default GRETH Ethernet HARDWARE address */

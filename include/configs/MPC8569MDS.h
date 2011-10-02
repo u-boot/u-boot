@@ -480,7 +480,6 @@ extern unsigned long get_clock_freq(void);
 
 #if defined(CONFIG_PCI)
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
@@ -490,10 +489,6 @@ extern unsigned long get_clock_freq(void);
 #undef CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 
 #endif	/* CONFIG_PCI */
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 /*
  * Environment

@@ -112,7 +112,6 @@
  * "ethaddr". This is normally done during production.
  */
 #define CONFIG_OVERWRITE_ETHADDR_ONCE
-#define CONFIG_NET_MULTI
 
 /*
  * BOOTP options

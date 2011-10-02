@@ -48,7 +48,6 @@
 #undef CONFIG_ENV_IS_IN_FLASH
 
 #define CONFIG_PPC4xx_EMAC
-#define CONFIG_NET_MULTI	1
 #define CONFIG_HAS_ETH1		1
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_PHY_ADDR		0x01	/* PHY address			*/

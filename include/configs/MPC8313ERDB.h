@@ -372,7 +372,6 @@
  */
 #define CONFIG_TSEC_ENET		/* TSEC ethernet support */
 
-#define CONFIG_NET_MULTI
 #define CONFIG_GMII			/* MII PHY management */
 
 #ifdef CONFIG_TSEC1

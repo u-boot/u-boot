@@ -371,7 +371,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #undef CONFIG_SYS_SCSI_SCAN_BUS_REVERSE
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #define CONFIG_RTL8139
@@ -427,10 +426,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif	/* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 #define CONFIG_MII		1	/* MII PHY management */
 

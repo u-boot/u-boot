@@ -150,9 +150,6 @@
 #define CONFIG_OF_BOARD_SETUP
 #define CONFIG_OF_STDOUT_VIA_ALIAS
 
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI
-#endif
 /*
  * QE UEC ethernet configuration
  */

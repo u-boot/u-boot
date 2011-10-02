@@ -385,17 +385,12 @@ extern int board_pci_host_broken(void);
 
 #define CONFIG_HAS_FSL_DR_USB	1 /* fixup device tree for the DR USB */
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
 #undef CONFIG_PCI_SCAN_SHOW	/* show pci devices on startup */
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 #endif /* CONFIG_PCI */
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 /*
  * TSEC

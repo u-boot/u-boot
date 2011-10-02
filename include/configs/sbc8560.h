@@ -230,10 +230,6 @@
 
 #ifdef CONFIG_TSEC_ENET
 
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI 	1
-#endif
-
 #ifndef CONFIG_MII
 #define CONFIG_MII		1	/* MII PHY management */
 #endif

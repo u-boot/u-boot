@@ -182,7 +182,6 @@
 /*
  * network
  */
-#define CONFIG_NET_MULTI		1
 
 #define CONFIG_NET_RETRY_COUNT		10
 #define CONFIG_RESET_PHY_R		1

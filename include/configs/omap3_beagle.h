@@ -138,7 +138,6 @@
 #define CONFIG_USB_ETHER_SMSC95XX
 #define CONFIG_USB_ETHER_ASIX
 
-#define CONFIG_NET_MULTI
 
 /* commands to include */
 #include <config_cmd_default.h>

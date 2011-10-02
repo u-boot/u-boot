@@ -209,7 +209,6 @@
 
 #if defined(CONFIG_PCI)			/* PCI Ethernet card */
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
@@ -227,10 +226,6 @@
 #endif /* CONFIG_PCI */
 
 #if defined(CONFIG_TSEC_ENET)
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 

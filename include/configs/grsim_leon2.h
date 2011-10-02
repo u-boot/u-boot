@@ -260,7 +260,6 @@
  * Ethernet configuration
  */
 /*#define CONFIG_GRETH	1*/
-/*#define CONFIG_NET_MULTI	1*/
 
 /* Default HARDWARE address */
 #define GRETH_HWADDR_0 0x00

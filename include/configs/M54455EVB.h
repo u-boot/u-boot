@@ -85,7 +85,6 @@
 /* Network configuration */
 #define CONFIG_MCFFEC
 #ifdef CONFIG_MCFFEC
-#	define CONFIG_NET_MULTI		1
 #	define CONFIG_MII		1
 #	define CONFIG_MII_INIT		1
 #	define CONFIG_SYS_DISCOVER_PHY

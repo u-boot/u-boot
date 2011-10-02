@@ -174,7 +174,6 @@
 #define CONFIG_PCI				/* include pci support		*/
 #define CONFIG_PCI_PNP
 
-#define CONFIG_NET_MULTI		/* Multi ethernet cards support */
 #define CONFIG_EEPRO100
 #define CONFIG_SYS_RX_ETH_BUFFER	8	/* use 8 rx buffer on eepro100  */
 #define CONFIG_EEPRO100_SROM_WRITE

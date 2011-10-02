@@ -69,7 +69,6 @@
  * Network Settings
  */
 #define ADI_CMDS_NETWORK	1
-#define CONFIG_NET_MULTI	1
 #define CONFIG_HOSTNAME		IP04
 
 #define CONFIG_DRIVER_DM9000	1

@@ -162,7 +162,6 @@
 #undef CONFIG_LOADS_ECHO   /* no echo on for serial download	*/
 #define CONFIG_SYS_LOADS_BAUD_CHANGE	1	/* allow baudrate change	*/
 
-#define CONFIG_NET_MULTI
 /* #define CONFIG_EEPRO100_SROM_WRITE */
 /* #define CONFIG_SHOW_MAC */
 #define CONFIG_EEPRO100

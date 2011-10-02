@@ -111,7 +111,6 @@
 /*
  * Hardware drivers
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_CS8900			/* we have a CS8900 on-board */
 #define CONFIG_CS8900_BASE		0x20000300
 #define CONFIG_CS8900_BUS16

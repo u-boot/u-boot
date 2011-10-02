@@ -261,10 +261,6 @@
  */
 #ifdef CONFIG_TSEC_ENET
 
-# ifndef CONFIG_NET_MULTI
-#  define CONFIG_NET_MULTI
-# endif
-
 # define CONFIG_MII                /* MII PHY management */
 # define CONFIG_MII_DEFAULT_TSEC 1 /* Allow unregistered phys */
 

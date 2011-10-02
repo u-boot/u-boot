@@ -78,7 +78,6 @@
 
 #define CONFIG_SYS_XLB_PIPELINING	1
 
-#undef CONFIG_NET_MULTI
 #undef CONFIG_EEPRO100
 
 /* Partitions */

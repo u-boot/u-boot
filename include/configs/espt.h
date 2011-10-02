@@ -117,7 +117,6 @@
 #define CONFIG_SYS_HZ       1000
 
 /* Ether */
-#define CONFIG_NET_MULTI 1
 #define CONFIG_SH_ETHER 1
 #define CONFIG_SH_ETHER_USE_PORT (1)
 #define CONFIG_SH_ETHER_PHY_ADDR (0x00)

@@ -370,7 +370,6 @@
 
 #ifdef CONFIG_PCI
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_83XX_PCI_STREAMING
 
@@ -380,10 +379,6 @@
 
 #endif	/* CONFIG_PCI */
 
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 #define CONFIG_HWCONFIG		1
 

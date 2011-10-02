@@ -130,7 +130,6 @@
 /*
  * Networking stuff
  */
-#define CONFIG_NET_MULTI			/* Multi ethernet cards support */
 
 #define CONFIG_PCNET				/* there are 2 AMD PCnet 79C973	*/
 #define CONFIG_PCNET_79C973

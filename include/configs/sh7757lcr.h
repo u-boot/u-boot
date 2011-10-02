@@ -97,7 +97,6 @@
 #define CONFIG_SYS_NO_FLASH
 
 /* Ether */
-#define CONFIG_NET_MULTI		1
 #define CONFIG_SH_ETHER			1
 #define CONFIG_SH_ETHER_USE_PORT	0
 #define CONFIG_SH_ETHER_PHY_ADDR	1

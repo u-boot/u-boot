@@ -334,7 +334,6 @@
 #define CONFIG_PHY_ADDR		1	/* PHY address			*/
 #define CONFIG_PHY_RESET_DELAY	300	/* Intel LXT971A needs this */
 #define CONFIG_PHY_CMD_DELAY	40	/* Intel LXT971A needs this */
-#define CONFIG_NET_MULTI
 /************************************************************
  * RTC
  ***********************************************************/

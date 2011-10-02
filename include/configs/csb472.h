@@ -192,7 +192,6 @@
 #define CONFIG_PHY_CMD_DELAY	40	/* PHY COMMAND delay		*/
 					/* 32usec min. for LXT971A	*/
 #define CONFIG_PHY_RESET_DELAY	300	/* PHY RESET recovery delay	*/
-#define CONFIG_NET_MULTI
 
 /*
  * RTC configuration

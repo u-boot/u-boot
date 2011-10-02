@@ -61,7 +61,6 @@
  * Network Settings
  */
 #define ADI_CMDS_NETWORK	1
-#define CONFIG_NET_MULTI
 #define CONFIG_DRIVER_AX88180	1
 #define AX88180_BASE		0x2c000000
 #define CONFIG_HOSTNAME		ibf-dsp561

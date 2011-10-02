@@ -40,7 +40,6 @@
  * Ethernet
  */
 #define CONFIG_IXP4XX_NPE	1	/* include IXP4xx NPE support	*/
-#define CONFIG_NET_MULTI	1
 #define	CONFIG_PHY_ADDR		16	/* NPE0 PHY address		*/
 #define CONFIG_HAS_ETH1
 #define CONFIG_PHY1_ADDR	18	/* NPE1 PHY address		*/

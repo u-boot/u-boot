@@ -107,7 +107,6 @@
 	"prg_jffs2=tftpboot 0x80000000 $(jffs2); erase 0xa01c0000 0xa1ffffff; cp.b 0x80000000 0xa01c0000 $(filesize)\0"
 
 
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC911X		1
 #define CONFIG_SMC911X_BASE	0xa8000000
 #define CONFIG_SMC911X_32_BIT	1

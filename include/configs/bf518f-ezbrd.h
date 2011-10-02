@@ -84,7 +84,6 @@
 	P_MII0_MDIO, \
 	0 }
 #define CONFIG_NETCONSOLE	1
-#define CONFIG_NET_MULTI	1
 #endif
 #define CONFIG_HOSTNAME		bf518f-ezbrd
 #define CONFIG_PHY_ADDR		3

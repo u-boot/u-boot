@@ -63,7 +63,6 @@
  * Network Settings
  */
 #define ADI_CMDS_NETWORK	1
-#define CONFIG_NET_MULTI
 #define CONFIG_SMC911X		1
 #define CONFIG_SMC911X_BASE	0x24008000 /* AMS1 */
 #define CONFIG_SMC911X_16_BIT

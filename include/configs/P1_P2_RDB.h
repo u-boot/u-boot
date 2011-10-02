@@ -471,7 +471,6 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 
 #endif	/* CONFIG_PCI */
 
-#define CONFIG_NET_MULTI	1
 
 #if defined(CONFIG_TSEC_ENET)
 #define CONFIG_MII		1	/* MII PHY management */

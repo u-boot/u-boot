@@ -56,7 +56,6 @@
  */
 
 /* None - PLEB 2 doesn't have any of this.
-	#define CONFIG_NET_MULTI
 	#define CONFIG_LAN91C96
 	#define CONFIG_LAN91C96_BASE 0x0C000000
  */

@@ -77,7 +77,6 @@
 /* Ethernet */
 #define CONFIG_DNET		1
 #define CONFIG_DNET_BASE	(CS1_BASE + QONG_FPGA_PERIPH_SIZE)
-#define CONFIG_NET_MULTI	1
 
 /* Framebuffer and LCD */
 #define CONFIG_LCD

@@ -153,7 +153,6 @@
  * Ethernet Driver configuration
  */
 #define CONFIG_NETCONSOLE	/* include NetConsole support   */
-#define CONFIG_NET_MULTI	/* specify more that one ports available */
 #define CONFIG_MII		/* expose smi ove miiphy interface */
 #define CONFIG_MVGBE		/* Enable Marvell Gbe Controller Driver */
 #define CONFIG_SYS_FAULT_ECHO_LINK_DOWN	/* detect link using phy */

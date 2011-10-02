@@ -215,10 +215,6 @@
 
 #if defined(CONFIG_TSEC_ENET)
 
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI
-#endif
-
 #define CONFIG_TSEC1		1
 #define CONFIG_TSEC1_NAME	"TSEC0"
 #define CONFIG_TSEC2		1

@@ -53,7 +53,6 @@
 #define CONFIG_PHY_ADDR		0x01	/* PHY address			*/
 #define CONFIG_HAS_ETH1		1
 #define CONFIG_PHY1_ADDR	0x11	/* EMAC1 PHY address		*/
-#define CONFIG_NET_MULTI	1
 #define CONFIG_SYS_RX_ETH_BUFFER	16	/* Number of ethernet rx buffers & descriptors */
 #define CONFIG_PHY_RESET	1
 #define CONFIG_PHY_RESET_DELAY	300	/* PHY RESET recovery delay	*/

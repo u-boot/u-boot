@@ -398,7 +398,6 @@
  * Ethernet configuration
  */
 #define CONFIG_MPC512x_FEC		1
-#define CONFIG_NET_MULTI
 #define CONFIG_PHY_ADDR			0x17
 #define CONFIG_MII			1	/* MII PHY management */
 #define CONFIG_FEC_AN_TIMEOUT		1

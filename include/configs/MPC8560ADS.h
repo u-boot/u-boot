@@ -283,7 +283,6 @@
 
 #if defined(CONFIG_PCI)
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
@@ -302,10 +301,6 @@
 
 
 #ifdef CONFIG_TSEC_ENET
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 #ifndef CONFIG_MII
 #define CONFIG_MII		1	/* MII PHY management */

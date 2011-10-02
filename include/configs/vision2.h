@@ -116,7 +116,6 @@
  * Eth Configs
  */
 #define CONFIG_HAS_ETH1
-#define CONFIG_NET_MULTI
 #define CONFIG_MII
 #define CONFIG_DISCOVER_PHY
 

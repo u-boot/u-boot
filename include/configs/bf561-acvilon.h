@@ -76,7 +76,6 @@
  * Network Settings
  */
 #define ADI_CMDS_NETWORK			1
-#define CONFIG_NET_MULTI
 #define CONFIG_CMD_NET
 #define CONFIG_CMD_MII
 #define CONFIG_CMD_DATE

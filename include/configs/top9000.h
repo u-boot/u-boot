@@ -103,7 +103,6 @@
 #define CONFIG_MACB
 #define CONFIG_SYS_PHY_ID	1
 #define CONFIG_RMII
-#define CONFIG_NET_MULTI
 #define CONFIG_NET_RETRY_COUNT	20
 
 /* real time clock */

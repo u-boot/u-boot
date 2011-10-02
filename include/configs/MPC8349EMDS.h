@@ -386,7 +386,6 @@
 #undef PCI_ONE_PCI1
 #endif
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 #define CONFIG_83XX_PCI_STREAMING
 
@@ -410,9 +409,6 @@
 #define CONFIG_TSEC_ENET		/* TSEC ethernet support */
 
 #if defined(CONFIG_TSEC_ENET)
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 #define CONFIG_GMII		1	/* MII PHY management */
 #define CONFIG_TSEC1	1

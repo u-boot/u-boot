@@ -540,7 +540,6 @@
 #define CONFIG_SYS_ISA_IO_BASE_ADDRESS VIDEO_IO_OFFSET
 #endif
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
@@ -570,10 +569,6 @@
 
 
 #if defined(CONFIG_TSEC_ENET)
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 #define CONFIG_MII		1	/* MII PHY management */
 #define CONFIG_MII_DEFAULT_TSEC	1	/* Allow unregistered phys */

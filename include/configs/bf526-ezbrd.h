@@ -84,7 +84,6 @@
 #define CONFIG_BFIN_MAC
 #define CONFIG_RMII
 #define CONFIG_NETCONSOLE	1
-#define CONFIG_NET_MULTI	1
 #endif
 #define CONFIG_HOSTNAME		bf526-ezbrd
 /* Uncomment next line to use fixed MAC address */

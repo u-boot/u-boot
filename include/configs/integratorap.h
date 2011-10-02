@@ -68,8 +68,6 @@
 #define CONFIG_SYS_SERIAL0		0x16000000
 #define CONFIG_SYS_SERIAL1		0x17000000
 
-/*#define CONFIG_NET_MULTI */
-
 
 /*
  * BOOTP options

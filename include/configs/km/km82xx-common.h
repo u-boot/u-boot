@@ -52,7 +52,6 @@
 #define	CONFIG_ETHER_ON_SCC		/* Ethernet is on SCC */
 #undef	CONFIG_ETHER_ON_FCC		/* Ethernet is not on FCC     */
 #undef	CONFIG_ETHER_NONE		/* No external Ethernet   */
-#define CONFIG_NET_MULTI
 
 #define CONFIG_ETHER_INDEX	4
 #define CONFIG_HAS_ETH0

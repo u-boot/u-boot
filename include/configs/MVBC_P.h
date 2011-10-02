@@ -261,7 +261,6 @@
 /*
  * Ethernet configuration
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_NET_RETRY_COUNT 5
 
 #define CONFIG_E1000

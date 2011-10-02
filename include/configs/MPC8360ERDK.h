@@ -290,7 +290,6 @@
 
 #ifdef CONFIG_PCI
 
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP		/* do pci plug-and-play */
 
 #undef CONFIG_EEPRO100
@@ -298,11 +297,6 @@
 #define CONFIG_SYS_PCI_SUBSYS_VENDORID 0x1957	/* Freescale */
 
 #endif	/* CONFIG_PCI */
-
-
-#ifndef CONFIG_NET_MULTI
-#define CONFIG_NET_MULTI	1
-#endif
 
 /*
  * QE UEC ethernet configuration

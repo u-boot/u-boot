@@ -273,7 +273,6 @@
 /*
  * TSEC
  */
-#define CONFIG_NET_MULTI
 #define CONFIG_GMII			/* MII PHY management */
 #define CONFIG_SYS_VSC8601_SKEWFIX
 #define	CONFIG_SYS_VSC8601_SKEW_TX	3

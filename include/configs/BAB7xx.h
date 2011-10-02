@@ -467,7 +467,6 @@ extern  unsigned long           bab7xx_get_gclk_freq (void);
 
 #define CONFIG_SYS_L2_BAB7xx
 
-#define CONFIG_NET_MULTI                /* Multi ethernet cards support */
 #define CONFIG_TULIP
 #define CONFIG_TULIP_SELECT_MEDIA
 

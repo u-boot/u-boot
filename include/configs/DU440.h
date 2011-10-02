@@ -269,7 +269,6 @@ int du440_phy_addr(int devnum);
 #define CONFIG_HAS_ETH0
 #define CONFIG_SYS_RX_ETH_BUFFER	128
 
-#define CONFIG_NET_MULTI	1
 #define CONFIG_HAS_ETH1		1	/* add support for "eth1addr"	*/
 #define CONFIG_PHY1_ADDR	du440_phy_addr(1)
 

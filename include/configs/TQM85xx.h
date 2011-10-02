@@ -421,7 +421,6 @@
 
 #endif /* CONFIG_PCI */
 
-#define CONFIG_NET_MULTI	1
 
 #define CONFIG_MII		1	/* MII PHY management		*/
 #define CONFIG_TSEC1	1

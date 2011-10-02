@@ -336,7 +336,6 @@
 #define CONFIG_SYS_PCIE3_IO_SIZE	0x00010000	/* 64k */
 
 #ifdef CONFIG_PCI
-#define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP			/* do pci plug-and-play */
 #define CONFIG_PCI_SCAN_SHOW		/* show pci devices on startup */
 #define CONFIG_E1000			/* Define e1000 pci Ethernet card */
@@ -380,7 +379,6 @@
 #ifdef CONFIG_TSEC_ENET
 
 #define CONFIG_TSECV2
-#define CONFIG_NET_MULTI
 
 #define CONFIG_MII			/* MII PHY management */
 #define CONFIG_TSEC1		1

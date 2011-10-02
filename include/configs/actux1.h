@@ -166,7 +166,6 @@
 
 /* include IXP4xx NPE support */
 #define CONFIG_IXP4XX_NPE		1
-#define CONFIG_NET_MULTI		1
 /* NPE0 PHY address */
 #define	CONFIG_PHY_ADDR			0
 /* NPE1 PHY address (HW Release E only) */

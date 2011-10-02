@@ -69,7 +69,6 @@
 /* Network configuration */
 #ifdef CONFIG_CMD_NET
 #define CONFIG_CMD_PING
-#define CONFIG_NET_MULTI
 #define CONFIG_ARMADA100_FEC
 
 /* DHCP Support */
