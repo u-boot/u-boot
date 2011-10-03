@@ -484,34 +484,10 @@ void image_print_contents (const void *hdr);
 #ifndef USE_HOSTCC
 static inline int image_check_target_arch (const image_header_t *hdr)
 {
-#if defined(__ARM__)
-	if (!image_check_arch (hdr, IH_ARCH_ARM))
-#elif defined(__avr32__)
-	if (!image_check_arch (hdr, IH_ARCH_AVR32))
-#elif defined(__bfin__)
-	if (!image_check_arch (hdr, IH_ARCH_BLACKFIN))
-#elif defined(__I386__)
-	if (!image_check_arch (hdr, IH_ARCH_I386))
-#elif defined(__M68K__)
-	if (!image_check_arch (hdr, IH_ARCH_M68K))
-#elif defined(__microblaze__)
-	if (!image_check_arch (hdr, IH_ARCH_MICROBLAZE))
-#elif defined(__mips__)
-	if (!image_check_arch (hdr, IH_ARCH_MIPS))
-#elif defined(__nios2__)
-	if (!image_check_arch (hdr, IH_ARCH_NIOS2))
-#elif defined(__PPC__)
-	if (!image_check_arch (hdr, IH_ARCH_PPC))
-#elif defined(__sh__)
-	if (!image_check_arch (hdr, IH_ARCH_SH))
-#elif defined(__sparc__)
-	if (!image_check_arch (hdr, IH_ARCH_SPARC))
-#else
-# error Unknown CPU type
+#ifndef IH_ARCH_DEFAULT
+# error "please define IH_ARCH_DEFAULT in your arch asm/u-boot.h"
 #endif
-		return 0;
-
-	return 1;
+	return image_check_arch(hdr, IH_ARCH_DEFAULT);
 }
 #endif /* USE_HOSTCC */
 
@@ -636,34 +612,7 @@ void fit_conf_print (const void *fit, int noffset, const char *p);
 #ifndef USE_HOSTCC
 static inline int fit_image_check_target_arch (const void *fdt, int node)
 {
-#if defined(__ARM__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_ARM))
-#elif defined(__avr32__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_AVR32))
-#elif defined(__bfin__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_BLACKFIN))
-#elif defined(__I386__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_I386))
-#elif defined(__M68K__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_M68K))
-#elif defined(__microblaze__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_MICROBLAZE))
-#elif defined(__mips__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_MIPS))
-#elif defined(__nios2__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_NIOS2))
-#elif defined(__PPC__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_PPC))
-#elif defined(__sh__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_SH))
-#elif defined(__sparc__)
-	if (!fit_image_check_arch (fdt, node, IH_ARCH_SPARC))
-#else
-# error Unknown CPU type
-#endif
-		return 0;
-
-	return 1;
+	return !fit_image_check_arch(fdt, node, IH_ARCH_DEFAULT);
 }
 #endif /* USE_HOSTCC */
 

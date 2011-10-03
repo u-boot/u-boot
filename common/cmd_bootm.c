@@ -165,31 +165,7 @@ void __arch_preboot_os(void)
 }
 void arch_preboot_os(void) __attribute__((weak, alias("__arch_preboot_os")));
 
-#if defined(__ARM__)
-  #define IH_INITRD_ARCH IH_ARCH_ARM
-#elif defined(__avr32__)
-  #define IH_INITRD_ARCH IH_ARCH_AVR32
-#elif defined(__bfin__)
-  #define IH_INITRD_ARCH IH_ARCH_BLACKFIN
-#elif defined(__I386__)
-  #define IH_INITRD_ARCH IH_ARCH_I386
-#elif defined(__M68K__)
-  #define IH_INITRD_ARCH IH_ARCH_M68K
-#elif defined(__microblaze__)
-  #define IH_INITRD_ARCH IH_ARCH_MICROBLAZE
-#elif defined(__mips__)
-  #define IH_INITRD_ARCH IH_ARCH_MIPS
-#elif defined(__nios2__)
-  #define IH_INITRD_ARCH IH_ARCH_NIOS2
-#elif defined(__PPC__)
-  #define IH_INITRD_ARCH IH_ARCH_PPC
-#elif defined(__sh__)
-  #define IH_INITRD_ARCH IH_ARCH_SH
-#elif defined(__sparc__)
-  #define IH_INITRD_ARCH IH_ARCH_SPARC
-#else
-# error Unknown CPU type
-#endif
+#define IH_INITRD_ARCH IH_ARCH_DEFAULT
 
 static void bootm_start_lmb(void)
 {

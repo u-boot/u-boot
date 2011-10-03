@@ -38,4 +38,7 @@ typedef struct bd_info {
 	unsigned long	bi_boot_params; /* where this board expects params */
 } bd_t;
 
+/* For image.h:image_check_target_arch() */
+#define IH_ARCH_DEFAULT IH_ARCH_SH
+
 #endif

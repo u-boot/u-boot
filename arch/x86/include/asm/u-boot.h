@@ -58,4 +58,7 @@ typedef struct bd_info {
 	}bi_dram[CONFIG_NR_DRAM_BANKS];
 } bd_t;
 
+/* For image.h:image_check_target_arch() */
+#define IH_ARCH_DEFAULT IH_ARCH_I386
+
 #endif	/* _U_BOOT_H_ */
