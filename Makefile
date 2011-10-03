@@ -570,8 +570,9 @@ $(VERSION_FILE):
 
 $(TIMESTAMP_FILE):
 		@mkdir -p $(dir $(TIMESTAMP_FILE))
-		@LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"' > $@
-		@LC_ALL=C date +'#define U_BOOT_TIME "%T"' >> $@
+		@LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"' > $@.tmp
+		@LC_ALL=C date +'#define U_BOOT_TIME "%T"' >> $@.tmp
+		@cmp -s $@ $@.tmp && rm -f $@.tmp || mv -f $@.tmp $@
 
 easylogo env gdb:
 	$(MAKE) -C tools/$@ all MTD_VERSION=${MTD_VERSION}
