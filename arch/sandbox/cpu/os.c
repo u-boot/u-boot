@@ -19,44 +19,37 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <os.h>
 
-DECLARE_GLOBAL_DATA_PTR;
+/* Operating System Interface */
 
-int do_reset(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ssize_t os_read(int fd, void *buf, size_t count)
 {
-	/* This is considered normal termination for now */
-	os_exit(0);
-	return 0;
+	return read(fd, buf, count);
 }
 
-/* delay x useconds */
-void __udelay(unsigned long usec)
+ssize_t os_write(int fd, const void *buf, size_t count)
 {
-	/* Ignore this for now */
+	return write(fd, buf, count);
 }
 
-unsigned long timer_get_us(void)
+int os_open(const char *pathname, int flags)
 {
-	return 0;
+	return open(pathname, flags);
 }
 
-int do_bootm_linux(int flag, int argc, char *argv[], bootm_headers_t *images)
+int os_close(int fd)
 {
-	return -1;
+	return close(fd);
 }
 
-int cleanup_before_linux(void)
+void os_exit(int exit_code)
 {
-	return 0;
-}
-
-void *map_physmem(phys_addr_t paddr, unsigned long len, unsigned long flags)
-{
-	return (void *)(gd->ram_buf + paddr);
-}
-
-void flush_dcache_range(unsigned long start, unsigned long stop)
-{
+	exit(exit_code);
 }

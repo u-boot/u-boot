@@ -23,11 +23,14 @@
 # MA 02111-1307 USA
 #
 
+# os.c is build in the system environment, so needs standard includes
+CPPFLAGS_arch/sandbox/cpu/os.o += -I/usr/include
+
 include $(TOPDIR)/config.mk
 
 LIB	= $(obj)lib$(CPU).o
 
-COBJS	:= cpu.o
+COBJS	:= cpu.o os.o
 
 SRCS	:= $(COBJS:.o=.c)
 OBJS	:= $(addprefix $(obj),$(COBJS))
