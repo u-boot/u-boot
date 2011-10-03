@@ -25,6 +25,7 @@
 #include <common.h>
 #include <asm/arch/gpio.h>
 #include <asm/arch/mmc.h>
+#include <pmic.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -38,6 +39,9 @@ int board_init(void)
 	gd->bd->bi_arch_number = MACH_TYPE_GONI;
 	gd->bd->bi_boot_params = PHYS_SDRAM_1 + 0x100;
 
+#if defined(CONFIG_PMIC)
+	pmic_init();
+#endif
 	return 0;
 }
 
