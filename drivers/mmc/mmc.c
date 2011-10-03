@@ -638,7 +638,7 @@ int mmc_change_freq(struct mmc *mmc)
 	if (err)
 		return err;
 
-	cardtype = ext_csd[196] & 0xf;
+	cardtype = ext_csd[EXT_CSD_CARD_TYPE] & 0xf;
 
 	err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_HS_TIMING, 1);
 
@@ -652,7 +652,7 @@ int mmc_change_freq(struct mmc *mmc)
 		return err;
 
 	/* No high-speed support */
-	if (!ext_csd[185])
+	if (!ext_csd[EXT_CSD_HS_TIMING])
 		return 0;
 
 	/* High Speed is set, there are two types: 52MHz and 26MHz */
@@ -1006,14 +1006,16 @@ int mmc_startup(struct mmc *mmc)
 	if (!IS_SD(mmc) && (mmc->version >= MMC_VERSION_4)) {
 		/* check  ext_csd version and capacity */
 		err = mmc_send_ext_csd(mmc, ext_csd);
-		if (!err & (ext_csd[192] >= 2)) {
+		if (!err & (ext_csd[EXT_CSD_REV] >= 2)) {
 			/*
 			 * According to the JEDEC Standard, the value of
 			 * ext_csd's capacity is valid if the value is more
 			 * than 2GB
 			 */
-			capacity = ext_csd[212] << 0 | ext_csd[213] << 8 |
-				   ext_csd[214] << 16 | ext_csd[215] << 24;
+			capacity = ext_csd[EXT_CSD_SEC_CNT] << 0
+					| ext_csd[EXT_CSD_SEC_CNT + 1] << 8
+					| ext_csd[EXT_CSD_SEC_CNT + 2] << 16
+					| ext_csd[EXT_CSD_SEC_CNT + 3] << 24;
 			capacity *= 512;
 			if ((capacity >> 20) > 2 * 1024)
 				mmc->capacity = capacity;
@@ -1024,8 +1026,9 @@ int mmc_startup(struct mmc *mmc)
 		 * group size from ext_csd directly, or calculate
 		 * the group size from the csd value.
 		 */
-		if (ext_csd[175])
-			mmc->erase_grp_size = ext_csd[224] * 512 * 1024;
+		if (ext_csd[EXT_CSD_ERASE_GROUP_DEF])
+			mmc->erase_grp_size =
+			      ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] * 512 * 1024;
 		else {
 			int erase_gsz, erase_gmul;
 			erase_gsz = (mmc->csd[2] & 0x00007c00) >> 10;
@@ -1035,8 +1038,8 @@ int mmc_startup(struct mmc *mmc)
 		}
 
 		/* store the partition info of emmc */
-		if (ext_csd[160] & PART_SUPPORT)
-			mmc->part_config = ext_csd[179];
+		if (ext_csd[EXT_CSD_PARTITIONING_SUPPORT] & PART_SUPPORT)
+			mmc->part_config = ext_csd[EXT_CSD_PART_CONF];
 	}
 
 	if (IS_SD(mmc))
