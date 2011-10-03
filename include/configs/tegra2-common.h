@@ -33,6 +33,8 @@
 #define CONFIG_MACH_TEGRA_GENERIC	/* which is a Tegra generic machine */
 #define CONFIG_SYS_L2CACHE_OFF		/* No L2 cache */
 
+#define CONFIG_SYS_CACHELINE_SIZE	32
+
 #define CONFIG_ENABLE_CORTEXA9		/* enable CPU (A9 complex) */
 
 #include <asm/arch/tegra2.h>		/* get chip and board defs */
