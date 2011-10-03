@@ -38,6 +38,7 @@ COBJS-$(CONFIG_TWL4030_LED) += twl4030_led.o
 COBJS-$(CONFIG_PMIC) += pmic_core.o
 COBJS-$(CONFIG_PMIC_I2C) += pmic_i2c.o
 COBJS-$(CONFIG_PMIC_SPI) += pmic_spi.o
+COBJS-$(CONFIG_PMIC_MAX8998) += pmic_max8998.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(COBJS:.o=.c)
