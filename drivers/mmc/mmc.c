@@ -702,8 +702,8 @@ int sd_change_freq(struct mmc *mmc)
 {
 	int err;
 	struct mmc_cmd cmd;
-	uint scr[2];
-	uint switch_status[16];
+	ALLOC_CACHE_ALIGN_BUFFER(uint, scr, 2);
+	ALLOC_CACHE_ALIGN_BUFFER(uint, switch_status, 16);
 	struct mmc_data data;
 	int timeout;
 
@@ -731,7 +731,7 @@ int sd_change_freq(struct mmc *mmc)
 	timeout = 3;
 
 retry_scr:
-	data.dest = (char *)&scr;
+	data.dest = (char *)scr;
 	data.blocksize = 8;
 	data.blocks = 1;
 	data.flags = MMC_DATA_READ;
@@ -773,7 +773,7 @@ retry_scr:
 	timeout = 4;
 	while (timeout--) {
 		err = sd_switch(mmc, SD_SWITCH_CHECK, 0, 1,
-				(u8 *)&switch_status);
+				(u8 *)switch_status);
 
 		if (err)
 			return err;
@@ -787,7 +787,7 @@ retry_scr:
 	if (!(__be32_to_cpu(switch_status[3]) & SD_HIGHSPEED_SUPPORTED))
 		return 0;
 
-	err = sd_switch(mmc, SD_SWITCH_SWITCH, 0, 1, (u8 *)&switch_status);
+	err = sd_switch(mmc, SD_SWITCH_SWITCH, 0, 1, (u8 *)switch_status);
 
 	if (err)
 		return err;
