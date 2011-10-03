@@ -51,6 +51,14 @@ int board_early_init_f (void)
 	setbits_be32(&gur->pmuxcr,
 			(MPC85xx_PMUXCR_SDHC_CD |
 			 MPC85xx_PMUXCR_SDHC_WP));
+
+	/* The MPC8536DS board insert the SDHC_WP pin for erratum NMG_eSDHC118,
+	 * however, this erratum only applies to MPC8536 Rev1.0.
+	 * So set SDHC_WP to active-low when use MPC8536 Rev1.1 and greater.*/
+	if ((((SVR_MAJ(get_svr()) & 0x7) == 0x1) &&
+			(SVR_MIN(get_svr()) >= 0x1))
+			|| (SVR_MAJ(get_svr() & 0x7) > 0x1))
+		setbits_be32(&gur->gencfgr, MPC85xx_GENCFGR_SDHC_WP_INV);
 #endif
 	return 0;
 }
