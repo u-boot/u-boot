@@ -115,7 +115,13 @@
 /*
  * Environment variables configurations
  */
-#define CONFIG_ENV_IS_NOWHERE	1	/* if env in SDRAM */
-#define CONFIG_ENV_SIZE	0x20000		/* 64k */
+#define CONFIG_ENV_IS_IN_SPI_FLASH
+#define CONFIG_ENV_SECT_SIZE		0x4000
+#define CONFIG_ENV_SIZE			0x4000
+#define CONFIG_ENV_OFFSET		0x07C000
+
+#define CONFIG_CMD_ASKENV
+#define CONFIG_CMD_EDITENV
+#define CONFIG_CMD_SAVEENV
 
 #endif	/* __CONFIG_GPLUGD_H */
