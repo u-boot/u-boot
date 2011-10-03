@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010 Freescale Semiconductor, Inc.
+ * Copyright 2008-2010, 2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -49,10 +49,8 @@ int board_early_init_f (void)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 
 	setbits_be32(&gur->pmuxcr,
-			(MPC85xx_PMUXCR_SD_DATA |
-			 MPC85xx_PMUXCR_SDHC_CD |
+			(MPC85xx_PMUXCR_SDHC_CD |
 			 MPC85xx_PMUXCR_SDHC_WP));
-
 #endif
 	return 0;
 }

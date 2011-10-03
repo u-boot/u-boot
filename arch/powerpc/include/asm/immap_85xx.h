@@ -1934,7 +1934,12 @@ typedef struct ccsr_gur {
 	u8	res1[8];
 	u32	gpporcr;	/* General-purpose POR configuration */
 	u8	res2[12];
+#if defined(CONFIG_MPC8536)
+	u32	gencfgr;	/* General Configuration Register */
+#define MPC85xx_GENCFGR_SDHC_WP_INV	0x20000000
+#else
 	u32	gpiocr;		/* GPIO control */
+#endif
 	u8	res3[12];
 #if defined(CONFIG_MPC8569)
 	u32	plppar1;	/* Platform port pin assignment 1 */

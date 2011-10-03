@@ -77,6 +77,7 @@
 #define CONFIG_MPC8536DS	1
 
 #define CONFIG_FSL_ELBC		1	/* Has Enhanced localbus controller */
+#define CONFIG_SPI_FLASH	1	/* Has SPI Flash */
 #define CONFIG_PCI		1	/* Enable PCI/PCIE */
 #define CONFIG_PCI1		1	/* Enable PCI controller 1 */
 #define CONFIG_PCIE1		1	/* PCIE controler 1 (slot 1) */
@@ -456,6 +457,19 @@
 #define CONFIG_SYS_I2C_EEPROM_ADDR	0x57
 #define CONFIG_SYS_I2C_EEPROM_ADDR_LEN	1
 #define CONFIG_SYS_EEPROM_BUS_NUM	1
+
+/*
+ * eSPI - Enhanced SPI
+ */
+#define CONFIG_HARD_SPI
+#define CONFIG_FSL_ESPI
+
+#if defined(CONFIG_SPI_FLASH)
+#define CONFIG_SPI_FLASH_SPANSION
+#define CONFIG_CMD_SF
+#define CONFIG_SF_DEFAULT_SPEED	10000000
+#define CONFIG_SF_DEFAULT_MODE	0
+#endif
 
 /*
  * General PCI
