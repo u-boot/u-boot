@@ -45,6 +45,10 @@
 #define FE_CLK_RST		0x1
 #define FE_CLK_ENA		0x8
 
+/* SSP2 Clock Control */
+#define SSP2_APBCLK		0x01
+#define SSP2_FNCLK		0x02
+
 /* Register Base Addresses */
 #define ARMD1_DRAM_BASE		0xB0000000
 #define ARMD1_FEC_BASE		0xC0800000
@@ -173,6 +177,21 @@ struct armd1apb1_registers {
 	u32 timer2;	/*0x07C*/
 	u8 pad5[0x084 - 0x07c - 4];
 	u32 ac97;	/*0x084*/
+};
+
+/*
+* APB2 Clock Reset/Control Registers
+* Refer Datasheet Appendix A.11
+*/
+struct armd1apb2_registers {
+	u32 pad1[0x01C - 0x000];
+	u32 ssp1_clkrst;		/* 0x01C */
+	u32 ssp2_clkrst;		/* 0x020 */
+	u32 pad2[0x04C - 0x020 - 4];
+	u32 ssp3_clkrst;		/* 0x04C */
+	u32 pad3[0x058 - 0x04C - 4];
+	u32 ssp4_clkrst;		/* 0x058 */
+	u32 ssp5_clkrst;		/* 0x05C */
 };
 
 #endif /* CONFIG_ARMADA100 */

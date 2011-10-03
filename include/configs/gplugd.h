@@ -90,6 +90,11 @@
 /* GPIO Configuration for PHY */
 #define CONFIG_SYS_GPIO_PHY_RST		104	/* GPIO104 */
 
+/* SPI Support */
+#define CONFIG_ARMADA100_SPI
+#define CONFIG_ENV_SPI_CS		110
+#define CONFIG_SYS_SSP_PORT		2
+
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros

@@ -72,6 +72,12 @@ int board_early_init_f(void)
 		MFP101_ETH_MDIO,
 		MFP103_ETH_RXDV,
 
+		/* SSP2 */
+		MFP107_SSP2_RXD,
+		MFP108_SSP2_TXD,
+		MFP110_SSP2_CS,
+		MFP111_SSP2_CLK,
+
 		MFP_EOC		/*End of configuration*/
 	};
 	/* configure MFP's */
@@ -81,6 +87,9 @@ int board_early_init_f(void)
 
 int board_init(void)
 {
+	struct armd1apb2_registers *apb2_regs =
+		(struct armd1apb2_registers *)ARMD1_APBC2_BASE;
+
 	/* arch number of Board */
 	gd->bd->bi_arch_number = MACH_TYPE_SHEEVAD;
 	/* adress of boot parameters */
@@ -90,6 +99,9 @@ int board_init(void)
 	udelay(10);
 	/* Deassert PHY_RST# */
 	gpio_set_value(CONFIG_SYS_GPIO_PHY_RST, GPIO_HIGH);
+
+	/* Enable SSP2 clock */
+	writel(SSP2_APBCLK | SSP2_FNCLK, &apb2_regs->ssp2_clkrst);
 	return 0;
 }
 
