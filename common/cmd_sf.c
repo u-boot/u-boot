@@ -161,12 +161,11 @@ static int spi_flash_update(struct spi_flash *flash, u32 offset,
 	char *cmp_buf;
 	const char *end = buf + len;
 	size_t todo;		/* number of bytes to do in this pass */
-	size_t skipped;		/* statistics */
+	size_t skipped = 0;	/* statistics */
 
 	cmp_buf = malloc(flash->sector_size);
 	if (cmp_buf) {
-		for (skipped = 0; buf < end && !err_oper;
-				buf += todo, offset += todo) {
+		for (; buf < end && !err_oper; buf += todo, offset += todo) {
 			todo = min(end - buf, flash->sector_size);
 			err_oper = spi_flash_update_block(flash, offset, todo,
 					buf, cmp_buf, &skipped);
@@ -181,6 +180,7 @@ static int spi_flash_update(struct spi_flash *flash, u32 offset,
 	}
 	printf("%zu bytes written, %zu bytes skipped\n", len - skipped,
 	       skipped);
+
 	return 0;
 }
 
