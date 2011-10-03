@@ -95,6 +95,10 @@
 #define CONFIG_ENV_SPI_CS		110
 #define CONFIG_SYS_SSP_PORT		2
 
+/* Flash Support */
+#define CONFIG_CMD_SF
+#define CONFIG_SPI_FLASH_ATMEL
+
 /*
  * mv-common.h should be defined after CMD configs since it used them
  * to enable certain macros
