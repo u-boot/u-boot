@@ -631,8 +631,6 @@ int mmc_change_freq(struct mmc *mmc)
 	if (mmc->version < MMC_VERSION_4)
 		return 0;
 
-	mmc->card_caps |= MMC_MODE_4BIT;
-
 	err = mmc_send_ext_csd(mmc, ext_csd);
 
 	if (err)
@@ -856,11 +854,12 @@ void mmc_set_bus_width(struct mmc *mmc, uint width)
 
 int mmc_startup(struct mmc *mmc)
 {
-	int err;
+	int err, width;
 	uint mult, freq;
 	u64 cmult, csize, capacity;
 	struct mmc_cmd cmd;
 	ALLOC_CACHE_ALIGN_BUFFER(char, ext_csd, 512);
+	ALLOC_CACHE_ALIGN_BUFFER(char, test_csd, 512);
 	int timeout = 1000;
 
 #ifdef CONFIG_MMC_SPI_CRC_ON
@@ -1080,26 +1079,35 @@ int mmc_startup(struct mmc *mmc)
 		else
 			mmc_set_clock(mmc, 25000000);
 	} else {
-		if (mmc->card_caps & MMC_MODE_4BIT) {
+		for (width = EXT_CSD_BUS_WIDTH_8; width >= 0; width--) {
 			/* Set the card to use 4 bit*/
 			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
-					EXT_CSD_BUS_WIDTH,
-					EXT_CSD_BUS_WIDTH_4);
+					EXT_CSD_BUS_WIDTH, width);
 
 			if (err)
-				return err;
+				continue;
 
-			mmc_set_bus_width(mmc, 4);
-		} else if (mmc->card_caps & MMC_MODE_8BIT) {
-			/* Set the card to use 8 bit*/
-			err = mmc_switch(mmc, EXT_CSD_CMD_SET_NORMAL,
-					EXT_CSD_BUS_WIDTH,
-					EXT_CSD_BUS_WIDTH_8);
+			if (!width) {
+				mmc_set_bus_width(mmc, 1);
+				break;
+			} else
+				mmc_set_bus_width(mmc, 4 * width);
 
-			if (err)
-				return err;
+			err = mmc_send_ext_csd(mmc, test_csd);
+			if (!err && ext_csd[EXT_CSD_PARTITIONING_SUPPORT] \
+				    == test_csd[EXT_CSD_PARTITIONING_SUPPORT]
+				 && ext_csd[EXT_CSD_ERASE_GROUP_DEF] \
+				    == test_csd[EXT_CSD_ERASE_GROUP_DEF] \
+				 && ext_csd[EXT_CSD_REV] \
+				    == test_csd[EXT_CSD_REV]
+				 && ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] \
+				    == test_csd[EXT_CSD_HC_ERASE_GRP_SIZE]
+				 && memcmp(&ext_csd[EXT_CSD_SEC_CNT], \
+					&test_csd[EXT_CSD_SEC_CNT], 4) == 0) {
 
-			mmc_set_bus_width(mmc, 8);
+				mmc->card_caps |= width;
+				break;
+			}
 		}
 
 		if (mmc->card_caps & MMC_MODE_HS) {
