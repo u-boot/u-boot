@@ -28,12 +28,6 @@
 #ifndef _UBLIMAGE_H_
 #define _UBLIMAGE_H_
 
-#include <config.h>
-
-#if !defined(CONFIG_SYS_UBL_BLOCK)
-#define CONFIG_SYS_UBL_BLOCK 512
-#endif
-
 enum ublimage_cmd {
 	CMD_INVALID,
 	CMD_BOOT_MODE,
@@ -71,6 +65,9 @@ enum ublimage_fld_types {
 /* Define max UBL image size */
 #define UBL_IMAGE_SIZE              (0x00003800u)
 
+/* one NAND block */
+#define UBL_BLOCK_SIZE 512
+
 /* from sprufg5a.pdf Table 109 */
 struct ubl_header {
 	uint32_t	magic;	/* Magic Number, see UBL_* defines */
@@ -97,7 +94,7 @@ struct ubl_header {
 				 * Magic Number indicates fast EMIF boot).
 				 */
 	/* to fit in one nand block */
-	unsigned char	res[CONFIG_SYS_UBL_BLOCK - 8 * 4];
+	unsigned char	res[UBL_BLOCK_SIZE - 8 * 4];
 };
 
 #endif /* _UBLIMAGE_H_ */
