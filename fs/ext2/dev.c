@@ -52,7 +52,7 @@ int ext2fs_set_blk_dev(block_dev_desc_t *rbdd, int part)
 
 int ext2fs_devread(int sector, int byte_offset, int byte_len, char *buf)
 {
-	char sec_buf[SECTOR_SIZE];
+	ALLOC_CACHE_ALIGN_BUFFER(char, sec_buf, SECTOR_SIZE);
 	unsigned sectors;
 
 	/*
