@@ -700,7 +700,7 @@ u32 fsl_sata_rw_ncq_cmd(int dev, u32 start, u32 blkcnt, u8 *buffer, int is_write
 	int ncq_channel;
 	u64 block;
 
-	if (sata_dev_desc[dev].lba48 != 1) {
+	if (sata->lba48 != 1) {
 		printf("execute FPDMA command on non-LBA48 hard disk\n\r");
 		return -1;
 	}
@@ -854,8 +854,9 @@ u32 ata_low_level_rw_lba28(int dev, u32 blknr, u32 blkcnt, void *buffer, int is_
 ulong sata_read(int dev, u32 blknr, u32 blkcnt, void *buffer)
 {
 	u32 rc;
+	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
 
-	if (sata_dev_desc[dev].lba48)
+	if (sata->lba48)
 		rc = ata_low_level_rw_lba48(dev, blknr, blkcnt, buffer, READ_CMD);
 	else
 		rc = ata_low_level_rw_lba28(dev, blknr, blkcnt, buffer, READ_CMD);
@@ -865,8 +866,9 @@ ulong sata_read(int dev, u32 blknr, u32 blkcnt, void *buffer)
 ulong sata_write(int dev, u32 blknr, u32 blkcnt, void *buffer)
 {
 	u32 rc;
+	fsl_sata_t *sata = (fsl_sata_t *)sata_dev_desc[dev].priv;
 
-	if (sata_dev_desc[dev].lba48) {
+	if (sata->lba48) {
 		rc = ata_low_level_rw_lba48(dev, blknr, blkcnt, buffer, WRITE_CMD);
 		if (fsl_sata_get_wcache(dev) && fsl_sata_get_flush_ext(dev))
 			fsl_sata_flush_cache_ext(dev);
@@ -916,11 +918,14 @@ int scan_sata(int dev)
 	n_sectors = ata_id_n_sectors(id);
 	sata_dev_desc[dev].lba = (u32)n_sectors;
 
+#ifdef CONFIG_LBA48
 	/* Check if support LBA48 */
 	if (ata_id_has_lba48(id)) {
-		sata_dev_desc[dev].lba48 = 1;
+		sata->lba48 = 1;
 		debug("Device support LBA48\n\r");
-	}
+	} else
+		debug("Device supports LBA28\n\r");
+#endif
 
 	/* Get the NCQ queue depth from device */
 	sata->queue_depth = ata_id_queue_depth(id);
