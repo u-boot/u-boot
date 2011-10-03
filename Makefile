@@ -141,7 +141,7 @@ SUBDIRS	= tools \
 	  examples/standalone \
 	  examples/api
 
-.PHONY : $(SUBDIRS) $(VERSION_FILE)
+.PHONY : $(SUBDIRS) $(VERSION_FILE) $(TIMESTAMP_FILE)
 
 ifeq ($(obj)include/config.mk,$(wildcard $(obj)include/config.mk))
 
@@ -296,7 +296,7 @@ LIBS += $(CPUDIR)/s5p-common/libs5p-common.o
 endif
 
 LIBS := $(addprefix $(obj),$(sort $(LIBS)))
-.PHONY : $(LIBS) $(TIMESTAMP_FILE)
+.PHONY : $(LIBS)
 
 LIBBOARD = board/$(BOARDDIR)/lib$(BOARD).o
 LIBBOARD := $(addprefix $(obj),$(LIBBOARD))
@@ -455,10 +455,6 @@ $(obj)mmc_spl/u-boot-mmc-spl.bin:	mmc_spl
 $(obj)spl/u-boot-spl.bin:		depend
 		$(MAKE) -C spl all
 
-$(TIMESTAMP_FILE):
-		@LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"' > $@
-		@LC_ALL=C date +'#define U_BOOT_TIME "%T"' >> $@
-
 updater:
 		$(MAKE) -C tools/updater all
 
@@ -549,12 +545,12 @@ $(obj)$(CPUDIR)/$(SOC)/asm-offsets.s:	$(obj)include/autoconf.mk.dep
 else	# !config.mk
 all $(obj)u-boot.hex $(obj)u-boot.srec $(obj)u-boot.bin \
 $(obj)u-boot.img $(obj)u-boot.dis $(obj)u-boot \
-$(filter-out tools,$(SUBDIRS)) $(TIMESTAMP_FILE) \
+$(filter-out tools,$(SUBDIRS)) \
 updater depend dep tags ctags etags cscope $(obj)System.map:
 	@echo "System not configured - see README" >&2
 	@ exit 1
 
-tools: $(VERSION_FILE)
+tools: $(VERSION_FILE) $(TIMESTAMP_FILE)
 	$(MAKE) -C $@ all
 endif	# config.mk
 
@@ -572,11 +568,16 @@ $(VERSION_FILE):
 		 '$(shell $(LD) -v | head -n 1)' )>>  $@.tmp
 		@cmp -s $@ $@.tmp && rm -f $@.tmp || mv -f $@.tmp $@
 
+$(TIMESTAMP_FILE):
+		@mkdir -p $(dir $(TIMESTAMP_FILE))
+		@LC_ALL=C date +'#define U_BOOT_DATE "%b %d %C%y"' > $@
+		@LC_ALL=C date +'#define U_BOOT_TIME "%T"' >> $@
+
 easylogo env gdb:
 	$(MAKE) -C tools/$@ all MTD_VERSION=${MTD_VERSION}
 gdbtools: gdb
 
-tools-all: easylogo env gdb $(VERSION_FILE)
+tools-all: easylogo env gdb $(VERSION_FILE) $(TIMESTAMP_FILE)
 	$(MAKE) -C tools HOST_TOOLS_ALL=y
 
 .PHONY : CHANGELOG
