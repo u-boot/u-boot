@@ -70,6 +70,10 @@ Conn Clark <clark@esteem.com>
 
 	ESTEEM192E	MPC8xx
 
+Jason Cooper <u-boot@lakedaemon.net>
+
+	dreamplug	ARM926EJS (Kirkwood SoC)
+
 Joe D'Abbraccio <ljd015@freescale.com>
 
 	MPC837xERDB	MPC837x
