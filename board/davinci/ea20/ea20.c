@@ -74,20 +74,21 @@ static const struct pinmux_config emac_pins[] = {
 
 #ifdef CONFIG_NAND_DAVINCI
 const struct pinmux_config nand_pins[] = {
-	{ pinmux(7), 1, 1 },
-	{ pinmux(7), 1, 2 },
-	{ pinmux(7), 1, 4 },
-	{ pinmux(7), 1, 5 },
-	{ pinmux(9), 1, 0 },
-	{ pinmux(9), 1, 1 },
-	{ pinmux(9), 1, 2 },
-	{ pinmux(9), 1, 3 },
-	{ pinmux(9), 1, 4 },
-	{ pinmux(9), 1, 5 },
-	{ pinmux(9), 1, 6 },
-	{ pinmux(9), 1, 7 },
-	{ pinmux(12), 1, 5 },
-	{ pinmux(12), 1, 6 }
+	{ pinmux(7), 1, 0},	/* CS2 */
+	{ pinmux(7), 0, 1},	/* CS3  in three state*/
+	{ pinmux(7), 1, 4 },	/* EMA_WE */
+	{ pinmux(7), 1, 5 },	/* EMA_OE */
+	{ pinmux(9), 1, 0 },	/* EMA_D[7] */
+	{ pinmux(9), 1, 1 },	/* EMA_D[6] */
+	{ pinmux(9), 1, 2 },	/* EMA_D[5] */
+	{ pinmux(9), 1, 3 },	/* EMA_D[4] */
+	{ pinmux(9), 1, 4 },	/* EMA_D[3] */
+	{ pinmux(9), 1, 5 },	/* EMA_D[2] */
+	{ pinmux(9), 1, 6 },	/* EMA_D[1] */
+	{ pinmux(9), 1, 7 },	/* EMA_D[0] */
+	{ pinmux(12), 1, 5 },	/* EMA_A[2] */
+	{ pinmux(12), 1, 6 },	/* EMA_A[1] */
+	{ pinmux(6), 1, 0 }	/* EMA_CLK */
 };
 #endif
 
@@ -143,20 +144,20 @@ int board_init(void)
 	irq_init();
 #endif
 
-#ifdef CONFIG_NAND_DAVINCI
 	/*
 	 * NAND CS setup - cycle counts based on da850evm NAND timings in the
 	 * Linux kernel @ 25MHz EMIFA
 	 */
+#ifdef CONFIG_NAND_DAVINCI
 	writel((DAVINCI_ABCR_WSETUP(0) |
-		DAVINCI_ABCR_WSTROBE(0) |
+		DAVINCI_ABCR_WSTROBE(1) |
 		DAVINCI_ABCR_WHOLD(0) |
 		DAVINCI_ABCR_RSETUP(0) |
 		DAVINCI_ABCR_RSTROBE(1) |
 		DAVINCI_ABCR_RHOLD(0) |
 		DAVINCI_ABCR_TA(0) |
 		DAVINCI_ABCR_ASIZE_8BIT),
-	       &davinci_emif_regs->ab2cr); /* CS3 */
+	       &davinci_emif_regs->ab1cr); /* CS2 */
 #endif
 
 	/* arch number of the board */

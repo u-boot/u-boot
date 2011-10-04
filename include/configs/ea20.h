@@ -28,6 +28,7 @@
  */
 #define CONFIG_DRIVER_TI_EMAC
 #define CONFIG_USE_SPIFLASH
+#define	CONFIG_SYS_USE_NAND
 #define CONFIG_DRIVER_TI_EMAC_USE_RMII
 
 /*
@@ -99,7 +100,7 @@
 #undef CONFIG_ENV_IS_IN_NAND
 #define CONFIG_ENV_IS_IN_SPI_FLASH
 #define CONFIG_ENV_SIZE			(8 << 10)
-#define CONFIG_ENV_OFFSET		(256 << 10)
+#define CONFIG_ENV_OFFSET		0x80000
 #define CONFIG_ENV_SECT_SIZE		(64 << 10)
 #define CONFIG_SYS_NO_FLASH
 #endif
@@ -151,7 +152,8 @@
 #undef CONFIG_CMD_PING
 #endif
 
-#ifdef CONFIG_USE_NAND
+/* NAND Setup */
+#ifdef CONFIG_SYS_USE_NAND
 #undef CONFIG_CMD_FLASH
 #undef CONFIG_CMD_IMLS
 #define CONFIG_CMD_NAND
@@ -163,8 +165,20 @@
 #define CONFIG_RBTREE
 #define CONFIG_CMD_UBI
 #define CONFIG_CMD_UBIFS
+
+#define CONFIG_NAND_DAVINCI
+#define	CONFIG_SYS_NAND_PAGE_2K
+#define CONFIG_SYS_NAND_CS		2
+#define CONFIG_SYS_NAND_BASE		DAVINCI_ASYNC_EMIF_DATA_CE2_BASE
+#undef CONFIG_SYS_NAND_HW_ECC
+#define CONFIG_SYS_NAND_4BIT_HW_ECC_OOBFIRST
+#define	CONFIG_SYS_NAND_USE_FLASH_BBT
+#define CONFIG_SYS_MAX_NAND_DEVICE	1 /* Max number of NAND devices */
+#define NAND_MAX_CHIPS			1
+#define CONFIG_SYS_64BIT_VSPRINTF	/* needed for nand_util.c */
 #endif
 
+/* SPI Flash */
 #ifdef CONFIG_USE_SPIFLASH
 #undef CONFIG_CMD_IMLS
 #undef CONFIG_CMD_FLASH
@@ -173,7 +187,7 @@
 #define CONFIG_CMD_SAVEENV
 #endif
 
-#if !defined(CONFIG_USE_NAND) && \
+#if !defined(CONFIG_SYS_USE_NAND) && \
 	!defined(CONFIG_USE_NOR) && \
 	!defined(CONFIG_USE_SPIFLASH)
 #define CONFIG_ENV_IS_NOWHERE
