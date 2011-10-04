@@ -162,6 +162,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #define DAVINCI_DDR_EMIF_DATA_BASE		0xc0000000
 #define DAVINCI_INTC_BASE			0xfffee000
 #define DAVINCI_BOOTCFG_BASE			0x01c14000
+#define DAVINCI_LCD_CNTL_BASE			0x01e13000
 #define DAVINCI_L3CBARAM_BASE			0x80000000
 #define JTAG_ID_REG                            (DAVINCI_BOOTCFG_BASE + 0x18)
 #define CHIP_REV_ID_REG				(DAVINCI_BOOTCFG_BASE + 0x24)
@@ -445,7 +446,8 @@ struct davinci_syscfg_regs {
 	dv_reg	rsvd[13];
 	dv_reg	kick0;
 	dv_reg	kick1;
-	dv_reg	rsvd1[56];
+	dv_reg	rsvd1[53];
+	dv_reg	mstpri[3];
 	dv_reg	pinmux[20];
 	dv_reg	suspsrc;
 	dv_reg	chipsig;
