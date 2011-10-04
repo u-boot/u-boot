@@ -30,6 +30,7 @@
 #define CONFIG_USE_SPIFLASH
 #define	CONFIG_SYS_USE_NAND
 #define CONFIG_DRIVER_TI_EMAC_USE_RMII
+#define CONFIG_BOARD_EARLY_INIT_F
 
 /*
  * SoC Configuration
@@ -201,4 +202,83 @@
 #define CONFIG_SYS_SDRAM_BASE		0xc0000000
 #define CONFIG_SYS_INIT_SP_ADDR		(CONFIG_SYS_SDRAM_BASE + 0x1000 - \
 					GENERATED_GBL_DATA_SIZE)
+/*
+ * Default environment and default scripts
+ * to update uboot and load kernel
+ */
+#define xstr(s)	str(s)
+#define str(s)	#s
+
+
+#define CONFIG_HOSTNAME ea20
+#define	CONFIG_EXTRA_ENV_SETTINGS					\
+	"as=3\0"							\
+	"netdev=eth0\0"							\
+	"nfsargs=setenv bootargs root=/dev/nfs rw "			\
+		"nfsroot=${serverip}:${rootpath}\0"			\
+	"rfsbargs=setenv bootargs root=/dev/nfs rw "			\
+	"nfsroot=${serverip}:${rfsbpath}\0"				\
+	"ramargs=setenv bootargs root=/dev/ram rw\0"			\
+	"mtdids=nand0=davinci_nand.0\0"					\
+	"mtdparts=mtdparts=davinci_nand.0:8m(Settings),8m(aKernel),"	\
+	"8m(bKernel),76m(aRootfs),76m(bRootfs),-(MassSD)\0"		\
+	"nandargs=setenv bootargs rootfstype=ubifs ro chk_data_crc "	\
+	"ubi.mtd=${as} root=ubi0:rootfs\0"				\
+	"addip_sta=setenv bootargs ${bootargs} "			\
+		"ip=${ipaddr}:${serverip}:${gatewayip}:${netmask}"	\
+		":${hostname}:${netdev}:off panic=1\0"			\
+	"addip_dyn=setenv bootargs ${bootargs} ip=dhcp\0"		\
+	"addip=if test -n ${ipdyn};then run addip_dyn;"			\
+		"else run addip_sta;fi\0"				\
+	"addmtd=setenv bootargs ${bootargs} ${mtdparts}\0"		\
+	"addtty=setenv bootargs ${bootargs}"				\
+		" console=${consoledev},${baudrate}n8\0"		\
+	"addmisc=setenv bootargs ${bootargs} ${misc}\0"			\
+	"addmem=setenv bootargs ${bootargs} mem=${memory}\0"		\
+	"consoledev=ttyS0\0"						\
+	"loadaddr=c0000014\0"						\
+	"memory=32M\0"							\
+	"kernel_addr_r=c0700000\0"					\
+	"hostname=" xstr(CONFIG_HOSTNAME) "\0"				\
+	"bootfile=" xstr(CONFIG_HOSTNAME) "/uImage\0"			\
+	"ramdisk_file=" xstr(CONFIG_HOSTNAME) "/uRamdisk\0"		\
+	"flash_self=run ramargs addip addtty addmtd addmisc addmem;"	\
+		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
+	"flash_nfs=run nfsargs addip addtty addmtd addmisc addmem;"	\
+		"bootm ${kernel_addr}\0"				\
+	"net_nfs=tftp ${kernel_addr_r} ${bootfile}; "                   \
+		"run nfsargs addip addtty addmtd addmisc addmem;"	\
+		"bootm ${kernel_addr_r}\0"                              \
+	"net_rfsb=tftp ${kernel_addr_r} ${bootfile}; "                  \
+		"run rfsbargs addip addtty addmtd addmisc addmem; "     \
+		"bootm ${kernel_addr_r}\0"                              \
+	"net_self_load=tftp ${kernel_addr_r} ${bootfile};"		\
+		"tftp ${ramdisk_addr_r} ${ramdisk_file};\0"		\
+	"nand_nand=ubi part nand0,${as};ubifsmount rootfs;"             \
+		"ubifsload ${kernel_addr_r} /boot/uImage;"              \
+		"ubifsumount; run nandargs addip addtty "               \
+		"addmtd addmisc addmem;bootm ${kernel_addr_r}\0"        \
+	"u-boot=" xstr(CONFIG_HOSTNAME) "/u-boot.bin\0"			\
+	"load_magic=if sf probe 0;then sf "                             \
+		"read c0000000 0x10000 0x60000;fi\0"                    \
+	"load_nand=ubi part nand0,${as};ubifsmount rootfs;"             \
+		"if ubifsload c0000014 /boot/u-boot.bin;"               \
+		"then mw c0000008 ${filesize};else echo Error reading " \
+		"u-boot from nand!;fi\0"                                \
+	"load_net=if sf probe 0;then sf read c0000000 0x10000 0x60000;"	\
+		"tftp c0000014 ${u-boot};"				\
+		"mw c0000008 ${filesize};"				\
+		"fi\0"		                                        \
+	"upd=if sf probe 0;then sf erase 10000 60000;"		        \
+		"sf write c0000000 10000 60000;"			\
+		"fi\0"							\
+	"ubootupd_net=if run load_net;then echo Updating u-boot;"       \
+		"if run upd; then echo U-Boot updated;"			\
+			"else echo Error updating u-boot !;"		\
+			"echo Board without bootloader !!;"		\
+		"fi;"							\
+		"else echo U-Boot not downloaded..exiting;fi\0"		\
+	"ubootupd_nand=echo run load_magic,run load_nand,run upd;\0"    \
+	"bootcmd=run net_nfs\0"
+
 #endif /* __CONFIG_H */
