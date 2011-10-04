@@ -36,10 +36,26 @@
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
 #include <asm/arch/gpio.h>
+#include <asm/arch/da8xx-fb.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
 #define pinmux(x)	(&davinci_syscfg_regs->pinmux[x])
+
+static const struct da8xx_panel lcd_panel = {
+	/* Casio COM57H531x */
+	.name = "Casio_COM57H531x",
+	.width = 640,
+	.height = 480,
+	.hfp = 12,
+	.hbp = 144,
+	.hsw = 30,
+	.vfp = 10,
+	.vbp = 35,
+	.vsw = 3,
+	.pxl_clk = 25000000,
+	.invert_pxl_clk = 0,
+};
 
 /* SPI0 pin muxer settings */
 static const struct pinmux_config spi1_pins[] = {
@@ -100,6 +116,29 @@ const struct pinmux_config gpio_pins[] = {
 	{ pinmux(14), 8, 1 }  /* GPIO6[6]  LCD_B_PWR*/
 };
 
+const struct pinmux_config lcd_pins[] = {
+	{ pinmux(17), 2, 1 }, /* LCD_D_0 */
+	{ pinmux(17), 2, 0 }, /* LCD_D_1 */
+	{ pinmux(16), 2, 7 }, /* LCD_D_2 */
+	{ pinmux(16), 2, 6 }, /* LCD_D_3 */
+	{ pinmux(16), 2, 5 }, /* LCD_D_4 */
+	{ pinmux(16), 2, 4 }, /* LCD_D_5 */
+	{ pinmux(16), 2, 3 }, /* LCD_D_6 */
+	{ pinmux(16), 2, 2 }, /* LCD_D_7 */
+	{ pinmux(18), 2, 1 }, /* LCD_D_8 */
+	{ pinmux(18), 2, 0 }, /* LCD_D_9 */
+	{ pinmux(17), 2, 7 }, /* LCD_D_10 */
+	{ pinmux(17), 2, 6 }, /* LCD_D_11 */
+	{ pinmux(17), 2, 5 }, /* LCD_D_12 */
+	{ pinmux(17), 2, 4 }, /* LCD_D_13 */
+	{ pinmux(17), 2, 3 }, /* LCD_D_14 */
+	{ pinmux(17), 2, 2 }, /* LCD_D_15 */
+	{ pinmux(18), 2, 6 }, /* LCD_PCLK */
+	{ pinmux(19), 2, 0 }, /* LCD_HSYNC */
+	{ pinmux(19), 2, 1 }, /* LCD_VSYNC */
+	{ pinmux(19), 2, 6 }, /* DA850_NLCD_AC_ENB_CS */
+};
+
 const struct pinmux_config halten_pin[] = {
 	{ pinmux(3),  4, 2 } /* GPIO8[6] HALTEN */
 };
@@ -112,6 +151,9 @@ static const struct pinmux_resource pinmuxes[] = {
 #ifdef CONFIG_NAND_DAVINCI
 	PINMUX_ITEM(nand_pins),
 #endif
+#ifdef CONFIG_VIDEO
+	PINMUX_ITEM(lcd_pins),
+#endif
 };
 
 static const struct lpsc_resource lpsc[] = {
@@ -120,6 +162,7 @@ static const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_EMAC },	/* image download */
 	{ DAVINCI_LPSC_UART0 },	/* console */
 	{ DAVINCI_LPSC_GPIO },
+	{ DAVINCI_LPSC_LCDC }, /* LCD */
 };
 
 int board_early_init_f(void)
@@ -208,6 +251,21 @@ int board_early_init_f(void)
 		DAVINCI_UART_PWREMU_MGMT_UTRST),
 	       &davinci_uart0_ctrl_regs->pwremu_mgmt);
 
+	/*
+	 * Reconfigure the LCDC priority to the highest to ensure that
+	 * the throughput/latency requirements for the LCDC are met.
+	 */
+	writel(readl(&davinci_syscfg_regs->mstpri[2]) & 0x0fffffff,
+	       &davinci_syscfg_regs->mstpri[2]);
+
+	/* Set LCD_B_PWR low to power up LCD Backlight*/
+	writel((readl(&gpio6_base->set_data)  | (1 << 6)),
+		&gpio6_base->set_data);
+
+	/* Set DISP_ON low to disable LCD output*/
+	writel((readl(&gpio6_base->set_data) | (1 << 1)),
+		&gpio6_base->set_data);
+
 	return 0;
 }
 
@@ -218,6 +276,8 @@ int board_init(void)
 
 	/* address of boot parameters */
 	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
+
+	da8xx_video_init(&lcd_panel, 16);
 
 	return 0;
 }
@@ -237,6 +297,8 @@ int board_late_init(void)
 	writel((readl(&gpio8_base->set_data) | (1 << 6)),
 		&gpio8_base->set_data);
 	writel((readl(&gpio8_base->dir) & ~(1 << 6)), &gpio8_base->dir);
+
+	setenv("stdout", "serial");
 
 	return 0;
 }

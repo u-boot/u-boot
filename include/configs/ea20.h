@@ -32,6 +32,7 @@
 #define CONFIG_DRIVER_TI_EMAC_USE_RMII
 #define CONFIG_BOARD_EARLY_INIT_F
 #define BOARD_LATE_INIT
+#define CONFIG_VIDEO
 
 /*
  * SoC Configuration
@@ -50,7 +51,7 @@
 /*
  * Memory Info
  */
-#define CONFIG_SYS_MALLOC_LEN	(0x10000 + 1*1024*1024) /* malloc() len */
+#define CONFIG_SYS_MALLOC_LEN	(0x10000 + 4*1024*1024) /* malloc() len */
 #define PHYS_SDRAM_1		DAVINCI_DDR_EMIF_DATA_BASE /* DDR Start */
 #define PHYS_SDRAM_1_SIZE	(64 << 20) /* SDRAM size 64MB */
 #define CONFIG_MAX_RAM_BANK_SIZE (512 << 20) /* max size from SPRS586*/
@@ -105,6 +106,17 @@
 #define CONFIG_ENV_OFFSET		0x80000
 #define CONFIG_ENV_SECT_SIZE		(64 << 10)
 #define CONFIG_SYS_NO_FLASH
+#endif
+
+
+#if defined(CONFIG_VIDEO)
+#define CONFIG_VIDEO_DA8XX
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_BMP_RLE8
+#define CONFIG_CMD_BMP
 #endif
 
 /*
