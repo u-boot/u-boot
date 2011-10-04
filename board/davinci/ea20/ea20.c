@@ -98,6 +98,10 @@ const struct pinmux_config gpio_pins[] = {
 	{ pinmux(13), 8, 3 }  /* GPIO6[12] U0_SW1 on EA20-00101_2*/
 };
 
+const struct pinmux_config halten_pin[] = {
+	{ pinmux(3),  4, 2 } /* GPIO8[6] HALTEN */
+};
+
 static const struct pinmux_resource pinmuxes[] = {
 #ifdef CONFIG_SPI_FLASH
 	PINMUX_ITEM(spi1_pins),
@@ -205,6 +209,27 @@ int board_init(void)
 
 	return 0;
 }
+
+#ifdef BOARD_LATE_INIT
+
+int board_late_init(void)
+{
+	struct davinci_gpio *gpio8_base =
+			(struct davinci_gpio *)DAVINCI_GPIO_BANK8;
+
+	/* PinMux for HALTEN */
+	if (davinci_configure_pin_mux(halten_pin, ARRAY_SIZE(halten_pin)) != 0)
+		return 1;
+
+	/* Set HALTEN to high */
+	writel((readl(&gpio8_base->set_data) | (1 << 6)),
+		&gpio8_base->set_data);
+	writel((readl(&gpio8_base->dir) & ~(1 << 6)), &gpio8_base->dir);
+
+	return 0;
+}
+#endif /* BOARD_LATE_INIT */
+
 #ifdef CONFIG_DRIVER_TI_EMAC
 
 /*

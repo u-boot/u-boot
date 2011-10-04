@@ -31,6 +31,7 @@
 #define	CONFIG_SYS_USE_NAND
 #define CONFIG_DRIVER_TI_EMAC_USE_RMII
 #define CONFIG_BOARD_EARLY_INIT_F
+#define BOARD_LATE_INIT
 
 /*
  * SoC Configuration
