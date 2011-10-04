@@ -30,6 +30,13 @@
 	.text
 	.global _start
 _start:
+	/*
+	 * reserve registers:
+	 * r10: Stores little/big endian offset for vectors
+	 * r2: Stores imm opcode
+	 * r3: Stores brai opcode
+	 */
+
 	mts	rmsr, r0	/* disable cache */
 	addi	r1, r0, CONFIG_SYS_INIT_SP_OFFSET
 	addi	r1, r1, -4	/* Decrement SP to top of memory */
@@ -44,52 +51,34 @@ _start:
 	 * 4b) BIG endian - r10 contains 0x0 because 0x2 offset is on addr 0x3
 	 */
 	addik	r6, r0, 0x2 /* BIG/LITTLE endian offset */
-	swi	r6, r0, 0
-	lbui	r10, r0, 0
-	swi	r6, r0, 0x40
-	swi	r10, r0, 0x50
+	lwi	r7, r0, 0x28
+	swi	r6, r0, 0x28 /* used first unused MB vector */
+	lbui	r10, r0, 0x28 /* used first unused MB vector */
+	swi	r7, r0, 0x28
 
-	/* add opcode instruction for 32bit jump - 2 instruction imm & brai*/
-	addi	r6, r0, 0xb0000000	/* hex b000 opcode imm */
-	swi	r6, r0, 0x0	/* reset address */
-	swi	r6, r0, 0x8	/* user vector exception */
-	swi	r6, r0, 0x10	/* interrupt */
-	swi	r6, r0, 0x20	/* hardware exception */
-
-	addi	r6, r0, 0xb8080000	/* hew b808 opcode brai*/
-	swi	r6, r0, 0x4	/* reset address */
-	swi	r6, r0, 0xC	/* user vector exception */
-	swi	r6, r0, 0x14	/* interrupt */
-	swi	r6, r0, 0x24	/* hardware exception */
+	/* add opcode instruction for 32bit jump - 2 instruction imm & brai */
+	addi	r2, r0, 0xb0000000	/* hex b000 opcode imm */
+	addi	r3, r0, 0xb8080000	/* hew b808 opcode brai */
 
 #ifdef CONFIG_SYS_RESET_ADDRESS
 	/* reset address */
+	swi	r2, r0, 0x0	/* reset address - imm opcode */
+	swi	r3, r0, 0x4	/* reset address - brai opcode */
+
 	addik	r6, r0, CONFIG_SYS_RESET_ADDRESS
 	sw	r6, r1, r0
-	lhu	r7, r1, r0
-	shi	r7, r0, 0x2
-	shi	r6, r0, 0x6
-/*
- * Copy U-Boot code to CONFIG_SYS_TEXT_BASE
- * solve problem with sbrk_base
- */
-#if (CONFIG_SYS_RESET_ADDRESS != CONFIG_SYS_TEXT_BASE)
-	addi	r4, r0, __end
-	addi	r5, r0, __text_start
-	rsub	r4, r5, r4	/* size = __end - __text_start */
-	addi	r6, r0, CONFIG_SYS_RESET_ADDRESS	/* source address */
-	addi	r7, r0, 0	/* counter */
-4:
-	lw	r8, r6, r7
-	sw	r8, r5, r7
-	addi	r7, r7, 0x4
-	cmp	r8, r4, r7
-	blti	r8, 4b
-#endif
+	lhu	r7, r1, r10
+	rsubi	r8, r10, 0x2
+	sh	r7, r0, r8
+	rsubi	r8, r10, 0x6
+	sh	r6, r0, r8
 #endif
 
 #ifdef CONFIG_SYS_USR_EXCEP
 	/* user_vector_exception */
+	swi	r2, r0, 0x8	/* user vector exception - imm opcode */
+	swi	r3, r0, 0xC	/* user vector exception - brai opcode */
+
 	addik	r6, r0, _exception_handler
 	sw	r6, r1, r0
 	/*
@@ -121,6 +110,9 @@ _start:
 
 #ifdef CONFIG_SYS_INTC_0
 	/* interrupt_handler */
+	swi	r2, r0, 0x10	/* interrupt - imm opcode */
+	swi	r3, r0, 0x14	/* interrupt - brai opcode */
+
 	addik	r6, r0, _interrupt_handler
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
@@ -131,6 +123,9 @@ _start:
 #endif
 
 	/* hardware exception */
+	swi	r2, r0, 0x20	/* hardware exception - imm opcode */
+	swi	r3, r0, 0x24	/* hardware exception - brai opcode */
+
 	addik	r6, r0, _hw_exception_handler
 	sw	r6, r1, r0
 	lhu	r7, r1, r10
