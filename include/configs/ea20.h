@@ -87,6 +87,13 @@
 #define CONFIG_ENV_SPI_MAX_HZ	CONFIG_SF_DEFAULT_SPEED
 
 /*
+ * I2C Configuration
+ */
+#define CONFIG_HARD_I2C
+#define CONFIG_DRIVER_DAVINCI_I2C
+#define CONFIG_SYS_I2C_SPEED		100000
+
+/*
  * Network & Ethernet Configuration
  */
 #ifdef CONFIG_DRIVER_TI_EMAC
@@ -158,6 +165,7 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_I2C
 
 #ifndef CONFIG_DRIVER_TI_EMAC
 #undef CONFIG_CMD_NET

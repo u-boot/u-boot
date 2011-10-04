@@ -65,6 +65,12 @@ static const struct pinmux_config spi1_pins[] = {
 	{ pinmux(5), 1, 5 }
 };
 
+/* I2C pin muxer settings */
+static const struct pinmux_config i2c_pins[] = {
+	{ pinmux(4), 2, 2 },
+	{ pinmux(4), 2, 3 }
+};
+
 /* UART0 pin muxer settings */
 static const struct pinmux_config uart_pins[] = {
 	{ pinmux(3), 2, 7 },
@@ -148,6 +154,7 @@ static const struct pinmux_resource pinmuxes[] = {
 	PINMUX_ITEM(spi1_pins),
 #endif
 	PINMUX_ITEM(uart_pins),
+	PINMUX_ITEM(i2c_pins),
 #ifdef CONFIG_NAND_DAVINCI
 	PINMUX_ITEM(nand_pins),
 #endif
