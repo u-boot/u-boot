@@ -405,7 +405,14 @@ typedef struct fm_dtesc {
 } fm_dtsec_t;
 
 typedef struct fm_mdio {
-	u8	res[4*1024];
+	u8	res0[0x120];
+	u32	miimcfg;	/* MII management configuration reg */
+	u32	miimcom;	/* MII management command reg */
+	u32	miimadd;	/* MII management address reg */
+	u32	miimcon;	/* MII management control reg */
+	u32	miimstat;	/* MII management status reg  */
+	u32	miimind;	/* MII management indication reg */
+	u8	res1[0x1000 - 0x138];
 } fm_mdio_t;
 
 typedef struct fm_10gec {

@@ -171,7 +171,7 @@ void init_dtsec(struct fsl_enet_mac *mac, void *base,
 		void *phyregs, int max_rx_len)
 {
 	mac->base = base;
-	mac->phyregs = NULL;
+	mac->phyregs = phyregs;
 	mac->max_rx_len = max_rx_len;
 	mac->init_mac = dtsec_init_mac;
 	mac->enable_mac = dtsec_enable_mac;

@@ -537,6 +537,7 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 	/* Get the mac registers base address */
 	if (fm_eth->type == FM_ETH_1G_E) {
 		base = &reg->mac_1g[num].fm_dtesc;
+		phyregs = &reg->mac_1g[num].fm_mdio.miimcfg;
 	} else {
 		base = &reg->mac_10g[num].fm_10gec;
 		phyregs = &reg->mac_10g[num].fm_10gec_mdio;
@@ -552,7 +553,7 @@ static int fm_eth_init_mac(struct fm_eth *fm_eth, struct ccsr_fman *reg)
 	fm_eth->mac = mac;
 
 	if (fm_eth->type == FM_ETH_1G_E)
-		init_dtsec(mac, base, NULL, MAX_RXBUF_LEN);
+		init_dtsec(mac, base, phyregs, MAX_RXBUF_LEN);
 	else
 		init_tgec(mac, base, phyregs, MAX_RXBUF_LEN);
 
