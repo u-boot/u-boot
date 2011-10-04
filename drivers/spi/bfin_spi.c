@@ -197,7 +197,7 @@ struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
 	spi_set_speed(&bss->slave, max_hz);
 
 	debug("%s: bus:%i cs:%i mmr:%x ctl:%x baud:%i flg:%i\n", __func__,
-		bus, cs, mmr_base, bss->ctl, baud, bss->flg);
+		bus, cs, mmr_base, bss->ctl, bss->baud, bss->flg);
 
 	return &bss->slave;
 }
