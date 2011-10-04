@@ -450,9 +450,3 @@ void enable_caches(void)
 	dcache_enable();
 }
 #endif
-
-void omap_rev_string(char *omap_rev_string)
-{
-	sprintf(omap_rev_string, "OMAP3, sorry revision detection" \
-		" unimplemented");
-}

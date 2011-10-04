@@ -160,3 +160,11 @@ void preloader_console_init(void)
 	omap_rev_string(rev_string_buffer);
 	printf("Texas Instruments %s\n", rev_string_buffer);
 }
+
+void __omap_rev_string(char *str)
+{
+	sprintf(str, "Revision detection unimplemented");
+}
+
+void omap_rev_string(char *str)
+	__attribute__((weak, alias("__omap_rev_string")));
