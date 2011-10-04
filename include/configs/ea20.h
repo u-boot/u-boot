@@ -33,6 +33,7 @@
 #define CONFIG_BOARD_EARLY_INIT_F
 #define BOARD_LATE_INIT
 #define CONFIG_VIDEO
+#define CONFIG_PREBOOT
 
 /*
  * SoC Configuration
