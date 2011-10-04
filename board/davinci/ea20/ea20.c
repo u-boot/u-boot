@@ -95,7 +95,9 @@ const struct pinmux_config nand_pins[] = {
 const struct pinmux_config gpio_pins[] = {
 	{ pinmux(13), 8, 0 }, /* GPIO6[15] RESETOUTn on SOM*/
 	{ pinmux(13), 8, 5 }, /* GPIO6[10] U0_SW0 on EA20-00101_2*/
-	{ pinmux(13), 8, 3 }  /* GPIO6[12] U0_SW1 on EA20-00101_2*/
+	{ pinmux(13), 8, 3 }, /* GPIO6[12] U0_SW1 on EA20-00101_2*/
+	{ pinmux(19), 8, 5 }, /* GPIO6[1]  DISP_ON */
+	{ pinmux(14), 8, 1 }  /* GPIO6[6]  LCD_B_PWR*/
 };
 
 const struct pinmux_config halten_pin[] = {
@@ -143,6 +145,16 @@ int board_early_init_f(void)
 	writel((readl(&gpio6_base->set_data) & ~(1 << 12)),
 		&gpio6_base->set_data);
 	writel((readl(&gpio6_base->dir) & ~(1 << 12)), &gpio6_base->dir);
+
+	/* Set LCD_B_PWR low to power down LCD Backlight*/
+	writel((readl(&gpio6_base->set_data) & ~(1 << 6)),
+		&gpio6_base->set_data);
+	writel((readl(&gpio6_base->dir) & ~(1 << 6)), &gpio6_base->dir);
+
+	/* Set DISP_ON low to disable LCD output*/
+	writel((readl(&gpio6_base->set_data) & ~(1 << 1)),
+		&gpio6_base->set_data);
+	writel((readl(&gpio6_base->dir) & ~(1 << 1)), &gpio6_base->dir);
 
 #ifndef CONFIG_USE_IRQ
 	irq_init();
