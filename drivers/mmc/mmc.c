@@ -618,7 +618,7 @@ int mmc_switch(struct mmc *mmc, u8 set, u8 index, u8 value)
 
 int mmc_change_freq(struct mmc *mmc)
 {
-	char ext_csd[512];
+	ALLOC_CACHE_ALIGN_BUFFER(char, ext_csd, 512);
 	char cardtype;
 	int err;
 
@@ -860,7 +860,7 @@ int mmc_startup(struct mmc *mmc)
 	uint mult, freq;
 	u64 cmult, csize, capacity;
 	struct mmc_cmd cmd;
-	char ext_csd[512];
+	ALLOC_CACHE_ALIGN_BUFFER(char, ext_csd, 512);
 	int timeout = 1000;
 
 #ifdef CONFIG_MMC_SPI_CRC_ON
