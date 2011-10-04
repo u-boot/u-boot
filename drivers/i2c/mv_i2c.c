@@ -67,6 +67,27 @@ struct mv_i2c {
 };
 
 static struct mv_i2c *base;
+static void i2c_board_init(struct mv_i2c *base)
+{
+#ifdef CONFIG_SYS_I2C_INIT_BOARD
+	u32 icr;
+	/*
+	 * call board specific i2c bus reset routine before accessing the
+	 * environment, which might be in a chip on that bus. For details
+	 * about this problem see doc/I2C_Edge_Conditions.
+	 *
+	 * disable I2C controller first, otherwhise it thinks we want to
+	 * talk to the slave port...
+	 */
+	icr = readl(&base->icr);
+	writel(readl(&base->icr) & ~(ICR_SCLE | ICR_IUE), &base->icr);
+
+	i2c_init_board();
+
+	writel(icr, &base->icr);
+#endif
+}
+
 #ifdef CONFIG_I2C_MULTI_BUS
 static u32 i2c_regs[CONFIG_MV_I2C_NUM] = CONFIG_MV_I2C_REG;
 static unsigned int bus_initialized[CONFIG_MV_I2C_NUM];
@@ -83,7 +104,7 @@ int i2c_set_bus_num(unsigned int bus)
 	current_bus = bus;
 
 	if (!bus_initialized[current_bus]) {
-		i2c_init(CONFIG_SYS_I2C_SPEED, CONFIG_SYS_I2C_SLAVE);
+		i2c_board_init(base);
 		bus_initialized[current_bus] = 1;
 	}
 
@@ -253,7 +274,7 @@ transfer_error_bus_busy:
 		ret = -6; goto i2c_transfer_finish;
 
 i2c_transfer_finish:
-		PRINTD(("i2c_transfer: ISR: 0x%04x\n", ISR));
+		PRINTD(("i2c_transfer: ISR: 0x%04x\n", readl(&base->isr)));
 		i2c_reset();
 		return ret;
 }
@@ -264,28 +285,13 @@ i2c_transfer_finish:
 void i2c_init(int speed, int slaveaddr)
 {
 #ifdef CONFIG_I2C_MULTI_BUS
+	current_bus = 0;
 	base = (struct mv_i2c *)i2c_regs[current_bus];
 #else
 	base = (struct mv_i2c *)CONFIG_MV_I2C_REG;
 #endif
 
-#ifdef CONFIG_SYS_I2C_INIT_BOARD
-	u32 icr;
-	/*
-	 * call board specific i2c bus reset routine before accessing the
-	 * environment, which might be in a chip on that bus. For details
-	 * about this problem see doc/I2C_Edge_Conditions.
-	 *
-	 * disable I2C controller first, otherwhise it thinks we want to
-	 * talk to the slave port...
-	 */
-	icr = readl(&base->icr);
-	writel(readl(&base->icr) & ~(ICR_SCLE | ICR_IUE), &base->icr);
-
-	i2c_init_board();
-
-	writel(icr, &base->icr);
-#endif
+	i2c_board_init(base);
 }
 
 /*
