@@ -35,6 +35,7 @@
 #include <asm/arch/emac_defs.h>
 #include <asm/io.h>
 #include <asm/arch/davinci_misc.h>
+#include <asm/arch/gpio.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -90,6 +91,12 @@ const struct pinmux_config nand_pins[] = {
 };
 #endif
 
+const struct pinmux_config gpio_pins[] = {
+	{ pinmux(13), 8, 0 }, /* GPIO6[15] RESETOUTn on SOM*/
+	{ pinmux(13), 8, 5 }, /* GPIO6[10] U0_SW0 on EA20-00101_2*/
+	{ pinmux(13), 8, 3 }  /* GPIO6[12] U0_SW1 on EA20-00101_2*/
+};
+
 static const struct pinmux_resource pinmuxes[] = {
 #ifdef CONFIG_SPI_FLASH
 	PINMUX_ITEM(spi1_pins),
@@ -110,10 +117,31 @@ static const struct lpsc_resource lpsc[] = {
 
 int board_init(void)
 {
+	struct davinci_gpio *gpio6_base =
+			(struct davinci_gpio *)DAVINCI_GPIO_BANK67;
+
+	/* PinMux for GPIO */
+	if (davinci_configure_pin_mux(gpio_pins, ARRAY_SIZE(gpio_pins)) != 0)
+		return 1;
+
+	/* Set the RESETOUTn low */
+	writel((readl(&gpio6_base->set_data) & ~(1 << 15)),
+		&gpio6_base->set_data);
+	writel((readl(&gpio6_base->dir) & ~(1 << 15)), &gpio6_base->dir);
+
+	/* Set U0_SW0 low for UART0 as console*/
+	writel((readl(&gpio6_base->set_data) & ~(1 << 10)),
+		&gpio6_base->set_data);
+	writel((readl(&gpio6_base->dir) & ~(1 << 10)), &gpio6_base->dir);
+
+	/* Set U0_SW1 low for UART0 as console*/
+	writel((readl(&gpio6_base->set_data) & ~(1 << 12)),
+		&gpio6_base->set_data);
+	writel((readl(&gpio6_base->dir) & ~(1 << 12)), &gpio6_base->dir);
+
 #ifndef CONFIG_USE_IRQ
 	irq_init();
 #endif
-
 
 #ifdef CONFIG_NAND_DAVINCI
 	/*
