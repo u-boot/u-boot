@@ -116,7 +116,7 @@ static const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_GPIO },
 };
 
-int board_init(void)
+int board_early_init_f(void)
 {
 	struct davinci_gpio *gpio6_base =
 			(struct davinci_gpio *)DAVINCI_GPIO_BANK67;
@@ -160,12 +160,6 @@ int board_init(void)
 	       &davinci_emif_regs->ab1cr); /* CS2 */
 #endif
 
-	/* arch number of the board */
-	gd->bd->bi_arch_number = MACH_TYPE_EA20;
-
-	/* address of boot parameters */
-	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
-
 	/*
 	 * Power on required peripherals
 	 * ARM does not have access by default to PSC0 and PSC1
@@ -201,6 +195,16 @@ int board_init(void)
 	return 0;
 }
 
+int board_init(void)
+{
+	/* arch number of the board */
+	gd->bd->bi_arch_number = MACH_TYPE_EA20;
+
+	/* address of boot parameters */
+	gd->bd->bi_boot_params = LINUX_BOOT_PARAM_ADDR;
+
+	return 0;
+}
 #ifdef CONFIG_DRIVER_TI_EMAC
 
 /*
