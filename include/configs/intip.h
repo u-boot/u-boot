@@ -37,10 +37,10 @@
 #define CONFIG_460EX		1	/* Specific PPC460EX		*/
 #ifdef CONFIG_DEVCONCENTER
 #define CONFIG_HOSTNAME		devconcenter
-#define CONFIG_IDENT_STRING	" devconcenter 0.02"
+#define CONFIG_IDENT_STRING	" devconcenter 0.03"
 #else
 #define CONFIG_HOSTNAME		intip
-#define CONFIG_IDENT_STRING	" intip 0.02"
+#define CONFIG_IDENT_STRING	" intip 0.03"
 #endif
 #define CONFIG_440		1
 #define CONFIG_4xx		1	/* ... PPC4xx family */
@@ -62,6 +62,10 @@
 #define CONFIG_BOARD_TYPES		1	/* support board types */
 #define CONFIG_FIT
 #define CFG_ALT_MEMTEST
+
+#undef CONFIG_ZERO_BOOTDELAY_CHECK     /* ignore keypress on bootdelay==0 */
+#define CONFIG_AUTOBOOT_KEYED          /* use key strings to stop autoboot */
+#define CONFIG_AUTOBOOT_STOP_STR " "
 
 /*
  * Base addresses -- Note these are effective addresses where the
