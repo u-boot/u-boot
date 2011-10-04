@@ -48,12 +48,12 @@ static const struct pinmux_config spi1_pins[] = {
 	{ pinmux(5), 1, 5 }
 };
 
-/* UART pin muxer settings */
+/* UART0 pin muxer settings */
 static const struct pinmux_config uart_pins[] = {
-	{ pinmux(0), 4, 6 },
-	{ pinmux(0), 4, 7 },
-	{ pinmux(4), 2, 4 },
-	{ pinmux(4), 2, 5 }
+	{ pinmux(3), 2, 7 },
+	{ pinmux(3), 2, 6 },
+	{ pinmux(3), 2, 4 },
+	{ pinmux(3), 2, 5 }
 };
 
 #ifdef CONFIG_DRIVER_TI_EMAC
@@ -104,7 +104,7 @@ static const struct lpsc_resource lpsc[] = {
 	{ DAVINCI_LPSC_AEMIF },	/* NAND, NOR */
 	{ DAVINCI_LPSC_SPI1 },	/* Serial Flash */
 	{ DAVINCI_LPSC_EMAC },	/* image download */
-	{ DAVINCI_LPSC_UART2 },	/* console */
+	{ DAVINCI_LPSC_UART0 },	/* console */
 	{ DAVINCI_LPSC_GPIO },
 };
 
@@ -150,7 +150,7 @@ int board_init(void)
 	writel(readl(&davinci_syscfg_regs->suspsrc) &
 	       ~(DAVINCI_SYSCFG_SUSPSRC_EMAC | DAVINCI_SYSCFG_SUSPSRC_I2C |
 		 DAVINCI_SYSCFG_SUSPSRC_SPI1 | DAVINCI_SYSCFG_SUSPSRC_TIMER0 |
-		 DAVINCI_SYSCFG_SUSPSRC_UART2),
+		 DAVINCI_SYSCFG_SUSPSRC_UART0),
 	       &davinci_syscfg_regs->suspsrc);
 
 	/* configure pinmux settings */
@@ -167,7 +167,7 @@ int board_init(void)
 	/* enable the console UART */
 	writel((DAVINCI_UART_PWREMU_MGMT_FREE | DAVINCI_UART_PWREMU_MGMT_URRST |
 		DAVINCI_UART_PWREMU_MGMT_UTRST),
-	       &davinci_uart2_ctrl_regs->pwremu_mgmt);
+	       &davinci_uart0_ctrl_regs->pwremu_mgmt);
 
 	return 0;
 }

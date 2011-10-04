@@ -461,7 +461,7 @@ struct davinci_syscfg_regs {
 #define DAVINCI_SYSCFG_SUSPSRC_I2C		(1 << 16)
 #define DAVINCI_SYSCFG_SUSPSRC_SPI0		(1 << 21)
 #define DAVINCI_SYSCFG_SUSPSRC_SPI1		(1 << 22)
-#define DAVINCI_SYSCFG_SUSPSRC_UART2		(1 << 20)
+#define DAVINCI_SYSCFG_SUSPSRC_UART0		(1 << 18)
 #define DAVINCI_SYSCFG_SUSPSRC_TIMER0		(1 << 27)
 
 struct davinci_syscfg1_regs {
