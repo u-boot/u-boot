@@ -63,7 +63,7 @@
 #ifdef	USB_STOR_DEBUG
 #define USB_STOR_PRINTF(fmt, args...)	printf(fmt , ##args)
 #else
-static inline void USB_STOR_PRINTF(const char *fmt, ...) {}
+#define USB_STOR_PRINTF(fmt, args...)
 #endif
 
 #include <scsi.h>
