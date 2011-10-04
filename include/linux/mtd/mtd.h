@@ -55,6 +55,7 @@ struct erase_info {
 	u_long priv;
 	u_char state;
 	struct erase_info *next;
+	int scrub;
 };
 
 struct mtd_erase_region_info {

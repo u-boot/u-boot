@@ -350,7 +350,7 @@ static void send_addr(struct mxc_nand_host *host, uint16_t addr)
 }
 
 /*
- * This function requests the NANDFC to initate the transfer
+ * This function requests the NANDFC to initiate the transfer
  * of data currently in the NANDFC RAM buffer to the NAND device.
  */
 static void send_prog_page(struct mxc_nand_host *host, uint8_t buf_id,
@@ -394,7 +394,7 @@ static void send_prog_page(struct mxc_nand_host *host, uint8_t buf_id,
 }
 
 /*
- * Requests NANDFC to initated the transfer of data from the
+ * Requests NANDFC to initiate the transfer of data from the
  * NAND device into in the NANDFC ram buffer.
  */
 static void send_read_page(struct mxc_nand_host *host, uint8_t buf_id,
@@ -637,7 +637,7 @@ static int mxc_nand_read_page_syndrome(struct mtd_info *mtd,
 	MTDDEBUG(MTD_DEBUG_LEVEL1, "Reading page %u to buf %p oob %p\n",
 	      host->page_addr, buf, oob);
 
-	/* first read out the data area and the available portion of OOB */
+	/* first read the data area and the available portion of OOB */
 	for (n = 0; eccsteps; n++, eccsteps--, p += eccsize) {
 		int stat;
 
@@ -1179,7 +1179,7 @@ void mxc_nand_command(struct mtd_info *mtd, unsigned command,
 			/*
 			 * before sending SEQIN command for partial write,
 			 * we need read one page out. FSL NFC does not support
-			 * partial write. It alway send out 512+ecc+512+ecc ...
+			 * partial write. It always sends out 512+ecc+512+ecc
 			 * for large page nand flash. But for small page nand
 			 * flash, it does support SPARE ONLY operation.
 			 */
@@ -1209,7 +1209,7 @@ void mxc_nand_command(struct mtd_info *mtd, unsigned command,
 		send_prog_page(host, 0, host->spare_only);
 
 		if (host->pagesize_2k && !is_mxc_nfc_11()) {
-			/* data in 4 areas datas */
+			/* data in 4 areas */
 			send_prog_page(host, 1, host->spare_only);
 			send_prog_page(host, 2, host->spare_only);
 			send_prog_page(host, 3, host->spare_only);
@@ -1225,10 +1225,9 @@ void mxc_nand_command(struct mtd_info *mtd, unsigned command,
 	if (column != -1) {
 		/*
 		 * MXC NANDFC can only perform full page+spare or
-		 * spare-only read/write.  When the upper layers
-		 * layers perform a read/write buf operation,
-		 * we will used the saved column adress to index into
-		 * the full page.
+		 * spare-only read/write. When the upper layers perform
+		 * a read/write buffer operation, we will use the saved
+		 * column address to index into the full page.
 		 */
 		send_addr(host, 0);
 		if (host->pagesize_2k)
@@ -1372,12 +1371,23 @@ int board_nand_init(struct nand_chip *this)
 
 	/* Blocks to be unlocked */
 	writew(0x0, &host->regs->nfc_unlockstart_blkaddr);
-	writew(0x4000, &host->regs->nfc_unlockend_blkaddr);
+	/* Originally (Freescale LTIB 2.6.21) 0x4000 was written to the
+	 * unlockend_blkaddr, but the magic 0x4000 does not always work
+	 * when writing more than some 32 megabytes (on 2k page nands)
+	 * However 0xFFFF doesn't seem to have this kind
+	 * of limitation (tried it back and forth several times).
+	 * The linux kernel driver sets this to 0xFFFF for the v2 controller
+	 * only, but probably this was not tested there for v1.
+	 * The very same limitation seems to apply to this kernel driver.
+	 * This might be NAND chip specific and the i.MX31 datasheet is
+	 * extremely vague about the semantics of this register.
+	 */
+	writew(0xFFFF, &host->regs->nfc_unlockend_blkaddr);
 
 	/* Unlock Block Command for given address range */
 	writew(0x4, &host->regs->nfc_wrprot);
 
-	/* NAND bus width determines access funtions used by upper layer */
+	/* NAND bus width determines access functions used by upper layer */
 	if (is_16bit_nand())
 		this->options |= NAND_BUSWIDTH_16;
 

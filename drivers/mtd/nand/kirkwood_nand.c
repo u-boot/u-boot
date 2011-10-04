@@ -76,7 +76,7 @@ int board_nand_init(struct nand_chip *nand)
 	nand->options = NAND_COPYBACK | NAND_CACHEPRG | NAND_NO_PADDING;
 	nand->ecc.mode = NAND_ECC_SOFT;
 	nand->cmd_ctrl = kw_nand_hwcontrol;
-	nand->chip_delay = 30;
+	nand->chip_delay = 40;
 	nand->select_chip = kw_nand_select_chip;
 	return 0;
 }
