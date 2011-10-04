@@ -102,7 +102,10 @@
 	#define CONFIG_ENV_SECT_SIZE	0x20000 /* 128K (one sector) */
 #endif
 
-#define CONFIG_SYS_CLK_FREQ	66666666
+#ifndef __ASSEMBLY__
+unsigned long get_board_sys_clk(unsigned long dummy);
+#endif
+#define CONFIG_SYS_CLK_FREQ	get_board_sys_clk(0)
 
 /*
  * These can be toggled for performance analysis, otherwise use default.
@@ -137,20 +140,6 @@
 #endif
 #define CONFIG_SYS_L3_SIZE		(1024 << 10)
 #define CONFIG_SYS_INIT_L3_END (CONFIG_SYS_INIT_L3_ADDR + CONFIG_SYS_L3_SIZE)
-
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xfe000000	/* CCSRBAR Default */
-#define CONFIG_SYS_CCSRBAR		0xfe000000	/* relocated CCSRBAR */
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_CCSRBAR_PHYS		0xffe000000ull
-#else
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR
-#endif
-/* PQII uses CONFIG_SYS_IMMR */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR
 
 #ifdef CONFIG_PHYS_64BIT
 #define CONFIG_SYS_DCSRBAR		0xf0000000
@@ -419,7 +408,6 @@
 #define CONFIG_SYS_DPAA_FMAN
 #define CONFIG_SYS_DPAA_PME
 /* Default address of microcode for the Linux Fman driver */
-#define CONFIG_SYS_FMAN_FW
 #if defined(CONFIG_SPIFLASH)
 /*
  * env is stored at 0x100000, sector size is 0x10000, ucode is stored after
@@ -443,6 +431,9 @@
 
 #ifdef CONFIG_SYS_DPAA_FMAN
 #define CONFIG_FMAN_ENET
+#define CONFIG_PHYLIB_10G
+#define CONFIG_PHY_VITESSE
+#define CONFIG_PHY_TERANETICS
 #endif
 
 #ifdef CONFIG_PCI
@@ -485,6 +476,8 @@
 #define CONFIG_SYS_FM1_DTSEC2_RISER_PHY_ADDR	0x1d
 #define CONFIG_SYS_FM1_DTSEC3_RISER_PHY_ADDR	0x1e
 #define CONFIG_SYS_FM1_DTSEC4_RISER_PHY_ADDR	0x1f
+
+#define CONFIG_SYS_FM1_10GEC1_PHY_ADDR	0
 
 #define CONFIG_SYS_TBIPA_VALUE	8
 #define CONFIG_MII		/* MII PHY management */

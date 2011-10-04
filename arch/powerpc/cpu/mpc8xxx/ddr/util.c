@@ -20,7 +20,8 @@
 #define ULL_8FS 0xFFFFFFFFULL
 
 /*
- * Round mclk_ps to nearest 10 ps in memory controller code.
+ * Round up mclk_ps to nearest 1 ps in memory controller code
+ * if the error is 0.5ps or more.
  *
  * If an imprecise data rate is too high due to rounding error
  * propagation, compute a suitably rounded mclk_ps to compute
@@ -32,42 +33,37 @@ unsigned int get_memory_clk_period_ps(void)
 	unsigned int result;
 
 	/* Round to nearest 10ps, being careful about 64-bit multiply/divide */
-	unsigned long long mclk_ps = ULL_2E12;
-
-	/* Add 5*data_rate, for rounding */
-	mclk_ps += 5*(unsigned long long)data_rate;
+	unsigned long long rem, mclk_ps = ULL_2E12;
 
 	/* Now perform the big divide, the result fits in 32-bits */
-	do_div(mclk_ps, data_rate);
-	result = mclk_ps;
+	rem = do_div(mclk_ps, data_rate);
+	result = (rem >= (data_rate >> 1)) ? mclk_ps + 1 : mclk_ps;
 
-	/* We still need to round to 10ps */
-	return 10 * (result/10);
+	return result;
 }
 
 /* Convert picoseconds into DRAM clock cycles (rounding up if needed). */
 unsigned int picos_to_mclk(unsigned int picos)
 {
 	unsigned long long clks, clks_rem;
+	unsigned long data_rate = get_ddr_freq(0);
 
 	/* Short circuit for zero picos */
 	if (!picos)
 		return 0;
 
 	/* First multiply the time by the data rate (32x32 => 64) */
-	clks = picos * (unsigned long long)get_ddr_freq(0);
-
+	clks = picos * (unsigned long long)data_rate;
 	/*
 	 * Now divide by 5^12 and track the 32-bit remainder, then divide
 	 * by 2*(2^12) using shifts (and updating the remainder).
 	 */
 	clks_rem = do_div(clks, UL_5POW12);
-	clks_rem <<= 13;
-	clks_rem |= clks & (UL_2POW13-1);
+	clks_rem += (clks & (UL_2POW13-1)) * UL_5POW12;
 	clks >>= 13;
 
-	/* If we had a remainder, then round up */
-	if (clks_rem)
+	/* If we had a remainder greater than the 1ps error, then round up */
+	if (clks_rem > data_rate)
 		clks++;
 
 	/* Clamp to the maximum representable value */
@@ -133,10 +129,13 @@ fsl_ddr_set_lawbar(const common_timing_params_t *memctl_common_params,
 
 void board_add_ram_info(int use_default)
 {
-#if defined(CONFIG_MPC85xx)
-	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
+#if defined(CONFIG_MPC83xx)
+	immap_t *immap = (immap_t *) CONFIG_SYS_IMMR;
+	ccsr_ddr_t *ddr = (void *)&immap->ddr;
+#elif defined(CONFIG_MPC85xx)
+	ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC85xx_DDR_ADDR);
 #elif defined(CONFIG_MPC86xx)
-	volatile ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC86xx_DDR_ADDR);
+	ccsr_ddr_t *ddr = (void *)(CONFIG_SYS_MPC86xx_DDR_ADDR);
 #endif
 #if (CONFIG_NUM_DDR_CONTROLLERS > 1)
 	uint32_t cs0_config = in_be32(&ddr->cs0_config);

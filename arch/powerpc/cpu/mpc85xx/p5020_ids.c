@@ -97,6 +97,16 @@ struct liodn_id_table sec_liodn_tbl[] = {
 };
 int sec_liodn_tbl_sz = ARRAY_SIZE(sec_liodn_tbl);
 
+#ifdef CONFIG_SYS_FSL_RAID_ENGINE
+struct liodn_id_table raide_liodn_tbl[] = {
+	SET_RAID_ENGINE_JQ_LIODN_ENTRY(0, 0, 60),
+	SET_RAID_ENGINE_JQ_LIODN_ENTRY(0, 1, 61),
+	SET_RAID_ENGINE_JQ_LIODN_ENTRY(1, 0, 62),
+	SET_RAID_ENGINE_JQ_LIODN_ENTRY(1, 1, 63),
+};
+int raide_liodn_tbl_sz = ARRAY_SIZE(raide_liodn_tbl);
+#endif
+
 struct liodn_id_table liodn_bases[] = {
 	[FSL_HW_PORTAL_SEC]  = SET_LIODN_BASE_2(64, 100),
 #ifdef CONFIG_SYS_DPAA_FMAN
@@ -104,5 +114,8 @@ struct liodn_id_table liodn_bases[] = {
 #endif
 #ifdef CONFIG_SYS_DPAA_PME
 	[FSL_HW_PORTAL_PME]   = SET_LIODN_BASE_2(136, 172),
+#endif
+#ifdef CONFIG_SYS_FSL_RAID_ENGINE
+	[FSL_HW_PORTAL_RAID_ENGINE]  = SET_LIODN_BASE_1(47),
 #endif
 };

@@ -32,6 +32,7 @@
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
+#include <fm_eth.h>
 
 extern void pci_of_setup(void *blob, bd_t *bd);
 
@@ -129,6 +130,20 @@ int board_early_init_r(void)
 	return 0;
 }
 
+unsigned long get_board_sys_clk(unsigned long dummy)
+{
+	u8 sysclk_conf = CPLD_READ(sysclk_sw1);
+
+	switch (sysclk_conf & 0x7) {
+	case CPLD_SYSCLK_83:
+		return 83333333;
+	case CPLD_SYSCLK_100:
+		return 100000000;
+	default:
+		return 66666666;
+	}
+}
+
 static const char *serdes_clock_to_string(u32 clock)
 {
 	switch (clock) {
@@ -200,4 +215,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 #endif
 
 	fdt_fixup_liodn(blob);
+#ifdef CONFIG_SYS_DPAA_FMAN
+	fdt_fixup_fman_ethernet(blob);
+#endif
 }

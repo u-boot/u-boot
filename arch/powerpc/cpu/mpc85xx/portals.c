@@ -151,7 +151,7 @@ static int fdt_qportal(void *blob, int off, int id, char *name,
 			dev_handle = fdt_get_phandle(blob, dev_off);
 			if (dev_handle <= 0) {
 				dev_handle = fdt_alloc_phandle(blob);
-				ret = fdt_create_phandle(blob, dev_off,
+				ret = fdt_set_phandle(blob, dev_off,
 							 dev_handle);
 				if (ret < 0)
 					return ret;
@@ -198,7 +198,10 @@ void fdt_fixup_qportals(void *blob)
 		u32 liodns[2];
 #endif
 		const int *ci = fdt_getprop(blob, off, "cell-index", NULL);
-		int j, i = *ci;
+		int i = *ci;
+#ifdef CONFIG_SYS_DPAA_FMAN
+		int j;
+#endif
 
 		err = fdt_setprop(blob, off, "compatible", compat, compat_len);
 		if (err < 0)

@@ -21,10 +21,12 @@
  */
 
 #include <common.h>
+#include <asm/fsl_ifc.h>
 #include <asm/io.h>
 
 void cpu_init_f(void)
 {
+#ifdef CONFIG_FSL_LBC
 	fsl_lbc_t *lbc = LBC_BASE_ADDR;
 
 	/*
@@ -38,6 +40,16 @@ void cpu_init_f(void)
 	set_lbc_or(0, CONFIG_SYS_NAND_OR_PRELIM);
 #else
 #error  CONFIG_SYS_NAND_BR_PRELIM, CONFIG_SYS_NAND_OR_PRELIM must be defined
+#endif
+#endif
+#ifdef CONFIG_FSL_IFC
+#ifndef	CONFIG_SYS_FSL_ERRATUM_IFC_A003399
+#if defined(CONFIG_SYS_CSPR0) && defined(CONFIG_SYS_CSOR0)
+	set_ifc_cspr(IFC_CS0, CONFIG_SYS_CSPR0);
+	set_ifc_amask(IFC_CS0, CONFIG_SYS_AMASK0);
+	set_ifc_csor(IFC_CS0, CONFIG_SYS_CSOR0);
+#endif
+#endif
 #endif
 
 #if defined(CONFIG_SYS_RAMBOOT) && defined(CONFIG_SYS_INIT_L2_ADDR)

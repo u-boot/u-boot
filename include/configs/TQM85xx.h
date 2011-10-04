@@ -130,18 +130,12 @@
 #define CONFIG_SYS_MEMTEST_START	0x00000000
 #define CONFIG_SYS_MEMTEST_END		0x10000000
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xFF700000	/* CCSRBAR Default	*/
 #ifdef CONFIG_TQM_BIGFLASH
-#define CONFIG_SYS_CCSRBAR	 	0xA0000000	/* relocated CCSRBAR	*/
-#else /* !CONFIG_TQM_BIGFLASH */
-#define CONFIG_SYS_CCSRBAR		0xE0000000	/* relocated CCSRBAR	*/
-#endif /* CONFIG_TQM_BIGFLASH */
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR	/* physical addr of CCSRBAR */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses CONFIG_SYS_IMMR	*/
+#define CONFIG_SYS_CCSRBAR	 	0xA0000000
+#else
+#define CONFIG_SYS_CCSRBAR		0xE0000000
+#endif
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 /*
  * DDR Setup

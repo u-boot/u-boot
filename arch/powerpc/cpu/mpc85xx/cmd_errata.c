@@ -87,6 +87,22 @@ static int do_errata(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 	puts("Work-around for Erratum DDR111 enabled\n");
 	puts("Work-around for Erratum DDR134 enabled\n");
 #endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A002769
+	puts("Work-around for Erratum IFC-A002769 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_P1010_A003549
+	puts("Work-around for Erratum P1010-A003549 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A003399
+	puts("Work-around for Erratum IFC A-003399 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_NMG_DDR120
+	if ((SVR_MAJ(svr) == 1) || IS_SVR_REV(svr, 2, 0))
+		puts("Work-around for Erratum NMG DDR120 enabled\n");
+#endif
+#ifdef CONFIG_SYS_FSL_ERRATUM_NMG_LBC103
+	puts("Work-around for Erratum NMG_LBC103 enabled\n");
+#endif
 	return 0;
 }
 

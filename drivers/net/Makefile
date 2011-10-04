@@ -81,6 +81,7 @@ COBJS-$(CONFIG_TIGON3) += bcm570x_autoneg.o
 COBJS-$(CONFIG_TIGON3) += 5701rls.o
 COBJS-$(CONFIG_DRIVER_TI_EMAC) += davinci_emac.o
 COBJS-$(CONFIG_TSEC_ENET) += tsec.o fsl_mdio.o
+COBJS-$(CONFIG_FMAN_ENET) += fsl_mdio.o
 COBJS-$(CONFIG_TSI108_ETH) += tsi108_eth.o
 COBJS-$(CONFIG_ULI526X) += uli526x.o
 COBJS-$(CONFIG_VSC7385_ENET) += vsc7385.o

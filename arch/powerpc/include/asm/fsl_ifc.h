@@ -69,6 +69,7 @@
  */
 /* Enable ECC Encoder */
 #define CSOR_NAND_ECC_ENC_EN		0x80000000
+#define CSOR_NAND_ECC_MODE_MASK		0x30000000
 /* 4 bit correction per 520 Byte sector */
 #define CSOR_NAND_ECC_MODE_4		0x00000000
 /* 8 bit correction per 528 Byte sector */
@@ -857,10 +858,7 @@ struct fsl_ifc_nand {
 	u32 res19[0x10];
 	u32 nand_fsr;
 	u32 res20;
-	u32 nand_eccstat0;
-	u32 nand_eccstat1;
-	u32 nand_eccstat2;
-	u32 nand_eccstat3;
+	u32 nand_eccstat[4];
 	u32 res21[0x20];
 	u32 nanndcr;
 	u32 res22[0x2];
@@ -952,6 +950,11 @@ struct fsl_ifc {
 	struct fsl_ifc_nor ifc_nor;
 	struct fsl_ifc_gpcm ifc_gpcm;
 };
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_IFC_A002769
+#undef CSPR_MSEL_NOR
+#define CSPR_MSEL_NOR	CSPR_MSEL_GPCM
+#endif
 
 #endif /* __ASSEMBLY__ */
 #endif /* __ASM_PPC_FSL_IFC_H */

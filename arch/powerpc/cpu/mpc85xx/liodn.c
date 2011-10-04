@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2010 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * See file CREDITS for list of people who contributed to this
  * project.
@@ -120,6 +120,19 @@ static void setup_pme_liodn_base(void)
 #endif
 }
 
+#ifdef CONFIG_SYS_FSL_RAID_ENGINE
+static void setup_raide_liodn_base(void)
+{
+	struct ccsr_raide *raide = (void *)CONFIG_SYS_FSL_RAID_ENGINE_ADDR;
+
+	/* setup raid engine liodn base for data/desc ; both set to 47 */
+	u32 base = (liodn_bases[FSL_HW_PORTAL_RAID_ENGINE].id[0] << 16) |
+			liodn_bases[FSL_HW_PORTAL_RAID_ENGINE].id[0];
+
+	out_be32(&raide->liodnbr, base);
+}
+#endif
+
 void set_liodns(void)
 {
 	/* setup general liodn offsets */
@@ -145,6 +158,12 @@ void set_liodns(void)
 #endif
 	/* setup PME liodn base */
 	setup_pme_liodn_base();
+
+#ifdef CONFIG_SYS_FSL_RAID_ENGINE
+	/* raid engine ccr addr code for liodn */
+	set_liodn(raide_liodn_tbl, raide_liodn_tbl_sz);
+	setup_raide_liodn_base();
+#endif
 }
 
 static void fdt_fixup_liodn_tbl(void *blob, struct liodn_id_table *tbl, int sz)
@@ -184,4 +203,8 @@ void fdt_fixup_liodn(void *blob)
 #endif
 #endif
 	fdt_fixup_liodn_tbl(blob, sec_liodn_tbl, sec_liodn_tbl_sz);
+
+#ifdef CONFIG_SYS_FSL_RAID_ENGINE
+	fdt_fixup_liodn_tbl(blob, raide_liodn_tbl, raide_liodn_tbl_sz);
+#endif
 }

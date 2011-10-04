@@ -30,7 +30,6 @@
 #include <asm/fsl_pci.h>
 #include <asm/fsl_ddr_sdram.h>
 #include <asm/fsl_serdes.h>
-#include <spd_sdram.h>
 #include <miiphy.h>
 #include <libfdt.h>
 #include <fdt_support.h>
@@ -38,8 +37,6 @@
 #include "../common/cadmus.h"
 #include "../common/eeprom.h"
 #include "../common/via.h"
-
-DECLARE_GLOBAL_DATA_PTR;
 
 void local_bus_init(void);
 
@@ -123,7 +120,7 @@ void lbc_sdram_init(void)
 
 	puts("LBC SDRAM: ");
 	print_size(CONFIG_SYS_LBC_SDRAM_SIZE * 1024 * 1024,
-		   "\n       ");
+		   "\n");
 
 	/*
 	 * Setup SDRAM Base and Option Registers
@@ -210,10 +207,6 @@ static struct pci_config_table pci_mpc85xxcds_config_table[] = {
 static struct pci_controller pci1_hose;
 #endif	/* CONFIG_PCI */
 
-#ifdef CONFIG_PCI2
-static struct pci_controller pci2_hose;
-#endif	/* CONFIG_PCI2 */
-
 void pci_init_board(void)
 {
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -221,6 +214,7 @@ void pci_init_board(void)
 	u32 devdisr, pordevsr, io_sel;
 	u32 porpllsr, pci_agent, pci_speed, pci_32, pci_arb, pci_clk_sel;
 	int first_free_busno = 0;
+	char buf[32];
 
 	devdisr = in_be32(&gur->devdisr);
 	pordevsr = in_be32(&gur->pordevsr);
@@ -243,10 +237,9 @@ void pci_init_board(void)
 			law_size_bits(pci_info.io_size), pci_info.law);
 
 		pci_agent = fsl_setup_hose(&pci1_hose, pci_info.regs);
-		printf("PCI: %d bit, %s MHz, %s, %s, %s (base address %lx)\n",
+		printf("PCI1: %d bit, %s MHz, %s, %s, %s (base address %lx)\n",
 			(pci_32) ? 32 : 64,
-			(pci_speed == 33333000) ? "33" :
-			(pci_speed == 66666000) ? "66" : "unknown",
+			strmhz(buf, pci_speed),
 			pci_clk_sel ? "sync" : "async",
 			pci_agent ? "agent" : "host",
 			pci_arb ? "arbiter" : "external-arbiter",
@@ -268,7 +261,7 @@ void pci_init_board(void)
 		}
 #endif
 	} else {
-		printf("PCI: disabled\n");
+		printf("PCI1: disabled\n");
 	}
 
 	puts("\n");

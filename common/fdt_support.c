@@ -1196,13 +1196,13 @@ int fdt_alloc_phandle(void *blob)
 }
 
 /*
- * fdt_create_phandle: Create a phandle property for the given node
+ * fdt_set_phandle: Create a phandle property for the given node
  *
  * @fdt: ptr to device tree
  * @nodeoffset: node to update
  * @phandle: phandle value to set (must be unique)
-*/
-int fdt_create_phandle(void *fdt, int nodeoffset, uint32_t phandle)
+ */
+int fdt_set_phandle(void *fdt, int nodeoffset, uint32_t phandle)
 {
 	int ret;
 
@@ -1233,6 +1233,26 @@ int fdt_create_phandle(void *fdt, int nodeoffset, uint32_t phandle)
 	ret = fdt_setprop_cell(fdt, nodeoffset, "linux,phandle", phandle);
 
 	return ret;
+}
+
+/*
+ * fdt_create_phandle: Create a phandle property for the given node
+ *
+ * @fdt: ptr to device tree
+ * @nodeoffset: node to update
+ */
+int fdt_create_phandle(void *fdt, int nodeoffset)
+{
+	/* see if there is a phandle already */
+	int phandle = fdt_get_phandle(fdt, nodeoffset);
+
+	/* if we got 0, means no phandle so create one */
+	if (phandle == 0) {
+		phandle = fdt_alloc_phandle(fdt);
+		fdt_set_phandle(fdt, nodeoffset, phandle);
+	}
+
+	return phandle;
 }
 
 #if defined(CONFIG_VIDEO)

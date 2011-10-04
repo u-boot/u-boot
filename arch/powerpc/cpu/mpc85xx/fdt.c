@@ -361,6 +361,7 @@ void fdt_add_enet_stashing(void *fdt)
 }
 
 #if defined(CONFIG_SYS_DPAA_FMAN) || defined(CONFIG_SYS_DPAA_PME)
+#ifdef CONFIG_SYS_DPAA_FMAN
 static void ft_fixup_clks(void *blob, const char *compat, u32 offset,
 			  unsigned long freq)
 {
@@ -374,18 +375,21 @@ static void ft_fixup_clks(void *blob, const char *compat, u32 offset,
 				"for %s: %s\n", compat, fdt_strerror(off));
 	}
 }
+#endif
 
 static void ft_fixup_dpaa_clks(void *blob)
 {
 	sys_info_t sysinfo;
 
 	get_sys_info(&sysinfo);
+#ifdef CONFIG_SYS_DPAA_FMAN
 	ft_fixup_clks(blob, "fsl,fman", CONFIG_SYS_FSL_FM1_OFFSET,
 			sysinfo.freqFMan[0]);
 
 #if (CONFIG_SYS_NUM_FMAN == 2)
 	ft_fixup_clks(blob, "fsl,fman", CONFIG_SYS_FSL_FM2_OFFSET,
 			sysinfo.freqFMan[1]);
+#endif
 #endif
 
 #ifdef CONFIG_SYS_DPAA_PME

@@ -448,7 +448,8 @@ compute_lowest_common_dimm_parameters(const dimm_params_t *dimm_params,
 
 #if defined(CONFIG_FSL_DDR2)
 	if (lowest_good_caslat < 4) {
-		additive_latency = picos_to_mclk(tRCD_ps) - lowest_good_caslat;
+		additive_latency = (picos_to_mclk(tRCD_ps) > lowest_good_caslat)
+			? picos_to_mclk(tRCD_ps) - lowest_good_caslat : 0;
 		if (mclk_to_picos(additive_latency) > tRCD_ps) {
 			additive_latency = picos_to_mclk(tRCD_ps);
 			debug("setting additive_latency to %u because it was "

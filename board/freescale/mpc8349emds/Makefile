@@ -27,6 +27,7 @@ LIB	= $(obj)lib$(BOARD).o
 
 COBJS-y += $(BOARD).o
 COBJS-$(CONFIG_PCI) += pci.o
+COBJS-$(CONFIG_FSL_DDR2) += ddr.o
 
 COBJS	:= $(COBJS-y)
 SRCS	:= $(SOBJS:.o=.S) $(COBJS:.o=.c)

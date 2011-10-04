@@ -38,6 +38,11 @@
 #include <fdt_support.h>
 #include <netdev.h>
 #include <malloc.h>
+#include <fm_eth.h>
+#include <fsl_mdio.h>
+#include <miiphy.h>
+#include <phy.h>
+#include <asm/fsl_dtsec.h>
 
 #include "bcsr.h"
 
@@ -143,6 +148,39 @@ unsigned long get_board_ddr_clk(ulong dummy)
 
 int board_eth_init(bd_t *bis)
 {
+	u8 *bcsr = (u8 *)BCSR_ACCESS_REG_ADDR;
+	ccsr_gur_t *gur = (ccsr_gur_t *)CONFIG_SYS_MPC85xx_GUTS_ADDR;
+	struct fsl_pq_mdio_info dtsec_mdio_info;
+
+	/*
+	 * Need to set dTSEC 1 pin multiplexing to TSEC. The default setting
+	 * is not correct.
+	 */
+	setbits_be32(&gur->pmuxcr, MPC85xx_PMUXCR_TSEC1_1);
+
+	dtsec_mdio_info.regs =
+		(struct tsec_mii_mng *)CONFIG_SYS_FM1_DTSEC1_MDIO_ADDR;
+	dtsec_mdio_info.name = DEFAULT_FM_MDIO_NAME;
+
+	/* Register the 1G MDIO bus */
+	fsl_pq_mdio_init(bis, &dtsec_mdio_info);
+
+	fm_info_set_phy_address(FM1_DTSEC1, CONFIG_SYS_FM1_DTSEC1_PHY_ADDR);
+	fm_info_set_phy_address(FM1_DTSEC2, CONFIG_SYS_FM1_DTSEC2_PHY_ADDR);
+
+	fm_info_set_mdio(FM1_DTSEC1,
+		miiphy_get_dev_by_name(DEFAULT_FM_MDIO_NAME));
+	fm_info_set_mdio(FM1_DTSEC2,
+		miiphy_get_dev_by_name(DEFAULT_FM_MDIO_NAME));
+
+	/* Make SERDES connected to SGMII by cleaing bcsr19[7] */
+	if (fm_info_get_enet_if(FM1_DTSEC1) == PHY_INTERFACE_MODE_SGMII)
+		clrbits_8(&bcsr[19], BCSR19_SGMII_SEL_L);
+
+#ifdef CONFIG_FMAN_ENET
+	cpu_eth_init(bis);
+#endif
+
 	return pci_eth_init(bis);
 }
 
@@ -158,5 +196,7 @@ void ft_board_setup(void *blob, bd_t *bd)
 	size = getenv_bootm_size();
 
 	fdt_fixup_memory(blob, (u64)base, (u64)size);
+
+	fdt_fixup_fman_ethernet(blob);
 }
 #endif

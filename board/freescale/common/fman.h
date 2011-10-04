@@ -1,9 +1,6 @@
 /*
  * Copyright 2011 Freescale Semiconductor, Inc.
  *
- * See file CREDITS for list of people who contributed to this
- * project.
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of
@@ -20,20 +17,10 @@
  * MA 02111-1307 USA
  */
 
-#include <common.h>
-#include <command.h>
-#include <pci.h>
-#include <asm/fsl_pci.h>
-#include <libfdt.h>
-#include <fdt_support.h>
-#include <asm/fsl_serdes.h>
+#ifndef __FMAN_BOARD_HELPER__
+#define __FMAN_BOARD_HELPER__
 
-void pci_init_board(void)
-{
-	fsl_pcie_init_board(0);
-}
+void fdt_set_phy_handle(void *fdt, char *compat, phys_addr_t addr,
+			const char *alias);
 
-void pci_of_setup(void *blob, bd_t *bd)
-{
-	FT_FSL_PCI_SETUP;
-}
+#endif

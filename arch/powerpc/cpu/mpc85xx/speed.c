@@ -41,6 +41,7 @@ void get_sys_info (sys_info_t * sysInfo)
 	volatile ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 #ifdef CONFIG_FSL_CORENET
 	volatile ccsr_clk_t *clk = (void *)(CONFIG_SYS_FSL_CORENET_CLK_ADDR);
+	unsigned int cpu;
 
 	const u8 core_cplx_PLL[16] = {
 		[ 0] = 0,	/* CC1 PPL / 1 */
@@ -97,11 +98,11 @@ void get_sys_info (sys_info_t * sysInfo)
 			freqCC_PLL[i] = sysInfo->freqSystemBus * ratio[i];
 	}
 	rcw_tmp = in_be32(&gur->rcwsr[3]);
-	for (i = 0; i < cpu_numcores(); i++) {
-		u32 c_pll_sel = (in_be32(&clk->clkc0csr + i*8) >> 27) & 0xf;
+	for_each_cpu(i, cpu, cpu_numcores(), cpu_mask()) {
+		u32 c_pll_sel = (in_be32(&clk->clkc0csr + cpu*8) >> 27) & 0xf;
 		u32 cplx_pll = core_cplx_PLL[c_pll_sel];
 
-		sysInfo->freqProcessor[i] =
+		sysInfo->freqProcessor[cpu] =
 			 freqCC_PLL[cplx_pll] / core_cplx_PLL_div[c_pll_sel];
 	}
 

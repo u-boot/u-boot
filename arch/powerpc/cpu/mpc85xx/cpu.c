@@ -64,13 +64,11 @@ int checkcpu (void)
 	u32 ddr_ratio = 0;
 #endif /* CONFIG_FSL_CORENET */
 #endif /* CONFIG_DDR_CLK_FREQ */
-	int i;
+	unsigned int i, core, nr_cores = cpu_numcores();
+	u32 mask = cpu_mask();
 
 	svr = get_svr();
 	major = SVR_MAJ(svr);
-#ifdef CONFIG_MPC8536
-	major &= 0x7; /* the msb of this nibble is a mfg code */
-#endif
 	minor = SVR_MIN(svr);
 
 	if (cpu_numcores() > 1) {
@@ -119,11 +117,11 @@ int checkcpu (void)
 	get_sys_info(&sysinfo);
 
 	puts("Clock Configuration:");
-	for (i = 0; i < cpu_numcores(); i++) {
+	for_each_cpu(i, core, nr_cores, mask) {
 		if (!(i & 3))
 			printf ("\n       ");
-		printf("CPU%d:%-4s MHz, ",
-				i,strmhz(buf1, sysinfo.freqProcessor[i]));
+		printf("CPU%d:%-4s MHz, ", core,
+			strmhz(buf1, sysinfo.freqProcessor[core]));
 	}
 	printf("\n       CCB:%-4s MHz,\n", strmhz(buf1, sysinfo.freqSystemBus));
 

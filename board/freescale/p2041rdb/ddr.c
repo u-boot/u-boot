@@ -37,7 +37,10 @@ const board_specific_parameters_t board_specific_parameters[] = {
 	 *  lo|  hi|  num|  clk| wrlvl | cpo  |wrdata|2T
 	 * mhz| mhz|ranks|adjst| start | delay|
 	 */
-	{  1017, 1116,    2,    4,     6,   0xff,    2,  0},
+	{    0,  750,    2,    3,     5,   0xff,    2,  0},
+	{  751, 1250,    2,    4,     6,   0xff,    2,  0},
+	{ 1251, 1350,    2,    5,     7,   0xff,    2,  0},
+	{ 1351, 1666,    2,    5,     8,   0xff,    2,  0},
 };
 
 void fsl_ddr_board_options(memctl_options_t *popts,

@@ -32,10 +32,10 @@
 #include <asm/fsl_serdes.h>
 #include <asm/fsl_portals.h>
 #include <asm/fsl_liodn.h>
-
-extern void pci_of_setup(void *blob, bd_t *bd);
+#include <fm_eth.h>
 
 #include "../common/ngpixis.h"
+#include "corenet_ds.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -237,9 +237,9 @@ void ft_board_setup(void *blob, bd_t *bd)
 
 	fdt_fixup_liodn(blob);
 	fdt_fixup_dr_usb(blob, bd);
-}
 
-int board_eth_init(bd_t *bis)
-{
-	return pci_eth_init(bis);
+#ifdef CONFIG_SYS_DPAA_FMAN
+	fdt_fixup_fman_ethernet(blob);
+	fdt_fixup_board_enet(blob);
+#endif
 }

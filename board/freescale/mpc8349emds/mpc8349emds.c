@@ -29,7 +29,11 @@
 #include <i2c.h>
 #include <spi.h>
 #include <miiphy.h>
+#ifdef CONFIG_FSL_DDR2
+#include <asm/fsl_ddr_sdram.h>
+#else
 #include <spd_sdram.h>
+#endif
 
 #if defined(CONFIG_OF_LIBFDT)
 #include <libfdt.h>
@@ -62,7 +66,7 @@ int board_early_init_f (void)
 phys_size_t initdram (int board_type)
 {
 	volatile immap_t *im = (immap_t *)CONFIG_SYS_IMMR;
-	u32 msize = 0;
+	phys_size_t msize = 0;
 
 	if ((im->sysconf.immrbar & IMMRBAR_BASE_ADDR) != (u32)im)
 		return -1;
@@ -70,24 +74,24 @@ phys_size_t initdram (int board_type)
 	/* DDR SDRAM - Main SODIMM */
 	im->sysconf.ddrlaw[0].bar = CONFIG_SYS_DDR_BASE & LAWBAR_BAR;
 #if defined(CONFIG_SPD_EEPROM)
-	msize = spd_sdram();
+#ifndef CONFIG_FSL_DDR2
+	msize = spd_sdram() * 1024 * 1024;
+#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
+	ddr_enable_ecc(msize);
+#endif
 #else
-	msize = fixed_sdram();
+	msize = fsl_ddr_sdram();
+#endif
+#else
+	msize = fixed_sdram() * 1024 * 1024;
 #endif
 	/*
 	 * Initialize SDRAM if it is on local bus.
 	 */
 	sdram_init();
 
-#if defined(CONFIG_DDR_ECC) && !defined(CONFIG_ECC_INIT_VIA_DDRCONTROLLER)
-	/*
-	 * Initialize and enable DDR ECC.
-	 */
-	ddr_enable_ecc(msize * 1024 * 1024);
-#endif
-
 	/* return total bus SDRAM size(bytes)  -- DDR */
-	return (msize * 1024 * 1024);
+	return msize;
 }
 
 #if !defined(CONFIG_SPD_EEPROM)

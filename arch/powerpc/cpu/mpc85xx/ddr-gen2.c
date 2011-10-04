@@ -1,5 +1,5 @@
 /*
- * Copyright 2008 Freescale Semiconductor, Inc.
+ * Copyright 2008-2011 Freescale Semiconductor, Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -8,6 +8,7 @@
 
 #include <common.h>
 #include <asm/io.h>
+#include <asm/processor.h>
 #include <asm/fsl_ddr_sdram.h>
 
 #if (CONFIG_CHIP_SELECTS_PER_CTRL > 4)
@@ -18,12 +19,35 @@ void fsl_ddr_set_memctl_regs(const fsl_ddr_cfg_regs_t *regs,
 			     unsigned int ctrl_num)
 {
 	unsigned int i;
-	volatile ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC85xx_DDR_ADDR;
+#ifdef CONFIG_MPC83xx
+	ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC83xx_DDR_ADDR;
+#else
+	ccsr_ddr_t *ddr = (void *)CONFIG_SYS_MPC85xx_DDR_ADDR;
+#ifdef CONFIG_SYS_FSL_ERRATUM_NMG_DDR120
+	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
+	uint svr;
+#endif
+#endif
 
 	if (ctrl_num) {
 		printf("%s unexpected ctrl_num = %u\n", __FUNCTION__, ctrl_num);
 		return;
 	}
+
+#ifdef CONFIG_SYS_FSL_ERRATUM_NMG_DDR120
+	/*
+	 * Set the DDR IO receiver to an acceptable bias point.
+	 * Fixed in Rev 2.1.
+	 */
+	svr = get_svr();
+	if ((SVR_MAJ(svr) == 1) || IS_SVR_REV(svr, 2, 0)) {
+		if ((regs->ddr_sdram_cfg & SDRAM_CFG_SDRAM_TYPE_MASK) ==
+		   SDRAM_CFG_SDRAM_TYPE_DDR2)
+			out_be32(&gur->ddrioovcr, 0x90000000);
+		else
+			out_be32(&gur->ddrioovcr, 0xA8000000);
+	}
+#endif
 
 	for (i = 0; i < CONFIG_CHIP_SELECTS_PER_CTRL; i++) {
 		if (i == 0) {

@@ -221,22 +221,20 @@ ulong get_spin_virt_addr(void)
 #ifdef CONFIG_FSL_CORENET
 static void plat_mp_up(unsigned long bootpg)
 {
-	u32 up, cpu_up_mask, whoami;
+	u32 cpu_up_mask, whoami;
 	u32 *table = (u32 *)get_spin_virt_addr();
 	volatile ccsr_gur_t *gur;
 	volatile ccsr_local_t *ccm;
 	volatile ccsr_rcpm_t *rcpm;
 	volatile ccsr_pic_t *pic;
 	int timeout = 10;
-	u32 nr_cpus;
+	u32 mask = cpu_mask();
 	struct law_entry e;
 
 	gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
 	ccm = (void *)(CONFIG_SYS_FSL_CORENET_CCM_ADDR);
 	rcpm = (void *)(CONFIG_SYS_FSL_CORENET_RCPM_ADDR);
 	pic = (void *)(CONFIG_SYS_MPC8xxx_PIC_ADDR);
-
-	nr_cpus = ((in_be32(&pic->frr) >> 8) & 0xff) + 1;
 
 	whoami = in_be32(&pic->whoami);
 	cpu_up_mask = 1 << whoami;
@@ -251,19 +249,18 @@ static void plat_mp_up(unsigned long bootpg)
 	/* disable time base at the platform */
 	out_be32(&rcpm->ctbenrl, cpu_up_mask);
 
-	/* release the hounds */
-	up = ((1 << nr_cpus) - 1);
-	out_be32(&gur->brrl, up);
+	out_be32(&gur->brrl, mask);
 
 	/* wait for everyone */
 	while (timeout) {
-		int i;
-		for (i = 0; i < nr_cpus; i++) {
-			if (table[i * NUM_BOOT_ENTRY + BOOT_ENTRY_ADDR_LOWER])
-				cpu_up_mask |= (1 << i);
-		};
+		unsigned int i, cpu, nr_cpus = cpu_numcores();
 
-		if ((cpu_up_mask & up) == up)
+		for_each_cpu(i, cpu, nr_cpus, mask) {
+			if (table[cpu * NUM_BOOT_ENTRY + BOOT_ENTRY_ADDR_LOWER])
+				cpu_up_mask |= (1 << cpu);
+		}
+
+		if ((cpu_up_mask & mask) == mask)
 			break;
 
 		udelay(100);
@@ -272,7 +269,7 @@ static void plat_mp_up(unsigned long bootpg)
 
 	if (timeout == 0)
 		printf("CPU up timeout. CPU up mask is %x should be %x\n",
-			cpu_up_mask, up);
+			cpu_up_mask, mask);
 
 	/* enable time base at the platform */
 	out_be32(&rcpm->ctbenrl, 0);
@@ -283,7 +280,7 @@ static void plat_mp_up(unsigned long bootpg)
 	mtspr(SPRN_TBWU, 0);
 	mtspr(SPRN_TBWL, 0);
 
-	out_be32(&rcpm->ctbenrl, (1 << nr_cpus) - 1);
+	out_be32(&rcpm->ctbenrl, mask);
 
 #ifdef CONFIG_MPC8xxx_DISABLE_BPTR
 	/*

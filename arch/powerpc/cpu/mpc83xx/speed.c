@@ -507,6 +507,15 @@ ulong get_bus_freq(ulong dummy)
 	return gd->csb_clk;
 }
 
+/********************************************
+ * get_ddr_freq
+ * return ddr bus freq in Hz
+ *********************************************/
+ulong get_ddr_freq(ulong dummy)
+{
+	return gd->mem_clk;
+}
+
 int do_clocks (cmd_tbl_t * cmdtp, int flag, int argc, char * const argv[])
 {
 	char buf[32];

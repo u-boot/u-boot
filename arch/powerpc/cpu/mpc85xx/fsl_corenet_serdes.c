@@ -482,6 +482,13 @@ static void wait_for_rstdone(unsigned int bank)
 		printf("SERDES: timeout resetting bank %u\n", bank + 1);
 }
 
+
+void __soc_serdes_init(void)
+{
+	/* Allow for SoC-specific initialization in <SOC>_serdes.c  */
+};
+void soc_serdes_init(void) __attribute__((weak, alias("__soc_serdes_init")));
+
 void fsl_serdes_init(void)
 {
 	ccsr_gur_t *gur = (void *)(CONFIG_SYS_MPC85xx_GUTS_ADDR);
@@ -569,6 +576,8 @@ void fsl_serdes_init(void)
 			serdes_prtcl_map |= (1 << lane_prtcl);
 		}
 	}
+
+	soc_serdes_init();
 
 #ifdef CONFIG_SYS_P4080_ERRATUM_SERDES8
 	/*

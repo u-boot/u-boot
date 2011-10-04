@@ -148,24 +148,11 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_SYS_L2_SIZE		(512 << 10)
 #define CONFIG_SYS_INIT_L2_END		(CONFIG_SYS_INIT_L2_ADDR + CONFIG_SYS_L2_SIZE)
 
-/*
- * Base addresses -- Note these are effective addresses where the
- * actual resources get mapped (not physical addresses)
- */
-#define CONFIG_SYS_CCSRBAR		0xffe00000	/* relocated CCSRBAR */
-#ifdef CONFIG_PHYS_64BIT
-#define CONFIG_SYS_CCSRBAR_PHYS	0xfffe00000ull
-#else
-#define CONFIG_SYS_CCSRBAR_PHYS	CONFIG_SYS_CCSRBAR
-#endif
-							/* CCSRBAR */
-#define CONFIG_SYS_IMMR		CONFIG_SYS_CCSRBAR	/* PQII uses */
-							/* CONFIG_SYS_IMMR */
+#define CONFIG_SYS_CCSRBAR		0xffe00000
+#define CONFIG_SYS_CCSRBAR_PHYS_LOW	CONFIG_SYS_CCSRBAR
 
 #if defined(CONFIG_RAMBOOT_NAND) && !defined(CONFIG_NAND_SPL)
-#define CONFIG_SYS_CCSRBAR_DEFAULT	CONFIG_SYS_CCSRBAR
-#else
-#define CONFIG_SYS_CCSRBAR_DEFAULT	0xff700000      /* CCSRBAR Default */
+#define CONFIG_SYS_CCSR_DO_NOT_RELOCATE
 #endif
 
 /* DDR Setup */
@@ -594,6 +581,9 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #endif
 #endif
 
+#define CONFIG_HAS_FSL_DR_USB
+
+#if defined(CONFIG_HAS_FSL_DR_USB)
 #define CONFIG_USB_EHCI
 
 #ifdef CONFIG_USB_EHCI
@@ -601,7 +591,7 @@ extern unsigned long get_board_sys_clk(unsigned long dummy);
 #define CONFIG_EHCI_HCD_INIT_AFTER_RESET
 #define CONFIG_USB_EHCI_FSL
 #define CONFIG_USB_STORAGE
-#define CONFIG_HAS_FSL_DR_USB
+#endif
 #endif
 
 #if defined(CONFIG_MMC) || defined(CONFIG_USB_EHCI)
