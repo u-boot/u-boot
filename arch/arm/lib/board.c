@@ -442,14 +442,12 @@ static char *failed = "*** failed ***\n";
 void board_init_r(gd_t *id, ulong dest_addr)
 {
 	char *s;
-	bd_t *bd;
 	ulong malloc_start;
 #if !defined(CONFIG_SYS_NO_FLASH)
 	ulong flash_size;
 #endif
 
 	gd = id;
-	bd = gd->bd;
 
 	gd->flags |= GD_FLG_RELOC;	/* tell others: relocation done */
 
@@ -517,7 +515,7 @@ void board_init_r(gd_t *id, ulong dest_addr)
 
 #ifdef CONFIG_GENERIC_MMC
        puts("MMC:   ");
-       mmc_initialize(bd);
+       mmc_initialize(gd->bd);
 #endif
 
 #ifdef CONFIG_HAS_DATAFLASH
