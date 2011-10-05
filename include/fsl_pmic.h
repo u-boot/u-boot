@@ -99,6 +99,7 @@ enum {
 	REG_TEST2,
 	REG_TEST3,
 	REG_TEST4,
+	PMIC_NUM_OF_REGS,
 };
 
 /* REG_POWER_MISC */
@@ -120,9 +121,5 @@ enum {
 
 /* Interrupt status 1 */
 #define RTCRSTI		(1 << 7)
-
-void pmic_show_pmic_info(void);
-void pmic_reg_write(u32 reg, u32 value);
-u32 pmic_reg_read(u32 reg);
 
 #endif
