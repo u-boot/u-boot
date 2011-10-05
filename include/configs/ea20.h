@@ -48,6 +48,7 @@
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SYS_TEXT_BASE		0xc1080000
+#define CONFIG_DA8XX_GPIO
 
 /*
  * Memory Info
@@ -167,6 +168,7 @@
 #define CONFIG_CMD_SAVES
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_I2C
+#define CONFIG_CMD_GPIO
 
 #ifdef CONFIG_CMD_BDI
 #define CONFIG_CLOCKS
