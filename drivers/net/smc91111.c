@@ -1187,17 +1187,11 @@ static void smc_wait_ms(unsigned int ms)
 static void smc_phy_configure (struct eth_device *dev)
 {
 	int timeout;
-	byte phyaddr;
 	word my_phy_caps;	/* My PHY capabilities */
 	word my_ad_caps;	/* My Advertised capabilities */
 	word status = 0;	/*;my status = 0 */
-	int failed = 0;
 
 	PRINTK3 ("%s: smc_program_phy()\n", SMC_DEV_NAME);
-
-
-	/* Get the detected phy address */
-	phyaddr = SMC_PHY_ADDR;
 
 	/* Reset the PHY, setting all other bits to zero */
 	smc_write_phy_register (dev, PHY_CNTL_REG, PHY_CNTL_RST);
@@ -1296,13 +1290,11 @@ static void smc_phy_configure (struct eth_device *dev)
 
 	if (timeout < 1) {
 		printf ("%s: PHY auto-negotiate timed out\n", SMC_DEV_NAME);
-		failed = 1;
 	}
 
 	/* Fail if we detected an auto-negotiate remote fault */
 	if (status & PHY_STAT_REM_FLT) {
 		printf ("%s: PHY remote fault detected\n", SMC_DEV_NAME);
-		failed = 1;
 	}
 
 	/* Re-Configure the Receive/Phy Control register */
