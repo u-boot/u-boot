@@ -965,10 +965,9 @@ static void td_submit_job(struct usb_device *dev, unsigned long pipe,
 
 static void dl_transfer_length(td_t *td)
 {
-	__u32 tdINFO, tdBE, tdCBP;
+	__u32 tdBE, tdCBP;
 	urb_priv_t *lurb_priv = td->ed->purb;
 
-	tdINFO = m32_swap(td->hwINFO);
 	tdBE   = m32_swap(td->hwBE);
 	tdCBP  = m32_swap(td->hwCBP);
 
