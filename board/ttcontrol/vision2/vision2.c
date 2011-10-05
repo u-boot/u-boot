@@ -39,11 +39,11 @@
 #include <mc13892.h>
 #include <linux/fb.h>
 
+#include <ipu_pixfmt.h>
+
 DECLARE_GLOBAL_DATA_PTR;
 
 static u32 system_rev;
-
-extern int mx51_fb_init(struct fb_videomode *mode);
 
 static struct fb_videomode nec_nl6448bc26_09c = {
 	"NEC_NL6448BC26-09C",
@@ -610,7 +610,7 @@ void lcd_enable(void)
 	gpio_set_value(2, 1);
 	mxc_request_iomux(MX51_PIN_GPIO1_2, IOMUX_CONFIG_ALT0);
 
-	ret = mx51_fb_init(&nec_nl6448bc26_09c);
+	ret = mx51_fb_init(&nec_nl6448bc26_09c, 0, IPU_PIX_FMT_RGB666);
 	if (ret)
 		puts("LCD cannot be configured\n");
 }

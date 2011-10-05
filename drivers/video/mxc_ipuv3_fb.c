@@ -44,7 +44,9 @@ static int mxcfb_unmap_video_memory(struct fb_info *fbi);
 
 /* graphics setup */
 static GraphicDevice panel;
-struct fb_videomode *gmode;
+static struct fb_videomode *gmode;
+static uint8_t gdisp;
+static uint32_t gpixfmt;
 
 void fb_videomode_to_var(struct fb_var_screeninfo *var,
 			 const struct fb_videomode *mode)
@@ -499,7 +501,8 @@ static struct fb_info *mxcfb_init_fbinfo(void)
  *
  * @return      Appropriate error code to the kernel common code
  */
-static int mxcfb_probe(u32 interface_pix_fmt, struct fb_videomode *mode)
+static int mxcfb_probe(u32 interface_pix_fmt, uint8_t disp,
+			struct fb_videomode *mode)
 {
 	struct fb_info *fbi;
 	struct mxcfb_info *mxcfbi;
@@ -523,7 +526,7 @@ static int mxcfb_probe(u32 interface_pix_fmt, struct fb_videomode *mode)
 		mxcfbi->blank = FB_BLANK_POWERDOWN;
 	}
 
-	mxcfbi->ipu_di = 0;
+	mxcfbi->ipu_di = disp;
 
 	ipu_disp_set_global_alpha(mxcfbi->ipu_ch, 1, 0x80);
 	ipu_disp_set_color_key(mxcfbi->ipu_ch, 0, 0);
@@ -581,7 +584,7 @@ void *video_hw_init(void)
 	if (ret)
 		puts("Error initializing IPU\n");
 
-	ret = mxcfb_probe(IPU_PIX_FMT_RGB666, gmode);
+	ret = mxcfb_probe(gpixfmt, gdisp, gmode);
 	debug("Framebuffer at 0x%x\n", (unsigned int)panel.frameAdrs);
 
 	return (void *)&panel;
@@ -596,9 +599,11 @@ void video_set_lut(unsigned int index, /* color number */
 	return;
 }
 
-int mx51_fb_init(struct fb_videomode *mode)
+int mx51_fb_init(struct fb_videomode *mode, uint8_t disp, uint32_t pixfmt)
 {
 	gmode = mode;
+	gdisp = disp;
+	gpixfmt = pixfmt;
 
 	return 0;
 }

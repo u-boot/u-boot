@@ -28,6 +28,9 @@
 #ifndef __IPU_PIXFMT_H__
 #define __IPU_PIXFMT_H__
 
+#include <linux/list.h>
+#include <linux/fb.h>
+
 /*  IPU Pixel format definitions */
 #define fourcc(a, b, c, d)\
 	(((__u32)(a)<<0)|((__u32)(b)<<8)|((__u32)(c)<<16)|((__u32)(d)<<24))
@@ -72,5 +75,7 @@
 #define IPU_PIX_FMT_YUV420P2 fourcc('Y', 'U', '1', '2')	/*< 12 YUV 4:2:0 */
 #define IPU_PIX_FMT_YVU422P fourcc('Y', 'V', '1', '6')	/*< 16 YVU 4:2:2 */
 #define IPU_PIX_FMT_YUV422P fourcc('4', '2', '2', 'P')	/*< 16 YUV 4:2:2 */
+
+int mx51_fb_init(struct fb_videomode *mode, uint8_t disp, uint32_t pixfmt);
 
 #endif
