@@ -988,7 +988,7 @@ int mmc_startup(struct mmc *mmc)
 	/* Select the card, and put it into Transfer Mode */
 	if (!mmc_host_is_spi(mmc)) { /* cmd not supported in spi */
 		cmd.cmdidx = MMC_CMD_SELECT_CARD;
-		cmd.resp_type = MMC_RSP_R1b;
+		cmd.resp_type = MMC_RSP_R1;
 		cmd.cmdarg = mmc->rca << 16;
 		cmd.flags = 0;
 		err = mmc_send_cmd(mmc, &cmd, NULL);
