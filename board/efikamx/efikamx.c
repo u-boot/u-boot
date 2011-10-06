@@ -34,6 +34,7 @@
 #include <i2c.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
+#include <pmic.h>
 #include <fsl_pmic.h>
 #include <mc13892.h>
 
@@ -205,34 +206,38 @@ static void power_init(void)
 {
 	unsigned int val;
 	struct mxc_ccm_reg *mxc_ccm = (struct mxc_ccm_reg *)MXC_CCM_BASE;
+	struct pmic *p;
+
+	pmic_init();
+	p = get_pmic();
 
 	/* Write needed to Power Gate 2 register */
-	val = pmic_reg_read(REG_POWER_MISC);
+	pmic_reg_read(p, REG_POWER_MISC, &val);
 	val &= ~PWGT2SPIEN;
-	pmic_reg_write(REG_POWER_MISC, val);
+	pmic_reg_write(p, REG_POWER_MISC, val);
 
 	/* Externally powered */
-	val = pmic_reg_read(REG_CHARGE);
+	pmic_reg_read(p, REG_CHARGE, &val);
 	val |= ICHRG0 | ICHRG1 | ICHRG2 | ICHRG3 | CHGAUTOB;
-	pmic_reg_write(REG_CHARGE, val);
+	pmic_reg_write(p, REG_CHARGE, val);
 
 	/* power up the system first */
-	pmic_reg_write(REG_POWER_MISC, PWUP);
+	pmic_reg_write(p, REG_POWER_MISC, PWUP);
 
 	/* Set core voltage to 1.1V */
-	val = pmic_reg_read(REG_SW_0);
+	pmic_reg_read(p, REG_SW_0, &val);
 	val = (val & ~SWx_VOLT_MASK) | SWx_1_100V;
-	pmic_reg_write(REG_SW_0, val);
+	pmic_reg_write(p, REG_SW_0, val);
 
 	/* Setup VCC (SW2) to 1.25 */
-	val = pmic_reg_read(REG_SW_1);
+	pmic_reg_read(p, REG_SW_1, &val);
 	val = (val & ~SWx_VOLT_MASK) | SWx_1_250V;
-	pmic_reg_write(REG_SW_1, val);
+	pmic_reg_write(p, REG_SW_1, val);
 
 	/* Setup 1V2_DIG1 (SW3) to 1.25 */
-	val = pmic_reg_read(REG_SW_2);
+	pmic_reg_read(p, REG_SW_2, &val);
 	val = (val & ~SWx_VOLT_MASK) | SWx_1_250V;
-	pmic_reg_write(REG_SW_2, val);
+	pmic_reg_write(p, REG_SW_2, val);
 	udelay(50);
 
 	/* Raise the core frequency to 800MHz */
@@ -240,46 +245,46 @@ static void power_init(void)
 
 	/* Set switchers in Auto in NORMAL mode & STANDBY mode */
 	/* Setup the switcher mode for SW1 & SW2*/
-	val = pmic_reg_read(REG_SW_4);
+	pmic_reg_read(p, REG_SW_4, &val);
 	val = (val & ~((SWMODE_MASK << SWMODE1_SHIFT) |
 		(SWMODE_MASK << SWMODE2_SHIFT)));
 	val |= (SWMODE_AUTO_AUTO << SWMODE1_SHIFT) |
 		(SWMODE_AUTO_AUTO << SWMODE2_SHIFT);
-	pmic_reg_write(REG_SW_4, val);
+	pmic_reg_write(p, REG_SW_4, val);
 
 	/* Setup the switcher mode for SW3 & SW4 */
-	val = pmic_reg_read(REG_SW_5);
+	pmic_reg_read(p, REG_SW_5, &val);
 	val = (val & ~((SWMODE_MASK << SWMODE3_SHIFT) |
 		(SWMODE_MASK << SWMODE4_SHIFT)));
 	val |= (SWMODE_AUTO_AUTO << SWMODE3_SHIFT) |
 		(SWMODE_AUTO_AUTO << SWMODE4_SHIFT);
-	pmic_reg_write(REG_SW_5, val);
+	pmic_reg_write(p, REG_SW_5, val);
 
 	/* Set VDIG to 1.65V, VGEN3 to 1.8V, VCAM to 2.6V */
-	val = pmic_reg_read(REG_SETTING_0);
+	pmic_reg_read(p, REG_SETTING_0, &val);
 	val &= ~(VCAM_MASK | VGEN3_MASK | VDIG_MASK);
 	val |= VDIG_1_65 | VGEN3_1_8 | VCAM_2_6;
-	pmic_reg_write(REG_SETTING_0, val);
+	pmic_reg_write(p, REG_SETTING_0, val);
 
 	/* Set VVIDEO to 2.775V, VAUDIO to 3V, VSD to 3.15V */
-	val = pmic_reg_read(REG_SETTING_1);
+	pmic_reg_read(p, REG_SETTING_1, &val);
 	val &= ~(VVIDEO_MASK | VSD_MASK | VAUDIO_MASK);
 	val |= VSD_3_15 | VAUDIO_3_0 | VVIDEO_2_775;
-	pmic_reg_write(REG_SETTING_1, val);
+	pmic_reg_write(p, REG_SETTING_1, val);
 
 	/* Configure VGEN3 and VCAM regulators to use external PNP */
 	val = VGEN3CONFIG | VCAMCONFIG;
-	pmic_reg_write(REG_MODE_1, val);
+	pmic_reg_write(p, REG_MODE_1, val);
 	udelay(200);
 
 	/* Enable VGEN3, VCAM, VAUDIO, VVIDEO, VSD regulators */
 	val = VGEN3EN | VGEN3CONFIG | VCAMEN | VCAMCONFIG |
 		VVIDEOEN | VAUDIOEN  | VSDEN;
-	pmic_reg_write(REG_MODE_1, val);
+	pmic_reg_write(p, REG_MODE_1, val);
 
-	val = pmic_reg_read(REG_POWER_CTL2);
+	pmic_reg_read(p, REG_POWER_CTL2, &val);
 	val |= WDIRESET;
-	pmic_reg_write(REG_POWER_CTL2, val);
+	pmic_reg_write(p, REG_POWER_CTL2, val);
 
 	udelay(2500);
 }
