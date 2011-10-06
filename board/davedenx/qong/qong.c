@@ -28,6 +28,7 @@
 #include <asm/arch/sys_proto.h>
 #include <asm/io.h>
 #include <nand.h>
+#include <pmic.h>
 #include <fsl_pmic.h>
 #include <asm/gpio.h>
 #include "qong_fpga.h"
@@ -176,11 +177,15 @@ int board_init (void)
 int board_late_init(void)
 {
 	u32 val;
+	struct pmic *p;
+
+	pmic_init();
+	p = get_pmic();
 
 	/* Enable RTC battery */
-	val = pmic_reg_read(REG_POWER_CTL0);
-	pmic_reg_write(REG_POWER_CTL0, val | COINCHEN);
-	pmic_reg_write(REG_INT_STATUS1, RTCRSTI);
+	pmic_reg_read(p, REG_POWER_CTL0, &val);
+	pmic_reg_write(p, REG_POWER_CTL0, val | COINCHEN);
+	pmic_reg_write(p, REG_INT_STATUS1, RTCRSTI);
 
 #ifdef CONFIG_HW_WATCHDOG
 	mxc_hw_watchdog_enable();
