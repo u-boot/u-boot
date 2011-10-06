@@ -37,23 +37,9 @@
  */
 static void gpio_config_uart_seaboard(void)
 {
-	int gp = GPIO_PI3;
-	struct gpio_ctlr *gpio = (struct gpio_ctlr *)NV_PA_GPIO_BASE;
-	struct gpio_ctlr_bank *bank = &gpio->gpio_bank[GPIO_BANK(gp)];
-	u32 val;
-
 	/* Enable UART via GPIO_PI3 (port 8, bit 3) so serial console works */
-	val = readl(&bank->gpio_config[GPIO_PORT(gp)]);
-	val |= 1 << GPIO_BIT(gp);
-	writel(val, &bank->gpio_config[GPIO_PORT(gp)]);
-
-	val = readl(&bank->gpio_out[GPIO_PORT(gp)]);
-	val &= ~(1 << GPIO_BIT(gp));
-	writel(val, &bank->gpio_out[GPIO_PORT(gp)]);
-
-	val = readl(&bank->gpio_dir_out[GPIO_PORT(gp)]);
-	val |= 1 << GPIO_BIT(gp);
-	writel(val, &bank->gpio_dir_out[GPIO_PORT(gp)]);
+	gpio_request(GPIO_PI3, NULL);
+	gpio_direction_output(GPIO_PI3, 0);
 }
 
 void gpio_config_uart(void)

@@ -146,8 +146,10 @@ int gpio_request(int gp, const char *label)
 	if (gp >= MAX_NUM_GPIOS)
 		return -1;
 
-	strncpy(gpio_names[gp].name, label, GPIO_NAME_SIZE);
-	gpio_names[gp].name[GPIO_NAME_SIZE - 1] = '\0';
+	if (label != NULL) {
+		strncpy(gpio_names[gp].name, label, GPIO_NAME_SIZE);
+		gpio_names[gp].name[GPIO_NAME_SIZE - 1] = '\0';
+	}
 
 	/* Configure as a GPIO */
 	set_config(gp, 1);
