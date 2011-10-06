@@ -78,6 +78,7 @@ COBJS-$(CONFIG_FMAN_ENET) += fsl_mdio.o
 COBJS-$(CONFIG_TSI108_ETH) += tsi108_eth.o
 COBJS-$(CONFIG_ULI526X) += uli526x.o
 COBJS-$(CONFIG_VSC7385_ENET) += vsc7385.o
+COBJS-$(CONFIG_XILINX_AXIEMAC) += xilinx_axi_emac.o
 COBJS-$(CONFIG_XILINX_EMACLITE) += xilinx_emaclite.o
 
 COBJS	:= $(sort $(COBJS-y))
