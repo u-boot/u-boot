@@ -466,10 +466,11 @@ static int memory_post_test_regions(unsigned long start, unsigned long size)
 
 	for (i = 0; i < (size >> 20) && (!ret); i++) {
 		if (!ret)
-			ret = memory_post_test_patterns(i << 20, 0x800);
-		if (!ret)
-			ret = memory_post_test_patterns((i << 20) + 0xff800,
+			ret = memory_post_test_patterns(start + (i << 20),
 				0x800);
+		if (!ret)
+			ret = memory_post_test_patterns(start + (i << 20) +
+				0xff800, 0x800);
 	}
 
 	return ret;
