@@ -620,18 +620,18 @@ The following options need to be configured:
 		the SMC.
 
 - Pre-Console Buffer:
-                Prior to the console being initialised (i.e. serial UART
-                initialised etc) all console output is silently discarded.
-                Defining CONFIG_PRE_CONSOLE_BUFFER will cause U-Boot to
-                buffer any console messages prior to the console being
-                initialised to a buffer of size CONFIG_PRE_CON_BUF_SZ
-                bytes located at CONFIG_PRE_CON_BUF_ADDR. The buffer is
-                a circular buffer, so if more than CONFIG_PRE_CON_BUF_SZ
-                bytes are output before the console is  initialised, the
-                earlier bytes are discarded.
+		Prior to the console being initialised (i.e. serial UART
+		initialised etc) all console output is silently discarded.
+		Defining CONFIG_PRE_CONSOLE_BUFFER will cause U-Boot to
+		buffer any console messages prior to the console being
+		initialised to a buffer of size CONFIG_PRE_CON_BUF_SZ
+		bytes located at CONFIG_PRE_CON_BUF_ADDR. The buffer is
+		a circular buffer, so if more than CONFIG_PRE_CON_BUF_SZ
+		bytes are output before the console is	initialised, the
+		earlier bytes are discarded.
 
-                'Sane' compilers will generate smaller code if
-                CONFIG_PRE_CON_BUF_SZ is a power of 2
+		'Sane' compilers will generate smaller code if
+		CONFIG_PRE_CON_BUF_SZ is a power of 2
 
 - Boot Delay:	CONFIG_BOOTDELAY - in seconds
 		Delay before automatically booting the default image;
@@ -2108,28 +2108,6 @@ The following options need to be configured:
 		example, some LED's) on your board. At the moment,
 		the following checkpoints are implemented:
 
-- Standalone program support:
-		CONFIG_STANDALONE_LOAD_ADDR
-
-		This option allows to define board specific values
-		for the address where standalone program gets loaded,
-		thus overwriting the architecutre dependent default
-		settings.
-
-- Frame Buffer Address:
-	CONFIG_FB_ADDR
-
-	Define CONFIG_FB_ADDR if you want to use specific address for
-	frame buffer.
-	Then system will reserve the frame buffer address to defined address
-	instead of lcd_setmem (this function grab the memory for frame buffer
-	by panel's size).
-
-	Please see board_init_f function.
-
-	If you want this config option then,
-	please define it at your board config file
-
 Legacy uImage format:
 
   Arg	Where			When
@@ -2282,6 +2260,28 @@ FIT uImage format:
 
  -150	common/cmd_nand.c	Incorrect FIT image format
   151	common/cmd_nand.c	FIT image format OK
+
+- Standalone program support:
+		CONFIG_STANDALONE_LOAD_ADDR
+
+		This option allows to define board specific values
+		for the address where standalone program gets loaded,
+		thus overwriting the architecutre dependent default
+		settings.
+
+- Frame Buffer Address:
+		CONFIG_FB_ADDR
+
+		Define CONFIG_FB_ADDR if you want to use specific
+		address for frame buffer.
+		Then system will reserve the frame buffer address to
+		defined address instead of lcd_setmem (this function
+		grab the memory for frame buffer by panel's size).
+
+		Please see board_init_f function.
+
+		If you want this config option then,
+		please define it at your board config file
 
 - Automatic software updates via TFTP server
 		CONFIG_UPDATE_TFTP
@@ -2899,8 +2899,8 @@ Low Level (hardware related) configuration options:
 			* 1ull) << 32 | CONFIG_SYS_CCSRBAR_PHYS_LOW)
 
 - CONFIG_SYS_CCSRBAR_PHYS_HIGH:
-		Bits 33-36 of CONFIG_SYS_CCSRBAR_PHYS.  This value is typically
-		either 0 (32-bit build) or 0xF (36-bit build).  This macro is
+		Bits 33-36 of CONFIG_SYS_CCSRBAR_PHYS.	This value is typically
+		either 0 (32-bit build) or 0xF (36-bit build).	This macro is
 		used in assembly code, so it must not contain typecasts or
 		integer size suffixes (e.g. "ULL").
 
