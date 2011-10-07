@@ -782,6 +782,14 @@ int cpu_release(int nr, int argc, char * const argv[]);
 
 #endif /* __ASSEMBLY__ */
 
+#ifdef CONFIG_PPC
+/*
+ * Has to be included outside of the #ifndef __ASSEMBLY__ section.
+ * Otherwise might lead to compilation errors in assembler files.
+ */
+#include <asm/cache.h>
+#endif
+
 /* Put only stuff here that the assembler can digest */
 
 #ifdef CONFIG_POST
