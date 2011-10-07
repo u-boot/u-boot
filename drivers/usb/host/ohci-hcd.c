@@ -1262,11 +1262,18 @@ static int ohci_submit_rh_msg(struct usb_device *dev, unsigned long pipe,
 	int len = 0;
 	int stat = 0;
 	__u32 datab[4];
-	__u8 *data_buf = (__u8 *)datab;
+	union {
+		void *ptr;
+		__u8 *u8;
+		__u16 *u16;
+		__u32 *u32;
+	} databuf;
 	__u16 bmRType_bReq;
 	__u16 wValue;
 	__u16 wIndex;
 	__u16 wLength;
+
+	databuf.u32 = (__u32 *)datab;
 
 #ifdef DEBUG
 pkt_print(NULL, dev, pipe, buffer, transfer_len,
@@ -1297,20 +1304,20 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 	*/
 
 	case RH_GET_STATUS:
-		*(__u16 *) data_buf = cpu_to_le16(1);
+		databuf.u16[0] = cpu_to_le16(1);
 		OK(2);
 	case RH_GET_STATUS | RH_INTERFACE:
-		*(__u16 *) data_buf = cpu_to_le16(0);
+		databuf.u16[0] = cpu_to_le16(0);
 		OK(2);
 	case RH_GET_STATUS | RH_ENDPOINT:
-		*(__u16 *) data_buf = cpu_to_le16(0);
+		databuf.u16[0] = cpu_to_le16(0);
 		OK(2);
 	case RH_GET_STATUS | RH_CLASS:
-		*(__u32 *) data_buf = cpu_to_le32(
+		databuf.u32[0] = cpu_to_le32(
 				RD_RH_STAT & ~(RH_HS_CRWE | RH_HS_DRWE));
 		OK(4);
 	case RH_GET_STATUS | RH_OTHER | RH_CLASS:
-		*(__u32 *) data_buf = cpu_to_le32(RD_RH_PORTSTAT);
+		databuf.u32[0] = cpu_to_le32(RD_RH_PORTSTAT);
 		OK(4);
 
 	case RH_CLEAR_FEATURE | RH_ENDPOINT:
@@ -1374,14 +1381,14 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 					min_t(unsigned int,
 					sizeof(root_hub_dev_des),
 					wLength));
-			data_buf = root_hub_dev_des; OK(len);
+			databuf.ptr = root_hub_dev_des; OK(len);
 		case (0x02): /* configuration descriptor */
 			len = min_t(unsigned int,
 					leni,
 					min_t(unsigned int,
 					sizeof(root_hub_config_des),
 					wLength));
-			data_buf = root_hub_config_des; OK(len);
+			databuf.ptr = root_hub_config_des; OK(len);
 		case (0x03): /* string descriptors */
 			if (wValue == 0x0300) {
 				len = min_t(unsigned int,
@@ -1389,7 +1396,7 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 						min_t(unsigned int,
 						sizeof(root_hub_str_index0),
 						wLength));
-				data_buf = root_hub_str_index0;
+				databuf.ptr = root_hub_str_index0;
 				OK(len);
 			}
 			if (wValue == 0x0301) {
@@ -1398,7 +1405,7 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 						min_t(unsigned int,
 						sizeof(root_hub_str_index1),
 						wLength));
-				data_buf = root_hub_str_index1;
+				databuf.ptr = root_hub_str_index1;
 				OK(len);
 		}
 		default:
@@ -1410,41 +1417,45 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 	{
 		__u32 temp = roothub_a(&gohci);
 
-		data_buf [0] = 9;		/* min length; */
-		data_buf [1] = 0x29;
-		data_buf [2] = temp & RH_A_NDP;
+		databuf.u8[0] = 9;		/* min length; */
+		databuf.u8[1] = 0x29;
+		databuf.u8[2] = temp & RH_A_NDP;
 #ifdef CONFIG_AT91C_PQFP_UHPBUG
-		data_buf [2] = (data_buf [2] == 2) ? 1:0;
+		databuf.u8[2] = (databuf.u8[2] == 2) ? 1 : 0;
 #endif
-		data_buf [3] = 0;
+		databuf.u8[3] = 0;
 		if (temp & RH_A_PSM)	/* per-port power switching? */
-			data_buf [3] |= 0x1;
+			databuf.u8[3] |= 0x1;
 		if (temp & RH_A_NOCP)	/* no overcurrent reporting? */
-			data_buf [3] |= 0x10;
+			databuf.u8[3] |= 0x10;
 		else if (temp & RH_A_OCPM)/* per-port overcurrent reporting? */
-			data_buf [3] |= 0x8;
+			databuf.u8[3] |= 0x8;
 
-		/* corresponds to data_buf[4-7] */
-		datab [1] = 0;
-		data_buf [5] = (temp & RH_A_POTPGT) >> 24;
+		/* corresponds to databuf.u8[4-7] */
+		databuf.u8[1] = 0;
+		databuf.u8[5] = (temp & RH_A_POTPGT) >> 24;
 		temp = roothub_b(&gohci);
-		data_buf [7] = temp & RH_B_DR;
-		if (data_buf [2] < 7) {
-			data_buf [8] = 0xff;
+		databuf.u8[7] = temp & RH_B_DR;
+		if (databuf.u8[2] < 7) {
+			databuf.u8[8] = 0xff;
 		} else {
-			data_buf [0] += 2;
-			data_buf [8] = (temp & RH_B_DR) >> 8;
-			data_buf [10] = data_buf [9] = 0xff;
+			databuf.u8[0] += 2;
+			databuf.u8[8] = (temp & RH_B_DR) >> 8;
+			databuf.u8[10] = databuf.u8[9] = 0xff;
 		}
 
 		len = min_t(unsigned int, leni,
-			    min_t(unsigned int, data_buf [0], wLength));
+			    min_t(unsigned int, databuf.u8[0], wLength));
 		OK(len);
 	}
 
-	case RH_GET_CONFIGURATION:	*(__u8 *) data_buf = 0x01; OK(1);
+	case RH_GET_CONFIGURATION:
+		databuf.u8[0] = 0x01;
+		OK(1);
 
-	case RH_SET_CONFIGURATION:	WR_RH_STAT(0x10000); OK(0);
+	case RH_SET_CONFIGURATION:
+		WR_RH_STAT(0x10000);
+		OK(0);
 
 	default:
 		dbg("unsupported root hub command");
@@ -1458,8 +1469,8 @@ pkt_print(NULL, dev, pipe, buffer, transfer_len,
 #endif
 
 	len = min_t(int, len, leni);
-	if (data != data_buf)
-	    memcpy(data, data_buf, len);
+	if (data != databuf.ptr)
+		memcpy(data, databuf.ptr, len);
 	dev->act_len = len;
 	dev->status = stat;
 
