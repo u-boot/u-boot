@@ -21,6 +21,7 @@
  *
  */
 #include <config.h>
+#include <common.h>
 #include <phy.h>
 
 #ifndef CONFIG_PHYLIB_10G
@@ -43,6 +44,38 @@ int tn2020_config(struct phy_device *phydev)
 
 int tn2020_startup(struct phy_device *phydev)
 {
+	unsigned int timeout = 5 * 1000; /* 5 second timeout */
+
+#define MDIO_PHYXS_LANE_READY (MDIO_PHYXS_LNSTAT_SYNC0 | \
+			       MDIO_PHYXS_LNSTAT_SYNC1 | \
+			       MDIO_PHYXS_LNSTAT_SYNC2 | \
+			       MDIO_PHYXS_LNSTAT_SYNC3 | \
+			       MDIO_PHYXS_LNSTAT_ALIGN)
+
+	/*
+	 * Wait for the XAUI-SERDES lanes to align first.  Under normal
+	 * circumstances, this can take up to three seconds.
+	 */
+	while (--timeout) {
+		int reg = phy_read(phydev, MDIO_MMD_PHYXS, MDIO_PHYXS_LNSTAT);
+		if (reg < 0) {
+			printf("TN2020: Error reading from PHY at "
+			       "address %u\n", phydev->addr);
+			break;
+		}
+		if ((reg & MDIO_PHYXS_LANE_READY) == MDIO_PHYXS_LANE_READY)
+			break;
+		udelay(1000);
+	}
+	if (!timeout) {
+		/*
+		 * A timeout is bad, but it may not be fatal, so don't
+		 * return an error.  Display a warning instead.
+		 */
+		printf("TN2020: Timeout waiting for PHY at address %u to "
+		       "align.\n", phydev->addr);
+	}
+
 	if (phydev->port != PORT_FIBRE)
 		return gen10g_startup(phydev);
 
