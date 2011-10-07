@@ -143,22 +143,21 @@
 #define DBCR1_DV1BE	0x0000F000
 #define DBCR1_DV2BE	0x00000F00
 
-/* Bits for the DBSR register */
-#define DBSR_IC		0x80000000
-#define DBSR_BT		0x40000000
-#define DBSR_EDE	0x20000000
-#define DBSR_TIE	0x10000000
-#define DBSR_UDE	0x08000000
-#define DBSR_IA1	0x04000000
-#define DBSR_IA2	0x02000000
-#define DBSR_DR1	0x01000000
-#define DBSR_DW1	0x00800000
-#define DBSR_DR2	0x00400000
-#define DBSR_DW2	0x00200000
-#define DBSR_IDE	0x00100000
-#define DBSR_IA3	0x00080000
-#define DBSR_IA4	0x00040000
-#define DBSR_MRR	0x00000300
+/*
+ * DBSR bits which have conflicting definitions on true Book E versus PPC40x
+ */
+#ifdef CONFIG_BOOKE
+#define DBSR_IA1	0x00800000	/* Instr Address Compare 1 Event */
+#define DBSR_IA2	0x00400000	/* Instr Address Compare 2 Event */
+#define DBSR_IA3	0x00200000	/* Instr Address Compare 3 Event */
+#define DBSR_IA4	0x00100000	/* Instr Address Compare 4 Event */
+#endif
+#ifndef CONFIG_440
+#define DBSR_IA1	0x04000000	/* Instr Address Compare 1 Event */
+#define DBSR_IA2	0x02000000	/* Instr Address Compare 2 Event */
+#define DBSR_IA3	0x00080000	/* Instr Address Compare 3 Event */
+#define DBSR_IA4	0x00040000	/* Instr Address Compare 4 Event */
+#endif
 
 struct spr_info {
   int  spr_val;
