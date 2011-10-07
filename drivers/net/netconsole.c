@@ -189,10 +189,13 @@ static void nc_puts(const char *s)
 		return;
 	output_recursion = 1;
 
-	if ((len = strlen (s)) > 512)
-		len = 512;
-
-	nc_send_packet (s, len);
+	len = strlen(s);
+	while (len) {
+		int send_len = min(len, 512);
+		nc_send_packet(s, send_len);
+		len -= send_len;
+		s += send_len;
+	}
 
 	output_recursion = 0;
 }
