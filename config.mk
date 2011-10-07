@@ -277,6 +277,13 @@ export	CONFIG_SYS_TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS 
 BCURDIR = $(subst $(SRCTREE)/,,$(CURDIR:$(obj)%=%))
 ALL_AFLAGS = $(AFLAGS) $(AFLAGS_$(BCURDIR)/$(@F)) $(AFLAGS_$(BCURDIR))
 ALL_CFLAGS = $(CFLAGS) $(CFLAGS_$(BCURDIR)/$(@F)) $(CFLAGS_$(BCURDIR))
+EXTRA_CPPFLAGS = $(CPPFLAGS_$(BCURDIR)/$(@F)) $(CPPFLAGS_$(BCURDIR))
+ALL_CFLAGS += $(EXTRA_CPPFLAGS)
+
+# The _DEP version uses the $< file target (for dependency generation)
+# See rules.mk
+EXTRA_CPPFLAGS_DEP = $(CPPFLAGS_$(BCURDIR)/$(addsuffix .o,$(basename $<))) \
+		$(CPPFLAGS_$(BCURDIR))
 $(obj)%.s:	%.S
 	$(CPP) $(ALL_AFLAGS) -o $@ $<
 $(obj)%.o:	%.S
