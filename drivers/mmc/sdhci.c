@@ -104,7 +104,7 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 #ifdef CONFIG_MMC_SDMA
 		if (stat & SDHCI_INT_DMA_END) {
 			sdhci_writel(host, SDHCI_INT_DMA_END, SDHCI_INT_STATUS);
-			start_addr &= SDHCI_DEFAULT_BOUNDARY_SIZE - 1;
+			start_addr &= ~(SDHCI_DEFAULT_BOUNDARY_SIZE - 1);
 			start_addr += SDHCI_DEFAULT_BOUNDARY_SIZE;
 			sdhci_writel(host, start_addr, SDHCI_DMA_ADDRESS);
 		}
