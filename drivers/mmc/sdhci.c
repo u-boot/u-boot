@@ -81,8 +81,9 @@ static void sdhci_transfer_pio(struct sdhci_host *host, struct mmc_data *data)
 static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 				unsigned int start_addr)
 {
-	unsigned int stat, rdy, mask, block = 0;
+	unsigned int stat, rdy, mask, timeout, block = 0;
 
+	timeout = 10000;
 	rdy = SDHCI_INT_SPACE_AVAIL | SDHCI_INT_DATA_AVAIL;
 	mask = SDHCI_DATA_AVAILABLE | SDHCI_SPACE_AVAILABLE;
 	do {
@@ -108,6 +109,12 @@ static int sdhci_transfer_data(struct sdhci_host *host, struct mmc_data *data,
 			sdhci_writel(host, start_addr, SDHCI_DMA_ADDRESS);
 		}
 #endif
+		if (timeout-- > 0)
+			udelay(10);
+		else {
+			printf("Transfer data timeout\n");
+			return -1;
+		}
 	} while (!(stat & SDHCI_INT_DATA_END));
 	return 0;
 }
