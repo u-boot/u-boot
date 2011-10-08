@@ -27,6 +27,8 @@
 #define __SDHCI_HW_H
 
 #include <asm/io.h>
+#include <mmc.h>
+
 /*
  * Controller registers
  */
@@ -239,6 +241,7 @@ struct sdhci_host {
 	unsigned int quirks;
 	unsigned int version;
 	unsigned int clock;
+	struct mmc *mmc;
 	const struct sdhci_ops *ops;
 };
 

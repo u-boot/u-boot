@@ -377,6 +377,7 @@ int add_sdhci(struct sdhci_host *host, u32 max_clk, u32 min_clk)
 	}
 
 	mmc->priv = host;
+	host->mmc = mmc;
 
 	sprintf(mmc->name, "%s", host->name);
 	mmc->send_cmd = sdhci_send_command;
