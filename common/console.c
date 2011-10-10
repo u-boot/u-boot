@@ -212,7 +212,7 @@ int serial_printf(const char *fmt, ...)
 	/* For this to work, printbuffer must be larger than
 	 * anything we ever want to print.
 	 */
-	i = vsprintf(printbuffer, fmt, args);
+	i = vscnprintf(printbuffer, sizeof(printbuffer), fmt, args);
 	va_end(args);
 
 	serial_puts(printbuffer);
@@ -281,7 +281,7 @@ int fprintf(int file, const char *fmt, ...)
 	/* For this to work, printbuffer must be larger than
 	 * anything we ever want to print.
 	 */
-	i = vsprintf(printbuffer, fmt, args);
+	i = vscnprintf(printbuffer, sizeof(printbuffer), fmt, args);
 	va_end(args);
 
 	/* Send to desired file */
@@ -434,7 +434,7 @@ int printf(const char *fmt, ...)
 	/* For this to work, printbuffer must be larger than
 	 * anything we ever want to print.
 	 */
-	i = vsprintf(printbuffer, fmt, args);
+	i = vscnprintf(printbuffer, sizeof(printbuffer), fmt, args);
 	va_end(args);
 
 	/* Print the string */
@@ -455,7 +455,7 @@ int vprintf(const char *fmt, va_list args)
 	/* For this to work, printbuffer must be larger than
 	 * anything we ever want to print.
 	 */
-	i = vsprintf(printbuffer, fmt, args);
+	i = vscnprintf(printbuffer, sizeof(printbuffer), fmt, args);
 
 	/* Print the string */
 	puts(printbuffer);
@@ -522,7 +522,7 @@ inline void dbg(const char *fmt, ...)
 	/* For this to work, printbuffer must be larger than
 	 * anything we ever want to print.
 	 */
-	i = vsprintf(printbuffer, fmt, args);
+	i = vsnprintf(printbuffer, sizeof(printbuffer), fmt, args);
 	va_end(args);
 
 	if ((screen + sizeof(screen) - 1 - cursor)
