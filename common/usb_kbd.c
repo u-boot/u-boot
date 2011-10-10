@@ -32,68 +32,70 @@
 
 #undef USB_KBD_DEBUG
 /*
- * if overwrite_console returns 1, the stdin, stderr and stdout
+ * If overwrite_console returns 1, the stdin, stderr and stdout
  * are switched to the serial port, else the settings in the
  * environment are used
  */
 #ifdef CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE
-extern int overwrite_console (void);
+extern int overwrite_console(void);
 #else
-int overwrite_console (void)
+int overwrite_console(void)
 {
-	return (0);
+	return 0;
 }
 #endif
 
-#ifdef	USB_KBD_DEBUG
-#define	USB_KBD_PRINTF(fmt,args...)	printf (fmt ,##args)
+#ifdef USB_KBD_DEBUG
+#define USB_KBD_PRINTF(fmt, args...)	printf(fmt, ##args)
 #else
-#define USB_KBD_PRINTF(fmt,args...)
+#define USB_KBD_PRINTF(fmt, args...)
 #endif
 
 
-#define REPEAT_RATE  40/4 /* 40msec -> 25cps */
-#define REPEAT_DELAY 10 /* 10 x REAPEAT_RATE = 400msec */
+#define REPEAT_RATE	(40/4)	/* 40msec -> 25cps */
+#define REPEAT_DELAY	10	/* 10 x REPEAT_RATE = 400msec */
 
 #define NUM_LOCK	0x53
-#define CAPS_LOCK 0x39
-#define SCROLL_LOCK 0x47
+#define CAPS_LOCK	0x39
+#define SCROLL_LOCK	0x47
 
 
 /* Modifier bits */
 #define LEFT_CNTR		0
-#define LEFT_SHIFT	1
+#define LEFT_SHIFT		1
 #define LEFT_ALT		2
 #define LEFT_GUI		3
-#define RIGHT_CNTR	4
-#define RIGHT_SHIFT	5
+#define RIGHT_CNTR		4
+#define RIGHT_SHIFT		5
 #define RIGHT_ALT		6
 #define RIGHT_GUI		7
 
-#define USB_KBD_BUFFER_LEN 0x20  /* size of the keyboardbuffer */
+#define USB_KBD_BUFFER_LEN	0x20	/* size of the keyboardbuffer */
 
-static volatile char usb_kbd_buffer[USB_KBD_BUFFER_LEN];
-static volatile int usb_in_pointer = 0;
-static volatile int usb_out_pointer = 0;
+static char usb_kbd_buffer[USB_KBD_BUFFER_LEN];
+static int usb_in_pointer;
+static int usb_out_pointer;
 
 unsigned char new[8];
 unsigned char old[8];
 int repeat_delay;
-#define DEVNAME "usbkbd"
-static unsigned char num_lock = 0;
-static unsigned char caps_lock = 0;
-static unsigned char scroll_lock = 0;
-static unsigned char ctrl = 0;
+#define DEVNAME			"usbkbd"
+static unsigned char num_lock;
+static unsigned char caps_lock;
+static unsigned char scroll_lock;
+static unsigned char ctrl;
 
-static unsigned char leds __attribute__ ((aligned (0x4)));
+static unsigned char leds __attribute__((aligned(0x4)));
 
 static unsigned char usb_kbd_numkey[] = {
-	 '1', '2', '3', '4', '5', '6', '7', '8', '9', '0','\r',0x1b,'\b','\t',' ', '-',
-	 '=', '[', ']','\\', '#', ';', '\'', '`', ',', '.', '/'
+	'1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+	'\r', 0x1b, '\b', '\t', ' ', '-', '=', '[', ']',
+	'\\', '#', ';', '\'', '`', ',', '.', '/'
 };
 static unsigned char usb_kbd_numkey_shifted[] = {
-	 '!', '@', '#', '$', '%', '^', '&', '*', '(', ')','\r',0x1b,'\b','\t',' ', '_',
-	 '+', '{', '}', '|', '~', ':', '"', '~', '<', '>', '?'
+	'!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
+	'\r', 0x1b, '\b', '\t', ' ', '_', '+', '{', '}',
+	'|', '~', ':', '"', '~', '<', '>', '?'
 };
 
 /******************************************************************
@@ -102,18 +104,17 @@ static unsigned char usb_kbd_numkey_shifted[] = {
 /* puts character in the queue and sets up the in and out pointer */
 static void usb_kbd_put_queue(char data)
 {
-	if((usb_in_pointer+1)==USB_KBD_BUFFER_LEN) {
-		if(usb_out_pointer==0) {
+	if ((usb_in_pointer+1) == USB_KBD_BUFFER_LEN) {
+		if (usb_out_pointer == 0)
 			return; /* buffer full */
-		} else{
-			usb_in_pointer=0;
-		}
+		else
+			usb_in_pointer = 0;
 	} else {
-		if((usb_in_pointer+1)==usb_out_pointer)
+		if ((usb_in_pointer+1) == usb_out_pointer)
 			return; /* buffer full */
 		usb_in_pointer++;
 	}
-	usb_kbd_buffer[usb_in_pointer]=data;
+	usb_kbd_buffer[usb_in_pointer] = data;
 	return;
 }
 
@@ -123,25 +124,25 @@ static int usb_kbd_testc(void)
 #ifdef CONFIG_SYS_USB_EVENT_POLL
 	usb_event_poll();
 #endif
-	if(usb_in_pointer==usb_out_pointer)
-		return(0); /* no data */
+	if (usb_in_pointer == usb_out_pointer)
+		return 0; /* no data */
 	else
-		return(1);
+		return 1;
 }
 /* gets the character from the queue */
 static int usb_kbd_getc(void)
 {
 	char c;
-	while(usb_in_pointer==usb_out_pointer) {
+	while (usb_in_pointer == usb_out_pointer)
 #ifdef CONFIG_SYS_USB_EVENT_POLL
 		usb_event_poll();
 #endif
 	}
-	if((usb_out_pointer+1)==USB_KBD_BUFFER_LEN)
-		usb_out_pointer=0;
+	if ((usb_out_pointer+1) == USB_KBD_BUFFER_LEN)
+		usb_out_pointer = 0;
 	else
 		usb_out_pointer++;
-	c=usb_kbd_buffer[usb_out_pointer];
+	c = usb_kbd_buffer[usb_out_pointer];
 	return (int)c;
 
 }
@@ -152,48 +153,56 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum);
 /* search for keyboard and register it if found */
 int drv_usb_kbd_init(void)
 {
-	int error,i;
-	struct stdio_dev usb_kbd_dev,*old_dev;
+	int error, i;
+	struct stdio_dev usb_kbd_dev, *old_dev;
 	struct usb_device *dev;
-	char *stdinname  = getenv ("stdin");
+	char *stdinname = getenv("stdin");
 
-	usb_in_pointer=0;
-	usb_out_pointer=0;
+	usb_in_pointer = 0;
+	usb_out_pointer = 0;
 	/* scan all USB Devices */
-	for(i=0;i<USB_MAX_DEVICE;i++) {
-		dev=usb_get_dev_index(i); /* get device */
-		if(dev == NULL)
+	for (i = 0 ; i < USB_MAX_DEVICE ; i++) {
+		dev = usb_get_dev_index(i); /* get device */
+		if (dev == NULL)
 			return -1;
-		if(dev->devnum!=-1) {
-			if(usb_kbd_probe(dev,0)==1) { /* Ok, we found a keyboard */
+		if (dev->devnum != -1) {
+			/* Ok, we found a keyboard */
+			if (usb_kbd_probe(dev, 0) == 1) {
 				/* check, if it is already registered */
-				USB_KBD_PRINTF("USB KBD found set up device.\n");
+				USB_KBD_PRINTF("USB KBD found set up "
+						"device.\n");
 				old_dev = stdio_get_by_name(DEVNAME);
-				if(old_dev) {
-					/* ok, already registered, just return ok */
-					USB_KBD_PRINTF("USB KBD is already registered.\n");
+				if (old_dev) {
+					/* already registered, just return ok */
+					USB_KBD_PRINTF("USB KBD is already "
+							"registered.\n");
 					return 1;
 				}
 				/* register the keyboard */
 				USB_KBD_PRINTF("USB KBD register.\n");
-				memset (&usb_kbd_dev, 0, sizeof(struct stdio_dev));
+				memset(&usb_kbd_dev, 0,
+						sizeof(struct stdio_dev));
 				strcpy(usb_kbd_dev.name, DEVNAME);
-				usb_kbd_dev.flags =  DEV_FLAGS_INPUT | DEV_FLAGS_SYSTEM;
+				usb_kbd_dev.flags =  DEV_FLAGS_INPUT |
+							DEV_FLAGS_SYSTEM;
 				usb_kbd_dev.putc = NULL;
 				usb_kbd_dev.puts = NULL;
 				usb_kbd_dev.getc = usb_kbd_getc;
 				usb_kbd_dev.tstc = usb_kbd_testc;
 				usb_kbd_dev.priv = (void *)dev;
-				error = stdio_register (&usb_kbd_dev);
-				if(error==0) {
-					/* check if this is the standard input device */
-					if(strcmp(stdinname,DEVNAME)==0) {
+				error = stdio_register(&usb_kbd_dev);
+				if (error == 0) {
+					/*
+					 * check if this is the standard
+					 * input device
+					 */
+					if (strcmp(stdinname, DEVNAME) == 0) {
 						/* reassign the console */
-						if(overwrite_console()) {
+						if (overwrite_console())
 							return 1;
-						}
-						error=console_assign(stdin,DEVNAME);
-						if(error==0)
+						error = console_assign(stdin,
+								DEVNAME);
+						if (error == 0)
 							return 1;
 						else
 							return error;
@@ -231,15 +240,15 @@ static void usb_kbd_setled(struct usb_device *dev)
 {
 	struct usb_interface *iface;
 	iface = &dev->config.if_desc[0];
-	leds=0;
-	if(scroll_lock!=0)
-		leds|=1;
-	leds<<=1;
-	if(caps_lock!=0)
-		leds|=1;
-	leds<<=1;
-	if(num_lock!=0)
-		leds|=1;
+	leds = 0;
+	if (scroll_lock != 0)
+		leds |= 1;
+	leds <<= 1;
+	if (caps_lock != 0)
+		leds |= 1;
+	leds <<= 1;
+	if (num_lock != 0)
+		leds |= 1;
 	usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
 		USB_REQ_SET_REPORT, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
 		0x200, iface->desc.bInterfaceNumber, (void *)&leds, 1, 0);
@@ -249,59 +258,65 @@ static void usb_kbd_setled(struct usb_device *dev)
 
 #define CAPITAL_MASK 0x20
 /* Translate the scancode in ASCII */
-static int usb_kbd_translate(unsigned char scancode,unsigned char modifier,int pressed)
+static int usb_kbd_translate(unsigned char scancode, unsigned char modifier,
+				int pressed)
 {
 	unsigned char keycode;
 
-	if(pressed==0) {
+	if (pressed == 0) {
 		/* key released */
-		repeat_delay=0;
+		repeat_delay = 0;
 		return 0;
 	}
-	if(pressed==2) {
+	if (pressed == 2) {
 		repeat_delay++;
-		if(repeat_delay<REPEAT_DELAY)
+		if (repeat_delay < REPEAT_DELAY)
 			return 0;
-		repeat_delay=REPEAT_DELAY;
+		repeat_delay = REPEAT_DELAY;
 	}
-	keycode=0;
-	if((scancode>3) && (scancode<=0x1d)) { /* alpha numeric values */
-		keycode=scancode-4 + 0x61;
-		if(caps_lock)
-			keycode&=~CAPITAL_MASK; /* switch to capital Letters */
-		if(((modifier&(1<<LEFT_SHIFT))!=0)||((modifier&(1<<RIGHT_SHIFT))!=0)) {
-			if(keycode & CAPITAL_MASK)
-				keycode&=~CAPITAL_MASK; /* switch to capital Letters */
+	keycode = 0;
+	if ((scancode > 3) && (scancode <= 0x1d)) { /* alpha numeric values */
+		keycode = scancode - 4 + 0x61;
+		if (caps_lock)
+			/* switch to capital Letters */
+			keycode &= ~CAPITAL_MASK;
+		if (((modifier&(1 << LEFT_SHIFT)) != 0) ||
+			((modifier&(1 << RIGHT_SHIFT)) != 0)) {
+			if (keycode & CAPITAL_MASK)
+				/* switch to capital Letters */
+				keycode &= ~CAPITAL_MASK;
 			else
-				keycode|=CAPITAL_MASK; /* switch to non capital Letters */
+				/* switch to non capital Letters */
+				keycode |= CAPITAL_MASK;
 		}
 	}
-	if((scancode>0x1d) && (scancode<0x3A)) {
-		if(((modifier&(1<<LEFT_SHIFT))!=0)||((modifier&(1<<RIGHT_SHIFT))!=0))  /* shifted */
-			keycode=usb_kbd_numkey_shifted[scancode-0x1e];
+	if ((scancode > 0x1d) && (scancode < 0x3A)) {
+		if (((modifier&(1 << LEFT_SHIFT)) != 0) ||
+			((modifier&(1 << RIGHT_SHIFT)) != 0))  /* shifted */
+			keycode = usb_kbd_numkey_shifted[scancode-0x1e];
 		else /* non shifted */
-			keycode=usb_kbd_numkey[scancode-0x1e];
+			keycode = usb_kbd_numkey[scancode-0x1e];
 	}
 
 	if (ctrl)
 		keycode = scancode - 0x3;
 
-	if(pressed==1) {
-		if(scancode==NUM_LOCK) {
-			num_lock=~num_lock;
+	if (pressed == 1) {
+		if (scancode == NUM_LOCK) {
+			num_lock = ~num_lock;
 			return 1;
 		}
-		if(scancode==CAPS_LOCK) {
-			caps_lock=~caps_lock;
+		if (scancode == CAPS_LOCK) {
+			caps_lock = ~caps_lock;
 			return 1;
 		}
-		if(scancode==SCROLL_LOCK) {
-			scroll_lock=~scroll_lock;
+		if (scancode == SCROLL_LOCK) {
+			scroll_lock = ~scroll_lock;
 			return 1;
 		}
 	}
-	if(keycode!=0) {
-		USB_KBD_PRINTF("%c",keycode);
+	if (keycode != 0) {
+		USB_KBD_PRINTF("%c", keycode);
 		usb_kbd_put_queue(keycode);
 	}
 	return 0;
@@ -310,14 +325,14 @@ static int usb_kbd_translate(unsigned char scancode,unsigned char modifier,int p
 /* Interrupt service routine */
 static int usb_kbd_irq(struct usb_device *dev)
 {
-	int i,res;
+	int i, res;
 
-	if((dev->irq_status!=0)||(dev->irq_act_len!=8))
-	{
-		USB_KBD_PRINTF("usb_keyboard Error %lX, len %d\n",dev->irq_status,dev->irq_act_len);
+	if ((dev->irq_status != 0) || (dev->irq_act_len != 8)) {
+		USB_KBD_PRINTF("usb_keyboard Error %lX, len %d\n",
+				dev->irq_status, dev->irq_act_len);
 		return 1;
 	}
-	res=0;
+	res = 0;
 
 	switch (new[0]) {
 	case 0x0:	/* No combo key pressed */
@@ -330,18 +345,20 @@ static int usb_kbd_irq(struct usb_device *dev)
 	}
 
 	for (i = 2; i < 8; i++) {
-		if (old[i] > 3 && memscan(&new[2], old[i], 6) == &new[8]) {
-			res|=usb_kbd_translate(old[i],new[0],0);
-		}
-		if (new[i] > 3 && memscan(&old[2], new[i], 6) == &old[8]) {
-			res|=usb_kbd_translate(new[i],new[0],1);
-		}
+		if (old[i] > 3 && memscan(&new[2], old[i], 6) == &new[8])
+			res |= usb_kbd_translate(old[i], new[0], 0);
+
+		if (new[i] > 3 && memscan(&old[2], new[i], 6) == &old[8])
+			res |= usb_kbd_translate(new[i], new[0], 1);
 	}
-	if((new[2]>3) && (old[2]==new[2])) /* still pressed */
-		res|=usb_kbd_translate(new[2],new[0],2);
-	if(res==1)
+
+	if ((new[2] > 3) && (old[2] == new[2])) /* still pressed */
+		res |= usb_kbd_translate(new[2], new[0], 2);
+	if (res == 1)
 		usb_kbd_setled(dev);
-	memcpy(&old[0],&new[0], 8);
+
+	memcpy(&old[0], &new[0], 8);
+
 	return 1; /* install IRQ Handler again */
 }
 
@@ -350,9 +367,10 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 {
 	struct usb_interface *iface;
 	struct usb_endpoint_descriptor *ep;
-	int pipe,maxp;
+	int pipe, maxp;
 
-	if (dev->descriptor.bNumConfigurations != 1) return 0;
+	if (dev->descriptor.bNumConfigurations != 1)
+		return 0;
 	iface = &dev->config.if_desc[ifnum];
 
 	if (iface->desc.bInterfaceClass != 3)
@@ -366,8 +384,10 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 
 	ep = &iface->ep_desc[0];
 
-	if (!(ep->bEndpointAddress & 0x80)) return 0;
-	if ((ep->bmAttributes & 3) != 3) return 0;
+	if (!(ep->bEndpointAddress & 0x80))
+		return 0;
+	if ((ep->bmAttributes & 3) != 3)
+		return 0;
 	USB_KBD_PRINTF("USB KBD found set protocol...\n");
 	/* ok, we found a USB Keyboard, install it */
 	/* usb_kbd_get_hid_desc(dev); */
@@ -376,12 +396,13 @@ static int usb_kbd_probe(struct usb_device *dev, unsigned int ifnum)
 	usb_set_idle(dev, iface->desc.bInterfaceNumber, REPEAT_RATE, 0);
 	memset(&new[0], 0, 8);
 	memset(&old[0], 0, 8);
-	repeat_delay=0;
+	repeat_delay = 0;
 	pipe = usb_rcvintpipe(dev, ep->bEndpointAddress);
 	maxp = usb_maxpacket(dev, pipe);
-	dev->irq_handle=usb_kbd_irq;
+	dev->irq_handle = usb_kbd_irq;
 	USB_KBD_PRINTF("USB KBD enable interrupt pipe...\n");
-	usb_submit_int_msg(dev,pipe,&new[0], maxp > 8 ? 8 : maxp,ep->bInterval);
+	usb_submit_int_msg(dev, pipe, &new[0], maxp > 8 ? 8 : maxp,
+				ep->bInterval);
 	return 1;
 }
 
@@ -395,7 +416,7 @@ struct usb_hid_descriptor {
 	unsigned char  bNumDescriptors;
 	unsigned char  bReportDescriptorType;
 	unsigned short wDescriptorLength;
-} __attribute__ ((packed));
+} __packed;
 
 /*
  * We parse each description item into this structure. Short items data
@@ -438,12 +459,12 @@ static struct usb_hid_descriptor usb_kbd_hid_desc;
 void usb_kbd_display_hid(struct usb_hid_descriptor *hid)
 {
 	printf("USB_HID_DESC:\n");
-	printf("  bLenght               0x%x\n",hid->bLength);
-	printf("  bcdHID                0x%x\n",hid->bcdHID);
-	printf("  bCountryCode          %d\n",hid->bCountryCode);
-	printf("  bNumDescriptors       0x%x\n",hid->bNumDescriptors);
-	printf("  bReportDescriptorType 0x%x\n",hid->bReportDescriptorType);
-	printf("  wDescriptorLength     0x%x\n",hid->wDescriptorLength);
+	printf("  bLenght               0x%x\n", hid->bLength);
+	printf("  bcdHID                0x%x\n", hid->bcdHID);
+	printf("  bCountryCode          %d\n", hid->bCountryCode);
+	printf("  bNumDescriptors       0x%x\n", hid->bNumDescriptors);
+	printf("  bReportDescriptorType 0x%x\n", hid->bReportDescriptorType);
+	printf("  wDescriptorLength     0x%x\n", hid->wDescriptorLength);
 }
 
 
@@ -452,9 +473,10 @@ void usb_kbd_display_hid(struct usb_hid_descriptor *hid)
  * items, though they are not used yet.
  */
 
-static int fetch_item(unsigned char *start,unsigned char *end, struct hid_item *item)
+static int fetch_item(unsigned char *start, unsigned char *end,
+			struct hid_item *item)
 {
-	if((end - start) > 0) {
+	if ((end - start) > 0) {
 		unsigned char b = *start++;
 		item->type = (b >> 2) & 3;
 		item->tag  = (b >> 4) & 15;
@@ -473,27 +495,29 @@ static int fetch_item(unsigned char *start,unsigned char *end, struct hid_item *
 			item->format = HID_ITEM_FORMAT_SHORT;
 			item->size = b & 3;
 			switch (item->size) {
-				case 0:
+			case 0:
+				return item->size;
+			case 1:
+				if ((end - start) >= 1) {
+					item->data.u8 = *start++;
 					return item->size;
-				case 1:
-					if ((end - start) >= 1) {
-						item->data.u8 = *start++;
-						return item->size;
-					}
-					break;
-				case 2:
-					if ((end - start) >= 2) {
-						item->data.u16 = le16_to_cpu((unsigned short *)start);
-						start+=2;
-						return item->size;
-					}
-				case 3:
-					item->size++;
-					if ((end - start) >= 4) {
-						item->data.u32 = le32_to_cpu((unsigned long *)start);
-						start+=4;
-						return item->size;
-					}
+				}
+				break;
+			case 2:
+				if ((end - start) >= 2) {
+					item->data.u16 = le16_to_cpu(
+						(unsigned short *)start);
+					start += 2;
+					return item->size;
+				}
+			case 3:
+				item->size++;
+				if ((end - start) >= 4) {
+					item->data.u32 = le32_to_cpu(
+						(unsigned long *)start);
+					start += 4;
+					return item->size;
+				}
 			}
 		}
 	}
@@ -501,7 +525,7 @@ static int fetch_item(unsigned char *start,unsigned char *end, struct hid_item *
 }
 
 /*
- * HID report descriptor item type (prefix bit 2,3)
+ * HID report descriptor item type (prefix bit 2, 3)
  */
 
 #define HID_ITEM_TYPE_MAIN		0
@@ -573,123 +597,123 @@ static int fetch_item(unsigned char *start,unsigned char *end, struct hid_item *
 
 static void usb_kbd_show_item(struct hid_item *item)
 {
-	switch(item->type) {
-		case HID_ITEM_TYPE_MAIN:
-			switch(item->tag) {
-				case HID_MAIN_ITEM_TAG_INPUT:
-					printf("Main Input");
-					break;
-				case HID_MAIN_ITEM_TAG_OUTPUT:
-					printf("Main Output");
-					break;
-				case HID_MAIN_ITEM_TAG_FEATURE:
-					printf("Main Feature");
-					break;
-				case HID_MAIN_ITEM_TAG_BEGIN_COLLECTION:
-					printf("Main Begin Collection");
-					break;
-				case HID_MAIN_ITEM_TAG_END_COLLECTION:
-					printf("Main End Collection");
-					break;
-				default:
-					printf("Main reserved %d",item->tag);
-					break;
-			}
+	switch (item->type) {
+	case HID_ITEM_TYPE_MAIN:
+		switch (item->tag) {
+		case HID_MAIN_ITEM_TAG_INPUT:
+			printf("Main Input");
 			break;
-		case HID_ITEM_TYPE_GLOBAL:
-			switch(item->tag) {
-				case HID_GLOBAL_ITEM_TAG_USAGE_PAGE:
-					printf("- Global Usage Page");
-					break;
-				case HID_GLOBAL_ITEM_TAG_LOGICAL_MINIMUM:
-					printf("- Global Logical Minimum");
-					break;
-				case HID_GLOBAL_ITEM_TAG_LOGICAL_MAXIMUM:
-					printf("- Global Logical Maximum");
-					break;
-				case HID_GLOBAL_ITEM_TAG_PHYSICAL_MINIMUM:
-					printf("- Global physical Minimum");
-					break;
-				case HID_GLOBAL_ITEM_TAG_PHYSICAL_MAXIMUM:
-					printf("- Global physical Maximum");
-					break;
-				case HID_GLOBAL_ITEM_TAG_UNIT_EXPONENT:
-					printf("- Global Unit Exponent");
-					break;
-				case HID_GLOBAL_ITEM_TAG_UNIT:
-					printf("- Global Unit");
-					break;
-				case HID_GLOBAL_ITEM_TAG_REPORT_SIZE:
-					printf("- Global Report Size");
-					break;
-				case HID_GLOBAL_ITEM_TAG_REPORT_ID:
-					printf("- Global Report ID");
-					break;
-				case HID_GLOBAL_ITEM_TAG_REPORT_COUNT:
-					printf("- Global Report Count");
-					break;
-				case HID_GLOBAL_ITEM_TAG_PUSH:
-					printf("- Global Push");
-					break;
-				case HID_GLOBAL_ITEM_TAG_POP:
-					printf("- Global Pop");
-					break;
-				default:
-					printf("- Global reserved %d",item->tag);
-					break;
-			}
+		case HID_MAIN_ITEM_TAG_OUTPUT:
+			printf("Main Output");
 			break;
-		case HID_ITEM_TYPE_LOCAL:
-			switch(item->tag) {
-				case HID_LOCAL_ITEM_TAG_USAGE:
-					printf("-- Local Usage");
-					break;
-				case HID_LOCAL_ITEM_TAG_USAGE_MINIMUM:
-					printf("-- Local Usage Minimum");
-					break;
-				case HID_LOCAL_ITEM_TAG_USAGE_MAXIMUM:
-					printf("-- Local Usage Maximum");
-					break;
-				case HID_LOCAL_ITEM_TAG_DESIGNATOR_INDEX:
-					printf("-- Local Designator Index");
-					break;
-				case HID_LOCAL_ITEM_TAG_DESIGNATOR_MINIMUM:
-					printf("-- Local Designator Minimum");
-					break;
-				case HID_LOCAL_ITEM_TAG_DESIGNATOR_MAXIMUM:
-					printf("-- Local Designator Maximum");
-					break;
-				case HID_LOCAL_ITEM_TAG_STRING_INDEX:
-					printf("-- Local String Index");
-					break;
-				case HID_LOCAL_ITEM_TAG_STRING_MINIMUM:
-					printf("-- Local String Minimum");
-					break;
-				case HID_LOCAL_ITEM_TAG_STRING_MAXIMUM:
-					printf("-- Local String Maximum");
-					break;
-				case HID_LOCAL_ITEM_TAG_DELIMITER:
-					printf("-- Local Delimiter");
-					break;
-				default:
-					printf("-- Local reserved %d",item->tag);
-					break;
-			}
+		case HID_MAIN_ITEM_TAG_FEATURE:
+			printf("Main Feature");
+			break;
+		case HID_MAIN_ITEM_TAG_BEGIN_COLLECTION:
+			printf("Main Begin Collection");
+			break;
+		case HID_MAIN_ITEM_TAG_END_COLLECTION:
+			printf("Main End Collection");
 			break;
 		default:
-			printf("--- reserved %d",item->type);
+			printf("Main reserved %d", item->tag);
 			break;
+		}
+		break;
+	case HID_ITEM_TYPE_GLOBAL:
+		switch (item->tag) {
+		case HID_GLOBAL_ITEM_TAG_USAGE_PAGE:
+			printf("- Global Usage Page");
+			break;
+		case HID_GLOBAL_ITEM_TAG_LOGICAL_MINIMUM:
+			printf("- Global Logical Minimum");
+			break;
+		case HID_GLOBAL_ITEM_TAG_LOGICAL_MAXIMUM:
+			printf("- Global Logical Maximum");
+			break;
+		case HID_GLOBAL_ITEM_TAG_PHYSICAL_MINIMUM:
+			printf("- Global physical Minimum");
+			break;
+		case HID_GLOBAL_ITEM_TAG_PHYSICAL_MAXIMUM:
+			printf("- Global physical Maximum");
+			break;
+		case HID_GLOBAL_ITEM_TAG_UNIT_EXPONENT:
+			printf("- Global Unit Exponent");
+			break;
+		case HID_GLOBAL_ITEM_TAG_UNIT:
+			printf("- Global Unit");
+			break;
+		case HID_GLOBAL_ITEM_TAG_REPORT_SIZE:
+			printf("- Global Report Size");
+			break;
+		case HID_GLOBAL_ITEM_TAG_REPORT_ID:
+			printf("- Global Report ID");
+			break;
+		case HID_GLOBAL_ITEM_TAG_REPORT_COUNT:
+			printf("- Global Report Count");
+			break;
+		case HID_GLOBAL_ITEM_TAG_PUSH:
+			printf("- Global Push");
+			break;
+		case HID_GLOBAL_ITEM_TAG_POP:
+			printf("- Global Pop");
+			break;
+		default:
+			printf("- Global reserved %d", item->tag);
+			break;
+		}
+		break;
+	case HID_ITEM_TYPE_LOCAL:
+		switch (item->tag) {
+		case HID_LOCAL_ITEM_TAG_USAGE:
+			printf("-- Local Usage");
+			break;
+		case HID_LOCAL_ITEM_TAG_USAGE_MINIMUM:
+			printf("-- Local Usage Minimum");
+			break;
+		case HID_LOCAL_ITEM_TAG_USAGE_MAXIMUM:
+			printf("-- Local Usage Maximum");
+			break;
+		case HID_LOCAL_ITEM_TAG_DESIGNATOR_INDEX:
+			printf("-- Local Designator Index");
+			break;
+		case HID_LOCAL_ITEM_TAG_DESIGNATOR_MINIMUM:
+			printf("-- Local Designator Minimum");
+			break;
+		case HID_LOCAL_ITEM_TAG_DESIGNATOR_MAXIMUM:
+			printf("-- Local Designator Maximum");
+			break;
+		case HID_LOCAL_ITEM_TAG_STRING_INDEX:
+			printf("-- Local String Index");
+			break;
+		case HID_LOCAL_ITEM_TAG_STRING_MINIMUM:
+			printf("-- Local String Minimum");
+			break;
+		case HID_LOCAL_ITEM_TAG_STRING_MAXIMUM:
+			printf("-- Local String Maximum");
+			break;
+		case HID_LOCAL_ITEM_TAG_DELIMITER:
+			printf("-- Local Delimiter");
+			break;
+		default:
+			printf("-- Local reserved %d", item->tag);
+			break;
+		}
+		break;
+	default:
+		printf("--- reserved %d", item->type);
+		break;
 	}
-	switch(item->size) {
-		case 1:
-			printf("  %d",item->data.u8);
-			break;
-		case 2:
-			printf("  %d",item->data.u16);
-			break;
-		case 4:
-			printf("  %ld",item->data.u32);
-			break;
+	switch (item->size) {
+	case 1:
+		printf("  %d", item->data.u8);
+		break;
+	case 2:
+		printf("  %d", item->data.u16);
+		break;
+	case 4:
+		printf("  %ld", item->data.u32);
+		break;
 	}
 	printf("\n");
 }
@@ -700,56 +724,63 @@ static int usb_kbd_get_hid_desc(struct usb_device *dev)
 	unsigned char buffer[256];
 	struct usb_descriptor_header *head;
 	struct usb_config_descriptor *config;
-	int index,len,i;
+	int index, len, i;
 	unsigned char *start, *end;
 	struct hid_item item;
 
-	if(usb_get_configuration_no(dev,&buffer[0],0)==-1)
+	if (usb_get_configuration_no(dev, &buffer[0], 0) == -1)
 		return -1;
-	head =(struct usb_descriptor_header *)&buffer[0];
-	if(head->bDescriptorType!=USB_DT_CONFIG) {
-		printf(" ERROR: NOT USB_CONFIG_DESC %x\n",head->bDescriptorType);
+	head = (struct usb_descriptor_header *)&buffer[0];
+	if (head->bDescriptorType != USB_DT_CONFIG) {
+		printf(" ERROR: NOT USB_CONFIG_DESC %x\n",
+				head->bDescriptorType);
 		return -1;
 	}
-	index=head->bLength;
-	config=(struct usb_config_descriptor *)&buffer[0];
-	len=le16_to_cpu(config->wTotalLength);
-	/* Ok the first entry must be a configuration entry, now process the others */
-	head=(struct usb_descriptor_header *)&buffer[index];
-	while(index+1 < len) {
-		if(head->bDescriptorType==USB_DT_HID) {
+	index = head->bLength;
+	config = (struct usb_config_descriptor *)&buffer[0];
+	len = le16_to_cpu(config->wTotalLength);
+	/*
+	 * Ok the first entry must be a configuration entry,
+	 * now process the others
+	 */
+	head = (struct usb_descriptor_header *)&buffer[index];
+	while (index+1 < len) {
+		if (head->bDescriptorType == USB_DT_HID) {
 			printf("HID desc found\n");
-			memcpy(&usb_kbd_hid_desc,&buffer[index],buffer[index]);
+			memcpy(&usb_kbd_hid_desc, &buffer[index],
+					buffer[index]);
 			le16_to_cpus(&usb_kbd_hid_desc.bcdHID);
 			le16_to_cpus(&usb_kbd_hid_desc.wDescriptorLength);
 			usb_kbd_display_hid(&usb_kbd_hid_desc);
-			len=0;
+			len = 0;
 			break;
 		}
-		index+=head->bLength;
-		head=(struct usb_descriptor_header *)&buffer[index];
+		index += head->bLength;
+		head = (struct usb_descriptor_header *)&buffer[index];
 	}
-	if(len>0)
+	if (len > 0)
 		return -1;
-	len=usb_kbd_hid_desc.wDescriptorLength;
-	if((index = usb_get_class_descriptor(dev, 0, USB_DT_REPORT, 0, &buffer[0], len)) < 0) {
+	len = usb_kbd_hid_desc.wDescriptorLength;
+	index = usb_get_class_descriptor(dev, 0, USB_DT_REPORT, 0, &buffer[0],
+						len);
+	if (index < 0) {
 		printf("reading report descriptor failed\n");
 		return -1;
 	}
 	printf(" report descriptor (size %u, read %d)\n", len, index);
 	start = &buffer[0];
 	end = &buffer[len];
-	i=0;
+	i = 0;
 	do {
-		index=fetch_item(start,end,&item);
-		i+=index;
+		index = fetch_item(start, end, &item);
+		i += index;
 		i++;
-		if(index>=0)
+		if (index >= 0)
 			usb_kbd_show_item(&item);
 
-		start+=index;
+		start += index;
 		start++;
-	} while(index>=0);
+	} while (index >= 0);
 
 }
 
