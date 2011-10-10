@@ -147,6 +147,8 @@ static const struct lpsc_resource lpsc[] = {
 #define CONFIG_DA850_EVM_MAX_CPU_CLK	300000000
 #endif
 
+#define REV_AM18X_EVM		0x100
+
 /*
  * get_board_rev() - setup to pass kernel board revision information
  * Returns:
@@ -172,7 +174,9 @@ u32 get_board_rev(void)
 		rev = 2;
 	else if (maxcpuclk >= 372000000)
 		rev = 1;
-
+#ifdef CONFIG_DA850_AM18X_EVM
+	rev |= REV_AM18X_EVM;
+#endif
 	return rev;
 }
 

@@ -44,7 +44,7 @@
 #define CONFIG_SYS_HZ			1000
 #define CONFIG_SKIP_LOWLEVEL_INIT
 #define CONFIG_SYS_TEXT_BASE		0xc1080000
-
+#define CONFIG_DA850_AM18X_EVM
 /*
  * Memory Info
  */
