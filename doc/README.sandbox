@@ -1,0 +1,53 @@
+/*
+ * Copyright (c) 2011 The Chromium OS Authors.
+ *
+ * See file CREDITS for list of people who contributed to this
+ * project.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+ * MA 02111-1307 USA
+ */
+
+Native Execution of U-Boot
+==========================
+
+The 'sandbox' architecture is designed to allow U-Boot to run under Linux on
+almost any hardware. To achieve this it builds U-Boot (so far as possible)
+as a normal C application with a main() and normal C libraries.
+
+All of U-Boot's architecture-specific code therefore cannot be built as part
+of the sandbox U-Boot. The purpose of running U-Boot under Linux is to test
+all the generic code, not specific to any one architecture. The idea is to
+create unit tests which we can run to test this upper level code.
+
+CONFIG_SANDBOX is defined when building a native board.
+
+The chosen vendor and board names are also 'sandbox', so there is a single
+board in board/sandbox/sandbox.
+
+CONFIG_SANDBOX_BIG_ENDIAN should be defined when running on big-endian
+machines.
+
+Note that standalone/API support is not available at present.
+
+The serial driver is a very simple implementation which reads and writes to
+the console. It does not set the terminal into raw mode, so cursor keys and
+history will not work yet.
+
+
+Tests
+-----
+
+So far we have no tests, but when we do these will be documented here.

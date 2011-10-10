@@ -311,6 +311,9 @@ int	setenv	     (const char *, const char *);
 #ifdef CONFIG_X86		/* x86 version to be fixed! */
 # include <asm/u-boot-x86.h>
 #endif /* CONFIG_X86 */
+#ifdef CONFIG_SANDBOX
+# include <asm/u-boot-sandbox.h>	/* TODO(sjg) what needs to be fixed? */
+#endif
 
 #ifdef CONFIG_AUTO_COMPLETE
 int env_complete(char *var, int maxv, char *cmdv[], int maxsz, char *buf);
