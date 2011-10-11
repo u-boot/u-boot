@@ -25,6 +25,7 @@
 #include <malloc.h>
 #include <net.h>
 #include <netdev.h>
+#include <miiphy.h>
 #include <asm/errno.h>
 #include <asm/io.h>
 
@@ -44,144 +45,6 @@
 #endif
 
 #define SH_ETH_PHY_DELAY 50000
-
-/*
- * Bits are written to the PHY serially using the
- * PIR register, just like a bit banger.
- */
-static void sh_eth_mii_write_phy_bits(int port, u32 val, int len)
-{
-	int i;
-	u32 pir;
-
-	/* Bit positions is 1 less than the number of bits */
-	for (i = len - 1; i >= 0; i--) {
-		/* Write direction, bit to write, clock is low */
-		pir = 2 | ((val & 1 << i) ? 1 << 2 : 0);
-		outl(pir, PIR(port));
-		udelay(1);
-		/* Write direction, bit to write, clock is high */
-		pir = 3 | ((val & 1 << i) ? 1 << 2 : 0);
-		outl(pir, PIR(port));
-		udelay(1);
-		/* Write direction, bit to write, clock is low */
-		pir = 2 | ((val & 1 << i) ? 1 << 2 : 0);
-		outl(pir, PIR(port));
-		udelay(1);
-	}
-}
-
-static void sh_eth_mii_bus_release(int port)
-{
-	/* Read direction, clock is low */
-	outl(0, PIR(port));
-	udelay(1);
-	/* Read direction, clock is high */
-	outl(1, PIR(port));
-	udelay(1);
-	/* Read direction, clock is low */
-	outl(0, PIR(port));
-	udelay(1);
-}
-
-static void sh_eth_mii_ind_bus_release(int port)
-{
-	/* Read direction, clock is low */
-	outl(0, PIR(port));
-	udelay(1);
-}
-
-static void sh_eth_mii_read_phy_bits(int port, u32 *val, int len)
-{
-	int i;
-	u32 pir;
-
-	*val = 0;
-	for (i = len - 1; i >= 0; i--) {
-		/* Read direction, clock is high */
-		outl(1, PIR(port));
-		udelay(1);
-		/* Read bit */
-		pir = inl(PIR(port));
-		*val |= (pir & 8) ? 1 << i : 0;
-		/* Read direction, clock is low */
-		outl(0, PIR(port));
-		udelay(1);
-	}
-}
-
-#define PHY_INIT	0xFFFFFFFF
-#define PHY_READ	0x02
-#define PHY_WRITE	0x01
-/*
- * To read a phy register, mii managements frames are sent to the phy.
- * The frames look like this:
- * pre (32 bits):	0xffff ffff
- * st (2 bits):		01
- * op (2bits):		10: read 01: write
- * phyad (5 bits):	xxxxx
- * regad (5 bits):	xxxxx
- * ta (Bus release):
- * data (16 bits):	read data
- */
-static u32 sh_eth_mii_read_phy_reg(int port, u8 phy_addr, int reg)
-{
-	u32 val;
-
-	/* Sent mii management frame */
-	/* pre */
-	sh_eth_mii_write_phy_bits(port, PHY_INIT, 32);
-	/* st (start of frame) */
-	sh_eth_mii_write_phy_bits(port, 0x1, 2);
-	/* op (code) */
-	sh_eth_mii_write_phy_bits(port, PHY_READ, 2);
-	/* phy address */
-	sh_eth_mii_write_phy_bits(port, phy_addr, 5);
-	/* Register to read */
-	sh_eth_mii_write_phy_bits(port, reg, 5);
-
-	/* Bus release */
-	sh_eth_mii_bus_release(port);
-
-	/* Read register */
-	sh_eth_mii_read_phy_bits(port, &val, 16);
-
-	return val;
-}
-
-/*
- * To write a phy register, mii managements frames are sent to the phy.
- * The frames look like this:
- * pre (32 bits):	0xffff ffff
- * st (2 bits):		01
- * op (2bits):		10: read 01: write
- * phyad (5 bits):	xxxxx
- * regad (5 bits):	xxxxx
- * ta (2 bits):		10
- * data (16 bits):	write data
- * idle (Independent bus release)
- */
-static void sh_eth_mii_write_phy_reg(int port, u8 phy_addr, int reg, u16 val)
-{
-	/* Sent mii management frame */
-	/* pre */
-	sh_eth_mii_write_phy_bits(port, PHY_INIT, 32);
-	/* st (start of frame) */
-	sh_eth_mii_write_phy_bits(port, 0x1, 2);
-	/* op (code) */
-	sh_eth_mii_write_phy_bits(port, PHY_WRITE, 2);
-	/* phy address */
-	sh_eth_mii_write_phy_bits(port, phy_addr, 5);
-	/* Register to read */
-	sh_eth_mii_write_phy_bits(port, reg, 5);
-	/* ta */
-	sh_eth_mii_write_phy_bits(port, PHY_READ, 2);
-	/* Write register data */
-	sh_eth_mii_write_phy_bits(port, val, 16);
-
-	/* Independent bus release */
-	sh_eth_mii_ind_bus_release(port);
-}
 
 int sh_eth_send(struct eth_device *dev, volatile void *packet, int len)
 {
@@ -480,62 +343,26 @@ err_tx_init:
 
 static int sh_eth_phy_config(struct sh_eth_dev *eth)
 {
-	int port = eth->port, timeout, ret = 0;
+	int port = eth->port, ret = 0;
 	struct sh_eth_info *port_info = &eth->port_info[port];
-	u32 val;
+	struct eth_device *dev = port_info->dev;
+	struct phy_device *phydev;
 
-	/* Reset phy */
-	sh_eth_mii_write_phy_reg
-		(port, port_info->phy_addr, PHY_CTRL, PHY_C_RESET);
-	timeout = 10;
-	while (timeout--) {
-		val = sh_eth_mii_read_phy_reg(port,
-				port_info->phy_addr, PHY_CTRL);
-		if (!(val & PHY_C_RESET))
-			break;
-		udelay(SH_ETH_PHY_DELAY);
-	}
+	phydev = phy_connect(miiphy_get_dev_by_name(dev->name),
+			port_info->phy_addr, dev, PHY_INTERFACE_MODE_MII);
+	port_info->phydev = phydev;
+	phy_config(phydev);
 
-	if (timeout < 0) {
-		printf(SHETHER_NAME ": phy reset timeout\n");
-		ret = -EIO;
-		goto err_tout;
-	}
-
-	/* Advertise 100/10 baseT full/half duplex */
-	sh_eth_mii_write_phy_reg(port, port_info->phy_addr, PHY_ANA,
-		(PHY_A_FDX|PHY_A_HDX|PHY_A_10FDX|PHY_A_10HDX|PHY_A_EXT));
-	/* Autonegotiation, normal operation, full duplex, enable tx */
-	sh_eth_mii_write_phy_reg(port, port_info->phy_addr, PHY_CTRL,
-		(PHY_C_ANEGEN|PHY_C_RANEG));
-	/* Wait for autonegotiation to complete */
-	timeout = 100;
-	while (timeout--) {
-		val = sh_eth_mii_read_phy_reg(port, port_info->phy_addr, 1);
-		if (val & PHY_S_ANEGC)
-			break;
-
-		udelay(SH_ETH_PHY_DELAY);
-	}
-
-	if (timeout < 0) {
-		printf(SHETHER_NAME ": phy auto-negotiation failed\n");
-		ret = -ETIMEDOUT;
-		goto err_tout;
-	}
-
-	return ret;
-
-err_tout:
 	return ret;
 }
 
 static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 {
 	int port = eth->port, ret = 0;
-	u32 val,  phy_status;
+	u32 val;
 	struct sh_eth_info *port_info = &eth->port_info[port];
 	struct eth_device *dev = port_info->dev;
+	struct phy_device *phy;
 
 	/* Configure e-dmac registers */
 	outl((inl(EDMR(port)) & ~EMDR_DESC_R) | EDMR_EL, EDMR(port));
@@ -582,31 +409,31 @@ static int sh_eth_config(struct sh_eth_dev *eth, bd_t *bd)
 		printf(SHETHER_NAME ": phy config timeout\n");
 		goto err_phy_cfg;
 	}
-	/* Read phy status to finish configuring the e-mac */
-	phy_status = sh_eth_mii_read_phy_reg(port, port_info->phy_addr, 1);
+	phy = port_info->phydev;
+	phy_startup(phy);
 
 	/* Set the transfer speed */
 #ifdef CONFIG_CPU_SH7763
-	if (phy_status & (PHY_S_100X_F|PHY_S_100X_H)) {
+	if (phy->speed == 100) {
 		printf(SHETHER_NAME ": 100Base/");
 		outl(GECMR_100B, GECMR(port));
-	} else {
+	} else if (phy->speed == 10) {
 		printf(SHETHER_NAME ": 10Base/");
 		outl(GECMR_10B, GECMR(port));
 	}
 #endif
 #if defined(CONFIG_CPU_SH7757)
-	if (phy_status & (PHY_S_100X_F|PHY_S_100X_H)) {
+	if (phy->speed == 100) {
 		printf("100Base/");
 		outl(1, RTRATE(port));
-	} else {
+	} else if (phy->speed == 10) {
 		printf("10Base/");
 		outl(0, RTRATE(port));
 	}
 #endif
 
 	/* Check if full duplex mode is supported by the phy */
-	if (phy_status & (PHY_S_100X_F|PHY_S_10T_F)) {
+	if (phy->duplex) {
 		printf("Full\n");
 		outl((ECMR_CHG_DM|ECMR_RE|ECMR_TE|ECMR_DM), ECMR(port));
 	} else {
@@ -707,6 +534,9 @@ int sh_eth_initialize(bd_t *bd)
     /* Register Device to EtherNet subsystem  */
     eth_register(dev);
 
+	bb_miiphy_buses[0].priv = eth;
+	miiphy_register(dev->name, bb_miiphy_read, bb_miiphy_write);
+
 	if (!eth_getenv_enetaddr("ethaddr", dev->enetaddr))
 		puts("Please set MAC address\n");
 
@@ -722,3 +552,86 @@ err:
 	printf(SHETHER_NAME ": Failed\n");
 	return ret;
 }
+
+/******* for bb_miiphy *******/
+static int sh_eth_bb_init(struct bb_miiphy_bus *bus)
+{
+	return 0;
+}
+
+static int sh_eth_bb_mdio_active(struct bb_miiphy_bus *bus)
+{
+	struct sh_eth_dev *eth = bus->priv;
+	int port = eth->port;
+
+	outl(inl(PIR(port)) | PIR_MMD, PIR(port));
+
+	return 0;
+}
+
+static int sh_eth_bb_mdio_tristate(struct bb_miiphy_bus *bus)
+{
+	struct sh_eth_dev *eth = bus->priv;
+	int port = eth->port;
+
+	outl(inl(PIR(port)) & ~PIR_MMD, PIR(port));
+
+	return 0;
+}
+
+static int sh_eth_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
+{
+	struct sh_eth_dev *eth = bus->priv;
+	int port = eth->port;
+
+	if (v)
+		outl(inl(PIR(port)) | PIR_MDO, PIR(port));
+	else
+		outl(inl(PIR(port)) & ~PIR_MDO, PIR(port));
+
+	return 0;
+}
+
+static int sh_eth_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
+{
+	struct sh_eth_dev *eth = bus->priv;
+	int port = eth->port;
+
+	*v = (inl(PIR(port)) & PIR_MDI) >> 3;
+
+	return 0;
+}
+
+static int sh_eth_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
+{
+	struct sh_eth_dev *eth = bus->priv;
+	int port = eth->port;
+
+	if (v)
+		outl(inl(PIR(port)) | PIR_MDC, PIR(port));
+	else
+		outl(inl(PIR(port)) & ~PIR_MDC, PIR(port));
+
+	return 0;
+}
+
+static int sh_eth_bb_delay(struct bb_miiphy_bus *bus)
+{
+	udelay(10);
+
+	return 0;
+}
+
+struct bb_miiphy_bus bb_miiphy_buses[] = {
+	{
+		.name		= "sh_eth",
+		.init		= sh_eth_bb_init,
+		.mdio_active	= sh_eth_bb_mdio_active,
+		.mdio_tristate	= sh_eth_bb_mdio_tristate,
+		.set_mdio	= sh_eth_bb_set_mdio,
+		.get_mdio	= sh_eth_bb_get_mdio,
+		.set_mdc	= sh_eth_bb_set_mdc,
+		.delay		= sh_eth_bb_delay,
+	}
+};
+int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);
