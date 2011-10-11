@@ -233,6 +233,9 @@ int misc_init_r(void)
 		printf("Recognized Tobi Duo expansion board (rev %d %s)\n",
 			expansion_config.revision,
 			expansion_config.fab_revision);
+		/* second lan chip */
+		enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[4],
+		    0x2B000000, GPMC_SIZE_16M);
 		break;
 	case GUMSTIX_PALO35:
 		printf("Recognized Palo35 expansion board (rev %d %s)\n",
@@ -308,10 +311,6 @@ static void setup_net_chip(void)
 
 	/* first lan chip */
 	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[5], 0x2C000000,
-			GPMC_SIZE_16M);
-
-	/* second lan chip */
-	enable_gpmc_cs_config(gpmc_lan_config, &gpmc_cfg->cs[4], 0x2B000000,
 			GPMC_SIZE_16M);
 
 	/* Enable off mode for NWE in PADCONF_GPMC_NWE register */
