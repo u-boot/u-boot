@@ -52,6 +52,17 @@ asm volatile (						\
 "	lw	$25, %1($25)\n"				\
 "	jr	$25\n"					\
 	: : "i"(offsetof(xxx_t, pfunc)), "i"(XF_ ## x * sizeof(void *)) : "t9");
+#elif defined(__nds32__)
+#define EXPORT_FUNC(x)					\
+asm volatile (						\
+"	.globl mon_" #x "\n"				\
+"mon_" #x ":\n"						\
+"	lwi	$r16, [$gp + (%0)]\n"			\
+"	lwi	$r16, [$r16 + (%1)]\n"			\
+"	jr	$r16\n"					\
+: : "i"(offsetof(xxx_t, pfunc)),			\
+"i"(XF_ ## x * sizeof(void *)) : "$r16");
+
 #else
 #error [No stub code for this arch]
 #endif
@@ -72,6 +83,8 @@ int main(void)
 	register volatile xxx_t *pq asm("r8");
 #elif defined(__mips__)
 	register volatile xxx_t *pq asm("k0");
+#elif defined(__nds32__)
+	register volatile xxx_t *pq asm("$r16");
 #endif
 	char buf[32];
 

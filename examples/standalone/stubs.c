@@ -167,8 +167,23 @@ gd_t *global_data;
 "	jmp %%g1\n"					\
 "	nop\n"						\
 	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "g1" );
-
+#elif defined(CONFIG_NDS32)
+/*
+ * r16 holds the pointer to the global_data. gp is call clobbered.
+ * not support reduced register (16 GPR).
+ */
+#define EXPORT_FUNC(x) \
+	asm volatile (			\
+"	.globl " #x "\n"		\
+#x ":\n"				\
+"	lwi	$r16, [$gp + (%0)]\n"	\
+"	lwi	$r16, [$r16 + (%1)]\n"	\
+"	jr	$r16\n"			\
+	: : "i"(offsetof(gd_t, jt)), "i"(XF_ ## x * sizeof(void *)) : "$r16");
 #else
+/*"	addi	$sp, $sp, -24\n"	\
+"	br	$r16\n"			\*/
+
 #error stubs definition missing for this architecture
 #endif
 
