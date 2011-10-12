@@ -40,7 +40,6 @@ static void zoom2_debug_board_detect (void)
 		 */
 		gpio_direction_input(158);
 		val = gpio_get_value(158);
-		gpio_free(158);
 	}
 
 	if (!val)

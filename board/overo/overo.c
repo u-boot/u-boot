@@ -118,10 +118,6 @@ int get_board_revision(void)
 		revision = gpio_get_value(115) << 2 |
 			   gpio_get_value(113) << 1 |
 			   gpio_get_value(112);
-
-		gpio_free(112);
-		gpio_free(113);
-		gpio_free(115);
 	} else {
 		printf("Error: unable to acquire board revision GPIOs\n");
 		revision = -1;
@@ -153,8 +149,7 @@ int get_sdio2_config(void)
 				sdio_direct = 0;
 		}
 
-		gpio_free(130);
-		gpio_free(139);
+		gpio_direction_input(130);
 	} else {
 		printf("Error: unable to acquire sdio2 clk GPIOs\n");
 		sdio_direct = -1;
