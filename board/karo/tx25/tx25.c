@@ -31,12 +31,6 @@
 #include <asm/gpio.h>
 #include <asm/arch/sys_proto.h>
 
-static void mdelay(int n)
-{
-	while (n-- > 0)
-		udelay(1000);
-}
-
 DECLARE_GLOBAL_DATA_PTR;
 
 #ifdef CONFIG_FEC_MXC

@@ -35,8 +35,6 @@
 #define LCD_DATA_ADDR		((volatile char *)(CONFIG_SYS_EBC2_LCM_BASE+1))
 #define LCD_BLK_CTRL		((volatile char *)(CONFIG_SYS_EBC1_FPGA_BASE+0x2))
 
-#define mdelay(t)	({unsigned long msec=(t); while (msec--) { udelay(1000);}})
-
 static int g_lcd_init_b = 0;
 static char *amcc_logo = "  AMCC TAISHAN  440GX EvalBoard";
 static char addr_flag = 0x80;

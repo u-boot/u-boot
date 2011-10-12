@@ -33,8 +33,6 @@
 
 #define ETH_ZLEN	60
 
-#define mdelay(n) ({unsigned long msec = (n); while (msec--) udelay(1000); })
-
 /* RBSR - hw default init value is also 0x640 */
 #define RBSR_DEFAULT_VALUE	0x640
 

@@ -54,8 +54,6 @@
 #define WRITE_CMD(x)	outl((x), &ftide020->cmd_fifo)	/* 0x04 */
 #define READ_STATUS()	inl(&ftide020->cmd_fifo)	/* 0x04 */
 
-#define mdelay(n) ({unsigned long msec = (n); while (msec--) udelay(1000); })
-
 void ftide_set_device(int cx8, int dev)
 {
 	static struct ftide020_s *ftide020 = (struct ftide020_s *) FTIDE_BASE;

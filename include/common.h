@@ -706,6 +706,7 @@ int strcmp_compar(const void *, const void *);
 
 /* lib/time.c */
 void	udelay        (unsigned long);
+void mdelay(unsigned long);
 
 /* lib/uuid.c */
 void uuid_str_to_bin(const char *uuid, unsigned char *out);

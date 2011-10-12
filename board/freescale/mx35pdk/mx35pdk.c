@@ -46,8 +46,6 @@
 #error "CONFIG_BOARD_EARLY_INIT_F must be set for this board"
 #endif
 
-#define mdelay(n) ({unsigned long msec = (n); while (msec--) udelay(1000); })
-
 DECLARE_GLOBAL_DATA_PTR;
 
 int dram_init(void)

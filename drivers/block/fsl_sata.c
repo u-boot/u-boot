@@ -50,13 +50,6 @@ static struct fsl_sata_info fsl_sata_info[] = {
 #endif
 };
 
-static inline void mdelay(unsigned long msec)
-{
-	unsigned long i;
-	for (i = 0; i < msec; i++)
-		udelay(1000);
-}
-
 static inline void sdelay(unsigned long sec)
 {
 	unsigned long i;

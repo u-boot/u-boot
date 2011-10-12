@@ -77,7 +77,6 @@ Add SNMP
 #include <net.h>
 #include <malloc.h>
 
-#define mdelay(n)	udelay((n)*1000)
 /* forward definition of function used for the uboot interface */
 void uboot_push_packet_len(int len);
 void uboot_push_tx_done(int key, int val);

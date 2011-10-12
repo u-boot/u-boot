@@ -50,7 +50,6 @@ tested on both gig copper and gig fiber boards
 
 #define virt_to_bus(devno, v)	pci_virt_to_mem(devno, (void *) (v))
 #define bus_to_phys(devno, a)	pci_mem_to_phys(devno, a)
-#define mdelay(n)	udelay((n)*1000)
 
 #define E1000_DEFAULT_PCI_PBA	0x00000030
 #define E1000_DEFAULT_PCIE_PBA	0x000a0026

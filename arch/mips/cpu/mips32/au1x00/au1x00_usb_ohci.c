@@ -1448,7 +1448,6 @@ static int hc_start (ohci_t * ohci)
 	writel (RH_HS_LPSC, &ohci->regs->roothub.status);
 #endif	/* OHCI_USE_NPS */
 
-#define mdelay(n) ({unsigned long msec=(n); while (msec--) udelay(1000);})
 	/* POTPGT delay is bits 24-31, in 2 ms units. */
 	mdelay ((roothub_a (ohci) >> 23) & 0x1fe);
 

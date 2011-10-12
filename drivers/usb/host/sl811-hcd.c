@@ -51,8 +51,6 @@
 #define	 SL811_ADR (0x50000000)
 #define	 SL811_DAT (0x50000001)
 
-#define mdelay(n) ({unsigned long msec=(n); while (msec--) udelay(1000);})
-
 #ifdef SL811_DEBUG
 static int debug = 9;
 #endif
