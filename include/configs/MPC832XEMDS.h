@@ -477,7 +477,7 @@
 
 /* DDR: cache cacheable */
 #define CONFIG_SYS_IBAT0L	(CONFIG_SYS_SDRAM_BASE \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT0U	(CONFIG_SYS_SDRAM_BASE \
 				| BATU_BL_256M \
@@ -488,7 +488,7 @@
 
 /* IMMRBAR & PCI IO: cache-inhibit and guarded */
 #define CONFIG_SYS_IBAT1L	(CONFIG_SYS_IMMR \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_CACHEINHIBIT \
 				| BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_IBAT1U	(CONFIG_SYS_IMMR \
@@ -500,7 +500,7 @@
 
 /* BCSR: cache-inhibit and guarded */
 #define CONFIG_SYS_IBAT2L	(CONFIG_SYS_BCSR \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_CACHEINHIBIT \
 				| BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_IBAT2U	(CONFIG_SYS_BCSR \
@@ -512,14 +512,14 @@
 
 /* FLASH: icache cacheable, but dcache-inhibit and guarded */
 #define CONFIG_SYS_IBAT3L	(CONFIG_SYS_FLASH_BASE \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT3U	(CONFIG_SYS_FLASH_BASE \
 				| BATU_BL_32M \
 				| BATU_VS \
 				| BATU_VP)
 #define CONFIG_SYS_DBAT3L	(CONFIG_SYS_FLASH_BASE \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_CACHEINHIBIT \
 				| BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT3U	CONFIG_SYS_IBAT3U
@@ -530,7 +530,7 @@
 #define CONFIG_SYS_DBAT4U	CONFIG_SYS_IBAT4U
 
 /* Stack in dcache: cacheable, no memory coherence */
-#define CONFIG_SYS_IBAT5L	(CONFIG_SYS_INIT_RAM_ADDR | BATL_PP_10)
+#define CONFIG_SYS_IBAT5L	(CONFIG_SYS_INIT_RAM_ADDR | BATL_PP_RW)
 #define CONFIG_SYS_IBAT5U	(CONFIG_SYS_INIT_RAM_ADDR \
 				| BATU_BL_128K \
 				| BATU_VS \
@@ -541,7 +541,7 @@
 #ifdef CONFIG_PCI
 /* PCI MEM space: cacheable */
 #define CONFIG_SYS_IBAT6L	(CONFIG_SYS_PCI1_MEM_PHYS \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT6U	(CONFIG_SYS_PCI1_MEM_PHYS \
 				| BATU_BL_256M \
@@ -551,7 +551,7 @@
 #define CONFIG_SYS_DBAT6U	CONFIG_SYS_IBAT6U
 /* PCI MMIO space: cache-inhibit and guarded */
 #define CONFIG_SYS_IBAT7L	(CONFIG_SYS_PCI1_MMIO_PHYS \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_CACHEINHIBIT \
 				| BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_IBAT7U	(CONFIG_SYS_PCI1_MMIO_PHYS \

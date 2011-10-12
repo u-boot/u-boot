@@ -572,7 +572,7 @@
 
 /* DDR: cache cacheable */
 #define CONFIG_SYS_IBAT0L	(CONFIG_SYS_SDRAM_BASE \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT0U	(CONFIG_SYS_SDRAM_BASE \
 				| BATU_BL_128M \
@@ -583,7 +583,7 @@
 
 /* IMMRBAR, PCI IO and NAND: cache-inhibit and guarded */
 #define CONFIG_SYS_IBAT1L	(CONFIG_SYS_IMMR \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_CACHEINHIBIT \
 				| BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_IBAT1U	(CONFIG_SYS_IMMR \
@@ -595,20 +595,20 @@
 
 /* FLASH: icache cacheable, but dcache-inhibit and guarded */
 #define CONFIG_SYS_IBAT2L	(CONFIG_SYS_FLASH_BASE \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT2U	(CONFIG_SYS_FLASH_BASE \
 				| BATU_BL_32M \
 				| BATU_VS \
 				| BATU_VP)
 #define CONFIG_SYS_DBAT2L	(CONFIG_SYS_FLASH_BASE \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_CACHEINHIBIT \
 				| BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_DBAT2U	CONFIG_SYS_IBAT2U
 
 /* Stack in dcache: cacheable, no memory coherence */
-#define CONFIG_SYS_IBAT3L	(CONFIG_SYS_INIT_RAM_ADDR | BATL_PP_10)
+#define CONFIG_SYS_IBAT3L	(CONFIG_SYS_INIT_RAM_ADDR | BATL_PP_RW)
 #define CONFIG_SYS_IBAT3U	(CONFIG_SYS_INIT_RAM_ADDR \
 				| BATU_BL_128K \
 				| BATU_VS \
@@ -618,7 +618,7 @@
 
 /* PCI MEM space: cacheable */
 #define CONFIG_SYS_IBAT4L	(CONFIG_SYS_PCI_MEM_PHYS \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT4U	(CONFIG_SYS_PCI_MEM_PHYS \
 				| BATU_BL_256M \
@@ -629,7 +629,7 @@
 
 /* PCI MMIO space: cache-inhibit and guarded */
 #define CONFIG_SYS_IBAT5L	(CONFIG_SYS_PCI_MMIO_PHYS \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_CACHEINHIBIT \
 				| BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_IBAT5U	(CONFIG_SYS_PCI_MMIO_PHYS \

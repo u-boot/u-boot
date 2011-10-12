@@ -646,7 +646,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 /* DDR  */
 #define CONFIG_SYS_IBAT0L	(CONFIG_SYS_SDRAM_BASE \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT0U	(CONFIG_SYS_SDRAM_BASE \
 				| BATU_BL_256M \
@@ -656,14 +656,14 @@ boards, we say we have two, but don't display a message if we find only one. */
 /* PCI  */
 #ifdef CONFIG_PCI
 #define CONFIG_SYS_IBAT1L	(CONFIG_SYS_PCI1_MEM_BASE \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT1U	(CONFIG_SYS_PCI1_MEM_BASE \
 				| BATU_BL_256M \
 				| BATU_VS \
 				| BATU_VP)
 #define CONFIG_SYS_IBAT2L	(CONFIG_SYS_PCI1_MMIO_BASE \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_CACHEINHIBIT \
 				| BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_IBAT2U	(CONFIG_SYS_PCI1_MMIO_BASE \
@@ -679,14 +679,14 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 #ifdef CONFIG_MPC83XX_PCI2
 #define CONFIG_SYS_IBAT3L	(CONFIG_SYS_PCI2_MEM_BASE \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_MEMCOHERENCE)
 #define CONFIG_SYS_IBAT3U	(CONFIG_SYS_PCI2_MEM_BASE \
 				| BATU_BL_256M \
 				| BATU_VS \
 				| BATU_VP)
 #define CONFIG_SYS_IBAT4L	(CONFIG_SYS_PCI2_MMIO_BASE \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_CACHEINHIBIT \
 				| BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_IBAT4U	(CONFIG_SYS_PCI2_MMIO_BASE \
@@ -702,7 +702,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 /* IMMRBAR @ 0xE0000000, PCI IO @ 0xE2000000 & BCSR @ 0xE2400000 */
 #define CONFIG_SYS_IBAT5L	(CONFIG_SYS_IMMR \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_CACHEINHIBIT \
 				| BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_IBAT5U	(CONFIG_SYS_IMMR \
@@ -712,7 +712,7 @@ boards, we say we have two, but don't display a message if we find only one. */
 
 /* SDRAM @ 0xF0000000, stack in DCACHE 0xFDF00000 & FLASH @ 0xFE000000 */
 #define CONFIG_SYS_IBAT6L	(0xF0000000 \
-				| BATL_PP_10 \
+				| BATL_PP_RW \
 				| BATL_MEMCOHERENCE \
 				| BATL_GUARDEDSTORAGE)
 #define CONFIG_SYS_IBAT6U	(0xF0000000 \
