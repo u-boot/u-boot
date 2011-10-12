@@ -212,7 +212,7 @@
  */
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xE6000000 /* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_SIZE		0x1000 /* Size of used area in RAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000 /* Size of used area in RAM */
 #define CONFIG_SYS_GBL_DATA_OFFSET	\
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
@@ -262,19 +262,19 @@
 /*
  * NAND Flash on the Local Bus
  */
-#define CONFIG_SYS_NAND_BASE		0xE0600000	/* 0xE0600000 */
-#define CONFIG_SYS_BR1_PRELIM	( CONFIG_SYS_NAND_BASE \
+#define CONFIG_SYS_NAND_BASE	0xE0600000		/* 0xE0600000 */
+#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_NAND_BASE \
 				| (2<<BR_DECC_SHIFT)	/* Use HW ECC */ \
-				| BR_PS_8		/* Port Size = 8 bit */ \
+				| BR_PS_8		/* 8 bit port */ \
 				| BR_MS_FCM		/* MSEL = FCM */ \
-				| BR_V )		/* valid */
-#define CONFIG_SYS_OR1_PRELIM	( 0xFFFF8000		/* length 32K */ \
+				| BR_V)			/* valid */
+#define CONFIG_SYS_OR1_PRELIM	(0xFFFF8000		/* length 32K */ \
 				| OR_FCM_CSCT \
 				| OR_FCM_CST \
 				| OR_FCM_CHT \
 				| OR_FCM_SCY_1 \
 				| OR_FCM_TRLX \
-				| OR_FCM_EHTR )
+				| OR_FCM_EHTR)
 				/* 0xFFFF8396 */
 
 #define CONFIG_SYS_LBLAWBAR1_PRELIM	CONFIG_SYS_NAND_BASE
@@ -323,7 +323,7 @@
 #define CONFIG_I2C_MULTI_BUS
 #define CONFIG_SYS_I2C_SPEED	400000 /* I2C speed and slave address */
 #define CONFIG_SYS_I2C_SLAVE	0x7F
-#define CONFIG_SYS_I2C_NOPROBES	{{0x51}} /* Don't probe these addrs */
+#define CONFIG_SYS_I2C_NOPROBES	{ {0, 0x51} } /* Don't probe these addrs */
 #define CONFIG_SYS_I2C_OFFSET	0x3000
 #define CONFIG_SYS_I2C2_OFFSET	0x3100
 
