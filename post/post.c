@@ -40,7 +40,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define BOOTMODE_MAGIC	0xDEAD0000
 
-int post_init_f (void)
+int post_init_f(void)
 {
 	int res = 0;
 	unsigned int i;
@@ -55,9 +55,7 @@ int post_init_f (void)
 
 	gd->post_init_f_time = post_time_ms(0);
 	if (!gd->post_init_f_time)
-	{
-		printf("post/post.c: post_time_ms seems not to be implemented\n");
-	}
+		printf("%s: post_time_ms not implemented\n", __FILE__);
 
 	return res;
 }
@@ -95,66 +93,61 @@ int post_hotkeys_pressed(void)
 	__attribute__((weak, alias("__post_hotkeys_pressed")));
 
 
-void post_bootmode_init (void)
+void post_bootmode_init(void)
 {
-	int bootmode = post_bootmode_get (0);
+	int bootmode = post_bootmode_get(0);
 	int newword;
 
-	if (post_hotkeys_pressed() && !(bootmode & POST_POWERTEST)) {
+	if (post_hotkeys_pressed() && !(bootmode & POST_POWERTEST))
 		newword = BOOTMODE_MAGIC | POST_SLOWTEST;
-	} else if (bootmode == 0) {
+	else if (bootmode == 0)
 		newword = BOOTMODE_MAGIC | POST_POWERON;
-	} else if (bootmode == POST_POWERON || bootmode == POST_SLOWTEST) {
+	else if (bootmode == POST_POWERON || bootmode == POST_SLOWTEST)
 		newword = BOOTMODE_MAGIC | POST_NORMAL;
-	} else {
+	else
 		/* Use old value */
 		newword = post_word_load () & ~POST_COLDBOOT;
-	}
 
 	if (bootmode == 0)
-	{
 		/* We are booting after power-on */
 		newword |= POST_COLDBOOT;
-	}
 
-	post_word_store (newword);
+	post_word_store(newword);
 
 	/* Reset activity record */
 	gd->post_log_word = 0;
 	gd->post_log_res = 0;
 }
 
-int post_bootmode_get (unsigned int *last_test)
+int post_bootmode_get(unsigned int *last_test)
 {
-	unsigned long word = post_word_load ();
+	unsigned long word = post_word_load();
 	int bootmode;
 
-	if ((word & 0xFFFF0000) != BOOTMODE_MAGIC) {
+	if ((word & 0xFFFF0000) != BOOTMODE_MAGIC)
 		return 0;
-	}
 
 	bootmode = word & 0x7F;
 
-	if (last_test && (bootmode & POST_POWERTEST)) {
+	if (last_test && (bootmode & POST_POWERTEST))
 		*last_test = (word >> 8) & 0xFF;
-	}
 
 	return bootmode;
 }
 
 /* POST tests run before relocation only mark status bits .... */
-static void post_log_mark_start ( unsigned long testid )
+static void post_log_mark_start(unsigned long testid)
 {
 	gd->post_log_word |= testid;
 }
 
-static void post_log_mark_succ ( unsigned long testid )
+static void post_log_mark_succ(unsigned long testid)
 {
 	gd->post_log_res |= testid;
 }
 
 /* ... and the messages are output once we are relocated */
-void post_output_backlog ( void )
+void post_output_backlog(void)
 {
 	int j;
 
@@ -164,31 +157,31 @@ void post_output_backlog ( void )
 			if (gd->post_log_res & post_list[j].testid)
 				post_log ("PASSED\n");
 			else {
-				post_log ("FAILED\n");
-				show_boot_progress (-31);
+				post_log("FAILED\n");
+				show_boot_progress(-31);
 			}
 		}
 	}
 }
 
-static void post_bootmode_test_on (unsigned int last_test)
+static void post_bootmode_test_on(unsigned int last_test)
 {
-	unsigned long word = post_word_load ();
+	unsigned long word = post_word_load();
 
 	word |= POST_POWERTEST;
 
 	word |= (last_test & 0xFF) << 8;
 
-	post_word_store (word);
+	post_word_store(word);
 }
 
-static void post_bootmode_test_off (void)
+static void post_bootmode_test_off(void)
 {
-	unsigned long word = post_word_load ();
+	unsigned long word = post_word_load();
 
 	word &= ~POST_POWERTEST;
 
-	post_word_store (word);
+	post_word_store(word);
 }
 
 #ifndef CONFIG_POST_SKIP_ENV_FLAGS
@@ -235,9 +228,8 @@ static void post_get_env_flags(int *test_flags)
 				}
 			}
 
-			if (j == post_list_size) {
+			if (j == post_list_size)
 				printf ("No such test: %s\n", name);
-			}
 
 			name = s + 1;
 		}
@@ -256,20 +248,18 @@ static void post_get_flags(int *test_flags)
 	post_get_env_flags(test_flags);
 #endif
 
-	for (j = 0; j < post_list_size; j++) {
-		if (test_flags[j] & POST_POWERON) {
+	for (j = 0; j < post_list_size; j++)
+		if (test_flags[j] & POST_POWERON)
 			test_flags[j] |= POST_SLOWTEST;
-		}
-	}
 }
 
-void __show_post_progress (unsigned int test_num, int before, int result)
+void __show_post_progress(unsigned int test_num, int before, int result)
 {
 }
-void show_post_progress (unsigned int, int, int)
+void show_post_progress(unsigned int, int, int)
 			__attribute__((weak, alias("__show_post_progress")));
 
-static int post_run_single (struct post_test *test,
+static int post_run_single(struct post_test *test,
 				int test_flags, int flags, unsigned int i)
 {
 	if ((flags & test_flags & POST_ALWAYS) &&
@@ -277,23 +267,24 @@ static int post_run_single (struct post_test *test,
 		WATCHDOG_RESET ();
 
 		if (!(flags & POST_REBOOT)) {
-			if ((test_flags & POST_REBOOT) && !(flags & POST_MANUAL)) {
-				post_bootmode_test_on (
+			if ((test_flags & POST_REBOOT) &&
+				!(flags & POST_MANUAL)) {
+				post_bootmode_test_on(
 					(gd->flags & GD_FLG_POSTFAIL) ?
 						POST_FAIL_SAVE | i : i);
 			}
 
 			if (test_flags & POST_PREREL)
-				post_log_mark_start ( test->testid );
+				post_log_mark_start(test->testid);
 			else
-				post_log ("POST %s ", test->cmd);
+				post_log("POST %s ", test->cmd);
 		}
 
 		show_post_progress(i, POST_BEFORE, POST_FAILED);
 
 		if (test_flags & POST_PREREL) {
 			if ((*test->test) (flags) == 0) {
-				post_log_mark_succ ( test->testid );
+				post_log_mark_succ(test->testid);
 				show_post_progress(i, POST_AFTER, POST_PASSED);
 			}
 			else {
@@ -319,7 +310,7 @@ static int post_run_single (struct post_test *test,
 		}
 
 		if ((test_flags & POST_REBOOT) && !(flags & POST_MANUAL)) {
-			post_bootmode_test_off ();
+			post_bootmode_test_off();
 		}
 
 		return 0;
@@ -333,7 +324,7 @@ int post_run (char *name, int flags)
 	unsigned int i;
 	int test_flags[POST_MAX_NUMBER];
 
-	post_get_flags (test_flags);
+	post_get_flags(test_flags);
 
 	if (name == NULL) {
 		unsigned int last;
@@ -341,7 +332,7 @@ int post_run (char *name, int flags)
 		if (gd->flags & GD_FLG_POSTSTOP)
 			return 0;
 
-		if (post_bootmode_get (&last) & POST_POWERTEST) {
+		if (post_bootmode_get(&last) & POST_POWERTEST) {
 			if (last & POST_FAIL_SAVE) {
 				last &= ~POST_FAIL_SAVE;
 				gd->flags |= GD_FLG_POSTFAIL;
@@ -350,14 +341,14 @@ int post_run (char *name, int flags)
 				(flags & test_flags[last] & POST_ALWAYS) &&
 				(flags & test_flags[last] & POST_MEM)) {
 
-				post_run_single (post_list + last,
+				post_run_single(post_list + last,
 						 test_flags[last],
 						 flags | POST_REBOOT, last);
 
 				for (i = last + 1; i < post_list_size; i++) {
 					if (gd->flags & GD_FLG_POSTSTOP)
 						break;
-					post_run_single (post_list + i,
+					post_run_single(post_list + i,
 							 test_flags[i],
 							 flags, i);
 				}
@@ -366,7 +357,7 @@ int post_run (char *name, int flags)
 			for (i = 0; i < post_list_size; i++) {
 				if (gd->flags & GD_FLG_POSTSTOP)
 					break;
-				post_run_single (post_list + i,
+				post_run_single(post_list + i,
 						 test_flags[i],
 						 flags, i);
 			}
@@ -381,7 +372,7 @@ int post_run (char *name, int flags)
 
 		if (i < post_list_size) {
 			WATCHDOG_RESET();
-			return post_run_single (post_list + i,
+			return post_run_single(post_list + i,
 						test_flags[i],
 						flags, i);
 		} else {
@@ -390,14 +381,14 @@ int post_run (char *name, int flags)
 	}
 }
 
-static int post_info_single (struct post_test *test, int full)
+static int post_info_single(struct post_test *test, int full)
 {
 	if (test->flags & POST_MANUAL) {
 		if (full)
-			printf ("%s - %s\n"
+			printf("%s - %s\n"
 				"  %s\n", test->cmd, test->name, test->desc);
 		else
-			printf ("  %-15s - %s\n", test->cmd, test->name);
+			printf("  %-15s - %s\n", test->cmd, test->name);
 
 		return 0;
 	} else {
@@ -410,9 +401,8 @@ int post_info (char *name)
 	unsigned int i;
 
 	if (name == NULL) {
-		for (i = 0; i < post_list_size; i++) {
-			post_info_single (post_list + i, 0);
-		}
+		for (i = 0; i < post_list_size; i++)
+			post_info_single(post_list + i, 0);
 
 		return 0;
 	} else {
@@ -422,14 +412,14 @@ int post_info (char *name)
 		}
 
 		if (i < post_list_size) {
-			return post_info_single (post_list + i, 1);
+			return post_info_single(post_list + i, 1);
 		} else {
 			return -1;
 		}
 	}
 }
 
-int post_log (char *format, ...)
+int post_log(char *format, ...)
 {
 	va_list args;
 	uint i;
@@ -445,17 +435,17 @@ int post_log (char *format, ...)
 
 #ifdef CONFIG_LOGBUFFER
 	/* Send to the logbuffer */
-	logbuff_log (printbuffer);
+	logbuff_log(printbuffer);
 #else
 	/* Send to the stdout file */
-	puts (printbuffer);
+	puts(printbuffer);
 #endif
 
 	return 0;
 }
 
 #ifdef CONFIG_NEEDS_MANUAL_RELOC
-void post_reloc (void)
+void post_reloc(void)
 {
 	unsigned int i;
 
@@ -468,17 +458,17 @@ void post_reloc (void)
 
 		if (test->name) {
 			addr = (ulong) (test->name) + gd->reloc_off;
-			test->name = (char *) addr;
+			test->name = (char *)addr;
 		}
 
 		if (test->cmd) {
 			addr = (ulong) (test->cmd) + gd->reloc_off;
-			test->cmd = (char *) addr;
+			test->cmd = (char *)addr;
 		}
 
 		if (test->desc) {
 			addr = (ulong) (test->desc) + gd->reloc_off;
-			test->desc = (char *) addr;
+			test->desc = (char *)addr;
 		}
 
 		if (test->test) {
@@ -508,10 +498,11 @@ void post_reloc (void)
  *
  * On PowerPC we implement it using the timebase register.
  */
-unsigned long post_time_ms (unsigned long base)
+unsigned long post_time_ms(unsigned long base)
 {
 #ifdef CONFIG_PPC
-	return (unsigned long)(get_ticks () / (get_tbclk () / CONFIG_SYS_HZ)) - base;
+	return (unsigned long)(get_ticks() / (get_tbclk() / CONFIG_SYS_HZ))
+		- base;
 #else
 #warning "Not implemented yet"
 	return 0; /* Not implemented yet */
