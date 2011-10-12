@@ -46,10 +46,19 @@ void board_add_ram_info(int use_default)
 	printf(" (DDR%d", ((ddr->sdram_cfg & SDRAM_CFG_SDRAM_TYPE_MASK)
 			   >> SDRAM_CFG_SDRAM_TYPE_SHIFT) - 1);
 
+#if defined(CONFIG_MPC8308) || defined(CONFIG_MPC831x)
+	if ((ddr->sdram_cfg & SDRAM_CFG_DBW_MASK) == SDRAM_CFG_DBW_16)
+		puts(", 16-bit");
+	else if ((ddr->sdram_cfg & SDRAM_CFG_DBW_MASK) == SDRAM_CFG_DBW_32)
+		puts(", 32-bit");
+	else
+		puts(", unknown width");
+#else
 	if (ddr->sdram_cfg & SDRAM_CFG_32_BE)
 		puts(", 32-bit");
 	else
 		puts(", 64-bit");
+#endif
 
 	if (ddr->sdram_cfg & SDRAM_CFG_ECC_EN)
 		puts(", ECC on");
