@@ -150,11 +150,12 @@ typedef struct ipic83xx {
 	u32 sipnr_h;		/* System Internal Interrupt Pending Register - High */
 	u32 sipnr_l;		/* System Internal Interrupt Pending Register - Low */
 	u32 siprr_a;		/* System Internal Interrupt Group A Priority Register */
-	u8 res0[8];
+	u32 siprr_b;		/* System Internal Interrupt Group B Priority Register */
+	u32 siprr_c;		/* System Internal Interrupt Group C Priority Register */
 	u32 siprr_d;		/* System Internal Interrupt Group D Priority Register */
 	u32 simsr_h;		/* System Internal Interrupt Mask Register - High */
 	u32 simsr_l;		/* System Internal Interrupt Mask Register - Low */
-	u8 res1[4];
+	u32 sicnr;		/* System Internal Interrupt Control Register */
 	u32 sepnr;		/* System External Interrupt Pending Register */
 	u32 smprr_a;		/* System Mixed Interrupt Group A Priority Register */
 	u32 smprr_b;		/* System Mixed Interrupt Group B Priority Register */
@@ -163,14 +164,14 @@ typedef struct ipic83xx {
 	u32 sersr;		/* System Error Status Register */
 	u32 sermr;		/* System Error Mask Register */
 	u32 sercr;		/* System Error Control Register */
-	u8 res2[4];
+	u32 sepcr;		/* System External Interrupt Polarity Control Register */
 	u32 sifcr_h;		/* System Internal Interrupt Force Register - High */
 	u32 sifcr_l;		/* System Internal Interrupt Force Register - Low */
 	u32 sefcr;		/* System External Interrupt Force Register */
 	u32 serfr;		/* System Error Force Register */
 	u32 scvcr;		/* System Critical Interrupt Vector Register */
 	u32 smvcr;		/* System Management Interrupt Vector Register */
-	u8 res3[0x98];
+	u8 res[0x98];
 } ipic83xx_t;
 
 /*
