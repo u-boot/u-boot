@@ -220,7 +220,7 @@
  */
 #define CONFIG_SYS_INIT_RAM_LOCK	1
 #define CONFIG_SYS_INIT_RAM_ADDR	0xE6000000 /* Initial RAM address */
-#define CONFIG_SYS_INIT_RAM_SIZE		0x1000 /* Size of used area in RAM */
+#define CONFIG_SYS_INIT_RAM_SIZE	0x1000 /* Size of used area in RAM */
 #define CONFIG_SYS_GBL_DATA_OFFSET	\
 	(CONFIG_SYS_INIT_RAM_SIZE - GENERATED_GBL_DATA_SIZE)
 
@@ -246,10 +246,9 @@
 #define CONFIG_SYS_LBLAWBAR0_PRELIM	CONFIG_SYS_FLASH_BASE
 #define CONFIG_SYS_LBLAWAR0_PRELIM	(LBLAWAR_EN | LBLAWAR_64MB)
 
-#define CONFIG_SYS_BR0_PRELIM	(\
-		CONFIG_SYS_FLASH_BASE	/* Flash Base address */	|\
-		(2 << BR_PS_SHIFT)	/* 16 bit port size */		|\
-		BR_V)			/* valid */
+#define CONFIG_SYS_BR0_PRELIM	(CONFIG_SYS_FLASH_BASE	/* Flash Base addr */ \
+				| (2 << BR_PS_SHIFT)	/* 16 bit port */ \
+				| BR_V)			/* valid */
 #define CONFIG_SYS_OR0_PRELIM	((~(CONFIG_SYS_FLASH_SIZE - 1) << 20) \
 				| OR_UPM_XAM \
 				| OR_GPCM_CSNT \
@@ -271,11 +270,11 @@
 /*
  * SJA1000 CAN controller on Local Bus
  */
-#define CONFIG_SYS_SJA1000_BASE		0xFBFF0000
-#define CONFIG_SYS_BR1_PRELIM	( CONFIG_SYS_SJA1000_BASE \
-				| (1 << BR_PS_SHIFT)	/* 8 bit port size */ \
-				| BR_V )		/* valid */
-#define CONFIG_SYS_OR1_PRELIM	( 0xFFFF8000		/* length 32K */ \
+#define CONFIG_SYS_SJA1000_BASE	0xFBFF0000
+#define CONFIG_SYS_BR1_PRELIM	(CONFIG_SYS_SJA1000_BASE \
+				| (1 << BR_PS_SHIFT)	/* 8 bit port */ \
+				| BR_V)			/* valid */
+#define CONFIG_SYS_OR1_PRELIM	(0xFFFF8000		/* length 32K */ \
 				| OR_GPCM_SCY_5 \
 				| OR_GPCM_EHTR)
 				/* 0xFFFF8052 */
@@ -286,11 +285,11 @@
 /*
  * CPLD on Local Bus
  */
-#define CONFIG_SYS_CPLD_BASE		0xFBFF8000
-#define CONFIG_SYS_BR2_PRELIM	( CONFIG_SYS_CPLD_BASE \
-				| (1 << BR_PS_SHIFT)	/* 8 bit port size */ \
-				| BR_V )		/* valid */
-#define CONFIG_SYS_OR2_PRELIM	( 0xFFFF8000		/* length 32K */ \
+#define CONFIG_SYS_CPLD_BASE	0xFBFF8000
+#define CONFIG_SYS_BR2_PRELIM	(CONFIG_SYS_CPLD_BASE \
+				| (1 << BR_PS_SHIFT)	/* 8 bit port */ \
+				| BR_V)			/* valid */
+#define CONFIG_SYS_OR2_PRELIM	(0xFFFF8000		/* length 32K */ \
 				| OR_GPCM_SCY_4 \
 				| OR_GPCM_EHTR)
 				/* 0xFFFF8042 */
