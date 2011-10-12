@@ -292,6 +292,7 @@ typedef volatile unsigned int *	dv_reg_p;
 #endif /* CONFIG_SOC_DA8XX */
 
 void lpsc_on(unsigned int id);
+void lpsc_syncreset(unsigned int id);
 void dsp_on(void);
 
 void davinci_enable_uart0(void);
@@ -358,6 +359,7 @@ struct davinci_psc_regs {
 #endif /* CONFIG_SOC_DA8XX */
 
 #define PSC_MDSTAT_STATE		0x3f
+#define PSC_MDCTL_NEXT			0x07
 
 #ifndef CONFIG_SOC_DA8XX
 
