@@ -35,6 +35,9 @@
 
 #include <configs/omap4_common.h>
 
+/* GPIO */
+#define CONFIG_CMD_GPIO
+
 /* ENV related config options */
 #define CONFIG_ENV_IS_NOWHERE
 
