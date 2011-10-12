@@ -31,6 +31,7 @@
 #include <watchdog.h>
 #include <stdio_dev.h>
 #include <net.h>
+#include <asm/processor.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -68,6 +69,7 @@ typedef int (init_fnc_t) (void);
 init_fnc_t *init_sequence[] = {
 	env_init,
 	serial_init,
+	console_init_f,
 #ifdef CONFIG_SYS_GPIO_0
 	gpio_init,
 #endif
@@ -82,6 +84,8 @@ init_fnc_t *init_sequence[] = {
 #endif
 	NULL,
 };
+
+unsigned long monitor_flash_len;
 
 void board_init (void)
 {
@@ -103,6 +107,8 @@ void board_init (void)
 	bd->bi_memstart = CONFIG_SYS_SDRAM_BASE;
 	bd->bi_memsize = CONFIG_SYS_SDRAM_SIZE;
 	gd->flags |= GD_FLG_RELOC;      /* tell others: relocation done */
+
+	monitor_flash_len = __end - __text_start;
 
 	/*
 	 * The Malloc area is immediately below the monitor copy in DRAM
@@ -160,6 +166,12 @@ void board_init (void)
 	/* Initialize stdio devices */
 	stdio_init ();
 
+	/* Initialize the jump table for applications */
+	jumptable_init();
+
+	/* Initialize the console (after the relocation and devices init) */
+	console_init_r();
+
 	if ((s = getenv ("loadaddr")) != NULL) {
 		load_addr = simple_strtoul (s, NULL, 16);
 	}
@@ -174,6 +186,10 @@ void board_init (void)
 	uchar enetaddr[6];
 	eth_getenv_enetaddr("ethaddr", enetaddr);
 	printf("MAC:   %pM\n", enetaddr);
+
+	s = getenv("bootfile");
+	if (s != NULL)
+		copy_filename(BootFile, s, sizeof(BootFile));
 #endif
 
 	/* main_loop */
