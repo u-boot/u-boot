@@ -2477,10 +2477,29 @@ static void nand_set_defaults(struct nand_chip *chip, int busw)
 }
 
 #ifdef CONFIG_SYS_NAND_ONFI_DETECTION
+/*
+ * sanitize ONFI strings so we can safely print them
+ */
+static void sanitize_string(char *s, size_t len)
+{
+	ssize_t i;
+
+	/* null terminate */
+	s[len - 1] = 0;
+
+	/* remove non printable chars */
+	for (i = 0; i < len - 1; i++) {
+		if (s[i] < ' ' || s[i] > 127)
+			s[i] = '?';
+	}
+
+	/* remove trailing spaces */
+	strim(s);
+}
+
 static u16 onfi_crc16(u16 crc, u8 const *p, size_t len)
 {
 	int i;
-
 	while (len--) {
 		crc ^= *p++ << 8;
 		for (i = 0; i < 8; i++)
@@ -2541,6 +2560,8 @@ static int nand_flash_detect_onfi(struct mtd_info *mtd, struct nand_chip *chip,
 		return 0;
 	}
 
+	sanitize_string(p->manufacturer, sizeof(p->manufacturer));
+	sanitize_string(p->model, sizeof(p->model));
 	if (!mtd->name)
 		mtd->name = p->model;
 	mtd->writesize = le32_to_cpu(p->byte_per_page);
