@@ -108,7 +108,7 @@
 		"bootm ${kernel_addr}\0"				\
 	"flash_self=run ramargs addip;"					\
 		"bootm ${kernel_addr} ${ramdisk_addr}\0"		\
-	"getkernel=tftpboot \$\(scratch\)\ \$\(bootfile\)\0" \
+	"getkernel=tftpboot $(scratch) $(bootfile)\0" \
 	"bootargs=console=ttyS0,38400 root=/dev/nfs rw nfsroot=192.168.0.20:/export/rootfs ip=192.168.0.206:192.168.0.20:192.168.0.1:255.255.255.0:ax2000:eth0\0"
 
 #if CONFIG_LEON_RAM_SELECT == CONFIG_LEON_RAM_SRAM
