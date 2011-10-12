@@ -53,7 +53,7 @@
 /*
  * Size of malloc() pool
  */
-#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 128 * 1024)
+#define CONFIG_SYS_MALLOC_LEN		(CONFIG_ENV_SIZE + 512 * 1024)
 
 /*
  * Hardware drivers
@@ -104,7 +104,8 @@
 	"mtdparts=" MTDPARTS_DEFAULT "\0"										\
 	"prg_uboot=tftpboot 0x80000000 $(uboot); protect off 0xa0000000 +0x20000; erase 0xa0000000 +0x20000; cp.b 0x80000000 0xa0000000 $(filesize)\0" \
 	"prg_kernel=tftpboot 0x80000000 $(uimage); erase 0xa0040000 +0x180000; cp.b 0x80000000 0xa0040000 $(filesize)\0"	\
-	"prg_jffs2=tftpboot 0x80000000 $(jffs2); erase 0xa01c0000 0xa1ffffff; cp.b 0x80000000 0xa01c0000 $(filesize)\0"
+	"prg_jffs2=tftpboot 0x80000000 $(jffs2); erase 0xa01c0000 0xa1ffffff; cp.b 0x80000000 0xa01c0000 $(filesize)\0"	\
+	"videomode=video=ctfb:x:240,y:320,depth:16,mode:0,pclk:185925,le:9,ri:17,up:7,lo:10,hs:1,vs:1,sync:1241513985,vmode:0\0"
 
 
 #define CONFIG_SMC911X		1
@@ -201,15 +202,16 @@
 
 #define CONFIG_S6E63D6				1
 
-#define CONFIG_LCD				1
-#define CONFIG_VIDEO_MX3			1
-#define CONFIG_SYS_WHITE_ON_BLACK		1
-#define LCD_BPP					LCD_COLOR8
-#define	CONFIG_SYS_CONSOLE_OVERWRITE_ROUTINE	1
-#define CONFIG_SYS_CONSOLE_IS_IN_ENV		1
-
-#define	CONFIG_SPLASH_SCREEN			1
-#define CONFIG_CMD_BMP				1
+#define CONFIG_VIDEO
+#define CONFIG_CFB_CONSOLE
+#define CONFIG_VIDEO_MX3
+#define CONFIG_VIDEO_LOGO
+#define CONFIG_VIDEO_SW_CURSOR
+#define CONFIG_VGA_AS_SINGLE_DEVICE
+#define CONFIG_SYS_CONSOLE_IS_IN_ENV
+#define CONFIG_SPLASH_SCREEN
+#define CONFIG_CMD_BMP
+#define CONFIG_BMP_16BPP
 #endif
 
 #endif /* __CONFIG_H */
