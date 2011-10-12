@@ -3028,6 +3028,10 @@ int nand_scan_tail(struct mtd_info *mtd)
 		chip->ecc.mode = NAND_ECC_SOFT;
 
 	case NAND_ECC_SOFT:
+		if (!mtd_nand_has_ecc_soft()) {
+			printk(KERN_WARNING "CONFIG_MTD_ECC_SOFT not enabled\n");
+			return -EINVAL;
+		}
 		chip->ecc.calculate = nand_calculate_ecc;
 		chip->ecc.correct = nand_correct_data;
 		chip->ecc.read_page = nand_read_page_swecc;
