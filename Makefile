@@ -861,6 +861,7 @@ clean:
 	@rm -f $(ONENAND_BIN)
 	@rm -f $(obj)onenand_ipl/u-boot.lds
 	@rm -f $(obj)spl/{u-boot-spl,u-boot-spl.bin,u-boot-spl.lds,u-boot-spl.map}
+	@rm -f $(obj)MLO
 	@rm -f $(TIMESTAMP_FILE) $(VERSION_FILE)
 	@find $(OBJTREE) -type f \
 		\( -name 'core' -o -name '*.bak' -o -name '*~' \
