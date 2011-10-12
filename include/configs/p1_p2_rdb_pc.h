@@ -630,22 +630,6 @@
 #endif
 #define CONFIG_SYS_PCIE1_IO_SIZE	0x00010000	/* 64k */
 
-
-/*PCIE video card used*/
-#define VIDEO_IO_OFFSET		CONFIG_SYS_PCIE2_IO_VIRT
-
-/* video */
-#define CONFIG_VIDEO
-#ifdef CONFIG_VIDEO
-#define CONFIG_BIOSEMU
-#define CONFIG_CFB_CONSOLE
-#define CONFIG_VIDEO_SW_CURSOR
-#define CONFIG_VGA_AS_SINGLE_DEVICE
-#define CONFIG_ATI_RADEON_FB
-#define CONFIG_VIDEO_LOGO
-#define CONFIG_SYS_ISA_IO_BASE_ADDRESS	VIDEO_IO_OFFSET
-#endif
-
 #define CONFIG_NET_MULTI
 #define CONFIG_PCI_PNP	/* do pci plug-and-play */
 #define CONFIG_E1000	/* Defind e1000 pci Ethernet card*/
